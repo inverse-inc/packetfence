@@ -31,8 +31,6 @@ configure_and_check() {
     VAGRANT_DOTFILE_PATH="${VAGRANT_DOTFILE_PATH:-${VAGRANT_DIR}/.vagrant}"
     VAGRANT_UP_OPTS=${VAGRANT_UP_OPTS:-'--destroy-on-error --no-parallel'}
     CI_COMMIT_TAG=${CI_COMMIT_TAG:-}
-    # set to yes when testing new features on collections
-    LOCAL_COLLECTIONS=${LOCAL_COLLECTIONS:-no}    
     PF_VM_NAME=${PF_VM_NAME:-}
     INT_TEST_VM_NAMES=${INT_TEST_VM_NAMES:-}
 
@@ -54,17 +52,7 @@ configure_and_check() {
     
     declare -p VAGRANT_DIR VAGRANT_ANSIBLE_VERBOSE VAGRANT_DOTFILE_PATH
     declare -p CI_COMMIT_TAG
-    declare -p LOCAL_COLLECTIONS
     declare -p PF_VM_NAME INT_TEST_VM_NAMES
-}
-
-install_ansible_files() {
-    log_subsection "Install Ansible collections"
-    if [ "$LOCAL_COLLECTIONS" = "no" ]; then
-        ansible-galaxy collection install -r ${VAGRANT_DIR}/requirements.yml -p ${VAGRANT_DIR}/collections
-    else
-        echo "Using local collections"
-    fi
 }
 
 start_and_provision() {
@@ -86,7 +74,7 @@ teardown() {
 delete_ansible_files() {
     log_subsection "Remove Ansible files"
     delete_dir_if_exists ${VAGRANT_DIR}/roles
-    delete_dir_if_exists ${VAGRANT_DIR}/collections
+    delete_dir_if_exists ${VAGRANT_DIR}/ansible_collections
 }
 
 halt() {
@@ -131,7 +119,6 @@ run() {
     declare -p PERL_UNIT_TESTS GOLANG_UNIT_TESTS
     declare -p INTEGRATION_TESTS    
     if [ "$RUN_TESTS" = "yes" ]; then
-        install_ansible_files
         start_and_provision ${PF_VM_NAME}
         if [ "$PERL_UNIT_TESTS" = "yes" ] || [ "$GOLANG_UNIT_TESTS" = "yes" ]; then
             run_shell_provisioner ${PF_VM_NAME} run-unit-tests

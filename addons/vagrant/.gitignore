@@ -8,4 +8,4 @@
 ### Ansible provisionner
 # dir created by vagrant during provisioning
 roles/
-collections/
+ansible_collections/
