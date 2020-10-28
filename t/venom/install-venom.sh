@@ -20,7 +20,7 @@ if [ "$username" != "$ROOTUSER_NAME" ]; then
   exit 1
 fi
 ## Is curl Installed
-if [ ! type curl 2> /dev/null ] ; then
+if ! type curl 2> /dev/null ; then
   echo "Install curl before running this script"
   exit 1
 fi
