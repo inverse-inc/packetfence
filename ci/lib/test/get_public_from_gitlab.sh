@@ -5,7 +5,7 @@ REPO_URL=https://gitlab.com/inverse-inc/packetfence/-/jobs/artifacts/devel/downl
 ZIP_FILE="/tmp/public.zip"
 DIR=$(pwd | grep -oP '.*?(?=ci/lib/test)')
 
-if [ ! type curl 2> /dev/null ] ; then
+if ! type curl 2> /dev/null ; then
   echo "Install curl before running this script"
   exit 1 
 fi
