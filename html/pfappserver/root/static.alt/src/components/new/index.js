@@ -3,6 +3,7 @@ import BaseButtonDelete from './BaseButtonDelete'
 import BaseForm from './BaseForm'
 import BaseFormButtonBar from './BaseFormButtonBar'
 import BaseFormGroup from './BaseFormGroup'
+import BaseFormGroupArray, { props as BaseFormGroupArrayProps } from './BaseFormGroupArray'
 import BaseFormGroupArrayDraggable, { props as BaseFormGroupArrayDraggableProps } from './BaseFormGroupArrayDraggable'
 import BaseFormGroupChosenMultiple from './BaseFormGroupChosenMultiple'
 import BaseFormGroupChosenOne from './BaseFormGroupChosenOne'
@@ -14,6 +15,7 @@ import BaseFormGroupTextarea from './BaseFormGroupTextarea'
 import BaseFormGroupToggle, { props as BaseFormGroupToggleProps } from './BaseFormGroupToggle'
 import BaseFormGroupToggleDisabledEnabled from './BaseFormGroupToggleDisabledEnabled'
 import BaseFormGroupToggleNoYes from './BaseFormGroupToggleNoYes'
+import BaseFormGroupToggleNY from './BaseFormGroupToggleNY'
 import BaseFormGroupToggleOffOn from './BaseFormGroupToggleOffOn'
 import BaseFormTab from './BaseFormTab'
 import BaseInput from './BaseInput'
@@ -24,7 +26,7 @@ import BaseInputGroupMultiplier from './BaseInputGroupMultiplier'
 import BaseInputNumber from './BaseInputNumber'
 import BaseInputPassword from './BaseInputPassword'
 import BaseInputRange from './BaseInputRange'
-import BaseInputToggle from './BaseInputToggle'
+import BaseInputToggle, { props as BaseInputToggleProps } from './BaseInputToggle'
 import BaseInputToggleAdvancedMode from './BaseInputToggleAdvancedMode'
 import BaseView from './BaseView'
 
@@ -41,6 +43,7 @@ export {
 
   // form group
   BaseFormGroup,
+  BaseFormGroupArray, BaseFormGroupArrayProps,
   BaseFormGroupArrayDraggable, BaseFormGroupArrayDraggableProps,
   BaseFormGroupChosenMultiple,
   BaseFormGroupChosenOne,
@@ -52,6 +55,7 @@ export {
   BaseFormGroupToggle, BaseFormGroupToggleProps,
   BaseFormGroupToggleDisabledEnabled,
   BaseFormGroupToggleNoYes,
+  BaseFormGroupToggleNY,
   BaseFormGroupToggleOffOn,
 
   // form inputs
@@ -62,7 +66,7 @@ export {
   BaseInputNumber,
   BaseInputPassword,
   BaseInputRange,
-  BaseInputToggle,
+  BaseInputToggle, BaseInputToggleProps,
   BaseInputToggleAdvancedMode,
 
   // bootstrap wrappers

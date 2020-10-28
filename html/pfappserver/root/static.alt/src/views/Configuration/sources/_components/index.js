@@ -10,11 +10,13 @@ import {
   BaseFormGroupToggleDisabledEnabled,
   BaseFormGroupToggleNoYes
 } from '@/components/new/'
+import {
+  BaseFormGroupIntervalUnit
+} from '@/views/Configuration/_components/new/'
 import BaseFormGroupActiveDirectoryPasswordTest from './BaseFormGroupActiveDirectoryPasswordTest'
 import BaseFormGroupAdministrationRules from './BaseFormGroupAdministrationRules'
 import BaseFormGroupAuthenticationRules from './BaseFormGroupAuthenticationRules'
 import BaseFormGroupHostPortEncryption from './BaseFormGroupHostPortEncryption'
-import BaseFormGroupIntervalUnit from './BaseFormGroupIntervalUnit'
 import BaseFormGroupPersonMappings from './BaseFormGroupPersonMappings'
 import BaseFormGroupProtocolHostPort from './BaseFormGroupProtocolHostPort'
 import BaseFormGroupServerAddressPort from './BaseFormGroupServerAddressPort'

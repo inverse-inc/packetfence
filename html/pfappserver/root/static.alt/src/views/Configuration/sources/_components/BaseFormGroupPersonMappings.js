@@ -9,8 +9,8 @@ export const props = {
     type: String,
     default: i18n.t('Add Mapping')
   },
-  // overload :draggableComponent
-  draggableComponent: {
+  // overload :component
+  component: {
     type: Object,
     default: () => BasePersonMapping
   },

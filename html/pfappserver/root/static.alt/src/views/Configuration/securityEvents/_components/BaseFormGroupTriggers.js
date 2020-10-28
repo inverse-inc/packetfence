@@ -1,28 +1,34 @@
-import { BaseFormGroupArrayDraggable, BaseFormGroupArrayDraggableProps } from '@/components/new'
-import BaseRuleAction from './BaseRuleAction'
+import { BaseFormGroupArray, BaseFormGroupArrayProps } from '@/components/new'
+import BaseTrigger from './BaseTrigger'
 import i18n from '@/utils/locale'
 
 export const props = {
-  ...BaseFormGroupArrayDraggableProps,
+  ...BaseFormGroupArrayProps,
 
   buttonLabel: {
     type: String,
-    default: i18n.t('Add Action')
+    default: i18n.t('Add Trigger')
   },
   // overload :component
   component: {
     type: Object,
-    default: () => BaseRuleAction
+    default: () => BaseTrigger
   },
   // overload :defaultItem
   defaultItem: {
     type: Object,
     default: () => ({
-      type: null,
-      value: null
+      endpoint: {
+        conditions: []
+      },
+      profiling: {
+        conditions: []
+      },
+      usage: {},
+      event: {}
     })
   },
-  // overload draggable handlers
+  // overload handlers
   onAdd: {
     type: Function,
     default: (context, index, newComponent) => {
@@ -43,7 +49,7 @@ export const props = {
 }
 
 export default {
-  name: 'base-rule-form-group-actions',
-  extends: BaseFormGroupArrayDraggable,
+  name: 'base-form-group-triggers',
+  extends: BaseFormGroupArray,
   props
 }

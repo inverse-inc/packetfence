@@ -8,7 +8,7 @@ export const useInputValueToggleProps = {
     type: Array,
     default: () => ([
       { value: 0 },
-      { value: 1 }
+      { value: 1, color: 'var(--primary)' }
     ])
   },
   hints: {

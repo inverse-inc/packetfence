@@ -8,8 +8,8 @@ export const props = {
   options: {
     type: Array,
     default: () => ([
-      { value: 'no', label: i18n.t('No') },
-      { value: 'yes', label: i18n.t('Yes'), color: 'var(--primary)' }
+      { value: 'N', label: i18n.t('No') },
+      { value: 'Y', label: i18n.t('Yes'), color: 'var(--primary)' }
     ])
   },
   labelRight: {
@@ -19,7 +19,7 @@ export const props = {
 }
 
 export default {
-  name: 'base-form-group-toggle-no-yes',
+  name: 'base-form-group-toggle-n-y',
   extends: BaseFormGroupToggle,
   props
 }

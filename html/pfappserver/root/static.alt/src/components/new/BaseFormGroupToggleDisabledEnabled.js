@@ -9,7 +9,7 @@ export const props = {
     type: Array,
     default: () => ([
       { value: 'disabled', label: i18n.t('Disabled') },
-      { value: 'enabled', label: i18n.t('Enabled') }
+      { value: 'enabled', label: i18n.t('Enabled'), color: 'var(--primary)' }
     ])
   },
   labelRight: {

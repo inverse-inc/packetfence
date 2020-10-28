@@ -9,7 +9,7 @@ export const props = {
     type: Array,
     default: () => ([
       { value: 'off', label: i18n.t('Off') },
-      { value: 'on', label: i18n.t('On') }
+      { value: 'on', label: i18n.t('On'), color: 'var(--primary)' }
     ])
   },
   labelRight: {

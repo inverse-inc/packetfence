@@ -53,7 +53,7 @@ const AuthenticationSourceView = () => import(/* webpackChunkName: "Configuratio
 const NetworkDevicesTabs = () => import(/* webpackChunkName: "Configuration" */ '../_components/NetworkDevicesTabs')
 const SwitchesImport = () => import(/* webpackChunkName: "Editor" */ '../_components/SwitchesImport')
 const SwitchView = () => import(/* webpackChunkName: "Configuration" */ '../switches/_components/TheView')
-const SwitchGroupView = () => import(/* webpackChunkName: "Configuration" */ '../_components/SwitchGroupView')
+const SwitchGroupView = () => import(/* webpackChunkName: "Configuration" */ '../switchGroups/_components/TheView')
 const ConnectionProfilesList = () => import(/* webpackChunkName: "Configuration" */ '../_components/ConnectionProfilesList')
 const ConnectionProfileView = () => import(/* webpackChunkName: "Configuration" */ '../_components/ConnectionProfileView')
 const ConnectionProfileFileView = () => import(/* webpackChunkName: "Editor" */ '../_components/ConnectionProfileFileView')
@@ -74,7 +74,7 @@ const FingerbankUserAgentView = () => import(/* webpackChunkName: "Configuration
 const ScansTabs = () => import(/* webpackChunkName: "Configuration" */ '../_components/ScansTabs')
 const ScanEngineView = () => import(/* webpackChunkName: "Configuration" */ '../_components/ScanEngineView')
 const SecurityEventsList = () => import(/* webpackChunkName: "Configuration" */ '../_components/SecurityEventsList')
-const SecurityEventView = () => import(/* webpackChunkName: "Configuration" */ '../_components/SecurityEventView')
+const SecurityEventView = () => import(/* webpackChunkName: "Configuration" */ '../securityEvents/_components/TheView')
 const WmiRuleView = () => import(/* webpackChunkName: "Configuration" */ '../_components/WmiRuleView')
 
 /* Integration */
@@ -465,23 +465,14 @@ const route = {
       path: 'switch_groups/new',
       name: 'newSwitchGroup',
       component: SwitchGroupView,
-      props: () => ({ formStoreName: 'formSwitchGroup', isNew: true }),
-      beforeEnter: (to, from, next) => {
-        if (!store.state.formSwitchGroup) { // Register store module only once
-          store.registerModule('formSwitchGroup', FormStore)
-        }
-        next()
-      }
+      props: () => ({ isNew: true })
     },
     {
       path: 'switch_group/:id',
       name: 'switch_group',
       component: SwitchGroupView,
-      props: (route) => ({ formStoreName: 'formSwitchGroup', id: route.params.id }),
+      props: (route) => ({ id: route.params.id }),
       beforeEnter: (to, from, next) => {
-        if (!store.state.formSwitchGroup) { // Register store module only once
-          store.registerModule('formSwitchGroup', FormStore)
-        }
         store.dispatch('$_switch_groups/getSwitchGroup', to.params.id).then(() => {
           next()
         })
@@ -491,11 +482,8 @@ const route = {
       path: 'switch_group/:id/clone',
       name: 'cloneSwitchGroup',
       component: SwitchGroupView,
-      props: (route) => ({ formStoreName: 'formSwitchGroup', id: route.params.id, isClone: true }),
+      props: (route) => ({ id: route.params.id, isClone: true }),
       beforeEnter: (to, from, next) => {
-        if (!store.state.formSwitchGroup) { // Register store module only once
-          store.registerModule('formSwitchGroup', FormStore)
-        }
         store.dispatch('$_switch_groups/getSwitchGroup', to.params.id).then(() => {
           next()
         })
@@ -1134,23 +1122,14 @@ const route = {
       path: 'security_events/new',
       name: 'newSecurityEvent',
       component: SecurityEventView,
-      props: () => ({ formStoreName: 'formSecurityEvent', isNew: true }),
-      beforeEnter: (to, from, next) => {
-        if (!store.state.formSecurityEvent) { // Register store module only once
-          store.registerModule('formSecurityEvent', FormStore)
-        }
-        next()
-      }
+      props: () => ({ isNew: true })
     },
     {
       path: 'security_event/:id',
       name: 'security_event',
       component: SecurityEventView,
-      props: (route) => ({ formStoreName: 'formSecurityEvent', id: route.params.id }),
+      props: (route) => ({ id: route.params.id }),
       beforeEnter: (to, from, next) => {
-        if (!store.state.formSecurityEvent) { // Register store module only once
-          store.registerModule('formSecurityEvent', FormStore)
-        }
         store.dispatch('$_security_events/getSecurityEvent', to.params.id).then(() => {
           next()
         })
@@ -1160,11 +1139,8 @@ const route = {
       path: 'security_event/:id/clone',
       name: 'cloneSecurityEvent',
       component: SecurityEventView,
-      props: (route) => ({ formStoreName: 'formSecurityEvent', id: route.params.id, isClone: true }),
+      props: (route) => ({ id: route.params.id, isClone: true }),
       beforeEnter: (to, from, next) => {
-        if (!store.state.formSecurityEvent) { // Register store module only once
-          store.registerModule('formSecurityEvent', FormStore)
-        }
         store.dispatch('$_security_events/getSecurityEvent', to.params.id).then(() => {
           next()
         })
