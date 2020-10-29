@@ -29,7 +29,7 @@ configure_and_check() {
     VAGRANT_ANSIBLE_VERBOSE=${VAGRANT_ANSIBLE_VERBOSE:-false}
     VAGRANT_DIR=${VAGRANT_DIR:-'../../../addons/vagrant'}
     VAGRANT_DOTFILE_PATH="${VAGRANT_DOTFILE_PATH:-${VAGRANT_DIR}/.vagrant}"
-    VAGRANT_UP_OPTS=${VAGRANT_UP_OPTS:-'--destroy-on-error --no-parallel'}
+    VAGRANT_UP_OPTS=${VAGRANT_UP_OPTS:-'--no-destroy-on-error --no-parallel'}
     CI_COMMIT_TAG=${CI_COMMIT_TAG:-}
     PF_VM_NAME=${PF_VM_NAME:-}
     INT_TEST_VM_NAMES=${INT_TEST_VM_NAMES:-}
