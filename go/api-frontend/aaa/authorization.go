@@ -21,8 +21,9 @@ var configApiPrefix = apiPrefix + "/config"
 var configNamespaceRe = regexp.MustCompile("^" + regexp.QuoteMeta(configApiPrefix))
 
 type adminRoleMapping struct {
-	prefix string
-	role   string
+	prefix     string
+	role       string
+	roleSuffix string
 }
 
 var multipleTenants = false
@@ -91,6 +92,7 @@ var pathAdminRolesMap = []adminRoleMapping{
 	adminRoleMapping{prefix: apiPrefix + "/ip6logs", role: "NODES"},
 	adminRoleMapping{prefix: apiPrefix + "/locationlog/", role: "NODES"},
 	adminRoleMapping{prefix: apiPrefix + "/locationlogs", role: "NODES"},
+	adminRoleMapping{prefix: apiPrefix + "/nodes/network_graph", role: "NODES", roleSuffix: "_READ"},
 	adminRoleMapping{prefix: apiPrefix + "/node/", role: "NODES"},
 	adminRoleMapping{prefix: apiPrefix + "/nodes", role: "NODES"},
 	adminRoleMapping{prefix: apiPrefix + "/node_categories", role: "NODES"},
@@ -314,11 +316,13 @@ func (tam *TokenAuthorizationMiddleware) isAuthorizedTenantId(ctx context.Contex
 func (tam *TokenAuthorizationMiddleware) isAuthorizedAdminActions(ctx context.Context, method, path string, roles map[string]bool) (bool, error) {
 
 	var baseAdminRole string
+	var suffix string
 	for _, o := range pathAdminRolesMap {
 		base := o.prefix
 		role := o.role
 		if strings.HasPrefix(path, base) && role != "" {
 			baseAdminRole = role
+			suffix = o.roleSuffix
 			break
 		}
 	}
@@ -329,12 +333,15 @@ func (tam *TokenAuthorizationMiddleware) isAuthorizedAdminActions(ctx context.Co
 		baseAdminRole = "SYSTEM"
 	}
 
-	suffix := methodSuffixMap[method]
-
+	// Take suffix from the methodSuffixMap unless it was defined above
 	if suffix == "" {
-		msg := fmt.Sprintf("Impossible to find admin role suffix for unknown method %s", method)
-		log.LoggerWContext(ctx).Warn(msg)
-		return false, errors.New(msg)
+		suffix = methodSuffixMap[method]
+
+		if suffix == "" {
+			msg := fmt.Sprintf("Impossible to find admin role suffix for unknown method %s", method)
+			log.LoggerWContext(ctx).Warn(msg)
+			return false, errors.New(msg)
+		}
 	}
 
 	// Rewrite suffix for search
