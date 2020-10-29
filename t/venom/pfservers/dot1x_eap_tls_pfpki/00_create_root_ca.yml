@@ -9,7 +9,7 @@ testcases:
     ignore_verify_ssl: true
     body: >-
       {
-        "cn": "InverseCA",
+        "cn": "{{.dot1x_eap_tls_pfpki.certs.ca.cn}}",
         "mail": "pki@inverse.ca",
         "organisation": "Inverse",
         "country": "CA",
