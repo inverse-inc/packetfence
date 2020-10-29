@@ -30,6 +30,16 @@ const acl = new Acl()
 acl.$can = (verb, action) => {
   return acl.can(aclContext, verb, action)
 }
+acl.$some = (verb, actions) => {
+  return actions.reduce((can, action) => {
+    return can || acl.$can(verb, action)
+  }, false)
+}
+acl.$every = (verb, actions) => {
+  return actions.reduce((can, action) => {
+    return can && acl.$can(verb, action)
+  }, true)
+}
 
 export const setupAcl = () => {
   for (const role of aclContext()) {
