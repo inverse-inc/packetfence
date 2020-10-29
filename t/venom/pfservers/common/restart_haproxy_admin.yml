@@ -1,14 +1,12 @@
 name: Restart haproxy-admin service
 version: 2
 testcases:
-- name: restart_haproxy-admin_service
+# service restarted by hand because using API cause Venom failure (EOF)
+- name: restart_haproxy_admin_service
   steps:
-  - type: http
-    method: POST
-    url: '{{.pfserver_webadmin_url}}/api/v1/service/haproxy-admin/restart'
-    ignore_verify_ssl: true
-    headers:
-      "Authorization": "{{.pfserver_token}}"
-      "Content-Type": "application/json"
-    assertions:
-      - result.statuscode ShouldEqual 200
+  - type: exec
+    script: systemctl restart packetfence-haproxy-admin
+
+    # let service restarts
+  - type: exec
+    script: sleep 5
