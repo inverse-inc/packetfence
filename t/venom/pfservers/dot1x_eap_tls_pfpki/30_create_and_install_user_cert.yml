@@ -39,14 +39,27 @@ testcases:
 - name: download_p12_file
   steps:
   - type: exec
-    script: "curl -k --output {{.create_temp_directory.temp_dir}}/{{.dot1x_eap_tls_pfpki.certs.user.cn}}.p12 http://127.0.0.1:22225/api/v1/pki/cert/{{.create_user_cert.serial_number}}/download/secret"
+    script: |
+      "curl -k --output {{.create_temp_directory.temp_dir}}/{{.dot1x_eap_tls_pfpki.certs.user.cn}}.p12 \
+      http://127.0.0.1:22225/api/v1/pki/cert/{{.create_user_cert.serial_number}}/download/secret"
 
-- name: extract_certificates
+- name: extract_ca_certificate
   steps:
   - type: exec
-    script: "openssl pkcs12 -in {{.create_temp_directory.temp_dir}}/{{.dot1x_eap_tls_pfpki.certs.user.cn}}.p12 -nokeys -out {{.create_temp_directory.temp_dir}}/{{.dot1x_eap_tls_pfpki.certs.user.cn}}.crt -passin pass:secret"
+    script: |
+      "openssl pkcs12 -in {{.create_temp_directory.temp_dir}}/{{.dot1x_eap_tls_pfpki.certs.user.cn}}.p12 -cacerts -nokeys \
+      -out {{.create_temp_directory.temp_dir}}/{{.dot1x_eap_tls_pfpki.certs.ca.cn}}.crt -passin pass:secret"
+
+- name: extract_client_certificate
+  steps:
+  - type: exec
+    script: |
+      "openssl pkcs12 -in {{.create_temp_directory.temp_dir}}/{{.dot1x_eap_tls_pfpki.certs.user.cn}}.p12 -clcerts -nokeys \
+      -out {{.create_temp_directory.temp_dir}}/{{.dot1x_eap_tls_pfpki.certs.user.cn}}.crt -passin pass:secret"
 
 - name: extract_private_key
   steps:
   - type: exec
-    script: "openssl pkcs12 -in {{.create_temp_directory.temp_dir}}/{{.dot1x_eap_tls_pfpki.certs.user.cn}}.p12 -nocerts -nodes -out {{.create_temp_directory.temp_dir}}/{{.dot1x_eap_tls_pfpki.certs.user.cn}}.key -passin pass:secret"
+    script: |
+      "openssl pkcs12 -in {{.create_temp_directory.temp_dir}}/{{.dot1x_eap_tls_pfpki.certs.user.cn}}.p12 -nocerts -nodes \
+      -out {{.create_temp_directory.temp_dir}}/{{.dot1x_eap_tls_pfpki.certs.user.cn}}.key -passin pass:secret"
