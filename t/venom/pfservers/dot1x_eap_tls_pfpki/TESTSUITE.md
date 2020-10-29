@@ -48,3 +48,5 @@ N/A
 ## Teardown steps
 TBD but identical to dot1x_eap_peap scenario (based on unreg_on_accounting_stop)
 
+Revoke certificates to avoid issues when you try to create a certificate that
+already exists

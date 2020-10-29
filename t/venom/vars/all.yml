@@ -233,5 +233,3 @@ dot1x_eap_tls_pfpki.roles.dot1x_eap_tls.vlan_id: 100
 dot1x_eap_tls_pfpki.certs.radius.cn: pf_radius
 dot1x_eap_tls_pfpki.certs.http.cn: pf_http
 dot1x_eap_tls_pfpki.certs.user.cn: usercertificate
-
-
