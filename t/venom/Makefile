@@ -21,7 +21,7 @@ configurator:
 # if setup is a dependency to test target, putting setup as a dependency to other
 # targets doesn't cause a recall
 .PHONY: test
-test: setup global_config dot1x_eap_peap wired_mac_auth backup_db_and_restore global_teardown
+test: setup global_config dot1x_eap_peap wired_mac_auth dot1x_eap_tls_pfpki backup_db_and_restore global_teardown
 
 .PHONY: setup
 setup:
@@ -47,6 +47,11 @@ captive_portal: setup global_config
 	./venom-wrapper.sh $(PFSERVERS_DIR)/captive_portal
 	./venom-wrapper.sh $(PFSERVERS_DIR)/captive_portal/teardown
 
+.PHONY: dot1x_eap_tls_pfpki
+dot1x_eap_tls_pfpki: setup global_config
+	./venom-wrapper.sh $(PFSERVERS_DIR)/dot1x_eap_peap_tls_pfpki
+	./venom-wrapper.sh $(PFSERVERS_DIR)/dot1x_eap_tls_pfpki/teardown
+
 .PHONY: backup_db_and_restore
 backup_db_and_restore: setup
 	./venom-wrapper.sh $(PFSERVERS_DIR)/backup_db_and_restore
@@ -68,6 +73,10 @@ wired_mac_auth_no_teardown: setup global_config
 .PHONY: captive_portal_no_teardown
 captive_portal_no_teardown: setup global_config
 	./venom-wrapper.sh $(PFSERVERS_DIR)/captive_portal
+
+.PHONY: dot1x_eap_tls_pfpki_no_teardown
+dot1x_eap_tls_pfpki_no_teardown: setup global_config
+	./venom-wrapper.sh $(PFSERVERS_DIR)/dot1x_eap_peap_tls_pfpki
 
 .PHONY: backup_db_and_restore_no_teardown
 backup_db_and_restore_no_teardown: setup
