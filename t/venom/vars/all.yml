@@ -230,7 +230,8 @@ captive_portal.reg.url: 'https://{{.configurator.interfaces.reg.ip}}/captive-por
 dot1x_eap_tls_pfpki.roles.dot1x_eap_tls.id: dot1x_eap_tls
 dot1x_eap_tls_pfpki.roles.dot1x_eap_tls.notes: 802.1x role for PacketFence PKI
 dot1x_eap_tls_pfpki.roles.dot1x_eap_tls.vlan_id: 100
-dot1x_eap_tls_pfpki.cert.radius: pf_radius 
-dot1x_eap_tls_pfpki.cert.user: usercertificate
-dot1x_eap_tls_pfpki.cert.http: pf_http
+dot1x_eap_tls_pfpki.certs.radius.cn: pf_radius
+dot1x_eap_tls_pfpki.certs.http.cn: pf_http
+dot1x_eap_tls_pfpki.certs.user.cn: usercertificate
+
 

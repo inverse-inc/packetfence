@@ -1,0 +1,68 @@
+name: Create and install PacketFence HTTP (Web admin + portal) certificate 
+version: 2
+testcases:
+- name: create_pf_http_cert
+  steps:
+  - type: http
+    method: POST
+    url: '{{.pfserver_webadmin_url}}/api/v1/pki/certs'
+    ignore_verify_ssl: true
+    body: >-
+      {
+        "profile_id": "3",
+        "cn": "{{.dot1x_eap_tls_pfpki.certs.http.cn}}",
+        "mail": "pfhttp@inverse.ca",
+        "organisation": "Inverse",
+        "country": "CA",
+        "state": "Quebec",
+        "locality": "Montreal",
+        "street_address": "7000 park avenue",
+        "postal_code": "H3N 1X1"
+      }
+    headers:
+      "Authorization": "{{.pfserver_token}}"
+      "Content-Type": "application/json"
+    assertions:
+      - result.statuscode ShouldEqual 200
+    vars:
+      serial_number:
+        from: result.bodyjson.items.items0.id
+
+- name: create_temp_directory
+  steps:
+    - type: exec
+      script: "mktemp -d"
+      vars:
+        temp_dir:
+          from: result.systemout
+
+- name: download_p12_file
+  steps:
+  - type: exec
+    script: "curl -k --output {{.create_temp_directory.temp_dir}}/{{.dot1x_eap_tls_pfpki.certs.http.cn}}.p12 http://127.0.0.1:22225/api/v1/pki/cert/{{.create_pf_http_cert.serial_number}}/download/secret"
+
+- name: extract_certificates
+  steps:
+  - type: exec
+    script: "openssl pkcs12 -in {{.create_temp_directory.temp_dir}}/{{.dot1x_eap_tls_pfpki.certs.http.cn}}.p12 -nokeys -out {{.create_temp_directory.temp_dir}}/{{.dot1x_eap_tls_pfpki.certs.http.cn}}.crt -passin pass:secret"
+
+- name: extract_private_key
+  steps:
+  - type: exec
+    script: "openssl pkcs12 -in {{.create_temp_directory.temp_dir}}/{{.dot1x_eap_tls_pfpki.certs.http.cn}}.p12 -nocerts -nodes -out {{.create_temp_directory.temp_dir}}/{{.dot1x_eap_tls_pfpki.certs.http.cn}}.key -passin pass:secret"
+
+- name: install_http_cert_portal
+  steps:
+  - type: exec
+    script: "cat {{.create_temp_directory.temp_dir}}/{{.dot1x_eap_tls_pfpki.certs.http.cn}}.crt {{.create_temp_directory.temp_dir}}/{{.dot1x_eap_tls_pfpki.certs.http.cn}}.key > /usr/local/pf/conf/ssl/server.pem"
+
+- name: install_http_cert_webadmin
+  steps:
+  - type: exec
+    script: "cat {{.create_temp_directory.temp_dir}}/{{.dot1x_eap_tls_pfpki.certs.http.cn}}.crt > /usr/local/pf/conf/ssl/server.crt"
+
+- name: install_http_key_webadmin
+  steps:
+  - type: exec
+    script: "cat {{.create_temp_directory.temp_dir}}/{{.dot1x_eap_tls_pfpki.certs.http.cn}}.key > /usr/local/pf/conf/ssl/server.key"
+
