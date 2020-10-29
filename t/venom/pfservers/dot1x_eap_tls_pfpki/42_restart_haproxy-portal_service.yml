@@ -1,1 +1,1 @@
-/usr/local/pf/t/venom/pfservers/common/restart_haproxy-portal_service.yml
+../common/restart_haproxy_portal.yml
