@@ -16,7 +16,7 @@ Vagrant.configure("2") do |config|
   # disable synced folders
   config.vm.synced_folder ".", "/vagrant", disabled: true
 
-  # temp, see https://github.com/hashicorp/vagrant/issues/11539
+  # The maximum amount of time to wait for a response
   config.winrm.timeout = 600
   
   # use same private key on all machines
