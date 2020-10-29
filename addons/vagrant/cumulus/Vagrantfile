@@ -169,6 +169,15 @@ Vagrant.configure("2") do |config|
             :libvirt__tunnel_ip => '127.0.0.1',
             :libvirt__tunnel_port => "#{ 40002 + offset }",
             auto_config: false
+      # link for swp14 --> node02:eth0
+      device.vm.network "private_network",
+            :mac => "44:38:39:00:00:14",
+            :libvirt__tunnel_type => 'udp',
+            :libvirt__tunnel_local_ip => '127.0.0.1',
+            :libvirt__tunnel_local_port => "#{ 30003 + offset }",
+            :libvirt__tunnel_ip => '127.0.0.1',
+            :libvirt__tunnel_port => "#{ 40003 + offset }",
+            auto_config: false
       
     # Fixes "stdin: is not a tty" and "mesg: ttyname failed : Inappropriate ioctl for device"  messages --> https://github.com/mitchellh/vagrant/issues/1673
     device.vm.provision :shell , inline: "(sudo grep -q 'mesg n' /root/.profile 2>/dev/null && sudo sed -i '/mesg n/d' /root/.profile  2>/dev/null) || true;", privileged: false
@@ -214,6 +223,10 @@ udev_rule
      device.vm.provision :shell , :inline => <<-udev_rule
 echo "  INFO: Adding UDEV Rule: 44:38:39:00:00:13 --> swp13"
 echo 'ACTION=="add", SUBSYSTEM=="net", ATTR{address}=="44:38:39:00:00:13", NAME="swp13", SUBSYSTEMS=="pci"' >> /etc/udev/rules.d/70-persistent-net.rules
+udev_rule
+     device.vm.provision :shell , :inline => <<-udev_rule
+echo "  INFO: Adding UDEV Rule: 44:38:39:00:00:14 --> swp14"
+echo 'ACTION=="add", SUBSYSTEM=="net", ATTR{address}=="44:38:39:00:00:14", NAME="swp14", SUBSYSTEMS=="pci"' >> /etc/udev/rules.d/70-persistent-net.rules
 udev_rule
 
      # to remap eth0 to vagrant management network (swp48) after udev rules have been wiped
@@ -342,5 +355,24 @@ vagrant_interface_rule
       # only for debug
       ansible.verbose = ENV['VAGRANT_ANSIBLE_VERBOSE'] || false
     end
+  end
+
+#   ##### DEFINE VM for node02 #####
+  config.vm.define "node02" do |device|
+
+    device.vm.hostname = "node02"
+
+    device.vm.box = "peru/my_windows-10-enterprise-x64-eval"
+
+    # NETWORK INTERFACES
+      # link for first network card --> switch01:swp14 (dynamic vlan)
+      device.vm.network "private_network",
+            :mac => "00:04:00:11:11:01",
+            :libvirt__tunnel_type => 'udp',
+            :libvirt__tunnel_local_ip => '127.0.0.1',
+            :libvirt__tunnel_local_port => "#{ 40003 + offset }",
+            :libvirt__tunnel_ip => '127.0.0.1',
+            :libvirt__tunnel_port => "#{ 30003 + offset }",
+            auto_config: false
   end
 end
