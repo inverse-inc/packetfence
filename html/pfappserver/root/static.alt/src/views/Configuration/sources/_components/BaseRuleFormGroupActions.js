@@ -9,8 +9,8 @@ export const props = {
     type: String,
     default: i18n.t('Add Action')
   },
-  // overload :component
-  component: {
+  // overload :childComponent
+  childComponent: {
     type: Object,
     default: () => BaseRuleAction
   },

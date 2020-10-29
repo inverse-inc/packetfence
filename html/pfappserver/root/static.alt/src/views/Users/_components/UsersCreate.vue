@@ -252,12 +252,10 @@
 </template>
 
 <script>
-/* eslint-disable no-unused-vars */
 import {
   BaseInput,
   BaseFormGroup
 } from '@/components/new/'
-
 
 import pfFieldTypeValue from '@/components/pfFieldTypeValue'
 import pfFormChosen from '@/components/pfFormChosen'

@@ -58,7 +58,7 @@ const components = {
   BaseInputChosenMultiple
 }
 
-import { computed, inject, nextTick, ref, toRefs, unref, watch } from '@vue/composition-api'
+import { computed, inject, ref, toRefs, unref, watch } from '@vue/composition-api'
 import { useFormGroupProps } from '@/composables/useFormGroup'
 import { useInputMetaProps } from '@/composables/useMeta'
 import { useInputProps } from '@/composables/useInput'
@@ -77,7 +77,7 @@ const props = {
   }
 }
 
-const setup = (props, context) => {
+const setup = (props) => {
 
   const {
     namespaces,

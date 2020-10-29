@@ -2,7 +2,7 @@ import { nextTick, ref, unref, watch } from '@vue/composition-api'
 import uuidv4 from 'uuid/v4'
 
 export const useArrayDraggableProps = {
-  component: {
+  childComponent: {
     type: Object
   },
   defaultItem: {

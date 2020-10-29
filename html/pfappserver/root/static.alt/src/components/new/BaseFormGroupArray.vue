@@ -21,7 +21,7 @@
       >{{ buttonLabel || $t('Add') }}</b-button>
 
       <div v-else
-        class="w-100 mx-3"
+        class="base-form-group-array-items w-100 mx-3"
       >
         <b-row v-for="(item, index) in inputValue" :key="index">
           <b-col class="text-center py-2">
@@ -29,8 +29,12 @@
           </b-col>
           <b-col cols="10" class="py-2">
 
-            <component :is="component"
+            <component :is="childComponent"
               :namespace="`${namespace}.${index}`"
+              :class="{
+                'is-firstchild': index === 0,
+                'is-lastchild': index === inputValue.length - 1
+              }"
               v-bind="$props"
             />
 

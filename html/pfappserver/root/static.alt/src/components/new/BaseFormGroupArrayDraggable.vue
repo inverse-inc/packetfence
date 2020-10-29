@@ -21,7 +21,7 @@
       >{{ buttonLabel || $t('Add') }}</b-button>
 
       <draggable v-else ref="draggableRef"
-        class="w-100 mx-3"
+        class="base-form-group-array-draggable-items w-100 mx-3"
         handle=".draggable-handle"
         ghost-class="draggable-copy"
         v-on="draggableListeners"
@@ -39,8 +39,12 @@
           </b-col>
           <b-col cols="10" class="py-2">
 
-            <component :is="component" :ref="draggableKeys[index]"
+            <component :is="childComponent" :ref="draggableKeys[index]"
               :namespace="`${namespace}.${index}`"
+              :class="{
+                'is-firstchild': index === 0,
+                'is-lastchild': index === inputValue.length - 1
+              }"
               v-bind="$props"
             />
 

@@ -95,10 +95,18 @@ export const useNamespaceMeta = (namespace) => {
 
 export const useNamespaceMetaAllowed = (namespace) => {
   const namespaceMeta = useNamespaceMeta(namespace)
-  return computed(() => {
+//  return computed(() => {
     const { allowed = [] } = namespaceMeta.value || {}
     return allowed
-  })
+//  })
+}
+
+export const useNamespaceMetaAllowedLookupFn = (namespace, fn) => {
+  const namespaceMeta = useNamespaceMeta(namespace)
+//  return computed(() => {
+    const { allowed_lookup = {} } = namespaceMeta.value || {}
+    return fn(allowed_lookup)
+//  })
 }
 
 export const useFormMetaSchema = (meta, schema) => {

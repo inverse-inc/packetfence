@@ -57,7 +57,7 @@
   </base-form>
 </template>
 <script>
-import { computed } from '@vue/composition-api'
+import { computed, provide, reactive, ref } from '@vue/composition-api'
 import {
   BaseForm
 } from '@/components/new/'
@@ -118,6 +118,15 @@ export const props = {
 
 export const setup = (props) => {
   const schema = computed(() => schemaFn(props))
+
+  // provide a shared cache to all child components
+  const sharedCache = reactive({})
+  provide('sharedCache', sharedCache)
+
+  // provide a shared uuid to all child components
+  const popoverUuid = ref(null)
+  provide('popoverUuid', popoverUuid)
+
 
   return {
     schema
