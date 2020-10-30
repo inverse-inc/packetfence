@@ -115,7 +115,7 @@ func (h *PfAcct) handleAccountingRequest(r *radius.Request, switchInfo *SwitchIn
 		h.CloseSession(node_id, unique_session_id)
 	}
 
-	h.sendRadiusAccounting(r)
+	h.sendRadiusAccounting(r, switchInfo)
 	h.handleTimeBalance(r, switchInfo)
 	h.handleBandwidthBalance(r, switchInfo, in_bytes+out_bytes)
 }
@@ -206,7 +206,7 @@ func (h *PfAcct) accountingUniqueSessionId(r *radius.Request) uint64 {
 	return hash.Sum64()
 }
 
-func (h *PfAcct) sendRadiusAccounting(r *radius.Request) {
+func (h *PfAcct) sendRadiusAccounting(r *radius.Request, switchInfo *SwitchInfo) {
 	ctx := r.Context()
 	attr := packetToMap(ctx, r.Packet)
 	attr["PF_HEADERS"] = map[string]string{
@@ -219,7 +219,7 @@ func (h *PfAcct) sendRadiusAccounting(r *radius.Request) {
 		logWarn(ctx, fmt.Sprintf("Empty NAS-IP-Address, using the source IP address of the packet (%s)", attr["NAS-IP-Address"]))
 	}
 
-	if _, err := h.AAAClient.Call(ctx, "radius_accounting", attr, 1); err != nil {
+	if _, err := h.AAAClient.Call(ctx, "radius_accounting", attr, switchInfo.TenantId); err != nil {
 		logError(ctx, err.Error())
 	}
 }
@@ -704,7 +704,8 @@ func init() {
 	}
 
 	var err error
-	if radiusDictionary, err = parser.ParseFile("dictionary"); err != nil {
+	if radiusDictionary, err = parser.ParseFile("/usr/local/pf/raddb/dictionary.pfacct"); err != nil {
 		panic(err)
 	}
+
 }
