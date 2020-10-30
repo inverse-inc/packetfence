@@ -54,7 +54,7 @@ func (h *WgorchestratorHandler) handleGetProfile(c *gin.Context) {
 	db := dbFromContext(c)
 
 	username := c.Request.Header.Get("X-PacketFence-Username")
-	var categoryId uint
+	var categoryId int
 	if username != "" {
 		var role string
 		var err error
@@ -75,7 +75,12 @@ func (h *WgorchestratorHandler) handleGetProfile(c *gin.Context) {
 		categoryId = 1
 	}
 
-	rc, _ := remoteclients.GetOrCreateRemoteClient(c, db, c.Query("public_key"), c.Query("mac"), categoryId)
+	rc, err := remoteclients.GetOrCreateRemoteClient(c, db, c.Query("public_key"), c.Query("mac"), categoryId)
+
+	if err != nil {
+		log.LoggerWContext(c).Error("Unable to GetOrCreateRemoteClient: " + err.Error())
+		renderError(c, http.StatusInternalServerError, errors.New("Unable to GetOrCreateRemoteClient. See server-side logs for details."))
+	}
 
 	c.JSON(http.StatusOK, remoteclients.Peer{
 		WireguardIP:      rc.IPAddress(),
@@ -200,9 +205,9 @@ func (h *WgorchestratorHandler) handleGetPrivEvents(c *gin.Context) {
 	}
 }
 
-func (h *WgorchestratorHandler) getRoleForUsername(c *gin.Context, username string) (uint, string, error) {
+func (h *WgorchestratorHandler) getRoleForUsername(c *gin.Context, username string) (int, string, error) {
 	var resp struct {
-		CategoryId uint   `json:"category_id"`
+		CategoryId int    `json:"category_id"`
 		Role       string `json:"role"`
 	}
 	err := unifiedapiclient.NewFromConfig(c).CallWithBody(c, "POST", "/api/v1/authentication/role_authentication", gin.H{"username": username}, &resp)

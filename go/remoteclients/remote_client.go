@@ -3,11 +3,12 @@ package remoteclients
 import (
 	"context"
 	"net"
+	"strconv"
 	"time"
 
+	"github.com/inverse-inc/packetfence/go/common"
 	"github.com/inverse-inc/packetfence/go/log"
 	"github.com/inverse-inc/packetfence/go/sharedutils"
-	"github.com/inverse-inc/packetfence/go/unifiedapiclient"
 	"github.com/jcuga/golongpoll"
 	"github.com/jinzhu/gorm"
 )
@@ -27,15 +28,22 @@ type RemoteClient struct {
 	MAC       string
 }
 
-func GetOrCreateRemoteClient(ctx context.Context, db *gorm.DB, publicKey string, mac string, categoryId uint) (*RemoteClient, error) {
+func GetOrCreateRemoteClient(ctx context.Context, db *gorm.DB, publicKey string, mac string, categoryId int) (*RemoteClient, error) {
 	rc := RemoteClient{MAC: mac}
-	rcn := rc.GetNode(ctx)
+	rcn, err := rc.GetNode(ctx)
 
-	categoryIdChanged := categoryId != rcn.CategoryId
+	if err != nil {
+		return nil, err
+	}
+
+	categoryIdChanged := categoryId != rcn.CategoryID_int()
 
 	rcn.MAC = mac
-	rcn.CategoryId = categoryId
-	rc.UpsertNode(ctx, rcn)
+	rcn.CategoryID = strconv.Itoa(categoryId)
+	err = rcn.Upsert(ctx)
+	if err != nil {
+		log.LoggerWContext(ctx).Error("Unable to upsert node, role detection will rely on the previous role")
+	}
 
 	db.Where("public_key = ?", publicKey).First(&rc)
 	rc.MAC = mac
@@ -102,30 +110,6 @@ type RemoteClientNode struct {
 	CategoryId uint   `json:"category_id,omitempty"`
 }
 
-func (rc *RemoteClient) GetNode(ctx context.Context) RemoteClientNode {
-	client := unifiedapiclient.NewFromConfig(ctx)
-
-	resp := struct {
-		Item RemoteClientNode
-	}{}
-	client.Call(ctx, "GET", "/api/v1/node/"+rc.MAC, &resp)
-	return resp.Item
-}
-
-func (rc *RemoteClient) UpsertNode(ctx context.Context, rcn RemoteClientNode) error {
-	client := unifiedapiclient.NewFromConfig(ctx)
-
-	err := client.CallWithBody(ctx, "PATCH", "/api/v1/node/"+rcn.MAC, rcn, &unifiedapiclient.DummyReply{})
-	if err == nil {
-		return nil
-	}
-
-	log.LoggerWContext(ctx).Info("Got an error while updating node " + rcn.MAC + ". Will try to create it instead. Error: " + err.Error())
-
-	err = client.CallWithBody(ctx, "POST", "/api/v1/nodes", rcn, unifiedapiclient.DummyReply{})
-	if err != nil {
-		log.LoggerWContext(ctx).Error("Unable to upsert node " + rcn.MAC + ". Peer detection will have to rely on the previous role of the node. Error: " + err.Error())
-	}
-
-	return err
+func (rc *RemoteClient) GetNode(ctx context.Context) (common.NodeInfo, error) {
+	return common.FetchNodeInfo(ctx, rc.MAC)
 }
