@@ -3884,28 +3884,6 @@ Configuring this has to be done in the 'Signing' tab in the "Apple devices".
 
 image::packetfence-pki-eaptls-sign-example.png[scaledwidth="100%",alt="Signing provisioner"]
 
-Fill out the fields with the contents of the Base64 encoded certificates.
-To extract this information from a pem formatted certificate, copy the file content included between the begin and end tag, not including the delimiters themselves.
-
-Certificate file example:
-
-----
------ BEGIN CERTIFICATE -----
-1234567890asdfghjkl
-zxcvbnmqwertyuiop78
------ END CERTIFICATE -----
-----
-
-Copy everything between the BEGIN and END lines, but not the lines themselves.
-Repeat this operation for the certificate key and intermediate certificate.
-
-----
------ BEGIN PRIVATE KEY -----
-1234567890asdfghjkl
-zxcvbnmqwertyuiop78
------ END PRIVATE KEY -----
-----
-
 Profile generation
 ^^^^^^^^^^^^^^^^^^
 
