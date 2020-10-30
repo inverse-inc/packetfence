@@ -87,27 +87,25 @@ export const useInputMeta = (props) => {
   return localProps
 }
 
-export const useNamespaceMeta = (namespace) => {
-  const meta = inject('meta', ref({}))
+export const useNamespaceMeta = (namespace, _meta) => {
+  const meta = _meta || inject('meta', ref({}))
   const namespaceArr = computed(() => unref(namespace).split('.'))
   return computed(() => getMetaNamespace(unref(namespaceArr), unref(meta)))
 }
 
-export const useNamespaceMetaAllowed = (namespace) => {
-  const namespaceMeta = useNamespaceMeta(namespace)
-//  return computed(() => {
-    const { allowed = [] } = namespaceMeta.value || {}
-    return allowed
-//  })
+export const useNamespaceMetaAllowed = (namespace, _meta) => {
+  const namespaceMeta = useNamespaceMeta(namespace, _meta)
+  const { allowed = [] } = namespaceMeta.value || {}
+  return allowed
 }
 
-export const useNamespaceMetaAllowedLookupFn = (namespace, fn) => {
-  const namespaceMeta = useNamespaceMeta(namespace)
-//  return computed(() => {
-    const { allowed_lookup = {} } = namespaceMeta.value || {}
-    return fn(allowed_lookup)
-//  })
+export const useNamespaceMetaAllowedLookup = (namespace, _meta) => {
+  const namespaceMeta = useNamespaceMeta(namespace, _meta)
+  const { allowed_lookup = {} } = namespaceMeta.value || {}
+  return allowed_lookup
 }
+
+export const useNamespaceMetaAllowedLookupFn = (namespace, fn, _meta) => (fn(useNamespaceMetaAllowedLookup(namespace, _meta)))
 
 export const useFormMetaSchema = (meta, schema) => {
 

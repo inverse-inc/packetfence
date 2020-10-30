@@ -6,7 +6,7 @@ import api from '../_api'
 import {
   decomposeTriggers,
   recomposeTriggers
-} from '../_config/securityEvent'
+} from '../securityEvents/config'
 
 const types = {
   LOADING: 'loading',

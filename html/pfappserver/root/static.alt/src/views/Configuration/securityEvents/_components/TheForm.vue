@@ -54,10 +54,11 @@
       :column-label="$i18n.t('Delay By')"
       :text="$i18n.t('Delay before triggering the security event.')"
     />
+<pre>{{ {form} }}</pre>
   </base-form>
 </template>
 <script>
-import { computed, provide, reactive, ref } from '@vue/composition-api'
+import { computed, provide, reactive, ref, toRefs, watch } from '@vue/composition-api'
 import {
   BaseForm
 } from '@/components/new/'
@@ -117,6 +118,11 @@ export const props = {
 }
 
 export const setup = (props) => {
+
+  const {
+    id
+  } = toRefs(props)
+
   const schema = computed(() => schemaFn(props))
 
   // provide a shared cache to all child components
@@ -124,9 +130,13 @@ export const setup = (props) => {
   provide('sharedCache', sharedCache)
 
   // provide a shared uuid to all child components
-  const popoverUuid = ref(null)
-  provide('popoverUuid', popoverUuid)
+  const showUuid = ref(null)
+  provide('showUuid', showUuid)
 
+  // clear shown uuid when local `id` changes
+  watch(id, () => {
+    showUuid.value = null
+  })
 
   return {
     schema

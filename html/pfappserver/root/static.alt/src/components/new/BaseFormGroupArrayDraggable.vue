@@ -26,8 +26,14 @@
         ghost-class="draggable-copy"
         v-on="draggableListeners"
       >
-        <b-row v-for="(item, index) in inputValue" :key="draggableKeys[index]">
-          <b-col class="text-center py-2" :class="{
+        <b-row v-for="(item, index) in inputValue" :key="draggableKeys[index]"
+          class="base-form-group-array-draggable-item align-items-center"
+          :class="{
+            'is-firstchild': index === 0,
+            'is-lastchild': index === inputValue.length - 1
+          }"
+        >
+          <b-col class="text-center" :class="{
             'draggable-on': isSortable,
             'draggable-off': !isSortable
           }">
@@ -37,19 +43,15 @@
             />
             <span class="draggable-index col-form-label ">{{ index + 1 }}</span>
           </b-col>
-          <b-col cols="10" class="py-2">
+          <b-col cols="10">
 
             <component :is="childComponent" :ref="draggableKeys[index]"
               :namespace="`${namespace}.${index}`"
-              :class="{
-                'is-firstchild': index === 0,
-                'is-lastchild': index === inputValue.length - 1
-              }"
               v-bind="$props"
             />
 
           </b-col>
-          <b-col class="py-2 text-nowrap">
+          <b-col class="text-nowrap">
             <b-link @click="itemDelete(index)"
               :class="{
                 'text-primary': actionKey,

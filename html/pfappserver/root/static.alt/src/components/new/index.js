@@ -19,8 +19,10 @@ import BaseFormGroupToggleNY from './BaseFormGroupToggleNY'
 import BaseFormGroupToggleOffOn from './BaseFormGroupToggleOffOn'
 import BaseFormTab from './BaseFormTab'
 import BaseInput from './BaseInput'
+import BaseInputArray, { props as BaseInputArrayProps } from './BaseInputArray'
 import BaseInputChosenMultiple from './BaseInputChosenMultiple'
 import BaseInputChosenOne from './BaseInputChosenOne'
+import BaseInputChosenOneSearchable from './BaseInputChosenOneSearchable'
 import BaseInputGroup from './BaseInputGroup'
 import BaseInputGroupMultiplier from './BaseInputGroupMultiplier'
 import BaseInputNumber from './BaseInputNumber'
@@ -60,8 +62,10 @@ export {
 
   // form inputs
   BaseInput,
+  BaseInputArray, BaseInputArrayProps,
   BaseInputChosenMultiple,
   BaseInputChosenOne,
+  BaseInputChosenOneSearchable,
   BaseInputGroup,
   BaseInputNumber,
   BaseInputPassword,

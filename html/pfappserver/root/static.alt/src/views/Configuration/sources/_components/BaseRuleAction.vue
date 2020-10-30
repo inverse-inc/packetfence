@@ -1,5 +1,5 @@
 <template>
-  <b-row class="w-100 mx-0 mb-1 px-0" align-v="center" no-gutters>
+  <b-row class="w-100 mx-0 mb-1 px-0 py-2" align-v="center" no-gutters>
     <b-col sm="6" align-self="start">
 
       <base-input-chosen-one ref="typeComponentRef"

@@ -1,5 +1,5 @@
 <template>
-  <div class="w-100">
+  <div class="w-100 py-2">
     <b-link @click="onToggle"
       class="d-block"
       :class="{

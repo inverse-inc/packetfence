@@ -1,58 +1,97 @@
 <template>
-  <b-form-row :id="`security-event-trigger-${uuid}`"
-    class="base-trigger align-items-center flex-nowrap text-center py-1"
-    :class="{
-      'text-primary': showPopover
-    }"
-    @click="togglePopover"
-  >
-    <b-badge class="or">{{ $t('OR') }}</b-badge>
-    <b-col cols="2">
-      <span v-for="(desc, index) in endpointDescription" :key="`endpoint-${desc}`"
-        :class="{ 'text-danger': endpointInvalid }"
+  <b-container fluid>
+    <b-row
+      class="base-trigger base-trigger-info align-items-center flex-nowrap text-center py-2"
+      :class="{
+        'bg-light border-primary border-top border-right border-left': isShown
+      }"
+    >
+      <b-badge class="or">{{ $t('OR') }}</b-badge>
+      <b-col cols="2"
+        :class="{
+          'text-primary': isShown && isTab === 0
+        }"
+        @click="doTab(0)"
       >
-        {{ desc }} <b-badge variant="light" v-if="endpointDescription.length - index > 1">{{ $t('AND') }}</b-badge>
-      </span>
-  </b-col>
-    <b-col>
-      <b-badge>{{ $t('AND') }}</b-badge>
-    </b-col>
-    <b-col cols="2">
-      <span v-for="(desc, index) in profilingDescription" :key="`profiling-${desc}`"
-        :class="{ 'text-danger': profilingInvalid }"
+        <span v-for="(desc, index) in endpointDescription" :key="`endpoint-${index}-${desc}`"
+          :class="{ 'text-danger': endpointInvalid }"
+        >
+          {{ desc }} <b-badge variant="light" v-if="endpointDescription.length - index > 1">{{ $t('AND') }}</b-badge>
+        </span>
+      </b-col>
+      <b-col>
+        <b-badge>{{ $t('AND') }}</b-badge>
+      </b-col>
+      <b-col cols="2"
+        :class="{
+          'text-primary': isShown && isTab === 1
+        }"
+        @click="doTab(1)"
       >
-        {{ desc }} <b-badge variant="light" v-if="profilingDescription.length - index > 1">{{ $t('AND') }}</b-badge>
-      </span>
-    </b-col>
-    <b-col>
-      <b-badge>{{ $t('AND') }}</b-badge>
-    </b-col>
-    <b-col cols="2">
-      <span :class="{ 'text-danger': usageInvalid }">{{ usageDescription }}</span>
-    </b-col>
-    <b-col>
-      <b-badge>{{ $t('AND') }}</b-badge>
-    </b-col>
-    <b-col cols="2">
-      <span :class="{ 'text-danger': eventInvalid }">{{ eventDescription }}</span>
-    </b-col>
+        <span v-for="(desc, index) in profilingDescription" :key="`profiling-${index}-${desc}`"
+          :class="{ 'text-danger': profilingInvalid }"
+        >
+          {{ desc }} <b-badge variant="light" v-if="profilingDescription.length - index > 1">{{ $t('AND') }}</b-badge>
+        </span>
+      </b-col>
+      <b-col>
+        <b-badge>{{ $t('AND') }}</b-badge>
+      </b-col>
+      <b-col cols="2"
+        :class="{
+          'text-primary': isShown && isTab === 2
+        }"
+        @click="doTab(2)"
+      >
+        <span :class="{ 'text-danger': usageInvalid }">{{ usageDescription }}</span>
+      </b-col>
+      <b-col>
+        <b-badge>{{ $t('AND') }}</b-badge>
+      </b-col>
+      <b-col cols="2"
+        :class="{
+          'text-primary': isShown && isTab === 3
+        }"
+        @click="doTab(3)"
+      >
+        <span :class="{ 'text-danger': eventInvalid }">{{ eventDescription }}</span>
+      </b-col>
+    </b-row>
 
-    <b-popover
-      triggers=""
-      placement="top"
-      :show.sync="showPopover"
-      :target="`security-event-trigger-${uuid}`"
-      container="body"
+    <div v-if="isShown"
+      class="base-trigger base-trigger-form row p-3 border-primary border-right border-bottom border-left"
     >
 
-{{ uuid }}
+      <base-trigger-endpoint-conditions v-show="isTab === 0"
+        :namespace="`${namespace}.endpoint.conditions`" />
 
-    </b-popover>
+      <base-trigger-profiling-conditions v-show="isTab === 1"
+        :namespace="`${namespace}.profiling.conditions`" />
 
-  </b-form-row>
+      <base-trigger-usage v-show="isTab === 2"
+        :namespace="`${namespace}.usage`" />
+
+      <base-trigger-event v-show="isTab === 3"
+        :namespace="`${namespace}.event`" />
+
+    </div>
+
+  </b-container>
 </template>
 <script>
-import { computed, customRef, inject, reactive, ref, set, toRefs } from '@vue/composition-api'
+import BaseTriggerEndpointConditions from './BaseTriggerEndpointConditions'
+import BaseTriggerEvent from './BaseTriggerEvent'
+import BaseTriggerProfilingConditions from './BaseTriggerProfilingConditions'
+import BaseTriggerUsage from './BaseTriggerUsage'
+
+const components = {
+  BaseTriggerEndpointConditions,
+  BaseTriggerEvent,
+  BaseTriggerProfilingConditions,
+  BaseTriggerUsage
+}
+
+import { computed, inject, reactive, ref, set, toRefs } from '@vue/composition-api'
 import uuidv4 from 'uuid/v4'
 import { useInputProps } from '@/composables/useInput'
 import { useInputMeta, useInputMetaProps, useNamespaceMetaAllowedLookupFn } from '@/composables/useMeta'
@@ -83,18 +122,30 @@ import {
 
 const setup = (props, context) => {
 
-  const {
-    namespace
-  } = toRefs(props)
-
   // inject shared API lookup cache from parent form
   const sharedCache = inject('sharedCache', reactive({}))
 
-  // inject shared popover uuid
-  const popoverUuid = inject('popoverUuid', ref(null))
+  // inject shared uuid, singleton view
+  const showUuid = inject('showUuid', ref(null))
 
-  // unique id for multiple popover instances
+  // unique id for multiple instances
   const uuid = ref(uuidv4())
+
+  const isShown = computed(() => showUuid.value === uuid.value)
+  const toggleShown = () => {
+    showUuid.value = (showUuid.value === uuid.value) ? null : uuid.value
+  }
+
+  const isTab = ref(0)
+  const doTab = (tab) => {
+    if (!isShown.value || isTab.value === tab)
+      toggleShown()
+    isTab.value = tab
+  }
+
+  const {
+    namespace
+  } = toRefs(props)
 
   const metaProps = useInputMeta(props, context)
 
@@ -108,11 +159,12 @@ const setup = (props, context) => {
 
   const endpointDescription = computed(() => {
     const { endpoint: { conditions = [] } = {} } = inputValue.value || {}
-    return conditions.filter(condition => {
+    const filteredConditions = conditions.filter(condition => {
       const { type, value } = condition || {}
       return type && value
-    }).length > 0
-      ? conditions.map(condition => {
+    })
+    return filteredConditions.length > 0
+      ? filteredConditions.map(condition => {
         const { type, value } = condition || {}
         return `${triggerFields[type].text}: ${value}`
       })
@@ -121,10 +173,11 @@ const setup = (props, context) => {
 
   const profilingDescription = computed(() => {
     const { profiling: { conditions = [] } = {} } = inputValue.value || {}
-    return conditions.filter(condition => {
+    const filteredConditions = conditions.filter(condition => {
       const { type, value } = condition || {}
       return type && value
-    }).length > 0
+    })
+    return filteredConditions.length > 0
       ? conditions.map(condition => {
         const { type, value } = condition || {}
         let { [type]: lookupType, [type]: { [value]: lookupValue } = {} } = sharedCache
@@ -184,29 +237,16 @@ const setup = (props, context) => {
     return description
   })
 
-  const showPopover = customRef((track, trigger) => ({
-    get() {
-      track()
-      return popoverUuid.value === uuid.value
-    },
-    set(newValue) { // <b-popover :show.sync /> mutates value
-      if (newValue)
-        popoverUuid.value = uuid.value
-      trigger()
-    }
-  }))
-
-  const togglePopover = () => {
-    popoverUuid.value = (!showPopover.value) ? uuid.value : null
-  }
-
   return {
     inputState: state,
     inputValue,
 
     uuid,
-    showPopover,
-    togglePopover,
+    isShown,
+    toggleShown,
+
+    isTab,
+    doTab,
 
     endpointDescription,
     endpointInvalid: false,
@@ -223,44 +263,43 @@ const setup = (props, context) => {
 export default {
   name: 'base-trigger',
   inheritAttrs: false,
+  components,
   props,
   setup
 }
 </script>
 <style lang="scss">
-/**
- * Position the "or" badge below each trigger except the last one
- */
-.base-trigger {
+.base-trigger-info {
   position: relative;
+  border-top-left-radius: $border-radius !important;
+  border-top-right-radius: $border-radius !important;
+  /**
+  * Position the "or" badge below each trigger except the last one
+  */
   .or {
     position: absolute;
-    bottom: -1em;
-    left: 5em;
-  }
-  /**
-  * Make popover larger
-  */
-  .popover {
-    max-width: $popover-max-width * 2;
+    bottom: -.75em;
+    left: -1.5em;
   }
   &:hover {
     cursor: pointer;
-    color: var(--primary);
   }
 }
-.base-form-group-array-items:last-child .or {
-  display: none;
+.base-trigger-form {
+  border-bottom-left-radius: $border-radius !important;
+  border-bottom-right-radius: $border-radius !important;
+  .input-group {
+    width: 100%;
+  }
 }
 
-/**
- * No padding inside popover
- */
-.base-trigger .popover,
-.base-trigger .input-group {
-  width: 100%;
-}
-.base-trigger .popover-body {
-  padding: 0;
+.is-lastchild {
+  & > .col-10 {
+    & > .base-trigger-info {
+      & > .or {
+        display: none;
+      }
+    }
+  }
 }
 </style>

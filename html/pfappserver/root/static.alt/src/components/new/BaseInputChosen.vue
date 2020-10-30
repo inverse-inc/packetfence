@@ -15,7 +15,6 @@
 
       :value="inputValue"
       :placeholder="inputPlaceholder"
-      :loading="false"
       :disabled="isLocked"
       :show-no-results="true"
       :tab-index="inputTabIndex"
@@ -31,6 +30,8 @@
       :group-label="inputGroupLabel"
 
       :searchable="searchable"
+      :loading="isLoading"
+
       :clear-on-select="clearOnSelect"
       :hide-selected="hideSelected"
       :allow-empty="allowEmpty"
@@ -58,6 +59,7 @@
       @select="onInput"
       @remove="onRemove"
       @tag="onTag"
+      @search-change="onSearch"
 
       v-bind="bind"
     >
@@ -72,7 +74,10 @@
       </template>
       <template v-slot:beforeList>
         <li class="multiselect__element">
-          <div class="col-form-label py-1 px-2 text-dark text-left bg-light border-bottom">{{ $t('Type to filter results') }}</div>
+          <div v-if="!internalSearch"
+            class="col-form-label py-1 px-2 text-dark text-left bg-light border-bottom">{{ $t('Type to search') }}</div>
+          <div v-else
+            class="col-form-label py-1 px-2 text-dark text-left bg-light border-bottom">{{ $t('Type to filter results') }}</div>
         </li>
       </template>
       <template v-slot:noOptions>
@@ -270,8 +275,11 @@ export const setup = (props, context) => {
     inputGroupValues,
     singleLabel,
     isEmpty,
+
     onRemove: () => {},
     onTag: () => {},
+    onSearch: () => {},
+    isLoading: false,
     doFocus,
     doBlur
   }
