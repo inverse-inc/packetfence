@@ -59,19 +59,19 @@
     </b-row>
 
     <div v-if="isShown"
-      class="base-trigger base-trigger-form row p-3 border-primary border-right border-bottom border-left"
+      class="base-trigger base-trigger-form row p-2 border-primary border-right border-bottom border-left"
     >
 
-      <base-trigger-endpoint-conditions v-show="isTab === 0"
+      <base-trigger-endpoint-conditions v-if="isTab === 0"
         :namespace="`${namespace}.endpoint.conditions`" />
 
-      <base-trigger-profiling-conditions v-show="isTab === 1"
+      <base-trigger-profiling-conditions v-if="isTab === 1"
         :namespace="`${namespace}.profiling.conditions`" />
 
-      <base-trigger-usage v-show="isTab === 2"
+      <base-trigger-usage v-if="isTab === 2"
         :namespace="`${namespace}.usage`" />
 
-      <base-trigger-event v-show="isTab === 3"
+      <base-trigger-event v-if="isTab === 3"
         :namespace="`${namespace}.event`" />
 
     </div>
@@ -185,7 +185,8 @@ const setup = (props, context) => {
           set(sharedCache, type, { [value]: null })
         if (!lookupValue) {
           // temporary placeholder
-          set(sharedCache[type], value, `${triggerFields[type].text}: ${value}`)
+          if (type in triggerFields)
+            set(sharedCache[type], value, `${triggerFields[type].text}: ${value}`)
           // perform lookup
           useNamespaceMetaAllowedLookupFn(`${namespace.value}.${type}`, meta => {
             const { field_name: fieldName, value_name: valueName, search_path: url } = meta

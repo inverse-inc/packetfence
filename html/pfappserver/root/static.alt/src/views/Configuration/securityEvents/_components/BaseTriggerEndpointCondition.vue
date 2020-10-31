@@ -1,5 +1,5 @@
 <template>
-  <b-row class="w-100 mx-0 mb-1 px-0 py-2" align-v="center" no-gutters>
+  <b-row class="w-100 m-0 p-0" align-v="center" no-gutters>
     <b-col sm="6" align-self="start">
 
       <base-input-chosen-one ref="typeComponentRef"
@@ -35,11 +35,7 @@ import { useInputValue, useInputValueProps } from '@/composables/useInputValue'
 import { useNamespaceMetaAllowed } from '@/composables/useMeta'
 import {
   pfComponentType as componentType,
-  pfFieldTypeComponent as fieldTypeComponent,
-  pfFieldTypeValues as fieldTypeValues,
-
-
-  pfFieldType as fieldType
+  pfFieldTypeComponent as fieldTypeComponent
 } from '@/globals/pfField'
 import {
   triggerCategories,

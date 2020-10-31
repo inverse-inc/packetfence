@@ -17,6 +17,27 @@ yup.addMethod(yup.string, 'securityEventIdNotExistsExcept', function (exceptId =
   })
 })
 
+const schemaTriggerCondition = yup.object({
+  type: yup.string().nullable().required(i18n.t('Type required.')),
+  value: yup.string()
+    .when('type', {
+      is: null,
+      then: yup.string().nullable(),
+      otherwise: yup.string().nullable().required(i18n.t('Value required.'))
+    })
+})
+
+const schemaTrigger = yup.object({
+  endpoint: yup.object({
+    conditions: yup.array().of(schemaTriggerCondition)
+  }),
+  profiling: yup.object({
+    conditions: yup.array().of(schemaTriggerCondition)
+  })
+})
+
+const schemaTriggers = yup.array().of(schemaTrigger)
+
 export const schema = (props) => {
   const {
     id,
@@ -29,6 +50,8 @@ export const schema = (props) => {
       .nullable()
       .required(i18n.t('Name required.'))
       .securityEventIdNotExistsExcept((!isNew && !isClone) ? id : undefined, i18n.t('Identifier exists.')),
+
+    triggers: schemaTriggers
 
   })
 }

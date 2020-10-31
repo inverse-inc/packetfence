@@ -36,6 +36,7 @@ export const setup = (props, context) => {
   const {
     label,
     trackBy,
+    optionsLimit,
     placeholder
   } = toRefs(metaProps)
 
@@ -47,8 +48,8 @@ export const setup = (props, context) => {
   const currentValueOptions = ref([])
   const currentValueLoading = ref(false)
   let lastCurrentPromise = 0 // only use latest of 1+ promises
-  watch(value, value => {
-    if (!value)
+  watch([value, lookup], () => {
+    if (!value.value || !lookup.value)
       currentValueOptions.value = []
     else {
       const { field_name: fieldName, search_path: url, value_name: valueName } = lookup.value
@@ -59,7 +60,7 @@ export const setup = (props, context) => {
         method: 'post',
         baseURL: '', // reset
         data: {
-          query: { op: 'and', values: [{ op: 'or', values: [{ field: valueName, op: 'equals', value }] }] },
+          query: { op: 'and', values: [{ op: 'or', values: [{ field: valueName, op: 'equals', value: value.value }] }] },
           fields: [fieldName, valueName],
           sort: [fieldName],
           cursor: 0,
@@ -95,7 +96,9 @@ export const setup = (props, context) => {
   const searchResultOptions = ref([])
   let lastSearchPromise = 0 // only use latest of 1+ promises
   let searchDebouncer
-  const onSearch = (value) => {
+  let lastSearchQuery
+
+  const _doSearch = (query) => {
     const { field_name: fieldName, search_path: url, value_name: valueName } = lookup.value
     searchResultLoading.value = true
     if (!searchDebouncer)
@@ -108,14 +111,14 @@ export const setup = (props, context) => {
           method: 'post',
           baseURL: '', // reset
           data: {
-            query: { op: 'and', values: [{ op: 'or', values: [{ field: fieldName, op: 'contains', value }] }] },
+            query: { op: 'and', values: [{ op: 'or', values: [{ field: fieldName, op: 'contains', value: query }] }] },
             fields: [fieldName, valueName],
             sort: [fieldName],
             cursor: 0,
-            limit: 1
+            limit: optionsLimit.value
           }
         }).then(response => {
-          if (thisSearchPromise === lastSearchPromise) { // ignore slow responses
+          if (thisSearchPromise === lastSearchPromise) { // ignore late responses from earlier reqs
             const { data: { items = [] } = {} } = response
             searchResultOptions.value = items.map(item => {
               const { [fieldName]: _field, [valueName]: _value } = item // unmap lookup field_name/value_name
@@ -129,6 +132,18 @@ export const setup = (props, context) => {
       time: 300
     })
   }
+
+  const onSearch = (query) => {
+    lastSearchQuery = query
+    if (lookup.value)
+      _doSearch(query)
+  }
+
+  // redo search when lookup is mutated
+  watch(lookup, () => {
+    if (lastSearchQuery)
+      onSearch(lastSearchQuery)
+  })
 
   const isLoading = computed(() => currentValueLoading.value || searchResultLoading.value)
 

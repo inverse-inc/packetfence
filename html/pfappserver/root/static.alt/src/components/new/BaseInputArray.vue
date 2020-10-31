@@ -8,7 +8,7 @@
     <div v-else
       class="base-input-array-items mx-3"
     >
-      <b-row v-for="(item, index) in inputValue" :key="index"
+      <b-row v-for="(item, index) in inputValue" :key="draggableKeys[index]"
         class="base-input-array-item align-items-center"
         :class="{
           'is-firstchild': index === 0,
@@ -20,13 +20,13 @@
         </b-col>
         <b-col cols="10">
 
-          <component :is="childComponent"
+          <component :is="childComponent" :ref="draggableKeys[index]"
             :namespace="`${namespace}.${index}`"
             v-bind="$props"
           />
 
         </b-col>
-        <b-col class="text-nowrap">
+        <b-col>
           <b-link @click="itemDelete(index)"
             :class="{
               'text-primary': actionKey,
@@ -106,6 +106,8 @@ const setup = (props, context) => {
   } = useInputValue(metaProps, context)
 
   const {
+    draggableKeys,
+
     add: draggableAdd,
     copy: draggableCopy,
     remove: draggableRemove,
@@ -147,6 +149,9 @@ const setup = (props, context) => {
     inputLength: length,
     onInput,
     onChange,
+
+    // useArrayDraggable
+    draggableKeys,
 
     // useInputValidator
     inputState: state,
