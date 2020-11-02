@@ -106,14 +106,6 @@ dot1x_eap_peap.roles.ad_machine.id: machine_employee
 dot1x_eap_peap.roles.ad_machine.notes: Machine Employee
 dot1x_eap_peap.roles.ad_machine.vlan_id: 100
 
-################################################################################
-# dot1x_eap_tls_pfpki test suite specific variables
-################################################################################
-# Roles
-dot1x_eap_tls_pfpki.roles.dot1x_eap_tls.id: dot1x_eap_tls
-dot1x_eap_tls_pfpki.roles.dot1x_eap_tls.notes: 802.1x role for PacketFence PKI
-dot1x_eap_tls_pfpki.roles.dot1x_eap_tls.vlan_id: 100
-
 # Sources
 dot1x_eap_peap.sources.ad_user.name: dot1x_eap_peap_user_auth
 dot1x_eap_peap.sources.ad_user.description: '{{.ad_mgmt_ip}} user authentication'
@@ -226,11 +218,25 @@ captive_portal.reg.url: 'https://{{.configurator.interfaces.reg.ip}}/captive-por
 ################################################################################
 # dot1x_eap_tls_pfpki test suite specific variables
 ################################################################################
-# Roles
-dot1x_eap_tls_pfpki.roles.dot1x_eap_tls.id: dot1x_eap_tls
-dot1x_eap_tls_pfpki.roles.dot1x_eap_tls.notes: 802.1x role for PacketFence PKI
-dot1x_eap_tls_pfpki.roles.dot1x_eap_tls.vlan_id: 100
+# Certs
 dot1x_eap_tls_pfpki.certs.ca.cn: InverseCA
 dot1x_eap_tls_pfpki.certs.radius.cn: pf_radius
 dot1x_eap_tls_pfpki.certs.http.cn: pf_http
 dot1x_eap_tls_pfpki.certs.user.cn: usercertificate
+
+# Roles
+dot1x_eap_tls_pfpki.roles.dot1x_eap_tls.id: dot1x_eap_tls
+dot1x_eap_tls_pfpki.roles.dot1x_eap_tls.notes: 802.1x role for PacketFence PKI
+dot1x_eap_tls_pfpki.roles.dot1x_eap_tls.vlan_id: 100
+
+# Sources
+dot1x_eap_tls_pfpki.sources.eaptls.name: 'eaptls'
+dot1x_eap_tls_pfpki.sources.eaptls.description: 'EAP-TLS source'
+dot1x_eap_tls_pfpki.sources.eaptls.access_duration: '{{.access_duration.default_choice}}'
+
+# Connection profiles
+dot1x_eap_tls_pfpki.profiles.wired.id: catch_dot1x_wired_eap_tls
+dot1x_eap_tls_pfpki.profiles.wired.description: 802.1X wired EAP-TLS
+dot1x_eap_tls_pfpki.profiles.wired.filters.connection_type: Ethernet-EAP
+dot1x_eap_tls_pfpki.profiles.wired.filters.connection_sub_type: EAP-TLS
+dot1x_eap_tls_pfpki.profiles.wired.unreg_on_acct_stop: enabled
