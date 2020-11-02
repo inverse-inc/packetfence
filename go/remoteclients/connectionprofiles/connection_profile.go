@@ -26,17 +26,26 @@ var simpleFilters = map[string]func(rcp RemoteConnectionProfile, fi FilterInfo) 
 
 type RemoteConnectionProfiles struct {
 	pfconfigdriver.CachedHash
+	orderedIds struct {
+		pfconfigdriver.StructConfig
+		PfconfigMethod string `val:"element"`
+		PfconfigNS     string `val:"resource::remote_profiles_keys"`
+		PfconfigArray  string `val:"yes"`
+		Element        []string
+	}
 }
 
 func NewRemoteConnectionProfiles(ctx context.Context) *RemoteConnectionProfiles {
 	rcp := &RemoteConnectionProfiles{}
 	rcp.PfconfigNS = "config::RemoteProfiles"
 	rcp.New = rcp.newProfile
+	rcp.Refresh(ctx)
 	return rcp
 }
 
 func (rcp *RemoteConnectionProfiles) newProfile(ctx context.Context, id string) (pfconfigdriver.PfconfigObject, error) {
 	profile := &RemoteConnectionProfile{}
+	profile.PfconfigHashNS = id
 	_, err := pfconfigdriver.FetchDecodeSocketCache(ctx, profile)
 	if err != nil {
 		return nil, err
@@ -45,11 +54,18 @@ func (rcp *RemoteConnectionProfiles) newProfile(ctx context.Context, id string) 
 	return profile, nil
 }
 
-func (rcp *RemoteConnectionProfiles) All(ctx context.Context) map[string]*RemoteConnectionProfile {
-	profiles := map[string]*RemoteConnectionProfile{}
-	for id, o := range rcp.Structs {
-		profiles[id] = o.(*RemoteConnectionProfile)
+func (rcp *RemoteConnectionProfiles) All(ctx context.Context) []*RemoteConnectionProfile {
+	pfconfigdriver.FetchDecodeSocketCache(ctx, &rcp.orderedIds)
+	profiles := make([]*RemoteConnectionProfile, len(rcp.orderedIds.Element))
+	i := 0
+	for _, id := range rcp.orderedIds.Element {
+		if id == DefaultRemoteConnectionProfile {
+			continue
+		}
+		profiles[i] = rcp.Get(ctx, id)
+		i++
 	}
+	profiles[len(profiles)-1] = rcp.Get(ctx, DefaultRemoteConnectionProfile)
 	return profiles
 }
 
@@ -58,9 +74,9 @@ func (rcp *RemoteConnectionProfiles) Get(ctx context.Context, id string) *Remote
 }
 
 func (rcp *RemoteConnectionProfiles) InstantiateForClient(ctx context.Context, fi FilterInfo) *RemoteConnectionProfile {
-	for id, profile := range rcp.All(ctx) {
+	for _, profile := range rcp.All(ctx) {
 		if profile.filterForClient(ctx, fi) {
-			log.LoggerWContext(ctx).Info(fmt.Sprintf("Matched remote connection profile %s for %s", id, fi.NodeInfo.MAC))
+			log.LoggerWContext(ctx).Info(fmt.Sprintf("Matched remote connection profile %s for %s", profile.PfconfigHashNS, fi.NodeInfo.MAC))
 			return profile
 		}
 	}
