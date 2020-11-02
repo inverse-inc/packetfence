@@ -6,9 +6,6 @@ import (
 	"github.com/inverse-inc/packetfence/go/pfconfigdriver"
 )
 
-// Global variable that can be used in a pfconfigdriver.Pool
-var Firewalls FirewallsContainer
-
 // A struct which contains all the firewall IDs along with their instantiated FirewallSSOInt struct
 // It implements pfconfigdriver.Refreshable so that this can be part of a pfconfigdriver.Pool
 type FirewallsContainer struct {
