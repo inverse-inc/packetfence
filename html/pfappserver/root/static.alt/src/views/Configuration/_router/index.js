@@ -86,6 +86,55 @@ const route = {
     ...SwitchGroupsRoutes,
     ...ConnectionProfilesRoutes,
     /**
+     * Remote connection profiles
+     */
+    {
+      path: 'remote_connection_profiles',
+      name: 'remote_connection_profiles',
+      component: RemoteConnectionProfilesList,
+      props: (route) => ({ query: route.query.query })
+    },
+    {
+      path: 'remote_connection_profiles/new',
+      name: 'newRemoteConnectionProfile',
+      component: RemoteConnectionProfileView,
+      props: () => ({ formStoreName: 'formRemoteConnectionProfile', isNew: true }),
+      beforeEnter: (to, from, next) => {
+        if (!store.state.formRemoteConnectionProfile) { // Register store module only once
+          store.registerModule('formRemoteConnectionProfile', FormStore)
+        }
+        next()
+      }
+    },
+    {
+      path: 'remote_connection_profile/:id',
+      name: 'remote_connection_profile',
+      component: RemoteConnectionProfileView,
+      props: (route) => ({ formStoreName: 'formRemoteConnectionProfile', id: route.params.id }),
+      beforeEnter: (to, from, next) => {
+        if (!store.state.formRemoteConnectionProfile) { // Register store module only once
+          store.registerModule('formRemoteConnectionProfile', FormStore)
+        }
+        store.dispatch('$_remote_connection_profiles/getRemoteConnectionProfile', to.params.id).then(() => {
+          next()
+        })
+      }
+    },
+    {
+      path: 'remote_connection_profile/:id/clone',
+      name: 'cloneRemoteConnectionProfile',
+      component: RemoteConnectionProfileView,
+      props: (route) => ({ formStoreName: 'formRemoteConnectionProfile', id: route.params.id, isClone: true }),
+      beforeEnter: (to, from, next) => {
+        if (!store.state.formRemoteConnectionProfile) { // Register store module only once
+          store.registerModule('formRemoteConnectionProfile', FormStore)
+        }
+        store.dispatch('$_remote_connection_profiles/getRemoteConnectionProfile', to.params.id).then(() => {
+          next()
+        })
+      }
+    },
+    /**
      * Compliance
      */
 

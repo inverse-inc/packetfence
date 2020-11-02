@@ -374,7 +374,7 @@ $captiveportal_default_profile_templates_path = catdir ($captiveportal_profile_t
     $pf_config_file, $network_config_file,
     $switches_config_file, $security_events_config_file,
     $authentication_config_file, $floating_devices_config_file,
-    $dhcp_fingerprints_file, $profiles_config_file,
+    $dhcp_fingerprints_file, $profiles_config_file, $remote_profiles_config_file,
     $oui_file, $floating_devices_file,
     $chi_config_file,$allowed_device_oui_file,$allowed_device_types_file,
     $chi_defaults_config_file,
