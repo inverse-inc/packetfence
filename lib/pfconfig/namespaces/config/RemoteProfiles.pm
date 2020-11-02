@@ -49,7 +49,7 @@ sub build_child {
 
 sub cleanup_after_read {
     my ( $self, $id, $data ) = @_;
-    $self->expand_list( $data, qw(scanners allow_communication_to_roles) );
+    $self->expand_list( $data, qw(allow_communication_to_roles) );
 }
 
 =head1 AUTHOR

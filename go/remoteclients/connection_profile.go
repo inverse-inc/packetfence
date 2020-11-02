@@ -99,7 +99,6 @@ type RemoteConnectionProfile struct {
 	BasicFilterType            string   `json:"basic_filter_type"`
 	BasicFilterValue           string   `json:"basic_filter_value"`
 	AdvancedFilter             string   `json:"advanced_filter"`
-	Scanners                   []string `json:"scanners"`
 	AllowCommunicationSameRole string   `json:"allow_communication_same_role"`
 	AllowCommunicationToRoles  []string `json:"allow_communication_to_roles"`
 }
