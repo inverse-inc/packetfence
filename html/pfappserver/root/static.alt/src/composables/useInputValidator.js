@@ -1,6 +1,5 @@
 import { computed, inject, ref, toRefs, unref, watch } from '@vue/composition-api'
 import { createDebouncer } from 'promised-debounce'
-import { object, reach } from 'yup'
 import i18n, { formatter } from '@/utils/locale'
 
 export const useInputValidatorProps = {
@@ -42,22 +41,26 @@ export const useInputValidator = (props, value, recursive = false) => {
   // yup | https://github.com/jquense/yup
   let localValidator = ref(unref(validator))
 
-  if (unref(namespace)) { // is :namespace
-    // use namespace
-    const schema = inject('schema')
+  let form = ref(undefined)
+  let path = ref(undefined)
+
+  if (namespace.value) { // is :namespace
 
     // recompose namespace into yup path (eg: array.1 => array[1])
-    const path = computed(() => unref(namespace).split('.').reduce((path, part) => {
+    path = computed(() => namespace.value.split('.').reduce((path, part) => {
       return (`${+part}` === `${part}`)
         ? [ ...path.slice(0, path.length -1), `${path[path.length - 1]}[${part}]` ]
         : [ ...path, part ]
     }, []).join('.'))
 
+    form = inject('form')
+    localValidator = inject('schema')
+
+    /*
     localValidator = computed(() => {
-      /**
-       * reach throws an exception when a path is not defined in the schema
-       * https://github.com/jquense/yup/issues/599
-      **/
+      return schema.value
+      // reach throws an exception when a path is not defined in the schema
+      //  https://github.com/jquense/yup/issues/599
       try {
         const namespaceSchema = reach(unref(schema), unref(path))
         if (unref(validator))
@@ -70,9 +73,10 @@ export const useInputValidator = (props, value, recursive = false) => {
         return object().nullable() // fallback to placeholder
       }
     })
+    */
   }
 
-  if (unref(localValidator)) { // is :validator
+  if (localValidator.value) { // is :validator
 
     let lastPromise = 0 // only use latest of 1+ promises
     const setState = (thisPromise, state, validFeedback, invalidFeedback) => {
@@ -95,7 +99,20 @@ export const useInputValidator = (props, value, recursive = false) => {
 
         validateDebouncer({
           handler: () => {
-            schema.validate(unref(value), { recursive }).then(() => { // valid
+            let validationPromise
+            if (namespace.value) { // use namespace/path
+              // yup throws an exception when a path is not defined in the schema
+              //  https://github.com/jquense/yup/issues/599
+              try {
+                validationPromise = schema.validateAt(path.value, form.value, { recursive })
+              } catch (e) { // path not defined in schema
+                validationPromise = true
+              }
+            }
+            else { // use value
+              validationPromise = schema.validate(value.value, { recursive })
+            }
+            Promise.resolve(validationPromise).then(() => { // valid
               if (unref(validFeedback) !== undefined)
                 setState(thisPromise, true, unref(validFeedback), null)
               else
