@@ -30,13 +30,14 @@ type RemoteClient struct {
 	node *common.NodeInfo
 }
 
-func GetOrCreateRemoteClient(ctx context.Context, db *gorm.DB, publicKey string, mac string, categoryId int) (*RemoteClient, error) {
+func GetOrCreateRemoteClient(ctx context.Context, db *gorm.DB, publicKey string, mac string, username string, categoryId int) (*RemoteClient, error) {
 	rc := RemoteClient{MAC: mac}
 	rcn := rc.GetNode(ctx)
 
 	categoryIdChanged := categoryId != rcn.CategoryID_int()
 
 	rcn.MAC = mac
+	rcn.PID = username
 	rcn.CategoryID = strconv.Itoa(categoryId)
 	err := rcn.Upsert(ctx)
 	if err != nil {

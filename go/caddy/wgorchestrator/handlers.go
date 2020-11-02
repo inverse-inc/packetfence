@@ -75,7 +75,7 @@ func (h *WgorchestratorHandler) handleGetProfile(c *gin.Context) {
 		categoryId = 1
 	}
 
-	rc, err := remoteclients.GetOrCreateRemoteClient(c, db, c.Query("public_key"), c.Query("mac"), categoryId)
+	rc, err := remoteclients.GetOrCreateRemoteClient(c, db, c.Query("public_key"), c.Query("mac"), username, categoryId)
 
 	if err != nil {
 		log.LoggerWContext(c).Error("Unable to GetOrCreateRemoteClient: " + err.Error())
