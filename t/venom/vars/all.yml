@@ -218,10 +218,24 @@ captive_portal.reg.url: 'https://{{.configurator.interfaces.reg.ip}}/captive-por
 ################################################################################
 # dot1x_eap_tls_pfpki test suite specific variables
 ################################################################################
-# Certs
+### Certs
+# CA
+dot1x_eap_tls_pfpki.certs.ca.country: CA
+dot1x_eap_tls_pfpki.certs.ca.state: Quebec
+dot1x_eap_tls_pfpki.certs.ca.locality: Montreal
+dot1x_eap_tls_pfpki.certs.ca.street_address: 7000 park avenue
+dot1x_eap_tls_pfpki.certs.ca.postal_code: H3N 1X1
+dot1x_eap_tls_pfpki.certs.ca.organisation: Inverse
 dot1x_eap_tls_pfpki.certs.ca.cn: InverseCA
+dot1x_eap_tls_pfpki.certs.ca.issuer: "/C={{.dot1x_eap_tls_pfpki.certs.ca.country}}/ST={{.dot1x_eap_tls_pfpki.certs.ca.state}}/L={{.dot1x_eap_tls_pfpki.certs.ca.locality}}/street={{.dot1x_eap_tls_pfpki.certs.ca.street_address}}/postalCode={{.dot1x_eap_tls_pfpki.certs.ca.postal_code}}/O={{.dot1x_eap_tls_pfpki.certs.ca.organisation}}/CN={{.dot1x_eap_tls_pfpki.certs.ca.cn}}"
+
+# RADIUS
 dot1x_eap_tls_pfpki.certs.radius.cn: pf_radius
+
+# HTTP
 dot1x_eap_tls_pfpki.certs.http.cn: pf_http
+
+# User
 dot1x_eap_tls_pfpki.certs.user.cn: usercertificate
 
 # Roles

@@ -29,7 +29,7 @@ testcases:
               {
                 "attribute": "radius_request.TLS-Client-Cert-Issuer",
                 "operator": "equals",
-                "value": "C=CA, ST=Quebec, L=Montreal/street=7000 park avenue/postalCode=H3N 1X1, O=Inverse, CN=InverseCA"
+                "value": "{{.dot1x_eap_tls_pfpki.certs.ca.issuer}}"
               }
             ]
           }
