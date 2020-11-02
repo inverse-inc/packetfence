@@ -1,4 +1,4 @@
-package connectionprofiles
+package remoteclients
 
 import (
 	"context"

@@ -1,4 +1,4 @@
-package connectionprofiles
+package remoteclients
 
 import (
 	"context"
@@ -7,7 +7,6 @@ import (
 	"github.com/inverse-inc/packetfence/go/common"
 	"github.com/inverse-inc/packetfence/go/log"
 	"github.com/inverse-inc/packetfence/go/pfconfigdriver"
-	"github.com/inverse-inc/packetfence/go/remoteclients"
 )
 
 const DefaultRemoteConnectionProfile = "default"
@@ -101,7 +100,7 @@ type RemoteConnectionProfile struct {
 
 type FilterInfo struct {
 	NodeInfo     *common.NodeInfo
-	RemoteClient *remoteclients.RemoteClient
+	RemoteClient *RemoteClient
 }
 
 func (rcp *RemoteConnectionProfile) init(ctx context.Context) {
