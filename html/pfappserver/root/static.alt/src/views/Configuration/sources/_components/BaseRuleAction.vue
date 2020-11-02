@@ -1,22 +1,17 @@
 <template>
-  <b-row class="w-100 mx-0 mb-1 px-0 py-2" align-v="center" no-gutters>
-    <b-col sm="6" align-self="start">
+  <div class="base-flex-wrap" align-v="center">
 
-      <base-input-chosen-one ref="typeComponentRef"
-        :namespace="`${namespace}.type`"
-        :options="typeOptions"
-      />
+    <base-input-chosen-one ref="typeComponentRef"
+      :namespace="`${namespace}.type`"
+      :options="typeOptions"
+    />
 
-    </b-col>
-    <b-col sm="6" align-self="start" class="pl-1">
+    <component :is="valueComponent" ref="valueComponentRef"
+      :namespace="`${namespace}.value`"
+      :options="valueOptions"
+    />
 
-      <component :is="valueComponent" ref="valueComponentRef"
-        :namespace="`${namespace}.value`"
-        :options="valueOptions"
-      />
-
-    </b-col>
-  </b-row>
+  </div>
 </template>
 <script>
 import {

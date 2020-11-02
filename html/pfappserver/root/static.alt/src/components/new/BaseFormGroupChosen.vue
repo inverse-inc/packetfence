@@ -257,6 +257,9 @@ export const setup = (props, context) => {
   // used by CSS to show vue-multiselect placeholder
   const isEmpty = computed(() => !value.value)
 
+  // clear single value
+  const onRemove = () => onInput(undefined)
+
   return {
     inputRef,
 
@@ -289,7 +292,7 @@ export const setup = (props, context) => {
     singleLabel,
     multipleLabels,
     isEmpty,
-    onRemove: () => {}
+    onRemove,
   }
 }
 

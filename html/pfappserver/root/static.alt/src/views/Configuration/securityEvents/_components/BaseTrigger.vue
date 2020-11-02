@@ -1,21 +1,23 @@
 <template>
-  <b-container fluid>
+  <b-container fluid
+    class="base-trigger"
+    :class="{
+      'border bg-light': isShown,
+      'is-shown': isShown,
+      'is-invalid': inputState === false
+    }"
+  >
     <b-row
       class="base-trigger base-trigger-info align-items-center flex-nowrap text-center py-2"
-      :class="{
-        'bg-light border-primary border-top border-right border-left': isShown
-      }"
     >
-      <b-badge class="or">{{ $t('OR') }}</b-badge>
+      <b-badge class="or" v-if="!isShown">{{ $t('OR') }}</b-badge>
       <b-col cols="2"
-        :class="{
-          'text-primary': isShown && isTab === 0
+        class="base-trigger-description" :class="{
+          'is-tab': isTab === 0
         }"
         @click="doTab(0)"
       >
-        <span v-for="(desc, index) in endpointDescription" :key="`endpoint-${index}-${desc}`"
-          :class="{ 'text-danger': endpointInvalid }"
-        >
+        <span v-for="(desc, index) in endpointDescription" :key="`endpoint-${index}-${desc}`">
           {{ desc }} <b-badge variant="light" v-if="endpointDescription.length - index > 1">{{ $t('AND') }}</b-badge>
         </span>
       </b-col>
@@ -23,14 +25,12 @@
         <b-badge>{{ $t('AND') }}</b-badge>
       </b-col>
       <b-col cols="2"
-        :class="{
-          'text-primary': isShown && isTab === 1
+        class="base-trigger-description" :class="{
+          'is-tab': isTab === 1
         }"
         @click="doTab(1)"
       >
-        <span v-for="(desc, index) in profilingDescription" :key="`profiling-${index}-${desc}`"
-          :class="{ 'text-danger': profilingInvalid }"
-        >
+        <span v-for="(desc, index) in profilingDescription" :key="`profiling-${index}-${desc}`">
           {{ desc }} <b-badge variant="light" v-if="profilingDescription.length - index > 1">{{ $t('AND') }}</b-badge>
         </span>
       </b-col>
@@ -38,41 +38,77 @@
         <b-badge>{{ $t('AND') }}</b-badge>
       </b-col>
       <b-col cols="2"
-        :class="{
-          'text-primary': isShown && isTab === 2
+        class="base-trigger-description" :class="{
+          'is-tab': isTab === 2
         }"
         @click="doTab(2)"
       >
-        <span :class="{ 'text-danger': usageInvalid }">{{ usageDescription }}</span>
+        {{ usageDescription }}
       </b-col>
       <b-col>
         <b-badge>{{ $t('AND') }}</b-badge>
       </b-col>
       <b-col cols="2"
-        :class="{
-          'text-primary': isShown && isTab === 3
+        class="base-trigger-description" :class="{
+          'is-tab': isTab === 3
         }"
         @click="doTab(3)"
       >
-        <span :class="{ 'text-danger': eventInvalid }">{{ eventDescription }}</span>
+        {{ eventDescription }}
       </b-col>
     </b-row>
 
     <div v-if="isShown"
-      class="base-trigger base-trigger-form row p-2 border-primary border-right border-bottom border-left"
+      class="base-trigger base-trigger-form row mx-1 mb-3"
     >
 
-      <base-trigger-endpoint-conditions v-if="isTab === 0"
-        :namespace="`${namespace}.endpoint.conditions`" />
+      <b-card v-show="isTab === 0"
+        no-body class="w-100"
+      >
+        <b-card-header>
+          <h5 class="mb-0 d-inline">{{ $t('Endpoint') }}</h5>
+          <b-button-close @click="toggleShown" class="float-right" scale="0.5" v-b-tooltip.hover.left.d300 :title="$t('Close [ESC]')"><icon name="times"/></b-button-close>
+        </b-card-header>
+        <base-trigger-endpoint-conditions :namespace="`${namespace}.endpoint.conditions`"
+          class="card-body p-3"
+        />
+      </b-card>
 
-      <base-trigger-profiling-conditions v-if="isTab === 1"
-        :namespace="`${namespace}.profiling.conditions`" />
+      <b-card v-show="isTab === 1"
+        no-body class="w-100"
+      >
+        <b-card-header>
+          <h5 class="mb-0 d-inline">{{ $t('Device Profiling') }}</h5>
+          <b-button-close @click="toggleShown" class="float-right" scale="0.5" v-b-tooltip.hover.left.d300 :title="$t('Close [ESC]')"><icon name="times"/></b-button-close>
+        </b-card-header>
+        <base-trigger-profiling-conditions :namespace="`${namespace}.profiling.conditions`"
+          class="card-body p-3"
+        />
+      </b-card>
 
-      <base-trigger-usage v-if="isTab === 2"
-        :namespace="`${namespace}.usage`" />
+      <b-card v-show="isTab === 2"
+        no-body class="w-100"
+      >
+        <b-card-header>
+          <h5 class="mb-0 d-inline">{{ $t('Data Usage') }}</h5>
+          <b-button-close @click="toggleShown" class="float-right" scale="0.5" v-b-tooltip.hover.left.d300 :title="$t('Close [ESC]')"><icon name="times"/></b-button-close>
+        </b-card-header>
+        <base-trigger-usage :namespace="`${namespace}.usage`"
+          class="card-body p-3"
+        />
+      </b-card>
 
-      <base-trigger-event v-if="isTab === 3"
-        :namespace="`${namespace}.event`" />
+      <b-card v-show="isTab === 3"
+        no-body class="w-100"
+      >
+        <b-card-header>
+          <h5 class="mb-0 d-inline">{{ $t('Event') }}</h5>
+          <b-button-close @click="toggleShown" class="float-right" scale="0.5" v-b-tooltip.hover.left.d300 :title="$t('Close [ESC]')"><icon name="times"/></b-button-close>
+        </b-card-header>
+        <base-trigger-event :namespace="`${namespace}.event.typeValue`"
+          class="card-body p-3"
+        />
+      </b-card>
 
     </div>
 
@@ -155,7 +191,7 @@ const setup = (props, context) => {
 
   const {
     state
-  } = useInputValidator(metaProps, inputValue)
+  } = useInputValidator(metaProps, inputValue, true)
 
   const endpointDescription = computed(() => {
     const { endpoint: { conditions = [] } = {} } = inputValue.value || {}
@@ -178,13 +214,13 @@ const setup = (props, context) => {
       return type && value
     })
     return filteredConditions.length > 0
-      ? conditions.map(condition => {
+      ? filteredConditions.map(condition => {
         const { type, value } = condition || {}
         let { [type]: lookupType, [type]: { [value]: lookupValue } = {} } = sharedCache
+        // declare temporary placeholder
         if (!lookupType)
           set(sharedCache, type, { [value]: null })
         if (!lookupValue) {
-          // temporary placeholder
           if (type in triggerFields)
             set(sharedCache[type], value, `${triggerFields[type].text}: ${value}`)
           // perform lookup
@@ -250,13 +286,9 @@ const setup = (props, context) => {
     doTab,
 
     endpointDescription,
-    endpointInvalid: false,
     profilingDescription,
-    profilingInvalid: false,
     usageDescription,
-    usageInvalid: false,
-    eventDescription,
-    eventInvalid: false
+    eventDescription
   }
 }
 
@@ -270,37 +302,48 @@ export default {
 }
 </script>
 <style lang="scss">
-.base-trigger-info {
-  position: relative;
-  border-top-left-radius: $border-radius !important;
-  border-top-right-radius: $border-radius !important;
-  /**
-  * Position the "or" badge below each trigger except the last one
-  */
-  .or {
-    position: absolute;
-    bottom: -.75em;
-    left: -1.5em;
+.base-trigger {
+  border-radius: $border-radius !important;
+  border-color: var(--secondary);
+  .base-trigger-info {
+    position: relative;
+    /**
+    * Position the "or" badge below each trigger except the last one
+    */
+    .or {
+      position: absolute;
+      bottom: -.75em;
+      left: -1.5em;
+    }
+    &:hover {
+      cursor: pointer;
+    }
   }
-  &:hover {
-    cursor: pointer;
+  .base-trigger-form {
+    .input-group {
+      width: 100%;
+    }
   }
-}
-.base-trigger-form {
-  border-bottom-left-radius: $border-radius !important;
-  border-bottom-right-radius: $border-radius !important;
-  .input-group {
-    width: 100%;
+  &.is-shown:not(.is-invalid) {
+    .base-trigger-description.is-tab {
+      color: var(--primary);
+    }
   }
-}
-
-.is-lastchild {
-  & > .col-10 {
-    & > .base-trigger-info {
-      & > .or {
-        display: none;
+  &.is-invalid {
+    .base-trigger-description {
+      color: var(--danger);
+    }
+  }
+  &.is-lastchild {
+    & > .col-10 {
+      & > .base-trigger-info {
+        & > .or {
+          display: none;
+        }
       }
     }
   }
 }
+
+
 </style>

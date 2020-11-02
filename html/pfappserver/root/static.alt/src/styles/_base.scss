@@ -66,3 +66,16 @@
     }
   }
 }
+
+.base-flex-wrap {
+  display: flex;
+  flex-wrap: wrap;
+  & > * {
+    flex: 1 0 !important;
+    margin: 0.25rem 0.25rem 0.25rem 0 !important;
+  }
+  .valid-feedback,
+  .invalid-feedback {
+    margin-bottom: 0.25rem !important;
+  }
+}

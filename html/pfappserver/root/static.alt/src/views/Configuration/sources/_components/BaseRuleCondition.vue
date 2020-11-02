@@ -1,29 +1,21 @@
 <template>
-  <b-row class="w-100 mx-0 mb-1 px-0 py-2" align-v="center" no-gutters>
-    <b-col sm="4" align-self="start">
+  <div class="base-flex-wrap" align-v="center">
 
-      <base-input-chosen-one ref="attributeComponentRef"
-        :namespace="`${namespace}.attribute`"
-      />
+    <base-input-chosen-one ref="attributeComponentRef"
+      :namespace="`${namespace}.attribute`"
+    />
 
-    </b-col>
-    <b-col sm="3" align-self="start" class="pl-1">
+    <base-input-chosen-one ref="operatorComponentRef" v-if="attributeValue"
+      :namespace="`${namespace}.operator`"
+      :options="operatorOptions"
+    />
 
-      <base-input-chosen-one ref="operatorComponentRef" v-if="attributeValue"
-        :namespace="`${namespace}.operator`"
-        :options="operatorOptions"
-      />
+    <component :is="valueComponent" ref="valueComponentRef" v-if="operatorValue"
+      :namespace="`${namespace}.value`"
+      v-bind="valueBind"
+    />
 
-    </b-col>
-    <b-col sm="5" align-self="start" class="pl-1">
-
-      <component :is="valueComponent" ref="valueComponentRef" v-if="operatorValue"
-        :namespace="`${namespace}.value`"
-        v-bind="valueBind"
-      />
-
-    </b-col>
-  </b-row>
+  </div>
 </template>
 <script>
 import {

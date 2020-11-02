@@ -59,11 +59,16 @@ export const setup = (props, context) => {
     return trackedValue
   })
 
+  // clear single value
+  const onRemove = () => onInput(undefined)
+
   return {
     // wrappers
     inputValue: inputValueWrapper,
     onInput: onInputWrapper,
-    inputPlaceholder: placeholderWrapper
+    inputPlaceholder: placeholderWrapper,
+
+    onRemove
   }
 }
 

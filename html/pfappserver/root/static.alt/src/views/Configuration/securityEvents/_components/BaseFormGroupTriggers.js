@@ -28,6 +28,9 @@ export const props = {
       event: {}
     })
   },
+  headers: {
+    type: Array
+  },
   // overload handlers
   onAdd: {
     type: Function,

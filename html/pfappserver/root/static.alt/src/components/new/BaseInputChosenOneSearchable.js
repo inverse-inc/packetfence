@@ -88,6 +88,8 @@ export const setup = (props, context) => {
     })
     if (optionsIndex > -1)
       return _options[optionsIndex][unref(label)]
+    else if (currentValueLoading.value)
+      return '...'
     else
       return unref(value)
   })

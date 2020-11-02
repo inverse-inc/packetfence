@@ -23,6 +23,9 @@
       <div v-else
         class="base-form-group-array-items mx-3"
       >
+
+        <slot name="header"/>
+
         <b-row v-for="(item, index) in inputValue" :key="index"
           class="base-form-group-array-item align-items-center"
           :class="{
@@ -98,6 +101,9 @@ export const props = {
 
   buttonLabel: {
     type: String
+  },
+  headers: {
+    type: Array
   }
 }
 

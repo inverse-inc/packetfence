@@ -23,11 +23,13 @@ export const triggerFields = {
   },
   custom: {
     text: i18n.t('Custom'),
-    category: triggerCategories.EVENT
+    category: triggerCategories.EVENT,
+    types: [fieldType.SUBSTRING]
   },
   detect: {
     text: i18n.t('Detect'),
-    category: triggerCategories.EVENT
+    category: triggerCategories.EVENT,
+    types: [fieldType.SUBSTRING]
   },
   device: {
     text: i18n.t('Device'),
@@ -56,7 +58,8 @@ export const triggerFields = {
   },
   internal: {
     text: i18n.t('Internal'),
-    category: triggerCategories.EVENT
+    category: triggerCategories.EVENT,
+    types: [fieldType.OPTIONS]
   },
   mac: {
     text: i18n.t('MAC Address'),
@@ -70,27 +73,33 @@ export const triggerFields = {
   },
   nessus: {
     text: 'Nessus',
-    category: triggerCategories.EVENT
+    category: triggerCategories.EVENT,
+    types: [fieldType.SUBSTRING]
   },
   nessus6: {
     text: 'Nessus v6',
-    category: triggerCategories.EVENT
+    category: triggerCategories.EVENT,
+    types: [fieldType.SUBSTRING]
   },
   nexpose_event_contains: {
     text: i18n.t('Nexpose event contains ..'),
-    category: triggerCategories.EVENT
+    category: triggerCategories.EVENT,
+    types: [fieldType.SUBSTRING]
   },
   nexpose_event_starts_with: {
     text: i18n.t('Nexpose event starts with ..'),
-    category: triggerCategories.EVENT
+    category: triggerCategories.EVENT,
+    types: [fieldType.OPTIONS]
   },
   openvas: {
     text: 'OpenVAS',
-    category: triggerCategories.EVENT
+    category: triggerCategories.EVENT,
+    types: [fieldType.SUBSTRING]
   },
   provisioner: {
     text: i18n.t('Provisioner'),
-    category: triggerCategories.EVENT
+    category: triggerCategories.EVENT,
+    types: [fieldType.OPTIONS]
   },
   role: {
     text: i18n.t('Role'),
@@ -99,11 +108,13 @@ export const triggerFields = {
   },
   suricata_event: {
     text: i18n.t('Suricata Event'),
-    category: triggerCategories.EVENT
+    category: triggerCategories.EVENT,
+    types: [fieldType.OPTIONS]
   },
   suricata_md5: {
     text: 'Suricata MD5',
-    category: triggerCategories.EVENT
+    category: triggerCategories.EVENT,
+    types: [fieldType.SUBSTRING]
   },
   switch: {
     text: i18n.t('Switch'),
@@ -122,6 +133,7 @@ export const triggerDirections = {
   IN: i18n.t('Inbound'),
   OUT: i18n.t('Outbound')
 }
+export const triggerDirectionOptions = Object.keys(triggerDirections).map(key => ({ value: key, text: triggerDirections[key] }))
 
 export const triggerIntervals = {
   D: i18n.t('Day'),
@@ -129,6 +141,14 @@ export const triggerIntervals = {
   M: i18n.t('Month'),
   Y: i18n.t('Year')
 }
+export const triggerIntervalOptions = Object.keys(triggerIntervals).map(key => ({ value: key, text: triggerIntervals[key] }))
+
+export const triggerTypes = {
+  bandwidth: i18n.t('Bandwidth Limit'),
+  BandwidthExpired: i18n.t('Bandwidth balance has expired'),
+  TimeExpired: i18n.t('Time balance has expired')
+}
+export const triggerTypeOptions = Object.keys(triggerTypes).map(key => ({ value: key, text: triggerTypes[key] }))
 
 export const decomposeTriggers = (triggers) => {
   return (triggers || []).map(trigger => {

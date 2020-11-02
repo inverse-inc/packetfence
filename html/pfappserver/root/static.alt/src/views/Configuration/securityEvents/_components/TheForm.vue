@@ -29,7 +29,29 @@
 
     <form-group-triggers namespace="triggers"
       :column-label="$i18n.t('Event Triggers')"
-    />
+    >
+      <template v-slot:header>
+        <b-row>
+          <b-col cols="1"></b-col>
+          <b-col cols="2">
+              <h6 class="col-form-label text-center" v-t="'Endpoint'"></h6>
+          </b-col>
+          <b-col></b-col>
+          <b-col cols="2">
+              <h6 class="col-form-label text-center" v-t="'Device Profiling'"></h6>
+          </b-col>
+          <b-col></b-col>
+          <b-col cols="2">
+              <h6 class="col-form-label text-center" v-t="'Data Usage'"></h6>
+          </b-col>
+          <b-col></b-col>
+          <b-col cols="2">
+              <h6 class="col-form-label text-center" v-t="'Event'"></h6>
+          </b-col>
+          <b-col cols="1"></b-col>
+        </b-row>
+      </template>
+    </form-group-triggers>
 
     <form-group-actions
       :column-label="$i18n.t('Event Actions')"
@@ -54,7 +76,6 @@
       :column-label="$i18n.t('Delay By')"
       :text="$i18n.t('Delay before triggering the security event.')"
     />
-<pre>{{ {form} }}</pre>
   </base-form>
 </template>
 <script>

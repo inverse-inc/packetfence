@@ -21,10 +21,41 @@ const schemaTriggerCondition = yup.object({
   type: yup.string().nullable().required(i18n.t('Type required.')),
   value: yup.string()
     .when('type', {
-      is: null,
+      is: value => !value,
       then: yup.string().nullable(),
       otherwise: yup.string().nullable().required(i18n.t('Value required.'))
     })
+})
+
+const schemaTriggerUsage = yup.object({
+  type: yup.string().nullable(),
+  direction: yup.string()
+    .when('type', {
+      is: 'bandwidth',
+      then: yup.string().nullable().required(i18n.t('Direction required.'))
+    }),
+  limit: yup.string()
+    .when('type', {
+      is: 'bandwidth',
+      then: yup.string().nullable().required(i18n.t('Limit required.'))
+    }),
+  interval: yup.string()
+    .when('type', {
+      is: 'bandwidth',
+      then: yup.string().nullable().required(i18n.t('Interval required.'))
+    })
+})
+
+const schemaTriggerEvent = yup.object({
+  typeValue: yup.object({
+    type: yup.string().nullable(),
+    value: yup.string()
+      .when('type', {
+        is: value => !value,
+        then: yup.string().nullable(),
+        otherwise: yup.string().nullable().required(i18n.t('Value required.'))
+      })
+  })
 })
 
 const schemaTrigger = yup.object({
@@ -33,7 +64,9 @@ const schemaTrigger = yup.object({
   }),
   profiling: yup.object({
     conditions: yup.array().of(schemaTriggerCondition)
-  })
+  }),
+  usage: schemaTriggerUsage,
+  event: schemaTriggerEvent
 })
 
 const schemaTriggers = yup.array().of(schemaTrigger)

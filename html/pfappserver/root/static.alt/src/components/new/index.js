@@ -8,6 +8,7 @@ import BaseFormGroupArrayDraggable, { props as BaseFormGroupArrayDraggableProps 
 import BaseFormGroupChosenMultiple from './BaseFormGroupChosenMultiple'
 import BaseFormGroupChosenOne from './BaseFormGroupChosenOne'
 import BaseFormGroupInput from './BaseFormGroupInput'
+import BaseFormGroupInputMultiplier from './BaseFormGroupInputMultiplier'
 import BaseFormGroupInputNumber from './BaseFormGroupInputNumber'
 import BaseFormGroupInputPassword from './BaseFormGroupInputPassword'
 import BaseFormGroupInputPasswordTest, { props as BaseFormGroupInputPasswordTestProps } from './BaseFormGroupInputPasswordTest'
@@ -50,6 +51,7 @@ export {
   BaseFormGroupChosenMultiple,
   BaseFormGroupChosenOne,
   BaseFormGroupInput,
+  BaseFormGroupInputMultiplier,
   BaseFormGroupInputNumber,
   BaseFormGroupInputPassword,
   BaseFormGroupInputPasswordTest, BaseFormGroupInputPasswordTestProps,

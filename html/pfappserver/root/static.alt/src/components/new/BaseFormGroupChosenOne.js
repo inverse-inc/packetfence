@@ -31,13 +31,11 @@ export const setup = (props, context) => {
   const inputValueWrapper = computed(() => {
     const _value = unref(value)
     const _options = unref(options)
-    const optionsIndex = _options.findIndex(option => option[trackBy] === _value)
-    if (optionsIndex > -1) {
+    const optionsIndex = _options.findIndex(option => option[trackBy.value] === _value)
+    if (optionsIndex > -1)
       return _options[optionsIndex]
-    }
-    else {
+    else
       return { [label.value]: _value, [trackBy.value]: _value }
-    }
   })
 
   // backend may use trackBy (value) as a placeholder w/ meta,
@@ -55,7 +53,7 @@ export const setup = (props, context) => {
   })
 
   const onInputWrapper = useEventFnWrapper(onInput, value => {
-    const { [unref(trackBy)]: trackedValue } = value
+    const { [trackBy.value]: trackedValue } = value
     return trackedValue
   })
 

@@ -1,22 +1,17 @@
 <template>
-  <b-row class="w-100 m-0 p-0" align-v="center" no-gutters>
-    <b-col sm="6" align-self="start">
+  <div class="base-trigger-profiling-condition base-flex-wrap" align-v="center">
 
-      <base-input-chosen-one ref="typeComponentRef"
-        :namespace="`${namespace}.type`"
-        :options="typeOptions"
-      />
+    <base-input-chosen-one ref="typeComponentRef"
+      :namespace="`${namespace}.type`"
+      :options="typeOptions"
+    />
 
-    </b-col>
-    <b-col sm="6" align-self="start" class="pl-1">
+    <component :is="valueComponent" ref="valueComponentRef"
+      :namespace="`${namespace}.value`"
+      :lookup="valueLookup"
+    />
 
-      <component :is="valueComponent" ref="valueComponentRef"
-        :namespace="`${namespace}.value`"
-        :lookup="valueLookup"
-      />
-
-    </b-col>
-  </b-row>
+  </div>
 </template>
 <script>
 import {
@@ -133,3 +128,10 @@ export default {
   setup
 }
 </script>
+<style lang="scss">
+.base-trigger-profiling-condition {
+  .btn {
+    margin: 0.25rem !important;
+  }
+}
+</style>

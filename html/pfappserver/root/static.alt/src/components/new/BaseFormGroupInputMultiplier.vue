@@ -1,51 +1,80 @@
 <template>
-  <base-input-group
+  <b-form-group ref="form-group"
+    class="base-form-group"
+    :class="{
+      'mb-0': !columnLabel
+    }"
     :state="inputState"
-    :invalid-feedback="inputInvalidFeedback"
-    :valid-feedback="inputValidFeedback"
-    :text="inputText"
-    :isFocus="isFocus"
-    :isLocked="isLocked"
+    :labelCols="labelCols"
+    :label="columnLabel"
   >
-    <b-form-input ref="input"
-      class="base-input"
-      :disabled="isLocked"
-      :readonly="inputReadonly"
-      :placeholder="inputPlaceholder"
-      :tabIndex="inputTabIndex"
-      :type="inputType"
-      :value="inputValue"
-      @input="onChange"
-      @change="onChange"
-      @focus="onFocus"
-      @blur="onBlur"
-    />
-    <template v-slot:append>
-      <b-dropdown size="sm" v-if="prefixesInRange.length > 0" variant="light" class="base-input-dropdown">
-        <template v-slot:button-content>
-          <span class="mr-1">{{ prefix.label  + units.label }}</span>
-        </template>
-        <template v-for="(p, i) in prefixesInRange">
-          <b-dropdown-item-button :key="i" :active="p.label === prefix.label" @click="onChangePrefix(p)">{{ p.label + units.label }} - {{ p.name + units.name }}</b-dropdown-item-button>
-        </template>
-      </b-dropdown>
+    <b-input-group
+      class="base-input-group"
+      :class="{
+        'is-focus': isFocus,
+        'is-blur': !isFocus,
+        'is-valid': inputState === true,
+        'is-invalid': inputState === false
+      }"
+    >
+      <b-form-input ref="input"
+        class="base-form-group-input"
+        :disabled="isLocked"
+        :readonly="inputReadonly"
+        :state="inputState"
+        :placeholder="inputPlaceholder"
+        :tabIndex="inputTabIndex"
+        :type="inputType"
+        :value="inputValue"
+        @input="onInput"
+        @change="onChange"
+        @focus="onFocus"
+        @blur="onBlur"
+      />
+      <template v-slot:prepend>
+        <slot name="prepend"></slot>
+      </template>
+      <template v-slot:append>
+        <b-dropdown size="sm" v-if="prefixesInRange.length > 0" variant="light" class="base-input-dropdown">
+          <template v-slot:button-content>
+            <span class="mr-1">{{ prefix.label  + units.label }}</span>
+          </template>
+          <template v-for="(p, i) in prefixesInRange">
+            <b-dropdown-item-button :key="i" :active="p.label === prefix.label" @click="onChangePrefix(p)">{{ p.label + units.label }} - {{ p.name + units.name }}</b-dropdown-item-button>
+          </template>
+        </b-dropdown>
+        <b-button v-if="isLocked"
+          class="input-group-text"
+          :disabled="true"
+          tabIndex="-1"
+        >
+          <icon ref="icon-lock"
+            name="lock"
+          />
+        </b-button>
+      </template>
+    </b-input-group>
+    <template v-slot:description v-if="inputText">
+      <div v-html="inputText"/>
     </template>
-  </base-input-group>
+    <template v-slot:invalid-feedback v-if="inputInvalidFeedback">
+      <div v-html="inputInvalidFeedback"/>
+    </template>
+    <template v-slot:valid-feedback v-if="inputValidFeedback">
+      <div v-html="inputValidFeedback"/>
+    </template>
+  </b-form-group>
 </template>
 <script>
-import BaseInputGroup from './BaseInputGroup'
-
-const components = {
-  BaseInputGroup
-}
-
 import { computed, ref, toRefs, unref, watch } from '@vue/composition-api'
+import { useFormGroupProps } from '@/composables/useFormGroup'
 import { useInput, useInputProps } from '@/composables/useInput'
 import { useInputMeta, useInputMetaProps } from '@/composables/useMeta'
 import { useInputValidator, useInputValidatorProps } from '@/composables/useInputValidator'
 import { useInputValue, useInputValueProps } from '@/composables/useInputValue'
 
 export const props = {
+  ...useFormGroupProps,
   ...useInputProps,
   ...useInputMetaProps,
   ...useInputValidatorProps,
@@ -98,6 +127,7 @@ export const props = {
 export const setup = (props, context) => {
 
   const metaProps = useInputMeta(props, context)
+
   const {
     max,
     prefixes
@@ -118,6 +148,7 @@ export const setup = (props, context) => {
 
   const {
     value,
+    onInput,
     onChange
   } = useInputValue(metaProps, context)
 
@@ -183,6 +214,7 @@ export const setup = (props, context) => {
     inputValidFeedback: validFeedback,
 
     inputValue: scaledValue,
+    onInput: onChangeInput,
     onChange: onChangeInput,
     onChangePrefix,
     prefixesInRange,
@@ -192,10 +224,23 @@ export const setup = (props, context) => {
 
 // @vue/component
 export default {
-  name: 'base-input-group-multiplier',
+  name: 'base-form-group-input-multiplier',
   inheritAttrs: false,
-  components,
   props,
   setup
 }
 </script>
+<style lang="scss">
+.base-form-group-input {
+  border-radius: $border-radius !important;
+  /*
+  &.is-invalid {
+    .input-group-append,
+    .input-group-prepend {
+      border-color: $form-feedback-invalid-color;
+      border-top: 1px solid;
+    }
+  }
+  */
+}
+</style>

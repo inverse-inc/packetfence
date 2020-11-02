@@ -34,6 +34,7 @@
             }"
             :disabled="isLocked"
             v-b-tooltip.hover.left.d300 :title="actionKey ? $t('Delete All') : $t('Delete Row')"
+            tabIndex="-1"
           >
             <icon name="minus-circle" class="cursor-pointer mx-1"/>
           </b-link>
@@ -44,6 +45,7 @@
             }"
             :disabled="isLocked"
             v-b-tooltip.hover.left.d300 :title="actionKey ? $t('Clone Row') : $t('Add Row')"
+            tabIndex="-1"
           >
             <icon name="plus-circle" class="cursor-pointer mx-1"/>
           </b-link>
