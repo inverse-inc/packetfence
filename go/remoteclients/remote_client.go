@@ -26,21 +26,19 @@ type RemoteClient struct {
 	TenantId  uint
 	PublicKey string
 	MAC       string
+
+	node *common.NodeInfo
 }
 
 func GetOrCreateRemoteClient(ctx context.Context, db *gorm.DB, publicKey string, mac string, categoryId int) (*RemoteClient, error) {
 	rc := RemoteClient{MAC: mac}
-	rcn, err := rc.GetNode(ctx)
-
-	if err != nil {
-		return nil, err
-	}
+	rcn := rc.GetNode(ctx)
 
 	categoryIdChanged := categoryId != rcn.CategoryID_int()
 
 	rcn.MAC = mac
 	rcn.CategoryID = strconv.Itoa(categoryId)
-	err = rcn.Upsert(ctx)
+	err := rcn.Upsert(ctx)
 	if err != nil {
 		log.LoggerWContext(ctx).Error("Unable to upsert node, role detection will rely on the previous role")
 	}
@@ -84,6 +82,13 @@ func publishNewClient(ctx context.Context, db *gorm.DB, rc RemoteClient) {
 	}
 }
 
+func (rc *RemoteClient) ConnectionProfile(ctx context.Context, db *gorm.DB) *RemoteConnectionProfile {
+	return GlobalRemoteConnectionProfiles.InstantiateForClient(ctx, FilterInfo{
+		RemoteClient: rc,
+		NodeInfo:     rc.GetNode(ctx),
+	})
+}
+
 func (rc *RemoteClient) IPAddress() net.IP {
 	//TODO: change this so that we don't get out of bounds too easily since IDs in a cluster jump by the size of the cluster
 	return sharedutils.Int2IP(startingIP + uint32(rc.ID))
@@ -93,9 +98,23 @@ func (rc *RemoteClient) Netmask() int {
 	return netmask
 }
 
+func (rc *RemoteClient) AllowedRoles(ctx context.Context, db *gorm.DB) []string {
+	profile := rc.ConnectionProfile(ctx, db)
+	allowed := []string{}
+
+	if sharedutils.IsEnabled(profile.AllowCommunicationSameRole) {
+		allowed = append(allowed, rc.GetNode(ctx).Category)
+	}
+
+	allowed = append(allowed, profile.AllowCommunicationToRoles...)
+
+	return allowed
+}
+
 func (rc *RemoteClient) AllowedPeers(ctx context.Context, db *gorm.DB) []string {
+	allowedRoles := rc.AllowedRoles(ctx, db)
 	keys := []string{}
-	rows, err := db.Raw("select public_key from remote_clients join node on remote_clients.mac=node.mac where public_key != ? and node.category_id = (select category_id from node where mac=?)", rc.PublicKey, rc.MAC).Rows()
+	rows, err := db.Raw("select public_key from remote_clients join node on remote_clients.mac=node.mac where public_key != ? and node.category_id IN (select category_id from node_category where name IN (?))", rc.PublicKey, allowedRoles).Rows()
 	sharedutils.CheckError(err)
 	for rows.Next() {
 		var key string
@@ -105,11 +124,18 @@ func (rc *RemoteClient) AllowedPeers(ctx context.Context, db *gorm.DB) []string 
 	return keys
 }
 
+func (rc *RemoteClient) GetNode(ctx context.Context) *common.NodeInfo {
+	var err error
+	var n common.NodeInfo
+	if rc.node == nil {
+		n, err = common.FetchNodeInfo(ctx, rc.MAC)
+		sharedutils.CheckError(err)
+		rc.node = &n
+	}
+	return rc.node
+}
+
 type RemoteClientNode struct {
 	MAC        string `json:"mac,omitempty"`
 	CategoryId uint   `json:"category_id,omitempty"`
-}
-
-func (rc *RemoteClient) GetNode(ctx context.Context) (common.NodeInfo, error) {
-	return common.FetchNodeInfo(ctx, rc.MAC)
 }

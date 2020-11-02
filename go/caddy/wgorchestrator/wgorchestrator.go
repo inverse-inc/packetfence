@@ -13,6 +13,7 @@ import (
 	"github.com/inverse-inc/packetfence/go/db"
 	"github.com/inverse-inc/packetfence/go/log"
 	"github.com/inverse-inc/packetfence/go/panichandler"
+	"github.com/inverse-inc/packetfence/go/pfconfigdriver"
 	"github.com/inverse-inc/packetfence/go/remoteclients"
 	"github.com/inverse-inc/packetfence/go/sharedutils"
 	"github.com/jcuga/golongpoll"
@@ -51,6 +52,8 @@ func setup(c *caddy.Controller) error {
 	if err != nil {
 		return err
 	}
+
+	pfconfigdriver.PfconfigPool.AddRefreshable(ctx, remoteclients.GlobalRemoteConnectionProfiles)
 
 	httpserver.GetConfig(c).AddMiddleware(func(next httpserver.Handler) httpserver.Handler {
 		wgOrchestrator.Next = next

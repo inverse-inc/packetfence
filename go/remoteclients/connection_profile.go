@@ -9,6 +9,12 @@ import (
 	"github.com/inverse-inc/packetfence/go/pfconfigdriver"
 )
 
+var GlobalRemoteConnectionProfiles *RemoteConnectionProfiles
+
+func init() {
+	GlobalRemoteConnectionProfiles = NewRemoteConnectionProfiles(context.Background())
+}
+
 const DefaultRemoteConnectionProfile = "default"
 
 var simpleFilters = map[string]func(rcp RemoteConnectionProfile, fi FilterInfo) bool{
