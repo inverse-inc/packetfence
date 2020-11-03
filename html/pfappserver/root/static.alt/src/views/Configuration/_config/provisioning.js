@@ -267,13 +267,16 @@ export const viewFields = {
   broadcast: (form = {}, meta = {}) => {
     return {
       label: i18n.t('Broadcast network'),
-      text: i18n.t('Uncheck this box if you are using a hidden SSID.'),
+      text: i18n.t('Disable this box if you are using a hidden SSID.'),
       cols: [
         {
           namespace: 'broadcast',
           component: pfFormRangeToggle,
           attrs: {
-            values: { checked: '1', unchecked: '0' }
+            ...attributesFromMeta(meta, 'broadcast'),
+            ...{
+              values: { checked: 1, unchecked: 0 }
+            }  
           }
         }
       ]
