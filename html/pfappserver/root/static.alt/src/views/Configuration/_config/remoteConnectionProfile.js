@@ -322,6 +322,7 @@ export const view = (form = {}, meta = {}) => {
           ]
         },
         {
+          if: !isDefault,
           label: i18n.t('Filter on attribute'),
           text: i18n.t('The attribute to filter on'),
           cols: [
@@ -333,6 +334,7 @@ export const view = (form = {}, meta = {}) => {
           ]
         },
         {
+          if: !isDefault,
           label: i18n.t('Filter value'),
           cols: [
             {
