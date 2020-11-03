@@ -311,10 +311,7 @@ export const validators = (form = {}, meta = {}) => {
     ignore_unknown_eap_types: validatorsFromMeta(meta, 'ignore_unknown_eap_types', i18n.t('Ignore Unknown')),
     max_sessions: validatorsFromMeta(meta, 'max_sessions', i18n.t('Max Sessions')),
     peap_tlsprofile: validatorsFromMeta(meta, 'peap_tlsprofile', i18n.t('PEAP Profile')),
-    timer_expire: {
-      unit: validatorsFromMeta(meta, 'timer_expire.unit', i18n.t('Unit')),
-      interval: validatorsFromMeta(meta, 'timer_expire.interval', i18n.t('Interval'))
-    },
+    timer_expire: validatorsFromMeta(meta, 'timer_expire', i18n.t('Expires')),
     tls_tlsprofile: validatorsFromMeta(meta, 'tls_tlsprofile', i18n.t('TLS Profile')),
     ttls_tlsprofile: validatorsFromMeta(meta, 'ttls_tlsprofile', i18n.t('TTLS Profile'))
   }
