@@ -125,6 +125,11 @@ func (rc *RemoteClient) AllowedPeers(ctx context.Context, db *gorm.DB) []string 
 	return keys
 }
 
+func (rc *RemoteClient) NamesToResolve(ctx context.Context, db *gorm.DB) []string {
+	profile := rc.ConnectionProfile(ctx, db)
+	return profile.AdditionalDomainsToResolve
+}
+
 func (rc *RemoteClient) GetNode(ctx context.Context) *common.NodeInfo {
 	var err error
 	var n common.NodeInfo

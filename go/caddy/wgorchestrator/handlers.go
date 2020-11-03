@@ -82,11 +82,14 @@ func (h *WgorchestratorHandler) handleGetProfile(c *gin.Context) {
 		renderError(c, http.StatusInternalServerError, errors.New("Unable to GetOrCreateRemoteClient. See server-side logs for details."))
 	}
 
-	c.JSON(http.StatusOK, remoteclients.Peer{
+	profile := remoteclients.Peer{
 		WireguardIP:      rc.IPAddress(),
 		WireguardNetmask: rc.Netmask(),
 		AllowedPeers:     rc.AllowedPeers(c, db),
-	})
+		NamesToResolve:   rc.NamesToResolve(c, db),
+	}
+
+	c.JSON(http.StatusOK, profile)
 }
 
 func (h *WgorchestratorHandler) handleGetPeer(c *gin.Context) {

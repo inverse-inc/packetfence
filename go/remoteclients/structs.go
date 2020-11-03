@@ -23,4 +23,5 @@ type Peer struct {
 	WireguardNetmask int      `json:"wireguard_netmask"`
 	PublicKey        string   `json:"public_key,omitempty"`
 	AllowedPeers     []string `json:"allowed_peers,omitempty"`
+	NamesToResolve   []string `json:"names_to_resolve"`
 }
