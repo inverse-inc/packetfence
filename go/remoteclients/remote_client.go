@@ -126,9 +126,22 @@ func (rc *RemoteClient) AllowedPeers(ctx context.Context, db *gorm.DB) []string 
 	return keys
 }
 
+func (rc *RemoteClient) PeerHostnames(ctx context.Context, db *gorm.DB) []string {
+	peers := rc.AllowedPeers(ctx, db)
+	hostnames := []string{}
+	rows, err := db.Raw("select node.computername from remote_clients join node on remote_clients.mac=node.mac where public_key IN (?)", peers).Rows()
+	sharedutils.CheckError(err)
+	for rows.Next() {
+		var hostname string
+		rows.Scan(&hostname)
+		hostnames = append(hostnames, hostname)
+	}
+	return hostnames
+}
+
 func (rc *RemoteClient) NamesToResolve(ctx context.Context, db *gorm.DB) []string {
 	profile := rc.ConnectionProfile(ctx, db)
-	return profile.AdditionalDomainsToResolve
+	return append(profile.AdditionalDomainsToResolve, rc.PeerHostnames(ctx, db)...)
 }
 
 func (rc *RemoteClient) GetNode(ctx context.Context) *common.NodeInfo {
