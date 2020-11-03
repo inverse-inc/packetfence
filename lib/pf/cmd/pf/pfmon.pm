@@ -17,13 +17,21 @@ pfcmd pfmon <task> [options...]
 
 =item acct_maintenance
 
+=item admin_api_audit_log_cleanup
+
 =item auth_log_cleanup
+
+=item bandwidth_maintenance
+
+=item bandwidth_maintenance_session
 
 =item certificates_check
 
 =item cleanup_chi_database_cache
 
 =item cluster_check
+
+=item dns_audit_log_cleanup
 
 =item fingerbank_data_update
 
@@ -51,11 +59,11 @@ pfcmd pfmon <task> [options...]
 
 =item radius_audit_log_cleanup
 
-=item dns_audit_log_cleanup
-
 =item security_event_maintenance
 
 =item switch_cache_lldpLocalPort_description
+
+=item ubiquiti_ap_mac_to_ip
 
 =back
 
