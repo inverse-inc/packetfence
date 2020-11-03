@@ -155,22 +155,18 @@ export const view = (form = {}, meta = {}) => {
         },
         {
           label: i18n.t('Expires'),
+          text: i18n.t('The timeout in seconds to keep correlation between EAP-Response packets with EAP-Request packets.'),
           cols: [
             {
-              namespace: 'timer_expire.interval',
+              namespace: 'timer_expire',
               component: pfFormInput,
               attrs: {
-                ...attributesFromMeta(meta, 'timer_expire.interval'),
+                ...attributesFromMeta(meta, 'timer_expire'),
+                ...{
+                  type: 'number',
+                  step: 1
+                },
                 disabled: !isEditable
-              }
-            },
-            {
-              namespace: 'timer_expire.unit',
-              component: pfFormChosen,
-              attrs: {
-                ...attributesFromMeta(meta, 'timer_expire.unit'),
-                disabled: !isEditable,
-                allowEmpty: false
               }
             }
           ]
