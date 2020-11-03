@@ -499,7 +499,7 @@ export const view = (form = {}, meta = {}) => {
               namespace: 'high_availability',
               component: pfFormRangeToggle,
               attrs: {
-                values: { checked: '1', unchecked: '0' }
+                values: { checked: 1, unchecked: 0 }
               }
             }
           ]
