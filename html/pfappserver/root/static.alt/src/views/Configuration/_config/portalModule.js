@@ -619,7 +619,7 @@ export const viewFields = {
       ]
     }
   },
-  with_aup: () => {
+  with_aup: (form, meta = {}) => {
     return {
       label: i18n.t('Require AUP'),
       text: i18n.t('Require the user to accept the AUP'),
@@ -628,7 +628,10 @@ export const viewFields = {
           namespace: 'with_aup',
           component: pfFormRangeToggle,
           attrs: {
-            values: { checked: '1', unchecked: '0' }
+            ...attributesFromMeta(meta, 'with_aup'),
+            ...{
+              values: { checked: 1, unchecked: 0 }
+            }
           }
         }
       ]

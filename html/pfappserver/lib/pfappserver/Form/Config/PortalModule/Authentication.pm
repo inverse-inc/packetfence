@@ -35,7 +35,8 @@ has_field 'with_aup' =>
   (
    type => 'Checkbox',
    label => 'Require AUP',
-   checkbox_value => '1',
+   checkbox_value => 1,
+   unchecked_value => 0,
    tags => { after_element => \&help,
              help => 'Require the user to accept the AUP' },
   );
