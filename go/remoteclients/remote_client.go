@@ -3,12 +3,13 @@ package remoteclients
 import (
 	"context"
 	"net"
-	"strconv"
+	"net/http"
 	"time"
 
 	"github.com/inverse-inc/packetfence/go/common"
 	"github.com/inverse-inc/packetfence/go/log"
 	"github.com/inverse-inc/packetfence/go/sharedutils"
+	"github.com/inverse-inc/packetfence/go/unifiedapiclient"
 	"github.com/jcuga/golongpoll"
 	"github.com/jinzhu/gorm"
 )
@@ -30,22 +31,22 @@ type RemoteClient struct {
 	node *common.NodeInfo
 }
 
-func GetOrCreateRemoteClient(ctx context.Context, db *gorm.DB, publicKey string, mac string, username string, categoryId int) (*RemoteClient, error) {
-	rc := RemoteClient{MAC: mac}
-	rcn := rc.GetNode(ctx)
+func GetOrCreateRemoteClient(ctx context.Context, db *gorm.DB, publicKey string, info common.NodeInfo) (*RemoteClient, error) {
+	rc := RemoteClient{MAC: info.MAC}
+	existing := rc.GetNode(ctx)
 
-	categoryIdChanged := categoryId != rcn.CategoryID_int()
+	var categoryIdChanged bool
+	if existing != nil {
+		categoryIdChanged = info.CategoryID_int() != existing.CategoryID_int()
+	}
 
-	rcn.MAC = mac
-	rcn.PID = username
-	rcn.CategoryID = strconv.Itoa(categoryId)
-	err := rcn.Upsert(ctx)
+	err := info.Upsert(ctx)
 	if err != nil {
 		log.LoggerWContext(ctx).Error("Unable to upsert node, role detection will rely on the previous role")
 	}
 
 	db.Where("public_key = ?", publicKey).First(&rc)
-	rc.MAC = mac
+	rc.MAC = info.MAC
 	if rc.PublicKey != publicKey {
 		rc.PublicKey = publicKey
 		log.LoggerWContext(ctx).Info("Client " + rc.PublicKey + " has just been created. Publishing its presence.")
@@ -131,11 +132,15 @@ func (rc *RemoteClient) NamesToResolve(ctx context.Context, db *gorm.DB) []strin
 }
 
 func (rc *RemoteClient) GetNode(ctx context.Context) *common.NodeInfo {
-	var err error
+	var err unifiedapiclient.UnifiedAPIError
 	var n common.NodeInfo
 	if rc.node == nil {
 		n, err = common.FetchNodeInfo(ctx, rc.MAC)
-		sharedutils.CheckError(err)
+		if err != nil && err.StatusCode() == http.StatusNotFound {
+			return nil
+		} else {
+			sharedutils.CheckError(err)
+		}
 		rc.node = &n
 	}
 	return rc.node

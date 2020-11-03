@@ -69,7 +69,7 @@ func (n *Node) CategoryID_int() int {
 	return id
 }
 
-func FetchNodeInfo(ctx context.Context, mac string) (NodeInfo, error) {
+func FetchNodeInfo(ctx context.Context, mac string) (NodeInfo, unifiedapiclient.UnifiedAPIError) {
 	client := unifiedapiclient.NewFromConfig(ctx)
 
 	resp := struct {
@@ -89,7 +89,7 @@ func (n *Node) Upsert(ctx context.Context) error {
 
 	log.LoggerWContext(ctx).Info("Got an error while updating node " + n.MAC + ". Will try to create it instead. Error: " + err.Error())
 
-	err = client.CallWithBody(ctx, "POST", "/api/v1/nodes", n, unifiedapiclient.DummyReply{})
+	err = client.CallWithBody(ctx, "POST", "/api/v1/nodes", n, &unifiedapiclient.DummyReply{})
 	if err != nil {
 		log.LoggerWContext(ctx).Error("Unable to upsert node " + n.MAC + ".Error: " + err.Error())
 	}

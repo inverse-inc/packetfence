@@ -6,9 +6,11 @@ import (
 	"errors"
 	"net/http"
 	"regexp"
+	"strconv"
 	"time"
 
 	"github.com/gin-gonic/gin"
+	"github.com/inverse-inc/packetfence/go/common"
 	"github.com/inverse-inc/packetfence/go/log"
 	"github.com/inverse-inc/packetfence/go/remoteclients"
 	"github.com/inverse-inc/packetfence/go/sharedutils"
@@ -75,7 +77,14 @@ func (h *WgorchestratorHandler) handleGetProfile(c *gin.Context) {
 		categoryId = 1
 	}
 
-	rc, err := remoteclients.GetOrCreateRemoteClient(c, db, c.Query("public_key"), c.Query("mac"), username, categoryId)
+	rc, err := remoteclients.GetOrCreateRemoteClient(c, db, c.Query("public_key"), common.NodeInfo{
+		Node: common.Node{
+			MAC:          c.Query("mac"),
+			Computername: c.Query("hostname"),
+			PID:          username,
+			CategoryID:   strconv.Itoa(categoryId),
+		},
+	})
 
 	if err != nil {
 		log.LoggerWContext(c).Error("Unable to GetOrCreateRemoteClient: " + err.Error())
