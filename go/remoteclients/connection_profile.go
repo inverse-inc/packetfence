@@ -12,7 +12,7 @@ import (
 
 var GlobalRemoteConnectionProfiles *RemoteConnectionProfiles
 
-func init() {
+func InitGlobal() {
 	GlobalRemoteConnectionProfiles = NewRemoteConnectionProfiles(context.Background())
 }
 

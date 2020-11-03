@@ -53,6 +53,7 @@ func setup(c *caddy.Controller) error {
 		return err
 	}
 
+	remoteclients.InitGlobal()
 	pfconfigdriver.PfconfigPool.AddRefreshable(ctx, remoteclients.GlobalRemoteConnectionProfiles)
 
 	httpserver.GetConfig(c).AddMiddleware(func(next httpserver.Handler) httpserver.Handler {
