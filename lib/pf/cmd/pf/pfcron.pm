@@ -1,5 +1,10 @@
 package pf::cmd::pf::pfcron;
 
+#
+# Update the tasks with the following command
+# ls lib/pfappserver/Form/Config/Pfcron | xargs  basename -s .pm | sort | perl -pi -e'$_="=item ${_}\n"'
+#
+
 =head1 NAME
 
 pf::cmd::pf::pfcron -
@@ -7,7 +12,6 @@ pf::cmd::pf::pfcron -
 =head1 SYNOPSIS
 
 pfcmd pfcron <task> [options...]
-
 
 =head2 tasks
 
@@ -17,13 +21,21 @@ pfcmd pfcron <task> [options...]
 
 =item acct_maintenance
 
+=item admin_api_audit_log_cleanup
+
 =item auth_log_cleanup
+
+=item bandwidth_maintenance
+
+=item bandwidth_maintenance_session
 
 =item certificates_check
 
 =item cleanup_chi_database_cache
 
 =item cluster_check
+
+=item dns_audit_log_cleanup
 
 =item fingerbank_data_update
 
@@ -51,11 +63,11 @@ pfcmd pfcron <task> [options...]
 
 =item radius_audit_log_cleanup
 
-=item dns_audit_log_cleanup
-
 =item security_event_maintenance
 
 =item switch_cache_lldpLocalPort_description
+
+=item ubiquiti_ap_mac_to_ip
 
 =back
 
