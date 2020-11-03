@@ -131,8 +131,8 @@ export const view = (form = {}, meta = {}) => {
           ]
         },
         {
-          label: i18n.t('SNAT Interface'),
-          text: i18n.t(`Choose interface(s) where you want to enable snat for passthrough (by default it's the management interface)`),
+          label: i18n.t('SNAT Interface for passthroughs'),
+          text: i18n.t(`Choose interface(s) where you want to enable SNAT for passthroughs (by default it's the management interface)`),
           cols: [
             {
               namespace: 'interfaceSNAT',
