@@ -7,6 +7,7 @@ import (
 	"github.com/inverse-inc/packetfence/go/common"
 	"github.com/inverse-inc/packetfence/go/log"
 	"github.com/inverse-inc/packetfence/go/pfconfigdriver"
+	"github.com/inverse-inc/packetfence/go/sharedutils"
 )
 
 var GlobalRemoteConnectionProfiles *RemoteConnectionProfiles
@@ -59,6 +60,17 @@ func (rcp *RemoteConnectionProfiles) newProfile(ctx context.Context, id string) 
 	return profile, nil
 }
 
+func (rcp *RemoteConnectionProfiles) AllEnabled(ctx context.Context) []*RemoteConnectionProfile {
+	profiles := rcp.All(ctx)
+	enabledProfiles := []*RemoteConnectionProfile{}
+	for _, profile := range profiles {
+		if sharedutils.IsEnabled(profile.Status) {
+			enabledProfiles = append(enabledProfiles, profile)
+		}
+	}
+	return enabledProfiles
+}
+
 func (rcp *RemoteConnectionProfiles) All(ctx context.Context) []*RemoteConnectionProfile {
 	pfconfigdriver.FetchDecodeSocketCache(ctx, &rcp.orderedIds)
 	profiles := make([]*RemoteConnectionProfile, len(rcp.orderedIds.Element))
@@ -79,7 +91,7 @@ func (rcp *RemoteConnectionProfiles) Get(ctx context.Context, id string) *Remote
 }
 
 func (rcp *RemoteConnectionProfiles) InstantiateForClient(ctx context.Context, fi FilterInfo) *RemoteConnectionProfile {
-	for _, profile := range rcp.All(ctx) {
+	for _, profile := range rcp.AllEnabled(ctx) {
 		if profile.filterForClient(ctx, fi) {
 			log.LoggerWContext(ctx).Info(fmt.Sprintf("Matched remote connection profile %s for %s", profile.PfconfigHashNS, fi.NodeInfo.MAC))
 			return profile
