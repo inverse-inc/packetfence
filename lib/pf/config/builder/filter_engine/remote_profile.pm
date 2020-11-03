@@ -25,13 +25,15 @@ sub buildEntry {
 
     if ($entry->{status} && isdisabled($entry->{status})) {
         $logger->debug("Skipping disabled rule $id");
-        print "skip $id is disabled\n";
         return;
     }
+
+    if ($id eq "default") {
+        $entry->{advanced_filter} = "true()";
+    }
+
     if (!$entry->{advanced_filter}) {
-        $logger->debug("Skipping empty rule $id");
-        print "skip $id filter is empty\n";
-        return;
+        $entry->{advanced_filter} = $entry->{basic_filter_type} . "==" . '"' . $entry->{basic_filter_value} . '"';
     }
 
     $logger->info("Processing rule '$id'");
@@ -44,6 +46,18 @@ sub buildEntry {
     $entry->{_rule} = $id;
     $self->buildFilter($buildData, $conditions, $entry);
     return undef;
+}
+
+sub cleanupBuildData {
+    my ($self, $buildData) = @_;
+
+    # reorder the filters so that default is last since its a catchall
+    my @instantiate_filters = @{$buildData->{scopes}{'instantiate'}};
+    my @reordered = @instantiate_filters[1 .. $#instantiate_filters];
+    push @reordered, $instantiate_filters[0];
+    $buildData->{scopes}{'instantiate'} = \@reordered;
+    
+    $self->SUPER::cleanupBuildData($buildData);
 }
 
 1;
