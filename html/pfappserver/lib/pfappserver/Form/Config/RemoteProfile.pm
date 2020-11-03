@@ -70,6 +70,7 @@ has_field 'allow_communication_same_role' =>
 has_field 'allow_communication_to_roles' =>
   (
    type => 'Select',
+   multiple => 1,
    options_method => \&options_roles,
   );
 
