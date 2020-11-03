@@ -8,6 +8,7 @@ import pfFormChosen from '@/components/pfFormChosen'
 import pfFormBooleanBuilder from '@/components/pfFormBooleanBuilder'
 import pfFormFields from '@/components/pfFormFields'
 import pfFormInput from '@/components/pfFormInput'
+import pfFormTextarea from '@/components/pfFormTextarea'
 import pfFormRangeToggle from '@/components/pfFormRangeToggle'
 import pfTree from '@/components/pfTree'
 import {
@@ -362,6 +363,30 @@ export const view = (form = {}, meta = {}) => {
               namespace: 'allow_communication_to_roles',
               component: pfFormChosen,
               attrs: attributesFromMeta(meta, 'allow_communication_to_roles')
+            }
+          ]
+        },
+        {
+          label: i18n.t('Resolve hostnames of peers'),
+          text: i18n.t('Whether or not the wireguard clients should be able to resolve the DNS names of their peers'),
+          cols: [
+            {
+              namespace: 'resolve_hostnames_of_peers',
+              component: pfFormRangeToggle,
+              attrs: {
+                values: { checked: 'enabled', unchecked: 'disabled' }
+              }
+            }
+          ]
+        },
+        {
+          label: i18n.t('Additional domains to resolve'),
+          text: i18n.t('List of domains to resolve through PacketFence inside the wireguard network'),
+          cols: [
+            {
+              namespace: 'additional_domains_to_resolve',
+              component: pfFormTextarea,
+              attrs: attributesFromMeta(meta, 'additional_domains_to_resolve')
             }
           ]
         }

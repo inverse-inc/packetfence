@@ -74,6 +74,19 @@ has_field 'allow_communication_to_roles' =>
    options_method => \&options_roles,
   );
 
+has_field 'resolve_hostnames_of_peers' =>
+  (
+    type => 'Toggle',
+    checkbox_value => 'enabled',
+    unchecked_value => 'disabled',
+    default => 'enabled'
+  );
+
+has_field 'additional_domains_to_resolve' =>
+  (
+   type => 'TextArea',
+  );
+
 sub options_roles {
     my $self = shift;
     my @roles = map { $_->{name} => $_->{name} } @{$self->form->roles} if ($self->form->roles);

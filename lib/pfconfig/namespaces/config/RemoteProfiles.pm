@@ -50,6 +50,9 @@ sub build_child {
 sub cleanup_after_read {
     my ( $self, $id, $data ) = @_;
     $self->expand_list( $data, qw(allow_communication_to_roles) );
+    if($data->{additional_domains_to_resolve}) {
+        $data->{additional_domains_to_resolve} = [split(/\n/, $data->{additional_domains_to_resolve})];
+    }
 }
 
 =head1 AUTHOR

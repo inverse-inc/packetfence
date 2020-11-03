@@ -57,6 +57,15 @@ sub _fields_expanded {
     return qw(allow_communication_to_roles);
 }
 
+sub cleanupAfterRead {
+    my ($self, $id, $profile) = @_;
+    $self->expand_list($profile, $self->_fields_expanded);
+    # This can be an array if it's fresh out of the file. We make it separated by newlines so it works fine the frontend
+    if(ref($profile->{additional_domains_to_resolve}) eq 'ARRAY'){
+        $profile->{additional_domains_to_resolve} = join("\n", @{$profile->{additional_domains_to_resolve}});
+    }
+}
+
 
 __PACKAGE__->meta->make_immutable unless $ENV{"PF_SKIP_MAKE_IMMUTABLE"};
 
