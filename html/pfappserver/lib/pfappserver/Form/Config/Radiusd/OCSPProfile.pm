@@ -36,7 +36,7 @@ for my $f (qw(ocsp_enable ocsp_override_cert_url ocsp_use_nonce ocsp_softfail)) 
 
 has_field 'ocsp_timeout' =>
   (
-   type => 'Duration',
+   type => 'Text',
   );
 
 has_field 'ocsp_url' => (

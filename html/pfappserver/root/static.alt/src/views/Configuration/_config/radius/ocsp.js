@@ -184,20 +184,15 @@ export const view = (form = {}, meta = {}) => {
           text: i18n.t('Number of seconds to wait for the OCSP response. 0 uses system default.'),
           cols: [
             {
-              namespace: 'ocsp_timeout.interval',
+              namespace: 'ocsp_timeout',
               component: pfFormInput,
               attrs: {
-                ...attributesFromMeta(meta, 'ocsp_timeout.interval'),
+                ...attributesFromMeta(meta, 'ocsp_timeout'),
+                ...{
+                  type: 'number',
+                  step: 1
+                },
                 disabled: !isEditable
-              }
-            },
-            {
-              namespace: 'ocsp_timeout.unit',
-              component: pfFormChosen,
-              attrs: {
-                ...attributesFromMeta(meta, 'ocsp_timeout.unit'),
-                disabled: !isEditable,
-                allowEmpty: false
               }
             }
           ]

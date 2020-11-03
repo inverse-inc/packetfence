@@ -35,7 +35,7 @@ has_field default_eap_type => (
 );
 
 has_field timer_expire => (
-    type => 'Duration',
+    type => 'Text',
 );
 
 for my $f (qw(ignore_unknown_eap_types cisco_accounting_username_bug)) {
