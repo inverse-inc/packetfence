@@ -10,26 +10,9 @@
   </b-card>
 </template>
 <script>
-/*
-import { useView, useViewProps } from '@/composables/useView'
-
-const components = {}
-
-export const props = {
-  ...useViewProps
-}
-
-const setup = (props, context) => {}
-*/
-
 // @vue/component
 export default {
   name: 'base-view',
-  inheritAttrs: false,
-/*
-  components,
-  props,
-  setup
-*/
+  inheritAttrs: false
 }
 </script>

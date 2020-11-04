@@ -55,7 +55,7 @@ const setup = (props, context) => {
   const valueComponentRef = ref(null)
 
   const type = computed(() => {
-    const { type } = inputValue.value
+    const { type } = inputValue.value || {}
     return type
   })
 

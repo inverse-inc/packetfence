@@ -40,9 +40,9 @@ const useView = (props, context) => {
   const titleLabel = computed(() => {
     switch (true) {
       case !unref(isNew) && !unref(isClone):
-        return i18n.t('Authentication Source {id}', { id: unref(id) })
+        return i18n.t('Authentication Source: <code>{id}</code>', { id: unref(id) })
       case unref(isClone):
-        return i18n.t('Clone Authentication Source {id}', { id: unref(id) })
+        return i18n.t('Clone Authentication Source: <code>{id}</code>', { id: unref(id) })
       default:
         return i18n.t('New Authentication Source')
     }

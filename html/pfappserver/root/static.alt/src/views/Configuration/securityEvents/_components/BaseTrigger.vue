@@ -4,7 +4,7 @@
     :class="{
       'border bg-light': isShown,
       'is-shown': isShown,
-      'is-invalid': inputState === false
+      'is-invalid': inputState === false,
     }"
   >
     <b-row
@@ -111,7 +111,6 @@
       </b-card>
 
     </div>
-
   </b-container>
 </template>
 <script>
@@ -149,8 +148,6 @@ const props = {
 }
 
 import {
-  triggerCategories,
-  triggerCategoryTitles,
   triggerFields,
   triggerDirections,
   triggerIntervals
@@ -334,8 +331,10 @@ export default {
       color: var(--danger);
     }
   }
-  &.is-lastchild {
-    & > .col-10 {
+}
+.is-lastchild {
+  & > .col-10 {
+    & > .base-trigger {
       & > .base-trigger-info {
         & > .or {
           display: none;
@@ -344,6 +343,4 @@ export default {
     }
   }
 }
-
-
 </style>

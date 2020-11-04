@@ -1,6 +1,6 @@
 <template>
   <div>
-    <pf-button-save
+    <base-button-save
       :isLoading="isLoading"
       :disabled="!isValid"
       class="mr-1"
@@ -10,7 +10,7 @@
       <template v-else-if="isClone">{{ $t('Clone') }}</template>
       <template v-else-if="actionKey">{{ $t('Save & Close') }}</template>
       <template v-else>{{ $t('Save') }}</template>
-    </pf-button-save>
+    </base-button-save>
     <b-button
       :disabled="isLoading"
       class="mr-1" variant="outline-secondary"
@@ -21,18 +21,24 @@
       class="mr-1" variant="outline-primary"
       @click="onClone"
     >{{ $t('Clone') }}</b-button>
-    <pf-button-delete v-if="isDeletable"
+    <base-button-delete v-if="isDeletable"
       :confirm="$t('Delete?')"
       :disabled="isLoading"
       class="mr-1"
-      @on-delete="onRemove"
+      @delete="onRemove"
     />
     <slot/>
   </div>
 </template>
 <script>
-import pfButtonSave from '@/components/pfButtonSave'
-import pfButtonDelete from '@/components/pfButtonDelete'
+import BaseButtonDelete from './BaseButtonDelete'
+import BaseButtonSave from './BaseButtonSave'
+
+const components = {
+  BaseButtonDelete,
+  BaseButtonSave
+}
+
 import { useFormButtonBar, useFormButtonBarProps } from '@/composables/useFormButtonBar'
 
 export const props = {
@@ -59,10 +65,7 @@ export const setup = (props, context) => {
 export default {
   name: 'base-form-button-bar',
   inheritAttrs: false,
-  components: {
-    pfButtonDelete,
-    pfButtonSave
-  },
+  components,
   props,
   setup
 }

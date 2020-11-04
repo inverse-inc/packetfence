@@ -55,8 +55,9 @@ export const useInputMeta = (props) => {
           _namespaceMeta = item
         const {
           allowed: metaAllowed,
+          allowed_lookup: metaAllowedLookup,
           placeholder: metaPlaceholder,
-          type: metaType
+          type: metaType,
         } = _namespaceMeta
 
         // allowed
@@ -65,6 +66,10 @@ export const useInputMeta = (props) => {
           const fifoOptions = (options && options.value && options.value.length) ? options.value : metaAllowed
           set(localProps, 'options', fifoOptions)
         }
+
+        // allowed_lookup
+        if (metaAllowedLookup)
+          set(localProps, 'lookup', metaAllowedLookup)
 
         // placeholder
         if (metaPlaceholder)

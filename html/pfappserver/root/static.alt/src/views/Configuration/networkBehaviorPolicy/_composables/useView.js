@@ -10,9 +10,6 @@ const useViewProps = {
 
   id: {
     type: String
-  },
-  switchGroup: {
-    type: String
   }
 }
 
@@ -20,7 +17,6 @@ const useView = (props, context) => {
 
   const {
     id,
-    switchGroup,
     isClone,
     isNew
   } = toRefs(props) // toRefs maintains reactivity w/ destructuring
@@ -40,24 +36,22 @@ const useView = (props, context) => {
   const titleLabel = computed(() => {
     switch (true) {
       case !unref(isNew) && !unref(isClone):
-        return i18n.t('Switch Group: <code>{id}</code>', { id: unref(id) })
+        return i18n.t('Network Behavior Policy: <code>{id}</code>', { id: unref(id) })
       case unref(isClone):
-        return i18n.t('Clone Switch Group: <code>{id}</code>', { id: unref(id) })
+        return i18n.t('Clone Network Behavior Policy: <code>{id}</code>', { id: unref(id) })
       default:
-        return i18n.t('New Switch Group')
+        return i18n.t('New Network Behavior Policy')
     }
   })
 
-  const titleBadge = computed(() => unref(switchGroup) || unref(form).group)
-
-  const isLoading = computed(() => $store.getters['$_switch_groups/isLoading'])
+  const isLoading = computed(() => $store.getters['$_network_behavior_policies/isLoading'])
 
   const doInit = () => {
     if (!isNew.value) { // existing
-      $store.dispatch('$_switch_groups/options', id.value).then(options => {
+      $store.dispatch('$_network_behavior_policies/options').then(options => {
         const { meta: _meta = {} } = options
         meta.value = _meta
-        $store.dispatch('$_switch_groups/getSwitchGroup', id.value).then(_form => {
+        $store.dispatch('$_network_behavior_policies/getNetworkBehaviorPolicy', id.value).then(_form => {
           if (isClone.value) {
             _form.id = `${_form.id}-${i18n.t('copy')}`
             _form.not_deletable = false
@@ -71,9 +65,9 @@ const useView = (props, context) => {
         meta.value = {}
       })
     } else { // new
-      $store.dispatch('$_switch_groups/options').then(options => {
+      $store.dispatch('$_network_behavior_policies/options').then(options => {
         const { meta: _meta = {} } = options
-        form.value = { ...defaultsFromMeta(_meta), group: switchGroup.value }
+        form.value = { ...defaultsFromMeta(_meta), actions: [] }
         meta.value = _meta
       }).catch(() => {
         form.value = {}
@@ -82,13 +76,11 @@ const useView = (props, context) => {
     }
   }
 
-  const doClone = () => $router.push({ name: 'cloneSwitchGroup' })
+  const doClone = () => $router.push({ name: 'cloneNetworkBehaviorPolicy' })
 
-  const doClose = () => $router.push({ name: 'switch_groups' })
+  const doClose = () => $router.push({ name: 'network_behavior_policies' })
 
-  const doRemove = () => {
-    $store.dispatch('$_switch_groups/deleteSwitchGroup', id.value).then(() => doClose())
-  }
+  const doRemove = () => $store.dispatch('$_network_behavior_policies/deleteNetworkBehaviorPolicy', id.value).then(() => doClose())
 
   const doReset = doInit
 
@@ -97,15 +89,15 @@ const useView = (props, context) => {
     switch (true) {
       case unref(isClone):
       case unref(isNew):
-        $store.dispatch('$_switch_groups/createSwitchGroup', form.value).then(() => {
+        $store.dispatch('$_network_behavior_policies/createNetworkBehaviorPolicy', form.value).then(() => {
           if (closeAfter) // [CTRL] key pressed
             doClose()
           else
-            $router.push({ name: 'switch_group', params: { id: form.value.id } })
+            $router.push({ name: 'network_behavior_policy', params: { id: form.value.id } })
         })
         break
       default:
-        $store.dispatch('$_switch_groups/updateSwitchGroup', form.value).then(() => {
+        $store.dispatch('$_network_behavior_policies/updateNetworkBehaviorPolicy', form.value).then(() => {
           if (closeAfter) // [CTRL] key pressed
             doClose()
         })
@@ -124,7 +116,6 @@ const useView = (props, context) => {
     meta,
     customProps,
     titleLabel,
-    titleBadge,
 
     actionKey,
     isLoading,

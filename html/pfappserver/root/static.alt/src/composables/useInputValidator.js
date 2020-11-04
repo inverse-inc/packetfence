@@ -1,6 +1,7 @@
 import { computed, inject, ref, toRefs, unref, watch } from '@vue/composition-api'
 import { createDebouncer } from 'promised-debounce'
 import i18n, { formatter } from '@/utils/locale'
+import yup from '@/utils/yup'
 
 export const useInputValidatorProps = {
   namespace: {
@@ -109,19 +110,26 @@ export const useInputValidator = (props, value, recursive = false) => {
                 validationPromise = true
               }
             }
-            else { // use value
-              validationPromise = schema.validate(value.value, { recursive })
-            }
+            else
+              validationPromise = schema.validate(value.value, { recursive }) // use value
+
             Promise.resolve(validationPromise).then(() => { // valid
               if (unref(validFeedback) !== undefined)
                 setState(thisPromise, true, unref(validFeedback), null)
               else
                 setState(thisPromise, null, null, null)
+
             }).catch(({ message }) => { // invalid
-              const { type = 'string', meta, meta: { invalidFeedback: metaInvalidFeedback } = {} } = schema.describe()
-              if (metaInvalidFeedback) // meta feedback masks child error messages
-                setState(thisPromise, false, null, metaInvalidFeedback)
-              else {
+              let _schema = schema
+              if (recursive && namespace.value) {
+                _schema = yup.reach(schema, path.value) // use namespace/path
+              }
+              try {
+                const { type = 'string', meta, meta: { invalidFeedback: metaInvalidFeedback } = {} } = _schema.describe()
+                if (metaInvalidFeedback) { // meta feedback masks child error messages
+                  setState(thisPromise, false, null, metaInvalidFeedback)
+                  return
+                }
                 switch (type) { // interpolate message w/ meta[fieldName]
                   case 'array':
                   case 'object':
@@ -132,8 +140,10 @@ export const useInputValidator = (props, value, recursive = false) => {
                     message = formatter.interpolate(message, { fieldName: i18n.t('Value'), ...meta })[0]
                     break
                 }
-                setState(thisPromise, false, null, message)
+              } catch(e) {
+                /* noop */
               }
+              setState(thisPromise, false, null, message)
             })
           },
           time: 300

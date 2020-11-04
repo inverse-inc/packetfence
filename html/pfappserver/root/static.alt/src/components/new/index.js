@@ -1,11 +1,14 @@
 import BaseArray from './BaseArray'
 import BaseButtonDelete from './BaseButtonDelete'
+import BaseButtonSave from './BaseButtonSave'
+import BaseButtonService from './BaseButtonService'
 import BaseForm from './BaseForm'
 import BaseFormButtonBar from './BaseFormButtonBar'
 import BaseFormGroup from './BaseFormGroup'
 import BaseFormGroupArray, { props as BaseFormGroupArrayProps } from './BaseFormGroupArray'
 import BaseFormGroupArrayDraggable, { props as BaseFormGroupArrayDraggableProps } from './BaseFormGroupArrayDraggable'
 import BaseFormGroupChosenMultiple from './BaseFormGroupChosenMultiple'
+import BaseFormGroupChosenMultipleSearchable, { props as BaseFormGroupChosenMultipleSearchableProps } from './BaseFormGroupChosenMultipleSearchable'
 import BaseFormGroupChosenOne from './BaseFormGroupChosenOne'
 import BaseFormGroupInput from './BaseFormGroupInput'
 import BaseFormGroupInputMultiplier from './BaseFormGroupInputMultiplier'
@@ -49,6 +52,7 @@ export {
   BaseFormGroupArray, BaseFormGroupArrayProps,
   BaseFormGroupArrayDraggable, BaseFormGroupArrayDraggableProps,
   BaseFormGroupChosenMultiple,
+  BaseFormGroupChosenMultipleSearchable, BaseFormGroupChosenMultipleSearchableProps,
   BaseFormGroupChosenOne,
   BaseFormGroupInput,
   BaseFormGroupInputMultiplier,
@@ -83,6 +87,8 @@ export {
 
   // buttons
   BaseButtonDelete,
+  BaseButtonSave,
+  BaseButtonService,
 
   // utils
   mergeProps

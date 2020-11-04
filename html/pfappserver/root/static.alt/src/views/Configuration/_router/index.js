@@ -62,7 +62,7 @@ const ConnectionProfileFileView = () => import(/* webpackChunkName: "Editor" */ 
 const ComplianceSection = () => import(/* webpackChunkName: "Configuration" */ '../_components/ComplianceSection')
 const FingerbankTabs = () => import(/* webpackChunkName: "Configuration" */ '../_components/FingerbankTabs')
 const NetworkBehaviorPoliciesList = () => import(/* webpackChunkName: "Configuration" */ '../_components/NetworkBehaviorPoliciesList')
-const NetworkBehaviorPolicyView = () => import(/* webpackChunkName: "Configuration" */ '../_components/NetworkBehaviorPolicyView')
+const NetworkBehaviorPolicyView = () => import(/* webpackChunkName: "Configuration" */ '../networkBehaviorPolicy/_components/TheView')
 const FingerbankCombinationView = () => import(/* webpackChunkName: "Configuration" */ '../_components/FingerbankCombinationView')
 const FingerbankDeviceView = () => import(/* webpackChunkName: "Configuration" */ '../_components/FingerbankDeviceView')
 const FingerbankDhcpFingerprintView = () => import(/* webpackChunkName: "Configuration" */ '../_components/FingerbankDhcpFingerprintView')
@@ -606,23 +606,14 @@ const route = {
       path: 'network_behavior_policies/new',
       name: 'newNetworkBehaviorPolicy',
       component: NetworkBehaviorPolicyView,
-      props: () => ({ formStoreName: 'formNetworkBehaviorPolicy', isNew: true }),
-      beforeEnter: (to, from, next) => {
-        if (!store.state.formNetworkBehaviorPolicy) { // Register store module only once
-          store.registerModule('formNetworkBehaviorPolicy', FormStore)
-        }
-        next()
-      }
+      props: () => ({ isNew: true })
     },
     {
       path: 'network_behavior_policy/:id',
       name: 'network_behavior_policy',
       component: NetworkBehaviorPolicyView,
-      props: (route) => ({ formStoreName: 'formNetworkBehaviorPolicy', id: route.params.id }),
+      props: (route) => ({ id: route.params.id }),
       beforeEnter: (to, from, next) => {
-        if (!store.state.formNetworkBehaviorPolicy) { // Register store module only once
-          store.registerModule('formNetworkBehaviorPolicy', FormStore)
-        }
         store.dispatch('$_network_behavior_policies/getNetworkBehaviorPolicy', to.params.id).then(() => {
           next()
         })
@@ -632,11 +623,8 @@ const route = {
       path: 'network_behavior_policy/:id/clone',
       name: 'cloneNetworkBehaviorPolicy',
       component: NetworkBehaviorPolicyView,
-      props: (route) => ({ formStoreName: 'formNetworkBehaviorPolicy', id: route.params.id, isClone: true }),
+      props: (route) => ({ id: route.params.id, isClone: true }),
       beforeEnter: (to, from, next) => {
-        if (!store.state.formNetworkBehaviorPolicy) { // Register store module only once
-          store.registerModule('formNetworkBehaviorPolicy', FormStore)
-        }
         store.dispatch('$_network_behavior_policies/getNetworkBehaviorPolicy', to.params.id).then(() => {
           next()
         })

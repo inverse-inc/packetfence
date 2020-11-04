@@ -36,9 +36,9 @@ const useView = (props, context) => {
   const titleLabel = computed(() => {
     switch (true) {
       case !unref(isNew) && !unref(isClone):
-        return i18n.t('Security Event {id}', { id: unref(id) })
+        return i18n.t('Security Event: <code>{id}</code>', { id: unref(id) })
       case unref(isClone):
-        return i18n.t('Clone Security Event {id}', { id: unref(id) })
+        return i18n.t('Clone Security Event: <code>{id}</code>', { id: unref(id) })
       default:
         return i18n.t('New Security Event')
     }

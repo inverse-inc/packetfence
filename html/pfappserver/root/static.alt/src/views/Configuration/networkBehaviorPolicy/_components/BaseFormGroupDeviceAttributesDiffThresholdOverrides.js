@@ -1,5 +1,5 @@
 import { BaseFormGroupArray, BaseFormGroupArrayProps } from '@/components/new'
-import BaseTrigger from './BaseTrigger'
+import BaseDeviceAttributesDiffThresholdOverride from './BaseDeviceAttributesDiffThresholdOverride'
 import i18n from '@/utils/locale'
 
 export const props = {
@@ -7,25 +7,19 @@ export const props = {
 
   buttonLabel: {
     type: String,
-    default: i18n.t('Add Trigger')
+    default: i18n.t('Add Attribute')
   },
   // overload :childComponent
   childComponent: {
     type: Object,
-    default: () => BaseTrigger
+    default: () => BaseDeviceAttributesDiffThresholdOverride
   },
   // overload :defaultItem
   defaultItem: {
     type: Object,
     default: () => ({
-      endpoint: {
-        conditions: []
-      },
-      profiling: {
-        conditions: []
-      },
-      usage: {},
-      event: {}
+      type: null,
+      value: null
     })
   },
   // overload handlers
@@ -49,7 +43,7 @@ export const props = {
 }
 
 export default {
-  name: 'base-form-group-triggers',
+  name: 'base-form-group-device-attributes-diff-threshold-overrides',
   extends: BaseFormGroupArray,
   props
 }

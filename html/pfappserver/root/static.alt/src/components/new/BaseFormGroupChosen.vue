@@ -27,7 +27,6 @@
 
         :value="inputValue"
         :placeholder="inputPlaceholder"
-        :loading="false"
         :disabled="isLocked"
         :show-no-results="true"
         :tab-index="inputTabIndex"
@@ -43,6 +42,8 @@
         :group-label="inputGroupLabel"
 
         :searchable="searchable"
+        :loading="isLoading"
+
         :clear-on-select="clearOnSelect"
         :hide-selected="hideSelected"
         :allow-empty="allowEmpty"
@@ -70,6 +71,8 @@
         :show-pointer="showPointer"
         @select="onInput"
         @remove="onRemove"
+        @tag="onTag"
+        @search-change="onSearch"
 
         v-bind="bind"
       >
@@ -84,7 +87,10 @@
         </template>
         <template v-slot:beforeList>
           <li class="multiselect__element">
-            <div class="col-form-label py-1 px-2 text-dark text-left bg-light border-bottom">{{ $t('Type to filter results') }}</div>
+            <div v-if="!internalSearch"
+              class="col-form-label py-1 px-2 text-dark text-left bg-light border-bottom">{{ $t('Type to search') }}</div>
+            <div v-else
+              class="col-form-label py-1 px-2 text-dark text-left bg-light border-bottom">{{ $t('Type to filter results') }}</div>
           </li>
         </template>
         <template v-slot:noOptions>
@@ -136,7 +142,7 @@ const components = {
   Multiselect
 }
 
-import { computed, onBeforeUnmount, onMounted, ref, toRefs, unref } from '@vue/composition-api'
+import { computed, nextTick, onBeforeUnmount, onMounted, ref, toRefs, unref } from '@vue/composition-api'
 import { useFormGroupProps } from '@/composables/useFormGroup'
 import { useInput, useInputProps } from '@/composables/useInput'
 import { useInputMeta, useInputMetaProps } from '@/composables/useMeta'
@@ -216,7 +222,7 @@ export const setup = (props, context) => {
   } = useInputValidator(metaProps, value)
 
   const singleLabel = computed(() => {
-    const _options = unref(options)
+    const _options = options.value
     const optionsIndex = _options.findIndex(option => {
       const { [trackBy.value]: trackedValue } = option
       return `${trackedValue}` === `${value.value}`
@@ -227,7 +233,7 @@ export const setup = (props, context) => {
       return value.value
   })
 
-  const multipleLabels = computed(() => unref(options).reduce((labels, option) => {
+  const multipleLabels = computed(() => options.value.reduce((labels, option) => {
     const { text, value } = option
     return { ...labels, [value]: text }
   }, {}))
@@ -259,6 +265,9 @@ export const setup = (props, context) => {
 
   // clear single value
   const onRemove = () => onInput(undefined)
+
+  const doFocus = () => nextTick(() => context.refs.inputRef.$el.focus())
+  const doBlur = () => nextTick(() => context.refs.inputRef.$el.blur())
 
   return {
     inputRef,
@@ -292,7 +301,13 @@ export const setup = (props, context) => {
     singleLabel,
     multipleLabels,
     isEmpty,
+
     onRemove,
+    onTag: () => {},
+    onSearch: () => {},
+    isLoading: false,
+    doFocus,
+    doBlur,
   }
 }
 

@@ -36,9 +36,9 @@ const useView = (props, context) => {
   const titleLabel = computed(() => {
     switch (true) {
       case !unref(isNew) && !unref(isClone):
-        return i18n.t('Role {id}', { id: unref(id) })
+        return i18n.t('Role: <code>{id}</code>', { id: unref(id) })
       case unref(isClone):
-        return i18n.t('Clone Role {id}', { id: unref(id) })
+        return i18n.t('Clone Role: <code>{id}</code>', { id: unref(id) })
       default:
         return i18n.t('New Role')
     }

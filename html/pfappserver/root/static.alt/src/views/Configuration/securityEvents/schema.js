@@ -69,7 +69,7 @@ const schemaTrigger = yup.object({
   event: schemaTriggerEvent
 })
 
-const schemaTriggers = yup.array().of(schemaTrigger)
+const schemaTriggers = yup.array().of(schemaTrigger.meta({ invalidFeedback: i18n.t('Trigger contains one or more errors.') }))
 
 export const schema = (props) => {
   const {
@@ -84,8 +84,7 @@ export const schema = (props) => {
       .required(i18n.t('Name required.'))
       .securityEventIdNotExistsExcept((!isNew && !isClone) ? id : undefined, i18n.t('Identifier exists.')),
 
-    triggers: schemaTriggers
-
+    triggers: schemaTriggers.meta({ invalidFeedback: i18n.t('Triggers contains one or more errors.') })
   })
 }
 

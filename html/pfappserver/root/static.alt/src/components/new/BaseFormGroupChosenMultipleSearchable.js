@@ -1,15 +1,15 @@
-import { computed, ref, toRefs, unref, watch } from '@vue/composition-api'
+import { computed, ref, toRefs, watch } from '@vue/composition-api'
 import { createDebouncer } from 'promised-debounce'
 import useEventFnWrapper from '@/composables/useEventFnWrapper'
 import { useInput } from '@/composables/useInput'
 import { useInputMeta } from '@/composables/useMeta'
 import { useInputValue } from '@/composables/useInputValue'
-import BaseInputChosen, { props as BaseInputChosenProps } from './BaseInputChosen'
+import BaseFormGroupChosenMultiple, { props as BaseFormGroupChosenMultipleProps } from './BaseFormGroupChosenMultiple'
 import apiCall from '@/utils/api'
 import i18n from '@/utils/locale'
 
 export const props = {
-  ...BaseInputChosenProps,
+  ...BaseFormGroupChosenMultipleProps,
 
   // preserve search string when option is chosen
   clearOnSelect: {
@@ -30,16 +30,13 @@ export const props = {
 
 export const setup = (props, context) => {
 
-  const {
-    lookup
-  } = toRefs(props)
-
   const metaProps = useInputMeta(props, context)
   const {
     label,
     trackBy,
     options,
-    optionsLimit
+    optionsLimit,
+    lookup
   } = toRefs(metaProps)
 
   const {
@@ -54,11 +51,11 @@ export const setup = (props, context) => {
     onInput
   } = useInputValue(metaProps, context)
 
-  const currentValueOptions = ref(options.value) // use default options
+  const currentValueOptions = ref([])
   const currentValueLoading = ref(false)
   let lastCurrentPromise = 0 // only use latest of 1+ promises
   watch([value, lookup], () => {
-    if (!value.value || !lookup.value)
+    if (!value.value || value.value.length === 0 || !lookup.value)
       currentValueOptions.value = []
     else {
       const { field_name: fieldName, search_path: url, value_name: valueName } = lookup.value
@@ -69,11 +66,14 @@ export const setup = (props, context) => {
         method: 'post',
         baseURL: '', // reset
         data: {
-          query: { op: 'and', values: [{ op: 'or', values: [{ field: valueName, op: 'equals', value: value.value }] }] },
+          query: { op: 'and', values: [{
+            op: 'or',
+            values: value.value.map(value => ({ field: valueName, op: 'equals', value }))
+          }] },
           fields: [fieldName, valueName],
           sort: [fieldName],
           cursor: 0,
-          limit: 1
+          limit: value.value.length
         }
       }).then(response => {
         if (thisCurrentPromise === lastCurrentPromise) { // ignore slow responses
@@ -87,10 +87,10 @@ export const setup = (props, context) => {
         currentValueLoading.value = false
       })
     }
-  }, { immediate: true })
+  }, { immediate: true, deep: true })
 
   const searchResultLoading = ref(false)
-  const searchResultOptions = ref([])
+  const searchResultOptions = ref(options.value) // use default options
   let lastSearchPromise = 0 // only use latest of 1+ promises
   let searchDebouncer
   let lastSearchQuery
@@ -116,7 +116,7 @@ export const setup = (props, context) => {
             fields: [fieldName, valueName],
             sort: [fieldName],
             cursor: 0,
-            limit: optionsLimit.value - 1
+            limit: optionsLimit.value - value.value.length
           }
         }).then(response => {
           if (thisSearchPromise === lastSearchPromise) { // ignore late responses from earlier reqs
@@ -132,6 +132,12 @@ export const setup = (props, context) => {
       },
       time: 300
     })
+  }
+
+  const onRemove = (option) => {
+    const { [trackBy.value]: trackedValue } = option
+    const filteredValues = (value.value || []).filter(item => item !== trackedValue)
+    onInput(filteredValues)
   }
 
   const onSearch = (query) => {
@@ -165,49 +171,24 @@ export const setup = (props, context) => {
     })
   })
 
+  const multipleLabels = computed(() => inputOptions.value.reduce((labels, option) => {
+    const { text, value } = option
+    return { ...labels, [value]: text }
+  }, {}))
+
   const inputValueWrapper = computed(() => {
-    const _value = unref(value)
-    const _options = unref(inputOptions)
-    const optionsIndex = _options.findIndex(option => option[unref(trackBy)] === _value)
-    if (optionsIndex > -1) {
-      return _options[optionsIndex]
-    }
-    else {
-      return { [unref(label)]: _value, [unref(trackBy)]: _value }
-    }
-  })
-
-  // backend may use trackBy (value) as a placeholder w/ meta,
-  //  use inputOptions to remap it to label (text).
-  const placeholderWrapper = computed(() => {
-    const _options = unref(inputOptions)
-    const optionsIndex = _options.findIndex(option => {
-      const { [trackBy.value]: trackedValue } = option
-      return `${trackedValue}` === `${placeholder.value}`
+    return (value.value || []).map(item => {
+      const optionsIndex = inputOptions.value.findIndex(option => option[trackBy.value] === item)
+      if (optionsIndex > -1)
+        return inputOptions.value[optionsIndex]
+      return ({ [label.value]: item, [trackBy.value]: item })
     })
-    if (optionsIndex > -1)
-      return _options[optionsIndex][label.value]
-    else
-      return placeholder.value
   })
 
-  const onInputWrapper = useEventFnWrapper(onInput, value => {
-    const { [unref(trackBy)]: trackedValue } = value
-    return trackedValue
-  })
-
-  const singleLabel = computed(() => {
-    const _options = unref(currentValueOptions)
-    const optionsIndex = _options.findIndex(option => {
-      const { [unref(trackBy)]: trackedValue } = option
-      return trackedValue === unref(value)
-    })
-    if (optionsIndex > -1)
-      return _options[optionsIndex][unref(label)]
-    else if (currentValueLoading.value)
-      return '...'
-    else
-      return unref(value)
+  const onInputWrapper = useEventFnWrapper(onInput, _value => {
+    const { [trackBy.value]: trackedValue } = _value
+    const filteredValues = (value.value || []).filter(item => item !== trackedValue)
+    return [ ...filteredValues, trackedValue ]
   })
 
   // replace placeholder with 'Search' when isFocus
@@ -221,24 +202,25 @@ export const setup = (props, context) => {
     // wrappers
     inputValue: inputValueWrapper,
     onInput: onInputWrapper,
-    inputPlaceholder: placeholderWrapper,
+    inputPlaceholder,
 
     // useInput
     isFocus,
     onFocus,
     onBlur,
 
-    singleLabel,
+    multipleLabels,
     inputOptions,
     isLoading,
+    onRemove,
     onSearch
   }
 }
 
 // @vue/component
 export default {
-  name: 'base-input-chosen-one-searchable',
-  extends: BaseInputChosen,
+  name: 'base-form-group-chosen-multiple-searchable',
+  extends: BaseFormGroupChosenMultiple,
   props,
   setup
 }

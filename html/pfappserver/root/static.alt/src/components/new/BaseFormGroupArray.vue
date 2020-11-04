@@ -101,9 +101,6 @@ export const props = {
 
   buttonLabel: {
     type: String
-  },
-  headers: {
-    type: Array
   }
 }
 
@@ -190,6 +187,27 @@ export default {
 }
 </script>
 <style lang="scss">
+.base-form-group-array {
+  & > .form-row > [role="group"] > .input-group {
+    border: 1px solid transparent;
+    @include border-radius($border-radius);
+    @include transition($custom-forms-transition);
+
+    & > div > .row {
+      & > .col > a {
+        outline: 0; /* disable highlighting on tabIndex */
+      }
+    }
+    &.has-invalid:not([data-num="0"]) {
+      border-color: $form-feedback-invalid-color;
+      box-shadow: 0 0 0 $input-focus-width rgba($form-feedback-invalid-color, .25);
+    }
+    &.has-valid:not([data-num="0"]) {
+      border-color: $form-feedback-valid-color;
+      box-shadow: 0 0 0 $input-focus-width rgba($form-feedback-valid-color, .25);
+    }
+  }
+}
 .base-form-group-array-items {
   flex-grow: 100;
   & > .base-form-group-array-item {

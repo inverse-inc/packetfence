@@ -31,9 +31,6 @@
         @focus="onFocus"
         @blur="onBlur"
       />
-      <template v-slot:prepend>
-        <slot name="prepend"></slot>
-      </template>
       <template v-slot:append>
         <b-dropdown size="sm" v-if="prefixesInRange.length > 0" variant="light" class="base-input-dropdown">
           <template v-slot:button-content>
@@ -233,14 +230,5 @@ export default {
 <style lang="scss">
 .base-form-group-input {
   border-radius: $border-radius !important;
-  /*
-  &.is-invalid {
-    .input-group-append,
-    .input-group-prepend {
-      border-color: $form-feedback-invalid-color;
-      border-top: 1px solid;
-    }
-  }
-  */
 }
 </style>

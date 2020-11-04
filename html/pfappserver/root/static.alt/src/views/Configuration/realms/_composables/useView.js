@@ -36,9 +36,9 @@ const useView = (props, context) => {
   const titleLabel = computed(() => {
     switch (true) {
       case !unref(isNew) && !unref(isClone):
-        return i18n.t('Realm {id}', { id: unref(id) })
+        return i18n.t('Realm: <code>{id}</code>', { id: unref(id) })
       case unref(isClone):
-        return i18n.t('Clone Realm {id}', { id: unref(id) })
+        return i18n.t('Clone Realm: <code>{id}</code>', { id: unref(id) })
       default:
         return i18n.t('New Realm')
     }
