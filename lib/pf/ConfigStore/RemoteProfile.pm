@@ -27,17 +27,6 @@ sub importConfigFile { $remote_profiles_default_config_file }
 
 sub pfconfigNamespace {'config::RemoteProfiles'}
 
-=head2 cleanupAfterRead
-
-Clean up realm data
-
-=cut
-
-sub cleanupAfterRead {
-    my ($self, $id, $profile) = @_;
-    $self->expand_list($profile, $self->_fields_expanded);
-}
-
 =head2 cleanupBeforeCommit
 
 Clean data before update or creating
