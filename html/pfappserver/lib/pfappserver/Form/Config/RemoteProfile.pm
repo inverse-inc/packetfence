@@ -50,8 +50,12 @@ has_field 'status' =>
 has_field 'basic_filter_type' =>
   (
     type => 'Select',
-    default => 'filter_role',
-    options_method => sub {map { { value => $_, label => $_ } } qw(filter_device filter_user filter_role)}
+    default => 'node_info.category',
+    options_method => sub { (
+            { value => "node_info.mac", label => "Device MAC address" },
+            { value => "node_info.pid", label => "Username" },
+            { value => "node_info.category", label => "Device Role" },
+        ) }
   );
 
 has_field 'basic_filter_value' =>

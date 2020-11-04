@@ -5,10 +5,13 @@ import (
 	"fmt"
 
 	"github.com/inverse-inc/packetfence/go/common"
+	"github.com/inverse-inc/packetfence/go/filter_client"
 	"github.com/inverse-inc/packetfence/go/log"
 	"github.com/inverse-inc/packetfence/go/pfconfigdriver"
 	"github.com/inverse-inc/packetfence/go/sharedutils"
 )
+
+var pffilter = filter_client.NewClient()
 
 var GlobalRemoteConnectionProfiles *RemoteConnectionProfiles
 
@@ -17,18 +20,6 @@ func InitGlobal() {
 }
 
 const DefaultRemoteConnectionProfile = "default"
-
-var simpleFilters = map[string]func(rcp RemoteConnectionProfile, fi FilterInfo) bool{
-	"filter_device": func(rcp RemoteConnectionProfile, fi FilterInfo) bool {
-		return fi.NodeInfo.MAC == rcp.BasicFilterValue
-	},
-	"filter_role": func(rcp RemoteConnectionProfile, fi FilterInfo) bool {
-		return fi.NodeInfo.Category == rcp.BasicFilterValue
-	},
-	"filter_user": func(rcp RemoteConnectionProfile, fi FilterInfo) bool {
-		return fi.NodeInfo.PID == rcp.BasicFilterValue
-	},
-}
 
 type RemoteConnectionProfiles struct {
 	pfconfigdriver.CachedHash
@@ -91,13 +82,11 @@ func (rcp *RemoteConnectionProfiles) Get(ctx context.Context, id string) *Remote
 }
 
 func (rcp *RemoteConnectionProfiles) InstantiateForClient(ctx context.Context, fi FilterInfo) *RemoteConnectionProfile {
-	for _, profile := range rcp.AllEnabled(ctx) {
-		if profile.filterForClient(ctx, fi) {
-			log.LoggerWContext(ctx).Info(fmt.Sprintf("Matched remote connection profile %s for %s", profile.PfconfigHashNS, fi.NodeInfo.MAC))
-			return profile
-		}
-	}
-	return nil
+	info, err := pffilter.FilterRemoteProfile("instantiate", fi)
+	sharedutils.CheckError(err)
+	profileId := info.(map[string]interface{})["profile"].(string)
+	log.LoggerWContext(ctx).Info(fmt.Sprintf("Instantiate profile %s for MAC: %s, username: %s, role: %s", profileId, fi.NodeInfo.MAC, fi.NodeInfo.PID, fi.NodeInfo.Category))
+	return rcp.Get(ctx, profileId)
 }
 
 type RemoteConnectionProfile struct {
@@ -118,28 +107,10 @@ type RemoteConnectionProfile struct {
 }
 
 type FilterInfo struct {
-	NodeInfo     *common.NodeInfo
-	RemoteClient *RemoteClient
+	NodeInfo     *common.NodeInfo `json:"node_info"`
+	RemoteClient *RemoteClient    `json:"remote_client"`
 }
 
 func (rcp *RemoteConnectionProfile) init(ctx context.Context) {
 
-}
-
-func (rcp *RemoteConnectionProfile) filterForClient(ctx context.Context, fi FilterInfo) bool {
-	if rcp.PfconfigHashNS == DefaultRemoteConnectionProfile {
-		return true
-	}
-
-	if filter, ok := simpleFilters[rcp.BasicFilterType]; ok {
-		if filter(*rcp, fi) {
-			return true
-		}
-	} else if rcp.BasicFilterType != "" {
-		log.LoggerWContext(ctx).Error(fmt.Sprintf("Invalid basic filter type %s for profile %s", rcp.BasicFilterType, rcp.PfconfigHashNS))
-	}
-
-	return false
-
-	//TODO: handle advanced filter here through pffilter
 }
