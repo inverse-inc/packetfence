@@ -1,0 +1,4 @@
+### Ansible provisionner
+# dir created by vagrant during provisioning
+roles/
+ansible_collections/
