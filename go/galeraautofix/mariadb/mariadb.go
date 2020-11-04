@@ -36,6 +36,7 @@ func ForceStop(ctx context.Context) error {
 	}
 
 	exec.Command(`pkill`, `-9`, `-f`, `mysqld`).Run()
+	exec.Command(`pkill`, `-9`, `-f`, `socat`).Run()
 
 	return nil
 }
