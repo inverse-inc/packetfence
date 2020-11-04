@@ -50,8 +50,9 @@ has_field 'status' =>
 has_field 'basic_filter_type' =>
   (
     type => 'Select',
-    default => 'node_info.category',
+    default => '',
     options_method => sub { (
+            { value => "", label => "None - use advanced filter" },
             { value => "node_info.mac", label => "Device MAC address" },
             { value => "node_info.pid", label => "Username" },
             { value => "node_info.category", label => "Device Role" },
@@ -61,6 +62,11 @@ has_field 'basic_filter_type' =>
 has_field 'basic_filter_value' =>
   (
     type => 'Text',
+  );
+
+has_field 'advanced_filter' =>
+  (
+   type => 'TextArea',
   );
 
 has_field 'allow_communication_same_role' =>
@@ -97,6 +103,19 @@ sub options_roles {
     return @roles;
 }
 
+sub validate {
+    my $self = shift;
+    $self->SUPER::validate();
+
+    if(!$self->field("basic_filter_type")->value && !$self->field("advanced_filter")->value) {
+        $self->field("basic_filter_type")->add_error("You need to specify a basic filter or an advanced filter.");
+        $self->field("advanced_filter")->add_error("You need to specify a basic filter or an advanced filter.");
+    }
+
+    if($self->field("basic_filter_type")->value && $self->field("advanced_filter")->value) {
+        $self->field("advanced_filter")->add_error("You cannot specifiy an advanced filter and a basic filter.");
+    }
+}
 =over
 
 =back

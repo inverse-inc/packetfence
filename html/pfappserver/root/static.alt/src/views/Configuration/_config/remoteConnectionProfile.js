@@ -347,6 +347,16 @@ export const view = (form = {}, meta = {}) => {
           ]
         },
         {
+          label: i18n.t('Advanced filter'),
+          cols: [
+            {
+              namespace: 'advanced_filter',
+              component: pfFormTextarea,
+              attrs: attributesFromMeta(meta, 'advanced_filter')
+            }
+          ]
+        },
+        {
           label: i18n.t('Allow communication to devices of the same role'),
           cols: [
             {
