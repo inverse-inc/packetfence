@@ -60,11 +60,11 @@ our %DISPATCH = (
 );
 
 tie our $PROFILE_FILTER_ENGINE , 'pfconfig::cached_scalar' => 'FilterEngine::Profile';
+tie our $REMOTE_PROFILE_FILTER_ENGINE , 'pfconfig::cached_scalar' => 'FilterEngine::RemoteProfile';
 my $RADIUS_FILTER = pf::access_filter::radius->new;
 my $DHCP_FILTER = pf::access_filter::dhcp->new;
 my $DNS_FILTER = pf::access_filter::dns->new;
 my $VLAN_FILTER = pf::access_filter::vlan->new;
-my $REMOTE_PROFILE_FILTER_ENGINE = pf::access_filter::remote_profile->new;
 
 pf::SwitchFactory->preloadConfiguredModules();
 

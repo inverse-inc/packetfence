@@ -18,12 +18,19 @@ use pf::log;
 use pfconfig::namespaces::config;
 use pfconfig::namespaces::config::RemoteProfiles;
 use pf::config::builder::filter_engine::remote_profile;
+use pf::access_filter::remote_profile;
 
 use base 'pfconfig::namespaces::FilterEngine::AccessScopes';
 
 sub parentConfig {
     my ($self) = @_;
     return pfconfig::namespaces::config::RemoteProfiles->new($self->{cache});
+}
+
+sub build {
+    my ($self) = @_;
+    my $scopes = $self->SUPER::build();
+    return pf::access_filter::remote_profile->new($scopes);
 }
 
 sub builder {

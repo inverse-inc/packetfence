@@ -29,7 +29,7 @@ sub init {
     my ($self) = @_;
     $self->{file}            = $remote_profiles_config_file;
     $self->{default_section} = "default";
-    $self->{child_resources} = [ "resource::remote_profiles_keys" ];
+    $self->{child_resources} = [ "resource::remote_profiles_keys", "FilterEngine::RemoteProfile" ];
     my $defaults = pf::IniFiles->new(-file => $remote_profiles_default_config_file);
     $self->{added_params}{'-import'} = $defaults;
 }
