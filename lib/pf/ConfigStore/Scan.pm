@@ -48,6 +48,11 @@ Clean up switch data
 
 sub cleanupAfterRead {
     my ($self, $id, $profile) = @_;
+    for my $f (qw(registration pre_registration post_registration)) {
+        next if !exists $profile->{$f} || !defined $profile->{$f};
+        $profile->{$f} += 0;
+    }
+
     $self->expand_list($profile, $self->_fields_expanded);
 }
 
