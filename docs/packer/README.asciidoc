@@ -22,9 +22,6 @@ We use Ansible and shell scripts to cover these steps. It's possible because Pyt
 installed in link:https://hub.docker.com/u/buildpkg[buildpkg Docker
 images].
 
-When GPG keys from upstream repos can't be download automatically from Internet, we store them in
-[filename]`ci/packer/provisionners/upstream` directory to upload them in Docker images.
-
 ==== Build dependencies in packages specs
 
 Build dependencies need to be install in Docker images before starting build
@@ -44,15 +41,14 @@ To make Docker images lightweight, we make a clean up at end of the process.
 
 === How to build Docker images ?
 
-Docker images are built inside a GitLab pipeline. It can be run
-manually or detect changes on packages specifications files to start.
+Docker images are built inside a GitLab pipeline.
 
 ==== Prerequisites
 
 .Install following softwares:
-* http://packer.io/intro/getting-started/install.html[Packer] (>=1.4.2)
+* http://packer.io/intro/getting-started/install.html[Packer] (>=1.6.5)
 * https://docs.docker.com/install/[Docker]
-* Ansible
+* Ansible (>=2.10)
 
 ==== Makefile
 
@@ -69,4 +65,4 @@ make -e -C ci/packer
 
 === Troubleshooting
 
-You can troubleshoot issue in Packer builds by setting environment variable `$PACKER_LOG` environment variable to `1`.
+You can troubleshoot issues in Packer builds by setting environment variable `$PACKER_LOG` environment variable to `1`.
