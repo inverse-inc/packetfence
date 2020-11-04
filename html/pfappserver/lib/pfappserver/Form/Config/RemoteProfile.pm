@@ -21,6 +21,7 @@ use pf::config qw(%ConfigAuthenticationLdap %ConfigEAP);
 use pf::authentication;
 use pf::util;
 use pf::ConfigStore::Domain;
+use pf::condition_parser qw(parse_condition_string);
 
 ## Definition
 has_field 'id' =>
@@ -114,6 +115,13 @@ sub validate {
 
     if($self->field("basic_filter_type")->value && $self->field("advanced_filter")->value) {
         $self->field("advanced_filter")->add_error("You cannot specifiy an advanced filter and a basic filter.");
+    }
+
+    if($self->field("advanced_filter")->value) {
+        my (undef, $error) = parse_condition_string($self->field("advanced_filter")->value);
+        if($error) {
+            $self->field("advanced_filter")->add_error($error->{message});
+        }
     }
 }
 =over
