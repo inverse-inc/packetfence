@@ -244,7 +244,7 @@ export default {
   /**
    * Remote Connection Profiles
    */
-  connectionProfiles: params => {
+  remoteConnectionProfiles: params => {
     return apiCall.get(['config', 'remote_connection_profiles'], { params }).then(response => {
       return response.data
     })
