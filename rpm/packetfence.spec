@@ -1111,6 +1111,8 @@ fi
 %config                 /usr/local/pf/conf/profiles.conf.defaults
 %config(noreplace)      /usr/local/pf/conf/pfcron.conf
 %config                 /usr/local/pf/conf/pfcron.conf.defaults
+%config(noreplace)      /usr/local/pf/conf/remote_profiles.conf
+%config                 /usr/local/pf/conf/remote_profiles.conf.defaults
 %config(noreplace)      /usr/local/pf/conf/roles.conf
 %config                 /usr/local/pf/conf/roles.conf.defaults
 %config(noreplace)      /usr/local/pf/conf/snmptrapd.conf
