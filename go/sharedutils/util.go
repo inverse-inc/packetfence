@@ -14,6 +14,7 @@ import (
 	"strconv"
 	"strings"
 	"testing"
+	"time"
 	"unicode"
 
 	"github.com/cevaris/ordered_map"
@@ -148,6 +149,13 @@ func EnvOrDefaultInt(name string, defaultVal int) int {
 	intVal, err := strconv.ParseInt(strVal, 10, 32)
 	CheckError(err)
 	return int(intVal)
+}
+
+func EnvOrDefaultDuration(name string, defaultVal time.Duration) time.Duration {
+	strVal := EnvOrDefault(name, defaultVal.String())
+	durVal, err := time.ParseDuration(strVal)
+	CheckError(err)
+	return durVal
 }
 
 func RandomBytes(length uint64) []byte {

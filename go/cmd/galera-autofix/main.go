@@ -13,15 +13,15 @@ import (
 	"github.com/inverse-inc/packetfence/go/sharedutils"
 )
 
-const (
-	startWait                    = time.Duration(5 * time.Minute)
-	decisionLoopInterval         = time.Duration(1 * time.Minute)
-	seqnoReportingTimeout        = time.Duration(1 * time.Minute)
-	seqnoReportingInterval       = time.Duration(10 * time.Second)
-	dbAvailableDetectionCooldown = time.Duration(1 * time.Minute)
-	bootAndRejoinClusterTimeout  = time.Duration(1 * time.Minute)
-	connectDBTries               = 10
-	connectDBTriesInterval       = time.Duration(30 * time.Second)
+var (
+	startWait                    = sharedutils.EnvOrDefaultDuration("GALERA_AUTOFIX_START_WAIT", time.Duration(5*time.Minute))
+	decisionLoopInterval         = sharedutils.EnvOrDefaultDuration("GALERA_AUTOFIX_DECISION_LOOP_INTERVAL", time.Duration(1*time.Minute))
+	seqnoReportingTimeout        = sharedutils.EnvOrDefaultDuration("GALERA_AUTOFIX_SEQNO_REPORTING_TIMEOUT", time.Duration(1*time.Minute))
+	seqnoReportingInterval       = sharedutils.EnvOrDefaultDuration("GALERA_AUTOFIX_SEQNO_REPORTING_INTERVAL", time.Duration(10*time.Second))
+	dbAvailableDetectionCooldown = sharedutils.EnvOrDefaultDuration("GALERA_AUTOFIX_DB_AVAILABLE_DETECTION_COOLDOWN", time.Duration(1*time.Minute))
+	bootAndRejoinClusterTimeout  = sharedutils.EnvOrDefaultDuration("GALERA_AUTOFIX_BOOT_AND_REJOIN_CLUSTER_TIMEOUT", time.Duration(1*time.Minute))
+	connectDBTries               = sharedutils.EnvOrDefaultInt("GALERA_AUTOFIX_CONNECT_DB_TRIES", 10)
+	connectDBTriesInterval       = sharedutils.EnvOrDefaultDuration("GALERA_AUTOFIX_CONNECT_DB_TRIES_INTERVAL", time.Duration(30*time.Second))
 
 	ChitChatPort = 4253
 )
@@ -137,7 +137,7 @@ func handle(ctx context.Context, nodes *NodeList) {
 			log.LoggerWContext(ctx).Info("Local DB is available, nothing to do")
 			return
 		} else {
-			log.LoggerWContext(ctx).Warn(fmt.Sprintf("Failed %d time to connect to the local DB.", connectDBTries))
+			log.LoggerWContext(ctx).Warn(fmt.Sprintf("Failed %d time to connect to the local DB.", i))
 			time.Sleep(connectDBTriesInterval)
 		}
 	}
@@ -214,7 +214,7 @@ func handlePeerDBAvailable(ctx context.Context, nodes *NodeList) bool {
 	peers := filterPeers(ctx, nodes)
 	for _, node := range peers {
 		if node.Stats.DBAvailable {
-			log.LoggerWContext(ctx).Info("Found a peer DB available. Cooling down for a minute to see if the DB on this server will become ready before attempting to rejoin cluster by force.")
+			log.LoggerWContext(ctx).Info(fmt.Sprintf("Found a peer DB available. Cooling down for %s to see if the DB on this server will become ready before attempting to rejoin cluster by force.", dbAvailableDetectionCooldown))
 			// Wait a minute to see if the local DB becomes availble before clearing data and restarting from scratch
 			time.Sleep(dbAvailableDetectionCooldown)
 			if mariadb.IsLocalDBAvailable(ctx) {
