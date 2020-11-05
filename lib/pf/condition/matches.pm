@@ -37,10 +37,14 @@ Match if argument matches the value
 =cut
 
 sub match {
-    my ($self,$arg,$args) = @_;
+    my ($self,$arg, $args) = @_;
     my $match = $self->evalParam($self->value, $args);
     return 0 if(!defined($arg));
-    return $arg =~ /\Q$match\E/i;
+    if ($match eq '') {
+        return 1;
+    }
+
+    return $arg =~ /\Q$match\E/i ? 1 : 0;
 }
 
 =head1 AUTHOR
