@@ -20,7 +20,7 @@ BEGIN {
     use setup_test_config;
 }
 
-use Test::More tests => 7;                      # last test to print
+use Test::More tests => 10;                      # last test to print
 
 use Test::NoWarnings;
 
@@ -35,6 +35,12 @@ ok($filter->match('TESTIng123'),"filter matches");
 ok(!$filter->match('desting'),"filter does not match matches");
 
 ok(!$filter->match(undef),"value undef does not match filter");
+
+{
+    my $filter = new_ok( "pf::condition::matches", [ value => '' ], "Test regex based filter");
+    ok( $filter->match("bob"), "Should match all defined strings" );
+    ok( !$filter->match(undef), "value undef does not match filter");
+}
 
 =head1 AUTHOR
 
