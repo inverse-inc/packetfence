@@ -14,7 +14,7 @@ const route = {
   redirect: '/status/dashboard',
   component: StatusView,
   meta: {
-    can: () => acl.can('master tenant') || acl.$some('read', ['system', 'services']), // has ACL for 1+ children
+    can: () => acl.$some('read', ['reports', 'system', 'services']), // has ACL for 1+ children
     transitionDelay: 300 * 2 // See _transitions.scss => $slide-bottom-duration
   },
   beforeEnter: (to, from, next) => {
@@ -44,7 +44,7 @@ const route = {
           next()
       },
       meta: {
-        can: 'master tenant',
+        can: 'read reports',
         isFailRoute: true
       }
     },
@@ -72,7 +72,7 @@ const route = {
       component: Queue,
       props: { storeName: 'pfqueue' },
       meta: {
-        can: 'master tenant',
+        can: 'read services',
         isFailRoute: true
       }
     },
