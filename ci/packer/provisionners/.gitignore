@@ -1,4 +1,4 @@
 ### Ansible provisionner
-# dir created by vagrant during provisioning
+# dir created by Packer during provisioning
 roles/
 ansible_collections/
