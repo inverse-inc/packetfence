@@ -29,8 +29,11 @@
         @reset="doReset"
         @save="doSave"
       />
-      <button-service service="fingerbank-collector" restart start stop
-        :disabled="isLoading" class="ml-1" size="sm"/>
+      <div class="d-inline alert alert-warning ml-1 px-2">
+        <button-service service="fingerbank-collector" restart start stop
+          :disabled="isLoading" class="mr-1" size="sm"/>
+        {{ $t(`Creating or modifying a network behavior policy requires to restart the fingerbank-collector service`) }}
+      </div>
     </template>
   </base-view>
 </template>
