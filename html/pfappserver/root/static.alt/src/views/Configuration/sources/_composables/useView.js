@@ -1,4 +1,4 @@
-import { computed, toRefs, unref, watch } from '@vue/composition-api'
+import { computed, ref, toRefs, unref, watch } from '@vue/composition-api'
 import { useView as useBaseView, useViewProps as useBaseViewProps } from '@/composables/useView'
 import i18n from '@/utils/locale'
 import {
@@ -52,7 +52,23 @@ const useView = (props, context) => {
 
   const isLoading = computed(() => $store.getters['$_sources/isLoading'])
 
+  const samlRef = ref(null)
+  const samlMetaData = ref(undefined)
+  const isSaml = ref(false)
+  const showSaml = () => { isSaml.value = true }
+  const hideSaml = () => { isSaml.value = false }
+  const copySaml = () => {
+    if (document.queryCommandSupported('copy')) {
+      const { refs: { samlRef } = {} } = context
+      samlRef.$el.select()
+      document.execCommand('copy')
+      hideSaml()
+      $store.dispatch('notification/info', { message: i18n.t('XML copied to clipboard') })
+    }
+  }
+
   const doInit = () => {
+    samlMetaData.value = undefined
     if (!isNew.value) { // existing
       $store.dispatch('$_sources/optionsById', id.value).then(options => {
         const { meta: _meta = {} } = options
@@ -63,13 +79,11 @@ const useView = (props, context) => {
             _form.not_deletable = false
           }
           form.value = _form
-/*
-          if (form.type === 'SAML') {
+          if (_form.type === 'SAML') {
             $store.dispatch('$_sources/getAuthenticationSourceSAMLMetaData', id.value).then(xml => {
-              this.samlMetaData = xml
+              samlMetaData.value = xml
             })
           }
-*/
         }).catch(() => {
           form.value = {}
         })
@@ -93,7 +107,7 @@ const useView = (props, context) => {
 
   const doClose = () => $router.push({ name: 'sources' })
 
-  const doRemove = () => $store.dispatch('$_sources/deleteSource', id.value).then(() => doClose())
+  const doRemove = () => $store.dispatch('$_sources/deleteAuthenticationSource', id.value).then(() => doClose())
 
   const doReset = doInit
 
@@ -102,7 +116,7 @@ const useView = (props, context) => {
     switch (true) {
       case unref(isClone):
       case unref(isNew):
-        $store.dispatch('$_sources/createSource', form.value).then(() => {
+        $store.dispatch('$_sources/createAuthenticationSource', form.value).then(() => {
           if (closeAfter) // [CTRL] key pressed
             doClose()
           else
@@ -110,7 +124,7 @@ const useView = (props, context) => {
         })
         break
       default:
-        $store.dispatch('$_sources/updateSource', form.value).then(() => {
+        $store.dispatch('$_sources/updateAuthenticationSource', form.value).then(() => {
           if (closeAfter) // [CTRL] key pressed
             doClose()
         })
@@ -141,7 +155,15 @@ const useView = (props, context) => {
     doClose,
     doRemove,
     doReset,
-    doSave
+    doSave,
+
+    // section specific variable
+    samlRef,
+    samlMetaData,
+    isSaml,
+    showSaml,
+    hideSaml,
+    copySaml
   }
 }
 

@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div class="d-inline">
     <base-button-save
       :isLoading="isLoading"
       :disabled="!isValid"

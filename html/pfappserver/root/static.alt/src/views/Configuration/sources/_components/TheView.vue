@@ -28,6 +28,16 @@
         @reset="doReset"
         @save="doSave"
       />
+      <template v-if="samlMetaData">
+        <b-button class="ml-1 mr-1" size="sm" variant="outline-secondary" @click="showSaml">{{ $t('View Service Provider Metadata') }}</b-button>
+        <b-modal v-model="isSaml" title="Service Provider Metadata" size="lg" centered cancel-disabled>
+          <b-form-textarea ref="samlRef" v-model="samlMetaData" :rows="27" :max-rows="27" readonly></b-form-textarea>
+          <template v-slot:modal-footer>
+            <b-button variant="secondary" class="mr-1" @click="hideSaml">{{ $t('Close') }}</b-button>
+            <b-button variant="primary" @click="copySaml">{{ $t('Copy to Clipboard') }}</b-button>
+          </template>
+        </b-modal>
+      </template>
     </template>
   </base-view>
 </template>
