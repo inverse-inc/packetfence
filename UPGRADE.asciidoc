@@ -33,7 +33,7 @@ This guide covers procedures to upgrade PacketFence servers.
   Covers installation and configuration of PacketFence.
 <<PacketFence_Network_Devices_Configuration_Guide.asciidoc#,Network Devices Configuration Guide>>::
   Covers switches, WiFi controllers and access points configuration.
-`NEWS.asciidoc`::
+<<PacketFence_News.asciidoc#,NEWS>>::
   Covers noteworthy features, improvements and bug fixes by release.
 
 These files are included in the package and release tarballs.
