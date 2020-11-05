@@ -16,6 +16,7 @@ all:
 	@echo " 'docs/PacketFence_Developers_Guide.pdf' will build the Developers guide in PDF"
 	@echo " 'docs/PacketFence_Network_Devices_Configuration_Guide.pdf' will build the Network Devices Configuration guide in PDF"
 	@echo " 'docs/PacketFence_Upgrade_Guide.pdf' will build the Upgrade guide in PDF"
+	@echo " 'docs/PacketFence_News.pdf' will build the News in PDF"
 
 DOCINFO_XMLS := $(notdir $(wildcard docs/PacketFence_*-docinfo.xml))
 ASCIIDOCS := $(patsubst %-docinfo.xml, %.asciidoc, $(DOCINFO_XMLS))
