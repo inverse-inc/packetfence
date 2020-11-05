@@ -5,21 +5,9 @@ REPO_URL=https://gitlab.com/inverse-inc/packetfence/-/jobs/artifacts/devel/downl
 ZIP_FILE=$(mktemp --suff=".zip")
 
 # get git root path directory
-#
-#
-# check how to use $(readlink -e $(dirname ${BASH_SOURCE[0]}))
-#
-#
-PWD=$(pwd)
-DIR=""
-if [[ "${PWD}" == *\/ci ]] ; then
-  DIR=$(echo ${PWD} | grep -oP '.*?(?=\/ci)')
-else
-  DIR=$(echo ${PWD} | grep -oP '.*?(?=\/ci\/)')
-fi
-if [ "${DIR}" == "" ] || [ -z $DIR ]; then
-  DIR=${PWD}
-fi
+PWD=$(readlink -e $(dirname ${BASH_SOURCE[0]}))
+DIR=$(echo ${PWD} | grep -oP '.*?(?=\/ci\/)')
+
 echo "The directory used will be ${DIR}"
 
 # test if public is already there
