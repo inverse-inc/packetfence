@@ -5,6 +5,11 @@ REPO_URL=https://gitlab.com/inverse-inc/packetfence/-/jobs/artifacts/devel/downl
 ZIP_FILE=$(mktemp --suff=".zip")
 
 # get git root path directory
+#
+#
+# check how to use $(readlink -e $(dirname ${BASH_SOURCE[0]}))
+#
+#
 PWD=$(pwd)
 DIR=""
 if [[ "${PWD}" == *\/ci ]] ; then
@@ -15,7 +20,7 @@ fi
 if [ "${DIR}" == "" ] || [ -z $DIR ]; then
   DIR=${PWD}
 fi
-echo "The directory used will be "${DIR}
+echo "The directory used will be ${DIR}"
 
 # test if public is already there
 if [ -d "${DIR}/public/" ]; then
@@ -32,11 +37,11 @@ fi
 # Download the archive zipfile, extract and remove
 curl -Ls ${REPO_URL} --output ${ZIP_FILE}
 if [ -f ${ZIP_FILE} ]; then
-  echo "Public zipfile is there "${ZIP_FILE}
+  echo "Public zipfile is there ${ZIP_FILE}"
   unzip -oq ${ZIP_FILE} -d ${DIR}
-  echo "Unzip is done in "${DIR}
+  echo "Unzip is done in ${DIR}"
   rm -f ${ZIP_FILE}
-  echo "Zipfile "${ZIP_FILE}" is removed"
+  echo "Zipfile ${ZIP_FILE} is removed"
   exit 0
 else
   echo "The zipfile is no available"
