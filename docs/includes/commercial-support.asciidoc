@@ -14,15 +14,15 @@
 Commercial Support and Contact Information
 ------------------------------------------
 
-For any questions or comments, do not hesitate to contact us by writing an 
+For any questions or comments, do not hesitate to contact us by writing an
 email to: support@inverse.ca.
 
-Inverse (http://inverse.ca) offers professional services around PacketFence 
-to help organizations deploy the solution, customize, migrate versions or 
+Inverse (https://inverse.ca) offers professional services around PacketFence
+to help organizations deploy the solution, customize, migrate versions or
 from another system, performance tuning or aligning with best practices.
 
 Hourly rates or support packages are offered to best suit your needs.
 
-Please visit http://inverse.ca/ for details.
+Please visit https://inverse.ca/ for details.
 
 // vim: set syntax=asciidoc tabstop=2 shiftwidth=2 expandtab:

@@ -1,23 +1,12 @@
 = Developer's Guide
-:encoding: UTF-8
-:lang: en
-:doctype: book
-:toc: left
-:experimental:
-// to display images directly on GitHub
-ifdef::env-github[]
-:imagesdir: images
-endif::[]
-
 ////
 
     This file is part of the PacketFence project.
 
-    See PacketFence_Developers_Guide-docinfo.xml for authors, copyright and
+    See includes/global-attributes.asciidoc for authors, copyright and
     license information.
 
 ////
-
 include::includes/global-attributes.asciidoc[]
 
 == About this Guide

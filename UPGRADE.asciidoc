@@ -1,21 +1,17 @@
 = PacketFence Upgrade Guide
-:encoding: UTF-8
-:lang: en
-:doctype: book
-:toc: left
-
-// to display images directly on GitHub
-ifdef::env-github[]
-:imagesdir: images
-:extra_path: docs/
-endif::[]
-:extra_path:
 ////
 
     This file is part of the PacketFence project.
 
-////
+    See docs/includes/global-attributes.asciidoc for authors, copyright and
+    license information.
 
+////
+// Fix includes on GitHub
+:extra_path:
+ifdef::env-github[]
+:extra_path: docs/
+endif::[]
 include::{extra_path}includes/global-attributes.asciidoc[]
 
 == About this Guide
@@ -220,7 +216,7 @@ steps required depending on the version you are upgrading from.
 
 ==== New versions of configuration files
 
-You should take care to review any changes to configuration files and merge them if required. 
+You should take care to review any changes to configuration files and merge them if required.
 
 ===== RHEL / CentOS based systems
 
@@ -327,21 +323,21 @@ In order to upgrade the MariaDB metadata files and tables, first stop any starte
 
   systemctl stop mariadb
   systemctl stop packetfence-mariadb
-  
+
 Then start a mysqld_safe process manually (this will start a background process)
-  
+
   mkdir -p /var/run/mariadb
   chown mysql: /var/run/mariadb
   mysqld_safe --basedir=/usr &
- 
+
 Then, execute the upgrade script and enter the root password when prompted
-  
+
   mysql_upgrade -u root -p
-  
+
 When done, kill the mysqld_safe process we started before the update, reattach to it and wait for it to exit
 
   kill %1 && fg
-  
+
 Note that it might take up to a few minutes for the process to exit depending on the size of your database.
 
 Once done, restart the MariaDB service (managed by PacketFence)
@@ -445,7 +441,7 @@ Clear the redis queue to avoid old stale jobs from being processes.
   systemctl start packetfence-redis_queue
   redis-cli -p 6380 FLUSHALL
   systemctl stop packetfence-redis_queue
-  
+
 === SSL certificates
 
 
@@ -465,7 +461,7 @@ A complete re-visit of the database clustering stack was done in version 7.0. If
 
 ==== Active/Active clusters with Active/Passive DB (default before 7.0)
 
-We highly suggest you migrate your existing clustered installation using Corosync/Pacemaker to the new cluster stack of PacketFence that uses MariaDB Galera cluster. 
+We highly suggest you migrate your existing clustered installation using Corosync/Pacemaker to the new cluster stack of PacketFence that uses MariaDB Galera cluster.
 The easiest way to perform this is to build new servers and port your configuration (by copying the configuration files) and your database (using mysqldump).
 There are ways to migrate the 2 existing nodes to a 3 nodes cluster but this is not covered in this guide.
 
@@ -478,14 +474,14 @@ You will simply have to adjust your Corosync configuration so that MariaDB point
           op start timeout=60s interval=0 \
           op stop timeout=60s interval=0 \
           op monitor interval=20s timeout=30s
-	 
+
 ===== Disabling Galera cluster
 
 You must then disable the MariaDB Galera cluster as a replication mechanism as you will still be using DRBD. In order to do so, add the following in `/usr/local/pf/conf/pf.conf`
 
   [active_active]
   galera_replication=disabled
- 
+
 ===== IP address bind
 
 You must also instruct packetfence-mariadb to bind to the management IP address of the server manually.
@@ -509,7 +505,7 @@ Where 1.2.3.4 is the management IP address of the server.
 Like in previous versions where mariadb shouldn't have been started on boot, now you must ensure its replacement (packetfence-mariadb) doesn't start on boot.
 
   systemctl disable packetfence-mariadb
-  
+
 *Enabling the packetfence-cluster target*
 
 Next, you must set the default target to packetfence-cluster:
@@ -592,7 +588,7 @@ PacketFence is now able to instruct Samba to «pin» a DC for authentication or 
 You should instruct Samba to connect to all domain controllers by adding the following to each of your domains in domain.conf:
 
   sticky_dc=*
-  
+
 And then regenerate the domain configuration:
 
   /usr/local/pf/bin/pfcmd fixpermissions
@@ -680,7 +676,7 @@ If you use social login with LinkedIn OAuth2, you will need to adjust the list o
 For all your LinkedIn sources, change the domains to:
 
   www.linkedin.com,api.linkedin.com,*.licdn.comlatform.linkedin.com
-  
+
 === Portal redirection timer
 
 
@@ -765,7 +761,7 @@ In order to do so, execute the following:
 === Changes to DNS filters
 
 
-The $qname parameter need to be removed from dns_filters.conf 
+The $qname parameter need to be removed from dns_filters.conf
 
 In order to do so, execute the following command:
 
@@ -783,7 +779,7 @@ To upgrade the database schema, run the following command:
 
 Once completed, update the file /usr/local/pf/conf/currently-at to match the new release number (PacketFence 8.0.0).
 
-== Upgrading from a version prior to 8.1.0 
+== Upgrading from a version prior to 8.1.0
 
 
 === Changes on unreg_on_accounting_stop parameter
@@ -814,16 +810,16 @@ The queue_stats maintenance job has been deprecated in favor of using pfstats. I
 
   /usr/local/pf/addons/upgrade/to-8.2-pfmon-conf.pl
 
-=== Upgrade pfdetect perl regex to the go RE2 regex
+=== Upgrade pfdetect Perl regex to the go RE2 regex
 
-The pfdetect was moved from perl to go so all rule regexes have to be converted to the RE2 regex syntax.
-RE2 is mostly is compatiable the perl regex syntax.
+The pfdetect was moved from Perl to Go so all rule regexes have to be converted to the RE2 regex syntax.
+RE2 is mostly is compatiable the Perl regex syntax.
 More information on the RE2 syntax can be found here https://github.com/google/re2/wiki/Syntax.
 To upgrade the regex run:
 
   /usr/local/pf/addons/upgrade/to-8.2-pfdetect-conf.pl
 
-Any perl regex that cannnot be convert will be displayed and should be fixed.
+Any Perl regex that cannnot be convert will be displayed and should be fixed.
 
 === Upgrade realm.conf to be tenant aware
 
@@ -942,14 +938,14 @@ the dhcp answer on the fly.
 The violations have been renamed to security events. In order to make the appropriate changes in your configuration, execute the following script:
 
   /usr/local/pf/addons/upgrade/to-9.0-security-events.sh
-  
+
 === Removed MAC detection setting
 
 
 The MAC detection setting in the switches has been removed. In order to cleanup the switches configuration for the removal of this setting, execute the following script:
 
   /usr/local/pf/addons/upgrade/to-9.0-remove_mac_detection.sh
-  
+
 === Modifications to accounting cleanup
 
 
@@ -961,7 +957,7 @@ Accounting cleanup is now done via a pfmon task (acct_cleanup) instead of the da
 In order to upgrade the Admin rights, run the following commands
 
   cd /usr/local/pf
-  sed -i "s/SERVICES/SERVICES_READ/g" /usr/local/pf/conf/adminroles.conf 
+  sed -i "s/SERVICES/SERVICES_READ/g" /usr/local/pf/conf/adminroles.conf
   sed -i "s/REPORTS/REPORTS_READ/g" /usr/local/pf/conf/adminroles.conf
 
 === Database schema
@@ -1095,7 +1091,7 @@ installed, this one has been upgraded to latest version.
 
 NOTE: This step needs to be done *before* packages upgrade.
 
-In order to install new versions of Debian packages, you will need to add a new GPG key to your system: 
+In order to install new versions of Debian packages, you will need to add a new GPG key to your system:
 
 [source,bash]
 ----
@@ -1297,7 +1293,7 @@ This script will add the prefix:
 
 === Changes in RADIUS configuration for better LDAP support
 
-In order to improve LDAP support when using RADIUS, new files and configuration parameters have been added. 
+In order to improve LDAP support when using RADIUS, new files and configuration parameters have been added.
 This script will update your current configuration:
 
 [source,bash]

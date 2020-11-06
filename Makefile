@@ -1,11 +1,4 @@
 include config.mk
-DOCBOOK_XSL := /usr/share/xml/docbook/stylesheet/docbook-xsl
-UNAME := $(shell uname -s)
-ifeq ($(UNAME),Darwin)
-	DOCBOOK_XSL := /opt/local/share/xsl/docbook-xsl
-else ifneq ("$(wildcard /etc/redhat-release)","")
-	DOCBOOK_XSL := /usr/share/sgml/docbook/xsl-stylesheets
-endif
 
 all:
 	@echo "Please chose which documentation to build:"
@@ -17,44 +10,17 @@ all:
 	@echo " 'docs/PacketFence_Network_Devices_Configuration_Guide.pdf' will build the Network Devices Configuration guide in PDF"
 	@echo " 'docs/PacketFence_Upgrade_Guide.pdf' will build the Upgrade guide in PDF"
 
-DOCINFO_XMLS := $(notdir $(wildcard docs/PacketFence_*-docinfo.xml))
-ASCIIDOCS := $(patsubst %-docinfo.xml, %.asciidoc, $(DOCINFO_XMLS))
+ASCIIDOCS := $(notdir $(wildcard docs/PacketFence_*.asciidoc))
 PDFS = $(patsubst %.asciidoc,docs/%.pdf, $(ASCIIDOCS))
 
-docs/docbook/xsl/titlepage-fo.xsl: docs/docbook/xsl/titlepage-fo.xml
-	xsltproc \
-		-o docs/docbook/xsl/titlepage-fo.xsl \
-		$(DOCBOOK_XSL)/template/titlepage.xsl \
-		docs/docbook/xsl/titlepage-fo.xml
+clean:
+	rm -f docs/html/*.html docs/*.pdf
 
-docs/docbook/xsl/import-fo.xsl:
-	@echo "<?xml version='1.0'?> \
-	<xsl:stylesheet   \
-	  xmlns:xsl=\"http://www.w3.org/1999/XSL/Transform\" \
-	  xmlns:fo=\"http://www.w3.org/1999/XSL/Format\" \
-	  version=\"1.0\"> \
-	  <xsl:import href=\"${DOCBOOK_XSL}/fo/docbook.xsl\"/> \
-	</xsl:stylesheet>" \
-	> docs/docbook/xsl/import-fo.xsl
-
-docs/docbook/%.docbook: docs/%.asciidoc
-	asciidoc \
-		-a docinfo2 \
-		-b docbook \
-		-d book \
-		-f docs/docbook/docbook45.conf \
-		-o $@ $<
-
-docs/%.fo: docs/docbook/%.docbook docs/docbook/xsl/titlepage-fo.xsl docs/docbook/xsl/import-fo.xsl
-	xsltproc \
-		-o $@ \
-		docs/docbook/xsl/packetfence-fo.xsl \
+docs/%.pdf: docs/%.asciidoc
+	asciidoctor-pdf \
+		-a pdf-theme=docs/asciidoctor-pdf-theme.yml \
+		-a pdf-fontsdir=docs/fonts \
 		$<
-
-docs/%.pdf: docs/%.fo
-	fop \
-		-c docs/fonts/fop-config.xml \
-		$< -pdf $@
 
 .PHONY: pdf
 
@@ -64,10 +30,8 @@ HTML = $(patsubst %.asciidoc,docs/html/%.html, $(ASCIIDOCS))
 
 docs/html/%.html: docs/%.asciidoc
 	asciidoctor \
-		-D docs/html \
 		-n \
 		-r ./docs/html/asciidoctor-html.rb \
-		-a imagesdir=../images \
 		-a stylesdir=../html/pfappserver/root/static.alt/dist/css \
 		-a stylesheet=$(notdir $(wildcard ./html/pfappserver/root/static.alt/dist/css/app*.css)) \
 		$<
