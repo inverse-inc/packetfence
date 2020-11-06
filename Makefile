@@ -38,12 +38,11 @@ docs/html/%.html: docs/%.asciidoc
 
 html/pfappserver/root/static/doc:
 	make html
-	mkdir html/pfappserver/root/static/doc
-	mkdir html/pfappserver/root/static/images
-	cp -a docs/html/* html/pfappserver/root/static/doc
-	cp -a docs/images/* html/pfappserver/root/static/images
+	mkdir -p html/pfappserver/root/static/doc/images
+	cp -a docs/*.html html/pfappserver/root/static/doc
+	cp -a docs/images/* html/pfappserver/root/static/doc/images
 
-docs/html/index.js: $(HTML)
+docs/index.js: $(HTML)
 	find $$(dirname "$@") -type f  -iname  '*.html' -and -not -iname '*template*' -printf "{\"name\":\"%f\", \"size\":%s, \"last_modifed\" : %T@}\n" | jq -s '{ items: [ .[] |  {name, size, last_modifed : (.last_modifed*1000 | floor)} ] }' > $@
 
 .PHONY: images
@@ -51,19 +50,19 @@ docs/html/index.js: $(HTML)
 images:
 	@echo "install images dir and all subdirectories"
 	for subdir in `find docs/images/* -type d -printf "%f\n"` ; do \
-		install -d -m0755 $(DESTDIR)/usr/local/pf/html/pfappserver/root/static/images/$$subdir ; \
+		install -d -m0755 $(DESTDIR)/usr/local/pf/html/pfappserver/root/static/doc/images/$$subdir ; \
 		for img in `find docs/images/$$subdir -type f`; do \
-			install -m0644 $$img $(DESTDIR)/usr/local/pf/html/pfappserver/root/static/images/$$subdir ; \
+			install -m0644 $$img $(DESTDIR)/usr/local/pf/html/pfappserver/root/static/doc/images/$$subdir ; \
 		done \
 	done
 	@echo "install only images at depth0 in images/ directory"
 	for img in `find docs/images/* -maxdepth 0 -type f`; do \
-		install -m0644 $$img $(DESTDIR)/usr/local/pf/html/pfappserver/root/static/images/ ; \
+		install -m0644 $$img $(DESTDIR)/usr/local/pf/html/pfappserver/root/static/doc/images/ ; \
 	done
 
 .PHONY: html
 
-html: $(HTML) docs/html/index.js
+html: $(HTML) docs/index.js
 
 pfcmd.help:
 	/usr/local/pf/bin/pfcmd help > docs/installation/pfcmd.help

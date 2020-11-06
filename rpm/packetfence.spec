@@ -29,7 +29,7 @@ BuildRequires: gettext, httpd, ipset-devel, pkgconfig, jq
 BuildRequires: libmnl-devel,
 %endif
 %if 0%{?rhel} == 7
-BuildRequires: asciidoc >= 8.6.2, fop, libxslt, docbook-style-xsl, xalan-j2
+BuildRequires: asciidoc >= 8.6.2
 %endif
 BuildRequires: ruby, rubygems
 BuildRequires: nodejs >= 12.0
@@ -327,22 +327,8 @@ for TRANSLATION in de en es fr he_IL it nl pl_PL pt_BR no; do
 done
 
 %if %{builddoc} == 1
-    # generating custom XSL for titlepage
-    xsltproc -o docs/docbook/xsl/titlepage-fo.xsl \
-        /usr/share/sgml/docbook/xsl-stylesheets/template/titlepage.xsl \
-        docs/docbook/xsl/titlepage-fo.xml
     # admin, network device config, devel and ZEN install guides
-    for GUIDE in $(ls docs/PacketFence*.asciidoc | xargs -n1 -I'{}' basename '{}' .asciidoc) ;do
-    asciidoc -a docinfo2 -b docbook -d book \
-        -o docs/docbook/$GUIDE.docbook \
-        docs/$GUIDE.asciidoc
-    xsltproc -o docs/docbook/$GUIDE.fo \
-        docs/docbook/xsl/packetfence-fo.xsl \
-        docs/docbook/$GUIDE.docbook
-    fop -c docs/fonts/fop-config.xml \
-        docs/docbook/$GUIDE.fo \
-        -pdf docs/$GUIDE.pdf
-    done
+    %{__make} html
 %endif
 
 # Portal javascript/css
@@ -494,7 +480,6 @@ cp -r ChangeLog %{buildroot}/usr/local/pf/
 cp -r COPYING %{buildroot}/usr/local/pf/
 cp -r db %{buildroot}/usr/local/pf/
 cp -r docs %{buildroot}/usr/local/pf/
-rm -rf %{buildroot}/usr/local/pf/docs/docbook
 rm -rf %{buildroot}/usr/local/pf/docs/fonts
 rm -rf %{buildroot}/usr/local/pf/docs/images
 rm -rf %{buildroot}/usr/local/pf/docs/api
@@ -1135,7 +1120,6 @@ fi
 %exclude                /usr/local/pf/docs/README.asciidoc
 %if %{builddoc} == 1
 %doc                    /usr/local/pf/docs/*.pdf
-%exclude                /usr/local/pf/docs/*.fo
 %endif
 
 ### html dir
