@@ -108,7 +108,7 @@ const PkiProvidersList = () => import(/* webpackChunkName: "Configuration" */ '.
 const PkiProviderView = () => import(/* webpackChunkName: "Configuration" */ '../_components/PkiProviderView')
 const PortalModulesList = () => import(/* webpackChunkName: "Configuration" */ '../_components/PortalModulesList')
 const PortalModuleView = () => import(/* webpackChunkName: "Configuration" */ '../_components/PortalModuleView')
-const AccessDurationView = () => import(/* webpackChunkName: "Configuration" */ '../_components/AccessDurationView')
+const AccessDurationView = () => import(/* webpackChunkName: "Configuration" */ '../accessDurations/_components/TheView')
 const ProvisioningsList = () => import(/* webpackChunkName: "Configuration" */ '../_components/ProvisioningsList')
 const ProvisioningView = () => import(/* webpackChunkName: "Configuration" */ '../_components/ProvisioningView')
 const SelfServicesList = () => import(/* webpackChunkName: "Configuration" */ '../_components/SelfServicesList')
@@ -1814,13 +1814,7 @@ const route = {
       path: 'access_duration',
       name: 'access_duration',
       component: AccessDurationView,
-      props: (route) => ({ formStoreName: 'formAccessDuration', query: route.query.query }),
-      beforeEnter: (to, from, next) => {
-        if (!store.state.formAccessDuration) { // Register store module only once
-          store.registerModule('formAccessDuration', FormStore)
-        }
-        next()
-      }
+      props: (route) => ({ query: route.query.query })
     },
     {
       path: 'self_services',

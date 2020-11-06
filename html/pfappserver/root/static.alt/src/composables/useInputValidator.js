@@ -42,6 +42,8 @@ export const useInputValidator = (props, value, recursive = false) => {
   // yup | https://github.com/jquense/yup
   let localValidator = ref(unref(validator))
 
+  let lastTouch
+
   let form = ref(undefined)
   let path = ref(undefined)
 
@@ -56,6 +58,7 @@ export const useInputValidator = (props, value, recursive = false) => {
 
     form = inject('form')
     localValidator = inject('schema')
+    lastTouch = inject('lastTouch', ref(null))
 
     /*
     localValidator = computed(() => {
@@ -90,7 +93,7 @@ export const useInputValidator = (props, value, recursive = false) => {
 
     let validateDebouncer
     watch(
-      [value, localValidator],
+      [value, localValidator, lastTouch],
       () => {
         const schema = unref(localValidator)
         const thisPromise = ++lastPromise

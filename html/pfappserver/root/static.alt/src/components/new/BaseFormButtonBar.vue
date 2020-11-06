@@ -16,7 +16,7 @@
       class="mr-1" variant="outline-secondary"
       @click="onReset"
     >{{ $t('Reset') }}</b-button>
-    <b-button v-if="!isNew && !isClone"
+    <b-button v-if="isCloneable"
       :disabled="isLoading"
       class="mr-1" variant="outline-primary"
       @click="onClone"
@@ -50,14 +50,17 @@ export const setup = (props, context) => {
     onClone,
     onRemove,
     onReset,
-    onSave
+    onSave,
+    isCloneable
   } = useFormButtonBar(props, context)
 
   return {
     onClone,
     onRemove,
     onReset,
-    onSave
+    onSave,
+
+    isCloneable
   }
 }
 

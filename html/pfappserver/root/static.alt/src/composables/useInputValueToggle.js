@@ -52,6 +52,16 @@ export const useInputValueToggle = (valueProps, props) => {
     return mappedColor || defaultColor
   })
 
+  const icon = computed(() => {
+    const { 0: { icon: defaultIcon } = {} , [unref(txValue)]: { icon: mappedIcon } = {} } = unref(options)
+    return mappedIcon || defaultIcon
+  })
+
+ const tooltip = computed(() => {
+    const { 0: { tooltip: defaultTooltip } = {} , [unref(txValue)]: { tooltip: mappedTooltip } = {} } = unref(options)
+    return mappedTooltip || defaultTooltip
+  })
+
   return {
     // middleware
     value: txValue,
@@ -60,6 +70,8 @@ export const useInputValueToggle = (valueProps, props) => {
     // state
     max,
     label,
-    color
+    color,
+    icon,
+    tooltip
   }
 }

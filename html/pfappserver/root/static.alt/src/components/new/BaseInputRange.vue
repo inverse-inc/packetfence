@@ -18,10 +18,11 @@
         <div v-for="(hintStyle, index) in hintStyles" :key="index" class="hint" :style="hintStyle"></div>
         <span class="handle" :style="valueStyle">
           <icon v-if="isLocked" name="lock"/>
+          <icon v-else-if="icon" :name="icon"/>
           <slot v-else/> <!-- Icon slot -->
         </span>
         <div v-if="tooltip" class="tooltip" :style="valueStyle">
-          <span id="value">{{ $t(tooltipFunction(inputValue)) }}</span>
+          <span id="value">{{ tooltip }}</span>
         </div>
       </div>
       <input ref="input"
@@ -59,6 +60,9 @@ export const props = {
   step: {
     type: [String, Number],
     default: 1
+  },
+  icon: {
+    type: String
   },
   tooltip: {
     type: String

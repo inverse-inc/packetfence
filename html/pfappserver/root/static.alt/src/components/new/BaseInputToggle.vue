@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div style="flex-grow: 100;">
     <base-input-range
       class="base-input-toggle"
       step="1"
@@ -12,6 +12,8 @@
       :tabIndex="inputTabIndex"
       :value="inputValue"
       :color="inputColor"
+      :icon="inputIcon"
+      :tooltip="inputTooltip"
       :label="inputLabel"
       :label-left="labelLeft"
       :label-right="labelRight"
@@ -85,7 +87,9 @@ export const setup = (props, context) => {
     onInput,
     max,
     label,
-    color
+    color,
+    icon,
+    tooltip
   } = useInputValueToggle(valueProps, props, context)
 
   const {
@@ -108,6 +112,8 @@ export const setup = (props, context) => {
     inputMax: max,
     inputLabel: label,
     inputColor: color,
+    inputIcon: icon,
+    inputTooltip: tooltip,
 
     // useInputValidator
     inputState: state,
