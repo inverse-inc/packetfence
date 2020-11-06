@@ -10,6 +10,7 @@ use pf::util;
 use pf::error qw(is_success);
 use pf::web;
 use pf::enforcement qw(reevaluate_access);
+use pf::fingerbank;
 use fingerbank::DB_Factory;
 use pf::constants::realm;
 use POSIX;
@@ -225,12 +226,20 @@ sub is_allowed {
     return $TRUE if @$oses == 0;
 
     # Verify if the device is existing in the table node and if it's device_type is allowed
+    node_add_simple($mac);
+    pf::fingerbank::process($mac, 1);
     my $node = node_view($mac);
     my $device_type = $node->{device_type};
+    my $device_manufacturer = $node->{device_manufacturer};
     for my $id (@$oses) {
         my $endpoint = fingerbank::Model::Endpoint->new(name => $device_type, version => undef, score => undef);
         if ( defined($device_type) && $endpoint->is_a_by_id($id)) {
             $logger->debug("The devices type ".$device_type." is authorized to be registered via the device-registration module");
+            return $TRUE;
+        }
+        my $endpoint_manufacturer = fingerbank::Model::Endpoint->new(name => $device_manufacturer, version => undef, score => undef);
+        if ( defined($device_manufacturer) && $endpoint_manufacturer->is_a_by_id($id)) {
+            $logger->debug("The devices manufacturer ".$device_manufacturer." is authorized to be registered via the device-registration module");
             return $TRUE;
         }
     }
