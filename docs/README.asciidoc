@@ -1,14 +1,11 @@
-Documentation README
-====================
+= Documentation README
 
 The documentation of PacketFence is formatted in http://www.methods.co.nz/asciidoc/[AsciiDoc].
 
 To convert the documentation to the PDF or HTML format, you need various tools:
 
-* asciidoc (.asciidoc to .docbook)
-* xsltproc (.docbook to .fo)
-* fop (.fo to .pdf)
-* asciidoctor (.docbook to .html)
+* asciidoctor (.asciidoc to .html)
+* asciidoctor-pdf (.asciidoc to .pdf)
 
 The Makefile at the root of the repository will call those tools:
 
@@ -20,76 +17,16 @@ The Makefile at the root of the repository will call those tools:
 
   make html
 
-Troubleshooting
----------------
+== Troubleshooting
 
-Making it work on RHEL5 / CentOS 5
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+=== Making it work on RHEL7 / CentOS 7
 
-Turns out this is quite tricky and unfortunately doesn't yield the best results.
+. If you are not using the RHN Subscription Management from Red Hat you need to enable the optional channel by running the following as root:
 
-. First make sure you have rpmforge repository enabled. If you don't have it, see the Admin guide, it is covered there.
-. Install jpackage repository
+  subscription-manager repos --enable rhel-7-server-optional-rpms
 
-  # yum install jpackage-release
-  # wget http://www.jpackage.org/jpackage50.repo
-  # mv jpackage50.repo /etc/yum.repos.d/jpackage50.repo
-  
-. Edit `/etc/yum.repos.d/jpackage50.repo` and enable the generic and rhel repos.
+. Install asciidoc
 
-. Install the tools
-
-  # yum install xmlgraphics-fop libxslt asciidoc
-
-. If you are bitten by 'Missing Dependency: /usr/bin/rebuild-security-providers
- is needed by package' install http://plone.lucidsolutions.co.nz/linux/centos/jpackage-jpackage-utils-compatibility-for-centos-5.x[RPM provided here].
-
-  # rpm -Uvh http://plone.lucidsolutions.co.nz/linux/centos/images/jpackage-utils-compat-el5-0.0.1-1.noarch.rpm
-
-. Second attempt to install the tools
-
-  # yum install xmlgraphics-fop libxslt asciidoc
-
-. Patch xmlgraphics-fop
-
-  patch -p0 < docs/docbook/xmlgraphics-fop-centos5.patch
-
-. Create the appropriate symlink
-
-  # ln -s /usr/bin/xmlgraphics-fop /usr/bin/fop
-
-. You are good to go!
-
-
-CentOS 6 / RHEL6 / Fedora: Could not compile stylesheet
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-Getting an error similar to:
-
-  Compiler warnings:
-    file:/usr/share/sgml/docbook/xsl-stylesheets/fo/table.xsl: line 451: Attribute 'border-start-style' outside of element.
-    file:/usr/share/sgml/docbook/xsl-stylesheets/fo/table.xsl: line 452: Attribute 'border-end-style' outside of element.
-    file:/usr/share/sgml/docbook/xsl-stylesheets/fo/table.xsl: line 453: Attribute 'border-top-style' outside of element.
-    file:/usr/share/sgml/docbook/xsl-stylesheets/fo/table.xsl: line 454: Attribute 'border-bottom-style' outside of element.
-    file:/usr/share/sgml/docbook/xsl-stylesheets/fo/index.xsl: line 351: Attribute 'rx:key' outside of element.
-  ERROR:  'The first argument to the non-static Java function 'insertCallouts' is not a valid object reference.'
-  FATAL ERROR:  'Could not compile stylesheet'
-  Jan 17, 2012 9:13:28 PM org.apache.fop.cli.Main startFOP
-  SEVERE: Exception
-  org.apache.fop.apps.FOPException: Could not compile stylesheet
-  ...
-
-Try patching your `/usr/bin/fop` with `docs/docbook/fop-centos6.patch`:
-
-  patch -p0 < docs/docbook/fop-centos6.patch
-
-
-CentOS 6 / RHEL6 / Fedora: Output is not the same
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-You are probably not running asciidoc >= 8.6.2. Install from rpmforge-extras:
-
-  yum install --enablerepo=rpmforge-extras asciidoc
-
+  yum install asciidoc
 
 // vim: set syntax=asciidoc tabstop=2 shiftwidth=2 expandtab:
