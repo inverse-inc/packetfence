@@ -10,7 +10,7 @@ testcases:
     body: >-
       {
         "cn": "{{.dot1x_eap_tls_pfpki.certs.ca.cn}}",
-        "mail": "pki@inverse.ca",
+        "mail": "{{.dot1x_eap_tls_pfpki.certs.ca.mail}}",
         "organisation": "{{.dot1x_eap_tls_pfpki.certs.ca.organisation}}",
         "country": "{{.dot1x_eap_tls_pfpki.certs.ca.country}}",
         "state": "{{.dot1x_eap_tls_pfpki.certs.ca.state}}",
@@ -70,7 +70,7 @@ testcases:
       {
         "profile_id": "{{.create_pf_radius_cert_template.profile_id}}",
         "cn": "{{.dot1x_eap_tls_pfpki.certs.radius.cn}}",
-        "mail": "pfradius@inverse.ca"
+        "mail": "{{.dot1x_eap_tls_pfpki.certs.radius.mail}}"
       }
     headers:
       "Authorization": "{{.pfserver_token}}"
@@ -169,7 +169,7 @@ testcases:
       {
         "profile_id": "{{.create_pf_http_cert_template.profile_id}}",
         "cn": "{{.dot1x_eap_tls_pfpki.certs.http.cn}}",
-        "mail": "pfhttp@inverse.ca"
+        "mail": "{{.dot1x_eap_tls_pfpki.certs.http.mail}}"
       }
     headers:
       "Authorization": "{{.pfserver_token}}"
@@ -271,7 +271,7 @@ testcases:
       {
         "profile_id": "{{.create_user_cert_template.profile_id}}",
         "cn": "{{.dot1x_eap_tls_pfpki.certs.user.cn}}",
-        "mail": "UserCertificate@inverse.ca"
+        "mail": "{{.dot1x_eap_tls_pfpki.certs.user.mail}}"
       }
     headers:
       "Authorization": "{{.pfserver_token}}"

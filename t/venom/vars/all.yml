@@ -237,16 +237,20 @@ dot1x_eap_tls_pfpki.certs.ca.street_address: 7000 park avenue
 dot1x_eap_tls_pfpki.certs.ca.postal_code: H3N 1X1
 dot1x_eap_tls_pfpki.certs.ca.organisation: Inverse
 dot1x_eap_tls_pfpki.certs.ca.cn: InverseCA
+dot1x_eap_tls_pfpki.certs.ca.mail: '{{.dot1x_eap_tls_pfpki.certs.ca.cn}}@{{.configurator.domain}}'
 dot1x_eap_tls_pfpki.certs.ca.issuer: "/C={{.dot1x_eap_tls_pfpki.certs.ca.country}}/ST={{.dot1x_eap_tls_pfpki.certs.ca.state}}/L={{.dot1x_eap_tls_pfpki.certs.ca.locality}}/street={{.dot1x_eap_tls_pfpki.certs.ca.street_address}}/postalCode={{.dot1x_eap_tls_pfpki.certs.ca.postal_code}}/O={{.dot1x_eap_tls_pfpki.certs.ca.organisation}}/CN={{.dot1x_eap_tls_pfpki.certs.ca.cn}}"
 
 # RADIUS
 dot1x_eap_tls_pfpki.certs.radius.cn: pf_radius
+dot1x_eap_tls_pfpki.certs.radius.mail: '{{.dot1x_eap_tls_pfpki.certs.radius.cn}}@{{.configurator.domain}}'
 
 # HTTP
 dot1x_eap_tls_pfpki.certs.http.cn: pf_http
+dot1x_eap_tls_pfpki.certs.http.mail: '{{.dot1x_eap_tls_pfpki.certs.http.cn}}@{{.configurator.domain}}'
 
 # User
 dot1x_eap_tls_pfpki.certs.user.cn: usercertificate
+dot1x_eap_tls_pfpki.certs.user.mail: '{{.dot1x_eap_tls_pfpki.certs.user.cn}}@{{.configurator.domain}}'
 
 # Roles
 dot1x_eap_tls_pfpki.roles.dot1x_eap_tls.id: dot1x_eap_tls
