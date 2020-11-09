@@ -159,8 +159,6 @@ include::includes/additional-info.asciidoc[]
 include::includes/commercial-support.asciidoc[]
 
 include::includes/license.asciidoc[]
-
-[appendix]
 == Appendix
 
 include::installation/appendix.asciidoc[]
