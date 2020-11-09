@@ -5,13 +5,15 @@ REPO_URL=https://gitlab.com/inverse-inc/packetfence/-/jobs/artifacts/devel/downl
 ZIP_FILE=$(mktemp --suff=".zip")
 
 # get git root path directory
-PWD=$(readlink -e $(dirname ${BASH_SOURCE[0]}))
-DIR=$(echo ${PWD} | grep -oP '.*?(?=\/ci\/)')
+SCRIPT_DIR=$(readlink -e $(dirname ${BASH_SOURCE[0]}))
 
-echo "The directory used will be ${DIR}"
+# remove ci/lib/test from SCRIPT_DIR
+RESULT_DIR=$(echo ${SCRIPT_DIR} | grep -oP '.*?(?=\/ci\/)')
+
+echo "The directory used will be ${RESULT_DIR}"
 
 # test if public is already there
-if [ -d "${DIR}/public/" ]; then
+if [ -d "${RESULT_DIR}/public/" ]; then
   echo "The public directory is already there. The script will stop."
   exit 0
 fi
@@ -26,8 +28,8 @@ fi
 curl -Ls ${REPO_URL} --output ${ZIP_FILE}
 if [ -f ${ZIP_FILE} ]; then
   echo "Public zipfile is there ${ZIP_FILE}"
-  unzip -oq ${ZIP_FILE} -d ${DIR}
-  echo "Unzip is done in ${DIR}"
+  unzip -oq ${ZIP_FILE} -d ${RESULT_DIR}
+  echo "Unzip is done in ${RESULT_DIR}"
   rm -f ${ZIP_FILE}
   echo "Zipfile ${ZIP_FILE} is removed"
   exit 0
