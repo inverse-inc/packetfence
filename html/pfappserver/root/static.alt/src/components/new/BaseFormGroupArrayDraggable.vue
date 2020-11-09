@@ -11,7 +11,8 @@
     <b-input-group
       :class="{
         'has-valid': inputState === true,
-        'has-invalid': inputState === false
+        'has-invalid': inputState === false,
+        'is-striped': isStriped
       }"
       :data-num="inputLength"
     >
@@ -118,6 +119,10 @@ export const props = {
 
 const setup = (props, context) => {
 
+  const {
+    striped
+  } = toRefs(props)
+
   const metaProps = useInputMeta(props, context)
 
   const {
@@ -197,6 +202,7 @@ const setup = (props, context) => {
     inputValidFeedback: validFeedback,
 
     isSortable,
+    isStriped: striped,
     actionKey,
     itemAdd,
     itemDelete
@@ -254,15 +260,20 @@ export default {
     @include transition($custom-forms-transition);
 
     & > div > .row {
+      & > .col > a {
+        outline: 0; /* disable highlighting on tabIndex */
+      }
+    }
+    &.is-striped > div > .row {
       &:nth-child(even) {
         background-color: $table-border-color;
       }
       &:nth-child(odd) {
         background-color: $white;
       }
-      & > .col > a {
-        outline: 0; /* disable highlighting on tabIndex */
-      }
+    }
+    &:not(.is-striped) > div > .row:not(:last-child) {
+      border-bottom: 1px solid $table-border-color;
     }
     &.has-invalid:not([data-num="0"]) {
       border-color: $form-feedback-invalid-color;

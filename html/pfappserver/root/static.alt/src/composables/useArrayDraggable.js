@@ -43,6 +43,9 @@ export const useArrayDraggableProps = {
       const { emit } = context
       emit('truncate')
     }
+  },
+  striped: {
+    type: Boolean
   }
 }
 
@@ -53,7 +56,8 @@ export const useArrayDraggable = (props, context, value, onChange) => {
     onCopy,
     onMove,
     onRemove,
-    onTruncate
+    onTruncate,
+    striped
   } = props
 
   const draggableRef = ref(null)
@@ -186,6 +190,7 @@ export const useArrayDraggable = (props, context, value, onChange) => {
 
     // props
     draggableKeys,
+    isStriped: striped,
 
     // methods
     add,

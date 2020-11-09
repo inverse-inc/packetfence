@@ -27,7 +27,7 @@ const schemaInlineTrigger = yup.object({
     })
 })
 
-export const schemaInlineTriggers = yup.array().of(schemaInlineTrigger)
+export const schemaInlineTriggers = yup.array().ensure().of(schemaInlineTrigger)
 
 export const schema = (props) => {
   const {

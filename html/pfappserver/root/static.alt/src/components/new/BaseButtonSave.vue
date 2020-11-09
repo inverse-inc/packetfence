@@ -28,7 +28,7 @@ const props = {
   }
 }
 
-const setup = (props, context) => {
+const setup = (props) => {
   const {
     isLoading
   } = toRefs(props)

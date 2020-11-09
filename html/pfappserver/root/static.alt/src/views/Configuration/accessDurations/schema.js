@@ -31,13 +31,7 @@ const schemaAccessDurationChoice = yup.object({
 
 const schemaAccessDurationChoices = yup.array().of(schemaAccessDurationChoice)
 
-export const schema = (props) => {
-  const {
-    id,
-    isNew,
-    isClone
-  } = props
-
+export const schema = () => {
   return yup.object({
     access_duration_choices: schemaAccessDurationChoices.meta({ invalidFeedback: i18n.t('Choices contain one or more errors.') })
   })

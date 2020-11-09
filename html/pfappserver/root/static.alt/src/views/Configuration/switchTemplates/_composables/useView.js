@@ -36,18 +36,18 @@ const useView = (props, context) => {
   const titleLabel = computed(() => {
     switch (true) {
       case !unref(isNew) && !unref(isClone):
-        return i18n.t('Domain: <code>{id}</code>', { id: unref(id) })
+        return i18n.t('Switch Template: <code>{id}</code>', { id: unref(id) })
       case unref(isClone):
-        return i18n.t('Clone Domain: <code>{id}</code>', { id: unref(id) })
+        return i18n.t('Clone Switch Template: <code>{id}</code>', { id: unref(id) })
       default:
-        return i18n.t('New Domain')
+        return i18n.t('New Switch Template')
     }
   })
 
-  const isLoading =  computed(() => $store.getters['$_domains/isLoading'])
+  const isLoading =  computed(() => $store.getters['$_switch_templates/isLoading'])
 
   const doInit = () => {
-    $store.dispatch('$_domains/options', id.value).then(options => {
+    $store.dispatch('$_switch_templates/options', id.value).then(options => {
       const { meta: _meta = {} } = options
       meta.value = _meta
       if (isNew.value) // new
@@ -56,7 +56,7 @@ const useView = (props, context) => {
       meta.value = {}
     })
     if (!isNew.value) { // existing
-      $store.dispatch('$_domains/getDomain', id.value).then(_form => {
+      $store.dispatch('$_switch_templates/getSwitchTemplate', id.value).then(_form => {
         if (isClone.value) {
           _form.id = `${_form.id}-${i18n.t('copy')}`
           _form.not_deletable = false
@@ -68,11 +68,11 @@ const useView = (props, context) => {
     }
   }
 
-  const doClone = () => $router.push({ name: 'cloneDomain' })
+  const doClone = () => $router.push({ name: 'cloneSwitchTemplate' })
 
-  const doClose = () => $router.push({ name: 'domains' })
+  const doClose = () => $router.push({ name: 'switchTemplates' })
 
-  const doRemove = () => $store.dispatch('$_domains/deleteDomain', id.value).then(() => doClose())
+  const doRemove = () => $store.dispatch('$_switch_templates/deleteSwitchTemplate', id.value).then(() => doClose())
 
   const doReset = doInit
 
@@ -81,17 +81,17 @@ const useView = (props, context) => {
     switch (true) {
       case unref(isClone):
       case unref(isNew):
-        $store.dispatch('$_domains/createDomain', form.value).then(() => {
+        $store.dispatch('$_switch_templates/createSwitchTemplate', form.value).then(() => {
           if (closeAfter) // [CTRL] key pressed
-            $router.push({ name: 'domains', params: { autoJoinDomain: form.value } })
+            doClose()
           else
-            $router.push({ name: 'domain', params: { id: form.value.id } })
+            $router.push({ name: 'switchTemplate', params: { id: form.value.id } })
         })
         break
       default:
-        $store.dispatch('$_domains/updateDomain', form.value).then(() => {
+        $store.dispatch('$_switch_templates/updateSwitchTemplate', form.value).then(() => {
           if (closeAfter) // [CTRL] key pressed
-            $router.push({ name: 'domains', params: { autoJoinDomain: form.value } })
+            doClose()
         })
         break
     }

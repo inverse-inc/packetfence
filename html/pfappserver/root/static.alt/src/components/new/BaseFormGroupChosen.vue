@@ -94,10 +94,15 @@
           </li>
         </template>
         <template v-slot:noOptions>
-          <b-media class="text-secondary" md="auto">
+          <b-media class="text-secondary" md="auto" v-if="showEmpty">
             <template v-slot:aside><icon name="search" scale="1.5" class="mt-2 ml-2"></icon></template>
             <strong>{{ $t('No options') }}</strong>
             <b-form-text class="font-weight-light">{{ $t('List is empty.') }}</b-form-text>
+          </b-media>
+          <b-media class="text-secondary" md="auto" v-else>
+            <template v-slot:aside><icon name="search" scale="1.5" class="mt-2 ml-2"></icon></template>
+            <strong>{{ $t('Search') }}</strong>
+            <b-form-text class="font-weight-light">{{ $t('Type to search results.') }}</b-form-text>
           </b-media>
         </template>
         <template v-slot:noResult>
@@ -142,7 +147,7 @@ const components = {
   Multiselect
 }
 
-import { computed, nextTick, onBeforeUnmount, onMounted, ref, toRefs, unref } from '@vue/composition-api'
+import { computed, nextTick, onBeforeUnmount, onMounted, ref, toRefs } from '@vue/composition-api'
 import { useFormGroupProps } from '@/composables/useFormGroup'
 import { useInput, useInputProps } from '@/composables/useInput'
 import { useInputMeta, useInputMetaProps } from '@/composables/useMeta'
@@ -301,6 +306,7 @@ export const setup = (props, context) => {
     singleLabel,
     multipleLabels,
     isEmpty,
+    showEmpty: true, // always show
 
     onRemove,
     onTag: () => {},

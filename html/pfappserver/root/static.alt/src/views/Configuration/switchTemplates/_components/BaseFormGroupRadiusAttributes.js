@@ -1,5 +1,5 @@
 import { BaseFormGroupArrayDraggable, BaseFormGroupArrayDraggableProps } from '@/components/new'
-import BaseRule from './BaseRule'
+import BaseRadiusAttribute from './BaseRadiusAttribute'
 import i18n from '@/utils/locale'
 
 export const props = {
@@ -7,26 +7,22 @@ export const props = {
 
   buttonLabel: {
     type: String,
-    default: i18n.t('Add Rule')
+    default: i18n.t('Add RADIUS Attribute')
   },
   // overload :childComponent
   childComponent: {
     type: Object,
-    default: () => BaseRule
+    default: () => BaseRadiusAttribute
   },
   // overload :defaultItem
   defaultItem: {
     type: Object,
     default: () => ({
-      actions: [],
-      conditions: [],
-      description: null,
-      id: null,
-      match: 'all',
-      status: 'enabled'
+      type: null,
+      value: null
     })
   },
-  // overload draggable handlers
+  // overload handlers
   onAdd: {
     type: Function,
     default: (context, index, newComponent) => {
@@ -43,15 +39,11 @@ export const props = {
         onExpand()
       }
     }
-  },
-  striped: {
-    type: Boolean,
-    default: true
   }
 }
 
 export default {
-  name: 'base-form-group-rules',
+  name: 'base-form-group-radius-attributes',
   extends: BaseFormGroupArrayDraggable,
   props
 }

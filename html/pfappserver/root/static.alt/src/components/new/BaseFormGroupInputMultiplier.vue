@@ -145,8 +145,7 @@ export const setup = (props, context) => {
 
   const {
     value,
-    onInput,
-    onChange
+    onInput
   } = useInputValue(metaProps, context)
 
   const {
@@ -182,14 +181,14 @@ export const setup = (props, context) => {
     scaledValue.value = (isNaN(value)) ? undefined : value
   }, { immediate: true })
 
-  const onChangeInput = (newValue) => onChange(newValue && +newValue * unref(prefix).multiplier)
+  const onChangeInput = (newValue) => onInput(newValue && +newValue * unref(prefix).multiplier)
 
   const onChangePrefix = (newPrefix) => {
     const oldPrefix = unref(prefix)
     prefix.value = newPrefix
     const _value = unref(value)
     if (_value)
-      onChange(+_value / oldPrefix.multiplier * newPrefix.multiplier)
+      onInput(+_value / oldPrefix.multiplier * newPrefix.multiplier)
   }
 
   return {

@@ -54,10 +54,16 @@ export const setup = (props, context) => {
   const currentValueOptions = ref([])
   const currentValueLoading = ref(false)
   let lastCurrentPromise = 0 // only use latest of 1+ promises
-  watch([value, lookup], () => {
+  watch([value, lookup], (...args) => {
     if (!value.value || value.value.length === 0 || !lookup.value)
       currentValueOptions.value = []
     else {
+      // avoid (re)lookup when watch is triggered without value change
+      //  false-positives occur when parent array pushes/pops siblings
+      const { 0: { 0: newValue, 1: newLookup } = {}, 1: { 0: oldValue, 1: oldLookup } = {} } = args
+      if (newValue === oldValue && JSON.stringify(newLookup) === JSON.stringify(oldLookup))
+        return // These are not the droids you're looking for...
+
       const { field_name: fieldName, search_path: url, value_name: valueName } = lookup.value
       currentValueLoading.value = true
       const thisCurrentPromise = ++lastCurrentPromise
@@ -91,6 +97,7 @@ export const setup = (props, context) => {
 
   const searchResultLoading = ref(false)
   const searchResultOptions = ref(options.value) // use default options
+  const showEmpty = ref(false)
   let lastSearchPromise = 0 // only use latest of 1+ promises
   let searchDebouncer
   let lastSearchQuery
@@ -107,12 +114,19 @@ export const setup = (props, context) => {
     searchDebouncer({
       handler: () => {
         const thisSearchPromise = ++lastSearchPromise
+        // split query by space(s)
+        const values = query
+          .trim() // trim outside whitespace
+          .split(' ') // separate terms by space
+          .filter(q => q) // ignore multiple spaces
+          .map(query => ({ op: 'or', values: [{ field: fieldName, op: 'contains', value: query }] }))
+
         apiCall.request({
           url,
           method: 'post',
           baseURL: '', // reset
           data: {
-            query: { op: 'and', values: [{ op: 'or', values: [{ field: fieldName, op: 'contains', value: query }] }] },
+            query: { op: 'and', values },
             fields: [fieldName, valueName],
             sort: [fieldName],
             cursor: 0,
@@ -128,6 +142,7 @@ export const setup = (props, context) => {
           }
         }).finally(() => {
           searchResultLoading.value = false
+          showEmpty.value = true // only show after first search
         })
       },
       time: 300
@@ -213,7 +228,8 @@ export const setup = (props, context) => {
     inputOptions,
     isLoading,
     onRemove,
-    onSearch
+    onSearch,
+    showEmpty
   }
 }
 

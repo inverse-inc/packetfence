@@ -3,10 +3,10 @@ import yup from '@/utils/yup'
 
 export const getMetaNamespace = (ns, o) => ns.reduce((xs, x) => {
   if (xs) {
-    if (x in xs)
+    if (x in xs && xs[x].constructor === Object)
       return xs[x]
     else if ('type' in xs) {
-      if (xs.type === 'array' && 'item' in xs && `${+x}` === `${x}`)
+      if (xs.type === 'array' && `${+x}` === `${x}` && 'item' in xs)
         return xs.item
       else if (xs.type === 'object' && 'properties' in xs && x in xs.properties)
         return xs.properties[x]
