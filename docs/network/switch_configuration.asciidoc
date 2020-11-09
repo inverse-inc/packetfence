@@ -67,43 +67,43 @@ include::networkdevice/cisco.asciidoc[]
 
 === Cisco Small Business (SMB)
 
-include::networkdevice/cisco_small_business.asciidoc
+include::networkdevice/cisco_small_business.asciidoc[]
 
 === D-Link
 
-include::networkdevice/dlink.asciidoc
+include::networkdevice/dlink.asciidoc[]
 
 === Dell
 
-include::networkdevice/dell.asciidoc
+include::networkdevice/dell.asciidoc[]
 
 === Edge core
 
-include::networkdevice/edge_core.asciidoc
+include::networkdevice/edge_core.asciidoc[]
 
 === Enterasys
 
-include::networkdevice/enterasys.asciidoc
+include::networkdevice/enterasys.asciidoc[]
 
 === Extreme Networks
 
-include::networkdevice/extreme_networks.asciidoc
+include::networkdevice/extreme_networks.asciidoc[]
 
 === Foundry
 
-include::networkdevice/foundry.asciidoc
+include::networkdevice/foundry.asciidoc[]
 
 === H3C
 
-include::networkdevice/h3c.asciidoc
+include::networkdevice/h3c.asciidoc[]
 
 === HP
 
-include::networkdevice/hp.asciidoc
+include::networkdevice/hp.asciidoc[]
 
 === HP ProCurve
 
-include::networkdevice/hp_procurve.asciidoc
+include::networkdevice/hp_procurve.asciidoc[]
 
 === Huawei
 
