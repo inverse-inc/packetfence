@@ -47,6 +47,7 @@ type passthrough struct {
 	URIException            *regexp.Regexp
 	SecureRedirect          bool
 	Wispr                   bool
+	OtherDomains            []*regexp.Regexp
 }
 
 type fqdn struct {
@@ -181,6 +182,9 @@ func (p *Proxy) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		}
 
 		_, PortalURL := p.detectPortalURL(r)
+		if passThrough.checkOtherDomains(ctx, fqdn.Host) {
+			PortalURL.Host = fqdn.Host
+		}
 
 		log.LoggerWContext(ctx).Debug(fmt.Sprintln(host, "Redirect to the portal"))
 
@@ -353,6 +357,11 @@ func (p *passthrough) readConfig(ctx context.Context) {
 		p.addDetectionMechanismsToList(ctx, v)
 	}
 
+	p.OtherDomains = make([]*regexp.Regexp, 0)
+	for _, v := range portal.OtherDomainNames {
+		p.addOtherDomainsToList(ctx, v)
+	}
+
 	p.DetectionMecanismBypass = portal.DetectionMecanismBypass == "enabled"
 
 	rgx, _ := regexp.Compile("CaptiveNetworkSupport")
@@ -453,6 +462,17 @@ func (p *passthrough) addDetectionMechanismsToList(ctx context.Context, r string
 	return err
 }
 
+// addOtherDomainsToList add all detection mechanisms in a list
+func (p *passthrough) addOtherDomainsToList(ctx context.Context, r string) error {
+	rgx, err := regexp.Compile(r)
+	if err == nil {
+		p.mutex.Lock()
+		p.OtherDomains = append(p.OtherDomains, rgx)
+		p.mutex.Unlock()
+	}
+	return err
+}
+
 // checkProxyPassthrough compare the host to the list of regex
 func (p *passthrough) checkProxyPassthrough(ctx context.Context, e string) bool {
 	if p.proxypassthrough == nil {
@@ -474,6 +494,20 @@ func (p *passthrough) checkDetectionMechanisms(ctx context.Context, e string) bo
 	}
 
 	for _, rgx := range p.detectionmechanisms {
+		if rgx.MatchString(e) {
+			return true
+		}
+	}
+	return false
+}
+
+// checkOtherDomains compare the url to the detection mechanisms regex
+func (p *passthrough) checkOtherDomains(ctx context.Context, e string) bool {
+	if p.OtherDomains == nil {
+		return false
+	}
+
+	for _, rgx := range p.OtherDomains {
 		if rgx.MatchString(e) {
 			return true
 		}
