@@ -1,0 +1,337 @@
+name: Create PKI
+version: 2
+testcases:
+- name: create_root_ca
+  steps:
+  - type: http
+    method: POST
+    url: '{{.pfserver_webadmin_url}}/api/v1/pki/cas'
+    ignore_verify_ssl: true
+    body: >-
+      {
+        "cn": "{{.dot1x_eap_tls_pfpki.certs.ca.cn}}",
+        "mail": "pki@inverse.ca",
+        "organisation": "{{.dot1x_eap_tls_pfpki.certs.ca.organisation}",
+        "country": "{{.dot1x_eap_tls_pfpki.certs.ca.country}}",
+        "state": "{{.dot1x_eap_tls_pfpki.certs.ca.state}}",
+        "locality": "{{.dot1x_eap_tls_pfpki.certs.ca.locality}}",
+        "street_address": "{{.dot1x_eap_tls_pfpki.certs.ca.street_address}}",
+        "postal_code": "{{.dot1x_eap_tls_pfpki.certs.ca.postal_code}}",
+        "key_type": "1",
+        "digest": "4",
+        "key_usage": "",
+        "extended_key_usage": "",
+        "days": "750",
+        "key_size": "2048"
+      }
+    headers:
+      "Authorization": "{{.pfserver_token}}"
+      "Content-Type": "application/json"
+    assertions:
+      - result.statuscode ShouldEqual 200
+    vars:
+      ca_id:
+        from: result.bodyjson.items.items0.id
+
+### RADIUS certificate part
+- name: create_pf_radius_cert_template
+  steps:
+  - type: http
+    method: POST
+    url: '{{.pfserver_webadmin_url}}/api/v1/pki/profiles'
+    ignore_verify_ssl: true
+    body: >-
+      {
+        "ca_id": "{{.create_root_ca.ca_id}}",
+        "name": "PF_RADIUS",
+        "validity": "750",
+        "key_type": "1",
+        "digest": "4",
+        "key_usage": "1",
+        "extended_key_usage": "1|2",
+        "key_size": "2048"
+      }
+    headers:
+      "Authorization": "{{.pfserver_token}}"
+      "Content-Type": "application/json"
+    assertions:
+      - result.statuscode ShouldEqual 200
+    vars:
+      profile_id:
+        from: result.bodyjson.items.items0.id
+
+- name: create_pf_radius_cert
+  steps:
+  - type: http
+    method: POST
+    url: '{{.pfserver_webadmin_url}}/api/v1/pki/certs'
+    ignore_verify_ssl: true
+    body: >-
+      {
+        "profile_id": "{{.create_pf_radius_cert_template.profile_id}}",
+        "cn": "{{.dot1x_eap_tls_pfpki.certs.radius.cn}}",
+        "mail": "pfradius@inverse.ca",
+        "organisation": "Inverse",
+        "country": "CA",
+        "state": "Quebec",
+        "locality": "Montreal",
+        "street_address": "7000 park avenue",
+        "postal_code": "H3N 1X1"
+      }
+    headers:
+      "Authorization": "{{.pfserver_token}}"
+      "Content-Type": "application/json"
+    assertions:
+      - result.statuscode ShouldEqual 200
+    vars:
+      serial_number:
+        from: result.bodyjson.items.items0.id
+
+- name: create_temp_directory
+  steps:
+    - type: exec
+      script: "mktemp -d"
+      vars:
+        temp_dir:
+          from: result.systemout
+
+- name: download_radius_p12_file
+  steps:
+  - type: exec
+    script: |
+      curl -k --output {{.create_temp_directory.temp_dir}}/{{.dot1x_eap_tls_pfpki.certs.radius.cn}}.p12 \
+      http://127.0.0.1:22225/api/v1/pki/cert/{{.create_pf_radius_cert.serial_number}}/download/secret
+
+- name: extract_ca_certificate
+  steps:
+  - type: exec
+    script: |
+      openssl pkcs12 -in {{.create_temp_directory.temp_dir}}/{{.dot1x_eap_tls_pfpki.certs.radius.cn}}.p12 -cacerts -nokeys \
+      -out {{.create_temp_directory.temp_dir}}/{{.dot1x_eap_tls_pfpki.certs.ca.cn}}.crt -passin pass:secret
+
+- name: extract_radius_certificate
+  steps:
+  - type: exec
+    script: |
+      openssl pkcs12 -in {{.create_temp_directory.temp_dir}}/{{.dot1x_eap_tls_pfpki.certs.radius.cn}}.p12 -clcerts -nokeys \
+      -out {{.create_temp_directory.temp_dir}}/{{.dot1x_eap_tls_pfpki.certs.radius.cn}}.crt -passin pass:secret
+
+- name: extract_radius_key
+  steps:
+  - type: exec
+    script: |
+      openssl pkcs12 -in {{.create_temp_directory.temp_dir}}/{{.dot1x_eap_tls_pfpki.certs.radius.cn}}.p12 -nocerts -nodes \
+      -out {{.create_temp_directory.temp_dir}}/{{.dot1x_eap_tls_pfpki.certs.radius.cn}}.key -passin pass:secret
+
+- name: install_ca_cert
+  steps:
+  - type: exec
+    script: "cp {{.create_temp_directory.temp_dir}}/{{.dot1x_eap_tls_pfpki.certs.ca.cn}}.crt /usr/local/pf/raddb/certs/ca.pem"
+
+- name: install_radius_cert
+  steps:
+  - type: exec
+    script: "cp {{.create_temp_directory.temp_dir}}/{{.dot1x_eap_tls_pfpki.certs.radius.cn}}.crt /usr/local/pf/raddb/certs/server.crt"
+
+- name: install_radius_key
+  steps:
+  - type: exec
+    script: "cp {{.create_temp_directory.temp_dir}}/{{.dot1x_eap_tls_pfpki.certs.radius.cn}}.key /usr/local/pf/raddb/certs/server.key"
+
+### HTTP certificate part
+- name: create_pf_http_cert_template
+  steps:
+  - type: http
+    method: POST
+    url: '{{.pfserver_webadmin_url}}/api/v1/pki/profiles'
+    ignore_verify_ssl: true
+    body: >-
+      {
+        "ca_id": "{{.create_root_ca.ca_id}}",
+        "name": "PF_HTTP",
+        "validity": "750",
+        "key_type": "1",
+        "digest": "4",
+        "key_usage": "1",
+        "extended_key_usage": "1|2",
+        "key_size": "2048"
+      }
+    headers:
+      "Authorization": "{{.pfserver_token}}"
+      "Content-Type": "application/json"
+    assertions:
+      - result.statuscode ShouldEqual 200
+    vars:
+      profile_id:
+        from: result.bodyjson.items.items0.id
+
+- name: create_pf_http_cert
+  steps:
+  - type: http
+    method: POST
+    url: '{{.pfserver_webadmin_url}}/api/v1/pki/certs'
+    ignore_verify_ssl: true
+    body: >-
+      {
+        "profile_id": "{{.create_pf_http_cert_template.profile_id}}",
+        "cn": "{{.dot1x_eap_tls_pfpki.certs.http.cn}}",
+        "mail": "pfhttp@inverse.ca",
+        "organisation": "Inverse",
+        "country": "CA",
+        "state": "Quebec",
+        "locality": "Montreal",
+        "street_address": "7000 park avenue",
+        "postal_code": "H3N 1X1"
+      }
+    headers:
+      "Authorization": "{{.pfserver_token}}"
+      "Content-Type": "application/json"
+    assertions:
+      - result.statuscode ShouldEqual 200
+    vars:
+      serial_number:
+        from: result.bodyjson.items.items0.id
+
+- name: create_temp_directory
+  steps:
+    - type: exec
+      script: "mktemp -d"
+      vars:
+        temp_dir:
+          from: result.systemout
+
+- name: download_http_p12_file
+  steps:
+  - type: exec
+    script: |
+      curl -k --output {{.create_temp_directory.temp_dir}}/{{.dot1x_eap_tls_pfpki.certs.http.cn}}.p12 \
+      http://127.0.0.1:22225/api/v1/pki/cert/{{.create_pf_http_cert.serial_number}}/download/secret
+
+- name: extract_ca_certificate
+  steps:
+  - type: exec
+    script: |
+      openssl pkcs12 -in {{.create_temp_directory.temp_dir}}/{{.dot1x_eap_tls_pfpki.certs.http.cn}}.p12 -cacerts -nokeys \
+      -out {{.create_temp_directory.temp_dir}}/{{.dot1x_eap_tls_pfpki.certs.ca.cn}}.crt -passin pass:secret
+
+- name: extract_http_certificate
+  steps:
+  - type: exec
+    script: |
+      openssl pkcs12 -in {{.create_temp_directory.temp_dir}}/{{.dot1x_eap_tls_pfpki.certs.http.cn}}.p12 -clcerts -nokeys \
+      -out {{.create_temp_directory.temp_dir}}/{{.dot1x_eap_tls_pfpki.certs.http.cn}}.crt -passin pass:secret
+
+- name: extract_http_key
+  steps:
+  - type: exec
+    script: |
+      openssl pkcs12 -in {{.create_temp_directory.temp_dir}}/{{.dot1x_eap_tls_pfpki.certs.http.cn}}.p12 -nocerts -nodes \
+      -out {{.create_temp_directory.temp_dir}}/{{.dot1x_eap_tls_pfpki.certs.http.cn}}.key -passin pass:secret
+
+- name: install_http_cert_portal
+  steps:
+  - type: exec
+    script: |
+      cat {{.create_temp_directory.temp_dir}}/{{.dot1x_eap_tls_pfpki.certs.http.cn}}.crt \
+      {{.create_temp_directory.temp_dir}}/{{.dot1x_eap_tls_pfpki.certs.http.cn}}.key > /usr/local/pf/conf/ssl/server.pem
+
+- name: install_http_cert_webadmin
+  steps:
+  - type: exec
+    script: "cat {{.create_temp_directory.temp_dir}}/{{.dot1x_eap_tls_pfpki.certs.http.cn}}.crt > /usr/local/pf/conf/ssl/server.crt"
+
+- name: install_http_key_webadmin
+  steps:
+  - type: exec
+    script: "cat {{.create_temp_directory.temp_dir}}/{{.dot1x_eap_tls_pfpki.certs.http.cn}}.key > /usr/local/pf/conf/ssl/server.key"
+        
+
+### User certificate part
+- name: create_user_cert_template
+  steps:
+  - type: http
+    method: POST
+    url: '{{.pfserver_webadmin_url}}/api/v1/pki/profiles'
+    ignore_verify_ssl: true
+    body: >-
+      {
+        "ca_id": "{{.create_root_ca.ca_id}}",
+        "name": "UserCertificate",
+        "validity": "750",
+        "key_type": "1",
+        "digest": "4",
+        "key_usage": "1",
+        "extended_key_usage": "1|2",
+        "key_size": "2048"
+      }
+    headers:
+      "Authorization": "{{.pfserver_token}}"
+      "Content-Type": "application/json"
+    assertions:
+      - result.statuscode ShouldEqual 200
+    vars:
+      profile_id:
+        from: result.bodyjson.items.items0.id
+
+- name: create_user_cert
+  steps:
+  - type: http
+    method: POST
+    url: '{{.pfserver_webadmin_url}}/api/v1/pki/certs'
+    ignore_verify_ssl: true
+    body: >-
+      {
+        "profile_id": "{{.create_user_cert_template.profile_id}}",
+        "cn": "{{.dot1x_eap_tls_pfpki.certs.user.cn}}",
+        "mail": "UserCertificate@inverse.ca",
+        "organisation": "Inverse",
+        "country": "CA",
+        "state": "Quebec",
+        "locality": "Montreal",
+        "street_address": "7000 park avenue",
+        "postal_code": "H3N 1X1"
+      }
+    headers:
+      "Authorization": "{{.pfserver_token}}"
+      "Content-Type": "application/json"
+    assertions:
+      - result.statuscode ShouldEqual 200
+    vars:
+      serial_number:
+        from: result.bodyjson.items.items0.id
+
+- name: create_temp_directory
+  steps:
+    - type: exec
+      script: "mktemp -d"
+      vars:
+        temp_dir:
+          from: result.systemout
+
+- name: download_user_p12_file
+  steps:
+  - type: exec
+    script: |
+      curl -k --output {{.create_temp_directory.temp_dir}}/{{.dot1x_eap_tls_pfpki.certs.user.cn}}.p12 \
+      http://127.0.0.1:22225/api/v1/pki/cert/{{.create_user_cert.serial_number}}/download/secret
+
+- name: extract_ca_certificate
+  steps:
+  - type: exec
+    script: |
+      openssl pkcs12 -in {{.create_temp_directory.temp_dir}}/{{.dot1x_eap_tls_pfpki.certs.user.cn}}.p12 -cacerts -nokeys \
+      -out {{.create_temp_directory.temp_dir}}/{{.dot1x_eap_tls_pfpki.certs.ca.cn}}.crt -passin pass:secret
+
+- name: extract_user_certificate
+  steps:
+  - type: exec
+    script: |
+      openssl pkcs12 -in {{.create_temp_directory.temp_dir}}/{{.dot1x_eap_tls_pfpki.certs.user.cn}}.p12 -clcerts -nokeys \
+      -out {{.create_temp_directory.temp_dir}}/{{.dot1x_eap_tls_pfpki.certs.user.cn}}.crt -passin pass:secret
+
+- name: extract_user_key
+  steps:
+  - type: exec
+    script: |
+      openssl pkcs12 -in {{.create_temp_directory.temp_dir}}/{{.dot1x_eap_tls_pfpki.certs.user.cn}}.p12 -nocerts -nodes \
+      -out {{.create_temp_directory.temp_dir}}/{{.dot1x_eap_tls_pfpki.certs.user.cn}}.key -passin pass:secret
