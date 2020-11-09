@@ -103,7 +103,7 @@ images:
 html: $(HTML) docs/html/index.js
 
 pfcmd.help:
-	/usr/local/pf/bin/pfcmd help > docs/pfcmd.help
+	/usr/local/pf/bin/pfcmd help > docs/installation/pfcmd.help
 
 .PHONY: configurations
 
