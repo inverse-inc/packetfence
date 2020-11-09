@@ -224,6 +224,11 @@ dot1x_eap_tls_pfpki.templates.http.name: http
 dot1x_eap_tls_pfpki.templates.user.name: user
 
 ### Certs
+dot1x_eap_tls_pfpki.certs.validity: 750
+dot1x_eap_tls_pfpki.certs.key_size: 2048
+dot1x_eap_tls_pfpki.certs.key_type: 1
+dot1x_eap_tls_pfpki.certs.digest: 4
+
 # CA
 dot1x_eap_tls_pfpki.certs.ca.country: CA
 dot1x_eap_tls_pfpki.certs.ca.state: Quebec

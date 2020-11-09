@@ -17,12 +17,12 @@ testcases:
         "locality": "{{.dot1x_eap_tls_pfpki.certs.ca.locality}}",
         "street_address": "{{.dot1x_eap_tls_pfpki.certs.ca.street_address}}",
         "postal_code": "{{.dot1x_eap_tls_pfpki.certs.ca.postal_code}}",
-        "key_type": "1",
-        "digest": "4",
+        "key_type": "{{.dot1x_eap_tls_pfpki.certs.key_type}}",
+        "digest": "{{.dot1x_eap_tls_pfpki.certs.digest}}",
         "key_usage": "",
         "extended_key_usage": "",
-        "days": "750",
-        "key_size": "2048"
+        "days": "{{.dot1x_eap_tls_pfpki.certs.validity}}",
+        "key_size": "{{.dot1x_eap_tls_pfpki.certs.key_size}}"
       }
     headers:
       "Authorization": "{{.pfserver_token}}"
@@ -44,12 +44,12 @@ testcases:
       {
         "ca_id": "{{.create_root_ca.ca_id}}",
         "name": "{{.dot1x_eap_tls_pfpki.templates.radius.name}}",
-        "validity": "750",
-        "key_type": "1",
-        "digest": "4",
+        "validity": "{{.dot1x_eap_tls_pfpki.certs.validity}}",
+        "key_type": "{{.dot1x_eap_tls_pfpki.certs.key_type}}",
+        "digest": "{{.dot1x_eap_tls_pfpki.certs.digest}}",
         "key_usage": "1",
         "extended_key_usage": "1|2",
-        "key_size": "2048"
+        "key_size": "{{.dot1x_eap_tls_pfpki.certs.key_size}}"
       }
     headers:
       "Authorization": "{{.pfserver_token}}"
@@ -149,12 +149,12 @@ testcases:
       {
         "ca_id": "{{.create_root_ca.ca_id}}",
         "name": "{{.dot1x_eap_tls_pfpki.templates.http.name}}",
-        "validity": "750",
-        "key_type": "1",
-        "digest": "4",
+        "validity": "{{.dot1x_eap_tls_pfpki.certs.validity}}",
+        "key_type": "{{.dot1x_eap_tls_pfpki.certs.key_type}}",
+        "digest": "{{.dot1x_eap_tls_pfpki.certs.digest}}",
         "key_usage": "1",
         "extended_key_usage": "1|2",
-        "key_size": "2048"
+        "key_size": "{{.dot1x_eap_tls_pfpki.certs.key_size}}"
       }
     headers:
       "Authorization": "{{.pfserver_token}}"
@@ -257,12 +257,12 @@ testcases:
       {
         "ca_id": "{{.create_root_ca.ca_id}}",
         "name": "{{.dot1x_eap_tls_pfpki.templates.user.name}}",
-        "validity": "750",
-        "key_type": "1",
-        "digest": "4",
+        "validity": "{{.dot1x_eap_tls_pfpki.certs.validity}}",
+        "key_type": "{{.dot1x_eap_tls_pfpki.certs.key_type}}",
+        "digest": "{{.dot1x_eap_tls_pfpki.certs.digest}}",
         "key_usage": "1",
         "extended_key_usage": "1|2",
-        "key_size": "2048"
+        "key_size": "{{.dot1x_eap_tls_pfpki.certs.key_size}}"
       }
     headers:
       "Authorization": "{{.pfserver_token}}"
