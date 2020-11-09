@@ -1,4 +1,4 @@
----
+g---
 ################################################################################
 # Global variables
 ################################################################################
@@ -218,6 +218,11 @@ captive_portal.reg.url: 'https://{{.configurator.interfaces.reg.ip}}/captive-por
 ################################################################################
 # dot1x_eap_tls_pfpki test suite specific variables
 ################################################################################
+### Templates
+dot1x_eap_tls_pfpki.templates.radius.name: radius
+dot1x_eap_tls_pfpki.templates.http.name: http
+dot1x_eap_tls_pfpki.templates.user.name: user
+
 ### Certs
 # CA
 dot1x_eap_tls_pfpki.certs.ca.country: CA

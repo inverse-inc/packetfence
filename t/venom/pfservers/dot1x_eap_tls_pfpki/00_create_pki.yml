@@ -43,7 +43,7 @@ testcases:
     body: >-
       {
         "ca_id": "{{.create_root_ca.ca_id}}",
-        "name": "PF_RADIUS",
+        "name": "{{.dot1x_eap_tls_pfpki.templates.radius.name}}",
         "validity": "750",
         "key_type": "1",
         "digest": "4",
@@ -148,7 +148,7 @@ testcases:
     body: >-
       {
         "ca_id": "{{.create_root_ca.ca_id}}",
-        "name": "PF_HTTP",
+        "name": "{{.dot1x_eap_tls_pfpki.templates.http.name}}",
         "validity": "750",
         "key_type": "1",
         "digest": "4",
@@ -256,7 +256,7 @@ testcases:
     body: >-
       {
         "ca_id": "{{.create_root_ca.ca_id}}",
-        "name": "UserCertificate",
+        "name": "{{.dot1x_eap_tls_pfpki.templates.user.name}}",
         "validity": "750",
         "key_type": "1",
         "digest": "4",
