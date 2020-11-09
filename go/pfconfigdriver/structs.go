@@ -149,6 +149,9 @@ type PfConfCaptivePortal struct {
 	SecureRedirect               string   `json:"secure_redirect"`
 	StatusOnlyOnProduction       string   `json:"status_only_on_production"`
 	WisprRedirection             string   `json:"wispr_redirection"`
+	RateLimiting                 string   `json:"rate_limiting"`
+	RateLimitingThreshold        string   `json:"rate_limiting_threshold"`
+	OtherDomainNames             []string `json:"other_domain_names"`
 }
 
 type PfConfWebservices struct {
