@@ -11,7 +11,7 @@ testcases:
       {
         "cn": "{{.dot1x_eap_tls_pfpki.certs.ca.cn}}",
         "mail": "pki@inverse.ca",
-        "organisation": "{{.dot1x_eap_tls_pfpki.certs.ca.organisation}",
+        "organisation": "{{.dot1x_eap_tls_pfpki.certs.ca.organisation}}",
         "country": "{{.dot1x_eap_tls_pfpki.certs.ca.country}}",
         "state": "{{.dot1x_eap_tls_pfpki.certs.ca.state}}",
         "locality": "{{.dot1x_eap_tls_pfpki.certs.ca.locality}}",

@@ -76,7 +76,7 @@ captive_portal_no_teardown: setup global_config
 
 .PHONY: dot1x_eap_tls_pfpki_no_teardown
 dot1x_eap_tls_pfpki_no_teardown: setup global_config
-	./venom-wrapper.sh $(PFSERVERS_DIR)/dot1x_eap_peap_tls_pfpki
+	./venom-wrapper.sh $(PFSERVERS_DIR)/dot1x_eap_tls_pfpki
 
 .PHONY: backup_db_and_restore_no_teardown
 backup_db_and_restore_no_teardown: setup
