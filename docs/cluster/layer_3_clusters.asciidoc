@@ -1,3 +1,12 @@
+// to display images directly on GitHub
+ifdef::env-github[]
+:encoding: UTF-8
+:lang: en
+:doctype: book
+:toc: left
+:imagesdir: ../images
+endif::[]
+
 //== Layer 3 clusters
 
 PacketFence supports having clusters where servers are located in multiple layer 3 networks which we will also refer as cluster zones.

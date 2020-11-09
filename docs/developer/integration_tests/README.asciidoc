@@ -1,3 +1,12 @@
+// to display images directly on GitHub
+ifdef::env-github[]
+:encoding: UTF-8
+:lang: en
+:doctype: book
+:toc: left
+:imagesdir: ../../images
+endif::[]
+
 === Integration tests
 
 The aim of integration tests is to test common PacketFence scenarios and
