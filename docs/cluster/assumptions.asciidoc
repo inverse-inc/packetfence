@@ -1,5 +1,3 @@
-== Assumptions
-
 * You have at least three (3) installed PacketFence (v7+) servers
 * The servers are running one of RHEL / CentOS 7 / Debian 9
 * The servers have identical identifiers for network interfaces (e.g. eth0)

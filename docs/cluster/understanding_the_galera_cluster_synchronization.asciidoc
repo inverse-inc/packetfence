@@ -1,5 +1,3 @@
-== Understanding the Galera cluster synchronization
-
 The Galera cluster stack used by PacketFence resembles a lot to how a normal MariaDB Galera cluster behaves but it contains hooks to auto-correct some issues that can occur.
 
 NOTE: A lot of useful information is logged in the MariaDB log which can be found in `/usr/local/pf/logs/mariadb_error.log`
