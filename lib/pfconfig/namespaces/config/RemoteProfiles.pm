@@ -51,6 +51,7 @@ sub cleanup_after_read {
     my ( $self, $id, $data ) = @_;
     $self->expand_list( $data, qw(allow_communication_to_roles) );
     $data->{additional_domains_to_resolve} = [split(/\n/, $data->{additional_domains_to_resolve})];
+    $data->{routes} = [split(/\n/, $data->{routes})];
 }
 
 =head1 AUTHOR

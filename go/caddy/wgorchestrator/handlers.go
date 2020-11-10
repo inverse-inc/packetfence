@@ -97,6 +97,7 @@ func (h *WgorchestratorHandler) handleGetProfile(c *gin.Context) {
 		AllowedPeers:     rc.AllowedPeers(c, db),
 		NamesToResolve:   rc.NamesToResolve(c, db),
 		ACLs:             rc.ACLs(c, db),
+		IsGateway:        rc.IsGateway(c, db),
 	}
 
 	c.JSON(http.StatusOK, profile)
@@ -110,6 +111,7 @@ func (h *WgorchestratorHandler) handleGetPeer(c *gin.Context) {
 			PublicKey:        rc.PublicKey,
 			WireguardIP:      rc.IPAddress(),
 			WireguardNetmask: rc.Netmask(),
+			IsGateway:        rc.IsGateway(c, db),
 		})
 	} else {
 		renderError(c, http.StatusNotFound, errors.New("Unable to find a peer with this identifier"))

@@ -49,9 +49,15 @@ sub _fields_expanded {
 sub cleanupAfterRead {
     my ($self, $id, $profile) = @_;
     $self->expand_list($profile, $self->_fields_expanded);
+    $self->adjustArrayParam($profile, "additional_domains_to_resolve");
+    $self->adjustArrayParam($profile, "routes");
+}
+
+sub adjustArrayParam {
+    my ($self, $profile, $param) = @_;
     # This can be an array if it's fresh out of the file. We make it separated by newlines so it works fine the frontend
-    if(ref($profile->{additional_domains_to_resolve}) eq 'ARRAY'){
-        $profile->{additional_domains_to_resolve} = join("\n", @{$profile->{additional_domains_to_resolve}});
+    if(ref($profile->{$param}) eq 'ARRAY'){
+        $profile->{$param} = join("\n", @{$profile->{$param}});
     }
 }
 

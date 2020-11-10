@@ -25,4 +25,5 @@ type Peer struct {
 	AllowedPeers     []string `json:"allowed_peers,omitempty"`
 	NamesToResolve   []string `json:"names_to_resolve"`
 	ACLs             []string `json:"acls"`
+	IsGateway        bool     `json:"is_gateway"`
 }

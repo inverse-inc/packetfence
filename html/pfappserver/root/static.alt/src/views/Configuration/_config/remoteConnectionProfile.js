@@ -401,6 +401,30 @@ export const view = (form = {}, meta = {}) => {
               attrs: attributesFromMeta(meta, 'additional_domains_to_resolve')
             }
           ]
+        },
+        {
+          label: i18n.t('Gateway'),
+          text: i18n.t('Whether or not the wireguard clients matching this profile should run in SDP gateway mode'),
+          cols: [
+            {
+              namespace: 'gateway',
+              component: pfFormRangeToggle,
+              attrs: {
+                values: { checked: 'enabled', unchecked: 'disabled' }
+              }
+            }
+          ]
+        },
+        {
+          label: i18n.t('Routes'),
+          text: i18n.t('List of routes to push to the clients matching this profile. Format should be "CIDR via GATEWAY". Example: 10.0.0.0/8 via 192.168.69.5'),
+          cols: [
+            {
+              namespace: 'routes',
+              component: pfFormTextarea,
+              attrs: attributesFromMeta(meta, 'routes')
+            }
+          ]
         }
       ]
     }

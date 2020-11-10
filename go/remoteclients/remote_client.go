@@ -153,6 +153,11 @@ func (rc *RemoteClient) ACLs(ctx context.Context, db *gorm.DB) []string {
 	return strings.Split(nc.ACLs, "\n")
 }
 
+func (rc *RemoteClient) IsGateway(ctx context.Context, db *gorm.DB) bool {
+	profile := rc.ConnectionProfile(ctx, db)
+	return sharedutils.IsEnabled(profile.Gateway)
+}
+
 func (rc *RemoteClient) GetNode(ctx context.Context) *common.NodeInfo {
 	var err unifiedapiclient.UnifiedAPIError
 	var n common.NodeInfo

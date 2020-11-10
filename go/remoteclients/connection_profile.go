@@ -104,6 +104,8 @@ type RemoteConnectionProfile struct {
 	AllowCommunicationToRoles  []string `json:"allow_communication_to_roles"`
 	ResolveHostnamesOfPeers    string   `json:"resolve_hostnames_of_peers"`
 	AdditionalDomainsToResolve []string `json:"additional_domains_to_resolve"`
+	Routes                     []string `json:"routes"`
+	Gateway                    string   `json:"gateway"`
 }
 
 type FilterInfo struct {

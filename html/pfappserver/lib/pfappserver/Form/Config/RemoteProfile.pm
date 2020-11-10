@@ -98,6 +98,19 @@ has_field 'additional_domains_to_resolve' =>
    type => 'TextArea',
   );
 
+has_field 'gateway' =>
+  (
+    type => 'Toggle',
+    checkbox_value => 'enabled',
+    unchecked_value => 'disabled',
+    default => 'disabled'
+  );
+
+has_field 'routes' =>
+  (
+   type => 'TextArea',
+  );
+
 sub options_roles {
     my $self = shift;
     my @roles = map { $_->{name} => $_->{name} } @{$self->form->roles} if ($self->form->roles);

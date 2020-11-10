@@ -9,3 +9,5 @@ allow_communication_same_role=enabled
 allow_communication_to_roles=
 resolve_hostnames_of_peers=enabled
 additional_domains_to_resolve=
+gateway=disabled
+routes=
