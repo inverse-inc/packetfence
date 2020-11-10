@@ -97,6 +97,7 @@ func (h *WgorchestratorHandler) handleGetProfile(c *gin.Context) {
 		AllowedPeers:     rc.AllowedPeers(c, db),
 		NamesToResolve:   rc.NamesToResolve(c, db),
 		ACLs:             rc.ACLs(c, db),
+		Routes:           rc.Routes(c, db),
 		IsGateway:        rc.IsGateway(c, db),
 	}
 
