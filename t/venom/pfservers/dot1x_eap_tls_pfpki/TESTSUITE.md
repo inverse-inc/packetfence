@@ -52,3 +52,6 @@ TBD but identical to dot1x_eap_peap scenario (based on unreg_on_accounting_stop)
 
 Revoke certificates to avoid issues when you try to create a certificate that
 already exists
+
+Name of CA, templates and certificates should be uniq. Not possible to revoke
+or remove CA or template.
