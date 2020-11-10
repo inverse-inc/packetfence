@@ -155,22 +155,18 @@ export const view = (form = {}, meta = {}) => {
         },
         {
           label: i18n.t('Expires'),
+          text: i18n.t('The timeout in seconds to keep correlation between EAP-Response packets with EAP-Request packets.'),
           cols: [
             {
-              namespace: 'timer_expire.interval',
+              namespace: 'timer_expire',
               component: pfFormInput,
               attrs: {
-                ...attributesFromMeta(meta, 'timer_expire.interval'),
+                ...attributesFromMeta(meta, 'timer_expire'),
+                ...{
+                  type: 'number',
+                  step: 1
+                },
                 disabled: !isEditable
-              }
-            },
-            {
-              namespace: 'timer_expire.unit',
-              component: pfFormChosen,
-              attrs: {
-                ...attributesFromMeta(meta, 'timer_expire.unit'),
-                disabled: !isEditable,
-                allowEmpty: false
               }
             }
           ]
@@ -311,10 +307,7 @@ export const validators = (form = {}, meta = {}) => {
     ignore_unknown_eap_types: validatorsFromMeta(meta, 'ignore_unknown_eap_types', i18n.t('Ignore Unknown')),
     max_sessions: validatorsFromMeta(meta, 'max_sessions', i18n.t('Max Sessions')),
     peap_tlsprofile: validatorsFromMeta(meta, 'peap_tlsprofile', i18n.t('PEAP Profile')),
-    timer_expire: {
-      unit: validatorsFromMeta(meta, 'timer_expire.unit', i18n.t('Unit')),
-      interval: validatorsFromMeta(meta, 'timer_expire.interval', i18n.t('Interval'))
-    },
+    timer_expire: validatorsFromMeta(meta, 'timer_expire', i18n.t('Expires')),
     tls_tlsprofile: validatorsFromMeta(meta, 'tls_tlsprofile', i18n.t('TLS Profile')),
     ttls_tlsprofile: validatorsFromMeta(meta, 'ttls_tlsprofile', i18n.t('TTLS Profile'))
   }

@@ -184,20 +184,15 @@ export const view = (form = {}, meta = {}) => {
           text: i18n.t('Number of seconds to wait for the OCSP response. 0 uses system default.'),
           cols: [
             {
-              namespace: 'ocsp_timeout.interval',
+              namespace: 'ocsp_timeout',
               component: pfFormInput,
               attrs: {
-                ...attributesFromMeta(meta, 'ocsp_timeout.interval'),
+                ...attributesFromMeta(meta, 'ocsp_timeout'),
+                ...{
+                  type: 'number',
+                  step: 1
+                },
                 disabled: !isEditable
-              }
-            },
-            {
-              namespace: 'ocsp_timeout.unit',
-              component: pfFormChosen,
-              attrs: {
-                ...attributesFromMeta(meta, 'ocsp_timeout.unit'),
-                disabled: !isEditable,
-                allowEmpty: false
               }
             }
           ]
@@ -240,10 +235,7 @@ export const validators = (form = {}, meta = {}) => {
     ocsp_enable: validatorsFromMeta(meta, 'ocsp_enable', i18n.t('Enable')),
     ocsp_override_cert_url: validatorsFromMeta(meta, 'ocsp_override_cert_url', i18n.t('URL')),
     ocsp_softfail: validatorsFromMeta(meta, 'ocsp_softfail', i18n.t('Response')),
-    ocsp_timeout: {
-      interval: validatorsFromMeta(meta, 'ocsp_timeout.interval', i18n.t('Interval')),
-      unit: validatorsFromMeta(meta, 'ocsp_timeout.unit', i18n.t('Unit'))
-    },
+    ocsp_timeout: validatorsFromMeta(meta, 'ocsp_timeout', i18n.t('Response timeout')),
     ocsp_url: validatorsFromMeta(meta, 'ocsp_url', i18n.t('URL')),
     ocsp_use_nonce: validatorsFromMeta(meta, 'ocsp_use_nonce', i18n.t('Nonce'))
   }
