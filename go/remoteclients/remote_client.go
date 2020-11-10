@@ -46,6 +46,8 @@ func GetOrCreateRemoteClient(ctx context.Context, db *gorm.DB, publicKey string,
 		log.LoggerWContext(ctx).Error("Unable to upsert node, role detection will rely on the previous role")
 	}
 
+	rc.node = nil
+
 	db.Where("public_key = ?", publicKey).First(&rc)
 	rc.MAC = info.MAC
 	if rc.PublicKey != publicKey {
