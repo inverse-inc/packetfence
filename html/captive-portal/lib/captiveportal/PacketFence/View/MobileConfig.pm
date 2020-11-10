@@ -16,7 +16,7 @@ after process => sub {
     my ($self, $c) = @_;
     my $headers = $c->response->headers;
     my $filename = $c->stash->{filename} || 'wireless-profile.mobileconfig';
-    $headers->content_type('application/x-apple-aspen-config; chatset=utf-8');
+    $headers->content_type('application/x-apple-aspen-config; charset=utf-8');
     $headers->header('Content-Disposition', "attachment; filename=\"$filename\"");
     my $provisioner = $c->stash->{provisioner};
     if ($provisioner->can_sign_profile) {
