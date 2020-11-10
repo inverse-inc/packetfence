@@ -45,15 +45,17 @@ We use Asciidoctor tags for section titles (headings) in place of AsciiDoc tags,
 |`=====`
 |===
 
+==== Other Conventions
+
+\* (asterisk) for important vocabulary. Ex: \*This Part* is important
+
+_ (underscore) for menus. Ex: \_Configuration -> Policies and Access Control -> Connection Profile -> Profile Name_
+
+backquotes ` for buttons. Ex: Click on \`Save`
 
 ==== Inter-document cross references
 
-We use
-link:https://asciidoctor.org/docs/user-manual/#inter-document-cross-references[inter-document
-cross references feature] to make links between all PacketFence guides.
-When we need to link to a specific section of a document, we use
-link:https://asciidoctor.org/docs/user-manual/#automatic-anchors[automatic
-anchors feature] to have a correct display in PDF.
+We use link:https://asciidoctor.org/docs/user-manual/#inter-document-cross-references[inter-document cross references feature] to make links between all PacketFence guides. When we need to link to a specific section of a document, we use link:https://asciidoctor.org/docs/user-manual/#automatic-anchors[automatic anchors feature] to have a correct display in PDF.
 
 ==== List of Asciidoctor tags used
 
