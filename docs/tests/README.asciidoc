@@ -65,7 +65,7 @@ wrapper to start, test and destroy virtual machines. Examples:
 [source,bash]
 ----
 make -C ci/lib/test test-pfcen7dev-dev
-LOCAL_COLLECTIONS=yes make -e -C ci/lib/test test-pfcen7dev-dev
+make -e -C ci/lib/test test-pfcen7dev-dev
 make PF_VM_NAME=pfdeb9dev PERL_UNIT_TESTS=no -C ci/lib/test test
 make PF_VM_NAME=pfdeb9dev clean
 ----

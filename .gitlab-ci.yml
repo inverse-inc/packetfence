@@ -622,6 +622,7 @@ build_zen_devel_nightly:
   script:
     - make -e -C ${ZENDIR} zen-devel
   # only run this job during a schedule pipeline, on devel branch with RUN_BUILD_ZEN set to yes
+  # RUN_BUILD_ZEN is a variable defined in GitLab UI (on scheduled job)
   rules:
     - if: '$CI_PIPELINE_SOURCE == "schedule" && $CI_COMMIT_REF_NAME == "devel" && $RUN_BUILD_ZEN == "yes"'
 
