@@ -347,6 +347,7 @@ export const view = (form = {}, meta = {}) => {
           ]
         },
         {
+          if: !isDefault,
           label: i18n.t('Advanced filter'),
           cols: [
             {

@@ -121,6 +121,10 @@ sub validate {
     my $self = shift;
     $self->SUPER::validate();
 
+    if($self->field("id")->value eq "default") {
+        return;
+    }
+
     if(!$self->field("basic_filter_type")->value && !$self->field("advanced_filter")->value) {
         $self->field("basic_filter_type")->add_error("You need to specify a basic filter or an advanced filter.");
         $self->field("advanced_filter")->add_error("You need to specify a basic filter or an advanced filter.");
