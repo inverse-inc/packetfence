@@ -81,7 +81,7 @@
                 [% IF for_windows OR for_android  %]
                 <dict>
                         <key>PayloadContent</key>
-			<string>[% provisioner.raw_server_radius_ca_string() %]</string>
+			<string>[% provisioner.raw_ca_cert_string() %]</string>
 			<key>PayloadType</key>
                         <string>com.apple.security.radius.ca</string>
                 </dict>

@@ -160,9 +160,9 @@ has server_certificate_path => (is => 'rw');
 
 has server_certificate => (is => 'ro' , builder => 1, lazy => 1);
 
-has server_radius_ca_path => (is => 'rw');
+has ca_cert_path => (is => 'rw');
 
-has server_radius_ca => (is => 'ro' , builder => 1, lazy => 1);
+has ca_cert => (is => 'ro' , builder => 1, lazy => 1);
 
 =head1 METHODS
 
@@ -217,37 +217,37 @@ sub server_certificate_cn {
     }
 }
 
-=head2 _build_server_radius_ca
+=head2 _build_ca_cert
 
-Builds an X509 object the server_radius_ca_path
+Builds an X509 object the ca_cert_path
 
 =cut
 
-sub _build_server_radius_ca {
+sub _build_ca_cert {
     my ($self) = @_;
-    return Crypt::OpenSSL::X509->new_from_file($self->server_radius_ca_path);
+    return Crypt::OpenSSL::X509->new_from_file($self->ca_cert_path);
 }
 
 
-=head2 raw_server_radius_ca_string
+=head2 raw_ca_cert_string
 
 Get the Radius server CA content minus the ascii armor
 
 =cut
 
-sub raw_server_radius_ca_string {
+sub raw_ca_cert_string {
     my ($self) = @_;
-    return $self->_raw_server_cert_string($self->server_radius_ca);
+    return $self->_raw_server_cert_string($self->ca_cert);
 }
 
-sub server_radius_ca_cn {
+sub ca_cert_cn {
     my ($self) = @_;
-    my $cn = $self->_certificate_cn($self->server_radius_ca);
+    my $cn = $self->_certificate_cn($self->ca_cert);
     if(defined($cn)){
         return $cn;
     }
     else {
-        get_logger->error("cannot find cn of RADIUS server CA at ".$self->server_radius_ca_path);
+        get_logger->error("cannot find cn of RADIUS server CA at ".$self->ca_cert_path);
     }
 }
 

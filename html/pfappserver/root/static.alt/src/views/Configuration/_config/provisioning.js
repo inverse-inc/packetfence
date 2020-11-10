@@ -834,16 +834,16 @@ export const viewFields = {
       ]
     }
   },
-  server_radius_ca_path: (form = {}, meta = {}) => {
+  ca_cert_path: (form = {}, meta = {}) => {
     return {
       label: i18n.t('RADIUS server CA path'),
-      text: i18n.t('The path to the RADIUS server CA.'),
+      text: i18n.t('The path to the RADIUS server CA which have sign the radius certification.'),
       cols: [
         {
-          namespace: 'server_radius_ca_path',
+          namespace: 'ca_cert_path',
           component: pfFormInput,
-          attrs: attributesFromMeta(meta, 'server_radius_ca_path'),
-          validators: validatorsFromMeta(meta, 'server_radius_ca_path', i18n.t('Path'))
+          attrs: attributesFromMeta(meta, 'ca_cert_path'),
+          validators: validatorsFromMeta(meta, 'ca_cert_path', i18n.t('Path'))
         }
       ]
     }
@@ -1010,7 +1010,7 @@ export const view = (form = {}, meta = {}) => {
             ...((security_type === 'WPA2' && ~~eap_type === 25 /* PEAP */)
               ? [
                 viewFields.server_certificate_path(form, meta),
-                viewFields.server_radius_ca_path(form, meta)
+                viewFields.ca_cert_path(form, meta)
                 ]
               : [] // ignore
             ),
@@ -1134,7 +1134,7 @@ export const view = (form = {}, meta = {}) => {
             ...((security_type === 'WPA2' && ~~eap_type === 25 /* PEAP */)
               ? [
                 viewFields.server_certificate_path(form, meta),
-                viewFields.server_radius_ca_path(form, meta)
+                viewFields.ca_cert_path(form, meta)
                 ]
               : [] // ignore
             ),
@@ -1333,7 +1333,7 @@ export const view = (form = {}, meta = {}) => {
             ...((security_type === 'WPA2' && ~~eap_type === 25 /* PEAP */)
               ? [
                 viewFields.server_certificate_path(form, meta),
-                viewFields.server_radius_ca_path(form, meta)
+                viewFields.ca_cert_path(form, meta)
                 ]
               : [] // ignore
             ),
@@ -1561,8 +1561,8 @@ export const validatorFields = {
   server_certificate_path: (form = {}, meta = {}) => {
     return { server_certificate_path: validatorsFromMeta(meta, 'server_certificate_path', i18n.t('Path')) }
   },
-  server_radius_ca_path: (form = {}, meta = {}) => {
-    return { server_radius_ca_path: validatorsFromMeta(meta, 'server_radius_ca_path', i18n.t('Path')) }
+  ca_cert_path: (form = {}, meta = {}) => {
+    return { ca_cert_path: validatorsFromMeta(meta, 'ca_cert_path', i18n.t('Path')) }
   },
   ssid: (form = {}, meta = {}) => {
     return { ssid: validatorsFromMeta(meta, 'ssid', 'SSID') }
@@ -1633,7 +1633,7 @@ export const validators = (form = {}, meta = {}) => {
         ...((security_type === 'WPA2' && ~~eap_type === 25 /* PEAP */)
           ? {
             ...validatorFields.server_certificate_path(form, meta),
-            ...validatorFields.server_radius_ca_path(form, meta)
+            ...validatorFields.ca_cert_path(form, meta)
           }
           : {} // ignore
         ),
@@ -1730,7 +1730,7 @@ export const validators = (form = {}, meta = {}) => {
         ...((security_type === 'WPA2' && ~~eap_type === 25 /* PEAP */)
           ? {
             ...validatorFields.server_certificate_path(form, meta),
-            ...validatorFields.server_radius_ca_path(form, meta)
+            ...validatorFields.ca_cert_path(form, meta)
           }
           : {} // ignore
         ),
@@ -1882,7 +1882,7 @@ export const validators = (form = {}, meta = {}) => {
         ...((security_type === 'WPA2' && ~~eap_type === 25 /* PEAP */)
           ? {
             ...validatorFields.server_certificate_path(form, meta),
-            ...validatorFields.server_radius_ca_path(form, meta)
+            ...validatorFields.ca_cert_path(form, meta)
           }
           : {} // ignore
         ),
