@@ -8,9 +8,12 @@ import (
 
 	cache "github.com/fdurand/go-cache"
 	_ "github.com/go-sql-driver/mysql"
+	"github.com/inverse-inc/go-radius"
+	"github.com/inverse-inc/go-radius/rfc2866"
 	"github.com/inverse-inc/packetfence/go/db"
 	"github.com/inverse-inc/packetfence/go/jsonrpc2"
 	"github.com/inverse-inc/packetfence/go/log"
+	"github.com/inverse-inc/packetfence/go/mac"
 	"github.com/inverse-inc/packetfence/go/pfconfigdriver"
 	"github.com/inverse-inc/packetfence/go/tryableonce"
 	statsd "gopkg.in/alexcesaro/statsd.v2"
@@ -19,6 +22,14 @@ import (
 const DefaultTimeDuration = 5 * time.Minute
 
 var successDBConnect = false
+
+type radiusRequest struct {
+	w          radius.ResponseWriter
+	r          *radius.Request
+	switchInfo *SwitchInfo
+	status     rfc2866.AcctStatusType
+	mac        mac.Mac
+}
 
 type PfAcct struct {
 	RadiusStatements
@@ -36,6 +47,7 @@ type PfAcct struct {
 	StatsdAddress   string
 	StatsdOption    statsd.Option
 	StatsdClient    *statsd.Client
+	radiusRequests  []chan<- radiusRequest
 }
 
 func NewPfAcct() *PfAcct {
@@ -65,9 +77,25 @@ func NewPfAcct() *PfAcct {
 	pfAcct.LoggerCtx = ctx
 	pfAcct.RadiusStatements.Setup(pfAcct.Db)
 	pfAcct.SetupConfig(ctx)
+	pfAcct.radiusRequests = makeRadiusRequests(pfAcct, 5, 10)
 	pfAcct.AAAClient = jsonrpc2.NewAAAClientFromConfig(ctx)
 	//pfAcct.Dispatcher = NewDispatcher(16, 128)
 	return pfAcct
+}
+
+func makeRadiusRequests(h *PfAcct, requestFanOut, backlog int) []chan<- radiusRequest {
+	requests := make([]chan<- radiusRequest, requestFanOut)
+	for i := 0; i < requestFanOut; i++ {
+		c := make(chan radiusRequest, backlog)
+		requests[i] = c
+		go func(c <-chan radiusRequest) {
+			for rr := range c {
+				h.handleAccountingRequest(rr)
+			}
+		}(c)
+	}
+
+	return requests
 }
 
 func (pfAcct *PfAcct) SetupConfig(ctx context.Context) {

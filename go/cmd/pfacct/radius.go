@@ -41,6 +41,18 @@ func (h *PfAcct) AddProxyState(packet *radius.Packet, r *radius.Request) *radius
 	return packet
 }
 
+func djb2Hash(s []byte) uint64 {
+	hash := uint64(5381)
+	for _, c := range s {
+		hash = ((hash << 5) + hash) + uint64(c)
+		// the above line is an optimized version of the following line:
+		//hash = hash * 33 + uint64(c)
+		// which is easier to read and understand...
+	}
+
+	return hash
+}
+
 func (h *PfAcct) ServeRADIUS(w radius.ResponseWriter, r *radius.Request) {
 	switch r.Code {
 	case radius.CodeAccountingRequest:
@@ -59,32 +71,50 @@ func (h *PfAcct) HandleStatusServer(w radius.ResponseWriter, r *radius.Request) 
 }
 
 func (h *PfAcct) HandleAccounting(w radius.ResponseWriter, r *radius.Request) {
-	defer h.NewTiming().Send("pfacct.HandleAccountingRequest")
-	outPacket := r.Response(radius.CodeAccountingResponse)
-	rfc2865.ReplyMessage_SetString(outPacket, "Accounting OK")
 	ctx := r.Context()
+	defer h.NewTiming().Send("pfacct.HandleAccountingRequest")
+	status := rfc2866.AcctStatusType_Get(r.Packet)
+	if status > rfc2866.AcctStatusType_Value_InterimUpdate {
+		outPacket := r.Response(radius.CodeAccountingResponse)
+		rfc2865.ReplyMessage_SetString(outPacket, "Accounting OK")
+		logInfo(ctx, fmt.Sprintf("Accounting status of %s ignored", status.String()))
+		w.Write(h.AddProxyState(outPacket, r))
+		return
+	}
+
 	iSwitchInfo := ctx.Value(switchInfoKey)
 	if iSwitchInfo == nil {
 		panic("SwitchInfo: not found")
 	}
 
 	switchInfo := iSwitchInfo.(*SwitchInfo)
-	h.handleAccountingRequest(r, switchInfo)
-	//	h.Dispatcher.SubmitJob(Work(func() { h.handleAccountingRequest(r, switchInfo) }))
-	w.Write(h.AddProxyState(outPacket, r))
-}
-
-func (h *PfAcct) handleAccountingRequest(r *radius.Request, switchInfo *SwitchInfo) {
-	ctx := r.Context()
-	status := rfc2866.AcctStatusType_Get(r.Packet)
-	defer h.NewTiming().Send("pfacct.accounting." + status.String())
-	if status > rfc2866.AcctStatusType_Value_InterimUpdate {
-		logInfo(ctx, fmt.Sprintf("Accounting status of %s ignored", status.String()))
-		return
-	}
-
 	callingStation := rfc2865.CallingStationID_GetString(r.Packet)
 	mac, _ := mac.NewFromString(callingStation)
+	rr := radiusRequest{
+		w:          w,
+		r:          r,
+		status:     status,
+		switchInfo: switchInfo,
+		mac:        mac,
+	}
+
+	h.sendRadiusRequestToQueue(rr)
+	// h.handleAccountingRequest(w, r, switchInfo, mac)
+	// h.Dispatcher.SubmitJob(Work(func() { h.handleAccountingRequest(r, switchInfo) }))
+}
+
+func (h *PfAcct) sendRadiusRequestToQueue(rr radiusRequest) {
+	queueIndex := djb2Hash(rr.mac[:]) % uint64(len(h.radiusRequests))
+	h.radiusRequests[queueIndex] <- rr
+}
+
+func (h *PfAcct) handleAccountingRequest(rr radiusRequest) {
+	r, w, switchInfo, mac, status := rr.r, rr.w, rr.switchInfo, rr.mac, rr.status
+	defer h.NewTiming().Send("pfacct.accounting." + rr.status.String())
+	outPacket := r.Response(radius.CodeAccountingResponse)
+	rfc2865.ReplyMessage_SetString(outPacket, "Accounting OK")
+	defer w.Write(h.AddProxyState(outPacket, r))
+	ctx := r.Context()
 	in_bytes := int64(rfc2866.AcctInputOctets_Get(r.Packet))
 	out_bytes := int64(rfc2866.AcctOutputOctets_Get(r.Packet))
 	giga_in_bytes := int64(rfc2869.AcctInputGigawords_Get(r.Packet))
@@ -95,10 +125,11 @@ func (h *PfAcct) handleAccountingRequest(r *radius.Request, switchInfo *SwitchIn
 	if timestamp.IsZero() {
 		timestamp = time.Now()
 	}
+
 	timestamp = timestamp.Truncate(h.TimeDuration)
 	node_id := mac.NodeId(uint16(switchInfo.TenantId))
 	unique_session_id := h.accountingUniqueSessionId(r)
-	err := h.InsertBandwidthAccounting(
+	if err := h.InsertBandwidthAccounting(
 		node_id,
 		switchInfo.TenantId,
 		mac.String(),
@@ -106,8 +137,7 @@ func (h *PfAcct) handleAccountingRequest(r *radius.Request, switchInfo *SwitchIn
 		timestamp,
 		in_bytes,
 		out_bytes,
-	)
-	if err != nil {
+	); err != nil {
 		logError(ctx, "InsertBandwidthAccounting: "+err.Error())
 	}
 
@@ -324,6 +354,7 @@ func (h *PfAcct) RADIUSSecret(ctx context.Context, remoteAddr net.Addr, raw []by
 	packet, err := radius.Parse(raw, []byte(switchInfo.Secret))
 	if err != nil {
 		logError(h.LoggerCtx, "RADIUSSecret: "+err.Error())
+		return nil, nil, err
 	}
 
 	// If the request overrides the tenant ID, we create a copy of the switchInfo and return it with an updated tenant ID
