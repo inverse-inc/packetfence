@@ -41,7 +41,7 @@ The latest version of this guide is available at https://packetfence.org/documen
 <<PacketFence_Upgrade_Guide.asciidoc#,Upgrade Guide>>::
   Covers compatibility related changes, manual instructions and general notes
   about upgrading.
-<<PacketFence_News.asciidoc#,NEWS>>::
+link:https://packetfence.org/news.html[PacketFence News]
   Covers noteworthy features, improvements and bug fixes by release.
 
 These files are included in the package and release tarballs.
