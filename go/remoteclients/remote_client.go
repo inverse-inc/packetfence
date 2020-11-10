@@ -4,6 +4,7 @@ import (
 	"context"
 	"net"
 	"net/http"
+	"strings"
 	"time"
 
 	"github.com/inverse-inc/packetfence/go/common"
@@ -142,6 +143,12 @@ func (rc *RemoteClient) PeerHostnames(ctx context.Context, db *gorm.DB) []string
 func (rc *RemoteClient) NamesToResolve(ctx context.Context, db *gorm.DB) []string {
 	profile := rc.ConnectionProfile(ctx, db)
 	return append(profile.AdditionalDomainsToResolve, rc.PeerHostnames(ctx, db)...)
+}
+
+func (rc *RemoteClient) ACLs(ctx context.Context, db *gorm.DB) []string {
+	nc, err := common.FetchNodeCategory(ctx, rc.GetNode(ctx).CategoryID_int())
+	sharedutils.CheckError(err)
+	return strings.Split(nc.ACLs, "\n")
 }
 
 func (rc *RemoteClient) GetNode(ctx context.Context) *common.NodeInfo {

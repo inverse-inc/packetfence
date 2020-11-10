@@ -96,6 +96,7 @@ func (h *WgorchestratorHandler) handleGetProfile(c *gin.Context) {
 		WireguardNetmask: rc.Netmask(),
 		AllowedPeers:     rc.AllowedPeers(c, db),
 		NamesToResolve:   rc.NamesToResolve(c, db),
+		ACLs:             rc.ACLs(c, db),
 	}
 
 	c.JSON(http.StatusOK, profile)
