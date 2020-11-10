@@ -79,7 +79,8 @@ If `monit` is installed and running, shut it down with:
 
 [source,bash]
 ----
-systemctl stop monit ; systemctl disable monit
+systemctl stop monit
+systemctl disable monit
 ----
 
 == Upgrade procedure
