@@ -416,7 +416,6 @@ In order to do so:
 systemctl restart packetfence-galera-autofix
 ----
 
-
 === MariaDB Galera cluster troubleshooting
 
 ==== Maximum connections reached
