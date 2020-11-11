@@ -285,7 +285,7 @@ Then make sure the PacketFence clustering services will be started at boot by ru
 systemctl set-default packetfence-cluster
 ----
 
-NOTE: Make sure you stopped MariaDB on the two others servers, *NOT ON THE FIRST ONE* for now (`systemctl stop packetfence-mariadb` and `systemctl stop mariadb`).
+NOTE: Make sure you stopped MariaDB on the two others servers, *NOT ON THE FIRST ONE* for now (`systemctl stop packetfence-mariadb`).
 
 Still *on the first server*, start MariaDB forcing it to create a new cluster:
 
