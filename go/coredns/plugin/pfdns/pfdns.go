@@ -118,7 +118,7 @@ func (pf *pfdns) RefreshPfconfig(ctx context.Context) {
 			go func(ctx context.Context) {
 				for {
 					pfconfigdriver.PfconfigPool.Refresh(ctx)
-					pf.detectVIP()
+					pf.detectVIP(ctx)
 					time.Sleep(1 * time.Second)
 				}
 			}(ctx)
@@ -468,8 +468,7 @@ func readConfig(ctx context.Context) pfconfigdriver.PfConfDatabase {
 	return sections
 }
 
-func (pf *pfdns) DomainPassthroughInit() error {
-	var ctx = context.Background()
+func (pf *pfdns) DomainPassthroughInit(ctx context.Context) error {
 	var keyConfDNS pfconfigdriver.PfconfigKeys
 	keyConfDNS.PfconfigNS = "resource::domain_dns_servers"
 
@@ -509,8 +508,7 @@ func (pf *pfdns) DomainPassthroughInit() error {
 }
 
 // WebservicesInit read pfconfig webservices configuration
-func (pf *pfdns) WebservicesInit() error {
-	var ctx = context.Background()
+func (pf *pfdns) WebservicesInit(ctx context.Context) error {
 	var webservices pfconfigdriver.PfConfWebservices
 	webservices.PfconfigNS = "config::Pf"
 	webservices.PfconfigMethod = "hash_element"
@@ -523,8 +521,7 @@ func (pf *pfdns) WebservicesInit() error {
 }
 
 // detectType of each network
-func (pf *pfdns) detectType() error {
-	var ctx = context.Background()
+func (pf *pfdns) detectType(ctx context.Context) error {
 	var NetIndex net.IPNet
 	pf.NetworkType = make(map[*net.IPNet]*pfconfigdriver.NetworkConf)
 
@@ -587,8 +584,7 @@ func (pf *pfdns) detectType() error {
 	return nil
 }
 
-func (pf *pfdns) DbInit() error {
-	var ctx = context.Background()
+func (pf *pfdns) DbInit(ctx context.Context) error {
 
 	var err error
 
