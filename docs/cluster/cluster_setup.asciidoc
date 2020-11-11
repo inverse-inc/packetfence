@@ -74,11 +74,17 @@ configuration in the file and do a configreload ([command]`/usr/local/pf/bin/pfc
 === Setup on the first server of your cluster
 
 
-First, *on the first server*, start `packetfence-mariadb` and make sure it was able to start in 'standalone' mode.
+First, *on the first server*, ensure `packetfence-mariadb` is running and make sure it was able to start in 'standalone' mode.
 
-  # systemctl start packetfence-mariadb
+[source,bash]
+----
+systemctl status packetfence-mariadb
+----
 
-Then, you will need to create a user for the database replication that PacketFence will use. You can use any username/password combination. After creating the user, keep its information close-by for usage in the configuration.
+Then, you will need to create a user for the database replication that
+PacketFence will use. You can use any username/password combination. After
+creating the user, keep its information close-by for usage in the
+configuration.
 
 WARNING: *aMuchMoreSecurePassword* is only for example purpose, you need to define your own password. This user should have a password that contains only alphanumeric characters (letters, numbers and importantly, *no spaces*).
 
