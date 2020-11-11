@@ -2,6 +2,7 @@ package pfdns
 
 import (
 	"context"
+	"errors"
 	"net"
 	"regexp"
 
@@ -103,7 +104,10 @@ func (pf *pfdns) detectVIP(ctx context.Context) error {
 			}
 		}
 	}
-	id, _ := GlobalTransactionLock.Lock()
+	id, err := GlobalTransactionLock.Lock()
+	if err != nil {
+		return errors.New("Unable to create a RWLock")
+	}
 	defer GlobalTransactionLock.Unlock(id)
 	for _, v := range sharedutils.RemoveDuplicates(append(pfconfigdriver.Config.Interfaces.ListenInts.Element, intDNS...)) {
 
@@ -112,8 +116,16 @@ func (pf *pfdns) detectVIP(ctx context.Context) error {
 		// Nothing in keyConfCluster.Ip so we are not in cluster mode
 		var VIP net.IP
 
-		eth, _ := net.InterfaceByName(v)
-		adresses, _ := eth.Addrs()
+		eth, err := net.InterfaceByName(v)
+		if err != nil {
+			err = errors.New("Unable to get network interface " + v + " by name")
+			continue
+		}
+		adresses, err := eth.Addrs()
+		if err != nil {
+			errors.New("Unable to get the ip addresses of the interface " + v)
+			continue
+		}
 		for _, adresse := range adresses {
 			var NetIP *net.IPNet
 			var IP net.IP
