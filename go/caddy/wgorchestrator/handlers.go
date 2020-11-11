@@ -57,10 +57,11 @@ func (h *WgorchestratorHandler) handleGetProfile(c *gin.Context) {
 
 	username := c.Request.Header.Get("X-PacketFence-Username")
 	var categoryId int
+	var unregdate string
 	if username != "" {
 		var role string
 		var err error
-		categoryId, role, err = h.getRoleForUsername(c, username)
+		categoryId, role, unregdate, err = h.getRoleForUsername(c, username)
 		if err != nil {
 			log.LoggerWContext(c).Error("Error while communicating with API: " + err.Error())
 			renderError(c, http.StatusInternalServerError, errors.New("Unable to communicate with API to obtain role for your username"))
@@ -82,6 +83,8 @@ func (h *WgorchestratorHandler) handleGetProfile(c *gin.Context) {
 			MAC:          c.Query("mac"),
 			Computername: c.Query("hostname"),
 			PID:          username,
+			Unregdate:    unregdate,
+			Status:       "reg",
 			CategoryID:   strconv.Itoa(categoryId),
 		},
 	})
@@ -221,11 +224,12 @@ func (h *WgorchestratorHandler) handleGetPrivEvents(c *gin.Context) {
 	}
 }
 
-func (h *WgorchestratorHandler) getRoleForUsername(c *gin.Context, username string) (int, string, error) {
+func (h *WgorchestratorHandler) getRoleForUsername(c *gin.Context, username string) (int, string, string, error) {
 	var resp struct {
 		CategoryId int    `json:"category_id"`
 		Role       string `json:"role"`
+		Unregdate  string `json:"unregdate"`
 	}
 	err := unifiedapiclient.NewFromConfig(c).CallWithBody(c, "POST", "/api/v1/authentication/role_authentication", gin.H{"username": username}, &resp)
-	return resp.CategoryId, resp.Role, err
+	return resp.CategoryId, resp.Role, resp.Unregdate, err
 }

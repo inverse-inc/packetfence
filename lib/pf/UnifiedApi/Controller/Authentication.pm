@@ -47,10 +47,12 @@ sub roleAuthentication {
         $self->render(status => $status, json => $json);
     }
 
-    my $result = pf::authentication::match(pf::authentication::getInternalAuthenticationSources(), {username => $json->{username}, context => $pf::constants::realm::ADMIN_CONTEXT}, $Actions::SET_ROLE);
+    my $role_result = pf::authentication::match(pf::authentication::getInternalAuthenticationSources(), {username => $json->{username}, context => $pf::constants::realm::RADIUS_CONTEXT}, $Actions::SET_ROLE);
+    my $category_id = $role_result ? nodecategory_view_by_name($role_result)->{category_id} : undef;
 
-    my $category_id = $result ? nodecategory_view_by_name($result)->{category_id} : undef;
-    $self->render(status => 200, json => {role => $result, category_id => $category_id+0});
+    my $unregdate_result = pf::authentication::match(pf::authentication::getInternalAuthenticationSources(), {username => $json->{username}, context => $pf::constants::realm::RADIUS_CONTEXT}, $Actions::SET_UNREG_DATE);
+
+    $self->render(status => 200, json => {role => $role_result, category_id => $category_id+0, unregdate => $unregdate_result});
 }
 
 =head1 AUTHOR
