@@ -19,19 +19,18 @@ func (pf *pfdns) Refresh(ctx context.Context) {
 	// If some of the passthroughs were changed, we should reload
 	if !pfconfigdriver.IsValid(ctx, &pfconfigdriver.Config.Passthroughs.Registration) || !pfconfigdriver.IsValid(ctx, &pfconfigdriver.Config.Passthroughs.Isolation) {
 		log.LoggerWContext(ctx).Info("Reloading passthroughs and flushing cache")
-		pf.PassthroughsInit()
-		pf.PassthroughsIsolationInit()
+		pf.PassthroughsInit(ctx)
+		pf.PassthroughsIsolationInit(ctx)
 
 		pf.DNSFilter.Flush()
 		pf.IpsetCache.Flush()
 	}
 	if !pfconfigdriver.IsValid(ctx, &pfconfigdriver.Config.Dns.Configuration) {
-		pf.DNSRecord()
+		pf.DNSRecord(ctx)
 	}
 }
 
-func (pf *pfdns) PassthroughsInit() error {
-	var ctx = context.Background()
+func (pf *pfdns) PassthroughsInit(ctx context.Context) error {
 
 	pfconfigdriver.FetchDecodeSocket(ctx, &pfconfigdriver.Config.Passthroughs.Registration)
 
@@ -50,8 +49,7 @@ func (pf *pfdns) PassthroughsInit() error {
 	return nil
 }
 
-func (pf *pfdns) PassthroughsIsolationInit() error {
-	var ctx = context.Background()
+func (pf *pfdns) PassthroughsIsolationInit(ctx context.Context) error {
 
 	pfconfigdriver.FetchDecodeSocket(ctx, &pfconfigdriver.Config.Passthroughs.Isolation)
 
@@ -69,8 +67,7 @@ func (pf *pfdns) PassthroughsIsolationInit() error {
 	return nil
 }
 
-func (pf *pfdns) DNSRecord() error {
-	var ctx = context.Background()
+func (pf *pfdns) DNSRecord(ctx context.Context) error {
 
 	pfconfigdriver.FetchDecodeSocket(ctx, &pfconfigdriver.Config.Dns.Configuration)
 	if pfconfigdriver.Config.Dns.Configuration.RecordDNS == "enabled" {
@@ -82,8 +79,8 @@ func (pf *pfdns) DNSRecord() error {
 }
 
 // DetectVIP
-func (pf *pfdns) detectVIP() error {
-	var ctx = context.Background()
+func (pf *pfdns) detectVIP(ctx context.Context) error {
+
 	var NetIndex net.IPNet
 
 	pfconfigdriver.FetchDecodeSocket(ctx, &pfconfigdriver.Config.Interfaces.ListenInts)
