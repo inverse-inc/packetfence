@@ -35,10 +35,11 @@ addresses they don't currently have configured. This allows faster failover of
 the services.
 
 On *all your servers*, add following lines in [filename]`/etc/sysctl.conf`:
-....
+
+----
 net.ipv4.ip_nonlocal_bind = 1
 net.ipv6.conf.all.disable_ipv6 = 1
-....
+----
 
 Disable IPv6 on postfix if you expected to use it.
 
@@ -186,7 +187,7 @@ galera_replication_username=pfcluster
 galera_replication_password=aMuchMoreSecurePassword
 ----
 
-Then, in `/usr/local/pf/conf/pfconfig.conf` :
+Then, in [filename]`/usr/local/pf/conf/pfconfig.conf` :
 
 ----
 [mysql]
@@ -195,8 +196,11 @@ host=127.0.0.1
 
 Now, restart `packetfence-config` and reload the configuration. You will see errors related to a cache write issue but you can safely ignore it for now. These appear because `packetfence-config` cannot connect to the database yet.
 
-  # systemctl restart packetfence-config
-  # /usr/local/pf/bin/pfcmd configreload hard
+[source,bash]
+----
+systemctl restart packetfence-config
+/usr/local/pf/bin/pfcmd configreload hard
+----
 
 ==== Configure cluster.conf
 
@@ -204,16 +208,15 @@ In order to create a new cluster, you need to configure [file]`/usr/local/pf/con
 
 You will need to configure it with your server hostname. Use : [command]`hostname` command (without any arguments) to get it.
 
-In the case of this example it will be 'pf1.example.com'.
+In the case of this example it will be `pf1.example.com`.
 
-The 'CLUSTER' section represents the virtual IP addresses of your cluster that will be shared by your servers.
+The `CLUSTER` section represents the virtual IP addresses of your cluster that will be shared by your servers.
 
 In this example, eth0 is the management interface, eth1.2 is the registration interface and eth1.3 is the isolation interface.
 
 On the first server, create a configuration similar to this :
 
 ----
-
 [CLUSTER]
 management_ip=192.168.1.10
 
@@ -261,41 +264,58 @@ ip=192.168.2.7
 
 [pf3.example.com interface eth1.3]
 ip=192.168.3.7
-
 ----
 
-Once this configuration is done, reload the configuration and perform a checkup.
+Once this configuration is done, reload the configuration and perform a checkup:
 
- # /usr/local/pf/bin/pfcmd configreload hard
- # /usr/local/pf/bin/pfcmd checkup
+[source,bash]
+----
+/usr/local/pf/bin/pfcmd configreload hard
+/usr/local/pf/bin/pfcmd checkup
+----
 
-The reload and the checkup will complain about the unavailability of the database, which you can safely ignore for now. Most important is that you don't see any cluster configuration related errors during the checkup.
+The reload and the checkup will complain about the unavailability of the
+database, which you can safely ignore for now. Most important is that you
+don't see any cluster configuration related errors during the checkup.
 
-Then make sure the PacketFence clustering services will be started at boot by running the following command on *all of your servers*.
+Then make sure the PacketFence clustering services will be started at boot by running the following command on *all of your servers*:
 
- # systemctl set-default packetfence-cluster
+[source,bash]
+----
+systemctl set-default packetfence-cluster
+----
 
 NOTE: Make sure you stopped MariaDB on the two others servers, *NOT ON THE FIRST ONE* for now (`systemctl stop packetfence-mariadb` and `systemctl stop mariadb`).
 
-Still *on the first server*, start MariaDB forcing it to create a new cluster.
+Still *on the first server*, start MariaDB forcing it to create a new cluster:
 
- # systemctl stop packetfence-mariadb
- # /usr/local/pf/bin/pfcmd generatemariadbconfig
- # /usr/local/pf/sbin/pf-mariadb --force-new-cluster
+[source,bash]
+----
+systemctl stop packetfence-mariadb
+/usr/local/pf/bin/pfcmd generatemariadbconfig
+/usr/local/pf/sbin/pf-mariadb --force-new-cluster
+----
 
 NOTE: This last command will not return until you break it, so leave it running in the background and open a new terminal to continue.
 
-Then, restart PacketFence to apply all your changes
+Then, restart PacketFence to apply all your changes:
 
- # /usr/local/pf/bin/pfcmd service pf restart
+[source,bash]
+----
+/usr/local/pf/bin/pfcmd service pf restart
+----
 
-If no error is found in the previous configuration, the previous restart of packetfence should have started `keepalived` and `radiusd-loadbalancer` along with the other services. If you have set up a mail server on your first server, you should have receive a mail from `keepalived` to inform you that your first server got Virtual IP (VIP) adresses.
+If no error is found in the previous configuration, the previous restart of
+packetfence should have started `keepalived` and `radiusd-loadbalancer` along
+with the other services. If you have set up a mail server on your first
+server, you should have receive a mail from `keepalived` to inform you that
+your first server got Virtual IP (VIP) adresses.
 
-NOTE: You can check the status of the services using '/usr/local/pf/bin/pfcmd service pf status'
+NOTE: You can check the status of the services using [command]`/usr/local/pf/bin/pfcmd service pf status`
 
-You should now have service using the first server on the IP addresses defined in the 'CLUSTER' sections.
+You should now have service using the first server on the IP addresses defined in the `CLUSTER` sections.
 
-NOTE: You can check with 'ip a', on the first server, you need to find the *VIP* on the first ethernet interface. On the others server, be sure to have the 'interface.VLANID' interfaces with the good IPs.
+NOTE: You can check with [command]`ip a`, on the first server, you need to find the *VIP* on the first ethernet interface. On the others server, be sure to have the `interface.VLANID` interfaces with the good IPs.
 
 === Integrating the two other nodes
 
@@ -309,9 +329,11 @@ Now, you will need to integrate your *two other nodes* in your cluster.
 
 On the *first server*, configure your webservices username and password by adding the following in [filename]`/usr/local/pf/conf/pf.conf`:
 
-  [webservices]
-  user=packet
-  pass=fence
+----
+[webservices]
+user=packet
+pass=fence
+----
 
 WARNING: *packet* and *fence* are only for example purpose, you need to define your own username and password.
 
@@ -319,8 +341,11 @@ While you can set the username and password to any value, make sure to keep it s
 
 And reload the config, then restart `httpd.webservices` on the first server:
 
-  # /usr/local/pf/bin/pfcmd configreload hard
-  # /usr/local/pf/bin/pfcmd service httpd.webservices restart
+[source,bash]
+----
+/usr/local/pf/bin/pfcmd configreload hard
+/usr/local/pf/bin/pfcmd service httpd.webservices restart
+----
 
 ==== Sync the nodes
 
@@ -328,7 +353,12 @@ The following instructions have to be done on each server (second and third serv
 
 Do (and make sure it completes without any errors):
 
-  # /usr/local/pf/bin/cluster/sync --from=192.168.1.5 --api-user=packet --api-password=fence
+[source,bash]
+----
+ /usr/local/pf/bin/cluster/sync --from=192.168.1.5 --api-user=packet --api-password=fence
+----
+
+NOTE: Space before last command is on purpose to avoid record of password in shell history
 
 Where :
 
@@ -338,18 +368,27 @@ Where :
 
 On *all your servers*, make sure that 'iptables' is stopped:
 
-  # systemctl stop packetfence-iptables
+[source,bash]
+----
+systemctl stop packetfence-iptables
+----
 
 Then, reload the configuration and start the webservices on second and third servers:
 
-  # systemctl restart packetfence-config
-  # /usr/local/pf/bin/pfcmd configreload
-  # /usr/local/pf/bin/pfcmd service haproxy-db restart
-  # /usr/local/pf/bin/pfcmd service httpd.webservices restart
+[source,bash]
+----
+systemctl restart packetfence-config
+/usr/local/pf/bin/pfcmd configreload
+/usr/local/pf/bin/pfcmd service haproxy-db restart
+/usr/local/pf/bin/pfcmd service httpd.webservices restart
+----
 
-Make sure that each server is binding to it's own management address *and* the VIP address. If it's not, verify the `/usr/local/pf/conf/cluster.conf` management interface configuration.
+Make sure that each server is binding to it's own management address *and* the VIP address. If it's not, verify the [filename]`/usr/local/pf/conf/cluster.conf` management interface configuration.
 
-  #  netstat -nlp | grep 9090
+[source,bash]
+----
+netstat -nlp | grep 9090
+----
 
 ==== MariaDB sync
 
@@ -357,57 +396,77 @@ First, ensure your MariaDB instance running with `--force-new-cluster` is still 
 
 Then, ensure `packetfence-mariadb` is stopped on the two servers that will be joined:
 
-  # systemctl stop packetfence-mariadb
+[source,bash]
+----
+systemctl stop packetfence-mariadb
+----
 
 Now, flush any MariaDB data you have on the two servers and restart `packetfence-mariadb` so that the servers join the cluster.
 
 WARNING: If you have any data in MariaDB on these nodes, this will destroy it.
 
-  # rm -fr /var/lib/mysql/*
-
-  # systemctl restart packetfence-mariadb
+[source,bash]
+---
+rm -fr /var/lib/mysql/*
+systemctl restart packetfence-mariadb
+----
 
 ===== Checking the MariaDB sync
 
 In order to check the MariaDB sync, you can look at the status of the `wsrep` status values inside MariaDB.
 
-  MariaDB> show status like 'wsrep%';
+----
+MariaDB> show status like 'wsrep%';
+----
 
 Important variables:
 
-  * 'wsrep_cluster_status': Display whether or not the node is part of a primary view or not. A healthy cluster should always show as primary
-  * 'wsrep_incoming_addresses': The current members of the cluster. All the nodes of your cluster should be listed there.
-  * 'wsrep_local_state_comment': Current sync state of the cluster. A healthy state is 'Synced'. Refer to the Galera cluster documentation for the meaning of the other values this can have.
+  * `wsrep_cluster_status`: Display whether or not the node is part of a primary view or not. A healthy cluster should always show as primary
+  * `wsrep_incoming_addresses`: The current members of the cluster. All the nodes of your cluster should be listed there.
+  * `wsrep_local_state_comment`: Current sync state of the cluster. A healthy state is 'Synced'. Refer to the Galera cluster documentation for the meaning of the other values this can have.
 
-In order for the cluster to be considered healthy, all nodes must be listed under `wsrep_incoming_addresses` and `wsrep_local_state_comment` must be `Synced`. Otherwise look in the MariaDB log (`/usr/local/pf/logs/mariadb_error.log`)
+In order for the cluster to be considered healthy, all nodes must be listed under `wsrep_incoming_addresses` and `wsrep_local_state_comment` must be `Synced`. Otherwise look in the MariaDB log ([filename]`/usr/local/pf/logs/mariadb_error.log`)
 
 ===== Starting the first server normally
 
 Once all servers are synced, go *on the first server* that should still be running with the `--force-new-cluster` option, break the command.
 
-NOTE: You can check if the service is down with 'ps -edf | grep mysql', this service can be a little long to stop and it is not recommended to do the nexts step before it fully stops.
+NOTE: You can check if the service is down with [command]`ps -edf | grep mysql`, this service can be a little long to stop and it is not recommended to do the next steps before it fully stops.
 
 Now, start `packetfence-mariadb` normally and restart `packetfence-iptables`:
 
-  # systemctl restart packetfence-mariadb
-  # systemctl restart packetfence-iptables
+[source,bash]
+----
+systemctl restart packetfence-mariadb
+systemctl restart packetfence-iptables
+----
 
 ==== Wrapping up
 
 Now restart PacketFence *on all servers*:
 
-  # /usr/local/pf/bin/pfcmd service pf restart
+[source,bash]
+----
+/usr/local/pf/bin/pfcmd service pf restart
+----
 
-Next, make sure to join domains through 'Configuration/Policies And Access Control/Domains/Active Directory Domains' on each node.
+Next, make sure to join domains through _Configuration -> Policies And Access Control -> Domains -> Active Directory Domains_ on each node.
 
-You should now reboot *each server one by one* waiting for the one you rebooted to come back online before proceeding to the next one. After each reboot, ensure the database sync is fine by performing the checks outlined in "Checking the MariaDB sync".
+You should now reboot *each server one by one* waiting for the one you
+rebooted to come back online before proceeding to the next one. After each
+reboot, ensure the database sync is fine by performing the checks outlined in
+<<_checking_the_mariadb_sync>> section.
 
-  # reboot
+[source,bash]
+----
+reboot
+----
 
 === Securing the cluster: Keepalived secret
 
 NOTE: It is highly recommended to modify the keepalived shared secret in your cluster to prevent attacks.
 
-From the PacketFence web administration interface, go in 'Configuration/System Configuration/Cluster' and change the 'Shared KEY'. Make sure you restart `keepalived` on *all your servers* using `/usr/local/pf/bin/pfcmd service keepalived restart`
+From the PacketFence web administration interface, go in _Configuration -> System Configuration -> Cluster_ and change the `Shared KEY`. Make sure you restart
+`keepalived` on *all your servers* using [command]`/usr/local/pf/bin/pfcmd service keepalived restart`
 
-If you already use VRRP protocol on your network, you can also change the default 'Virtual Router ID' and enable 'VRRP Unicast'.
+If you already use VRRP protocol on your network, you can also change the default `Virtual Router ID` and enable `VRRP Unicast`.
