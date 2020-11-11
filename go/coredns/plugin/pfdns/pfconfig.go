@@ -123,7 +123,7 @@ func (pf *pfdns) detectVIP(ctx context.Context) error {
 		}
 		adresses, err := eth.Addrs()
 		if err != nil {
-			errors.New("Unable to get the ip addresses of the interface " + v)
+			err = errors.New("Unable to get the ip addresses of the interface " + v)
 			continue
 		}
 		for _, adresse := range adresses {
