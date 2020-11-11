@@ -483,7 +483,16 @@ reboot
 
 NOTE: It is highly recommended to modify the keepalived shared secret in your cluster to prevent attacks.
 
-From the PacketFence web administration interface, go in _Configuration -> System Configuration -> Cluster_ and change the `Shared KEY`. Make sure you restart
-`keepalived` on *all your servers* using [command]`/usr/local/pf/bin/pfcmd service keepalived restart`
+From the PacketFence web administration interface (using virtual IP address of
+your cluster), go in _Configuration -> System Configuration -> Cluster_ and
+change the `Shared KEY`.
+
+Make sure you restart `keepalived` on *all your
+servers* using:
+
+[source,bash]
+----
+/usr/local/pf/bin/pfcmd service keepalived restart
+----
 
 If you already use VRRP protocol on your network, you can also change the default `Virtual Router ID` and enable `VRRP Unicast`.
