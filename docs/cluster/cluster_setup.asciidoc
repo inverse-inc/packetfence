@@ -18,6 +18,21 @@ endif::[]
 
 //== Cluster Setup
 
+=== Installation of PacketFence
+
+Before starting cluster setup, you need to install
+PacketFence on each cluster member by following instructions in
+<<PacketFence_Installation_Guide.asciidoc#_installation,PacketFence
+Installation Guide>>.
+
+=== Disable IPv6 and non-local bind
+
+FIXME
+
+Disable IPv6 on postfix if you expected to use it.
+
+Reboot.
+
 === Install the database replication tools
 
 NOTE: In this example, the database stack uses the native PacketFence https://mariadb.com/kb/en/library/galera-cluster/[MariaDB Galera cluster] integration. Although other MySQL based clustering stacks are supported, they aren't covered in this guide. If you use an external database or want to use another clustering stack for the database, you can ignore this section and jump to Step 2 directly.
