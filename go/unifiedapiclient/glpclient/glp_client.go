@@ -52,6 +52,7 @@ type Client struct {
 
 	// Whether or not logging should be enabled
 	LoggingEnabled bool
+	LogErrors      bool
 
 	// Private+Public key to use to use a private channel
 	PrivateMode     bool
@@ -86,7 +87,7 @@ func (c *Client) Start(ctx context.Context) {
 			pr, err := c.fetchEvents(ctx, since)
 
 			if err != nil {
-				if c.LoggingEnabled {
+				if c.LoggingEnabled || c.LogErrors {
 					log.Println(err)
 					log.Printf("Reattempting to connect to %s in %d seconds", path, c.Reattempt)
 				}
