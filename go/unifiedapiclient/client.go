@@ -218,7 +218,7 @@ func (c *Client) login(ctx context.Context) UnifiedAPIError {
 	reply := LoginReply{}
 
 	errRep := c.CallWithStringBody(ctx, "POST", API_LOGIN_PATH, string(loginBodyBytes), &reply)
-	if err != nil {
+	if errRep != nil {
 		log.LoggerWContext(ctx).Error(fmt.Sprintf("Error while performing a login on the UnifiedAPI: %s", err))
 		return errRep
 	}
