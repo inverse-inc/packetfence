@@ -109,7 +109,6 @@ CREATE TABLE `node_category` (
   `name` varchar(255) NOT NULL,
   `max_nodes_per_pid` int default 0,
   `notes` varchar(255) default NULL,
-  `parent_id` int NULL default NULL,
   PRIMARY KEY (`category_id`),
   UNIQUE KEY node_category_name (`name`)
 ) ENGINE=InnoDB;
@@ -143,18 +142,6 @@ INSERT INTO `node_category` (name,notes) VALUES ("voice","VoIP devices");
 --
 
 INSERT INTO `node_category` (name,notes) VALUES ("REJECT","Reject role (Used to block access)");
-
---
--- Insert 'User' category
---
-
-INSERT INTO `node_category` (name,notes) VALUES ("User", "User role");
-
---
--- Insert 'Machine' category
---
-
-INSERT INTO `node_category` (name,notes) VALUES ("Machine","Machine role");
 
 --
 -- Table structure for table `node`

@@ -56,6 +56,18 @@ ALTER TABLE node_category
     ADD COLUMN IF NOT EXISTS `fingerbank_dynamic_access_list` varchar(255) default NULL,
     ADD COLUMN IF NOT EXISTS `acls` TEXT NOT NULL;
 
+\! echo "Creating remote_clients table"
+CREATE TABLE IF NOT EXISTS `remote_clients` (
+  id int NOT NULL AUTO_INCREMENT,
+  tenant_id int NOT NULL DEFAULT 1,
+  public_key varchar(255) NOT NULL,
+  mac varchar(17) NOT NULL,
+  created_at datetime NOT NULL,
+  updated_at datetime NOT NULL,
+  PRIMARY KEY (id),
+  UNIQUE KEY remote_clients_private_key (`public_key`)
+) ENGINE=InnoDB;
+
 \! echo "Incrementing PacketFence schema version...";
 INSERT IGNORE INTO pf_version (id, version) VALUES (@VERSION_INT, CONCAT_WS('.', @MAJOR_VERSION, @MINOR_VERSION, @SUBMINOR_VERSION));
 

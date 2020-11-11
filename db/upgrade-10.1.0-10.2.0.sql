@@ -232,14 +232,6 @@ ALTER table `locationlog` ADD COLUMN IF NOT EXISTS `switch_ip_int` INT UNSIGNED 
 ALTER table `locationlog_history` ADD COLUMN IF NOT EXISTS `switch_ip_int` INT UNSIGNED AS (INET_ATON(`switch_ip`)) PERSISTENT AFTER `switch_ip`,
     ADD KEY IF NOT EXISTS `locationlog_switch_ip_int` (`switch_ip_int`);
 
-\! echo "Altering table 'node_category'...";
-ALTER TABLE node_category
-  ADD COLUMN IF NOT EXISTS `parent_id` int NULL default NULL;
-
-!\ echo "Inserting new roles";
-INSERT INTO `node_category` (name,notes) VALUES ("User", "User role");
-INSERT INTO `node_category` (name,notes) VALUES ("Machine","Machine role");
-
 \! echo "Incrementing PacketFence schema version...";
 INSERT IGNORE INTO pf_version (id, version) VALUES (@VERSION_INT, CONCAT_WS('.', @MAJOR_VERSION, @MINOR_VERSION, @SUBMINOR_VERSION));
 
