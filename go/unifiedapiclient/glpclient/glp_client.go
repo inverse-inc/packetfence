@@ -89,7 +89,7 @@ func (c *Client) Start(ctx context.Context) {
 			if err != nil {
 				if c.LoggingEnabled || c.LogErrors {
 					log.Println(err)
-					log.Printf("Reattempting to connect to %s in %d seconds", path, c.Reattempt)
+					log.Printf("Reattempting to connect to %s in %d seconds", path, c.Reattempt/time.Second)
 				}
 				time.Sleep(c.Reattempt)
 				continue
