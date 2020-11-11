@@ -295,8 +295,7 @@ export const pfFieldTypeValues = {
     return options
   },
   [pfFieldType.REALM]: () => {
-    store.dispatch('config/getRealms')
-    return store.getters['config/realmsList']
+    return store.dispatch('config/getRealms', store.getters['session/tenantIdMask']).then(() => store.getters['config/realmsList'])
   },
   [pfFieldType.ROLE]: () => {
     store.dispatch('config/getRoles')

@@ -281,7 +281,7 @@ pfSearchConditionValues[pfSearchConditionType.DOMAIN] = (store) => {
   return store.getters['config/domainsList']
 }
 pfSearchConditionValues[pfSearchConditionType.REALM] = (store) => {
-  store.dispatch('config/getRealms')
+  store.dispatch('config/getRealms', store.getters['session/tenantIdMask'])
   return store.getters['config/realmsList']
 }
 pfSearchConditionValues[pfSearchConditionType.ROLE] = (store) => {
