@@ -193,7 +193,7 @@ sub validate_mac {
     return $TRUE;
 }
 
-=head2 execute_actions
+=head2 execute_child
 
 Execute the flow for this module
 
@@ -211,6 +211,9 @@ sub execute_child {
     # HACK alert : E-mail registration has the user registered but still going in the portal
     # release_bypass is there for that. If it is set, it will keep the user in the portal
     my $node = node_view($self->current_mac);
+    if (!defined($self->app->session->{release_bypass})) {
+        $self->app->session->{release_bypass} = $TRUE;
+    }
     if($self->app->profile->canAccessRegistrationWhenRegistered() && $self->app->session->{release_bypass}) {
         get_logger->info("Allowing user through portal even though he is registered as the release bypass is set and the connection profile is configured to let registered users use the registration module of the portal.");
     }
