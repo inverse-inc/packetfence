@@ -20,19 +20,21 @@ endif::[]
 
 === Setup on all servers
 
-Following are actions that need to be run on **all cluster members*.
+Following actions need to be run on *all cluster members*.
 
-==== Interface names
+==== Interfaces names
 
-You need to make sure the interfaces name will be the same on *all
-servers*. See <<_setting_the_interfaces_name_on_centos_7>> section) if all
-your servers don't already have the same interface names.
+You need to make sure the interfaces names will be the same on *all
+servers*. See <<_setting_the_interfaces_name_on_centos_7>> section if all
+your servers don't already have the same interfaces names.
 
-==== Disable IPv6 and non-local bind
+==== sysctl.conf
 
 You will need to configure each server so the services can bind on IP
 addresses they don't currently have configured. This allows faster failover of
 the services.
+
+You also need to disable IPv6.
 
 On *all your servers*, add following lines in [filename]`/etc/sysctl.conf`:
 
@@ -41,9 +43,15 @@ net.ipv4.ip_nonlocal_bind = 1
 net.ipv6.conf.all.disable_ipv6 = 1
 ----
 
-Disable IPv6 on postfix if you expected to use it.
+and run:
 
-Reboot.
+[source,bash]
+----
+sysctl -p
+reboot
+----
+
+NOTE: If you plan to use Postfix to send emails, you need to set `inet_protocols = ipv4` in [filename]`main.cf` to be able to use it.
 
 ==== Installation of PacketFence
 
@@ -60,14 +68,14 @@ CAUTION: Galera cluster is only supported in 3 nodes cluster and more (with an o
 
 First, you will need to install, *on each servers*, Percona Xtrabackup for the synchronization to work correctly.
 
-.On RHEL / CentOS 7:
+.On RHEL / CentOS 7
 [source,bash]
 ----
 yum install https://repo.percona.com/yum/percona-release-latest.noarch.rpm
 yum install percona-xtrabackup socat --enablerepo=percona-release-x86_64
 ----
 
-.On Debian:
+.On Debian
 [source,bash]
 ----
 apt-get install lsb-release wget gnupg2
@@ -127,7 +135,7 @@ FLUSH PRIVILEGES;
 
 Now, on *the first server* of your cluster, you should go through the configurator, until last step. You should leave the services **stopped** at the end of the configurator.
 
-NOTE: When configuring the network interfaces, ensure that you mark the management interface as high availability. Otherwise, you will not be able to perform the database synchronization.
+NOTE: When configuring the network interfaces, ensure that you mark the management interface as *high-availability*. Otherwise, you will not be able to perform the database synchronization.
 
 Then restart PacketFence's mariadb on *the first server*:
 
@@ -143,12 +151,15 @@ and disable configurator on *the first server*:
 printf '\n[advanced]\nconfigurator=disabled\n' >> /usr/local/pf/conf/pf.conf
 ----
 
-==== Other servers
+==== Other servers (optional)
 
 On the *other servers* of your cluster, configure only the network interfaces
 (step 1) without going past that section in the configurator. If the other
 servers already have the right IP addresses configured on their interfaces,
 you can ignore this step.
+
+This step is only necessary to configure IP addresses on
+interfaces. PacketFence configuration of interfaces will be done later.
 
 ==== Current state
 

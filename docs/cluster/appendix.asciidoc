@@ -52,20 +52,6 @@ Apply the last two steps for any other interface you have on your server. Keep i
 
 Now, reboot your server and when it finishes starting, your interfaces name should now be using the format `ethX`
 
-=== Disabling IPv6 on CentOS 7
-
-In order to disable IPv6 on CentOS, you must disable it in the Linux kernel.
-
-Simply add the following line in `/etc/sysctl.conf`
-
-  net.ipv6.conf.all.disable_ipv6 = 1
-
-Then reload the file and reboot the server:
-
-  # sysctl -p
-  # reboot
-
-
 === IP addresses in a cluster environment
 
 ==== DHCP and DNS services
