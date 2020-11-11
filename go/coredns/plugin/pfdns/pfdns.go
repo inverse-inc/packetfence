@@ -118,7 +118,10 @@ func (pf *pfdns) RefreshPfconfig(ctx context.Context) {
 			go func(ctx context.Context) {
 				for {
 					pfconfigdriver.PfconfigPool.Refresh(ctx)
-					pf.detectVIP(ctx)
+					err = pf.detectVIP(ctx)
+					if err != nil {
+						log.LoggerWContext(ctx).Error(err.Error())
+					}
 					time.Sleep(1 * time.Second)
 				}
 			}(ctx)
