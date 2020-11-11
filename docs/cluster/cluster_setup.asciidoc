@@ -406,9 +406,15 @@ Now, flush any MariaDB data you have on the two servers and restart `packetfence
 WARNING: If you have any data in MariaDB on these nodes, this will destroy it.
 
 [source,bash]
----
+----
 rm -fr /var/lib/mysql/*
 systemctl restart packetfence-mariadb
+----
+
+If you see following message when running [command]`systemctl status packetfence-mariadb`, your nodes have successfully joined cluster:
+
+----
+INFO: Successful clustered connection to the DB
 ----
 
 ===== Checking the MariaDB sync
