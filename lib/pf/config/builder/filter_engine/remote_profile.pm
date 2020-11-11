@@ -23,7 +23,7 @@ sub buildEntry {
 
     my $logger = get_logger();
 
-    if ($entry->{status} && isdisabled($entry->{status})) {
+    if ($id ne "default" && $entry->{status} && isdisabled($entry->{status})) {
         $logger->debug("Skipping disabled rule $id");
         return;
     }
