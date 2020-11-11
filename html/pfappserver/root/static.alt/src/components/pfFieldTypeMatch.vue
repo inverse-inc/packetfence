@@ -81,6 +81,7 @@
 
 <script>
 /* eslint key-spacing: ["error", { "mode": "minimum" }] */
+import Vue from 'vue'
 import pfFormChosen from '@/components/pfFormChosen'
 import pfFormDatetime from '@/components/pfFormDatetime'
 import pfFormInput from '@/components/pfFormInput'
@@ -162,12 +163,18 @@ export default {
     },
     options () {
       if (!this.localType) return []
-      let options = []
+      let options = Vue.observable([])
       if (this.userTaggedOption) options.push(this.userTaggedOption)
       if (this.fieldIndex >= 0) {
         const field = this.field
         for (const type of field.types) {
-          if (type in fieldTypeValues) options.push(...fieldTypeValues[type]())
+          if (type in fieldTypeValues) {
+            // eslint-disable-next-line vue/no-async-in-computed-properties
+            Promise.resolve(fieldTypeValues[type]()).then(_options => {
+              options.push(..._options)
+            })
+
+          }
         }
       }
       return options

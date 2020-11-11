@@ -1,6 +1,7 @@
 /**
  * "config" store module
  */
+import Vue from 'vue'
 import apiCall from '@/utils/api'
 import duration from '@/utils/duration'
 import i18n from '@/utils/locale'
@@ -332,7 +333,7 @@ const initialState = () => { // set intitial states to `false` (not `[]` or `{}`
     radiusSslsStatus: '',
     radiusTlss: false,
     radiusTlssStatus: '',
-    realms: {},
+    realms: [],
     realmsStatus: '',
     roles: false,
     rolesStatus: '',
@@ -622,10 +623,13 @@ const getters = {
     })
   },
   realmsList: state => {
-    if (!state.realms) return []
-    return state.realms.map((item) => {
-      return { value: item.id, name: item.id, text: item.id }
-    })
+    let list = []
+    for (let i = 0; i < state.realms.length; i++) {
+      list = [ ...list, ...state.realms[i].map((item) => {
+        return { value: item.id, name: item.id, text: item.id }
+      }) ]
+    }
+    return list
   },
   rolesList: state => {
     if (!state.roles) return []
@@ -1396,7 +1400,6 @@ const actions = {
     }
   },
   getRealms: ({ state, getters, commit }, tenantId) => {
-    if (!tenantId) return state.realms
     if (getters.isLoadingRealms) {
       return Promise.resolve(state.realms[tenantId])
     }
@@ -2031,13 +2034,12 @@ const mutations = {
     state.radiusTlssStatus = types.SUCCESS
   },
   REALMS_REQUEST: (state, tenantId) => {
-    if (!state.realms[tenantId]) {
-      state.realms[tenantId] = {}
-    }
+    if (!state.realms[tenantId])
+      Vue.set(state.realms, tenantId, [])
     state.realmsStatus = types.LOADING
   },
   REALMS_UPDATED: (state, { tenantId, items }) => {
-    state.realms[tenantId] = items
+    Vue.set(state.realms, tenantId, items)
     state.realmsStatus = types.SUCCESS
   },
   ROLES_REQUEST: (state) => {
