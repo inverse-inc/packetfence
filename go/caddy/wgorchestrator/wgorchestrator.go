@@ -84,11 +84,7 @@ func buildWgorchestratorHandler(ctx context.Context) (WgorchestratorHandler, err
 	wgOrchestrator.router = router
 
 	// TODO: store this somewhere so that its persistent
-	var err error
-	wgOrchestrator.privateKey, err = remoteclients.GeneratePrivateKey()
-	sharedutils.CheckError(err)
-	wgOrchestrator.publicKey, err = remoteclients.GeneratePublicKey(wgOrchestrator.privateKey)
-	sharedutils.CheckError(err)
+	wgOrchestrator.privateKey, wgOrchestrator.publicKey = remoteclients.GetKeysFromFile("/usr/local/pf/conf/wgorchestrator-auth.json")
 
 	return wgOrchestrator, nil
 }

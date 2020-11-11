@@ -5,8 +5,10 @@ import (
 	"crypto/cipher"
 	"crypto/rand"
 	"encoding/base64"
+	"encoding/json"
 	"errors"
 	"io"
+	"os"
 
 	"github.com/inverse-inc/packetfence/go/sharedutils"
 
@@ -102,4 +104,43 @@ func DecryptMessage(key, text []byte) ([]byte, error) {
 		return nil, err
 	}
 	return data, nil
+}
+
+func GetKeysFromFile(authFile string) ([32]byte, [32]byte) {
+	auth := struct {
+		PublicKey  string `json:"public_key"`
+		PrivateKey string `json:"private_key"`
+	}{}
+
+	if _, statErr := os.Stat(authFile); statErr == nil {
+		f, err := os.Open(authFile)
+		if err != nil {
+			panic("Unable to open " + authFile + ": " + err.Error())
+		}
+		defer f.Close()
+
+		err = json.NewDecoder(f).Decode(&auth)
+		sharedutils.CheckError(err)
+		priv, err := B64KeyToBytes(auth.PrivateKey)
+		sharedutils.CheckError(err)
+		pub, err := B64KeyToBytes(auth.PublicKey)
+		sharedutils.CheckError(err)
+		return priv, pub
+	} else {
+		f, err := os.Create(authFile)
+		if err != nil {
+			panic("Unable to create " + authFile + ": " + err.Error())
+		}
+		defer f.Close()
+
+		priv, err := GeneratePrivateKey()
+		sharedutils.CheckError(err)
+		pub, err := GeneratePublicKey(priv)
+		sharedutils.CheckError(err)
+		auth.PrivateKey = base64.StdEncoding.EncodeToString(priv[:])
+		auth.PublicKey = base64.StdEncoding.EncodeToString(pub[:])
+		err = json.NewEncoder(f).Encode(&auth)
+		sharedutils.CheckError(err)
+		return priv, pub
+	}
 }
