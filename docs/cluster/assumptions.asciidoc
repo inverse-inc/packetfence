@@ -19,10 +19,9 @@ endif::[]
 * You have at least three (3) installed PacketFence (v7+) servers
 * The servers are running one of RHEL / CentOS 7 / Debian 9
 * The servers have identical identifiers for network interfaces (e.g. eth0)
-* The servers network interfaces are on the same layer 2 network
-* The servers must have IPv6 disabled.
-
-NOTE: Appended to this guide are instructions around disabling IPv6 and reconfiguring CentOS 7 to have identical predictable interface names on all the servers.
+* The servers network interfaces are on the same layer 2 network (see <<_setting_the_interfaces_name_on_centos_7>> section)
+* The servers must have IPv6 disabled (see <<_disabling_ipv6_on_centos_7>> section)
+* The servers must have a fully qualified domain name (FQDN) to identify them
 
 NOTE: Appended to this guide is a glossary on specialized terms used in this document.
 
