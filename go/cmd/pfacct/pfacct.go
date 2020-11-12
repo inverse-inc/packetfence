@@ -48,6 +48,8 @@ type PfAcct struct {
 	StatsdOption    statsd.Option
 	StatsdClient    *statsd.Client
 	radiusRequests  []chan<- radiusRequest
+	localSecret     string
+	isProxied       bool
 }
 
 func NewPfAcct() *PfAcct {
@@ -130,6 +132,11 @@ func (pfAcct *PfAcct) SetupConfig(ctx context.Context) {
 	pfAcct.StatsdOption = statsd.Address("localhost:" + keyConfAdvanced.StatsdListenPort)
 	pfAcct.NetFlowPort = ports.PFAcctNetflow
 	pfconfigdriver.FetchDecodeSocket(ctx, &pfAcct.Management)
+
+	localSecret := pfconfigdriver.LocalSecret{}
+	pfconfigdriver.FetchDecodeSocket(ctx, &localSecret)
+	pfAcct.localSecret = localSecret.Element
+	pfAcct.isProxied = isProxied()
 }
 
 // Timing struct
@@ -152,6 +159,10 @@ func (pfAcct *PfAcct) NewTiming() *Timing {
 	}
 
 	return &Timing{timing: pfAcct.StatsdClient.NewTiming()}
+}
+
+func isProxied() bool {
+	return pfconfigdriver.GetClusterSummary(context.Background()).ClusterEnabled == 1
 }
 
 // Send function to add pf prefix
