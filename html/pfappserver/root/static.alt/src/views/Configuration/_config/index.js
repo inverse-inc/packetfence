@@ -199,6 +199,7 @@ export const validatorsFromMeta = (meta = {}, path = null, fieldName = 'Value') 
           case 'placeholder': // ignore
           case 'allowed_lookup': // ignore
           case 'allow_custom': // ignore
+          case 'required_when': // ignore
             break
           case 'item': // ignore
             // TODO
