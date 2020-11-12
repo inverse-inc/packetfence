@@ -337,6 +337,14 @@ func (h *PfAcct) RADIUSSecret(ctx context.Context, remoteAddr net.Addr, raw []by
 		}
 	}
 
+	if h.isProxied {
+		if attr, ok = attrs.Lookup(rfc2865.NASIPAddress_Type); ok {
+			if val, err := radius.IPAddr(attr); err == nil {
+				ip = val.String()
+			}
+		}
+	}
+
 	switchInfo, err := h.SwitchLookup(macStr, ip)
 	if err != nil {
 		logError(h.LoggerCtx, "RADIUSSecret: Switch '"+ip+"' not found :"+err.Error())
@@ -681,6 +689,10 @@ func (h *PfAcct) SwitchLookup(mac, ip string) (*SwitchInfo, error) {
 	err := h.switchLookup.QueryRow(mac, ip, ip).Scan(&switchInfo.Nasname, &switchInfo.Secret, &switchInfo.TenantId, &switchInfo.RadiusAttributes)
 	if err != nil {
 		return nil, err
+	}
+
+	if h.isProxied {
+		switchInfo.Secret = h.localSecret
 	}
 
 	h.SwitchInfoCache.Set(key, switchInfo, cache.DefaultExpiration)
