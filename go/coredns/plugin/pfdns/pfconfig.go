@@ -90,8 +90,11 @@ func (pf *pfdns) detectVIP(ctx context.Context) error {
 	var keyConfNet pfconfigdriver.PfconfigKeys
 	keyConfNet.PfconfigNS = "config::Network"
 	keyConfNet.PfconfigHostnameOverlay = "yes"
-	pfconfigdriver.FetchDecodeSocket(ctx, &keyConfNet)
-
+	err := pfconfigdriver.FetchDecodeSocket(ctx, &keyConfNet)
+	if err != nil {
+		log.LoggerWContext(ctx).Error(err.Error())
+		return errors.New("Unable to fetch config::Network from pfconfig")
+	}
 	var keyConfCluster pfconfigdriver.NetInterface
 	keyConfCluster.PfconfigNS = "config::Pf(CLUSTER," + pfconfigdriver.FindClusterName(ctx) + ")"
 
@@ -112,7 +115,12 @@ func (pf *pfdns) detectVIP(ctx context.Context) error {
 	for _, v := range sharedutils.RemoveDuplicates(append(pfconfigdriver.Config.Interfaces.ListenInts.Element, intDNS...)) {
 
 		keyConfCluster.PfconfigHashNS = "interface " + v
-		pfconfigdriver.FetchDecodeSocket(ctx, &keyConfCluster)
+		err = pfconfigdriver.FetchDecodeSocket(ctx, &keyConfCluster)
+		if err != nil {
+			log.LoggerWContext(ctx).Error(err.Error())
+			continue
+		}
+
 		// Nothing in keyConfCluster.Ip so we are not in cluster mode
 		var VIP net.IP
 
@@ -142,7 +150,11 @@ func (pf *pfdns) detectVIP(ctx context.Context) error {
 			for _, key := range keyConfNet.Keys {
 				var ConfNet pfconfigdriver.NetworkConf
 				ConfNet.PfconfigHashNS = key
-				pfconfigdriver.FetchDecodeSocket(ctx, &ConfNet)
+				err = pfconfigdriver.FetchDecodeSocket(ctx, &ConfNet)
+				if err != nil {
+					log.LoggerWContext(ctx).Error(err.Error())
+					continue
+				}
 				if (NetIP.Contains(net.ParseIP(ConfNet.DhcpStart)) && NetIP.Contains(net.ParseIP(ConfNet.DhcpEnd))) || NetIP.Contains(net.ParseIP(ConfNet.NextHop)) {
 					NetIndex.Mask = net.IPMask(net.ParseIP(ConfNet.Netmask))
 					NetIndex.IP = net.ParseIP(key)

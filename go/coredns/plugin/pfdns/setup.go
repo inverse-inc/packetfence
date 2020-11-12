@@ -17,6 +17,8 @@ import (
 
 func init() {
 	GlobalTransactionLock = timedlock.NewRWLock()
+	GlobalTransactionLock.Panic = false
+	GlobalTransactionLock.PrintErrors = true
 	caddy.RegisterPlugin("pfdns", caddy.Plugin{
 		ServerType: "dns",
 		Action:     setuppfdns,
