@@ -62,10 +62,7 @@ export default class FileStore {
         commit('RESET_OFFSETS')
       },
       readAsText: ({ commit }) => {
-        commit('SET_READ_AS_TEXT')
-      },
-      readAsStream: ({ commit, dispatch }) => {
-        commit('SET_READ_AS_STREAM', dispatch)
+        commit('SET_READ_AS_TEXT', commit)
       },
       readLine: ({ state, dispatch }, lineIndex) => {
         return new Promise((resolve, reject) => {
@@ -151,29 +148,39 @@ export default class FileStore {
     }
 
     const mutations = {
+      READER_PROGRESS: (state, event) => {
+        state.status = types.LOADING
+        const { lengthComputable, loaded, total } = event
+        let percent = 0
+        if (lengthComputable) {
+          percent = Math.round((loaded / total) * 100)
+        }
+        state.file.percent = percent
+      },
+      READER_LOAD: (state, event) => {
+        state.status = types.SUCCESS
+        const { target: { result } = {} } = event
+        state.file.result = result
+      },
+      READER_ERROR: (state, event) => {
+        state.status = types.ERROR
+        const { target: { error: { code, message, name } = {} } = {} } = event
+        state.file.error = { code, message, name }
+      },
+
       SET_PERCENT: (state, percent) => {
         state.percent = percent
       },
-      SET_READ_AS_TEXT: (state) => {
+      SET_READ_AS_TEXT: (state, commit) => {
         const reader = new FileReader()
         reader.onprogress = (event) => {
-          state.status = types.LOADING
-          const { lengthComputable, loaded, total } = event
-          let percent = 0
-          if (lengthComputable) {
-            percent = Math.round((loaded / total) * 100)
-          }
-          state.file.percent = percent
+          commit('READER_PROGRESS', event)
         }
         reader.onload = (event) => {
-          state.status = types.SUCCESS
-          const { target: { result } = {} } = event
-          state.file.result = result
+          commit('READER_LOAD', event)
         }
         reader.onerror = (event) => {
-          state.status = types.ERROR
-          const { target: { error: { code, message, name } = {} } = {} } = event
-          state.file.error = { code, message, name }
+          commit('READER_ERROR', event)
         }
         reader.readAsText(state.blob, state.file.encoding)
       },

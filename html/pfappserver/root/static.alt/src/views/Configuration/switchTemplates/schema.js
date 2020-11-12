@@ -18,7 +18,7 @@ yup.addMethod(yup.string, 'switchTemplateIdNotExistsExcept', function (exceptId 
 })
 
 const schemaRadiusAttribute = yup.object({
-  type: yup.string().nullable().required(i18n.t('Type required.')),
+  type: yup.string().nullable().required(i18n.t('RADIUS attribute required.')),
   value: yup.string()
     .when('type', {
       is: value => !value,

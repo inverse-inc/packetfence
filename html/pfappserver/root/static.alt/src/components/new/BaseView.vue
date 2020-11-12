@@ -4,7 +4,7 @@
       <slot name="header"/>
     </b-card-header>
     <slot name="default" class="card-body"/>
-    <b-card-footer>
+    <b-card-footer v-if="$slots.footer">
       <slot name="footer"/>
     </b-card-footer>
   </b-card>

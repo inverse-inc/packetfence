@@ -76,7 +76,10 @@ const setup = (props, context) => {
   const valueComponent = computed(() => {
     if (valueOptions.value)
       return BaseInputChosenOne
-    return BaseInput
+    else if (type.value)
+      return BaseInput
+    else
+      return // undefined
   })
 
   const valueOptions = computed(() => {

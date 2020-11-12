@@ -99,7 +99,7 @@ const setup = (props, context) => {
   })
 
   const isAllowed = computed(() => acl.$can('read', 'services'))
-  const isError = computed(() => status.value.status === 'error' || blacklistedServices.find(bls => bls === service.value))
+  const isError = computed(() => status.value.status === 'error' || !!blacklistedServices.find(bls => bls === service.value))
   const isLoading = computed(() => {
     if (status.value.status)
       return !['success', 'error'].includes(status.value.status)

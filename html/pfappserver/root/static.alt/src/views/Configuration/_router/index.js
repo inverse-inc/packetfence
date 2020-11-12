@@ -124,7 +124,7 @@ const TrafficShapingView = () => import(/* webpackChunkName: "Configuration" */ 
 const SnmpTrapView = () => import(/* webpackChunkName: "Configuration" */ '../_components/SnmpTrapView')
 const FloatingDevicesList = () => import(/* webpackChunkName: "Configuration" */ '../_components/FloatingDevicesList')
 const FloatingDeviceView = () => import(/* webpackChunkName: "Configuration" */ '../_components/FloatingDeviceView')
-const CertificatesView = () => import(/* webpackChunkName: "Configuration" */ '../_components/CertificatesView')
+const CertificatesView = () => import(/* webpackChunkName: "Configuration" */ '../sslCertificates/_components/TheView')
 
 /* System Configuration */
 const SystemConfigurationSection = () => import(/* webpackChunkName: "Configuration" */ '../_components/SystemConfigurationSection')
