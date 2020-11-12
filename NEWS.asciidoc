@@ -37,6 +37,8 @@ For a list of compatibility related changes see the <<PacketFence_Upgrade_Guide.
 
 === Bug Fixes
 
+* Switch defined by mac address are not processed by pfacct in cluster mode (#5969)
+
 == Version 10.2.0 released on 2020-10-07
 
 === New Features
