@@ -1,0 +1,155 @@
+// to display images directly on GitHub
+ifdef::env-github[]
+:encoding: UTF-8
+:lang: en
+:doctype: book
+:toc: left
+:imagesdir: ../../images
+endif::[]
+
+////
+
+    This file is part of the PacketFence project.
+
+    See PacketFence_Network_Devices_Configuration_Guide-docinfo.xml for 
+    authors, copyright and license information.
+
+////
+
+  
+//=== Mojo Networks
+
+PacketFence supports SSIDs configured with 802.1X and Web Authentication
+
+==== Create the RADIUS Profile
+
+First, create a RADIUS Profile for PacketFence.
+
+* Login to the https://dashboard.mojonetworks.com
+* Go to *Wireless Manager*
+* Then click on _Configuration -> Device Configuration -> RADIUS Profiles -> Add a RADIUS Profile_
+
+   Profile Name: NAME_OF_PROFILE_FOR_PACKETFENCE
+   IP Address: IP_OF_PACKETFENCE
+   Authentication Port: 1812
+   Accounting Port: 1813
+   Shared Secret: useStrongerSecret
+
+Click on 'Save'.
+
+==== Configure the SSID:
+
+[float]
+===== 802.1X Secure
+
+* Login to the https://dashboard.mojonetworks.com
+* Go to *Wireless Manager*
+* Then click on _Configuration -> Device Configuration -> SSID Profiles -> Add a new Profile -> WLAN_ 
+
+NOTE: (Leave the default configuration for the other settings)
+
+   Profile Name: PF-Secure-802.1X
+   SSID: PF-Secure
+   Security: WPA2; 802.1X
+   NAS ID: %m-%s
+   Dynamic VLANs: Enable VLAN Pool 1,2,4,5 (All VLANs that you will use)
+   Called-Station-ID: %m-%s
+   COA: Checked
+
+   RADIUS Authentication
+    Primary Authentication Server: PacketFence RADIUS profile created above.
+
+   RADIUS Accounting Server Details
+    Primary Accounting Server: PacketFence RADIUS profile created above.
+
+Click the 'Save' button to save the PF-Secure SSID configuration.
+
+[float]
+===== Web Authentication
+
+To enable the external captive portal, go to the *SSID Profiles* page in *Device Configuration*. Add a new Wi-Fi profile with the following attributes:
+
+   Profile Name: Name of the new profile
+   SSID: Name of your SSID
+   Security: Open
+
+image::mojo-security.png[scaledwidth="100%",alt="Mojo Security"]   
+   
+   Network: VLAN ID for clients
+
+image::mojo-network-vlan.png[scaledwidth="100%",alt="Mojo Network"]
+
+   Captive Portal: select and fill in External Splash Page with RADIUS Authentication with “http://IP_OR_HOSTNAME_OF_PACKETFENCE/Mojo” and the RADIUS shared secret. Click on *RADIUS Settings* to select PacketFence as authentication and accounting server.
+
+image::mojo-external-splash.png[scaledwidth="100%",alt="Mojo External Splash Page"]
+
+   On the right, add the IP address or hostname of PacketFence to the Walled Garden Sites.
+
+image::mojo-walled-garden.png[scaledwidth="100%",alt="Mojo Walled Garden"]
+
+Save the newly created profile.
+
+==== Broadcast the SSID on the Access Point:
+
+* Go to _Configuration -> Device Template -> System Template_ 
+* Then _Radio Settings -> Define settings for model -> Chose your AP model_
+* Finally _Radio 1 - 2x2 b/g/n Configuration -> Add SSID Profile -> Select your SSID profile previously created(802.1X or Web authentication profile) -> Ok_
+
+Click the 'Save' button to broadcast the PF-Secure SSID.
+
+==== Configure the Mojo Networks AP in PacketFence:
+
+[float]
+===== 802.1X
+
+Add a Switch with the IP address of the Access Point (AP) with the following configuration:
+
+* Go to _Configuration -> Network -> Switches -> Add switch to group -> Default_
+
+   Definition:
+    IP Address/MAC Address/Range (CIDR): Local IP of the AP
+    Description: Mojo Networks Access Point
+    Type: Mojo Networks AP
+    Mode: Production
+    Switch Group: None
+    Deauthentication Method: RADIUS
+    Use CoA: Checked
+
+   Roles:
+    Role by VLAN ID: Checked
+    registration: 2
+    isolation: 3
+    guest: 5
+    default: 1
+
+   NOTE: Role by VLAN ID remain the only category checked.
+
+   Radius:
+    Secret Passphrase: useStrongerSecret
+
+[float]
+===== Web Authentication
+
+Add a switch with the IP address fo the Access Point (AP) with the following configuration:
+
+* Go to _Configuration -> Network -> Switches -> Add switch to group -> Default_
+
+   Definition:
+    IP Address/MAC Address/Range (CIDR): Local IP of the AP
+    Description: Mojo Networks Access Point
+    Type: Mojo Networks AP
+    Mode: Production
+    Switch Group: None
+    Deauthentication Method: RADIUS
+    Use CoA: Checked
+
+   Roles:
+    Uncheck Role by VLAN ID
+
+   Radius:
+    Secret Passphrase: useStrongerSecret
+
+Click the 'Save' button to save the AP configuration.
+
+IMPORTANT: Clone the newly created switch and enter *192.0.2.254* or the MAC address of the AP.
+

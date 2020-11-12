@@ -1,0 +1,73 @@
+// to display images directly on GitHub
+ifdef::env-github[]
+:encoding: UTF-8
+:lang: en
+:doctype: book
+:toc: left
+:imagesdir: ../../images
+endif::[]
+
+////
+
+    This file is part of the PacketFence project.
+
+    See PacketFence_Network_Devices_Configuration_Guide-docinfo.xml for 
+    authors, copyright and license information.
+
+////
+
+
+//=== Foundry
+
+==== FastIron 4802
+
+PacketFence support this switch with optional VoIP using two different trap types:
+
+* linkUp/linkDown
+* Port Security (with static MACs)
+
+*We recommend to enable Port Security only.*
+
+Don't forget to update the startup config!
+
+Those switches support port-security with static MAC address and allow us to secure a MAC on the data VLAN so we enable it whether there is VoIP or not.
+
+We need to secure bogus MAC addresses on ports in order for the switch to send a trap when a new MAC appears on a port.
+
+Global config settings
+
+  snmp-server host 192.168.1.5 public
+  no snmp-server enable traps link-down
+  no snmp-server enable traps link-up
+
+On each interface _without VoIP_:
+
+  int eth xx
+    port security
+      enable
+      maximum 1
+      secure 0200.0000.00xx 0
+      violation restrict
+
+where `xx` stands for the interface `ifIndex`.
+
+With VoIP a little more work needs to be performed. Instead of the no-VoIP, put in the following config:
+
+----
+conf t
+vlan <mac-detection-vlan>
+  untagged eth xx
+vlan <voice-vlan>
+  tagged eth xx
+
+int eth xx
+  dual-mode <mac-detection-vlan>
+  port security
+    maximum 2
+    secure 0200.00xx.xxxx <mac-detection-vlan>
+    secure 0200.01xx.xxxx <voice-vlan>
+    violation restrict
+    enable
+----
+
+where `xxxxxx` stands for the interface number (filled with zeros), `<voice-vlan>` with your voice-VLAN number and `<mac-detection-vlan>` with your mac-detection VLAN number.

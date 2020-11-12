@@ -1,0 +1,101 @@
+// to display images directly on GitHub
+ifdef::env-github[]
+:encoding: UTF-8
+:lang: en
+:doctype: book
+:toc: left
+:imagesdir: ../../images
+endif::[]
+
+////
+
+    This file is part of the PacketFence project.
+
+    See PacketFence_Network_Devices_Configuration_Guide-docinfo.xml for 
+    authors, copyright and license information.
+
+////
+
+//=== Huawei
+
+PacketFence supports the S5710 switch from Huawei.
+
+==== Global configuration for 802.1X and Mac Authentication
+
+----
+undo authentication unified-mode
+domain pf
+
+dot1x enable
+mac-authen
+dot1x dhcp-trigger
+
+radius-server template packetfence
+ radius-server shared-key cipher <yourSecret>
+ radius-server authentication 192.168.1.5 1812
+ radius-server accounting 192.168.1.5 1813
+ radius-server retransmit 2
+
+# used for RADIUS Disconnect messages
+radius-server authorization 192.168.1.5 shared-key cipher <yourSecret>
+
+# to accept RADIUS Disconnect messages with MAC in AA-BB-CC-DD-FF-EE format
+radius-server authorization calling-station-id decode-mac-format ascii hyphen-split common
+
+
+aaa
+ authentication-scheme abc
+  authentication-mode radius
+ accounting-scheme abc
+  accounting-mode radius
+ domain pf
+  authentication-scheme abc
+  accounting-scheme abc
+  radius-server packetfence
+
+snmp-agent
+snmp-agent local-engineid 800007DB0304F9389D2360
+snmp-agent community read cipher <privateKey>
+snmp-agent community write cipher <privateKey>
+snmp-agent sys-info version v2c v3
+----
+
+==== MAC authentication
+
+----
+interface GigabitEthernet0/0/8
+ dot1x mac-bypass mac-auth-first
+ dot1x mac-bypass
+ dot1x max-user 1
+ dot1x reauthenticate
+ dot1x authentication-method eap
+----
+
+==== 802.1X
+
+----
+interface GigabitEthernet0/0/8
+ dot1x mac-bypass
+ dot1x max-user 1
+ dot1x reauthenticate
+ dot1x authentication-method eap
+----
+
+==== Voice port
+
+Configuration of a switchport where a phone is plugged:
+----
+interface GigabitEthernet0/0/2
+ port link-type hybrid
+ voice-vlan 100 enable
+ port hybrid tagged vlan 100
+ mac-authen
+----
+
+==== 802.1X commands
+
+----
+display dot1x
+display access-user
+display radius-server
+----

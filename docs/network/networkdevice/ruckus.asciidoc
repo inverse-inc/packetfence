@@ -1,0 +1,163 @@
+// to display images directly on GitHub
+ifdef::env-github[]
+:encoding: UTF-8
+:lang: en
+:doctype: book
+:toc: left
+:imagesdir: ../../images
+endif::[]
+
+////
+
+    This file is part of the PacketFence project.
+
+    See PacketFence_Network_Devices_Configuration_Guide-docinfo.xml for 
+    authors, copyright and license information.
+
+////
+
+
+//=== Ruckus
+
+[float]
+==== AAA Servers
+
+We need to define the RADIUS and RADIUS accounting (mandatory):
+
+Under _Configuration -> AAA Servers_, click on the *Create New* button.  Enter the proper configuration:
+
+* Enter a server name
+* Select either RADIUS or RADIUS accounting as the type
+* Use PAP as the Auth Method
+* Enter the IP address, and shared secret.
+* Hit OK
+
+Repeat the steps for the RADIUS and RADIUS accounting types.  We need 1 definition for each otherwise RADIUS dynamic authorization won't work.
+
+[float]
+==== WLAN Definitions
+
+Under _Configuration -> WLAN_, click on the *Create New* button.  Enter the proper configuration:
+
+.Open SSID
+* Enter a Name/SSID
+* Select *Standard Usage* as the Type
+* Select *MAC Address* as the authentication type
+* Select *Open* as the encryption method
+* Select the proper RADIUS server as the authentication server
+* Select the proper RADIUS server as the accounting server
+
+NOTE: The Open SSID does *NOT* support dynamic VLAN assignments (Firmware 9.3.0.0.83)
+
+.Secure SSID
+* Enter a Name/SSID
+* Select *Standard Usage* as the Type
+* Select *WPA2* as the authentication type
+* Select *AES* as the encryption method
+* Select the proper RADIUS server as the authentication server
+* Select the proper RADIUS server as the accounting server
+* Check the *Enable Dynamic VLAN* checkbox
+
+[float]
+==== WIPS
+
+To enable the WIPS feature of the Ruckus in order to send SNMP traps to PacketFence, the setup is fairly simple.  
+
+First, configure the controller to send the traps to PacketFence.  Under _Configure -> System -> Network Management -> SNMP Trap_:
+
+*Select "Enable SNMP Trap"
+*Put the PacketFence Management IP in the Trap Server IP field
+
+NOTE: The traps will arrive with the "public" community string
+
+Next, you need to configure the Alarm Settings.  Under _Configure -> Alarm Settings_, make sure the following are selected:
+
+*Rogue AP Detected
+*SSID-Spoofing AP Detected
+*MAC-Spoofing AP Detected
+*LAN Rogue AP Detected
+
+Finally, enable the WIPS feature on the controller.  Under _Configure -> WIPS -> Intrusion Detection and Prevention_, make sure both box are selected, click Apply. 
+
+==== Web Authentication
+
+In order to use PacketFence as an external captive portal for web authentication, you will need to configure first your RADIUS authentication and accounting server (see steps above).
+
+[float]
+===== Hotspot configuration
+
+Configure the Hotspot service profile to redirect devices to your PacketFence portal. Go on the ZoneDirector administration web page to the section _Configure->Hotspot Services->Create New_
+
+image::ruckus_hotspot_service.png[scaledwidth="100%",alt="Hotspot Service"]
+
+ 1 - Name of your Hotspot service
+ 2 - Login Page: Url of PacketFence portal interface (http://192.168.1.5/Ruckus)
+ 3 - Start Page: redirect to the following URL: http://192.168.1.5
+ 4 - Authentication Server: Select the PacketFence authentication RADIUS server (default port 1812)
+ 5 - Accounting Server: Select the PacketFence accounting RADIUS server (default 1813)
+ 6 - Click on the Walled Garden and authorize the IP of PacketFence management interface
+
+Save your configuration.
+
+[float]
+===== WLAN configuration
+
+Go to _Configure -> WLANs -> WLANs -> Create New_
+
+image::ruckus_create_ssid.png[scaledwidth="100%",alt="Hotspot Service"]
+
+ 1 - Name of your SSID
+ 2 - Type: Hotspot Service (WISPr)
+ 3 - Authentication Method: Open
+ 4 - Encryption Method: None
+ 5 - Hotspot Services: Your hotspot service name that you configured
+ 6 - Access VLAN: The VLAN ID that should be assigned to devices after authentication
+
+Save your configuration.
+
+[float]
+===== PacketFence configuration
+
+On the ZoneDirector configuration in PacketFence, you will need to specify -1 as the registration VLAN in order to display the captive portal to the end device. 
+
+You will need to deactivate the force secure redirect on the captive portal under _Configuration -> Captive Portal -> Secure redirect -> Unchecked_
+
+The captive portal needs to listen on the management interface, so you will need to add the portal daemon to the management interface under _Configuration -> Interfaces -> Management Interface_
+
+
+Example:
+
+ [interface eth0]
+ ip=192.168.1.5
+ type=management,portal
+ mask=255.255.255.0
+
+To apply the configuration, restart PacketFence using the following command: service packetfence restart
+
+==== Ruckus Roles
+
+[float]
+===== Roles Configuration
+
+Ruckus allows you to define roles. These roles link all users to the internal WLAN and permit access to all WLAN by default. You can still limit access to certain WLAN.
+
+To create a new user Role:
+
+ 1 - Go to _Admin & Services -> System -> Roles_. The Roles page appears, displaying a Default role in the Roles table.
+ 2 - Click Create New.
+ 3 - Enter a Name and a short Description for this role.
+ 4 - Choose the options for this role from the following:
+    Group Attributes: Fill in this field only if you are creating a user role based on Group attributes extracted from an Active Directory server. Enter the User Group name here. Active Directory/LDAP users with the same group attributes are automatically mapped to this user role.
+    Allow All WLANs: You have two options: (1) Allow Access to all WLANs, or (2) Specify WLAN Access. If you select the second option, you must specify the WLANs by clicking the check box next to each one.
+
+image::Ruckus_Roles.png[scaledwidth="100%",alt="Ruckus Roles"]
+image::Ruckus_CreateNewRole.png[scaledwidth="100%",alt="Create new role"]
+
+
+[float]
+===== PacketFence Configuration
+
+On the PacketFence side you need to use role by switch role and add the Group Attribute you created on the Ruckus side.
+
+So when a device will connect on the SSID, PacketFence will return a VLAN identifier and a RuckusUserGroup attribute and if the role is allowed on the WLAN then the device will be authorized on the WLAN.
+In the case that the role is not allowed on the WLAN then the device will not be allowed to connect.

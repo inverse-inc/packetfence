@@ -1,0 +1,160 @@
+// to display images directly on GitHub
+ifdef::env-github[]
+:encoding: UTF-8
+:lang: en
+:doctype: book
+:toc: left
+:imagesdir: ../../images
+endif::[]
+
+=== Integration tests
+
+The aim of integration tests is to test common PacketFence scenarios and
+integrations in a pipeline.
+
+Integration tests rely on:
+
+* <<_virtual_environment>>
+* a network topology built using `libvirt` footnote:[based on Cumulus Networks's project link:https://github.com/CumulusNetworks/cldemo-vagrant[cldemo]]
+* virtual machines different than PacketFence to test integrations
+
+==== Network Topology
+
+.Integration tests topology
+image::integration_tests/integration_tests_topology.png[scaledwidth="100%",alt="Integration tests topology"]
+
+This topology require a working `libvirt` setup (Virtualbox is not supported) and is defined as
+Infrastructure-as-code in two
+link:https://github.com/inverse-inc/packetfence/tree/devel/addons/vagrant/[Vagrantfiles].
+
+===== Initial Provisioning
+
+`switch01` and `node01` are provisioned using Vagrant like this:
+
+* a first boot with basic shell provisioning to configure interfaces remap and networks
+* a second boot that handles interface remap
+* an Ansible provisioning
+
+Provisioning is deliberately minimalist to make the most during integration tests.
+
+===== Inventory Information
+
+.IPAM table
+|===
+| Virtual machine |Interfaces |MAC address
+
+|switch01
+|swp48, bridge, bridge.17, bridge.100
+|Same MAC, automatically generated
+
+|switch01
+|swp1
+|a0:00:00:00:00:01
+
+|switch01
+|swp2
+|44:38:39:00:00:02
+
+|switch01
+|swp3
+|44:38:39:00:00:03
+
+|switch01
+|swp6
+|44:38:39:00:00:06
+
+|switch01
+|swp11
+|44:38:39:00:00:11
+
+|switch01
+|swp12
+|44:38:39:00:00:12
+
+|switch01
+|swp13
+|44:38:39:00:00:13
+
+|node01
+|eth0
+|a0:00:00:00:00:12
+
+|node01
+|eth1
+|00:03:00:11:11:01
+
+|node01
+|eth2
+|00:03:00:11:11:02
+
+|===
+
+
+.Subnet table
+|===
+| Network name | Subnet | VLAN ID
+
+| Management | 172.17.17.0/24 | 17
+| Registration | 172.17.2.0/24 | 2
+| Isolation | 172.17.3.0/24 | 3 
+| Inline | 172.17.6.0/24 | 6 
+| Internet | 192.168.121.0/24 | 100
+
+|===
+
+Management network is used to provision each virtual machine using Ansible to
+put them in a desired state.
+
+==== Virtual machines
+
+===== Active Directory Server
+
+Virtual machine called `ad` will be auto-provisioned with:
+
+* a DNS domain
+* an Active Directory domain
+* Active Directory Certificate Services (AD CS) with auto-enrollment using a GPO
+* a `vagrant-domain` account, member of Domain admins group, with `VagrantPass1` as password
+* a `packetfence` account, member of Domain users group, with `P@ck3tF3nc3pass` as password
+
+Several reboots are necessary before machine can be provisioned by
+Ansible. During initial Ansible provisioning, several reboots will
+occur too. It takes like 10 minutes to have a machine up and running.
+
+.Vagrant admin accounts:
+[source,yaml]
+----
+include::../../../addons/vagrant/inventory/group_vars/winservers/domain_setup.yml[]
+----
+
+.PacketFence domain account:
+[source,yaml]
+----
+include::../../../addons/vagrant/inventory/group_vars/winservers/domain_account.yml[]
+----
+
+===== Switch01
+
+`switch01` is a virtual switch that uses link:https://docs.cumulusnetworks.com/version/cumulus-linux-37/[Cumulus Linux 3.7] system.
+
+This switch is configured using a
+link:https://docs.cumulusnetworks.com/cumulus-linux-37/Layer-2/Ethernet-Bridging-VLANs/[VLAN
+aware-bridge] to manage VLAN on interfaces (recommended approach)
+
+`hostapd` is the daemon responsible to send 802.1X and MAC Authentication
+requests to RADIUS server (as described in
+link:https://docs.cumulusnetworks.com/version/cumulus-linux-37/Layer-1-and-Switch-Ports/802.1X-Interfaces/[802.1X
+Cumulus Linux documentation]). We configured this daemon using Ansible with RADIUS server informations.
+However, daemon will be started during integration tests when switch interfaces are involved.
+
+===== Node01
+
+`node01` is a Debian Buster virtual machine used as node to test PacketFence
+features like 802.1X, MAC authentification, registration, isolation and inline
+scenarios.
+
+This machine has an Internet access during its first boot. After the reboot, this machine is only
+reachable using management network. A `vagrant ssh node01` will not work.
+
+All interfaces of `node01` are up after initial provisionning. We rely on
+`switch01` configuration to trigger specific scenario.

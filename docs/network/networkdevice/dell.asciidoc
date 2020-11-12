@@ -1,0 +1,255 @@
+// to display images directly on GitHub
+ifdef::env-github[]
+:encoding: UTF-8
+:lang: en
+:doctype: book
+:toc: left
+:imagesdir: ../../images
+endif::[]
+
+////
+
+    This file is part of the PacketFence project.
+
+    See PacketFence_Network_Devices_Configuration_Guide-docinfo.xml for 
+    authors, copyright and license information.
+
+////
+
+
+//=== Dell
+
+NOTE: When doing MAC Authentication, there is a known issue with some Dell switches. If you get errors where the device is using EAP type MD5, but PacketFence is expecting PEAP, you will need to edit the line *default_eap_type = peap* under the section *eap* in the file */usr/local/pf/conf/radiusd/eap.conf* to *default_eap_type = md5*.
+
+==== Force 10
+
+PacketFence supports this switch using RADIUS, MAC-Authentication and 802.1X.
+
+Global config settings
+
+  radius-server host 192.168.1.5 key s3cr3t auth-port 1812
+ 
+MAB interface configuration:
+
+  interface GigabitEthernet 0/1
+   no ip address
+   switchport
+   dot1x authentication 
+   dot1x mac-auth-bypass 
+   dot1x auth-type mab-only 
+   no shutdown
+
+802.1X interface configuration:
+
+  interface GigabitEthernet 0/1
+   no ip address
+   switchport
+   dot1x authentication 
+   no shutdown
+
+==== PowerConnect 3424 
+
+PacketFence supports this switch using linkUp/linkDown traps. 
+
+Global config settings to define the RADIUS server
+
+   configure
+   radius-server host auth 10.34.200.30
+   name PacketFence
+   usage 802.1x
+   key s3cr3t
+   exit
+
+Configure CoA
+
+   aaa server radius dynamic-author
+   client 10.34.200.30 server-key s3cr3t
+   auth-type all
+   exit
+
+Enable authentication and globally enable 802.1x client authentication via RADIUS
+   
+   authentication enable
+   aaa authentication dot1x default radius
+   aaa authorization network default radius
+   dot1x system-auth-control
+
+(Optional)
+
+   dot1x dynamic-vlan enable
+
+On the interface, enable MAC based authentication mode, enable MAB, and set the order of authentication to 802.1X followed by MAC authentication. Also enable periodic re-authentication.
+
+   interface te1/0/4
+   dot1x port-control mac-based
+   dot1x mac-auth-bypass
+   authentication order dot1x mab
+   dot1x reauthentication
+   default mab pap
+   exit
+
+   authentication order mab
+   authentication priority mab
+
+==== N1500 Series Switch
+
+PacketFence supports this switch using RADIUS, MAC-Authentication, 802.1x and VoIP
+
+===== 802.1X with MAC Authentication fallback and VoIP
+
+We assume that the switch ip is 192.168.1.254
+
+First on the uplink add this configuration:
+
+  dot1x port-control force-authorized
+  switchport mode trunk
+  switchport trunk allowed vlan 1-5,100
+
+
+Global config settings
+
+  configure
+  vlan 2,3,4,5,100
+  vlan 2
+  name "Registration"
+  vlan 3
+  name "Isolation"
+  vlan 4
+  name "Mac detection"
+  vlan 5
+  name "Guest"
+  vlan 100
+  name "VoIP"
+
+  authentication enable
+  dot1x system-auth-control
+  aaa authentication dot1x default radius
+  aaa authorization network default radius
+  dot1x dynamic-vlan enable
+  voice vlan
+  aaa server radius dynamic-author
+  client 192.168.1.5 server-key "useStrongerSecret"
+  exit
+  radius-server host auth 192.168.1.5
+  name "PacketFence"
+  usage 802.1x
+  key "useStrongerSecret"
+  exit
+  aaa server radius dynamic-author
+  client 192.168.1.5 server-key "useStrongerSecret"
+  exit
+
+  snmp-server community "private" rw
+  snmp-server community "public" ro
+
+On each interface (not uplink)
+
+  switchport voice detect auto
+  switchport mode general
+  switchport access vlan 10
+  dot1x port-control mac-based
+  dot1x reauthentication
+  dot1x mac-auth-bypass
+  authentication order mab
+  authentication priority mab
+  lldp transmit-tlv sys-desc sys-cap
+  lldp transmit-mgmt
+  lldp notification
+  lldp med confignotification
+  voice vlan 100
+  exit
+
+==== N1500 Series (FW >= 6.6.0.17)
+
+This configuration has been tested with firmware 6.6.0.17
+
+Global config settings:
+
+  aaa authentication login "defaultList" local
+  authentication enable
+  authentication dynamic-vlan enable
+  dot1x system-auth-control
+  aaa authentication dot1x default radius
+  aaa authorization network default radius
+  aaa accounting dot1x default start-stop radius
+  authentication dynamic-vlan enable
+  radius server auth 192.168.1.5
+  key useStrongerSecret
+  usage authmgr
+  name "PacketFence"
+  exit
+  radius server acct 192.168.1.5
+  name "PacketFenceAccounting"
+  key useStrongerSecret
+  exit
+  snmp-server community "private" rw
+  snmp-server community "public" ro
+
+802.1X/MAB with VoIP interface configuration:
+
+  switchport voice detect auto
+  switchport mode general
+  switchport general pvid 2
+  switchport general allowed vlan add 1-4093
+  authentication host-mode multi-domain
+  authentication periodic
+  dot1x timeout quiet-period 10
+  mab auth-type pap
+  authentication order mab
+  no authentication allow-unauth dhcp
+  lldp tlv-select system-description system-capabilities management-address
+  lldp notification
+  lldp med confignotification
+  switchport voice vlan 100
+
+Uplink port:
+
+  switchport mode trunk
+  switchport trunk allowed vlan 1-4096
+  authentication port-control force-authorized
+
+On other switch ports not managed by PacketFence:
+
+  switchport mode general
+  switchport general pvid x
+  switchport general allowed vlan add x
+  authentication port-control force-authorized
+
+
+Web-Auth:
+
+  ip access-list registration
+  1000 deny ip any 192.168.1.5 0.0.0.0
+  1010 permit tcp any any eq http
+  1020 permit tcp any any eq 443
+
+==== N2000 Series (N2024P)
+
+This configuration was tested with firmware version 6.2.1.6
+
+Global config settings:
+
+Radius configuration:
+
+  aaa authentication login "defaultList" local
+  authentication enable
+  dot1x system-auth-control
+  aaa authentication dot1x default radius
+  aaa authorization network default radius
+  dot1x dynamic-vlan enable
+  radius-server key "useStrongerSecret"
+  radius-server host auth 192.168.1.5
+  name "PacketFence"
+
+802.1X interface configuration:
+
+  interface Gi0/0/1
+  switchport mode general
+  switchport general allowed vlan add 1-3,100
+  dot1x port-control mac-based
+  dot1x unauth-vlan 2
+  dot1x mac-auth-bypass
+  authentication order mab dot1x
+  voice vlan 100
+  exit
+

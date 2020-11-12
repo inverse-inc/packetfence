@@ -35,16 +35,16 @@ This guide covers FIXME
 <<PacketFence_Upgrade_Guide.asciidoc#,Upgrade Guide>>::
   Covers compatibility related changes, manual instructions and general notes
   about upgrading.
-`NEWS.asciidoc`::
+link:https://packetfence.org/news.html[PacketFence News]
   Covers noteworthy features, improvements and bug fixes by release.
 
 These files are included in the package and release tarballs.
 
 
 // at end of document, *before* appendix
+// INCLUDES
 include::includes/additional-info.asciidoc[]
-
 include::includes/commercial-support.asciidoc[]
-
 include::includes/license.asciidoc[]
+
 

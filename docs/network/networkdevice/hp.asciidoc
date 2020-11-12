@@ -1,0 +1,100 @@
+// to display images directly on GitHub
+ifdef::env-github[]
+:encoding: UTF-8
+:lang: en
+:doctype: book
+:toc: left
+:imagesdir: ../../images
+endif::[]
+
+////
+
+    This file is part of the PacketFence project.
+
+    See PacketFence_Network_Devices_Configuration_Guide-docinfo.xml for 
+    authors, copyright and license information.
+
+////
+
+
+//=== HP
+
+==== HPE 1910 Serie
+
+The HP 1910 Serie is based on the 3Com OS and most of the configuration will be done from the GUI.
+
+VLAN creation:
+* go to *Network*, *VLAN*,
+* click on the _Create_ tab
+* create the VLANs
+
+
+Configure PacketFence as a RADIUS server:
+* go to *Authentication*, *RADIUS*
+* click on the _RADIUS Server_ tab
+* from _Server Type_, select *Authentication Server*
+* from _Primary Server_, give the *PacketFence IP address*
+* click *Apply*
+
+Then:
+* click on the _RADIUS Setup_ tab
+* check the box _Authentication Server Shared Key_
+* give the *shared key*
+* from _Username Format_, select *without-domain*
+* click *Apply*
+
+Create a new authentication domain:
+* go to *Authentication*, *AAA*,
+* click on the _Domain Setup_ tab,
+
+WARNING: We will need to create a specific authentication domain and *not making it as the default domain*.
+
+Configure the 802.1X and authentication method:
+* go to *Authentication*
+* click on the _802.1X_ tab
+* check the _Enable 802.1X_ box
+* from _Authentication Method_, select *EAP*
+
+Configure the authentication domain:
+
+INFO: Even limited, there is a command line access.
+
+* connect to the switch using ss,
+* type the command:
+
+ _cmdline-mode on
+
+* password is: *512900*
+* Type the commands:
+
+ System-view
+ Mac-authentication domain YOUR_DOMAIN_NAME
+ Mac-authentication user-name-format mac-address with-hyphen
+
+* change the _YOUR_DOMAIN_NAME_ with the one from your environment
+* do not close your terminal, we will come back to this later
+
+* from the GUI, go to *Authentication*, *802.1X*
+* from _Port_, select the port your are connected to. *GigabitEthernet X/X/X*
+* from _Port Control_, select *MAC Based*
+* from _Max Number of Users_, give *2*
+* check the box _Enable Re-Authentication_
+* click on *Apply*
+
+
+Enable the MAC Authentication in SSH, as well:
+
+* back on the SSH terminal
+* type the following command:
+
+ Mac-authentication interface gX/X/X
+
+* modify the interface name for your environment
+
+The configuration is done.
+
+
+==== E4800G and E5500G Switch series
+
+These are re-branded 3Com switches, see under the <<_3com,3Com section>> for their documentation.
+

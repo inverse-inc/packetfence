@@ -1,0 +1,316 @@
+// to display images directly on GitHub
+ifdef::env-github[]
+:encoding: UTF-8
+:lang: en
+:doctype: book
+:toc: left
+:imagesdir: ../../images
+endif::[]
+
+////
+
+    This file is part of the PacketFence project.
+
+    See PacketFence_Network_Devices_Configuration_Guide-docinfo.xml for 
+    authors, copyright and license information.
+
+////
+
+
+//=== Aruba
+
+==== All Aruba OS
+
+In this section, we cover the basic configuration of the Aruba wireless controller for PacketFence via the web GUI. It was done on an Aruba Controller 200 software version ArubaOS 5.0.3.3, tested on a Controller 600 with ArubaOS 6.0 but it should apply to all Aruba models.
+
+CAUTION: If you are already using your Aruba controllers and don't want to impact your users you should create new AAA profiles and apply them to new SSIDs instead of modifying the default ones.
+
+NOTE: Starting with PacketFence 3.3, Aruba supports role-based access control. Read the Administration Guide under "Role-based enforcement support" for more information about how to configure it on the PacketFence side.
+
+[float]
+===== AAA Settings
+
+In the Web interface, go to _Configuration -> Authentication -> RADIUS Server_ and add a RADIUS server named "packetfence" then edit it:
+
+* Set Host to PacketFence's IP (192.168.1.5)
+* Set the Key to your RADIUS shared secret (useStrongerSecret)
+* Click Apply
+
+Under _Configuration -> Authentication -> Server Group_ add a new Server Group named "packetfence" then edit it to add your RADIUS Server "packetfence" to the group. Click Apply.
+
+Under _Configuration -> Authentication -> RFC3576_ add a new server with PacketFence's IP (192.168.1.5) and your RADIUS shared secret (useStrongerSecret). Click Apply.
+Under _Configuration -> Authentication -> L2 Authentication_ edit the MAC Authentication Profile called "default" then edit it to change the Delimiter to dash. Click Apply.
+
+Under _Configuration -> Authentication -> L2 Authentication_ edit the 802.1X Authentication Profile called "default" then edit it to uncheck the Opportunistic Key Caching under Advanced. Click Apply.
+
+Under _Configuration -> Authentication -> AAA Profiles_ click on the "default-mac-auth" profile then click on MAC Authentication Server Group and choose the "packetfence" server group. Click Apply. Move to the RFC3576 server sub item and choose PacketFence's IP (192.168.1.5) click add then apply.
+
+Under _Configuration -> Authentication -> AAA Profiles_ click on the "default-dot1x" profile then click on 802.1X Authentication Server Group and choose the "packetfence" server group. Click Apply. Move to the RFC3576 server sub item and choose PacketFence's IP (192.168.1.5) click add then apply.
+
+[float]
+===== Public SSID
+
+In the Web interface, go to _Configuration -> AP Configuration_ then edit the "default" AP Group. Go in _Wireless LAN -> Virtual AP_ create a new profile with the following:
+
+* AAA Profile: default-mac-auth
+* SSID Profile: Select NEW then add an SSID (PacketFence-Public) and Network authentication set to None
+
+[float]
+===== Secure SSID
+
+In the Web interface, go to _Configuration -> AP Configuration_ then edit the "default" AP Group. Go in _Wireless LAN -> Virtual AP_ create a new profile with the following:
+
+* AAA Profile: default-dot1x
+* SSID Profile: Select NEW then add an SSID (PacketFence-Secure) and Network authentication set to WPA2
+
+[float]
+===== Roles
+
+Since PacketFence 3.3.0, we now support roles for the Aruba hardware.  To add roles, go in _Configuration -> Access Control -> User Roles -> Add_.  You don't need to force a VLAN usage in the Role
+since we send also the VLAN ID along with the Aruba User Role in the RADIUS request.  Refer to the Aruba User Guide for more information about the Role creation.
+
+===== WIPS
+
+In order to use the WIPS feature in PacketFence, please follow those simple steps to send the traps to PacketFence.
+
+First, configure PacketFence to be a trap receiver.  Under _Configuration -> SNMP -> Trap Receivers_, add an entry for the PF management IP.  By default, all traps will be enabled.  If you want to disable some, you will need
+to connect via CLI, and run the *snmp-server trap disable <trapname>* command.
+
+===== WebAuth
+
+First of all you will need to configure a guest VLAN.
+
+image::aruba-create-guest-vlan.png[scaledwidth="100%",alt="Guest VLAN"]
+
+Next, you will need to configure a RADIUS server.
+
+image::aruba-radius-server.png[scaledwidth="100%",alt="RADIUS server"]
+
+  aaa authentication-server radius "packetfence"
+  host 192.168.1.5
+  key useStrongerSecret
+
+Add your RADIUS server to a AAA group, under _Security -> Authentication -> Servers -> Server Group_:
+
+  aaa server-group "packetfence"
+  auth-server "packetfence" position 1
+
+Then define the `RFC 3576` server, which will allow you to do CoA.
+
+image::aruba-config-coa.png[scaledwidth="100%",alt="RADIUS CoA server"]
+
+  aaa rfc-3576-server "192.168.1.5"
+  key useStrongerSecret
+
+Next, you will need to create the policy that will redirect users to the PacketFence captive portal when they are not authenticated. Go to _Security -> Authentication -> L3 Authentication -> Captive Portal Authentication Profile_.
+
+image::aruba-l3-auth1.png[scaledwidth="100%",alt="Layer 3 profile"]
+image::aruba-l3-auth2.png[scaledwidth="100%",alt="Layer 3 profile 2"]
+
+  aaa authentication captive-portal "packetfence-externalportal"
+  default-role auth-guest
+  redirect-pause 3
+  no logout-popup-window
+  login-page https://192.168.1.5/Aruba
+  switchip-in-redirection-url
+
+Now create the policy for the guest access, for example Internet only.
+
+Add the authentication for the Captive Portal Profile via _Security -> Authentication -> L3 Authentication -> Captive Portal Authentication Profile -> Server Group_:
+
+  aaa authentication captive-portal "packetfence-externalportal"
+  server-group "packetfence"
+
+Adjust the configuration of the AAA profile through _Security -> Authentication -> Profiles -> AAA Profiles_:
+
+image::aruba-config-aaa-profile1.png[scaledwidth="30%",alt="AAA profile 1"]
+image::aruba-config-aaa-profile2.png[scaledwidth="100%",alt="AAA profile 2"]
+image::aruba-config-aaa-profile3.png[scaledwidth="100%",alt="AAA profile 3"]
+image::aruba-config-aaa-profile4.png[scaledwidth="100%",alt="AAA profile 4"]
+image::aruba-config-aaa-profile5.png[scaledwidth="100%",alt="AAA profile 5"]
+image::aruba-config-aaa-profile6.png[scaledwidth="100%",alt="AAA profile 6"]
+
+  aaa profile "packetfence-externalportal"
+  initial-role packetfence-portal
+  radius-interim-accounting
+  radius-accounting "packetfence"
+  rfc-3576-server "192.168.1.5"
+
+Define a policy to permit the traffic.
+
+First add a destination, _Advanced Services -> Stateful Firewall -> Destinations_:
+
+  netdestination packetfence-portal
+  host 192.168.1.5
+
+Create an ACL for the redirection, _Security -> Firewall Policies_:
+
+image::aruba-config-policy1.png[scaledwidth="100%",alt="Policy 1"]
+image::aruba-config-policy2.png[scaledwidth="100%",alt="Policy 2"]
+image::aruba-config-policy3.png[scaledwidth="100%",alt="Policy 3"]
+image::aruba-config-policy4.png[scaledwidth="100%",alt="Policy 4"]
+image::aruba-config-policy5.png[scaledwidth="100%",alt="Policy 5"]
+
+Source NAT on VLAN
+
+  ip access-list session "packetfence-externalportal"
+  alias "user" alias "packetfence-portal" "svc-http" permit queue low
+  alias "user" alias "packetfence-portal" "svc-https" permit queue low
+
+Enable the "firewall allow-tri-session" :
+
+  firewall allow-tri-session
+
+Source NAT per Application
+
+  ip access-list session "packetfence-externalportal"
+  alias "user" alias "packetfence-portal" "svc-http" src-nat queue low
+  alias "user" alias "packetfence-portal" "svc-https" src-nat queue low
+
+Now add the newly created policy to the Captive Portal Profile, _Security -> User Roles_:
+
+image::aruba-config-user-role.png[scaledwidth="100%",alt="User Role"]
+image::aruba-interface-redirection.png[scaledwidth="100%",alt="Interface de redirection"]
+
+  user-role "packetfence-portal"
+  access-list session "packetfence-externalportal" position 1
+  access-list session "captiveportal" position 2
+  access-list session "guest-logon-access" position 3
+  access-list session "block-internal-access" position 4
+  access-list session "v6-logon-control" position 5
+  access-list session "captiveportal6" position 6
+  captive-portal "packetfence-externalportal"
+
+Finaly create the SSID and associate the profile to it, `Virtual AP profile`:
+
+  wlan virtual-ap "packetfence-externalportal"
+  ssid-profile "packetfence-externalportal"
+  aaa-profile "packetfence"
+
+General AP settings and master-slave controller case.
+
+image::aruba-ap-config1.png[scaledwidth="30%",alt="Config AP 1"]
+image::aruba-ap-config2.png[scaledwidth="100%",alt="Config AP 2"]
+image::aruba-ap-config3.png[scaledwidth="100%",alt="Config AP 3"]
+image::aruba-ap-config4.png[scaledwidth="100%",alt="Config AP 4"]
+image::aruba-ap-config5.png[scaledwidth="100%",alt="Config AP 5"]
+image::aruba-ap-config6.png[scaledwidth="100%",alt="Config AP 6"]
+image::aruba-ap-config7.png[scaledwidth="100%",alt="Config AP 7"]
+image::aruba-ap-config8.png[scaledwidth="100%",alt="Config AP 8"]
+image::aruba-ap-config9.png[scaledwidth="100%",alt="Config AP 9"]
+image::aruba-ap-config10.png[scaledwidth="100%",alt="Config AP 10"]
+image::aruba-ap-config11.png[scaledwidth="100%",alt="Config AP 11"]
+
+image::aruba-secondary-controller.png[scaledwidth="100%",alt="Secondary controller configuration"]
+
+The next step will be to configure the Aruba WiFi controller for WebAuth in PacketFence, add the switch with the model choice `Aruba Network`, 
+
+image::aruba-wlc1.png[scaledwidth="80%",alt="Add Aruba wireless controller"]
+image::aruba-wlc-roles.png[scaledwidth="80%",alt="Aruba wireless controller roles configuration"]
+
+Check the box `External Portal Enforcement`, in the Roles section, choose `Role by Switch Role`, as the registration role, enter your default role: `packetfence-portal` and choose the policy matching roles, for instance guest: `internet-only`.
+
+===== CLI authentication
+
+In order to enable CLI login on the Aruba controller via the PacketFence server, you need to point management authentication to the RADIUS server you created while configuring the SSIDs in the previous sections above.
+
+aaa authentication mgmt
+  default-role read-only
+  enable
+  server-group PacketFence
+
+==== Aruba Controller 200
+
+In this section, we cover the basic configuration of the Aruba Controller 200 for PacketFence using the command line interface. We suggest you to use the instructions above for the Web GUI instead.
+
+[float]
+===== VLAN definition
+
+Here, we create our PacketFence VLANs, and our AccessPoint VLAN (VID 66). It is recommended to isolate the management of the thin APs in a separate VLAN. 
+
+  vlan 2 
+  vlan 3 
+  vlan 5 
+  vlan 10 
+  vlan 66 
+
+[float]
+===== AAA Authentication Server
+
+  aaa authentication-server radius "PacketFence"
+     host 192.168.1.5
+     key useStrongerSecret
+  aaa server-group "Radius-Group"
+   auth-server PacketFence
+
+[float]
+===== AAA Profiles
+
+  aaa profile "default-dot1x"
+     authentication-dot1x "default"
+     dot1x-default-role "authenticated"
+     dot1x-server-group "Radius-Group"
+     radius-accounting "Radius-Group"
+  aaa profile "PacketFence"
+     authentication-mac "pf_mac_auth"
+     mac-server-group "Radius-Group"
+     radius-accounting "Radius-Group"
+
+[float]
+===== WLAN SSIDs: profiles and virtual AP
+
+  wlan ssid-profile "PacketFence-Public"
+     essid "PacketFence-Public"
+  wlan ssid-profile "PacketFence-Secure"
+     essid "PacketFence-Secure"
+     opmode wpa2-aes
+  wlan virtual-ap "Inverse-Guest"
+     aaa-profile "PacketFence"
+     ssid-profile "PacketFence-Public"
+  wlan virtual-ap "Inverse-Secure"
+     aaa-profile "default-dot1x"
+     ssid-profile "PacketFence-Secure"
+  ap-group "Inverse"
+     virtual-ap "Inverse-Guest"
+     virtual-ap "Inverse-Secure"
+     ids-profile "ids-disabled"
+
+==== All Aruba Instant OS
+
+Add your packetfence instance to your configuration:
+
+wlan auth-server packetfence
+
+  ip 192.168.1.5
+  port 1812
+  acctport 1813
+  timeout 10
+  retry-count 5
+  key useStrongerSecret
+  nas-ip [Aruba Virtual Controller IP]
+  rfc3576
+
+
+Add dynamic vlan rules and mac auth to your ssid profile:
+
+wlan ssid-profile SSID
+
+  index 0 
+  type employee
+  essid ESSID
+  wpa-passphrase WPA-Passphrase
+  opmode wpa2-psk-aes
+  max-authentication-failures 0
+  vlan 1
+  auth-server packetfence
+  set-vlan Tunnel-Private-Group-Id contains 1 1
+  set-vlan Tunnel-Private-Group-Id contains 4 4
+  rf-band all
+  captive-portal disable
+  mac-authentication
+  dtim-period 1
+  inactivity-timeout 1000
+  broadcast-filter none
+  radius-reauth-interval 5
+  dmo-channel-utilization-threshold 90
+

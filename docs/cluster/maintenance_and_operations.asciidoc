@@ -1,0 +1,113 @@
+//== Maintenance and Operations
+
+=== Shutting down a PacketFence Active/Active cluster of three nodes
+
+As PacketFence cluster works in an active/active way, with statefull redundance, the order to stop the servers is not very important.
+
+NOTE: The important thing is to start the servers in the opposite order that you will stop them .
+
+Example:
+
+* Stop order: pf1 -> pf2 -> pf3
+* Start order: pf3 -> pf2 -> pf1
+
+Shutdown the servers:
+
+* Logon to the first server with a SSH terminal
+* Type the following command: *shutdown -h now*
+* Logon to the next server, with a SSH terminal.
+* Type the following command: *ping IP_ADDRESS_OF_THE_FIRST_SERVER*
+* Once the server do not responce back, type the following command: *shutdown -h now*
+* Proceed the same way with the last server.
+
+=== Bringing up a PacketFence Active/Active cluster of three nodes
+
+We want to bring up the cluster, in the same state it was before the shutdown.
+
+Therefore, we will do the _Shutting down_ procedure, but in reverse.
+
+==== Bring up the "Last" server stopped
+
+Start the server (pf3 in our example) and wait a couple of minutes and ensure you are able to connect to it using SSH before continuing.
+
+==== Bring up the next server
+
+Start the next server (pf2 in our example), logon to the SSH terminal.
+
+Once prompted, check the `packetFence-mariadb` sync with the Master, type the command:
+----
+mysql -u root -p
+MariaDB> show status like 'wsrep%';
+----
+----
+MariaDB [(none)]> show status like "wsrep%";
++------------------------------+-------------------------------------------------------+
+| Variable_name                | Value                                                 |
++------------------------------+-------------------------------------------------------+
+...
+| wsrep_cluster_size           | 2                                                     |
+...
+| wsrep_connected              | ON                                                    |
+...
+| wsrep_evs_state              | OPERATIONAL                                           |
+...
+| wsrep_local_state_comment    | Synced                                                |
+...
++------------------------------+-------------------------------------------------------+
+----
+
+==== Bring up the next server
+
+Once the 2 other servers have synced together, you can start the next server that remains. Logon on terminal and go with a *show status like 'wsrep%';* once again.
+
+* The values must have changed to:
+----
+MariaDB [(none)]> show status like "wsrep%";
++------------------------------+-------------------------------------------------------+
+| Variable_name                | Value                                                 |
++------------------------------+-------------------------------------------------------+
+...
+| wsrep_cluster_size           | 3                                                     |
+...
+| wsrep_evs_state              | OPERATIONAL                                           |
+...
+| wsrep_local_state_comment    | Synced                                                |
+...
++------------------------------+-------------------------------------------------------+
+----
+
+NOTE: The _wsrep_incoming_addresses_ will give you the IP addresses of the nodes synced.
+
+NOTE: The _wsrep_cluster_status_ will always be *Primary*, even on the slaves.
+
+=== Backup procedure
+
+==== Automatic Backup files
+
+The PacketFence servers have a daily backup done, each night (0:30AM).
+
+If you need to externalize those backups, they are in:
+
+----
+/root/backup
+----
+Files description:
+
+* `packetfence-db-dump-innobackup-DATE_00h30.xbstream.gz` are the SQL dump of your MariaDB database.
+* `packetfence-files-dump-DATE_00h30.tgz` are the dump of the PacketFence files.
+
+==== Manual backups
+
+In case you need to make a "manual" backup, you can type the following command:
+
+----
+/usr/local/pf/addons/backup-and-maintenance.sh
+----
+
+As the daily automatic backups, you will find the files in:
+
+----
+/root/backup/
+----
+
+Two files will be available, tagged with the Date and Time of your backup.

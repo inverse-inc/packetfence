@@ -1,5 +1,4 @@
-== Creating a new Switch via a Template
-
+//== Creating a new Switch via a Template
 
 === Using web admin
 

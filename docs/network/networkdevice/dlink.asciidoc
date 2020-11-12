@@ -1,0 +1,76 @@
+// to display images directly on GitHub
+ifdef::env-github[]
+:encoding: UTF-8
+:lang: en
+:doctype: book
+:toc: left
+:imagesdir: ../../images
+endif::[]
+
+////
+
+    This file is part of the PacketFence project.
+
+    See PacketFence_Network_Devices_Configuration_Guide-docinfo.xml for 
+    authors, copyright and license information.
+
+////
+
+
+//=== D-Link
+
+PacketFence supports D-Link switches without VoIP using two different trap types: 
+
+* linkUp/linkDown 
+* MAC Notification 
+
+*We recommend to enable linkUp/linkDown and MAC notification together.*
+
+Don't forget to update the startup config! 
+
+==== DES3526 / 3550 
+
+Global config settings 
+
+  To be contributed... 
+
+On each interface: 
+
+  To be contributed... 
+
+==== DGS3100/3200 
+
+Enable MAC notification:
+
+  enable mac_notification
+  config mac_notification interval 1 historysize 1
+  config mac_notification ports 1:1-1:24 enable
+
+Enable linkup/linkdown notification:
+
+  enable snmp traps 
+  enable snmp linkchange_traps
+
+Add SNMP host:
+
+  create snmp host 192.168.1.5 v2c  public
+
+Enable MAC base access control:
+
+  enable mac_based_access_control
+  config mac_based_access_control authorization attributes radius enable local disable
+  config mac_based_access_control method radius
+  config mac_based_access_control password useStrongerSecret
+  config mac_based_access_control password_type manual_string
+  config mac_based_access_control max_users no_limit
+  config mac_based_access_control trap state enable
+  config mac_based_access_control log state enable
+
+On each interface: 
+
+  config mac_based_access_control ports 1:1 state enable
+  config mac_based_access_control ports 1:1 max_users 128
+  config mac_based_access_control ports 1:1 aging_time 1440
+  config mac_based_access_control ports 1:1 block_time 300
+  config mac_based_access_control ports 1:1 mode host_based
+
