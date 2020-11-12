@@ -16,6 +16,7 @@ import (
 	"github.com/inverse-inc/packetfence/go/mac"
 	"github.com/inverse-inc/packetfence/go/pfconfigdriver"
 	"github.com/inverse-inc/packetfence/go/tryableonce"
+	"github.com/inverse-inc/packetfence/go/sharedutils"
 	statsd "gopkg.in/alexcesaro/statsd.v2"
 )
 
@@ -33,23 +34,24 @@ type radiusRequest struct {
 
 type PfAcct struct {
 	RadiusStatements
-	Db              *sql.DB
-	TimeDuration    time.Duration
-	AllowedNetworks []net.IPNet
-	NetFlowPort     string
-	AllNetworks     bool
-	Management      pfconfigdriver.ManagementNetwork
-	AAAClient       *jsonrpc2.Client
-	LoggerCtx       context.Context
-	Dispatcher      *Dispatcher
-	SwitchInfoCache *cache.Cache
-	StatsdOnce      tryableonce.TryableOnce
-	StatsdAddress   string
-	StatsdOption    statsd.Option
-	StatsdClient    *statsd.Client
-	radiusRequests  []chan<- radiusRequest
-	localSecret     string
-	isProxied       bool
+	TimeDuration       time.Duration
+	Db                 *sql.DB
+	AllowedNetworks    []net.IPNet
+	NetFlowPort        string
+	Management         pfconfigdriver.ManagementNetwork
+	AAAClient          *jsonrpc2.Client
+	LoggerCtx          context.Context
+	Dispatcher         *Dispatcher
+	SwitchInfoCache    *cache.Cache
+	StatsdOnce         tryableonce.TryableOnce
+	StatsdAddress      string
+	StatsdOption       statsd.Option
+	StatsdClient       *statsd.Client
+	radiusRequests     []chan<- radiusRequest
+	localSecret        string
+	isProxied          bool
+	radiusdAcctEnabled bool
+	AllNetworks        bool
 }
 
 func NewPfAcct() *PfAcct {
@@ -78,6 +80,7 @@ func NewPfAcct() *PfAcct {
 	pfAcct.SwitchInfoCache = cache.New(5*time.Minute, 10*time.Minute)
 	pfAcct.LoggerCtx = ctx
 	pfAcct.RadiusStatements.Setup(pfAcct.Db)
+
 	pfAcct.SetupConfig(ctx)
 	pfAcct.radiusRequests = makeRadiusRequests(pfAcct, 5, 10)
 	pfAcct.AAAClient = jsonrpc2.NewAAAClientFromConfig(ctx)
@@ -133,10 +136,15 @@ func (pfAcct *PfAcct) SetupConfig(ctx context.Context) {
 	pfAcct.NetFlowPort = ports.PFAcctNetflow
 	pfconfigdriver.FetchDecodeSocket(ctx, &pfAcct.Management)
 
+	var servicesConf pfconfigdriver.PfConfServices
+	pfconfigdriver.FetchDecodeSocket(ctx, &servicesConf)
+	pfAcct.radiusdAcctEnabled = sharedutils.IsEnabled(servicesConf.RadiusdAcct)
+
 	localSecret := pfconfigdriver.LocalSecret{}
 	pfconfigdriver.FetchDecodeSocket(ctx, &localSecret)
 	pfAcct.localSecret = localSecret.Element
-	pfAcct.isProxied = isProxied()
+
+	pfAcct.isProxied = isProxied(pfAcct)
 }
 
 // Timing struct
@@ -161,8 +169,8 @@ func (pfAcct *PfAcct) NewTiming() *Timing {
 	return &Timing{timing: pfAcct.StatsdClient.NewTiming()}
 }
 
-func isProxied() bool {
-	return pfconfigdriver.GetClusterSummary(context.Background()).ClusterEnabled == 1
+func isProxied(pfAcct *PfAcct) bool {
+	return pfconfigdriver.GetClusterSummary(context.Background()).ClusterEnabled == 1 || pfAcct.radiusdAcctEnabled
 }
 
 // Send function to add pf prefix

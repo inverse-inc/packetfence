@@ -261,11 +261,8 @@ func (h *PfAcct) radiusListen(w *sync.WaitGroup) *radius.PacketServer {
 	var RADIUSinterfaces pfconfigdriver.RADIUSInts
 	pfconfigdriver.FetchDecodeSocket(ctx, &RADIUSinterfaces)
 
-	var servicesConf pfconfigdriver.PfConfServices
-	pfconfigdriver.FetchDecodeSocket(ctx, &servicesConf)
-
 	var ipRADIUS []string
-	if sharedutils.IsEnabled(servicesConf.RadiusdAcct) {
+	if h.radiusdAcctEnabled {
 		ipRADIUS = []string{"127.0.0.1"}
 	} else {
 		for _, vi := range RADIUSinterfaces.Element {
