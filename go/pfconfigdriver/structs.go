@@ -380,6 +380,14 @@ type ClusterName struct {
 	Element                 string
 }
 
+type LocalSecret struct {
+	StructConfig
+	PfconfigMethod          string `val:"element"`
+	PfconfigNS              string `val:"resource::local_secret"`
+	PfconfigDecodeInElement string `val:"yes"`
+	Element                 string
+}
+
 type NetInterface struct {
 	StructConfig
 	PfconfigHostnameOverlay string `val:"yes"`
