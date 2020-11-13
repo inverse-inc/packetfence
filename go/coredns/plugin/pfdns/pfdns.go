@@ -138,6 +138,7 @@ func (pf *pfdns) ServeDNS(ctx context.Context, w dns.ResponseWriter, r *dns.Msg)
 	pf.RefreshPfconfig(ctx)
 
 	state := request.Request{W: w, Req: r}
+
 	a := new(dns.Msg)
 	a.SetReply(r)
 	a.Compress = true

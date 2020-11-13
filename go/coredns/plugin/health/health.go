@@ -3,67 +3,67 @@ package health
 
 import (
 	"io"
-	"log"
 	"net"
 	"net/http"
-	"sync"
+	"time"
+
+	clog "github.com/inverse-inc/packetfence/go/coredns/plugin/pkg/log"
+	"github.com/inverse-inc/packetfence/go/coredns/plugin/pkg/reuseport"
 )
 
-var once sync.Once
+var log = clog.NewWithPlugin("health")
 
+// Health implements healthchecks by exporting a HTTP endpoint.
 type health struct {
-	Addr string
+	Addr     string
+	lameduck time.Duration
 
-	ln  net.Listener
-	mux *http.ServeMux
+	ln      net.Listener
+	nlSetup bool
+	mux     *http.ServeMux
 
-	// A slice of Healthers that the health plugin will poll every second for their health status.
-	h []Healther
-	sync.RWMutex
-	ok bool // ok is the global boolean indicating an all healthy plugin stack
+	stop chan bool
 }
 
-func (h *health) Startup() error {
+func (h *health) OnStartup() error {
 	if h.Addr == "" {
-		h.Addr = defAddr
+		h.Addr = ":8080"
+	}
+	h.stop = make(chan bool)
+	ln, err := reuseport.Listen("tcp", h.Addr)
+	if err != nil {
+		return err
 	}
 
-	once.Do(func() {
-		ln, err := net.Listen("tcp", h.Addr)
-		if err != nil {
-			log.Printf("[ERROR] Failed to start health handler: %s", err)
-			return
-		}
+	h.ln = ln
+	h.mux = http.NewServeMux()
+	h.nlSetup = true
 
-		h.ln = ln
-
-		h.mux = http.NewServeMux()
-
-		h.mux.HandleFunc(path, func(w http.ResponseWriter, r *http.Request) {
-			if h.Ok() {
-				w.WriteHeader(http.StatusOK)
-				io.WriteString(w, ok)
-				return
-			}
-			w.WriteHeader(http.StatusServiceUnavailable)
-		})
-
-		go func() {
-			http.Serve(h.ln, h.mux)
-		}()
+	h.mux.HandleFunc("/health", func(w http.ResponseWriter, r *http.Request) {
+		// We're always healthy.
+		w.WriteHeader(http.StatusOK)
+		io.WriteString(w, http.StatusText(http.StatusOK))
 	})
+
+	go func() { http.Serve(h.ln, h.mux) }()
+	go func() { h.overloaded() }()
+
 	return nil
 }
 
-func (h *health) Shutdown() error {
-	if h.ln != nil {
-		return h.ln.Close()
+func (h *health) OnFinalShutdown() error {
+	if !h.nlSetup {
+		return nil
 	}
+
+	if h.lameduck > 0 {
+		log.Infof("Going into lameduck mode for %s", h.lameduck)
+		time.Sleep(h.lameduck)
+	}
+
+	h.ln.Close()
+
+	h.nlSetup = false
+	close(h.stop)
 	return nil
 }
-
-const (
-	ok      = "OK"
-	defAddr = ":8080"
-	path    = "/health"
-)

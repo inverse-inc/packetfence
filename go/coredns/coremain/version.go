@@ -1,8 +1,8 @@
 package coremain
 
+// Various CoreDNS constants.
 const (
+	CoreVersion = "1.8.0"
 	coreName    = "CoreDNS"
-	coreVersion = "0.9.9"
-
-	serverType = "dns"
+	serverType  = "dns"
 )

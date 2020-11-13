@@ -11,6 +11,7 @@ import (
 	"github.com/inverse-inc/packetfence/go/coredns/request"
 
 	"github.com/miekg/dns"
+	"golang.org/x/crypto/ed25519"
 )
 
 // DNSKEY holds a DNSSEC public and private key used for on-the-fly signing.
@@ -28,6 +29,7 @@ func ParseKeyFile(pubFile, privFile string) (*DNSKEY, error) {
 	if e != nil {
 		return nil, e
 	}
+	defer f.Close()
 	k, e := dns.ReadRR(f, pubFile)
 	if e != nil {
 		return nil, e
@@ -37,6 +39,7 @@ func ParseKeyFile(pubFile, privFile string) (*DNSKEY, error) {
 	if e != nil {
 		return nil, e
 	}
+	defer f.Close()
 
 	dk, ok := k.(*dns.DNSKEY)
 	if !ok {
@@ -53,11 +56,14 @@ func ParseKeyFile(pubFile, privFile string) (*DNSKEY, error) {
 	if s, ok := p.(*ecdsa.PrivateKey); ok {
 		return &DNSKEY{K: dk, D: dk.ToDS(dns.SHA256), s: s, tag: dk.KeyTag()}, nil
 	}
+	if s, ok := p.(ed25519.PrivateKey); ok {
+		return &DNSKEY{K: dk, D: dk.ToDS(dns.SHA256), s: s, tag: dk.KeyTag()}, nil
+	}
 	return &DNSKEY{K: dk, D: dk.ToDS(dns.SHA256), s: nil, tag: 0}, errors.New("no private key found")
 }
 
 // getDNSKEY returns the correct DNSKEY to the client. Signatures are added when do is true.
-func (d Dnssec) getDNSKEY(state request.Request, zone string, do bool) *dns.Msg {
+func (d Dnssec) getDNSKEY(state request.Request, zone string, do bool, server string) *dns.Msg {
 	keys := make([]dns.RR, len(d.keys))
 	for i, k := range d.keys {
 		keys[i] = dns.Copy(k.K)
@@ -71,8 +77,18 @@ func (d Dnssec) getDNSKEY(state request.Request, zone string, do bool) *dns.Msg 
 	}
 
 	incep, expir := incepExpir(time.Now().UTC())
-	if sigs, err := d.sign(keys, zone, 3600, incep, expir); err == nil {
+	if sigs, err := d.sign(keys, zone, 3600, incep, expir, server); err == nil {
 		m.Answer = append(m.Answer, sigs...)
 	}
 	return m
+}
+
+// Return true if, and only if, this is a zone key with the SEP bit unset. This implies a ZSK (rfc4034 2.1.1).
+func (k DNSKEY) isZSK() bool {
+	return k.K.Flags&(1<<8) == (1<<8) && k.K.Flags&1 == 0
+}
+
+// Return true if, and only if, this is a zone key with the SEP bit set. This implies a KSK (rfc4034 2.1.1).
+func (k DNSKEY) isKSK() bool {
+	return k.K.Flags&(1<<8) == (1<<8) && k.K.Flags&1 == 1
 }

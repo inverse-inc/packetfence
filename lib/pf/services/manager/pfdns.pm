@@ -52,7 +52,7 @@ sub generateConfig {
     foreach my $key ( keys %domain_dns_servers ) {
         my $dns = join ' ',@{$domain_dns_servers{$key}};
         $tags{'domain'} .= <<"EOT";
-    proxy $key. $dns
+    forward $key. $dns
 EOT
     }
 
@@ -63,7 +63,7 @@ EOT
         my $cidr = $net_addr->cidr();
         my $dns =  join ' ',split(',',$ConfigNetworks{$network}{'dns'});
         $tags{'inline'} .= <<"EOT";
-    proxy $cidr . $dns
+    forward $cidr . $dns
 EOT
     }
 

@@ -5,9 +5,10 @@ import (
 	"sync"
 
 	"github.com/inverse-inc/packetfence/go/coredns/plugin/file"
+	"github.com/inverse-inc/packetfence/go/coredns/plugin/transfer"
 )
 
-// Zones maps zone names to a *Zone. This keep track of what we zones we have loaded at
+// Zones maps zone names to a *Zone. This keeps track of what zones we have loaded at
 // any one time.
 type Zones struct {
 	Z     map[string]*file.Zone // A map mapping zone (origin) to the Zone's data.
@@ -42,7 +43,7 @@ func (z *Zones) Zones(name string) *file.Zone {
 
 // Add adds a new zone into z. If zo.NoReload is false, the
 // reload goroutine is started.
-func (z *Zones) Add(zo *file.Zone, name string) {
+func (z *Zones) Add(zo *file.Zone, name string, t *transfer.Transfer) {
 	z.Lock()
 
 	if z.Z == nil {
@@ -51,17 +52,17 @@ func (z *Zones) Add(zo *file.Zone, name string) {
 
 	z.Z[name] = zo
 	z.names = append(z.names, name)
-	zo.Reload()
+	zo.Reload(t)
 
 	z.Unlock()
 }
 
-// Remove removes the zone named name from z. It also stop the the zone's reload goroutine.
+// Remove removes the zone named name from z. It also stops the zone's reload goroutine.
 func (z *Zones) Remove(name string) {
 	z.Lock()
 
-	if zo, ok := z.Z[name]; ok && !zo.NoReload {
-		zo.ReloadShutdown <- true
+	if zo, ok := z.Z[name]; ok {
+		zo.OnShutdown()
 	}
 
 	delete(z.Z, name)

@@ -2,7 +2,6 @@
 package msg
 
 import (
-	"fmt"
 	"net"
 	"strings"
 
@@ -37,47 +36,23 @@ type Service struct {
 	Key string `json:"-"`
 }
 
-// RR returns an RR representation of s. It is in a condensed form to minimize space
-// when this is returned in a DNS message.
-// The RR will look like:
-//	1.rails.production.east.skydns.local. 300 CH TXT "service1.example.com:8080(10,0,,false)[0,]"
-//                      etcd Key              Ttl               Host:Port          <   see below   >
-// between parens: (Priority, Weight, Text (only first 200 bytes!), Mail)
-// between blockquotes: [TargetStrip,Group]
-// If the record is synthesised by CoreDNS (i.e. no lookup in etcd happened):
-//
-//	TODO(miek): what to put here?
-//
-func (s *Service) RR() *dns.TXT {
-	l := len(s.Text)
-	if l > 200 {
-		l = 200
-	}
-	t := new(dns.TXT)
-	t.Hdr.Class = dns.ClassCHAOS
-	t.Hdr.Ttl = s.TTL
-	t.Hdr.Rrtype = dns.TypeTXT
-	t.Hdr.Name = Domain(s.Key)
-
-	t.Txt = make([]string, 1)
-	t.Txt[0] = fmt.Sprintf("%s:%d(%d,%d,%s,%t)[%d,%s]",
-		s.Host, s.Port,
-		s.Priority, s.Weight, s.Text[:l], s.Mail,
-		s.TargetStrip, s.Group)
-	return t
-}
-
 // NewSRV returns a new SRV record based on the Service.
 func (s *Service) NewSRV(name string, weight uint16) *dns.SRV {
-	host := targetStrip(dns.Fqdn(s.Host), s.TargetStrip)
+	host := dns.Fqdn(s.Host)
+	if s.TargetStrip > 0 {
+		host = targetStrip(host, s.TargetStrip)
+	}
 
 	return &dns.SRV{Hdr: dns.RR_Header{Name: name, Rrtype: dns.TypeSRV, Class: dns.ClassINET, Ttl: s.TTL},
-		Priority: uint16(s.Priority), Weight: weight, Port: uint16(s.Port), Target: dns.Fqdn(host)}
+		Priority: uint16(s.Priority), Weight: weight, Port: uint16(s.Port), Target: host}
 }
 
 // NewMX returns a new MX record based on the Service.
 func (s *Service) NewMX(name string) *dns.MX {
-	host := targetStrip(dns.Fqdn(s.Host), s.TargetStrip)
+	host := dns.Fqdn(s.Host)
+	if s.TargetStrip > 0 {
+		host = targetStrip(host, s.TargetStrip)
+	}
 
 	return &dns.MX{Hdr: dns.RR_Header{Name: name, Rrtype: dns.TypeMX, Class: dns.ClassINET, Ttl: s.TTL},
 		Preference: uint16(s.Priority), Mx: host}
@@ -110,7 +85,10 @@ func (s *Service) NewPTR(name string, target string) *dns.PTR {
 
 // NewNS returns a new NS record based on the Service.
 func (s *Service) NewNS(name string) *dns.NS {
-	host := targetStrip(dns.Fqdn(s.Host), s.TargetStrip)
+	host := dns.Fqdn(s.Host)
+	if s.TargetStrip > 0 {
+		host = targetStrip(host, s.TargetStrip)
+	}
 	return &dns.NS{Hdr: dns.RR_Header{Name: name, Rrtype: dns.TypeNS, Class: dns.ClassINET, Ttl: s.TTL}, Ns: host}
 }
 
@@ -186,16 +164,12 @@ func split255(s string) []string {
 
 // targetStrip strips "targetstrip" labels from the left side of the fully qualified name.
 func targetStrip(name string, targetStrip int) string {
-	if targetStrip == 0 {
-		return name
-	}
-
 	offset, end := 0, false
 	for i := 0; i < targetStrip; i++ {
 		offset, end = dns.NextLabel(name, offset)
 	}
 	if end {
-		// We overshot the name, use the orignal one.
+		// We overshot the name, use the original one.
 		offset = 0
 	}
 	name = name[offset:]

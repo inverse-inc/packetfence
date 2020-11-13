@@ -4,7 +4,7 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/mholt/caddy"
+	"github.com/coredns/caddy"
 	"github.com/inverse-inc/packetfence/go/coredns/core/dnsserver"
 	"github.com/inverse-inc/packetfence/go/coredns/plugin"
 	"github.com/inverse-inc/packetfence/go/log"
@@ -30,21 +30,20 @@ func setup(c *caddy.Controller) error {
 
 				if len(args) != 1 {
 					return c.ArgErr()
-				} else {
-					level := args[0]
-					fmt.Println("Using configuration set log level: " + level)
-					ctx = log.LoggerSetLevel(ctx, level)
 				}
+				level := args[0]
+				fmt.Println("Using configuration set log level: " + level)
+				ctx = log.LoggerSetLevel(ctx, level)
+
 			case "processname":
 				args := c.RemainingArgs()
 
 				if len(args) != 1 {
 					return c.ArgErr()
-				} else {
-					name := args[0]
-					fmt.Println("Using configuration set processname: " + name)
-					log.SetProcessName(name)
 				}
+				name := args[0]
+				fmt.Println("Using configuration set processname: " + name)
+				log.SetProcessName(name)
 			default:
 				return c.ArgErr()
 			}

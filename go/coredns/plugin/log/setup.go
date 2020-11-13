@@ -1,24 +1,18 @@
 package log
 
 import (
-	"fmt"
-	"log"
-	"os"
+	"strings"
 
+	"github.com/coredns/caddy"
 	"github.com/inverse-inc/packetfence/go/coredns/core/dnsserver"
 	"github.com/inverse-inc/packetfence/go/coredns/plugin"
+	"github.com/inverse-inc/packetfence/go/coredns/plugin/pkg/replacer"
 	"github.com/inverse-inc/packetfence/go/coredns/plugin/pkg/response"
 
-	"github.com/mholt/caddy"
 	"github.com/miekg/dns"
 )
 
-func init() {
-	caddy.RegisterPlugin("log", caddy.Plugin{
-		ServerType: "dns",
-		Action:     setup,
-	})
-}
+func init() { plugin.Register("log", setup) }
 
 func setup(c *caddy.Controller) error {
 	rules, err := logParse(c)
@@ -26,23 +20,8 @@ func setup(c *caddy.Controller) error {
 		return plugin.Error("log", err)
 	}
 
-	// Open the log files for writing when the server starts
-	c.OnStartup(func() error {
-		for i := 0; i < len(rules); i++ {
-			// We only support stdout
-			writer := os.Stdout
-			if rules[i].OutputFile != "stdout" {
-				return plugin.Error("log", fmt.Errorf("invalid log file: %s", rules[i].OutputFile))
-			}
-
-			rules[i].Log = log.New(writer, "", 0)
-		}
-
-		return nil
-	})
-
 	dnsserver.GetConfig(c).AddPlugin(func(next plugin.Handler) plugin.Handler {
-		return Logger{Next: next, Rules: rules, ErrorFunc: dnsserver.DefaultErrorFunc}
+		return Logger{Next: next, Rules: rules, repl: replacer.New()}
 	})
 
 	return nil
@@ -53,62 +32,75 @@ func logParse(c *caddy.Controller) ([]Rule, error) {
 
 	for c.Next() {
 		args := c.RemainingArgs()
+		length := len(rules)
 
-		if len(args) == 0 {
+		switch len(args) {
+		case 0:
 			// Nothing specified; use defaults
 			rules = append(rules, Rule{
-				NameScope:  ".",
-				OutputFile: DefaultLogFilename,
-				Format:     DefaultLogFormat,
+				NameScope: ".",
+				Format:    DefaultLogFormat,
+				Class:     make(map[response.Class]struct{}),
 			})
-		} else if len(args) == 1 {
-			// Only an output file specified.
+		case 1:
 			rules = append(rules, Rule{
-				NameScope:  ".",
-				OutputFile: args[0],
-				Format:     DefaultLogFormat,
+				NameScope: dns.Fqdn(args[0]),
+				Format:    DefaultLogFormat,
+				Class:     make(map[response.Class]struct{}),
 			})
-		} else {
-			// Name scope, output file, and maybe a format specified
-
+		default:
+			// Name scopes, and maybe a format specified
 			format := DefaultLogFormat
 
-			if len(args) > 2 {
-				switch args[2] {
+			if strings.Contains(args[len(args)-1], "{") {
+				switch args[len(args)-1] {
 				case "{common}":
 					format = CommonLogFormat
 				case "{combined}":
 					format = CombinedLogFormat
 				default:
-					format = args[2]
+					format = args[len(args)-1]
 				}
+
+				args = args[:len(args)-1]
 			}
 
-			rules = append(rules, Rule{
-				NameScope:  dns.Fqdn(args[0]),
-				OutputFile: args[1],
-				Format:     format,
-			})
+			for _, str := range args {
+				rules = append(rules, Rule{
+					NameScope: dns.Fqdn(str),
+					Format:    format,
+					Class:     make(map[response.Class]struct{}),
+				})
+			}
 		}
 
 		// Class refinements in an extra block.
+		classes := make(map[response.Class]struct{})
 		for c.NextBlock() {
 			switch c.Val() {
-			// class followed by all, denial, error or success.
+			// class followed by combinations of all, denial, error and success.
 			case "class":
-				classes := c.RemainingArgs()
-				if len(classes) == 0 {
+				classesArgs := c.RemainingArgs()
+				if len(classesArgs) == 0 {
 					return nil, c.ArgErr()
 				}
-				cls, err := response.ClassFromString(classes[0])
-				if err != nil {
-					return nil, err
+				for _, c := range classesArgs {
+					cls, err := response.ClassFromString(c)
+					if err != nil {
+						return nil, err
+					}
+					classes[cls] = struct{}{}
 				}
-				// update class and the last added Rule (bit icky)
-				rules[len(rules)-1].Class = cls
 			default:
 				return nil, c.ArgErr()
 			}
+		}
+		if len(classes) == 0 {
+			classes[response.All] = struct{}{}
+		}
+
+		for i := len(rules) - 1; i >= length; i-- {
+			rules[i].Class = classes
 		}
 	}
 

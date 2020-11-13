@@ -1,16 +1,12 @@
 package test
 
 import (
-	"io/ioutil"
-	"log"
 	"sync"
 
+	"github.com/coredns/caddy"
+	_ "github.com/inverse-inc/packetfence/go/coredns/core" // Hook in CoreDNS.
 	"github.com/inverse-inc/packetfence/go/coredns/core/dnsserver"
-
-	// Hook in CoreDNS.
-	_ "github.com/inverse-inc/packetfence/go/coredns/core"
-
-	"github.com/mholt/caddy"
+	_ "github.com/inverse-inc/packetfence/go/coredns/core/plugin" // Load all managed plugins in github.com/coredns/coredns.
 )
 
 var mu sync.Mutex
@@ -21,7 +17,6 @@ func CoreDNSServer(corefile string) (*caddy.Instance, error) {
 	defer mu.Unlock()
 	caddy.Quiet = true
 	dnsserver.Quiet = true
-	log.SetOutput(ioutil.Discard)
 
 	return caddy.Start(NewInput(corefile))
 }

@@ -1,20 +1,20 @@
-// Package loadbalance shuffles A and AAAA records.
+// Package loadbalance shuffles A, AAAA and MX records.
 package loadbalance
 
 import (
-	"log"
-
 	"github.com/miekg/dns"
 )
 
-// RoundRobinResponseWriter is a response writer that shuffles A and AAAA records.
-type RoundRobinResponseWriter struct {
-	dns.ResponseWriter
-}
+// RoundRobinResponseWriter is a response writer that shuffles A, AAAA and MX records.
+type RoundRobinResponseWriter struct{ dns.ResponseWriter }
 
 // WriteMsg implements the dns.ResponseWriter interface.
 func (r *RoundRobinResponseWriter) WriteMsg(res *dns.Msg) error {
 	if res.Rcode != dns.RcodeSuccess {
+		return r.ResponseWriter.WriteMsg(res)
+	}
+
+	if res.Question[0].Qtype == dns.TypeAXFR || res.Question[0].Qtype == dns.TypeIXFR {
 		return r.ResponseWriter.WriteMsg(res)
 	}
 
@@ -75,13 +75,7 @@ func roundRobinShuffle(records []dns.RR) {
 // Write implements the dns.ResponseWriter interface.
 func (r *RoundRobinResponseWriter) Write(buf []byte) (int, error) {
 	// Should we pack and unpack here to fiddle with the packet... Not likely.
-	log.Printf("[WARNING] RoundRobin called with Write: no shuffling records")
+	log.Warning("RoundRobin called with Write: not shuffling records")
 	n, err := r.ResponseWriter.Write(buf)
 	return n, err
-}
-
-// Hijack implements the dns.ResponseWriter interface.
-func (r *RoundRobinResponseWriter) Hijack() {
-	r.ResponseWriter.Hijack()
-	return
 }

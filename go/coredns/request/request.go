@@ -1,5 +1,4 @@
-// Package request abstracts a client's request so that all plugin
-// will handle them in an unified way.
+// Package request abstracts a client's request so that all plugins will handle them in an unified way.
 package request
 
 import (
@@ -19,13 +18,18 @@ type Request struct {
 	// Optional lowercased zone of this query.
 	Zone string
 
-	// Cache size after first call to Size or Do.
-	size int
-	do   int // 0: not, 1: true: 2: false
-	// TODO(miek): opt record itself as well?
+	// Cache size after first call to Size or Do. If size is zero nothing has been cached yet.
+	// Both Size and Do set these values (and cache them).
+	size uint16 // UDP buffer size, or 64K in case of TCP.
+	do   bool   // DNSSEC OK value
 
-	// Cache lowercase qname.
-	name string
+	// Caches
+	family    int8   // transport's family.
+	name      string // lowercase qname.
+	ip        string // client's ip.
+	port      string // client's port.
+	localPort string // server's port.
+	localIP   string // server's ip.
 }
 
 // NewWithQuestion returns a new request based on the old, but with a new question
@@ -38,37 +42,80 @@ func (r *Request) NewWithQuestion(name string, typ uint16) Request {
 
 // IP gets the (remote) IP address of the client making the request.
 func (r *Request) IP() string {
+	if r.ip != "" {
+		return r.ip
+	}
+
 	ip, _, err := net.SplitHostPort(r.W.RemoteAddr().String())
 	if err != nil {
-		return r.W.RemoteAddr().String()
+		r.ip = r.W.RemoteAddr().String()
+		return r.ip
 	}
-	return ip
+
+	r.ip = ip
+	return r.ip
 }
 
-// Port gets the (remote) Port of the client making the request.
+// LocalIP gets the (local) IP address of server handling the request.
+func (r *Request) LocalIP() string {
+	if r.localIP != "" {
+		return r.localIP
+	}
+
+	ip, _, err := net.SplitHostPort(r.W.LocalAddr().String())
+	if err != nil {
+		r.localIP = r.W.LocalAddr().String()
+		return r.localIP
+	}
+
+	r.localIP = ip
+	return r.localIP
+}
+
+// Port gets the (remote) port of the client making the request.
 func (r *Request) Port() string {
+	if r.port != "" {
+		return r.port
+	}
+
 	_, port, err := net.SplitHostPort(r.W.RemoteAddr().String())
 	if err != nil {
-		return "0"
+		r.port = "0"
+		return r.port
 	}
-	return port
+
+	r.port = port
+	return r.port
+}
+
+// LocalPort gets the local port of the server handling the request.
+func (r *Request) LocalPort() string {
+	if r.localPort != "" {
+		return r.localPort
+	}
+
+	_, port, err := net.SplitHostPort(r.W.LocalAddr().String())
+	if err != nil {
+		r.localPort = "0"
+		return r.localPort
+	}
+
+	r.localPort = port
+	return r.localPort
 }
 
 // RemoteAddr returns the net.Addr of the client that sent the current request.
-func (r *Request) RemoteAddr() string {
-	return r.W.RemoteAddr().String()
-}
+func (r *Request) RemoteAddr() string { return r.W.RemoteAddr().String() }
+
+// LocalAddr returns the net.Addr of the server handling the current request.
+func (r *Request) LocalAddr() string { return r.W.LocalAddr().String() }
 
 // Proto gets the protocol used as the transport. This will be udp or tcp.
-func (r *Request) Proto() string { return Proto(r.W) }
-
-// Proto gets the protocol used as the transport. This will be udp or tcp.
-func Proto(w dns.ResponseWriter) string {
-	// FIXME(miek): why not a method on Request
-	if _, ok := w.RemoteAddr().(*net.UDPAddr); ok {
+func (r *Request) Proto() string {
+	if _, ok := r.W.RemoteAddr().(*net.UDPAddr); ok {
 		return "udp"
 	}
-	if _, ok := w.RemoteAddr().(*net.TCPAddr); ok {
+	if _, ok := r.W.RemoteAddr().(*net.TCPAddr); ok {
 		return "tcp"
 	}
 	return "udp"
@@ -76,6 +123,10 @@ func Proto(w dns.ResponseWriter) string {
 
 // Family returns the family of the transport, 1 for IPv4 and 2 for IPv6.
 func (r *Request) Family() int {
+	if r.family != 0 {
+		return int(r.family)
+	}
+
 	var a net.IP
 	ip := r.W.RemoteAddr()
 	if i, ok := ip.(*net.UDPAddr); ok {
@@ -86,27 +137,21 @@ func (r *Request) Family() int {
 	}
 
 	if a.To4() != nil {
+		r.family = 1
 		return 1
 	}
+	r.family = 2
 	return 2
 }
 
-// Do returns if the request has the DO (DNSSEC OK) bit set.
+// Do returns true if the request has the DO (DNSSEC OK) bit set.
 func (r *Request) Do() bool {
-	if r.do != 0 {
-		return r.do == doTrue
+	if r.size != 0 {
+		return r.do
 	}
 
-	if o := r.Req.IsEdns0(); o != nil {
-		if o.Do() {
-			r.do = doTrue
-		} else {
-			r.do = doFalse
-		}
-		return o.Do()
-	}
-	r.do = doFalse
-	return false
+	r.Size()
+	return r.do
 }
 
 // Len returns the length in bytes in the request.
@@ -116,33 +161,28 @@ func (r *Request) Len() int { return r.Req.Len() }
 // Or when the request was over TCP, we return the maximum allowed size of 64K.
 func (r *Request) Size() int {
 	if r.size != 0 {
-		return r.size
+		return int(r.size)
 	}
 
-	size := 0
+	size := uint16(0)
 	if o := r.Req.IsEdns0(); o != nil {
-		if o.Do() {
-			r.do = doTrue
-		} else {
-			r.do = doFalse
-		}
-		size = int(o.UDPSize())
+		r.do = o.Do()
+		size = o.UDPSize()
 	}
-	// TODO(miek) move edns.Size to dnsutil?
+
+	// normalize size
 	size = edns.Size(r.Proto(), size)
 	r.size = size
-	return size
+	return int(size)
 }
 
 // SizeAndDo adds an OPT record that the reflects the intent from request.
-// The returned bool indicated if an record was found and normalised.
+// The returned bool indicates if an record was found and normalised.
 func (r *Request) SizeAndDo(m *dns.Msg) bool {
-	o := r.Req.IsEdns0() // TODO(miek): speed this up
+	o := r.Req.IsEdns0()
 	if o == nil {
 		return false
 	}
-
-	odo := o.Do()
 
 	if mo := m.IsEdns0(); mo != nil {
 		mo.Hdr.Name = "."
@@ -151,62 +191,59 @@ func (r *Request) SizeAndDo(m *dns.Msg) bool {
 		mo.SetUDPSize(o.UDPSize())
 		mo.Hdr.Ttl &= 0xff00 // clear flags
 
-		if odo {
+		// Assume if the message m has options set, they are OK and represent what an upstream can do.
+
+		if o.Do() {
 			mo.SetDo()
 		}
 		return true
 	}
 
+	// Reuse the request's OPT record and tack it to m.
 	o.Hdr.Name = "."
 	o.Hdr.Rrtype = dns.TypeOPT
 	o.SetVersion(0)
 	o.Hdr.Ttl &= 0xff00 // clear flags
 
-	if odo {
-		o.SetDo()
+	if len(o.Option) > 0 {
+		o.Option = supportedOptions(o.Option)
 	}
 
 	m.Extra = append(m.Extra, o)
 	return true
 }
 
-// Result is the result of Scrub.
-type Result int
+// Scrub scrubs the reply message so that it will fit the client's buffer. It will first
+// check if the reply fits without compression and then *with* compression.
+// Note, the TC bit will be set regardless of protocol, even TCP message will
+// get the bit, the client should then retry with pigeons.
+func (r *Request) Scrub(reply *dns.Msg) *dns.Msg {
+	reply.Truncate(r.Size())
 
-const (
-	// ScrubIgnored is returned when Scrub did nothing to the message.
-	ScrubIgnored Result = iota
-	// ScrubDone is returned when the reply has been scrubbed.
-	ScrubDone
-)
-
-// Scrub scrubs the reply message so that it will fit the client's buffer. If even after dropping
-// the additional section, it still does not fit the TC bit will be set on the message. Note,
-// the TC bit will be set regardless of protocol, even TCP message will get the bit, the client
-// should then retry with pigeons.
-// TODO(referral).
-func (r *Request) Scrub(reply *dns.Msg) (*dns.Msg, Result) {
-	size := r.Size()
-	l := reply.Len()
-	if size >= l {
-		return reply, ScrubIgnored
+	if reply.Compress {
+		return reply
 	}
-	// TODO(miek): check for delegation
 
-	// If not delegation, drop additional section.
-	reply.Extra = nil
-	r.SizeAndDo(reply)
-	l = reply.Len()
-	if size >= l {
-		return reply, ScrubDone
+	if r.Proto() == "udp" {
+		rl := reply.Len()
+		// Last ditch attempt to avoid fragmentation, if the size is bigger than the v4/v6 UDP fragmentation
+		// limit and sent via UDP compress it (in the hope we go under that limit). Limits taken from NSD:
+		//
+		//    .., 1480 (EDNS/IPv4), 1220 (EDNS/IPv6), or the advertised EDNS buffer size if that is
+		//    smaller than the EDNS default.
+		// See: https://open.nlnetlabs.nl/pipermail/nsd-users/2011-November/001278.html
+		if rl > 1480 && r.Family() == 1 {
+			reply.Compress = true
+		}
+		if rl > 1220 && r.Family() == 2 {
+			reply.Compress = true
+		}
 	}
-	// Still?!! does not fit.
-	reply.Truncated = true
-	return reply, ScrubDone
+
+	return reply
 }
 
-// Type returns the type of the question as a string. If the request is malformed
-// the empty string is returned.
+// Type returns the type of the question as a string. If the request is malformed the empty string is returned.
 func (r *Request) Type() string {
 	if r.Req == nil {
 		return ""
@@ -293,21 +330,34 @@ func (r *Request) QClass() uint16 {
 
 }
 
-// ErrorMessage returns an error message suitable for sending
-// back to the client.
-func (r *Request) ErrorMessage(rcode int) *dns.Msg {
-	m := new(dns.Msg)
-	m.SetRcode(r.Req, rcode)
-	return m
-}
-
 // Clear clears all caching from Request s.
 func (r *Request) Clear() {
 	r.name = ""
+	r.ip = ""
+	r.localIP = ""
+	r.port = ""
+	r.localPort = ""
+	r.family = 0
 }
 
-const (
-	// TODO(miek): make this less awkward.
-	doTrue  = 1
-	doFalse = 2
-)
+// Match checks if the reply matches the qname and qtype from the request, it returns
+// false when they don't match.
+func (r *Request) Match(reply *dns.Msg) bool {
+	if len(reply.Question) != 1 {
+		return false
+	}
+
+	if !reply.Response {
+		return false
+	}
+
+	if strings.ToLower(reply.Question[0].Name) != r.Name() {
+		return false
+	}
+
+	if reply.Question[0].Qtype != r.QType() {
+		return false
+	}
+
+	return true
+}

@@ -1,42 +1,48 @@
-// Package etcd provides the etcd backend plugin.
+// Package etcd provides the etcd version 3 backend plugin.
 package etcd
 
 import (
+	"context"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"strings"
 	"time"
 
 	"github.com/inverse-inc/packetfence/go/coredns/plugin"
 	"github.com/inverse-inc/packetfence/go/coredns/plugin/etcd/msg"
-	"github.com/inverse-inc/packetfence/go/coredns/plugin/pkg/cache"
-	"github.com/inverse-inc/packetfence/go/coredns/plugin/pkg/singleflight"
-	"github.com/inverse-inc/packetfence/go/coredns/plugin/proxy"
+	"github.com/inverse-inc/packetfence/go/coredns/plugin/pkg/fall"
+	"github.com/inverse-inc/packetfence/go/coredns/plugin/pkg/upstream"
 	"github.com/inverse-inc/packetfence/go/coredns/request"
 
-	etcdc "github.com/coreos/etcd/client"
 	"github.com/miekg/dns"
-	"golang.org/x/net/context"
+	etcdcv3 "go.etcd.io/etcd/clientv3"
+	"go.etcd.io/etcd/mvcc/mvccpb"
 )
+
+const (
+	priority    = 10  // default priority when nothing is set
+	ttl         = 300 // default ttl when nothing is set
+	etcdTimeout = 5 * time.Second
+)
+
+var errKeyNotFound = errors.New("key not found")
 
 // Etcd is a plugin talks to an etcd cluster.
 type Etcd struct {
-	Next        plugin.Handler
-	Fallthrough bool
-	Zones       []string
-	PathPrefix  string
-	Proxy       proxy.Proxy // Proxy for looking up names during the resolution process
-	Client      etcdc.KeysAPI
-	Ctx         context.Context
-	Inflight    *singleflight.Group
-	Stubmap     *map[string]proxy.Proxy // list of proxies for stub resolving.
+	Next       plugin.Handler
+	Fall       fall.F
+	Zones      []string
+	PathPrefix string
+	Upstream   *upstream.Upstream
+	Client     *etcdcv3.Client
 
 	endpoints []string // Stored here as well, to aid in testing.
 }
 
 // Services implements the ServiceBackend interface.
-func (e *Etcd) Services(state request.Request, exact bool, opt plugin.Options) (services []msg.Service, err error) {
-	services, err = e.Records(state, exact)
+func (e *Etcd) Services(ctx context.Context, state request.Request, exact bool, opt plugin.Options) (services []msg.Service, err error) {
+	services, err = e.Records(ctx, state, exact)
 	if err != nil {
 		return
 	}
@@ -46,88 +52,75 @@ func (e *Etcd) Services(state request.Request, exact bool, opt plugin.Options) (
 }
 
 // Reverse implements the ServiceBackend interface.
-func (e *Etcd) Reverse(state request.Request, exact bool, opt plugin.Options) (services []msg.Service, err error) {
-	return e.Services(state, exact, opt)
+func (e *Etcd) Reverse(ctx context.Context, state request.Request, exact bool, opt plugin.Options) (services []msg.Service, err error) {
+	return e.Services(ctx, state, exact, opt)
 }
 
 // Lookup implements the ServiceBackend interface.
-func (e *Etcd) Lookup(state request.Request, name string, typ uint16) (*dns.Msg, error) {
-	return e.Proxy.Lookup(state, name, typ)
+func (e *Etcd) Lookup(ctx context.Context, state request.Request, name string, typ uint16) (*dns.Msg, error) {
+	return e.Upstream.Lookup(ctx, state, name, typ)
 }
 
 // IsNameError implements the ServiceBackend interface.
 func (e *Etcd) IsNameError(err error) bool {
-	if ee, ok := err.(etcdc.Error); ok && ee.Code == etcdc.ErrorCodeKeyNotFound {
-		return true
-	}
-	return false
+	return err == errKeyNotFound
 }
 
 // Records looks up records in etcd. If exact is true, it will lookup just this
 // name. This is used when find matches when completing SRV lookups for instance.
-func (e *Etcd) Records(state request.Request, exact bool) ([]msg.Service, error) {
+func (e *Etcd) Records(ctx context.Context, state request.Request, exact bool) ([]msg.Service, error) {
 	name := state.Name()
 
 	path, star := msg.PathWithWildcard(name, e.PathPrefix)
-	r, err := e.get(path, true)
+	r, err := e.get(ctx, path, !exact)
 	if err != nil {
 		return nil, err
 	}
 	segments := strings.Split(msg.Path(name, e.PathPrefix), "/")
-	switch {
-	case exact && r.Node.Dir:
-		return nil, nil
-	case r.Node.Dir:
-		return e.loopNodes(r.Node.Nodes, segments, star, nil)
-	default:
-		return e.loopNodes([]*etcdc.Node{r.Node}, segments, false, nil)
-	}
+	return e.loopNodes(r.Kvs, segments, star, state.QType())
 }
 
-// get is a wrapper for client.Get that uses SingleInflight to suppress multiple outstanding queries.
-func (e *Etcd) get(path string, recursive bool) (*etcdc.Response, error) {
-
-	hash := cache.Hash([]byte(path))
-
-	resp, err := e.Inflight.Do(hash, func() (interface{}, error) {
-		ctx, cancel := context.WithTimeout(e.Ctx, etcdTimeout)
-		defer cancel()
-		r, e := e.Client.Get(ctx, path, &etcdc.GetOptions{Sort: false, Recursive: recursive})
-		if e != nil {
-			return nil, e
+func (e *Etcd) get(ctx context.Context, path string, recursive bool) (*etcdcv3.GetResponse, error) {
+	ctx, cancel := context.WithTimeout(ctx, etcdTimeout)
+	defer cancel()
+	if recursive {
+		if !strings.HasSuffix(path, "/") {
+			path = path + "/"
 		}
-		return r, e
-	})
-	if err != nil {
-		return nil, err
-	}
-	return resp.(*etcdc.Response), err
-}
-
-// skydns/local/skydns/east/staging/web
-// skydns/local/skydns/west/production/web
-//
-// skydns/local/skydns/*/*/web
-// skydns/local/skydns/*/web
-
-// loopNodes recursively loops through the nodes and returns all the values. The nodes' keyname
-// will be match against any wildcards when star is true.
-func (e *Etcd) loopNodes(ns []*etcdc.Node, nameParts []string, star bool, bx map[msg.Service]bool) (sx []msg.Service, err error) {
-	if bx == nil {
-		bx = make(map[msg.Service]bool)
-	}
-Nodes:
-	for _, n := range ns {
-		if n.Dir {
-			nodes, err := e.loopNodes(n.Nodes, nameParts, star, bx)
+		r, err := e.Client.Get(ctx, path, etcdcv3.WithPrefix())
+		if err != nil {
+			return nil, err
+		}
+		if r.Count == 0 {
+			path = strings.TrimSuffix(path, "/")
+			r, err = e.Client.Get(ctx, path)
 			if err != nil {
 				return nil, err
 			}
-			sx = append(sx, nodes...)
-			continue
+			if r.Count == 0 {
+				return nil, errKeyNotFound
+			}
 		}
+		return r, nil
+	}
+
+	r, err := e.Client.Get(ctx, path)
+	if err != nil {
+		return nil, err
+	}
+	if r.Count == 0 {
+		return nil, errKeyNotFound
+	}
+	return r, nil
+}
+
+func (e *Etcd) loopNodes(kv []*mvccpb.KeyValue, nameParts []string, star bool, qType uint16) (sx []msg.Service, err error) {
+	bx := make(map[msg.Service]struct{})
+Nodes:
+	for _, n := range kv {
 		if star {
-			keyParts := strings.Split(n.Key, "/")
+			s := string(n.Key)
+			keyParts := strings.Split(s, "/")
 			for i, n := range nameParts {
 				if i > len(keyParts)-1 {
 					// name is longer than key
@@ -142,29 +135,31 @@ Nodes:
 			}
 		}
 		serv := new(msg.Service)
-		if err := json.Unmarshal([]byte(n.Value), serv); err != nil {
+		if err := json.Unmarshal(n.Value, serv); err != nil {
 			return nil, fmt.Errorf("%s: %s", n.Key, err.Error())
 		}
-		b := msg.Service{Host: serv.Host, Port: serv.Port, Priority: serv.Priority, Weight: serv.Weight, Text: serv.Text, Key: n.Key}
-		if _, ok := bx[b]; ok {
+		serv.Key = string(n.Key)
+		if _, ok := bx[*serv]; ok {
 			continue
 		}
-		bx[b] = true
+		bx[*serv] = struct{}{}
 
-		serv.Key = n.Key
 		serv.TTL = e.TTL(n, serv)
 		if serv.Priority == 0 {
 			serv.Priority = priority
 		}
-		sx = append(sx, *serv)
+
+		if shouldInclude(serv, qType) {
+			sx = append(sx, *serv)
+		}
 	}
 	return sx, nil
 }
 
 // TTL returns the smaller of the etcd TTL and the service's
 // TTL. If neither of these are set (have a zero value), a default is used.
-func (e *Etcd) TTL(node *etcdc.Node, serv *msg.Service) uint32 {
-	etcdTTL := uint32(node.TTL)
+func (e *Etcd) TTL(kv *mvccpb.KeyValue, serv *msg.Service) uint32 {
+	etcdTTL := uint32(kv.Lease)
 
 	if etcdTTL == 0 && serv.TTL == 0 {
 		return ttl
@@ -181,8 +176,10 @@ func (e *Etcd) TTL(node *etcdc.Node, serv *msg.Service) uint32 {
 	return serv.TTL
 }
 
-const (
-	priority    = 10  // default priority when nothing is set
-	ttl         = 300 // default ttl when nothing is set
-	etcdTimeout = 5 * time.Second
-)
+// shouldInclude returns true if the service should be included in a list of records, given the qType. For all the
+// currently supported lookup types, the only one to allow for an empty Host field in the service are TXT records
+// which resolve directly.  If a TXT record is being resolved by CNAME, then we expect the Host field to have a
+// value while the TXT field will be empty.
+func shouldInclude(serv *msg.Service, qType uint16) bool {
+	return (qType == dns.TypeTXT && serv.Text != "") || serv.Host != ""
+}

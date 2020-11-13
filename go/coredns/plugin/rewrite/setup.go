@@ -1,18 +1,12 @@
 package rewrite
 
 import (
+	"github.com/coredns/caddy"
 	"github.com/inverse-inc/packetfence/go/coredns/core/dnsserver"
 	"github.com/inverse-inc/packetfence/go/coredns/plugin"
-
-	"github.com/mholt/caddy"
 )
 
-func init() {
-	caddy.RegisterPlugin("rewrite", caddy.Plugin{
-		ServerType: "dns",
-		Action:     setup,
-	})
-}
+func init() { plugin.Register("rewrite", setup) }
 
 func setup(c *caddy.Controller) error {
 	rewrites, err := rewriteParse(c)
@@ -32,6 +26,12 @@ func rewriteParse(c *caddy.Controller) ([]Rule, error) {
 
 	for c.Next() {
 		args := c.RemainingArgs()
+		if len(args) < 2 {
+			// Handles rules out of nested instructions, i.e. the ones enclosed in curly brackets
+			for c.NextBlock() {
+				args = append(args, c.Val())
+			}
+		}
 		rule, err := newRule(args...)
 		if err != nil {
 			return nil, err

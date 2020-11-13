@@ -7,11 +7,12 @@ import (
 	"strings"
 	"time"
 
+	"github.com/coredns/caddy"
+	"github.com/coredns/caddy/caddyfile"
 	"github.com/inverse-inc/packetfence/go/coredns/plugin"
 	"github.com/inverse-inc/packetfence/go/coredns/plugin/pkg/dnsutil"
-
-	"github.com/mholt/caddy"
-	"github.com/mholt/caddy/caddyfile"
+	"github.com/inverse-inc/packetfence/go/coredns/plugin/pkg/parse"
+	"github.com/inverse-inc/packetfence/go/coredns/plugin/pkg/transport"
 )
 
 const serverType = "dns"
@@ -22,11 +23,11 @@ func init() {
 	flag.StringVar(&Port, serverType+".port", DefaultPort, "Default port")
 
 	caddy.RegisterServerType(serverType, caddy.ServerType{
-		Directives: func() []string { return directives },
+		Directives: func() []string { return Directives },
 		DefaultInput: func() caddy.Input {
 			return caddy.CaddyfileInput{
 				Filepath:       "Corefile",
-				Contents:       []byte(".:" + Port + " {\nwhoami\n}\n"),
+				Contents:       []byte(".:" + Port + " {\nwhoami\nlog\n}\n"),
 				ServerTypeName: serverType,
 			}
 		},
@@ -34,7 +35,7 @@ func init() {
 	})
 }
 
-func newContext() caddy.Context {
+func newContext(i *caddy.Instance) caddy.Context {
 	return &dnsContext{keysToConfigs: make(map[string]*Config)}
 }
 
@@ -50,37 +51,36 @@ func (h *dnsContext) saveConfig(key string, cfg *Config) {
 	h.keysToConfigs[key] = cfg
 }
 
+// Compile-time check to ensure dnsContext implements the caddy.Context interface
+var _ caddy.Context = &dnsContext{}
+
 // InspectServerBlocks make sure that everything checks out before
 // executing directives and otherwise prepares the directives to
 // be parsed and executed.
 func (h *dnsContext) InspectServerBlocks(sourceFile string, serverBlocks []caddyfile.ServerBlock) ([]caddyfile.ServerBlock, error) {
 	// Normalize and check all the zone names and check for duplicates
-	dups := map[string]string{}
-	for _, s := range serverBlocks {
-		for i, k := range s.Keys {
+	for ib, s := range serverBlocks {
+		for ik, k := range s.Keys {
 			za, err := normalizeZone(k)
 			if err != nil {
 				return nil, err
 			}
-			s.Keys[i] = za.String()
-			if v, ok := dups[za.String()]; ok {
-				return nil, fmt.Errorf("cannot serve %s - zone already defined for %v", za, v)
-			}
-			dups[za.String()] = za.String()
-
+			s.Keys[ik] = za.String()
 			// Save the config to our master list, and key it for lookups.
 			cfg := &Config{
-				Zone:      za.Zone,
-				Port:      za.Port,
-				Transport: za.Transport,
+				Zone:        za.Zone,
+				ListenHosts: []string{""},
+				Port:        za.Port,
+				Transport:   za.Transport,
 			}
+			keyConfig := keyForConfig(ib, ik)
 			if za.IPNet == nil {
-				h.saveConfig(za.String(), cfg)
+				h.saveConfig(keyConfig, cfg)
 				continue
 			}
 
 			ones, bits := za.IPNet.Mask.Size()
-			if (bits-ones)%8 != 0 { // only do this for non-octet bounderies
+			if (bits-ones)%8 != 0 { // only do this for non-octet boundaries
 				cfg.FilterFunc = func(s string) bool {
 					// TODO(miek): strings.ToLower! Slow and allocates new string.
 					addr := dnsutil.ExtractAddressFromReverse(strings.ToLower(s))
@@ -90,7 +90,7 @@ func (h *dnsContext) InspectServerBlocks(sourceFile string, serverBlocks []caddy
 					return za.IPNet.Contains(net.ParseIP(addr))
 				}
 			}
-			h.saveConfig(za.String(), cfg)
+			h.saveConfig(keyConfig, cfg)
 		}
 	}
 	return serverBlocks, nil
@@ -98,6 +98,13 @@ func (h *dnsContext) InspectServerBlocks(sourceFile string, serverBlocks []caddy
 
 // MakeServers uses the newly-created siteConfigs to create and return a list of server instances.
 func (h *dnsContext) MakeServers() ([]caddy.Server, error) {
+
+	// Now that all Keys and Directives are parsed and initialized
+	// lets verify that there is no overlap on the zones and addresses to listen for
+	errValid := h.validateZonesAndListeningAddresses()
+	if errValid != nil {
+		return nil, errValid
+	}
 
 	// we must map (group) each config to a bind address
 	groups, err := groupConfigsByListenAddr(h.configs)
@@ -108,28 +115,34 @@ func (h *dnsContext) MakeServers() ([]caddy.Server, error) {
 	var servers []caddy.Server
 	for addr, group := range groups {
 		// switch on addr
-		switch Transport(addr) {
-		case TransportDNS:
+		switch tr, _ := parse.Transport(addr); tr {
+		case transport.DNS:
 			s, err := NewServer(addr, group)
 			if err != nil {
 				return nil, err
 			}
 			servers = append(servers, s)
 
-		case TransportTLS:
+		case transport.TLS:
 			s, err := NewServerTLS(addr, group)
 			if err != nil {
 				return nil, err
 			}
 			servers = append(servers, s)
 
-		case TransportGRPC:
+		case transport.GRPC:
 			s, err := NewServergRPC(addr, group)
 			if err != nil {
 				return nil, err
 			}
 			servers = append(servers, s)
 
+		case transport.HTTPS:
+			s, err := NewServerHTTPS(addr, group)
+			if err != nil {
+				return nil, err
+			}
+			servers = append(servers, s)
 		}
 
 	}
@@ -167,34 +180,66 @@ func (c *Config) Handler(name string) plugin.Handler {
 	return nil
 }
 
+// Handlers returns a slice of plugins that have been registered. This can be used to
+// inspect and interact with registered plugins but cannot be used to remove or add plugins.
+// Note that this is order dependent and the order is defined in directives.go, i.e. if your plugin
+// comes before the plugin you are checking; it will not be there (yet).
+func (c *Config) Handlers() []plugin.Handler {
+	if c.registry == nil {
+		return nil
+	}
+	hs := make([]plugin.Handler, 0, len(c.registry))
+	for k := range c.registry {
+		hs = append(hs, c.registry[k])
+	}
+	return hs
+}
+
+func (h *dnsContext) validateZonesAndListeningAddresses() error {
+	//Validate Zone and addresses
+	checker := newOverlapZone()
+	for _, conf := range h.configs {
+		for _, h := range conf.ListenHosts {
+			// Validate the overlapping of ZoneAddr
+			akey := zoneAddr{Transport: conf.Transport, Zone: conf.Zone, Address: h, Port: conf.Port}
+			existZone, overlapZone := checker.registerAndCheck(akey)
+			if existZone != nil {
+				return fmt.Errorf("cannot serve %s - it is already defined", akey.String())
+			}
+			if overlapZone != nil {
+				return fmt.Errorf("cannot serve %s - zone overlap listener capacity with %v", akey.String(), overlapZone.String())
+			}
+
+		}
+	}
+	return nil
+
+}
+
 // groupSiteConfigsByListenAddr groups site configs by their listen
 // (bind) address, so sites that use the same listener can be served
 // on the same server instance. The return value maps the listen
 // address (what you pass into net.Listen) to the list of site configs.
 // This function does NOT vet the configs to ensure they are compatible.
 func groupConfigsByListenAddr(configs []*Config) (map[string][]*Config, error) {
-	groups := make(map[string][]*Config)
 
+	groups := make(map[string][]*Config)
 	for _, conf := range configs {
-		addr, err := net.ResolveTCPAddr("tcp", net.JoinHostPort(conf.ListenHost, conf.Port))
-		if err != nil {
-			return nil, err
+		for _, h := range conf.ListenHosts {
+			addr, err := net.ResolveTCPAddr("tcp", net.JoinHostPort(h, conf.Port))
+			if err != nil {
+				return nil, err
+			}
+			addrstr := conf.Transport + "://" + addr.String()
+			groups[addrstr] = append(groups[addrstr], conf)
 		}
-		addrstr := conf.Transport + "://" + addr.String()
-		groups[addrstr] = append(groups[addrstr], conf)
 	}
 
 	return groups, nil
 }
 
-const (
-	// DefaultPort is the default port.
-	DefaultPort = "53"
-	// TLSPort is the default port for DNS-over-TLS.
-	TLSPort = "853"
-	// GRPCPort is the default port for DNS-over-gRPC.
-	GRPCPort = "443"
-)
+// DefaultPort is the default port.
+const DefaultPort = transport.Port
 
 // These "soft defaults" are configurable by
 // command line flags, etc.

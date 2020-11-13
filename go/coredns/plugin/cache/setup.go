@@ -1,23 +1,21 @@
 package cache
 
 import (
+	"errors"
 	"fmt"
 	"strconv"
 	"time"
 
+	"github.com/coredns/caddy"
 	"github.com/inverse-inc/packetfence/go/coredns/core/dnsserver"
 	"github.com/inverse-inc/packetfence/go/coredns/plugin"
 	"github.com/inverse-inc/packetfence/go/coredns/plugin/pkg/cache"
-
-	"github.com/mholt/caddy"
+	clog "github.com/inverse-inc/packetfence/go/coredns/plugin/pkg/log"
 )
 
-func init() {
-	caddy.RegisterPlugin("cache", caddy.Plugin{
-		ServerType: "dns",
-		Action:     setup,
-	})
-}
+var log = clog.NewWithPlugin("cache")
+
+func init() { plugin.Register("cache", setup) }
 
 func setup(c *caddy.Controller) error {
 	ca, err := cacheParse(c)
@@ -29,18 +27,19 @@ func setup(c *caddy.Controller) error {
 		return ca
 	})
 
-	// Export the capacity for the metrics. This only happens once, because this is a re-load change only.
-	cacheCapacity.WithLabelValues(Success).Set(float64(ca.pcap))
-	cacheCapacity.WithLabelValues(Denial).Set(float64(ca.ncap))
-
 	return nil
 }
 
 func cacheParse(c *caddy.Controller) (*Cache, error) {
+	ca := New()
 
-	ca := &Cache{pcap: defaultCap, ncap: defaultCap, pttl: maxTTL, nttl: maxNTTL, prefetch: 0, duration: 1 * time.Minute}
-
+	j := 0
 	for c.Next() {
+		if j > 0 {
+			return nil, plugin.ErrOnce
+		}
+		j++
+
 		// cache [ttl] [zones..]
 		origins := make([]string, len(c.ServerBlockKeys))
 		copy(origins, c.ServerBlockKeys)
@@ -87,6 +86,17 @@ func cacheParse(c *caddy.Controller) (*Cache, error) {
 						return nil, fmt.Errorf("cache TTL can not be zero or negative: %d", pttl)
 					}
 					ca.pttl = time.Duration(pttl) * time.Second
+					if len(args) > 2 {
+						minpttl, err := strconv.Atoi(args[2])
+						if err != nil {
+							return nil, err
+						}
+						// Reserve < 0
+						if minpttl < 0 {
+							return nil, fmt.Errorf("cache min TTL can not be negative: %d", minpttl)
+						}
+						ca.minpttl = time.Duration(minpttl) * time.Second
+					}
 				}
 			case Denial:
 				args := c.RemainingArgs()
@@ -108,6 +118,17 @@ func cacheParse(c *caddy.Controller) (*Cache, error) {
 						return nil, fmt.Errorf("cache TTL can not be zero or negative: %d", nttl)
 					}
 					ca.nttl = time.Duration(nttl) * time.Second
+					if len(args) > 2 {
+						minnttl, err := strconv.Atoi(args[2])
+						if err != nil {
+							return nil, err
+						}
+						// Reserve < 0
+						if minnttl < 0 {
+							return nil, fmt.Errorf("cache min TTL can not be negative: %d", minnttl)
+						}
+						ca.minnttl = time.Duration(minnttl) * time.Second
+					}
 				}
 			case "prefetch":
 				args := c.RemainingArgs()
@@ -123,8 +144,6 @@ func cacheParse(c *caddy.Controller) (*Cache, error) {
 				}
 				ca.prefetch = amount
 
-				ca.duration = 1 * time.Minute
-				ca.percentage = 10
 				if len(args) > 1 {
 					dur, err := time.ParseDuration(args[1])
 					if err != nil {
@@ -149,6 +168,22 @@ func cacheParse(c *caddy.Controller) (*Cache, error) {
 					ca.percentage = num
 				}
 
+			case "serve_stale":
+				args := c.RemainingArgs()
+				if len(args) > 1 {
+					return nil, c.ArgErr()
+				}
+				ca.staleUpTo = 1 * time.Hour
+				if len(args) == 1 {
+					d, err := time.ParseDuration(args[0])
+					if err != nil {
+						return nil, err
+					}
+					if d < 0 {
+						return nil, errors.New("invalid negative duration for serve_stale")
+					}
+					ca.staleUpTo = d
+				}
 			default:
 				return nil, c.ArgErr()
 			}
@@ -157,14 +192,11 @@ func cacheParse(c *caddy.Controller) (*Cache, error) {
 		for i := range origins {
 			origins[i] = plugin.Host(origins[i]).Normalize()
 		}
-
 		ca.Zones = origins
 
 		ca.pcache = cache.New(ca.pcap)
 		ca.ncache = cache.New(ca.ncap)
-
-		return ca, nil
 	}
 
-	return nil, nil
+	return ca, nil
 }
