@@ -263,3 +263,7 @@ func (c *Client) SetTenantId(ctx context.Context, tenantId int) {
 func (c *Client) ResetTenantId(ctx context.Context) {
 	c.tenantId = UnsetTenantId
 }
+
+func (c *Client) GetToken(ctx context.Context) string {
+	return c.token
+}
