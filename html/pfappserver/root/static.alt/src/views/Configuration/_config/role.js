@@ -2,6 +2,7 @@ import i18n from '@/utils/locale'
 import pfFormInput from '@/components/pfFormInput'
 import pfFormChosen from '@/components/pfFormChosen'
 import pfFormTextarea from '@/components/pfFormTextarea'
+import pfFormRangeToggle from '@/components/pfFormRangeToggle'
 import {
   attributesFromMeta,
   validatorsFromMeta
@@ -175,6 +176,34 @@ export const view = (_, meta = {}) => {
           ]
         },
         {
+          label: i18n.t('Include Parent ACLs'),
+          text: i18n.t(`Include parents ACLs`),
+          cols: [
+            {
+              namespace: 'include_parent_acls',
+              component: pfFormRangeToggle,
+              attrs: {
+                ...attributesFromMeta(meta, 'include_parent_acls'),
+                values: { checked: 'enabled', unchecked: 'disabled' }
+              }
+            }
+          ]
+        },
+        {
+          label: i18n.t('Fingerbank Dynamic ACLs'),
+          text: i18n.t(`Use the Fingerbank dynamic ACLS`),
+          cols: [
+            {
+              namespace: 'fingerbank_dynamic_access_list',
+              component: pfFormRangeToggle,
+              attrs: {
+                ...attributesFromMeta(meta, 'fingerbank_dynamic_access_list'),
+                values: { checked: 'enabled', unchecked: 'disabled' }
+              }
+            }
+          ]
+        },
+        {
           label: i18n.t('ACLs'),
           text: i18n.t('Access Control Lists.'),
           cols: [
@@ -182,6 +211,17 @@ export const view = (_, meta = {}) => {
               namespace: 'acls',
               component: pfFormTextarea,
               attrs: attributesFromMeta(meta, 'acls')
+            }
+          ]
+        },
+        {
+          label: i18n.t('VLAN'),
+          text: i18n.t('The VLAN to use for this role'),
+          cols: [
+            {
+              namespace: 'vlan',
+              component: pfFormInput,
+              attrs: attributesFromMeta(meta, 'vlan')
             }
           ]
         }
