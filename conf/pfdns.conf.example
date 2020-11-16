@@ -35,3 +35,9 @@ forward . /etc/resolv.conf
     log stdout
     errors
 }
+
+https://.:853 {
+    #tls /usr/local/pf/conf/ssl/server.crt /usr/local/pf/conf/ssl/server.key
+    #Needs to be changed
+    forward . 8.8.8.8
+}

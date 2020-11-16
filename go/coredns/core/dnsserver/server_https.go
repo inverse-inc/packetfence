@@ -38,12 +38,11 @@ func NewServerHTTPS(addr string, group []*Config) (*ServerHTTPS, error) {
 		// Should we error if some configs *don't* have TLS?
 		tlsConfig = conf.TLSConfig
 	}
-	if tlsConfig == nil {
-		return nil, fmt.Errorf("DoH requires TLS to be configured, see the tls plugin")
+	if tlsConfig != nil {
+		// http/2 is recommended when using DoH. We need to specify it in next protos
+		// or the upgrade won't happen.
+		tlsConfig.NextProtos = []string{"h2", "http/1.1"}
 	}
-	// http/2 is recommended when using DoH. We need to specify it in next protos
-	// or the upgrade won't happen.
-	tlsConfig.NextProtos = []string{"h2", "http/1.1"}
 
 	srv := &http.Server{
 		ReadTimeout:  5 * time.Second,
