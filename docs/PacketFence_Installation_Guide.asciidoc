@@ -100,6 +100,10 @@ include::installation/fingerbank_integration.asciidoc[]
 
 include::installation/network_devices_anomaly_detection.asciidoc[]
 
+== Tenants
+
+include::installation/tenants.asciidoc[]
+
 == Intrusion Detection System Integration
 
 include::installation/intrusion_detection_system_integration.asciidoc[]
