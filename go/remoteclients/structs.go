@@ -27,4 +27,5 @@ type Peer struct {
 	ACLs             []string `json:"acls"`
 	Routes           []string `json:"routes"`
 	IsGateway        bool     `json:"is_gateway"`
+	Hostname         string   `json:"hostname"`
 }

@@ -116,6 +116,7 @@ func (h *WgorchestratorHandler) handleGetPeer(c *gin.Context) {
 			WireguardIP:      rc.IPAddress(),
 			WireguardNetmask: rc.Netmask(),
 			IsGateway:        rc.IsGateway(c, db),
+			Hostname:         rc.GetNode(c).Computername,
 		})
 	} else {
 		renderError(c, http.StatusNotFound, errors.New("Unable to find a peer with this identifier"))
