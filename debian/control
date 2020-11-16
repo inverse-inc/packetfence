@@ -138,7 +138,7 @@ Depends: ${misc:Depends}, vlan,
 # monitoring
  fping, python-mysqldb,
 # EAP TLS
- libcrypt-smime-perl, libnumber-range-perl,
+ libcrypt-smime-perl (= 0.15), libnumber-range-perl,
 # Captive Portal Dynamic Routing
  libgraph-perl,
 # SAML
