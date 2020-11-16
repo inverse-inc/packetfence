@@ -1,4 +1,4 @@
-import { computed, ref, toRefs } from '@vue/composition-api'
+import { computed, ref, toRefs, watch } from '@vue/composition-api'
 import i18n from '@/utils/locale'
 import schemaFn from '../schema'
 import {
@@ -7,33 +7,19 @@ import {
 } from '../config'
 
 const useFormProps = {
-  form: {
-    type: Object
-  },
   id: {
     type: String
-  },
-  isLoading: {
-    type: Boolean,
-    default: false
   }
 }
 
-const useForm = (props, context) => {
-
-  const {
-    form,
-    id
-  } = toRefs(props)
-
-  //const isTestingLetsEncrypt = computed(() => $store.getters['$_certificates/isTesting'])
+const useForm = (form, id) => {
 
   const schema = computed(() => schemaFn(props))
 
   const title = computed(() => id.value.toUpperCase())
 
   const isCertificateAuthority = computed(() => {
-    const { info: { ca } = {}  } = form.value
+    const { info: { ca } = {} } = form.value
     return ca
   })
 
@@ -89,11 +75,17 @@ const useForm = (props, context) => {
     isShowCsr.value = false
   }
 
-
   const showAlert = ref(true)
 
   const services = computed(() => certificateServices[id.value] || [])
 
+  // cosmetic props only
+  const isFindIntermediateCas = ref(false)
+
+  watch(isFindIntermediateCas, isFindIntermediateCas => {
+    if (isFindIntermediateCas) // clear intermediate CAs
+      form.value.certificate.intermediate_cas = []
+  })
 
   return {
     schema,
@@ -115,7 +107,8 @@ const useForm = (props, context) => {
     isCertificateAuthority,
     isCertKeyMatch,
     isChainValid,
-    isLetsEncrypt
+    isLetsEncrypt,
+    isFindIntermediateCas
   }
 }
 

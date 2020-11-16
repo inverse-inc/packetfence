@@ -141,3 +141,10 @@ export default {
   setup
 }
 </script>
+<style lang="scss">
+.base-form-group {
+  textarea {
+    min-height: $input-height;
+  }
+}
+</style>

@@ -36,7 +36,7 @@
           <b-col class="text-center">
             <span class="col-form-label ">{{ index + 1 }}</span>
           </b-col>
-          <b-col cols="10">
+          <b-col cols="10" class="py-1">
 
             <component :is="childComponent"
               :namespace="`${namespace}.${index}`"

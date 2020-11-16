@@ -1,33 +1,25 @@
 <template>
   <b-container class="px-0" fluid>
-
     <component v-if="formType"
       :is="formType" v-bind="$props"
     />
 
-    <b-container class="my-5 py-5" v-else>
-      <b-row class="justify-content-md-center text-secondary">
-        <b-col cols="12" md="auto">
-          <b-media v-if="isLoading">
-            <template v-slot:aside>
-              <icon name="circle-notch" scale="2" spin></icon>
-            </template>
-            <h4>{{ $t('Building Form') }}</h4>
-            <p class="font-weight-light">{{ $t('Hold on a moment while we render it...') }}</p>
-          </b-media>
-          <b-media v-else>
-            <template v-slot:aside><icon name="question-circle" scale="2"></icon></template>
-            <h4>{{ $t('Unhandled source type') }}</h4>
-          </b-media>
-        </b-col>
-      </b-row>
-    </b-container>
+    <base-container-loading v-else-if="isLoading"
+      :title="$i18n.t('Building Form')"
+      :text="$i18n.t('Hold on a moment while we render it...')"
+      spin
+    />
 
+    <base-container-loading v-else
+      :title="$i18n.t('Unhandled source type')"
+      icon="question-circle"
+    />
   </b-container>
 </template>
 <script>
 import { computed, toRefs, unref } from '@vue/composition-api'
 import { useFormProps as props } from '../_composables/useForm'
+import { BaseContainerLoading } from '@/components/new/'
 import FormTypeActiveDirectory from './FormTypeActiveDirectory'
 import FormTypeAdminProxy from './FormTypeAdminProxy'
 import FormTypeAuthorization from './FormTypeAuthorization'
@@ -62,6 +54,8 @@ import FormTypeTwitter from './FormTypeTwitter'
 import FormTypeWindowsLive from './FormTypeWindowsLive'
 
 const components = {
+  BaseContainerLoading,
+
   FormTypeActiveDirectory,
   FormTypeAdminProxy,
   FormTypeAuthorization,

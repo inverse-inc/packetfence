@@ -1,4 +1,4 @@
-import { computed, nextTick, toRefs, unref } from '@vue/composition-api'
+import { computed, nextTick, toRefs } from '@vue/composition-api'
 
 export const useInputRangeProps = {
     value: {
@@ -37,27 +37,27 @@ export const useInputRange = (props, { emit, refs }, inputRef = 'input') => {
   // helpers
   const getPercent = value => {
     value = +value
-    const _min = +unref(min)
-    const _max = +unref(max)
+    const _min = +min.value
+    const _max = +max.value
     if (value >= _max) return 100
     if (value <= _min) return 0
     return (100 / (_max - _min)) * value - (100 / (_max - _min)) * _min
   }
 
-  const percent = computed(() => getPercent(unref(value)))
+  const percent = computed(() => getPercent(value.value))
 
   // state
-  const defaultValue = computed(() => unref(min))
+  const defaultValue = computed(() => min.value)
 
   const rootStyle = computed(() => ({
-    '--range-length': max.value - min.value + 1,
+    '--range-length': +max.value - +min.value + 1,
     ...((color.value)
-      ? { '--range-background-color': unref(color) }
+      ? { '--range-background-color': color.value }
       : {}
     )
   }))
 
-  const hintStyles = computed(() => unref(hints).map(hint => ((hint.constructor === Array)
+  const hintStyles = computed(() => hints.value.map(hint => ((hint.constructor === Array)
     ? { // range
       left: `${getPercent(hint[0])}%`,
       width: `calc(${getPercent(hint[1] - hint[0])}% + var(--handle-height))`
@@ -68,13 +68,13 @@ export const useInputRange = (props, { emit, refs }, inputRef = 'input') => {
     }
   )))
 
-  const labelStyle = computed(() => ((unref(value) >= ((unref(max) - unref(min)) / 2))
+  const labelStyle = computed(() => ((~~value.value >= (~~max.value - ~~min.value) / 2)
       ? { 'justify-content': 'flex-start' }
       : { 'justify-content': 'flex-end' }
   ))
 
   const valueStyle = computed(() => ({
-    left: `${unref(percent)}%`
+    left: `${percent.value}%`
   }))
 
   // methods
@@ -85,6 +85,8 @@ export const useInputRange = (props, { emit, refs }, inputRef = 'input') => {
       return
     emit('input', e.target.value)
   }
+  const onDecrement = () => emit('input', ((~~value.value + (~~max.value - ~~min.value)) % (~~max.value - ~~min.value + 1)))
+  const onIncrement = () => emit('input', ((~~value.value + 1) % (~~max.value - ~~min.value + 1)))
 
   return {
     // state
@@ -97,6 +99,8 @@ export const useInputRange = (props, { emit, refs }, inputRef = 'input') => {
     // methods
     doFocus,
     doBlur,
-    onInput
+    onInput,
+    onDecrement,
+    onIncrement,
   }
 }

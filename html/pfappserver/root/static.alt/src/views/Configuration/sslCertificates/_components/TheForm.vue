@@ -10,7 +10,11 @@
           <h5 class="mb-0 d-inline">{{ title }} {{ $t('Certificate') }}</h5>
           <b-button v-t="'Generate Signing Request (CSR)'" class="float-right" size="sm" variant="outline-secondary" @click="doShowCsr"/>
         </b-card-header>
-        <b-container fluid>
+        <base-container-loading v-if="isLoading"
+          :title="$i18n.t('Loading Certificate')"
+          spin
+        />
+        <b-container fluid v-else>
           <b-row align-v="center" v-if="isLetsEncrypt">
             <b-col sm="3" class="col-form-label"><icon name="check"/></b-col>
             <b-col sm="9">{{ $t(`Use Let's Encrypt`)} }</b-col>
@@ -37,19 +41,21 @@
           </b-row>
         </b-container>
       </b-card>
-
       <b-card no-body class="m-3" v-if="isCertificateAuthority">
         <b-card-header>
           <h4 class="mb-0">{{ title }} {{ $t('Certificate Authorities') }}</h4>
         </b-card-header>
-        <b-container fluid>
+        <base-container-loading v-if="isLoading"
+          :title="$i18n.t('Loading Certificate Authorities')"
+          spin
+        />
+        <b-container fluid v-else>
           <b-row align-v="baseline" v-for="(value, key) in certificateAuthorityLocale" :key="key">
             <b-col sm="3" class="col-form-label">{{ key }}</b-col>
             <b-col sm="9">{{ value }}</b-col>
           </b-row>
         </b-container>
       </b-card>
-
       <b-card-footer>
         <b-button v-t="'Edit'" @click="doShowEdit"/>
       </b-card-footer>
@@ -59,7 +65,7 @@
       Edit mode
     -->
     <template v-else>
-      <b-alert :show="showAlert" class="m-3" variant="warning" fade>
+      <b-alert :show="showAlert" class="mt-3 mb-0 mx-3" variant="warning" fade>
         <h4 class="alert-heading" v-t="'Warning'"/>
         <p>
           {{ $t('Some services must be restarted to load the new certificate.') }}
@@ -72,57 +78,68 @@
         />
       </b-alert>
 
-      <base-form
-        :form="form.certificate"
-        :schema="schema"
-        :isLoading="isLoading"
-        class="p-3"
-      >
-        <form-group-lets-encrypt namespace="lets_encrypt"
-          :column-label="$i18n.t(`Use Let's Encrypt`)"
-        />
-
-        <!--
-          With Let's Encrypt (lets_encrypt: true)
-        -->
-        <template v-if="form.lets_encrypt">
-Yes
-        </template>
-
-        <!--
-          Without Let's Encrypt (lets_encrypt: false)
-        -->
-        <template v-else>
-
-          <form-group-certificate namespace="certificate"
-            :column-label="$i18n.t('Certificate')"
-            rows="6" max-rows="6"
+      <b-form @submit.prevent="doSave" ref="rootRef">
+        <base-form
+          :form="form.certificate"
+          :schema="schema"
+          :isLoading="isLoading"
+        >
+          <form-group-lets-encrypt namespace="lets_encrypt"
+            :column-label="$i18n.t(`Use Let's Encrypt`)"
           />
 
-          <form-group-private-key namespace="private_key"
-            :column-label="$i18n.t('Private Key')"
-            rows="6" max-rows="6"
-          />
+          <!--
+            With Let's Encrypt (lets_encrypt: true)
+          -->
+          <template v-if="form.certificate.lets_encrypt">
+            <form-group-lets-encrypt-common-name namespace="common_name"
+              :column-label="$i18n.t('Common Name')"
+            />
+          </template>
 
-          <form-group-check-chain namespace="check_chain"
-            :column-label="$i18n.t('Validate certificate chain')"
-          />
+          <!--
+            Without Let's Encrypt (lets_encrypt: false)
+          -->
+          <template v-else>
+            <form-group-certificate namespace="certificate"
+              :column-label="$i18n.t('Certificate')"
+              rows="6" max-rows="6"
+            />
 
-          <form-group-find-intermediate-cas v-model="isFindIntermediateCas"
-            :column-label="$i18n.t('Find intermediate CA certificates automatically')"
-          />
+            <form-group-private-key namespace="private_key"
+              :column-label="$i18n.t('Private Key')"
+              rows="6" max-rows="6"
+            />
 
-        </template>
-      </base-form>
+            <form-group-check-chain namespace="check_chain"
+              :column-label="$i18n.t('Validate certificate chain')"
+            />
 
-<base-button-upload
-  @files="testFiles" @focus="testFocus" @input="testInput" accept="text/*" read-as-text
-  class="btn btn-outline-primary"
-/>
-<pre>{{ {form} }}</pre>
+            <form-group-find-intermediate-cas v-model="isFindIntermediateCas"
+              :column-label="$i18n.t('Find intermediate CA certificates automatically')"
+            />
+
+            <form-group-intermediate-certificate-authorities v-if="!isFindIntermediateCas"
+              namespace="intermediate_cas"
+              :column-label="$i18n.t('Intermediate CA certificate(s)')"
+            />
+          </template>
+        </base-form>
+      </b-form>
 
       <b-card-footer>
         <b-button v-t="'Cancel'" @click="doHideEdit"></b-button>
+
+        <form-button-bar
+          :actionKey="actionKey"
+          :isLoading="isLoading"
+          :isValid="isValid"
+          :formRef="rootRef"
+          @close="doHideEdit"
+          @reset="doReset"
+          @save="doSave"
+        />
+
       </b-card-footer>
     </template>
 
@@ -133,61 +150,132 @@ Yes
       v-model="isShowCsr"
       :id="id"
       @hidden="doHideCsr"
-/>
+    />
 
   </b-container>
 </template>
 <script>
 import {
-                        BaseButtonUpload,
-
-
+  BaseContainerLoading,
   BaseForm,
+  BaseFormButtonBar,
   BaseFormGroupToggleFalseTrue as FormGroupFindIntermediateCas
 } from '@/components/new/'
 import {
   ButtonService,
   FormGroupCertificate,
   FormGroupCheckChain,
+  FormGroupIntermediateCertificateAuthorities,
   FormGroupLetsEncrypt,
+  FormGroupLetsEncryptCommonName,
   FormGroupPrivateKey,
   TheCsr
 } from './'
 
 const components = {
-                        BaseButtonUpload,
+  BaseContainerLoading,
   BaseForm,
+  BaseFormButtonBar,
   ButtonService,
   FormGroupCertificate,
   FormGroupCheckChain,
-  FormGroupLetsEncrypt,
-  FormGroupPrivateKey,
   FormGroupFindIntermediateCas,
+  FormGroupIntermediateCertificateAuthorities,
+  FormGroupLetsEncrypt,
+  FormGroupLetsEncryptCommonName,
+  FormGroupPrivateKey,
 
   TheCsr
 }
 
-import { useForm, useFormProps as props } from '../_composables/useForm'
-import { ref } from '@vue/composition-api'
+import { toRefs } from '@vue/composition-api'
+import { useView as useBaseView } from '@/composables/useView'
+import { useForm, useFormProps } from '../_composables/useForm'
+import { useStore, useStoreProps } from '../_composables/useStore'
+
+const props = {
+  ...useFormProps,
+  ...useStoreProps,
+}
 
 const setup = (props, context) => {
 
-  // cosmetic props only
-  const isFindIntermediateCas = ref(false)
+  const {
+    id
+  } = toRefs(props)
+
+  const {
+    rootRef,
+    form,
+    actionKey,
+    escapeKey,
+    isValid
+  } = useBaseView(props, context)
+
+
+  const {
+    schema,
+    certificateLocale,
+    certificateAuthorityLocale,
+    title,
+
+    showAlert,
+    services,
+
+    isShowEdit,
+    doShowEdit,
+    doHideEdit,
+
+    isShowCsr,
+    doShowCsr,
+    doHideCsr,
+
+    isCertificateAuthority,
+    isCertKeyMatch,
+    isChainValid,
+    isLetsEncrypt,
+    isFindIntermediateCas
+  } = useForm(form, id)
+
+  const {
+    isLoading,
+    doInit,
+    doReset,
+    doSave
+  } = useStore(props,context, form)
 
   return {
-    ...useForm(props, context),
+    // useView
+    rootRef,
+    form,
+    actionKey,
+    escapeKey,
+    isValid,
 
+    // useForm
+    schema,
+    certificateLocale,
+    certificateAuthorityLocale,
+    title,
+    showAlert,
+    services,
+    isShowEdit,
+    doShowEdit,
+    doHideEdit,
+    isShowCsr,
+    doShowCsr,
+    doHideCsr,
+    isCertificateAuthority,
+    isCertKeyMatch,
+    isChainValid,
+    isLetsEncrypt,
     isFindIntermediateCas,
-    testFiles: (...args) => {
-      console.log('testFiles', JSON.stringify({args}, null, 2))
-    },
-    testFocus: (...args) => {
-      console.log('testFocus', JSON.stringify({args}, null, 2))
-    },
-    testInput: (...args) => {
-      console.log('testInput', JSON.stringify({args}, null, 2))
-    }
+
+    // useStore
+    isLoading,
+    doInit,
+    doReset,
+    doSave
   }
 }
 

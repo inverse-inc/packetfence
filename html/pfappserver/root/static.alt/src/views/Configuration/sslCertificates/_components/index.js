@@ -4,28 +4,33 @@ import {
 
   BaseFormGroupChosenCountry,
   BaseFormGroupInput,
-  BaseFormGroupTextarea,
   BaseFormGroupToggleDisabledEnabled,
   BaseFormGroupToggleFalseTrue
 } from '@/components/new/'
+import BaseFormGroupCertificate from './BaseFormGroupCertificate'
+import BaseFormGroupPrivateKey from './BaseFormGroupPrivateKey'
+import BaseFormGroupLetsEncryptCommonName from './BaseFormGroupLetsEncryptCommonName'
+import BaseFormGroupIntermediateCertificateAuthorities from './BaseFormGroupIntermediateCertificateAuthorities'
 import TheCsr from './TheCsr'
 import TheForm from './TheForm'
 import TheView from './TheView'
 
 export {
-  BaseButtonService                   as ButtonService,
-  BaseFormButtonBar                   as FormButtonBar,
+  BaseButtonService                               as ButtonService,
+  BaseFormButtonBar                               as FormButtonBar,
 
-  BaseFormGroupToggleFalseTrue        as FormGroupLetsEncrypt,
-  BaseFormGroupTextarea               as FormGroupCertificate,
-  BaseFormGroupTextarea               as FormGroupPrivateKey,
-  BaseFormGroupToggleDisabledEnabled  as FormGroupCheckChain,
+  BaseFormGroupToggleFalseTrue                    as FormGroupLetsEncrypt,
+  BaseFormGroupLetsEncryptCommonName              as FormGroupLetsEncryptCommonName,
+  BaseFormGroupCertificate                        as FormGroupCertificate,
+  BaseFormGroupPrivateKey                         as FormGroupPrivateKey,
+  BaseFormGroupToggleDisabledEnabled              as FormGroupCheckChain,
+  BaseFormGroupIntermediateCertificateAuthorities as FormGroupIntermediateCertificateAuthorities,
 
-  BaseFormGroupChosenCountry          as FormGroupCsrCountry,
-  BaseFormGroupInput                  as FormGroupCsrState,
-  BaseFormGroupInput                  as FormGroupCsrLocality,
-  BaseFormGroupInput                  as FormGroupCsrOrganizationName,
-  BaseFormGroupInput                  as FormGroupCsrCommonName,
+  BaseFormGroupChosenCountry                      as FormGroupCsrCountry,
+  BaseFormGroupInput                              as FormGroupCsrState,
+  BaseFormGroupInput                              as FormGroupCsrLocality,
+  BaseFormGroupInput                              as FormGroupCsrOrganizationName,
+  BaseFormGroupInput                              as FormGroupCsrCommonName,
 
   TheCsr,
   TheForm,

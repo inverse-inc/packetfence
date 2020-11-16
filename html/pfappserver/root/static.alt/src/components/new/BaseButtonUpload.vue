@@ -12,7 +12,7 @@
       </b-form>
     </label>
     <slot>
-      {{ buttonLabel }}
+      {{ $i18n.t('Upload') }}
     </slot>
     <b-modal v-if="showError" v-model="showError" centered
       :title="$i18n.t('Upload Error')"
@@ -31,14 +31,10 @@
   </div>
 </template>
 <script>
-const props = {
+export const props = {
   accept: {
     type: String,
     default: '*/*'
-  },
-  buttonLabel: {
-    type: String,
-    default: i18n.t('Upload')
   },
   cumulative: {
     type: Boolean
@@ -108,9 +104,9 @@ const setup = (props, context) => {
 
   const isAccept = (file) => {
     const { name } = file
-    const contentType = mime.lookup(name).toLowerCase() // case insensitive
-    const accepted = accept.value.split(',')
-      .filter(type => type.trim().toLowerCase()) // ignore multiple spaces, case insensitive
+    const contentType = mime.lookup(name).replace(/ /g, '').toLowerCase() // case insensitive
+    const accepted = accept.value.replace(/ /g, '').split(',')
+      .filter(type => type.toLowerCase()) // ignore multiple commas, case insensitive
       .filter(type => {
         const [ contentTypeMs, contentTypeLs ] = contentType.split('/')
         const [ typeMs, typeLs ] = type.split('/')
@@ -157,7 +153,7 @@ const setup = (props, context) => {
 
           // dump additional info for remote debugging
           // eslint-disable-next-line
-          console.error(`Ignored file with content-type ${mime.lookup(file.name)}`)
+          console.error(`Ignored ${file.name} with content-type ${mime.lookup(file.name)}`)
         }
       }
     })
@@ -214,6 +210,7 @@ export default {
 .base-button-upload {
   position: relative;
   display: inline-block;
+  height: 100%;
   & > .base-button-upload-label input[type="file"] {
     opacity: 0;
     position: absolute;
@@ -223,6 +220,9 @@ export default {
     height: 100%;
     /* hide mouseover tooltip */
     color: transparent;
+  }
+  & > .fa-icon {
+    height: 100%;
   }
 }
 .base-button-upload:hover,

@@ -96,15 +96,18 @@ export default {
     }
   }
   &.is-focus > div,
-  &.is-focus > input {
+  &.is-focus > input,
+  &.is-focus > textarea {
     border-color: $input-focus-border-color !important;
   }
   &.is-invalid > div,
-  &.is-invalid > input {
+  &.is-invalid > input,
+  &.is-invalid > textarea {
     border-color: $form-feedback-invalid-color !important;
   }
   &.is-valid > div,
-  &.is-valid > input {
+  &.is-valid > input,
+  &.is-valid > textarea {
     border-color: $form-feedback-valid-color !important;
   }
 }

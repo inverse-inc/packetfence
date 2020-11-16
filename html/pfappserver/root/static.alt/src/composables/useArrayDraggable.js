@@ -76,7 +76,9 @@ export const useArrayDraggable = (props, context, value, onChange) => {
   )
 
   const add = (index, newValue) => {
-    const _newValue = JSON.parse(JSON.stringify(newValue))
+    let _newValue
+    if (newValue !== undefined)
+      _newValue = JSON.parse(JSON.stringify(newValue))
     isLoading = true
     return new Promise(resolve => {
       const _value = unref(value) || []

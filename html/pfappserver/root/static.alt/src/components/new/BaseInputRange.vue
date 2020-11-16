@@ -1,6 +1,6 @@
 <template>
   <div>
-    <div v-if="labelLeft" class="col-form-label text-nowrap mr-2" v-t="label"/>
+    <div v-if="labelLeft" class="base-input-range-label col-form-label text-nowrap mr-2" v-t="label" @click="onDecrement" />
     <div
       class="base-input-range"
       :class="{
@@ -15,11 +15,11 @@
       :style="rootStyle"
     >
       <div style="pointer-events: none;">
-        <div v-for="(hintStyle, index) in hintStyles" :key="index" class="hint" :style="hintStyle"></div>
+        <div v-for="(hintStyle, index) in hintStyles" :key="index" class="hint" :style="hintStyle" />
         <span class="handle" :style="valueStyle">
-          <icon v-if="isLocked" name="lock"/>
-          <icon v-else-if="icon" :name="icon"/>
-          <slot v-else/> <!-- Icon slot -->
+          <icon v-if="isLocked" name="lock" />
+          <icon v-else-if="icon" :name="icon" />
+          <slot v-else /> <!-- Icon slot -->
         </span>
         <div v-if="tooltip" class="tooltip" :style="valueStyle">
           <span id="value">{{ tooltip }}</span>
@@ -38,7 +38,7 @@
         @blur="onBlur"
       />
     </div>
-    <div v-if="labelRight" class="col-form-label text-nowrap ml-2" v-t="label"/>
+    <div v-if="labelRight" class="base-input-range-label col-form-label text-nowrap ml-2" v-t="label" @click="onIncrement" />
   </div>
 </template>
 <script>
@@ -104,7 +104,9 @@ export const setup = (props, context) => {
     hintStyles,
     labelStyle,
     valueStyle,
-    onInput
+    onInput,
+    onDecrement,
+    onIncrement
   } = useInputRange(metaProps, context)
 
   return {
@@ -128,7 +130,9 @@ export const setup = (props, context) => {
     hintStyles,
     valueStyle,
     labelStyle,
-    onInput
+    onInput,
+    onDecrement,
+    onIncrement
   }
 }
 
@@ -155,6 +159,10 @@ export default {
 @keyframes animateHint {
   from { opacity: 0; left: 50%; width: var(--handle-height); }
   to { opacity: 0.6; }
+}
+
+.base-input-range-label {
+  cursor: pointer;
 }
 
 .base-input-range {

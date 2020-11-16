@@ -44,7 +44,7 @@
             />
             <span class="draggable-index col-form-label ">{{ index + 1 }}</span>
           </b-col>
-          <b-col cols="10">
+          <b-col cols="10" class="py-1">
 
             <component :is="childComponent" :ref="draggableKeys[index]"
               :namespace="`${namespace}.${index}`"

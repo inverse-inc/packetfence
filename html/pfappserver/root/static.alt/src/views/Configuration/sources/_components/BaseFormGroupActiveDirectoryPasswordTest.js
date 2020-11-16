@@ -7,7 +7,7 @@ export const props = {
 
   test: {
     type: Function,
-    default: form => store.dispatch('$_sources/testAuthenticationSource', form).catch(err => {
+    default: (value, form) => store.dispatch('$_sources/testAuthenticationSource', form).catch(err => {
       const { response: { data: { message } = {} } = {} } = err
       if (message)
         throw message

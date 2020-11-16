@@ -27,25 +27,25 @@
       @blur="onBlur"
     />
     <template v-slot:append>
-        <b-button-group>
-          <b-button :disabled="!canTest" tabindex="-1" variant="light" class="py-0"
-            @click="doTest"
-          >
-            <span v-show="!isTesting">{{ buttonLabel || $t('Test') }}</span>
-            <icon v-show="isTesting" name="circle-notch" spin></icon>
-          </b-button>
-        </b-button-group>
-
-        <b-button-group
-          @click="doPin"
-          @mouseover="doShow"
-          @mousemove="doShow"
-          @mouseout="doHide"
+      <b-button-group>
+        <b-button :disabled="!canTest" tabindex="-1" variant="light" class="py-0"
+          @click="doTest"
         >
-          <b-button class="input-group-text no-border-radius" :disabled="!canTest" :pressed="reveal" tabindex="-1" :variant="(pinned) ? 'primary' : 'light'">
-            <icon name="eye"></icon>
-          </b-button>
-        </b-button-group>
+          <span v-show="!isTesting">{{ buttonLabel || $t('Test') }}</span>
+          <icon v-show="isTesting" name="circle-notch" spin></icon>
+        </b-button>
+      </b-button-group>
+
+      <b-button-group
+        @click="doPin"
+        @mouseover="doShow"
+        @mousemove="doShow"
+        @mouseout="doHide"
+      >
+        <b-button class="input-group-text no-border-radius" :disabled="!canTest" :pressed="reveal" tabindex="-1" :variant="(pinned) ? 'primary' : 'light'">
+          <icon name="eye"></icon>
+        </b-button>
+      </b-button-group>
     </template>
   </base-form-group>
 </template>

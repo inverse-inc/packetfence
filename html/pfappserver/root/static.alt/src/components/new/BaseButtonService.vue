@@ -1,6 +1,6 @@
 <template>
   <b-dropdown ref="buttonRef"
-    :disabled="disabled"
+    :disabled="isDisabled"
     :size="size"
     :text="service"
     :variant="buttonVariant"
@@ -8,7 +8,7 @@
     v-bind="$attrs"
   >
     <template v-slot:button-content>
-      <icon :name="buttonIcon.name" :spin="buttonIcon.spin" class="mr-1"></icon>
+      <icon v-bind="buttonIcon" class="mr-1"></icon>
       {{ buttonText }}
     </template>
     <b-dropdown-form v-if="!hideDetails">
@@ -68,6 +68,9 @@ const props = {
     type: String,
     default: 'md',
     validator: value => ['sm', 'md', 'lg'].includes(value)
+  },
+  disabled: {
+    type: Boolean
   }
 }
 
@@ -88,7 +91,8 @@ const setup = (props, context) => {
     disable,
     restart,
     start,
-    stop
+    stop,
+    disabled
   } = toRefs(props)
 
   const { root: { $store } = {}, emit } = context
@@ -105,7 +109,7 @@ const setup = (props, context) => {
       return !['success', 'error'].includes(status.value.status)
     return true
   })
-  const disabled = computed(() => isError.value || !isAllowed.value)
+  const isDisabled = computed(() => disabled.value || isError.value || !isAllowed.value)
 
   const tooltip = computed(() => {
     switch (true) {
@@ -143,7 +147,7 @@ const setup = (props, context) => {
   const buttonIcon = computed(() => {
     switch (true) {
       case !isAllowed.value:
-        return { name: 'exclamation-circle', spin: false }
+        return { name: 'exclamation-circle' }
         //break
 
       case ['enabling', 'disabling', 'restarting', 'starting', 'stopping'].includes(status.value.status):
@@ -152,11 +156,11 @@ const setup = (props, context) => {
         // break
 
       case isError.value:
-        return { name: 'exclamation-circle', spin: false }
+        return { name: 'exclamation-circle' }
         // break
 
       default:
-        return { name: 'circle', spin: false }
+        return { name: 'circle' }
         // break
     }
   })
@@ -236,9 +240,9 @@ const setup = (props, context) => {
 
     status,
     isAllowed,
+    isDisabled,
     isError,
     isLoading,
-    disabled,
     tooltip,
     buttonVariant,
     buttonIcon,

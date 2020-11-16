@@ -2,7 +2,7 @@ import { computed, ref, toRefs, unref, watch } from '@vue/composition-api'
 import { useView as useBaseView, useViewProps as useBaseViewProps } from '@/composables/useView'
 import i18n from '@/utils/locale'
 
-const useTabProps = {
+const useStoreProps = {
   ...useBaseViewProps,
 
   id: {
@@ -10,29 +10,14 @@ const useTabProps = {
   }
 }
 
-const useTab = (props, context) => {
+const useStore = (props, context, form) => {
 
   const {
     id
   } = toRefs(props) // toRefs maintains reactivity w/ destructuring
   const { root: { $store, $router } = {} } = context
 
-  const {
-    rootRef,
-    form
-  } = useBaseView(props, context)
-
   const isLoading = computed(() => $store.getters['$_certificates/isLoading'])
-
-  const isCertKeyMatch = computed(() => {
-    const { info: { cert_key_match: { success } = {} } = {} } = form.value
-    return success
-  })
-
-  const isChainValid = computed(() => {
-    const { info: { chain_is_valid: { success } = {} } = {} } = form.value
-    return success
-  })
 
   const doInit = () => {
     form.value = {
@@ -61,14 +46,7 @@ const useTab = (props, context) => {
   watch(props, () => doInit(), { deep: true, immediate: true })
 
   return {
-    rootRef,
-
-    form,
-
     isLoading,
-    isCertKeyMatch,
-    isChainValid,
-
     doInit,
     doReset,
     doSave
@@ -76,6 +54,6 @@ const useTab = (props, context) => {
 }
 
 export {
-  useTabProps,
-  useTab
+  useStoreProps,
+  useStore
 }
