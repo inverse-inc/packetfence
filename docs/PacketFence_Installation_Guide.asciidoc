@@ -59,7 +59,7 @@ endif::[]
 //== Installation
 
 ifdef::env-github[]
-<<installation/installation#snstallation, Installation>>
+<<installation/installation#installation, Installation>>
 endif::[]
 ifndef::env-github[]
 include::installation/installation.asciidoc[]
