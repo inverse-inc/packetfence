@@ -16,7 +16,7 @@ endif::[]
 
 ////
 
-//== System Requirements
+== System Requirements
 
 === Assumptions
 

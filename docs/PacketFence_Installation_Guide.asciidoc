@@ -47,9 +47,14 @@ These files are included in the package and release tarballs.
 
 PacketFence is a fully supported, trusted, Free and Open Source network access control (NAC) system. Boosting an impressive feature set including a captive portal for registration and remediation, centralized wired and wireless management, 802.1X support, layer-2 isolation of problematic devices, integration with IDS, vulnerability scanners and firewalls; PacketFence can be used to effectively secure networks - from small to very large heterogeneous networks. For a more detailed presentation on PacketFence please visit https://packetfence.org.
 
-== System Requirements
+//== System Requirements
 
+ifdef::env-github[]
+<<installation/system_requirements#assumptions, System Requirements>>
+endif::[]
+ifndef::env-github[]
 include::installation/system_requirements.asciidoc[]
+endif::[]
 
 == Installation
 
