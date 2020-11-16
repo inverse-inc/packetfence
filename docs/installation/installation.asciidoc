@@ -16,7 +16,7 @@ endif::[]
 
 ////
 
-//== Installation
+== Installation
 
 This section will guide you through the installation of PacketFence from the Zero Effort NAC (ZEN) appliance and from the standard repository of packages we provide - which can be used to install PacketFence on top of a vanilla GNU/Linux installation.
 

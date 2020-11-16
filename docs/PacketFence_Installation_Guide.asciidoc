@@ -56,9 +56,14 @@ ifndef::env-github[]
 include::installation/system_requirements.asciidoc[]
 endif::[]
 
-== Installation
+//== Installation
 
+ifdef::env-github[]
+<<installation/installation#snstallation, Installation>>
+endif::[]
+ifndef::env-github[]
 include::installation/installation.asciidoc[]
+endif::[]
 
 == Getting Started
 
