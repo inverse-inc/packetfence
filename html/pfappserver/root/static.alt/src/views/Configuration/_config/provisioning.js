@@ -1346,6 +1346,25 @@ export const view = (form = {}, meta = {}) => {
           ]
         }
       ]
+    case 'packetfence_ztn':
+      return [
+        {
+          tab: null, // ignore tabs
+          rows: [
+            viewFields.id(form, meta),
+            viewFields.description(form, meta),
+            viewFields.enforce(form, meta),
+            viewFields.autoregister(form, meta),
+            viewFields.apply_role(form, meta),
+            viewFields.role_to_apply(form, meta),
+            viewFields.category(form, meta),
+            viewFields.oses(form, meta),
+            viewFields.win_agent_download_uri(form, meta),
+            viewFields.mac_osx_agent_download_uri(form, meta),
+            viewFields.linuxx_agent_download_uri(form, meta)
+          ]
+        }
+      ]
     case 'intune':
       return [
         {
