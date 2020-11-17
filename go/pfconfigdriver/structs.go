@@ -689,3 +689,11 @@ type Cron struct {
 	PfconfigDecodeInElement string `val:"yes"`
 	Element                 map[string]interface{}
 }
+
+type NtlmRedisCachedDomains struct {
+	StructConfig
+	PfconfigMethod          string `val:"element"`
+	PfconfigNS              string `val:"resource::NtlmRedisCachedDomains"`
+	PfconfigDecodeInElement string `val:"yes"`
+	Element                 []string
+}
