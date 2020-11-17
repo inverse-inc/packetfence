@@ -7,7 +7,9 @@
 
 [% domain %]
 
-forward . /etc/resolv.conf
+    forward . /etc/resolv.conf {
+        prefer_udp
+    }
 }
 
 # all other domains are subject to interception
@@ -37,7 +39,10 @@ forward . /etc/resolv.conf
 }
 
 https://.:853 {
-    #tls /usr/local/pf/conf/ssl/server.crt /usr/local/pf/conf/ssl/server.key
-    #Needs to be changed
-    forward . 8.8.8.8
+
+    [% domain %]
+
+    forward . /etc/resolv.conf {
+        prefer_udp
+    }
 }

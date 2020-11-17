@@ -63,7 +63,9 @@ EOT
         my $cidr = $net_addr->cidr();
         my $dns =  join ' ',split(',',$ConfigNetworks{$network}{'dns'});
         $tags{'inline'} .= <<"EOT";
-    forward $cidr . $dns
+    forward . $dns {
+        network_source $cidr
+    }
 EOT
     }
 

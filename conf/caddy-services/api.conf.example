@@ -65,9 +65,8 @@
   }
 
   # doh forward
-  proxy /dns-query https://127.0.0.1:853 {
+  proxy /dns-query http://127.0.0.1:853 {
       transparent
-      #insecure_skip_verify
   }
 
   timeouts {

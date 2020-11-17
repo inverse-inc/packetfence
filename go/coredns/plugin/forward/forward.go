@@ -81,7 +81,6 @@ func (fs Forwards) Name() string { return "forward" }
 
 // ServeDNS implements plugin.Handler.
 func (fs Forwards) ServeDNS(ctx context.Context, w dns.ResponseWriter, r *dns.Msg) (int, error) {
-
 	for _, f := range fs.Forward {
 		state := request.Request{W: w, Req: r}
 		if !f.match(state) {
@@ -104,6 +103,7 @@ func (fs Forwards) ServeDNS(ctx context.Context, w dns.ResponseWriter, r *dns.Ms
 		list := f.List()
 		deadline := time.Now().Add(defaultTimeout)
 		start := time.Now()
+
 		for time.Now().Before(deadline) {
 			if i >= len(list) {
 				// reached the end of list, reset to begin
@@ -180,7 +180,6 @@ func (fs Forwards) ServeDNS(ctx context.Context, w dns.ResponseWriter, r *dns.Ms
 				w.WriteMsg(formerr)
 				return 0, nil
 			}
-
 			w.WriteMsg(ret)
 			return 0, nil
 		}
