@@ -24,7 +24,7 @@ URI to download the windows agent
 
 =cut
 
-has win_agent_download_uri => (is => 'rw');
+has win_agent_download_uri => (is => 'rw', default => "/content/packetfence-ztn-windows-x86-64.exe");
 
 =head2 mac_osx_agent_download_uri
 
@@ -32,7 +32,15 @@ URI to download the Mac OSX agent
 
 =cut
 
-has mac_osx_agent_download_uri => (is => 'rw');
+has mac_osx_agent_download_uri => (is => 'rw', default => "/content/packetfence-ztn-macosx-x86-64.pkg");
+
+=head2 mac_osx_agent_download_uri
+
+URI to download the Mac OSX agent
+
+=cut
+
+has linux_agent_download_uri => (is => 'rw', default => "/content/packetfence-ztn-linux-x86-64");
 
 =head1 AUTHOR
 
