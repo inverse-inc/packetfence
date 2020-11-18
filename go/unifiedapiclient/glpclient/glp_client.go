@@ -82,7 +82,8 @@ func (c *Client) Start(ctx context.Context) {
 	currentRunID := atomic.LoadUint64(&(c.runID))
 
 	go func(runID uint64, path string) {
-		since := time.Now().Unix() * 1000
+		since, err := c.GetServerTimestamp(ctx) * 1000
+		sharedutils.CheckError(err)
 		for {
 			pr, err := c.fetchEvents(ctx, since)
 
