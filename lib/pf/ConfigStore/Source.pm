@@ -196,6 +196,15 @@ sub join_options {
     return join("\n",@$options);
 }
 
+sub cleanupBeforeDelete {
+    my ($self, $id) = @_;
+    my $section = $self->_formatSectionName($id);
+    my $cachedConfig = $self->cachedConfig();
+    for my $sub_section ( grep {/^$section rule/} $cachedConfig->Sections ) {
+        $cachedConfig->DeleteSection($sub_section);
+    }
+}
+
 __PACKAGE__->meta->make_immutable unless $ENV{"PF_SKIP_MAKE_IMMUTABLE"};
 
 =head1 COPYRIGHT

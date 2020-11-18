@@ -477,9 +477,21 @@ sub remove {
         return $msg, $deletable;
     }
 
-    my $deleted = $self->cachedConfig->DeleteSection($self->_formatSectionName($id));
+    $self->cleanupBeforeDelete($id);
+    my $section = $self->_formatSectionName($id);
+    my $deleted = $self->cachedConfig->DeleteSection($section);
     return "Removed", $deleted;
 }
+
+
+=head2 cleanupBeforeDelete
+
+cleanup Before Delete
+
+=cut
+
+sub cleanupBeforeDelete { }
+
 
 =head2 remove_always
 
