@@ -1,3 +1,4 @@
+import { BaseViewResource } from '../../_components/new/'
 import {
   BaseFormButtonBar,
   BaseFormGroupChosenOne
@@ -12,6 +13,7 @@ export {
   BaseFormGroupAccessDurationChoices  as FormGroupAccessDurationChoices,
   BaseFormGroupChosenOne              as FormGroupDefaultAccessDuration,
 
+  BaseViewResource                    as BaseView,
   TheForm,
   TheView
 }

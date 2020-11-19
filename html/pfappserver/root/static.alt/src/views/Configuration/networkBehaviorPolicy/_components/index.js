@@ -1,5 +1,5 @@
-  import {
-  BaseButtonService,
+import { BaseViewCollectionItem } from '../../_components/new/'
+import {
   BaseFormButtonBar,
 
   BaseFormGroupChosenMultiple,
@@ -10,13 +10,14 @@
 import {
   BaseFormGroupIntervalUnit
 } from '@/views/Configuration/_components/new/'
+import AlertServices from './AlertServices'
 import BaseFormGroupDeviceAttributesDiffThresholdOverrides from './BaseFormGroupDeviceAttributesDiffThresholdOverrides'
 import BaseFormGroupDevices from './BaseFormGroupDevices'
 import TheForm from './TheForm'
 import TheView from './TheView'
 
 export {
-  BaseButtonService                                   as ButtonService,
+  BaseViewCollectionItem                              as BaseView,
   BaseFormButtonBar                                   as FormButtonBar,
 
   BaseFormGroupInputNumber                            as FormGroupBlacklistedIpHostsThreshold,
@@ -34,6 +35,7 @@ export {
   BaseFormGroupChosenMultiple                         as FormGroupWatchedDeviceAttributes,
   BaseFormGroupInput                                  as FormGroupWhitelistedIps,
 
+  AlertServices,
   TheForm,
   TheView
 }

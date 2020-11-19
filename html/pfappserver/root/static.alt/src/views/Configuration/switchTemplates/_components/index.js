@@ -1,3 +1,4 @@
+import { BaseViewCollectionItem } from '../../_components/new/'
 import {
   BaseFormButtonBar,
   BaseFormGroupChosenOne,
@@ -22,6 +23,7 @@ export {
   BaseFormGroupToggleDisabledEnabled  as FormGroupSnmpDisconnect,
   BaseFormGroupRadiusAttributes       as FormGroupVoip,
 
+  BaseViewCollectionItem              as BaseView,
   TheForm,
   TheView
 }

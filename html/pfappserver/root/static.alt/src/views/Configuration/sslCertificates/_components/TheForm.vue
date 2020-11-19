@@ -188,7 +188,6 @@ const components = {
   TheCsr
 }
 
-import { toRefs } from '@vue/composition-api'
 import { useView as useBaseView } from '@/composables/useView'
 import { useForm, useFormProps } from '../_composables/useForm'
 import { useStore, useStoreProps } from '../_composables/useStore'
@@ -199,10 +198,6 @@ const props = {
 }
 
 const setup = (props, context) => {
-
-  const {
-    id
-  } = toRefs(props)
 
   const {
     rootRef,
@@ -235,14 +230,14 @@ const setup = (props, context) => {
     isChainValid,
     isLetsEncrypt,
     isFindIntermediateCas
-  } = useForm(form, id)
+  } = useForm(props, form)
 
   const {
     isLoading,
     doInit,
     doReset,
     doSave
-  } = useStore(props,context, form)
+  } = useStore(props, context, form)
 
   return {
     // useView

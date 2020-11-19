@@ -1,3 +1,4 @@
+import { BaseViewCollectionItem } from '../../_components/new/'
 import {
   BaseFormButtonBar,
   BaseFormGroupChosenMultiple,
@@ -20,10 +21,12 @@ import BaseFormGroupHostPortEncryption from './BaseFormGroupHostPortEncryption'
 import BaseFormGroupPersonMappings from './BaseFormGroupPersonMappings'
 import BaseFormGroupProtocolHostPort from './BaseFormGroupProtocolHostPort'
 import BaseFormGroupServerAddressPort from './BaseFormGroupServerAddressPort'
+import ButtonSamlMetaData from './ButtonSamlMetaData'
 import TheForm from './TheForm'
 import TheView from './TheView'
 
 export {
+  BaseViewCollectionItem                    as BaseView,
   BaseFormButtonBar                         as FormButtonBar,
 
   BaseFormGroupInput                        as FormGroupAccessScope,
@@ -127,6 +130,7 @@ export {
   BaseFormGroupChosenOne                    as FormGroupUsernameAttribute,
   BaseFormGroupInputNumber                  as FormGroupWriteTimeout,
 
+  ButtonSamlMetaData,
   TheForm,
   TheView
 }

@@ -12,7 +12,11 @@ const useFormProps = {
   }
 }
 
-const useForm = (form, id) => {
+const useForm = (props, form) => {
+
+  const {
+    id
+  } = toRefs(props)
 
   const schema = computed(() => schemaFn(props))
 

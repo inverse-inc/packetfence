@@ -1,3 +1,4 @@
+import { BaseViewCollectionItem } from '../../_components/new/'
 import {
   BaseFormButtonBar,
   BaseFormGroupChosenOne,
@@ -76,6 +77,7 @@ export {
   BaseFormGroupChosenOne                  as FormGroupWebServicesTransport,
   BaseFormGroupInput                      as FormGroupWebServicesUser,
 
+  BaseViewCollectionItem                  as BaseView,
   TheForm,
   TheView
 }

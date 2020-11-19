@@ -1,4 +1,4 @@
-import { computed, toRefs, unref } from '@vue/composition-api'
+import { computed, toRefs } from '@vue/composition-api'
 
 export const useInputValueToggleProps = {
   label: {
@@ -28,37 +28,37 @@ export const useInputValueToggle = (valueProps, props) => {
   } = toRefs(props)
 
   // middleware
-  const txValue = computed(() => unref(options).findIndex(map => {
+  const txValue = computed(() => options.value.findIndex(map => {
     if (!map.value && !rxValue.value)
       return true // compare False(y) w/ [null|undefined]
     else
       return `${map.value}` === `${rxValue.value}` // compare String(s)
   }))
   const txOnInput = value => {
-    const { 0: { value: defaultValue } = {} , [value]: { value: mappedValue } = {} } = unref(options)
+    const { 0: { value: defaultValue } = {} , [value]: { value: mappedValue } = {} } = options.value
     return rxOnInput((mappedValue !== undefined) ? mappedValue : defaultValue)
   }
 
   // state
-  const max = computed(() => unref(options).length - 1)
+  const max = computed(() => `${options.value.length - 1}`)
 
   const label = computed(() => {
-    const { 0: { label: defaultLabel } = {} , [unref(txValue)]: { label: mappedLabel } = {} } = unref(options)
+    const { 0: { label: defaultLabel } = {} , [txValue.value]: { label: mappedLabel } = {} } = options.value
     return mappedLabel || defaultLabel
   })
 
   const color = computed(() => {
-    const { 0: { color: defaultColor } = {} , [unref(txValue)]: { color: mappedColor } = {} } = unref(options)
+    const { 0: { color: defaultColor } = {} , [txValue.value]: { color: mappedColor } = {} } = options.value
     return mappedColor || defaultColor
   })
 
   const icon = computed(() => {
-    const { 0: { icon: defaultIcon } = {} , [unref(txValue)]: { icon: mappedIcon } = {} } = unref(options)
+    const { 0: { icon: defaultIcon } = {} , [txValue.value]: { icon: mappedIcon } = {} } = options.value
     return mappedIcon || defaultIcon
   })
 
  const tooltip = computed(() => {
-    const { 0: { tooltip: defaultTooltip } = {} , [unref(txValue)]: { tooltip: mappedTooltip } = {} } = unref(options)
+    const { 0: { tooltip: defaultTooltip } = {} , [txValue.value]: { tooltip: mappedTooltip } = {} } = options.value
     return mappedTooltip || defaultTooltip
   })
 
