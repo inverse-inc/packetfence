@@ -167,6 +167,7 @@ export default {
 
 .base-input-range {
   position: relative;
+  flex-shrink: 0;
   height: var(--range-height);
   margin: 0px;
   box-shadow: 0 0 0 1px transparent; /* pseudo border */
