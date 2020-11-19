@@ -44,7 +44,7 @@ import BaseInputToggle, { props as BaseInputToggleProps } from './BaseInputToggl
 import BaseInputToggleAdvancedMode from './BaseInputToggleAdvancedMode'
 import BaseView from './BaseView'
 
-import { mergeProps } from './utils'
+import { mergeProps, renderHOCWithScopedSlots } from './utils'
 
 export {
   // view
@@ -109,5 +109,6 @@ export {
   BaseContainerLoading,
 
   // utils
-  mergeProps
+  mergeProps,
+  renderHOCWithScopedSlots
 }
