@@ -16,8 +16,7 @@ endif::[]
 
 ////
 
-
-//=== Trapeze
+=== Trapeze
 
 In order to have the Trapeze controller working with PacketFence, you need to define the RADIUS configuration and the proper service profiles.
 

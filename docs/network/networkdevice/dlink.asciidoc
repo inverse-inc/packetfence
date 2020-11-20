@@ -16,8 +16,7 @@ endif::[]
 
 ////
 
-
-//=== D-Link
+=== D-Link
 
 PacketFence supports D-Link switches without VoIP using two different trap types: 
 

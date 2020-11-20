@@ -4,8 +4,17 @@ ifdef::env-github[]
 :lang: en
 :doctype: book
 :toc: left
-:imagesdir: ../../images
+:imagesdir: ../images
 endif::[]
+
+////
+
+    This file is part of the PacketFence project.
+
+    See PacketFence_Developers_Guide-docinfo.xml for
+    authors, copyright and license information.
+
+////
 
 === Integration tests
 

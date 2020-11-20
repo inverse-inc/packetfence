@@ -16,8 +16,7 @@ endif::[]
 
 ////
 
-
-//=== Xirrus
+=== Xirrus
 
 ==== Xirrus WiFi Arrays
 

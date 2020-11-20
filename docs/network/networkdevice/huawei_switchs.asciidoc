@@ -16,7 +16,7 @@ endif::[]
 
 ////
 
-//=== Huawei
+=== Huawei
 
 PacketFence supports the S5710 switch from Huawei.
 

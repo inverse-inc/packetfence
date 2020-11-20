@@ -16,8 +16,7 @@ endif::[]
 
 ////
 
-
-//=== Fortinet FortiGate
+=== Fortinet FortiGate
 
 This section shows how to configure a 802.1X SSID on a Fortigate 50E running on FortiOS 5.4.
 

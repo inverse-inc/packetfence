@@ -16,8 +16,7 @@ endif::[]
 
 ////
 
-  
-//=== Motorola
+=== Motorola
 
 In order to have the Motorola RFS controller working with PacketFence, you
 need to define two Wireless LANs definition, one for the "public" network,

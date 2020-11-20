@@ -6,7 +6,7 @@
 
 // to display images directly on GitHub
 ifdef::env-github[]
-:imagesdir: images
+:imagesdir: ./images
 endif::[]
 
 ////
@@ -18,7 +18,9 @@ endif::[]
 
 ////
 
+ifndef::env-github[]
 include::includes/global-attributes.asciidoc[]
+endif::[]
 
 == About this Guide
 
@@ -41,43 +43,97 @@ link:https://packetfence.org/news.html[PacketFence News]
 
 These files are included in the package and release tarballs.
 
-== Assumptions
+//== Assumptions
 
+ifdef::env-github[]
+<<cluster/assumptions#assumptions, Assumptions>>
+endif::[]
+ifndef::env-github[]
 include::cluster/assumptions.asciidoc[]
+endif::[]
 
-== Cluster Setup
+//== Cluster Setup
 
+ifdef::env-github[]
+<<cluster/cluster_setup#cluster-setup, Cluster Setup>>
+endif::[]
+ifndef::env-github[]
 include::cluster/cluster_setup.asciidoc[]
+endif::[]
 
-== Understanding the Galera cluster synchronization
+//== Understanding the Galera cluster synchronization
 
+ifdef::env-github[]
+<<cluster/understanding_the_galera_cluster_synchronization#understanding-the-galera-cluster-synchronization, Understanding the Galera cluster synchronization>>
+endif::[]
+ifndef::env-github[]
 include::cluster/understanding_the_galera_cluster_synchronization.asciidoc[]
+endif::[]
 
-== Troubleshooting a cluster
+//== Troubleshooting a cluster
 
+ifdef::env-github[]
+<<cluster/troubleshooting_a_cluster#troubleshooting-a-cluster, Troubleshooting a cluster>>
+endif::[]
+ifndef::env-github[]
 include::cluster/troubleshooting_a_cluster.asciidoc[]
+endif::[]
 
-== Maintenance and Operations
+//== Maintenance and Operations
 
+ifdef::env-github[]
+<<cluster/maintenance_and_operations#maintenance-and-operations, Maintenance and Operations>>
+endif::[]
+ifndef::env-github[]
 include::cluster/maintenance_and_operations.asciidoc[]
+endif::[]
 
-== Layer 3 clusters
+//== Layer 3 clusters
 
+ifdef::env-github[]
+<<cluster/layer_3_clusters#layer-3-clusters, Layer 3 clusters>>
+endif::[]
+ifndef::env-github[]
 include::cluster/layer_3_clusters.asciidoc[]
+endif::[]
 
-== Advanced configuration
+//== Advanced configuration
 
+ifdef::env-github[]
+<<cluster/advanced_configuration#advanced-configuration, Advanced configuration>>
+endif::[]
+ifndef::env-github[]
 include::cluster/advanced_configuration.asciidoc[]
-
+endif::[]
 
 // INCLUDES
 
+ifdef::env-github[]
+<<includes/additional-info#additional-information, Additional Information>>
+endif::[]
+ifndef::env-github[]
 include::includes/additional-info.asciidoc[]
+endif::[]
 
+ifdef::env-github[]
+<<includes/commercial-support, Additional Info>>
+endif::[]
+ifndef::env-github[]
 include::includes/commercial-support.asciidoc[]
+endif::[]
 
+ifdef::env-github[]
+<<includes/license#gnu-free-documentation-license, License>>
+endif::[]
+ifndef::env-github[]
 include::includes/license.asciidoc[]
+endif::[]
 
-== Appendix
+//== Appendix
 
+ifdef::env-github[]
+<<cluster/appendix#appendix, Appendix>>
+endif::[]
+ifndef::env-github[]
 include::cluster/appendix.asciidoc[]
+endif::[]

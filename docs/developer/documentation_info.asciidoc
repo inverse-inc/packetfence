@@ -1,4 +1,22 @@
-//== Documentation
+// to display images directly on GitHub
+ifdef::env-github[]
+:encoding: UTF-8
+:lang: en
+:doctype: book
+:toc: left
+:imagesdir: ../images
+endif::[]
+
+////
+
+    This file is part of the PacketFence project.
+
+    See PacketFence_Developers_Guide-docinfo.xml for
+    authors, copyright and license information.
+
+////
+
+== Documentation
 
 The in-depth or more technical documentation is always as close to the code as possible. Always look at the `POD` doc footnote:[Perl's Plain Old Documentation: http://perldoc.perl.org/perlpod.html]. To do so, the preferred way is using the `perldoc` command as follows:
 

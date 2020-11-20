@@ -16,11 +16,9 @@ endif::[]
 
 ////
 
-
-//=== Aerohive Networks
+=== Aerohive Networks
 
 Aerohive products are a bit different compared to the other vendors. They support either a local HiveManager (similar to a wireless controller) or a cloud-based HiveManager. However, the configuration is the same for the local and the cloud-based controller. Note that all the configurations are made on the HiveManager and then pushed to the APs.
-
 
 ==== MAC Authentication and 802.1X Configuration
 

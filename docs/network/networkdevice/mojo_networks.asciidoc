@@ -16,8 +16,7 @@ endif::[]
 
 ////
 
-  
-//=== Mojo Networks
+=== Mojo Networks
 
 PacketFence supports SSIDs configured with 802.1X and Web Authentication
 

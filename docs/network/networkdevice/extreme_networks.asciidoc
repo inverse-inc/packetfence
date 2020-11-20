@@ -16,8 +16,7 @@ endif::[]
 
 ////
 
-
-//=== Extreme Networks
+=== Extreme Networks
 
 PacketFence supports Extreme Networks switches using:
 

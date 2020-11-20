@@ -1,5 +1,20 @@
-Documentation README
-====================
+= Documentation README
+:encoding: UTF-8
+:lang: en
+:doctype: book
+:toc: left
+
+// to display images directly on GitHub
+ifdef::env-github[]
+:imagesdir: ./images
+endif::[]
+
+////
+
+    This file is part of the PacketFence project.
+
+////
+
 
 The documentation of PacketFence is formatted in http://www.methods.co.nz/asciidoc/[AsciiDoc].
 
@@ -20,11 +35,9 @@ The Makefile at the root of the repository will call those tools:
 
   make html
 
-Troubleshooting
----------------
+== Troubleshooting
 
-Making it work on RHEL5 / CentOS 5
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+=== Making it work on RHEL5 / CentOS 5
 
 Turns out this is quite tricky and unfortunately doesn't yield the best results.
 
@@ -61,8 +74,7 @@ Turns out this is quite tricky and unfortunately doesn't yield the best results.
 . You are good to go!
 
 
-CentOS 6 / RHEL6 / Fedora: Could not compile stylesheet
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+=== CentOS 6 / RHEL6 / Fedora: Could not compile stylesheet
 
 Getting an error similar to:
 
@@ -84,12 +96,10 @@ Try patching your `/usr/bin/fop` with `docs/docbook/fop-centos6.patch`:
   patch -p0 < docs/docbook/fop-centos6.patch
 
 
-CentOS 6 / RHEL6 / Fedora: Output is not the same
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+=== CentOS 6 / RHEL6 / Fedora: Output is not the same
 
 You are probably not running asciidoc >= 8.6.2. Install from rpmforge-extras:
 
   yum install --enablerepo=rpmforge-extras asciidoc
-
 
 // vim: set syntax=asciidoc tabstop=2 shiftwidth=2 expandtab:

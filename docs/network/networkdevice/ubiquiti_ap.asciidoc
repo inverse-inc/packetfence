@@ -16,8 +16,7 @@ endif::[]
 
 ////
 
-
-//=== Ubiquiti
+=== Ubiquiti
 
 ==== Web Authentication
 

@@ -11,13 +11,14 @@ endif::[]
 
     This file is part of the PacketFence project.
 
-    See PacketFence_Network_Devices_Configuration_Guide-docinfo.xml for 
+    See PacketFence_Installation_Guide-docinfo.xml for
     authors, copyright and license information.
 
 ////
 
 
-//=== PacketFence PKI
+[[pf-pki]]
+=== PacketFence PKI
 
 This section has been created to give a quick start to configure the PacketFence PKI in PacketFence. This guide does not include advanced troubleshooting of EAP-TLS connections. Refer to the relevant documentation of EAP-TLS, RADIUS and OpenSSL for advanced features. The PKI comes installed by default since PacketFence version 10. All certificates would be saved in the database. If you want to migrate your certificate from the old PacketFence PKI please see the upgrade section.
 

@@ -16,8 +16,7 @@ endif::[]
 
 ////
 
-
-//=== Belair Networks (now Ericsson)
+=== Belair Networks (now Ericsson)
 
 ==== BE20
 

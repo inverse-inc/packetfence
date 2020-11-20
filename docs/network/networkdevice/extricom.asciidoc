@@ -16,8 +16,7 @@ endif::[]
 
 ////
 
-
-//=== Extricom
+=== Extricom
 
 ==== EXSW Wireless Switches (Controllers)
 

@@ -11,20 +11,27 @@ endif::[]
 
     This file is part of the PacketFence project.
 
-    See PacketFence_Network_Devices_Configuration_Guide-docinfo.xml for 
+    See PacketFence_Installation_Guide-docinfo.xml for
     authors, copyright and license information.
 
 ////
 
-//== PKI Integration
+== PKI Integration
 
-[[ms-pki]]
-=== Microsoft PKI
+//=== Microsoft PKI
 
+ifdef::env-github[]
+<<pki/microsoft#microsoft-pki, Microsoft PKI>>
+endif::[]
+ifndef::env-github[]
 include::pki/microsoft.asciidoc[]
+endif::[]
 
-[[pf-pki]]
-=== PacketFence PKI
+//=== PacketFence PKI
 
+ifdef::env-github[]
+<<pki/packetfence#packetfence-pki, PacketFence PKI>>
+endif::[]
+ifndef::env-github[]
 include::pki/packetfence.asciidoc[]
-
+endif::[]

@@ -16,8 +16,7 @@ endif::[]
 
 ////
 
-
-//=== AlliedTelesis
+=== AlliedTelesis
 
 ==== AT8000GS
 

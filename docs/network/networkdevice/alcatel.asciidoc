@@ -16,8 +16,7 @@ endif::[]
 
 ////
 
-
-//=== Alcatel
+=== Alcatel
 
 ==== OS6250, OS6450 
 

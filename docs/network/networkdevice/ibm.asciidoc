@@ -16,8 +16,7 @@ endif::[]
 
 ////
 
-
-//=== IBM
+=== IBM
 
 ==== RackSwitch G8052
 

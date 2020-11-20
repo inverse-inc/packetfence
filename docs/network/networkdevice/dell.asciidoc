@@ -16,8 +16,7 @@ endif::[]
 
 ////
 
-
-//=== Dell
+=== Dell
 
 NOTE: When doing MAC Authentication, there is a known issue with some Dell switches. If you get errors where the device is using EAP type MD5, but PacketFence is expecting PEAP, you will need to edit the line *default_eap_type = peap* under the section *eap* in the file */usr/local/pf/conf/radiusd/eap.conf* to *default_eap_type = md5*.
 

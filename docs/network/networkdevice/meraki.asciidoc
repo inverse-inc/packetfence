@@ -16,8 +16,7 @@ endif::[]
 
 ////
 
-
-//=== Meraki
+=== Meraki
 
 To add the AP on PacketFence use the internal IP of the AP.
 

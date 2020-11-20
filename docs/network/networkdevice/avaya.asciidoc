@@ -16,8 +16,7 @@ endif::[]
 
 ////
 
-
-//=== Avaya
+=== Avaya
 
 Avaya bought Nortel's wired networks assets. So Avaya switches are, in effect, re-branded 
 Nortels. See <<_nortel,Nortel section>> of this document for configuration instructions. 

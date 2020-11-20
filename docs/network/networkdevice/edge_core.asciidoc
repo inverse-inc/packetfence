@@ -16,8 +16,7 @@ endif::[]
 
 ////
 
-
-//=== Edge core
+=== Edge core
 
 PacketFence supports Edge-corE switches without VoIP using linkUp/linkDown traps.
 

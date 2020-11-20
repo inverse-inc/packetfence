@@ -16,7 +16,7 @@ endif::[]
 
 ////
 
-//=== hostapd (OpenWrt Chaos Calmer 15.05)
+=== hostapd (OpenWrt Chaos Calmer 15.05)
 
 ==== Introduction
 

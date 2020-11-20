@@ -16,8 +16,7 @@ endif::[]
 
 ////
 
-//== Wireless Controllers and Access Point Configuration
-
+== Wireless Controllers and Access Point Configuration
 
 === Assumptions
 
@@ -62,9 +61,14 @@ You can try modules similar to your equipment if any (read appropriate instructi
 
 If none of the above worked then you can fallback to inline enforcement or let us know what equipment you are using on the https://lists.sourceforge.net/lists/listinfo/packetfence-devel[packetfence-devel mailing list].
 
-=== Aerohive Networks
+//=== Aerohive Networks
 
+ifdef::env-github[]
+<<networkdevice/aerohive#Aerohive Networks, Aerohive Networks>>
+endif::[]
+ifndef::env-github[]
 include::networkdevice/aerohive.asciidoc[]
+endif::[]
 
 [float]
 ===== Roles (User Profiles)
@@ -84,9 +88,14 @@ return for the devices.
 
 In version 6 or later of the HiveOS, we do return VLAN ID matching the number that the *User Profile* has. Create your *User Profile* in the HiveManager as usual, assign the matching VLAN, and in PacketFence configuration add the wanted VLAN ID in the section *Roles by VLAN*.
 
-=== Anyfi Networks
+//=== Anyfi Networks
 
+ifdef::env-github[]
+<<networkdevice/anyfi#Anyfi Networks, Anyfi Networks>>
+endif::[]
+ifndef::env-github[]
 include::networkdevice/anyfi.asciidoc[]
+endif::[]
 
 === Avaya
 
@@ -94,13 +103,23 @@ include::networkdevice/anyfi.asciidoc[]
 
 NOTE: To be contributed....
 
-=== Aruba
+//=== Aruba
 
+ifdef::env-github[]
+<<networkdevice/aruba#aruba, Aruba>>
+endif::[]
+ifndef::env-github[]
 include::networkdevice/aruba.asciidoc[]
+endif::[]
 
-=== Belair Networks (now Ericsson)
+//=== Belair Networks (now Ericsson)
 
+ifdef::env-github[]
+<<networkdevice/belair_networks_ericsson#belair-networks-now-ericsson, Belair Networks (now Ericsson)>>
+endif::[]
+ifndef::env-github[]
 include::networkdevice/belair_networks_ericsson.asciidoc
+endif::[]
 
 === Brocade
 
@@ -108,17 +127,32 @@ include::networkdevice/belair_networks_ericsson.asciidoc
 
 See the <<_motorola,Motorola RF Switches>> documentation.
 
-=== Cambium
+//=== Cambium
 
+ifdef::env-github[]
+<<networkdevice/cambium#cambium, Cambium>>
+endif::[]
+ifndef::env-github[]
 include::networkdevice/cambium.asciidoc[]
+endif::[]
 
-=== Cisco
+//=== Cisco
 
+ifdef::env-github[]
+<<networkdevice/cisco_ap#cisco, Cisco>>
+endif::[]
+ifndef::env-github[]
 include::networkdevice/cisco_ap.asciidoc[]
+endif::[]
 
-=== CoovaChilli
+//=== CoovaChilli
 
+ifdef::env-github[]
+<<networkdevice/coovachilli#coovachilli, CoovaChilli>>
+endif::[]
+ifndef::env-github[]
 include::networkdevice/coovachilli.asciidoc[]
+endif::[]
 
 === D-Link
 
@@ -126,29 +160,59 @@ include::networkdevice/coovachilli.asciidoc[]
 
 NOTE: To be contributed...
 
-=== Extricom
+//=== Extricom
 
+ifdef::env-github[]
+<<networkdevice/extricom#extricom, Extricom>>
+endif::[]
+ifndef::env-github[]
 include::networkdevice/extricom.asciidoc[]
+endif::[]
 
-=== Fortinet FortiGate
+//=== Fortinet FortiGate
 
+ifdef::env-github[]
+<<networkdevice/fortinet_fortigate#fortinet-fortigate, Fortinet FortiGate>>
+endif::[]
+ifndef::env-github[]
 include::networkdevice/fortinet_fortigate.asciidoc[]
+endif::[]
 
-=== Hostapd
+//=== Hostapd
 
+ifdef::env-github[]
+<<networkdevice/hostapd#hostapd, Hostapd>>
+endif::[]
+ifndef::env-github[]
 include::networkdevice/hostapd.asciidoc[]
+endif::[]
 
-=== Huawei
+//=== Huawei
 
+ifdef::env-github[]
+<<networkdevice/huawei_ap#huawei, Huawei>>
+endif::[]
+ifndef::env-github[]
 include::networkdevice/huawei_ap.asciidoc[]
+endif::[]
 
-=== Meraki
+//=== Meraki
 
+ifdef::env-github[]
+<<networkdevice/meraki#meraki, Meraki>>
+endif::[]
+ifndef::env-github[]
 include::networkdevice/meraki.asciidoc[]
+endif::[]
 
-=== Mikrotik
+//=== Mikrotik
 
+ifdef::env-github[]
+<<networkdevice/mikrotik#mikrotik, Mikrotik>>
+endif::[]
+ifndef::env-github[]
 include::networkdevice/mikrotik.asciidoc[]
+endif::[]
 
 === HP
 
@@ -156,34 +220,74 @@ include::networkdevice/mikrotik.asciidoc[]
 
   To be contributed...
 
-=== Meru
+//=== Meru
 
+ifdef::env-github[]
+<<networkdevice/meru#meru, Meru>>
+endif::[]
+ifndef::env-github[]
 include::networkdevice/meru.asciidoc[]
+endif::[]
 
-=== Mojo Networks
+//=== Mojo Networks
 
+ifdef::env-github[]
+<<networkdevice/mojo_networks#mojo-networks, Mojo Networks>>
+endif::[]
+ifndef::env-github[]
 include::networkdevice/mojo_networks.asciidoc[]
+endif::[]
 
-=== Motorola
+//=== Motorola
 
+ifdef::env-github[]
+<<networkdevice/motorola#motorola, Motorola>>
+endif::[]
+ifndef::env-github[]
 include::networkdevice/motorola.asciidoc[]
+endif::[]
 
-=== Ruckus
+//=== Ruckus
 
+ifdef::env-github[]
+<<networkdevice/ruckus#ruckus, Ruckus>>
+endif::[]
+ifndef::env-github[]
 include::networkdevice/ruckus.asciidoc[]
+endif::[]
 
-=== Ruckus SmartZone
+//=== Ruckus SmartZone
 
+ifdef::env-github[]
+<<networkdevice/ruckus_smartzone#ruckus-smartzone, Ruckus SmartZone>>
+endif::[]
+ifndef::env-github[]
 include::networkdevice/ruckus_smartzone.asciidoc[]
+endif::[]
 
-=== Trapeze
+//=== Trapeze
 
+ifdef::env-github[]
+<<networkdevice/trapeze#trapeze, Trapeze>>
+endif::[]
+ifndef::env-github[]
 include::networkdevice/trapeze.asciidoc[]
+endif::[]
 
-=== Ubiquiti
+//=== Ubiquiti
 
+ifdef::env-github[]
+<<networkdevice/ubiquiti_ap#ubiquiti, Ubiquiti>>
+endif::[]
+ifndef::env-github[]
 include::networkdevice/ubiquiti_ap.asciidoc[]
+endif::[]
 
-=== Xirrus
+//=== Xirrus
 
+ifdef::env-github[]
+<<networkdevice/xirrus#xirrus, Xirrus>>
+endif::[]
+ifndef::env-github[]
 include::networkdevice/xirrus.asciidoc[]
+endif::[]

@@ -16,8 +16,7 @@ endif::[]
 
 ////
 
-
-//=== CoovaChilli
+=== CoovaChilli
 
 This section has been created in order to help setting up a consumer grade access point running CoovaChilli integration with PacketFence to use UAM capabilities along with PacketFence feature set. 
 

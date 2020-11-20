@@ -11,12 +11,12 @@ endif::[]
 
     This file is part of the PacketFence project.
 
-    See PacketFence_Network_Devices_Configuration_Guide-docinfo.xml for 
+    See PacketFence_Installation_Guide-docinfo.xml for
     authors, copyright and license information.
 
 ////
 
-//=== Palo Alto
+=== Palo Alto
 
 ==== Installation using XMLAPI
 

@@ -16,7 +16,7 @@ endif::[]
 
 ////
 
-//== Switch configuration
+== Switch configuration
 
 === Assumptions
 
@@ -37,81 +37,176 @@ Throughout this configuration example we use the following assumptions for our n
 * SNMP Trap community: public 
 * RADIUS Secret: useStrongerSecret 
 
-=== 3COM
+//=== 3COM
 
+ifdef::env-github[]
+<<networkdevice/3com#3com, 3COM>>
+endif::[]
+ifndef::env-github[]
 include::networkdevice/3com.asciidoc[]
+endif::[]
 
-=== Alcatel
+//=== Alcatel
 
+ifdef::env-github[]
+<<networkdevice/alcatel#alcatel, Alcatel>>
+endif::[]
+ifndef::env-github[]
 include::networkdevice/alcatel.asciidoc[]
+endif::[]
 
-=== AlliedTelesis
+//=== AlliedTelesis
 
+ifdef::env-github[]
+<<networkdevice/alliedTelesis#alliedtelesis, AlliedTelesis>>
+endif::[]
+ifndef::env-github[]
 include::networkdevice/alliedTelesis.asciidoc[]
+endif::[]
 
-=== Amer
+//=== Amer
 
+ifdef::env-github[]
+<<networkdevice/amer#amer, Amer>>
+endif::[]
+ifndef::env-github[]
 include::networkdevice/amer.asciidoc[]
+endif::[]
 
-=== Avaya
+//=== Avaya
 
+ifdef::env-github[]
+<<networkdevice/avaya#avaya, Avaya>>
+endif::[]
+ifndef::env-github[]
 include::networkdevice/avaya.asciidoc[]
+endif::[]
 
-=== Brocade
+//=== Brocade
 
+ifdef::env-github[]
+<<networkdevice/brocade#brocade, Brocade>>
+endif::[]
+ifndef::env-github[]
 include::networkdevice/brocade.asciidoc[]
+endif::[]
 
-=== Cisco
+//=== Cisco
 
+ifdef::env-github[]
+<<networkdevice/cisco#cisco, Cisco>>
+endif::[]
+ifndef::env-github[]
 include::networkdevice/cisco.asciidoc[]
+endif::[]
 
-=== Cisco Small Business (SMB)
+//=== Cisco Small Business (SMB)
 
+ifdef::env-github[]
+<<networkdevice/cisco_small_business#cisco-small-business-smb, Cisco Small Business (SMB)>>
+endif::[]
+ifndef::env-github[]
 include::networkdevice/cisco_small_business.asciidoc[]
+endif::[]
 
-=== D-Link
+//=== D-Link
 
+ifdef::env-github[]
+<<networkdevice/dlink#d-link, D-Link>>
+endif::[]
+ifndef::env-github[]
 include::networkdevice/dlink.asciidoc[]
+endif::[]
 
-=== Dell
+//=== Dell
 
+ifdef::env-github[]
+<<networkdevice/dell#dell, Dell>>
+endif::[]
+ifndef::env-github[]
 include::networkdevice/dell.asciidoc[]
+endif::[]
 
-=== Edge core
+//=== Edge core
 
+ifdef::env-github[]
+<<networkdevice/edge_core#edge-core, Edge core>>
+endif::[]
+ifndef::env-github[]
 include::networkdevice/edge_core.asciidoc[]
+endif::[]
 
-=== Enterasys
+//=== Enterasys
 
+ifdef::env-github[]
+<<networkdevice/enterasys#enterasys, Enterasys>>
+endif::[]
+ifndef::env-github[]
 include::networkdevice/enterasys.asciidoc[]
+endif::[]
 
-=== Extreme Networks
+//=== Extreme Networks
 
+ifdef::env-github[]
+<<networkdevice/extreme_networks#extreme-networks, Extreme Networks>>
+endif::[]
+ifndef::env-github[]
 include::networkdevice/extreme_networks.asciidoc[]
+endif::[]
 
-=== Foundry
+//=== Foundry
 
+ifdef::env-github[]
+<<networkdevice/foundry#foundry, Foundry>>
+endif::[]
+ifndef::env-github[]
 include::networkdevice/foundry.asciidoc[]
+endif::[]
 
-=== H3C
+//=== H3C
 
+ifdef::env-github[]
+<<networkdevice/h3c#h3c, H3C>>
+endif::[]
+ifndef::env-github[]
 include::networkdevice/h3c.asciidoc[]
+endif::[]
 
-=== HP
+//=== HP
 
+ifdef::env-github[]
+<<networkdevice/hp#hp, HP>>
+endif::[]
+ifndef::env-github[]
 include::networkdevice/hp.asciidoc[]
+endif::[]
 
-=== HP ProCurve
+//=== HP ProCurve
 
+ifdef::env-github[]
+<<networkdevice/hp_procurve#hp-procurve, HP ProCurve>>
+endif::[]
+ifndef::env-github[]
 include::networkdevice/hp_procurve.asciidoc[]
+endif::[]
 
-=== Huawei
+//=== Huawei
 
+ifdef::env-github[]
+<<networkdevice/huawei_switchs#huawei, Huawei>>
+endif::[]
+ifndef::env-github[]
 include::networkdevice/huawei_switchs.asciidoc[]
+endif::[]
 
-=== IBM
+//=== IBM
 
+ifdef::env-github[]
+<<networkdevice/ibm#ibm, IBM>>
+endif::[]
+ifndef::env-github[]
 include::networkdevice/ibm.asciidoc[]
+endif::[]
 
 === Intel
 
@@ -123,13 +218,23 @@ PacketFence support these switches _without VoIP_ using one trap type:
 
 Exact command-line configuration to be contributed...
 
-=== Juniper
+//=== Juniper
 
+ifdef::env-github[]
+<<networkdevice/juniper#juniper, Juniper>>
+endif::[]
+ifndef::env-github[]
 include::networkdevice/juniper.asciidoc[]
+endif::[]
 
-=== LG-Ericsson
+//=== LG-Ericsson
 
+ifdef::env-github[]
+<<networkdevice/lgericsson#lg-ericsson, LG-Ericsson>>
+endif::[]
+ifndef::env-github[]
 include::networkdevice/lgericsson.asciidoc[]
+endif::[]
 
 === Linksys
 
@@ -152,9 +257,14 @@ On each interface
 
   switchport access vlan 4
 
-=== Netgear
+//=== Netgear
 
+ifdef::env-github[]
+<<networkdevice/netgear#netgear, Netgear>>
+endif::[]
+ifndef::env-github[]
 include::networkdevice/netgear.asciidoc[]
+endif::[]
 
 === Pica8
 
@@ -231,8 +341,12 @@ Global config settings
 
   SNMP-server host 192.168.1.5 public version 1
 
+//=== Ubiquiti
 
-=== Ubiquiti
-
+ifdef::env-github[]
+<<networkdevice/ubiquiti#ubiquiti, Ubiquiti>>
+endif::[]
+ifndef::env-github[]
 include::networkdevice/ubiquiti.asciidoc[]
+endif::[]
 

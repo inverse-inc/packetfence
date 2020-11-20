@@ -16,8 +16,7 @@ endif::[]
 
 ////
 
-
-//=== H3C
+=== H3C
 
 ==== S5120 Switch series
 

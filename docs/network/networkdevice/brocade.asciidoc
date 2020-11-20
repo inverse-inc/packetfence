@@ -16,8 +16,7 @@ endif::[]
 
 ////
 
-
-//=== Brocade
+=== Brocade
 
 NOTE: By default, all deconnections will be done using SNMP.
 

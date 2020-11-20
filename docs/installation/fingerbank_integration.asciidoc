@@ -11,12 +11,12 @@ endif::[]
 
     This file is part of the PacketFence project.
 
-    See PacketFence_Network_Devices_Configuration_Guide-docinfo.xml for 
+    See PacketFence_Installation_Guide-docinfo.xml for
     authors, copyright and license information.
 
 ////
 
-//== Fingerbank Integration
+== Fingerbank Integration
 
 Fingerbank, a great device profiling tool developed alongside of PacketFence, now integrates with it to power-up the feature set allowing a PacketFence administrator to easily trigger security events based on different device types, device parents, DHCP fingerprints, DHCP vendor IDs, MAC vendors and browser user agents.
 

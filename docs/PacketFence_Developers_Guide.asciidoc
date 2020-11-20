@@ -6,19 +6,21 @@
 :experimental:
 // to display images directly on GitHub
 ifdef::env-github[]
-:imagesdir: images
+:imagesdir: ./images
 endif::[]
 
 ////
 
     This file is part of the PacketFence project.
 
-    See PacketFence_Developers_Guide-docinfo.xml for authors, copyright and
-    license information.
+    See PacketFence_Developers_Guide-docinfo.xml for
+    authors, copyright and license information.
 
 ////
 
+ifndef::env-github[]
 include::includes/global-attributes.asciidoc[]
+endif::[]
 
 == About this Guide
 
@@ -42,65 +44,145 @@ link:https://packetfence.org/news.html[PacketFence News]
 
 These files are included in the package and release tarballs.
 
-== Creating a new Switch via a Template
+//== Creating a new Switch via a Template
 
+ifdef::env-github[]
+<<developer/template_switches#creating-a-new-switch-via-a-template, Creating a new Switch via a Template>>
+endif::[]
+ifndef::env-github[]
 include::developer/template_switches.asciidoc[]
+endif::[]
 
-== Documentation
+//== Documentation
 
+ifdef::env-github[]
+<<developer/documentation_info#documentation, Documentation>>
+endif::[]
+ifndef::env-github[]
 include::developer/documentation_info.asciidoc[]
+endif::[]
 
-== Golang environment
+//== Golang environment
 
+ifdef::env-github[]
+<<developer/go/README#golang-environment, Golang environment>>
+endif::[]
+ifndef::env-github[]
 include::developer/go/README.asciidoc[]
+endif::[]
 
-== Code conventions
+//== Code conventions
 
+ifdef::env-github[]
+<<developer/code_conventions#code-conventions, Code conventions>>
+endif::[]
+ifndef::env-github[]
 include::developer/code_conventions.asciidoc[]
+endif::[]
 
-== HTTP JSON API
+//== HTTP JSON API
 
+ifdef::env-github[]
+<<developer/http_json_api#http-json-api, HTTP JSON API>>
+endif::[]
+ifndef::env-github[]
 include::developer/http_json_api.asciidoc[]
+endif::[]
 
-== Customizing PacketFence
+//== Customizing PacketFence
 
+ifdef::env-github[]
+<<developer/customizing_packetfence#customizing-packetfence, Customizing PacketFence>>
+endif::[]
+ifndef::env-github[]
 include::developer/customizing_packetfence.asciidoc[]
+endif::[]
 
-== SNMP
+//== SNMP
 
+ifdef::env-github[]
+<<developer/snmp#snmp, SNMP>>
+endif::[]
+ifndef::env-github[]
 include::developer/snmp.asciidoc[]
+endif::[]
 
-== Supporting new network hardware
+//== Supporting new network hardware
 
+ifdef::env-github[]
+<<developer/supporting_new_network_hardware#supporting-new-network-hardware, Supporting new network hardware>>
+endif::[]
+ifndef::env-github[]
 include::developer/supporting_new_network_hardware.asciidoc[]
+endif::[]
 
-== PacketFence builds
+//== PacketFence builds
 
+ifdef::env-github[]
+<<developer/packer/README#packetfence-builds, PacketFence builds>>
+endif::[]
+ifndef::env-github[]
 include::developer/packer/README.asciidoc[]
+endif::[]
 
-== Developer recipes
+//== Developer recipes
 
+ifdef::env-github[]
+<<developer/developer_recipes#developer-recipes, Developer recipes>>
+endif::[]
+ifndef::env-github[]
 include::developer/developer_recipes.asciidoc[]
+endif::[]
 
-== Running tests
+//== Running tests
 
+ifdef::env-github[]
+<<developer/tests/README, Running tests>>
+endif::[]
+ifndef::env-github[]
 include::developer/tests/README.asciidoc[]
+endif::[]
 
+ifdef::env-github[]
+<<developer/integration_tests/README, Integration tests>>
+endif::[]
+ifndef::env-github[]
 include::developer/integration_tests/README.asciidoc[]
+endif::[]
 
-== Contributing
+//== Contributing
 
+ifdef::env-github[]
+<<developer/contributing#contributing, Contributing>>
+endif::[]
+ifndef::env-github[]
 include::developer/contributing.asciidoc[]
+endif::[]
 
 //TODO: process the rest. I found quickest way to be:
 // paste from docbook then use vim(:1,9s#<\_.\{-1,}>##g) and reformat by hand
 
 // INCLUDES
 
+ifdef::env-github[]
+<<includes/additional-info#additional-information, Additional Information>>
+endif::[]
+ifndef::env-github[]
 include::includes/additional-info.asciidoc[]
+endif::[]
 
+ifdef::env-github[]
+<<includes/commercial-support, Additional Info>>
+endif::[]
+ifndef::env-github[]
 include::includes/commercial-support.asciidoc[]
+endif::[]
 
+ifdef::env-github[]
+<<includes/license#gnu-free-documentation-license, License>>
+endif::[]
+ifndef::env-github[]
 include::includes/license.asciidoc[]
+endif::[]
 
 // vim: set syntax=asciidoc tabstop=2 shiftwidth=2 expandtab:

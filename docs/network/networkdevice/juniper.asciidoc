@@ -16,8 +16,7 @@ endif::[]
 
 ////
 
-
-//=== Juniper
+=== Juniper
 
 PacketFence supports Juniper switches in MAC Authentication (Juniper's MAC RADIUS) mode and 802.1X.
 PacketFence supports VoIP on the EX2200 (JUNOS 12.6) and EX4200 (JUNOS 13.2)

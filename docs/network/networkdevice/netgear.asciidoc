@@ -16,8 +16,7 @@ endif::[]
 
 ////
 
-
-//=== Netgear
+=== Netgear
 
 The "web-managed smart switch" models GS108Tv2/GS110/GS110TP are supported with Link up/down traps only.
 

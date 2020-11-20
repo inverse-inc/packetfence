@@ -16,8 +16,7 @@ endif::[]
 
 ////
 
-
-//=== Cambium
+=== Cambium
 
 ==== cnPilot E410
 

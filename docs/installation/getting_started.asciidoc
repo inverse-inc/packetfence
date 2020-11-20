@@ -11,12 +11,12 @@ endif::[]
 
     This file is part of the PacketFence project.
 
-    See PacketFence_Network_Devices_Configuration_Guide-docinfo.xml for 
+    See PacketFence_Installation_Guide-docinfo.xml for
     authors, copyright and license information.
 
 ////
 
-//== Getting Started
+== Getting Started
 
 Now that PacketFence is installed, it needs to be configured. The PacketFence web-based configuration interface will automatically be started.
 

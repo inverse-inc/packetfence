@@ -16,8 +16,7 @@ endif::[]
 
 ////
 
-
-//=== 3COM
+=== 3COM
 
 ==== SuperStack 3 Switch 4200 and 4500
 

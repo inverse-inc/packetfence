@@ -11,12 +11,12 @@ endif::[]
 
     This file is part of the PacketFence project.
 
-    See PacketFence_Network_Devices_Configuration_Guide-docinfo.xml for 
+    See PacketFence_Installation_Guide-docinfo.xml for
     authors, copyright and license information.
 
 ////
 
-//== Firewall SSO Integration
+== Firewall SSO Integration
 
 PacketFence is able to update some firewall based on device information, like the IP address, the username connected on it. Look below for integration guides to see how you can configure your firewall with PacketFence.
 By default PacketFence uses the DHCP traffic to trigger an update on the firewall but it's also possible to do it with the RADIUS accounting traffic.
@@ -28,33 +28,67 @@ In order to manage the way you want to update the firewall, go in _Configuration
 
 You can use both methods at the same time but this will result in duplicate SSO requests if you receive the DHCP and accounting of the same device which can cause unexpected load on your firewall.
 
-=== Barracuda
+//=== Barracuda
 
+ifdef::env-github[]
+<<firewall/barracuda#barracuda, Barracuda>>
+endif::[]
+ifndef::env-github[]
 include::firewall/barracuda.asciidoc[]
+endif::[]
 
-=== Checkpoint
+//=== Checkpoint
 
+ifdef::env-github[]
+<<firewall/checkpoint#checkpoint, Checkpoint>>
+endif::[]
+ifndef::env-github[]
 include::firewall/checkpoint.asciidoc[]
+endif::[]
 
-=== Cisco ISE-PIC
+//=== Cisco ISE-PIC
 
+ifdef::env-github[]
+<<firewall/ciscoisepic#cisco-ise-pic, Cisco ISE-PIC>>
+endif::[]
+ifndef::env-github[]
 include::firewall/ciscoisepic.asciidoc[]
+endif::[]
 
-=== FortiGate
+//=== FortiGate
 
+ifdef::env-github[]
+<<firewall/fortigate#fortigate, FortiGate>>
+endif::[]
+ifndef::env-github[]
 include::firewall/fortigate.asciidoc[]
+endif::[]
 
-=== iBoss
+//=== iBoss
 
-=== JSON-RPC
+//=== JSON-RPC
 
+ifdef::env-github[]
+<<firewall/jsonrpc#json-rpc, JSON-RPC>>
+endif::[]
+ifndef::env-github[]
 include::firewall/jsonrpc.asciidoc[]
+endif::[]
 
-=== Juniper SRX
+//=== Juniper SRX
 
+ifdef::env-github[]
+<<firewall/junipersrx#juniper-srx, Juniper SRX>>
+endif::[]
+ifndef::env-github[]
 include::firewall/junipersrx.asciidoc[]
+endif::[]
 
-=== Palo Alto
+//=== Palo Alto
 
+ifdef::env-github[]
+<<firewall/paloalto#palo-alto, Palo Alto>>
+endif::[]
+ifndef::env-github[]
 include::firewall/paloalto.asciidoc[]
-
+endif::[]

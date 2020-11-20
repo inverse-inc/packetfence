@@ -16,8 +16,7 @@ endif::[]
 
 ////
 
-
-//=== Ruckus
+=== Ruckus
 
 [float]
 ==== AAA Servers

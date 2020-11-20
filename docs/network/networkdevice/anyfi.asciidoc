@@ -16,8 +16,7 @@ endif::[]
 
 ////
 
-
-//=== Anyfi Networks
+=== Anyfi Networks
 
 This section will discuss about the configuration of your Anyfi Gateway and Controller in order to use it with our configured PacketFence environment.
 

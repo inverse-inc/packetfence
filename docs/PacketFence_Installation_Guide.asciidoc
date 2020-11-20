@@ -6,19 +6,21 @@
 
 // to display images directly on GitHub
 ifdef::env-github[]
-:imagesdir: images
+:imagesdir: ./images
 endif::[]
 
 ////
 
     This file is part of the PacketFence project.
 
-    See PacketFence_Installation_Guide-docinfo.xml for authors, copyright
-    and license information.
+    See PacketFence_Installation_Guide-docinfo.xml for
+    authors, copyright and license information.
 
 ////
 
+ifndef::env-github[]
 include::includes/global-attributes.asciidoc[]
+endif::[]
 
 == About this Guide
 
@@ -65,112 +67,254 @@ ifndef::env-github[]
 include::installation/installation.asciidoc[]
 endif::[]
 
-== Getting Started
+//== Getting Started
 
+ifdef::env-github[]
+<<installation/getting_started#getting-started, Getting Started>>
+endif::[]
+ifndef::env-github[]
 include::installation/getting_started.asciidoc[]
+endif::[]
 
-== Enabling the Captive Portal
+//== Enabling the Captive Portal
 
+ifdef::env-github[]
+<<installation/enabling_the_captive_portal#enabling-the-captive-portal, Enabling the Captive Portal>>
+endif::[]
+ifndef::env-github[]
 include::installation/enabling_the_captive_portal.asciidoc[]
+endif::[]
 
-== Authentication Sources
+//== Authentication Sources
 
+ifdef::env-github[]
+<<installation/authentication_sources#authentication-sources, Authentication Sources>>
+endif::[]
+ifndef::env-github[]
 include::installation/authentication_sources.asciidoc[]
+endif::[]
 
-== Introduction to Role-based Access Control
+//== Introduction to Role-based Access Control
 
+ifdef::env-github[]
+<<installation/introduction_to_role_based_access_control#introduction-to-role-based-access-control, Introduction to Role-based Access Control>>
+endif::[]
+ifndef::env-github[]
 include::installation/introduction_to_role_based_access_control.asciidoc[]
+endif::[]
 
-== Supported Enforcement Modes
+//== Supported Enforcement Modes
 
+ifdef::env-github[]
+<<installation/enforcement/supported_enforcement_modes#supported-enforcement-modes, Supported Enforcement Modes>>
+endif::[]
+ifndef::env-github[]
 include::installation/enforcement/supported_enforcement_modes.asciidoc[]
+endif::[]
 
-== Adding Inline Enforcement to Existing Installation
+//== Adding Inline Enforcement to Existing Installation
 
+ifdef::env-github[]
+<<installation/enforcement/inline#adding-inline-enforcement-to-existing-installation, Adding Inline Enforcement to Existing Installation>>
+endif::[]
+ifndef::env-github[]
 include::installation/enforcement/inline.asciidoc[]
+endif::[]
 
-== Adding VLAN Enforcement to Existing Installation
+//== Adding VLAN Enforcement to Existing Installation
 
+ifdef::env-github[]
+<<installation/enforcement/out-of-band#adding-vlan-enforcement-to-existing-installation, Adding VLAN Enforcement to Existing Installation>>
+endif::[]
+ifndef::env-github[]
 include::installation/enforcement/out-of-band.asciidoc[]
+endif::[]
 
-== Troubleshooting PacketFence
+//== Troubleshooting PacketFence
 
+ifdef::env-github[]
+<<installation/troubleshooting_packetfence#troubleshooting-packetfence, Troubleshooting PacketFence>>
+endif::[]
+ifndef::env-github[]
 include::installation/troubleshooting_packetfence.asciidoc[]
+endif::[]
 
-== Authentication Mechanisms
+//== Authentication Mechanisms
 
+ifdef::env-github[]
+<<installation/authentication_mechanisms#authentication-mechanisms, Authentication Mechanisms>>
+endif::[]
+ifndef::env-github[]
 include::installation/authentication_mechanisms.asciidoc[]
+endif::[]
 
-== Advanced Portal Configuration
+//== Advanced Portal Configuration
 
+ifdef::env-github[]
+<<installation/advanced_portal_configuration#advanced-portal-configuration, Advanced Portal Configuration>>
+endif::[]
+ifndef::env-github[]
 include::installation/advanced_portal_configuration.asciidoc[]
+endif::[]
 
-== Advanced Access Configuration
+//== Advanced Access Configuration
 
+ifdef::env-github[]
+<<installation/advanced_access_configuration#advanced-access-configuration, Advanced Access Configuration>>
+endif::[]
+ifndef::env-github[]
 include::installation/advanced_access_configuration.asciidoc[]
+endif::[]
 
 == Advanced RADIUS Configuration
 
+ifdef::env-github[]
+<<installation/advanced_radius_configuration#advanced-radius-configuration, Advanced RADIUS Configuration>>
+endif::[]
+ifndef::env-github[]
 include::installation/advanced_radius_configuration.asciidoc[]
+endif::[]
 
-== Fingerbank Integration
+//== Fingerbank Integration
 
+ifdef::env-github[]
+<<installation/fingerbank_integration#fingerbank-integration, Fingerbank Integration>>
+endif::[]
+ifndef::env-github[]
 include::installation/fingerbank_integration.asciidoc[]
+endif::[]
 
-== Network Devices Anomaly Detection
+//== Network Devices Anomaly Detection
 
+ifdef::env-github[]
+<<installation/network_devices_anomaly_detection#network-devices-anomaly-detection, Network Devices Anomaly Detection>>
+endif::[]
+ifndef::env-github[]
 include::installation/network_devices_anomaly_detection.asciidoc[]
+endif::[]
 
-== Intrusion Detection System Integration
+//== Intrusion Detection System Integration
 
+ifdef::env-github[]
+<<installation/intrusion_detection_system_integration#intrusion-detection-system-integration, Intrusion Detection System Integration>>
+endif::[]
+ifndef::env-github[]
 include::installation/intrusion_detection_system_integration.asciidoc[]
+endif::[]
 
-== Firewall SSO Integration
+//== Firewall SSO Integration
 
+ifdef::env-github[]
+<<installation/firewall_sso_integration#firewall-sso-integration, Firewall SSO Integration>>
+endif::[]
+ifndef::env-github[]
 include::installation/firewall_sso_integration.asciidoc[]
+endif::[]
 
-== Performing Compliance Checks
+//== Performing Compliance Checks
 
+ifdef::env-github[]
+<<installation/performing_compliance_checks#performing-compliance-checks, Performing Compliance Checks>>
+endif::[]
+ifndef::env-github[]
 include::installation/performing_compliance_checks.asciidoc[]
+endif::[]
 
 [[provision]]
-== Integrating Provisioning Agents
+//== Integrating Provisioning Agents
 
+ifdef::env-github[]
+<<installation/integrating_provisioning_agents#integrating-provisioning-agents, Integrating Provisioning Agents>>
+endif::[]
+ifndef::env-github[]
 include::installation/integrating_provisioning_agents.asciidoc[]
+endif::[]
 
-== PKI Integration
+//== PKI Integration
 
+ifdef::env-github[]
+<<installation/pki_integration#pki-integration, PKI Integration>>
+endif::[]
+ifndef::env-github[]
 include::installation/pki_integration.asciidoc[]
+endif::[]
 
-== Best Practices
+//== Best Practices
 
+ifdef::env-github[]
+<<installation/best_practices#best-practices, Best Practices>>
+endif::[]
+ifndef::env-github[]
 include::installation/best_practices.asciidoc[]
+endif::[]
 
-== Performance Optimizations
+//== Performance Optimizations
 
+ifdef::env-github[]
+<<installation/performance_optimizations#performance-optimizations, Performance Optimizations>>
+endif::[]
+ifndef::env-github[]
 include::installation/performance_optimizations.asciidoc[]
+endif::[]
 
-== Advanced Network Topics
+//== Advanced Network Topics
 
+ifdef::env-github[]
+<<installation/advanced_network_topics#advanced-network-topics, Advanced Network Topics>>
+endif::[]
+ifndef::env-github[]
 include::installation/advanced_network_topics.asciidoc[]
+endif::[]
 
-== Additional Integration
+//== Additional Integration
 
+ifdef::env-github[]
+<<installation/additional_integration#additional-integration, Additional Integration>>
+endif::[]
+ifndef::env-github[]
 include::installation/additional_integration.asciidoc[]
+endif::[]
 
-== Advanced Topics
+//== Advanced Topics
 
+ifdef::env-github[]
+<<installation/advanced_topics#advanced-topics, Advanced Topics>>
+endif::[]
+ifndef::env-github[]
 include::installation/advanced_topics.asciidoc[]
+endif::[]
+
 
 // INCLUDES
 
+ifdef::env-github[]
+<<includes/additional-info#additional-information, Additional Information>>
+endif::[]
+ifndef::env-github[]
 include::includes/additional-info.asciidoc[]
+endif::[]
 
+ifdef::env-github[]
+<<includes/commercial-support, Additional Info>>
+endif::[]
+ifndef::env-github[]
 include::includes/commercial-support.asciidoc[]
+endif::[]
 
+ifdef::env-github[]
+<<includes/license#gnu-free-documentation-license, License>>
+endif::[]
+ifndef::env-github[]
 include::includes/license.asciidoc[]
-== Appendix
+endif::[]
 
+//== Appendix
+
+ifdef::env-github[]
+<<installation/appendix#appendix, Appendix>>
+endif::[]
+ifndef::env-github[]
 include::installation/appendix.asciidoc[]
+endif::[]
 
 // vim: set syntax=asciidoc tabstop=2 shiftwidth=2 expandtab:

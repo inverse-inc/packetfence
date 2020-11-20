@@ -6,7 +6,7 @@
 
 // to display images directly on GitHub
 ifdef::env-github[]
-:imagesdir: https://github.com/inverse-inc/packetfence/tree/devel/docs/images
+:imagesdir: ./images
 endif::[]
 
 ////
@@ -18,14 +18,13 @@ endif::[]
 
 ////
 
+ifndef::env-github[]
 include::includes/global-attributes.asciidoc[]
+endif::[]
 
 == About this Guide
 
-This guide covers the configuration of network devices in order to integrate 
-them with PacketFence in VLAN enforcement. Switches, wireless controllers and 
-wireless access points are all considered network devices in PacketFence's 
-terms.
+This guide covers the configuration of network devices in order to integrate them with PacketFence in VLAN enforcement. Switches, wireless controllers and wireless access points are all considered network devices in PacketFence's terms.
 
 The latest version of this guide is available at https://packetfence.org/documentation/
 
@@ -56,28 +55,63 @@ This technique is usually used when your network hardware doesn't support VLAN e
 
 Enabling RADIUS accounting on your network devices will increase significantly your database size and can cause performance issues. You should be aware of this and use accounting only if you really need it.
 
-== List of supported Network Devices
+//== List of supported Network Devices
 
+ifdef::env-github[]
+<<network/list_of_supported_network_devices#list-of-supported-network-devices, List of supported Network Devices>>
+endif::[]
+ifndef::env-github[]
 include::network/list_of_supported_network_devices.asciidoc[]
+endif::[]
 
-== Switch configuration
+//== Switch configuration
 
+ifdef::env-github[]
+<<network/switch_configuration#switch-configuration, Switch configuration>>
+endif::[]
+ifndef::env-github[]
 include::network/switch_configuration.asciidoc[]
+endif::[]
 
-== Wireless Controllers and Access Point Configuration
+//== Wireless Controllers and Access Point Configuration
 
+ifdef::env-github[]
+<<network/wireless_controllers_and_access_point_configuration#wireless-controllers-and-access-point-configuration, Wireless Controllers and Access Point Configuration>>
+endif::[]
+ifndef::env-github[]
 include::network/wireless_controllers_and_access_point_configuration.asciidoc[]
+endif::[]
 
-== VPN Configuration
+//== VPN Configuration
 
+ifdef::env-github[]
+<<network/vpn_configuration#vpn-configuration, VPN Configuration>>
+endif::[]
+ifndef::env-github[]
 include::network/vpn_configuration.asciidoc[]
+endif::[]
 
 // INCLUDES
 
+ifdef::env-github[]
+<<includes/additional-info#additional-information, Additional Information>>
+endif::[]
+ifndef::env-github[]
 include::includes/additional-info.asciidoc[]
+endif::[]
 
+ifdef::env-github[]
+<<includes/commercial-support, Additional Info>>
+endif::[]
+ifndef::env-github[]
 include::includes/commercial-support.asciidoc[]
+endif::[]
 
+ifdef::env-github[]
+<<includes/license#gnu-free-documentation-license, License>>
+endif::[]
+ifndef::env-github[]
 include::includes/license.asciidoc[]
+endif::[]
 
 // vim: set syntax=asciidoc tabstop=2 shiftwidth=2 expandtab:

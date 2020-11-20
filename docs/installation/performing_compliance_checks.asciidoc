@@ -11,12 +11,12 @@ endif::[]
 
     This file is part of the PacketFence project.
 
-    See PacketFence_Network_Devices_Configuration_Guide-docinfo.xml for 
+    See PacketFence_Installation_Guide-docinfo.xml for
     authors, copyright and license information.
 
 ////
 
-//== Performing Compliance Checks
+== Performing Compliance Checks
 
 PacketFence supports either Nessus, OpenVAS and WMI as a scanning engine for compliance checks.
 Since PacketFence v5.1 you are now able to create multiples scan engines configuration and assign them on specific captive portals.

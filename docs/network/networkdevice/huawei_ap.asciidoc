@@ -16,8 +16,7 @@ endif::[]
 
 ////
 
-
-//=== Huawei
+=== Huawei
 
 ==== AC6605 Controller
 

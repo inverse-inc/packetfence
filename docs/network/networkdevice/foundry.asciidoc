@@ -16,8 +16,7 @@ endif::[]
 
 ////
 
-
-//=== Foundry
+=== Foundry
 
 ==== FastIron 4802
 

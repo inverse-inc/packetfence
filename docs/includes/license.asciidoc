@@ -11,8 +11,7 @@
 
 ////
 
-GNU Free Documentation License
-------------------------------
+== GNU Free Documentation License
 
 Please refer to http://www.gnu.org/licenses/fdl-1.2.txt for the full license.
 

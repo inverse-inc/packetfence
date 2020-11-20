@@ -16,8 +16,7 @@ endif::[]
 
 ////
 
-  
-//=== Meru
+=== Meru
 
 ==== Meru Controllers (MC)
 

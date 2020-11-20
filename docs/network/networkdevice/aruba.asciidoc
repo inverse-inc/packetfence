@@ -16,8 +16,7 @@ endif::[]
 
 ////
 
-
-//=== Aruba
+=== Aruba
 
 ==== All Aruba OS
 

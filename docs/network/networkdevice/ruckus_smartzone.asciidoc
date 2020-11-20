@@ -16,8 +16,7 @@ endif::[]
 
 ////
 
-
-//=== Ruckus SmartZone
+=== Ruckus SmartZone
 
 ==== Webauth
 

@@ -16,8 +16,7 @@ endif::[]
 
 ////
 
-
-//=== HP ProCurve
+=== HP ProCurve
 
 PacketFence supports ProCurve switches _without VoIP_ using two different trap types:
 

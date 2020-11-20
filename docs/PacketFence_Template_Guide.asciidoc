@@ -6,7 +6,7 @@
 
 // to display images directly on GitHub
 ifdef::env-github[]
-:imagesdir: images
+:imagesdir: ./images
 endif::[]
 
 ////
@@ -43,8 +43,27 @@ These files are included in the package and release tarballs.
 
 // at end of document, *before* appendix
 // INCLUDES
+
+ifdef::env-github[]
+<<includes/additional-info#additional-information, Additional Information>>
+endif::[]
+ifndef::env-github[]
 include::includes/additional-info.asciidoc[]
+endif::[]
+
+ifdef::env-github[]
+<<includes/commercial-support, Additional Info>>
+endif::[]
+ifndef::env-github[]
 include::includes/commercial-support.asciidoc[]
+endif::[]
+
+ifdef::env-github[]
+<<includes/license#gnu-free-documentation-license, License>>
+endif::[]
+ifndef::env-github[]
 include::includes/license.asciidoc[]
+endif::[]
+
 
 

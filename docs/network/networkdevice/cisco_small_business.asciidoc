@@ -16,8 +16,7 @@ endif::[]
 
 ////
 
-
-//=== Cisco Small Business (SMB)
+=== Cisco Small Business (SMB)
 
 The Cisco Small Business switches support MAC based authentication (MAB) as well as 802.1X and VoIP. Both technologies can be combined and will work correctly together on the same switchport.
 

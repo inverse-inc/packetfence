@@ -16,8 +16,7 @@ endif::[]
 
 ////
 
-
-//=== Amer 
+=== Amer 
 
 PacketFence supports Amer switches _without VoIP_ using one trap type: 
 

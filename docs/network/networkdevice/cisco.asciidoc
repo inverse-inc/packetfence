@@ -16,8 +16,7 @@ endif::[]
 
 ////
 
-
-//=== Cisco
+=== Cisco
 
 PacketFence supports Cisco switches with VoIP using three different trap types: 
 

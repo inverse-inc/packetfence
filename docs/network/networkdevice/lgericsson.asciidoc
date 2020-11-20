@@ -16,8 +16,7 @@ endif::[]
 
 ////
 
-
-//=== LG-Ericsson
+=== LG-Ericsson
 
 PacketFence supports iPECS series switches _without VoIP_ using two different trap types:
 

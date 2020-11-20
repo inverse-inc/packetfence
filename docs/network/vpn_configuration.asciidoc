@@ -16,8 +16,7 @@ endif::[]
 
 ////
 
-//== VPN Configuration
-
+== VPN Configuration
 
 === Cisco ASA
 
