@@ -71,8 +71,6 @@ On Debian
 * Disable AppArmor
 * Disable resolvconf
 
-*NOTE*: If running *UEFI mode*, make sure *secureboot* is *disabled*.
-
 Make sure your system is up to date and your yum or apt-get database is updated. On a RHEL-based system, do:
 
 [source,bash]
@@ -108,8 +106,6 @@ Install kernel development package:
 yum install kernel-devel-$(uname -r)
 ----
 
-NOTE: Make sure you are actually running the latest kernel prior to installing the kernel development package. Reboot prior to installing this package if unsure.
-
 ===== RHEL 7.x
 
 NOTE: These are extra steps are required for RHEL 7 systems only, excluding derivatives such as CentOS or Scientific Linux.
@@ -130,8 +126,6 @@ Install kernel development package:
 ----
 apt install linux-headers-$(uname -r)
 ----
-
-NOTE: Make sure you are actually running the latest kernel prior to installing the kernel development package. Reboot prior to installing this package if unsure.
 
 ==== Software Installation
 
