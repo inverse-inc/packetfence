@@ -2,7 +2,7 @@ import { computed, toRefs } from '@vue/composition-api'
 import i18n from '@/utils/locale'
 import { defaultsFromMeta } from '../../_config/'
 
-export const useCollectionItemProps = {
+export const useItemProps = {
   id: {
     type: String
   },
@@ -11,14 +11,14 @@ export const useCollectionItemProps = {
   }
 }
 
-const useCollectionItemDefaults = (meta, props) => {
+const useItemDefaults = (meta, props) => {
   const {
     switchGroup
   } = toRefs(props)
   return { ...defaultsFromMeta(meta), group: switchGroup.value }
 }
 
-const useCollectionItemTitle = (props) => {
+const useItemTitle = (props) => {
   const {
     id,
     isClone,
@@ -36,7 +36,7 @@ const useCollectionItemTitle = (props) => {
   })
 }
 
-const useCollectionRouter = (props, context, form) => {
+const useRouter = (props, context, form) => {
   const {
     id
   } = toRefs(props)
@@ -48,10 +48,10 @@ const useCollectionRouter = (props, context, form) => {
   }
 }
 
-const useCollectionStore = (props, context, form) => {
+const useStore = (props, context, form) => {
   const {
-    isNew,
     id,
+    isNew,
     switchGroup
   } = toRefs(props)
   const { root: { $store } = {} } = context
@@ -71,8 +71,8 @@ const useCollectionStore = (props, context, form) => {
 }
 
 export default {
-  useCollectionItemDefaults,
-  useCollectionItemTitle,
-  useCollectionRouter,
-  useCollectionStore,
+  useItemDefaults,
+  useItemTitle,
+  useRouter,
+  useStore,
 }

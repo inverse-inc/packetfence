@@ -1,4 +1,6 @@
-import { computed, customRef, ref, toRefs } from '@vue/composition-api'
+import { computed, customRef, ref, toRefs, watch } from '@vue/composition-api'
+import { createDebouncer } from 'promised-debounce'
+import useEventJail from '@/composables/useEventJail'
 import i18n from '@/utils/locale'
 import yup from '@/utils/yup'
 
@@ -29,7 +31,7 @@ const useCsrProps = {
 
 const useCsr = (props, context) => {
 
-  const { root: { $store } = {}, emit } = context
+  const { root: { $store } = {}, emit, refs } = context
 
   const {
     id,
@@ -37,11 +39,37 @@ const useCsr = (props, context) => {
   } = toRefs(props)
 
   const title = computed(() => i18n.t('Generate Signing Request for {certificate} certificate', { certificate: id.value.toUpperCase() }))
+  const csr = ref(undefined)
+  const csrRef = ref(null)
 
   const form = ref(defaults())
+  const formRef = ref(null)
+  useEventJail(formRef)
+  const isLoading = computed(() => $store.getters['$_certificates/isLoading'])
 
-// !!!
-const isLoading = ref(false)
+  const isValid = ref(true)
+  let isValidDebouncer
+  watch([form], () => {
+    isValid.value = false // temporary
+    if (!isValidDebouncer)
+      isValidDebouncer = createDebouncer()
+    isValidDebouncer({
+      handler: () => isValid.value = formRef.value && formRef.value.querySelectorAll('.is-invalid').length === 0,
+      time: 300
+    })
+  }, { deep: true })
+
+  const onGenerate = () => $store.dispatch('$_certificates/generateCertificateSigningRequest', { ...form.value, id: id.value }).then(_csr => {
+    csr.value = _csr
+  })
+
+  const onClipboard = () => {
+    if (document.queryCommandSupported('copy')) {
+      refs.csrRef.$el.select()
+      document.execCommand('copy')
+      $store.dispatch('notification/info', { message: i18n.t('Signing Request copied to clipboard') })
+    }
+  }
 
   const show = customRef((track, trigger) => ({ // use v-model
     get() {
@@ -56,21 +84,28 @@ const isLoading = ref(false)
 
   const reset = () => {
     form.value = defaults() // reset form when shown/hidden
+      csr.value = undefined
   }
 
-  const doHide = () => {
+  const onHide = () => {
     show.value = false
   }
 
   return {
     title,
+    csr,
+    csrRef,
     form,
+    formRef,
     schema,
     isLoading,
+    isValid,
+    onGenerate,
+    onClipboard,
 
     show,
     reset,
-    doHide
+    onHide
   }
 }
 

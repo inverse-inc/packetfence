@@ -3,7 +3,6 @@ import { createDebouncer } from 'promised-debounce'
 import useEventActionKey from '@/composables/useEventActionKey'
 import useEventEscapeKey from '@/composables/useEventEscapeKey'
 import useEventJail from '@/composables/useEventJail'
-import i18n from '@/utils/locale'
 
 export const useViewCollectionItemProps = {
   id: {
@@ -20,10 +19,10 @@ export const useViewCollectionItemProps = {
 export const useViewCollectionItem = (collection, props, context) => {
 
   const {
-    useCollectionItemDefaults,
-    useCollectionItemTitle,
-    useCollectionRouter,
-    useCollectionStore,
+    useItemDefaults,
+    useItemTitle,
+    useRouter,
+    useStore,
   } = collection
 
   const {
@@ -38,7 +37,7 @@ export const useViewCollectionItem = (collection, props, context) => {
   // state
   const form = ref({})
   const meta = ref({})
-  const title = useCollectionItemTitle(props)
+  const title = useItemTitle(props)
   const isModified = ref(false)
 
   // unhandled custom props
@@ -72,13 +71,13 @@ export const useViewCollectionItem = (collection, props, context) => {
     deleteItem,
     getItem,
     updateItem,
-  } = useCollectionStore(props, context, form)
+  } = useStore(props, context, form)
 
   const {
     goToCollection,
     goToItem,
     goToClone,
-  } = useCollectionRouter(props, context, form)
+  } = useRouter(props, context, form)
 
   const init = () => {
     return new Promise((resolve, reject) => {
@@ -87,10 +86,6 @@ export const useViewCollectionItem = (collection, props, context) => {
           const { meta: _meta = {} } = options
           meta.value = _meta
           getItem().then(item => {
-            if (isClone.value) {
-              item.id = `${item.id}-${i18n.t('copy')}`
-              item.not_deletable = false
-            }
             form.value = item
             resolve()
           }).catch(() => {
@@ -105,7 +100,7 @@ export const useViewCollectionItem = (collection, props, context) => {
       } else { // new
         getOptions().then(options => {
           const { meta: _meta = {} } = options
-          form.value = useCollectionItemDefaults(_meta, props)
+          form.value = useItemDefaults(_meta, props)
           meta.value = _meta
           resolve()
         }).catch(() => {

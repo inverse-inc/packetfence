@@ -12,11 +12,13 @@ const useFormProps = {
   }
 }
 
-const useForm = (props, form) => {
+const useForm = (form, props, context) => {
 
   const {
     id
   } = toRefs(props)
+
+  const { emit } = context
 
   const schema = computed(() => schemaFn(props))
 
@@ -29,11 +31,13 @@ const useForm = (props, form) => {
 
   const isCertKeyMatch = computed(() => {
     const { info: { cert_key_match: { success } = {} } = {} } = form.value
+    emit('cert-key-match', success)
     return success
   })
 
   const isChainValid = computed(() => {
     const { info: { chain_is_valid: { success } = {} } = {} } = form.value
+    emit('chain-valid', success)
     return success
   })
 
@@ -79,25 +83,26 @@ const useForm = (props, form) => {
     isShowCsr.value = false
   }
 
-  const showAlert = ref(true)
-
   const services = computed(() => certificateServices[id.value] || [])
 
   // cosmetic props only
   const isFindIntermediateCas = ref(false)
 
   watch(isFindIntermediateCas, isFindIntermediateCas => {
-    if (isFindIntermediateCas) // clear intermediate CAs
+    if (isFindIntermediateCas && 'certificate' in form.value) // clear intermediate CAs
       form.value.certificate.intermediate_cas = []
   })
+
+  watch([form], () => {
+    const { certificate: { intermediate_cas = [] } = {} } = form.value || {}
+      isFindIntermediateCas.value = (intermediate_cas.length === 0)
+  }, { deep: true, immediate: true })
 
   return {
     schema,
     certificateLocale,
     certificateAuthorityLocale,
     title,
-
-    showAlert,
     services,
 
     isShowEdit,

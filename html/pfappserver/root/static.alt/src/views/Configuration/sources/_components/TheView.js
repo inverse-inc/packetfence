@@ -12,13 +12,8 @@ const components = {
 
 import { computed, toRefs } from '@vue/composition-api'
 import { renderHOCWithScopedSlots } from '@/components/new/'
-import { useViewCollectionItem, useViewCollectionItemProps } from '../../_composables/useViewCollectionItem'
-import collection, { useCollectionItemProps } from '../_composables/useCollection'
-
-const props = {
-  ...useViewCollectionItemProps,
-  ...useCollectionItemProps
-}
+import { useViewCollectionItem, useViewCollectionItemProps as props } from '../../_composables/useViewCollectionItem'
+import collection from '../_composables/useCollection'
 
 const setup = (props, context) => {
 

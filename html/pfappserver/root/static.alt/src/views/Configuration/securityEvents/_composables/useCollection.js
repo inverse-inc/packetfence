@@ -1,10 +1,10 @@
 import { computed, toRefs } from '@vue/composition-api'
 import i18n from '@/utils/locale'
 import {
-  defaultsFromMeta as useCollectionItemDefaults
+  defaultsFromMeta as useItemDefaults
 } from '../../_config/'
 
-const useCollectionItemTitle = (props) => {
+const useItemTitle = (props) => {
   const {
     id,
     isClone,
@@ -22,7 +22,7 @@ const useCollectionItemTitle = (props) => {
   })
 }
 
-const useCollectionRouter = (props, context, form) => {
+const useRouter = (props, context, form) => {
   const {
     id
   } = toRefs(props)
@@ -34,9 +34,10 @@ const useCollectionRouter = (props, context, form) => {
   }
 }
 
-const useCollectionStore = (props, context, form) => {
+const useStore = (props, context, form) => {
   const {
-    id
+    id,
+    isClone
   } = toRefs(props)
   const { root: { $store } = {} } = context
   return {
@@ -44,14 +45,20 @@ const useCollectionStore = (props, context, form) => {
     getOptions: () => $store.dispatch('$_security_events/options'),
     createItem: () => $store.dispatch('$_security_events/createSecurityEvent', form.value),
     deleteItem: () => $store.dispatch('$_security_events/deleteSecurityEvent', id.value),
-    getItem: () => $store.dispatch('$_security_events/getSecurityEvent', id.value),
+    getItem: () => $store.dispatch('$_security_events/getSecurityEvent', id.value).then(item => {
+      if (isClone.value) {
+        item.id = `${item.id}-${i18n.t('copy')}`
+        item.not_deletable = false
+      }
+      return item
+    }),
     updateItem: () => $store.dispatch('$_security_events/updateSecurityEvent', form.value),
   }
 }
 
 export default {
-  useCollectionItemDefaults,
-  useCollectionItemTitle,
-  useCollectionRouter,
-  useCollectionStore,
+  useItemDefaults,
+  useItemTitle,
+  useRouter,
+  useStore,
 }

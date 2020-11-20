@@ -65,20 +65,7 @@
       Edit mode
     -->
     <template v-else>
-      <b-alert :show="showAlert" class="mt-3 mb-0 mx-3" variant="warning" fade>
-        <h4 class="alert-heading" v-t="'Warning'"/>
-        <p>
-          {{ $t('Some services must be restarted to load the new certificate.') }}
-          <span v-if="id === 'http'" v-html="$t('The <strong>{service}</strong> service needs to be restarted from the command-line.', { service: 'haproxy-admin' })"></span>
-        </p>
-        <button-service v-for="service in services" :key="service"
-          :service="service"
-          class="mr-1"
-          restart start stop
-        />
-      </b-alert>
-
-      <b-form @submit.prevent="doSave" ref="rootRef">
+      <b-form @submit.prevent="onSave" ref="rootRef">
         <base-form
           :form="form.certificate"
           :schema="schema"
@@ -128,18 +115,15 @@
       </b-form>
 
       <b-card-footer>
-        <b-button v-t="'Cancel'" @click="doHideEdit"></b-button>
-
-        <form-button-bar
-          :actionKey="actionKey"
+        <alert-services :show="isModified" :disabled="isLoading" :services="services" />
+        <base-form-button-bar
           :isLoading="isLoading"
           :isValid="isValid"
           :formRef="rootRef"
           @close="doHideEdit"
-          @reset="doReset"
-          @save="doSave"
+          @reset="onReset"
+          @save="onSave"
         />
-
       </b-card-footer>
     </template>
 
@@ -162,7 +146,7 @@ import {
   BaseFormGroupToggleFalseTrue as FormGroupFindIntermediateCas
 } from '@/components/new/'
 import {
-  ButtonService,
+  AlertServices,
   FormGroupCertificate,
   FormGroupCheckChain,
   FormGroupIntermediateCertificateAuthorities,
@@ -173,10 +157,10 @@ import {
 } from './'
 
 const components = {
+  AlertServices,
   BaseContainerLoading,
   BaseForm,
   BaseFormButtonBar,
-  ButtonService,
   FormGroupCertificate,
   FormGroupCheckChain,
   FormGroupFindIntermediateCas,
@@ -187,14 +171,13 @@ const components = {
 
   TheCsr
 }
-
-import { useView as useBaseView } from '@/composables/useView'
 import { useForm, useFormProps } from '../_composables/useForm'
-import { useStore, useStoreProps } from '../_composables/useStore'
+import { useViewCollectionItemFixed, useViewCollectionItemFixedProps } from '../../_composables/useViewCollectionItemFixed'
+import collection from '../_composables/useCollection'
 
 const props = {
   ...useFormProps,
-  ...useStoreProps,
+  ...useViewCollectionItemFixedProps,
 }
 
 const setup = (props, context) => {
@@ -202,19 +185,19 @@ const setup = (props, context) => {
   const {
     rootRef,
     form,
-    actionKey,
-    escapeKey,
-    isValid
-  } = useBaseView(props, context)
-
+    title,
+    isModified,
+    customProps,
+    isValid,
+    isLoading,
+    onReset,
+    onSave,
+  } = useViewCollectionItemFixed(collection, props, context)
 
   const {
     schema,
     certificateLocale,
     certificateAuthorityLocale,
-    title,
-
-    showAlert,
     services,
 
     isShowEdit,
@@ -230,29 +213,25 @@ const setup = (props, context) => {
     isChainValid,
     isLetsEncrypt,
     isFindIntermediateCas
-  } = useForm(props, form)
-
-  const {
-    isLoading,
-    doInit,
-    doReset,
-    doSave
-  } = useStore(props, context, form)
+  } = useForm(form, props, context)
 
   return {
-    // useView
+    // useViewCollectionItemFixed
     rootRef,
     form,
-    actionKey,
-    escapeKey,
+    meta: undefined,
+    title,
+    isModified,
+    customProps,
     isValid,
+    isLoading,
+    onReset,
+    onSave,
 
     // useForm
     schema,
     certificateLocale,
     certificateAuthorityLocale,
-    title,
-    showAlert,
     services,
     isShowEdit,
     doShowEdit,
@@ -265,12 +244,6 @@ const setup = (props, context) => {
     isChainValid,
     isLetsEncrypt,
     isFindIntermediateCas,
-
-    // useStore
-    isLoading,
-    doInit,
-    doReset,
-    doSave
   }
 }
 
@@ -281,4 +254,3 @@ export default {
   setup
 }
 </script>
-

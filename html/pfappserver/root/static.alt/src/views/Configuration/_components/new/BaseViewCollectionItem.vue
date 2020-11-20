@@ -25,6 +25,7 @@
         :isDeletable="isDeletable"
         :isValid="isValid"
         :formRef="rootRef"
+        @close="onClose"
         @clone="onClone"
         @remove="onRemove"
         @reset="onReset"
@@ -57,6 +58,7 @@ export default {
     isValid: undefined,
     actionKey: undefined,
     onClone: undefined,
+    onClose: undefined,
     onRemove: undefined,
     onReset: undefined,
     onSave: undefined,

@@ -146,9 +146,11 @@ const setup = (props, context) => {
         }
         else { // contentType not accepted
           $store.dispatch('notification/danger', {
+            icon: 'upload',
             message: i18n.t('Invalid file, only "<code>{contentTypes}</code>" content-type(s) are accepted.', {
               contentTypes: accept.value
-            })
+            }),
+            url: file.name
           })
 
           // dump additional info for remote debugging

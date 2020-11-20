@@ -4,9 +4,9 @@ import {
   defaultsFromMeta
 } from '../../_config/'
 
-const useCollectionItemDefaults = (meta) => ({ ...defaultsFromMeta(meta), actions: [] })
+const useItemDefaults = (meta) => ({ ...defaultsFromMeta(meta), actions: [] })
 
-const useCollectionItemTitle = (props) => {
+const useItemTitle = (props) => {
   const {
     id,
     isClone,
@@ -24,7 +24,7 @@ const useCollectionItemTitle = (props) => {
   })
 }
 
-const useCollectionRouter = (props, context, form) => {
+const useRouter = (props, context, form) => {
   const {
     id
   } = toRefs(props)
@@ -36,9 +36,10 @@ const useCollectionRouter = (props, context, form) => {
   }
 }
 
-const useCollectionStore = (props, context, form) => {
+const useStore = (props, context, form) => {
   const {
-    id
+    id,
+    isClone
   } = toRefs(props)
   const { root: { $store } = {} } = context
   return {
@@ -46,14 +47,20 @@ const useCollectionStore = (props, context, form) => {
     getOptions: () => $store.dispatch('$_network_behavior_policies/options'),
     createItem: () => $store.dispatch('$_network_behavior_policies/createNetworkBehaviorPolicy', form.value),
     deleteItem: () => $store.dispatch('$_network_behavior_policies/deleteNetworkBehaviorPolicy', id.value),
-    getItem: () => $store.dispatch('$_network_behavior_policies/getNetworkBehaviorPolicy', id.value),
+    getItem: () => $store.dispatch('$_network_behavior_policies/getNetworkBehaviorPolicy', id.value).then(item => {
+      if (isClone.value) {
+        item.id = `${item.id}-${i18n.t('copy')}`
+        item.not_deletable = false
+      }
+      return item
+    }),
     updateItem: () => $store.dispatch('$_network_behavior_policies/updateNetworkBehaviorPolicy', form.value),
   }
 }
 
 export default {
-  useCollectionItemDefaults,
-  useCollectionItemTitle,
-  useCollectionRouter,
-  useCollectionStore,
+  useItemDefaults,
+  useItemTitle,
+  useRouter,
+  useStore,
 }

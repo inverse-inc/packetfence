@@ -2,7 +2,7 @@ import { computed, toRefs } from '@vue/composition-api'
 import i18n from '@/utils/locale'
 import { defaultsFromMeta } from '../../_config/'
 
-export const useCollectionItemProps = {
+export const useItemProps = {
   id: {
     type: String
   },
@@ -11,14 +11,14 @@ export const useCollectionItemProps = {
   }
 }
 
-const useCollectionItemDefaults = (meta, props) => {
+const useItemDefaults = (meta, props) => {
   const {
     sourceType
   } = toRefs(props)
   return { ...defaultsFromMeta(meta), type: sourceType.value }
 }
 
-const useCollectionItemTitle = (props) => {
+const useItemTitle = (props) => {
   const {
     id,
     isClone,
@@ -36,7 +36,7 @@ const useCollectionItemTitle = (props) => {
   })
 }
 
-const useCollectionRouter = (props, context, form) => {
+const useRouter = (props, context, form) => {
   const {
     id
   } = toRefs(props)
@@ -48,9 +48,10 @@ const useCollectionRouter = (props, context, form) => {
   }
 }
 
-const useCollectionStore = (props, context, form) => {
+const useStore = (props, context, form) => {
   const {
     id,
+    isClone,
     isNew,
     sourceType
   } = toRefs(props)
@@ -65,15 +66,21 @@ const useCollectionStore = (props, context, form) => {
     },
     createItem: () => $store.dispatch('$_sources/createAuthenticationSource', form.value),
     deleteItem: () => $store.dispatch('$_sources/deleteAuthenticationSource', id.value),
-    getItem: () => $store.dispatch('$_sources/getAuthenticationSource', id.value),
+    getItem: () => $store.dispatch('$_sources/getAuthenticationSource', id.value).then(item => {
+      if (isClone.value) {
+        item.id = `${item.id}-${i18n.t('copy')}`
+        item.not_deletable = false
+      }
+      return item
+    }),
     updateItem: () => $store.dispatch('$_sources/updateAuthenticationSource', form.value),
   }
 }
 
 export default {
-  useCollectionItemDefaults,
-  useCollectionItemProps,
-  useCollectionItemTitle,
-  useCollectionRouter,
-  useCollectionStore,
+  useItemDefaults,
+  useItemProps,
+  useItemTitle,
+  useRouter,
+  useStore,
 }

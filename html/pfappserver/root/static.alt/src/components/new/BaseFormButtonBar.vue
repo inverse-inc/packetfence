@@ -7,6 +7,7 @@
       @click="onSave"
     >
       <template v-if="isNew">{{ $t('Create') }}</template>
+      <template v-else-if="actionKey && isClone && isCloseable">{{ $t('Clone & Close') }}</template>
       <template v-else-if="isClone">{{ $t('Clone') }}</template>
       <template v-else-if="actionKey">{{ $t('Save & Close') }}</template>
       <template v-else>{{ $t('Save') }}</template>
@@ -27,6 +28,11 @@
       class="mr-1"
       @delete="onRemove"
     />
+    <b-button v-if="isCloseable"
+      :disabled="isLoading"
+      class="mr-1" variant="secondary"
+      @click="onClose"
+    >{{ $t('Cancel') }}</b-button>
     <slot/>
   </div>
 </template>
@@ -47,20 +53,23 @@ export const props = {
 
 export const setup = (props, context) => {
   const {
+    isCloneable,
+    isCloseable,
     onClone,
+    onClose,
     onRemove,
     onReset,
     onSave,
-    isCloneable
   } = useFormButtonBar(props, context)
 
   return {
+    isCloneable,
+    isCloseable,
     onClone,
+    onClose,
     onRemove,
     onReset,
     onSave,
-
-    isCloneable
   }
 }
 

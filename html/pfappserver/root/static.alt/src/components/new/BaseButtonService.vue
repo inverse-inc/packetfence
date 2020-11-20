@@ -8,7 +8,7 @@
     v-bind="$attrs"
   >
     <template v-slot:button-content>
-      <icon v-bind="buttonIcon" class="mr-1"></icon>
+      <icon v-bind="buttonIcon" class="mr-1"/>
       {{ buttonText }}
     </template>
     <b-dropdown-form v-if="!hideDetails">
@@ -16,24 +16,34 @@
         <b-col>{{ $t('Alive') }}</b-col>
         <b-col cols="auto">
           <b-badge v-if="status.alive && status.pid" pill variant="success">{{ status.pid }}</b-badge>
-          <icon v-else class="text-danger" name="circle"></icon>
+          <icon v-else class="text-danger" name="circle"/>
         </b-col>
       </b-row>
       <b-row class="row-nowrap">
         <b-col>{{ $t('Enabled') }}</b-col>
-        <b-col cols="auto"><icon :class="(status.enabled) ? 'text-success' : 'text-danger'" name="circle"></icon></b-col>
+        <b-col cols="auto"><icon :class="(status.enabled) ? 'text-success' : 'text-danger'" name="circle"/></b-col>
       </b-row>
       <b-row class="row-nowrap">
         <b-col>{{ $t('Managed') }}</b-col>
-        <b-col cols="auto"><icon :class="(status.managed) ? 'text-success' : 'text-danger'" name="circle"></icon></b-col>
+        <b-col cols="auto"><icon :class="(status.managed) ? 'text-success' : 'text-danger'" name="circle"/></b-col>
       </b-row>
     </b-dropdown-form>
-    <b-dropdown-divider v-if="!isLoading && !hideDetails"></b-dropdown-divider>
-    <b-dropdown-item v-if="canEnable" @click="doEnable"><icon name="toggle-on" class="mr-1" @click.stop="onClick"></icon> {{ $t('Enable') }}</b-dropdown-item>
-    <b-dropdown-item v-if="canDisable" @click="doDisable"><icon name="toggle-off" class="mr-1" @click.stop="onClick"></icon> {{ $t('Disable') }}</b-dropdown-item>
-    <b-dropdown-item v-if="canRestart" @click="doRestart"><icon name="redo" class="mr-1" @click.stop="onClick"></icon> {{ $t('Restart') }}</b-dropdown-item>
-    <b-dropdown-item v-if="canStart" @click="doStart"><icon name="play" class="mr-1" @click.stop="onClick"></icon> {{ $t('Start') }}</b-dropdown-item>
-    <b-dropdown-item v-if="canStop" @click="doStop"><icon name="stop" class="mr-1" @click.stop="onClick"></icon> {{ $t('Stop') }}</b-dropdown-item>
+    <b-dropdown-divider v-if="!isLoading && !hideDetails"/>
+    <b-dropdown-text v-if="status.message"
+      class="small">
+      {{ status.message }}
+    </b-dropdown-text>
+    <b-dropdown-text v-if="isBlacklisted"
+      class="small">
+      {{ $t('This service must be managed from the command-line.') }}
+    </b-dropdown-text>
+    <template v-else>
+      <b-dropdown-item v-if="canEnable" @click="doEnable"><icon name="toggle-on" class="mr-1" @click.stop="onClick"/> {{ $t('Enable') }}</b-dropdown-item>
+      <b-dropdown-item v-if="canDisable" @click="doDisable"><icon name="toggle-off" class="mr-1" @click.stop="onClick"/> {{ $t('Disable') }}</b-dropdown-item>
+      <b-dropdown-item v-if="canRestart" @click="doRestart"><icon name="redo" class="mr-1" @click.stop="onClick"/> {{ $t('Restart') }}</b-dropdown-item>
+      <b-dropdown-item v-if="canStart" @click="doStart"><icon name="play" class="mr-1" @click.stop="onClick"/> {{ $t('Start') }}</b-dropdown-item>
+      <b-dropdown-item v-if="canStop" @click="doStop"><icon name="stop" class="mr-1" @click.stop="onClick"/> {{ $t('Stop') }}</b-dropdown-item>
+    </template>
   </b-dropdown>
 </template>
 <script>
@@ -103,13 +113,14 @@ const setup = (props, context) => {
   })
 
   const isAllowed = computed(() => acl.$can('read', 'services'))
-  const isError = computed(() => status.value.status === 'error' || !!blacklistedServices.find(bls => bls === service.value))
+  const isBlacklisted = computed(() => !!blacklistedServices.find(bls => bls === service.value))
+  const isError = computed(() => status.value.status === 'error')
   const isLoading = computed(() => {
     if (status.value.status)
       return !['success', 'error'].includes(status.value.status)
     return true
   })
-  const isDisabled = computed(() => disabled.value || isError.value || !isAllowed.value)
+  const isDisabled = computed(() => disabled.value || !isAllowed.value)
 
   const tooltip = computed(() => {
     switch (true) {
@@ -146,6 +157,10 @@ const setup = (props, context) => {
 
   const buttonIcon = computed(() => {
     switch (true) {
+      case isBlacklisted.value:
+        return { name: 'lock' }
+        //break
+
       case !isAllowed.value:
         return { name: 'exclamation-circle' }
         //break
@@ -159,8 +174,12 @@ const setup = (props, context) => {
         return { name: 'exclamation-circle' }
         // break
 
-      default:
-        return { name: 'circle' }
+      case status.value.alive: // alive
+        return { name: 'play-circle' }
+        // break
+
+      default: // dead
+        return { name: 'stop-circle' }
         // break
     }
   })
@@ -240,6 +259,7 @@ const setup = (props, context) => {
 
     status,
     isAllowed,
+    isBlacklisted,
     isDisabled,
     isError,
     isLoading,

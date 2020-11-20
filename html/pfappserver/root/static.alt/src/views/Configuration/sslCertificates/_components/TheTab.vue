@@ -7,6 +7,8 @@
     </template>
     <the-form
       :id="id"
+      @chain-valid="onChainValid"
+      @cert-key-match="onCertKeyMatch"
     />
   </b-tab>
 </template>
@@ -28,9 +30,31 @@ export const props = {
   }
 }
 
+import { computed, ref, toRefs, watch } from '@vue/composition-api'
+
+const setup = (props) => {
+
+  const isCertKeyMatch = ref(false)
+  const isChainValid = ref(false)
+
+  const onCertKeyMatch = match => {
+    isCertKeyMatch.value = match
+  }
+  const onChainValid = valid => {
+    isChainValid.value = valid
+  }
+
+  return {
+    isCertKeyMatch,
+    isChainValid,
+    onCertKeyMatch,
+    onChainValid
+  }
+}
 export default {
   name: 'the-tab',
   components,
-  props
+  props,
+  setup
 }
 </script>

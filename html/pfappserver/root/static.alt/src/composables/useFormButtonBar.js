@@ -26,24 +26,35 @@ export const useFormButtonBarProps = {
   }
 }
 
-export const useFormButtonBar = (props, { emit }) => {
+export const useFormButtonBar = (props, context) => {
 
   const {
     isClone,
     isNew
   } = toRefs(props)
 
-  const isCloneable = computed(() => isClone.value === false || isNew.value === false)
+  const { emit, listeners } = context
+
+  const isCloneable = computed(() => {
+    return isClone.value === false && isNew.value === false && 'clone' in listeners
+  })
+
+  const isCloseable = computed(() => {
+    return 'close' in listeners
+  })
 
   const onClone = value => emit('clone', value)
+  const onClose = value => emit('close', value)
   const onRemove = value => emit('remove', value)
   const onReset = value => emit('reset', value)
   const onSave = value => emit('save', value)
 
   return {
     isCloneable,
+    isCloseable,
 
     onClone,
+    onClose,
     onRemove,
     onReset,
     onSave
