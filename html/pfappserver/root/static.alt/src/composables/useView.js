@@ -1,5 +1,5 @@
 import { computed, ref, toRefs, unref, watch } from '@vue/composition-api'
-import { createDebouncer } from 'promised-debounce'
+import { useDebouncedWatchHandler } from '@/composables/useDebounce'
 import useEventActionKey from '@/composables/useEventActionKey'
 import useEventEscapeKey from '@/composables/useEventEscapeKey'
 import useEventJail from '@/composables/useEventJail'
@@ -43,17 +43,7 @@ export const useView = (props, context) => {
       return true
   })
 
-  const isValid = ref(true)
-  let isValidDebouncer
-  watch([form, meta], () => {
-    isValid.value = false // temporary
-    if (!isValidDebouncer)
-      isValidDebouncer = createDebouncer()
-    isValidDebouncer({
-      handler: () => isValid.value = rootRef.value && rootRef.value.querySelectorAll('.is-invalid').length === 0,
-      time: 300
-    })
-  }, { deep: true })
+  const isValid = useDebouncedWatchHandler([form, meta], () => (rootRef.value && rootRef.value.querySelectorAll('.is-invalid').length === 0))
 
   return {
     rootRef,

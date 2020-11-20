@@ -1,5 +1,5 @@
 import { computed, customRef, ref, toRefs, watch } from '@vue/composition-api'
-import { createDebouncer } from 'promised-debounce'
+import { useDebouncedWatchHandler } from '@/composables/useDebounce'
 import useEventJail from '@/composables/useEventJail'
 import i18n from '@/utils/locale'
 import yup from '@/utils/yup'
@@ -47,17 +47,7 @@ const useCsr = (props, context) => {
   useEventJail(formRef)
   const isLoading = computed(() => $store.getters['$_certificates/isLoading'])
 
-  const isValid = ref(true)
-  let isValidDebouncer
-  watch([form], () => {
-    isValid.value = false // temporary
-    if (!isValidDebouncer)
-      isValidDebouncer = createDebouncer()
-    isValidDebouncer({
-      handler: () => isValid.value = formRef.value && formRef.value.querySelectorAll('.is-invalid').length === 0,
-      time: 300
-    })
-  }, { deep: true })
+  const isValid = useDebouncedWatchHandler(form, () => (rootRef.value && rootRef.value.querySelectorAll('.is-invalid').length === 0))
 
   const onGenerate = () => $store.dispatch('$_certificates/generateCertificateSigningRequest', { ...form.value, id: id.value }).then(_csr => {
     csr.value = _csr

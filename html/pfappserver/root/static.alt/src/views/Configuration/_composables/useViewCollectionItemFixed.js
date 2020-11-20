@@ -29,17 +29,7 @@ export const useViewCollectionItemFixed = (collection, props, context) => {
 
   const isDeletable = false
 
-  const isValid = ref(true)
-  let isValidDebouncer
-  watch(form, () => {
-    isValid.value = false // temporary
-    if (!isValidDebouncer)
-      isValidDebouncer = createDebouncer()
-    isValidDebouncer({
-      handler: () => isValid.value = rootRef.value && rootRef.value.querySelectorAll('.is-invalid').length === 0,
-      time: 1000
-    })
-  }, { deep: true })
+  const isValid = useDebouncedWatchHandler(form, () => (rootRef.value && rootRef.value.querySelectorAll('.is-invalid').length === 0))
 
   const {
     isLoading,
