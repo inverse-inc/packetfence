@@ -30,7 +30,7 @@ has_field 'broadcast' =>
    type => 'Checkbox',
    label => 'Broadcast network',
    checkbox_value => 1,
-   unchecked_value => 0,
+   input_without_param => 0,
    default => 1,
    tags => { after_element => \&help,
              help => 'Disable this box if you are using a hidden SSID' },
