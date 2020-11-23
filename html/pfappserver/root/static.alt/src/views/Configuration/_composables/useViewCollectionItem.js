@@ -1,6 +1,6 @@
 import { computed, ref, toRefs, watch } from '@vue/composition-api'
-import useEventActionKey from '@/composables/useEventActionKey'
 import { useDebouncedWatchHandler } from '@/composables/useDebounce'
+import useEventActionKey from '@/composables/useEventActionKey'
 import useEventEscapeKey from '@/composables/useEventEscapeKey'
 import useEventJail from '@/composables/useEventJail'
 
@@ -54,7 +54,7 @@ export const useViewCollectionItem = (collection, props, context) => {
       return true
   })
 
-  const isValid = useDebouncedWatchHandler([form, meta], () => (rootRef.value && rootRef.value.querySelectorAll('.is-invalid').length === 0))
+  const isValid = useDebouncedWatchHandler([form, meta], () => (!rootRef.value || rootRef.value.querySelectorAll('.is-invalid').length === 0))
 
   const {
     isLoading,

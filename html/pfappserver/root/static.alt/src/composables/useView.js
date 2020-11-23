@@ -43,7 +43,7 @@ export const useView = (props, context) => {
       return true
   })
 
-  const isValid = useDebouncedWatchHandler([form, meta], () => (rootRef.value && rootRef.value.querySelectorAll('.is-invalid').length === 0))
+  const isValid = useDebouncedWatchHandler([form, meta], () => (!rootRef.value || rootRef.value.querySelectorAll('.is-invalid').length === 0))
 
   return {
     rootRef,

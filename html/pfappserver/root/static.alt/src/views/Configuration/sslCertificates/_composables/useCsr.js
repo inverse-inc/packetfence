@@ -47,7 +47,7 @@ const useCsr = (props, context) => {
   useEventJail(formRef)
   const isLoading = computed(() => $store.getters['$_certificates/isLoading'])
 
-  const isValid = useDebouncedWatchHandler(form, () => (rootRef.value && rootRef.value.querySelectorAll('.is-invalid').length === 0))
+  const isValid = useDebouncedWatchHandler(form, () => (!formRef.value || formRef.value.querySelectorAll('.is-invalid').length === 0))
 
   const onGenerate = () => $store.dispatch('$_certificates/generateCertificateSigningRequest', { ...form.value, id: id.value }).then(_csr => {
     csr.value = _csr

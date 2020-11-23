@@ -8,7 +8,7 @@
     <b-tabs>
       <template v-slot:tabs-end>
         <div class="text-right mr-3">
-          <base-input-toggle-advanced-mode v-model="advancedMode"/>
+          <base-input-toggle-advanced-mode v-model="advancedMode" label-left />
         </div>
       </template>
 

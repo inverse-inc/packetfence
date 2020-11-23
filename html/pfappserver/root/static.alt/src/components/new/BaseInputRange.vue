@@ -1,6 +1,6 @@
 <template>
   <div>
-    <div v-if="labelLeft" class="base-input-range-label col-form-label text-nowrap mr-2" v-t="label" @click="onDecrement" />
+    <div v-if="labelLeft !== false" class="base-input-range-label col-form-label text-nowrap mr-2" v-t="label" @click="onDecrement" />
     <div
       class="base-input-range"
       :class="{
@@ -38,7 +38,7 @@
         @blur="onBlur"
       />
     </div>
-    <div v-if="labelRight" class="base-input-range-label col-form-label text-nowrap ml-2" v-t="label" @click="onIncrement" />
+    <div v-if="labelRight !== false" class="base-input-range-label col-form-label text-nowrap ml-2" v-t="label" @click="onIncrement" />
   </div>
 </template>
 <script>

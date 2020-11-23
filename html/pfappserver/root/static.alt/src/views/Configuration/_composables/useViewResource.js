@@ -24,7 +24,7 @@ export const useViewResource = (resource, props, context) => {
   // unhandled custom props
   const customProps = ref(context.attrs)
 
-  const isValid = useDebouncedWatchHandler([form, meta], () => (rootRef.value && rootRef.value.querySelectorAll('.is-invalid').length === 0))
+  const isValid = useDebouncedWatchHandler([form, meta], () => (!rootRef.value || rootRef.value.querySelectorAll('.is-invalid').length === 0))
 
   const {
     isLoading,

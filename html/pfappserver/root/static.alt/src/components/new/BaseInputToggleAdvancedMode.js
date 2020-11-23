@@ -11,10 +11,6 @@ export const props = {
       { value: false, label: i18n.t('Basic Mode') },
       { value: true, label: i18n.t('Advanced Mode') }
     ])
-  },
-  labelLeft: {
-    type: Boolean,
-    default: true
   }
 }
 

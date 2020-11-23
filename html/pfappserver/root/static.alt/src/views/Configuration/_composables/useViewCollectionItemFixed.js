@@ -1,5 +1,5 @@
 import { ref, watch } from '@vue/composition-api'
-import { createDebouncer } from 'promised-debounce'
+import { useDebouncedWatchHandler } from '@/composables/useDebounce'
 import useEventJail from '@/composables/useEventJail'
 
 export const useViewCollectionItemFixedProps = {
@@ -29,7 +29,7 @@ export const useViewCollectionItemFixed = (collection, props, context) => {
 
   const isDeletable = false
 
-  const isValid = useDebouncedWatchHandler(form, () => (rootRef.value && rootRef.value.querySelectorAll('.is-invalid').length === 0))
+  const isValid = useDebouncedWatchHandler(form, () => (!rootRef.value || rootRef.value.querySelectorAll('.is-invalid').length === 0))
 
   const {
     isLoading,

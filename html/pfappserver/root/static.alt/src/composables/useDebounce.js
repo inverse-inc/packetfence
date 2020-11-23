@@ -1,9 +1,14 @@
 import { ref, watch } from '@vue/composition-api'
 import { createDebouncer } from 'promised-debounce'
 
-export const useDebouncedWatchHandler = (watching, _handler, time = 300) => {
+export const useDebouncedWatchHandler = (watching, _handler, options) => {
+  let {
+    debouncer,
+    deep = true,
+    immediate = true,
+    time = 300
+  } = options || {}
   const value = ref(undefined)
-  let debouncer
   watch(watching, (...args) => {
     if (!debouncer)
       debouncer = createDebouncer()
@@ -13,6 +18,6 @@ export const useDebouncedWatchHandler = (watching, _handler, time = 300) => {
       },
       time
     })
-  }, { deep: true, immediate: true })
+  }, { deep, immediate })
   return value
 }

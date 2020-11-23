@@ -20,6 +20,7 @@
       :tabIndex="inputTabIndex"
       :value="inputValue"
       :color="inputColor"
+      :icon="inputIcon"
       :label="inputLabel"
       :label-left="labelLeft"
       :label-right="labelRight"
@@ -92,7 +93,9 @@ export const setup = (props, context) => {
     onInput,
     max,
     label,
-    color
+    color,
+    icon,
+    tooltip
   } = useInputValueToggle(valueProps, props, context)
 
   const {
@@ -115,6 +118,8 @@ export const setup = (props, context) => {
     inputMax: max,
     inputLabel: label,
     inputColor: color,
+    inputIcon: icon,
+    inputTooltip: tooltip,
 
     // useInputValidator
     inputState: state,
