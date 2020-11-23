@@ -257,7 +257,8 @@ sub authorize {
     $options->{'fingerbank_info'}     = $args->{'fingerbank_info'};
 
     my $profile = pf::Connection::ProfileFactory->instantiate($args->{'mac'},$options);
-    $args->{'profile'} = $profile; 
+    $args->{'profile'} = $profile;
+    $args->{'portal'} = $profile->getName;
     
     $args->{'autoreg'} = 0;
     # should we auto-register? let's ask the VLAN object
@@ -968,6 +969,7 @@ our %ARGS_TO_RADIUS_ATTRIBUTES = (
     connection_type => 'PacketFence-Connection-Type',
     user_role => 'PacketFence-Role',
     time => 'PacketFence-Request-Time',
+    portal => 'PacketFence-Profile',
 );
 
 our %NODE_ATTRIBUTES_TO_RADIUS_ATTRIBUTES = (
