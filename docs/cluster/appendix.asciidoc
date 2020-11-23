@@ -109,6 +109,8 @@ PacketFence services section>>.
   
 Next, you can upgrade your operating system and/or PacketFence on node C by following instructions of <<PacketFence_Upgrade_Guide.asciidoc#_packages_upgrades,Packages upgrades section>>.
 
+Then <<PacketFence_Upgrade_Guide.asciidoc#_maintenance_patches,apply maintenance patches>> on node C.
+
 Now, make sure you follow the directives in the <<PacketFence_Upgrade_Guide.asciidoc#,upgrade guide>> as you would on a standalone server with the exception of the database schema updates.
 
 ==== Migrating service on node C
@@ -163,7 +165,6 @@ Then, we should tell C to ignore A and B in their cluster configuration. In orde
 
 [source,bash]
 ----
-systemctl start packetfence-config
 /usr/local/pf/bin/cluster/node node-A-hostname disable
 /usr/local/pf/bin/cluster/node node-B-hostname disable
 ----
@@ -181,9 +182,15 @@ The commands above will make sure that nodes A and B will not be forwarding requ
 
 ===== Complete upgrade of node C
 
-
 From that moment node C is in standalone for its database. We can proceed to update the database schema so it matches the one of the latest version.
 In order to do so, upgrade the database schema using the instructions provided in <<PacketFence_Upgrade_Guide.asciidoc#,Upgrade guide>>.
+
+===== Start service on node C
+
+Now, start the application service on node C using the instructions provided
+in
+<<PacketFence_Upgrade_Guide.asciidoc#_restart_all_packetfence_services,Restart
+all PacketFence services section>>.
 
 ===== Stop services on nodes A and B
 
@@ -196,18 +203,6 @@ PacketFence services section>>
 [source,bash]
 ----
 systemctl stop packetfence-mariadb
-----
-
-===== Start service on node C
-
-
-Now, start the application service on node C:
-
-[source,bash]
-----
-/usr/local/pf/bin/pfcmd fixpermissions
-/usr/local/pf/bin/pfcmd configreload hard
-/usr/local/pf/bin/pfcmd service pf start
 ----
 
 ==== Validate migration
@@ -248,11 +243,14 @@ following instructions of
 <<PacketFence_Upgrade_Guide.asciidoc#_packages_upgrades,Packages upgrades
 section>>.
 
+WARNING: You only need to merge changes of new configuration files that will not be synced by `/usr/local/pf/bin/cluster/sync` command described below.
+
+Then <<PacketFence_Upgrade_Guide.asciidoc#_maintenance_patches,apply maintenance patches>> on nodes A and B.
+
 You do not need to follow the upgrade procedure when upgrading these nodes. You should instead do a sync from node C on nodes A and B:
 
 [source,bash]
 ----
-systemctl start packetfence-config
 /usr/local/pf/bin/cluster/sync --from=192.168.1.5 --api-user=packet --api-password=fence
 /usr/local/pf/bin/pfcmd configreload hard
 ----
@@ -263,7 +261,6 @@ Where:
 * `_packet_` is the webservices username (_Configuration->Webservices_)
 * `_fence_` is the webservices password (_Configuration->Webservices_)
 
-WARNING: Make sure you sync by hand any changes to configuration files on node C that are not synced.
 
 ==== Reintegrating nodes A and B
 
@@ -329,8 +326,15 @@ systemctl stop packetfence-mariadb
 ----
 
 You should validate that you are able to connect to the MariaDB database even
-though it is in read-only mode using the MariaDB command line. If its not,
-make sure you check the MariaDB log ([filename]`/usr/local/pf/logs/mariadb_error.log`)
+though it is in read-only mode using the MariaDB command line:
+
+[source,bash]
+----
+mysql -u root -p pf -h localhost
+----
+
+If its not, make sure you check the MariaDB log
+([filename]`/usr/local/pf/logs/mariadb_error.log`)
 
 ===== Sync nodes A and B
 
@@ -354,22 +358,17 @@ packetfence-mariadb`).
 ===== Start nodes A and B
 
 
-You can now safely start PacketFence on nodes A and B using:
-
-[source,bash]
-----
-/usr/local/pf/bin/pfcmd service pf restart
-----
+You can now safely start PacketFence on nodes A and B using the instructions
+provided in
+<<PacketFence_Upgrade_Guide.asciidoc#_restart_all_packetfence_services,Restart
+all PacketFence services section>>.
 
 ==== Restart node C
 
-
-Now, you should restart PacketFence on node C so it becomes aware of its peers again.
-
-[source,bash]
-----
-/usr/local/pf/bin/pfcmd service pf restart
-----
+Now, you should restart PacketFence on node C using the instructions provided
+in
+<<PacketFence_Upgrade_Guide.asciidoc#_restart_all_packetfence_services,Restart
+all PacketFence services section>>.  So it becomes aware of its peers again.
 
 You should now have full service on all 3 nodes using the latest version of PacketFence.
 
