@@ -2,7 +2,10 @@
 0.0.0.0:9999 {
   tls /usr/local/pf/conf/ssl/server.crt /usr/local/pf/conf/ssl/server.key
 
-  log / stdout "api-frontend-access {remote} - {user} [{when}] \"{method} {uri} {proto}\" {status} {size} \"{>Referer}\" \"{>User-Agent}\""
+  log / stdout "api-frontend-access {remote} - {user} [{when}] \"{method} {uri} {proto}\" {status} {size} \"{>Referer}\" \"{>User-Agent}\"" {
+    except /api/v1/remote_clients/events
+    except /api/v1/remote_clients/my_events
+  }
 
   errors {
     502 /usr/local/pf/html/pfappserver/root/static/502.json
