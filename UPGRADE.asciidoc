@@ -72,6 +72,17 @@ You can take a backup of the pf directory with the following command:
 tar -C /usr/local -czf /root/packetfence.tar.gz --exclude='pf/logs' --exclude='pf/var' --exclude='pf/.git' pf
 ----
 
+=== Disable monit alerts (only if you have monit installed)
+
+
+If `monit` is installed and running, shut it down with:
+
+[source,bash]
+----
+systemctl stop monit
+systemctl disable monit
+----
+
 == Upgrade procedure
 
 === Steps
@@ -81,9 +92,11 @@ A PacketFence upgrade consists of following steps:
 . stop all PacketFence services (see <<_stop_all_packetfence_services,Stop all PacketFence services>> section)
 . preliminary step(s) to run before packages upgrades (see sections for your upgrade path)
 . packages upgrades (see <<_packages_upgrades,Package upgrades>> section)
+. maintenance patches (see <<_maintenance_patches,Maintenance patches>> section)
 . configuration migration(s) (see sections for your upgrade path)
 . database schema upgrade(s) (see sections for your upgrade path)
 . restart all PacketFence services (see <<_restart_all_packetfence_services,Restart all PacketFence services>> section)
+. regenerate Monit configuration (optional) (see <<_regenerate_monit_configuration,Regenerate Monit configuration>> section)
 
 Upgrade notes for a given upgrade path are cumulative. That is to say, if you
 are upgrading from version 7.0 to version 9.0 you must apply in order all:
@@ -235,6 +248,17 @@ find out which configuration files have changed by running following command:
 find /usr/local/pf -name "*.dpkg-dist"
 ----
 
+
+=== Maintenance patches
+
+After you completed all <<_packages_upgrades,package upgrades instructions>>
+(including <<_new_versions_of_configuration_files,merge of new configuration files>>), you can apply maintenance patches by running:
+
+[source,bash]
+----
+/usr/local/pf/addons/pf-maint.pl
+----
+
 === Restart all PacketFence services
 
 Once all <<_steps,steps of upgrade procedure>> are completed, restart
@@ -247,6 +271,21 @@ Once all <<_steps,steps of upgrade procedure>> are completed, restart
 systemctl restart packetfence-config
 /usr/local/pf/bin/pfcmd configreload hard
 /usr/local/pf/bin/pfcmd service pf restart
+----
+
+=== Regenerate Monit configuration
+
+NOTE: This step is optional
+
+In order to have Monit configuration upgraded, you need to:
+
+. <<PacketFence_Installation_Guide.asciidoc#_generateregenerate_the_monit_configuration,Regenerate Monit configuration>>
+. <<PacketFence_Installation_Guide.asciidoc#_enable_and_start_monit,Enable and start monit>> if you stopped it at beginning of upgrade
+. Restart rsyslog:
+
+[source,bash]
+----
+systemctl restart rsyslog
 ----
 
 == Upgrading from a version prior to 7.0.0

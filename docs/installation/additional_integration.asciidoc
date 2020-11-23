@@ -436,7 +436,7 @@ mv /usr/local/pf/addons/monit /usr/local/pf/addons/monit.old ; mv /tmp/monit /us
 ----
 
 
-==== Generate the monit configuration
+==== Generate/Regenerate the monit configuration
 
 ----
 /usr/local/pf/addons/monit/monit_build_configuration.pl 'email(s)' 'subject' 'configurations' 'mailserver'
@@ -457,7 +457,7 @@ Where :
 
 CAUTION: A MTA is needed to correctly relay emails from monit. If _localhost_ is used as `mailserver`, make sure that a MTA is installed and configured on the server. 
 
-NOTE: This command will create configuration scripts in `/etc/monit.d/`, but it will not remove old(er) scripts from an earlier installation. During an upgrade any unused `/etc/monit.d/*.conf` files will need to be removed manually.
+NOTE: This command will create configuration scripts in `/etc/monit.d/`, but it will not remove old(er) scripts from an earlier installation. During an upgrade any unused `/etc/monit.d/*.conf` files will be renamed to [filename]`/etc/monit.d/*.conf.bak`.
 
 
 ==== Include the generated configurations in the monit config
