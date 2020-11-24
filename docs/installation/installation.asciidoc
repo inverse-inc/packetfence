@@ -172,3 +172,6 @@ sudo apt-get update
 sudo apt-get install packetfence
 ----
 
+=== Maintenance patches
+
+include::../common/maintenance_patches.asciidoc[]

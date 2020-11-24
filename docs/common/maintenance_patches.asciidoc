@@ -1,0 +1,7 @@
+In order to have latest bug fixes on your PacketFence version, you can apply
+maintenance patches by running:
+
+[source,bash]
+----
+/usr/local/pf/addons/pf-maint.pl
+----

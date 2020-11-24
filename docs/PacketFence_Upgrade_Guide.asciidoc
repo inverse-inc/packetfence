@@ -239,16 +239,12 @@ find out which configuration files have changed by running following command:
 find /usr/local/pf -name "*.dpkg-dist"
 ----
 
-
 === Maintenance patches
 
-After you completed all <<_packages_upgrades,package upgrades instructions>>
-(including <<_new_versions_of_configuration_files,merge of new configuration files>>), you can apply maintenance patches by running:
+include::common/maintenance_patches.asciidoc[]
 
-[source,bash]
-----
-/usr/local/pf/addons/pf-maint.pl
-----
+WARNING: After you completed all <<_packages_upgrades,package upgrades instructions>>
+(including <<_new_versions_of_configuration_files,merge of new configuration files>>),
 
 === Restart all PacketFence services
 

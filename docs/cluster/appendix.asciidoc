@@ -113,7 +113,11 @@ PacketFence services section>>.
   
 Next, you can upgrade your operating system and/or PacketFence on node C by following instructions of <<PacketFence_Upgrade_Guide.asciidoc#_packages_upgrades,Packages upgrades section>>.
 
-Then <<PacketFence_Upgrade_Guide.asciidoc#_maintenance_patches,apply maintenance patches>> on node C.
+===== Maintenance patches (on node C)
+
+include::../common/maintenance_patches.asciidoc[][]
+
+===== Next steps
 
 Now, make sure you follow the directives in the <<PacketFence_Upgrade_Guide.asciidoc#,upgrade guide>> as you would on a standalone server with the exception of the database schema updates.
 
@@ -249,7 +253,11 @@ section>>.
 
 WARNING: You only need to merge changes of new configuration files that will not be synced by `/usr/local/pf/bin/cluster/sync` command described below.
 
-Then <<PacketFence_Upgrade_Guide.asciidoc#_maintenance_patches,apply maintenance patches>> on nodes A and B.
+===== Maintenance patches (on nodes A and B)
+
+include::../common/maintenance_patches.asciidoc[]
+
+===== Configuration synchronisation
 
 You do not need to follow the upgrade procedure when upgrading these nodes. You should instead do a sync from node C on nodes A and B:
 
