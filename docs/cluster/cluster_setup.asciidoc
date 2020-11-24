@@ -144,13 +144,6 @@ Then restart PacketFence's mariadb on *the first server*:
 systemctl restart packetfence-mariadb
 ----
 
-and disable configurator on *the first server*:
-
-[source,bash]
-----
-printf '\n[advanced]\nconfigurator=disabled\n' >> /usr/local/pf/conf/pf.conf
-----
-
 ==== Other servers (optional)
 
 On the *other servers* of your cluster, configure only the network interfaces
@@ -159,7 +152,7 @@ servers already have the right IP addresses configured on their interfaces,
 you can ignore this step.
 
 This step is only necessary to configure IP addresses on
-interfaces. PacketFence configuration of interfaces will be done later.
+interfaces (at OS level). PacketFence configuration of interfaces will be done later.
 
 ==== Current state
 
@@ -181,9 +174,9 @@ for each server:
 
 === Create the new cluster
 
-==== PacketFence Configuration Modification
+==== PacketFence Configuration Modification (first server only)
 
-NOTE: In order for PacketFence to communicate properly with your MariaDB cluster, you need to change the following.
+In order for PacketFence to communicate properly with your MariaDB cluster, you need to change the following.
 This change only needs to be done on the first server of the cluster. It will be synchronized later.
 
 In `/usr/local/pf/conf/pf.conf` :
@@ -196,6 +189,17 @@ host=127.0.0.1
 # Change these 2 values by the credentials you've set when configuring MariaDB above
 galera_replication_username=pfcluster
 galera_replication_password=aMuchMoreSecurePassword
+
+[webservices]
+# Change these 2 values by the credentials you want
+user=packet
+pass=anotherMoreSecurePassword
+
+[advanced]
+configurator=disabled
+
+[services]
+galera-autofix=disabled
 ----
 
 Then, in [filename]`/usr/local/pf/conf/pfconfig.conf` :
@@ -213,9 +217,9 @@ systemctl restart packetfence-config
 /usr/local/pf/bin/pfcmd configreload hard
 ----
 
-==== Configure cluster.conf
+==== Configure cluster.conf (first server only)
 
-In order to create a new cluster, you need to configure [file]`/usr/local/pf/conf/cluster.conf` *on the first server* of your cluster.
+In order to create a new cluster, you need to configure [filename]`/usr/local/pf/conf/cluster.conf` *on the first server* of your cluster.
 
 You will need to configure it with your server hostname. Use : [command]`hostname` command (without any arguments) to get it.
 
@@ -225,7 +229,7 @@ The `CLUSTER` section represents the virtual IP addresses of your cluster that w
 
 In this example, eth0 is the management interface, eth1.2 is the registration interface and eth1.3 is the isolation interface.
 
-On the first server, create a configuration similar to this :
+Create a configuration similar to this :
 
 ----
 [CLUSTER]
@@ -289,16 +293,21 @@ The reload and the checkup will complain about the unavailability of the
 database, which you can safely ignore for now. Most important is that you
 don't see any cluster configuration related errors during the checkup.
 
-Then make sure the PacketFence clustering services will be started at boot by running the following command on *all of your servers*:
+
+==== Database setup
+
+===== Second and third servers
+
+Make sure you stopped MariaDB on the two others servers:
 
 [source,bash]
 ----
-systemctl set-default packetfence-cluster
+systemctl stop packetfence-mariadb
 ----
 
-NOTE: Make sure you stopped MariaDB on the two others servers, *NOT ON THE FIRST ONE* for now (`systemctl stop packetfence-mariadb`).
+===== First server
 
-Still *on the first server*, start MariaDB forcing it to create a new cluster:
+Start MariaDB forcing it to create a new cluster using configuration defined in [filename]`/usr/local/pf/conf/cluster.conf`:
 
 [source,bash]
 ----
@@ -316,17 +325,28 @@ Then, restart PacketFence to apply all your changes:
 /usr/local/pf/bin/pfcmd service pf restart
 ----
 
+===== Expected state on first server
+
 If no error is found in the previous configuration, the previous restart of
-packetfence should have started `keepalived` and `radiusd-loadbalancer` along
+packetfence should have started: `keepalived` and `radiusd-loadbalancer` along
 with the other services. If you have set up a mail server on your first
 server, you should have receive a mail from `keepalived` to inform you that
 your first server got Virtual IP (VIP) adresses.
 
-NOTE: You can check the status of the services using [command]`/usr/local/pf/bin/pfcmd service pf status`
-
 You should now have service using the first server on the IP addresses defined in the `CLUSTER` sections.
 
-NOTE: You can check with [command]`ip a`, on the first server, you need to find the *VIP* on the first ethernet interface. On the others server, be sure to have the `interface.VLANID` interfaces with the good IPs.
+NOTE: You can check the status of the services using [command]`/usr/local/pf/bin/pfcmd service pf status`
+
+NOTE: You can check with [command]`ip -br a`, on the first server, you need to find the *VIP* on the first ethernet interface. On the others server, be sure to have the `interface.VLANID` interfaces with the good IPs.
+
+==== Enable PacketFence clustering services at boot (all servers)
+
+Make sure the PacketFence clustering services will be started at boot by running the following command on *all of your servers*:
+
+[source,bash]
+----
+systemctl set-default packetfence-cluster
+----
 
 === Integrating the two other nodes
 
@@ -335,28 +355,6 @@ WARNING: If you reboot any of the nodes you're joining, you will need to stop al
 WARNING: If you reboot the management node (first server), you will need to stop `packetfence-mariadb` (`systemctl stop packetfence-mariadb`) and start it with the new cluster option so the servers can join (`/usr/local/pf/sbin/pf-mariadb --force-new-cluster`)
 
 Now, you will need to integrate your *two other nodes* in your cluster.
-
-==== Webservices configuration
-
-On the *first server*, configure your webservices username and password by adding the following in [filename]`/usr/local/pf/conf/pf.conf`:
-
-----
-[webservices]
-user=packet
-pass=fence
-----
-
-WARNING: *packet* and *fence* are only for example purpose, you need to define your own username and password.
-
-While you can set the username and password to any value, make sure to keep it safe as you will need it while initializing the cluster below.
-
-And reload the config, then restart `httpd.webservices` on the first server:
-
-[source,bash]
-----
-/usr/local/pf/bin/pfcmd configreload hard
-/usr/local/pf/bin/pfcmd service httpd.webservices restart
-----
 
 ==== Sync the nodes
 
