@@ -51,7 +51,7 @@ sysctl -p
 reboot
 ----
 
-NOTE: If you plan to use Postfix to send emails, you need to set `inet_protocols = ipv4` in [filename]`main.cf` to be able to use it.
+NOTE: If you plan to use Postfix to send emails, you need to set `inet_protocols = ipv4` in [filename]`/etc/postfix/main.cf` to be able to use it.
 
 ==== Installation of PacketFence
 
