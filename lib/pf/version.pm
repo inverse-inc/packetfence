@@ -78,6 +78,8 @@ sub version_get_last_db_version {
     return $row->{version};
 }
 
+our $PF_RELEASE;
+
 =head2 version_get_release
 
 Get the current release of PacketFence
@@ -88,14 +90,19 @@ i.e: PacketFence X.Y.Z
 
 sub version_get_release {
     my ( $pfrelease_fh, $release );
-    open( $pfrelease_fh, '<', "$conf_dir/pf-release" )
-        || get_logger->logdie("Unable to open $conf_dir/pf-release: $!");
+    if (!defined $PF_RELEASE) {
+        open( $pfrelease_fh, '<', "$conf_dir/pf-release" )
+            || get_logger->logdie("Unable to open $conf_dir/pf-release: $!");
 
-    $release = <$pfrelease_fh>;
-    close($pfrelease_fh);
-    chomp($release);
-    return $release ;
+        $PF_RELEASE = <$pfrelease_fh>;
+        close($pfrelease_fh);
+        chomp($PF_RELEASE);
+    }
+
+    return $PF_RELEASE ;
 }
+
+our $PF_VERSION;
 
 =head2 version_get_current
 
@@ -106,12 +113,14 @@ i.e: X.Y.Z
 =cut
 
 sub version_get_current {
-    my $release = version_get_release();
-    return undef unless $release;
+    if (!defined $PF_VERSION) {
+        $PF_VERSION = version_get_release();
+        return undef unless $PF_VERSION;
 
-    my $version = $release;
-    $version =~ s/^PacketFence //;
-    return $version ;
+        $PF_VERSION =~ s/^PacketFence //;
+    }
+
+    return $PF_VERSION ;
 }
 
 =head2 version_get_minor
