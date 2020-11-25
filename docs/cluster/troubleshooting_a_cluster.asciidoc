@@ -18,6 +18,22 @@ endif::[]
 
 //== Troubleshooting a cluster
 
+=== Checking the MariaDB sync
+
+In order to check the MariaDB sync, you can look at the status of the `wsrep` status values inside MariaDB.
+
+----
+MariaDB> show status like 'wsrep%';
+----
+
+Important variables:
+
+  * `wsrep_cluster_status`: Display whether or not the node is part of a primary view or not. A healthy cluster should always show as primary
+  * `wsrep_incoming_addresses`: The current members of the cluster. All the nodes of your cluster should be listed there.
+  * `wsrep_local_state_comment`: Current sync state of the cluster. A healthy state is 'Synced'. Refer to the Galera cluster documentation for the meaning of the other values this can have.
+
+In order for the cluster to be considered healthy, all nodes must be listed under `wsrep_incoming_addresses` and `wsrep_local_state_comment` must be `Synced`. Otherwise look in the MariaDB log ([filename]`/usr/local/pf/logs/mariadb_error.log`)
+
 === Recovering when a node is missing
 
 If one of the nodes cannot recover, you can manually reset the cluster state. Note that this procedure is only valid if all the nodes were hard-shutdown at the same time.

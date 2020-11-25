@@ -356,9 +356,16 @@ WARNING: If you reboot the management node (first server), you will need to stop
 
 Now, you will need to integrate your *two other nodes* in your cluster.
 
-==== Sync the nodes
+==== Stop iptables (all servers)
 
-The following instructions have to be done on each server (second and third servers) that will be joined in the cluster.
+On *all your servers*, make sure that `packetfence-iptables` is stopped:
+
+[source,bash]
+----
+systemctl stop packetfence-iptables
+----
+
+==== Sync the PacketFence configuration across the cluster (second and third servers)
 
 Do (and make sure it completes without any errors):
 
@@ -372,15 +379,8 @@ NOTE: Space before last command is on purpose to avoid record of password in she
 Where :
 
 * '192.168.1.5' is the management IP of the *first server* node
-* 'packet' is the webservices username you have configured on the *first server* node
-* 'fence' is the webservices password you have configured on the *first server* node
-
-On *all your servers*, make sure that 'iptables' is stopped:
-
-[source,bash]
-----
-systemctl stop packetfence-iptables
-----
+* 'packet' is the webservices username you have configured on the *first server* node during <<_packetfence_configuration_modification_first_server_only>>
+* 'fence' is the webservices password you have configured on the *first server* node during <<_packetfence_configuration_modification_first_server_only>>
 
 Then, reload the configuration and start the webservices on second and third servers:
 
@@ -399,11 +399,9 @@ Make sure that each server is binding to it's own management address *and* the V
 netstat -nlp | grep 9090
 ----
 
-==== MariaDB sync
+==== MariaDB sync (second and third servers)
 
-First, ensure your MariaDB instance running with `--force-new-cluster` is still running on the first node, if its not, start it again.
-
-Then, ensure `packetfence-mariadb` is stopped on the two servers that will be joined:
+Ensure `packetfence-mariadb` is still stopped on the two servers that will be joined:
 
 [source,bash]
 ----
@@ -426,23 +424,11 @@ If you see following message when running [command]`systemctl status packetfence
 INFO: Successful clustered connection to the DB
 ----
 
-===== Checking the MariaDB sync
+To be sure your cluster is correctly setup, take a look at <<_checking_the_mariadb_sync>> section.
 
-In order to check the MariaDB sync, you can look at the status of the `wsrep` status values inside MariaDB.
+In case you have some issues, ensure your MariaDB instance running with `--force-new-cluster` is still running on the first server, if its not, start it again.
 
-----
-MariaDB> show status like 'wsrep%';
-----
-
-Important variables:
-
-  * `wsrep_cluster_status`: Display whether or not the node is part of a primary view or not. A healthy cluster should always show as primary
-  * `wsrep_incoming_addresses`: The current members of the cluster. All the nodes of your cluster should be listed there.
-  * `wsrep_local_state_comment`: Current sync state of the cluster. A healthy state is 'Synced'. Refer to the Galera cluster documentation for the meaning of the other values this can have.
-
-In order for the cluster to be considered healthy, all nodes must be listed under `wsrep_incoming_addresses` and `wsrep_local_state_comment` must be `Synced`. Otherwise look in the MariaDB log ([filename]`/usr/local/pf/logs/mariadb_error.log`)
-
-===== Starting the first server normally
+==== Starting the first server normally
 
 Once all servers are synced, go *on the first server* that should still be running with the `--force-new-cluster` option, break the command.
 
@@ -456,6 +442,16 @@ systemctl restart packetfence-mariadb
 systemctl restart packetfence-iptables
 ----
 
+===== Enabling galera-autofix service (first server)
+
+Before starting services on all servers, `galera-autofix` service need to be re-enabled and configuration synced across cluster:
+
+[source,bash]
+----
+/usr/local/pf/sbin/pfperl-api get -M PATCH /api/v1/config/base/services -c '{"galera-autofix":"enabled"}' | python -m json.tool
+/usr/local/pf/bin/cluster/sync --as-master
+----
+
 ==== Wrapping up
 
 Now restart PacketFence *on all servers*:
@@ -465,19 +461,20 @@ Now restart PacketFence *on all servers*:
 /usr/local/pf/bin/pfcmd service pf restart
 ----
 
-Next, make sure to join domains through _Configuration -> Policies And Access Control -> Domains -> Active Directory Domains_ on each node.
-
 You should now reboot *each server one by one* waiting for the one you
-rebooted to come back online before proceeding to the next one. After each
-reboot, ensure the database sync is fine by performing the checks outlined in
-<<_checking_the_mariadb_sync>> section.
+rebooted to come back online before proceeding to the next one:
 
 [source,bash]
 ----
 reboot
 ----
 
-=== Securing the cluster: Keepalived secret
+After each reboot, ensure the database sync is fine by performing the checks outlined in
+<<_checking_the_mariadb_sync>> section.
+
+=== Additional steps
+
+==== Securing the cluster: Keepalived secret
 
 NOTE: It is highly recommended to modify the keepalived shared secret in your cluster to prevent attacks.
 
@@ -494,3 +491,8 @@ servers* using:
 ----
 
 If you already use VRRP protocol on your network, you can also change the default `Virtual Router ID` and enable `VRRP Unicast`.
+
+==== Domain join
+
+Next, make sure to join domains through _Configuration -> Policies And Access Control -> Domains -> Active Directory Domains_ on *each node*.
+
