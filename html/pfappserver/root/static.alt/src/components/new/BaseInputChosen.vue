@@ -1,5 +1,5 @@
 <template>
-  <div style="flex-grow: 100;">
+  <div>
     <multiselect ref="inputRef"
       class="base-input-chosen"
       :class="{

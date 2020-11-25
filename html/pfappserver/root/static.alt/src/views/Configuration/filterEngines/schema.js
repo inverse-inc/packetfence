@@ -27,6 +27,17 @@ const schemaAnswer = yup.object({
 
 const schemaAnswers = yup.array().ensure().of(schemaAnswer)
 
+const schemaCondition = yup.object({
+  field: yup.string().nullable().required(i18n.t('Field required.')),
+  op: yup.string().nullable().required(i18n.t('Operator required.')),
+  value: yup.string().nullable().required(i18n.t('Value required.')),
+  values: yup.array().ensure().of(
+    yup.lazy(() => { // avoid infinite nesting when casted
+      return schemaCondition.default(undefined) // recurse self
+    })
+  )
+})
+
 export const schema = (props) => {
   const {
     collection,
@@ -42,6 +53,7 @@ export const schema = (props) => {
       .filterIdNotExistsExcept((!isNew && !isClone) ? { collection, id } : { collection }, i18n.t('Name exists.')),
 
     answers: schemaAnswers.meta({ fieldName: i18n.t('Answer'), invalidFeedback: i18n.t('Answers contain one or more errors.') }),
+    condition: schemaCondition.meta({ invalidFeedback: i18n.t('Condition contains one or more errors.') })
   })
 }
 

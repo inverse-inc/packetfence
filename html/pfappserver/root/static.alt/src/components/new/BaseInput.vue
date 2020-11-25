@@ -1,5 +1,5 @@
 <template>
-  <div style="flex-grow: 100;">
+  <div>
     <b-form-input ref="input"
       class="base-input"
       :class="{

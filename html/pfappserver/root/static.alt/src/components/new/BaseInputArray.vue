@@ -1,5 +1,5 @@
 <template>
-  <div style="flex-grow: 100;">
+  <div>
     <b-button v-if="!inputLength" @click="itemAdd()"
       :variant="(inputState === false) ? 'outline-danger' : 'outline-secondary'"
       :disabled="isLocked"

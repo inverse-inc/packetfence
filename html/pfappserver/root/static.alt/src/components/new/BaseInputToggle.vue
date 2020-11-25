@@ -1,5 +1,5 @@
 <template>
-  <div style="flex-grow: 100;">
+  <div>
     <base-input-range
       class="base-input-toggle"
       step="1"

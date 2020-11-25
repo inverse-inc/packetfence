@@ -101,13 +101,13 @@ export const useNamespaceMeta = (namespace, _meta) => {
 export const useNamespaceMetaAllowed = (namespace, _meta) => {
   const namespaceMeta = useNamespaceMeta(namespace, _meta)
   const { allowed = [] } = namespaceMeta.value || {}
-  return allowed
+  return [...(new Set(allowed))] // dereferenced (prevents `sort` mutation)
 }
 
 export const useNamespaceMetaAllowedLookup = (namespace, _meta) => {
   const namespaceMeta = useNamespaceMeta(namespace, _meta)
   const { allowed_lookup = {} } = namespaceMeta.value || {}
-  return allowed_lookup
+  return [...(new Set(allowed_lookup))] // dereferenced (prevents `sort` mutation)
 }
 
 export const useNamespaceMetaAllowedLookupFn = (namespace, fn, _meta) => (fn(useNamespaceMetaAllowedLookup(namespace, _meta)))
