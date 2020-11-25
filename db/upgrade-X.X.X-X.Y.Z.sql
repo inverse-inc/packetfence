@@ -54,7 +54,8 @@ DROP PROCEDURE IF EXISTS ValidateVersion;
 ALTER TABLE node_category
     ADD COLUMN IF NOT EXISTS `include_parent_acls` varchar(255) default NULL,
     ADD COLUMN IF NOT EXISTS `fingerbank_dynamic_access_list` varchar(255) default NULL,
-    ADD COLUMN IF NOT EXISTS `acls` TEXT NOT NULL;
+    ADD COLUMN IF NOT EXISTS `acls` TEXT NOT NULL,
+    ADD COLUMN IF NOT EXISTS `vlan` varchar(50) default NULL;
 
 \! echo "Creating remote_clients table"
 CREATE TABLE IF NOT EXISTS `remote_clients` (

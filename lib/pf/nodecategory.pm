@@ -150,6 +150,7 @@ sub nodecategory_upsert {
             include_parent_acls => $data{include_parent_acls} // "disabled",
             fingerbank_dynamic_access_list => $data{fingerbank_dynamic_access_list} // "disabled",
             acls => join("\n", @{$data{acls} // []}),
+            vlan => $data{vlan},
         });
         my ($status) = $obj->upsert;
         if (is_error($status)) {

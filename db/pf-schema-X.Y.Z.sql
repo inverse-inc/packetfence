@@ -113,6 +113,7 @@ CREATE TABLE `node_category` (
   `include_parent_acls` varchar(255) default NULL,
   `fingerbank_dynamic_access_list` varchar(255) default NULL,
   `acls` TEXT NOT NULL,
+  `vlan` varchar(50) default NULL,
   PRIMARY KEY (`category_id`),
   UNIQUE KEY node_category_name (`name`)
 ) ENGINE=InnoDB;
