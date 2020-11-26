@@ -216,7 +216,7 @@ sub get_device_info {
     }
     my $access_token = $self->get_access_token();
     my $curl = WWW::Curl::Easy->new;
-    my $url = $self->protocol.'://' . $self->host . ':' .  $self->port . '/v1.0/deviceManagement/managedDevices?$select=wiFiMacAddress,complianceState';
+    my $url = $self->protocol.'://' . $self->host . ':' .  $self->port . '/v1.0/deviceManagement/managedDevices?$select=wiFiMacAddress,complianceState,ethernetMacAddress';
     
     $logger->debug("Calling Graph API using URL : ".$url);
 
@@ -266,7 +266,7 @@ sub verify_compliance {
     if($info != $pf::provisioner::COMMUNICATION_FAILED){
         my $not_compliant = $FALSE;
         foreach my $entry (@{$info->{value}}) {
-            if (uc($entry->{wiFiMacAddress}) eq $azuremac) {
+            if (uc($entry->{wiFiMacAddress}) eq $azuremac || uc($entry->{ethernetMacAddress}) eq $azuremac) {
                 $logger->warn($azuremac);
                 if ($entry->{complianceState} eq 'compliant') {
                     $logger->info("Device $mac is compliant.");
