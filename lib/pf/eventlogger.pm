@@ -18,6 +18,8 @@ has type => (is => 'ro', isa => 'Str', required => 1);
 
 has id => (is => 'ro', isa => 'Str', required => 1);
 
+sub log_event { die "need to implement" }
+
 =head1 AUTHOR
 
 Inverse inc. <info@inverse.ca>
