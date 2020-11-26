@@ -15,7 +15,7 @@ Configure event loggers
 use strict;
 use warnings;
 
-use Mojo::Base qw(pf::UnifiedApi::Controller::Config);
+use Mojo::Base qw(pf::UnifiedApi::Controller::Config::Subtype);
 
 has 'config_store_class' => 'pf::ConfigStore::EventLogger';
 has 'form_class' => 'pfappserver::Form::Config::EventLogger';
@@ -23,6 +23,14 @@ has 'primary_key' => 'event_logger_id';
 
 use pf::ConfigStore::EventLogger;
 use pfappserver::Form::Config::EventLogger;
+use pfappserver::Form::Config::EventLogger::syslog;
+our %TYPES_TO_FORMS = (
+    map { $_ => "pfappserver::Form::Config::EventLogger::$_" } qw(syslog)
+);
+
+sub type_lookup {
+    return \%TYPES_TO_FORMS;
+}
  
 =head1 AUTHOR
 
