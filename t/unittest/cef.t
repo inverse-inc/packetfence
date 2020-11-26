@@ -51,7 +51,7 @@ BEGIN {
                 severity           => 0,
             },
             in => [],
-            out => "CEF:0|Inverse Inc.|PacketFence|$version|ClassId|Name|0|",
+            out => "CEF:0|Inverse|PacketFence|$version|ClassId|Name|0|",
         },
         {
             new => {
@@ -60,7 +60,7 @@ BEGIN {
                 severity           => 0,
             },
             in => [],
-            out => "CEF:0|Inverse Inc.|PacketFence|$version|Class \\|Id|Name=|0|",
+            out => "CEF:0|Inverse|PacketFence|$version|Class \\|Id|Name=|0|",
         },
         {
             new => {
@@ -69,7 +69,7 @@ BEGIN {
                 severity           => 0,
             },
             in => [],
-            out => "CEF:0|Inverse Inc.|PacketFence|$version|Class \\\\Id|Name|0|",
+            out => "CEF:0|Inverse|PacketFence|$version|Class \\\\Id|Name|0|",
         },
         {
             new => {
@@ -78,7 +78,7 @@ BEGIN {
                 severity           => 0,
             },
             in => [{bob => 'bob'}],
-            out => "CEF:0|Inverse Inc.|PacketFence|$version|ClassId|Name|0|bob=bob",
+            out => "CEF:0|Inverse|PacketFence|$version|ClassId|Name|0|bob=bob",
         },
     );
 }

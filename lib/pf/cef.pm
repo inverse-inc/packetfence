@@ -19,7 +19,7 @@ use pf::version;
 
 has verison => ( default => 0, is => 'ro');
 
-has deviceVendor => (default => 'Inverse Inc.', is => 'ro');
+has deviceVendor => (default => 'Inverse', is => 'ro');
 
 has deviceProduct => (default => 'PacketFence', is => 'ro');
 
