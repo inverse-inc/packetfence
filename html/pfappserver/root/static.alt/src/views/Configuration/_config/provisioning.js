@@ -837,7 +837,7 @@ export const viewFields = {
   ca_cert_path: (form = {}, meta = {}) => {
     return {
       label: i18n.t('RADIUS server CA path'),
-      text: i18n.t('The path to the RADIUS server CA which have sign the radius certification.'),
+      text: i18n.t('The path to the RADIUS server CA which signed the radius certification.'),
       cols: [
         {
           namespace: 'ca_cert_path',
