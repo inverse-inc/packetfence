@@ -79,6 +79,7 @@ PacketFence is available in various languages. The following list describes the 
 * English - Inverse inc.
 * Brazilian Portuguese - Diego de Souza Lopes
 * French - Inverse inc.
+* Norwegian
 * Polish - Maciej Uhlig
 * Spanish (Spain) - Dominique Couot
 
