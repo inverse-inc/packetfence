@@ -32,11 +32,6 @@ module.exports = {
       config.optimization.minimize(false)
       config.optimization.delete('minimizer')
     }
-    config.module
-      .rule('vue-slot')
-      .resourceQuery(/blockType=slot/)
-      .use('vue-slot-loader')
-      .loader('vue-slot-loader')
   },
   runtimeCompiler: true
 }
