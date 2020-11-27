@@ -50,7 +50,7 @@ sub build {
         if ($ConfigNetwork{$network}{'pool_backend'} && $ConfigNetwork{$network}{'pool_backend'} eq "") {
             $ConfigNetwork{$network}{'pool_backend'} = $pf::constants::dhcp::MEMORY_POOL;
         }
-        foreach my $interface (uniq(@{$self->{interfaces}{'internal_nets'} // [] }, @{$self->{interfaces}{'dhcp_ints'} // [] }, @{$self->{interfaces}{'dns_ints'} // [] })) {
+        foreach my $interface (uniq(@{$self->{interfaces}{'internal_nets'} // [] }, @{$self->{interfaces}{'dhcp_ints'} // [] }, @{$self->{interfaces}{'dns_ints'} // [] }, @{$self->{interfaces}{'radius_ints'} // [] }, @{$self->{interfaces}{'portal_ints'} // [] })) {
             my $ipe = $interface->tag("vip") || $interface->tag("ip");
             my $net_addr = NetAddr::IP->new($ipe,$interface->mask());
             my %interface;
