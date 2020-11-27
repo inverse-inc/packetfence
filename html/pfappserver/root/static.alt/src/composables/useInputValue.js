@@ -1,4 +1,4 @@
-import { computed, customRef, inject, ref, set, toRefs, unref } from '@vue/composition-api'
+import { computed, customRef, inject, ref, set, toRefs } from '@vue/composition-api'
 
 export const getFormNamespace = (ns, o) =>
   ns.reduce((xs, x) => (xs && x in xs) ? xs[x] : undefined, o)
@@ -37,19 +37,20 @@ export const useInputValue = (props, { emit }) => {
   let inputValue = ref(null)
   let onInput
   let onChange
+  let onUpdate
 
-  if (unref(namespace)) {
+  if (namespace.value) {
     // use namespace
     const form = inject('form', ref({}))
-    const namespaceArr = computed(() => unref(namespace).split('.'))
+    const namespaceArr = computed(() => namespace.value.split('.'))
 
     inputValue = customRef((track, trigger) => ({
       get() {
         track()
-        return getFormNamespace(unref(namespaceArr), unref(form))
+        return getFormNamespace(namespaceArr.value, form.value)
       },
       set(newValue) {
-        setFormNamespace(unref(namespaceArr), unref(form), newValue)
+        setFormNamespace(namespaceArr.value, form.value, newValue)
         trigger()
       }
     }))
@@ -59,16 +60,20 @@ export const useInputValue = (props, { emit }) => {
     onChange = value => {
       inputValue.value = value
     }
+    onUpdate = value => {
+      inputValue.value = value
+    }
   }
   else {
     // use v-model
     inputValue = value
     onInput = value => emit('input', value)
     onChange = value => emit('change', value)
+    onUpdate = value => emit('update', value)
   }
 
   const inputLength = computed(() => {
-    const { length = 0 } = unref(inputValue) || {}
+    const { length = 0 } = inputValue.value || {}
     return length
   })
 
@@ -79,6 +84,7 @@ export const useInputValue = (props, { emit }) => {
 
     //events
     onInput,
-    onChange
+    onChange,
+    onUpdate
   }
 }

@@ -188,7 +188,6 @@ export default {
 </script>
 <style lang="scss">
 .base-form-group-condition {
-
   .base-condition {
     display: flex;
     flex-wrap: wrap;
@@ -244,21 +243,32 @@ export default {
       cursor: grab;
     }
     .drag-placeholder {
-      border-color: var(--primary);
       background-color: var(--primary);
       color: var(--light);
       .invalid-feedback,
-      .menu .dropdown > .btn {
+      .valid-feedback {
+        display: none;
+      }
+      .dropdown > .btn {
         color: var(--light);
       }
-      .form-control.is-invalid,
-      .pf-form-chosen.is-invalid .multiselect__tags,
-      .pf-form-boolean-values {
+      *:not(.base-condition-values) {
+        border-color: transparent;
+      }
+      .base-condition-values {
         border-color: var(--light);
+      }
+      .drag-handle {
+        opacity: .65;
+      }
+      .base-input,
+      *[class^='base-input-'],
+      *[class*=' base-input-'] {
+        @include border-radius($border-radius);
       }
     }
     .drag-source {
-      opacity: .5;
+      opacity: .65;
     }
   }
   .base-condition-operator,
@@ -266,117 +276,6 @@ export default {
     & > .dropdown > .btn {
       align-self: center;
       padding: 0!important;
-    }
-  }
-}
-
-.zzz {
-  .zzz {
-
-    & > div {
-      display: flex;
-    }
-
-
-
-    &.highlight {
-      border-color: var(--primary);
-      background-color: var(--primary);
-      color: var(--light);
-      .invalid-feedback,
-      .menu .dropdown > .btn {
-        color: var(--light);
-      }
-      .form-control.is-invalid,
-      .pf-form-chosen.is-invalid .multiselect__tags,
-      .base-condition-values {
-        border-color: var(--light);
-      }
-    }
-
-    .base-condition-operator,
-    .base-condition-values,
-    .base-condition-value {
-      display: flex;
-      align-items: stretch;
-      user-select: none; /* disable user selection on drag */
-      input, select, textarea {
-        user-select: initial; /* override user selection on input elements */
-      }
-    }
-
-    .base-condition-operator {
-      display: flex;
-      align-self: center;
-      flex-shrink: 0;
-      flex-wrap: nowrap;
-      margin-right: -8.33333%;
-      min-width: 8.33333%;
-      padding: 0 .5rem 0 0 !important;
-      & > * {
-        display: flex;
-        align-self: center;
-      }
-    }
-
-    .base-condition-values {
-      flex-wrap: wrap;
-      justify-content: flex-start;
-      margin-left: 8.33333%;
-      margin-right: .25rem;
-
-      /* curly brackets */
-      border-color: var(--secondary);
-      border-radius: .5rem;
-      border-style: solid;
-      border-width: 0 .25rem;
-      padding: 0 .25rem;
-    }
-
-    .base-condition-value {
-      display: flex;
-      flex-wrap: nowrap;
-    }
-
-    /* add/del menu */
-    .menu {
-      align-self: center;
-      cursor: pointer;
-      flex-shrink: 0;
-      .dropdown > .btn { // menu dropdown
-        padding: .375rem 0;
-        .fa-icon {
-          height: 14px !important;
-        }
-      }
-      & > * {
-        margin: 0 0 0 .25rem;
-        &:hover {
-          color: var(--primary);
-        }
-      }
-    }
-
-    .drag-handle {
-      align-self: center;
-      cursor: grab;
-      flex-shrink: 0;
-      margin: 0 .25rem;
-    }
-
-    &.drag-source {
-      opacity: .5;
-    }
-
-    &.drag-target {
-      border-color: var(--primary);
-      background-color: var(--primary);
-      svg {
-        visibility: hidden;
-      }
-      .base-condition-values {
-        border-color: var(--light);
-      }
     }
   }
 }

@@ -1,6 +1,6 @@
 <template>
-  <div :draggable="draggable" v-on="$listeners"
-   class="base-condition" align-v="center">
+  <div :draggable="draggable" v-on="bindListeners"
+   class="base-condition mb-3" align-v="center">
 
     <div class="base-condition-operator">
       <span v-if="draggable"
@@ -8,12 +8,13 @@
         <icon name="th"/>
       </span>
       <base-input-chosen-one
-        v-model="inputValueOperator"
+        :namespace="`${namespace}.op`"
         :options="operatorOptions"
+        :disabled="disabled"
         class="m-1"
       />
       <b-dropdown ref="menu"
-        :disabled="isLoading"
+        :disabled="disabled"
         class="m-1" variant="transparent"
         no-caret lazy right
       >
@@ -47,60 +48,50 @@
     <div v-if="operatorValues" class="base-condition-values">
       <template v-for="(value, index) in operatorValues">
 
-        <!-- placeholder (before)-->
-        <template v-if="index === dragTargetIndex">
-          <!-- recursive (self) -->
-          <base-condition-operator v-if="'values' in bus"
-            :key="`placeholder-op-${index}`"
-            :value="bus"
-            class="drag-placeholder"
-            @dragover="onDragOver(index, $event)"
-            @dragleave="onDragLeave(index, $event)"
-            @dragend="onDragEnd(index, $event)"
-            @drop="onDrop(index, $event)"
-          />
-
-          <base-condition-value v-else
-            :key="`placeholder-value-${index}`"
-            :value="bus"
-            class="drag-placeholder"
-            @dragover="onDragOver(index, $event)"
-            @dragleave="onDragLeave(index, $event)"
-            @dragend="onDragEnd(index, $event)"
-            @drop="onDrop(index, $event)"
-          />
-        </template>
+        <!-- placeholder (before: n)-->
+        <component v-if="dragTargetIndex === index"
+          :is="placeholderComponent"
+          :key="`placeholder-op-${index}`"
+          class="drag-placeholder w-100"
+        />
 
         <!-- recursive (self) -->
         <base-condition-operator v-if="'values' in value"
+          :namespace="`${namespace}.values.${index}`"
           :key="`op-${index}`"
-          v-model="inputValueValues[index]"
           :class="{
             'drag-source': dragSourceIndex === index,
           }"
+          :disabled="disabled"
+          draggable
           @clone="onChildCloneValue(index)"
           @delete="onChildDeleteValue(index)"
-          @dragstart="onDragStart(index, $event)"
+          @dragstart="onDragStart(index, $event, inputValue.values[index])"
           @dragover="onDragOver(index, $event)"
-          @dragleave="onDragLeave(index, $event)"
           @dragend="onDragEnd(index, $event)"
-          @drop="onDrop(index, $event)"
-          draggable
+          @drop="onDrop($event)"
         />
 
         <base-condition-value v-else
+          :namespace="`${namespace}.values.${index}`"
           :key="`value-${index}`"
-          v-model="inputValueValues[index]"
           :class="{
             'drag-source': dragSourceIndex === index,
           }"
+          :disabled="disabled"
           @clone="onChildCloneValue(index)"
           @delete="onChildDeleteValue(index)"
-          @dragstart="onDragStart(index, $event)"
+          @dragstart="onDragStart(index, $event, inputValue.values[index])"
           @dragover="onDragOver(index, $event)"
-          @dragleave="onDragLeave(index, $event)"
           @dragend="onDragEnd(index, $event)"
-          @drop="onDrop(index, $event)"
+          @drop="onDrop($event)"
+        />
+
+        <!-- placeholder (after: n + 1)-->
+        <component v-if="dragTargetIndex === index + 1 && dragTargetIndex === operatorValues.length"
+          :is="placeholderComponent"
+          :key="`placeholder-op-${index + 1}`"
+          class="drag-placeholder w-100"
         />
 
       </template>
@@ -109,7 +100,7 @@
   </div>
 </template>
 <script>
-import { computed, customRef, ref, toRefs } from '@vue/composition-api'
+import { computed, ref, toRefs } from '@vue/composition-api'
 import useDraggable from '@/composables/useDraggable'
 import { useInputMeta, useInputMetaProps, useNamespaceMetaAllowed } from '@/composables/useMeta'
 import { useInputValue, useInputValueProps } from '@/composables/useInputValue'
@@ -130,6 +121,9 @@ const props = {
   ...useInputMetaProps,
   ...useInputValueProps,
 
+  disabled: {
+    type: Boolean,
+  },
   draggable: {
     type: Boolean,
     default: false
@@ -141,7 +135,8 @@ const setup = (props, context) => {
   const { emit } = context
 
   const {
-    draggable
+    draggable,
+namespace
   } = toRefs(props)
 
   const metaProps = useInputMeta(props, context)
@@ -149,30 +144,6 @@ const setup = (props, context) => {
     value,
     onInput
   } = useInputValue(metaProps, context)
-
-  const inputValueOperator = customRef((track, trigger) => ({
-    get() {
-      track()
-      const { op } = value.value || {}
-      return op
-    },
-    set(op) {
-      onInput({ ...value.value, op })
-      trigger()
-    }
-  }))
-
-  const inputValueValues = customRef((track, trigger) => ({
-    get() {
-      track()
-      const { values = [] } = value.value || {}
-      return values
-    },
-    set(values) {
-      onInput({ ...value.value, values })
-      trigger()
-    }
-  }))
 
   const operatorOptions = computed(() => useNamespaceMetaAllowed('condition.op')
     .filter(({ requires = [] }) => requires.includes('values') || requires.length === 0)
@@ -206,35 +177,45 @@ const setup = (props, context) => {
   const onTruncate = () => onInput({ ...value.value, values: [] })
 
   const onChildCloneValue = (index) => {
-    const { values = [], values: { [index]: newValue } = {} } = value.value
+    const { values = [], values: { [index]: newValue } = {} } = value.value || {}
     const dereferencedValue = Object.assign({}, newValue) // dereference
     onInput({ ...value.value, values: [...values.slice(0, index + 1), dereferencedValue, ...values.slice(index + 1)] })
   }
 
   const onChildDeleteValue = (index) => {
-    const { values = [] } = value.value
+    const { values = [] } = value.value || {}
     if (values.length <= 1 && draggable.value) // don't allow empty `values` (except @root)
       onDelete() // delete self
     else
       onInput({ ...value.value, values: [...values.slice(0, index), ...values.slice(index + 1)] })
   }
 
+  const getValueFn = (index) => {
+    const { values: { [index]: _value } = {} } = value.value || {}
+    return _value
+  }
+
+  const setValueFn = (index, newValue) => {
+    if (newValue) {
+      const { values = [] } = value.value || {}
+      onInput({ ...value.value, values: [...values.slice(0, index), newValue, ...values.slice(index)] })
+    }
+    else
+      onChildDeleteValue(index)
+  }
+
   const {
-  bus,
+    bindListeners,
+    placeholderComponent,
     dragSourceIndex,
     dragTargetIndex,
     onDragStart,
     onDragOver,
-    onDragLeave,
     onDragEnd,
     onDrop
-  } = useDraggable(props)
+  } = useDraggable(context, getValueFn, setValueFn)
 
   return {
-    // useInputValue
-    inputValueOperator,
-    inputValueValues,
-
     isLoading,
     operatorOptions,
     operatorValues,
@@ -248,12 +229,14 @@ const setup = (props, context) => {
     onChildCloneValue,
     onChildDeleteValue,
 
+
+    inputValue: value,
     // useDraggable
-bus,
+    bindListeners,
+    placeholderComponent,
     dragSourceIndex,
     dragTargetIndex,
     onDragStart,
-    onDragLeave,
     onDragOver,
     onDragEnd,
     onDrop,

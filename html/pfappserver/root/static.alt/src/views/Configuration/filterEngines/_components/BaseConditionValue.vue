@@ -1,5 +1,5 @@
 <template>
-  <div draggable v-on="$listeners"
+  <div draggable v-on="bindListeners"
     class="base-condition-value" align-v="center">
 
     <span class="drag-handle m-1" :class="{ 'text-secondary': isLoading }">
@@ -8,33 +8,37 @@
 
     <base-input-chosen-one v-if="operatorRequiresField"
       class="flex-grow-1 m-1"
-      v-model="inputValueField"
+      :namespace="`${namespace}.field`"
       :options="fieldOptions"
+      :disabled="disabled"
     />
 
     <base-input-chosen-one
-      v-model="inputValueOperator"
       class="flex-grow-1 m-1"
+      :namespace="`${namespace}.op`"
       :options="operatorOptions"
+      :disabled="disabled"
     />
 
     <template v-if="operatorRequiresValue">
 
       <base-input-chosen-one v-if="hasValueOptions"
         class="flex-grow-1 m-1"
-        v-model="inputValueValue"
+        :namespace="`${namespace}.value`"
         :options="valueOptions"
+        :disabled="disabled"
       />
 
       <base-input v-else
         class="flex-grow-1 m-1"
-        v-model="inputValueValue"
+        :namespace="`${namespace}.value`"
+        :disabled="disabled"
       />
 
     </template>
 
     <b-dropdown ref="menu"
-      :disabled="isLoading"
+      :disabled="disabled"
       class="m-1" variant="transparent"
       no-caret lazy right
     >
@@ -67,13 +71,18 @@ const components = {
 }
 
 import { computed, customRef, ref } from '@vue/composition-api'
+import useDraggable from '@/composables/useDraggable'
 import { useInputMeta, useInputMetaProps, useNamespaceMetaAllowed } from '@/composables/useMeta'
 import { useInputValue, useInputValueProps } from '@/composables/useInputValue'
 import { pfOperators } from '@/globals/pfOperators'
 
 const props = {
   ...useInputMetaProps,
-  ...useInputValueProps
+  ...useInputValueProps,
+
+  disabled: {
+    type: Boolean,
+  }
 }
 
 const setup = (props, context) => {
@@ -83,7 +92,6 @@ const setup = (props, context) => {
   const metaProps = useInputMeta(props, context)
   const {
     value,
-    onChange,
     onInput
   } = useInputValue(metaProps, context)
 
@@ -147,7 +155,7 @@ const setup = (props, context) => {
     //.sort((a, b) => a.text.localeCompare(b.text)) // use natural order
   )
   const operatorRequires = computed(() => {
-    const { op } = value.value
+    const { op } = value.value || {}
     const { requires = [] } = operatorMeta.value.find(({ value }) => value === op) || {}
     return requires
   })
@@ -166,13 +174,18 @@ const setup = (props, context) => {
   const onClone = () => emit('clone')
   const onDelete = () => emit('delete')
 
+  const {
+    bindListeners
+  } = useDraggable(context)
+
   return {
     // useInputValue
-    onChange,
-    onInput,
     inputValueField,
     inputValueOperator,
     inputValueValue,
+
+    // useDraggable
+    bindListeners,
 
     isLoading,
     fieldOptions,

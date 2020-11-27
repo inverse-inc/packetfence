@@ -1,90 +1,197 @@
-import { inject, nextTick, provide, ref, toRefs, unref, watch } from '@vue/composition-api'
+import { computed, inject, provide, ref, toRefs, watch } from '@vue/composition-api'
+import uuidv4 from 'uuid/v4'
 
-/*
- *  CSS flex-box layout can stack elements either vertical (above/below) or horizontal (left/right)
- *  2 drop zones accomodate both layouts:
- *    previous: within triangle @top-left (returns true)
- *    next: within triangle @bottom-right (returns false)
- */
-const isMouseOverNext = (event) => {
-  const { target, x, y } = event
-  const { width, height, top, left } = target.closest('*[draggable]').getBoundingClientRect()
-  const ar = width / height
-  const dx = x - left
-  const dy = height - dx / ar
-  return (y - top > dy) // false: previous, true: next
-}
+export const useDraggable = (context, getValueFn, setValueFn) => {
 
-export const useDraggable = (props) => {
-
-  const {
-    namespace,
-    value
-  } = toRefs(props)
+  // consume only req'd listeners from parent,
+  //  to avoid (re)exposing change/input/update listeners
+  //  since these are already handled with our model.
+  const { listeners: {
+    dragend = () => {},
+    dragleave = () => {},
+    dragover = () => {},
+    dragstart = () => {},
+    drop = () => {}
+  } = {} } = context
+  const bindListeners = { // forward listeners from parent
+    dragend,
+    dragleave,
+    dragover,
+    dragstart,
+    drop
+  }
 
   const bus = inject('draggableBus', ref(false))
-  if (bus.value === false) { // no parent provide
-    bus.value = {} // init
+  if (bus.value === false) { // not (yet) provided by parent
+    bus.value = { // init singleton
+      sourceElement: undefined,
+      sourceUUID: undefined,
+      sourceIndex: undefined,
+      sourceGetterFn: undefined,
+      sourceSetterFn: undefined,
+      targetUUID: undefined,
+      targetIndex: undefined,
+      targetSetterFn: undefined,
+      targetPlaceholder: ref({ template: '<!-- placeholder -->' }) // @vue/component
+    }
     provide('draggableBus', bus)
   }
 
-  const dragSourceIndex = ref(-1)
-  const dragTargetIndex = ref(-1)
+  const UUID = uuidv4()
+
+  const dragSourceIndex = computed(() => {
+    const { sourceUUID, sourceIndex } = toRefs(bus.value)
+    if (UUID === sourceUUID.value)
+      return sourceIndex.value
+    return -1
+  })
+
+  const dragTargetIndex = computed(() => {
+    const { targetUUID, targetIndex } = toRefs(bus.value)
+    if (UUID === targetUUID.value)
+      return targetIndex.value
+    return -1
+  })
+
+  watch(dragSourceIndex, () => {
+    const { sourceElement } = toRefs(bus.value)
+    if (sourceElement.value) {
+      const sourceElementClone = sourceElement.value.cloneNode(true)
+      sourceElementClone.removeAttribute('draggable')
+      // stripe Vue's [id^="__BVID__"]
+      sourceElementClone.querySelectorAll('[id^="__BVID__"]').forEach(node => node.removeAttribute('id'))
+      const serializer = new XMLSerializer()
+      // margins within sourceElement produce gaps in mouse drag events
+      //  causing premature dragleave, use a solid overlay for event listeners.
+      // @vue/component
+      const dragOverListener = e => {
+        e.preventDefault() && e.stopPropagation() // allow drop, stop bubbling
+        if (releaseDragIndexTimeout)
+          clearTimeout(releaseDragIndexTimeout)
+      }
+      const dragLeaveListener = e => onDragLeave(dragTargetIndex.value, e)
+      const dropListener = e => onDrop(e)
+      const overlay = {
+        template: `<div draggable style="position:absolute;top:0;right:0;bottom:0;left:0;"/>`,
+        mounted() {
+          this.$el.addEventListener('dragover', dragOverListener)
+          this.$el.addEventListener('dragleave', dragLeaveListener)
+          this.$el.addEventListener('drop', dropListener)
+        },
+        beforeUnmount() {
+          this.$el.removeEventListener('dragover', dragOverListener)
+          this.$el.removeEventListener('dragleave', dragLeaveListener)
+          this.$el.removeEventListener('drop', dropListener)
+        }
+      }
+      const template = `<div style="position: relative;">
+        ${serializer.serializeToString(sourceElementClone)}
+        <overlay/>
+      </div>`
+      bus.value.targetPlaceholder = { components: { overlay }, template } // @vue/component
+    }
+  })
+
+  const placeholderComponent = computed(() => {
+    const { targetPlaceholder } = toRefs(bus.value)
+    return targetPlaceholder.value
+  })
+
+  // debounce jitter caused by repetitive dragover/dragleave
   let releaseDragIndexTimeout
 
   const onDragStart = (index, event) => {
+    event.stopPropagation()
+    if (index === dragSourceIndex.value)
+      return
     const { target: sourceElement, clientX: x, clientY: y } = event
     if (!document.elementFromPoint(x, y).closest('.drag-handle, *[draggable]').classList.contains('drag-handle')) { // not a handle
       event.preventDefault() // cancel drag
-      bus.value = {}
+      bus.value.sourceElement = undefined
+      bus.value.sourceUUID = undefined
+      bus.value.sourceIndex = undefined
       return
     }
-    dragSourceIndex.value = index
-    const { values: { [index]: childValue } = {} } = value.value
-    bus.value = Object.assign({}, childValue) // dereference
+    bus.value.sourceElement = sourceElement
+    bus.value.sourceUUID = UUID
+    bus.value.sourceIndex = index
+    bus.value.sourceGetterFn = getValueFn
+    bus.value.sourceSetterFn = setValueFn
   }
 
   const onDragOver = (index, event) => {
+    event.stopPropagation()
     if (index === dragSourceIndex.value) // ignore self
       return
-    event.preventDefault() // always allow drop
-    event.stopPropagation() // don't bubble up
-    const isNext = isMouseOverNext(event) // determine mouse position over @target
+    const {
+      sourceUUID, sourceIndex, sourceElement
+    } = toRefs(bus.value)
+    const targetElement = event.target.closest('*[draggable]')
+    if (sourceElement.value.contains(targetElement)) // ignore children
+      return
+    let targetIndex = index
+    if (sourceUUID.value === UUID && sourceIndex.value < targetIndex)
+      targetIndex++
+    if (sourceUUID.value === UUID && [dragSourceIndex.value, dragSourceIndex.value + 1].includes(targetIndex)) // avoid placeholder immediately before or after self
+      return
     if (releaseDragIndexTimeout)
       clearTimeout(releaseDragIndexTimeout)
-    if (isNext)
-      dragTargetIndex.value = index + 1
-    else
-      dragTargetIndex.value = index
+    event.preventDefault() // allow drop
+    bus.value.targetUUID = UUID
+    bus.value.targetIndex = targetIndex
+    bus.value.targetSetterFn = setValueFn
   }
 
   const onDragLeave = (index, event) => {
+    event.stopPropagation()
     if (releaseDragIndexTimeout)
       clearTimeout(releaseDragIndexTimeout)
-    releaseDragIndexTimeout = setTimeout(() => {
-      dragTargetIndex.value = -1
-    }, 100)
+    if (bus.value.targetUUID === UUID) {
+      releaseDragIndexTimeout = setTimeout(() => {
+        bus.value.targetIndex = -1
+      }, 300)
+    }
   }
 
   const onDragEnd = (index, event) => {
-    //dragSourceIndex.value = -1
-    //dragTargetIndex.value = -1
+    event.stopPropagation()
+    bus.value.sourceIndex = -1
+    bus.value.targetIndex = -1
     if (releaseDragIndexTimeout)
       clearTimeout(releaseDragIndexTimeout)
   }
 
-  const onDrop = (index, event) => {
-console.log('onDrop', {index, event})
-
+  const onDrop = event => {
+    event.stopPropagation()
+    const {
+      sourceUUID, sourceIndex, sourceGetterFn = ref(() => {}), sourceSetterFn = ref(() => {}),
+      targetUUID, targetIndex, targetSetterFn = ref(() => {})
+    } = toRefs(bus.value)
+    const insertValue = (sourceGetterFn.value)(sourceIndex.value)
+    const insertPromise = (targetSetterFn.value)(targetIndex.value, insertValue) // insert target
+    Promise.resolve(insertPromise).then(() => {
+      let deleteIndex = sourceIndex.value
+      if (sourceUUID.value === targetUUID.value && targetIndex.value < sourceIndex.value)
+        deleteIndex++
+      const deletePromise = (sourceSetterFn.value)(deleteIndex, undefined) // delete source
+      return Promise.resolve(deletePromise)
+        .finally(() => {
+          bus.value.sourceIndex = -1
+          bus.value.targetIndex = -1
+        })
+    }).catch(() => {
+      bus.value.sourceIndex = -1
+      bus.value.targetIndex = -1
+    })
   }
 
   return {
-    bus,
+    bindListeners,
+    placeholderComponent,
     dragSourceIndex,
     dragTargetIndex,
     onDragStart,
     onDragOver,
-    onDragLeave,
     onDragEnd,
     onDrop
   }
