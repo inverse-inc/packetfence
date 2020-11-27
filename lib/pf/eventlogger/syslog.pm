@@ -13,11 +13,12 @@ pf::eventlogger::syslog
 use strict;
 use warnings;
 use Moo;
-use Net::Syslog;
+use pf::Syslog;
 extends 'pf::eventlogger';
 use pf::cef;
 
-has syslog => ( is => 'ro', builder => 1, lazy => 1);
+has syslog_key => ( is => 'ro', builder => 1, lazy => 1);
+has syslog_args => ( is => 'ro', builder => 1, lazy => 1);
 has cef => ( is => 'ro', builder => 1, lazy => 1);
 has facility => ( is => 'ro');
 has priority => ( is => 'ro');
@@ -25,11 +26,17 @@ has port => ( is => 'ro');
 has host => ( is => 'ro');
 
 sub log_event {
-    my ($self, $event) = @_;
+    my ($self, $namespace, $event) = @_;
     my $cef = $self->cef;
     my $syslog = $self->syslog;
-    $syslog->send($cef->message($event));
+    my $msg = $cef->message($namespace, $event);
+    $syslog->send($msg);
     return;
+}
+
+sub syslog {
+    my ($self) = @_;
+    return pf::Syslog->new($self->syslog_key, $self->syslog_args);
 }
 
 sub _build_cef {
@@ -39,10 +46,14 @@ sub _build_cef {
     );
 }
 
-sub _build_syslog {
+sub _build_syslog_key {
     my ($self) = @_;
-    return Net::Syslog->new(
-        $self->syslog_args()
+    return join(
+        ":",
+        $self->facility,
+        $self->priority,
+        $self->port,
+        $self->host,
     );
 }
 
@@ -55,14 +66,14 @@ sub cef_args {
     };
 }
 
-sub syslog_args {
+sub _build_syslog_args {
     my ($self) = @_;
-    return (
+    return {
         Facility   => $self->facility,
         Priority   => $self->priority,
         SyslogPort => $self->port,
         SyslogHost => $self->host,
-    );
+    };
 }
 
 =head1 AUTHOR
