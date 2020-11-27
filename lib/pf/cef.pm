@@ -27,8 +27,6 @@ has deviceVersion => (default => \&pf::version::version_get_current, is => 'ro')
 
 has deviceEventClassId => ( required => 1, is => 'ro');
 
-has name => (required => 1, is => 'ro');
-
 has severity => (required => 1, is => 'ro');
 
 sub format_header {
@@ -46,7 +44,7 @@ sub format_ext {
 }
 
 sub message {
-    my ($self, $extensions) = @_;
+    my ($self, $name, $extensions) = @_;
     
     return join(
         "|",
@@ -55,7 +53,7 @@ sub message {
         format_header($self->deviceProduct),
         format_header($self->deviceVersion),
         format_header($self->deviceEventClassId),
-        format_header($self->name),
+        format_header($name),
         format_header($self->severity),
         _format_ext($extensions),
     );
