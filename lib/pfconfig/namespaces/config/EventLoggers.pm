@@ -33,6 +33,7 @@ sub build_child {
     my %tmp = %{ $self->{cfg} };
     my %namespaces;
     while ( my ($k, $v) = each %tmp ) {
+        $v->{id} = $k;
         my $ns = $v->{namespaces};
         my @names = defined $ns && $ns ne '' ? split(/\s*,\s*/, $ns) : @pf::constants::eventLogger::Namespaces;
         for my $n (@names) {
