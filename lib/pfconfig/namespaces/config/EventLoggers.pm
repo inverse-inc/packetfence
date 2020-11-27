@@ -20,6 +20,7 @@ use warnings;
 use pfconfig::namespaces::config;
 use pf::file_paths qw($event_loggers_config_file);
 use pf::constants::eventLogger;
+use pf::factory::eventlogger;
 
 use base 'pfconfig::namespaces::config';
 
@@ -32,14 +33,15 @@ sub build_child {
     my ($self) = @_;
     my %tmp = %{ $self->{cfg} };
     my %namespaces;
-    while ( my ($k, $v) = each %tmp ) {
+    while ( my ( $k, $v ) = each %tmp ) {
         $v->{id} = $k;
         my $ns = $v->{namespaces};
-        my @names = defined $ns && $ns ne '' ? split(/\s*,\s*/, $ns) : @pf::constants::eventLogger::Namespaces;
+        my @names = defined $ns && $ns ne '' ? split( /\s*,\s*/, $ns ) : @pf::constants::eventLogger::Namespaces;
         for my $n (@names) {
-            push @{$namespaces{$n}}, $v;
+            push @{$namespaces{$n}}, pf::factory::eventlogger->new( $k, $v );
         }
     }
+
     return \%namespaces;
 }
 
