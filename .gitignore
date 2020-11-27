@@ -18,6 +18,7 @@ conf/httpd.conf
 conf/wgorchestrator-auth.json
 conf/named.conf
 conf/cluster-files.txt
+conf/event_loggers.conf
 conf/pf.conf
 conf/*.lock
 conf/*.lockonce
