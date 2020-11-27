@@ -12,6 +12,58 @@ pf::eventlogger::syslog
 
 use strict;
 use warnings;
+use Moo;
+use Net::Syslog;
+extends 'pf::eventlogger';
+use pf::cef;
+
+has syslog => ( is => 'ro', builder => 1, lazy => 1);
+has cef => ( is => 'ro', builder => 1, lazy => 1);
+has facility => ( is => 'ro');
+has priority => ( is => 'ro');
+has port => ( is => 'ro');
+has host => ( is => 'ro');
+
+sub log_event {
+    my ($self, $event) = @_;
+    my $cef = $self->cef;
+    my $syslog = $self->syslog;
+    $syslog->send($cef->message($event));
+    return;
+}
+
+sub _build_cef {
+    my ($self) = @_;
+    return pf::cef->new(
+        $self->cef_args()
+    );
+}
+
+sub _build_syslog {
+    my ($self) = @_;
+    return Net::Syslog->new(
+        $self->syslog_args()
+    );
+}
+
+sub cef_args {
+    my ($self) = @_;
+    return {
+        deviceEventClassId => '',
+        name => '',
+        severity => 0,
+    };
+}
+
+sub syslog_args {
+    my ($self) = @_;
+    return (
+        Facility   => $self->facility,
+        Priority   => $self->priority,
+        SyslogPort => $self->port,
+        SyslogHost => $self->host,
+    );
+}
 
 =head1 AUTHOR
 
