@@ -188,6 +188,10 @@ export default {
 </script>
 <style lang="scss">
 .base-form-group-condition {
+  & > .form-row > .col {
+    flex-grow: 1;
+    flex-shrink: 0;
+  }
   .base-condition {
     display: flex;
     flex-wrap: wrap;
@@ -195,7 +199,6 @@ export default {
     border-radius: .5rem;
     transition: background-color .3s ease-out,
       border-color .3s ease-out;
-
     .base-condition-operator,
     .base-condition-values {
       /* take full width */
@@ -214,14 +217,12 @@ export default {
       justify-content: flex-start;
       margin-left: 1.75rem;
       margin-right: .5rem;
-
       /* curly brackets */
       border-color: var(--secondary);
       border-radius: .5rem;
       border-style: solid;
       border-width: 0 .25rem;
       padding: 0 .25rem;
-
       .base-condition,
       .base-condition-value {
         display: flex;
@@ -231,6 +232,10 @@ export default {
         /* disable user selection on drag */
         user-select: none;
       }
+      .base-condition-value {
+        flex-wrap: wrap;
+        flex: 0 0 100%;
+      }
     }
     .drag-handle,
     .dropdown {
@@ -238,6 +243,7 @@ export default {
       display: flex;
       align-items: center;
       min-height: $input-height;
+      flex-shrink: 0;
     }
     .drag-handle {
       cursor: grab;

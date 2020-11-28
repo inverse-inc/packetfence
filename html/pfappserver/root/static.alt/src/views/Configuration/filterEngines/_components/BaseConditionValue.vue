@@ -95,6 +95,10 @@ const setup = (props, context) => {
     onInput
   } = useInputValue(metaProps, context)
 
+  const {
+    bindListeners
+  } = useDraggable(context)
+
   const inputValueField = customRef((track, trigger) => ({
     get() {
       track()
@@ -174,10 +178,6 @@ const setup = (props, context) => {
   const onClone = () => emit('clone')
   const onDelete = () => emit('delete')
 
-  const {
-    bindListeners
-  } = useDraggable(context)
-
   return {
     // useInputValue
     inputValueField,
@@ -194,7 +194,6 @@ const setup = (props, context) => {
     operatorRequiresValue,
     valueOptions,
     hasValueOptions,
-
     onClone,
     onDelete
   }

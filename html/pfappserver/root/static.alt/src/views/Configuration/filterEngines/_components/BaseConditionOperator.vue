@@ -4,7 +4,7 @@
 
     <div class="base-condition-operator">
       <span v-if="draggable"
-        class="drag-handle m-1" :class="{ 'text-secondary': isLoading }">
+        class="drag-handle m-1" :class="{ 'text-secondary': disabled }">
         <icon name="th"/>
       </span>
       <base-input-chosen-one
@@ -66,8 +66,9 @@
           draggable
           @clone="onChildCloneValue(index)"
           @delete="onChildDeleteValue(index)"
-          @dragstart="onDragStart(index, $event, inputValue.values[index])"
+          @dragstart="onDragStart(index, $event)"
           @dragover="onDragOver(index, $event)"
+          @dragleave="onDragLeave(index, $event)"
           @dragend="onDragEnd(index, $event)"
           @drop="onDrop($event)"
         />
@@ -81,7 +82,7 @@
           :disabled="disabled"
           @clone="onChildCloneValue(index)"
           @delete="onChildDeleteValue(index)"
-          @dragstart="onDragStart(index, $event, inputValue.values[index])"
+          @dragstart="onDragStart(index, $event)"
           @dragover="onDragOver(index, $event)"
           @dragend="onDragEnd(index, $event)"
           @drop="onDrop($event)"
@@ -100,7 +101,7 @@
   </div>
 </template>
 <script>
-import { computed, ref, toRefs } from '@vue/composition-api'
+import { computed, nextTick, toRefs } from '@vue/composition-api'
 import useDraggable from '@/composables/useDraggable'
 import { useInputMeta, useInputMetaProps, useNamespaceMetaAllowed } from '@/composables/useMeta'
 import { useInputValue, useInputValueProps } from '@/composables/useInputValue'
@@ -135,8 +136,7 @@ const setup = (props, context) => {
   const { emit } = context
 
   const {
-    draggable,
-namespace
+    draggable
   } = toRefs(props)
 
   const metaProps = useInputMeta(props, context)
@@ -159,19 +159,23 @@ namespace
     return values
   })
 
-  const isLoading = ref(false)
-
-  const onClone = () => emit('clone')
-  const onDelete = () => emit('delete')
+  const onClone = () => new Promise((resolve) => {
+    emit('clone')
+    nextTick(resolve)
+  })
+  const onDelete = () => new Promise((resolve) => {
+    emit('delete')
+    nextTick(resolve)
+  })
 
   const onAddOperator = () => {
     const newOperator = { op: undefined, values: [{ field: undefined, op: undefined, value: undefined }] }
-    onInput({ ...value.value, values: [ ...value.value.values, newOperator ] })
+    return onInput({ ...value.value, values: [ ...value.value.values, newOperator ] })
   }
 
   const onAddValue = () => {
     const newValue = { field: undefined, op: undefined, value: undefined }
-    onInput({ ...value.value, values: [ ...value.value.values, newValue ] })
+    return onInput({ ...value.value, values: [ ...value.value.values, newValue ] })
   }
 
   const onTruncate = () => onInput({ ...value.value, values: [] })
@@ -179,15 +183,15 @@ namespace
   const onChildCloneValue = (index) => {
     const { values = [], values: { [index]: newValue } = {} } = value.value || {}
     const dereferencedValue = Object.assign({}, newValue) // dereference
-    onInput({ ...value.value, values: [...values.slice(0, index + 1), dereferencedValue, ...values.slice(index + 1)] })
+    return onInput({ ...value.value, values: [...values.slice(0, index + 1), dereferencedValue, ...values.slice(index + 1)] })
   }
 
   const onChildDeleteValue = (index) => {
     const { values = [] } = value.value || {}
     if (values.length <= 1 && draggable.value) // don't allow empty `values` (except @root)
-      onDelete() // delete self
+      return onDelete() // delete self
     else
-      onInput({ ...value.value, values: [...values.slice(0, index), ...values.slice(index + 1)] })
+      return onInput({ ...value.value, values: [...values.slice(0, index), ...values.slice(index + 1)] })
   }
 
   const getValueFn = (index) => {
@@ -198,10 +202,10 @@ namespace
   const setValueFn = (index, newValue) => {
     if (newValue) {
       const { values = [] } = value.value || {}
-      onInput({ ...value.value, values: [...values.slice(0, index), newValue, ...values.slice(index)] })
+      return onInput({ ...value.value, values: [...values.slice(0, index), newValue, ...values.slice(index)] })
     }
     else
-      onChildDeleteValue(index)
+      return onChildDeleteValue(index)
   }
 
   const {
@@ -211,26 +215,15 @@ namespace
     dragTargetIndex,
     onDragStart,
     onDragOver,
+    onDragLeave,
     onDragEnd,
     onDrop
   } = useDraggable(context, getValueFn, setValueFn)
 
   return {
-    isLoading,
-    operatorOptions,
-    operatorValues,
-
-    onClone,
-    onDelete,
-    onAddOperator,
-    onAddValue,
-    onTruncate,
-
-    onChildCloneValue,
-    onChildDeleteValue,
-
-
+    // useInputValue
     inputValue: value,
+
     // useDraggable
     bindListeners,
     placeholderComponent,
@@ -238,8 +231,19 @@ namespace
     dragTargetIndex,
     onDragStart,
     onDragOver,
+    onDragLeave,
     onDragEnd,
     onDrop,
+
+    operatorOptions,
+    operatorValues,
+    onClone,
+    onDelete,
+    onAddOperator,
+    onAddValue,
+    onTruncate,
+    onChildCloneValue,
+    onChildDeleteValue,
   }
 }
 

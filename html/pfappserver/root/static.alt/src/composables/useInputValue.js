@@ -1,4 +1,4 @@
-import { computed, customRef, inject, ref, set, toRefs } from '@vue/composition-api'
+import { computed, customRef, inject, nextTick, ref, set, toRefs } from '@vue/composition-api'
 
 export const getFormNamespace = (ns, o) =>
   ns.reduce((xs, x) => (xs && x in xs) ? xs[x] : undefined, o)
@@ -27,12 +27,20 @@ export const useInputValueProps = {
   }
 }
 
+
 export const useInputValue = (props, { emit }) => {
 
   const {
     namespace,
     value
   } = toRefs(props) // toRefs maintains reactivity w/ destructuring
+
+  const emitPromise = (eventName, value) => {
+    return new Promise((resolve) => {
+      emit(eventName, value)
+      nextTick(resolve)
+    })
+  }
 
   let inputValue = ref(null)
   let onInput
@@ -54,22 +62,34 @@ export const useInputValue = (props, { emit }) => {
         trigger()
       }
     }))
-    onInput = value => {
+    onInput = value => new Promise((resolve) => {
       inputValue.value = value
-    }
-    onChange = value => {
+      nextTick(resolve)
+    })
+    onChange = value => new Promise((resolve) => {
       inputValue.value = value
-    }
-    onUpdate = value => {
+      nextTick(resolve)
+    })
+    onUpdate = value => new Promise((resolve) => {
       inputValue.value = value
-    }
+      nextTick(resolve)
+    })
   }
   else {
     // use v-model
     inputValue = value
-    onInput = value => emit('input', value)
-    onChange = value => emit('change', value)
-    onUpdate = value => emit('update', value)
+    onInput = value => new Promise((resolve) => {
+      emit('input', value)
+      nextTick(resolve)
+    })
+    onChange = value => new Promise((resolve) => {
+      emit('change', value)
+      nextTick(resolve)
+    })
+    onUpdate = value => new Promise((resolve) => {
+      emit('update', value)
+      nextTick(resolve)
+    })
   }
 
   const inputLength = computed(() => {

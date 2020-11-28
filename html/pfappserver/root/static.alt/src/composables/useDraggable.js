@@ -65,22 +65,20 @@ export const useDraggable = (context, getValueFn, setValueFn) => {
       //  causing premature dragleave, use a solid overlay for event listeners.
       // @vue/component
       const dragOverListener = e => {
-        e.preventDefault() && e.stopPropagation() // allow drop, stop bubbling
+        e.preventDefault() // allow drop
+        e.stopPropagation() // stop bubbling
         if (releaseDragIndexTimeout)
           clearTimeout(releaseDragIndexTimeout)
       }
-      const dragLeaveListener = e => onDragLeave(dragTargetIndex.value, e)
       const dropListener = e => onDrop(e)
       const overlay = {
         template: `<div draggable style="position:absolute;top:0;right:0;bottom:0;left:0;"/>`,
         mounted() {
           this.$el.addEventListener('dragover', dragOverListener)
-          this.$el.addEventListener('dragleave', dragLeaveListener)
           this.$el.addEventListener('drop', dropListener)
         },
         beforeUnmount() {
           this.$el.removeEventListener('dragover', dragOverListener)
-          this.$el.removeEventListener('dragleave', dragLeaveListener)
           this.$el.removeEventListener('drop', dropListener)
         }
       }
@@ -148,6 +146,7 @@ export const useDraggable = (context, getValueFn, setValueFn) => {
       clearTimeout(releaseDragIndexTimeout)
     if (bus.value.targetUUID === UUID) {
       releaseDragIndexTimeout = setTimeout(() => {
+        bus.value.targetUUID = undefined
         bus.value.targetIndex = -1
       }, 300)
     }
@@ -164,25 +163,46 @@ export const useDraggable = (context, getValueFn, setValueFn) => {
   const onDrop = event => {
     event.stopPropagation()
     const {
-      sourceUUID, sourceIndex, sourceGetterFn = ref(() => {}), sourceSetterFn = ref(() => {}),
-      targetUUID, targetIndex, targetSetterFn = ref(() => {})
+      sourceIndex, sourceGetterFn = ref(() => {}), sourceSetterFn = ref(() => {}), sourceElement,
+      targetIndex, targetSetterFn = ref(() => {})
     } = toRefs(bus.value)
-    const insertValue = (sourceGetterFn.value)(sourceIndex.value)
-    const insertPromise = (targetSetterFn.value)(targetIndex.value, insertValue) // insert target
-    Promise.resolve(insertPromise).then(() => {
-      let deleteIndex = sourceIndex.value
-      if (sourceUUID.value === targetUUID.value && targetIndex.value < sourceIndex.value)
-        deleteIndex++
+    const insertIndex = targetIndex.value
+    const insertValue = (sourceGetterFn.value)(sourceIndex.value) // get current value from source
+    const deleteIndex = sourceIndex.value
+    const targetElement = event.target.closest('*[draggable]')
+    // Vue mutates DOM, we must mutate preceeding Nodes last - instead of first.
+    //  adjust insert/delete order based on DOM position
+    const position = sourceElement.value.compareDocumentPosition(targetElement)
+    if (position & 0x02) { // target preceeds source
+      // first delete, then insert
       const deletePromise = (sourceSetterFn.value)(deleteIndex, undefined) // delete source
-      return Promise.resolve(deletePromise)
-        .finally(() => {
-          bus.value.sourceIndex = -1
-          bus.value.targetIndex = -1
-        })
-    }).catch(() => {
-      bus.value.sourceIndex = -1
-      bus.value.targetIndex = -1
-    })
+      Promise.resolve(deletePromise).then(() => {
+        const insertPromise = (targetSetterFn.value)(insertIndex, insertValue) // insert target
+        return Promise.resolve(insertPromise)
+          .finally(() => {
+            bus.value.sourceIndex = -1
+            bus.value.targetIndex = -1
+          })
+      }).catch(() => {
+        bus.value.sourceIndex = -1
+        bus.value.targetIndex = -1
+      })
+    }
+    else if (position & 0x04) { // target follows source
+      // first insert, then delete
+      const insertPromise = (targetSetterFn.value)(insertIndex, insertValue) // insert target
+      Promise.resolve(insertPromise).then(() => {
+        const deletePromise = (sourceSetterFn.value)(deleteIndex, undefined) // delete source
+        return Promise.resolve(deletePromise)
+          .finally(() => {
+            bus.value.sourceIndex = -1
+            bus.value.targetIndex = -1
+          })
+      }).catch(() => {
+        bus.value.sourceIndex = -1
+        bus.value.targetIndex = -1
+      })
+    }
   }
 
   return {
@@ -192,6 +212,7 @@ export const useDraggable = (context, getValueFn, setValueFn) => {
     dragTargetIndex,
     onDragStart,
     onDragOver,
+    onDragLeave,
     onDragEnd,
     onDrop
   }
