@@ -13,6 +13,7 @@ Form definition to create or update a event logger.
 use HTML::FormHandler::Moose;
 extends 'pfappserver::Base::Form';
 with 'pfappserver::Base::Form::Role::Help';
+use pf::constants::eventLogger;
 
 ## Definition
 has_field 'id' =>
@@ -31,6 +32,14 @@ has_field 'type' =>
    type => 'Hidden',
    required => 1,
   );
+
+has_field namespaces => (
+    type    => 'Select',
+    options => [
+        map { { label => $_, value => $_ } }
+          @pf::constants::eventLogger::Namespaces
+    ],
+);
 
 =head2 Methods
 

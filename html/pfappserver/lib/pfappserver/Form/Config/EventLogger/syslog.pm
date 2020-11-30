@@ -13,19 +13,10 @@ pfappserver::Form::Config::EventLogger::syslog
 use strict;
 use warnings;
 use HTML::FormHandler::Moose;
-use pf::constants::eventLogger;
 
 extends 'pfappserver::Form::Config::EventLogger';
 with 'pfappserver::Base::Form::Role::Help';
 
-
-has_field namespaces => (
-    type    => 'Select',
-    options => [
-        map { { label => $_, value => $_ } }
-          @pf::constants::eventLogger::Namespaces
-    ],
-);
 
 has_field facility => (
     type    => 'Select',
