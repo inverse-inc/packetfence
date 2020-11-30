@@ -226,10 +226,11 @@ Builds an X509 object the ca_cert_path
 sub _build_ca_cert {
     my ($self) = @_;
     if($self->ca_cert_path){
-       return Crypt::OpenSSL::X509->new_from_file($self->ca_cert_path);
+        return Crypt::OpenSSL::X509->new_from_file($self->ca_cert_path);
     }
     else {
-       return "";
+        get_logger->error("cannot build the RADIUS server CA with file: ".$self->ca_cert_path);
+        return "";
     }
 }
 
@@ -246,7 +247,7 @@ sub raw_ca_cert_string {
         return $self->_raw_server_cert_string($self->ca_cert);
     }
     else {
-        get_logger->error("cannot find cn of RADIUS server CA at ".$self->ca_cert_path);
+        get_logger->error("cannot find the RADIUS server CA file at ".$self->ca_cert_path);
         return "";
     }
 }
