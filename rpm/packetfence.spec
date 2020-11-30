@@ -936,6 +936,10 @@ fi
 %dir                    /usr/local/pf/conf/locale/pt_BR/LC_MESSAGES
 %config(noreplace)      /usr/local/pf/conf/locale/pt_BR/LC_MESSAGES/packetfence.po
 %config(noreplace)      /usr/local/pf/conf/locale/pt_BR/LC_MESSAGES/packetfence.mo
+%dir                    /usr/local/pf/conf/locale/no
+%dir                    /usr/local/pf/conf/locale/no/LC_MESSAGES
+%config(noreplace)      /usr/local/pf/conf/locale/no/LC_MESSAGES/packetfence.po
+%config(noreplace)      /usr/local/pf/conf/locale/no/LC_MESSAGES/packetfence.mo
 %config(noreplace)      /usr/local/pf/conf/log.conf
 %dir                    /usr/local/pf/conf/log.conf.d
 %config(noreplace)      /usr/local/pf/conf/log.conf.d/*.conf
