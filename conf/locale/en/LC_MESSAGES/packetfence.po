@@ -1215,7 +1215,7 @@ msgid "This feature is currently disabled. Please contact your network administr
 msgstr ""
 
 # html/captive-portal/templates/ssl_inspection/opera.html
-msgid "This guide is for Opera version 12 and below. Newer versions of Opera will use your computer system\'s certificate or keychain manager instead of your browser\'s local certificate manager. If you have Opera version 15 or above, please download either the <a href=\"../ssl_inspection/osx\">macOS</a> or <a href=\"../ssl_inspection/windows\">Windows</a> based certificate, or any of the other platforms, depending on your system."
+msgid "This guide is for Opera version 12 and below. Newer versions of Opera will use your computer system's certificate or keychain manager instead of your browser's local certificate manager. If you have Opera version 15 or above, please download either the <a href=\"../ssl_inspection/osx\">macOS</a> or <a href=\"../ssl_inspection/windows\">Windows</a> based certificate, or any of the other platforms, depending on your system."
 msgstr ""
 
 # html/captive-portal/templates/ssl_inspection/android.html
