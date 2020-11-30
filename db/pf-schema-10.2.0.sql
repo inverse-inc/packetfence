@@ -1602,6 +1602,16 @@ CREATE TABLE bandwidth_accounting_history (
     KEY bandwidth_accounting_tenant_id_mac (tenant_id, mac)
 );
 
+--
+-- Table structure for table `event_log`
+--
+
+CREATE TABLE event_log (
+    namespace VARCHAR(255),
+    created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    event_info BLOB
+) ENGINE=InnoDB;
+
 CREATE OR REPLACE FUNCTION ROUND_TO_HOUR (d DATETIME)
     RETURNS DATETIME DETERMINISTIC
         RETURN DATE_ADD(DATE(d), INTERVAL HOUR(d) HOUR);
