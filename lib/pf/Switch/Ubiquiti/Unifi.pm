@@ -354,7 +354,7 @@ sub populateAccessPointMACIP {
             $cache->set("Ubiquiti-" . $AP->{'mac'} , sub { return $AP->{'ip'} } );
             $exists{$AP->{'mac'}} = $TRUE;
             foreach my $vap (@{$AP->{'vap_table'}}) {
-                $cache->set("Ubiquiti-" . $vap->{'bssid'},  sub { return $AP->{'ip'} } ) unless $exists{$vap->{'bssid'}};
+                $cache->set("Ubiquiti-" . $vap->{'bssid'},  $AP->{'ip'} ) unless $exists{$vap->{'bssid'}};
                 $exists{$vap->{'bssid'}} = $TRUE;
             }
         }
