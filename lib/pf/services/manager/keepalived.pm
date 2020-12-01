@@ -88,6 +88,11 @@ static_ipaddress {
 }
 
 static_routes {
+
+#Static from packetfence config
+$Config{'network'}{'staticroutes'}
+
+#PacketFence managed networks
 $routes
 }
 
