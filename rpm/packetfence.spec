@@ -321,7 +321,7 @@ heterogeneous networks. PacketFence provides features such as
 %build
 # generate translations
 # TODO this is duplicated in debian/rules, we should aim to consolidate in a 'make' style step
-for TRANSLATION in de en es fr he_IL it nl pl_PL pt_BR; do
+for TRANSLATION in de en es fr he_IL it nl pl_PL pt_BR no; do
     /usr/bin/msgfmt conf/locale/$TRANSLATION/LC_MESSAGES/packetfence.po \
       --output-file conf/locale/$TRANSLATION/LC_MESSAGES/packetfence.mo
 done
