@@ -38,22 +38,11 @@ const components = {
 }
 
 export const props = {
-  id: {
-    type: String
-  },
   form: {
     type: Object
   },
   meta: {
     type: Object
-  },
-  isNew: {
-    type: Boolean,
-    default: false
-  },
-  isClone: {
-    type: Boolean,
-    default: false
   },
   isLoading: {
     type: Boolean,

@@ -74,7 +74,7 @@ export default {
   },
   props: {
     parentId: {
-      type: Number,
+      type: [String, Number],
       default: null
     },
     scope: {

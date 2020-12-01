@@ -36,19 +36,19 @@ export const useViewResource = (resource, props, context) => {
   const init = () => {
     return new Promise((resolve, reject) => {
       getOptions().then(options => {
-        const { meta: _meta = {} } = options
+        const { meta: _meta = {} } = options || {}
         meta.value = _meta
         getItem().then(item => {
           form.value = item
           resolve()
-        }).catch(() => {
+        }).catch(e => {
           form.value = {}
-          reject()
+          reject(e)
         })
-      }).catch(() => {
+      }).catch(e => {
         form.value = {}
         meta.value = {}
-        reject()
+        reject(e)
       })
     })
   }

@@ -1,7 +1,7 @@
 import axios from 'axios'
 import store from '@/store'
 
-const baseURL = (process.env.VUE_APP_API_BASEURL)
+export const baseURL = (process.env.VUE_APP_API_BASEURL)
   ? process.env.VUE_APP_API_BASEURL
   : '/api/v1/'
 

@@ -42,9 +42,9 @@ export const useViewCollectionItemFixed = (collection, props, context) => {
       getItem().then(item => {
         form.value = item
         resolve()
-      }).catch(() => {
+      }).catch(e => {
         form.value = {}
-        reject()
+        reject(e)
       })
     })
   }

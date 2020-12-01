@@ -665,6 +665,22 @@ const mutations = {
       state.canUseNbaEndpoints.message = response.data.message
     }
   },
+  GENERAL_SETTINGS_REQUEST: (state, type) => {
+    state.generalSettings.status = type || types.LOADING
+    state.generalSettings.message = ''
+  },
+  GENERAL_SETTINGS_REPLACED: (state, data) => {
+    state.generalSettings.status = types.SUCCESS
+    if (!state.generalSettings.cache)
+      Vue.set(state.generalSettings, 'cache', {})
+    Vue.set(state.generalSettings.cache, data.id, JSON.parse(JSON.stringify(data)))
+  },
+  GENERAL_SETTINGS_ERROR: (state, response) => {
+    state.generalSettings.status = types.ERROR
+    if (response && response.data) {
+      state.generalSettings.message = response.data.message
+    }
+  },
   GENERAL_SETTINGS_SUCCESS: (state) => {
     state.generalSettings.status = types.SUCCESS
   },

@@ -58,7 +58,7 @@ export const useViewCollectionItem = (collection, props, context) => {
 
   const {
     isLoading,
-    getOptions,
+    getOptions = () => (new Promise(r => r())),
     createItem,
     deleteItem,
     getItem,
@@ -75,30 +75,30 @@ export const useViewCollectionItem = (collection, props, context) => {
     return new Promise((resolve, reject) => {
       if (!isNew.value) { // existing
         getOptions().then(options => {
-          const { meta: _meta = {} } = options
+          const { meta: _meta = {} } = options || {}
           meta.value = _meta
           getItem().then(item => {
             form.value = item
             resolve()
-          }).catch(() => {
+          }).catch(e => {
             form.value = {}
-            reject()
+            reject(e)
           })
-        }).catch(() => {
+        }).catch(e => {
           form.value = {}
           meta.value = {}
-          reject()
+          reject(e)
         })
       } else { // new
         getOptions().then(options => {
-          const { meta: _meta = {} } = options
+          const { meta: _meta = {} } = options || {}
           form.value = useItemDefaults(_meta, props)
           meta.value = _meta
           resolve()
-        }).catch(() => {
+        }).catch(e => {
           form.value = {}
           meta.value = {}
-          reject()
+          reject(e)
         })
       }
     })

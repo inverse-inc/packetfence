@@ -51,7 +51,7 @@ const RealmView = () => import(/* webpackChunkName: "Configuration" */ '../realm
 const AuthenticationSourcesList = () => import(/* webpackChunkName: "Configuration" */ '../_components/AuthenticationSourcesList')
 const AuthenticationSourceView = () => import(/* webpackChunkName: "Configuration" */ '../sources/_components/TheView')
 const NetworkDevicesTabs = () => import(/* webpackChunkName: "Configuration" */ '../_components/NetworkDevicesTabs')
-const SwitchesImport = () => import(/* webpackChunkName: "Editor" */ '../_components/SwitchesImport')
+const SwitchesImport = () => import(/* webpackChunkName: "Import" */ '../_components/SwitchesImport')
 const SwitchView = () => import(/* webpackChunkName: "Configuration" */ '../switches/_components/TheView')
 const SwitchGroupView = () => import(/* webpackChunkName: "Configuration" */ '../switchGroups/_components/TheView')
 const ConnectionProfilesList = () => import(/* webpackChunkName: "Configuration" */ '../_components/ConnectionProfilesList')
@@ -63,14 +63,14 @@ const ComplianceSection = () => import(/* webpackChunkName: "Configuration" */ '
 const FingerbankTabs = () => import(/* webpackChunkName: "Configuration" */ '../_components/FingerbankTabs')
 const NetworkBehaviorPoliciesList = () => import(/* webpackChunkName: "Configuration" */ '../_components/NetworkBehaviorPoliciesList')
 const NetworkBehaviorPolicyView = () => import(/* webpackChunkName: "Configuration" */ '../networkBehaviorPolicy/_components/TheView')
-const FingerbankCombinationView = () => import(/* webpackChunkName: "Configuration" */ '../_components/FingerbankCombinationView')
-const FingerbankDeviceView = () => import(/* webpackChunkName: "Configuration" */ '../_components/FingerbankDeviceView')
-const FingerbankDhcpFingerprintView = () => import(/* webpackChunkName: "Configuration" */ '../_components/FingerbankDhcpFingerprintView')
-const FingerbankDhcpVendorView = () => import(/* webpackChunkName: "Configuration" */ '../_components/FingerbankDhcpVendorView')
-const FingerbankDhcpv6FingerprintView = () => import(/* webpackChunkName: "Configuration" */ '../_components/FingerbankDhcpv6FingerprintView')
-const FingerbankDhcpv6EnterpriseView = () => import(/* webpackChunkName: "Configuration" */ '../_components/FingerbankDhcpv6EnterpriseView')
-const FingerbankMacVendorView = () => import(/* webpackChunkName: "Configuration" */ '../_components/FingerbankMacVendorView')
-const FingerbankUserAgentView = () => import(/* webpackChunkName: "Configuration" */ '../_components/FingerbankUserAgentView')
+const FingerbankCombinationView = () => import(/* webpackChunkName: "Fingerbank" */ '../fingerbank/combinations/_components/TheView')
+const FingerbankDeviceView = () => import(/* webpackChunkName: "Fingerbank" */ '../fingerbank/devices/_components/TheView')
+const FingerbankDhcpFingerprintView = () => import(/* webpackChunkName: "Fingerbank" */ '../fingerbank/dhcpFingerprints/_components/TheView')
+const FingerbankDhcpVendorView = () => import(/* webpackChunkName: "Fingerbank" */ '../fingerbank/dhcpVendors/_components/TheView')
+const FingerbankDhcpv6FingerprintView = () => import(/* webpackChunkName: "Fingerbank" */ '../fingerbank/dhcpv6Fingerprints/_components/TheView')
+const FingerbankDhcpv6EnterpriseView = () => import(/* webpackChunkName: "Fingerbank" */ '../fingerbank/dhcpv6Enterprises/_components/TheView')
+const FingerbankMacVendorView = () => import(/* webpackChunkName: "Fingerbank" */ '../fingerbank/macVendors/_components/TheView')
+const FingerbankUserAgentView = () => import(/* webpackChunkName: "Fingerbank" */ '../fingerbank/userAgents/_components/TheView')
 const ScansTabs = () => import(/* webpackChunkName: "Configuration" */ '../_components/ScansTabs')
 const ScanEngineView = () => import(/* webpackChunkName: "Configuration" */ '../_components/ScanEngineView')
 const SecurityEventsList = () => import(/* webpackChunkName: "Configuration" */ '../_components/SecurityEventsList')
@@ -91,17 +91,17 @@ const SyslogForwardersList = () => import(/* webpackChunkName: "Configuration" *
 const SyslogForwarderView = () => import(/* webpackChunkName: "Configuration" */ '../_components/SyslogForwarderView')
 const WrixLocationsList = () => import(/* webpackChunkName: "Configuration" */ '../_components/WrixLocationsList')
 const WrixLocationView = () => import(/* webpackChunkName: "Configuration" */ '../_components/WrixLocationView')
-const PkisTabs = () => import(/* webpackChunkName: "Editor" */ '../_components/PkisTabs')
-const PkiCaView = () => import(/* webpackChunkName: "Configuration" */ '../_components/PkiCaView')
-const PkiProfileView = () => import(/* webpackChunkName: "Configuration" */ '../_components/PkiProfileView')
-const PkiCertView = () => import(/* webpackChunkName: "Configuration" */ '../_components/PkiCertView')
-const PkiRevokedCertView = () => import(/* webpackChunkName: "Configuration" */ '../_components/PkiRevokedCertView')
+const PkisTabs = () => import(/* webpackChunkName: "Pki" */ '../_components/PkisTabs')
+const PkiCaView = () => import(/* webpackChunkName: "Pki" */ '../_components/PkiCaView')
+const PkiProfileView = () => import(/* webpackChunkName: "Pki" */ '../_components/PkiProfileView')
+const PkiCertView = () => import(/* webpackChunkName: "Pki" */ '../_components/PkiCertView')
+const PkiRevokedCertView = () => import(/* webpackChunkName: "Pki" */ '../_components/PkiRevokedCertView')
 
 /* Advanced Access Configuration */
 const AdvancedAccessConfigurationSection = () => import(/* webpackChunkName: "Configuration" */ '../_components/AdvancedAccessConfigurationSection')
 const CaptivePortalView = () => import(/* webpackChunkName: "Configuration" */ '../_components/CaptivePortalView')
 const FilterEnginesList = () => import(/* webpackChunkName: "Editor" */ '../_components/FilterEnginesList')
-const FilterEngineView = () => import(/* webpackChunkName: "Editor" */ '../_components/FilterEngineView')
+const FilterEngineView = () => import(/* webpackChunkName: "Editor" */ '../filterEngines/_components/TheView')
 const BillingTiersList = () => import(/* webpackChunkName: "Configuration" */ '../_components/BillingTiersList')
 const BillingTierView = () => import(/* webpackChunkName: "Configuration" */ '../_components/BillingTierView')
 const PkiProvidersList = () => import(/* webpackChunkName: "Configuration" */ '../_components/PkiProvidersList')
@@ -640,23 +640,14 @@ const route = {
       path: 'fingerbank/local/combinations/new',
       name: 'newFingerbankCombination',
       component: FingerbankCombinationView,
-      props: () => ({ formStoreName: 'formFingerbankCombination', isNew: true }),
-      beforeEnter: (to, from, next) => {
-        if (!store.state.formFingerbankCombination) { // Register store module only once
-          store.registerModule('formFingerbankCombination', FormStore)
-        }
-        next()
-      }
+      props: () => ({ isNew: true })
     },
     {
       path: 'fingerbank/local/combination/:id',
       name: 'fingerbankCombination',
       component: FingerbankCombinationView,
-      props: (route) => ({ formStoreName: 'formFingerbankCombination', id: route.params.id }),
+      props: (route) => ({ id: route.params.id }),
       beforeEnter: (to, from, next) => {
-        if (!store.state.formFingerbankCombination) { // Register store module only once
-          store.registerModule('formFingerbankCombination', FormStore)
-        }
         store.dispatch('$_fingerbank/getCombination', to.params.id).then(() => {
           next()
         })
@@ -666,11 +657,8 @@ const route = {
       path: 'fingerbank/local/combination/:id/clone',
       name: 'cloneFingerbankCombination',
       component: FingerbankCombinationView,
-      props: (route) => ({ formStoreName: 'formFingerbankCombination', id: route.params.id, isClone: true }),
+      props: (route) => ({ id: route.params.id, isClone: true }),
       beforeEnter: (to, from, next) => {
-        if (!store.state.formFingerbankCombination) { // Register store module only once
-          store.registerModule('formFingerbankCombination', FormStore)
-        }
         store.dispatch('$_fingerbank/getCombination', to.params.id).then(() => {
           next()
         })
@@ -692,23 +680,14 @@ const route = {
       path: 'fingerbank/:scope/devices/new',
       name: 'newFingerbankDevice',
       component: FingerbankDeviceView,
-      props: (route) => ({ formStoreName: 'formFingerbankDevice', scope: route.params.scope, isNew: true }),
-      beforeEnter: (to, from, next) => {
-        if (!store.state.formFingerbankDevice) { // Register store module only once
-          store.registerModule('formFingerbankDevice', FormStore)
-        }
-        next()
-      }
+      props: (route) => ({ scope: route.params.scope, isNew: true })
     },
     {
       path: 'fingerbank/:scope/device/:id',
       name: 'fingerbankDevice',
       component: FingerbankDeviceView,
-      props: (route) => ({ formStoreName: 'formFingerbankDevice', scope: route.params.scope, id: route.params.id }),
+      props: (route) => ({ scope: route.params.scope, id: route.params.id }),
       beforeEnter: (to, from, next) => {
-        if (!store.state.formFingerbankDevice) { // Register store module only once
-          store.registerModule('formFingerbankDevice', FormStore)
-        }
         store.dispatch('$_fingerbank/getDevice', to.params.id).then(() => {
           next()
         })
@@ -718,11 +697,8 @@ const route = {
       path: 'fingerbank/:scope/device/:id/clone',
       name: 'cloneFingerbankDevice',
       component: FingerbankDeviceView,
-      props: (route) => ({ formStoreName: 'formFingerbankDevice', scope: route.params.scope, id: route.params.id, isClone: true }),
+      props: (route) => ({ scope: route.params.scope, id: route.params.id, isClone: true }),
       beforeEnter: (to, from, next) => {
-        if (!store.state.formFingerbankDevice) { // Register store module only once
-          store.registerModule('formFingerbankDevice', FormStore)
-        }
         store.dispatch('$_fingerbank/getDevice', to.params.id).then(() => {
           next()
         })
@@ -738,23 +714,14 @@ const route = {
       path: 'fingerbank/:scope/dhcp_fingerprints/new',
       name: 'newFingerbankDhcpFingerprint',
       component: FingerbankDhcpFingerprintView,
-      props: (route) => ({ formStoreName: 'formFingerbankDhcpFingerprint', scope: route.params.scope, isNew: true }),
-      beforeEnter: (to, from, next) => {
-        if (!store.state.formFingerbankDhcpFingerprint) { // Register store module only once
-          store.registerModule('formFingerbankDhcpFingerprint', FormStore)
-        }
-        next()
-      }
+      props: (route) => ({ scope: route.params.scope, isNew: true })
     },
     {
       path: 'fingerbank/:scope/dhcp_fingerprint/:id',
       name: 'fingerbankDhcpFingerprint',
       component: FingerbankDhcpFingerprintView,
-      props: (route) => ({ formStoreName: 'formFingerbankDhcpFingerprint', scope: route.params.scope, id: route.params.id }),
+      props: (route) => ({ scope: route.params.scope, id: route.params.id }),
       beforeEnter: (to, from, next) => {
-        if (!store.state.formFingerbankDhcpFingerprint) { // Register store module only once
-          store.registerModule('formFingerbankDhcpFingerprint', FormStore)
-        }
         store.dispatch('$_fingerbank/getDhcpFingerprint', to.params.id).then(() => {
           next()
         })
@@ -764,11 +731,8 @@ const route = {
       path: 'fingerbank/:scope/dhcp_fingerprint/:id/clone',
       name: 'cloneFingerbankDhcpFingerprint',
       component: FingerbankDhcpFingerprintView,
-      props: (route) => ({ formStoreName: 'formFingerbankDhcpFingerprint', scope: route.params.scope, id: route.params.id, isClone: true }),
+      props: (route) => ({ scope: route.params.scope, id: route.params.id, isClone: true }),
       beforeEnter: (to, from, next) => {
-        if (!store.state.formFingerbankDhcpFingerprint) { // Register store module only once
-          store.registerModule('formFingerbankDhcpFingerprint', FormStore)
-        }
         store.dispatch('$_fingerbank/getDhcpFingerprint', to.params.id).then(() => {
           next()
         })
@@ -784,23 +748,14 @@ const route = {
       path: 'fingerbank/:scope/dhcp_vendors/new',
       name: 'newFingerbankDhcpVendor',
       component: FingerbankDhcpVendorView,
-      props: (route) => ({ formStoreName: 'formFingerbankDhcpVendor', scope: route.params.scope, isNew: true }),
-      beforeEnter: (to, from, next) => {
-        if (!store.state.formFingerbankDhcpVendor) { // Register store module only once
-          store.registerModule('formFingerbankDhcpVendor', FormStore)
-        }
-        next()
-      }
+      props: (route) => ({ scope: route.params.scope, isNew: true })
     },
     {
       path: 'fingerbank/:scope/dhcp_vendor/:id',
       name: 'fingerbankDhcpVendor',
       component: FingerbankDhcpVendorView,
-      props: (route) => ({ formStoreName: 'formFingerbankDhcpVendor', scope: route.params.scope, id: route.params.id }),
+      props: (route) => ({ scope: route.params.scope, id: route.params.id }),
       beforeEnter: (to, from, next) => {
-        if (!store.state.formFingerbankDhcpVendor) { // Register store module only once
-          store.registerModule('formFingerbankDhcpVendor', FormStore)
-        }
         store.dispatch('$_fingerbank/getDhcpVendor', to.params.id).then(() => {
           next()
         })
@@ -810,11 +765,8 @@ const route = {
       path: 'fingerbank/:scope/dhcp_vendor/:id/clone',
       name: 'cloneFingerbankDhcpVendor',
       component: FingerbankDhcpVendorView,
-      props: (route) => ({ formStoreName: 'formFingerbankDhcpVendor', scope: route.params.scope, id: route.params.id, isClone: true }),
+      props: (route) => ({ scope: route.params.scope, id: route.params.id, isClone: true }),
       beforeEnter: (to, from, next) => {
-        if (!store.state.formFingerbankDhcpVendor) { // Register store module only once
-          store.registerModule('formFingerbankDhcpVendor', FormStore)
-        }
         store.dispatch('$_fingerbank/getDhcpVendor', to.params.id).then(() => {
           next()
         })
@@ -830,23 +782,14 @@ const route = {
       path: 'fingerbank/:scope/dhcpv6_fingerprints/new',
       name: 'newFingerbankDhcpv6Fingerprint',
       component: FingerbankDhcpv6FingerprintView,
-      props: (route) => ({ formStoreName: 'formFingerbankDhcpv6Fingerprint', scope: route.params.scope, isNew: true }),
-      beforeEnter: (to, from, next) => {
-        if (!store.state.formFingerbankDhcpv6Fingerprint) { // Register store module only once
-          store.registerModule('formFingerbankDhcpv6Fingerprint', FormStore)
-        }
-        next()
-      }
+      props: (route) => ({ scope: route.params.scope, isNew: true })
     },
     {
       path: 'fingerbank/:scope/dhcpv6_fingerprint/:id',
       name: 'fingerbankDhcpv6Fingerprint',
       component: FingerbankDhcpv6FingerprintView,
-      props: (route) => ({ formStoreName: 'formFingerbankDhcpv6Fingerprint', scope: route.params.scope, id: route.params.id }),
+      props: (route) => ({ scope: route.params.scope, id: route.params.id }),
       beforeEnter: (to, from, next) => {
-        if (!store.state.formFingerbankDhcpv6Fingerprint) { // Register store module only once
-          store.registerModule('formFingerbankDhcpv6Fingerprint', FormStore)
-        }
         store.dispatch('$_fingerbank/getDhcpv6Fingerprint', to.params.id).then(() => {
           next()
         })
@@ -856,11 +799,8 @@ const route = {
       path: 'fingerbank/:scope/dhcpv6_fingerprint/:id/clone',
       name: 'cloneFingerbankDhcpv6Fingerprint',
       component: FingerbankDhcpv6FingerprintView,
-      props: (route) => ({ formStoreName: 'formFingerbankDhcpv6Fingerprint', scope: route.params.scope, id: route.params.id, isClone: true }),
+      props: (route) => ({ scope: route.params.scope, id: route.params.id, isClone: true }),
       beforeEnter: (to, from, next) => {
-        if (!store.state.formFingerbankDhcpv6Fingerprint) { // Register store module only once
-          store.registerModule('formFingerbankDhcpv6Fingerprint', FormStore)
-        }
         store.dispatch('$_fingerbank/getDhcpv6Fingerprint', to.params.id).then(() => {
           next()
         })
@@ -876,23 +816,14 @@ const route = {
       path: 'fingerbank/:scope/dhcpv6_enterprises/new',
       name: 'newFingerbankDhcpv6Enterprise',
       component: FingerbankDhcpv6EnterpriseView,
-      props: (route) => ({ formStoreName: 'formFingerbankDhcpv6Enterprise', scope: route.params.scope, isNew: true }),
-      beforeEnter: (to, from, next) => {
-        if (!store.state.formFingerbankDhcpv6Enterprise) { // Register store module only once
-          store.registerModule('formFingerbankDhcpv6Enterprise', FormStore)
-        }
-        next()
-      }
+      props: (route) => ({ scope: route.params.scope, isNew: true })
     },
     {
       path: 'fingerbank/:scope/dhcpv6_enterprise/:id',
       name: 'fingerbankDhcpv6Enterprise',
       component: FingerbankDhcpv6EnterpriseView,
-      props: (route) => ({ formStoreName: 'formFingerbankDhcpv6Enterprise', scope: route.params.scope, id: route.params.id }),
+      props: (route) => ({ scope: route.params.scope, id: route.params.id }),
       beforeEnter: (to, from, next) => {
-        if (!store.state.formFingerbankDhcpv6Enterprise) { // Register store module only once
-          store.registerModule('formFingerbankDhcpv6Enterprise', FormStore)
-        }
         store.dispatch('$_fingerbank/getDhcpv6Enterprise', to.params.id).then(() => {
           next()
         })
@@ -902,11 +833,8 @@ const route = {
       path: 'fingerbank/:scope/dhcpv6_enterprise/:id/clone',
       name: 'cloneFingerbankDhcpv6Enterprise',
       component: FingerbankDhcpv6EnterpriseView,
-      props: (route) => ({ formStoreName: 'formFingerbankDhcpv6Enterprise', scope: route.params.scope, id: route.params.id, isClone: true }),
+      props: (route) => ({ scope: route.params.scope, id: route.params.id, isClone: true }),
       beforeEnter: (to, from, next) => {
-        if (!store.state.formFingerbankDhcpv6Enterprise) { // Register store module only once
-          store.registerModule('formFingerbankDhcpv6Enterprise', FormStore)
-        }
         store.dispatch('$_fingerbank/getDhcpv6Enterprise', to.params.id).then(() => {
           next()
         })
@@ -922,23 +850,14 @@ const route = {
       path: 'fingerbank/:scope/mac_vendors/new',
       name: 'newFingerbankMacVendor',
       component: FingerbankMacVendorView,
-      props: (route) => ({ formStoreName: 'formFingerbankMacVendor', scope: route.params.scope, isNew: true }),
-      beforeEnter: (to, from, next) => {
-        if (!store.state.formFingerbankMacVendor) { // Register store module only once
-          store.registerModule('formFingerbankMacVendor', FormStore)
-        }
-        next()
-      }
+      props: (route) => ({ scope: route.params.scope, isNew: true })
     },
     {
       path: 'fingerbank/:scope/mac_vendor/:id',
       name: 'fingerbankMacVendor',
       component: FingerbankMacVendorView,
-      props: (route) => ({ formStoreName: 'formFingerbankMacVendor', scope: route.params.scope, id: route.params.id }),
+      props: (route) => ({ scope: route.params.scope, id: route.params.id }),
       beforeEnter: (to, from, next) => {
-        if (!store.state.formFingerbankMacVendor) { // Register store module only once
-          store.registerModule('formFingerbankMacVendor', FormStore)
-        }
         store.dispatch('$_fingerbank/getMacVendor', to.params.id).then(() => {
           next()
         })
@@ -948,11 +867,8 @@ const route = {
       path: 'fingerbank/:scope/mac_vendor/:id/clone',
       name: 'cloneFingerbankMacVendor',
       component: FingerbankMacVendorView,
-      props: (route) => ({ formStoreName: 'formFingerbankMacVendor', scope: route.params.scope, id: route.params.id, isClone: true }),
+      props: (route) => ({ scope: route.params.scope, id: route.params.id, isClone: true }),
       beforeEnter: (to, from, next) => {
-        if (!store.state.formFingerbankMacVendor) { // Register store module only once
-          store.registerModule('formFingerbankMacVendor', FormStore)
-        }
         store.dispatch('$_fingerbank/getMacVendor', to.params.id).then(() => {
           next()
         })
@@ -968,23 +884,14 @@ const route = {
       path: 'fingerbank/local/user_agents/new',
       name: 'newFingerbankUserAgent',
       component: FingerbankUserAgentView,
-      props: () => ({ formStoreName: 'formFingerbankUserAgent', isNew: true }),
-      beforeEnter: (to, from, next) => {
-        if (!store.state.formFingerbankUserAgent) { // Register store module only once
-          store.registerModule('formFingerbankUserAgent', FormStore)
-        }
-        next()
-      }
+      props: () => ({ isNew: true })
     },
     {
       path: 'fingerbank/local/user_agent/:id',
       name: 'fingerbankUserAgent',
       component: FingerbankUserAgentView,
-      props: (route) => ({ formStoreName: 'formFingerbankUserAgent', id: route.params.id }),
+      props: (route) => ({ id: route.params.id }),
       beforeEnter: (to, from, next) => {
-        if (!store.state.formFingerbankUserAgent) { // Register store module only once
-          store.registerModule('formFingerbankUserAgent', FormStore)
-        }
         store.dispatch('$_fingerbank/getUserAgent', to.params.id).then(() => {
           next()
         })
@@ -994,11 +901,8 @@ const route = {
       path: 'fingerbank/local/user_agent/:id/clone',
       name: 'cloneFingerbankUserAgent',
       component: FingerbankUserAgentView,
-      props: (route) => ({ formStoreName: 'formFingerbankUserAgent', id: route.params.id, isClone: true }),
+      props: (route) => ({ id: route.params.id, isClone: true }),
       beforeEnter: (to, from, next) => {
-        if (!store.state.formFingerbankUserAgent) { // Register store module only once
-          store.registerModule('formFingerbankUserAgent', FormStore)
-        }
         store.dispatch('$_fingerbank/getUserAgent', to.params.id).then(() => {
           next()
         })
