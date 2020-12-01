@@ -29,7 +29,7 @@ BEGIN {
 }
 
 my $builder = pf::config::builder::template_switches->new;
-use Test::More tests => (scalar @FILES) + 4;
+use Test::More tests => (scalar @FILES) + 6;
 #This test will running last
 use Test::NoWarnings;
 for my $file (@FILES) {
@@ -72,6 +72,20 @@ for my $file (@FILES) {
         $switch->NasPortToIfIndex("500101"),
         "101101",
         "NasPortToIfIndex"
+    );
+}
+
+{
+    my $switch = pf::SwitchFactory->instantiate('172.16.8.27');
+    is_deeply(
+        $switch->returnAuthorizeRead({user_name => 'bob', switch => $switch }),
+        [$RADIUS::RLM_MODULE_OK, 'Cisco-AVPair' => 'shell:priv-lvl=3'],
+        "returnAuthorizeRead"
+    );
+    is_deeply(
+        $switch->returnAuthorizeWrite({user_name => 'bob', switch => $switch }),
+        [$RADIUS::RLM_MODULE_OK, 'Cisco-AVPair' => 'shell:priv-lvl=15'],
+        "returnAuthorizeWrite"
     );
 }
 
