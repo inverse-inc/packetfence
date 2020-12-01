@@ -562,6 +562,7 @@ sub returnCliAuthorize {
     if ($template) {
         $self->updateArgsVariablesForSet(\%tmp_args, $template);
         my $attrs = $self->makeRadiusAttributes($template, \%tmp_args);
+        %radius_reply = @$attrs;
     } else {
         $radius_reply{'Reply-Message'} = "Switch $accessType access granted by PacketFence";
     }
