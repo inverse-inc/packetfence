@@ -351,7 +351,7 @@ sub populateAccessPointMACIP {
         my $json_data_ap = decode_json($response->decoded_content());
         my %exists;
         foreach my $AP (@{$json_data_ap->{'data'}}) {
-            $cache->set("Ubiquiti-" . $AP->{'mac'} , sub { return $AP->{'ip'} } );
+            $cache->set("Ubiquiti-" . $AP->{'mac'} , $AP->{'ip'} );
             $exists{$AP->{'mac'}} = $TRUE;
             foreach my $vap (@{$AP->{'vap_table'}}) {
                 $cache->set("Ubiquiti-" . $vap->{'bssid'},  $AP->{'ip'} ) unless $exists{$vap->{'bssid'}};
