@@ -68,6 +68,7 @@ func buildWgorchestratorHandler(ctx context.Context) (WgorchestratorHandler, err
 
 	wgOrchestrator := WgorchestratorHandler{}
 
+	gin.SetMode(gin.ReleaseMode)
 	router := gin.Default()
 	router.Use(longPollMiddleware())
 	router.Use(dbMiddleware())
