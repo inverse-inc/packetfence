@@ -30,7 +30,7 @@ export const props = {
   }
 }
 
-import { computed, ref, toRefs, watch } from '@vue/composition-api'
+import { ref } from '@vue/composition-api'
 
 const setup = (props) => {
 

@@ -67,18 +67,19 @@ import { useInputValidator, useInputValidatorProps } from '@/composables/useInpu
 import { useInputValue, useInputValueProps } from '@/composables/useInputValue'
 
 export const props = {
+  ...useFormGroupProps,
+  ...useInputProps,
+  ...useInputMetaProps,
+  ...useInputValidatorProps,
+  ...useInputValueProps,
+
   maxRows: {
     type: [Number, String]
   },
   rows: {
     type: [Number, String],
     default: 3
-  },
-  ...useFormGroupProps,
-  ...useInputProps,
-  ...useInputMetaProps,
-  ...useInputValidatorProps,
-  ...useInputValueProps
+  }
 }
 
 export const setup = (props, context) => {

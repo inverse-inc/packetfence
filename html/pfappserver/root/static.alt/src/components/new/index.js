@@ -21,6 +21,7 @@ import BaseFormGroupInputPassword from './BaseFormGroupInputPassword'
 import BaseFormGroupInputPasswordTest, { props as BaseFormGroupInputPasswordTestProps } from './BaseFormGroupInputPasswordTest'
 import BaseFormGroupInputTest, { props as BaseFormGroupInputTestProps } from './BaseFormGroupInputTest'
 import BaseFormGroupTextarea from './BaseFormGroupTextarea'
+import BaseFormGroupTextareaTest, { props as BaseFormGroupTextareaTestProps } from './BaseFormGroupTextareaTest'
 import BaseFormGroupTextareaUpload, { props as BaseFormGroupTextareaUploadProps } from './BaseFormGroupTextareaUpload'
 import BaseFormGroupToggle, { props as BaseFormGroupToggleProps } from './BaseFormGroupToggle'
 import BaseFormGroupToggleDisabledEnabled from './BaseFormGroupToggleDisabledEnabled'
@@ -72,6 +73,7 @@ export {
   BaseFormGroupInputPasswordTest, BaseFormGroupInputPasswordTestProps,
   BaseFormGroupInputTest, BaseFormGroupInputTestProps,
   BaseFormGroupTextarea,
+  BaseFormGroupTextareaTest, BaseFormGroupTextareaTestProps,
   BaseFormGroupTextareaUpload, BaseFormGroupTextareaUploadProps,
   BaseFormGroupToggle, BaseFormGroupToggleProps,
   BaseFormGroupToggleDisabledEnabled,

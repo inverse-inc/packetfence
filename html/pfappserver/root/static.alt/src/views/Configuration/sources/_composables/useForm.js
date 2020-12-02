@@ -20,6 +20,9 @@ const useFormProps = {
   isLoading: {
     type: Boolean,
     default: false
+  },
+  id: {
+    type: String
   }
 }
 

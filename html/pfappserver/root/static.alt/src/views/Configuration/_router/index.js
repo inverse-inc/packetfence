@@ -86,7 +86,7 @@ const WebServicesView = () => import(/* webpackChunkName: "Configuration" */ '..
 const SwitchTemplatesList = () => import(/* webpackChunkName: "Configuration" */ '../_components/SwitchTemplatesList')
 const SwitchTemplateView = () => import(/* webpackChunkName: "Configuration" */ '../switchTemplates/_components/TheView')
 const SyslogParsersList = () => import(/* webpackChunkName: "Configuration" */ '../_components/SyslogParsersList')
-const SyslogParserView = () => import(/* webpackChunkName: "Configuration" */ '../_components/SyslogParserView')
+const SyslogParserView = () => import(/* webpackChunkName: "Configuration" */ '../syslogParsers/_components/TheView')
 const SyslogForwardersList = () => import(/* webpackChunkName: "Configuration" */ '../_components/SyslogForwardersList')
 const SyslogForwarderView = () => import(/* webpackChunkName: "Configuration" */ '../_components/SyslogForwarderView')
 const WrixLocationsList = () => import(/* webpackChunkName: "Configuration" */ '../_components/WrixLocationsList')
@@ -1135,23 +1135,14 @@ const route = {
       path: 'pfdetect/new/:syslogParserType',
       name: 'newSyslogParser',
       component: SyslogParserView,
-      props: (route) => ({ formStoreName: 'formSyslogParsers', isNew: true, syslogParserType: route.params.syslogParserType }),
-      beforeEnter: (to, from, next) => {
-        if (!store.state.formSyslogParsers) { // Register store module only once
-          store.registerModule('formSyslogParsers', FormStore)
-        }
-        next()
-      }
+      props: (route) => ({ isNew: true, syslogParserType: route.params.syslogParserType })
     },
     {
       path: 'pfdetect/:id',
       name: 'syslogParser',
       component: SyslogParserView,
-      props: (route) => ({ formStoreName: 'formSyslogParsers', id: route.params.id }),
+      props: (route) => ({ id: route.params.id }),
       beforeEnter: (to, from, next) => {
-        if (!store.state.formSyslogParsers) { // Register store module only once
-          store.registerModule('formSyslogParsers', FormStore)
-        }
         store.dispatch('$_syslog_parsers/getSyslogParser', to.params.id).then(() => {
           next()
         })
@@ -1161,11 +1152,8 @@ const route = {
       path: 'pfdetect/:id/clone',
       name: 'cloneSyslogParser',
       component: SyslogParserView,
-      props: (route) => ({ formStoreName: 'formSyslogParsers', id: route.params.id, isClone: true }),
+      props: (route) => ({ id: route.params.id, isClone: true }),
       beforeEnter: (to, from, next) => {
-        if (!store.state.formSyslogParsers) { // Register store module only once
-          store.registerModule('formSyslogParsers', FormStore)
-        }
         store.dispatch('$_syslog_parsers/getSyslogParser', to.params.id).then(() => {
           next()
         })

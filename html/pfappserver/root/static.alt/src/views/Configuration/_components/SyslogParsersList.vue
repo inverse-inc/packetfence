@@ -14,7 +14,7 @@
           <b-dropdown-item :to="{ name: 'newSyslogParser', params: { syslogParserType: 'dhcp' } }">DHCP</b-dropdown-item>
           <b-dropdown-item :to="{ name: 'newSyslogParser', params: { syslogParserType: 'fortianalyser' } }">FortiAnalyzer</b-dropdown-item>
           <b-dropdown-item :to="{ name: 'newSyslogParser', params: { syslogParserType: 'nexpose' } }">Nexpose</b-dropdown-item>
-          <b-dropdown-item :to="{ name: 'newSyslogParser', params: { syslogParserType: 'regex' } }">regex</b-dropdown-item>
+          <b-dropdown-item :to="{ name: 'newSyslogParser', params: { syslogParserType: 'regex' } }">Regex</b-dropdown-item>
           <b-dropdown-item :to="{ name: 'newSyslogParser', params: { syslogParserType: 'security_onion' } }">Security Onion</b-dropdown-item>
           <b-dropdown-item :to="{ name: 'newSyslogParser', params: { syslogParserType: 'snort' } }">Snort</b-dropdown-item>
           <b-dropdown-item :to="{ name: 'newSyslogParser', params: { syslogParserType: 'suricata' } }">Suricata</b-dropdown-item>

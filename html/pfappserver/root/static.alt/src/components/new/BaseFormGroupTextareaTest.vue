@@ -1,61 +1,71 @@
 <template>
-  <base-form-group
-    class="base-form-group-input-password-test"
-    :label-cols="labelCols"
-    :column-label="columnLabel"
-    :text="text"
-    :disabled="isLocked"
+  <b-form-group ref="form-group"
+    class="base-form-group"
+    :class="{
+      'mb-0': !columnLabel
+    }"
     :state="inputState"
-    :invalid-feedback="inputInvalidFeedback"
-    :valid-feedback="inputValidFeedback"
-    :is-focus="isFocus"
+    :labelCols="labelCols"
+    :label="columnLabel"
   >
-    <b-form-input ref="input"
-      class="base-input"
+    <b-input-group
       :class="{
         'is-focus': isFocus,
-        'is-blur': !isFocus
+        'is-blur': !isFocus,
+        'is-valid': inputState === true,
+        'is-invalid': inputState === false
       }"
-      :disabled="isLocked"
-      :placeholder="inputPlaceholder"
-      :tabIndex="inputTabIndex"
-      :type="inputType"
-      :value="inputValue"
-      @input="onInput"
-      @change="onChange"
-      @focus="onFocus"
-      @blur="onBlur"
-    />
-    <template v-slot:append>
-      <b-button-group>
+    >
+      <b-form-textarea ref="input"
+        class="base-form-input"
+        :disabled="isLocked"
+        :readonly="inputReadonly"
+        :state="inputState"
+        :placeholder="inputPlaceholder"
+        :tabIndex="inputTabIndex"
+        :type="inputType"
+        :value="inputValue"
+        :rows="rows"
+        :maxRows="maxRows"
+        @input="onInput"
+        @change="onChange"
+        @focus="onFocus"
+        @blur="onBlur"
+      />
+      <template v-slot:prepend>
+        <slot name="prepend"></slot>
+      </template>
+      <template v-slot:append>
+        <slot name="append"></slot>
         <b-button :disabled="!canTest" tabindex="-1" variant="light" class="py-0"
           @click="doTest"
         >
           <span v-show="!isTesting">{{ buttonLabel || $t('Test') }}</span>
           <icon v-show="isTesting" name="circle-notch" spin></icon>
         </b-button>
-      </b-button-group>
-
-      <b-button-group
-        @click="doPin"
-        @mouseover="doShow"
-        @mousemove="doShow"
-        @mouseout="doHide"
-      >
-        <b-button class="input-group-text no-border-radius" :disabled="!canTest" :pressed="reveal" tabindex="-1" :variant="(pinned) ? 'primary' : 'light'">
-          <icon name="eye"></icon>
+        <b-button v-if="isLocked"
+          class="input-group-text"
+          :disabled="true"
+          tabIndex="-1"
+        >
+          <icon ref="icon-lock"
+            name="lock"
+          />
         </b-button>
-      </b-button-group>
+      </template>
+    </b-input-group>
+    <template v-slot:description v-if="inputText">
+      <div v-html="inputText"/>
     </template>
-  </base-form-group>
+    <template v-slot:invalid-feedback v-if="inputInvalidFeedback">
+      <div v-html="inputInvalidFeedback"/>
+    </template>
+    <template v-slot:valid-feedback v-if="inputValidFeedback">
+      <div v-html="inputValidFeedback"/>
+    </template>
+  </b-form-group>
 </template>
 <script>
-import BaseFormGroup from './BaseFormGroup'
-
-const components = {
-  BaseFormGroup
-}
-
 import { computed, inject, ref, toRefs, unref, watch } from '@vue/composition-api'
 import { useFormGroupProps } from '@/composables/useFormGroup'
 import { useInput, useInputProps } from '@/composables/useInput'
@@ -71,6 +81,13 @@ export const props = {
   ...useInputValidatorProps,
   ...useInputValueProps,
 
+  maxRows: {
+    type: [Number, String]
+  },
+  rows: {
+    type: [Number, String],
+    default: 3
+  },
   buttonLabel: {
     type: String
   },
@@ -94,8 +111,10 @@ export const setup = (props, context) => {
 
   const {
     placeholder,
+    readonly,
     tabIndex,
     text,
+    type,
     isFocus,
     isLocked,
     onFocus,
@@ -104,8 +123,8 @@ export const setup = (props, context) => {
 
   const {
     value,
-    onChange,
-    onInput
+    onInput,
+    onChange
   } = useInputValue(metaProps, context)
 
   const {
@@ -113,7 +132,6 @@ export const setup = (props, context) => {
     invalidFeedback,
     validFeedback
   } = useInputValidator(metaProps, value)
-
 
   const isTesting = ref(false)
   const canTest = computed(() => !unref(isLocked) && !unref(isTesting) && unref(value) && unref(state) !== false)
@@ -147,42 +165,15 @@ export const setup = (props, context) => {
 
   watch(value, () => { // when `value` is mutated
     testState.value = null // clear `state`
-    expirePin()
   })
-
-  const reveal = ref(false)
-  const pinned = ref(false)
-  const type = computed(() => unref(reveal) ? 'text' : 'password')
-  const doPin = () => {
-    pinned.value = !pinned.value
-    expirePin()
-  }
-  let expirePinTimeout
-  const expirePin = () => { // expires pinned `password` reveal
-    if (expirePinTimeout)
-      clearTimeout(expirePinTimeout)
-    if (pinned.value) {
-      reveal.value = true
-      expirePinTimeout = setTimeout(() => { // hide again after 10s
-        reveal.value = false
-        pinned.value = false
-      }, 10000)
-    }
-  }
-  const doShow = () => {
-    if (!pinned.value)
-      reveal.value = true
-  }
-  const doHide = () => {
-    if (!pinned.value)
-      reveal.value = false
-  }
 
   return {
     // useInput
     inputPlaceholder: placeholder,
+    inputReadonly: readonly,
     inputTabIndex: tabIndex,
     inputText: text,
+    inputType: type,
     isFocus,
     isLocked: wrappedIsLocked,
     onFocus,
@@ -190,8 +181,8 @@ export const setup = (props, context) => {
 
     // useInputValue
     inputValue: value,
-    onChange,
     onInput,
+    onChange,
 
     // useInputValidator
     inputState: wrappedState,
@@ -200,28 +191,22 @@ export const setup = (props, context) => {
 
     canTest,
     doTest,
-    isTesting,
-
-    inputType: type,
-    reveal,
-    pinned,
-    doPin,
-    doShow,
-    doHide
+    isTesting
   }
 }
 
 // @vue/component
 export default {
-  name: 'base-form-group-input-password-test',
+  name: 'base-form-group-textarea-test',
   inheritAttrs: false,
-  components,
   props,
   setup
 }
 </script>
 <style lang="scss">
-.base-input[type="password"] {
-  font-family: $font-family-monospace;
+.base-form-group {
+  textarea {
+    min-height: $input-height;
+  }
 }
 </style>

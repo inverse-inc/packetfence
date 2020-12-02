@@ -1,6 +1,5 @@
 import { computed, inject, ref, toRefs, unref, watch } from '@vue/composition-api'
 import { createDebouncer } from 'promised-debounce'
-import i18n, { formatter } from '@/utils/locale'
 import yup from '@/utils/yup'
 
 export const useInputValidatorProps = {
@@ -127,7 +126,7 @@ export const useInputValidator = (props, value, recursive = false) => {
                 _schema = yup.reach(schema, path.value) // use namespace/path
               }
               try {
-                const { meta, meta: { invalidFeedback: metaInvalidFeedback } = {} } = _schema.describe()
+                const { meta: { invalidFeedback: metaInvalidFeedback } = {} } = _schema.describe()
                 if (metaInvalidFeedback) { // meta feedback masks child error messages
                   setState(thisPromise, false, null, metaInvalidFeedback)
                   return

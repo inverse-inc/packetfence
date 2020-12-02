@@ -42,9 +42,6 @@ export const props = {
   disabled: {
     type: Boolean
   },
-  isLoading: {
-    type: Boolean
-  },
   multiple: {
     type: Boolean
   },

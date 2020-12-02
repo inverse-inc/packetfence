@@ -19,6 +19,13 @@ yup.addMethod(yup.string, 'filterIdNotExistsExcept', function (except, message) 
   })
 })
 
+const schemaAction = yup.object({
+  api_method: yup.string().required(i18n.t('Method required.')),
+  api_parameters: yup.string().required(i18n.t('Parameters required.'))
+})
+
+const schemaActions = yup.array().ensure().of(schemaAction)
+
 const schemaAnswer = yup.object({
   prefix: yup.string().required(i18n.t('Prefix required.')),
   type: yup.string().required(i18n.t('Type required.')),
@@ -52,6 +59,7 @@ export const schema = (props) => {
       .required(i18n.t('Name required.'))
       .filterIdNotExistsExcept((!isNew && !isClone) ? { collection, id } : { collection }, i18n.t('Name exists.')),
 
+    actions: schemaActions.meta({ invalidFeedback: i18n.t('Actions contain one or more errors.') }),
     answers: schemaAnswers.meta({ invalidFeedback: i18n.t('Answers contain one or more errors.') }),
     condition: schemaCondition.meta({ invalidFeedback: i18n.t('Condition contains one or more errors.') })
   })

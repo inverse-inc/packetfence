@@ -35,13 +35,6 @@ export const useInputValue = (props, { emit }) => {
     value
   } = toRefs(props) // toRefs maintains reactivity w/ destructuring
 
-  const emitPromise = (eventName, value) => {
-    return new Promise((resolve) => {
-      emit(eventName, value)
-      nextTick(resolve)
-    })
-  }
-
   let inputValue = ref(null)
   let onInput
   let onChange
