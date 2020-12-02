@@ -75,7 +75,7 @@ const ScansTabs = () => import(/* webpackChunkName: "Configuration" */ '../_comp
 const ScanEngineView = () => import(/* webpackChunkName: "Configuration" */ '../scanEngines/_components/TheView')
 const SecurityEventsList = () => import(/* webpackChunkName: "Configuration" */ '../_components/SecurityEventsList')
 const SecurityEventView = () => import(/* webpackChunkName: "Configuration" */ '../securityEvents/_components/TheView')
-const WmiRuleView = () => import(/* webpackChunkName: "Configuration" */ '../_components/WmiRuleView')
+const WmiRuleView = () => import(/* webpackChunkName: "Configuration" */ '../wmiRules/_components/TheView')
 
 /* Integration */
 const IntegrationSection = () => import(/* webpackChunkName: "Configuration" */ '../_components/IntegrationSection')
@@ -956,23 +956,14 @@ const route = {
       path: 'scans/wmi_rules/new',
       name: 'newWmiRule',
       component: WmiRuleView,
-      props: () => ({ formStoreName: 'formWmiRule', isNew: true }),
-      beforeEnter: (to, from, next) => {
-        if (!store.state.formWmiRule) { // Register store module only once
-          store.registerModule('formWmiRule', FormStore)
-        }
-        next()
-      }
+      props: () => ({ isNew: true })
     },
     {
       path: 'scans/wmi_rule/:id',
       name: 'wmiRule',
       component: WmiRuleView,
-      props: (route) => ({ formStoreName: 'formWmiRule', id: route.params.id }),
+      props: (route) => ({ id: route.params.id }),
       beforeEnter: (to, from, next) => {
-        if (!store.state.formWmiRule) { // Register store module only once
-          store.registerModule('formWmiRule', FormStore)
-        }
         store.dispatch('$_wmi_rules/getWmiRule', to.params.id).then(() => {
           next()
         })
@@ -982,11 +973,8 @@ const route = {
       path: 'scans/wmi_rule/:id/clone',
       name: 'cloneWmiRule',
       component: WmiRuleView,
-      props: (route) => ({ formStoreName: 'formWmiRule', id: route.params.id, isClone: true }),
+      props: (route) => ({ id: route.params.id, isClone: true }),
       beforeEnter: (to, from, next) => {
-        if (!store.state.formWmiRule) { // Register store module only once
-          store.registerModule('formWmiRule', FormStore)
-        }
         store.dispatch('$_wmi_rules/getWmiRule', to.params.id).then(() => {
           next()
         })
