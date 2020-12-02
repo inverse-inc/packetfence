@@ -178,7 +178,7 @@ export const useFormMetaSchema = (meta, schema) => {
     return schema
   }
 
-  return computed(() => unref(schema).concat(
-    getSchemaFromMeta(meta.value)
+  return computed(() => getSchemaFromMeta(meta.value).concat(
+    schema.value
   ))
 }

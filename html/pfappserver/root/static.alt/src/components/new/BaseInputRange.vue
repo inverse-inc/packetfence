@@ -163,6 +163,7 @@ export default {
 
 .base-input-range-label {
   cursor: pointer;
+  user-select: none;
 }
 
 .base-input-range {

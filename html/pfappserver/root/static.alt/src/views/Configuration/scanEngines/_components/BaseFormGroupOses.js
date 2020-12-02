@@ -1,17 +1,8 @@
-import { BaseFormGroupChosenOneSearchable, BaseFormGroupChosenOneSearchableProps } from '@/components/new'
+import { BaseFormGroupChosenMultipleSearchable, BaseFormGroupChosenMultipleSearchableProps } from '@/components/new/'
 
 export const props = {
-  ...BaseFormGroupChosenOneSearchableProps,
+  ...BaseFormGroupChosenMultipleSearchableProps,
 
-  // overload :lookup
-  lookup: {
-    type: Object,
-    default: () => ({
-      search_path: 'fingerbank/all/devices/search',
-      field_name: 'name',
-      value_name: 'id'
-    })
-  },
   // overload :options default
   options: {
     type: Array,
@@ -28,7 +19,7 @@ export const props = {
 }
 
 export default {
-  name: 'base-form-group-search',
-  extends: BaseFormGroupChosenOneSearchable,
+  name: 'base-form-group-oses',
+  extends: BaseFormGroupChosenMultipleSearchable,
   props
 }

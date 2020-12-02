@@ -22,18 +22,26 @@ const schemaRuleAction = yup.object({
   value: yup.string().required(i18n.t('Value required'))
 })
 
-const schemaRuleActions = yup.array().of(schemaRuleAction)
+const schemaRuleActions = yup.array().ensure().of(schemaRuleAction)
+
+const schemaRuleCondition = yup.object({
+  attribute: yup.string().label(i18n.t('Attribute')).required(i18n.t('Attribute required.')),
+  operator: yup.string().label(i18n.t('Operator')).required(i18n.t('Operator required.')),
+  value: yup.string().label(i18n.t('Value')).required(i18n.t('Value required.'))
+})
+
+const schemaRuleConditions = yup.array().ensure().of(schemaRuleCondition)
 
 const schemaRule = yup.object({
   status: yup.string(),
-  id: yup.string().meta({ fieldName: i18n.t('Name') }),
+  id: yup.string().label(i18n.t('Name')),
   description: yup.string(),
   match: yup.string(),
-  actions: schemaRuleActions.meta({ fieldName: i18n.t('Action'), invalidFeedback: i18n.t('Action contains one or more errors.') }),
-  conditions: yup.array().meta({ fieldName: i18n.t('Condition'), invalidFeedback: i18n.t('Condition contains one or more errors.') })
+  actions: schemaRuleActions.label(i18n.t('Action')).meta({ invalidFeedback: i18n.t('Action contains one or more errors.') }),
+  conditions: schemaRuleConditions.label(i18n.t('Condition')).meta({ invalidFeedback: i18n.t('Condition contains one or more errors.') })
 })
 
-const schemaRules = yup.array().of(schemaRule)
+const schemaRules = yup.array().ensure().of(schemaRule)
 
 export const schema = (props) => {
   const {
@@ -48,11 +56,14 @@ export const schema = (props) => {
       .required(i18n.t('Name required.'))
       .sourceIdNotExistsExcept((!isNew && !isClone) ? id : undefined, i18n.t('Name exists.')),
 
+
     administration_rules: schemaRules.meta({ invalidFeedback: i18n.t('Administration rule contains one or more errors.') }),
     authentication_rules: schemaRules.meta({ invalidFeedback: i18n.t('Authentication rule contains one or more errors.') }),
+    port: yup.string().isPort(),
 
-    port: yup.string().isPort()
-
+    basedn: yup.string().label(i18n.t('Base DN')),
+    description: yup.string().label(i18n.t('Description')),
+    host: yup.string().label(i18n.t('Host'))
   })
 }
 

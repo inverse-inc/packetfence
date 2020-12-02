@@ -1,4 +1,4 @@
-import { nextTick, ref, unref, watch } from '@vue/composition-api'
+import { computed, nextTick, ref, toRefs, unref, watch } from '@vue/composition-api'
 import uuidv4 from 'uuid/v4'
 
 export const useArrayDraggableProps = {
@@ -186,6 +186,12 @@ export const useArrayDraggable = (props, context, value, onChange) => {
     }
   }
 
+  const draggableProps = computed(() => {
+    // forward `disabled` from self to child component
+    const { disabled, ...rest } = props
+    return { disabled }
+  })
+
   return {
     // template refs
     draggableRef,
@@ -200,6 +206,7 @@ export const useArrayDraggable = (props, context, value, onChange) => {
     move,
     remove,
     truncate,
-    draggableListeners
+    draggableListeners,
+    draggableProps
   }
 }

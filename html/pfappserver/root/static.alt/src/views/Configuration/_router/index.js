@@ -72,7 +72,7 @@ const FingerbankDhcpv6EnterpriseView = () => import(/* webpackChunkName: "Finger
 const FingerbankMacVendorView = () => import(/* webpackChunkName: "Fingerbank" */ '../fingerbank/macVendors/_components/TheView')
 const FingerbankUserAgentView = () => import(/* webpackChunkName: "Fingerbank" */ '../fingerbank/userAgents/_components/TheView')
 const ScansTabs = () => import(/* webpackChunkName: "Configuration" */ '../_components/ScansTabs')
-const ScanEngineView = () => import(/* webpackChunkName: "Configuration" */ '../_components/ScanEngineView')
+const ScanEngineView = () => import(/* webpackChunkName: "Configuration" */ '../scanEngines/_components/TheView')
 const SecurityEventsList = () => import(/* webpackChunkName: "Configuration" */ '../_components/SecurityEventsList')
 const SecurityEventView = () => import(/* webpackChunkName: "Configuration" */ '../securityEvents/_components/TheView')
 const WmiRuleView = () => import(/* webpackChunkName: "Configuration" */ '../_components/WmiRuleView')
@@ -922,23 +922,14 @@ const route = {
       path: 'scans/scan_engines/new/:scanType',
       name: 'newScanEngine',
       component: ScanEngineView,
-      props: (route) => ({ formStoreName: 'formScanEngine', isNew: true, scanType: route.params.scanType }),
-      beforeEnter: (to, from, next) => {
-        if (!store.state.formScanEngine) { // Register store module only once
-          store.registerModule('formScanEngine', FormStore)
-        }
-        next()
-      }
+      props: (route) => ({ isNew: true, scanType: route.params.scanType })
     },
     {
       path: 'scans/scan_engine/:id',
       name: 'scanEngine',
       component: ScanEngineView,
-      props: (route) => ({ formStoreName: 'formScanEngine', id: route.params.id }),
+      props: (route) => ({ id: route.params.id }),
       beforeEnter: (to, from, next) => {
-        if (!store.state.formScanEngine) { // Register store module only once
-          store.registerModule('formScanEngine', FormStore)
-        }
         store.dispatch('$_scans/getScanEngine', to.params.id).then(() => {
           next()
         })
@@ -948,11 +939,8 @@ const route = {
       path: 'scans/scan_engine/:id/clone',
       name: 'cloneScanEngine',
       component: ScanEngineView,
-      props: (route) => ({ formStoreName: 'formScanEngine', id: route.params.id, isClone: true }),
+      props: (route) => ({ id: route.params.id, isClone: true }),
       beforeEnter: (to, from, next) => {
-        if (!store.state.formScanEngine) { // Register store module only once
-          store.registerModule('formScanEngine', FormStore)
-        }
         store.dispatch('$_scans/getScanEngine', to.params.id).then(() => {
           next()
         })

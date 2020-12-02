@@ -64,13 +64,13 @@ export const setup = (props, context) => {
       if (newValue === oldValue && JSON.stringify(newLookup) === JSON.stringify(oldLookup))
         return // These are not the droids you're looking for...
 
-      const { field_name: fieldName, search_path: url, value_name: valueName, base_url: baseURL } = lookup.value
+      const { field_name: fieldName, search_path: url, value_name: valueName, base_url: baseURL = apiBaseURL } = lookup.value
       currentValueLoading.value = true
       const thisCurrentPromise = ++lastCurrentPromise
       apiCall.request({
         url,
         method: 'post',
-        baseURL: baseURL || apiBaseURL,
+        baseURL,
         data: {
           query: { op: 'and', values: [{ op: 'or', values: [{ field: valueName, op: 'equals', value: value.value }] }] },
           fields: [fieldName, valueName],
@@ -104,7 +104,7 @@ export const setup = (props, context) => {
       searchResultOptions.value = options.value // restore default options
       return
     }
-    const { field_name: fieldName, search_path: url, value_name: valueName, baseURL } = lookup.value
+    const { field_name: fieldName, search_path: url, value_name: valueName, baseURL = apiBaseURL } = lookup.value
     searchResultLoading.value = true
     if (!searchDebouncer)
       searchDebouncer = createDebouncer()
@@ -121,7 +121,7 @@ export const setup = (props, context) => {
         apiCall.request({
           url,
           method: 'post',
-          baseURL: baseURL || apiBaseURL,
+          baseURL,
           data: {
             query: { op: 'and', values },
             fields: [fieldName, valueName],

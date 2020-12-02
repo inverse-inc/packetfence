@@ -3,12 +3,12 @@ import i18n from '@/utils/locale'
 
 yup.setLocale({ // default validators
   mixed: {
-    required: ({ message }) => (message || i18n.t('{fieldName} required.'))
+    required: args => args.message || i18n.t('{path} required.', args)
   },
   string: {
-    email: ({ message }) => (message || i18n.t('Invalid Email.')),
-    min: ({ message, min }) => (message || i18n.t('Minimum {minLength} characters.', { minLength: min })),
-    max: ({ message, max }) => (message || i18n.t('Maximum {maxLength} characters.', { maxLength: max }))
+    email: args => args.message || i18n.t('Invalid Email.'),
+    min: args => args.message || i18n.t('Minimum {min} characters.', args),
+    max: args => args.message || i18n.t('Maximum {max} characters.', args)
   }
 })
 
@@ -39,7 +39,7 @@ yup.addMethod(yup.string, 'isPort', function (ref, message) {
 yup.addMethod(yup.array, 'required', function (message) {
   return this.test({
     name: 'required',
-    message: message || i18n.t('{fieldName} required.'),
+    message: message || i18n.t('${path} required.'),
     test: value => (value.length > 0)
   })
 })

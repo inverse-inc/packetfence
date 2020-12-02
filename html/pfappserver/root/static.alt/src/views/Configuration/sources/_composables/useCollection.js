@@ -36,6 +36,13 @@ const useItemTitle = (props) => {
   })
 }
 
+const useItemTitleBadge = (props, context, form) => {
+  const {
+    sourceType
+  } = toRefs(props)
+  return computed(() => (sourceType.value || form.value.type))
+}
+
 const useRouter = (props, context, form) => {
   const {
     id
@@ -81,6 +88,7 @@ export default {
   useItemDefaults,
   useItemProps,
   useItemTitle,
+  useItemTitleBadge,
   useRouter,
   useStore,
 }

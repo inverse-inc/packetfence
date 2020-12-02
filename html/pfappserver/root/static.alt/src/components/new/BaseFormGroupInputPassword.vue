@@ -154,3 +154,8 @@ export default {
   setup
 }
 </script>
+<style lang="scss">
+.base-input[type="password"] {
+  font-family: $font-family-monospace;
+}
+</style>

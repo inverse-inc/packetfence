@@ -100,7 +100,6 @@ export const useInputValidator = (props, value, recursive = false) => {
 
         if (!validateDebouncer)
           validateDebouncer = createDebouncer()
-
         validateDebouncer({
           handler: () => {
             let validationPromise
@@ -128,20 +127,10 @@ export const useInputValidator = (props, value, recursive = false) => {
                 _schema = yup.reach(schema, path.value) // use namespace/path
               }
               try {
-                const { type = 'string', meta, meta: { invalidFeedback: metaInvalidFeedback } = {} } = _schema.describe()
+                const { meta, meta: { invalidFeedback: metaInvalidFeedback } = {} } = _schema.describe()
                 if (metaInvalidFeedback) { // meta feedback masks child error messages
                   setState(thisPromise, false, null, metaInvalidFeedback)
                   return
-                }
-                switch (type) { // interpolate message w/ meta[fieldName]
-                  case 'array':
-                  case 'object':
-                    message = formatter.interpolate(message, { fieldName: i18n.t('Item'), ...meta })[0]
-                    break
-                  case 'mixed':
-                  case 'string':
-                    message = formatter.interpolate(message, { fieldName: i18n.t('Value'), ...meta })[0]
-                    break
                 }
               } catch(e) {
                 /* noop */

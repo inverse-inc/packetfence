@@ -30,7 +30,7 @@ const useForm = (props, context) => {
     meta
   } = toRefs(props)
 
-  const sourceType = computed(() => unref(form).type)
+  const sourceType = computed(() => form.value.type)
   provide('sourceType', sourceType)
 
   const schema = computed(() => schemaFn(props))

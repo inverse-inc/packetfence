@@ -3,7 +3,10 @@ import yup from '@/utils/yup'
 
 export const schema = () => {
   return yup.object({
-    value: yup.string().nullable().required(i18n.t('User Agent required.'))
+    device_id: yup.string().nullable().required(i18n.t('Device required.')),
+    score: yup.string().nullable()
+      .minAsInt(0, i18n.t('Minimum 0.'))
+      .maxAsInt(100, i18n.t('Maximum 100.'))
   })
 }
 

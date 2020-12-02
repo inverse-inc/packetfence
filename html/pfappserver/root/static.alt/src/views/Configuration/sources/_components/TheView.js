@@ -26,14 +26,11 @@ const setup = (props, context) => {
     form
   } = viewCollectionItem
 
-  const titleBadge = computed(() => sourceType.value || form.value.type)
-
   const scopedSlotProps = computed(() => ({ ...props, sourceType: sourceType.value || form.value.type }))
 
   return {
     ...viewCollectionItem,
 
-    titleBadge,
     scopedSlotProps
   }
 }

@@ -48,7 +48,7 @@
 
             <component :is="childComponent" :ref="draggableKeys[index]"
               :namespace="`${namespace}.${index}`"
-              v-bind="$props"
+              v-bind="draggableProps"
             />
 
           </b-col>
@@ -150,7 +150,8 @@ const setup = (props, context) => {
     remove: draggableRemove,
     truncate: draggableTruncate,
 
-    draggableListeners
+    draggableListeners,
+    draggableProps
   } = useArrayDraggable(props, context, value, onChange)
 
   const {
@@ -195,6 +196,7 @@ const setup = (props, context) => {
     draggableRef,
     draggableKeys,
     draggableListeners,
+    draggableProps,
 
     // useInputValidator
     inputState: state,

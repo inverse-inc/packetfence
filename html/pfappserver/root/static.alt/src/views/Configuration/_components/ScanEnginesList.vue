@@ -54,6 +54,11 @@ export default {
       config: config(this) // ../_config/scanEngine
     }
   },
+  computed: {
+    isLoading () {
+      return this.$store.getters['$_scans/isLoading']
+    }
+  },
   methods: {
     clone (item) {
       this.$router.push({ name: 'cloneScanEngine', params: { id: item.id } })
