@@ -199,7 +199,7 @@ sub do_sponsor_registration {
     }
 
     $info{'sponsor'} = $sponsor;
-    $info{'subject'} = ["%s: Guest access request", $Config{'general'}{'domain'}];
+    $info{'subject'} = ["%s: Guest access request", $Config{'general'}{'domain'}]; # i18n defer
     $info{'source_id'} = $source->id;
     $info{'lang'} = $source->lang  // $Config{'advanced'}{'language'};
 
