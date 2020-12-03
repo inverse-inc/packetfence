@@ -38,6 +38,13 @@ For a list of compatibility related changes see the <<PacketFence_Upgrade_Guide.
 === Bug Fixes
 
 * Switch defined by mac address are not processed by pfacct in cluster mode (#5969)
+* Restart switchport return TRUE if MAC address is not found in locationlog for bouncePortCoA (#6013)
+* Switch template: CLI authorize attributes ignored (#6009)
+* ubiquiti_ap_mac_to_ip task doesn't update expires_at column in chi_cache table (#6004)
+* A switch can't override switch group values using default switch group values (#5998)
+* web admin: timer_expire and ocsp_timeout are not displayed correctly (#5961)
+* web admin: Realm can't be selected as a filter on a connection profile (#5959)
+* API: remove a source doesn't remove rules from authentication.conf (#5958)
 
 == Version 10.2.0 released on 2020-10-07
 
