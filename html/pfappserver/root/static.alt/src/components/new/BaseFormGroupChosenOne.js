@@ -1,4 +1,4 @@
-import { computed, toRefs, unref } from '@vue/composition-api'
+import { computed, ref, toRefs, unref, watch } from '@vue/composition-api'
 import useEventFnWrapper from '@/composables/useEventFnWrapper'
 import { useInputMeta } from '@/composables/useMeta'
 import { useInputValue } from '@/composables/useInputValue'
@@ -19,9 +19,17 @@ export const setup = (props, context) => {
   const {
     label,
     trackBy,
-    options,
+    options: optionsPromise,
     placeholder
   } = toRefs(metaProps)
+
+  // support Promise based options
+  const options = ref([])
+  watch(optionsPromise, () => {
+    Promise.resolve(optionsPromise.value).then(_options => {
+      options.value = _options
+    })
+  }, { immediate: true })
 
   const {
     value,

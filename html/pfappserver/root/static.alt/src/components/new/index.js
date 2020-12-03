@@ -12,7 +12,7 @@ import BaseFormGroupArrayDraggable, { props as BaseFormGroupArrayDraggableProps 
 import BaseFormGroupChosenCountry from './BaseFormGroupChosenCountry'
 import BaseFormGroupChosenMultiple from './BaseFormGroupChosenMultiple'
 import BaseFormGroupChosenMultipleSearchable, { props as BaseFormGroupChosenMultipleSearchableProps } from './BaseFormGroupChosenMultipleSearchable'
-import BaseFormGroupChosenOne from './BaseFormGroupChosenOne'
+import BaseFormGroupChosenOne, { props as BaseFormGroupChosenOneProps } from './BaseFormGroupChosenOne'
 import BaseFormGroupChosenOneSearchable, { props as BaseFormGroupChosenOneSearchableProps } from './BaseFormGroupChosenOneSearchable'
 import BaseFormGroupInput from './BaseFormGroupInput'
 import BaseFormGroupInputMultiplier from './BaseFormGroupInputMultiplier'
@@ -64,7 +64,7 @@ export {
   BaseFormGroupChosenCountry,
   BaseFormGroupChosenMultiple,
   BaseFormGroupChosenMultipleSearchable, BaseFormGroupChosenMultipleSearchableProps,
-  BaseFormGroupChosenOne,
+  BaseFormGroupChosenOne, BaseFormGroupChosenOneProps,
   BaseFormGroupChosenOneSearchable, BaseFormGroupChosenOneSearchableProps,
   BaseFormGroupInput,
   BaseFormGroupInputMultiplier,

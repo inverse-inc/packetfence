@@ -5,7 +5,7 @@ export const useInputMultiselectProps = {
     type: [Number, String]
   },
   options: {
-    type: Array,
+    type: [Array, Promise],
     default: () => ([])
   },
   multiple: {

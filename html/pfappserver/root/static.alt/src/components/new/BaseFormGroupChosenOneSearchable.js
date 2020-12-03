@@ -35,9 +35,17 @@ export const setup = (props, context) => {
     label,
     lookup,
     trackBy,
-    options,
+    options: optionsPromise,
     optionsLimit
   } = toRefs(metaProps)
+
+  // support Promise based options
+  const options = ref([])
+  watch(optionsPromise, () => {
+    Promise.resolve(optionsPromise.value).then(_options => {
+      options.value = _options
+    })
+  }, { immediate: true })
 
   const {
     placeholder,

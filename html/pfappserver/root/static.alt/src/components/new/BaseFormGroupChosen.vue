@@ -147,7 +147,7 @@ const components = {
   Multiselect
 }
 
-import { computed, nextTick, onBeforeUnmount, onMounted, ref, toRefs } from '@vue/composition-api'
+import { computed, nextTick, onBeforeUnmount, onMounted, ref, toRefs, watch } from '@vue/composition-api'
 import { useFormGroupProps } from '@/composables/useFormGroup'
 import { useInput, useInputProps } from '@/composables/useInput'
 import { useInputMeta, useInputMetaProps } from '@/composables/useMeta'
@@ -198,10 +198,18 @@ export const setup = (props, context) => {
     trackBy,
     groupLabel,
     groupValues,
-    options,
+    options: optionsPromise,
     max,
     multiple
   } = toRefs(metaProps)
+
+  // support Promise based options
+  const options = ref([])
+  watch(optionsPromise, () => {
+    Promise.resolve(optionsPromise.value).then(_options => {
+      options.value = _options
+    })
+  }, { immediate: true })
 
   const {
     placeholder,
