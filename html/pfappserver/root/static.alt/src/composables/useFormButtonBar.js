@@ -43,6 +43,10 @@ export const useFormButtonBar = (props, context) => {
     return 'close' in listeners
   })
 
+  const isResetable = computed(() => {
+    return isNew.value === false
+  })
+
   const onClone = value => emit('clone', value)
   const onClose = value => emit('close', value)
   const onRemove = value => emit('remove', value)
@@ -52,6 +56,7 @@ export const useFormButtonBar = (props, context) => {
   return {
     isCloneable,
     isCloseable,
+    isResetable,
 
     onClone,
     onClose,

@@ -1,11 +1,15 @@
 import BaseFormGroupIntervalUnit from './BaseFormGroupIntervalUnit'
-import BaseFormGroupToggleZeroOneAsOffOn from './BaseFormGroupToggleZeroOneAsOffOn'
+import BaseFormGroupOses from './BaseFormGroupOses'
+import BaseFormGroupToggleZeroOneIntegerAsOffOn from './BaseFormGroupToggleZeroOneIntegerAsOffOn'
+import BaseFormGroupToggleZeroOneStringAsOffOn from './BaseFormGroupToggleZeroOneStringAsOffOn'
 import BaseViewCollectionItem from './BaseViewCollectionItem'
 import BaseViewResource from './BaseViewResource'
 
 export {
   BaseFormGroupIntervalUnit,
-  BaseFormGroupToggleZeroOneAsOffOn,
+  BaseFormGroupOses,
+  BaseFormGroupToggleZeroOneIntegerAsOffOn,
+  BaseFormGroupToggleZeroOneStringAsOffOn,
 
   BaseViewCollectionItem,
   BaseViewResource

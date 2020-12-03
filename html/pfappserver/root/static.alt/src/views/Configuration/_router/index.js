@@ -110,7 +110,7 @@ const PortalModulesList = () => import(/* webpackChunkName: "Configuration" */ '
 const PortalModuleView = () => import(/* webpackChunkName: "Configuration" */ '../_components/PortalModuleView')
 const AccessDurationView = () => import(/* webpackChunkName: "Configuration" */ '../accessDurations/_components/TheView')
 const ProvisioningsList = () => import(/* webpackChunkName: "Configuration" */ '../_components/ProvisioningsList')
-const ProvisioningView = () => import(/* webpackChunkName: "Configuration" */ '../_components/ProvisioningView')
+const ProvisioningView = () => import(/* webpackChunkName: "Configuration" */ '../provisioners/_components/TheView')
 const SelfServicesList = () => import(/* webpackChunkName: "Configuration" */ '../_components/SelfServicesList')
 const SelfServiceView = () => import(/* webpackChunkName: "Configuration" */ '../_components/SelfServiceView')
 
@@ -1572,23 +1572,14 @@ const route = {
       path: 'provisionings/new/:provisioningType',
       name: 'newProvisioning',
       component: ProvisioningView,
-      props: (route) => ({ formStoreName: 'formProvisioning', isNew: true, provisioningType: route.params.provisioningType }),
-      beforeEnter: (to, from, next) => {
-        if (!store.state.formProvisioning) { // Register store module only once
-          store.registerModule('formProvisioning', FormStore)
-        }
-        next()
-      }
+      props: (route) => ({ isNew: true, provisioningType: route.params.provisioningType })
     },
     {
       path: 'provisioning/:id',
       name: 'provisioning',
       component: ProvisioningView,
-      props: (route) => ({ formStoreName: 'formProvisioning', id: route.params.id }),
+      props: (route) => ({ id: route.params.id }),
       beforeEnter: (to, from, next) => {
-        if (!store.state.formProvisioning) { // Register store module only once
-          store.registerModule('formProvisioning', FormStore)
-        }
         store.dispatch('$_provisionings/getProvisioning', to.params.id).then(() => {
           next()
         })
@@ -1598,11 +1589,8 @@ const route = {
       path: 'provisioning/:id/clone',
       name: 'cloneProvisioning',
       component: ProvisioningView,
-      props: (route) => ({ formStoreName: 'formProvisioning', id: route.params.id, isClone: true }),
+      props: (route) => ({ id: route.params.id, isClone: true }),
       beforeEnter: (to, from, next) => {
-        if (!store.state.formProvisioning) { // Register store module only once
-          store.registerModule('formProvisioning', FormStore)
-        }
         store.dispatch('$_provisionings/getProvisioning', to.params.id).then(() => {
           next()
         })

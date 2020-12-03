@@ -22,8 +22,7 @@ const props = {
     default: i18n.t('Loading')
   },
   text: {
-    type: String,
-    default: i18n.t('Please wait a moment...')
+    type: String
   },
   icon: {
     type: String,

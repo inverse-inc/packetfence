@@ -8,8 +8,8 @@ export const props = {
   options: {
     type: Array,
     default: () => ([
-      { value: 0, label: i18n.t('Off') },
-      { value: 1, label: i18n.t('On'), color: 'var(--primary)' }
+      { value: '0', label: i18n.t('Off') },
+      { value: '1', label: i18n.t('On'), color: 'var(--primary)' }
     ])
   },
   labelRight: {
@@ -19,7 +19,7 @@ export const props = {
 }
 
 export default {
-  name: 'base-form-group-toggle-zero-one-as-off-on',
+  name: 'base-form-group-toggle-zero-one-string-as-off-on',
   extends: BaseFormGroupToggle,
   props
 }
