@@ -133,7 +133,7 @@ Extract localizable strings from Models and Controllers classes.
 =cut
 
 sub parse_mc {
-    my @modules = ('lib/pf/web.pm');
+    my @modules = ('lib/pf/web.pm', 'lib/pf/pfcron/task/password_of_the_day.pm');
     my @dir = qw(lib/pf/web html/captive-portal/lib/captiveportal/PacketFence/Controller html/captive-portal/lib/captiveportal/PacketFence/DynamicRouting html/captive-portal/lib/captiveportal/PacketFence/Form);
 
     my $pm = sub {
