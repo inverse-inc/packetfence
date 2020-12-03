@@ -37,6 +37,8 @@ use Template;
 use URI::Escape::XS qw(uri_escape uri_unescape);
 use Crypt::OpenSSL::X509;
 use List::MoreUtils qw(any);
+use pf::I18N;
+pf::I18N::setup_text_domain();
 
 BEGIN {
     use Exporter ();
