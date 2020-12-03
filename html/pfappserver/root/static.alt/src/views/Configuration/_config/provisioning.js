@@ -834,6 +834,20 @@ export const viewFields = {
       ]
     }
   },
+  ca_cert_path: (form = {}, meta = {}) => {
+    return {
+      label: i18n.t('RADIUS server CA path'),
+      text: i18n.t('The path to the RADIUS server CA which signed the RADIUS server certificate.'),
+      cols: [
+        {
+          namespace: 'ca_cert_path',
+          component: pfFormInput,
+          attrs: attributesFromMeta(meta, 'ca_cert_path'),
+          validators: validatorsFromMeta(meta, 'ca_cert_path', i18n.t('Path'))
+        }
+      ]
+    }
+  },
   ssid: (form = {}, meta = {}) => {
     return {
       label: 'SSID',
@@ -994,7 +1008,10 @@ export const view = (form = {}, meta = {}) => {
               : [] // ignore
             ),
             ...((security_type === 'WPA2' && ~~eap_type === 25 /* PEAP */)
-              ? [viewFields.server_certificate_path(form, meta)]
+              ? [
+                viewFields.server_certificate_path(form, meta),
+                viewFields.ca_cert_path(form, meta)
+                ]
               : [] // ignore
             ),
             ...((security_type === 'WPA2' && ~~eap_type === 13 /* EAP-TLS */)
@@ -1115,7 +1132,10 @@ export const view = (form = {}, meta = {}) => {
               : [] // ignore
             ),
             ...((security_type === 'WPA2' && ~~eap_type === 25 /* PEAP */)
-              ? [viewFields.server_certificate_path(form, meta)]
+              ? [
+                viewFields.server_certificate_path(form, meta),
+                viewFields.ca_cert_path(form, meta)
+                ]
               : [] // ignore
             ),
             ...((security_type === 'WPA2' && ~~eap_type === 13 /* EAP-TLS */)
@@ -1311,7 +1331,10 @@ export const view = (form = {}, meta = {}) => {
               : [] // ignore
             ),
             ...((security_type === 'WPA2' && ~~eap_type === 25 /* PEAP */)
-              ? [viewFields.server_certificate_path(form, meta)]
+              ? [
+                viewFields.server_certificate_path(form, meta),
+                viewFields.ca_cert_path(form, meta)
+                ]
               : [] // ignore
             ),
             ...((security_type === 'WPA2' && ~~eap_type === 13 /* EAP-TLS */)
@@ -1538,6 +1561,9 @@ export const validatorFields = {
   server_certificate_path: (form = {}, meta = {}) => {
     return { server_certificate_path: validatorsFromMeta(meta, 'server_certificate_path', i18n.t('Path')) }
   },
+  ca_cert_path: (form = {}, meta = {}) => {
+    return { ca_cert_path: validatorsFromMeta(meta, 'ca_cert_path', i18n.t('Path')) }
+  },
   ssid: (form = {}, meta = {}) => {
     return { ssid: validatorsFromMeta(meta, 'ssid', 'SSID') }
   },
@@ -1605,7 +1631,10 @@ export const validators = (form = {}, meta = {}) => {
           : {} // ignore
         ),
         ...((security_type === 'WPA2' && ~~eap_type === 25 /* PEAP */)
-          ? validatorFields.server_certificate_path(form, meta)
+          ? {
+            ...validatorFields.server_certificate_path(form, meta),
+            ...validatorFields.ca_cert_path(form, meta)
+          }
           : {} // ignore
         ),
         ...((security_type === 'WPA2' && ~~eap_type === 13 /* EAP-TLS */)
@@ -1699,7 +1728,10 @@ export const validators = (form = {}, meta = {}) => {
           : {} // ignore
         ),
         ...((security_type === 'WPA2' && ~~eap_type === 25 /* PEAP */)
-          ? validatorFields.server_certificate_path(form, meta)
+          ? {
+            ...validatorFields.server_certificate_path(form, meta),
+            ...validatorFields.ca_cert_path(form, meta)
+          }
           : {} // ignore
         ),
         ...((security_type === 'WPA2' && ~~eap_type === 13 /* EAP-TLS */)
@@ -1848,7 +1880,10 @@ export const validators = (form = {}, meta = {}) => {
           : {} // ignore
         ),
         ...((security_type === 'WPA2' && ~~eap_type === 25 /* PEAP */)
-          ? validatorFields.server_certificate_path(form, meta)
+          ? {
+            ...validatorFields.server_certificate_path(form, meta),
+            ...validatorFields.ca_cert_path(form, meta)
+          }
           : {} // ignore
         ),
         ...((security_type === 'WPA2' && ~~eap_type === 13 /* EAP-TLS */)

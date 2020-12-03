@@ -160,6 +160,10 @@ has server_certificate_path => (is => 'rw');
 
 has server_certificate => (is => 'ro' , builder => 1, lazy => 1);
 
+has ca_cert_path => (is => 'rw');
+
+has ca_cert => (is => 'ro' , builder => 1, lazy => 1);
+
 =head1 METHODS
 
 =head2 _build_server_cert
@@ -187,7 +191,6 @@ sub _certificate_cn {
         return $1;
     }
     else {
-        get_logger->error("Cannot find CN of server certificate at ".$self->server_certificate_path);
         return undef;
     }
 }
@@ -213,6 +216,54 @@ sub server_certificate_cn {
         get_logger->error("cannot find cn of server certificate at ".$self->server_certificate_path);
     }
 }
+
+=head2 _build_ca_cert
+
+Builds an X509 object the ca_cert_path
+
+=cut
+
+sub _build_ca_cert {
+    my ($self) = @_;
+    if($self->ca_cert_path){
+        return Crypt::OpenSSL::X509->new_from_file($self->ca_cert_path);
+    }
+    else {
+        get_logger->error("cannot build the RADIUS server CA with file: ".$self->ca_cert_path);
+        return "";
+    }
+}
+
+
+=head2 raw_ca_cert_string
+
+Get the Radius server CA content minus the ascii armor
+
+=cut
+
+sub raw_ca_cert_string {
+    my ($self) = @_;
+    if($self->ca_cert){
+        return $self->_raw_server_cert_string($self->ca_cert);
+    }
+    else {
+        get_logger->error("cannot find the RADIUS server CA file at ".$self->ca_cert_path);
+        return "";
+    }
+}
+
+sub ca_cert_cn {
+    my ($self) = @_;
+    my $cn = $self->_certificate_cn($self->ca_cert);
+    if(defined($cn)){
+        return $cn;
+    }
+    else {
+        get_logger->error("cannot find cn of RADIUS server CA at ".$self->ca_cert_path);
+        return "";
+    }
+}
+
 
 =head2 authorize
 
