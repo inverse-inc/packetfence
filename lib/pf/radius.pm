@@ -73,6 +73,7 @@ use pf::security_event;
 use pf::constants::security_event qw($LOST_OR_STOLEN);
 use pf::Redis;
 use pf::constants::eap_type qw($EAP_TLS $MS_EAP_AUTHENTICATION $EAP_PSK);
+use pf::person;
 
 our $VERSION = 1.03;
 
@@ -228,6 +229,7 @@ sub authorize {
     $args->{'ssid'} = $ssid;
     $args->{'node_info'} = $node_obj;
     $args->{'fingerbank_info'} = pf::node::fingerbank_info($mac, $node_obj);
+    $args->{'owner'} = person_view_simple($node_obj->{'pid'});
     my $filter = pf::access_filter::radius->new;
     my $rule = $filter->test('preProcess', $args);
     if ($rule) {
@@ -508,7 +510,8 @@ sub accounting {
             connection_sub_type => $connection_sub_type,
             radius_request => $radius_request,
             ssid => $ssid,
-            node_info => $node_obj
+            node_info => $node_obj,
+            owner => person_view_simple($node_obj->{'pid'})
         };
         my $filter = pf::access_filter::radius->new;
         my $rule = $filter->test($headers->{'X-FreeRADIUS-Server'}.".".$headers->{'X-FreeRADIUS-Section'}, $args);
@@ -1127,8 +1130,8 @@ sub radius_filter {
         connection_sub_type => $connection_sub_type,
         radius_request => $radius_request,
         ssid => $ssid,
-        node_info => $node_obj
-
+        node_info => $node_obj,
+        owner => person_view_simple($node_obj->{'pid'}),
     };
     my $filter = pf::access_filter::radius->new;
     my $rule = $filter->test($scope, $args);
