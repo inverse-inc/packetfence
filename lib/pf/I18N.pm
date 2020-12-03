@@ -15,12 +15,15 @@ use warnings;
 use POSIX;
 use Locale::gettext qw(bindtextdomain textdomain bind_textdomain_codeset);
 use pf::file_paths qw($conf_dir);
+our $setup = 0;
 
 sub setup_text_domain {
+    return if $setup;
     delete $ENV{'LANGUAGE'}; # Make sure $LANGUAGE is empty otherwise it will override LC_MESSAGES
     bindtextdomain("packetfence", "$conf_dir/locale");
     bind_textdomain_codeset("packetfence", "utf-8");
     textdomain("packetfence");
+    $setup = 1;
 }
 
 =head1 AUTHOR
