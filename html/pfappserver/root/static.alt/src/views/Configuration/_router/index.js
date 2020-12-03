@@ -105,7 +105,7 @@ const FilterEngineView = () => import(/* webpackChunkName: "Editor" */ '../filte
 const BillingTiersList = () => import(/* webpackChunkName: "Configuration" */ '../_components/BillingTiersList')
 const BillingTierView = () => import(/* webpackChunkName: "Configuration" */ '../_components/BillingTierView')
 const PkiProvidersList = () => import(/* webpackChunkName: "Configuration" */ '../_components/PkiProvidersList')
-const PkiProviderView = () => import(/* webpackChunkName: "Configuration" */ '../_components/PkiProviderView')
+const PkiProviderView = () => import(/* webpackChunkName: "Configuration" */ '../pkiProviders/_components/TheView')
 const PortalModulesList = () => import(/* webpackChunkName: "Configuration" */ '../_components/PortalModulesList')
 const PortalModuleView = () => import(/* webpackChunkName: "Configuration" */ '../_components/PortalModuleView')
 const AccessDurationView = () => import(/* webpackChunkName: "Configuration" */ '../accessDurations/_components/TheView')
@@ -1538,23 +1538,14 @@ const route = {
       path: 'pki_providers/new/:providerType',
       name: 'newPkiProvider',
       component: PkiProviderView,
-      props: (route) => ({ formStoreName: 'formPkiProvider', isNew: true, providerType: route.params.providerType }),
-      beforeEnter: (to, from, next) => {
-        if (!store.state.formPkiProvider) { // Register store module only once
-          store.registerModule('formPkiProvider', FormStore)
-        }
-        next()
-      }
+      props: (route) => ({ isNew: true, providerType: route.params.providerType })
     },
     {
       path: 'pki_provider/:id',
       name: 'pki_provider',
       component: PkiProviderView,
-      props: (route) => ({ formStoreName: 'formPkiProvider', id: route.params.id }),
+      props: (route) => ({ id: route.params.id }),
       beforeEnter: (to, from, next) => {
-        if (!store.state.formPkiProvider) { // Register store module only once
-          store.registerModule('formPkiProvider', FormStore)
-        }
         store.dispatch('$_pki_providers/getPkiProvider', to.params.id).then(() => {
           next()
         })
@@ -1564,11 +1555,8 @@ const route = {
       path: 'pki_provider/:id/clone',
       name: 'clonePkiProvider',
       component: PkiProviderView,
-      props: (route) => ({ formStoreName: 'formPkiProvider', id: route.params.id, isClone: true }),
+      props: (route) => ({ id: route.params.id, isClone: true }),
       beforeEnter: (to, from, next) => {
-        if (!store.state.formPkiProvider) { // Register store module only once
-          store.registerModule('formPkiProvider', FormStore)
-        }
         store.dispatch('$_pki_providers/getPkiProvider', to.params.id).then(() => {
           next()
         })

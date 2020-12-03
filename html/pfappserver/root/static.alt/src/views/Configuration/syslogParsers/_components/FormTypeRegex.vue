@@ -23,7 +23,7 @@
     />
 
     <form-group-test namespace="lines"
-      :column-label="$i18n.t('Sample log lines')"
+      :column-label="$i18n.t('Sample Log Lines')"
     />
   </base-form>
 </template>
