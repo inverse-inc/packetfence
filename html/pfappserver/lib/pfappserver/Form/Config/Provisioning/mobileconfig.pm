@@ -91,6 +91,15 @@ has_field 'server_certificate_path' =>
             help => 'The path to the RADIUS server certificate' },       
  );
 
+has_field 'ca_cert_path' =>
+ (
+  type => 'Path',
+  required_when => { 'eap_type' => 25 },
+  label => 'RADIUS server CA path',
+  tags => { after_element => \&help,
+            help => 'The path to the RADIUS server CA' },
+ );
+
 has_field 'cert_chain' =>
   (
    type => 'TextArea',
@@ -150,7 +159,7 @@ sub filter_deflate {
 
 has_block definition =>
   (
-   render_list => [ qw(id description type category ssid broadcast eap_type security_type dpsk passcode pki_provider server_certificate_path apply_role role_to_apply autoregister) ],
+   render_list => [ qw(id description type category ssid broadcast eap_type security_type dpsk passcode pki_provider server_certificate_path ca_cert_path apply_role role_to_apply autoregister) ],
   );
 
 has_block signing =>
