@@ -39,6 +39,7 @@ use pf::constants::config qw($DEFAULT_SMTP_PORT $DEFAULT_SMTP_PORT_SSL $DEFAULT_
 use IO::Socket::SSL qw(SSL_VERIFY_NONE);
 use pf::constants::config qw($TIME_MODIFIER_RE);
 use pf::constants::realm;
+use Encode qw(encode);
 use File::Basename;
 use Net::MAC::Vendor;
 use Net::SMTP;
@@ -188,9 +189,9 @@ sub send_email {
     );
     utf8::decode($subject);
     my $msg = MIME::Lite::TT->new(
-        To          => $email,
+        To          => encode('MIME-Header', $email),
         Bcc         => $data->{'bcc'} || '',
-        Subject     => $subject,
+        Subject     => encode('MIME-Header', $subject),
         Encoding    => 'base64',
         Template    => "emails-$template.html",
         TmplOptions => \%TmplOptions,
