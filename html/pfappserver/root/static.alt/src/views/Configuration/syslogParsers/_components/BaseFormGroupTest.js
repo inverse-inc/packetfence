@@ -28,7 +28,6 @@ export const props = {
         return html.join('')
       }).catch(err => {
         let html = []
-        html.push('<pre style="color: inherit;">')
         let { response: { data: { errors = [] } } } = err
         errors.forEach(error => {
           const { field } = error // translate field names
@@ -39,8 +38,8 @@ export const props = {
           }
           html.push(i18n.t('<strong>Server Error "{field}"</strong>: {message}', error) + '<br/>')
         })
-        html.push('</pre>')
-        throw html.join('')
+        html.sort((a, b) => a.localeCompare(b))
+        throw ['<pre style="color: inherit;">', ...html, '</pre>'].join('')
       })
     }
   },

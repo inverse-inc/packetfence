@@ -9,6 +9,7 @@
     :label="columnLabel"
   >
     <b-input-group
+      class="is-borders"
       :class="{
         'is-focus': isFocus,
         'is-blur': !isFocus,
@@ -32,18 +33,20 @@
         @focus="onFocus"
         @blur="onBlur"
       />
-      <template v-slot:prepend>
+      <template v-slot:prepend v-if="$slots.prepend">
         <slot name="prepend"></slot>
       </template>
       <template v-slot:append>
-        <slot name="append"></slot>
-        <b-button :disabled="!canTest" tabindex="-1" variant="light" class="py-0"
-          @click="doTest"
-        >
-          <span v-show="!isTesting">{{ buttonLabel || $t('Test') }}</span>
-          <icon v-show="isTesting" name="circle-notch" spin></icon>
-        </b-button>
-        <b-button v-if="isLocked"
+        <template v-if="!isLocked">
+          <slot name="append"></slot>
+          <b-button :disabled="!canTest" tabindex="-1" variant="light" class="py-0"
+            @click="doTest"
+          >
+            <span v-show="!isTesting">{{ buttonLabel || $t('Test') }}</span>
+            <icon v-show="isTesting" name="circle-notch" spin></icon>
+          </b-button>
+        </template>
+        <b-button v-else
           class="input-group-text"
           :disabled="true"
           tabIndex="-1"

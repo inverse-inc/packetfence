@@ -31,8 +31,9 @@
         <slot name="prepend"></slot>
       </template>
       <template v-slot:append v-if="$slots.append || disabled">
-        <slot name="append"></slot>
-        <b-button v-if="disabled"
+        <slot v-if="!disabled"
+         name="append"></slot>
+        <b-button v-else
           class="input-group-text"
           :disabled="true"
           tabIndex="-1"
@@ -85,3 +86,13 @@ export default {
   props
 }
 </script>
+<style lang="scss">
+.base-form-group {
+  .input-group {
+    .input-group-append,
+    .input-group-prepend {
+      height: auto;
+    }
+  }
+}
+</style>

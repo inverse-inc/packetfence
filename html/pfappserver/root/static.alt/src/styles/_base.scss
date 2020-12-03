@@ -7,27 +7,32 @@
 }
 
 .is-borders {
+  transition: all 300ms ease;
   &.input-group {
     &.is-focus {
       & > div,
-      & > input {
+      & > input,
+      & > textarea {
         border-color: $input-focus-border-color;
       }
     }
     &.is-invalid {
       & > div,
-      & > input {
+      & > input,
+      & > textarea {
         border-color: $form-feedback-invalid-color;
       }
     }
     &.is-valid {
       & > div,
-      & > input {
+      & > input,
+      & > textarea {
         border-color: $form-feedback-valid-color;
       }
     }
     & > div,
-    & > input {
+    & > input,
+    & > textarea {
       border-color: transparent;
       border-style: solid;
       border-top-width: 1px;
