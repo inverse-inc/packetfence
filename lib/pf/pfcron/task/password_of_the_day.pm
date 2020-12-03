@@ -24,6 +24,8 @@ use pf::web::guest;
 use DateTime;
 use DateTime::Format::MySQL;
 use pf::log;
+use pf::I18N;
+pf::I18N::setup_text_domain();
 
 extends qw(pf::pfcron::task);
 
@@ -69,9 +71,7 @@ send the password of the day to the email addresses
 sub send_email {
     my ( $self, %info ) = @_;
     %info = (
-        'subject'   => i18n_format(
-            "New password of the day"
-        ),
+        'subject'   => i18n_format("New password of the day"),
         %info
     );
     pf::web::guest::send_template_email(
