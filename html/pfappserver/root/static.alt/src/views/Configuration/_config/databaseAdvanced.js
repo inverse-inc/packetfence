@@ -153,6 +153,17 @@ export const view = (form = {}, meta = {}) => {
               attrs: attributesFromMeta(meta, 'other_members')
             }
           ]
+        },
+        {
+          label: i18n.t('DRBD Managed'),
+          text: i18n.t('Enable MySQL DRBD managed.'),
+          cols: [
+            {
+              namespace: 'drbd_managed',
+              component: pfFormChosen,
+              attrs: attributesFromMeta(meta, 'drbd_managed')
+            }
+          ]
         }
       ]
     }
@@ -173,6 +184,7 @@ export const validators = (form = {}, meta = {}) => {
     performance_schema: validatorsFromMeta(meta, 'performance_schema', i18n.t('Schema')),
     max_connect_errors: validatorsFromMeta(meta, 'max_connect_errors', i18n.t('Errors')),
     masterslave: validatorsFromMeta(meta, 'masterslave', i18n.t('Mode')),
-    other_members: validatorsFromMeta(meta, 'other_members', 'Other MySQL Servers')
+    other_members: validatorsFromMeta(meta, 'other_members', 'Other MySQL Servers'),
+    drbd_managed: validatorsFromMeta(meta, 'drbd_managed', i18n.t('MySQL DRBD managed'))
   }
 }

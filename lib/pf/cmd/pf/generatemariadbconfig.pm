@@ -33,6 +33,7 @@ use pf::config qw(
     $management_network
     $DISTRIB
 );
+use pf::constants qw($FALSE);
 use pf::util;
 
 sub _run {
@@ -57,6 +58,9 @@ sub _run {
 
     # Only generate cluster configuration if there is more than 1 enabled host in the cluster
     if(isenabled($Config{active_active}{galera_replication}) && $cluster_enabled && scalar(pf::cluster::db_enabled_hosts()) > 1) {
+        if(isenabled($Config{database_advanced}{drbd_managed})) {
+            $cluster_enabled = $FALSE;
+        }
         %vars = (
             %vars,
 

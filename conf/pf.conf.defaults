@@ -349,6 +349,11 @@ masterslave=OFF
 #
 # Comma delimited IPv4 address of other member mysql members - note that this is only to sync the database.
 other_members=
+#
+# database_advanced.drbd_managed
+#
+# The drbd_managed configuration to enable or disable the drbd configuration
+drbd_managed=disabled
 
 [services]
 # services.pfipset
