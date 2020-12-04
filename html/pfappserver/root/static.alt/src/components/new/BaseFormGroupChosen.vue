@@ -81,7 +81,9 @@
         </template>
         <template v-slot:tag="{ option, option: { value } = {} }">
           <span class="multiselect__tag bg-secondary">
-            <span>{{ multipleLabels[value] }}</span>
+            <span v-if="multipleLabels[value]">{{ multipleLabels[value] }}</span>
+            <icon v-else
+              name="question-circle" variant="white" />
             <i aria-hidden="true" tabindex="1" class="multiselect__tag-icon" @click="onRemove(option)"></i>
           </span>
         </template>
@@ -147,7 +149,7 @@ const components = {
   Multiselect
 }
 
-import { computed, nextTick, onBeforeUnmount, onMounted, ref, toRefs, watch } from '@vue/composition-api'
+import { computed, nextTick, onBeforeUnmount, onMounted, ref, toRefs } from '@vue/composition-api'
 import { useFormGroupProps } from '@/composables/useFormGroup'
 import { useInput, useInputProps } from '@/composables/useInput'
 import { useInputMeta, useInputMetaProps } from '@/composables/useMeta'

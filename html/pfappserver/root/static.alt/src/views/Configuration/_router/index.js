@@ -112,7 +112,7 @@ const AccessDurationView = () => import(/* webpackChunkName: "Configuration" */ 
 const ProvisioningsList = () => import(/* webpackChunkName: "Configuration" */ '../_components/ProvisioningsList')
 const ProvisioningView = () => import(/* webpackChunkName: "Configuration" */ '../provisioners/_components/TheView')
 const SelfServicesList = () => import(/* webpackChunkName: "Configuration" */ '../_components/SelfServicesList')
-const SelfServiceView = () => import(/* webpackChunkName: "Configuration" */ '../_components/SelfServiceView')
+const SelfServiceView = () => import(/* webpackChunkName: "Configuration" */ '../selfServices/_components/TheView')
 
 /* Network Configuration */
 const NetworkConfigurationSection = () => import(/* webpackChunkName: "Configuration" */ '../_components/NetworkConfigurationSection')
@@ -1658,23 +1658,14 @@ const route = {
       path: 'self_services/new',
       name: 'newSelfService',
       component: SelfServiceView,
-      props: () => ({ formStoreName: 'formSelfService', isNew: true }),
-      beforeEnter: (to, from, next) => {
-        if (!store.state.formSelfService) { // Register store module only once
-          store.registerModule('formSelfService', FormStore)
-        }
-        next()
-      }
+      props: () => ({ isNew: true })
     },
     {
       path: 'self_service/:id',
       name: 'self_service',
       component: SelfServiceView,
-      props: (route) => ({ formStoreName: 'formSelfService', id: route.params.id }),
+      props: (route) => ({ id: route.params.id }),
       beforeEnter: (to, from, next) => {
-        if (!store.state.formSelfService) { // Register store module only once
-          store.registerModule('formSelfService', FormStore)
-        }
         store.dispatch('$_self_services/getSelfService', to.params.id).then(() => {
           next()
         })
@@ -1684,11 +1675,8 @@ const route = {
       path: 'self_service/:id/clone',
       name: 'cloneSelfService',
       component: SelfServiceView,
-      props: (route) => ({ formStoreName: 'formSelfService', id: route.params.id, isClone: true }),
+      props: (route) => ({ id: route.params.id, isClone: true }),
       beforeEnter: (to, from, next) => {
-        if (!store.state.formSelfService) { // Register store module only once
-          store.registerModule('formSelfService', FormStore)
-        }
         store.dispatch('$_self_services/getSelfService', to.params.id).then(() => {
           next()
         })

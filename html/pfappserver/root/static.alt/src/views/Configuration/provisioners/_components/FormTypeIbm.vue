@@ -77,7 +77,7 @@
 import { BaseForm } from '@/components/new/'
 import {
   FormGroupAgentDownloadUri,
-  FormGroupApiUrl,
+  FormGroupApiUri,
   FormGroupApplyRole,
   FormGroupAutoRegister,
   FormGroupCategory,
@@ -97,7 +97,7 @@ const components = {
   BaseForm,
 
   FormGroupAgentDownloadUri,
-  FormGroupApiUrl,
+  FormGroupApiUri,
   FormGroupApplyRole,
   FormGroupAutoRegister,
   FormGroupCategory,

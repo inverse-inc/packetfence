@@ -68,7 +68,9 @@
       </template>
       <template v-slot:tag="{ option }">
         <span class="multiselect__tag bg-secondary">
-          <span>{{ option[label] }}</span>
+          <span v-if="option[label]">{{ option[label] }}</span>
+          <icon v-else
+              name="question-circle" variant="white" />
           <i aria-hidden="true" tabindex="1" class="multiselect__tag-icon" @click="onRemove(option)"></i>
         </span>
       </template>
@@ -462,7 +464,7 @@ export default {
   }
 
   &.multiselect {
-    flex: 1 1 auto;
+    flex: 1 1;
     width: auto;
     min-height: auto;
   }
