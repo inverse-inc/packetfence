@@ -102,6 +102,7 @@ func (h *WgorchestratorHandler) handleGetProfile(c *gin.Context) {
 		ACLs:             rc.ACLs(c, db),
 		Routes:           rc.Routes(c, db),
 		IsGateway:        rc.IsGateway(c, db),
+		STUNServer:       rc.STUNServer(c, db),
 	}
 
 	c.JSON(http.StatusOK, profile)

@@ -162,6 +162,10 @@ func (rc *RemoteClient) Routes(ctx context.Context, db *gorm.DB) []string {
 	return rc.ConnectionProfile(ctx, db).Routes
 }
 
+func (rc *RemoteClient) STUNServer(ctx context.Context, db *gorm.DB) string {
+	return rc.ConnectionProfile(ctx, db).STUNServer
+}
+
 func (rc *RemoteClient) GetNode(ctx context.Context) *common.NodeInfo {
 	var err unifiedapiclient.UnifiedAPIError
 	var n common.NodeInfo

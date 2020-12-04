@@ -28,4 +28,5 @@ type Peer struct {
 	Routes           []string `json:"routes"`
 	IsGateway        bool     `json:"is_gateway"`
 	Hostname         string   `json:"hostname"`
+	STUNServer       string   `json:"stun_server"`
 }
