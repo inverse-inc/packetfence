@@ -2,6 +2,7 @@ import { computed, ref, toRefs, unref, watch } from '@vue/composition-api'
 import useEventFnWrapper from '@/composables/useEventFnWrapper'
 import { useInputMeta } from '@/composables/useMeta'
 import { useInputValue } from '@/composables/useInputValue'
+import { useOptionsPromise, useOptionsValue } from '@/composables/useInputMultiselect'
 import BaseFormGroupChosen, { props as BaseFormGroupChosenProps } from './BaseFormGroupChosen'
 
 export const props = {
@@ -23,13 +24,7 @@ export const setup = (props, context) => {
     placeholder
   } = toRefs(metaProps)
 
-  // support Promise based options
-  const options = ref([])
-  watch(optionsPromise, () => {
-    Promise.resolve(optionsPromise.value).then(_options => {
-      options.value = _options
-    })
-  }, { immediate: true })
+  const options = useOptionsPromise(optionsPromise)
 
   const {
     value,
@@ -46,19 +41,7 @@ export const setup = (props, context) => {
       return { [label.value]: _value, [trackBy.value]: _value }
   })
 
-  // backend may use trackBy (value) as a placeholder w/ meta,
-  //  use options to remap it to label (text).
-  const placeholderWrapper = computed(() => {
-    const _options = unref(options)
-    const optionsIndex = _options.findIndex(option => {
-      const { [trackBy.value]: trackedValue } = option
-      return `${trackedValue}` === `${placeholder.value}`
-    })
-    if (optionsIndex > -1)
-      return _options[optionsIndex][label.value]
-    else
-      return placeholder.value
-  })
+  const inputPlaceholder = useOptionsValue(options, trackBy, label, placeholder)
 
   const onInputWrapper = useEventFnWrapper(onInput, value => {
     const { [trackBy.value]: trackedValue } = value
@@ -69,7 +52,7 @@ export const setup = (props, context) => {
     // wrappers
     inputValue: inputValueWrapper,
     onInput: onInputWrapper,
-    inputPlaceholder: placeholderWrapper
+    inputPlaceholder
   }
 }
 

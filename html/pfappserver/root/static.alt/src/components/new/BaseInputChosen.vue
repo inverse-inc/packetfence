@@ -124,6 +124,7 @@ const components = {
 import useEventFnWrapper from '@/composables/useEventFnWrapper'
 import { useInput, useInputProps } from '@/composables/useInput'
 import { useInputMeta, useInputMetaProps } from '@/composables/useMeta'
+import { useOptionsPromise, useOptionsValue } from '@/composables/useInputMultiselect'
 import { useInputValidator, useInputValidatorProps } from '@/composables/useInputValidator'
 import { useInputValue, useInputValueProps } from '@/composables/useInputValue'
 import { useInputMultiselectProps } from '@/composables/useInputMultiselect'
@@ -171,10 +172,12 @@ export const setup = (props, context) => {
     groupLabel,
     groupValues,
     groupSelect,
-    options,
+    options: optionsPromise,
     max,
     multiple
   } = toRefs(metaProps)
+
+  const options = useOptionsPromise(optionsPromise)
 
   const {
     placeholder,
@@ -203,17 +206,7 @@ export const setup = (props, context) => {
     validFeedback
   } = useInputValidator(metaProps, value)
 
-  const singleLabel = computed(() => {
-    const _options = unref(options)
-    const optionsIndex = _options.findIndex(option => {
-      const { [unref(trackBy)]: trackedValue } = option
-      return trackedValue === unref(value)
-    })
-    if (optionsIndex > -1)
-      return _options[optionsIndex][unref(label)]
-    else
-      return unref(value)
-  })
+  const singleLabel = useOptionsValue(inputOptions, trackBy, label, value, isFocus)
 
   // inspect options first item for group(ing)
   const inputGroupLabel = computed(() => {

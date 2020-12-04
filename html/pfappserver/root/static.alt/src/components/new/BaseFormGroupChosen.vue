@@ -151,6 +151,7 @@ import { computed, nextTick, onBeforeUnmount, onMounted, ref, toRefs, watch } fr
 import { useFormGroupProps } from '@/composables/useFormGroup'
 import { useInput, useInputProps } from '@/composables/useInput'
 import { useInputMeta, useInputMetaProps } from '@/composables/useMeta'
+import { useOptionsPromise, useOptionsValue } from '@/composables/useInputMultiselect'
 import { useInputValidator, useInputValidatorProps } from '@/composables/useInputValidator'
 import { useInputValue, useInputValueProps } from '@/composables/useInputValue'
 import { useInputMultiselectProps } from '@/composables/useInputMultiselect'
@@ -203,13 +204,7 @@ export const setup = (props, context) => {
     multiple
   } = toRefs(metaProps)
 
-  // support Promise based options
-  const options = ref([])
-  watch(optionsPromise, () => {
-    Promise.resolve(optionsPromise.value).then(_options => {
-      options.value = _options
-    })
-  }, { immediate: true })
+  const options = useOptionsPromise(optionsPromise)
 
   const {
     placeholder,
@@ -234,17 +229,7 @@ export const setup = (props, context) => {
     validFeedback
   } = useInputValidator(metaProps, value)
 
-  const singleLabel = computed(() => {
-    const _options = options.value
-    const optionsIndex = _options.findIndex(option => {
-      const { [trackBy.value]: trackedValue } = option
-      return `${trackedValue}` === `${value.value}`
-    })
-    if (optionsIndex > -1)
-      return _options[optionsIndex][label.value]
-    else
-      return value.value
-  })
+  const singleLabel = useOptionsValue(options, trackBy, label, value, isFocus)
 
   const multipleLabels = computed(() => options.value.reduce((labels, option) => {
     const { text, value } = option

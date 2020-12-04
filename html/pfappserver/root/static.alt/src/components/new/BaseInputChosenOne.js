@@ -1,6 +1,10 @@
 import { computed, toRefs, unref } from '@vue/composition-api'
 import useEventFnWrapper from '@/composables/useEventFnWrapper'
 import { useInputMeta } from '@/composables/useMeta'
+import {
+  useOptionsPromise,
+  useOptionsPlaceholder
+} from '@/composables/useInputMultiselect'
 import { useInputValue } from '@/composables/useInputValue'
 import BaseInputChosen, { props as BaseInputChosenProps } from './BaseInputChosen'
 
@@ -19,9 +23,11 @@ export const setup = (props, context) => {
   const {
     label,
     trackBy,
-    options,
+    options: optionsPromise,
     placeholder
   } = toRefs(metaProps)
+
+  const options = useOptionsPromise(optionsPromise)
 
   const {
     value,
@@ -40,19 +46,7 @@ export const setup = (props, context) => {
     }
   })
 
-  // backend may use trackBy (value) as a placeholder w/ meta,
-  //  use options to remap it to label (text).
-  const placeholderWrapper = computed(() => {
-    const _options = unref(options)
-    const optionsIndex = _options.findIndex(option => {
-      const { [trackBy.value]: trackedValue } = option
-      return `${trackedValue}` === `${placeholder.value}`
-    })
-    if (optionsIndex > -1)
-      return _options[optionsIndex][label.value]
-    else
-      return placeholder.value
-  })
+  const inputPlaceholder = useOptionsPlaceholder(options, trackBy, label, placeholder)
 
   const onInputWrapper = useEventFnWrapper(onInput, value => {
     const { [unref(trackBy)]: trackedValue } = value
@@ -66,7 +60,7 @@ export const setup = (props, context) => {
     // wrappers
     inputValue: inputValueWrapper,
     onInput: onInputWrapper,
-    inputPlaceholder: placeholderWrapper,
+    inputPlaceholder,
 
     onRemove
   }
