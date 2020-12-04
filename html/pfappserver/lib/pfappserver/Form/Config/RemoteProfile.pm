@@ -111,6 +111,14 @@ has_field 'routes' =>
    type => 'TextArea',
   );
 
+has_field 'stun_server' =>
+  (
+    type => 'Text',
+    required => 1,
+    default => "stun.l.google.com:19302",
+  );
+
+
 sub options_roles {
     my $self = shift;
     my @roles = map { $_->{name} => $_->{name} } @{$self->form->roles} if ($self->form->roles);

@@ -11,3 +11,4 @@ resolve_hostnames_of_peers=enabled
 additional_domains_to_resolve=
 gateway=disabled
 routes=
+stun_server=stun.l.google.com:19302

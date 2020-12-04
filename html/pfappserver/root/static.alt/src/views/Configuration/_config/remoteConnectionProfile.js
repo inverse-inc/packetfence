@@ -426,7 +426,19 @@ export const view = (form = {}, meta = {}) => {
               attrs: attributesFromMeta(meta, 'routes')
             }
           ]
-        }
+        },
+        {
+          label: i18n.t('STUN Server'),
+          cols: [
+            {
+              namespace: 'stun_server',
+              component: pfFormInput,
+              attrs: {
+                ...attributesFromMeta(meta, 'stun_server')
+              }
+            }
+          ]
+        },
       ]
     }
   ]
