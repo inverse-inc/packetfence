@@ -76,7 +76,7 @@
       :text="$i18n.t('The path to the RADIUS server certificate.')"
     />
 
-    <form-group-passcode v-if="wantsPkiProvider"
+    <form-group-pki-provider v-if="wantsPkiProvider"
       namespace="pki_provider"
       :column-label="$i18n.t('PKI Provider')"
     />

@@ -1,5 +1,6 @@
 import { computed, toRefs } from '@vue/composition-api'
 import i18n from '@/utils/locale'
+import { provisioningTypes } from '../config'
 import { defaultsFromMeta } from '../../_config/'
 
 export const useItemProps = {
@@ -40,7 +41,7 @@ const useItemTitleBadge = (props, context, form) => {
   const {
     provisioningType
   } = toRefs(props)
-  return computed(() => (provisioningType.value || form.value.type))
+  return computed(() => provisioningTypes[provisioningType.value || form.value.type])
 }
 
 const useRouter = (props, context, form) => {

@@ -26,7 +26,7 @@ export {
   BaseFormGroupInput                      as FormGroupAndroidAgentDownloadUri,
   BaseFormGroupInput                      as FormGroupAndroidDownloadUri,
   BaseFormGroupInputPassword              as FormGroupApiPassword,
-  BaseFormGroupInput                      as FormGroupApiUrl,
+  BaseFormGroupInput                      as FormGroupApiUri,
   BaseFormGroupInput                      as FormGroupApiUsername,
   BaseFormGroupInput                      as FormGroupApplicationIdentifier,
   BaseFormGroupInputPassword              as FormGroupApplicationSecret,

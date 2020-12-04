@@ -7,7 +7,6 @@
         <base-button-upload @input="onInput"
           :accept="accept"
           :disabled="disabled"
-          :isLoading="isLoading"
           class="btn btn-outline-light"
           read-as-text
         >

@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div class="base-input-chosen-container">
     <multiselect ref="inputRef"
       class="base-input-chosen"
       :class="{
@@ -206,7 +206,7 @@ export const setup = (props, context) => {
     validFeedback
   } = useInputValidator(metaProps, value)
 
-  const singleLabel = useOptionsValue(inputOptions, trackBy, label, value, isFocus)
+  const singleLabel = useOptionsValue(options, trackBy, label, value, isFocus)
 
   // inspect options first item for group(ing)
   const inputGroupLabel = computed(() => {
@@ -294,6 +294,9 @@ export default {
 }
 </script>
 <style lang="scss">
+.base-input-chosen-container {
+  flex: 1 1 auto;
+}
 /**
  * Adjust is-invalid and is-focus borders
  */

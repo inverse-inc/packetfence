@@ -138,12 +138,15 @@ export const useInputMultiselectProps = {
   }
 }
 
-// support Promise based options
+// support Promise based options,
+//  transform Promise to Vue ref to avoid redundant async handling later
 export const useOptionsPromise = (optionsPromise) => {
   const options = ref([])
   watch(optionsPromise, () => {
     Promise.resolve(optionsPromise.value).then(_options => {
       options.value = _options
+    }).catch(() => {
+      options.value = []
     })
   }, { immediate: true })
   return options
@@ -156,44 +159,44 @@ export const useSingleValueLookupOptions = (value, onInput, lookup, options, opt
   let lastCurrentPromise = 0 // only use latest of 1+ promises
 
   watch([value, lookup], (...args) => {
-    if (!value.value || !lookup.value)
+    if (!value.value || !value.value.trim() || !lookup.value) {
       currentValueOptions.value = []
-    else {
-      // avoid (re)lookup when watch is triggered without value change
-      //  false-positives occur when parent array pushes/pops siblings
-      const { 0: { 0: newValue, 1: newLookup } = {}, 1: { 0: oldValue, 1: oldLookup } = {} } = args
-      if (newValue === oldValue && JSON.stringify(newLookup) === JSON.stringify(oldLookup))
-        return // These are not the droids you're looking for...
-
-      const { field_name: fieldName, search_path: url, value_name: valueName, base_url: baseURL = apiBaseURL } = lookup.value
-      currentValueLoading.value = true
-      const thisCurrentPromise = ++lastCurrentPromise
-      apiCall.request({
-        url,
-        method: 'post',
-        baseURL,
-        data: {
-          query: { op: 'and', values: [{
-            op: 'or',
-            values: [{ field: valueName, op: 'equals', value: value.value }] }]
-          },
-          fields: [fieldName, valueName],
-          sort: [fieldName],
-          cursor: 0,
-          limit: 1
-        }
-      }).then(response => {
-        if (thisCurrentPromise === lastCurrentPromise) { // ignore slow responses
-          const { data: { items = [] } = {} } = response
-          currentValueOptions.value = items.map(item => {
-            const { [fieldName]: _field, [valueName]: _value } = item // unmap lookup field_name/value_name
-            return { [label.value]: _field, [trackBy.value]: _value } // remap option label/trackBy
-          })
-        }
-      }).finally(() => {
-        currentValueLoading.value = false
-      })
+      return
     }
+    // avoid (re)lookup when watch is triggered without value change
+    //  false-positives occur when parent array pushes/pops siblings
+    const { 0: { 0: newValue, 1: newLookup } = {}, 1: { 0: oldValue, 1: oldLookup } = {} } = args
+    if (newValue === oldValue && JSON.stringify(newLookup) === JSON.stringify(oldLookup))
+      return // These are not the droids you're looking for...
+
+    const { field_name: fieldName, search_path: url, value_name: valueName, base_url: baseURL = apiBaseURL } = lookup.value
+    currentValueLoading.value = true
+    const thisCurrentPromise = ++lastCurrentPromise
+    apiCall.request({
+      url,
+      method: 'post',
+      baseURL,
+      data: {
+        query: { op: 'and', values: [{
+          op: 'or',
+          values: [{ field: valueName, op: 'equals', value: value.value }] }]
+        },
+        fields: [fieldName, valueName],
+        sort: [fieldName],
+        cursor: 0,
+        limit: 1
+      }
+    }).then(response => {
+      if (thisCurrentPromise === lastCurrentPromise) { // ignore slow responses
+        const { data: { items = [] } = {} } = response
+        currentValueOptions.value = items.map(item => {
+          const { [fieldName]: _field, [valueName]: _value } = item // unmap lookup field_name/value_name
+          return { [label.value]: _field, [trackBy.value]: _value } // remap option label/trackBy
+        })
+      }
+    }).finally(() => {
+      currentValueLoading.value = false
+    })
   }, { immediate: true })
 
   const showEmpty = ref(false)
@@ -305,44 +308,44 @@ export const useMultipleValueLookupOptions = (value, onInput, lookup, options, o
   let lastCurrentPromise = 0 // only use latest of 1+ promises
 
   watch([value, lookup], (...args) => {
-    if (!value.value || value.value.length === 0 || !lookup.value)
+    if (!value.value || value.value.length === 0 || !lookup.value) {
       currentValueOptions.value = []
-    else {
-      // avoid (re)lookup when watch is triggered without value change
-      //  false-positives occur when parent array pushes/pops siblings
-      const { 0: { 0: newValue, 1: newLookup } = {}, 1: { 0: oldValue, 1: oldLookup } = {} } = args
-      if (newValue === oldValue && JSON.stringify(newLookup) === JSON.stringify(oldLookup))
-        return // These are not the droids you're looking for...
-
-      const { field_name: fieldName, search_path: url, value_name: valueName, baseURL = apiBaseURL } = lookup.value
-      currentValueLoading.value = true
-      const thisCurrentPromise = ++lastCurrentPromise
-      apiCall.request({
-        url,
-        method: 'post',
-        baseURL,
-        data: {
-          query: { op: 'and', values: [{
-            op: 'or',
-            values: value.value.map(value => ({ field: valueName, op: 'equals', value }))
-          }] },
-          fields: [fieldName, valueName],
-          sort: [fieldName],
-          cursor: 0,
-          limit: value.value.length
-        }
-      }).then(response => {
-        if (thisCurrentPromise === lastCurrentPromise) { // ignore slow responses
-          const { data: { items = [] } = {} } = response
-          currentValueOptions.value = items.map(item => {
-            const { [fieldName]: _field, [valueName]: _value } = item // unmap lookup field_name/value_name
-            return { [label.value]: _field, [trackBy.value]: _value } // remap option label/trackBy
-          })
-        }
-      }).finally(() => {
-        currentValueLoading.value = false
-      })
+      return
     }
+    // avoid (re)lookup when watch is triggered without value change
+    //  false-positives occur when parent array pushes/pops siblings
+    const { 0: { 0: newValue, 1: newLookup } = {}, 1: { 0: oldValue, 1: oldLookup } = {} } = args
+    if (newValue === oldValue && JSON.stringify(newLookup) === JSON.stringify(oldLookup))
+      return // These are not the droids you're looking for...
+
+    const { field_name: fieldName, search_path: url, value_name: valueName, baseURL = apiBaseURL } = lookup.value
+    currentValueLoading.value = true
+    const thisCurrentPromise = ++lastCurrentPromise
+    apiCall.request({
+      url,
+      method: 'post',
+      baseURL,
+      data: {
+        query: { op: 'and', values: [{
+          op: 'or',
+          values: value.value.map(value => ({ field: valueName, op: 'equals', value }))
+        }] },
+        fields: [fieldName, valueName],
+        sort: [fieldName],
+        cursor: 0,
+        limit: value.value.length
+      }
+    }).then(response => {
+      if (thisCurrentPromise === lastCurrentPromise) { // ignore slow responses
+        const { data: { items = [] } = {} } = response
+        currentValueOptions.value = items.map(item => {
+          const { [fieldName]: _field, [valueName]: _value } = item // unmap lookup field_name/value_name
+          return { [label.value]: _field, [trackBy.value]: _value } // remap option label/trackBy
+        })
+      }
+    }).finally(() => {
+      currentValueLoading.value = false
+    })
   }, { immediate: true, deep: true })
 
   const searchResultLoading = ref(false)

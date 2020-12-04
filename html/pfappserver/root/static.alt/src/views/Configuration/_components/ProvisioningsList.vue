@@ -14,22 +14,10 @@
       </template>
       <template v-slot:buttonAdd>
         <b-dropdown :text="$t('New Provisioner')" variant="outline-primary">
-          <b-dropdown-item :to="{ name: 'newProvisioning', params: { provisioningType: 'accept' } }">Accept</b-dropdown-item>
-          <b-dropdown-item :to="{ name: 'newProvisioning', params: { provisioningType: 'airwatch' } }">Airwatch</b-dropdown-item>
-          <b-dropdown-item :to="{ name: 'newProvisioning', params: { provisioningType: 'android' } }">Android</b-dropdown-item>
-          <b-dropdown-item :to="{ name: 'newProvisioning', params: { provisioningType: 'deny' } }">Deny</b-dropdown-item>
-          <b-dropdown-item :to="{ name: 'newProvisioning', params: { provisioningType: 'dpsk' } }">dpsk</b-dropdown-item>
-          <b-dropdown-item :to="{ name: 'newProvisioning', params: { provisioningType: 'ibm' } }">IBM</b-dropdown-item>
-          <b-dropdown-item :to="{ name: 'newProvisioning', params: { provisioningType: 'jamf' } }">Jamf</b-dropdown-item>
-          <b-dropdown-item :to="{ name: 'newProvisioning', params: { provisioningType: 'mobileconfig' } }">Apple Devices</b-dropdown-item>
-          <b-dropdown-item :to="{ name: 'newProvisioning', params: { provisioningType: 'mobileiron' } }">Mobileiron</b-dropdown-item>
-          <b-dropdown-item :to="{ name: 'newProvisioning', params: { provisioningType: 'opswat' } }">OPSWAT</b-dropdown-item>
-          <b-dropdown-item :to="{ name: 'newProvisioning', params: { provisioningType: 'sentinelone' } }">SentinelOne</b-dropdown-item>
-          <b-dropdown-item :to="{ name: 'newProvisioning', params: { provisioningType: 'sepm' } }">Symantec Endpoint Protection Manager (SEPM)</b-dropdown-item>
-          <b-dropdown-item :to="{ name: 'newProvisioning', params: { provisioningType: 'symantec' } }">Symantec App Center</b-dropdown-item>
-          <b-dropdown-item :to="{ name: 'newProvisioning', params: { provisioningType: 'windows' } }">Windows</b-dropdown-item>
-          <b-dropdown-item :to="{ name: 'newProvisioning', params: { provisioningType: 'intune' } }">Microsoft Intune</b-dropdown-item>
-          <b-dropdown-item :to="{ name: 'newProvisioning', params: { provisioningType: 'servicenow' } }">ServiceNow</b-dropdown-item>
+          <template v-for="({ text, value }) in provisioningTypeOptions">
+            <b-dropdown-item :key="value"
+              :to="{ name: 'newProvisioning', params: { provisioningType: value } }">{{ text }}</b-dropdown-item>
+          </template>
         </b-dropdown>
       </template>
       <template v-slot:emptySearch="state">
@@ -51,6 +39,7 @@ import pfButtonHelp from '@/components/pfButtonHelp'
 import pfConfigList from '@/components/pfConfigList'
 import pfEmptyTable from '@/components/pfEmptyTable'
 import { config } from '../_config/provisioning'
+import { provisioningTypeOptions } from '../provisioners/config'
 
 export default {
   name: 'provisionings-list',
@@ -62,7 +51,8 @@ export default {
   },
   data () {
     return {
-      config: config(this)
+      config: config(this),
+      provisioningTypeOptions
     }
   },
   computed: {

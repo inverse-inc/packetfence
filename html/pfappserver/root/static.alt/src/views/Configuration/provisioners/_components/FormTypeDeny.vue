@@ -75,7 +75,7 @@ import { useForm as setup, useFormProps as props } from '../_composables/useForm
 
 // @vue/component
 export default {
-  name: 'form-type-accept',
+  name: 'form-type-deny',
   inheritAttrs: false,
   components,
   props,

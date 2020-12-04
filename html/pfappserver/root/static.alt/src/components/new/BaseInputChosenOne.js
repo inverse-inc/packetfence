@@ -1,10 +1,7 @@
 import { computed, toRefs, unref } from '@vue/composition-api'
 import useEventFnWrapper from '@/composables/useEventFnWrapper'
 import { useInputMeta } from '@/composables/useMeta'
-import {
-  useOptionsPromise,
-  useOptionsPlaceholder
-} from '@/composables/useInputMultiselect'
+import { useOptionsPromise, useOptionsValue } from '@/composables/useInputMultiselect'
 import { useInputValue } from '@/composables/useInputValue'
 import BaseInputChosen, { props as BaseInputChosenProps } from './BaseInputChosen'
 
@@ -46,7 +43,7 @@ export const setup = (props, context) => {
     }
   })
 
-  const inputPlaceholder = useOptionsPlaceholder(options, trackBy, label, placeholder)
+  const inputPlaceholder = useOptionsValue(options, trackBy, label, placeholder)
 
   const onInputWrapper = useEventFnWrapper(onInput, value => {
     const { [unref(trackBy)]: trackedValue } = value
