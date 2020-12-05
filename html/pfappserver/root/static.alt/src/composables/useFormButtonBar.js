@@ -15,6 +15,9 @@ export const useFormButtonBarProps = {
   isLoading: {
     type: Boolean
   },
+  isCloneable: {
+    type: Boolean
+  },
   isDeletable: {
     type: Boolean
   },
@@ -30,20 +33,26 @@ export const useFormButtonBar = (props, context) => {
 
   const {
     isClone,
+    isCloneable,
+    isDeletable,
     isNew
   } = toRefs(props)
 
   const { emit, listeners } = context
 
-  const isCloneable = computed(() => {
-    return isClone.value === false && isNew.value === false && 'clone' in listeners
+  const canClone = computed(() => {
+    return isCloneable.value && isClone.value === false && isNew.value === false && 'clone' in listeners
   })
 
-  const isCloseable = computed(() => {
+  const canClose = computed(() => {
     return 'close' in listeners
   })
 
-  const isResetable = true /*computed(() => {
+  const canDelete = computed(() => {
+    return isDeletable.value && isClone.value === false && isNew.value === false && 'remove' in listeners
+  })
+
+  const canReset = true /*computed(() => {
     return isNew.value === false
   })*/
 
@@ -54,9 +63,10 @@ export const useFormButtonBar = (props, context) => {
   const onSave = value => emit('save', value)
 
   return {
-    isCloneable,
-    isCloseable,
-    isResetable,
+    canClone,
+    canClose,
+    canDelete,
+    canReset,
 
     onClone,
     onClose,

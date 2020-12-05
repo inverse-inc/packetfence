@@ -46,15 +46,6 @@ export const useViewCollectionItem = (collection, props, context) => {
   // unhandled custom props
   const customProps = ref(context.attrs)
 
-  const isDeletable = computed(() => {
-      if (isNew.value || isClone.value)
-        return false
-      const { not_deletable: notDeletable = false } = form.value || {}
-      if (notDeletable)
-        return false
-      return true
-  })
-
   const isValid = useDebouncedWatchHandler([form, meta], () => (!rootRef.value || rootRef.value.querySelectorAll('.is-invalid').length === 0))
 
   const {
@@ -71,6 +62,19 @@ export const useViewCollectionItem = (collection, props, context) => {
     goToItem,
     goToClone,
   } = useRouter(props, context, form)
+
+  const isCloneable = computed(() => !!goToClone)
+
+  const isDeletable = computed(() => {
+      if (isNew.value || isClone.value)
+        return false
+      if (!deleteItem)
+        return false
+      const { not_deletable: notDeletable = false } = form.value || {}
+      if (notDeletable)
+        return false
+      return true
+  })
 
   const init = () => {
     return new Promise((resolve, reject) => {
@@ -145,6 +149,7 @@ export const useViewCollectionItem = (collection, props, context) => {
     isModified,
     customProps,
     actionKey,
+    isCloneable,
     isDeletable,
     isValid,
     isLoading,
