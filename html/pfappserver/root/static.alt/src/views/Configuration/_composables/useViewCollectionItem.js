@@ -97,7 +97,7 @@ export const useViewCollectionItem = (collection, props, context) => {
       } else { // new
         getOptions().then(options => {
           const { meta: _meta = {} } = options || {}
-          form.value = useItemDefaults(_meta, props)
+          form.value = useItemDefaults(_meta, props, context)
           meta.value = _meta
           resolve()
         }).catch(e => {

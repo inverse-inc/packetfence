@@ -21,7 +21,7 @@ export const useViewCollectionItemFixed = (collection, props, context) => {
 
   // state
   const form = ref({})
-  const title = useItemTitle(props)
+  const title = useItemTitle(props, context, form)
   const isModified = ref(false)
 
   // unhandled custom props

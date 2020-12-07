@@ -117,8 +117,8 @@ const SelfServiceView = () => import(/* webpackChunkName: "Configuration" */ '..
 /* Network Configuration */
 const NetworkConfigurationSection = () => import(/* webpackChunkName: "Configuration" */ '../_components/NetworkConfigurationSection')
 const NetworksTabs = () => import(/* webpackChunkName: "Configuration" */ '../_components/NetworksTabs')
-const InterfaceView = () => import(/* webpackChunkName: "Configuration" */ '../_components/InterfaceView')
-const Layer2NetworkView = () => import(/* webpackChunkName: "Configuration" */ '../interfaces/layer2networks/_components/TheView')
+const InterfaceView = () => import(/* webpackChunkName: "Configuration" */ '../networks/interfaces/_components/TheView')
+const Layer2NetworkView = () => import(/* webpackChunkName: "Configuration" */ '../networks/layer2networks/_components/TheView')
 const RoutedNetworkView = () => import(/* webpackChunkName: "Configuration" */ '../_components/RoutedNetworkView')
 const TrafficShapingView = () => import(/* webpackChunkName: "Configuration" */ '../_components/TrafficShapingView')
 const SnmpTrapView = () => import(/* webpackChunkName: "Configuration" */ '../_components/SnmpTrapView')
@@ -1711,11 +1711,8 @@ const route = {
       path: 'interface/:id',
       name: 'interface',
       component: InterfaceView,
-      props: (route) => ({ formStoreName: 'formInterface', id: route.params.id }),
+      props: (route) => ({ id: route.params.id }),
       beforeEnter: (to, from, next) => {
-        if (!store.state.formInterface) { // Register store module only once
-          store.registerModule('formInterface', FormStore)
-        }
         store.dispatch('$_interfaces/getInterface', to.params.id).then(() => {
           next()
         })
@@ -1725,11 +1722,8 @@ const route = {
       path: 'interface/:id/clone',
       name: 'cloneInterface',
       component: InterfaceView,
-      props: (route) => ({ formStoreName: 'formInterface', id: route.params.id, isClone: true }),
+      props: (route) => ({ id: route.params.id, isClone: true }),
       beforeEnter: (to, from, next) => {
-        if (!store.state.formInterface) { // Register store module only once
-          store.registerModule('formInterface', FormStore)
-        }
         store.dispatch('$_interfaces/getInterface', to.params.id).then(() => {
           next()
         })
@@ -1739,11 +1733,8 @@ const route = {
       path: 'interface/:id/new',
       name: 'newInterface',
       component: InterfaceView,
-      props: (route) => ({ formStoreName: 'formInterface', id: route.params.id, isNew: true }),
+      props: (route) => ({ id: route.params.id, isNew: true }),
       beforeEnter: (to, from, next) => {
-        if (!store.state.formInterface) { // Register store module only once
-          store.registerModule('formInterface', FormStore)
-        }
         store.dispatch('$_interfaces/getInterface', to.params.id).then(() => {
           next()
         })

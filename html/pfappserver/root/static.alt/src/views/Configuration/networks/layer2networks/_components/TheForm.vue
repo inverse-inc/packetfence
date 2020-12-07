@@ -66,7 +66,6 @@
   </base-form>
 </template>
 <script>
-import { computed, toRefs } from '@vue/composition-api'
 import {
   BaseForm
 } from '@/components/new/'
@@ -117,14 +116,19 @@ export const props = {
   }
 }
 
+import { computed, toRefs } from '@vue/composition-api'
+import { useFormMetaSchema } from '@/composables/useMeta'
+
 export const setup = (props) => {
 
   const {
     form,
-    id
+    meta
   } = toRefs(props)
 
   const schema = computed(() => schemaFn(props))
+
+  const metaSchema = computed(() => useFormMetaSchema(meta, schema))
 
   const isInline = computed(() => {
     const { type } = form.value || {}
@@ -137,7 +141,7 @@ export const setup = (props) => {
   })
 
   return {
-    schema,
+    schema: metaSchema,
 
     isInline,
     isFakeMac
