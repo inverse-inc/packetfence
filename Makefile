@@ -1,5 +1,7 @@
 include config.mk
 
+PF_UDF_OBJ = $(patsubst src/mariadb_udf/%.c, src/mariadb_udf/%.o, $(filter-out src/mariadb_udf/pf_udf.c src/mariadb_udf/test_pf_udf.c, $(wildcard src/mariadb_udf/*.c)))
+
 all:
 	@echo "Please chose which documentation to build:"
 	@echo ""
@@ -107,6 +109,19 @@ bin/pfcmd: src/pfcmd.c
 
 bin/ntlm_auth_wrapper: src/ntlm_auth_wrap.c
 	$(CC) -g -std=c99 -Wall $< -o $@
+
+src/mariadb_udf/pf_udf.so: src/mariadb_udf/pf_udf.c $(PF_UDF_OBJ)
+	$(CC) -O2 -Wall -g -I /usr/include/mysql/ -fPIC -shared -o $@ $< $(PF_UDF_OBJ)
+
+src/mariadb_udf/%.o: src/mariadb_udf/%.c src/mariadb_udf/%.h
+	$(CC) $(TEST_CFLAGS) $(CFLAGS) -fPIC -c $< -o $@
+
+src/mariadb_udf/test_pf_udf: src/mariadb_udf/test_pf_udf.c $(PF_UDF_OBJ)
+	$(CC) -O2 -g -Wall $< $(PF_UDF_OBJ) -o $@
+
+.PHONY: test_pf_udf
+test_pf_udf: src/mariadb_udf/test_pf_udf
+	./src/mariadb_udf/test_pf_udf
 
 .PHONY: permissions
 
