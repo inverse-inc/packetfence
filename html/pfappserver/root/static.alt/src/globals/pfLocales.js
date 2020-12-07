@@ -6,6 +6,7 @@ export const pfLocales = [
   'fr_FR',
   'he_IL',
   'it_IT',
+  'nb_NO',  
   'nl_NL',
   'pl_PL',
   'pt_BR'
