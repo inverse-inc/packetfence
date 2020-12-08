@@ -107,11 +107,13 @@ func setupRadiusDictionary() {
 	var InternalAttributes []*dictionary.Attribute
 	var ValueAttributes []*dictionary.Value
 
-	ValueAttributes = append(ValueAttributes, &dictionary.Value{Attribute: ""})
 	for _, v := range RadiusConfiguration.RadiusAttributes {
-		InternalAttributes = append(InternalAttributes, &dictionary.Attribute{Name: v, OID: dictionary.OID{29464}, Type: dictionary.AttributeString})
-		ValueAttributes = append(ValueAttributes, &dictionary.Value{Attribute: v})
+		a := dictionary.AttributeByName(d.Attributes, v)
+		if a == nil {
+			InternalAttributes = append(InternalAttributes, &dictionary.Attribute{Name: v, OID: dictionary.OID{29464}, Type: dictionary.AttributeString})
+		}
 	}
+
 	appendRadiusAttributes(&results.Items, InternalAttributes, ValueAttributes, "")
 
 	res, _ := json.Marshal(&results)
