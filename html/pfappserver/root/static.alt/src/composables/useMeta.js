@@ -29,7 +29,7 @@ export const useInputMeta = (props) => {
   } = toRefs(props) // toRefs maintains reactivity w/ destructuring
 
   // defaults (dereferenced)
-  let localProps = reactive({})
+  let localProps = reactive(props)
   watch(
     props,
     props => {
@@ -48,7 +48,7 @@ export const useInputMeta = (props) => {
 
     watch(
       namespaceMeta,
-      namespaceMeta => {
+      () => {
         let _namespaceMeta = unref(namespaceMeta)
         let { type, item } = _namespaceMeta
         if (type === 'array')
@@ -91,7 +91,6 @@ export const useInputMeta = (props) => {
       { immediate: true }
     )
   }
-
   return localProps
 }
 
