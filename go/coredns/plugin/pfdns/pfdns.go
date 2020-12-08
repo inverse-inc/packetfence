@@ -58,6 +58,7 @@ type pfdns struct {
 	refreshLauncher     *sync.Once
 	PortalFQDN          map[int]map[*net.IPNet]*regexp.Regexp
 	mutex               sync.Mutex
+	detectionBypass     bool
 	detectionMechanisms []*regexp.Regexp
 	recordDNS           bool
 }
@@ -749,6 +750,11 @@ func (pf *pfdns) MakeDetectionMecanism(ctx context.Context) error {
 
 	pfconfigdriver.FetchDecodeSocket(ctx, &portal)
 
+	pf.detectionBypass = false
+	if portal.DetectionMecanismBypass == "enabled" {
+		pf.detectionBypass = true
+	}
+
 	pf.detectionMechanisms = make([]*regexp.Regexp, 0)
 	var err error
 	for _, v := range portal.DetectionMecanismUrls {
@@ -777,7 +783,7 @@ func (pf *pfdns) addDetectionMechanismsToList(ctx context.Context, r string) err
 
 // checkDetectionMechanisms compare the url to the detection mechanisms regex
 func (pf *pfdns) checkDetectionMechanisms(ctx context.Context, e string) bool {
-	if pf.detectionMechanisms == nil {
+	if pf.detectionMechanisms == nil || pf.detectionBypass {
 		return false
 	}
 	for _, rgx := range pf.detectionMechanisms {
