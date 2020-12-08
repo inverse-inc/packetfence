@@ -111,8 +111,8 @@ export default {
       this.emailSubject = `${general.domain}: Guest account creation information`
     })
     this.$store.dispatch('config/getBaseAlerting').then(alerting => {
-      if (alerting.emailaddr) {
-        this.emailFrom = alerting.emailaddr
+      if (alerting.fromaddr) {
+        this.emailFrom = alerting.fromaddr
       } else {
         this.$store.dispatch('config/getBaseGeneral').then(general => {
           this.emailFrom = `root@${general.hostname}.${general.domain}`
