@@ -51,9 +51,12 @@ export const useInputRange = (props, { emit, refs }, inputRef = 'input') => {
 
   const rootStyle = computed(() => ({
     '--range-length': +max.value - +min.value + 1,
-    ...((color.value)
-      ? { '--range-background-color': color.value }
-      : {}
+    ...((disabled.value)
+      ? '--range-background-color: var(--light)'
+      : ((color.value)
+        ? { '--range-background-color': color.value }
+        : {}
+      )
     )
   }))
 
@@ -85,8 +88,8 @@ export const useInputRange = (props, { emit, refs }, inputRef = 'input') => {
       return
     emit('input', e.target.value)
   }
-  const onDecrement = () => emit('input', ((~~value.value + (~~max.value - ~~min.value)) % (~~max.value - ~~min.value + 1)))
-  const onIncrement = () => emit('input', ((~~value.value + 1) % (~~max.value - ~~min.value + 1)))
+  const onDecrement = () => !disabled.value && emit('input', ((~~value.value + (~~max.value - ~~min.value)) % (~~max.value - ~~min.value + 1)))
+  const onIncrement = () => !disabled.value && emit('input', ((~~value.value + 1) % (~~max.value - ~~min.value + 1)))
 
   return {
     // state

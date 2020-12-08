@@ -118,8 +118,8 @@ const SelfServiceView = () => import(/* webpackChunkName: "Configuration" */ '..
 const NetworkConfigurationSection = () => import(/* webpackChunkName: "Configuration" */ '../_components/NetworkConfigurationSection')
 const NetworksTabs = () => import(/* webpackChunkName: "Configuration" */ '../_components/NetworksTabs')
 const InterfaceView = () => import(/* webpackChunkName: "Configuration" */ '../networks/interfaces/_components/TheView')
-const Layer2NetworkView = () => import(/* webpackChunkName: "Configuration" */ '../networks/layer2networks/_components/TheView')
-const RoutedNetworkView = () => import(/* webpackChunkName: "Configuration" */ '../_components/RoutedNetworkView')
+const Layer2NetworkView = () => import(/* webpackChunkName: "Configuration" */ '../networks/layer2Networks/_components/TheView')
+const RoutedNetworkView = () => import(/* webpackChunkName: "Configuration" */ '../networks/routedNetworks/_components/TheView')
 const TrafficShapingView = () => import(/* webpackChunkName: "Configuration" */ '../_components/TrafficShapingView')
 const SnmpTrapView = () => import(/* webpackChunkName: "Configuration" */ '../_components/SnmpTrapView')
 const FloatingDevicesList = () => import(/* webpackChunkName: "Configuration" */ '../_components/FloatingDevicesList')
@@ -1755,23 +1755,14 @@ const route = {
       path: 'interfaces/routed_networks/new',
       name: 'newRoutedNetwork',
       component: RoutedNetworkView,
-      props: () => ({ formStoreName: 'formRoutedNetwork', isNew: true }),
-      beforeEnter: (to, from, next) => {
-        if (!store.state.formRoutedNetwork) { // Register store module only once
-          store.registerModule('formRoutedNetwork', FormStore)
-        }
-        next()
-      }
+      props: () => ({ isNew: true })
     },
     {
       path: 'interfaces/routed_network/:id',
       name: 'routed_network',
       component: RoutedNetworkView,
-      props: (route) => ({ formStoreName: 'formRoutedNetwork', id: route.params.id }),
+      props: (route) => ({ id: route.params.id }),
       beforeEnter: (to, from, next) => {
-        if (!store.state.formRoutedNetwork) { // Register store module only once
-          store.registerModule('formRoutedNetwork', FormStore)
-        }
         store.dispatch('$_routed_networks/getRoutedNetwork', to.params.id).then(() => {
           next()
         })
@@ -1781,11 +1772,8 @@ const route = {
       path: 'interfaces/routed_network/:id/clone',
       name: 'cloneRoutedNetwork',
       component: RoutedNetworkView,
-      props: (route) => ({ formStoreName: 'formRoutedNetwork', id: route.params.id, isClone: true }),
+      props: (route) => ({ id: route.params.id, isClone: true }),
       beforeEnter: (to, from, next) => {
-        if (!store.state.formRoutedNetwork) { // Register store module only once
-          store.registerModule('formRoutedNetwork', FormStore)
-        }
         store.dispatch('$_routed_networks/getRoutedNetwork', to.params.id).then(() => {
           next()
         })

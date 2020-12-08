@@ -3,7 +3,6 @@
     :label-cols="labelCols"
     :column-label="columnLabel"
     :text="text"
-    :disabled="disabled"
     :state="inputState"
     :invalid-feedback="inputInvalidFeedback"
     :valid-feedback="inputValidFeedback"

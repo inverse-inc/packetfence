@@ -29,7 +29,7 @@ export const useInputMeta = (props) => {
   } = toRefs(props) // toRefs maintains reactivity w/ destructuring
 
   // defaults (dereferenced)
-  let localProps = reactive(props)
+  let localProps = reactive({})
   watch(
     props,
     props => {

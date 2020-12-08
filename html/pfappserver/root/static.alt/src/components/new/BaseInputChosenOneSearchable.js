@@ -5,7 +5,6 @@ import { useInputMeta } from '@/composables/useMeta'
 import { useInputValue } from '@/composables/useInputValue'
 import { useOptionsPromise, useOptionsValue, useSingleValueLookupOptions } from '@/composables/useInputMultiselect'
 import BaseInputChosen, { props as BaseInputChosenProps } from './BaseInputChosen'
-import i18n from '@/utils/locale'
 
 export const props = {
   ...BaseInputChosenProps,

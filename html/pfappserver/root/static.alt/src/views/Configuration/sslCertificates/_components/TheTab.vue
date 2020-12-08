@@ -32,7 +32,7 @@ export const props = {
 
 import { ref } from '@vue/composition-api'
 
-const setup = (props) => {
+const setup = () => {
 
   const isCertKeyMatch = ref(false)
   const isChainValid = ref(false)

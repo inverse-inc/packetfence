@@ -1,15 +1,8 @@
 import { BaseViewCollectionItem } from '../../_components/new/'
 import {
   BaseFormButtonBar,
-  BaseFormGroupChosenMultiple,
-  BaseFormGroupChosenOne,
   BaseFormGroupInput,
-  BaseFormGroupInputNumber,
-  BaseFormGroupInputPassword,
-  BaseFormGroupTextarea,
-  BaseFormGroupToggle,
-  BaseFormGroupToggleDisabledEnabled,
-  BaseFormGroupToggleNoYes
+  BaseFormGroupToggleDisabledEnabled
 } from '@/components/new/'
 import {
   BaseFormGroupIntervalUnit

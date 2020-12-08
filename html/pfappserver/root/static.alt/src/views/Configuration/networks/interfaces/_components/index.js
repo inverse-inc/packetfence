@@ -4,7 +4,7 @@ import {
   BaseFormGroupChosenMultiple,
   BaseFormGroupChosenOne,
   BaseFormGroupInput,
-  BaseFormGroupTextarea,
+  BaseFormGroupInputNumber,
   BaseFormGroupToggleDisabledEnabled
 } from '@/components/new/'
 import TheForm from './TheForm'
@@ -22,7 +22,7 @@ export {
   BaseFormGroupInput                  as FormGroupIdentifier,
   BaseFormGroupInput                  as FormGroupIpAddress,
   BaseFormGroupInput                  as FormGroupIpv6Address,
-  BaseFormGroupInput                  as FormGroupIpv6Prefix,
+  BaseFormGroupInputNumber            as FormGroupIpv6Prefix,
   BaseFormGroupToggleDisabledEnabled  as FormGroupNatEnabled,
   BaseFormGroupToggleDisabledEnabled  as FormGroupNetflowAccountingEnabled,
   BaseFormGroupInput                  as FormGroupNetmask,

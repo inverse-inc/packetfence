@@ -67,7 +67,6 @@ const setup = (props, context) => {
   const {
     accept,
     cumulative,
-    isLoading,
     readAsText,
     multiple
   } = toRefs(props)

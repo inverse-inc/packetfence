@@ -57,6 +57,39 @@ yup.addMethod(yup.string, 'isCIDR', function (message) {
   })
 })
 
+yup.addMethod(yup.string, 'isFQDN', function (message) {
+  return this.test({
+    name: 'isFQDN',
+    message: message || i18n.t('Invalid FQDN.'),
+    test: value => {
+      if (['', null, undefined].includes(value))
+        return true
+      const parts = value.split('.')
+      const tld = parts.pop()
+      if (!parts.length || !/^([a-z\u00a1-\uffff]{2,}|xn[a-z0-9-]{2,})$/i.test(tld)) {
+        return false
+      }
+      for (let i = 0; i < parts.length; i++) {
+        let part = parts[i]
+        if (part.indexOf('__') >= 0) {
+          return false
+        }
+        if (!/^[a-z\u00a1-\uffff0-9-_]+$/i.test(part)) {
+          return false
+        }
+        if (/[\uff01-\uff5e]/.test(part)) {
+          // disallow full-width chars
+          return false
+        }
+        if (part[0] === '-' || part[part.length - 1] === '-') {
+          return false
+        }
+      }
+      return true
+    }
+  })
+})
+
 yup.addMethod(yup.string, 'isIpv4', function (message) {
   return this.test({
     name: 'isIpv4',

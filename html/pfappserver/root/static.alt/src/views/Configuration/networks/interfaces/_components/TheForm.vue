@@ -36,7 +36,7 @@
       :options="typeOptions"
     />
 
-    <b-form-group v-show="isType(['inlinel2'])"
+    <b-form-group v-show="isType('inlinel2')"
       label-cols="3">
       <div class="alert alert-warning mb-0">
         <strong>{{ $i18n.t('Note:') }}</strong>
@@ -49,18 +49,18 @@
       :options="daemonOptions"
     />
 
-    <form-group-dns v-show="isType(['inlinel2'])"
+    <form-group-dns v-show="isType('inlinel2')"
       namespace="dns"
       :column-label="$i18n.t('DNS')"
       :text="$i18n.t('The DNS server(s) of your network. (comma limited)')"
     />
 
-    <form-group-dhcpd-enabled v-show="isType(['dns-enforcement', 'inlinel2', 'vlan-isolation', 'vlan-registration'])"
+    <form-group-dhcpd-enabled v-show="isType('dns-enforcement', 'inlinel2', 'vlan-isolation', 'vlan-registration')"
       namespace="dhcpd_enabled"
       :column-label="$i18n.t('Enable DHCP Server')"
     />
 
-    <template v-if="isType(['inlinel2'])">
+    <template v-if="isType('inlinel2')">
       <form-group-nat-enabled namespace="nat_enabled"
         :column-label="$i18n.t('Enable NAT')"
       />
@@ -73,31 +73,31 @@
       </b-form-group>
     </template>
 
-    <form-group-split-network v-show="isType(['inlinel2'])"
+    <form-group-split-network v-show="isType('inlinel2')"
       namespace="split_network"
       :column-label="$i18n.t('Split network by role')"
       :text="$i18n.t('This will create a small network for each roles.')"
     />
 
-    <form-group-reg-network v-show="isType(['inlinel2'])"
+    <form-group-reg-network v-show="isType('inlinel2')"
       namespace="reg_network"
       :column-label="$i18n.t('Registration IP Address CIDR format')"
       :text="$i18n.t('When split network by role is enabled then this network will be used as the registration network (example: 192.168.0.1/24).')"
     />
 
-    <form-group-coa v-show="isType(['inlinel2'])"
+    <form-group-coa v-show="isType('inlinel2')"
       namespace="coa"
       :column-label="$i18n.t('Enable CoA')"
       :text="$i18n.t('Enabling this will send a CoA request to the equipment to reevaluate network access of endpoints.')"
     />
 
-    <form-group-netflow-accounting-enabled v-show="isType(['inlinel2'])"
+    <form-group-netflow-accounting-enabled v-show="isType('inlinel2')"
       namespace="netflow_accounting_enabled"
       :column-label="$i18n.t('Netflow Accounting Enabled')"
       :text="$i18n.t('Enable Netflow on this network to enable accounting.')"
     />
 
-    <form-group-high-availability v-show="isType(['none', 'management'])"
+    <form-group-high-availability v-show="isType('none', 'management')"
       namespace="high_availability"
       :column-label="$i18n.t('High availability')"
     />
@@ -182,7 +182,7 @@ export const setup = (props) => {
 
   const schema = computed(() => schemaFn(props))
 
-  const isType = (types) => {
+  const isType = (...types) => {
     const { type } = form.value || {}
     return types.includes(type)
   }
