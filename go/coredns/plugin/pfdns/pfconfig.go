@@ -107,11 +107,7 @@ func (pf *pfdns) detectVIP(ctx context.Context) error {
 			}
 		}
 	}
-	id, err := GlobalTransactionLock.Lock()
-	if err != nil {
-		return errors.New("Unable to create a RWLock")
-	}
-	defer GlobalTransactionLock.Unlock(id)
+
 	for _, v := range sharedutils.RemoveDuplicates(append(pfconfigdriver.Config.Interfaces.ListenInts.Element, intDNS...)) {
 
 		keyConfCluster.PfconfigHashNS = "interface " + v
@@ -155,6 +151,12 @@ func (pf *pfdns) detectVIP(ctx context.Context) error {
 					log.LoggerWContext(ctx).Error(err.Error())
 					continue
 				}
+
+				id, err := GlobalTransactionLock.Lock()
+				if err != nil {
+					return errors.New("Unable to create a RWLock")
+				}
+
 				if (NetIP.Contains(net.ParseIP(ConfNet.DhcpStart)) && NetIP.Contains(net.ParseIP(ConfNet.DhcpEnd))) || NetIP.Contains(net.ParseIP(ConfNet.NextHop)) {
 					NetIndex.Mask = net.IPMask(net.ParseIP(ConfNet.Netmask))
 					NetIndex.IP = net.ParseIP(key)
@@ -167,6 +169,7 @@ func (pf *pfdns) detectVIP(ctx context.Context) error {
 						pf.Network[NetIP2.String()] = VIP
 					}
 				}
+				GlobalTransactionLock.Unlock(id)
 			}
 		}
 	}

@@ -134,10 +134,6 @@ func (pf *pfdns) RefreshPfconfig(ctx context.Context) {
 // ServeDNS implements the middleware.Handler interface.
 func (pf *pfdns) ServeDNS(ctx context.Context, w dns.ResponseWriter, r *dns.Msg) (int, error) {
 
-	id, _ := GlobalTransactionLock.RLock()
-
-	defer GlobalTransactionLock.RUnlock(id)
-
 	pf.RefreshPfconfig(ctx)
 
 	state := request.Request{W: w, Req: r}
@@ -412,8 +408,11 @@ func (pf *pfdns) ServeDNS(ctx context.Context, w dns.ResponseWriter, r *dns.Msg)
 				if found {
 					break
 				}
-				rr.(*dns.A).A = pf.RedirectIP.To4()
+				rr.(*dns.A).A = nil
 			}
+		}
+		if rr.(*dns.A).A == nil {
+			rr.(*dns.A).A = append([]byte(nil), []byte{127, 0, 0, 2}...)
 		}
 	case 2:
 		rr = new(dns.AAAA)
@@ -447,8 +446,11 @@ func (pf *pfdns) ServeDNS(ctx context.Context, w dns.ResponseWriter, r *dns.Msg)
 				rr.(*dns.AAAA).AAAA = returnedIP
 				break
 			} else {
-				rr.(*dns.AAAA).AAAA = pf.RedirectIP.To16()
+				rr.(*dns.AAAA).AAAA = nil
 			}
+		}
+		if rr.(*dns.AAAA).AAAA == nil {
+			rr.(*dns.AAAA).AAAA = net.IPv6loopback
 		}
 	}
 
