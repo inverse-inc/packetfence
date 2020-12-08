@@ -120,7 +120,7 @@ const NetworksTabs = () => import(/* webpackChunkName: "Configuration" */ '../_c
 const InterfaceView = () => import(/* webpackChunkName: "Configuration" */ '../networks/interfaces/_components/TheView')
 const Layer2NetworkView = () => import(/* webpackChunkName: "Configuration" */ '../networks/layer2Networks/_components/TheView')
 const RoutedNetworkView = () => import(/* webpackChunkName: "Configuration" */ '../networks/routedNetworks/_components/TheView')
-const TrafficShapingView = () => import(/* webpackChunkName: "Configuration" */ '../_components/TrafficShapingView')
+const TrafficShapingView = () => import(/* webpackChunkName: "Configuration" */ '../networks/trafficShapingPolicies/_components/TheView')
 const SnmpTrapView = () => import(/* webpackChunkName: "Configuration" */ '../_components/SnmpTrapView')
 const FloatingDevicesList = () => import(/* webpackChunkName: "Configuration" */ '../_components/FloatingDevicesList')
 const FloatingDeviceView = () => import(/* webpackChunkName: "Configuration" */ '../_components/FloatingDeviceView')
@@ -1795,23 +1795,14 @@ const route = {
       path: 'traffic_shaping/new/:role',
       name: 'newTrafficShaping',
       component: TrafficShapingView,
-      props: (route) => ({ formStoreName: 'formTrafficShapingPolicy', isNew: true, role: route.params.role }),
-      beforeEnter: (to, from, next) => {
-        if (!store.state.formTrafficShapingPolicy) { // Register store module only once
-          store.registerModule('formTrafficShapingPolicy', FormStore)
-        }
-        next()
-      }
+      props: (route) => ({ isNew: true, role: route.params.role })
     },
     {
       path: 'traffic_shaping/:id',
       name: 'traffic_shaping',
       component: TrafficShapingView,
-      props: (route) => ({ formStoreName: 'formTrafficShapingPolicy', id: route.params.id }),
+      props: (route) => ({ id: route.params.id }),
       beforeEnter: (to, from, next) => {
-        if (!store.state.formTrafficShapingPolicy) { // Register store module only once
-          store.registerModule('formTrafficShapingPolicy', FormStore)
-        }
         store.dispatch('$_traffic_shaping_policies/getTrafficShapingPolicy', to.params.id).then(() => {
           next()
         })
