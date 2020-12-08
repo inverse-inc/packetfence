@@ -144,7 +144,7 @@ export const view = (form = {}, meta = {}) => {
         },
         {
           label: i18n.t('Static routes'),
-          text: i18n.t('Add custom static toutes managed by keepalived, one line per static route.'),
+          text: i18n.t('Add custom static toutes managed by keepalived, one line per static route. (like: 10.0.0.0/24 via 10.0.0.1 dev eth1)'),
           cols: [
             {
               namespace: 'staticroutes',
