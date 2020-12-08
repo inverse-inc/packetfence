@@ -45,6 +45,10 @@ For a list of compatibility related changes see the <<PacketFence_Upgrade_Guide.
 * web admin: timer_expire and ocsp_timeout are not displayed correctly (#5961)
 * web admin: Realm can't be selected as a filter on a connection profile (#5959)
 * API: remove a source doesn't remove rules from authentication.conf (#5958)
+* web admin: high-availability setting is not display correctly when editing an interface (#5963)
+* SSIDs are not hidden by default when creating a provisioner (#5952)
+* with_aup is correctly displayed on GUI (#5954)
+
 
 == Version 10.2.0 released on 2020-10-07
 
