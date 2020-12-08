@@ -137,7 +137,9 @@ NAS-IP-Address = $disconnectIp
 EOT
 
 [Huawei::S5720]
-# tested on Huawei S5720 running V200R011C10SPC600
+# tested on Huawei S5720/S5735 running V200R011C10SPC600/V200R019C00SPC500
+# Do not edit.
+# Any changes will be lost on upgrade.
 description=Huawei S5720
 radiusDisconnect=coaOrDisconnect
 snmpDisconnect=disabled
@@ -157,6 +159,8 @@ coa= <<EOT
 Calling-Station-Id = ${macToEUI48($mac)}
 NAS-IP-Address = $disconnectIp
 EOT
+cliAuthorizeRead=Huawei-Exec-Privilege = 1
+cliAuthorizeWrite=Huawei-Exec-Privilege = 15
 
 [Juniper::Mist]
 # Do not edit.
