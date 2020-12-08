@@ -276,7 +276,7 @@ export const viewFields = {
             ...attributesFromMeta(meta, 'broadcast'),
             ...{
               values: { checked: 1, unchecked: 0 }
-            }  
+            }
           }
         }
       ]
