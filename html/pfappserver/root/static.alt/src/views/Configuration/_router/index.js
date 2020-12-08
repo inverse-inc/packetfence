@@ -129,7 +129,7 @@ const CertificatesView = () => import(/* webpackChunkName: "Configuration" */ '.
 /* System Configuration */
 const SystemConfigurationSection = () => import(/* webpackChunkName: "Configuration" */ '../_components/SystemConfigurationSection')
 const MainTabs = () => import(/* webpackChunkName: "Configuration" */ '../_components/MainTabs')
-const MaintenanceTaskView = () => import(/* webpackChunkName: "Configuration" */ '../_components/MaintenanceTaskView')
+const MaintenanceTaskView = () => import(/* webpackChunkName: "Configuration" */ '../maintenanceTasks/_components/TheView')
 const DatabaseTabs = () => import(/* webpackChunkName: "Configuration" */ '../_components/DatabaseTabs')
 const ActiveActiveView = () => import(/* webpackChunkName: "Configuration" */ '../_components/ActiveActiveView')
 const RadiusTabs = () => import(/* webpackChunkName: "Configuration" */ '../_components/RadiusTabs')
@@ -1923,11 +1923,8 @@ const route = {
       path: 'maintenance_task/:id',
       name: 'maintenance_task',
       component: MaintenanceTaskView,
-      props: (route) => ({ formStoreName: 'formMaintenanceTask', id: route.params.id }),
+      props: (route) => ({ id: route.params.id }),
       beforeEnter: (to, from, next) => {
-        if (!store.state.formMaintenanceTask) { // Register store module only once
-          store.registerModule('formMaintenanceTask', FormStore)
-        }
         store.dispatch('$_maintenance_tasks/getMaintenanceTask', to.params.id).then(() => {
           next()
         })
