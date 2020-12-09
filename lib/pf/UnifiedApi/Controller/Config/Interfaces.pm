@@ -126,7 +126,7 @@ sub normalize_interface {
         $interface->{$bool} = $interface->{$bool} ? $self->json_true : $self->json_false;
     }
 
-    ($interface->{type}, @{$interface->{additional_listening_daemons}}) = split(',', $interface->{type});
+    ($interface->{type}, @{$interface->{additional_listening_daemons}}) = grep { !/high-availability/ } split(',', $interface->{type});
     
     # Ensure all fields have a default value
     while(my ($field, $default) = each(%FIELDS)) {
