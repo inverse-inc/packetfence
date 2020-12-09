@@ -141,7 +141,7 @@ sub update_udf_config {
     my $pf_version = pf::version::version_get_current();
     while (my ($k, $v) = each %$event_logger) {
         for my $logger (@$v) {
-            print $fh "type=$logger->{type} facility=$logger->{facility} priority=$logger->{priority} app_syslog=packetfence port=$logger->{port} host=$logger->{host} version_pf=$pf_version host_syslog=$hostname namespace=$k\n";
+            print $fh "type=$logger->{type} facility=$logger->{facility} priority=$logger->{priority} app_syslog=packetfence port=$logger->{port} host=$logger->{host} version_pf=$pf_version host_syslog=$hostname namespaces=$k\n";
         }
     }
 
