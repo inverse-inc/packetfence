@@ -21,7 +21,7 @@
     "messageformat": "^2.3.0",
     "mime-types": "^2.1.27",
     "papaparse": "5.2.0",
-    "plotly.js": "1.55.2",
+    "plotly.js-basic-dist-min": "^1.58.2",
     "promised-debounce": "^0.4.2",
     "typeface-b612-mono": "0.0.75",
     "uuid": "^3.4.0",
