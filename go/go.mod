@@ -33,6 +33,7 @@ require (
 	github.com/fdurand/arp v0.0.0-20180807174648-27b38d3af1be
 	github.com/fdurand/go-cache v0.0.0-20180104143916-cf0198ac7d92
 	github.com/flynn/go-shlex v0.0.0-20150515145356-3f9db97f8568
+	github.com/gavv/httpexpect/v2 v2.1.0
 	github.com/gdey/jsonpath v0.0.0-20151203210429-124c978a1ffc
 	github.com/gin-gonic/gin v1.6.2
 	github.com/go-acme/lego v2.5.0+incompatible
@@ -69,7 +70,7 @@ require (
 	github.com/jinzhu/gorm v1.9.11
 	github.com/julienschmidt/httprouter v1.3.0
 	github.com/julsemaan/certmagic v0.6.3-0.20191015203349-067e102ae4ff
-	github.com/klauspost/cpuid v1.2.0
+	github.com/klauspost/cpuid v1.2.1
 	github.com/knq/pemutil v0.0.0-20181215144041-fb6fad722528
 	github.com/kr/pretty v0.2.0
 	github.com/lucas-clemente/quic-go v0.10.2

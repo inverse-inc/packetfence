@@ -367,6 +367,7 @@ github.com/fasthttp/websocket v1.4.2/go.mod h1:smsv/h4PBEBaU0XDTY5UwJTpZv69fQ0Ff
 github.com/fatih/color v1.7.0/go.mod h1:Zm6kSWBoL9eyXnKyktHP6abPY2pDugNf5KwzbycvMj4=
 github.com/fatih/structs v1.0.0 h1:BrX964Rv5uQ3wwS+KRUAJCBBw5PQmgJfJ6v4yly5QwU=
 github.com/fatih/structs v1.0.0/go.mod h1:9NiDSp5zOcgEDl+j00MP/WkGVPOlPRLejGD8Ga6PJ7M=
+github.com/fatih/structs v1.1.0 h1:Q7juDM0QtcnhCpeyLGQKyg4TOIghuNXrkL32pHAUMxo=
 github.com/fatih/structs v1.1.0/go.mod h1:9NiDSp5zOcgEDl+j00MP/WkGVPOlPRLejGD8Ga6PJ7M=
 github.com/fdurand/arp v0.0.0-20180807174648-27b38d3af1be h1:44e5trFpGDfqFWKpYUtcXTAPWrL6y19WITtYLNKupjU=
 github.com/fdurand/arp v0.0.0-20180807174648-27b38d3af1be/go.mod h1:XLQwuRqf7f3RjNreAmdPASlBU6/juBaoMzI93a7De1s=

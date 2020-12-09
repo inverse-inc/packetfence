@@ -99,6 +99,7 @@ func (h *WgorchestratorHandler) handleGetProfile(c *gin.Context) {
 		WireguardNetmask: rc.Netmask(),
 		AllowedPeers:     rc.AllowedPeers(c, db),
 		NamesToResolve:   rc.NamesToResolve(c, db),
+		DomainsToResolve: rc.DomainsToResolve(c, db),
 		ACLs:             rc.ACLs(c, db),
 		Routes:           rc.Routes(c, db),
 		IsGateway:        rc.IsGateway(c, db),
