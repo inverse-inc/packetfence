@@ -57,7 +57,7 @@ Since this is a SPA (Single-Page Application), it is currently accessible from `
  * [ace](https://ace.c9.io/)
 * [d3-force](https://github.com/d3/d3-force) -- d3 force directed graphs
 * [typeface-b612-mono](https://www.npmjs.com/package/typeface-b612-mono) -- small fonts
-* [mime-type](https://github.com/jshttp/mime-types) -- enforce mime
+* [mime-type](https://github.com/jshttp/mime-types) -- mime/content-type
 
 ## Files Structure
 
@@ -66,6 +66,8 @@ Since this is a SPA (Single-Page Application), it is currently accessible from `
 ├── main.js
 ├── App.vue
 ├── components           # shared components
+│   └── ...
+├── composables          # shared composition
 │   └── ...
 ├── views
 │   ├── Login            # login page
