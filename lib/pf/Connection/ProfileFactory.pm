@@ -28,7 +28,7 @@ use pf::factory::condition::profile;
 use pfconfig::cached_scalar;
 use List::Util qw(first);
 use pf::StatsD::Timer;
-use pf::constants qw($TRUE $FALSE);
+use pf::constants qw($TRUE $FALSE $FAKE_MAC);
 
 =head1 SUBROUTINES
 
@@ -63,7 +63,9 @@ sub get_profile_name {
         $node_info = node_view($mac_or_node_obj) || {};
     }
 
-    $exist = $TRUE unless exists($node_info->{mac});
+    if (exists($node_info->{mac}) || $mac_or_node_obj eq $FAKE_MAC) {
+        $exist = $TRUE;
+    }
 
     $options->{last_ip} //= pf::ip4log::mac2ip($node_info->{mac});
     $node_info = {%$node_info, %$options};
@@ -82,7 +84,7 @@ sub _from_profile {
     my ($self,$profile_name, $exist) = @_;
     my $logger = get_logger();
     $profile_name = "default" unless exists $Profiles_Config{$profile_name};
-    $logger->info("Instantiate profile $profile_name") unless $exist;
+    $logger->info("Instantiate profile $profile_name") if $exist;
     my $profile_ref    = $Profiles_Config{$profile_name};
     my %profile        = %$profile_ref;
     my $sources        = $profile{'sources'};

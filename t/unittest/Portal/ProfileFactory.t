@@ -17,10 +17,11 @@ use warnings;
 
 use lib '/usr/local/pf/lib';
 
-use Test::More tests => 23;
+use Test::More tests => 24;
 use pf::Connection::ProfileFactory;
 use pf::dal::node;
 use pf::ip4log;
+use pf::constants qw($FAKE_MAC);
 
 BEGIN {
     #include test libs
@@ -101,6 +102,9 @@ is($profile->getName, "last_ssid_undefined", "Last ssid is undefined");
 
 $profile = pf::Connection::ProfileFactory->instantiate("00:00:00:00:00:00", { last_ssid => 2 });
 is($profile->getName, "last_ssid_defined", "Last ssid is defined");
+
+$profile = pf::Connection::ProfileFactory->instantiate($FAKE_MAC, { last_connection_type => 'CLI-Access' });
+is($profile->getName, "cli_login_fake_mac", "CLI login using fake mac");
 
 =head1 AUTHOR
 

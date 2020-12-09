@@ -912,7 +912,7 @@ sub switch_access {
         }
     }
     else {
-            my $profile = pf::Connection::ProfileFactory->instantiate("de:fa:ce:db:ab:e0",$options);
+            my $profile = pf::Connection::ProfileFactory->instantiate($FAKE_MAC,$options);
             $args->{'profile'} = $profile;
             @sources = $profile->getFilteredAuthenticationSources($args->{'stripped_user_name'}, $args->{'realm'});
     }
