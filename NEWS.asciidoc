@@ -27,6 +27,8 @@ For a list of compatibility related changes see the <<PacketFence_Upgrade_Guide.
 
 === New Features
 
+* Static routes management via admin gui
+
 === Enhancements
 
 * Expiration of the local accounts created on the portal can now be set on the source level
