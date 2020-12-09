@@ -54,6 +54,7 @@ sub remove { return; }
 sub cleanupAfterRead {
     my ( $self,$section, $data ) = @_;
     my $defaults = $Default_Config{$section};
+    $self->flatten_list_cr($data, $self->_fields_expanded);
     foreach my $key ( keys %{$Config{$section}} ) {
         my $doc_section = "$section.$key";
         unless (exists $Doc_Config{$doc_section} && exists $data->{$key}  ) {
@@ -185,6 +186,35 @@ sub updatesystemd {
 sub _Sections {
     my ($self) = @_;
     return grep { /^\S+$/ } $self->SUPER::_Sections();
+}
+
+=head2 _fields_expanded
+
+=cut
+
+sub _fields_expanded {
+    return qw(staticroutes);
+}
+
+
+sub join_list_cr {
+    my ($self, @list) = @_;
+    return join("\n",@list);
+}
+
+=head2 flatten_list_cr
+
+=cut
+
+sub flatten_list_cr {
+    my ($self, $object, @columns) = @_;
+    foreach my $column (@columns) {
+        next unless exists $object->{$column};
+        my $val = $object->{$column};
+        if (ref($val) eq 'ARRAY') {
+            $object->{$column} = $self->join_list_cr(@$val);
+        }
+    }
 }
 
 __PACKAGE__->meta->make_immutable unless $ENV{"PF_SKIP_MAKE_IMMUTABLE"};
