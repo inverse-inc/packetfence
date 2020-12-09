@@ -21,18 +21,25 @@ use warnings;
 use base qw(pf::cmd);
 
 use Template;
+use pf::version;
 use List::MoreUtils qw(uniq);
 use pf::file_paths qw(
     $conf_dir
     $install_dir
+    $mariadb_pf_udf_file
 );
+use Sys::Hostname;
 use pf::cluster;
 use pf::constants::exit_code qw($EXIT_SUCCESS);
+use pfconfig::cached_hash;
 use pf::config qw(
     %Config
     $management_network
     $DISTRIB
 );
+
+tie our %EventLoggers, 'pfconfig::cached_hash', 'config::EventLoggers';
+
 use pf::util;
 
 sub _run {
@@ -118,8 +125,27 @@ sub _run {
     $tt->process("$conf_dir/mariadb/db-check.tt", \%vars, $db_check_path) or die $tt->error();
     chmod 0744, $db_check_path;
     pf_chown($db_check_path);
+    update_udf_config($mariadb_pf_udf_file, \%EventLoggers);
 
     return $EXIT_SUCCESS; 
+}
+
+sub update_udf_config {
+    my ($filename, $event_logger) = @_;
+    my $fh;
+    if (!open($fh,">", $filename)) {
+        print "Cannot open $filename\n";
+    }
+    my $hostname = hostname();
+    my %hosts;
+    my $pf_version = pf::version::version_get_current();
+    while (my ($k, $v) = each %$event_logger) {
+        for my $logger (@$v) {
+            print $fh "type=$logger->{type} facility=$logger->{facility} priority=$logger->{priority} app_syslog=packetfence port=$logger->{port} host=$logger->{host} version_pf=$pf_version host_syslog=$hostname namespace=$k\n";
+        }
+    }
+
+    close($fh);
 }
 
 =head1 AUTHOR
@@ -152,5 +178,3 @@ USA.
 =cut
 
 1;
-
-

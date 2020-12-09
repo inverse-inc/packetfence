@@ -79,6 +79,7 @@ our (
     $server_cert, $server_key, $server_pem,
     $radius_server_key, $radius_server_cert, $radius_ca_cert,
     $ssl_configuration_file,
+    $mariadb_pf_udf_file,
     $domain_config_file,
     $scan_config_file,
     $pki_provider_config_file,
@@ -177,6 +178,7 @@ BEGIN {
         $server_cert $server_key $server_pem
         $radius_server_cert $radius_server_key $radius_ca_cert
         $ssl_configuration_file
+        $mariadb_pf_udf_file
         $domain_config_file
         $scan_config_file
         $pki_provider_config_file
@@ -317,6 +319,7 @@ $radius_server_key = catfile($install_dir, "raddb/certs/server.key");
 $radius_server_cert = catfile($install_dir, "raddb/certs/server.crt");
 $radius_ca_cert = catfile($install_dir, "raddb/certs/ca.pem");
 $ssl_configuration_file = catfile($generated_conf_dir, "ssl-certificates.conf");
+$mariadb_pf_udf_file = catfile($generated_conf_dir, "mariadb_pf_udf");
 $domain_config_file = catfile($conf_dir,"domain.conf");
 $scan_config_file = catfile($conf_dir,"scan.conf");
 $radius_filters_config_file = catfile($conf_dir,"radius_filters.conf");

@@ -19,7 +19,6 @@ use pf::error qw(is_error is_success);
 use JSON::MaybeXS qw();
 use pf::admin_roles;
 use pf::dal::admin_api_audit_log;
-use pf::EventLogging;
 use Mojo::JSON qw(encode_json);
 has activity_timeout => 300;
 has 'openapi_generator_class' => undef;
@@ -123,7 +122,6 @@ sub audit_request {
         my $record = $self->make_audit_record();
         my $log = pf::dal::admin_api_audit_log->new($record);
         $log->insert;
-        pf::EventLogging::log_event('admin_api_audit_log', $record);
     }
 }
 
