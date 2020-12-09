@@ -50,7 +50,7 @@
 </template>
 
 <script>
-import Plotly from 'plotly.js'
+import Plotly from 'plotly.js-basic-dist-min'
 import { format, subSeconds } from 'date-fns'
 import {
   pfReportChartColorsFull as colorsFull,

@@ -46,9 +46,7 @@ const useRouter = (props, context, form) => {
 
 const useStore = (props, context, form) => {
   const {
-    id,
-    role,
-    isNew
+    id
   } = toRefs(props)
   const { root: { $store } = {} } = context
   return {

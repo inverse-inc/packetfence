@@ -5,8 +5,6 @@ import FormStore from '@/store/base/form'
 import UsersView from '../'
 import UsersStore from '../_store'
 
-const Test = () => import(/* webpackChunkName: "Users" */ '../_components/Test')
-
 const UsersSearch = () => import(/* webpackChunkName: "Users" */ '../_components/UsersSearch')
 const UsersCreate = () => import(/* webpackChunkName: "Users" */ '../_components/UsersCreate')
 const UsersPreview = () => import(/* webpackChunkName: "Users" */ '../_components/UsersPreview')
@@ -31,19 +29,6 @@ const route = {
     next()
   },
   children: [
-
-
-    {
-      path: 'test',
-      name: 'test',
-      component: Test,
-      props: (route) => ({ query: route.query.query })
-    },
-
-
-
-
-
     {
       path: 'search',
       name: 'userSearch',

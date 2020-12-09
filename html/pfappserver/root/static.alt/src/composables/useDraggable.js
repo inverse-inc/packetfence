@@ -53,6 +53,7 @@ export const useDraggable = (context, getValueFn, setValueFn) => {
     return -1
   })
 
+  // requires vue.config.js => runtimeCompiler: true
   watch(dragSourceIndex, () => {
     const { sourceElement } = toRefs(bus.value)
     if (sourceElement.value) {
