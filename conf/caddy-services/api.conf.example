@@ -72,6 +72,11 @@
       transparent
   }
 
+  # doh peers forward
+  proxy /dns-ztn-query http://127.0.0.1:854 {
+      transparent
+  }
+
   timeouts {
     write 10m
     idle 10m

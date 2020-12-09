@@ -46,3 +46,8 @@ https://.:853 {
         prefer_udp
     }
 }
+
+https://.:854 {
+
+   #My ztedns middleware
+}
