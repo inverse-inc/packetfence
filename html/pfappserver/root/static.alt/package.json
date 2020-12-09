@@ -59,7 +59,8 @@
     "svg-arc-to-cubic-bezier": "^3.2.0",
     "vue-cli-plugin-bootstrap-vue": "0.6.0",
     "vue-cli-plugin-i18n": "^0.6.1",
-    "vue-template-compiler": "2.6.11"
+    "vue-template-compiler": "2.6.11",
+    "webpack-bundle-analyzer": "^4.2.0"
   },
   "postcss": {
     "plugins": {
