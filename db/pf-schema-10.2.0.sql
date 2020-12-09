@@ -1397,6 +1397,23 @@ CREATE TABLE `admin_api_audit_log` (
    KEY `created_at` (`created_at`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin ROW_FORMAT=COMPRESSED;
 
+DELIMITER $$
+CREATE TRIGGER `log_event_admin_api_audit_log` AFTER INSERT ON `admin_api_audit_log`
+FOR EACH ROW BEGIN
+set @k = pf_logger(
+        "admin_api_audit_log",
+        "tenant_id", NEW.tenant_id,
+        "created_at", NEW.created_at,
+        "user_name", NEW.user_name,
+        "action", NEW.action,
+        "object_id", NEW.object_id,
+        "url", NEW.url,
+        "method", NEW.method,
+        "request", NEW.request,
+        "status", NEW.status
+    );
+END;
+$$
 
 --
 -- Table structure for table `dhcppool`
