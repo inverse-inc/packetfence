@@ -16,6 +16,7 @@ const MimeType = "application/dns-message"
 
 // Path is the URL path that should be used.
 const Path = "/dns-query"
+const PathZTN ="/dns-ztn-query"
 
 // NewRequest returns a new DoH request given a method, URL (without any paths, so exclude /dns-query) and dns.Msg.
 func NewRequest(method, url string, m *dns.Msg) (*http.Request, error) {
