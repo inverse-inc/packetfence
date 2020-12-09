@@ -921,6 +921,26 @@ sub expand_ordered_array {
     return pf::util::expand_ordered_array($item, $items_key, $item_key);
 }
 
+sub join_list_cr {
+    my ($self, @list) = @_;
+    return join("\n",@list);
+}
+
+=head2 flatten_list_cr
+
+=cut
+
+sub flatten_list_cr {
+    my ($self, $object, @columns) = @_;
+    foreach my $column (@columns) {
+        next unless exists $object->{$column};
+        my $val = $object->{$column};
+        if (ref($val) eq 'ARRAY') {
+            $object->{$column} = $self->join_list_cr(@$val);
+        }
+    }
+}
+
 __PACKAGE__->meta->make_immutable unless $ENV{"PF_SKIP_MAKE_IMMUTABLE"};
 
 =head1 COPYRIGHT
