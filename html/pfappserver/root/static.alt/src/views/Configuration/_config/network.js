@@ -1,6 +1,7 @@
 import i18n from '@/utils/locale'
 import pfFormChosen from '@/components/pfFormChosen'
 import pfFormInput from '@/components/pfFormInput'
+import pfFormTextarea from '@/components/pfFormTextarea'
 import pfFormRangeToggle from '@/components/pfFormRangeToggle'
 import {
   attributesFromMeta,
@@ -140,6 +141,22 @@ export const view = (form = {}, meta = {}) => {
               attrs: attributesFromMeta(meta, 'interfaceSNAT')
             }
           ]
+        },
+        {
+          label: i18n.t('Static routes'),
+          text: i18n.t('Add custom static toutes managed by keepalived, one line per static route. (like: 10.0.0.0/24 via 10.0.0.1 dev eth1)'),
+          cols: [
+            {
+              namespace: 'staticroutes',
+              component: pfFormTextarea,
+              attrs: {
+                ...attributesFromMeta(meta, 'staticroutes'),
+                ...{
+                  rows: 3
+                }
+              }
+            }
+          ]
         }
       ]
     }
@@ -153,6 +170,7 @@ export const validators = (form = {}, meta = {}) => {
       unit: validatorsFromMeta(meta, 'dhcp_rate_limiting.unit', i18n.t('Unit'))
     },
     rogueinterval: validatorsFromMeta(meta, 'rogueinterval', i18n.t('Interval')),
-    interfaceSNAT: validatorsFromMeta(meta, 'interfaceSNAT', i18n.t('Interface'))
+    interfaceSNAT: validatorsFromMeta(meta, 'interfaceSNAT', i18n.t('Interface')),
+    staticroutes: validatorsFromMeta(meta, 'staticroutes', i18n.t('Static routes'))
   }
 }

@@ -91,6 +91,11 @@ force_listener_update_on_ack=disabled
 # network.interfaceSNAT
 # Choose interface(s) where you want to enable snat for passthrough (by default it's the management interface)
 interfaceSNAT=
+#
+# network.staticroutes
+#
+# This will add the static routes you defined here on the system (managed by keepalived)
+staticroutes=
 
 [fencing]
 # 
