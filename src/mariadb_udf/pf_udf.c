@@ -47,7 +47,7 @@ long long pf_logger(UDF_INIT* initid, UDF_ARGS* args, char* is_null, char* error
     *error = 0;
 
     for (i = 0; i < configurations_len; i++) {
-        if (strcmp(configurations[i].namespace, args->args[0]) == 0) {
+        if (strncmp(configurations[i].namespace, args->args[0], args->lengths[0]) == 0) {
             memset(cef_buffer, 0, sizeof(cef_buffer));
             memset(syslog_buffer, 0, sizeof(syslog_buffer));
             cef_len = format_cef(&configurations[i].cef_header, cef_buffer, sizeof(cef_buffer), args->args[0], &args->args[1], &args->lengths[1], args->arg_count - 1);
