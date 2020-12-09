@@ -34,6 +34,9 @@ For a list of compatibility related changes see the <<PacketFence_Upgrade_Guide.
 * Added CoA support to Aerohive module
 * Added role based enforcement (Filter-Id) support to Extreme module
 * Use Called-Station-SSID attribute as the SSID when possible.
+* Added CLI login support to Huawei switch template
+* Added detectionBypass in DNS resolver (#6028)
+* Improve support of Android Agent for EAP-TLS and EAP-PEAP
 
 === Bug Fixes
 
@@ -48,7 +51,8 @@ For a list of compatibility related changes see the <<PacketFence_Upgrade_Guide.
 * web admin: high-availability setting is not display correctly when editing an interface (#5963)
 * SSIDs are not hidden by default when creating a provisioner (#5952)
 * with_aup is correctly displayed on GUI (#5954)
-
+* web admin: sender is wrong when you use Preview feature (#6023)
+* sponsor guest registration: unexpected strings in email subject (#3669)
 
 == Version 10.2.0 released on 2020-10-07
 
