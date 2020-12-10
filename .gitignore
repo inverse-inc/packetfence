@@ -40,6 +40,9 @@ conf/pfcron.conf
 conf/certmanager
 bin/pfcmd
 bin/ntlm_auth_wrapper
+src/mariadb_udf/*.o
+src/mariadb_udf/*.so
+src/mariadb_udf/test_pf_udf
 sbin/pfcertmanager
 sbin/pfhttpd
 sbin/pfdetect
