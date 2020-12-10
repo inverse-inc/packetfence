@@ -336,6 +336,9 @@ done
 %{__make} bin/pfcmd
 # build ntlm_auth_wrapper
 %{__make} bin/ntlm_auth_wrapper
+%{__make} src/mariadb_udf/pf_udf.so
+# Define git_commit_id
+echo %{git_commit} > conf/git_commit_id
 
 # build golang binaries
 %{__make} -C go all
@@ -350,6 +353,9 @@ done
 #============================================================================
 %install
 %{__rm} -rf %{buildroot}
+# mysql plugin
+%{__install} -D -m0555 src/mariadb_udf/pf_udf.so %{buildroot}/$(pkg-config mariadb --variable=plugindir)/pf_udf.so
+
 # systemd targets
 %{__install} -D -m0644 conf/systemd/packetfence.target %{buildroot}/etc/systemd/system/packetfence.target
 %{__install} -D -m0644 conf/systemd/packetfence-base.target %{buildroot}/etc/systemd/system/packetfence-base.target
