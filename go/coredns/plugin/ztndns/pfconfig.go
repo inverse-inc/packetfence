@@ -2,11 +2,9 @@ package ztndns
 
 import (
 	"context"
-	"net"
 	"regexp"
 
 	"github.com/inverse-inc/packetfence/go/log"
-	"github.com/inverse-inc/packetfence/go/sharedutils"
 	"github.com/inverse-inc/packetfence/go/timedlock"
 
 	"github.com/inverse-inc/packetfence/go/pfconfigdriver"
@@ -14,8 +12,6 @@ import (
 
 // GlobalTransactionLock global var
 var GlobalTransactionLock *timedlock.RWLock
-
-var startingIP = sharedutils.IP2Int(net.ParseIP("100.64.0.0"))
 
 func (ztn *ztndns) Refresh(ctx context.Context) {
 	// If some of the passthroughs were changed, we should reload
@@ -54,7 +50,7 @@ func (ztn *ztndns) HostIPMAP(ctx context.Context) error {
 		rgx, _ := regexp.Compile(hostname + ".*")
 		HostIpmap := &HostIPMap{}
 		HostIpmap.ComputerName = rgx
-		HostIpmap.Ip = sharedutils.Int2IP(startingIP + uint32(id))
+		HostIpmap.Ip = RemoteClient{ID: ID}.IPAddress()
 		ztn.HostIP[i] = HostIpmap
 		i++
 	}

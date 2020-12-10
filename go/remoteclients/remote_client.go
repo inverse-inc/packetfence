@@ -16,7 +16,7 @@ import (
 )
 
 // TODO: have this configurable and potentially support multiple ranges
-var startingIP = sharedutils.IP2Int(net.ParseIP("100.64.0.0"))
+var startingIP = sharedutils.IP2Int(net.ParseIP("100.64.0.1"))
 var netmask = 10
 
 var PublishNewClientsTo *golongpoll.LongpollManager
