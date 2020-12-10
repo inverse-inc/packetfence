@@ -33,7 +33,7 @@ func (ztn *ztndns) HostIPMAP(ctx context.Context) error {
 
 	ztn.HostIP = make(map[int]*HostIPMap)
 
-	rows, err := ztn.Db.Query("select node.computername ,id from remote_clients join node on remote_clients.mac=node.mac where node.computername is not NULL order by length(node.computername) DESC;")
+	rows, err := ztn.Db.Query("SELECT n.computername, m.id FROM remote_clients m LEFT JOIN remote_clients b ON m.mac = b.mac AND m.updated_at < b.updated_at LEFT JOIN node n ON n.mac = m.mac WHERE b.updated_at IS NULL AND n.computername is not NULL order by length(n.computername) DESC;")
 	if err != nil {
 		// Log here
 		return err
