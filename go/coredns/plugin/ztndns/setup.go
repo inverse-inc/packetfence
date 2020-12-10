@@ -8,6 +8,7 @@ import (
 	"github.com/coredns/caddy"
 	"github.com/inverse-inc/packetfence/go/coredns/core/dnsserver"
 	"github.com/inverse-inc/packetfence/go/coredns/plugin"
+	"github.com/inverse-inc/packetfence/go/log"
 	"github.com/inverse-inc/packetfence/go/timedlock"
 )
 
@@ -48,6 +49,7 @@ func setupztndns(c *caddy.Controller) error {
 		return c.Errf("ztn: unable to initialize database connection")
 	}
 	if err := ztn.HostIPMAP(ctx); err != nil {
+		log.LoggerWContext(ctx).Info(err.Error())
 		return c.Errf("ztn: unable to initialize HostMAP")
 	}
 

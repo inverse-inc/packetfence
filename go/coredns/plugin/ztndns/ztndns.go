@@ -32,9 +32,14 @@ type ztndns struct {
 	Db               *sql.DB
 	DNSAudit         *sql.Stmt // prepared statement for dns_audit_log
 	Next             plugin.Handler
-	HostIP           map[*regexp.Regexp]net.IP
+	HostIP           map[int]*HostIPMap
 	refreshLauncher  *sync.Once
 	recordDNS        bool
+}
+
+type HostIPMap struct {
+	ComputerName *regexp.Regexp
+	Ip           net.IP
 }
 
 type dbConf struct {
@@ -74,10 +79,9 @@ func (ztn *ztndns) ServeDNS(ctx context.Context, w dns.ResponseWriter, r *dns.Ms
 	a.Authoritative = true
 	var rr dns.RR
 
-	// Domain bypass
-	for k, v := range ztn.HostIP {
-		if k.MatchString(state.QName()) {
-			rr, _ = dns.NewRR("30 IN A " + v.String())
+	for i := 0; i < len(ztn.HostIP); i++ {
+		if ztn.HostIP[i].ComputerName.MatchString(state.QName()) {
+			rr, _ = dns.NewRR("30 IN A " + ztn.HostIP[i].Ip.String())
 			a.Answer = []dns.RR{rr}
 			state.SizeAndDo(a)
 			w.WriteMsg(a)

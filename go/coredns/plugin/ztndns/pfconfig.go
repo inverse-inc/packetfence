@@ -31,11 +31,9 @@ func (ztn *ztndns) Refresh(ctx context.Context) {
 
 func (ztn *ztndns) HostIPMAP(ctx context.Context) error {
 
-	pfconfigdriver.FetchDecodeSocket(ctx, &pfconfigdriver.Config.Passthroughs.Registration)
+	ztn.HostIP = make(map[int]*HostIPMap)
 
-	ztn.HostIP = make(map[*regexp.Regexp]net.IP)
-
-	rows, err := ztn.Db.Query("select node.computername ,id from remote_clients join node on remote_clients.mac=node.mac")
+	rows, err := ztn.Db.Query("select node.computername ,id from remote_clients join node on remote_clients.mac=node.mac where node.computername is not NULL order by length(node.computername) DESC;")
 	if err != nil {
 		// Log here
 		return err
@@ -46,6 +44,7 @@ func (ztn *ztndns) HostIPMAP(ctx context.Context) error {
 		hostname string
 		id       uint
 	)
+	i := 0
 	for rows.Next() {
 		err := rows.Scan(&hostname, &id)
 		if err != nil {
@@ -53,7 +52,11 @@ func (ztn *ztndns) HostIPMAP(ctx context.Context) error {
 
 		}
 		rgx, _ := regexp.Compile(hostname + ".*")
-		ztn.HostIP[rgx] = sharedutils.Int2IP(startingIP + uint32(id))
+		HostIpmap := &HostIPMap{}
+		HostIpmap.ComputerName = rgx
+		HostIpmap.Ip = sharedutils.Int2IP(startingIP + uint32(id))
+		ztn.HostIP[i] = HostIpmap
+		i++
 	}
 
 	return nil
