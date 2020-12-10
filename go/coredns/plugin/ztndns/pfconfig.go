@@ -5,6 +5,7 @@ import (
 	"regexp"
 
 	"github.com/inverse-inc/packetfence/go/log"
+	"github.com/inverse-inc/packetfence/go/remoteclients"
 	"github.com/inverse-inc/packetfence/go/timedlock"
 
 	"github.com/inverse-inc/packetfence/go/pfconfigdriver"
@@ -50,7 +51,8 @@ func (ztn *ztndns) HostIPMAP(ctx context.Context) error {
 		rgx, _ := regexp.Compile(hostname + ".*")
 		HostIpmap := &HostIPMap{}
 		HostIpmap.ComputerName = rgx
-		HostIpmap.Ip = RemoteClient{ID: ID}.IPAddress()
+		rc := remoteclients.RemoteClient{ID: id}
+		HostIpmap.Ip = rc.IPAddress()
 		ztn.HostIP[i] = HostIpmap
 		i++
 	}
