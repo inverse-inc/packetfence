@@ -64,10 +64,6 @@ func (ztn *ztndns) RefreshPfconfig(ctx context.Context) {
 // ServeDNS implements the middleware.Handler interface.
 func (ztn *ztndns) ServeDNS(ctx context.Context, w dns.ResponseWriter, r *dns.Msg) (int, error) {
 
-	id, _ := GlobalTransactionLock.RLock()
-
-	defer GlobalTransactionLock.RUnlock(id)
-
 	ztn.RefreshPfconfig(ctx)
 
 	state := request.Request{W: w, Req: r}
