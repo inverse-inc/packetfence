@@ -184,7 +184,12 @@ server packetfence {
 		#
 		#  MSCHAP authentication.
 		Auth-Type MS-CHAP {
-			packetfence-mschap-authenticate
+			if(NAS-Port-Type =~ /^Wireless/ || NAS-Port-Type =~ /^Ethernet/) {
+				ok
+			}
+			else {
+				packetfence-mschap-authenticate
+			}
 		}
 
 	[% authentication_auth_type %]
