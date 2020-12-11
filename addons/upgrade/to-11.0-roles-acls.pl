@@ -51,12 +51,11 @@ my @switches = keys %switches;
 if (@switches) {
     while(1) {
         my $i = 0;
-        my $msg = join("\n", "0) Choose ACLs mappings per role " , map {$i++; "$i) $_ "} @switches);
+        my $msg = join("\n", "0) Choose ACLs mappings per role", "- Choose the switch for ACL mapping", (map {$i++; "$i) $_ "} @switches), "");
         print $clear_string;
         print "$msg\n";
         my $count = @switches;
-        print "Choose a number from 0 - $count\n";
-        my $index = prompt("Choose an option");
+        my $index = prompt("Choose a number from 0 - $count");
         if ("$index" eq '0') {
             for my $role (keys %roles) {
                 my $data = $roles{$role};
@@ -72,8 +71,8 @@ if (@switches) {
                     next;
                 }
                 $index+=0;
-                unless ($index >=1 && $index <= @switches) {
-                    prompt("'$index' is an invalid choice press enter to retry");
+                unless ($index && $index >=1 && $index <= @switches) {
+                    prompt("'$index' is an invalid choice press Enter (or Return) to retry");
                     redo;
                 }
 
@@ -82,10 +81,11 @@ if (@switches) {
                 $roles_ini_updated |= 1;
             }
         } else {
-            unless ($index >=1 && $index <= @switches) {
-                prompt("'$index' is an invalid choice press enter to retry");
+            unless ($index && $index >=0 && $index <= @switches) {
+                prompt("'$index' is an invalid choice press Enter (or Return) to retry");
                 redo;
             }
+
             my $switch = $switches[$index-1];
             while (my ($role, $acl) = each %{$switches{$switch}}) {
                 $roles_ini->newval($role, 'acls', $acl);
