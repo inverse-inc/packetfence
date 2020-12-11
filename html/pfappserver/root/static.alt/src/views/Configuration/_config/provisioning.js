@@ -263,7 +263,7 @@ export const viewFields = {
       ]
     }
   },
-  broadcast: () => {
+  broadcast: (_, meta = {}) => {
     return {
       label: i18n.t('Broadcast network'),
       text: i18n.t('Disable this box if you are using a hidden SSID.'),

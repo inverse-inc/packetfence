@@ -618,7 +618,7 @@ export const viewFields = {
       ]
     }
   },
-  with_aup: () => {
+  with_aup: (_, meta = {}) => {
     return {
       label: i18n.t('Require AUP'),
       text: i18n.t('Require the user to accept the AUP'),

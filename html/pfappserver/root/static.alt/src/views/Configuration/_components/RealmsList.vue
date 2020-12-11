@@ -52,7 +52,7 @@
             <b-button size="sm" variant="outline-primary" class="mr-1" @click.stop.prevent="clone(tenant, item)">{{ $t('Clone') }}</b-button>
           </span>
         </template>
-      </pf-table-sortRealmsable>
+      </pf-table-sortable>
     </b-card>
   </b-card>
 </template>

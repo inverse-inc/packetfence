@@ -146,6 +146,7 @@ export const useViewCollectionItem = (collection, props, context) => {
     form,
     meta,
     title,
+    titleBadge,
     isModified,
     customProps,
     actionKey,
@@ -160,7 +161,6 @@ export const useViewCollectionItem = (collection, props, context) => {
     onSave,
 
     // to overload
-    scopedSlotProps: props,
-    titleBadge: undefined
+    scopedSlotProps: props
   }
 }

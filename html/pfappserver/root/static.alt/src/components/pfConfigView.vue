@@ -139,7 +139,6 @@ export default {
         }
         this.tabErrorCountDebouncer({
           handler: () => {
-            // eslint-disable-next-line vue/no-side-effects-in-computed-properties
             this.tabErrorCountCache = this.conditionalView.map(view => {
               return view.rows.reduce((rowCount, row) => {
                 if (!('cols' in row)) return rowCount
