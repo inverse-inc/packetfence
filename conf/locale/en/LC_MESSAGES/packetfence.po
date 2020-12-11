@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: 10.2.9\n"
 "POT-Creation-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"PO-Revision-Date: 2020-12-02 16:10-0400\n"
+"PO-Revision-Date: 2020-12-11 12:09-0400\n"
 "Last-Translator: Inverse inc. <info@inverse.ca>\n"
 "Language-Team: English\n"
 "Language: en\n"
@@ -791,6 +791,10 @@ msgstr ""
 # html/captive-portal/templates/release.html
 # html/captive-portal/templates/scan-in-progress.html
 msgid "Network access has been granted"
+msgstr ""
+
+# lib/pf/pfcron/task/password_of_the_day.pm
+msgid "New password of the day"
 msgstr ""
 
 # html/captive-portal/templates/ssl_inspection/opera.html
@@ -1659,6 +1663,10 @@ msgstr "Italiano"
 # pf::web::constants (Locales)
 msgid "nl_NL"
 msgstr "Dutch"
+
+# pf::web::constants (Locales)
+msgid "no"
+msgstr "Norwegian"
 
 # pf::web::constants (Locales)
 msgid "pl_PL"
