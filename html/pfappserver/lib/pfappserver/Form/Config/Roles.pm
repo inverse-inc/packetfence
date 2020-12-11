@@ -25,7 +25,13 @@ has_field 'id' =>
    label => 'Name',
    required => 1,
    messages => { required => 'Please specify a name for the role.' },
-   apply => [ pfappserver::Base::Form::id_validator('role name') ]
+   apply => [ 
+    {
+        check => qr/^[a-zA-Z0-9][a-zA-Z0-9_-]*$/,
+        message =>
+            "The role name is invalid. The role name can only contain alphanumeric characters, dashes and underscores."
+    }
+   ]
   );
 
 has_field 'notes' =>
