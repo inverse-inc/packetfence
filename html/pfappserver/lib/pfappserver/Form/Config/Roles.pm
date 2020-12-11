@@ -80,9 +80,12 @@ has_field 'acls' => (
     label => 'ACLs',
 );
 
-has_field 'vlan' => (
-    type => 'Text',
-    label => 'Vlan',
+has_field 'inherit_vlan' => (
+    type => 'Toggle',
+    label => 'Inherit VLAN',
+    checkbox_value => 'enabled',
+    unchecked_value => 'disabled',
+    default => 'disabled',
 );
 
 =head2 validate

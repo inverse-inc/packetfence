@@ -607,21 +607,29 @@ sub getVlanByName {
     my ($self, $vlanName) = @_;
     my $logger = $self->logger;
 
-    if (!defined($self->{'_vlans'}) || !defined($self->{'_vlans'}->{$vlanName})) {
+    if (!defined($self->{'_vlans'}) || !defined($self->{'_vlans'}{$vlanName})) {
+        my $parent = _parentRoleForVlan($vlanName);
+        if (defined $parent) {
+            return $self->getVlanByName($parent);
+        }
         # VLAN name doesn't exist
         $pf::StatsD::statsd->increment(called() . ".error" );
         $logger->warn("No parameter ${vlanName}Vlan found in conf/switches.conf for the switch " . $self->{_id});
         return undef;
     }
 
-    if ($vlanName eq "inline" && length($self->{'_vlans'}->{$vlanName}) == 0) {
+    if ($vlanName eq "inline" && length($self->{'_vlans'}{$vlanName}) == 0) {
         # VLAN empty, return 0 for Inline
         $logger->trace("No parameter ${vlanName}Vlan found in conf/switches.conf for the switch " . $self->{_id} .
                       ". Please ignore if your intentions were to use the native VLAN");
         return 0;
     }
 
-    if (length $self->{'_vlans'}->{$vlanName} < 1 ) {
+    if (length $self->{'_vlans'}{$vlanName} < 1 ) {
+        my $parent = _parentRoleForVlan($vlanName);
+        if (defined $parent && length($parent)) {
+            return $self->getVlanByName($parent);
+        }
         # is not resolved to a valid VLAN identifier
         $logger->warn("VLAN $vlanName is not properly configured in switches.conf for the switch " . $self->{_id} .
                       ", not a VLAN identifier");
@@ -629,6 +637,20 @@ sub getVlanByName {
         return;
     }
     return $self->{'_vlans'}->{$vlanName};
+}
+
+sub _parentRoleForVlan {
+    my ($name) = @_;
+    if (!exists $ConfigRoles{$name}) {
+        return undef;
+    }
+
+    my $role = $ConfigRoles{$name};
+    if (isdisabled($role->{inherit_vlan} // 'disabled')) {
+        return undef;
+    }
+
+    return $role->{parent};
 }
 
 sub getAccessListByName {
