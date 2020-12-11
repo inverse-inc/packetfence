@@ -609,7 +609,7 @@ sub getVlanByName {
 
     if (!defined($self->{'_vlans'}) || !defined($self->{'_vlans'}{$vlanName})) {
         my $parent = _parentRoleForVlan($vlanName);
-        if (defined $parent) {
+        if (defined $parent && length($parent)) {
             return $self->getVlanByName($parent);
         }
         # VLAN name doesn't exist
