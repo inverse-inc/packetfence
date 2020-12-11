@@ -26,8 +26,12 @@ BEGIN {
     use setup_test_config;
 }
 
-use Test::More tests => 11;
+use Test::More tests => 14;
 use Test::Mojo;
+use Utils;
+use pf::ConfigStore::Roles;
+
+my ($fh, $filename) = Utils::tempfileForConfigStore("pf::ConfigStore::Roles");
 
 #This test will running last
 use Test::NoWarnings;
@@ -42,6 +46,10 @@ $t->get_ok($collection_base_url)
 
 $t->post_ok($collection_base_url => json => {})
   ->status_is(422);
+
+$t->post_ok($collection_base_url => json => { id => 'bob.bib', max_nodes_per_pid => 0})
+  ->status_is(422)
+  ->json_is("/errors/0/field", "id");
 
 $t->post_ok($collection_base_url, {'Content-Type' => 'application/json'} => '{')
   ->status_is(400);
