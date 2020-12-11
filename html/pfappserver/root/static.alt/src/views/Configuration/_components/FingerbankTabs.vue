@@ -43,7 +43,6 @@
 </template>
 
 <script>
-import FormStore from '@/store/base/form'
 import FingerbankGeneralSettingView from '../fingerbank/generalSettings/_components/TheView'
 import FingerbankDeviceChangeDetectionView from '../fingerbank/deviceChangeDetection/_components/TheView'
 import FingerbankCombinationsList from './FingerbankCombinationsList'
@@ -109,11 +108,6 @@ export default {
     },
     updateDatabase () {
       this.$store.dispatch('$_fingerbank/updateDatabase')
-    }
-  },
-  beforeMount () {
-    if (!this.$store.state.formFingerbankDeviceChangeDetection) { // Register store module only once
-      this.$store.registerModule('formFingerbankDeviceChangeDetection', FormStore)
     }
   }
 }

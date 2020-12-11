@@ -24,7 +24,7 @@ const useForm = (form, props, context) => {
 
   const title = computed(() => id.value.toUpperCase())
 
-  const isCertificateAuthority = computed(() => {
+  const isCertificationAuthority = computed(() => {
     const { info: { ca } = {} } = form.value
     return ca
   })
@@ -57,7 +57,7 @@ const useForm = (form, props, context) => {
   })
 
   // translate keys in certificate
-  const certificateAuthorityLocale = computed(() => {
+  const certificationAuthorityLocale = computed(() => {
     const { info: { ca = {} } = {} } = form.value
     return Object.keys(ca).reduce((stack, key) => {
       return (key in strings)
@@ -101,7 +101,7 @@ const useForm = (form, props, context) => {
   return {
     schema,
     certificateLocale,
-    certificateAuthorityLocale,
+    certificationAuthorityLocale,
     title,
     services,
 
@@ -113,7 +113,7 @@ const useForm = (form, props, context) => {
     doShowCsr,
     doHideCsr,
 
-    isCertificateAuthority,
+    isCertificationAuthority,
     isCertKeyMatch,
     isChainValid,
     isLetsEncrypt,

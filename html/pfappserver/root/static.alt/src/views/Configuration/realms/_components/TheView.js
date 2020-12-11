@@ -10,7 +10,18 @@ const components = {
   TheForm
 }
 
-import { useViewCollectionItem, useViewCollectionItemProps as props } from '../../_composables/useViewCollectionItem'
+import { useViewCollectionItem, useViewCollectionItemProps } from '../../_composables/useViewCollectionItem'
+
+const props = {
+  ...useViewCollectionItemProps,
+
+  id: {
+    type: String
+  },
+  tenantId: {
+    type: String
+  }
+}
 
 import collection from '../_composables/useCollection'
 const setup = (props, context) => useViewCollectionItem(collection, props, context)

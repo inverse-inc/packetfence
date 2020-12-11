@@ -26,10 +26,6 @@
       :column-label="$i18n.t('API URL')"
     />
 
-    <form-group-authorize-path namespace="authorize_path"
-      :column-label="$i18n.t('API Authorize Path')"
-    />
-
     <form-group-access-token-path namespace="access_token_path"
       :column-label="$i18n.t('API Token Path')"
     />
@@ -77,6 +73,11 @@
       :text="$i18n.t('The amount of times, the local account can be used after its created. 0 means infinite.')"
     />
 
+    <form-group-local-account-expiration :namespaces="['local_account_expiration.interval', 'local_account_expiration.unit']"
+      :column-label="$i18n.t('Local account expiration')"
+      :text="$i18n.t('The amount of time after which the local account will expire. A value of 0 will use the access duration that is found via the authentication rules for the user.')"
+    />
+
     <form-group-authentication-rules namespace="authentication_rules"
       :column-label="$i18n.t('Authentication Rules')"
     />
@@ -89,7 +90,6 @@ import {
   FormGroupAccessTokenParam,
   FormGroupAccessTokenPath,
   FormGroupAuthenticationRules,
-  FormGroupAuthorizePath,
   FormGroupClientIdentifier,
   FormGroupClientSecret,
   FormGroupCreateLocalAccount,
@@ -97,6 +97,7 @@ import {
   FormGroupDomains,
   FormGroupHashPasswords,
   FormGroupIdentifier,
+  FormGroupLocalAccountExpiration,
   FormGroupLocalAccountLogins,
   FormGroupPasswordLength,
   FormGroupProtectedResourceUrl,
@@ -111,7 +112,6 @@ const components = {
   FormGroupAccessTokenParam,
   FormGroupAccessTokenPath,
   FormGroupAuthenticationRules,
-  FormGroupAuthorizePath,
   FormGroupClientIdentifier,
   FormGroupClientSecret,
   FormGroupCreateLocalAccount,
@@ -119,6 +119,7 @@ const components = {
   FormGroupDomains,
   FormGroupHashPasswords,
   FormGroupIdentifier,
+  FormGroupLocalAccountExpiration,
   FormGroupLocalAccountLogins,
   FormGroupPasswordLength,
   FormGroupProtectedResourceUrl,

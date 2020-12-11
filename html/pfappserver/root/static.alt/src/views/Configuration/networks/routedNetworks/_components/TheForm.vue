@@ -101,7 +101,7 @@
 
         <form-group-dns namespace="dns"
           :column-label="$i18n.t('DNS Server')"
-          :text="$i18n.t('Should match the IP of a registration interface or the production DNS server(s) if the network is Inline L2/L3 (space delimited list of IP addresses).')"
+          :text="$i18n.t('Should match the IP of a registration interface or the production DNS server(s) if the network is Inline L2/L3 (comma delimited list of IP addresses).')"
           :disabled="isFakeMacEnabled"
         />
 

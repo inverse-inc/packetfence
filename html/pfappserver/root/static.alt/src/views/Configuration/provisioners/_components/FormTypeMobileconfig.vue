@@ -47,7 +47,7 @@
 
         <form-group-broadcast namespace="broadcast"
           :column-label="$i18n.t('Broadcast network')"
-          :text="$i18n.t('Uncheck this box if you are using a hidden SSID.')"
+          :text="$i18n.t('Disable this box if you are using a hidden SSID.')"
         />
 
         <form-group-security-type namespace="security_type"
@@ -76,6 +76,12 @@
           namespace="server_certificate_path"
           :column-label="$i18n.t('RADIUS server certificate path')"
           :text="$i18n.t('The path to the RADIUS server certificate.')"
+        />
+
+        <form-group-ca-cert-path v-if="wantsServerRadiusCaPath"
+          namespace="ca_cert_path"
+          :column-label="$i18n.t('RADIUS server CA path')"
+          :text="$i18n.t('The path to the RADIUS server CA which signed the RADIUS server certificate.')"
         />
 
         <form-group-pki-provider v-if="wantsPkiProvider"
@@ -115,6 +121,7 @@ import {
   FormGroupApplyRole,
   FormGroupAutoRegister,
   FormGroupBroadcast,
+  FormGroupCaCertPath,
   FormGroupCategory,
   FormGroupCanSignProfile,
   FormGroupCertChain,
@@ -140,6 +147,7 @@ const components = {
   FormGroupApplyRole,
   FormGroupAutoRegister,
   FormGroupBroadcast,
+  FormGroupCaCertPath,
   FormGroupCategory,
   FormGroupCanSignProfile,
   FormGroupCertChain,

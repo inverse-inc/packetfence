@@ -466,7 +466,7 @@ export const useOptionsValue = (options, trackBy, label, value, isFocus, isLoadi
     return _options[optionsIndex][label.value]
   else if (isLoading && isLoading.value)
     return '...'
-  else if (isFocus && isFocus.value)
+  else if (isFocus && isFocus.value && !value.value)
     return i18n.t('Search')
   else
     return value.value

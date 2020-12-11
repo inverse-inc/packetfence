@@ -8,6 +8,7 @@
         :form="form"
         :meta="meta"
         :isLoading="isLoading"
+        v-bind="$props"
       />
     </b-form>
     <b-card-footer>

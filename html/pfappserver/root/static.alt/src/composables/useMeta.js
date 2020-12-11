@@ -132,8 +132,9 @@ export const useFormMetaSchema = (meta, schema) => {
     switch (type) {
       case 'object':
         for (let property in meta) {
-          const { type } = meta[property]
-          object[property] = getSchemaFromMeta(meta[property], type)
+          const { type } = meta[property] || {}
+          if (type)
+            object[property] = getSchemaFromMeta(meta[property], type)
         }
         schema = yup.object(object)
         break

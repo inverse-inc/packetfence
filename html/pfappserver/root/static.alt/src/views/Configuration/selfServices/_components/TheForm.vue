@@ -23,9 +23,9 @@
         />
       </base-form-tab>
       <base-form-tab :title="$i18n.t('Self Service')">
-        <form-group-device-registration-role namespace="device_registration_role"
+        <form-group-device-registration-roles namespace="device_registration_roles"
           :column-label="$i18n.t('Role to assign')"
-          :text="$i18n.t('The role to assign to devices registered from the self-service portal. If none is specified, the role of the registrant is used.')"
+          :text="$i18n.t('The role to assign to devices registered from the self-service portal. If none is specified, the role of the registrant is used. If multiples are defined then the user will have to choose.')"
         />
 
         <form-group-device-registration-access-duration :namespaces="['device_registration_access_duration.interval', 'device_registration_access_duration.unit']"
@@ -53,7 +53,7 @@ import {
   FormGroupDescription,
   FormGroupDeviceRegistrationAccessDuration,
   FormGroupDeviceRegistrationAllowedDevices,
-  FormGroupDeviceRegistrationRole,
+  FormGroupDeviceRegistrationRoles,
   FormGroupRolesAllowedToUnregister
 } from './'
 
@@ -65,7 +65,7 @@ const components = {
   FormGroupDescription,
   FormGroupDeviceRegistrationAccessDuration,
   FormGroupDeviceRegistrationAllowedDevices,
-  FormGroupDeviceRegistrationRole,
+  FormGroupDeviceRegistrationRoles,
   FormGroupRolesAllowedToUnregister
 }
 

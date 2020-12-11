@@ -18,12 +18,12 @@
       :column-label="$i18n.t('Currency')"
     />
 
-    <form-group-test-mode namespace="test_mode"
-      :column-label="$i18n.t('Test mode')"
-    />
-
     <form-group-send-email-confirmation namespace="send_email_confirmation"
       :column-label="$i18n.t('Send billing confirmation')"
+    />
+
+    <form-group-test-mode namespace="test_mode"
+      :column-label="$i18n.t('Test mode')"
     />
 
     <form-group-secret-key namespace="secret_key"
@@ -62,6 +62,11 @@
       :column-label="$i18n.t('Amount of logins for the local account')"
       :text="$i18n.t('The amount of times, the local account can be used after its created. 0 means infinite.')"
     />
+
+    <form-group-local-account-expiration :namespaces="['local_account_expiration.interval', 'local_account_expiration.unit']"
+      :column-label="$i18n.t('Local account expiration')"
+      :text="$i18n.t('The amount of time after which the local account will expire. A value of 0 will use the access duration that is found via the authentication rules for the user.')"
+    />
   </base-form>
 </template>
 <script>
@@ -73,6 +78,7 @@ import {
   FormGroupDomains,
   FormGroupHashPasswords,
   FormGroupIdentifier,
+  FormGroupLocalAccountExpiration,
   FormGroupLocalAccountLogins,
   FormGroupPasswordLength,
   FormGroupPublishableKey,
@@ -91,6 +97,7 @@ const components = {
   FormGroupDomains,
   FormGroupHashPasswords,
   FormGroupIdentifier,
+  FormGroupLocalAccountExpiration,
   FormGroupLocalAccountLogins,
   FormGroupPasswordLength,
   FormGroupPublishableKey,

@@ -5,7 +5,6 @@
     :schema="schema"
     :isLoading="isLoading"
   >
-
     <form-group-identifier namespace="id"
       :column-label="$i18n.t('Identifier')"
       :disabled="!isNew && !isClone"
@@ -48,6 +47,26 @@
       :column-label="$i18n.t('VOIP Scope')"
     />
 
+    <form-group-bounce namespace="bounce"
+      :column-label="$i18n.t('Bounce Port Scope')"
+    />
+
+    <form-group-acl-template namespace="acl_template"
+      :column-label="$i18n.t('ACL template')"
+      :text="$i18n.t('The template to use to generate an access list for this module.')"
+    />
+
+    <form-group-cli-authorize-read namespace="cliAuthorizeRead"
+      :column-label="$i18n.t('CLI Authorize Read Scope')"
+    />
+
+    <form-group-cli-authorize-write namespace="cliAuthorizeWrite"
+      :column-label="$i18n.t('CLI Authorize Write Scope')"
+    />
+
+    <form-group-nas-port-to-if-index namespace="nasPortToIfindex"
+      :column-label="$i18n.t('NasPortToIfindex template')"
+    />
   </base-form>
 </template>
 <script>
@@ -59,10 +78,15 @@ import schemaFn from '../schema'
 import {
   FormGroupAcceptRoles,
   FormGroupAcceptVlans,
+  FormGroupAclTemplate,
+  FormGroupBounce,
+  FormGroupCliAuthorizeRead,
+  FormGroupCliAuthorizeWrite,
   FormGroupCoa,
   FormGroupDescription,
   FormGroupDisconnect,
   FormGroupIdentifier,
+  FormGroupNasPortTOIfIndex,
   FormGroupRadiusDisconnect,
   FormGroupReject,
   FormGroupSnmpDisconnect,
@@ -74,10 +98,15 @@ const components = {
 
   FormGroupAcceptRoles,
   FormGroupAcceptVlans,
+  FormGroupAclTemplate,
+  FormGroupBounce,
+  FormGroupCliAuthorizeRead,
+  FormGroupCliAuthorizeWrite,
   FormGroupCoa,
   FormGroupDescription,
   FormGroupDisconnect,
   FormGroupIdentifier,
+  FormGroupNasPortTOIfIndex,
   FormGroupRadiusDisconnect,
   FormGroupReject,
   FormGroupSnmpDisconnect,

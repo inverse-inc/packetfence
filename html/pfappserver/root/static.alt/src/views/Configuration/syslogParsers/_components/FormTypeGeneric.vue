@@ -18,6 +18,10 @@
       :column-label="$i18n.t('Alert pipe')"
     />
 
+    <form-group-tenant-identifier namespace="tenant_id"
+      :column-label="$i18n.t('Tenant')"
+    />
+
     <form-group-rate-limit :namespaces="['rate_limit.interval', 'rate_limit.unit']"
       :column-label="$i18n.t('Rate limit')"
     />
@@ -29,7 +33,8 @@ import {
   FormGroupIdentifier,
   FormGroupPath,
   FormGroupRateLimit,
-  FormGroupStatus
+  FormGroupStatus,
+  FormGroupTenantIdentifier
 } from './'
 
 const components = {
@@ -38,7 +43,8 @@ const components = {
   FormGroupIdentifier,
   FormGroupPath,
   FormGroupRateLimit,
-  FormGroupStatus
+  FormGroupStatus,
+  FormGroupTenantIdentifier
 }
 
 import { useForm as setup, useFormProps as props } from '../_composables/useForm'

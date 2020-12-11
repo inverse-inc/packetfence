@@ -18,6 +18,14 @@
       :column-label="$i18n.t('File Path')"
     />
 
+    <form-group-api-username namespace="api_username"
+      :column-label="$i18n.t('API username (basic auth)')"
+    />
+
+    <form-group-api-password namespace="api_password"
+      :column-label="$i18n.t('API password (basic auth)')"
+    />
+
     <form-group-realms namespace="realms"
       :column-label="$i18n.t('Associated Realms')"
       :text="$i18n.t('Realms that will be associated with this source.')"
@@ -36,6 +44,8 @@
 import { BaseForm } from '@/components/new/'
 import {
   FormGroupAdministrationRules,
+  FormGroupApiUsername,
+  FormGroupApiPassword,
   FormGroupAuthenticationRules,
   FormGroupDescription,
   FormGroupIdentifier,
@@ -47,6 +57,8 @@ const components = {
   BaseForm,
 
   FormGroupAdministrationRules,
+  FormGroupApiUsername,
+  FormGroupApiPassword,
   FormGroupAuthenticationRules,
   FormGroupDescription,
   FormGroupIdentifier,

@@ -3,11 +3,13 @@ import { pfActions } from '@/globals/pfActions'
 export const administrationRuleActionsFromSourceType = (sourceType) => ([
   ...[
     pfActions.set_access_level,
-    pfActions.mark_as_sponsor,
     pfActions.set_tenant_id
   ],
-  ...((['AD', 'LDAP'].includes(sourceType))
-    ? [pfActions.set_access_durations]
+  ...((['AD', 'LDAP', 'EDIR'].includes(sourceType))
+    ? [
+        pfActions.set_access_durations,
+        pfActions.mark_as_sponsor
+      ]
     : []
   )
 ])

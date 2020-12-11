@@ -44,11 +44,13 @@ export const setup = (props, context) => {
     return [ ...filteredValues, trackedValue ]
   })
 
-  const onRemove = (option) => {
+  const onRemove = option => {
     const { [unref(trackBy)]: trackedValue } = option
     const filteredValues = (unref(value) || []).filter(item => item !== trackedValue)
     onInput(filteredValues)
   }
+
+  const onTag = newValue => onInput([ ...value.value, newValue ])
 
   return {
     // wrappers

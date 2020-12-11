@@ -97,9 +97,6 @@ export const config = () => {
     searchPlaceholder: i18n.t('Search by name'),
     searchableOptions: {
       searchApiEndpoint: 'config/realms',
-      searchApiHeaders: {
-        foo: 'bar'
-      },
       defaultSortKeys: [], // use natural ordering
       defaultSearchCondition: {
         op: 'and',

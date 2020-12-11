@@ -13,6 +13,7 @@
         :isNew="isNew"
         :isClone="isClone"
         :isLoading="isLoading"
+        v-bind="$props"
       />
     </b-form>
     <b-card-footer>

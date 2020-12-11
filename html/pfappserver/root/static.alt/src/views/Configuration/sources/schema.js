@@ -43,6 +43,13 @@ const schemaRule = yup.object({
 
 const schemaRules = yup.array().ensure().of(schemaRule)
 
+const schemaPersonMapping = yup.object({
+  person_field: yup.string().nullable().required('Person field required.'),
+  openid_field: yup.string().nullable().required('OpenID field required.')
+})
+
+const schemaPersonMappings = yup.array().ensure().of(schemaPersonMapping)
+
 export const schema = (props) => {
   const {
     id,
@@ -63,7 +70,8 @@ export const schema = (props) => {
 
     basedn: yup.string().label(i18n.t('Base DN')),
     description: yup.string().label(i18n.t('Description')),
-    host: yup.string().label(i18n.t('Host'))
+    host: yup.string().label(i18n.t('Host')),
+    person_mappings: schemaPersonMappings.meta({ invalidFeedback: i18n.t('Mappings contain one or more errors.') }),
   })
 }
 

@@ -52,7 +52,7 @@
     />
 
     <form-group-search-attributes-append namespace="append_to_searchattributes"
-      :column-label="$i18n.t('Append search attributes ldap filter')"
+      :column-label="$i18n.t('Append search attributes LDAP filter')"
       :text="$i18n.t('Append this ldap filter to the generated generated ldap filter generated for the search attributes.')"
     />
 

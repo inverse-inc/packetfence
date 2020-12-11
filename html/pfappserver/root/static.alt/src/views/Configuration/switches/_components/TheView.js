@@ -11,8 +11,13 @@ const components = {
 }
 
 import { computed, toRefs } from '@vue/composition-api'
-import { useViewCollectionItem, useViewCollectionItemProps as props } from '../../_composables/useViewCollectionItem'
-import collection from '../_composables/useCollection'
+import { useViewCollectionItem, useViewCollectionItemProps } from '../../_composables/useViewCollectionItem'
+import collection, { useItemProps } from '../_composables/useCollection'
+
+const props = {
+  ...useViewCollectionItemProps,
+  ...useItemProps
+}
 
 const setup = (props, context) => {
 

@@ -16,7 +16,7 @@
 
     <form-group-sources namespace="sources"
       :column-label="$i18n.t('Associated Sources')"
-      :text="$i18n.t('Sources that will be associated with this source (For the Sponsor).\nWith no source specified, all internal and external sources will be used.')"
+      :text="$i18n.t('Sources that will be associated with this source (For the Sponsor).\nOnly sources able to find an email address can be selected.')"
     />
 
     <form-group-allow-localdomain namespace="allow_localdomain"
@@ -27,6 +27,26 @@
     <form-group-activation-domain namespace="activation_domain"
       :column-label="$i18n.t('Host in activation link')"
       :text="$i18n.t('Set this value if you want to change the hostname in the validation link. Changing this requires to restart haproxy to be fully effective.')"
+    />
+
+    <form-group-sponsorship-bcc namespace="sponsorship_bcc"
+      :column-label="$i18n.t('Sponsorship BCC')"
+      :text="$i18n.t(`Sponsors requesting access and access confirmation emails are BCC'ed to this address. Multiple destinations can be comma-separated.`)"
+    />
+
+    <form-group-register-on-activation namespace="register_on_activation"
+      :column-label="$i18n.t('Register on activation')"
+      :text="$i18n.t('Whether or not to register the user when the sponsor enables the access. When this is disabled, it requires the user to stay on the portal while it waits for the sponsor to enable the access in order to be able to chain this authentication with other portal modules.')"
+    />
+
+    <form-group-validate-sponsor namespace="validate_sponsor"
+      :column-label="$i18n.t('Sponsor Validation')"
+      :text="$i18n.t('Force sponsor to authenticate when validating a guest request.')"
+    />
+
+    <form-group-lang namespace="lang"
+      :column-label="$i18n.t('Language')"
+      :text="$i18n.t('Language for sponsor email.')"
     />
 
     <form-group-create-local-account namespace="create_local_account"
@@ -49,6 +69,11 @@
       :text="$i18n.t('The amount of times, the local account can be used after its created. 0 means infinite.')"
     />
 
+    <form-group-local-account-expiration :namespaces="['local_account_expiration.interval', 'local_account_expiration.unit']"
+      :column-label="$i18n.t('Local account expiration')"
+      :text="$i18n.t('The amount of time after which the local account will expire. A value of 0 will use the access duration that is found via the authentication rules for the user.')"
+    />
+
     <form-group-authentication-rules namespace="authentication_rules"
       :column-label="$i18n.t('Authentication Rules')"
     />
@@ -64,9 +89,14 @@ import {
   FormGroupDescription,
   FormGroupHashPasswords,
   FormGroupIdentifier,
+  FormGroupLang,
+  FormGroupLocalAccountExpiration,
   FormGroupLocalAccountLogins,
   FormGroupPasswordLength,
+  FormGroupRegisterOnActivation,
   FormGroupSources,
+  FormGroupSponsorshipBcc,
+  FormGroupValidateSponsor
 } from './'
 
 const components = {
@@ -79,9 +109,14 @@ const components = {
   FormGroupDescription,
   FormGroupHashPasswords,
   FormGroupIdentifier,
+  FormGroupLang,
+  FormGroupLocalAccountExpiration,
   FormGroupLocalAccountLogins,
   FormGroupPasswordLength,
+  FormGroupRegisterOnActivation,
   FormGroupSources,
+  FormGroupSponsorshipBcc,
+  FormGroupValidateSponsor
 }
 
 import { useForm as setup, useFormProps as props } from '../_composables/useForm'

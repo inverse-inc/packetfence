@@ -1,6 +1,7 @@
 import { BaseViewCollectionItem } from '../../_components/new/'
 import {
   BaseFormButtonBar,
+  BaseFormGroupChosenOne,
   BaseFormGroupInput,
   BaseFormGroupToggleDisabledEnabled
 } from '@/components/new/'
@@ -21,6 +22,7 @@ export {
   BaseFormGroupIntervalUnit                 as FormGroupRateLimit,
   BaseFormGroupRules                        as FormGroupRules,
   BaseFormGroupToggleDisabledEnabled        as FormGroupStatus,
+  BaseFormGroupChosenOne                    as FormGroupTenantIdentifier,
   BaseFormGroupTest                         as FormGroupTest,
 
   TheForm,

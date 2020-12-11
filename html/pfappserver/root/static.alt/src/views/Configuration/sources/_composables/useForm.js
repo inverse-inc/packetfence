@@ -1,4 +1,4 @@
-import { computed, onMounted, provide, ref, toRefs } from '@vue/composition-api'
+import { computed, provide, toRefs } from '@vue/composition-api'
 import { useFormMetaSchema } from '@/composables/useMeta'
 import schemaFn from '../schema'
 
@@ -26,7 +26,7 @@ const useFormProps = {
   }
 }
 
-const useForm = (props, context) => {
+const useForm = (props) => {
 
   const {
     form,
@@ -38,23 +38,9 @@ const useForm = (props, context) => {
 
   const schema = computed(() => schemaFn(props))
 
-  // meta indicates which fields are preset
-  const fields = computed(() => Object.keys(meta.value))
-
   const metaSchema = computed(() => useFormMetaSchema(meta, schema))
 
-  // provide RADIUS attributes to all child nodes
-  const { root: { $store } = {} } = context
-  const radiusAttributes = ref({})
-  provide('radiusAttributes', radiusAttributes)
-  onMounted(() => {
-    $store.dispatch('radius/getAttributes').then(_radiusAttributes => {
-      radiusAttributes.value = _radiusAttributes
-    })
-  })
-
   return {
-    fields,
     schema: metaSchema
   }
 }

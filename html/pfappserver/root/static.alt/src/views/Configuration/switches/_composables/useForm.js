@@ -21,7 +21,6 @@ const useFormProps = {
     type: Boolean,
     default: false
   },
-
   id: {
     type: String
   }
@@ -130,10 +129,10 @@ const useForm = (props, context) => {
   ])
   const { root: { $store } = {} } = context
   $store.dispatch('$_roles/all').then(allRoles => {
-      roles.value = [
-        ...roles.value,
-        ...allRoles.map(role => role.id)
-      ]
+    roles.value = [
+      ...roles.value,
+      ...allRoles.map(role => role.id)
+    ]
   })
 
   return {

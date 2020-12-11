@@ -94,6 +94,11 @@
           :text="$i18n.t('The amount of times, the local account can be used after its created. 0 means infinite.')"
         />
 
+        <form-group-local-account-expiration :namespaces="['local_account_expiration.interval', 'local_account_expiration.unit']"
+          :column-label="$i18n.t('Local account expiration')"
+          :text="$i18n.t('The amount of time after which the local account will expire. A value of 0 will use the access duration that is found via the authentication rules for the user.')"
+        />
+
       </base-form-tab>
     </b-tabs>
   </base-form>
@@ -111,6 +116,7 @@ import {
   FormGroupDirectBaseUrl,
   FormGroupHashPasswords,
   FormGroupIdentifier,
+  FormGroupLocalAccountExpiration,
   FormGroupLocalAccountLogins,
   FormGroupMerchantIdentifier,
   FormGroupPasswordLength,
@@ -134,6 +140,7 @@ const components = {
   FormGroupDirectBaseUrl,
   FormGroupHashPasswords,
   FormGroupIdentifier,
+  FormGroupLocalAccountExpiration,
   FormGroupLocalAccountLogins,
   FormGroupMerchantIdentifier,
   FormGroupPasswordLength,

@@ -1,8 +1,9 @@
 <template>
-  <div class="base-accept-vlan base-flex-wrap" align-v="center">
+  <div class="base-radius-attribute base-flex-wrap" align-v="center">
 
     <base-input-chosen-one-searchable ref="typeComponentRef"
       :namespace="`${namespace}.type`"
+      :placeholder="$i18n.t('Search RADIUS attributes')"
     />
 
     <component :is="valueComponent" ref="valueComponentRef"
@@ -105,7 +106,7 @@ const setup = (props, context) => {
 
 // @vue/component
 export default {
-  name: 'base-accept-vlan',
+  name: 'base-radius-attribute',
   inheritAttrs: false,
   components,
   props,
@@ -113,7 +114,7 @@ export default {
 }
 </script>
 <style lang="scss">
-.base-accept-vlan {
+.base-radius-attribute {
   .btn {
     margin: 0.25rem !important;
   }

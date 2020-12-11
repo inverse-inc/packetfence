@@ -2,7 +2,6 @@ import { BaseViewCollectionItem } from '../../_components/new/'
 import {
   BaseFormButtonBar,
   BaseFormGroupChosenMultiple,
-  BaseFormGroupChosenOne,
   BaseFormGroupInput
 } from '@/components/new/'
 import {
@@ -20,7 +19,7 @@ export {
   BaseFormGroupInput          as FormGroupDescription,
   BaseFormGroupIntervalUnit   as FormGroupDeviceRegistrationAccessDuration,
   BaseFormGroupOses           as FormGroupDeviceRegistrationAllowedDevices,
-  BaseFormGroupChosenOne      as FormGroupDeviceRegistrationRole,
+  BaseFormGroupChosenMultiple as FormGroupDeviceRegistrationRoles,
   BaseFormGroupChosenMultiple as FormGroupRolesAllowedToUnregister,
 
   TheForm,

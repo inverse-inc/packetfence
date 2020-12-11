@@ -34,12 +34,12 @@
       :text="$i18n.t('PacketFence Eduroam RADIUS virtual server authentication listening port.')"
     />
 
-    <form-group-reject-realms namespace="reject_realm"
+    <form-group-reject-realm namespace="reject_realm"
       :column-label="$i18n.t('Reject Realms')"
       :text="$i18n.t('Realms that will be rejected.')"
     />
 
-    <form-group-local-realms namespace="local_realm"
+    <form-group-local-realm namespace="local_realm"
       :column-label="$i18n.t('Local Realms')"
       :text="$i18n.t('Realms that will be authenticate locally.')"
     />
@@ -61,10 +61,10 @@ import {
   FormGroupAuthListeningPort,
   FormGroupDescription,
   FormGroupIdentifier,
-  FormGroupLocalRealms,
+  FormGroupLocalRealm,
   FormGroupMonitor,
   FormGroupRadiusSecret,
-  FormGroupRejectRealms,
+  FormGroupRejectRealm,
   FormGroupServerAddressPort,
 } from './'
 
@@ -75,10 +75,10 @@ const components = {
   FormGroupAuthListeningPort,
   FormGroupDescription,
   FormGroupIdentifier,
-  FormGroupLocalRealms,
+  FormGroupLocalRealm,
   FormGroupMonitor,
   FormGroupRadiusSecret,
-  FormGroupRejectRealms,
+  FormGroupRejectRealm,
   FormGroupServerAddressPort,
 }
 

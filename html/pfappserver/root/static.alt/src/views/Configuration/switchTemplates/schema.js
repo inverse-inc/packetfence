@@ -44,7 +44,10 @@ export const schema = (props) => {
 
     acceptVlan: schemaRadiusAttributes.meta({ invalidFeedback: i18n.t('VLAN scopes contain one or more errors.') }),
     acceptRole: schemaRadiusAttributes.meta({ invalidFeedback: i18n.t('Role scopes contain one or more errors.') }),
-    disconnect: schemaRadiusAttributes.meta({ invalidFeedback: i18n.t('Diisconnect scopes contain one or more errors.') }),
+    bounce: schemaRadiusAttributes.meta({ invalidFeedback: i18n.t('Bounce scopes contain one or more errors.') }),
+    disconnect: schemaRadiusAttributes.meta({ invalidFeedback: i18n.t('Disconnect scopes contain one or more errors.') }),
+    cliAuthorizeRead: schemaRadiusAttributes.meta({ invalidFeedback: i18n.t('Read scopes contain one or more errors.') }),
+    cliAuthorizeWrite: schemaRadiusAttributes.meta({ invalidFeedback: i18n.t('Write scopes contain one or more errors.') }),
     coa: schemaRadiusAttributes.meta({ invalidFeedback: i18n.t('CoA scopes contain one or more errors.') }),
     reject: schemaRadiusAttributes.meta({ invalidFeedback: i18n.t('Reject scopes contain one or more errors.') }),
     voip: schemaRadiusAttributes.meta({ invalidFeedback: i18n.t('VOIP scopes contain one or more errors.') }),

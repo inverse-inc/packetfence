@@ -17,13 +17,14 @@
 
     <form-group-status namespace="status"
       :column-label="$i18n.t('Status')"
-      :text="$i18n.t('Whether or not this task is enabled.\nRequires a restart of pfmon to be effective.')"
+      :text="$i18n.t('Whether or not this task is enabled.\nRequires a restart of pfcron to be effective.')"
     />
 
-    <form-group-interval v-show="wants('interval')"
-      :namespaces="['interval.interval', 'interval.unit']"
-      :column-label="$i18n.t('Interval')"
-      :text="$i18n.t('Interval (frequency) at which the task is executed.\nRequires a restart of pfmon to be fully effective. Otherwise, it will be taken in consideration next time the tasks runs.')"
+    <form-group-schedule v-show="wants('schedule')"
+      namespace="schedule"
+      :column-label="$i18n.t('Schedule')"
+      :options="schedulesOptions"
+      taggable
     />
 
     <form-group-batch v-show="wants('batch')"
@@ -128,6 +129,7 @@ import { computed, toRefs } from '@vue/composition-api'
 import {
   BaseForm
 } from '@/components/new/'
+import { pfSchedulesList as schedulesOptions } from '@/globals/pfSchedules'
 import schemaFn from '../schema'
 import {
   FormGroupBatch,
@@ -139,7 +141,7 @@ import {
   FormGroupHistoryTimeout,
   FormGroupHistoryWindow,
   FormGroupIdentifier,
-  FormGroupInterval,
+  FormGroupSchedule,
   FormGroupProcessSwitchranges,
   FormGroupRotate,
   FormGroupRotateBatch,
@@ -167,7 +169,7 @@ const components = {
   FormGroupHistoryTimeout,
   FormGroupHistoryWindow,
   FormGroupIdentifier,
-  FormGroupInterval,
+  FormGroupSchedule,
   FormGroupProcessSwitchranges,
   FormGroupRotate,
   FormGroupRotateBatch,
@@ -228,7 +230,8 @@ export const setup = (props) => {
   return {
     schema,
     wants,
-    logName
+    logName,
+    schedulesOptions
   }
 }
 

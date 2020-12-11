@@ -45,6 +45,17 @@ const schemaCondition = yup.object({
   )
 })
 
+const schemaParam = yup.object({
+  type: yup.string().required(i18n.t('Param required.')),
+  value: yup.string().required(i18n.t('Value required.'))
+})
+
+const schemaParams = yup.array().ensure().of(schemaParam)
+
+const schemaScope = yup.string().nullable().label(i18n.t('Scope'))
+
+const schemaScopes = yup.array().ensure().of(schemaScope).label(i18n.t('Scope(s)'))
+
 export const schema = (props) => {
   const {
     collection,
@@ -61,7 +72,10 @@ export const schema = (props) => {
 
     actions: schemaActions.meta({ invalidFeedback: i18n.t('Actions contain one or more errors.') }),
     answers: schemaAnswers.meta({ invalidFeedback: i18n.t('Answers contain one or more errors.') }),
-    condition: schemaCondition.meta({ invalidFeedback: i18n.t('Condition contains one or more errors.') })
+    condition: schemaCondition.meta({ invalidFeedback: i18n.t('Condition contains one or more errors.') }),
+    description: yup.string().nullable().label(i18n.t('Description')),
+    params: schemaParams.meta({ invalidFeedback: i18n.t('Parameters contain one or more errors.') }),
+    scopes: schemaScopes
   })
 }
 

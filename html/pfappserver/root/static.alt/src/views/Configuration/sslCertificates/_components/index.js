@@ -25,8 +25,7 @@ export {
   BaseFormGroupCertificate                        as FormGroupCertificate,
   BaseFormGroupPrivateKey                         as FormGroupPrivateKey,
   BaseFormGroupToggleDisabledEnabled              as FormGroupCheckChain,
-  BaseFormGroupIntermediateCertificateAuthorities as FormGroupIntermediateCertificateAuthorities,
-
+  BaseFormGroupIntermediateCertificateAuthorities as FormGroupIntermediateCertificationAuthorities,
   BaseFormGroupChosenCountry                      as FormGroupCsrCountry,
   BaseFormGroupInput                              as FormGroupCsrState,
   BaseFormGroupInput                              as FormGroupCsrLocality,
@@ -38,4 +37,3 @@ export {
   TheForm,
   TheView
 }
-

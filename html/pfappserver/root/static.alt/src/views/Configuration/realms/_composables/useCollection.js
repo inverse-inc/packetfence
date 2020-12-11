@@ -22,29 +22,40 @@ const useItemTitle = (props) => {
   })
 }
 
+const useItemTitleBadge = (props, context) => {
+  const {
+    tenantId
+  } = toRefs(props)
+  const { root: { $store } = {} } = context
+  const { name: tenantName } = $store.state.session.tenants.find(tenant => tenant.id === tenantId.value)
+  return tenantName
+}
+
 const useRouter = (props, context, form) => {
   const {
-    id
+    id,
+    tenantId
   } = toRefs(props)
   const { root: { $router } = {} } = context
   return {
-    goToCollection: () => $router.push({ name: 'realms' }),
-    goToItem: () => $router.push({ name: 'realm', params: { id: form.value.id || id.value } }),
-    goToClone: () => $router.push({ name: 'cloneRealm', params: { id: id.value } }),
+    goToCollection: () => $router.push({ name: 'realms', params: { tenantId: tenantId.value } }),
+    goToItem: () => $router.push({ name: 'realm', params: { id: form.value.id || id.value, tenantId: tenantId.value } }),
+    goToClone: () => $router.push({ name: 'cloneRealm', params: { id: id.value, tenantId: tenantId.value } }),
   }
 }
 
 const useStore = (props, context, form) => {
   const {
     id,
+    tenantId,
     isClone
   } = toRefs(props)
   const { root: { $store } = {} } = context
   return {
     isLoading: computed(() => $store.getters['$_realms/isLoading']),
-    getOptions: () => $store.dispatch('$_realms/options'),
-    createItem: () => $store.dispatch('$_realms/createRealm', form.value),
-    deleteItem: () => $store.dispatch('$_realms/deleteRealm', id.value),
+    getOptions: () => $store.dispatch('$_realms/options', { id: id.value, tenantId: tenantId.value }),
+    createItem: () => $store.dispatch('$_realms/createRealm', { item: form.value, tenantId: tenantId.value }),
+    deleteItem: () => $store.dispatch('$_realms/deleteRealm', { id: id.value, tenantId: tenantId.value }),
     getItem: () => $store.dispatch('$_realms/getRealm', id.value).then(item => {
       if (isClone.value) {
         item.id = `${item.id}-${i18n.t('copy')}`
@@ -52,13 +63,14 @@ const useStore = (props, context, form) => {
       }
       return item
     }),
-    updateItem: () => $store.dispatch('$_realms/updateRealm', form.value),
+    updateItem: () => $store.dispatch('$_realms/updateRealm', { item: form.value, tenantId: tenantId.value }),
   }
 }
 
 export default {
   useItemDefaults,
   useItemTitle,
+  useItemTitleBadge,
   useRouter,
   useStore,
 }

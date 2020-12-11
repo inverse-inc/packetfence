@@ -35,11 +35,6 @@
       :disabled="isLoading"
       @delete="onRemove"
     />
-    <b-button v-if="isCloseable"
-      :disabled="isLoading"
-      class="mr-1" variant="secondary"
-      @click="onClose"
-    >{{ $t('Cancel') }}</b-button>
     <slot/>
   </div>
 </template>

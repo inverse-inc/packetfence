@@ -27,6 +27,7 @@ import FormTypeAuthorizeNet from './FormTypeAuthorizeNet'
 import FormTypeBlackhole from './FormTypeBlackhole'
 import FormTypeClickatell from './FormTypeClickatell'
 import FormTypeEapTls from './FormTypeEapTls'
+import FormTypeEdir from './FormTypeEdir'
 import FormTypeEduroam from './FormTypeEduroam'
 import FormTypeEmail from './FormTypeEmail'
 import FormTypeFacebook from './FormTypeFacebook'
@@ -63,6 +64,7 @@ const components = {
   FormTypeBlackhole,
   FormTypeClickatell,
   FormTypeEapTls,
+  FormTypeEdir,
   FormTypeEduroam,
   FormTypeEmail,
   FormTypeFacebook,
@@ -106,6 +108,7 @@ export const setup = (props) => {
       case 'Blackhole':     return FormTypeBlackhole //break
       case 'Clickatell':    return FormTypeClickatell //break
       case 'EAPTLS':        return FormTypeEapTls //break
+      case 'EDIR':          return FormTypeEdir // break
       case 'Eduroam':       return FormTypeEduroam // break
       case 'Email':         return FormTypeEmail //break
       case 'Facebook':      return FormTypeFacebook //break

@@ -47,7 +47,7 @@ const useStore = (props, context, form) => {
     deleteItem: () => $store.dispatch('$_switch_templates/deleteSwitchTemplate', id.value),
     getItem: () => $store.dispatch('$_switch_templates/getSwitchTemplate', id.value).then(item => {
       if (isClone.value) {
-        item.id = `${item.id}-${i18n.t('copy')}`
+        item.id = `${item.id}_${i18n.t('copy')}`
         item.not_deletable = false
       }
       return item

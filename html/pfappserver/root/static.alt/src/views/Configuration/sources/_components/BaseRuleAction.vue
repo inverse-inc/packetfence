@@ -186,4 +186,3 @@ export default {
   setup
 }
 </script>
-

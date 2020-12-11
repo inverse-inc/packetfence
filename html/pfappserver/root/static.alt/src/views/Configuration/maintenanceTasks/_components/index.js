@@ -1,6 +1,7 @@
 import { BaseViewCollectionItem } from '../../_components/new/'
 import {
   BaseFormButtonBar,
+  BaseFormGroupChosenOne,
   BaseFormGroupInput,
   BaseFormGroupInputNumber,
   BaseFormGroupTextarea,
@@ -26,7 +27,7 @@ export {
   BaseFormGroupIntervalUnit           as FormGroupHistoryTimeout,
   BaseFormGroupIntervalUnit           as FormGroupHistoryWindow,
   BaseFormGroupInput                  as FormGroupIdentifier,
-  BaseFormGroupIntervalUnit           as FormGroupInterval,
+  BaseFormGroupChosenOne              as FormGroupSchedule,
   BaseFormGroupToggleNY               as FormGroupProcessSwitchranges,
   BaseFormGroupToggleNY               as FormGroupRotate,
   BaseFormGroupInputNumber            as FormGroupRotateBatch,

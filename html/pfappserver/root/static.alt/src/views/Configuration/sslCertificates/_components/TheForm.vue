@@ -41,20 +41,23 @@
           </b-row>
         </b-container>
       </b-card>
-      <b-card no-body class="m-3" v-if="isCertificateAuthority">
+      <b-card no-body class="m-3" v-if="isCertificationAuthority">
         <b-card-header>
-          <h4 class="mb-0">{{ title }} {{ $t('Certificate Authorities') }}</h4>
+          <h4 class="mb-0">{{ title }} {{ $t('Certification Authority Certificates') }}</h4>
         </b-card-header>
         <base-container-loading v-if="isLoading"
-          :title="$i18n.t('Loading Certificate Authorities')"
+          :title="$i18n.t('Loading Certification Authority Certificates')"
           spin
         />
-        <b-container fluid v-else>
-          <b-row align-v="baseline" v-for="(value, key) in certificateAuthorityLocale" :key="key">
-            <b-col sm="3" class="col-form-label">{{ key }}</b-col>
-            <b-col sm="9">{{ value }}</b-col>
-          </b-row>
-        </b-container>
+        <template v-else>
+          <b-container v-for="(ca, index) in certificationAuthorityLocale" :key="index"
+            class="mb-3" fluid>
+            <b-row align-v="center" v-for="(value, key) in ca" :key="key">
+              <b-col sm="3" class="col-form-label">{{ key }}</b-col>
+              <b-col sm="9">{{ value }}</b-col>
+            </b-row>
+          </b-container>
+        </template>
       </b-card>
       <b-card-footer>
         <b-button v-t="'Edit'" @click="doShowEdit"/>
@@ -149,7 +152,7 @@ import {
   AlertServices,
   FormGroupCertificate,
   FormGroupCheckChain,
-  FormGroupIntermediateCertificateAuthorities,
+  FormGroupIntermediateCertificationAuthorities,
   FormGroupLetsEncrypt,
   FormGroupLetsEncryptCommonName,
   FormGroupPrivateKey,
@@ -164,7 +167,7 @@ const components = {
   FormGroupCertificate,
   FormGroupCheckChain,
   FormGroupFindIntermediateCas,
-  FormGroupIntermediateCertificateAuthorities,
+  FormGroupIntermediateCertificationAuthorities,
   FormGroupLetsEncrypt,
   FormGroupLetsEncryptCommonName,
   FormGroupPrivateKey,
@@ -197,7 +200,7 @@ const setup = (props, context) => {
   const {
     schema,
     certificateLocale,
-    certificateAuthorityLocale,
+    certificationAuthorityLocale,
     services,
 
     isShowEdit,
@@ -208,7 +211,7 @@ const setup = (props, context) => {
     doShowCsr,
     doHideCsr,
 
-    isCertificateAuthority,
+    isCertificationAuthority,
     isCertKeyMatch,
     isChainValid,
     isLetsEncrypt,
@@ -231,7 +234,7 @@ const setup = (props, context) => {
     // useForm
     schema,
     certificateLocale,
-    certificateAuthorityLocale,
+    certificationAuthorityLocale,
     services,
     isShowEdit,
     doShowEdit,
@@ -239,7 +242,7 @@ const setup = (props, context) => {
     isShowCsr,
     doShowCsr,
     doHideCsr,
-    isCertificateAuthority,
+    isCertificationAuthority,
     isCertKeyMatch,
     isChainValid,
     isLetsEncrypt,

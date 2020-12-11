@@ -48,11 +48,14 @@ export const setup = (props, context) => {
     return trackedValue
   })
 
+  const onTag = newValue => onInput(newValue)
+
   return {
     // wrappers
     inputValue: inputValueWrapper,
     onInput: onInputWrapper,
-    inputPlaceholder
+    inputPlaceholder,
+    onTag
   }
 }
 

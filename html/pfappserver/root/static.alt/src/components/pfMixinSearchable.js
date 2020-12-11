@@ -44,10 +44,11 @@ export default {
     pfSearch
   },
   props: {
-/*
+    /*
     searchableOptions: {
       type: Object,
       default: () => ({
+        searchApiHeaders: {},
         searchApiEndpointOnly: false,
         defaultSearchCondition: () => {
           return { op: 'and', values: [{ op: 'or', values: [{ field: null, op: null, value: null }] }] }
@@ -55,7 +56,7 @@ export default {
         extraFields: false
       })
     },
-*/
+    */
     query: {
       type: String,
       default: null
@@ -136,6 +137,7 @@ export default {
         // Register store module only once
         const searchableStore = new SearchableStore(
           this.searchableOptions.searchApiEndpoint,
+          this.searchableOptions.searchApiHeaders,
           this.searchableOptions.defaultSortKeys,
           this.searchableOptions.defaultSortDesc || false,
           this.pageSizeLimit

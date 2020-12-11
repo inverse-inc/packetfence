@@ -333,7 +333,7 @@ const initialState = () => { // set intitial states to `false` (not `[]` or `{}`
     radiusSslsStatus: '',
     radiusTlss: false,
     radiusTlssStatus: '',
-    realms: [],
+    realms: {},
     realmsStatus: '',
     roles: false,
     rolesStatus: '',
