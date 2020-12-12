@@ -57,7 +57,8 @@ export const setup = (props, context) => {
     inputValue: inputValueWrapper,
     onInput: onInputWrapper,
 
-    onRemove
+    onRemove,
+    onTag
   }
 }
 
