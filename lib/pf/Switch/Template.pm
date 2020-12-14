@@ -491,19 +491,20 @@ sub handleReAssignVlanTrapForWiredMacAuth {
 sub _bouncePortCoa {
     my ($self, $ifIndex, $radiusBounce) = @_;
     my $logger = $self->logger;
+    my $id = $self->{_id};
 
     if (!defined($self->{'_radiusSecret'})) {
         $logger->warn(
-            "Unable to perform RADIUS CoA-Request on $self->{'_id'}: RADIUS Shared Secret not configured"
+            "Unable to perform RADIUS CoA-Request on $id: RADIUS Shared Secret not configured"
         );
         return;
     }
 
     #We need to fetch the MAC on the ifIndex in order to bounce switch port with CoA.
-    my @locationlog = locationlog_view_open_switchport_no_VoIP( $self->{_ip}, $ifIndex );
+    my @locationlog = locationlog_view_open_switchport_no_VoIP( $id, $ifIndex );
     my $mac = $locationlog[0]->{'mac'};
     if (!$mac) {
-        @locationlog = locationlog_view_open_switchport_only_VoIP( $self->{_ip}, $ifIndex );
+        @locationlog = locationlog_view_open_switchport_only_VoIP( $id, $ifIndex );
         $mac = $locationlog[0]->{'mac'};
     }
 
