@@ -89,7 +89,7 @@ func (ztn *ztndns) ServeDNS(ctx context.Context, w dns.ResponseWriter, r *dns.Ms
 		}
 	}
 
-	return 0, nil
+	return ztn.Next.ServeDNS(ctx, w, r)
 }
 
 // Name implements the Handler interface.
