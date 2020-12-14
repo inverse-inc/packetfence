@@ -28,6 +28,52 @@ export const useInputMeta = (props) => {
     options
   } = toRefs(props) // toRefs maintains reactivity w/ destructuring
 
+  // use namespace
+  const meta = inject('meta', ref({}))
+  const namespaceArr = computed(() => unref(namespace).split('.'))
+  const namespaceMeta = computed(() => getMetaNamespace(unref(namespaceArr), unref(meta)))
+
+  const consumeMeta = () => {
+    let _namespaceMeta = unref(namespaceMeta)
+    let { type, item } = _namespaceMeta
+    if (type === 'array')
+      _namespaceMeta = item
+    const {
+      allowed: metaAllowed,
+      allowed_lookup: metaAllowedLookup,
+      placeholder: metaPlaceholder,
+      type: metaType,
+    } = _namespaceMeta
+
+    // allowed
+    if (metaAllowed) {
+      // use props first, meta second
+      const fifoOptions = (options && options.value && options.value.length) ? options.value : metaAllowed
+      set(localProps, 'options', fifoOptions)
+    }
+
+    // allowed_lookup
+    if (metaAllowedLookup)
+      set(localProps, 'lookup', {
+        ...metaAllowedLookup,
+        baseURL: '' // clear baseURL during lookup to force absolute paths
+      })
+
+    // placeholder
+    if (metaPlaceholder)
+      set(localProps, 'placeholder', metaPlaceholder)
+
+    // type
+    switch(metaType) {
+      case 'integer':
+        set(localProps, 'type', 'number')
+        break
+      default:
+        // ignore meta `type` to use prop
+        //set(localProps, 'type', 'text')
+    }
+  }
+
   // defaults (dereferenced)
   let localProps = reactive({})
   watch(
@@ -36,58 +82,17 @@ export const useInputMeta = (props) => {
       for(let prop in props) {
         set(localProps, prop, props[prop])
       }
+      if (namespace.value)
+        consumeMeta()
     },
     { immediate: true }
   )
 
-  if (unref(namespace)) {
-    // use namespace
-    const meta = inject('meta', ref({}))
-    const namespaceArr = computed(() => unref(namespace).split('.'))
-    const namespaceMeta = computed(() => getMetaNamespace(unref(namespaceArr), unref(meta)))
 
+  if (unref(namespace)) {
     watch(
       namespaceMeta,
-      () => {
-        let _namespaceMeta = unref(namespaceMeta)
-        let { type, item } = _namespaceMeta
-        if (type === 'array')
-          _namespaceMeta = item
-        const {
-          allowed: metaAllowed,
-          allowed_lookup: metaAllowedLookup,
-          placeholder: metaPlaceholder,
-          type: metaType,
-        } = _namespaceMeta
-
-        // allowed
-        if (metaAllowed) {
-          // use props first, meta second
-          const fifoOptions = (options && options.value && options.value.length) ? options.value : metaAllowed
-          set(localProps, 'options', fifoOptions)
-        }
-
-        // allowed_lookup
-        if (metaAllowedLookup)
-          set(localProps, 'lookup', {
-            ...metaAllowedLookup,
-            baseURL: '' // clear baseURL during lookup to force absolute paths
-          })
-
-        // placeholder
-        if (metaPlaceholder)
-          set(localProps, 'placeholder', metaPlaceholder)
-
-        // type
-        switch(metaType) {
-          case 'integer':
-            set(localProps, 'type', 'number')
-            break
-          default:
-            // ignore meta `type` to use prop
-            //set(localProps, 'type', 'text')
-        }
-      },
+      consumeMeta,
       { immediate: true }
     )
   }
