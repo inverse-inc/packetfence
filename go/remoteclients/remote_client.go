@@ -151,6 +151,11 @@ func (rc *RemoteClient) DomainsToResolve(ctx context.Context, db *gorm.DB) []str
 	return profile.AdditionalDomainsToResolve
 }
 
+func (rc *RemoteClient) InternalDomainToResolve(ctx context.Context, db *gorm.DB) string {
+	profile := rc.ConnectionProfile(ctx, db)
+	return profile.InternalDomainToResolve
+}
+
 func (rc *RemoteClient) ACLs(ctx context.Context, db *gorm.DB) []string {
 	nc, err := common.FetchNodeCategory(ctx, rc.GetNode(ctx).CategoryID_int())
 	sharedutils.CheckError(err)

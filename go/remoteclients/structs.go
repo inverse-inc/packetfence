@@ -19,15 +19,16 @@ type Event struct {
 }
 
 type Peer struct {
-	WireguardIP      net.IP   `json:"wireguard_ip"`
-	WireguardNetmask int      `json:"wireguard_netmask"`
-	PublicKey        string   `json:"public_key,omitempty"`
-	AllowedPeers     []string `json:"allowed_peers,omitempty"`
-	NamesToResolve   []string `json:"names_to_resolve"`
-	DomainsToResolve []string `json:"Domains_to_resolve"`
-	ACLs             []string `json:"acls"`
-	Routes           []string `json:"routes"`
-	IsGateway        bool     `json:"is_gateway"`
-	Hostname         string   `json:"hostname"`
-	STUNServer       string   `json:"stun_server"`
+	WireguardIP             net.IP   `json:"wireguard_ip"`
+	WireguardNetmask        int      `json:"wireguard_netmask"`
+	PublicKey               string   `json:"public_key,omitempty"`
+	AllowedPeers            []string `json:"allowed_peers,omitempty"`
+	NamesToResolve          []string `json:"names_to_resolve"`
+	DomainsToResolve        []string `json:"Domains_to_resolve"`
+	ACLs                    []string `json:"acls"`
+	Routes                  []string `json:"routes"`
+	IsGateway               bool     `json:"is_gateway"`
+	Hostname                string   `json:"hostname"`
+	STUNServer              string   `json:"stun_server"`
+	InternalDomainToResolve string   `json:"internal_domain_to_resolve"`
 }

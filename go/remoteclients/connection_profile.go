@@ -107,6 +107,7 @@ type RemoteConnectionProfile struct {
 	Routes                     []string `json:"routes"`
 	Gateway                    string   `json:"gateway"`
 	STUNServer                 string   `json:"stun_server"`
+	InternalDomainToResolve    string   `json:"internal_domain_to_resolve"`
 }
 
 type FilterInfo struct {

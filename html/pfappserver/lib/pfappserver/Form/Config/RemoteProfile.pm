@@ -98,6 +98,13 @@ has_field 'additional_domains_to_resolve' =>
    type => 'TextArea',
   );
 
+has_field 'internal_domain_to_resolve' =>
+  (
+   type => 'Text',
+    required => 1,
+    default => "ztn",
+  );
+
 has_field 'gateway' =>
   (
     type => 'Toggle',

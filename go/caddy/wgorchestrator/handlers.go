@@ -95,15 +95,16 @@ func (h *WgorchestratorHandler) handleGetProfile(c *gin.Context) {
 	}
 
 	profile := remoteclients.Peer{
-		WireguardIP:      rc.IPAddress(),
-		WireguardNetmask: rc.Netmask(),
-		AllowedPeers:     rc.AllowedPeers(c, db),
-		NamesToResolve:   rc.NamesToResolve(c, db),
-		DomainsToResolve: rc.DomainsToResolve(c, db),
-		ACLs:             rc.ACLs(c, db),
-		Routes:           rc.Routes(c, db),
-		IsGateway:        rc.IsGateway(c, db),
-		STUNServer:       rc.STUNServer(c, db),
+		WireguardIP:             rc.IPAddress(),
+		WireguardNetmask:        rc.Netmask(),
+		AllowedPeers:            rc.AllowedPeers(c, db),
+		NamesToResolve:          rc.NamesToResolve(c, db),
+		DomainsToResolve:        rc.DomainsToResolve(c, db),
+		ACLs:                    rc.ACLs(c, db),
+		Routes:                  rc.Routes(c, db),
+		IsGateway:               rc.IsGateway(c, db),
+		STUNServer:              rc.STUNServer(c, db),
+		InternalDomainToResolve: rc.InternalDomainToResolve(c, db),
 	}
 
 	c.JSON(http.StatusOK, profile)

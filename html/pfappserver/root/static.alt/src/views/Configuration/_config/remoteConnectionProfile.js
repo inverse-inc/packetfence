@@ -393,6 +393,17 @@ export const view = (form = {}, meta = {}) => {
           ]
         },
         {
+          label: i18n.t('Internal domain to resolve'),
+          text: i18n.t('Domain that will be appended to the peer hostname'),
+          cols: [
+            {
+              namespace: 'internal_domain_to_resolve',
+              component: pfFormInput,
+              attrs: attributesFromMeta(meta, 'internal_domain_to_resolve')
+            }
+          ]
+        },
+        {
           label: i18n.t('Additional domains to resolve'),
           text: i18n.t('List of domains to resolve through PacketFence inside the wireguard network'),
           cols: [
