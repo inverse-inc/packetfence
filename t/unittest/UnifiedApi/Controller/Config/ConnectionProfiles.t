@@ -16,19 +16,22 @@ use strict;
 use warnings;
 #
 use lib '/usr/local/pf/lib';
-
+our $dir;
 BEGIN {
     #include test libs
     use lib qw(/usr/local/pf/t);
+    use File::Temp qw(tempdir);
     #Module for overriding configuration paths
     use setup_test_config;
+    $dir = tempdir( CLEANUP => 1 );
+    $pf::file_paths::captiveportal_profile_templates_path = $dir;
 }
 
 use pf::ConfigStore::Profile;
 use Utils;
 my ($fh, $filename) = Utils::tempfileForConfigStore("pf::ConfigStore::Profile");
 
-use Test::More tests => 32;
+use Test::More tests => 36;
 use Test::Mojo;
 #This test will running last
 use Test::NoWarnings;
@@ -37,6 +40,12 @@ my $t = Test::Mojo->new('pf::UnifiedApi');
 my $collection_base_url = '/api/v1/config/connection_profiles';
 
 my $base_url = '/api/v1/config/connection_profile';
+
+$t->post_ok($collection_base_url => json => { id => 'test_audit', root_module => 'default_policy', advanced_filter => undef, filter => [ {type => 'ssid', match => 'bob'}], })
+  ->status_is(201);
+
+$t->put_ok("$base_url/test_audit/files/bob.html" => {} => "bob")
+  ->status_is(200);
 
 $t->get_ok($collection_base_url)
   ->status_is(200)
@@ -90,6 +99,7 @@ $items = $t->tx->res->json->{items};
 my @new_names = map { $_->{id} } @$items;
 
 is_deeply(\@new_names, ['default', @names], "Resorting");
+
 
 =head1 AUTHOR
 
