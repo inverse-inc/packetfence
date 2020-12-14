@@ -11,7 +11,7 @@ pf::Authentication::Source::LDAPSource
 use pf::log;
 use pf::constants qw($TRUE $FALSE);
 use pf::constants::authentication::messages;
-use pf::Authentication::constants qw($DEFAULT_LDAP_READ_TIMEOUT $DEFAULT_LDAP_WRITE_TIMEOUT $DEFAULT_LDAP_CONNECTION_TIMEOUT);
+use pf::Authentication::constants qw($DEFAULT_LDAP_READ_TIMEOUT $DEFAULT_LDAP_WRITE_TIMEOUT $DEFAULT_LDAP_CONNECTION_TIMEOUT $DEFAULT_LDAP_DEAD_DURATION);
 use pf::Authentication::Condition;
 use pf::CHI;
 use pf::util;
@@ -67,6 +67,7 @@ has 'cache_match' => ( isa => 'Bool', is => 'rw', default => '0' );
 has 'email_attribute' => (isa => 'Maybe[Str]', is => 'rw', default => 'mail');
 has 'monitor' => ( isa => 'Bool', is => 'rw', default => '1' );
 has 'shuffle' => ( isa => 'Bool', is => 'rw', default => '0' );
+has 'dead_duration' => ( isa => 'Num', is => 'rw', default => $DEFAULT_LDAP_DEAD_DURATION);
 
 our $logger = get_logger();
 
@@ -224,6 +225,10 @@ sub _connect {
   my $logger = Log::Log4perl::get_logger(__PACKAGE__);
   my ($LDAPServer, $LDAPServerPort);
   my @LDAPServers = split(/\s*,\s*/, $self->{'host'});
+  
+  # Lookup the server hostnames to IPs so they can be shuffled better and to improve the failure detection
+  @LDAPServers = map { valid_ip($_) ? $_ : @{resolve($_)} } @LDAPServers;
+
   if ($self->shuffle) {
       @LDAPServers = List::Util::shuffle @LDAPServers;
   }
@@ -241,6 +246,14 @@ sub _connect {
         $LDAPServerPort = (split(/:/, $LDAPServer))[-1];
     }
     $LDAPServerPort //=  $self->{'port'} ;
+    
+    my $dead_cache_key = "SERVER_DEAD:".$self->{id}.":$LDAPServer";
+
+    if($self->cache->get($dead_cache_key)) {
+      $logger->warn("[$self->{'id'}] $LDAPServer detected as dead, switching to next server");
+      next TRYSERVER;
+    }
+
     $connection = pf::LDAP->new(
         $LDAPServer,
         port       => $LDAPServerPort,
@@ -253,6 +266,9 @@ sub _connect {
 
     if (! defined($connection)) {
       $logger->warn("[$self->{'id'}] Unable to connect to $LDAPServer");
+      if($self->dead_duration) {
+          $self->cache->set($dead_cache_key, $TRUE, $self->dead_duration);
+      }
       next TRYSERVER;
     }
 
