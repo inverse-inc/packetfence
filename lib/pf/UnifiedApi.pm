@@ -1281,9 +1281,9 @@ sub setup_api_v1_config_connection_profiles_files_routes {
     $files_route->any(['GET'])->to("$controller#files" => {})->name("${name}.dir");
     my $file_route = $files_route->any("/*file_name")->name("${name}.file");
     $file_route->any(['GET'])->to("$controller#get_file" => {})->name("${name}.file.get");
-    $file_route->any(['PATCH'])->to("$controller#replace_file" => {})->name("${name}.file.replace");
-    $file_route->any(['PUT'])->to("$controller#new_file" => {})->name("${name}.file.new");
-    $file_route->any(['DELETE'])->to("$controller#delete_file" => {})->name("${name}.file.delete");
+    $file_route->any(['PATCH'])->to("$controller#replace_file" => {auditable => 1})->name("${name}.file.replace");
+    $file_route->any(['PUT'])->to("$controller#new_file" => {auditable => 1})->name("${name}.file.new");
+    $file_route->any(['DELETE'])->to("$controller#delete_file" => {auditable => 1})->name("${name}.file.delete");
 
     return ;
 }
