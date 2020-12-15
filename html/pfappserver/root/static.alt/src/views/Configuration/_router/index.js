@@ -42,9 +42,7 @@ import WmiRulesRoutes from '../wmiRules/_router'
 /* Integration */
 const IntegrationSection = () => import(/* webpackChunkName: "Configuration" */ '../_components/IntegrationSection')
 import FirewallsRoutes from '../firewalls/_router'
-//const FirewallsList = () => import(/* webpackChunkName: "Configuration" */ '../_components/FirewallsList')
-//const FirewallView = () => import(/* webpackChunkName: "Configuration" */ '../_components/FirewallView')
-const CiscoMobilityServicesEngineView = () => import(/* webpackChunkName: "Configuration" */ '../_components/CiscoMobilityServicesEngineView')
+import CiscoMobilityServicesEngineRoutes from '../ciscoMobilityServicesEngine/_router'
 const WebServicesView = () => import(/* webpackChunkName: "Configuration" */ '../_components/WebServicesView')
 import SwitchTemplatesRoutes from '../switchTemplates/_router'
 import SyslogParsersRoutes from '../syslogParsers/_router'
@@ -271,18 +269,7 @@ const route = {
       component: IntegrationSection
     },
     ...FirewallsRoutes,
-    {
-      path: 'mse',
-      name: 'mse',
-      component: CiscoMobilityServicesEngineView,
-      props: (route) => ({ formStoreName: 'formCiscoMobilityServicesEngine', query: route.query.query }),
-      beforeEnter: (to, from, next) => {
-        if (!store.state.formCiscoMobilityServicesEngine) { // Register store module only once
-          store.registerModule('formCiscoMobilityServicesEngine', FormStore)
-        }
-        next()
-      }
-    },
+    ...CiscoMobilityServicesEngineRoutes,
     {
       path: 'webservices',
       name: 'webservices',
