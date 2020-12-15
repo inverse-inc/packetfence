@@ -65,7 +65,7 @@ const BillingTierView = () => import(/* webpackChunkName: "Configuration" */ '..
 import PkiProvidersRoutes from '../pkiProviders/_router'
 const PortalModulesList = () => import(/* webpackChunkName: "Configuration" */ '../_components/PortalModulesList')
 const PortalModuleView = () => import(/* webpackChunkName: "Configuration" */ '../_components/PortalModuleView')
-const AccessDurationView = () => import(/* webpackChunkName: "Configuration" */ '../accessDurations/_components/TheView')
+import AccessDurationsRoutes from '../accessDurations/_router'
 import ProvisionersRoutes from '../provisioners/_router'
 import SelfServicesRoutes from '../selfServices/_router'
 
@@ -654,12 +654,7 @@ const route = {
         })
       }
     },
-    {
-      path: 'access_duration',
-      name: 'access_duration',
-      component: AccessDurationView,
-      props: (route) => ({ query: route.query.query })
-    },
+    ...AccessDurationsRoutes,
     ...SelfServicesRoutes,
 
     /**
