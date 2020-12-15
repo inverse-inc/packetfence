@@ -82,7 +82,7 @@ const SystemConfigurationSection = () => import(/* webpackChunkName: "Configurat
 export const MainTabs = () => import(/* webpackChunkName: "Configuration" */ '../_components/MainTabs')
 import MaintenanceTasksRoutes from '../maintenanceTasks/_router'
 const DatabaseTabs = () => import(/* webpackChunkName: "Configuration" */ '../_components/DatabaseTabs')
-const ActiveActiveView = () => import(/* webpackChunkName: "Configuration" */ '../_components/ActiveActiveView')
+import ActiveActiveRoutes from '../activeActive/_router'
 const RadiusTabs = () => import(/* webpackChunkName: "Configuration" */ '../_components/RadiusTabs')
 const RadiusEapView = () => import(/* webpackChunkName: "Configuration" */ '../_components/RadiusEapView')
 const RadiusTlsView = () => import(/* webpackChunkName: "Configuration" */ '../_components/RadiusTlsView')
@@ -757,18 +757,7 @@ const route = {
       component: DatabaseTabs,
       props: (route) => ({ tab: 'database_advanced', query: route.query.query })
     },
-    {
-      path: 'active_active',
-      name: 'active_active',
-      component: ActiveActiveView,
-      props: (route) => ({ formStoreName: 'formActiveActive', query: route.query.query }),
-      beforeEnter: (to, from, next) => {
-        if (!store.state.formActiveActive) { // Register store module only once
-          store.registerModule('formActiveActive', FormStore)
-        }
-        next()
-      }
-    },
+    ...ActiveActiveRoutes,
     {
       path: 'radius',
       name: 'radiusGeneral',
