@@ -3,79 +3,42 @@ import store from '@/store'
 import FormStore from '@/store/base/form'
 import ConfigurationView from '../'
 import AdminRolesStore from '../_store/adminRoles'
-import AuthenticationSourcesStore from '../_store/sources'
 import BasesStore from '../_store/bases'
 import BillingTiersStore from '../_store/billingTiers'
-import CertificatesStore from '../_store/certificates'
 import ConnectionProfilesStore from '../_store/connectionProfiles'
-import SelfServicesStore from '../_store/selfServices'
-import DomainsStore from '../_store/domains'
-import FilterEnginesStore from '../_store/filterEngines'
-import FingerbankStore from '../_store/fingerbank'
 import FirewallsStore from '../_store/firewalls'
 import FloatingDevicesStore from '../_store/floatingDevices'
-import InterfacesStore from '../_store/interfaces'
-import Layer2NetworksStore from '../_store/layer2Networks'
-import MaintenanceTasksStore from '../_store/maintenanceTasks'
-import NetworkBehaviorPoliciesStore from '../_store/networkBehaviorPolicies'
-import PkisStore from '../_store/pkis'
-import PkiProvidersStore from '../_store/pkiProviders'
+import PkisStore from '../pki/_store'
 import PortalModulesStore from '../_store/portalModules'
-import ProvisioningsStore from '../_store/provisionings'
 import RadiusEapStore from '../_store/radiusEap'
 import RadiusFastStore from '../_store/radiusFast'
 import RadiusOcspStore from '../_store/radiusOcsp'
 import RadiusSslStore from '../_store/radiusSsl'
 import RadiusTlsStore from '../_store/radiusTls'
-import RealmsStore from '../_store/realms'
-import RolesStore from '../_store/roles'
-import RoutedNetworksStore from '../_store/routedNetworks'
-import ScansStore from '../_store/scans'
-import SecurityEventsStore from '../_store/securityEvents'
 import SyslogForwardersStore from '../_store/syslogForwarders'
-import SyslogParsersStore from '../_store/syslogParsers'
-import SwitchesStore from '../_store/switches'
-import SwitchGroupsStore from '../_store/switchGroups'
-import SwitchTemplatesStore from '../_store/switchTemplates'
-import TrafficShapingPoliciesStore from '../_store/trafficShapingPolicies'
-import WmiRulesStore from '../_store/wmiRules'
 import WrixLocationsStore from '../_store/wrixLocations'
+
+
 
 /* Policies Access Control */
 const PoliciesAccessControlSection = () => import(/* webpackChunkName: "Configuration" */ '../_components/PoliciesAccessControlSection')
-const RolesList = () => import(/* webpackChunkName: "Configuration" */ '../_components/RolesList')
-const RoleView = () => import(/* webpackChunkName: "Configuration" */ '../roles/_components/TheView')
-const DomainsTabs = () => import(/* webpackChunkName: "Configuration" */ '../_components/DomainsTabs')
-const DomainView = () => import(/* webpackChunkName: "Configuration" */ '../domains/_components/TheView')
-const RealmView = () => import(/* webpackChunkName: "Configuration" */ '../realms/_components/TheView')
-const AuthenticationSourcesList = () => import(/* webpackChunkName: "Configuration" */ '../_components/AuthenticationSourcesList')
-const AuthenticationSourceView = () => import(/* webpackChunkName: "Configuration" */ '../sources/_components/TheView')
-const NetworkDevicesTabs = () => import(/* webpackChunkName: "Configuration" */ '../_components/NetworkDevicesTabs')
-const SwitchesImport = () => import(/* webpackChunkName: "Import" */ '../_components/SwitchesImport')
-const SwitchView = () => import(/* webpackChunkName: "Configuration" */ '../switches/_components/TheView')
-const SwitchGroupView = () => import(/* webpackChunkName: "Configuration" */ '../switchGroups/_components/TheView')
+import RolesRoutes from '../roles/_router'
+import DomainsRoutes from '../domains/_router'
+import RealmsRoutes from '../realms/_router'
+import SourcesRoutes from '../sources/_router'
+import SwitchesRoutes from '../switches/_router'
+import SwitchGroupsRoutes from '../switchGroups/_router'
 const ConnectionProfilesList = () => import(/* webpackChunkName: "Configuration" */ '../_components/ConnectionProfilesList')
 const ConnectionProfileView = () => import(/* webpackChunkName: "Configuration" */ '../_components/ConnectionProfileView')
 const ConnectionProfileFileView = () => import(/* webpackChunkName: "Editor" */ '../_components/ConnectionProfileFileView')
 
 /* Compliance */
 const ComplianceSection = () => import(/* webpackChunkName: "Configuration" */ '../_components/ComplianceSection')
-const FingerbankTabs = () => import(/* webpackChunkName: "Configuration" */ '../_components/FingerbankTabs')
-const NetworkBehaviorPoliciesList = () => import(/* webpackChunkName: "Configuration" */ '../_components/NetworkBehaviorPoliciesList')
-const NetworkBehaviorPolicyView = () => import(/* webpackChunkName: "Configuration" */ '../networkBehaviorPolicy/_components/TheView')
-const FingerbankCombinationView = () => import(/* webpackChunkName: "Fingerbank" */ '../fingerbank/combinations/_components/TheView')
-const FingerbankDeviceView = () => import(/* webpackChunkName: "Fingerbank" */ '../fingerbank/devices/_components/TheView')
-const FingerbankDhcpFingerprintView = () => import(/* webpackChunkName: "Fingerbank" */ '../fingerbank/dhcpFingerprints/_components/TheView')
-const FingerbankDhcpVendorView = () => import(/* webpackChunkName: "Fingerbank" */ '../fingerbank/dhcpVendors/_components/TheView')
-const FingerbankDhcpv6FingerprintView = () => import(/* webpackChunkName: "Fingerbank" */ '../fingerbank/dhcpv6Fingerprints/_components/TheView')
-const FingerbankDhcpv6EnterpriseView = () => import(/* webpackChunkName: "Fingerbank" */ '../fingerbank/dhcpv6Enterprises/_components/TheView')
-const FingerbankMacVendorView = () => import(/* webpackChunkName: "Fingerbank" */ '../fingerbank/macVendors/_components/TheView')
-const FingerbankUserAgentView = () => import(/* webpackChunkName: "Fingerbank" */ '../fingerbank/userAgents/_components/TheView')
-const ScansTabs = () => import(/* webpackChunkName: "Configuration" */ '../_components/ScansTabs')
-const ScanEngineView = () => import(/* webpackChunkName: "Configuration" */ '../scanEngines/_components/TheView')
-const SecurityEventsList = () => import(/* webpackChunkName: "Configuration" */ '../_components/SecurityEventsList')
-const SecurityEventView = () => import(/* webpackChunkName: "Configuration" */ '../securityEvents/_components/TheView')
-const WmiRuleView = () => import(/* webpackChunkName: "Configuration" */ '../wmiRules/_components/TheView')
+import FingerbankRoutes from '../fingerbank/_router'
+import NetworkBehaviorPoliciesRoutes from '../networkBehaviorPolicy/_router'
+import ScanEnginesRoutes from '../scanEngines/_router'
+import SecurityEventsRoutes from '../securityEvents/_router'
+import WmiRulesRoutes from '../wmiRules/_router'
 
 /* Integration */
 const IntegrationSection = () => import(/* webpackChunkName: "Configuration" */ '../_components/IntegrationSection')
@@ -83,10 +46,8 @@ const FirewallsList = () => import(/* webpackChunkName: "Configuration" */ '../_
 const FirewallView = () => import(/* webpackChunkName: "Configuration" */ '../_components/FirewallView')
 const CiscoMobilityServicesEngineView = () => import(/* webpackChunkName: "Configuration" */ '../_components/CiscoMobilityServicesEngineView')
 const WebServicesView = () => import(/* webpackChunkName: "Configuration" */ '../_components/WebServicesView')
-const SwitchTemplatesList = () => import(/* webpackChunkName: "Configuration" */ '../_components/SwitchTemplatesList')
-const SwitchTemplateView = () => import(/* webpackChunkName: "Configuration" */ '../switchTemplates/_components/TheView')
-const SyslogParsersList = () => import(/* webpackChunkName: "Configuration" */ '../_components/SyslogParsersList')
-const SyslogParserView = () => import(/* webpackChunkName: "Configuration" */ '../syslogParsers/_components/TheView')
+import SwitchTemplatesRoutes from '../switchTemplates/_router'
+import SyslogParsersRoutes from '../syslogParsers/_router'
 const SyslogForwardersList = () => import(/* webpackChunkName: "Configuration" */ '../_components/SyslogForwardersList')
 const SyslogForwarderView = () => import(/* webpackChunkName: "Configuration" */ '../_components/SyslogForwarderView')
 const WrixLocationsList = () => import(/* webpackChunkName: "Configuration" */ '../_components/WrixLocationsList')
@@ -100,36 +61,28 @@ const PkiRevokedCertView = () => import(/* webpackChunkName: "Pki" */ '../_compo
 /* Advanced Access Configuration */
 const AdvancedAccessConfigurationSection = () => import(/* webpackChunkName: "Configuration" */ '../_components/AdvancedAccessConfigurationSection')
 const CaptivePortalView = () => import(/* webpackChunkName: "Configuration" */ '../_components/CaptivePortalView')
-const FilterEnginesList = () => import(/* webpackChunkName: "Editor" */ '../_components/FilterEnginesList')
-const FilterEngineView = () => import(/* webpackChunkName: "Editor" */ '../filterEngines/_components/TheView')
+import FilterEnginesRoutes from '../filterEngines/_router'
 const BillingTiersList = () => import(/* webpackChunkName: "Configuration" */ '../_components/BillingTiersList')
 const BillingTierView = () => import(/* webpackChunkName: "Configuration" */ '../_components/BillingTierView')
-const PkiProvidersList = () => import(/* webpackChunkName: "Configuration" */ '../_components/PkiProvidersList')
-const PkiProviderView = () => import(/* webpackChunkName: "Configuration" */ '../pkiProviders/_components/TheView')
+import PkiProvidersRoutes from '../pkiProviders/_router'
 const PortalModulesList = () => import(/* webpackChunkName: "Configuration" */ '../_components/PortalModulesList')
 const PortalModuleView = () => import(/* webpackChunkName: "Configuration" */ '../_components/PortalModuleView')
 const AccessDurationView = () => import(/* webpackChunkName: "Configuration" */ '../accessDurations/_components/TheView')
-const ProvisioningsList = () => import(/* webpackChunkName: "Configuration" */ '../_components/ProvisioningsList')
-const ProvisioningView = () => import(/* webpackChunkName: "Configuration" */ '../provisioners/_components/TheView')
-const SelfServicesList = () => import(/* webpackChunkName: "Configuration" */ '../_components/SelfServicesList')
-const SelfServiceView = () => import(/* webpackChunkName: "Configuration" */ '../selfServices/_components/TheView')
+import ProvisionersRoutes from '../provisioners/_router'
+import SelfServicesRoutes from '../selfServices/_router'
 
 /* Network Configuration */
 const NetworkConfigurationSection = () => import(/* webpackChunkName: "Configuration" */ '../_components/NetworkConfigurationSection')
-const NetworksTabs = () => import(/* webpackChunkName: "Configuration" */ '../_components/NetworksTabs')
-const InterfaceView = () => import(/* webpackChunkName: "Configuration" */ '../networks/interfaces/_components/TheView')
-const Layer2NetworkView = () => import(/* webpackChunkName: "Configuration" */ '../networks/layer2Networks/_components/TheView')
-const RoutedNetworkView = () => import(/* webpackChunkName: "Configuration" */ '../networks/routedNetworks/_components/TheView')
-const TrafficShapingView = () => import(/* webpackChunkName: "Configuration" */ '../networks/trafficShapingPolicies/_components/TheView')
+import NetworksRoutes from '../networks/_router'
 const SnmpTrapView = () => import(/* webpackChunkName: "Configuration" */ '../_components/SnmpTrapView')
 const FloatingDevicesList = () => import(/* webpackChunkName: "Configuration" */ '../_components/FloatingDevicesList')
 const FloatingDeviceView = () => import(/* webpackChunkName: "Configuration" */ '../_components/FloatingDeviceView')
-const CertificatesView = () => import(/* webpackChunkName: "Configuration" */ '../sslCertificates/_components/TheView')
+import SslCertificatesRoutes from '../sslCertificates/_router'
 
 /* System Configuration */
 const SystemConfigurationSection = () => import(/* webpackChunkName: "Configuration" */ '../_components/SystemConfigurationSection')
-const MainTabs = () => import(/* webpackChunkName: "Configuration" */ '../_components/MainTabs')
-const MaintenanceTaskView = () => import(/* webpackChunkName: "Configuration" */ '../maintenanceTasks/_components/TheView')
+export const MainTabs = () => import(/* webpackChunkName: "Configuration" */ '../_components/MainTabs')
+import MaintenanceTasksRoutes from '../maintenanceTasks/_router'
 const DatabaseTabs = () => import(/* webpackChunkName: "Configuration" */ '../_components/DatabaseTabs')
 const ActiveActiveView = () => import(/* webpackChunkName: "Configuration" */ '../_components/ActiveActiveView')
 const RadiusTabs = () => import(/* webpackChunkName: "Configuration" */ '../_components/RadiusTabs')
@@ -164,23 +117,8 @@ const route = {
     if (!store.state.$_billing_tiers) {
       store.registerModule('$_billing_tiers', BillingTiersStore)
     }
-    if (!store.state.$_domains) {
-      store.registerModule('$_domains', DomainsStore)
-    }
-    if (!store.state.$_certificates) {
-      store.registerModule('$_certificates', CertificatesStore)
-    }
     if (!store.state.$_connection_profiles) {
       store.registerModule('$_connection_profiles', ConnectionProfilesStore)
-    }
-    if (!store.state.$_self_services) {
-      store.registerModule('$_self_services', SelfServicesStore)
-    }
-    if (!store.state.$_filter_engines) {
-      store.registerModule('$_filter_engines', FilterEnginesStore)
-    }
-    if (!store.state.$_fingerbank) {
-      store.registerModule('$_fingerbank', FingerbankStore)
     }
     if (!store.state.$_firewalls) {
       store.registerModule('$_firewalls', FirewallsStore)
@@ -188,29 +126,11 @@ const route = {
     if (!store.state.$_floatingdevices) {
       store.registerModule('$_floatingdevices', FloatingDevicesStore)
     }
-    if (!store.state.$_interfaces) {
-      store.registerModule('$_interfaces', InterfacesStore)
-    }
-    if (!store.state.$_layer2_networks) {
-      store.registerModule('$_layer2_networks', Layer2NetworksStore)
-    }
-    if (!store.state.$_maintenance_tasks) {
-      store.registerModule('$_maintenance_tasks', MaintenanceTasksStore)
-    }
-    if (!store.state.$_network_behavior_policies) {
-      store.registerModule('$_network_behavior_policies', NetworkBehaviorPoliciesStore)
-    }
     if (!store.state.$_pkis) {
       store.registerModule('$_pkis', PkisStore)
     }
-    if (!store.state.$_pki_providers) {
-      store.registerModule('$_pki_providers', PkiProvidersStore)
-    }
     if (!store.state.$_portalmodules) {
       store.registerModule('$_portalmodules', PortalModulesStore)
-    }
-    if (!store.state.$_provisionings) {
-      store.registerModule('$_provisionings', ProvisioningsStore)
     }
     if (!store.state.$_radius_eap) {
       store.registerModule('$_radius_eap', RadiusEapStore)
@@ -227,44 +147,8 @@ const route = {
     if (!store.state.$_radius_tls) {
       store.registerModule('$_radius_tls', RadiusTlsStore)
     }
-    if (!store.state.$_realms) {
-      store.registerModule('$_realms', RealmsStore)
-    }
-    if (!store.state.$_roles) {
-      store.registerModule('$_roles', RolesStore)
-    }
-    if (!store.state.$_routed_networks) {
-      store.registerModule('$_routed_networks', RoutedNetworksStore)
-    }
-    if (!store.state.$_scans) {
-      store.registerModule('$_scans', ScansStore)
-    }
-    if (!store.state.$_security_events) {
-      store.registerModule('$_security_events', SecurityEventsStore)
-    }
-    if (!store.state.$_sources) {
-      store.registerModule('$_sources', AuthenticationSourcesStore)
-    }
-    if (!store.state.$_syslog_parsers) {
-      store.registerModule('$_syslog_parsers', SyslogParsersStore)
-    }
     if (!store.state.$_syslog_forwarders) {
       store.registerModule('$_syslog_forwarders', SyslogForwardersStore)
-    }
-    if (!store.state.$_switches) {
-      store.registerModule('$_switches', SwitchesStore)
-    }
-    if (!store.state.$_switch_groups) {
-      store.registerModule('$_switch_groups', SwitchGroupsStore)
-    }
-    if (!store.state.$_switch_templates) {
-      store.registerModule('$_switch_templates', SwitchTemplatesStore)
-    }
-    if (!store.state.$_traffic_shaping_policies) {
-      store.registerModule('$_traffic_shaping_policies', TrafficShapingPoliciesStore)
-    }
-    if (!store.state.$_wmi_rules) {
-      store.registerModule('$_wmi_rules', WmiRulesStore)
     }
     if (!store.state.$_wrix_locations) {
       store.registerModule('$_wrix_locations', WrixLocationsStore)
@@ -272,7 +156,6 @@ const route = {
     next()
   },
   children: [
-
     /**
      * Policies Access Control
      */
@@ -280,215 +163,12 @@ const route = {
       path: 'policies_access_control',
       component: PoliciesAccessControlSection
     },
-    {
-      path: 'roles',
-      name: 'roles',
-      component: RolesList,
-      props: (route) => ({ query: route.query.query })
-    },
-    {
-      path: 'roles/new',
-      name: 'newRole',
-      component: RoleView,
-      props: () => ({ isNew: true })
-    },
-    {
-      path: 'role/:id',
-      name: 'role',
-      component: RoleView,
-      props: (route) => ({ id: route.params.id }),
-      beforeEnter: (to, from, next) => {
-        store.dispatch('$_roles/getRole', to.params.id).then(() => {
-          next()
-        })
-      }
-    },
-    {
-      path: 'role/:id/clone',
-      name: 'cloneRole',
-      component: RoleView,
-      props: (route) => ({ id: route.params.id, isClone: true }),
-      beforeEnter: (to, from, next) => {
-        store.dispatch('$_roles/getRole', to.params.id).then(() => {
-          next()
-        })
-      }
-    },
-    {
-      path: 'domains',
-      name: 'domains',
-      component: DomainsTabs,
-      props: (route) => ({ tab: 'domains', autoJoinDomain: route.params.autoJoinDomain, query: route.query.query })
-    },
-    {
-      path: 'domains/new',
-      name: 'newDomain',
-      component: DomainView,
-      props: () => ({ isNew: true })
-    },
-    {
-      path: 'domain/:id',
-      name: 'domain',
-      component: DomainView,
-      props: (route) => ({ id: route.params.id }),
-      beforeEnter: (to, from, next) => {
-        store.dispatch('$_domains/getDomain', to.params.id).then(() => {
-          next()
-        })
-      }
-    },
-    {
-      path: 'domain/:id/clone',
-      name: 'cloneDomain',
-      component: DomainView,
-      props: (route) => ({ id: route.params.id, isClone: true }),
-      beforeEnter: (to, from, next) => {
-        store.dispatch('$_domains/getDomain', to.params.id).then(() => {
-          next()
-        })
-      }
-    },
-    {
-      path: 'realms',
-      name: 'realms',
-      component: DomainsTabs,
-      props: (route) => ({ tab: 'realms', query: route.query.query })
-    },
-    {
-      path: 'realms/:tenantId/new',
-      name: 'newRealm',
-      component: RealmView,
-      props: (route) => ({ isNew: true, tenantId: route.params.tenantId })
-    },
-    {
-      path: 'realm/:tenantId/:id',
-      name: 'realm',
-      component: RealmView,
-      props: (route) => ({ tenantId: route.params.tenantId, id: route.params.id }),
-      beforeEnter: (to, from, next) => {
-        store.dispatch('$_realms/getRealm', { id: to.params.id, tenantId: to.params.tenantId }).then(() => {
-          next()
-        })
-      }
-    },
-    {
-      path: 'realm/:tenantId/:id/clone',
-      name: 'cloneRealm',
-      component: RealmView,
-      props: (route) => ({ tenantId: route.params.tenantId, id: route.params.id, isClone: true }),
-      beforeEnter: (to, from, next) => {
-        store.dispatch('$_realms/getRealm', { id: to.params.id, tenantId: to.params.tenantId }).then(() => {
-          next()
-        })
-      }
-    },
-    {
-      path: 'sources',
-      name: 'sources',
-      component: AuthenticationSourcesList,
-      props: (route) => ({ query: route.query.query })
-    },
-    {
-      path: 'sources/new/:sourceType',
-      name: 'newAuthenticationSource',
-      component: AuthenticationSourceView,
-      props: (route) => ({ isNew: true, sourceType: route.params.sourceType })
-    },
-    {
-      path: 'source/:id',
-      name: 'source',
-      component: AuthenticationSourceView,
-      props: (route) => ({ id: route.params.id }),
-      beforeEnter: (to, from, next) => {
-        store.dispatch('$_sources/getAuthenticationSource', to.params.id).then(() => {
-          next()
-        })
-      }
-    },
-    {
-      path: 'source/:id/clone',
-      name: 'cloneAuthenticationSource',
-      component: AuthenticationSourceView,
-      props: (route) => ({ id: route.params.id, isClone: true }),
-      beforeEnter: (to, from, next) => {
-        store.dispatch('$_sources/getAuthenticationSource', to.params.id).then(() => {
-          next()
-        })
-      }
-    },
-    {
-      path: 'switches',
-      name: 'switches',
-      component: NetworkDevicesTabs,
-      props: (route) => ({ tab: 'switches', query: route.query.query })
-    },
-    {
-      path: 'switches/new/:switchGroup',
-      name: 'newSwitch',
-      component: SwitchView,
-      props: (route) => ({ isNew: true, switchGroup: route.params.switchGroup })
-    },
-    {
-      path: 'switches/import',
-      name: 'importSwitch',
-      component: SwitchesImport
-    },
-    {
-      path: 'switch/:id',
-      name: 'switch',
-      component: SwitchView,
-      props: (route) => ({ id: route.params.id }),
-      beforeEnter: (to, from, next) => {
-        store.dispatch('$_switches/getSwitch', to.params.id).then(() => {
-          next()
-        })
-      }
-    },
-    {
-      path: 'switch/:id/clone',
-      name: 'cloneSwitch',
-      component: SwitchView,
-      props: (route) => ({ id: route.params.id, isClone: true }),
-      beforeEnter: (to, from, next) => {
-        store.dispatch('$_switches/getSwitch', to.params.id).then(() => {
-          next()
-        })
-      }
-    },
-    {
-      path: 'switch_groups',
-      name: 'switch_groups',
-      component: NetworkDevicesTabs,
-      props: (route) => ({ tab: 'switch_groups', query: route.query.query })
-    },
-    {
-      path: 'switch_groups/new',
-      name: 'newSwitchGroup',
-      component: SwitchGroupView,
-      props: () => ({ isNew: true })
-    },
-    {
-      path: 'switch_group/:id',
-      name: 'switch_group',
-      component: SwitchGroupView,
-      props: (route) => ({ id: route.params.id }),
-      beforeEnter: (to, from, next) => {
-        store.dispatch('$_switch_groups/getSwitchGroup', to.params.id).then(() => {
-          next()
-        })
-      }
-    },
-    {
-      path: 'switch_group/:id/clone',
-      name: 'cloneSwitchGroup',
-      component: SwitchGroupView,
-      props: (route) => ({ id: route.params.id, isClone: true }),
-      beforeEnter: (to, from, next) => {
-        store.dispatch('$_switch_groups/getSwitchGroup', to.params.id).then(() => {
-          next()
-        })
-      }
-    },
+    ...RolesRoutes,
+    ...DomainsRoutes,
+    ...RealmsRoutes,
+    ...SourcesRoutes,
+    ...SwitchesRoutes,
+    ...SwitchGroupsRoutes,
     {
       path: 'connection_profiles',
       name: 'connection_profiles',
@@ -576,444 +256,16 @@ const route = {
     /**
      * Compliance
      */
+
     {
       path: 'compliance',
       component: ComplianceSection
     },
-    {
-      path: 'fingerbank',
-      redirect: 'fingerbank/general_settings'
-    },
-    {
-      path: 'fingerbank/general_settings',
-      name: 'fingerbankGeneralSettings',
-      component: FingerbankTabs,
-      props: (route) => ({ tab: 'general_settings', query: route.query.query })
-    },
-    {
-      path: 'fingerbank/device_change_detection',
-      name: 'fingerbankDeviceChangeDetection',
-      component: FingerbankTabs,
-      props: (route) => ({ tab: 'device_change_detection', query: route.query.query })
-    },
-    {
-      path: 'fingerbank/network_behavior_policies',
-      name: 'network_behavior_policies',
-      component: NetworkBehaviorPoliciesList,
-      props: (route) => ({ query: route.query.query })
-    },
-    {
-      path: 'network_behavior_policies/new',
-      name: 'newNetworkBehaviorPolicy',
-      component: NetworkBehaviorPolicyView,
-      props: () => ({ isNew: true })
-    },
-    {
-      path: 'network_behavior_policy/:id',
-      name: 'network_behavior_policy',
-      component: NetworkBehaviorPolicyView,
-      props: (route) => ({ id: route.params.id }),
-      beforeEnter: (to, from, next) => {
-        store.dispatch('$_network_behavior_policies/getNetworkBehaviorPolicy', to.params.id).then(() => {
-          next()
-        })
-      }
-    },
-    {
-      path: 'network_behavior_policy/:id/clone',
-      name: 'cloneNetworkBehaviorPolicy',
-      component: NetworkBehaviorPolicyView,
-      props: (route) => ({ id: route.params.id, isClone: true }),
-      beforeEnter: (to, from, next) => {
-        store.dispatch('$_network_behavior_policies/getNetworkBehaviorPolicy', to.params.id).then(() => {
-          next()
-        })
-      }
-    },
-    {
-      path: 'fingerbank/combinations',
-      name: 'fingerbankCombinations',
-      component: FingerbankTabs,
-      props: (route) => ({ tab: 'combinations', query: route.query.query })
-    },
-    {
-      path: 'fingerbank/local/combinations/new',
-      name: 'newFingerbankCombination',
-      component: FingerbankCombinationView,
-      props: () => ({ isNew: true })
-    },
-    {
-      path: 'fingerbank/local/combination/:id',
-      name: 'fingerbankCombination',
-      component: FingerbankCombinationView,
-      props: (route) => ({ id: route.params.id }),
-      beforeEnter: (to, from, next) => {
-        store.dispatch('$_fingerbank/getCombination', to.params.id).then(() => {
-          next()
-        })
-      }
-    },
-    {
-      path: 'fingerbank/local/combination/:id/clone',
-      name: 'cloneFingerbankCombination',
-      component: FingerbankCombinationView,
-      props: (route) => ({ id: route.params.id, isClone: true }),
-      beforeEnter: (to, from, next) => {
-        store.dispatch('$_fingerbank/getCombination', to.params.id).then(() => {
-          next()
-        })
-      }
-    },
-    {
-      path: 'fingerbank/devices',
-      name: 'fingerbankDevices',
-      component: FingerbankTabs,
-      props: (route) => ({ tab: 'devices', query: route.query.query })
-    },
-    {
-      path: 'fingerbank/devices/:parentId',
-      name: 'fingerbankDevicesByParentId',
-      component: FingerbankTabs,
-      props: (route) => ({ parentId: route.params.parentId, tab: 'devices', query: route.query.query })
-    },
-    {
-      path: 'fingerbank/:scope/devices/new',
-      name: 'newFingerbankDevice',
-      component: FingerbankDeviceView,
-      props: (route) => ({ scope: route.params.scope, isNew: true })
-    },
-    {
-      path: 'fingerbank/:scope/device/:id',
-      name: 'fingerbankDevice',
-      component: FingerbankDeviceView,
-      props: (route) => ({ scope: route.params.scope, id: route.params.id }),
-      beforeEnter: (to, from, next) => {
-        store.dispatch('$_fingerbank/getDevice', to.params.id).then(() => {
-          next()
-        })
-      }
-    },
-    {
-      path: 'fingerbank/:scope/device/:id/clone',
-      name: 'cloneFingerbankDevice',
-      component: FingerbankDeviceView,
-      props: (route) => ({ scope: route.params.scope, id: route.params.id, isClone: true }),
-      beforeEnter: (to, from, next) => {
-        store.dispatch('$_fingerbank/getDevice', to.params.id).then(() => {
-          next()
-        })
-      }
-    },
-    {
-      path: 'fingerbank/dhcp_fingerprints',
-      name: 'fingerbankDhcpFingerprints',
-      component: FingerbankTabs,
-      props: (route) => ({ tab: 'dhcp_fingerprints', query: route.query.query })
-    },
-    {
-      path: 'fingerbank/:scope/dhcp_fingerprints/new',
-      name: 'newFingerbankDhcpFingerprint',
-      component: FingerbankDhcpFingerprintView,
-      props: (route) => ({ scope: route.params.scope, isNew: true })
-    },
-    {
-      path: 'fingerbank/:scope/dhcp_fingerprint/:id',
-      name: 'fingerbankDhcpFingerprint',
-      component: FingerbankDhcpFingerprintView,
-      props: (route) => ({ scope: route.params.scope, id: route.params.id }),
-      beforeEnter: (to, from, next) => {
-        store.dispatch('$_fingerbank/getDhcpFingerprint', to.params.id).then(() => {
-          next()
-        })
-      }
-    },
-    {
-      path: 'fingerbank/:scope/dhcp_fingerprint/:id/clone',
-      name: 'cloneFingerbankDhcpFingerprint',
-      component: FingerbankDhcpFingerprintView,
-      props: (route) => ({ scope: route.params.scope, id: route.params.id, isClone: true }),
-      beforeEnter: (to, from, next) => {
-        store.dispatch('$_fingerbank/getDhcpFingerprint', to.params.id).then(() => {
-          next()
-        })
-      }
-    },
-    {
-      path: 'fingerbank/dhcp_vendors',
-      name: 'fingerbankDhcpVendors',
-      component: FingerbankTabs,
-      props: (route) => ({ tab: 'dhcp_vendors', query: route.query.query })
-    },
-    {
-      path: 'fingerbank/:scope/dhcp_vendors/new',
-      name: 'newFingerbankDhcpVendor',
-      component: FingerbankDhcpVendorView,
-      props: (route) => ({ scope: route.params.scope, isNew: true })
-    },
-    {
-      path: 'fingerbank/:scope/dhcp_vendor/:id',
-      name: 'fingerbankDhcpVendor',
-      component: FingerbankDhcpVendorView,
-      props: (route) => ({ scope: route.params.scope, id: route.params.id }),
-      beforeEnter: (to, from, next) => {
-        store.dispatch('$_fingerbank/getDhcpVendor', to.params.id).then(() => {
-          next()
-        })
-      }
-    },
-    {
-      path: 'fingerbank/:scope/dhcp_vendor/:id/clone',
-      name: 'cloneFingerbankDhcpVendor',
-      component: FingerbankDhcpVendorView,
-      props: (route) => ({ scope: route.params.scope, id: route.params.id, isClone: true }),
-      beforeEnter: (to, from, next) => {
-        store.dispatch('$_fingerbank/getDhcpVendor', to.params.id).then(() => {
-          next()
-        })
-      }
-    },
-    {
-      path: 'fingerbank/dhcpv6_fingerprints',
-      name: 'fingerbankDhcpv6Fingerprints',
-      component: FingerbankTabs,
-      props: (route) => ({ tab: 'dhcpv6_fingerprints', query: route.query.query })
-    },
-    {
-      path: 'fingerbank/:scope/dhcpv6_fingerprints/new',
-      name: 'newFingerbankDhcpv6Fingerprint',
-      component: FingerbankDhcpv6FingerprintView,
-      props: (route) => ({ scope: route.params.scope, isNew: true })
-    },
-    {
-      path: 'fingerbank/:scope/dhcpv6_fingerprint/:id',
-      name: 'fingerbankDhcpv6Fingerprint',
-      component: FingerbankDhcpv6FingerprintView,
-      props: (route) => ({ scope: route.params.scope, id: route.params.id }),
-      beforeEnter: (to, from, next) => {
-        store.dispatch('$_fingerbank/getDhcpv6Fingerprint', to.params.id).then(() => {
-          next()
-        })
-      }
-    },
-    {
-      path: 'fingerbank/:scope/dhcpv6_fingerprint/:id/clone',
-      name: 'cloneFingerbankDhcpv6Fingerprint',
-      component: FingerbankDhcpv6FingerprintView,
-      props: (route) => ({ scope: route.params.scope, id: route.params.id, isClone: true }),
-      beforeEnter: (to, from, next) => {
-        store.dispatch('$_fingerbank/getDhcpv6Fingerprint', to.params.id).then(() => {
-          next()
-        })
-      }
-    },
-    {
-      path: 'fingerbank/dhcpv6_enterprises',
-      name: 'fingerbankDhcpv6Enterprises',
-      component: FingerbankTabs,
-      props: (route) => ({ tab: 'dhcpv6_enterprises', query: route.query.query })
-    },
-    {
-      path: 'fingerbank/:scope/dhcpv6_enterprises/new',
-      name: 'newFingerbankDhcpv6Enterprise',
-      component: FingerbankDhcpv6EnterpriseView,
-      props: (route) => ({ scope: route.params.scope, isNew: true })
-    },
-    {
-      path: 'fingerbank/:scope/dhcpv6_enterprise/:id',
-      name: 'fingerbankDhcpv6Enterprise',
-      component: FingerbankDhcpv6EnterpriseView,
-      props: (route) => ({ scope: route.params.scope, id: route.params.id }),
-      beforeEnter: (to, from, next) => {
-        store.dispatch('$_fingerbank/getDhcpv6Enterprise', to.params.id).then(() => {
-          next()
-        })
-      }
-    },
-    {
-      path: 'fingerbank/:scope/dhcpv6_enterprise/:id/clone',
-      name: 'cloneFingerbankDhcpv6Enterprise',
-      component: FingerbankDhcpv6EnterpriseView,
-      props: (route) => ({ scope: route.params.scope, id: route.params.id, isClone: true }),
-      beforeEnter: (to, from, next) => {
-        store.dispatch('$_fingerbank/getDhcpv6Enterprise', to.params.id).then(() => {
-          next()
-        })
-      }
-    },
-    {
-      path: 'fingerbank/mac_vendors',
-      name: 'fingerbankMacVendors',
-      component: FingerbankTabs,
-      props: (route) => ({ tab: 'mac_vendors', query: route.query.query })
-    },
-    {
-      path: 'fingerbank/:scope/mac_vendors/new',
-      name: 'newFingerbankMacVendor',
-      component: FingerbankMacVendorView,
-      props: (route) => ({ scope: route.params.scope, isNew: true })
-    },
-    {
-      path: 'fingerbank/:scope/mac_vendor/:id',
-      name: 'fingerbankMacVendor',
-      component: FingerbankMacVendorView,
-      props: (route) => ({ scope: route.params.scope, id: route.params.id }),
-      beforeEnter: (to, from, next) => {
-        store.dispatch('$_fingerbank/getMacVendor', to.params.id).then(() => {
-          next()
-        })
-      }
-    },
-    {
-      path: 'fingerbank/:scope/mac_vendor/:id/clone',
-      name: 'cloneFingerbankMacVendor',
-      component: FingerbankMacVendorView,
-      props: (route) => ({ scope: route.params.scope, id: route.params.id, isClone: true }),
-      beforeEnter: (to, from, next) => {
-        store.dispatch('$_fingerbank/getMacVendor', to.params.id).then(() => {
-          next()
-        })
-      }
-    },
-    {
-      path: 'fingerbank/user_agents',
-      name: 'fingerbankUserAgents',
-      component: FingerbankTabs,
-      props: (route) => ({ tab: 'user_agents', query: route.query.query })
-    },
-    {
-      path: 'fingerbank/local/user_agents/new',
-      name: 'newFingerbankUserAgent',
-      component: FingerbankUserAgentView,
-      props: () => ({ isNew: true })
-    },
-    {
-      path: 'fingerbank/local/user_agent/:id',
-      name: 'fingerbankUserAgent',
-      component: FingerbankUserAgentView,
-      props: (route) => ({ id: route.params.id }),
-      beforeEnter: (to, from, next) => {
-        store.dispatch('$_fingerbank/getUserAgent', to.params.id).then(() => {
-          next()
-        })
-      }
-    },
-    {
-      path: 'fingerbank/local/user_agent/:id/clone',
-      name: 'cloneFingerbankUserAgent',
-      component: FingerbankUserAgentView,
-      props: (route) => ({ id: route.params.id, isClone: true }),
-      beforeEnter: (to, from, next) => {
-        store.dispatch('$_fingerbank/getUserAgent', to.params.id).then(() => {
-          next()
-        })
-      }
-    },
-    {
-      path: 'scans',
-      redirect: 'scans/scan_engines'
-    },
-    {
-      path: 'scans/scan_engines',
-      name: 'scanEngines',
-      component: ScansTabs,
-      props: (route) => ({ tab: 'scan_engines', query: route.query.query })
-    },
-    {
-      path: 'scans/scan_engines/new/:scanType',
-      name: 'newScanEngine',
-      component: ScanEngineView,
-      props: (route) => ({ isNew: true, scanType: route.params.scanType })
-    },
-    {
-      path: 'scans/scan_engine/:id',
-      name: 'scanEngine',
-      component: ScanEngineView,
-      props: (route) => ({ id: route.params.id }),
-      beforeEnter: (to, from, next) => {
-        store.dispatch('$_scans/getScanEngine', to.params.id).then(() => {
-          next()
-        })
-      }
-    },
-    {
-      path: 'scans/scan_engine/:id/clone',
-      name: 'cloneScanEngine',
-      component: ScanEngineView,
-      props: (route) => ({ id: route.params.id, isClone: true }),
-      beforeEnter: (to, from, next) => {
-        store.dispatch('$_scans/getScanEngine', to.params.id).then(() => {
-          next()
-        })
-      }
-    },
-    {
-      path: 'scans/wmi_rules',
-      name: 'wmiRules',
-      component: ScansTabs,
-      props: (route) => ({ tab: 'wmi_rules', query: route.query.query })
-    },
-    {
-      path: 'scans/wmi_rules/new',
-      name: 'newWmiRule',
-      component: WmiRuleView,
-      props: () => ({ isNew: true })
-    },
-    {
-      path: 'scans/wmi_rule/:id',
-      name: 'wmiRule',
-      component: WmiRuleView,
-      props: (route) => ({ id: route.params.id }),
-      beforeEnter: (to, from, next) => {
-        store.dispatch('$_wmi_rules/getWmiRule', to.params.id).then(() => {
-          next()
-        })
-      }
-    },
-    {
-      path: 'scans/wmi_rule/:id/clone',
-      name: 'cloneWmiRule',
-      component: WmiRuleView,
-      props: (route) => ({ id: route.params.id, isClone: true }),
-      beforeEnter: (to, from, next) => {
-        store.dispatch('$_wmi_rules/getWmiRule', to.params.id).then(() => {
-          next()
-        })
-      }
-    },
-    {
-      path: 'security_events',
-      name: 'security_events',
-      component: SecurityEventsList,
-      props: (route) => ({ query: route.query.query })
-    },
-    {
-      path: 'security_events/new',
-      name: 'newSecurityEvent',
-      component: SecurityEventView,
-      props: () => ({ isNew: true })
-    },
-    {
-      path: 'security_event/:id',
-      name: 'security_event',
-      component: SecurityEventView,
-      props: (route) => ({ id: route.params.id }),
-      beforeEnter: (to, from, next) => {
-        store.dispatch('$_security_events/getSecurityEvent', to.params.id).then(() => {
-          next()
-        })
-      }
-    },
-    {
-      path: 'security_event/:id/clone',
-      name: 'cloneSecurityEvent',
-      component: SecurityEventView,
-      props: (route) => ({ id: route.params.id, isClone: true }),
-      beforeEnter: (to, from, next) => {
-        store.dispatch('$_security_events/getSecurityEvent', to.params.id).then(() => {
-          next()
-        })
-      }
-    },
+    ...FingerbankRoutes,
+    ...NetworkBehaviorPoliciesRoutes,
+    ...ScanEnginesRoutes,
+    ...SecurityEventsRoutes,
+    ...WmiRulesRoutes,
     /**
      * Integration
      */
@@ -1091,74 +343,8 @@ const route = {
         next()
       }
     },
-    {
-      path: 'switch_templates',
-      name: 'switchTemplates',
-      component: SwitchTemplatesList,
-      props: (route) => ({ query: route.query.query })
-    },
-    {
-      path: 'switch_template/new',
-      name: 'newSwitchTemplate',
-      component: SwitchTemplateView,
-      props: () => ({ isNew: true })
-    },
-    {
-      path: 'switch_template/:id',
-      name: 'switchTemplate',
-      component: SwitchTemplateView,
-      props: (route) => ({ id: route.params.id }),
-      beforeEnter: (to, from, next) => {
-        store.dispatch('$_switch_templates/getSwitchTemplate', to.params.id).then(() => {
-          next()
-        })
-      }
-    },
-    {
-      path: 'switch_template/:id/clone',
-      name: 'cloneSwitchTemplate',
-      component: SwitchTemplateView,
-      props: (route) => ({ id: route.params.id, isClone: true }),
-      beforeEnter: (to, from, next) => {
-        store.dispatch('$_switch_templates/getSwitchTemplate', to.params.id).then(() => {
-          next()
-        })
-      }
-    },
-    {
-      path: 'pfdetect',
-      name: 'syslogParsers',
-      component: SyslogParsersList,
-      props: (route) => ({ query: route.query.query })
-    },
-    {
-      path: 'pfdetect/new/:syslogParserType',
-      name: 'newSyslogParser',
-      component: SyslogParserView,
-      props: (route) => ({ isNew: true, syslogParserType: route.params.syslogParserType })
-    },
-    {
-      path: 'pfdetect/:id',
-      name: 'syslogParser',
-      component: SyslogParserView,
-      props: (route) => ({ id: route.params.id }),
-      beforeEnter: (to, from, next) => {
-        store.dispatch('$_syslog_parsers/getSyslogParser', to.params.id).then(() => {
-          next()
-        })
-      }
-    },
-    {
-      path: 'pfdetect/:id/clone',
-      name: 'cloneSyslogParser',
-      component: SyslogParserView,
-      props: (route) => ({ id: route.params.id, isClone: true }),
-      beforeEnter: (to, from, next) => {
-        store.dispatch('$_syslog_parsers/getSyslogParser', to.params.id).then(() => {
-          next()
-        })
-      }
-    },
+    ...SwitchTemplatesRoutes,
+    ...SyslogParsersRoutes,
     {
       path: 'syslog',
       name: 'syslogForwarders',
@@ -1422,6 +608,7 @@ const route = {
       path: 'advanced_access_configuration',
       component: AdvancedAccessConfigurationSection
     },
+    ...FilterEnginesRoutes,
     {
       path: 'captive_portal',
       name: 'captive_portal',
@@ -1430,54 +617,6 @@ const route = {
       beforeEnter: (to, from, next) => {
         if (!store.state.formCaptivePortal) { // Register store module only once
           store.registerModule('formCaptivePortal', FormStore)
-        }
-        next()
-      }
-    },
-    {
-      path: 'filter_engines',
-      name: 'filter_engines',
-      component: FilterEnginesList,
-      props: (route) => ({ query: route.query.query })
-    },
-    {
-      path: 'filter_engines/:collection',
-      name: 'filterEnginesCollection',
-      component: FilterEnginesList,
-      props: (route) => ({ collection: route.params.collection, query: route.query.query })
-    },
-    {
-      path: 'filter_engines/:collection/new',
-      name: 'newFilterEngine',
-      component: FilterEngineView,
-      props: (route) => ({ formStoreName: 'formFilterEngines', collection: route.params.collection, isNew: true }),
-      beforeEnter: (to, from, next) => {
-        if (!store.state.formFilterEngines) { // Register store module only once
-          store.registerModule('formFilterEngines', FormStore)
-        }
-        next()
-      }
-    },
-    {
-      path: 'filter_engines/:collection/:id',
-      name: 'filter_engine',
-      component: FilterEngineView,
-      props: (route) => ({ formStoreName: 'formFilterEngines', collection: route.params.collection, id: route.params.id }),
-      beforeEnter: (to, from, next) => {
-        if (!store.state.formFilterEngines) { // Register store module only once
-          store.registerModule('formFilterEngines', FormStore)
-        }
-        next()
-      }
-    },
-    {
-      path: 'filter_engines/:collection/:id/clone',
-      name: 'cloneFilterEngine',
-      component: FilterEngineView,
-      props: (route) => ({ formStoreName: 'formFilterEngines', collection: route.params.collection, id: route.params.id, isClone: true }),
-      beforeEnter: (to, from, next) => {
-        if (!store.state.formFilterEngines) { // Register store module only once
-          store.registerModule('formFilterEngines', FormStore)
         }
         next()
       }
@@ -1528,74 +667,8 @@ const route = {
         })
       }
     },
-    {
-      path: 'pki_providers',
-      name: 'pki_providers',
-      component: PkiProvidersList,
-      props: (route) => ({ query: route.query.query })
-    },
-    {
-      path: 'pki_providers/new/:providerType',
-      name: 'newPkiProvider',
-      component: PkiProviderView,
-      props: (route) => ({ isNew: true, providerType: route.params.providerType })
-    },
-    {
-      path: 'pki_provider/:id',
-      name: 'pki_provider',
-      component: PkiProviderView,
-      props: (route) => ({ id: route.params.id }),
-      beforeEnter: (to, from, next) => {
-        store.dispatch('$_pki_providers/getPkiProvider', to.params.id).then(() => {
-          next()
-        })
-      }
-    },
-    {
-      path: 'pki_provider/:id/clone',
-      name: 'clonePkiProvider',
-      component: PkiProviderView,
-      props: (route) => ({ id: route.params.id, isClone: true }),
-      beforeEnter: (to, from, next) => {
-        store.dispatch('$_pki_providers/getPkiProvider', to.params.id).then(() => {
-          next()
-        })
-      }
-    },
-    {
-      path: 'provisionings',
-      name: 'provisionings',
-      component: ProvisioningsList,
-      props: (route) => ({ query: route.query.query })
-    },
-    {
-      path: 'provisionings/new/:provisioningType',
-      name: 'newProvisioning',
-      component: ProvisioningView,
-      props: (route) => ({ isNew: true, provisioningType: route.params.provisioningType })
-    },
-    {
-      path: 'provisioning/:id',
-      name: 'provisioning',
-      component: ProvisioningView,
-      props: (route) => ({ id: route.params.id }),
-      beforeEnter: (to, from, next) => {
-        store.dispatch('$_provisionings/getProvisioning', to.params.id).then(() => {
-          next()
-        })
-      }
-    },
-    {
-      path: 'provisioning/:id/clone',
-      name: 'cloneProvisioning',
-      component: ProvisioningView,
-      props: (route) => ({ id: route.params.id, isClone: true }),
-      beforeEnter: (to, from, next) => {
-        store.dispatch('$_provisionings/getProvisioning', to.params.id).then(() => {
-          next()
-        })
-      }
-    },
+    ...PkiProvidersRoutes,
+    ...ProvisionersRoutes,
     {
       path: 'portal_modules',
       name: 'portal_modules',
@@ -1648,40 +721,8 @@ const route = {
       component: AccessDurationView,
       props: (route) => ({ query: route.query.query })
     },
-    {
-      path: 'self_services',
-      name: 'self_services',
-      component: SelfServicesList,
-      props: (route) => ({ query: route.query.query })
-    },
-    {
-      path: 'self_services/new',
-      name: 'newSelfService',
-      component: SelfServiceView,
-      props: () => ({ isNew: true })
-    },
-    {
-      path: 'self_service/:id',
-      name: 'self_service',
-      component: SelfServiceView,
-      props: (route) => ({ id: route.params.id }),
-      beforeEnter: (to, from, next) => {
-        store.dispatch('$_self_services/getSelfService', to.params.id).then(() => {
-          next()
-        })
-      }
-    },
-    {
-      path: 'self_service/:id/clone',
-      name: 'cloneSelfService',
-      component: SelfServiceView,
-      props: (route) => ({ id: route.params.id, isClone: true }),
-      beforeEnter: (to, from, next) => {
-        store.dispatch('$_self_services/getSelfService', to.params.id).then(() => {
-          next()
-        })
-      }
-    },
+    ...SelfServicesRoutes,
+
     /**
      * Network Configuration
      */
@@ -1689,137 +730,7 @@ const route = {
       path: 'network_configuration',
       component: NetworkConfigurationSection
     },
-    {
-      path: 'networks',
-      name: 'networks',
-      component: NetworksTabs,
-      props: (route) => ({ tab: 'network', query: route.query.query })
-    },
-    {
-      path: 'network',
-      name: 'network',
-      component: NetworksTabs,
-      props: (route) => ({ tab: 'network', query: route.query.query })
-    },
-    {
-      path: 'interfaces',
-      name: 'interfaces',
-      component: NetworksTabs,
-      props: (route) => ({ tab: 'interfaces', query: route.query.query })
-    },
-    {
-      path: 'interface/:id',
-      name: 'interface',
-      component: InterfaceView,
-      props: (route) => ({ id: route.params.id }),
-      beforeEnter: (to, from, next) => {
-        store.dispatch('$_interfaces/getInterface', to.params.id).then(() => {
-          next()
-        })
-      }
-    },
-    {
-      path: 'interface/:id/clone',
-      name: 'cloneInterface',
-      component: InterfaceView,
-      props: (route) => ({ id: route.params.id, isClone: true }),
-      beforeEnter: (to, from, next) => {
-        store.dispatch('$_interfaces/getInterface', to.params.id).then(() => {
-          next()
-        })
-      }
-    },
-    {
-      path: 'interface/:id/new',
-      name: 'newInterface',
-      component: InterfaceView,
-      props: (route) => ({ id: route.params.id, isNew: true }),
-      beforeEnter: (to, from, next) => {
-        store.dispatch('$_interfaces/getInterface', to.params.id).then(() => {
-          next()
-        })
-      }
-    },
-    {
-      path: 'interfaces/layer2_network/:id',
-      name: 'layer2_network',
-      component: Layer2NetworkView,
-      props: (route) => ({ id: route.params.id }),
-      beforeEnter: (to, from, next) => {
-        store.dispatch('$_layer2_networks/getLayer2Network', to.params.id).then(() => {
-          next()
-        })
-      }
-    },
-    {
-      path: 'interfaces/routed_networks/new',
-      name: 'newRoutedNetwork',
-      component: RoutedNetworkView,
-      props: () => ({ isNew: true })
-    },
-    {
-      path: 'interfaces/routed_network/:id',
-      name: 'routed_network',
-      component: RoutedNetworkView,
-      props: (route) => ({ id: route.params.id }),
-      beforeEnter: (to, from, next) => {
-        store.dispatch('$_routed_networks/getRoutedNetwork', to.params.id).then(() => {
-          next()
-        })
-      }
-    },
-    {
-      path: 'interfaces/routed_network/:id/clone',
-      name: 'cloneRoutedNetwork',
-      component: RoutedNetworkView,
-      props: (route) => ({ id: route.params.id, isClone: true }),
-      beforeEnter: (to, from, next) => {
-        store.dispatch('$_routed_networks/getRoutedNetwork', to.params.id).then(() => {
-          next()
-        })
-      }
-    },
-    {
-      path: 'inline',
-      name: 'inline',
-      component: NetworksTabs,
-      props: (route) => ({ tab: 'inline', query: route.query.query })
-    },
-    {
-      path: 'traffic_shapings',
-      name: 'traffic_shapings',
-      component: NetworksTabs,
-      props: (route) => ({ tab: 'traffic_shapings', query: route.query.query })
-    },
-    {
-      path: 'traffic_shaping/new/:role',
-      name: 'newTrafficShaping',
-      component: TrafficShapingView,
-      props: (route) => ({ isNew: true, role: route.params.role })
-    },
-    {
-      path: 'traffic_shaping/:id',
-      name: 'traffic_shaping',
-      component: TrafficShapingView,
-      props: (route) => ({ id: route.params.id }),
-      beforeEnter: (to, from, next) => {
-        store.dispatch('$_traffic_shaping_policies/getTrafficShapingPolicy', to.params.id).then(() => {
-          next()
-        })
-      }
-    },
-    {
-      path: 'fencing',
-      name: 'fencing',
-      component: NetworksTabs,
-      props: (route) => ({ tab: 'fencing', query: route.query.query })
-    },
-    {
-      path: 'parking',
-      name: 'parking',
-      component: NetworksTabs,
-      props: (route) => ({ tab: 'parking', query: route.query.query })
-    },
+    ...NetworksRoutes,
     {
       path: 'floating_devices',
       name: 'floating_devices',
@@ -1878,16 +789,6 @@ const route = {
         next()
       }
     },
-    {
-      path: 'certificates',
-      redirect: 'certificate/http'
-    },
-    {
-      path: 'certificate/:id',
-      name: 'certificate',
-      component: CertificatesView,
-      props: (route) => ({ id: route.params.id })
-    },
     /**
      * System Configuration
      */
@@ -1895,6 +796,8 @@ const route = {
       path: 'system_configuration',
       component: SystemConfigurationSection
     },
+    ...MaintenanceTasksRoutes,
+    ...SslCertificatesRoutes,
     {
       path: 'general',
       name: 'general',
@@ -1912,23 +815,6 @@ const route = {
       name: 'advanced',
       component: MainTabs,
       props: (route) => ({ tab: 'advanced', query: route.query.query })
-    },
-    {
-      path: 'maintenance_tasks',
-      name: 'maintenance_tasks',
-      component: MainTabs,
-      props: (route) => ({ tab: 'maintenance_tasks', query: route.query.query })
-    },
-    {
-      path: 'maintenance_task/:id',
-      name: 'maintenance_task',
-      component: MaintenanceTaskView,
-      props: (route) => ({ id: route.params.id }),
-      beforeEnter: (to, from, next) => {
-        store.dispatch('$_maintenance_tasks/getMaintenanceTask', to.params.id).then(() => {
-          next()
-        })
-      }
     },
     {
       path: 'services',

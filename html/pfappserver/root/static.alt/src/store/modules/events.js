@@ -162,7 +162,8 @@ const getters = {
 }
 
 const actions = {
-  bind: ({ commit, dispatch }) => {
+  bind: (/*{ commit, dispatch }*/) => {
+    /*
     document.body.addEventListener('mousedown', (event) => dispatch('onBodyMouseDown', event))
     document.body.addEventListener('mouseup', (event) => dispatch('onBodyMouseUp', event))
     document.addEventListener('keydown', (event) => dispatch('onKeyDown', event))
@@ -171,6 +172,7 @@ const actions = {
     window.addEventListener('focus', (event) => dispatch('onFocus', event))
     window.addEventListener('resize', (event) => dispatch('onResize', event))
     commit('RESIZE', null) // init windowSize
+    */
   },
   onBodyMouseDown: ({ commit }, event) => {
     commit('BODY_MOUSE_DOWN', event)

@@ -26,7 +26,7 @@ export {
   BaseFormGroupInput                  as FormGroupDescription,
   BaseFormGroupRadiusAttributes       as FormGroupDisconnect,
   BaseFormGroupInput                  as FormGroupIdentifier,
-  BaseFormGroupInput                  as FormGroupNasPortTOIfIndex,
+  BaseFormGroupInput                  as FormGroupNasPortToIfIndex,
   BaseFormGroupChosenOne              as FormGroupRadiusDisconnect,
   BaseFormGroupRadiusAttributes       as FormGroupReject,
   BaseFormGroupToggleDisabledEnabled  as FormGroupSnmpDisconnect,

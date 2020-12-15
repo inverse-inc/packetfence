@@ -3,7 +3,7 @@
 */
 import Vue from 'vue'
 import store from '@/store' // required for 'pfqueue'
-import api from '../_api'
+import api from './_api'
 
 const types = {
   LOADING: 'loading',

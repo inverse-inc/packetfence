@@ -2,8 +2,8 @@
 * "$_filter_engines" store module
 */
 import Vue from 'vue'
-import api from '../_api'
 import store from '@/store'
+import api from './_api'
 
 const types = {
   LOADING: 'loading',

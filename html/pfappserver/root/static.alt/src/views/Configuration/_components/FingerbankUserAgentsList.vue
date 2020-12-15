@@ -57,6 +57,9 @@ export default {
         const { $refs: { pfConfigList: { refreshList = () => {} } = {} } = {} } = this
         refreshList() // soft reload
       })
+    },
+    isLoading () {
+      return this.$store.getters['$_fingerbank/isUserAgentsLoading']
     }
   },
   created () {

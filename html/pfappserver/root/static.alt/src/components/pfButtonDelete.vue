@@ -54,7 +54,7 @@ export default {
       default: 3000
     },
     disabled: {
-      type: Boolean,
+      type: [Boolean, Function],
       default: false
     },
     reverse: {

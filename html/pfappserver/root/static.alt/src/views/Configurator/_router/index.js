@@ -4,8 +4,8 @@ import FormStore from '@/store/base/form'
 import ConfiguratorView from '../'
 
 import BasesStore from '@/views/Configuration/_store/bases'
-import InterfacesStore from '@/views/Configuration/_store/interfaces'
-import FingerbankStore from '@/views/Configuration/_store/fingerbank'
+import InterfacesStore from '@/views/Configuration/networks/interfaces/_store/'
+import FingerbankStore from '@/views/Configuration/fingerbank/_store'
 // import StatusStore from '@/views/Status/_store'
 import UsersStore from '@/views/Users/_store'
 
