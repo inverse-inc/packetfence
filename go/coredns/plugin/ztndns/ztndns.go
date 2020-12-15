@@ -81,7 +81,9 @@ func (ztn *ztndns) ServeDNS(ctx context.Context, w dns.ResponseWriter, r *dns.Ms
 
 	for i := 0; i < len(ztn.HostIP); i++ {
 		if ztn.HostIP[i].ComputerName.MatchString(state.QName()) {
-			rr, _ = dns.NewRR("30 IN A " + ztn.HostIP[i].Ip.String())
+			rr = new(dns.A)
+			rr.(*dns.A).Hdr = dns.RR_Header{Name: state.QName(), Rrtype: dns.TypeA, Class: state.QClass(), Ttl: 60}
+			rr.(*dns.A).A = ztn.HostIP[i].Ip
 			a.Answer = []dns.RR{rr}
 			state.SizeAndDo(a)
 			w.WriteMsg(a)

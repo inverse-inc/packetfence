@@ -2,7 +2,6 @@ package ztndns
 
 import (
 	"context"
-	"net"
 	"sync"
 
 	"github.com/coredns/caddy"
@@ -24,7 +23,6 @@ func init() {
 
 func setupztndns(c *caddy.Controller) error {
 	var ztn = &ztndns{}
-	var ip net.IP
 
 	ctx := context.Background()
 
@@ -33,12 +31,6 @@ func setupztndns(c *caddy.Controller) error {
 		for c.NextBlock() {
 			switch c.Val() {
 
-			case "redirectTo":
-				arg := c.RemainingArgs()
-				ip = net.ParseIP(arg[0])
-				if ip == nil {
-					return c.Errf("Invalid IP address '%s'", c.Val())
-				}
 			default:
 				return c.Errf("Unknown keyword '%s'", c.Val())
 			}

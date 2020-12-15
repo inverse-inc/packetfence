@@ -48,7 +48,7 @@ func (ztn *ztndns) HostIPMAP(ctx context.Context) error {
 			return err
 
 		}
-		rgx, _ := regexp.Compile(hostname + ".*")
+		rgx, _ := regexp.Compile("(?i)" + hostname + ".*")
 		HostIpmap := &HostIPMap{}
 		HostIpmap.ComputerName = rgx
 		rc := remoteclients.RemoteClient{ID: id}
