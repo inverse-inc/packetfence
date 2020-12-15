@@ -64,7 +64,7 @@ import {
 import schemaFn from '../schema'
 import {
   FormGroupAuthOnManagement,
-  FormGroupCenteralizedDeauth,
+  FormGroupCentralizedDeauth,
   FormGroupConflictResolutionThreshold,
   FormGroupDnsOnVipOnly,
   FormGroupGaleraReplication,
@@ -79,7 +79,7 @@ const components = {
   BaseForm,
 
   FormGroupAuthOnManagement,
-  FormGroupCenteralizedDeauth,
+  FormGroupCentralizedDeauth,
   FormGroupConflictResolutionThreshold,
   FormGroupDnsOnVipOnly,
   FormGroupGaleraReplication,

@@ -15,7 +15,7 @@ export {
   BaseFormButtonBar                   as FormButtonBar,
 
   BaseFormGroupToggleDisabledEnabled  as FormGroupAuthOnManagement,
-  BaseFormGroupToggleDisabledEnabled  as FormGroupCenteralizedDeauth,
+  BaseFormGroupToggleDisabledEnabled  as FormGroupCentralizedDeauth,
   BaseFormGroupIntervalUnit           as FormGroupConflictResolutionThreshold,
   BaseFormGroupToggleDisabledEnabled  as FormGroupDnsOnVipOnly,
   BaseFormGroupToggleDisabledEnabled  as FormGroupGaleraReplication,

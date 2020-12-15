@@ -11,7 +11,7 @@
         <alerting-view form-store-name="formAlerting" />
       </b-tab>
       <b-tab :title="$t('Advanced')" @click="changeTab('advanced')">
-        <advanced-view form-store-name="formAdvanced" />
+        <advanced-view />
       </b-tab>
       <b-tab :title="$t('Maintenance')" @click="changeTab('maintenance_tasks')" no-body>
         <maintenance-tasks-list form-store-name="formMaintenanceTasks" />
@@ -27,7 +27,7 @@
 import FormStore from '@/store/base/form'
 import GeneralView from './GeneralView'
 import AlertingView from './AlertingView'
-import AdvancedView from './AdvancedView'
+import AdvancedView from '../advanced/_components/TheView'
 import MaintenanceTasksList from './MaintenanceTasksList'
 import ServicesView from './ServicesView'
 
@@ -67,9 +67,6 @@ export default {
     }
     if (!this.$store.state.formAlerting) { // Register store module only once
       this.$store.registerModule('formAlerting', FormStore)
-    }
-    if (!this.$store.state.formAdvanced) { // Register store module only once
-      this.$store.registerModule('formAdvanced', FormStore)
     }
     if (!this.$store.state.formMaintenanceTasks) { // Register store module only once
       this.$store.registerModule('formMaintenanceTasks', FormStore)
