@@ -4,7 +4,6 @@ import {
   BaseFormGroupChosenOne,
   BaseFormGroupInput,
   BaseFormGroupInputNumber,
-  BaseFormGroupInputPassword,
   BaseFormGroupTextarea,
   BaseFormGroupToggleDisabledEnabled
 } from '@/components/new/'
@@ -28,9 +27,9 @@ export {
   BaseFormGroupChosenOne              as FormGroupLanguage,
   BaseFormGroupTextarea               as FormGroupLdapAttributes,
   BaseFormGroupToggleDisabledEnabled  as FormGroupLocationlogCloseOnAccountingStop,
-  BaseFormGroupToggleDisabledEnabled  as FormGroupMultiHost,
+  BaseFormGroupToggleDisabledEnabled  as FormGroupMultihost,
   BaseFormGroupToggleDisabledEnabled  as FormGroupNetflowOnAllNetworks,
-  BaseFormGroupInput                  as FormGroupOpenIdAttributes,
+  BaseFormGroupInput                  as FormGroupOpenidAttributes,
   BaseFormGroupInputNumber            as FormGroupPffilterProcesses,
   BaseFormGroupInputNumber            as FormGroupPfperlApiProcesses,
   BaseFormGroupInputNumber            as FormGroupPfperlApiTimeout,

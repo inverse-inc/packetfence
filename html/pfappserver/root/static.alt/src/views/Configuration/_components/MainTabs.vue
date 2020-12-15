@@ -8,7 +8,7 @@
         <general-view form-store-name="formGeneral" />
       </b-tab>
       <b-tab :title="$t('Alerting')" @click="changeTab('alerting')">
-        <alerting-view form-store-name="formAlerting" />
+        <alerting-view />
       </b-tab>
       <b-tab :title="$t('Advanced')" @click="changeTab('advanced')">
         <advanced-view />
@@ -26,7 +26,7 @@
 <script>
 import FormStore from '@/store/base/form'
 import GeneralView from './GeneralView'
-import AlertingView from './AlertingView'
+import AlertingView from '../alerting/_components/TheView'
 import AdvancedView from '../advanced/_components/TheView'
 import MaintenanceTasksList from './MaintenanceTasksList'
 import ServicesView from './ServicesView'
