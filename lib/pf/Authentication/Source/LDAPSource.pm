@@ -237,51 +237,70 @@ sub _connect {
     @credentials = ($self->{'binddn'}, password => $self->{'password'})
   }
 
-  TRYSERVER:
-  foreach my $s (@LDAPServers) {
-    $LDAPServer = $s;
-    $LDAPServerPort = undef;
-    # check to see if the hostname includes a port (e.g. server:port)
-    if ($LDAPServer =~ /:/) {
-        $LDAPServerPort = (split(/:/, $LDAPServer))[-1];
-    }
-    $LDAPServerPort //=  $self->{'port'} ;
-    
-    my $dead_cache_key = "SERVER_DEAD:".$self->{id}.":$LDAPServer";
+  my $try_connect = sub {
+      my $honor_dead = shift;
+      TRYSERVER:
+      foreach my $s (@LDAPServers) {
+        $LDAPServer = $s;
+        $LDAPServerPort = undef;
+        # check to see if the hostname includes a port (e.g. server:port)
+        if ($LDAPServer =~ /:/) {
+            $LDAPServerPort = (split(/:/, $LDAPServer))[-1];
+        }
+        $LDAPServerPort //=  $self->{'port'} ;
+        
+        my $dead_cache_key = "SERVER_DEAD:".$self->{id}.":$LDAPServer";
 
-    if($self->cache->get($dead_cache_key)) {
-      $logger->warn("[$self->{'id'}] $LDAPServer detected as dead, switching to next server");
-      next TRYSERVER;
-    }
+        if($honor_dead && $self->cache->get($dead_cache_key)) {
+          $logger->warn("[$self->{'id'}] $LDAPServer detected as dead, switching to next server");
+          next TRYSERVER;
+        }
 
-    $connection = pf::LDAP->new(
-        $LDAPServer,
-        port       => $LDAPServerPort,
-        timeout    => $self->{'connection_timeout'},
-        write_timeout  => $self->{'write_timeout'},
-        read_timeout  => $self->{'read_timeout'},
-        encryption => $self->{encryption},
-        credentials => \@credentials,
-    );
+        $connection = pf::LDAP->new(
+            $LDAPServer,
+            port       => $LDAPServerPort,
+            timeout    => $self->{'connection_timeout'},
+            write_timeout  => $self->{'write_timeout'},
+            read_timeout  => $self->{'read_timeout'},
+            encryption => $self->{encryption},
+            credentials => \@credentials,
+        );
 
-    if (! defined($connection)) {
-      $logger->warn("[$self->{'id'}] Unable to connect to $LDAPServer");
-      if($self->dead_duration) {
-          $self->cache->set($dead_cache_key, $TRUE, $self->dead_duration);
+        if (! defined($connection)) {
+          $logger->warn("[$self->{'id'}] Unable to connect to $LDAPServer");
+          if($honor_dead && $self->dead_duration) {
+              $self->cache->set($dead_cache_key, $TRUE, $self->dead_duration);
+          }
+          next TRYSERVER;
+        }
+
+
+        $logger->debug("[$self->{'id'}] Using LDAP connection to $LDAPServer");
+        return ( $connection, $LDAPServer, $LDAPServerPort );
       }
-      next TRYSERVER;
-    }
+      return ( undef, $LDAPServer, $LDAPServerPort );
+  };
 
+  ($connection, $LDAPServer, $LDAPServerPort) = $try_connect->($TRUE);
 
-    $logger->debug("[$self->{'id'}] Using LDAP connection to $LDAPServer");
-    return ( $connection, $LDAPServer, $LDAPServerPort );
+  if (! defined($connection)) {
+    $logger->error("[$self->{'id'}] Unable to connect to any LDAP server, will try while ignoring the dead servers detection");
+    $pf::StatsD::statsd->increment("${timer_stat_prefix}.error.count" );
+  } else {
+    return ($connection, $LDAPServer, $LDAPServerPort);
   }
-  # if the connection is still undefined after trying every server, we fail and return undef.
+  
+  # If we're here then all servers were marked dead or failed to get a valid connection
+  # We now try again without honoring the dead servers flags
+  ($connection, $LDAPServer, $LDAPServerPort) = $try_connect->($FALSE);
+  
   if (! defined($connection)) {
     $logger->error("[$self->{'id'}] Unable to connect to any LDAP server");
     $pf::StatsD::statsd->increment("${timer_stat_prefix}.error.count" );
+    return (undef, $LDAPServer, $LDAPServerPort);
+  } else {
+    return ($connection, $LDAPServer, $LDAPServerPort);
   }
-  return (undef, $LDAPServer, $LDAPServerPort);
 }
 
 
