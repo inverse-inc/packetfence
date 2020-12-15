@@ -43,7 +43,7 @@ import WmiRulesRoutes from '../wmiRules/_router'
 const IntegrationSection = () => import(/* webpackChunkName: "Configuration" */ '../_components/IntegrationSection')
 import FirewallsRoutes from '../firewalls/_router'
 import CiscoMobilityServicesEngineRoutes from '../ciscoMobilityServicesEngine/_router'
-const WebServicesView = () => import(/* webpackChunkName: "Configuration" */ '../_components/WebServicesView')
+import WebServicesRoutes from '../webServices/_router'
 import SwitchTemplatesRoutes from '../switchTemplates/_router'
 import SyslogParsersRoutes from '../syslogParsers/_router'
 const SyslogForwardersList = () => import(/* webpackChunkName: "Configuration" */ '../_components/SyslogForwardersList')
@@ -270,18 +270,7 @@ const route = {
     },
     ...FirewallsRoutes,
     ...CiscoMobilityServicesEngineRoutes,
-    {
-      path: 'webservices',
-      name: 'webservices',
-      component: WebServicesView,
-      props: (route) => ({ formStoreName: 'formWebServices', query: route.query.query }),
-      beforeEnter: (to, from, next) => {
-        if (!store.state.formWebServices) { // Register store module only once
-          store.registerModule('formWebServices', FormStore)
-        }
-        next()
-      }
-    },
+    ...WebServicesRoutes,
     ...SwitchTemplatesRoutes,
     ...SyslogParsersRoutes,
     {

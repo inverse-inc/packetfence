@@ -12,8 +12,8 @@ export const beforeEnter = (to, from, next = () => {}) => {
 
 export default [
   {
-    path: 'mse',
-    name: 'mse',
+    path: 'webservices',
+    name: 'webservices',
     component: TheView,
     props: (route) => ({ query: route.query.query }),
     beforeEnter
