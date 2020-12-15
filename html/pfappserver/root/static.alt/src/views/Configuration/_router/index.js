@@ -6,7 +6,6 @@ import AdminRolesStore from '../_store/adminRoles'
 import BasesStore from '../_store/bases'
 import BillingTiersStore from '../_store/billingTiers'
 import ConnectionProfilesStore from '../_store/connectionProfiles'
-import FirewallsStore from '../_store/firewalls'
 import FloatingDevicesStore from '../_store/floatingDevices'
 import PkisStore from '../pki/_store'
 import PortalModulesStore from '../_store/portalModules'
@@ -42,8 +41,9 @@ import WmiRulesRoutes from '../wmiRules/_router'
 
 /* Integration */
 const IntegrationSection = () => import(/* webpackChunkName: "Configuration" */ '../_components/IntegrationSection')
-const FirewallsList = () => import(/* webpackChunkName: "Configuration" */ '../_components/FirewallsList')
-const FirewallView = () => import(/* webpackChunkName: "Configuration" */ '../_components/FirewallView')
+import FirewallsRoutes from '../firewalls/_router'
+//const FirewallsList = () => import(/* webpackChunkName: "Configuration" */ '../_components/FirewallsList')
+//const FirewallView = () => import(/* webpackChunkName: "Configuration" */ '../_components/FirewallView')
 const CiscoMobilityServicesEngineView = () => import(/* webpackChunkName: "Configuration" */ '../_components/CiscoMobilityServicesEngineView')
 const WebServicesView = () => import(/* webpackChunkName: "Configuration" */ '../_components/WebServicesView')
 import SwitchTemplatesRoutes from '../switchTemplates/_router'
@@ -119,9 +119,6 @@ const route = {
     }
     if (!store.state.$_connection_profiles) {
       store.registerModule('$_connection_profiles', ConnectionProfilesStore)
-    }
-    if (!store.state.$_firewalls) {
-      store.registerModule('$_firewalls', FirewallsStore)
     }
     if (!store.state.$_floatingdevices) {
       store.registerModule('$_floatingdevices', FloatingDevicesStore)
@@ -273,52 +270,7 @@ const route = {
       path: 'integration',
       component: IntegrationSection
     },
-    {
-      path: 'firewalls',
-      name: 'firewalls',
-      component: FirewallsList,
-      props: (route) => ({ query: route.query.query })
-    },
-    {
-      path: 'firewalls/new/:firewallType',
-      name: 'newFirewall',
-      component: FirewallView,
-      props: (route) => ({ formStoreName: 'formFirewall', isNew: true, firewallType: route.params.firewallType }),
-      beforeEnter: (to, from, next) => {
-        if (!store.state.formFirewall) { // Register store module only once
-          store.registerModule('formFirewall', FormStore)
-        }
-        next()
-      }
-    },
-    {
-      path: 'firewall/:id',
-      name: 'firewall',
-      component: FirewallView,
-      props: (route) => ({ formStoreName: 'formFirewall', id: route.params.id }),
-      beforeEnter: (to, from, next) => {
-        if (!store.state.formFirewall) { // Register store module only once
-          store.registerModule('formFirewall', FormStore)
-        }
-        store.dispatch('$_firewalls/getFirewall', to.params.id).then(() => {
-          next()
-        })
-      }
-    },
-    {
-      path: 'firewall/:id/clone',
-      name: 'cloneFirewall',
-      component: FirewallView,
-      props: (route) => ({ formStoreName: 'formFirewall', id: route.params.id, isClone: true }),
-      beforeEnter: (to, from, next) => {
-        if (!store.state.formFirewall) { // Register store module only once
-          store.registerModule('formFirewall', FormStore)
-        }
-        store.dispatch('$_firewalls/getFirewall', to.params.id).then(() => {
-          next()
-        })
-      }
-    },
+    ...FirewallsRoutes,
     {
       path: 'mse',
       name: 'mse',
