@@ -10,6 +10,7 @@ import {
 import {
   BaseFormGroupIntervalUnit
 } from '@/views/Configuration/_components/new/'
+import AlertServices from './AlertServices'
 import TheForm from './TheForm'
 import TheView from './TheView'
 
@@ -44,6 +45,7 @@ export {
   BaseFormGroupToggleDisabledEnabled  as FormGroupUpdateIplogWithExternalPortalRequests,
 
   BaseViewResource                    as BaseView,
+  AlertServices,
   TheForm,
   TheView
 }

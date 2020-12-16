@@ -17,19 +17,18 @@
         <maintenance-tasks-list form-store-name="formMaintenanceTasks" />
       </b-tab>
       <b-tab :title="$t('Services')" @click="changeTab('services')">
-        <services-view form-store-name="formServices" />
+        <services-view />
       </b-tab>
     </b-tabs>
   </b-card>
 </template>
 
 <script>
-import FormStore from '@/store/base/form'
 import GeneralView from '../general/_components/TheView'
 import AlertingView from '../alerting/_components/TheView'
 import AdvancedView from '../advanced/_components/TheView'
 import MaintenanceTasksList from './MaintenanceTasksList'
-import ServicesView from './ServicesView'
+import ServicesView from '../services/_components/TheView'
 
 export default {
   name: 'main-tabs',
@@ -59,20 +58,6 @@ export default {
   methods: {
     changeTab (name) {
       this.$router.push({ name })
-    }
-  },
-  beforeMount () {
-    if (!this.$store.state.formGeneral) { // Register store module only once
-      this.$store.registerModule('formGeneral', FormStore)
-    }
-    if (!this.$store.state.formAlerting) { // Register store module only once
-      this.$store.registerModule('formAlerting', FormStore)
-    }
-    if (!this.$store.state.formMaintenanceTasks) { // Register store module only once
-      this.$store.registerModule('formMaintenanceTasks', FormStore)
-    }
-    if (!this.$store.state.formServices) { // Register store module only once
-      this.$store.registerModule('formServices', FormStore)
     }
   }
 }

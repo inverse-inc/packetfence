@@ -84,6 +84,7 @@ import GeneralRoutes from '../general/_router'
 import AlertingRoutes from '../alerting/_router'
 import AdvancedRoutes from '../advanced/_router'
 import MaintenanceTasksRoutes from '../maintenanceTasks/_router'
+import ServicesRoutes from '../services/_router'
 const DatabaseTabs = () => import(/* webpackChunkName: "Configuration" */ '../_components/DatabaseTabs')
 import ActiveActiveRoutes from '../activeActive/_router'
 const RadiusTabs = () => import(/* webpackChunkName: "Configuration" */ '../_components/RadiusTabs')
@@ -726,13 +727,7 @@ const route = {
     ...AlertingRoutes,
     ...AdvancedRoutes,
     ...MaintenanceTasksRoutes,
-    ...SslCertificatesRoutes,
-    {
-      path: 'services',
-      name: 'services',
-      component: MainTabs,
-      props: (route) => ({ tab: 'services', query: route.query.query })
-    },
+    ...ServicesRoutes,
     {
       path: 'database',
       name: 'database',
@@ -1039,7 +1034,8 @@ const route = {
           next()
         })
       }
-    }
+    },
+    ...SslCertificatesRoutes
   ]
 }
 
