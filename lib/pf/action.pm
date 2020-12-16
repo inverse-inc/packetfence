@@ -225,7 +225,6 @@ sub action_execute {
     }
     if (!$leave_open && !($security_event_id eq $POST_SCAN_SECURITY_EVENT_ID || $security_event_id eq $PRE_SCAN_SECURITY_EVENT_ID || $security_event_id eq $SCAN_SECURITY_EVENT_ID)) {
         $logger->info("this is a non-reevaluate-access security_event, closing security_event entry now");
-        require pf::security_event;
         pf::security_event::security_event_force_close( $mac, $security_event_id );
     }
     return (1);
@@ -384,7 +383,7 @@ sub action_close {
    $logger->info("SECURITY_EVENT_ID to close: $class->{'vclose'}");
 
    if (defined($class->{'vclose'})) {
-     my $result = security_event_force_close($mac,$class->{'vclose'});
+     my $result = pf::security_event::security_event_force_close($mac,$class->{'vclose'});
 
      # If close is a success, reevaluate the Access for the node
      if ($result) {
