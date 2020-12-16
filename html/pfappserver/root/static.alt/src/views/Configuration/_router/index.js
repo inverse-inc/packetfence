@@ -14,7 +14,6 @@ import RadiusFastStore from '../_store/radiusFast'
 import RadiusOcspStore from '../_store/radiusOcsp'
 import RadiusSslStore from '../_store/radiusSsl'
 import RadiusTlsStore from '../_store/radiusTls'
-import WrixLocationsStore from '../_store/wrixLocations'
 
 
 
@@ -46,8 +45,7 @@ import WebServicesRoutes from '../webServices/_router'
 import SwitchTemplatesRoutes from '../switchTemplates/_router'
 import SyslogParsersRoutes from '../syslogParsers/_router'
 import SyslogForwardersRoutes from '../syslogForwarders/_router'
-const WrixLocationsList = () => import(/* webpackChunkName: "Configuration" */ '../_components/WrixLocationsList')
-const WrixLocationView = () => import(/* webpackChunkName: "Configuration" */ '../_components/WrixLocationView')
+import WrixRoutes from '../wrix/_router'
 const PkisTabs = () => import(/* webpackChunkName: "Pki" */ '../_components/PkisTabs')
 const PkiCaView = () => import(/* webpackChunkName: "Pki" */ '../_components/PkiCaView')
 const PkiProfileView = () => import(/* webpackChunkName: "Pki" */ '../_components/PkiProfileView')
@@ -143,9 +141,6 @@ const route = {
     }
     if (!store.state.$_radius_tls) {
       store.registerModule('$_radius_tls', RadiusTlsStore)
-    }
-    if (!store.state.$_wrix_locations) {
-      store.registerModule('$_wrix_locations', WrixLocationsStore)
     }
     next()
   },
@@ -273,52 +268,7 @@ const route = {
     ...SwitchTemplatesRoutes,
     ...SyslogParsersRoutes,
     ...SyslogForwardersRoutes,
-    {
-      path: 'wrix',
-      name: 'wrixLocations',
-      component: WrixLocationsList,
-      props: (route) => ({ query: route.query.query })
-    },
-    {
-      path: 'wrix/new',
-      name: 'newWrixLocation',
-      component: WrixLocationView,
-      props: () => ({ formStoreName: 'formWrixLocation', isNew: true }),
-      beforeEnter: (to, from, next) => {
-        if (!store.state.formWrixLocation) { // Register store module only once
-          store.registerModule('formWrixLocation', FormStore)
-        }
-        next()
-      }
-    },
-    {
-      path: 'wrix/:id',
-      name: 'wrixLocation',
-      component: WrixLocationView,
-      props: (route) => ({ formStoreName: 'formWrixLocation', id: route.params.id }),
-      beforeEnter: (to, from, next) => {
-        if (!store.state.formWrixLocation) { // Register store module only once
-          store.registerModule('formWrixLocation', FormStore)
-        }
-        store.dispatch('$_wrix_locations/getWrixLocation', to.params.id).then(() => {
-          next()
-        })
-      }
-    },
-    {
-      path: 'wrix/:id/clone',
-      name: 'cloneWrixLocation',
-      component: WrixLocationView,
-      props: (route) => ({ formStoreName: 'formWrixLocation', id: route.params.id, isClone: true }),
-      beforeEnter: (to, from, next) => {
-        if (!store.state.formWrixLocation) { // Register store module only once
-          store.registerModule('formWrixLocation', FormStore)
-        }
-        store.dispatch('$_wrix_locations/getWrixLocation', to.params.id).then(() => {
-          next()
-        })
-      }
-    },
+    ...WrixRoutes,
     {
       path: 'pki',
       name: 'pki',

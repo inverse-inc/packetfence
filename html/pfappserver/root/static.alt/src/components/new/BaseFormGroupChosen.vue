@@ -238,18 +238,21 @@ export const setup = (props, context) => {
     return { ...labels, [value]: text }
   }, {}))
 
-  // inspect options first item for group(ing)
   const inputGroupLabel = computed(() => {
+    if (groupLabel.value)
+      return groupLabel.value
+    // inspect options first item for group(ing)
     const { 0: { group } = {} } = options.value
     if (group)
       return 'group'
-    return groupLabel.value
   })
   const inputGroupValues = computed(() => {
+    if (groupValues.value)
+      return groupValues.value
+    // inspect options first item for group(ing)
     const { 0: { group } = {} } = options.value
     if (group)
       return 'options'
-    return groupValues.value
   })
 
   // supress warning:

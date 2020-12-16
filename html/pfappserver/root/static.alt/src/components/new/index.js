@@ -14,6 +14,7 @@ import BaseFormGroupChosenMultiple from './BaseFormGroupChosenMultiple'
 import BaseFormGroupChosenMultipleSearchable, { props as BaseFormGroupChosenMultipleSearchableProps } from './BaseFormGroupChosenMultipleSearchable'
 import BaseFormGroupChosenOne, { props as BaseFormGroupChosenOneProps } from './BaseFormGroupChosenOne'
 import BaseFormGroupChosenOneSearchable, { props as BaseFormGroupChosenOneSearchableProps } from './BaseFormGroupChosenOneSearchable'
+import BaseFormGroupChosenTimezone from './BaseFormGroupChosenTimezone'
 import BaseFormGroupInput from './BaseFormGroupInput'
 import BaseFormGroupInputMultiplier from './BaseFormGroupInputMultiplier'
 import BaseFormGroupInputNumber from './BaseFormGroupInputNumber'
@@ -66,6 +67,7 @@ export {
   BaseFormGroupChosenMultipleSearchable, BaseFormGroupChosenMultipleSearchableProps,
   BaseFormGroupChosenOne, BaseFormGroupChosenOneProps,
   BaseFormGroupChosenOneSearchable, BaseFormGroupChosenOneSearchableProps,
+  BaseFormGroupChosenTimezone,
   BaseFormGroupInput,
   BaseFormGroupInputMultiplier,
   BaseFormGroupInputNumber,

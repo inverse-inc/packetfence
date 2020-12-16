@@ -2,7 +2,7 @@
 * "$_wrix_locations" store module
 */
 import Vue from 'vue'
-import api from '../_api'
+import api from './_api'
 
 const types = {
   LOADING: 'loading',
