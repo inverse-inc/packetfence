@@ -7,14 +7,20 @@ export const props = {
 
   test: {
     type: Function,
-    default: (value, form) => store.dispatch('$_bases/testSmtp', form).catch(err => {
+    default: (value, form) => store.dispatch('$_bases/testSmtp', form).then(response => {
+      const { message } = response
+      return message || i18n.t('Testing SMTP success')
+    }).catch(err => {
       const { response: { data: { message } = {} } = {} } = err
-      throw message || err
+      if (message)
+        throw message.trim().replace('\n', '<br/>')
+      else
+        throw err
     })
   },
   testLabel: {
     type: String,
-    default: i18n.t(`Checking SMTP...`)
+    default: i18n.t(`Testing SMTP...`)
   }
 }
 

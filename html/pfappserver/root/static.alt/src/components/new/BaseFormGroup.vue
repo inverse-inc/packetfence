@@ -8,11 +8,11 @@
     :labelCols="labelCols"
     :label="columnLabel"
   >
-    <template v-slot:invalid-feedback>
-      {{ invalidFeedback }}
+    <template v-slot:invalid-feedback v-if="invalidFeedback">
+      <span v-html="invalidFeedback" />
     </template>
-    <template v-slot:valid-feedback>
-      {{ validFeedback }}
+    <template v-slot:valid-feedback v-if="validFeedback">
+      <span v-html="validFeedback" />
     </template>
     <b-input-group
       class="is-borders"

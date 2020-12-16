@@ -12,6 +12,7 @@
       />
     </b-form>
     <b-card-footer>
+      <slot name="buttonsPrepend" v-if="$scopedSlots.buttonsPrepend" v-bind="scopedSlotProps" />
       <form-button-bar
         :isLoading="isLoading"
         :isValid="isValid"
@@ -19,6 +20,7 @@
         @reset="onReset"
         @save="onSave"
       />
+      <slot name="buttonsAppend" v-if="$scopedSlots.buttonsAppend" v-bind="scopedSlotProps" />
     </b-card-footer>
   </b-card>
 </template>

@@ -12,21 +12,21 @@ const components = {
 
 import { computed } from '@vue/composition-api'
 import { renderHOCWithScopedSlots } from '@/components/new/'
-import { useViewCollectionItem, useViewCollectionItemProps as props } from '../../_composables/useViewCollectionItem'
-import collection from '../_composables/useCollection'
+import { useViewResource, useViewResourceProps as props } from '../../_composables/useViewResource'
+import resource from '../_composables/useResource'
 
 const setup = (props, context) => {
 
-  const viewCollectionItem = useViewCollectionItem(collection, props, context)
+  const viewResource = useViewResource(resource, props, context)
   const {
     isLoading,
     isModified
-  } = viewCollectionItem
+  } = viewResource
 
   const scopedSlotProps = computed(() => ({ ...props, isLoading: isLoading.value, isModified: isModified.value }))
 
   return {
-    ...viewCollectionItem,
+    ...viewResource,
     scopedSlotProps
   }
 }
@@ -43,5 +43,4 @@ export default {
   props,
   render
 }
-
 

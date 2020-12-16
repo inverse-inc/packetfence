@@ -80,6 +80,7 @@ import SslCertificatesRoutes from '../sslCertificates/_router'
 /* System Configuration */
 const SystemConfigurationSection = () => import(/* webpackChunkName: "Configuration" */ '../_components/SystemConfigurationSection')
 export const MainTabs = () => import(/* webpackChunkName: "Configuration" */ '../_components/MainTabs')
+import GeneralRoutes from '../general/_router'
 import AlertingRoutes from '../alerting/_router'
 import AdvancedRoutes from '../advanced/_router'
 import MaintenanceTasksRoutes from '../maintenanceTasks/_router'
@@ -721,16 +722,11 @@ const route = {
       path: 'system_configuration',
       component: SystemConfigurationSection
     },
-    ...MaintenanceTasksRoutes,
-    ...SslCertificatesRoutes,
-    {
-      path: 'general',
-      name: 'general',
-      component: MainTabs,
-      props: (route) => ({ tab: 'general', query: route.query.query })
-    },
+    ...GeneralRoutes,
     ...AlertingRoutes,
     ...AdvancedRoutes,
+    ...MaintenanceTasksRoutes,
+    ...SslCertificatesRoutes,
     {
       path: 'services',
       name: 'services',

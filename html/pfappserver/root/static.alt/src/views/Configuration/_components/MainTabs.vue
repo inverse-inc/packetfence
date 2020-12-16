@@ -5,7 +5,7 @@
     </b-card-header>
     <b-tabs ref="tabs" v-model="tabIndex" card>
       <b-tab :title="$t('General Configuration')" @click="changeTab('general')">
-        <general-view form-store-name="formGeneral" />
+        <general-view />
       </b-tab>
       <b-tab :title="$t('Alerting')" @click="changeTab('alerting')">
         <alerting-view />
@@ -25,7 +25,7 @@
 
 <script>
 import FormStore from '@/store/base/form'
-import GeneralView from './GeneralView'
+import GeneralView from '../general/_components/TheView'
 import AlertingView from '../alerting/_components/TheView'
 import AdvancedView from '../advanced/_components/TheView'
 import MaintenanceTasksList from './MaintenanceTasksList'
