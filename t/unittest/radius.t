@@ -22,13 +22,15 @@ BEGIN {
     use setup_test_config;
 }
 
-use Test::More tests => 4;
+use Test::More tests => 5;
 use pf::radius;
 use pf::locationlog;
+use Utils;
 
 #This test will running last
 use Test::NoWarnings;
-my $mac = "77:77:77:77:77:77";
+my $mac = Utils::test_mac();
+my $switch_id = '172.16.8.28';
 my $first_switch = '00:1a:1e:01:68:f8';
 my $second_switch = '00:1a:1e:01:68:f9';
 
@@ -36,7 +38,7 @@ my $radius = pf::radius->new;
 $radius->authorize({
     "User-Name" => "77:77:77:77:77:77",
     "User-Password" => "77:77:77:77:77:77",
-    "NAS-IP-Address" => "172.17.17.201",
+    "NAS-IP-Address" => $switch_id,
     "NAS-Port" => 1,
     "NAS-Port-Type" => 15,
     "Service-Type" => 10,
@@ -47,11 +49,12 @@ $radius->authorize({
 });
 
 my $location = locationlog_view_open_mac($mac);
-is($location->{switch}, $first_switch);
+is($location->{switch}, $switch_id);
+is($location->{switch_mac}, $first_switch);
 $radius->authorize({
     "User-Name" => "77:77:77:77:77:77",
     "User-Password" => "77:77:77:77:77:77",
-    "NAS-IP-Address" => "172.17.17.202",
+    "NAS-IP-Address" => $switch_id,
     "NAS-Port" => 1,
     "NAS-Port-Type" => 15,
     "Service-Type" => 10,
@@ -61,7 +64,7 @@ $radius->authorize({
 
 });
  $location = locationlog_view_open_mac($mac);
-is($location->{switch}, $second_switch);
+is($location->{switch}, $switch_id);
 is($location->{switch_mac}, $second_switch);
 
 =head1 AUTHOR
