@@ -14,7 +14,6 @@ import RadiusFastStore from '../_store/radiusFast'
 import RadiusOcspStore from '../_store/radiusOcsp'
 import RadiusSslStore from '../_store/radiusSsl'
 import RadiusTlsStore from '../_store/radiusTls'
-import SyslogForwardersStore from '../_store/syslogForwarders'
 import WrixLocationsStore from '../_store/wrixLocations'
 
 
@@ -46,8 +45,7 @@ import CiscoMobilityServicesEngineRoutes from '../ciscoMobilityServicesEngine/_r
 import WebServicesRoutes from '../webServices/_router'
 import SwitchTemplatesRoutes from '../switchTemplates/_router'
 import SyslogParsersRoutes from '../syslogParsers/_router'
-const SyslogForwardersList = () => import(/* webpackChunkName: "Configuration" */ '../_components/SyslogForwardersList')
-const SyslogForwarderView = () => import(/* webpackChunkName: "Configuration" */ '../_components/SyslogForwarderView')
+import SyslogForwardersRoutes from '../syslogForwarders/_router'
 const WrixLocationsList = () => import(/* webpackChunkName: "Configuration" */ '../_components/WrixLocationsList')
 const WrixLocationView = () => import(/* webpackChunkName: "Configuration" */ '../_components/WrixLocationView')
 const PkisTabs = () => import(/* webpackChunkName: "Pki" */ '../_components/PkisTabs')
@@ -145,9 +143,6 @@ const route = {
     }
     if (!store.state.$_radius_tls) {
       store.registerModule('$_radius_tls', RadiusTlsStore)
-    }
-    if (!store.state.$_syslog_forwarders) {
-      store.registerModule('$_syslog_forwarders', SyslogForwardersStore)
     }
     if (!store.state.$_wrix_locations) {
       store.registerModule('$_wrix_locations', WrixLocationsStore)
@@ -277,52 +272,7 @@ const route = {
     ...WebServicesRoutes,
     ...SwitchTemplatesRoutes,
     ...SyslogParsersRoutes,
-    {
-      path: 'syslog',
-      name: 'syslogForwarders',
-      component: SyslogForwardersList,
-      props: (route) => ({ query: route.query.query })
-    },
-    {
-      path: 'syslog/new/:syslogForwarderType',
-      name: 'newSyslogForwarder',
-      component: SyslogForwarderView,
-      props: (route) => ({ formStoreName: 'formSyslogForwarders', isNew: true, syslogForwarderType: route.params.syslogForwarderType }),
-      beforeEnter: (to, from, next) => {
-        if (!store.state.formSyslogForwarders) { // Register store module only once
-          store.registerModule('formSyslogForwarders', FormStore)
-        }
-        next()
-      }
-    },
-    {
-      path: 'syslog/:id',
-      name: 'syslogForwarder',
-      component: SyslogForwarderView,
-      props: (route) => ({ formStoreName: 'formSyslogForwarders', id: route.params.id }),
-      beforeEnter: (to, from, next) => {
-        if (!store.state.formSyslogForwarders) { // Register store module only once
-          store.registerModule('formSyslogForwarders', FormStore)
-        }
-        store.dispatch('$_syslog_forwarders/getSyslogForwarder', to.params.id).then(() => {
-          next()
-        })
-      }
-    },
-    {
-      path: 'syslog/:id/clone',
-      name: 'cloneSyslogForwarder',
-      component: SyslogForwarderView,
-      props: (route) => ({ formStoreName: 'formSyslogForwarders', id: route.params.id, isClone: true }),
-      beforeEnter: (to, from, next) => {
-        if (!store.state.formSyslogForwarders) { // Register store module only once
-          store.registerModule('formSyslogForwarders', FormStore)
-        }
-        store.dispatch('$_syslog_forwarders/getSyslogForwarder', to.params.id).then(() => {
-          next()
-        })
-      }
-    },
+    ...SyslogForwardersRoutes,
     {
       path: 'wrix',
       name: 'wrixLocations',
