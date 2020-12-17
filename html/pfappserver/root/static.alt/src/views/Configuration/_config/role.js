@@ -215,13 +215,16 @@ export const view = (_, meta = {}) => {
           ]
         },
         {
-          label: i18n.t('VLAN'),
-          text: i18n.t('The VLAN to use for this role'),
+          label: i18n.t('Inherit VLAN'),
+          text: i18n.t('Inherit VLAN from parent if none is found'),
           cols: [
             {
-              namespace: 'vlan',
-              component: pfFormInput,
-              attrs: attributesFromMeta(meta, 'vlan')
+              namespace: 'inherit_vlan',
+              component: pfFormRangeToggle,
+              attrs: {
+                ...attributesFromMeta(meta, 'inherit_vlan'),
+                values: { checked: 'enabled', unchecked: 'disabled' }
+              }
             }
           ]
         }
