@@ -17,17 +17,17 @@ type Job struct {
 	SkipWait  chan bool
 	err       error
 	schedule  scheduled
-	isRunning bool
 	doRun     func() bool
 	sync.RWMutex
+	isRunning bool
 }
 
 type recurrent struct {
-	randomize bool
 	delay     int64
 	started   time.Time
 	count     int64
 	done      bool
+	randomize bool
 }
 
 func (r *recurrent) nextRun() (time.Duration, error) {

@@ -41,13 +41,13 @@ type Proxy struct {
 type passthrough struct {
 	proxypassthrough        []*regexp.Regexp
 	detectionmechanisms     []*regexp.Regexp
-	DetectionMecanismBypass bool
 	mutex                   sync.Mutex
 	PortalURL               map[int]map[*net.IPNet]*url.URL
 	URIException            *regexp.Regexp
+	OtherDomains            []*regexp.Regexp
+	DetectionMecanismBypass bool
 	SecureRedirect          bool
 	Wispr                   bool
-	OtherDomains            []*regexp.Regexp
 }
 
 type fqdn struct {
@@ -55,12 +55,12 @@ type fqdn struct {
 }
 
 type RFC7710bis struct {
-	Captive          bool   `json:"captive"`
 	UserPortalURL    string `json:"user-portal-url"`
 	VenueInfoURL     string `json:"venue-info-url,omitempty"`
-	CanExtendSession bool   `json:"can-extend-session,omitempty"`
 	SecondsRemaining int    `json:"seconds-remaining,omitempty"`
 	BytesRemaining   int    `json:"bytes-remaining,omitempty"`
+	CanExtendSession bool   `json:"can-extend-session,omitempty"`
+	Captive          bool   `json:"captive"`
 }
 
 var passThrough *passthrough
