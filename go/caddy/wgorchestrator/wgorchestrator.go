@@ -112,7 +112,7 @@ func longPollFromContext(c *gin.Context) *golongpoll.LongpollManager {
 func longPollMiddleware() gin.HandlerFunc {
 	pubsub, err := golongpoll.StartLongpoll(golongpoll.Options{
 		LoggingEnabled:     (sharedutils.EnvOrDefault("LOG_LEVEL", "") == "debug"),
-		MaxEventBufferSize: 1000,
+		MaxEventBufferSize: 10,
 		// Events stay for up to 5 minutes
 		EventTimeToLiveSeconds: int(maxSessionIdleTime / time.Second),
 	})
