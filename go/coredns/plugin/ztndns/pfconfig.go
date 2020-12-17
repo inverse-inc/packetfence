@@ -4,7 +4,6 @@ import (
 	"context"
 	"regexp"
 
-	"github.com/inverse-inc/packetfence/go/log"
 	"github.com/inverse-inc/packetfence/go/remoteclients"
 	"github.com/inverse-inc/packetfence/go/timedlock"
 
@@ -13,18 +12,6 @@ import (
 
 // GlobalTransactionLock global var
 var GlobalTransactionLock *timedlock.RWLock
-
-func (ztn *ztndns) Refresh(ctx context.Context) {
-	// If some of the passthroughs were changed, we should reload
-	if !pfconfigdriver.IsValid(ctx, &pfconfigdriver.Config.Passthroughs.Registration) || !pfconfigdriver.IsValid(ctx, &pfconfigdriver.Config.Passthroughs.Isolation) {
-		log.LoggerWContext(ctx).Info("Reloading passthroughs and flushing cache")
-		ztn.HostIPMAP(ctx)
-
-	}
-	if !pfconfigdriver.IsValid(ctx, &pfconfigdriver.Config.Dns.Configuration) {
-		ztn.DNSRecord(ctx)
-	}
-}
 
 func (ztn *ztndns) HostIPMAP(ctx context.Context) error {
 
@@ -42,6 +29,14 @@ func (ztn *ztndns) HostIPMAP(ctx context.Context) error {
 		id       uint
 	)
 	i := 0
+
+	ID, err := GlobalTransactionLock.RLock()
+	if err != nil {
+		return nil
+	}
+
+	defer GlobalTransactionLock.RUnlock(ID)
+
 	for rows.Next() {
 		err := rows.Scan(&hostname, &id)
 		if err != nil {
