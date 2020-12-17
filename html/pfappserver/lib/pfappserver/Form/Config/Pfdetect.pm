@@ -61,11 +61,9 @@ has_field 'type' =>
 
 has_field 'tenant_id' =>
   (
-   type => 'Select',
+   type => 'Tenant',
    label => 'Tenant ID',
-   default => 1,
-   options_method => \&options_tenant,
-   element_class => ['chzn-deselect'],
+   no_global => 1,
   );
 
 has_block definition =>
