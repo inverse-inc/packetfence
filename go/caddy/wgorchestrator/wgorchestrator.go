@@ -69,7 +69,13 @@ func buildWgorchestratorHandler(ctx context.Context) (WgorchestratorHandler, err
 	wgOrchestrator := WgorchestratorHandler{}
 
 	gin.SetMode(gin.ReleaseMode)
-	router := gin.Default()
+	router := gin.New()
+	router.Use(gin.Recovery())
+
+	if sharedutils.IsEnabled(sharedutils.EnvOrDefault("WGORCHESTRATOR_GIN_ACCESS_LOG", "false")) {
+		router.Use(gin.Logger())
+	}
+
 	router.Use(longPollMiddleware())
 	router.Use(dbMiddleware())
 	api := router.Group("/api/v1/remote_clients")
