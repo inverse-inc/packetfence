@@ -50,6 +50,7 @@ has_field 'type' =>
         { value => $pf::config::NET_TYPE_VLAN_REG, label => 'Registration'},
         { value => $pf::config::NET_TYPE_DNS_ENFORCEMENT, label => 'DNS Enforcement'},
         { value => $pf::config::NET_TYPE_INLINE_L3, label => 'Inline Layer 3'},
+        { value => $pf::config::NET_TYPE_UNMANAGED, label => 'Unmanaged'},
    ]
   );
 has_field 'next_hop' =>
