@@ -4,9 +4,9 @@
       <div :title="tooltip" v-b-tooltip.hover.left.d300
         class="border-left border-secondary"
       >
-        <base-button-upload @input="onInput"
+        <base-button-upload v-if="!isLocked"
+          @input="onInput"
           :accept="accept"
-          :disabled="disabled"
           class="btn btn-outline-light"
           read-as-text
         >
@@ -26,9 +26,14 @@ const components = {
   BaseFormGroupTextarea
 }
 
+import { useInput, useInputProps } from '@/composables/useInput'
+import { useInputMeta } from '@/composables/useMeta'
+import { useInputValue } from '@/composables/useInputValue'
+
 export const props = {
   ...BaseButtonUploadProps,
   ...BaseFormGroupTextareaProps,
+  ...useInputProps,
 
   tooltip: {
     type: String,
@@ -36,18 +41,20 @@ export const props = {
   }
 }
 
-import { useInputMeta } from '@/composables/useMeta'
-import { useInputValue } from '@/composables/useInputValue'
-
 const setup = (props, context) => {
 
   const metaProps = useInputMeta(props, context)
+
+  const {
+    isLocked
+  } = useInput(metaProps, context)
 
   const {
     onInput
   } = useInputValue(metaProps, context)
 
   return {
+    isLocked,
     onInput
   }
 }

@@ -37,7 +37,12 @@ const mergeProps = (...collections) => {
  *    props = {...},
  *    render: renderHOCWithScopedSlots(BaseComponent, { components, props, setup }, {
  *      default: [ FirstSlotComponent, SecondSlotComponent ],
- *      footer: AnotherSlotComponent
+ *      header: HeaderSlotComponent
+ *      footer: (h, props) => {
+ *        return h(FooterSlotComponent, {}, [
+ *          h(FooterSlotChildComponent, { props })
+ *        ])
+ *      }
  *    })
  *  }
  *
@@ -48,6 +53,11 @@ const renderHOCWithScopedSlots = (component, params, slots) => {
   const { components, props, setup } = params
   return function (h) { // closure (this)
     const scopedSlots = Object.keys(slots).reduce((obj, slotName) => {
+      // Function
+      if (slots[slotName].constructor === Function) {
+        return { ...obj, [slotName]: props => slots[slotName](h, props) }
+      }
+      // Array
       const scopedSlotArray = (slots[slotName].constructor === Array)
         ? slots[slotName]
         : [ slots[slotName] ]

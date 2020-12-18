@@ -7,7 +7,9 @@ import {
   BaseFormGroupInputPassword,
   BaseFormGroupToggleNY
 } from '@/components/new/'
-import BaseFormGroupChosenOneProfile from '../../pki/profiles/_components/BaseFormGroupChosenOneProfile'
+import {
+  BaseFormGroupChosenOneProfile
+} from '../../pki/_components/'
 import TheForm from './TheForm'
 import TheView from './TheView'
 

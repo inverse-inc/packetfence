@@ -12,6 +12,16 @@ yup.setLocale({ // default validators
   }
 })
 
+yup.addMethod(yup.string, 'in', function (ref, message) {
+  return this.test({
+    name: 'in',
+    message: message || i18n.t('Invalid value'),
+    test: value => {
+      return ref.includes(value)
+    }
+  })
+})
+
 yup.addMethod(yup.string, 'maxAsInt', function (ref, message) {
   return this.test({
     name: 'maxAsInt',
@@ -37,8 +47,9 @@ yup.addMethod(yup.array, 'required', function (message) {
 })
 
 
-const $isIpv4 = value => /^(([0-9]{1,3}.){3,3}[0-9]{1,3})$/i.test(value)
-const $isIpv6 = value => /^(([0-9a-fA-F]{1,4}:){7,7}[0-9a-fA-F]{1,4}|([0-9a-fA-F]{1,4}:){1,7}:|([0-9a-fA-F]{1,4}:){1,6}:[0-9a-fA-F]{1,4}|([0-9a-fA-F]{1,4}:){1,5}(:[0-9a-fA-F]{1,4}){1,2}|([0-9a-fA-F]{1,4}:){1,4}(:[0-9a-fA-F]{1,4}){1,3}|([0-9a-fA-F]{1,4}:){1,3}(:[0-9a-fA-F]{1,4}){1,4}|([0-9a-fA-F]{1,4}:){1,2}(:[0-9a-fA-F]{1,4}){1,5}|[0-9a-fA-F]{1,4}:((:[0-9a-fA-F]{1,4}){1,6})|:((:[0-9a-fA-F]{1,4}){1,7}|:)|fe80:(:[0-9a-fA-F]{0,4}){0,4}%[0-9a-zA-Z]{1,}|::(ffff(:0{1,4}){0,1}:){0,1}((25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])\.){3,3}(25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])|([0-9a-fA-F]{1,4}:){1,4}:((25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])\.){3,3}(25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9]))$/i.test(value)
+const reCommonName = value => /^([A-Z]+|[A-Z]+[0-9A-Z_:]*[0-9A-Z]+)$/i.test(value)
+const reIpv4 = value => /^(([0-9]{1,3}.){3,3}[0-9]{1,3})$/i.test(value)
+const reIpv6 = value => /^(([0-9a-fA-F]{1,4}:){7,7}[0-9a-fA-F]{1,4}|([0-9a-fA-F]{1,4}:){1,7}:|([0-9a-fA-F]{1,4}:){1,6}:[0-9a-fA-F]{1,4}|([0-9a-fA-F]{1,4}:){1,5}(:[0-9a-fA-F]{1,4}){1,2}|([0-9a-fA-F]{1,4}:){1,4}(:[0-9a-fA-F]{1,4}){1,3}|([0-9a-fA-F]{1,4}:){1,3}(:[0-9a-fA-F]{1,4}){1,4}|([0-9a-fA-F]{1,4}:){1,2}(:[0-9a-fA-F]{1,4}){1,5}|[0-9a-fA-F]{1,4}:((:[0-9a-fA-F]{1,4}){1,6})|:((:[0-9a-fA-F]{1,4}){1,7}|:)|fe80:(:[0-9a-fA-F]{0,4}){0,4}%[0-9a-zA-Z]{1,}|::(ffff(:0{1,4}){0,1}:){0,1}((25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])\.){3,3}(25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])|([0-9a-fA-F]{1,4}:){1,4}:((25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])\.){3,3}(25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9]))$/i.test(value)
 
 yup.addMethod(yup.string, 'isCIDR', function (message) {
   return this.test({
@@ -51,9 +62,17 @@ yup.addMethod(yup.string, 'isCIDR', function (message) {
       return (
         extra.length === 0 &&
         +network > 0 && +network < 31 &&
-        $isIpv4(ipv4)
+        reIpv4(ipv4)
       )
     }
+  })
+})
+
+yup.addMethod(yup.string, 'isCommonName', function (message) {
+  return this.test({
+    name: 'isCommonName',
+    message: message || i18n.t('Invalid character, only letters (A-Z), numbers (0-9), underscores (_), or colons (:).'),
+    test: value => ['', null, undefined].includes(value) || reCommonName(value)
   })
 })
 
@@ -94,7 +113,7 @@ yup.addMethod(yup.string, 'isIpv4', function (message) {
   return this.test({
     name: 'isIpv4',
     message: message || i18n.t('Invalid IPv4 Address.'),
-    test: value => ['', null, undefined].includes(value) || $isIpv4(value)
+    test: value => ['', null, undefined].includes(value) || reIpv4(value)
   })
 })
 
@@ -102,7 +121,7 @@ yup.addMethod(yup.string, 'isIpv6', function (message) {
   return this.test({
     name: 'isIpv6',
     message: message || i18n.t('Invalid IPv6 Address.'),
-    test: value => ['', null, undefined].includes(value) || $isIpv6(value)
+    test: value => ['', null, undefined].includes(value) || reIpv6(value)
   })
 })
 

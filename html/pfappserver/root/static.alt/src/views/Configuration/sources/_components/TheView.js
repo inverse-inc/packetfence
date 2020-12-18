@@ -44,7 +44,6 @@ const render = renderHOCWithScopedSlots(BaseView, { components, props, setup }, 
   buttonsAppend: ButtonSamlMetaData
 })
 
-
 // @vue/component
 export default {
   name: 'the-view',

@@ -57,6 +57,12 @@ export const useViewCollectionItem = (collection, props, context) => {
     updateItem,
   } = useStore(props, context, form)
 
+  const isSaveable = computed(() => {
+    if (isNew.value || isClone.value)
+      return !!createItem
+    return !!updateItem
+  })
+
   const {
     goToCollection,
     goToItem,
@@ -128,11 +134,14 @@ export const useViewCollectionItem = (collection, props, context) => {
   const onSave = () => {
     isModified.value = true
     const closeAfter = actionKey.value
-    save().then(() => {
+    save().then(response => {
+      // update form with response
+      form.value = { ...form.value, ...response }
       if (closeAfter) // [CTRL] key pressed
         goToCollection()
-      else
-        goToItem(form.value.id)
+      else {
+        goToItem()
+      }
     })
   }
 
@@ -152,6 +161,7 @@ export const useViewCollectionItem = (collection, props, context) => {
     actionKey,
     isCloneable,
     isDeletable,
+    isSaveable,
     isValid,
     isLoading,
     onClose,

@@ -7,7 +7,6 @@ import BasesStore from '../_store/bases'
 import BillingTiersStore from '../_store/billingTiers'
 import ConnectionProfilesStore from '../_store/connectionProfiles'
 import FloatingDevicesStore from '../_store/floatingDevices'
-import PkisStore from '../pki/_store'
 import PortalModulesStore from '../_store/portalModules'
 import RadiusEapStore from '../_store/radiusEap'
 import RadiusFastStore from '../_store/radiusFast'
@@ -46,11 +45,7 @@ import SwitchTemplatesRoutes from '../switchTemplates/_router'
 import SyslogParsersRoutes from '../syslogParsers/_router'
 import SyslogForwardersRoutes from '../syslogForwarders/_router'
 import WrixRoutes from '../wrix/_router'
-const PkisTabs = () => import(/* webpackChunkName: "Pki" */ '../_components/PkisTabs')
-const PkiCaView = () => import(/* webpackChunkName: "Pki" */ '../_components/PkiCaView')
-const PkiProfileView = () => import(/* webpackChunkName: "Pki" */ '../_components/PkiProfileView')
-const PkiCertView = () => import(/* webpackChunkName: "Pki" */ '../_components/PkiCertView')
-const PkiRevokedCertView = () => import(/* webpackChunkName: "Pki" */ '../_components/PkiRevokedCertView')
+import PkiRoutes from '../pki/_router'
 
 /* Advanced Access Configuration */
 const AdvancedAccessConfigurationSection = () => import(/* webpackChunkName: "Configuration" */ '../_components/AdvancedAccessConfigurationSection')
@@ -120,9 +115,6 @@ const route = {
     }
     if (!store.state.$_floatingdevices) {
       store.registerModule('$_floatingdevices', FloatingDevicesStore)
-    }
-    if (!store.state.$_pkis) {
-      store.registerModule('$_pkis', PkisStore)
     }
     if (!store.state.$_portalmodules) {
       store.registerModule('$_portalmodules', PortalModulesStore)
@@ -269,170 +261,7 @@ const route = {
     ...SyslogParsersRoutes,
     ...SyslogForwardersRoutes,
     ...WrixRoutes,
-    {
-      path: 'pki',
-      name: 'pki',
-      component: PkisTabs,
-      props: (route) => ({ tab: 'pkiCas', query: route.query.query })
-    },
-    {
-      path: 'pki/cas',
-      name: 'pkiCas',
-      component: PkisTabs,
-      props: (route) => ({ tab: 'pkiCas', query: route.query.query })
-    },
-    {
-      path: 'pki/cas/new',
-      name: 'newPkiCa',
-      component: PkiCaView,
-      props: () => ({ formStoreName: 'formPkiCa', isNew: true }),
-      beforeEnter: (to, from, next) => {
-        if (!store.state.formPkiCa) { // Register store module only once
-          store.registerModule('formPkiCa', FormStore)
-        }
-        next()
-      }
-    },
-    {
-      path: 'pki/ca/:id',
-      name: 'pkiCa',
-      component: PkiCaView,
-      props: (route) => ({ formStoreName: 'formPkiCa', id: route.params.id }),
-      beforeEnter: (to, from, next) => {
-        if (!store.state.formPkiCa) { // Register store module only once
-          store.registerModule('formPkiCa', FormStore)
-        }
-        store.dispatch('$_pkis/getCa', to.params.id).then(() => {
-          next()
-        })
-      }
-    },
-    {
-      path: 'pki/ca/:id/clone',
-      name: 'clonePkiCa',
-      component: PkiCaView,
-      props: (route) => ({ formStoreName: 'formPkiCa', id: route.params.id, isClone: true }),
-      beforeEnter: (to, from, next) => {
-        if (!store.state.formPkiCa) { // Register store module only once
-          store.registerModule('formPkiCa', FormStore)
-        }
-        store.dispatch('$_pkis/getCa', to.params.id).then(() => {
-          next()
-        })
-      }
-    },
-    {
-      path: 'pki/profiles',
-      name: 'pkiProfiles',
-      component: PkisTabs,
-      props: (route) => ({ tab: 'pkiProfiles', query: route.query.query })
-    },
-    {
-      path: 'pki/ca/:ca_id/profiles/new',
-      name: 'newPkiProfile',
-      component: PkiProfileView,
-      props: (route) => ({ formStoreName: 'formPkiProfile', ca_id: String(route.params.ca_id).toString(), isNew: true }),
-      beforeEnter: (to, from, next) => {
-        if (!store.state.formPkiProfile) { // Register store module only once
-          store.registerModule('formPkiProfile', FormStore)
-        }
-        next()
-      }
-    },
-    {
-      path: 'pki/profile/:id',
-      name: 'pkiProfile',
-      component: PkiProfileView,
-      props: (route) => ({ formStoreName: 'formPkiProfile', id: route.params.id }),
-      beforeEnter: (to, from, next) => {
-        if (!store.state.formPkiProfile) { // Register store module only once
-          store.registerModule('formPkiProfile', FormStore)
-        }
-        store.dispatch('$_pkis/getProfile', to.params.id).then(() => {
-          next()
-        })
-      }
-    },
-    {
-      path: 'pki/profile/:id/clone',
-      name: 'clonePkiProfile',
-      component: PkiProfileView,
-      props: (route) => ({ formStoreName: 'formPkiProfile', id: route.params.id, isClone: true }),
-      beforeEnter: (to, from, next) => {
-        if (!store.state.formPkiProfile) { // Register store module only once
-          store.registerModule('formPkiProfile', FormStore)
-        }
-        store.dispatch('$_pkis/getProfile', to.params.id).then(() => {
-          next()
-        })
-      }
-    },
-    {
-      path: 'pki/certs',
-      name: 'pkiCerts',
-      component: PkisTabs,
-      props: (route) => ({ tab: 'pkiCerts', query: route.query.query })
-    },
-    {
-      path: 'pki/profile/:profile_id/certs/new',
-      name: 'newPkiCert',
-      component: PkiCertView,
-      props: (route) => ({ formStoreName: 'formPkiCert', profile_id: String(route.params.profile_id).toString(), isNew: true }),
-      beforeEnter: (to, from, next) => {
-        if (!store.state.formPkiCert) { // Register store module only once
-          store.registerModule('formPkiCert', FormStore)
-        }
-        next()
-      }
-    },
-    {
-      path: 'pki/cert/:id',
-      name: 'pkiCert',
-      component: PkiCertView,
-      props: (route) => ({ formStoreName: 'formPkiCert', id: route.params.id }),
-      beforeEnter: (to, from, next) => {
-        if (!store.state.formPkiCert) { // Register store module only once
-          store.registerModule('formPkiCert', FormStore)
-        }
-        store.dispatch('$_pkis/getCert', to.params.id).then(() => {
-          next()
-        })
-      }
-    },
-    {
-      path: 'pki/cert/:id/clone',
-      name: 'clonePkiCert',
-      component: PkiCertView,
-      props: (route) => ({ formStoreName: 'formPkiCert', id: route.params.id, isClone: true }),
-      beforeEnter: (to, from, next) => {
-        if (!store.state.formPkiCert) { // Register store module only once
-          store.registerModule('formPkiCert', FormStore)
-        }
-        store.dispatch('$_pkis/getCert', to.params.id).then(() => {
-          next()
-        })
-      }
-    },
-    {
-      path: 'pki/revokedcerts',
-      name: 'pkiRevokedCerts',
-      component: PkisTabs,
-      props: (route) => ({ tab: 'pkiRevokedCerts', query: route.query.query })
-    },
-    {
-      path: 'pki/revokedcert/:id',
-      name: 'pkiRevokedCert',
-      component: PkiRevokedCertView,
-      props: (route) => ({ formStoreName: 'formPkiCert', id: route.params.id }),
-      beforeEnter: (to, from, next) => {
-        if (!store.state.formPkiCert) { // Register store module only once
-          store.registerModule('formPkiCert', FormStore)
-        }
-        store.dispatch('$_pkis/getRevokedCert', to.params.id).then(() => {
-          next()
-        })
-      }
-    },
+    ...PkiRoutes,
     /**
      *  Advanced Access Configuration
      */

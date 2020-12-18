@@ -11,7 +11,7 @@ export const useMutationObserver = (el, callback, config = { attributes: false, 
 }
 
 export const useQuerySelector = (el, selector) => {
-  const $el = computed(() => ('$el' in el.value) ? el.value.$el : el)
+  const $el = computed(() => (el.value && '$el' in el.value) ? el.value.$el : el)
   const result = ref(null)
 
   useMutationObserver($el, () => {
@@ -22,7 +22,7 @@ export const useQuerySelector = (el, selector) => {
 }
 
 export const useQuerySelectorAll = (el, selector) => {
-  const $el = computed(() => ('$el' in el.value) ? el.value.$el : el)
+  const $el = computed(() => (el.value && '$el' in el.value) ? el.value.$el : el)
   const result = ref([])
 
   useMutationObserver($el, () => {

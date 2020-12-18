@@ -13,6 +13,9 @@ export const useFormProvideProps = {
   },
   isLoading: {
     type: Boolean
+  },
+  isReadonly: {
+    type: Boolean
   }
 }
 
@@ -22,7 +25,8 @@ export const useFormProvide = (props) => {
     form,
     meta,
     schema,
-    isLoading
+    isLoading,
+    isReadonly
   } = toRefs(props) // toRefs maintains reactivity w/ destructuring
 
   const lastTick = ref(null)
@@ -43,5 +47,6 @@ export const useFormProvide = (props) => {
   provide('meta', meta)
   provide('schema', schema)
   provide('isLoading', isLoading)
+  provide('isReadonly', isReadonly)
   provide('lastTick', lastTick)
 }

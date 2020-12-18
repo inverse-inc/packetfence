@@ -280,12 +280,12 @@ export const setup = (props, context) => {
 
     // useInput
     inputPlaceholder: placeholder,
-    inputReadonly: readonly,
     inputTabIndex: tabIndex,
     inputText: text,
     inputType: type,
     isFocus,
     isLocked,
+    isReadonly: readonly,
     onFocus,
     onBlur,
 

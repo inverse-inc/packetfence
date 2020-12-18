@@ -48,7 +48,12 @@ export const useInput = (props, { emit, refs }, inputRef = 'input') => {
   // state
   const isFocus = ref(false)
   const isLoading = inject('isLoading', ref(false))
-  const isLocked = computed(() => unref(isLoading) || unref(disabled) || unref(readonly))
+  const isReadonly = inject('isReadonly', ref(false))
+  const isLocked = computed(() => unref(isReadonly) || unref(isLoading) || unref(disabled) || unref(readonly))
+
+  const localReadonly = computed(() => {
+    return isReadonly.value || readonly.value || false
+  })
 
   // methods
   const doFocus = () => nextTick(() => refs[inputRef].$el.focus())
@@ -73,7 +78,7 @@ export const useInput = (props, { emit, refs }, inputRef = 'input') => {
   return {
     // props
     placeholder: localPlaceholder,
-    readonly,
+    readonly: localReadonly,
     tabIndex,
     text,
     type,

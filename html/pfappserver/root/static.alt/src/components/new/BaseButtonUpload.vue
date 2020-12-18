@@ -4,11 +4,13 @@
       <b-form ref="formRef" @submit.prevent>
         <!-- MUTLIPLE UPLOAD -->
         <input v-if="multiple"
-          type="file" @change="doUpload" :accept="accept" title=" " multiple/>
+          type="file" @change="doUpload" :accept="accept" title=" " multiple
+          :disabled="disabled" />
         <!-- SINGLE UPLOAD -->
         <input v-else
           ref="inputRef"
-          type="file" @change="doUpload" :accept="accept" title=" "/>
+          type="file" @change="doUpload" :accept="accept" title=" "
+          :disabled="disabled" />
       </b-form>
     </label>
     <slot>
@@ -104,6 +106,8 @@ const setup = (props, context) => {
     const accepted = accept.value.replace(/ /g, '').split(',')
       .filter(type => type.toLowerCase()) // ignore multiple commas, case insensitive
       .filter(type => {
+        if (type === '*/*')
+          return true
         const [ contentTypeMs, contentTypeLs ] = contentType.split('/')
         const [ typeMs, typeLs ] = type.split('/')
         if (contentTypeMs === typeMs && (typeLs === '*' || contentTypeLs === typeLs))

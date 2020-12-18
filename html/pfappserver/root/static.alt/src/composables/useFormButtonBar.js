@@ -21,6 +21,9 @@ export const useFormButtonBarProps = {
   isDeletable: {
     type: Boolean
   },
+  isSaveable: {
+    type: Boolean
+  },
   isValid: {
     type: Boolean
   },
@@ -35,6 +38,7 @@ export const useFormButtonBar = (props, context) => {
     isClone,
     isCloneable,
     isDeletable,
+    isSaveable,
     isNew
   } = toRefs(props)
 
@@ -56,6 +60,10 @@ export const useFormButtonBar = (props, context) => {
     return isNew.value === false
   })*/
 
+  const canSave = computed(() => {
+    return isSaveable.value && 'save' in listeners
+  })
+
   const onClone = value => emit('clone', value)
   const onClose = value => emit('close', value)
   const onRemove = value => emit('remove', value)
@@ -67,6 +75,7 @@ export const useFormButtonBar = (props, context) => {
     canClose,
     canDelete,
     canReset,
+    canSave,
 
     onClone,
     onClose,

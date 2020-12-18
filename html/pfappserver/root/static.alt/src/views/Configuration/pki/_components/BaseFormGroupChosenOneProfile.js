@@ -1,5 +1,6 @@
 import { BaseFormGroupChosenOne, BaseFormGroupChosenOneProps } from '@/components/new/'
 import store from '@/store'
+import StoreModule from '../_store'
 
 export const props = {
   ...BaseFormGroupChosenOneProps,
@@ -13,8 +14,15 @@ export const props = {
   }
 }
 
+const setup = () => {
+  if (!store.state.$_pkis) {
+    store.registerModule('$_pkis', StoreModule)
+  }
+}
+
 export default {
   name: 'base-form-group-chosen-one-profile',
   extends: BaseFormGroupChosenOne,
-  props
+  props,
+  setup
 }

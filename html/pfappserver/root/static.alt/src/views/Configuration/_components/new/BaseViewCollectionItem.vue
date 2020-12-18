@@ -24,6 +24,7 @@
         :isClone="isClone"
         :isLoading="isLoading"
         :isCloneable="isCloneable"
+        :isSaveable="isSaveable"
         :isDeletable="isDeletable"
         :isValid="isValid"
         :formRef="rootRef"
@@ -57,6 +58,7 @@ export default {
     meta: undefined,
     isLoading: undefined,
     isCloneable: undefined,
+    isSaveable: undefined,
     isDeletable: undefined,
     isValid: undefined,
     actionKey: undefined,

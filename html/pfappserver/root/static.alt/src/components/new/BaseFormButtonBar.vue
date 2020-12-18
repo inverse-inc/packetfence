@@ -1,7 +1,7 @@
 <template>
   <div class="d-inline">
     <b-button-group class="mr-1">
-      <base-button-save
+      <base-button-save v-if="canSave"
         :isLoading="isLoading"
         :disabled="!isValid"
         @click="onSave"
@@ -59,6 +59,7 @@ export const setup = (props, context) => {
     canClose,
     canDelete,
     canReset,
+    canSave,
     onClone,
     onClose,
     onRemove,
@@ -71,6 +72,7 @@ export const setup = (props, context) => {
     canClose,
     canDelete,
     canReset,
+    canSave,
     onClone,
     onClose,
     onRemove,

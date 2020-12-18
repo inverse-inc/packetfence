@@ -2,8 +2,8 @@
 * "$_pkis" store module
 */
 import Vue from 'vue'
-import api from '../_api'
 import store from '@/store'
+import api from './_api'
 
 const types = {
   LOADING: 'loading',
@@ -155,7 +155,6 @@ const actions = {
       throw err
     })
   },
-
   allCerts: ({ state, commit }) => {
     if (state.certListCache) {
       return Promise.resolve(state.certListCache)
@@ -187,6 +186,9 @@ const actions = {
     return api.downloadPkiCert(data).then(binary => {
       commit('CERT_SUCCESS')
       return binary
+    }).catch(err => {
+      commit('CERT_ERROR', err.response)
+      throw err
     })
   },
   createCert: ({ commit, dispatch }, data) => {
@@ -318,11 +320,15 @@ const mutations = {
   },
   CERT_LIST_REPLACED: (state, items) => {
     state.certStatus = types.SUCCESS
-    state.certListCache = items
+    state.certListCache = items.map(item => {
+      const { ID, ca_id } = item
+      return { ...item, ID: `${ID}`, ca_id: `${ca_id}` }
+    })
   },
   CERT_ITEM_REPLACED: (state, data) => {
     state.certStatus = types.SUCCESS
-    Vue.set(state.certItemCache, data.ID, data)
+    const { ID, ca_id } = data
+    Vue.set(state.certItemCache, data.ID, { ...data, ID: `${ID}`, ca_id: `${ca_id}` })
     store.dispatch('config/resetPkiCerts')
   },
   CERT_ITEM_EMAILED: (state) => {
