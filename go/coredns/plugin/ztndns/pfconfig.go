@@ -30,13 +30,6 @@ func (ztn *ztndns) HostIPMAP(ctx context.Context) error {
 	)
 	i := 0
 
-	ID, err := GlobalTransactionLock.RLock()
-	if err != nil {
-		return nil
-	}
-
-	defer GlobalTransactionLock.RUnlock(ID)
-
 	for rows.Next() {
 		err := rows.Scan(&hostname, &id)
 		if err != nil {
