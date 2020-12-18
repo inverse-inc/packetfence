@@ -42,6 +42,7 @@ use pf::util;
 use pf::config::util;
 use pf::services::util;
 use pf::util::dhcp;
+use List::Util qw(first);
 use List::MoreUtils qw(any);
 use pf::api::jsonrpcclient;
 use NetAddr::IP;
@@ -59,7 +60,7 @@ use pf::security_event;
 use pf::constants::parking qw($PARKING_SECURITY_EVENT_ID);
 use pfconfig::cached_array;
 
-tie our @networkLookup, 'pfconfig::cached_array', 'resource::network_lookup';
+tie our @NetworkLookup, 'pfconfig::cached_array', 'resource::network_lookup';
 
 has 'src_mac' => ('is' => 'ro');
 has 'dest_mac' => ('is' => 'ro');
@@ -194,7 +195,7 @@ sub _get_redis_client {
 sub setTenant {
     my ($self) = @_;
     my $ip = $self->{src_ip};
-    my $network = lookupNetwork(\@networkLookup, $ip);
+    my $network = lookupNetwork(\@NetworkLookup, $ip);
     my $tenant_id;
     if (defined $network) {
         $tenant_id = $network->{tenant_id};
@@ -208,9 +209,10 @@ sub lookupNetwork {
     my ($networkLookup, $ipAddr) = @_;
     my $ip = NetAddr::IP->new($ipAddr);
     #Find the network that the ip is i the range
-    if (my $networkData = first { $ip->within($_->[0]) } @$networkLookup) {
-        return $networkData->[1];
-    }
+
+   if (my $networkData = first { $ip->within($_->[0]) } @$networkLookup) {
+       return $networkData->[1];
+   }
 
     return undef;
 }
