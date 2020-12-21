@@ -38,7 +38,7 @@ if( ! -f $pfmon_config_file ) {
     }
 }
 
-my $pfmon = pf::IniFiles->new( -file => $pfmon_config_file);
+my $pfmon = pf::IniFiles->new( -file => $pfmon_config_file, -allowempty => 1);
 
 for my $section ($pfmon->Sections) {
     for my $p ($pfmon->Parameters($section)) {
