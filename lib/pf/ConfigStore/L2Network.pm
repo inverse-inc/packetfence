@@ -32,7 +32,8 @@ Filter the sections of this ConfigStore
 
 sub filterSection {
     my ($self, $section) = @_;
-    return !$self->cachedConfig->exists($section, "next_hop");
+    my $cachedConfig = $self->cachedConfig;
+    return !$cachedConfig->exists($section, "next_hop") && $cachedConfig->val($section, 'type') ne 'unmanaged';
 }
 
 __PACKAGE__->meta->make_immutable unless $ENV{"PF_SKIP_MAKE_IMMUTABLE"};
