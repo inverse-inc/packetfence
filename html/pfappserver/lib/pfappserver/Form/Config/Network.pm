@@ -15,7 +15,6 @@ use pf::util;
 use HTML::FormHandler::Moose;
 extends 'pfappserver::Base::Form';
 with 'pfappserver::Base::Form::Role::Help';
-use pf::constants qw($DEFAULT_TENANT_ID);
 
 has 'network' => ( is => 'ro' );
 
