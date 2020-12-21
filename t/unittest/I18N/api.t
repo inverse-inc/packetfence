@@ -43,7 +43,7 @@ is(pf::I18N::api->get_handle('fr')->maketext("years"), "années", "Localize fren
 
 is_deeply(pf::I18N::api->languages_from_http_header('fr'), ['fr', 'i-default'], 'Extracting languages from header');
 
-is_deeply(pf::I18N::api->languages_list(), {en => 'English', fr => 'French'}, "The lanaguage list from the filesystem");
+is_deeply(pf::I18N::api->languages_list(), {en => 'English', fr => 'French'}, "The language list from the filesystem");
 
 =head1 AUTHOR
 
