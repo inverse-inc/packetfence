@@ -5,7 +5,6 @@ import ConfigurationView from '../'
 import AdminRolesStore from '../_store/adminRoles'
 import BasesStore from '../_store/bases'
 import ConnectionProfilesStore from '../_store/connectionProfiles'
-import FloatingDevicesStore from '../_store/floatingDevices'
 import PortalModulesStore from '../_store/portalModules'
 
 /* Policies Access Control */
@@ -55,8 +54,7 @@ import SelfServicesRoutes from '../selfServices/_router'
 const NetworkConfigurationSection = () => import(/* webpackChunkName: "Configuration" */ '../_components/NetworkConfigurationSection')
 import NetworksRoutes from '../networks/_router'
 const SnmpTrapView = () => import(/* webpackChunkName: "Configuration" */ '../_components/SnmpTrapView')
-const FloatingDevicesList = () => import(/* webpackChunkName: "Configuration" */ '../_components/FloatingDevicesList')
-const FloatingDeviceView = () => import(/* webpackChunkName: "Configuration" */ '../_components/FloatingDeviceView')
+import FloatingDevicesRoutes from '../floatingDevices/_router'
 import SslCertificatesRoutes from '../sslCertificates/_router'
 
 /* System Configuration */
@@ -95,9 +93,6 @@ const route = {
     }
     if (!store.state.$_connection_profiles) {
       store.registerModule('$_connection_profiles', ConnectionProfilesStore)
-    }
-    if (!store.state.$_floatingdevices) {
-      store.registerModule('$_floatingdevices', FloatingDevicesStore)
     }
     if (!store.state.$_portalmodules) {
       store.registerModule('$_portalmodules', PortalModulesStore)
@@ -299,52 +294,7 @@ const route = {
       component: NetworkConfigurationSection
     },
     ...NetworksRoutes,
-    {
-      path: 'floating_devices',
-      name: 'floating_devices',
-      component: FloatingDevicesList,
-      props: (route) => ({ query: route.query.query })
-    },
-    {
-      path: 'floating_devices/new',
-      name: 'newFloatingDevice',
-      component: FloatingDeviceView,
-      props: () => ({ formStoreName: 'formFloatingDevice', isNew: true }),
-      beforeEnter: (to, from, next) => {
-        if (!store.state.formFloatingDevice) { // Register store module only once
-          store.registerModule('formFloatingDevice', FormStore)
-        }
-        next()
-      }
-    },
-    {
-      path: 'floating_device/:id',
-      name: 'floating_device',
-      component: FloatingDeviceView,
-      props: (route) => ({ formStoreName: 'formFloatingDevice', id: route.params.id }),
-      beforeEnter: (to, from, next) => {
-        if (!store.state.formFloatingDevice) { // Register store module only once
-          store.registerModule('formFloatingDevice', FormStore)
-        }
-        store.dispatch('$_floatingdevices/getFloatingDevice', to.params.id).then(() => {
-          next()
-        })
-      }
-    },
-    {
-      path: 'floating_device/:id/clone',
-      name: 'cloneFloatingDevice',
-      component: FloatingDeviceView,
-      props: (route) => ({ formStoreName: 'formFloatingDevice', id: route.params.id, isClone: true }),
-      beforeEnter: (to, from, next) => {
-        if (!store.state.formFloatingDevice) { // Register store module only once
-          store.registerModule('formFloatingDevice', FormStore)
-        }
-        store.dispatch('$_floatingdevices/getFloatingDevice', to.params.id).then(() => {
-          next()
-        })
-      }
-    },
+    ...FloatingDevicesRoutes,
     {
       path: 'snmp_traps',
       name: 'snmp_traps',
