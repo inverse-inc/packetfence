@@ -5,9 +5,7 @@ import {
   BaseFormGroupTextarea,
   BaseFormGroupToggleDisabledEnabled
 } from '@/components/new/'
-import {
-  BaseFormGroupIntervalUnit
-} from '@/views/Configuration/_components/new/'
+import { BaseFormGroupIntervalUnit } from '@/views/Configuration/_components/new/'
 import { BaseViewResource } from '../../_components/new/'
 import AlertServices from './AlertServices'
 import TheForm from './TheForm'

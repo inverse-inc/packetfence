@@ -4,7 +4,6 @@ import FormStore from '@/store/base/form'
 import ConfigurationView from '../'
 import AdminRolesStore from '../_store/adminRoles'
 import BasesStore from '../_store/bases'
-import BillingTiersStore from '../_store/billingTiers'
 import ConnectionProfilesStore from '../_store/connectionProfiles'
 import FloatingDevicesStore from '../_store/floatingDevices'
 import PortalModulesStore from '../_store/portalModules'
@@ -44,8 +43,7 @@ import PkiRoutes from '../pki/_router'
 const AdvancedAccessConfigurationSection = () => import(/* webpackChunkName: "Configuration" */ '../_components/AdvancedAccessConfigurationSection')
 import CaptivePortalRoutes from '../captivePortal/_router'
 import FilterEnginesRoutes from '../filterEngines/_router'
-const BillingTiersList = () => import(/* webpackChunkName: "Configuration" */ '../_components/BillingTiersList')
-const BillingTierView = () => import(/* webpackChunkName: "Configuration" */ '../_components/BillingTierView')
+import BillingTiersRoutes from '../billingTiers/_router'
 import PkiProvidersRoutes from '../pkiProviders/_router'
 const PortalModulesList = () => import(/* webpackChunkName: "Configuration" */ '../_components/PortalModulesList')
 const PortalModuleView = () => import(/* webpackChunkName: "Configuration" */ '../_components/PortalModuleView')
@@ -94,9 +92,6 @@ const route = {
     }
     if (!store.state.$_bases) {
       store.registerModule('$_bases', BasesStore)
-    }
-    if (!store.state.$_billing_tiers) {
-      store.registerModule('$_billing_tiers', BillingTiersStore)
     }
     if (!store.state.$_connection_profiles) {
       store.registerModule('$_connection_profiles', ConnectionProfilesStore)
@@ -244,52 +239,7 @@ const route = {
     },
     ...FilterEnginesRoutes,
     ...CaptivePortalRoutes,
-    {
-      path: 'billing_tiers',
-      name: 'billing_tiers',
-      component: BillingTiersList,
-      props: (route) => ({ query: route.query.query })
-    },
-    {
-      path: 'billing_tiers/new',
-      name: 'newBillingTier',
-      component: BillingTierView,
-      props: () => ({ formStoreName: 'formBillingTier', isNew: true }),
-      beforeEnter: (to, from, next) => {
-        if (!store.state.formBillingTier) { // Register store module only once
-          store.registerModule('formBillingTier', FormStore)
-        }
-        next()
-      }
-    },
-    {
-      path: 'billing_tier/:id',
-      name: 'billing_tier',
-      component: BillingTierView,
-      props: (route) => ({ formStoreName: 'formBillingTier', id: route.params.id }),
-      beforeEnter: (to, from, next) => {
-        if (!store.state.formBillingTier) { // Register store module only once
-          store.registerModule('formBillingTier', FormStore)
-        }
-        store.dispatch('$_billing_tiers/getBillingTier', to.params.id).then(() => {
-          next()
-        })
-      }
-    },
-    {
-      path: 'billing_tier/:id/clone',
-      name: 'cloneBillingTier',
-      component: BillingTierView,
-      props: (route) => ({ formStoreName: 'formBillingTier', id: route.params.id, isClone: true }),
-      beforeEnter: (to, from, next) => {
-        if (!store.state.formBillingTier) { // Register store module only once
-          store.registerModule('formBillingTier', FormStore)
-        }
-        store.dispatch('$_billing_tiers/getBillingTier', to.params.id).then(() => {
-          next()
-        })
-      }
-    },
+    ...BillingTiersRoutes,
     ...PkiProvidersRoutes,
     ...ProvisionersRoutes,
     {
