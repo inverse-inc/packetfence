@@ -1,8 +1,8 @@
 /**
-* "$_radius_ssl" store module
+* "$_radius_ocsp" store module
 */
 import Vue from 'vue'
-import api from '../_api'
+import api from './_api'
 
 const types = {
   LOADING: 'loading',
@@ -29,14 +29,14 @@ const actions = {
       sort: 'id',
       fields: ['id'].join(',')
     }
-    return api.radiusSsls(params).then(response => {
+    return api.radiusOcsps(params).then(response => {
       return response.items
     })
   },
   options: ({ commit }, id) => {
     commit('ITEM_REQUEST')
     if (id) {
-      return api.radiusSslOptions(id).then(response => {
+      return api.radiusOcspOptions(id).then(response => {
         commit('ITEM_SUCCESS')
         return response
       }).catch((err) => {
@@ -44,7 +44,7 @@ const actions = {
         throw err
       })
     } else {
-      return api.radiusSslsOptions().then(response => {
+      return api.radiusOcspsOptions().then(response => {
         commit('ITEM_SUCCESS')
         return response
       }).catch((err) => {
@@ -53,12 +53,12 @@ const actions = {
       })
     }
   },
-  getRadiusSsl: ({ state, commit }, id) => {
+  getRadiusOcsp: ({ state, commit }, id) => {
     if (state.cache[id]) {
       return Promise.resolve(state.cache[id]).then(cache => JSON.parse(JSON.stringify(cache)))
     }
     commit('ITEM_REQUEST')
-    return api.radiusSsl(id).then(item => {
+    return api.radiusOcsp(id).then(item => {
       commit('ITEM_REPLACED', item)
       return JSON.parse(JSON.stringify(item))
     }).catch((err) => {
@@ -66,9 +66,9 @@ const actions = {
       throw err
     })
   },
-  createRadiusSsl: ({ commit }, data) => {
+  createRadiusOcsp: ({ commit }, data) => {
     commit('ITEM_REQUEST')
-    return api.createRadiusSsl(data).then(response => {
+    return api.createRadiusOcsp(data).then(response => {
       commit('ITEM_REPLACED', data)
       return response
     }).catch(err => {
@@ -76,9 +76,9 @@ const actions = {
       throw err
     })
   },
-  updateRadiusSsl: ({ commit }, data) => {
+  updateRadiusOcsp: ({ commit }, data) => {
     commit('ITEM_REQUEST')
-    return api.updateRadiusSsl(data).then(response => {
+    return api.updateRadiusOcsp(data).then(response => {
       commit('ITEM_REPLACED', data)
       return response
     }).catch(err => {
@@ -86,10 +86,10 @@ const actions = {
       throw err
     })
   },
-  deleteRadiusSsl: ({ commit }, data) => {
+  deleteRadiusOcsp: ({ commit }, id) => {
     commit('ITEM_REQUEST', types.DELETING)
-    return api.deleteRadiusSsl(data).then(response => {
-      commit('ITEM_DESTROYED', data)
+    return api.deleteRadiusOcsp(id).then(response => {
+      commit('ITEM_DESTROYED', id)
       return response
     }).catch(err => {
       commit('ITEM_ERROR', err.response)

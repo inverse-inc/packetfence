@@ -30,7 +30,7 @@ const useItemTitle = (props) => {
   return computed(() => {
     switch (true) {
       case !isNew.value && !isClone.value:
-        return i18n.t('Teamplate: <code>{id}</code>', { id: id.value })
+        return i18n.t('Template: <code>{id}</code>', { id: id.value })
       case isClone.value:
         return i18n.t('Clone Template: <code>{id}</code>', { id: id.value })
       default:

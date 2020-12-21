@@ -119,6 +119,12 @@ export const useNamespaceMetaAllowedLookup = (namespace, _meta) => {
 
 export const useNamespaceMetaAllowedLookupFn = (namespace, fn, _meta) => (fn(useNamespaceMetaAllowedLookup(namespace, _meta)))
 
+export const useNamespaceMetaPlaceholder = (namespace, _meta) => {
+  const namespaceMeta = useNamespaceMeta(namespace, _meta)
+  const { placeholder } = namespaceMeta.value || {}
+  return placeholder
+}
+
 export const useFormMetaSchema = (meta, schema) => {
 
   const getSchemaFromMeta = (meta, type = 'object') => {

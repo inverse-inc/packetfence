@@ -1,12 +1,13 @@
-import { nextTick, provide, ref, toRefs, watch } from '@vue/composition-api'
-import { createDebouncer } from 'promised-debounce'
+import { provide, toRefs } from '@vue/composition-api'
 
 export const useFormProvideProps = {
   form: {
-    type: Object
+    type: Object,
+    default: () => ({})
   },
   meta: {
-    type: Object
+    type: Object,
+    default: () => ({})
   },
   schema: {
     type: Object
@@ -29,6 +30,13 @@ export const useFormProvide = (props) => {
     isReadonly
   } = toRefs(props) // toRefs maintains reactivity w/ destructuring
 
+  provide('form', form)
+  provide('meta', meta)
+  provide('schema', schema)
+  provide('isLoading', isLoading)
+  provide('isReadonly', isReadonly)
+
+  /*
   const lastTick = ref(null)
   let lastTickDebouncer
 
@@ -42,11 +50,6 @@ export const useFormProvide = (props) => {
       time: 100
     })
   }, { deep: true, immediate: true })
-
-  provide('form', form)
-  provide('meta', meta)
-  provide('schema', schema)
-  provide('isLoading', isLoading)
-  provide('isReadonly', isReadonly)
   provide('lastTick', lastTick)
+  */
 }

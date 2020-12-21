@@ -1,6 +1,9 @@
 <template>
   <div>
-    <div v-if="labelLeft !== false" class="base-input-range-label col-form-label text-nowrap mr-2" v-t="label" @click="onDecrement" />
+    <div v-if="labelLeft !== false" v-t="label" @click="onDecrement"
+      class="base-input-range-label col-form-label text-nowrap mr-2" :class="{
+        'is-disabled': isLocked
+      }" />
     <div
       class="base-input-range"
       :class="{
@@ -38,7 +41,10 @@
         @blur="onBlur"
       />
     </div>
-    <div v-if="labelRight !== false" class="base-input-range-label col-form-label text-nowrap ml-2" v-t="label" @click="onIncrement" />
+    <div v-if="labelRight !== false" v-t="label" @click="onIncrement"
+      class="base-input-range-label col-form-label text-nowrap ml-2" :class="{
+        'is-disabled': isLocked
+      }"  />
   </div>
 </template>
 <script>
@@ -162,8 +168,10 @@ export default {
 }
 
 .base-input-range-label {
-  cursor: pointer;
   user-select: none;
+  &:not(.is-disabled) {
+    cursor: pointer;
+  }
 }
 
 .base-input-range {
@@ -209,6 +217,7 @@ export default {
   }
   &.is-disabled {
     background-color: var(--range-background-color, $input-disabled-bg);
+    opacity: 0.6;
     > .handle svg {
       color: var(--range-background-color, $input-disabled-bg);
     }
@@ -364,11 +373,10 @@ export default {
       display: none;
     }
   }
-  > div > .hint,
-  &[disabled] {
+  > div > .hint {
     opacity: 0.6;
   }
-  &:not([disabled]) {
+  &:not(.is-disabled) {
     &:hover > div > .tooltip {
       opacity: 1;
       visibility: visible;

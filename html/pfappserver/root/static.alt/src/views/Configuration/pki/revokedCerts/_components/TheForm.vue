@@ -43,7 +43,6 @@
     />
     <form-group-reason namespace="crl_reason"
       :column-label="$i18n.t('Reason')"
-      :options="reasonsOptions"
     />
   </base-form>
 </template>
@@ -99,21 +98,12 @@ export const props = {
   }
 }
 
-import { revokeReasons } from '../../config'
-
-const setup = () => {
-  return {
-    reasonsOptions: revokeReasons
-  }
-}
-
 // @vue/component
 export default {
   name: 'the-form',
   inheritAttrs: false,
   components,
-  props,
-  setup
+  props
 }
 </script>
 

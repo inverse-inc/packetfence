@@ -1,6 +1,6 @@
 import { BaseFormGroupChosenOne, BaseFormGroupChosenOneProps } from '@/components/new/'
 import store from '@/store'
-import StoreModule from '../_store'
+import StoreModule from '../../_store'
 
 export const props = {
   ...BaseFormGroupChosenOneProps,

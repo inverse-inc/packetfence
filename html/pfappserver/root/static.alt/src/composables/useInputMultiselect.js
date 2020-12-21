@@ -169,13 +169,13 @@ export const useSingleValueLookupOptions = (value, onInput, lookup, options, opt
     if (newValue === oldValue && JSON.stringify(newLookup) === JSON.stringify(oldLookup))
       return // These are not the droids you're looking for...
 
-    const { field_name: fieldName, search_path: url, value_name: valueName, base_url: baseURL = apiBaseURL } = lookup.value
+    const { field_name: fieldName, search_path: url, value_name: valueName, baseURL } = lookup.value
     currentValueLoading.value = true
     const thisCurrentPromise = ++lastCurrentPromise
     apiCall.request({
       url,
       method: 'post',
-      baseURL,
+      baseURL: (baseURL || baseURL === '') ? baseURL : apiBaseURL,
       data: {
         query: { op: 'and', values: [{
           op: 'or',
@@ -211,7 +211,7 @@ export const useSingleValueLookupOptions = (value, onInput, lookup, options, opt
       searchResultOptions.value = []
       return
     }
-    const { field_name: fieldName, search_path: url, value_name: valueName, baseURL = apiBaseURL } = lookup.value
+    const { field_name: fieldName, search_path: url, value_name: valueName, baseURL } = lookup.value
     searchResultLoading.value = true
     if (!searchDebouncer)
       searchDebouncer = createDebouncer()
@@ -228,7 +228,7 @@ export const useSingleValueLookupOptions = (value, onInput, lookup, options, opt
         apiCall.request({
           url,
           method: 'post',
-          baseURL,
+          baseURL: (baseURL || baseURL === '') ? baseURL : apiBaseURL,
           data: {
             query: { op: 'and', values },
             fields: [fieldName, valueName],
@@ -318,13 +318,13 @@ export const useMultipleValueLookupOptions = (value, onInput, lookup, options, o
     if (newValue === oldValue && JSON.stringify(newLookup) === JSON.stringify(oldLookup))
       return // These are not the droids you're looking for...
 
-    const { field_name: fieldName, search_path: url, value_name: valueName, baseURL = apiBaseURL } = lookup.value
+    const { field_name: fieldName, search_path: url, value_name: valueName, baseURL } = lookup.value
     currentValueLoading.value = true
     const thisCurrentPromise = ++lastCurrentPromise
     apiCall.request({
       url,
       method: 'post',
-      baseURL,
+      baseURL: (baseURL || baseURL === '') ? baseURL : apiBaseURL,
       data: {
         query: { op: 'and', values: [{
           op: 'or',
@@ -360,7 +360,7 @@ export const useMultipleValueLookupOptions = (value, onInput, lookup, options, o
       searchResultOptions.value = []
       return
     }
-    const { field_name: fieldName, search_path: url, value_name: valueName, baseURL = apiBaseURL } = lookup.value
+    const { field_name: fieldName, search_path: url, value_name: valueName, baseURL } = lookup.value
     searchResultLoading.value = true
     if (!searchDebouncer)
       searchDebouncer = createDebouncer()
@@ -377,7 +377,7 @@ export const useMultipleValueLookupOptions = (value, onInput, lookup, options, o
         apiCall.request({
           url,
           method: 'post',
-          baseURL,
+          baseURL: (baseURL || baseURL === '') ? baseURL : apiBaseURL,
           data: {
             query: { op: 'and', values },
             fields: [fieldName, valueName],

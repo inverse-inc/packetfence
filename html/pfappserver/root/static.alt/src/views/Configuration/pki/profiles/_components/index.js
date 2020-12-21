@@ -10,7 +10,6 @@ import {
 } from '@/views/Configuration/_components/new/'
 import {
   BaseFormGroupChosenOneCa,
-
   BaseFormGroupKeyType,
   BaseFormGroupKeySize,
   BaseFormGroupDigest,

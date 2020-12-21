@@ -1,8 +1,8 @@
 /**
-* "$_radius_tls" store module
+* "$_radius_fast" store module
 */
 import Vue from 'vue'
-import api from '../_api'
+import api from './_api'
 
 const types = {
   LOADING: 'loading',
@@ -29,14 +29,14 @@ const actions = {
       sort: 'id',
       fields: ['id'].join(',')
     }
-    return api.radiusTlss(params).then(response => {
+    return api.radiusFasts(params).then(response => {
       return response.items
     })
   },
   options: ({ commit }, id) => {
     commit('ITEM_REQUEST')
     if (id) {
-      return api.radiusTlsOptions(id).then(response => {
+      return api.radiusFastOptions(id).then(response => {
         commit('ITEM_SUCCESS')
         return response
       }).catch((err) => {
@@ -44,7 +44,7 @@ const actions = {
         throw err
       })
     } else {
-      return api.radiusTlssOptions().then(response => {
+      return api.radiusFastsOptions().then(response => {
         commit('ITEM_SUCCESS')
         return response
       }).catch((err) => {
@@ -53,12 +53,12 @@ const actions = {
       })
     }
   },
-  getRadiusTls: ({ state, commit }, id) => {
+  getRadiusFast: ({ state, commit }, id) => {
     if (state.cache[id]) {
       return Promise.resolve(state.cache[id]).then(cache => JSON.parse(JSON.stringify(cache)))
     }
     commit('ITEM_REQUEST')
-    return api.radiusTls(id).then(item => {
+    return api.radiusFast(id).then(item => {
       commit('ITEM_REPLACED', item)
       return JSON.parse(JSON.stringify(item))
     }).catch((err) => {
@@ -66,9 +66,9 @@ const actions = {
       throw err
     })
   },
-  createRadiusTls: ({ commit }, data) => {
+  createRadiusFast: ({ commit }, data) => {
     commit('ITEM_REQUEST')
-    return api.createRadiusTls(data).then(response => {
+    return api.createRadiusFast(data).then(response => {
       commit('ITEM_REPLACED', data)
       return response
     }).catch(err => {
@@ -76,9 +76,9 @@ const actions = {
       throw err
     })
   },
-  updateRadiusTls: ({ commit }, data) => {
+  updateRadiusFast: ({ commit }, data) => {
     commit('ITEM_REQUEST')
-    return api.updateRadiusTls(data).then(response => {
+    return api.updateRadiusFast(data).then(response => {
       commit('ITEM_REPLACED', data)
       return response
     }).catch(err => {
@@ -86,9 +86,9 @@ const actions = {
       throw err
     })
   },
-  deleteRadiusTls: ({ commit }, id) => {
+  deleteRadiusFast: ({ commit }, id) => {
     commit('ITEM_REQUEST', types.DELETING)
-    return api.deleteRadiusTls(id).then(response => {
+    return api.deleteRadiusFast(id).then(response => {
       commit('ITEM_DESTROYED', id)
       return response
     }).catch(err => {

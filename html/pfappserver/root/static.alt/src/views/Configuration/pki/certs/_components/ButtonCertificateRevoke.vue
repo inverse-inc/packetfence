@@ -15,7 +15,6 @@
         >
           <form-group-reason namespace="reason"
             :column-label="$i18n.t('Reason')"
-            :options="reasonsOptions"
           />
         </base-form>
       </b-form-group>
@@ -30,9 +29,11 @@
 </template>
 <script>
 import {
-  BaseForm,
-  BaseFormGroupChosenOne as FormGroupReason
+  BaseForm
 } from '@/components/new/'
+import {
+  BaseFormGroupRevokeReason as FormGroupReason
+} from '../../_components/'
 
 const components = {
   BaseForm,
@@ -61,7 +62,6 @@ const schema = yup.object({
 import { computed, ref, toRefs } from '@vue/composition-api'
 import { useDebouncedWatchHandler } from '@/composables/useDebounce'
 import StoreModule from '../../_store'
-import { revokeReasons } from '../../config'
 
 const setup = (props, context) => {
 
@@ -77,11 +77,11 @@ const setup = (props, context) => {
   const isLoading = computed(() => $store.getters['$_pkis/isLoading'])
   const rootRef = ref(null)
   const form = ref({})
-  const isValid = useDebouncedWatchHandler(form, () => (!rootRef.value || rootRef.value.$el.querySelectorAll('.is-invalid').length === 0))
 
   const isShowModal = ref(false)
   const onShowModal = () => { isShowModal.value = true }
   const onHideModal = () => { isShowModal.value = false }
+  const isValid = useDebouncedWatchHandler([form, isShowModal], () => (!rootRef.value || rootRef.value.$el.querySelectorAll('.is-invalid').length === 0))
   const onRevoke = () => {
     const { reason } = form.value || {}
     $store.dispatch('$_pkis/getCert', id.value).then(cert => {
@@ -105,8 +105,7 @@ const setup = (props, context) => {
     isShowModal,
     onShowModal,
     onHideModal,
-    onRevoke,
-    reasonsOptions: revokeReasons
+    onRevoke
   }
 }
 

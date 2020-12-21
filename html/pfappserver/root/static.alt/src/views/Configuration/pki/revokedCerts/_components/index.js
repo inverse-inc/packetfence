@@ -1,12 +1,12 @@
 import { BaseViewCollectionItem } from '../../../_components/new/'
 import {
   BaseFormButtonBar,
-  BaseFormGroupChosenOne,
   BaseFormGroupChosenCountry,
   BaseFormGroupInput
 } from '@/components/new/'
 import {
-  BaseFormGroupChosenOneProfile
+  BaseFormGroupChosenOneProfile,
+  BaseFormGroupRevokeReason
 } from '../../_components/'
 import TheForm from './TheForm'
 import TheView from './TheView'
@@ -26,7 +26,7 @@ export {
   BaseFormGroupInput              as FormGroupStreetAddress,
   BaseFormGroupInput              as FormGroupPostalCode,
   BaseFormGroupInput              as FormGroupRevoked,
-  BaseFormGroupChosenOne          as FormGroupReason,
+  BaseFormGroupRevokeReason       as FormGroupReason,
 
   TheForm,
   TheView

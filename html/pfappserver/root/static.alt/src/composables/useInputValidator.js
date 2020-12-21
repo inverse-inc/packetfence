@@ -41,8 +41,6 @@ export const useInputValidator = (props, value, recursive = false) => {
   // yup | https://github.com/jquense/yup
   let localValidator = ref(unref(validator))
 
-  let lastTouch
-
   let form = ref(undefined)
   let path = ref(undefined)
 
@@ -57,7 +55,6 @@ export const useInputValidator = (props, value, recursive = false) => {
 
     form = inject('form')
     localValidator = inject('schema')
-    lastTouch = inject('lastTouch', ref(null))
 
     /*
     localValidator = computed(() => {
@@ -80,10 +77,14 @@ export const useInputValidator = (props, value, recursive = false) => {
   }
 
   if (localValidator.value) { // is :validator
-
+    const meta = inject('meta', ref({}))
     let lastPromise = 0 // only use latest of 1+ promises
     const setState = (thisPromise, state, validFeedback, invalidFeedback) => {
       if (thisPromise === lastPromise) {
+        if (state !== localState.value) {
+          // mutate meta to re-trigger [form, meta] watchers
+          meta.value.$lastTouch = (new Date()).getTime()
+        }
         localState.value = state
         localValidFeedback.value = validFeedback
         localInvalidFeedback.value = invalidFeedback
@@ -92,7 +93,7 @@ export const useInputValidator = (props, value, recursive = false) => {
 
     let validateDebouncer
     watch(
-      [value, localValidator, lastTouch],
+      [value, localValidator],
       () => {
         const schema = unref(localValidator)
         const thisPromise = ++lastPromise

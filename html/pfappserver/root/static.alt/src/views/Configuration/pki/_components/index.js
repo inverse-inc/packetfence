@@ -1,5 +1,6 @@
-import BaseFormGroupChosenOneCa from './BaseFormGroupChosenOneCa'
-import BaseFormGroupChosenOneProfile from './BaseFormGroupChosenOneProfile'
+import BaseFormGroupChosenOneCa from '../cas/_components/BaseFormGroupChosenOneCa'
+import BaseFormGroupChosenOneProfile from '../profiles/_components/BaseFormGroupChosenOneProfile'
+
 import BaseFormGroupDigest from './BaseFormGroupDigest'
 import BaseFormGroupExtendedKeyUsage from './BaseFormGroupExtendedKeyUsage'
 import BaseFormGroupKeySize from './BaseFormGroupKeySize'

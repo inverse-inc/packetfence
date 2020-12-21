@@ -1,8 +1,8 @@
 /**
-* "$_radius_ocsp" store module
+* "$_radius_tls" store module
 */
 import Vue from 'vue'
-import api from '../_api'
+import api from './_api'
 
 const types = {
   LOADING: 'loading',
@@ -29,14 +29,14 @@ const actions = {
       sort: 'id',
       fields: ['id'].join(',')
     }
-    return api.radiusOcsps(params).then(response => {
+    return api.radiusTlss(params).then(response => {
       return response.items
     })
   },
   options: ({ commit }, id) => {
     commit('ITEM_REQUEST')
     if (id) {
-      return api.radiusOcspOptions(id).then(response => {
+      return api.radiusTlsOptions(id).then(response => {
         commit('ITEM_SUCCESS')
         return response
       }).catch((err) => {
@@ -44,7 +44,7 @@ const actions = {
         throw err
       })
     } else {
-      return api.radiusOcspsOptions().then(response => {
+      return api.radiusTlssOptions().then(response => {
         commit('ITEM_SUCCESS')
         return response
       }).catch((err) => {
@@ -53,12 +53,12 @@ const actions = {
       })
     }
   },
-  getRadiusOcsp: ({ state, commit }, id) => {
+  getRadiusTls: ({ state, commit }, id) => {
     if (state.cache[id]) {
       return Promise.resolve(state.cache[id]).then(cache => JSON.parse(JSON.stringify(cache)))
     }
     commit('ITEM_REQUEST')
-    return api.radiusOcsp(id).then(item => {
+    return api.radiusTls(id).then(item => {
       commit('ITEM_REPLACED', item)
       return JSON.parse(JSON.stringify(item))
     }).catch((err) => {
@@ -66,9 +66,9 @@ const actions = {
       throw err
     })
   },
-  createRadiusOcsp: ({ commit }, data) => {
+  createRadiusTls: ({ commit }, data) => {
     commit('ITEM_REQUEST')
-    return api.createRadiusOcsp(data).then(response => {
+    return api.createRadiusTls(data).then(response => {
       commit('ITEM_REPLACED', data)
       return response
     }).catch(err => {
@@ -76,9 +76,9 @@ const actions = {
       throw err
     })
   },
-  updateRadiusOcsp: ({ commit }, data) => {
+  updateRadiusTls: ({ commit }, data) => {
     commit('ITEM_REQUEST')
-    return api.updateRadiusOcsp(data).then(response => {
+    return api.updateRadiusTls(data).then(response => {
       commit('ITEM_REPLACED', data)
       return response
     }).catch(err => {
@@ -86,9 +86,9 @@ const actions = {
       throw err
     })
   },
-  deleteRadiusOcsp: ({ commit }, id) => {
+  deleteRadiusTls: ({ commit }, id) => {
     commit('ITEM_REQUEST', types.DELETING)
-    return api.deleteRadiusOcsp(id).then(response => {
+    return api.deleteRadiusTls(id).then(response => {
       commit('ITEM_DESTROYED', id)
       return response
     }).catch(err => {

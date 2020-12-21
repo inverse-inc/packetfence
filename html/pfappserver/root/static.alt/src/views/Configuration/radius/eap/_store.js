@@ -1,8 +1,8 @@
 /**
-* "$_radius_fast" store module
+* "$_radius_eap" store module
 */
 import Vue from 'vue'
-import api from '../_api'
+import api from './_api'
 
 const types = {
   LOADING: 'loading',
@@ -29,14 +29,14 @@ const actions = {
       sort: 'id',
       fields: ['id'].join(',')
     }
-    return api.radiusFasts(params).then(response => {
+    return api.radiusEaps(params).then(response => {
       return response.items
     })
   },
   options: ({ commit }, id) => {
     commit('ITEM_REQUEST')
     if (id) {
-      return api.radiusFastOptions(id).then(response => {
+      return api.radiusEapOptions(id).then(response => {
         commit('ITEM_SUCCESS')
         return response
       }).catch((err) => {
@@ -44,7 +44,7 @@ const actions = {
         throw err
       })
     } else {
-      return api.radiusFastsOptions().then(response => {
+      return api.radiusEapsOptions().then(response => {
         commit('ITEM_SUCCESS')
         return response
       }).catch((err) => {
@@ -53,12 +53,12 @@ const actions = {
       })
     }
   },
-  getRadiusFast: ({ state, commit }, id) => {
+  getRadiusEap: ({ state, commit }, id) => {
     if (state.cache[id]) {
       return Promise.resolve(state.cache[id]).then(cache => JSON.parse(JSON.stringify(cache)))
     }
     commit('ITEM_REQUEST')
-    return api.radiusFast(id).then(item => {
+    return api.radiusEap(id).then(item => {
       commit('ITEM_REPLACED', item)
       return JSON.parse(JSON.stringify(item))
     }).catch((err) => {
@@ -66,9 +66,9 @@ const actions = {
       throw err
     })
   },
-  createRadiusFast: ({ commit }, data) => {
+  createRadiusEap: ({ commit }, data) => {
     commit('ITEM_REQUEST')
-    return api.createRadiusFast(data).then(response => {
+    return api.createRadiusEap(data).then(response => {
       commit('ITEM_REPLACED', data)
       return response
     }).catch(err => {
@@ -76,9 +76,9 @@ const actions = {
       throw err
     })
   },
-  updateRadiusFast: ({ commit }, data) => {
+  updateRadiusEap: ({ commit }, data) => {
     commit('ITEM_REQUEST')
-    return api.updateRadiusFast(data).then(response => {
+    return api.updateRadiusEap(data).then(response => {
       commit('ITEM_REPLACED', data)
       return response
     }).catch(err => {
@@ -86,9 +86,9 @@ const actions = {
       throw err
     })
   },
-  deleteRadiusFast: ({ commit }, id) => {
+  deleteRadiusEap: ({ commit }, id) => {
     commit('ITEM_REQUEST', types.DELETING)
-    return api.deleteRadiusFast(id).then(response => {
+    return api.deleteRadiusEap(id).then(response => {
       commit('ITEM_DESTROYED', id)
       return response
     }).catch(err => {
@@ -129,4 +129,3 @@ export default {
   actions,
   mutations
 }
-

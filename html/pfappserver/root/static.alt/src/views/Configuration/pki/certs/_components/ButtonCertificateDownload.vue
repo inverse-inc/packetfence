@@ -83,11 +83,11 @@ const setup = (props, context) => {
   const rootRef = ref(null)
   const clipboard = ref(false)
   const form = ref({})
-  const isValid = useDebouncedWatchHandler(form, () => (!rootRef.value || rootRef.value.$el.querySelectorAll('.is-invalid').length === 0))
 
   const isShowModal = ref(false)
   const onShowModal = () => { isShowModal.value = true }
   const onHideModal = () => { isShowModal.value = false }
+  const isValid = useDebouncedWatchHandler([form, isShowModal], () => (!rootRef.value || rootRef.value.$el.querySelectorAll('.is-invalid').length === 0))
   const onDownload = () => {
     $store.dispatch('$_pkis/getCert', id.value).then(cert => {
       const { ca_id, profile_id } = cert
