@@ -5,6 +5,7 @@ import (
 	"errors"
 	"net/http"
 	"regexp"
+	"sync"
 	"time"
 
 	"github.com/gin-gonic/gin"
@@ -135,19 +136,28 @@ func dbFromContext(c *gin.Context) *gorm.DB {
 }
 
 func dbMiddleware() gin.HandlerFunc {
+	onceSetup := sync.Once{}
 	var gormdb *gorm.DB
-	successDBConnect := false
-	for !successDBConnect {
-		var err error
-		gormdb, err = gorm.Open("mysql", db.ReturnURIFromConfig(context.Background()))
-		if err != nil {
-			time.Sleep(time.Duration(5) * time.Second)
-		} else {
-			successDBConnect = true
-		}
-	}
-
 	return func(c *gin.Context) {
+		successDBConnect := false
+		onceSetup.Do(func() {
+			for !successDBConnect {
+				var err error
+				gormdb, err = gorm.Open("mysql", db.ReturnURIFromConfig(context.Background()))
+				if err != nil {
+					time.Sleep(time.Duration(5) * time.Second)
+				} else {
+					successDBConnect = true
+				}
+			}
+		})
+
+		if gormdb == nil {
+			renderError(c, http.StatusInternalServerError, errors.New("Error creating connection to the database"))
+			c.Abort()
+			return
+		}
+
 		c.Set(DB_CLIENT_CONTEXT_KEY, gormdb)
 		if err := gormdb.DB().Ping(); err != nil {
 			log.LoggerWContext(c).Error(err.Error())
