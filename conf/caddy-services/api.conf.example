@@ -12,10 +12,7 @@
     503 /usr/local/pf/html/pfappserver/root/static/503.json
   }
 
-  pfconfigpool {
-    dont_rlock /api/v1/remote_clients/events
-    dont_rlock /api/v1/remote_clients/my_events
-  }
+  pfconfigpool
 
   logger {
     level INFO
@@ -33,8 +30,6 @@
   api-aaa
   
   api
-
-  wgorchestrator
 
   log-tailer
 
@@ -58,6 +53,11 @@
 
   # pfpki API access
   proxy /api/v1/pki/ 127.0.0.1:22225 {
+    transparent
+  }
+  
+  # pfztn API access
+  proxy /api/v1/remote_clients/ 127.0.0.1:22225 {
     transparent
   }
   

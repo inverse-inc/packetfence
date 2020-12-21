@@ -413,6 +413,19 @@ export const view = (_, meta = {}) => {
           ]
         },
         {
+          label: 'pfztn',
+          text: i18n.t(`Should pfztn be started? Keep enabled unless you know what you're doing.`),
+          cols: [
+            {
+              namespace: 'pfztn',
+              component: pfFormRangeToggle,
+              attrs: {
+                values: { checked: 'enabled', unchecked: 'disabled' }
+              }
+            }
+          ]
+        },
+        {
           label: 'radiusd',
           text: i18n.t('Should radiusd be managed by PacketFence?'),
           cols: [
