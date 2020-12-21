@@ -57,7 +57,7 @@
   }
   
   # pfztn API access
-  proxy /api/v1/remote_clients/ 127.0.0.1:22225 {
+  proxy /api/v1/remote_clients/ 127.0.0.1:22226 {
     transparent
   }
   
