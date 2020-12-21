@@ -18,7 +18,6 @@ use pf::class;
 use Cache::FileCache;
 use List::Util qw(first);
 use POSIX;
-use Locale::gettext qw(bindtextdomain textdomain bind_textdomain_codeset);
 use List::Util 'first';
 use List::MoreUtils qw(uniq);
 use captiveportal::DynamicRouting::Factory;
@@ -310,7 +309,6 @@ sub getRequestLanguages : Private{
     my @l = split(/,/, $s);
     map { s/;.+// } @l;
     map { s/-/_/g } @l;
-    #@l = map { m/^en(_US)?/? ():$_ } @l;
 
     return \@l;
 }
