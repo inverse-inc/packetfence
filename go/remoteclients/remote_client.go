@@ -57,9 +57,9 @@ func GetOrCreateRemoteClient(ctx context.Context, db *gorm.DB, publicKey string,
 		publishNewClient(ctx, db, rc)
 		return &rc, err
 	} else {
+		db.Save(&rc)
 		if categoryIdChanged {
 			log.LoggerWContext(ctx).Info("Client " + rc.PublicKey + " has changed role. Publishing its presence.")
-			db.Save(&rc)
 			publishNewClient(ctx, db, rc)
 		}
 
