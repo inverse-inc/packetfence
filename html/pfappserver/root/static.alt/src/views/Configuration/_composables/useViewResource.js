@@ -1,4 +1,4 @@
-import { ref, watch } from '@vue/composition-api'
+import { computed, ref, watch } from '@vue/composition-api'
 import { useDebouncedWatchHandler } from '@/composables/useDebounce'
 import useEventJail from '@/composables/useEventJail'
 
@@ -32,6 +32,8 @@ export const useViewResource = (resource, props, context) => {
     getItem,
     updateItem,
   } = useStore(props, context, form)
+
+  const isSaveable = computed(() => !!updateItem)
 
   const init = () => {
     return new Promise((resolve, reject) => {
@@ -71,8 +73,9 @@ export const useViewResource = (resource, props, context) => {
     title,
     isModified,
     customProps,
-    isValid,
     isLoading,
+    isSaveable,
+    isValid,
     onReset,
     onSave,
 

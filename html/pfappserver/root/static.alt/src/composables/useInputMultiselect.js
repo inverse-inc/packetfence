@@ -169,7 +169,7 @@ export const useSingleValueLookupOptions = (value, onInput, lookup, options, opt
     if (newValue === oldValue && JSON.stringify(newLookup) === JSON.stringify(oldLookup))
       return // These are not the droids you're looking for...
 
-    const { field_name: fieldName, search_path: url, value_name: valueName, baseURL } = lookup.value
+    const { field_name: fieldName, search_path: url, value_name: valueName, base_url: baseURL } = lookup.value
     currentValueLoading.value = true
     const thisCurrentPromise = ++lastCurrentPromise
     apiCall.request({
@@ -211,7 +211,7 @@ export const useSingleValueLookupOptions = (value, onInput, lookup, options, opt
       searchResultOptions.value = []
       return
     }
-    const { field_name: fieldName, search_path: url, value_name: valueName, baseURL } = lookup.value
+    const { field_name: fieldName, search_path: url, value_name: valueName, base_url: baseURL } = lookup.value
     searchResultLoading.value = true
     if (!searchDebouncer)
       searchDebouncer = createDebouncer()
@@ -318,7 +318,7 @@ export const useMultipleValueLookupOptions = (value, onInput, lookup, options, o
     if (newValue === oldValue && JSON.stringify(newLookup) === JSON.stringify(oldLookup))
       return // These are not the droids you're looking for...
 
-    const { field_name: fieldName, search_path: url, value_name: valueName, baseURL } = lookup.value
+    const { field_name: fieldName, search_path: url, value_name: valueName, base_url: baseURL } = lookup.value
     currentValueLoading.value = true
     const thisCurrentPromise = ++lastCurrentPromise
     apiCall.request({
@@ -360,7 +360,7 @@ export const useMultipleValueLookupOptions = (value, onInput, lookup, options, o
       searchResultOptions.value = []
       return
     }
-    const { field_name: fieldName, search_path: url, value_name: valueName, baseURL } = lookup.value
+    const { field_name: fieldName, search_path: url, value_name: valueName, base_url: baseURL } = lookup.value
     searchResultLoading.value = true
     if (!searchDebouncer)
       searchDebouncer = createDebouncer()

@@ -42,7 +42,7 @@ import PkiRoutes from '../pki/_router'
 
 /* Advanced Access Configuration */
 const AdvancedAccessConfigurationSection = () => import(/* webpackChunkName: "Configuration" */ '../_components/AdvancedAccessConfigurationSection')
-const CaptivePortalView = () => import(/* webpackChunkName: "Configuration" */ '../_components/CaptivePortalView')
+import CaptivePortalRoutes from '../captivePortal/_router'
 import FilterEnginesRoutes from '../filterEngines/_router'
 const BillingTiersList = () => import(/* webpackChunkName: "Configuration" */ '../_components/BillingTiersList')
 const BillingTierView = () => import(/* webpackChunkName: "Configuration" */ '../_components/BillingTierView')
@@ -243,18 +243,7 @@ const route = {
       component: AdvancedAccessConfigurationSection
     },
     ...FilterEnginesRoutes,
-    {
-      path: 'captive_portal',
-      name: 'captive_portal',
-      component: CaptivePortalView,
-      props: (route) => ({ formStoreName: 'formCaptivePortal', query: route.query.query }),
-      beforeEnter: (to, from, next) => {
-        if (!store.state.formCaptivePortal) { // Register store module only once
-          store.registerModule('formCaptivePortal', FormStore)
-        }
-        next()
-      }
-    },
+    ...CaptivePortalRoutes,
     {
       path: 'billing_tiers',
       name: 'billing_tiers',

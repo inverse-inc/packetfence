@@ -15,6 +15,7 @@
       <slot name="buttonsPrepend" v-if="$scopedSlots.buttonsPrepend" v-bind="scopedSlotProps" />
       <form-button-bar
         :isLoading="isLoading"
+        :isSaveable="isSaveable"
         :isValid="isValid"
         :formRef="rootRef"
         @reset="onReset"

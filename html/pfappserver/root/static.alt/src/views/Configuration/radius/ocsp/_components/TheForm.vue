@@ -21,7 +21,8 @@
       :text="$i18n.t('Override the OCSP Responder URL from the certificate.')"
     />
 
-    <form-group-ocsp-url namespace="ocsp_url"
+    <form-group-ocsp-url v-show="form.ocsp_override_cert_url === 'yes'"
+      namespace="ocsp_url"
       :column-label="$i18n.t('Responder URL')"
       :text="$i18n.t('The overridden OCSP Responder URL.')"
     />
