@@ -277,8 +277,8 @@ sub returnRadiusAccessAccept {
     my $role = "";
     if ( (!$args->{'wasInline'} || ($args->{'wasInline'} && $args->{'vlan'} != 0) ) && isenabled($self->{_VlanMap})) {
         $radius_reply_ref = {
-            'Mikrotik-Wireless-VlanID' => $args->{'vlan'} . "",
-            'Mikrotik-Wireless-VlanIDType' => "0",
+            'Mikrotik-Wireless-VLANID' => $args->{'vlan'} . "",
+            'Mikrotik-Wireless-VLANID-Type' => "0",
         };
     }
 
