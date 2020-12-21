@@ -12,7 +12,10 @@
     503 /usr/local/pf/html/pfappserver/root/static/503.json
   }
 
-  pfconfigpool
+  pfconfigpool {
+    dont_rlock /api/v1/remote_clients/events
+    dont_rlock /api/v1/remote_clients/my_events
+  }
 
   logger {
     level INFO
