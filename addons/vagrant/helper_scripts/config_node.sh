@@ -18,7 +18,6 @@ echo -e "iface eth0 inet dhcp\n\n" >> /etc/network/interfaces
 ping 8.8.8.8 -c2
 if [ "$?" == "0" ]; then
     apt-get update -qy && apt-get install gnupg -qy
-    install_packetfence_repo
     apt-get update -qy
     # python-apt for ansible management
     apt-get install lldpd ntp ntpdate wpasupplicant python-apt unzip curl -qy
