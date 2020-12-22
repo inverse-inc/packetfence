@@ -2,7 +2,6 @@ import acl from '@/utils/acl'
 import store from '@/store'
 import FormStore from '@/store/base/form'
 import ConfigurationView from '../'
-import AdminRolesStore from '../_store/adminRoles'
 import BasesStore from '../_store/bases'
 import ConnectionProfilesStore from '../_store/connectionProfiles'
 import PortalModulesStore from '../_store/portalModules'
@@ -69,8 +68,7 @@ const DatabaseTabs = () => import(/* webpackChunkName: "Configuration" */ '../_c
 import ActiveActiveRoutes from '../activeActive/_router'
 import RadiusRoutes from '../radius/_router'
 const DnsView = () => import(/* webpackChunkName: "Configuration" */ '../_components/DnsView')
-const AdminRolesList = () => import(/* webpackChunkName: "Configuration" */ '../_components/AdminRolesList')
-const AdminRoleView = () => import(/* webpackChunkName: "Configuration" */ '../_components/AdminRoleView')
+import AdminRolesRoutes from '../adminRoles/_router'
 
 const route = {
   path: '/configuration',
@@ -85,9 +83,6 @@ const route = {
     /**
      * Register Vuex stores
      */
-    if (!store.state.$_admin_roles) {
-      store.registerModule('$_admin_roles', AdminRolesStore)
-    }
     if (!store.state.$_bases) {
       store.registerModule('$_bases', BasesStore)
     }
@@ -345,52 +340,7 @@ const route = {
         next()
       }
     },
-    {
-      path: 'admin_roles',
-      name: 'admin_roles',
-      component: AdminRolesList,
-      props: (route) => ({ query: route.query.query })
-    },
-    {
-      path: 'admin_roles/new',
-      name: 'newAdminRole',
-      component: AdminRoleView,
-      props: () => ({ formStoreName: 'formAdminRole', isNew: true }),
-      beforeEnter: (to, from, next) => {
-        if (!store.state.formAdminRole) { // Register store module only once
-          store.registerModule('formAdminRole', FormStore)
-        }
-        next()
-      }
-    },
-    {
-      path: 'admin_role/:id',
-      name: 'admin_role',
-      component: AdminRoleView,
-      props: (route) => ({ formStoreName: 'formAdminRole', id: route.params.id }),
-      beforeEnter: (to, from, next) => {
-        if (!store.state.formAdminRole) { // Register store module only once
-          store.registerModule('formAdminRole', FormStore)
-        }
-        store.dispatch('$_admin_roles/getAdminRole', to.params.id).then(() => {
-          next()
-        })
-      }
-    },
-    {
-      path: 'admin_role/:id/clone',
-      name: 'cloneAdminRole',
-      component: AdminRoleView,
-      props: (route) => ({ formStoreName: 'formAdminRole', id: route.params.id, isClone: true }),
-      beforeEnter: (to, from, next) => {
-        if (!store.state.formAdminRole) { // Register store module only once
-          store.registerModule('formAdminRole', FormStore)
-        }
-        store.dispatch('$_admin_roles/getAdminRole', to.params.id).then(() => {
-          next()
-        })
-      }
-    },
+    ...AdminRolesRoutes,
     ...SslCertificatesRoutes
   ]
 }

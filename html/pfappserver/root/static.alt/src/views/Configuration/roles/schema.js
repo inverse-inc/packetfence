@@ -5,7 +5,7 @@ import yup from '@/utils/yup'
 yup.addMethod(yup.string, 'roleNameNotExistsExcept', function (exceptName = '', message) {
   return this.test({
     name: 'roleNameNotExistsExcept',
-    message: message || i18n.t('Role exists.'),
+    message: message || i18n.t('Name exists.'),
     test: (value) => {
       if (!value || value.toLowerCase() === exceptName.toLowerCase()) return true
       return store.dispatch('config/getRoles').then(response => {

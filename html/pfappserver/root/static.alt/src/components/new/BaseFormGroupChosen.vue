@@ -231,13 +231,6 @@ export const setup = (props, context) => {
     validFeedback
   } = useInputValidator(metaProps, value)
 
-  const singleLabel = useOptionsValue(options, trackBy, label, value, isFocus)
-
-  const multipleLabels = computed(() => options.value.reduce((labels, option) => {
-    const { text, value } = option
-    return { ...labels, [value]: text }
-  }, {}))
-
   const inputGroupLabel = computed(() => {
     if (groupLabel.value)
       return groupLabel.value
@@ -253,6 +246,22 @@ export const setup = (props, context) => {
     const { 0: { group } = {} } = options.value
     if (group)
       return 'options'
+  })
+
+  const singleLabel = useOptionsValue(options, trackBy, label, value, isFocus)
+
+  const multipleLabels = computed(() => {
+    let _options = options.value
+    if (inputGroupLabel.value) { // grouped options
+      _options = options.value.reduce((options, group) => { // flatten
+        const { [inputGroupValues.value]: groupValues } = group
+        return [ ...options, ...groupValues ]
+      }, [])
+    }
+    return _options.reduce((labels, option) => {
+      const { text, value } = option
+      return { ...labels, [value]: text }
+    }, {})
   })
 
   // supress warning:

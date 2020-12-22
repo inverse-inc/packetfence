@@ -27,16 +27,16 @@
       @blur="onBlur"
     />
     <template v-slot:append>
-        <b-button-group
-          @click="doPin"
-          @mouseover="doShow"
-          @mousemove="doShow"
-          @mouseout="doHide"
-        >
-          <b-button class="input-group-text no-border-radius" :pressed="reveal" tabindex="-1" :variant="(pinned) ? 'primary' : 'light'">
-            <icon name="eye"></icon>
-          </b-button>
-        </b-button-group>
+      <b-button-group
+        @click="doPin"
+        @mouseover="doShow"
+        @mousemove="doShow"
+        @mouseout="doHide"
+      >
+        <b-button class="input-group-text no-border-radius" :pressed="reveal" tabindex="-1" :variant="(pinned) ? 'primary' : 'light'">
+          <icon name="eye"></icon>
+        </b-button>
+      </b-button-group>
     </template>
   </base-form-group>
 </template>

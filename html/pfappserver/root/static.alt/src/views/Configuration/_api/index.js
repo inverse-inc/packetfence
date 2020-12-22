@@ -2,43 +2,6 @@ import apiCall from '@/utils/api'
 
 export default {
   /**
-   * Admin Roles
-   */
-  adminRoles: params => {
-    return apiCall.get('config/admin_roles', { params }).then(response => {
-      return response.data
-    })
-  },
-  adminRolesOptions: () => {
-    return apiCall.options('config/admin_roles').then(response => {
-      return response.data
-    })
-  },
-  adminRole: id => {
-    return apiCall.get(['config', 'admin_role', id]).then(response => {
-      return response.data.item
-    })
-  },
-  adminRoleOptions: id => {
-    return apiCall.options(['config', 'admin_role', id]).then(response => {
-      return response.data
-    })
-  },
-  createAdminRole: data => {
-    return apiCall.post('config/admin_roles', data).then(response => {
-      return response.data
-    })
-  },
-  updateAdminRole: data => {
-    return apiCall.patch(['config', 'admin_role', data.id], data).then(response => {
-      return response.data
-    })
-  },
-  deleteAdminRole: id => {
-    return apiCall.delete(['config', 'admin_role', id])
-  },
-
-  /**
    * Bases
    */
   bases: params => {
@@ -149,7 +112,6 @@ export default {
   deleteConnectionProfileFile: params => {
     return apiCall.delete(['config', 'connection_profile', params.id, 'files', ...params.filename.split('/')])
   },
-
   /**
    * Filters
    */
@@ -168,12 +130,6 @@ export default {
       return response.data
     })
   },
-
-  /**
-   * Floating Devices
-   */
-
-
   /*
    * Network Behavior Policies
    */
