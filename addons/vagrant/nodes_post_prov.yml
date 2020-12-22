@@ -1,0 +1,3 @@
+---
+# Playbooks used to provision nodes *after* they lost Internet access
+- import_playbook: nodes/post_prov/wpasupplicant.yml

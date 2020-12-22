@@ -1,0 +1,10 @@
+---
+# Playbooks used to provision nodes *before* they lost Internet access
+# Inventory variables under inventory/ are not used, they need to be defined in playbooks
+# Can be used in post-provisioning with some limitations:
+# - variables defined in playbooks will always take precedence over inventory
+# - no Internet access, some actions can failed
+
+- import_playbook: nodes/pre_prov/packages.yml
+
+- import_playbook: nodes/pre_prov/venom.yml

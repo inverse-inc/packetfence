@@ -19,8 +19,7 @@ ping 8.8.8.8 -c2
 if [ "$?" == "0" ]; then
     apt-get update -qy && apt-get install gnupg -qy
     apt-get update -qy
-    # python-apt for ansible management
-    apt-get install lldpd ntp ntpdate wpasupplicant python-apt unzip curl -qy
+    apt-get install lldpd ntp ntpdate unzip curl -qy
     echo "configure lldp portidsubtype ifname" > /etc/lldpd.d/port_info.conf
 
     # to avoid conflict with systemd-networkd
