@@ -14,7 +14,7 @@
         <advanced-view />
       </b-tab>
       <b-tab :title="$t('Maintenance')" @click="changeTab('maintenance_tasks')" no-body>
-        <maintenance-tasks-list form-store-name="formMaintenanceTasks" />
+        <maintenance-tasks-list />
       </b-tab>
       <b-tab :title="$t('Services')" @click="changeTab('services')">
         <services-view />

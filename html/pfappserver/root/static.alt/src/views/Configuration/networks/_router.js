@@ -1,4 +1,5 @@
 import store from '@/store'
+import RolesStoreModule from '../roles/_store'
 import InterfacesStoreModule from './interfaces/_store'
 import Layer2NetworksStoreModule from './layer2Networks/_store'
 import RoutedNetworksStoreModule from './routedNetworks/_store'
@@ -53,16 +54,24 @@ const routesWithStore = routes.map(route => {
   const { beforeEnter, ...rest } = route || {}
   return { ...rest, beforeEnter: (to, from, next) => {
     // register store modules on all routes
+    if (!store.state.$_roles)
+      store.registerModule('$_roles', RolesStoreModule)
+
     if (!store.state.$_interfaces)
       store.registerModule('$_interfaces', InterfacesStoreModule)
+
     if (!store.state.$_layer2_networks)
       store.registerModule('$_layer2_networks', Layer2NetworksStoreModule)
+
     if (!store.state.$_routed_networks)
       store.registerModule('$_routed_networks', RoutedNetworksStoreModule)
+
     if (!store.state.$_traffic_shaping_policies)
       store.registerModule('$_traffic_shaping_policies', TrafficShapingPoliciesStoreModule)
+
     if (beforeEnter)
       beforeEnter(to, from, next)
+
     else
       next()
   } }
