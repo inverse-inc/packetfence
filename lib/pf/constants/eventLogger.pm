@@ -17,6 +17,9 @@ our @EXPORT_OK = qw(@Namespaces);
 our @Namespaces = qw(
     admin_api_audit_log
     auth_log
+    dhcp_option82
+    dns_audit_log
+    radius_audit_log
 );
 
 =head1 AUTHOR
