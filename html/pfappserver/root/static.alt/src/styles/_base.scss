@@ -42,7 +42,7 @@
 
       /* clip border-radius */
       background-clip: border-box;
-      overflow: hidden;
+      height: auto;
 
       &:first-child {
           border-top-left-radius: $border-radius;

@@ -89,10 +89,14 @@
         </template>
         <template v-slot:beforeList>
           <li class="multiselect__element">
+            <span class="float-right" v-if="multiple && internalSearch">
+              <b-button variant="link" size="sm" class="ml-0 pl-0 text-secondary" @click="onSelectAll">{{ $t('Select All') }}</b-button>
+              <b-button variant="link" size="sm" class="ml-0 pl-0 text-secondary" @click="onSelectNone">{{ $t('Select None') }}</b-button>
+            </span>
             <div v-if="!internalSearch"
-              class="col-form-label py-1 px-2 text-dark text-left bg-light border-bottom">{{ $t('Type to search') }}</div>
+              class="mr-auto col-form-label py-1 px-2 text-dark text-left bg-light border-bottom">{{ $t('Type to search') }}</div>
             <div v-else
-              class="col-form-label py-1 px-2 text-dark text-left bg-light border-bottom">{{ $t('Type to filter results') }}</div>
+              class="mr-auto col-form-label py-1 px-2 text-dark text-left bg-light border-bottom">{{ $t('Type to filter results') }}</div>
           </li>
         </template>
         <template v-slot:noOptions>
@@ -281,6 +285,22 @@ export const setup = (props, context) => {
   const doFocus = () => nextTick(() => context.refs.inputRef.$el.focus())
   const doBlur = () => nextTick(() => context.refs.inputRef.$el.blur())
 
+  const onSelectAll = () => {
+    let _options = options.value
+    if (inputGroupLabel.value) { // grouped options
+      _options = options.value.reduce((options, group) => { // flatten
+        const { [inputGroupValues.value]: groupValues } = group
+        return [ ...options, ...groupValues ]
+      }, [])
+    }
+    onInput(_options.map(option => {
+      const { [trackBy.value]: trackedValue } = option
+      return trackedValue
+    }))
+  }
+  const onSelectNone = () => onRemove()
+
+
   return {
     inputRef,
 
@@ -297,6 +317,8 @@ export const setup = (props, context) => {
     isReadonly: readonly,
     onFocus,
     onBlur,
+    onSelectAll,
+    onSelectNone,
 
     // useInputValue
     inputValue: value,

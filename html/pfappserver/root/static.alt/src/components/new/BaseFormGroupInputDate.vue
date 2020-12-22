@@ -9,9 +9,10 @@
     :label="columnLabel"
   >
     <b-input-group ref="input-group"
+      class="is-borders"
       :class="{
-        'is-focus': isFocus,
-        'is-blur': !isFocus,
+        'is-focus': isFocus || isShown,
+        'is-blur': !(isFocus || isShown),
         'is-valid': inputState === true,
         'is-invalid': inputState === false
       }"
@@ -49,7 +50,13 @@
           :value="inputValue"
           @input="onInput"
           @change="onChange"
-        />
+          @hidden="onHidden"
+          @shown="onShown"
+        >
+          <template v-slot:button-content>
+            <icon name="calendar-alt" />
+          </template>
+        </b-form-datepicker>
       </template>
     </b-input-group>
     <template v-slot:description v-if="inputText">
@@ -115,10 +122,11 @@ export const setup = (props, context) => {
   } = useInputValidator(metaProps, value)
 
   const datepickerRef = ref(null)
+  const isShown = ref(false)
+  const onShown = () => { isShown.value = true }
+  const onHidden = () => { isShown.value = false }
 
   return {
-    datepickerRef,
-
     // useInput
     inputPlaceholder: placeholder,
     inputReadonly: readonly,
@@ -138,7 +146,12 @@ export const setup = (props, context) => {
     // useInputValidator
     inputState: state,
     inputInvalidFeedback: invalidFeedback,
-    inputValidFeedback: validFeedback
+    inputValidFeedback: validFeedback,
+
+    datepickerRef,
+    isShown,
+    onShown,
+    onHidden
   }
 }
 
