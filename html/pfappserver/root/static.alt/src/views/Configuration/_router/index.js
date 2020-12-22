@@ -67,7 +67,7 @@ import ServicesRoutes from '../services/_router'
 import DatabaseRoutes from '../database/_router'
 import ActiveActiveRoutes from '../activeActive/_router'
 import RadiusRoutes from '../radius/_router'
-const DnsView = () => import(/* webpackChunkName: "Configuration" */ '../_components/DnsView')
+import DnsRoutes from '../dns/_router'
 import AdminRolesRoutes from '../adminRoles/_router'
 
 const route = {
@@ -306,18 +306,7 @@ const route = {
     ...DatabaseRoutes,
     ...ActiveActiveRoutes,
     ...RadiusRoutes,
-    {
-      path: 'dns',
-      name: 'dns',
-      component: DnsView,
-      props: (route) => ({ formStoreName: 'formDns', query: route.query.query }),
-      beforeEnter: (to, from, next) => {
-        if (!store.state.formDns) { // Register store module only once
-          store.registerModule('formDns', FormStore)
-        }
-        next()
-      }
-    },
+    ...DnsRoutes,
     ...AdminRolesRoutes,
     ...SslCertificatesRoutes
   ]
