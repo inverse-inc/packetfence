@@ -234,7 +234,7 @@ func (h ApiAAAHandler) HandleAAA(w http.ResponseWriter, r *http.Request) bool {
 	if auth {
 		return true
 	} else {
-		if err.Error() == InvalidTokenInfoErr {
+		if err.Error() == aaa.InvalidTokenInfoErr {
 			w.WriteHeader(http.StatusUnauthorized)
 		} else {
 			w.WriteHeader(http.StatusForbidden)
