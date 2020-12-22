@@ -144,14 +144,16 @@ sub cleanupBeforeCommit {
     unless ( $config->SectionExists($id) ) {
         # Set default values when creating a new network
         $network->{type} =~ s/\s+//;
-        $network->{named} = 'enabled' unless ($network->{named});
-        $network->{dhcpd} = 'enabled' unless ($network->{dhcpd});
-        $network->{fake_mac_enabled} = 'disabled' if ($network->{type} ne $pf::config::NET_TYPE_INLINE_L3);
-        if (defined($network->{'portal_fqdn'}) && $network->{'portal_fqdn'} ne "") {
-            $network->{'domain-name'} = $types[0] . "." . $network->{'portal_fqdn'};
+        if ($network->{type} ne $pf::config::NET_TYPE_UNMANAGED) {
+            $network->{named} = 'enabled' unless ($network->{named});
+            $network->{dhcpd} = 'enabled' unless ($network->{dhcpd});
+            $network->{fake_mac_enabled} = 'disabled' if ($network->{type} ne $pf::config::NET_TYPE_INLINE_L3);
+            if (defined($network->{'portal_fqdn'}) && $network->{'portal_fqdn'} ne "") {
+                $network->{'domain-name'} = $types[0] . "." . $network->{'portal_fqdn'};
+            }
+            $network->{'domain-name'} = $types[0] . "." . $Config{general}{domain}
+                unless $network->{'domain-name'};
         }
-        $network->{'domain-name'} = $types[0] . "." . $Config{general}{domain}
-            unless $network->{'domain-name'};
     } else {
         if ($network->{type} && $network->{type} eq $pf::config::NET_TYPE_INLINE_L3) {
             $network->{dhcpd} = isenabled($network->{'fake_mac_enabled'}) ? 'disabled' : 'enabled';
