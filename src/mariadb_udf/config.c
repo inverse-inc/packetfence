@@ -16,8 +16,9 @@
   Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301,
   USA.
 */
-#include "config.h"
+#define _GNU_SOURCE
 #include <string.h>
+#include "config.h"
 #include <unistd.h>
 #include <stdio.h>
 #include <errno.h>
@@ -104,7 +105,7 @@ int facility_lookup(char* name, ssize_t len)
 #define get_val(f, v, l)               \
     do {                               \
         char* tmp;                     \
-        char* field = strstr(line, f); \
+        char* field = (char*)memmem(line, len, f, strlen(f)); \
         v = NULL;                      \
         if (field == NULL) {           \
             break;                     \
