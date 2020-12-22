@@ -119,6 +119,8 @@ int facility_lookup(char* name, ssize_t len)
         val_len = tmp - v;             \
     } while (0)
 
+// All resources that are acquired during first load.
+// This can change if a threadsafe cleanup routine can be hooked into.
 int loadconfig(char* path, int* count, struct configuration** out)
 {
     FILE* fp;
@@ -128,7 +130,6 @@ int loadconfig(char* path, int* count, struct configuration** out)
     size_t len;
     ssize_t read;
     struct configuration* configurations = NULL;
-    ;
     int conf_len = 0;
     int rc = 0;
 
@@ -187,6 +188,7 @@ int loadconfig(char* path, int* count, struct configuration** out)
 
         strncpy(port, value, val_len);
         port[val_len] = 0;
+        // The socket is never closed
         rc = get_udp_socket(host, port, &conf.syslog_fd, (struct sockaddr_storage*)&conf.saddr, &conf.saddr_len);
         if (rc != 0) {
             cleanup_syslog_header(&conf.syslog_header);
@@ -209,6 +211,7 @@ int loadconfig(char* path, int* count, struct configuration** out)
 
             val_len = tmp - value;
             conf_len++;
+            // This memory is never freed
             configurations = realloc(configurations, sizeof(struct configuration) * conf_len);
             configurations[conf_len - 1] = conf;
             configurations[conf_len - 1].namespace = strndup(value, val_len);
