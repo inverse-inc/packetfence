@@ -8,6 +8,7 @@ export const useViewResource = (resource, props, context) => {
 
   const {
     useTitle,
+    useTitleHelp = () => {},
     useStore,
   } = resource
 
@@ -19,6 +20,7 @@ export const useViewResource = (resource, props, context) => {
   const form = ref({})
   const meta = ref({})
   const title = useTitle(props)
+  const titleHelp = useTitleHelp(props)
   const isModified = ref(false)
 
   // unhandled custom props
@@ -71,6 +73,7 @@ export const useViewResource = (resource, props, context) => {
     form,
     meta,
     title,
+    titleHelp,
     isModified,
     customProps,
     isLoading,

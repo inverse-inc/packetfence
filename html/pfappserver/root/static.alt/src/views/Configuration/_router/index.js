@@ -52,7 +52,7 @@ import SelfServicesRoutes from '../selfServices/_router'
 /* Network Configuration */
 const NetworkConfigurationSection = () => import(/* webpackChunkName: "Configuration" */ '../_components/NetworkConfigurationSection')
 import NetworksRoutes from '../networks/_router'
-const SnmpTrapView = () => import(/* webpackChunkName: "Configuration" */ '../_components/SnmpTrapView')
+import SnmpTrapsRoutes from '../snmpTraps/_router'
 import FloatingDevicesRoutes from '../floatingDevices/_router'
 import SslCertificatesRoutes from '../sslCertificates/_router'
 
@@ -290,18 +290,7 @@ const route = {
     },
     ...NetworksRoutes,
     ...FloatingDevicesRoutes,
-    {
-      path: 'snmp_traps',
-      name: 'snmp_traps',
-      component: SnmpTrapView,
-      props: (route) => ({ formStoreName: 'formSnmpTrap', query: route.query.query }),
-      beforeEnter: (to, from, next) => {
-        if (!store.state.formSnmpTrap) { // Register store module only once
-          store.registerModule('formSnmpTrap', FormStore)
-        }
-        next()
-      }
-    },
+    ...SnmpTrapsRoutes,
     /**
      * System Configuration
      */

@@ -2,6 +2,8 @@
   <b-card no-body>
     <b-card-header>
       <h4 class="d-inline mb-0" v-html="title"/>
+      <base-button-help v-if="titleHelp"
+        class="ml-1" :url="titleHelp" />
     </b-card-header>
     <b-form @submit.prevent="onSave" ref="rootRef">
       <the-form
@@ -26,6 +28,7 @@
   </b-card>
 </template>
 <script>
+import { BaseButtonHelp } from '@/components/new/'
 import { useViewResourceProps as props } from '../../_composables/useViewResource'
 
 // @vue/component
@@ -34,12 +37,14 @@ export default {
   inheritAttrs: false,
   components: { // component stubs
     'form-button-bar': undefined,
-    'the-form': undefined
+    'the-form': undefined,
+    BaseButtonHelp
   },
   props,
   setup: () => ({ // prop stubs
     rootRef: undefined,
     title: undefined,
+    titleHelpUrl: undefined,
     form: undefined,
     meta: undefined,
     isLoading: undefined,
