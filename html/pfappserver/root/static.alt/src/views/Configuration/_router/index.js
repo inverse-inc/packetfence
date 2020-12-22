@@ -64,7 +64,7 @@ import AlertingRoutes from '../alerting/_router'
 import AdvancedRoutes from '../advanced/_router'
 import MaintenanceTasksRoutes from '../maintenanceTasks/_router'
 import ServicesRoutes from '../services/_router'
-const DatabaseTabs = () => import(/* webpackChunkName: "Configuration" */ '../_components/DatabaseTabs')
+import DatabaseRoutes from '../database/_router'
 import ActiveActiveRoutes from '../activeActive/_router'
 import RadiusRoutes from '../radius/_router'
 const DnsView = () => import(/* webpackChunkName: "Configuration" */ '../_components/DnsView')
@@ -303,18 +303,7 @@ const route = {
     ...AdvancedRoutes,
     ...MaintenanceTasksRoutes,
     ...ServicesRoutes,
-    {
-      path: 'database',
-      name: 'database',
-      component: DatabaseTabs,
-      props: (route) => ({ tab: 'database', query: route.query.query })
-    },
-    {
-      path: 'database_advanced',
-      name: 'database_advanced',
-      component: DatabaseTabs,
-      props: (route) => ({ tab: 'database_advanced', query: route.query.query })
-    },
+    ...DatabaseRoutes,
     ...ActiveActiveRoutes,
     ...RadiusRoutes,
     {
