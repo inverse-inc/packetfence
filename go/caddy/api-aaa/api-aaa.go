@@ -234,7 +234,11 @@ func (h ApiAAAHandler) HandleAAA(w http.ResponseWriter, r *http.Request) bool {
 	if auth {
 		return true
 	} else {
-		w.WriteHeader(http.StatusForbidden)
+		if err.Error() == InvalidTokenInfoErr {
+			w.WriteHeader(http.StatusUnauthorized)
+		} else {
+			w.WriteHeader(http.StatusForbidden)
+		}
 		res, _ := json.Marshal(map[string]string{
 			"message": err.Error(),
 		})
