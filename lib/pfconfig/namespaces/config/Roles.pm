@@ -60,9 +60,10 @@ sub _flatten_nodecategory {
         my $data = $parent->[1];
         my %inherited;
         for my $child (@{$h->{$pname} // []}) {
+            push @{$data->{children}}, $child->[0];
             my $cdata = $child->[1];
             while (my ($k, $v) = each %$data) {
-                next if $k eq 'parent';
+                next if $k eq 'parent' || $k eq 'children';
                 if (!exists $cdata->{$k} || !defined $cdata->{$k}) {
                     $cdata->{$k} = $v;
                     $inherited{$k} = undef;
