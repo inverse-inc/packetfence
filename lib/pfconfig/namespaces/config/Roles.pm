@@ -48,8 +48,24 @@ sub build_child {
         push @{$parents{$parent}}, [$name, $data];
     }
     _flatten_nodecategory($parents{''}, \%parents);
+    for my $top (@{$parents{''}}) {
+        my $data = $top->[1];
+        next if !exists $data->{children} || @{$data->{children}} == 0;
+        $self->add_children_children(\%tmp_cfg, $data, @{$data->{children}});
+    }
 
     return \%tmp_cfg;
+}
+
+sub add_children_children {
+    my ($self, $all, $parent, @children) = @_;
+    for my $c (@children) {
+        my $child = $all->{$c};
+        next if !exists $child->{children} || @{$child->{children}} == 0;
+        my $grand_children = $child->{children};
+        push @{$parent->{children}}, @$grand_children;
+        $self->add_children_children($all, $parent, @$grand_children);
+    }
 }
 
 sub _flatten_nodecategory {
