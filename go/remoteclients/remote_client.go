@@ -2,6 +2,7 @@ package remoteclients
 
 import (
 	"context"
+	"fmt"
 	"net"
 	"net/http"
 	"strings"
@@ -9,6 +10,7 @@ import (
 
 	"github.com/inverse-inc/packetfence/go/common"
 	"github.com/inverse-inc/packetfence/go/log"
+	"github.com/inverse-inc/packetfence/go/pfconfigdriver"
 	"github.com/inverse-inc/packetfence/go/sharedutils"
 	"github.com/inverse-inc/packetfence/go/unifiedapiclient"
 	"github.com/jcuga/golongpoll"
@@ -112,6 +114,16 @@ func (rc *RemoteClient) AllowedRoles(ctx context.Context, db *gorm.DB) []string 
 	}
 
 	allowed = append(allowed, profile.AllowCommunicationToRoles...)
+
+	inherited := []string{}
+	for _, role := range allowed {
+		inherited = append(inherited, pfconfigdriver.Config.RolesChildren.Element[role]...)
+	}
+
+	allowed = append(allowed, inherited...)
+	allowed = sharedutils.RemoveDuplicates(allowed)
+
+	log.LoggerWContext(ctx).Info(fmt.Sprintf("Allowed roles are: %s", strings.Join(allowed, ",")))
 
 	return allowed
 }

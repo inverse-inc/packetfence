@@ -56,6 +56,7 @@ func setup(c *caddy.Controller) error {
 
 	remoteclients.InitGlobal()
 	pfconfigdriver.PfconfigPool.AddRefreshable(ctx, remoteclients.GlobalRemoteConnectionProfiles)
+	pfconfigdriver.PfconfigPool.AddStruct(ctx, &pfconfigdriver.Config.RolesChildren)
 
 	httpserver.GetConfig(c).AddMiddleware(func(next httpserver.Handler) httpserver.Handler {
 		wgOrchestrator.Next = next

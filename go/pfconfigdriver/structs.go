@@ -81,6 +81,7 @@ type configStruct struct {
 	}
 	UnifiedApiSystemUser UnifiedApiSystemUser
 	EAPConfiguration     EAPConfiguration
+	RolesChildren        RolesChildren
 }
 
 var Config configStruct
@@ -418,6 +419,14 @@ type RolesConf struct {
 	PfconfigHashNS string `val:"-"`
 	Notes          string `json:"notes"`
 	MaxNodesPerPid string `json:"max_nodes_per_pid"`
+}
+
+type RolesChildren struct {
+	StructConfig
+	PfconfigMethod          string `val:"element"`
+	PfconfigNS              string `val:"resource::roles_children"`
+	PfconfigDecodeInElement string `val:"yes"`
+	Element                 map[string][]string
 }
 
 type ClusterName struct {
