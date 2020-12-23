@@ -33,7 +33,7 @@ testcases:
             "match": "{{.dot1x_eap_peap.profiles.wired.filters.connection_sub_type}}"
           }          
         ],
-        "filter_match_style": "any",
+        "filter_match_style": "all",
         "id": "{{.dot1x_eap_peap.profiles.wired.id}}",
         "locale": null,
         "login_attempt_limit": 0,
