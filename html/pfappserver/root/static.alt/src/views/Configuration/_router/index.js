@@ -2,8 +2,6 @@ import acl from '@/utils/acl'
 import store from '@/store'
 import FormStore from '@/store/base/form'
 import ConfigurationView from '../'
-import BasesStore from '../_store/bases'
-import ConnectionProfilesStore from '../_store/connectionProfiles'
 import PortalModulesStore from '../_store/portalModules'
 
 /* Policies Access Control */
@@ -14,9 +12,7 @@ import RealmsRoutes from '../realms/_router'
 import SourcesRoutes from '../sources/_router'
 import SwitchesRoutes from '../switches/_router'
 import SwitchGroupsRoutes from '../switchGroups/_router'
-const ConnectionProfilesList = () => import(/* webpackChunkName: "Configuration" */ '../_components/ConnectionProfilesList')
-const ConnectionProfileView = () => import(/* webpackChunkName: "Configuration" */ '../_components/ConnectionProfileView')
-const ConnectionProfileFileView = () => import(/* webpackChunkName: "Editor" */ '../_components/ConnectionProfileFileView')
+import ConnectionProfilesRoutes from '../connectionProfiles/_router'
 
 /* Compliance */
 const ComplianceSection = () => import(/* webpackChunkName: "Configuration" */ '../_components/ComplianceSection')
@@ -58,7 +54,6 @@ import SslCertificatesRoutes from '../sslCertificates/_router'
 
 /* System Configuration */
 const SystemConfigurationSection = () => import(/* webpackChunkName: "Configuration" */ '../_components/SystemConfigurationSection')
-export const MainTabs = () => import(/* webpackChunkName: "Configuration" */ '../_components/MainTabs')
 import GeneralRoutes from '../general/_router'
 import AlertingRoutes from '../alerting/_router'
 import AdvancedRoutes from '../advanced/_router'
@@ -83,12 +78,6 @@ const route = {
     /**
      * Register Vuex stores
      */
-    if (!store.state.$_bases) {
-      store.registerModule('$_bases', BasesStore)
-    }
-    if (!store.state.$_connection_profiles) {
-      store.registerModule('$_connection_profiles', ConnectionProfilesStore)
-    }
     if (!store.state.$_portalmodules) {
       store.registerModule('$_portalmodules', PortalModulesStore)
     }
@@ -108,90 +97,7 @@ const route = {
     ...SourcesRoutes,
     ...SwitchesRoutes,
     ...SwitchGroupsRoutes,
-    {
-      path: 'connection_profiles',
-      name: 'connection_profiles',
-      component: ConnectionProfilesList,
-      props: (route) => ({ query: route.query.query })
-    },
-    {
-      path: 'connection_profiles/new',
-      name: 'newConnectionProfile',
-      component: ConnectionProfileView,
-      props: () => ({ formStoreName: 'formConnectionProfile', isNew: true }),
-      beforeEnter: (to, from, next) => {
-        if (!store.state.formConnectionProfile) { // Register store module only once
-          store.registerModule('formConnectionProfile', FormStore)
-        }
-        next()
-      }
-    },
-    {
-      path: 'connection_profile/:id',
-      name: 'connection_profile',
-      component: ConnectionProfileView,
-      props: (route) => ({ formStoreName: 'formConnectionProfile', id: route.params.id }),
-      beforeEnter: (to, from, next) => {
-        if (!store.state.formConnectionProfile) { // Register store module only once
-          store.registerModule('formConnectionProfile', FormStore)
-        }
-        store.dispatch('$_connection_profiles/getConnectionProfile', to.params.id).then(() => {
-          next()
-        })
-      }
-    },
-    {
-      path: 'connection_profile/:id/clone',
-      name: 'cloneConnectionProfile',
-      component: ConnectionProfileView,
-      props: (route) => ({ formStoreName: 'formConnectionProfile', id: route.params.id, isClone: true }),
-      beforeEnter: (to, from, next) => {
-        if (!store.state.formConnectionProfile) { // Register store module only once
-          store.registerModule('formConnectionProfile', FormStore)
-        }
-        store.dispatch('$_connection_profiles/getConnectionProfile', to.params.id).then(() => {
-          next()
-        })
-      }
-    },
-    {
-      path: 'connection_profile/:id/files',
-      name: 'connectionProfileFiles',
-      component: ConnectionProfileView,
-      props: (route) => ({ formStoreName: 'formConnectionProfile', id: route.params.id, tabIndex: 2 }),
-      beforeEnter: (to, from, next) => {
-        if (!store.state.formConnectionProfile) { // Register store module only once
-          store.registerModule('formConnectionProfile', FormStore)
-        }
-        store.dispatch('$_connection_profiles/getConnectionProfile', to.params.id).then(() => {
-          next()
-        })
-      }
-    },
-    {
-      path: 'connection_profile/:id/files/:path/new',
-      name: 'newConnectionProfileFile',
-      component: ConnectionProfileFileView,
-      props: (route) => ({ formStoreName: 'formConnectionProfile', id: route.params.id, filename: route.params.path, isNew: true }),
-      beforeEnter: (to, from, next) => {
-        if (!store.state.formConnectionProfile) { // Register store module only once
-          store.registerModule('formConnectionProfile', FormStore)
-        }
-        next()
-      }
-    },
-    {
-      path: 'connection_profile/:id/files/:filename',
-      name: 'connectionProfileFile',
-      component: ConnectionProfileFileView,
-      props: (route) => ({ formStoreName: 'formConnectionProfile', id: route.params.id, filename: route.params.filename }),
-      beforeEnter: (to, from, next) => {
-        if (!store.state.formConnectionProfile) { // Register store module only once
-          store.registerModule('formConnectionProfile', FormStore)
-        }
-        next()
-      }
-    },
+    ...ConnectionProfilesRoutes,
     /**
      * Compliance
      */

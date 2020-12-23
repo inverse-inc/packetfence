@@ -55,8 +55,8 @@ export const useInputMeta = (props) => {
     // allowed_lookup
     if (metaAllowedLookup)
       set(localProps, 'lookup', {
-        ...metaAllowedLookup,
-        baseURL: '' // clear baseURL during lookup to force absolute paths
+        base_url: '', // default: clear baseURL during lookup to force absolute paths
+        ...metaAllowedLookup
       })
 
     // placeholder

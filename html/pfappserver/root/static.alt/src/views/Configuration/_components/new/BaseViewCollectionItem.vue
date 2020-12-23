@@ -4,6 +4,7 @@
       <b-button-close @click="onClose" v-b-tooltip.hover.left.d300 :title="$t('Close [ESC]')"><icon name="times"/></b-button-close>
       <h4 class="d-inline mb-0" v-html="title"/>
       <b-badge v-if="titleBadge" class="ml-2" variant="secondary" v-t="titleBadge" />
+      <slot name="headerAppend" v-if="$scopedSlots.headerAppend" v-bind="scopedSlotProps" />
     </b-card-header>
     <b-form @submit.prevent="onSave" ref="rootRef">
       <the-form

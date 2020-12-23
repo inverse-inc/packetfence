@@ -136,7 +136,8 @@ const setup = (props, context) => {
   const { emit } = context
 
   const {
-    draggable
+    draggable,
+    namespace
   } = toRefs(props)
 
   const metaProps = useInputMeta(props, context)
@@ -145,7 +146,13 @@ const setup = (props, context) => {
     onInput
   } = useInputValue(metaProps, context)
 
-  const operatorOptions = computed(() => useNamespaceMetaAllowed('condition.op')
+  const rootNamespace = computed(() => {
+    // eslint-disable-next-line no-unused-vars
+    const [ root, ...extras ] = (namespace.value || '').split('.')
+    return root
+  })
+
+  const operatorOptions = computed(() => useNamespaceMetaAllowed(`${rootNamespace.value}.op`)
     .filter(({ requires = [] }) => requires.includes('values') || requires.length === 0)
     .map(({ value }) => {
         const { [value]: text = value } = pfOperators

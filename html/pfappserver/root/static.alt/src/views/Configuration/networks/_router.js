@@ -1,4 +1,5 @@
 import store from '@/store'
+import BasesStoreModule from '../bases/_store'
 import RolesStoreModule from '../roles/_store'
 import InterfacesStoreModule from './interfaces/_store'
 import Layer2NetworksStoreModule from './layer2Networks/_store'
@@ -54,6 +55,9 @@ const routesWithStore = routes.map(route => {
   const { beforeEnter, ...rest } = route || {}
   return { ...rest, beforeEnter: (to, from, next) => {
     // register store modules on all routes
+    if (!store.state.$_bases)
+      store.registerModule('$_bases', BasesStoreModule)
+
     if (!store.state.$_roles)
       store.registerModule('$_roles', RolesStoreModule)
 
@@ -71,7 +75,6 @@ const routesWithStore = routes.map(route => {
 
     if (beforeEnter)
       beforeEnter(to, from, next)
-
     else
       next()
   } }

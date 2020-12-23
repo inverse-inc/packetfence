@@ -1,5 +1,5 @@
 import store from '@/store'
-import BasesStoreModule from '../_store/bases'
+import BasesStoreModule from '../bases/_store'
 
 const TheView = () => import(/* webpackChunkName: "Configuration" */ './_components/TheView')
 

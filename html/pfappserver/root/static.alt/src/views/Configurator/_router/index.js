@@ -3,7 +3,7 @@ import FormStore from '@/store/base/form'
 
 import ConfiguratorView from '../'
 
-import BasesStore from '@/views/Configuration/_store/bases'
+import BasesStore from '@/views/Configuration/bases/_store'
 import InterfacesStore from '@/views/Configuration/networks/interfaces/_store/'
 import FingerbankStore from '@/views/Configuration/fingerbank/_store'
 // import StatusStore from '@/views/Status/_store'

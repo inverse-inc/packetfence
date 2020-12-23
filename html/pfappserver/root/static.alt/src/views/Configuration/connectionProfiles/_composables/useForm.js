@@ -27,18 +27,19 @@ const useFormProps = {
   id: {
     type: String
   },
+  filename: {
+    type: String
+  }
 }
 
 const useForm = (props, context) => {
 
   const {
-    meta
+    meta,
+    id
   } = toRefs(props)
 
   const schema = computed(() => schemaFn(props))
-
-  // meta indicates which fields are preset
-  const fields = computed(() => Object.keys(meta.value))
 
   const metaSchema = computed(() => useFormMetaSchema(meta, schema))
 
@@ -53,9 +54,14 @@ const useForm = (props, context) => {
     })
   })
 
+  const basesGeneral = computed(() => $store.getters['$_bases/general'])
+
+  const isDefault = computed(() => (id.value === 'default'))
+
   return {
-    fields,
-    schema: metaSchema
+    schema: metaSchema,
+    basesGeneral,
+    isDefault
   }
 }
 

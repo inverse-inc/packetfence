@@ -15,7 +15,6 @@
 </template>
 
 <script>
-import FormStore from '@/store/base/form'
 import ScanEnginesList from './ScanEnginesList'
 import WmiRulesList from './WmiRulesList'
 
@@ -42,14 +41,6 @@ export default {
   methods: {
     changeTab (name) {
       this.$router.push(`./${name}`)
-    }
-  },
-  beforeMount () {
-    if (!this.$store.state.formScanEngine) { // Register store module only once
-      this.$store.registerModule('formScanEngine', FormStore)
-    }
-    if (!this.$store.state.formWmiRule) { // Register store module only once
-      this.$store.registerModule('formWmiRule', FormStore)
     }
   }
 }

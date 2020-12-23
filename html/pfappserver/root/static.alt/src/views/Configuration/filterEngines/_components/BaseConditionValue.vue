@@ -70,7 +70,7 @@ const components = {
   BaseInputChosenOne
 }
 
-import { computed, customRef, ref } from '@vue/composition-api'
+import { computed, customRef, ref, toRefs } from '@vue/composition-api'
 import useDraggable from '@/composables/useDraggable'
 import { useInputMeta, useInputMetaProps, useNamespaceMetaAllowed } from '@/composables/useMeta'
 import { useInputValue, useInputValueProps } from '@/composables/useInputValue'
@@ -86,6 +86,16 @@ const props = {
 }
 
 const setup = (props, context) => {
+
+  const {
+    namespace
+  } = toRefs(props)
+
+  const rootNamespace = computed(() => {
+    // eslint-disable-next-line no-unused-vars
+    const [ root, ...extras ] = (namespace.value || '').split('.')
+    return root
+  })
 
   const { emit } = context
 
@@ -137,7 +147,7 @@ const setup = (props, context) => {
 
   const isLoading = ref(false)
 
-  const fieldOptions = computed(() => useNamespaceMetaAllowed('condition.field')
+  const fieldOptions = computed(() => useNamespaceMetaAllowed(`${rootNamespace.value}.field`)
     .sort((a, b) => a.text.localeCompare(b.text))
   )
 
@@ -149,7 +159,7 @@ const setup = (props, context) => {
     })
   })
 
-  const operatorMeta = computed(() => useNamespaceMetaAllowed('condition.op'))
+  const operatorMeta = computed(() => useNamespaceMetaAllowed(`${rootNamespace.value}.op`))
   const operatorOptions = computed(() => operatorMeta.value
     .filter(({ requires = [] }) => !requires.includes('values'))
     .map(({ value, requires }) => {
