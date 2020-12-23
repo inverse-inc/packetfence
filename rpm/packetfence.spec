@@ -32,6 +32,7 @@ BuildRequires: ruby, rubygems
 BuildRequires: nodejs >= 12.0
 BuildRequires: gcc
 BuildRequires: systemd
+BuildRequires: MariaDB-devel >= 10.1
 
 # To handle migration from several packetfence packages
 # to only one
