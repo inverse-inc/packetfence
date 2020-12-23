@@ -210,19 +210,19 @@ a|Navigate to _Configuration -> Policies and Access Control_
 
 a|
 ....
-image::image.png[width=25px]
+image::pf-logo.png[width=25px]
 ....
 
-a| image::image.png[width=25px]
+a| image::pf-logo.png[width=25px]
 
 | Block Image
 a|
 ....
-.Tux
-image::image.png[width=100px]
+.PacketFence
+image::pf-logo.png[width=25px]
 ....
-a| .Tux
-image::image.png[width=100px]
+a| .PacketFence
+image::pf-logo.png[width=25px]
 
 |Inline operations and user input
 

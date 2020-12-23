@@ -14,7 +14,7 @@ ASCIIDOCS := $(notdir $(wildcard docs/PacketFence_*.asciidoc))
 PDFS = $(patsubst %.asciidoc,docs/%.pdf, $(ASCIIDOCS))
 
 clean:
-	rm -f docs/html/*.html docs/*.pdf
+	rm -f docs/*.html docs/*.pdf
 
 docs/%.pdf: docs/%.asciidoc
 	asciidoctor-pdf \
@@ -26,12 +26,12 @@ docs/%.pdf: docs/%.asciidoc
 
 pdf: $(PDFS)
 
-HTML = $(patsubst %.asciidoc,docs/html/%.html, $(ASCIIDOCS))
+HTML = $(patsubst %.asciidoc,docs/%.html, $(ASCIIDOCS))
 
-docs/html/%.html: docs/%.asciidoc
+docs/%.html: docs/%.asciidoc
 	asciidoctor \
 		-n \
-		-r ./docs/html/asciidoctor-html.rb \
+		-r ./docs/asciidoctor-html.rb \
 		-a stylesdir=../html/pfappserver/root/static.alt/dist/css \
 		-a stylesheet=$(notdir $(wildcard ./html/pfappserver/root/static.alt/dist/css/app*.css)) \
 		$<

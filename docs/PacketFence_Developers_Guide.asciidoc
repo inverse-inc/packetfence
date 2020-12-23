@@ -9,7 +9,8 @@
 ////
 include::includes/global-attributes.asciidoc[]
 
-== About this Guide
+
+== About this Guide
 
 This guide will help you modifying PacketFence to your particular needs. It also contains information on how to add support for new switches.
 
