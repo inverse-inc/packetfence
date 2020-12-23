@@ -192,7 +192,7 @@ sub build_email {
     );
     utf8::decode($subject);
     my $msg = MIME::Lite::TT->new(
-        To          => encode('MIME-Header', $email),
+        To          => $email,
         Bcc         => $data->{'bcc'} || '',
         Subject     => encode('MIME-Header', $subject),
         Encoding    => 'base64',
