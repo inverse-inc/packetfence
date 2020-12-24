@@ -11,7 +11,6 @@ change_log_level() {
     sed -i s/${current_log_level}/${pf_log_level}/ ${pf_conf_dir}/log.conf.d/*.conf    
 }
 
-# only change log level automatically when $CI is set (in $CI)
-[ -n "$CI" ] && change_log_level
+change_log_level
 
 exit 0
