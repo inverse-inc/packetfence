@@ -25,7 +25,7 @@ testcases:
 - name: get_backup_name
   steps:
   - type: exec
-    script: 'find {{.backup_db_and_restore.backup_dir}} -name "packetfence-db-dump-*.sql.gz" -newermt "-15 seconds"'
+    script: 'find {{.backup_db_and_restore.backup_dir}} -name "packetfence-db-dump-*.sql.gz" -newermt "-1 minute"'
     vars: 
       backup_name:
         from: result.systemout
