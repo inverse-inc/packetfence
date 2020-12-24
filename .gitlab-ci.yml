@@ -25,6 +25,7 @@ stages:
 variables:
   PFBUILD_CENTOS_7_IMG: inverseinc/pfbuild-centos-7
   PFBUILD_DEB_STRETCH_IMG: inverseinc/pfbuild-debian-stretch
+  PFBUILD_DEFAULT_DEV_TAG: latest
   CIDIR: ci
   CILIBDIR: ci/lib
   PACKERDIR: $CIDIR/packer
@@ -329,14 +330,14 @@ build_img_release:
 ########################################
 # build_pkg jobs for development
 build_pkg_dev_centos_7:
-  image: ${PFBUILD_CENTOS_7_IMG}:latest
+  image: ${PFBUILD_CENTOS_7_IMG}:${PFBUILD_DEFAULT_DEV_TAG}
   extends:
     - .build_job
     - .job_dev_triggers
     - .rpm_script
 
 build_pkg_dev_debian_stretch:
-  image: ${PFBUILD_DEB_STRETCH_IMG}:latest
+  image: ${PFBUILD_DEB_STRETCH_IMG}:${PFBUILD_DEFAULT_DEV_TAG}
   extends:
     - .build_job
     - .job_dev_triggers
