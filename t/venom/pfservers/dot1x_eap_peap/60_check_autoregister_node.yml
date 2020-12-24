@@ -34,25 +34,9 @@ testcases:
       translatable_time:
         from: result.systemout
 
-- name: compute_unregdate_with_5s_late
-  steps:
-  - type: exec
-    script: "date '+%Y-%m-%d %H:%M:%S' --date='{{.check_autoregister_node.regdate}} {{.convert_access_duration.translatable_time}} -5seconds'"
-    vars:
-      unregdate:
-        from: result.systemout
-
-- name: compute_unregdate_with_5s_ahead
-  steps:
-  - type: exec
-    script: "date '+%Y-%m-%d %H:%M:%S' --date='{{.check_autoregister_node.regdate}} {{.convert_access_duration.translatable_time}} +5seconds'"
-    vars:
-      unregdate:
-        from: result.systemout
-
-- name: check_unregdate_match_access_duration_with_tolerance
+- name: check_unregdate_match_access_duration
   steps:
   - type: exec
     script: "date '+%Y-%m-%d %H:%M:%S' --date='{{.check_autoregister_node.regdate}} {{.convert_access_duration.translatable_time}}'"
     assertions:
-      - result.systemout ShouldHappenBetween {{.compute_unregdate_with_5s_late.unregdate}} {{.compute_unregdate_with_5s_ahead.unregdate}}
+      - result.systemout ShouldEqual "{{.check_autoregister_node.unregdate}}"
