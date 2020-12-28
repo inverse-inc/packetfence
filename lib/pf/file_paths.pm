@@ -292,7 +292,7 @@ $admin_roles_config_file = catfile($conf_dir, "adminroles.conf");
 
 $security_events_config_file       = catfile($conf_dir, "security_events.conf");
 $authentication_config_file   = catfile($conf_dir, "authentication.conf");
-$event_loggers_config_file = catfile($conf_dir, "event_loggers.conf"); # TODO: Adjust to /floating_devices.conf when $floating_devices_file will be deprecated
+$event_loggers_config_file = catfile($conf_dir, "event_loggers.conf");
 $floating_devices_config_file = catfile($conf_dir, "floating_network_device.conf"); # TODO: Adjust to /floating_devices.conf when $floating_devices_file will be deprecated
 $wrix_config_file = catfile($conf_dir, "wrix.conf");
 $allowed_device_oui_file   = catfile($conf_dir,"allowed_device_oui.txt");
