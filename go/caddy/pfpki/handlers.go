@@ -11,6 +11,7 @@ import (
 	"net/http"
 	"regexp"
 
+	"github.com/davecgh/go-spew/spew"
 	"github.com/gorilla/mux"
 	"github.com/inverse-inc/packetfence/go/log"
 )
@@ -684,5 +685,39 @@ func manageOcsp(pfpki *Handler) http.Handler {
 		}
 		log.LoggerWContext(pfpki.Ctx).Info("Writing response")
 		res.Write(resp)
+	})
+}
+
+func manageSCEP(pfpki *Handler) http.Handler {
+	return http.HandlerFunc(func(res http.ResponseWriter, req *http.Request) {
+		log.LoggerWContext(pfpki.Ctx).Info(fmt.Sprintf("Got %s request from %s", req.Method, req.RemoteAddr))
+		// if req.Header.Get("Content-Type") != "application/scep-request" {
+		// 	log.LoggerWContext(pfpki.Ctx).Info("Strict mode requires correct Content-Type header")
+		// 	res.WriteHeader(http.StatusBadRequest)
+		// 	return
+		// }
+		spew.Dump(req)
+		b := new(bytes.Buffer)
+		switch req.Method {
+		case "POST":
+			b.ReadFrom(req.Body)
+		case "GET":
+			log.LoggerWContext(pfpki.Ctx).Info(req.URL.Path)
+			gd, err := base64.StdEncoding.DecodeString(req.URL.Path[1:])
+			if err != nil {
+				log.LoggerWContext(pfpki.Ctx).Info(err.Error())
+				res.WriteHeader(http.StatusBadRequest)
+				return
+			}
+			r := bytes.NewReader(gd)
+			b.ReadFrom(r)
+		default:
+			log.LoggerWContext(pfpki.Ctx).Info("Unsupported request method")
+			res.WriteHeader(http.StatusBadRequest)
+			return
+		}
+		// Scep stuff
+		log.LoggerWContext(pfpki.Ctx).Info("Writing response")
+		res.Write([]byte("scep"))
 	})
 }
