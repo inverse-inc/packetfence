@@ -17,7 +17,7 @@ use pf::version;
 
 #CEF:Version|Device Vendor|Device Product|Device Version|Device Event Class ID|Name|Severity|[Extension]
 
-has verison => ( default => 0, is => 'ro');
+has version => ( default => 0, is => 'ro');
 
 has deviceVendor => (default => 'Inverse', is => 'ro');
 
@@ -48,7 +48,7 @@ sub message {
     
     return join(
         "|",
-        "CEF:" . $self->verison,
+        "CEF:" . $self->version,
         format_header($self->deviceVendor),
         format_header($self->deviceProduct),
         format_header($self->deviceVersion),
