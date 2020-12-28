@@ -34,7 +34,7 @@ Filter the sections of this ConfigStore
 sub filterSection {
     my ($self, $section) = @_;
     my $cachedConfig = $self->cachedConfig;
-    return $cachedConfig->exists($section, "next_hop") || $cachedConfig->val($section, 'type') eq $pf::constants::config::NET_TYPE_UNMANAGED
+    return $cachedConfig->exists($section, "next_hop") || $cachedConfig->val($section, 'type') eq $pf::constants::config::NET_TYPE_OTHER
 }
 
 __PACKAGE__->meta->make_immutable unless $ENV{"PF_SKIP_MAKE_IMMUTABLE"};

@@ -33,7 +33,7 @@ my %lookupNetworkType = (
         $pf::constants::config::NET_TYPE_DNS_ENFORCEMENT,
         $pf::constants::config::NET_TYPE_VLAN_REG,
         $pf::constants::config::NET_TYPE_VLAN_ISOL,
-        $pf::constants::config::NET_TYPE_UNMANAGED,
+        $pf::constants::config::NET_TYPE_OTHER,
     ),
     (
         map { $_ => $pf::constants::config::NET_TYPE_INLINE}

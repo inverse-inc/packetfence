@@ -30,7 +30,7 @@ BEGIN {
         { in => $pf::constants::config::NET_TYPE_INLINE, out => $pf::constants::config::NET_TYPE_INLINE},
         { in => $pf::constants::config::NET_TYPE_INLINE_L2, out => $pf::constants::config::NET_TYPE_INLINE},
         { in => $pf::constants::config::NET_TYPE_INLINE_L3, out => $pf::constants::config::NET_TYPE_INLINE},
-        { in => $pf::constants::config::NET_TYPE_UNMANAGED, out => $pf::constants::config::NET_TYPE_UNMANAGED},
+        { in => $pf::constants::config::NET_TYPE_OTHER, out => $pf::constants::config::NET_TYPE_OTHER},
         { in => undef, out => undef},
         { in => "Garbasge", out => undef},
         { in => uc($pf::constants::config::NET_TYPE_DNS_ENFORCEMENT), out => $pf::constants::config::NET_TYPE_DNS_ENFORCEMENT},
@@ -41,7 +41,7 @@ BEGIN {
         { in => uc($pf::constants::config::NET_TYPE_INLINE), out => $pf::constants::config::NET_TYPE_INLINE},
         { in => uc($pf::constants::config::NET_TYPE_INLINE_L2), out => $pf::constants::config::NET_TYPE_INLINE},
         { in => uc($pf::constants::config::NET_TYPE_INLINE_L3), out => $pf::constants::config::NET_TYPE_INLINE},
-        { in => uc($pf::constants::config::NET_TYPE_UNMANAGED), out => $pf::constants::config::NET_TYPE_UNMANAGED},
+        { in => uc($pf::constants::config::NET_TYPE_OTHER), out => $pf::constants::config::NET_TYPE_OTHER},
     );
 }
 

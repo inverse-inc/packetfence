@@ -5,7 +5,7 @@ export const routedNetworkList = [
   { value: 'inlinel3', text: i18n.t('Inline Layer 3') },
   { value: 'vlan-isolation', text: i18n.t('Isolation') },
   { value: 'vlan-registration', text: i18n.t('Registration') },
-  { value: 'unmanaged', text: i18n.t('Unmanaged Network') }
+  { value: 'other', text: i18n.t('Other Networks') }
 ]
 
 export const routedNetworkListFormatter = (value) => {

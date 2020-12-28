@@ -12,10 +12,7 @@ ConfigStore for L2 networks in networks.conf
 
 use Moo;
 use namespace::autoclean;
-use pf::log;
-use pf::config qw(%ConfigNetworks %Config);
-use pf::util qw(isenabled);
-use pf::file_paths qw($network_config_file);
+#use pf::constants::config;
 
 extends 'pf::ConfigStore::Network';
 with 'pf::ConfigStore::Filtered';
@@ -33,7 +30,7 @@ Filter the sections of this ConfigStore
 sub filterSection {
     my ($self, $section) = @_;
     my $cachedConfig = $self->cachedConfig;
-    return !$cachedConfig->exists($section, "next_hop") && $cachedConfig->val($section, 'type') ne 'unmanaged';
+    return !$cachedConfig->exists($section, "next_hop") && $cachedConfig->val($section, 'type') ne $pf::constants::config::NET_TYPE_OTHER;
 }
 
 __PACKAGE__->meta->make_immutable unless $ENV{"PF_SKIP_MAKE_IMMUTABLE"};

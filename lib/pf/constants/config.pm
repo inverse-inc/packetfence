@@ -29,7 +29,7 @@ our @EXPORT_OK = qw(
   $NET_TYPE_INLINE
   $NET_TYPE_INLINE_L2
   $NET_TYPE_INLINE_L3
-  $NET_TYPE_UNMANAGED
+  $NET_TYPE_OTHER
 
   $TIME_MODIFIER_RE
   $ACCT_TIME_MODIFIER_RE
@@ -98,7 +98,7 @@ Readonly our $NET_TYPE_VLAN_ISOL => 'vlan-isolation';
 Readonly our $NET_TYPE_INLINE => 'inline';
 Readonly our $NET_TYPE_INLINE_L2 => 'inlinel2';
 Readonly our $NET_TYPE_INLINE_L3 => 'inlinel3';
-Readonly our $NET_TYPE_UNMANAGED => 'unmanaged';
+Readonly our $NET_TYPE_OTHER => 'other';
 
 Readonly our $TIME_MODIFIER_RE => qr/[smhDWMY]/;
 Readonly our $ACCT_TIME_MODIFIER_RE => qr/[DWMY]/;
