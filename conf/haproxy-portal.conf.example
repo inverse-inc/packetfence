@@ -61,7 +61,7 @@ backend scep
     option httpclose
     option http_proxy
     option forwardfor
-    http-request set-uri http://127.0.0.1:22225%[path]?%[query]
+    http-request set-uri http://127.0.0.1:22225/api/v1%[path]?%[query]
 
 
 %%http%%
