@@ -87,7 +87,7 @@ sub _run {
             cluster_enabled => 1,
 
             server_ip => defined( $management_network->tag('vip') ) ? $management_network->tag('vip') : $management_network->tag('ip'),
-            servers_ip => [uniq(split(',', $Config{database_advanced}{other_members})), (defined( $management_network->tag('vip') ) ? $management_network->tag('vip') : $management_network->tag('ip'))],
+            servers_ip => [sort (uniq(split(',', $Config{database_advanced}{other_members}), (defined( $management_network->tag('vip') ) ? $management_network->tag('vip') : $management_network->tag('ip'))))],
 
             replication_user => $Config{active_active}{galera_replication_username},
             replication_password => $Config{active_active}{galera_replication_password},

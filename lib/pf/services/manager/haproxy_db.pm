@@ -92,6 +92,7 @@ EOT
     } else {
         @mysql_backend = split(',', $Config{database_advanced}{other_members});
         push(@mysql_backend, $tags{'management_ip'});
+        @mysql_backend = sort @mysql_backend;
         $tags{'management_ip_frontend'} = '';
     }
     foreach my $mysql_back (@mysql_backend) {
