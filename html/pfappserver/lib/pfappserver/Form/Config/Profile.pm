@@ -190,6 +190,8 @@ sub options_field_names {
       category
       category_id
       computername
+      connection_sub_type
+      connection_type
       detect_date
       device_class
       device_manufacturer
@@ -222,15 +224,21 @@ sub options_field_names {
       machine_account
       notes
       pid
+      port
       realm
       regdate
       sessionid
+      ssid
       status
       stripped_user_name
+      switch
+      switch_mac
       tenant_id
       time_balance
       unregdate
+      uri
       user_agent
+      vlan
       voip
     );
 }
