@@ -38,6 +38,7 @@ use pf::constants;
 use pf::access_filter::switch;
 use pf::dal;
 use pf::dal::tenant;
+use pf::SwitchFactory;
 
 # Some vendors don't support some charatcters in their redirect URL
 # This here below allows to map some URLs to a specific switch module
@@ -95,7 +96,9 @@ sub handle {
 
     if (!$type_switch) {
         # Discarding non external portal requests
-        unless ( $uri =~ /$WEB::EXTERNAL_PORTAL_URL/o ) {
+        $uri =~ /\/([^\/]*)/;
+        $switch_type = $1;
+        unless ( $uri =~ /$WEB::EXTERNAL_PORTAL_URL/o || exists $pf::SwitchFactory::TemplateSwitches{'::SupportsExternalPortal'}{$switch_type} ) {
             $logger->debug("Tested URI '$uri' against external portal mechanism and does not appear to be one.");
             return $FALSE;
         }
@@ -105,8 +108,6 @@ sub handle {
         # - Switch::Type will be the switch type to instantiate (mandatory)
         # - sid424242 is the optional PacketFence session ID to track the session when working by session ID and not by URI parameters
         $logger->info("URI '$uri' is detected as an external captive portal URI");
-        $uri =~ /\/([^\/]*)/;
-        $switch_type = $1;
         if(exists($SWITCH_REWRITE_MAP->{$switch_type})) {
             my $new_switch_type = $SWITCH_REWRITE_MAP->{$switch_type};
             $logger->debug("Rewriting switch type $switch_type to $new_switch_type");
