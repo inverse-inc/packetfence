@@ -111,6 +111,7 @@ EOT
 reject =<<EOT
 Reply-Message = This node is not allowed to use this service
 EOT
+acceptUrl = Calling-Station-Id = $mac
 CONF
 
     my ($error, $switch_templates) = build_from_conf($conf);
@@ -130,16 +131,22 @@ CONF
                 reject => [
                     { name => 'Reply-Message', tmpl => pf::mini_template->new('This node is not allowed to use this service')},
                 ],
+                acceptUrl => [
+                    {name => 'Calling-Station-Id', tmpl => pf::mini_template->new('$mac') },
+                ],
             },
             "::VENDORS" => {
                 PacketFence => [
                     {
                         value    => 'PacketFence::Standard',
                         label    => 'Standard Switch',
-                        supports => $supports,
+                        supports => [sort ('ExternalPortal', @$supports)],
                         is_template => 1,
                     },
                 ]
+            },
+            "::SupportsExternalPortal" => {
+                'PacketFence::Standard' => 1,
             },
         },
         "Building the standard switch",

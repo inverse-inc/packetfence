@@ -30,6 +30,7 @@ sub buildEntry {
     my $type = $id;
     $entry->{type} = $type;
     my @supports = @SUPPORTS;
+    my $supportsExternalPortal = 0;
     for my $k (@RADIUS_ATTRIBUTE_SETS) {
         next unless exists $entry->{$k};
         my $ras = delete $entry->{$k};
@@ -39,6 +40,10 @@ sub buildEntry {
 
         if (exists $SetToSupports{$k}) {
             push @supports, @{$SetToSupports{$k}};
+        }
+
+        if ($k eq 'acceptUrl') {
+            $supportsExternalPortal |= 1;
         }
 
         my ($ras_errors, $set) = make_radius_attribute_set($ras);
@@ -69,6 +74,10 @@ sub buildEntry {
         supports => \@supports,
         is_template => 1,
     };
+
+    if ($supportsExternalPortal) {
+        $buildData->{entries}{'::SupportsExternalPortal'}{$type} = 1;
+    }
 
     return $entry;
 }
