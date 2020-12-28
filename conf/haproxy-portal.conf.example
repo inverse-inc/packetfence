@@ -57,4 +57,11 @@ backend static
     option forwardfor
     http-request set-uri http://127.0.0.1:8889%[path]?%[query]
 
+backend scep
+    option httpclose
+    option http_proxy
+    option forwardfor
+    http-request set-uri http://127.0.0.1:22225%[path]?%[query]
+
+
 %%http%%
