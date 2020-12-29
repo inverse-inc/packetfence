@@ -829,7 +829,7 @@ func email(ctx context.Context, cert Cert, profile Profile, file []byte, passwor
 
 	Information := types.Info{}
 
-	dict, err := parseYAMLDict()
+	dict, err := ParseYAMLDict()
 	if err != nil {
 		Information.Error = err.Error()
 		return Information, err
@@ -906,7 +906,7 @@ func parseTemplate(tplName string, lang language.Tag, data interface{}) (string,
 	return buf.String(), nil
 }
 
-func parseYAMLDict() (map[string]catalog.Dictionary, error) {
+func ParseYAMLDict() (map[string]catalog.Dictionary, error) {
 	dir := "/usr/local/pf/conf/caddy-services/locales"
 	files, err := ioutil.ReadDir(dir)
 	if err != nil {
