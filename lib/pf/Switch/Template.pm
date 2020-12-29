@@ -44,6 +44,8 @@ use pf::constants::template_switch qw(
   $DISCONNECT_TYPE_BOTH
 );
 
+use pf::config::template_switch qw(%TemplateSwitches);
+
 our %DISCONNECT_DISPATCH = (
     $DISCONNECT_TYPE_COA => \&handleCoa,
     $DISCONNECT_TYPE_DISCONNECT => \&handleDisconnect,
