@@ -20,7 +20,6 @@ import (
 	"strings"
 
 	"github.com/knq/pemutil"
-	// Import MySQL lib
 
 	"context"
 	"fmt"
@@ -47,6 +46,8 @@ type (
 	// CA struct
 	CA struct {
 		gorm.Model
+		DB               *gorm.DB
+		Ctx              context.Context
 		Cn               string                  `json:"cn,omitempty" gorm:"UNIQUE"`
 		Mail             string                  `json:"mail,omitempty" gorm:"INDEX:mail"`
 		Organisation     string                  `json:"organisation,omitempty" gorm:"INDEX:organisation"`
@@ -70,6 +71,8 @@ type (
 	// Profile struct
 	Profile struct {
 		gorm.Model
+		DB               *gorm.DB
+		Ctx              context.Context
 		Name             string                  `json:"name" gorm:"UNIQUE"`
 		Ca               CA                      `json:"-"`
 		CaID             uint                    `json:"ca_id,omitempty,string" gorm:"INDEX:ca_id"`
@@ -90,6 +93,8 @@ type (
 	// Cert struct
 	Cert struct {
 		gorm.Model
+		DB            *gorm.DB
+		Ctx           context.Context
 		Cn            string    `json:"cn,omitempty" gorm:"UNIQUE"`
 		Mail          string    `json:"mail,omitempty" gorm:"INDEX:mail"`
 		Ca            CA        `json:"-"`
@@ -114,6 +119,8 @@ type (
 	// RevokedCert struct
 	RevokedCert struct {
 		gorm.Model
+		DB            *gorm.DB
+		Ctx           context.Context
 		Cn            string    `json:"cn,omitempty" gorm:"INDEX:cn"`
 		Mail          string    `json:"mail,omitempty" gorm:"INDEX:mail"`
 		Ca            CA        `json:"-"`
@@ -184,7 +191,18 @@ type (
 // 12 ExtKeyUsageMicrosoftCommercialCodeSigning
 // 13 ExtKeyUsageMicrosoftKernelCodeSigning
 
-func (c CA) New(pfpki *types.Handler) (types.Info, error) {
+var successDBConnect = false
+
+func NewCAModel(pfpki *types.Handler) *CA {
+	CA := &CA{}
+
+	CA.DB = pfpki.DB
+	CA.Ctx = pfpki.Ctx
+
+	return CA
+}
+
+func (c CA) New() (types.Info, error) {
 
 	Information := types.Info{}
 
@@ -206,7 +224,7 @@ func (c CA) New(pfpki *types.Handler) (types.Info, error) {
 
 	var SerialNumber *big.Int
 
-	if CaDB := pfpki.DB.Last(&cadb); CaDB.Error != nil {
+	if CaDB := c.DB.Last(&cadb); CaDB.Error != nil {
 		SerialNumber = big.NewInt(1)
 	} else {
 		SerialNumber = big.NewInt(int64(cadb.ID + 1))
@@ -269,34 +287,34 @@ func (c CA) New(pfpki *types.Handler) (types.Info, error) {
 
 	h.Write(cacert.RawIssuer)
 
-	if err := pfpki.DB.Create(&CA{Cn: c.Cn, Mail: c.Mail, Organisation: c.Organisation, Country: c.Country, State: c.State, Locality: c.Locality, StreetAddress: c.StreetAddress, PostalCode: c.PostalCode, KeyType: c.KeyType, KeySize: c.KeySize, Digest: c.Digest, KeyUsage: c.KeyUsage, ExtendedKeyUsage: c.ExtendedKeyUsage, Days: c.Days, Key: keyOut.String(), Cert: cert.String(), IssuerKeyHash: hex.EncodeToString(skid), IssuerNameHash: hex.EncodeToString(h.Sum(nil))}).Error; err != nil {
+	if err := c.DB.Create(&CA{Cn: c.Cn, Mail: c.Mail, Organisation: c.Organisation, Country: c.Country, State: c.State, Locality: c.Locality, StreetAddress: c.StreetAddress, PostalCode: c.PostalCode, KeyType: c.KeyType, KeySize: c.KeySize, Digest: c.Digest, KeyUsage: c.KeyUsage, ExtendedKeyUsage: c.ExtendedKeyUsage, Days: c.Days, Key: keyOut.String(), Cert: cert.String(), IssuerKeyHash: hex.EncodeToString(skid), IssuerNameHash: hex.EncodeToString(h.Sum(nil))}).Error; err != nil {
 		Information.Error = err.Error()
 		return Information, errors.New("A database error occured. See log for details.")
 	}
 
-	pfpki.DB.Select("id, cn, mail, organisation, country, state, locality, street_address, postal_code, key_type, key_size, digest, key_usage, extended_key_usage, days, cert").Where("cn = ?", c.Cn).First(&newcadb)
+	c.DB.Select("id, cn, mail, organisation, country, state, locality, street_address, postal_code, key_type, key_size, digest, key_usage, extended_key_usage, days, cert").Where("cn = ?", c.Cn).First(&newcadb)
 	Information.Entries = newcadb
 
 	return Information, nil
 }
 
-func (c CA) GetByID(pfpki *types.Handler, params map[string]string) (types.Info, error) {
+func (c CA) GetByID(params map[string]string) (types.Info, error) {
 	Information := types.Info{}
 	var cadb []CA
 	if val, ok := params["id"]; ok {
 		allFields := strings.Join(sql.SqlFields(c)[:], ",")
-		pfpki.DB.Select(allFields).Where("`id` = ?", val).First(&cadb)
+		c.DB.Select(allFields).Where("`id` = ?", val).First(&cadb)
 	}
 	Information.Entries = cadb
 
 	return Information, nil
 }
 
-func (c CA) Fix(pfpki *types.Handler) (types.Info, error) {
+func (c CA) Fix() (types.Info, error) {
 	Information := types.Info{}
 	var cadb []CA
 
-	pfpki.DB.Find(&cadb)
+	c.DB.Find(&cadb)
 	for _, v := range cadb {
 		if v.IssuerNameHash == "" {
 
@@ -326,17 +344,17 @@ func (c CA) Fix(pfpki *types.Handler) (types.Info, error) {
 
 			v.IssuerKeyHash = hex.EncodeToString(skid)
 			v.IssuerNameHash = hex.EncodeToString(h.Sum(nil))
-			pfpki.DB.Save(&v)
+			c.DB.Save(&v)
 		}
 	}
 
 	return Information, nil
 }
 
-func (c CA) Paginated(pfpki *types.Handler, vars sql.Vars) (types.Info, error) {
+func (c CA) Paginated(vars sql.Vars) (types.Info, error) {
 	Information := types.Info{}
 	var count int
-	pfpki.DB.Model(&CA{}).Count(&count)
+	c.DB.Model(&CA{}).Count(&count)
 	Information.TotalCount = count
 	Information.PrevCursor = vars.Cursor
 	Information.NextCursor = vars.Cursor + vars.Limit
@@ -347,14 +365,14 @@ func (c CA) Paginated(pfpki *types.Handler, vars sql.Vars) (types.Info, error) {
 			return Information, errors.New("A database error occured. See log for details.")
 		}
 		var cadb []CA
-		pfpki.DB.Select(sql.Select).Order(sql.Order).Offset(sql.Offset).Limit(sql.Limit).Find(&cadb)
+		c.DB.Select(sql.Select).Order(sql.Order).Offset(sql.Offset).Limit(sql.Limit).Find(&cadb)
 		Information.Entries = cadb
 	}
 
 	return Information, nil
 }
 
-func (c CA) Search(pfpki *types.Handler, vars sql.Vars) (types.Info, error) {
+func (c CA) Search(vars sql.Vars) (types.Info, error) {
 	Information := types.Info{}
 	sql, err := vars.Sql(c)
 	if err != nil {
@@ -362,20 +380,29 @@ func (c CA) Search(pfpki *types.Handler, vars sql.Vars) (types.Info, error) {
 		return Information, errors.New("A database error occured. See log for details.")
 	}
 	var count int
-	pfpki.DB.Model(&CA{}).Where(sql.Where.Query, sql.Where.Values...).Count(&count)
+	c.DB.Model(&CA{}).Where(sql.Where.Query, sql.Where.Values...).Count(&count)
 	Information.TotalCount = count
 	Information.PrevCursor = vars.Cursor
 	Information.NextCursor = vars.Cursor + vars.Limit
 	if vars.Cursor < count {
 		var cadb []CA
-		pfpki.DB.Select(sql.Select).Where(sql.Where.Query, sql.Where.Values...).Order(sql.Order).Offset(sql.Offset).Limit(sql.Limit).Find(&cadb)
+		c.DB.Select(sql.Select).Where(sql.Where.Query, sql.Where.Values...).Order(sql.Order).Offset(sql.Offset).Limit(sql.Limit).Find(&cadb)
 		Information.Entries = cadb
 	}
 
 	return Information, nil
 }
 
-func (p Profile) New(pfpki *types.Handler) (types.Info, error) {
+func NewProfileModel(pfpki *types.Handler) *Profile {
+	Profile := &Profile{}
+
+	Profile.DB = pfpki.DB
+	Profile.Ctx = pfpki.Ctx
+
+	return Profile
+}
+
+func (p Profile) New() (types.Info, error) {
 
 	var profiledb []Profile
 	var err error
@@ -405,50 +432,50 @@ func (p Profile) New(pfpki *types.Handler) (types.Info, error) {
 	}
 
 	var ca CA
-	if CaDB := pfpki.DB.First(&ca, p.CaID).Find(&ca); CaDB.Error != nil {
+	if CaDB := p.DB.First(&ca, p.CaID).Find(&ca); CaDB.Error != nil {
 		Information.Error = CaDB.Error.Error()
 		return Information, CaDB.Error
 	}
 
-	if err := pfpki.DB.Create(&Profile{Name: p.Name, Ca: ca, CaID: p.CaID, CaName: ca.Cn, Validity: p.Validity, KeyType: p.KeyType, KeySize: p.KeySize, Digest: p.Digest, KeyUsage: p.KeyUsage, ExtendedKeyUsage: p.ExtendedKeyUsage, P12MailPassword: p.P12MailPassword, P12MailSubject: p.P12MailSubject, P12MailFrom: p.P12MailFrom, P12MailHeader: p.P12MailHeader, P12MailFooter: p.P12MailFooter}).Error; err != nil {
+	if err := p.DB.Create(&Profile{Name: p.Name, Ca: ca, CaID: p.CaID, CaName: ca.Cn, Validity: p.Validity, KeyType: p.KeyType, KeySize: p.KeySize, Digest: p.Digest, KeyUsage: p.KeyUsage, ExtendedKeyUsage: p.ExtendedKeyUsage, P12MailPassword: p.P12MailPassword, P12MailSubject: p.P12MailSubject, P12MailFrom: p.P12MailFrom, P12MailHeader: p.P12MailHeader, P12MailFooter: p.P12MailFooter}).Error; err != nil {
 		Information.Error = err.Error()
 		return Information, errors.New("A database error occured. See log for details.")
 	}
-	pfpki.DB.Select("id, name, ca_id, ca_name, validity, key_type, key_size, digest, key_usage, extended_key_usage, p12_mail_password, p12_mail_subject, p12_mail_from, p12_mail_header, p12_mail_footer").Where("name = ?", p.Name).First(&profiledb)
+	p.DB.Select("id, name, ca_id, ca_name, validity, key_type, key_size, digest, key_usage, extended_key_usage, p12_mail_password, p12_mail_subject, p12_mail_from, p12_mail_header, p12_mail_footer").Where("name = ?", p.Name).First(&profiledb)
 	Information.Entries = profiledb
 
 	return Information, nil
 }
 
-func (p Profile) Update(pfpki *types.Handler) (types.Info, error) {
+func (p Profile) Update() (types.Info, error) {
 	var profiledb []Profile
 	Information := types.Info{}
-	if err := pfpki.DB.Model(&Profile{}).Updates(&Profile{P12MailPassword: p.P12MailPassword, P12MailSubject: p.P12MailSubject, P12MailFrom: p.P12MailFrom, P12MailHeader: p.P12MailHeader, P12MailFooter: p.P12MailFooter}).Error; err != nil {
+	if err := p.DB.Model(&Profile{}).Updates(&Profile{P12MailPassword: p.P12MailPassword, P12MailSubject: p.P12MailSubject, P12MailFrom: p.P12MailFrom, P12MailHeader: p.P12MailHeader, P12MailFooter: p.P12MailFooter}).Error; err != nil {
 		Information.Error = err.Error()
 		return Information, errors.New("A database error occured. See log for details.")
 	}
-	pfpki.DB.Select("id, name, ca_id, ca_name, validity, key_type, key_size, digest, key_usage, extended_key_usage, p12_mail_password, p12_mail_subject, p12_mail_from, p12_mail_header, p12_mail_footer").Where("name = ?", p.Name).First(&profiledb)
+	p.DB.Select("id, name, ca_id, ca_name, validity, key_type, key_size, digest, key_usage, extended_key_usage, p12_mail_password, p12_mail_subject, p12_mail_from, p12_mail_header, p12_mail_footer").Where("name = ?", p.Name).First(&profiledb)
 	Information.Entries = profiledb
 
 	return Information, nil
 }
 
-func (p Profile) GetByID(pfpki *types.Handler, params map[string]string) (types.Info, error) {
+func (p Profile) GetByID(params map[string]string) (types.Info, error) {
 	Information := types.Info{}
 	var profiledb []Profile
 	if val, ok := params["id"]; ok {
 		allFields := strings.Join(sql.SqlFields(p)[:], ",")
-		pfpki.DB.Select(allFields).Where("`id` = ?", val).First(&profiledb)
+		p.DB.Select(allFields).Where("`id` = ?", val).First(&profiledb)
 	}
 	Information.Entries = profiledb
 
 	return Information, nil
 }
 
-func (p Profile) Paginated(pfpki *types.Handler, vars sql.Vars) (types.Info, error) {
+func (p Profile) Paginated(vars sql.Vars) (types.Info, error) {
 	Information := types.Info{}
 	var count int
-	pfpki.DB.Model(&Profile{}).Count(&count)
+	p.DB.Model(&Profile{}).Count(&count)
 	Information.TotalCount = count
 	Information.PrevCursor = vars.Cursor
 	Information.NextCursor = vars.Cursor + vars.Limit
@@ -459,14 +486,14 @@ func (p Profile) Paginated(pfpki *types.Handler, vars sql.Vars) (types.Info, err
 			return Information, errors.New("A database error occured. See log for details.")
 		}
 		var profiledb []Profile
-		pfpki.DB.Select(sql.Select).Order(sql.Order).Offset(sql.Offset).Limit(sql.Limit).Find(&profiledb)
+		p.DB.Select(sql.Select).Order(sql.Order).Offset(sql.Offset).Limit(sql.Limit).Find(&profiledb)
 		Information.Entries = profiledb
 	}
 
 	return Information, nil
 }
 
-func (p Profile) Search(pfpki *types.Handler, vars sql.Vars) (types.Info, error) {
+func (p Profile) Search(vars sql.Vars) (types.Info, error) {
 	Information := types.Info{}
 	sql, err := vars.Sql(p)
 	if err != nil {
@@ -474,32 +501,41 @@ func (p Profile) Search(pfpki *types.Handler, vars sql.Vars) (types.Info, error)
 		return Information, errors.New("A database error occured. See log for details.")
 	}
 	var count int
-	pfpki.DB.Model(&Profile{}).Where(sql.Where.Query, sql.Where.Values...).Count(&count)
+	p.DB.Model(&Profile{}).Where(sql.Where.Query, sql.Where.Values...).Count(&count)
 	Information.TotalCount = count
 	Information.PrevCursor = vars.Cursor
 	Information.NextCursor = vars.Cursor + vars.Limit
 	if vars.Cursor < count {
 		var profiledb []Profile
-		pfpki.DB.Select(sql.Select).Where(sql.Where.Query, sql.Where.Values...).Order(sql.Order).Offset(sql.Offset).Limit(sql.Limit).Find(&profiledb)
+		p.DB.Select(sql.Select).Where(sql.Where.Query, sql.Where.Values...).Order(sql.Order).Offset(sql.Offset).Limit(sql.Limit).Find(&profiledb)
 		Information.Entries = profiledb
 	}
 
 	return Information, nil
 }
 
-func (c Cert) New(pfpki *types.Handler) (types.Info, error) {
+func NewCertModel(pfpki *types.Handler) *Cert {
+	Cert := &Cert{}
+
+	Cert.DB = pfpki.DB
+	Cert.Ctx = pfpki.Ctx
+
+	return Cert
+}
+
+func (c Cert) New() (types.Info, error) {
 	Information := types.Info{}
 
 	// Find the profile
 	var prof Profile
-	if profDB := pfpki.DB.First(&prof, c.ProfileID); profDB.Error != nil {
+	if profDB := c.DB.First(&prof, c.ProfileID); profDB.Error != nil {
 		Information.Error = profDB.Error.Error()
 		return Information, errors.New("A database error occured. See log for details.")
 	}
 
 	// Find the CA
 	var ca CA
-	if CaDB := pfpki.DB.First(&ca, prof.CaID).Find(&ca); CaDB.Error != nil {
+	if CaDB := c.DB.First(&ca, prof.CaID).Find(&ca); CaDB.Error != nil {
 		Information.Error = CaDB.Error.Error()
 		return Information, errors.New("A database error occured. See log for details.")
 	}
@@ -519,7 +555,7 @@ func (c Cert) New(pfpki *types.Handler) (types.Info, error) {
 	var newcertdb []Cert
 	var SerialNumber *big.Int
 
-	if CertDB := pfpki.DB.Last(&certdb).Related(&ca); CertDB.Error != nil {
+	if CertDB := c.DB.Last(&certdb).Related(&ca); CertDB.Error != nil {
 		SerialNumber = big.NewInt(1)
 	} else {
 		SerialNumber = big.NewInt(int64(certdb.ID + 1))
@@ -566,25 +602,25 @@ func (c Cert) New(pfpki *types.Handler) (types.Info, error) {
 	// Public key
 	pem.Encode(certBuff, &pem.Block{Type: "CERTIFICATE", Bytes: certByte})
 
-	if err := pfpki.DB.Create(&Cert{Cn: c.Cn, Ca: ca, CaName: ca.Cn, ProfileName: prof.Name, SerialNumber: SerialNumber.String(), Mail: c.Mail, StreetAddress: c.StreetAddress, Organisation: c.Organisation, Country: c.Country, State: c.State, Locality: c.Locality, PostalCode: c.PostalCode, Profile: prof, Key: keyOut.String(), Cert: certBuff.String(), ValidUntil: cert.NotAfter}).Error; err != nil {
+	if err := c.DB.Create(&Cert{Cn: c.Cn, Ca: ca, CaName: ca.Cn, ProfileName: prof.Name, SerialNumber: SerialNumber.String(), Mail: c.Mail, StreetAddress: c.StreetAddress, Organisation: c.Organisation, Country: c.Country, State: c.State, Locality: c.Locality, PostalCode: c.PostalCode, Profile: prof, Key: keyOut.String(), Cert: certBuff.String(), ValidUntil: cert.NotAfter}).Error; err != nil {
 		Information.Error = err.Error()
 		return Information, errors.New("A database error occured. See log for details.")
 	}
-	pfpki.DB.Select("id, cn, mail, street_address, organisation, country, state, locality, postal_code, cert, profile_id, profile_name, ca_name, ca_id, valid_until, serial_number").Where("cn = ?", c.Cn).First(&newcertdb)
+	c.DB.Select("id, cn, mail, street_address, organisation, country, state, locality, postal_code, cert, profile_id, profile_name, ca_name, ca_id, valid_until, serial_number").Where("cn = ?", c.Cn).First(&newcertdb)
 	Information.Entries = newcertdb
 
 	return Information, nil
 }
 
-func (c Cert) GetByID(pfpki *types.Handler, params map[string]string) (types.Info, error) {
+func (c Cert) GetByID(params map[string]string) (types.Info, error) {
 	Information := types.Info{}
 	var certdb []Cert
 	allFields := strings.Join(sql.SqlFields(c)[:], ",")
 	if val, ok := params["id"]; ok {
-		pfpki.DB.Select(allFields).Where("`id` = ?", val).First(&certdb)
+		c.DB.Select(allFields).Where("`id` = ?", val).First(&certdb)
 	}
 	if val, ok := params["cn"]; ok {
-		pfpki.DB.Select(allFields).Where("`cn` = ?", val).First(&certdb)
+		c.DB.Select(allFields).Where("`cn` = ?", val).First(&certdb)
 	}
 
 	Information.Entries = certdb
@@ -592,10 +628,10 @@ func (c Cert) GetByID(pfpki *types.Handler, params map[string]string) (types.Inf
 	return Information, nil
 }
 
-func (c Cert) Paginated(pfpki *types.Handler, vars sql.Vars) (types.Info, error) {
+func (c Cert) Paginated(vars sql.Vars) (types.Info, error) {
 	Information := types.Info{}
 	var count int
-	pfpki.DB.Model(&Cert{}).Count(&count)
+	c.DB.Model(&Cert{}).Count(&count)
 	Information.TotalCount = count
 	Information.PrevCursor = vars.Cursor
 	Information.NextCursor = vars.Cursor + vars.Limit
@@ -606,14 +642,14 @@ func (c Cert) Paginated(pfpki *types.Handler, vars sql.Vars) (types.Info, error)
 			return Information, errors.New("A database error occured. See log for details.")
 		}
 		var certdb []Cert
-		pfpki.DB.Select(sql.Select).Order(sql.Order).Offset(sql.Offset).Limit(sql.Limit).Find(&certdb)
+		c.DB.Select(sql.Select).Order(sql.Order).Offset(sql.Offset).Limit(sql.Limit).Find(&certdb)
 		Information.Entries = certdb
 	}
 
 	return Information, nil
 }
 
-func (c Cert) Search(pfpki *types.Handler, vars sql.Vars) (types.Info, error) {
+func (c Cert) Search(vars sql.Vars) (types.Info, error) {
 	Information := types.Info{}
 	sql, err := vars.Sql(c)
 	if err != nil {
@@ -621,31 +657,31 @@ func (c Cert) Search(pfpki *types.Handler, vars sql.Vars) (types.Info, error) {
 		return Information, errors.New("A database error occured. See log for details.")
 	}
 	var count int
-	pfpki.DB.Model(&Cert{}).Where(sql.Where.Query, sql.Where.Values...).Count(&count)
+	c.DB.Model(&Cert{}).Where(sql.Where.Query, sql.Where.Values...).Count(&count)
 	Information.TotalCount = count
 	Information.PrevCursor = vars.Cursor
 	Information.NextCursor = vars.Cursor + vars.Limit
 	if vars.Cursor < count {
 		var certdb []Cert
-		pfpki.DB.Select(sql.Select).Where(sql.Where.Query, sql.Where.Values...).Order(sql.Order).Offset(sql.Offset).Limit(sql.Limit).Find(&certdb)
+		c.DB.Select(sql.Select).Where(sql.Where.Query, sql.Where.Values...).Order(sql.Order).Offset(sql.Offset).Limit(sql.Limit).Find(&certdb)
 		Information.Entries = certdb
 	}
 
 	return Information, nil
 }
 
-func (c Cert) Download(pfpki *types.Handler, params map[string]string) (types.Info, error) {
+func (c Cert) Download(params map[string]string) (types.Info, error) {
 	Information := types.Info{}
 	// Find the Cert
 	var cert Cert
 	if val, ok := params["cn"]; ok {
-		if CertDB := pfpki.DB.Where("Cn = ?", val).Find(&cert); CertDB.Error != nil {
+		if CertDB := c.DB.Where("Cn = ?", val).Find(&cert); CertDB.Error != nil {
 			Information.Error = CertDB.Error.Error()
 			return Information, errors.New("A database error occured. See log for details.")
 		}
 	}
 	if val, ok := params["id"]; ok {
-		if CertDB := pfpki.DB.First(&cert, val); CertDB.Error != nil {
+		if CertDB := c.DB.First(&cert, val); CertDB.Error != nil {
 			Information.Error = CertDB.Error.Error()
 			return Information, errors.New("A database error occured. See log for details.")
 		}
@@ -653,7 +689,7 @@ func (c Cert) Download(pfpki *types.Handler, params map[string]string) (types.In
 
 	// Find the CA
 	var ca CA
-	if CaDB := pfpki.DB.Model(&cert).Related(&ca); CaDB.Error != nil {
+	if CaDB := c.DB.Model(&cert).Related(&ca); CaDB.Error != nil {
 		Information.Error = CaDB.Error.Error()
 		return Information, errors.New("A database error occured. See log for details.")
 	}
@@ -667,7 +703,7 @@ func (c Cert) Download(pfpki *types.Handler, params map[string]string) (types.In
 
 	// Find the profile
 	var prof Profile
-	if profDB := pfpki.DB.Where("Name = ?", cert.ProfileName).Find(&prof); profDB.Error != nil {
+	if profDB := c.DB.Where("Name = ?", cert.ProfileName).Find(&prof); profDB.Error != nil {
 		Information.Error = profDB.Error.Error()
 		return Information, errors.New("A database error occured. See log for details.")
 	}
@@ -708,13 +744,13 @@ func (c Cert) Download(pfpki *types.Handler, params map[string]string) (types.In
 		Information.Raw = pkcs12
 		Information.ContentType = "application/x-pkcs12"
 	} else {
-		Information, err = email(pfpki.Ctx, cert, prof, pkcs12, password)
+		Information, err = email(c.Ctx, cert, prof, pkcs12, password)
 	}
 
 	return Information, err
 }
 
-func (c Cert) Revoke(pfpki *types.Handler, params map[string]string) (types.Info, error) {
+func (c Cert) Revoke(params map[string]string) (types.Info, error) {
 
 	Information := types.Info{}
 	// Find the Cert
@@ -723,21 +759,21 @@ func (c Cert) Revoke(pfpki *types.Handler, params map[string]string) (types.Info
 	id := params["id"]
 	reason := params["reason"]
 
-	if CertDB := pfpki.DB.Where("id = ?", id).Find(&cert); CertDB.Error != nil {
+	if CertDB := c.DB.Where("id = ?", id).Find(&cert); CertDB.Error != nil {
 		Information.Error = CertDB.Error.Error()
 		return Information, CertDB.Error
 	}
 
 	// Find the CA
 	var ca CA
-	if CaDB := pfpki.DB.Model(&cert).Related(&ca); CaDB.Error != nil {
+	if CaDB := c.DB.Model(&cert).Related(&ca); CaDB.Error != nil {
 		Information.Error = CaDB.Error.Error()
 		return Information, CaDB.Error
 	}
 
 	// Find the Profile
 	var profile Profile
-	if ProfileDB := pfpki.DB.Model(&cert).Related(&profile); ProfileDB.Error != nil {
+	if ProfileDB := c.DB.Model(&cert).Related(&profile); ProfileDB.Error != nil {
 		Information.Error = ProfileDB.Error.Error()
 		return Information, ProfileDB.Error
 	}
@@ -748,11 +784,11 @@ func (c Cert) Revoke(pfpki *types.Handler, params map[string]string) (types.Info
 		return Information, errors.New("Reason unsupported")
 	}
 
-	if err := pfpki.DB.Create(&RevokedCert{Cn: cert.Cn, Mail: cert.Mail, Ca: ca, CaID: cert.CaID, CaName: cert.CaName, StreetAddress: cert.StreetAddress, Organisation: cert.Organisation, Country: cert.Country, State: cert.State, Locality: cert.Locality, PostalCode: cert.Locality, Key: cert.Key, Cert: cert.Cert, Profile: profile, ProfileID: cert.ProfileID, ProfileName: cert.ProfileName, ValidUntil: cert.ValidUntil, Date: cert.Date, Revoked: time.Now(), CRLReason: intreason, SerialNumber: cert.SerialNumber}).Error; err != nil {
+	if err := c.DB.Create(&RevokedCert{Cn: cert.Cn, Mail: cert.Mail, Ca: ca, CaID: cert.CaID, CaName: cert.CaName, StreetAddress: cert.StreetAddress, Organisation: cert.Organisation, Country: cert.Country, State: cert.State, Locality: cert.Locality, PostalCode: cert.Locality, Key: cert.Key, Cert: cert.Cert, Profile: profile, ProfileID: cert.ProfileID, ProfileName: cert.ProfileName, ValidUntil: cert.ValidUntil, Date: cert.Date, Revoked: time.Now(), CRLReason: intreason, SerialNumber: cert.SerialNumber}).Error; err != nil {
 		Information.Error = err.Error()
 		return Information, err
 	}
-	if err := pfpki.DB.Unscoped().Delete(&cert).Error; err != nil {
+	if err := c.DB.Unscoped().Delete(&cert).Error; err != nil {
 		Information.Error = err.Error()
 		return Information, err
 	}
@@ -760,22 +796,31 @@ func (c Cert) Revoke(pfpki *types.Handler, params map[string]string) (types.Info
 	return Information, nil
 }
 
-func (c RevokedCert) GetByID(pfpki *types.Handler, params map[string]string) (types.Info, error) {
+func NewRevokedCertModel(pfpki *types.Handler) *RevokedCert {
+	RevokedCert := &RevokedCert{}
+
+	RevokedCert.DB = pfpki.DB
+	RevokedCert.Ctx = pfpki.Ctx
+
+	return RevokedCert
+}
+
+func (c RevokedCert) GetByID(params map[string]string) (types.Info, error) {
 	Information := types.Info{}
 	var revokedcertdb []RevokedCert
 	if val, ok := params["id"]; ok {
 		allFields := strings.Join(sql.SqlFields(c)[:], ",")
-		pfpki.DB.Select(allFields).Where("`id` = ?", val).First(&revokedcertdb)
+		c.DB.Select(allFields).Where("`id` = ?", val).First(&revokedcertdb)
 	}
 	Information.Entries = revokedcertdb
 
 	return Information, nil
 }
 
-func (c RevokedCert) Paginated(pfpki *types.Handler, vars sql.Vars) (types.Info, error) {
+func (c RevokedCert) Paginated(vars sql.Vars) (types.Info, error) {
 	Information := types.Info{}
 	var count int
-	pfpki.DB.Model(&Cert{}).Count(&count)
+	c.DB.Model(&Cert{}).Count(&count)
 	Information.TotalCount = count
 	Information.PrevCursor = vars.Cursor
 	Information.NextCursor = vars.Cursor + vars.Limit
@@ -786,14 +831,14 @@ func (c RevokedCert) Paginated(pfpki *types.Handler, vars sql.Vars) (types.Info,
 			return Information, err
 		}
 		var revokedcertdb []RevokedCert
-		pfpki.DB.Select(sql.Select).Order(sql.Order).Offset(sql.Offset).Limit(sql.Limit).Find(&revokedcertdb)
+		c.DB.Select(sql.Select).Order(sql.Order).Offset(sql.Offset).Limit(sql.Limit).Find(&revokedcertdb)
 		Information.Entries = revokedcertdb
 	}
 
 	return Information, nil
 }
 
-func (c RevokedCert) Search(pfpki *types.Handler, vars sql.Vars) (types.Info, error) {
+func (c RevokedCert) Search(vars sql.Vars) (types.Info, error) {
 	Information := types.Info{}
 	sql, err := vars.Sql(c)
 	if err != nil {
@@ -801,13 +846,13 @@ func (c RevokedCert) Search(pfpki *types.Handler, vars sql.Vars) (types.Info, er
 		return Information, err
 	}
 	var count int
-	pfpki.DB.Model(&Cert{}).Where(sql.Where.Query, sql.Where.Values...).Count(&count)
+	c.DB.Model(&Cert{}).Where(sql.Where.Query, sql.Where.Values...).Count(&count)
 	Information.TotalCount = count
 	Information.PrevCursor = vars.Cursor
 	Information.NextCursor = vars.Cursor + vars.Limit
 	if vars.Cursor < count {
 		var revokedcertdb []RevokedCert
-		pfpki.DB.Select(sql.Select).Where(sql.Where.Query, sql.Where.Values...).Order(sql.Order).Offset(sql.Offset).Limit(sql.Limit).Find(&revokedcertdb)
+		c.DB.Select(sql.Select).Where(sql.Where.Query, sql.Where.Values...).Order(sql.Order).Offset(sql.Offset).Limit(sql.Limit).Find(&revokedcertdb)
 		Information.Entries = revokedcertdb
 	}
 
