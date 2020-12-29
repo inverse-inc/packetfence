@@ -20,7 +20,7 @@ import (
 	"github.com/inverse-inc/packetfence/go/log"
 )
 
-func searchCA(pfpki *types.Handler) http.Handler {
+func SearchCA(pfpki *types.Handler) http.Handler {
 	return http.HandlerFunc(func(res http.ResponseWriter, req *http.Request) {
 
 		var o models.CA
@@ -50,7 +50,7 @@ func searchCA(pfpki *types.Handler) http.Handler {
 	})
 }
 
-func getSetCA(pfpki *types.Handler) http.Handler {
+func GetSetCA(pfpki *types.Handler) http.Handler {
 	return http.HandlerFunc(func(res http.ResponseWriter, req *http.Request) {
 		var o models.CA
 		var Information types.Info
@@ -97,7 +97,7 @@ func getSetCA(pfpki *types.Handler) http.Handler {
 	})
 }
 
-func getCAByID(pfpki *types.Handler) http.Handler {
+func GetCAByID(pfpki *types.Handler) http.Handler {
 	return http.HandlerFunc(func(res http.ResponseWriter, req *http.Request) {
 		var o models.CA
 		var Information types.Info
@@ -124,7 +124,7 @@ func getCAByID(pfpki *types.Handler) http.Handler {
 	})
 }
 
-func fixCA(pfpki *types.Handler) http.Handler {
+func FixCA(pfpki *types.Handler) http.Handler {
 	return http.HandlerFunc(func(res http.ResponseWriter, req *http.Request) {
 		var o models.CA
 		var Information types.Info
@@ -142,7 +142,7 @@ func fixCA(pfpki *types.Handler) http.Handler {
 	})
 }
 
-func getSetProfile(pfpki *types.Handler) http.Handler {
+func GetSetProfile(pfpki *types.Handler) http.Handler {
 	return http.HandlerFunc(func(res http.ResponseWriter, req *http.Request) {
 
 		var o models.Profile
@@ -190,7 +190,7 @@ func getSetProfile(pfpki *types.Handler) http.Handler {
 	})
 }
 
-func searchProfile(pfpki *types.Handler) http.Handler {
+func SearchProfile(pfpki *types.Handler) http.Handler {
 	return http.HandlerFunc(func(res http.ResponseWriter, req *http.Request) {
 
 		var o models.Profile
@@ -222,7 +222,7 @@ func searchProfile(pfpki *types.Handler) http.Handler {
 	})
 }
 
-func getProfileByID(pfpki *types.Handler) http.Handler {
+func GetProfileByID(pfpki *types.Handler) http.Handler {
 	return http.HandlerFunc(func(res http.ResponseWriter, req *http.Request) {
 
 		var o models.Profile
@@ -267,7 +267,7 @@ func getProfileByID(pfpki *types.Handler) http.Handler {
 	})
 }
 
-func getSetCert(pfpki *types.Handler) http.Handler {
+func GetSetCert(pfpki *types.Handler) http.Handler {
 	return http.HandlerFunc(func(res http.ResponseWriter, req *http.Request) {
 
 		var o models.Cert
@@ -316,7 +316,7 @@ func getSetCert(pfpki *types.Handler) http.Handler {
 	})
 }
 
-func searchCert(pfpki *types.Handler) http.Handler {
+func SearchCert(pfpki *types.Handler) http.Handler {
 	return http.HandlerFunc(func(res http.ResponseWriter, req *http.Request) {
 
 		var o models.Cert
@@ -348,7 +348,7 @@ func searchCert(pfpki *types.Handler) http.Handler {
 	})
 }
 
-func getCertByID(pfpki *types.Handler) http.Handler {
+func GetCertByID(pfpki *types.Handler) http.Handler {
 	return http.HandlerFunc(func(res http.ResponseWriter, req *http.Request) {
 
 		var o models.Cert
@@ -376,7 +376,7 @@ func getCertByID(pfpki *types.Handler) http.Handler {
 	})
 }
 
-func downloadCert(pfpki *types.Handler) http.Handler {
+func DownloadCert(pfpki *types.Handler) http.Handler {
 	return http.HandlerFunc(func(res http.ResponseWriter, req *http.Request) {
 
 		var o models.Cert
@@ -411,7 +411,7 @@ func downloadCert(pfpki *types.Handler) http.Handler {
 	})
 }
 
-func emailCert(pfpki *types.Handler) http.Handler {
+func EmailCert(pfpki *types.Handler) http.Handler {
 	return http.HandlerFunc(func(res http.ResponseWriter, req *http.Request) {
 
 		var o models.Cert
@@ -439,7 +439,7 @@ func emailCert(pfpki *types.Handler) http.Handler {
 	})
 }
 
-func revokeCert(pfpki *types.Handler) http.Handler {
+func RevokeCert(pfpki *types.Handler) http.Handler {
 	return http.HandlerFunc(func(res http.ResponseWriter, req *http.Request) {
 
 		var o models.Cert
@@ -473,7 +473,7 @@ func revokeCert(pfpki *types.Handler) http.Handler {
 	})
 }
 
-func getRevoked(pfpki *types.Handler) http.Handler {
+func GetRevoked(pfpki *types.Handler) http.Handler {
 	return http.HandlerFunc(func(res http.ResponseWriter, req *http.Request) {
 
 		var o models.RevokedCert
@@ -504,7 +504,7 @@ func getRevoked(pfpki *types.Handler) http.Handler {
 	})
 }
 
-func searchRevoked(pfpki *types.Handler) http.Handler {
+func SearchRevoked(pfpki *types.Handler) http.Handler {
 	return http.HandlerFunc(func(res http.ResponseWriter, req *http.Request) {
 
 		var o models.RevokedCert
@@ -535,7 +535,7 @@ func searchRevoked(pfpki *types.Handler) http.Handler {
 	})
 }
 
-func getRevokedByID(pfpki *types.Handler) http.Handler {
+func GetRevokedByID(pfpki *types.Handler) http.Handler {
 	return http.HandlerFunc(func(res http.ResponseWriter, req *http.Request) {
 
 		var o models.RevokedCert
@@ -599,7 +599,7 @@ func manageAnswer(Information types.Info, Error types.Errors, pfpki *types.Handl
 	}
 }
 
-func manageOcsp(pfpki *types.Handler) http.Handler {
+func ManageOcsp(pfpki *types.Handler) http.Handler {
 	return http.HandlerFunc(func(res http.ResponseWriter, req *http.Request) {
 		log.LoggerWContext(pfpki.Ctx).Info(fmt.Sprintf("Got %s request from %s", req.Method, req.RemoteAddr))
 		if req.Header.Get("Content-Type") != "application/ocsp-request" {
@@ -642,7 +642,7 @@ func manageOcsp(pfpki *types.Handler) http.Handler {
 	})
 }
 
-func manageSCEP(pfpki *types.Handler) http.Handler {
+func ManageSCEP(pfpki *types.Handler) http.Handler {
 	return http.HandlerFunc(func(res http.ResponseWriter, req *http.Request) {
 		log.LoggerWContext(pfpki.Ctx).Info(fmt.Sprintf("Got %s request from %s", req.Method, req.RemoteAddr))
 		scep.ScepHandler(pfpki, res, req)

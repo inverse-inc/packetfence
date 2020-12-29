@@ -8,9 +8,11 @@ import (
 	"github.com/gorilla/mux"
 	"github.com/inverse-inc/packetfence/go/caddy/caddy"
 	"github.com/inverse-inc/packetfence/go/caddy/caddy/caddyhttp/httpserver"
+	"github.com/inverse-inc/packetfence/go/caddy/pfpki/handlers"
+	"github.com/inverse-inc/packetfence/go/caddy/pfpki/models"
+	"github.com/inverse-inc/packetfence/go/caddy/pfpki/types"
 	"github.com/inverse-inc/packetfence/go/db"
 	"github.com/inverse-inc/packetfence/go/log"
-	"github.com/inverse-inc/packetfence/go/panichandler"
 	"github.com/inverse-inc/packetfence/go/sharedutils"
 	"github.com/jinzhu/gorm"
 	"golang.org/x/text/message"
@@ -25,7 +27,7 @@ func init() {
 		ServerType: "http",
 		Action:     setup,
 	})
-	dict, err := parseYAMLDict()
+	dict, err := models.ParseYAMLDict()
 	if err != nil {
 		panic(err)
 	}
@@ -52,9 +54,9 @@ func setup(c *caddy.Controller) error {
 	return nil
 }
 
-func buildPfpkiHandler(ctx context.Context) (Handler, error) {
+func buildPfpkiHandler(ctx context.Context) (types.Handler, error) {
 
-	pfpki := Handler{}
+	pfpki := types.Handler{}
 	var Database *gorm.DB
 	var err error
 
@@ -81,51 +83,51 @@ func buildPfpkiHandler(ctx context.Context) (Handler, error) {
 	// Default http timeout
 	http.DefaultClient.Timeout = 10 * time.Second
 
-	pfpki.router = mux.NewRouter()
+	pfpki.Router = mux.NewRouter()
 	PFPki := &pfpki
-	api := pfpki.router.PathPrefix("/api/v1").Subrouter()
+	api := pfpki.Router.PathPrefix("/api/v1").Subrouter()
 
 	// CAs (GET: list, POST: create)
-	api.Handle("/pki/cas", getSetCA(PFPki)).Methods("GET", "POST")
+	api.Handle("/pki/cas", handlers.GetSetCA(PFPki)).Methods("GET", "POST")
 	// Search CAs
-	api.Handle("/pki/cas/search", searchCA(PFPki)).Methods("POST")
+	api.Handle("/pki/cas/search", handlers.SearchCA(PFPki)).Methods("POST")
 	// Fix CA after Import
-	api.Handle("/pki/ca/fix", fixCA(PFPki)).Methods("GET")
+	api.Handle("/pki/ca/fix", handlers.FixCA(PFPki)).Methods("GET")
 	// Get CA by ID
-	api.Handle("/pki/ca/{id}", getCAByID(PFPki)).Methods("GET")
+	api.Handle("/pki/ca/{id}", handlers.GetCAByID(PFPki)).Methods("GET")
 
 	// Profiles (GET: list, POST: create)
-	api.Handle("/pki/profiles", getSetProfile(PFPki)).Methods("GET", "POST")
+	api.Handle("/pki/profiles", handlers.GetSetProfile(PFPki)).Methods("GET", "POST")
 	// Search Profiles
-	api.Handle("/pki/profiles/search", searchProfile(PFPki)).Methods("POST")
+	api.Handle("/pki/profiles/search", handlers.SearchProfile(PFPki)).Methods("POST")
 	// Profile by ID (GET: get, PATCH: update)
-	api.Handle("/pki/profile/{id}", getProfileByID(PFPki)).Methods("GET", "PATCH")
+	api.Handle("/pki/profile/{id}", handlers.GetProfileByID(PFPki)).Methods("GET", "PATCH")
 
 	// Certificates (GET: list, POST: create)
-	api.Handle("/pki/certs", getSetCert(PFPki)).Methods("GET", "POST")
+	api.Handle("/pki/certs", handlers.GetSetCert(PFPki)).Methods("GET", "POST")
 	// Search Certificates
-	api.Handle("/pki/certs/search", searchCert(PFPki)).Methods("POST")
+	api.Handle("/pki/certs/search", handlers.SearchCert(PFPki)).Methods("POST")
 	// Get Certificate by ID
-	api.Handle("/pki/cert/{id}", getCertByID(PFPki)).Methods("GET")
+	api.Handle("/pki/cert/{id}", handlers.GetCertByID(PFPki)).Methods("GET")
 	// Download Certificate
-	api.Handle("/pki/cert/{id}/download/{password}", downloadCert(PFPki)).Methods("GET")
+	api.Handle("/pki/cert/{id}/download/{password}", handlers.DownloadCert(PFPki)).Methods("GET")
 	// Get Certificate by email
-	api.Handle("/pki/cert/{id}/email", emailCert(PFPki)).Methods("GET")
+	api.Handle("/pki/cert/{id}/email", handlers.EmailCert(PFPki)).Methods("GET")
 	// Revoke Certificate
-	api.Handle("/pki/cert/{id}/{reason}", revokeCert(PFPki)).Methods("DELETE")
+	api.Handle("/pki/cert/{id}/{reason}", handlers.RevokeCert(PFPki)).Methods("DELETE")
 
 	// Revoked Certificates
-	api.Handle("/pki/revokedcerts", getRevoked(PFPki)).Methods("GET")
+	api.Handle("/pki/revokedcerts", handlers.GetRevoked(PFPki)).Methods("GET")
 	// Search Revoked Certificates
-	api.Handle("/pki/revokedcerts/search", searchRevoked(PFPki)).Methods("POST")
+	api.Handle("/pki/revokedcerts/search", handlers.SearchRevoked(PFPki)).Methods("POST")
 	// Get Revoked Certificate by ID
-	api.Handle("/pki/revokedcert/{id}", getRevokedByID(PFPki)).Methods("GET")
+	api.Handle("/pki/revokedcert/{id}", handlers.GetRevokedByID(PFPki)).Methods("GET")
 
 	// OCSP responder
-	api.Handle("/pki/ocsp", manageOcsp(PFPki)).Methods("GET", "POST")
+	api.Handle("/pki/ocsp", handlers.ManageOcsp(PFPki)).Methods("GET", "POST")
 
 	// SCEP responder
-	api.Handle("/pki/scep", manageSCEP(PFPki)).Methods("GET", "POST")
+	api.Handle("/pki/scep", handlers.ManageSCEP(PFPki)).Methods("GET", "POST")
 
 	go func() {
 		for {
@@ -135,20 +137,4 @@ func buildPfpkiHandler(ctx context.Context) (Handler, error) {
 	}()
 
 	return pfpki, nil
-}
-
-func (h Handler) ServeHTTP(w http.ResponseWriter, r *http.Request) (int, error) {
-	ctx := r.Context()
-	r = r.WithContext(ctx)
-
-	defer panichandler.Http(ctx, w)
-
-	routeMatch := mux.RouteMatch{}
-	if h.router.Match(r, &routeMatch) {
-		h.router.ServeHTTP(w, r)
-
-		// TODO change me and wrap actions into something that handles server errors
-		return 0, nil
-	}
-	return h.Next.ServeHTTP(w, r)
 }
