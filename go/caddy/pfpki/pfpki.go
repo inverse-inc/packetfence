@@ -36,16 +36,6 @@ func init() {
 	message.DefaultCatalog = cat
 }
 
-type (
-	// Handler struct
-	Handler struct {
-		Next   httpserver.Handler
-		router *mux.Router
-		DB     *gorm.DB
-		Ctx    context.Context
-	}
-)
-
 // Setup the pfpki middleware
 func setup(c *caddy.Controller) error {
 	ctx := log.LoggerNewContext(context.Background())

@@ -1,4 +1,4 @@
-package pfpki
+package certutils
 
 import (
 	"bytes"
@@ -21,8 +21,9 @@ import (
 	"strconv"
 	"strings"
 	"time"
-)
 
+	"github.com/inverse-inc/packetfence/go/caddy/pfpki/types"
+)
 
 // DSAKeyFormat is the format of a DSA key
 type DSAKeyFormat struct {
@@ -35,13 +36,13 @@ var PRNG io.Reader = rand.Reader
 
 // Supported key format
 const (
-	KEY_UNSUPPORTED Type = iota - 1
+	KEY_UNSUPPORTED types.Type = iota - 1
 	KEY_ECDSA
 	KEY_RSA
 	KEY_DSA
 )
 
-func extkeyusage(ExtendedKeyUsage []string) []x509.ExtKeyUsage {
+func Extkeyusage(ExtendedKeyUsage []string) []x509.ExtKeyUsage {
 	// Set up extra key uses for certificate
 	extKeyUsage := make([]x509.ExtKeyUsage, 0)
 	for _, use := range ExtendedKeyUsage {
@@ -52,7 +53,7 @@ func extkeyusage(ExtendedKeyUsage []string) []x509.ExtKeyUsage {
 	return extKeyUsage
 }
 
-func keyusage(KeyUsage []string) int {
+func Keyusage(KeyUsage []string) int {
 	keyUsage := 0
 	for _, use := range KeyUsage {
 		v, _ := strconv.Atoi(use)
@@ -62,7 +63,7 @@ func keyusage(KeyUsage []string) int {
 }
 
 // GenerateKey function generate the public/private key based on the type and the size
-func GenerateKey(keytype Type, size int) (keyOut *bytes.Buffer, pub crypto.PublicKey, key crypto.PrivateKey, err error) {
+func GenerateKey(keytype types.Type, size int) (keyOut *bytes.Buffer, pub crypto.PublicKey, key crypto.PrivateKey, err error) {
 
 	keyOut = new(bytes.Buffer)
 
@@ -147,7 +148,7 @@ func GenerateKey(keytype Type, size int) (keyOut *bytes.Buffer, pub crypto.Publi
 	return keyOut, pub, key, nil
 }
 
-func calculateSKID(pubKey crypto.PublicKey) ([]byte, error) {
+func CalculateSKID(pubKey crypto.PublicKey) ([]byte, error) {
 	spkiASN1, err := x509.MarshalPKIXPublicKey(pubKey)
 	if err != nil {
 		return nil, err
@@ -165,7 +166,7 @@ func calculateSKID(pubKey crypto.PublicKey) ([]byte, error) {
 	return skid[:], nil
 }
 
-func generatePassword() string {
+func GeneratePassword() string {
 	mathrand.Seed(time.Now().UnixNano())
 	chars := []rune("ABCDEFGHIJKLMNOPQRSTUVWXYZ" +
 		"abcdefghijklmnopqrstuvwxyz" +
@@ -240,7 +241,7 @@ func ParseRsaPublicKeyFromPemStr(pubPEM string) (*rsa.PublicKey, error) {
 }
 
 // parses a pem encoded x509 certificate
-func parseCertFile(pubPEM string) (*x509.Certificate, error) {
+func ParseCertFile(pubPEM string) (*x509.Certificate, error) {
 	block, _ := pem.Decode([]byte(pubPEM))
 	if block == nil {
 		return nil, errors.New("failed to parse PEM block containing the key")
@@ -253,7 +254,7 @@ func parseCertFile(pubPEM string) (*x509.Certificate, error) {
 }
 
 // parses a PEM encoded PKCS8 private key (RSA only)
-func parseKeyFile(filename string) (interface{}, error) {
+func ParseKeyFile(filename string) (interface{}, error) {
 	kt, err := ioutil.ReadFile(filename)
 	if err != nil {
 		return nil, err

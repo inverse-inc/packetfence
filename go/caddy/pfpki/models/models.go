@@ -1,6 +1,8 @@
-package pfpki
+package models
 
 import (
+	"time"
+
 	"bytes"
 	"crypto/dsa"
 	"crypto/ecdsa"
@@ -16,13 +18,124 @@ import (
 	"math/big"
 	"strconv"
 	"strings"
-	"time"
 
 	"github.com/knq/pemutil"
 	// Import MySQL lib
+
+	"context"
+	"fmt"
+	"html/template"
+	"io"
+	"io/ioutil"
+
+	"github.com/inverse-inc/packetfence/go/caddy/pfpki/certutils"
+	"github.com/inverse-inc/packetfence/go/caddy/pfpki/sql"
+	"github.com/inverse-inc/packetfence/go/caddy/pfpki/types"
+	"github.com/jinzhu/gorm"
 	_ "github.com/jinzhu/gorm/dialects/mysql"
 	pkcs12 "software.sslmate.com/src/go-pkcs12"
-	"github.com/inverse-inc/packetfence/go/caddy/pfpki/gormmodels"
+
+	"github.com/inverse-inc/packetfence/go/pfconfigdriver"
+	"golang.org/x/text/language"
+	"golang.org/x/text/message"
+	"golang.org/x/text/message/catalog"
+	gomail "gopkg.in/gomail.v2"
+	yaml "gopkg.in/yaml.v2"
+)
+
+type (
+	// CA struct
+	CA struct {
+		gorm.Model
+		Cn               string                  `json:"cn,omitempty" gorm:"UNIQUE"`
+		Mail             string                  `json:"mail,omitempty" gorm:"INDEX:mail"`
+		Organisation     string                  `json:"organisation,omitempty" gorm:"INDEX:organisation"`
+		Country          string                  `json:"country,omitempty"`
+		State            string                  `json:"state,omitempty"`
+		Locality         string                  `json:"locality,omitempty"`
+		StreetAddress    string                  `json:"street_address,omitempty"`
+		PostalCode       string                  `json:"postal_code,omitempty"`
+		KeyType          *types.Type             `json:"key_type,omitempty,string"`
+		KeySize          int                     `json:"key_size,omitempty,string"`
+		Digest           x509.SignatureAlgorithm `json:"digest,omitempty,string"`
+		KeyUsage         *string                 `json:"key_usage,omitempty"`
+		ExtendedKeyUsage *string                 `json:"extended_key_usage,omitempty"`
+		Days             int                     `json:"days,omitempty,string"`
+		Key              string                  `json:"-" gorm:"type:longtext"`
+		Cert             string                  `json:"cert,omitempty" gorm:"type:longtext"`
+		IssuerKeyHash    string                  `json:"issuer_key_hash,omitempty" gorm:"UNIQUE_INDEX"`
+		IssuerNameHash   string                  `json:"issuer_name_hash,omitempty" gorm:"UNIQUE_INDEX"`
+	}
+
+	// Profile struct
+	Profile struct {
+		gorm.Model
+		Name             string                  `json:"name" gorm:"UNIQUE"`
+		Ca               CA                      `json:"-"`
+		CaID             uint                    `json:"ca_id,omitempty,string" gorm:"INDEX:ca_id"`
+		CaName           string                  `json:"ca_name,omitempty" gorm:"INDEX:ca_name"`
+		Validity         int                     `json:"validity,omitempty,string"`
+		KeyType          *types.Type             `json:"key_type,omitempty,string"`
+		KeySize          int                     `json:"key_size,omitempty,string"`
+		Digest           x509.SignatureAlgorithm `json:"digest,omitempty,string"`
+		KeyUsage         *string                 `json:"key_usage,omitempty"`
+		ExtendedKeyUsage *string                 `json:"extended_key_usage,omitempty"`
+		P12MailPassword  int                     `json:"p12_mail_password,omitempty,string"`
+		P12MailSubject   string                  `json:"p12_mail_subject,omitempty"`
+		P12MailFrom      string                  `json:"p12_mail_from,omitempty"`
+		P12MailHeader    string                  `json:"p12_mail_header,omitempty"`
+		P12MailFooter    string                  `json:"p12_mail_footer,omitempty"`
+	}
+
+	// Cert struct
+	Cert struct {
+		gorm.Model
+		Cn            string    `json:"cn,omitempty" gorm:"UNIQUE"`
+		Mail          string    `json:"mail,omitempty" gorm:"INDEX:mail"`
+		Ca            CA        `json:"-"`
+		CaID          uint      `json:"ca_id,omitempty" gorm:"INDEX:ca_id"`
+		CaName        string    `json:"ca_name,omitempty" gorm:"INDEX:ca_name"`
+		StreetAddress string    `json:"street_address,omitempty"`
+		Organisation  string    `json:"organisation,omitempty" gorm:"INDEX:organisation"`
+		Country       string    `json:"country,omitempty"`
+		State         string    `json:"state,omitempty"`
+		Locality      string    `json:"locality,omitempty"`
+		PostalCode    string    `json:"postal_code,omitempty"`
+		Key           string    `json:"-" gorm:"type:longtext"`
+		Cert          string    `json:"cert,omitempty" gorm:"type:longtext"`
+		Profile       Profile   `json:"-"`
+		ProfileID     uint      `json:"profile_id,omitempty,string" gorm:"INDEX:profile_id"`
+		ProfileName   string    `json:"profile_name,omitempty" gorm:"INDEX:profile_name"`
+		ValidUntil    time.Time `json:"valid_until,omitempty" gorm:"INDEX:valid_until"`
+		Date          time.Time `json:"date,omitempty" gorm:"default:CURRENT_TIMESTAMP"`
+		SerialNumber  string    `json:"serial_number,omitempty"`
+	}
+
+	// RevokedCert struct
+	RevokedCert struct {
+		gorm.Model
+		Cn            string    `json:"cn,omitempty" gorm:"INDEX:cn"`
+		Mail          string    `json:"mail,omitempty" gorm:"INDEX:mail"`
+		Ca            CA        `json:"-"`
+		CaID          uint      `json:"ca_id,omitempty" gorm:"INDEX:ca_id"`
+		CaName        string    `json:"ca_name,omitempty" gorm:"INDEX:ca_name"`
+		StreetAddress string    `json:"street_address,omitempty"`
+		Organisation  string    `json:"organisation,omitempty" gorm:"INDEX:organisation"`
+		Country       string    `json:"country,omitempty"`
+		State         string    `json:"state,omitempty"`
+		Locality      string    `json:"locality,omitempty"`
+		PostalCode    string    `json:"postal_code,omitempty"`
+		Key           string    `json:"-" gorm:"type:longtext"`
+		Cert          string    `json:"cert,omitempty" gorm:"type:longtext"`
+		Profile       Profile   `json:"-"`
+		ProfileID     uint      `json:"profile_id,omitempty" gorm:"INDEX:profile_id"`
+		ProfileName   string    `json:"profile_name,omitempty" gorm:"INDEX:profile_name"`
+		ValidUntil    time.Time `json:"valid_until,omitempty" gorm:"INDEX:valid_until"`
+		Date          time.Time `json:"date,omitempty" gorm:"default:CURRENT_TIMESTAMP"`
+		SerialNumber  string    `json:"serial_number,omitempty"`
+		Revoked       time.Time `json:"revoked,omitempty" gorm:"INDEX:revoked"`
+		CRLReason     int       `json:"crl_reason,omitempty" gorm:"INDEX:crl_reason"`
+	}
 )
 
 // Digest Values:
@@ -71,18 +184,18 @@ import (
 // 12 ExtKeyUsageMicrosoftCommercialCodeSigning
 // 13 ExtKeyUsageMicrosoftKernelCodeSigning
 
-func (c CA) new(pfpki *Handler) (Info, error) {
+func (c CA) New(pfpki *types.Handler) (types.Info, error) {
 
-	Information := Info{}
+	Information := types.Info{}
 
-	keyOut, pub, key, err := GenerateKey(*c.KeyType, c.KeySize)
+	keyOut, pub, key, err := certutils.GenerateKey(*c.KeyType, c.KeySize)
 
 	if err != nil {
 		Information.Error = err.Error()
 		return Information, err
 	}
 
-	skid, err := calculateSKID(pub)
+	skid, err := certutils.CalculateSKID(pub)
 	if err != nil {
 		Information.Error = err.Error()
 		return Information, err
@@ -114,8 +227,8 @@ func (c CA) new(pfpki *Handler) (Info, error) {
 		NotAfter:              time.Now().AddDate(0, 0, c.Days),
 		IsCA:                  true,
 		SignatureAlgorithm:    c.Digest,
-		ExtKeyUsage:           extkeyusage(strings.Split(*c.ExtendedKeyUsage, "|")),
-		KeyUsage:              x509.KeyUsage(keyusage(strings.Split(*c.KeyUsage, "|"))),
+		ExtKeyUsage:           certutils.Extkeyusage(strings.Split(*c.ExtendedKeyUsage, "|")),
+		KeyUsage:              x509.KeyUsage(certutils.Keyusage(strings.Split(*c.KeyUsage, "|"))),
 		BasicConstraintsValid: true,
 		EmailAddresses:        []string{c.Mail},
 		SubjectKeyId:          skid,
@@ -125,11 +238,11 @@ func (c CA) new(pfpki *Handler) (Info, error) {
 	var caBytes []byte
 
 	switch *c.KeyType {
-	case KEY_RSA:
+	case certutils.KEY_RSA:
 		caBytes, err = x509.CreateCertificate(rand.Reader, ca, ca, pub, key.(*rsa.PrivateKey))
-	case KEY_ECDSA:
+	case certutils.KEY_ECDSA:
 		caBytes, err = x509.CreateCertificate(rand.Reader, ca, ca, pub, key.(*ecdsa.PrivateKey))
-	case KEY_DSA:
+	case certutils.KEY_DSA:
 		caBytes, err = x509.CreateCertificate(rand.Reader, ca, ca, pub, key.(*dsa.PrivateKey))
 	}
 	if err != nil {
@@ -167,11 +280,11 @@ func (c CA) new(pfpki *Handler) (Info, error) {
 	return Information, nil
 }
 
-func (c CA) getById(pfpki *Handler, params map[string]string) (Info, error) {
-	Information := Info{}
+func (c CA) GetByID(pfpki *types.Handler, params map[string]string) (types.Info, error) {
+	Information := types.Info{}
 	var cadb []CA
 	if val, ok := params["id"]; ok {
-		allFields := strings.Join(SqlFields(c)[:], ",")
+		allFields := strings.Join(sql.SqlFields(c)[:], ",")
 		pfpki.DB.Select(allFields).Where("`id` = ?", val).First(&cadb)
 	}
 	Information.Entries = cadb
@@ -179,8 +292,8 @@ func (c CA) getById(pfpki *Handler, params map[string]string) (Info, error) {
 	return Information, nil
 }
 
-func (c CA) fix(pfpki *Handler) (Info, error) {
-	Information := Info{}
+func (c CA) Fix(pfpki *types.Handler) (types.Info, error) {
+	Information := types.Info{}
 	var cadb []CA
 
 	pfpki.DB.Find(&cadb)
@@ -208,7 +321,7 @@ func (c CA) fix(pfpki *Handler) (Info, error) {
 			var skid []byte
 			for _, pemUtil := range store {
 				cert := pemUtil.(*x509.Certificate)
-				skid, _ = calculateSKID(cert.PublicKey)
+				skid, _ = certutils.CalculateSKID(cert.PublicKey)
 			}
 
 			v.IssuerKeyHash = hex.EncodeToString(skid)
@@ -220,8 +333,8 @@ func (c CA) fix(pfpki *Handler) (Info, error) {
 	return Information, nil
 }
 
-func (c CA) paginated(pfpki *Handler, vars Vars) (Info, error) {
-	Information := Info{}
+func (c CA) Paginated(pfpki *types.Handler, vars sql.Vars) (types.Info, error) {
+	Information := types.Info{}
 	var count int
 	pfpki.DB.Model(&CA{}).Count(&count)
 	Information.TotalCount = count
@@ -241,8 +354,8 @@ func (c CA) paginated(pfpki *Handler, vars Vars) (Info, error) {
 	return Information, nil
 }
 
-func (c CA) search(pfpki *Handler, vars Vars) (Info, error) {
-	Information := Info{}
+func (c CA) Search(pfpki *types.Handler, vars sql.Vars) (types.Info, error) {
+	Information := types.Info{}
 	sql, err := vars.Sql(c)
 	if err != nil {
 		Information.Error = err.Error()
@@ -262,25 +375,25 @@ func (c CA) search(pfpki *Handler, vars Vars) (Info, error) {
 	return Information, nil
 }
 
-func (p Profile) new(pfpki *Handler) (Info, error) {
+func (p Profile) New(pfpki *types.Handler) (types.Info, error) {
 
 	var profiledb []Profile
 	var err error
-	Information := Info{}
+	Information := types.Info{}
 	switch *p.KeyType {
-	case KEY_RSA:
+	case certutils.KEY_RSA:
 		if p.KeySize < 2048 {
 			err = errors.New("invalid private key size, should be at least 2048")
 			Information.Error = err.Error()
 			return Information, err
 		}
-	case KEY_ECDSA:
+	case certutils.KEY_ECDSA:
 		if !(p.KeySize == 256 || p.KeySize == 384 || p.KeySize == 521) {
 			err = errors.New("invalid private key size, should be 256 or 384 or 521")
 			Information.Error = err.Error()
 			return Information, err
 		}
-	case KEY_DSA:
+	case certutils.KEY_DSA:
 		if !(p.KeySize == 1024 || p.KeySize == 2048 || p.KeySize == 3072) {
 			err = errors.New("invalid private key size, should be 1024 or 2048 or 3072")
 			Information.Error = err.Error()
@@ -307,9 +420,9 @@ func (p Profile) new(pfpki *Handler) (Info, error) {
 	return Information, nil
 }
 
-func (p Profile) update(pfpki *Handler) (Info, error) {
+func (p Profile) Update(pfpki *types.Handler) (types.Info, error) {
 	var profiledb []Profile
-	Information := Info{}
+	Information := types.Info{}
 	if err := pfpki.DB.Model(&Profile{}).Updates(&Profile{P12MailPassword: p.P12MailPassword, P12MailSubject: p.P12MailSubject, P12MailFrom: p.P12MailFrom, P12MailHeader: p.P12MailHeader, P12MailFooter: p.P12MailFooter}).Error; err != nil {
 		Information.Error = err.Error()
 		return Information, errors.New("A database error occured. See log for details.")
@@ -320,11 +433,11 @@ func (p Profile) update(pfpki *Handler) (Info, error) {
 	return Information, nil
 }
 
-func (p Profile) getById(pfpki *Handler, params map[string]string) (Info, error) {
-	Information := Info{}
+func (p Profile) GetByID(pfpki *types.Handler, params map[string]string) (types.Info, error) {
+	Information := types.Info{}
 	var profiledb []Profile
 	if val, ok := params["id"]; ok {
-		allFields := strings.Join(SqlFields(p)[:], ",")
+		allFields := strings.Join(sql.SqlFields(p)[:], ",")
 		pfpki.DB.Select(allFields).Where("`id` = ?", val).First(&profiledb)
 	}
 	Information.Entries = profiledb
@@ -332,8 +445,8 @@ func (p Profile) getById(pfpki *Handler, params map[string]string) (Info, error)
 	return Information, nil
 }
 
-func (p Profile) paginated(pfpki *Handler, vars Vars) (Info, error) {
-	Information := Info{}
+func (p Profile) Paginated(pfpki *types.Handler, vars sql.Vars) (types.Info, error) {
+	Information := types.Info{}
 	var count int
 	pfpki.DB.Model(&Profile{}).Count(&count)
 	Information.TotalCount = count
@@ -353,8 +466,8 @@ func (p Profile) paginated(pfpki *Handler, vars Vars) (Info, error) {
 	return Information, nil
 }
 
-func (p Profile) search(pfpki *Handler, vars Vars) (Info, error) {
-	Information := Info{}
+func (p Profile) Search(pfpki *types.Handler, vars sql.Vars) (types.Info, error) {
+	Information := types.Info{}
 	sql, err := vars.Sql(p)
 	if err != nil {
 		Information.Error = err.Error()
@@ -374,8 +487,8 @@ func (p Profile) search(pfpki *Handler, vars Vars) (Info, error) {
 	return Information, nil
 }
 
-func (c Cert) new(pfpki *Handler) (Info, error) {
-	Information := Info{}
+func (c Cert) New(pfpki *types.Handler) (types.Info, error) {
+	Information := types.Info{}
 
 	// Find the profile
 	var prof Profile
@@ -412,14 +525,14 @@ func (c Cert) new(pfpki *Handler) (Info, error) {
 		SerialNumber = big.NewInt(int64(certdb.ID + 1))
 	}
 
-	keyOut, pub, _, err := GenerateKey(*prof.KeyType, prof.KeySize)
+	keyOut, pub, _, err := certutils.GenerateKey(*prof.KeyType, prof.KeySize)
 
 	if err != nil {
 		Information.Error = err.Error()
 		return Information, err
 	}
 
-	skid, err := calculateSKID(pub)
+	skid, err := certutils.CalculateSKID(pub)
 	if err != nil {
 		Information.Error = err.Error()
 		return Information, err
@@ -439,8 +552,8 @@ func (c Cert) new(pfpki *Handler) (Info, error) {
 		},
 		NotBefore:      time.Now(),
 		NotAfter:       time.Now().AddDate(0, 0, prof.Validity),
-		ExtKeyUsage:    extkeyusage(strings.Split(*prof.ExtendedKeyUsage, "|")),
-		KeyUsage:       x509.KeyUsage(keyusage(strings.Split(*prof.KeyUsage, "|"))),
+		ExtKeyUsage:    certutils.Extkeyusage(strings.Split(*prof.ExtendedKeyUsage, "|")),
+		KeyUsage:       x509.KeyUsage(certutils.Keyusage(strings.Split(*prof.KeyUsage, "|"))),
 		EmailAddresses: []string{c.Mail},
 		SubjectKeyId:   skid,
 	}
@@ -463,10 +576,10 @@ func (c Cert) new(pfpki *Handler) (Info, error) {
 	return Information, nil
 }
 
-func (c Cert) getById(pfpki *Handler, params map[string]string) (Info, error) {
-	Information := Info{}
+func (c Cert) GetByID(pfpki *types.Handler, params map[string]string) (types.Info, error) {
+	Information := types.Info{}
 	var certdb []Cert
-	allFields := strings.Join(SqlFields(c)[:], ",")
+	allFields := strings.Join(sql.SqlFields(c)[:], ",")
 	if val, ok := params["id"]; ok {
 		pfpki.DB.Select(allFields).Where("`id` = ?", val).First(&certdb)
 	}
@@ -479,8 +592,8 @@ func (c Cert) getById(pfpki *Handler, params map[string]string) (Info, error) {
 	return Information, nil
 }
 
-func (c Cert) paginated(pfpki *Handler, vars Vars) (Info, error) {
-	Information := Info{}
+func (c Cert) Paginated(pfpki *types.Handler, vars sql.Vars) (types.Info, error) {
+	Information := types.Info{}
 	var count int
 	pfpki.DB.Model(&Cert{}).Count(&count)
 	Information.TotalCount = count
@@ -500,8 +613,8 @@ func (c Cert) paginated(pfpki *Handler, vars Vars) (Info, error) {
 	return Information, nil
 }
 
-func (c Cert) search(pfpki *Handler, vars Vars) (Info, error) {
-	Information := Info{}
+func (c Cert) Search(pfpki *types.Handler, vars sql.Vars) (types.Info, error) {
+	Information := types.Info{}
 	sql, err := vars.Sql(c)
 	if err != nil {
 		Information.Error = err.Error()
@@ -521,8 +634,8 @@ func (c Cert) search(pfpki *Handler, vars Vars) (Info, error) {
 	return Information, nil
 }
 
-func (c Cert) download(pfpki *Handler, params map[string]string) (Info, error) {
-	Information := Info{}
+func (c Cert) Download(pfpki *types.Handler, params map[string]string) (types.Info, error) {
+	Information := types.Info{}
 	// Find the Cert
 	var cert Cert
 	if val, ok := params["cn"]; ok {
@@ -585,25 +698,25 @@ func (c Cert) download(pfpki *Handler, params map[string]string) (Info, error) {
 	if val, ok := params["password"]; ok {
 		password = val
 	} else {
-		password = generatePassword()
+		password = certutils.GeneratePassword()
 	}
 	Information.Password = password
 
-	pkcs12, err := pkcs12.Encode(PRNG, certtls.PrivateKey, certificate, CaCert, password)
+	pkcs12, err := pkcs12.Encode(certutils.PRNG, certtls.PrivateKey, certificate, CaCert, password)
 
 	if _, ok := params["password"]; ok {
 		Information.Raw = pkcs12
 		Information.ContentType = "application/x-pkcs12"
 	} else {
-		Information, err = pfpki.email(cert, prof, pkcs12, password)
+		Information, err = email(pfpki.Ctx, cert, prof, pkcs12, password)
 	}
 
 	return Information, err
 }
 
-func (c Cert) revoke(pfpki *Handler, params map[string]string) (Info, error) {
+func (c Cert) Revoke(pfpki *types.Handler, params map[string]string) (types.Info, error) {
 
-	Information := Info{}
+	Information := types.Info{}
 	// Find the Cert
 	var cert Cert
 
@@ -647,11 +760,11 @@ func (c Cert) revoke(pfpki *Handler, params map[string]string) (Info, error) {
 	return Information, nil
 }
 
-func (c RevokedCert) getById(pfpki *Handler, params map[string]string) (Info, error) {
-	Information := Info{}
+func (c RevokedCert) GetByID(pfpki *types.Handler, params map[string]string) (types.Info, error) {
+	Information := types.Info{}
 	var revokedcertdb []RevokedCert
 	if val, ok := params["id"]; ok {
-		allFields := strings.Join(SqlFields(c)[:], ",")
+		allFields := strings.Join(sql.SqlFields(c)[:], ",")
 		pfpki.DB.Select(allFields).Where("`id` = ?", val).First(&revokedcertdb)
 	}
 	Information.Entries = revokedcertdb
@@ -659,8 +772,8 @@ func (c RevokedCert) getById(pfpki *Handler, params map[string]string) (Info, er
 	return Information, nil
 }
 
-func (c RevokedCert) paginated(pfpki *Handler, vars Vars) (Info, error) {
-	Information := Info{}
+func (c RevokedCert) Paginated(pfpki *types.Handler, vars sql.Vars) (types.Info, error) {
+	Information := types.Info{}
 	var count int
 	pfpki.DB.Model(&Cert{}).Count(&count)
 	Information.TotalCount = count
@@ -680,8 +793,8 @@ func (c RevokedCert) paginated(pfpki *Handler, vars Vars) (Info, error) {
 	return Information, nil
 }
 
-func (c RevokedCert) search(pfpki *Handler, vars Vars) (Info, error) {
-	Information := Info{}
+func (c RevokedCert) Search(pfpki *types.Handler, vars sql.Vars) (types.Info, error) {
+	Information := types.Info{}
 	sql, err := vars.Sql(c)
 	if err != nil {
 		Information.Error = err.Error()
@@ -699,4 +812,137 @@ func (c RevokedCert) search(pfpki *Handler, vars Vars) (Info, error) {
 	}
 
 	return Information, nil
+}
+
+// EmailType strucure
+type EmailType struct {
+	Header   string
+	Footer   string
+	Password string
+}
+
+func email(ctx context.Context, cert Cert, profile Profile, file []byte, password string) (types.Info, error) {
+	pfconfigdriver.PfconfigPool.AddStruct(ctx, &pfconfigdriver.Config.PfConf.Alerting)
+	pfconfigdriver.PfconfigPool.AddStruct(ctx, &pfconfigdriver.Config.PfConf.Advanced)
+	alerting := pfconfigdriver.Config.PfConf.Alerting
+	advanced := pfconfigdriver.Config.PfConf.Advanced
+
+	Information := types.Info{}
+
+	dict, err := parseYAMLDict()
+	if err != nil {
+		Information.Error = err.Error()
+		return Information, err
+	}
+	cat, err := catalog.NewFromMap(dict)
+	if err != nil {
+		Information.Error = err.Error()
+		return Information, err
+	}
+	message.DefaultCatalog = cat
+
+	m := gomail.NewMessage()
+	m.SetHeader("From", alerting.FromAddr)
+	m.SetHeader("To", cert.Mail)
+	m.SetHeader("Subject", profile.P12MailSubject)
+
+	email := EmailType{Header: profile.P12MailHeader, Footer: profile.P12MailFooter}
+
+	// Undefined Header
+	if profile.P12MailHeader == "" {
+		email.Header = "msg_header"
+	}
+	// Undefined Footer
+	if profile.P12MailHeader == "" {
+		email.Footer = "msg_footer"
+	}
+
+	if profile.P12MailPassword == 1 {
+		email.Password = password
+		Information.Password = password
+	}
+
+	lang := language.MustParse(advanced.Language)
+
+	emailContent, err := parseTemplate("emails-pki_certificate.html", lang, email)
+
+	m.SetBody("text/html", emailContent)
+
+	m.Attach(cert.Cn+".p12", gomail.SetCopyFunc(func(w io.Writer) error {
+		_, err := w.Write(file)
+		return err
+	}))
+
+	d := gomail.NewDialer(alerting.SMTPServer, alerting.SMTPPort, alerting.SMTPUsername, alerting.SMTPPassword)
+
+	if alerting.SMTPVerifySSL == "disabled" {
+		d.TLSConfig = &tls.Config{InsecureSkipVerify: true}
+	}
+
+	if err := d.DialAndSend(m); err != nil {
+		Information.Error = err.Error()
+		return Information, err
+	}
+
+	return Information, nil
+}
+
+func parseTemplate(tplName string, lang language.Tag, data interface{}) (string, error) {
+	p := message.NewPrinter(lang)
+	fmap := template.FuncMap{
+		"translate": p.Sprintf,
+	}
+
+	t, err := template.New(tplName).Funcs(fmap).ParseFiles("/usr/local/pf/html/captive-portal/templates/emails/" + tplName)
+	if err != nil {
+		return "", fmt.Errorf("cannot parse template")
+	}
+
+	buf := bytes.NewBuffer([]byte{})
+	if err := t.Execute(buf, data); err != nil {
+		return "", fmt.Errorf("cannot execute parse template")
+	}
+
+	return buf.String(), nil
+}
+
+func parseYAMLDict() (map[string]catalog.Dictionary, error) {
+	dir := "/usr/local/pf/conf/caddy-services/locales"
+	files, err := ioutil.ReadDir(dir)
+	if err != nil {
+		fmt.Println(err)
+		return nil, err
+	}
+
+	translations := map[string]catalog.Dictionary{}
+
+	for _, f := range files {
+		yamlFile, err := ioutil.ReadFile(dir + "/" + f.Name())
+		if err != nil {
+			return nil, err
+		}
+		data := map[string]string{}
+		err = yaml.Unmarshal(yamlFile, &data)
+		if err != nil {
+			return nil, err
+		}
+
+		lang := strings.Split(f.Name(), ".")[0]
+
+		translations[lang] = &dictionary{Data: data}
+	}
+
+	return translations, nil
+}
+
+type dictionary struct {
+	Data map[string]string
+}
+
+func (d *dictionary) Lookup(key string) (data string, ok bool) {
+	if _, ok := d.Data[key]; !ok {
+		return "", false
+	}
+
+	return "\x02" + d.Data[key], true
 }

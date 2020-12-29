@@ -1,4 +1,4 @@
-package pfpki
+package scep
 
 import (
 	"context"
@@ -7,10 +7,11 @@ import (
 
 	"github.com/fdurand/scep/depot/file"
 	scepserver "github.com/fdurand/scep/server"
+	"github.com/inverse-inc/packetfence/go/caddy/pfpki/types"
 	"github.com/inverse-inc/packetfence/go/log"
 )
 
-func ScepHandler(pfpki *Handler, w http.ResponseWriter, r *http.Request) {
+func ScepHandler(pfpki *types.Handler, w http.ResponseWriter, r *http.Request) {
 
 	// Depot needs to fetch the db
 
