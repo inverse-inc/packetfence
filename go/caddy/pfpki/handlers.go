@@ -691,11 +691,6 @@ func manageOcsp(pfpki *Handler) http.Handler {
 func manageSCEP(pfpki *Handler) http.Handler {
 	return http.HandlerFunc(func(res http.ResponseWriter, req *http.Request) {
 		log.LoggerWContext(pfpki.Ctx).Info(fmt.Sprintf("Got %s request from %s", req.Method, req.RemoteAddr))
-		// if req.Header.Get("Content-Type") != "application/scep-request" {
-		// 	log.LoggerWContext(pfpki.Ctx).Info("Strict mode requires correct Content-Type header")
-		// 	res.WriteHeader(http.StatusBadRequest)
-		// 	return
-		// }
 		spew.Dump(req)
 		b := new(bytes.Buffer)
 		switch req.Method {
@@ -703,14 +698,12 @@ func manageSCEP(pfpki *Handler) http.Handler {
 			b.ReadFrom(req.Body)
 		case "GET":
 			log.LoggerWContext(pfpki.Ctx).Info(req.URL.Path)
-			gd, err := base64.StdEncoding.DecodeString(req.URL.Path[1:])
-			if err != nil {
-				log.LoggerWContext(pfpki.Ctx).Info(err.Error())
-				res.WriteHeader(http.StatusBadRequest)
-				return
+			params := req.URL.Query()
+			if val, ok := params["operation"]; ok {
+				if val[0] == "GetCACert" {
+
+				}
 			}
-			r := bytes.NewReader(gd)
-			b.ReadFrom(r)
 		default:
 			log.LoggerWContext(pfpki.Ctx).Info("Unsupported request method")
 			res.WriteHeader(http.StatusBadRequest)
