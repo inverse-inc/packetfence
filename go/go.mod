@@ -26,6 +26,7 @@ require (
 	github.com/fatih/structs v1.1.0 // indirect
 	github.com/fdurand/arp v0.0.0-20180807174648-27b38d3af1be
 	github.com/fdurand/go-cache v0.0.0-20180104143916-cf0198ac7d92
+	github.com/fdurand/scep v1.0.1-0.20201229152023-054ac94f1543
 	github.com/flynn/go-shlex v0.0.0-20150515145356-3f9db97f8568
 	github.com/gavv/httpexpect/v2 v2.1.0
 	github.com/gdey/jsonpath v0.0.0-20151203210429-124c978a1ffc
@@ -72,6 +73,8 @@ require (
 	github.com/mdlayher/raw v0.0.0-20171214195253-9df8b4265df2
 	github.com/mediocregopher/radix.v2 v0.0.0-20180603022615-94360be26253
 	github.com/miekg/dns v1.1.34
+	github.com/micromdm/scep v1.0.1-0.20201110133952-f3adbb75202b
+	github.com/modern-go/reflect2 v1.0.1 // indirect
 	github.com/naoina/go-stringutil v0.1.0 // indirect
 	github.com/naoina/toml v0.1.1
 	github.com/nu7hatch/gouuid v0.0.0-20131221200532-179d4d0c4d8d
