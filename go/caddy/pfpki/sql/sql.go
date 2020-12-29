@@ -1,8 +1,11 @@
-package pfpki
+package sql
 
 import (
+	"encoding/json"
 	"errors"
 	"fmt"
+	"io/ioutil"
+	"net/http"
 	"reflect"
 	"regexp"
 	"strconv"
@@ -23,6 +26,21 @@ type (
 	Where struct {
 		Query  string
 		Values []interface{}
+	}
+	Vars struct {
+		Cursor int      `schema:"cursor" json:"cursor" default:"0"`
+		Limit  int      `schema:"limit" json:"limit" default:"100"`
+		Fields []string `schema:"fields" json:"fields" default:"id"`
+		Sort   []string `schema:"sort" json:"sort" default:"id ASC"`
+		Query  Search   `schema:"query" json:"query"`
+	}
+
+	// Search struct
+	Search struct {
+		Field  string      `schema:"field" json:"field,omitempty"`
+		Op     string      `schema:"op" json:"op"`
+		Value  interface{} `schema:"value" json:"value,omitempty"`
+		Values []Search    `schema:"values" json:"values,omitempty"`
 	}
 )
 
@@ -252,4 +270,15 @@ func (search Search) SqlWhere(class interface{}) (Where, error) {
 		}
 	}
 	return where, nil
+}
+
+func (vars *Vars) DecodeBodyJson(req *http.Request) error {
+	body, err := ioutil.ReadAll(req.Body)
+	if err != nil {
+		return err
+	}
+	if err := json.Unmarshal(body, &vars); err != nil {
+		return err
+	}
+	return nil
 }

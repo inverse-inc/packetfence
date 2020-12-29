@@ -1,4 +1,4 @@
-package pfpki
+package ocspresponder
 
 import (
 	"bytes"
@@ -15,7 +15,10 @@ import (
 	"net/http"
 	"time"
 
+	"github.com/inverse-inc/packetfence/go/caddy/pfpki/certutils"
+	"github.com/inverse-inc/packetfence/go/caddy/pfpki/models"
 	"github.com/inverse-inc/packetfence/go/caddy/pfpki/ocsp"
+	"github.com/inverse-inc/packetfence/go/caddy/pfpki/types"
 )
 
 // OCSPResponder struct
@@ -25,19 +28,7 @@ type OCSPResponder struct {
 	CaCert      *x509.Certificate
 	RespCert    *x509.Certificate
 	NonceList   [][]byte
-	Handler     *Handler
-}
-
-// I decided on these defaults based on what I was using
-func Responder(pfpki *Handler) *OCSPResponder {
-	return &OCSPResponder{
-		RespKeyFile: "responder.key",
-		Strict:      false,
-		CaCert:      nil,
-		RespCert:    nil,
-		NonceList:   nil,
-		Handler:     pfpki,
-	}
+	Handler     *types.Handler
 }
 
 // Creates an OCSP http handler and returns it
@@ -66,7 +57,7 @@ func (ocspr *OCSPResponder) makeHandler() func(w http.ResponseWriter, r *http.Re
 		}
 
 		w.Header().Set("Content-Type", "application/ocsp-response")
-		resp, err := ocspr.verify(b.Bytes())
+		resp, err := ocspr.Verify(b.Bytes())
 		if err != nil {
 			w.WriteHeader(http.StatusBadRequest)
 			return
@@ -91,10 +82,10 @@ type IndexEntry struct {
 	DistinguishedName string
 }
 
-func (ocspr *OCSPResponder) getCertificateStatus(s *big.Int, ca CA) (*IndexEntry, error) {
+func (ocspr *OCSPResponder) getCertificateStatus(s *big.Int, ca models.CA) (*IndexEntry, error) {
 
-	var cert Cert
-	var revokedcert RevokedCert
+	var cert models.Cert
+	var revokedcert models.RevokedCert
 	var ent IndexEntry
 	// Search for the certificate that match the serial and has been signed by the CA
 	if CertDB := ocspr.Handler.DB.Where("serial_number = ? AND ca_id = ?", s.String(), ca.ID).Find(&cert); CertDB.Error == nil {
@@ -125,20 +116,20 @@ func checkForNonceExtension(exts []pkix.Extension) *pkix.Extension {
 	return nil
 }
 
-func (ocspr *OCSPResponder) verifyIssuer(req *ocsp.Request) (CA, error) {
-	var ca CA
-	if CaDB := ocspr.Handler.DB.Where(&CA{IssuerNameHash: hex.EncodeToString(req.IssuerNameHash)}).Find(&ca); CaDB.Error != nil {
+func (ocspr *OCSPResponder) verifyIssuer(req *ocsp.Request) (models.CA, error) {
+	var ca models.CA
+	if CaDB := ocspr.Handler.DB.Where(&models.CA{IssuerNameHash: hex.EncodeToString(req.IssuerNameHash)}).Find(&ca); CaDB.Error != nil {
 		return ca, errors.New("Unable to find Issuer name")
 	}
 
-	if CaDB := ocspr.Handler.DB.Where(&CA{IssuerKeyHash: hex.EncodeToString(req.IssuerKeyHash)}).Find(&ca); CaDB.Error != nil {
+	if CaDB := ocspr.Handler.DB.Where(&models.CA{IssuerKeyHash: hex.EncodeToString(req.IssuerKeyHash)}).Find(&ca); CaDB.Error != nil {
 		return ca, errors.New("Unable to find Key name")
 	}
 
 	return ca, nil
 }
 
-func (ocspr *OCSPResponder) verify(rawreq []byte) ([]byte, error) {
+func (ocspr *OCSPResponder) Verify(rawreq []byte) ([]byte, error) {
 	var status int
 	var revokedAt time.Time
 	var reason int
@@ -169,7 +160,7 @@ func (ocspr *OCSPResponder) verify(rawreq []byte) ([]byte, error) {
 	}
 
 	//Assign the good ca to the reply
-	cacert, err := parseCertFile(ca.Cert)
+	cacert, err := certutils.ParseCertFile(ca.Cert)
 
 	if err != nil {
 		return nil, err
@@ -185,7 +176,7 @@ func (ocspr *OCSPResponder) verify(rawreq []byte) ([]byte, error) {
 		return nil, err
 	}
 
-	pkey, err := ParseRsaPrivateKeyFromPemStr(ca.Key)
+	pkey, err := certutils.ParseRsaPrivateKeyFromPemStr(ca.Key)
 
 	key, ok := pkey.(crypto.Signer)
 	if !ok {
