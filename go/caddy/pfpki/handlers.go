@@ -11,7 +11,6 @@ import (
 	"net/http"
 	"regexp"
 
-	"github.com/davecgh/go-spew/spew"
 	"github.com/gorilla/mux"
 	"github.com/inverse-inc/packetfence/go/log"
 )
@@ -691,26 +690,7 @@ func manageOcsp(pfpki *Handler) http.Handler {
 func manageSCEP(pfpki *Handler) http.Handler {
 	return http.HandlerFunc(func(res http.ResponseWriter, req *http.Request) {
 		log.LoggerWContext(pfpki.Ctx).Info(fmt.Sprintf("Got %s request from %s", req.Method, req.RemoteAddr))
-		spew.Dump(req)
-		b := new(bytes.Buffer)
-		switch req.Method {
-		case "POST":
-			b.ReadFrom(req.Body)
-		case "GET":
-			log.LoggerWContext(pfpki.Ctx).Info(req.URL.Path)
-			params := req.URL.Query()
-			if val, ok := params["operation"]; ok {
-				if val[0] == "GetCACert" {
+		ScepHandler(pfpki,res, req)
 
-				}
-			}
-		default:
-			log.LoggerWContext(pfpki.Ctx).Info("Unsupported request method")
-			res.WriteHeader(http.StatusBadRequest)
-			return
-		}
-		// Scep stuff
-		log.LoggerWContext(pfpki.Ctx).Info("Writing response")
-		res.Write([]byte("scep"))
 	})
 }
