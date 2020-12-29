@@ -23,8 +23,6 @@ import (
 	"time"
 )
 
-// Type of key
-type Type int
 
 // DSAKeyFormat is the format of a DSA key
 type DSAKeyFormat struct {
