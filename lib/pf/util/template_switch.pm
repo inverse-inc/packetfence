@@ -14,6 +14,7 @@ use strict;
 use warnings;
 use File::Find ();
 use Module::Loaded qw(mark_as_loaded is_loaded);
+use pf::config::template_switch qw(%TemplateSwitches);
 
 sub getDefFiles {
     my ($def_dir) = @_;
@@ -49,10 +50,15 @@ sub createFakeTemplateModule {
         return;
     }
 
+    my $type = $class;
+    $type =~ s/^pf::Switch:://;
     require pf::Switch::Template;
     no strict "refs";
     my $ref = \*{$class};
     *{"${class}::ISA"} = ["pf::Switch::Template"];
+    *{"${class}::_template"} = sub {
+        return exists $TemplateSwitches{$type} ? $TemplateSwitches{$type} : undef;
+    };
     mark_as_loaded($class);
 }
 

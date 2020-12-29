@@ -93,6 +93,7 @@ sub handle {
 
     my $filter = pf::access_filter::switch->new;
     my $type_switch = $filter->filter('external_portal', $args);
+    my $switch_module;
 
     if (!$type_switch) {
         # Discarding non external portal requests
@@ -113,18 +114,20 @@ sub handle {
             $logger->debug("Rewriting switch type $switch_type to $new_switch_type");
             $switch_type = $new_switch_type;
         }
-        $switch_type = "pf::Switch::$switch_type";
+        $switch_module = "pf::Switch::$switch_type";
     } else {
-        $switch_type = "pf::Switch::$type_switch";
+        $switch_module = "pf::Switch::$type_switch";
     }
 
-    if ( !(eval "$switch_type->require()") ) {
+    if (exists $pf::SwitchFactory::TemplateSwitches{$switch_type}) {
+        pf::util::template_switch::createFakeTemplateModule($switch_module);
+    } elsif ( !(eval "$switch_module->require()") ) {
         $logger->error("Cannot load perl module for switch type '$switch_type'. Either switch type is unknown or switch type perl module have compilation errors. " .
         "See the following message for details: $@");
         return $FALSE;
     }
     # Making sure switch supports external portal
-    return $FALSE unless $switch_type->supportsExternalPortal;
+    return $FALSE unless $switch_module->supportsExternalPortal;
 
     my %params = (
         session_id              => undef,   # External portal session ID when working by session ID flow
@@ -141,7 +144,7 @@ sub handle {
         connection_type         => undef,   # Set the connection_type
     );
 
-    my $switch_params = $switch_type->parseExternalPortalRequest($r, $req);
+    my $switch_params = $switch_module->parseExternalPortalRequest($r, $req);
     unless ( defined($switch_params) ) {
         $logger->error("Error in parsing external portal request from switch module");
         return $FALSE;

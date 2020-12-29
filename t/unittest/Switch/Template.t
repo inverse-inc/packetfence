@@ -29,9 +29,17 @@ BEGIN {
 }
 
 my $builder = pf::config::builder::template_switches->new;
-use Test::More tests => (scalar @FILES) + 14;
+use Test::More tests => (scalar @FILES) + 15;
 #This test will running last
 use Test::NoWarnings;
+use pf::util::template_switch;
+
+{
+    my $class = 'pf::Switch::PacketFence::Test';
+    pf::util::template_switch::createFakeTemplateModule($class);
+    my $template = $class->_template();
+    is(ref($template), 'HASH', "Getting the hash data from just the class $class");
+}
 
 {
     my $switch = pf::SwitchFactory->instantiate('172.16.8.28');
@@ -43,7 +51,7 @@ use Test::NoWarnings;
 
     $switch->addAcceptUrlAttributes($radius_reply, {mac => "aa:bb:cc:dd:ee:ff", user_role => "bob"});
     ok(exists $radius_reply->{'Cisco-AVPair'}, "addAcceptUrlAttributes added Cisco-AVPair");
-    is(scalar @{$radius_reply->{'Cisco-AVPair'}}, 2, "addAcceptUrlAttributes added multiple Cisco-AVPair" );
+    is(scalar @{$radius_reply->{'Cisco-AVPair'} // []}, 2, "addAcceptUrlAttributes added multiple Cisco-AVPair" );
     my $url= $radius_reply->{'Cisco-AVPair'}[1];
     ok($url =~ /^url-redirect=/);
     ok($url =~ m#http://10.0.60.149/PacketFence::Test/#);

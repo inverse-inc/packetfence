@@ -660,6 +660,86 @@ sub returnCliAuthorize {
     return [$RADIUS::RLM_MODULE_OK, %radius_reply];
 }
 
+=item parseExternalPortalRequest
+
+Parse external portal request using URI and it's parameters then return an hash reference with the appropriate parameters
+
+See L<pf::web::externalportal::handle>
+
+=cut
+
+sub parseExternalPortalRequest {
+    my ( $self, $r, $req ) = @_;
+    my $logger = $self->logger;
+    my $template = $self->_template;
+    my %params = (
+        session_id              => $self->webauthSessionId($template, $r, $req),   # External portal session ID when working by session ID flow
+        switch_id               => $self->webauthSwitchId($template, $r, $req),   # Switch ID
+        switch_mac              => $self->webauthSwitchMac($template, $r, $req),   # Switch MAC
+        switch_ip               => $self->webauthSwitchIp($template, $r, $req),   # Switch IP
+        client_mac              => $self->webauthClientMac($template, $r, $req),   # Client (endpoint) MAC address
+        client_ip               => $self->webauthClientIp($template, $r, $req),   # Client (endpoint) IP address
+        ssid                    => $self->webauthSSID($template, $r, $req),   # SSID connecting to
+        redirect_url            => $self->webauthRedirectUrl($template, $r, $req),   # Redirect URL
+        grant_url               => $self->webauthGrantUrl($template, $r, $req),   # Grant URL
+        status_code             => $self->webauthStatusCode($template, $r, $req),   # Status code
+        synchronize_locationlog => isenabled($template->{webauthSynchronize}),   # Should we synchronize locationlog
+        connection_type         => $template->{webauthConnectionType},   # Set the connection_type
+    );
+
+    return \%params;
+}
+
+sub webauthSessionId {
+    my ($self, $template, $r, $req) = @_;
+    return undef;
+}
+
+sub webauthSwitchId {
+	my ($self, $template, $r, $req) = @_;
+	return undef;
+}
+
+sub webauthSwitchMac {
+	my ($self, $template, $r, $req) = @_;
+	return undef;
+}
+
+sub webauthSwitchIp {
+	my ($self, $template, $r, $req) = @_;
+	return undef;
+}
+
+sub webauthClientMac {
+	my ($self, $template, $r, $req) = @_;
+	return undef;
+}
+
+sub webauthClientIp {
+	my ($self, $template, $r, $req) = @_;
+	return undef;
+}
+
+sub webauthSSID {
+	my ($self, $template, $r, $req) = @_;
+	return undef;
+}
+
+sub webauthRedirectUrl {
+	my ($self, $template, $r, $req) = @_;
+	return undef;
+}
+
+sub webauthGrantUrl {
+	my ($self, $template, $r, $req) = @_;
+	return undef;
+}
+
+sub webauthStatusCode {
+	my ($self, $template, $r, $req) = @_;
+	return undef;
+}
+
 =head1 AUTHOR
 
 Inverse inc. <info@inverse.ca>
