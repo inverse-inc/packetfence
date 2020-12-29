@@ -68,11 +68,23 @@ export const schema = (props) => {
     authentication_rules: schemaRules.meta({ invalidFeedback: i18n.t('Authentication rule contains one or more errors.') }),
     port: yup.string().isPort(),
 
+    authenticate_realm: yup.string().label(i18n.t('Authentication realm')),
+    authorization_source_id: yup.string().label(i18n.t('Authorization source')),
     basedn: yup.string().label(i18n.t('Base DN')),
     description: yup.string().label(i18n.t('Description')),
     host: yup.string().label(i18n.t('Host')),
-    authenticate_realm: yup.string().label(i18n.t('Authentication realm')),
+    idp_ca_cert_path: yup.string().label(i18n.t('Path')),
+    idp_cert_path: yup.string().label(i18n.t('Path')),
+    idp_entity_id: yup.string().label(i18n.t('Entity ID')),
+    idp_metadata_path: yup.string().label(i18n.t('Path')),
+    password_email_update: yup.string().label(i18n.t('Email')),
+    path: yup.string().label(i18n.t('Path')),
     person_mappings: schemaPersonMappings.meta({ invalidFeedback: i18n.t('Mappings contain one or more errors.') }),
+    secret: yup.string().label(i18n.t('Secret')),
+    sp_cert_path: yup.string().label(i18n.t('Path')),
+    sp_entity_id: yup.string().label(i18n.t('Entity ID')),
+    sp_key_path: yup.string().label(i18n.t('Path')),
+    usernameattribute: yup.string().label(i18n.t('Username attribute')),
   })
 }
 
