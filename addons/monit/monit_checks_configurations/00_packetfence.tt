@@ -165,8 +165,8 @@ CHECK PROCESS packetfence-api-frontend MATCHING "api-frontend"
 [% IF DOMAINS.size > 0 %]
 CHECK PROCESS packetfence-winbind MATCHING "winbindd-wrapper"
     group PacketFence
-    start program = "/usr/local/pf/bin/pfcmd service windbindd restart" with timeout 60 seconds
-    stop program = "/usr/local/pf/bin/pfcmd service windbindd stop"
+    start program = "/usr/local/pf/bin/pfcmd service winbindd restart" with timeout 60 seconds
+    stop program = "/usr/local/pf/bin/pfcmd service winbindd stop"
     if 3 restarts within 10 cycles then alert
 
 [% FOREACH domain IN DOMAINS.keys %]
