@@ -78,7 +78,7 @@ func buildPfpkiHandler(ctx context.Context) (types.Handler, error) {
 		pfpki.DB = Database
 	}
 
-	pfpki.Ctx = ctx
+	pfpki.Ctx = *ctx
 
 	// Default http timeout
 	http.DefaultClient.Timeout = 10 * time.Second

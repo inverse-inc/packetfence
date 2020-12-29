@@ -23,7 +23,7 @@ import (
 func SearchCA(pfpki *types.Handler) http.Handler {
 	return http.HandlerFunc(func(res http.ResponseWriter, req *http.Request) {
 
-		var o models.CA
+		o := models.NewCAModel(pfpki)
 		var Information types.Info
 		var err error
 
@@ -36,7 +36,7 @@ func SearchCA(pfpki *types.Handler) http.Handler {
 				Error.Message = err.Error()
 				Error.Status = http.StatusInternalServerError
 			}
-			Information, err = o.Search(pfpki, vars)
+			Information, err = o.Search(vars)
 			if err != nil {
 				Error.Message = err.Error()
 				Error.Status = http.StatusNotFound
@@ -52,7 +52,7 @@ func SearchCA(pfpki *types.Handler) http.Handler {
 
 func GetSetCA(pfpki *types.Handler) http.Handler {
 	return http.HandlerFunc(func(res http.ResponseWriter, req *http.Request) {
-		var o models.CA
+		o := models.NewCAModel(pfpki)
 		var Information types.Info
 		var err error
 
@@ -65,7 +65,7 @@ func GetSetCA(pfpki *types.Handler) http.Handler {
 				Error.Message = err.Error()
 				Error.Status = http.StatusInternalServerError
 			}
-			Information, err = o.Paginated(pfpki, vars)
+			Information, err = o.Paginated(vars)
 			if err != nil {
 				Error.Message = err.Error()
 				Error.Status = http.StatusInternalServerError
@@ -82,7 +82,7 @@ func GetSetCA(pfpki *types.Handler) http.Handler {
 				Error.Message = err.Error()
 				Error.Status = http.StatusInternalServerError
 			}
-			if Information, err = o.New(pfpki); err != nil {
+			if Information, err = o.New(); err != nil {
 				Error.Message = err.Error()
 				Error.Status = http.StatusUnprocessableEntity
 			}
@@ -99,7 +99,7 @@ func GetSetCA(pfpki *types.Handler) http.Handler {
 
 func GetCAByID(pfpki *types.Handler) http.Handler {
 	return http.HandlerFunc(func(res http.ResponseWriter, req *http.Request) {
-		var o models.CA
+		o := models.NewCAModel(pfpki)
 		var Information types.Info
 		var err error
 
@@ -108,7 +108,7 @@ func GetCAByID(pfpki *types.Handler) http.Handler {
 		switch req.Method {
 		case "GET":
 			vars := mux.Vars(req)
-			Information, err = o.GetByID(pfpki, vars)
+			Information, err = o.GetByID(vars)
 			if err != nil {
 				Error.Message = err.Error()
 				Error.Status = http.StatusNotFound
@@ -126,13 +126,13 @@ func GetCAByID(pfpki *types.Handler) http.Handler {
 
 func FixCA(pfpki *types.Handler) http.Handler {
 	return http.HandlerFunc(func(res http.ResponseWriter, req *http.Request) {
-		var o models.CA
+		o := models.NewCAModel(pfpki)
 		var Information types.Info
 		var err error
 
 		Error := types.Errors{Status: 0}
 
-		Information, err = o.Fix(pfpki)
+		Information, err = o.Fix()
 		if err != nil {
 			Error.Message = err.Error()
 			Error.Status = http.StatusNotFound
@@ -145,7 +145,7 @@ func FixCA(pfpki *types.Handler) http.Handler {
 func GetSetProfile(pfpki *types.Handler) http.Handler {
 	return http.HandlerFunc(func(res http.ResponseWriter, req *http.Request) {
 
-		var o models.Profile
+		o := models.NewProfileModel(pfpki)
 		var Information types.Info
 		var err error
 
@@ -158,7 +158,7 @@ func GetSetProfile(pfpki *types.Handler) http.Handler {
 				Error.Message = err.Error()
 				Error.Status = http.StatusInternalServerError
 			}
-			Information, err = o.Paginated(pfpki, vars)
+			Information, err = o.Paginated(vars)
 			if err != nil {
 				Error.Message = err.Error()
 				Error.Status = http.StatusInternalServerError
@@ -175,7 +175,7 @@ func GetSetProfile(pfpki *types.Handler) http.Handler {
 				Error.Message = err.Error()
 				Error.Status = http.StatusInternalServerError
 			}
-			if Information, err = o.New(pfpki); err != nil {
+			if Information, err = o.New(); err != nil {
 				Error.Message = err.Error()
 				Error.Status = http.StatusUnprocessableEntity
 			}
@@ -193,7 +193,7 @@ func GetSetProfile(pfpki *types.Handler) http.Handler {
 func SearchProfile(pfpki *types.Handler) http.Handler {
 	return http.HandlerFunc(func(res http.ResponseWriter, req *http.Request) {
 
-		var o models.Profile
+		o := models.NewProfileModel(pfpki)
 		var Information types.Info
 		var err error
 
@@ -206,7 +206,7 @@ func SearchProfile(pfpki *types.Handler) http.Handler {
 				Error.Message = err.Error()
 				Error.Status = http.StatusInternalServerError
 			}
-			Information, err = o.Search(pfpki, vars)
+			Information, err = o.Search(vars)
 			if err != nil {
 				Error.Message = err.Error()
 				Error.Status = http.StatusNotFound
@@ -225,7 +225,7 @@ func SearchProfile(pfpki *types.Handler) http.Handler {
 func GetProfileByID(pfpki *types.Handler) http.Handler {
 	return http.HandlerFunc(func(res http.ResponseWriter, req *http.Request) {
 
-		var o models.Profile
+		o := models.NewProfileModel(pfpki)
 
 		var Information types.Info
 		var err error
@@ -235,7 +235,7 @@ func GetProfileByID(pfpki *types.Handler) http.Handler {
 		switch req.Method {
 		case "GET":
 			vars := mux.Vars(req)
-			Information, err = o.GetByID(pfpki, vars)
+			Information, err = o.GetByID(vars)
 			if err != nil {
 				Error.Message = err.Error()
 				Error.Status = http.StatusNotFound
@@ -252,7 +252,7 @@ func GetProfileByID(pfpki *types.Handler) http.Handler {
 				Error.Message = err.Error()
 				Error.Status = http.StatusInternalServerError
 			}
-			if Information, err = o.Update(pfpki); err != nil {
+			if Information, err = o.Update(); err != nil {
 				Error.Message = err.Error()
 				Error.Status = http.StatusUnprocessableEntity
 			}
@@ -270,7 +270,7 @@ func GetProfileByID(pfpki *types.Handler) http.Handler {
 func GetSetCert(pfpki *types.Handler) http.Handler {
 	return http.HandlerFunc(func(res http.ResponseWriter, req *http.Request) {
 
-		var o models.Cert
+		o := models.NewCertModel(pfpki)
 
 		var Information types.Info
 		var err error
@@ -284,7 +284,7 @@ func GetSetCert(pfpki *types.Handler) http.Handler {
 				Error.Message = err.Error()
 				Error.Status = http.StatusInternalServerError
 			}
-			Information, err = o.Paginated(pfpki, vars)
+			Information, err = o.Paginated(vars)
 			if err != nil {
 				Error.Message = err.Error()
 				Error.Status = http.StatusInternalServerError
@@ -301,7 +301,7 @@ func GetSetCert(pfpki *types.Handler) http.Handler {
 				Error.Message = err.Error()
 				Error.Status = http.StatusInternalServerError
 			}
-			if Information, err = o.New(pfpki); err != nil {
+			if Information, err = o.New(); err != nil {
 				Error.Message = err.Error()
 				Error.Status = http.StatusUnprocessableEntity
 			}
@@ -319,7 +319,7 @@ func GetSetCert(pfpki *types.Handler) http.Handler {
 func SearchCert(pfpki *types.Handler) http.Handler {
 	return http.HandlerFunc(func(res http.ResponseWriter, req *http.Request) {
 
-		var o models.Cert
+		o := models.NewCertModel(pfpki)
 		var Information types.Info
 		var err error
 
@@ -332,7 +332,7 @@ func SearchCert(pfpki *types.Handler) http.Handler {
 				Error.Message = err.Error()
 				Error.Status = http.StatusInternalServerError
 			}
-			Information, err = o.Search(pfpki, vars)
+			Information, err = o.Search(vars)
 			if err != nil {
 				Error.Message = err.Error()
 				Error.Status = http.StatusNotFound
@@ -351,7 +351,7 @@ func SearchCert(pfpki *types.Handler) http.Handler {
 func GetCertByID(pfpki *types.Handler) http.Handler {
 	return http.HandlerFunc(func(res http.ResponseWriter, req *http.Request) {
 
-		var o models.Cert
+		o := models.NewCertModel(pfpki)
 		var Information types.Info
 		var err error
 
@@ -360,7 +360,7 @@ func GetCertByID(pfpki *types.Handler) http.Handler {
 		switch req.Method {
 		case "GET":
 			vars := mux.Vars(req)
-			Information, err = o.GetByID(pfpki, vars)
+			Information, err = o.GetByID(vars)
 			if err != nil {
 				Error.Message = err.Error()
 				Error.Status = http.StatusNotFound
@@ -379,7 +379,7 @@ func GetCertByID(pfpki *types.Handler) http.Handler {
 func DownloadCert(pfpki *types.Handler) http.Handler {
 	return http.HandlerFunc(func(res http.ResponseWriter, req *http.Request) {
 
-		var o models.Cert
+		o := models.NewCertModel(pfpki)
 		var Information types.Info
 		var err error
 
@@ -395,7 +395,7 @@ func DownloadCert(pfpki *types.Handler) http.Handler {
 		switch req.Method {
 		case "GET":
 			vars := mux.Vars(req)
-			Information, err = o.Download(pfpki, vars)
+			Information, err = o.Download(vars)
 			if err != nil {
 				Error.Message = err.Error()
 				Error.Status = http.StatusNotFound
@@ -414,7 +414,7 @@ func DownloadCert(pfpki *types.Handler) http.Handler {
 func EmailCert(pfpki *types.Handler) http.Handler {
 	return http.HandlerFunc(func(res http.ResponseWriter, req *http.Request) {
 
-		var o models.Cert
+		o := models.NewCertModel(pfpki)
 		var Information types.Info
 		var err error
 
@@ -423,7 +423,7 @@ func EmailCert(pfpki *types.Handler) http.Handler {
 		switch req.Method {
 		case "GET":
 			vars := mux.Vars(req)
-			Information, err = o.Download(pfpki, vars)
+			Information, err = o.Download(vars)
 			if err != nil {
 				Error.Message = err.Error()
 				Error.Status = http.StatusNotFound
@@ -442,7 +442,7 @@ func EmailCert(pfpki *types.Handler) http.Handler {
 func RevokeCert(pfpki *types.Handler) http.Handler {
 	return http.HandlerFunc(func(res http.ResponseWriter, req *http.Request) {
 
-		var o models.Cert
+		o := models.NewCertModel(pfpki)
 		var Information types.Info
 		var err error
 
@@ -457,7 +457,7 @@ func RevokeCert(pfpki *types.Handler) http.Handler {
 		}
 		switch req.Method {
 		case "DELETE":
-			Information, err = o.Revoke(pfpki, vars)
+			Information, err = o.Revoke(vars)
 			if err != nil {
 				Error.Message = err.Error()
 				Error.Status = http.StatusUnprocessableEntity
@@ -476,7 +476,8 @@ func RevokeCert(pfpki *types.Handler) http.Handler {
 func GetRevoked(pfpki *types.Handler) http.Handler {
 	return http.HandlerFunc(func(res http.ResponseWriter, req *http.Request) {
 
-		var o models.RevokedCert
+		o := models.NewRevokedCertModel(pfpki)
+
 		var Information types.Info
 		var err error
 
@@ -488,7 +489,7 @@ func GetRevoked(pfpki *types.Handler) http.Handler {
 				Error.Message = err.Error()
 				Error.Status = http.StatusInternalServerError
 			}
-			Information, err = o.Paginated(pfpki, vars)
+			Information, err = o.Paginated(vars)
 			if err != nil {
 				Error.Message = err.Error()
 				Error.Status = http.StatusInternalServerError
@@ -507,7 +508,7 @@ func GetRevoked(pfpki *types.Handler) http.Handler {
 func SearchRevoked(pfpki *types.Handler) http.Handler {
 	return http.HandlerFunc(func(res http.ResponseWriter, req *http.Request) {
 
-		var o models.RevokedCert
+		o := models.NewRevokedCertModel(pfpki)
 		var Information types.Info
 		var err error
 
@@ -519,7 +520,7 @@ func SearchRevoked(pfpki *types.Handler) http.Handler {
 				Error.Message = err.Error()
 				Error.Status = http.StatusInternalServerError
 			}
-			Information, err = o.Search(pfpki, vars)
+			Information, err = o.Search(vars)
 			if err != nil {
 				Error.Message = err.Error()
 				Error.Status = http.StatusNotFound
@@ -538,7 +539,7 @@ func SearchRevoked(pfpki *types.Handler) http.Handler {
 func GetRevokedByID(pfpki *types.Handler) http.Handler {
 	return http.HandlerFunc(func(res http.ResponseWriter, req *http.Request) {
 
-		var o models.RevokedCert
+		o := models.NewRevokedCertModel(pfpki)
 		var Information types.Info
 		var err error
 
@@ -546,7 +547,7 @@ func GetRevokedByID(pfpki *types.Handler) http.Handler {
 		switch req.Method {
 		case "GET":
 			vars := mux.Vars(req)
-			Information, err = o.GetByID(pfpki, vars)
+			Information, err = o.GetByID(vars)
 			if err != nil {
 				Error.Message = err.Error()
 				Error.Status = http.StatusNotFound
