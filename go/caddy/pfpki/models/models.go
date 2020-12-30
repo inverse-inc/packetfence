@@ -47,7 +47,7 @@ type (
 	CA struct {
 		gorm.Model
 		DB               *gorm.DB
-		Ctx              context.Context
+		Ctx              *context.Context
 		Cn               string                  `json:"cn,omitempty" gorm:"UNIQUE"`
 		Mail             string                  `json:"mail,omitempty" gorm:"INDEX:mail"`
 		Organisation     string                  `json:"organisation,omitempty" gorm:"INDEX:organisation"`
@@ -72,7 +72,7 @@ type (
 	Profile struct {
 		gorm.Model
 		DB               *gorm.DB
-		Ctx              context.Context
+		Ctx              *context.Context
 		Name             string                  `json:"name" gorm:"UNIQUE"`
 		Ca               CA                      `json:"-"`
 		CaID             uint                    `json:"ca_id,omitempty,string" gorm:"INDEX:ca_id"`
@@ -94,7 +94,7 @@ type (
 	Cert struct {
 		gorm.Model
 		DB            *gorm.DB
-		Ctx           context.Context
+		Ctx           *context.Context
 		Cn            string    `json:"cn,omitempty" gorm:"UNIQUE"`
 		Mail          string    `json:"mail,omitempty" gorm:"INDEX:mail"`
 		Ca            CA        `json:"-"`
@@ -120,7 +120,7 @@ type (
 	RevokedCert struct {
 		gorm.Model
 		DB            *gorm.DB
-		Ctx           context.Context
+		Ctx           *context.Context
 		Cn            string    `json:"cn,omitempty" gorm:"INDEX:cn"`
 		Mail          string    `json:"mail,omitempty" gorm:"INDEX:mail"`
 		Ca            CA        `json:"-"`
@@ -391,6 +391,36 @@ func (c CA) Search(vars sql.Vars) (types.Info, error) {
 	}
 
 	return Information, nil
+}
+
+func (c CA) CA(pass []byte) ([]*x509.Certificate, *rsa.PrivateKey, error) {
+
+	var ca CA
+
+	if c.Cn != "" {
+		c.DB.First(&ca, "`cn` = ?", c.Cn)
+	} else {
+		c.DB.First(&ca)
+	}
+
+	catls, err := tls.X509KeyPair([]byte(ca.Cert), []byte(ca.Key))
+	cacert, err := x509.ParseCertificate(catls.Certificate[0])
+	key, err := certutils.LoadKey([]byte(ca.Key), pass)
+
+	return []*x509.Certificate{cacert}, key, err
+}
+
+func (c CA) Put(cn string, crt *x509.Certificate) error {
+	return nil
+}
+
+func (c CA) Serial() (*big.Int, error) {
+	s := big.NewInt(2)
+	return s, nil
+}
+
+func (c CA) HasCN(cn string, allowTime int, cert *x509.Certificate, revokeOldCertificate bool) (bool, error) {
+	return true, nil
 }
 
 func NewProfileModel(pfpki *types.Handler) *Profile {
@@ -866,9 +896,9 @@ type EmailType struct {
 	Password string
 }
 
-func email(ctx context.Context, cert Cert, profile Profile, file []byte, password string) (types.Info, error) {
-	pfconfigdriver.PfconfigPool.AddStruct(ctx, &pfconfigdriver.Config.PfConf.Alerting)
-	pfconfigdriver.PfconfigPool.AddStruct(ctx, &pfconfigdriver.Config.PfConf.Advanced)
+func email(ctx *context.Context, cert Cert, profile Profile, file []byte, password string) (types.Info, error) {
+	pfconfigdriver.PfconfigPool.AddStruct(*ctx, &pfconfigdriver.Config.PfConf.Alerting)
+	pfconfigdriver.PfconfigPool.AddStruct(*ctx, &pfconfigdriver.Config.PfConf.Advanced)
 	alerting := pfconfigdriver.Config.PfConf.Alerting
 	advanced := pfconfigdriver.Config.PfConf.Advanced
 

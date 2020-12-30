@@ -569,14 +569,14 @@ func manageAnswer(Information types.Info, Error types.Errors, pfpki *types.Handl
 	if Error.Status != 0 {
 		res.Header().Set("Content-Type", "application/json; charset=UTF-8")
 		res.WriteHeader(http.StatusOK)
-		log.LoggerWContext(pfpki.Ctx).Error(Information.Error)
+		log.LoggerWContext(*pfpki.Ctx).Error(Information.Error)
 		if err := json.NewEncoder(res).Encode(&Error); err != nil {
 			fmt.Println(err)
 		}
 		return
 	}
 	if err != nil {
-		log.LoggerWContext(pfpki.Ctx).Info(err.Error())
+		log.LoggerWContext(*pfpki.Ctx).Info(err.Error())
 		if Information.Status >= 400 {
 			Information.Error = http.StatusText(Information.Status)
 		}
@@ -602,9 +602,9 @@ func manageAnswer(Information types.Info, Error types.Errors, pfpki *types.Handl
 
 func ManageOcsp(pfpki *types.Handler) http.Handler {
 	return http.HandlerFunc(func(res http.ResponseWriter, req *http.Request) {
-		log.LoggerWContext(pfpki.Ctx).Info(fmt.Sprintf("Got %s request from %s", req.Method, req.RemoteAddr))
+		log.LoggerWContext(*pfpki.Ctx).Info(fmt.Sprintf("Got %s request from %s", req.Method, req.RemoteAddr))
 		if req.Header.Get("Content-Type") != "application/ocsp-request" {
-			log.LoggerWContext(pfpki.Ctx).Info("Strict mode requires correct Content-Type header")
+			log.LoggerWContext(*pfpki.Ctx).Info("Strict mode requires correct Content-Type header")
 			res.WriteHeader(http.StatusBadRequest)
 			return
 		}
@@ -614,17 +614,17 @@ func ManageOcsp(pfpki *types.Handler) http.Handler {
 		case "POST":
 			b.ReadFrom(req.Body)
 		case "GET":
-			log.LoggerWContext(pfpki.Ctx).Info(req.URL.Path)
+			log.LoggerWContext(*pfpki.Ctx).Info(req.URL.Path)
 			gd, err := base64.StdEncoding.DecodeString(req.URL.Path[1:])
 			if err != nil {
-				log.LoggerWContext(pfpki.Ctx).Info(err.Error())
+				log.LoggerWContext(*pfpki.Ctx).Info(err.Error())
 				res.WriteHeader(http.StatusBadRequest)
 				return
 			}
 			r := bytes.NewReader(gd)
 			b.ReadFrom(r)
 		default:
-			log.LoggerWContext(pfpki.Ctx).Info("Unsupported request method")
+			log.LoggerWContext(*pfpki.Ctx).Info("Unsupported request method")
 			res.WriteHeader(http.StatusBadRequest)
 			return
 		}
@@ -633,19 +633,19 @@ func ManageOcsp(pfpki *types.Handler) http.Handler {
 		res.Header().Set("Content-Type", "application/ocsp-response")
 		resp, err := oscp.Verify(b.Bytes())
 		if err != nil {
-			log.LoggerWContext(pfpki.Ctx).Info(err.Error())
+			log.LoggerWContext(*pfpki.Ctx).Info(err.Error())
 			// technically we should return an ocsp error response. but this is probably fine
 			res.WriteHeader(http.StatusBadRequest)
 			return
 		}
-		log.LoggerWContext(pfpki.Ctx).Info("Writing response")
+		log.LoggerWContext(*pfpki.Ctx).Info("Writing response")
 		res.Write(resp)
 	})
 }
 
 func ManageSCEP(pfpki *types.Handler) http.Handler {
 	return http.HandlerFunc(func(res http.ResponseWriter, req *http.Request) {
-		log.LoggerWContext(pfpki.Ctx).Info(fmt.Sprintf("Got %s request from %s", req.Method, req.RemoteAddr))
+		log.LoggerWContext(*pfpki.Ctx).Info(fmt.Sprintf("Got %s request from %s", req.Method, req.RemoteAddr))
 		scep.ScepHandler(pfpki, res, req)
 
 	})

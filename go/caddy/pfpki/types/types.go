@@ -52,7 +52,7 @@ type (
 		Next   httpserver.Handler
 		Router *mux.Router
 		DB     *gorm.DB
-		Ctx    context.Context
+		Ctx    *context.Context
 	}
 )
 

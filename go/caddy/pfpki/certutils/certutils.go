@@ -42,6 +42,11 @@ const (
 	KEY_DSA
 )
 
+const (
+	rsaPrivateKeyPEMBlockType = "RSA PRIVATE KEY"
+	certificatePEMBlockType   = "CERTIFICATE"
+)
+
 func Extkeyusage(ExtendedKeyUsage []string) []x509.ExtKeyUsage {
 	// Set up extra key uses for certificate
 	extKeyUsage := make([]x509.ExtKeyUsage, 0)
@@ -265,4 +270,45 @@ func ParseKeyFile(filename string) (interface{}, error) {
 		return nil, err
 	}
 	return key, nil
+}
+
+// load an encrypted private key from disk
+func LoadKey(data []byte, password []byte) (*rsa.PrivateKey, error) {
+	pemBlock, _ := pem.Decode(data)
+	if pemBlock == nil {
+		return nil, errors.New("PEM decode failed")
+	}
+	if pemBlock.Type != rsaPrivateKeyPEMBlockType {
+		return nil, errors.New("unmatched type or headers")
+	}
+
+	b, err := x509.DecryptPEMBlock(pemBlock, password)
+	if err != nil {
+		return x509.ParsePKCS1PrivateKey(pemBlock.Bytes)
+	}
+
+	return x509.ParsePKCS1PrivateKey(b)
+}
+
+// load an encrypted private key from disk
+func LoadCert(data []byte) (*x509.Certificate, error) {
+	pemBlock, _ := pem.Decode(data)
+	if pemBlock == nil {
+		return nil, errors.New("PEM decode failed")
+	}
+	if pemBlock.Type != certificatePEMBlockType {
+		return nil, errors.New("unmatched type or headers")
+	}
+
+	return x509.ParseCertificate(pemBlock.Bytes)
+}
+
+func PemCert(derBytes []byte) []byte {
+	pemBlock := &pem.Block{
+		Type:    certificatePEMBlockType,
+		Headers: nil,
+		Bytes:   derBytes,
+	}
+	out := pem.EncodeToMemory(pemBlock)
+	return out
 }
