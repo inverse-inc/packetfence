@@ -30,6 +30,10 @@ use pf::config::builder::template_switches;
 use pf::IniFiles;
 use pf::mini_template;
 use pf::constants::template_switch qw(@SUPPORTS);
+use pf::constants::config qw(
+    $VIRTUAL_VPN
+);
+
 my $supports = [ sort @SUPPORTS ];
 
 my $builder = pf::config::builder::template_switches->new;
@@ -112,6 +116,7 @@ reject =<<EOT
 Reply-Message = This node is not allowed to use this service
 EOT
 acceptUrl = Calling-Station-Id = $mac
+webauthConnectionType = VPN-Access
 CONF
 
     my ($error, $switch_templates) = build_from_conf($conf);
@@ -134,6 +139,7 @@ CONF
                 acceptUrl => [
                     {name => 'Calling-Station-Id', tmpl => pf::mini_template->new('$mac') },
                 ],
+                webauthConnectionType => $VIRTUAL_VPN,
             },
             "::VENDORS" => {
                 PacketFence => [
