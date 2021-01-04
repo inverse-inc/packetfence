@@ -684,71 +684,30 @@ sub parseExternalPortalRequest {
     my ( $self, $r, $req ) = @_;
     my $logger = $self->logger;
     my $template = $self->_template;
+    my $table = $req->param;
+    my @names = keys %$table;
+    my %queryParams;
+    @queryParams{@names} = @{$table}{@names};
+    my $client_ip = defined($r->headers_in->{'X-Forwarded-For'}) ? $r->headers_in->{'X-Forwarded-For'} : $r->connection->remote_ip;
+    my %vars = (
+        params => \%queryParams,
+        client_ip => $client_ip,
+    );
     my %params = (
-        switch_id               => $self->webauthSwitchId($template, $r, $req),   # Switch ID
-        switch_mac              => $self->webauthSwitchMac($template, $r, $req),   # Switch MAC
-        switch_ip               => $self->webauthSwitchIp($template, $r, $req),   # Switch IP
-        client_mac              => $self->webauthClientMac($template, $r, $req),   # Client (endpoint) MAC address
-        client_ip               => $self->webauthClientIp($template, $r, $req),   # Client (endpoint) IP address
-        ssid                    => $self->webauthSSID($template, $r, $req),   # SSID connecting to
-        redirect_url            => $self->webauthRedirectUrl($template, $r, $req),   # Redirect URL
-        grant_url               => $self->webauthGrantUrl($template, $r, $req),   # Grant URL
-        status_code             => $self->webauthStatusCode($template, $r, $req),   # Status code
-        synchronize_locationlog => isenabled($template->{webauthSynchronize}),   # Should we synchronize locationlog
-        connection_type         => $template->{webauthConnectionType},   # Set the connection_type
+        switch_id               => $self->processTemplate($template, 'webAuthSwitchMac', \%vars),   # Switch ID
+        switch_mac              => $self->processTemplate($template, 'webAuthSwitchMac', \%vars),   # Switch MAC
+        switch_ip               => $self->processTemplate($template, 'webAuthSwitchIp', \%vars),   # Switch IP
+        client_mac              => $self->processTemplate($template, 'webAuthClientMac', \%vars),   # Client (endpoint) MAC address
+        client_ip               => $self->processTemplate($template, 'webAuthClientIp', \%vars),   # Client (endpoint) IP address
+        ssid                    => $self->processTemplate($template, 'webAuthSSID', \%vars),   # SSID connecting to
+        redirect_url            => $self->processTemplate($template, 'webAuthRedirectUrl', \%vars),   # Redirect URL
+        grant_url               => $self->processTemplate($template, 'webAuthGrantUrl', \%vars),   # Grant URL
+        status_code             => $self->processTemplate($template, 'webAuthStatusCode', \%vars),   # Status code
+        synchronize_locationlog => isenabled($template->{webAuthSynchronize}),   # Should we synchronize locationlog
+        connection_type         => $template->{webAuthConnectionType},   # Set the connection_type
     );
 
     return \%params;
-}
-
-sub webauthSessionId {
-    my ($self, $template, $r, $req) = @_;
-    return undef;
-}
-
-sub webauthSwitchId {
-	my ($self, $template, $r, $req) = @_;
-	return undef;
-}
-
-sub webauthSwitchMac {
-	my ($self, $template, $r, $req) = @_;
-	return undef;
-}
-
-sub webauthSwitchIp {
-	my ($self, $template, $r, $req) = @_;
-	return undef;
-}
-
-sub webauthClientMac {
-	my ($self, $template, $r, $req) = @_;
-	return undef;
-}
-
-sub webauthClientIp {
-	my ($self, $template, $r, $req) = @_;
-	return undef;
-}
-
-sub webauthSSID {
-	my ($self, $template, $r, $req) = @_;
-	return undef;
-}
-
-sub webauthRedirectUrl {
-	my ($self, $template, $r, $req) = @_;
-	return undef;
-}
-
-sub webauthGrantUrl {
-	my ($self, $template, $r, $req) = @_;
-	return undef;
-}
-
-sub webauthStatusCode {
-	my ($self, $template, $r, $req) = @_;
-	return undef;
 }
 
 =head1 AUTHOR

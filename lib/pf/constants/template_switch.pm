@@ -38,15 +38,15 @@ our @SUPPORTS = qw(
 );
 
 our @WEBAUTH_TEMPLATES = qw(
-  webauthSwitchId
-  webauthSwitchMac
-  webauthSwitchIp
-  webauthClientMac
-  webauthClientIp
-  webauthSSID
-  webauthRedirectUrl
-  webauthGrantUrl
-  webauthStatusCode
+  webAuthSwitchId
+  webAuthSwitchMac
+  webAuthSwitchIp
+  webAuthClientMac
+  webAuthClientIp
+  webAuthSSID
+  webAuthRedirectUrl
+  webAuthGrantUrl
+  webAuthStatusCode
 );
 
 our @TEMPLATE_FIELDS = (

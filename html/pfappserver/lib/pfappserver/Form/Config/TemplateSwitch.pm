@@ -90,14 +90,14 @@ has_field 'acl_template' => (
     element_attr => { placeholder => $DEFAULT_ACL_TEMPLATE},
 );
 
-has_field 'webauthSynchronize' => (
+has_field 'webAuthSynchronize' => (
     type            => 'Toggle',
     checkbox_value  => 'enabled',
     unchecked_value => 'disabled',
     default => 'disabled',
 );
 
-has_field 'webauthConnectionType' => (
+has_field 'webAuthConnectionType' => (
     type    => 'Select',
     label   => 'WebAuth Connection Type',
     options => [
