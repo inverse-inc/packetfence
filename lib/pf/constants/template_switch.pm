@@ -20,6 +20,8 @@ our @EXPORT_OK = qw(
   $DISCONNECT_TYPE_BOTH
   @RADIUS_ATTRIBUTE_SETS
   @SUPPORTS
+  @WEBAUTH_TEMPLATES
+  @TEMPLATE_FIELDS
 );
 
 our $DISCONNECT_TYPE_COA = 'coa';
@@ -33,6 +35,23 @@ our @SUPPORTS = qw(
   WirelessMacAuth
   WirelessDot1x
   RoleBasedEnforcement
+);
+
+our @WEBAUTH_TEMPLATES = qw(
+  webauthSwitchId
+  webauthSwitchMac
+  webauthSwitchIp
+  webauthClientMac
+  webauthClientIp
+  webauthSSID
+  webauthRedirectUrl
+  webauthGrantUrl
+  webauthStatusCode
+);
+
+our @TEMPLATE_FIELDS = (
+    @WEBAUTH_TEMPLATES,
+    qw(nasPortToIfindex),
 );
 
 =head1 AUTHOR

@@ -23,6 +23,14 @@ use pf::constants::template_switch qw(
   $DISCONNECT_TYPE_DISCONNECT
   $DISCONNECT_TYPE_BOTH
   @RADIUS_ATTRIBUTE_SETS
+  @WEBAUTH_TEMPLATES
+);
+use pf::constants::config qw(
+    %connection_type_to_str
+    %connection_type_explained
+    $WEBAUTH_WIRELESS
+    $WEBAUTH_WIRED
+    $VIRTUAL_VPN
 );
 
 ## Definition
@@ -81,6 +89,32 @@ has_field 'acl_template' => (
     type     => 'TextArea',
     element_attr => { placeholder => $DEFAULT_ACL_TEMPLATE},
 );
+
+has_field 'webauthSynchronize' => (
+    type            => 'Toggle',
+    checkbox_value  => 'enabled',
+    unchecked_value => 'disabled',
+    default => 'disabled',
+);
+
+has_field 'webauthConnectionType' => (
+    type    => 'Select',
+    label   => 'WebAuth Connection Type',
+    options => [
+        map {
+            {
+                value => $connection_type_to_str{$_},
+                label => $connection_type_explained{$_}
+            }
+        } ( $WEBAUTH_WIRELESS, $WEBAUTH_WIRED, $VIRTUAL_VPN )
+    ],
+);
+
+for my $f (@WEBAUTH_TEMPLATES) {
+    has_field $f => (
+        type    => 'Text',
+    );
+}
 
 for my $n (@RADIUS_ATTRIBUTE_SETS) {
     has_field $n => (

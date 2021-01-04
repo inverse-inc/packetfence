@@ -19,6 +19,7 @@ use pf::util::radius_dictionary qw($RADIUS_DICTIONARY);
 use pf::constants::template_switch qw(
     @RADIUS_ATTRIBUTE_SETS
     @SUPPORTS
+    @TEMPLATE_FIELDS
 );
 
 our %SetToSupports = (
@@ -59,7 +60,7 @@ sub buildEntry {
         $entry->{webauthConnectionType} = str_to_connection_type($entry->{webauthConnectionType});
     }
 
-    for my $f (qw(nasPortToIfindex)) {
+    for my $f (@TEMPLATE_FIELDS) {
         next if !exists $entry->{$f};
         my $tmpl_text = $entry->{$f};
         next if !defined $tmpl_text;
