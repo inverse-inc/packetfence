@@ -47,37 +47,33 @@ BEGIN {
         {
             new => {
                 deviceEventClassId => 'ClassId',
-                name               => 'Name',
                 severity           => 0,
             },
-            in => [],
+            in => ['Name'],
             out => "CEF:0|Inverse|PacketFence|$version|ClassId|Name|0|",
         },
         {
             new => {
                 deviceEventClassId => 'Class |Id',
-                name               => 'Name=',
                 severity           => 0,
             },
-            in => [],
+            in => ['Name='],
             out => "CEF:0|Inverse|PacketFence|$version|Class \\|Id|Name=|0|",
         },
         {
             new => {
                 deviceEventClassId => 'Class \\Id',
-                name               => 'Name',
                 severity           => 0,
             },
-            in => [],
+            in => ['Name'],
             out => "CEF:0|Inverse|PacketFence|$version|Class \\\\Id|Name|0|",
         },
         {
             new => {
                 deviceEventClassId => 'ClassId',
-                name               => 'Name',
                 severity           => 0,
             },
-            in => [{bob => 'bob'}],
+            in => ['Name', {bob => 'bob'}],
             out => "CEF:0|Inverse|PacketFence|$version|ClassId|Name|0|bob=bob",
         },
     );
@@ -101,7 +97,8 @@ for my $test (@HEADER_EXT) {
 
 
 for my $test (@CEF_MESSAGE_TESTS) {
-    my $cef = pf::cef->new($test->{new});
+    my $new = $test->{new};
+    my $cef = pf::cef->new($new);
     is( $cef->message(@{$test->{in}}), $test->{out}, "CEF is $test->{out}" );
 }
 
