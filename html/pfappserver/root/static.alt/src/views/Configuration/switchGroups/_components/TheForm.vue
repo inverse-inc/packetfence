@@ -372,13 +372,13 @@
                 <b-button variant="link" :to="{ name: 'switch', params: { id: item.id } }">{{ value }}</b-button>
               </template>
               <template v-slot:cell(buttons)="{ item }">
-                <base-button-delete v-if="id !== 'default'"
+                <base-button-confirm v-if="id !== 'default'"
                   class="mr-1" size="sm" variant="outline-danger"
                   :disabled="memberIsLoading"
                   :confirm="$t('Delete Member?')"
-                  @delete="removeMember(item)"
+                  @click="removeMember(item)"
                   reverse
-                />
+                >{{ $t('Delete') }}</base-button-confirm>
               </template>
             </b-table>
           </div>
@@ -409,7 +409,7 @@
 </template>
 <script>
 import {
-  BaseButtonDelete,
+  BaseButtonConfirm,
   BaseForm,
   BaseFormTab,
 
@@ -479,7 +479,7 @@ import {
 } from './'
 
 const components = {
-  BaseButtonDelete,
+  BaseButtonConfirm,
   BaseForm,
   BaseFormTab,
   BaseInputChosenOne,

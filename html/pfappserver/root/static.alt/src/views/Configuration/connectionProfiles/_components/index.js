@@ -1,16 +1,23 @@
 import { BaseViewCollectionItem } from '../../_components/new/'
 import {
   BaseFormButtonBar,
-  BaseFormGroupChosenMultiple,
   BaseFormGroupChosenOne,
   BaseFormGroupInput,
   BaseFormGroupInputNumber,
   BaseFormGroupToggleDisabledEnabled
 } from '@/components/new/'
 import { BaseFormGroupIntervalUnit } from '@/views/Configuration/_components/new/'
+import BaseFormGroupBillingTiers from './BaseFormGroupBillingTiers'
 import BaseFormGroupCondition from '@/views/Configuration/filterEngines/_components/BaseFormGroupCondition'
 import BaseFormGroupFilter from './BaseFormGroupFilter'
+import BaseFormGroupLocales from './BaseFormGroupLocales'
+import BaseFormGroupProvisioners from './BaseFormGroupProvisioners'
+import BaseFormGroupScanners from './BaseFormGroupScanners'
+import BaseFormGroupSources from './BaseFormGroupSources'
 import ButtonPreviewPortal from './ButtonPreviewPortal'
+import ModalDirectory from './ModalDirectory'
+import ModalFile from './ModalFile'
+import TheFilesList from './TheFilesList'
 import TheForm from './TheForm'
 import TheView from './TheView'
 
@@ -35,10 +42,10 @@ export {
   BaseFormGroupChosenOne              as FormGroupFilterMatchStyle,
   BaseFormGroupFilter                 as FormGroupFilter,
   BaseFormGroupCondition              as FormGroupAdvancedFilter,
-  BaseFormGroupChosenMultiple         as FormGroupSources,
-  BaseFormGroupChosenMultiple         as FormGroupBillingTiers,
-  BaseFormGroupChosenMultiple         as FormGroupProvisioners,
-  BaseFormGroupChosenMultiple         as FormGroupScans,
+  BaseFormGroupSources                as FormGroupSources,
+  BaseFormGroupBillingTiers           as FormGroupBillingTiers,
+  BaseFormGroupProvisioners           as FormGroupProvisioners,
+  BaseFormGroupScanners               as FormGroupScans,
   BaseFormGroupChosenOne              as FormGroupSelfService,
 
   BaseFormGroupInput                  as FormGroupLogo,
@@ -51,9 +58,12 @@ export {
   BaseFormGroupToggleDisabledEnabled  as FormGroupAccessRegistrationWhenRegistered,
   BaseFormGroupToggleDisabledEnabled  as FormGroupNetworkLogoff,
   BaseFormGroupToggleDisabledEnabled  as FormGroupNetworkLogoffPopup,
-  BaseFormGroupChosenMultiple         as FormGroupLocale,
+  BaseFormGroupLocales                as FormGroupLocale,
 
   ButtonPreviewPortal,
+  ModalDirectory,
+  ModalFile,
+  TheFilesList,
   TheForm,
   TheView
 }

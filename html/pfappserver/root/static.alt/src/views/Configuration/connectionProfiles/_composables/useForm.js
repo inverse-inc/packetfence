@@ -21,13 +21,7 @@ const useFormProps = {
     type: Boolean,
     default: false
   },
-  collection: {
-    type: String
-  },
   id: {
-    type: String
-  },
-  filename: {
     type: String
   }
 }

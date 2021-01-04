@@ -26,7 +26,7 @@ const useCsrProps = {
   },
   value: { // v-model: show/hide
     type: Boolean
-  },
+  }
 }
 
 const useCsr = (props, context) => {
@@ -74,7 +74,7 @@ const useCsr = (props, context) => {
 
   const reset = () => {
     form.value = defaults() // reset form when shown/hidden
-      csr.value = undefined
+    csr.value = undefined
   }
 
   const onHide = () => {

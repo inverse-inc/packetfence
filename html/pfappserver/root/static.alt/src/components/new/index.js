@@ -1,5 +1,5 @@
 import BaseArray from './BaseArray'
-import BaseButtonDelete from './BaseButtonDelete'
+import BaseButtonConfirm from './BaseButtonConfirm'
 import BaseButtonHelp from './BaseButtonHelp'
 import BaseButtonSave from './BaseButtonSave'
 import BaseButtonService from './BaseButtonService'
@@ -109,7 +109,7 @@ export {
   BaseArray,
 
   // buttons
-  BaseButtonDelete,
+  BaseButtonConfirm,
   BaseButtonHelp,
   BaseButtonSave,
   BaseButtonService,

@@ -28,7 +28,7 @@ const state = () => {
 const getters = {
   isWaiting: state => [types.LOADING, types.DELETING].includes(state.itemStatus),
   isLoading: state => state.itemStatus === types.LOADING,
-  isWaitingFiles: state => [types.LOADING, types.DELETING].includes(state.files.tatus),
+  isWaitingFiles: state => [types.LOADING, types.DELETING].includes(state.files.status),
   isLoadingFiles: state => state.files.status === types.LOADING
 }
 

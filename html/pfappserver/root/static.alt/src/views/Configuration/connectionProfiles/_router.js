@@ -49,6 +49,7 @@ export default [
       })
     }
   },
+  /*
   {
     path: 'connection_profile/:id/files',
     name: 'connectionProfileFiles',
@@ -62,17 +63,18 @@ export default [
     }
   },
   {
-    path: 'connection_profile/:id/files/:path/new',
+    path: 'connection_profile/:id/files/:filename/new',
     name: 'newConnectionProfileFile',
     component: FileView,
-    props: (route) => ({ id: route.params.id, filename: route.params.path, isNew: true }),
+    props: (route) => ({ id: route.params.id, tabIndex: 2, filename: route.params.filename, isNew: true }),
     beforeEnter
   },
   {
     path: 'connection_profile/:id/files/:filename',
     name: 'connectionProfileFile',
-    component: FileView,
-    props: (route) => ({ id: route.params.id, filename: route.params.filename }),
+    component: TheView,
+    props: (route) => ({ id: route.params.id, tabIndex: 2, filename: route.params.filename }),
     beforeEnter
   }
+  */
 ]

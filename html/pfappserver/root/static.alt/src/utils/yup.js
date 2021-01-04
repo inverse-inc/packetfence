@@ -50,6 +50,7 @@ yup.addMethod(yup.array, 'required', function (message) {
 const reCommonName = value => /^([A-Z]+|[A-Z]+[0-9A-Z_:]*[0-9A-Z]+)$/i.test(value)
 const reIpv4 = value => /^(([0-9]{1,3}.){3,3}[0-9]{1,3})$/i.test(value)
 const reIpv6 = value => /^(([0-9a-fA-F]{1,4}:){7,7}[0-9a-fA-F]{1,4}|([0-9a-fA-F]{1,4}:){1,7}:|([0-9a-fA-F]{1,4}:){1,6}:[0-9a-fA-F]{1,4}|([0-9a-fA-F]{1,4}:){1,5}(:[0-9a-fA-F]{1,4}){1,2}|([0-9a-fA-F]{1,4}:){1,4}(:[0-9a-fA-F]{1,4}){1,3}|([0-9a-fA-F]{1,4}:){1,3}(:[0-9a-fA-F]{1,4}){1,4}|([0-9a-fA-F]{1,4}:){1,2}(:[0-9a-fA-F]{1,4}){1,5}|[0-9a-fA-F]{1,4}:((:[0-9a-fA-F]{1,4}){1,6})|:((:[0-9a-fA-F]{1,4}){1,7}|:)|fe80:(:[0-9a-fA-F]{0,4}){0,4}%[0-9a-zA-Z]{1,}|::(ffff(:0{1,4}){0,1}:){0,1}((25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])\.){3,3}(25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])|([0-9a-fA-F]{1,4}:){1,4}:((25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])\.){3,3}(25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9]))$/i.test(value)
+const reFilename = value => /^[^\\/?%*:|"<>]+$/.test(value)
 
 yup.addMethod(yup.string, 'isCIDR', function (message) {
   return this.test({
@@ -73,6 +74,25 @@ yup.addMethod(yup.string, 'isCommonName', function (message) {
     name: 'isCommonName',
     message: message || i18n.t('Invalid character, only letters (A-Z), numbers (0-9), underscores (_), or colons (:).'),
     test: value => ['', null, undefined].includes(value) || reCommonName(value)
+  })
+})
+
+yup.addMethod(yup.string, 'isFilename', function (message) {
+  return this.test({
+    name: 'isFilename',
+    message: message || i18n.t('Invalid character, only letters (A-Z), numbers (0-9), underscores (_), or colons (:).'),
+    test: value => ['', null, undefined].includes(value) || reFilename(value)
+  })
+})
+
+yup.addMethod(yup.string, 'isFilenameWithExtension', function (extensions, message) {
+  return this.test({
+    name: 'isFilenameWithExtension',
+    message: message || i18n.t('Invalid extension. Must be one of: {extensions}.', { extensions: extensions.join(', ') }),
+    test: value => {
+      const re = RegExp('^[a-zA-Z0-9_]+[a-zA-Z0-9_\\-\\.]*\\.(' + extensions.join('|') + ')$')
+      return !value || re.test(value)
+    }
   })
 })
 

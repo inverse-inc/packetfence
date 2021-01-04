@@ -9,7 +9,7 @@
       :disabled="disabled"
       @click="startInterrupt($event)"
     >
-      <slot>{{ $t('Delete') }}</slot>
+      <slot name="default"></slot>
     </b-button>
     <b-button v-if="interrupt"
       type="button"
@@ -21,11 +21,11 @@
     <b-button v-if="interrupt"
       type="button"
       variant="danger"
-      @click="onDelete($event)"
+      @click="onClick($event)"
       @mousemove="startInterrupt($event)"
       @mouseover="startInterrupt($event)"
     >
-      <slot>{{ $t('Delete') }}</slot>
+      <slot name="default"></slot>
     </b-button>
   </b-button-group>
 </template>
@@ -81,9 +81,9 @@ const setup = (props, { emit }) => {
     interrupt.value = false
   }
 
-  const onDelete = e => {
+  const onClick = e => {
     interrupt.value = false
-    emit('delete', e)
+    emit('click', e)
   }
 
   onBeforeUnmount(() => {
@@ -95,13 +95,13 @@ const setup = (props, { emit }) => {
     interrupt,
     startInterrupt,
     stopInterrupt,
-    onDelete
+    onClick
   }
 }
 
 // @vue/component
 export default {
-  name: 'base-button-delete',
+  name: 'base-button-confirm',
   inheritAttrs: false,
   props,
   setup

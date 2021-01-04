@@ -4,6 +4,12 @@ import {
   defaultsFromMeta as useItemDefaults
 } from '../../_config/'
 
+export const useItemProps = {
+  id: {
+    type: String
+  }
+}
+
 const useItemTitle = (props) => {
   const {
     id,

@@ -17,6 +17,38 @@ yup.addMethod(yup.string, 'connectionProfileIdNotExistsExcept', function (except
   })
 })
 
+yup.addMethod(yup.string, 'pathNotExists', function (entries, path, message) {
+  return this.test({
+    name: 'pathNotExists',
+    message: message || i18n.t('File exists.'),
+    test: (value) => {
+      if (!value)
+        return true
+      // point @ primitive
+      let ptrEntries = entries.value
+      // traverse tree using path parts
+      let parts = path.value.split('/').filter(p => p)
+      while (parts.length > 0) {
+        for (let e = 0; e < ptrEntries.length; e++) {
+          const { name, entries: childEntries = [] } = ptrEntries[e]
+          if (name === parts[0]) {
+            // update pointer
+            ptrEntries = childEntries
+            break
+          }
+        }
+        parts = parts.slice(1)
+      }
+      for (let e = 0; e < ptrEntries.length; e++) {
+        const { name } = ptrEntries[e]
+        if (name === value.trim())
+          return false
+      }
+      return true
+    }
+  })
+})
+
 const schemaFilter = yup.object({
   type: yup.string().required(i18n.t('Type required.')),
   match: yup.string().required(i18n.t('Match required'))
@@ -35,6 +67,10 @@ const schemaAdvancedFilter = yup.object({
   )
 })
 
+const schemaArrayItem = yup.string().required().label('Value')
+
+const schemaArray = yup.array().of(schemaArrayItem)
+
 export default (props) => {
   const {
     id,
@@ -49,6 +85,13 @@ export default (props) => {
       .connectionProfileIdNotExistsExcept((!isNew && !isClone) ? id : undefined, i18n.t('Name exists.')),
 
     filter: schemaFilters.meta({ invalidFeedback: i18n.t('Filter contains one or more errors.') }),
-    advanced_filter: schemaAdvancedFilter.meta({ invalidFeedback: i18n.t('Advanced filter contains one or more errors.') })
+    advanced_filter: schemaAdvancedFilter.meta({ invalidFeedback: i18n.t('Advanced filter contains one or more errors.') }),
+    sources: schemaArray.meta({ invalidFeedback: i18n.t('Sources contain one or more errors.') }),
+    billing_tiers: schemaArray.meta({ invalidFeedback: i18n.t('Billing Tiers contain one or more errors.') }),
+    provisioners: schemaArray.meta({ invalidFeedback: i18n.t('Provisioners contain one or more errors.') }),
+    scans: schemaArray.meta({ invalidFeedback: i18n.t('Scanners contain one or more errors.') }),
+    locale: schemaArray.meta({ invalidFeedback: i18n.t('Languages contain one or more errors.') })
   })
 }
+
+export { yup }

@@ -30,20 +30,21 @@
         @click="onClose"
       >{{ $t('Cancel') }}</b-button>
     </b-button-group>
-    <base-button-delete v-if="canDelete"
+    <base-button-confirm v-if="canDelete"
+      :label="$t('Delete')"
       :confirm="$t('Delete?')"
       :disabled="isLoading"
-      @delete="onRemove"
-    />
+      @click="onRemove"
+    >{{ $t(' Delete' ) }}</base-button-confirm>
     <slot/>
   </div>
 </template>
 <script>
-import BaseButtonDelete from './BaseButtonDelete'
+import BaseButtonConfirm from './BaseButtonConfirm'
 import BaseButtonSave from './BaseButtonSave'
 
 const components = {
-  BaseButtonDelete,
+  BaseButtonConfirm,
   BaseButtonSave
 }
 

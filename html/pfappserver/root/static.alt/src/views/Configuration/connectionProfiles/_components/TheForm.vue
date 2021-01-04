@@ -172,8 +172,11 @@
           :text="$i18n.t('With no language specified, all supported locales will be available')"
         />
       </base-form-tab>
-      <base-form-tab :title="$i18n.t('Files')">
-...
+      <base-form-tab v-if="!isClone && !isNew"
+        :title="$i18n.t('Files')">
+        <the-files-list
+          :id="id"
+        />
       </base-form-tab>
     </b-tabs>
   </base-form>
@@ -184,6 +187,8 @@ import {
   BaseFormTab
 } from '@/components/new/'
 import {
+  TheFilesList,
+
   FormGroupIdentifier,
   FormGroupDescription,
   FormGroupStatus,
@@ -222,6 +227,7 @@ import {
 const components = {
   BaseForm,
   BaseFormTab,
+  TheFilesList,
 
   FormGroupIdentifier,
   FormGroupDescription,
