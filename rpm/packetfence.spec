@@ -356,7 +356,7 @@ done
 %install
 %{__rm} -rf %{buildroot}
 # mysql plugin
-%{__install} -D -m0555 src/mariadb_udf/pf_udf.so %{buildroot}/%{mariadb_plugin_dir}/pf_udf.so
+%{__install} -D -m0755 src/mariadb_udf/pf_udf.so %{buildroot}/%{mariadb_plugin_dir}/pf_udf.so
 
 # systemd targets
 %{__install} -D -m0644 conf/systemd/packetfence.target %{buildroot}/etc/systemd/system/packetfence.target
