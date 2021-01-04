@@ -248,7 +248,7 @@ sub authorize {
     $options->{'last_connection_sub_type'} = $args->{'connection_sub_type'};
     $options->{'last_connection_type'}     = connection_type_to_str($args->{'connection_type'});
     $options->{'last_switch'}              = $switch_id;
-    $options->{'last_port'}                = $args->{'switch'}->{switch_port} if (defined($args->{'switch'}->{switch_port}));
+    $options->{'last_port'}                = $port if defined $port && length($port);
     $options->{'last_vlan'}                = $args->{'vlan'} if (defined($args->{'vlan'}));
     $options->{'last_ssid'}                = $args->{'ssid'} if (defined($args->{'ssid'}));
     $options->{'last_dot1x_username'}      = $args->{'user_name'} if (defined($args->{'user_name'}));
@@ -857,7 +857,7 @@ sub switch_access {
     $options->{'last_connection_sub_type'} = $connection_sub_type;
     $options->{'last_connection_type'}     = connection_type_to_str($connection_type);
     $options->{'last_switch'}              = $switch->{_id};
-    $options->{'last_port'}                = $args->{'switch'}->{switch_port} if (defined($args->{'switch'}->{switch_port}));
+    $options->{'last_port'}                = $port if defined $port && length($port);
     $options->{'last_vlan'}                = $args->{'vlan'} if (defined($args->{'vlan'}));
     $options->{'last_ssid'}                = $args->{'ssid'} if (defined($args->{'ssid'}));
     $options->{'last_dot1x_username'}      = $args->{'user_name'} if (defined($args->{'username'}));
