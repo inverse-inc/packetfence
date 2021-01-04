@@ -613,13 +613,25 @@ sub _bouncePortCoa {
     return perform_coa($connection_info, {@$attrs}, $vsa);
 }
 
+sub processTemplate {
+    my ($self, $template, $templateName, $vars) = @_;
+    if (!exists $template->{$templateName}) {
+        return undef;
+    }
+
+    my $tmpl= $template->{$templateName};
+    if (!defined $tmpl) {
+        return undef;
+    }
+
+    return $tmpl->process($vars);
+}
+
 sub NasPortToIfIndex {
     my ($self, $nasPort) = @_;
-    if ($self->{_template}{nasPortToIfindex}) {
-        my $ifindex = $self->{_template}{nasPortToIfindex}->process({ nasPort => $nasPort});
-        if ($ifindex) {
-            return $ifindex;
-        }
+    my $ifindex = $self->processTemplate($self->{_template}, 'nasPortToIfindex', {nasPort => $nasPort});
+    if ($ifindex) {
+        return $ifindex;
     }
 
     return $self->SUPER::NasPortToIfIndex($nasPort);
@@ -673,7 +685,6 @@ sub parseExternalPortalRequest {
     my $logger = $self->logger;
     my $template = $self->_template;
     my %params = (
-        session_id              => $self->webauthSessionId($template, $r, $req),   # External portal session ID when working by session ID flow
         switch_id               => $self->webauthSwitchId($template, $r, $req),   # Switch ID
         switch_mac              => $self->webauthSwitchMac($template, $r, $req),   # Switch MAC
         switch_ip               => $self->webauthSwitchIp($template, $r, $req),   # Switch IP
