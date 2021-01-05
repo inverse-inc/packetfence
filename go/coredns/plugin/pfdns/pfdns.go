@@ -390,6 +390,7 @@ func (pf *pfdns) ServeDNS(ctx context.Context, w dns.ResponseWriter, r *dns.Msg)
 
 		var returnedIP []byte
 		found = false
+		id, _ := GlobalTransactionLock.RLock()
 		for n, v := range pf.Network {
 			_, k, _ := net.ParseCIDR(n)
 			if k.Contains(bIP) {
@@ -412,6 +413,7 @@ func (pf *pfdns) ServeDNS(ctx context.Context, w dns.ResponseWriter, r *dns.Msg)
 				rr.(*dns.A).A = nil
 			}
 		}
+		GlobalTransactionLock.RUnlock(id)
 		if rr.(*dns.A).A == nil {
 			rr.(*dns.A).A = append([]byte(nil), []byte{127, 0, 0, 2}...)
 		}
@@ -440,6 +442,7 @@ func (pf *pfdns) ServeDNS(ctx context.Context, w dns.ResponseWriter, r *dns.Msg)
 				}
 			}
 		}
+		id, _ := GlobalTransactionLock.RLock()
 		for n, v := range pf.Network {
 			_, k, _ := net.ParseCIDR(n)
 			if k.Contains(bIP) {
@@ -450,6 +453,7 @@ func (pf *pfdns) ServeDNS(ctx context.Context, w dns.ResponseWriter, r *dns.Msg)
 				rr.(*dns.AAAA).AAAA = nil
 			}
 		}
+		GlobalTransactionLock.RUnlock(id)
 		if rr.(*dns.AAAA).AAAA == nil {
 			rr.(*dns.AAAA).AAAA = net.IPv6loopback
 		}
