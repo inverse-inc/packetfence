@@ -253,6 +253,7 @@ const setup = (props, context) => {
     require('brace/theme/cobalt')
     editor.value = instance
     editor.value.setAutoScrollEditorIntoView(true)
+    editor.value.renderer.setShowPrintMargin(false)
     onResizeEditor()
 
     watch(isEditorLineNumbers, () => {
