@@ -143,7 +143,7 @@ const setup = (props, context) => {
   const form = ref(defaults())
   const formRef = ref(null)
   useEventJail(formRef)
-  const isLoading = computed(() => $store.getters['$_certificates/isLoadingFiles'])
+  const isLoading = computed(() => $store.getters['$_connection_profiles/isLoadingFiles'])
 
   const _isNew = (entries, path) => {
     // traverse tree using path parts
@@ -258,6 +258,10 @@ const setup = (props, context) => {
 
     watch(isEditorLineNumbers, () => {
       editor.value.renderer.setShowGutter(isEditorLineNumbers.value)
+    }, { immediate: true })
+
+    watch(isLoading, () => {
+      editor.value.setReadOnly(isLoading.value)
     }, { immediate: true })
   }
 
