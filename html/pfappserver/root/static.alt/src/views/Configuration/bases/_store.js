@@ -2,7 +2,7 @@
 * "$_bases" store module
 */
 import Vue from 'vue'
-import api from '../_api'
+import api from './_api'
 import store from '@/store'
 
 const types = {
