@@ -3,7 +3,6 @@ import StoreModule from './_store'
 
 const TheList = () => import(/* webpackChunkName: "Configuration" */ '../_components/ConnectionProfilesList')
 const TheView = () => import(/* webpackChunkName: "Configuration" */ './_components/TheView')
-const FileView = () => import(/* webpackChunkName: "Editor" */ '../_components/ConnectionProfileFileView')
 
 export const beforeEnter = (to, from, next = () => {}) => {
   if (!store.state.$_connection_profiles)
@@ -48,33 +47,5 @@ export default [
         next()
       })
     }
-  },
-  /*
-  {
-    path: 'connection_profile/:id/files',
-    name: 'connectionProfileFiles',
-    component: TheView,
-    props: (route) => ({ id: route.params.id, tabIndex: 2 }),
-    beforeEnter: (to, from, next) => {
-      beforeEnter()
-      store.dispatch('$_connection_profiles/getConnectionProfile', to.params.id).then(() => {
-        next()
-      })
-    }
-  },
-  {
-    path: 'connection_profile/:id/files/:filename/new',
-    name: 'newConnectionProfileFile',
-    component: FileView,
-    props: (route) => ({ id: route.params.id, tabIndex: 2, filename: route.params.filename, isNew: true }),
-    beforeEnter
-  },
-  {
-    path: 'connection_profile/:id/files/:filename',
-    name: 'connectionProfileFile',
-    component: TheView,
-    props: (route) => ({ id: route.params.id, tabIndex: 2, filename: route.params.filename }),
-    beforeEnter
   }
-  */
 ]

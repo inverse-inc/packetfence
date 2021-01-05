@@ -12,7 +12,7 @@
       <b-form-input class="mr-1" type="text" v-model="localModel.values[0].values[0].value" v-if="isFieldType(substringValueType, localModel.values[0].values[0])"></b-form-input>
       <pf-form-datetime class="mr-1" v-model="localModel.values[0].values[0].value" v-else-if="isFieldType(datetimeValueType, localModel.values[0].values[0])" :config="{useCurrent: true}"></pf-form-datetime>
       <pf-form-prefix-multiplier class="mr-1" v-model="localModel.values[0].values[0].value" v-else-if="isFieldType(prefixmultipleValueType, localModel.values[0].values[0])"></pf-form-prefix-multiplier>
-      <b-form-select class="mr-1" v-localModel.lazy="localModel.values[0].values[0].value" :options="values(localModel.values[0].values[0])" v-else-if="isFieldType(selectValueType, localModel.values[0].values[0])"></b-form-select>
+      <b-form-select class="mr-1" v-model.lazy="localModel.values[0].values[0].value" :options="values(localModel.values[0].values[0])" v-else-if="isFieldType(selectValueType, localModel.values[0].values[0])"></b-form-select>
     </b-row>
     <!-- END SIMPLE SEARCH -->
   </b-container>
@@ -36,7 +36,7 @@
               <b-form-input type="text" class="mr-1" v-model="rule.value" v-if="isFieldType(substringValueType, rule)"></b-form-input>
               <pf-form-datetime class="mr-1" v-model="rule.value" v-else-if="isFieldType(datetimeValueType, rule)" :config="{useCurrent: true}" :moments="['-1 hours', '-1 days', '-1 weeks', '-1 months', '-1 quarters', '-1 years']"></pf-form-datetime>
               <pf-form-prefix-multiplier class="mr-1" v-model="rule.value" v-else-if="isFieldType(prefixmultipleValueType, rule)"></pf-form-prefix-multiplier>
-              <b-form-select class="mr-1" v-localModel.lazy="rule.value" :options="values(rule)" v-else-if="isFieldType(selectValueType, rule)"></b-form-select>
+              <b-form-select class="mr-1" v-model.lazy="rule.value" :options="values(rule)" v-else-if="isFieldType(selectValueType, rule)"></b-form-select>
               <b-button class="ml-auto mr-1 nodrag" v-if="localModel.values.length > 1 || localModel.values[outerindex].values.length > 1 && drag === false" variant="link" v-b-tooltip.hover.left.d1000 :title="$t('Delete statement')" @click="removeStatement(outerindex, innerindex)"><icon name="trash-alt"></icon></b-button>
             </b-row>
             <b-row class="mx-auto isdrag">

@@ -61,5 +61,3 @@ export default {
   setup
 }
 </script>
-,
-    default: true

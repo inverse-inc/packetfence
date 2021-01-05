@@ -57,6 +57,7 @@ Since this is a SPA (Single-Page Application), it is currently accessible from `
 * [d3-force](https://github.com/d3/d3-force) -- d3 force directed graphs
 * [typeface-b612-mono](https://www.npmjs.com/package/typeface-b612-mono) -- small fonts
 * [mime-type](https://github.com/jshttp/mime-types) -- mime/content-type
+* [yup](https://github.com/jquense/yup) -- validation schema
 
 ## Files Structure
 

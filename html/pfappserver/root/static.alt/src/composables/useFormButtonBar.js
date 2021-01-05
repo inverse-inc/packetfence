@@ -56,10 +56,6 @@ export const useFormButtonBar = (props, context) => {
     return isDeletable.value && isClone.value === false && isNew.value === false && 'remove' in listeners
   })
 
-  const canReset = true /*computed(() => {
-    return isNew.value === false
-  })*/
-
   const canSave = computed(() => {
     return isSaveable.value && 'save' in listeners
   })
@@ -74,7 +70,6 @@ export const useFormButtonBar = (props, context) => {
     canClone,
     canClose,
     canDelete,
-    canReset,
     canSave,
 
     onClone,

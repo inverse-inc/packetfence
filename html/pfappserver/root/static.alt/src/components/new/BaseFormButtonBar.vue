@@ -19,7 +19,7 @@
       >{{ $t('Clone') }}</b-button>
     </b-button-group>
     <b-button-group class="mr-1">
-      <b-button v-if="canReset"
+      <b-button
         :disabled="isLoading"
         variant="outline-secondary"
         @click="onReset"
@@ -59,7 +59,6 @@ export const setup = (props, context) => {
     canClone,
     canClose,
     canDelete,
-    canReset,
     canSave,
     onClone,
     onClose,
@@ -72,7 +71,6 @@ export const setup = (props, context) => {
     canClone,
     canClose,
     canDelete,
-    canReset,
     canSave,
     onClone,
     onClose,

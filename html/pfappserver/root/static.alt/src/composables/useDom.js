@@ -13,7 +13,7 @@ export const useMutationObserver = (el, callback, config = { attributes: false, 
 export const useResizeObserver = (el, callback, config = { box: 'border-box' }) => {
   const observer = new ResizeObserver(callback)
   const removeObserver = () => observer.disconnect()
-console.log('el', (el.value || el))
+
   onMounted(() => el && observer.observe((el.value || el), config))
   onBeforeUnmount(removeObserver)
 

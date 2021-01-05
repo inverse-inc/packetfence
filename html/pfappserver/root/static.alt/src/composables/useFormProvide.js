@@ -21,7 +21,6 @@ export const useFormProvideProps = {
 }
 
 export const useFormProvide = (props) => {
-
   const {
     form,
     meta,
@@ -35,21 +34,4 @@ export const useFormProvide = (props) => {
   provide('schema', schema)
   provide('isLoading', isLoading)
   provide('isReadonly', isReadonly)
-
-  /*
-  const lastTick = ref(null)
-  let lastTickDebouncer
-
-  watch([form, meta], () => {
-    if (!lastTickDebouncer)
-      lastTickDebouncer = createDebouncer()
-    lastTickDebouncer({
-      handler: () => nextTick(() => {
-        lastTick.value = (new Date()).getTime()
-      }),
-      time: 100
-    })
-  }, { deep: true, immediate: true })
-  provide('lastTick', lastTick)
-  */
 }

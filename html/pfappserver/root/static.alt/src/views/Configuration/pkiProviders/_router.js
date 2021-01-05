@@ -1,8 +1,8 @@
 import store from '@/store'
 import StoreModule from './_store'
 
-const TheList = () => import(/* webpackChunkName: "Editor" */ '../_components/PkiProvidersList')
-const TheView = () => import(/* webpackChunkName: "Editor" */ './_components/TheView')
+const TheList = () => import(/* webpackChunkName: "Configuration" */ '../_components/PkiProvidersList')
+const TheView = () => import(/* webpackChunkName: "Configuration" */ './_components/TheView')
 
 export const beforeEnter = (to, from, next = () => {}) => {
   if (!store.state.$_pki_providers) {
