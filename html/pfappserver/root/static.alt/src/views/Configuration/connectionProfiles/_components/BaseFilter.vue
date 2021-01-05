@@ -9,6 +9,7 @@
     <component :is="matchComponent" ref="matchComponentRef"
       :namespace="`${namespace}.match`"
       :options="matchOptions"
+      v-bind="matchProps"
     />
 
   </div>
@@ -169,12 +170,18 @@ const setup = (props, context) => {
     { immediate: true }
   )
 
+  const matchProps = computed(() => {
+    const { props } = filter.value || {}
+    return props
+  })
+
   return {
     typeComponentRef,
     typeOptions,
     matchComponent,
     matchComponentRef,
-    matchOptions
+    matchOptions,
+    matchProps
   }
 }
 

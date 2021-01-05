@@ -53,13 +53,16 @@ export const setup = (props, context) => {
   // clear single value
   const onRemove = () => onInput(undefined)
 
+  const onTag = newValue => onInput(newValue)
+
   return {
     // wrappers
     inputValue: inputValueWrapper,
     onInput: onInputWrapper,
     inputPlaceholder,
 
-    onRemove
+    onRemove,
+    onTag
   }
 }
 
