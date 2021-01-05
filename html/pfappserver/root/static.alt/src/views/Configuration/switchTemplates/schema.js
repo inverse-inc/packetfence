@@ -27,7 +27,7 @@ const schemaRadiusAttribute = yup.object({
     })
 })
 
-const schemaRadiusAttributes = yup.array().ensure().of(schemaRadiusAttribute.meta({ invalidFeedback: i18n.t('Scope contains one or more errors.') }))
+const schemaRadiusAttributes = yup.array().ensure().unique(i18n.t('Duplicate attribute.')).of(schemaRadiusAttribute.meta({ invalidFeedback: i18n.t('Scope contains one or more errors.') }))
 
 export const schema = (props) => {
   const {

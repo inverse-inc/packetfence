@@ -29,7 +29,7 @@ const schemaAccessDurationChoice = yup.object({
     })
 })
 
-const schemaAccessDurationChoices = yup.array().of(schemaAccessDurationChoice)
+const schemaAccessDurationChoices = yup.array().unique(i18n.t('Duplicate choice.')).of(schemaAccessDurationChoice)
 
 export const schema = () => {
   return yup.object({

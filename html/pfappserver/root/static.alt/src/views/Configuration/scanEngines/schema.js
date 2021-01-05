@@ -19,7 +19,7 @@ yup.addMethod(yup.string, 'scanEngineIdentifierNotExistsExcept', function (excep
 
 const schemaWmiRule = yup.string().label(i18n.t('WMI Rule')).required(i18n.t('WMI Rule required.'))
 
-const schemaWmiRules = yup.array().ensure().of(schemaWmiRule)
+const schemaWmiRules = yup.array().ensure().unique(i18n.t('Duplicate rule.')).of(schemaWmiRule)
 
 export default (props) => {
   const {

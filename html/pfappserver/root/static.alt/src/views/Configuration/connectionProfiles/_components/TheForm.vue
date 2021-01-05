@@ -23,7 +23,7 @@
         />
 
         <form-group-root-module namespace="root_module"
-          :column-label="$i18n.t('Root Portal Modul')"
+          :column-label="$i18n.t('Root Portal Module')"
           :text="$i18n.t('The Root Portal Module to use.')"
         />
 

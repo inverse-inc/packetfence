@@ -27,7 +27,7 @@ const schemaInlineTrigger = yup.object({
     })
 })
 
-export const schemaInlineTriggers = yup.array().ensure().of(schemaInlineTrigger)
+export const schemaInlineTriggers = yup.array().ensure().unique(i18n.t('Duplicate condition.')).of(schemaInlineTrigger)
 
 export const schema = (props) => {
   const {

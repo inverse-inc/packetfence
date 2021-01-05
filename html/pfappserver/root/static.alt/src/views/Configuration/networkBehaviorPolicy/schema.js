@@ -27,7 +27,7 @@ const schemaDeviceAttribute = yup.object({
     })
 })
 
-const schemaDeviceAttributes = yup.array().of(schemaDeviceAttribute)
+const schemaDeviceAttributes = yup.array().unique(i18n.t('Duplicate attribute.'), ({ type }) => type).of(schemaDeviceAttribute)
 
 export const schema = (props) => {
   const {

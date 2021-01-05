@@ -84,13 +84,14 @@ export default (props) => {
       .required(i18n.t('Name required.'))
       .connectionProfileIdNotExistsExcept((!isNew && !isClone) ? id : undefined, i18n.t('Name exists.')),
 
-    filter: schemaFilters.meta({ invalidFeedback: i18n.t('Filter contains one or more errors.') }),
+    filter: schemaFilters.unique(i18n.t('Duplicate filter.')).meta({ invalidFeedback: i18n.t('Filter contains one or more errors.') }),
     advanced_filter: schemaAdvancedFilter.meta({ invalidFeedback: i18n.t('Advanced filter contains one or more errors.') }),
-    sources: schemaArray.meta({ invalidFeedback: i18n.t('Sources contain one or more errors.') }),
-    billing_tiers: schemaArray.meta({ invalidFeedback: i18n.t('Billing Tiers contain one or more errors.') }),
-    provisioners: schemaArray.meta({ invalidFeedback: i18n.t('Provisioners contain one or more errors.') }),
-    scans: schemaArray.meta({ invalidFeedback: i18n.t('Scanners contain one or more errors.') }),
-    locale: schemaArray.meta({ invalidFeedback: i18n.t('Languages contain one or more errors.') })
+    sources: schemaArray.unique(i18n.t('Duplicate source.')).meta({ invalidFeedback: i18n.t('Sources contain one or more errors.') }),
+    billing_tiers: schemaArray.unique(i18n.t('Duplicate billing tier.')).meta({ invalidFeedback: i18n.t('Billing Tiers contain one or more errors.') }),
+    provisioners: schemaArray.unique(i18n.t('Duplicate provisioner.')).meta({ invalidFeedback: i18n.t('Provisioners contain one or more errors.') }),
+    scans: schemaArray.unique(i18n.t('Duplicate scanner.')).meta({ invalidFeedback: i18n.t('Scanners contain one or more errors.') }),
+    locale: schemaArray.unique(i18n.t('Duplicate locale.')).meta({ invalidFeedback: i18n.t('Languages contain one or more errors.') }),
+    root_module: yup.string().label(i18n.t('Module'))
   })
 }
 

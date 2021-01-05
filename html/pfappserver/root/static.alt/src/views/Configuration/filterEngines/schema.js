@@ -24,7 +24,7 @@ const schemaAction = yup.object({
   api_parameters: yup.string().required(i18n.t('Parameters required.'))
 })
 
-const schemaActions = yup.array().ensure().of(schemaAction)
+const schemaActions = yup.array().ensure().unique(i18n.t('Duplicate action.')).of(schemaAction)
 
 const schemaAnswer = yup.object({
   prefix: yup.string().required(i18n.t('Prefix required.')),
@@ -32,7 +32,7 @@ const schemaAnswer = yup.object({
   value: yup.string().required(i18n.t('Value required'))
 })
 
-const schemaAnswers = yup.array().ensure().of(schemaAnswer)
+const schemaAnswers = yup.array().ensure().unique(i18n.t('Duplicate answer.')).of(schemaAnswer)
 
 const schemaCondition = yup.object({
   field: yup.string().required(i18n.t('Field required.')),
@@ -50,7 +50,7 @@ const schemaParam = yup.object({
   value: yup.string().required(i18n.t('Value required.'))
 })
 
-const schemaParams = yup.array().ensure().of(schemaParam)
+const schemaParams = yup.array().ensure().unique(i18n.t('Duplicate param.')).of(schemaParam)
 
 const schemaScope = yup.string().nullable().label(i18n.t('Scope'))
 

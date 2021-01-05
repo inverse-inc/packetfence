@@ -107,13 +107,13 @@ export const useInputValidator = (props, value, recursive = false) => {
               // yup throws an exception when a path is not defined in the schema
               //  https://github.com/jquense/yup/issues/599
               try {
-                validationPromise = schema.validateAt(path.value, form.value, { recursive })
+                validationPromise = schema.validateAt(path.value, form.value, { recursive, abortEarly: !recursive, context: { foo: 'bar' } })
               } catch (e) { // path not defined in schema
                 validationPromise = true
               }
             }
             else
-              validationPromise = schema.validate(value.value, { recursive }) // use value
+              validationPromise = schema.validate(value.value, { recursive, abortEarly: !recursive, context: { fiz: 'baz' } }) // use value
 
             Promise.resolve(validationPromise).then(() => { // valid
               if (unref(validFeedback) !== undefined)
@@ -121,15 +121,21 @@ export const useInputValidator = (props, value, recursive = false) => {
               else
                 setState(thisPromise, null, null, null)
 
-            }).catch(({ message }) => { // invalid
+            }).catch(ValidationError => { // invalid
+              const { inner = [], message } = ValidationError
               let _schema = schema
               if (recursive && namespace.value) {
                 _schema = yup.reach(schema, path.value) // use namespace/path
               }
               try {
                 const { meta: { invalidFeedback: metaInvalidFeedback } = {} } = _schema.describe()
-                if (metaInvalidFeedback) { // meta feedback masks child error messages
-                  setState(thisPromise, false, null, metaInvalidFeedback)
+                if (inner.length > 1) { // 2+ errors
+                  if (metaInvalidFeedback) { // mask message
+                    setState(thisPromise, false, null, metaInvalidFeedback)
+                    return
+                  }
+                  // else concatenate errors
+                  setState(thisPromise, false, null, inner.map(({ message }) => message).join(' '))
                   return
                 }
               } catch(e) {

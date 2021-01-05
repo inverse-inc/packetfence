@@ -22,7 +22,7 @@ const schemaRuleAction = yup.object({
   value: yup.string().required(i18n.t('Value required'))
 })
 
-const schemaRuleActions = yup.array().ensure().of(schemaRuleAction)
+const schemaRuleActions = yup.array().ensure().unique(i18n.t('Duplicate action.')).of(schemaRuleAction)
 
 const schemaRuleCondition = yup.object({
   attribute: yup.string().label(i18n.t('Attribute')).required(i18n.t('Attribute required.')),
@@ -30,7 +30,7 @@ const schemaRuleCondition = yup.object({
   value: yup.string().label(i18n.t('Value')).required(i18n.t('Value required.'))
 })
 
-const schemaRuleConditions = yup.array().ensure().of(schemaRuleCondition)
+const schemaRuleConditions = yup.array().ensure().unique(i18n.t('Duplicate condition.')).of(schemaRuleCondition)
 
 const schemaRule = yup.object({
   status: yup.string(),
@@ -41,14 +41,14 @@ const schemaRule = yup.object({
   conditions: schemaRuleConditions.label(i18n.t('Condition')).meta({ invalidFeedback: i18n.t('Condition contains one or more errors.') })
 })
 
-const schemaRules = yup.array().ensure().of(schemaRule)
+const schemaRules = yup.array().ensure().unique(i18n.t('Duplicate rule.')).of(schemaRule)
 
 const schemaPersonMapping = yup.object({
   person_field: yup.string().nullable().required('Person field required.'),
   openid_field: yup.string().nullable().required('OpenID field required.')
 })
 
-const schemaPersonMappings = yup.array().ensure().of(schemaPersonMapping)
+const schemaPersonMappings = yup.array().ensure().unique(i18n.t('Duplicate mapping.')).of(schemaPersonMapping)
 
 export const schema = (props) => {
   const {
