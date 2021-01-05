@@ -253,8 +253,10 @@ sub addAcceptUrlAttributes {
     }
 
     $args->{role} = $self->getRoleByName($user_role);
-    $args->{'session_id'} = $self->setSession($args);
+    my $session_id = "sid" . $self->setSession($args);
+    $args->{'session_id'} = $session_id;
     $redirect_url .= '/' unless $redirect_url =~ m(\/$);
+    $redirect_url .= $session_id;
     $args->{redirect_url} = $redirect_url;
     $self->addTemplateAttributesToReply($reply, 'acceptUrl', $args);
 
