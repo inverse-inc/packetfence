@@ -1,5 +1,6 @@
 import store from '@/store'
 import RolesStoreModule from '../roles/_store'
+import SwitchesStoreModule from '../switches/_store'
 import SwitchGroupsStoreModule from './_store'
 
 const TheTabs = () => import(/* webpackChunkName: "Configuration" */ '../_components/NetworkDevicesTabs')
@@ -8,6 +9,8 @@ const TheView = () => import(/* webpackChunkName: "Configuration" */ './_compone
 export const beforeEnter = (to, from, next = () => {}) => {
   if (!store.state.$_roles)
     store.registerModule('$_roles', RolesStoreModule)
+  if (!store.state.$_switches)
+    store.registerModule('$_switches', SwitchesStoreModule)
   if (!store.state.$_switch_groups)
     store.registerModule('$_switch_groups', SwitchGroupsStoreModule)
   next()
