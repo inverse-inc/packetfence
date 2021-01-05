@@ -26,7 +26,7 @@
       :text="$i18n.t('Nodes with the selected roles will be affected.')"
     />
 
-    <form-group-duration :namespaces="['duration.interval', 'duration.unit']"
+    <form-group-duration namespace="duration"
       :column-label="$i18n.t('Duration')"
       :text="$i18n.t('Approximate duration of a scan. User being scanned on registration are presented a progress bar for this duration, afterwards the browser refreshes until scan is complete.')"
     />

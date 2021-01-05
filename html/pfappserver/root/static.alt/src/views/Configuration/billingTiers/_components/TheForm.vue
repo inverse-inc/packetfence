@@ -26,7 +26,7 @@
       :column-label="$i18n.t('Role')"
     />
 
-    <form-group-access-duration :namespaces="['access_duration.interval', 'access_duration.unit']"
+    <form-group-access-duration namespace="access_duration"
       :column-label="$i18n.t('Access Duration')"
       :text="$i18n.t('The access duration of the devices that use this tier.')"
     />

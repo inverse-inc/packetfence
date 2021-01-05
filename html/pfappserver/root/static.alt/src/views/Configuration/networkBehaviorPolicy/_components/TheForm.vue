@@ -38,7 +38,7 @@
       :text="$i18n.t('Comma delimited list of IP addresses (can be CIDR) to ignore when checking against the blacklisted IPs list.')"
     />
 
-    <form-group-blacklisted-ip-hosts-window :namespaces="['blacklisted_ip_hosts_window.interval', 'blacklisted_ip_hosts_window.unit']"
+    <form-group-blacklisted-ip-hosts-window namespace="blacklisted_ip_hosts_window"
       :column-label="$i18n.t('Blacklisted IP Hosts Window')"
       :text="$i18n.t('The window to consider when counting the amount of blacklisted IPs the endpoint has communicated with.')"
     />
@@ -53,7 +53,7 @@
       :text="$i18n.t('Which ports should be considered as vulnerable/dangerous and trigger an event. Should be a comma delimited list of ports. Also supports ranges (ex: &quot;1000-1024&quot; configures ports 1000 to 1024 inclusively). This list is for the outbound communication of the endpoint.')"
     />
 
-    <form-group-blacklisted-ports-window :namespaces="['blacklisted_ports_window.interval', 'blacklisted_ports_window.unit']"
+    <form-group-blacklisted-ports-window namespaces="blacklisted_ports_window"
       :column-label="$i18n.t('Blacklisted ports window')"
       :text="$i18n.t('The window to consider when checking for blacklisted ports communication.')"
     />

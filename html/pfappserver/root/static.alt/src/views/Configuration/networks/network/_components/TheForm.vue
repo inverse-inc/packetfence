@@ -10,7 +10,7 @@
       :text="$i18n.t('If enabled, PacketFence will monitor DHCP-specific items such as rogue DHCP services, DHCP-based OS fingerprinting, computername/hostname resolution, and (optionnally) option-82 location-based information. The monitored DHCP packets are DHCPDISCOVERs and DHCPREQUESTs - both are broadcasts, meaning a span port is not necessary. This feature is highly recommended if the internal network is DHCP-based.')"
     />
 
-    <form-group-dhcp-rate-limiting :namespaces="['dhcp_rate_limiting.interval', 'dhcp_rate_limiting.unit']"
+    <form-group-dhcp-rate-limiting namespace="dhcp_rate_limiting"
       :column-label="$i18n.t('DHCP detector rate limiting')"
       :text="$i18n.t('Will rate-limit DHCP packets that contain the same information.For example, a DHCPREQUEST for the same MAC/IP will only be processed once in the timeframe configured below. This is independant of the DHCP server/relay handling the packet and is only based on the IP, MAC Address and DHCP type inside the packet. A value of 0 will disable the rate limitation.')"
     />

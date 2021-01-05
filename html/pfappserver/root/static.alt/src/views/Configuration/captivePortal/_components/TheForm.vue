@@ -20,17 +20,17 @@
       :text="$i18n.t(`This IP is used as the webserver who hosts the common/network-access-detection.gif which is used to detect if network access was enabled. It cannot be a domain name since it is used in registration or quarantine where DNS is blackholed. It is recommended that you allow your users to reach your PacketFence server and put your LAN's PacketFence IP. By default we will make this reach PacketFence's website as an easy solution.`)"
     />
 
-    <form-group-network-detection-initial-delay :namespaces="['network_detection_initial_delay.interval', 'network_detection_initial_delay.unit']"
+    <form-group-network-detection-initial-delay namespace="network_detection_initial_delay"
       :column-label="$i18n.t('Initial delay')"
       :text="$i18n.t('The amount of time before network connectivity detection is started.')"
     />
 
-    <form-group-network-detection-retry-delay :namespaces="['network_detection_retry_delay.interval', 'network_detection_retry_delay.unit']"
+    <form-group-network-detection-retry-delay namespace="network_detection_retry_delay"
       :column-label="$i18n.t('Retry delay')"
       :text="$i18n.t('The amount of time between network connectivity detection checks.')"
     />
 
-    <form-group-network-redirect-delay :namespaces="['network_redirect_delay.interval', 'network_redirect_delay.unit']"
+    <form-group-network-redirect-delay namespace="network_redirect_delay"
       :column-label="$i18n.t('Redirection delay')"
       :text="$i18n.t('How long to display the progress bar during trap release. Default value is based on VLAN enforcement techniques. Inline enforcement only users could lower the value.')"
     />

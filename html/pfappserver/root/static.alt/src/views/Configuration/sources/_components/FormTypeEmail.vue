@@ -24,7 +24,7 @@
       :text="$i18n.t('A comma-separated list of domains that are allowed for email registration. Wildcards are accepted (*pfdemo.org). Allowed domains are checked after banned domains.')"
     />
 
-    <form-group-email-activation-timeout :namespaces="['email_activation_timeout.interval', 'email_activation_timeout.unit']"
+    <form-group-email-activation-timeout namespace="email_activation_timeout"
       :column-label="$i18n.t('Email Activation Timeout')"
       :text="$i18n.t('This is the delay given to a guest who registered by email confirmation to log into his email and click the activation link.')"
     />
@@ -59,7 +59,7 @@
       :text="$i18n.t('The amount of times, the local account can be used after its created. 0 means infinite.')"
     />
 
-    <form-group-local-account-expiration :namespaces="['local_account_expiration.interval', 'local_account_expiration.unit']"
+    <form-group-local-account-expiration namespace="local_account_expiration"
       :column-label="$i18n.t('Local account expiration')"
       :text="$i18n.t('The amount of time after which the local account will expire. A value of 0 will use the access duration that is found via the authentication rules for the user.')"
     />

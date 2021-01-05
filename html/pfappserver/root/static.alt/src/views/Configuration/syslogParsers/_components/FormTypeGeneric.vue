@@ -22,7 +22,7 @@
       :column-label="$i18n.t('Tenant')"
     />
 
-    <form-group-rate-limit :namespaces="['rate_limit.interval', 'rate_limit.unit']"
+    <form-group-rate-limit namespace="rate_limit"
       :column-label="$i18n.t('Rate limit')"
     />
   </base-form>

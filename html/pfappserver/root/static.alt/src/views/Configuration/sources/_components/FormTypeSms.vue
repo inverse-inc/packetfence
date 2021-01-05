@@ -19,7 +19,7 @@
       :text="$i18n.t('List of phone carriers available to the user.')"
     />
 
-    <form-group-sms-activation-timeout :namespaces="['sms_activation_timeout.interval', 'sms_activation_timeout.unit']"
+    <form-group-sms-activation-timeout namespace="sms_activation_timeout"
       :column-label="$i18n.t('SMS Activation Timeout')"
       :text="$i18n.t('This is the delay given to a guest who registered by SMS confirmation to fill the PIN code.')"
     />
@@ -53,7 +53,7 @@
       :text="$i18n.t('The amount of times, the local account can be used after its created. 0 means infinite.')"
     />
 
-    <form-group-local-account-expiration :namespaces="['local_account_expiration.interval', 'local_account_expiration.unit']"
+    <form-group-local-account-expiration namespace="local_account_expiration"
       :column-label="$i18n.t('Local account expiration')"
       :text="$i18n.t('The amount of time after which the local account will expire. A value of 0 will use the access duration that is found via the authentication rules for the user.')"
     />

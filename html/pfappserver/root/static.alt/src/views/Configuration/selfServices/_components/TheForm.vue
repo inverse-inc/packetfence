@@ -28,7 +28,7 @@
           :text="$i18n.t('The role to assign to devices registered from the self-service portal. If none is specified, the role of the registrant is used. If multiples are defined then the user will have to choose.')"
         />
 
-        <form-group-device-registration-access-duration :namespaces="['device_registration_access_duration.interval', 'device_registration_access_duration.unit']"
+        <form-group-device-registration-access-duration namespace="device_registration_access_duration"
           :column-label="$i18n.t('Access duration to assign')"
           :text="$i18n.t('The access duration to assign to devices registered from the self-service portal. If zero is specified, the access duration of the registrant is used.')"
         />

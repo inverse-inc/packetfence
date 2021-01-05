@@ -132,7 +132,7 @@
           :text="$i18n.t('Under most circumstances we can redirect the user to the URL he originally intended to visit. However, you may prefer to force the captive portal to redirect the user to the redirection URL.')"
         />
 
-        <form-group-block-interval :namespaces="['block_interval.interval', 'block_interval.unit']"
+        <form-group-block-interval namespace="block_interval"
           :column-label="$i18n.t('Block Interval')"
           :text="$i18n.t('The amount of time a user is blocked after reaching the defined limit for login, sms request and sms pin retry.')"
         />

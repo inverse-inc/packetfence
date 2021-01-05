@@ -5,7 +5,7 @@
     :schema="schema"
     :isLoading="isLoading"
   >
-    <form-group-bounce-duration :namespaces="['bounce_duration.interval', 'bounce_duration.unit']"
+    <form-group-bounce-duration namespace="bounce_duration"
       :column-label="$i18n.t('Bounce duration')"
       :text="$i18n.t('Delay to wait between the shut / no-shut on a port. Some OS need a higher value than others. Default should be reasonable for almost every OS but is too long for the usual proprietary OS.')"
     />

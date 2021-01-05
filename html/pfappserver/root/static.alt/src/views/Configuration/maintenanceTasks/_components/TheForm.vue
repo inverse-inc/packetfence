@@ -34,13 +34,13 @@
     />
 
     <form-group-timeout v-show="wants('timeout')"
-      :namespaces="['timeout.interval', 'timeout.unit']"
+      namespace="timeout"
       :column-label="$i18n.t('Timeout')"
       :text="$i18n.t('Maximum amount of time this task can run.')"
     />
 
     <form-group-window v-show="wants('window')"
-      :namespaces="['window.interval', 'window.unit']"
+      namespace="window"
       :column-label="$i18n.t('Window')"
       :text="$i18n.t('Window to apply the job to. In the case of a deletion, setting this to 7 days would delete affected data older than 7 days.')"
     />
@@ -52,13 +52,13 @@
     />
 
     <form-group-history-timeout v-show="wants('history_timeout')"
-      :namespaces="['history_timeout.interval', 'history_timeout.unit']"
+      namespace="history_timeout"
       :column-label="$i18n.t('History Timeout')"
       :text="$i18n.t('Maximum amount of time this task can run.')"
     />
 
     <form-group-history-window v-show="wants('history_window')"
-      :namespaces="['history_window.interval', 'history_window.unit']"
+      namespace="history_window"
       :column-label="$i18n.t('History Window')"
       :text="$i18n.t('Window to apply the job to. In the case of a deletion, setting this to 7 days would delete affected data older than 7 days.')"
     />
@@ -76,31 +76,31 @@
     />
 
     <form-group-rotate-timeout v-show="wants('rotate_timeout')"
-      :namespaces="['rotate_timeout.interval', 'rotate_timeout.unit']"
+      namespace="rotate_timeout"
       :column-label="$i18n.t('Rotate Timeout')"
       :text="$i18n.t('Maximum amount of time this task can run.')"
     />
 
     <form-group-rotate-window v-show="wants('rotate_window')"
-      :namespaces="['rotate_window.interval', 'rotate_window.unit']"
+      namespace="rotate_window"
       :column-label="$i18n.t('Rotate Window')"
       :text="$i18n.t('Window to apply the job to. In the case of a deletion, setting this to 7 days would delete affected data older than 7 days.')"
     />
 
     <form-group-unreg-window v-show="wants('unreg_window')"
-      :namespaces="['unreg_window.interval', 'unreg_window.unit']"
+      namespace="unreg_window"
       :column-label="$i18n.t('Unreg Window')"
       :text="$i18n.t('How long can a registered node be inactive before it becomes unregistered.')"
     />
 
     <form-group-delete-window v-show="wants('delete_window')"
-      :namespaces="['delete_window.interval', 'delete_window.unit']"
+      namespace="delete_window"
       :column-label="$i18n.t('Delete Window')"
       :text="$i18n.t(`How long can an unregistered node be inactive before being deleted.\nThis shouldn't be used if you are using port-security.`)"
     />
 
     <form-group-delay v-show="wants('delay')"
-      :namespaces="['delay.interval', 'delay.unit']"
+      namespace="delay"
       :column-label="$i18n.t('Delay')"
       :text="$i18n.t('Minimum gap before certificate expiration date (will the certificate expires in ...).')"
     />

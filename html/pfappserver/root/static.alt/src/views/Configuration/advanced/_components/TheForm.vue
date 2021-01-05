@@ -10,12 +10,12 @@
       :text="$i18n.t('Language choice for the communication with administrators.')"
     />
 
-    <form-group-api-inactivity-timeout :namespaces="['api_inactivity_timeout.interval', 'api_inactivity_timeout.unit']"
+    <form-group-api-inactivity-timeout namespace="api_inactivity_timeout"
       :column-label="$i18n.t('API inactivity timeout')"
       :text="$i18n.t('The inactivity timeout of an API token. Requires to restart the api-frontend service to be fully effective.')"
     />
 
-    <form-group-api-max-expiration :namespaces="['api_max_expiration.interval', 'api_max_expiration.unit']"
+    <form-group-api-max-expiration namespace="api_max_expiration"
       :column-label="$i18n.t('API token max expiration')"
       :text="$i18n.t('The maximum amount of time an API token can be valid. Requires to restart the api-frontend service to be fully effective.')"
     />
@@ -125,7 +125,7 @@
       :text="$i18n.t('Listen to NetFlow on all networks. Changing this requires to restart pfacct.')"
     />
 
-    <form-group-accounting-timebucket-size :namespaces="['accounting_timebucket_size.interval', 'accounting_timebucket_size.unit']"
+    <form-group-accounting-timebucket-size namespace="accounting_timebucket_size"
       :column-label="$i18n.t('Accounting timebucket size')"
       :text="$i18n.t('Accounting timebucket size. Changing this requires to restart pfacct.')"
     />

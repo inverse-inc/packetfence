@@ -13,14 +13,14 @@
         <b-col sm="6" align-self="start">
 
           <base-input
-            :namespace="namespaces[0]"
+            :namespace="`${namespace}.interval`"
           />
 
         </b-col>
         <b-col sm="6" align-self="start" class="pl-1">
 
           <base-input-chosen-one
-            :namespace="namespaces[1]"
+            :namespace="`${namespace}.unit`"
           />
 
         </b-col>
@@ -50,13 +50,7 @@ import { useInputProps } from '@/composables/useInput'
 const props = {
   ...useFormGroupProps,
   ...useInputMetaProps,
-  ...useInputProps,
-
-  namespaces: {
-    type: Array,
-    default: () => (['interval', 'unit']),
-    validator: value => value.length === 2
-  }
+  ...useInputProps
 }
 
 // @vue/component
