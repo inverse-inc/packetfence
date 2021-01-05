@@ -25,7 +25,9 @@
           <navigation-icon v-for="(name, n) in item.icons" :key="n"
             :name="name" class="nav-icon"/>
 
-          <icon name="regular/file"/> {{ item.name }}
+          <icon name="file" v-if="!item.not_revertible || !item.not_deletable"/>
+          <icon name="regular/file" v-else/>
+          {{ item.name }}
         </div>
       </template>
       <template v-slot:cell(buttons)="{ item }">
