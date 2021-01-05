@@ -1,13 +1,15 @@
 import store from '@/store'
-import StoreModule from './_store'
+import PkiProvidersStoreModule from './_store'
+import PkisStoreModule from '../pki/_store'
 
 const TheList = () => import(/* webpackChunkName: "Configuration" */ '../_components/PkiProvidersList')
 const TheView = () => import(/* webpackChunkName: "Configuration" */ './_components/TheView')
 
 export const beforeEnter = (to, from, next = () => {}) => {
-  if (!store.state.$_pki_providers) {
-    store.registerModule('$_pki_providers', StoreModule)
-  }
+  if (!store.state.$_pki_providers)
+    store.registerModule('$_pki_providers', PkiProvidersStoreModule)
+  if (!store.state.$_pkis)
+    store.registerModule('$_pkis', PkisStoreModule)
   next()
 }
 
