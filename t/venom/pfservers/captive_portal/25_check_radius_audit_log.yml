@@ -1,0 +1,100 @@
+name: Check RADIUS audit log
+version: 2
+testcases:
+- name: get_time
+  steps:
+  - type: exec
+    script: "date '+%Y-%m-%d %H:%M:%S' --date='last minute'"
+    vars:
+      last_minute:
+        from: result.systemout
+
+# only latest search entry since one minute that matches
+# auth_status equals Accept (to avoid Disconnect)
+# mac equals {{.node01_eth1_mac_address}}"
+# connection type of test suite connection profile
+- name: get_id_of_radius_audit_log_entry
+  steps:
+  - type: http
+    method: POST
+    url: '{{.pfserver_webadmin_url}}/api/v1/radius_audit_logs/search'
+    ignore_verify_ssl: true
+    body: >-
+      {
+        "cursor": 0,
+        "fields": [
+          "id"
+        ],
+        "sort": [
+          "created_at DESC"
+        ],        
+        "limit": 1,
+        "query": {
+          "op": "and",
+          "values": [
+            {
+              "op": "or",
+              "values": [
+                {
+                  "field": "mac",
+                  "op": "equals",
+                  "value": "{{.node01_eth1_mac_address}}"
+                }
+              ]
+            },
+            {
+              "op": "or",
+              "values": [
+                {
+                  "field": "auth_status",
+                  "op": "equals",
+                  "value": "Accept"
+                }
+              ]
+            },
+            {
+              "op": "or",
+              "values": [
+                {
+                  "field": "connection_type",
+                  "op": "equals",
+                  "value": "{{.captive_portal.profiles.filters.connection_type}}"
+                }
+              ]
+            },            
+            {
+              "op": "or",
+              "values": [            
+                {
+                  "field": "created_at",
+                  "op": "greater_than",
+                  "value": "{{.get_time.last_minute}}"
+                }
+              ]
+            }
+          ]
+        }
+      }
+    headers:
+      "Authorization": "{{.pfserver_token}}"
+      "Content-Type": "application/json"
+    assertions:
+      - result.statuscode ShouldEqual 200
+      - result.bodyjson.items.items0 ShouldContainKey id
+    vars:
+      id:
+        from: result.bodyjson.items.items0.id
+      
+- name: check_radius_reply
+  steps:
+  - type: http
+    method: GET
+    url: '{{.pfserver_webadmin_url}}/api/v1/radius_audit_log/{{.get_id_of_radius_audit_log_entry.id}}'
+    ignore_verify_ssl: true
+    headers:
+      "Authorization": "{{.pfserver_token}}"
+      "Content-Type": "application/json"
+    assertions:
+      - result.statuscode ShouldEqual 200
+      - result.bodyjson.item.radius_reply ShouldContainSubstring 'Tunnel-Private-Group-Id = "{{.roles.registration.vlan_id}}"'
+
