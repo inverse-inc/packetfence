@@ -114,7 +114,7 @@ export const useNamespaceMetaAllowed = (namespace, _meta) => {
 export const useNamespaceMetaAllowedLookup = (namespace, _meta) => {
   const namespaceMeta = useNamespaceMeta(namespace, _meta)
   const { allowed_lookup = {} } = namespaceMeta.value || {}
-  return [...(new Set(allowed_lookup))] // dereferenced (prevents `sort` mutation)
+  return { base_url: '', ...allowed_lookup }
 }
 
 export const useNamespaceMetaAllowedLookupFn = (namespace, fn, _meta) => (fn(useNamespaceMetaAllowedLookup(namespace, _meta)))
