@@ -22,6 +22,7 @@ our @EXPORT_OK = qw(
   @SUPPORTS
   @WEBAUTH_TEMPLATES
   @TEMPLATE_FIELDS
+  %WEBAUTH_TEMPLATE_TO_REQUEST_PARAM
 );
 
 our $DISCONNECT_TYPE_COA = 'coa';
@@ -47,6 +48,18 @@ our @WEBAUTH_TEMPLATES = qw(
   webAuthRedirectUrl
   webAuthGrantUrl
   webAuthStatusCode
+);
+
+our %WEBAUTH_TEMPLATE_TO_REQUEST_PARAM = (
+  webAuthSwitchId => 'switch_id',
+  webAuthSwitchMac => 'switch_mac',
+  webAuthSwitchIp => 'switch_ip',
+  webAuthClientMac => 'client_mac',
+  webAuthClientIp => 'client_ip',
+  webAuthSSID => 'ssid',
+  webAuthRedirectUrl => 'redirect_url',
+  webAuthGrantUrl => 'grant_url',
+  webAuthStatusCode => 'status_code',
 );
 
 our @TEMPLATE_FIELDS = (

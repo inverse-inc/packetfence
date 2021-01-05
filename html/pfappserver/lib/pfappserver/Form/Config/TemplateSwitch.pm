@@ -90,6 +90,13 @@ has_field 'acl_template' => (
     element_attr => { placeholder => $DEFAULT_ACL_TEMPLATE},
 );
 
+has_field 'webAuthUseSession' => (
+    type            => 'Toggle',
+    checkbox_value  => 'enabled',
+    unchecked_value => 'disabled',
+    default => 'enabled',
+);
+
 has_field 'webAuthSynchronize' => (
     type            => 'Toggle',
     checkbox_value  => 'enabled',

@@ -42,6 +42,7 @@ use pf::constants::template_switch qw(
   $DISCONNECT_TYPE_COA
   $DISCONNECT_TYPE_DISCONNECT
   $DISCONNECT_TYPE_BOTH
+  %WEBAUTH_TEMPLATE_TO_REQUEST_PARAM
 );
 
 use pf::config::template_switch qw(%TemplateSwitches);
@@ -685,31 +686,47 @@ See L<pf::web::externalportal::handle>
 sub parseExternalPortalRequest {
     my ( $self, $r, $req ) = @_;
     my $logger = $self->logger;
+    my $client_ip = defined($r->headers_in->{'X-Forwarded-For'}) ? $r->headers_in->{'X-Forwarded-For'} : $r->connection->remote_ip;
     my $template = $self->_template;
+    my %params = (
+        synchronize_locationlog => isenabled($template->{webAuthSynchronize}),   # Should we synchronize locationlog
+        connection_type         => $template->{webAuthConnectionType},   # Set the connection_type
+        client_ip => $client_ip,
+    );
+    if (isenabled($template->{webAuthUseSession})) {
+        $self->parseExternalPortalRequestFromSession(\%params, $r, $req);
+    }
+
     my $table = $req->param;
     my @names = keys %$table;
     my %queryParams;
     @queryParams{@names} = @{$table}{@names};
-    my $client_ip = defined($r->headers_in->{'X-Forwarded-For'}) ? $r->headers_in->{'X-Forwarded-For'} : $r->connection->remote_ip;
     my %vars = (
         params => \%queryParams,
         client_ip => $client_ip,
     );
-    my %params = (
-        switch_id               => $self->processTemplate($template, 'webAuthSwitchMac', \%vars),   # Switch ID
-        switch_mac              => $self->processTemplate($template, 'webAuthSwitchMac', \%vars),   # Switch MAC
-        switch_ip               => $self->processTemplate($template, 'webAuthSwitchIp', \%vars),   # Switch IP
-        client_mac              => $self->processTemplate($template, 'webAuthClientMac', \%vars),   # Client (endpoint) MAC address
-        client_ip               => $self->processTemplate($template, 'webAuthClientIp', \%vars),   # Client (endpoint) IP address
-        ssid                    => $self->processTemplate($template, 'webAuthSSID', \%vars),   # SSID connecting to
-        redirect_url            => $self->processTemplate($template, 'webAuthRedirectUrl', \%vars),   # Redirect URL
-        grant_url               => $self->processTemplate($template, 'webAuthGrantUrl', \%vars),   # Grant URL
-        status_code             => $self->processTemplate($template, 'webAuthStatusCode', \%vars),   # Status code
-        synchronize_locationlog => isenabled($template->{webAuthSynchronize}),   # Should we synchronize locationlog
-        connection_type         => $template->{webAuthConnectionType},   # Set the connection_type
-    );
+
+    while (my ($t, $p) = each %WEBAUTH_TEMPLATE_TO_REQUEST_PARAM) {
+        my $out = $self->processTemplate($template, $t, \%vars);
+        if (!defined $out || length($out) == 0) {
+            next;
+        }
+
+        $params{$p} = $out;
+    }
 
     return \%params;
+}
+
+sub parseExternalPortalRequestFromSession {
+    my ($self, $params, $r, $req) = @_;
+    my $uri = $r->uri;
+    return unless ($uri =~ /.*sid(\w+[^\/\&])/);
+    my $session_id = $1;
+    my $locationlog = pf::locationlog::locationlog_get_session($session_id);
+    $params->{session_id} = $session_id;
+    $params->{client_mac} = $locationlog->{mac};
+    $params->{switch_id} = $locationlog->{switch};
 }
 
 =head1 AUTHOR
