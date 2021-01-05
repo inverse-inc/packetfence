@@ -24,18 +24,8 @@ export const props = {
   onAdd: {
     type: Function,
     default: (context, index, newComponent) => {
-      const { onExpand = () => {} } = newComponent
-      onExpand()
-    }
-  },
-  onCopy: {
-    type: Function,
-    default: (context, fromIndex, toIndex, fromComponent, toComponent) => {
-      const { isCollapse } = fromComponent
-      if (!isCollapse) {
-        const { onExpand = () => {} } = toComponent
-        onExpand()
-      }
+      const { doFocus = () => {} } = newComponent
+      doFocus()
     }
   },
   striped: {
