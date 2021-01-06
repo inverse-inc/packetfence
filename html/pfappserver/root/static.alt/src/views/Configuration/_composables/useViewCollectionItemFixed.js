@@ -29,7 +29,15 @@ export const useViewCollectionItemFixed = (collection, props, context) => {
 
   const isDeletable = false
 
-  const isValid = useDebouncedWatchHandler(form, () => (!rootRef.value || rootRef.value.querySelectorAll('.is-invalid').length === 0))
+  const isValid = useDebouncedWatchHandler(
+    [form, meta],
+    () => (
+      !rootRef.value ||
+      Array.prototype.slice.call(rootRef.value.querySelectorAll('.is-invalid'))
+        .filter(el => el.closest('fieldset').style.display !== 'none') // handle v-show <.. style="display: none;">
+        .length === 0
+    )
+  )
 
   const {
     isLoading,
