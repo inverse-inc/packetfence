@@ -15,6 +15,7 @@ export default [
     path: 'alerting',
     name: 'alerting',
     component: TheTabs,
-    props: (route) => ({ tab: 'alerting', query: route.query.query })
+    props: (route) => ({ tab: 'alerting', query: route.query.query }),
+    beforeEnter
   }
 ]

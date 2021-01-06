@@ -47,6 +47,7 @@ yup.addMethod(yup.array, 'unique', function (message, hashFn) {
  * yup.string
 **/
 const reCommonName = value => /^([A-Z]+|[A-Z]+[0-9A-Z_:]*[0-9A-Z]+)$/i.test(value)
+const reEmail = value => /(^$|^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$)/.test(value)
 const reIpv4 = value => /^(([0-9]{1,3}.){3,3}[0-9]{1,3})$/i.test(value)
 const reIpv6 = value => /^(([0-9a-fA-F]{1,4}:){7,7}[0-9a-fA-F]{1,4}|([0-9a-fA-F]{1,4}:){1,7}:|([0-9a-fA-F]{1,4}:){1,6}:[0-9a-fA-F]{1,4}|([0-9a-fA-F]{1,4}:){1,5}(:[0-9a-fA-F]{1,4}){1,2}|([0-9a-fA-F]{1,4}:){1,4}(:[0-9a-fA-F]{1,4}){1,3}|([0-9a-fA-F]{1,4}:){1,3}(:[0-9a-fA-F]{1,4}){1,4}|([0-9a-fA-F]{1,4}:){1,2}(:[0-9a-fA-F]{1,4}){1,5}|[0-9a-fA-F]{1,4}:((:[0-9a-fA-F]{1,4}){1,6})|:((:[0-9a-fA-F]{1,4}){1,7}|:)|fe80:(:[0-9a-fA-F]{0,4}){0,4}%[0-9a-zA-Z]{1,}|::(ffff(:0{1,4}){0,1}:){0,1}((25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])\.){3,3}(25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])|([0-9a-fA-F]{1,4}:){1,4}:((25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])\.){3,3}(25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9]))$/i.test(value)
 const reFilename = value => /^[^\\/?%*:|"<>]+$/.test(value)
@@ -77,7 +78,6 @@ yup.addMethod(yup.string, 'minAsInt', function (ref, message) {
   })
 })
 
-
 yup.addMethod(yup.string, 'isCIDR', function (message) {
   return this.test({
     name: 'isCIDR',
@@ -100,6 +100,23 @@ yup.addMethod(yup.string, 'isCommonName', function (message) {
     name: 'isCommonName',
     message: message || i18n.t('Invalid character, only letters (A-Z), numbers (0-9), underscores (_), or colons (:).'),
     test: value => ['', null, undefined].includes(value) || reCommonName(value)
+  })
+})
+
+yup.addMethod(yup.string, 'isEmailCsv', function (message) {
+  return this.test({
+    name: 'isEmailCsv',
+    message: message || i18n.t('Invalid comma-separated list of email addresses.'),
+    test: value => {
+      if (['', null, undefined].includes(value))
+        return true
+      const emails = value.split(',')
+      for (let e = 0; e < emails.length; e++) {
+        if (!['', null, undefined].includes(emails[e].trim()) && !reEmail(emails[e].trim()))
+          return false
+      }
+      return true
+    }
   })
 })
 

@@ -28,6 +28,8 @@ export default (props) => {
     id: yup.string()
       .nullable()
       .required(i18n.t('Name required.'))
-      .adminRoleIdNotExistsExcept((!isNew && !isClone) ? id : undefined, i18n.t('Name exists.'))
+      .adminRoleIdNotExistsExcept((!isNew && !isClone) ? id : undefined, i18n.t('Name exists.')),
+
+    actions: yup.array().ensure().required(i18n.t('Actions required.'))
   })
 }

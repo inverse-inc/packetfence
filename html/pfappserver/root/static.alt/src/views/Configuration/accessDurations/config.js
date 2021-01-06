@@ -66,7 +66,7 @@ export const composeDuration = (value) => {
       case 'F': baseStr = unit2str('D'); break // relative to start of day
       case 'R': baseStr = unit2str(unit); break // relative to start of period (unit)
     }
-    name += ` {@${baseStr} ${extendedInterval} ${unit2str(extendedUnit, Math.abs(extendedInterval) !== 1)})`
+    name += ` (@${baseStr} ${extendedInterval} ${unit2str(extendedUnit, Math.abs(extendedInterval) !== 1)})`
   }
   // fwd `sort`ing
   const sort = (~~interval * unit2seconds(unit)) + (~~extendedInterval * unit2seconds(extendedUnit))
