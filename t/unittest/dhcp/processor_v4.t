@@ -24,7 +24,7 @@ BEGIN {
 
 use Test::More tests => 5;
 
-#This test will running last
+#Test no warnings will run last
 use Test::NoWarnings;
 use pf::dhcp::processor_v4;
 use NetAddr::IP;
