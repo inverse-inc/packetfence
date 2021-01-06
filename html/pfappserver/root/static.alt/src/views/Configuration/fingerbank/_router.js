@@ -10,6 +10,7 @@ import Dhcpv6FingerprintsRoutes from './dhcpv6Fingerprints/_router'
 import DhcpVendorsRoutes from './dhcpVendors/_router'
 import MacVendorsRoutes from './macVendors/_router'
 import UserAgentsRoutes from './userAgents/_router'
+import BasesStoreModule from '../bases/_store'
 
 const routes = [
   ...GeneralSettingsRoutes,
@@ -27,7 +28,9 @@ const routes = [
 const routesWithStore = routes.map(route => {
   const { beforeEnter, ...rest } = route || {}
   return { ...rest, beforeEnter: (to, from, next) => {
-    // register store module on all routes
+    // register store modules on all routes
+    if (!store.state.$_bases)
+      store.registerModule('$_bases', BasesStoreModule)
     if (!store.state.$_fingerbank)
       store.registerModule('$_fingerbank', StoreModule)
     if (beforeEnter)
