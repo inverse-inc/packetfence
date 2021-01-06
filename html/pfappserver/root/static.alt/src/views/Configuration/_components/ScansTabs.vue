@@ -31,11 +31,16 @@ export default {
     }
   },
   computed: {
-    tabIndex () {
-      return [
-        'scan_engines',
-        'wmi_rules'
-      ].indexOf(this.tab)
+    tabIndex: {
+      get () {
+        return [
+          'scan_engines',
+          'wmi_rules'
+        ].indexOf(this.tab)
+      },
+      set () {
+        // noop
+      }
     }
   },
   methods: {
