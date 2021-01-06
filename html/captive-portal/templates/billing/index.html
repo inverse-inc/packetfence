@@ -2,7 +2,7 @@
   <input type="hidden" name="destination_url" value="[% destination_url %]" />
 
   [% IF fields.exists('aup') %]
-  <div class="c-card">
+  <div class="c-card u-padding u-padding@tablet u-padding-top-none">
     [% form.get_field('aup').render | none %]
   </div>
   [% END %]
