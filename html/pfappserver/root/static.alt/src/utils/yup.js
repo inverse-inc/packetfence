@@ -46,6 +46,7 @@ yup.addMethod(yup.array, 'unique', function (message, hashFn) {
 /**
  * yup.string
 **/
+const reAlpha = value => /^[a-zA-Z0-9_]*$/.test(value)
 const reCommonName = value => /^([A-Z]+|[A-Z]+[0-9A-Z_:]*[0-9A-Z]+)$/i.test(value)
 const reEmail = value => /(^$|^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$)/.test(value)
 const reIpv4 = value => /^(([0-9]{1,3}.){3,3}[0-9]{1,3})$/i.test(value)
@@ -75,6 +76,14 @@ yup.addMethod(yup.string, 'minAsInt', function (ref, message) {
     name: 'minAsInt',
     message: message || i18n.t('Minimum {minValue}.', { minValue: ref }),
     test: value => (+value >= +ref)
+  })
+})
+
+yup.addMethod(yup.string, 'isAlpha', function (message) {
+  return this.test({
+    name: 'isAlpha',
+    message: message || i18n.t('Alphanumeric characters only.'),
+    test: value => ['', null, undefined].includes(value) || reAlpha(value)
   })
 })
 

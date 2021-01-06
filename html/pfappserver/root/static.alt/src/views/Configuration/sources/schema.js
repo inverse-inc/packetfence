@@ -34,14 +34,17 @@ const schemaRuleConditions = yup.array().ensure().unique(i18n.t('Duplicate condi
 
 const schemaRule = yup.object({
   status: yup.string(),
-  id: yup.string().label(i18n.t('Name')),
-  description: yup.string(),
+  id: yup.string().label(i18n.t('Name'))
+    .isAlpha()
+    .max(255, i18n.t('Maximum 255 characters.')),
+  description: yup.string()
+    .max(255, i18n.t('Maximum 255 characters.')),
   match: yup.string(),
   actions: schemaRuleActions.label(i18n.t('Action')).meta({ invalidFeedback: i18n.t('Action contains one or more errors.') }),
   conditions: schemaRuleConditions.label(i18n.t('Condition')).meta({ invalidFeedback: i18n.t('Condition contains one or more errors.') })
 })
 
-const schemaRules = yup.array().ensure().unique(i18n.t('Duplicate rule.')).of(schemaRule)
+const schemaRules = yup.array().ensure().unique(i18n.t('Duplicate rule.'), ({ id }) => id).of(schemaRule)
 
 const schemaPersonMapping = yup.object({
   person_field: yup.string().nullable().required('Person field required.'),
