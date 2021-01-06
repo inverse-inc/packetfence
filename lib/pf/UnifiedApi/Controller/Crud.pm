@@ -234,9 +234,18 @@ sub build_item_lookup {
 
 sub create {
     my ($self) = @_;
+    my ($status, $msg) = $self->can_create();
+    if (is_error($status)) {
+        return $self->render_error($status, $msg);
+    }
+
     return $self->render_create(
         $self->do_create($self->make_create_data())
     );
+}
+
+sub can_create {
+    return (200, '');
 }
 
 =head2 id
@@ -381,10 +390,15 @@ update
 
 sub update {
     my ($self) = @_;
+    my ($status, $msg) = $self->can_update();
+    if (is_error($status)) {
+        return $self->render_error($status, $msg);
+    }
+
     my $req = $self->req;
     my $res = $self->res;
     my $data = $self->update_data;
-    my ($status, $err) = $self->validate($data);
+    ($status, my $err) = $self->validate($data);
     if (is_error($status)) {
         return $self->render_error(
             $status,
@@ -410,6 +424,16 @@ sub update {
 
     $self->post_update($data);
     return $self->render(json => { message => "'$id' updated" });
+}
+
+=head2 can_update
+
+can update
+
+=cut
+
+sub can_update {
+    return (200, '');
 }
 
 =head2 post_update

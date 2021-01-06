@@ -16,10 +16,43 @@ use strict;
 use warnings;
 use Mojo::Base 'pf::UnifiedApi::Controller::Crud';
 use pf::dal::tenant;
+use pf::config::tenant;
+use pf::constants qw($DEFAULT_TENANT_ID);
 
 has dal => 'pf::dal::tenant';
 has url_param_name => 'tenant_id';
 has primary_key => 'id';
+
+sub can_remove {
+    my ($self) = @_;
+    if ($self->is_readonly) {
+        return (403, 'Cannot remove this resource');
+    }
+
+    return $self->SUPER::can_remove;
+}
+
+sub can_update {
+    my ($self) = @_;
+    if ($self->is_readonly) {
+        return (403, 'Cannot update this resource');
+    }
+
+    return $self->SUPER::can_update;
+}
+
+sub can_create {
+    my ($self) = @_;
+    if ($self->is_readonly) {
+        return (403, 'Cannot create this resource');
+    }
+
+    return $self->SUPER::can_create;
+}
+
+sub is_readonly {
+    pf::config::tenant::get_tenant() > $DEFAULT_TENANT_ID
+}
 
 =head1 AUTHOR
 
