@@ -70,6 +70,10 @@ access_duration.default_choice: "5m"
 access_level_user_and_node.id: user_and_node_manager
 access_level_user_and_node.description: Users and Nodes management
 
+# Default VLAN id for all switches
+roles.registration.vlan_id: 2
+roles.isolation.vlan_id: 3
+
 # Fingerbank
 fingerbank_api_key.email: support@inverse.ca
 fingerbank_api_key.secret_id: d2c4d4f8-c5b1-4281-a724-e4ade5c31fe1
@@ -140,7 +144,7 @@ wired_mac_auth.profiles.wired.filters.connection_type: Ethernet-NoEAP
 wired_mac_auth.profiles.wired.unreg_on_acct_stop: disabled
 
 ################################################################################
-# Configurator variables
+# configurator test suite specific variables
 ################################################################################
 ### Step 1
 # Interface dhcp-listener
@@ -195,3 +199,18 @@ configurator.admin.valid_from: 1970-01-01 00:00:00
 ### Step 3
 # Fingerbank
 configurator.fingerbank_api_key.secret_id: '{{.fingerbank_api_key.secret_id}}'
+
+################################################################################
+# captive_portal test suite specific variables
+################################################################################
+# Connection profiles
+captive_portal.profiles.id: catch_wired_mac_authentication
+captive_portal.profiles.description: Wired Mac authentication with specific locales
+captive_portal.profiles.filters.connection_type: Ethernet-NoEAP
+captive_portal.profiles.locales1: fr_FR
+captive_portal.profiles.locales2: en_US
+captive_portal.profiles.locales3: de_DE
+captive_portal.profiles.locales4: it_IT
+
+# URL
+captive_portal.reg.url: 'https://{{.configurator.interfaces.reg.ip}}/captive-portal'

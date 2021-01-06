@@ -1,0 +1,63 @@
+name: Create captive portal connection profile
+version: 2
+testcases:
+- name: create_captive_portal_connection_profile
+  steps:
+  - type: http
+    method: POST
+    url: '{{.pfserver_webadmin_url}}/api/v1/config/connection_profiles'
+    ignore_verify_ssl: true
+    body: >-
+      {
+        "access_registration_when_registered": null,
+        "advanced_filter": null,
+        "always_use_redirecturl": null,
+        "autoregister": null,
+        "billing_tiers": null,
+        "block_interval": {
+          "interval": "10",
+          "unit": "m"
+        },
+        "default_psk_key": null,
+        "description": "{{.captive_portal.profiles.description}}",
+        "dot1x_recompute_role_from_portal": "enabled",
+        "dot1x_unset_on_unmatch": "disabled",
+        "dpsk": "disabled",
+        "filter": [
+          {
+            "match": "{{.captive_portal.profiles.filters.connection_type}}",
+            "type": "connection_type"
+          }
+        ],
+        "filter_match_style": "all",
+        "id": "{{.captive_portal.profiles.id}}",
+        "locale": [
+          "{{.captive_portal.profiles.locales1}}",
+          "{{.captive_portal.profiles.locales2}}",
+          "{{.captive_portal.profiles.locales3}}",
+          "{{.captive_portal.profiles.locales4}}"
+        ],
+        "login_attempt_limit": 0,
+        "logo": null,
+        "mac_auth_recompute_role_from_portal": "disabled",
+        "network_logoff": null,
+        "network_logoff_popup": null,
+        "preregistration": null,
+        "provisioners": null,
+        "redirecturl": null,
+        "reuse_dot1x_credentials": null,
+        "root_module": "default_policy",
+        "scans": null,
+        "self_service": null,
+        "sms_pin_retry_limit": 0,
+        "sms_request_limit": 0,
+        "sources": null,
+        "status": "enabled",
+        "unreg_on_acct_stop": "disabled",
+        "vlan_pool_technique": "username_hash"
+      }
+    headers:
+      "Authorization": "{{.pfserver_token}}"
+      "Content-Type": "application/json"
+    assertions:
+      - result.statuscode ShouldEqual 201

@@ -18,7 +18,6 @@ use pf::class;
 use Cache::FileCache;
 use List::Util qw(first);
 use POSIX;
-use Locale::gettext qw(bindtextdomain textdomain bind_textdomain_codeset);
 use List::Util 'first';
 use List::MoreUtils qw(uniq);
 use captiveportal::DynamicRouting::Factory;
@@ -213,10 +212,14 @@ Retrieve the user preferred languages from the following ordered sources:
 
 =item 3. the browser accepted languages
 
+=item 4. closest locale that match the browser accepted languages
+
 =back
 
 If no language matches the authorized locales from the configuration, the first locale
 of the configuration is returned.
+
+First match wins.
 
 =cut
 
@@ -269,20 +272,20 @@ sub getLanguages :Private {
         }
     }
 
-    # 4. Check the closest language that match the browser
+    # 4. Check the closest locale that match the browser language
     # Browser = fr_FR and portal is en_US and fr_CA then fr_CA will be used
     foreach my $browser_language (@$browser_languages) {
         $browser_language =~ s/^(\w{2})(_\w{2})?/lc($1) . uc($2 || "")/e;
         my $language = $1;
         next unless(defined($language));
-        if (grep(/^$language$/, @authorized_locales)) {
+        if (grep(/^$language(.*)/, @authorized_locales)) {
             $lang = $browser_language;
             my $match = first { /$language(.*)/ } @authorized_locales;
-            push(@languages, $match) unless (grep/^$language$/, @languages);
-            $logger->debug("Language locale from the browser is $lang");
+            push(@languages, $match) unless (grep/^$language(.*)/, @languages);
+            $logger->debug("Closest locale that match the browser language is $match");
         }
         else {
-            $logger->debug("Language locale from the browser $browser_language is not supported");
+            $logger->debug("No closest locale found based on the browser $browser_language");
         }
     }
 
@@ -310,7 +313,6 @@ sub getRequestLanguages : Private{
     my @l = split(/,/, $s);
     map { s/;.+// } @l;
     map { s/-/_/g } @l;
-    #@l = map { m/^en(_US)?/? ():$_ } @l;
 
     return \@l;
 }

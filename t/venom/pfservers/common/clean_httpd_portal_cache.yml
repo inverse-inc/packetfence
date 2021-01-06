@@ -1,0 +1,7 @@
+name: Clean httpd.portal cache
+version: 2
+testcases:
+- name: clean_httpd_portal_cache
+  steps:
+  - type: exec
+    script: "{{.pfserver_pfcmd}} cache httpd.portal clear"
