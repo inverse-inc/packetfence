@@ -12,7 +12,7 @@ ConfigStore for L2 networks in networks.conf
 
 use Moo;
 use namespace::autoclean;
-#use pf::constants::config;
+use pf::constants::config;
 
 extends 'pf::ConfigStore::Network';
 with 'pf::ConfigStore::Filtered';
