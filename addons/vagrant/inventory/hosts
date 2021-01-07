@@ -43,6 +43,31 @@ all:
       hosts:
         wireless01: {}
 
+    linux_servers:
+      hosts:
+        linux01:
+          box: debian/buster64
+          mgmt_ip: 172.17.17.101
+          mgmt_netmask: 255.255.255.0
+          ansible_host:  "{{ mgmt_ip }}"
+          cpus: 1
+          memory: 512
+        linux02:
+          box: debian/buster64
+          mgmt_ip: 172.17.17.102
+          mgmt_netmask: 255.255.255.0
+          ansible_host:  "{{ mgmt_ip }}"
+          cpus: 1
+          memory: 512          
+
+    service_rsyslog:
+      hosts:
+        linux01: {}
+
+    service_dhcpd:
+      hosts:
+        linux02: {}
+
     stable_and_nightly:
       children:
         stable:
