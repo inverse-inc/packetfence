@@ -4889,7 +4889,10 @@ components:
             description: ID of the scanning configuration on the OpenVAS server
             type: string
           openvas_reportformatid:
-            description: ID of the .NBE report format on the OpenVAS server
+            description: ID of the .XML report format on the OpenVAS server
+            type: string
+          openvas_portlistid:
+            description: ID of the port list format on the OpenVAS server
             type: string
           oses:
             description: Nodes with the selected OS will be affected

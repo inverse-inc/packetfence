@@ -259,6 +259,18 @@ export const view = (meta = {}) => {
           ]
         },
         {
+          if: ['openvas'].includes(scanType),
+          label: i18n.t('Port list ID'),
+          text: i18n.t('ID of the port list on the OpenVAS server.'),
+          cols: [
+            {
+              namespace: 'openvas_portlistid',
+              component: pfFormInput,
+              attrs: attributesFromMeta(meta, 'openvas_portlistid')
+            }
+          ]
+        },
+        {
           if: ['rapid7'].includes(scanType),
           label: i18n.t('Verify Hostname'),
           text: i18n.t('Verify hostname of server when connecting to the API.'),
