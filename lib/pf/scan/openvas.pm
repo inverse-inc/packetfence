@@ -82,7 +82,8 @@ sub createTarget {
     my $logger = get_logger();
 
     my $name = $self->_get_scan_id();
-    my $command = $self->_get_target_string($name, $self->{_scanIp});
+    my $target_host = $self->{_scanIp};
+    my $command = $self->_get_target_string($name, $target_host);
 
     $logger->info("Creating a new scan target named $name for host $target_host");
 
