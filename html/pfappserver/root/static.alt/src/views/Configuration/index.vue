@@ -149,7 +149,7 @@ export default {
             },
             { name: this.$i18n.t('Database'),
               items: [
-                { name: this.$i18n.t('General'), path: '/configuration/database' },
+                { name: this.$i18n.t('General'), path: '/configuration/database_general' },
                 { name: this.$i18n.t('Advanced'), path: '/configuration/database_advanced' }
               ]
             },
