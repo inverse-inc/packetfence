@@ -9,7 +9,6 @@ inventory = YAML.load_file('inventory/hosts')
 networks = inventory['all']['vars']['networks']
 
 Vagrant.configure("2") do |config|
-
   ### Global settings for all VMS
   config.vagrant.sensitive = [ ENV['PSONO_CI_API_KEY_ID'], ENV['PSONO_CI_API_SECRET_KEY_HEX'] ]
 
@@ -36,179 +35,21 @@ Vagrant.configure("2") do |config|
     # only for debug
     ansible.verbose = ENV['VAGRANT_ANSIBLE_VERBOSE'] || false
   end
-
-  # loop on **all** host(s) in pfservers group in inventory to create VM(s)
-  inventory['all']['children']['pfservers']['children'].each do |groups, hosts|
-    hosts['hosts'].each do |server, details|
-      # don't start automatically virtual machines
-      config.vm.define server, autostart: false do |srv|
-        srv.vm.box = details['box']
-        srv.vm.hostname = server
-
-        # mgmt
-        # libvirt__forward_mode: "route" mean:
-        # Allow inbound, but only to our expected subnet. Allow outbound, but
-        # only from our expected subnet. Allow traffic between guests. Deny
-        # all other inbound. Deny all other outbound.
-        srv.vm.network "private_network",
-                       :libvirt__network_name => networks[0]['name'],
-                       :ip => details['mgmt_ip'],
-                       :netmask => details['mgmt_netmask'],
-                       :libvirt__dhcp_enabled => false,
-                       :libvirt__forward_mode => networks[0]['forward_mode']
-
-        # registration
-        srv.vm.network "private_network",
-                       :libvirt__network_name => networks[1]['name'],
-                       :ip => networks[1]['subnet'],
-                       :libvirt__dhcp_enabled => false,
-                       :libvirt__forward_mode => networks[1]['forward_mode'],
-                       auto_config: false
-
-        # isolation
-        srv.vm.network "private_network",
-                       :libvirt__network_name => networks[2]['name'],
-                       :ip => networks[2]['subnet'],
-                       :libvirt__dhcp_enabled => false,
-                       :libvirt__forward_mode => networks[2]['forward_mode'],
-                       auto_config: false
-
-        # inline
-        srv.vm.network "private_network",
-                       :libvirt__network_name => networks[3]['name'],
-                       :ip => networks[3]['subnet'],
-                       :libvirt__dhcp_enabled => false,
-                       :libvirt__forward_mode => networks[3]['forward_mode'],
-                       auto_config: false
-
-        srv.vm.provider "libvirt" do |v|
-          v.cpus = details['cpus']
-          v.memory = details['memory']
-        end
-      
-        srv.vm.provider "virtualbox" do |v|
-          v.cpus = details['cpus']
-          v.memory = details['memory']
-        end
-
-        # provisionners
-        # Sync timezone with host
-        srv.vm.provision "shell", inline: "sudo rm /etc/localtime && sudo ln -s /usr/share/zoneinfo/#{inventory['all']['vars']['tz']} /etc/localtime", run: "always"
-
-        # Inject the insecure Vagrant SSH key into the PacketFence server so it can be
-        # used to run Venom tasks over SSH
-        srv.vm.provision "insecure-ssh-key", type:"file", source: "#{Dir.home}/.vagrant.d/insecure_private_key", \
-                                       destination: "/home/vagrant/.ssh/id_rsa"
-
-        # - allow root to use insecure_private_key to connect as vagrant user on other VMs
-        # - allow to SSH as root with insecure_private_key
-        srv.vm.provision "shell", type: "shell" do |s|
-          s.inline = <<-SHELL
-                chown vagrant:vagrant /home/vagrant/.ssh/id_rsa
-                chmod 600 /home/vagrant/.ssh/id_rsa
-                mkdir -p /root/.ssh
-                cp /home/vagrant/.ssh/id_rsa /root/.ssh/
-                cp /home/vagrant/.ssh/authorized_keys /root/.ssh/
-                chown -R root:root /root/.ssh/
-                chmod 600 /root/.ssh/id_rsa
-            SHELL
-        end
-
-
-        # Use to run only tasks tagged "install" in site.yml
-        srv.vm.provision "config", type:"ansible", run:"never" do |config|
-          config.playbook = "site.yml"
-          config.config_file = "ansible.cfg"
-          config.inventory_path = "inventory"
-          config.tags = "install"
-          # only for debug
-          config.verbose = ENV['VAGRANT_ANSIBLE_VERBOSE'] || false
-        end
-
-        # Use to run only tasks tagged "upgrade" in site.yml
-        srv.vm.provision "upgrade", type:"ansible", run:"never" do |config|
-          config.playbook = "site.yml"
-          config.config_file = "ansible.cfg"
-          config.inventory_path = "inventory"
-          config.tags = "upgrade"
-          # only for debug
-          config.verbose = ENV['VAGRANT_ANSIBLE_VERBOSE'] || false
-        end
-      end
-    end
-  end
-  # loop on all pfservers in *dev* group in inventory
-  inventory['all']['children']['pfservers']['children']['dev']['hosts'].each do |server,details|
-    config.vm.define server do |srv|
-      # we mount test dir and local repo in VM
-      # override to avoid issue with symlink without referent
-      # see https://github.com/hashicorp/vagrant/issues/5471
-      srv.vm.synced_folder "../../t", "/src/t", type: "rsync", rsync__args: ["--verbose", "--archive", "--delete", "-z"]
-      srv.vm.synced_folder "../../public", "/src/public", type: "rsync", rsync__args: ["--verbose", "--archive", "--delete", "-z"]
-
-      # reset communicator to make /etc/environment variables available for next scripts
-      srv.vm.provision "reset", type: "shell" do |config|
-        config.reset = true
-      end
-
-      # shell provisioner to run configurator
-      srv.vm.provision "run-configurator", type: "shell" do |config|
-        config.inline = "make -C /src/t/venom configurator"
-      end
-
-      # shell provisioner to run by hand
-      srv.vm.provision "run-unit-tests", type: "shell", run: "never" do |config|
-        config.path = "../../ci/lib/test/run-tests.sh"
-        config.env = {
-          PERL_UNIT_TESTS: ENV['PERL_UNIT_TESTS'],
-          GOLANG_UNIT_TESTS: ENV['GOLANG_UNIT_TESTS'],
-          # INTEGRATION_TESTS should run only when INT_TEST_VM_NAMES have booted
-          INTEGRATION_TESTS: "no"
-        }
-      end
-
-      # shell provisioner to run by hand
-      srv.vm.provision "run-integration-tests", type: "shell", run: "never" do |config|
-        config.path = "../../ci/lib/test/run-tests.sh"
-        config.env = {
-          PERL_UNIT_TESTS: "no",
-          GOLANG_UNIT_TESTS: "no",
-          INTEGRATION_TESTS: ENV['INTEGRATION_TESTS']
-        }
-      end
-    end
-  end
-
-  inventory['all']['children']['winservers']['hosts'].each do |server,details|
-    config.vm.define server, autostart: false do |srv|
-      srv.vm.box = details['box']
-      srv.vm.hostname = server
-
-      # mgmt
-      # libvirt__forward_mode: "route" mean:
-      # Allow inbound, but only to our expected subnet. Allow outbound, but
-      # only from our expected subnet. Allow traffic between guests. Deny
-      # all other inbound. Deny all other outbound.
-      srv.vm.network "private_network",
-                     :libvirt__network_name => networks[0]['name'],
-                     :ip => details['mgmt_ip'],
-                     :netmask => details['mgmt_netmask'],
-                     :libvirt__dhcp_enabled => false,
-                     :libvirt__forward_mode => networks[0]['forward_mode']
-
-      srv.vm.provider "libvirt" do |v|
-        v.cpus = details['cpus']
-        v.memory = details['memory']
-      end
-
-      srv.vm.provider "virtualbox" do |v|
-        v.cpus = details['cpus']
-        v.memory = details['memory']
-      end
-    end
-  end
 end
+
+
+# include PacketFence(s) from PacketFence Vagrantfile
+pfservers_vagrantfile = File.expand_path('pfservers/Vagrantfile')
+load pfservers_vagrantfile if File.exists?(pfservers_vagrantfile)
+
+# include ad(s) from Winservers Vagrantfile
+winservers_vagrantfile = File.expand_path('winservers/Vagrantfile')
+load winservers_vagrantfile if File.exists?(winservers_vagrantfile)
 
 # include switch(s) and supplicant(s) from Cumulus Vagrantfile
 cumulus_vagrantfile = File.expand_path('cumulus/Vagrantfile')
 load cumulus_vagrantfile if File.exists?(cumulus_vagrantfile)
+
+# include switch(s) and supplicant(s) for Wireless Vagrantfile
+wireless_vagrantfile = File.expand_path('wireless/Vagrantfile')
+load wireless_vagrantfile if File.exists?(wireless_vagrantfile)

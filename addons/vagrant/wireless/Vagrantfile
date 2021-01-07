@@ -1,0 +1,53 @@
+# -*- mode: ruby -*-
+# vi: set ft=ruby :
+
+# Require YAML module
+require 'yaml'
+ 
+# Read YAML file with box details
+inventory = YAML.load_file('inventory/hosts')
+networks = inventory['all']['vars']['networks']
+mgmt_ip = inventory['all']['children']['wireless']['hosts']['wireless01']['mgmt_ip']
+
+
+Vagrant.configure("2") do |config|
+
+  wbid = 1
+  offset = wbid * 100
+
+  ##### DEFINE VM for wireless01 #####
+  config.vm.define "wireless01" do |device|
+
+    device.vm.hostname = "wireless01"
+    device.vm.box = "generic/debian10"
+
+    device.vm.provider :libvirt do |v|
+      v.default_prefix = ""
+      v.memory = 1024
+    end
+
+    # to run Venom tests
+    device.vm.synced_folder "../../t", "/src/t", type: "rsync", rsync__args: ["--verbose", "--archive", "--delete", "-z"]
+
+    # NETWORK INTERFACES
+    # link for swp1 --> mgmt_network (vlan 17)
+    device.vm.network "private_network",
+            :mac => "f0:00:00:00:00:01",
+            :libvirt__network_name => networks[0]['name'],
+            :ip => mgmt_ip,
+            :libvirt__dhcp_enabled => false,
+            #:libvirt__forward_mode => networks[0]['forward_mode'],
+            auto_config: true
+
+    # Override common provisionner in master Vagrantfile
+    # to run **after** shell provisioning
+    device.vm.provision "ansible", type: 'ansible' do |ansible|
+        ansible.playbook = "site.yml"
+        ansible.config_file = "ansible.cfg"
+        ansible.inventory_path = "inventory"
+        ansible.galaxy_role_file = "requirements.yml"
+        # only for debug
+        ansible.verbose = ENV['VAGRANT_ANSIBLE_VERBOSE'] || false
+    end
+  end
+end
