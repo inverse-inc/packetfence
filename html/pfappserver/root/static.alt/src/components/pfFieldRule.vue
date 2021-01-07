@@ -4,9 +4,7 @@
       {{ invalidFeedback }}
     </template>
     <b-container fluid class="pf-field-rule-input-group px-0">
-      <b-form-row class="pf-field-rule mx-0 mb-1 px-0" align-v="center"
-        v-on="forwardListeners"
-      >
+      <b-form-row class="pf-field-rule mx-0 mb-1 px-0" align-v="center">
         <b-col v-if="$slots.prepend" sm="1" align-self="start" class="py-1 text-center col-form-label">
           <slot name="prepend"></slot>
         </b-col>
@@ -171,10 +169,6 @@ export default {
         this.formStoreValue = newValue // use FormStore
       }
     },
-    forwardListeners () {
-      const { input, ...listeners } = this.$listeners
-      return listeners
-    },
     actionKey () {
       return this.$store.getters['events/actionKey']
     },
@@ -207,7 +201,7 @@ export default {
       if (this.visible) this.collapse()
       else this.expand()
     },
-    click (event) {
+    click () {
       this.toggle()
       if (this.actionKey) { // [CTRL] + CLICK = toggle all siblings
         this.$nextTick(() => {

@@ -333,7 +333,7 @@ const initialState = () => { // set intitial states to `false` (not `[]` or `{}`
     radiusSslsStatus: '',
     radiusTlss: false,
     radiusTlssStatus: '',
-    realms: [],
+    realms: {},
     realmsStatus: '',
     roles: false,
     rolesStatus: '',
@@ -601,32 +601,32 @@ const getters = {
   adminRolesList: state => {
     if (!state.adminRoles) return []
     return state.adminRoles.map((item) => {
-      return { value: item.id, name: item.id }
+      return { value: item.id, text: item.id }
     })
   },
   domainsList: state => {
     if (!state.domains) return []
     return state.domains.map((item) => {
-      return { value: item.id, name: item.id }
+      return { value: item.id, text: item.id }
     })
   },
   connectionProfilesList: state => {
     if (!state.connectionProfiles) return []
     return state.connectionProfiles.map((item) => {
-      return { value: item.id, name: item.id, text: ((item.description) ? `${item.id} - ${item.description}` : `${item.id}`) }
+      return { value: item.id, text: ((item.description) ? `${item.id} - ${item.description}` : `${item.id}`) }
     })
   },
   portalModulesList: state => {
     if (!state.portalModules) return []
     return state.portalModules.map((item) => {
-      return { value: item.id, name: item.description }
+      return { value: item.id, text: item.description }
     })
   },
   realmsList: state => {
     let list = []
     for (let i = 0; i < state.realms.length; i++) {
       list = [ ...list, ...state.realms[i].map((item) => {
-        return { value: item.id, name: item.id, text: item.id }
+        return { value: item.id, text: item.id }
       }) ]
     }
     return list
@@ -634,46 +634,46 @@ const getters = {
   rolesList: state => {
     if (!state.roles) return []
     return [
-      ...[{ value: null, name: i18n.t('empty - None'), text: i18n.t('empty - None') }],
+      ...[{ value: null, text: i18n.t('empty - None') }],
       ...state.roles.map((item) => {
-        return { value: item.category_id, name: item.name, text: ((item.notes) ? `${item.name} - ${item.notes}` : `${item.name}`) }
+        return { value: item.category_id, text: ((item.notes) ? `${item.name} - ${item.notes}` : `${item.name}`) }
       })
     ]
   },
   rootPortalModulesList: state => {
     if (!state.portalModules) return []
     return state.portalModules.filter(item => item.type === 'Root').map((item) => {
-      return { value: item.id, name: item.description }
+      return { value: item.id, text: item.description }
     })
   },
   sourcesList: state => {
     if (!state.sources) return []
     return state.sources.map((item) => {
-      return { value: item.id, name: item.description, text: ((item.description) ? `${item.id} - ${item.description}` : `${item.id}`) }
+      return { value: item.id, text: ((item.description) ? `${item.id} - ${item.description}` : `${item.id}`) }
     })
   },
   ssidsList: state => { // TODO - replace once `config/ssid` endpoint is available
     if (!state.ssids) return []
     return state.ssids.filter(item => item.ssid !== 'Total').map((item) => {
-      return { value: item.ssid, name: item.ssid, text: item.ssid }
+      return { value: item.ssid, text: item.ssid }
     })
   },
   switchGroupsList: state => {
     if (!state.switchGroups) return []
     return state.switchGroups.map((item) => {
-      return { value: item.id, name: item.description }
+      return { value: item.id, text: item.description }
     })
   },
   switchesList: state => {
     if (!state.switches) return []
     return state.switches.map((item) => {
-      return { value: item.id, name: item.description }
+      return { value: item.id, text: item.description }
     })
   },
   tenantsList: state => {
     if (!state.tenants) return []
     return state.tenants.map((item) => {
-      return { value: item.id, name: item.name }
+      return { value: item.id, text: item.name }
     })
   },
   securityEventsList: state => {
@@ -887,8 +887,8 @@ const actions = {
         return Promise.resolve(state.baseGuestsAdminRegistration)
       }
     } else {
-      commit('BASE_GUESTS_ADMIN_REGISTRATION_UPDATED', [])
-      return state.baseGuestsAdminRegistration
+      commit('BASE_GUESTS_ADMIN_REGISTRATION_UPDATED', {})
+      return Promise.resolve(state.baseGuestsAdminRegistration)
     }
   },
   getBaseInline: ({ state, getters, commit }) => {
@@ -1429,7 +1429,7 @@ const actions = {
       }
     } else {
       commit('ROLES_UPDATED', [])
-      return state.roles
+      return Promise.resolve(state.roles)
     }
   },
   getRoutedNetworks: ({ state, getters, commit }) => {
@@ -1667,7 +1667,7 @@ const actions = {
       return Promise.resolve(state.wrixLocations)
     }
   },
-  stringifyCondition: ({ commit }, json) => {
+  stringifyCondition: (_, json) => {
     return api.flattenCondition({ condition: json }).then(response => {
       const { item: { condition_string } = {} } = response
       return condition_string
@@ -1675,7 +1675,7 @@ const actions = {
       throw err
     })
   },
-  parseCondition: ({ commit }, string) => {
+  parseCondition: (_, string) => {
     return api.parseCondition({ condition: string }).then(response => {
       const { item: { condition } = {} } = response
       return condition
@@ -2109,7 +2109,7 @@ const mutations = {
     state.switchGroups = switchGroups
     state.switchGroupsStatus = types.SUCCESS
   },
-  SWITCH_GROUPS_ERROR: (state, err) => {
+  SWITCH_GROUPS_ERROR: (state) => {
     state.switchGroupsStatus = types.ERROR
   },
   SWITCH_TEMPLATES_REQUEST: (state) => {
@@ -2119,7 +2119,7 @@ const mutations = {
     state.switchTemplates = switchTemplates
     state.switchTemplatesStatus = types.SUCCESS
   },
-  SWITCH_TEMPLATES_ERROR: (state, err) => {
+  SWITCH_TEMPLATES_ERROR: (state) => {
     state.switchTemplatesStatus = types.ERROR
   },
   SYSLOG_FORWARDERS_REQUEST: (state) => {
@@ -2164,6 +2164,7 @@ const mutations = {
     state.wrixLocations = wrixLocations
     state.wrixLocationsStatus = types.SUCCESS
   },
+  // eslint-disable-next-line no-unused-vars
   $RESET: (state) => {
     state = initialState()
   }

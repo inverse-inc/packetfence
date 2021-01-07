@@ -13,7 +13,7 @@
           </h4>
           <b-form-group
             class="col col-md-4 ml-2 my-0"
-            v-if="isNew"
+            v-if="localIsNew"
             :invalid-feedback="invalidFeedbackFilename"
             :state="validFilename">
             <b-form-input size="lg" :placeholder="$t('Filename')" :state="validFilename" v-model.trim="$v.newFilename.$model"></b-form-input>
@@ -50,7 +50,7 @@
       </div>
       <b-card-footer>
         <pf-button-save :disabled="invalidForm" :isLoading="!invalidForm && isLoading">
-          <template v-if="isNew">{{ $t('Create') }}</template>
+          <template v-if="localIsNew">{{ $t('Create') }}</template>
           <template v-else-if="actionKey">{{ $t('Save & Close') }}</template>
           <template v-else>{{ $t('Save') }}</template>
         </pf-button-save>
@@ -102,6 +102,8 @@ export default {
   data () {
     return {
       newFilename: '',
+      localFilename: this.filename,
+      localIsNew: this.isNew,
       deletable: false,
       revertible: false,
       content: '',
@@ -117,10 +119,10 @@ export default {
     newFilename: {
       required,
       isFilenameWithExtension: isFilenameWithExtension(['html', 'mjml']),
-      isUnique (value) {
+      isUnique () {
         return this.$store.dispatch('$_connection_profiles/getFile', {
           id: this.id,
-          filename: [this.filename, this.newFilename].join('/'),
+          filename: [this.localFilename, this.newFilename].join('/'),
           quiet: true
         }).then(() => false, () => true)
       }
@@ -128,8 +130,8 @@ export default {
   },
   computed: {
     path () {
-      let p = this.filename.split('/').join(' / ')
-      if (p && this.isNew) p += ' / '
+      let p = this.localFilename.split('/').join(' / ')
+      if (p && this.localIsNew) p += ' / '
       return p
     },
     isLoading () {
@@ -149,7 +151,7 @@ export default {
       return null
     },
     invalidForm () {
-      return this.isNew ? this.$v.newFilename.$invalid : !this.contentModified
+      return this.localIsNew ? this.$v.newFilename.$invalid : !this.contentModified
     },
     actionKey () {
       return this.$store.getters['events/actionKey']
@@ -166,7 +168,7 @@ export default {
       this.$router.push({ name: 'connectionProfileFiles', params: { id: this.id } })
     },
     init () {
-      return this.$store.dispatch('$_connection_profiles/getFile', { id: this.id, filename: this.filename }).then(data => {
+      return this.$store.dispatch('$_connection_profiles/getFile', { id: this.id, filename: this.localFilename }).then(data => {
         this.content = data.content
         this.deletable = !data.meta.not_deletable
         this.revertible = !data.meta.not_revertible
@@ -203,18 +205,18 @@ export default {
       const action = this.deletable || this.revertible ? 'update' : 'create'
       let params = {
         id: this.id,
-        filename: this.filename,
+        filename: this.localFilename,
         content: this.content
       }
-      if (this.isNew) params.filename += '/' + this.newFilename
-      this.$store.dispatch(`$_connection_profiles/${action}File`, params).then(response => {
+      if (this.localIsNew) params.filename += '/' + this.newFilename
+      this.$store.dispatch(`$_connection_profiles/${action}File`, params).then(() => {
         if (actionKey) { // [CTRL] key pressed
           this.close()
         } else {
-          if (this.isNew) {
+          if (this.localIsNew) {
             this.deletable = true
-            this.isNew = false
-            this.filename += '/' + this.newFilename
+            this.localIsNew = false
+            this.localFilename += '/' + this.newFilename
           } else {
             this.revertible = true
           }
@@ -223,7 +225,7 @@ export default {
       })
     },
     remove ($event, close) {
-      this.$store.dispatch('$_connection_profiles/deleteFile', { id: this.id, filename: this.filename }).then(response => {
+      this.$store.dispatch('$_connection_profiles/deleteFile', { id: this.id, filename: this.localFilename }).then(() => {
         if (close) {
           this.close()
         } else {
@@ -233,12 +235,12 @@ export default {
     }
   },
   created () {
-    if (!this.isNew) {
+    if (!this.localIsNew) {
       // Load file
       this.init().then(() => {
         this.$nextTick(() => {
           // Enable save button upon modification
-          this.editor.on('change', (e) => { this.contentModified = true })
+          this.editor.on('change', () => { this.contentModified = true })
         })
       })
     }
@@ -257,7 +259,7 @@ export default {
       node.classList.add('h-100')
     })
   },
-  beforeDestroy () {
+  beforeUnmount () {
     // Remove height constraint on all parent nodes
     this.parentNodes.forEach(node => {
       node.classList.remove('h-100')
@@ -274,6 +276,16 @@ export default {
         }
       },
       deep: true
+    },
+    filename: {
+      handler: function (a) {
+        this.localFilename = a
+      }
+    },
+    isNew: {
+      handler: function (a) {
+        this.localIsNew = a
+      }
     }
   }
 }

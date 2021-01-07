@@ -56,12 +56,17 @@ export default {
       config: config(this)
     }
   },
+  computed: {
+    isLoading () {
+      return this.$store.getters['$_firewalls/isLoading']
+    }
+  },
   methods: {
     clone (item) {
       this.$router.push({ name: 'cloneFirewall', params: { id: item.id } })
     },
     remove (item) {
-      this.$store.dispatch('$_firewalls/deleteFirewall', item.id).then(response => {
+      this.$store.dispatch('$_firewalls/deleteFirewall', item.id).then(() => {
         const { $refs: { pfConfigList: { refreshList = () => {} } = {} } = {} } = this
         refreshList() // soft reload
       })

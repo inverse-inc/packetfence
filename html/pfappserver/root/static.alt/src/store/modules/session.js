@@ -3,7 +3,7 @@
  */
 import qs from 'qs'
 import { types } from '@/store'
-import acl, { ADMIN_ROLES_ACTIONS, setupAcl } from '@/utils/acl'
+import acl, { setupAcl } from '@/utils/acl'
 import apiCall, { pfappserverCall } from '@/utils/api'
 import i18n from '@/utils/locale'
 import duration from '@/utils/duration'
@@ -60,44 +60,46 @@ const api = {
   }
 }
 
-const state = {
-  loginStatus: '',
-  loginPromise: null,
-  loginResolver: null,
-  configuratorEnabled: false,
-  configuratorActive: false,
-  message: '',
-  token: localStorage.getItem(STORAGE_TOKEN_KEY) || '',
-  username: '',
-  expires_at: null,
-  expired: false,
-  oldAdminEnabled: false,
-  roles: [],
-  tenant: null,
-  tenant_id_mask: localStorage.getItem(STORAGE_TENANT_ID) || null,
-  tenants: [],
-  languages: [],
-  api: true,
-  charts: true,
-  formErrors: {},
-  isLoadingAllowedNodeRoles: false,
-  isLoadingAllowedUserAccessDurations: false,
-  isLoadingAllowedUserAccessLevels: false,
-  isLoadingAllowedUserActions: false,
-  isLoadingAllowedUserRoles: false,
-  isLoadingAllowedUserUnregDate: false,
-  allowedNodeRoles: false,
-  allowedNodeRolesStatus: '',
-  allowedUserAccessDurations: false,
-  allowedUserAccessDurationsStatus: '',
-  allowedUserAccessLevels: false,
-  allowedUserAccessLevelsStatus: '',
-  allowedUserActions: false,
-  allowedUserActionsStatus: '',
-  allowedUserRoles: false,
-  allowedUserRolesStatus: '',
-  allowedUserUnregDate: false,
-  allowedUserUnregDateStatus: ''
+const initialState = () => {
+  return {
+    loginStatus: '',
+    loginPromise: null,
+    loginResolver: null,
+    configuratorEnabled: false,
+    configuratorActive: false,
+    message: '',
+    token: localStorage.getItem(STORAGE_TOKEN_KEY) || '',
+    username: '',
+    expires_at: null,
+    expired: false,
+    oldAdminEnabled: false,
+    roles: [],
+    tenant: null,
+    tenant_id_mask: localStorage.getItem(STORAGE_TENANT_ID) || null,
+    tenants: [],
+    languages: [],
+    api: true,
+    charts: true,
+    formErrors: {},
+    isLoadingAllowedNodeRoles: false,
+    isLoadingAllowedUserAccessDurations: false,
+    isLoadingAllowedUserAccessLevels: false,
+    isLoadingAllowedUserActions: false,
+    isLoadingAllowedUserRoles: false,
+    isLoadingAllowedUserUnregDate: false,
+    allowedNodeRoles: false,
+    allowedNodeRolesStatus: '',
+    allowedUserAccessDurations: false,
+    allowedUserAccessDurationsStatus: '',
+    allowedUserAccessLevels: false,
+    allowedUserAccessLevelsStatus: '',
+    allowedUserActions: false,
+    allowedUserActionsStatus: '',
+    allowedUserRoles: false,
+    allowedUserRolesStatus: '',
+    allowedUserUnregDate: false,
+    allowedUserUnregDateStatus: ''
+  }
 }
 
 const getters = {
@@ -120,7 +122,7 @@ const getters = {
   isLoadingAllowedUserRoles: state => state.isLoadingAllowedUserRolesStatus === types.LOADING,
   isLoadingAllowedUserUnregDate: state => state.isLoadingAllowedUserUnregDateStatus === types.LOADING,
   allowedNodeRoles: state => state.allowedNodeRoles || [],
-  allowedNodeRolesList: state => (state.allowedNodeRoles || []).map(role => { return { value: role.category_id, name: `${role.name} - ${role.notes}`, text: `${role.name} - ${role.notes}` } }),
+  allowedNodeRolesList: state => (state.allowedNodeRoles || []).map(role => { return { value: role.category_id, text: `${role.name} - ${role.notes}` } }),
   allowedUserAccessDurations: state => state.allowedUserAccessDurations || [],
   allowedUserAccessDurationsList: state => (state.allowedUserAccessDurations || []).map(_accessDuration => {
     const { access_duration: accessDuration } = _accessDuration
@@ -133,14 +135,14 @@ const getters = {
   allowedUserAccessLevels: state => state.allowedUserAccessLevels || [],
   allowedUserAccessLevelsList: state => (state.allowedUserAccessLevels || []).map(_accessLevel => {
     const { access_level: accessLevel } = _accessLevel
-    return { value: accessLevel, name: accessLevel }
+    return { value: accessLevel, text: accessLevel }
   }),
   allowedUserActions: state => state.allowedUserActions || [],
   allowedUserRoles: state => state.allowedUserRoles || [],
-  allowedUserRolesList: state => (state.allowedUserRoles || []).map(role => { return { value: role.category_id, name: `${role.name} - ${role.notes}`, text: `${role.name} - ${role.notes}` } }),
+  allowedUserRolesList: state => (state.allowedUserRoles || []).map(role => { return { value: role.category_id, text: `${role.name} - ${role.notes}` } }),
   allowedUserUnregDate: state => state.allowedUserUnregDate || [],
   tenantIdMask: state => state.tenant_id_mask || state.tenant.id,
-  tenantMask: (state, getters) => {
+  tenantMask: (state) => {
     if (state.tenant_id_mask) {
       return state.tenants.find(t => t.id === state.tenant_id_mask)
     }
@@ -271,13 +273,13 @@ const actions = {
       return Promise.resolve()
     }
   },
-  setLanguage: ({ state }, params) => {
+  setLanguage: ({ state, commit }, params) => {
     if (i18n.locale !== params.lang || state.languages.indexOf(params.lang) < 0) {
       if (state.languages.indexOf(params.lang) < 0) {
         return api.getLanguage(params.lang).then(response => {
           let messages = response.data.item.lexicon
           i18n.setLocaleMessage(params.lang, messages)
-          state.languages.push(params.lang)
+          commit('LANGUAGES_UPDATED', [ ...state.languages, params.lang ])
           return setI18nLanguage(params.lang)
         })
       }
@@ -543,6 +545,13 @@ const mutations = {
   },
   ALLOWED_USER_UNREG_DATE_DELETED: (state) => {
     state.allowedUserUnregDate = false
+  },
+  LANGUAGES_UPDATED: (state, languages) => {
+    state.languages = languages
+  },
+  // eslint-disable-next-line no-unused-vars
+  $RESET: (state) => {
+    // noop
   }
 }
 
@@ -555,7 +564,7 @@ function setI18nLanguage (lang) {
 
 export default {
   namespaced: true,
-  state,
+  state: initialState(),
   getters,
   actions,
   mutations

@@ -97,7 +97,6 @@
           :fields="fieldsLayer2Network"
           :sort-by="'id'"
           :sort-desc="false"
-          :sort-compare="sortCompareLayer2Network"
           :hover="layer2Networks && layer2Networks.length > 0"
           @row-clicked="onRowClickLayer2Network"
           @row-hovered="onRowHoverLayer2Network"
@@ -146,7 +145,6 @@
           :fields="fieldsRoutedNetwork"
           :sort-by="'id'"
           :sort-desc="false"
-          :sort-compare="sortCompareRoutedNetwork"
           :hover="routedNetworks && routedNetworks.length > 0"
           @row-clicked="onRowClickRoutedNetwork"
           @row-hovered="onRowHoverRoutedNetwork"
@@ -339,7 +337,7 @@ export default {
       this.$router.push({ name: 'cloneRoutedNetwork', params: { id: item.id } })
     },
     removeRoutedNetwork (item) {
-      this.$store.dispatch(`$_routed_networks/deleteRoutedNetwork`, item.id).then(response => {
+      this.$store.dispatch(`$_routed_networks/deleteRoutedNetwork`, item.id).then(() => {
         this.init() // reload
       })
     },
@@ -359,7 +357,7 @@ export default {
   },
   watch: {
     highlightedRoute: {
-      handler: function (a, b) {
+      handler: function (a) {
         if (this.interfaces.length > 0) {
           this.interfaces.forEach((iface, i) => {
             if (a && iface.ipaddress && iface.network && network.ipv4NetmaskToSubnet(iface.ipaddress, iface.network) === a) {

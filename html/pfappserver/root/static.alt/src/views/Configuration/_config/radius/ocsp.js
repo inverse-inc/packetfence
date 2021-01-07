@@ -1,5 +1,4 @@
 import i18n from '@/utils/locale'
-import pfFormChosen from '@/components/pfFormChosen'
 import pfFormInput from '@/components/pfFormInput'
 import pfFormRangeToggleDefault from '@/components/pfFormRangeToggleDefault'
 import { pfSearchConditionType as conditionType } from '@/globals/pfSearch'
@@ -220,7 +219,7 @@ export const view = (form = {}, meta = {}) => {
   ]
 }
 
-export const validators = (form = {}, meta = {}) => {
+export const validators = (_, meta = {}) => {
   const {
     isNew = false,
     isClone = false

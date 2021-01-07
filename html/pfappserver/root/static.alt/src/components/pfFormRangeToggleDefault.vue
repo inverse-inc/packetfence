@@ -6,10 +6,10 @@
     </template>
     <b-input type="text" ref="vacuum" readonly :value="null" :disabled="disabled"
       style="overflow: hidden; width: 0px; height: 0px; margin: 0px; padding: 0px; border: 0px;"
-      @focus.native="focus = true"
-      @blur.native="focus = false"
-      @keydown.native.space.prevent
-      @keyup.native="keyUp"
+      @focus="focus = true"
+      @blur="focus = false"
+      @keydown.space.prevent
+      @keyup="keyUp"
     ><!-- Vaccum tabIndex --></b-input>
     <b-input-group :style="{ width: `${width}px` }">
       <label role="range" class="pf-form-range-toggle-default-label">
@@ -17,7 +17,6 @@
         <input-range
           :value="inputValue"
           @input="inputValue = $event"
-          v-on="forwardListeners"
           min="0"
           max="2"
           step="1"
@@ -62,7 +61,7 @@ export default {
       type: String
     },
     labelCols: {
-      type: Number,
+      type: [String, Number],
       default: 3
     },
     text: {
@@ -75,57 +74,41 @@ export default {
     },
     values: {
       type: Object,
-      default: () => {
-        return { checked: true, unchecked: false, default: null }
-      },
-      validator (value) {
-        return (value.checked && value.unchecked && 'default' in value)
-      }
+      default: () => ({ checked: true, unchecked: false, default: null }),
+      validator: (value) => (Object.keys(value).length === 0 || 'checked' in value || 'unchecked' in value || 'default' in value)
     },
     colors: {
       type: Object,
-      default: () => { return {} },
-      validator (value) {
-        return (value.checked || value.unchecked || 'default' in value)
-      }
+      default: () => ({}),
+      validator: (value) => (Object.keys(value).length === 0 || 'checked' in value || 'unchecked' in value || 'default' in value)
     },
     icons: {
       type: Object,
-      default: () => { return {} },
-      validator (value) {
-        return (value.checked || value.unchecked || 'default' in value)
-      }
+      default: () => ({}),
+      validator: (value) => (Object.keys(value).length === 0 || 'checked' in value || 'unchecked' in value || 'default' in value)
     },
     innerLabels: {
       type: Object,
-      default: () => { return {} },
-      validator (value) {
-        return (value.checked || value.unchecked || 'default' in value)
-      }
+      default: () => ({}),
+      validator: (value) => (Object.keys(value).length === 0 || 'checked' in value || 'unchecked' in value || 'default' in value)
     },
     leftLabels: {
       type: Object,
-      default: () => { return {} },
-      validator (value) {
-        return (value.checked || value.unchecked || 'default' in value)
-      }
+      default: () => ({}),
+      validator: (value) => (Object.keys(value).length === 0 || 'checked' in value || 'unchecked' in value || 'default' in value)
     },
     rightLabels: {
       type: Object,
-      default: () => { return {} },
-      validator (value) {
-        return (value.checked || value.unchecked || 'default' in value)
-      }
+      default: () => ({}),
+      validator: (value) => (Object.keys(value).length === 0 || 'checked' in value || 'unchecked' in value || 'default' in value)
     },
     tooltips: {
       type: Object,
-      default: () => { return {} },
-      validator (value) {
-        return (value.checked || value.unchecked || 'default' in value)
-      }
+      default: () => ({}),
+      validator: (value) => (Object.keys(value).length === 0 || 'checked' in value || 'unchecked' in value || 'default' in value)
     },
     width: {
-      type: Number,
+      type: [String, Number],
       default: 60
     }
   },
@@ -172,10 +155,6 @@ export default {
           this.$emit('input', value) // use native (v-model)
         }
       }
-    },
-    forwardListeners () {
-      const { input, ...listeners } = this.$listeners
-      return listeners
     },
     checked () {
       return parseInt(this.inputValue) === 2

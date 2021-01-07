@@ -162,7 +162,8 @@ const getters = {
 }
 
 const actions = {
-  bind: ({ commit, dispatch }) => {
+  bind: (/*{ commit, dispatch }*/) => {
+    /*
     document.body.addEventListener('mousedown', (event) => dispatch('onBodyMouseDown', event))
     document.body.addEventListener('mouseup', (event) => dispatch('onBodyMouseUp', event))
     document.addEventListener('keydown', (event) => dispatch('onKeyDown', event))
@@ -171,6 +172,7 @@ const actions = {
     window.addEventListener('focus', (event) => dispatch('onFocus', event))
     window.addEventListener('resize', (event) => dispatch('onResize', event))
     commit('RESIZE', null) // init windowSize
+    */
   },
   onBodyMouseDown: ({ commit }, event) => {
     commit('BODY_MOUSE_DOWN', event)
@@ -191,7 +193,12 @@ const actions = {
     commit('FOCUS', event)
   },
   onResize: ({ commit }, event) => {
-    commit('RESIZE', event)
+    state.$windowSizeDebouncer({ // debounce windowsSize mutations
+      handler: () => {
+        commit('RESIZE', event)
+      },
+      time: 300
+    })
   }
 }
 
@@ -235,17 +242,16 @@ const mutations = {
     state.focus = true
   },
   RESIZE: (state, event) => {
-    state.$windowSizeDebouncer({ // debounce windowsSize mutations
-      handler: () => {
-        const { documentElement: { clientWidth = state.document.clientWidth, clientHeight = state.document.clientHeight } = {} } = document
-        state.windowEvent = event
-        state.windowSize = {
-          clientHeight,
-          clientWidth
-        }
-      },
-      time: 300
-    })
+    const { documentElement: { clientWidth = state.document.clientWidth, clientHeight = state.document.clientHeight } = {} } = document
+    state.windowEvent = event
+    state.windowSize = {
+      clientHeight,
+      clientWidth
+    }
+  },
+  // eslint-disable-next-line no-unused-vars
+  $RESET: (state) => {
+    // noop
   }
 }
 

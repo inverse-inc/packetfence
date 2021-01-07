@@ -6,7 +6,7 @@ import {
   validatorsFromMeta
 } from './'
 
-export const view = (form = {}, meta = {}) => {
+export const view = (_, meta = {}) => {
   return [
     {
       tab: null,
@@ -560,7 +560,7 @@ export const view = (form = {}, meta = {}) => {
   ]
 }
 
-export const validators = (form = {}, meta = {}) => {
+export const validators = (_, meta = {}) => {
   return {
     pfdhcplistener_packet_size: validatorsFromMeta(meta, 'pfdhcplistener_packet_size', i18n.t('Size'))
   }

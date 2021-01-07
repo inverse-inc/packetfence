@@ -287,8 +287,13 @@ export default {
     return v
   },
   computed: {
-    tabIndex () {
-      return ['http', 'radius'].indexOf(this.id)
+    tabIndex: {
+      get () {
+        return ['http', 'radius'].indexOf(this.id)
+      },
+      set () {
+        // noop
+      }
     },
     isLoading () {
       return this.$store.getters['$_certificates/isLoading']
@@ -375,7 +380,7 @@ export default {
       })
       $event.preventDefault()
     },
-    clipboardCSR ($event) {
+    clipboardCSR () {
       if (document.queryCommandSupported('copy')) {
         this.$refs.csr.$el.select()
         document.execCommand('copy')

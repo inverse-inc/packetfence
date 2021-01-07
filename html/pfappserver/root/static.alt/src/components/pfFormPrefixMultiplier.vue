@@ -15,8 +15,8 @@
         v-bind="$attrs"
         :state="inputState"
         type="number" pattern="[0-9]"
-        @focus.native="isFocus = true"
-        @blur.native="isFocus = false"
+        @focus="isFocus = true"
+        @blur="isFocus = false"
       ></b-form-input>
       <b-dropdown size="sm" v-if="prefixes.length > 0" variant="light">
         <template v-slot:button-content>

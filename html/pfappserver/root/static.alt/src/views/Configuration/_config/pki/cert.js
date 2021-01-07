@@ -3,7 +3,6 @@ import countries from '@/globals/countries'
 import i18n from '@/utils/locale'
 import pfFormChosen from '@/components/pfFormChosen'
 import pfFormInput from '@/components/pfFormInput'
-import pfFormRangeToggle from '@/components/pfFormRangeToggle'
 import { pfSearchConditionType as conditionType } from '@/globals/pfSearch'
 import {
   and,
@@ -180,7 +179,7 @@ export const revoke = (id, reason) => {
   return store.dispatch('$_pkis/revokeCert', { id, reason })
 }
 
-export const view = (form = {}, meta = {}) => {
+export const view = (_, meta = {}) => {
   const {
     isNew = false,
     isClone = false,
@@ -323,7 +322,7 @@ export const view = (form = {}, meta = {}) => {
   ]
 }
 
-export const validators = (form = {}, meta = {}) => {
+export const validators = (_, meta = {}) => {
   const {
     isNew = false,
     isClone = false

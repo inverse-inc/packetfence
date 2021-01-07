@@ -3,7 +3,7 @@
     <b-row class="justify-content-md-center text-secondary">
       <b-col cols="12" md="auto">
         <b-media no-body>
-          <icon name="circle-notch" scale="2" spin v-slot:aside></icon>
+          <template v-slot:aside><icon name="circle-notch" scale="2" spin></icon></template>
           <div class="mx-2">
             <h4 v-t="'Resetting View...'"></h4>
           </div>

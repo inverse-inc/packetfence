@@ -1,4 +1,3 @@
-/* eslint-disable camelcase */
 import i18n from '@/utils/locale'
 import pfFormChosen from '@/components/pfFormChosen'
 import pfFormInput from '@/components/pfFormInput'
@@ -107,7 +106,7 @@ export const config = () => {
 }
 
 export const viewFields = {
-  id: (form = {}, meta = {}) => {
+  id: (_, meta = {}) => {
     const {
       isNew = false,
       isClone = false
@@ -134,7 +133,7 @@ export const viewFields = {
       ]
     }
   },
-  access_token: (form = {}, meta = {}) => {
+  access_token: (_, meta = {}) => {
     return {
       label: i18n.t('Access token'),
       cols: [
@@ -147,7 +146,7 @@ export const viewFields = {
       ]
     }
   },
-  agent_download_uri: (form = {}, meta = {}) => {
+  agent_download_uri: (_, meta = {}) => {
     return {
       label: i18n.t('Agent download URI'),
       cols: [
@@ -160,7 +159,7 @@ export const viewFields = {
       ]
     }
   },
-  alt_agent_download_uri: (form = {}, meta = {}) => {
+  alt_agent_download_uri: (_, meta = {}) => {
     return {
       label: i18n.t('Alt agent download URI'),
       cols: [
@@ -173,7 +172,7 @@ export const viewFields = {
       ]
     }
   },
-  android_download_uri: (form = {}, meta = {}) => {
+  android_download_uri: (_, meta = {}) => {
     return {
       label: i18n.t('Android download URI'),
       cols: [
@@ -186,7 +185,7 @@ export const viewFields = {
       ]
     }
   },
-  android_agent_download_uri: (form = {}, meta = {}) => {
+  android_agent_download_uri: (_, meta = {}) => {
     return {
       label: i18n.t('Android agent download URI'),
       cols: [
@@ -199,7 +198,7 @@ export const viewFields = {
       ]
     }
   },
-  api_password: (form = {}, meta = {}) => {
+  api_password: (_, meta = {}) => {
     return {
       label: i18n.t('API password'),
       cols: [
@@ -212,7 +211,7 @@ export const viewFields = {
       ]
     }
   },
-  api_username: (form = {}, meta = {}) => {
+  api_username: (_, meta = {}) => {
     return {
       label: i18n.t('API username'),
       cols: [
@@ -225,7 +224,7 @@ export const viewFields = {
       ]
     }
   },
-  api_uri: (form = {}, meta = {}) => {
+  api_uri: (_, meta = {}) => {
     return {
       label: i18n.t('Api uri'),
       cols: [
@@ -238,7 +237,7 @@ export const viewFields = {
       ]
     }
   },
-  boarding_host: (form = {}, meta = {}) => {
+  boarding_host: (_, meta = {}) => {
     return {
       label: i18n.t('Boarding host'),
       cols: [
@@ -251,7 +250,7 @@ export const viewFields = {
       ]
     }
   },
-  boarding_port: (form = {}, meta = {}) => {
+  boarding_port: (_, meta = {}) => {
     return {
       label: i18n.t('Boarding port'),
       cols: [
@@ -264,7 +263,7 @@ export const viewFields = {
       ]
     }
   },
-  broadcast: (form = {}, meta = {}) => {
+  broadcast: (_, meta = {}) => {
     return {
       label: i18n.t('Broadcast network'),
       text: i18n.t('Disable this box if you are using a hidden SSID.'),
@@ -282,7 +281,7 @@ export const viewFields = {
       ]
     }
   },
-  can_sign_profile: (form = {}, meta = {}) => {
+  can_sign_profile: () => {
     return {
       label: i18n.t('Sign Profile'),
       cols: [
@@ -296,7 +295,7 @@ export const viewFields = {
       ]
     }
   },
-  autoregister: (form = {}, meta = {}) => {
+  autoregister: () => {
     return {
       label: i18n.t('Auto register'),
       text: i18n.t('Whether or not devices should be automatically registered on the network if they are authorized in the provisioner.'),
@@ -311,7 +310,7 @@ export const viewFields = {
       ]
     }
   },
-  sync_pid: (form = {}, meta = {}) => {
+  sync_pid: () => {
     return {
       label: i18n.t('Sync PID'),
       text: i18n.t('Whether or not the PID (username) should be synchronized from the provisioner to PacketFence.'),
@@ -326,7 +325,7 @@ export const viewFields = {
       ]
     }
   },
-  enforce: (form = {}, meta = {}) => {
+  enforce: () => {
     return {
       label: i18n.t('Enforce'),
       text: i18n.t('Whether or not the provisioner should be enforced. This will trigger checks to validate the device is compliant with the provisioner during RADIUS authentication and on the captive portal.'),
@@ -341,7 +340,7 @@ export const viewFields = {
       ]
     }
   },
-  apply_role: (form = {}, meta = {}) => {
+  apply_role: () => {
     return {
       label: i18n.t('Apply role'),
       text: i18n.t('When enabled, this will apply the configured role to the endpoint if it is authorized in the provisioner.'),
@@ -356,7 +355,7 @@ export const viewFields = {
       ]
     }
   },
-  role_to_apply: (form = {}, meta = {}) => {
+  role_to_apply: (_, meta = {}) => {
     return {
       label: i18n.t('Role to apply'),
       text: i18n.t('When "Apply role" is enabled, this defines the role to apply when the device is authorized with the provisioner.'),
@@ -370,7 +369,7 @@ export const viewFields = {
       ]
     }
   },
-  category: (form = {}, meta = {}) => {
+  category: (_, meta = {}) => {
     return {
       label: i18n.t('Roles'),
       text: i18n.t('Nodes with the selected roles will be affected.'),
@@ -384,7 +383,7 @@ export const viewFields = {
       ]
     }
   },
-  cert_chain: (form = {}, meta = {}) => {
+  cert_chain: (_, meta = {}) => {
     return {
       label: i18n.t('The certificate chain for the signer certificate'),
       text: i18n.t('The certificate chain of the signer certificate in PEM format.'),
@@ -403,7 +402,7 @@ export const viewFields = {
       ]
     }
   },
-  certificate: (form = {}, meta = {}) => {
+  certificate: (_, meta = {}) => {
     return {
       label: i18n.t('The certificate for signing profiles'),
       text: i18n.t('The certificate for signing in PEM format.'),
@@ -422,7 +421,7 @@ export const viewFields = {
       ]
     }
   },
-  client_id: (form = {}, meta = {}) => {
+  client_id: (_, meta = {}) => {
     return {
       label: i18n.t('Client Key'),
       cols: [
@@ -435,7 +434,7 @@ export const viewFields = {
       ]
     }
   },
-  client_secret: (form = {}, meta = {}) => {
+  client_secret: (_, meta = {}) => {
     return {
       label: i18n.t('Client Secret'),
       cols: [
@@ -448,7 +447,7 @@ export const viewFields = {
       ]
     }
   },
-  applicationID: (form = {}, meta = {}) => {
+  applicationID: (_, meta = {}) => {
     return {
       label: i18n.t('Application ID'),
       cols: [
@@ -461,7 +460,7 @@ export const viewFields = {
       ]
     }
   },
-  applicationSecret: (form = {}, meta = {}) => {
+  applicationSecret: (_, meta = {}) => {
     return {
       label: i18n.t('Application Secret'),
       cols: [
@@ -474,7 +473,7 @@ export const viewFields = {
       ]
     }
   },
-  tenantID: (form = {}, meta = {}) => {
+  tenantID: (_, meta = {}) => {
     return {
       label: i18n.t('Tenant ID'),
       cols: [
@@ -487,7 +486,7 @@ export const viewFields = {
       ]
     }
   },
-  loginUrl: (form = {}, meta = {}) => {
+  loginUrl: (_, meta = {}) => {
     return {
       label: i18n.t('Login Url'),
       cols: [
@@ -500,7 +499,7 @@ export const viewFields = {
       ]
     }
   },
-  critical_issues_threshold: (form = {}, meta = {}) => {
+  critical_issues_threshold: (_, meta = {}) => {
     return {
       label: i18n.t('Critical issues threshold'),
       text: i18n.t('The minimum number of critical issues a device needs to have before it gets isolated. 0 deactivates it.'),
@@ -520,7 +519,7 @@ export const viewFields = {
       ]
     }
   },
-  description: (form = {}, meta = {}) => {
+  description: (_, meta = {}) => {
     return {
       label: i18n.t('Description'),
       cols: [
@@ -533,7 +532,7 @@ export const viewFields = {
       ]
     }
   },
-  device_type_detection: (form = {}, meta = {}) => {
+  device_type_detection: () => {
     return {
       label: i18n.t('Automatic device detection'),
       cols: [
@@ -547,7 +546,7 @@ export const viewFields = {
       ]
     }
   },
-  domains: (form = {}, meta = {}) => {
+  domains: (_, meta = {}) => {
     return {
       label: i18n.t('Authorized domains'),
       text: i18n.t('A comma-separated list of domains that will be resolved with the correct IP addresses.'),
@@ -561,7 +560,7 @@ export const viewFields = {
       ]
     }
   },
-  dpsk: (form = {}, meta = {}) => {
+  dpsk: () => {
     return {
       label: i18n.t('Enable DPSK'),
       text: i18n.t('Define if the PSK needs to be generated'),
@@ -576,7 +575,7 @@ export const viewFields = {
       ]
     }
   },
-  eap_type: (form = {}, meta = {}) => {
+  eap_type: (_, meta = {}) => {
     return {
       label: i18n.t('EAP type'),
       text: i18n.t('Select the EAP type of your SSID. Leave empty for no EAP.'),
@@ -590,7 +589,7 @@ export const viewFields = {
       ]
     }
   },
-  host: (form = {}, meta = {}) => {
+  host: (_, meta = {}) => {
     return {
       label: i18n.t('Host'),
       cols: [
@@ -603,7 +602,7 @@ export const viewFields = {
       ]
     }
   },
-  ios_download_uri: (form = {}, meta = {}) => {
+  ios_download_uri: (_, meta = {}) => {
     return {
       label: i18n.t('IOS download URI'),
       cols: [
@@ -616,7 +615,7 @@ export const viewFields = {
       ]
     }
   },
-  ios_agent_download_uri: (form = {}, meta = {}) => {
+  ios_agent_download_uri: (_, meta = {}) => {
     return {
       label: i18n.t('IOS agent download URI'),
       cols: [
@@ -629,7 +628,7 @@ export const viewFields = {
       ]
     }
   },
-  mac_osx_agent_download_uri: (form = {}, meta = {}) => {
+  mac_osx_agent_download_uri: (_, meta = {}) => {
     return {
       label: i18n.t('Mac OSX agent download URI'),
       cols: [
@@ -642,7 +641,7 @@ export const viewFields = {
       ]
     }
   },
-  non_compliance_security_event: (form = {}, meta = {}) => {
+  non_compliance_security_event: (_, meta = {}) => {
     return {
       label: i18n.t('Non compliance security event'),
       text: i18n.t('Which security event should be raised when non compliance is detected.'),
@@ -656,7 +655,7 @@ export const viewFields = {
       ]
     }
   },
-  oses: (form = {}, meta = {}) => {
+  oses: (_, meta = {}) => {
     return {
       label: 'OS',
       text: i18n.t('Nodes with the selected OS will be affected.'),
@@ -670,7 +669,7 @@ export const viewFields = {
       ]
     }
   },
-  passcode: (form = {}, meta = {}) => {
+  passcode: (_, meta = {}) => {
     return {
       label: i18n.t('Wifi Key'),
       cols: [
@@ -683,7 +682,7 @@ export const viewFields = {
       ]
     }
   },
-  password: (form = {}, meta = {}) => {
+  password: (_, meta = {}) => {
     return {
       label: i18n.t('Client Secret'),
       cols: [
@@ -696,7 +695,7 @@ export const viewFields = {
       ]
     }
   },
-  pki_provider: (form = {}, meta = {}) => {
+  pki_provider: (_, meta = {}) => {
     return {
       label: i18n.t('PKI Provider'),
       cols: [
@@ -709,7 +708,7 @@ export const viewFields = {
       ]
     }
   },
-  port: (form = {}, meta = {}) => {
+  port: (_, meta = {}) => {
     return {
       label: i18n.t('Port'),
       cols: [
@@ -722,7 +721,7 @@ export const viewFields = {
       ]
     }
   },
-  private_key: (form = {}, meta = {}) => {
+  private_key: (_, meta = {}) => {
     return {
       label: i18n.t('The private key for signing profiles'),
       text: i18n.t('The private key for signing in PEM format.'),
@@ -741,7 +740,7 @@ export const viewFields = {
       ]
     }
   },
-  protocol: (form = {}, meta = {}) => {
+  protocol: (_, meta = {}) => {
     return {
       label: i18n.t('Protocol'),
       cols: [
@@ -754,7 +753,7 @@ export const viewFields = {
       ]
     }
   },
-  psk_size: (form = {}, meta = {}) => {
+  psk_size: (_, meta = {}) => {
     return {
       label: i18n.t('PSK length'),
       text: i18n.t('This is the length of the PSK key you want to generate. The minimum length is eight characters.'),
@@ -768,7 +767,7 @@ export const viewFields = {
       ]
     }
   },
-  query_computers: (form = {}, meta = {}) => {
+  query_computers: () => {
     return {
       label: i18n.t('Query JAMF computers inventory'),
       cols: [
@@ -782,7 +781,7 @@ export const viewFields = {
       ]
     }
   },
-  query_mobiledevices: (form = {}, meta = {}) => {
+  query_mobiledevices: () => {
     return {
       label: i18n.t('Query JAMF mobile devices inventory'),
       cols: [
@@ -796,7 +795,7 @@ export const viewFields = {
       ]
     }
   },
-  refresh_token: (form = {}, meta = {}) => {
+  refresh_token: (_, meta = {}) => {
     return {
       label: i18n.t('Refresh token'),
       cols: [
@@ -809,7 +808,7 @@ export const viewFields = {
       ]
     }
   },
-  security_type: (form = {}, meta = {}) => {
+  security_type: (_, meta = {}) => {
     return {
       label: i18n.t('Security type'),
       text: i18n.t('Select the type of security applied for your SSID.'),
@@ -823,7 +822,7 @@ export const viewFields = {
       ]
     }
   },
-  server_certificate_path: (form = {}, meta = {}) => {
+  server_certificate_path: (_, meta = {}) => {
     return {
       label: i18n.t('RADIUS server certificate path'),
       text: i18n.t('The path to the RADIUS server certificate.'),
@@ -837,7 +836,7 @@ export const viewFields = {
       ]
     }
   },
-  ca_cert_path: (form = {}, meta = {}) => {
+  ca_cert_path: (_, meta = {}) => {
     return {
       label: i18n.t('RADIUS server CA path'),
       text: i18n.t('The path to the RADIUS server CA which signed the RADIUS server certificate.'),
@@ -851,7 +850,7 @@ export const viewFields = {
       ]
     }
   },
-  ssid: (form = {}, meta = {}) => {
+  ssid: (_, meta = {}) => {
     return {
       label: 'SSID',
       cols: [
@@ -864,7 +863,7 @@ export const viewFields = {
       ]
     }
   },
-  table_for_agent: (form = {}, meta = {}) => {
+  table_for_agent: (_, meta = {}) => {
     return {
       label: i18n.t('Agent table name'),
       cols: [
@@ -877,7 +876,7 @@ export const viewFields = {
       ]
     }
   },
-  table_for_mac: (form = {}, meta = {}) => {
+  table_for_mac: (_, meta = {}) => {
     return {
       label: i18n.t('MAC table name'),
       cols: [
@@ -890,7 +889,7 @@ export const viewFields = {
       ]
     }
   },
-  tenant_code: (form = {}, meta = {}) => {
+  tenant_code: (_, meta = {}) => {
     return {
       label: i18n.t('Tenant code'),
       cols: [
@@ -903,7 +902,7 @@ export const viewFields = {
       ]
     }
   },
-  username: (form = {}, meta = {}) => {
+  username: (_, meta = {}) => {
     return {
       label: i18n.t('Username'),
       cols: [
@@ -916,7 +915,7 @@ export const viewFields = {
       ]
     }
   },
-  win_agent_download_uri: (form = {}, meta = {}) => {
+  win_agent_download_uri: (_, meta = {}) => {
     return {
       label: i18n.t('Windows agent download URI'),
       cols: [
@@ -929,7 +928,7 @@ export const viewFields = {
       ]
     }
   },
-  windows_agent_download_uri: (form = {}, meta = {}) => {
+  windows_agent_download_uri: (_, meta = {}) => {
     return {
       label: i18n.t('Windows agent download URI'),
       cols: [
@@ -942,7 +941,7 @@ export const viewFields = {
       ]
     }
   },
-  windows_phone_download_uri: (form = {}, meta = {}) => {
+  windows_phone_download_uri: (_, meta = {}) => {
     return {
       label: i18n.t('Windows phone download URI'),
       cols: [
@@ -1409,7 +1408,7 @@ export const view = (form = {}, meta = {}) => {
 }
 
 export const validatorFields = {
-  id: (form = {}, meta = {}) => {
+  id: (_, meta = {}) => {
     const {
       isNew = false,
       isClone = false
@@ -1423,169 +1422,169 @@ export const validatorFields = {
       }
     }
   },
-  access_token: (form = {}, meta = {}) => {
+  access_token: (_, meta = {}) => {
     return { access_token: validatorsFromMeta(meta, 'access_token', i18n.t('Token')) }
   },
-  agent_download_uri: (form = {}, meta = {}) => {
+  agent_download_uri: (_, meta = {}) => {
     return { agent_download_uri: validatorsFromMeta(meta, 'agent_download_uri', 'URI') }
   },
-  alt_agent_download_uri: (form = {}, meta = {}) => {
+  alt_agent_download_uri: (_, meta = {}) => {
     return { alt_agent_download_uri: validatorsFromMeta(meta, 'alt_agent_download_uri', 'URI') }
   },
-  android_download_uri: (form = {}, meta = {}) => {
+  android_download_uri: (_, meta = {}) => {
     return { android_download_uri: validatorsFromMeta(meta, 'android_download_uri', 'URI') }
   },
-  android_agent_download_uri: (form = {}, meta = {}) => {
+  android_agent_download_uri: (_, meta = {}) => {
     return { android_agent_download_uri: validatorsFromMeta(meta, 'android_agent_download_uri', 'URI') }
   },
-  api_password: (form = {}, meta = {}) => {
+  api_password: (_, meta = {}) => {
     return { api_password: validatorsFromMeta(meta, 'api_password', i18n.t('Password')) }
   },
-  api_username: (form = {}, meta = {}) => {
+  api_username: (_, meta = {}) => {
     return { api_username: validatorsFromMeta(meta, 'api_username', i18n.t('Username')) }
   },
-  api_uri: (form = {}, meta = {}) => {
+  api_uri: (_, meta = {}) => {
     return { api_uri: validatorsFromMeta(meta, 'api_uri', 'URI') }
   },
-  tenant_code: (form = {}, meta = {}) => {
+  tenant_code: (_, meta = {}) => {
     return { tenant_code: validatorsFromMeta(meta, 'tenant_code', i18n.t('Tenant code')) }
   },
-  boarding_host: (form = {}, meta = {}) => {
+  boarding_host: (_, meta = {}) => {
     return { boarding_host: validatorsFromMeta(meta, 'boarding_host', i18n.t('Host')) }
   },
-  boarding_port: (form = {}, meta = {}) => {
+  boarding_port: (_, meta = {}) => {
     return { boarding_port: validatorsFromMeta(meta, 'boarding_port', i18n.t('Port')) }
   },
-  broadcast: (form = {}, meta = {}) => {},
-  can_sign_profile: (form = {}, meta = {}) => {},
-  sync_pid: (form = {}, meta = {}) => {
+  broadcast: () => {},
+  can_sign_profile: () => {},
+  sync_pid: (_, meta = {}) => {
     return { sync_pid: validatorsFromMeta(meta, 'sync_pid', i18n.t('Sync PID')) }
   },
-  enforce: (form = {}, meta = {}) => {
+  enforce: (_, meta = {}) => {
     return { enforce: validatorsFromMeta(meta, 'enforce', i18n.t('Enforce')) }
   },
-  autoregister: (form = {}, meta = {}) => {
+  autoregister: (_, meta = {}) => {
     return { autoregister: validatorsFromMeta(meta, 'autoregister', i18n.t('Auto register')) }
   },
-  apply_role: (form = {}, meta = {}) => {
+  apply_role: (_, meta = {}) => {
     return { apply_role: validatorsFromMeta(meta, 'apply_role', i18n.t('Apply Role')) }
   },
-  role_to_apply: (form = {}, meta = {}) => {
+  role_to_apply: (_, meta = {}) => {
     return { role_to_apply: validatorsFromMeta(meta, 'role_to_apply', i18n.t('Role to apply')) }
   },
-  category: (form = {}, meta = {}) => {
+  category: (_, meta = {}) => {
     return { category: validatorsFromMeta(meta, 'category', i18n.t('Roles')) }
   },
-  cert_chain: (form = {}, meta = {}) => {
+  cert_chain: (_, meta = {}) => {
     return { cert_chain: validatorsFromMeta(meta, 'cert_chain', i18n.t('Chain')) }
   },
-  certificate: (form = {}, meta = {}) => {
+  certificate: (_, meta = {}) => {
     return { certificate: validatorsFromMeta(meta, 'certificate', i18n.t('Certificate')) }
   },
-  client_id: (form = {}, meta = {}) => {
+  client_id: (_, meta = {}) => {
     return { client_id: validatorsFromMeta(meta, 'client_id', i18n.t('Key')) }
   },
-  client_secret: (form = {}, meta = {}) => {
+  client_secret: (_, meta = {}) => {
     return { client_secret: validatorsFromMeta(meta, 'client_secret', i18n.t('Secret')) }
   },
-  applicationID: (form = {}, meta = {}) => {
+  applicationID: (_, meta = {}) => {
     return { applicationID: validatorsFromMeta(meta, 'applicationID', i18n.t('Application ID')) }
   },
-  applicationSecret: (form = {}, meta = {}) => {
+  applicationSecret: (_, meta = {}) => {
     return { applicationSecret: validatorsFromMeta(meta, 'applicationSecret', i18n.t('Application Secret')) }
   },
-  tenantID: (form = {}, meta = {}) => {
+  tenantID: (_, meta = {}) => {
     return { tenantID: validatorsFromMeta(meta, 'tenantID', i18n.t('Tenant ID')) }
   },
-  loginUrl: (form = {}, meta = {}) => {
+  loginUrl: (_, meta = {}) => {
     return { loginUrl: validatorsFromMeta(meta, 'loginUrl', i18n.t('Login Url')) }
   },
-  critical_issues_threshold: (form = {}, meta = {}) => {
+  critical_issues_threshold: (_, meta = {}) => {
     return { critical_issues_threshold: validatorsFromMeta(meta, 'critical_issues_threshold', i18n.t('Threshold')) }
   },
-  description: (form = {}, meta = {}) => {
+  description: (_, meta = {}) => {
     return { description: validatorsFromMeta(meta, 'description', i18n.t('Description')) }
   },
-  device_type_detection: (form = {}, meta = {}) => {},
-  domains: (form = {}, meta = {}) => {
+  device_type_detection: () => {},
+  domains: (_, meta = {}) => {
     return { domains: validatorsFromMeta(meta, 'domains', i18n.t('Domains')) }
   },
-  dpsk: (form = {}, meta = {}) => {},
-  eap_type: (form = {}, meta = {}) => {
+  dpsk: () => {},
+  eap_type: (_, meta = {}) => {
     return { eap_type: validatorsFromMeta(meta, 'eap_type', i18n.t('Type')) }
   },
-  host: (form = {}, meta = {}) => {
+  host: (_, meta = {}) => {
     return { host: validatorsFromMeta(meta, 'host', i18n.t('Host')) }
   },
-  ios_download_uri: (form = {}, meta = {}) => {
+  ios_download_uri: (_, meta = {}) => {
     return { ios_download_uri: validatorsFromMeta(meta, 'ios_download_uri', 'URI') }
   },
-  ios_agent_download_uri: (form = {}, meta = {}) => {
+  ios_agent_download_uri: (_, meta = {}) => {
     return { ios_agent_download_uri: validatorsFromMeta(meta, 'ios_agent_download_uri', 'URI') }
   },
-  mac_osx_agent_download_uri: (form = {}, meta = {}) => {
+  mac_osx_agent_download_uri: (_, meta = {}) => {
     return { mac_osx_agent_download_uri: validatorsFromMeta(meta, 'mac_osx_agent_download_uri', 'URI') }
   },
-  non_compliance_security_event: (form = {}, meta = {}) => {
+  non_compliance_security_event: (_, meta = {}) => {
     return { non_compliance_security_event: validatorsFromMeta(meta, 'non_compliance_security_event', i18n.t('Event')) }
   },
-  oses: (form = {}, meta = {}) => {
+  oses: (_, meta = {}) => {
     return { oses: validatorsFromMeta(meta, 'oses', 'OS') }
   },
-  passcode: (form = {}, meta = {}) => {
+  passcode: (_, meta = {}) => {
     return { passcode: validatorsFromMeta(meta, 'passcode', i18n.t('Key')) }
   },
-  password: (form = {}, meta = {}) => {
+  password: (_, meta = {}) => {
     return { password: validatorsFromMeta(meta, 'password', i18n.t('Secret')) }
   },
-  pki_provider: (form = {}, meta = {}) => {
+  pki_provider: (_, meta = {}) => {
     return { pki_provider: validatorsFromMeta(meta, 'pki_provider', i18n.t('Provider')) }
   },
-  port: (form = {}, meta = {}) => {
+  port: (_, meta = {}) => {
     return { port: validatorsFromMeta(meta, 'port', i18n.t('Port')) }
   },
-  private_key: (form = {}, meta = {}) => {
+  private_key: (_, meta = {}) => {
     return { private_key: validatorsFromMeta(meta, 'private_key', i18n.t('Key')) }
   },
-  protocol: (form = {}, meta = {}) => {
+  protocol: (_, meta = {}) => {
     return { protocol: validatorsFromMeta(meta, 'protocol', i18n.t('Protocol')) }
   },
-  psk_size: (form = {}, meta = {}) => {
+  psk_size: (_, meta = {}) => {
     return { psk_size: validatorsFromMeta(meta, 'psk_size', i18n.t('Length')) }
   },
-  query_computers: (form = {}, meta = {}) => {},
-  query_mobiledevices: (form = {}, meta = {}) => {},
-  refresh_token: (form = {}, meta = {}) => {
+  query_computers: () => {},
+  query_mobiledevices: () => {},
+  refresh_token: (_, meta = {}) => {
     return { refresh_token: validatorsFromMeta(meta, 'refresh_token', i18n.t('Token')) }
   },
-  security_type: (form = {}, meta = {}) => {
+  security_type: (_, meta = {}) => {
     return { security_type: validatorsFromMeta(meta, 'security_type', i18n.t('Type')) }
   },
-  server_certificate_path: (form = {}, meta = {}) => {
+  server_certificate_path: (_, meta = {}) => {
     return { server_certificate_path: validatorsFromMeta(meta, 'server_certificate_path', i18n.t('Path')) }
   },
-  ca_cert_path: (form = {}, meta = {}) => {
+  ca_cert_path: (_, meta = {}) => {
     return { ca_cert_path: validatorsFromMeta(meta, 'ca_cert_path', i18n.t('Path')) }
   },
-  ssid: (form = {}, meta = {}) => {
+  ssid: (_, meta = {}) => {
     return { ssid: validatorsFromMeta(meta, 'ssid', 'SSID') }
   },
-  table_for_agent: (form = {}, meta = {}) => {
+  table_for_agent: (_, meta = {}) => {
     return { table_for_agent: validatorsFromMeta(meta, 'table_for_agent', i18n.t('Agent table name')) }
   },
-  table_for_mac: (form = {}, meta = {}) => {
+  table_for_mac: (_, meta = {}) => {
     return { table_for_mac: validatorsFromMeta(meta, 'table_for_mac', i18n.t('Mac table name')) }
   },
-  username: (form = {}, meta = {}) => {
+  username: (_, meta = {}) => {
     return { username: validatorsFromMeta(meta, 'username', i18n.t('Username')) }
   },
-  win_agent_download_uri: (form = {}, meta = {}) => {
+  win_agent_download_uri: (_, meta = {}) => {
     return { win_agent_download_uri: validatorsFromMeta(meta, 'win_agent_download_uri', 'URI') }
   },
-  windows_agent_download_uri: (form = {}, meta = {}) => {
+  windows_agent_download_uri: (_, meta = {}) => {
     return { windows_agent_download_uri: validatorsFromMeta(meta, 'windows_agent_download_uri', 'URI') }
   },
-  windows_phone_download_uri: (form = {}, meta = {}) => {
+  windows_phone_download_uri: (_, meta = {}) => {
     return { windows_phone_download_uri: validatorsFromMeta(meta, 'windows_phone_download_uri', 'URI') }
   }
 }

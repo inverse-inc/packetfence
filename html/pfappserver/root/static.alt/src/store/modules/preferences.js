@@ -37,9 +37,7 @@ const api = {
       return apiCall.getQuiet(['preference', `${IDENTIFIER_PREFIX}${id}`]).then(response => { // exists
         const { data: { item: { value = null } = {} } = {} } = response
         if (value) {
-          // eslint-disable-next-line
           const { meta: { created_at = null } = {} } = JSON.parse(value)
-          // eslint-disable-next-line
           if (created_at) { // retain `created_at`
             body = {
               id: `${IDENTIFIER_PREFIX}${id}`,
@@ -98,7 +96,7 @@ const actions = {
   all: ({ state, commit }) => {
     commit('PREFERENCE_REQUEST')
     if (state.allPromise == null) {
-      state.allPromise = api.allPreferences()
+      commit('PROMISE_UPDATED', api.allPreferences())
     }
     return state.allPromise.then(items => {
       commit('PREFERENCE_SUCCESS')
@@ -141,6 +139,9 @@ const actions = {
 }
 
 const mutations = {
+  PROMISE_UPDATED: (state, promise) => {
+    state.allPromise = promise
+  },
   PREFERENCE_REQUEST: (state) => {
     state.requestStatus = types.LOADING
     state.message = ''
@@ -156,6 +157,7 @@ const mutations = {
       state.message = message
     }
   },
+  // eslint-disable-next-line no-unused-vars
   $RESET: (state) => {
     state = initialState()
   }

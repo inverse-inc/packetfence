@@ -143,12 +143,10 @@ export const pfFieldTypeOperators = {
 
 export const pfFieldTypeValues = {
   [pfFieldType.ADMINROLE]: () => {
-    store.dispatch('config/getAdminRoles')
-    return store.getters['config/adminRolesList']
+    return store.dispatch('config/getAdminRoles').then(() => store.getters['config/adminRolesList'])
   },
   [pfFieldType.ADMINROLE_BY_ACL_USER]: () => {
-    store.dispatch('session/getAllowedUserAccessLevels')
-    return store.getters['session/allowedUserAccessLevelsList']
+    return store.dispatch('session/getAllowedUserAccessLevels').then(() => store.getters['session/allowedUserAccessLevelsList'])
   },
   [pfFieldType.CONNECTION]: () => {
     return [
@@ -178,180 +176,168 @@ export const pfFieldTypeValues = {
   },
   [pfFieldType.CONNECTION_TYPE]: () => {
     return [
-      { name: 'Wireless-802.11-NoEAP', value: 'Wireless-802.11-NoEAP' },
-      { name: 'Ethernet-Web-Auth', value: 'Ethernet-Web-Auth' },
-      { name: 'SNMP-Traps', value: 'SNMP-Traps' },
-      { name: 'Inline', value: 'Inline' },
-      { name: 'Ethernet-EAP', value: 'Ethernet-EAP' },
-      { name: 'Ethernet-NoEAP', value: 'Ethernet-NoEAP' },
-      { name: 'Wireless-Web-Auth', value: 'Wireless-Web-Auth' },
-      { name: 'Wireless-802.11-EAP', value: 'Wireless-802.11-EAP' },
-      { name: 'VPN-Access', value: 'VPN-Access' },
-      { name: 'CLI-Access', value: 'CLI-Access' }
+      { text: 'Wireless-802.11-NoEAP', value: 'Wireless-802.11-NoEAP' },
+      { text: 'Ethernet-Web-Auth', value: 'Ethernet-Web-Auth' },
+      { text: 'SNMP-Traps', value: 'SNMP-Traps' },
+      { text: 'Inline', value: 'Inline' },
+      { text: 'Ethernet-EAP', value: 'Ethernet-EAP' },
+      { text: 'Ethernet-NoEAP', value: 'Ethernet-NoEAP' },
+      { text: 'Wireless-Web-Auth', value: 'Wireless-Web-Auth' },
+      { text: 'Wireless-802.11-EAP', value: 'Wireless-802.11-EAP' },
+      { text: 'VPN-Access', value: 'VPN-Access' },
+      { text: 'CLI-Access', value: 'CLI-Access' }
     ]
   },
   [pfFieldType.CONNECTION_SUB_TYPE]: () => {
     return [
-      { name: 'AKA', value: 'AKA' },
-      { name: 'AirFortress-EAP', value: 'AirFortress-EAP' },
-      { name: 'Arcot-Systems-EAP', value: 'Arcot-Systems-EAP' },
-      { name: 'Base', value: 'Base' },
-      { name: 'CRYPTOCard', value: 'CRYPTOCard' },
-      { name: 'Cisco-LEAP', value: 'Cisco-LEAP' },
-      { name: 'Cisco-MS-CHAPv2', value: 'Cisco-MS-CHAPv2' },
-      { name: 'Cogent-Biomentric-EAP', value: 'Cogent-Biomentric-EAP' },
-      { name: 'DSS-Unilateral', value: 'DSS-Unilateral' },
-      { name: 'Defender-Token', value: 'Defender-Token' },
-      { name: 'DeviceConnect-EAP', value: 'DeviceConnect-EAP' },
-      { name: 'DynamID', value: 'DynamID' },
-      { name: 'EAP-3Com-Wireless', value: 'EAP-3Com-Wireless' },
-      { name: 'EAP-AKA2', value: 'EAP-AKA2' },
-      { name: 'EAP-Actiontec-Wireless', value: 'EAP-Actiontec-Wireless' },
-      { name: 'EAP-EVEv1', value: 'EAP-EVEv1' },
-      { name: 'EAP-FAST', value: 'EAP-FAST' },
-      { name: 'EAP-GPSK', value: 'EAP-GPSK' },
-      { name: 'EAP-HTTP-Digest', value: 'EAP-HTTP-Digest' },
-      { name: 'EAP-IKEv2', value: 'EAP-IKEv2' },
-      { name: 'EAP-Link', value: 'EAP-Link' },
-      { name: 'EAP-MOBAC', value: 'EAP-MOBAC' },
-      { name: 'EAP-MSCHAP-V2', value: 'EAP-MSCHAP-V2' },
-      { name: 'EAP-PAX', value: 'EAP-PAX' },
-      { name: 'EAP-PSK', value: 'EAP-PSK' },
-      { name: 'EAP-PWD', value: 'EAP-PWD' },
-      { name: 'EAP-SAKE', value: 'EAP-SAKE' },
-      { name: 'EAP-SPEKE', value: 'EAP-SPEKE' },
-      { name: 'EAP-TLS', value: 'EAP-TLS' },
-      { name: 'EAP-TTLS', value: 'EAP-TTLS' },
-      { name: 'Generic-Token-Card', value: 'Generic-Token-Card' },
-      { name: 'Identity', value: 'Identity' },
-      { name: 'KEA', value: 'KEA' },
-      { name: 'KEA-Validate', value: 'KEA-Validate' },
-      { name: 'MAKE', value: 'MAKE' },
-      { name: 'MD5-Challenge', value: 'MD5-Challenge' },
-      { name: 'MS-Authentication-TLV', value: 'MS-Authentication-TLV' },
-      { name: 'MS-CHAP-V2', value: 'MS-CHAP-V2' },
-      { name: 'MS-EAP-Authentication', value: 'MS-EAP-Authentication' },
-      { name: 'Microsoft-MS-CHAPv2', value: 'Microsoft-MS-CHAPv2' },
-      { name: 'NAK', value: 'NAK' },
-      { name: 'Nokia-IP-Smart-Card', value: 'Nokia-IP-Smart-Card' },
-      { name: 'None', value: 'None' },
-      { name: 'Notification', value: 'Notification' },
-      { name: 'One-Time-Password', value: 'One-Time-Password' },
-      { name: 'PEAP', value: 'PEAP' },
-      { name: 'RSA-Public-Key', value: 'RSA-Public-Key' },
-      { name: 'RSA-SecurID-EAP', value: 'RSA-SecurID-EAP' },
-      { name: 'Remote-Access-Service', value: 'Remote-Access-Service' },
-      { name: 'Rob-EAP', value: 'Rob-EAP' },
-      { name: 'SIM', value: 'SIM' },
-      { name: 'SRP-SHA1', value: 'SRP-SHA1' },
-      { name: 'SecurID-EAP', value: 'SecurID-EAP' },
-      { name: 'SecuriSuite-EAP', value: 'SecuriSuite-EAP' },
-      { name: 'SentriNET', value: 'SentriNET' },
-      { name: 'VALUE', value: 'VALUE' },
-      { name: 'Zonelabs', value: 'Zonelabs' }
+      { text: 'AKA', value: 'AKA' },
+      { text: 'AirFortress-EAP', value: 'AirFortress-EAP' },
+      { text: 'Arcot-Systems-EAP', value: 'Arcot-Systems-EAP' },
+      { text: 'Base', value: 'Base' },
+      { text: 'CRYPTOCard', value: 'CRYPTOCard' },
+      { text: 'Cisco-LEAP', value: 'Cisco-LEAP' },
+      { text: 'Cisco-MS-CHAPv2', value: 'Cisco-MS-CHAPv2' },
+      { text: 'Cogent-Biomentric-EAP', value: 'Cogent-Biomentric-EAP' },
+      { text: 'DSS-Unilateral', value: 'DSS-Unilateral' },
+      { text: 'Defender-Token', value: 'Defender-Token' },
+      { text: 'DeviceConnect-EAP', value: 'DeviceConnect-EAP' },
+      { text: 'DynamID', value: 'DynamID' },
+      { text: 'EAP-3Com-Wireless', value: 'EAP-3Com-Wireless' },
+      { text: 'EAP-AKA2', value: 'EAP-AKA2' },
+      { text: 'EAP-Actiontec-Wireless', value: 'EAP-Actiontec-Wireless' },
+      { text: 'EAP-EVEv1', value: 'EAP-EVEv1' },
+      { text: 'EAP-FAST', value: 'EAP-FAST' },
+      { text: 'EAP-GPSK', value: 'EAP-GPSK' },
+      { text: 'EAP-HTTP-Digest', value: 'EAP-HTTP-Digest' },
+      { text: 'EAP-IKEv2', value: 'EAP-IKEv2' },
+      { text: 'EAP-Link', value: 'EAP-Link' },
+      { text: 'EAP-MOBAC', value: 'EAP-MOBAC' },
+      { text: 'EAP-MSCHAP-V2', value: 'EAP-MSCHAP-V2' },
+      { text: 'EAP-PAX', value: 'EAP-PAX' },
+      { text: 'EAP-PSK', value: 'EAP-PSK' },
+      { text: 'EAP-PWD', value: 'EAP-PWD' },
+      { text: 'EAP-SAKE', value: 'EAP-SAKE' },
+      { text: 'EAP-SPEKE', value: 'EAP-SPEKE' },
+      { text: 'EAP-TLS', value: 'EAP-TLS' },
+      { text: 'EAP-TTLS', value: 'EAP-TTLS' },
+      { text: 'Generic-Token-Card', value: 'Generic-Token-Card' },
+      { text: 'Identity', value: 'Identity' },
+      { text: 'KEA', value: 'KEA' },
+      { text: 'KEA-Validate', value: 'KEA-Validate' },
+      { text: 'MAKE', value: 'MAKE' },
+      { text: 'MD5-Challenge', value: 'MD5-Challenge' },
+      { text: 'MS-Authentication-TLV', value: 'MS-Authentication-TLV' },
+      { text: 'MS-CHAP-V2', value: 'MS-CHAP-V2' },
+      { text: 'MS-EAP-Authentication', value: 'MS-EAP-Authentication' },
+      { text: 'Microsoft-MS-CHAPv2', value: 'Microsoft-MS-CHAPv2' },
+      { text: 'NAK', value: 'NAK' },
+      { text: 'Nokia-IP-Smart-Card', value: 'Nokia-IP-Smart-Card' },
+      { text: 'None', value: 'None' },
+      { text: 'Notification', value: 'Notification' },
+      { text: 'One-Time-Password', value: 'One-Time-Password' },
+      { text: 'PEAP', value: 'PEAP' },
+      { text: 'RSA-Public-Key', value: 'RSA-Public-Key' },
+      { text: 'RSA-SecurID-EAP', value: 'RSA-SecurID-EAP' },
+      { text: 'Remote-Access-Service', value: 'Remote-Access-Service' },
+      { text: 'Rob-EAP', value: 'Rob-EAP' },
+      { text: 'SIM', value: 'SIM' },
+      { text: 'SRP-SHA1', value: 'SRP-SHA1' },
+      { text: 'SecurID-EAP', value: 'SecurID-EAP' },
+      { text: 'SecuriSuite-EAP', value: 'SecuriSuite-EAP' },
+      { text: 'SentriNET', value: 'SentriNET' },
+      { text: 'VALUE', value: 'VALUE' },
+      { text: 'Zonelabs', value: 'Zonelabs' }
     ]
   },
   [pfFieldType.GENDER]: () => {
     return [
-      { name: i18n.t('Male'), value: 'm' },
-      { name: i18n.t('Female'), value: 'f' },
-      { name: i18n.t('Other'), value: 'o' }
+      { text: i18n.t('Male'), value: 'm' },
+      { text: i18n.t('Female'), value: 'f' },
+      { text: i18n.t('Other'), value: 'o' }
     ]
   },
   [pfFieldType.NODE_STATUS]: () => {
     return [
-      { name: i18n.t('Registered'), value: 'reg' },
-      { name: i18n.t('Unregistered'), value: 'unreg' },
-      { name: i18n.t('Pending'), value: 'pending' }
+      { text: i18n.t('Registered'), value: 'reg' },
+      { text: i18n.t('Unregistered'), value: 'unreg' },
+      { text: i18n.t('Pending'), value: 'pending' }
     ]
   },
   [pfFieldType.DURATION]: () => {
-    store.dispatch('config/getBaseGuestsAdminRegistration')
-    return store.getters['config/accessDurationsList']
+    return store.dispatch('config/getBaseGuestsAdminRegistration').then(() => store.getters['config/accessDurationsList'])
   },
   [pfFieldType.DURATION_BY_ACL_USER]: () => {
-    store.dispatch('session/getAllowedUserAccessDurations')
-    return store.getters['session/allowedUserAccessDurationsList']
+    return store.dispatch('session/getAllowedUserAccessDurations').then(() => store.getters['session/allowedUserAccessDurationsList'])
   },
   [pfFieldType.DURATIONS]: () => {
-    store.dispatch('config/getBaseGuestsAdminRegistration')
-    return store.getters['config/accessDurationsList']
+    return store.dispatch('config/getBaseGuestsAdminRegistration').then(() => store.getters['config/accessDurationsList'])
   },
   [pfFieldType.OPTIONS]: ({ field }) => {
-    let options = []
     if (field === undefined) {
       throw new Error('Missing `field` in pfFieldTypeValues[pfFieldType.OPTIONS]')
     }
     if (field.options) {
-      options = field.options.map(o => {
-        // pfFieldType uses the 'name' attribute as the label.
-        const { text } = o
-        if (text) {
-          o.name = text
-        }
-        return o
-      })
+      return field.options
     }
-    return options
+    return []
   },
   [pfFieldType.REALM]: () => {
     return store.dispatch('config/getRealms', store.getters['session/tenantIdMask']).then(() => store.getters['config/realmsList'])
   },
   [pfFieldType.ROLE]: () => {
-    store.dispatch('config/getRoles')
-    return store.getters['config/rolesList']
+    return store.dispatch('config/getRoles').then(items => [
+      { value: null, text: i18n.t('empty - None') },
+      ...items.map((item) => {
+        return { value: item.category_id, text: ((item.notes) ? `${item.name} - ${item.notes}` : `${item.name}`) }
+      })
+    ])
   },
   [pfFieldType.ROLE_BY_NAME]: () => {
-    store.dispatch('config/getRoles')
-    return pfFieldTypeValues[pfFieldType.ROLE]().map(role => { return { value: role.name, name: role.name } })
+    return store.dispatch('config/getRoles').then(items => {
+      return (items || []).map((item) => {
+        return { value: item.name, text: item.name }
+      })
+    })
   },
   [pfFieldType.ROLE_BY_ACL_NODE]: () => {
-    store.dispatch('session/getAllowedNodeRoles')
-    return store.getters['session/allowedNodeRolesList']
+    return store.dispatch('session/getAllowedNodeRoles').then(() => store.getters['session/allowedNodeRolesList'])
   },
   [pfFieldType.ROLE_BY_ACL_USER]: () => {
-    store.dispatch('session/getAllowedUserRoles')
-    return store.getters['session/allowedUserRolesList']
+    return store.dispatch('session/getAllowedUserRoles').then(() => store.getters['session/allowedUserRolesList'])
   },
   [pfFieldType.ROOT_PORTAL_MODULE]: () => {
-    store.dispatch('config/getPortalModules')
-    return store.getters['config/rootPortalModulesList']
+    return store.dispatch('config/getPortalModules').then(() => store.getters['config/rootPortalModulesList'])
   },
   [pfFieldType.SOURCE]: () => {
-    store.dispatch('config/getSources')
-    return store.getters['config/sourcesList']
+    return store.dispatch('config/getSources').then(() => store.getters['config/sourcesList'])
   },
   [pfFieldType.SSID]: () => {
-    store.dispatch('config/getSsids')
-    return store.getters['config/ssidsList']
+    return store.dispatch('config/getSsids').then(() => store.getters['config/ssidsList'])
   },
   [pfFieldType.SWITCHE]: () => {
-    store.dispatch('config/getSwitches')
-    return store.getters['config/switchesList']
+    return store.dispatch('config/getSwitches').then(() => store.getters['config/switchesList'])
   },
   [pfFieldType.SWITCH_GROUP]: () => {
-    store.dispatch('config/getSwitchGroups')
-    return store.getters['config/switchGroupsList']
+    return store.dispatch('config/getSwitchGroups').then(() => store.getters['config/switchGroupsList'])
   },
   [pfFieldType.TENANT]: () => {
-    store.dispatch('config/getTenants')
-    return store.getters['config/tenantsList']
+    return store.dispatch('config/getTenants').then(() => store.getters['config/tenantsList'])
   },
   [pfFieldType.TIME_BALANCE]: () => {
     return [
-      { name: i18n.t('1 hour'), value: '1h' },
-      { name: i18n.t('3 hours'), value: '3h' },
-      { name: i18n.t('12 hours'), value: '12h' },
-      { name: i18n.t('1 day'), value: '1D' },
-      { name: i18n.t('2 days'), value: '2D' },
-      { name: i18n.t('3 days'), value: '3D' },
-      { name: i18n.t('5 days'), value: '5D' }
+      { text: i18n.t('1 hour'), value: '1h' },
+      { text: i18n.t('3 hours'), value: '3h' },
+      { text: i18n.t('12 hours'), value: '12h' },
+      { text: i18n.t('1 day'), value: '1D' },
+      { text: i18n.t('2 days'), value: '2D' },
+      { text: i18n.t('3 days'), value: '3D' },
+      { text: i18n.t('5 days'), value: '5D' }
     ]
   },
   [pfFieldType.YESNO]: () => {
     return [
-      { name: i18n.t('Yes'), value: 'yes' },
-      { name: i18n.t('No'), value: 'no' }
+      { text: i18n.t('Yes'), value: 'yes' },
+      { text: i18n.t('No'), value: 'no' }
     ]
   }
 }

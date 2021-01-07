@@ -26,12 +26,12 @@ export default {
   },
   watch: {
     active: {
-      handler (after, before) {
+      handler (a) {
         const _this = this
         if (!this.$debouncer) {
           this.$debouncer = createDebouncer()
         }
-        if (after) {
+        if (a) {
           this.lastStart = performance.now()
           this.percentage = 10
           setTimeout(this.increasePercentage, this.lastDuration / 10)

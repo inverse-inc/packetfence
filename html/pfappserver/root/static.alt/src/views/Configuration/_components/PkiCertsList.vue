@@ -93,7 +93,7 @@ export default {
     email (item) {
       const { ID, mail } = item
       if (mail) {
-        this.$store.dispatch('$_pkis/emailCert', ID).then(response => {
+        this.$store.dispatch('$_pkis/emailCert', ID).then(() => {
           this.$store.dispatch('notification/info', { message: this.$i18n.t('Certificate <code>{cn}</code> emailed to <code>{mail}</code>.', item) })
         }).catch(e => {
           this.$store.dispatch('notification/danger', { message: this.$i18n.t('Could not email certificate <code>{cn}</code> to <code>{mail}</code>: ', item) + e })

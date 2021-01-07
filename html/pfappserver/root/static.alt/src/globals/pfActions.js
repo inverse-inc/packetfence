@@ -4,8 +4,8 @@ import bytes from '@/utils/bytes'
 import i18n from '@/utils/locale'
 import {
   conditional,
-  isDateFormat,
-  isValidUnregDateByAclUser
+  //isDateFormat,
+  //isValidUnregDateByAclUser
 } from '@/globals/pfValidators'
 import {
   maxValue,
@@ -144,9 +144,9 @@ export const pfActions = {
     text: i18n.t('Set the bandwidth balance from the auth source'),
     types: [fieldType.NONE]
   },
-  default_formActions: {
-    value: 'default_formActions',
-    text: i18n.t('Execute module default formActions'),
+  default_actions: {
+    value: 'default_actions',
+    text: i18n.t('Execute module default actions'),
     types: [fieldType.NONE]
   },
   destination_url: {
@@ -171,7 +171,8 @@ export const pfActions = {
     value: 'mark_as_sponsor',
     text: i18n.t('Mark as sponsor'),
     types: [fieldType.HIDDEN],
-    staticValue: '1'
+    staticValue: '1',
+    default: '1'
   },
   no_action: {
     value: 'no_action',

@@ -7,7 +7,7 @@ import {
   validatorsFromMeta
 } from './'
 
-export const view = (form = {}, meta = {}) => {
+export const view = (_, meta = {}) => {
   return [
     {
       tab: null,
@@ -71,7 +71,7 @@ export const view = (form = {}, meta = {}) => {
   ]
 }
 
-export const validators = (form = {}, meta = {}) => {
+export const validators = (_, meta = {}) => {
   return {
     domain: validatorsFromMeta(meta, 'domain', i18n.t('Domain')),
     hostname: validatorsFromMeta(meta, 'hostname', i18n.t('Hostname')),

@@ -110,20 +110,21 @@ export default {
   },
   methods: {
     init () {
-      const { isNew, isClone, isDeletable, scanType } = this
       if (this.id) {
         // existing
         this.$store.dispatch('$_scans/optionsById', this.id).then(options => {
           const { meta = {} } = options
           this.$store.dispatch('$_scans/getScanEngine', this.id).then(form => {
-            this.$store.dispatch(`${this.formStoreName}/setMeta`, { ...meta, ...{ scanType: form.type, isNew, isClone, isDeletable } })
+            const scanType = form.type
+            const { isNew, isClone, isDeletable } = this
+            this.$store.dispatch(`${this.formStoreName}/setMeta`, { ...meta, ...{ scanType, isNew, isClone, isDeletable } })
             this.$store.dispatch(`${this.formStoreName}/setForm`, form)
-            this.scanType = form.type
             if (this.isClone) form.id = `${form.id}-${this.$i18n.t('copy')}`
           })
         })
       } else {
         // new
+        const { isNew, isClone, isDeletable, scanType } = this
         this.$store.dispatch('$_scans/optionsByScanType', this.scanType).then(options => {
           const { meta = {} } = options
           this.$store.dispatch(`${this.formStoreName}/setMeta`, { ...meta, ...{ scanType, isNew, isClone, isDeletable } })

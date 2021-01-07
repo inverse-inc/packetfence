@@ -1,7 +1,7 @@
 import i18n from '@/utils/locale'
 import pfFormRangeToggle from '@/components/pfFormRangeToggle'
 
-export const view = (form = {}, meta = {}) => {
+export const view = () => {
   return [
     {
       tab: null,
@@ -24,6 +24,4 @@ export const view = (form = {}, meta = {}) => {
   ]
 }
 
-export const validators = (form = {}, meta = {}) => {
-  return {}
-}
+export const validators = () => ({})

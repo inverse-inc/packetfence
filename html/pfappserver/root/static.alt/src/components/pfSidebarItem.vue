@@ -32,7 +32,7 @@
       >
         <div class="pf-sidebar-item ml-3">
           <text-highlight :queries="[filter]">{{ search.name }}</text-highlight>
-          <icon class="mx-1" name="trash-alt" role="button" @click.native.stop.prevent="deleteSavedSearch(search)"></icon>
+          <icon class="mx-1" name="trash-alt" role="button" @click.stop.prevent="deleteSavedSearch(search)"></icon>
         </div>
       </b-nav-item>
     </b-nav>
@@ -86,11 +86,13 @@ export default {
     if ('can' in this.item) {
       this.visible = this.$can.apply(null, this.item.can.split(' '))
     }
+    /*
     if ('saveSearchNamespace' in this.item) {
       this.$store.dispatch('saveSearch/get', this.item.saveSearchNamespace).then(savedSearches => {
-        // this.$set(this, 'savedSearches', savedSearches)
+        this.$set(this, 'savedSearches', savedSearches)
       })
     }
+    */
   }
 }
 </script>

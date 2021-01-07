@@ -87,7 +87,7 @@ export const fields = [
   }
 ]
 
-export const config = (context = {}) => {
+export const config = () => {
   return {
     columns,
     fields,
@@ -97,9 +97,6 @@ export const config = (context = {}) => {
     searchPlaceholder: i18n.t('Search by name'),
     searchableOptions: {
       searchApiEndpoint: 'config/realms',
-      searchApiHeaders: {
-        foo: 'bar'
-      },
       defaultSortKeys: [], // use natural ordering
       defaultSearchCondition: {
         op: 'and',
@@ -128,7 +125,7 @@ export const config = (context = {}) => {
   }
 }
 
-export const view = (form = {}, meta = {}) => {
+export const view = (_, meta = {}) => {
   const {
     isNew = false,
     isClone = false

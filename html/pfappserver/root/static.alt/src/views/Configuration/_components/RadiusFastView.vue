@@ -148,13 +148,13 @@ export default {
       })
     },
     remove () {
-      this.$store.dispatch('$_radius_fast/deleteRadiusFast', this.id).then(response => {
+      this.$store.dispatch('$_radius_fast/deleteRadiusFast', this.id).then(() => {
         this.close()
       })
     },
     save () {
       const actionKey = this.actionKey
-      this.$store.dispatch('$_radius_fast/updateRadiusFast', this.form).then(response => {
+      this.$store.dispatch('$_radius_fast/updateRadiusFast', this.form).then(() => {
         if (actionKey) { // [CTRL] key pressed
           this.close()
         }

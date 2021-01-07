@@ -1,6 +1,4 @@
 import i18n from '@/utils/locale'
-import pfFormChosen from '@/components/pfFormChosen'
-import pfFormInput from '@/components/pfFormInput'
 import pfFormRangeToggle from '@/components/pfFormRangeToggle'
 import pfFormTextarea from '@/components/pfFormTextarea'
 import {
@@ -8,7 +6,7 @@ import {
   validatorsFromMeta
 } from '../'
 
-export const view = (form = {}, meta = {}) => {
+export const view = (_, meta = {}) => {
   return [
     {
       tab: null,
@@ -221,7 +219,7 @@ export const view = (form = {}, meta = {}) => {
   ]
 }
 
-export const validators = (form = {}, meta = {}) => {
+export const validators = (_, meta = {}) => {
   return {
     eap_authentication_types: validatorsFromMeta(meta, 'eap_authentication_types', i18n.t('Types')),
     eap_fast_opaque_key: validatorsFromMeta(meta, 'eap_fast_opaque_key', i18n.t('Key')),

@@ -5,17 +5,16 @@
     </b-card-header>
     <b-tabs ref="tabs" v-model="tabIndex" card>
       <b-tab :title="$t('Scan Engines')" @click="changeTab('scan_engines')">
-        <scan-engines-list formStoreName="formScanEngine" />
+        <scan-engines-list />
       </b-tab>
       <b-tab :title="$t('WMI Rules')" @click="changeTab('wmi_rules')">
-        <wmi-rules-list formStoreName="formWmiRule" />
+        <wmi-rules-list />
       </b-tab>
     </b-tabs>
   </b-card>
 </template>
 
 <script>
-import FormStore from '@/store/base/form'
 import ScanEnginesList from './ScanEnginesList'
 import WmiRulesList from './WmiRulesList'
 
@@ -32,24 +31,21 @@ export default {
     }
   },
   computed: {
-    tabIndex () {
-      return [
-        'scan_engines',
-        'wmi_rules'
-      ].indexOf(this.tab)
+    tabIndex: {
+      get () {
+        return [
+          'scan_engines',
+          'wmi_rules'
+        ].indexOf(this.tab)
+      },
+      set () {
+        // noop
+      }
     }
   },
   methods: {
     changeTab (name) {
       this.$router.push(`./${name}`)
-    }
-  },
-  beforeMount () {
-    if (!this.$store.state.formScanEngine) { // Register store module only once
-      this.$store.registerModule('formScanEngine', FormStore)
-    }
-    if (!this.$store.state.formWmiRule) { // Register store module only once
-      this.$store.registerModule('formWmiRule', FormStore)
     }
   }
 }

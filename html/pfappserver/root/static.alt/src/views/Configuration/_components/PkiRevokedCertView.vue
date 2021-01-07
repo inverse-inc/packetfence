@@ -5,7 +5,6 @@
     :disabled="isLoading"
     :view="view"
     @close="close"
-    @create="create"
   >
     <template v-slot:header>
       <b-button-close @click="close" v-b-tooltip.hover.left.d300 :title="$t('Close [ESC]')"><icon name="times"></icon></b-button-close>
@@ -35,7 +34,7 @@ export default {
       required: true
     },
     id: { // from router
-      type: String,
+      type: [String, Number],
       default: null
     }
   },

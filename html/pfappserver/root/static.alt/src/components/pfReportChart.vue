@@ -30,8 +30,8 @@
                 </b-button-group>
             </b-form-row>
           </b-popover>
-          <pf-form-datetime v-model="datetimeStart" :max="maxStartDatetime" :prepend-text="$t('Start')" class="mr-3" :disabled="isLoading"></pf-form-datetime>
-          <pf-form-datetime v-model="datetimeEnd" :min="minEndDatetime" :prepend-text="$t('End')" class="mr-3" :disabled="isLoading"></pf-form-datetime>
+          <pf-form-datetime v-model="localDatetimeStart" :max="maxStartDatetime" :prepend-text="$t('Start')" class="mr-3" :disabled="isLoading"></pf-form-datetime>
+          <pf-form-datetime v-model="localDatetimeEnd" :min="minEndDatetime" :prepend-text="$t('End')" class="mr-3" :disabled="isLoading"></pf-form-datetime>
         </b-form>
       </b-col>
       <b-col cols="auto" class="mr-auto"></b-col>
@@ -50,8 +50,8 @@
 </template>
 
 <script>
-import Plotly from 'plotly.js'
-import { format, isValid, subSeconds } from 'date-fns'
+import Plotly from 'plotly.js-basic-dist-min'
+import { format, subSeconds } from 'date-fns'
 import {
   pfReportChartColorsFull as colorsFull,
   pfReportChartColorsNull as colorsNull
@@ -87,6 +87,8 @@ export default {
   },
   data () {
     return {
+      localDatetimeStart: null,
+      localDatetimeEnd: null,
       chartSizeLimit: 25,
       showPeriod: false,
       maxStartDatetime: '9999-12-12 23:59:59',
@@ -159,13 +161,13 @@ export default {
     },
     setRangeByPeriod (period) {
       this.showPeriod = false
-      this.$emit('changeDatetimeEnd', format(new Date(), 'YYYY-MM-DD HH:mm:ss'))
-      this.$emit('changeDatetimeStart', format(subSeconds(new Date(), period), 'YYYY-MM-DD HH:mm:ss'))
+      this.$emit('end', format(new Date(), 'YYYY-MM-DD HH:mm:ss'))
+      this.$emit('start', format(subSeconds(new Date(), period), 'YYYY-MM-DD HH:mm:ss'))
     }
   },
   watch: {
     items: {
-      handler: function (a, b) {
+      handler: function () {
         this.queueRender()
       },
       immediate: true,
@@ -180,18 +182,30 @@ export default {
       immediate: true,
       deep: true
     },
-    datetimeStart (a, b) {
+    datetimeStart: {
+      handler (a) {
+        this.localDatetimeStart = a
+      },
+      immediate: true
+    },
+    localDatetimeStart (a, b) {
       if (a !== b) {
         if (a.replace(/[0-9]/g, '0') === '0000-00-00 00:00:00') {
-          this.$emit('changeDatetimeStart', a)
+          this.$emit('start', a)
           this.minEndDatetime = a
         }
       }
     },
-    datetimeEnd (a, b) {
+    datetimeEnd: {
+      handler (a) {
+        this.localDatetimeEnd = a
+      },
+      immediate: true
+    },
+    localDatetimeEnd (a, b) {
       if (a !== b) {
         if (a.replace(/[0-9]/g, '0') === '0000-00-00 00:00:00') {
-          this.$emit('changeDatetimeEnd', a)
+          this.$emit('end', a)
           this.maxStartDatetime = a
         }
       }
@@ -205,7 +219,7 @@ export default {
       deep: true
     }
   },
-  beforeDestroy () {
+  beforeUnmount () {
     if (this.timeoutRender) {
       clearTimeout(this.timeoutRender)
     }

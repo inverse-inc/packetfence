@@ -33,7 +33,7 @@ const getters = {
   getFields: state => (path, fieldName, valueName) => {
     return state.cache[path]
       .sort((a, b) => a[fieldName].localeCompare(b[fieldName]))
-      .map((item, index) => {
+      .map(item => {
         const { [fieldName]: text, [valueName]: value, vendor, allowed_values } = item
         if (allowed_values) {
           return {
@@ -101,6 +101,10 @@ const mutations = {
     if (message) {
       state.message = message
     }
+  },
+  // eslint-disable-next-line no-unused-vars
+  $RESET: (state) => {
+    state = initialState()
   }
 }
 

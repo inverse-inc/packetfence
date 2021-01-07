@@ -1,4 +1,3 @@
-/* eslint-disable camelcase */
 import store from '@/store'
 import i18n from '@/utils/locale'
 import pfFieldAttributeOperatorValue from '@/components/pfFieldAttributeOperatorValue'
@@ -147,9 +146,7 @@ const administrationRuleActions = (form, meta = {}) => {
       return {
         ...action,
         attrs: {
-          options: allowed.map(o => {
-            return { name: o.text, value: o.value }
-          })
+          options: allowed
         }
       }
     }
@@ -180,9 +177,7 @@ const authenticationRuleActions = (form, meta = {}) => {
       return {
         ...action,
         attrs: {
-          options: allowed.map(o => {
-            return { name: o.text, value: o.value }
-          })
+          options: allowed
         }
       }
     }

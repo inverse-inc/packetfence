@@ -9,7 +9,7 @@
 <template>
   <component class="v-switch-wrapper" :class="{ 'is-focus': focus }" :is="wrapper" :label-cols="(columnLabel) ? 3 : 0" :label="$t(columnLabel)">
     <b-input type="text" name="vaccum" readonly :value="null" style="position: absolute; width: 1px; height: 1px; left: -9999px; padding: 0px; border: 0px;"
-      @focus.native="focus = true" @blur.native="focus = false" @keyup.native.space="toggle"><!-- Vaccum tabIndex --></b-input>
+      @focus="focus = true" @blur="focus = false" @keyup.space="toggle"><!-- Vaccum tabIndex --></b-input>
     <label role="checkbox"
           :class="className"
           :aria-checked="ariaChecked">
@@ -74,16 +74,9 @@ export default {
       default: false
     },
     color: {
-      type: [String, Object],
-      default: () => ({
-        checked: constants.colorChecked,
-        unchecked: constants.colorUnchecked
-      }),
-      validator (value) {
-        return typeof value === 'object'
-          ? (value.checked || value.unchecked)
-          : typeof value === 'string'
-      }
+      type: Object,
+      default: () => ({ checked: constants.colorChecked, unchecked: constants.colorUnchecked }),
+      validator: (value) => (Object.keys(value).length === 0 || 'checked' in value || 'unchecked' in value),
     },
     cssColors: {
       type: Boolean,
@@ -186,7 +179,7 @@ export default {
     }
   },
   watch: {
-    value (a, b) {
+    value (a) {
       this.toggled = (typeof this.values === 'object')
         ? (a === this.values.checked)
         : !!a

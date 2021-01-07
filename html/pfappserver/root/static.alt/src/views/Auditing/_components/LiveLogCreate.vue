@@ -18,7 +18,7 @@
               :state="state('files')"
               :invalid-feedback="invalidFeedback('files')"
               :close-on-select="false"
-              label="name" track-by="value"
+              label="text" track-by="value"
             />
             <pf-form-input :column-label="$t('Filter')"
               v-model="form.filter"

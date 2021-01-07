@@ -45,7 +45,6 @@
                     :is-loading="isLoading"
                     :class="getClass(row, col)"
                     :disabled="(col.attrs && col.attrs.disabled) || disabled"
-                    v-once
                   ><span v-if="col.html">{{ col.html }}</span></component>
                 </template>
               </b-input-group>
@@ -63,7 +62,6 @@
 import uuidv4 from 'uuid/v4'
 import pfButtonSave from '@/components/pfButtonSave'
 import pfButtonDelete from '@/components/pfButtonDelete'
-import pfFormInput from '@/components/pfFormInput'
 import { createDebouncer } from 'promised-debounce'
 
 export default {
@@ -82,7 +80,7 @@ export default {
       default: null
     },
     view: {
-      type: Object,
+      type: Array,
       required: true
     },
     isLoading: {
@@ -139,10 +137,8 @@ export default {
           // eslint-disable-next-line vue/no-side-effects-in-computed-properties
           this.tabErrorCountCache = this.conditionalView.map(() => 0)
         }
-        // eslint-disable-next-line vue/no-side-effects-in-computed-properties
         this.tabErrorCountDebouncer({
           handler: () => {
-          // eslint-disable-next-line vue/no-side-effects-in-computed-properties
             this.tabErrorCountCache = this.conditionalView.map(view => {
               return view.rows.reduce((rowCount, row) => {
                 if (!('cols' in row)) return rowCount

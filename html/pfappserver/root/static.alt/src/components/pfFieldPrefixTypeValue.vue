@@ -1,7 +1,5 @@
 <template>
-  <b-row class="pf-field-type-value mx-0 mb-1 px-0" align-v="center" no-gutters
-    v-on="forwardListeners"
-  >
+  <b-row class="pf-field-type-value mx-0 mb-1 px-0" align-v="center" no-gutters>
     <b-col v-if="$slots.prepend" sm="1" align-self="start" class="text-center col-form-label">
       <slot name="prepend"></slot>
     </b-col>
@@ -25,7 +23,6 @@
         v-bind="typeAttrs"
         :form-store-name="formStoreName"
         :form-namespace="`${formNamespace}.type`"
-        v-on="forwardListeners"
         label="text"
         track-by="value"
         :placeholder="typeLabel"
@@ -47,7 +44,7 @@
         :close-on-select="isComponentType([componentType.SELECTONE])"
         :placeholder="valuePlaceholder"
         :disabled="disabled"
-        label="name"
+        label="text"
         track-by="value"
       />
 
@@ -214,10 +211,6 @@ export default {
     valuePlaceholder () {
       const { field: { placeholder } = {} } = this
       return placeholder || null
-    },
-    forwardListeners () {
-      const { input, ...listeners } = this.$listeners
-      return listeners
     }
   },
   methods: {
@@ -264,7 +257,7 @@ export default {
   },
   watch: {
     localPrefix: {
-      handler: function (a, b) {
+      handler: function () {
         if (!this.drag) { // don't focus when being dragged
           this.$nextTick(() => {
             this.focus()
@@ -273,7 +266,7 @@ export default {
       }
     },
     localType: {
-      handler: function (a, b) {
+      handler: function () {
         if (!this.drag) { // don't focus when being dragged
           const field = this.field
           if (field && 'staticValue' in field) {

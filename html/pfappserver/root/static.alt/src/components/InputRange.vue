@@ -21,7 +21,6 @@
         </div>
       </div>
       <input
-        v-on="forwardListeners"
         type="range"
         :tabindex="tabIndex"
         :value="inputValue"
@@ -45,15 +44,15 @@ export default {
       default: null
     },
     min: {
-      type: Number,
+      type: [String, Number],
       default: 0
     },
     max: {
-      type: Number,
+      type: [String, Number],
       default: 100
     },
     step: {
-      type: Number,
+      type: [String, Number],
       default: 1
     },
     disabled: {
@@ -85,11 +84,11 @@ export default {
       default: true
     },
     width: {
-      type: Number,
+      type: [String, Number],
       default: 40
     },
     tabIndex: {
-      type: Number,
+      type: [String, Number],
       default: 0
     }
   },
@@ -101,10 +100,6 @@ export default {
       set (newValue) {
         this.$emit('input', newValue)
       }
-    },
-    forwardListeners () {
-      const { input, ...listeners } = this.$listeners
-      return listeners
     }
   },
   methods: {
@@ -114,11 +109,11 @@ export default {
         this.$set(this, 'inputValue', $event.target.value)
       }
     },
-    clickMin ($event) {
+    clickMin () {
       if (this.disabled) return
       this.$set(this, 'inputValue', this.min)
     },
-    clickMax ($event) {
+    clickMax () {
       if (this.disabled) return
       this.$set(this, 'inputValue', this.max)
     },

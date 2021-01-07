@@ -47,6 +47,11 @@ export default {
       config: config(this) // ../_config/syslogForwarder
     }
   },
+  computed: {
+    isLoading () {
+      return this.$store.getters['$_syslog_forwarders/isLoading']
+    }
+  },
   methods: {
     clone (item) {
       this.$router.push({ name: 'cloneSyslogForwarder', params: { id: item.id } })

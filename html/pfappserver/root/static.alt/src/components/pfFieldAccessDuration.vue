@@ -1,7 +1,5 @@
 <template>
-  <b-form-row class="pf-field-access-duration mx-0 mb-1 px-0" align-v="center"
-    v-on="forwardListeners"
-  >
+  <b-form-row class="pf-field-access-duration mx-0 mb-1 px-0" align-v="center">
     <b-col v-if="$slots.prepend" cols="1" align-self="start" class="text-center col-form-label">
       <slot name="prepend"></slot>
     </b-col>
@@ -165,10 +163,6 @@ export default {
     },
     localExtendedUnit () {
       return this.inputValue.extendedUnit
-    },
-    forwardListeners () {
-      const { input, ...listeners } = this.$listeners
-      return listeners
     },
     example () {
       if (this.formStoreState.$invalid) return '0000-00-00 00:00:00'

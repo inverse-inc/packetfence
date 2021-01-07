@@ -45,6 +45,11 @@ export default {
       roles: []
     }
   },
+  computed: {
+    isLoading () {
+      return this.$store.getters['$_roles/isLoading']
+    }
+  },
   methods: {
     init () {
       this.$store.dispatch('$_roles/all').then(roles => {
@@ -56,7 +61,7 @@ export default {
       })
     },
     remove (item) {
-      this.$store.dispatch('$_traffic_shaping_policies/deleteTrafficShapingPolicy', item.id).then(response => {
+      this.$store.dispatch('$_traffic_shaping_policies/deleteTrafficShapingPolicy', item.id).then(() => {
         const { $refs: { pfConfigList: { refreshList = () => {} } = {} } = {} } = this
         refreshList() // soft reload
         this.init()

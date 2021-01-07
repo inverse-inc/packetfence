@@ -1,5 +1,5 @@
 import i18n from '@/utils/locale'
-import api from '@/views/Configuration/_api'
+import api from '../../fingerbank/_api'
 import pfFormInput from '@/components/pfFormInput'
 import { pfSearchConditionType as conditionType } from '@/globals/pfSearch'
 import {
@@ -89,7 +89,7 @@ export const config = (context = {}) => {
   }
 }
 
-export const view = (form = {}, meta = {}) => {
+export const view = (_, meta = {}) => {
   const {
     isNew = false,
     isClone = false
@@ -125,7 +125,7 @@ export const view = (form = {}, meta = {}) => {
   ]
 }
 
-export const validators = (form = {}, meta = {}) => {
+export const validators = () => {
   return {
     value: {
       [i18n.t('Vendor required.')]: required

@@ -44,8 +44,7 @@ Since this is a SPA (Single-Page Application), it is currently accessible from `
 * [vue2vis](https://github.com/alexcode/vue2vis/) -- VueJS to Vis
  * [vis](http://visjs.org/) -- Vis
 * [vue-timeago](https://github.com/egoist/vue-timeago) -- show relative time
-* [Plotly](https://plot.ly/javascript/reference/) -- svg charts
-* [vue-plotly](https://github.com/David-Desmaisons/vue-plotly)
+* [plotly.js-basic-dist-min](https://plot.ly/javascript/reference/) -- svg charts
 * [date-fns](https://date-fns.org/docs/Getting-Started) -- datetime utils
 * [vue-flatpickr-component](https://github.com/ankurk91/vue-flatpickr-component) -- datetime picker
 * [papaparse](https://www.papaparse.com/) -- parse CSV
@@ -57,6 +56,8 @@ Since this is a SPA (Single-Page Application), it is currently accessible from `
  * [ace](https://ace.c9.io/)
 * [d3-force](https://github.com/d3/d3-force) -- d3 force directed graphs
 * [typeface-b612-mono](https://www.npmjs.com/package/typeface-b612-mono) -- small fonts
+* [mime-type](https://github.com/jshttp/mime-types) -- mime/content-type
+* [yup](https://github.com/jquense/yup) -- validation schema
 
 ## Files Structure
 
@@ -65,6 +66,8 @@ Since this is a SPA (Single-Page Application), it is currently accessible from `
 ├── main.js
 ├── App.vue
 ├── components           # shared components
+│   └── ...
+├── composables          # shared composition
 │   └── ...
 ├── views
 │   ├── Login            # login page

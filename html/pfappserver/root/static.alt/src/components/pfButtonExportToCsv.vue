@@ -20,16 +20,13 @@ export default {
       default: 'outline-primary'
     },
     searchableStoreName: {
-      type: String,
-      required: true
+      type: String
     },
     searchableOptions: {
-      type: Object,
-      required: true
+      type: Object
     },
     columns: {
-      type: Array,
-      required: true
+      type: Array
     },
     data: {
       type: Array,

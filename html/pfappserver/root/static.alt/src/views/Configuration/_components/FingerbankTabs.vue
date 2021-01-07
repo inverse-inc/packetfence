@@ -9,10 +9,10 @@
     </b-card-header>
     <b-tabs ref="tabs" v-model="tabIndex" card>
       <b-tab :title="$t('General Settings')" @click="changeTab('general_settings')">
-        <fingerbank-general-setting-view form-store-name="formFingerbankGeneralSettings" />
+        <fingerbank-general-setting-view />
       </b-tab>
       <b-tab :title="$t('Device change detection')" @click="changeTab('device_change_detection')">
-        <fingerbank-device-change-detection-view form-store-name="formFingerbankDeviceChangeDetection" />
+        <fingerbank-device-change-detection-view />
       </b-tab>
       <b-tab :title="$t('Combinations')" @click="changeTab('combinations')">
         <fingerbank-combinations-list />
@@ -43,9 +43,8 @@
 </template>
 
 <script>
-import FormStore from '@/store/base/form'
-import FingerbankGeneralSettingView from './FingerbankGeneralSettingView'
-import FingerbankDeviceChangeDetectionView from './FingerbankDeviceChangeDetectionView'
+import FingerbankGeneralSettingView from '../fingerbank/generalSettings/_components/TheView'
+import FingerbankDeviceChangeDetectionView from '../fingerbank/deviceChangeDetection/_components/TheView'
 import FingerbankCombinationsList from './FingerbankCombinationsList'
 import FingerbankDevicesList from './FingerbankDevicesList'
 import FingerbankDhcpFingerprintsList from './FingerbankDhcpFingerprintsList'
@@ -80,19 +79,24 @@ export default {
     }
   },
   computed: {
-    tabIndex () {
-      return [
-        'general_settings',
-        'device_change_detection',
-        'combinations',
-        'devices',
-        'dhcp_fingerprints',
-        'dhcp_vendors',
-        'dhcpv6_fingerprints',
-        'dhcpv6_enterprises',
-        'mac_vendors',
-        'user_agents'
-      ].indexOf(this.tab)
+    tabIndex: {
+      get () {
+        return [
+          'general_settings',
+          'device_change_detection',
+          'combinations',
+          'devices',
+          'dhcp_fingerprints',
+          'dhcp_vendors',
+          'dhcpv6_fingerprints',
+          'dhcpv6_enterprises',
+          'mac_vendors',
+          'user_agents'
+        ].indexOf(this.tab)
+      },
+      set () {
+        // noop
+      }
     },
     isUpdateDatabaseLoading () {
       return this.$store.getters['$_fingerbank/isUpdateDatabaseLoading']
@@ -104,14 +108,6 @@ export default {
     },
     updateDatabase () {
       this.$store.dispatch('$_fingerbank/updateDatabase')
-    }
-  },
-  beforeMount () {
-    if (!this.$store.state.formFingerbankGeneralSettings) { // Register store module only once
-      this.$store.registerModule('formFingerbankGeneralSettings', FormStore)
-    }
-    if (!this.$store.state.formFingerbankDeviceChangeDetection) { // Register store module only once
-      this.$store.registerModule('formFingerbankDeviceChangeDetection', FormStore)
     }
   }
 }

@@ -69,7 +69,7 @@ export const fields = [
   }
 ]
 
-export const config = (context = {}) => {
+export const config = () => {
   return {
     columns,
     fields,
@@ -187,7 +187,7 @@ export const view = (form = {}, meta = {}) => {
   ]
 }
 
-export const validators = (form = {}, meta = {}) => {
+export const validators = (_, meta = {}) => {
   const {
     isNew = false,
     isClone = false

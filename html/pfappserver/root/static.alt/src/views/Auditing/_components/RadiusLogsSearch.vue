@@ -135,8 +135,6 @@ export default {
   },
   data () {
     return {
-      sortBy: 'created_at',
-      sortDesc: true,
       // Fields must match the database schema
       fields: [ // keys match with b-form-select
         {

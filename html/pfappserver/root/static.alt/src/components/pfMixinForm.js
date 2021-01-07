@@ -31,7 +31,7 @@ export default {
   },
   data () {
     return {
-      $inputDebouncer: false
+      inputDebouncer: false
     }
   },
   computed: {
@@ -43,13 +43,15 @@ export default {
     },
     formStoreValue: {
       get () {
-        return this.vModel[this.formNamespace]
+        return (this.formNamespace)
+          ? this.vModel[this.formNamespace]
+          : null
       },
       set (newValue) {
-        if (!this.$inputDebouncer) {
-          this.$inputDebouncer = createDebouncer()
+        if (!this.inputDebouncer) {
+          this.inputDebouncer = createDebouncer()
         }
-        this.$inputDebouncer({
+        this.inputDebouncer({
           handler: () => {
             this.vModel[this.formNamespace] = newValue
           },

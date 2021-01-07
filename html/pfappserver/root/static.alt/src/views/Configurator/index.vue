@@ -30,7 +30,7 @@ export default {
       return Promise.reject(error)
     })
   },
-  beforeDestroy () {
+  beforeUnmount () {
     apiCall.interceptors.request.eject(this.requestInterceptor)
     apiCall.interceptors.response.eject(this.responseInterceptor)
   }

@@ -36,8 +36,13 @@ export default {
     }
   },
   computed: {
-    tabIndex () {
-      return ['switches', 'switch_groups'].indexOf(this.tab)
+    tabIndex: {
+      get () {
+        return ['switches', 'switch_groups'].indexOf(this.tab)
+      },
+      set () {
+        // noop
+      }
     }
   },
   methods: {

@@ -54,7 +54,7 @@
                   :form-store-name="formStoreName" form-namespace="single.gender"
                   :placeholder="$t('Choose gender')"
                   :options="genders"
-                  label="name" track-by="value"
+                  label="text" track-by="value"
                 />
                 <pf-form-input :column-label="$t('Title')"
                   :form-store-name="formStoreName" form-namespace="single.title"
@@ -252,6 +252,11 @@
 </template>
 
 <script>
+import {
+  BaseInput,
+  BaseFormGroup
+} from '@/components/new/'
+
 import pfFieldTypeValue from '@/components/pfFieldTypeValue'
 import pfFormChosen from '@/components/pfFormChosen'
 import pfFormDatetime from '@/components/pfFormDatetime'
@@ -274,9 +279,13 @@ import {
   passwordOptions
 } from '../_config/'
 
+/* eslint-disable vue/no-unused-components */
 export default {
   name: 'users-create',
   components: {
+    BaseInput,
+    BaseFormGroup,
+
     pfFormChosen,
     pfFormDatetime,
     pfFormFields,
@@ -346,6 +355,15 @@ export default {
     }
   },
   methods: {
+    test () {
+      return new Promise(resolve => {
+        setTimeout(() => {
+          resolve(new Error('GTFO'))
+        }, 3000)
+      })
+    },
+
+
     init () {
       // setup form store module
       this.$store.dispatch(`${this.formStoreName}/setForm`, createForm)

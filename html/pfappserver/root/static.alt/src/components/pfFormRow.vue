@@ -29,8 +29,8 @@ export default {
   },
   mounted () {
     // Propagate id to the first element of the default slot
-    if (this.id && this.$slots.default.length) {
-      this.$slots.default[0].elm.id = this.id
+    if (this.id && this.$slots.default().length) {
+      this.$slots.default()[0].elm.id = this.id
     }
   }
 }

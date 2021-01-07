@@ -7,7 +7,7 @@ import {
   validatorsFromMeta
 } from './'
 
-export const view = (form = {}, meta = {}) => {
+export const view = (_, meta = {}) => {
   return [
     {
       tab: null,
@@ -165,7 +165,7 @@ export const view = (form = {}, meta = {}) => {
   ]
 }
 
-export const validators = (form = {}, meta = {}) => {
+export const validators = (_, meta = {}) => {
   return {
     wait_for_redirect: validatorsFromMeta(meta, 'wait_for_redirect', i18n.t('Wait')),
     whitelist: validatorsFromMeta(meta, 'whitelist', i18n.t('Whitelist')),

@@ -21,6 +21,6 @@ dist:
 		echo "Nothing to commit; skipping git-commit"; \
 	fi
 
-
 light-dist:
 	npm run build
+

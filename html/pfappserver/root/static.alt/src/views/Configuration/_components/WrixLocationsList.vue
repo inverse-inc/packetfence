@@ -43,6 +43,11 @@ export default {
       config: config(this) // ../_config/wrixLocation
     }
   },
+  computed: {
+    isLoading () {
+      return this.$store.getters['$_wrix_locations/isLoading']
+    }
+  },
   methods: {
     clone (item) {
       this.$router.push({ name: 'cloneWrixLocation', params: { id: item.id } })

@@ -8,7 +8,6 @@
       <multiselect ref="multiselect"
         v-model="multiselectValue"
         v-bind="$attrs"
-        v-on="forwardListeners"
         track-by="value"
         label="text"
         :disabled="disabled"
@@ -122,10 +121,6 @@ export default {
     },
     multiselectTagPlaceholder () {
       return this.tagPlaceholder || this.$i18n.t('Click to add value')
-    },
-    forwardListeners () {
-      const { input, ...listeners } = this.$listeners
-      return listeners
     }
   },
   methods: {

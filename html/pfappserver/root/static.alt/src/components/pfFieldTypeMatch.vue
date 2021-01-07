@@ -1,7 +1,5 @@
 <template>
-  <b-form-row class="pf-field-type-match mx-0 mb-1 px-0" align-v="center" no-gutters
-    v-on="forwardListeners"
-  >
+  <b-form-row class="pf-field-type-match mx-0 mb-1 px-0" align-v="center" no-gutters>
     <b-col v-if="$slots.prepend" cols="1" align-self="start" class="pt-1 text-center col-form-label">
       <slot name="prepend"></slot>
     </b-col>
@@ -10,7 +8,6 @@
       <pf-form-chosen ref="type"
         :form-store-name="formStoreName"
         :form-namespace="`${formNamespace}.type`"
-        v-on="forwardListeners"
         label="text"
         track-by="value"
         :placeholder="typeLabel"
@@ -34,7 +31,7 @@
         :disabled="disabled"
         :taggable="field.taggable"
         :tag-placeholder="field.tagPlaceholder || $t('Click to add new option')"
-        label="name"
+        label="text"
         track-by="value"
         collapse-object
         @tag="addUserTaggedOption"
@@ -194,10 +191,6 @@ export default {
     matchPlaceholder () {
       const { field: { placeholder } = {} } = this
       return placeholder || null
-    },
-    forwardListeners () {
-      const { input, ...listeners } = this.$listeners
-      return listeners
     }
   },
   methods: {
@@ -231,7 +224,7 @@ export default {
   },
   watch: {
     localType: {
-      handler: function (a, b) {
+      handler: function () {
         if (!this.drag) { // don't focus when being dragged
           const field = this.field
           if (field && 'staticValue' in field) {

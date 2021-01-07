@@ -14,7 +14,6 @@
 </template>
 
 <script>
-import i18n from '@/utils/locale'
 export default {
   name: 'pf-empty-table',
   props: {

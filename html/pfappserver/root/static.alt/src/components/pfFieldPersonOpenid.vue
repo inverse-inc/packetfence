@@ -1,7 +1,5 @@
 <template>
-  <b-row class="pf-field-person-openid mx-0 mb-1 px-0" align-v="center" no-gutters
-    v-on="forwardListeners"
-  >
+  <b-row class="pf-field-person-openid mx-0 mb-1 px-0" align-v="center" no-gutters>
     <b-col v-if="$slots.prepend" sm="1" align-self="start" class="text-center col-form-label">
       <slot name="prepend"></slot>
     </b-col>
@@ -10,7 +8,6 @@
       <pf-form-chosen ref="person_field"
         :form-store-name="formStoreName"
         :form-namespace="`${formNamespace}.person_field`"
-        v-on="forwardListeners"
         label="text"
         track-by="value"
         :placeholder="$t('Choose User field')"
@@ -89,10 +86,6 @@ export default {
     },
     localOpenid () {
       return this.inputValue.openid_field
-    },
-    forwardListeners () {
-      const { input, ...listeners } = this.$listeners
-      return listeners
     }
   },
   methods: {
@@ -114,7 +107,7 @@ export default {
   },
   watch: {
     localPerson: {
-      handler: function (a, b) {
+      handler: function () {
         if (!this.drag) { // don't focus when being dragged
           this.$set(this.formStoreValue, 'openid_field', null) // clear value
           this.$nextTick(() => {

@@ -118,10 +118,10 @@ export default {
         this.$store.dispatch('$_firewalls/optionsById', this.id).then(options => {
           const { meta = {} } = options
           this.$store.dispatch('$_firewalls/getFirewall', this.id).then(form => {
-            this.firewallType = form.type
+            const firewallType = form.type
             if (this.isClone) form.id = `${form.id}-${this.$i18n.t('copy')}`
             this.$store.dispatch(`${this.formStoreName}/setForm`, form)
-            const { isNew, isClone, firewallType } = this
+            const { isNew, isClone} = this
             this.$store.dispatch(`${this.formStoreName}/setMeta`, { ...meta, ...{ isNew, isClone, firewallType } })
           })
         })
@@ -136,15 +136,15 @@ export default {
       }
       this.$store.dispatch(`${this.formStoreName}/setFormValidations`, validators)
     },
-    close (event) {
+    close () {
       this.$router.push({ name: 'firewalls' })
     },
     clone () {
       this.$router.push({ name: 'cloneFirewall' })
     },
-    create (event) {
+    create () {
       const actionKey = this.actionKey
-      this.$store.dispatch('$_firewalls/createFirewall', this.form).then(response => {
+      this.$store.dispatch('$_firewalls/createFirewall', this.form).then(() => {
         if (actionKey) { // [CTRL] key pressed
           this.close()
         } else {
@@ -152,16 +152,16 @@ export default {
         }
       })
     },
-    save (event) {
+    save () {
       const actionKey = this.actionKey
-      this.$store.dispatch('$_firewalls/updateFirewall', this.form).then(response => {
+      this.$store.dispatch('$_firewalls/updateFirewall', this.form).then(() => {
         if (actionKey) { // [CTRL] key pressed
           this.close()
         }
       })
     },
-    remove (event) {
-      this.$store.dispatch('$_firewalls/deleteFirewall', this.id).then(response => {
+    remove () {
+      this.$store.dispatch('$_firewalls/deleteFirewall', this.id).then(() => {
         this.close()
       })
     },
@@ -174,12 +174,12 @@ export default {
   },
   watch: {
     id: {
-      handler: function (a, b) {
+      handler: function () {
         this.init()
       }
     },
     isClone: {
-      handler: function (a, b) {
+      handler: function () {
         this.init()
       }
     },

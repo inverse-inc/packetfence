@@ -1,5 +1,3 @@
-/* eslint-disable camelcase */
-import Vue from 'vue'
 import store from '@/store'
 import i18n from '@/utils/locale'
 import pfFieldApiMethodParameters from '@/components/pfFieldApiMethodParameters'
@@ -72,7 +70,7 @@ const actionsFieldsFromMeta = (meta = {}) => {
 }
 
 const answerFieldsFromMeta = (meta = {}) => {
-  const { answers: { item: { properties: { prefix: { allowed: prefixes } = {}, type: { allowed = [], allowed_lookup: { search_path: searchPath, field_name: fieldName, value_name: valueName } = {} } = {} } = {} } = {} } = {} } = meta
+  const { answers: { item: { properties: { type: { allowed = [], allowed_lookup: { search_path: searchPath, field_name: fieldName, value_name: valueName } = {} } = {} } = {} } = {} } = {} } = meta
   if (searchPath) {
     store.dispatch('lookup/postSearchPath', searchPath) // prime cache
     return store.getters['lookup/getFields'](searchPath, fieldName, valueName)
@@ -91,7 +89,7 @@ const fieldOperatorsFromMeta = (meta = {}) => {
       return {
         text,
         value,
-        options: allowed_values.sort((a, b) => {
+        options: allowed_values.concat().sort((a, b) => {
           return a.text.localeCompare(b.text)
         })
       }
@@ -134,7 +132,6 @@ const valuesOperatorsFromMeta = (meta = {}) => {
 
 export const viewFields = {
   id: (form, meta = {}) => {
-    const { isNew = false, isClone = false } = meta
     return {
       label: i18n.t('Name'),
       text: i18n.t('Specify a unique name for your filter.'),
@@ -331,7 +328,7 @@ export const viewFields = {
       ]
     }
   },
-  run_actions: (form, meta = {}) => {
+  run_actions: () => {
     return {
       label: i18n.t('Peform Actions'),
       text: i18n.t('Enable to perform the following actions. Disable to only apply the role.'),
@@ -370,7 +367,7 @@ export const viewFields = {
       ]
     }
   },
-  status: (form, meta = {}) => {
+  status: () => {
     return {
       label: i18n.t('Enabled'),
       cols: [
@@ -468,11 +465,11 @@ export const validatorFields = {
     }
   },
   actions: (form, meta = {}) => {
-    const { actions = [], run_actions } = form
+    const { actions = [] } = form
     return {
       actions: {
         ...validatorsFromMeta(meta, 'actions', i18n.t('Actions')),
-        ...(actions || []).map((action) => {
+        ...(actions || []).map(() => {
           return {
             api_method: {
               [i18n.t('Method required.')]: required,
@@ -505,7 +502,7 @@ export const validatorFields = {
       }, {})
 
     const validator = (meta = {}, condition = {}, level = 0) => {
-      const { field, op, value, values } = condition
+      const { op, values } = condition
       if (values && values.constructor === Array) { // op
         return {
           op: {
@@ -551,7 +548,7 @@ export const validatorFields = {
       condition: validator(meta, condition)
     }
   },
-  description: (form, meta = {}) => {
+  description: () => {
     return {
       description: {
         [i18n.t('Description required.')]: required

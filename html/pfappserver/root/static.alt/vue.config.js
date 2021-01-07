@@ -1,3 +1,5 @@
+const { BundleAnalyzerPlugin } = require('webpack-bundle-analyzer')
+
 module.exports = {
   publicPath: '/admin/alt',
   outputDir: 'dist',
@@ -32,5 +34,14 @@ module.exports = {
       config.optimization.minimize(false)
       config.optimization.delete('minimizer')
     }
-  }
+  },
+  configureWebpack: config => {
+    if (process.env.VUE_APP_DEBUG === 'true') {
+      config.plugins.push(new BundleAnalyzerPlugin({
+        analyzerMode: 'static',
+        openAnalyzer: false
+      }))
+    }
+  },
+  runtimeCompiler: true
 }

@@ -53,7 +53,7 @@
             </b-dropdown-item>
             <b-dropdown-divider></b-dropdown-divider>
             <b-dropdown-header>{{ $t('Apply Role') }}</b-dropdown-header>
-            <b-dropdown-item v-for="role in roles" :key="role.category_id" @click="applyBulkRole(role)">
+            <b-dropdown-item v-for="role in roles" :key="`role-${role.category_id}`" @click="applyBulkRole(role)">
               <span class="d-block" v-b-tooltip.hover.left.d300.window :title="role.notes">{{role.name}}</span>
             </b-dropdown-item>
             <b-dropdown-item @click="applyBulkRole({category_id: null})">
@@ -64,7 +64,7 @@
             </b-dropdown-item>
             <b-dropdown-divider></b-dropdown-divider>
             <b-dropdown-header>{{ $t('Apply Bypass Role') }}</b-dropdown-header>
-            <b-dropdown-item v-for="role in roles" :key="role.category_id" @click="applyBulkBypassRole(role)">
+            <b-dropdown-item v-for="role in roles" :key="`bypass_role-${role.category_id}`" @click="applyBulkBypassRole(role)">
               <span class="d-block" v-b-tooltip.hover.left.d300.window :title="role.notes">{{role.name}}</span>
             </b-dropdown-item>
             <b-dropdown-item @click="applyBulkBypassRole({category_id: null})">
@@ -76,7 +76,7 @@
             <template v-if="$can.apply(null, ['read', 'security_events'])">
               <b-dropdown-divider></b-dropdown-divider>
               <b-dropdown-header>{{ $t('Apply Security Event') }}</b-dropdown-header>
-              <b-dropdown-item v-for="security_event in security_events" :key="security_event.id" @click="applyBulkSecurityEvent(security_event)" v-b-tooltip.hover.left.d300 :title="security_event.id">
+              <b-dropdown-item v-for="security_event in security_events" :key="`security_event-${security_event.id}`" @click="applyBulkSecurityEvent(security_event)" v-b-tooltip.hover.left.d300 :title="security_event.id">
                 <span>{{security_event.desc}}</span>
               </b-dropdown-item>
             </template>
@@ -85,12 +85,12 @@
             <template v-slot:button-content>
               <icon name="columns" v-b-tooltip.hover.top.d300.window :title="$t('Visible Columns')"></icon>
             </template>
-            <template v-for="column in columns">
-              <b-dropdown-item :key="column.key" v-if="column.locked" disabled>
+            <template v-for="(column, columnIndex) in columns">
+              <b-dropdown-item :key="`dropdown-${columnIndex}`" v-if="column.locked" disabled>
                 <icon class="position-absolute mt-1" name="thumbtack"></icon>
                 <span class="ml-4">{{ $t(column.label) }}</span>
               </b-dropdown-item>
-              <a :key="column.key" v-else href="javascript:void(0)" :disabled="column.locked" class="dropdown-item" @click.stop="toggleColumn(column)">
+              <a :key="`icon-${columnIndex}`" v-else href="javascript:void(0)" :disabled="column.locked" class="dropdown-item" @click.stop="toggleColumn(column)">
                 <icon class="position-absolute mt-1" name="check" v-show="column.visible"></icon>
                 <span class="ml-4">{{ $t(column.label) }}</span>
               </a>
@@ -134,7 +134,7 @@
         </template>
         <template v-slot:cell(actions)="item">
           <div class="text-nowrap">
-            <b-form-checkbox :id="item.value" :value="item.item" v-model="selectValues" @click.native.stop="onToggleSelected($event, item.index)"></b-form-checkbox>
+            <b-form-checkbox :id="item.value" :value="item.item" v-model="selectValues" @click.stop="onToggleSelected($event, item.index)"></b-form-checkbox>
             <icon name="exclamation-triangle" class="ml-1" v-if="tableValues[item.index] && tableValues[item.index]._rowMessage" v-b-tooltip.hover.right :title="tableValues[item.index]._rowMessage"></icon>
           </div>
         </template>
@@ -155,9 +155,6 @@
         </template>
         <template v-slot:cell(device_score)="item">
           <pf-fingerbank-score :score="item.value"></pf-fingerbank-score>
-        </template>
-        <template v-slot:cell(locationlog.switch_ip)="item">
-          <b-button variant="link" :to="{ name: 'switch', params: { id: item.value } }">{{ item.value }}</b-button>
         </template>
         <template v-slot:cell(buttons)="item">
           <span class="float-right text-nowrap text-right">
@@ -225,6 +222,7 @@ export default {
       default: () => ({
         searchApiEndpoint: 'nodes',
         defaultSortKeys: ['mac'],
+        defaultSortDesc: false,
         defaultSearchCondition: {
           op: 'and',
           values: [{
@@ -241,9 +239,7 @@ export default {
   },
   data () {
     return {
-      tableValues: Array,
-      sortBy: 'mac',
-      sortDesc: false,
+      tableValues: [],
       requestPage: 1,
       currentPage: 1,
       pageSizeLimit: 10,

@@ -102,25 +102,25 @@
                   <b-badge variant="danger" v-else>{{ $t('Inactive') }}</b-badge>
               </pf-form-row>
               <pf-form-row class="text-nowrap" :column-label="$t('Detect Date')">
-                {{ node.detect_date | longDateTime }}
+                {{ $filters.longDateTime(node.detect_date) }}
               </pf-form-row>
               <pf-form-row class="text-nowrap" :column-label="$t('Registration Date')">
-                {{ node.regdate | longDateTime }}
+                {{ $filters.longDateTime(node.regdate) }}
               </pf-form-row>
               <pf-form-row class="text-nowrap" :column-label="$t('Unregistration Date')">
-                {{ node.unregdate | longDateTime }}
+                {{ $filters.longDateTime(node.unregdate) }}
               </pf-form-row>
               <pf-form-row class="text-nowrap" :column-label="$t('Last ARP')">
-                {{ node.last_arp | longDateTime }}
+                {{ $filters.longDateTime(node.last_arp) }}
               </pf-form-row>
               <pf-form-row class="text-nowrap" :column-label="$t('Last DHCP')">
-                {{ node.last_dhcp | longDateTime }}
+                {{ $filters.longDateTime(node.last_dhcp) }}
               </pf-form-row>
               <pf-form-row class="text-nowrap" :column-label="$t('Last Seen')">
-                {{ node.last_seen | longDateTime }}
+                {{ $filters.longDateTime(node.last_seen) }}
               </pf-form-row>
               <pf-form-row class="text-nowrap" :column-label="$t('Last Skip')">
-                {{ node.lastskip | longDateTime }}
+                {{ $filters.longDateTime(node.lastskip) }}
               </pf-form-row>
               <pf-form-row class="text-nowrap" :column-label="$t('Last Connection Type')">
                 {{ node.last_connection_type }} <span v-if="node.last_connection_sub_type">/</span> {{ node.last_connection_sub_type }}
@@ -812,7 +812,7 @@ export default {
   mounted () {
     this.setupVis()
   },
-  beforeDestroy () {
+  beforeUnmount () {
     if (this.timeoutVis) {
       clearTimeout(this.timeoutVis)
     }

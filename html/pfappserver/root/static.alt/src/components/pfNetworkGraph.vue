@@ -83,7 +83,7 @@
       </text>
 
       <!-- tooltip handles/lines -->
-      <line v-for="tooltip in tooltips" :key="tooltip.node.id" class="tt-link"
+      <line v-for="tooltip in tooltips" :key="`line-${tooltip.node.id}`" class="tt-link"
         :x1="tooltip.line.x1"
         :y1="tooltip.line.y1"
         :x2="tooltip.line.x2"
@@ -94,7 +94,7 @@
       <template v-for="(node, i) in localNodes">
 
         <!-- packetfence -->
-        <use v-if="node.type === 'packetfence'" :key="node.id"
+        <use v-if="node.type === 'packetfence'" :key="`use-packetfence-${node.id}`"
           xlink:href="#packetfence"
           width="32" height="32"
           :id="`node-${node.id}`"
@@ -115,12 +115,12 @@
             :y="coords[i].y - (32 / 2)"
             @mouseover="mouseOverNode(node, $event)"
             :class="[ 'switch-group', 'pointer', { 'highlight': node.highlight } ]"
-            :key="node.id"
+            :key="`use-switch-group-${node.id}`"
           />
           <text class="switchText" v-show="!node.highlight"
             :x="coords[i].x" :y="coords[i].y"
             dy="3" dx="16"
-            :key="node.id"
+            :key="`use-switch-group-text-${node.id}`"
           >↦{{ node.id }}</text>
         </template>
 
@@ -134,12 +134,12 @@
             :y="coords[i].y - (32 / 2)"
             @mouseover="mouseOverNode(node, $event)"
             :class="[ 'switch', 'pointer', { 'highlight': node.highlight } ]"
-            :key="node.id"
+            :key="`use-switch-${node.id}`"
           />
           <text class="switchText" v-show="!node.highlight"
             :x="coords[i].x" :y="coords[i].y"
             dy="3" dx="16"
-            :key="node.id"
+            :key="`use-switch-text-${node.id}`"
           >↦{{ node.id }}</text>
         </template>
 
@@ -153,12 +153,12 @@
             :y="coords[i].y - (32 / 2)"
             @mouseover="mouseOverNode(node, $event)"
             :class="[ 'unknown', { 'highlight': node.highlight } ]"
-            :key="node.id"
+            :key="`use-unknown-${node.id}`"
           />
           <text class="switchText" v-show="!node.highlight"
             :x="coords[i].x" :y="coords[i].y"
             dy="3" dx="16"
-            :key="node.id"
+            :key="`use-unknown-text-${node.id}`"
           >↦{{ node.id }}</text>
         </template>
 
@@ -185,7 +185,7 @@
     </svg>
 
     <!-- tooltip -->
-    <div v-for="tooltip in tooltips" :key="tooltip.node.id" class="tt-anchor"
+    <div v-for="tooltip in tooltips" :key="`tooltip-${tooltip.node.id}`" class="tt-anchor"
       v-bind="tooltipAnchorAttrs(tooltip)"
     >
       <div class="tt-container">
@@ -213,7 +213,7 @@
     <!-- legend -->
     <div v-if="!lastX && !lastY" :class="[ 'legend', config.legendPosition ]" :style="{ padding: `${this.config.padding}px` }">
       <ul class="mb-0">
-        <li v-for="legend in legends" :key="legend.color" :class="legend.color">{{ legend.text }} <span v-if="legend.count > 0">({{ legend.count }})</span></li>
+        <li v-for="legend in legends" :key="`legend-${legend.color}`" :class="legend.color">{{ legend.text }} <span v-if="legend.count > 0">({{ legend.count }})</span></li>
       </ul>
     </div>
 
@@ -222,7 +222,7 @@
       <b-row class="justify-content-md-center text-secondary">
         <b-col cols="12" md="auto">
           <b-media no-body>
-            <icon name="search" scale="2" v-slot:aside></icon>
+            <template v-slot:aside><icon name="search" scale="2"></icon></template>
             <div class="mx-2">
               <h4 v-t="'No Network Data'"></h4>
               <p class="font-weight-light" v-t="'Please refine your search.'"></p>
@@ -237,7 +237,7 @@
       <b-row class="justify-content-md-center text-secondary">
         <b-col cols="12" md="auto">
           <b-media no-body>
-            <icon name="circle-notch" scale="2" v-slot:aside spin></icon>
+            <template v-slot:aside><icon name="circle-notch" scale="2" spin></icon></template>
             <div class="mx-2">
               <h4 v-t="'Loading Network Data'"></h4>
               <p class="font-weight-light" v-t="'Please wait...'"></p>
@@ -1056,7 +1056,7 @@ export default {
       this.localTooltips = []
       this.highlightNodeId = false
     },
-    mouseDownNode (node) {
+    mouseDownNode () {
       // TODO
     },
     highlightNodeById (id) {

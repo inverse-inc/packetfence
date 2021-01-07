@@ -110,7 +110,7 @@ export default {
     },
     save () {
       const actionKey = this.actionKey
-      this.$store.dispatch('$_layer2_networks/updateLayer2Network', this.form).then(response => {
+      this.$store.dispatch('$_layer2_networks/updateLayer2Network', this.form).then(() => {
         if (actionKey) { // [CTRL] key pressed
           this.close()
         }

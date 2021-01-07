@@ -48,12 +48,17 @@ export default {
       config: config(this) // ../_config/billingTier
     }
   },
+  computed: {
+    isLoading () {
+      return this.$store.getters['$_billing_tiers/isLoading']
+    }
+  },
   methods: {
     clone (item) {
       this.$router.push({ name: 'cloneBillingTier', params: { id: item.id } })
     },
     remove (item) {
-      this.$store.dispatch('$_billing_tiers/deleteBillingTier', item.id).then(response => {
+      this.$store.dispatch('$_billing_tiers/deleteBillingTier', item.id).then(() => {
         const { $refs: { pfConfigList: { refreshList = () => {} } = {} } = {} } = this
         refreshList() // soft reload
       })

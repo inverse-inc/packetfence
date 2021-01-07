@@ -2,7 +2,7 @@
   <div>
     <b-table :items="items" :fields="fields" :class="'mb-0 table-clickable table-rowindent-' + level" :sort-by="sortBy" :sort-desc="false"
       small fixed hover show-empty no-local-sorting sort-icon-left
-      @sort-changed="onSortingChanged" @row-clicked="onRowClick">
+      @sort-changed="onSortingChanged($event)" @row-clicked="onRowClick($event)">
       <template v-slot:cell(name)="row">
         <div class="text-lowercase" variant="link"
           v-if="childrenIf(row.item)"
@@ -92,7 +92,7 @@ export default {
     },
     previewPath: {
       type: Function,
-      default: null
+      default: () => ({})
     },
     childrenKey: {
       type: String,
@@ -108,11 +108,11 @@ export default {
     },
     onSortingChanged: {
       type: Function,
-      default: null
+      default: () => ({})
     },
     onNodeClick: {
       type: Function,
-      default: null
+      default: () => ({})
     },
     nodeCreateLabel: {
       type: String,
@@ -120,15 +120,15 @@ export default {
     },
     onNodeCreate: {
       type: Function,
-      default: null
+      default: () => ({})
     },
     onNodeDelete: {
       type: Function,
-      default: null
+      default: () => ({})
     },
     onContainerCreate: {
       type: Function,
-      default: null
+      default: () => ({})
     },
     containerCreateLabel: {
       type: String,
@@ -136,7 +136,7 @@ export default {
     },
     onContainerDelete: {
       type: Function,
-      default: null
+      default: () => ({})
     },
     level: {
       type: Number,
@@ -171,7 +171,7 @@ export default {
     }
   },
   methods: {
-    onRowClick (item, index) {
+    onRowClick (item) {
       if (this.childrenIf(item)) {
         this.$set(item, '_showDetails', !item._showDetails)
       } else if (typeof this.onNodeClick === 'function' && !this.isLoading) {

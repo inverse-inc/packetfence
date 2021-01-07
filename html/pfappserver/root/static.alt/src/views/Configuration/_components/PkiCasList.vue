@@ -10,7 +10,7 @@
       </template>
       <template v-slot:buttonAdd>
         <b-button variant="outline-primary" :to="{ name: 'newPkiCa' }">{{ $t('New Certificate Authority') }}</b-button>
-        <pf-button-service service="pfpki" class="ml-1" restart start stop :disabled="isLoading" @start="init" @restart="init"></pf-button-service>
+        <pf-button-service service="pfpki" class="ml-1" restart start stop :disabled="isLoading"></pf-button-service>
       </template>
       <template v-slot:emptySearch="state">
         <pf-empty-table :isLoading="state.isLoading">{{ $t('No certificate authorities found') }}</pf-empty-table>
@@ -46,6 +46,11 @@ export default {
       config: config(this)
     }
   },
+  computed: {
+    isLoading () {
+      return this.$store.getters['$_pkis/isLoading']
+    }
+  },
   methods: {
     clone (item) {
       this.$router.push({ name: 'clonePkiCa', params: { id: item.ID } })
@@ -55,7 +60,7 @@ export default {
         try {
           navigator.clipboard.writeText(ca.cert).then(() => {
             this.$store.dispatch('notification/info', { message: this.$i18n.t('<code>{cn}</code> certificate copied to clipboard', ca) })
-          }).catch(err => {
+          }).catch(() => {
             this.$store.dispatch('notification/danger', { message: this.$i18n.t('Could not copy <code>{cn}</code> certificate to clipboard.', ca) })
           })
         } catch (e) {

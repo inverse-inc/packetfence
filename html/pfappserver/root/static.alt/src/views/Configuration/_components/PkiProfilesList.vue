@@ -57,6 +57,9 @@ export default {
     },
     sortedCas () {
       return Array.prototype.slice.call(this.cas).sort((a, b) => a.cn.localeCompare(b.cn)) // sort cas by 'cn'
+    },
+    isLoading () {
+      return this.$store.getters['$_pkis/isLoading']
     }
   },
   methods: {

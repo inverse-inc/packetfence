@@ -1,7 +1,7 @@
 <template>
   <b-modal id="usersListModal" size="lg" :title="$t('The following users have been created')"
     centered no-close-on-backdrop no-close-on-esc lazy scrollable
-    @hidden="value = false" @shown="value = true"
+    @hidden="localValue = false" @shown="localValue = true"
   >
     <b-table
       :items="users"
@@ -11,7 +11,7 @@
       show-empty responsive striped></b-table>
     <template v-slot:modal-footer>
       <div class="w-100">
-        <b-button variant="primary" class="float-right" @click="preview()" :disabled="isLoading">{{ $i18n.t('Preview') }}</b-button>
+        <b-button variant="primary" class="float-right" @click="preview()">{{ $i18n.t('Preview') }}</b-button>
       </div>
     </template>
   </b-modal>
@@ -22,6 +22,7 @@ export default {
   name: 'users-preview-modal',
   data () {
     return {
+      localValue: false,
       emailSubject: '',
       emailFrom: '',
       usersFields: [
@@ -70,7 +71,7 @@ export default {
   },
   methods: {
     preview () {
-      this.value = false
+      this.localValue = false
       this.$router.push({ name: 'usersPreview' })
     }
   },
@@ -80,19 +81,24 @@ export default {
         this.usersFields.find(field => field.key === 'email').visible = true
       }
     },
-    value: {
+    localValue: {
       handler (a, b) {
-        this.$emit('input', a)
         if (a !== b) {
+          this.$emit('input', a)
           if (a) {
             this.$bvModal.show('usersListModal')
           } else {
             this.$bvModal.hide('usersListModal')
           }
         }
-      },
-      immediate: true
-    }
+      }
+    },
+    value: {
+      handler (a) {
+        this.localValue = a
+      }
+    },
+    immediate: true
   }
 }
 </script>

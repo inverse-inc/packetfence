@@ -5,7 +5,7 @@
     </b-card-header>
     <b-tabs ref="tabs" v-model="tabIndex" card>
       <b-tab :title="$t('General Configuration')" @click="changeTab('radiusGeneral')">
-        <radius-general-view form-store-name="formRadiusGeneral" />
+        <radius-general-view />
       </b-tab>
       <b-tab :title="$t('EAP Profiles')" @click="changeTab('radiusEaps')">
         <radius-eap-list />
@@ -27,8 +27,7 @@
 </template>
 
 <script>
-import FormStore from '@/store/base/form'
-import RadiusGeneralView from './RadiusGeneralView'
+import RadiusGeneralView from '../radius/general/_components/TheView'
 import RadiusEapList from './RadiusEapList'
 import RadiusTlsList from './RadiusTlsList'
 import RadiusFastList from './RadiusFastList'
@@ -52,18 +51,18 @@ export default {
     }
   },
   computed: {
-    tabIndex () {
-      return ['radiusGeneral', 'radiusEaps', 'radiusTlss', 'radiusFasts', 'radiusSsls', 'radiusOcsps'].indexOf(this.tab)
+    tabIndex: {
+      get () {
+        return ['radiusGeneral', 'radiusEaps', 'radiusTlss', 'radiusFasts', 'radiusSsls', 'radiusOcsps'].indexOf(this.tab)
+      },
+      set () {
+        // noop
+      }
     }
   },
   methods: {
     changeTab (name) {
       this.$router.push({ name })
-    }
-  },
-  beforeMount () {
-    if (!this.$store.state.formRadiusGeneral) { // Register store module only once
-      this.$store.registerModule('formRadiusGeneral', FormStore)
     }
   }
 }

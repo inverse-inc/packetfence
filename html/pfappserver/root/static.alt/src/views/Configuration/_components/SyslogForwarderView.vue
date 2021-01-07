@@ -110,20 +110,21 @@ export default {
   },
   methods: {
     init () {
-      const { isNew, isClone, isDeletable, syslogForwarderType } = this
       if (this.id) {
         // existing
         this.$store.dispatch('$_syslog_forwarders/optionsById', this.id).then(options => {
           const { meta = {} } = options
           this.$store.dispatch('$_syslog_forwarders/getSyslogForwarder', this.id).then(form => {
             if (this.isClone) form.id = `${form.id}-${this.$i18n.t('copy')}`
-            this.syslogForwarderType = form.type
+            const { isNew, isClone, isDeletable } = this
+            const syslogForwarderType = form.type
             this.$store.dispatch(`${this.formStoreName}/setMeta`, { ...meta, ...{ isNew, isClone, isDeletable, syslogForwarderType } })
             this.$store.dispatch(`${this.formStoreName}/setForm`, form)
           })
         })
       } else {
         // new
+        const { isNew, isClone, isDeletable, syslogForwarderType } = this
         this.$store.dispatch('$_syslog_forwarders/optionsBySyslogForwarderType', syslogForwarderType).then(options => {
           const { meta = {} } = options
           this.$store.dispatch(`${this.formStoreName}/setMeta`, { ...meta, ...{ isNew, isClone, isDeletable, syslogForwarderType } })

@@ -8,7 +8,6 @@
       <multiselect ref="multiselect"
         v-model="multiselectValue"
         v-bind="$attrs"
-        v-on="forwardListeners"
         :allow-empty="allowEmpty"
         :clear-on-select="clearOnSelect"
         :disabled="disabled"
@@ -105,7 +104,7 @@ export default {
       type: String
     },
     labelCols: {
-      type: Number,
+      type: [String, Number],
       default: 3
     },
     text: {
@@ -124,6 +123,10 @@ export default {
       default: true
     },
     disabled: {
+      type: Boolean,
+      default: false
+    },
+    readonly: {
       type: Boolean,
       default: false
     },
@@ -153,7 +156,7 @@ export default {
       default: () => { return [] }
     },
     optionsLimit: {
-      type: Number,
+      type: [String, Number],
       default: 100
     },
     optionsSearchFunction: {
@@ -195,16 +198,20 @@ export default {
   },
   data () {
     return {
+      localOptions: [],
       isLoading: false,
       isFocus: false,
       internalSearchQuery: null,
       tagCache: {}
     }
   },
+  mounted () {
+    this.localOptions = this.options
+  },
   computed: {
     inputValue: {
       get () {
-        if (this.formStoreName) {
+        if (this.formStoreName && this.formNamespace) {
           return this.formStoreValue // use FormStore
         } else {
           return this.value // use native (v-model)
@@ -222,8 +229,8 @@ export default {
       get () {
         if (this.collapseObject) {
           const options = (!this.groupValues)
-            ? (this.options ? this.options : [])
-            : this.options.reduce((options, group) => { // flatten group
+            ? (this.localOptions ? this.localOptions : [])
+            : this.localOptions.reduce((options, group) => { // flatten group
               options.push(...group[this.groupValues])
               return options
             }, [])
@@ -260,12 +267,8 @@ export default {
         this.inputValue = newValue
       }
     },
-    forwardListeners () {
-      const { input, ...listeners } = this.$listeners
-      return listeners
-    },
     optionsList () {
-      return (this.options || []).map(option => {
+      return (this.localOptions || []).map(option => {
         return option[this.trackBy]
       })
     },
@@ -285,7 +288,7 @@ export default {
         }
 
         if (this.groupValues) {
-          return this.options.map(group => {
+          return this.localOptions.map(group => {
             const { [this.groupLabel]: groupLabel, [this.groupValues]: groupValues } = group
             if (compoundSearch(groupLabel, this.internalSearchQuery)) {
               return group
@@ -303,14 +306,14 @@ export default {
           })
         }
         else {
-          return this.options.filter(option => {
+          return this.localOptions.filter(option => {
             const { [this.label]: text } = option
             return compoundSearch(text, this.internalSearchQuery)
           })
         }
       }
       else {
-        return this.options
+        return this.localOptions
       }
     },
     multiselectTagPlaceholder () {
@@ -354,7 +357,7 @@ export default {
         this.$debouncer({
           handler: () => {
             Promise.resolve(this.optionsSearchFunction(this, query, SEARCH_BY_TEXT)).then(options => {
-              this.options = options
+              this.localOptions = options
             }).finally(() => {
               this.isLoading = false
             })
@@ -395,6 +398,7 @@ export default {
     options: {
       handler (a) {
         this.cacheTagsFromOptions(a)
+        this.localOptions = a
       },
       immediate: true
     },

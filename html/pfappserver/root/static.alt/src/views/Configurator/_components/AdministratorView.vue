@@ -16,7 +16,6 @@
 
 <script>
 import pfConfigView from '@/components/pfConfigView'
-import { format } from 'date-fns'
 import {
   view,
   validators

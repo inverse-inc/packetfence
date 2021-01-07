@@ -23,15 +23,17 @@ const types = {
   ERROR: 'error'
 }
 
-const state = {
-  cache: {},
-  index: false,
-  path: false,
-  hash: false,
-  fullscreen: false,
-  showViewer: false,
-  message: '',
-  requestStatus: ''
+const initialState = () => {
+  return {
+    cache: {},
+    index: false,
+    path: false,
+    hash: false,
+    fullscreen: false,
+    showViewer: false,
+    message: '',
+    requestStatus: ''
+  }
 }
 
 const getters = {
@@ -177,12 +179,16 @@ const mutations = {
   },
   SET_HASH: (state, hash) => {
     Vue.set(state, 'hash', hash)
+  },
+  // eslint-disable-next-line no-unused-vars
+  $RESET: (state) => {
+    state = initialState()
   }
 }
 
 export default {
   namespaced: true,
-  state,
+  state: initialState(),
   getters,
   actions,
   mutations

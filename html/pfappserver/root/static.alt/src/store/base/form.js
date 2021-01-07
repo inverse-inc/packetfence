@@ -2,27 +2,29 @@ import Vue from 'vue'
 import { validationMixin } from 'vuelidate'
 import { types } from '@/store'
 
+const initialState = () => {
+  return {
+    $meta: {},
+    $metaStatus: '',
+    $metaMessage: '',
+
+    $form: {},
+    $formStatus: '',
+    $formMessage: '',
+
+    $validations: {
+      $form: {}
+    },
+    $validationsStatus: '',
+    $validationsMessage: '',
+
+    $inputDebounceTimeMs: 300
+  }
+}
+
 export default {
   namespaced: true,
-  state: () => {
-    return {
-      $meta: {},
-      $metaStatus: '',
-      $metaMessage: '',
-
-      $form: {},
-      $formStatus: '',
-      $formMessage: '',
-
-      $validations: {
-        $form: {}
-      },
-      $validationsStatus: '',
-      $validationsMessage: '',
-
-      $inputDebounceTimeMs: 300
-    }
-  },
+  state: initialState(),
   getters: { // { state, getters, rootState, rootGetters }
     isLoading: (state, getters) => getters.$metaLoading || getters.$formLoading || getters.$validationsLoading,
     $meta: (state) => state.$meta,
@@ -120,11 +122,7 @@ export default {
           while (namespace) { // handle namespace
             let [ first, ...remainder ] = namespace.match(/([^.|^\][]+)/g) // split namespace
             if ([null, undefined].includes(target)) target = {}
-            if (remainder.length > 0) { // has remaining
-              if (!(first in target)) Vue.set(target, first, {})
-            } else { // last iteration
-              if (!(first in target)) Vue.set(target, first, undefined)
-            }
+            if (!(first in target)) return undefined
             target = target[first]
             namespace = remainder.join('.')
           }
@@ -270,6 +268,10 @@ export default {
     },
     SET_INPUT_DEBOUNCE_TIME_MS: (state, timeMs) => {
       state.$inputDebounceTimeMs = timeMs
+    },
+    // eslint-disable-next-line no-unused-vars
+    $RESET: (state) => {
+      state = initialState()
     }
   }
 }

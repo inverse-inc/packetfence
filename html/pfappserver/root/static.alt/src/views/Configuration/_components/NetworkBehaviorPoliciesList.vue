@@ -52,12 +52,17 @@ export default {
       canUseNbaEndpoints: false,
     }
   },
+  computed: {
+    isLoading () {
+      return this.$store.getters['$_network_behavior_policies/isLoading']
+    }
+  },
   methods: {
     clone (item) {
       this.$router.push({ name: 'cloneNetworkBehaviorPolicy', params: { id: item.id } })
     },
     remove (item) {
-      this.$store.dispatch('$_network_behavior_policies/deleteNetworkBehaviorPolicy', item.id).then(response => {
+      this.$store.dispatch('$_network_behavior_policies/deleteNetworkBehaviorPolicy', item.id).then(() => {
         const { $refs: { pfConfigList: { refreshList = () => {} } = {} } = {} } = this
         refreshList() // soft reload
       })

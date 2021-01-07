@@ -11,7 +11,7 @@ import {
   minValue
 } from 'vuelidate/lib/validators'
 
-export const view = (form = {}, meta = {}) => {
+export const view = (_, meta = {}) => {
   return [
     {
       tab: null,
@@ -96,7 +96,7 @@ export const view = (form = {}, meta = {}) => {
   ]
 }
 
-export const validators = (form = {}, meta = {}) => {
+export const validators = (_, meta = {}) => {
   return {
     layer3_accounting_session_timeout: {
       ...validatorsFromMeta(meta, 'layer3_accounting_session_timeout', i18n.t('Timeout')),

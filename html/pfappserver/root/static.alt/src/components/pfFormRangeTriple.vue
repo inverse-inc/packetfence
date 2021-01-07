@@ -6,10 +6,10 @@
     </template>
     <b-input type="text" ref="vacuum" :value="null" :disabled="disabled" readonly
       style="overflow: hidden; width: 0px; height: 0px; margin: 0px; padding: 0px; border: 0px;"
-      @focus.native="focus = true"
-      @blur.native="focus = false"
-      @keydown.native.space.prevent
-      @keyup.native="keyUp"
+      @focus="focus = true"
+      @blur="focus = false"
+      @keydown.space.prevent
+      @keyup="keyUp"
     ><!-- Vaccum tabIndex --></b-input>
     <b-input-group :style="{ width: `${width}px` }">
       <label role="range" class="pf-form-range-triple-label">
@@ -17,7 +17,6 @@
         <input-range
           :value="inputValue"
           @input="inputValue = $event"
-          v-on="forwardListeners"
           min="0"
           max="2"
           step="1"
@@ -61,7 +60,7 @@ export default {
       type: String
     },
     labelCols: {
-      type: Number,
+      type: [String, Number],
       default: 3
     },
     text: {
@@ -74,57 +73,41 @@ export default {
     },
     values: {
       type: Object,
-      default: () => {
-        return { left: 0, middle: 1, right: 2 }
-      },
-      validator (value) {
-        return (value.left && value.middle && value.right)
-      }
+      default: () => ({ left: 0, middle: 1, right: 2 }),
+      validator: (value) => (Object.keys(value).length === 0 || 'left' in value || 'middle' in value || 'right' in value)
     },
     colors: {
       type: Object,
-      default: () => { return {} },
-      validator (value) {
-        return (value.left || value.middle || value.right)
-      }
+      default: () => ({}),
+      validator: (value) => (Object.keys(value).length === 0 || 'left' in value || 'middle' in value || 'right' in value)
     },
     icons: {
       type: Object,
-      default: () => { return {} },
-      validator (value) {
-        return (value.left || value.middle || value.right)
-      }
+      default: () => ({}),
+      validator: (value) => (Object.keys(value).length === 0 || 'left' in value || 'middle' in value || 'right' in value)
     },
     innerLabels: {
       type: Object,
-      default: () => { return {} },
-      validator (value) {
-        return (value.left || value.middle || value.right)
-      }
+      default: () => ({}),
+      validator: (value) => (Object.keys(value).length === 0 || 'left' in value || 'middle' in value || 'right' in value)
     },
     leftLabels: {
       type: Object,
-      default: () => { return {} },
-      validator (value) {
-        return (value.left || value.middle || value.right)
-      }
+      default: () => ({}),
+      validator: (value) => (Object.keys(value).length === 0 || 'left' in value || 'middle' in value || 'right' in value)
     },
     rightLabels: {
       type: Object,
-      default: () => { return {} },
-      validator (value) {
-        return (value.left || value.middle || value.right)
-      }
+      default: () => ({}),
+      validator: (value) => (Object.keys(value).length === 0 || 'left' in value || 'middle' in value || 'right' in value)
     },
     tooltips: {
       type: Object,
-      default: () => { return {} },
-      validator (value) {
-        return (value.left || value.middle || value.right)
-      }
+      default: () => ({}),
+      validator: (value) => (Object.keys(value).length === 0 || 'left' in value || 'middle' in value || 'right' in value)
     },
     width: {
-      type: Number,
+      type: [String, Number],
       default: 60
     }
   },
@@ -137,7 +120,7 @@ export default {
     inputValue: {
       get () {
         let value
-        if (this.formStoreName) {
+        if (this.formStoreName && this.formNamespace) {
           value = this.formStoreValue // use FormStore
         } else {
           value = this.value // use native (v-model)
@@ -171,10 +154,6 @@ export default {
           this.$emit('input', value) // use native (v-model)
         }
       }
-    },
-    forwardListeners () {
-      const { input, ...listeners } = this.$listeners
-      return listeners
     },
     color () {
       if (this.colors) {

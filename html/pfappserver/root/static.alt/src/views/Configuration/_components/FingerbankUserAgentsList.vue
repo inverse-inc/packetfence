@@ -53,10 +53,13 @@ export default {
       this.$router.push({ name: 'cloneFingerbankUserAgent', params: { id: item.id } })
     },
     remove (item) {
-      this.$store.dispatch('$_fingerbank/deleteUserAgent', item.id).then(response => {
+      this.$store.dispatch('$_fingerbank/deleteUserAgent', item.id).then(() => {
         const { $refs: { pfConfigList: { refreshList = () => {} } = {} } = {} } = this
         refreshList() // soft reload
       })
+    },
+    isLoading () {
+      return this.$store.getters['$_fingerbank/isUserAgentsLoading']
     }
   },
   created () {

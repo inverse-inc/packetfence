@@ -35,7 +35,8 @@
       </b-row>
       <draggable
         v-model="sortableItems"
-        :options="{ handle: '.draghandle', dragClass: 'dragclass' }"
+        handle=".draghandle"
+        dragClass="dragclass"
         @start="onDraggable('start', $event)"
         @add="onDraggable('add', $event)"
         @remove="onDraggable('remove', $event)"

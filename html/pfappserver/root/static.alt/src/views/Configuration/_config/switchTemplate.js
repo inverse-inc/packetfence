@@ -1,4 +1,3 @@
-import store from '@/store'
 import i18n from '@/utils/locale'
 import pfFieldTypeValue from '@/components/pfFieldTypeValue'
 import pfFormChosen from '@/components/pfFormChosen'
@@ -110,7 +109,7 @@ export const view = (form, meta = {}) => {
   const radiusFields = Object.keys(radiusAttributes).sort((a, b) => {
     return a.localeCompare(b)
   }).map(key => {
-    const { [key]: radiusAttribute, [key]: { allowed_values } = {} } = radiusAttributes
+    const { [key]: { allowed_values } = {} } = radiusAttributes
     if (allowed_values) {
       return {
         value: key,

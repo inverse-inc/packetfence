@@ -6,17 +6,16 @@
     </template>
     <b-input type="text" ref="vacuum" :value="null" :disabled="disabled" readonly
       style="overflow: hidden; width: 0px; height: 0px; margin: 0px; padding: 0px; border: 0px;"
-      @focus.native="focus = true"
-      @blur.native="focus = false"
-      @keydown.native.space.prevent
-      @keyup.native="keyUp"
+      @focus="focus = true"
+      @blur="focus = false"
+      @keydown.space.prevent
+      @keyup="keyUp"
     ><!-- Vaccum tabIndex --></b-input>
     <b-input-group :style="{ width: `${width}px` }">
       <label role="range" class="pf-form-range-toggle-label">
         <span v-if="leftLabel" class="mr-2" :class="{ 'text-secondary': lazyLoading }">{{ leftLabel }}</span>
         <input-range
           v-model="inputValue"
-          v-on="forwardListeners"
           min="0"
           max="1"
           step="1"
@@ -61,7 +60,7 @@ export default {
       type: String
     },
     labelCols: {
-      type: Number,
+      type: [String, Number],
       default: 3
     },
     text: {
@@ -78,60 +77,46 @@ export default {
         return { checked: true, unchecked: false }
       },
       validator (value) {
-        return (value.checked && value.unchecked)
+        return ('checked' in value && 'unchecked' in value)
       }
     },
     colors: {
       type: Object,
-      default: () => { return {} },
-      validator (value) {
-        return (value.checked && value.unchecked)
-      }
+      default: () => ({}),
+      validator: (value) => (Object.keys(value).length === 0 || 'checked' in value || 'unchecked' in value)
     },
     icons: {
       type: Object,
-      default: () => { return {} },
-      validator (value) {
-        return (value.checked && value.unchecked)
-      }
+      default: () => ({}),
+      validator: (value) => (Object.keys(value).length === 0 || 'checked' in value || 'unchecked' in value)
     },
     innerLabels: {
       type: Object,
-      default: () => { return {} },
-      validator (value) {
-        return (value.checked && value.unchecked)
-      }
+      default: () => ({}),
+      validator: (value) => (Object.keys(value).length === 0 || 'checked' in value || 'unchecked' in value)
     },
     lazy: {
       type: Object,
-      default: () => { return {} },
-      validator (value) {
-        return (value.checked && value.unchecked)
-      }
+      default: () => ({}),
+      validator: (value) => (Object.keys(value).length === 0 || 'checked' in value || 'unchecked' in value)
     },
     leftLabels: {
       type: Object,
-      default: () => { return {} },
-      validator (value) {
-        return (value.checked && value.unchecked)
-      }
+      default: () => ({}),
+      validator: (value) => (Object.keys(value).length === 0 || 'checked' in value || 'unchecked' in value)
     },
     rightLabels: {
       type: Object,
-      default: () => { return {} },
-      validator (value) {
-        return (value.checked && value.unchecked)
-      }
+      default: () => ({}),
+      validator: (value) => (Object.keys(value).length === 0 || 'checked' in value || 'unchecked' in value)
     },
     tooltips: {
       type: Object,
-      default: () => { return {} },
-      validator (value) {
-        return (value.left || value.middle || value.right)
-      }
+      default: () => ({}),
+      validator: (value) => (Object.keys(value).length === 0 || 'checked' in value || 'unchecked' in value)
     },
     width: {
-      type: Number,
+      type: [String, Number],
       default: 40
     }
   },
@@ -178,8 +163,7 @@ export default {
         if (this.formStoreName) {
           this.formStoreValue = value // use FormStore
         } else {
-          this.$set(this, 'value', value)
-          this.$emit('input', this.value) // use native (v-model)
+          this.$emit('input', value) // use native (v-model)
         }
 
         // lazy handling
@@ -221,10 +205,6 @@ export default {
           }
         }
       }
-    },
-    forwardListeners () {
-      const { input, ...listeners } = this.$listeners
-      return listeners
     },
     color () {
       if (Object.keys(this.colors).length === 0) return null

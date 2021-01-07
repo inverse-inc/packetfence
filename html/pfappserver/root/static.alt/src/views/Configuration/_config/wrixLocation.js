@@ -74,7 +74,7 @@ export const config = () => {
   }
 }
 
-export const view = (form = {}, meta = {}) => {
+export const view = (_, meta = {}) => {
   const {
     isNew = false,
     isClone = false

@@ -1,0 +1,139 @@
+<template>
+  <b-form-group ref="form-group"
+    class="base-form-group"
+    :class="{
+      'mb-0': !columnLabel
+    }"
+    :state="inputState"
+    :labelCols="labelCols"
+    :label="columnLabel"
+  >
+    <b-input-group
+      :class="{
+        'is-focus': isFocus,
+        'is-blur': !isFocus,
+        'is-valid': inputState === true,
+        'is-invalid': inputState === false
+      }"
+    >
+      <b-form-input ref="input"
+        class="base-form-group-input"
+        :disabled="isLocked"
+        :readonly="inputReadonly"
+        :state="inputState"
+        :placeholder="inputPlaceholder"
+        :tabIndex="inputTabIndex"
+        :type="inputType"
+        :value="inputValue"
+        @input="onInput"
+        @change="onChange"
+        @focus="onFocus"
+        @blur="onBlur"
+      />
+      <template v-slot:prepend>
+        <slot name="prepend"></slot>
+      </template>
+      <template v-slot:append>
+        <slot name="append"></slot>
+        <b-button v-if="isLocked"
+          class="input-group-text"
+          :disabled="true"
+          tabIndex="-1"
+        >
+          <icon ref="icon-lock"
+            name="lock"
+          />
+        </b-button>
+      </template>
+    </b-input-group>
+    <template v-slot:description v-if="inputText">
+      <div v-html="inputText"/>
+    </template>
+    <template v-slot:invalid-feedback v-if="inputInvalidFeedback">
+      <div v-html="inputInvalidFeedback"/>
+    </template>
+    <template v-slot:valid-feedback v-if="inputValidFeedback">
+      <div v-html="inputValidFeedback"/>
+    </template>
+  </b-form-group>
+</template>
+<script>
+import { useFormGroupProps } from '@/composables/useFormGroup'
+import { useInput, useInputProps } from '@/composables/useInput'
+import { useInputMeta, useInputMetaProps } from '@/composables/useMeta'
+import { useInputValidator, useInputValidatorProps } from '@/composables/useInputValidator'
+import { useInputValue, useInputValueProps } from '@/composables/useInputValue'
+
+export const props = {
+  ...useFormGroupProps,
+  ...useInputProps,
+  ...useInputMetaProps,
+  ...useInputValidatorProps,
+  ...useInputValueProps
+}
+
+export const setup = (props, context) => {
+
+  const metaProps = useInputMeta(props, context)
+
+  const {
+    placeholder,
+    readonly,
+    tabIndex,
+    text,
+    type,
+    isFocus,
+    isLocked,
+    onFocus,
+    onBlur
+  } = useInput(metaProps, context)
+
+  const {
+    value,
+    onInput,
+    onChange
+  } = useInputValue(metaProps, context)
+
+  const {
+    state,
+    invalidFeedback,
+    validFeedback
+  } = useInputValidator(metaProps, value)
+
+  return {
+    // useInput
+    inputPlaceholder: placeholder,
+    inputReadonly: readonly,
+    inputTabIndex: tabIndex,
+    inputText: text,
+    inputType: type,
+    isFocus,
+    isLocked,
+    onFocus,
+    onBlur,
+
+    // useInputValue
+    inputValue: value,
+    onInput,
+    onChange,
+
+    // useInputValidator
+    inputState: state,
+    inputInvalidFeedback: invalidFeedback,
+    inputValidFeedback: validFeedback
+  }
+}
+
+// @vue/component
+export default {
+  name: 'base-form-group-input',
+  inheritAttrs: false,
+  props,
+  setup
+}
+</script>
+<style lang="scss">
+.base-form-group-input {
+  border-radius: $border-radius !important;
+}
+</style>

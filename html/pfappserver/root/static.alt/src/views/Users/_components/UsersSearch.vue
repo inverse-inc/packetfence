@@ -51,7 +51,7 @@
             <b-dropdown-divider></b-dropdown-divider>
 
             <b-dropdown-header>{{ $t('Apply Role') }}</b-dropdown-header>
-            <b-dropdown-item v-for="role in roles" :key="role.category_id" @click="applyBulkRole(role)">
+            <b-dropdown-item v-for="role in roles" :key="`role-${role.category_id}`" @click="applyBulkRole(role)">
               <span class="d-block" v-b-tooltip.hover.left.d300.window :title="role.notes">{{role.name}}</span>
             </b-dropdown-item>
             <b-dropdown-item @click="applyBulkRole({category_id: null})" >
@@ -63,7 +63,7 @@
             <b-dropdown-divider></b-dropdown-divider>
 
             <b-dropdown-header>{{ $t('Apply Bypass Role') }}</b-dropdown-header>
-            <b-dropdown-item v-for="role in roles" :key="role.category_id" @click="applyBulkBypassRole(role)">
+            <b-dropdown-item v-for="role in roles" :key="`bypass_role-${role.category_id}`" @click="applyBulkBypassRole(role)">
               <span class="d-block" v-b-tooltip.hover.left.d300.window :title="role.notes">{{role.name}}</span>
             </b-dropdown-item>
             <b-dropdown-item @click="applyBulkBypassRole({category_id: null})">
@@ -132,7 +132,7 @@
           <b-tooltip target="checkallnone" placement="right" v-else>{{ $t('Select All [Alt + A]') }}</b-tooltip>
         </template>
         <template v-slot:cell(actions)="item">
-          <b-form-checkbox :disabled="isLoading" :id="item.value" :value="item.item" v-model="selectValues" @click.native.stop="onToggleSelected($event, item.index)"></b-form-checkbox>
+          <b-form-checkbox :disabled="isLoading" :id="item.value" :value="item.item" v-model="selectValues" @click.stop="onToggleSelected($event, item.index)"></b-form-checkbox>
           <!--
           <icon name="exclamation-triangle" class="ml-1" v-if="tableValues[item.index]._rowMessage" v-b-tooltip.hover.right.d300 :title="tableValues[item.index]._rowMessage"></icon>
           -->
@@ -181,6 +181,7 @@ export default {
       default: () => ({
         searchApiEndpoint: 'users',
         defaultSortKeys: ['pid'],
+        defaultSortDesc: false,
         defaultSearchCondition: {
           op: 'and',
           values: [{
@@ -197,9 +198,7 @@ export default {
   },
   data () {
     return {
-      tableValues: Array,
-      sortBy: 'pid',
-      sortDesc: false,
+      tableValues: [],
       // Fields must match the database schema
       fields: [ // keys match with b-form-select
         {

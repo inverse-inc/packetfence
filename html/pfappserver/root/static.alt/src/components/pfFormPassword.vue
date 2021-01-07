@@ -12,9 +12,10 @@
         :type="type"
         :state="inputState"
         :disabled="disabled"
-        @keyup.native="resetTest($event)"
-        @focus.native="isFocus = true"
-        @blur.native="isFocus = false"
+        :autocomplete="autocomplete"
+        @keyup="resetTest($event)"
+        @focus="isFocus = true"
+        @blur="isFocus = false"
       />
       <b-input-group-append>
         <b-button v-if="disabled" class="input-group-text" tabindex="-1" disabled><icon name="lock"></icon></b-button>
@@ -129,6 +130,10 @@ export default {
     generate: {
       type: Boolean,
       default: false
+    },
+    autocomplete: {
+      type: String,
+      default: 'false'
     }
   },
   data () {

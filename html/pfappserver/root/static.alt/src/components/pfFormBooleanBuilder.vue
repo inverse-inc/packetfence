@@ -137,13 +137,20 @@ export default {
     disabled: {
       type: Boolean,
       default: false
+    },
+    columnLabel: {
+      type: String
+    },
+    labelCols: {
+      type: [String, Number],
+      default: 3
     }
   },
   data () {
     return {
       advancedMode: false,
       advancedCondition: null,
-      advancedError: false
+      advancedError: null
     }
   },
   computed: {
@@ -217,14 +224,14 @@ export default {
             handler: () => {
               this.$store.dispatch('config/parseCondition', string).then(condition => {
                 this.basicCondition = condition
-                this.advancedError = false
+                this.advancedError = null
               }).catch(err => {
                 const { response: { data: { errors: { 0: { highlighted_error, offset } = {} } = {} } = {} } = {} } = err
                 const { 0: error = '' } = highlighted_error.split('\n')
                 if (error) {
                   this.advancedError = `${error}: <code class="text-secondary font-weight-bold">\u00a0${highlightError(string, offset)}\u00a0</code>`
                 } else {
-                  this.advancedError = false
+                  this.advancedError = null
                 }
               })
             },
@@ -243,7 +250,7 @@ export default {
             handler: () => {
               this.$store.dispatch('config/stringifyCondition', json).then(condition => {
                 this.advancedCondition = condition
-                this.advancedError = false
+                this.advancedError = null
               })
             },
             time: 1000 // 1 second

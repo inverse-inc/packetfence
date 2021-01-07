@@ -1,7 +1,6 @@
 <template>
   <b-form-row :id="`security-event-trigger-row_${uuid}`"
-    class="align-items-center security-event-trigger-row flex-nowrap text-center py-1"
-    v-on="forwardListeners">
+    class="align-items-center security-event-trigger-row flex-nowrap text-center py-1">
     <b-badge class="or">{{ $t('OR') }}</b-badge>
     <b-col cols="1" class="text-center col-form-label">
       <slot name="prepend"></slot>
@@ -156,7 +155,6 @@ export default {
             const { meta: { triggers: { item: { properties: { [type]: { allowed_lookup: allowedLookup } = {} } = {} } = {} } = {} } = {} } = this
             if (allowedLookup) {
               const { field_name: fieldName, value_name: valueName, search_path: url } = allowedLookup
-              // eslint-disable-next-line
               apiCall.request({
                 url,
                 method: 'post',
@@ -224,10 +222,6 @@ export default {
         [triggerCategories.USAGE]: triggerUsageView(this.formStoreValue, this.meta),
         [triggerCategories.EVENT]: triggerEventView(this.formStoreValue, this.meta)
       }
-    },
-    forwardListeners () {
-      const { input, ...listeners } = this.$listeners
-      return listeners
     },
     mouseDown () {
       return this.$store.getters['events/mouseDown']

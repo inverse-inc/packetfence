@@ -7,11 +7,13 @@ import store from '@/store'
 
 const onParPercentile = 90 // @ the estimated time set the progress bar to this %
 
-const state = {
-  now: (new Date()).getTime(), // current timestamp (ms)
-  heartbeatInterval: false, // heartbeat used for interval updates on reactive model `now`
-  cache: [], // all current pending requests
-  benchmarks: {} // stats on previous completed requests
+const initialState = () => {
+  return {
+    now: (new Date()).getTime(), // current timestamp (ms)
+    heartbeatInterval: false, // heartbeat used for interval updates on reactive model `now`
+    cache: [], // all current pending requests
+    benchmarks: {} // stats on previous completed requests
+  }
 }
 
 const getters = {
@@ -110,15 +112,12 @@ const actions = {
 const mutations = {
   START_HEARTBEAT: (state) => {
     if (!state.heartbeatInterval && state.cache.length > 0) {
-      state.heartbeatInterval = setInterval(() => {
-        state.now = (new Date()).getTime()
-      }, 100)
+      state.now = (new Date()).getTime()
     }
     state.now = (new Date()).getTime()
   },
   STOP_HEARTBEAT: (state) => {
     if (state.heartbeatInterval && state.cache.length === 0) {
-      clearInterval(state.heartbeatInterval)
       state.heartbeatInterval = false
     }
   },
@@ -185,6 +184,10 @@ const mutations = {
     if (method in benchmarks) {
       Vue.set(benchmarks[method], 'start', null)
     }
+  },
+  // eslint-disable-next-line no-unused-vars
+  $RESET: (state) => {
+    state = initialState()
   }
 }
 
@@ -198,13 +201,13 @@ apiCall.interceptors.request.use((config) => {
 })
 
 // Intercept responses
-apiCall.interceptors.response.use((response) => {
+apiCall.interceptors.response.use(response => {
   const { config: { baseURL, method, url, params = {}, performance = true } = {} } = response
   if (performance) {
     store.dispatch('performance/stopRequest', { method, url: `${baseURL}${url}`, params }) // stop performance benchmark
   }
   return response
-}, (error, test) => {
+}, error => {
   const { config: { baseURL, method, url, params = {}, performance = true } = {} } = error
   if (performance) {
     store.dispatch('performance/dropRequest', { method, url: `${baseURL}${url}`, params }) // discard performance benchmark
@@ -214,7 +217,7 @@ apiCall.interceptors.response.use((response) => {
 
 export default {
   namespaced: true,
-  state,
+  state: initialState(),
   getters,
   actions,
   mutations

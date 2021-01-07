@@ -136,9 +136,9 @@ export default {
           this.$store.dispatch('$_sources/getAuthenticationSource', this.id).then(form => {
             if (this.isClone) form.id = `${form.id}-${this.$i18n.t('copy')}`
             this.$store.dispatch(`${this.formStoreName}/setForm`, form)
-            this.sourceType = form.type
+            const sourceType = form.type
             const { meta = {} } = options
-            const { isNew, isClone, isDeletable, sourceType } = this
+            const { isNew, isClone, isDeletable } = this
             this.$store.dispatch(`${this.formStoreName}/setMeta`, { ...meta, ...{ isNew, isClone, isDeletable, sourceType } })
             if (form.type === 'SAML') {
               this.$store.dispatch('$_sources/getAuthenticationSourceSAMLMetaData', this.id).then(xml => {
@@ -158,15 +158,15 @@ export default {
       }
       this.$store.dispatch(`${this.formStoreName}/setFormValidations`, validators)
     },
-    close (event) {
+    close () {
       this.$router.push({ name: 'sources' })
     },
     clone () {
       this.$router.push({ name: 'cloneAuthenticationSource' })
     },
-    create (event) {
+    create () {
       const actionKey = this.actionKey
-      this.$store.dispatch('$_sources/createAuthenticationSource', this.form).then(response => {
+      this.$store.dispatch('$_sources/createAuthenticationSource', this.form).then(() => {
         if (actionKey) { // [CTRL] key pressed
           this.close()
         } else {
@@ -174,16 +174,16 @@ export default {
         }
       })
     },
-    save (event) {
+    save () {
       const actionKey = this.actionKey
-      this.$store.dispatch('$_sources/updateAuthenticationSource', this.form).then(response => {
+      this.$store.dispatch('$_sources/updateAuthenticationSource', this.form).then(() => {
         if (actionKey) { // [CTRL] key pressed
           this.close()
         }
       })
     },
-    remove (event) {
-      this.$store.dispatch('$_sources/deleteAuthenticationSource', this.id).then(response => {
+    remove () {
+      this.$store.dispatch('$_sources/deleteAuthenticationSource', this.id).then(() => {
         this.close()
       })
     },
@@ -201,12 +201,12 @@ export default {
   },
   watch: {
     id: {
-      handler: function (a, b) {
+      handler: function () {
         this.init()
       }
     },
     isClone: {
-      handler: function (a, b) {
+      handler: function () {
         this.init()
       }
     },
