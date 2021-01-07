@@ -2,12 +2,12 @@ import { BaseViewResource } from '../../../_components/new/'
 import {
   BaseFormButtonBar,
   BaseFormGroupInput,
-  BaseFormGroupTextarea,
   BaseFormGroupToggleDisabledEnabled
 } from '@/components/new/'
 import {
   BaseFormGroupIntervalUnit
 } from '@/views/Configuration/_components/new/'
+import BaseFormGroupStaticRoutes from './BaseFormGroupStaticRoutes'
 import TheForm from './TheForm'
 import TheView from './TheView'
 
@@ -24,7 +24,7 @@ export {
   BaseFormGroupToggleDisabledEnabled  as FormGroupDhcpProcessIpv6,
   BaseFormGroupToggleDisabledEnabled  as FormGroupForceListenerUpdateOnAck,
   BaseFormGroupInput                  as FormGroupInterfaceSnat,
-  BaseFormGroupTextarea               as FormGroupStaticroutes,
+  BaseFormGroupStaticRoutes           as FormGroupStaticroutes,
 
   BaseViewResource                    as BaseView,
   TheForm,

@@ -101,7 +101,9 @@ export const useArrayDraggable = (props, context, value, onChange) => {
     isLoading = true
     return new Promise(resolve => {
       const _value = unref(value) || []
-      const newValue = JSON.parse(JSON.stringify(_value[fromIndex])) // dereferenced copy
+      let newValue
+      if (_value[fromIndex])
+        newValue = JSON.parse(JSON.stringify(_value[fromIndex])) // dereferenced copy
       onChange([..._value.slice(0, toIndex), newValue, ..._value.slice(toIndex)])
 
       const _keys = unref(draggableKeys)
