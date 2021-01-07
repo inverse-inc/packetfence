@@ -330,18 +330,18 @@ sub generate_dpsk {
     my ($self,$username) = @_;
     my $person = person_view($username);
     my $password = pf::password::view($username);
-    if (defined $person->{psk} && $person->{psk} ne '') {
-        get_logger->debug("Returning psk key $person->{psk} for user $username");
-        return $person->{psk};
-    }
-    elsif (
-            isenabled($self->dpsk_use_local_password) 
-            && defined($password) && pf::password::password_get_hash_type($password->{password}) eq 'plaintext' 
+    if (
+            isenabled($self->dpsk_use_local_password)
+            && defined($password) && pf::password::password_get_hash_type($password->{password}) eq 'plaintext'
             && length($password->{password}) >= 8
         ) {
         get_logger->info("Using password of local user $username for PSK");
         person_modify($username,psk => $password->{password});
         return $password->{password};
+    }
+    elsif (defined $person->{psk} && $person->{psk} ne '') {
+        get_logger->debug("Returning psk key $person->{psk} for user $username");
+        return $person->{psk};
     }
     else {
         my $psk_size;
