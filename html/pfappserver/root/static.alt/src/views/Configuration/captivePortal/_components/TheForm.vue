@@ -121,7 +121,7 @@ import {
   FormGroupStatusOnlyOnProduction,
   FormGroupDetectionMecanismBypass,
   FormGroupDetectionMecanismUrls,
-  FormGroupwWisprRedirection,
+  FormGroupWisprRedirection,
   FormGroupRateLimiting,
   FormGroupRateLimitingThreshold,
   FormGroupOtherDomainNames
@@ -143,7 +143,7 @@ const components = {
   FormGroupStatusOnlyOnProduction,
   FormGroupDetectionMecanismBypass,
   FormGroupDetectionMecanismUrls,
-  FormGroupwWisprRedirection,
+  FormGroupWisprRedirection,
   FormGroupRateLimiting,
   FormGroupRateLimitingThreshold,
   FormGroupOtherDomainNames

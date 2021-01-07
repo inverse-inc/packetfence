@@ -27,7 +27,7 @@ export {
   BaseFormGroupToggleDisabledEnabled  as FormGroupStatusOnlyOnProduction,
   BaseFormGroupToggleDisabledEnabled  as FormGroupDetectionMecanismBypass,
   BaseFormGroupTextarea               as FormGroupDetectionMecanismUrls,
-  BaseFormGroupToggleDisabledEnabled  as FormGroupwWisprRedirection,
+  BaseFormGroupToggleDisabledEnabled  as FormGroupWisprRedirection,
   BaseFormGroupToggleDisabledEnabled  as FormGroupRateLimiting,
   BaseFormGroupInputNumber            as FormGroupRateLimitingThreshold,
   BaseFormGroupTextarea               as FormGroupOtherDomainNames,
