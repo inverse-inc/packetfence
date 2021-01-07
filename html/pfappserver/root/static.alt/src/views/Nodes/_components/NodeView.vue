@@ -102,25 +102,25 @@
                   <b-badge variant="danger" v-else>{{ $t('Inactive') }}</b-badge>
               </pf-form-row>
               <pf-form-row class="text-nowrap" :column-label="$t('Detect Date')">
-                {{ $filters.longDateTime(node.detect_date) }}
+                {{ node.detect_date | longDateTime }}
               </pf-form-row>
               <pf-form-row class="text-nowrap" :column-label="$t('Registration Date')">
-                {{ $filters.longDateTime(node.regdate) }}
+                {{ node.regdate | longDateTime }}
               </pf-form-row>
               <pf-form-row class="text-nowrap" :column-label="$t('Unregistration Date')">
-                {{ $filters.longDateTime(node.unregdate) }}
+                {{ node.unregdate | longDateTime }}
               </pf-form-row>
               <pf-form-row class="text-nowrap" :column-label="$t('Last ARP')">
-                {{ $filters.longDateTime(node.last_arp) }}
+                {{ node.last_arp | longDateTime }}
               </pf-form-row>
               <pf-form-row class="text-nowrap" :column-label="$t('Last DHCP')">
-                {{ $filters.longDateTime(node.last_dhcp) }}
+                {{ node.last_dhcp | longDateTime }}
               </pf-form-row>
               <pf-form-row class="text-nowrap" :column-label="$t('Last Seen')">
-                {{ $filters.longDateTime(node.last_seen) }}
+                {{ node.last_seen | longDateTime }}
               </pf-form-row>
               <pf-form-row class="text-nowrap" :column-label="$t('Last Skip')">
-                {{ $filters.longDateTime(node.lastskip) }}
+                {{ node.lastskip | longDateTime }}
               </pf-form-row>
               <pf-form-row class="text-nowrap" :column-label="$t('Last Connection Type')">
                 {{ node.last_connection_type }} <span v-if="node.last_connection_sub_type">/</span> {{ node.last_connection_sub_type }}
