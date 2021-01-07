@@ -29,7 +29,7 @@ testcases:
             "type": "connection_type"
           }
         ],
-        "filter_match_style": "any",
+        "filter_match_style": "all",
         "id": "{{.wired_mac_auth.profiles.wired.id}}",
         "locale": null,
         "login_attempt_limit": 0,

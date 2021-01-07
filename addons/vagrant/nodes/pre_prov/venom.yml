@@ -1,0 +1,14 @@
+---
+- name: Install Venom
+  hosts: nodes
+  gather_facts: False
+  become: True
+  collections:
+    - inverse_inc.utils
+
+  vars:
+    venom__version: 'v0.28.0'
+    
+  roles:
+    - role: venom
+      tags: venom

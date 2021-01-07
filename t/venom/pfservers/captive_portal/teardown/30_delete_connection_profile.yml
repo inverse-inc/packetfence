@@ -1,0 +1,14 @@
+name: Delete captive portal connection profile
+version: 2
+testcases:
+- name: delete_captive_portal_connection_profile
+  steps:
+  - type: http
+    method: DELETE
+    url: '{{.pfserver_webadmin_url}}/api/v1/config/connection_profile/{{.captive_portal.profiles.id}}'
+    ignore_verify_ssl: true
+    headers:
+      "Authorization": "{{.pfserver_token}}"
+      "Content-Type": "application/json"
+    assertions:
+      - result.statuscode ShouldEqual 200

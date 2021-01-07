@@ -1,17 +1,4 @@
 ---
-- name: Install utils for test
-  hosts: pfservers
-  gather_facts: True
-  become: True
-  collections:
-    - inverse_inc.utils
-
-  roles:
-    - role: venom
-      tags: venom
-
-    - role: psonoci
-      tags: psonoci
-
-    - role: mailhog
-      tags: mailhog
+- import_playbook: utils/venom.yml
+- import_playbook: utils/psonoci.yml
+- import_playbook: utils/mailhog.yml

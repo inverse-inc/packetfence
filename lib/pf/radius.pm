@@ -248,7 +248,7 @@ sub authorize {
     $options->{'last_connection_sub_type'} = $args->{'connection_sub_type'};
     $options->{'last_connection_type'}     = connection_type_to_str($args->{'connection_type'});
     $options->{'last_switch'}              = $switch_id;
-    $options->{'last_port'}                = $args->{'switch'}->{switch_port} if (defined($args->{'switch'}->{switch_port}));
+    $options->{'last_port'}                = $port if defined $port && length($port);
     $options->{'last_vlan'}                = $args->{'vlan'} if (defined($args->{'vlan'}));
     $options->{'last_ssid'}                = $args->{'ssid'} if (defined($args->{'ssid'}));
     $options->{'last_dot1x_username'}      = $args->{'user_name'} if (defined($args->{'user_name'}));
@@ -257,7 +257,8 @@ sub authorize {
     $options->{'fingerbank_info'}     = $args->{'fingerbank_info'};
 
     my $profile = pf::Connection::ProfileFactory->instantiate($args->{'mac'},$options);
-    $args->{'profile'} = $profile; 
+    $args->{'profile'} = $profile;
+    $args->{'portal'} = $profile->getName;
     
     $args->{'autoreg'} = 0;
     # should we auto-register? let's ask the VLAN object
@@ -857,7 +858,7 @@ sub switch_access {
     $options->{'last_connection_sub_type'} = $connection_sub_type;
     $options->{'last_connection_type'}     = connection_type_to_str($connection_type);
     $options->{'last_switch'}              = $switch->{_id};
-    $options->{'last_port'}                = $args->{'switch'}->{switch_port} if (defined($args->{'switch'}->{switch_port}));
+    $options->{'last_port'}                = $port if defined $port && length($port);
     $options->{'last_vlan'}                = $args->{'vlan'} if (defined($args->{'vlan'}));
     $options->{'last_ssid'}                = $args->{'ssid'} if (defined($args->{'ssid'}));
     $options->{'last_dot1x_username'}      = $args->{'user_name'} if (defined($args->{'username'}));
@@ -912,7 +913,7 @@ sub switch_access {
         }
     }
     else {
-            my $profile = pf::Connection::ProfileFactory->instantiate("de:fa:ce:db:ab:e0",$options);
+            my $profile = pf::Connection::ProfileFactory->instantiate($FAKE_MAC,$options);
             $args->{'profile'} = $profile;
             @sources = $profile->getFilteredAuthenticationSources($args->{'stripped_user_name'}, $args->{'realm'});
     }
@@ -968,6 +969,7 @@ our %ARGS_TO_RADIUS_ATTRIBUTES = (
     connection_type => 'PacketFence-Connection-Type',
     user_role => 'PacketFence-Role',
     time => 'PacketFence-Request-Time',
+    portal => 'PacketFence-Profile',
 );
 
 our %NODE_ATTRIBUTES_TO_RADIUS_ATTRIBUTES = (

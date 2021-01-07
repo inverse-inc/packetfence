@@ -43,12 +43,12 @@ type PfAcct struct {
 	LoggerCtx          context.Context
 	Dispatcher         *Dispatcher
 	SwitchInfoCache    *cache.Cache
-	StatsdOnce         tryableonce.TryableOnce
 	StatsdAddress      string
 	StatsdOption       statsd.Option
 	StatsdClient       *statsd.Client
 	radiusRequests     []chan<- radiusRequest
 	localSecret        string
+	StatsdOnce         tryableonce.TryableOnce
 	isProxied          bool
 	radiusdAcctEnabled bool
 	AllNetworks        bool

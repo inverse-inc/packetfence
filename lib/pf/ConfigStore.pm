@@ -829,7 +829,7 @@ sub flattenCondition {
 
     my $top_op = $condition->{op};
     if ($top_op eq 'and' || $top_op eq 'or' || $top_op eq 'not_and' || $top_op eq 'not_or') {
-        if (@{$condition->{values}} == 1) {
+        if (@{$condition->{values} // []} == 1) {
             $item->{top_op} = $top_op;
         }
     } else {

@@ -52,16 +52,16 @@ func (tc *TokenringCounters) CounterType() uint32 {
 
 type VGCounters struct {
 	InHighPriorityFrames    uint32
-	InHighPriorityOctets    uint64
 	InNormPriorityFrames    uint32
+	InHighPriorityOctets    uint64
 	InNormPriorityOctets    uint64
 	InIPMErrors             uint32
 	InOversizeFrameErrors   uint32
 	InDataErrors            uint32
 	InNullAddressedFrames   uint32
 	OutHighPriorityFrames   uint32
-	OutHighPriorityOctets   uint64
 	TransitionIntoTrainings uint32
+	OutHighPriorityOctets   uint64
 	HCInHighPriorityOctets  uint64
 	HCInNormPriorityOctets  uint64
 	HCOutHighPriorityOctets uint64

@@ -6,23 +6,6 @@ echo "  Running config_node.sh"
 echo "#################################"
 sudo su
 
-
-install_venom() {
-    local venom_bin_path=/usr/bin
-    local venom_binary=venom
-    local venom_repo_url=https://api.github.com/repos/ovh/venom/releases/latest
-    local venom_download_url=$(curl -s ${venom_repo_url}|grep "browser_download_url.*linux-amd64*"|cut -d '"' -f 4)
-    echo "Installing Venom in ${venom_bin_path}/${venom_binary}"
-    curl -L -s ${venom_download_url} -o ${venom_bin_path}/${venom_binary}
-    chmod +x ${venom_bin_path}/${venom_binary}
-}
-
-install_packetfence_repo() {
-    echo 'deb http://inverse.ca/downloads/PacketFence/debian-devel stretch stretch' > \
-         /etc/apt/sources.list.d/packetfence.list
-    wget -O - https://inverse.ca/downloads/GPG_PUBLIC_KEY | sudo apt-key add -
-}
-
 #Replace existing network interfaces file
 echo -e "auto lo" > /etc/network/interfaces
 echo -e "iface lo inet loopback\n\n" >> /etc/network/interfaces
@@ -35,16 +18,13 @@ echo -e "iface eth0 inet dhcp\n\n" >> /etc/network/interfaces
 ping 8.8.8.8 -c2
 if [ "$?" == "0" ]; then
     apt-get update -qy && apt-get install gnupg -qy
-    install_packetfence_repo
     apt-get update -qy
-    # python-apt for ansible management
-    apt-get install lldpd ntp ntpdate wpasupplicant python-apt unzip curl -qy
+    apt-get install lldpd ntp ntpdate unzip curl -qy
     echo "configure lldp portidsubtype ifname" > /etc/lldpd.d/port_info.conf
 
     # to avoid conflict with systemd-networkd
     apt-get remove isc-dhcp-client -qy
 
-    install_venom
 fi
 
 # Set Timezone

@@ -23,9 +23,7 @@ use CGI::Session;
 use CGI::Session::Driver::chi;
 use pf::CHI;
 use HTML::Entities;
-use Locale::gettext qw(bindtextdomain textdomain bind_textdomain_codeset);
 use pf::log;
-use POSIX qw(locale_h); #qw(setlocale);
 use Readonly;
 use URI::Escape::XS qw(uri_escape uri_unescape);
 use File::Spec::Functions;
@@ -154,7 +152,6 @@ sub _initialize {
     );
 
     $self->_initializeStash();
-    $self->_initializeI18n();
 }
 
 =item _restoreFromSession
@@ -186,28 +183,6 @@ sub _initializeStash {
     # Fill it with the Web constants first
     $self->{'stash'} = { pf::web::constants::to_hash() };
     $self->stash->{'destination_url'} = $self->_getDestinationUrl();
-}
-
-=item _initializeI18n
-
-=cut
-
-sub _initializeI18n {
-    my ($self) = @_;
-    my $logger = get_logger();
-
-    my ($locale) = $self->getLanguages();
-    $logger->debug("Setting locale to $locale");
-    setlocale( POSIX::LC_MESSAGES, "$locale.utf8" );
-    my $newlocale = setlocale(POSIX::LC_MESSAGES);
-    if ($newlocale !~ m/^$locale/) {
-        $logger->error("Error while setting locale to $locale.utf8. Is the locale generated on your system?");
-    }
-    $self->stash->{locale} = $newlocale;
-    delete $ENV{'LANGUAGE'}; # Make sure $LANGUAGE is empty otherwise it will override LC_MESSAGES
-    bindtextdomain( "packetfence", "$conf_dir/locale" );
-    bind_textdomain_codeset( "packetfence", "utf-8" );
-    textdomain("packetfence");
 }
 
 =item _getDestinationUrl
@@ -489,103 +464,6 @@ sub getTemplateIncludePath {
     my ($self) = @_;
     my $profile = $self->getProfile;
     return $profile->{_template_paths};
-}
-
-=item getRequestLanguages
-
-Extract the preferred languages from the HTTP request.
-Ex: Accept-Language: en-US,en;q=0.8,fr;q=0.6,fr-CA;q=0.4,no;q=0.2,es;q=0.2
-will return qw(en_US en fr fr_CA no es)
-
-=cut
-
-sub getRequestLanguages {
-    my ($self) = @_;
-    my $s = $self->getCgi->http('Accept-language') || 'en_US';
-    my @l = split(/,/, $s);
-    map { s/;.+// } @l;
-    map { s/-/_/g } @l;
-    #@l = map { m/^en(_US)?/? ():$_ } @l;
-
-    return \@l;
-}
-
-=item getLanguages
-
-Retrieve the user prefered languages from the following ordered sources:
-
-=over
-
-=item 1. the 'lang' URL parameter
-
-=item 2. the 'lang' parameter of the Web session
-
-=item 3. the browser accepted languages
-
-=back
-
-If no language matches the authorized locales from the configuration, the first locale
-of the configuration is returned.
-
-=cut
-
-sub getLanguages {
-    my ($self) = @_;
-    my $logger = get_logger();
-
-    my ($lang, @languages);
-    #my $authorized_locales_txt = $Config{'general'}{'locale'};
-    my @authorized_locales = $self->getProfile->getLocales();
-    unless (scalar @authorized_locales > 0) {
-        @authorized_locales = @WEB::LOCALES;
-    }
-    #my @authorized_locales = split(/\s*,\s*/, $authorized_locales_txt);
-    $logger->debug("Authorized locale(s) are " . join(', ', @authorized_locales));
-
-    # 1. Check if a language is specified in the URL
-    if ( defined($self->getCgi->url_param('lang')) ) {
-        my $user_chosen_language = $self->getCgi->url_param('lang');
-        $user_chosen_language =~ s/^(\w{2})(_\w{2})?/lc($1) . uc($2 || "")/e;
-        if (grep(/^$user_chosen_language$/, @authorized_locales)) {
-            $lang = $user_chosen_language;
-            # Store the language in the session
-            $self->getSession->param("lang", $lang);
-            $logger->debug("locale from the URL is $lang");
-        }
-        else {
-            $logger->warn("locale from the URL $user_chosen_language is not supported");
-        }
-    }
-
-    # 2. Check if the language is set in the session
-    if ( defined($self->getSession->param("lang")) ) {
-        $lang = $self->getSession->param("lang");
-        push(@languages, $lang) unless (grep/^$lang$/, @languages);
-        $logger->debug("locale from the session is $lang");
-    }
-
-    # 3. Check the accepted languages of the browser
-    my $browser_languages = $self->getRequestLanguages();
-    foreach my $browser_language (@$browser_languages) {
-        $browser_language =~ s/^(\w{2})(_\w{2})?/lc($1) . uc($2 || "")/e;
-        if (grep(/^$browser_language$/, @authorized_locales)) {
-            $lang = $browser_language;
-            push(@languages, $lang) unless (grep/^$lang$/, @languages);
-            $logger->debug("locale from the browser is $lang");
-        }
-        else {
-            $logger->trace("locale from the browser $browser_language is not supported");
-        }
-    }
-
-    if (scalar @languages > 0) {
-        $logger->trace("prefered user languages are " . join(", ", @languages));
-    }
-    else {
-        push(@languages, $authorized_locales[0]);
-    }
-
-    return @languages;
 }
 
 =back
