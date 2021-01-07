@@ -4,18 +4,21 @@
 # also use as a Ansible inventory file to provision VMs
 all:
   children:
+
     cumulus:
       hosts:
         switch01:
           # IP used by helper_scripts and Ansible, not Vagrant
           mgmt_ip: 172.17.17.201
           ansible_host: "{{ mgmt_ip }}"
+
     nodes:
       hosts:
         node01:
           # IP used by helper_scripts and Ansible, not Vagrant
           mgmt_ip: 172.17.17.251
           ansible_host: "{{ mgmt_ip }}"
+
     winservers:
       hosts:
         ad:
@@ -25,6 +28,14 @@ all:
           ansible_host:  "{{ mgmt_ip }}"
           cpus: 2
           memory: 2048
+
+    wireless:
+      hosts:
+        wireless01:
+          # IP used by helper_scripts and Ansible, not Vagrant
+          mgmt_ip: 172.17.17.210
+          ansible_host: "{{ mgmt_ip }}"
+
     stable_and_nightly:
       children:
         stable:
@@ -39,6 +50,7 @@ all:
             pfcen8night: {}
             pfdeb9night: {}
             pfdeb10night: {}
+
     pfservers:
       children:
         dev:
