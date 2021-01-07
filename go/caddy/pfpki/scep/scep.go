@@ -33,9 +33,9 @@ func ScepHandler(pfpki *types.Handler, w http.ResponseWriter, r *http.Request) {
 	var svc scepserver.Service // scep service
 	{
 		svcOptions := []scepserver.ServiceOption{
-			scepserver.ChallengePassword(""),
+			// scepserver.ChallengePassword(nil),
 			// scepserver.WithCSRVerifier(csrVerifier),
-			scepserver.CAKeyPassword([]byte("")),
+			// scepserver.CAKeyPassword(nil),
 			scepserver.ClientValidity(365),
 			scepserver.AllowRenewal(0),
 			// scepserver.WithLogger(logger),

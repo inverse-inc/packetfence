@@ -312,3 +312,46 @@ func PemCert(derBytes []byte) []byte {
 	out := pem.EncodeToMemory(pemBlock)
 	return out
 }
+
+var oid = map[string]string{
+	"2.5.4.3":                    "CN",
+	"2.5.4.4":                    "SN",
+	"2.5.4.5":                    "serialNumber",
+	"2.5.4.6":                    "C",
+	"2.5.4.7":                    "L",
+	"2.5.4.8":                    "ST",
+	"2.5.4.9":                    "streetAddress",
+	"2.5.4.10":                   "O",
+	"2.5.4.11":                   "OU",
+	"2.5.4.12":                   "title",
+	"2.5.4.17":                   "postalCode",
+	"2.5.4.42":                   "GN",
+	"2.5.4.43":                   "initials",
+	"2.5.4.44":                   "generationQualifier",
+	"2.5.4.46":                   "dnQualifier",
+	"2.5.4.65":                   "pseudonym",
+	"0.9.2342.19200300.100.1.25": "DC",
+	"1.2.840.113549.1.9.1":       "emailAddress",
+	"0.9.2342.19200300.100.1.1":  "userid",
+}
+
+func GetDNFromCert(namespace pkix.Name) map[string]string {
+
+	attributeMap := make(map[string]string)
+
+	for _, v := range oid {
+		attributeMap[v] = ""
+	}
+
+	for _, s := range namespace.ToRDNSequence() {
+		for _, i := range s {
+			if v, ok := i.Value.(string); ok {
+				if name, ok := oid[i.Type.String()]; ok {
+					attributeMap[name] = v
+				}
+			}
+
+		}
+	}
+	return attributeMap
+}
