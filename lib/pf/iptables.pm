@@ -125,7 +125,7 @@ sub iptables_generate {
         'routed_postrouting_inline' => '','input_inter_vlan_if' => '',
         'domain_postrouting' => '','mangle_postrouting_inline' => '',
         'filter_forward_isol_vlan' => '', 'input_inter_isol_vlan_if' => '',
-        'filter_forward' => '',
+        'filter_forward' => '', 'forward_netflow' => '',
     );
 
     # global substitution variables
