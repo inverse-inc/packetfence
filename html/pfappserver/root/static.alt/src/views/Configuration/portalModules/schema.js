@@ -1,8 +1,7 @@
 import store from '@/store'
 import i18n from '@/utils/locale'
 import yup from '@/utils/yup'
-import { pfActions as actions } from '@/globals/pfActions'
-import { pfFieldType as fieldType } from '@/globals/pfField'
+import { schemaActions } from '../sources/schema'
 
 yup.addMethod(yup.string, 'portalModuleIdentifierNotExistsExcept', function (exceptName = '', message) {
   return this.test({
@@ -19,17 +18,6 @@ yup.addMethod(yup.string, 'portalModuleIdentifierNotExistsExcept', function (exc
     }
   })
 })
-
-const schemaAction = yup.object({
-  type: yup.string().nullable().required(i18n.t('Type required.')),
-  value: yup.string()
-    .when('type', type => ((type && (actions[type].types.includes(fieldType.NONE) || actions[type].types.includes(fieldType.HIDDEN)))
-      ? yup.string().nullable()
-      : yup.string().nullable().required(i18n.t('Value required.'))
-    ))
-})
-
-const schemaActions = yup.array().ensure().unique(i18n.t('Duplicate action.'), ({ type }) => type).of(schemaAction)
 
 const schemaModule = yup.string().required(i18n.t('Module required'))
 
@@ -50,7 +38,7 @@ export const schema = (props) => {
     id: yup.string().label(i18n.t('Name'))
       .portalModuleIdentifierNotExistsExcept((!isNew && !isClone) ? id : undefined, i18n.t('Name exists.')),
     description: yup.string().label(i18n.t('Description')),
-    actions: schemaActions.meta({ invalidFeedback: i18n.t('Actions contain one or more errors.') }),
+    actions: schemaActions,
     modules: schemaModules.meta({ invalidFeedback: i18n.t('Modules contain one or more errors.') }),
     multi_source_ids: schemaSources.meta({ invalidFeedback: i18n.t('Authentication sources contain one or more errors.') }),
     aup_template: yup.string().label(i18n.t('Template')),

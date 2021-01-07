@@ -8,7 +8,8 @@ yup.setLocale({ // default validators
   string: {
     email: args => args.message || i18n.t('Invalid Email.'),
     min: args => args.message || i18n.t('Minimum {min} characters.', args),
-    max: args => args.message || i18n.t('Maximum {max} characters.', args)
+    max: args => args.message || i18n.t('Maximum {max} characters.', args),
+    required: args => args.message || i18n.t('Value required.')
   }
 })
 
@@ -38,6 +39,20 @@ yup.addMethod(yup.array, 'unique', function (message, hashFn) {
           return false
         cmp.push(hash)
       }
+      return true
+    }
+  })
+})
+
+yup.addMethod(yup.array, 'ifThenRequires', function (message, ifIterFn, requiresIterFn) {
+  return this.test({
+    name: 'ifThenRequires',
+    message: message || i18n.t('Missing value.'),
+    test: value => {
+      if (value.length === 0)
+        return true
+      if (value.filter(row => ifIterFn(row)).length > 0)
+        return (value.filter(row => requiresIterFn(row)).length > 0)
       return true
     }
   })

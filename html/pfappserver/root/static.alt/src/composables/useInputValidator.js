@@ -129,17 +129,15 @@ export const useInputValidator = (props, value, recursive = false) => {
               }
               try {
                 const { meta: { invalidFeedback: metaInvalidFeedback } = {} } = _schema.describe()
-                if (inner.length > 1) { // 2+ errors
-                  if (metaInvalidFeedback) { // mask message
-                    setState(thisPromise, false, null, metaInvalidFeedback)
-                    return
-                  }
-                  // else concatenate errors
-                  setState(thisPromise, false, null, inner.map(({ message }) => message).join(' '))
+                if (metaInvalidFeedback) { // mask messages
+                  setState(thisPromise, false, null, metaInvalidFeedback)
                   return
                 }
-              } catch(e) {
-                /* noop */
+              } catch(e) {/* noop */}
+              if (recursive && inner.length) { // concatenate messages
+                const uniqueInner = [...(new Set(inner.map(({ message }) => message)))] // unique
+                setState(thisPromise, false, null, uniqueInner.join(' '))
+                return
               }
               setState(thisPromise, false, null, message)
             })
