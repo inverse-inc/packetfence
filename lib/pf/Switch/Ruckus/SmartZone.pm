@@ -110,12 +110,12 @@ sub deauth {
     if (isenabled($self->{_ExternalPortalEnforcement})) {
         if($node_info->{last_connection_type} eq $connection_type_to_str{$WEBAUTH_WIRELESS} || $node_info->{last_connection_type} eq $connection_type_to_str{$WIRELESS_MAC_AUTH}) {
             $self->deauthenticateMacWebservices($mac);
+            return;
         }
     }
-    else {
-        $self->deauthenticateMacDefault($mac);
-    }
+    $self->deauthenticateMacDefault($mac);
 }
+
 
 =head2 radiusDisconnect
 
