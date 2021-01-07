@@ -43,7 +43,7 @@
 
     <b-modal v-model="join.showInputModal" size="lg" centered id="joinModal" @shown="focusUsernameInput">
       <template v-slot:modal-title>
-        <h4>{{ $t(`${join.type} {domain} Domain`, { domain: join.item.id }) }}</h4>
+        <h4 v-html="$t(`${join.type} {domain} Domain`, { domain: $strong(join.item.id) })"></h4>
         <b-form-text v-t="'Please enter administrative credentials to connect to the domain.'" class="mb-0"></b-form-text>
       </template>
       <b-form-group class="mb-0">
@@ -70,7 +70,7 @@
           <b-col cols="12" md="auto">
             <b-media>
               <template v-slot:aside><icon name="circle-notch" scale="2" spin></icon></template>
-              <h4>{{ $t(`${join.type}ing {domain} domain`, { domain: join.item.id }) }}</h4>
+              <h4 v-html="$t(`${join.type}ing {domain} domain`, { domain: $strong(join.item.id) })"></h4>
               <p class="font-weight-light">{{ $t('Closing this dialog will not cancel the operation.') }}</p>
             </b-media>
           </b-col>
@@ -80,19 +80,19 @@
 
     <b-modal v-model="join.showResultModal" size="lg" centered id="resultModal" :hide-footer="getTestDomainJoinStatus(join.item) === true">
       <template v-slot:modal-title>
-        <h4 class="mb-0">{{ $t(`${join.type} {domain} domain`, { domain: join.item.id }) }}</h4>
+        <h4 class="mb-0" v-html="$t(`${join.type} {domain} domain`, { domain: $strong(join.item.id) })"></h4>
       </template>
       <b-container class="my-3">
         <b-row class="justify-content-md-center text-secondary">
           <b-col cols="12" md="auto">
             <b-media v-if="lastActionSuccess">
               <template v-slot:aside><icon name="check" scale="2" class="text-success"></icon></template>
-              <h4>{{ $t(`${join.type}ed {domain} domain successfully`, { domain: join.item.id }) }}</h4>
+              <h4 v-html="$t(`${join.type}ed {domain} domain successfully`, { domain: $strong(join.item.id) })"></h4>
               <p class="font-weight-light text-pre mt-3 mb-0">{{ getTestDomainJoinMessage(join.item) }}</p>
             </b-media>
             <b-media v-else>
               <template v-slot:aside><icon name="times" scale="2" class="text-danger"></icon></template>
-              <h4>{{ $t(`${join.type}ing {domain} domain failed`, { domain: join.item.id }) }}</h4>
+              <h4 v-html="$t(`${join.type}ing {domain} domain failed`, { domain: $strong(join.item.id) })"></h4>
               <p class="font-weight-light text-pre mt-3 mb-0">{{ getTestDomainJoinMessage(join.item) }}</p>
             </b-media>
           </b-col>
