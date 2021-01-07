@@ -36,7 +36,7 @@ import BaseFormTab from './BaseFormTab'
 import BaseInput from './BaseInput'
 import BaseInputArray, { props as BaseInputArrayProps } from './BaseInputArray'
 import BaseInputChosenMultiple from './BaseInputChosenMultiple'
-import BaseInputChosenOne from './BaseInputChosenOne'
+import BaseInputChosenOne, { props as BaseInputChosenOneProps } from './BaseInputChosenOne'
 import BaseInputChosenOneSearchable from './BaseInputChosenOneSearchable'
 import BaseInputGroup from './BaseInputGroup'
 import BaseInputGroupTextarea from './BaseInputGroupTextarea'
@@ -91,7 +91,7 @@ export {
   BaseInput,
   BaseInputArray, BaseInputArrayProps,
   BaseInputChosenMultiple,
-  BaseInputChosenOne,
+  BaseInputChosenOne, BaseInputChosenOneProps,
   BaseInputChosenOneSearchable,
   BaseInputGroup,
   BaseInputNumber,

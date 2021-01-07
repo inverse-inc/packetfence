@@ -30,7 +30,7 @@ export const useViewCollectionItemFixed = (collection, props, context) => {
   const isDeletable = false
 
   const isValid = useDebouncedWatchHandler(
-    [form, meta],
+    form,
     () => (
       !rootRef.value ||
       Array.prototype.slice.call(rootRef.value.querySelectorAll('.is-invalid'))

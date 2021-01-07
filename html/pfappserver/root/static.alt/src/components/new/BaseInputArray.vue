@@ -22,7 +22,6 @@
 
           <component :is="childComponent" :ref="draggableKeys[index]"
             :namespace="`${namespace}.${index}`"
-            v-bind="$props"
           />
 
         </b-col>

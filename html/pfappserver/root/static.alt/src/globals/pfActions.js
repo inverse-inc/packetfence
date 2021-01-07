@@ -144,9 +144,9 @@ export const pfActions = {
     text: i18n.t('Set the bandwidth balance from the auth source'),
     types: [fieldType.NONE]
   },
-  default_formActions: {
-    value: 'default_formActions',
-    text: i18n.t('Execute module default formActions'),
+  default_actions: {
+    value: 'default_actions',
+    text: i18n.t('Execute module default actions'),
     types: [fieldType.NONE]
   },
   destination_url: {

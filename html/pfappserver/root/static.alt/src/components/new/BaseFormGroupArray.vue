@@ -40,7 +40,6 @@
 
             <component :is="childComponent"
               :namespace="`${namespace}.${index}`"
-              v-bind="$props"
             />
 
           </b-col>

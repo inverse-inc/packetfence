@@ -1,8 +1,5 @@
 import acl from '@/utils/acl'
-import store from '@/store'
-import FormStore from '@/store/base/form'
 import ConfigurationView from '../'
-import PortalModulesStore from '../_store/portalModules'
 
 /* Policies Access Control */
 const PoliciesAccessControlSection = () => import(/* webpackChunkName: "Configuration" */ '../_components/PoliciesAccessControlSection')
@@ -39,8 +36,7 @@ import CaptivePortalRoutes from '../captivePortal/_router'
 import FilterEnginesRoutes from '../filterEngines/_router'
 import BillingTiersRoutes from '../billingTiers/_router'
 import PkiProvidersRoutes from '../pkiProviders/_router'
-const PortalModulesList = () => import(/* webpackChunkName: "Configuration" */ '../_components/PortalModulesList')
-const PortalModuleView = () => import(/* webpackChunkName: "Configuration" */ '../_components/PortalModuleView')
+import PortalModulesRoutes from '../portalModules/_router'
 import AccessDurationsRoutes from '../accessDurations/_router'
 import ProvisionersRoutes from '../provisioners/_router'
 import SelfServicesRoutes from '../selfServices/_router'
@@ -73,15 +69,6 @@ const route = {
   meta: {
     can: () => acl.$can('read', 'configuration_main'), // has ACL for 1+ children
     transitionDelay: 300 * 2 // See _transitions.scss => $slide-bottom-duration
-  },
-  beforeEnter: (to, from, next) => {
-    /**
-     * Register Vuex stores
-     */
-    if (!store.state.$_portalmodules) {
-      store.registerModule('$_portalmodules', PortalModulesStore)
-    }
-    next()
   },
   children: [
     /**
@@ -138,52 +125,7 @@ const route = {
     ...BillingTiersRoutes,
     ...PkiProvidersRoutes,
     ...ProvisionersRoutes,
-    {
-      path: 'portal_modules',
-      name: 'portal_modules',
-      component: PortalModulesList,
-      props: (route) => ({ query: route.query.query })
-    },
-    {
-      path: 'portal_modules/new/:moduleType',
-      name: 'newPortalModule',
-      component: PortalModuleView,
-      props: (route) => ({ formStoreName: 'formPortalModule', isNew: true, moduleType: route.params.moduleType }),
-      beforeEnter: (to, from, next) => {
-        if (!store.state.formPortalModule) { // Register store module only once
-          store.registerModule('formPortalModule', FormStore)
-        }
-        next()
-      }
-    },
-    {
-      path: 'portal_module/:id',
-      name: 'portal_module',
-      component: PortalModuleView,
-      props: (route) => ({ formStoreName: 'formPortalModule', id: route.params.id }),
-      beforeEnter: (to, from, next) => {
-        if (!store.state.formPortalModule) { // Register store module only once
-          store.registerModule('formPortalModule', FormStore)
-        }
-        store.dispatch('$_portalmodules/getPortalModule', to.params.id).then(() => {
-          next()
-        })
-      }
-    },
-    {
-      path: 'portal_module/:id/clone',
-      name: 'clonePortalModule',
-      component: PortalModuleView,
-      props: (route) => ({ formStoreName: 'formPortalModule', id: route.params.id, isClone: true }),
-      beforeEnter: (to, from, next) => {
-        if (!store.state.formPortalModule) { // Register store module only once
-          store.registerModule('formPortalModule', FormStore)
-        }
-        store.dispatch('$_portalmodules/getPortalModule', to.params.id).then(() => {
-          next()
-        })
-      }
-    },
+    ...PortalModulesRoutes,
     ...AccessDurationsRoutes,
     ...SelfServicesRoutes,
 
