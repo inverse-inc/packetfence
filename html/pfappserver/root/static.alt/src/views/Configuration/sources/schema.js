@@ -101,7 +101,7 @@ const schemaRule = yup.object({
     .max(255, i18n.t('Maximum 255 characters.')),
   match: yup.string(),
   actions: schemaActions.label(i18n.t('Action')),
-  conditions: schemaConditions.label(i18n.t('Condition')).meta({ invalidFeedback: i18n.t('Condition contains one or more errors.') })
+  conditions: schemaConditions.label(i18n.t('Condition'))
 })
 
 const schemaRules = yup.array().ensure().unique(i18n.t('Duplicate rule.'), ({ id }) => id).of(schemaRule)

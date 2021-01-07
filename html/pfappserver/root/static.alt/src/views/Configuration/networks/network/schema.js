@@ -1,5 +1,5 @@
 import i18n from '@/utils/locale'
-import yup, { reIpv4 } from '@/utils/yup'
+import yup from '@/utils/yup'
 
 const schemaRoute = yup.string().nullable()
   .required(i18n.t('Static route required.'))

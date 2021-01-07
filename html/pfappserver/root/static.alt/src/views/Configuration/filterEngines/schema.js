@@ -70,11 +70,11 @@ export const schema = (props) => {
       .required(i18n.t('Name required.'))
       .filterIdNotExistsExcept((!isNew && !isClone) ? { collection, id } : { collection }, i18n.t('Name exists.')),
 
-    actions: schemaActions.meta({ invalidFeedback: i18n.t('Actions contain one or more errors.') }),
-    answers: schemaAnswers.meta({ invalidFeedback: i18n.t('Answers contain one or more errors.') }),
+    actions: schemaActions,
+    answers: schemaAnswers,
     condition: schemaCondition.meta({ invalidFeedback: i18n.t('Condition contains one or more errors.') }),
     description: yup.string().nullable().label(i18n.t('Description')),
-    params: schemaParams.meta({ invalidFeedback: i18n.t('Parameters contain one or more errors.') }),
+    params: schemaParams,
     scopes: schemaScopes
   })
 }

@@ -20,11 +20,10 @@ yup.addMethod(yup.string, 'networkBehaviorPolicyIdNotExistsExcept', function (ex
 const schemaDeviceAttribute = yup.object({
   type: yup.string().nullable().required('Attribute required.'),
   value: yup.string()
-    .when('type', {
-      is: value => !value,
-      then: yup.string().nullable(),
-      otherwise: yup.string().nullable().required(i18n.t('Weight required.'))
-    })
+    .when('type', type => ((type)
+      ? yup.string().nullable().required(i18n.t('Weight required.'))
+      : yup.string().nullable()
+    ))
 })
 
 const schemaDeviceAttributes = yup.array().unique(i18n.t('Duplicate attribute.'), ({ type }) => type).of(schemaDeviceAttribute)
@@ -42,7 +41,7 @@ export const schema = (props) => {
       .required(i18n.t('Name required.'))
       .networkBehaviorPolicyIdNotExistsExcept((!isNew && !isClone) ? id : undefined, i18n.t('Profile exists.')),
 
-    device_attributes_diff_threshold_overrides: schemaDeviceAttributes.meta({ invalidFeedback: i18n.t('Weights contain one or more errors.') }),
+    device_attributes_diff_threshold_overrides: schemaDeviceAttributes
   })
 }
 

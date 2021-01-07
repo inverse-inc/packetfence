@@ -20,14 +20,13 @@ yup.addMethod(yup.string, 'switchTemplateIdNotExistsExcept', function (exceptId 
 const schemaRadiusAttribute = yup.object({
   type: yup.string().nullable().required(i18n.t('RADIUS attribute required.')),
   value: yup.string()
-    .when('type', {
-      is: value => !value,
-      then: yup.string().nullable(),
-      otherwise: yup.string().nullable().required(i18n.t('Value required.'))
-    })
+    .when('type', type => ((type)
+      ? yup.string().nullable().required(i18n.t('Value required.'))
+      : yup.string().nullable()
+    ))
 })
 
-const schemaRadiusAttributes = yup.array().ensure().unique(i18n.t('Duplicate attribute.')).of(schemaRadiusAttribute.meta({ invalidFeedback: i18n.t('Scope contains one or more errors.') }))
+const schemaRadiusAttributes = yup.array().ensure().unique(i18n.t('Duplicate attribute.')).of(schemaRadiusAttribute)
 
 export const schema = (props) => {
   const {
@@ -42,15 +41,15 @@ export const schema = (props) => {
       .required(i18n.t('Identifier required.'))
       .switchTemplateIdNotExistsExcept((!isNew && !isClone) ? id : undefined, i18n.t('Identifier exists.')),
 
-    acceptVlan: schemaRadiusAttributes.meta({ invalidFeedback: i18n.t('VLAN scopes contain one or more errors.') }),
-    acceptRole: schemaRadiusAttributes.meta({ invalidFeedback: i18n.t('Role scopes contain one or more errors.') }),
-    bounce: schemaRadiusAttributes.meta({ invalidFeedback: i18n.t('Bounce scopes contain one or more errors.') }),
-    disconnect: schemaRadiusAttributes.meta({ invalidFeedback: i18n.t('Disconnect scopes contain one or more errors.') }),
-    cliAuthorizeRead: schemaRadiusAttributes.meta({ invalidFeedback: i18n.t('Read scopes contain one or more errors.') }),
-    cliAuthorizeWrite: schemaRadiusAttributes.meta({ invalidFeedback: i18n.t('Write scopes contain one or more errors.') }),
-    coa: schemaRadiusAttributes.meta({ invalidFeedback: i18n.t('CoA scopes contain one or more errors.') }),
-    reject: schemaRadiusAttributes.meta({ invalidFeedback: i18n.t('Reject scopes contain one or more errors.') }),
-    voip: schemaRadiusAttributes.meta({ invalidFeedback: i18n.t('VOIP scopes contain one or more errors.') }),
+    acceptVlan: schemaRadiusAttributes,
+    acceptRole: schemaRadiusAttributes,
+    bounce: schemaRadiusAttributes,
+    disconnect: schemaRadiusAttributes,
+    cliAuthorizeRead: schemaRadiusAttributes,
+    cliAuthorizeWrite: schemaRadiusAttributes,
+    coa: schemaRadiusAttributes,
+    reject: schemaRadiusAttributes,
+    voip: schemaRadiusAttributes,
   })
 }
 

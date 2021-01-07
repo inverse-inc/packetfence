@@ -36,7 +36,6 @@ export default (props) => {
     ip: yup.string().label(i18n.t('IP')),
     username: yup.string().label(i18n.t('Username')),
     password: yup.string().label(i18n.t('Password')),
-
-    wmi_rules: schemaWmiRules.label(i18n.t('WMI Rules')).meta({ invalidFeedback: i18n.t('WMI Rules contain one or more errors.') })
+    wmi_rules: schemaWmiRules.label(i18n.t('WMI Rules'))
   })
 }
