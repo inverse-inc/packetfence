@@ -320,7 +320,7 @@ sub create_local_account {
         'password'  => $password,
         'email'     => $email,
         'subject'   => $self->app->i18n_format(
-            "%s: Guest account creation information", $Config{'general'}{'domain'}
+            "%s: Account creation information", $Config{'general'}{'domain'}
         ),
     );
     $self->app->session->{local_account_info} = {
