@@ -9,6 +9,10 @@
       disabled
     />
 
+    <form-group-description namespace="description"
+      :column-label="$i18n.t('Description')"
+    />
+
     <form-group-vlan v-show="isNew || isClone || form.master"
       namespace="vlan"
       :column-label="$i18n.t('Virtual LAN ID')"
@@ -116,6 +120,7 @@ import schemaFn from '../schema'
 import {
   FormGroupAdditionalListeneningDaemons,
   FormGroupCoa,
+  FormGroupDescription,
   FormGroupDhcpdEnabled,
   FormGroupDns,
   FormGroupHighAvailability,
@@ -137,6 +142,7 @@ const components = {
 
   FormGroupAdditionalListeneningDaemons,
   FormGroupCoa,
+  FormGroupDescription,
   FormGroupDhcpdEnabled,
   FormGroupDns,
   FormGroupHighAvailability,

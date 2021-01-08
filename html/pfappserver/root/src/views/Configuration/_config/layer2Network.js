@@ -10,8 +10,7 @@ export const columns = [
     key: 'description',
     label: 'Description', // i18n defer
     sortable: true,
-    visible: true,
-    required: false
+    visible: true
   },
   {
     key: 'algorithm',

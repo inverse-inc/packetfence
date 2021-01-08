@@ -10,6 +10,10 @@
       :column-label="$i18n.t('Layer2 Network')"
     />
 
+    <form-group-description namespace="description"
+      :column-label="$i18n.t('Description')"
+    />
+
     <form-group-algorithm namespace="algorithm"
       :disabled="isFakeMac"
       :column-label="$i18n.t('Algorithm')"
@@ -72,6 +76,7 @@ import {
 import schemaFn from '../schema'
 import {
   FormGroupAlgorithm,
+  FormGroupDescription,
   FormGroupDhcpDefaultLeaseTime,
   FormGroupDhcpMaxLeaseTime,
   FormGroupDhcpEnd,
@@ -88,6 +93,7 @@ const components = {
   BaseForm,
 
   FormGroupAlgorithm,
+  FormGroupDescription,
   FormGroupDhcpDefaultLeaseTime,
   FormGroupDhcpMaxLeaseTime,
   FormGroupDhcpEnd,
