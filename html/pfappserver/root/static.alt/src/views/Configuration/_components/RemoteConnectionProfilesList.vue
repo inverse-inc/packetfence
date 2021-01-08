@@ -81,20 +81,20 @@ export default {
       this.$router.push({ name: 'cloneRemoteConnectionProfile', params: { id: item.id } })
     },
     remove (item) {
-      this.$store.dispatch('$_remote_connection_profiles/deleteRemoteConnectionProfile', item.id).then(response => {
+      this.$store.dispatch('$_remote_connection_profiles/deleteRemoteConnectionProfile', item.id).then(() => {
         const { $refs: { pfConfigList: { refreshList = () => {} } = {} } = {} } = this
         refreshList() // soft reload
       })
     },
     sort (items) {
-      this.$store.dispatch('$_remote_connection_profiles/sortRemoteConnectionProfiles', items.map(item => item.id)).then(response => {
+      this.$store.dispatch('$_remote_connection_profiles/sortRemoteConnectionProfiles', items.map(item => item.id)).then(() => {
         this.$store.dispatch('notification/info', { message: this.$i18n.t('Remote Connection Profiles resorted.') })
       })
     },
     enable (item) {
-      return (value) => { // 'enabled'
+      return () => { // 'enabled'
         return new Promise((resolve, reject) => {
-          this.$store.dispatch('$_remote_connection_profiles/enableRemoteConnectionProfile', item).then(response => {
+          this.$store.dispatch('$_remote_connection_profiles/enableRemoteConnectionProfile', item).then(() => {
             const searchableStoreName = this.$refs.pfConfigList.searchableStoreName
             this.$store.dispatch(`${searchableStoreName}/updateItem`, { key: 'id', id: item.id, prop: 'status', data: 'enabled' }).then(() => {
               resolve('enabled')
@@ -106,9 +106,9 @@ export default {
       }
     },
     disable (item) {
-      return (value) => { // 'disabled'
+      return () => { // 'disabled'
         return new Promise((resolve, reject) => {
-          this.$store.dispatch('$_remote_connection_profiles/disableRemoteConnectionProfile', item).then(response => {
+          this.$store.dispatch('$_remote_connection_profiles/disableRemoteConnectionProfile', item).then(() => {
             const searchableStoreName = this.$refs.pfConfigList.searchableStoreName
             this.$store.dispatch(`${searchableStoreName}/updateItem`, { key: 'id', id: item.id, prop: 'status', data: 'disabled' }).then(() => {
               resolve('disabled')

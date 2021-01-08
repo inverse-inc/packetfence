@@ -1,19 +1,27 @@
 import { BaseViewCollectionItem } from '../../_components/new/'
 import {
   BaseFormButtonBar,
-  BaseFormGroupInput
+  BaseFormGroupChosenOne,
+  BaseFormGroupInput,
+  BaseFormGroupTextarea,
+  BaseFormGroupToggleDisabledEnabled
 } from '@/components/new/'
 import TheForm from './TheForm'
 import TheView from './TheView'
 
 export {
-  BaseFormButtonBar       as FormButtonBar,
+  BaseFormButtonBar                   as FormButtonBar,
 
-  BaseFormGroupInput      as FormGroupIdentifier,
-  BaseFormGroupInput      as FormGroupMaxNodesPerPid,
-  BaseFormGroupInput      as FormGroupNotes,
+  BaseFormGroupInput                  as FormGroupIdentifier,
+  BaseFormGroupInput                  as FormGroupNotes,
+  BaseFormGroupInput                  as FormGroupMaxNodesPerPid,
+  BaseFormGroupChosenOne              as FormGroupParent,
+  BaseFormGroupToggleDisabledEnabled  as FormGroupIncludeParentAcls,
+  BaseFormGroupToggleDisabledEnabled  as FormGroupFingerbankDynamicAccessList,
+  BaseFormGroupTextarea               as FormGroupAcls,
+  BaseFormGroupToggleDisabledEnabled  as FormGroupInheritVlan,
 
-  BaseViewCollectionItem  as BaseView,
+  BaseViewCollectionItem              as BaseView,
   TheForm,
   TheView
 }

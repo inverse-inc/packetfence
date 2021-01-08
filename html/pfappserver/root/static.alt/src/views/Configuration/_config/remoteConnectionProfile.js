@@ -1,36 +1,18 @@
-/* eslint-disable camelcase */
-import router from '@/router'
-import store from '@/store'
 import i18n from '@/utils/locale'
-import pfField from '@/components/pfField'
-import pfFieldTypeMatch from '@/components/pfFieldTypeMatch'
 import pfFormChosen from '@/components/pfFormChosen'
-import pfFormBooleanBuilder from '@/components/pfFormBooleanBuilder'
-import pfFormFields from '@/components/pfFormFields'
 import pfFormInput from '@/components/pfFormInput'
 import pfFormTextarea from '@/components/pfFormTextarea'
 import pfFormRangeToggle from '@/components/pfFormRangeToggle'
-import pfTree from '@/components/pfTree'
 import {
   attributesFromMeta,
   validatorsFromMeta
 } from './'
 import { pfFieldType as fieldType } from '@/globals/pfField'
-import { pfFormatters as formatter } from '@/globals/pfFormatters'
-import { pfLocalesList as localesList } from '@/globals/pfLocales'
-import { pfOperators } from '@/globals/pfOperators'
 import { pfSearchConditionType as conditionType } from '@/globals/pfSearch'
 import {
-  and,
-  not,
-  conditional,
   isMacAddress,
   isPort
 } from '@/globals/pfValidators'
-import {
-  required,
-  maxLength
-} from 'vuelidate/lib/validators'
 
 export const filters = {
   connection_sub_type: {
@@ -219,58 +201,13 @@ export const config = () => {
   }
 }
 
-const fieldOperatorsFromMeta = (meta = {}) => {
-  const { advanced_filter: { properties: { field: { allowed = [] } = {} } = {} } = {} } = meta
-  return allowed.map(allowed => {
-    const { text, value, siblings: { value: { allowed_values } = {} } = {} } = allowed
-    if (allowed_values) {
-      return {
-        text,
-        value,
-        options: allowed_values.sort((a, b) => {
-          return a.text.localeCompare(b.text)
-        })
-      }
-    }
-    return { text, value }
-  }).sort((a, b) => {
-    return a.text.localeCompare(b.text)
-  })
-}
-
-const valueOperatorsFromMeta = (meta = {}) => {
-  const { advanced_filter: { properties: { op: { allowed = [] } = {} } = {} } = {} } = meta
-  return allowed.filter(allowed => {
-    const { requires = [] } = allowed
-    return !requires.includes('values')
-  }).map(allowed => {
-    const { requires = [], value } = allowed
-    return { requires, value }
-  })
-}
-
-const valuesOperatorsFromMeta = (meta = {}) => {
-  const { advanced_filter: { properties: { op: { allowed = [] } = {} } = {} } = {} } = meta
-  return allowed.filter(allowed => {
-    const { requires = [] } = allowed
-    return requires.includes('values') || requires.length === 0
-  }).map(allowed => {
-    const { value } = allowed
-    return value
-  })
-}
-
 export const view = (form = {}, meta = {}) => {
   const {
     id
   } = form
   const {
     isNew = false,
-    isClone = false,
-    files = [],
-    sortFiles = null,
-    createDirectory = null,
-    deleteFile = null
+    isClone = false
   } = meta
 
   // fields differ w/ & wo/ 'default'
@@ -455,18 +392,7 @@ export const view = (form = {}, meta = {}) => {
   ]
 }
 
-export const validators = (form = {}, meta = {}) => {
-  const {
-    id,
-  } = form
-  const {
-    isNew = false,
-    isClone = false
-  } = meta
-
-  // fields differ w/ & wo/ 'default'
-  const isDefault = (id === 'default')
-
+export const validators = (form, meta = {}) => {
   return {
     ...{
       id: {

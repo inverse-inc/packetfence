@@ -10,6 +10,7 @@ import SourcesRoutes from '../sources/_router'
 import SwitchesRoutes from '../switches/_router'
 import SwitchGroupsRoutes from '../switchGroups/_router'
 import ConnectionProfilesRoutes from '../connectionProfiles/_router'
+import RemoteConnectionProfilesRoutes from '../remoteConnectionProfiles/_router'
 
 /* Compliance */
 const ComplianceSection = () => import(/* webpackChunkName: "Configuration" */ '../_components/ComplianceSection')
@@ -85,55 +86,8 @@ const route = {
     ...SwitchesRoutes,
     ...SwitchGroupsRoutes,
     ...ConnectionProfilesRoutes,
-    /**
-     * Remote connection profiles
-     */
-    {
-      path: 'remote_connection_profiles',
-      name: 'remote_connection_profiles',
-      component: RemoteConnectionProfilesList,
-      props: (route) => ({ query: route.query.query })
-    },
-    {
-      path: 'remote_connection_profiles/new',
-      name: 'newRemoteConnectionProfile',
-      component: RemoteConnectionProfileView,
-      props: () => ({ formStoreName: 'formRemoteConnectionProfile', isNew: true }),
-      beforeEnter: (to, from, next) => {
-        if (!store.state.formRemoteConnectionProfile) { // Register store module only once
-          store.registerModule('formRemoteConnectionProfile', FormStore)
-        }
-        next()
-      }
-    },
-    {
-      path: 'remote_connection_profile/:id',
-      name: 'remote_connection_profile',
-      component: RemoteConnectionProfileView,
-      props: (route) => ({ formStoreName: 'formRemoteConnectionProfile', id: route.params.id }),
-      beforeEnter: (to, from, next) => {
-        if (!store.state.formRemoteConnectionProfile) { // Register store module only once
-          store.registerModule('formRemoteConnectionProfile', FormStore)
-        }
-        store.dispatch('$_remote_connection_profiles/getRemoteConnectionProfile', to.params.id).then(() => {
-          next()
-        })
-      }
-    },
-    {
-      path: 'remote_connection_profile/:id/clone',
-      name: 'cloneRemoteConnectionProfile',
-      component: RemoteConnectionProfileView,
-      props: (route) => ({ formStoreName: 'formRemoteConnectionProfile', id: route.params.id, isClone: true }),
-      beforeEnter: (to, from, next) => {
-        if (!store.state.formRemoteConnectionProfile) { // Register store module only once
-          store.registerModule('formRemoteConnectionProfile', FormStore)
-        }
-        store.dispatch('$_remote_connection_profiles/getRemoteConnectionProfile', to.params.id).then(() => {
-          next()
-        })
-      }
-    },
+    ...RemoteConnectionProfilesRoutes,
+
     /**
      * Compliance
      */
@@ -147,6 +101,7 @@ const route = {
     ...ScanEnginesRoutes,
     ...SecurityEventsRoutes,
     ...WmiRulesRoutes,
+
     /**
      * Integration
      */
@@ -162,6 +117,7 @@ const route = {
     ...SyslogForwardersRoutes,
     ...WrixRoutes,
     ...PkiRoutes,
+
     /**
      *  Advanced Access Configuration
      */
@@ -188,6 +144,7 @@ const route = {
     ...NetworksRoutes,
     ...FloatingDevicesRoutes,
     ...SnmpTrapsRoutes,
+
     /**
      * System Configuration
      */

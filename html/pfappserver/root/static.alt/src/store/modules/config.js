@@ -100,9 +100,6 @@ const api = {
   getConnectionProfiles () {
     return apiCall({ url: 'config/connection_profiles', method: 'get' })
   },
-  getSelfServices () {
-    return apiCall({ url: 'config/self_services', method: 'get' })
-  },
   getDomains () {
     return apiCall({ url: 'config/domains', method: 'get' })
   },
@@ -121,6 +118,9 @@ const api = {
   getLayer2Networks () {
     return apiCall({ url: 'config/l2_networks', method: 'get', params: { limit: 1000 } })
   },
+  getNetworkBehaviorPolicies () {
+    return apiCall({ url: 'config/network_behavior_policies', method: 'get' })
+  },
   getMaintenanceTasks () {
     return apiCall({ url: 'config/maintenance_tasks', method: 'get' })
   },
@@ -132,9 +132,6 @@ const api = {
   },
   getPkiCerts () {
     return apiCall({ url: 'pki/certs', method: 'get', params: { limit: 1000 } })
-  },
-  getNetworkBehaviorPolicies () {
-    return apiCall({ url: 'config/network_behavior_policies', method: 'get' })
   },
   getPkiProviders () {
     return apiCall({ url: 'config/pki_providers', method: 'get' })
@@ -163,6 +160,9 @@ const api = {
   getRealms (tenantId) {
     return apiCall({ url: 'config/realms', method: 'get', headers: { 'X-PacketFence-Tenant-Id': tenantId } })
   },
+  getRemoteConnectionProfiles () {
+    return apiCall({ url: 'config/remote_connection_profiles', method: 'get' })
+  },
   getRoles () {
     return apiCall({ url: 'node_categories', method: 'get', params: { limit: 1000 } })
   },
@@ -174,6 +174,9 @@ const api = {
   },
   getSecurityEvents () {
     return apiCall({ url: 'config/security_events', method: 'get', params: { limit: 1000 } })
+  },
+  getSelfServices () {
+    return apiCall({ url: 'config/self_services', method: 'get' })
   },
   getSources () {
     return apiCall({ url: 'config/sources', method: 'get', params: { limit: 1000 } })
@@ -335,6 +338,8 @@ const initialState = () => { // set intitial states to `false` (not `[]` or `{}`
     radiusTlssStatus: '',
     realms: {},
     realmsStatus: '',
+    remoteConnectionProfiles: false,
+    remoteConnectionProfilesStatus: '',
     roles: false,
     rolesStatus: '',
     routedNetworks: false,
@@ -544,6 +549,9 @@ const getters = {
   },
   isLoadingRealms: state => {
     return state.realmsStatus === types.LOADING
+  },
+  isLoadingRemoteConnectionProfiles: state => {
+    return state.remoteConnectionProfilesStatus === types.LOADING
   },
   isLoadingRoles: state => {
     return state.rolesStatus === types.LOADING
@@ -1413,6 +1421,20 @@ const actions = {
       return Promise.resolve(state.realms[tenantId])
     }
   },
+  getRemoteConnectionProfiles: ({ state, getters, commit }) => {
+    if (getters.isLoadingRemoteConnectionProfiles) {
+      return Promise.resolve(state.remoteConnectionProfiles)
+    }
+    if (!state.remoteConnectionProfiles) {
+      commit('REMOTE_CONNECTION_PROFILES_REQUEST')
+      return api.getRemoteConnectionProfiles().then(response => {
+        commit('REMOTE_CONNECTION_PROFILES_UPDATED', response.data.items)
+        return state.remoteConnectionProfiles
+      })
+    } else {
+      return Promise.resolve(state.remoteConnectionProfiles)
+    }
+  },
   getRoles: ({ state, getters, commit }) => {
     if (getters.isLoadingRoles) {
       return Promise.resolve(state.roles)
@@ -2041,6 +2063,13 @@ const mutations = {
   REALMS_UPDATED: (state, { tenantId, items }) => {
     Vue.set(state.realms, tenantId, items)
     state.realmsStatus = types.SUCCESS
+  },
+  REMOTE_CONNECTION_PROFILES_REQUEST: (state) => {
+    state.remoteConnectionProfilesStatus = types.LOADING
+  },
+  REMOTE_CONNECTION_PROFILES_UPDATED: (state, remoteConnectionProfiles) => {
+    state.remoteConnectionProfiles = remoteConnectionProfiles
+    state.remoteConnectionProfilesStatus = types.SUCCESS
   },
   ROLES_REQUEST: (state) => {
     state.rolesStatus = types.LOADING

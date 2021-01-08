@@ -17,6 +17,14 @@ yup.addMethod(yup.string, 'roleNameNotExistsExcept', function (exceptName = '', 
   })
 })
 
+yup.addMethod(yup.string, 'parentIsNotIdentifier', function (id = '', message) {
+  return this.test({
+    name: 'parentIsNotIdentifier',
+    message: message || i18n.t('Invalid parent, must not be self.'),
+    test: (value) => (!value || value.toLowerCase() !== id.toLowerCase())
+  })
+})
+
 export default (props) => {
   const {
     id,
@@ -29,11 +37,9 @@ export default (props) => {
       .nullable()
       .required(i18n.t('Name required.'))
       .roleNameNotExistsExcept((!isNew && !isClone) ? id : undefined, i18n.t('Name exists.')),
-
-    notes: yup.string()
-      .nullable(),
-
-    max_nodes_per_pid: yup.string()
-      .nullable()
+    notes: yup.string().nullable(),
+    max_nodes_per_pid: yup.string().nullable(),
+    parent: yup.string().nullable()
+      .parentIsNotIdentifier(id)
   })
 }

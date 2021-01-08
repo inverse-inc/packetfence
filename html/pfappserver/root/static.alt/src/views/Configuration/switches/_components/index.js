@@ -38,7 +38,7 @@ export {
   BaseFormGroupTextarea                   as FormGroupRoleMapAccessList,
   BaseFormGroupInput                      as FormGroupRoleMapRole,
   BaseFormGroupInput                      as FormGroupRoleMapUrl,
-  BaseFormGroupInput                      as FormGroupRoleMapVlan,
+  BaseFormGroupInputNumber                as FormGroupRoleMapVlan,
   BaseFormGroupInput                      as FormGroupSnmpAuthProtocolTrap,
   BaseFormGroupInputPassword              as FormGroupSnmpAuthPasswordTrap,
   BaseFormGroupInput                      as FormGroupSnmpCommunityRead,

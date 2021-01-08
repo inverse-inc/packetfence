@@ -53,6 +53,7 @@ export const schema = (props) => {
     android_download_uri: yup.string().nullable().label(i18n.t('URI')),
     ios_agent_download_uri: yup.string().nullable().label(i18n.t('URI')),
     ios_download_uri: yup.string().nullable().label(i18n.t('URI')),
+    linux_agent_download_uri: yup.string().nullable().label(i18n.t('URI')),
     mac_osx_agent_download_uri: yup.string().nullable().label(i18n.t('URI')),
     win_agent_download_uri: yup.string().nullable().label(i18n.t('URI')),
     windows_agent_download_uri: yup.string().nullable().label(i18n.t('URI')),

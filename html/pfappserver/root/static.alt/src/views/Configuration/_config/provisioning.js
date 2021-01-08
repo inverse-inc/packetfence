@@ -1361,7 +1361,7 @@ export const view = (form = {}, meta = {}) => {
             viewFields.oses(form, meta),
             viewFields.win_agent_download_uri(form, meta),
             viewFields.mac_osx_agent_download_uri(form, meta),
-            viewFields.linuxx_agent_download_uri(form, meta)
+            viewFields.linux_agent_download_uri(form, meta)
           ]
         }
       ]

@@ -79,8 +79,6 @@ import {
   BaseForm
 } from '@/components/new/'
 import {
-  TheFilesList,
-
   FormGroupIdentifier,
   FormGroupDescription,
   FormGroupStatus,
@@ -89,7 +87,7 @@ import {
   FormGroupAdvancedFilter,
   FormGroupAllowCommunicationSameRole,
   FormGroupAllowCommunicationToRoles,
-  FormGroupRresolveHostnamesOfPeers,
+  FormGroupResolveHostnamesOfPeers,
   FormGroupInternalDomainToResolve,
   FormGroupAdditionalDomainsToResolve,
   FormGroupGateway,
@@ -108,7 +106,7 @@ const components = {
   FormGroupAdvancedFilter,
   FormGroupAllowCommunicationSameRole,
   FormGroupAllowCommunicationToRoles,
-  FormGroupRresolveHostnamesOfPeers,
+  FormGroupResolveHostnamesOfPeers,
   FormGroupInternalDomainToResolve,
   FormGroupAdditionalDomainsToResolve,
   FormGroupGateway,

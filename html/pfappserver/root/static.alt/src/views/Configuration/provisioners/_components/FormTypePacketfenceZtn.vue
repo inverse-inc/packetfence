@@ -44,26 +44,6 @@
       :text="$i18n.t('Nodes with the selected OS will be affected.')"
     />
 
-    <form-group-host namespace="host"
-      :column-label="$i18n.t('Host')"
-    />
-
-    <form-group-port namespace="port"
-      :column-label="$i18n.t('Port')"
-    />
-
-    <form-group-protocol namespace="protocol"
-      :column-label="$i18n.t('Protocol')"
-    />
-
-    <form-group-api-username namespace="api_username"
-      :column-label="$i18n.t('API username')"
-    />
-
-    <form-group-api-password namespace="api_password"
-      :column-label="$i18n.t('API password')"
-    />
-
     <form-group-windows-agent-download-uri namespace="windows_agent_download_uri"
       :column-label="$i18n.t('Windows agent download URI')"
     />
@@ -71,24 +51,24 @@
     <form-group-mac-osx-agent-download-uri namespace="mac_osx_agent_download_uri"
       :column-label="$i18n.t('Mac OSX agent download URI')"
     />
+
+    <form-group-linux-agent-download-uri namespace="linux_agent_download_uri"
+      :column-label="$i18n.t('Linux agent download URI')"
+    />
   </base-form>
 </template>
 <script>
 import { BaseForm } from '@/components/new/'
 import {
-  FormGroupApiPassword,
-  FormGroupApiUsername,
   FormGroupApplyRole,
   FormGroupAutoRegister,
   FormGroupCategory,
   FormGroupDescription,
   FormGroupEnforce,
-  FormGroupHost,
   FormGroupIdentifier,
+  FormGroupLinuxAgentDownloadUri,
   FormGroupMacOsxAgentDownloadUri,
   FormGroupOses,
-  FormGroupPort,
-  FormGroupProtocol,
   FormGroupRoleToApply,
   FormGroupWindowsAgentDownloadUri
 } from './'
@@ -96,19 +76,15 @@ import {
 const components = {
   BaseForm,
 
-  FormGroupApiPassword,
-  FormGroupApiUsername,
   FormGroupApplyRole,
   FormGroupAutoRegister,
   FormGroupCategory,
   FormGroupDescription,
   FormGroupEnforce,
-  FormGroupHost,
   FormGroupIdentifier,
+  FormGroupLinuxAgentDownloadUri,
   FormGroupMacOsxAgentDownloadUri,
   FormGroupOses,
-  FormGroupPort,
-  FormGroupProtocol,
   FormGroupRoleToApply,
   FormGroupWindowsAgentDownloadUri
 }
@@ -117,7 +93,7 @@ import { useForm as setup, useFormProps as props } from '../_composables/useForm
 
 // @vue/component
 export default {
-  name: 'form-type-sentinelone',
+  name: 'form-type-intune',
   inheritAttrs: false,
   components,
   props,

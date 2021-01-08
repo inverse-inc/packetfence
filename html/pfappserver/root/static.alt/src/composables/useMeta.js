@@ -189,7 +189,13 @@ export const useFormMetaSchema = (meta, schema) => {
     return schema
   }
 
-  return computed(() => getSchemaFromMeta(meta.value).concat(
-    schema.value
-  ))
+  return computed(() => {
+    try {
+      // exception occurs on schema type mismatch (string, array, object) at any nested level
+      return getSchemaFromMeta(meta.value).concat(schema.value)
+    } catch(e) {
+      // fallback if schemas can't be merged
+      return schema.value
+    }
+  })
 }

@@ -31,6 +31,7 @@ import FormTypeJamf from './FormTypeJamf'
 import FormTypeMobileconfig from './FormTypeMobileconfig'
 import FormTypeMobileiron from './FormTypeMobileiron'
 import FormTypeOpswat from './FormTypeOpswat'
+import FormTypePacketfenceZtn from './FormTypePacketfenceZtn'
 import FormTypeSentinelone from './FormTypeSentinelone'
 import FormTypeSepm from './FormTypeSepm'
 import FormTypeServicenow from './FormTypeServicenow'
@@ -51,6 +52,7 @@ const components = {
   FormTypeMobileconfig,
   FormTypeMobileiron,
   FormTypeOpswat,
+  FormTypePacketfenceZtn,
   FormTypeSentinelone,
   FormTypeSepm,
   FormTypeServicenow,
@@ -67,23 +69,24 @@ export const setup = (props) => {
   const formType = computed(() => {
     const { type } = unref(form)
     switch(unref(type)) {
-      case 'accept': return FormTypeAccept // break
-      case 'airwatch': return FormTypeAirwatch //break
-      case 'android': return FormTypeAndroid //break
-      case 'deny': return FormTypeDeny //break
-      case 'dpsk': return FormTypeDpsk //break
-      case 'ibm': return FormTypeIbm //break
-      case 'intune': return FormTypeIntune //break
-      case 'jamf': return FormTypeJamf //break
-      case 'mobileconfig': return FormTypeMobileconfig //break
-      case 'mobileiron': return FormTypeMobileiron //break
-      case 'opswat': return FormTypeOpswat //break
-      case 'sentinelone': return FormTypeSentinelone //break
-      case 'sepm': return FormTypeSepm //break
-      case 'servicenow': return FormTypeServicenow //break
-      case 'symantec': return FormTypeSymantec //break
-      case 'windows': return FormTypeWindows // break
-      default: return undefined
+      case 'accept':          return FormTypeAccept // break
+      case 'airwatch':        return FormTypeAirwatch //break
+      case 'android':         return FormTypeAndroid //break
+      case 'deny':            return FormTypeDeny //break
+      case 'dpsk':            return FormTypeDpsk //break
+      case 'ibm':             return FormTypeIbm //break
+      case 'intune':          return FormTypeIntune //break
+      case 'jamf':            return FormTypeJamf //break
+      case 'mobileconfig':    return FormTypeMobileconfig //break
+      case 'mobileiron':      return FormTypeMobileiron //break
+      case 'opswat':          return FormTypeOpswat //break
+      case 'packetfence_ztn': return FormTypePacketfenceZtn //break
+      case 'sentinelone':     return FormTypeSentinelone //break
+      case 'sepm':            return FormTypeSepm //break
+      case 'servicenow':      return FormTypeServicenow //break
+      case 'symantec':        return FormTypeSymantec //break
+      case 'windows':         return FormTypeWindows // break
+      default:                return undefined
     }
   })
 
