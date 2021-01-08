@@ -5,8 +5,8 @@
 
   <div class="o-layout">
     <div class="o-layout__item u-1/1 u-2/3@tablet u-3/5@desktop">
-      [% IF provisioner.win_agent_download_uri.defined %]
-      <a href="[% provisioner.win_agent_download_uri %]" class="c-btn c-btn--primary u-1/1" target="_blank">
+      [% IF provisioner.windows_agent_download_uri.defined %]
+      <a href="[% provisioner.windows_agent_download_uri %]" class="c-btn c-btn--primary u-1/1" target="_blank">
         <div class="o-flag o-flag--light o-flag--center">
           <div class="o-flag__img">[% svgIcon(id='microsoft-windows-icon',size='small') %]</div>
           <p class="o-flag__body">[% i18n("Download Windows Agent") %]</p>

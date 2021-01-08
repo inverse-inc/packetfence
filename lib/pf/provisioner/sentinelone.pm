@@ -70,13 +70,13 @@ Protocol to connect to the SentinelOne web API
 
 has protocol => (is => 'rw', default => sub { $HTTPS } );
 
-=head2 win_agent_download_uri
+=head2 windows_agent_download_uri
 
 URI to download the windows agent
 
 =cut
 
-has win_agent_download_uri => (is => 'rw');
+has windows_agent_download_uri => (is => 'rw');
 
 =head2 mac_osx_agent_download_uri
 

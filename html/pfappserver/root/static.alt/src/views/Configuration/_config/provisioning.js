@@ -915,15 +915,15 @@ export const viewFields = {
       ]
     }
   },
-  win_agent_download_uri: (_, meta = {}) => {
+  windows_agent_download_uri: (_, meta = {}) => {
     return {
       label: i18n.t('Windows agent download URI'),
       cols: [
         {
-          namespace: 'win_agent_download_uri',
+          namespace: 'windows_agent_download_uri',
           component: pfFormInput,
-          attrs: attributesFromMeta(meta, 'win_agent_download_uri'),
-          validators: validatorsFromMeta(meta, 'win_agent_download_uri', 'URI')
+          attrs: attributesFromMeta(meta, 'windows_agent_download_uri'),
+          validators: validatorsFromMeta(meta, 'windows_agent_download_uri', 'URI')
         }
       ]
     }
@@ -1229,7 +1229,7 @@ export const view = (form = {}, meta = {}) => {
             viewFields.protocol(form, meta),
             viewFields.api_username(form, meta),
             viewFields.api_password(form, meta),
-            viewFields.win_agent_download_uri(form, meta),
+            viewFields.windows_agent_download_uri(form, meta),
             viewFields.mac_osx_agent_download_uri(form, meta)
           ]
         }
@@ -1359,7 +1359,7 @@ export const view = (form = {}, meta = {}) => {
             viewFields.role_to_apply(form, meta),
             viewFields.category(form, meta),
             viewFields.oses(form, meta),
-            viewFields.win_agent_download_uri(form, meta),
+            viewFields.windows_agent_download_uri(form, meta),
             viewFields.mac_osx_agent_download_uri(form, meta),
             viewFields.linux_agent_download_uri(form, meta)
           ]
@@ -1597,9 +1597,6 @@ export const validatorFields = {
   username: (_, meta = {}) => {
     return { username: validatorsFromMeta(meta, 'username', i18n.t('Username')) }
   },
-  win_agent_download_uri: (_, meta = {}) => {
-    return { win_agent_download_uri: validatorsFromMeta(meta, 'win_agent_download_uri', 'URI') }
-  },
   windows_agent_download_uri: (_, meta = {}) => {
     return { windows_agent_download_uri: validatorsFromMeta(meta, 'windows_agent_download_uri', 'URI') }
   },
@@ -1819,7 +1816,7 @@ export const validators = (form = {}, meta = {}) => {
         ...validatorFields.protocol(form, meta),
         ...validatorFields.api_username(form, meta),
         ...validatorFields.api_password(form, meta),
-        ...validatorFields.win_agent_download_uri(form, meta),
+        ...validatorFields.windows_agent_download_uri(form, meta),
         ...validatorFields.mac_osx_agent_download_uri(form, meta)
       }
     case 'sepm':

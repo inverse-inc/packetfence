@@ -1,46 +1,41 @@
-package pf::provisioner::packetfence_ztn;
+#!/usr/bin/perl
 
 =head1 NAME
 
-pf::provisioner::packetfence_ztn -
+to-11.0-roles-acls.pm -
 
 =head1 DESCRIPTION
 
-pf::provisioner::packetfence_ztn
+Migrate the ACLs from the switches to all.
 
 =cut
 
 use strict;
 use warnings;
+use lib qw(/usr/local/pf/lib);
+use pf::IniFiles;
+use Data::Dumper;
+use pf::file_paths qw(
+    $provisioning_config_file
+);
+use Term::Cap;
+my $terminal = Term::Cap->Tgetent( { OSPEED => 9600 } );
+my $clear_string = $terminal->Tputs('cl');
+my $ini = pf::IniFiles->new(-file => $provisioning_config_file, -allowempty => 1);
+my $ini_updated = 0;
+for my $section ($switch_ini->Sections()) {
+    next if $ini->val($section, 'type') ne 'sentinelone';
+    next if !$ini->exists($section, 'win_agent_download_uri');
+    my $old_val = $ini->val($section, 'win_agent_download_uri');
+    $ini->newval($section, 'win_agent_download_uri', $old_val);
+    $ini_updated |= 1;
+}
 
-use Moo;
-extends 'pf::provisioner';
-
-=head1 Atrributes
-
-=head2 windows_agent_download_uri
-
-URI to download the windows agent
-
-=cut
-
-has windows_agent_download_uri => (is => 'rw', default => "/content/packetfence-ztn-windows-x86-64.exe");
-
-=head2 mac_osx_agent_download_uri
-
-URI to download the Mac OSX agent
-
-=cut
-
-has mac_osx_agent_download_uri => (is => 'rw', default => "/content/packetfence-ztn-macosx-x86-64.pkg");
-
-=head2 mac_osx_agent_download_uri
-
-URI to download the Mac OSX agent
-
-=cut
-
-has linux_agent_download_uri => (is => 'rw', default => "/content/packetfence-ztn-linux-x86-64");
+if ($ini_updated) {
+    print "All done\n";
+} else {
+    print "Nothing to be done\n";
+}
 
 =head1 AUTHOR
 
@@ -68,5 +63,3 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301,
 USA.
 
 =cut
-
-1;

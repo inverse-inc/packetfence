@@ -16,7 +16,7 @@ with 'pfappserver::Base::Form::Role::Help';
 
 use pf::constants;
 
-has_field 'win_agent_download_uri' =>
+has_field 'windows_agent_download_uri' =>
   (
    type => 'Text',
    label => 'Windows agent download URI',
@@ -39,7 +39,7 @@ has_field 'linux_agent_download_uri' =>
 
 has_block definition =>
   (
-   render_list => [ qw(id type description category oses win_agent_download_uri mac_osx_agent_download_uri linux_agent_download_uri) ],
+   render_list => [ qw(id type description category oses windows_agent_download_uri mac_osx_agent_download_uri linux_agent_download_uri) ],
   );
 
 =head1 COPYRIGHT
