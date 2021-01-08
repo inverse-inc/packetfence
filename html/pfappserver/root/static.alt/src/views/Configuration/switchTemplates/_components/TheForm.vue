@@ -64,6 +64,10 @@
       :column-label="$i18n.t('CLI Authorize Write Scope')"
     />
 
+    <form-group-accept-url namespace="acceptUrl"
+      :column-label="$i18n.t('Web Auth Scope')"
+    />
+
     <form-group-nas-port-to-if-index namespace="nasPortToIfindex"
       :column-label="$i18n.t('NasPortToIfindex template')"
     />
@@ -77,6 +81,7 @@ import {
 import schemaFn from '../schema'
 import {
   FormGroupAcceptRoles,
+  FormGroupAcceptUrl,
   FormGroupAcceptVlans,
   FormGroupAclTemplate,
   FormGroupBounce,
@@ -97,6 +102,7 @@ const components = {
   BaseForm,
 
   FormGroupAcceptRoles,
+  FormGroupAcceptUrl,
   FormGroupAcceptVlans,
   FormGroupAclTemplate,
   FormGroupBounce,
