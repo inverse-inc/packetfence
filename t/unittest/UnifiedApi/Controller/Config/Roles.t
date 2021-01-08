@@ -26,7 +26,7 @@ BEGIN {
     use setup_test_config;
 }
 
-use Test::More tests => 17;
+use Test::More tests => 20;
 use Test::Mojo;
 use Utils;
 use pf::ConfigStore::Roles;
