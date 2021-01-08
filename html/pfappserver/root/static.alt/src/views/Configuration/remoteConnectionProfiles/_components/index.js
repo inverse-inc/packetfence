@@ -1,12 +1,12 @@
 import { BaseViewCollectionItem } from '../../_components/new/'
 import {
   BaseFormButtonBar,
-  BaseFormGroupChosenOne,
   BaseFormGroupChosenMultiple,
   BaseFormGroupInput,
   BaseFormGroupTextarea,
   BaseFormGroupToggleDisabledEnabled
 } from '@/components/new/'
+import BaseFormGroupBasicFilter from './BaseFormGroupBasicFilter'
 import BaseFormGroupCondition from '@/views/Configuration/filterEngines/_components/BaseFormGroupCondition'
 import TheForm from './TheForm'
 import TheView from './TheView'
@@ -18,8 +18,7 @@ export {
   BaseFormGroupInput                  as FormGroupIdentifier,
   BaseFormGroupInput                  as FormGroupDescription,
   BaseFormGroupToggleDisabledEnabled  as FormGroupStatus,
-  BaseFormGroupChosenOne              as FormGroupBasicFilterType,
-  BaseFormGroupInput                  as FormGroupBasicFilterValue,
+  BaseFormGroupBasicFilter            as FormGroupBasicFilter,
   BaseFormGroupCondition              as FormGroupAdvancedFilter,
   BaseFormGroupToggleDisabledEnabled  as FormGroupAllowCommunicationSameRole,
   BaseFormGroupChosenMultiple         as FormGroupAllowCommunicationToRoles,

@@ -181,7 +181,7 @@ export const useSingleValueLookupOptions = (value, onInput, lookup, options, opt
           op: 'or',
           values: [{ field: valueName, op: 'equals', value: value.value }] }]
         },
-        fields: [fieldName, valueName],
+        fields: [...new Set([fieldName, valueName])],
         sort: [fieldName],
         cursor: 0,
         limit: 1
@@ -231,7 +231,7 @@ export const useSingleValueLookupOptions = (value, onInput, lookup, options, opt
           baseURL: (baseURL || baseURL === '') ? baseURL : apiBaseURL,
           data: {
             query: { op: 'and', values },
-            fields: [fieldName, valueName],
+            fields: [...new Set([fieldName, valueName])],
             sort: [fieldName],
             cursor: 0,
             limit: optionsLimit.value - 1
@@ -330,7 +330,7 @@ export const useMultipleValueLookupOptions = (value, onInput, lookup, options, o
           op: 'or',
           values: value.value.map(value => ({ field: valueName, op: 'equals', value }))
         }] },
-        fields: [fieldName, valueName],
+        fields: [...new Set([fieldName, valueName])],
         sort: [fieldName],
         cursor: 0,
         limit: value.value.length
@@ -380,7 +380,7 @@ export const useMultipleValueLookupOptions = (value, onInput, lookup, options, o
           baseURL: (baseURL || baseURL === '') ? baseURL : apiBaseURL,
           data: {
             query: { op: 'and', values },
-            fields: [fieldName, valueName],
+            fields: [...new Set([fieldName, valueName])],
             sort: [fieldName],
             cursor: 0,
             limit: optionsLimit.value - value.value.length

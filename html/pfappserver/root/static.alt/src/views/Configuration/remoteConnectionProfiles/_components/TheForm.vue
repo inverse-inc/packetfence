@@ -20,15 +20,8 @@
       :column-label="$i18n.t('Enable profile')"
     />
 
-    <form-group-basic-filter-type v-show="!isDefault"
-      namespace="basic_filter_type"
-      :column-label="$i18n.t('Filter on attribute')"
-      :text="$i18n.t('The attribute to filter on')"
-    />
-
-    <form-group-basic-filter-value v-show="!isDefault"
-      namespace="basic_filter_value"
-      :column-label="$i18n.t('Filter value')"
+    <form-group-basic-filter v-show="!isDefault"
+      :column-label="$i18n.t('Filter')"
     />
 
     <form-group-advanced-filter v-show="!isDefault"
@@ -82,8 +75,7 @@ import {
   FormGroupIdentifier,
   FormGroupDescription,
   FormGroupStatus,
-  FormGroupBasicFilterType,
-  FormGroupBasicFilterValue,
+  FormGroupBasicFilter,
   FormGroupAdvancedFilter,
   FormGroupAllowCommunicationSameRole,
   FormGroupAllowCommunicationToRoles,
@@ -101,8 +93,7 @@ const components = {
   FormGroupIdentifier,
   FormGroupDescription,
   FormGroupStatus,
-  FormGroupBasicFilterType,
-  FormGroupBasicFilterValue,
+  FormGroupBasicFilter,
   FormGroupAdvancedFilter,
   FormGroupAllowCommunicationSameRole,
   FormGroupAllowCommunicationToRoles,
