@@ -6,10 +6,7 @@ import {
   BaseFormGroupTextarea,
   BaseFormGroupToggleDisabledEnabled
 } from '@/components/new/'
-import BaseFormGroupAcceptUrl from './BaseFormGroupAcceptUrl'
 import BaseFormGroupBounce from './BaseFormGroupBounce'
-import BaseFormGroupCliAuthorizeRead from './BaseFormGroupCliAuthorizeRead'
-import BaseFormGroupCliAuthorizeWrite from './BaseFormGroupCliAuthorizeWrite'
 import BaseFormGroupRadiusAttributes from './BaseFormGroupRadiusAttributes'
 import TheForm from './TheForm'
 import TheView from './TheView'
@@ -18,12 +15,12 @@ export {
   BaseFormButtonBar                   as FormButtonBar,
 
   BaseFormGroupRadiusAttributes       as FormGroupAcceptRoles,
-  BaseFormGroupAcceptUrl              as FormGroupAcceptUrl,
+  BaseFormGroupRadiusAttributes       as FormGroupAcceptUrl,
   BaseFormGroupRadiusAttributes       as FormGroupAcceptVlans,
   BaseFormGroupTextarea               as FormGroupAclTemplate,
   BaseFormGroupBounce                 as FormGroupBounce,
-  BaseFormGroupCliAuthorizeRead       as FormGroupCliAuthorizeRead,
-  BaseFormGroupCliAuthorizeWrite      as FormGroupCliAuthorizeWrite,
+  BaseFormGroupRadiusAttributes       as FormGroupCliAuthorizeRead,
+  BaseFormGroupRadiusAttributes       as FormGroupCliAuthorizeWrite,
   BaseFormGroupRadiusAttributes       as FormGroupCoa,
   BaseFormGroupInput                  as FormGroupDescription,
   BaseFormGroupRadiusAttributes       as FormGroupDisconnect,
