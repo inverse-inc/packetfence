@@ -12,6 +12,10 @@
           :disabled="!isNew && !isClone"
         />
 
+        <form-group-description namespace="description"
+          :column-label="$i18n.t('Description')"
+        />
+
         <form-group-netmask namespace="netmask"
           :column-label="$i18n.t('Netmask')"
         />
@@ -138,6 +142,7 @@ import schemaFn from '../schema'
 import {
   FormGroupAlgorithm,
   FormGroupCoa,
+  FormGroupDescription,
   FormGroupDhcpd,
   FormGroupDhcpDefaultLeaseTime,
   FormGroupDhcpEnd,
@@ -164,6 +169,7 @@ const components = {
 
   FormGroupAlgorithm,
   FormGroupCoa,
+  FormGroupDescription,
   FormGroupDhcpd,
   FormGroupDhcpDefaultLeaseTime,
   FormGroupDhcpEnd,

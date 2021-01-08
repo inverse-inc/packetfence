@@ -17,6 +17,7 @@ export {
 
   BaseFormGroupChosenMultiple         as FormGroupAdditionalListeneningDaemons,
   BaseFormGroupToggleDisabledEnabled  as FormGroupCoa,
+  BaseFormGroupInput                  as FormGroupDescription,
   BaseFormGroupToggleDisabledEnabled  as FormGroupDhcpdEnabled,
   BaseFormGroupInput                  as FormGroupDns,
   BaseFormGroupToggleDisabledEnabled  as FormGroupHighAvailability,
