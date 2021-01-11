@@ -93,7 +93,7 @@ export const config = (context = {}) => {
         values: [{
           op: 'or',
           values: [
-            { field: 'parent', op: 'equals', value: (parentId || null) }
+            { field: 'parent_id', op: 'equals', value: (parentId || null) }
           ]
         }]
       },
@@ -104,7 +104,7 @@ export const config = (context = {}) => {
         op: 'and',
         values: [
           ...((!quickCondition.trim())
-            ? [{ op: 'or', values: [{ field: 'parent', op: 'equals', value: (parentId || null) }] }]
+            ? [{ op: 'or', values: [{ field: 'parent_id', op: 'equals', value: (parentId || null) }] }]
             : []
           ),
           ...((quickCondition.trim())
