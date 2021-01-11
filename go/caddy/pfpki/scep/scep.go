@@ -7,12 +7,15 @@ import (
 	scepserver "github.com/fdurand/scep/server"
 	kitlog "github.com/go-kit/kit/log"
 	kitloglevel "github.com/go-kit/kit/log/level"
+	"github.com/gorilla/mux"
 	"github.com/inverse-inc/packetfence/go/caddy/pfpki/models"
 	"github.com/inverse-inc/packetfence/go/caddy/pfpki/types"
 	"github.com/inverse-inc/packetfence/go/log"
 )
 
 func ScepHandler(pfpki *types.Handler, w http.ResponseWriter, r *http.Request) {
+
+	vars := mux.Vars(r)
 
 	var logger kitlog.Logger
 	{
@@ -33,7 +36,7 @@ func ScepHandler(pfpki *types.Handler, w http.ResponseWriter, r *http.Request) {
 	var svc scepserver.Service // scep service
 	{
 		svcOptions := []scepserver.ServiceOption{
-			// scepserver.ChallengePassword(nil),
+			scepserver.Profile(vars["id"]),
 			// scepserver.WithCSRVerifier(csrVerifier),
 			// scepserver.CAKeyPassword(nil),
 			scepserver.ClientValidity(365),
