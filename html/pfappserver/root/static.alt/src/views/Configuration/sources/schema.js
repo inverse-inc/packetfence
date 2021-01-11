@@ -94,10 +94,10 @@ const schemaConditions = yup.array().ensure().unique(i18n.t('Duplicate condition
 
 const schemaRule = yup.object({
   status: yup.string(),
-  id: yup.string().label(i18n.t('Name'))
+  id: yup.string().nullable().label(i18n.t('Name'))
     .isAlpha()
     .max(255, i18n.t('Maximum 255 characters.')),
-  description: yup.string()
+  description: yup.string().nullable()
     .max(255, i18n.t('Maximum 255 characters.')),
   match: yup.string(),
   actions: schemaActions.label(i18n.t('Action')),
