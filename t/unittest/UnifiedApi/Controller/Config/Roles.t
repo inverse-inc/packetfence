@@ -26,7 +26,7 @@ BEGIN {
     use setup_test_config;
 }
 
-use Test::More tests => 20;
+use Test::More tests => 24;
 use Test::Mojo;
 use Utils;
 use pf::ConfigStore::Roles;
@@ -68,6 +68,12 @@ $t->patch_ok("$base_url/r1" => json => { parent => 'r2' })
 
 $t->patch_ok("$base_url/r1" => json => { parent => 'r3' })
   ->status_is(422);
+
+$t->delete_ok("$base_url/r1" => json => {  })
+  ->status_is(422);
+
+$t->delete_ok("$base_url/r3" => json => {  })
+  ->status_is(200);
 
 =head1 AUTHOR
 

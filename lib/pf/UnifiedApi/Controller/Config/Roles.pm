@@ -58,8 +58,21 @@ sub can_delete {
 sub can_delete_from_config {
     my ($self) = @_;
     my $id = $self->id;
+    my @errors;
     if (exists $RolesReverseLookup{$id}) {
-        my @errors = map { config_delete_error($id, $_) } sort keys %{$RolesReverseLookup{$id}};
+         @errors = map { config_delete_error($id, $_) } sort keys %{$RolesReverseLookup{$id}};
+    }
+
+    my $config_store = $self->config_store;
+    my $ini = $config_store->cachedConfig;
+    my @children =
+      grep { my $p = $ini->val( $_, 'parent' ); defined $p && $id eq $p }
+      @{ $config_store->readAllIds };
+    if (@children) {
+        push @errors, {name => $id, message => "Role has children", reason => "ROLE_IN_USE", status => 422};
+    }
+
+    if (@errors) {
         return (422, 'Role still in use', \@errors);
     }
 
