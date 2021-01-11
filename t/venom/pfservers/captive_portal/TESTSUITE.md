@@ -15,6 +15,7 @@ Put a node on registration VLAN to test some captive portal features.
    PacketFence server
 1. Check RADIUS audit log for node01
 1. Check VLAN assigned to node01 *on* switch01
+1. Wait some time to let node01 received an IP through DHCP
 1. Run locales test *on* node01
 
 ## Teardown steps
