@@ -395,7 +395,7 @@ func (c CA) Search(vars sql.Vars) (types.Info, error) {
 	return Information, nil
 }
 
-func (c CA) CA(pass []byte) ([]*x509.Certificate, *rsa.PrivateKey, error) {
+func (c CA) CA(pass []byte, options ...string) ([]*x509.Certificate, *rsa.PrivateKey, error) {
 	spew.Dump("Model.CA.CA")
 
 	var profiledb []Profile
@@ -413,7 +413,7 @@ func (c CA) CA(pass []byte) ([]*x509.Certificate, *rsa.PrivateKey, error) {
 	return []*x509.Certificate{cacert}, key, err
 }
 
-func (c CA) Put(cn string, crt *x509.Certificate) error {
+func (c CA) Put(cn string, crt *x509.Certificate, options ...string) error {
 	spew.Dump("Model.CA.Put")
 
 	attributeMap := certutils.GetDNFromCert(crt.Subject)
@@ -438,7 +438,7 @@ func (c CA) Put(cn string, crt *x509.Certificate) error {
 	return nil
 }
 
-func (c CA) Serial() (*big.Int, error) {
+func (c CA) Serial(options ...string) (*big.Int, error) {
 	spew.Dump("Model.CA.Serial")
 
 	var profiledb []Profile
@@ -463,7 +463,7 @@ func (c CA) Serial() (*big.Int, error) {
 	return SerialNumber, nil
 }
 
-func (c CA) HasCN(cn string, allowTime int, cert *x509.Certificate, revokeOldCertificate bool) (bool, error) {
+func (c CA) HasCN(cn string, allowTime int, cert *x509.Certificate, revokeOldCertificate bool, options ...string) (bool, error) {
 	spew.Dump("Model.CA.HasCN")
 	spew.Dump(cn)
 	var certif Cert
