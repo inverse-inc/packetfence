@@ -10,11 +10,11 @@ Form definition to update a default network.
 
 =cut
 
-use pf::util;
-
 use HTML::FormHandler::Moose;
 extends 'pfappserver::Base::Form';
 with 'pfappserver::Base::Form::Role::Help';
+
+use pf::util;
 
 has 'network' => ( is => 'ro' );
 

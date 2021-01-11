@@ -304,6 +304,7 @@ sub setup_api_v1_config_routes {
     $self->setup_api_v1_config_misc_routes($root);
     $self->setup_api_v1_config_interfaces_routes($root);
     $self->setup_api_v1_config_l2_networks_routes($root);
+    $self->setup_api_v1_config_networks_routes($root);
     $self->setup_api_v1_config_routed_networks_routes($root);
     $self->setup_api_v1_config_pki_providers_routes($root);
     $self->setup_api_v1_config_portal_modules_routes($root);
@@ -1337,6 +1338,26 @@ sub setup_api_v1_config_security_events_routes {
     );
 
     return ($collection_route, $resource_route);
+}
+
+=head2 setup_api_v1_config_networks_routes
+
+setup_api_v1_config_networks_routes
+
+=cut
+
+sub setup_api_v1_config_networks_routes {
+    my ($self, $root) = @_;
+    my ($collection_route, $resource_route) =
+      $self->setup_api_v1_std_config_routes(
+        $root,
+        "Config::Networks",
+        "/networks",
+        "/network/#network_id",
+        "api.v1.Config.Networks"
+    );
+
+    return (undef, $resource_route);
 }
 
 =head2 setup_api_v1_config_l2_networks_routes
