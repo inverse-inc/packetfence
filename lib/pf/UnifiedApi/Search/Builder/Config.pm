@@ -28,6 +28,14 @@ our %OP_TO_CONDITION = (
     'starts_with'   => 'pf::condition::starts_with',
 );
 
+our %NULL_VAL_OP_TO_CONDITION = (
+    'equals'     => 'pf::condition::not_defined',
+    'not_equals' => 'pf::condition::is_defined',
+    'contains'   => 'pf::condition::false',
+    'ends_with'   => 'pf::condition::false',
+    'starts_with'   => 'pf::condition::false',
+);
+
 our %LOGICAL_OPS = (
     'and' => 1,
     'or'  => 1,
@@ -231,8 +239,20 @@ sub query_to_condition {
         die "$op is an invalid op";
     }
 
-    my $condition = $OP_TO_CONDITION{$op};
-    if ($LOGICAL_OPS{$op}) {
+    my $is_logical = exists $LOGICAL_OPS{$op};
+    my $value = $query->{value};
+    my $condition;
+    if (defined $value || $is_logical || $op eq 'not') {
+        $condition = $OP_TO_CONDITION{$op};
+    } else {
+        if (!exists $NULL_VAL_OP_TO_CONDITION{$op}) {
+            die "Cannot have a null value with op '$op'";
+        }
+
+        $condition = $NULL_VAL_OP_TO_CONDITION{$op};
+    }
+
+    if ($is_logical) {
         my @conditions = map { $self->query_to_condition($search, $_) } @{$query->{values}};
         if (@conditions == 1) {
             return $conditions[0];
@@ -246,6 +266,18 @@ sub query_to_condition {
             condition => $self->query_to_condition( $search, $query->{value} )
         });
     }
+
+    if ($condition eq 'pf::condition::false') {
+        return $condition->new;
+    }
+
+    if (!defined $value) {
+        return pf::condition::key_undef->new({
+            key       => $query->{field},
+            condition => $condition->new( { value => $query->{value} } )
+        });
+    }
+
 
     return pf::condition::key->new({
         key       => $query->{field},
