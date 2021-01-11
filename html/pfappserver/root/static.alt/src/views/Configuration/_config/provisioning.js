@@ -928,19 +928,6 @@ export const viewFields = {
       ]
     }
   },
-  windows_agent_download_uri: (_, meta = {}) => {
-    return {
-      label: i18n.t('Windows agent download URI'),
-      cols: [
-        {
-          namespace: 'windows_agent_download_uri',
-          component: pfFormInput,
-          attrs: attributesFromMeta(meta, 'windows_agent_download_uri'),
-          validators: validatorsFromMeta(meta, 'windows_agent_download_uri', 'URI')
-        }
-      ]
-    }
-  },
   windows_phone_download_uri: (_, meta = {}) => {
     return {
       label: i18n.t('Windows phone download URI'),
