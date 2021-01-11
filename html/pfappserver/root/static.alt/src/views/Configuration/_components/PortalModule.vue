@@ -24,7 +24,7 @@
 </template>
 
 <script>
-import draggable from 'vuedraggable'
+const draggable = () => import('vuedraggable')
 import PortalModuleButton from './PortalModuleButton'
 
 export default {

@@ -75,7 +75,7 @@
 </template>
 
 <script>
-import draggable from 'vuedraggable'
+const draggable = () => import('vuedraggable')
 import pfMixinForm from '@/components/pfMixinForm'
 
 export default {

@@ -74,7 +74,7 @@
 
 <script>
 import pfMixinSearchable from '@/components/pfMixinSearchable'
-import draggable from 'vuedraggable'
+const draggable = () => import('vuedraggable')
 import PortalModule from './PortalModule'
 import pfButtonHelp from '@/components/pfButtonHelp'
 import pfButtonSave from '@/components/pfButtonSave'

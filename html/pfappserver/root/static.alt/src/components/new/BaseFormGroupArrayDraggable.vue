@@ -90,7 +90,7 @@
 </template>
 <script>
 import { computed, toRefs, unref } from '@vue/composition-api'
-import draggable from 'vuedraggable'
+const draggable = () => import('vuedraggable')
 
 const components = {
   draggable
