@@ -14,7 +14,7 @@
       :column-label="$i18n.t('Description')"
     />
 
-    <form-group-parent namespace="parent"
+    <form-group-parent-identifier namespace="parent_id"
       :column-label="$i18n.t('Parent role')"
     />
 
@@ -54,7 +54,7 @@ import {
   FormGroupIdentifier,
   FormGroupNotes,
   FormGroupMaxNodesPerPid,
-  FormGroupParent,
+  FormGroupParentIdentifier,
   FormGroupIncludeParentAcls,
   FormGroupFingerbankDynamicAccessList,
   FormGroupAcls,
@@ -67,7 +67,7 @@ const components = {
   FormGroupIdentifier,
   FormGroupNotes,
   FormGroupMaxNodesPerPid,
-  FormGroupParent,
+  FormGroupParentIdentifier,
   FormGroupIncludeParentAcls,
   FormGroupFingerbankDynamicAccessList,
   FormGroupAcls,

@@ -15,7 +15,7 @@ export {
   BaseFormGroupInput                  as FormGroupIdentifier,
   BaseFormGroupInput                  as FormGroupNotes,
   BaseFormGroupInput                  as FormGroupMaxNodesPerPid,
-  BaseFormGroupChosenOne              as FormGroupParent,
+  BaseFormGroupChosenOne              as FormGroupParentIdentifier,
   BaseFormGroupToggleDisabledEnabled  as FormGroupIncludeParentAcls,
   BaseFormGroupToggleDisabledEnabled  as FormGroupFingerbankDynamicAccessList,
   BaseFormGroupTextarea               as FormGroupAcls,

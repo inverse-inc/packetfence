@@ -182,8 +182,8 @@ export default {
       if (parentId) {
         this.$store.dispatch('$_roles/getRole', parentId).then(data => {
           this.$set(this.parentTree, index, data)
-          if (data.parent)
-            this.buildParentTree(data.parent, ++index)
+          if (data.parent_id)
+            this.buildParentTree(data.parent_id, ++index)
         })
       }
     }
