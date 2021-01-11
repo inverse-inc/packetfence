@@ -300,6 +300,8 @@ github.com/fdurand/scep v0.0.0-20210106145219-60f4a5c461a0 h1:lOWd5s0e52lu+Q0/Fr
 github.com/fdurand/scep v0.0.0-20210106145219-60f4a5c461a0/go.mod h1:OSx/CJvW7DnLF1OfoOQj1Bm54Ypzg6XvMF9W0Ro+xo4=
 github.com/fdurand/scep v0.0.0-20210111165316-ad504b1ccf67 h1:pQmtvNCYbaTstw1vSlwa8DDsgl+bye2iK/HgxfhLKGI=
 github.com/fdurand/scep v0.0.0-20210111165316-ad504b1ccf67/go.mod h1:gnSe9SGQN1MdG2aMIit/saIYGFgwgC8sMIK8SEggWIE=
+github.com/fdurand/scep v0.0.0-20210111182330-3e9ce540b11b h1:X1cMYPN+5yvhXxCw4YR6rNJ2ThWv5HA7H0tq+YPY6xQ=
+github.com/fdurand/scep v0.0.0-20210111182330-3e9ce540b11b/go.mod h1:gnSe9SGQN1MdG2aMIit/saIYGFgwgC8sMIK8SEggWIE=
 github.com/fdurand/scep v1.0.0 h1:ApcERuPZtddhCtxvxvbxe2qb97a0uicnE+t+jslLfL8=
 github.com/fdurand/scep v1.0.0/go.mod h1:uFfbEztH8Z+0DPabkTQ2Utwnlxe/2KNweoG7YXdXG8I=
 github.com/fdurand/scep v1.0.1-0.20201229152023-054ac94f1543 h1:ojYZkquf+iOp7M+IMYzqL0WPADZT2OfOc2OyhuCK2C0=
