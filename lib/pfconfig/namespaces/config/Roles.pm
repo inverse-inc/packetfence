@@ -44,8 +44,8 @@ sub build_child {
             $data->{acls} = [split(/\n/, $data->{acls})];
         }
 
-        my $parent = $data->{parent} // '';
-        push @{$parents{$parent}}, [$name, $data];
+        my $parent_id = $data->{parent_id} // '';
+        push @{$parents{$parent_id}}, [$name, $data];
     }
     _flatten_nodecategory($parents{''}, \%parents);
     for my $top (@{$parents{''}}) {
@@ -79,14 +79,14 @@ sub _flatten_nodecategory {
             push @{$data->{children}}, $child->[0];
             my $cdata = $child->[1];
             while (my ($k, $v) = each %$data) {
-                next if $k eq 'parent' || $k eq 'children';
+                next if $k eq 'parent_id' || $k eq 'children';
                 if (!exists $cdata->{$k} || !defined $cdata->{$k}) {
                     $cdata->{$k} = $v;
                     $inherited{$k} = undef;
                 }
             }
 
-            if ($cdata->{parent} && isenabled($cdata->{include_parent_acls}) && !exists $inherited{acls}) {
+            if ($cdata->{parent_id} && isenabled($cdata->{include_parent_acls}) && !exists $inherited{acls}) {
                 push @{$cdata->{acls}}, @{$data->{acls} // []};
             }
         }

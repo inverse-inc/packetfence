@@ -66,7 +66,7 @@ sub can_delete_from_config {
     my $config_store = $self->config_store;
     my $ini = $config_store->cachedConfig;
     my @children =
-      grep { my $p = $ini->val( $_, 'parent' ); defined $p && $id eq $p }
+      grep { my $p = $ini->val( $_, 'parent_id' ); defined $p && $id eq $p }
       @{ $config_store->readAllIds };
     if (@children) {
         push @errors, {name => $id, message => "Role has children", reason => "ROLE_IN_USE", status => 422};
@@ -188,7 +188,7 @@ sub reassign {
     $self->reassign_role_with_sql(\@errors, "pf::dal::node", $REASSIGN_NODE_CATEGORY_ID, $old, $new, "node category");
     $self->reassign_role_with_sql(\@errors, "pf::dal::node", $REASSIGN_NODE_BYPASS_ROLE_ID, $old, $new, "node bypass role");
     $self->reassign_role_with_sql(\@errors, "pf::dal::person", $REASSIGN_PASSWORD_CATEGORY, $old, $new, "password category");
-    $self->reassign_role_config_store(\@errors, "pf::ConfigStore::Roles", $old, $new, qw(parent));
+    $self->reassign_role_config_store(\@errors, "pf::ConfigStore::Roles", $old, $new, qw(parent_id));
     $self->reassign_role_config_store(\@errors, "pf::ConfigStore::AdminRoles", $old, $new, qw(allowed_roles allowed_node_roles));
     $self->reassign_role_config_store(\@errors, "pf::ConfigStore::Scan", $old, $new, qw(categories));
     $self->reassign_role_config_store(\@errors, "pf::ConfigStore::Provisioning", $old, $new, qw(category role_to_apply));

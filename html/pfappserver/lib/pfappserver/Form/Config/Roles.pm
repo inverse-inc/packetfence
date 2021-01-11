@@ -44,10 +44,10 @@ has_field 'notes' =>
    required => 0,
   );
 
-has_field 'parent' =>
+has_field 'parent_id' =>
   (
    type => 'Select',
-   options_method => \&options_parent,
+   options_method => \&options_parent_id,
    label => 'Parent',
    required => 0,
   );
@@ -104,29 +104,29 @@ sub validate {
         $self->field('id')->add_error('This is a reserved name.');
     }
 
-    my $parent = $value->{parent};
-    if (defined $parent) {
-        if ( $id eq $parent) {
-            $self->field('parent')->add_error('Cannot be your own parent.');
+    my $parent_id = $value->{parent_id};
+    if (defined $parent_id) {
+        if ( $id eq $parent_id) {
+            $self->field('parent_id')->add_error('Cannot be your own parent.');
         }
-        $parent = $ConfigRoles{$parent}{parent};
-        while (defined $parent) {
-            if ( $id eq $parent) {
-                $self->field('parent')->add_error('Cannot have a parent of your descendents.');
+        $parent_id = $ConfigRoles{$parent_id}{parent_id};
+        while (defined $parent_id) {
+            if ( $id eq $parent_id) {
+                $self->field('parent_id')->add_error('Cannot have a parent of your descendents.');
                 last;
             }
-            $parent = $ConfigRoles{$parent}{parent};
+            $parent_id = $ConfigRoles{$parent_id}{parent_id};
         }
 
     }
 
 }
 
-=head2 options_parent
+=head2 options_parent_id
 
 =cut
 
-sub options_parent {
+sub options_parent_id {
     my $self = shift;
     my $form = $self->form;
     my $id = $form->value->{id} // $form->fif->{id};

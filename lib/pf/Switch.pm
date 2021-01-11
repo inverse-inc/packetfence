@@ -650,7 +650,7 @@ sub _parentRoleForVlan {
         return undef;
     }
 
-    return $role->{parent};
+    return $role->{parent_id};
 }
 
 sub getAccessListByName {
