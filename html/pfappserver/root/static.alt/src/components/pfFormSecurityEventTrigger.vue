@@ -222,14 +222,6 @@ export default {
         [triggerCategories.USAGE]: triggerUsageView(this.formStoreValue, this.meta),
         [triggerCategories.EVENT]: triggerEventView(this.formStoreValue, this.meta)
       }
-    },
-    mouseDown () {
-      return this.$store.getters['events/mouseDown']
-    }
-  },
-  watch: {
-    mouseDown (pressed) {
-      if (pressed) this.onBodyClick(this.$store.state.events.mouseEvent)
     }
   },
   methods: {

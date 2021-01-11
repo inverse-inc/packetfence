@@ -158,9 +158,6 @@ export default {
     },
     escapeKey () {
       return this.$store.getters['events/escapeKey']
-    },
-    windowSize () {
-      return this.$store.getters['events/windowSize']
     }
   },
   methods: {
@@ -268,14 +265,6 @@ export default {
   watch: {
     escapeKey (pressed) {
       if (pressed) this.close()
-    },
-    windowSize: {
-      handler: function (a, b) {
-        if (a.clientWidth !== b.clientWidth || a.clientHeight !== b.clientHeight) {
-          this.resizeEditor()
-        }
-      },
-      deep: true
     },
     filename: {
       handler: function (a) {

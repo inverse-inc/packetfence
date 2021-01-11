@@ -6,8 +6,6 @@
  *    to bind/unbind document listeners multiple-times throughout the
  *    application.
  */
-import { createDebouncer } from 'promised-debounce'
-
 const state = {
   keyCodes: {
     Backspace: 8,
@@ -114,34 +112,20 @@ const state = {
     Quote: 222
   },
   keyDown: false,
-  mouseDown: false,
-  focus: false,
   documentEvent: {
     keyCode: null,
     altKey: false,
     ctrlKey: false,
     shiftKey: false
-  },
-  mouseEvent: {},
-  windowEvent: {},
-  windowSize: {
-    clientHeight: null,
-    clientWidth: null
-  },
-  $windowSizeDebouncer: createDebouncer()
+  }
 }
 
 const getters = {
   documentEvent: state => state.documentEvent,
-  mouseEvent: state => state.mouseEvent,
-  windowEvent: state => state.windowEvent,
-  windowSize: state => state.windowSize,
   isKey: state => key => (key in state.keyCodes) && (state.documentEvent.keyCode || null) === state.keyCodes[key],
   isKeyCode: state => keyCode => (state.documentEvent.keyCode || null) === keyCode,
   keyCode: state => state.documentEvent.keyCode,
-  focus: state => state.focus,
   keyDown: state => state.keyDown,
-  mouseDown: state => state.mouseDown,
   altKey: state => state.documentEvent.altKey,
   ctrlKey: state => state.documentEvent.ctrlKey,
   metaKey: state => state.documentEvent.metaKey,
@@ -162,56 +146,23 @@ const getters = {
 }
 
 const actions = {
-  bind: (/*{ commit, dispatch }*/) => {
-    /*
-    document.body.addEventListener('mousedown', (event) => dispatch('onBodyMouseDown', event))
-    document.body.addEventListener('mouseup', (event) => dispatch('onBodyMouseUp', event))
+  bind: ({ dispatch }) => {
     document.addEventListener('keydown', (event) => dispatch('onKeyDown', event))
     document.addEventListener('keyup', (event) => dispatch('onKeyUp', event))
-    window.addEventListener('blur', (event) => dispatch('onBlur', event))
-    window.addEventListener('focus', (event) => dispatch('onFocus', event))
-    window.addEventListener('resize', (event) => dispatch('onResize', event))
-    commit('RESIZE', null) // init windowSize
-    */
   },
-  onBodyMouseDown: ({ commit }, event) => {
-    commit('BODY_MOUSE_DOWN', event)
-  },
-  onBodyMouseUp: ({ commit }, event) => {
-    commit('BODY_MOUSE_UP', event)
+  unbind: ({ dispatch }) => {
+    document.removeEventListener('keydown', (event) => dispatch('onKeyDown', event))
+    document.removeEventListener('keyup', (event) => dispatch('onKeyUp', event))
   },
   onKeyDown: ({ commit }, event) => {
     commit('KEY_DOWN', event)
   },
   onKeyUp: ({ commit }, event) => {
     commit('KEY_UP', event)
-  },
-  onBlur: ({ commit }, event) => {
-    commit('BLUR', event)
-  },
-  onFocus: ({ commit }, event) => {
-    commit('FOCUS', event)
-  },
-  onResize: ({ commit }, event) => {
-    state.$windowSizeDebouncer({ // debounce windowsSize mutations
-      handler: () => {
-        commit('RESIZE', event)
-      },
-      time: 300
-    })
   }
 }
 
 const mutations = {
-  BODY_MOUSE_DOWN: (state, event) => {
-    state.focus = true
-    state.mouseEvent = event
-    state.mouseDown = true
-  },
-  BODY_MOUSE_UP: (state, event) => {
-    state.mouseEvent = event
-    state.mouseDown = false
-  },
   KEY_DOWN: (state, event) => {
     state.documentEvent = event // cache the last event
     state.keyDown = true
@@ -224,30 +175,6 @@ const mutations = {
       shiftKey: false
     }
     state.keyDown = false
-  },
-  BLUR: (state, event) => {
-    state.windowEvent = event
-    state.focus = false
-    state.keyDown = false
-    state.mouseDown = false
-  },
-  FOCUS: (state, event) => {
-    state.documentEvent = { // reset the last event when re-focused to avoid residual key-presses before on blur
-      keyCode: null,
-      altKey: false,
-      ctrlKey: false,
-      shiftKey: false
-    }
-    state.windowEvent = event
-    state.focus = true
-  },
-  RESIZE: (state, event) => {
-    const { documentElement: { clientWidth = state.document.clientWidth, clientHeight = state.document.clientHeight } = {} } = document
-    state.windowEvent = event
-    state.windowSize = {
-      clientHeight,
-      clientWidth
-    }
   },
   // eslint-disable-next-line no-unused-vars
   $RESET: (state) => {
