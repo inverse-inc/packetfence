@@ -505,7 +505,7 @@ func (c CA) HasCN(cn string, allowTime int, cert *x509.Certificate, revokeOldCer
 	for _, pemUtil := range store {
 		cert := pemUtil.(*x509.Certificate)
 
-		if cert.NotAfter.Unix()-int64((14*24*time.Hour).Seconds()) > time.Now().Unix() {
+		if cert.NotAfter.Unix()-int64((14*24*time.Hour).Seconds()) < time.Now().Unix() {
 			spew.Dump("Need to revoke")
 			params := make(map[string]string)
 
