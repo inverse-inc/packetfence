@@ -37,7 +37,7 @@ import BaseInput from './BaseInput'
 import BaseInputArray, { props as BaseInputArrayProps } from './BaseInputArray'
 import BaseInputChosenMultiple from './BaseInputChosenMultiple'
 import BaseInputChosenOne, { props as BaseInputChosenOneProps } from './BaseInputChosenOne'
-import BaseInputChosenOneSearchable from './BaseInputChosenOneSearchable'
+import BaseInputChosenOneSearchable, { props as BaseInputChosenOneSearchableProps } from './BaseInputChosenOneSearchable'
 import BaseInputGroup from './BaseInputGroup'
 import BaseInputGroupTextarea from './BaseInputGroupTextarea'
 import BaseInputGroupTextareaUpload, { props as BaseInputGroupTextareaUploadProps } from './BaseInputGroupTextareaUpload'
@@ -92,7 +92,7 @@ export {
   BaseInputArray, BaseInputArrayProps,
   BaseInputChosenMultiple,
   BaseInputChosenOne, BaseInputChosenOneProps,
-  BaseInputChosenOneSearchable,
+  BaseInputChosenOneSearchable, BaseInputChosenOneSearchableProps,
   BaseInputGroup,
   BaseInputNumber,
   BaseInputPassword,
