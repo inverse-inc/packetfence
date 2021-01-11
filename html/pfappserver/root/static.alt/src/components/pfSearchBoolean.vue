@@ -74,7 +74,7 @@
 </template>
 
 <script>
-import draggable from 'vuedraggable'
+const draggable = () => import('vuedraggable')
 import {
   pfSearchOperatorsForTypes as operatorsForTypes,
   pfSearchValuesForOperator as valuesForOperator,

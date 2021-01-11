@@ -68,7 +68,7 @@
 </template>
 
 <script>
-import draggable from 'vuedraggable'
+const draggable = () => import('vuedraggable')
 import pfEmptyTable from '@/components/pfEmptyTable'
 
 export default {
