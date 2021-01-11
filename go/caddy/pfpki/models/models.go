@@ -36,6 +36,7 @@ import (
 	pkcs12 "software.sslmate.com/src/go-pkcs12"
 
 	"github.com/inverse-inc/packetfence/go/pfconfigdriver"
+	"golang.org/x/crypto/ocsp"
 	"golang.org/x/text/language"
 	"golang.org/x/text/message"
 	"golang.org/x/text/message/catalog"
@@ -395,11 +396,31 @@ func (c CA) Search(vars sql.Vars) (types.Info, error) {
 	return Information, nil
 }
 
-func (c CA) CA(pass []byte, options ...string) ([]*x509.Certificate, *rsa.PrivateKey, error) {
-	spew.Dump("Model.CA.CA")
-
+func (c CA) FindSCEPProfile(options []string) ([]Profile, error) {
 	var profiledb []Profile
-	c.DB.Select("id, name, ca_id, ca_name, validity, key_type, key_size, digest, key_usage, extended_key_usage, p12_mail_password, p12_mail_subject, p12_mail_from, p12_mail_header, p12_mail_footer").Where("`scep_enabled` = ?", "1").First(&profiledb)
+	if len(options) >= 1 {
+		if err := c.DB.Select("id, name, ca_id, ca_name, validity, key_type, key_size, digest, key_usage, extended_key_usage, p12_mail_password, p12_mail_subject, p12_mail_from, p12_mail_header, p12_mail_footer").Where("`name` = ?", options[0]).First(&profiledb).Error; err != nil {
+			return profiledb, errors.New("A database error occured. See log for details.")
+		}
+		if len(profiledb) == 0 {
+			return profiledb, errors.New("Unknow profile.")
+		}
+
+	} else {
+		c.DB.Select("id, name, ca_id, ca_name, validity, key_type, key_size, digest, key_usage, extended_key_usage, p12_mail_password, p12_mail_subject, p12_mail_from, p12_mail_header, p12_mail_footer").Where("`scep_enabled` = ?", "1").First(&profiledb)
+	}
+	return profiledb, nil
+
+}
+
+func (c CA) CA(pass []byte, options ...string) ([]*x509.Certificate, *rsa.PrivateKey, error) {
+	var profiledb []Profile
+
+	profiledb, err := c.FindSCEPProfile(options)
+
+	if err != nil {
+		return nil, nil, err
+	}
 
 	var ca CA
 
@@ -414,7 +435,6 @@ func (c CA) CA(pass []byte, options ...string) ([]*x509.Certificate, *rsa.Privat
 }
 
 func (c CA) Put(cn string, crt *x509.Certificate, options ...string) error {
-	spew.Dump("Model.CA.Put")
 
 	attributeMap := certutils.GetDNFromCert(crt.Subject)
 
@@ -422,16 +442,19 @@ func (c CA) Put(cn string, crt *x509.Certificate, options ...string) error {
 
 	pem.Encode(publicKey, &pem.Block{Type: "CERTIFICATE", Bytes: crt.Raw})
 
-	var prof []Profile
-	c.DB.Select("id, name, ca_id, ca_name, validity, key_type, key_size, digest, key_usage, extended_key_usage, p12_mail_password, p12_mail_subject, p12_mail_from, p12_mail_header, p12_mail_footer, scep_enabled").Where("`scep_enabled` = ?", "1").First(&prof)
+	profiledb, err := c.FindSCEPProfile(options)
+
+	if err != nil {
+		return err
+	}
 
 	var ca CA
 
-	if CaDB := c.DB.First(&ca, prof[0].CaID).Find(&ca); CaDB.Error != nil {
+	if CaDB := c.DB.First(&ca, profiledb[0].CaID).Find(&ca); CaDB.Error != nil {
 		c.DB.First(&ca)
 	}
-	// publicKey, _ := certutils.ExportRsaPublicKeyAsPemStr(crt.PublicKey.(*rsa.PublicKey))
-	if err := c.DB.Create(&Cert{Cn: cn, Ca: ca, CaName: ca.Cn, ProfileName: prof[0].Name, SerialNumber: crt.SerialNumber.String(), Mail: attributeMap["emailAddress"], StreetAddress: attributeMap["streetAddress"], Organisation: attributeMap["O"], Country: attributeMap["C"], State: attributeMap["ST"], Locality: attributeMap["L"], PostalCode: attributeMap["emailAddress"], Profile: prof[0], Key: "", Cert: publicKey.String(), ValidUntil: crt.NotAfter}).Error; err != nil {
+
+	if err := c.DB.Create(&Cert{Cn: cn, Ca: ca, CaName: ca.Cn, ProfileName: profiledb[0].Name, SerialNumber: crt.SerialNumber.String(), Mail: attributeMap["emailAddress"], StreetAddress: attributeMap["streetAddress"], Organisation: attributeMap["O"], Country: attributeMap["C"], State: attributeMap["ST"], Locality: attributeMap["L"], PostalCode: attributeMap["emailAddress"], Profile: profiledb[0], Key: "", Cert: publicKey.String(), ValidUntil: crt.NotAfter}).Error; err != nil {
 		return errors.New("A database error occured. See log for details.")
 	}
 
@@ -439,10 +462,12 @@ func (c CA) Put(cn string, crt *x509.Certificate, options ...string) error {
 }
 
 func (c CA) Serial(options ...string) (*big.Int, error) {
-	spew.Dump("Model.CA.Serial")
 
-	var profiledb []Profile
-	c.DB.Select("id, name, ca_id, ca_name, validity, key_type, key_size, digest, key_usage, extended_key_usage, p12_mail_password, p12_mail_subject, p12_mail_from, p12_mail_header, p12_mail_footer").Where("`scep_enabled` = ?", "1").First(&profiledb)
+	profiledb, err := c.FindSCEPProfile(options)
+
+	if err != nil {
+		return nil, err
+	}
 
 	var ca CA
 
@@ -464,15 +489,32 @@ func (c CA) Serial(options ...string) (*big.Int, error) {
 }
 
 func (c CA) HasCN(cn string, allowTime int, cert *x509.Certificate, revokeOldCertificate bool, options ...string) (bool, error) {
-	spew.Dump("Model.CA.HasCN")
-	spew.Dump(cn)
+
 	var certif Cert
 
 	if CertDB := c.DB.Where("Cn = ?", cn).Find(&certif); CertDB.Error != nil {
-		return true, nil
+		return false, nil
 	}
 
-	return false, nil
+	certif.DB = c.DB
+	certif.Ctx = c.Ctx
+
+	store := make(map[pemutil.BlockType]interface{})
+
+	pemutil.Decode(store, []byte(certif.Cert))
+	for _, pemUtil := range store {
+		cert := pemUtil.(*x509.Certificate)
+
+		if cert.NotAfter.Unix()-int64((14*24*time.Hour).Seconds()) > time.Now().Unix() {
+			spew.Dump("Need to revoke")
+			params := make(map[string]string)
+
+			params["id"] = strconv.Itoa(int(certif.ID))
+			params["reason"] = strconv.Itoa(ocsp.Superseded)
+			certif.Revoke(params)
+		}
+	}
+	return true, nil
 }
 
 func NewProfileModel(pfpki *types.Handler) *Profile {

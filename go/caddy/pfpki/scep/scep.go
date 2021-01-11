@@ -32,20 +32,20 @@ func ScepHandler(pfpki *types.Handler, w http.ResponseWriter, r *http.Request) {
 	var err error
 
 	o := models.NewCAModel(pfpki)
-
+	profileName := vars["id"]
+	profile, err := o.FindSCEPProfile([]string{profileName})
 	var svc scepserver.Service // scep service
 	{
 		svcOptions := []scepserver.ServiceOption{
 			scepserver.Profile(vars["id"]),
-			// scepserver.WithCSRVerifier(csrVerifier),
-			// scepserver.CAKeyPassword(nil),
-			scepserver.ClientValidity(365),
-			scepserver.AllowRenewal(0),
-			// scepserver.WithLogger(logger),
+			scepserver.ClientValidity(profile[0].Validity),
+			// Number of days before allow renewal
+			scepserver.AllowRenewal(14),
 		}
 		svc, err = scepserver.NewService(o, svcOptions...)
 		if err != nil {
 			log.LoggerWContext(*pfpki.Ctx).Info("err ", err)
+			panic("Unable to create new service: " + err.Error())
 		}
 		svc = scepserver.NewLoggingService(kitlog.With(lginfo, "component", "scep_service"), svc)
 	}
