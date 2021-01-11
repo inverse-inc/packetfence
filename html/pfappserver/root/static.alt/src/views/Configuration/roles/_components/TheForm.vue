@@ -14,15 +14,14 @@
       :column-label="$i18n.t('Description')"
     />
 
+    <form-group-parent namespace="parent"
+      :column-label="$i18n.t('Parent role')"
+    />
+
     <form-group-max-nodes-per-pid namespace="max_nodes_per_pid"
       type="number"
       :column-label="$i18n.t('Max nodes per user')"
       :text="$i18n.t('The maximum number of nodes a user having this role can register. A number of 0 means unlimited number of devices.')"
-    />
-
-    <form-group-parent namespace="parent"
-      :column-label="$i18n.t('Parent')"
-      :text="$i18n.t('Parent role')"
     />
 
     <form-group-include-parent-acls namespace="include_parent_acls"

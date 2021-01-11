@@ -40,12 +40,6 @@ export const columns = [
     visible: true
   },
   {
-    key: 'parent',
-    label: i18n.t('Parent'),
-    sortable: true,
-    visible: true
-  },
-  {
     key: 'buttons',
     label: '',
     locked: true
@@ -79,7 +73,10 @@ export const reasons = {
   SWITCH_IN_USE: i18n.t('Switches')
 }
 
-export const config = () => {
+export const config = (context = {}) => {
+  const {
+    parentId = null
+  } = context
   return {
     columns,
     fields,
@@ -89,14 +86,14 @@ export const config = () => {
     searchPlaceholder: i18n.t('Search by name or description'),
     searchableOptions: {
       searchApiEndpoint: 'config/roles',
-      defaultSortKeys: ['id'],
+      searchApiEndpointOnly: true, // always use `/search` endpoint
+      defaultSortKeys: ['id', 'not_deletable'],
       defaultSearchCondition: {
         op: 'and',
         values: [{
           op: 'or',
           values: [
-            { field: 'id', op: 'contains', value: null },
-            { field: 'notes', op: 'contains', value: null }
+            { field: 'parent', op: 'equals', value: (parentId || null) }
           ]
         }]
       },
@@ -106,13 +103,20 @@ export const config = () => {
       return {
         op: 'and',
         values: [
-          {
-            op: 'or',
-            values: [
-              { field: 'id', op: 'contains', value: quickCondition },
-              { field: 'notes', op: 'contains', value: quickCondition }
-            ]
-          }
+          ...((!quickCondition.trim())
+            ? [{ op: 'or', values: [{ field: 'parent', op: 'equals', value: (parentId || null) }] }]
+            : []
+          ),
+          ...((quickCondition.trim())
+            ? [{
+              op: 'or',
+              values: [
+                { field: 'id', op: 'contains', value: quickCondition.trim() },
+                { field: 'notes', op: 'contains', value: quickCondition.trim() }
+              ]
+            }]
+            : []
+          )
         ]
       }
     }

@@ -18,20 +18,19 @@
               </b-button-group>
             </b-col>
           </b-row>
+          <b-row v-if="parentTree.length > 0"
+            class="mt-3">
+            <b-col cols="auto">
+              <b-button variant="link" class="px-0 mr-2 text-secondary" :to="{ name: 'fingerbankDevices', params: { localScope: localScope } }">
+                <icon name="times" variant="primary"></icon>
+              </b-button>
+              <b-button v-for="(parent, index) in parentTreeReverse" :key="parent.id" variant="link" class="px-0 mr-2 text-primary" :disabled="index === parentTree.length - 1" :to="{ name: 'fingerbankDevicesByParentId', params: { parentId: parent.id, localScope: localScope } }">
+                <icon v-if="index > 0" name="caret-right" variant="text-secondary" class="mr-1"></icon>
+                {{ parent.name }}
+              </b-button>
+            </b-col>
+          </b-row>
         </b-card-header>
-      </template>
-      <template v-slot:tableHeader v-if="parentTree.length > 0">
-        <b-row class="mb-3">
-          <b-col cols="auto">
-            <b-button variant="link" class="px-0 mr-2 text-secondary" :to="{ name: 'fingerbankDevices', params: { localScope: localScope } }">
-              <icon name="times" variant="primary"></icon>
-            </b-button>
-            <b-button v-for="(parent, index) in parentTreeReverse" :key="parent.id" variant="link" class="px-0 mr-2 text-primary" :disabled="index === parentTree.length - 1" :to="{ name: 'fingerbankDevicesByParentId', params: { parentId: parent.id, localScope: localScope } }">
-              <icon v-if="index > 0" name="caret-right" variant="text-secondary" class="mr-1"></icon>
-              {{ parent.name }}
-            </b-button>
-          </b-col>
-        </b-row>
       </template>
       <template v-slot:buttonAdd v-if="localScope === 'local'">
         <b-button variant="outline-primary" :to="{ name: 'newFingerbankDevice', params: { localScope: 'local' } }">{{ $t('New Device') }}</b-button>
@@ -90,8 +89,9 @@ export default {
     }
   },
   computed: {
-    parentTreeReverse () { // parentTree.reverse() issue within template, mutates Array immediately and causes infinite-loop w/ reactivity updates.
-      return JSON.parse(JSON.stringify(this.parentTree)).reverse()
+    parentTreeReverse () {
+      // parentTree.reverse() issue within template, mutates Array immediately and causes infinite-loop w/ reactivity updates.
+      return Array.prototype.slice.call(this.parentTree).reverse()
     }
   },
   methods: {
