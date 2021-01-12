@@ -812,6 +812,10 @@ sub generate_netflow_rules {
 }
 
 sub netflow_enabled {
+    if (isenabled($Config{advanced}{netflow_on_all_networks})) {
+        return $TRUE;
+    }
+
     while( my ($network, $data) = each %ConfigNetworks ) {
         # We skip non-inline networks/interfaces
         next if ( !pf::config::is_network_type_inline($network) );
