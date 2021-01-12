@@ -19,7 +19,7 @@ Register a node with RADIUS in order to test MAC Authentication on Wired
 1. Configure MAC authentication and dynamic VLAN on dot1x interface on
    switch01: will trigger a RADIUS request
 1. Wait some time to let RADIUS request be sent by switch01 and handled by
-   PacketFence server (`mab_activation_delay`)
+   PacketFence server (`mab_activation_delay` + 20 seconds). switch01 also needs to handle answer.
 1. Check RADIUS audit log for node01
 1. Check VLAN assigned to node01 *on* switch01
 1. Check Internet access *on* node01

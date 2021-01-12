@@ -61,7 +61,7 @@ testcases:
                   "value": "{{.wired_mac_auth.profiles.wired.filters.connection_type}}"
                 }
               ]
-            },            
+            },
             {
               "op": "or",
               "values": [            
