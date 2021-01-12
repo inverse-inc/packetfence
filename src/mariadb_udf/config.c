@@ -28,6 +28,8 @@ struct Lookup {
     int val;
 };
 
+int cleanup_cef_header(struct cef_header* header);
+
 // Lookup using binary search;
 int _lookup(char* name, ssize_t name_len, struct Lookup* lookup, int len)
 {
