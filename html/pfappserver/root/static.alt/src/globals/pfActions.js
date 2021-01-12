@@ -259,36 +259,18 @@ export const pfActions = {
   set_unreg_date: {
     value: 'set_unreg_date',
     text: i18n.t('Unregistration date'),
-    placeholder: 'YYYY-MM-DD HH:mm:ss',
-    /* TODO - Workaround for Issue #4672
-     * types: [fieldType.DATETIME],
-     * moments: ['1 days', '1 weeks', '1 months', '1 years'],
-     */
-    types: [fieldType.SUBSTRING]
-    /* TODO
-     * https://github.com/inverse-inc/packetfence/issues/5592
-    validators: {
-      [i18n.t('Invalid date.')]: isDateFormat('YYYY-MM-DD')
+    types: [fieldType.DATETIME],
+    props: {
+      placeholder: 'YYYY-MM-DD HH:mm:ss'
     }
-     */
   },
   set_unreg_date_by_acl_user: {
     value: 'set_unreg_date',
     text: i18n.t('Unregistration date'),
-    placeholder: 'YYYY-MM-DD HH:mm:ss',
-    /* TODO - Workaround for Issue #4672
-     * types: [fieldType.DATETIME],
-     * moments: ['1 days', '1 weeks', '1 months', '1 years'],
-     */
-    types: [fieldType.SUBSTRING]
-    /* TODO
-     * https://github.com/inverse-inc/packetfence/issues/5592
-    validators: {
-      [i18n.t('Invalid date.')]: isDateFormat('YYYY-MM-DD'),
-      // Limit maximum date w/ current user ACL
-      [i18n.t('Date exceeds maximum allowed by current user.')]: isValidUnregDateByAclUser('YYYY-MM-DD')
+    types: [fieldType.DATETIME],
+    props: {
+      placeholder: 'YYYY-MM-DD HH:mm:ss',
     }
-     */
   },
   time_balance_from_source: {
     value: 'time_balance_from_source',

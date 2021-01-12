@@ -1,76 +1,61 @@
 <template>
-  <b-form-group ref="form-group"
-    class="base-form-group"
-    :class="{
-      'mb-0': !columnLabel
-    }"
+  <base-input-group
     :state="inputState"
-    :labelCols="labelCols"
-    :label="columnLabel"
+    :invalid-feedback="inputInvalidFeedback"
+    :valid-feedback="inputValidFeedback"
+    :text="inputText"
+    :isFocus="isFocus"
+    :isLocked="isLocked"
   >
-    <b-input-group ref="input-group"
-      class="is-borders"
-      :class="{
-        'is-focus': isFocus || isShown,
-        'is-blur': !(isFocus || isShown),
-        'is-valid': inputState === true,
-        'is-invalid': inputState === false
-      }"
-    >
-      <b-form-input ref="input"
-        class="base-form-group-input base-input"
-        :disabled="isLocked"
-        :readonly="inputReadonly"
+    <b-form-input ref="input"
+      class="base-input"
+      :disabled="isLocked"
+      :readonly="inputReadonly"
+      :placeholder="inputPlaceholder"
+      :tabIndex="inputTabIndex"
+      :type="inputType"
+      :value="inputValue"
+      @input="onInput"
+      @change="onChange"
+      @focus="onFocus"
+      @blur="onBlur"
+    />
+    <template v-slot:append>
+      <b-button v-if="isLocked"
+        class="input-group-text"
+        :disabled="true"
+        tabIndex="-1"
+      >
+        <icon ref="icon-lock"
+          name="lock"
+        />
+      </b-button>
+      <b-form-datepicker v-else
+        ref="datepickerRef"
+        button-only right
+        button-variant="light"
+        :locale="$i18n.locale"
         :state="inputState"
-        :placeholder="inputPlaceholder"
-        :tabIndex="inputTabIndex"
-        :type="inputType"
         :value="inputValue"
         @input="onInput"
         @change="onChange"
-        @focus="onFocus"
-        @blur="onBlur"
-      />
-      <template v-slot:append>
-        <b-button v-if="isLocked"
-          class="input-group-text"
-          :disabled="true"
-          tabIndex="-1"
-        >
-          <icon ref="icon-lock"
-            name="lock"
-          />
-        </b-button>
-        <b-form-datepicker v-else
-          ref="datepickerRef"
-          button-only right
-          button-variant="light"
-          :locale="$i18n.locale"
-          :state="inputState"
-          :value="inputValue"
-          @input="onInput"
-          @change="onChange"
-          @hidden="onHidden"
-          @shown="onShown"
-        >
-          <template v-slot:button-content>
-            <icon name="calendar-alt" />
-          </template>
-        </b-form-datepicker>
-      </template>
-    </b-input-group>
-    <template v-slot:description v-if="inputText">
-      <div v-html="inputText"/>
+        @hidden="onHidden"
+        @shown="onShown"
+      >
+        <template v-slot:button-content>
+          <icon name="calendar-alt" />
+        </template>
+      </b-form-datepicker>
     </template>
-    <template v-slot:invalid-feedback v-if="inputInvalidFeedback">
-      <div v-html="inputInvalidFeedback"/>
-    </template>
-    <template v-slot:valid-feedback v-if="inputValidFeedback">
-      <div v-html="inputValidFeedback"/>
-    </template>
-  </b-form-group>
+  </base-input-group>
 </template>
 <script>
+import { BaseInputGroup } from '@/components/new'
+
+const components = {
+  BaseInputGroup
+}
+
 import { ref } from '@vue/composition-api'
 import { useFormGroupProps } from '@/composables/useFormGroup'
 import { useInput, useInputProps } from '@/composables/useInput'
@@ -159,14 +144,10 @@ export const setup = (props, context) => {
 
 // @vue/component
 export default {
-  name: 'base-form-group-input-date',
+  name: 'base-input-group-date',
   inheritAttrs: false,
+  components,
   props,
   setup
 }
 </script>
-<style lang="scss">
-.base-form-group-input-date {
-  border-radius: $border-radius !important;
-}
-</style>

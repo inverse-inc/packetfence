@@ -159,6 +159,11 @@ const setup = (props, context) => {
     }
   })
 
+  const doFocus = () => {
+    const { doFocus = () => {} } = attributeComponentRef.value || {}
+    doFocus() // focus `attribute` component
+  }
+
   return {
     attributeComponentRef,
     attributeValue,
@@ -169,7 +174,9 @@ const setup = (props, context) => {
 
     valueComponentRef,
     valueComponent,
-    valueBind
+    valueBind,
+
+    doFocus
   }
 }
 

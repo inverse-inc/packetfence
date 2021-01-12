@@ -17,6 +17,7 @@
 <script>
 import {
   BaseInput,
+  BaseInputGroupDateTime,
   BaseInputGroupMultiplier,
   BaseInputNumber,
   BaseInputPassword,
@@ -27,6 +28,7 @@ import {
 
 const components = {
   BaseInput,
+  BaseInputGroupDateTime,
   BaseInputGroupMultiplier,
   BaseInputNumber,
   BaseInputPassword,
@@ -113,7 +115,7 @@ const setup = (props, context) => {
             // break
 
           case componentType.DATETIME:
-            return BaseInput
+            return BaseInputGroupDateTime
             // break
 
           case componentType.PREFIXMULTIPLIER:

@@ -5,20 +5,20 @@ export default function useArrayCollapse(actionKey, context) {
   const isCollapse = ref(true)
   const isRendered = ref(false) // performance: do not render collapse contents
 
-  const onToggle = () => {
+  const doToggle = () => {
     const toggleAll = unref(actionKey)
     if (toggleAll) {
       const { parent: { $children = [] } = {} } = context
       if (unref(isCollapse))
-        $children.map(({ onExpand = () => {} }) => onExpand())
+        $children.map(({ doExpand = () => {} }) => doExpand())
       else
-        $children.map(({ onCollapse = () => {} }) => onCollapse())
+        $children.map(({ doCollapse = () => {} }) => doCollapse())
     }
     else
-      (isCollapse.value ? onExpand : onCollapse)()
+      (isCollapse.value ? doExpand : doCollapse)()
   }
-  const onCollapse = () => isCollapse.value = true
-  const onExpand = () => isCollapse.value = false
+  const doCollapse = () => isCollapse.value = true
+  const doExpand = () => isCollapse.value = false
 
   const onShow = () => {
     isRendered.value = true
@@ -31,9 +31,9 @@ export default function useArrayCollapse(actionKey, context) {
     isCollapse,
     isRendered,
 
-    onToggle,
-    onCollapse,
-    onExpand,
+    doToggle,
+    doCollapse,
+    doExpand,
     onShow,
     onHidden
   }

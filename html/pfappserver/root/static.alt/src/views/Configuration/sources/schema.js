@@ -85,9 +85,9 @@ export const schemaActions = yup.array().ensure()
   .of(schemaAction)
 
 const schemaCondition = yup.object({
-  attribute: yup.string().label(i18n.t('Attribute')).required(i18n.t('Attribute required.')),
-  operator: yup.string().label(i18n.t('Operator')).required(i18n.t('Operator required.')),
-  value: yup.string().label(i18n.t('Value')).required(i18n.t('Value required.'))
+  attribute: yup.string().nullable().label(i18n.t('Attribute')).required(i18n.t('Attribute required.')),
+  operator: yup.string().nullable().label(i18n.t('Operator')).required(i18n.t('Operator required.')),
+  value: yup.string().nullable().label(i18n.t('Value')).required(i18n.t('Value required.'))
 })
 
 const schemaConditions = yup.array().ensure().unique(i18n.t('Duplicate condition.')).of(schemaCondition)
