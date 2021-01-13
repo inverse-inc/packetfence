@@ -9,8 +9,6 @@ collections:
   - name: inverse_inc.windows
   - name: inverse_inc.cumulus
   - name: inverse_inc.utils
-  - name: https://github.com/inverse-inc/ansible-wireless.git
-    type: git
-    version: main
+  - name: inverse_inc.wireless
 
 
