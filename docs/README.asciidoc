@@ -4,8 +4,8 @@ The documentation of PacketFence is formatted in http://www.methods.co.nz/asciid
 
 To convert the documentation to the PDF or HTML format, you need various tools:
 
-* asciidoctor (.asciidoc to .html)
-* asciidoctor-pdf (.asciidoc to .pdf)
+* [asciidoctor](https://asciidoctor.org/) (.asciidoc to .html)
+* [asciidoctor-pdf](https://asciidoctor.org/docs/asciidoctor-pdf/) (.asciidoc to .pdf)
 
 The Makefile at the root of the repository will call those tools:
 
@@ -16,17 +16,5 @@ The Makefile at the root of the repository will call those tools:
 * To generate HTML documents
 
   make html
-
-== Troubleshooting
-
-=== Making it work on RHEL7 / CentOS 7
-
-. If you are not using the RHN Subscription Management from Red Hat you need to enable the optional channel by running the following as root:
-
-  subscription-manager repos --enable rhel-7-server-optional-rpms
-
-. Install asciidoc
-
-  yum install asciidoc
 
 // vim: set syntax=asciidoc tabstop=2 shiftwidth=2 expandtab:
