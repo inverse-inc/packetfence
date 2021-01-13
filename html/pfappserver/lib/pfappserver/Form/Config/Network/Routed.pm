@@ -12,89 +12,15 @@ Form definition to create or update a routed network.
 
 use HTML::FormHandler::Moose;
 extends 'pfappserver::Form::Config::Network';
-with 'pfappserver::Base::Form::Role::Help';
+with qw(
+    pfappserver::Base::Form::Role::Help
+    pfappserver::Role::Form::Config::Network::DHCP
+);
 
 use pfappserver::Model::Config::Network;
 use HTTP::Status qw(:constants is_success);
 use pf::config;
 
-has_field 'network' =>
-  (
-   type => 'IPAddress',
-   label => 'Routed Network',
-   required => 1,
-   messages => { required => 'Please specify the network.' },
-  );
-has_field 'gateway' =>
-  (
-   type => 'IPAddress',
-   label => 'Client Gateway',
-   required_when => { 'dhcpd' => sub { $_[0] eq 'enabled' } },
-   messages => { required => 'Please specify the gateway.' },
-  );
-has_field 'netmask' =>
-  (
-   type => 'IPAddress',
-   label => 'Netmask',
-   required => 1,
-   messages => { required => 'Please specify the netmask.' },
-  );
-has_field 'type' =>
-  (
-   type => 'Select',
-   label => 'Network type',
-   required => 1,
-   options => [
-        { value => '',label => ''},
-        { value => $pf::config::NET_TYPE_VLAN_ISOL, label => 'Isolation'},
-        { value => $pf::config::NET_TYPE_VLAN_REG, label => 'Registration'},
-        { value => $pf::config::NET_TYPE_DNS_ENFORCEMENT, label => 'DNS Enforcement'},
-        { value => $pf::config::NET_TYPE_INLINE_L3, label => 'Inline Layer 3'},
-   ]
-  );
-has_field 'next_hop' =>
-  (
-   type => 'IPAddress',
-   label => 'Router IP',
-   required => 1,
-   messages => { required => 'Please specify the router IP address.' },
-   tags => { after_element => \&help,
-             help => 'IP address of the router to reach this network' },
-  );
-
-has_field 'fake_mac_enabled' =>
-  (
-   type => 'Toggle',
-   checkbox_value => 1,
-   unchecked_value => 0,
-   default => 0,
-   label => 'Fake MAC Address',
-   );
-
-has_field 'nat_enabled' => (
-    type => 'Toggle',
-    checkbox_value => 1,
-    unchecked_value => 0,
-    default => 1,
-    label => 'Enable NATting',
-);
-
-has_field 'coa' => (
-    type => 'Toggle',
-    checkbox_value => "enabled",
-    unchecked_value => "disabled",
-    default => "disabled",
-    label => 'Enable CoA',
-);
-
-has_field 'dhcpd' =>
-  (
-   type => 'Toggle',
-   checkbox_value => "enabled",
-   unchecked_value => "disabled",
-   default => "enabled",
-   label => 'DHCP server',
-   );
 
 =head2 update_fields
 

@@ -31,6 +31,7 @@ use pfappserver::Form::Config::Network::vlan_isolation;
 use pfappserver::Form::Config::Network::inline;
 use pfappserver::Form::Config::Network::inlinel2;
 use pfappserver::Form::Config::Network::inlinel3;
+use pfappserver::Form::Config::Network::other;
 use pf::constants::config qw(
     $NET_TYPE_DNS_ENFORCEMENT
     $NET_TYPE_VLAN_REG
@@ -38,17 +39,19 @@ use pf::constants::config qw(
     $NET_TYPE_INLINE
     $NET_TYPE_INLINE_L2
     $NET_TYPE_INLINE_L3
+    $NET_TYPE_OTHER
 );
 
 our %TYPES_TO_FORMS = (
-    map { my $type = $_;$type=~s/-/_/g;$_ => "pfappserver::Form::Config::Network::$type" } qw(
-        $NET_TYPE_DNS_ENFORCEMENT
-        $NET_TYPE_VLAN_REG
-        $NET_TYPE_VLAN_ISOL
-        $NET_TYPE_INLINE
-        $NET_TYPE_INLINE_L2
-        $NET_TYPE_INLINE_L3
-    )
+   map { my $type = $_;$type=~s/-/_/g;$_ => "pfappserver::Form::Config::Network::$type" } (
+       $NET_TYPE_DNS_ENFORCEMENT,
+       $NET_TYPE_VLAN_REG,
+       $NET_TYPE_VLAN_ISOL,
+       $NET_TYPE_INLINE,
+       $NET_TYPE_INLINE_L2,
+       $NET_TYPE_INLINE_L3,
+       $NET_TYPE_OTHER,
+   )
 );
 
 sub type_lookup {

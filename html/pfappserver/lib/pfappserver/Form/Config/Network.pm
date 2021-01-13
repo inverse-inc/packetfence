@@ -18,96 +18,26 @@ use pf::util;
 
 has 'network' => ( is => 'ro' );
 
+has_field 'network' =>
+  (
+   type => 'IPAddress',
+   label => 'Routed Network',
+   required => 1,
+   messages => { required => 'Please specify the network.' },
+  );
+
 has_field 'type' =>
   (
    type => 'Hidden',
+   required => 1,
   );
-has_field 'dhcp_start' =>
+has_field 'netmask' =>
   (
    type => 'IPAddress',
-   label => 'Starting IP Address',
-   required_when => { 'dhcpd' => sub { $_[0] eq 'enabled' } },
-   messages => { required => 'Please specify the starting IP address of the DHCP scope.' },
+   label => 'Netmask',
+   required => 1,
+   messages => { required => 'Please specify the netmask.' },
   );
-has_field 'dhcp_end' =>
-  (
-   type => 'IPAddress',
-   label => 'Ending IP Address',
-   required_when => { 'dhcpd' => sub { $_[0] eq 'enabled' } },
-   messages => { required => 'Please specify the ending IP address of the DHCP scope.' },
-  );
-has_field 'dhcp_default_lease_time' =>
-  (
-   type => 'PosInteger',
-   label => 'Default Lease Time',
-   required_when => { 'dhcpd' => sub { $_[0] eq 'enabled' } },
-   messages => { required => 'Please specify the default DHCP lease time.' },
-  );
-has_field 'dhcp_max_lease_time' =>
-  (
-   type => 'PosInteger',
-   label => 'Max Lease Time',
-   required_when => { 'dhcpd' => sub { $_[0] eq 'enabled' } },
-   messages => { required => 'Please specify the maximum DHCP lease time.' },
-  );
-has_field 'algorithm' =>
-  (
-   type => 'Select',
-   label => 'DHCP Algorithm',
-   required_when => { 'dhcpd' => sub { $_[0] eq 'enabled' } },
-   options => [
-        { value => $pf::constants::dhcp::RANDOM_ALGORITHM, label => 'Random'},
-        { value => $pf::constants::dhcp::OLDEST_RELEASED_ALGORITHM, label => 'Oldest Released'},
-   ],
-   default => $pf::constants::dhcp::RANDOM_ALGORITHM,
-  );
-has_field 'pool_backend' =>
-  (
-   type => 'Select',
-   label => 'DHCP Pool Backend Type',
-   required_when => { 'dhcpd' => sub { $_[0] eq 'enabled' } },
-   options => [
-        { value => $pf::constants::dhcp::MEMORY_POOL, label => 'Memory Pool'},
-        { value => $pf::constants::dhcp::MYSQL_POOL, label => 'MySQL Pool'},
-   ],
-   default => $pf::constants::dhcp::MEMORY_POOL,
-  );
-has_field 'ip_reserved' =>
-  (
-   type => 'TextArea',
-   label => 'IP Addresses reserved',
-   messages => { required => "Range or IP addresses to exclude from the DHCP pool." },
-   tags => { after_element => \&help,
-             help => 'Range like 192.168.0.1-192.168.0.20 and or IP like 192.168.0.22,192.168.0.24 will be excluded from the DHCP pool' },
-  );
-has_field 'ip_assigned' =>
-  (
-   type => 'IPAssigned',
-   label => 'IP Addresses assigned',
-   messages => { required => "List of MAC:IP statically assigned." },
-   tags => {
-      after_element => \&help,
-      help =>
-        'List like 00:11:22:33:44:55:192.168.0.12,11:22:33:44:55:66:192.168.0.13',
-      option_pattern => sub {
-          {
-              message => "A list of MAC:IP couples (example: 00:11:22:33:44:55:192.168.0.12)",
-              regex   => "^[0-9A-Fa-f][0-9A-Fa-f](:[0-9A-Fa-f][0-9A-Fa-f]){5}:\\d{1,3}(.\\d{1,3}){3}(,[0-9A-Fa-f][0-9A-Fa-f](:[0-9A-Fa-f][0-9A-Fa-f]){5}:\\d{1,3}(.\\d{1,3}){3})*\$"
-,
-          };
-      }
-   },
-  );
-has_field 'dns' =>
-  (
-   type => 'IPAddresses',
-   label => 'DNS Server',
-   required_when => { 'dhcpd' => sub { $_[0] eq 'enabled' } },
-   messages => { required => "Please specify the DNS server's IP address(es)." },
-   tags => { after_element => \&help,
-             help => 'Should match the IP of a registration interface or the production DNS server(s) if the network is Inline L2/L3 (space delimited list of IP addresses)' },
-  );
-
 has_field 'portal_fqdn' =>
   (
    type => 'Text',
@@ -125,6 +55,16 @@ has_field 'netflow_accounting_enabled' =>
    default => 'disabled',
    label => 'Enable Net Flow Accounting'
    );
+
+has_field 'next_hop' =>
+  (
+   type => 'IPAddress',
+   label => 'Router IP',
+   required => 1,
+   messages => { required => 'Please specify the router IP address.' },
+   tags => { after_element => \&help,
+             help => 'IP address of the router to reach this network' },
+  );
 
 =head2 validate
 
