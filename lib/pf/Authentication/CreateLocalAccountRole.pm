@@ -21,7 +21,7 @@ has 'local_account_expiration' => (isa => 'Str', is => 'rw', default => "0s");
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2020 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 

@@ -143,7 +143,7 @@ sub window_help_text { "Window to apply the job to. In the case of a deletion, s
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2020 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 
