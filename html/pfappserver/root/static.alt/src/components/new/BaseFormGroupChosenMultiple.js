@@ -1,4 +1,4 @@
-import { computed, toRefs, unref } from '@vue/composition-api'
+import { computed, toRefs } from '@vue/composition-api'
 import useEventFnWrapper from '@/composables/useEventFnWrapper'
 import { useInputMeta } from '@/composables/useMeta'
 import { useInputValue } from '@/composables/useInputValue'
@@ -35,18 +35,24 @@ export const setup = (props, context) => {
   } = useInputValue(metaProps, context)
 
   const inputValueWrapper = computed(() => {
-    return (unref(value) || []).map(item => ({ [unref(label)]: item, [unref(trackBy)]: item }))
+    return (value.value || []).map(item => ({ [label.value]: item, [trackBy.value]: item }))
   })
 
   const onInputWrapper = useEventFnWrapper(onInput, _value => {
-    const { [unref(trackBy)]: trackedValue } = _value
-    const filteredValues = (unref(value) || []).filter(item => item !== trackedValue)
-    return [ ...filteredValues, trackedValue ]
+    const _values = (_value.constructor === Array)
+      ? _value // is group(ed)
+      : [_value] // is singular
+    let valueCopy = (value.value || [])
+    for (_value of _values) {
+      const { [trackBy.value]: trackedValue } = _value
+      valueCopy = [ ...valueCopy.filter(item => item !== trackedValue), trackedValue ]
+    }
+    return valueCopy
   })
 
   const onRemove = option => {
-    const { [unref(trackBy)]: trackedValue } = option
-    const filteredValues = (unref(value) || []).filter(item => item !== trackedValue)
+    const { [trackBy.value]: trackedValue } = option
+    const filteredValues = (value.value || []).filter(item => item !== trackedValue)
     onInput(filteredValues)
   }
 
