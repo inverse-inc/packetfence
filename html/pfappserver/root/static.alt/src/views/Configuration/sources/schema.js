@@ -1,6 +1,5 @@
 import store from '@/store'
 import { pfActionsSchema as schemaActions } from '@/globals/pfActions'
-import { pfFieldType as fieldType } from '@/globals/pfField'
 import i18n from '@/utils/locale'
 import yup from '@/utils/yup'
 
@@ -60,20 +59,17 @@ export const schema = (props) => {
       .nullable()
       .required(i18n.t('Name required.'))
       .sourceIdNotExistsExcept((!isNew && !isClone) ? id : undefined, i18n.t('Name exists.')),
-
-
-    administration_rules: schemaRules.meta({ invalidFeedback: i18n.t('Administration rule contains one or more errors.') }),
-    authentication_rules: schemaRules.meta({ invalidFeedback: i18n.t('Authentication rule contains one or more errors.') }),
-    port: yup.string().isPort(),
-
+    administration_rules: schemaRules,
+    authentication_rules: schemaRules,
+    access_scope: yup.string().label(i18n.t('Scope')),
     access_token_param: yup.string().label(i18n.t('Parameter')),
     access_token_path: yup.string().label(i18n.t('Path')),
     account_sid: yup.string().label(i18n.t('SID')),
     api_key: yup.string().label(i18n.t('API key')),
     api_login_id: yup.string().label(i18n.t('ID')),
     auth_token: yup.string().label(i18n.t('Token')),
-    authenticate_realm: yup.string().label(i18n.t('Authentication realm')),
-    authorization_source_id: yup.string().label(i18n.t('Authorization source')),
+    authenticate_realm: yup.string().label(i18n.t('Realm')),
+    authorization_source_id: yup.string().label(i18n.t('Source')),
     authorize_path: yup.string().label(i18n.t('Path')),
     basedn: yup.string().label(i18n.t('Base DN')),
     cert_file: yup.string().label(i18n.t('File')),
@@ -95,13 +91,15 @@ export const schema = (props) => {
     password_email_update: yup.string().label(i18n.t('Email')),
     path: yup.string().label(i18n.t('Path')),
     paypal_cert_file: yup.string().label(i18n.t('File')),
-    person_mappings: schemaPersonMappings.meta({ invalidFeedback: i18n.t('Mappings contain one or more errors.') }),
+    person_mappings: schemaPersonMappings,
+    port: yup.string().label(i18n.t('Port')).isPort(),
     protected_resource_url: yup.string().label(i18n.t('URL')),
     proxy_addresses: yup.string().label(i18n.t('Addresses')),
     public_client_key: yup.string().label(i18n.t('Key')),
     publishable_key: yup.string().label(i18n.t('Key')),
     radius_secret: yup.string().label(i18n.t('Secret')),
     redirect_url: yup.string().label(i18n.t('URL')),
+    scope: yup.string().label(i18n.t('Scope')),
     secret_key: yup.string().label(i18n.t('Key')),
     secret: yup.string().label(i18n.t('Secret')),
     server1_address: yup.string().label(i18n.t('Address')),
@@ -114,9 +112,9 @@ export const schema = (props) => {
     sp_key_path: yup.string().label(i18n.t('Path')),
     terminal_id: yup.string().label(i18n.t('ID')),
     transaction_key: yup.string().label(i18n.t('Key')),
-    twilio_phone_number: yup.string().label(i18n.t('Phone number')),
+    twilio_phone_number: yup.string().label(i18n.t('Phone')),
     user_header: yup.string().label(i18n.t('Header')),
-    usernameattribute: yup.string().label(i18n.t('Username attribute')),
+    usernameattribute: yup.string().label(i18n.t('Attribute')),
   })
 }
 

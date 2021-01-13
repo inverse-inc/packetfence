@@ -283,6 +283,12 @@ const pfActionSchema = yup.object({
   value: yup.string()
     .when('type', type => {
       switch (true) {
+        case !type:
+        case type === 'set_role':
+        case pfActions[type].types.includes(fieldType.NONE):
+        case pfActions[type].types.includes(fieldType.HIDDEN):
+          return yup.string().nullable()
+          // break
         case type === 'destination_url':
           return yup.string().nullable()
             .required(i18n.t('Value required.'))
@@ -293,11 +299,6 @@ const pfActionSchema = yup.object({
             .required(i18n.t('Value required.'))
             .maxAsInt(schema.node.bandwidth_balance.max)
             .minAsInt(schema.node.bandwidth_balance.min)
-          // break
-        case type === 'set_role':
-        case pfActions[type].types.includes(fieldType.NONE):
-        case pfActions[type].types.includes(fieldType.HIDDEN):
-          return yup.string().nullable()
           // break
         default:
           return yup.string().nullable()
