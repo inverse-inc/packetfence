@@ -20,14 +20,14 @@ This guide covers procedures to upgrade PacketFence servers.
 
 === Other sources of information
 
-<<PacketFence_Clustering_Guide.asciidoc#,Clustering Guide>>::
+<<{extra_path}PacketFence_Clustering_Guide.asciidoc#,Clustering Guide>>::
   Covers installation in a clustered environment.
-<<PacketFence_Developers_Guide.asciidoc#,Developer's Guide>>::
+<<{extra_path}PacketFence_Developers_Guide.asciidoc#,Developer's Guide>>::
   Covers API, captive portal customization, application code customizations and
   instructions for supporting new equipment.
-<<PacketFence_Installation_Guide.asciidoc#,Installation Guide>>::
+<<{extra_path}PacketFence_Installation_Guide.asciidoc#,Installation Guide>>::
   Covers installation and configuration of PacketFence.
-<<PacketFence_Network_Devices_Configuration_Guide.asciidoc#,Network Devices Configuration Guide>>::
+<<{extra_path}PacketFence_Network_Devices_Configuration_Guide.asciidoc#,Network Devices Configuration Guide>>::
   Covers switches, WiFi controllers and access points configuration.
 link:https://packetfence.org/news.html[PacketFence News]
   Covers noteworthy features, improvements and bug fixes by release.
@@ -109,7 +109,7 @@ required to be done *BEFORE* the packages upgrades.
 
 ==== Clustered environment: specific procedure
 
-Please refer to the <<PacketFence_Clustering_Guide.asciidoc#,PacketFence Clustering Guide>>, more specifically the <<PacketFence_Clustering_Guide.asciidoc#_performing_an_upgrade_on_a_cluster,Performing an upgrade on a cluster>> section.
+Please refer to the <<{extra_path}PacketFence_Clustering_Guide.asciidoc#,PacketFence Clustering Guide>>, more specifically the <<{extra_path}PacketFence_Clustering_Guide.asciidoc#_performing_an_upgrade_on_a_cluster,Performing an upgrade on a cluster>> section.
 
 === Stop all PacketFence services
 
@@ -275,8 +275,8 @@ NOTE: This step is optional
 
 In order to have Monit configuration upgraded, you need to:
 
-. <<PacketFence_Installation_Guide.asciidoc#_generateregenerate_the_monit_configuration,Regenerate Monit configuration>>
-. <<PacketFence_Installation_Guide.asciidoc#_enable_and_start_monit,Enable and start monit>> if you stopped it at beginning of upgrade
+. <<{extra_path}PacketFence_Installation_Guide.asciidoc#_generateregenerate_the_monit_configuration,Regenerate Monit configuration>>
+. <<{extra_path}PacketFence_Installation_Guide.asciidoc#_enable_and_start_monit,Enable and start monit>> if you stopped it at beginning of upgrade
 . Restart rsyslog:
 
 [source,bash]
