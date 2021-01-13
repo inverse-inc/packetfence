@@ -2,7 +2,6 @@
 # Variables
 #==============================================================================
 # use 'global' variables (vs 'define' with local scope)
-%global     builddoc 0
 %global     perl_version 5.10.1
 %global     logfiles packetfence.log snmptrapd.log pfdetect pfcron security_event.log httpd.admin.audit.log
 %global     logdir /usr/local/pf/logs
@@ -323,11 +322,6 @@ for TRANSLATION in de en es fr he_IL it nl pl_PL pt_BR no; do
       --output-file conf/locale/$TRANSLATION/LC_MESSAGES/packetfence.mo
 done
 
-%if %{builddoc} == 1
-    # admin, network device config, devel and ZEN install guides
-    %{__make} html
-%endif
-
 # Portal javascript/css
 %{__make} -C html/common/ vendor
 %{__make} -C html/common light-dist
@@ -504,7 +498,6 @@ cp -r NEWS.asciidoc %{buildroot}/usr/local/pf/
 cp -r NEWS.old %{buildroot}/usr/local/pf/
 cp -r README.md %{buildroot}/usr/local/pf/
 cp -r README.network-devices %{buildroot}/usr/local/pf/
-cp -r UPGRADE.asciidoc %{buildroot}/usr/local/pf/
 cp -r UPGRADE.old %{buildroot}/usr/local/pf/
 # logfiles
 for LOG in %logfiles; do
@@ -1115,9 +1108,6 @@ fi
 %dir                    /usr/local/pf/docs
 %doc                    /usr/local/pf/docs/*
 %exclude                /usr/local/pf/docs/README.asciidoc
-%if %{builddoc} == 1
-%doc                    /usr/local/pf/docs/*.pdf
-%endif
 
 ### html dir
 # %%dir will add only html dir, not subdirectories or files
@@ -1251,7 +1241,6 @@ fi
 %attr(0755, pf, pf)     /usr/local/pf/sbin/pffilter
 %attr(0755, pf, pf)     /usr/local/pf/sbin/winbindd-wrapper
 %attr(0755, pf, pf)     /usr/local/pf/sbin/radsniff-wrapper
-%doc                    /usr/local/pf/UPGRADE.asciidoc
 %doc                    /usr/local/pf/UPGRADE.old
 %dir                    /usr/local/pf/var
 %dir                    /usr/local/pf/var/conf
