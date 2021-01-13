@@ -39,7 +39,8 @@ const useRouter = (props, context, form) => {
   const { root: { $router } = {} } = context
   return {
     goToCollection: () => $router.push({ name: 'realms', params: { tenantId: tenantId.value } }),
-    goToItem: () => $router.push({ name: 'realm', params: { id: form.value.id || id.value, tenantId: tenantId.value } }),
+    goToItem: () => $router.push({ name: 'realm', params: { id: form.value.id || id.value, tenantId: tenantId.value } })
+      .catch(e => { if (e.name !== "NavigationDuplicated") throw e }),
     goToClone: () => $router.push({ name: 'cloneRealm', params: { id: id.value, tenantId: tenantId.value } }),
   }
 }
