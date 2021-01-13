@@ -56,7 +56,7 @@ const useStore = (props, context, form) => {
     getOptions: () => $store.dispatch('$_realms/options', { id: id.value, tenantId: tenantId.value }),
     createItem: () => $store.dispatch('$_realms/createRealm', { item: form.value, tenantId: tenantId.value }),
     deleteItem: () => $store.dispatch('$_realms/deleteRealm', { id: id.value, tenantId: tenantId.value }),
-    getItem: () => $store.dispatch('$_realms/getRealm', id.value).then(item => {
+    getItem: () => $store.dispatch('$_realms/getRealm', { id: id.value, tenantId: tenantId.value }).then(item => {
       if (isClone.value) {
         item.id = `${item.id}-${i18n.t('copy')}`
         item.not_deletable = false
