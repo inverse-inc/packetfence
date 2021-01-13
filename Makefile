@@ -20,6 +20,8 @@ docs/%.pdf: docs/%.asciidoc
 	asciidoctor-pdf \
 		-a pdf-theme=docs/asciidoctor-pdf-theme.yml \
 		-a pdf-fontsdir=docs/fonts \
+		-a release_version=`cat conf/pf-release | cut -d' ' -f 2` \
+		-a release_month=`date +%B` \
 		$<
 
 .PHONY: pdf
@@ -34,6 +36,8 @@ docs/%.html: docs/%.asciidoc
 		-r ./docs/asciidoctor-html.rb \
 		-a stylesdir=../html/pfappserver/root/static.alt/dist/css \
 		-a stylesheet=$(notdir $(wildcard ./html/pfappserver/root/static.alt/dist/css/app*.css)) \
+		-a release_version=`cat conf/pf-release | cut -d' ' -f 2` \
+		-a release_month=`date +%B` \
 		$<
 
 html/pfappserver/root/static/doc:
