@@ -40,12 +40,6 @@ docs/%.html: docs/%.asciidoc
 		-a release_month=`date +%B` \
 		$<
 
-html/pfappserver/root/static/doc:
-	make html
-	mkdir -p html/pfappserver/root/static/doc/images
-	cp -a docs/*.html html/pfappserver/root/static/doc
-	cp -a docs/images/* html/pfappserver/root/static/doc/images
-
 docs/index.js: $(HTML)
 	find $$(dirname "$@") -type f  -iname  '*.html' -and -not -iname '*template*' -printf "{\"name\":\"%f\", \"size\":%s, \"last_modifed\" : %T@}\n" | jq -s '{ items: [ .[] |  {name, size, last_modifed : (.last_modifed*1000 | floor)} ] }' > $@
 
