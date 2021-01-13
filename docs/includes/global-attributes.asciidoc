@@ -10,13 +10,24 @@
     License: GFDL 1.2 or later. http://www.gnu.org/licenses/fdl.html
 
 ////
-
-// TODO have the build system take care of this
-
 :release_version: 10.2.0
+:release_month: October
+:encoding: UTF-8
+:lang: en
+:doctype: book
+PacketFence v{release_version}
+:toc: left
 // set imagesdir for all asciidoc files
 :imagesdir: images
 :sectanchors:
 :sectlinks:
+// Add numbers to each section
+:sectnums:
+// Remove chapter prefix
+:chapter-signifier:
+:front-cover-image: image:pf-logo.png[fit=none,pdfwidth=50%,position=center]
+:source-highlighter: rouge
+:rouge-style: github
 
+include::docinfo.asciidoc[]
 // vim: set syntax=asciidoc tabstop=2 shiftwidth=2 expandtab:

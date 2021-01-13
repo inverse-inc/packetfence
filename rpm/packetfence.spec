@@ -2,7 +2,6 @@
 # Variables
 #==============================================================================
 # use 'global' variables (vs 'define' with local scope)
-%global     builddoc 0
 %global     perl_version 5.10.1
 %global     logfiles packetfence.log snmptrapd.log pfdetect pfcron security_event.log httpd.admin.audit.log
 %global     logdir /usr/local/pf/logs
@@ -27,9 +26,6 @@ Vendor:     PacketFence, http://www.packetfence.org
 BuildRequires: gettext, httpd, ipset-devel, pkgconfig, jq
 %if 0%{?rhel} == 8
 BuildRequires: libmnl-devel,
-%endif
-%if 0%{?rhel} == 7
-BuildRequires: asciidoc >= 8.6.2, fop, libxslt, docbook-style-xsl, xalan-j2
 %endif
 BuildRequires: ruby, rubygems
 BuildRequires: nodejs >= 12.0
@@ -326,25 +322,6 @@ for TRANSLATION in de en es fr he_IL it nl pl_PL pt_BR no; do
       --output-file conf/locale/$TRANSLATION/LC_MESSAGES/packetfence.mo
 done
 
-%if %{builddoc} == 1
-    # generating custom XSL for titlepage
-    xsltproc -o docs/docbook/xsl/titlepage-fo.xsl \
-        /usr/share/sgml/docbook/xsl-stylesheets/template/titlepage.xsl \
-        docs/docbook/xsl/titlepage-fo.xml
-    # admin, network device config, devel and ZEN install guides
-    for GUIDE in $(ls docs/PacketFence*.asciidoc | xargs -n1 -I'{}' basename '{}' .asciidoc) ;do
-    asciidoc -a docinfo2 -b docbook -d book \
-        -o docs/docbook/$GUIDE.docbook \
-        docs/$GUIDE.asciidoc
-    xsltproc -o docs/docbook/$GUIDE.fo \
-        docs/docbook/xsl/packetfence-fo.xsl \
-        docs/docbook/$GUIDE.docbook
-    fop -c docs/fonts/fop-config.xml \
-        docs/docbook/$GUIDE.fo \
-        -pdf docs/$GUIDE.pdf
-    done
-%endif
-
 # Portal javascript/css
 %{__make} -C html/common/ vendor
 %{__make} -C html/common light-dist
@@ -494,7 +471,6 @@ cp -r ChangeLog %{buildroot}/usr/local/pf/
 cp -r COPYING %{buildroot}/usr/local/pf/
 cp -r db %{buildroot}/usr/local/pf/
 cp -r docs %{buildroot}/usr/local/pf/
-rm -rf %{buildroot}/usr/local/pf/docs/docbook
 rm -rf %{buildroot}/usr/local/pf/docs/fonts
 rm -rf %{buildroot}/usr/local/pf/docs/images
 rm -rf %{buildroot}/usr/local/pf/docs/api
@@ -507,9 +483,9 @@ rm -rf %{buildroot}/usr/local/pf/docs/api
 # install html directory
 %{__make} DESTDIR=%{buildroot} html_install
 
-# install html and images dirs in pfappserver for embedded doc
+# install html in pfappserver for embedded doc
 %{__install} -d -m0755 %{buildroot}/usr/local/pf/html/pfappserver/root/static/doc
-for i in `find docs/html "(" -name "*.html" -or -name "*.js" ")"  -type f`; do \
+for i in `find docs "(" -name "*.html" -or -name "*.js" ")"  -type f`; do \
 	%{__install} -m0644 $i %{buildroot}/usr/local/pf/html/pfappserver/root/static/doc/; \
 done
 
@@ -522,7 +498,6 @@ cp -r NEWS.asciidoc %{buildroot}/usr/local/pf/
 cp -r NEWS.old %{buildroot}/usr/local/pf/
 cp -r README.md %{buildroot}/usr/local/pf/
 cp -r README.network-devices %{buildroot}/usr/local/pf/
-cp -r UPGRADE.asciidoc %{buildroot}/usr/local/pf/
 cp -r UPGRADE.old %{buildroot}/usr/local/pf/
 # logfiles
 for LOG in %logfiles; do
@@ -1133,10 +1108,6 @@ fi
 %dir                    /usr/local/pf/docs
 %doc                    /usr/local/pf/docs/*
 %exclude                /usr/local/pf/docs/README.asciidoc
-%if %{builddoc} == 1
-%doc                    /usr/local/pf/docs/*.pdf
-%exclude                /usr/local/pf/docs/*.fo
-%endif
 
 ### html dir
 # %%dir will add only html dir, not subdirectories or files
@@ -1270,7 +1241,6 @@ fi
 %attr(0755, pf, pf)     /usr/local/pf/sbin/pffilter
 %attr(0755, pf, pf)     /usr/local/pf/sbin/winbindd-wrapper
 %attr(0755, pf, pf)     /usr/local/pf/sbin/radsniff-wrapper
-%doc                    /usr/local/pf/UPGRADE.asciidoc
 %doc                    /usr/local/pf/UPGRADE.old
 %dir                    /usr/local/pf/var
 %dir                    /usr/local/pf/var/conf
