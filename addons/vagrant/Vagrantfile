@@ -6,7 +6,6 @@ require 'yaml'
  
 # Read YAML file with box details
 inventory = YAML.load_file('inventory/hosts')
-networks = inventory['all']['vars']['networks']
 
 Vagrant.configure("2") do |config|
   ### Global settings for all VMS
