@@ -1,7 +1,7 @@
 import store from '@/store'
 import i18n from '@/utils/locale'
 import yup from '@/utils/yup'
-import { schemaActions } from '../sources/schema'
+import { pfActionsSchema as schemaActions } from '@/globals/pfActions'
 
 yup.addMethod(yup.string, 'portalModuleIdentifierNotExistsExcept', function (exceptName = '', message) {
   return this.test({
@@ -14,7 +14,6 @@ yup.addMethod(yup.string, 'portalModuleIdentifierNotExistsExcept', function (exc
       }).catch(() => {
         return true
       })
-
     }
   })
 })
@@ -35,9 +34,9 @@ export const schema = (props) => {
   } = props
 
   return yup.object({
-    id: yup.string().label(i18n.t('Name'))
+    id: yup.string().nullable().label(i18n.t('Name'))
       .portalModuleIdentifierNotExistsExcept((!isNew && !isClone) ? id : undefined, i18n.t('Name exists.')),
-    description: yup.string().label(i18n.t('Description')),
+    description: yup.string().nullable().label(i18n.t('Description')),
     actions: schemaActions,
     modules: schemaModules,
     multi_source_ids: schemaSources,

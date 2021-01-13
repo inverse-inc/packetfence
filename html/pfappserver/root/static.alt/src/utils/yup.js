@@ -30,14 +30,15 @@ yup.addMethod(yup.array, 'unique', function (message, hashFn) {
     name: 'unique',
     message: message || i18n.t('Duplicate item, must be unique.'),
     test: value => {
-      if (value.length === 0)
+      if (!value || value.length === 0)
         return true
       let cmp = []
       for (let m = 0; m < value.length; m++) {
         let hash = hashFn(value[m])
         if (cmp.includes(hash))
           return false
-        cmp.push(hash)
+        if (hash)
+          cmp.push(hash)
       }
       return true
     }
@@ -49,10 +50,24 @@ yup.addMethod(yup.array, 'ifThenRequires', function (message, ifIterFn, requires
     name: 'ifThenRequires',
     message: message || i18n.t('Missing value.'),
     test: value => {
-      if (value.length === 0)
+      if (!value || value.length === 0)
         return true
       if (value.filter(row => ifIterFn(row)).length > 0)
         return (value.filter(row => requiresIterFn(row)).length > 0)
+      return true
+    }
+  })
+})
+
+yup.addMethod(yup.array, 'ifThenRestricts', function (message, ifIterFn, restrictsIterFn) {
+  return this.test({
+    name: 'ifThenRestricts',
+    message: message || i18n.t('Missing value.'),
+    test: value => {
+      if (!value || value.length === 0)
+        return true
+      if (value.filter(row => ifIterFn(row)).length > 0)
+        return (value.filter(row => restrictsIterFn(row)).length === 0)
       return true
     }
   })

@@ -33,7 +33,7 @@ const schemaAccessDurationChoices = yup.array().unique(i18n.t('Duplicate choice.
 
 export const schema = () => {
   return yup.object({
-    access_duration_choices: schemaAccessDurationChoices.meta({ invalidFeedback: i18n.t('Choices contain one or more errors.') })
+    access_duration_choices: schemaAccessDurationChoices
   })
 }
 
