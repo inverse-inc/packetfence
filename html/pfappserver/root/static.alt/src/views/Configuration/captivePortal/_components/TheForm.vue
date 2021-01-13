@@ -170,7 +170,7 @@ export const setup = (props) => {
     meta
   } = toRefs(props)
 
-  const urlsBuiltIn = computed(() => (useNamespaceMetaPlaceholder('detection_mecanism_urls', meta) || '').split(','))
+  const urlsBuiltIn = computed(() => (useNamespaceMetaPlaceholder('detection_mecanism_urls', meta) || '').split('\n'))
 
   const schema = computed(() => schemaFn(props))
 
