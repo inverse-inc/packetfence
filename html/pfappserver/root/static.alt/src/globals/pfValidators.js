@@ -282,22 +282,6 @@ export const isFilenameWithExtension = (extensions = ['html']) => {
   })
 }
 
-export const hasAdminRoles = () => {
-  return store.dispatch('config/getAdminRoles').then(response => {
-    return (response.length > 0)
-  }).catch(() => {
-    return true
-  })
-}
-
-export const hasBillingTiers = () => {
-  return store.dispatch('config/getBillingTiers').then(response => {
-    return (response.length > 0)
-  }).catch(() => {
-    return true
-  })
-}
-
 export const hasConnectionProfiles = () => {
   return store.dispatch('config/getConnectionProfiles').then(response => {
     return (response.length > 0)
@@ -518,14 +502,6 @@ export const hasSecurityEvents = () => {
   })
 }
 
-export const hasSources = () => {
-  return store.dispatch('config/getSources').then(response => {
-    return (response.length > 0)
-  }).catch(() => {
-    return true
-  })
-}
-
 export const hasSwitches = () => {
   return store.dispatch('config/getSwitches').then(response => {
     return (response.length > 0)
@@ -584,24 +560,6 @@ export const hasWmiRules = () => {
 export const hasWRIXLocations = () => {
   return store.dispatch('config/getWrixLocations').then(response => {
     return (response.length > 0)
-  }).catch(() => {
-    return true
-  })
-}
-
-export const adminRoleExists = (value) => {
-  if (!value) return true
-  return store.dispatch('config/getAdminRoles').then(response => {
-    return response.filter(adminRole => adminRole.id.toLowerCase() === value.toLowerCase()).length > 0
-  }).catch(() => {
-    return true
-  })
-}
-
-export const billingTierExists = (value) => {
-  if (!value) return true
-  return store.dispatch('config/getBillingTiers').then(response => {
-    return response.filter(billingTier => billingTier.id.toLowerCase() === value.toLowerCase()).length > 0
   }).catch(() => {
     return true
   })

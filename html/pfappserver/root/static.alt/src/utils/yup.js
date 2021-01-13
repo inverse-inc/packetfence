@@ -237,6 +237,14 @@ yup.addMethod(yup.string, 'isPort', function (message) {
   })
 })
 
+yup.addMethod(yup.string, 'isPrice', function (message) {
+  return this.test({
+    name: 'isPrice',
+    message: message || i18n.t('Invalid price.'),
+    test: value => ['', null, undefined].includes(value) || (parseFloat(value) >= 0 && ((value || '').split('.')[1] || []).length <= 2)
+  })
+})
+
 yup.addMethod(yup.string, 'isStaticRoute', function (message) {
   return this.test({
     name: 'isStaticRoute',
