@@ -166,7 +166,7 @@ sub dot1xPortReauthenticate {
         "Bouncing the port instead of performing 802.1x port re-authentication because of a 4200G bug. "
         . "Your mileage may vary"
     );
-    return $self->bouncePort($ifIndex);
+    return $self->bouncePort($ifIndex, $mac);
 }
 
 =back

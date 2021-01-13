@@ -476,7 +476,7 @@ sub aclTemplate {
 }
 
 sub bouncePort {
-    my ($self, $ifindex) = @_;
+    my ($self, $ifindex, $mac) = @_;
     my $logger = $self->logger;
     if ( !$self->isProductionMode() ) {
         $logger->info("Switch not in production mode... we won't perform port bounce");
@@ -485,19 +485,19 @@ sub bouncePort {
 
     my $radiusBounce = $self->{_template}{bounce};
     if (!defined $radiusBounce) {
-        return $self->SUPER::bouncePort($ifindex);
+        return $self->SUPER::bouncePort($ifindex, $mac);
     }
 
-    return $self->_bouncePortCoa($ifindex, $radiusBounce);
+    return $self->_bouncePortCoa($ifindex, $mac, $radiusBounce);
 }
 
 sub handleReAssignVlanTrapForWiredMacAuth {
     my ($self, $ifIndex, $mac) = @_;
-    return $self->bouncePortSNMP($ifIndex);
+    return $self->bouncePortSNMP($ifIndex, $mac);
 }
 
 sub _bouncePortCoa {
-    my ($self, $ifIndex, $radiusBounce) = @_;
+    my ($self, $ifIndex, $mac, $radiusBounce) = @_;
     my $logger = $self->logger;
     my $id = $self->{_id};
 
@@ -508,12 +508,14 @@ sub _bouncePortCoa {
         return;
     }
 
-    #We need to fetch the MAC on the ifIndex in order to bounce switch port with CoA.
-    my @locationlog = locationlog_view_open_switchport_no_VoIP( $id, $ifIndex );
-    my $mac = $locationlog[0]->{'mac'};
     if (!$mac) {
-        @locationlog = locationlog_view_open_switchport_only_VoIP( $id, $ifIndex );
+        #We need to fetch the MAC on the ifIndex in order to bounce switch port with CoA.
+        my @locationlog = locationlog_view_open_switchport_no_VoIP( $id, $ifIndex );
         $mac = $locationlog[0]->{'mac'};
+        if (!$mac) {
+            @locationlog = locationlog_view_open_switchport_only_VoIP( $id, $ifIndex );
+            $mac = $locationlog[0]->{'mac'};
+        }
     }
 
     if (!$mac) {

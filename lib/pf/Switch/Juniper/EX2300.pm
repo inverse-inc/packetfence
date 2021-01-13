@@ -199,7 +199,7 @@ Usually used to force the operating system to do a new DHCP Request after a VLAN
 =cut
 
 sub bouncePort {
-    my ($self, $ifIndex) = @_;
+    my ($self, $ifIndex, $mac) = @_;
 
     $self->setAdminStatus( $ifIndex );
 
