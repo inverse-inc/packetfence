@@ -4,8 +4,8 @@ The documentation of PacketFence is formatted in http://www.methods.co.nz/asciid
 
 To convert the documentation to the PDF or HTML format, you need various tools:
 
-* [asciidoctor](https://asciidoctor.org/) (.asciidoc to .html)
-* [asciidoctor-pdf](https://asciidoctor.org/docs/asciidoctor-pdf/) (.asciidoc to .pdf)
+* https://asciidoctor.org/[asciidoctor] (.asciidoc to .html)
+* https://asciidoctor.org/docs/asciidoctor-pdf/[asciidoctor-pdf] (.asciidoc to .pdf)
 
 The Makefile at the root of the repository will call those tools:
 
