@@ -9,20 +9,15 @@ inventory = YAML.load_file('inventory/hosts')
 networks = inventory['all']['vars']['networks']
 mgmt_ip = inventory['all']['children']['wireless']['hosts']['wireless01']['mgmt_ip']
 
-
 Vagrant.configure("2") do |config|
-
-  wbid = 1
-  offset = wbid * 100
 
   ##### DEFINE VM for wireless01 #####
   config.vm.define "wireless01" do |device|
 
     device.vm.hostname = "wireless01"
-    device.vm.box = "generic/debian10"
+    device.vm.box = "debian/buster64"
 
     device.vm.provider :libvirt do |v|
-      v.default_prefix = ""
       v.memory = 1024
     end
 
