@@ -1,5 +1,5 @@
 <template>
-  <base-input-group
+  <base-input-group ref="container"
     :state="inputState"
     :invalid-feedback="inputInvalidFeedback"
     :valid-feedback="inputValidFeedback"
@@ -191,8 +191,10 @@ export const setup = (props, context) => {
   const onToggle = () => { isShown.value = !isShown.value }
 
   const popoverTarget = ref(document.createElement('input'))
-  onMounted(() => popoverTarget.value = refs.input)
-
+  onMounted(() => {
+    const { container: { $el } = {} } = refs
+    popoverTarget.value = $el.querySelector('[role="group"]')
+  })
 
   const inputValueDate = computed(() => {
     if (value.value && value.value.charAt(0) !== '0') {
