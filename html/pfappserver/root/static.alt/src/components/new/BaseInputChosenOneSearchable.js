@@ -79,6 +79,11 @@ export const setup = (props, context) => {
     return trackedValue
   })
 
+  // clear single value
+  const onRemove = () => onInput(undefined)
+
+  const onTag = newValue => onInput(newValue)
+
   return {
     // useInput
     isFocus,
@@ -95,7 +100,10 @@ export const setup = (props, context) => {
     // wrappers
     inputValue: inputValueWrapper,
     onInput: onInputWrapper,
-    inputPlaceholder
+    inputPlaceholder,
+
+    onRemove,
+    onTag
   }
 }
 
