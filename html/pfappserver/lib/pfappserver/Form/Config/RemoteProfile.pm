@@ -67,7 +67,7 @@ has_field 'basic_filter_value' =>
 
 has_field 'advanced_filter' =>
   (
-   type => 'TextArea',
+    type => 'FilterCondition',
   );
 
 has_field 'allow_communication_same_role' =>
@@ -156,6 +156,102 @@ sub validate {
         }
     }
 }
+
+sub options_field {
+    my ($self) = @_;
+    return map { $self->make_field_options($_) } $self->options_field_names();
+}
+
+sub make_field_options {
+    my ($self, $name) = @_;
+    my %options = (
+        label => $name,
+        value => $name,
+        $self->additional_field_options($name),
+    );
+    return \%options;
+}
+
+sub additional_field_options {
+    my ($self, $name) = @_;
+    my $options = $self->_additional_field_options;
+    if (!exists $options->{$name}) {
+        return;
+    }
+
+    my $more = $options->{$name};
+    my $ref = ref $more;
+    if ($ref eq 'HASH') {
+        return %$more;
+    } elsif ($ref eq 'CODE') {
+        return $more->($self, $name);
+    }
+
+    return;
+}
+
+my %ADDITIONAL_FIELD_OPTIONS = (
+    %pfappserver::Form::Config::FilterEngines::ADDITIONAL_FIELD_OPTIONS
+);
+
+sub _additional_field_options {
+    return \%ADDITIONAL_FIELD_OPTIONS;
+}
+
+sub options_field_names {
+    qw(
+        node_info.autoreg
+        node_info.bandwidth_balance
+        node_info.bypass_role_id
+        node_info.bypass_vlan
+        node_info.category_id
+        node_info.computername
+        node_info.detect_date
+        node_info.device_class
+        node_info.device_manufacturer
+        node_info.device_score
+        node_info.device_type
+        node_info.device_version
+        node_info.dhcp6_enterprise
+        node_info.dhcp6_fingerprint
+        node_info.dhcp_fingerprint
+        node_info.dhcp_vendor
+        node_info.last_arp
+        node_info.last_dhcp
+        node_info.last_seen
+        node_info.lastskip
+        node_info.mac
+        node_info.machine_account
+        node_info.notes
+        node_info.pid
+        node_info.regdate
+        node_info.sessionid
+        node_info.status
+        node_info.tenant_id
+        node_info.time_balance
+        node_info.unregdate
+        node_info.user_agent
+        node_info.voip
+        node_info.bypass_role
+        node_info.category
+        node_info.last_connection_sub_type
+        node_info.last_connection_type
+        node_info.last_dot1x_username
+        node_info.last_end_time
+        node_info.last_ifDesc
+        node_info.last_port
+        node_info.last_role
+        node_info.last_ssid
+        node_info.last_start_time
+        node_info.last_start_timestamp
+        node_info.last_switch
+        node_info.last_switch_mac
+        node_info.last_vlan
+        node_info.realm
+        node_info.stripped_user_name
+    );
+}
+
 =over
 
 =back
