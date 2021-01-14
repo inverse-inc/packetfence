@@ -6,6 +6,7 @@ To convert the documentation to the PDF or HTML format, you need various tools:
 
 * https://asciidoctor.org/[asciidoctor] (.asciidoc to .html)
 * https://asciidoctor.org/docs/asciidoctor-pdf/[asciidoctor-pdf] (.asciidoc to .pdf)
+* https://github.com/rouge-ruby/rouge[rouge] (syntax highlighter)
 
 The Makefile at the root of the repository will call those tools:
 

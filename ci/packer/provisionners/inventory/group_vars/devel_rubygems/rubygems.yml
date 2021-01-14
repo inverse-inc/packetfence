@@ -1,7 +1,6 @@
 ---
 gems:
   - name: 'asciidoctor'
-
-gems_pre:
-  - name: 'asciidoctor-pdf'
-    extra_options: '--pre'
+  - name: 'rouge'
+  # asciidoctor-pdf is not used during build of PacketFence
+  # and requires ruby 2.1 (not packaged for CentOS 7)
