@@ -120,14 +120,14 @@ sub radiusDisconnect {
     return;
 }
 
-=head2 setAdminStatus - bounce switch port with radius CoA technique
+=head2 bouncePortRadius - bounce switch port with radius CoA technique
 
 Send a CoA request to bounce switch port
 
 =cut
 
-sub setAdminStatus {
-    my ( $self, $ifIndex, $status, $mac ) = @_;
+sub bouncePortRadius {
+    my ( $self, $ifIndex, $mac ) = @_;
     my $logger = $self->logger;
 
 
@@ -203,10 +203,7 @@ Usually used to force the operating system to do a new DHCP Request after a VLAN
 
 sub bouncePort {
     my ($self, $ifIndex, $mac) = @_;
-
-    $self->setAdminStatus( $ifIndex, undef, $mac );
-
-    return $TRUE;
+    return $self->bouncePortRadius( $ifIndex, $mac );
 }
 
 =head1 AUTHOR

@@ -1310,9 +1310,9 @@ Usually used to force the operating system to do a new DHCP Request after a VLAN
 sub bouncePortSNMP {
     my ($self, $ifIndex, $mac) = @_;
 
-    $self->setAdminStatus( $ifIndex, $SNMP::DOWN, $mac );
+    $self->setAdminStatus( $ifIndex, $SNMP::DOWN );
     sleep($Config{'snmp_traps'}{'bounce_duration'});
-    $self->setAdminStatus( $ifIndex, $SNMP::UP, $mac );
+    $self->setAdminStatus( $ifIndex, $SNMP::UP );
 
     return $TRUE;
 }
