@@ -249,6 +249,11 @@ sub options_field_names {
         node_info.last_vlan
         node_info.realm
         node_info.stripped_user_name
+        remote_client.created_at
+        remote_client.updated_at
+        remote_client.tenant_id
+        remote_client.public_key
+        remote_client.mac
     );
 }
 
