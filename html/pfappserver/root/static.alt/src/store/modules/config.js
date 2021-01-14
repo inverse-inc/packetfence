@@ -624,7 +624,7 @@ const getters = {
   },
   realmsList: state => {
     let list = []
-    for (let i = 0; i < state.realms.length; i++) {
+    for (let i in state.realms) {
       list = [ ...list, ...state.realms[i].map((item) => {
         return { value: item.id, text: item.id }
       }) ]

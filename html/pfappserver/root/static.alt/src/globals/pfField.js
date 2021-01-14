@@ -142,14 +142,15 @@ export const pfFieldTypeOperators = {
 }
 
 export const pfFieldTypeValues = {
-  [pfFieldType.ADMINROLE]: () => {
-    return store.dispatch('config/getAdminRoles').then(() => store.getters['config/adminRolesList'])
-  },
-  [pfFieldType.ADMINROLE_BY_ACL_USER]: () => {
-    return store.dispatch('session/getAllowedUserAccessLevels').then(() => store.getters['session/allowedUserAccessLevelsList'])
-  },
-  [pfFieldType.CONNECTION]: () => {
-    return [
+
+  [pfFieldType.ADMINROLE]: () =>
+    store.dispatch('config/getAdminRoles').then(() => store.getters['config/adminRolesList']),
+
+  [pfFieldType.ADMINROLE_BY_ACL_USER]: () =>
+    store.dispatch('session/getAllowedUserAccessLevels').then(() => store.getters['session/allowedUserAccessLevelsList']),
+
+  [pfFieldType.CONNECTION]: () =>
+    [
       {
         group: i18n.t('Types'),
         items: [
@@ -172,10 +173,10 @@ export const pfFieldTypeValues = {
           { value: 'Wireless', text: 'Wireless' }
         ]
       }
-    ]
-  },
-  [pfFieldType.CONNECTION_TYPE]: () => {
-    return [
+    ],
+
+  [pfFieldType.CONNECTION_TYPE]: () =>
+    [
       { text: 'Wireless-802.11-NoEAP', value: 'Wireless-802.11-NoEAP' },
       { text: 'Ethernet-Web-Auth', value: 'Ethernet-Web-Auth' },
       { text: 'SNMP-Traps', value: 'SNMP-Traps' },
@@ -186,10 +187,10 @@ export const pfFieldTypeValues = {
       { text: 'Wireless-802.11-EAP', value: 'Wireless-802.11-EAP' },
       { text: 'VPN-Access', value: 'VPN-Access' },
       { text: 'CLI-Access', value: 'CLI-Access' }
-    ]
-  },
-  [pfFieldType.CONNECTION_SUB_TYPE]: () => {
-    return [
+    ],
+
+  [pfFieldType.CONNECTION_SUB_TYPE]: () =>
+    [
       { text: 'AKA', value: 'AKA' },
       { text: 'AirFortress-EAP', value: 'AirFortress-EAP' },
       { text: 'Arcot-Systems-EAP', value: 'Arcot-Systems-EAP' },
@@ -247,31 +248,31 @@ export const pfFieldTypeValues = {
       { text: 'SentriNET', value: 'SentriNET' },
       { text: 'VALUE', value: 'VALUE' },
       { text: 'Zonelabs', value: 'Zonelabs' }
-    ]
-  },
-  [pfFieldType.GENDER]: () => {
-    return [
+    ],
+
+  [pfFieldType.GENDER]: () =>
+    [
       { text: i18n.t('Male'), value: 'm' },
       { text: i18n.t('Female'), value: 'f' },
       { text: i18n.t('Other'), value: 'o' }
-    ]
-  },
-  [pfFieldType.NODE_STATUS]: () => {
-    return [
+    ],
+
+  [pfFieldType.NODE_STATUS]: () =>
+    [
       { text: i18n.t('Registered'), value: 'reg' },
       { text: i18n.t('Unregistered'), value: 'unreg' },
       { text: i18n.t('Pending'), value: 'pending' }
-    ]
-  },
-  [pfFieldType.DURATION]: () => {
-    return store.dispatch('config/getBaseGuestsAdminRegistration').then(() => store.getters['config/accessDurationsList'])
-  },
-  [pfFieldType.DURATION_BY_ACL_USER]: () => {
-    return store.dispatch('session/getAllowedUserAccessDurations').then(() => store.getters['session/allowedUserAccessDurationsList'])
-  },
-  [pfFieldType.DURATIONS]: () => {
-    return store.dispatch('config/getBaseGuestsAdminRegistration').then(() => store.getters['config/accessDurationsList'])
-  },
+    ],
+
+  [pfFieldType.DURATION]: () =>
+    store.dispatch('config/getBaseGuestsAdminRegistration').then(() => store.getters['config/accessDurationsList']),
+
+  [pfFieldType.DURATION_BY_ACL_USER]: () =>
+    store.dispatch('session/getAllowedUserAccessDurations').then(() => store.getters['session/allowedUserAccessDurationsList']),
+
+  [pfFieldType.DURATIONS]: () =>
+    store.dispatch('config/getBaseGuestsAdminRegistration').then(() => store.getters['config/accessDurationsList']),
+
   [pfFieldType.OPTIONS]: ({ field }) => {
     if (field === undefined) {
       throw new Error('Missing `field` in pfFieldTypeValues[pfFieldType.OPTIONS]')
@@ -281,50 +282,51 @@ export const pfFieldTypeValues = {
     }
     return []
   },
-  [pfFieldType.REALM]: () => {
-    return store.dispatch('config/getRealms', store.getters['session/tenantIdMask']).then(() => store.getters['config/realmsList'])
-  },
-  [pfFieldType.ROLE]: () => {
-    return store.dispatch('config/getRoles').then(items => [
+
+  [pfFieldType.REALM]: () =>
+    store.dispatch('config/getRealms', store.getters['session/tenantIdMask']).then(() => store.getters['config/realmsList']),
+
+  [pfFieldType.ROLE]: () =>
+    store.dispatch('config/getRoles').then(items => [
       { value: null, text: i18n.t('empty - None') },
       ...items.map((item) => {
         return { value: item.category_id, text: ((item.notes) ? `${item.name} - ${item.notes}` : `${item.name}`) }
       })
-    ])
-  },
-  [pfFieldType.ROLE_BY_NAME]: () => {
-    return store.dispatch('config/getRoles').then(items => {
+    ]),
+
+  [pfFieldType.ROLE_BY_NAME]: () =>
+    store.dispatch('config/getRoles').then(items => {
       return (items || []).map((item) => {
         return { value: item.name, text: item.name }
       })
-    })
-  },
-  [pfFieldType.ROLE_BY_ACL_NODE]: () => {
-    return store.dispatch('session/getAllowedNodeRoles').then(() => store.getters['session/allowedNodeRolesList'])
-  },
-  [pfFieldType.ROLE_BY_ACL_USER]: () => {
-    return store.dispatch('session/getAllowedUserRoles').then(() => store.getters['session/allowedUserRolesList'])
-  },
-  [pfFieldType.ROOT_PORTAL_MODULE]: () => {
-    return store.dispatch('config/getPortalModules').then(() => store.getters['config/rootPortalModulesList'])
-  },
-  [pfFieldType.SOURCE]: () => {
-    return store.dispatch('config/getSources').then(() => store.getters['config/sourcesList'])
-  },
-  [pfFieldType.SSID]: () => {
-    return store.dispatch('config/getSsids').then(() => store.getters['config/ssidsList'])
-  },
-  [pfFieldType.SWITCHE]: () => {
-    return store.dispatch('config/getSwitches').then(() => store.getters['config/switchesList'])
-  },
-  [pfFieldType.SWITCH_GROUP]: () => {
-    return store.dispatch('config/getSwitchGroups').then(() => store.getters['config/switchGroupsList'])
-  },
-  [pfFieldType.TENANT]: () => {
-    return store.dispatch('config/getTenants').then(() => store.getters['config/tenantsList'])
-  },
-  [pfFieldType.TIME_BALANCE]: () => {
-    return [
+    }),
+
+  [pfFieldType.ROLE_BY_ACL_NODE]: () =>
+    store.dispatch('session/getAllowedNodeRoles').then(() => store.getters['session/allowedNodeRolesList']),
+
+  [pfFieldType.ROLE_BY_ACL_USER]: () =>
+    store.dispatch('session/getAllowedUserRoles').then(() => store.getters['session/allowedUserRolesList']),
+
+  [pfFieldType.ROOT_PORTAL_MODULE]: () =>
+    store.dispatch('config/getPortalModules').then(() => store.getters['config/rootPortalModulesList']),
+
+  [pfFieldType.SOURCE]: () =>
+    store.dispatch('config/getSources').then(() => store.getters['config/sourcesList']),
+
+  [pfFieldType.SSID]: () =>
+    store.dispatch('config/getSsids').then(() => store.getters['config/ssidsList']),
+
+  [pfFieldType.SWITCHE]: () =>
+    store.dispatch('config/getSwitches').then(() => store.getters['config/switchesList']),
+
+  [pfFieldType.SWITCH_GROUP]: () =>
+    store.dispatch('config/getSwitchGroups').then(() => store.getters['config/switchGroupsList']),
+
+  [pfFieldType.TENANT]: () =>
+    store.dispatch('config/getTenants').then(() => store.getters['config/tenantsList']),
+
+  [pfFieldType.TIME_BALANCE]: () =>
+    [
       { text: i18n.t('1 hour'), value: '1h' },
       { text: i18n.t('3 hours'), value: '3h' },
       { text: i18n.t('12 hours'), value: '12h' },
@@ -332,12 +334,11 @@ export const pfFieldTypeValues = {
       { text: i18n.t('2 days'), value: '2D' },
       { text: i18n.t('3 days'), value: '3D' },
       { text: i18n.t('5 days'), value: '5D' }
-    ]
-  },
-  [pfFieldType.YESNO]: () => {
-    return [
+    ],
+
+  [pfFieldType.YESNO]: () =>
+    [
       { text: i18n.t('Yes'), value: 'yes' },
       { text: i18n.t('No'), value: 'no' }
     ]
-  }
 }

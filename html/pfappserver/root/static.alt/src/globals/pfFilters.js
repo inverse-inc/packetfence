@@ -32,15 +32,19 @@ export const pfFilters = {
     value: 'realm',
     text: i18n.t('Realm'),
     types: [fieldType.REALM],
-    taggable: true,
-    tagPlaceholder: i18n.t('Click to add new Realm')
+    props: {
+      taggable: true,
+      tagPlaceholder: i18n.t('Click to add new Realm')
+    }
   },
   ssid: {
     value: 'ssid',
     text: i18n.t('SSID'),
     types: [fieldType.SSID],
-    taggable: true,
-    tagPlaceholder: i18n.t('Click to add new SSID')
+    props: {
+      taggable: true,
+      tagPlaceholder: i18n.t('Click to add new SSID')
+    }
   },
   switch: {
     value: 'switch',
