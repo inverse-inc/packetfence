@@ -73,7 +73,11 @@
     />
 
     <form-group-web-auth-use-session namespace="webAuthUseSession"
-     :column-label="$i18n.t('Use Web Auth the Session')"
+     :column-label="$i18n.t('Web Auth use session')"
+    />
+
+    <form-group-web-auth-synchronize namespace="webAuthSynchronize"
+     :column-label="$i18n.t('Web Auth Synchronize')"
     />
 
     <form-group-web-auth-client-ip namespace="webAuthClientIp"
@@ -116,10 +120,6 @@
      :column-label="$i18n.t('Web Auth Switch Mac Template')"
     />
 
-    <form-group-web-auth-synchronize namespace="webAuthSynchronize"
-     :column-label="$i18n.t('Web Auth Synchronize Template')"
-    />
-
   </base-form>
 </template>
 <script>
@@ -145,6 +145,19 @@ import {
   FormGroupReject,
   FormGroupSnmpDisconnect,
   FormGroupVoip,
+  FormGroupWebAuthUseSession,
+  FormGroupWebAuthSynchronize,
+
+  FormGroupWebAuthClientIp,
+  FormGroupWebAuthClientMac,
+  FormGroupWebAuthConnectionType,
+  FormGroupWebAuthGrantUrl,
+  FormGroupWebAuthRedirectUrl,
+  FormGroupWebAuthSSID,
+  FormGroupWebAuthStatusCode,
+  FormGroupWebAuthSwitchId,
+  FormGroupWebAuthSwitchIp,
+  FormGroupWebAuthSwitchMac,
 } from './'
 
 const components = {
@@ -166,6 +179,19 @@ const components = {
   FormGroupReject,
   FormGroupSnmpDisconnect,
   FormGroupVoip,
+  FormGroupWebAuthUseSession,
+  FormGroupWebAuthSynchronize,
+
+  FormGroupWebAuthClientIp,
+  FormGroupWebAuthClientMac,
+  FormGroupWebAuthConnectionType,
+  FormGroupWebAuthGrantUrl,
+  FormGroupWebAuthRedirectUrl,
+  FormGroupWebAuthSSID,
+  FormGroupWebAuthStatusCode,
+  FormGroupWebAuthSwitchId,
+  FormGroupWebAuthSwitchIp,
+  FormGroupWebAuthSwitchMac,
 }
 
 export const props = {
