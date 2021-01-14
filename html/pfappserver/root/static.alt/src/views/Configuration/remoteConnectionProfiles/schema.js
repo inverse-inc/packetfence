@@ -62,7 +62,11 @@ export default (props) => {
             return yup.string().nullable()
         }
       }),
-    advanced_filter: schemaAdvancedFilter.meta({ invalidFeedback: i18n.t('Advanced filter contains one or more errors.') })
+    advanced_filter: yup.object()
+      .when('basic_filter_type', () => (basic_filter_type)
+        ? yup.object().nullable() // don't validate when basic_filter_type is set
+        : schemaAdvancedFilter.meta({ invalidFeedback: i18n.t('Advanced filter contains one or more errors.') })
+       )
   })
 }
 
