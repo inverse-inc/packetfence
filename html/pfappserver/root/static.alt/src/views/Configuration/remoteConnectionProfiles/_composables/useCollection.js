@@ -28,8 +28,8 @@ const useRouter = (props, context, form) => {
   } = toRefs(props)
   const { root: { $router } = {} } = context
   return {
-    goToCollection: () => $router.push({ name: 'admin_roles' }),
-    goToItem: () => $router.push({ name: 'admin_role', params: { id: form.value.id || id.value } }),
+    goToCollection: () => $router.push({ name: 'remote_connection_profiles' }),
+    goToItem: () => $router.push({ name: 'remote_connection_profile', params: { id: form.value.id || id.value } }),
     goToClone: () => $router.push({ name: 'cloneRemoteConnectionProfile', params: { id: id.value } }),
   }
 }
