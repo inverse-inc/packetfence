@@ -1,6 +1,8 @@
 import store from '@/store'
 import i18n from '@/utils/locale'
 import yup from '@/utils/yup'
+import { pfFiltersSchema as schemaFilters } from '@/globals/pfFilters'
+
 
 yup.addMethod(yup.string, 'connectionProfileIdNotExistsExcept', function (exceptId = '', message) {
   return this.test({
@@ -48,13 +50,6 @@ yup.addMethod(yup.string, 'pathNotExists', function (entries, path, message) {
     }
   })
 })
-
-const schemaFilter = yup.object({
-  type: yup.string().required(i18n.t('Type required.')),
-  match: yup.string().required(i18n.t('Match required')).max(255, i18n.t('Maximum 255 characters.'))
-})
-
-const schemaFilters = yup.array().ensure().unique(i18n.t('Duplicate filter.')).of(schemaFilter)
 
 const schemaAdvancedFilter = yup.object({
   field: yup.string().required(i18n.t('Field required.')),

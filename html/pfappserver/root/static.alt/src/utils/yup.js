@@ -229,6 +229,14 @@ yup.addMethod(yup.string, 'isIpv6', function (message) {
   })
 })
 
+yup.addMethod(yup.string, 'isMAC', function (message) {
+  return this.test({
+    name: 'isMAC',
+    message: message || i18n.t('Invalid MAC.'),
+    test: value => ['', null, undefined].includes(value) || value.toLowerCase().replace(/[^0-9a-f]/g, '').length === 12
+  })
+})
+
 yup.addMethod(yup.string, 'isPort', function (message) {
   return this.test({
     name: 'isPort',
@@ -253,7 +261,7 @@ yup.addMethod(yup.string, 'isStaticRoute', function (message) {
   })
 })
 
-yup.addMethod(yup.string, 'isVlan', function (message) {
+yup.addMethod(yup.string, 'isVLAN', function (message) {
   return this.test({
     name: 'isVlan',
     message: message || i18n.t('Invalid VLAN.'),
