@@ -7,7 +7,9 @@
   >
     <base-input-chosen-one namespace="basic_filter_type"
       class="mr-1" />
-    <component :is="valueComponent" namespace="basic_filter_value" />
+    <component :is="valueComponent"
+      v-bind="valueProps"
+      namespace="basic_filter_value" />
   </base-form-group>
 </template>
 <script>
@@ -58,8 +60,21 @@ const setup = (props, context) => {
     }
   })
 
+  const valueProps = computed(() => {
+    switch(basicFilterType.value) {
+      case 'node_info.pid':
+        return {
+          taggable: true // allow any pid
+        }
+        // break
+      default:
+        return {}
+    }
+  })
+
   return {
-    valueComponent
+    valueComponent,
+    valueProps
   }
 
 }
