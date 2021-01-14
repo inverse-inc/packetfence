@@ -24,12 +24,12 @@ var netmask = 10
 var PublishNewClientsTo *golongpoll.LongpollManager
 
 type RemoteClient struct {
-	ID        uint `gorm:"primary_key"`
-	CreatedAt time.Time
-	UpdatedAt time.Time
-	TenantId  uint
-	PublicKey string
-	MAC       string
+	ID        uint      `gorm:"primary_key"`
+	CreatedAt time.Time `json:"created_at"`
+	UpdatedAt time.Time `json:"updated_at"`
+	TenantId  uint      `json:"tenant_id"`
+	PublicKey string    `json:"public_key"`
+	MAC       string    `json:"mac"`
 
 	node *common.NodeInfo
 }
