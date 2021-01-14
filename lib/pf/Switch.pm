@@ -1308,11 +1308,11 @@ Usually used to force the operating system to do a new DHCP Request after a VLAN
 =cut
 
 sub bouncePortSNMP {
-    my ($self, $ifIndex) = @_;
+    my ($self, $ifIndex, $mac) = @_;
 
-    $self->setAdminStatus( $ifIndex, $SNMP::DOWN );
+    $self->setAdminStatus( $ifIndex, $SNMP::DOWN, $mac );
     sleep($Config{'snmp_traps'}{'bounce_duration'});
-    $self->setAdminStatus( $ifIndex, $SNMP::UP );
+    $self->setAdminStatus( $ifIndex, $SNMP::UP, $mac );
 
     return $TRUE;
 }

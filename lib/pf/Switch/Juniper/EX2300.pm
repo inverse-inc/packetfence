@@ -127,21 +127,9 @@ Send a CoA request to bounce switch port
 =cut
 
 sub setAdminStatus {
-    my ( $self, $ifIndex ) = @_;
+    my ( $self, $ifIndex, $status, $mac ) = @_;
     my $logger = $self->logger;
 
-    #We need to fetch the MAC on the ifIndex in order to bounce switch port with CoA.
-    my @locationlog = locationlog_view_open_switchport_no_VoIP( $self->{_ip}, $ifIndex );
-    my $mac = $locationlog[0]->{'mac'};
-    if (!$mac) {
-        @locationlog = locationlog_view_open_switchport_only_VoIP( $self->{_ip}, $ifIndex );
-        $mac = $locationlog[0]->{'mac'};
-    }
-    
-    if (!$mac) {
-        $logger->info("Can't find MAC address in the locationlog... we won't perform port bounce");
-        return $TRUE;
-    }
 
     if ( !$self->isProductionMode() ) {
         $logger->info("Switch not in production mode... we won't perform port bounce");
@@ -152,7 +140,22 @@ sub setAdminStatus {
         $logger->warn(
             "Unable to perform RADIUS CoA-Request on $self->{'_id'}: RADIUS Shared Secret not configured"
         );
-        return;
+        return $FALSE;
+    }
+
+    #We need to fetch the MAC on the ifIndex in order to bounce switch port with CoA.
+    if (!$mac) {
+        my @locationlog = locationlog_view_open_switchport_no_VoIP( $self->{_ip}, $ifIndex );
+        $mac = $locationlog[0]->{'mac'};
+        if (!$mac) {
+            @locationlog = locationlog_view_open_switchport_only_VoIP( $self->{_ip}, $ifIndex );
+            $mac = $locationlog[0]->{'mac'};
+        }
+
+        if (!$mac) {
+            $logger->info("Can't find MAC address in the locationlog... we won't perform port bounce");
+            return $TRUE;
+        }
     }
 
     $logger->info("bouncing $mac using RADIUS CoA-Request method");
@@ -201,7 +204,7 @@ Usually used to force the operating system to do a new DHCP Request after a VLAN
 sub bouncePort {
     my ($self, $ifIndex, $mac) = @_;
 
-    $self->setAdminStatus( $ifIndex );
+    $self->setAdminStatus( $ifIndex, undef, $mac );
 
     return $TRUE;
 }
