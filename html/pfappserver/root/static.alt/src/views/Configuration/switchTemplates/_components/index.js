@@ -30,6 +30,20 @@ export {
   BaseFormGroupToggleDisabledEnabled  as FormGroupSnmpDisconnect,
   BaseFormGroupRadiusAttributes       as FormGroupVoip,
 
+  BaseFormGroupToggleDisabledEnabled  as FormGroupWebAuthUseSession,
+  BaseFormGroupToggleDisabledEnabled  as FormGroupWebAuthSynchronize,
+
+  BaseFormGroupInput                  as FormGroupWebAuthClientIp,
+  BaseFormGroupInput                  as FormGroupWebAuthClientMac,
+  BaseFormGroupInput                  as FormGroupWebAuthConnectionType,
+  BaseFormGroupInput                  as FormGroupWebAuthGrantUrl,
+  BaseFormGroupInput                  as FormGroupWebAuthRedirectUrl,
+  BaseFormGroupInput                  as FormGroupWebAuthSSID,
+  BaseFormGroupInput                  as FormGroupWebAuthStatusCode,
+  BaseFormGroupInput                  as FormGroupWebAuthSwitchId,
+  BaseFormGroupInput                  as FormGroupWebAuthSwitchIp,
+  BaseFormGroupInput                  as FormGroupWebAuthSwitchMac,
+
   BaseViewCollectionItem              as BaseView,
   TheForm,
   TheView
