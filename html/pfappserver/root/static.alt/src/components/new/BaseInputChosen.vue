@@ -316,6 +316,7 @@ export default {
     }
   }
   &.is-empty:not(.is-focus) {
+    .multiselect__input,
     .multiselect__single {
       display: none;
     }
