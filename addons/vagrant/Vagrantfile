@@ -49,6 +49,6 @@ load winservers_vagrantfile if File.exists?(winservers_vagrantfile)
 cumulus_vagrantfile = File.expand_path('cumulus/Vagrantfile')
 load cumulus_vagrantfile if File.exists?(cumulus_vagrantfile)
 
-# include switch(s) and supplicant(s) for Wireless Vagrantfile
+# include switch(s) and supplicant(s) from Wireless Vagrantfile
 wireless_vagrantfile = File.expand_path('wireless/Vagrantfile')
 load wireless_vagrantfile if File.exists?(wireless_vagrantfile)
