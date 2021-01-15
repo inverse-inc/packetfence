@@ -298,14 +298,6 @@ export const hasInterfaces = () => {
   })
 }
 
-export const hasMaintenanceTasks = () => {
-  return store.dispatch('config/getMaintenanceTasks').then(response => {
-    return (response.length > 0)
-  }).catch(() => {
-    return true
-  })
-}
-
 export const hasPkiCas = () => {
   return store.dispatch('config/getPkiCas').then((response) => {
     return (response.length > 0)
@@ -566,16 +558,6 @@ export const interfaceVlanExists = (id) => {
     }).catch(() => {
       return true
     })
-  })
-}
-
-export const maintenanceTaskExists = (value) => {
-  if (!value) return true
-  return store.dispatch('config/getMaintenanceTasks').then(response => {
-    if (response.length === 0) return true
-    else return response.filter(maintenanceTask => maintenanceTask.id.toLowerCase() === value.toLowerCase()).length > 0
-  }).catch(() => {
-    return true
   })
 }
 

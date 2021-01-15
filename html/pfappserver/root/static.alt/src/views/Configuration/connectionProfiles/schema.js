@@ -3,7 +3,6 @@ import i18n from '@/utils/locale'
 import yup from '@/utils/yup'
 import { pfFiltersSchema as schemaFilters } from '@/globals/pfFilters'
 
-
 yup.addMethod(yup.string, 'connectionProfileIdNotExistsExcept', function (exceptId = '', message) {
   return this.test({
     name: 'connectionProfileIdNotExistsExcept',
