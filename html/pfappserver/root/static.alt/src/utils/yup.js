@@ -99,7 +99,7 @@ yup.addMethod(yup.string, 'maxAsInt', function (ref, message) {
   return this.test({
     name: 'maxAsInt',
     message: message || i18n.t('Maximum {maxValue}.', { maxValue: ref }),
-    test: value => (+value <= +ref)
+    test: value => ['', null, undefined].includes(value) || +value <= +ref
   })
 })
 
@@ -107,7 +107,7 @@ yup.addMethod(yup.string, 'minAsInt', function (ref, message) {
   return this.test({
     name: 'minAsInt',
     message: message || i18n.t('Minimum {minValue}.', { minValue: ref }),
-    test: value => (+value >= +ref)
+    test: value => ['', null, undefined].includes(value) || +value >= +ref
   })
 })
 
