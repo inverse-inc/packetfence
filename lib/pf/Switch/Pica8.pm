@@ -86,7 +86,7 @@ use pf::SwitchSupports qw(
 =cut
 
 sub bouncePortRadius {
-    my ( $self, $ifIndex, $status) = @_;
+    my ( $self, $ifIndex, $mac) = @_;
     my $logger = $self->logger;
 
     if ( !$self->isProductionMode() ) {
@@ -96,11 +96,11 @@ sub bouncePortRadius {
 
     #We need to fetch the MAC on the ifIndex in order to bounce host port with CoA, only MAC works with CoA!
     my @locationlog = locationlog_view_open_switchport_no_VoIP( $self->{_ip}, $ifIndex );
-    my $mac = $locationlog[0]->{'mac'};
+    $mac = $locationlog[0]->{'mac'};
 
     #Port bounce with CoA is not supported for WIRED_MAC_AUTH connection type.
     if ($locationlog[0]->{'connection_type'} eq 'WIRED_MAC_AUTH') {
-    $logger->info("Port bounce for this connection type is not supported");
+        $logger->info("Port bounce for this connection type is not supported");
         return 1;
     }
 
