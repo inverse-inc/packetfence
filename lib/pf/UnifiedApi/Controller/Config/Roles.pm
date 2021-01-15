@@ -25,6 +25,7 @@ has 'primary_key' => 'role_id';
 
 use pf::ConfigStore::Roles;
 use pfappserver::Form::Config::Roles;
+use pf::config qw(%ConfigRoles);
 use pfconfig::cached_hash;
 use pf::dal::node;
 use pf::dal::person;
@@ -55,21 +56,23 @@ sub can_delete {
     return (200, '');
 }
 
+sub cleanup_item {
+    my ($self, $item, $form) = @_;
+    $item = $self->SUPER::cleanup_item($item, $form);
+    my $id = $item->{id};
+    if (exists $ConfigRoles{$id}) {
+        $item->{children} = $ConfigRoles{$id}{children};
+    }
+
+    return $item;
+}
+
 sub can_delete_from_config {
     my ($self) = @_;
     my $id = $self->id;
     my @errors;
     if (exists $RolesReverseLookup{$id}) {
          @errors = map { config_delete_error($id, $_) } sort keys %{$RolesReverseLookup{$id}};
-    }
-
-    my $config_store = $self->config_store;
-    my $ini = $config_store->cachedConfig;
-    my @children =
-      grep { my $p = $ini->val( $_, 'parent_id' ); defined $p && $id eq $p }
-      @{ $config_store->readAllIds };
-    if (@children) {
-        push @errors, {name => $id, message => "Role has children", reason => "ROLE_IN_USE", status => 422};
     }
 
     if (@errors) {

@@ -32,11 +32,12 @@ sub init {
 
     my $defaults = pf::IniFiles->new( -file => $roles_default_config_file );
     $self->{added_params}->{'-import'} = $defaults;
+    $self->{child_resources} = [ 'resource::RolesReverseLookup'];
 }
 
 sub build_child {
     my ($self) = @_;
-
+    my %reverseLookup;
     my %tmp_cfg = %{ $self->{cfg} };
     my %parents;
     while ( my ($name, $data) = each %tmp_cfg ) {
@@ -46,6 +47,9 @@ sub build_child {
 
         my $parent_id = $data->{parent_id} // '';
         push @{$parents{$parent_id}}, [$name, $data];
+        if ($parent_id ne '') {
+            push @{$reverseLookup{$parent_id}{roles}}, $name;
+        }
     }
     _flatten_nodecategory($parents{''}, \%parents);
     for my $top (@{$parents{''}}) {
@@ -54,6 +58,7 @@ sub build_child {
         $self->add_children_children(\%tmp_cfg, $data, @{$data->{children}});
     }
 
+    $self->{roleReverseLookup} = \%reverseLookup;
     return \%tmp_cfg;
 }
 

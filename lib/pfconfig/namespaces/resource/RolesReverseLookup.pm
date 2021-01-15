@@ -13,6 +13,7 @@ pfconfig::namespaces::resource::RolesReverseLookup
 use strict;
 use warnings;
 use pfconfig::namespaces::config::Scan;
+use pfconfig::namespaces::config::Roles;
 use pfconfig::namespaces::config::AdminRoles;
 use pfconfig::namespaces::config::Provisioning;
 use pfconfig::namespaces::config::SelfService;
@@ -53,6 +54,7 @@ sub lookups {
             pfconfig::namespaces::config::Switch
             pfconfig::namespaces::config::Authentication
             pfconfig::namespaces::config::PortalModules
+            pfconfig::namespaces::config::Roles
             )
       )
     {
