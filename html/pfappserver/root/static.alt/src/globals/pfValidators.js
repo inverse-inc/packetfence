@@ -330,14 +330,6 @@ export const hasPkiProviders = () => {
   })
 }
 
-export const hasNetworkBehaviorPolicies = () => {
-  return store.dispatch('config/getNetworkBehaviorPolicies').then((response) => {
-    return (response.length > 0)
-  }).catch(() => {
-    return true
-  })
-}
-
 export const hasPortalModules = () => {
   return store.dispatch('config/getPortalModules').then(response => {
     return (response.length > 0)
@@ -558,16 +550,6 @@ export const interfaceVlanExists = (id) => {
     }).catch(() => {
       return true
     })
-  })
-}
-
-export const networkBehaviorPolicyExists = (value) => {
-  if (!value) return true
-  return store.dispatch('config/getNetworkBehaviorPolicies').then((response) => {
-    if (response.length === 0) return true
-    else return response.filter(networkBehaviorPolicy => networkBehaviorPolicy.id.toLowerCase() === value.toLowerCase()).length > 0
-  }).catch(() => {
-    return true
   })
 }
 
