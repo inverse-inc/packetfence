@@ -189,18 +189,6 @@ Architecture: any
 Depends: ${misc:Depends}, ${shlibs:Depends}
 Description: C wrapper around the ntlm_auth utility to log authentication latency and success/failure.
 
-
-Package: packetfence-remote-arp-sensor
-Architecture: all
-Depends: ${misc:Depends}, libfile-tail-perl, libconfig-inifiles-perl (>= 2.88),
- libio-socket-ssl-perl, libxml-parser-perl, libcrypt-ssleay-perl,
- libnet-pcap-perl, libcache-memcached-libmemcached-perl, memcached,
-# FIXME track what requires the conveyor stuff and identify it. If we can, get rid of it.
- libsoap-lite-perl, libthread-conveyor-monitored-perl, libthread-conveyor-perl
-Conflicts: packetfence
-Description: Files needed for sending MAC and IP from ARP requeststo
- PacketFence server. 
-
 Package: packetfence-config
 Architecture: all
 Depends: ${misc:Depends}, libcache-bdb-perl, liblog-fast-perl, libfile-flock-perl, lsb-release
