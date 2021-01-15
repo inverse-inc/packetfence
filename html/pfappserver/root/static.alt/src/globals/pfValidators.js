@@ -194,11 +194,6 @@ export const isPattern = (pattern) => {
   })
 }
 
-export const isPkiCn = (value) => {
-  if (!value) return true
-    return /^([A-Z]+|[A-Z]+[0-9A-Z_:]*[0-9A-Z]+)$/i.test(value)
-}
-
 export const isPort = (value) => {
   if (!value) return true
   return ~~value === parseFloat(value) && ~~value >= 1 && ~~value <= 65535
@@ -292,30 +287,6 @@ export const hasSelfServices = () => {
 
 export const hasInterfaces = () => {
   return store.dispatch('config/getInterfaces').then(response => {
-    return (response.length > 0)
-  }).catch(() => {
-    return true
-  })
-}
-
-export const hasPkiCas = () => {
-  return store.dispatch('config/getPkiCas').then((response) => {
-    return (response.length > 0)
-  }).catch(() => {
-    return true
-  })
-}
-
-export const hasPkiProfiles = () => {
-  return store.dispatch('config/getPkiProfiles').then((response) => {
-    return (response.length > 0)
-  }).catch(() => {
-    return true
-  })
-}
-
-export const hasPkiCerts = () => {
-  return store.dispatch('config/getPkiCerts').then((response) => {
     return (response.length > 0)
   }).catch(() => {
     return true
@@ -563,36 +534,6 @@ export const nodeExists = (value) => {
   if (value.length !== 17) return true
   return store.dispatch('$_nodes/exists', value).then(() => {
     return false
-  }).catch(() => {
-    return true
-  })
-}
-
-export const pkiCaCnExists = (value) => {
-  if (!value) return true
-  return store.dispatch('config/getPkiCas').then((response) => {
-    if (response.length === 0) return true
-    else return response.filter(ca => ca.cn.toLowerCase() === value.toLowerCase()).length > 0
-  }).catch(() => {
-    return true
-  })
-}
-
-export const pkiProfileNameExists = (value) => {
-  if (!value) return true
-  return store.dispatch('config/getPkiProfiles').then((response) => {
-    if (response.length === 0) return true
-    else return response.filter(profile => profile.name.toLowerCase() === value.toLowerCase()).length > 0
-  }).catch(() => {
-    return true
-  })
-}
-
-export const pkiCertCnExists = (value) => {
-  if (!value) return true
-  return store.dispatch('config/getPkiCerts').then((response) => {
-    if (response.length === 0) return true
-    else return response.filter(cert => cert.cn.toLowerCase() === value.toLowerCase()).length > 0
   }).catch(() => {
     return true
   })
