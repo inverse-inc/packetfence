@@ -290,8 +290,8 @@ export const hasSelfServices = () => {
   })
 }
 
-export const hasLayer2Networks = () => {
-  return store.dispatch('config/getLayer2Networks').then(response => {
+export const hasInterfaces = () => {
+  return store.dispatch('config/getInterfaces').then(response => {
     return (response.length > 0)
   }).catch(() => {
     return true
@@ -541,6 +541,16 @@ export const selfServiceExists = (value) => {
   })
 }
 
+export const interfaceExists = (value) => {
+  if (!value) return true
+  return store.dispatch('config/getInterfaces').then(response => {
+    if (response.length === 0) return true
+    else return response.filter(iface => iface.id.toLowerCase() === value.toLowerCase()).length > 0
+  }).catch(() => {
+    return true
+  })
+}
+
 export const interfaceVlanExists = (id) => {
   return (0, _common.withParams)({
     type: 'interfaceVlanExists',
@@ -556,16 +566,6 @@ export const interfaceVlanExists = (id) => {
     }).catch(() => {
       return true
     })
-  })
-}
-
-export const layer2NetworkExists = (value) => {
-  if (!value) return true
-  return store.dispatch('config/getLayer2Networks').then(response => {
-    if (response.length === 0) return true
-    else return response.filter(layer2Network => layer2Network.id.toLowerCase() === value.toLowerCase()).length > 0
-  }).catch(() => {
-    return true
   })
 }
 
