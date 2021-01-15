@@ -298,14 +298,6 @@ export const hasSelfServices = () => {
   })
 }
 
-export const hasDomains = () => {
-  return store.dispatch('config/getDomains').then(response => {
-    return (response.length > 0)
-  }).catch(() => {
-    return true
-  })
-}
-
 export const hasFilterEngines = (collection) => {
   return (0, _common.withParams)({
     type: 'hasFilterEngines',
@@ -600,16 +592,6 @@ export const selfServiceExists = (value) => {
   return store.dispatch('config/getSelfServices').then(response => {
     if (response.length === 0) return true
     else return response.filter(selfService => selfService.id.toLowerCase() === value.toLowerCase()).length > 0
-  }).catch(() => {
-    return true
-  })
-}
-
-export const domainExists = (value) => {
-  if (!value) return true
-  return store.dispatch('config/getDomains').then(response => {
-    if (response.length === 0) return true
-    else return response.filter(domain => domain.id.toLowerCase() === value.toLowerCase()).length > 0
   }).catch(() => {
     return true
   })
