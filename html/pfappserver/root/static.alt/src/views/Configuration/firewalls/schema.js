@@ -36,7 +36,7 @@ export const schema = (props) => {
     deviceid: yup.string().nullable().label(i18n.t('DeviceID')),
     transport: yup.string().nullable().label(i18n.t('Transport')),
     nac_name: yup.string().nullable().label(i18n.t('Name')),
-    categories: yup.string().nullable().label(i18n.t('Roles')),
+    categories: yup.array().ensure().label(i18n.t('Roles')).of(yup.string().nullable().label(i18n.t('Role'))),
     networks: yup.string().nullable().label(i18n.t('Networks')),
     cache_timeout: yup.string().nullable().label(i18n.t('Timeout')),
     username_format: yup.string().nullable().label(i18n.t('Format')),

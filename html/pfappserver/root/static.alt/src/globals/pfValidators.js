@@ -290,22 +290,6 @@ export const hasSelfServices = () => {
   })
 }
 
-export const hasFirewalls = () => {
-  return store.dispatch('config/getFirewalls').then(response => {
-    return (response.length > 0)
-  }).catch(() => {
-    return true
-  })
-}
-
-export const hasFloatingDevices = () => {
-  return store.dispatch('config/getFloatingDevices').then(response => {
-    return (response.length > 0)
-  }).catch(() => {
-    return true
-  })
-}
-
 export const hasInterfaces = () => {
   return store.dispatch('config/getInterfaces').then(response => {
     return (response.length > 0)
@@ -560,26 +544,6 @@ export const selfServiceExists = (value) => {
   return store.dispatch('config/getSelfServices').then(response => {
     if (response.length === 0) return true
     else return response.filter(selfService => selfService.id.toLowerCase() === value.toLowerCase()).length > 0
-  }).catch(() => {
-    return true
-  })
-}
-
-export const firewallExists = (value) => {
-  if (!value) return true
-  return store.dispatch('config/getFirewalls').then(response => {
-    if (response.length === 0) return true
-    else return response.filter(firewall => firewall.id.toLowerCase() === value.toLowerCase()).length > 0
-  }).catch(() => {
-    return true
-  })
-}
-
-export const floatingDeviceExists = (value) => {
-  if (!value) return true
-  return store.dispatch('config/getFloatingDevices').then(response => {
-    if (response.length === 0) return true
-    else return response.filter(floatingDevice => floatingDevice.id.toLowerCase() === value.toLowerCase()).length > 0
   }).catch(() => {
     return true
   })
