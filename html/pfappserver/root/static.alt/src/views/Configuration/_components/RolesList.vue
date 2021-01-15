@@ -31,11 +31,14 @@
         <pf-empty-table :isLoading="state.isLoading">{{ $t('No roles found') }}</pf-empty-table>
       </template>
       <template v-slot:cell(id)="item">
-        <b-button size="sm" variant="outline-primary" class="mr-1" @click.stop.prevent="setParentId(item.id)">
+        <b-button size="sm" variant="outline-primary" class="mr-1" @click.stop.prevent="setParentId(item.id)" v-if="item.children">
           <span class="text-nowrap align-items-center ml-2">
             {{ item.id }} <icon name="plus-circle" class="ml-2"></icon>
           </span>
         </b-button>
+        <span v-else>
+          {{ item.id }}
+        </span>
       </template>
       <template v-slot:cell(buttons)="item">
         <span class="float-right text-nowrap text-right">

@@ -87,7 +87,7 @@ export const config = (context = {}) => {
     searchableOptions: {
       searchApiEndpoint: 'config/roles',
       searchApiEndpointOnly: true, // always use `/search` endpoint
-      defaultSortKeys: ['id', 'not_deletable'],
+      defaultSortKeys: ['id', 'not_deletable', 'children'],
       defaultSearchCondition: {
         op: 'and',
         values: [{
