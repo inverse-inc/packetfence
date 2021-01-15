@@ -1,3 +1,4 @@
+import store from '@/store'
 import i18n from '@/utils/locale'
 import { pfSearchConditionType as conditionType } from '@/globals/pfSearch'
 
@@ -136,4 +137,29 @@ export const config = () => {
       }
     }
   }
+}
+
+export const download = (id, password, filename='cert.p12') => {
+  return new Promise((resolve, reject) => {
+    store.dispatch('$_pkis/downloadCert', { id, password }).then(arrayBuffer => {
+      const blob = new Blob([arrayBuffer], { type: 'application/x-pkcs12' })
+      if (window.navigator.msSaveOrOpenBlob) {
+        window.navigator.msSaveBlob(blob, filename)
+      } else {
+        let elem = window.document.createElement('a')
+        elem.href = window.URL.createObjectURL(blob)
+        elem.download = filename
+        document.body.appendChild(elem)
+        elem.click()
+        document.body.removeChild(elem)
+      }
+      resolve()
+    }).catch(e => {
+      reject(e)
+    })
+  })
+}
+
+export const revoke = (id, reason) => {
+  return store.dispatch('$_pkis/revokeCert', { id, reason })
 }
