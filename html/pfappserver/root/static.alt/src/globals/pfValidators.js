@@ -290,14 +290,6 @@ export const hasSelfServices = () => {
   })
 }
 
-export const hasInterfaces = () => {
-  return store.dispatch('config/getInterfaces').then(response => {
-    return (response.length > 0)
-  }).catch(() => {
-    return true
-  })
-}
-
 export const hasLayer2Networks = () => {
   return store.dispatch('config/getLayer2Networks').then(response => {
     return (response.length > 0)
@@ -544,16 +536,6 @@ export const selfServiceExists = (value) => {
   return store.dispatch('config/getSelfServices').then(response => {
     if (response.length === 0) return true
     else return response.filter(selfService => selfService.id.toLowerCase() === value.toLowerCase()).length > 0
-  }).catch(() => {
-    return true
-  })
-}
-
-export const interfaceExists = (value) => {
-  if (!value) return true
-  return store.dispatch('config/getInterfaces').then(response => {
-    if (response.length === 0) return true
-    else return response.filter(iface => iface.id.toLowerCase() === value.toLowerCase()).length > 0
   }).catch(() => {
     return true
   })

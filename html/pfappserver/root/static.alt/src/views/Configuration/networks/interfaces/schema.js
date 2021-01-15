@@ -41,7 +41,6 @@ export default (props) => {
       .required(i18n.t('VLAN required.'))
       .isVLAN()
       .vlanForInterfaceNotExistsExcept((!isNew && !isClone) ? { id: master, vlan } : { id: master }, i18n.t('VLAN exists for {interface}.', { interface: master })),
-
     ipaddress: yup.string().nullable().isIpv4('Invalid IPv4 Address.'),
     ipv6_address: yup.string().nullable().isIpv6('Invalid IPv6 Address.'),
     netmask: yup.string().nullable().isIpv4('Invalid Netmask.'),
