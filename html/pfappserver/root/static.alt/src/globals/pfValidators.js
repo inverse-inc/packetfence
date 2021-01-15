@@ -282,33 +282,11 @@ export const isFilenameWithExtension = (extensions = ['html']) => {
   })
 }
 
-export const hasConnectionProfiles = () => {
-  return store.dispatch('config/getConnectionProfiles').then(response => {
-    return (response.length > 0)
-  }).catch(() => {
-    return true
-  })
-}
-
 export const hasSelfServices = () => {
   return store.dispatch('config/getSelfServices').then(response => {
     return (response.length > 0)
   }).catch(() => {
     return true
-  })
-}
-
-export const hasFilterEngines = (collection) => {
-  return (0, _common.withParams)({
-    type: 'hasFilterEngines',
-    collection
-  }, function (value) {
-    if (!(0, _common.req)(value)) return true
-    return store.dispatch('config/getFilterEngines', collection).then(response => {
-      return (response.length > 0)
-    }).catch(() => {
-      return true
-    })
   })
 }
 
@@ -577,16 +555,6 @@ export const categoryIdStringExists = (value) => {
   })
 }
 
-export const connectionProfileExists = (value) => {
-  if (!value) return true
-  return store.dispatch('config/getConnectionProfiles').then(response => {
-    if (response.length === 0) return true
-    else return response.filter(connectionProfile => connectionProfile.id.toLowerCase() === value.toLowerCase()).length > 0
-  }).catch(() => {
-    return true
-  })
-}
-
 export const selfServiceExists = (value) => {
   if (!value) return true
   return store.dispatch('config/getSelfServices').then(response => {
@@ -594,21 +562,6 @@ export const selfServiceExists = (value) => {
     else return response.filter(selfService => selfService.id.toLowerCase() === value.toLowerCase()).length > 0
   }).catch(() => {
     return true
-  })
-}
-
-export const filterEngineExists = (collection) => {
-  return (0, _common.withParams)({
-    type: 'filterEngineExists',
-    collection
-  }, function (value) {
-    if (!(0, _common.req)(value)) return true
-    return store.dispatch('config/getFilterEngines', collection).then(response => {
-      if (response.length === 0) return true
-      return response.map(item => item.id.toLowerCase()).includes(value.toLowerCase())
-    }).catch(() => {
-      return true
-    })
   })
 }
 
@@ -657,15 +610,6 @@ export const interfaceVlanExists = (id) => {
     }).catch(() => {
       return true
     })
-  })
-}
-
-export const fingerbankCombinationExists = (value) => {
-  if (!value) return true
-  return store.dispatch('fingerbank/getCombination', value).then(() => {
-    return true
-  }).catch(() => {
-    return false
   })
 }
 

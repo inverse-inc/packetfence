@@ -1,11 +1,5 @@
 import i18n from '@/utils/locale'
-import api from '../../fingerbank/_api'
-import pfFormChosen from '@/components/pfFormChosen'
-import pfFormInput from '@/components/pfFormInput'
 import { pfSearchConditionType as conditionType } from '@/globals/pfSearch'
-import {
-  required
-} from 'vuelidate/lib/validators'
 
 export const columns = [
   {
@@ -105,88 +99,4 @@ export const config = (context = {}) => {
       }
     }
   }
-}
-
-export const view = (_, meta = {}) => {
-  const {
-    isNew = false,
-    isClone = false
-  } = meta
-  return [
-    {
-      tab: null, // ignore tabs
-      rows: [
-        {
-          if: (!isNew && !isClone),
-          label: i18n.t('Identifier'),
-          cols: [
-            {
-              namespace: 'id',
-              component: pfFormInput,
-              attrs: {
-                disabled: true
-              }
-            }
-          ]
-        },
-        {
-          label: i18n.t('Name'),
-          cols: [
-            {
-              namespace: 'name',
-              component: pfFormInput
-            }
-          ]
-        },
-        {
-          label: i18n.t('Parent device'),
-          cols: [
-            {
-              namespace: 'parent_id',
-              component: pfFormChosen,
-              attrs: {
-                collapseObject: true,
-                placeholder: i18n.t('Type to search'),
-                trackBy: 'value',
-                label: 'text',
-                searchable: true,
-                internalSearch: false,
-                preserveSearch: true,
-                clearOnSelect: false,
-                allowEmpty: false,
-                optionsLimit: 100,
-                optionsSearchFunction: search
-              }
-            }
-          ]
-        }
-      ]
-    }
-  ]
-}
-
-export const validators = () => {
-  return {
-    name: {
-      [i18n.t('Name required.')]: required
-    }
-  }
-}
-
-export const search = (chosen, query, searchById) => {
-  if (!query) return []
-  return api.fingerbankSearchDevices({
-    query: ((searchById)
-      ? { op: 'and', values: [{ op: 'or', values: [{ field: 'id', op: 'equals', value: query }] }] }
-      : { op: 'and', values: [{ op: 'or', values: [{ field: 'name', op: 'contains', value: query }] }] }
-    ),
-    fields: ['id', 'name'],
-    sort: ['name'],
-    cursor: 0,
-    limit: 100
-  }).then(response => {
-    return response.items.map(item => {
-      return { value: item.id.toString(), text: item.name }
-    })
-  })
 }
