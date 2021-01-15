@@ -40,8 +40,15 @@ export const schema = (props) => {
       .nullable()
       .required(i18n.t('Name required.'))
       .networkBehaviorPolicyIdNotExistsExcept((!isNew && !isClone) ? id : undefined, i18n.t('Profile exists.')),
-
-    device_attributes_diff_threshold_overrides: schemaDeviceAttributes
+    device_attributes_diff_threshold_overrides: schemaDeviceAttributes,
+    devices_included: yup.array().ensure().label(i18n.t('Devices')).of(yup.string().nullable().label(i18n.t('Device'))),
+    devices_excluded: yup.array().ensure().label(i18n.t('Devices')).of(yup.string().nullable().label(i18n.t('Device'))),
+    watch_blacklisted_ips: yup.string().nullable().label(i18n.t('List')),
+    whitelisted_ips: yup.string().nullable().label(i18n.t('List')),
+    blacklisted_ip_hosts_threshold: yup.string().nullable().label(i18n.t('Threshold')),
+    blacklisted_ports: yup.string().nullable().label(i18n.t('List')),
+    watched_device_attributes: yup.array().ensure().label(i18n.t('Attributes')).of(yup.string().nullable().label(i18n.t('Attribute'))),
+    device_attributes_diff_score: yup.string().nullable().label(i18n.t('Score'))
   })
 }
 
