@@ -247,7 +247,6 @@ Requires: perl(Time::Period) >= 1.25
 Requires: perl(Time::Piece)
 Requires: perl(Number::Range)
 Requires: perl(Algorithm::Combinatorics)
-Requires: perl(Net::Syslog)
 Requires: perl(Class::XSAccessor)
 Requires: iproute >= 3.0.0, krb5-workstation
 Requires: samba >= 4

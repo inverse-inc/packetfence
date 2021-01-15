@@ -143,8 +143,6 @@ Depends: ${misc:Depends}, vlan,
  libgraph-perl,
 # SAML
  liblasso-perl,
-# PaloAlto syslog SSO
- libnet-syslog-perl,
 # for packaging
  lsb-release,
 # wmi and nthash cache
