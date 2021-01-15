@@ -1,32 +1,31 @@
-package pf::dal::radacct_log;
+package pf::dal::radacct_dbh;
 
 =head1 NAME
 
-pf::dal::radacct_log - pf::dal module to override for the table radacct_log
-
-=cut
+pf::dal::radacct_dbh -
 
 =head1 DESCRIPTION
 
-pf::dal::radacct_log
-
-pf::dal implementation for the table radacct_log
+pf::dal::radacct_dbh
 
 =cut
 
 use strict;
 use warnings;
+use Exporter qw(import);
+our @EXPORT = qw(get_dbh);
 
-use base qw(pf::dal::_radacct_log);
-use pf::dal::radacct_dbh;
- 
+sub get_dbh {
+
+}
+
 =head1 AUTHOR
 
 Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2019 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 

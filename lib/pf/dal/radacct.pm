@@ -18,6 +18,7 @@ use strict;
 use warnings;
 
 use base qw(pf::dal::_radacct);
+use pf::dal::radacct_dbh;
  
 =head1 AUTHOR
 
