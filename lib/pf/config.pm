@@ -174,6 +174,8 @@ our (
     %ConfigAuthenticationLdap,
 # Radius sources
     %ConfigAuthenticationRadius,
+# Eduroam source
+    %ConfigAuthenticationEduroam,
 # TLS configuration
     %ConfigEAP,
 # EDIR sources
@@ -242,6 +244,7 @@ BEGIN {
         %ConfigSelfService
         %ConfigAuthenticationLdap
         %ConfigAuthenticationRadius
+        %ConfigAuthenticationEduroam
         %ConfigEAP
         %ConfigAuthenticationEdir
     );
@@ -323,6 +326,8 @@ tie %ConfigSelfService, 'pfconfig::cached_hash', 'config::SelfService';
 tie %ConfigAuthenticationLdap, 'pfconfig::cached_hash', 'resource::authentication_sources_ldap';
 
 tie %ConfigAuthenticationRadius, 'pfconfig::cached_hash', 'resource::authentication_sources_radius';
+
+tie %ConfigAuthenticationEduroam, 'pfconfig::cached_hash', 'resource::authentication_sources_eduroam';
 
 tie %ConfigEAP, 'pfconfig::cached_hash', 'resource::eap_config';
 
