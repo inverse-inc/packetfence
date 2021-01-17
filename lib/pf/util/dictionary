@@ -282,4 +282,5 @@ VENDOR          Juniper                         2636
 #       Standard attribute
 #
 
-VENDORATTR      Juniper                         Juniper-AV-Pair 52      string
+VENDORATTR      Juniper                         Juniper-VoIP-Vlan  49      string
+VENDORATTR      Juniper                         Juniper-AV-Pair    52      string
