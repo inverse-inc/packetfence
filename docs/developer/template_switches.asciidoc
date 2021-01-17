@@ -39,6 +39,7 @@ You can find a full working example
 
 * acceptVlan - Attributes for accept vlan scope
 * acceptRole - Attributes for accept role scope.
+* acceptUrl  - Attributes for accept URL scope.
 * reject     - Attributes for rejection scope.
 * disconnect - Attributes for disconnect scope (required if radiusDisconnect is 'disconnect' or 'coaOrDisconnect')
 * coa        - Attributes for CoA scope (required if radiusDisconnect is 'coa' or 'coaOrDisconnect')
@@ -80,6 +81,10 @@ So here is mini templating language to format values.
 * acceptRole - (Same as acceptVlan)
 
 * reject - (Same as acceptVlan)
+
+* acceptUrl - (Includes all acceptVlan plus the following)
+** redirect_url
+** role
 
 * acceptVlan
 ** autoreg

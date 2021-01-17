@@ -64,9 +64,62 @@
       :column-label="$i18n.t('CLI Authorize Write Scope')"
     />
 
-    <form-group-nas-port-to-if-index namespace="nasPortToIfindex"
-      :column-label="$i18n.t('NasPortToIfindex template')"
+    <form-group-accept-url namespace="acceptUrl"
+      :column-label="$i18n.t('Web Auth Scope')"
     />
+
+    <form-group-nas-port-to-if-index namespace="nasPortToIfindex"
+      :column-label="$i18n.t('NasPortToIfindex Template')"
+    />
+
+    <form-group-web-auth-use-session namespace="webAuthUseSession"
+     :column-label="$i18n.t('Web Auth use session')"
+    />
+
+    <form-group-web-auth-synchronize namespace="webAuthSynchronize"
+     :column-label="$i18n.t('Web Auth Synchronize')"
+    />
+
+    <form-group-web-auth-client-ip namespace="webAuthClientIp"
+     :column-label="$i18n.t('Web Auth Client IP Template')"
+    />
+
+    <form-group-web-auth-client-mac namespace="webAuthClientMac"
+     :column-label="$i18n.t('Web Auth Client MAC Template')"
+    />
+
+    <form-group-web-auth-connection-type namespace="webAuthConnectionType"
+     :column-label="$i18n.t('Web Auth Connection Type Template')"
+    />
+
+    <form-group-web-auth-grant-url namespace="webAuthGrantUrl"
+     :column-label="$i18n.t('Web Auth Grant URL Template')"
+    />
+
+    <form-group-web-auth-redirect-url namespace="webAuthRedirectUrl"
+     :column-label="$i18n.t('Web Auth Redirect URL Template')"
+    />
+
+    <form-group-web-auth-ssid namespace="webAuthSSID"
+     :column-label="$i18n.t('Web Auth SSID Template')"
+    />
+
+    <form-group-web-auth-status-code namespace="webAuthStatusCode"
+     :column-label="$i18n.t('Web Auth Status Code Template')"
+    />
+
+    <form-group-web-auth-switch-id namespace="webAuthSwitchId"
+     :column-label="$i18n.t('Web Auth Switch Id Template')"
+    />
+
+    <form-group-web-auth-switch-ip namespace="webAuthSwitchIp"
+     :column-label="$i18n.t('Web Auth Switch IP Template')"
+    />
+
+    <form-group-web-auth-switch-mac namespace="webAuthSwitchMac"
+     :column-label="$i18n.t('Web Auth Switch Mac Template')"
+    />
+
   </base-form>
 </template>
 <script>
@@ -77,6 +130,7 @@ import {
 import schemaFn from '../schema'
 import {
   FormGroupAcceptRoles,
+  FormGroupAcceptUrl,
   FormGroupAcceptVlans,
   FormGroupAclTemplate,
   FormGroupBounce,
@@ -91,12 +145,26 @@ import {
   FormGroupReject,
   FormGroupSnmpDisconnect,
   FormGroupVoip,
+  FormGroupWebAuthUseSession,
+  FormGroupWebAuthSynchronize,
+
+  FormGroupWebAuthClientIp,
+  FormGroupWebAuthClientMac,
+  FormGroupWebAuthConnectionType,
+  FormGroupWebAuthGrantUrl,
+  FormGroupWebAuthRedirectUrl,
+  FormGroupWebAuthSSID,
+  FormGroupWebAuthStatusCode,
+  FormGroupWebAuthSwitchId,
+  FormGroupWebAuthSwitchIp,
+  FormGroupWebAuthSwitchMac,
 } from './'
 
 const components = {
   BaseForm,
 
   FormGroupAcceptRoles,
+  FormGroupAcceptUrl,
   FormGroupAcceptVlans,
   FormGroupAclTemplate,
   FormGroupBounce,
@@ -111,6 +179,19 @@ const components = {
   FormGroupReject,
   FormGroupSnmpDisconnect,
   FormGroupVoip,
+  FormGroupWebAuthUseSession,
+  FormGroupWebAuthSynchronize,
+
+  FormGroupWebAuthClientIp,
+  FormGroupWebAuthClientMac,
+  FormGroupWebAuthConnectionType,
+  FormGroupWebAuthGrantUrl,
+  FormGroupWebAuthRedirectUrl,
+  FormGroupWebAuthSSID,
+  FormGroupWebAuthStatusCode,
+  FormGroupWebAuthSwitchId,
+  FormGroupWebAuthSwitchIp,
+  FormGroupWebAuthSwitchMac,
 }
 
 export const props = {

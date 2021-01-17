@@ -14,14 +14,17 @@ use strict;
 use warnings;
 use base qw(pf::config::builder);
 use pf::mini_template;
+use pf::util qw(str_to_connection_type);
 use pf::util::radius_dictionary qw($RADIUS_DICTIONARY);
 use pf::constants::template_switch qw(
     @RADIUS_ATTRIBUTE_SETS
     @SUPPORTS
+    @TEMPLATE_FIELDS
 );
 
 our %SetToSupports = (
     voip => [qw(RadiusVoip)],
+    acceptUrl => [qw(ExternalPortal)],
 );
 
 sub buildEntry {
@@ -29,6 +32,7 @@ sub buildEntry {
     my $type = $id;
     $entry->{type} = $type;
     my @supports = @SUPPORTS;
+    my $supportsExternalPortal = 0;
     for my $k (@RADIUS_ATTRIBUTE_SETS) {
         next unless exists $entry->{$k};
         my $ras = delete $entry->{$k};
@@ -40,6 +44,10 @@ sub buildEntry {
             push @supports, @{$SetToSupports{$k}};
         }
 
+        if ($k eq 'acceptUrl') {
+            $supportsExternalPortal |= 1;
+        }
+
         my ($ras_errors, $set) = make_radius_attribute_set($ras);
         if (@$ras_errors) {
             push @{$buildData->{errors}}, { switch => $id, message => "Error building RADIUS scope $k", errors => $ras_errors };
@@ -48,15 +56,22 @@ sub buildEntry {
         }
     }
 
-    if ($entry->{nasPortToIfindex}) {
-        my $tmpl_text= $entry->{nasPortToIfindex};
+    if (exists $entry->{webauthConnectionType}) {
+        $entry->{webauthConnectionType} = str_to_connection_type($entry->{webauthConnectionType});
+    }
+
+    for my $f (@TEMPLATE_FIELDS) {
+        next if !exists $entry->{$f};
+        my $tmpl_text = $entry->{$f};
+        next if !defined $tmpl_text;
         my $tmpl = eval {
             pf::mini_template->new($tmpl_text)
         };
         if ($@) {
-            push @{$buildData->{errors}}, { message => $@, text => $tmpl_text };
+            push @{$buildData->{errors}}, { message => $@, text => $tmpl_text, field => $f };
         }
-        $entry->{nasPortToIfindex} = $tmpl;
+
+        $entry->{$f} = $tmpl;
     }
 
     @supports = sort @supports;
@@ -68,6 +83,10 @@ sub buildEntry {
         supports => \@supports,
         is_template => 1,
     };
+
+    if ($supportsExternalPortal) {
+        $buildData->{entries}{'::SupportsExternalPortal'}{$type} = 1;
+    }
 
     return $entry;
 }

@@ -6,9 +6,6 @@ import {
   BaseFormGroupTextarea,
   BaseFormGroupToggleDisabledEnabled
 } from '@/components/new/'
-import BaseFormGroupBounce from './BaseFormGroupBounce'
-import BaseFormGroupCliAuthorizeRead from './BaseFormGroupCliAuthorizeRead'
-import BaseFormGroupCliAuthorizeWrite from './BaseFormGroupCliAuthorizeWrite'
 import BaseFormGroupRadiusAttributes from './BaseFormGroupRadiusAttributes'
 import TheForm from './TheForm'
 import TheView from './TheView'
@@ -17,11 +14,12 @@ export {
   BaseFormButtonBar                   as FormButtonBar,
 
   BaseFormGroupRadiusAttributes       as FormGroupAcceptRoles,
+  BaseFormGroupRadiusAttributes       as FormGroupAcceptUrl,
   BaseFormGroupRadiusAttributes       as FormGroupAcceptVlans,
   BaseFormGroupTextarea               as FormGroupAclTemplate,
-  BaseFormGroupBounce                 as FormGroupBounce,
-  BaseFormGroupCliAuthorizeRead       as FormGroupCliAuthorizeRead,
-  BaseFormGroupCliAuthorizeWrite      as FormGroupCliAuthorizeWrite,
+  BaseFormGroupRadiusAttributes       as FormGroupBounce,
+  BaseFormGroupRadiusAttributes       as FormGroupCliAuthorizeRead,
+  BaseFormGroupRadiusAttributes       as FormGroupCliAuthorizeWrite,
   BaseFormGroupRadiusAttributes       as FormGroupCoa,
   BaseFormGroupInput                  as FormGroupDescription,
   BaseFormGroupRadiusAttributes       as FormGroupDisconnect,
@@ -31,6 +29,20 @@ export {
   BaseFormGroupRadiusAttributes       as FormGroupReject,
   BaseFormGroupToggleDisabledEnabled  as FormGroupSnmpDisconnect,
   BaseFormGroupRadiusAttributes       as FormGroupVoip,
+
+  BaseFormGroupToggleDisabledEnabled  as FormGroupWebAuthUseSession,
+  BaseFormGroupToggleDisabledEnabled  as FormGroupWebAuthSynchronize,
+
+  BaseFormGroupInput                  as FormGroupWebAuthClientIp,
+  BaseFormGroupInput                  as FormGroupWebAuthClientMac,
+  BaseFormGroupInput                  as FormGroupWebAuthConnectionType,
+  BaseFormGroupInput                  as FormGroupWebAuthGrantUrl,
+  BaseFormGroupInput                  as FormGroupWebAuthRedirectUrl,
+  BaseFormGroupInput                  as FormGroupWebAuthSSID,
+  BaseFormGroupInput                  as FormGroupWebAuthStatusCode,
+  BaseFormGroupInput                  as FormGroupWebAuthSwitchId,
+  BaseFormGroupInput                  as FormGroupWebAuthSwitchIp,
+  BaseFormGroupInput                  as FormGroupWebAuthSwitchMac,
 
   BaseViewCollectionItem              as BaseView,
   TheForm,

@@ -21,6 +21,7 @@ use pf::log;
 use pf::util;
 use pf::freeradius;
 use Module::Load;
+use Module::Loaded qw(mark_as_loaded is_loaded);
 use Benchmark qw(:all);
 use List::Util qw(first);
 use List::MoreUtils qw(any uniq);
@@ -32,6 +33,8 @@ use pf::StatsD::Timer;
 use pf::util::statsd qw(called);
 use pf::access_filter::switch;
 use pf::config::cluster;
+use pf::util::template_switch;
+use pf::config::template_switch qw(%TemplateSwitches);
 
 our %SwitchConfig;
 tie %SwitchConfig, 'pfconfig::cached_hash', "config::Switch($host_id)";
@@ -39,7 +42,6 @@ our @SwitchRanges;
 tie @SwitchRanges, 'pfconfig::cached_array', 'resource::switches_ranges';
 our %SwitchTypesConfigured;
 tie %SwitchTypesConfigured, 'pfconfig::cached_hash', 'resource::SwitchTypesConfigured';
-tie our %TemplateSwitches, 'pfconfig::cached_hash', 'config::TemplateSwitches';
 
 #Loading all the switch modules ahead of time
 use Module::Pluggable
@@ -232,21 +234,22 @@ sub getModule {
         return undef;
     }
 
-    if (exists $TemplateSwitches{$type}) {
-        $type = 'Template';
-    }
-
-    unless(exists $TYPE_TO_MODULE{$type}) {
+    if (!exists $TYPE_TO_MODULE{$type}) {
         my $module = "pf::Switch::$type";
-        eval {
-            load($module);
-        };
-        if($@) {
-            get_logger->error("Failed to load module $module: @_");
-            return undef;
+        if (exists $TemplateSwitches{$type}) {
+            pf::util::template_switch::createFakeTemplateModule($module);
+        } elsif (!exists $TYPE_TO_MODULE{$type}) {
+            eval {
+                load($module);
+            };
+            if($@) {
+                get_logger->error("Failed to load module $module: @_");
+                return undef;
+            }
         }
         $TYPE_TO_MODULE{$type} = $module;
     }
+
     return $TYPE_TO_MODULE{$type};
 }
 
@@ -356,6 +359,19 @@ sub form_options {
     }
 
     return @modules;
+}
+
+sub createAFakeTemplateModule {
+    my ($class) = @_;
+    if (is_loaded($class)) {
+        return;
+    }
+
+    require pf::Switch::Template;
+    no strict "refs";
+    my $ref = \*{$class};
+    *{"${class}::ISA"} = ["pf::Switch::Template"];
+    mark_as_loaded($class);
 }
 
 =back

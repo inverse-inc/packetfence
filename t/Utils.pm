@@ -18,6 +18,16 @@ use pf::person;
 use File::Temp;
 use File::Copy;
 
+my @TEMP_FILES;
+
+sub use_temp_file {
+    my ($name_ref) = @_;
+    my ($fh, $filename) = File::Temp::tempfile( UNLINK => 1, DIR => '/usr/local/pf/conf');
+    copy($$name_ref, $fh);
+    $$name_ref = $filename;
+    push @TEMP_FILES, $fh;
+}
+
 sub test_mac {
     my $mac = random_mac();
     while (node_exist($mac)) {

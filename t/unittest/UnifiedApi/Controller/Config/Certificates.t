@@ -24,29 +24,21 @@ use pf::file_paths qw(
     $server_key
 );
 
-my @TEMP_FILES;
-
-sub use_temp_file {
-    my ($name_ref) = @_;
-    my ($fh, $filename) = File::Temp::tempfile( UNLINK => 1, DIR => '/usr/local/pf/conf');
-    copy($$name_ref, $fh);
-    $$name_ref = $filename;
-    push @TEMP_FILES, $fh;
-}
 
 BEGIN {
     #include test libs
     use lib qw(/usr/local/pf/t);
     #Module for overriding configuration paths
+    use Utils;
     use setup_test_config;
-    use_temp_file(\$pf::file_paths::server_cert);
-    use_temp_file(\$pf::file_paths::server_key);
-    use_temp_file(\$pf::file_paths::radius_server_cert);
-    use_temp_file(\$pf::file_paths::radius_server_key);
-    use_temp_file(\$pf::file_paths::radius_ca_cert);
+    Utils::use_temp_file(\$pf::file_paths::server_cert);
+    Utils::use_temp_file(\$pf::file_paths::server_key);
+    Utils::use_temp_file(\$pf::file_paths::radius_server_cert);
+    Utils::use_temp_file(\$pf::file_paths::radius_server_key);
+    Utils::use_temp_file(\$pf::file_paths::radius_ca_cert);
 }
+
 use pf::ConfigStore::Pf;
-use Utils;
 my ($fh, $filename) = Utils::tempfileForConfigStore("pf::ConfigStore::Pf");
 
 #insert known data

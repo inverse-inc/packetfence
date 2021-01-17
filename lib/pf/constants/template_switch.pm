@@ -20,12 +20,15 @@ our @EXPORT_OK = qw(
   $DISCONNECT_TYPE_BOTH
   @RADIUS_ATTRIBUTE_SETS
   @SUPPORTS
+  @WEBAUTH_TEMPLATES
+  @TEMPLATE_FIELDS
+  %WEBAUTH_TEMPLATE_TO_REQUEST_PARAM
 );
 
 our $DISCONNECT_TYPE_COA = 'coa';
 our $DISCONNECT_TYPE_DISCONNECT = 'disconnect';
 our $DISCONNECT_TYPE_BOTH = 'coaOrDisconnect';
-our @RADIUS_ATTRIBUTE_SETS = qw(acceptVlan acceptRole reject disconnect coa voip bounce cliAuthorizeRead cliAuthorizeWrite);
+our @RADIUS_ATTRIBUTE_SETS = qw(acceptVlan acceptRole acceptUrl reject disconnect coa voip bounce cliAuthorizeRead cliAuthorizeWrite);
 our @SUPPORTS = qw(
   RadiusDynamicVlanAssignment
   WiredMacAuth
@@ -33,6 +36,35 @@ our @SUPPORTS = qw(
   WirelessMacAuth
   WirelessDot1x
   RoleBasedEnforcement
+);
+
+our @WEBAUTH_TEMPLATES = qw(
+  webAuthSwitchId
+  webAuthSwitchMac
+  webAuthSwitchIp
+  webAuthClientMac
+  webAuthClientIp
+  webAuthSSID
+  webAuthRedirectUrl
+  webAuthGrantUrl
+  webAuthStatusCode
+);
+
+our %WEBAUTH_TEMPLATE_TO_REQUEST_PARAM = (
+  webAuthSwitchId => 'switch_id',
+  webAuthSwitchMac => 'switch_mac',
+  webAuthSwitchIp => 'switch_ip',
+  webAuthClientMac => 'client_mac',
+  webAuthClientIp => 'client_ip',
+  webAuthSSID => 'ssid',
+  webAuthRedirectUrl => 'redirect_url',
+  webAuthGrantUrl => 'grant_url',
+  webAuthStatusCode => 'status_code',
+);
+
+our @TEMPLATE_FIELDS = (
+    @WEBAUTH_TEMPLATES,
+    qw(nasPortToIfindex),
 );
 
 =head1 AUTHOR

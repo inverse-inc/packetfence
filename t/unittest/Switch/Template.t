@@ -29,9 +29,34 @@ BEGIN {
 }
 
 my $builder = pf::config::builder::template_switches->new;
-use Test::More tests => (scalar @FILES) + 6;
+use Test::More tests => (scalar @FILES) + 15;
 #This test will running last
 use Test::NoWarnings;
+use pf::util::template_switch;
+
+{
+    my $class = 'pf::Switch::PacketFence::Test';
+    pf::util::template_switch::createFakeTemplateModule($class);
+    my $template = $class->_template();
+    is(ref($template), 'HASH', "Getting the hash data from just the class $class");
+}
+
+{
+    my $switch = pf::SwitchFactory->instantiate('172.16.8.28');
+    ok($switch->supportsExternalPortal(), "supportsExternalPortal");
+    ok($switch->canDoAcceptUrl(), "canDoAcceptUrl");
+    my $radius_reply = {};
+    $switch->addAcceptUrlAttributes($radius_reply, {mac => "aa:bb:cc:dd:ee:ff"});
+    is_deeply($radius_reply, {}, "addAcceptUrlAttributes added nothing");
+
+    $switch->addAcceptUrlAttributes($radius_reply, {mac => "aa:bb:cc:dd:ee:ff", user_role => "bob"});
+    ok(exists $radius_reply->{'Cisco-AVPair'}, "addAcceptUrlAttributes added Cisco-AVPair");
+    is(scalar @{$radius_reply->{'Cisco-AVPair'} // []}, 2, "addAcceptUrlAttributes added multiple Cisco-AVPair" );
+    my $url= $radius_reply->{'Cisco-AVPair'}[1];
+    ok($url =~ /^url-redirect=/);
+    ok($url =~ m#http://10.0.60.149/PacketFence::Test/#);
+}
+
 for my $file (@FILES) {
     my $name = pf::util::template_switch::fileNameToModuleName($SWITCH_DIR, $file);
     my $ini = pf::IniFiles->new( -file => $file, -fallback => $name);
@@ -62,8 +87,8 @@ for my $file (@FILES) {
 }
 
 {
-    my $switch = pf::SwitchFactory->instantiate('172.16.8.25');
-    my ($switchdeauthMethod, $deauthTechniques) = $switch->deauthTechniques($switch->{'_deauthMethod'});
+    my $switch = pf::SwitchFactory->instantiate('172.16.8.27');
+    ok($switch->supportsExternalPortal(), "supportsExternalPortal");
 }
 
 {

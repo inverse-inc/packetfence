@@ -19,9 +19,10 @@ use pf::Switch::constants;
 use pf::constants;
 use pf::constants::switch qw($DEFAULT_ACL_TEMPLATE);
 use pf::radius::constants;
-use pf::util qw(isenabled);
+use pf::util qw(isenabled listify);
 use List::MoreUtils qw(uniq);
 use pf::constants::role qw($REJECT_ROLE $VOICE_ROLE);
+use List::Util qw(pairs);
 use pf::access_filter::radius;
 use pf::accounting qw(node_accounting_dynauth_attr);
 use pf::roles::custom;
@@ -34,13 +35,17 @@ use pf::SwitchSupports qw(
     WirelessDot1x
     RadiusVoip
     RoleBasedEnforcement
+    ExternalPortal
 );
 
 use pf::constants::template_switch qw(
   $DISCONNECT_TYPE_COA
   $DISCONNECT_TYPE_DISCONNECT
   $DISCONNECT_TYPE_BOTH
+  %WEBAUTH_TEMPLATE_TO_REQUEST_PARAM
 );
+
+use pf::config::template_switch qw(%TemplateSwitches);
 
 our %DISCONNECT_DISPATCH = (
     $DISCONNECT_TYPE_COA => \&handleCoa,
@@ -135,6 +140,7 @@ sub returnRadiusAccessAccept {
     # Inline Vs. VLAN enforcement
     my %tmp_args = %$args;
     my $role = "";
+
     if ( (!$tmp_args{'wasInline'} || ($tmp_args{'wasInline'} && $tmp_args{'vlan'} != 0) ) && isenabled($self->{_VlanMap})) {
         my $vlanTemplate = $self->{_template}{acceptVlan};
         if ( defined $vlanTemplate &&  defined($tmp_args{'vlan'}) && $tmp_args{'vlan'} ne "" && $tmp_args{'vlan'} ne 0) {
@@ -164,11 +170,12 @@ sub returnRadiusAccessAccept {
             $logger->info(
                 "(".$self->{'_id'}.") Added role $role to the returned RADIUS Access-Accept"
             );
-        }
-        else {
+        } else {
             $logger->debug("(".$self->{'_id'}.") Received undefined role. No Role added to RADIUS Access-Accept");
         }
     }
+
+    $self->addAcceptUrlAttributes($radius_reply_ref, \%tmp_args);
 
     my $status = $RADIUS::RLM_MODULE_OK;
     if (!isenabled($args->{'unfiltered'})) {
@@ -178,6 +185,83 @@ sub returnRadiusAccessAccept {
     }
 
     return [$status, %$radius_reply_ref];
+}
+
+
+=head2 addTemplateAttributesToReply
+
+addTemplateAttributesToReply
+
+=cut
+
+sub addTemplateAttributesToReply {
+    my ($self, $reply, $templateName, $args) = @_;
+    my $template = $self->{_template}{$templateName};
+    if (!defined $template) {
+        return;
+    }
+
+    $self->updateArgsVariablesForSet($args, $template);
+    my $attrs = $self->makeRadiusAttributes($template, $args);
+    $self->_mergeAttributes($reply, $attrs);
+}
+
+
+=head2 _mergeAttributes
+
+_mergeAttributes
+
+=cut
+
+sub _mergeAttributes {
+    my ($self, $radiusReply, $attributes) = @_;
+    my ($err, $results);
+    foreach my $pair ( pairs @$attributes ) {
+        my ( $key, $value ) = @$pair;
+        $value = listify($value);
+        if (exists $radiusReply->{$key}) {
+            my $old_value = listify($radiusReply->{$key});
+            push @$old_value, @$value;
+            $value = $old_value;
+        }
+
+        $radiusReply->{$key} = $value;
+    }
+
+    return;
+}
+
+sub canDoAcceptUrl {
+    my ($self) = @_;
+    my $template = $self->{_template};
+    return exists $template->{acceptUrl} && defined ($template->{acceptUrl}) &&  isenabled($self->{_UrlMap}) && $self->externalPortalEnforcement();
+}
+
+sub addAcceptUrlAttributes {
+    my ($self, $reply, $args) = @_;
+    if (!$self->canDoAcceptUrl) {
+        return;
+    }
+
+    my $user_role = $args->{user_role};
+    if (!defined $user_role || $user_role eq '') {
+        return;
+    }
+
+    my $redirect_url = $self->getUrlByName($user_role);
+    if (!defined $redirect_url) {
+        return;
+    }
+
+    $args->{role} = $self->getRoleByName($user_role);
+    my $session_id = "sid" . $self->setSession($args);
+    $args->{'session_id'} = $session_id;
+    $redirect_url .= '/' unless $redirect_url =~ m(\/$);
+    $redirect_url .= $session_id;
+    $args->{redirect_url} = $redirect_url;
+    $self->addTemplateAttributesToReply($reply, 'acceptUrl', $args);
+
+    return;
 }
 
 =item radiusDisconnect
@@ -532,13 +616,25 @@ sub _bouncePortCoa {
     return perform_coa($connection_info, {@$attrs}, $vsa);
 }
 
+sub processTemplate {
+    my ($self, $template, $templateName, $vars) = @_;
+    if (!exists $template->{$templateName}) {
+        return undef;
+    }
+
+    my $tmpl= $template->{$templateName};
+    if (!defined $tmpl) {
+        return undef;
+    }
+
+    return $tmpl->process($vars);
+}
+
 sub NasPortToIfIndex {
     my ($self, $nasPort) = @_;
-    if ($self->{_template}{nasPortToIfindex}) {
-        my $ifindex = $self->{_template}{nasPortToIfindex}->process({ nasPort => $nasPort});
-        if ($ifindex) {
-            return $ifindex;
-        }
+    my $ifindex = $self->processTemplate($self->{_template}, 'nasPortToIfindex', {nasPort => $nasPort});
+    if ($ifindex) {
+        return $ifindex;
     }
 
     return $self->SUPER::NasPortToIfIndex($nasPort);
@@ -577,6 +673,60 @@ sub returnCliAuthorize {
     }
 
     return [$RADIUS::RLM_MODULE_OK, %radius_reply];
+}
+
+=item parseExternalPortalRequest
+
+Parse external portal request using URI and it's parameters then return an hash reference with the appropriate parameters
+
+See L<pf::web::externalportal::handle>
+
+=cut
+
+sub parseExternalPortalRequest {
+    my ( $self, $r, $req ) = @_;
+    my $logger = $self->logger;
+    my $client_ip = defined($r->headers_in->{'X-Forwarded-For'}) ? $r->headers_in->{'X-Forwarded-For'} : $r->connection->remote_ip;
+    my $template = $self->_template;
+    my %params = (
+        synchronize_locationlog => isenabled($template->{webAuthSynchronize}),   # Should we synchronize locationlog
+        connection_type         => $template->{webAuthConnectionType},   # Set the connection_type
+        client_ip => $client_ip,
+    );
+    if (isenabled($template->{webAuthUseSession})) {
+        $self->parseExternalPortalRequestFromSession(\%params, $r, $req);
+    }
+
+    my $table = $req->param;
+    my @names = keys %$table;
+    my %queryParams;
+    @queryParams{@names} = @{$table}{@names};
+    my %vars = (
+        params => \%queryParams,
+        client_ip => $client_ip,
+    );
+
+    while (my ($t, $p) = each %WEBAUTH_TEMPLATE_TO_REQUEST_PARAM) {
+        my $out = $self->processTemplate($template, $t, \%vars);
+        if (!defined $out || length($out) == 0) {
+            next;
+        }
+
+        $params{$p} = $out;
+    }
+
+    return \%params;
+}
+
+sub parseExternalPortalRequestFromSession {
+    my ($self, $params, $r, $req) = @_;
+    my $uri = $r->uri;
+    return unless ($uri =~ /.*sid(\w+[^\/\&])/);
+    my $session_id = $1;
+    my $locationlog = pf::locationlog::locationlog_get_session($session_id);
+    $params->{session_id} = $session_id;
+    $params->{client_mac} = $locationlog->{mac};
+    $params->{switch_id} = $locationlog->{switch};
 }
 
 =head1 AUTHOR
