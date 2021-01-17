@@ -85,6 +85,12 @@ Navigate to _Configuration -> Report Formats_ and then select the `CSV Results` 
 
 image::openvas/report-format-id.png[alt="OpenVAS report format ID"]
 
+*Port list ID*
+
+Navigate to _Configuration -> Port lists_ and then select the port lists you would like to use to scan the hosts. In this view, note down the ID.
+
+image::openvas/port-list-id.png[alt="OpenVAS port list ID"]
+
 ==== WMI
 
 You just have to enable WMI on each Microsoft Windows devices with a GPO from Active Directory.

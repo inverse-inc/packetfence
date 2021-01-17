@@ -52,6 +52,25 @@ sub _get_scan_id {
 
 =over
 
+=item _get_target_string
+
+create_target string creation.
+
+=cut
+
+sub _get_target_string {
+    my ($self, $name, $target_host) = @_;
+
+    my $s = <<"EOF";
+<create_target>
+  <name>$name</name>
+  <hosts>$target_host</hosts>
+  <port_list id=\"$self->{_openvas_portlistid}\"/>
+</create_target>
+EOF
+    return $self->_to_single_line($s);
+}
+
 =item createTarget
 
 Create a target (a target is a host to scan)
@@ -64,7 +83,7 @@ sub createTarget {
 
     my $name = $self->_get_scan_id();
     my $target_host = $self->{_scanIp};
-    my $command = "<create_target><name>$name</name><hosts>$target_host</hosts></create_target>";
+    my $command = $self->_get_target_string($name, $target_host);
 
     $logger->info("Creating a new scan target named $name for host $target_host");
 
@@ -196,6 +215,7 @@ sub new {
             '_openvas_alertid'         => undef,
             '_openvas_configid'         => undef,
             '_openvas_reportformatid'   => undef,
+            '_openvas_portlistid'       => undef,
             '_targetId'         => undef,
             '_escalatorId'      => undef,
             '_taskId'           => undef,

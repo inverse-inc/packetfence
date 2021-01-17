@@ -42,7 +42,7 @@ has_field 'type' =>
 
 has_block definition =>
   (
-   render_list => [ qw(id ip type username password port openvas_alertid openvas_configid openvas_reportformatid categories oses duration pre_registration registration post_registration) ],
+   render_list => [ qw(id ip type username password port openvas_alertid openvas_configid openvas_reportformatid openvas_portlistid categories oses duration pre_registration registration post_registration) ],
   );
 
 has_field 'openvas_alertid' =>
@@ -68,6 +68,15 @@ has_field 'openvas_reportformatid' =>
    default => '',
    tags => { after_element => \&help,
              help => 'ID of the "CSV Results" report format on the OpenVAS server' },
+  );
+
+has_field 'openvas_portlistid' =>
+  (
+   type => 'Text',
+   label => 'Port list ID',
+   default => '33d0cd82-57c6-11e1-8ed1-406186ea4fc5',
+   tags => { after_element => \&help,
+             help => 'ID of the port list on the OpenVAS server' },
   );
 
 =over
