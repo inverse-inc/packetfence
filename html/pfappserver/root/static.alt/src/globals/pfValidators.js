@@ -277,14 +277,6 @@ export const isFilenameWithExtension = (extensions = ['html']) => {
   })
 }
 
-export const hasSelfServices = () => {
-  return store.dispatch('config/getSelfServices').then(response => {
-    return (response.length > 0)
-  }).catch(() => {
-    return true
-  })
-}
-
 export const hasInterfaces = () => {
   return store.dispatch('config/getInterfaces').then(response => {
     return (response.length > 0)
@@ -379,16 +371,6 @@ export const categoryIdStringExists = (value) => {
   return store.dispatch('config/getRoles').then(response => {
     if (response.length === 0) return true
     else return response.filter(role => role.name.toLowerCase() === value.toLowerCase()).length > 0
-  }).catch(() => {
-    return true
-  })
-}
-
-export const selfServiceExists = (value) => {
-  if (!value) return true
-  return store.dispatch('config/getSelfServices').then(response => {
-    if (response.length === 0) return true
-    else return response.filter(selfService => selfService.id.toLowerCase() === value.toLowerCase()).length > 0
   }).catch(() => {
     return true
   })
