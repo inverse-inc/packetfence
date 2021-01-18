@@ -7,10 +7,6 @@
   collections:
     - inverse_inc.wireless
 
-  pre_tasks:
-  - name: wait for SSH available before provisioning
-    wait_for_connection:
-
   roles:
     - role: hostapd
     - role: wpasupplicant

@@ -33,9 +33,10 @@ all:
       hosts:
         wireless01:
           box: debian/buster64
-          # IP used by helper_scripts and Ansible, not Vagrant
           mgmt_ip: 172.17.17.210
+          mgmt_netmask: 255.255.255.0
           ansible_host: "{{ mgmt_ip }}"
+          cpus: 1
           memory: 1024
 
     service_venom:
