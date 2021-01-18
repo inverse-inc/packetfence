@@ -301,14 +301,6 @@ export const hasPortalModules = () => {
   })
 }
 
-export const hasScans = () => {
-  return store.dispatch('config/getScans').then(response => {
-    return (response.length > 0)
-  }).catch(() => {
-    return true
-  })
-}
-
 export const hasSecurityEvents = () => {
   return store.dispatch('config/getSecurityEvents').then(response => {
     return (response.length > 0)
@@ -458,16 +450,6 @@ export const portalModuleExists = (value) => {
   return store.dispatch('config/getPortalModules').then(response => {
     if (response.length === 0) return true
     else return response.filter(module => module.id.toLowerCase() === value.toLowerCase()).length > 0
-  }).catch(() => {
-    return true
-  })
-}
-
-export const scanExists = (value) => {
-  if (!value) return true
-  return store.dispatch('config/getScans').then(response => {
-    if (response.length === 0) return true
-    else return response.filter(scan => scan.id.toLowerCase() === value.toLowerCase()).length > 0
   }).catch(() => {
     return true
   })
