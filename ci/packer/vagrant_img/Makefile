@@ -2,8 +2,8 @@
 # Specific variables
 #==============================================================================
 RESULT_DIR=results
-ANSIBLE_TAGS_DEV="upgrade,ci,install,venom,psonoci"
-ANSIBLE_TAGS_STABLE="upgrade,install,venom,psonoci"
+ANSIBLE_TAGS_DEV="upgrade,ci,common,venom,psonoci"
+ANSIBLE_TAGS_STABLE="upgrade,common,install,venom,psonoci"
 #==============================================================================
 # Targets
 #==============================================================================

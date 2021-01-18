@@ -8,7 +8,7 @@
   roles:
 
     - role: packetfence_common
-      tags: install
+      tags: common
 
     - role: packetfence_install
       tags: install
