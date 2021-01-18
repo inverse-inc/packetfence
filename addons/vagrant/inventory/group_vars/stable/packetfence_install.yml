@@ -1,0 +1,9 @@
+---
+packetfence_install__centos_release_rpm: 'http://packetfence.org/downloads/PacketFence/RHEL7/packetfence-release-7.stable.Noarch.rpm'
+packetfence_install__centos:
+  repos:
+    - packetfence
+
+packetfence_install__deb:
+  repos:
+    - debian
