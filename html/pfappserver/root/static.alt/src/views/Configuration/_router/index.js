@@ -10,6 +10,7 @@ import SourcesRoutes from '../sources/_router'
 import SwitchesRoutes from '../switches/_router'
 import SwitchGroupsRoutes from '../switchGroups/_router'
 import ConnectionProfilesRoutes from '../connectionProfiles/_router'
+import RemoteConnectionProfilesRoutes from '../remoteConnectionProfiles/_router'
 
 /* Compliance */
 const ComplianceSection = () => import(/* webpackChunkName: "Configuration" */ '../_components/ComplianceSection')
@@ -85,6 +86,8 @@ const route = {
     ...SwitchesRoutes,
     ...SwitchGroupsRoutes,
     ...ConnectionProfilesRoutes,
+    ...RemoteConnectionProfilesRoutes,
+
     /**
      * Compliance
      */
@@ -98,6 +101,7 @@ const route = {
     ...ScanEnginesRoutes,
     ...SecurityEventsRoutes,
     ...WmiRulesRoutes,
+
     /**
      * Integration
      */
@@ -113,6 +117,7 @@ const route = {
     ...SyslogForwardersRoutes,
     ...WrixRoutes,
     ...PkiRoutes,
+
     /**
      *  Advanced Access Configuration
      */
@@ -139,6 +144,7 @@ const route = {
     ...NetworksRoutes,
     ...FloatingDevicesRoutes,
     ...SnmpTrapsRoutes,
+
     /**
      * System Configuration
      */

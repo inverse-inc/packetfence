@@ -24,7 +24,7 @@ BEGIN {
     use setup_test_config;
 }
 
-use Test::More tests => 11;
+use Test::More tests => 16;
 
 #This test will running last
 use Test::NoWarnings;
@@ -34,8 +34,43 @@ use pf::ConfigStore;
 my $sb = pf::UnifiedApi::Search::Builder::Config->new();
 
 {
+    my $condition = $sb->make_condition(
+            {
+                query => {
+                    op    => 'contains',
+                    field => 'parent',
+                    value => undef,
+                }
+            }
+        );
+    isa_ok($condition, "pf::condition::false");
+}
+
+{
+    my $condition = $sb->make_condition(
+            {
+                query => {
+                    op    => 'equals',
+                    field => 'parent',
+                    value => undef,
+                }
+            }
+        );
+    isa_ok($condition, "pf::condition::key_undef");
     is_deeply(
-        $sb->make_condition(
+        $condition,
+        pf::condition::key_undef->new(
+            {
+                key       => 'parent',
+                condition => pf::condition::not_defined->new()
+            }
+        ),
+        'Build equals null'
+    );
+}
+
+{
+    my $condition = $sb->make_condition(
             {
                 query => {
                     op    => 'equals',
@@ -43,7 +78,11 @@ my $sb = pf::UnifiedApi::Search::Builder::Config->new();
                     value => "00:11:22:33:44:55",
                 }
             }
-        ),
+    );
+
+    isa_ok($condition, "pf::condition::key");
+    is_deeply(
+        $condition,
         pf::condition::key->new(
             {
                 key       => 'mac',
@@ -135,9 +174,73 @@ s=dbobh
 
 [j]
 s=ebobh
+t=bob
 
 FILE
     my $configStore = pf::ConfigStore->new(cachedConfig => pf::IniFiles->new(-file => \$file));
+
+    is_deeply(
+        [
+            $sb->search(
+                {
+                    configStore => $configStore,
+                    query       => {
+                        op    => 'equals',
+                        field => 't',
+                        value => undef,
+                    },
+                }
+            )
+        ],
+        [
+            200,
+            {
+                'prevCursor'  => 0,
+                'total_count' => 10,
+                'items'       => [
+                    {
+                        'id' => 'a',
+                        's'  => 'bob'
+                    },
+                    {
+                        'id' => 'b',
+                        's'  => 'bob'
+                    },
+                    {
+                        'id' => 'c',
+                        's'  => 'bob'
+                    },
+                    {
+                        'id' => 'd',
+                        's'  => 'bob'
+                    },
+                    {
+                        'id' => 'e',
+                        's'  => 'bob'
+                    },
+                    {
+                        'id' => 'f',
+                        's'  => 'abobh'
+                    },
+                    {
+                        'id' => 'g',
+                        's'  => 'bbobh'
+                    },
+                    {
+                        'id' => 'h',
+                        's'  => 'cbobh'
+                    },
+                    {
+                        'id' => 'i',
+                        's'  => 'dbobh'
+                    },
+                  ]
+
+            }
+        ],
+        "Test equals"
+    );
+
     is_deeply(
         [
             $sb->search(
@@ -327,7 +430,8 @@ FILE
                 items       => [
                     {
                         'id' => 'j',
-                        's'  => 'ebobh'
+                        's'  => 'ebobh',
+                        't'  => 'bob',
                     },
                 ],
             }
@@ -358,7 +462,8 @@ FILE
                 'items'       => [
                     {
                         'id' => 'j',
-                        's'  => 'ebobh'
+                        's'  => 'ebobh',
+                        't'  => 'bob',
                     },
                     {
                         'id' => 'i',

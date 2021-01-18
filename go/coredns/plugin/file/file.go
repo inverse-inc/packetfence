@@ -2,22 +2,26 @@
 package file
 
 import (
+	"context"
 	"fmt"
 	"io"
-	"log"
 
 	"github.com/inverse-inc/packetfence/go/coredns/plugin"
+	clog "github.com/inverse-inc/packetfence/go/coredns/plugin/pkg/log"
+	"github.com/inverse-inc/packetfence/go/coredns/plugin/transfer"
 	"github.com/inverse-inc/packetfence/go/coredns/request"
 
 	"github.com/miekg/dns"
-	"golang.org/x/net/context"
 )
+
+var log = clog.NewWithPlugin("file")
 
 type (
 	// File is the plugin that reads zone data from disk.
 	File struct {
-		Next  plugin.Handler
-		Zones Zones
+		Next plugin.Handler
+		Zones
+		transfer *transfer.Transfer
 	}
 
 	// Zones maps zone names to a *Zone.
@@ -48,41 +52,38 @@ func (f File) ServeDNS(ctx context.Context, w dns.ResponseWriter, r *dns.Msg) (i
 		if z.isNotify(state) {
 			m := new(dns.Msg)
 			m.SetReply(r)
-			m.Authoritative, m.RecursionAvailable, m.Compress = true, true, true
-			state.SizeAndDo(m)
+			m.Authoritative = true
 			w.WriteMsg(m)
 
-			log.Printf("[INFO] Notify from %s for %s: checking transfer", state.IP(), zone)
+			log.Infof("Notify from %s for %s: checking transfer", state.IP(), zone)
 			ok, err := z.shouldTransfer()
 			if ok {
 				z.TransferIn()
 			} else {
-				log.Printf("[INFO] Notify from %s for %s: no serial increase seen", state.IP(), zone)
+				log.Infof("Notify from %s for %s: no SOA serial increase seen", state.IP(), zone)
 			}
 			if err != nil {
-				log.Printf("[WARNING] Notify from %s for %s: failed primary check: %s", state.IP(), zone, err)
+				log.Warningf("Notify from %s for %s: failed primary check: %s", state.IP(), zone, err)
 			}
 			return dns.RcodeSuccess, nil
 		}
-		log.Printf("[INFO] Dropping notify from %s for %s", state.IP(), zone)
+		log.Infof("Dropping notify from %s for %s", state.IP(), zone)
 		return dns.RcodeSuccess, nil
 	}
 
-	if z.Expired != nil && *z.Expired {
-		log.Printf("[ERROR] Zone %s is expired", zone)
+	z.RLock()
+	exp := z.Expired
+	z.RUnlock()
+	if exp {
+		log.Errorf("Zone %s is expired", zone)
 		return dns.RcodeServerFailure, nil
 	}
 
-	if state.QType() == dns.TypeAXFR || state.QType() == dns.TypeIXFR {
-		xfr := Xfr{z}
-		return xfr.ServeDNS(ctx, w, r)
-	}
-
-	answer, ns, extra, result := z.Lookup(state, qname)
+	answer, ns, extra, result := z.Lookup(ctx, state, qname)
 
 	m := new(dns.Msg)
 	m.SetReply(r)
-	m.Authoritative, m.RecursionAvailable, m.Compress = true, true, true
+	m.Authoritative = true
 	m.Answer, m.Ns, m.Extra = answer, ns, extra
 
 	switch result {
@@ -96,8 +97,6 @@ func (f File) ServeDNS(ctx context.Context, w dns.ResponseWriter, r *dns.Msg) (i
 		return dns.RcodeServerFailure, nil
 	}
 
-	state.SizeAndDo(m)
-	m, _ = state.Scrub(m)
 	w.WriteMsg(m)
 	return dns.RcodeSuccess, nil
 }
@@ -113,36 +112,40 @@ type serialErr struct {
 }
 
 func (s *serialErr) Error() string {
-	return fmt.Sprintf("%s for origin %s in file %s, with serial %d", s.err, s.origin, s.zone, s.serial)
+	return fmt.Sprintf("%s for origin %s in file %s, with %d SOA serial", s.err, s.origin, s.zone, s.serial)
 }
 
 // Parse parses the zone in filename and returns a new Zone or an error.
 // If serial >= 0 it will reload the zone, if the SOA hasn't changed
 // it returns an error indicating nothing was read.
 func Parse(f io.Reader, origin, fileName string, serial int64) (*Zone, error) {
-	tokens := dns.ParseZone(f, dns.Fqdn(origin), fileName)
+	zp := dns.NewZoneParser(f, dns.Fqdn(origin), fileName)
+	zp.SetIncludeAllowed(true)
 	z := NewZone(origin, fileName)
 	seenSOA := false
-	for x := range tokens {
-		if x.Error != nil {
-			return nil, x.Error
+	for rr, ok := zp.Next(); ok; rr, ok = zp.Next() {
+		if err := zp.Err(); err != nil {
+			return nil, err
 		}
 
-		if !seenSOA && serial >= 0 {
-			if s, ok := x.RR.(*dns.SOA); ok {
-				if s.Serial == uint32(serial) { // same serial
+		if !seenSOA {
+			if s, ok := rr.(*dns.SOA); ok {
+				seenSOA = true
+
+				// -1 is valid serial is we failed to load the file on startup.
+
+				if serial >= 0 && s.Serial == uint32(serial) { // same serial
 					return nil, &serialErr{err: "no change in SOA serial", origin: origin, zone: fileName, serial: serial}
 				}
-				seenSOA = true
 			}
 		}
 
-		if err := z.Insert(x.RR); err != nil {
+		if err := z.Insert(rr); err != nil {
 			return nil, err
 		}
 	}
 	if !seenSOA {
-		return nil, fmt.Errorf("file %q has no SOA record", fileName)
+		return nil, fmt.Errorf("file %q has no SOA record for origin %s", fileName, origin)
 	}
 
 	return z, nil

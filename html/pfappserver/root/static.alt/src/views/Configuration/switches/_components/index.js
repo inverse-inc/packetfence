@@ -4,8 +4,7 @@ import {
   BaseFormGroupChosenOne,
   BaseFormGroupInput,
   BaseFormGroupInputNumber,
-  BaseFormGroupInputPassword,
-  BaseFormGroupTextarea,
+  BaseFormGroupInputPassword
 } from '@/components/new/'
 import BaseFormGroupInlineTrigger from './BaseFormGroupInlineTrigger'
 import BaseFormGroupToggleNYDefault from './BaseFormGroupToggleNYDefault'
@@ -35,10 +34,9 @@ export {
   BaseFormGroupInput                      as FormGroupMacSearchesSleepInterval,
   BaseFormGroupChosenOne                  as FormGroupMode,
   BaseFormGroupInputPassword              as FormGroupRadiusSecret,
-  BaseFormGroupTextarea                   as FormGroupRoleMapAccessList,
   BaseFormGroupInput                      as FormGroupRoleMapRole,
   BaseFormGroupInput                      as FormGroupRoleMapUrl,
-  BaseFormGroupInput                      as FormGroupRoleMapVlan,
+  BaseFormGroupInputNumber                as FormGroupRoleMapVlan,
   BaseFormGroupInput                      as FormGroupSnmpAuthProtocolTrap,
   BaseFormGroupInputPassword              as FormGroupSnmpAuthPasswordTrap,
   BaseFormGroupInput                      as FormGroupSnmpCommunityRead,
@@ -65,7 +63,6 @@ export {
   BaseFormGroupInput                      as FormGroupUplink,
   BaseFormGroupToggleStaticDynamicDefault as FormGroupUplinkDynamic,
   BaseFormGroupToggleNYDefault            as FormGroupUseCoa,
-  BaseFormGroupToggleNYDefault            as FormGroupToggleAccessListMap,
   BaseFormGroupToggleNYDefault            as FormGroupToggleRoleMap,
   BaseFormGroupToggleNYDefault            as FormGroupToggleUrlMap,
   BaseFormGroupToggleNYDefault            as FormGroupToggleVlanMap,

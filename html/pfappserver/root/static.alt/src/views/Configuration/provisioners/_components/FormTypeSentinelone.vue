@@ -64,7 +64,7 @@
       :column-label="$i18n.t('API password')"
     />
 
-    <form-group-windows-agent-download-uri namespace="win_agent_download_uri"
+    <form-group-windows-agent-download-uri namespace="windows_agent_download_uri"
       :column-label="$i18n.t('Windows agent download URI')"
     />
 

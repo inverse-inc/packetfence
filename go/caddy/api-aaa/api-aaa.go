@@ -234,7 +234,11 @@ func (h ApiAAAHandler) HandleAAA(w http.ResponseWriter, r *http.Request) bool {
 	if auth {
 		return true
 	} else {
-		w.WriteHeader(http.StatusForbidden)
+		if err.Error() == aaa.InvalidTokenInfoErr {
+			w.WriteHeader(http.StatusUnauthorized)
+		} else {
+			w.WriteHeader(http.StatusForbidden)
+		}
 		res, _ := json.Marshal(map[string]string{
 			"message": err.Error(),
 		})
@@ -253,9 +257,6 @@ func (h ApiAAAHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) (int, e
 
 	defer panichandler.Http(ctx, w)
 
-	// We always default to application/json
-	w.Header().Set("Content-Type", "application/json")
-
 	if handle, params, _ := h.router.Lookup(r.Method, r.URL.Path); handle != nil {
 		handle(w, r, params)
 
@@ -263,7 +264,15 @@ func (h ApiAAAHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) (int, e
 		return 0, nil
 	} else {
 		if h.HandleAAA(w, r) {
-			return h.Next.ServeHTTP(w, r)
+			code, err := h.Next.ServeHTTP(w, r)
+
+			// We default to application/json if there is no content type
+			if w.Header().Get("Content-Type") == "" {
+				w.Header().Set("Content-Type", "application/json")
+			}
+
+			return code, err
+
 		} else {
 			// TODO change me and wrap actions into something that handles server errors
 			return 0, nil

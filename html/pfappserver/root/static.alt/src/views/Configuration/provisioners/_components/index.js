@@ -54,6 +54,7 @@ export {
   BaseFormGroupInput                        as FormGroupIdentifier,
   BaseFormGroupInput                        as FormGroupIosAgentDownloadUri,
   BaseFormGroupInput                        as FormGroupIosDownloadUri,
+  BaseFormGroupInput                        as FormGroupLinuxAgentDownloadUri,
   BaseFormGroupInput                        as FormGroupLoginUrl,
   BaseFormGroupInput                        as FormGroupMacOsxAgentDownloadUri,
   BaseFormGroupChosenOne                    as FormGroupNonComplianceSecurityEvent,

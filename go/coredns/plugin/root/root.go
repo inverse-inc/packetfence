@@ -1,21 +1,17 @@
 package root
 
 import (
-	"log"
 	"os"
 
+	"github.com/coredns/caddy"
 	"github.com/inverse-inc/packetfence/go/coredns/core/dnsserver"
 	"github.com/inverse-inc/packetfence/go/coredns/plugin"
-
-	"github.com/mholt/caddy"
+	clog "github.com/inverse-inc/packetfence/go/coredns/plugin/pkg/log"
 )
 
-func init() {
-	caddy.RegisterPlugin("root", caddy.Plugin{
-		ServerType: "dns",
-		Action:     setup,
-	})
-}
+var log = clog.NewWithPlugin("root")
+
+func init() { plugin.Register("root", setup) }
 
 func setup(c *caddy.Controller) error {
 	config := dnsserver.GetConfig(c)
@@ -33,7 +29,7 @@ func setup(c *caddy.Controller) error {
 		if os.IsNotExist(err) {
 			// Allow this, because the folder might appear later.
 			// But make sure the user knows!
-			log.Printf("[WARNING] Root path does not exist: %s", config.Root)
+			log.Warningf("Root path does not exist: %s", config.Root)
 		} else {
 			return plugin.Error("root", c.Errf("unable to access root path '%s': %v", config.Root, err))
 		}

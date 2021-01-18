@@ -106,7 +106,6 @@ sub build_child {
     $self->{reverseLookup} = \%reverseLookup;
 
     return \%Profiles_Config;
-
 }
 
 =head1 AUTHOR

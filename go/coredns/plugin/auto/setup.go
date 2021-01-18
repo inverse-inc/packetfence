@@ -1,29 +1,23 @@
 package auto
 
 import (
-	"log"
 	"os"
-	"path"
+	"path/filepath"
 	"regexp"
-	"strconv"
 	"time"
 
+	"github.com/coredns/caddy"
 	"github.com/inverse-inc/packetfence/go/coredns/core/dnsserver"
 	"github.com/inverse-inc/packetfence/go/coredns/plugin"
-	"github.com/inverse-inc/packetfence/go/coredns/plugin/file"
 	"github.com/inverse-inc/packetfence/go/coredns/plugin/metrics"
-	"github.com/inverse-inc/packetfence/go/coredns/plugin/pkg/dnsutil"
-	"github.com/inverse-inc/packetfence/go/coredns/plugin/proxy"
-
-	"github.com/mholt/caddy"
+	clog "github.com/inverse-inc/packetfence/go/coredns/plugin/pkg/log"
+	"github.com/inverse-inc/packetfence/go/coredns/plugin/pkg/upstream"
+	"github.com/inverse-inc/packetfence/go/coredns/plugin/transfer"
 )
 
-func init() {
-	caddy.RegisterPlugin("auto", caddy.Plugin{
-		ServerType: "dns",
-		Action:     setup,
-	})
-}
+var log = clog.NewWithPlugin("auto")
+
+func init() { plugin.Register("auto", setup) }
 
 func setup(c *caddy.Controller) error {
 	a, err := autoParse(c)
@@ -33,10 +27,13 @@ func setup(c *caddy.Controller) error {
 
 	c.OnStartup(func() error {
 		m := dnsserver.GetConfig(c).Handler("prometheus")
-		if m == nil {
-			return nil
+		if m != nil {
+			(&a).metrics = m.(*metrics.Metrics)
 		}
-		(&a).metrics = m.(*metrics.Metrics)
+		t := dnsserver.GetConfig(c).Handler("transfer")
+		if t != nil {
+			(&a).transfer = t.(*transfer.Transfer)
+		}
 		return nil
 	})
 
@@ -49,7 +46,7 @@ func setup(c *caddy.Controller) error {
 		}
 
 		go func() {
-			ticker := time.NewTicker(a.loader.duration)
+			ticker := time.NewTicker(a.loader.ReloadInterval)
 			for {
 				select {
 				case <-walkChan:
@@ -76,9 +73,14 @@ func setup(c *caddy.Controller) error {
 }
 
 func autoParse(c *caddy.Controller) (Auto, error) {
+	nilInterval := -1 * time.Second
 	var a = Auto{
-		loader: loader{template: "${1}", re: regexp.MustCompile(`db\.(.*)`), duration: 60 * time.Second},
-		Zones:  &Zones{},
+		loader: loader{
+			template:       "${1}",
+			re:             regexp.MustCompile(`db\.(.*)`),
+			ReloadInterval: nilInterval,
+		},
+		Zones: &Zones{},
 	}
 
 	config := dnsserver.GetConfig(c)
@@ -95,27 +97,28 @@ func autoParse(c *caddy.Controller) (Auto, error) {
 		for i := range a.Zones.origins {
 			a.Zones.origins[i] = plugin.Host(a.Zones.origins[i]).Normalize()
 		}
+		a.loader.upstream = upstream.New()
 
 		for c.NextBlock() {
 			switch c.Val() {
-			case "directory": // directory DIR [REGEXP [TEMPLATE] [DURATION]]
+			case "directory": // directory DIR [REGEXP TEMPLATE]
 				if !c.NextArg() {
 					return a, c.ArgErr()
 				}
 				a.loader.directory = c.Val()
-				if !path.IsAbs(a.loader.directory) && config.Root != "" {
-					a.loader.directory = path.Join(config.Root, a.loader.directory)
+				if !filepath.IsAbs(a.loader.directory) && config.Root != "" {
+					a.loader.directory = filepath.Join(config.Root, a.loader.directory)
 				}
 				_, err := os.Stat(a.loader.directory)
 				if err != nil {
 					if os.IsNotExist(err) {
-						log.Printf("[WARNING] Directory does not exist: %s", a.loader.directory)
+						log.Warningf("Directory does not exist: %s", a.loader.directory)
 					} else {
 						return a, c.Errf("Unable to access root path '%s': %v", a.loader.directory, err)
 					}
 				}
 
-				// regexp
+				// regexp template
 				if c.NextArg() {
 					a.loader.re, err = regexp.Compile(c.Val())
 					if err != nil {
@@ -124,49 +127,37 @@ func autoParse(c *caddy.Controller) (Auto, error) {
 					if a.loader.re.NumSubexp() == 0 {
 						return a, c.Errf("Need at least one sub expression")
 					}
-				}
 
-				// template
-				if c.NextArg() {
+					if !c.NextArg() {
+						return a, c.ArgErr()
+					}
 					a.loader.template = rewriteToExpand(c.Val())
 				}
 
-				// duration
 				if c.NextArg() {
-					i, err := strconv.Atoi(c.Val())
-					if err != nil {
-						return a, err
-					}
-					if i < 1 {
-						i = 1
-					}
-					a.loader.duration = time.Duration(i) * time.Second
+					return Auto{}, c.ArgErr()
 				}
 
-			case "no_reload":
-				a.loader.noReload = true
+			case "reload":
+				d, err := time.ParseDuration(c.RemainingArgs()[0])
+				if err != nil {
+					return a, plugin.Error("file", err)
+				}
+				a.loader.ReloadInterval = d
 
 			case "upstream":
-				args := c.RemainingArgs()
-				if len(args) == 0 {
-					return a, c.ArgErr()
-				}
-				ups, err := dnsutil.ParseHostPortOrFile(args...)
-				if err != nil {
-					return a, err
-				}
-				a.loader.proxy = proxy.NewLookup(ups)
+				// remove soon
+				c.RemainingArgs() // eat remaining args
 
 			default:
-				t, _, e := file.TransferParse(c, false)
-				if e != nil {
-					return a, e
-				}
-				if t != nil {
-					a.loader.transferTo = append(a.loader.transferTo, t...)
-				}
+				return Auto{}, c.Errf("unknown property '%s'", c.Val())
 			}
 		}
 	}
+
+	if a.loader.ReloadInterval == nilInterval {
+		a.loader.ReloadInterval = 60 * time.Second
+	}
+
 	return a, nil
 }

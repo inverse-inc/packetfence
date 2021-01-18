@@ -52,14 +52,14 @@ yup.addMethod(yup.string, 'pathNotExists', function (entries, path, message) {
 
 const schemaAdvancedFilter = yup.object({
   field: yup.string().required(i18n.t('Field required.')),
-  op: yup.string().required(i18n.t('Operator required.')),
+  op: yup.string().nullable().required(i18n.t('Operator required.')),
   value: yup.string().required(i18n.t('Value required.')),
   values: yup.array().ensure().of(
     yup.lazy(() => { // avoid infinite nesting when casted
       return schemaAdvancedFilter.default(undefined) // recurse self
     })
   )
-})
+}).nullable()
 
 const schemaArrayItem = yup.string().required().label('Value')
 

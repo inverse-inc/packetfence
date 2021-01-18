@@ -1,20 +1,14 @@
 package whoami
 
 import (
+	"github.com/coredns/caddy"
 	"github.com/inverse-inc/packetfence/go/coredns/core/dnsserver"
 	"github.com/inverse-inc/packetfence/go/coredns/plugin"
-
-	"github.com/mholt/caddy"
 )
 
-func init() {
-	caddy.RegisterPlugin("whoami", caddy.Plugin{
-		ServerType: "dns",
-		Action:     setupWhoami,
-	})
-}
+func init() { plugin.Register("whoami", setup) }
 
-func setupWhoami(c *caddy.Controller) error {
+func setup(c *caddy.Controller) error {
 	c.Next() // 'whoami'
 	if c.NextArg() {
 		return plugin.Error("whoami", c.ArgErr())

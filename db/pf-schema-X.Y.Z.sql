@@ -110,6 +110,10 @@ CREATE TABLE `node_category` (
   `name` varchar(255) NOT NULL,
   `max_nodes_per_pid` int default 0,
   `notes` varchar(255) default NULL,
+  `include_parent_acls` varchar(255) default NULL,
+  `fingerbank_dynamic_access_list` varchar(255) default NULL,
+  `acls` TEXT NOT NULL,
+  `inherit_vlan` varchar(50) default NULL,
   PRIMARY KEY (`category_id`),
   UNIQUE KEY node_category_name (`name`)
 ) ENGINE=InnoDB;
@@ -1826,6 +1830,22 @@ BEGIN
     SELECT @count AS aggreated;
 END /
 DELIMITER ;
+
+--
+-- Table structure for remote clients
+--
+
+DROP TABLE if exists `remote_clients`;
+CREATE TABLE `remote_clients` (
+  id int NOT NULL AUTO_INCREMENT,
+  tenant_id int NOT NULL DEFAULT 1,
+  public_key varchar(255) NOT NULL,
+  mac varchar(17) NOT NULL,
+  created_at datetime NOT NULL,
+  updated_at datetime NOT NULL,
+  PRIMARY KEY (id),
+  UNIQUE KEY remote_clients_private_key (`public_key`)
+) ENGINE=InnoDB;
 
 --
 -- Updating to current version

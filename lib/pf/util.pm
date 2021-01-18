@@ -19,6 +19,7 @@ use warnings;
 no warnings 'portable';
 
 use Cwd;
+use Socket;
 use Number::Range;
 use File::Basename;
 use POSIX::2008;
@@ -112,6 +113,7 @@ BEGIN {
         extract
         ends_with
         split_pem
+        resolve
     );
 }
 
@@ -1716,6 +1718,18 @@ sub split_pem {
         }
     }
     return @parts;
+}
+
+sub resolve {
+    my ($name) = @_;
+    my $logger = get_logger;
+    my @addresses = gethostbyname($name);
+    unless(@addresses) {
+        $logger->error("Unable to resolve $name");
+        return undef;
+    }
+    @addresses = map { inet_ntoa($_) } @addresses[4 .. $#addresses];
+    return \@addresses;
 }
 
 =back

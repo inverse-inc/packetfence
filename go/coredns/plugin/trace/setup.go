@@ -5,18 +5,12 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/coredns/caddy"
 	"github.com/inverse-inc/packetfence/go/coredns/core/dnsserver"
 	"github.com/inverse-inc/packetfence/go/coredns/plugin"
-
-	"github.com/mholt/caddy"
 )
 
-func init() {
-	caddy.RegisterPlugin("trace", caddy.Plugin{
-		ServerType: "dns",
-		Action:     setup,
-	})
-}
+func init() { plugin.Register("trace", setup) }
 
 func setup(c *caddy.Controller) error {
 	t, err := traceParse(c)
@@ -36,23 +30,24 @@ func setup(c *caddy.Controller) error {
 
 func traceParse(c *caddy.Controller) (*trace, error) {
 	var (
-		tr  = &trace{Endpoint: defEP, EndpointType: defEpType, every: 1, serviceName: defServiceName}
+		tr  = &trace{every: 1, serviceName: defServiceName}
 		err error
 	)
 
 	cfg := dnsserver.GetConfig(c)
-	tr.ServiceEndpoint = cfg.ListenHost + ":" + cfg.Port
+	tr.serviceEndpoint = cfg.ListenHosts[0] + ":" + cfg.Port
+
 	for c.Next() { // trace
 		var err error
 		args := c.RemainingArgs()
 		switch len(args) {
 		case 0:
-			tr.Endpoint, err = normalizeEndpoint(tr.EndpointType, defEP)
+			tr.EndpointType, tr.Endpoint, err = normalizeEndpoint(defEpType, "")
 		case 1:
-			tr.Endpoint, err = normalizeEndpoint(defEpType, args[0])
+			tr.EndpointType, tr.Endpoint, err = normalizeEndpoint(defEpType, args[0])
 		case 2:
-			tr.EndpointType = strings.ToLower(args[0])
-			tr.Endpoint, err = normalizeEndpoint(tr.EndpointType, args[1])
+			epType := strings.ToLower(args[0])
+			tr.EndpointType, tr.Endpoint, err = normalizeEndpoint(epType, args[1])
 		default:
 			err = c.ArgErr()
 		}
@@ -88,26 +83,51 @@ func traceParse(c *caddy.Controller) (*trace, error) {
 				if err != nil {
 					return nil, err
 				}
+			case "datadog_analytics_rate":
+				args := c.RemainingArgs()
+				if len(args) > 1 {
+					return nil, c.ArgErr()
+				}
+				tr.datadogAnalyticsRate = 0
+				if len(args) == 1 {
+					tr.datadogAnalyticsRate,err = strconv.ParseFloat(args[0], 64)
+				}
+				if err != nil {
+					return nil, err
+				}
+				if tr.datadogAnalyticsRate > 1 || tr.datadogAnalyticsRate < 0 {
+					return nil,fmt.Errorf("datadog analytics rate must be between 0 and 1, '%f' is not supported", tr.datadogAnalyticsRate )
+				}
 			}
 		}
 	}
 	return tr, err
 }
 
-func normalizeEndpoint(epType, ep string) (string, error) {
-	switch epType {
-	case "zipkin":
+func normalizeEndpoint(epType, ep string) (string, string, error) {
+	if _, ok := supportedProviders[epType]; !ok {
+		return "", "", fmt.Errorf("tracing endpoint type '%s' is not supported", epType)
+	}
+
+	if ep == "" {
+		ep = supportedProviders[epType]
+	}
+
+	if epType == "zipkin" {
 		if !strings.Contains(ep, "http") {
 			ep = "http://" + ep + "/api/v1/spans"
 		}
-		return ep, nil
-	default:
-		return "", fmt.Errorf("tracing endpoint type '%s' is not supported", epType)
 	}
+
+	return epType, ep, nil
+}
+
+var supportedProviders = map[string]string{
+	"zipkin":  "localhost:9411",
+	"datadog": "localhost:8126",
 }
 
 const (
-	defEP          = "localhost:9411"
 	defEpType      = "zipkin"
 	defServiceName = "coredns"
 )

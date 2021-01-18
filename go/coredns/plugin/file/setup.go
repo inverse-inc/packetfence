@@ -1,24 +1,18 @@
 package file
 
 import (
-	"fmt"
 	"os"
-	"path"
+	"path/filepath"
+	"time"
 
+	"github.com/coredns/caddy"
 	"github.com/inverse-inc/packetfence/go/coredns/core/dnsserver"
 	"github.com/inverse-inc/packetfence/go/coredns/plugin"
-	"github.com/inverse-inc/packetfence/go/coredns/plugin/pkg/dnsutil"
-	"github.com/inverse-inc/packetfence/go/coredns/plugin/proxy"
-
-	"github.com/mholt/caddy"
+	"github.com/inverse-inc/packetfence/go/coredns/plugin/pkg/upstream"
+	"github.com/inverse-inc/packetfence/go/coredns/plugin/transfer"
 )
 
-func init() {
-	caddy.RegisterPlugin("file", caddy.Plugin{
-		ServerType: "dns",
-		Action:     setup,
-	})
-}
+func init() { plugin.Register("file", setup) }
 
 func setup(c *caddy.Controller) error {
 	zones, err := fileParse(c)
@@ -26,22 +20,43 @@ func setup(c *caddy.Controller) error {
 		return plugin.Error("file", err)
 	}
 
-	// Add startup functions to notify the master(s).
+	f := File{Zones: zones}
+	// get the transfer plugin, so we can send notifies and send notifies on startup as well.
+	c.OnStartup(func() error {
+		t := dnsserver.GetConfig(c).Handler("transfer")
+		if t == nil {
+			return nil
+		}
+		f.transfer = t.(*transfer.Transfer) // if found this must be OK.
+		for _, n := range zones.Names {
+			f.transfer.Notify(n)
+		}
+		return nil
+	})
+
+	c.OnRestartFailed(func() error {
+		t := dnsserver.GetConfig(c).Handler("transfer")
+		if t == nil {
+			return nil
+		}
+		for _, n := range zones.Names {
+			f.transfer.Notify(n)
+		}
+		return nil
+	})
+
 	for _, n := range zones.Names {
 		z := zones.Z[n]
+		c.OnShutdown(z.OnShutdown)
 		c.OnStartup(func() error {
-			z.StartupOnce.Do(func() {
-				if len(z.TransferTo) > 0 {
-					z.Notify()
-				}
-				z.Reload()
-			})
+			z.StartupOnce.Do(func() { z.Reload(f.transfer) })
 			return nil
 		})
 	}
 
 	dnsserver.GetConfig(c).AddPlugin(func(next plugin.Handler) plugin.Handler {
-		return File{Next: next, Zones: zones}
+		f.Next = next
+		return f
 	})
 
 	return nil
@@ -50,9 +65,11 @@ func setup(c *caddy.Controller) error {
 func fileParse(c *caddy.Controller) (Zones, error) {
 	z := make(map[string]*Zone)
 	names := []string{}
-	origins := []string{}
 
 	config := dnsserver.GetConfig(c)
+
+	var openErr error
+	reload := 1 * time.Minute
 
 	for c.Next() {
 		// file db.file [zones...]
@@ -61,111 +78,67 @@ func fileParse(c *caddy.Controller) (Zones, error) {
 		}
 		fileName := c.Val()
 
-		origins = make([]string, len(c.ServerBlockKeys))
+		origins := make([]string, len(c.ServerBlockKeys))
 		copy(origins, c.ServerBlockKeys)
 		args := c.RemainingArgs()
 		if len(args) > 0 {
 			origins = args
 		}
 
-		if !path.IsAbs(fileName) && config.Root != "" {
-			fileName = path.Join(config.Root, fileName)
+		if !filepath.IsAbs(fileName) && config.Root != "" {
+			fileName = filepath.Join(config.Root, fileName)
 		}
 
 		reader, err := os.Open(fileName)
 		if err != nil {
-			// bail out
-			return Zones{}, err
+			openErr = err
 		}
 
 		for i := range origins {
 			origins[i] = plugin.Host(origins[i]).Normalize()
-			zone, err := Parse(reader, origins[i], fileName, 0)
-			if err == nil {
-				z[origins[i]] = zone
-			} else {
-				return Zones{}, err
+			z[origins[i]] = NewZone(origins[i], fileName)
+			if openErr == nil {
+				reader.Seek(0, 0)
+				zone, err := Parse(reader, origins[i], fileName, 0)
+				if err == nil {
+					z[origins[i]] = zone
+				} else {
+					return Zones{}, err
+				}
 			}
 			names = append(names, origins[i])
 		}
 
-		noReload := false
-		prxy := proxy.Proxy{}
-		t := []string{}
-		var e error
-
 		for c.NextBlock() {
 			switch c.Val() {
-			case "transfer":
-				t, _, e = TransferParse(c, false)
-				if e != nil {
-					return Zones{}, e
-				}
-
-			case "no_reload":
-				noReload = true
-
-			case "upstream":
-				args := c.RemainingArgs()
-				if len(args) == 0 {
-					return Zones{}, c.ArgErr()
-				}
-				ups, err := dnsutil.ParseHostPortOrFile(args...)
+			case "reload":
+				d, err := time.ParseDuration(c.RemainingArgs()[0])
 				if err != nil {
-					return Zones{}, err
+					return Zones{}, plugin.Error("file", err)
 				}
-				prxy = proxy.NewLookup(ups)
+				reload = d
+			case "upstream":
+				// remove soon
+				c.RemainingArgs()
+
 			default:
 				return Zones{}, c.Errf("unknown property '%s'", c.Val())
 			}
-
-			for _, origin := range origins {
-				if t != nil {
-					z[origin].TransferTo = append(z[origin].TransferTo, t...)
-				}
-				z[origin].NoReload = noReload
-				z[origin].Proxy = prxy
-			}
 		}
+	}
+
+	for origin := range z {
+		z[origin].ReloadInterval = reload
+		z[origin].Upstream = upstream.New()
+	}
+
+	if openErr != nil {
+		if reload == 0 {
+			// reload hasn't been set make this a fatal error
+			return Zones{}, plugin.Error("file", openErr)
+		}
+		log.Warningf("Failed to open %q: trying again in %s", openErr, reload)
+
 	}
 	return Zones{Z: z, Names: names}, nil
-}
-
-// TransferParse parses transfer statements: 'transfer to [address...]'.
-func TransferParse(c *caddy.Controller, secondary bool) (tos, froms []string, err error) {
-	if !c.NextArg() {
-		return nil, nil, c.ArgErr()
-	}
-	value := c.Val()
-	switch value {
-	case "to":
-		tos = c.RemainingArgs()
-		for i := range tos {
-			if tos[i] != "*" {
-				normalized, err := dnsutil.ParseHostPort(tos[i], "53")
-				if err != nil {
-					return nil, nil, err
-				}
-				tos[i] = normalized
-			}
-		}
-
-	case "from":
-		if !secondary {
-			return nil, nil, fmt.Errorf("can't use `transfer from` when not being a secondary")
-		}
-		froms = c.RemainingArgs()
-		for i := range froms {
-			if froms[i] != "*" {
-				normalized, err := dnsutil.ParseHostPort(froms[i], "53")
-				if err != nil {
-					return nil, nil, err
-				}
-				froms[i] = normalized
-			} else {
-				return nil, nil, fmt.Errorf("can't use '*' in transfer from")
-			}
-		}
-	}
-	return
 }

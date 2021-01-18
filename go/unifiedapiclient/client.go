@@ -13,6 +13,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/davecgh/go-spew/spew"
 	"github.com/inverse-inc/packetfence/go/log"
 	"github.com/inverse-inc/packetfence/go/pfconfigdriver"
 	"github.com/inverse-inc/packetfence/go/sharedutils"
@@ -39,6 +40,10 @@ func init() {
 	}
 }
 
+func SetHTTPClient(hc *http.Client) {
+	httpClient = hc
+}
+
 const UnsetTenantId = -1
 
 type Client struct {
@@ -48,6 +53,9 @@ type Client struct {
 	Port     string
 	token    string
 	tenantId int
+
+	// When set to true, the URI log will be made in debug instead of info
+	URILogDebug bool
 }
 
 type DummyReply struct{}
@@ -56,8 +64,26 @@ type LoginReply struct {
 	Token string `json:"token"`
 }
 
+type UnifiedAPIError interface {
+	Error() string
+	StatusCode() int
+}
+
 type ErrorReply struct {
 	Message string `json:"message"`
+	Status  int    `json:"status"`
+}
+
+func (er *ErrorReply) Error() string {
+	return er.Message
+}
+
+func (er *ErrorReply) StatusCode() int {
+	return er.Status
+}
+
+func NewErrorReply(status int, msg string) *ErrorReply {
+	return &ErrorReply{Message: msg, Status: status}
 }
 
 func New(ctx context.Context, username, password, proto, host, port string) *Client {
@@ -80,30 +106,34 @@ func NewFromConfig(ctx context.Context) *Client {
 	return New(ctx, apiUser.User, apiUser.Pass, webservices.Proto, webservices.Host, webservices.UnifiedAPIPort)
 }
 
-func (c *Client) Call(ctx context.Context, method, path string, decodeResponseIn interface{}) error {
+func (c *Client) Call(ctx context.Context, method, path string, decodeResponseIn interface{}) UnifiedAPIError {
 	return c.CallWithStringBody(ctx, method, path, "", decodeResponseIn)
 }
 
-func (c *Client) CallWithBody(ctx context.Context, method, path string, payload interface{}, decodeResponseIn interface{}) error {
+func (c *Client) CallWithBody(ctx context.Context, method, path string, payload interface{}, decodeResponseIn interface{}) UnifiedAPIError {
 	data, err := json.Marshal(payload)
 	sharedutils.CheckError(err)
 	return c.CallWithStringBody(ctx, method, path, string(data), decodeResponseIn)
 }
 
-func (c *Client) CallWithStringBody(ctx context.Context, method, path, body string, decodeResponseIn interface{}) error {
+func (c *Client) CallWithStringBody(ctx context.Context, method, path, body string, decodeResponseIn interface{}) UnifiedAPIError {
 	r := c.buildRequest(ctx, method, path, body)
 	resp, err := httpClient.Do(r)
 	defer c.ensureRequestComplete(ctx, resp)
 
 	if err != nil {
-		return err
+		return NewErrorReply(0, err.Error())
 	}
 
 	// Lower than 400 is a success
 	if resp.StatusCode < 400 {
 		dec := json.NewDecoder(resp.Body)
 		err := dec.Decode(decodeResponseIn)
-		return err
+		if err != nil {
+			return NewErrorReply(0, err.Error())
+		} else {
+			return nil
+		}
 
 		// If we got a 401 and aren't currently logging in then we try to login and retry the request
 	} else if resp.StatusCode == http.StatusUnauthorized && path != API_LOGIN_PATH {
@@ -111,20 +141,21 @@ func (c *Client) CallWithStringBody(ctx context.Context, method, path, body stri
 		err := c.login(ctx)
 
 		if err != nil {
-			return err
+			spew.Dump(err)
+			return NewErrorReply(resp.StatusCode, err.Error())
 		}
 
 		return c.CallWithStringBody(ctx, method, path, body, decodeResponseIn)
 	} else {
-		errRep := ErrorReply{}
+		errRep := &ErrorReply{Status: resp.StatusCode}
 		dec := json.NewDecoder(resp.Body)
 		err := dec.Decode(&errRep)
 
 		if err != nil {
-			return errors.New("Error body doesn't follow the Unified API standard, couldn't extract the error message from it.")
+			return NewErrorReply(resp.StatusCode, "Error body doesn't follow the Unified API standard, couldn't extract the error message from it.")
 		}
 
-		return errors.New(errRep.Message)
+		return errRep
 	}
 }
 
@@ -153,7 +184,7 @@ func (c *Client) CallSimpleHtml(ctx context.Context, method, path, body string) 
 
 		return c.CallSimpleHtml(ctx, method, path, body)
 	} else {
-		errRep := ErrorReply{}
+		errRep := &ErrorReply{}
 		dec := json.NewDecoder(resp.Body)
 		err := dec.Decode(&errRep)
 
@@ -175,7 +206,7 @@ func (c *Client) ensureRequestComplete(ctx context.Context, resp *http.Response)
 	io.Copy(ioutil.Discard, resp.Body)
 }
 
-func (c *Client) login(ctx context.Context) error {
+func (c *Client) login(ctx context.Context) UnifiedAPIError {
 	loginBody := map[string]string{
 		"username": c.Username,
 		"password": c.Password,
@@ -186,10 +217,10 @@ func (c *Client) login(ctx context.Context) error {
 
 	reply := LoginReply{}
 
-	err = c.CallWithStringBody(ctx, "POST", API_LOGIN_PATH, string(loginBodyBytes), &reply)
-	if err != nil {
+	errRep := c.CallWithStringBody(ctx, "POST", API_LOGIN_PATH, string(loginBodyBytes), &reply)
+	if errRep != nil {
 		log.LoggerWContext(ctx).Error(fmt.Sprintf("Error while performing a login on the UnifiedAPI: %s", err))
-		return err
+		return errRep
 	}
 
 	c.token = reply.Token
@@ -199,7 +230,12 @@ func (c *Client) login(ctx context.Context) error {
 
 func (c *Client) buildRequest(ctx context.Context, method, path, body string) *http.Request {
 	uri := fmt.Sprintf("https://%s:%s%s", c.Host, c.Port, path)
-	log.LoggerWContext(ctx).Info("Calling Unified API on uri: " + uri)
+
+	logFunc := log.LoggerWContext(ctx).Info
+	if c.URILogDebug {
+		logFunc = log.LoggerWContext(ctx).Debug
+	}
+	logFunc("Calling Unified API on uri: " + uri)
 
 	bodyReader := strings.NewReader("")
 	if body != "" {
@@ -226,4 +262,8 @@ func (c *Client) SetTenantId(ctx context.Context, tenantId int) {
 
 func (c *Client) ResetTenantId(ctx context.Context) {
 	c.tenantId = UnsetTenantId
+}
+
+func (c *Client) GetToken(ctx context.Context) string {
+	return c.token
 }

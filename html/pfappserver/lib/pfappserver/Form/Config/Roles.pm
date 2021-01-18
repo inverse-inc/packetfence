@@ -12,11 +12,14 @@ Form definition to create or update a role.
 
 use HTML::FormHandler::Moose;
 extends 'pfappserver::Base::Form';
-with 'pfappserver::Base::Form::Role::Help';
+with qw(
+    pfappserver::Base::Form::Role::Help
+    pfappserver::Role::Form::RolesAttribute
+);
 
 use HTTP::Status qw(:constants is_success);
 
-use pf::config;
+use pf::config qw(%ConfigRoles);
 use pf::constants::role qw(@ROLES);
 
 has_field 'id' =>
@@ -40,15 +43,50 @@ has_field 'notes' =>
    label => 'Description',
    required => 0,
   );
+
+has_field 'parent_id' =>
+  (
+   type => 'Select',
+   options_method => \&options_parent_id,
+   label => 'Parent',
+   required => 0,
+  );
+
 has_field 'max_nodes_per_pid' =>
   (
    type => 'PosInteger',
    label => 'Max nodes per user',
    default => 0,
-   required => 1,
    tags => { after_element => \&help,
              help => 'The maximum number of nodes a user having this role can register. A number of 0 means unlimited number of devices.' },
   );
+
+has_field 'include_parent_acls' => (
+    type => 'Toggle',
+    checkbox_value => 'enabled',
+    unchecked_value => 'disabled',
+    label => 'Include parent ACLs',
+);
+
+has_field 'fingerbank_dynamic_access_list' => (
+    type => 'Toggle',
+    checkbox_value => 'enabled',
+    unchecked_value => 'disabled',
+    label => 'Enabled Fingerbank Dynamic AccessList',
+);
+
+has_field 'acls' => (
+    type => 'TextArea',
+    label => 'ACLs',
+);
+
+has_field 'inherit_vlan' => (
+    type => 'Toggle',
+    label => 'Inherit VLAN',
+    checkbox_value => 'enabled',
+    unchecked_value => 'disabled',
+    default => 'disabled',
+);
 
 =head2 validate
 
@@ -60,10 +98,41 @@ Make sure the role name is unique.
 
 sub validate {
     my $self = shift;
-
-    if (grep { $_ eq ($self->value->{id} // '')  } @ROLES) {
+    my $value = $self->value;
+    my $id = $value->{id} // '';
+    if (grep { $_ eq $id  } @ROLES) {
         $self->field('id')->add_error('This is a reserved name.');
     }
+
+    my $parent_id = $value->{parent_id};
+    if (defined $parent_id) {
+        if ( $id eq $parent_id) {
+            $self->field('parent_id')->add_error('Cannot be your own parent.');
+        }
+        $parent_id = $ConfigRoles{$parent_id}{parent_id};
+        while (defined $parent_id) {
+            if ( $id eq $parent_id) {
+                $self->field('parent_id')->add_error('Cannot have a parent of your descendents.');
+                last;
+            }
+            $parent_id = $ConfigRoles{$parent_id}{parent_id};
+        }
+
+    }
+
+}
+
+=head2 options_parent_id
+
+=cut
+
+sub options_parent_id {
+    my $self = shift;
+    my $form = $self->form;
+    my $id = $form->value->{id} // $form->fif->{id};
+    my $no_id = !defined $id || $id eq '';
+    my @roles = map { { value => $_->{name}, label => $_->{name} } } grep { $no_id || $_->{name} ne $id }  @{$form->roles} if ($form->roles);
+    return @roles;
 }
 
 =head1 COPYRIGHT
@@ -90,4 +159,5 @@ USA.
 =cut
 
 __PACKAGE__->meta->make_immutable unless $ENV{"PF_SKIP_MAKE_IMMUTABLE"};
+
 1;

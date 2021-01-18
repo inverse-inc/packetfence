@@ -35,6 +35,7 @@ type PfssoHandler struct {
 	router *httprouter.Router
 	// The cache for the cached updates feature
 	updateCache *cache.Cache
+	firewalls   *firewallsso.FirewallsContainer
 }
 
 // Setup the pfsso middleware
@@ -49,7 +50,8 @@ func setup(c *caddy.Controller) error {
 	}
 
 	// Declare all pfconfig resources that will be necessary
-	pfconfigdriver.PfconfigPool.AddRefreshable(ctx, &firewallsso.Firewalls)
+	pfsso.firewalls = firewallsso.NewFirewallsContainer(ctx)
+	pfconfigdriver.PfconfigPool.AddRefreshable(ctx, pfsso.firewalls)
 	pfconfigdriver.PfconfigPool.AddStruct(ctx, &pfconfigdriver.Config.Interfaces.ManagementNetwork)
 
 	httpserver.GetConfig(c).AddMiddleware(func(next httpserver.Handler) httpserver.Handler {
@@ -162,7 +164,7 @@ func (h PfssoHandler) handleUpdate(w http.ResponseWriter, r *http.Request, p htt
 	ctx = h.addInfoToContext(ctx, info)
 
 	var shouldStart bool
-	for _, firewall := range firewallsso.Firewalls.Structs {
+	for _, firewall := range h.firewalls.All(ctx) {
 		cacheKey := firewall.GetFirewallSSO(ctx).PfconfigHashNS + "|mac|" + info["mac"] + "|ip|" + info["ip"] + "|username|" + info["username"] + "|role|" + info["role"]
 		// Check whether or not this firewall has cache updates
 		// Then check if an entry in the cache exists
@@ -229,7 +231,7 @@ func (h PfssoHandler) handleStart(w http.ResponseWriter, r *http.Request, p http
 
 	ctx = h.addInfoToContext(ctx, info)
 
-	for _, firewall := range firewallsso.Firewalls.Structs {
+	for _, firewall := range h.firewalls.All(ctx) {
 		//Creating a shallow copy here so the anonymous function has the right reference
 		firewall := firewall
 		h.spawnSso(ctx, firewall, info, func(info map[string]string) (bool, error) {
@@ -261,7 +263,7 @@ func (h PfssoHandler) handleStop(w http.ResponseWriter, r *http.Request, p httpr
 		}
 	}
 
-	for _, firewall := range firewallsso.Firewalls.Structs {
+	for _, firewall := range h.firewalls.All(ctx) {
 		//Creating a shallow copy here so the anonymous function has the right reference
 		firewall := firewall
 		h.spawnSso(ctx, firewall, info, func(info map[string]string) (bool, error) {

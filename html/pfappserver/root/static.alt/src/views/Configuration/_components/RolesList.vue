@@ -9,17 +9,45 @@
             {{ $t('Roles') }}
             <pf-button-help class="ml-1" url="PacketFence_Installation_Guide.html#_introduction_to_role_based_access_control" />
           </h4>
+          <b-row v-if="parentTree.length > 0"
+            class="mt-3">
+            <b-col cols="auto">
+              <b-button variant="link" class="px-0 mr-2 text-secondary" :to="{ name: 'roles' }">
+                <icon name="times" variant="primary"></icon>
+              </b-button>
+              <b-button v-for="(parent, index) in parentTreeReverse" :key="parent.id" variant="link" class="px-0 mr-2 text-primary" :disabled="index === parentTree.length - 1" :to="{ name: 'rolesByParentId', params: { parentId: parent.id } }">
+                <icon v-if="index > 0" name="caret-right" variant="text-secondary" class="mr-1"></icon>
+                {{ parent.id }}
+              </b-button>
+            </b-col>
+          </b-row>
         </b-card-header>
       </template>
+
       <template v-slot:buttonAdd>
         <b-button variant="outline-primary" :to="{ name: 'newRole' }">{{ $t('New Role') }}</b-button>
       </template>
       <template v-slot:emptySearch="state">
         <pf-empty-table :isLoading="state.isLoading">{{ $t('No roles found') }}</pf-empty-table>
       </template>
+      <template v-slot:cell(id)="item">
+        <b-button size="sm" variant="outline-primary" class="mr-1" @click.stop.prevent="setParentId(item.id)" v-if="item.children">
+          <span class="text-nowrap align-items-center ml-2">
+            {{ item.id }} <icon name="plus-circle" class="ml-2"></icon>
+          </span>
+        </b-button>
+        <span v-else>
+          {{ item.id }}
+        </span>
+      </template>
       <template v-slot:cell(buttons)="item">
         <span class="float-right text-nowrap text-right">
-          <pf-button-delete size="sm" variant="outline-danger" class="mr-1" :disabled="isLoading" :confirm="$t('Delete Role?')" @on-delete="remove(item)" reverse/>
+          <pf-button-delete v-if="!item.not_deletable"
+            size="sm" variant="outline-danger" class="mr-1"
+            :disabled="isLoading" :confirm="$t('Delete Role?')"
+            @on-delete="remove(item)"
+            reverse
+          />
           <b-button size="sm" variant="outline-primary" class="mr-1" @click.stop.prevent="clone(item)">{{ $t('Clone') }}</b-button>
           <b-button v-if="isInline" size="sm" variant="outline-primary" class="mr-1" :to="trafficShapingRoute(item.id)">{{ $t('Traffic Shaping') }}</b-button>
         </span>
@@ -80,6 +108,12 @@ export default {
     pfEmptyTable,
     pfFormSelect
   },
+  props: {
+    parentId: {
+      type: [String, Number],
+      default: null
+    }
+  },
   data () {
     return {
       config: config(this),
@@ -89,7 +123,8 @@ export default {
       deleteErrors: [],
       showDeleteErrorsModal: false,
       roles: [],
-      reassignRole: 'default'
+      reassignRole: 'default',
+      parentTree: []
     }
   },
   computed: {
@@ -103,6 +138,10 @@ export default {
       return this.roles
         .filter(role => role.id !== this.deleteId)
         .map(role => ({ text: role.id, value: role.id }))
+    },
+    parentTreeReverse () {
+      // parentTree.reverse() issue within template, mutates Array immediately and causes infinite-loop w/ reactivity updates.
+      return Array.prototype.slice.call(this.parentTree).reverse()
     }
   },
   methods: {
@@ -133,7 +172,27 @@ export default {
       return (this.trafficShapingPolicies.includes(id))
         ? { name: 'traffic_shaping', params: { id } } // exists
         : { name: 'newTrafficShaping', params: { role: id } } // not exists
+    },
+    setParentId (id) {
+      this.$router.push({ name: 'rolesByParentId', params: { parentId: id } })
+    },
+    clearParentId () {
+      this.$router.push({ name: 'roles' })
+    },
+    buildParentTree (parentId, index = 0) {
+      if (index === 0)
+        this.$set(this, 'parentTree', [])
+      if (parentId) {
+        this.$store.dispatch('$_roles/getRole', parentId).then(data => {
+          this.$set(this.parentTree, index, data)
+          if (data.parent_id)
+            this.buildParentTree(data.parent_id, ++index)
+        })
+      }
     }
+  },
+  mounted () {
+    this.buildParentTree(this.parentId) // build parentTree
   },
   created () {
     this.$store.dispatch('$_roles/all').then(roles => {
@@ -142,6 +201,16 @@ export default {
     this.$store.dispatch('$_traffic_shaping_policies/all').then(response => {
       this.trafficShapingPolicies = response.map(policy => policy.id)
     })
+  },
+  watch: {
+    parentId: { // reset search when `parentId` changes
+      handler: function (a, b) {
+        if (a !== b) {
+          this.config = config(this) // reset config
+        }
+        this.buildParentTree(a) // build parentTree
+      }
+    }
   }
 }
 </script>

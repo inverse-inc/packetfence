@@ -577,6 +577,11 @@ sub _add_role_mappings {
         wrap_label_method => \&role_label_wrap,
     };
     push(@$list, $role . 'AccessList' => $text_area_field);
+    
+    my $toggle_field = {
+        type    => 'Toggle',
+    };
+    push(@$list, $role . 'DynamicAccessListFingerbank' => $toggle_field);
 }
 
 sub role_label_wrap {

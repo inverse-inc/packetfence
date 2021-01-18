@@ -40,6 +40,7 @@ use pfappserver::Form::Config::Provisioning::windows;
 use pfappserver::Form::Config::Provisioning::intune;
 use pfappserver::Form::Config::Provisioning::servicenow;
 use pfappserver::Form::Config::Provisioning::airwatch;
+use pfappserver::Form::Config::Provisioning::packetfence_ztn;
 
 our %TYPES_TO_FORMS = (
     map { $_ => "pfappserver::Form::Config::Provisioning::$_" } qw(
@@ -59,6 +60,7 @@ our %TYPES_TO_FORMS = (
       intune
       servicenow
       airwatch
+      packetfence_ztn
     )
 );
 

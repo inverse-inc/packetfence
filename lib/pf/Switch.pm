@@ -36,6 +36,7 @@ use pf::config qw(
     $WIRED_802_1X
     $WIRED_MAC_AUTH
     $NO_VOIP
+    %ConfigRoles
 );
 use Errno qw(EINTR);
 use pf::file_paths qw(
@@ -606,21 +607,29 @@ sub getVlanByName {
     my ($self, $vlanName) = @_;
     my $logger = $self->logger;
 
-    if (!defined($self->{'_vlans'}) || !defined($self->{'_vlans'}->{$vlanName})) {
+    if (!defined($self->{'_vlans'}) || !defined($self->{'_vlans'}{$vlanName})) {
+        my $parent = _parentRoleForVlan($vlanName);
+        if (defined $parent && length($parent)) {
+            return $self->getVlanByName($parent);
+        }
         # VLAN name doesn't exist
         $pf::StatsD::statsd->increment(called() . ".error" );
         $logger->warn("No parameter ${vlanName}Vlan found in conf/switches.conf for the switch " . $self->{_id});
         return undef;
     }
 
-    if ($vlanName eq "inline" && length($self->{'_vlans'}->{$vlanName}) == 0) {
+    if ($vlanName eq "inline" && length($self->{'_vlans'}{$vlanName}) == 0) {
         # VLAN empty, return 0 for Inline
         $logger->trace("No parameter ${vlanName}Vlan found in conf/switches.conf for the switch " . $self->{_id} .
                       ". Please ignore if your intentions were to use the native VLAN");
         return 0;
     }
 
-    if (length $self->{'_vlans'}->{$vlanName} < 1 ) {
+    if (length $self->{'_vlans'}{$vlanName} < 1 ) {
+        my $parent = _parentRoleForVlan($vlanName);
+        if (defined $parent && length($parent)) {
+            return $self->getVlanByName($parent);
+        }
         # is not resolved to a valid VLAN identifier
         $logger->warn("VLAN $vlanName is not properly configured in switches.conf for the switch " . $self->{_id} .
                       ", not a VLAN identifier");
@@ -630,20 +639,39 @@ sub getVlanByName {
     return $self->{'_vlans'}->{$vlanName};
 }
 
+sub _parentRoleForVlan {
+    my ($name) = @_;
+    if (!exists $ConfigRoles{$name}) {
+        return undef;
+    }
+
+    my $role = $ConfigRoles{$name};
+    if (isdisabled($role->{inherit_vlan} // 'disabled')) {
+        return undef;
+    }
+
+    return $role->{parent_id};
+}
+
 sub getAccessListByName {
-    my ($self, $access_list_name) = @_;
+    my ($self, $access_list_name, $mac) = @_;
     my $logger = $self->logger;
+    return if !exists $ConfigRoles{$access_list_name};
+    my $role = $ConfigRoles{$access_list_name};
+    return if !exists $role->{acls};
+    my $acls = $role->{acls} // [];
 
-    # skip if not defined or empty
-    return if (!defined($self->{'_access_lists'}) || !%{$self->{'_access_lists'}});
+    # Change to a check for FB ACL enabled
+    my $fb_acl = [];
+    if( isenabled($role->{fingerbank_dynamic_access_list})) {
+        $fb_acl = $self->fingerbank_dynamic_acl($mac);
+    }
 
-    # return if found
-    return $self->{'_access_lists'}->{$access_list_name} if (defined($self->{'_access_lists'}->{$access_list_name}));
+    return join("\n", @$acls, @$fb_acl) ."\n" if @$acls || @$fb_acl;
 
     # otherwise log and return undef
     $logger->trace("No parameter ${access_list_name}AccessList found in conf/switches.conf for the switch " . $self->{_id});
     return;
-
 }
 
 =item getUrlByName
@@ -3629,6 +3657,59 @@ sub generateACL {
 sub canDoCliAccess {
     my ($self) = @_;
     return isenabled($self->{_cliAccess});
+}
+
+sub fingerbank_dynamic_acl {
+    my ($self, $mac) = @_;
+    my $logger = $self->logger;
+
+    my @acls;
+    
+    # Always allow access to DHCP and DNS
+    push @acls, $self->generateACL({allow => 1, proto => "udp", dst_port => 67});
+    push @acls, $self->generateACL({allow => 1, proto => "udp", dst_port => 68});
+    push @acls, $self->generateACL({allow => 1, proto => "udp", dst_port => 53});
+    push @acls, $self->generateACL({allow => 1, proto => "tcp", dst_port => 53});
+
+    my $hosts_ports = pf::fingerbank::get_hosts_ports($mac);
+    for my $host_port (@$hosts_ports) {
+        my $host;
+        my $port;
+        if($host_port =~ /(.+):([0-9]+|\*)$/) {
+            $host = $1;
+            $port = $2;
+            my $args = {allow => 1};
+            my @protos;
+
+            if($port ne "*") {
+                $args->{dst_port} = $port;
+                @protos = ("tcp", "udp");
+            }
+            else {
+                @protos = ("ip");
+            }
+
+            for my $proto (@protos) {
+                $args->{proto} = $proto;
+                if($host ne "*") {
+                    my $addresses = resolve($host);
+                    next unless defined($addresses);
+                    for my $addr (@$addresses) {
+                        $args->{dst_host} = $addr;
+                        push @acls, $self->generateACL($args);
+                    }
+                }
+                else {
+                    push @acls, $self->generateACL($args);
+                }
+            }
+        }
+        else {
+            $logger->warn("Ignoring invalid Fingerbank host/port entry '$host_port'");
+        }
+    }
+
+    return \@acls;
 }
 
 =back

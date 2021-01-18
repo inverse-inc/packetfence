@@ -1,53 +1,54 @@
 package file
 
 import (
-	"log"
 	"os"
 	"time"
+
+	"github.com/inverse-inc/packetfence/go/coredns/plugin/transfer"
 )
 
-// TickTime is the default time we use to reload zone. Exported to be tweaked in tests.
-var TickTime = 1 * time.Minute
-
-// Reload reloads a zone when it is changed on disk. If z.NoRoload is true, no reloading will be done.
-func (z *Zone) Reload() error {
-	if z.NoReload {
+// Reload reloads a zone when it is changed on disk. If z.NoReload is true, no reloading will be done.
+func (z *Zone) Reload(t *transfer.Transfer) error {
+	if z.ReloadInterval == 0 {
 		return nil
 	}
-
-	tick := time.NewTicker(TickTime)
+	tick := time.NewTicker(z.ReloadInterval)
 
 	go func() {
-
 		for {
 			select {
-
 			case <-tick.C:
-				reader, err := os.Open(z.file)
+				zFile := z.File()
+				reader, err := os.Open(zFile)
 				if err != nil {
-					log.Printf("[ERROR] Failed to open zone %q in %q: %v", z.origin, z.file, err)
+					log.Errorf("Failed to open zone %q in %q: %v", z.origin, zFile, err)
 					continue
 				}
 
 				serial := z.SOASerialIfDefined()
-				zone, err := Parse(reader, z.origin, z.file, serial)
+				zone, err := Parse(reader, z.origin, zFile, serial)
+				reader.Close()
 				if err != nil {
 					if _, ok := err.(*serialErr); !ok {
-						log.Printf("[ERROR] Parsing zone %q: %v", z.origin, err)
+						log.Errorf("Parsing zone %q: %v", z.origin, err)
 					}
 					continue
 				}
 
 				// copy elements we need
-				z.reloadMu.Lock()
+				z.Lock()
 				z.Apex = zone.Apex
 				z.Tree = zone.Tree
-				z.reloadMu.Unlock()
+				z.Unlock()
 
-				log.Printf("[INFO] Successfully reloaded zone %q in %q with serial %d", z.origin, z.file, z.Apex.SOA.Serial)
-				z.Notify()
+				log.Infof("Successfully reloaded zone %q in %q with %d SOA serial", z.origin, zFile, z.Apex.SOA.Serial)
+				if t != nil {
+					if err := t.Notify(z.origin); err != nil {
+						log.Warningf("Failed sending notifies: %s", err)
+					}
+				}
 
-			case <-z.ReloadShutdown:
+			case <-z.reloadShutdown:
 				tick.Stop()
 				return
 			}
@@ -56,11 +57,10 @@ func (z *Zone) Reload() error {
 	return nil
 }
 
-// SOASerialIfDefined returns the SOA's serial if the zone has a SOA record in the Apex, or
-// -1 otherwise.
+// SOASerialIfDefined returns the SOA's serial if the zone has a SOA record in the Apex, or -1 otherwise.
 func (z *Zone) SOASerialIfDefined() int64 {
-	z.reloadMu.Lock()
-	defer z.reloadMu.Unlock()
+	z.RLock()
+	defer z.RUnlock()
 	if z.Apex.SOA != nil {
 		return int64(z.Apex.SOA.Serial)
 	}

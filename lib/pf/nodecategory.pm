@@ -81,10 +81,13 @@ sub nodecategory_populate_from_config {
         $logger->error($msg);
         return;
     }
+
     my @keep;
-    while(my ($id, $role) = each(%$config)) {
+    my @entries = _order_nodecategory_config($config);
+    for my $args (@entries) {
+        my $id = $args->[0];
+        nodecategory_upsert($id, %{$args->[1]});
         push @keep, $id;
-        nodecategory_upsert($id, %$role);
     }
     _nodecategory_bulk_delete(\@keep);
 }
@@ -99,6 +102,24 @@ sub _nodecategory_bulk_delete {
             },
         }
     );
+}
+
+sub _order_nodecategory_config {
+    my ($config) = @_;
+    my %t;
+    while (my ($id, $role) = each(%$config)) {
+        my $parent = $role->{parent} // '';
+        push @{$t{$parent}}, [$id, {%$role}];
+    }
+
+    return _flatten_nodecategory($t{''}, \%t);
+}
+
+sub _flatten_nodecategory {
+    my ( $parents, $h ) = @_;
+    return @$parents,
+      map { _flatten_nodecategory( $h->{$_}, $h ) }
+      grep { exists $h->{$_} } map { $_->[0] } @$parents;
 }
 
 =item nodecategory_upsert
@@ -120,11 +141,16 @@ sub nodecategory_upsert {
         die "Missing ID for nodecategory_upsert" unless($id);
 
         $logger->info("Inserting/updating role with ID $id");
+        my $parent = $data{parent};
         my $obj = pf::dal::node_category->new({
             name => $id,
             max_nodes_per_pid => $data{max_nodes_per_pid},
             notes => $data{notes},
-
+            parent_id => defined $parent ? \['(SELECT category_id FROM (SELECT category_id FROM node_category WHERE name = ?) x )', $parent] : undef,
+            include_parent_acls => $data{include_parent_acls} // "disabled",
+            fingerbank_dynamic_access_list => $data{fingerbank_dynamic_access_list} // "disabled",
+            acls => join("\n", @{$data{acls} // []}),
+            vlan => $data{vlan},
         });
         my ($status) = $obj->upsert;
         if (is_error($status)) {

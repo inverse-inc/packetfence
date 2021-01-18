@@ -37,18 +37,27 @@ BEGIN {
         name
         max_nodes_per_pid
         notes
+        include_parent_acls
+        fingerbank_dynamic_access_list
+        acls
     );
 
     %DEFAULTS = (
         name => '',
         max_nodes_per_pid => '0',
         notes => undef,
+        include_parent_acls => undef,
+        fingerbank_dynamic_access_list => undef,
+        acls => '',
     );
 
     @INSERTABLE_FIELDS = qw(
         name
         max_nodes_per_pid
         notes
+        include_parent_acls
+        fingerbank_dynamic_access_list
+        acls
     );
 
     %FIELDS_META = (
@@ -76,6 +85,24 @@ BEGIN {
             is_primary_key => 0,
             is_nullable => 1,
         },
+        include_parent_acls => {
+            type => 'VARCHAR',
+            is_auto_increment => 0,
+            is_primary_key => 0,
+            is_nullable => 1,
+        },
+        fingerbank_dynamic_access_list => {
+            type => 'VARCHAR',
+            is_auto_increment => 0,
+            is_primary_key => 0,
+            is_nullable => 1,
+        },
+        acls => {
+            type => 'TEXT',
+            is_auto_increment => 0,
+            is_primary_key => 0,
+            is_nullable => 0,
+        },
     );
 
     @PRIMARY_KEYS = qw(
@@ -87,6 +114,9 @@ BEGIN {
         node_category.name
         node_category.max_nodes_per_pid
         node_category.notes
+        node_category.include_parent_acls
+        node_category.fingerbank_dynamic_access_list
+        node_category.acls
     );
 
 }

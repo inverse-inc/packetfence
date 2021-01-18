@@ -59,6 +59,7 @@ variables:
   only:
     - /^devel$/
     - web
+    - feature/on-the-fly-fingerbank-acls
   except:
     - /^v[[:digit:]]+\.[[:digit:]]+\.[[:digit:]]+$/
     - /^maintenance/[[:digit:]]+\.[[:digit:]]+$/

@@ -7,7 +7,9 @@
 
 [% domain %]
 
-proxy . /etc/resolv.conf
+    forward . /etc/resolv.conf {
+        prefer_udp
+    }
 }
 
 # all other domains are subject to interception
@@ -31,7 +33,23 @@ proxy . /etc/resolv.conf
 [% inline %]
 
     # Default to system resolv.conf file
-    proxy . /etc/resolv.conf
+    forward . /etc/resolv.conf
     log stdout
     errors
+}
+
+https://.:853 {
+
+    [% domain %]
+
+    forward . /etc/resolv.conf {
+        prefer_udp
+    }
+}
+
+https://.:854 {
+   ztndns
+   forward . /etc/resolv.conf {
+      prefer_udp
+   }
 }

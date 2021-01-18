@@ -3,14 +3,16 @@
 package whoami
 
 import (
+	"context"
 	"net"
 	"strconv"
 
 	"github.com/inverse-inc/packetfence/go/coredns/request"
 
 	"github.com/miekg/dns"
-	"golang.org/x/net/context"
 )
+
+const name = "whoami"
 
 // Whoami is a plugin that returns your IP address, port and the protocol used for connecting
 // to CoreDNS.
@@ -22,7 +24,6 @@ func (wh Whoami) ServeDNS(ctx context.Context, w dns.ResponseWriter, r *dns.Msg)
 
 	a := new(dns.Msg)
 	a.SetReply(r)
-	a.Compress = true
 	a.Authoritative = true
 
 	ip := state.IP()
@@ -50,11 +51,10 @@ func (wh Whoami) ServeDNS(ctx context.Context, w dns.ResponseWriter, r *dns.Msg)
 
 	a.Extra = []dns.RR{rr, srv}
 
-	state.SizeAndDo(a)
 	w.WriteMsg(a)
 
 	return 0, nil
 }
 
 // Name implements the Handler interface.
-func (wh Whoami) Name() string { return "whoami" }
+func (wh Whoami) Name() string { return name }

@@ -22,12 +22,12 @@ BEGIN {
     use setup_test_config;
 }
 
-use Test::More tests => 6;
+use Test::More tests => 14;
 use pf::Switch;
 
 #This test will running last
 use Test::NoWarnings;
-my $switch = pf::Switch->new();
+my $switch = pf::Switch->new( { vlans => { r1 => "gotOne", r2 => "gotTwo" }, id => 'test' });
 
 is(
     $switch->extractSsid({'Called-Station-SSID' => 'Bob'}),
@@ -58,6 +58,26 @@ is(
     "Bob",
     "Extract SSID from Called-Station-SSID is Called-Station-Id is invalid"
 );
+
+is(
+    $switch->getAccessListByName('r3'),
+    "allow tcp 80\n",
+    "getAccessListByName",
+);
+
+is(
+    $switch->getAccessListByName('r1'),
+    undef,
+    "getAccessListByName undef",
+);
+
+is(pf::Switch::_parentRoleForVlan("r3"), "r2", "parent role for vlan r3 is r2");
+is(pf::Switch::_parentRoleForVlan("r2"), "r1", "parent role for vlan r2 is r1");
+is(pf::Switch::_parentRoleForVlan("r1"), undef, "parent role for vlan r1 is undef");
+
+is($switch->getVlanByName("r3"), "gotTwo", "Got the parent vlan");
+is($switch->getVlanByName("r2"), "gotTwo", "Got my vlan");
+is($switch->getVlanByName("r1"), "gotOne", "Got my vlan");
 
 =head1 AUTHOR
 

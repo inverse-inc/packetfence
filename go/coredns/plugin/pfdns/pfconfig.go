@@ -107,7 +107,6 @@ func (pf *pfdns) detectVIP(ctx context.Context) error {
 			}
 		}
 	}
-
 	for _, v := range sharedutils.RemoveDuplicates(append(pfconfigdriver.Config.Interfaces.ListenInts.Element, intDNS...)) {
 
 		keyConfCluster.PfconfigHashNS = "interface " + v

@@ -8,21 +8,18 @@ export const props = {
   // overload :options default
   options: {
     type: Promise,
-    default: () => store.dispatch('$_pkis/allProfiles').then(profiles => {
-      return profiles.map(profile => ({ text: `${profile.ca_name} - ${profile.name}`, value: profile.ID }))
-    })
-  }
-}
-
-const setup = () => {
-  if (!store.state.$_pkis) {
-    store.registerModule('$_pkis', StoreModule)
+    default: () => {
+      if (!store.state.$_pkis)
+        store.registerModule('$_pkis', StoreModule)
+      return store.dispatch('$_pkis/allProfiles').then(profiles => {
+        return profiles.map(profile => ({ text: `${profile.ca_name} - ${profile.name}`, value: profile.ID }))
+      })
+    }
   }
 }
 
 export default {
   name: 'base-form-group-chosen-one-profile',
   extends: BaseFormGroupChosenOne,
-  props,
-  setup
+  props
 }

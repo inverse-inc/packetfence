@@ -25,6 +25,7 @@ has 'primary_key' => 'role_id';
 
 use pf::ConfigStore::Roles;
 use pfappserver::Form::Config::Roles;
+use pf::config qw(%ConfigRoles);
 use pfconfig::cached_hash;
 use pf::dal::node;
 use pf::dal::person;
@@ -55,11 +56,26 @@ sub can_delete {
     return (200, '');
 }
 
+sub cleanup_item {
+    my ($self, $item, $form) = @_;
+    $item = $self->SUPER::cleanup_item($item, $form);
+    my $id = $item->{id};
+    if (exists $ConfigRoles{$id}) {
+        $item->{children} = $ConfigRoles{$id}{children};
+    }
+
+    return $item;
+}
+
 sub can_delete_from_config {
     my ($self) = @_;
     my $id = $self->id;
+    my @errors;
     if (exists $RolesReverseLookup{$id}) {
-        my @errors = map { config_delete_error($id, $_) } sort keys %{$RolesReverseLookup{$id}};
+         @errors = map { config_delete_error($id, $_) } sort keys %{$RolesReverseLookup{$id}};
+    }
+
+    if (@errors) {
         return (422, 'Role still in use', \@errors);
     }
 
@@ -175,6 +191,7 @@ sub reassign {
     $self->reassign_role_with_sql(\@errors, "pf::dal::node", $REASSIGN_NODE_CATEGORY_ID, $old, $new, "node category");
     $self->reassign_role_with_sql(\@errors, "pf::dal::node", $REASSIGN_NODE_BYPASS_ROLE_ID, $old, $new, "node bypass role");
     $self->reassign_role_with_sql(\@errors, "pf::dal::person", $REASSIGN_PASSWORD_CATEGORY, $old, $new, "password category");
+    $self->reassign_role_config_store(\@errors, "pf::ConfigStore::Roles", $old, $new, qw(parent_id));
     $self->reassign_role_config_store(\@errors, "pf::ConfigStore::AdminRoles", $old, $new, qw(allowed_roles allowed_node_roles));
     $self->reassign_role_config_store(\@errors, "pf::ConfigStore::Scan", $old, $new, qw(categories));
     $self->reassign_role_config_store(\@errors, "pf::ConfigStore::Provisioning", $old, $new, qw(category role_to_apply));

@@ -30,6 +30,7 @@ use pf::constants::fingerbank qw($RATE_LIMIT);
 use pf::error qw(is_success);
 use pf::file_paths qw($network_behavior_policy_config_file);
 
+use pf::node;
 use pf::client;
 use pf::error qw(is_error);
 use pf::CHI;
@@ -76,6 +77,7 @@ $fingerbank::Config::CACHE = cache();
 
 my $collector;
 my $collector_ua;
+my $api_client;
 
 =head1 METHODS
 
@@ -597,6 +599,35 @@ sub device_class_transition_allowed {
     }
 }
 
+sub get_hosts_ports {
+    my ($mac) = @_;
+
+    my $logger = get_logger;
+
+    $api_client //= fingerbank::API->new_from_config;
+
+    my $node = node_view($mac);
+    my $device_type = $node->{device_type};
+
+    unless(defined($device_type)) {
+        $logger->error("Unable to compute hosts/ports for device because we don't have the Fingerbank device profiling information for it.");
+        return;
+    }
+
+    my $device_id = device_name_to_device_id($device_type);
+
+    if(!defined($device_id)) {
+        $logger->error("Unable to find device ID for $mac. Unable to obtain hosts and ports it should communicate with through Fingerbank.");
+        return;
+    }
+
+    my $rules = cache()->compute_with_undef("get_hosts_ports-$device_id", sub {
+        return $api_client->device_outbound_communications($device_id);
+    });
+    
+    return $rules;
+}
+
 =head2 CLONE
 
 Clear the cache in a thread environment
@@ -606,6 +637,7 @@ Clear the cache in a thread environment
 sub CLONE {
     $collector_ua = undef;
     $collector = undef;
+    $api_client = undef;
 }
 
 POSIX::AtFork->add_to_child(\&CLONE);
