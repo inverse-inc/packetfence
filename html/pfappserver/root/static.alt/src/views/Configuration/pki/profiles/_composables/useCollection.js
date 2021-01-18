@@ -54,13 +54,12 @@ const useRouter = (props, context, form) => {
 
 const useStore = (props, context, form) => {
   const {
-    id,
-    ca_id
+    id
   } = toRefs(props)
   const { root: { $store } = {} } = context
   return {
     isLoading: computed(() => $store.getters['$_pkis/isLoading']),
-    createItem: () => $store.dispatch('$_pkis/createProfile', { ...recomposeProfile(form.value), ca_id: ca_id.value }),
+    createItem: () => $store.dispatch('$_pkis/createProfile', recomposeProfile(form.value)),
     getItem: () => $store.dispatch('$_pkis/getProfile', id.value).then(item => decomposeProfile(item))
   }
 }
