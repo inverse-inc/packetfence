@@ -317,46 +317,6 @@ export const hasProvisionings = () => {
   })
 }
 
-export const hasRadiusEaps = () => {
-  return store.dispatch('config/getRadiusEaps').then(response => {
-    return (response.length > 0)
-  }).catch(() => {
-    return true
-  })
-}
-
-export const hasRadiusFasts = () => {
-  return store.dispatch('config/getRadiusFasts').then(response => {
-    return (response.length > 0)
-  }).catch(() => {
-    return true
-  })
-}
-
-export const hasRadiusOcsps = () => {
-  return store.dispatch('config/getRadiusOcsps').then(response => {
-    return (response.length > 0)
-  }).catch(() => {
-    return true
-  })
-}
-
-export const hasRadiusSsls = () => {
-  return store.dispatch('config/getRadiusSsls').then(response => {
-    return (response.length > 0)
-  }).catch(() => {
-    return true
-  })
-}
-
-export const hasRadiusTlss = () => {
-  return store.dispatch('config/getRadiusTlss').then(response => {
-    return (response.length > 0)
-  }).catch(() => {
-    return true
-  })
-}
-
 export const hasRealms = (tenantId) => {
   return (0, _common.withParams)({
     type: 'hasRealms',
@@ -564,56 +524,6 @@ export const provisioningExists = (value) => {
   return store.dispatch('config/getProvisionings').then(response => {
     if (response.length === 0) return true
     else return response.filter(provisioning => provisioning.id.toLowerCase() === value.toLowerCase()).length > 0
-  }).catch(() => {
-    return true
-  })
-}
-
-export const radiusEapExists = (value) => {
-  if (!value) return true
-  return store.dispatch('config/getRadiusEaps').then(response => {
-    if (response.length === 0) return true
-    else return response.filter(eap => eap.id.toLowerCase() === value.toLowerCase()).length > 0
-  }).catch(() => {
-    return true
-  })
-}
-
-export const radiusFastExists = (value) => {
-  if (!value) return true
-  return store.dispatch('config/getRadiusFasts').then(response => {
-    if (response.length === 0) return true
-    else return response.filter(fast => fast.id.toLowerCase() === value.toLowerCase()).length > 0
-  }).catch(() => {
-    return true
-  })
-}
-
-export const radiusOcspExists = (value) => {
-  if (!value) return true
-  return store.dispatch('config/getRadiusOcsps').then(response => {
-    if (response.length === 0) return true
-    else return response.filter(ocsp => ocsp.id.toLowerCase() === value.toLowerCase()).length > 0
-  }).catch(() => {
-    return true
-  })
-}
-
-export const radiusSslExists = (value) => {
-  if (!value) return true
-  return store.dispatch('config/getRadiusSsls').then(response => {
-    if (response.length === 0) return true
-    else return response.filter(ssl => ssl.id.toLowerCase() === value.toLowerCase()).length > 0
-  }).catch(() => {
-    return true
-  })
-}
-
-export const radiusTlsExists = (value) => {
-  if (!value) return true
-  return store.dispatch('config/getRadiusTlss').then(response => {
-    if (response.length === 0) return true
-    else return response.filter(tls => tls.id.toLowerCase() === value.toLowerCase()).length > 0
   }).catch(() => {
     return true
   })

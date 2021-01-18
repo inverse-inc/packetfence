@@ -28,6 +28,11 @@ export default (props) => {
     id: yup.string()
       .nullable()
       .required(i18n.t('Identifier required.'))
-      .radiusSslIdNotExistsExcept((!isNew && !isClone) ? id : undefined, i18n.t('Identifier exists.'))
+      .radiusSslIdNotExistsExcept((!isNew && !isClone) ? id : undefined, i18n.t('Identifier exists.')),
+    ca: yup.string().nullable().label(i18n.t('Certificate Authority')),
+    cert: yup.string().nullable().label(i18n.t('Certificate')),
+    intermediate: yup.string().nullable().label(i18n.t('Intermediate')),
+    key: yup.string().nullable().label(i18n.t('Private Key')),
+    private_key_password: yup.string().nullable().label(i18n.t('Private Key Password'))
   })
 }

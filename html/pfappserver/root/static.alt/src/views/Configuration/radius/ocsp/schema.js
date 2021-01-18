@@ -28,6 +28,12 @@ export default (props) => {
     id: yup.string()
       .nullable()
       .required(i18n.t('Identifier required.'))
-      .radiusOcspIdNotExistsExcept((!isNew && !isClone) ? id : undefined, i18n.t('Identifier exists.'))
+      .radiusOcspIdNotExistsExcept((!isNew && !isClone) ? id : undefined, i18n.t('Identifier exists.')),
+    ocsp_enable: yup.string().nullable().label(i18n.t('Enable')),
+    ocsp_override_cert_url: yup.string().nullable().label(i18n.t('URL')),
+    ocsp_softfail: yup.string().nullable().label(i18n.t('Response')),
+    ocsp_timeout: yup.string().nullable().label(i18n.t('Response timeout')),
+    ocsp_url: yup.string().nullable().label(i18n.t('URL')),
+    ocsp_use_nonce: yup.string().nullable().label(i18n.t('Nonce'))
   })
 }

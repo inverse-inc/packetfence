@@ -1,13 +1,12 @@
 import store from '@/store'
-import StoreModule from './_store'
+import RadiusOcspStoreModule from './_store'
 
 const TheTabs = () => import(/* webpackChunkName: "Configuration" */ '../../_components/RadiusTabs')
 const TheView = () => import(/* webpackChunkName: "Configuration" */ './_components/TheView')
 
 export const beforeEnter = (to, from, next = () => {}) => {
-  if (!store.state.$_radius_ocsp) {
-    store.registerModule('$_radius_ocsp', StoreModule)
-  }
+  if (!store.state.$_radius_ocsp)
+    store.registerModule('$_radius_ocsp', RadiusOcspStoreModule)
   next()
 }
 
