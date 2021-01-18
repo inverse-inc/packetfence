@@ -301,14 +301,6 @@ export const hasPortalModules = () => {
   })
 }
 
-export const hasRoles = () => {
-  return store.dispatch('config/getRoles').then(response => {
-    return (response.length > 0)
-  }).catch(() => {
-    return true
-  })
-}
-
 export const hasRoutedNetworks = () => {
   return store.dispatch('config/getRoutedNetworks').then(response => {
     return (response.length > 0)
@@ -474,16 +466,6 @@ export const portalModuleExists = (value) => {
   return store.dispatch('config/getPortalModules').then(response => {
     if (response.length === 0) return true
     else return response.filter(module => module.id.toLowerCase() === value.toLowerCase()).length > 0
-  }).catch(() => {
-    return true
-  })
-}
-
-export const roleExists = (value) => {
-  if (!value) return true
-  return store.dispatch('config/getRoles').then(response => {
-    if (response.length === 0) return true
-    else return response.filter(role => role.name.toLowerCase() === value.toLowerCase()).length > 0
   }).catch(() => {
     return true
   })
