@@ -301,14 +301,6 @@ export const hasPortalModules = () => {
   })
 }
 
-export const hasRoutedNetworks = () => {
-  return store.dispatch('config/getRoutedNetworks').then(response => {
-    return (response.length > 0)
-  }).catch(() => {
-    return true
-  })
-}
-
 export const hasScans = () => {
   return store.dispatch('config/getScans').then(response => {
     return (response.length > 0)
@@ -466,16 +458,6 @@ export const portalModuleExists = (value) => {
   return store.dispatch('config/getPortalModules').then(response => {
     if (response.length === 0) return true
     else return response.filter(module => module.id.toLowerCase() === value.toLowerCase()).length > 0
-  }).catch(() => {
-    return true
-  })
-}
-
-export const routedNetworkExists = (value) => {
-  if (!value) return true
-  return store.dispatch('config/getRoutedNetworks').then(response => {
-    if (response.length === 0) return true
-    else return response.filter(routedNetwork => routedNetwork.id.toLowerCase() === value.toLowerCase()).length > 0
   }).catch(() => {
     return true
   })

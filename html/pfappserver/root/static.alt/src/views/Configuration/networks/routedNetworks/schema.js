@@ -33,7 +33,8 @@ export default (props) => {
       .nullable()
       .required(i18n.t('Network required.'))
       .roleNameNotExistsExcept((!isNew && !isClone) ? id : undefined, i18n.t('Network exists.')),
-    dhcpd: yup.string(),
+    algorithm: yup.string().nullable(),
+    dhcpd: yup.string().nullable(),
     dhcp_start: yup.string().when('dhcpd', () => (dhcpd === 'enabled') // reactive
       ? yup.string().nullable().isIpv4().required(i18n.t('IPv4 address required.'))
       : yup.string().nullable().isIpv4()
@@ -50,10 +51,6 @@ export default (props) => {
       ? yup.string().nullable().required(i18n.t('Time required.'))
       : yup.string().nullable()
     ),
-    pool_backend: yup.string().when('dhcpd', () => (dhcpd === 'enabled') // reactive
-      ? yup.string().nullable().required(i18n.t('Type required.'))
-      : yup.string().nullable()
-    ),
     dns: yup.string().when('dhcpd', () => (dhcpd === 'enabled') // reactive
       ? yup.string().nullable().required(i18n.t('IPv4 addresses required.'))
       : yup.string().nullable()
@@ -62,8 +59,14 @@ export default (props) => {
       ? yup.string().nullable().isIpv4().required(i18n.t('IPv4 address required.'))
       : yup.string().nullable().isIpv4()
     ),
+    ip_reserved: yup.string().nullable(),
+    ip_assigned: yup.string().nullable(),
     netmask: yup.string().nullable().required(i18n.t('Netmask required.')).isIpv4(),
     next_hop: yup.string().nullable().isIpv4(),
+    pool_backend: yup.string().when('dhcpd', () => (dhcpd === 'enabled') // reactive
+      ? yup.string().nullable().required(i18n.t('Type required.'))
+      : yup.string().nullable()
+    ),
     portal_fqdn: yup.string().nullable().isFQDN(),
     type: yup.string().nullable().required(i18n.t('Type required.')),
   })
