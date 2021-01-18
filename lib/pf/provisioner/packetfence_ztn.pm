@@ -15,6 +15,7 @@ use warnings;
 
 use Moo;
 extends 'pf::provisioner';
+use pf::constants;
 
 =head1 Atrributes
 
@@ -41,6 +42,10 @@ URI to download the Mac OSX agent
 =cut
 
 has linux_agent_download_uri => (is => 'rw', default => "/content/packetfence-ztn-linux-x86-64");
+
+sub authorize {
+    return $FALSE;
+}
 
 =head1 AUTHOR
 
