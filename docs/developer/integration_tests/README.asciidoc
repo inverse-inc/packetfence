@@ -23,7 +23,7 @@ Integration tests rely on:
 .Integration tests topology
 image::integration_tests/integration_tests_topology.png[scaledwidth="100%",alt="Integration tests topology"]
 
-This topology require a working `libvirt` setup (Virtualbox is not supported) and is defined as
+This topology require a working `libvirt` setup and is defined as
 Infrastructure-as-code in two
 link:https://github.com/inverse-inc/packetfence/tree/devel/addons/vagrant/[Vagrantfiles].
 

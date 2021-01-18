@@ -30,11 +30,6 @@ Vagrant.configure("2") do |config|
         v.cpus = details['cpus']
         v.memory = details['memory']
       end
-
-      srv.vm.provider "virtualbox" do |v|
-        v.cpus = details['cpus']
-        v.memory = details['memory']
-      end
     end
   end
 end
