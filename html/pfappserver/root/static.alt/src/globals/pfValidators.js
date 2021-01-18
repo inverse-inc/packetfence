@@ -277,14 +277,6 @@ export const isFilenameWithExtension = (extensions = ['html']) => {
   })
 }
 
-export const hasSelfServices = () => {
-  return store.dispatch('config/getSelfServices').then(response => {
-    return (response.length > 0)
-  }).catch(() => {
-    return true
-  })
-}
-
 export const hasInterfaces = () => {
   return store.dispatch('config/getInterfaces').then(response => {
     return (response.length > 0)
@@ -301,38 +293,6 @@ export const hasPortalModules = () => {
   })
 }
 
-export const hasRoles = () => {
-  return store.dispatch('config/getRoles').then(response => {
-    return (response.length > 0)
-  }).catch(() => {
-    return true
-  })
-}
-
-export const hasRoutedNetworks = () => {
-  return store.dispatch('config/getRoutedNetworks').then(response => {
-    return (response.length > 0)
-  }).catch(() => {
-    return true
-  })
-}
-
-export const hasScans = () => {
-  return store.dispatch('config/getScans').then(response => {
-    return (response.length > 0)
-  }).catch(() => {
-    return true
-  })
-}
-
-export const hasSecurityEvents = () => {
-  return store.dispatch('config/getSecurityEvents').then(response => {
-    return (response.length > 0)
-  }).catch(() => {
-    return true
-  })
-}
-
 export const hasSwitches = () => {
   return store.dispatch('config/getSwitches').then(response => {
     return (response.length > 0)
@@ -341,21 +301,6 @@ export const hasSwitches = () => {
   })
 }
 
-export const hasSwitchGroups = () => {
-  return store.dispatch('config/getSwitchGroups').then(response => {
-    return (response.length > 0)
-  }).catch(() => {
-    return true
-  })
-}
-
-export const hasSwitchTemplates = () => {
-  return store.dispatch('config/getSwitchTemplates').then(response => {
-    return (response.length > 0)
-  }).catch(() => {
-    return true
-  })
-}
 export const hasSyslogForwarders = () => {
   return store.dispatch('config/getSyslogForwarders').then(response => {
     return (response.length > 0)
@@ -416,16 +361,6 @@ export const categoryIdStringExists = (value) => {
   })
 }
 
-export const selfServiceExists = (value) => {
-  if (!value) return true
-  return store.dispatch('config/getSelfServices').then(response => {
-    if (response.length === 0) return true
-    else return response.filter(selfService => selfService.id.toLowerCase() === value.toLowerCase()).length > 0
-  }).catch(() => {
-    return true
-  })
-}
-
 export const interfaceExists = (value) => {
   if (!value) return true
   return store.dispatch('config/getInterfaces').then(response => {
@@ -479,46 +414,6 @@ export const portalModuleExists = (value) => {
   })
 }
 
-export const roleExists = (value) => {
-  if (!value) return true
-  return store.dispatch('config/getRoles').then(response => {
-    if (response.length === 0) return true
-    else return response.filter(role => role.name.toLowerCase() === value.toLowerCase()).length > 0
-  }).catch(() => {
-    return true
-  })
-}
-
-export const routedNetworkExists = (value) => {
-  if (!value) return true
-  return store.dispatch('config/getRoutedNetworks').then(response => {
-    if (response.length === 0) return true
-    else return response.filter(routedNetwork => routedNetwork.id.toLowerCase() === value.toLowerCase()).length > 0
-  }).catch(() => {
-    return true
-  })
-}
-
-export const scanExists = (value) => {
-  if (!value) return true
-  return store.dispatch('config/getScans').then(response => {
-    if (response.length === 0) return true
-    else return response.filter(scan => scan.id.toLowerCase() === value.toLowerCase()).length > 0
-  }).catch(() => {
-    return true
-  })
-}
-
-export const securityEventExists = (value) => {
-  if (!value) return true
-  return store.dispatch('config/getSecurityEvents').then(response => {
-    if (response.length === 0) return true
-    else return response.filter(securityEvent => securityEvent.id.toLowerCase() === value.toLowerCase()).length > 0
-  }).catch(() => {
-    return true
-  })
-}
-
 export const sourceExists = (value) => {
   if (!value) return true
   return store.dispatch('config/getSources').then(response => {
@@ -549,16 +444,6 @@ export const switchNotExists = (value) => {
   })
 }
 
-export const switchGroupExists = (value) => {
-  if (!value) return true
-  return store.dispatch('config/getSwitchGroups').then(response => {
-    if (response.length === 0) return true
-    else return response.filter(switchGroup => switchGroup.id.toLowerCase() === value.toLowerCase()).length > 0
-  }).catch(() => {
-    return true
-  })
-}
-
 export const switchModeExists = (value) => {
   if (!value) return true
   return store.dispatch('$_switches/optionsBySwitchGroup', 'default').then((response) => {
@@ -567,16 +452,6 @@ export const switchModeExists = (value) => {
       if (v === value) return true
     }
     return false
-  }).catch(() => {
-    return true
-  })
-}
-
-export const switchTemplateExists = (value) => {
-  if (!value) return true
-  return store.dispatch('config/getSwitchTemplates').then(response => {
-    if (response.length === 0) return true
-    else return response.filter(switchTemplate => switchTemplate.id.toLowerCase() === value.toLowerCase()).length > 0
   }).catch(() => {
     return true
   })

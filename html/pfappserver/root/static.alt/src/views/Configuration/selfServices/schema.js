@@ -17,6 +17,10 @@ yup.addMethod(yup.string, 'selfServiceIdentifierNotExistsExcept', function (exce
   })
 })
 
+const schemaRole = yup.string().nullable().label(i18n.t('Role'))
+
+const schemaRoles = yup.array().ensure().of(schemaRole).label(i18n.t('Roles'))
+
 export default (props) => {
   const {
     id,
@@ -28,7 +32,10 @@ export default (props) => {
     id: yup.string()
       .nullable()
       .required(i18n.t('Name required.'))
-      .selfServiceIdentifierNotExistsExcept((!isNew && !isClone) ? id : undefined, i18n.t('Name exists.'))
-
+      .selfServiceIdentifierNotExistsExcept((!isNew && !isClone) ? id : undefined, i18n.t('Name exists.')),
+    description: yup.string().nullable().label(i18n.t('Description')),
+    roles_allowed_to_unregister: schemaRoles,
+    device_registration_roles: schemaRoles,
+    device_registration_allowed_devices: schemaRoles
   })
 }

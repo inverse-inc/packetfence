@@ -17,6 +17,14 @@ yup.addMethod(yup.string, 'scanEngineIdentifierNotExistsExcept', function (excep
   })
 })
 
+const schemaCategory = yup.string().nullable().label(i18n.t('Category'))
+
+const schemaCategories = yup.array().ensure().of(schemaCategory)
+
+const schemaOs = yup.string().nullable().label('OS')
+
+const schemaOses = yup.array().ensure().of(schemaOs)
+
 const schemaWmiRule = yup.string().label(i18n.t('WMI Rule')).required(i18n.t('WMI Rule required.'))
 
 const schemaWmiRules = yup.array().ensure().unique(i18n.t('Duplicate rule.')).of(schemaWmiRule)
@@ -32,10 +40,21 @@ export default (props) => {
     id: yup.string().label(i18n.t('Name'))
       .nullable()
       .scanEngineIdentifierNotExistsExcept((!isNew && !isClone) ? id : undefined, i18n.t('Name exists.')),
-
-    ip: yup.string().label(i18n.t('IP')),
-    username: yup.string().label(i18n.t('Username')),
-    password: yup.string().label(i18n.t('Password')),
+    categories: schemaCategories,
+    domain: yup.string().nullable().label(i18n.t('Domain')),
+    engine_id: yup.string().nullable().label(i18n.t('Engine')),
+    ip: yup.string().nullable().label(i18n.t('IP')),
+    nessus_clientpolicy: yup.string().nullable().label(i18n.t('Policy')),
+    openvas_alertid: yup.string().nullable().label('ID'),
+    openvas_configid: yup.string().nullable().label('ID'),
+    openvas_reportformatid: yup.string().nullable().label('ID'),
+    oses: schemaOses,
+    password: yup.string().nullable().label(i18n.t('Password')),
+    port: yup.string().nullable().label(i18n.t('Port')),
+    scannername: yup.string().nullable().label(i18n.t('Name')),
+    site_id: yup.string().nullable().label(i18n.t('Site')),
+    template_id: yup.string().nullable().label(i18n.t('Template')),
+    username: yup.string().nullable().label(i18n.t('Username')),
     wmi_rules: schemaWmiRules.label(i18n.t('WMI Rules'))
   })
 }
