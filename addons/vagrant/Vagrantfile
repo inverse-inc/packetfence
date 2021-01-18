@@ -1,6 +1,11 @@
 # -*- mode: ruby -*-
 # vi: set ft=ruby :
 
+require 'securerandom'
+
+BRANCH_OR_TAG_NAME = ENV['CI_COMMIT_REF_SLUG'] || 'local-tests'
+DOMAIN_PREFIX = "vagrant-" + BRANCH_OR_TAG_NAME + "-#{SecureRandom.hex(3)}-"
+
 Vagrant.configure("2") do |config|
   ### Global settings for all VMS
   config.vagrant.sensitive = [ ENV['PSONO_CI_API_KEY_ID'], ENV['PSONO_CI_API_SECRET_KEY_HEX'] ]
@@ -15,7 +20,7 @@ Vagrant.configure("2") do |config|
   config.ssh.insert_key = false
 
   config.vm.provider "libvirt" do |vm|
-    vm.random_hostname = true
+    vm.default_prefix = DOMAIN_PREFIX
   end
 
   # common Ansible provisionner for all hosts
