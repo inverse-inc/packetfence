@@ -13,6 +13,9 @@ Web form for the PacketFence Zero Trust provisioner
 use HTML::FormHandler::Moose;
 extends 'pfappserver::Form::Config::Provisioning';
 with 'pfappserver::Base::Form::Role::Help';
+use pf::provisioner::packetfence_ztn;
+
+my $META = pf::provisioner::packetfence_ztn->meta;
 
 use pf::constants;
 
@@ -20,6 +23,7 @@ has_field 'windows_agent_download_uri' =>
   (
    type => 'Text',
    label => 'Windows agent download URI',
+   default => $META->get_attribute('windows_agent_download_uri')->default(),
    required => $TRUE,
   );
 
@@ -27,6 +31,7 @@ has_field 'mac_osx_agent_download_uri' =>
   (
    type => 'Text',
    label => 'Mac OSX agent download URI',
+   default => $META->get_attribute('mac_osx_agent_download_uri')->default(),
    required => $TRUE,
   );
 
@@ -34,6 +39,7 @@ has_field 'linux_agent_download_uri' =>
   (
    type => 'Text',
    label => 'Linux agent download URI',
+   default => $META->get_attribute('linux_agent_download_uri')->default(),
    required => $TRUE,
   );
 
