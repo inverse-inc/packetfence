@@ -29,8 +29,10 @@ export const schema = (props) => {
       .nullable()
       .required(i18n.t('Name required.'))
       .syslogForwarderIdExistsExcept((!isNew && !isClone) ? id : undefined, i18n.t('Name exists.')),
-    proto: yup.string().label(i18n.t('Protocol')),
-    host: yup.string().label(i18n.t('Host'))
+    proto: yup.string().nullable().label(i18n.t('Protocol')),
+    host: yup.string().nullable().label(i18n.t('Host')),
+    port: yup.string().nullable().label(i18n.t('Port')),
+    logs: yup.string().nullable().label(i18n.t('Logs'))
   })
 }
 
