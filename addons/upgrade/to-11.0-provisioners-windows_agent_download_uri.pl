@@ -18,16 +18,14 @@ use Data::Dumper;
 use pf::file_paths qw(
     $provisioning_config_file
 );
-use Term::Cap;
-my $terminal = Term::Cap->Tgetent( { OSPEED => 9600 } );
-my $clear_string = $terminal->Tputs('cl');
+
 my $ini = pf::IniFiles->new(-file => $provisioning_config_file, -allowempty => 1);
 my $ini_updated = 0;
 for my $section ($switch_ini->Sections()) {
     next if $ini->val($section, 'type') ne 'sentinelone';
     next if !$ini->exists($section, 'win_agent_download_uri');
     my $old_val = $ini->val($section, 'win_agent_download_uri');
-    $ini->newval($section, 'win_agent_download_uri', $old_val);
+    $ini->newval($section, 'windows_agent_download_uri', $old_val);
     $ini_updated |= 1;
 }
 
