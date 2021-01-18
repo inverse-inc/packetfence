@@ -718,7 +718,6 @@ const actions = {
     })
   },
   optionsRadiusConfiguration: ({ commit }) => {
-console.log('optionsRadiusConfiguration')
     commit('ITEM_REQUEST')
     return api.baseOptions('radius_configuration').then(response => {
       commit('ITEM_SUCCESS')

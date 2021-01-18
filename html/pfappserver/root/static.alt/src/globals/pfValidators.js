@@ -301,20 +301,6 @@ export const hasPortalModules = () => {
   })
 }
 
-export const hasRealms = (tenantId) => {
-  return (0, _common.withParams)({
-    type: 'hasRealms',
-    tenantId
-  }, function (value) {
-    if (!(0, _common.req)(tenantId) || !(0, _common.req)(value)) return true
-    return store.dispatch('config/getRealms', tenantId).then(response => {
-      return (response.length > 0)
-    }).catch(() => {
-      return true
-    })
-  })
-}
-
 export const hasRoles = () => {
   return store.dispatch('config/getRoles').then(response => {
     return (response.length > 0)
@@ -490,21 +476,6 @@ export const portalModuleExists = (value) => {
     else return response.filter(module => module.id.toLowerCase() === value.toLowerCase()).length > 0
   }).catch(() => {
     return true
-  })
-}
-
-export const realmExists = (tenantId) => {
-  return (0, _common.withParams)({
-    type: 'realmExists',
-    tenantId
-  }, function (value) {
-    if (!(0, _common.req)(tenantId) || !(0, _common.req)(value)) return true
-    return store.dispatch('config/getRealms', tenantId).then(response => {
-      if (response.length === 0) return true
-      return response.map(item => item.id.toLowerCase()).includes(value.toLowerCase())
-    }).catch(() => {
-      return true
-    })
   })
 }
 
