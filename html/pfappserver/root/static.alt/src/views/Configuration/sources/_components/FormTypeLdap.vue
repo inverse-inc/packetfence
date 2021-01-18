@@ -153,7 +153,7 @@ import { useForm as setup, useFormProps as props } from '../_composables/useForm
 
 // @vue/component
 export default {
-  name: 'form-type-active-directory',
+  name: 'form-type-ldap',
   inheritAttrs: false,
   components,
   props,
