@@ -301,14 +301,6 @@ export const hasSwitches = () => {
   })
 }
 
-export const hasSwitchGroups = () => {
-  return store.dispatch('config/getSwitchGroups').then(response => {
-    return (response.length > 0)
-  }).catch(() => {
-    return true
-  })
-}
-
 export const hasSwitchTemplates = () => {
   return store.dispatch('config/getSwitchTemplates').then(response => {
     return (response.length > 0)
@@ -456,16 +448,6 @@ export const switchNotExists = (value) => {
     else return response.filter(switche => switche.id.toLowerCase() === value.toLowerCase()).length === 0
   }).catch(() => {
       return true
-  })
-}
-
-export const switchGroupExists = (value) => {
-  if (!value) return true
-  return store.dispatch('config/getSwitchGroups').then(response => {
-    if (response.length === 0) return true
-    else return response.filter(switchGroup => switchGroup.id.toLowerCase() === value.toLowerCase()).length > 0
-  }).catch(() => {
-    return true
   })
 }
 
