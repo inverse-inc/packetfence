@@ -301,13 +301,6 @@ export const hasSwitches = () => {
   })
 }
 
-export const hasSwitchTemplates = () => {
-  return store.dispatch('config/getSwitchTemplates').then(response => {
-    return (response.length > 0)
-  }).catch(() => {
-    return true
-  })
-}
 export const hasSyslogForwarders = () => {
   return store.dispatch('config/getSyslogForwarders').then(response => {
     return (response.length > 0)
@@ -459,16 +452,6 @@ export const switchModeExists = (value) => {
       if (v === value) return true
     }
     return false
-  }).catch(() => {
-    return true
-  })
-}
-
-export const switchTemplateExists = (value) => {
-  if (!value) return true
-  return store.dispatch('config/getSwitchTemplates').then(response => {
-    if (response.length === 0) return true
-    else return response.filter(switchTemplate => switchTemplate.id.toLowerCase() === value.toLowerCase()).length > 0
   }).catch(() => {
     return true
   })
