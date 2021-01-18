@@ -301,14 +301,6 @@ export const hasSwitches = () => {
   })
 }
 
-export const hasWRIXLocations = () => {
-  return store.dispatch('config/getWrixLocations').then(response => {
-    return (response.length > 0)
-  }).catch(() => {
-    return true
-  })
-}
-
 export const categoryIdNumberExists = (value) => {
   if (!value || !/^\d+$/.test(value)) return true
   return store.dispatch('config/getRoles').then(response => {
@@ -456,15 +448,5 @@ export const userNotExists = (value) => {
     return true
   }).catch(() => {
     return false
-  })
-}
-
-export const WRIXLocationExists = (value) => {
-  if (!value) return true
-  return store.dispatch('config/getWrixLocations').then(response => {
-    if (response.length === 0) return true
-    else return response.filter(wrixLocation => wrixLocation.id.toLowerCase() === value.toLowerCase()).length > 0
-  }).catch(() => {
-    return true
   })
 }

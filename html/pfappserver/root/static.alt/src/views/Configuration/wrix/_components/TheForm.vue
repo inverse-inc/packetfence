@@ -22,8 +22,8 @@
         />
       </base-form-tab>
       <base-form-tab :title="$i18n.t('Location')">
-        <form-group-location-type namespace="Location"
-          :column-label="$i18n.t('Location')"
+        <form-group-location-type namespace="Location_Type"
+          :column-label="$i18n.t('Location Type')"
         />
         <form-group-sub-location-type namespace="Sub_Location_Type"
           :column-label="$i18n.t('Sub Location Type')"
