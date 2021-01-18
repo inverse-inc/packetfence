@@ -301,14 +301,6 @@ export const hasPortalModules = () => {
   })
 }
 
-export const hasSecurityEvents = () => {
-  return store.dispatch('config/getSecurityEvents').then(response => {
-    return (response.length > 0)
-  }).catch(() => {
-    return true
-  })
-}
-
 export const hasSwitches = () => {
   return store.dispatch('config/getSwitches').then(response => {
     return (response.length > 0)
@@ -450,16 +442,6 @@ export const portalModuleExists = (value) => {
   return store.dispatch('config/getPortalModules').then(response => {
     if (response.length === 0) return true
     else return response.filter(module => module.id.toLowerCase() === value.toLowerCase()).length > 0
-  }).catch(() => {
-    return true
-  })
-}
-
-export const securityEventExists = (value) => {
-  if (!value) return true
-  return store.dispatch('config/getSecurityEvents').then(response => {
-    if (response.length === 0) return true
-    else return response.filter(securityEvent => securityEvent.id.toLowerCase() === value.toLowerCase()).length > 0
   }).catch(() => {
     return true
   })

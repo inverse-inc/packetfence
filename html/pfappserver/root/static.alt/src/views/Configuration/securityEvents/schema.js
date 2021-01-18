@@ -71,6 +71,10 @@ const schemaTrigger = yup.object({
 
 const schemaTriggers = yup.array().of(schemaTrigger.meta({ invalidFeedback: i18n.t('Trigger contains one or more errors.') }))
 
+const schemaWhiteListedRole = yup.string().nullable()
+
+const schemaWhiteListedRoles = yup.array().ensure().of(schemaWhiteListedRole)
+
 export const schema = (props) => {
   const {
     id,
@@ -84,7 +88,10 @@ export const schema = (props) => {
       .required(i18n.t('Name required.'))
       .securityEventIdNotExistsExcept((!isNew && !isClone) ? id : undefined, i18n.t('Identifier exists.')),
 
-    triggers: schemaTriggers.meta({ invalidFeedback: i18n.t('Triggers contains one or more errors.') })
+    triggers: schemaTriggers.meta({ invalidFeedback: i18n.t('Triggers contains one or more errors.') }),
+    desc: yup.string().nullable().label(i18n.t('Description')),
+    priority: yup.string().nullable().label(i18n.t('Priority')),
+    whitelisted_roles: schemaWhiteListedRoles
   })
 }
 
