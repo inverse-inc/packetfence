@@ -301,22 +301,6 @@ export const hasSwitches = () => {
   })
 }
 
-export const hasSyslogForwarders = () => {
-  return store.dispatch('config/getSyslogForwarders').then(response => {
-    return (response.length > 0)
-  }).catch(() => {
-    return true
-  })
-}
-
-export const hasSyslogParsers = () => {
-  return store.dispatch('config/getSyslogParsers').then(response => {
-    return (response.length > 0)
-  }).catch(() => {
-    return true
-  })
-}
-
 export const hasTrafficShapingPolicies = () => {
   return store.dispatch('config/getTrafficShapingPolicies').then(response => {
     return (response.length > 0)
@@ -468,26 +452,6 @@ export const switchTypeExists = (value) => {
       }
     }
     return false
-  }).catch(() => {
-    return true
-  })
-}
-
-export const syslogForwarderExists = (value) => {
-  if (!value) return true
-  return store.dispatch('config/getSyslogForwarders').then(response => {
-    if (response.length === 0) return true
-    else return response.filter(syslogForwarder => syslogForwarder.id.toLowerCase() === value.toLowerCase()).length > 0
-  }).catch(() => {
-    return true
-  })
-}
-
-export const syslogParserExists = (value) => {
-  if (!value) return true
-  return store.dispatch('config/getSyslogParsers').then(response => {
-    if (response.length === 0) return true
-    else return response.filter(syslogParser => syslogParser.id.toLowerCase() === value.toLowerCase()).length > 0
   }).catch(() => {
     return true
   })
