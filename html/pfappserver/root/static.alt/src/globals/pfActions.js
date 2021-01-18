@@ -302,6 +302,7 @@ const pfActionSchema = yup.object({
           // break
         case type === 'set_access_level':
           return yup.array().ensure().of(yup.string().nullable()).required(i18n.t('Level(s) required.'))
+          // break
         default:
           return yup.string().nullable()
             .required(i18n.t('Value required.'))

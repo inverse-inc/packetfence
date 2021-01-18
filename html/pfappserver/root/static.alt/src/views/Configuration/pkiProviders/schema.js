@@ -32,7 +32,22 @@ export const schema = (props) => {
     ca_cert_path: yup.string().nullable().label(i18n.t('Cert Path')),
     client_cert_path: yup.string().nullable().label(i18n.t('Cert Path')),
     client_key_path: yup.string().nullable().label(i18n.t('Key Path')),
-    server_cert_path: yup.string().nullable().label(i18n.t('Cert Path'))
+    server_cert_path: yup.string().nullable().label(i18n.t('Cert Path')),
+
+    url: yup.string().nullable().label('URL'),
+    proto: yup.string().nullable().label(i18n.t('Protocol')),
+    host: yup.string().nullable().label(i18n.t('Host')),
+    port: yup.string().nullable().label(i18n.t('Port')),
+    username: yup.string().nullable().label(i18n.t('Username')),
+    password: yup.string().nullable().label(i18n.t('Password')),
+    profile: yup.string().nullable().label(i18n.t('Profile')),
+    country: yup.string().nullable().label(i18n.t('Country')),
+    state: yup.string().nullable().label(i18n.t('State')),
+    locality: yup.string().nullable().label(i18n.t('Locality')),
+    organization: yup.string().nullable().label(i18n.t('Organization')),
+    organizational_unit: yup.string().nullable().label(i18n.t('Unit')),
+    cn_attribute: yup.string().nullable().label(i18n.t('Attribute')),
+    cn_format: yup.string().nullable().label(i18n.t('Format'))
   })
 }
 
