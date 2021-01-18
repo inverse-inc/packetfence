@@ -45,6 +45,11 @@ export default (props) => {
       .nullable()
       .required(i18n.t('Name required.'))
       .remoteConnectionProfileIdNotExistsExcept((!isNew && !isClone) ? id : undefined, i18n.t('Name exists.')),
+    advanced_filter: yup.object()
+      .when('basic_filter_type', () => (basic_filter_type)
+        ? yup.object().nullable() // don't validate when basic_filter_type is set
+        : schemaAdvancedFilter.meta({ invalidFeedback: i18n.t('Advanced filter contains one or more errors.') })
+       ),
     basic_filter_type: yup.string().nullable(),
     basic_filter_value: yup.string()
       .when('basic_filter_type', () => {
@@ -62,11 +67,9 @@ export default (props) => {
             return yup.string().nullable()
         }
       }),
-    advanced_filter: yup.object()
-      .when('basic_filter_type', () => (basic_filter_type)
-        ? yup.object().nullable() // don't validate when basic_filter_type is set
-        : schemaAdvancedFilter.meta({ invalidFeedback: i18n.t('Advanced filter contains one or more errors.') })
-       )
+    description: yup.string().nullable().label(i18n.t('Description')),
+    internal_domain_to_resolve: yup.string().nullable().label(i18n.t('Domain')),
+    stun_server: yup.string().nullable().label(i18n.t('Server'))
   })
 }
 
