@@ -27,6 +27,8 @@ export default (props) => {
     id: yup.string()
       .nullable()
       .required(i18n.t('Name required.'))
-      .trafficShapingPolicyIdentifierNotExistsExcept((!isNew) ? id : undefined, i18n.t('Name exists.'))
+      .trafficShapingPolicyIdentifierNotExistsExcept((!isNew) ? id : undefined, i18n.t('Name exists.')),
+    upload: yup.string().nullable().label(i18n.t('Upload')),
+    download: yup.string().nullable().label(i18n.t('Download'))
   })
 }

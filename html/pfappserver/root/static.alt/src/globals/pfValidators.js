@@ -301,14 +301,6 @@ export const hasSwitches = () => {
   })
 }
 
-export const hasTrafficShapingPolicies = () => {
-  return store.dispatch('config/getTrafficShapingPolicies').then(response => {
-    return (response.length > 0)
-  }).catch(() => {
-    return true
-  })
-}
-
 export const hasWmiRules = () => {
   return store.dispatch('config/getWmiRules').then(response => {
     return (response.length > 0)
@@ -452,16 +444,6 @@ export const switchTypeExists = (value) => {
       }
     }
     return false
-  }).catch(() => {
-    return true
-  })
-}
-
-export const trafficShapingPolicyExists = (value) => {
-  if (!value) return true
-  return store.dispatch('config/getTrafficShapingPolicies').then(response => {
-    if (response.length === 0) return true
-    else return response.filter(trafficShapingPolicy => trafficShapingPolicy.id.toLowerCase() === value.toLowerCase()).length > 0
   }).catch(() => {
     return true
   })
