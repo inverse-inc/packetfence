@@ -41,6 +41,7 @@ For a list of compatibility related changes see the <<PacketFence_Upgrade_Guide.
 * Improve support of Android Agent for EAP-TLS and EAP-PEAP
 * Improve CLI login support on HP and Aruba switches
 * Use the "Authorization" header when performing API calls to Github in the OAuth context
+* Replace xsltproc/fop by asciidoctor-pdf (#5968)
 
 === Bug Fixes
 

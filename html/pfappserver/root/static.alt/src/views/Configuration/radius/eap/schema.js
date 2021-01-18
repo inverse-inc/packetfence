@@ -28,6 +28,16 @@ export default (props) => {
     id: yup.string()
       .nullable()
       .required(i18n.t('Identifier required.'))
-      .radiusEapIdNotExistsExcept((!isNew && !isClone) ? id : undefined, i18n.t('Identifier exists.'))
+      .radiusEapIdNotExistsExcept((!isNew && !isClone) ? id : undefined, i18n.t('Identifier exists.')),
+    cisco_accounting_username_bug: yup.string().nullable().label(i18n.t('Username Bug')),
+    default_eap_type: yup.string().nullable().label(i18n.t('EAP Type')),
+    eap_authentication_types: yup.array().ensure().of(yup.string().nullable().label(i18n.t('EAP Authentication Types'))),
+    fast_config: yup.string().nullable().label(i18n.t('Fast Profile')),
+    ignore_unknown_eap_types: yup.string().nullable().label(i18n.t('Ignore Unknown')),
+    max_sessions: yup.string().nullable().label(i18n.t('Max Sessions')),
+    peap_tlsprofile: yup.string().nullable().label(i18n.t('PEAP Profile')),
+    timer_expire: yup.string().nullable().label(i18n.t('Expires')),
+    tls_tlsprofile: yup.string().nullable().label(i18n.t('TLS Profile')),
+    ttls_tlsprofile: yup.string().nullable().label(i18n.t('TTLS Profile'))
   })
 }

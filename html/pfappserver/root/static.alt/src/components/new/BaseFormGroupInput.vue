@@ -85,7 +85,8 @@ export const setup = (props, context) => {
     isFocus,
     isLocked,
     onFocus,
-    onBlur
+    onBlur,
+    doFocus
   } = useInput(metaProps, context)
 
   const {
@@ -111,6 +112,7 @@ export const setup = (props, context) => {
     isLocked,
     onFocus,
     onBlur,
+    doFocus,
 
     // useInputValue
     inputValue: value,

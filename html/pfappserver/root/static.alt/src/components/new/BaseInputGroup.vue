@@ -110,5 +110,12 @@ export default {
   &.is-valid > textarea {
     border-color: $form-feedback-valid-color !important;
   }
+  & > .input-group-append,
+  & > .input-group-prepend {
+    max-height: calc(1.5em + 0.75rem + 2px);
+    & .btn {
+      padding: 0 0.75rem;
+    }
+  }
 }
 </style>

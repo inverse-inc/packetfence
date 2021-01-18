@@ -194,11 +194,6 @@ export const isPattern = (pattern) => {
   })
 }
 
-export const isPkiCn = (value) => {
-  if (!value) return true
-    return /^([A-Z]+|[A-Z]+[0-9A-Z_:]*[0-9A-Z]+)$/i.test(value)
-}
-
 export const isPort = (value) => {
   if (!value) return true
   return ~~value === parseFloat(value) && ~~value >= 1 && ~~value <= 65535
@@ -282,70 +277,8 @@ export const isFilenameWithExtension = (extensions = ['html']) => {
   })
 }
 
-export const hasAdminRoles = () => {
-  return store.dispatch('config/getAdminRoles').then(response => {
-    return (response.length > 0)
-  }).catch(() => {
-    return true
-  })
-}
-
-export const hasBillingTiers = () => {
-  return store.dispatch('config/getBillingTiers').then(response => {
-    return (response.length > 0)
-  }).catch(() => {
-    return true
-  })
-}
-
-export const hasConnectionProfiles = () => {
-  return store.dispatch('config/getConnectionProfiles').then(response => {
-    return (response.length > 0)
-  }).catch(() => {
-    return true
-  })
-}
-
 export const hasSelfServices = () => {
   return store.dispatch('config/getSelfServices').then(response => {
-    return (response.length > 0)
-  }).catch(() => {
-    return true
-  })
-}
-
-export const hasDomains = () => {
-  return store.dispatch('config/getDomains').then(response => {
-    return (response.length > 0)
-  }).catch(() => {
-    return true
-  })
-}
-
-export const hasFilterEngines = (collection) => {
-  return (0, _common.withParams)({
-    type: 'hasFilterEngines',
-    collection
-  }, function (value) {
-    if (!(0, _common.req)(value)) return true
-    return store.dispatch('config/getFilterEngines', collection).then(response => {
-      return (response.length > 0)
-    }).catch(() => {
-      return true
-    })
-  })
-}
-
-export const hasFirewalls = () => {
-  return store.dispatch('config/getFirewalls').then(response => {
-    return (response.length > 0)
-  }).catch(() => {
-    return true
-  })
-}
-
-export const hasFloatingDevices = () => {
-  return store.dispatch('config/getFloatingDevices').then(response => {
     return (response.length > 0)
   }).catch(() => {
     return true
@@ -360,129 +293,11 @@ export const hasInterfaces = () => {
   })
 }
 
-export const hasLayer2Networks = () => {
-  return store.dispatch('config/getLayer2Networks').then(response => {
-    return (response.length > 0)
-  }).catch(() => {
-    return true
-  })
-}
-
-export const hasMaintenanceTasks = () => {
-  return store.dispatch('config/getMaintenanceTasks').then(response => {
-    return (response.length > 0)
-  }).catch(() => {
-    return true
-  })
-}
-
-export const hasPkiCas = () => {
-  return store.dispatch('config/getPkiCas').then((response) => {
-    return (response.length > 0)
-  }).catch(() => {
-    return true
-  })
-}
-
-export const hasPkiProfiles = () => {
-  return store.dispatch('config/getPkiProfiles').then((response) => {
-    return (response.length > 0)
-  }).catch(() => {
-    return true
-  })
-}
-
-export const hasPkiCerts = () => {
-  return store.dispatch('config/getPkiCerts').then((response) => {
-    return (response.length > 0)
-  }).catch(() => {
-    return true
-  })
-}
-
-export const hasPkiProviders = () => {
-  return store.dispatch('config/getPkiProviders').then(response => {
-    return (response.length > 0)
-  }).catch(() => {
-    return true
-  })
-}
-
-export const hasNetworkBehaviorPolicies = () => {
-  return store.dispatch('config/getNetworkBehaviorPolicies').then((response) => {
-    return (response.length > 0)
-  }).catch(() => {
-    return true
-  })
-}
-
 export const hasPortalModules = () => {
   return store.dispatch('config/getPortalModules').then(response => {
     return (response.length > 0)
   }).catch(() => {
     return true
-  })
-}
-
-export const hasProvisionings = () => {
-  return store.dispatch('config/getProvisionings').then(response => {
-    return (response.length > 0)
-  }).catch(() => {
-    return true
-  })
-}
-
-export const hasRadiusEaps = () => {
-  return store.dispatch('config/getRadiusEaps').then(response => {
-    return (response.length > 0)
-  }).catch(() => {
-    return true
-  })
-}
-
-export const hasRadiusFasts = () => {
-  return store.dispatch('config/getRadiusFasts').then(response => {
-    return (response.length > 0)
-  }).catch(() => {
-    return true
-  })
-}
-
-export const hasRadiusOcsps = () => {
-  return store.dispatch('config/getRadiusOcsps').then(response => {
-    return (response.length > 0)
-  }).catch(() => {
-    return true
-  })
-}
-
-export const hasRadiusSsls = () => {
-  return store.dispatch('config/getRadiusSsls').then(response => {
-    return (response.length > 0)
-  }).catch(() => {
-    return true
-  })
-}
-
-export const hasRadiusTlss = () => {
-  return store.dispatch('config/getRadiusTlss').then(response => {
-    return (response.length > 0)
-  }).catch(() => {
-    return true
-  })
-}
-
-export const hasRealms = (tenantId) => {
-  return (0, _common.withParams)({
-    type: 'hasRealms',
-    tenantId
-  }, function (value) {
-    if (!(0, _common.req)(tenantId) || !(0, _common.req)(value)) return true
-    return store.dispatch('config/getRealms', tenantId).then(response => {
-      return (response.length > 0)
-    }).catch(() => {
-      return true
-    })
   })
 }
 
@@ -512,14 +327,6 @@ export const hasScans = () => {
 
 export const hasSecurityEvents = () => {
   return store.dispatch('config/getSecurityEvents').then(response => {
-    return (response.length > 0)
-  }).catch(() => {
-    return true
-  })
-}
-
-export const hasSources = () => {
-  return store.dispatch('config/getSources').then(response => {
     return (response.length > 0)
   }).catch(() => {
     return true
@@ -589,24 +396,6 @@ export const hasWRIXLocations = () => {
   })
 }
 
-export const adminRoleExists = (value) => {
-  if (!value) return true
-  return store.dispatch('config/getAdminRoles').then(response => {
-    return response.filter(adminRole => adminRole.id.toLowerCase() === value.toLowerCase()).length > 0
-  }).catch(() => {
-    return true
-  })
-}
-
-export const billingTierExists = (value) => {
-  if (!value) return true
-  return store.dispatch('config/getBillingTiers').then(response => {
-    return response.filter(billingTier => billingTier.id.toLowerCase() === value.toLowerCase()).length > 0
-  }).catch(() => {
-    return true
-  })
-}
-
 export const categoryIdNumberExists = (value) => {
   if (!value || !/^\d+$/.test(value)) return true
   return store.dispatch('config/getRoles').then(response => {
@@ -627,66 +416,11 @@ export const categoryIdStringExists = (value) => {
   })
 }
 
-export const connectionProfileExists = (value) => {
-  if (!value) return true
-  return store.dispatch('config/getConnectionProfiles').then(response => {
-    if (response.length === 0) return true
-    else return response.filter(connectionProfile => connectionProfile.id.toLowerCase() === value.toLowerCase()).length > 0
-  }).catch(() => {
-    return true
-  })
-}
-
 export const selfServiceExists = (value) => {
   if (!value) return true
   return store.dispatch('config/getSelfServices').then(response => {
     if (response.length === 0) return true
     else return response.filter(selfService => selfService.id.toLowerCase() === value.toLowerCase()).length > 0
-  }).catch(() => {
-    return true
-  })
-}
-
-export const domainExists = (value) => {
-  if (!value) return true
-  return store.dispatch('config/getDomains').then(response => {
-    if (response.length === 0) return true
-    else return response.filter(domain => domain.id.toLowerCase() === value.toLowerCase()).length > 0
-  }).catch(() => {
-    return true
-  })
-}
-
-export const filterEngineExists = (collection) => {
-  return (0, _common.withParams)({
-    type: 'filterEngineExists',
-    collection
-  }, function (value) {
-    if (!(0, _common.req)(value)) return true
-    return store.dispatch('config/getFilterEngines', collection).then(response => {
-      if (response.length === 0) return true
-      return response.map(item => item.id.toLowerCase()).includes(value.toLowerCase())
-    }).catch(() => {
-      return true
-    })
-  })
-}
-
-export const firewallExists = (value) => {
-  if (!value) return true
-  return store.dispatch('config/getFirewalls').then(response => {
-    if (response.length === 0) return true
-    else return response.filter(firewall => firewall.id.toLowerCase() === value.toLowerCase()).length > 0
-  }).catch(() => {
-    return true
-  })
-}
-
-export const floatingDeviceExists = (value) => {
-  if (!value) return true
-  return store.dispatch('config/getFloatingDevices').then(response => {
-    if (response.length === 0) return true
-    else return response.filter(floatingDevice => floatingDevice.id.toLowerCase() === value.toLowerCase()).length > 0
   }).catch(() => {
     return true
   })
@@ -720,45 +454,6 @@ export const interfaceVlanExists = (id) => {
   })
 }
 
-export const fingerbankCombinationExists = (value) => {
-  if (!value) return true
-  return store.dispatch('fingerbank/getCombination', value).then(() => {
-    return true
-  }).catch(() => {
-    return false
-  })
-}
-
-export const layer2NetworkExists = (value) => {
-  if (!value) return true
-  return store.dispatch('config/getLayer2Networks').then(response => {
-    if (response.length === 0) return true
-    else return response.filter(layer2Network => layer2Network.id.toLowerCase() === value.toLowerCase()).length > 0
-  }).catch(() => {
-    return true
-  })
-}
-
-export const maintenanceTaskExists = (value) => {
-  if (!value) return true
-  return store.dispatch('config/getMaintenanceTasks').then(response => {
-    if (response.length === 0) return true
-    else return response.filter(maintenanceTask => maintenanceTask.id.toLowerCase() === value.toLowerCase()).length > 0
-  }).catch(() => {
-    return true
-  })
-}
-
-export const networkBehaviorPolicyExists = (value) => {
-  if (!value) return true
-  return store.dispatch('config/getNetworkBehaviorPolicies').then((response) => {
-    if (response.length === 0) return true
-    else return response.filter(networkBehaviorPolicy => networkBehaviorPolicy.id.toLowerCase() === value.toLowerCase()).length > 0
-  }).catch(() => {
-    return true
-  })
-}
-
 export const nodeExists = (value) => {
   if (!value) return true
   // standardize MAC address
@@ -774,46 +469,6 @@ export const nodeExists = (value) => {
   })
 }
 
-export const pkiCaCnExists = (value) => {
-  if (!value) return true
-  return store.dispatch('config/getPkiCas').then((response) => {
-    if (response.length === 0) return true
-    else return response.filter(ca => ca.cn.toLowerCase() === value.toLowerCase()).length > 0
-  }).catch(() => {
-    return true
-  })
-}
-
-export const pkiProfileNameExists = (value) => {
-  if (!value) return true
-  return store.dispatch('config/getPkiProfiles').then((response) => {
-    if (response.length === 0) return true
-    else return response.filter(profile => profile.name.toLowerCase() === value.toLowerCase()).length > 0
-  }).catch(() => {
-    return true
-  })
-}
-
-export const pkiCertCnExists = (value) => {
-  if (!value) return true
-  return store.dispatch('config/getPkiCerts').then((response) => {
-    if (response.length === 0) return true
-    else return response.filter(cert => cert.cn.toLowerCase() === value.toLowerCase()).length > 0
-  }).catch(() => {
-    return true
-  })
-}
-
-export const pkiProviderExists = (value) => {
-  if (!value) return true
-  return store.dispatch('config/getPkiProviders').then(response => {
-    if (response.length === 0) return true
-    else return response.filter(provider => provider.id.toLowerCase() === value.toLowerCase()).length > 0
-  }).catch(() => {
-    return true
-  })
-}
-
 export const portalModuleExists = (value) => {
   if (!value) return true
   return store.dispatch('config/getPortalModules').then(response => {
@@ -821,81 +476,6 @@ export const portalModuleExists = (value) => {
     else return response.filter(module => module.id.toLowerCase() === value.toLowerCase()).length > 0
   }).catch(() => {
     return true
-  })
-}
-
-export const provisioningExists = (value) => {
-  if (!value) return true
-  return store.dispatch('config/getProvisionings').then(response => {
-    if (response.length === 0) return true
-    else return response.filter(provisioning => provisioning.id.toLowerCase() === value.toLowerCase()).length > 0
-  }).catch(() => {
-    return true
-  })
-}
-
-export const radiusEapExists = (value) => {
-  if (!value) return true
-  return store.dispatch('config/getRadiusEaps').then(response => {
-    if (response.length === 0) return true
-    else return response.filter(eap => eap.id.toLowerCase() === value.toLowerCase()).length > 0
-  }).catch(() => {
-    return true
-  })
-}
-
-export const radiusFastExists = (value) => {
-  if (!value) return true
-  return store.dispatch('config/getRadiusFasts').then(response => {
-    if (response.length === 0) return true
-    else return response.filter(fast => fast.id.toLowerCase() === value.toLowerCase()).length > 0
-  }).catch(() => {
-    return true
-  })
-}
-
-export const radiusOcspExists = (value) => {
-  if (!value) return true
-  return store.dispatch('config/getRadiusOcsps').then(response => {
-    if (response.length === 0) return true
-    else return response.filter(ocsp => ocsp.id.toLowerCase() === value.toLowerCase()).length > 0
-  }).catch(() => {
-    return true
-  })
-}
-
-export const radiusSslExists = (value) => {
-  if (!value) return true
-  return store.dispatch('config/getRadiusSsls').then(response => {
-    if (response.length === 0) return true
-    else return response.filter(ssl => ssl.id.toLowerCase() === value.toLowerCase()).length > 0
-  }).catch(() => {
-    return true
-  })
-}
-
-export const radiusTlsExists = (value) => {
-  if (!value) return true
-  return store.dispatch('config/getRadiusTlss').then(response => {
-    if (response.length === 0) return true
-    else return response.filter(tls => tls.id.toLowerCase() === value.toLowerCase()).length > 0
-  }).catch(() => {
-    return true
-  })
-}
-
-export const realmExists = (tenantId) => {
-  return (0, _common.withParams)({
-    type: 'realmExists',
-    tenantId
-  }, function (value) {
-    if (!(0, _common.req)(tenantId) || !(0, _common.req)(value)) return true
-    return store.dispatch('config/getRealms', tenantId).then(response => {
-      if (response.length === 0) return true
-      return response.map(item => item.id.toLowerCase()).includes(value.toLowerCase())
-    }).catch(() => {
-      return true
-    })
   })
 }
 

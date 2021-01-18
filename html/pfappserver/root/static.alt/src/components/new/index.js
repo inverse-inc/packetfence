@@ -39,6 +39,8 @@ import BaseInputChosenMultiple from './BaseInputChosenMultiple'
 import BaseInputChosenOne, { props as BaseInputChosenOneProps } from './BaseInputChosenOne'
 import BaseInputChosenOneSearchable, { props as BaseInputChosenOneSearchableProps } from './BaseInputChosenOneSearchable'
 import BaseInputGroup from './BaseInputGroup'
+import BaseInputGroupDate from './BaseInputGroupDate'
+import BaseInputGroupDateTime from './BaseInputGroupDateTime'
 import BaseInputGroupTextarea from './BaseInputGroupTextarea'
 import BaseInputGroupTextareaUpload, { props as BaseInputGroupTextareaUploadProps } from './BaseInputGroupTextareaUpload'
 import BaseInputGroupMultiplier from './BaseInputGroupMultiplier'
@@ -101,6 +103,8 @@ export {
   BaseInputToggleAdvancedMode,
 
   // bootstrap wrappers
+  BaseInputGroupDate,
+  BaseInputGroupDateTime,
   BaseInputGroupMultiplier,
   BaseInputGroupTextarea,
   BaseInputGroupTextareaUpload, BaseInputGroupTextareaUploadProps,

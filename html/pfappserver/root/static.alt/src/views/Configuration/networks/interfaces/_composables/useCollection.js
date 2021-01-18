@@ -48,7 +48,13 @@ const useRouter = (props, context, form) => {
   const { root: { $router } = {} } = context
   return {
     goToCollection: () => $router.push({ name: 'interfaces' }),
-    goToItem: () => $router.push({ name: 'interface', params: { id: `${form.value.id}.${form.value.vlan}` || id.value } }),
+    goToItem: () => {
+      let { id = id.value, vlan } = form.value
+      if (id.indexOf('.') === -1 && vlan) // if `id` omits `vlan` and `vlan` is defined
+        id += `.${vlan}` // append `vlan` to `id`
+      return $router.push({ name: 'interface', params: { id } })
+        .catch(e => { if (e.name !== "NavigationDuplicated") throw e })
+    },
     goToClone: () => $router.push({ name: 'cloneInterface', params: { id: id.value } }),
   }
 }

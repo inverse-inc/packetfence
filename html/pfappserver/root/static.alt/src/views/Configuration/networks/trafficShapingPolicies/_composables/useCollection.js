@@ -41,6 +41,7 @@ const useRouter = (props, context, form) => {
   return {
     goToCollection: () => $router.push({ name: 'traffic_shapings' }),
     goToItem: () => $router.push({ name: 'traffic_shaping', params: { id: form.value.id || id.value } })
+      .catch(e => { if (e.name !== "NavigationDuplicated") throw e })
   }
 }
 

@@ -325,7 +325,7 @@ sub create_local_account {
         'password'  => $password,
         'email'     => $email,
         'subject'   => $self->app->i18n_format(
-            "%s: Guest account creation information", $Config{'general'}{'domain'}
+            "%s: Account creation information", $Config{'general'}{'domain'}
         ),
     );
     $self->app->session->{local_account_info} = {
@@ -403,7 +403,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2020 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 

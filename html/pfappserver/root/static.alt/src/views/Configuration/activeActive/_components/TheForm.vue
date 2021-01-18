@@ -6,8 +6,8 @@
     :isLoading="isLoading"
   >
     <form-group-password namespace="password"
-      :column-label="$i18n.t('Shared KEY')"
-      :text="$i18n.t('Shared KEY for VRRP protocol (must be the same on all members).')"
+      :column-label="$i18n.t('Shared Key')"
+      :text="$i18n.t('Shared Key for VRRP protocol (must be the same on all members).')"
     />
 
     <form-group-virtual-router-identifier namespace="virtual_router_id"

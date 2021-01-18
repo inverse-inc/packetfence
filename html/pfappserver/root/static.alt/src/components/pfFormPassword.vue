@@ -178,9 +178,6 @@ export default {
     type () {
       return (this.showPassword) ? 'text' : 'password'
     },
-    mouseDown () {
-      return this.$store.getters['events/mouseDown']
-    },
     allowTest () {
       return !this.isLoading && !this.isTesting && this.inputValue && this.inputState !== false
     }
@@ -226,14 +223,6 @@ export default {
     },
     generatePassword () {
       this.inputValue = password.generate(this.options)
-    }
-  },
-  watch: {
-    mouseDown (pressed) {
-      if (pressed && this.showingGenerator) {
-        const $event = this.$store.getters['events/mouseEvent']
-        this.showGenerator = this.$refs.generator.contains($event.target)
-      }
     }
   }
 }

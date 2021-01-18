@@ -32,10 +32,10 @@
         @focus="onFocus"
         @blur="onBlur"
       />
-      <template v-slot:prepend>
+      <template v-slot:prepend v-if="$slots.prepend">
         <slot name="prepend"></slot>
       </template>
-      <template v-slot:append>
+      <template v-slot:append v-if="$slots.append || isLocked">
         <slot name="append"></slot>
         <b-button v-if="isLocked"
           class="input-group-text"

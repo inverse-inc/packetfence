@@ -8,7 +8,7 @@
 
     <component :is="valueComponent" ref="valueComponentRef"
       :namespace="`${namespace}.value`"
-      :options="valueOptions"
+      v-bind="valueProps"
     />
 
   </div>
@@ -16,6 +16,7 @@
 <script>
 import {
   BaseInput,
+  BaseInputGroupDateTime,
   BaseInputGroupMultiplier,
   BaseInputNumber,
   BaseInputPassword,
@@ -26,6 +27,7 @@ import {
 
 const components = {
   BaseInput,
+  BaseInputGroupDateTime,
   BaseInputGroupMultiplier,
   BaseInputNumber,
   BaseInputPassword,
@@ -111,7 +113,7 @@ const setup = (props, context) => {
             // break
 
           case componentType.DATETIME:
-            return BaseInput
+            return BaseInputGroupDateTime
             // break
 
           case componentType.PREFIXMULTIPLIER:
@@ -139,26 +141,23 @@ const setup = (props, context) => {
     }
   })
 
-  const valueOptions = ref([])
+  const valueProps = ref({})
   watch(
     action,
     () => {
-      valueOptions.value = []
+      valueProps.value = {}
       if (action.value) {
-        let { options = [] } = action.value
-        if (options.length > 0) {
-          valueOptions.value = options
-          // return
-        }
-        const { types = [] } = action.value
+        const { props = {}, types = [] } = action.value
+        valueProps.value = props
         for (let t = 0; t < types.length; t++) {
           let type = types[t]
           if (type in fieldTypeValues) {
+            valueProps.value.options = valueProps.value.options || []
             Promise.resolve(fieldTypeValues[type]()).then(options => {
-              const values = valueOptions.value.map(option => option.value)
+              const values = valueProps.value.options.map(option => option.value)
               for (let option of options) {
                 if (!values.includes(option.value))
-                  valueOptions.value.push(option)
+                  valueProps.value.options.push(option)
               }
             })
           }
@@ -168,12 +167,18 @@ const setup = (props, context) => {
     { immediate: true }
   )
 
+  const doFocus = () => {
+    const { doFocus = () => {} } = typeComponentRef.value || {}
+    doFocus() // focus `type` component
+  }
+
   return {
     typeComponentRef,
     typeOptions,
     valueComponent,
     valueComponentRef,
-    valueOptions
+    valueProps,
+    doFocus
   }
 }
 

@@ -867,10 +867,16 @@ type = $pf::config::ConfigRealm{$realm}->{'radius_auth_proxy_type'}
 EOT
             push(@radius_sources, split(',',$pf::config::ConfigRealm{$realm}->{'radius_auth'}));
             foreach my $radius (split(',',$pf::config::ConfigRealm{$realm}->{'radius_auth'})) {
-
+                if (pf::authentication::getAuthenticationSource($radius)->{'type'} eq "Eduroam") {
+                    $tags{'config'} .= <<"EOT";
+home_server = eduroam_server1
+home_server = eduroam_server2
+EOT
+                } else {
                 $tags{'config'} .= <<"EOT";
 home_server = $radius
 EOT
+                }
             }
             $tags{'config'} .= <<"EOT";
 }
@@ -963,6 +969,7 @@ EOT
     }
     foreach my $radius (uniq @radius_sources) {
         my $source = pf::authentication::getAuthenticationSource($radius);
+        next if ($source->{'type'} eq "Eduroam");
         my @addresses = gethostbyname($source->{'host'});
         my @ips = map { inet_ntoa($_) } @addresses[4 .. $#addresses];
         my $src_ip = pf::util::find_outgoing_srcip($ips[0]);
@@ -1456,7 +1463,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2020 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 

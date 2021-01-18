@@ -18,7 +18,7 @@ Pre-Depends:  ca-certificates,
  packetfence-pfcmd-suid (>= ${source:Version}), packetfence-config (>= ${source:Version}),
 # CAUTION: we need to require the version we want for Fingerbank and ensure we don't want anything equal or above the next major release as it can add breaking changes
  fingerbank (>= 4.2.1), fingerbank (<< 5.0.0),
- fingerbank-collector (>= 1.3.13), fingerbank-collector (<< 2.0.0),
+ fingerbank-collector (>= 1.3.14), fingerbank-collector (<< 2.0.0),
  packetfence-redis-cache (>= ${source:Version}),
  packetfence-pfappserver-javascript (>= ${source:Version}),
  packetfence-captive-portal-javascript (>= ${source:Version}),
@@ -143,8 +143,6 @@ Depends: ${misc:Depends}, vlan,
  libgraph-perl,
 # SAML
  liblasso-perl,
-# PaloAlto syslog SSO
- libnet-syslog-perl,
 # for packaging
  lsb-release,
 # wmi and nthash cache
@@ -190,18 +188,6 @@ Package: packetfence-ntlm-wrapper
 Architecture: any
 Depends: ${misc:Depends}, ${shlibs:Depends}
 Description: C wrapper around the ntlm_auth utility to log authentication latency and success/failure.
-
-
-Package: packetfence-remote-arp-sensor
-Architecture: all
-Depends: ${misc:Depends}, libfile-tail-perl, libconfig-inifiles-perl (>= 2.88),
- libio-socket-ssl-perl, libxml-parser-perl, libcrypt-ssleay-perl,
- libnet-pcap-perl, libcache-memcached-libmemcached-perl, memcached,
-# FIXME track what requires the conveyor stuff and identify it. If we can, get rid of it.
- libsoap-lite-perl, libthread-conveyor-monitored-perl, libthread-conveyor-perl
-Conflicts: packetfence
-Description: Files needed for sending MAC and IP from ARP requeststo
- PacketFence server. 
 
 Package: packetfence-config
 Architecture: all

@@ -29,9 +29,18 @@ export const schema = (props) => {
       .nullable()
       .required(i18n.t('Hostname or IP Address required.'))
       .firewallIdExistsExcept((!isNew && !isClone) ? id : undefined, i18n.t('Hostname or IP Address exists.')),
-
     password: yup.string().nullable().label(i18n.t('Secret or Key')),
-    username: yup.string().nullable().label(i18n.t('Username'))
+    username: yup.string().nullable().label(i18n.t('Username')),
+    port: yup.string().nullable().label(i18n.t('Port')),
+    vsys: yup.string().nullable().label(i18n.t('Number')),
+    deviceid: yup.string().nullable().label(i18n.t('DeviceID')),
+    transport: yup.string().nullable().label(i18n.t('Transport')),
+    nac_name: yup.string().nullable().label(i18n.t('Name')),
+    categories: yup.array().ensure().label(i18n.t('Roles')).of(yup.string().nullable().label(i18n.t('Role'))),
+    networks: yup.string().nullable().label(i18n.t('Networks')),
+    cache_timeout: yup.string().nullable().label(i18n.t('Timeout')),
+    username_format: yup.string().nullable().label(i18n.t('Format')),
+    default_realm: yup.string().nullable().label(i18n.t('Realm'))
   })
 }
 

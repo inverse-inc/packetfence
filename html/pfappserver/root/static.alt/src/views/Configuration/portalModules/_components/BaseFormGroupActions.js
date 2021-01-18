@@ -21,6 +21,14 @@ export const props = {
       type: undefined,
       value: undefined
     })
+  },
+  // overload draggable handlers
+  onAdd: {
+    type: Function,
+    default: (context, index, newComponent) => {
+      const { doFocus = () => {} } = newComponent
+      doFocus()
+    }
   }
 }
 

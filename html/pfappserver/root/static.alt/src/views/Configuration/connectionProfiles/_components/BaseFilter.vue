@@ -17,6 +17,7 @@
 <script>
 import {
   BaseInput,
+  BaseInputGroupDateTime,
   BaseInputGroupMultiplier,
   BaseInputNumber,
   BaseInputPassword,
@@ -27,6 +28,7 @@ import {
 
 const components = {
   BaseInput,
+  BaseInputGroupDateTime,
   BaseInputGroupMultiplier,
   BaseInputNumber,
   BaseInputPassword,
@@ -43,7 +45,7 @@ import {
 } from '@/globals/pfField'
 import { useInputMeta, useInputMetaProps } from '@/composables/useMeta'
 import { useInputValue, useInputValueProps } from '@/composables/useInputValue'
-import { filters as _filters } from '../config'
+import { pfFilters } from '@/globals/pfFilters'
 
 const props = {
   ...useInputMetaProps,
@@ -82,7 +84,7 @@ const setup = (props, context) => {
     }
   )
 
-  const filters = Object.keys(_filters).map(key => _filters[key])
+  const filters = Object.keys(pfFilters).map(key => pfFilters[key])
 
   const filter = computed(() => {
     const { type } = unref(inputValue) || {}
@@ -113,7 +115,7 @@ const setup = (props, context) => {
             // break
 
           case componentType.DATETIME:
-            return BaseInput
+            return BaseInputGroupDateTime
             // break
 
           case componentType.PREFIXMULTIPLIER:

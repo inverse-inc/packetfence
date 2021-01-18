@@ -39,7 +39,8 @@ const useRouter = (props, context, form) => {
   const { root: { $router } = {} } = context
   return {
     goToCollection: () => $router.push({ name: 'realms', params: { tenantId: tenantId.value } }),
-    goToItem: () => $router.push({ name: 'realm', params: { id: form.value.id || id.value, tenantId: tenantId.value } }),
+    goToItem: () => $router.push({ name: 'realm', params: { id: form.value.id || id.value, tenantId: tenantId.value } })
+      .catch(e => { if (e.name !== "NavigationDuplicated") throw e }),
     goToClone: () => $router.push({ name: 'cloneRealm', params: { id: id.value, tenantId: tenantId.value } }),
   }
 }
@@ -56,7 +57,7 @@ const useStore = (props, context, form) => {
     getOptions: () => $store.dispatch('$_realms/options', { id: id.value, tenantId: tenantId.value }),
     createItem: () => $store.dispatch('$_realms/createRealm', { item: form.value, tenantId: tenantId.value }),
     deleteItem: () => $store.dispatch('$_realms/deleteRealm', { id: id.value, tenantId: tenantId.value }),
-    getItem: () => $store.dispatch('$_realms/getRealm', id.value).then(item => {
+    getItem: () => $store.dispatch('$_realms/getRealm', { id: id.value, tenantId: tenantId.value }).then(item => {
       if (isClone.value) {
         item.id = `${item.id}-${i18n.t('copy')}`
         item.not_deletable = false

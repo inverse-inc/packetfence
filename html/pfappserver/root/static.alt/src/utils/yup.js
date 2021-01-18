@@ -30,14 +30,15 @@ yup.addMethod(yup.array, 'unique', function (message, hashFn) {
     name: 'unique',
     message: message || i18n.t('Duplicate item, must be unique.'),
     test: value => {
-      if (value.length === 0)
+      if (!value || value.length === 0)
         return true
       let cmp = []
       for (let m = 0; m < value.length; m++) {
         let hash = hashFn(value[m])
         if (cmp.includes(hash))
           return false
-        cmp.push(hash)
+        if (hash)
+          cmp.push(hash)
       }
       return true
     }
@@ -49,10 +50,24 @@ yup.addMethod(yup.array, 'ifThenRequires', function (message, ifIterFn, requires
     name: 'ifThenRequires',
     message: message || i18n.t('Missing value.'),
     test: value => {
-      if (value.length === 0)
+      if (!value || value.length === 0)
         return true
       if (value.filter(row => ifIterFn(row)).length > 0)
         return (value.filter(row => requiresIterFn(row)).length > 0)
+      return true
+    }
+  })
+})
+
+yup.addMethod(yup.array, 'ifThenRestricts', function (message, ifIterFn, restrictsIterFn) {
+  return this.test({
+    name: 'ifThenRestricts',
+    message: message || i18n.t('Missing value.'),
+    test: value => {
+      if (!value || value.length === 0)
+        return true
+      if (value.filter(row => ifIterFn(row)).length > 0)
+        return (value.filter(row => restrictsIterFn(row)).length === 0)
       return true
     }
   })
@@ -84,7 +99,7 @@ yup.addMethod(yup.string, 'maxAsInt', function (ref, message) {
   return this.test({
     name: 'maxAsInt',
     message: message || i18n.t('Maximum {maxValue}.', { maxValue: ref }),
-    test: value => (+value <= +ref)
+    test: value => ['', null, undefined].includes(value) || +value <= +ref
   })
 })
 
@@ -92,7 +107,7 @@ yup.addMethod(yup.string, 'minAsInt', function (ref, message) {
   return this.test({
     name: 'minAsInt',
     message: message || i18n.t('Minimum {minValue}.', { minValue: ref }),
-    test: value => (+value >= +ref)
+    test: value => ['', null, undefined].includes(value) || +value >= +ref
   })
 })
 
@@ -214,11 +229,27 @@ yup.addMethod(yup.string, 'isIpv6', function (message) {
   })
 })
 
+yup.addMethod(yup.string, 'isMAC', function (message) {
+  return this.test({
+    name: 'isMAC',
+    message: message || i18n.t('Invalid MAC.'),
+    test: value => ['', null, undefined].includes(value) || value.toLowerCase().replace(/[^0-9a-f]/g, '').length === 12
+  })
+})
+
 yup.addMethod(yup.string, 'isPort', function (message) {
   return this.test({
     name: 'isPort',
     message: message || i18n.t('Invalid port.'),
     test: value => ['', null, undefined].includes(value) || (+value === parseFloat(value) && +value >= 1 && +value <= 65535)
+  })
+})
+
+yup.addMethod(yup.string, 'isPrice', function (message) {
+  return this.test({
+    name: 'isPrice',
+    message: message || i18n.t('Invalid price.'),
+    test: value => ['', null, undefined].includes(value) || (parseFloat(value) >= 0 && ((value || '').split('.')[1] || []).length <= 2)
   })
 })
 
@@ -230,7 +261,7 @@ yup.addMethod(yup.string, 'isStaticRoute', function (message) {
   })
 })
 
-yup.addMethod(yup.string, 'isVlan', function (message) {
+yup.addMethod(yup.string, 'isVLAN', function (message) {
   return this.test({
     name: 'isVlan',
     message: message || i18n.t('Invalid VLAN.'),

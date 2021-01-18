@@ -10,7 +10,9 @@ const schemaRoutes = yup.array().ensure()
   .of(schemaRoute)
 
 export const schema = () => yup.object({
-  staticroutes: schemaRoutes
+  staticroutes: schemaRoutes,
+  rogueinterval: yup.string().nullable().label(i18n.t('Interval')),
+  interfaceSNAT: yup.string().nullable().label(i18n.t('Interface')),
 })
 
 export default schema

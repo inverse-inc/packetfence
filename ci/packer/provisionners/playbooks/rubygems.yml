@@ -14,20 +14,3 @@
       args:
         creates: "{{ local_bin_dir }}/{{ item['name'] }}"
       loop: '{{ gems }}'
-
-    - name: Install gems in prerelease state
-      command:
-      args:
-        argv:
-          - 'gem'
-          - 'install'
-          - "{{ item['name'] }}"
-          - '--no-user-install'
-          - '--no-document'
-          - '-n'
-          - '{{ local_bin_dir }}'
-          - "{{ item['extra_options'] }}"
-        creates: "{{ local_bin_dir }}/{{ item['name'] }}"
-      loop: '{{ gems_pre }}'
-      # exclude centos 7 due to missing --pre option with ruby 2.0
-      when: ansible_distribution_major_version != '7'

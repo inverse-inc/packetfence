@@ -4,9 +4,8 @@ import BasesStoreModule from '../../bases/_store'
 const TheTabs = () => import(/* webpackChunkName: "Configuration" */ '../../_components/RadiusTabs')
 
 export const beforeEnter = (to, from, next = () => {}) => {
-  if (!store.state.$_bases) {
+  if (!store.state.$_bases)
     store.registerModule('$_bases', BasesStoreModule)
-  }
   next()
 }
 

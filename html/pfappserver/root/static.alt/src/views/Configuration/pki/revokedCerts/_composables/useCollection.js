@@ -33,6 +33,7 @@ const useStore = (props, context) => {
   return {
     isLoading: computed(() => $store.getters['$_pkis/isLoading']),
     getItem: () => $store.dispatch('$_pkis/getRevokedCert', id.value)
+      .catch(e => { if (e.name !== "NavigationDuplicated") throw e })
   }
 }
 

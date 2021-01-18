@@ -29,7 +29,8 @@ const useRouter = (props, context, form) => {
   const { root: { $router } = {} } = context
   return {
     goToCollection: () => $router.push({ name: 'billing_tiers' }),
-    goToItem: () => $router.push({ name: 'billing_tier', params: { id: form.value.id || id.value } }),
+    goToItem: () => $router.push({ name: 'billing_tier', params: { id: form.value.id || id.value } })
+      .catch(e => { if (e.name !== "NavigationDuplicated") throw e }),
     goToClone: () => $router.push({ name: 'cloneBillingTier', params: { id: id.value } }),
   }
 }

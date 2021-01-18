@@ -5,7 +5,7 @@
 # - compressed $PF_DIRECTORY to $BACKUP_DIRECTORY, rotate and clean
 # - compressed mysqldump to $BACKUP_DIRECTORY, rotate and clean
 #
-# Copyright (C) 2005-2020 Inverse inc.
+# Copyright (C) 2005-2021 Inverse inc.
 #
 # Author: Inverse inc. <info@inverse.ca>
 #

@@ -1,13 +1,5 @@
 import i18n from '@/utils/locale'
-import api from '../../fingerbank/_api'
-import pfFormInput from '@/components/pfFormInput'
 import { pfSearchConditionType as conditionType } from '@/globals/pfSearch'
-import {
-  isOUI
-} from '@/globals/pfValidators'
-import {
-  required
-} from 'vuelidate/lib/validators'
 
 export const columns = [
   {
@@ -97,80 +89,4 @@ export const config = (context = {}) => {
       }
     }
   }
-}
-
-export const view = (_, meta = {}) => {
-  const {
-    isNew = false,
-    isClone = false
-  } = meta
-  return [
-    {
-      tab: null, // ignore tabs
-      rows: [
-        {
-          if: (!isNew && !isClone),
-          label: i18n.t('Identifier'),
-          cols: [
-            {
-              namespace: 'id',
-              component: pfFormInput,
-              attrs: {
-                disabled: true
-              }
-            }
-          ]
-        },
-        {
-          label: i18n.t('MAC Vendor'),
-          cols: [
-            {
-              namespace: 'name',
-              component: pfFormInput
-            }
-          ]
-        },
-        {
-          label: i18n.t('OUI'),
-          text: i18n.t('The OUI is the first six digits or letters of a MAC address. They must be entered without any space or separator (ex: 001122).'),
-          cols: [
-            {
-              namespace: 'mac',
-              component: pfFormInput
-            }
-          ]
-        }
-      ]
-    }
-  ]
-}
-
-export const validators = () => {
-  return {
-    name: {
-      [i18n.t('Vendor required.')]: required
-    },
-    mac: {
-      [i18n.t('OUI required.')]: required,
-      [i18n.t('Invalid OUI.')]: isOUI
-    }
-  }
-}
-
-export const search = (chosen, query, searchById) => {
-  if (!query) return []
-  return api.fingerbankSearchMacVendors({
-    query: ((searchById)
-      ? { op: 'and', values: [{ op: 'or', values: [{ field: 'id', op: 'equals', value: query }] }] }
-      : { op: 'and', values: [{ op: 'or', values: [{ field: 'id', op: 'contains', value: query }, { field: 'name', op: 'contains', value: query }, { field: 'mac', op: 'contains', value: query }] }] }
-    ),
-    fields: ['id', 'mac', 'name'],
-    sort: ['name'],
-    cursor: 0,
-    limit: 100
-  }).then(response => {
-    return response.items.map(item => {
-      return { value: item.id, text: `${item.mac.toUpperCase()} - ${item.name}` }
-    })
-  })
 }

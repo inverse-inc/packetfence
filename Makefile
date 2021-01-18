@@ -1,11 +1,4 @@
 include config.mk
-DOCBOOK_XSL := /usr/share/xml/docbook/stylesheet/docbook-xsl
-UNAME := $(shell uname -s)
-ifeq ($(UNAME),Darwin)
-	DOCBOOK_XSL := /opt/local/share/xsl/docbook-xsl
-else ifneq ("$(wildcard /etc/redhat-release)","")
-	DOCBOOK_XSL := /usr/share/sgml/docbook/xsl-stylesheets
-endif
 
 all:
 	@echo "Please chose which documentation to build:"
@@ -17,69 +10,37 @@ all:
 	@echo " 'docs/PacketFence_Network_Devices_Configuration_Guide.pdf' will build the Network Devices Configuration guide in PDF"
 	@echo " 'docs/PacketFence_Upgrade_Guide.pdf' will build the Upgrade guide in PDF"
 
-DOCINFO_XMLS := $(notdir $(wildcard docs/PacketFence_*-docinfo.xml))
-ASCIIDOCS := $(patsubst %-docinfo.xml, %.asciidoc, $(DOCINFO_XMLS))
+ASCIIDOCS := $(notdir $(wildcard docs/PacketFence_*.asciidoc))
 PDFS = $(patsubst %.asciidoc,docs/%.pdf, $(ASCIIDOCS))
 
-docs/docbook/xsl/titlepage-fo.xsl: docs/docbook/xsl/titlepage-fo.xml
-	xsltproc \
-		-o docs/docbook/xsl/titlepage-fo.xsl \
-		$(DOCBOOK_XSL)/template/titlepage.xsl \
-		docs/docbook/xsl/titlepage-fo.xml
+clean:
+	rm -f docs/*.html docs/*.pdf
 
-docs/docbook/xsl/import-fo.xsl:
-	@echo "<?xml version='1.0'?> \
-	<xsl:stylesheet   \
-	  xmlns:xsl=\"http://www.w3.org/1999/XSL/Transform\" \
-	  xmlns:fo=\"http://www.w3.org/1999/XSL/Format\" \
-	  version=\"1.0\"> \
-	  <xsl:import href=\"${DOCBOOK_XSL}/fo/docbook.xsl\"/> \
-	</xsl:stylesheet>" \
-	> docs/docbook/xsl/import-fo.xsl
-
-docs/docbook/%.docbook: docs/%.asciidoc
-	asciidoc \
-		-a docinfo2 \
-		-b docbook \
-		-d book \
-		-f docs/docbook/docbook45.conf \
-		-o $@ $<
-
-docs/%.fo: docs/docbook/%.docbook docs/docbook/xsl/titlepage-fo.xsl docs/docbook/xsl/import-fo.xsl
-	xsltproc \
-		-o $@ \
-		docs/docbook/xsl/packetfence-fo.xsl \
+docs/%.pdf: docs/%.asciidoc
+	asciidoctor-pdf \
+		-a pdf-theme=docs/asciidoctor-pdf-theme.yml \
+		-a pdf-fontsdir=docs/fonts \
+		-a release_version=`cat conf/pf-release | cut -d' ' -f 2` \
+		-a release_month=`date +%B` \
 		$<
-
-docs/%.pdf: docs/%.fo
-	fop \
-		-c docs/fonts/fop-config.xml \
-		$< -pdf $@
 
 .PHONY: pdf
 
 pdf: $(PDFS)
 
-HTML = $(patsubst %.asciidoc,docs/html/%.html, $(ASCIIDOCS))
+HTML = $(patsubst %.asciidoc,docs/%.html, $(ASCIIDOCS))
 
-docs/html/%.html: docs/%.asciidoc
+docs/%.html: docs/%.asciidoc
 	asciidoctor \
-		-D docs/html \
 		-n \
-		-r ./docs/html/asciidoctor-html.rb \
-		-a imagesdir=../images \
+		-r ./docs/asciidoctor-html.rb \
 		-a stylesdir=../html/pfappserver/root/static.alt/dist/css \
 		-a stylesheet=$(notdir $(wildcard ./html/pfappserver/root/static.alt/dist/css/app*.css)) \
+		-a release_version=`cat conf/pf-release | cut -d' ' -f 2` \
+		-a release_month=`date +%B` \
 		$<
 
-html/pfappserver/root/static/doc:
-	make html
-	mkdir html/pfappserver/root/static/doc
-	mkdir html/pfappserver/root/static/images
-	cp -a docs/html/* html/pfappserver/root/static/doc
-	cp -a docs/images/* html/pfappserver/root/static/images
-
-docs/html/index.js: $(HTML)
+docs/index.js: $(HTML)
 	find $$(dirname "$@") -type f  -iname  '*.html' -and -not -iname '*template*' -printf "{\"name\":\"%f\", \"size\":%s, \"last_modifed\" : %T@}\n" | jq -s '{ items: [ .[] |  {name, size, last_modifed : (.last_modifed*1000 | floor)} ] }' > $@
 
 .PHONY: images
@@ -87,19 +48,19 @@ docs/html/index.js: $(HTML)
 images:
 	@echo "install images dir and all subdirectories"
 	for subdir in `find docs/images/* -type d -printf "%f\n"` ; do \
-		install -d -m0755 $(DESTDIR)/usr/local/pf/html/pfappserver/root/static/images/$$subdir ; \
+		install -d -m0755 $(DESTDIR)/usr/local/pf/html/pfappserver/root/static/doc/images/$$subdir ; \
 		for img in `find docs/images/$$subdir -type f`; do \
-			install -m0644 $$img $(DESTDIR)/usr/local/pf/html/pfappserver/root/static/images/$$subdir ; \
+			install -m0644 $$img $(DESTDIR)/usr/local/pf/html/pfappserver/root/static/doc/images/$$subdir ; \
 		done \
 	done
 	@echo "install only images at depth0 in images/ directory"
 	for img in `find docs/images/* -maxdepth 0 -type f`; do \
-		install -m0644 $$img $(DESTDIR)/usr/local/pf/html/pfappserver/root/static/images/ ; \
+		install -m0644 $$img $(DESTDIR)/usr/local/pf/html/pfappserver/root/static/doc/images/ ; \
 	done
 
 .PHONY: html
 
-html: $(HTML) docs/html/index.js
+html: $(HTML) docs/index.js
 
 pfcmd.help:
 	/usr/local/pf/bin/pfcmd help > docs/installation/pfcmd.help

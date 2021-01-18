@@ -20,7 +20,6 @@
 import { computed, toRefs, unref } from '@vue/composition-api'
 import { useFormProps as props } from '../_composables/useForm'
 import { BaseContainerLoading } from '@/components/new/'
-import FormTypeActiveDirectory from './FormTypeActiveDirectory'
 import FormTypeAdminProxy from './FormTypeAdminProxy'
 import FormTypeAuthorization from './FormTypeAuthorization'
 import FormTypeAuthorizeNet from './FormTypeAuthorizeNet'
@@ -38,6 +37,7 @@ import FormTypeHttp from './FormTypeHttp'
 import FormTypeInstagram from './FormTypeInstagram'
 import FormTypeKerberos from './FormTypeKerberos'
 import FormTypeKickbox from './FormTypeKickbox'
+import FormTypeLdap from './FormTypeLdap'
 import FormTypeLinkedIn from './FormTypeLinkedIn'
 import FormTypeMirapay from './FormTypeMirapay'
 import FormTypeNull from './FormTypeNull'
@@ -57,7 +57,6 @@ import FormTypeWindowsLive from './FormTypeWindowsLive'
 const components = {
   BaseContainerLoading,
 
-  FormTypeActiveDirectory,
   FormTypeAdminProxy,
   FormTypeAuthorization,
   FormTypeAuthorizeNet,
@@ -75,6 +74,7 @@ const components = {
   FormTypeInstagram,
   FormTypeKerberos,
   FormTypeKickbox,
+  FormTypeLdap,
   FormTypeLinkedIn,
   FormTypeMirapay,
   FormTypeNull,
@@ -101,7 +101,7 @@ export const setup = (props) => {
   const formType = computed(() => {
     const { type } = unref(form)
     switch(unref(type)) {
-      case 'AD':            return FormTypeActiveDirectory // break
+      case 'AD':            return FormTypeLdap // break
       case 'AdminProxy':    return FormTypeAdminProxy //break
       case 'Authorization': return FormTypeAuthorization //break
       case 'AuthorizeNet':  return FormTypeAuthorizeNet //break
@@ -119,7 +119,7 @@ export const setup = (props) => {
       case 'Instagram':     return FormTypeInstagram //break
       case 'Kerberos':      return FormTypeKerberos //break
       case 'Kickbox':       return FormTypeKickbox //break
-      case 'LDAP':          return FormTypeActiveDirectory //break
+      case 'LDAP':          return FormTypeLdap //break
       case 'LinkedIn':      return FormTypeLinkedIn //break
       case 'Mirapay':       return FormTypeMirapay //break
       case 'Null':          return FormTypeNull //break

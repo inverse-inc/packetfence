@@ -28,6 +28,9 @@ export default (props) => {
     id: yup.string()
       .nullable()
       .required(i18n.t('Identifier required.'))
-      .radiusFastIdNotExistsExcept((!isNew && !isClone) ? id : undefined, i18n.t('Identifier exists.'))
+      .radiusFastIdNotExistsExcept((!isNew && !isClone) ? id : undefined, i18n.t('Identifier exists.')),
+    authority_identity: yup.string().nullable().label(i18n.t('Authority Identity')),
+    pac_opaque_key: yup.string().nullable().label(i18n.t('Key')),
+    tls: yup.string().nullable().label(i18n.t('TLS Profile'))
   })
 }

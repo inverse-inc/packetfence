@@ -74,9 +74,15 @@ export const setup = (props, context) => {
   })
 
   const onInputWrapper = useEventFnWrapper(onInput, _value => {
-    const { [trackBy.value]: trackedValue } = _value
-    const filteredValues = (value.value || []).filter(item => item !== trackedValue)
-    return [ ...filteredValues, trackedValue ]
+    const _values = (_value.constructor === Array)
+      ? _value // is group(ed)
+      : [_value] // is singular
+    let valueCopy = (value.value || [])
+    for (_value of _values) {
+      const { [trackBy.value]: trackedValue } = _value
+      valueCopy = [ ...valueCopy.filter(item => item !== trackedValue), trackedValue ]
+    }
+    return valueCopy
   })
 
   const inputPlaceholder = useOptionsValue(options, trackBy, label, placeholder, isFocus, isLoading)

@@ -19,7 +19,7 @@
       ref="tabs" :value="tabIndex" :key="tabIndex" card>
       <b-tab v-for="(collection, index) in collections" :key="index"
         :title="(collection && collection.name) ? collection.name : '...'" @click="tabIndex = index">
-        <b-card>
+        <b-card v-if="collection">
           <h4 class="mb-3">{{ (collection && collection.name) ? collection.name : '...' }}</h4>
           <b-button class="mb-3" variant="outline-primary" :to="{ name: 'newFilterEngine', params: collection }">{{ $t('New Filter') }}</b-button>
           <pf-table-sortable

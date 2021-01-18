@@ -496,9 +496,6 @@ export default {
       }
       return null
     },
-    windowSize () {
-      return this.$store.getters['events/windowSize']
-    },
     savedSearches () {
       return this.$store.getters['saveSearch/cache'][this.saveSearchNamespace] || []
     },
@@ -657,14 +654,6 @@ export default {
       handler: function () {
         this.setDimensions()
       }
-    },
-    windowSize: {
-      handler: function (a, b) {
-        if (a.clientWidth !== b.clientWidth || a.clientHeight !== b.clientHeight) {
-          this.setDimensions()
-        }
-      },
-      deep: true
     },
     query: {
       handler: function (a) {

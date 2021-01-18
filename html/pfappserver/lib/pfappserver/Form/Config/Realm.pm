@@ -343,6 +343,7 @@ sub options_ldap {
 sub options_radius {
     my $self = shift;
     my @radius = map { $_ => $_ } keys %pf::config::ConfigAuthenticationRadius;
+    push @radius , map { $_ => $_ } keys %pf::config::ConfigAuthenticationEduroam;
     return @radius;
 }
 
@@ -372,7 +373,7 @@ sub options_edir {
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2020 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 

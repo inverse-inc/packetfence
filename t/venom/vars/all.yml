@@ -139,7 +139,7 @@ wired_mac_auth.roles.headless_device.vlan_id: 100
 
 # Connection profiles
 wired_mac_auth.profiles.wired.id: catch_wired_mac_authentication
-wired_mac_auth.profiles.wired.description: Wired Mac authentication with unreg_on_accounting_stop
+wired_mac_auth.profiles.wired.description: Wired Mac authentication
 wired_mac_auth.profiles.wired.filters.connection_type: Ethernet-NoEAP
 wired_mac_auth.profiles.wired.unreg_on_acct_stop: disabled
 

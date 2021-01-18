@@ -1,6 +1,7 @@
 import store from '@/store'
 import i18n from '@/utils/locale'
 import yup from '@/utils/yup'
+import { pfFiltersSchema as schemaFilters } from '@/globals/pfFilters'
 
 yup.addMethod(yup.string, 'connectionProfileIdNotExistsExcept', function (exceptId = '', message) {
   return this.test({
@@ -49,13 +50,6 @@ yup.addMethod(yup.string, 'pathNotExists', function (entries, path, message) {
   })
 })
 
-const schemaFilter = yup.object({
-  type: yup.string().required(i18n.t('Type required.')),
-  match: yup.string().required(i18n.t('Match required'))
-})
-
-const schemaFilters = yup.array().ensure().of(schemaFilter)
-
 const schemaAdvancedFilter = yup.object({
   field: yup.string().required(i18n.t('Field required.')),
   op: yup.string().nullable().required(i18n.t('Operator required.')),
@@ -83,15 +77,24 @@ export default (props) => {
       .nullable()
       .required(i18n.t('Name required.'))
       .connectionProfileIdNotExistsExcept((!isNew && !isClone) ? id : undefined, i18n.t('Name exists.')),
-
-    filter: schemaFilters.unique(i18n.t('Duplicate filter.')),
-    advanced_filter: schemaAdvancedFilter.meta({ invalidFeedback: i18n.t('Advanced filter contains one or more errors.') }),
-    sources: schemaArray.unique(i18n.t('Duplicate source.')),
+    advanced_filter: schemaAdvancedFilter,
     billing_tiers: schemaArray.unique(i18n.t('Duplicate billing tier.')),
-    provisioners: schemaArray.unique(i18n.t('Duplicate provisioner.')),
-    scans: schemaArray.unique(i18n.t('Duplicate scanner.')),
+    default_psk_key: yup.string().nullable().label(i18n.t('Key')),
+    description: yup.string().nullable().label(i18n.t('Description')),
+    filter: schemaFilters,
+    filter_match_style: yup.string().nullable().label(i18n.t('Filters')),
     locale: schemaArray.unique(i18n.t('Duplicate locale.')),
-    root_module: yup.string().label(i18n.t('Module'))
+    login_attempt_limit: yup.string().nullable().label( i18n.t('Limit')),
+    logo: yup.string().nullable().label(i18n.t('Logo')),
+    provisioners: schemaArray.unique(i18n.t('Duplicate provisioner.')),
+    redirecturl: yup.string().nullable().label(i18n.t('Redirect')),
+    root_module: yup.string().label(i18n.t('Module')),
+    scans: schemaArray.unique(i18n.t('Duplicate scanner.')),
+    self_service: yup.string().nullable().label(i18n.t('Registration')),
+    sms_pin_retry_limit: yup.string().nullable().label(i18n.t('Limit')),
+    sms_request_limit: yup.string().nullable().label(i18n.t('Limit')),
+    sources: schemaArray.unique(i18n.t('Duplicate source.')),
+    vlan_pool_technique: yup.string().nullable().label(i18n.t('Algorithm'))
   })
 }
 

@@ -1,10 +1,5 @@
 import i18n from '@/utils/locale'
-import api from '../../fingerbank/_api'
-import pfFormInput from '@/components/pfFormInput'
 import { pfSearchConditionType as conditionType } from '@/globals/pfSearch'
-import {
-  required
-} from 'vuelidate/lib/validators'
 
 export const columns = [
   {
@@ -87,66 +82,4 @@ export const config = (context = {}) => {
       }
     }
   }
-}
-
-export const view = (_, meta = {}) => {
-  const {
-    isNew = false,
-    isClone = false
-  } = meta
-  return [
-    {
-      tab: null, // ignore tabs
-      rows: [
-        {
-          if: (!isNew && !isClone),
-          label: i18n.t('Identifier'),
-          cols: [
-            {
-              namespace: 'id',
-              component: pfFormInput,
-              attrs: {
-                disabled: true
-              }
-            }
-          ]
-        },
-        {
-          label: i18n.t('DHCP Vendor'),
-          cols: [
-            {
-              namespace: 'value',
-              component: pfFormInput
-            }
-          ]
-        }
-      ]
-    }
-  ]
-}
-
-export const validators = () => {
-  return {
-    value: {
-      [i18n.t('Vendor required.')]: required
-    }
-  }
-}
-
-export const search = (chosen, query, searchById) => {
-  if (!query) return []
-  return api.fingerbankSearchDhcpVendors({
-    query: ((searchById)
-      ? { op: 'and', values: [{ op: 'or', values: [{ field: 'id', op: 'equals', value: query }] }] }
-      : { op: 'and', values: [{ op: 'or', values: [{ field: 'value', op: 'contains', value: query }] }] }
-    ),
-    fields: ['id', 'value'],
-    sort: ['value'],
-    cursor: 0,
-    limit: 100
-  }).then(response => {
-    return response.items.map(item => {
-      return { value: item.id.toString(), text: item.value }
-    })
-  })
 }

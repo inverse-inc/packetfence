@@ -103,11 +103,6 @@ export default {
       }
     }
   },
-  computed: {
-    windowSize () {
-      return this.$store.getters['events/windowSize']
-    }
-  },
   methods: {
     queueRender () {
       // buffer async calls to render
@@ -209,14 +204,6 @@ export default {
           this.maxStartDatetime = a
         }
       }
-    },
-    windowSize: {
-      handler: function (a, b) {
-        if (a.clientWidth !== b.clientWidth || a.clientHeight !== b.clientHeight) {
-          this.queueRender()
-        }
-      },
-      deep: true
     }
   },
   beforeUnmount () {

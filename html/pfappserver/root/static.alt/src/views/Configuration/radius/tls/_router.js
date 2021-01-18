@@ -1,13 +1,12 @@
 import store from '@/store'
-import StoreModule from './_store'
+import RadiusTlsStoreModule from './_store'
 
 const TheTabs = () => import(/* webpackChunkName: "Configuration" */ '../../_components/RadiusTabs')
 const TheView = () => import(/* webpackChunkName: "Configuration" */ './_components/TheView')
 
 export const beforeEnter = (to, from, next = () => {}) => {
-  if (!store.state.$_radius_tls) {
-    store.registerModule('$_radius_tls', StoreModule)
-  }
+  if (!store.state.$_radius_tls)
+    store.registerModule('$_radius_tls', RadiusTlsStoreModule)
   next()
 }
 

@@ -121,6 +121,7 @@
         <alert-services :show="isModified" :disabled="isLoading" :services="services" />
         <base-form-button-bar
           :isLoading="isLoading"
+          :isSaveable="true"
           :isValid="isValid"
           :formRef="rootRef"
           @close="doHideEdit"

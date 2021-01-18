@@ -1,21 +1,5 @@
 import i18n from '@/utils/locale'
-import pfFormChosen from '@/components/pfFormChosen'
-import pfFormInput from '@/components/pfFormInput'
 import { pfSearchConditionType as conditionType } from '@/globals/pfSearch'
-import {
-  attributesFromMeta,
-  validatorsFromMeta
-} from '../'
-import {
-  and,
-  not,
-  conditional,
-  hasRadiusFasts,
-  radiusFastExists
-} from '@/globals/pfValidators'
-import {
-  required
-} from 'vuelidate/lib/validators'
 
 export const columns = [
   {
@@ -80,94 +64,5 @@ export const config = () => {
         ]
       }
     }
-  }
-}
-
-export const view = (form = {}, meta = {}) => {
-  const {
-    isNew = false,
-    isClone = false
-  } = meta
-  const {
-    not_deletable: notDeletable = false
-  } = form
-  const isEditable = (isNew || isClone || !notDeletable)
-
-  return [
-    {
-      tab: null,
-      rows: [
-        {
-          label: i18n.t('Identifier'),
-          cols: [
-            {
-              namespace: 'id',
-              component: pfFormInput,
-              attrs: {
-                ...attributesFromMeta(meta, 'id'),
-                disabled: !isEditable
-              }
-            }
-          ]
-        },
-        {
-          label: i18n.t('TLS Profile'),
-          cols: [
-            {
-              namespace: 'tls',
-              component: pfFormChosen,
-              attrs: {
-                ...attributesFromMeta(meta, 'tls'),
-                disabled: !isEditable
-              }
-            }
-          ]
-        },
-        {
-          label: i18n.t('Authority Identity'),
-          cols: [
-            {
-              namespace: 'authority_identity',
-              component: pfFormInput,
-              attrs: {
-                ...attributesFromMeta(meta, 'authority_identity'),
-                disabled: !isEditable
-              }
-            }
-          ]
-        },
-        {
-          label: i18n.t('Key'),
-          cols: [
-            {
-              namespace: 'pac_opaque_key',
-              component: pfFormInput,
-              attrs: {
-                ...attributesFromMeta(meta, 'pac_opaque_key'),
-                disabled: !isEditable
-              }
-            }
-          ]
-        }
-      ]
-    }
-  ]
-}
-
-export const validators = (_, meta = {}) => {
-  const {
-    isNew = false,
-    isClone = false
-  } = meta
-  return {
-    id: {
-      ...validatorsFromMeta(meta, 'id', i18n.t('Identifier')),
-      ...{
-        [i18n.t('Fast profile exists.')]: not(and(required, conditional(isNew || isClone), hasRadiusFasts, radiusFastExists))
-      }
-    },
-    authority_identity: validatorsFromMeta(meta, 'authority_identity', i18n.t('Authority Identity')),
-    pac_opaque_key: validatorsFromMeta(meta, 'pac_opaque_key', i18n.t('Key')),
-    tls: validatorsFromMeta(meta, 'tls', i18n.t('TLS Profile'))
   }
 }

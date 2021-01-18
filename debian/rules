@@ -121,13 +121,6 @@ install: build
 	install -oroot -groot -d -m0750 $(CURDIR)/debian/packetfence/etc/sudoers.d
 	install -oroot -groot -m0440 $(CURDIR)/debian/packetfence.sudoers $(CURDIR)/debian/packetfence/etc/sudoers.d/packetfence
 	rm -fr $(CURDIR)/debian/packetfence$(PREFIX)/$(NAME)/html/pfappserver/root/static/alt
-	#PacketFence remote ARP sensor
-	install -d -m0700 $(CURDIR)/debian/packetfence-remote-arp-sensor$(PREFIX)/$(NAME)/conf
-	install -d $(CURDIR)/debian/packetfence-remote-arp-sensor$(PREFIX)/$(NAME)/var
-	install -d $(CURDIR)/debian/packetfence-remote-arp-sensor$(PREFIX)/$(NAME)/var/run
-	install -d $(CURDIR)/debian/packetfence-remote-arp-sensor$(PREFIX)/$(NAME)/sbin
-	install -m0755 addons/pfarp_remote/sbin/pfarp_remote $(CURDIR)/debian/packetfence-remote-arp-sensor$(PREFIX)/$(NAME)/sbin
-	install -m0600 addons/pfarp_remote/conf/pfarp_remote.conf $(CURDIR)/debian/packetfence-remote-arp-sensor$(PREFIX)/$(NAME)/conf
 	#PacketFence pfcmd suid
 	install -d -m0755 $(CURDIR)/debian/packetfence-pfcmd-suid$(PREFIX)/$(NAME)/bin
 	gcc src/pfcmd.c -o $(CURDIR)/debian/packetfence-pfcmd-suid$(PREFIX)/$(NAME)/bin/pfcmd
@@ -169,9 +162,9 @@ install: build
 
 	# Documentation
 	make html
-	# install html and images dirs in pfappserver for embedded doc
+	# install html in pfappserver for embedded doc
 	install -d -m0755 $(CURDIR)/debian/packetfence-doc$(PREFIX)/$(NAME)/html/pfappserver/root/static/doc
-	for i in `find "docs/html" "(" -name "*.html" -or -iname "*.js" ")" -type f`; do \
+	for i in `find "docs" "(" -name "*.html" -or -iname "*.js" ")" -type f`; do \
 		install -m0644 $$i $(CURDIR)/debian/packetfence-doc$(PREFIX)/$(NAME)/html/pfappserver/root/static/doc/; \
 	done
 	# images
@@ -292,10 +285,6 @@ binary-arch: build install
 	chmod 0755 $(CURDIR)/debian/packetfence$(PREFIX)/$(NAME)/bin/cluster/*
 	chmod 0755 $(CURDIR)/debian/packetfence$(PREFIX)/$(NAME)/sbin/*
 	chmod 0755 $(CURDIR)/debian/packetfence$(PREFIX)/$(NAME)/html/pfappserver/script/*.pl
-	dh_fixperms -X$(NAME)/bin -X$(NAME)/sbin -X$(NAME)/addons \
-                -X$(NAME)/conf/pfdetect_remote.conf \
-                -X$(NAME)sbin/pfdetect_remote -X$(NAME)/conf/pfarp_remote.conf \
-		-X$(NAME)sbin/pfarp_remote
 	chmod 2775 $(CURDIR)/debian/packetfence$(PREFIX)/$(NAME)/var/run
 	chown root:root $(CURDIR)/debian/packetfence-pfcmd-suid$(PREFIX)/$(NAME)/bin/pfcmd
 	chmod ug+s $(CURDIR)/debian/packetfence-pfcmd-suid$(PREFIX)/$(NAME)/bin/pfcmd

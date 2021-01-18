@@ -1,13 +1,12 @@
 import store from '@/store'
-import StoreModule from './_store'
+import RadiusFastStoreModule from './_store'
 
 const TheTabs = () => import(/* webpackChunkName: "Configuration" */ '../../_components/RadiusTabs')
 const TheView = () => import(/* webpackChunkName: "Configuration" */ './_components/TheView')
 
 export const beforeEnter = (to, from, next = () => {}) => {
-  if (!store.state.$_radius_fast) {
-    store.registerModule('$_radius_fast', StoreModule)
-  }
+  if (!store.state.$_radius_fast)
+    store.registerModule('$_radius_fast', RadiusFastStoreModule)
   next()
 }
 

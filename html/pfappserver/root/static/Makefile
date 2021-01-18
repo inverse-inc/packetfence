@@ -10,7 +10,7 @@ all:
 vendor:
 	npm install
 	sudo npm install -g grunt-cli
-	sudo npm install -g bower
+	sudo npm install -g bower@1.8.8
 	@if [ -d bower_components ]; then \
 	  bower update --allow-root; \
 	else \

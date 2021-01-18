@@ -1,6 +1,6 @@
 <template>
   <div class="w-100 py-2">
-    <b-link @click="onToggle"
+    <b-link @click="doToggle"
       class="d-block"
       :class="{
         'text-danger': inputState === false,
@@ -105,9 +105,9 @@ const setup = (props, context) => {
     isCollapse,
     isRendered,
 
-    onToggle,
-    onCollapse,
-    onExpand,
+    doToggle,
+    doCollapse,
+    doExpand,
     onShow,
     onHidden
   } = useArrayCollapse(actionKey, context)
@@ -121,9 +121,9 @@ const setup = (props, context) => {
     isCollapse,
     isRendered,
 
-    onToggle,
-    onCollapse,
-    onExpand,
+    doToggle,
+    doCollapse,
+    doExpand,
     onShow,
     onHidden
   }

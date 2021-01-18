@@ -29,5 +29,10 @@ export default (props) => {
       .nullable()
       .required(i18n.t('Billing Tier required.'))
       .billingTierIdentifierNotExistsExcept((!isNew && !isClone) ? id : undefined, i18n.t('Billing Tier exists.')),
+    name: yup.string().nullable().label(i18n.t('Name')),
+    description: yup.string().nullable().label(i18n.t('Description')),
+    price: yup.string().nullable().label(i18n.t('Price'))
+      .isPrice(i18n.t('Invalid price.')),
+    role: yup.string().nullable().label(i18n.t('Role'))
   })
 }
