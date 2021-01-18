@@ -301,14 +301,6 @@ export const hasSwitches = () => {
   })
 }
 
-export const hasWmiRules = () => {
-  return store.dispatch('config/getWmiRules').then(response => {
-    return (response.length > 0)
-  }).catch(() => {
-    return true
-  })
-}
-
 export const hasWRIXLocations = () => {
   return store.dispatch('config/getWrixLocations').then(response => {
     return (response.length > 0)
@@ -464,16 +456,6 @@ export const userNotExists = (value) => {
     return true
   }).catch(() => {
     return false
-  })
-}
-
-export const wmiRuleExists = (value) => {
-  if (!value) return true
-  return store.dispatch('config/getWmiRules').then(response => {
-    if (response.length === 0) return true
-    else return response.filter(wmiRule => wmiRule.id.toLowerCase() === value.toLowerCase()).length > 0
-  }).catch(() => {
-    return true
   })
 }
 

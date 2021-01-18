@@ -28,6 +28,9 @@ export default (props) => {
     id: yup.string()
       .nullable()
       .required(i18n.t('WMI Rule required.'))
-      .wmiRuleNotExistsExcept((!isNew && !isClone) ? id : undefined, i18n.t('WMI Rule exists.'))
+      .wmiRuleNotExistsExcept((!isNew && !isClone) ? id : undefined, i18n.t('WMI Rule exists.')),
+    namespace: yup.string().nullable().label(i18n.t('Namespace')),
+    request: yup.string().nullable().label(i18n.t('Request')),
+    action: yup.string().nullable().label(i18n.t('Action'))
   })
 }
