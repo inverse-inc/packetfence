@@ -121,67 +121,9 @@ export const isDateFormat = (dateFormat, allowZero = true) => {
   })
 }
 
-export const isFingerbankDevice = (value) => {
-  if (!value) return true
-  return /^([0-9A-F]{3})$/i.test(value)
-}
-
-export const isFingerprint = (value) => {
-  if (!value) return true
-  return /^(((25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?),)?)+(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$/.test(value)
-}
-
-export const isFQDN = (value) => {
-  if (!value) return true
-  const parts = value.split('.')
-  const tld = parts.pop()
-  if (!parts.length || !/^([a-z\u00a1-\uffff]{2,}|xn[a-z0-9-]{2,})$/i.test(tld)) {
-    return false
-  }
-  for (let i = 0; i < parts.length; i++) {
-    let part = parts[i]
-    if (part.indexOf('__') >= 0) {
-      return false
-    }
-    if (!/^[a-z\u00a1-\uffff0-9-_]+$/i.test(part)) {
-      return false
-    }
-    if (/[\uff01-\uff5e]/.test(part)) {
-      // disallow full-width chars
-      return false
-    }
-    if (part[0] === '-' || part[part.length - 1] === '-') {
-      return false
-    }
-  }
-  return true
-}
-
-export const isHex = (value) => {
-  if (!value) return true
-  return /^[0-9a-f]+$/i.test(value)
-}
-
 export const isMacAddress = (value) => {
   if (!value) return true
   return value.toLowerCase().replace(/[^0-9a-f]/g, '').length === 12
-}
-
-export const isOUI = (separator = ':') => {
-  return (0, _common.withParams)({
-    type: 'isOUI',
-    separator: separator
-  }, function (value) {
-    if (!value) return true
-    if (separator === '') {
-      return /^([0-9A-F]{6})$/i.test(value)
-    } else {
-      value.split(separator).forEach(segment => {
-        if (!/^([0-9A-F]{2})$/i.test(segment)) return false
-      })
-      return true
-    }
-  })
 }
 
 export const isPattern = (pattern) => {
@@ -197,11 +139,6 @@ export const isPattern = (pattern) => {
 export const isPort = (value) => {
   if (!value) return true
   return ~~value === parseFloat(value) && ~~value >= 1 && ~~value <= 65535
-}
-
-export const isPrice = (value) => {
-  if (!value) return true
-  return /^-?\d+\.\d{2}$/.test(value)
 }
 
 export const isVLAN = (value) => {
@@ -267,34 +204,8 @@ export const isValidUnregDateByAclUser = (dateFormat = 'YYYY-MM-DD', allowZero =
   })
 }
 
-export const isFilenameWithExtension = (extensions = ['html']) => {
-  return (0, _common.withParams)({
-    type: 'isFilenameWithExtension',
-    extensions: extensions
-  }, function (value) {
-    const re = RegExp('^[a-zA-Z0-9_]+[a-zA-Z0-9_\\-\\.]*\\.(' + extensions.join('|') + ')$')
-    return re.test(value)
-  })
-}
-
 export const hasInterfaces = () => {
   return store.dispatch('config/getInterfaces').then(response => {
-    return (response.length > 0)
-  }).catch(() => {
-    return true
-  })
-}
-
-export const hasPortalModules = () => {
-  return store.dispatch('config/getPortalModules').then(response => {
-    return (response.length > 0)
-  }).catch(() => {
-    return true
-  })
-}
-
-export const hasSwitches = () => {
-  return store.dispatch('config/getSwitches').then(response => {
     return (response.length > 0)
   }).catch(() => {
     return true
@@ -316,16 +227,6 @@ export const categoryIdStringExists = (value) => {
   return store.dispatch('config/getRoles').then(response => {
     if (response.length === 0) return true
     else return response.filter(role => role.name.toLowerCase() === value.toLowerCase()).length > 0
-  }).catch(() => {
-    return true
-  })
-}
-
-export const interfaceExists = (value) => {
-  if (!value) return true
-  return store.dispatch('config/getInterfaces').then(response => {
-    if (response.length === 0) return true
-    else return response.filter(iface => iface.id.toLowerCase() === value.toLowerCase()).length > 0
   }).catch(() => {
     return true
   })
@@ -364,16 +265,6 @@ export const nodeExists = (value) => {
   })
 }
 
-export const portalModuleExists = (value) => {
-  if (!value) return true
-  return store.dispatch('config/getPortalModules').then(response => {
-    if (response.length === 0) return true
-    else return response.filter(module => module.id.toLowerCase() === value.toLowerCase()).length > 0
-  }).catch(() => {
-    return true
-  })
-}
-
 export const sourceExists = (value) => {
   if (!value) return true
   return store.dispatch('config/getSources').then(response => {
@@ -384,26 +275,7 @@ export const sourceExists = (value) => {
   })
 }
 
-export const switchExists = (value) => {
-  if (!value) return true
-  return store.dispatch('config/getSwitches').then(response => {
-    if (response.length === 0) return true
-    else return response.filter(switche => switche.id.toLowerCase() === value.toLowerCase()).length > 0
-  }).catch(() => {
-      return true
-  })
-}
-
-export const switchNotExists = (value) => {
-  if (!value) return true
-  return store.dispatch('config/getSwitches').then((response) => {
-    if (response.length === 0) return false
-    else return response.filter(switche => switche.id.toLowerCase() === value.toLowerCase()).length === 0
-  }).catch(() => {
-      return true
-  })
-}
-
+/*
 export const switchModeExists = (value) => {
   if (!value) return true
   return store.dispatch('$_switches/optionsBySwitchGroup', 'default').then((response) => {
@@ -432,15 +304,7 @@ export const switchTypeExists = (value) => {
     return true
   })
 }
-
-export const userExists = (value) => {
-  if (!value) return true
-  return store.dispatch('$_users/exists', value).then(() => {
-    return false
-  }).catch(() => {
-    return true
-  })
-}
+*/
 
 export const userNotExists = (value) => {
   if (!value) return true
