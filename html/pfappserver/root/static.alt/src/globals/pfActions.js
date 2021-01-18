@@ -300,6 +300,8 @@ const pfActionSchema = yup.object({
             .maxAsInt(schema.node.bandwidth_balance.max)
             .minAsInt(schema.node.bandwidth_balance.min)
           // break
+        case type === 'set_access_level':
+          return yup.array().ensure().of(yup.string().nullable()).required(i18n.t('Level(s) required.'))
         default:
           return yup.string().nullable()
             .required(i18n.t('Value required.'))
