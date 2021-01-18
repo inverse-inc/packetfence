@@ -18,6 +18,11 @@
       :column-label="$i18n.t('Host')"
     />
 
+    <form-group-dead-duration namespace="dead_duration"
+      :column-label="$i18n.t('Dead duration')"
+      :text="$i18n.t('How much time in seconds should a server be marked dead before it is retried. When specifying multiple LDAP servers or a DNS name pointing to multiple IPs, then this option can be used to offer more consistent failover. A value of 0 disables this feature.')"
+    />
+
     <form-group-connection-timeout namespace="connection_timeout"
       :column-label="$i18n.t('Connection timeout')"
       :text="$i18n.t('LDAP connection Timeout.')"
@@ -108,6 +113,7 @@ import {
   FormGroupBindDn,
   FormGroupCacheMatch,
   FormGroupConnectionTimeout,
+  FormGroupDeadDuration,
   FormGroupDescription,
   FormGroupEmailAttribute,
   FormGroupHostPortEncryption,
@@ -133,6 +139,7 @@ const components = {
   FormGroupBindDn,
   FormGroupCacheMatch,
   FormGroupConnectionTimeout,
+  FormGroupDeadDuration,
   FormGroupDescription,
   FormGroupEmailAttribute,
   FormGroupHostPortEncryption,
