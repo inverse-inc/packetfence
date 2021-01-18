@@ -301,14 +301,6 @@ export const hasPortalModules = () => {
   })
 }
 
-export const hasProvisionings = () => {
-  return store.dispatch('config/getProvisionings').then(response => {
-    return (response.length > 0)
-  }).catch(() => {
-    return true
-  })
-}
-
 export const hasRealms = (tenantId) => {
   return (0, _common.withParams)({
     type: 'hasRealms',
@@ -496,16 +488,6 @@ export const portalModuleExists = (value) => {
   return store.dispatch('config/getPortalModules').then(response => {
     if (response.length === 0) return true
     else return response.filter(module => module.id.toLowerCase() === value.toLowerCase()).length > 0
-  }).catch(() => {
-    return true
-  })
-}
-
-export const provisioningExists = (value) => {
-  if (!value) return true
-  return store.dispatch('config/getProvisionings').then(response => {
-    if (response.length === 0) return true
-    else return response.filter(provisioning => provisioning.id.toLowerCase() === value.toLowerCase()).length > 0
   }).catch(() => {
     return true
   })
