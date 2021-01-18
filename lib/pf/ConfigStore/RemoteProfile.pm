@@ -36,6 +36,10 @@ Clean data before update or creating
 sub cleanupBeforeCommit {
     my ($self, $id, $profile) = @_;
     $self->flatten_list($profile, $self->_fields_expanded);
+
+    if (defined $profile->{advanced_filter}) {
+        $self->flattenCondition($profile, 'advanced_filter');
+    }
 }
 
 =head2 _fields_expanded
@@ -51,6 +55,12 @@ sub cleanupAfterRead {
     $self->expand_list($profile, $self->_fields_expanded);
     $self->adjustArrayParam($profile, "additional_domains_to_resolve");
     $self->adjustArrayParam($profile, "routes");
+
+    if ($profile->{advanced_filter}) {
+        $self->expandCondition($profile, 'advanced_filter');
+    } else {
+        $profile->{advanced_filter} = undef;
+    }
 }
 
 sub adjustArrayParam {
