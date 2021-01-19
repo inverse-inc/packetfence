@@ -280,7 +280,7 @@ export const setup = (props, context) => {
   const isEmpty = computed(() => !value.value)
 
   // clear single value
-  const onRemove = () => onInput(undefined)
+  const onRemove = () => onInput(null)
 
   const doFocus = () => nextTick(() => context.refs.inputRef.$el.focus())
   const doBlur = () => nextTick(() => context.refs.inputRef.$el.blur())

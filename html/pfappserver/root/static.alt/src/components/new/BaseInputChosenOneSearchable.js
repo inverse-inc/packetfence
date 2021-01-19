@@ -80,7 +80,7 @@ export const setup = (props, context) => {
   })
 
   // clear single value
-  const onRemove = () => onInput(undefined)
+  const onRemove = () => onInput(null)
 
   const onTag = newValue => onInput(newValue)
 
