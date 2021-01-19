@@ -221,6 +221,24 @@ yup.addMethod(yup.string, 'isIpv4', function (message) {
   })
 })
 
+yup.addMethod(yup.string, 'isIpv4Csv', function (message) {
+  return this.test({
+    name: 'isIpv4Csv',
+    message: message || i18n.t('Invalid comma-separated list of IPv4 addresses.'),
+    test: value => {
+      if (['', null, undefined].includes(value))
+        return true
+      const addresses = value.split(',')
+      for (let e = 0; e < addresses.length; e++) {
+        if (!['', null, undefined].includes(addresses[e].trim()) && !reIpv4(addresses[e].trim()))
+          return false
+      }
+      return true
+    }
+  })
+
+})
+
 yup.addMethod(yup.string, 'isIpv6', function (message) {
   return this.test({
     name: 'isIpv6',
