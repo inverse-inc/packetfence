@@ -48,8 +48,8 @@ type (
 	// CA struct
 	CA struct {
 		gorm.Model
-		DB               *gorm.DB                `gorm:"-"`
-		Ctx              *context.Context        `gorm:"-"`
+		DB               gorm.DB                 `gorm:"-"`
+		Ctx              context.Context         `gorm:"-"`
 		Cn               string                  `json:"cn,omitempty" gorm:"UNIQUE"`
 		Mail             string                  `json:"mail,omitempty" gorm:"INDEX:mail"`
 		Organisation     string                  `json:"organisation,omitempty" gorm:"INDEX:organisation"`
@@ -73,8 +73,8 @@ type (
 	// Profile struct
 	Profile struct {
 		gorm.Model
-		DB               *gorm.DB                `gorm:"-"`
-		Ctx              *context.Context        `gorm:"-"`
+		DB               gorm.DB                 `gorm:"-"`
+		Ctx              context.Context         `gorm:"-"`
 		Name             string                  `json:"name" gorm:"UNIQUE"`
 		Ca               CA                      `json:"-"`
 		CaID             uint                    `json:"ca_id,omitempty,string" gorm:"INDEX:ca_id"`
@@ -96,55 +96,55 @@ type (
 	// Cert struct
 	Cert struct {
 		gorm.Model
-		DB            *gorm.DB         `gorm:"-"`
-		Ctx           *context.Context `gorm:"-"`
-		Cn            string           `json:"cn,omitempty" gorm:"UNIQUE"`
-		Mail          string           `json:"mail,omitempty" gorm:"INDEX:mail"`
-		Ca            CA               `json:"-"`
-		CaID          uint             `json:"ca_id,omitempty" gorm:"INDEX:ca_id"`
-		CaName        string           `json:"ca_name,omitempty" gorm:"INDEX:ca_name"`
-		StreetAddress string           `json:"street_address,omitempty"`
-		Organisation  string           `json:"organisation,omitempty" gorm:"INDEX:organisation"`
-		Country       string           `json:"country,omitempty"`
-		State         string           `json:"state,omitempty"`
-		Locality      string           `json:"locality,omitempty"`
-		PostalCode    string           `json:"postal_code,omitempty"`
-		Key           string           `json:"-" gorm:"type:longtext"`
-		Cert          string           `json:"cert,omitempty" gorm:"type:longtext"`
-		Profile       Profile          `json:"-"`
-		ProfileID     uint             `json:"profile_id,omitempty,string" gorm:"INDEX:profile_id"`
-		ProfileName   string           `json:"profile_name,omitempty" gorm:"INDEX:profile_name"`
-		ValidUntil    time.Time        `json:"valid_until,omitempty" gorm:"INDEX:valid_until"`
-		Date          time.Time        `json:"date,omitempty" gorm:"default:CURRENT_TIMESTAMP"`
-		SerialNumber  string           `json:"serial_number,omitempty"`
+		DB            gorm.DB         `gorm:"-"`
+		Ctx           context.Context `gorm:"-"`
+		Cn            string          `json:"cn,omitempty" gorm:"UNIQUE"`
+		Mail          string          `json:"mail,omitempty" gorm:"INDEX:mail"`
+		Ca            CA              `json:"-"`
+		CaID          uint            `json:"ca_id,omitempty" gorm:"INDEX:ca_id"`
+		CaName        string          `json:"ca_name,omitempty" gorm:"INDEX:ca_name"`
+		StreetAddress string          `json:"street_address,omitempty"`
+		Organisation  string          `json:"organisation,omitempty" gorm:"INDEX:organisation"`
+		Country       string          `json:"country,omitempty"`
+		State         string          `json:"state,omitempty"`
+		Locality      string          `json:"locality,omitempty"`
+		PostalCode    string          `json:"postal_code,omitempty"`
+		Key           string          `json:"-" gorm:"type:longtext"`
+		Cert          string          `json:"cert,omitempty" gorm:"type:longtext"`
+		Profile       Profile         `json:"-"`
+		ProfileID     uint            `json:"profile_id,omitempty,string" gorm:"INDEX:profile_id"`
+		ProfileName   string          `json:"profile_name,omitempty" gorm:"INDEX:profile_name"`
+		ValidUntil    time.Time       `json:"valid_until,omitempty" gorm:"INDEX:valid_until"`
+		Date          time.Time       `json:"date,omitempty" gorm:"default:CURRENT_TIMESTAMP"`
+		SerialNumber  string          `json:"serial_number,omitempty"`
 	}
 
 	// RevokedCert struct
 	RevokedCert struct {
 		gorm.Model
-		DB            *gorm.DB         `gorm:"-"`
-		Ctx           *context.Context `gorm:"-"`
-		Cn            string           `json:"cn,omitempty" gorm:"INDEX:cn"`
-		Mail          string           `json:"mail,omitempty" gorm:"INDEX:mail"`
-		Ca            CA               `json:"-"`
-		CaID          uint             `json:"ca_id,omitempty" gorm:"INDEX:ca_id"`
-		CaName        string           `json:"ca_name,omitempty" gorm:"INDEX:ca_name"`
-		StreetAddress string           `json:"street_address,omitempty"`
-		Organisation  string           `json:"organisation,omitempty" gorm:"INDEX:organisation"`
-		Country       string           `json:"country,omitempty"`
-		State         string           `json:"state,omitempty"`
-		Locality      string           `json:"locality,omitempty"`
-		PostalCode    string           `json:"postal_code,omitempty"`
-		Key           string           `json:"-" gorm:"type:longtext"`
-		Cert          string           `json:"cert,omitempty" gorm:"type:longtext"`
-		Profile       Profile          `json:"-"`
-		ProfileID     uint             `json:"profile_id,omitempty" gorm:"INDEX:profile_id"`
-		ProfileName   string           `json:"profile_name,omitempty" gorm:"INDEX:profile_name"`
-		ValidUntil    time.Time        `json:"valid_until,omitempty" gorm:"INDEX:valid_until"`
-		Date          time.Time        `json:"date,omitempty" gorm:"default:CURRENT_TIMESTAMP"`
-		SerialNumber  string           `json:"serial_number,omitempty"`
-		Revoked       time.Time        `json:"revoked,omitempty" gorm:"INDEX:revoked"`
-		CRLReason     int              `json:"crl_reason,omitempty" gorm:"INDEX:crl_reason"`
+		DB            gorm.DB         `gorm:"-"`
+		Ctx           context.Context `gorm:"-"`
+		Cn            string          `json:"cn,omitempty" gorm:"INDEX:cn"`
+		Mail          string          `json:"mail,omitempty" gorm:"INDEX:mail"`
+		Ca            CA              `json:"-"`
+		CaID          uint            `json:"ca_id,omitempty" gorm:"INDEX:ca_id"`
+		CaName        string          `json:"ca_name,omitempty" gorm:"INDEX:ca_name"`
+		StreetAddress string          `json:"street_address,omitempty"`
+		Organisation  string          `json:"organisation,omitempty" gorm:"INDEX:organisation"`
+		Country       string          `json:"country,omitempty"`
+		State         string          `json:"state,omitempty"`
+		Locality      string          `json:"locality,omitempty"`
+		PostalCode    string          `json:"postal_code,omitempty"`
+		Key           string          `json:"-" gorm:"type:longtext"`
+		Cert          string          `json:"cert,omitempty" gorm:"type:longtext"`
+		Profile       Profile         `json:"-"`
+		ProfileID     uint            `json:"profile_id,omitempty" gorm:"INDEX:profile_id"`
+		ProfileName   string          `json:"profile_name,omitempty" gorm:"INDEX:profile_name"`
+		ValidUntil    time.Time       `json:"valid_until,omitempty" gorm:"INDEX:valid_until"`
+		Date          time.Time       `json:"date,omitempty" gorm:"default:CURRENT_TIMESTAMP"`
+		SerialNumber  string          `json:"serial_number,omitempty"`
+		Revoked       time.Time       `json:"revoked,omitempty" gorm:"INDEX:revoked"`
+		CRLReason     int             `json:"crl_reason,omitempty" gorm:"INDEX:crl_reason"`
 	}
 )
 
@@ -199,8 +199,8 @@ var successDBConnect = false
 func NewCAModel(pfpki *types.Handler) *CA {
 	CA := &CA{}
 
-	CA.DB = pfpki.DB
-	CA.Ctx = pfpki.Ctx
+	CA.DB = *pfpki.DB
+	CA.Ctx = *pfpki.Ctx
 
 	return CA
 }
@@ -484,7 +484,7 @@ func (c CA) Serial(options ...string) (*big.Int, error) {
 	} else {
 		SerialNumber = big.NewInt(int64(certdb.ID + 1))
 	}
-	spew.Dump(SerialNumber)
+
 	return SerialNumber, nil
 }
 
@@ -520,8 +520,8 @@ func (c CA) HasCN(cn string, allowTime int, cert *x509.Certificate, revokeOldCer
 func NewProfileModel(pfpki *types.Handler) *Profile {
 	Profile := &Profile{}
 
-	Profile.DB = pfpki.DB
-	Profile.Ctx = pfpki.Ctx
+	Profile.DB = *pfpki.DB
+	Profile.Ctx = *pfpki.Ctx
 
 	return Profile
 }
@@ -529,6 +529,8 @@ func NewProfileModel(pfpki *types.Handler) *Profile {
 func (p Profile) New() (types.Info, error) {
 
 	var profiledb []Profile
+
+	spew.Dump(p)
 	var err error
 	Information := types.Info{}
 	switch *p.KeyType {
@@ -555,13 +557,14 @@ func (p Profile) New() (types.Info, error) {
 
 	}
 
-	var ca CA
+	ca := &CA{}
+
 	if CaDB := p.DB.First(&ca, p.CaID).Find(&ca); CaDB.Error != nil {
 		Information.Error = CaDB.Error.Error()
 		return Information, CaDB.Error
 	}
 
-	if err := p.DB.Create(&Profile{Name: p.Name, Ca: ca, CaID: p.CaID, CaName: ca.Cn, Validity: p.Validity, KeyType: p.KeyType, KeySize: p.KeySize, Digest: p.Digest, KeyUsage: p.KeyUsage, ExtendedKeyUsage: p.ExtendedKeyUsage, P12MailPassword: p.P12MailPassword, P12MailSubject: p.P12MailSubject, P12MailFrom: p.P12MailFrom, P12MailHeader: p.P12MailHeader, P12MailFooter: p.P12MailFooter}).Error; err != nil {
+	if err := p.DB.Create(&Profile{Name: p.Name, Ca: *ca, CaID: p.CaID, CaName: ca.Cn, Validity: p.Validity, KeyType: p.KeyType, KeySize: p.KeySize, Digest: p.Digest, KeyUsage: p.KeyUsage, ExtendedKeyUsage: p.ExtendedKeyUsage, P12MailPassword: p.P12MailPassword, P12MailSubject: p.P12MailSubject, P12MailFrom: p.P12MailFrom, P12MailHeader: p.P12MailHeader, P12MailFooter: p.P12MailFooter}).Error; err != nil {
 		Information.Error = err.Error()
 		return Information, errors.New("A database error occured. See log for details.")
 	}
@@ -641,8 +644,8 @@ func (p Profile) Search(vars sql.Vars) (types.Info, error) {
 func NewCertModel(pfpki *types.Handler) *Cert {
 	Cert := &Cert{}
 
-	Cert.DB = pfpki.DB
-	Cert.Ctx = pfpki.Ctx
+	Cert.DB = *pfpki.DB
+	Cert.Ctx = *pfpki.Ctx
 
 	return Cert
 }
@@ -923,8 +926,8 @@ func (c Cert) Revoke(params map[string]string) (types.Info, error) {
 func NewRevokedCertModel(pfpki *types.Handler) *RevokedCert {
 	RevokedCert := &RevokedCert{}
 
-	RevokedCert.DB = pfpki.DB
-	RevokedCert.Ctx = pfpki.Ctx
+	RevokedCert.DB = *pfpki.DB
+	RevokedCert.Ctx = *pfpki.Ctx
 
 	return RevokedCert
 }
@@ -990,9 +993,9 @@ type EmailType struct {
 	Password string
 }
 
-func email(ctx *context.Context, cert Cert, profile Profile, file []byte, password string) (types.Info, error) {
-	pfconfigdriver.PfconfigPool.AddStruct(*ctx, &pfconfigdriver.Config.PfConf.Alerting)
-	pfconfigdriver.PfconfigPool.AddStruct(*ctx, &pfconfigdriver.Config.PfConf.Advanced)
+func email(ctx context.Context, cert Cert, profile Profile, file []byte, password string) (types.Info, error) {
+	pfconfigdriver.PfconfigPool.AddStruct(ctx, &pfconfigdriver.Config.PfConf.Alerting)
+	pfconfigdriver.PfconfigPool.AddStruct(ctx, &pfconfigdriver.Config.PfConf.Advanced)
 	alerting := pfconfigdriver.Config.PfConf.Alerting
 	advanced := pfconfigdriver.Config.PfConf.Advanced
 
