@@ -33,13 +33,21 @@ func TestHealth(t *testing.T) {
 
 	p := NewProxy(s.Addr, transport.DNS)
 	f := New()
+
+	f.proxies = append(f.proxies, p)
 	f.SetProxy(p)
-	defer f.OnShutdown()
+
+	ForwardEntry := Forwards{}
+	var forward []*Forward
+	forward = append(forward, f)
+	ForwardEntry.Forward = forward
+
+	defer ForwardEntry.OnShutdown()
 
 	req := new(dns.Msg)
 	req.SetQuestion("example.org.", dns.TypeA)
 
-	f.ServeDNS(context.TODO(), &test.ResponseWriter{}, req)
+	ForwardEntry.ServeDNS(context.TODO(), &test.ResponseWriter{}, req)
 
 	time.Sleep(1 * time.Second)
 	i1 := atomic.LoadUint32(&i)
@@ -70,12 +78,18 @@ func TestHealthNoRecursion(t *testing.T) {
 	p.health.SetRecursionDesired(false)
 	f := New()
 	f.SetProxy(p)
-	defer f.OnShutdown()
+
+	ForwardEntry := Forwards{}
+	var forward []*Forward
+	forward = append(forward, f)
+	ForwardEntry.Forward = forward
+
+	defer ForwardEntry.OnShutdown()
 
 	req := new(dns.Msg)
 	req.SetQuestion("example.org.", dns.TypeA)
 
-	f.ServeDNS(context.TODO(), &test.ResponseWriter{}, req)
+	ForwardEntry.ServeDNS(context.TODO(), &test.ResponseWriter{}, req)
 
 	time.Sleep(1 * time.Second)
 	i1 := atomic.LoadUint32(&i)
@@ -110,12 +124,17 @@ func TestHealthTimeout(t *testing.T) {
 	p := NewProxy(s.Addr, transport.DNS)
 	f := New()
 	f.SetProxy(p)
-	defer f.OnShutdown()
+	ForwardEntry := Forwards{}
+	var forward []*Forward
+	forward = append(forward, f)
+	ForwardEntry.Forward = forward
+
+	defer ForwardEntry.OnShutdown()
 
 	req := new(dns.Msg)
 	req.SetQuestion("example.org.", dns.TypeA)
 
-	f.ServeDNS(context.TODO(), &test.ResponseWriter{}, req)
+	ForwardEntry.ServeDNS(context.TODO(), &test.ResponseWriter{}, req)
 
 	time.Sleep(1 * time.Second)
 	i1 := atomic.LoadUint32(&i)
@@ -154,12 +173,17 @@ func TestHealthFailTwice(t *testing.T) {
 	p := NewProxy(s.Addr, transport.DNS)
 	f := New()
 	f.SetProxy(p)
-	defer f.OnShutdown()
+	ForwardEntry := Forwards{}
+	var forward []*Forward
+	forward = append(forward, f)
+	ForwardEntry.Forward = forward
+
+	defer ForwardEntry.OnShutdown()
 
 	req := new(dns.Msg)
 	req.SetQuestion("example.org.", dns.TypeA)
 
-	f.ServeDNS(context.TODO(), &test.ResponseWriter{}, req)
+	ForwardEntry.ServeDNS(context.TODO(), &test.ResponseWriter{}, req)
 
 	time.Sleep(3 * time.Second)
 	i1 := atomic.LoadUint32(&i)
@@ -178,12 +202,17 @@ func TestHealthMaxFails(t *testing.T) {
 	f := New()
 	f.maxfails = 2
 	f.SetProxy(p)
-	defer f.OnShutdown()
+	ForwardEntry := Forwards{}
+	var forward []*Forward
+	forward = append(forward, f)
+	ForwardEntry.Forward = forward
+
+	defer ForwardEntry.OnShutdown()
 
 	req := new(dns.Msg)
 	req.SetQuestion("example.org.", dns.TypeA)
 
-	f.ServeDNS(context.TODO(), &test.ResponseWriter{}, req)
+	ForwardEntry.ServeDNS(context.TODO(), &test.ResponseWriter{}, req)
 
 	time.Sleep(readTimeout + 1*time.Second)
 	fails := atomic.LoadUint32(&p.fails)
@@ -210,12 +239,17 @@ func TestHealthNoMaxFails(t *testing.T) {
 	f := New()
 	f.maxfails = 0
 	f.SetProxy(p)
-	defer f.OnShutdown()
+	ForwardEntry := Forwards{}
+	var forward []*Forward
+	forward = append(forward, f)
+	ForwardEntry.Forward = forward
+
+	defer ForwardEntry.OnShutdown()
 
 	req := new(dns.Msg)
 	req.SetQuestion("example.org.", dns.TypeA)
 
-	f.ServeDNS(context.TODO(), &test.ResponseWriter{}, req)
+	ForwardEntry.ServeDNS(context.TODO(), &test.ResponseWriter{}, req)
 
 	time.Sleep(1 * time.Second)
 	i1 := atomic.LoadUint32(&i)

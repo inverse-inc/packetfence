@@ -58,19 +58,19 @@ func TestSetup(t *testing.T) {
 			}
 		}
 
-		if !test.shouldErr && f.from != test.expectedFrom {
-			t.Errorf("Test %d: expected: %s, got: %s", i, test.expectedFrom, f.from)
+		if !test.shouldErr && f.Forward[0].from != test.expectedFrom {
+			t.Errorf("Test %d: expected: %s, got: %s", i, test.expectedFrom, f.Forward[0].from)
 		}
 		if !test.shouldErr && test.expectedIgnored != nil {
-			if !reflect.DeepEqual(f.ignored, test.expectedIgnored) {
-				t.Errorf("Test %d: expected: %q, actual: %q", i, test.expectedIgnored, f.ignored)
+			if !reflect.DeepEqual(f.Forward[0].ignored, test.expectedIgnored) {
+				t.Errorf("Test %d: expected: %q, actual: %q", i, test.expectedIgnored, f.Forward[0].ignored)
 			}
 		}
-		if !test.shouldErr && f.maxfails != test.expectedFails {
-			t.Errorf("Test %d: expected: %d, got: %d", i, test.expectedFails, f.maxfails)
+		if !test.shouldErr && f.Forward[0].maxfails != test.expectedFails {
+			t.Errorf("Test %d: expected: %d, got: %d", i, test.expectedFails, f.Forward[0].maxfails)
 		}
-		if !test.shouldErr && f.opts != test.expectedOpts {
-			t.Errorf("Test %d: expected: %v, got: %v", i, test.expectedOpts, f.opts)
+		if !test.shouldErr && f.Forward[0].opts != test.expectedOpts {
+			t.Errorf("Test %d: expected: %v, got: %v", i, test.expectedOpts, f.Forward[0].opts)
 		}
 	}
 }
@@ -113,12 +113,12 @@ func TestSetupTLS(t *testing.T) {
 			}
 		}
 
-		if !test.shouldErr && test.expectedServerName != "" && test.expectedServerName != f.tlsConfig.ServerName {
-			t.Errorf("Test %d: expected: %q, actual: %q", i, test.expectedServerName, f.tlsConfig.ServerName)
+		if !test.shouldErr && test.expectedServerName != "" && test.expectedServerName != f.Forward[0].tlsConfig.ServerName {
+			t.Errorf("Test %d: expected: %q, actual: %q", i, test.expectedServerName, f.Forward[0].tlsConfig.ServerName)
 		}
 
-		if !test.shouldErr && test.expectedServerName != "" && test.expectedServerName != f.proxies[0].health.(*dnsHc).c.TLSConfig.ServerName {
-			t.Errorf("Test %d: expected: %q, actual: %q", i, test.expectedServerName, f.proxies[0].health.(*dnsHc).c.TLSConfig.ServerName)
+		if !test.shouldErr && test.expectedServerName != "" && test.expectedServerName != f.Forward[0].proxies[0].health.(*dnsHc).c.TLSConfig.ServerName {
+			t.Errorf("Test %d: expected: %q, actual: %q", i, test.expectedServerName, f.Forward[0].proxies[0].health.(*dnsHc).c.TLSConfig.ServerName)
 		}
 	}
 }
@@ -165,7 +165,7 @@ nameserver 10.10.255.253`), 0666); err != nil {
 
 		if !test.shouldErr {
 			for j, n := range test.expectedNames {
-				addr := f.proxies[j].addr
+				addr := f.Forward[0].proxies[j].addr
 				if n != addr {
 					t.Errorf("Test %d, expected %q, got %q", j, n, addr)
 				}
@@ -174,7 +174,7 @@ nameserver 10.10.255.253`), 0666); err != nil {
 		if test.shouldErr {
 			continue
 		}
-		for _, p := range f.proxies {
+		for _, p := range f.Forward[0].proxies {
 			p.health.Check(p) // this should almost always err, we don't care it shouldn't crash
 		}
 	}
@@ -212,8 +212,8 @@ func TestSetupMaxConcurrent(t *testing.T) {
 			}
 		}
 
-		if !test.shouldErr && f.maxConcurrent != test.expectedVal {
-			t.Errorf("Test %d: expected: %d, got: %d", i, test.expectedVal, f.maxConcurrent)
+		if !test.shouldErr && f.Forward[0].maxConcurrent != test.expectedVal {
+			t.Errorf("Test %d: expected: %d, got: %d", i, test.expectedVal, f.Forward[0].maxConcurrent)
 		}
 	}
 }
@@ -251,8 +251,8 @@ func TestSetupHealthCheck(t *testing.T) {
 				t.Errorf("Test %d: expected error to contain: %v, found error: %v, input: %s", i, test.expectedErr, err, test.input)
 			}
 		}
-		if !test.shouldErr && (f.opts.hcRecursionDesired != test.expectedVal || f.proxies[0].health.GetRecursionDesired() != test.expectedVal) {
-			t.Errorf("Test %d: expected: %t, got: %d", i, test.expectedVal, f.maxConcurrent)
+		if !test.shouldErr && (f.Forward[0].opts.hcRecursionDesired != test.expectedVal || f.Forward[0].proxies[0].health.GetRecursionDesired() != test.expectedVal) {
+			t.Errorf("Test %d: expected: %t, got: %d", i, test.expectedVal, f.Forward[0].maxConcurrent)
 		}
 	}
 }

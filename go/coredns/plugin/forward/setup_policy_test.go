@@ -40,8 +40,8 @@ func TestSetupPolicy(t *testing.T) {
 			}
 		}
 
-		if !test.shouldErr && f.p.String() != test.expectedPolicy {
-			t.Errorf("Test %d: expected: %s, got: %s", i, test.expectedPolicy, f.p.String())
+		if !test.shouldErr && f.Forward[0].p.String() != test.expectedPolicy {
+			t.Errorf("Test %d: expected: %s, got: %s", i, test.expectedPolicy, f.Forward[0].p.String())
 		}
 	}
 }
