@@ -26,6 +26,10 @@ const schemaCondition = yup.object({
 
 const schemaConditions = yup.array().ensure().unique(i18n.t('Duplicate condition.')).of(schemaCondition)
 
+const schemaHost = yup.string().nullable().label(i18n.t('Host'))
+
+const schemaHosts = yup.array().ensure().of(schemaHost).label(i18n.t('Hosts'))
+
 const schemaRule = yup.object({
   status: yup.string(),
   id: yup.string().nullable().label(i18n.t('Name'))
@@ -80,7 +84,7 @@ export const schema = (props) => {
     domains: yup.string().label(i18n.t('Domains')),
     email_address: yup.string().label(i18n.t('Email')),
     group_header: yup.string().label(i18n.t('Header')),
-    host: yup.string().label(i18n.t('Host')),
+    host: schemaHosts,
     identity_token: yup.string().label(i18n.t('Token')),
     idp_ca_cert_path: yup.string().label(i18n.t('Path')),
     idp_cert_path: yup.string().label(i18n.t('Path')),
