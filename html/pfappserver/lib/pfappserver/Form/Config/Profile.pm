@@ -115,7 +115,12 @@ after validate => sub {
     my ($self) = @_;
     my $value = $self->value;
     my $advanced_filter = $value->{advanced_filter};
-    if (@{$value->{filter}} == 0 && !defined $advanced_filter) {
+    my $condition_str = '';
+    if (defined $advanced_filter) {
+        $condition_str = pf::condition_parser::object_to_str($advanced_filter);
+    }
+
+    if (@{$value->{filter}} == 0 && (!defined $advanced_filter || $condition_str eq '')) {
         $self->field('filter')->add_error("A filter or an advanced filter must be specified");
         $self->field('advanced_filter')->add_error("A filter or an advanced filter must be specified");
     }
