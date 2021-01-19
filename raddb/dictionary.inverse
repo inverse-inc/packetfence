@@ -54,3 +54,13 @@ ATTRIBUTE       PacketFence-reply-insert              38       string
 
 END-VENDOR      Inverse
 
+VENDOR          Juniper                         2636
+
+BEGIN-VENDOR    Juniper
+#
+#       Standard attribute
+#
+
+ATTRIBUTE      Juniper-AV-Pair 52      string
+
+END-VENDOR    Juniper
