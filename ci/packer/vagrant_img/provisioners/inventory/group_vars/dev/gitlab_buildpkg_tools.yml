@@ -10,7 +10,10 @@ gitlab_buildpkg_tools__rpm_deps_repos:
   - name: packetfence-devel
     baseurl: 'http://inverse.ca/downloads/PacketFence/centos/$releasever/devel/$basearch'
 
-gitlab_buildpkg_tools__rpm_pkgs: []
+# pre-requisites to run shell provisioner after
+gitlab_buildpkg_tools__rpm_pkgs:
+  - rpm-build
+  - yum-utils
 
 # Debian
 gitlab_buildpkg_tools__deb_keys:

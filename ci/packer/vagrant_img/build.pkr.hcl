@@ -14,7 +14,25 @@ build {
     inventory_directory = "${var.provisioner_dir}/inventory"
     galaxy_file = "${var.provisioner_dir}/requirements.yml"
     galaxy_force_install = true
+    # only for ansible-galaxy command
+    # we put it in a specific place where Ansible playbooks will find them
     roles_path = "${var.provisioner_dir}/playbooks/roles"
     collections_path = "${var.provisioner_dir}/playbooks/ansible_collections"
+  }
+  
+  provisioner "shell" {
+    only = ["vagrant.centos-7"]
+    execute_command = "echo 'vagrant' | {{.Vars}} sudo -S -E bash '{{.Path}}'"
+    script = "${var.pfroot_dir}/addons/dev-helpers/centos-chroot/install-packages-from-spec.sh"
+    environment_vars = [
+      "PFDIR=${var.pfroot_dir}",
+      "REPO=${var.pf_repo}"
+    ]
+  }
+
+  provisioner "shell" {
+    only = ["vagrant.debian-9"]
+    execute_command = "echo 'vagrant' | {{.Vars}} sudo -S -E bash '{{.Path}}'"
+    script = "${var.pfroot_dir}/addons/dev-helpers/debian/install-pf-dependencies.sh"
   }
 }

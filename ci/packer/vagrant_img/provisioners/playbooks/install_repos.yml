@@ -1,7 +1,7 @@
 - hosts: pfservers
   name: install PacketFence repositories
   become: True
-  gather_facts: False
+  gather_facts: True
   tags: repos
 
   roles:
