@@ -24,7 +24,7 @@ type Peer struct {
 	PublicKey               string   `json:"public_key,omitempty"`
 	AllowedPeers            []string `json:"allowed_peers,omitempty"`
 	NamesToResolve          []string `json:"names_to_resolve"`
-	DomainsToResolve        []string `json:"Domains_to_resolve"`
+	DomainsToResolve        []string `json:"domains_to_resolve"`
 	ACLs                    []string `json:"acls"`
 	Routes                  []string `json:"routes"`
 	IsGateway               bool     `json:"is_gateway"`
