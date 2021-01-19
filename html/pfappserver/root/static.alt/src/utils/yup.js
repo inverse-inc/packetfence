@@ -16,6 +16,14 @@ yup.setLocale({ // default validators
 /**
  * yup.array
 **/
+yup.addMethod(yup.array, 'if', function (cmpFn, message) {
+  return this.test({
+    name: 'required',
+    message: message || i18n.t('Invalid value.'),
+    test: value => cmpFn(value)
+  })
+})
+
 yup.addMethod(yup.array, 'required', function (message) {
   return this.test({
     name: 'required',
@@ -89,9 +97,7 @@ yup.addMethod(yup.string, 'in', function (ref, message) {
   return this.test({
     name: 'in',
     message: message || i18n.t('Invalid value'),
-    test: value => {
-      return ref.includes(value)
-    }
+    test: value => ref.includes(value)
   })
 })
 

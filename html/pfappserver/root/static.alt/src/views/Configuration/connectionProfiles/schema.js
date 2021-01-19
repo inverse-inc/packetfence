@@ -67,10 +67,13 @@ const schemaArray = yup.array().of(schemaArrayItem)
 
 export default (props) => {
   const {
+    form,
     id,
     isNew,
     isClone
   } = props
+
+  const { filter, advanced_filter } = form || {}
 
   return yup.object().shape({
     id: yup.string()
@@ -81,7 +84,13 @@ export default (props) => {
     billing_tiers: schemaArray.unique(i18n.t('Duplicate billing tier.')),
     default_psk_key: yup.string().nullable().label(i18n.t('Key')),
     description: yup.string().nullable().label(i18n.t('Description')),
-    filter: schemaFilters,
+    filter: yup.array()
+      .when('advanced_filter', () => {
+        const { values = [] } = advanced_filter || {}
+        return (values.length === 0)
+          ? yup.array().ensure().if(value => value && value.length > 0, i18n.t('Filter or Advanced Filter required.'))
+          : schemaFilters
+      }),
     filter_match_style: yup.string().nullable().label(i18n.t('Filters')),
     locale: schemaArray.unique(i18n.t('Duplicate locale.')),
     login_attempt_limit: yup.string().nullable().label( i18n.t('Limit')),
