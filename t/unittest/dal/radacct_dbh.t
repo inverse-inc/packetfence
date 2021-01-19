@@ -30,7 +30,7 @@ use Test::NoWarnings;
 
 #This is the first test
 my $dbh = pf::dal::radacct->get_dbh;
-ok(!defined ($dbh));
+ok(defined ($dbh));
 
 =head1 AUTHOR
 

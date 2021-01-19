@@ -14,9 +14,10 @@ use strict;
 use warnings;
 use Exporter qw(import);
 our @EXPORT = qw(get_dbh);
+use pf::radacct_db;
 
 sub get_dbh {
-
+    pf::radacct_db::get_db_handle()
 }
 
 =head1 AUTHOR

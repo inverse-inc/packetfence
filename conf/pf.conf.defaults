@@ -282,29 +282,29 @@ user=pf
 # Password for the mysql database used by PacketFence. Changing this parameter after the initial configuration will *not* change it in the database it self, only in the configuration.
 pass=packet
 
-[database_raddact]
+[database_radacct]
 #
-# database_raddact.host
+# database_radacct.host
 #
 # Server the MySQL server is running on.
 host=
 #
-# database_raddact.port
+# database_radacct.port
 #
 # Port the MySQL server is running on.
 port=
 #
-# database_raddact.db
+# database_radacct.db
 #
 # Name of the MySQL database used by PacketFence.
 db=
 #
-# database_raddact.user
+# database_radacct.user
 #
 # Username of the account with access to the MySQL database used by PacketFence. Changing this parameter after the initial configuration will *not* change it in the database it self, only in the configuration.
 user=
 #
-# database_raddact.pass
+# database_radacct.pass
 #
 # Password for the mysql database used by PacketFence. Changing this parameter after the initial configuration will *not* change it in the database it self, only in the configuration.
 pass=
