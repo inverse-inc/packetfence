@@ -10,6 +10,7 @@ import (
 	"time"
 
 	httpexpect "github.com/gavv/httpexpect/v2"
+	"github.com/inverse-inc/packetfence/go/common"
 	"github.com/inverse-inc/packetfence/go/db"
 	"github.com/inverse-inc/packetfence/go/remoteclients"
 	"github.com/inverse-inc/packetfence/go/sharedutils"
@@ -39,9 +40,10 @@ func TestHandleGetProfile(t *testing.T) {
 	gormdb, err := gorm.Open("mysql", db.ReturnURIFromConfig(context.Background()))
 	gormdb.DB().Query("delete from node")
 	gormdb.DB().Query("delete from remote_clients")
+	gormdb.DB().Query("insert into node(mac, category_id) VALUES('aa:bb:cc:dd:ee:ff', 1)")
 	peers := []string{"aa:bb:cc:dd:ee:ff"}
 	for _, peer := range peers {
-		remoteclients.GetOrCreateRemoteClient(ctx, gormdb, peer, peer, 1)
+		remoteclients.GetOrCreateRemoteClient(ctx, gormdb, peer, common.NodeInfo{Node: common.Node{MAC: peer, CategoryID: "1"}})
 	}
 
 	m := e.GET("/api/v1/remote_clients/server_challenge").WithQuery("public_key", base64.URLEncoding.EncodeToString(pub[:])).

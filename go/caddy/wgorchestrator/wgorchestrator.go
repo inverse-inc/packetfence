@@ -54,10 +54,6 @@ func setup(c *caddy.Controller) error {
 		return err
 	}
 
-	remoteclients.InitGlobal()
-	pfconfigdriver.PfconfigPool.AddRefreshable(ctx, remoteclients.GlobalRemoteConnectionProfiles)
-	pfconfigdriver.PfconfigPool.AddStruct(ctx, &pfconfigdriver.Config.RolesChildren)
-
 	httpserver.GetConfig(c).AddMiddleware(func(next httpserver.Handler) httpserver.Handler {
 		wgOrchestrator.Next = next
 		return wgOrchestrator
@@ -69,6 +65,10 @@ func setup(c *caddy.Controller) error {
 func buildWgorchestratorHandler(ctx context.Context) (WgorchestratorHandler, error) {
 
 	wgOrchestrator := WgorchestratorHandler{}
+
+	remoteclients.InitGlobal()
+	pfconfigdriver.PfconfigPool.AddRefreshable(ctx, remoteclients.GlobalRemoteConnectionProfiles)
+	pfconfigdriver.PfconfigPool.AddStruct(ctx, &pfconfigdriver.Config.RolesChildren)
 
 	gin.SetMode(gin.ReleaseMode)
 	router := gin.New()
