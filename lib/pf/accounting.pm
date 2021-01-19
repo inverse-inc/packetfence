@@ -454,7 +454,7 @@ sub node_acct_maintenance_bw_inbound {
         -group_by => 'radacct.callingstationid',
         -where => [
             -and => [
-                \"${method}(timestamp) = ${method}(timestamp)",
+                \"${method}(timestamp) = ${method}(CURRENT_DATE())",
                 {"timestamp" => {">=" => $releaseDate}},
             ],
         ],
@@ -483,7 +483,7 @@ sub node_acct_maintenance_bw_outbound {
         -group_by => 'radacct.callingstationid',
         -where    => [
             -and => [
-                \"${method}(timestamp) = ${method}(timestamp)",
+                \"${method}(timestamp) = ${method}(CURRENT_DATE())",
                 { "timestamp" => { ">=" => $releaseDate } },
             ],
         ],
@@ -514,7 +514,7 @@ sub node_acct_maintenance_bw_total {
         -group_by => 'radacct.callingstationid',
         -where    => [
             -and => [
-                \"${method}(timestamp) = ${method}(timestamp)",
+                \"${method}(timestamp) = ${method}(CURRENT_DATE())",
                 { "timestamp" => { ">=" => $releaseDate } },
             ],
         ],
