@@ -35,8 +35,6 @@ func TestSetup(t *testing.T) {
 		// negative
 		{"forward . a27.0.0.1", true, "", nil, 0, options{hcRecursionDesired: true}, "not an IP"},
 		{"forward . 127.0.0.1 {\nblaatl\n}\n", true, "", nil, 0, options{hcRecursionDesired: true}, "unknown property"},
-		{`forward . ::1
-		forward com ::2`, true, "", nil, 0, options{hcRecursionDesired: true}, "plugin"},
 		{"forward . https://127.0.0.1 \n", true, ".", nil, 2, options{hcRecursionDesired: true}, "'https' is not supported as a destination protocol in forward: https://127.0.0.1"},
 	}
 
