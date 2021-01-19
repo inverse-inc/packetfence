@@ -21,6 +21,7 @@ use pf::config qw(%ConfigAuthenticationLdap %ConfigEAP);
 use pf::authentication;
 use pf::util;
 use pf::ConfigStore::Domain;
+use pfappserver::Form::Config::FilterEngines;
 use pf::condition_parser qw(parse_condition_string);
 
 ## Definition
@@ -140,21 +141,24 @@ sub validate {
         return;
     }
 
-    if(!$self->field("basic_filter_type")->value && !$self->field("advanced_filter")->value) {
+    my $value = $self->value;
+    my $advanced_filter = $value->{advanced_filter};
+    my $basic_filter_type = $value->{basic_filter_type};
+    my $condition_str = '';
+    if (defined $advanced_filter) {
+        $condition_str = pf::condition_parser::object_to_str($advanced_filter);
+    }
+
+    if(!$basic_filter_type && !$condition_str) {
         $self->field("basic_filter_type")->add_error("You need to specify a basic filter or an advanced filter.");
         $self->field("advanced_filter")->add_error("You need to specify a basic filter or an advanced filter.");
     }
 
-    if($self->field("basic_filter_type")->value && $self->field("advanced_filter")->value) {
+    if($basic_filter_type && $condition_str) {
+        $self->field("basic_filter_type")->add_error("You cannot specifiy an advanced filter and a basic filter.");
         $self->field("advanced_filter")->add_error("You cannot specifiy an advanced filter and a basic filter.");
     }
 
-    if($self->field("advanced_filter")->value) {
-        my (undef, $error) = parse_condition_string($self->field("advanced_filter")->value);
-        if($error) {
-            $self->field("advanced_filter")->add_error($error->{message});
-        }
-    }
 }
 
 sub options_field {
