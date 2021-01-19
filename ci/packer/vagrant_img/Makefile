@@ -13,6 +13,7 @@ pfcen7dev:
 	PKR_VAR_output_directory="$(RESULT_DIR)/$@" \
 	PKR_VAR_ansible_group=dev \
 	PKR_VAR_pfserver=$@ \
+	PKR_VAR_pf_repo=packetfence-devel \
 	packer build -only="vagrant.centos-7" .
 
 .PHONY: pfdeb9dev
@@ -27,6 +28,7 @@ pfcen7stable:
 	PKR_VAR_output_directory="$(RESULT_DIR)/$@" \
 	PKR_VAR_ansible_group=stable \
 	PKR_VAR_pfserver=$@ \
+	PKR_VAR_pf_repo=packetfence-stable \
 	packer build -only="vagrant.centos-7" .
 
 .PHONY: pfdeb9stable

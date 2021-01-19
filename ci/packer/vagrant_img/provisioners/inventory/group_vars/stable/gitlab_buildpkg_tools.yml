@@ -10,7 +10,8 @@ gitlab_buildpkg_tools__rpm_deps_repos:
   - name: packetfence
     baseurl: 'http://inverse.ca/downloads/PacketFence/centos/$releasever/$basearch'
 
-gitlab_buildpkg_tools__rpm_pkgs: []
+gitlab_buildpkg_tools__rpm_pkgs:
+  - packetfence
 
 # Debian
 gitlab_buildpkg_tools__deb_keys:
@@ -20,4 +21,5 @@ gitlab_buildpkg_tools__deb_deps_repos:
   - name: packetfence
     baseurl: 'http://inverse.ca/downloads/PacketFence/debian {{ ansible_distribution_release }} {{ ansible_distribution_release }}'
 
-gitlab_buildpkg_tools__deb_pkgs: []
+gitlab_buildpkg_tools__deb_pkgs:
+  - packetfence

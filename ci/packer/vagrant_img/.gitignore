@@ -1,3 +1,3 @@
 results
-ansible_collections
-roles
+provisioners/playbooks/ansible_collections
+provisioners/playbooks/roles

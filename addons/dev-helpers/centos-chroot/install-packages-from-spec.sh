@@ -4,9 +4,9 @@
 #from the spec file using just packetfence-devel repo
 #
 
-PFDIR=/usr/local/pf
+PFDIR=${PFDIR:-/usr/local/pf}
 SPEC="$PFDIR/rpm/packetfence.spec"
-REPO=packetfence-devel
+REPO=${REPO:-packetfence-devel}
 PF_REPO="--enablerepo=$REPO"
 STD_REPOS="--enablerepo=base --enablerepo=updates --enablerepo=extras"
 
@@ -30,7 +30,7 @@ REPOQUERY="repoquery --queryformat=%{NAME} --disablerepo=* $PF_REPO $STD_REPOS -
 
 EL_VERSION=$(cat /etc/redhat-release | perl -p -e's/^.*(\d+)\..*$/$1/' )
 
-rpm -q -D"el$EL_VERSION 1" -D"builddoc 0" --requires  --specfile $SPEC | grep -v packetfence \
+rpm -q -D"el$EL_VERSION 1" --requires  --specfile $SPEC | grep -v packetfence \
     | grep -v 'fingerbank >' \
     | perl -pi -e's/ +$//' | sort -u \
     | xargs -d '\n' $YUM install
