@@ -4,8 +4,6 @@ import (
 	"net/http"
 	"os"
 
-	"github.com/fdurand/scep/csrverifier"
-	"github.com/fdurand/scep/csrverifier/executable"
 	scepserver "github.com/fdurand/scep/server"
 	kitlog "github.com/go-kit/kit/log"
 	kitloglevel "github.com/go-kit/kit/log/level"
@@ -29,16 +27,7 @@ func ScepHandler(pfpki *types.Handler, w http.ResponseWriter, r *http.Request) {
 	}
 	lginfo := kitloglevel.Info(logger)
 
-	var csrVerifier csrverifier.CSRVerifier
-
 	var err error
-
-	executableCSRVerifier, err := executablecsrverifier.New("/tmp/x.sh", lginfo)
-	if err != nil {
-		lginfo.Log("err", err, "msg", "Could not instantiate CSR verifier")
-		os.Exit(1)
-	}
-	csrVerifier = executableCSRVerifier
 
 	log.LoggerWContext(*pfpki.Ctx).Info("SCEP GET From ", r.Method, " To: ", r.URL.String())
 
@@ -50,7 +39,6 @@ func ScepHandler(pfpki *types.Handler, w http.ResponseWriter, r *http.Request) {
 		svcOptions := []scepserver.ServiceOption{
 			scepserver.Profile(vars["id"]),
 			scepserver.ClientValidity(profile[0].Validity),
-			scepserver.WithCSRVerifier(csrVerifier),
 			// Number of days before allow renewal
 			scepserver.AllowRenewal(14),
 			scepserver.ChallengePassword("bob"),
