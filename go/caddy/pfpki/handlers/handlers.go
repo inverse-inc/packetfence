@@ -146,6 +146,7 @@ func GetSetProfile(pfpki *types.Handler) http.Handler {
 	return http.HandlerFunc(func(res http.ResponseWriter, req *http.Request) {
 
 		o := models.NewProfileModel(pfpki)
+
 		var Information types.Info
 		var err error
 
