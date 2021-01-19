@@ -27,6 +27,6 @@ variable ansible_group {
 
 variable pf_repo {
   type = string
-  # set to empty string to allow debian builds to start even if not defined
+  # set to empty string to allow other builds to start even if not defined
   default = ""
 }
