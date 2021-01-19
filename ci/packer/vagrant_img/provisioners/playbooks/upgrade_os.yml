@@ -1,0 +1,16 @@
+- hosts: pfservers
+  name: upgrade OS to latest version
+  become: True
+  gather_facts: False
+  tags: upgrade
+
+  tasks:
+    - name: update to latest OS version
+      package:
+        name: '*'
+        state: latest
+      register: site_register_upgrade
+
+    - name: reboot to have latest Linux kernel packages in place when installing PacketFence
+      reboot:
+      when: site_register_upgrade is changed

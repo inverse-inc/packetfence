@@ -11,14 +11,14 @@ all: pfcen7dev pfdeb9dev pfcen7stable pfdeb9stable
 .PHONY: pfcen7dev
 pfcen7dev:
 	PKR_VAR_output_directory="$(RESULT_DIR)/$@" \
-	PKR_VAR_ansible_group=vagrant_img_dev \
+	PKR_VAR_ansible_group=dev \
 	PKR_VAR_pfserver=$@ \
 	packer build -only="vagrant.centos-7" .
 
 .PHONY: pfdeb9dev
 pfdeb9dev:
 	PKR_VAR_output_directory="$(RESULT_DIR)/$@" \
-	PKR_VAR_ansible_group=vagrant_img_dev \
+	PKR_VAR_ansible_group=dev \
 	PKR_VAR_pfserver=$@ \
 	packer build -only="vagrant.debian-9" .
 

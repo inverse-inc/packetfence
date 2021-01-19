@@ -4,13 +4,18 @@ variable output_directory {
   type = string
 }
 
-variable pf_root {
+variable provisioner_dir {
   type = string
-  default = "../../.."
+  default = "provisioners"
 }
 
 variable pfserver {
   type = string
+}
+
+variable pfservers_group {
+  type = string
+  default = "pfservers"
 }
 
 variable ansible_group {
