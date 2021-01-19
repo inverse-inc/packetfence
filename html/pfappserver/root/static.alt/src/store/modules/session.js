@@ -207,6 +207,7 @@ const actions = {
     commit('ALLOWED_USER_ACTIONS_DELETED')
     commit('ALLOWED_USER_ROLES_DELETED')
     commit('ALLOWED_USER_UNREG_DATE_DELETED')
+    commit('CONFIGURATOR_DISABLED')
   },
   resolveLogin: ({ state }) => {
     if (state.loginPromise === null) {
