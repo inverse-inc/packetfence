@@ -257,6 +257,13 @@ func (h ApiAAAHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) (int, e
 
 	defer panichandler.Http(ctx, w)
 
+	defer func() {
+		// We default to application/json if there is no content type
+		if w.Header().Get("Content-Type") == "" {
+			w.Header().Set("Content-Type", "application/json")
+		}
+	}()
+
 	if handle, params, _ := h.router.Lookup(r.Method, r.URL.Path); handle != nil {
 		handle(w, r, params)
 
@@ -265,11 +272,6 @@ func (h ApiAAAHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) (int, e
 	} else {
 		if h.HandleAAA(w, r) {
 			code, err := h.Next.ServeHTTP(w, r)
-
-			// We default to application/json if there is no content type
-			if w.Header().Get("Content-Type") == "" {
-				w.Header().Set("Content-Type", "application/json")
-			}
 
 			return code, err
 
