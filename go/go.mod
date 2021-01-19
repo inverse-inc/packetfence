@@ -27,16 +27,15 @@ require (
 	github.com/fatih/structs v1.1.0 // indirect
 	github.com/fdurand/arp v0.0.0-20180807174648-27b38d3af1be
 	github.com/fdurand/go-cache v0.0.0-20180104143916-cf0198ac7d92
-	github.com/fdurand/pkcs7 v0.0.0-20210106140739-9769e2d77bf4 // indirect
-	github.com/fdurand/scep v0.0.0-20210113201858-3139f07066e5
+	github.com/fdurand/pkcs7 v0.0.0-20210106144609-4fee69f1b16a // indirect
+	github.com/fdurand/scep v0.0.0-20210111182330-3e9ce540b11b
 	github.com/flynn/go-shlex v0.0.0-20150515145356-3f9db97f8568
 	github.com/gavv/httpexpect/v2 v2.1.0
 	github.com/gdey/jsonpath v0.0.0-20151203210429-124c978a1ffc
 	github.com/gin-gonic/gin v1.6.2
 	github.com/go-acme/lego v2.5.0+incompatible
 	github.com/go-errors/errors v1.0.1
-	github.com/go-kit/kit v0.8.0
-	github.com/go-logfmt/logfmt v0.4.0 // indirect
+	github.com/go-kit/kit v0.10.0
 	github.com/go-redis/redis v0.0.0-20190325112110-a679e614427a
 	github.com/go-sql-driver/mysql v1.5.0
 	github.com/go-test/deep v1.0.5
@@ -66,7 +65,7 @@ require (
 	github.com/jimstudt/http-authentication v0.0.0-20140401203705-3eca13d6893a
 	github.com/jinzhu/gorm v1.9.16
 	github.com/jonboulle/clockwork v0.1.0 // indirect
-	github.com/julienschmidt/httprouter v1.2.0
+	github.com/julienschmidt/httprouter v1.3.0
 	github.com/julsemaan/certmagic v0.6.3-0.20191015203349-067e102ae4ff
 	github.com/klauspost/cpuid v1.2.1
 	github.com/knq/pemutil v0.0.0-20181215144041-fb6fad722528
@@ -78,8 +77,6 @@ require (
 	github.com/mdlayher/raw v0.0.0-20171214195253-9df8b4265df2
 	github.com/mediocregopher/radix.v2 v0.0.0-20180603022615-94360be26253
 	github.com/miekg/dns v1.1.34
-	github.com/micromdm/scep v1.0.1-0.20201110133952-f3adbb75202b
-	github.com/miekg/dns v1.1.3
 	github.com/modern-go/reflect2 v1.0.1 // indirect
 	github.com/naoina/go-stringutil v0.1.0 // indirect
 	github.com/naoina/toml v0.1.1
@@ -98,23 +95,18 @@ require (
 	github.com/simon/go-netadv v0.0.0-20170602081515-fe67988531c7
 	github.com/sparrc/go-ping v0.0.0-20190613174326-4e5b6552494c
 	github.com/tmc/grpc-websocket-proxy v0.0.0-20200122045848-3419fae592fc // indirect
+	github.com/xiang90/probing v0.0.0-20190116061207-43a291ad63a2 // indirect
+	go.etcd.io/bbolt v1.3.3 // indirect
 	go.etcd.io/etcd v0.5.0-alpha.5.0.20200306183522-221f0cc107cb
 	go.uber.org/zap v1.14.1 // indirect
 	golang.org/x/crypto v0.0.0-20201002170205-7f63de1d35b0
 	golang.org/x/net v0.0.0-20200707034311-ab3426394381
 	golang.org/x/sys v0.0.0-20201015000850-e3ed0017c211
 	golang.org/x/text v0.3.3
+	golang.org/x/time v0.0.0-20191024005414-555d28b269f0 // indirect
 	google.golang.org/api v0.29.0
 	google.golang.org/grpc v1.29.1
 	gopkg.in/DataDog/dd-trace-go.v1 v1.27.1
-	github.com/xiang90/probing v0.0.0-20190116061207-43a291ad63a2 // indirect
-	go.etcd.io/bbolt v1.3.3 // indirect
-	go.uber.org/zap v1.13.0 // indirect
-	golang.org/x/crypto v0.0.0-20191205180655-e7c4368fe9dd
-	golang.org/x/net v0.0.0-20200324143707-d3edc9973b7e
-	golang.org/x/text v0.3.2
-	golang.org/x/time v0.0.0-20191024005414-555d28b269f0 // indirect
-	google.golang.org/grpc v1.22.1
 	gopkg.in/alexcesaro/quotedprintable.v3 v3.0.0-20150716171945-2caba252f4dc // indirect
 	gopkg.in/alexcesaro/statsd.v2 v2.0.0-20160320182110-7fea3f0d2fab
 	gopkg.in/asn1-ber.v1 v1.0.0-20181015200546-f715ec2f112d // indirect
