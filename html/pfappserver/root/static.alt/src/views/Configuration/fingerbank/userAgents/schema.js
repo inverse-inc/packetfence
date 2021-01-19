@@ -1,5 +1,5 @@
 import i18n from '@/utils/locale'
-import yup from '@/utils/yup'
+import yup from '../yup'
 
 export const schema = () => {
   return yup.object({
