@@ -1,0 +1,23 @@
+---
+# disabled adding PPA key and repo in the pipeline
+gitlab_buildpkg_tools__ppa_enabled: False
+
+# RPM
+gitlab_buildpkg_tools__rpm_keys:
+  - 'https://inverse.ca/downloads/GPG_PUBLIC_KEY'
+
+gitlab_buildpkg_tools__rpm_deps_repos:
+  - name: packetfence
+    baseurl: 'http://inverse.ca/downloads/PacketFence/centos/$releasever/$basearch'
+
+gitlab_buildpkg_tools__rpm_pkgs: []
+
+# Debian
+gitlab_buildpkg_tools__deb_keys:
+  - 'https://inverse.ca/downloads/GPG_PUBLIC_KEY'
+
+gitlab_buildpkg_tools__deb_deps_repos:
+  - name: packetfence
+    baseurl: 'http://inverse.ca/downloads/PacketFence/debian {{ ansible_distribution_release }} {{ ansible_distribution_release }}'
+
+gitlab_buildpkg_tools__deb_pkgs: []

@@ -5,16 +5,16 @@ build {
   ]
 
   provisioner "ansible" {
-    playbook_file = "${var.pf_root}/addons/vagrant/site.yml"
+    playbook_file = "${var.provisioner_dir}/site.yml"
     host_alias = "${var.pfserver}"
     groups = [
-      "pfservers",
+      "${var.pfservers_group}",
       "${var.ansible_group}",
     ]
-    inventory_directory = "${var.pf_root}/addons/vagrant/inventory/"
-    galaxy_file = "${var.pf_root}/addons/vagrant/requirements.yml"
+    inventory_directory = "${var.provisioner_dir}/inventory"
+    galaxy_file = "${var.provisioner_dir}/requirements.yml"
     galaxy_force_install = true
-    roles_path = "roles"
-    collections_path = "ansible_collections"
+    roles_path = "${var.provisioner_dir}/playbooks/roles"
+    collections_path = "${var.provisioner_dir}/playbooks/ansible_collections"
   }
 }
