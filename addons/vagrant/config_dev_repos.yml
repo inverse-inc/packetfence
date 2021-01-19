@@ -1,4 +1,4 @@
-- hosts: ['dev', 'vagrant_img_dev']
+- hosts: dev
   name: install packetfence development packages
   become: True
 

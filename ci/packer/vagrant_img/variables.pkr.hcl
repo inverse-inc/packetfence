@@ -17,10 +17,6 @@ variable ansible_group {
   type = string
 }
 
-variable ansible_run_tags {
-  type = string
-}
-
 # variable ansible_dir {
 #   type = string
 #   default = "${var.pf_root}/addons/vagrant"
