@@ -56,6 +56,7 @@
 /usr/local/pf/conf/locale/fr/LC_MESSAGES/packetfence.po
 /usr/local/pf/conf/locale/he_IL/LC_MESSAGES/packetfence.po
 /usr/local/pf/conf/locale/it/LC_MESSAGES/packetfence.po
+/usr/local/pf/conf/locale/nb_NO/LC_MESSAGES/packetfence.po
 /usr/local/pf/conf/locale/nl/LC_MESSAGES/packetfence.po
 /usr/local/pf/conf/locale/pt_BR/LC_MESSAGES/packetfence.po
 /usr/local/pf/conf/nessus/remotescan.nessus

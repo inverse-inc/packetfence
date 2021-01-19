@@ -134,7 +134,7 @@ raddb/sites-enabled:
 .PHONY: translation
 
 translation:
-	for TRANSLATION in de en es fr he_IL it nl pl_PL pt_BR; do\
+	for TRANSLATION in de en es fr he_IL it nb_NO nl pl_PL pt_BR; do\
 		/usr/bin/msgfmt conf/locale/$$TRANSLATION/LC_MESSAGES/packetfence.po\
 		  --output-file conf/locale/$$TRANSLATION/LC_MESSAGES/packetfence.mo;\
 	done
