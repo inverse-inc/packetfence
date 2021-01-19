@@ -20,6 +20,7 @@ func NewFirewallsContainer(ctx context.Context) *FirewallsContainer {
 	fc.New = func(ctx context.Context, id string) (pfconfigdriver.PfconfigObject, error) {
 		return fc.factory.Instantiate(ctx, id)
 	}
+	fc.Refresh(ctx)
 	return fc
 }
 

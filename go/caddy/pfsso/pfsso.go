@@ -49,11 +49,6 @@ func setup(c *caddy.Controller) error {
 		return err
 	}
 
-	// Declare all pfconfig resources that will be necessary
-	pfsso.firewalls = firewallsso.NewFirewallsContainer(ctx)
-	pfconfigdriver.PfconfigPool.AddRefreshable(ctx, pfsso.firewalls)
-	pfconfigdriver.PfconfigPool.AddStruct(ctx, &pfconfigdriver.Config.Interfaces.ManagementNetwork)
-
 	httpserver.GetConfig(c).AddMiddleware(func(next httpserver.Handler) httpserver.Handler {
 		pfsso.Next = next
 		return pfsso
@@ -75,6 +70,11 @@ func buildPfssoHandler(ctx context.Context) (PfssoHandler, error) {
 	router.POST("/api/v1/firewall_sso/stop", pfsso.handleStop)
 
 	pfsso.router = router
+
+	// Declare all pfconfig resources that will be necessary
+	pfsso.firewalls = firewallsso.NewFirewallsContainer(ctx)
+	pfconfigdriver.PfconfigPool.AddRefreshable(ctx, pfsso.firewalls)
+	pfconfigdriver.PfconfigPool.AddStruct(ctx, &pfconfigdriver.Config.Interfaces.ManagementNetwork)
 
 	return pfsso, nil
 }
