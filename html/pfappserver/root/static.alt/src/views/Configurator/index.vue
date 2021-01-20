@@ -8,7 +8,7 @@ import apiCall, { baseURL } from '@/utils/api'
 
 const setup = (props, context) => {
 
-  const { root: { $router } = {}, emit } = context
+  const { root: { $router } = {} } = context
 
   const requestInterceptor = apiCall.interceptors.request.use((config) => {
     config.baseURL = '/api/v1/configurator/'

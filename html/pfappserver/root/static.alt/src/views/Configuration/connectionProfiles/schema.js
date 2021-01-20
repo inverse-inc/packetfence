@@ -73,7 +73,7 @@ export default (props) => {
     isClone
   } = props
 
-  const { filter, advanced_filter } = form || {}
+  const { advanced_filter } = form || {}
 
   return yup.object().shape({
     id: yup.string()
