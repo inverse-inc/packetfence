@@ -301,6 +301,7 @@ github.com/fdurand/pkcs7 v0.0.0-20210106140739-9769e2d77bf4 h1:J4PtZnt4dphvqccvC
 github.com/fdurand/pkcs7 v0.0.0-20210106140739-9769e2d77bf4/go.mod h1:CdwnzdtFylyygnjzNYZSHKQ4dwKieszq+kcfNdKGBqY=
 github.com/fdurand/pkcs7 v0.0.0-20210106144609-4fee69f1b16a h1:6IfQB9eA3DYdkqQ3kDoQulJJJ40IPfwxKyERXld++90=
 github.com/fdurand/pkcs7 v0.0.0-20210106144609-4fee69f1b16a/go.mod h1:CdwnzdtFylyygnjzNYZSHKQ4dwKieszq+kcfNdKGBqY=
+github.com/fdurand/pkcs7 v0.0.0-20210120152619-f2c08e4f2fe7/go.mod h1:aHzUtVf72aXrFSKTS5oFVssPXIAEfcPXjv1K4t5QXvg=
 github.com/fdurand/scep v0.0.0-20210106145219-60f4a5c461a0 h1:lOWd5s0e52lu+Q0/FrbUQKioID7T8MmhdRJGZr7eoEI=
 github.com/fdurand/scep v0.0.0-20210106145219-60f4a5c461a0/go.mod h1:OSx/CJvW7DnLF1OfoOQj1Bm54Ypzg6XvMF9W0Ro+xo4=
 github.com/fdurand/scep v0.0.0-20210111165316-ad504b1ccf67 h1:pQmtvNCYbaTstw1vSlwa8DDsgl+bye2iK/HgxfhLKGI=
@@ -309,6 +310,8 @@ github.com/fdurand/scep v0.0.0-20210111182330-3e9ce540b11b h1:X1cMYPN+5yvhXxCw4Y
 github.com/fdurand/scep v0.0.0-20210111182330-3e9ce540b11b/go.mod h1:gnSe9SGQN1MdG2aMIit/saIYGFgwgC8sMIK8SEggWIE=
 github.com/fdurand/scep v0.0.0-20210113201858-3139f07066e5 h1:mGgf18hAbxZ2eu8HjCH/aJ1i9Ef7LMImZINqJ3+j5cQ=
 github.com/fdurand/scep v0.0.0-20210113201858-3139f07066e5/go.mod h1:DGkOjauljxUXRfKojOCj4CZyhY4b+nH3Gd8MiDdAO9U=
+github.com/fdurand/scep v0.0.0-20210120153039-d51045f4f255 h1:EwmREPRx18+Os0rREteg6FJOWUIxptfPggjZkUJEIjI=
+github.com/fdurand/scep v0.0.0-20210120153039-d51045f4f255/go.mod h1:xZfT93E1fgNeQxSc61AcIOdfj4zutrYDjWYMgwPZQMw=
 github.com/fdurand/scep v1.0.0 h1:ApcERuPZtddhCtxvxvbxe2qb97a0uicnE+t+jslLfL8=
 github.com/fdurand/scep v1.0.0/go.mod h1:uFfbEztH8Z+0DPabkTQ2Utwnlxe/2KNweoG7YXdXG8I=
 github.com/fdurand/scep v1.0.1-0.20201229152023-054ac94f1543 h1:ojYZkquf+iOp7M+IMYzqL0WPADZT2OfOc2OyhuCK2C0=
