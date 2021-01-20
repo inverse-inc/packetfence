@@ -38,3 +38,19 @@ variable spec_file_path {
   type = string
   default = "/tmp/packetfence.spec"
 }
+
+# Vagrant cloud
+variable access_token {
+  type = string
+  default = env("VAGRANT_CLOUD_TOKEN")
+  sensitive = true
+}
+
+variable devel_version {
+  type = string
+}
+
+variable release_version {
+  type = string
+  default = env("CI_COMMIT_TAG")
+}
