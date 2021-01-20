@@ -13,6 +13,8 @@
   when: lookup("env", "GOLANG_UNIT_TESTS") == 'yes'
   
 - import_playbook: winservers.yml
+
+- import_playbook: linux_servers.yml
   
 - import_playbook: cumulus.yml
   

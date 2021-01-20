@@ -1,0 +1,4 @@
+---
+# allow all machines on management network to send logs to rsyslog
+rsyslog__group_allow:
+  - 172.17.17.0/24
