@@ -1499,13 +1499,14 @@ CREATE TABLE `pki_profiles` (
   `p12_mail_header` varchar(255) DEFAULT NULL,
   `p12_mail_footer` varchar(255) DEFAULT NULL,
   `scep_enabled` int(11) DEFAULT NULL,
+  `scep_challenge_password` varchar(255) DEFAULT NULL,
+  `scep_allow_renewal` varchar(255) DEFAULT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `name` (`name`),
   KEY `idx_profiles_deleted_at` (`deleted_at`),
   KEY `ca_id` (`ca_id`),
   KEY `ca_name` (`ca_name`)
 ) ENGINE=InnoDB AUTO_INCREMENT=3;
-
 
 --
 -- Table structure for table `pki_revoked_certs`

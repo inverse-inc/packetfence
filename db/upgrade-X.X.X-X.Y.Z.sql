@@ -156,6 +156,13 @@ ALTER TABLE security_event
 ALTER TABLE sms_carrier
     MODIFY `id` BIGINT NOT NULL AUTO_INCREMENT COMMENT 'primary key for SMS carrier';
 
+\! echo "altering pki_profiles"
+ALTER TABLE pki_profiles
+    ADD COLUMN IF NOT EXISTS `scep_enabled` int(11),
+    ADD COLUMN IF NOT EXISTS `scep_challenge_password` varchar(255),
+    ADD COLUMN IF NOT EXISTS `scep_allow_renewal` varchar(255);
+
+
 \! echo "Incrementing PacketFence schema version...";
 INSERT IGNORE INTO pf_version (id, version, created_at) VALUES (@VERSION_INT, CONCAT_WS('.', @MAJOR_VERSION, @MINOR_VERSION, @SUBMINOR_VERSION), NOW());
 
