@@ -159,6 +159,13 @@ CREATE TABLE IF NOT EXISTS `remote_clients` (
   UNIQUE KEY remote_clients_private_key (`public_key`)
 ) ENGINE=InnoDB;
 
+\! echo "altering pki_profiles"
+ALTER TABLE pki_profiles
+    ADD COLUMN IF NOT EXISTS `scep_enabled` int(11),
+    ADD COLUMN IF NOT EXISTS `scep_challenge_password` varchar(255),
+    ADD COLUMN IF NOT EXISTS `scep_allow_renewal` varchar(255);
+
+
 \! echo "Incrementing PacketFence schema version...";
 INSERT IGNORE INTO pf_version (id, version) VALUES (@VERSION_INT, CONCAT_WS('.', @MAJOR_VERSION, @MINOR_VERSION, @SUBMINOR_VERSION));
 

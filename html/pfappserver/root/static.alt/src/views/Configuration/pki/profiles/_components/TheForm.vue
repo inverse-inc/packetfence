@@ -65,6 +65,20 @@
           auto-fit
         />
       </base-form-tab>
+      <base-form-tab :title="$i18n.t('SCEP')">
+        <form-group-scep-enabled namespace="scep_enabled"
+          :column-label="$i18n.t('Enable SCEP')"
+          :text="$i18n.t('Enable SCEP for this template.')"
+        />
+        <form-group-scep-challenge-password namespace="scep_challenge_password"
+          :column-label="$i18n.t('SCEP challenge password')"
+          :text="$i18n.t('SCEP challenge password.')"
+        />
+        <form-group-scep-allow-renewal namespace="scep_allow_renewal"
+          :column-label="$i18n.t('SCEP allow renewal')"
+          :text="$i18n.t('Number of days before SCEP authorize renewal')"
+        />
+      </base-form-tab>
     </b-tabs>
   </base-form>
 </template>
@@ -89,7 +103,10 @@ import {
   FormGroupP12MailSubject,
   FormGroupP12MailFrom,
   FormGroupP12MailHeader,
-  FormGroupP12MailFooter
+  FormGroupP12MailFooter,
+  FormGroupScepEnabled,
+  FormGroupScepChallengePassword,
+  FormGroupScepAllowRenewal
 } from './'
 
 const components = {
@@ -109,7 +126,10 @@ const components = {
   FormGroupP12MailSubject,
   FormGroupP12MailFrom,
   FormGroupP12MailHeader,
-  FormGroupP12MailFooter
+  FormGroupP12MailFooter,
+  FormGroupScepEnabled,
+  FormGroupScepChallengePassword,
+  FormGroupScepAllowRenewal
 }
 
 export const props = {

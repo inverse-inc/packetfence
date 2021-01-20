@@ -301,6 +301,7 @@ github.com/fdurand/pkcs7 v0.0.0-20210106140739-9769e2d77bf4 h1:J4PtZnt4dphvqccvC
 github.com/fdurand/pkcs7 v0.0.0-20210106140739-9769e2d77bf4/go.mod h1:CdwnzdtFylyygnjzNYZSHKQ4dwKieszq+kcfNdKGBqY=
 github.com/fdurand/pkcs7 v0.0.0-20210106144609-4fee69f1b16a h1:6IfQB9eA3DYdkqQ3kDoQulJJJ40IPfwxKyERXld++90=
 github.com/fdurand/pkcs7 v0.0.0-20210106144609-4fee69f1b16a/go.mod h1:CdwnzdtFylyygnjzNYZSHKQ4dwKieszq+kcfNdKGBqY=
+github.com/fdurand/pkcs7 v0.0.0-20210120152619-f2c08e4f2fe7 h1:R888EtgMdnsqC1TlYbCMOhHXf7f9yK7EmAdQ+CS4Pkg=
 github.com/fdurand/pkcs7 v0.0.0-20210120152619-f2c08e4f2fe7/go.mod h1:aHzUtVf72aXrFSKTS5oFVssPXIAEfcPXjv1K4t5QXvg=
 github.com/fdurand/scep v0.0.0-20210106145219-60f4a5c461a0 h1:lOWd5s0e52lu+Q0/FrbUQKioID7T8MmhdRJGZr7eoEI=
 github.com/fdurand/scep v0.0.0-20210106145219-60f4a5c461a0/go.mod h1:OSx/CJvW7DnLF1OfoOQj1Bm54Ypzg6XvMF9W0Ro+xo4=

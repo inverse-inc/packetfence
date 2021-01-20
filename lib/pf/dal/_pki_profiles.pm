@@ -51,6 +51,9 @@ BEGIN {
         p12_mail_from
         p12_mail_header
         p12_mail_footer
+        scep_enabled
+        scep_challenge_password
+        scep_allow_renewal
     );
 
     %DEFAULTS = (
@@ -71,6 +74,9 @@ BEGIN {
         p12_mail_from => undef,
         p12_mail_header => undef,
         p12_mail_footer => undef,
+        scep_enabled => undef,
+        scep_challenge_password => undef,
+        scep_allow_renewal => undef,
     );
 
     @INSERTABLE_FIELDS = qw(
@@ -91,6 +97,9 @@ BEGIN {
         p12_mail_from
         p12_mail_header
         p12_mail_footer
+        scep_enabled
+        scep_challenge_password
+        scep_allow_renewal
     );
 
     %FIELDS_META = (
@@ -202,6 +211,25 @@ BEGIN {
             is_primary_key => 0,
             is_nullable => 1,
         },
+        scep_enabled => {
+            type => 'INT',
+            is_auto_increment => 0,
+            is_primary_key => 0,
+            is_nullable => 1,
+        },
+        scep_challenge_password => {
+            type => 'VARCHAR',
+            is_auto_increment => 0,
+            is_primary_key => 0,
+            is_nullable => 1,
+        },
+        scep_allow_renewal => {
+            type => 'VARCHAR',
+            is_auto_increment => 0,
+            is_primary_key => 0,
+            is_nullable => 1,
+        },
+
     );
 
     @PRIMARY_KEYS = qw(
@@ -227,6 +255,9 @@ BEGIN {
         pki_profiles.p12_mail_from
         pki_profiles.p12_mail_header
         pki_profiles.p12_mail_footer
+        pki_profiles.scep_enabled
+        pki_profiles.scep_challenge_password
+        pki_profiles.scep_allow_renewal
     );
 
 }
