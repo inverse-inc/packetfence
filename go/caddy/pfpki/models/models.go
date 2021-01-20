@@ -91,7 +91,7 @@ type (
 		P12MailHeader         string                  `json:"p12_mail_header,omitempty"`
 		P12MailFooter         string                  `json:"p12_mail_footer,omitempty"`
 		SCEPEnabled           int                     `json:"scep_enabled,omitempty,string"`
-		SCEPChallengePassword string                  `json:"scep_challenge_password,omitempty,string"`
+		SCEPChallengePassword string                  `json:"scep_challenge_password,omitempty"`
 		SCEPAllowRenewal      int                     `json:"scep_allow_renewal,omitempty,string"`
 	}
 

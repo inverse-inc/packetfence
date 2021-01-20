@@ -38,9 +38,9 @@ export {
   BaseFormGroupInput                      as FormGroupP12MailFrom,
   BaseFormGroupTextarea                   as FormGroupP12MailHeader,
   BaseFormGroupTextarea                   as FormGroupP12MailFooter,
-  BaseFormGroupToggleZeroOneStringAsOffOn as FormGroupSCEPEnabled,
-  BaseFormGroupTextarea                   as FormGroupSCEPChallengePassword,
-  BaseFormGroupTextarea                   as FormGroupSCEPAllowRenewal,
+  BaseFormGroupToggleZeroOneStringAsOffOn as FormGroupScepEnabled,
+  BaseFormGroupInput                      as FormGroupScepChallengePassword,
+  BaseFormGroupInputNumber                as FormGroupScepAllowRenewal,
 
   TheForm,
   TheView
