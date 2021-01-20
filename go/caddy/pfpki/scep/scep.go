@@ -4,7 +4,7 @@ import (
 	"net/http"
 	"os"
 
-	scepserver "github.com/fdurand/scep/server"
+	scepserver "github.com/inverse-inc/scep/server"
 	kitlog "github.com/go-kit/kit/log"
 	kitloglevel "github.com/go-kit/kit/log/level"
 	"github.com/gorilla/mux"
@@ -39,9 +39,8 @@ func ScepHandler(pfpki *types.Handler, w http.ResponseWriter, r *http.Request) {
 		svcOptions := []scepserver.ServiceOption{
 			scepserver.Profile(vars["id"]),
 			scepserver.ClientValidity(profile[0].Validity),
-			// Number of days before allow renewal
-			scepserver.AllowRenewal(14),
-			scepserver.ChallengePassword("bob"),
+			scepserver.AllowRenewal(profile[0].SCEPAllowRenewal),
+			scepserver.ChallengePassword(profile[0].SCEPChallengePassword),
 		}
 		svc, err = scepserver.NewService(o, svcOptions...)
 		if err != nil {
