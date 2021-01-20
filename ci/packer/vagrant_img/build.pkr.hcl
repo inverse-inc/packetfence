@@ -20,13 +20,19 @@ build {
     roles_path = "${var.provisioner_dir}/playbooks/roles"
     collections_path = "${var.provisioner_dir}/playbooks/ansible_collections"
   }
+
+  provisioner "file" {
+    only = ["vagrant.centos-7"]
+    source = "${var.pfroot_dir}/rpm/packetfence.spec"
+    destination = "${var.spec_file_path}"
+  }
   
   provisioner "shell" {
     only = ["vagrant.centos-7"]
     execute_command = "echo 'vagrant' | {{.Vars}} sudo -S -E bash '{{.Path}}'"
     script = "${var.pfroot_dir}/addons/dev-helpers/centos-chroot/install-packages-from-spec.sh"
     environment_vars = [
-      "PFDIR=${var.pfroot_dir}",
+      "SPEC=${var.spec_file_path}",
       "REPO=${var.pf_repo}"
     ]
   }
