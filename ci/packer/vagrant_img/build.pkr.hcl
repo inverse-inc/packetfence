@@ -42,6 +42,14 @@ build {
     execute_command = "echo 'vagrant' | {{.Vars}} sudo -S -E bash '{{.Path}}'"
     script = "${var.pfroot_dir}/addons/dev-helpers/debian/install-pf-dependencies.sh"
   }
+
+  post-processors {
+    post-processor "vagrant-cloud" {
+      box_tag = "inverse-inc/${var.pfserver}"
+      version = "${var.devel_version}"
+      access_token = "${var.access_token}"
+    }
+  }
 }
 
 build {
@@ -65,5 +73,13 @@ build {
     # we put it in a specific place where Ansible playbooks will find them
     roles_path = "${var.provisioner_dir}/playbooks/roles"
     collections_path = "${var.provisioner_dir}/playbooks/ansible_collections"
+  }
+
+  post-processors {
+    post-processor "vagrant-cloud" {
+      box_tag = "inverse-inc/${var.pfserver}"
+      version = "${var.release_version}"
+      access_token = "${var.access_token}"
+    }
   }
 }
