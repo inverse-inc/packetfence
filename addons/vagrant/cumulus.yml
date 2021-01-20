@@ -13,7 +13,4 @@
 
   roles:
     - role: hostapd
-      # to avoid a failure when PF_VM_NAME is not defined
-      when: lookup("env", "PF_VM_NAME")
-
     - role: restserver

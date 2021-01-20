@@ -1,6 +1,6 @@
 ---
 - name: Install Venom
-  hosts: pfservers
+  hosts: pfservers, service_venom
   gather_facts: False
   become: True
   collections:

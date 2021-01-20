@@ -9,5 +9,6 @@ collections:
   - name: inverse_inc.windows
   - name: inverse_inc.cumulus
   - name: inverse_inc.utils
+  - name: inverse_inc.wireless
 
 

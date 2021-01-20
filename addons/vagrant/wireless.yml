@@ -1,0 +1,12 @@
+---
+- name: Configure Wireless Linux
+  hosts: wireless
+  become: true
+  gather_facts: true
+  
+  collections:
+    - inverse_inc.wireless
+
+  roles:
+    - role: hostapd
+    - role: wpasupplicant

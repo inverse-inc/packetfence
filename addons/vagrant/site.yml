@@ -18,5 +18,7 @@
   
 - import_playbook: nodes_post_prov.yml
   
+- import_playbook: wireless.yml
+  
 - import_playbook: utils.yml
 
