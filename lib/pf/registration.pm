@@ -24,7 +24,7 @@ use pf::log;
 use pf::person;
 use pf::lookup::person;
 use pf::security_event;
-use pf::constants::node qw($STATUS_REGISTERED);
+use pf::constants::node qw($STATUS_REGISTERED $STATUS_UNREGISTERED);
 use pf::util;
 use pf::util::statsd qw(called);
 use pf::dal::person;
@@ -50,6 +50,7 @@ sub setup_node_for_registration {
     my $pid = $node->pid;
     if ( ($node->{__old_data}->{pid} ne $pid || $node->{__old_data}->{status} ne "reg") &&  pf::node::is_max_reg_nodes_reached($mac, $pid, $node->category, $node->category_id) ) {
         if (!($action eq $Actions::SET_ROLE_FROM_SOURCE)) {
+            $node->status($STATUS_UNREGISTERED);
             $status_msg = "max nodes per pid met or exceeded";
             $status_msg = "no role computed by any sources" if (!defined($node->category));
             $logger->error( "$status_msg - registration of $mac to $pid failed" );
