@@ -129,6 +129,15 @@ sub _handler {
         return Apache2::Const::DECLINED;
     }
 
+    # Portal-profile filters
+    # TODO: Migrate to Catalyst
+    if ( defined($WEB::ALLOWED_RESOURCES_PROFILE_FILTER) && $uri =~ /$WEB::ALLOWED_RESOURCES_PROFILE_FILTER/o ) {
+        $logger->info("Matched profile uri filter for $uri");
+        #Send the current URI to catalyst with the pnotes
+        $r->pnotes(last_uri => $uri);
+        return Apache2::Const::DECLINED;
+    }
+
     # Captive-portal resources
     # We don't want to continue in the dispatcher if the requested URI is supposed to reach the captive-portal (Catalyst)
     # - Captive-portal itself
@@ -137,15 +146,6 @@ sub _handler {
     # See L<pf::web::constants::CAPTIVE_PORTAL_RESOURCES>
     if ( $uri =~ /$WEB::CAPTIVE_PORTAL_RESOURCES/o ) {
         $logger->debug("URI '$uri' (URL: $url) is properly handled and should now continue to the captive-portal / Catalyst");
-        return Apache2::Const::DECLINED;
-    }
-
-    # Portal-profile filters
-    # TODO: Migrate to Catalyst
-    if ( defined($WEB::ALLOWED_RESOURCES_PROFILE_FILTER) && $uri =~ /$WEB::ALLOWED_RESOURCES_PROFILE_FILTER/o ) {
-        $logger->info("Matched profile uri filter for $uri");
-        #Send the current URI to catalyst with the pnotes
-        $r->pnotes(last_uri => $uri);
         return Apache2::Const::DECLINED;
     }
 
