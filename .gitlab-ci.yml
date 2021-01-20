@@ -131,6 +131,8 @@ variables:
   stage: build_img
   script:
     - make -e -C ${VAGRANT_IMG_DIR} ${BOX_NAME}
+  after_script:
+    - make -e -C ${VAGRANT_IMG_DIR} clean
   tags:
     - shell
 
