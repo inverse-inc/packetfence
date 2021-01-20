@@ -30,8 +30,6 @@ variable ansible_group {
 # Shell provisioning
 variable pf_repo {
   type = string
-  # set to empty string to allow other builds to start even if not defined
-  default = ""
 }
 
 variable spec_file_path {
@@ -40,17 +38,14 @@ variable spec_file_path {
 }
 
 # Vagrant cloud
+# only env variable which is not passed using Makefile
+# to avoid a display on screen
 variable access_token {
   type = string
   default = env("VAGRANT_CLOUD_TOKEN")
   sensitive = true
 }
 
-variable devel_version {
+variable box_version {
   type = string
-}
-
-variable release_version {
-  type = string
-  default = env("CI_COMMIT_TAG")
 }

@@ -46,7 +46,7 @@ build {
   post-processors {
     post-processor "vagrant-cloud" {
       box_tag = "inverse-inc/${var.pfserver}"
-      version = "${var.devel_version}"
+      version = "${var.box_version}"
       access_token = "${var.access_token}"
     }
   }
@@ -78,7 +78,7 @@ build {
   post-processors {
     post-processor "vagrant-cloud" {
       box_tag = "inverse-inc/${var.pfserver}"
-      version = "${var.release_version}"
+      version = "${var.box_version}"
       access_token = "${var.access_token}"
     }
   }
