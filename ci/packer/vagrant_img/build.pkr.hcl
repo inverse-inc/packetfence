@@ -48,6 +48,7 @@ build {
       box_tag = "inverse-inc/${var.pfserver}"
       version = "${var.box_version}"
       access_token = "${var.access_token}"
+      version_description = "${var.box_description}"      
     }
   }
 }
@@ -80,6 +81,7 @@ build {
       box_tag = "inverse-inc/${var.pfserver}"
       version = "${var.box_version}"
       access_token = "${var.access_token}"
+      version_description = "${var.box_description}"
     }
   }
 }
