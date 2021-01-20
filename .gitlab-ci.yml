@@ -30,6 +30,7 @@ variables:
   CILIBDIR: ci/lib
   PACKERDIR: $CIDIR/packer
   ZENDIR: $CIDIR/packer/zen
+  VAGRANT_IMG_DIR: $CIDIR/packer/vagrant_img
   MAINTDIR: $CILIBDIR/maintenance
   TESTDIR: $CILIBDIR/test
   UPLOAD_DIR: $CILIBDIR/upload
@@ -119,10 +120,17 @@ variables:
 ########################################    
 # JOBS
 ########################################
-.build_img_job:
+.build_docker_img_job:
   stage: build_img
   script:
-    - make -e -C ${PACKERDIR} build_img
+    - make -e -C ${PACKERDIR} build_docker_img
+  tags:
+    - shell
+
+.build_vagrant_img_job:
+  stage: build_img
+  script:
+    - make -e -C ${VAGRANT_IMG_DIR} ${BOX_NAME}
   tags:
     - shell
 
@@ -284,9 +292,10 @@ variables:
 ########################################
 # BUILD_IMG JOBS
 ########################################
-build_img_dev:
+# build_docker_img jobs
+build_docker_img_dev:
   extends:
-    - .build_img_job
+    - .build_docker_img_job
     - .job_devel_only_triggers
   variables:
     DOCKER_TAGS: latest,maintenance-99-9
@@ -295,17 +304,17 @@ build_img_dev:
   # will not run when we click "Run pipeline"
   when: manual
 
-build_img_branches:
+build_docker_img_branches:
   extends:
-    - .build_img_job
+    - .build_docker_img_job
     - .job_branches_only_triggers
   variables:
     DOCKER_TAGS: ${CI_COMMIT_REF_SLUG}
   when: manual
 
-build_img_maintenance:
+build_docker_img_maintenance:
   extends:
-    - .build_img_job
+    - .build_docker_img_job
     - .job_maintenance_triggers
   variables:
     DOCKER_TAGS: ${CI_COMMIT_REF_SLUG}
@@ -313,9 +322,9 @@ build_img_maintenance:
 
 # build a docker image at release
 # used to build release packages and maintenance artifacts for maintenance
-build_img_release:
+build_docker_img_release:
   extends:
-    - .build_img_job
+    - .build_docker_img_job
     - .job_release_triggers
   variables:
     DOCKER_TAGS: ${CI_COMMIT_TAG}
@@ -325,6 +334,25 @@ build_img_release:
     ANSIBLE_DEBIAN_GROUP: stable_debian
     ANSIBLE_RUBYGEMS_GROUP: stable_rubygems
     ACTIVE_BUILDS: 'pfbuild-centos-7,pfbuild-stretch'
+
+# build_vagrant_img jobs
+build_vagrant_img_dev_centos_7:
+  extends:
+    - .build_vagrant_img_job
+    - .job_dev_triggers
+  variables:
+    BOX_DESC: ${CI_COMMIT_SHORT_SHA}
+    BOX_NAME: pfcen7dev
+  when: manual
+
+build_vagrant_img_dev_debian_stretch:
+  extends:
+    - .build_vagrant_img_job
+    - .job_dev_triggers
+  variables:
+    BOX_DESC: ${CI_COMMIT_SHORT_SHA}
+    BOX_NAME: pfdeb9dev
+  when: manual
 
 ########################################
 #  BUILD_PKG JOBS
