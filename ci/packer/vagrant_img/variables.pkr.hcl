@@ -49,3 +49,7 @@ variable access_token {
 variable box_version {
   type = string
 }
+
+variable box_description {
+  type = string
+}

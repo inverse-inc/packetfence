@@ -1,12 +1,16 @@
 #==============================================================================
 # Specific variables
 #==============================================================================
+### All these variables can be overriden by environment when calling with:
+# VAR=value make -e target
+# following values can be considered as default values
 RESULT_DIR=results
 DEV_GROUP=dev
 STABLE_GROUP=stable
 # should be X.Y.Z (to validate vagrant-cloud checks)
 BOX_VERSION=$(shell cat ../../../conf/pf-release | cut -d' ' -f 2)
 ANSIBLE_FORCE_COLOR=1
+BOX_DESC='local-test'
 #==============================================================================
 # Targets
 #==============================================================================
@@ -17,6 +21,7 @@ pfbox:	clean
 	PKR_VAR_pfserver=$(BOX_NAME) \
 	PKR_VAR_pf_repo=$(PF_REPO) \
 	PKR_VAR_box_version=$(BOX_VERSION) \
+	PKR_VAR_box_description=$(BOX_DESC) \
 	packer validate -only="$(BUILD_NAME)" .
 
 	PKR_VAR_output_directory="$(RESULT_DIR)/$(BOX_NAME)" \
@@ -24,6 +29,7 @@ pfbox:	clean
 	PKR_VAR_pfserver=$(BOX_NAME) \
 	PKR_VAR_pf_repo=$(PF_REPO) \
 	PKR_VAR_box_version=$(BOX_VERSION) \
+	PKR_VAR_box_description=$(BOX_DESC) \
 	ANSIBLE_FORCE_COLOR=$(ANSIBLE_FORCE_COLOR) \
 	packer build -only="$(BUILD_NAME)" .
 
