@@ -25,6 +25,9 @@ use pf::person qw(person_security_events person_unassign_nodes person_delete per
 use pf::node;
 use pf::constants qw($default_pid);
 use pf::error qw(is_error is_success);
+use pf::UnifiedApi::Search::Builder::Users;
+
+has 'search_builder_class' => 'pf::UnifiedApi::Search::Builder::Users';
 
 has dal => 'pf::dal::person';
 has url_param_name => 'user_id';
