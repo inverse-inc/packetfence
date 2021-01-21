@@ -7,10 +7,12 @@
 RESULT_DIR=results
 DEV_GROUP=dev
 STABLE_GROUP=stable
-# should be X.Y.Z (to validate vagrant-cloud checks)
-BOX_VERSION=$(shell cat ../../../conf/pf-release | cut -d' ' -f 2)
 ANSIBLE_FORCE_COLOR=1
 BOX_DESC='local-test'
+# should follow semver (to validate vagrant-cloud checks) and
+# be unique at each build (see https://github.com/hashicorp/packer/issues/9492)
+# generate: X.Y.Z+UTC_DATE
+BOX_VERSION=$(shell cat ../../../conf/pf-release | cut -d' ' -f 2 | echo "`cat -`+`date -u +%Y%m%d%H%M%S`")
 #==============================================================================
 # Targets
 #==============================================================================
@@ -21,7 +23,7 @@ pfbox:	clean
 	PKR_VAR_pfserver_name=$(BOX_NAME) \
 	PKR_VAR_centos_repo=$(CENTOS_REPO) \
 	PKR_VAR_box_version=$(BOX_VERSION) \
-	PKR_VAR_box_description=$(BOX_DESC) \
+	PKR_VAR_box_description="$(BOX_DESC)" \
 	packer validate -only="$(BUILD_NAME)" .
 
 	PKR_VAR_output_dir="$(RESULT_DIR)/$(BOX_NAME)" \
@@ -29,7 +31,7 @@ pfbox:	clean
 	PKR_VAR_pfserver_name=$(BOX_NAME) \
 	PKR_VAR_centos_repo=$(CENTOS_REPO) \
 	PKR_VAR_box_version=$(BOX_VERSION) \
-	PKR_VAR_box_description=$(BOX_DESC) \
+	PKR_VAR_box_description="$(BOX_DESC)" \
 	ANSIBLE_FORCE_COLOR=$(ANSIBLE_FORCE_COLOR) \
 	packer build -only="$(BUILD_NAME)" .
 

@@ -130,7 +130,7 @@ variables:
   stage: build_img
   variables:
     RESULT_DIR: /var/tmp
-    BOX_DESC: ${CI_COMMIT_SHORT_SHA}
+    BOX_DESC: ${CI_PIPELINE_URL}
   script:
     - make -e -C ${VAGRANT_IMG_DIR} ${BOX_NAME}
   after_script:
