@@ -32,10 +32,10 @@ sub adminAuthentication {
 
     if($result == $LOGIN_SUCCESS) {
         $tenant->{'id'} = int($tenant->{'id'});
-        $self->render(status => 200, json => { result => $result, roles => $roles, tenant => $tenant });
+        $self->render(status => 200, json => { result => $result+0, roles => $roles, tenant => $tenant });
     }
     else {
-        $self->render(status => 401, json => { result => $result, message => "Authentication failed." })
+        $self->render(status => 401, json => { result => $result+0, message => "Authentication failed." })
     }
 }
 
