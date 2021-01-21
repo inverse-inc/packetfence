@@ -64,7 +64,6 @@ export default {
     isDeletable: undefined,
     isValid: undefined,
     actionKey: undefined,
-    actionKeyButtonVerb: undefined,
     onClone: undefined,
     onClose: undefined,
     onRemove: undefined,
