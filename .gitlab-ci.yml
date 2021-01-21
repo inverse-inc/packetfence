@@ -129,6 +129,9 @@ variables:
 
 .build_vagrant_img_job:
   stage: build_img
+  variables:
+    RESULT_DIR: /var/tmp
+    BOX_DESC: ${CI_COMMIT_SHORT_SHA}
   script:
     - make -e -C ${VAGRANT_IMG_DIR} ${BOX_NAME}
   after_script:
@@ -343,7 +346,6 @@ build_vagrant_img_dev_centos_7:
     - .build_vagrant_img_job
     - .job_dev_triggers
   variables:
-    BOX_DESC: ${CI_COMMIT_SHORT_SHA}
     BOX_NAME: pfcen7dev
   when: manual
 
@@ -352,7 +354,6 @@ build_vagrant_img_dev_debian_stretch:
     - .build_vagrant_img_job
     - .job_dev_triggers
   variables:
-    BOX_DESC: ${CI_COMMIT_SHORT_SHA}
     BOX_NAME: pfdeb9dev
   when: manual
 
