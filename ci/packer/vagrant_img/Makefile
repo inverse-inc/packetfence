@@ -16,18 +16,18 @@ BOX_DESC='local-test'
 #==============================================================================
 .PHONY: pfbox
 pfbox:	clean
-	PKR_VAR_output_directory="$(RESULT_DIR)/$(BOX_NAME)" \
+	PKR_VAR_output_dir="$(RESULT_DIR)/$(BOX_NAME)" \
 	PKR_VAR_ansible_group=$(ANSIBLE_GROUP) \
-	PKR_VAR_pfserver=$(BOX_NAME) \
-	PKR_VAR_pf_repo=$(PF_REPO) \
+	PKR_VAR_pfserver_name=$(BOX_NAME) \
+	PKR_VAR_centos_repo=$(CENTOS_REPO) \
 	PKR_VAR_box_version=$(BOX_VERSION) \
 	PKR_VAR_box_description=$(BOX_DESC) \
 	packer validate -only="$(BUILD_NAME)" .
 
-	PKR_VAR_output_directory="$(RESULT_DIR)/$(BOX_NAME)" \
+	PKR_VAR_output_dir="$(RESULT_DIR)/$(BOX_NAME)" \
 	PKR_VAR_ansible_group=$(DEV_GROUP) \
-	PKR_VAR_pfserver=$(BOX_NAME) \
-	PKR_VAR_pf_repo=$(PF_REPO) \
+	PKR_VAR_pfserver_name=$(BOX_NAME) \
+	PKR_VAR_centos_repo=$(CENTOS_REPO) \
 	PKR_VAR_box_version=$(BOX_VERSION) \
 	PKR_VAR_box_description=$(BOX_DESC) \
 	ANSIBLE_FORCE_COLOR=$(ANSIBLE_FORCE_COLOR) \
@@ -39,7 +39,7 @@ pfcen7dev:
 	make \
 	BOX_NAME=$@ \
 	ANSIBLE_GROUP=$(DEV_GROUP) \
-	PF_REPO=packetfence-devel \
+	CENTOS_REPO=packetfence-devel \
 	BUILD_NAME="$(DEV_GROUP).vagrant.centos-7" \
 	pfbox
 
@@ -48,7 +48,6 @@ pfcen7stable:
 	make \
 	BOX_NAME=$@ \
 	ANSIBLE_GROUP=$(STABLE_GROUP) \
-	PF_REPO=packetfence \
 	BUILD_NAME="$(STABLE_GROUP).vagrant.centos-7" \
 	pfbox
 
