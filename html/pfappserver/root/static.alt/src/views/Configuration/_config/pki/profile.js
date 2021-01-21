@@ -348,6 +348,47 @@ export const view = (form = {}, meta = {}) => {
           ]
         }
       ]
+    },
+    {
+      tab: i18n.t('SCEP'),
+      rows: [
+        {
+          label: i18n.t('SCEP Enabled'),
+          text: i18n.t('Enable SCEP on this profile.'),
+          cols: [
+            {
+              namespace: 'scep_enabled',
+              component: pfFormRangeToggle,
+              attrs: {
+                values: { checked: '1', unchecked: '0' }
+              }
+            }
+          ]
+        },
+        {
+          label: i18n.t('SCEP challenge password'),
+          text: i18n.t('SCEP challenge password'),
+          cols: [
+            {
+              namespace: 'scep_challenge_password',
+              component: pfFormInput
+            }
+          ]
+        },
+        {
+          label: i18n.t('SCEP allow renewal'),
+          text: i18n.t('Number of days before expiration renewal is allowed.'),
+          cols: [
+            {
+              namespace: 'scep_allow_renewal',
+              component: pfFormInput,
+              attrs: {
+                type: 'number'
+              }
+            }
+          ]
+        }
+      ]
     }
   ]
 }

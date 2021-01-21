@@ -1,4 +1,4 @@
-package pfpki
+package certutils
 
 import (
 	"bytes"
@@ -21,10 +21,9 @@ import (
 	"strconv"
 	"strings"
 	"time"
-)
 
-// Type of key
-type Type int
+	"github.com/inverse-inc/packetfence/go/caddy/pfpki/types"
+)
 
 // DSAKeyFormat is the format of a DSA key
 type DSAKeyFormat struct {
@@ -37,13 +36,18 @@ var PRNG io.Reader = rand.Reader
 
 // Supported key format
 const (
-	KEY_UNSUPPORTED Type = iota - 1
+	KEY_UNSUPPORTED types.Type = iota - 1
 	KEY_ECDSA
 	KEY_RSA
 	KEY_DSA
 )
 
-func extkeyusage(ExtendedKeyUsage []string) []x509.ExtKeyUsage {
+const (
+	rsaPrivateKeyPEMBlockType = "RSA PRIVATE KEY"
+	certificatePEMBlockType   = "CERTIFICATE"
+)
+
+func Extkeyusage(ExtendedKeyUsage []string) []x509.ExtKeyUsage {
 	// Set up extra key uses for certificate
 	extKeyUsage := make([]x509.ExtKeyUsage, 0)
 	for _, use := range ExtendedKeyUsage {
@@ -54,7 +58,7 @@ func extkeyusage(ExtendedKeyUsage []string) []x509.ExtKeyUsage {
 	return extKeyUsage
 }
 
-func keyusage(KeyUsage []string) int {
+func Keyusage(KeyUsage []string) int {
 	keyUsage := 0
 	for _, use := range KeyUsage {
 		v, _ := strconv.Atoi(use)
@@ -64,7 +68,7 @@ func keyusage(KeyUsage []string) int {
 }
 
 // GenerateKey function generate the public/private key based on the type and the size
-func GenerateKey(keytype Type, size int) (keyOut *bytes.Buffer, pub crypto.PublicKey, key crypto.PrivateKey, err error) {
+func GenerateKey(keytype types.Type, size int) (keyOut *bytes.Buffer, pub crypto.PublicKey, key crypto.PrivateKey, err error) {
 
 	keyOut = new(bytes.Buffer)
 
@@ -149,7 +153,7 @@ func GenerateKey(keytype Type, size int) (keyOut *bytes.Buffer, pub crypto.Publi
 	return keyOut, pub, key, nil
 }
 
-func calculateSKID(pubKey crypto.PublicKey) ([]byte, error) {
+func CalculateSKID(pubKey crypto.PublicKey) ([]byte, error) {
 	spkiASN1, err := x509.MarshalPKIXPublicKey(pubKey)
 	if err != nil {
 		return nil, err
@@ -167,7 +171,7 @@ func calculateSKID(pubKey crypto.PublicKey) ([]byte, error) {
 	return skid[:], nil
 }
 
-func generatePassword() string {
+func GeneratePassword() string {
 	mathrand.Seed(time.Now().UnixNano())
 	chars := []rune("ABCDEFGHIJKLMNOPQRSTUVWXYZ" +
 		"abcdefghijklmnopqrstuvwxyz" +
@@ -242,7 +246,7 @@ func ParseRsaPublicKeyFromPemStr(pubPEM string) (*rsa.PublicKey, error) {
 }
 
 // parses a pem encoded x509 certificate
-func parseCertFile(pubPEM string) (*x509.Certificate, error) {
+func ParseCertFile(pubPEM string) (*x509.Certificate, error) {
 	block, _ := pem.Decode([]byte(pubPEM))
 	if block == nil {
 		return nil, errors.New("failed to parse PEM block containing the key")
@@ -255,7 +259,7 @@ func parseCertFile(pubPEM string) (*x509.Certificate, error) {
 }
 
 // parses a PEM encoded PKCS8 private key (RSA only)
-func parseKeyFile(filename string) (interface{}, error) {
+func ParseKeyFile(filename string) (interface{}, error) {
 	kt, err := ioutil.ReadFile(filename)
 	if err != nil {
 		return nil, err
@@ -266,4 +270,88 @@ func parseKeyFile(filename string) (interface{}, error) {
 		return nil, err
 	}
 	return key, nil
+}
+
+// load an encrypted private key from disk
+func LoadKey(data []byte, password []byte) (*rsa.PrivateKey, error) {
+	pemBlock, _ := pem.Decode(data)
+	if pemBlock == nil {
+		return nil, errors.New("PEM decode failed")
+	}
+	if pemBlock.Type != rsaPrivateKeyPEMBlockType {
+		return nil, errors.New("unmatched type or headers")
+	}
+
+	b, err := x509.DecryptPEMBlock(pemBlock, password)
+	if err != nil {
+		return x509.ParsePKCS1PrivateKey(pemBlock.Bytes)
+	}
+
+	return x509.ParsePKCS1PrivateKey(b)
+}
+
+// load an encrypted private key from disk
+func LoadCert(data []byte) (*x509.Certificate, error) {
+	pemBlock, _ := pem.Decode(data)
+	if pemBlock == nil {
+		return nil, errors.New("PEM decode failed")
+	}
+	if pemBlock.Type != certificatePEMBlockType {
+		return nil, errors.New("unmatched type or headers")
+	}
+
+	return x509.ParseCertificate(pemBlock.Bytes)
+}
+
+func PemCert(derBytes []byte) []byte {
+	pemBlock := &pem.Block{
+		Type:    certificatePEMBlockType,
+		Headers: nil,
+		Bytes:   derBytes,
+	}
+	out := pem.EncodeToMemory(pemBlock)
+	return out
+}
+
+var oid = map[string]string{
+	"2.5.4.3":                    "CN",
+	"2.5.4.4":                    "SN",
+	"2.5.4.5":                    "serialNumber",
+	"2.5.4.6":                    "C",
+	"2.5.4.7":                    "L",
+	"2.5.4.8":                    "ST",
+	"2.5.4.9":                    "streetAddress",
+	"2.5.4.10":                   "O",
+	"2.5.4.11":                   "OU",
+	"2.5.4.12":                   "title",
+	"2.5.4.17":                   "postalCode",
+	"2.5.4.42":                   "GN",
+	"2.5.4.43":                   "initials",
+	"2.5.4.44":                   "generationQualifier",
+	"2.5.4.46":                   "dnQualifier",
+	"2.5.4.65":                   "pseudonym",
+	"0.9.2342.19200300.100.1.25": "DC",
+	"1.2.840.113549.1.9.1":       "emailAddress",
+	"0.9.2342.19200300.100.1.1":  "userid",
+}
+
+func GetDNFromCert(namespace pkix.Name) map[string]string {
+
+	attributeMap := make(map[string]string)
+
+	for _, v := range oid {
+		attributeMap[v] = ""
+	}
+
+	for _, s := range namespace.ToRDNSequence() {
+		for _, i := range s {
+			if v, ok := i.Value.(string); ok {
+				if name, ok := oid[i.Type.String()]; ok {
+					attributeMap[name] = v
+				}
+			}
+
+		}
+	}
+	return attributeMap
 }
