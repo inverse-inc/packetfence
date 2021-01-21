@@ -1,5 +1,4 @@
-# Directory
-variable output_directory {
+variable output_dir {
   type = string
 }
 
@@ -13,12 +12,11 @@ variable pfroot_dir {
   default = "../../.."
 }
 
-# Ansible variables
-variable pfserver {
+variable pfserver_name {
   type = string
 }
 
-variable pfservers_group {
+variable ansible_pfservers_group {
   type = string
   default = "pfservers"
 }
@@ -28,7 +26,7 @@ variable ansible_group {
 }
 
 # Shell provisioning
-variable pf_repo {
+variable centos_repo {
   type = string
 }
 

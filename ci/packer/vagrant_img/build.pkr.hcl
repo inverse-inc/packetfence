@@ -7,9 +7,9 @@ build {
 
   provisioner "ansible" {
     playbook_file = "${var.provisioner_dir}/site.yml"
-    host_alias = "${var.pfserver}"
+    host_alias = "${var.pfserver_name}"
     groups = [
-      "${var.pfservers_group}",
+      "${var.ansible_pfservers_group}",
       "${var.ansible_group}",
     ]
     inventory_directory = "${var.provisioner_dir}/inventory"
@@ -29,7 +29,7 @@ build {
     script = "${var.pfroot_dir}/addons/dev-helpers/centos-chroot/install-packages-from-spec.sh"
     environment_vars = [
       "SPEC=${var.spec_file_path}",
-      "REPO=${var.pf_repo}"
+      "REPO=${var.centos_repo}"
     ]
   }
 
@@ -41,7 +41,7 @@ build {
 
   post-processors {
     post-processor "vagrant-cloud" {
-      box_tag = "inverse-inc/${var.pfserver}"
+      box_tag = "inverse-inc/${var.pfserver_name}"
       version = "${var.box_version}"
       access_token = "${var.access_token}"
       version_description = "${var.box_description}"      
@@ -58,23 +58,19 @@ build {
 
   provisioner "ansible" {
     playbook_file = "${var.provisioner_dir}/site.yml"
-    host_alias = "${var.pfserver}"
+    host_alias = "${var.pfserver_name}"
     groups = [
-      "${var.pfservers_group}",
+      "${var.ansible_pfservers_group}",
       "${var.ansible_group}",
     ]
     inventory_directory = "${var.provisioner_dir}/inventory"
     galaxy_file = "${var.provisioner_dir}/requirements.yml"
     galaxy_force_install = true
-    # only for ansible-galaxy command
-    # we put it in a specific place where Ansible playbooks will find them
-    roles_path = "${var.provisioner_dir}/playbooks/roles"
-    collections_path = "${var.provisioner_dir}/playbooks/ansible_collections"
   }
 
   post-processors {
     post-processor "vagrant-cloud" {
-      box_tag = "inverse-inc/${var.pfserver}"
+      box_tag = "inverse-inc/${var.pfserver_name}"
       version = "${var.box_version}"
       access_token = "${var.access_token}"
       version_description = "${var.box_description}"
