@@ -1,5 +1,9 @@
 import { computed, toRefs } from '@vue/composition-api'
 import i18n from '@/utils/locale'
+import {
+  decomposeSource,
+  recomposeSource
+} from '../config'
 import { defaultsFromMeta } from '../../_config/'
 
 export const useItemProps = {
@@ -72,16 +76,16 @@ const useStore = (props, context, form) => {
       else
         return $store.dispatch('$_sources/optionsById', id.value)
     },
-    createItem: () => $store.dispatch('$_sources/createAuthenticationSource', form.value),
+    createItem: () => $store.dispatch('$_sources/createAuthenticationSource', recomposeSource(form.value)),
     deleteItem: () => $store.dispatch('$_sources/deleteAuthenticationSource', id.value),
     getItem: () => $store.dispatch('$_sources/getAuthenticationSource', id.value).then(item => {
       if (isClone.value) {
         item.id = `${item.id}-${i18n.t('copy')}`
         item.not_deletable = false
       }
-      return item
+      return decomposeSource(item)
     }),
-    updateItem: () => $store.dispatch('$_sources/updateAuthenticationSource', form.value),
+    updateItem: () => $store.dispatch('$_sources/updateAuthenticationSource', recomposeSource(form.value)),
   }
 }
 

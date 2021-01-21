@@ -1,5 +1,21 @@
 import { pfActions } from '@/globals/pfActions'
 
+export const decomposeSource = (item) => {
+  const { host = null } = item
+  return {
+    ...item,
+    host: host.split(',') // CSV to Array
+  }
+}
+
+export const recomposeSource = (item) => {
+  const { host = [] } = item
+  return {
+    ...item,
+    host: host.join(',') // Array to CSV
+  }
+}
+
 export const administrationRuleActionsFromSourceType = (sourceType) => ([
   ...[
     pfActions.set_access_level,
