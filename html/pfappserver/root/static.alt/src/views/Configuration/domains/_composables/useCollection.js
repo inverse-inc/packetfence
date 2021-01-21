@@ -42,8 +42,7 @@ const useRouter = (props, context, form) => {
 
 const useStore = (props, context, form) => {
   const {
-    id,
-    isClone
+    id
   } = toRefs(props)
   const { root: { $store } = {} } = context
   return {
