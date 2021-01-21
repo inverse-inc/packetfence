@@ -38,6 +38,7 @@ use pf::util qw(valid_ip valid_mac clean_mac);
 use pf::Connection::ProfileFactory;
 use pf::log;
 use pf::enforcement;
+use pf::person;
 
 our %STATUS_TO_MSG = (
     %pf::UnifiedApi::Controller::STATUS_TO_MSG,
@@ -1149,6 +1150,28 @@ sub create_data_update {
 
     $data->{category_id} = 1;
     return;
+}
+
+sub ensure_person_exists {
+    my ($self, $data) = @_;
+    my $pid = $data->{pid};
+    if(!person_exist($pid)) {
+        person_add($pid);
+    }
+}
+
+sub make_create_data {
+    my ($self) = @_;
+    my ($status, $data) = $self->SUPER::make_create_data();
+    $self->ensure_person_exists($data);
+    return ($status, $data);
+}
+
+sub update_data {
+    my ($self) = @_;
+    my $data = $self->SUPER::update_data();
+    $self->ensure_person_exists($data);
+    return $data;
 }
 
 =head1 AUTHOR
