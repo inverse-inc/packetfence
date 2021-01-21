@@ -1,4 +1,4 @@
-import { computed, onMounted, onBeforeUnmount, ref } from '@vue/composition-api'
+import { onMounted, onBeforeUnmount, ref } from '@vue/composition-api'
 
 export const useMutationObserver = (el, callback, config = {}) => {
   const observer = new MutationObserver(callback)

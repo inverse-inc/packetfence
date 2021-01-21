@@ -94,7 +94,7 @@ const pfFilterSchema = yup.object({
     .when('type', type => {
       const schema = yup.string().nullable()
         .required(i18n.t('Match required'))
-        .max(255, i18n.t('Maximum 255 characters.'))
+        .max(255)
       switch (true) {
         case type === 'fqdn':
           return schema.isFQDN()

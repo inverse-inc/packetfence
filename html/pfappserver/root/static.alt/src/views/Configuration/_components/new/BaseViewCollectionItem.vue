@@ -21,6 +21,7 @@
       <slot name="buttonsPrepend" v-if="$scopedSlots.buttonsPrepend" v-bind="scopedSlotProps" />
       <form-button-bar
         :actionKey="actionKey"
+        :actionKeyButtonVerb="actionKeyButtonVerb"
         :isNew="isNew"
         :isClone="isClone"
         :isLoading="isLoading"
@@ -63,6 +64,7 @@ export default {
     isDeletable: undefined,
     isValid: undefined,
     actionKey: undefined,
+    actionKeyButtonVerb: undefined,
     onClone: undefined,
     onClose: undefined,
     onRemove: undefined,

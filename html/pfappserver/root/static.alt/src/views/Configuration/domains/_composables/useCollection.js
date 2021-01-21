@@ -28,7 +28,12 @@ const useRouter = (props, context, form) => {
   } = toRefs(props)
   const { root: { $router } = {} } = context
   return {
-    goToCollection: () => $router.push({ name: 'domains', params: { autoJoinDomain: form.value } }),
+    goToCollection: (autoJoinDomain) => {
+      if (autoJoinDomain)
+        $router.push({ name: 'domains', params: { autoJoinDomain: form.value } })
+      else
+        $router.push({ name: 'domains' })
+    },
     goToItem: () => $router.push({ name: 'domain', params: { id: form.value.id || id.value } })
       .catch(e => { if (e.name !== "NavigationDuplicated") throw e }),
     goToClone: () => $router.push({ name: 'cloneDomain', params: { id: id.value } }),
@@ -46,13 +51,7 @@ const useStore = (props, context, form) => {
     getOptions: () => $store.dispatch('$_domains/options'),
     createItem: () => $store.dispatch('$_domains/createDomain', form.value),
     deleteItem: () => $store.dispatch('$_domains/deleteDomain', id.value),
-    getItem: () => $store.dispatch('$_domains/getDomain', id.value).then(item => {
-      if (isClone.value) {
-        item.id = `${item.id}-${i18n.t('copy')}`
-        item.not_deletable = false
-      }
-      return item
-    }),
+    getItem: () => $store.dispatch('$_domains/getDomain', id.value),
     updateItem: () => $store.dispatch('$_domains/updateDomain', form.value),
   }
 }

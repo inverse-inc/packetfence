@@ -84,7 +84,7 @@ yup.addMethod(yup.array, 'ifThenRestricts', function (message, ifIterFn, restric
 /**
  * yup.string
 **/
-const reAlpha = value => /^[a-zA-Z0-9_]*$/.test(value)
+const reAlphaNumeric = value => /^[a-zA-Z0-9]*$/.test(value)
 const reCommonName = value => /^([A-Z]+|[A-Z]+[0-9A-Z_:]*[0-9A-Z]+)$/i.test(value)
 const reEmail = value => /(^$|^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$)/.test(value)
 const reIpv4 = value => /^(([0-9]{1,3}.){3,3}[0-9]{1,3})$/i.test(value)
@@ -117,11 +117,11 @@ yup.addMethod(yup.string, 'minAsInt', function (ref, message) {
   })
 })
 
-yup.addMethod(yup.string, 'isAlpha', function (message) {
+yup.addMethod(yup.string, 'isAlphaNumeric', function (message) {
   return this.test({
-    name: 'isAlpha',
-    message: message || i18n.t('Alphanumeric characters only.'),
-    test: value => ['', null, undefined].includes(value) || reAlpha(value)
+    name: 'isAlphaNumeric',
+    message: message || i18n.t('Invalid character, only letters (A-Z) or numbers (0-9).'),
+    test: value => ['', null, undefined].includes(value) || reAlphaNumeric(value)
   })
 })
 

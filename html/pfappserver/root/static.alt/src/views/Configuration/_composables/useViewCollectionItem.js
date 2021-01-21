@@ -146,7 +146,7 @@ export const useViewCollectionItem = (collection, props, context) => {
       // update form with response
       form.value = { ...form.value, ...response }
       if (closeAfter) // [CTRL] key pressed
-        goToCollection()
+        goToCollection(true) // autoJoinDomain
       else {
         goToItem()
       }

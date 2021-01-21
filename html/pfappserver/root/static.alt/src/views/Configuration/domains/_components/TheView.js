@@ -10,9 +10,20 @@ const components = {
   TheForm
 }
 
-import { useViewCollectionItem, useViewCollectionItemProps as props } from '../../_composables/useViewCollectionItem'
+import i18n from '@/utils/locale'
+import { useViewCollectionItem, useViewCollectionItemProps } from '../../_composables/useViewCollectionItem'
+
+const props = {
+  ...useViewCollectionItemProps,
+
+  actionKeyButtonVerb: {
+    type: String,
+    default: i18n.t('Join Domain')
+  }
+}
 
 import collection from '../_composables/useCollection'
+
 const setup = (props, context) => useViewCollectionItem(collection, props, context)
 
 // @vue/component

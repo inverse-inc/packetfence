@@ -46,14 +46,14 @@ export default (props) => {
       .nullable()
       .required(i18n.t('Email required.'))
       .email(i18n.t('Invalid email address.'))
-      .max(255, i18n.t('Maximum 255 characters.')),
+      .max(255),
 
     organisation: yup.string().required(i18n.t('Organisation required.')).max(64, i18n.t('Maximum 64 characters.')),
     country: yup.string().required(i18n.t('Country required.')),
-    state: yup.string().required(i18n.t('State required.')).max(255, i18n.t('Maximum 255 characters.')),
-    locality: yup.string().required(i18n.t('Locality required.')).max(255, i18n.t('Maximum 255 characters.')),
-    street_address: yup.string().required(i18n.t('Street address required.')).max(255, i18n.t('Maximum 255 characters.')),
-    postal_code: yup.string().required(i18n.t('Postal code required.')).max(255, i18n.t('Maximum 255 characters.'))
+    state: yup.string().required(i18n.t('State required.')).max(255),
+    locality: yup.string().required(i18n.t('Locality required.')).max(255),
+    street_address: yup.string().required(i18n.t('Street address required.')).max(255),
+    postal_code: yup.string().required(i18n.t('Postal code required.')).max(255)
   })
 }
 

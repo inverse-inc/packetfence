@@ -28,6 +28,8 @@ export default (props) => {
     id: yup.string()
       .nullable()
       .required(i18n.t('Identifier required.'))
+      .max(10)
+      .isAlphaNumeric()
       .domainIdentifierNotExistsExcept((!isNew && !isClone) ? id : undefined, i18n.t('Identifier exists.')),
     ad_server: yup.string().nullable().label(i18n.t('Server')).required(i18n.t('Server required.')),
     dns_name: yup.string().nullable().label(i18n.t('DNS name'))

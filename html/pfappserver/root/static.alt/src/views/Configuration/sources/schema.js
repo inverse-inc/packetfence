@@ -33,10 +33,10 @@ const schemaHosts = yup.array().ensure().of(schemaHost).label(i18n.t('Hosts'))
 const schemaRule = yup.object({
   status: yup.string(),
   id: yup.string().nullable().label(i18n.t('Name'))
-    .isAlpha()
-    .max(255, i18n.t('Maximum 255 characters.')),
+    .isAlphaNumeric()
+    .max(255),
   description: yup.string().nullable()
-    .max(255, i18n.t('Maximum 255 characters.')),
+    .max(255),
   match: yup.string(),
   actions: schemaActions.label(i18n.t('Action')),
   conditions: schemaConditions.label(i18n.t('Condition'))

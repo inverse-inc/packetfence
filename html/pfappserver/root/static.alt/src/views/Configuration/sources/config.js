@@ -1,6 +1,6 @@
 import { pfActions } from '@/globals/pfActions'
 
-export const decomposeSource = (item) => {
+export const decomposeSource = (item) => { // API -> form
   const { host = null } = item
   return {
     ...item,
@@ -8,7 +8,7 @@ export const decomposeSource = (item) => {
   }
 }
 
-export const recomposeSource = (item) => {
+export const recomposeSource = (item) => { // form -> API
   const { host = [] } = item
   return {
     ...item,
