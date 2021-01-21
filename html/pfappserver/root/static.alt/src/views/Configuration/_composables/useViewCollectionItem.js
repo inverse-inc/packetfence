@@ -4,7 +4,6 @@ import useEventActionKey from '@/composables/useEventActionKey'
 import useEventEscapeKey from '@/composables/useEventEscapeKey'
 import useEventJail from '@/composables/useEventJail'
 
-
 export const useViewCollectionItemProps = {
   id: {
     type: String
@@ -15,6 +14,9 @@ export const useViewCollectionItemProps = {
   isNew: {
     type: Boolean
   },
+  actionKeyButtonVerb: {
+    type: String
+  }
 }
 
 export const useViewCollectionItem = (collection, props, context) => {
@@ -142,14 +144,11 @@ export const useViewCollectionItem = (collection, props, context) => {
   const onSave = () => {
     isModified.value = true
     const closeAfter = actionKey.value
-    save().then(response => {
-      // update form with response
-      form.value = { ...form.value, ...response }
+    save().then(() => {
       if (closeAfter) // [CTRL] key pressed
-        goToCollection(true) // autoJoinDomain
-      else {
-        goToItem()
-      }
+        goToCollection(true)
+      else
+        goToItem().then(() => init()) // re-init
     })
   }
 
