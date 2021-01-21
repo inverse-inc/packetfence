@@ -162,7 +162,7 @@ sub convert_timeout {
 
 sub db_config {
     my %config = %{$Config{database}};
-    my %radacctConfig = %{$Config{database_raddact} };
+    my %radacctConfig = %{$Config{database_radacct} };
     while (my ($k, $v) = each %config) {
         if (!$radacctConfig{$k}) {
             $radacctConfig{$k} = $v;
