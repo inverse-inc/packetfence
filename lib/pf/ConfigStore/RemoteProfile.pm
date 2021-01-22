@@ -25,6 +25,8 @@ sub configFile { $remote_profiles_config_file }
 
 sub importConfigFile { $remote_profiles_default_config_file }
 
+sub default_section { 'default' }
+
 sub pfconfigNamespace {'config::RemoteProfiles'}
 
 =head2 cleanupBeforeCommit

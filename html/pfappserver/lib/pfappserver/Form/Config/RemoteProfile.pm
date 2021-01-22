@@ -76,7 +76,6 @@ has_field 'allow_communication_same_role' =>
     type => 'Toggle',
     checkbox_value => 'enabled',
     unchecked_value => 'disabled',
-    default => 'enabled'
   );
 
 has_field 'allow_communication_to_roles' =>
@@ -91,7 +90,6 @@ has_field 'resolve_hostnames_of_peers' =>
     type => 'Toggle',
     checkbox_value => 'enabled',
     unchecked_value => 'disabled',
-    default => 'enabled'
   );
 
 has_field 'additional_domains_to_resolve' =>
@@ -111,7 +109,6 @@ has_field 'gateway' =>
     type => 'Toggle',
     checkbox_value => 'enabled',
     unchecked_value => 'disabled',
-    default => 'disabled'
   );
 
 has_field 'routes' =>
@@ -123,7 +120,6 @@ has_field 'stun_server' =>
   (
     type => 'Text',
     required => 1,
-    default => "stun.l.google.com:19302",
   );
 
 
