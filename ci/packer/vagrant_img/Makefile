@@ -9,10 +9,11 @@ DEV_GROUP=dev
 STABLE_GROUP=stable
 ANSIBLE_FORCE_COLOR=1
 BOX_DESC='local-test'
-# should follow semver (to validate vagrant-cloud checks) and
+# should follow semver X.Y.Z (to validate vagrant-cloud checks) and
 # be unique at each build (see https://github.com/hashicorp/packer/issues/9492)
-# generate: X.Y.Z+UTC_DATE
-BOX_VERSION=$(shell cat ../../../conf/pf-release | cut -d' ' -f 2 | echo "`cat -`+`date -u +%Y%m%d%H%M%S`")
+# generate: X.Y.UTC_DATE
+# $$1 is to avoid make interpretation
+BOX_VERSION=$(shell perl -ne 'print $$1 if (m/.*?(\d+\.\d+)./)' ../../../conf/pf-release | echo "`cat -`.`date -u +%Y%m%d%H%M%S`")
 #==============================================================================
 # Targets
 #==============================================================================
