@@ -1429,6 +1429,10 @@ Follow the instructions from the script.
     ./addons/upgrade/to-11.0-roles-acls.pl
 ----
 
+== LDAP port per server has been deprecated
+
+The ability to define a specific port per host in the list of the LDAP servers of a single authentication source has been deprecated. If you have such entries, adjust them accordingly. If you have been using the same LDAP port for all the hosts in an authentication source, then this will not apply to you.
+
 === Database schema
 
 Changes have been made to the database schema. You will need to update it accordingly.
