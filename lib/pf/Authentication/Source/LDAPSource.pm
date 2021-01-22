@@ -242,12 +242,7 @@ sub _connect {
       TRYSERVER:
       foreach my $s (@LDAPServers) {
         $LDAPServer = $s;
-        $LDAPServerPort = undef;
-        # check to see if the hostname includes a port (e.g. server:port)
-        if ($LDAPServer =~ /:/) {
-            $LDAPServerPort = (split(/:/, $LDAPServer))[-1];
-        }
-        $LDAPServerPort //=  $self->{'port'} ;
+        $LDAPServerPort =  $self->{'port'} ;
         
         my $dead_cache_key = "SERVER_DEAD:".$self->{id}.":$LDAPServer";
 
