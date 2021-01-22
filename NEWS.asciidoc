@@ -31,6 +31,7 @@ For a list of compatibility related changes see the <<PacketFence_Upgrade_Guide.
 
 === Enhancements
 
+* Improved the failover mechanisms when an Active Directory or LDAP server is detected as dead
 * Expiration of the local accounts created on the portal can now be set on the source level
 * pfacct and radiusd-acct can now both be enabled together (radiusd-acct proxies to pfacct)
 * Added CoA support to Aerohive module
