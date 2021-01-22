@@ -201,11 +201,18 @@ sub getPerUserVlan {
     WHERE  vlan IN ( $sql_vlans ) 
            AND node.status = 'reg' 
            AND pid = ? 
+    LIMIT 1
     ", $pid);
+
+    if(is_error($status)) {
+        $logger->error("Error while finding available VLAN for $pid");
+        return;
+    }
 
     if(defined(my $row = $res->fetchrow_hashref)) {
         my $vlan = $row->{vlan};
         $logger->info("Found VLAN $vlan for $pid with registered devices in it.");
+        $res->finish();
         return $vlan;
     }
     else {
@@ -219,7 +226,13 @@ sub getPerUserVlan {
         WHERE  vlan IN ( $sql_vlans ) 
                AND node.status != 'unreg' 
         ");
+        if(is_error($status)) {
+            $logger->error("Error while finding available VLAN for $pid");
+            return;
+        }
+
         my %used_vlans = map{$_->[0] => 1} @{$res->fetchall_arrayref};
+        $res->finish();
         my $available_vlan;
         for my $vlan (@vlans) {
             if(!exists($used_vlans{$vlan})) {
