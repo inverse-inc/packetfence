@@ -1,5 +1,6 @@
 [default]
 description=Default remote connection profile
+status=enabled
 basic_filter_type=
 basic_filter_value=
 advanced_filter=
