@@ -67,6 +67,11 @@
           :text="$i18n.t('This is the default PSK key when you enable DPSK on this connection profile. The minimum length is eight characters.')"
         />
 
+        <form-group-unbound-dpsk namespace="unbound_dpsk"
+          :column-label="$i18n.t('Enable Unbound DPSK')"
+          :text="$i18n.t('This enable Dynamic Unbound PSK. If the network equipment supports sending attributes that allow to identify the PSK using the Access-Request attributes, then the user attached to the PSK can be found and used in the same manner as in 802.1x.')"
+        />
+
         <form-group-unreg-on-acct-stop namespace="unreg_on_acct_stop"
           :column-label="$i18n.t('Automatically deregister devices on accounting stop')"
           :text="$i18n.t('This activates automatic deregistation of devices for the profile if PacketFence receives a RADIUS accounting stop. This option only makes sense in the context of an 802.1x authentication.')"
@@ -201,6 +206,7 @@ import {
   FormGroupDot1xUnsetOnUnmatch,
   FormGroupDpsk,
   FormGroupDefaultPskKey,
+  FormGroupUnboundDpsk,
   FormGroupUnregOnAcctStop,
   FormGroupVlanPoolTechnique,
   FormGroupFilterMatchStyle,
@@ -241,6 +247,7 @@ const components = {
   FormGroupDot1xUnsetOnUnmatch,
   FormGroupDpsk,
   FormGroupDefaultPskKey,
+  FormGroupUnboundDpsk,
   FormGroupUnregOnAcctStop,
   FormGroupVlanPoolTechnique,
   FormGroupFilterMatchStyle,
