@@ -301,6 +301,7 @@ const pfActionSchema = yup.object({
             .minAsInt(schema.node.bandwidth_balance.min)
           // break
         case type === 'set_access_level':
+        case type === 'set_access_level_by_acl_user':
           return yup.array().ensure().of(yup.string().nullable()).required(i18n.t('Level(s) required.'))
           // break
         default:
