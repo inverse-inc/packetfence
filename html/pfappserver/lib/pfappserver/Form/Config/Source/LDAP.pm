@@ -40,6 +40,14 @@ has_field 'port' =>
    element_attr => {'placeholder' => '389'},
    default => $META->get_attribute('port')->default,
   );
+has_field 'dead_duration' =>
+  (
+    type         => 'PosInteger',
+    element_attr => {
+        'placeholder' => $META->get_attribute('dead_duration')->default
+    },
+    default => $META->get_attribute('dead_duration')->default,
+  );
 has_field 'connection_timeout' =>
   (
     type         => 'Float',
