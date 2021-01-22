@@ -1155,7 +1155,7 @@ sub create_data_update {
 sub ensure_person_exists {
     my ($self, $data) = @_;
     my $pid = $data->{pid};
-    if(!person_exist($pid)) {
+    if(defined $pid && !person_exist($pid)) {
         person_add($pid);
     }
 }
