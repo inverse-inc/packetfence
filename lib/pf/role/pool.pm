@@ -19,6 +19,7 @@ use pf::config qw(%Config);
 use pf::util;
 use pf::log();
 use pf::constants::role qw(:all);
+use pf::error qw(is_error is_success);
 
 use pf::node;
 use pf::dal;
