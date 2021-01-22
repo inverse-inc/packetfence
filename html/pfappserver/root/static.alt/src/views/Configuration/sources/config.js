@@ -1,7 +1,7 @@
 import { pfActions } from '@/globals/pfActions'
 
 export const decomposeSource = (item) => { // API -> form
-  const { host = null } = item
+  const { host = '' } = item
   return {
     ...item,
     host: host.split(',') // CSV to Array
