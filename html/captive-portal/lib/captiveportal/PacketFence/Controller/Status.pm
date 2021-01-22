@@ -185,7 +185,7 @@ sub logout : Local {
 }
 
 sub billing_cancel_subscription : Path('/status/billing/cancel_subscription') : Args(2) {
-    my ($self, $c, $source_id, $info) = @_;
+    my ($self, $c, $source_id, $subscription_id) = @_;
     my $source = getAuthenticationSource($source_id);
     $c->stash->{template} = "status/billing_cancel_subscription.html";
     if(!$source) {
@@ -195,7 +195,7 @@ sub billing_cancel_subscription : Path('/status/billing/cancel_subscription') : 
     }
     
     if($c->request->method eq "POST") {
-        my ($res, $msg) = $source->handleCancelLink($info, $c->request->parameters);
+        my ($res, $msg) = $source->handleCancelLink($subscription_id, $c->request->parameters);
         if($res) {
             $c->stash->{status} = "canceled";
         }

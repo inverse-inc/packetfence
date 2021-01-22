@@ -346,11 +346,11 @@ sub mandatoryFields {
 }
 
 sub handleCancelLink {
-    my ($self, $info, $query_args) = @_;
+    my ($self, $subscription_id, $query_args) = @_;
     my $validator = $query_args->{validator};
-    my $wants_validator = hmac_sha1_hex($info.$self->id.$self->publishable_key, $self->secret_key);
+    my $wants_validator = hmac_sha1_hex($subscription_id.$self->id.$self->publishable_key, $self->secret_key);
     if($validator eq $wants_validator) {
-        my ($status, $subscription) = $self->cancel_subscription($info); 
+        my ($status, $subscription) = $self->cancel_subscription($subscription_id); 
         if(is_error($status) || !$subscription) {
             if($status == 404) {
                 return ($FALSE, "This subscription has already been canceled.");
@@ -360,7 +360,7 @@ sub handleCancelLink {
             }
         }
         else {
-            get_logger->info("Canceled subscription $info");
+            get_logger->info("Canceled subscription $subscription_id");
             return ($TRUE, "Canceled subscription");
         }
     }
