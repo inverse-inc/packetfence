@@ -129,7 +129,7 @@ variables:
 .build_vagrant_img_job:
   stage: build_img
   variables:
-    RESULT_DIR: /var/tmp
+    RESULT_DIR: /var/tmp/vagrant_img
     BOX_DESC: ${CI_PIPELINE_URL}
   script:
     - make -e -C ${VAGRANT_IMG_DIR} ${BOX_NAME}
