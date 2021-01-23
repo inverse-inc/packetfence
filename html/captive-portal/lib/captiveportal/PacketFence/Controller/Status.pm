@@ -10,6 +10,7 @@ use pf::web;
 use pf::security_event qw(security_event_view_open);
 use pf::constants::security_event qw($LOST_OR_STOLEN);
 use pf::password qw(view);
+use pf::authentication;
 
 BEGIN { extends 'captiveportal::Base::Controller'; }
 
@@ -181,6 +182,30 @@ sub logout : Local {
     my ( $self, $c ) = @_;
     $c->user_session({});
     $c->forward('index');
+}
+
+sub billing_cancel_subscription : Path('/status/billing/cancel_subscription') : Args(2) {
+    my ($self, $c, $source_id, $subscription_id) = @_;
+    my $source = getAuthenticationSource($source_id);
+    $c->stash->{template} = "status/billing_cancel_subscription.html";
+    if(!$source) {
+        $c->stash(
+            error => "Unable to find source $source_id",    
+        );
+    }
+    
+    if($c->request->method eq "POST") {
+        my ($res, $msg) = $source->handleCancelLink($subscription_id, $c->request->parameters);
+        if($res) {
+            $c->stash->{status} = "canceled";
+        }
+        else {
+            $c->stash(
+                error => $msg,
+            );
+        }
+    }
+
 }
 
 

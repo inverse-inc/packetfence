@@ -41,6 +41,9 @@
           <mj-text>
             <p>[% i18n("To extend your network access, please visit") %] <a href="https://[% hostname %].[% domain %]/billing">[% i18n("Extend access duration") %]</a></p>
             <p>[% i18n("To view your current network status, please visit") %] <a href="https://[% hostname %].[% domain %]/status">[% i18n("Status") %]</a></p>
+            [% IF cancel_link %]
+            <p>[% i18n("To cancel your subscription, click on the following link") %] <a href="https://[% hostname %].[% domain %]/[% cancel_link %]">[% i18n("Cancel subscription") %]</a></p>
+            [% END %]
           </mj-text>
         </mj-column>
       </mj-section>
