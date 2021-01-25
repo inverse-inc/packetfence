@@ -101,12 +101,7 @@ export const filters = {
   switch_port: {
     value: 'switch_port',
     text: i18n.t('Switch Port'),
-    types: [fieldType.SUBSTRING],
-    validators: {
-      match: {
-        [i18n.t('Invalid Port Number.')]: isPort
-      }
-    }
+    types: [fieldType.SUBSTRING]
   },
   tenant: {
     value: 'tenant',
