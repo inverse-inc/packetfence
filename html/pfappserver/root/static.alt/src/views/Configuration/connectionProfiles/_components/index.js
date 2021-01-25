@@ -37,6 +37,7 @@ export {
   BaseFormGroupToggleDisabledEnabled  as FormGroupDot1xUnsetOnUnmatch,
   BaseFormGroupToggleDisabledEnabled  as FormGroupDpsk,
   BaseFormGroupInput                  as FormGroupDefaultPskKey,
+  BaseFormGroupToggleDisabledEnabled  as FormGroupUnboundDpsk,
   BaseFormGroupToggleDisabledEnabled  as FormGroupUnregOnAcctStop,
   BaseFormGroupChosenOne              as FormGroupVlanPoolTechnique,
   BaseFormGroupChosenOne              as FormGroupFilterMatchStyle,

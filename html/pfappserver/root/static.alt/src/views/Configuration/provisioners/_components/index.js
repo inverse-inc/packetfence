@@ -48,6 +48,7 @@ export {
   BaseFormGroupToggleDisabledEnabled        as FormGroupDeviceTypeDetection,
   BaseFormGroupInput                        as FormGroupDomains,
   BaseFormGroupToggleZeroOneStringAsOffOn   as FormGroupDpsk,
+  BaseFormGroupToggleDisabledEnabled        as FormGroupDpskUseLocalPassword,
   BaseFormGroupChosenOne                    as FormGroupEapType,
   BaseFormGroupToggleDisabledEnabled        as FormGroupEnforce,
   BaseFormGroupInput                        as FormGroupHost,

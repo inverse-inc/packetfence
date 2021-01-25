@@ -48,6 +48,12 @@
       :text="$i18n.t('Nodes with the selected OS will be affected.')"
     />
 
+    <form-group-dpsk-use-local-password
+      namespace="dpsk_use_local_password"
+      :column-label="$i18n.t('Reuse the local password for DPSK')"
+      :text="$i18n.t('When DPSK is enabled and a local account with a plaintext password exists for the user, then it will reuse this password instead of generating a new PSK. This feature will only work with local users that have a plaintext password entry.')"
+    />
+
     <form-group-psk-size namespace="psk_size"
       :column-label="$i18n.t('PSK length')"
       :text="$i18n.t('This is the length of the PSK key you want to generate. The minimum length is eight characters.')"
@@ -61,6 +67,7 @@ import {
   FormGroupAutoRegister,
   FormGroupCategory,
   FormGroupDescription,
+  FormGroupDpskUseLocalPassword,
   FormGroupEnforce,
   FormGroupIdentifier,
   FormGroupOses,
@@ -76,6 +83,7 @@ const components = {
   FormGroupAutoRegister,
   FormGroupCategory,
   FormGroupDescription,
+  FormGroupDpskUseLocalPassword,
   FormGroupEnforce,
   FormGroupIdentifier,
   FormGroupOses,

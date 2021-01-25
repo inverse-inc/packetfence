@@ -60,6 +60,7 @@ my @whitelist = (
     'normalizeTrap', 'findTrapNormalizer', '_findTrapNormalizer', 'linkDownTrapNormalizer', 'linkUpTrapNormalizer', 'dot11DeauthenticateTrapNormalizer', 
     'findTrapVarWithBase', 'getIfIndexFromTrap', 'findTrapOID', 'getMacFromTrapVariablesForOIDBase', 'extractMacFromVariable', 
     'handleTrap', 'getExclusiveLock', 'getExclusiveLockForScope', 'cache_distributed', 'setCurrentTenant', 'cachedSNMPTable', 'parseRequestUsername', 'getCiscoAvPairAttribute', 'supportsVPN', 'vpnAttributes', 'parseVPNRequest', 'canDoCliAccess', 'fingerbank_dynamic_acl', '_parentRoleForVlan',
+    'find_user_by_psk',
 );
 
 my @missing_subs;

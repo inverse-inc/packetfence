@@ -241,6 +241,10 @@ cmp_deeply(
                     type => 'string',
                     description => 'Self service',
                 },
+                unbound_dpsk => {
+                    type => 'string',
+                    description => 'Unbound dpsk',
+                },
                 'dot1x_recompute_role_from_portal' => {
                     type => 'string',
                     description => 'When enabled, PacketFence will not use the role initialy computed on the portal but will use the dot1x username to recompute the role.',

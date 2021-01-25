@@ -27,9 +27,15 @@ has_field 'psk_size' =>
              help => 'This is the length of the PSK key you want to generate. The minimum length is eight characters.' },
   );
 
+has_field 'dpsk_use_local_password' => (
+   type => 'Toggle',
+   checkbox_value => 'enabled',
+   unchecked_value => 'disabled',
+);
+
 has_block definition =>
   (
-   render_list => [ qw(id description type category ssid oses psk_size apply_role role_to_apply autoregister) ],
+   render_list => [ qw(id description type category ssid oses psk_size apply_role role_to_apply autoregister dpsk_use_local_password) ],
   );
 
 

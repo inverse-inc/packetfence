@@ -67,6 +67,12 @@
           :text="$i18n.t('Define if the PSK needs to be generated.')"
         />
 
+        <form-group-dpsk-use-local-password v-if="wantsDpsk"
+          namespace="dpsk_use_local_password"
+          :column-label="$i18n.t('Reuse the local password for DPSK')"
+          :text="$i18n.t('When DPSK is enabled and a local account with a plaintext password exists for the user, then it will reuse this password instead of generating a new PSK. This feature will only work with local users that have a plaintext password entry.')"
+        />
+
         <form-group-passcode v-if="wantsPasscode"
           namespace="passcode"
           :column-label="$i18n.t('Wifi Key')"
@@ -128,6 +134,7 @@ import {
   FormGroupCertificate,
   FormGroupDescription,
   FormGroupDpsk,
+  FormGroupDpskUseLocalPassword,
   FormGroupEapType,
   FormGroupEnforce,
   FormGroupIdentifier,
@@ -154,6 +161,7 @@ const components = {
   FormGroupCertificate,
   FormGroupDescription,
   FormGroupDpsk,
+  FormGroupDpskUseLocalPassword,
   FormGroupEapType,
   FormGroupEnforce,
   FormGroupIdentifier,

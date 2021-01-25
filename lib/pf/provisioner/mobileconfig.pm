@@ -20,7 +20,9 @@ use pf::log;
 use pf::constants;
 use fingerbank::Constant;
 
+use pf::util;
 use pf::person;
+use pf::password;
 
 use Crypt::GeneratePassword qw(word);
 
@@ -77,6 +79,14 @@ Does DPSK need to be activated
 =cut
 
 has dpsk => (is => 'rw');
+
+=head2 dpsk_use_local_password
+
+Should the dpsk be the same as the password of a local user if it exists
+
+=cut
+
+has dpsk_use_local_password => (is => 'rw');
 
 =head2 psk_size
 
@@ -319,7 +329,17 @@ sub _build_profile_template {
 sub generate_dpsk {
     my ($self,$username) = @_;
     my $person = person_view($username);
-    if (defined $person->{psk} && $person->{psk} ne '') {
+    my $password = pf::password::view($username);
+    if (
+            isenabled($self->dpsk_use_local_password)
+            && defined($password) && pf::password::password_get_hash_type($password->{password}) eq 'plaintext'
+            && length($password->{password}) >= 8
+        ) {
+        get_logger->info("Using password of local user $username for PSK");
+        person_modify($username,psk => $password->{password});
+        return $password->{password};
+    }
+    elsif (defined $person->{psk} && $person->{psk} ne '') {
         get_logger->debug("Returning psk key $person->{psk} for user $username");
         return $person->{psk};
     }

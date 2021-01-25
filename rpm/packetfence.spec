@@ -91,6 +91,7 @@ Requires: perl(Crypt::OpenSSL::X509)
 Requires: perl(Crypt::OpenSSL::RSA)
 Requires: perl(Crypt::OpenSSL::PKCS10)
 Requires: perl(Crypt::LE)
+Requires: perl(Crypt::PBKDF2), perl(Digest::SHA3)
 Requires: perl(Const::Fast)
 # Perl core modules but still explicitly defined just in case distro's core perl get stripped
 Requires: perl(Time::HiRes)
