@@ -74,10 +74,11 @@ has_field 'dpsk' =>
              help => 'Define if the PSK needs to be generated' },
   );
 
-has_field 'dpsk_use_local_password' =>
-  (
-   type => 'Checkbox',
-  );
+has_field 'dpsk_use_local_password' => (
+   type => 'Toggle',
+   checkbox_value => 'enabled',
+   unchecked_value => 'disabled',
+);
 
 has_field 'psk_size' =>
   (
