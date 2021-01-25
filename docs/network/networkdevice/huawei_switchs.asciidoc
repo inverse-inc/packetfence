@@ -112,5 +112,5 @@ interface GigabitEthernet0/0/2
 display dot1x
 display access-user
 display radius-server
-test-aaa user password radius-template pap
+test-aaa user password radius-template packetfence pap
 ----
