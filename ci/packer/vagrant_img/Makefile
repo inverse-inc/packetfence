@@ -14,6 +14,7 @@ BOX_DESC='local-test'
 # generate: X.Y.UTC_DATE
 # $$1 is to avoid make interpretation
 BOX_VERSION=$(shell perl -ne 'print $$1 if (m/.*?(\d+\.\d+)./)' ../../../conf/pf-release | echo "`cat -`.`date -u +%Y%m%d%H%M%S`")
+VAGRANT_LIBVIRT_VIRT_SYSPREP_OPERATIONS="defaults,-ssh-userdir"
 #==============================================================================
 # Targets
 #==============================================================================
@@ -27,6 +28,7 @@ pfbox:	clean
 	PKR_VAR_box_description="$(BOX_DESC)" \
 	packer validate -only="$(BUILD_NAME)" .
 
+	VAGRANT_LIBVIRT_VIRT_SYSPREP_OPERATIONS=$(VAGRANT_LIBVIRT_VIRT_SYSPREP_OPERATIONS) \
 	PKR_VAR_output_dir="$(RESULT_DIR)/$(BOX_NAME)" \
 	PKR_VAR_ansible_group=$(DEV_GROUP) \
 	PKR_VAR_pfserver_name=$(BOX_NAME) \
@@ -57,7 +59,8 @@ pfcen7stable:
 # Debian 9 builds
 .PHONY: pfdeb9dev
 pfdeb9dev:
-	make \
+	VAGRANT_LIBVIRT_VIRT_SYSPREP_OPERATIONS="defaults,-ssh-userdir,-ssh-hostkeys,-customize" \
+	make -e \
 	BOX_NAME=$@ \
 	ANSIBLE_GROUP=$(DEV_GROUP) \
 	BUILD_NAME="$(DEV_GROUP).vagrant.debian-9" \
@@ -65,7 +68,8 @@ pfdeb9dev:
 
 .PHONY: pfdeb9stable
 pfdeb9stable:
-	make \
+	VAGRANT_LIBVIRT_VIRT_SYSPREP_OPERATIONS="defaults,-ssh-userdir,-ssh-hostkeys,-customize" \
+	make -e \
 	BOX_NAME=$@ \
 	ANSIBLE_GROUP=$(STABLE_GROUP) \
 	BUILD_NAME="$(STABLE_GROUP).vagrant.debian-9" \
