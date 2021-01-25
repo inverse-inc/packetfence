@@ -8,5 +8,6 @@
     - inverse_inc.wireless
 
   roles:
+    - role: mac80211hwsim
     - role: hostapd
     - role: wpasupplicant
