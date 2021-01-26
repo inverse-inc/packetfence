@@ -16,11 +16,28 @@ use warnings;
 use Moo;
 use pf::file_paths qw($provisioning_config_file);
 use pf::util;
+use pf::constants;
 extends 'pf::ConfigStore';
+with 'pf::ConfigStore::Role::ReverseLookup';
 
 sub configFile { $provisioning_config_file };
 
 sub pfconfigNamespace {'config::Provisioning'}
+
+=head2 canDelete
+
+canDelete
+
+=cut
+
+sub canDelete {
+    my ($self, $id) = @_;
+    if ($self->isInProfile('provisioners', $id)) {
+        return "Used in a profile", $FALSE;
+    }
+
+    return $self->SUPER::canDelete($id);
+}
 
 =head2 cleanupAfterRead
 
@@ -41,10 +58,6 @@ Clean data before update or creating
 
 sub cleanupBeforeCommit {
     my ($self, $id, $data) = @_;
-    my $real_id = $self->_formatSectionName($id);
-    my $config = $self->cachedConfig;
-    # Clear the section of any previous values
-    $config->ClearSection($real_id);
     $self->flatten_list($data, $self->_fields_expanded);
 }
 
@@ -62,7 +75,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2017 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 

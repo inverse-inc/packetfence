@@ -18,9 +18,6 @@ use pf::config;
 use pf::util;
 use File::Find qw(find);
 
-## Definition
-has 'roles' => (is => 'ro', default => sub {[]});
-
 has_field 'ip' =>
   (
    type => 'Text',
@@ -31,7 +28,7 @@ has_field 'ip' =>
 
 has_field 'port' =>
   (
-   type => 'PosInteger',
+   type => 'Port',
    label => 'Port of the service',
    tags => { after_element => \&help,
              help => 'If you use an alternative port, please specify' },
@@ -40,17 +37,26 @@ has_field 'port' =>
 has_field 'type' =>
   (
    type => 'Hidden',
+   default => 'openvas',
   );
 
 has_block definition =>
   (
-   render_list => [ qw(id ip type username password port openvas_configid openvas_reportformatid categories oses duration pre_registration registration post_registration) ],
+   render_list => [ qw(id ip type username password port openvas_alertid openvas_configid openvas_reportformatid categories oses duration pre_registration registration post_registration) ],
+  );
+
+has_field 'openvas_alertid' =>
+  (
+   type => 'Text',
+   label => 'Alert ID',
+   tags => { after_element => \&help,
+             help => 'ID of the alert configuration on the OpenVAS server' },
   );
 
 has_field 'openvas_configid' =>
   (
    type => 'Text',
-   label => 'OpenVAS config ID',
+   label => 'Scan config ID',
    tags => { after_element => \&help,
              help => 'ID of the scanning configuration on the OpenVAS server' },
   );
@@ -58,10 +64,10 @@ has_field 'openvas_configid' =>
 has_field 'openvas_reportformatid' =>
   (
    type => 'Text',
-   label => 'OpenVAS report format',
-   default => 'f5c2a364-47d2-4700-b21d-0a7693daddab',
+   label => 'Report format ID',
+   default => '',
    tags => { after_element => \&help,
-             help => 'ID of the .NBE report format on the OpenVAS server' },
+             help => 'ID of the "CSV Results" report format on the OpenVAS server' },
   );
 
 =over
@@ -70,7 +76,7 @@ has_field 'openvas_reportformatid' =>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2017 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 
@@ -91,5 +97,5 @@ USA.
 
 =cut
 
-__PACKAGE__->meta->make_immutable;
+__PACKAGE__->meta->make_immutable unless $ENV{"PF_SKIP_MAKE_IMMUTABLE"};
 1;

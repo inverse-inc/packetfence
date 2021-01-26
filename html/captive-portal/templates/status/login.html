@@ -1,37 +1,37 @@
-<form name="login" method="post" action="/status/login">
+<div class="u-padding">
+  <form name="login" method="post" action="/status/login">
 
-  <div class="layout--center">
-    <h5>[% i18n("Login to manage registered devices") %]</h5>
-  </div>
-
-  [% IF txt_auth_error %]
-  <div class="media media--error u-p u-mb">
-    <div class="media__img">[% flashIcon(level='error') %]</div>
-    <p class="media__body">[% i18n(txt_auth_error) %]</p>
-  </div>
-  [% END %]
-
-  <div class="layout layout--center">
-    <div class="layout__item u-2/3 u-1/1-palm">
-
-      [%# User / Pass %]
-      <div class="input-container">
-        <label for="username">[% i18n("Username") %]</label>
-        <input class="field" name="username" id="username" type="text" value="[% username %]" />
-      </div>
-      <div class="input-container">
-        <label for="password">[% i18n("Password") %]</label>
-        <input class="field" name="password" id="password" type="password" />
-      </div>
-
-      [%# submit %]
-      <button type="submit" name="submit" class="btn btn--full btn--accent u-mt">
-        <div class="flag">
-          <div class="flag__img">[% svgIcon(id='ic_done_black_24px',size='small') %]</div>
-          <p class="flag__body layout--left">[% i18n("Login") %]</p>
-        </div>
-      </button>
-
+    <div class="o-layout--center">
+      <h5>[% i18n("Login to manage registered devices") %]</h5>
     </div>
-  </div>
-</form>
+
+    [% IF txt_auth_error %]
+    <div class="o-media o-media--error u-padding u-margin-bottom">
+      <div class="o-media__img">[% flashIcon(level='error') %]</div>
+      <p class="o-media__body">[% i18n(txt_auth_error) %]</p>
+    </div>
+    [% END %]
+
+    <div class="o-layout o-layout--center">
+      <div class="o-layout__item u-1/1 u-2/3@tablet u-3/5@desktop">
+
+        [%# User / Pass %]
+        <div class="input-container">
+          <label for="username">[% i18n("Username") %]</label>
+          <input class="field" name="username" id="username" type="text" value="[% username %]" />
+        </div>
+        <div class="input-container">
+          <label for="password">[% i18n("Password") %]</label>
+          <input class="field" name="password" id="password" type="password" />
+        </div>
+
+        [%# submit %]
+        <button type="submit" name="submit" class="c-btn c-btn--primary u-1/1 u-margin-top" disabled>
+          [% i18n("Login") %]
+        </button>
+
+      </div>
+    </div>
+  </form>
+</div>
+[% INCLUDE 'password-button.inc' %]

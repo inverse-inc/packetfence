@@ -27,24 +27,24 @@ use base 'pfconfig::namespaces::config';
 sub init {
     my ($self) = @_;
     $self->{file} = $scan_config_file;
+    $self->{child_resources} = [ qw(resource::RolesReverseLookup) ];
 }
 
 sub build_child {
     my ($self) = @_;
 
     my %tmp_cfg = %{$self->{cfg}};
-
-    foreach my $key ( keys %tmp_cfg){
-        $self->cleanup_after_read($key, $tmp_cfg{$key});
+    while ( my ($key, $val) = each %tmp_cfg) {
+        $self->cleanup_after_read($key, $val);
     }
 
+    $self->roleReverseLookup(\%tmp_cfg, 'scan', qw(categories));
     return \%tmp_cfg;
-
 }
 
 sub cleanup_after_read {
     my ($self, $id, $data) = @_;
-    $self->expand_list($data, qw(category oses rules));
+    $self->expand_list($data, qw(oses rules categories));
     if(exists $data->{oses} && defined $data->{oses}) {
         $data->{oses} = ref($data->{oses}) eq 'ARRAY' ? $data->{oses} : [$data->{oses}];
     }
@@ -56,7 +56,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2017 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 

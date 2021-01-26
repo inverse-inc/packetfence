@@ -21,17 +21,23 @@ use warnings;
 ### pf::dal::_activation is auto generated any change to this file will be lost
 ### Instead change in the pf::dal::activation module
 ###
+
 use base qw(pf::dal);
+
+use Role::Tiny::With;
+with qw(pf::dal::roles::has_tenant_id);
 
 our @FIELD_NAMES;
 our @INSERTABLE_FIELDS;
 our @PRIMARY_KEYS;
 our %DEFAULTS;
 our %FIELDS_META;
+our @COLUMN_NAMES;
 
 BEGIN {
     @FIELD_NAMES = qw(
         code_id
+        tenant_id
         pid
         mac
         contact_info
@@ -39,12 +45,15 @@ BEGIN {
         activation_code
         expiration
         unregdate
+        category_id
         status
         type
         portal
+        source_id
     );
 
     %DEFAULTS = (
+        tenant_id => '1',
         pid => undef,
         mac => undef,
         contact_info => '',
@@ -52,12 +61,15 @@ BEGIN {
         activation_code => '',
         expiration => '',
         unregdate => undef,
+        category_id => undef,
         status => undef,
         type => '',
         portal => undef,
+        source_id => undef,
     );
 
     @INSERTABLE_FIELDS = qw(
+        tenant_id
         pid
         mac
         contact_info
@@ -65,9 +77,11 @@ BEGIN {
         activation_code
         expiration
         unregdate
+        category_id
         status
         type
         portal
+        source_id
     );
 
     %FIELDS_META = (
@@ -75,6 +89,12 @@ BEGIN {
             type => 'INT',
             is_auto_increment => 1,
             is_primary_key => 1,
+            is_nullable => 0,
+        },
+        tenant_id => {
+            type => 'INT',
+            is_auto_increment => 0,
+            is_primary_key => 0,
             is_nullable => 0,
         },
         pid => {
@@ -119,6 +139,12 @@ BEGIN {
             is_primary_key => 0,
             is_nullable => 1,
         },
+        category_id => {
+            type => 'INT',
+            is_auto_increment => 0,
+            is_primary_key => 0,
+            is_nullable => 1,
+        },
         status => {
             type => 'VARCHAR',
             is_auto_increment => 0,
@@ -137,11 +163,35 @@ BEGIN {
             is_primary_key => 0,
             is_nullable => 1,
         },
+        source_id => {
+            type => 'VARCHAR',
+            is_auto_increment => 0,
+            is_primary_key => 0,
+            is_nullable => 1,
+        },
     );
 
     @PRIMARY_KEYS = qw(
         code_id
     );
+
+    @COLUMN_NAMES = qw(
+        activation.code_id
+        activation.tenant_id
+        activation.pid
+        activation.mac
+        activation.contact_info
+        activation.carrier_id
+        activation.activation_code
+        activation.expiration
+        activation.unregdate
+        activation.category_id
+        activation.status
+        activation.type
+        activation.portal
+        activation.source_id
+    );
+
 }
 
 use Class::XSAccessor {
@@ -158,13 +208,13 @@ sub _defaults {
     return {%DEFAULTS};
 }
 
-=head2 field_names
+=head2 table_field_names
 
 Field names of activation
 
 =cut
 
-sub field_names {
+sub table_field_names {
     return [@FIELD_NAMES];
 }
 
@@ -190,6 +240,16 @@ our $FIND_SQL = do {
     my $where = join(", ", map { "$_ = ?" } @PRIMARY_KEYS);
     "SELECT * FROM `activation` WHERE $where;";
 };
+
+=head2 find_columns
+
+find_columns
+
+=cut
+
+sub find_columns {
+    return [@COLUMN_NAMES];
+}
 
 =head2 _find_one_sql
 
@@ -230,14 +290,14 @@ Get the meta data for activation
 sub get_meta {
     return \%FIELDS_META;
 }
- 
+
 =head1 AUTHOR
 
 Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2017 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 

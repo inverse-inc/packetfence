@@ -19,7 +19,6 @@ use Log::Log4perl::Catalyst;
 #                 directory
 
 use Catalyst qw/
-    -Debug
     ConfigLoader
     Static::Simple
     I18N
@@ -30,6 +29,7 @@ use Catalyst qw/
     Session::State::Cookie
     StackTrace
     Unicode::Encoding
+    SmartURI
 /;
 
 use Try::Tiny;
@@ -37,7 +37,6 @@ use Try::Tiny;
 BEGIN {
     use constant INSTALL_DIR => '/usr/local/pf';
     use lib INSTALL_DIR . "/lib";
-    use lib INSTALL_DIR . "/html/captive-portal/lib";
     use lib qw(/usr/local/fingerbank/lib);
     use pf::log 'service' => 'httpd.admin', reinit => 1;
 }
@@ -45,7 +44,9 @@ use pf::CHI;
 use pf::CHI::Request;
 use pf::web::util;
 use pf::SwitchFactory;
+use pf::I18N;
 pf::SwitchFactory->preloadAllModules();
+pf::I18N::setup_text_domain();
 
 extends 'Catalyst';
 
@@ -64,6 +65,8 @@ $VERSION = eval $VERSION;
 __PACKAGE__->config(
     name => 'pfappserver',
     default_view =>  'HTML',
+    encoding => 'UTF-8',
+    use_request_uri_for_path => 1,
     setup_components => {
         search_extra => [ qw(::Form ::F) ],
     },
@@ -74,9 +77,10 @@ __PACKAGE__->config(
             woff => 'font/woff'
         },
         # Include static content from captive portal in order to render previews of
-        # remediation pages (see pfappserver::Controller::Violation)
+        # remediation pages (see pfappserver::Controller::SecurityEvent)
         include_path => [
             pfappserver->config->{root},
+            INSTALL_DIR . '/html/pfappserver/root',
             INSTALL_DIR . '/html/captive-portal',
             INSTALL_DIR . '/html',
         ],
@@ -85,12 +89,13 @@ __PACKAGE__->config(
             'admin',
             'pfappserver',
             'templates',
-            'violations',
+            'security_events',
         ],
         ignore_extensions => [ qw/cgi php inc tt html xml/ ],
     },
 
     'Plugin::Session' => {
+        cookie_secure => use_secure_cookie(),
         #chi will set the expire time
         chi_class => 'pf::CHI',
         chi_args => {
@@ -100,20 +105,27 @@ __PACKAGE__->config(
 
     'View::JSON' => {
        # TODO to discuss: always add to exposed stash or use a standard 'resultset' instead?
-       expose_stash    => [ qw(status status_msg error interfaces networks switches config services success items) ], # defaults to everything
+       expose_stash    => [ qw(status status_msg error interfaces networks switches config services success items time_offset) ], # defaults to everything
     },
 
     'View::HTML' => {
         INCLUDE_PATH => [
-            __PACKAGE__->path_to('root-custom'),
-            __PACKAGE__->path_to('root'),
+            INSTALL_DIR . '/html/pfappserver/root-custom',
+            INSTALL_DIR . '/html/pfappserver/root',
         ]
     },
 
     'View::Admin' => {
         INCLUDE_PATH => [
-            __PACKAGE__->path_to('root-custom'),
-            __PACKAGE__->path_to('root'),
+            INSTALL_DIR . '/html/pfappserver/root-custom',
+            INSTALL_DIR . '/html/pfappserver/root',
+        ]
+    },
+
+    'View::Configurator' => {
+        INCLUDE_PATH => [
+            INSTALL_DIR . '/html/pfappserver/root-custom',
+            INSTALL_DIR . '/html/pfappserver/root',
         ]
     },
 
@@ -154,7 +166,23 @@ __PACKAGE__->config(
         }
        }
      },
+
+     'Plugin::SmartURI' => {
+        disposition => 'relative',
+        uri_class   =>  'URI::SmartURI',
+     },
 );
+
+
+=head2 use_secure_cookie
+
+use secure cookie
+
+=cut
+
+sub use_secure_cookie {
+    return $ENV{CATALYST_DEBUG} ? 0 : 1;
+}
 
 sub pf_hash_for {
     my ($self,@args) = @_;
@@ -210,6 +238,8 @@ sub form {
           if $c->stash->{current_form_instance};
         return $c->form( $c->stash->{current_form} )
           if $c->stash->{current_form};
+        return $c->form( $c->action->{form} )
+          if $c->action->{form};
     }
     return $c->form( $appclass->config->{default_form} )
       if $appclass->config->{default_form};
@@ -332,6 +362,27 @@ sub generate_doc_url {
     return pf::web::util::generate_doc_url($section, $guide);
 }
 
+=head2 csp_server_headers
+
+Return CSP (Content-Security-Policy) headers
+
+=cut
+
+sub csp_server_headers {
+    my ($c) = @_;
+
+    # Allow context-specific directive values (script-src, worker-src, img-src and style-src)
+    my $headers = $c->stash->{csp_headers} || {};
+    $c->response->header
+      ('Content-Security-Policy' =>
+       sprintf("default-src 'none'; script-src 'self'%s; connect-src 'self'; img-src 'self'%s; style-src 'self'%s; font-src 'self'; child-src 'self'; frame-src 'self'",
+               $headers->{script}? ' ' . $headers->{script} : '',
+               $headers->{img}   ? ' ' . $headers->{img}    : '',
+               $headers->{style} ? ' ' . $headers->{style}  : ''
+              )
+      );
+}
+
 # Logging
 __PACKAGE__->log(Log::Log4perl::Catalyst->new(INSTALL_DIR . '/conf/log.conf.d/httpd.admin.conf',watch_delay => 5 * 60));
 
@@ -339,7 +390,7 @@ __PACKAGE__->log(Log::Log4perl::Catalyst->new(INSTALL_DIR . '/conf/log.conf.d/ht
 $SIG{__WARN__} = sub { __PACKAGE__->log->error(@_); };
 
 # Start the application
-__PACKAGE__->setup();
+__PACKAGE__->setup( __PACKAGE__->log->is_debug ? ('-Debug') : () );
 
 =head1 NAME
 
@@ -363,7 +414,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2017 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 

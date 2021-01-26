@@ -77,7 +77,7 @@ after qw(view update) => sub {
     my ($self, $c) = @_;
 
     my $cs = $c->model("Config::Switch")->configStore;
-    my %members = map { $_->{id} => $_ } $cs->search("group", $c->stash->{item}->{id}, "id");
+    my %members = map { $_->{id} => $_ } $cs->membersOfGroup($c->stash->{item}->{id});
     $c->stash->{item}->{members} = \%members;
     $c->stash->{tab} = $c->request->param("tab");
 };
@@ -91,18 +91,32 @@ Override parent method to do the setup with the SwitchGroup model
 sub after_list {
     my ($self, $c) = @_;
     $c->stash->{action} ||= 'list';
-
-    my @switches;
-    foreach my $switch (@{$c->stash->{items}}) {
-        my $id = $switch->{id};
-        my $cs = $c->model('Config::SwitchGroup')->configStore;
-        $switch->{type} = $cs->fullConfigRaw($id)->{type};
-        $switch->{mode} = $cs->fullConfigRaw($id)->{mode};
-        push @switches, $switch;
-    }
-    $c->stash->{items} = \@switches;
     $c->stash->{searchable} = 0;
 };
 
+=head1 COPYRIGHT
+
+Copyright (C) 2015-2021 Inverse inc.
+
+=head1 LICENSE
+
+This program is free software; you can redistribute it and/or
+modify it under the terms of the GNU General Public License
+as published by the Free Software Foundation; either version 2
+of the License, or (at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program; if not, write to the Free Software
+Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301,
+USA.
+
+=cut
+
+__PACKAGE__->meta->make_immutable unless $ENV{"PF_SKIP_MAKE_IMMUTABLE"};
 
 1;

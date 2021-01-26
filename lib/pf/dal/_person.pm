@@ -21,16 +21,22 @@ use warnings;
 ### pf::dal::_person is auto generated any change to this file will be lost
 ### Instead change in the pf::dal::person module
 ###
+
 use base qw(pf::dal);
+
+use Role::Tiny::With;
+with qw(pf::dal::roles::has_tenant_id);
 
 our @FIELD_NAMES;
 our @INSERTABLE_FIELDS;
 our @PRIMARY_KEYS;
 our %DEFAULTS;
 our %FIELDS_META;
+our @COLUMN_NAMES;
 
 BEGIN {
     @FIELD_NAMES = qw(
+        tenant_id
         pid
         firstname
         lastname
@@ -62,9 +68,12 @@ BEGIN {
         custom_field_9
         portal
         source
+        psk
+        potd
     );
 
     %DEFAULTS = (
+        tenant_id => '1',
         pid => '',
         firstname => undef,
         lastname => undef,
@@ -96,9 +105,12 @@ BEGIN {
         custom_field_9 => undef,
         portal => undef,
         source => undef,
+        psk => undef,
+        potd => 'no',
     );
 
     @INSERTABLE_FIELDS = qw(
+        tenant_id
         pid
         firstname
         lastname
@@ -130,9 +142,17 @@ BEGIN {
         custom_field_9
         portal
         source
+        psk
+        potd
     );
 
     %FIELDS_META = (
+        tenant_id => {
+            type => 'INT',
+            is_auto_increment => 0,
+            is_primary_key => 1,
+            is_nullable => 0,
+        },
         pid => {
             type => 'VARCHAR',
             is_auto_increment => 0,
@@ -319,11 +339,66 @@ BEGIN {
             is_primary_key => 0,
             is_nullable => 1,
         },
+        psk => {
+            type => 'VARCHAR',
+            is_auto_increment => 0,
+            is_primary_key => 0,
+            is_nullable => 1,
+        },
+        potd => {
+            type => 'ENUM',
+            is_auto_increment => 0,
+            is_primary_key => 0,
+            is_nullable => 0,
+            enums_values => {
+                'no' => 1,
+                'yes' => 1,
+            },
+        },
     );
 
     @PRIMARY_KEYS = qw(
+        tenant_id
         pid
     );
+
+    @COLUMN_NAMES = qw(
+        person.tenant_id
+        person.pid
+        person.firstname
+        person.lastname
+        person.email
+        person.telephone
+        person.company
+        person.address
+        person.notes
+        person.sponsor
+        person.anniversary
+        person.birthday
+        person.gender
+        person.lang
+        person.nickname
+        person.cell_phone
+        person.work_phone
+        person.title
+        person.building_number
+        person.apartment_number
+        person.room_number
+        person.custom_field_1
+        person.custom_field_2
+        person.custom_field_3
+        person.custom_field_4
+        person.custom_field_5
+        person.custom_field_6
+        person.custom_field_7
+        person.custom_field_8
+        person.custom_field_9
+        person.portal
+        person.source
+        person.psk
+        person.potd
+    );
+
 }
 
 use Class::XSAccessor {
@@ -340,13 +415,13 @@ sub _defaults {
     return {%DEFAULTS};
 }
 
-=head2 field_names
+=head2 table_field_names
 
 Field names of person
 
 =cut
 
-sub field_names {
+sub table_field_names {
     return [@FIELD_NAMES];
 }
 
@@ -372,6 +447,16 @@ our $FIND_SQL = do {
     my $where = join(", ", map { "$_ = ?" } @PRIMARY_KEYS);
     "SELECT * FROM `person` WHERE $where;";
 };
+
+=head2 find_columns
+
+find_columns
+
+=cut
+
+sub find_columns {
+    return [@COLUMN_NAMES];
+}
 
 =head2 _find_one_sql
 
@@ -412,14 +497,14 @@ Get the meta data for person
 sub get_meta {
     return \%FIELDS_META;
 }
- 
+
 =head1 AUTHOR
 
 Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2017 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 

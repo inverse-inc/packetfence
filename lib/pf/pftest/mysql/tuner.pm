@@ -495,7 +495,6 @@ sub calculations {
         $mycalc{'max_tmp_table_size'} = ($myvar{'tmp_table_size'} > $myvar{'max_heap_table_size'}) ? $myvar{'max_heap_table_size'} : $myvar{'tmp_table_size'} ;
         $mycalc{'server_buffers'} = $myvar{'key_buffer_size'} + $mycalc{'max_tmp_table_size'};
         $mycalc{'server_buffers'} += (defined $myvar{'innodb_buffer_pool_size'}) ? $myvar{'innodb_buffer_pool_size'} : 0 ;
-        $mycalc{'server_buffers'} += (defined $myvar{'innodb_additional_mem_pool_size'}) ? $myvar{'innodb_additional_mem_pool_size'} : 0 ;
         $mycalc{'server_buffers'} += (defined $myvar{'innodb_log_buffer_size'}) ? $myvar{'innodb_log_buffer_size'} : 0 ;
         $mycalc{'server_buffers'} += (defined $myvar{'query_cache_size'}) ? $myvar{'query_cache_size'} : 0 ;
 
@@ -905,7 +904,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 High Performance MySQL Tuning Script
 Copyright (C) 2006-2011 Major Hayden - major@mhtx.net
-Copyright (C) 2005-2017 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 For the latest updates, please visit http://mysqltuner.com/
 Git repository available at http://github.com/rackerhacker/MySQLTuner-perl

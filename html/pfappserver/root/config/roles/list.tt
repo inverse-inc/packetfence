@@ -1,0 +1,114 @@
+[%- MACRO roles_pagination(action, pageNumber, page_count, query, from_form, captures)  BLOCK -%]
+[%
+# Number of pages to show before and after the middle page in the list
+    pageWrap = 3;
+    pageWrapTotal = pageWrap * 2;
+# Calculate the first of the list
+    firstPage = pageNumber - pageWrap;
+    #Take care of wrap around
+    IF firstPage < 1; firstPage = 1; END;
+# Calculate the last page
+    lastPage = firstPage + pageWrapTotal;
+    #Take care of wrap around
+    IF lastPage > pageNumber;
+        lastPage = pageNumber + 1;
+        firstPage = lastPage - pageWrapTotal;
+        IF firstPage < 1; firstPage = 1; END;
+    END;
+    add_captures = [];
+    IF captures.defined;
+        CALL add_captures.import(captures);
+    END;
+    params = {};
+    CALL params.import(query);
+%]
+<div class="pagination pagination-right" [%IF from_form %] data-from-form="[% from_form %]" [% END %]>
+  <ul>
+    [% IF pageNumber == 1 %]
+    <li class="disabled"><span>&larr;</span></li>
+    [% ELSE %]
+    [% params.page_num = pageNumber - 1 %]
+    <li><a href="[% c.uri_for(action, add_captures, params) %]">&larr;</a></li>
+    [% END %]
+    [%- IF firstPage > 1 -%]
+      [% params.page_num = 1 %]
+      <li><a href="[% c.uri_for(action, add_captures, params) %]" title="Page 1">1</a></li>
+      <li class="disabled"><span>&hellip;</span></li>
+    [%- END -%]
+    [% currentPage = firstPage %]
+    [% WHILE currentPage < lastPage %]
+      [% params.page_num = currentPage %]
+      [%IF currentPage == pageNumber %]
+        <li class="disabled"><a href="[% c.uri_for(action, add_captures, params) %]">[%currentPage%]</a></li>
+      [% ELSE  %]
+        <li><a href="[% c.uri_for(action, add_captures, params) %]">[%currentPage%]</a></li>
+      [%END%]
+      [%currentPage = currentPage + 1%]
+    [% END %]
+    [% IF has_next_page %]
+      [% params.page_num = currentPage %]
+      <li><a href="[% c.uri_for(action, add_captures, params) %]">[%currentPage%]</a></li>
+      <li class="disabled"><span>&hellip;</span></li>
+      <li><a href="[% c.uri_for(action, add_captures, params) %]">&rarr;</a></li>
+    [% ELSE %]
+      <li class="disabled"><span>&hellip;</span></li>
+      <li class="disabled"><span>&rarr;</span></li>
+    [% END %]
+  </ul>
+</div>
+[%- END -%]
+
+<table class="table" id="items" data-list-uri="[% c.uri_for(c.controller.action_for('search')) %]">
+  <thead>
+    <tr>
+      <th colspan="4">
+        <form name="search" id="search" class="form-inline" action="[% c.uri_for(c.controller.action_for('search')) %]" method="POST">
+          <div>
+          [% INCLUDE per_page_select.tt %]
+          </div>
+          <br/>
+          <div class="pull-left">
+            [% name_value = form.field('searches.0.name').value%]
+            <select name="searches.0.name" class="input-medium">
+              <option value="id" [% "selected='selected'" IF name_value == "id" %]>[% l('Name') %]</option>
+              <option value="notes" [% "selected='selected'" IF name_value == "notes" %]>[% l('Description') %]</option>
+            </select>
+            [% op_value = form.field('searches.0.op').value%]
+            <select name="searches.0.op" class="input-medium">
+              <option value="equal" [% "selected='selected'" IF op_value == "equal" %]>[% l('is') %]</option>
+              <option value="not_equal" [% "selected='selected'" IF op_value == "not_equal" %]>[% l('is not') %]</option>
+              <option value="starts_with" [% "selected='selected'" IF op_value == "starts_with" %]>[% l('starts with') %]</option>
+              <option value="ends_with" [% "selected='selected'" IF op_value == "ends_with" %]>[% l('ends with') %]</option>
+              <option value="like" [% "selected='selected'" IF op_value == "like" %]>[% l('matches') %]</option>
+            </select>
+            <input name="searches.0.value" type="text" placeholder="[% l('String...') %]" value="[%form.field('searches.0.value').value%]"/>
+            <button type="submit" class="btn-icon btn-icon-primary"><i class="icon-search"></i></button>
+            <button type="reset" class="btn-icon btn-icon-circle"><i class="icon-close"></i></button>
+          </div>
+        </form>
+        [% roles_pagination(c.controller.action_for('search'), page_num, page_count, {}) | none %]
+      </th>
+    </tr>
+    <tr>
+      <th>[% l('Name') %]</th>
+      <th class="hidden-phone">[% l('Description') %]</th>
+      <th class="hidden-phone">[% l('Max nodes per user') %]</th>
+      <th></th>
+    </tr>
+  </thead>
+  <tbody>
+    [% FOREACH role IN items %]
+    <tr>
+      <td><a href="[% c.uri_for(c.controller.action_for('view'), [ role.id ]) %]#modalRole">[% role.id | html %]</a></td>
+      <td class="hidden-phone">[% role.notes | html %]</td>
+      <td class="hidden-phone">[% role.max_nodes_per_pid | html %]</td>
+      <td>
+          [% IF is_inline_configured && can_access("TRAFFIC_SHAPING_CREATE") %]
+          <a class="btn createItem" href="[% c.uri_for(c.controller('Config::TrafficShaping').action_for('create_or_update'), role.id) %]">[% l('Traffic Shaping') %]</a>
+          [% END %]
+      </td>
+    </tr>
+    [% END -%]
+  </tbody>
+</table>
+

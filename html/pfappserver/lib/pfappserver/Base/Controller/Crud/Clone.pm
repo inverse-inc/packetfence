@@ -24,15 +24,16 @@ clone action for crud style controllers
 =cut
 
 sub clone :Chained('object') :PathPart('clone') :Args(0) {
-    my ( $self, $c, $to ) = @_;
+    my ( $self, $c ) = @_;
+    my $model = $self->getModel($c);
+    my $itemKey = $model->itemKey;
+    my $idKey = $model->idKey;
+    my $item = $c->stash->{$itemKey};
+    $c->stash->{cloned_id} = $item->{$idKey};
     if ($c->request->method eq 'POST') {
         $self->_processCreatePost($c);
     }
     else {
-        my $model = $self->getModel($c);
-        my $itemKey = $model->itemKey;
-        my $idKey = $model->idKey;
-        my $item = $c->stash->{$itemKey};
         delete $item->{$idKey};
         my $form = $self->getForm($c);
         $form->process(init_object => $item);
@@ -42,7 +43,7 @@ sub clone :Chained('object') :PathPart('clone') :Args(0) {
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2017 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 

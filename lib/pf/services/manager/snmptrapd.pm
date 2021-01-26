@@ -17,6 +17,7 @@ use Moo;
 use pf::cluster;
 use pf::constants;
 use pf::config qw($management_network %Config);
+use pf::config::pfqueue qw(%ConfigPfqueue);
 use pf::file_paths qw(
     $install_dir
     $generated_conf_dir
@@ -72,9 +73,8 @@ sub generateConfig {
     if ($management_ip) {
         $tags{'snmpTrapdAddr'} = "snmpTrapdAddr $management_ip";
     }
-    if (isdisabled($Config{services}{pfsetvlan})) {
-        $tags{perlaction} = "perl do \"/usr/local/pf/lib/pf/snmptrapd.pm\";\n";
-    }
+    $tags{perlaction} = "perl do \"/usr/local/pf/lib/pf/snmptrapd.pm\";\n";
+    $tags{perlaction} .= "perl " . Data::Dumper->Dump([$ConfigPfqueue{queue_config}{pfsnmp_parsing}{workers}], ['pf::snmptrapd::WORKER']) . "\n";
 
     foreach my $user_key ( sort keys %$snmpv3_users ) {
         $tags{'userLines'} .= "createUser " . $snmpv3_users->{$user_key} . "\n";
@@ -136,7 +136,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2017 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 

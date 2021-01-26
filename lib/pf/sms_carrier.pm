@@ -16,51 +16,17 @@ use strict;
 use warnings;
 use pf::db;
 use pf::log;
-
-use constant SMS_CARRIER => 'sms_carrier';
+use pf::error qw(is_error);
+use pf::dal::sms_carrier;
 
 BEGIN {
     use Exporter ();
     our (@ISA, @EXPORT);
     @ISA    = qw(Exporter);
-    @EXPORT = qw(sms_carrier_view_all sms_carrier_view sms_carrier_custom_search);
+    @EXPORT = qw(sms_carrier_view_all sms_carrier_view);
 }
-
-# The next two variables and the _prepare sub are required for database handling magic (see pf::db)
-our $sms_carrier_db_prepared = 0;
-# in this hash reference we hold the database statements. We pass it to the query handler and he will repopulate
-# the hash if required
-our $sms_carrier_statements = {};
 
 =head1 SUBROUTINES
-
-=head2 sms_carrier_db_prepare
-
-=cut
-
-sub sms_carrier_db_prepare {
-    my $logger = get_logger();
-    $logger->debug("Preparing pf::sms_carrier database queries");
-
-    $sms_carrier_statements->{'sms_carrier_view_all_sql'} = get_db_handle()->prepare(qq[
-        SELECT id, name
-        FROM sms_carrier
-    ]);
-
-    $sms_carrier_statements->{'sms_carrier_view_sql'} = qq[
-        SELECT id, name
-        FROM sms_carrier
-        WHERE id IN (?)
-    ];
-
-    $sms_carrier_statements->{'sms_carrier_view_one_sql'} = get_db_handle()->prepare(qq[
-        SELECT id, name, email_pattern as carrier_email_pattern
-        FROM sms_carrier
-        WHERE id = ?
-    ]);
-
-    $sms_carrier_db_prepared = 1;
-}
 
 =head2 sms_carrier_view_all
 
@@ -68,25 +34,19 @@ sub sms_carrier_db_prepare {
 
 sub sms_carrier_view_all {
     my $source = shift;
-    my $query;
-
     # Check if a SMS authentication source is defined; if so, use the carriers list
     # from this source
+    my %search = (
+            -columns => [qw(id name)]
+    );
     if ($source) {
-        my $list = join(',', @{$source->{'sms_carriers'}});
-        sms_carrier_db_prepare() unless ($sms_carrier_db_prepared);
-        local $sms_carrier_statements->{'sms_carrier_view_sql'} = $sms_carrier_statements->{'sms_carrier_view_sql'};
-        $sms_carrier_statements->{'sms_carrier_view_sql'} =~ s/\?/$list/;
-        $query = db_query_execute(SMS_CARRIER, $sms_carrier_statements,
-                                  'sms_carrier_view_sql');
+        $search{-where} = {
+            id => $source->{'sms_carriers'}
+        };
     }
-    else {
-        # Retrieve all carriers
-        $query = db_query_execute(SMS_CARRIER, $sms_carrier_statements,
-                                  'sms_carrier_view_all_sql');
-    }
-    my $val = $query->fetchall_arrayref({});
-    $query->finish();
+    my ($status, $iter) = pf::dal::sms_carrier->search(%search);
+    return [] if is_error($status);
+    my $val = $iter->all(undef);
 
     return $val;
 }
@@ -97,25 +57,12 @@ sub sms_carrier_view_all {
 
 sub sms_carrier_view {
     my $id = shift;
-    my $query = db_query_execute(SMS_CARRIER, $sms_carrier_statements, 'sms_carrier_view_one_sql', $id)
-        || return (0);
-    my $ref = $query->fetchrow_hashref();
-    # just get one row and finish
-    $query->finish();
-    return ($ref);
+    my ($status, $item) = pf::dal::sms_carrier->find({id=>$id});
+    if (is_error($status)) {
+        return (0);
+    }
+    return ($item->to_hash());
 }
-
-=head2 sms_carrier_custom_search
-
-=cut
-
-sub sms_carrier_custom_search {
-    my ($sql, @bind) = @_;
-    my $logger = get_logger();
-    $sms_carrier_statements->{'sms_carrier_custom_search_sql'} = $sql;
-    return db_data(SMS_CARRIER, $sms_carrier_statements, 'sms_carrier_custom_search_sql', @bind);
-}
-
 
 =head1 AUTHOR
 
@@ -123,7 +70,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2017 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 

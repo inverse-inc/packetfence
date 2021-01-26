@@ -12,16 +12,16 @@ Form definition to create or update a floating network device.
 
 use HTML::FormHandler::Moose;
 extends 'pfappserver::Base::Form';
-with 'pfappserver::Base::Form::Role::Help';
+with qw(
+    pfappserver::Base::Form::Role::Help
+    pfappserver::Role::Form::RolesAttribute
+);
 
 use pf::config;
 use pf::file_paths qw($lib_dir);
 use pf::util;
 use File::Find qw(find);
 use pf::constants::firewallsso;
-
-## Definition
-has 'roles' => (is => 'ro', default => sub {[]});
 
 has_field 'id' =>
   (
@@ -39,7 +39,7 @@ has_field 'password' =>
   );
 has_field 'port' =>
   (
-   type => 'PosInteger',
+   type => 'Port',
    label => 'Port of the service',
    tags => { after_element => \&help,
              help => 'If you use an alternative port, please specify' },
@@ -94,6 +94,28 @@ has_field 'networks' =>
              help => 'Comma delimited list of networks on which the SSO applies.<br/>Format : 192.168.0.0/24' },
   );
 
+has_field 'username_format' =>
+  (
+   type => 'Text',
+   label => 'Username format',
+   default => '$pf_username',
+   tags => { after_element => \&help,
+             help => 'Defines how to format the username that is sent to your firewall. $username represents the username and $realm represents the realm of your user if applicable. $pf_username represents the unstripped username as it is stored in the PacketFence database. If left empty, it will use the username as stored in PacketFence (value of $pf_username).' },
+  );
+
+has_field 'default_realm' =>
+  (
+   type => 'Text',
+   label => 'Default realm',
+   tags => { after_element => \&help,
+             help => 'The default realm to be used while formatting the username when no realm can be extracted from the username.' },
+  );
+
+has_block 'definition' =>
+  (
+   render_list => [ qw(id type password port categories networks cache_updates cache_timeout username_format default_realm) ],
+  );
+
 =head2 Methods
 
 =cut
@@ -127,11 +149,10 @@ sub options_type {
 sub options_categories {
     my $self = shift;
 
-    my ($status, $result) = $self->form->ctx->model('Config::Roles')->listFromDB();
+    my $result = $self->form->roles;
     my @roles = map { $_->{name} => $_->{name} } @{$result} if ($result);
     return ('' => '', @roles);
 }
-
 
 
 =over
@@ -140,7 +161,7 @@ sub options_categories {
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2017 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 
@@ -161,5 +182,5 @@ USA.
 
 =cut
 
-__PACKAGE__->meta->make_immutable;
+__PACKAGE__->meta->make_immutable unless $ENV{"PF_SKIP_MAKE_IMMUTABLE"};
 1;

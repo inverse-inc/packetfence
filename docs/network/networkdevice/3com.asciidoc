@@ -1,0 +1,270 @@
+// to display images directly on GitHub
+ifdef::env-github[]
+:encoding: UTF-8
+:lang: en
+:doctype: book
+:toc: left
+:imagesdir: ../../images
+endif::[]
+
+////
+
+    This file is part of the PacketFence project.
+
+    See PacketFence_Network_Devices_Configuration_Guide-docinfo.xml for 
+    authors, copyright and license information.
+
+////
+
+
+//=== 3COM
+
+==== SuperStack 3 Switch 4200 and 4500
+
+PacketFence supports these 3Com switches _without VoIP_ using one trap type:
+
+* linkUp===linkDown
+* Port Security (with static MACs)
+
+Don't forget to update the startup config!
+
+===== linkUp === linkDown only
+
+
+Global config settings:
+
+  snmp-agent
+  snmp-agent target-host trap address udp-domain 192.168.1.5 params securityname public
+  snmp-agent trap enable standard linkup linkdown
+
+On each interface:
+
+  port access vlan 4
+
+===== In Port Security
+
+Global config settings:
+
+  snmp-agent
+  snmp-agent target-host trap address udp-domain 192.168.1.5 params securityname public
+  snmp-agent trap enable
+  port-security enable
+  port-security trap addresslearned
+  port-security trap intrusion
+
+On each interface:
+
+  port access vlan 4
+  port-security max-mac-count 1
+  port-security port-mode secure
+  port-security intrusion-mode blockmac
+  undo enable snmp trap updown
+
+===== In MAC Auth 
+
+ Voice vlan : 6
+ Normal vlan : 1
+ Registration vlan : 2
+ Isolation vlan : 3
+
+Global config settings:
+
+ lldp enable
+ lldp timer tx-interval 5
+ lldp compliance cdp
+ lldp compliance cdp
+
+ port-security enable
+ MAC-authentication domain packetfence
+
+ radius scheme system
+ radius scheme packetfence
+  server-type extended
+  primary authentication 192.168.1.5
+  primary accounting 192.168.1.5
+  key authentication P@cketfence
+  key accounting cipher P@cketfence
+  user-name-format without-domain
+
+ domain packetfence
+  authentication radius-scheme packetfence
+  accounting radius-scheme packetfence
+  vlan-assignment-mode string
+  accounting optional
+ domain system
+
+ voice vlan mac-address f4ea-6700-0000 mask ffff-ff00-0000 description Cisco IP Phone
+ undo voice vlan security enable
+ voice vlan 6 enable
+
+On each interface with VoIP:
+
+ interface Ethernet1/0/1
+  stp edged-port enable
+  lldp compliance admin-status cdp txrx
+  port link-type hybrid
+  port hybrid vlan 6 tagged
+  port hybrid vlan 1 2 3 untagged
+  undo voice vlan mode auto
+  voice vlan enable
+  port-security max-mac-count 3
+  port-security port-mode mac-authentication
+  port-security intrusion-mode blockmac
+  undo enable snmp trap updown
+
+==== E4800G
+
+PacketFence supports these 3Com switches with the following techniques:
+
+* 802.1X with MAC Authentication fallback
+* linkUp/linkDown (not recommended)
+
+Voice over IP support was not explicitly tested during implementation however 
+it does not mean that it won't work. 
+
+Don't forget to update the startup config!
+
+===== linkUp / linkDown only
+
+Global config settings:
+
+  snmp-agent
+  snmp-agent target-host trap address udp-domain 192.168.1.5 params securityname public
+  snmp-agent trap enable standard linkup linkdown
+
+On each interface:
+
+  port access vlan 4
+
+===== 802.1X with MAC Authentication fallback
+
+Global config settings:
+
+  system-view 
+     radius scheme PacketFence 
+       primary authentication 192.168.1.5 1812 
+       primary accounting 192.168.1.5 1812 
+       key authentication useStrongerSecret 
+       user-name-format without-domain 
+       quit 
+     domain packetfence.local 
+       authentication default radius-scheme PacketFence 
+       authorization default radius-scheme PacketFence 
+       quit 
+     domain default enable packetfence.local 
+     dot1x authentication-method eap 
+     port-security enable 
+  quit 
+
+If your management authentication on your switch is default, applying the 
+configuration above will have your authentication switch to a RADIUS based one
+with PacketFence as the authentication server. *It is almost certain that you 
+do not want that!*
+
+Below, we will just create a local password for `vty` accesses (telnet) and 
+nothing on the console. *In order to avoid locking yourself out, make sure 
+to verify your configuration!*
+
+  system-view 
+     user-interface aux 0 
+       authentication-mode none 
+    user-interface vty 0 4 
+      user privilege level 3 
+      set authentication password simple useStrongerPassword 
+    quit 
+  quit 
+
+On each interface:
+
+  system-view 
+    interface gigabitEthernet 1/0/xx 
+      port-security port-mode mac-else-userlogin-secure-ext 
+      # userlogin-secure-or-mac-ext could be used below instead 
+      # see the Switch_4200G's documentation for a discussion about it 
+      undo enable snmp trap updown 
+      quit 
+  quit 
+
+where `xx` stands for the interface index.
+
+==== E5500G and Switch 4200G 
+
+PacketFence supports these 3Com switches with the following techniques: 
+
+* 802.1X with MAC Authentication fallback 
+* linkUp/linkDown (not recommended) 
+
+Voice over IP support was not explicitly tested during implementation however 
+it does not mean that it won't work.
+
+Don't forget to update the startup config ! 
+
+===== linkUp / linkDown only
+
+Global config settings:
+
+  snmp-agent 
+  snmp-agent target-host trap address udp-domain 192.168.1.5 params 
+  securityname public 
+  snmp-agent trap enable standard linkup linkdown 
+
+On each interface: 
+
+  port access vlan 4 
+
+===== 802.1X with MAC Authentication fallback 
+
+Global config settings:
+
+  system-view 
+     radius scheme PacketFence 
+       server-type standard 
+       primary authentication 192.168.1.5 1812 
+       primary accounting 192.168.1.5 1812 
+       accounting optional 
+       key authentication useStrongerSecret 
+       user-name-format without-domain 
+       quit 
+     domain packetfence.local 
+       radius-scheme PacketFence 
+       vlan-assignment-mode string 
+       quit 
+     domain default enable packetfence.local 
+     dot1x authentication-method eap 
+     port-security enable 
+  quit 
+
+If your management authentication on your switch is default, applying the configuration above 
+will have your authentication switch to a RADIUS based one with PacketFence as the 
+authentication server. *It is almost certain that you do not want that!*
+
+Below, we will just create a local password for `vty` accesses (telnet) and nothing on the 
+console. *In order to avoid locking yourself out, make sure to verify your configuration!*
+
+  system-view 
+     user-interface aux 0 
+       authentication-mode none 
+    user-interface vty 0 4 
+      user privilege level 3 
+      set authentication password simple useStrongerPassword 
+    quit 
+  quit 
+
+On each interface: 
+
+  system-view 
+    interface gigabitEthernet 1/0/xx 
+      port-security port-mode mac-else-userlogin-secure-ext 
+      # userlogin-secure-or-mac-ext could be used below instead 
+      # see the Switch_4200G's documentation for a discussion about it 
+      undo enable snmp trap updown 
+      quit 
+  quit 
+
+where `xx` stands for the interface index 
+
+==== NJ220 
+
+This switch does not support port-security. 
+
+To configure: use web interface to send the linkUp/linkDown traps to the PacketFence server. 

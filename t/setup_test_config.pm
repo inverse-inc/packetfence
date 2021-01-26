@@ -28,27 +28,44 @@ BEGIN {
     }
 
     use pf::db;
-    # Setup database connection infos based on ENV variables if they are defined
-    $pf::db::DB_Config->{host} = $ENV{PF_TEST_DB_HOST} // $pf::db::DB_Config->{host};
-    $pf::db::DB_Config->{user} = $ENV{PF_TEST_DB_USER} // $pf::db::DB_Config->{user};
-    $pf::db::DB_Config->{pass} = $ENV{PF_TEST_DB_PASS} // $pf::db::DB_Config->{pass};
-    $pf::db::DB_Config->{db}   = $ENV{PF_TEST_DB_NAME} // $pf::db::DB_Config->{db};
-    $pf::db::DB_Config->{port} = $ENV{PF_TEST_DB_PORT} // $pf::db::DB_Config->{port};
 
     use pf::config qw(
         %Config
         $management_network
     );
     # Setup IP and VIP of management network
-    if(defined($ENV{PF_TEST_MGMT_INT})){
-        my $section_name = "interface ".$ENV{PF_TEST_MGMT_INT};
-        $Config{$section_name}{ip} = $ENV{PF_TEST_MGMT_IP} // $pf::config::Config{$section_name}{ip};
-        $Config{$section_name}{vip} = $ENV{PF_TEST_MGMT_IP} // $pf::config::Config{$section_name}{vip};
-        $Config{$section_name}{mask} = $ENV{PF_TEST_MGMT_MASK} // $pf::config::Config{$section_name}{mask};
-        $management_network->tag('ip', $Config{$section_name}{ip});
-        $management_network->tag('vip', $Config{$section_name}{vip});
+    if (defined($ENV{PF_TEST_MGMT_INT})) {
+        my $int = $ENV{PF_TEST_MGMT_INT};
+        my $section_name = "interface $int";
+        my $ip = $Config{$section_name}{ip} = $ENV{PF_TEST_MGMT_IP} // $pf::config::Config{$section_name}{ip};
+        my $vip = $Config{$section_name}{vip} = $ENV{PF_TEST_MGMT_IP} // $pf::config::Config{$section_name}{vip};
+        my $mask = $Config{$section_name}{mask} = $ENV{PF_TEST_MGMT_MASK} // $pf::config::Config{$section_name}{mask};
+        untie $management_network;
+        $management_network = pfconfig::objects::Net::Netmask->new( $ip, $mask );
+        $management_network->tag('ip', $ip);
+        $management_network->tag('vip', $vip);
+        $management_network->tag( "int", $int );
     }
 
+    #increase "inactivity timeout"
+    $ENV{MOJO_INACTIVITY_TIMEOUT} = "300";
+
+    `rm -fr /tmp/chi/*`;
+}
+
+=head2 new_db_config
+
+Override the database configuration
+
+=cut
+
+sub new_db_config {
+    my ($config) = @_;
+    my %new_config = (%{$config //{}}, %{$pf::db::DB_Config});
+    if (tied $pf::db::DB_Config) {
+        untie $pf::db::DB_Config;
+    }
+    $pf::db::DB_Config = \%new_config;
 }
 
 =head1 AUTHOR
@@ -58,7 +75,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2017 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 

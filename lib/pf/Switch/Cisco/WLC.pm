@@ -111,12 +111,13 @@ use pf::constants;
 use pf::config qw(
     $MAC
     $SSID
+    $WEBAUTH_WIRELESS
 );
 use pf::web::util;
 use pf::util;
 use pf::node;
 use pf::util::radius qw(perform_coa perform_disconnect);
-use pf::violation qw(violation_count_reevaluate_access);
+use pf::security_event qw(security_event_count_reevaluate_access);
 use pf::radius::constants;
 use pf::locationlog qw(locationlog_get_session);
 
@@ -130,17 +131,19 @@ sub description { 'Cisco Wireless Controller (WLC)' }
 
 # CAPABILITIES
 # access technology supported
-sub supportsWirelessDot1x { return $TRUE; }
-sub supportsWirelessMacAuth { return $TRUE; }
-sub supportsRoleBasedEnforcement { return $TRUE; }
-
-# disabling special features supported by generic Cisco's but not on WLCs
-sub supportsSaveConfig { return $FALSE; }
-sub supportsCdp { return $FALSE; }
-sub supportsLldp { return $FALSE; }
+use pf::SwitchSupports qw(
+    WirelessDot1x
+    WirelessMacAuth
+    RoleBasedEnforcement
+    WiredMacAuth
+    WiredDot1x
+    ExternalPortal
+    -SaveConfig
+    -Cdp
+    -Lldp
+);
 # inline capabilities
 sub inlineCapabilities { return ($MAC,$SSID); }
-sub supportsExternalPortal { return $TRUE; }
 
 =item deauthenticateMacDefault
 
@@ -193,11 +196,7 @@ sub _deauthenticateMacSNMP {
 
     #format MAC
     if ( length($mac) == 17 ) {
-        my @macArray = split( /:/, $mac );
-        my $completeOid = $OID_bsnMobileStationDeleteAction;
-        foreach my $macPiece (@macArray) {
-            $completeOid .= "." . hex($macPiece);
-        }
+        my $completeOid = $OID_bsnMobileStationDeleteAction . "." . mac2dec($mac);
         $logger->trace(
             "SNMP set_request for bsnMobileStationDeleteAction: $completeOid"
         );
@@ -334,7 +333,7 @@ Return the reference to the deauth technique or the default deauth technique.
 =cut
 
 sub deauthTechniques {
-    my ($self, $method) = @_;
+    my ($self, $method, $connection_type) = @_;
     my $logger = $self->logger;
     my $default = $SNMP::RADIUS;
     my %tech = (
@@ -417,6 +416,10 @@ sub returnRadiusAccessAccept {
             my $redirect_url = $self->getUrlByName($args->{'user_role'});
             $redirect_url .= '/' unless $redirect_url =~ m(\/$);
             $redirect_url .= $args->{'session_id'};
+            # Cisco and Meraki started adding "&redirect_url=http://example.com" unconditionnaly to the redirect URL.
+            # This means that since we don't have any query parameters that generated paths like "/Cisco::WLC/sid123456&redirect_url=http://example.com" which extracts the SID as sid123456&redirect_url=http://example.com
+            # We add empty query parameters to our path as a workaround
+            $redirect_url .= "?";
             #override role if a role in role map is define
             if (isenabled($self->{_RoleMap}) && $self->supportsRoleBasedEnforcement()) {
                 my $role_map = $self->getRoleByName($args->{'user_role'});
@@ -428,6 +431,14 @@ sub returnRadiusAccessAccept {
             push @av_pairs, "url-redirect-acl=$role";
             push @av_pairs, "url-redirect=".$redirect_url;
         }
+    }
+    if ($args->{profile}->dpskEnabled()) {
+        if (defined($args->{owner}->{psk})) {
+            push @av_pairs, "psk=$args->{owner}->{psk}";
+        } else {
+            push @av_pairs, "psk=$args->{profile}->{_default_psk_key}";
+        }
+        push @av_pairs, "psk-mode=ascii";
     }
 
     $radius_reply_ref->{'Cisco-AVPair'} = \@av_pairs;
@@ -511,7 +522,7 @@ sub radiusDisconnect {
         $attributes_ref = { %$attributes_ref, %$add_attributes_ref };
 
         # Roles are configured and the user should have one.
-        # We send a regular disconnect if there is an open trapping violation
+        # We send a regular disconnect if there is an open trapping security_event
         # to ensure the VLAN is actually changed to the isolation VLAN.
         if ( $self->shouldUseCoA({role => $role}) ) {
             $logger->info("Returning ACCEPT with Role: $role");
@@ -573,18 +584,13 @@ sub parseRequest {
     my $client_mac      = ref($radius_request->{'Calling-Station-Id'}) eq 'ARRAY'
                            ? clean_mac($radius_request->{'Calling-Station-Id'}[0])
                            : clean_mac($radius_request->{'Calling-Station-Id'});
-    my $user_name       = $radius_request->{'TLS-Client-Cert-Common-Name'} || $radius_request->{'User-Name'};
+    my $user_name       = $self->parseRequestUsername($radius_request);
     my $nas_port_type   = $radius_request->{'NAS-Port-Type'};
     my $port            = $radius_request->{'NAS-Port'};
     my $eap_type        = ( exists($radius_request->{'EAP-Type'}) ? $radius_request->{'EAP-Type'} : 0 );
     my $nas_port_id     = ( defined($radius_request->{'NAS-Port-Id'}) ? $radius_request->{'NAS-Port-Id'} : undef );
+    my $session_id = $self->getCiscoAvPairAttribute($radius_request, 'audit-session-id');
 
-    my $session_id;
-    if (defined($radius_request->{'Cisco-AVPair'})) {
-        if ($radius_request->{'Cisco-AVPair'} =~ /audit-session-id=(.*)/ig ) {
-            $session_id =$1;
-        }
-    }
     return ($nas_port_type, $eap_type, $client_mac, $port, $user_name, $nas_port_id, $session_id, $nas_port_id);
 }
 
@@ -605,7 +611,7 @@ sub parseExternalPortalRequest {
 
     # Cisco WLC uses external portal session ID handling process
     my $uri = $r->uri;
-    return unless ($uri =~ /.*sid(.*[^\/])/);
+    return unless ($uri =~ /.*sid(\w+[^\/\&])/);
     my $session_id = $1;
 
     my $locationlog = pf::locationlog::locationlog_get_session($session_id);
@@ -617,8 +623,15 @@ sub parseExternalPortalRequest {
     if ( defined($req->param('redirect')) ) {
         $redirect_url = $req->param('redirect');
     }
+    elsif ( defined($req->param('redirect_url')) ) {
+        $redirect_url = $req->param('redirect_url');
+    }
     elsif ( defined($r->headers_in->{'Referer'}) ) {
         $redirect_url = $r->headers_in->{'Referer'};
+    }
+
+    if($redirect_url !~ /^http/) {
+        $redirect_url = "http://".$redirect_url;
     }
 
     %params = (
@@ -628,6 +641,7 @@ sub parseExternalPortalRequest {
         client_ip               => $client_ip,
         redirect_url            => $redirect_url,
         synchronize_locationlog => $FALSE,
+        connection_type         => $WEBAUTH_WIRELESS,
     );
 
     return \%params;
@@ -642,7 +656,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2017 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 

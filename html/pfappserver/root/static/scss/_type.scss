@@ -65,3 +65,11 @@ dd {
     color: $btnWarningBackgroundHighlight;
   }  
 }
+
+.no-wrap {
+  white-space: nowrap;
+}
+
+.wrap-linebreaks {
+  white-space: pre;
+}

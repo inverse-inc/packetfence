@@ -1,0 +1,164 @@
+//== Customizing PacketFence
+
+=== Captive Portal
+
+==== Presentation
+
+===== XHTML Templates
+
+
+Captive portal content use http://template-toolkit.org/[Template Toolkit]
+templates. The default template files are located in `/usr/local/pf/html/captive-portal/templates`.
+You can freely edit the `HTML` code in these files.
+
+Each template relies on `layout.html` for the common top and bottom portions of the page.
+
+===== Internationalized AUP
+
+In the event that you need an Acceptable Usage Policy that should be translated in different languages in the captive portal, you can create specially named templates that will be used for different languages.
+
+For example, if the browser locale is `es_ES`, creating a template named `aup_text.es.html` will display this AUP when it detects this locale.
+Same goes for a browser with locale `en_US`, where creating a template named `aup_text.en.html` will be used for English browsers.
+
+The template `aup_text.html` is used as the final fallback for all locales.
+
+Note that you cannot use the full locale in the template name (i.e. `aup_text.en_US.html`) as only the two letter prefix should be used.
+
+===== CSS
+
+The default stylesheet is the result of processing some http://sass-lang.com/[Sass] files structured around the solid https://github.com/inuitcss/inuitcss[inuitcss] architectural foundation.
+
+* `/usr/local/pf/html/common/Gruntfile.js` -- the task runner configuration file
+* `/usr/local/pf/html/common/package.js` -- the npm dependencies required to process the Sass files
+* `/usr/local/pf/html/common/scss/` -- the directory containing the Sass source files
+* `/usr/local/pf/html/common/styles.css` -- the generated stylesheet
+
+In order to prepare your environment to process the Sass files, you need to install http://gruntjs.com/[grunt] (the task runner) and additional https://nodejs.org[nodejs] modules, including the various inuitcss components:
+
+  sudo npm install -g grunt-cli
+  cd /usr/local/pf/html/common
+  npm install
+
+Once all modules are downloaded, you can customize the Sass files and generate a new stylesheet:
+
+  grunt dist
+
+To change the color palette of the captive portal, modify the file `scss/_settings.colors.scss`.
+
+===== Workflow
+
+When a `HTTP` request is received by the Apache web server, the following workflow happens:
+
+
+. URL is compared against the redirection instructions in
+  `/usr/local/pf/conf/httpd.conf.d/captive-portal-cleanurls.conf`
+
+. Requested CGI script in `/usr/local/pf/html/captive-portal/` is executed
+
+. CGI script calls a `generate_<type>` which is defined in `/usr/local/pf/lib/pf/web.pm`
+
+. The `generate_<type>` function populate the proper template in
+  `/usr/local/pf/html/captive-portal/templates` in order to render the page
+
+===== Remediation Pages
+
+The remediation page shown to the user during isolation are specified through
+the URL parameter of the given security event in `/usr/local/pf/conf/security_events.conf`.
+In its default configuration, PacketFence uses Template Toolkit to render text provided
+in the directory `/usr/local/pf/html/captive-portal/templates/security_events` and obeys
+to everything mentioned in the <<_presentation,Presentation>> section.
+
+
+// TODO: should move in admin guide under advanced topics
+===== Translations
+
+The language of the user registration pages is selected through the
+`general.locale` configuration parameter. Translatable strings are handled
+differently for the Remediation pages and the rest of the captive portal:
+
+* Remediation pages
++
+Strings defined in the security event pages (in `/usr/local/pf/html/captive-portal/templates/security_events`)
+will be looked up in the translation files in `/usr/local/pf/conf/locale/..`
+and if a translation is available the translated string will be the one
+visible on the captive portal.
++
+Also, if you create a security event template with the name of your locale in
+`/usr/local/pf/html/captive-portal/templates/security_events` in the format:
+`<template_name>.<locale_name>.html`. It will be loaded instead of the default
+`<template_name>.html` and so you can put strings and HTML directly in your
+target language without the hassle of escaping everything properly as you
+would need to do with `gettext`.
++
+For example, if `malware.es_ES.html` exists and you are using the `es_ES`
+(Spanish) locale then it will be loaded instead of `malware.html` on a
+security event set to load the `malware` template.
++
+* Rest of the captive portal
++
+In the templates, if a string is in a `i18n()` call it will be translated.
+Also `pf::web` takes care of performing some of the other translations.
+
+
+=== Adding custom fields to the database
+
+You can, if needed, add additional fields to the PacketFence database. Keep in mind though that this
+might lead to more work when you upgrade to the next PacketFence version. Depending on the degree of
+integration of these fields with PacketFence, you'll have to execute one or more of the following steps
+
+==== Adding a field to the database only
+
+In this case, the field is part of one of the main PacketFence tables, but PacketFence is unaware of
+it. PacketFence won't consult the field and won't be able to modify it. A possible usage scenario would be a
+3rd party application which maintains this field.
+
+Since PacketFence doesn't have to know about the field, all you have to do is execute your `SQL ALTER
+TABLE` query and you are done.
+
+==== Adding a field and giving PacketFence read-only access
+
+In this case, PacketFence can show the contents of the table using both
+`pfcmd` but won't be able to modify the contents of the field.
+
+Start by modifying the database table using an `SQL ALTER TABLE` query.
+
+Then, modify the Perl module having the same name as the table you have added the field to, i.e. If you
+added the field to the node table, then edit `/usr/local/pf/lib/pf/node.pm`. You'll have to modify the
+`SQL SELECT` queries at the beginning of the file to include your new field and, possibly the functions
+using these queries. If your new field should be used in reports, the dashboard or graphs, you'll also
+have to modify the queries in `/usr/local/pf/lib/pf/pfcmd/graph.pm`, `/usr/local/pf/lib/pf/pfcmd/report.pm`
+and `/usr/local/pf/lib/pf/pfcmd/dashboard.pm`.
+
+
+==== Adding a field and giving PacketFence read-write access
+
+Start by creating the read-only field as described above.
+
+Then, modify the `SQL UPDATE` and `INSERT` queries in the database tables'
+Perl module, as well as the associated functions.
+
+=== VLAN assignment
+
+PacketFence uses the `getRegisteredRole` function defined in `pf::role::custom`
+to determine a node's VLAN. Here's the default function:
+
+----
+sub getRegisteredRole {
+    #$switch is the switch object (pf::Switch)
+    #$ifIndex is the ifIndex of the computer connected to
+    #$mac is the mac connected
+    #$node_info is the node info hashref (result of pf::node's node_view on $mac)
+    #$conn_type is set to the connection type expressed as the constant in pf::config
+    #$user_name is set to the RADIUS User-Name attribute (802.1X Username or MAC address under MAC Authentication)
+    #$ssid is the name of the SSID (Be careful: will be empty string if radius non-wireless and undef if not radius)
+    my ($self, $switch, $ifIndex, $mac, $node_info, $connection_type, $user_name, $ssid) = @_;
+
+    my $logger = Log::Log4perl->get_logger();
+
+    return $switch->getVlanByName('normalVlan');
+}
+----
+
+
+As you can see, the function receives several parameters (such as the switch and full node details)
+which allow you to return the VLAN in a way that matches exactly your needs!

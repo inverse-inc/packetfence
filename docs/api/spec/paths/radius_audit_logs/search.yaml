@@ -1,0 +1,22 @@
+/radius_audit_logs/search:
+  description: pf::UnifiedApi::Controller::RadiusAuditLogs
+  post:
+    operationId: api.v1.RadiusAuditLogs.search
+    parameters: []
+    requestBody:
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Search'
+      description: Search for items
+    responses:
+      '200':
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RadiusAuditLogsList'
+        description: List
+      '400':
+        $ref: '#/components/responses/BadRequest'
+      '422':
+        $ref: '#/components/responses/UnprocessableEntity'

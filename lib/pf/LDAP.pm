@@ -21,13 +21,19 @@ use Log::Any::Adapter;
 Log::Any::Adapter->set('Log4perl');
 use Net::LDAP;
 use Net::LDAPS;
+use pf::util::networking qw(set_write_timeout set_read_timeout);
 use POSIX::AtFork;
+use pf::Authentication::constants qw($DEFAULT_LDAP_READ_TIMEOUT $DEFAULT_LDAP_WRITE_TIMEOUT);
 # available encryption
 use constant {
     NONE => "none",
     SSL => "ssl",
     TLS => "starttls",
 };
+
+our $DEFAULT_READ_TIMEOUT = 10;
+
+our $DEFAULT_WRITE_TIMEOUT = 5;
 
 our $CHI_CACHE = CHI->new(driver => 'RawMemory', datastore => {});
 
@@ -51,6 +57,28 @@ sub new {
     );
 }
 
+=head2 log_error_msg
+
+log_error_msg
+
+=cut
+
+sub log_error_msg {
+    my ($msg) = @_;
+    my $logger = get_logger;
+    if ($msg) {
+        my $error_text = $msg->server_error;
+        if ($error_text) {
+            $logger->error( "Error binding: '$error_text'");
+        } else {
+            $logger->warn( "binding:'" . $msg->error() . "'" );
+        }
+    } else {
+        $logger->error("Error binding: 'Unknown error'");
+    }
+    return;
+}
+
 =head2 bind
 
 Perform a bind using the ldap credentials
@@ -60,17 +88,16 @@ On failure it closes the connection and return undef
 =cut
 
 sub bind {
-    my ($self, $ldap, $credentials) = @_;
-        my $msg = $ldap->bind(@$credentials);
-        my $logger = get_logger;
-        if (!defined $msg || $msg->is_error) {
-            $ldap->unbind;
-            $ldap->disconnect;
-            $logger->error("Error binding '" . ($msg ? $msg->error() : "Unknown error" ) . "'" );
-            return undef;
-        }
-        $logger->trace("Successful bind");
-        return $ldap;
+    my ( $self, $ldap, $credentials ) = @_;
+    my $msg = $ldap->bind(@$credentials);
+    if (!defined $msg || $msg->is_error) {
+        $ldap->unbind;
+        $ldap->disconnect;
+        log_error_msg($msg);
+        return undef;
+    }
+    get_logger->trace("Successful bind");;
+    return $ldap;
 }
 
 =head2 expire_if
@@ -81,9 +108,10 @@ Checks to see if the the LDAP connection is still alive by doing a bind
 
 sub expire_if {
     my ($class, $object, $driver, $credentials) = @_;
+    my $logger = get_logger;
+    $logger->info("LDAP testing connection");
     my $ldap = $class->bind($object->value, $credentials);
     return 0 if $ldap;
-    my $logger = get_logger;
     $logger->warn("LDAP connection expired");
     return 1;
 }
@@ -105,7 +133,6 @@ sub compute_connection {
         $ldap = Net::LDAP->new($server, %$args);
     }
     unless ($ldap) {
-        $logger->error();
         $logger->error("Error connecting to $server:$args->{port} using encryption $encryption");
         return undef;
     }
@@ -114,11 +141,17 @@ sub compute_connection {
         my $msg = $ldap->start_tls;
         if ($msg->is_error) {
             $logger->error("Error starting tls for $server:$args->{port}");
+            log_error_msg($msg);
             $ldap->unbind;
             $ldap->disconnect;
             return undef;
         }
     }
+    my $read_timeout = delete $args->{read_timeout} // $DEFAULT_LDAP_READ_TIMEOUT;
+    my $write_timeout = delete $args->{write_timeout} // $DEFAULT_LDAP_WRITE_TIMEOUT;
+    my $socket = $ldap->{net_ldap_socket};
+    set_read_timeout($socket, $read_timeout);
+    set_write_timeout($socket, $write_timeout);
     return $class->bind($ldap, $credentials);
 }
 
@@ -140,7 +173,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2017 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 
@@ -162,4 +195,3 @@ USA.
 =cut
 
 1;
-

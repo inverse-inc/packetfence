@@ -19,17 +19,21 @@ use warnings;
 
 use JSON::MaybeXS;
 use pfconfig::namespaces::config;
-use Config::IniFiles;
+use pf::IniFiles;
 use File::Slurp qw(read_file);
 use pf::log;
 use pf::file_paths qw(
     $pf_default_file
     $pf_config_file
-    $pf_omapi_key_file
     $log_dir
+    $server_pem
 );
 use pf::util;
-use List::MoreUtils qw(uniq);
+use pf::constants::config qw($DEFAULT_SMTP_PORT $DEFAULT_SMTP_PORT_SSL $DEFAULT_SMTP_PORT_TLS %ALERTING_PORTS);
+use pf::constants qw($TRUE $FALSE);
+use List::MoreUtils qw(uniq any);
+use DateTime::TimeZone;
+use Crypt::OpenSSL::X509;
 
 use base 'pfconfig::namespaces::config';
 
@@ -39,9 +43,9 @@ sub build {
 
     my %tmp_cfg;
 
-    my $pf_conf_defaults = Config::IniFiles->new( -file => $pf_default_file );
+    my $pf_conf_defaults = pf::IniFiles->new( -file => $pf_default_file );
 
-    tie %tmp_cfg, 'Config::IniFiles', ( -file => $self->{file}, -import => $pf_conf_defaults );
+    tie %tmp_cfg, 'pf::IniFiles', ( -file => $self->{file}, -import => $pf_conf_defaults );
 
     # for pfcmd checkup
     $self->{_file_cfg} = {%tmp_cfg};
@@ -61,13 +65,23 @@ sub build {
 }
 
 sub init {
-    my ($self, $host_id) = @_;
+    my ($self, $host_id, $cluster_name) = @_;
+    # This namespace supports optionnaly specifying the cluster name so that consummers can get the CLUSTER configuration of each cluster
+    # If the cluster_name isn't specified, it falls back to a lookups in the clusters hostname map
+    if($cluster_name) {
+        $self->{cluster_name} = $cluster_name;
+    }
+    else {
+        $self->{cluster_name} = ($host_id ? $self->{cache}->get_cache("resource::clusters_hostname_map")->{$host_id} : undef) // "DEFAULT";
+    }
+
     $self->{file}            = $pf_config_file;
     $self->{default_config}  = $self->{cache}->get_cache('config::PfDefault');
     $self->{doc_config}      = $self->{cache}->get_cache('config::Documentation');
-    $self->{cluster_config}  = $self->{cache}->get_cache('config::Cluster');
 
-    $self->{child_resources} = [ 'resource::CaptivePortal', 'resource::Database', 'resource::fqdn', 'config::Pfdetect', 'resource::trapping_range', 'resource::stats_levels', 'resource::passthroughs', 'resource::isolation_passthroughs' ];
+    $self->{cluster_config}  = $self->{cluster_name} ? $self->{cache}->get_cache("config::Cluster(".$self->{cluster_name}.")") : {};
+
+    $self->{child_resources} = [ 'resource::CaptivePortal', 'resource::Database', 'resource::fqdn', 'config::Pfdetect', 'resource::trapping_range', 'resource::stats_levels', 'resource::passthroughs', 'resource::isolation_passthroughs', 'resource::network_config' ];
     if(defined($host_id)){
         push @{$self->{child_resources}}, "interfaces($host_id)";
     }
@@ -91,13 +105,18 @@ sub build_child {
         $logger->debug("Doing the cluster overlaying for host $self->{host_id}");
         while(my ($key, $config) = (each %{$ConfigCluster{$self->{host_id}}})){
             if($key =~ /^interface /){
+                unless(any {$_ eq $key} @{$self->{ordered_sections}}) {
+                    push @{$self->{ordered_sections}}, $key;
+                }
                 $logger->debug("Reconfiguring interface $key with cluster information");
-                $Config{$key} = $config;
+                while(my ($param, $value) = each(%$config)) {
+                    $Config{$key}{$param} = $value;
+                }
             }
         }
     }
     elsif(defined($self->{host_id})){
-        $logger->warn("A host was defined for the config::Pf namespace but no cluster configuration was found. This is not a big issue but it's worth noting.")
+        $logger->warn("A host was defined (".$self->{host_id}.") for the config::Pf namespace but no cluster configuration was found. This is not a big issue but it's worth noting.")
     }
 
     my @time_values = grep { my $t = $Doc_Config{$_}{type}; defined $t && $t eq 'time' } keys %Doc_Config;
@@ -108,7 +127,7 @@ sub build_child {
         $Config{$group}{$item} = normalize_time( $Config{$group}{$item} ) if ( $Config{$group}{$item} );
     }
 
-    foreach my $val ("fencing.passthroughs", "fencing.isolation_passthroughs", "device_registration.allowed_devices") {
+    foreach my $val ("fencing.passthroughs", "fencing.isolation_passthroughs", "captive_portal.other_domain_names", "radius_configuration.username_attributes") {
         my ( $group, $item ) = split( /\./, $val );
         $Config{$group}{$item} = [ split( /\s*,\s*/, $Config{$group}{$item}  // '' ) ];
     }
@@ -122,19 +141,87 @@ sub build_child {
             $Config{$category}{$attribute} = [ split( /\s*,\s*/, $Default_Config{$category}{$attribute} // ''), split( /\s*,\s*/, $additionnal ) ];
             $Config{$category}{$attribute} = [ uniq @{$Config{$category}{$attribute}} ];
         }
+
+        if(defined($value->{type}) && $value->{type} eq "fingerbank_device_transition") {
+            my @transitions;
+            my ($category, $attribute) = split /\./, $key;
+            my $data = $Config{$category}{$attribute} || '';
+            my @pairs = split(/\s*,\s*/, $data);
+            foreach my $pair (@pairs) {
+                my @info = split('->', $pair);
+                push @transitions, { from => $info[0], to => $info[1] };
+            }
+
+            $Config{$category}{$attribute} = \@transitions;
+        }
     }
 
     $Config{network}{dhcp_filter_by_message_types}
         = [ split( /\s*,\s*/, $Config{network}{dhcp_filter_by_message_types} || '' ) ];
 
-    # Fetch default OMAPI key_base64 (conf/pf_omapi_key file) if none is provided
-    if ( ($Config{omapi}{key_base64} eq '') && (-e $pf_omapi_key_file)) {
-        $Config{omapi}{key_base64} = read_file($pf_omapi_key_file);
-        $Config{omapi}{key_base64}=~ s/\R//g;   # getting rid of any carriage return
+    if (($Config{alerting}{smtp_port} // 0) == 0) {
+        $Config{alerting}{smtp_port} = $ALERTING_PORTS{$Config{alerting}{smtp_encryption}} // $DEFAULT_SMTP_PORT;
+    }
+
+    if ($Config{general}{timezone}) {
+        set_timezone($Config{general}{timezone});
+    }
+    else {
+        my $tz = DateTime::TimeZone->new(name => 'local')->name();
+        $logger->info("No timezone defined, using $tz");
+        $Config{general}{timezone} = $tz;
+    }
+    my $webservices = $Config{'webservices'};
+    $webservices->{jsonrpcclient_args} = {
+        username => $webservices->{'user'},
+        password => $webservices->{'pass'},
+        proto    => $webservices->{'proto'},
+        host     => $webservices->{'host'},
+        port     => $webservices->{'port'},
+    };
+
+
+    if (isenabled($Config{'captive_portal'}{'secure_redirect'}) && isSelfSigned()) {
+        $Config{'captive_portal'}{'secure_redirect'} = 'disabled';
+        get_logger->info("secure redirect has been disabled since the portal certificate is a self-signed");
     }
 
     return \%Config;
+}
 
+sub set_timezone {
+    my ($tz) = @_;
+    my $lt = readlink("/etc/localtime"); 
+    $lt =~ s/(\.\.)?\/usr\/share\/zoneinfo\///g;
+    if($lt ne $tz) {
+        my $msg = "WARNING: The timezone is being changed from $lt to $tz on the system. It is advised to reboot the server so that all services start with the correct timezone.\n";
+        print STDERR $msg;
+        get_logger->warn($msg);
+        system("sudo timedatectl set-timezone $tz") && die "Unable to set timezone on the system \n";
+    }
+}
+
+sub isSelfSigned {
+    my $BUNDLE;
+    if (!open ($BUNDLE, '<', $server_pem)) {
+        return $FALSE;
+    }
+
+    my $pemcert = "";
+
+    while (my $row = <$BUNDLE>) {
+        $pemcert .= $row;
+        if($row =~ /^\-+END(\s\w+)?\sCERTIFICATE\-+$/) {
+            my $cert = Crypt::OpenSSL::X509->new_from_string($pemcert);
+            if ($cert->is_selfsigned) {
+                close $BUNDLE;
+                return $TRUE;
+            }
+            $pemcert = "";
+        }
+    }
+    close $BUNDLE;
+    return $FALSE;
 }
 
 =head1 AUTHOR
@@ -143,7 +230,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2017 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 

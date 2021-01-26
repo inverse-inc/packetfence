@@ -1,0 +1,69 @@
+ServicesList:
+  allOf:
+    - $ref: "#/components/schemas/Iterable"
+    - type: object
+      properties:
+        items:
+          type: array
+          items:
+            $ref: "#/components/schemas/ServiceName"
+            
+ServiceName:
+  type: string
+
+Service:
+  type: object
+  properties:
+    alive:
+      type: integer
+      description: Whether the service is alive or not.
+    managed:
+      type: integer
+      description: Whether the service is managed or not.
+    enabled:
+      type: integer
+      description: Whether the service is enabled or not.
+    pid:
+      type: integer
+      description: The service PID.
+
+ServiceStart:
+  type: object
+  properties:
+    pid:
+      type: integer
+      description: The service PID.
+    start:
+      type: integer
+      description: Whether the service was started or not.
+
+ServiceStop:
+  type: object
+  properties:
+    stop:
+      type: integer
+      description: Whether the service was stopped or not.
+
+ServiceRestart:
+  type: object
+  properties:
+    pid:
+      type: integer
+      description: The service PID.
+    restart:
+      type: integer
+      description: Whether the service was restarted or not.
+
+ServiceEnable:
+  type: object
+  properties:
+    start:
+      type: integer
+      description: Whether the service was enabled or not.
+
+ServiceDisable:
+  type: object
+  properties:
+    start:
+      type: integer
+      description: Whether the service was disabled or not.

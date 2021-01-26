@@ -1,0 +1,115 @@
+[% MACRO displayRapid7Info(id, name, value) BLOCK %]
+<div class="control-group">
+  <label class="control-label" for="[% id %]">[% name %]</label>
+  <div class="controls">
+    <span id="[% id %]" class="uneditable">[% value %]</span></div>
+</div>
+[% END %]
+
+<div class="rapid7-node-info">
+[% IF item %]
+<ul class="nav nav-tabs">
+  <li class="active"><a href="#rapid7-summary" data-toggle="tab">Summary</a></li>
+  <li><a href="#rapid7-device-profiling" data-toggle="tab">Device Profiling</a></li>
+  <li><a href="#rapid7-top-vulnerabilities" data-toggle="tab">Top Vulnerabilities</a></li>
+  <li><a href="#rapid7-last-scan" data-toggle="tab">Last Scan</a></li>
+</ul>
+
+<div class="tab-content">
+  <div class="tab-pane fade in active" id="rapid7-summary">
+    [%
+      displayRapid7Info("assessedForVulnerabilities", "Assessed For Policies", item.assessedForVulnerabilities) | none;
+      displayRapid7Info("assessedForPolicies", "Assessed For Policies", item.assessedForPolicies) | none;
+      displayRapid7Info("osName", "OS Profiling", device_profiling.systemName) | none;
+      displayRapid7Info("riskScore", "Risk Score", item.riskScore) | none;
+      displayRapid7Info("exploits", "Exploits Found", item.vulnerabilities.exploits) | none;
+      displayRapid7Info("critical", "Critical Vulnerabilities Found", item.vulnerabilities.critical) | none;
+      displayRapid7Info("severe", "Severe Vulnerabilities Found", item.vulnerabilities.severe) | none;
+      displayRapid7Info("moderate", "Moderate Vulnerabilities Found", item.vulnerabilities.moderate) | none;
+      displayRapid7Info("malwareKits", "Malware Kits Found", item.vulnerabilities.malwareKits) | none;
+      displayRapid7Info("lastScan", "Last Scan Done", last_scan.endTime) | none;
+    %]
+
+  </div>
+
+  <div class="tab-pane fade in" id="rapid7-device-profiling">
+    [% IF device_profiling.keys.size > 0 %]
+    [%
+      displayRapid7Info("deviceProfilingSystemName", "System Name", device_profiling.systemName) | none;
+      displayRapid7Info("deviceProfilingDescription", "Description", device_profiling.description) | none;
+      displayRapid7Info("deviceProfilingVendor", "Vendor", device_profiling.vendor) | none;
+      displayRapid7Info("deviceProfilingFamily", "Family", device_profiling.family) | none;
+      displayRapid7Info("deviceProfilingType", "Type", device_profiling.type) | none;
+    %]
+    [% ELSE %]
+      <div id="noResult" class="unwell">
+        <i class="icon-legal icon-large"></i><p>[% l('No device profiling information found') %]</p>
+      </div>
+    [% END %]
+  </div>
+
+  <div class="tab-pane fade in" id="rapid7-top-vulnerabilities">
+    <table class="table table-condensed table-hover">
+    <thead>
+      <tr>
+        <th>[% l('Title') %]</th>
+        <th>[% l('CVSS') %]</th>
+        <th>[% l('Severity') %]</th>
+      </tr>
+    </thead>
+    <tbody>
+      [% FOR item IN top_vulnerabilities %]
+      <tr>
+        <td>[% item.title %]</td>
+        <td>[% item.cvss.v2.score %]</td>
+        <td>[% item.severity %]</td>
+      </tr>
+      [% END %]
+    </tbody>
+    </table>
+  </div>
+
+  <div class="tab-pane fade in" id="rapid7-last-scan">
+    [% IF last_scan.keys.size > 0 %]
+    [%
+      displayRapid7Info("scanStatus", "Status", last_scan.status) | none;
+      displayRapid7Info("scanEngine", "Engine", last_scan.engineName) | none;
+      displayRapid7Info("scanName", "Name", last_scan.scanName) | none;
+      displayRapid7Info("scanAssets", "Scanned Assets", last_scan.assets) | none;
+      displayRapid7Info("scanVulnerabilities", "Vulnerabilities Found", last_scan.vulnerabilities.total) | none;
+      displayRapid7Info("scanStart", "Started At", last_scan.startTime) | none;
+      displayRapid7Info("scanEnd", "Ended At", last_scan.endTime) | none;
+    %]
+    [% ELSE %]
+    <div id="noResult" class="unwell">
+      <i class="icon-legal icon-large"></i><p>[% l('No scan information available') %]</p>
+    </div>
+    [% END %]
+  </div>
+
+</div>
+
+[% ELSE %]
+  <div id="noResult" class="unwell">
+    <i class="icon-legal icon-large"></i><p>[% l('No Rapid7 information found') %]</p>
+  </div>
+[% END %]
+
+[% IF scan_templates && ip %]
+<hr>
+
+<div class="run-manual-scan">
+  <div class="rapid7-scan-selection">
+    <select id="rapid7ScanTemplateSelection">
+      [% FOREACH scan IN scan_templates %]
+      <option trigger_url=[% c.uri_for(c.controller('Node').action_for('runRapid7Scan'), [mac] scan.id, {tenant_id => tenant_id})  %]>[% scan.name %]</option>
+      [% END %]
+    </select>
+    <button id="runRapid7Scan" class="btn btn-primary">Run scan on endpoint</button>
+  </div>
+</div>
+
+<hr>
+[% END %]
+
+</div>

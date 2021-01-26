@@ -21,8 +21,13 @@ use pf::error qw(is_error is_success);
 use pf::util;
 use pf::util::IP;
 use pf::log;
+use pfappserver::Model::Config::Network;
+use pfappserver::Model::Config::Interface;
+use pfappserver::Model::Config::System;
 
 extends 'Catalyst::Model';
+
+has models => (is => 'rw', builder => '_build_models', lazy => 1);
 
 =head1 METHODS
 
@@ -70,7 +75,7 @@ sub create {
     # Enable the newly created virtual interface
     $self->up($interface);
 
-    return ($STATUS::CREATED, ["Interface VLAN [_1] successfully created",$interface]);
+    return ($STATUS::CREATED, ["Interface VLAN [_1] created",$interface]);
 }
 
 =head2 delete
@@ -79,7 +84,8 @@ sub create {
 
 sub delete {
     my ($self, $interface, $host) = @_;
-    my $models = $self->{models};
+
+    my $models = $self->models;
     my $logger = get_logger();
 
     my ($status, $status_msg);
@@ -121,15 +127,21 @@ sub delete {
 
     # Delete corresponding interface entry from pf.conf
     $models->{interface}->remove($interface);
-    $models->{interface}->commit();
+    ($status, $status_msg) = $models->{interface}->commit();
+    if(is_error($status)) {
+        return ($status, $status_msg);
+    }
 
     # Remove associated network entries
     @results = $self->_listInterfaces('all');
     if ($models->{network}->cleanupNetworks(\@results)) {
-        $models->{network}->commit();
+        ($status, $status_msg) = $models->{network}->commit();
+        if(is_error($status)) {
+            return ($status, $status_msg);
+        }
     }
 
-    return ($STATUS::OK, ["Interface VLAN [_1] successfully deleted",$interface]);
+    return ($STATUS::OK, ["Interface VLAN [_1] deleted",$interface]);
 }
 
 =head2 down
@@ -183,7 +195,7 @@ sub down {
         return ($STATUS::INTERNAL_SERVER_ERROR, $status_msg);
     }
 
-    return ($STATUS::OK, ["Interface [_1] successfully disabled",$interface]);
+    return ($STATUS::OK, ["Interface [_1] disabled",$interface]);
 }
 
 =head2 exists
@@ -226,7 +238,7 @@ and phy.vlan (eth0.100) if there's a vlan interface.
 sub get {
     my ( $self, $interface) = @_;
     my $logger = get_logger();
-    my $models = $self->{models};
+    my $models = $self->models;
 
     # Put requested interfaces into an array
     my @interfaces = $self->_listInterfaces($interface);
@@ -258,6 +270,10 @@ sub get {
                 $result->{"$interface"}->{'dns'} = $network->{dns};
                 $result->{"$interface"}->{'dhcpd_enabled'} = $network->{dhcpd};
                 $result->{"$interface"}->{'nat_enabled'} = $network->{nat_enabled};
+                $result->{"$interface"}->{'split_network'} = $network->{split_network};
+                $result->{"$interface"}->{'coa'} = $network->{coa};
+                $result->{"$interface"}->{'netflow_accounting_enabled'} = $network->{netflow_accounting_enabled};
+                $result->{"$interface"}->{'reg_network'} = $network->{reg_network};
                 $result->{"$interface"}->{'network_iseditable'} = $TRUE;
             }
         }
@@ -272,7 +288,7 @@ sub get {
 
 sub update {
     my ($self, $interface, $interface_ref) = @_;
-    my $models = $self->{models};
+    my $models = $self->models;
     my $logger = get_logger();
 
     my ($ipaddress, $netmask, $ipv6_address, $ipv6_prefix, $status, $status_msg);
@@ -402,9 +418,13 @@ sub update {
 
     # Set type
     $interface_ref->{network} = $new_network;
-    $self->setType($interface, $interface_ref);
+    ($status, $status_msg) = $self->setType($interface, $interface_ref);
 
-    return ($STATUS::OK, ["Interface [_1] successfully edited",$interface]);
+    if(is_error($status)) {
+        return ($status, $status_msg);
+    }
+
+    return ($STATUS::OK, ["Interface [_1] updated",$interface]);
 }
 
 =head2 isActive
@@ -427,7 +447,7 @@ sub isActive {
 
 sub getType {
     my ( $self, $interface_ref) = @_;
-    my $models = $self->{models};
+    my $models = $self->models;
 
     my ($status, $type);
     if ($interface_ref->{network}) {
@@ -450,7 +470,7 @@ sub getType {
         # rely on pf.conf's info
         else {
             $type = $interface->{type};
-            if ($type !~ /radius/i && $type !~ /portal/i) {
+            if ($type !~ /radius/i && $type !~ /portal/i && $type !~ /dns/i && $type !~ /dhcp/i) {
                 $type = ($type =~ /management|managed/i) ? 'management' : 'other';
             }
         }
@@ -470,13 +490,10 @@ sub getType {
 sub setType {
     my ($self, $interface, $interface_ref) = @_;
     my $logger = get_logger();
-    my $models = $self->{models};
+    my $models = $self->models;
 
     my $type = $interface_ref->{type} || 'none';
-    my ($status, $network_ref);
-
-    # we ignore interface type 'Other' (it basically means unsupported in configurator)
-    return if ( $type =~ /^other$/i );
+    my ($status, $network_ref, $status_msg);
 
     # we delete interface type 'None'
     if ( $type =~ /^none$/i && !$interface_ref->{high_availability} ) {
@@ -494,7 +511,7 @@ sub setType {
                                     $self->_prepare_interface_for_pfconf($interface, $interface_ref, $type));
 
         # Update networks.conf
-        if ( $type =~ /management|portal|^radius$/ ) {
+        if ( $type =~ /management|portal|^radius$|dhcp|dns/ ) {
             # management interfaces must not appear in networks.conf
             $models->{network}->remove($interface_ref->{network}) if ($interface_ref->{network});
         }
@@ -506,12 +523,14 @@ sub setType {
                 if ( $is_vlan) {
                     $network_ref =
                       {
+                       pool_backend => 'memory',
                        dhcp_default_lease_time => 30,
                        dhcp_max_lease_time => 30,
                       };
                 } else {
                     $network_ref =
                       {
+                       pool_backend => 'memory',
                        dhcp_default_lease_time => 24 * 60 * 60,
                        dhcp_max_lease_time => 24 * 60 * 60,
                       };
@@ -527,14 +546,26 @@ sub setType {
             }
             $network_ref->{dhcpd} = isenabled($interface_ref->{'dhcpd_enabled'}) ? 'enabled' : 'disabled';
             $network_ref->{nat_enabled} = isenabled($interface_ref->{'nat_enabled'}) ? 'enabled' : 'disabled';
+            $network_ref->{split_network} = isenabled($interface_ref->{'split_network'}) ? 'enabled' : 'disabled';
+            $network_ref->{coa} = isenabled($interface_ref->{'coa'}) ? 'enabled' : 'disabled';
+            $network_ref->{netflow_accounting_enabled} = isenabled($interface_ref->{'netflow_accounting_enabled'}) ? 'enabled' : 'disabled';
+            $network_ref->{reg_network} = $interface_ref->{'reg_network'};
             $network_ref->{dhcp_start} = Net::Netmask->new(@{$interface_ref}{qw(ipaddress netmask)})->nth(10);
             $network_ref->{dhcp_end} = Net::Netmask->new(@{$interface_ref}{qw(ipaddress netmask)})->nth(-10);
             $models->{network}->update_or_create($interface_ref->{network}, $network_ref);
         }
     }
     $logger->debug("Committing changes to $interface interface");
-    $models->{network}->commit();
-    $models->{interface}->commit();
+
+    ($status, $status_msg) = $models->{network}->commit();
+    if(is_error($status)) {
+        return ($status, $status_msg);
+    }
+
+    ($status, $status_msg) = $models->{interface}->commit();
+    if(is_error($status)) {
+        return ($status, $status_msg);
+    }
 }
 
 
@@ -719,6 +750,14 @@ sub _prepare_interface_for_pfconf {
         $int_config_ref->{'type'} = 'portal';
         $int_config_ref->{'enforcement'} = undef;
     }
+    elsif ($type =~ /^dhcp$/i) {
+        $int_config_ref->{'type'} = 'dhcp';
+        $int_config_ref->{'enforcement'} = undef;
+    }
+    elsif ($type =~ /^dns$/i) {
+        $int_config_ref->{'type'} = 'dns';
+        $int_config_ref->{'enforcement'} = undef;
+    }
     else {
         if($int_model->{'high_availability'}) {
             $type .= ",high-availability";
@@ -775,24 +814,7 @@ sub up {
         return ($STATUS::INTERNAL_SERVER_ERROR, $status_msg);
     }
 
-    return ($STATUS::OK, ["Interface [_1] successfully enabled",$interface]);
-}
-
-
-sub ACCEPT_CONTEXT {
-    my ($proto,$c) = @_;
-    my $object;
-    if(ref($proto)) {
-        $object = $proto
-    } else {
-       $object = $proto->new;
-    }
-    $object->{models} = {
-        'network' => $c->model('Config::Network'),
-        'interface' => $c->model('Config::Interface'),
-        'system' => $c->model('Config::System'),
-    };
-    return $object;
+    return ($STATUS::OK, ["Interface [_1] enabled",$interface]);
 }
 
 =head2 getEnforcement
@@ -801,7 +823,7 @@ sub ACCEPT_CONTEXT {
 
 sub getEnforcement {
     my ($self, $interface_ref) = @_;
-    my $models = $self->{models};
+    my $models = $self->models;
 
     my ($status, $enforcement);
     # Check in pf.conf
@@ -847,11 +869,24 @@ sub map_interface_to_networks {
     return $seen_networks;
 }
 
+=head2 _build_models
 
+_build_models
+
+=cut
+
+sub _build_models {
+    my ($self) = @_;
+    return {
+        'network' => pfappserver::Model::Config::Network->new,
+        'interface' => pfappserver::Model::Config::Interface->new,
+        'system' => pfappserver::Model::Config::System->new,
+    }
+}
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2017 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 
@@ -872,6 +907,6 @@ USA.
 
 =cut
 
-__PACKAGE__->meta->make_immutable;
+__PACKAGE__->meta->make_immutable unless $ENV{"PF_SKIP_MAKE_IMMUTABLE"};
 
 1;

@@ -1,0 +1,363 @@
+$script = <<-SCRIPT
+function setup_ztp(){
+    echo "### Disabling ZTP service..."
+    systemctl stop ztp.service
+    ztp -d 2>&1
+    echo "### Resetting ZTP to work next boot..."
+    ztp -R 2>&1
+    ztp -i &> /dev/null
+
+    if [ -e /tmp/cumulus-ztp ]; then
+        echo "  ### Found ZTP Script, moving into preload directory... ###"
+        mv /tmp/cumulus-ztp /var/lib/cumulus/ztp/cumulus-ztp
+        chmod +x /var/lib/cumulus/ztp/cumulus-ztp
+        ls -lha /var/lib/cumulus/ztp/cumulus-ztp
+    fi
+}
+
+function disable_remap(){
+    echo "### Disabling default remap on Cumulus VX..."
+    mv -v /etc/hw_init.d/S10rename_eth_swp.sh /etc/S10rename_eth_swp.sh.backup &> /dev/null
+}
+
+function vagrant_user_nclu(){
+    echo "### Giving Vagrant User Ability to Run NCLU Commands ###"
+    adduser vagrant netedit
+    adduser vagrant netshow
+}
+
+if grep -q -i 'cumulus' /etc/lsb-release &> /dev/null; then
+    echo "### RUNNING CUMULUS EXTRA CONFIG ###"
+    source /etc/lsb-release
+    echo "  INFO: Detected Cumulus Linux v$DISTRIB_RELEASE Release"
+    if [ -e /etc/app-release ]; then
+        echo "  INFO: Detected NetQ TS Server"
+        source /etc/app-release
+        echo "  INFO: Running NetQ TS Appliance Version $APPLIANCE_VERSION"
+        disable_remap
+        vagrant_user_nclu
+        setup_ztp
+    else
+        if [[ $DISTRIB_RELEASE =~ ^2.* ]]; then
+            echo "  INFO: Detected a 2.5.x Based Release"
+            echo "     2.5.x: adding fake cl-acltool..."
+            echo -e "#!/bin/bash\nexit 0" > /usr/bin/cl-acltool
+            chmod 755 /usr/bin/cl-acltool
+            echo "     2.5.x: adding fake cl-license..."
+            echo -e "#!/bin/bash\nexit 0" > /usr/bin/cl-license
+            chmod 755 /usr/bin/cl-license
+            echo "     2.5.x: Disabling default remap on Cumulus VX..."
+            mv -v /etc/init.d/rename_eth_swp /etc/init.d/rename_eth_swp.backup
+        elif [[ $DISTRIB_RELEASE =~ ^3.* ]]; then
+            echo "  INFO: Detected a 3.x Based Release ($DISTRIB_RELEASE)"
+            echo "### Disabling default remap on Cumulus VX..."
+            mv -v /etc/hw_init.d/S10rename_eth_swp.sh /etc/S10rename_eth_swp.sh.backup &> /dev/null
+            if [[ $DISTRIB_RELEASE =~ ^3.[1-9].* ]]; then
+                echo "### Fixing ONIE DHCP to avoid Vagrant Interface ###"
+                echo "     Note: Installing from ONIE will undo these changes."
+                mkdir /tmp/foo
+                mount LABEL=ONIE-BOOT /tmp/foo
+                sed -i 's/eth0/eth1/g' /tmp/foo/grub/grub.cfg
+                sed -i 's/eth0/eth1/g' /tmp/foo/onie/grub/grub-extra.cfg
+                umount /tmp/foo
+            fi
+            if [[ $DISTRIB_RELEASE =~ ^3.2.* ]]; then
+                if [[ $(grep "vagrant" /etc/netd.conf | wc -l ) == 0 ]]; then
+                    echo "### Giving Vagrant User Ability to Run NCLU Commands ###"
+                    sed -i 's/users_with_edit = root, cumulus/users_with_edit = root, cumulus, vagrant/g' /etc/netd.conf
+                    sed -i 's/users_with_show = root, cumulus/users_with_show = root, cumulus, vagrant/g' /etc/netd.conf
+                fi
+            elif [[ $DISTRIB_RELEASE =~ ^3.[3-9].* ]]; then
+                vagrant_user_nclu
+            fi
+            setup_ztp
+        elif [[ $DISTRIB_RELEASE =~ ^4.* ]]; then
+            echo "  INFO: Detected a 4.x Based Release ($DISTRIB_RELEASE)"
+            disable_remap
+            vagrant_user_nclu
+            setup_ztp
+        fi
+    fi
+fi
+echo "### DONE ###"
+echo "### Rebooting Device to Apply Remap..."
+nohup bash -c 'shutdown now -r "Rebooting to Remap Interfaces"' &
+SCRIPT
+
+# Read YAML file with box details
+inventory = YAML.load_file('inventory/hosts')
+networks = inventory['all']['vars']['networks']
+
+Vagrant.configure("2") do |config|
+
+  wbid = 1
+  offset = wbid * 100
+
+  ##### DEFINE VM for switch01 #####
+  config.vm.define "switch01" do |device|
+
+    device.vm.hostname = "switch01"
+    
+    device.vm.box = "CumulusCommunity/cumulus-vx"
+    device.vm.box_version = "3.7.12"
+
+    device.vm.provider :libvirt do |v|
+      v.memory = 768
+
+    end
+    #   see note here: https://github.com/pradels/vagrant-libvirt#synced-folders
+    device.vm.synced_folder ".", "/vagrant", disabled: true
+
+
+    # NETWORK INTERFACES
+      # link for swp1 --> mgmt_network (vlan 17)
+      device.vm.network "private_network",
+            :mac => "a0:00:00:00:00:01",
+            :libvirt__network_name => networks[0]['name'],
+            :ip => networks[0]['subnet'],
+            :libvirt__dhcp_enabled => false,
+            :libvirt__forward_mode => networks[0]['forward_mode'],
+            auto_config: false
+      # link for swp2 --> reg_network (vlan 2)
+      device.vm.network "private_network",
+            :mac => "44:38:39:00:00:02",
+            :libvirt__network_name => networks[1]['name'],
+            :ip => networks[1]['subnet'],
+            :libvirt__dhcp_enabled => false,
+            :libvirt__forward_mode => networks[1]['forward_mode'],
+            auto_config: false
+      # link for swp3 --> iso_network (vlan 3)
+      device.vm.network "private_network",
+            :mac => "44:38:39:00:00:03",
+            :libvirt__network_name => networks[2]['name'],
+            :ip => networks[2]['subnet'],
+            :libvirt__dhcp_enabled => false,
+            :libvirt__forward_mode => networks[2]['forward_mode'],
+            auto_config: false      
+      # link for swp6 --> inline_network (vlan 6)
+      device.vm.network "private_network",
+            :mac => "44:38:39:00:00:06",
+            :libvirt__network_name => networks[3]['name'],
+            :ip => networks[3]['subnet'],
+            :libvirt__dhcp_enabled => false,
+            :libvirt__forward_mode => networks[3]['forward_mode'],
+            auto_config: false
+      # link for swp11 --> node01:eth0
+      device.vm.network "private_network",
+            :mac => "44:38:39:00:00:11",
+            :libvirt__tunnel_type => 'udp',
+            :libvirt__tunnel_local_ip => '127.0.0.1',
+            :libvirt__tunnel_local_port => "#{ 30000 + offset }",
+            :libvirt__tunnel_ip => '127.0.0.1',
+            :libvirt__tunnel_port => "#{ 40000 + offset }",
+            auto_config: false
+      # link for swp12 --> node01:eth1
+      device.vm.network "private_network",
+            :mac => "44:38:39:00:00:12",
+            :libvirt__tunnel_type => 'udp',
+            :libvirt__tunnel_local_ip => '127.0.0.1',
+            :libvirt__tunnel_local_port => "#{ 30001 + offset }",
+            :libvirt__tunnel_ip => '127.0.0.1',
+            :libvirt__tunnel_port => "#{ 40001 + offset }",
+            auto_config: false
+      # link for swp13 --> node01:eth2
+      device.vm.network "private_network",
+            :mac => "44:38:39:00:00:13",                        
+            :libvirt__tunnel_type => 'udp',
+            :libvirt__tunnel_local_ip => '127.0.0.1',
+            :libvirt__tunnel_local_port => "#{ 30002 + offset }",
+            :libvirt__tunnel_ip => '127.0.0.1',
+            :libvirt__tunnel_port => "#{ 40002 + offset }",
+            auto_config: false
+      
+    # Fixes "stdin: is not a tty" and "mesg: ttyname failed : Inappropriate ioctl for device"  messages --> https://github.com/mitchellh/vagrant/issues/1673
+    device.vm.provision :shell , inline: "(sudo grep -q 'mesg n' /root/.profile 2>/dev/null && sudo sed -i '/mesg n/d' /root/.profile  2>/dev/null) || true;", privileged: false
+
+    
+    # Run the Config specified in the Node Attributes
+    device.vm.provision :shell , privileged: false, :inline => 'echo "$(whoami)" > /tmp/normal_user'
+    device.vm.provision "config_switch", type: "shell" , path: "./helper_scripts/config_switch.sh"
+
+
+    # Install Rules for the interface re-map
+    device.vm.provision :shell , :inline => <<-delete_udev_directory
+if [ -d "/etc/udev/rules.d/70-persistent-net.rules" ]; then
+    rm -rfv /etc/udev/rules.d/70-persistent-net.rules &> /dev/null
+fi
+rm -rfv /etc/udev/rules.d/70-persistent-net.rules &> /dev/null
+delete_udev_directory
+
+device.vm.provision :shell , :inline => <<-udev_rule
+echo "  INFO: Adding UDEV Rule: a0:00:00:00:00:01 --> swp1"
+echo 'ACTION=="add", SUBSYSTEM=="net", ATTR{address}=="a0:00:00:00:00:01", NAME="swp1", SUBSYSTEMS=="pci"' >> /etc/udev/rules.d/70-persistent-net.rules
+udev_rule
+     device.vm.provision :shell , :inline => <<-udev_rule
+echo "  INFO: Adding UDEV Rule: 44:38:39:00:00:02 --> swp2"
+echo 'ACTION=="add", SUBSYSTEM=="net", ATTR{address}=="44:38:39:00:00:02", NAME="swp2", SUBSYSTEMS=="pci"' >> /etc/udev/rules.d/70-persistent-net.rules
+udev_rule
+     device.vm.provision :shell , :inline => <<-udev_rule
+echo "  INFO: Adding UDEV Rule: 44:38:39:00:00:03 --> swp3"
+echo 'ACTION=="add", SUBSYSTEM=="net", ATTR{address}=="44:38:39:00:00:03", NAME="swp3", SUBSYSTEMS=="pci"' >> /etc/udev/rules.d/70-persistent-net.rules
+udev_rule
+     device.vm.provision :shell , :inline => <<-udev_rule
+echo "  INFO: Adding UDEV Rule: 44:38:39:00:00:06 --> swp6"
+echo 'ACTION=="add", SUBSYSTEM=="net", ATTR{address}=="44:38:39:00:00:06", NAME="swp6", SUBSYSTEMS=="pci"' >> /etc/udev/rules.d/70-persistent-net.rules
+udev_rule
+     device.vm.provision :shell , :inline => <<-udev_rule
+echo "  INFO: Adding UDEV Rule: 44:38:39:00:00:11 --> swp11"
+echo 'ACTION=="add", SUBSYSTEM=="net", ATTR{address}=="44:38:39:00:00:11", NAME="swp11", SUBSYSTEMS=="pci"' >> /etc/udev/rules.d/70-persistent-net.rules
+udev_rule
+     device.vm.provision :shell , :inline => <<-udev_rule
+echo "  INFO: Adding UDEV Rule: 44:38:39:00:00:12 --> swp12"
+echo 'ACTION=="add", SUBSYSTEM=="net", ATTR{address}=="44:38:39:00:00:12", NAME="swp12", SUBSYSTEMS=="pci"' >> /etc/udev/rules.d/70-persistent-net.rules
+udev_rule
+     device.vm.provision :shell , :inline => <<-udev_rule
+echo "  INFO: Adding UDEV Rule: 44:38:39:00:00:13 --> swp13"
+echo 'ACTION=="add", SUBSYSTEM=="net", ATTR{address}=="44:38:39:00:00:13", NAME="swp13", SUBSYSTEMS=="pci"' >> /etc/udev/rules.d/70-persistent-net.rules
+udev_rule
+
+     # to remap eth0 to vagrant management network (swp48) after udev rules have been wiped
+     device.vm.provision :shell , :inline => <<-vagrant_interface_rule
+echo "  INFO: Adding UDEV Rule: Vagrant interface = swp48"
+echo 'ACTION=="add", SUBSYSTEM=="net", ATTR{ifindex}=="2", NAME="swp48", SUBSYSTEMS=="pci"' >> /etc/udev/rules.d/70-persistent-net.rules
+echo "#### UDEV Rules (/etc/udev/rules.d/70-persistent-net.rules) ####"
+cat /etc/udev/rules.d/70-persistent-net.rules
+vagrant_interface_rule
+
+
+    # Run Any Platform Specific Code and Apply the interface Re-map
+    #   (may or may not perform a reboot depending on platform)
+    device.vm.provision :shell , :inline => $script
+
+
+    # Override common provisionner in master Vagrantfile
+    # to run **after** shell provisioning
+    device.vm.provision "ansible", type: 'ansible' do |ansible|
+      ansible.playbook = "site.yml"
+      ansible.config_file = "ansible.cfg"
+      ansible.inventory_path = "inventory"
+      ansible.galaxy_role_file = "requirements.yml"
+      # only for debug
+      ansible.verbose = ENV['VAGRANT_ANSIBLE_VERBOSE'] || false
+    end
+
+  end
+  
+#   ##### DEFINE VM for node01 #####
+  config.vm.define "node01" do |device|
+    
+    device.vm.hostname = "node01" 
+    
+    device.vm.box = "debian/buster64"
+
+    device.vm.provider :libvirt do |v|
+      v.nic_model_type = 'e1000' 
+      v.memory = 1024
+
+    end
+    #   see note here: https://github.com/pradels/vagrant-libvirt#synced-folders
+    device.vm.synced_folder ".", "/vagrant", disabled: true
+
+    # to run Venom tests
+    device.vm.synced_folder "../../t", "/src/t", type: "rsync", rsync__args: ["--verbose", "--archive", "--delete", "-z"]
+
+    # NETWORK INTERFACES
+      # link for eth0 --> switch01:swp11 (vlan17)
+      device.vm.network "private_network",
+            :mac => "a0:00:00:00:00:12",
+            :libvirt__tunnel_type => 'udp',
+            :libvirt__tunnel_local_ip => '127.0.0.1',
+            :libvirt__tunnel_local_port => "#{ 40000 + offset }",
+            :libvirt__tunnel_ip => '127.0.0.1',
+            :libvirt__tunnel_port => "#{ 30000 + offset }",
+            :libvirt__iface_name => "eth0",
+            auto_config: false
+      # link for eth1 --> switch01:swp12 (dot1x port)
+      device.vm.network "private_network",
+            :mac => "00:03:00:11:11:01",
+            :libvirt__tunnel_type => 'udp',
+            :libvirt__tunnel_local_ip => '127.0.0.1',
+            :libvirt__tunnel_local_port => "#{ 40001 + offset }",
+            :libvirt__tunnel_ip => '127.0.0.1',
+            :libvirt__tunnel_port => "#{ 30001 + offset }",
+            auto_config: false
+      # link for eth2 --> switch01:swp13 (vlan6)
+      device.vm.network "private_network",
+            :mac => "00:03:00:11:11:02",
+            :libvirt__tunnel_type => 'udp',
+            :libvirt__tunnel_local_ip => '127.0.0.1',
+            :libvirt__tunnel_local_port => "#{ 40002 + offset }",
+            :libvirt__tunnel_ip => '127.0.0.1',
+            :libvirt__tunnel_port => "#{ 30002 + offset }",
+            auto_config: false
+      
+    # Fixes "stdin: is not a tty" and "mesg: ttyname failed : Inappropriate ioctl for device"  messages --> https://github.com/mitchellh/vagrant/issues/1673
+    device.vm.provision :shell , inline: "(sudo grep -q 'mesg n' /root/.profile 2>/dev/null && sudo sed -i '/mesg n/d' /root/.profile  2>/dev/null) || true;", privileged: false
+
+    # Disable common Ansible provisionner in master Vagrantfile
+    device.vm.provision "ansible", type: 'ansible', run:"never" do |ansible|
+    end
+
+    # install Venom using Ansible inventory generated by Vagrant
+    # inventory in inventory/ is not usable at this time (no IP on 172.17.17.X network)
+    device.vm.provision "pre_prov", type: 'ansible' do |ansible|
+      ansible.groups = {
+        "nodes" => ["node01"]
+      }
+      ansible.playbook = "nodes_pre_prov.yml"
+      ansible.config_file = "ansible.cfg"
+      ansible.galaxy_role_file = "requirements.yml"
+      # only for debug
+      ansible.verbose = ENV['VAGRANT_ANSIBLE_VERBOSE'] || false
+    end
+
+    # Run the Config specified in the Node Attributes
+    device.vm.provision :shell , privileged: false, :inline => 'echo "$(whoami)" > /tmp/normal_user'
+    device.vm.provision "config_node", type: "shell", path: "./helper_scripts/config_node.sh"
+
+
+    # Install Rules for the interface re-map
+    device.vm.provision :shell , :inline => <<-delete_udev_directory
+if [ -d "/etc/udev/rules.d/70-persistent-net.rules" ]; then
+    rm -rfv /etc/udev/rules.d/70-persistent-net.rules &> /dev/null
+fi
+rm -rfv /etc/udev/rules.d/70-persistent-net.rules &> /dev/null
+delete_udev_directory
+
+device.vm.provision :shell , :inline => <<-udev_rule
+echo "  INFO: Adding UDEV Rule: a0:00:00:00:00:12 --> eth0"
+echo 'ACTION=="add", SUBSYSTEM=="net", ATTR{address}=="a0:00:00:00:00:12", NAME="eth0", SUBSYSTEMS=="pci"' >> /etc/udev/rules.d/70-persistent-net.rules
+udev_rule
+     device.vm.provision :shell , :inline => <<-udev_rule
+echo "  INFO: Adding UDEV Rule: 00:03:00:11:11:01 --> eth1"
+echo 'ACTION=="add", SUBSYSTEM=="net", ATTR{address}=="00:03:00:11:11:01", NAME="eth1", SUBSYSTEMS=="pci"' >> /etc/udev/rules.d/70-persistent-net.rules
+udev_rule
+     device.vm.provision :shell , :inline => <<-udev_rule
+echo "  INFO: Adding UDEV Rule: 00:03:00:11:11:02 --> eth2"
+echo 'ACTION=="add", SUBSYSTEM=="net", ATTR{address}=="00:03:00:11:11:02", NAME="eth2", SUBSYSTEMS=="pci"' >> /etc/udev/rules.d/70-persistent-net.rules
+udev_rule
+
+     # fake to avoid eth0 being used by vagrant
+     device.vm.provision :shell , :inline => <<-vagrant_interface_rule
+echo "  INFO: Adding UDEV Rule: Vagrant interface = vagrant"
+echo 'ACTION=="add", SUBSYSTEM=="net", ATTR{ifindex}=="2", NAME="vagrant", SUBSYSTEMS=="pci"' >> /etc/udev/rules.d/70-persistent-net.rules
+echo "#### UDEV Rules (/etc/udev/rules.d/70-persistent-net.rules) ####"
+cat /etc/udev/rules.d/70-persistent-net.rules
+vagrant_interface_rule
+
+    # Run Any Platform Specific Code and Apply the interface Re-map
+    #   (may or may not perform a reboot depending on platform)
+    device.vm.provision :shell , :inline => $script
+
+    # Override common provisionner in master Vagrantfile
+    # to run **after** shell provisioning
+    device.vm.provision "post_prov", type: 'ansible' do |ansible|
+      ansible.playbook = "site.yml"
+      ansible.config_file = "ansible.cfg"
+      ansible.inventory_path = "inventory"
+      ansible.galaxy_role_file = "requirements.yml"
+      # only for debug
+      ansible.verbose = ENV['VAGRANT_ANSIBLE_VERBOSE'] || false
+    end
+  end
+end

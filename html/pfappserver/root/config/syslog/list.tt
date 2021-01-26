@@ -1,0 +1,21 @@
+      <table id="items" class="table items[% ' hidden' UNLESS items.size %]" data-list-uri="[% c.uri_for(c.controller.action_for('list')) %]">
+        <thead>
+          <tr>
+            <th>[% l('Syslog Name') %]</th>
+            <th>[% l('Description') %]</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody>
+          [% FOREACH item IN items %]
+          <tr>
+            <td class="item"><a href="[% c.uri_for(c.controller.action_for('view'), [ item.id ]) %]">[% item.id | html %]</a></td>
+            <td>[% item.description | html%]</td>
+            <td>
+              [% IF can_access("SYSLOG_CREATE") %]<a class="btn btn-mini" href="[% c.uri_for(c.controller.action_for('clone'), [ item.id]) %]">[% l('Clone') %]</a>[% END %]
+              [% IF item.id != 'local' && can_access("SYSLOG_DELETE") %]<a class="btn btn-mini btn-danger" href="[% c.uri_for(c.controller.action_for('remove'), [ item.id ]) %]">[% l('Delete') %]</a>[% END %]
+            </td>
+          </tr>
+          [% END -%]
+        </tbody>
+      </table>

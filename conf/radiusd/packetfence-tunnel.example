@@ -20,6 +20,15 @@ server packetfence-tunnel {
 #  Make *sure* that 'preprocess' comes before any realm if you
 #  need to setup hints for the remote radius server
 authorize {
+	# TTLS does not send an EAP-Message to be parsed so the eap module
+	# cannot assign the EAP-Type
+	if ( outer.EAP-Type == TTLS) {
+		update request {
+			&EAP-Type := TTLS
+		}
+	}
+	packetfence-set-realm-if-machine
+	packetfence-set-tenant-id
 	#
 	#  Take a User-Name, and perform some checks on it, for spaces and other
 	#  invalid characters.  If the User-Name appears invalid, reject the
@@ -28,6 +37,10 @@ authorize {
 	#  See policy.d/filter for the definition of the filter_username policy.
 	#
 	filter_username
+
+        update {
+                &request:PacketFence-Outer-User := "%{outer.request:User-Name}"
+        }
 
 
 	#
@@ -61,9 +74,13 @@ authorize {
 	suffix
 	ntdomain
 
-	%%multi_domain%%
+        [% authorize_filter %]
 
-	%%redis_ntlm_cache_fetch%%
+[% userPrincipalName %]
+
+	[% multi_domain %]
+
+	[% redis_ntlm_cache_fetch %]
 
 	#
 	#  The "suffix" module takes care of stripping the domain
@@ -89,9 +106,10 @@ authorize {
 	#  for the many packets that go back and forth to set up TTLS
 	#  or PEAP.  The load on those servers will therefore be reduced.
 	#
-	eap {
-		ok = return
-	}
+
+[% authorize_eap_choice %]
+
+[% authorize_ldap_choice %]
 
 	#
 	#  Read the 'users' file
@@ -100,26 +118,15 @@ authorize {
 	# Check if PacketFence local (SQL) authentication is enabled.
 	# Run the packetfence-local-auth policy if it is.
 	rewrite_called_station_id
-    
+
 	# Uncomment the following line to enable local PEAP authentication
 	# packetfence-local-auth
 
 
 
 	#
-	#  The ldap module reads passwords from the LDAP database.
-	#-ldap
-	#
-	# Or if you want to cache the password (ex: Novell eDirectory using Universal Password) uncomment the following
-	#update control {
-	#    Cache-Status-Only = 'yes'
-	#}
-	#cache_password
-	#if (notfound) {
-	#       -ldap
-	#}
-	#cache_password
 
+[% edir_configuration %]
 
 	#
 	#  If no other module has claimed responsibility for
@@ -180,17 +187,34 @@ authenticate {
 		# If there is already an NT-Password populated in the control, we'll try it
 		# In the event it fails, it will fallback to an ntlm_auth call below
 		if(&control:NT-Password && &control:NT-Password != "") {
+			update {
+				&control:PacketFence-NTCacheHash := 1
+			}
 			mschap_local {
 				reject = 2
 			}
 			if (reject || fail) {
 				packetfence-mschap-authenticate
+				update {
+					&control:PacketFence-NTCacheHash := 0
+				}
+			}
+                        update control {
+                            Cache-Status-Only = 'yes'
+                        }
+			PacketFence-NTCacheHash
+			if (notfound) {
+				PacketFence-NTCacheHash
 			}
 		}
 		else {
 			packetfence-mschap-authenticate
 		}
 	}
+
+[% authentication_auth_type %]
+
+[% authentication_ldap_auth_type %]
 
 	# Uncomment it if you want to use ldap for authentication
 	#
@@ -246,11 +270,20 @@ session {
 #  the ONLY safe way is to set "use_tunneled_reply = yes", and
 #  then update the inner-tunnel reply.
 post-auth {
-	rest
+	packetfence-set-tenant-id
+	PacketFence-NTCacheHash
+	if (ok) {
+		update {
+			&request:PacketFence-NTCacheHash := &control:PacketFence-NTCacheHash
+		}
+	}
+	if !( ("%{client:shortname}" =~ /eduroam_tlrs/)  || (&request:PacketFence-SHortName && &request:PacketFence-ShortName =~ /eduroam_tlrs/)) {
+		rest
+	}
 	update {
 		&request:User-Password := "******"
 	}
-	if (&control:PacketFence-Authorization-Status == "deny") {
+	if ("%{%{control:PacketFence-Authorization-Status}:-Allow}" == "deny") {
 		packetfence-audit-log-reject
 		reject
 	} else {
@@ -294,6 +327,7 @@ post-auth {
 	Post-Auth-Type REJECT {
 		# Uncomment if you need to limit failed ntlm authentication (see packetfence-control-ntlm-failure too)
 		# packetfence-cache-ntlm-hit
+		packetfence-set-tenant-id
 		update {
 			&request:User-Password := "******"
 		}
@@ -414,9 +448,9 @@ authorize {
 	suffix
 	ntdomain
 
-	%%multi_domain%%
+	[% multi_domain %]
 
-	%%redis_ntlm_cache_fetch%%
+	[% redis_ntlm_cache_fetch %]
 
 	#
 	#  The "suffix" module takes care of stripping the domain
@@ -453,7 +487,7 @@ authorize {
 	# Check if PacketFence local (SQL) authentication is enabled.
 	# Run the packetfence-local-auth policy if it is.
 	rewrite_called_station_id
-    
+
 	# Uncomment the following line to enable local PEAP authentication
 	# packetfence-local-auth
 
@@ -587,11 +621,12 @@ session {
 #  the ONLY safe way is to set "use_tunneled_reply = yes", and
 #  then update the inner-tunnel reply.
 post-auth {
+	packetfence-set-tenant-id
 	rest
 	update {
 		&request:User-Password := "******"
 	}
-	if (&control:PacketFence-Authorization-Status == "deny") {
+	if ("%{%{control:PacketFence-Authorization-Status}:-Allow}" == "deny") {
 		packetfence-audit-log-reject
 		reject
 	} else {
@@ -633,6 +668,7 @@ post-auth {
 	#  'edir_account_policy_check = yes' in the ldap module configuration
 	#
 	Post-Auth-Type REJECT {
+		packetfence-set-tenant-id
 		update {
 			&request:User-Password := "******"
 		}

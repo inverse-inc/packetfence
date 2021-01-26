@@ -47,20 +47,26 @@ module.exports = function(grunt) {
       'js/jquery.loader.js',
       'app/uri.js',
       'bower_components/clipboard/dist/clipboard.js',
-    ],
+    ]
+  };
+  var js_files_vendor_custom_minified = {
     'js/vendor/raphael.min.js': [
-      'app/raphael/raphael-min.js',
+      'bower_components/raphael/raphael.min.js',
       'app/raphael/g.raphael-min.js',
       'app/raphael/g.bar-min.js',
       'app/raphael/g.dot-min.js',
       'app/raphael/g.line-min.js',
       'app/raphael/g.pie-min.js'
+    ],
+    'js/vendor/fitty.min.js': [
+      'node_modules/fitty/dist/fitty.min.js'
     ]
   };
   var sass_include_paths = [
     'scss/',
     'bower_components/bootstrap-sass/vendor/assets/stylesheets/',
-    'bower_components/font-awesome/scss/'
+    'bower_components/font-awesome/scss/',
+    'bower_components/sass-mq/'
   ];
   var css_vendor = [
     'app/bootstrap-timepicker.css'
@@ -146,6 +152,12 @@ module.exports = function(grunt) {
           compress: true,
         },
         files: js_files_vendor_custom
+      },
+      vendor_nocompress: {
+        options: {
+          compress: true,
+        },
+        files: js_files_vendor_custom_minified
       }
     },
     concat: {
@@ -182,14 +194,17 @@ module.exports = function(grunt) {
     };
     grunt.log.subhead('Copying JavaScript files');
     var js = [
-      '<%= bower %>/jquery/dist/jquery.min.{js,map}'
+      ['<%= bower %>/jquery/dist/jquery.min.{js,map}'],
+      ['<%= bower %>/ace-builds/src-min-noconflict/*.js', 'ace']
     ];
     for (var j = 0; j < js.length; j++) {
-      var files = grunt.file.expand(grunt.template.process(js[j], {data: options}));
+      var js_src = js[j][0];
+      var js_dst = js[j][1] || '';
+      var files = grunt.file.expand(grunt.template.process(js_src, {data: options}));
       for (var i = 0; i < files.length; i++) {
         var src = files[i];
         var paths = src.split('/');
-        var dest = options.js_dest + paths[paths.length - 1];
+        var dest = options.js_dest + js_dst + '/' + paths[paths.length - 1];
         grunt.file.copy(src, dest);
         grunt.log.writeln(">> ".green + src + " => " + dest.cyan);
       }
@@ -209,5 +224,6 @@ module.exports = function(grunt) {
       }
     }
     grunt.task.run('uglify:vendor');
+    grunt.task.run('uglify:vendor_nocompress');
   });
 };

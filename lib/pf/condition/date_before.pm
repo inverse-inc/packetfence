@@ -29,10 +29,11 @@ has value => (
     required => 0,
 );
 
-sub match {
-    my ($self, $arg) = @_;
 
-    my $date_format = "%Y-%m-%d %H:%M:%S";
+my $date_format = "%Y-%m-%d %H:%M:%S";
+
+sub match {
+    my ($self, $arg, $args) = @_;
 
     my $date_to_compare = $arg;
     my $date_control = $self->value // strftime $date_format, localtime;
@@ -49,7 +50,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2017 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 

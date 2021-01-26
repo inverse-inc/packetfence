@@ -1,17 +1,24 @@
+# Copyright (C) Inverse inc.
 [authentications]
 type=builtin
 description= All Authentications
+long_description=<<EOT
+All the authentications (RADIUS, portal) that have occured on the server.
+EOT
 # The table to search from
 base_table=auth_log
 # The columns to select
-columns=auth_log.process_name as "Process Name", auth_log.mac "MAC Address", auth_log.pid as "Owner", auth_log.status as "Status", auth_log.attempted_at as "Attempted at", auth_log.completed_at as "Completed at", auth_log.source as "Source"
+columns=auth_log.process_name as "Process Name", auth_log.mac "MAC Address", auth_log.pid as "Owner", auth_log.status as "Status", auth_log.attempted_at as "Attempted at", auth_log.completed_at as "Completed at", auth_log.source as "Source", auth_log.profile as "Connection Profile"
 searches=string:Process Name:auth_log.process_name,string:MAC Address:auth_log.mac,string:Owner:auth_log.pid,string:Status:auth_log.status,string:Source:auth_log.source
 date_field=attempted_at
 base_conditions_operator=any
+person_fields=Owner
+node_fields=MAC Address
+order_fields=-auth_log.attempted_at
 
 [SMS-Registration]
 type=builtin
-description=SMS registration
+description=SMS Registration
 # The table to search from
 base_table=activation
 # The columns to select
@@ -25,10 +32,13 @@ date_field=expiration
 # Display only the sms registration
 base_conditions=activation.type:=:sms
 base_conditions_operator=all
+person_fields=Owner
+node_fields=MAC Address
+order_fields=-activation.expiration
 
 [Email-Registration]
 type=builtin
-description=Email registration
+description=Email Registration
 # The table to search from
 base_table=activation
 # The columns to select
@@ -38,10 +48,12 @@ date_field=expiration
 # Display only the email registration
 base_conditions=activation.type:=:guest
 base_conditions_operator=all
+person_fields=Owner
+node_fields=MAC Address
 
 [Sponsor-Registration]
 type=builtin
-description=Sponsor registration
+description=Sponsor Registration
 # The table to search from
 base_table=activation
 # The columns to select
@@ -51,10 +63,15 @@ date_field=expiration
 # Display only the sponsor registration
 base_conditions=activation.type:=:sponsor
 base_conditions_operator=all
+person_fields=Owner
+node_fields=MAC Address
 
 [ip4log-history]
 type=builtin
 description=IPv4 History
+long_description=<<EOT
+IP address history of the devices on the network (1 week is kept by default)
+EOT
 # The table to search from
 base_table=ip4log_history
 # The columns to select
@@ -64,10 +81,15 @@ date_field=start_time
 # Display only the sponsor registration
 #base_conditions=activation.type:=:sponsor
 base_conditions_operator=all
+node_fields=MAC Address
+order_fields=-ip4log_history.start_time
 
 [ip4log-archive]
 type=builtin
 description=IPv4 Archive
+long_description=<<EOT
+IP address archive of the devices on your network when enabled (see Maintenance section)
+EOT
 # The table to search from
 base_table=ip4log_archive
 # The columns to select
@@ -77,4 +99,40 @@ date_field=start_time
 # Display only the sponsor registration
 #base_conditions=activation.type:=:sponsor
 base_conditions_operator=all
+node_fields=MAC Address
 
+[open-security-events]
+type=builtin
+description=Open Security Events
+long_description=<<EOT
+List of open security events on the network
+EOT
+base_table=security_event
+columns=security_event.start_date "Event date", class.description "Security Event Name", node.status "Node status", node.mac "MAC Address", node.computername "Computer Name", node.pid "Owner", node.device_class "Device Class", node_category.name "Role"
+joins=<<EOT
+=>{class.security_event_id=security_event.security_event_id} class|class
+=>{security_event.mac=node.mac} node|node
+=>{node_category.category_id=node.category_id} node_category|node_category
+EOT
+node_fields=MAC Address
+person_fields=Owner
+date_field=start_date
+base_conditions=security_event.status:=:open
+
+[closed-security-events]
+type=builtin
+description=Closed Security Events
+long_description=<<EOT
+List of closed security events on the network
+EOT
+base_table=security_event
+columns=security_event.start_date "Event date", class.description "Security Event Name", node.status "Node status", node.mac "MAC Address", node.computername "Computer Name", node.pid "Owner", node.device_class "Device Class", node_category.name "Role"
+joins=<<EOT
+=>{class.security_event_id=security_event.security_event_id} class|class
+=>{security_event.mac=node.mac} node|node
+=>{node_category.category_id=node.category_id} node_category|node_category
+EOT
+node_fields=MAC Address
+person_fields=Owner
+date_field=start_date
+base_conditions=security_event.status:=:closed

@@ -1,0 +1,26 @@
+/user/{user_id}/password/search:
+  description: pf::UnifiedApi::Controller::Users::Password
+  post:
+    operationId: api.v1.Users.Password.search
+    parameters:
+    - in: path
+      name: user_id
+      schema:
+        type: string
+    requestBody:
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Search'
+      description: Search for items
+    responses:
+      '200':
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UsersPasswordList'
+        description: List
+      '400':
+        $ref: '#/components/responses/BadRequest'
+      '422':
+        $ref: '#/components/responses/UnprocessableEntity'

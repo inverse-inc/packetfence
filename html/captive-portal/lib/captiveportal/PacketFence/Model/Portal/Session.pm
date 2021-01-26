@@ -28,6 +28,7 @@ use URI::Escape::XS qw(uri_escape uri_unescape);
 use HTML::Entities;
 use List::MoreUtils qw(any);
 use pf::constants::Portal::Session qw($DUMMY_MAC);
+use pf::dal::tenant;
 
 =head1 NAME
 
@@ -43,7 +44,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2017 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 
@@ -119,6 +120,8 @@ sub ACCEPT_CONTEXT {
     my $options;
     my $mgmt_ip = $management_network->{'Tvip'} || $management_network->{'Tip'} if $management_network;
 
+    $self->setupTenant($c);
+
     if( $r->can('pnotes') && defined ( my $last_uri = $r->pnotes('last_uri') )) {
         $options = {
             'last_uri' => $last_uri,
@@ -130,6 +133,7 @@ sub ACCEPT_CONTEXT {
         $options = {
             'portal' => $data->{portal},
         };
+        pf::dal->set_tenant($data->{tenant_id});
     } elsif ( $forwardedFor && ( $forwardedFor =~  '127.0.0.1') ) {
         if (defined($request->param('PORTAL'))) {
             $options = {
@@ -141,6 +145,7 @@ sub ACCEPT_CONTEXT {
             };
         }
     }
+    $options->{fqdn} = $request->uri->host;
 
     $model =  $self->new(
         remoteAddress => $remoteAddress,
@@ -282,6 +287,22 @@ sub templateIncludePath {
     return $profile->{_template_paths};
 }
 
-__PACKAGE__->meta->make_immutable;
+=head2 setupTenant
+
+Setup the current tenant
+
+=cut
+
+sub setupTenant {
+    my ($self, $c) = @_;
+    my $hostname = $c->request->uri->host;
+    $c->log->trace("Trying to find tenant for hostname $hostname");
+    if(my $tenant = pf::dal::tenant->search(-where => { portal_domain_name => $hostname })->next()) {
+        $c->log->debug("Found tenant for portal domain name $hostname");
+        pf::dal->set_tenant($tenant->id);
+    }
+}
+
+__PACKAGE__->meta->make_immutable unless $ENV{"PF_SKIP_MAKE_IMMUTABLE"};
 
 1;

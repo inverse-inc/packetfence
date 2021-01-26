@@ -26,7 +26,7 @@ our $VERSION = 2.10;
 
 use pf::CHI;
 use pf::constants;
-use pf::constants::role qw($VOICE_ROLE $MAC_DETECTION_ROLE $REJECT_ROLE);
+use pf::constants::role qw($VOICE_ROLE $REGISTRATION_ROLE $REJECT_ROLE);
 use pf::config qw(
     $ROLES_API_LEVEL
     $management_network
@@ -36,11 +36,13 @@ use pf::config qw(
     $WIRED_802_1X
     $WIRED_MAC_AUTH
     $NO_VOIP
+    %ConfigRoles
 );
 use Errno qw(EINTR);
 use pf::file_paths qw(
     $control_dir
 );
+use pf::dal;
 use pf::locationlog;
 use pf::node;
 use pf::cluster;
@@ -60,6 +62,28 @@ use Time::HiRes;
 use pf::access_filter::radius;
 use File::Spec::Functions;
 use File::FcntlLock;
+use JSON::MaybeXS;
+use pf::constants::switch qw($DEFAULT_ACL_TEMPLATE);
+use pf::SwitchSupports qw(
+    -AccessListBasedEnforcement
+    -Cdp
+    -ExternalPortal
+    -FloatingDevice
+    -Lldp
+    -MABFloatingDevices
+    -RadiusVoip
+    -RoamingAccounting
+    -RoleBasedEnforcement
+    -SaveConfig
+    -VPN
+    -WebFormRegistration
+    -WiredDot1x
+    -WiredMacAuth
+    -WirelessDot1x
+    -WirelessMacAuth
+
+     RadiusDynamicVlanAssignment
+);
 
 #
 # %TRAP_NORMALIZERS
@@ -79,214 +103,10 @@ our %TRAP_NORMALIZERS = (
 
 =cut
 
-=item supportsFloatingDevice
-
-Returns 1 if switch type supports floating network devices
-
-=cut
-
-sub supportsFloatingDevice {
-    my ( $self ) = @_;
-    my $logger = $self->logger;
-
-    $logger->error("Floating devices are not supported on switch type " . ref($self));
-    return $FALSE;
-}
-
-=item supportsExternalPortal
-
-Returns 1 if switch type supports external captive portal
-
-=cut
-
-sub supportsExternalPortal {
-    my ( $self ) = @_;
-    my $logger = $self->logger;
-
-    $logger->debug("External captive portal is not supported on switch type " . ref($self));
-    return $FALSE;
-}
-
-=item supportsWebFormRegistration
-
-Returns 1 if switch type supports web form registration (for release of the external captive portal)
-
-=cut
-
-sub supportsWebFormRegistration {
-    my ( $self ) = @_;
-    my $logger = $self->logger;
-
-    $logger->debug("Web form registration is not supported on switch type " . ref($self));
-    return $FALSE;
-}
-
-=item supportsWiredMacAuth
-
-Returns 1 if switch type supports Wired MAC Authentication (Wired Access Authorization through RADIUS)
-
-=cut
-
-sub supportsWiredMacAuth {
-    my ( $self ) = @_;
-    my $logger = $self->logger;
-
-    $logger->error(
-        "Wired MAC Authentication (Wired Access Authorization through RADIUS) "
-        . "is not supported on switch type " . ref($self) . ". Please let us know what hardware you are using."
-    );
-    return $FALSE;
-}
-
-=item supportsWiredDot1x - Returns 1 if switch type supports Wired 802.1X
-
-=cut
-
-sub supportsWiredDot1x {
-    my ( $self ) = @_;
-    my $logger = $self->logger;
-
-    $logger->error(
-        "Wired 802.1X is not supported on switch type " . ref($self) . ". "
-        . "Please let us know what hardware you are using."
-    );
-    return $FALSE;
-}
-
-=item supportsWirelessMacAuth
-
-Returns 1 if switch type supports Wireless MAC Authentication (RADIUS Authentication)
-
-=cut
-
-sub supportsWirelessMacAuth {
-    my ( $self ) = @_;
-    my $logger = $self->logger;
-
-    $logger->error(
-        "Wireless MAC Authentication is not supported on switch type " . ref($self) . ". "
-        . "Please let us know what hardware you are using."
-    );
-    return $FALSE;
-}
-
-=item supportsWirelessDot1x - Returns 1 if switch type supports Wireless 802.1X (aka WPA-Enterprise)
-
-=cut
-
-sub supportsWirelessDot1x {
-    my ( $self ) = @_;
-    my $logger = $self->logger;
-
-    $logger->error(
-        "Wireless 802.1X (WPA-Enterprise) is not supported on switch type " . ref($self) . ". "
-        . "Please let us know what hardware you are using."
-    );
-    return $FALSE;
-}
-
-=item supportsRadiusVoip
-
-=cut
-
-sub supportsRadiusVoip {
-    my ( $self ) = @_;
-    my $logger = $self->logger;
-
-    $logger->warn(
-        "RADIUS Authentication of IP Phones is not supported on switch type " . ref($self) . ". "
-        . "Please let us know what hardware you are using."
-    );
-    return $FALSE;
-}
-
-=item supportsRoleBasedEnforcement
-
-=cut
-
-sub supportsRoleBasedEnforcement {
-    my ( $self ) = @_;
-    my $logger = $self->logger;
-
-    if (defined($self->{'_roles'}) && %{$self->{'_roles'}}) {
-        $logger->trace(
-            "Role-based Network Access Control is not supported on network device type " . ref($self) . ". "
-        );
-    }
-    return $FALSE;
-}
-
-sub supportsAccessListBasedEnforcement {
-    my ( $self ) = @_;
-    my $logger = $self->logger;
-    $logger->trace("Access list based enforcement is not supported on network device type " . ref($self) . ". ");
-    return $FALSE;
-}
-
-
-=item supportsRoamingAccounting
-
-=cut
-
-sub supportsRoamingAccounting {
-    my ( $self ) = @_;
-    my $logger = $self->logger;
-    $logger->trace("Update of the locationlog based on accounting data is not supported on network device type " . ref($self) . ". ");
-    return $FALSE;
-}
-
-=item supportsSaveConfig
-
-=cut
-
-sub supportsSaveConfig {
-    my ( $self ) = @_;
-    my $logger = $self->logger;
-    return $FALSE;
-}
-
-=item supportsCdp
-
-Does the network device supports Cisco Discovery Protocol (CDP)
-
-=cut
-
-sub supportsCdp {
-    my ( $self ) = @_;
-    my $logger = $self->logger;
-    return $FALSE;
-}
-
-=item supportsLldp
-
-Does the network device supports Link-Layer Discovery Protocol (LLDP)
-
-=cut
-
-sub supportsLldp {
-    my ( $self ) = @_;
-    my $logger = $self->logger;
-    return $FALSE;
-}
-
-=item supportsRadiusDynamicVlanAssignment
-
-=cut
-
-sub supportsRadiusDynamicVlanAssignment { return $TRUE; }
-
-=item inlineCapabilities
-
-=cut
-
 # inline capabilities
 sub inlineCapabilities { return; }
 
-sub supportsMABFloatingDevices {
-    my ( $self ) = @_;
-    my $logger = $self->logger;
-    return $FALSE;
-}
+sub vpnAttributes { return $FALSE; }
 
 sub new {
     my ($class, $argv) = @_;
@@ -345,6 +165,7 @@ sub new {
         '_VlanMap'                      => 'enabled',
         '_RoleMap'                      => 'enabled',
         '_UrlMap'                       => 'enabled',
+        '_TenantId'                     => $DEFAULT_TENANT_ID,
         map { "_".$_ => $argv->{$_} } keys %$argv,
     }, $class;
     return $self;
@@ -420,6 +241,29 @@ sub connectRead {
     return 1;
 }
 
+=item cachedSNMPTable
+
+Get a cached SNMP request using the default cache expiration
+
+    $self->cachedSNMPTable([-base_oid => ['1.3.6.1.2.1.1.6.0']]);
+
+Get a cached SNMP request using a provided expiration
+
+    $self->cachedSNMPTable([-base_oid => ['1.3.6.1.2.1.1.6.0']], {expires_in => '10m'});
+
+=cut
+
+sub cachedSNMPTable {
+    my ($self, $args, $options) = @_;
+    my $session = $self->{_sessionRead};
+    if(!defined $session) {
+        $self->logger->error("Trying read to from a undefined session");
+        return undef;
+    }
+    $options //= {};
+    return $self->cache_distributed->compute($self->{'_id'} . "-"  . encode_json($args), $options, sub {$self->{_sessionRead}->get_table(@$args)});
+}
+
 =item cachedSNMPRequest
 
 Get a cached SNMP request using the default cache expiration
@@ -440,7 +284,7 @@ sub cachedSNMPRequest {
         return undef;
     }
     $options //= {};
-    return $self->cache->compute($self->{'_id'} . "-" . $args, $options, sub {$self->{_sessionRead}->get_request(@$args)});
+    return $self->cache_distributed->compute($self->{'_id'} . "-"  . encode_json($args), $options, sub {$self->{_sessionRead}->get_request(@$args)});
 }
 
 =item disconnectRead - closing read connection to switch
@@ -627,9 +471,9 @@ sub setVlan {
     }
 
     my $vlan = $self->getVlan($ifIndex);
-    my $macDetectionVlan = $self->getVlanByName($MAC_DETECTION_ROLE);
+    my $registrationVlan = $self->getVlanByName($REGISTRATION_ROLE);
 
-    if ( !defined($presentPCMac) && ( $newVlan ne $macDetectionVlan ) ) {
+    if ( !defined($presentPCMac) ) {
         my @macArray = $self->_getMacAtIfIndex( $ifIndex, $vlan );
         if ( scalar(@macArray) == 1 ) {
             $presentPCMac = $macArray[0];
@@ -642,15 +486,15 @@ sub setVlan {
     # TODO at some point we should create a new blackhole / blacklist API
     # it would take advantage of per-switch features
     if ( $newVlan eq "-1") {
-        $logger->warn("VLAN -1 is not supported in SNMP-Traps mode. Returning the switch's mac-detection VLAN.");
-        $newVlan = $macDetectionVlan;
+        $logger->warn("VLAN -1 is not supported in SNMP-Traps mode. Returning the switch's registration VLAN.");
+        $newVlan = $registrationVlan;
     }
 
     # VLAN are not defined on the switch
     if ( !$self->isDefinedVlan($newVlan) ) {
-        if ( $newVlan eq $macDetectionVlan ) {
+        if ( $newVlan eq $registrationVlan ) {
             $logger->warn(
-                "MAC detection VLAN " . $macDetectionVlan
+                "Registration VLAN " . $registrationVlan
                 . " is not defined on switch " . $self->{_id}
                 . " -> Do nothing"
             );
@@ -658,13 +502,13 @@ sub setVlan {
         }
         $logger->warn(
             "new VLAN $newVlan is not defined on switch " . $self->{_id}
-            . " -> replacing VLAN $newVlan with MAC detection VLAN "
-            . $macDetectionVlan
+            . " -> replacing VLAN $newVlan with Registration VLAN "
+            . $registrationVlan
         );
-        $newVlan = $macDetectionVlan;
+        $newVlan = $registrationVlan;
         if ( !$self->isDefinedVlan($newVlan) ) {
             $logger->warn(
-                "MAC detection VLAN " . $macDetectionVlan
+                "Registration VLAN " . $registrationVlan
                 . " is also not defined on switch " . $self->{_id}
                 . " -> Do nothing"
             );
@@ -763,21 +607,29 @@ sub getVlanByName {
     my ($self, $vlanName) = @_;
     my $logger = $self->logger;
 
-    if (!defined($self->{'_vlans'}) || !defined($self->{'_vlans'}->{$vlanName})) {
+    if (!defined($self->{'_vlans'}) || !defined($self->{'_vlans'}{$vlanName})) {
+        my $parent = _parentRoleForVlan($vlanName);
+        if (defined $parent && length($parent)) {
+            return $self->getVlanByName($parent);
+        }
         # VLAN name doesn't exist
         $pf::StatsD::statsd->increment(called() . ".error" );
         $logger->warn("No parameter ${vlanName}Vlan found in conf/switches.conf for the switch " . $self->{_id});
         return undef;
     }
 
-    if ($vlanName eq "inline" && length($self->{'_vlans'}->{$vlanName}) == 0) {
+    if ($vlanName eq "inline" && length($self->{'_vlans'}{$vlanName}) == 0) {
         # VLAN empty, return 0 for Inline
         $logger->trace("No parameter ${vlanName}Vlan found in conf/switches.conf for the switch " . $self->{_id} .
                       ". Please ignore if your intentions were to use the native VLAN");
         return 0;
     }
 
-    if (length $self->{'_vlans'}->{$vlanName} < 1 ) {
+    if (length $self->{'_vlans'}{$vlanName} < 1 ) {
+        my $parent = _parentRoleForVlan($vlanName);
+        if (defined $parent && length($parent)) {
+            return $self->getVlanByName($parent);
+        }
         # is not resolved to a valid VLAN identifier
         $logger->warn("VLAN $vlanName is not properly configured in switches.conf for the switch " . $self->{_id} .
                       ", not a VLAN identifier");
@@ -787,20 +639,39 @@ sub getVlanByName {
     return $self->{'_vlans'}->{$vlanName};
 }
 
+sub _parentRoleForVlan {
+    my ($name) = @_;
+    if (!exists $ConfigRoles{$name}) {
+        return undef;
+    }
+
+    my $role = $ConfigRoles{$name};
+    if (isdisabled($role->{inherit_vlan} // 'disabled')) {
+        return undef;
+    }
+
+    return $role->{parent_id};
+}
+
 sub getAccessListByName {
-    my ($self, $access_list_name) = @_;
+    my ($self, $access_list_name, $mac) = @_;
     my $logger = $self->logger;
+    return if !exists $ConfigRoles{$access_list_name};
+    my $role = $ConfigRoles{$access_list_name};
+    return if !exists $role->{acls};
+    my $acls = $role->{acls} // [];
 
-    # skip if not defined or empty
-    return if (!defined($self->{'_access_lists'}) || !%{$self->{'_access_lists'}});
+    # Change to a check for FB ACL enabled
+    my $fb_acl = [];
+    if( isenabled($role->{fingerbank_dynamic_access_list})) {
+        $fb_acl = $self->fingerbank_dynamic_acl($mac);
+    }
 
-    # return if found
-    return $self->{'_access_lists'}->{$access_list_name} if (defined($self->{'_access_lists'}->{$access_list_name}));
+    return join("\n", @$acls, @$fb_acl) ."\n" if @$acls || @$fb_acl;
 
     # otherwise log and return undef
     $logger->trace("No parameter ${access_list_name}AccessList found in conf/switches.conf for the switch " . $self->{_id});
     return;
-
 }
 
 =item getUrlByName
@@ -864,18 +735,6 @@ sub getIfOperStatus {
     my $result = $self->{_sessionRead}
         ->get_request( -varbindlist => ["$oid_ifOperStatus.$ifIndex"] );
     return $result->{"$oid_ifOperStatus.$ifIndex"};
-}
-
-=item setMacDetectionVlan - set the port VLAN to the MAC detection VLAN
-
-=cut
-
-sub setMacDetectionVlan {
-    my ( $self, $ifIndex, $switch_locker_ref,
-        $closeAllOpenLocationlogEntries )
-        = @_;
-    return $self->setVlan( $ifIndex, $self->getVlanByName($MAC_DETECTION_ROLE),
-        $switch_locker_ref, undef, $closeAllOpenLocationlogEntries );
 }
 
 =item getAlias - get the port description
@@ -1306,6 +1165,18 @@ Usually used to force the operating system to do a new DHCP Request after a VLAN
 
 sub bouncePort {
     my ($self, $ifIndex) = @_;
+    return $self->bouncePortSNMP($ifIndex);
+}
+
+=item bouncePortSNMP
+
+Performs a shut / no-shut on the port.
+Usually used to force the operating system to do a new DHCP Request after a VLAN change.
+
+=cut
+
+sub bouncePortSNMP {
+    my ($self, $ifIndex) = @_;
 
     $self->setAdminStatus( $ifIndex, $SNMP::DOWN );
     sleep($Config{'snmp_traps'}{'bounce_duration'});
@@ -1549,7 +1420,7 @@ sub isPhoneAtIfIndex {
     }
 
     if (!defined($self->{_VoIPDHCPDetect}) || isenabled($self->{_VoIPDHCPDetect}) ) {
-        if (defined($node_info->{dhcp_fingerprint}) && $node_info->{dhcp_fingerprint} =~ /VoIP Phone/) {
+        if (defined($node_info->{device_class}) && $node_info->{device_class} =~ /VoIP Device/) {
             $logger->debug("DHCP fingerprint for $mac indicates VoIP phone");
             return 1;
         }
@@ -1563,9 +1434,11 @@ sub isPhoneAtIfIndex {
     }
 
     if (defined($ifIndex)) {
-        $logger->debug("determining if $mac is VoIP phone through discovery protocols");
-        my @phones = $self->getPhonesDPAtIfIndex($ifIndex);
-        return ( grep( { lc($_) eq lc($mac) } @phones ) != 0 );
+        return $self->cache_distributed->compute($self->{_id} . "-SNMP-isPhoneAtIfIndex-$ifIndex-$mac", sub {
+            $logger->debug("determining if $mac is VoIP phone through discovery protocols");
+            my @phones = $self->getPhonesDPAtIfIndex($ifIndex);
+            return ( grep( { lc($_) eq lc($mac) } @phones ) != 0 );
+        });
     } else {
         return 0;
     }
@@ -2585,8 +2458,26 @@ We support also:
 
 sub extractSsid {
     my ($self, $radius_request) = @_;
-    my $logger = $self->logger;
+    my $ssid = $self->extractSSIDFromCalledStationId($radius_request);
+    if (defined $ssid) {
+        return $ssid;
+    }
 
+    $ssid = $self->extractSSIDAltAttribute($radius_request);
+    if (defined $ssid) {
+        return $ssid;
+    }
+
+    my $logger = $self->logger;
+    $logger->warn(
+        "Unable to extract SSID for module " . ref($self) . ". SSID-based VLAN assignments won't work. "
+        . "Please let us know so we can add support for it."
+    );
+    return;
+}
+
+sub extractSSIDFromCalledStationId {
+    my ($self, $radius_request) = @_;
     # it's put in Called-Station-Id
     # ie: Called-Station-Id = "aa-bb-cc-dd-ee-ff:Secure SSID" or "aa:bb:cc:dd:ee:ff:Secure SSID"
     if (defined($radius_request->{'Called-Station-Id'})) {
@@ -2598,15 +2489,27 @@ sub extractSsid {
         $/ix) {
             return $1;
         } else {
+            my $logger = $self->logger;
             $logger->info("Unable to extract SSID of Called-Station-Id: ".$radius_request->{'Called-Station-Id'});
         }
     }
 
-    $logger->warn(
-        "Unable to extract SSID for module " . ref($self) . ". SSID-based VLAN assignments won't work. "
-        . "Please let us know so we can add support for it."
-    );
-    return;
+    return undef;
+}
+
+sub extractSSIDAltAttribute {
+    my ($self, $radius_request) = @_;
+    my $attr = $self->ssidAltAttribute;
+    if (!exists $radius_request->{$attr}) {
+        return undef;
+    }
+
+    my $ssid = $radius_request->{$attr};
+    return $ssid;
+}
+
+sub ssidAltAttribute {
+    'Called-Station-SSID'
 }
 
 =item getVoipVSA
@@ -2790,7 +2693,7 @@ sub radiusDisconnect {
 
 =item returnRadiusAccessAccept
 
-Prepares the RADIUS Access-Accept reponse for the network device.
+Prepares the RADIUS Access-Accept response for the network device.
 
 Default implementation.
 
@@ -2814,7 +2717,7 @@ sub returnRadiusAccessAccept {
             $radius_reply_ref = {
                 'Tunnel-Medium-Type' => $RADIUS::ETHERNET,
                 'Tunnel-Type' => $RADIUS::VLAN,
-                'Tunnel-Private-Group-ID' => $args->{'vlan'},
+                'Tunnel-Private-Group-ID' => $args->{'vlan'} . "",
             };
         }
         else {
@@ -3012,13 +2915,66 @@ sub parseRequest {
     my $client_mac      = ref($radius_request->{'Calling-Station-Id'}) eq 'ARRAY'
                            ? clean_mac($radius_request->{'Calling-Station-Id'}[0])
                            : clean_mac($radius_request->{'Calling-Station-Id'});
-    my $user_name       = $radius_request->{'TLS-Client-Cert-Common-Name'} || $radius_request->{'User-Name'};
-    my $nas_port_type   = $radius_request->{'NAS-Port-Type'};
+    my $user_name       = $self->parseRequestUsername($radius_request);
+    my $nas_port_type   = ( defined($radius_request->{'NAS-Port-Type'}) ? $radius_request->{'NAS-Port-Type'} : ( defined($radius_request->{'Called-Station-SSID'}) ? "Wireless-802.11" : undef ) );
     my $port            = $radius_request->{'NAS-Port'};
     my $eap_type        = ( exists($radius_request->{'EAP-Type'}) ? $radius_request->{'EAP-Type'} : 0 );
     my $nas_port_id     = ( defined($radius_request->{'NAS-Port-Id'}) ? $radius_request->{'NAS-Port-Id'} : undef );
 
     return ($nas_port_type, $eap_type, $client_mac, $port, $user_name, $nas_port_id, undef, $nas_port_id);
+}
+
+=item parseRequestUsername
+
+Parse the username from the RADIUS request
+
+=cut
+
+sub parseRequestUsername {
+    my ($self, $radius_request) = @_;
+    if (isenabled($Config{radius_configuration}{normalize_radius_machine_auth_username})) {
+        if ($radius_request->{'User-Name'} =~ /^host\//) {
+            if (exists($radius_request->{'TLS-Client-Cert-Common-Name'})) {
+                return $radius_request->{'User-Name'};
+            }
+        }
+    }
+    foreach my $attribute (@{$Config{radius_configuration}{username_attributes}}) {
+        if(exists($radius_request->{$attribute})) {
+            my $user_name = $radius_request->{$attribute};
+            get_logger->debug("Extracting username '$user_name' from RADIUS attribute $attribute");
+            return $user_name;
+        }
+    }
+}
+
+
+=item parseVPNRequest
+
+Takes FreeRADIUS' RAD_REQUEST hash and process it to return
+NAS Port type
+Network Device IP
+EAP
+NAS-Port (port)
+User-Name
+
+=cut
+
+sub parseVPNRequest {
+    my ( $self, $radius_request ) = @_;
+    my $logger = $self->logger;
+
+    my $client_ip       = ref($radius_request->{'Calling-Station-Id'}) eq 'ARRAY'
+                           ? clean_ip($radius_request->{'Calling-Station-Id'}[0])
+                           : clean_ip($radius_request->{'Calling-Station-Id'});
+
+    my $user_name       = $self->parseRequestUsername($radius_request);
+    my $nas_port_type   = $radius_request->{'NAS-Port-Type'};
+    my $port            = $radius_request->{'NAS-Port'};
+    my $eap_type        = ( exists($radius_request->{'EAP-Type'}) ? $radius_request->{'EAP-Type'} : 0 );
+    my $nas_port_id     = ( defined($radius_request->{'NAS-Port-Id'}) ? $radius_request->{'NAS-Port-Id'} : undef );
+
+    return ($nas_port_type, $eap_type, undef, $port, $user_name, $nas_port_id, undef, $nas_port_id);
 }
 
 =item getAcceptForm
@@ -3071,7 +3027,7 @@ Used to override L<pf::Connection::identifyType> behavior if needed on a per swi
 =cut
 
 sub identifyConnectionType {
-    my ( $self, $connection ) = @_;
+    my ( $self, $radius_request ) = @_;
     my $logger = get_logger();
 
     return;
@@ -3247,7 +3203,7 @@ Check if switch should use CoA
 sub shouldUseCoA {
     my ($self, $args) = @_;
     # Roles are configured and the user should have one
-    return (defined($args->{role}) && isenabled($self->{_RoleMap}) && isenabled($self->{_useCoA}));
+    return (defined($args->{role}) && (isenabled($self->{_RoleMap}) || isenabled($self->{_UrlMap})) && isenabled($self->{_useCoA}));
 }
 
 =item getRelayAgentInfoOptRemoteIdSub
@@ -3401,7 +3357,7 @@ get the IfIndex from a trap
 
 sub getIfIndexFromTrap {
     my ($self, $variables) = @_;
-    my @indexes = $self->findTrapVarWithBase($variables,".1.3.6.1.2.1.2.2.1.1.");
+    my @indexes = $self->findTrapVarWithBase($variables,".1.3.6.1.2.1.2.2.1.1");
     return undef unless @indexes;
     return undef unless $indexes[0][1] =~ /(INTEGER|Gauge32): (\d+)/;
     return $2;
@@ -3606,11 +3562,167 @@ sub remove_switch_from_cache {
     my $logger = $self->logger;
 
     my $cache = $self->cache_distributed;
-    my %cache_content = $cache->get_keys();
+    my @cache_content = $cache->get_keys();
 
-    foreach ( keys %cache_content ) {
+    foreach ( @cache_content ) {
         $cache->remove($_) if $_ =~ /^$key-/;
     }
+}
+
+=item isMacInAddressTableAtIfIndex
+
+isMacInAddressTableAtIfIndex
+
+=cut
+
+sub isMacInAddressTableAtIfIndex {
+    my ($self) = @_;
+    my $logger = $self->logger;
+    $logger->warn("isMacInAddressTableAtIfIndex is not supported or implemented for this switch");
+
+    return 0;
+}
+
+=item setCurrentTenant
+
+Set the current tenant in the DAL based on the tenant ID configured in the switch
+
+=cut
+
+sub setCurrentTenant {
+    my ($self, $radius_request) = @_;
+    my $tenant_id = $radius_request->{"PacketFence-Tenant-Id"} // $self->{_TenantId};
+    pf::dal->set_tenant($tenant_id);
+}
+
+=head2 getCiscoAvPairAttribute
+
+getCiscoAvPairAttribute
+
+=cut
+
+sub getCiscoAvPairAttribute {
+    my ($self, $radius_request, $attr) = @_;
+    my $logger = $self->logger;
+    my $avpair = listify($radius_request->{'Cisco-AVPair'} // []);
+    foreach my $ciscoAVPair (@{$avpair}) {
+        $logger->trace("Cisco-AVPair: $ciscoAVPair $attr");
+        if ($ciscoAVPair =~ /^\Q$attr\E=(.*)$/ig) {
+            return $1;
+        } else {
+            $logger->info("Unable to extract $attr of Cisco-AVPair: $ciscoAVPair");
+        }
+    }
+
+    $logger->warn(
+        "Unable to extract $attr for module " . ref($self) . ". SSID-based VLAN assignments won't work. "
+        . "Make sure you enable Vendor Specific Attributes (VSA) on the AP if you want them to work."
+    );
+
+    return ;
+}
+
+=head2 generateACLFromTemplate
+
+Generate an ACL from a template
+
+=cut
+
+sub generateACLFromTemplate {
+    my ($self, $t, $args) = @_;
+
+    for my $k (qw(src_host src_port dst_host dst_port)) {
+        $args->{$k} //= "";
+    }
+
+    my $acl = pf::mini_template->new($t)->process($args);
+
+    # remove double spaces to cleanup ACL
+    $acl =~ s/  / /g;
+    return $acl;
+}
+
+sub aclTemplate { $DEFAULT_ACL_TEMPLATE }
+
+=head2 generateACL
+
+Generate an ACL using the default template
+
+=cut
+
+sub generateACL {
+    my ($self, $args) = @_;
+    return $self->generateACLFromTemplate($self->aclTemplate, $args);
+}
+
+sub canDoCliAccess {
+    my ($self) = @_;
+    return isenabled($self->{_cliAccess});
+}
+
+sub fingerbank_dynamic_acl {
+    my ($self, $mac) = @_;
+    my $logger = $self->logger;
+
+    my @acls;
+    
+    # Always allow access to DHCP and DNS
+    push @acls, $self->generateACL({allow => 1, proto => "udp", dst_port => 67});
+    push @acls, $self->generateACL({allow => 1, proto => "udp", dst_port => 68});
+    push @acls, $self->generateACL({allow => 1, proto => "udp", dst_port => 53});
+    push @acls, $self->generateACL({allow => 1, proto => "tcp", dst_port => 53});
+
+    my $hosts_ports = pf::fingerbank::get_hosts_ports($mac);
+    for my $host_port (@$hosts_ports) {
+        my $host;
+        my $port;
+        if($host_port =~ /(.+):([0-9]+|\*)$/) {
+            $host = $1;
+            $port = $2;
+            my $args = {allow => 1};
+            my @protos;
+
+            if($port ne "*") {
+                $args->{dst_port} = $port;
+                @protos = ("tcp", "udp");
+            }
+            else {
+                @protos = ("ip");
+            }
+
+            for my $proto (@protos) {
+                $args->{proto} = $proto;
+                if($host ne "*") {
+                    my $addresses = resolve($host);
+                    next unless defined($addresses);
+                    for my $addr (@$addresses) {
+                        $args->{dst_host} = $addr;
+                        push @acls, $self->generateACL($args);
+                    }
+                }
+                else {
+                    push @acls, $self->generateACL($args);
+                }
+            }
+        }
+        else {
+            $logger->warn("Ignoring invalid Fingerbank host/port entry '$host_port'");
+        }
+    }
+
+    return \@acls;
+}
+
+=head2 find_user_by_psk
+
+Attempts to find a local user by matching the PSK to the attributes in the RADIUS request
+
+=cut
+
+sub find_user_by_psk {
+    my ($self, $radius_request) = @_;
+    $self->logger->debug("Unbound DPSK not implemented for this switch module");
+    return undef;
 }
 
 =back
@@ -3621,7 +3733,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2017 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 

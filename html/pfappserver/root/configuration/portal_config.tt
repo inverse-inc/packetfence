@@ -11,6 +11,6 @@
     <dt>[% l('Provisioners:') %]</dt> <dd>[% l('PacketFence can "push" provisioning agents on endpoints to auto-configure the WiFi connection during the registration process. You can configure the provisioning agents in this module.') %]</dd>
     <dt>[% l('Portal Modules:') %]</dt> <dd>[% l('The module allows you to deeply customize the captive portal workflows.') %]</dd>
     <dt>[% l('Access Duration:') %]</dt> <dd>[% l('This allows you to set the various access duration that will be available in your actions definition from your authentication sources.') %]</dd>
-    <dt>[% l('Device Registration:') %]</dt> <dd>[% l('This allows you to enable the device registration feature in PacketFence - which allows users to manually register endpoints from a portal page.') %]</dd>
+    <dt>[% l('Device Registration:') %]</dt> <dd>[% l('This allows you to enable the device registration feature in PacketFence - which allows users to manually register endpoints from a portal page. A device registration need to be associated to a connection profile.') %]</dd>
   </dl>
 </div>

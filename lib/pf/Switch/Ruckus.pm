@@ -45,6 +45,7 @@ use pf::constants;
 use pf::config qw(
     $MAC
     $SSID
+    $WEBAUTH_WIRELESS
 );
 use pf::util;
 
@@ -58,10 +59,13 @@ sub description { 'Ruckus Wireless Controllers' }
 
 # CAPABILITIES
 # access technology supported
-sub supportsWirelessDot1x { return $TRUE; }
-sub supportsWirelessMacAuth { return $TRUE; }
-sub supportsExternalPortal { return $TRUE; }
-sub supportsRoleBasedEnforcement { return $TRUE; }
+
+use pf::SwitchSupports qw(
+    WirelessDot1x
+    -WirelessMacAuth
+    ExternalPortal
+    RoleBasedEnforcement
+);
 
 # inline capabilities
 sub inlineCapabilities { return ($MAC,$SSID); }
@@ -74,7 +78,7 @@ Will be activated only if HTTP is selected as a deauth method
 
 sub supportsWebFormRegistration {
     my ($self) = @_;
-    return $self->{_deauthMethod} eq $SNMP::HTTP;
+    return ($self->{_deauthMethod} // '') eq $SNMP::HTTP ? $TRUE : $FALSE;
 }
 
 =item getVersion
@@ -160,7 +164,7 @@ Return the reference to the deauth technique or the default deauth technique.
 =cut
 
 sub deauthTechniques {
-    my ($self, $method) = @_;
+    my ($self, $method, $connection_type) = @_;
     my $logger = $self->logger;
     my $default = $SNMP::RADIUS;
     my %tech = (
@@ -210,6 +214,7 @@ sub parseExternalPortalRequest {
         ssid                    => $req->param('ssid'),
         redirect_url            => $req->param('url'),
         synchronize_locationlog => $FALSE,
+        connection_type         => $WEBAUTH_WIRELESS,
     );
 
     return \%params;
@@ -231,20 +236,30 @@ sub getAcceptForm {
     my $controller_ip = $self->{_ip};
 
     my $html_form = qq[
-        <form name="weblogin_form" action="http://$controller_ip:9997/login" method="POST" style="display:none">
+        <form name="weblogin_form" data-autosubmit="1000" method="POST" action="http://$controller_ip:9997/login" style="display:none">
           <input type="text" name="ip" value="$client_ip" />
           <input type="text" name="username" value="$mac" />
           <input type="text" name="password" value="$mac"/>
           <input type="submit">
         </form>
-
-        <script language="JavaScript" type="text/javascript">
-        window.setTimeout('document.weblogin_form.submit();', 1000);
-        </script>
+        <script src="/content/autosubmit.js" type="text/javascript"></script>
     ];
 
     $logger->debug("Generated the following html form : ".$html_form);
     return $html_form;
+}
+
+=item returnRoleAttribute
+
+What RADIUS Attribute (usually VSA) should the role returned into.
+
+=cut
+
+sub returnRoleAttribute {
+    my ($self) = @_;
+
+    return 'Ruckus-User-Groups';
+
 }
 
 =back
@@ -255,7 +270,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2017 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 

@@ -77,8 +77,11 @@ use pf::util;
 
 # CAPABILITIES
 # access technology supported
-sub supportsWiredMacAuth { return $TRUE; }
-sub supportsWiredDot1x { return $TRUE; }
+use pf::SwitchSupports qw(
+    RoleBasedEnforcement
+    WiredMacAuth
+    WiredDot1x
+);
 # inline capabilities
 sub inlineCapabilities { return ($MAC,$PORT); }
 
@@ -134,7 +137,7 @@ sub getVlan {
     $logger->trace("SNMP get_table for extremeVlanOpaqueUntaggedPorts: $oid_extremeVlanOpaqueUntaggedPorts");
     # obtain raw information
     $self->{_sessionRead}->translate(0);
-    my $result = $self->{_sessionRead}->get_table(-baseoid => "$oid_extremeVlanOpaqueUntaggedPorts");
+    my $result = $self->{_sessionRead}->get_table(-baseoid => "$oid_extremeVlanOpaqueUntaggedPorts", -maxrepetitions  => 1);
     $self->{_sessionRead}->translate(1);
 
     foreach my $vlanIfIndexStack (keys %{$result}) {
@@ -175,10 +178,10 @@ sub getVlans {
 
     # store all the vlan IfIndex => vlan tag to use later
     $logger->trace("SNMP get_table for extremeVlanIfVlanId: $oid_extremeVlanIfVlanId");
-    my $vlanTagsByVlanIfIndex = $self->{_sessionRead}->get_table(-baseoid => "$oid_extremeVlanIfVlanId");
+    my $vlanTagsByVlanIfIndex = $self->{_sessionRead}->get_table(-baseoid => "$oid_extremeVlanIfVlanId", -maxrepetitions  => 1);
 
     $logger->trace("SNMP get_table for ifName: $oid_ifName");
-    my $vlanNamesByVlanIfIndex = $self->{_sessionRead}->get_table(-baseoid => "$oid_ifName");
+    my $vlanNamesByVlanIfIndex = $self->{_sessionRead}->get_table(-baseoid => "$oid_ifName", -maxrepetitions  => 1);
 
     # loop on all vlans joining the two hashes on vlan IfIndex to provide tags => names
     foreach my $key (keys %{$vlanTagsByVlanIfIndex}) {
@@ -212,7 +215,7 @@ sub isDefinedVlan {
     }
 
     $logger->trace("SNMP get_table for extremeVlanIfVlanId: $oid_extremeVlanIfVlanId");
-    my $result = $self->{_sessionRead}->get_table(-baseoid => "$oid_extremeVlanIfVlanId");
+    my $result = $self->{_sessionRead}->get_table(-baseoid => "$oid_extremeVlanIfVlanId", -maxrepetitions  => 1);
 
     # loop on all vlans
     foreach my $vlanIfIndex (keys %{$result}) {
@@ -248,7 +251,7 @@ sub _getMacAtIfIndex {
     my $oid_extremeFdbMacExosFdbPortIfIndex = "1.3.6.1.4.1.1916.1.16.4.1.3"; #from EXTREME-FDB-MIB
 
     $logger->trace("SNMP get_table for extremeFdbMacExosFdbPortIfIndex: $oid_extremeFdbMacExosFdbPortIfIndex");
-    my $resultPortIfIndex = $self->{_sessionRead}->get_table(-baseoid => "$oid_extremeFdbMacExosFdbPortIfIndex");
+    my $resultPortIfIndex = $self->{_sessionRead}->get_table(-baseoid => "$oid_extremeFdbMacExosFdbPortIfIndex", -maxrepetitions  => 1);
 
     # result is of format: extremeFdbMacExosFdbPortIfIndex.<mac>.<vlanIfIndex> = <ifIndex>
     foreach my $oidWithIndex (keys %{$resultPortIfIndex}) {
@@ -305,10 +308,10 @@ sub _getMacAtIfIndexPreXOS {
     my $oid_extremeFdbMacFdbMacAddress = "1.3.6.1.4.1.1916.1.16.1.1.3"; #from EXTREME-FDB-MIB
 
     $logger->trace("SNMP get_table for extremeFdbMacFdbPortIfIndex: $oid_extremeFdbMacFdbPortIfIndex");
-    my $resultPortIfIndex = $self->{_sessionRead}->get_table(-baseoid => "$oid_extremeFdbMacFdbPortIfIndex");
+    my $resultPortIfIndex = $self->{_sessionRead}->get_table(-baseoid => "$oid_extremeFdbMacFdbPortIfIndex", -maxrepetitions  => 1);
 
     $logger->trace("SNMP get_table for extremeFdbMacFdbMacAddress: $oid_extremeFdbMacFdbMacAddress");
-    my $resultMacAddr = $self->{_sessionRead}->get_table(-baseoid => "$oid_extremeFdbMacFdbMacAddress");
+    my $resultMacAddr = $self->{_sessionRead}->get_table(-baseoid => "$oid_extremeFdbMacFdbMacAddress", -maxrepetitions  => 1);
 
     foreach my $oidWithIndex (keys %{$resultPortIfIndex}) {
         if ($resultPortIfIndex->{$oidWithIndex} == $ifIndex) {
@@ -354,10 +357,10 @@ sub getMacBridgePortHash {
     my $oid_dot1dBasePortIfIndex = '1.3.6.1.2.1.17.1.4.1.2';    #from BRIDGE-MIB
 
     $logger->trace("SNMP get_table for dot1dTpFdbPort: $oid_dot1dTpFdbPort");
-    my $resultMacPort = $self->{_sessionRead}->get_table(-baseoid => "$oid_dot1dTpFdbPort");
+    my $resultMacPort = $self->{_sessionRead}->get_table(-baseoid => "$oid_dot1dTpFdbPort", -maxrepetitions  => 1);
 
     $logger->trace("SNMP get_table for dot1dBasePortIfIndex: $oid_dot1dBasePortIfIndex");
-    my $resultPortIfIndex = $self->{_sessionRead}->get_table(-baseoid => "$oid_dot1dBasePortIfIndex");
+    my $resultPortIfIndex = $self->{_sessionRead}->get_table(-baseoid => "$oid_dot1dBasePortIfIndex", -maxrepetitions  => 1);
 
     # merging mac to port and port to ifIndex to get a mac to ifIndex hash
     foreach my $oidMac (keys %{$resultMacPort}) {
@@ -423,7 +426,7 @@ sub _getVlanTagLookupTable {
     }
 
     $logger->trace("SNMP get_table for extremeVlanIfVlanId: $oid_extremeVlanIfVlanId");
-    my $result = $self->{_sessionRead}->get_table(-baseoid => "$oid_extremeVlanIfVlanId");
+    my $result = $self->{_sessionRead}->get_table(-baseoid => "$oid_extremeVlanIfVlanId", -maxrepetitions  => 1);
 
     if (defined($result) && ($result ne 'noSuchInstance')) {
         # here I'm stripping OIDs from the hash's keys
@@ -457,7 +460,7 @@ sub _getVlanIfIndexFromVlanTag {
     }
 
     $logger->trace("SNMP get_table for extremeVlanIfVlanId: $oid_extremeVlanIfVlanId");
-    my $result = $self->{_sessionRead}->get_table(-baseoid => "$oid_extremeVlanIfVlanId");
+    my $result = $self->{_sessionRead}->get_table(-baseoid => "$oid_extremeVlanIfVlanId", -maxrepetitions  => 1);
 
     # loop on all vlans
     foreach my $oidWithVlanIfIndex (keys %{$result}) {
@@ -519,7 +522,7 @@ sub _getVlanTagFromVlanIfDescr {
     }
 
     $logger->trace("SNMP get_table for extremeVlanIfDescr: $oid_extremeVlanIfDescr");
-    my $result = $self->{_sessionRead}->get_table(-baseoid => "$oid_extremeVlanIfDescr");
+    my $result = $self->{_sessionRead}->get_table(-baseoid => "$oid_extremeVlanIfDescr", -maxrepetitions  => 1);
 
     if (!defined($result)) {
         $logger->warn("Unable to retrieve VLAN tag for VLAN $vlanIfDescr");
@@ -600,7 +603,7 @@ sub _getIfIndexLookupTable {
     }
 
     $logger->trace("SNMP get_table for ifName: $oid_ifName");
-    my $result = $self->{_sessionRead}->get_table(-baseoid => "$oid_ifName");
+    my $result = $self->{_sessionRead}->get_table(-baseoid => "$oid_ifName", -maxrepetitions  => 1);
     if (defined($result) && ($result ne 'noSuchInstance')) {
         # here I'm stripping OIDs from the hash's keys
         # changing <oid...>.<IfIndex> => <IfName> into <IfIndex> => <IfName>
@@ -788,11 +791,11 @@ sub _getAllSecureMacAddressesWithSNMP {
     my $vlanIfIndexToTags = $self->_getVlanTagLookupTable();
 
     $logger->trace("SNMP get_table for extremeFdbMacExosFdbPortIfIndex: $oid_extremeFdbMacExosFdbPortIfIndex");
-    my $FdbPortIfIndex = $self->{_sessionRead}->get_table(-baseoid => "$oid_extremeFdbMacExosFdbPortIfIndex");
+    my $FdbPortIfIndex = $self->{_sessionRead}->get_table(-baseoid => "$oid_extremeFdbMacExosFdbPortIfIndex", -maxrepetitions  => 1);
 
     # We read the extremeFdbMacFdbStatus in order to know if there is any MAC static on the port in the vlan
     $logger->trace("SNMP get_table for extremeFdbMacExosFdbStatus: $oid_extremeFdbMacExosFdbStatus");
-    my $FdbStatus = $self->{_sessionRead}->get_table(-baseoid => "$oid_extremeFdbMacExosFdbStatus");
+    my $FdbStatus = $self->{_sessionRead}->get_table(-baseoid => "$oid_extremeFdbMacExosFdbStatus", -maxrepetitions  => 1);
     foreach my $fdb_entry (keys %{$FdbStatus}) {
 
         # Extreme identify static entries in the fdb as management (thus the == $SNMP::MGMT)
@@ -983,11 +986,11 @@ sub _getSecureMacAddressesWithSNMP {
     my $vlanIfIndexToTags = $self->_getVlanTagLookupTable();
 
     $logger->trace("SNMP get_table for extremeFdbMacExosFdbPortIfIndex: $oid_extremeFdbMacExosFdbPortIfIndex");
-    my $FdbPortIfIndex = $self->{_sessionRead}->get_table(-baseoid => "$oid_extremeFdbMacExosFdbPortIfIndex");
+    my $FdbPortIfIndex = $self->{_sessionRead}->get_table(-baseoid => "$oid_extremeFdbMacExosFdbPortIfIndex", -maxrepetitions  => 1);
 
     # We read the extremeFdbMacFdbStatus in order to know if there is any MAC static on the port in the vlan
     $logger->trace("SNMP get_table for extremeFdbMacExosFdbStatus: $oid_extremeFdbMacExosFdbStatus");
-    my $FdbStatus = $self->{_sessionRead}->get_table(-baseoid => "$oid_extremeFdbMacExosFdbStatus");
+    my $FdbStatus = $self->{_sessionRead}->get_table(-baseoid => "$oid_extremeFdbMacExosFdbStatus", -maxrepetitions  => 1);
     foreach my $fdb_entry (keys %{$FdbPortIfIndex}) {
 
         # We are only interested in ports of a specific ifIndex
@@ -1143,7 +1146,7 @@ sub authorizeMAC {
 
     # TODO: if it's a fake MAC we don't act on it (see #1070 for context)
     if ($authMac  && !$self->isFakeMac($authMac)) {
-        $self->_authorizeMAC($ifIndex, $authMac, $authVlan);
+        return $self->_authorizeMAC($ifIndex, $authMac, $authVlan);
     }
 
     return 1;
@@ -1184,7 +1187,7 @@ sub _authorizeMAC {
     };
 
     if ($response->fault) {
-        $logger->warn("error authorizing MAC: " . $response->faultstring
+        $logger->error("error authorizing MAC: " . $response->faultstring
             . " (Error code: " . $response->faultcode . ")");
         return 0;
     }
@@ -1555,6 +1558,29 @@ sub returnAuthorizeWrite {
     return [$status, %$radius_reply_ref];
 }
 
+=item returnRoleAttribute
+
+What RADIUS Attribute (usually VSA) should the role be returned into.
+
+=cut
+
+sub returnRoleAttribute {
+    my ($self) = @_;
+
+    return 'Filter-Id';
+}
+
+=item returnRoleAttributes
+
+Overriding L<pf::Switch>'s implementation to return the decorated role attribute of the switch.
+
+=cut
+
+sub returnRoleAttributes {
+    my ($self, $role) = @_;
+    return ($self->returnRoleAttribute() => "Enterasys:version=1:policy=".$role);
+}
+
 =back
 
 =head1 AUTHOR
@@ -1563,7 +1589,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2017 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 

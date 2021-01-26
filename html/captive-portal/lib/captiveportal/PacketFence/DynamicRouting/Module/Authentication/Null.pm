@@ -19,6 +19,7 @@ use pf::config qw($default_pid);
 use pf::log;
 use pf::auth_log;
 use pf::Authentication::constants;
+use pf::constants::realm;
 
 has '+source' => (isa => 'pf::Authentication::Source::NullSource');
 
@@ -65,12 +66,12 @@ sub authenticate {
         $pid = $self->request_fields->{$self->pid_field};
 
         get_logger->info("Validating e-mail for user $pid");
-        my ($return, $message, $source_id, $extra) = pf::authentication::authenticate({username => $pid, password => '', rule_class => $Rules::AUTH}, $self->source);
+        my ($return, $message, $source_id, $extra) = pf::authentication::authenticate({username => $pid, password => '', rule_class => $Rules::AUTH, context => $pf::constants::realm::PORTAL_CONTEXT}, $self->source);
         if(defined($return) && $return == 1){
-            pf::auth_log::record_auth($source_id, $self->current_mac, $pid, $pf::auth_log::COMPLETED);
+            pf::auth_log::record_auth($source_id, $self->current_mac, $pid, $pf::auth_log::COMPLETED, $self->app->profile->name);
         }
         else {
-            pf::auth_log::record_auth($self->source, $self->current_mac, $pid, $pf::auth_log::FAILED);
+            pf::auth_log::record_auth($source_id, $self->current_mac, $pid, $pf::auth_log::FAILED, $self->app->profile->name);
             $self->app->flash->{error} = $message;
             $self->prompt_fields();
             return;
@@ -79,6 +80,8 @@ sub authenticate {
     }
     else {
         $pid = $default_pid;
+        pf::auth_log::record_auth($self->source->id, $self->current_mac, $pid, $pf::auth_log::COMPLETED, $self->app->profile->name);
+        $self->transfer_saving_fields();
     }
     $self->username($pid);
     $self->done();
@@ -101,7 +104,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2017 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 
@@ -122,7 +125,7 @@ USA.
 
 =cut
 
-__PACKAGE__->meta->make_immutable;
+__PACKAGE__->meta->make_immutable unless $ENV{"PF_SKIP_MAKE_IMMUTABLE"};
 
 1;
 

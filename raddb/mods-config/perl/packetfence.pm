@@ -37,6 +37,7 @@ use warnings;
 use lib '/usr/local/pf/lib/';
 
 #use pf::config; # TODO: See note1
+use pf::log (service => 'rlm_perl');
 use pf::radius::constants;
 use pf::radius::soapclient;
 use pf::radius::rpc;
@@ -447,7 +448,7 @@ Copyright (C) 2002  The FreeRADIUS server project
 
 Copyright (C) 2002  Boian Jordanov <bjordanov@orbitel.bg>
 
-Copyright (C) 2005-2017 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 

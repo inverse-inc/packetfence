@@ -16,14 +16,18 @@ modules.
 
 use strict;
 use warnings;
+no warnings 'portable';
 
+use Cwd;
+use Socket;
+use Number::Range;
 use File::Basename;
 use POSIX::2008;
 use Net::MAC::Vendor;
-use Net::SMTP;
 use File::Path qw(make_path remove_tree);
-use POSIX();
+use POSIX qw(setuid setgid);
 use File::Spec::Functions;
+use Sort::Naturally qw(nsort);
 use File::Slurp qw(read_dir);
 use List::MoreUtils qw(all any);
 use Try::Tiny;
@@ -42,8 +46,10 @@ use Digest::MD5;
 use Time::HiRes qw(stat time);
 use Fcntl qw(:DEFAULT);
 use Net::Ping;
-
-our ( %local_mac );
+use Crypt::OpenSSL::X509;
+use Date::Parse;
+use pf::CHI;
+use pf::constants qw($DIR_MODE);
 
 BEGIN {
     use Exporter ();
@@ -89,13 +95,36 @@ BEGIN {
         pf_chown
         user_chown
         ping
+        run_as_pf
+        find_outgoing_interface
+        strip_filename_from_exceptions
+        expand_csv
+        add_jitter
+        connection_type_to_str
+        str_to_connection_type
+        validate_unregdate
+        find_outgoing_srcip
+        mcmp make_string_cmp make_string_rcmp make_num_rcmp make_num_cmp
+        mac2dec
+        expand_ordered_array
+        make_node_id split_node_id
+        os_detection
+        random_from_range
+        extract
+        ends_with
+        split_pem
+        resolve
     );
 }
 
 # TODO pf::util shouldn't rely on pf::config as this prevent pf::config from
 #      being able to use pf::util
 use pf::constants;
-use pf::constants::config;
+use pf::constants::config qw(
+    %connection_type
+    $UNKNOWN
+    %connection_type_to_str
+);
 use pf::constants::user;
 #use pf::config;
 use pf::log;
@@ -114,11 +143,11 @@ sub valid_date {
     my $logger = get_logger();
 
     # kludgy but short
-    if ( $date
+    if ( !defined $date || $date
         !~ /^\d{4}\-((0[1-9])|(1[0-2]))\-((0[1-9])|([12][0-9])|(3[0-1]))\s+(([01][0-9])|(2[0-3]))(:[0-5][0-9]){2}$/
         )
     {
-        $logger->warn("invalid date $date");
+        $logger->warn("invalid date " . ($date // "'undef'"));
         return (0);
     } else {
         return (1);
@@ -202,13 +231,13 @@ sub clean_mac {
     return "0" unless defined $mac;
 
     # trim garbage
-    $mac =~ s/[\s\-\.:]//g;
+    $mac =~ tr/\-\.:\t\n\r //d;
     # lowercase
     $mac = lc($mac);
     # inject :
-    $mac =~ s/([a-f0-9]{2})(?!$)/$1:/g if ( $mac =~ /^[a-f0-9]{12}$/i );
+    $mac =~ s/([a-f0-9]{2})(?!$)/$1:/g;
     # Untaint MAC (see perldoc perlsec if you don't know what Taint mode is)
-    if ($mac =~ /^([0-9a-zA-Z]{2}:[0-9a-zA-Z]{2}:[0-9a-zA-Z]{2}:[0-9a-zA-Z]{2}:[0-9a-zA-Z]{2}:[0-9a-zA-Z]{2})$/) {
+    if ($mac =~ /^([0-9a-z]{2}:[0-9a-z]{2}:[0-9a-z]{2}:[0-9a-z]{2}:[0-9a-z]{2}:[0-9a-z]{2})$/) {
         return $1;
     }
 
@@ -267,29 +296,33 @@ our $NON_VALID_MAC_REGEX = qr/^(00|ff)(:\g1){5}$/;
 our $VALID_PF_MAC_REGEX = qr/^[0-9a-f]{2}(:[0-9a-f]{2}){5}$/;
 
 sub valid_mac {
-    my ($mac) = @_;
-    return (0) unless defined $mac;
-    my $logger = get_logger();
-    if ( !defined($mac) ) {
-        return(0);
-    }
-    if ( $mac !~ $VALID_MAC_REGEX) {
-        $logger->debug("invalid MAC: $mac");
-        return (0);
-    }
-    $mac = clean_mac($mac);
-    if( !$mac || $mac =~ $NON_VALID_MAC_REGEX || $mac !~ $VALID_PF_MAC_REGEX) {
-        $logger->debug("invalid MAC: " . ($mac?$mac:"empty"));
-        return (0);
-    } else {
-        return (1);
-    }
+   my ($mac) = @_;
+   return (0) unless defined $mac;
+   my $logger = get_logger();
+   if ( !defined($mac) ) {
+       return(0);
+   }
+   if ( $mac !~ $VALID_MAC_REGEX) {
+       $logger->debug("invalid MAC: $mac");
+       return (0);
+   }
+   if ($mac =~ /^((?:\d{1,3}\.){3}\d{1,3})$/) {
+       $logger->debug("invalid MAC: $mac");
+       return (0);
+   }
+   $mac = clean_mac($mac);
+   if( !$mac || $mac =~ $NON_VALID_MAC_REGEX || $mac !~ $VALID_PF_MAC_REGEX) {
+       $logger->debug("invalid MAC: " . ($mac?$mac:"empty"));
+       return (0);
+   } else {
+       return (1);
+   }
 }
 
 =item  macoui2nb
 
 Extract the OUI (Organizational Unique Identifier) from a MAC address then
-converts it into a decimal value. To be used to generate vendormac violations.
+converts it into a decimal value. To be used to generate vendormac security_events.
 
 in: MAC address (of xx:xx:xx:xx:xx format)
 
@@ -307,7 +340,7 @@ sub macoui2nb {
 
 =item  mac2nb
 
-Converts a MAC address into a decimal value. To be used to generate mac violations.
+Converts a MAC address into a decimal value. To be used to generate mac security_events.
 
 in: MAC address (of xx:xx:xx:xx:xx format)
 
@@ -418,19 +451,20 @@ sub isempty {
     return $FALSE;
 }
 
-# TODO port to IO::Interface::Simple?
 sub getlocalmac {
     my ($dev) = @_;
     return (-1) if ( !$dev );
-    return ( $local_mac{$dev} ) if ( defined $local_mac{$dev} );
-    foreach (`LC_ALL=C /sbin/ifconfig -a`) {
-        if (/^$dev.+HWaddr\s+(\w\w:\w\w:\w\w:\w\w:\w\w:\w\w)/i) {
-            # cache the value
-            $local_mac{$dev} = clean_mac($1);
-            return $local_mac{$dev};
+    my $chi = pf::CHI->new(namespace => 'local_mac');
+    my $mac = $chi->compute($dev, sub {
+        foreach (`LC_ALL=C /sbin/ifconfig -a $dev`) {
+            if (/ether\s+(\w\w:\w\w:\w\w:\w\w:\w\w:\w\w)/i) {
+                # cache the value
+                return clean_mac($1);
+            }
         }
-    }
-    return (0);
+        return (0);
+    });
+    return $mac;
 }
 
 sub ip2int {
@@ -461,12 +495,15 @@ This safely modifies the contents of a file using a rename
 =cut
 
 sub safe_file_update {
-    my ($file, $contents) = @_;
+    my ($file, $contents, $binmode) = @_;
     my ($volume, $dir, $filename) = File::Spec->splitpath($file);
     $dir = '.' if $dir eq '';
     # Creates a new file in the same directory to ensure it is on the same filesystem
     pf_make_dir($dir);
     my $temp = File::Temp->new(DIR => $dir) or die "cannot create temp file in $dir";
+    if (defined $binmode) {
+        binmode($temp, $binmode);
+    }
     syswrite $temp, $contents;
     $temp->flush;
     close $temp;
@@ -521,8 +558,6 @@ sub parse_template {
     while (<$template_fh>) {
         study $_;
         foreach my $tag ( keys %{$tags} ) {
-#            use Data::Dumper;
-#            print Dumper($tag, $tags->{$tag});
             $_ =~ s/%%$tag%%/$tags->{$tag}/ig;
         }
         push @parsed, $_;
@@ -535,6 +570,10 @@ sub parse_template {
         ."$comment_char Any changes made to this file will be lost on restart\n\n";
 
     if ($destination) {
+        if ($destination =~ /(.*)\/\w+/) {
+            mkdir $1 unless -d $1;
+            pf_chown($1);
+        }
         my $destination_fh;
         open( $destination_fh, ">", $destination )
             || $logger->logcroak( "Unable to open template destination $destination: $!");
@@ -737,7 +776,7 @@ sub pretty_bandwidth {
     my @units = ("Bytes", "KB", "MB", "GB", "TB", "PB");
     my $x;
 
-    for ($x=0; $bytes>=800 && $x<scalar(@units); $x++ ) {
+    for ($x=0; $bytes>=800 && $x < scalar(@units); $x++ ) {
         $bytes /= 1024;
     }
     my $rounded = sprintf("%.2f",$bytes);
@@ -806,6 +845,12 @@ sub pf_run {
     # Prefixing command using LANG=C to avoid system locale messing up with return
     $command = 'LANG=C ' . $command;
 
+    my $switch_back_wd;
+    if(defined($options{working_directory})) {
+        $switch_back_wd = getcwd();
+        chdir $options{working_directory};
+    }
+
     local $!;
     # Using perl trickery to figure out what the caller expects so I can return him just that
     # this is to perfectly emulate the backtick operator behavior
@@ -814,16 +859,19 @@ sub pf_run {
     if (not defined wantarray) {
         # void context
         `$command`;
+        chdir $switch_back_wd if(defined($switch_back_wd));
         return if ($? == 0);
 
     } elsif (wantarray) {
         # list context
         @result = `$command`;
+        chdir $switch_back_wd if(defined($switch_back_wd));
         return @result if ($? == 0);
 
     } else {
         # scalar context
         $result = `$command`;
+        chdir $switch_back_wd if(defined($switch_back_wd));
         return $result if ($? == 0);
     }
     # copying as soon as possible
@@ -855,6 +903,7 @@ sub pf_run {
         # user specified that this error code is ok
         if (grep { $_ == $exit_status } @{$options{'accepted_exit_status'}}) {
             # we accept the result
+            chdir $switch_back_wd if(defined($switch_back_wd));
             return if (not defined wantarray); # void context
             return @result if (wantarray); # list context
             return $result; # scalar context
@@ -864,6 +913,8 @@ sub pf_run {
             . "Child exited with non-zero value $exit_status"
         );
     }
+    
+    chdir $switch_back_wd if(defined($switch_back_wd));
     return;
 }
 
@@ -937,6 +988,26 @@ sub trim_path {
     }
    return ((@parts == 0) ? '' : catdir(@parts));
 }
+
+
+=item expand_csv
+
+Expands a comma seperated string or an array of comma seperated strings into an array
+
+=cut
+
+sub expand_csv {
+    my ($list) = @_;
+    $list //= [];
+    my @expanded;
+    if (ref $list eq 'ARRAY') {
+        @expanded = @$list;
+    } else {
+        @expanded = $list;
+    }
+    return map {split(/\s*,\s*/, $_)} @expanded;
+}
+
 
 =item pf_chown
 
@@ -1041,12 +1112,12 @@ sub normalize_time {
     my ($date) = @_;
     return undef if (!defined($date));
     if ( $date =~ /^\d+$/ ) {
-        return ($date);
+        return int($date + 0);
 
     } else {
         my ( $num, $modifier ) = $date =~ /^(\d+)($pf::constants::config::TIME_MODIFIER_RE)/ or return (0);
 
-        if ( $modifier eq "s" ) { return ($num);
+        if ( $modifier eq "s" ) { return ($num * 1);
         } elsif ( $modifier eq "m" ) { return ( $num * 60 );
         } elsif ( $modifier eq "h" ) { return ( $num * 60 * 60 );
         } elsif ( $modifier eq "D" ) { return ( $num * 24 * 60 * 60 );
@@ -1106,6 +1177,26 @@ sub cert_is_self_signed {
     return $self_signed;
 }
 
+=item cert_expires_in
+
+Returns either true or false if the given certificate is about to expire in a given delay
+
+Use current time if no delay is given
+
+=cut
+
+sub cert_expires_in {
+    my ($path, $delay) = @_;
+    return undef if !defined $path;
+    my $cert = Crypt::OpenSSL::X509->new_from_file($path);
+    my $expiration = str2time($cert->notAfter);
+
+    $delay = normalize_time($delay) if $delay;
+    $delay = ( $delay ) ? $delay + time : time;
+
+    return $delay > $expiration;
+}
+
 =item strip_username
 
 Will strip a username matching pattern user@realm or \\realm\user
@@ -1139,50 +1230,6 @@ sub strip_username {
         return ($2,$1);
     }
     return $username;
-}
-
-sub send_email {
-    my ($smtp_server, $from, $to, $subject, $template, %info) = @_;
-    my $logger = get_logger();
-
-    my $user_info = pf::person::person_view($to);
-    setlocale(POSIX::LC_MESSAGES, $user_info->{lang});
-    
-    use Locale::gettext qw(bindtextdomain textdomain bind_textdomain_codeset);
-    bindtextdomain( "packetfence", "$conf_dir/locale" );
-    bind_textdomain_codeset( "packetfence", "utf-8" );
-    textdomain("packetfence");
-
-    require pf::web;
-
-    my %TmplOptions = (
-        INCLUDE_PATH    => "$html_dir/captive-portal/templates/emails/",
-        ENCODING        => 'utf8',
-    );
-
-    my %vars = (%info, i18n => \&pf::web::i18n, i18n_format => \&pf::web::i18n_format);
-
-    utf8::decode($subject);
-    my $msg = MIME::Lite::TT->new(
-        From        =>  $from,
-        To          =>  $to,
-        Bcc         =>  $info{'bcc'},
-        Subject     =>  encode("MIME-Header", $subject),
-        'Content-Type' => 'text/html; charset="UTF-8"',
-        Template    =>  "emails-$template.html",
-        TmplOptions =>  \%TmplOptions,
-        TmplParams  =>  \%vars,
-    );
-
-    my $result = 0;
-    try {
-      $msg->send('smtp', $smtp_server, Timeout => 20);
-      $result = $msg->last_send_successful();
-      $logger->info("Email sent to ".$to." (".$subject.")");
-    }
-    catch {
-      $logger->error("Can't send email to ".$to.": $!");
-    };
 }
 
 sub generate_session_id {
@@ -1266,7 +1313,7 @@ sub pf_make_dir {
         {
             user => $pf::constants::user::PF_UID,
             group => $pf::constants::user::PF_GID,
-            mode => 02775,
+            mode => $DIR_MODE,
         }
     );
 }
@@ -1317,6 +1364,31 @@ sub validate_date {
     return $valid;
 }
 
+=item validate_unregdate
+
+Check if a date is between 1970-01-01 and 2038-01-18 or 0000-MM-DD
+
+=cut
+
+sub validate_unregdate {
+    my ($date) = @_;
+    my $valid = $FALSE;
+    if ($date eq "0000-00-00") {
+        return $TRUE;
+    }
+
+    if ($date !~ /^0{1,4}-(\d\d-\d\d)/) {
+        return validate_date($date);
+    }
+
+    if (eval { Time::Piece->strptime($1, "%m-%d") } ) {
+        $valid =  $TRUE;
+    }
+
+    return $valid;
+}
+
+
 =item clean_locale
 
 Clean the format of the locale stored
@@ -1339,7 +1411,7 @@ Parse an api action spec
 
 sub parse_api_action_spec {
     my ($spec) = @_;
-    unless ($spec =~ /^\s*(?<api_method>[a-zA-Z0-9_]+)\s*:\s*(?<api_parameters>.*)$/) {
+    unless ($spec =~ /^\s*(?<api_method>[a-zA-Z0-9_\.]+)\s*:\s*(?<api_parameters>.*)$/) {
         return undef;
     }
     #return a copy of the named captures hash
@@ -1352,6 +1424,313 @@ sub ping {
     return $p->ping($host);
 }
 
+=head2 run_as_pf
+
+Sets the UID and GID of the currently running process to pf
+
+=cut
+
+sub run_as_pf {
+    my (undef, undef,$uid,$gid) = getpwnam('pf');
+    
+    # Early return if we're already running as pf
+    return $TRUE if($uid == $<);
+
+    unless(setgid($gid)) {
+        my $msg = "Cannot switch process user to pf. setgid to $gid has failed";
+        print STDERR $msg . "\n";
+        get_logger->error($msg);
+        return $FALSE;
+    }
+    
+    unless(setuid($uid)) {
+        my $msg = "Cannot switch process user to pf. setuid to $uid has failed";
+        print STDERR $msg . "\n";
+        get_logger->error($msg);
+        return $FALSE;
+    }
+
+    return $TRUE;
+}
+
+=head2 find_outgoing_interface
+
+Find the outgoing interface from a specific incoming interface
+
+=cut
+
+sub find_outgoing_interface {
+    my ($gateway, $dev) = @_;
+    my @interface_src;
+
+    if (defined $dev) {
+        @interface_src = split(" ", pf_run("sudo ip route get 8.8.8.8 from $gateway iif $dev"));
+    } else {
+        @interface_src = split(" ", pf_run("sudo ip route get 8.8.8.8 from $gateway"));
+    }
+
+    if ($interface_src[3] eq 'via') {
+        return $interface_src[6];
+    } else {
+        return $interface_src[2];
+    }
+}
+
+=head2 find_outgoing_srcip
+
+Find the src_ip to reach the target
+
+=cut
+
+sub find_outgoing_srcip {
+    my ($target) = @_;
+    my @src_ip;
+
+    @src_ip = split(" ", pf_run("sudo ip route get $target"));
+
+    if ($src_ip[1] eq 'via') {
+        return $src_ip[6];
+    } elsif($src_ip[0] eq 'local') {
+        return $src_ip[5];
+    } else {
+        return $src_ip[4];
+    }
+}
+
+=head2 strip_filename_from_exceptions
+
+Strip out filename from exception messages
+
+=cut
+
+sub strip_filename_from_exceptions {
+    my ($exception) = @_;
+    if (defined $exception) {
+        $exception =~ s/^(.*) at .* line \d+\.$/$1/s;
+    }
+    return $exception;
+}
+
+=head2 add_jitter($number, $jitter)
+
+Add a random number from (-$jitter to $jitter) to $number
+
+=cut
+
+sub add_jitter {
+    my ($number, $jitter) = @_;
+    return $number + int(rand(2 * $jitter + 1)) - $jitter;
+}
+
+=head2 str_to_connection_type
+
+In the database we store the connection type as a string but we use a constant binary value internally.
+This parses the string from the database into the the constant binary value.
+
+return connection_type constant (as defined in pf::config) or undef if connection type not found
+
+=cut
+
+sub str_to_connection_type {
+    my ($conn_type_str) = @_;
+    my $logger = get_logger();
+
+    # convert database string into connection_type constant
+    if (defined($conn_type_str) && $conn_type_str ne '' && defined($connection_type{$conn_type_str})) {
+
+        return $connection_type{$conn_type_str};
+    } elsif (defined($conn_type_str) && $conn_type_str eq '') {
+
+        $logger->debug("got an empty connection_type, this happens if we discovered the node but it never connected");
+        return $UNKNOWN;
+
+    } else {
+        my ($package, undef, undef, $routine) = caller(1);
+        $logger->warn("unable to parse string into a connection_type constant. called from $package $routine");
+        return;
+    }
+}
+
+=head2 connection_type_to_str
+
+In the database we store the connection type as a string but we use a constant binary value internally.
+This converts from the constant binary value to the string.
+
+return connection_type string (as defined in pf::config) or an empty string if connection type not found
+
+=cut
+
+sub connection_type_to_str {
+    my ($conn_type) = @_;
+    my $logger = get_logger();
+
+    # convert connection_type constant into a string for database
+    if (defined($conn_type) && $conn_type ne '' && defined($connection_type_to_str{$conn_type})) {
+
+        return $connection_type_to_str{$conn_type};
+    } else {
+        my ($package, undef, undef, $routine) = caller(1);
+        $logger->warn("unable to convert connection_type to string. called from $package $routine");
+        return '';
+    }
+}
+
+=head2 mcmp
+
+Compare two items based off multiple comparsions
+
+=cut
+
+sub mcmp {
+    my ($aa, $bb, $cmps) = @_;
+    my $r;
+    die "No compare given" if @$cmps == 0;
+    #Stop at the first non equal comparsion
+    for my $cmp (@$cmps) {
+       $r = $cmp->($aa, $bb);
+       return $r if $r != 0;
+    }
+
+    return $r;
+}
+
+sub make_string_cmp {
+    my ($key) = @_;
+    return sub {
+        my ($a, $b) = @_;
+        if (exists $a->{$key} && exists $b->{$key}) {
+            my $aa = $a->{$key};
+            my $bb = $b->{$key};
+            return 0 if !defined $aa && !defined $bb;
+            return 1 if !defined $bb;
+            return -1 if !defined $aa;
+            return $aa cmp $bb;
+        }
+        return 1 if exists $a->{$key};
+        return -1 if exists $b->{$key};
+        return 0;
+    };
+}
+
+sub make_string_rcmp {
+    my ($key) = @_;
+    my $cmp = make_string_cmp($key);
+    return sub {
+       return $cmp->($_[1], $_[0]);
+    };
+}
+
+sub make_num_rcmp {
+    my ($key) = @_;
+    return sub {
+        $_[1]->{$key} <=> $_[0]->{$key}
+    };
+}
+
+sub make_num_cmp {
+    my ($key) = @_;
+    return sub {
+        $_[0]->{$key} <=> $_[1]->{$key}
+    };
+}
+
+sub mac2dec {
+    my ($mac) = @_;
+    return join (".",  map { hex($_) } split( /:/, $mac ));
+}
+
+sub expand_ordered_array {
+    my ($item, $items_key, $item_key) = @_;
+    my @keys = nsort grep {/^\Q$item_key\E\.\d+$/} keys %$item;
+    $item->{$items_key} = [delete @$item{@keys}];
+}
+
+sub make_node_id {
+    my ($tenant_id, $mac) = @_;
+    $mac =~ tr/://d; #A faster way to delete a character
+    return ($tenant_id << 48) | hex($mac);
+}
+
+sub split_node_id {
+    my ($node_id) = @_;
+    my $tenant_id = $node_id >> 48;
+    my $mac = clean_mac(sprintf("%012x",$node_id & 0x0000FFFFFFFFFFFF));
+    return ($tenant_id, $mac);
+}
+
+=item os_detection -  check the os system
+
+=cut
+
+sub os_detection {
+    my $logger = get_logger();
+    if (-e '/etc/debian_version') {
+        return "debian";
+    }elsif (-e '/etc/redhat-release') {
+        return "rhel";
+    }
+}
+
+=head2 random_from_range
+
+return random int in a range
+
+=cut
+
+sub random_from_range {
+    my ($value) = @_;
+    my $range = Number::Range->new($value);
+    my $count = $range->size;
+    my @array = $range->range;
+    return $array[rand($count)];
+}
+
+=head2 extract
+
+extract
+
+=cut
+
+sub extract {
+    my ($str, $match, $template, $default) = @_;
+    if ($str =~ /$match/) {
+        my @start = @-;
+        my @end = @+;
+        my $out = $template;
+        $out =~ s/(\$(\d+))/substr($str, $start[$2], $end[$2] - $start[$2])/ge;
+        return $out;
+    }
+
+    return $default;
+}
+
+sub ends_with {
+    return $_[1] eq substr($_[0], -length($_[1]));
+}
+
+sub split_pem {
+    my ($s) = @_;
+    my @parts;
+    while ($s =~ /-----BEGIN (.*?)-----/g ) {
+        my $type = $1;
+        if ( $s =~ /(.*?)-----END \Q$type\E-----/gs) {
+            push @parts, "-----BEGIN $type-----\n$1-----END $type-----\n";
+        }
+    }
+    return @parts;
+}
+
+sub resolve {
+    my ($name) = @_;
+    my $logger = get_logger;
+    my @addresses = gethostbyname($name);
+    unless(@addresses) {
+        $logger->error("Unable to resolve $name");
+        return undef;
+    }
+    @addresses = map { inet_ntoa($_) } @addresses[4 .. $#addresses];
+    return \@addresses;
+}
 
 =back
 
@@ -1363,7 +1742,7 @@ Minor parts of this file may have been contributed. See CREDITS.
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2017 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 Copyright (C) 2005 Kevin Amorin
 

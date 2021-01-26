@@ -1,3 +1,5 @@
+#!/usr/bin/perl
+
 =head1 NAME
 
 provisioner
@@ -26,8 +28,8 @@ use Test::Exception;
 
 our $TEST_CATEGORY = "test";
 
-our $ANDROID_DEVICE = 'Generic Android';
-our $APPLE_DEVICE   = 'Apple iPod, iPhone or iPad',
+our $ANDROID_DEVICE = 'Android OS';
+our $APPLE_DEVICE   = 'iOS',
 our $TEST_NODE_ATTRIBUTE = { category => $TEST_CATEGORY };
 
 use_ok("pf::provisioner::mobileconfig");
@@ -51,7 +53,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2017 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 

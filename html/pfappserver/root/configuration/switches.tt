@@ -1,0 +1,17 @@
+<div class="card">
+  <div class="card-title">
+    <h2>[% l('Network Devices') %] [% doc('_network_devices_definition_switches_conf') | none %]</h2>
+  </div>
+  <div class="card-block">
+    <ul class="nav nav-tabs">
+      [% FOREACH available_tab IN tabs.keys %]
+      <li [% IF tab == available_tab %]class="active"[% END %]>
+        <a href="#configuration/switches/[% available_tab %]">[% l(tabs.$available_tab.name) %]</a>
+      </li>
+      [% END %]
+    </ul>
+    <div class="tab-content">
+      [% inner_content | none %]
+    </div>
+  </div>
+</div>

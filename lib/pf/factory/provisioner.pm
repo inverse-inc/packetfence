@@ -14,7 +14,11 @@ pf::factory::provisioner
 
 use strict;
 use warnings;
-use Module::Pluggable search_path => 'pf::provisioner', sub_name => 'modules' , require => 1;
+use Module::Pluggable
+  search_path => 'pf::provisioner',
+  sub_name    => 'modules',
+  inner       => 0,
+  require     => 1;
 use List::MoreUtils qw(any);
 use pf::provisioner;
 use pf::config qw(%ConfigProvisioning);
@@ -51,7 +55,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2017 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 

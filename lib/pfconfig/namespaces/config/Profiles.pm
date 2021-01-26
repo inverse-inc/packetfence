@@ -39,8 +39,8 @@ sub init {
     my ($self) = @_;
     $self->{file}            = $profiles_config_file;
     $self->{default_section} = "default";
-    $self->{child_resources} = [ 'FilterEngine::Profile', 'resource::URI_Filters' ];
-    my $defaults = Config::IniFiles->new(-file => $profiles_default_config_file);
+    $self->{child_resources} = [ 'FilterEngine::Profile', 'resource::URI_Filters', 'resource::ProfileReverseLookup', 'resource::RolesReverseLookup'];
+    my $defaults = pf::IniFiles->new(-file => $profiles_default_config_file);
     $self->{added_params}{'-import'} = $defaults;
 }
 
@@ -49,10 +49,26 @@ sub build_child {
     my @uri_filters;
     my %Profiles_Config = %{ $self->{cfg} };
     $self->cleanup_whitespaces( \%Profiles_Config );
+    my %reverseLookup;
 
     while ( my ( $key, $profile ) = each %Profiles_Config ) {
-        foreach my $field (qw(locale sources filter provisioners)) {
+        foreach my $field (qw(locale sources provisioners billing_tiers scans)) {
             $profile->{$field} = [ split( /\s*,\s*/, $profile->{$field} || '' ) ];
+        }
+        foreach my $field (qw(filter)) {
+            $profile->{$field} = [ map {s/,,/,/g;$_} split( /\s*(?<!,),(?!,)\s*/ , $profile->{$field} || '' ) ];
+        }
+        foreach my $field (qw(sources provisioners billing_tiers scans self_service root_module)) {
+            my $values = $profile->{$field};
+            if (ref ($values) eq '') {
+                next if !defined $values || $values eq '';
+
+                $values = [$values];
+            }
+
+            for my $val (@$values) {
+                push @{$reverseLookup{$field}{$val}}, $key;
+            }
         }
         my @template_paths = ($captiveportal_default_profile_templates_path, $captiveportal_templates_path);
         if ($key eq 'default') {
@@ -87,9 +103,9 @@ sub build_child {
     @uri_filters = uniq @uri_filters;
     $self->{uri_filters} = \@uri_filters;
     $self->{engine_profile} = pf::filter_engine::profile->new({ ordered_ids => \@profiles, config => \%Profiles_Config });
+    $self->{reverseLookup} = \%reverseLookup;
 
     return \%Profiles_Config;
-
 }
 
 =head1 AUTHOR
@@ -98,7 +114,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2017 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 

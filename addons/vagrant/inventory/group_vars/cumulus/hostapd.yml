@@ -1,0 +1,14 @@
+---
+hostapd__auth_server_addr: '{{ packetfence_server_mgmt_ip }}'
+hostapd__auth_server_shared_secret: 'testing123'
+hostapd__acct_server_addr: '{{ packetfence_server_mgmt_ip }}'
+hostapd__acct_server_shared_secret: 'testing123'
+hostapd__radius_das_client: '{{ packetfence_server_mgmt_ip }} testing123'
+hostapd__radius_das_require_event_timestamp: '0'
+hostapd__radius_das_require_message_authenticator: '0'
+
+# based on access duration value provided by authentication rules
+hostapd__eap_reauth_period: '180'
+
+# number of seconds before starting MAB, based on "sleep_some_time" test suite value
+hostapd__mab_activation_delay: '10'

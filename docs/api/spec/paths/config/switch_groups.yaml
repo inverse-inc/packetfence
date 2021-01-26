@@ -1,0 +1,17 @@
+/config/switch_groups:
+  description: pf::UnifiedApi::Controller::Config::SwitchGroups
+  get:
+    description: List items
+    operationId: api.v1.Config::SwitchGroups.list
+    parameters: []
+    responses:
+      '200':
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ConfigSwitchGroupsList'
+        description: List
+      '400':
+        $ref: '#/components/responses/BadRequest'
+      '422':
+        $ref: '#/components/responses/UnprocessableEntity'

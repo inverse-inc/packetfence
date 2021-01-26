@@ -17,10 +17,9 @@
       <div class="row-fluid">
         <div class="span4">
           <div class="well">
-            <h3>[% l('Instructions') %]</H3>
+            <h3>[% l('Instructions') %]</h3>
             <p>[% l('On this page, you need to modify the default admin user password that will be used to access the web administrative interface of PacketFence.') %]</p>
             <p>[% l('After completing all the steps of the configuration wizard, you will be redirected to the administrative interface of PacketFence. To access it, you will need to enter the credentials you defined on this page.') %]</p>
-            <p>[% l('Please note that if you do not change the password, the default one is <em>admin</em>.') %]</p>
           </div>
         </div>
         <div class="span14">

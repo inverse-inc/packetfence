@@ -2,10 +2,11 @@ package firewallsso
 
 import (
 	"context"
+	"testing"
+
 	"github.com/inverse-inc/packetfence/go/log"
 	"github.com/inverse-inc/packetfence/go/pfconfigdriver"
 	"github.com/inverse-inc/packetfence/go/util"
-	"testing"
 )
 
 var ctx = log.LoggerNewContext(context.Background())
@@ -15,6 +16,7 @@ var sampleInfo = map[string]string{
 	"ip":       "1.2.3.4",
 	"mac":      "00:11:22:33:44:55",
 	"role":     "default",
+	"status":   "reg",
 }
 
 func TestStart(t *testing.T) {
@@ -35,19 +37,19 @@ func TestStart(t *testing.T) {
 	}
 	mockfw.init(ctx)
 
-	result, _ := ExecuteStart(ctx, mockfw, map[string]string{"ip": "172.20.0.1", "role": "default", "mac": "00:11:22:33:44:55", "username": "lzammit"}, 0)
+	result, _ := ExecuteStart(ctx, mockfw, map[string]string{"ip": "172.20.0.1", "role": "default", "mac": "00:11:22:33:44:55", "username": "lzammit", "status": "reg"}, 0)
 	if !result {
 		t.Error("SSO didn't succeed with valid parameters")
 	}
 
 	// invalid role, invalid IP
-	result, _ = ExecuteStart(ctx, mockfw, map[string]string{"ip": "1.2.3.4", "role": "no-sso-on-that", "mac": "00:11:22:33:44:55", "username": "lzammit"}, 0)
+	result, _ = ExecuteStart(ctx, mockfw, map[string]string{"ip": "1.2.3.4", "role": "no-sso-on-that", "mac": "00:11:22:33:44:55", "username": "lzammit", "status": "reg"}, 0)
 	if result {
 		t.Error("SSO succeeded with invalid parameters")
 	}
 
 	// valid role, invalid IP
-	result, _ = ExecuteStart(ctx, mockfw, map[string]string{"ip": "1.2.3.4", "role": "default", "mac": "00:11:22:33:44:55", "username": "lzammit"}, 0)
+	result, _ = ExecuteStart(ctx, mockfw, map[string]string{"ip": "1.2.3.4", "role": "default", "mac": "00:11:22:33:44:55", "username": "lzammit", "status": "reg"}, 0)
 	if result {
 		t.Error("SSO succeeded with invalid parameters")
 	}
@@ -62,14 +64,14 @@ func TestStart(t *testing.T) {
 	}
 	mockfw.init(ctx)
 
-	result, _ = ExecuteStart(ctx, mockfw, map[string]string{"ip": "172.20.0.1", "role": "gaming", "mac": "00:11:22:33:44:55", "username": "lzammit"}, 0)
+	result, _ = ExecuteStart(ctx, mockfw, map[string]string{"ip": "172.20.0.1", "role": "gaming", "mac": "00:11:22:33:44:55", "username": "lzammit", "status": "reg"}, 0)
 
 	if !result {
 		t.Error("SSO failed with valid parameters")
 	}
 
 	// invalid role, IP doesn't matter
-	result, _ = ExecuteStart(ctx, mockfw, map[string]string{"ip": "1.2.3.4", "role": "no-sso-on-that", "mac": "00:11:22:33:44:55", "username": "lzammit"}, 0)
+	result, _ = ExecuteStart(ctx, mockfw, map[string]string{"ip": "1.2.3.4", "role": "no-sso-on-that", "mac": "00:11:22:33:44:55", "username": "lzammit", "status": "reg"}, 0)
 
 	if result {
 		t.Error("SSO succeeded with invalid parameters")
@@ -96,14 +98,14 @@ func TestStop(t *testing.T) {
 	mockfw.init(ctx)
 
 	// invalid role, invalid IP, so shouldn't do it
-	result, _ := ExecuteStop(ctx, mockfw, map[string]string{"ip": "1.2.3.4", "role": "no-sso-on-that", "mac": "00:11:22:33:44:55", "username": "lzammit"})
+	result, _ := ExecuteStop(ctx, mockfw, map[string]string{"ip": "1.2.3.4", "role": "no-sso-on-that", "mac": "00:11:22:33:44:55", "username": "lzammit", "status": "reg"})
 
 	if result {
 		t.Error("SSO succeeded with invalid parameters")
 	}
 
 	// invalid role, valid IP, so should do it because role doesn't matter in stop
-	result, _ = ExecuteStop(ctx, mockfw, map[string]string{"ip": "172.20.0.1", "role": "no-sso-on-that", "mac": "00:11:22:33:44:55", "username": "lzammit"})
+	result, _ = ExecuteStop(ctx, mockfw, map[string]string{"ip": "172.20.0.1", "role": "no-sso-on-that", "mac": "00:11:22:33:44:55", "username": "lzammit", "status": "reg"})
 
 	if !result {
 		t.Error("SSO failed with invalid parameters")
@@ -253,4 +255,48 @@ func TestGetCacheTimeout(t *testing.T) {
 		t.Errorf("Cache timeout is invalid. Expected %d and got %d", expected, fw.GetCacheTimeout(ctx))
 	}
 
+}
+
+func TestFormatUsername(t *testing.T) {
+	factory := NewFactory(ctx)
+
+	// Firewall that wants to format it $realm\$username
+	fw, err := factory.Instantiate(ctx, "testfw")
+	util.CheckTestError(t, err)
+
+	// Test it while having all the infos
+	username := fw.FormatUsername(ctx, map[string]string{
+		"username":          "bobby@example.com",
+		"stripped_username": "bobby",
+		"realm":             "example.com",
+	})
+
+	if username != "example.com\\bobby" {
+		t.Errorf("Unexpected username out of the formatting %s", username)
+	}
+
+	// Test missing the realm
+	username = fw.FormatUsername(ctx, map[string]string{
+		"username":          "bobby@example.com",
+		"stripped_username": "bobby",
+	})
+
+	if username != "pouet\\bobby" {
+		t.Errorf("Unexpected username out of the formatting %s", username)
+	}
+
+	// Firewall that wants the format $pf_username
+	fw, err = factory.Instantiate(ctx, "testfw2")
+	util.CheckTestError(t, err)
+
+	// Test it while having all the infos
+	username = fw.FormatUsername(ctx, map[string]string{
+		"username":          "bobby@example.com",
+		"stripped_username": "bobby",
+		"realm":             "example.com",
+	})
+
+	if username != "bobby@example.com" {
+		t.Errorf("Unexpected username out of the formatting %s", username)
+	}
 }

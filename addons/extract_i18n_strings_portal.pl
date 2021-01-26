@@ -14,7 +14,7 @@ can be localized.
 =cut
 
 use File::Find;
-use lib qw(/usr/local/pf/lib /usr/local/pf/html/pfappserver/lib);
+use lib qw(/usr/local/pf/lib);
 use pf::web::constants;
 use pf::person;
 
@@ -133,7 +133,7 @@ Extract localizable strings from Models and Controllers classes.
 =cut
 
 sub parse_mc {
-    my @modules = ('lib/pf/web.pm');
+    my @modules = ('lib/pf/web.pm', 'lib/pf/pfcron/task/password_of_the_day.pm');
     my @dir = qw(lib/pf/web html/captive-portal/lib/captiveportal/PacketFence/Controller html/captive-portal/lib/captiveportal/PacketFence/DynamicRouting html/captive-portal/lib/captiveportal/PacketFence/Form);
 
     my $pm = sub {
@@ -155,7 +155,15 @@ sub parse_mc {
                 my $string = $2;
                 $string =~ s/\\'/'/g;
                 add_string($string, $module);
-            } elsif ($line =~ m/(title|message|label)\s+=>\s+['"]([^\$].+?[^'"\\])["']/) {
+            } elsif ($line =~ m/"(.+?)".*? \# i18n defer$/) {
+                my $string = $1;
+                $string =~ s/\\'/'/g;
+                add_string($string, $module);
+            } elsif ($line =~ m/i18n(_format)?\(['"](.+?)["']/) {
+                my $string = $2;
+                $string =~ s/\\'/'/g;
+                add_string($string, $module);
+            } elsif ($line =~ m/(title|message|label)'?\s+=>\s+['"]([^\$].+?[^'"\\])["']/) {
                 my $string = $2;
                 $string =~ s/\\'/'/g;
                 add_string($string, $module);
@@ -220,7 +228,7 @@ sub print_po {
 
     print <<EOT;
 # English translations for $package package.
-# Copyright (C) 2005-2017 Inverse inc.
+# Copyright (C) 2005-2021 Inverse inc.
 # This file is distributed under the same license as the $package package.
 #
 msgid ""
@@ -293,7 +301,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2017 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 

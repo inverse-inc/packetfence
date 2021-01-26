@@ -53,6 +53,7 @@ use pf::config qw(
 use pf::file_paths qw($html_dir);
 use pf::password;
 use pf::util;
+use pf::config::util qw();
 use pf::web qw(i18n ni18n i18n_format render_template);
 use pf::web::constants;
 use pf::web::guest::constants;
@@ -65,6 +66,7 @@ our $VERSION = 1.41;
 
 our $SPONSOR_CONFIRMED_TEMPLATE = "activation/sponsor_accepted.html";
 our $SPONSOR_LOGIN_TEMPLATE = "activation/sponsor_login.html";
+our $SPONSOR_SET_ACCESS_DURATIONS_TEMPLATE = "activation/sponsor_set_access_durations.html";
 
 # flag used in URLs
 Readonly our $GUEST_REGISTRATION => "guest-register";
@@ -78,6 +80,7 @@ Readonly our $TEMPLATE_EMAIL_EMAIL_PREREGISTRATION_CONFIRMED => 'guest_email_pre
 Readonly our $TEMPLATE_EMAIL_SPONSOR_PREREGISTRATION => 'guest_sponsor_preregistration';
 Readonly our $TEMPLATE_EMAIL_GUEST_ADMIN_PREREGISTRATION => 'guest_admin_pregistration';
 Readonly our $TEMPLATE_EMAIL_LOCAL_ACCOUNT_CREATION => 'guest_local_account_creation';
+Readonly our $TEMPLATE_EMAIL_PASSWORD_OF_THE_DAY => 'guest_password_of_the_day';
 
 our $EMAIL_FROM = undef;
 
@@ -111,42 +114,11 @@ sub aup {
 =cut
 
 sub send_template_email {
-    my ($template, $subject, $info) = @_;
-    my $logger = get_logger();
-
-    my $smtpserver = $Config{'alerting'}{'smtpserver'};
-    # local override (EMAIL_FROM) or pf.conf's value or root@domain
-    my $from = $pf::web::guest::EMAIL_FROM || $Config{'alerting'}{'fromaddr'} || 'root@' . $fqdn;
-
-    my $import_succesfull = try { require MIME::Lite::TT; };
-    if (!$import_succesfull) {
-        $logger->error(
-            "Could not send email because I couldn't load a module. ".
-            "Are you sure you have MIME::Lite::TT installed?"
-        );
-        return $FALSE;
-    }
-
-    my %TmplOptions = (
-        INCLUDE_PATH    => "$html_dir/captive-portal/templates/emails/",
-        ENCODING        => 'utf8',
-    );
-    my %vars = (%$info, i18n => \&i18n, i18n_format => \&i18n_format);
+    my ($template, $subject, $info, $tmpoptions) = @_;
     utf8::decode($subject);
-    my $msg = MIME::Lite::TT->new(
-        From        =>  $from,
-        To          =>  $info->{'email'},
-        Bcc         =>  $info->{'bcc'},
-        Subject     =>  encode("MIME-Header", $subject),
-        Template    =>  "emails-$template.html",
-        TmplOptions =>  \%TmplOptions,
-        TmplParams  =>  \%vars,
-        TmplUpgrade =>  1,
-    );
-    $msg->attr("Content-Type" => "text/html; charset=UTF-8;");
-
-    $msg->send('smtp', $smtpserver, Timeout => 20)
-        or $logger->warn("problem sending guest registration email");
+    my %data = %$info;
+    $data{from} ||= $pf::web::guest::EMAIL_FROM;
+    return pf::config::util::send_email($template, $info->{email}, $subject, \%data, $tmpoptions);
 }
 
 =back
@@ -157,7 +129,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2017 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 

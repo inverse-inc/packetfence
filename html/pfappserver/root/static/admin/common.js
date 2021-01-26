@@ -143,7 +143,7 @@ function changeInputFromTemplate(oldInput, template, keep_value) {
     newInput.removeAttr('id');
     newInput.attr('id', oldInput.attr('id'));
     newInput.attr('name', oldInput.attr('name'));
-    newInput.attr('data-required', 1);
+    newInput.attr('data-required', oldInput.attr('data-required'));
     if (keep_value && oldInput.val()) {
         if (newInput.attr('multiple')) {
             newInput.val(oldInput.val().split(","));
@@ -153,7 +153,7 @@ function changeInputFromTemplate(oldInput, template, keep_value) {
         }
     }
     newInput.insertBefore(oldInput);
-    oldInput.next(".chzn-container").remove();
+    oldInput.next(".chosen-container").remove();
 
     // Remove previous field
     oldInput.remove();
@@ -162,11 +162,33 @@ function changeInputFromTemplate(oldInput, template, keep_value) {
 }
 
 /*
+ * Checks if element has a modal as a parent
+ */
+function has_parent_modal() {
+    return $(this).parents('.modal').length > 0;
+}
+
+/*
+ * Checks if element does not have a modal as a parent
+ */
+function has_no_parent_modal() {
+    return $(this).parents('.modal').length === 0;
+}
+
+/*
  * Initialize the rendering widgets of some elements
  */
 function initWidgets(elements) {
-    elements.filter('.chzn-select').chosen({width: ''});
-    elements.filter('.chzn-deselect').chosen({allow_single_deselect: true, width: ''});
+    var chzn_select = elements.filter('.chzn-select');
+    // Chosen select must have a zero width in modal
+    chzn_select.filter(has_parent_modal).chosen({width:''});
+    chzn_select.filter(has_no_parent_modal).chosen({});
+    fixChosenClipping(chzn_select);
+    var chzn_deselect = elements.filter('.chzn-deselect');
+    // Chosen deselect must have a zero width in modal
+    chzn_select.filter(has_parent_modal).chosen({allow_single_deselect: true, width:''});
+    chzn_select.filter(has_no_parent_modal).chosen({allow_single_deselect: true});
+    fixChosenClipping(chzn_deselect);
     elements.filter('.timepicker-default').each(function() {
         // Keep the placeholder visible if the input has no value
         var defaultTime = $(this).val().length? 'value' : false;
@@ -257,9 +279,10 @@ function doUpdateSection(ajax_data) {
                         $(this).timepicker({ defaultTime: defaultTime, showSeconds: false, showMeridian: false });
                     });
                     section.find('.chzn-select:visible').chosen();
-                    section.find('.chzn-deselect:visible').chosen({allow_single_deselect: true});
+                    section.find('.chzn-deselect:visible').chosen({allow_single_deselect: true, search_contains: true});
+                    fixChosenClipping(section.find('.chzn-select:visible, .chzn-deselect:visible'));
                     section.find('.switch').bootstrapSwitch();
-                    if (typeof Clipboard !== 'undefined' && Clipboard.isSupported())
+                    if (typeof ClipboardJS !== 'undefined' && ClipboardJS.isSupported())
                         section.find('.clipboard .icon-clipboard').tooltip({ title: _('Copy') });
                     else
                         section.find('.clipboard .icon-clipboard').remove();
@@ -513,9 +536,9 @@ $(function () { // DOM ready
         $('.sidenav-fluid .sidenav-section').each(function() {
             var $section = $(this);
             if ($section.attr('data-category') == category)
-                $section.show();
+                $section.removeClass('hide');
             else
-                $section.hide();
+                $section.addClass('hide');
         });
         $('.sidenav-fluid .sidenav-section .active').removeClass('active');
     }
@@ -544,6 +567,40 @@ $(function () { // DOM ready
         return true;
     });
 
+    $('body').on('click', 'a[data-toggle="date-picker"]', function(event) {
+        event.preventDefault();
+        var a = $(event.currentTarget);
+        $.ajax({
+            url : a.attr('href'),
+            type : 'POST'
+        }).done(function(data){
+            var start_date_id = a.attr("data-start-date");
+            var start_time_id = a.attr("data-start-time");
+            var end_date_id = a.attr("data-end-date");
+            var end_time_id = a.attr("data-end-time");
+            var time_offset = data.time_offset;
+            var start = time_offset.start;
+            var end = time_offset.end;
+            if (start_date_id) {
+                var start_date_input = $(start_date_id);
+                start_date_input.datepicker("setDate", start.date);
+            }
+            if (start_time_id) {
+                var start_time_input = $(start_time_id);
+                start_time_input.timepicker("setTime", start.time);
+            }
+            if (end_date_id) {
+                var end_date_input = $(end_date_id);
+                end_date_input.datepicker("setDate", end.date);
+            }
+            if (end_time_id) {
+                var end_time_input = $(end_time_id);
+                end_time_input.timepicker("setTime", end.time);
+            }
+        });
+        return false;
+    });
+
     /* Register events for animation of sidebar tooltips */
     $('.sidenav-category').on('mouseenter', '[data-category]', function(event) {
         var $this = $(this);
@@ -566,8 +623,8 @@ $(function () { // DOM ready
     $('#navbar [data-toggle="tooltip"]').tooltip({placement: 'bottom'});
 
     /* Configure tooltips of "copy to clipboard" buttons */
-    if (typeof Clipboard !== "undefined" && Clipboard.isSupported()) {
-        var clipboard = new Clipboard('.icon-clipboard.btn-icon');
+    if (typeof ClipboardJS !== "undefined" && ClipboardJS.isSupported()) {
+        var clipboard = new ClipboardJS('.icon-clipboard.btn-icon');
         clipboard.on('success', function(e) {
             var btn = $(e.trigger);
             btn.tooltip('destroy').tooltip({ title: _('Copied') }).tooltip('show');
@@ -598,9 +655,9 @@ $(function () { // DOM ready
         var index = target.children().length;
         dynamic_list_update_all_attributes(copy, base_id, index);
         target.append(copy.children());
-        target.children().last().trigger('dynamic-list.add');
         target_wrapper.removeClass('hidden');
         template_control_group.addClass('hidden');
+        target.children().last().trigger('dynamic-list.add');
         return false;
     });
 
@@ -857,6 +914,8 @@ $(function () { // DOM ready
                 tbody.children(':not(.hidden)').find('[href="#delete"]').removeClass('hidden');
             }
             row_new.trigger('admin.added');
+            /* Trigger SELECT change event to inherit additional triggers */ 
+            row_new.find('select[name$=".type"]').trigger('change');
         }
         return false;
     });
@@ -1075,11 +1134,15 @@ $(function () { // DOM ready
         $('#section').find('.sidenav-section').each(function() {
             if (this.id && sidenav.find('#' + this.id).length > 0)
                 // Section is already there; show it
-                sidenav.find('#' + this.id).show();
+                sidenav.find('#' + this.id).removeClass('hide');
             else {
                 // Append section
-                $(this).detach().appendTo(sidenav).show();
+                $(this).detach().appendTo(sidenav).removeClass('hide');
             }
+        });
+
+        $('[data-pf-toggle="password"]').on('mouseenter focus', function(event) {
+            event.currentTarget.removeAttribute('readonly');
         });
     });
 
@@ -1244,8 +1307,11 @@ FingerbankSearch.setup = function() {
               display = this.display;
             }
           });
-          if(search.add_action) {
-            eval(search.add_action + "(search,id,display)");
+          if (search.add_action) {
+            if (search.add_action == 'security_eventsView.add_fingerbank_trigger')
+              security_eventsView.add_fingerbank_trigger(search, id, display);
+            else
+              console.warn("Unhandled add-action \"" + search.add_action + "\"");
           }
           else {
             if(display !== undefined) {

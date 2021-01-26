@@ -30,6 +30,18 @@ has value => (
     required => 1,
 );
 
+sub BUILD {
+    my ($self) = @_;
+
+    eval {
+        $self->match("test");
+    };
+
+    if($@) {
+        die "Unable to build regexp ".$self->value."\n";
+    }
+}
+
 =head2 match
 
 Match if argument matches the regex defined
@@ -37,8 +49,8 @@ Match if argument matches the regex defined
 =cut
 
 sub match {
-    my ($self,$arg) = @_;
-    my $match = $self->value;
+    my ($self,$arg,$args) = @_;
+    my $match = $self->evalParam($self->value, $args);
     return 0 if(!defined($arg));
     return $arg =~ /$match/;
 }
@@ -49,7 +61,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2017 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 

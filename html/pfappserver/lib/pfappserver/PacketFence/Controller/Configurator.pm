@@ -82,8 +82,7 @@ Configurator controller dispatcher
 sub object :Chained('/') :PathPart('configurator') :CaptureArgs(0) {
     my ( $self, $c ) = @_;
 
-    $c->stash->{installation_type} = $c->model('Configurator')->checkForUpgrade();
-    if ($c->stash->{installation_type} eq $pfappserver::Model::Configurator::CONFIGURATION) {
+    if (!$c->model('Configurator')->isEnabled()) {
         my $admin_url = $c->uri_for($c->controller('Admin')->action_for('index'));
         $c->log->info("Redirecting to admin interface $admin_url");
         $c->response->redirect($admin_url);
@@ -211,7 +210,7 @@ sub networks :Chained('object') :PathPart('networks') :Args(0) {
         my @missing = ();
 
         foreach my $enforcement (keys %{$c->session->{enforcements}}) {
-            my $types_ref = $c->model('Enforcement')->getAvailableTypes($enforcement);
+            my $types_ref = $c->model('Enforcement')->getRequiredTypes($enforcement);
             foreach my $type (@{$types_ref}) {
                 unless (exists $selected_types{$type} ||
                         $type eq 'other' ||
@@ -249,6 +248,10 @@ sub networks :Chained('object') :PathPart('networks') :Args(0) {
         $c->stash->{interfaces} = $interfaces_ref;
         $c->stash->{seen_networks} = $c->model('Interface')->map_interface_to_networks($c->stash->{interfaces});
     }
+
+    # Remove some CSP restrictions to accomodate Chosen (the select-on-steroid widget):
+    #  - Allows use of inline source elements (eg style attribute)
+    $c->stash->{csp_headers} = { style => "'unsafe-inline'" };
 }
 
 =head2 database
@@ -485,7 +488,7 @@ sub services :Chained('object') :PathPart('services') :Args(0) {
             $c->stash->{'admin_port'} = $c->model('PfConfigAdapter')->getWebAdminPort();
         }
 
-        my ($status, $services) = $c->model('Services')->status();
+        my ($status, $services) = $c->model('Services')->status(1);
         if ( is_success($status) ) {
             $c->log->info("successfully listed services");
             $c->stash($services);
@@ -504,9 +507,9 @@ sub services :Chained('object') :PathPart('services') :Args(0) {
             $c->model("Config::System")->restart_pfconfig();
             $c->detach(Service => 'pf_start');
         } else {
-            my ($HTTP_CODE, $services) = $c->model('Services')->status;
+            my ($HTTP_CODE, $services) = $c->model('Services')->status(1);
             if( all { $_->{status} ne '0' } @{ $services->{services} } ) {
-                $c->model('Configurator')->update_currently_at();
+                $c->model('Configurator')->disableConfigurator();
             }
             $c->controller('Service')->_process_model_results_as_json($c, $HTTP_CODE, $services);
         }
@@ -519,7 +522,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2017 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 
@@ -540,6 +543,6 @@ USA.
 
 =cut
 
-__PACKAGE__->meta->make_immutable;
+__PACKAGE__->meta->make_immutable unless $ENV{"PF_SKIP_MAKE_IMMUTABLE"};
 
 1;

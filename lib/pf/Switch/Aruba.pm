@@ -65,6 +65,9 @@ use pf::constants;
 use pf::config qw(
     $MAC
     $SSID
+    $WEBAUTH_WIRELESS
+    $WIRED_802_1X
+    $WIRED_MAC_AUTH
 );
 use pf::Switch::constants;
 use pf::util;
@@ -72,7 +75,6 @@ sub description { 'Aruba Networks' }
 use pf::roles::custom;
 use pf::accounting qw(node_accounting_current_sessionid);
 use pf::util::radius qw(perform_coa perform_disconnect);
-use pf::node qw(node_attributes);
 
 =head1 SUBROUTINES
 
@@ -84,12 +86,14 @@ TODO: this list is incomplete
 
 # CAPABILITIES
 # access technology supported
-sub supportsRoleBasedEnforcement { return $TRUE; }
-sub supportsWirelessDot1x { return $TRUE; }
-sub supportsWirelessMacAuth { return $TRUE; }
-sub supportsExternalPortal { return $TRUE; }
-sub supportsWiredMacAuth { return $TRUE; }
-sub supportsWiredDot1x { return $TRUE; }
+use pf::SwitchSupports qw(
+    RoleBasedEnforcement
+    WirelessDot1x
+    WirelessMacAuth
+    ExternalPortal
+    WiredMacAuth
+    WiredDot1x
+);
 
 # inline capabilities
 sub inlineCapabilities { return ($MAC,$SSID); }
@@ -145,6 +149,20 @@ New implementation using RADIUS Disconnect-Request.
 
 sub deauthenticateMacDefault {
     my ( $self, $mac, $is_dot1x ) = @_;
+    my $logger = $self->logger;
+
+    if ( !$self->isProductionMode() ) {
+        $logger->info("(".$self->{'_id'}.") not in production mode... we won't perform deauthentication");
+        return 1;
+    }
+
+    $logger->debug("(".$self->{'_id'}.") deauthenticate using RADIUS Disconnect-Request deauth method");
+    return $self->radiusDisconnect($mac);
+}
+
+
+sub WiredDeauthenticateMacDefault {
+    my ( $self, $ifindex, $mac ) = @_;
     my $logger = $self->logger;
 
     if ( !$self->isProductionMode() ) {
@@ -412,7 +430,7 @@ Return the reference to the deauth technique or the default deauth technique.
 =cut
 
 sub deauthTechniques {
-    my ($self, $method) = @_;
+    my ($self, $method, $connection_type) = @_;
     my $logger = $self->logger;
     my $default = $SNMP::RADIUS;
     my %tech = (
@@ -425,6 +443,41 @@ sub deauthTechniques {
     }
     return $method,$tech{$method};
 }
+
+=head2 wiredeauthTechniques
+
+Return the reference to the deauth technique or the default deauth technique.
+
+=cut
+
+sub wiredeauthTechniques {
+    my ($self, $method, $connection_type) = @_;
+    my $logger = $self->logger;
+    if ($connection_type == $WIRED_802_1X) {
+        my $default = $SNMP::RADIUS;
+        my %tech = (
+            $SNMP::RADIUS=> 'WiredDeauthenticateMacDefault',
+        );
+
+        if (!defined($method) || !defined($tech{$method})) {
+            $method = $default;
+        }
+        return $method,$tech{$method};
+    }
+    if ($connection_type == $WIRED_MAC_AUTH) {
+        my $default = $SNMP::RADIUS;
+        my %tech = (
+            $SNMP::RADIUS=> 'WiredDeauthenticateMacDefault',
+        );
+
+        if (!defined($method) || !defined($tech{$method})) {
+            $method = $default;
+        }
+        return $method,$tech{$method};
+    }
+}
+
+
 
 =item radiusDisconnect
 
@@ -479,7 +532,6 @@ sub radiusDisconnect {
         my $role = $roleResolver->getRoleForNode($mac, $self);
 
         my $acctsessionid = node_accounting_current_sessionid($mac);
-        my $node_info = node_attributes($mac);
         # transforming MAC to the expected format 00-11-22-33-CA-FE
         $mac = uc($mac);
         $mac =~ s/:/-/g;
@@ -488,7 +540,11 @@ sub radiusDisconnect {
         my $attributes_ref = {
             'Calling-Station-Id' => $mac,
             'NAS-IP-Address' => $send_disconnect_to,
-            'Acct-Session-Id' => $acctsessionid,
+            # jsemaan@inverse.ca
+            # All controllers we see now don't want the Acct-Session-Id so I removed it
+            # Feel free to uncomment it if you're running a really really old controller version
+            # For the record, all the deployments we made or upgraded recently required the removal of this attribute
+            #'Acct-Session-Id' => $acctsessionid,
         };
 
         # merging additional attributes provided by caller to the standard attributes
@@ -558,12 +614,52 @@ sub parseExternalPortalRequest {
         client_ip               => $req->param('ip'),
         ssid                    => $req->param('essid'),
         redirect_url            => $req->param('url'),
-        synchronize_locationlog =>  $FALSE,
+        synchronize_locationlog => $FALSE,
+        connection_type         => $WEBAUTH_WIRELESS,
     );
 
     return \%params;
 }
 
+=item returnAuthorizeWrite
+
+Return radius attributes to allow write access
+
+=cut
+
+sub returnAuthorizeWrite {
+   my ($self, $args) = @_;
+   my $logger = $self->logger;
+   my $radius_reply_ref = {};
+   my $status;
+   $radius_reply_ref->{'Class'} = 'root';
+   $radius_reply_ref->{'Reply-Message'} = "Switch enable access granted by PacketFence";
+   $logger->info("User $args->{'user_name'} logged in $args->{'switch'}{'_id'} with write access");
+   my $filter = pf::access_filter::radius->new;
+   my $rule = $filter->test('returnAuthorizeWrite', $args);
+   ($radius_reply_ref, $status) = $filter->handleAnswerInRule($rule,$args,$radius_reply_ref);
+   return [$status, %$radius_reply_ref];
+}
+
+=item returnAuthorizeRead
+
+Return radius attributes to allow read access
+
+=cut
+
+sub returnAuthorizeRead {
+   my ($self, $args) = @_;
+   my $logger = $self->logger;
+   my $radius_reply_ref = {};
+   my $status;
+   $radius_reply_ref->{'Class'} = 'read-only';
+   $radius_reply_ref->{'Reply-Message'} = "Switch read access granted by PacketFence";
+   $logger->info("User $args->{'user_name'} logged in $args->{'switch'}{'_id'} with read access");
+   my $filter = pf::access_filter::radius->new;
+   my $rule = $filter->test('returnAuthorizeRead', $args);
+   ($radius_reply_ref, $status) = $filter->handleAnswerInRule($rule,$args,$radius_reply_ref);
+   return [$status, %$radius_reply_ref];
+}
 
 =item
 
@@ -577,7 +673,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2017 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 

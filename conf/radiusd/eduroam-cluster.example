@@ -27,29 +27,31 @@ server eduroam.cluster {
         }
 
         authorize {
-                update control {
-                        Load-Balance-Key := "%{Calling-Station-Id}"
-                        Proxy-To-Realm := "eduroam.cluster"
-                }
-                if(!NAS-IP-Address){
-                        update request {
-                                NAS-IP-Address := "%{Packet-Src-IP-Address}"
-                        }
-                }
+            packetfence-set-realm-if-machine
+            suffix
+            ntdomain
+            %%local_realm%%
+            if(!NAS-IP-Address || NAS-IP-Address == "0.0.0.0"){
+                    update request {
+                            NAS-IP-Address := "%{Packet-Src-IP-Address}"
+                    }
+            }
         }
 
 
         authenticate {
         }
         accounting {
-                update control {
-                        Proxy-To-Realm := "eduroam.cluster"
-                }
-                if(!NAS-IP-Address){
-                        update request {
-                                NAS-IP-Address := "%{Packet-Src-IP-Address}"
-                        }
-                }
+            update control {
+                    # It does not make sense to send accounting data to Eduroam
+                    # so we keep it locally.
+                    Proxy-To-Realm := "packetfence"
+            }
+            if(!NAS-IP-Address || NAS-IP-Address == "0.0.0.0"){
+                    update request {
+                            NAS-IP-Address := "%{Packet-Src-IP-Address}"
+                    }
+            }
         }
 
 }

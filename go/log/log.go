@@ -1,20 +1,24 @@
+
 package log
 
 import (
 	"context"
-	"github.com/cevaris/ordered_map"
-	"github.com/inverse-inc/packetfence/go/sharedutils"
-	"github.com/google/uuid"
-	log "github.com/inconshreveable/log15"
-	"log/syslog"
 	"os"
 	"strconv"
 	"strings"
+
+	"github.com/cevaris/ordered_map"
+	"github.com/google/uuid"
+	log "github.com/inconshreveable/log15"
+	"github.com/inverse-inc/packetfence/go/sharedutils"
 )
 
 const RequestUuidKey = "request-uuid"
 const ProcessPidKey = "pid"
 const LoggerKey = "logger"
+const LogLevel = "loglevel"
+
+type PfLogger = log.Logger
 
 const AdditionnalLogElementsKey = "additionnal-log-elements"
 
@@ -26,6 +30,12 @@ type LoggerStruct struct {
 	handler    log.Handler
 	inDebug    bool
 	processPid string
+	Level      string
+}
+
+// Set the ProcessName
+func SetProcessName(Name string) {
+	ProcessName = Name
 }
 
 // Create a new logger from an existing one with the same confiuration
@@ -35,6 +45,7 @@ func (l LoggerStruct) NewLogger() LoggerStruct {
 	new.handler = l.handler
 	new.inDebug = l.inDebug
 	new.processPid = l.processPid
+	new.Level = l.Level
 
 	return new
 }
@@ -57,6 +68,7 @@ func (l *LoggerStruct) SetHandler(handler log.Handler) {
 // This will Die/panic if the provided level is invalid
 func LoggerSetLevel(ctx context.Context, levelStr string) context.Context {
 	logger := loggerFromContext(ctx)
+	logger.Level = levelStr
 
 	levelStr = strings.ToLower(levelStr)
 
@@ -76,6 +88,12 @@ func LoggerSetLevel(ctx context.Context, levelStr string) context.Context {
 	return ctx
 }
 
+// Get the level of a logger from a context
+func LoggerGetLevel(ctx context.Context) string {
+	logger := loggerFromContext(ctx)
+	return logger.Level
+}
+
 // Add a handler to a logger in the context
 func LoggerAddHandler(ctx context.Context, f func(*log.Record) error) context.Context {
 	logger := loggerFromContext(ctx)
@@ -89,12 +107,17 @@ func LoggerAddHandler(ctx context.Context, f func(*log.Record) error) context.Co
 func initContextLogger(ctx context.Context) context.Context {
 	logger := newLoggerStruct()
 
-	syslogBackend, _ := log.SyslogHandler(syslog.LOG_INFO, ProcessName, log.LogfmtFormat())
-	logger.SetHandler(syslogBackend)
+	logger.SetHandler(getLogBackend())
 
 	logger.processPid = strconv.Itoa(os.Getpid())
 
 	ctx = context.WithValue(ctx, LoggerKey, logger)
+
+	level := sharedutils.EnvOrDefault("LOG_LEVEL", "")
+	if level != "" {
+		//logger.logger.Info("Setting log level to " + level)
+		ctx = LoggerSetLevel(ctx, level)
+	}
 
 	return ctx
 }

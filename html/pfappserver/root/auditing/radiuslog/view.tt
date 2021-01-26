@@ -37,8 +37,8 @@
           <table class="table table-condensed table-striped">
               [% FOREACH field IN radius_fields%]
               <tr>
-                <td style="white-space: pre;">[% l(field) %]</td>
-                <td style="white-space: pre;">[% item.$field%]</td>
+                <td class="wrap-linebreaks">[% l(field) %]</td>
+                <td class="wrap-linebreaks">[% item.$field%]</td>
               </tr>
               [% END %]
           </table>

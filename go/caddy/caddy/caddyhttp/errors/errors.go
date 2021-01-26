@@ -1,3 +1,17 @@
+// Copyright 2015 Light Code Labs, LLC
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
 // Package errors implements an HTTP error handling middleware.
 package errors
 
@@ -128,7 +142,7 @@ func (h ErrorHandler) recovery(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Trim file path
-	delim := "/caddy/"
+	delim := "/github.com/inverse-inc/packetfence/go/caddy/caddy/"
 	pkgPathPos := strings.Index(file, delim)
 	if pkgPathPos > -1 && len(file) > pkgPathPos+len(delim) {
 		file = file[pkgPathPos+len(delim):]

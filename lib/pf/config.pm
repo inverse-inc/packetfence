@@ -40,7 +40,7 @@ use Time::Local;
 use Linux::Distribution;
 use DateTime;
 use pf::constants::Connection::Profile;
-use pf::cluster;
+use pf::config::cluster;
 use pf::constants::config qw(
   $IF_ENFORCEMENT_DNS
   $IF_ENFORCEMENT_VLAN
@@ -74,6 +74,33 @@ use pf::constants::config qw(
   $SELFREG_MODE_KICKBOX
   $SELFREG_MODE_BLACKHOLE
   %NET_INLINE_TYPES
+
+  $WIRELESS_802_1X
+  $WIRELESS_MAC_AUTH
+  $WIRED_802_1X
+  $WIRED_MAC_AUTH
+  $WIRED_SNMP_TRAPS
+  $UNKNOWN
+  $INLINE
+  $WEBAUTH
+  $WEBAUTH_WIRED
+  $WEBAUTH_WIRELESS
+  $VIRTUAL_VPN
+  $VIRTUAL_CLI
+  $VIRTUAL_WIREGUARD
+
+  $WIRELESS
+  $WIRED
+  $EAP
+  $VIRTUAL
+
+  %connection_type
+  %connection_type_to_str
+  %connection_type_explained
+  %connection_type_explained_to_str
+  %connection_group
+  %connection_group_to_str
+  @connection_wired_types
 );
 use pfconfig::cached_array;
 use pfconfig::cached_scalar;
@@ -84,7 +111,7 @@ use pf::util;
 our (
     @listen_ints, @dhcplistener_ints, @ha_ints, $monitor_int,
     @internal_nets, @routed_isolation_nets, @routed_registration_nets, @inline_nets, @portal_ints,@radius_ints,
-    @inline_enforcement_nets, @vlan_enforcement_nets, $management_network,
+    @inline_enforcement_nets, @vlan_enforcement_nets, $management_network, @dhcp_ints, @dns_ints,
 #pf.conf.default variables
     %Default_Config,
 #pf.conf variables
@@ -104,13 +131,12 @@ our (
 #profiles.conf variables
     @Profile_Filters, %Profiles_Config,
 
-    %connection_type, %connection_type_to_str, %connection_type_explained, %connection_type_explained_to_str,
-    %connection_group, %connection_group_to_str,
     %mark_type_to_str, %mark_type,
     $thread, $fqdn, $reverse_fqdn,
     %CAPTIVE_PORTAL,
 #realm.conf
     %ConfigRealm,
+    @ConfigOrderedRealm,
 #provisioning.conf
     %ConfigProvisioning,
 #domain.conf
@@ -131,14 +157,30 @@ our (
     %ConfigPortalModules,
 #conf/local_secret
     $local_secret,
+#conf/unified_api_system_pass
+    $unified_api_system_user,
 #Switches Group
     %ConfigSwitchesGroup,
 #Switches List
     %ConfigSwitchesList,
 #Reports
     %ConfigReport,
+#Surveys
+    %ConfigSurvey,
 #Roles
     %ConfigRoles,
+#self_service.conf
+    %ConfigSelfService,
+#ldap authentication sources
+    %ConfigAuthenticationLdap,
+# Radius sources
+    %ConfigAuthenticationRadius,
+# Eduroam source
+    %ConfigAuthenticationEduroam,
+# TLS configuration
+    %ConfigEAP,
+# EDIR sources
+    %ConfigAuthenticationEdir,
 );
 
 BEGIN {
@@ -149,7 +191,7 @@ BEGIN {
     @EXPORT_OK = qw(
         @listen_ints @dhcplistener_ints @ha_ints $monitor_int
         @internal_nets @routed_isolation_nets @routed_registration_nets @inline_nets $management_network @portal_ints @radius_ints
-        @inline_enforcement_nets @vlan_enforcement_nets
+        @inline_enforcement_nets @vlan_enforcement_nets @dhcp_ints @dns_ints
         $IPTABLES_MARK_UNREG $IPTABLES_MARK_REG $IPTABLES_MARK_ISOLATION
         %mark_type_to_str %mark_type
         $MAC $PORT $SSID $ALWAYS
@@ -158,15 +200,15 @@ BEGIN {
         %ConfigNetworks %ConfigAuthentication %ConfigOAuth
         %ConfigFloatingDevices
         $ACCOUNTING_POLICY_TIME $ACCOUNTING_POLICY_BANDWIDTH
-        $WIPS_VID $thread $fqdn $reverse_fqdn
+        $WIPS_SECURITY_EVENT_ID $thread $fqdn $reverse_fqdn
         $IF_INTERNAL $IF_ENFORCEMENT_VLAN $IF_ENFORCEMENT_INLINE $IF_ENFORCEMENT_DNS
-        $WIRELESS_802_1X $WIRELESS_MAC_AUTH $WIRED_802_1X $WIRED_MAC_AUTH $WIRED_SNMP_TRAPS $UNKNOWN $INLINE
+        $WIRELESS_802_1X $WIRELESS_MAC_AUTH $WIRED_802_1X $WIRED_MAC_AUTH $WIRED_SNMP_TRAPS $UNKNOWN $INLINE $WEBAUTH $WEBAUTH_WIRED $WEBAUTH_WIRELESS $VIRTUAL_VPN $VIRTUAL_CLI $VIRTUAL_WIREGUARD
         $NET_TYPE_INLINE $NET_TYPE_INLINE_L2 $NET_TYPE_INLINE_L3
-        $WIRELESS $WIRED $EAP
+        $WIRELESS $WIRED $EAP $VIRTUAL
         $WEB_ADMIN_NONE $WEB_ADMIN_ALL
         $VOIP $NO_VOIP $NO_PORT $NO_VLAN
         %connection_type %connection_type_to_str %connection_type_explained %connection_type_explained_to_str
-        %connection_group %connection_group_to_str
+        %connection_group %connection_group_to_str @connection_wired_types
         $RADIUS_API_LEVEL $ROLE_API_LEVEL $INLINE_API_LEVEL $AUTHENTICATION_API_LEVEL $BILLING_API_LEVEL
         $ROLES_API_LEVEL
         $SELFREG_MODE_EMAIL $SELFREG_MODE_SMS $SELFREG_MODE_SPONSOR $SELFREG_MODE_GOOGLE $SELFREG_MODE_FACEBOOK $SELFREG_MODE_GITHUB $SELFREG_MODE_INSTAGRAM $SELFREG_MODE_LINKEDIN $SELFREG_MODE_PRINTEREST $SELFREG_MODE_WIN_LIVE $SELFREG_MODE_TWITTER $SELFREG_MODE_NULL $SELFREG_MODE_KICKBOX $SELFREG_MODE_BLACKHOLE
@@ -182,6 +224,7 @@ BEGIN {
         $DISTRIB $DIST_VERSION
         %Doc_Config
         %ConfigRealm
+        @ConfigOrderedRealm
         %ConfigProvisioning
         %ConfigDomain
         $default_pid
@@ -193,50 +236,43 @@ BEGIN {
         %ConfigAdminRoles
         %ConfigPortalModules
         $local_secret
+        $unified_api_system_user
         %ConfigSwitchesGroup
         %ConfigSwitchesList
         %ConfigReport
+        %ConfigSurvey
         %ConfigRoles
+        %ConfigSelfService
+        %ConfigAuthenticationLdap
+        %ConfigAuthenticationRadius
+        %ConfigAuthenticationEduroam
+        %ConfigEAP
+        %ConfigAuthenticationEdir
     );
 }
 
 tie %Doc_Config, 'pfconfig::cached_hash', 'config::Documentation';
 
-# if we're doing clustering, we'll use the config overlaying
-if($cluster_enabled) {
-    tie %Config, 'pfconfig::cached_hash', "config::Pf($host_id)";
-    tie @dhcplistener_ints,  'pfconfig::cached_array', "interfaces::dhcplistener_ints($host_id)";
-    tie @ha_ints, 'pfconfig::cached_array', "interfaces::ha_ints($host_id)";
-    tie @listen_ints, 'pfconfig::cached_array', "interfaces::listen_ints($host_id)";
-    tie @inline_enforcement_nets, 'pfconfig::cached_array', "interfaces::inline_enforcement_nets($host_id)";
-    tie @internal_nets, 'pfconfig::cached_array', "interfaces::internal_nets($host_id)";
-    tie @portal_ints, 'pfconfig::cached_array', "interfaces::portal_ints($host_id)";
-    tie @radius_ints, 'pfconfig::cached_array', "interfaces::radius_ints($host_id)";
-    tie @vlan_enforcement_nets, 'pfconfig::cached_array', "interfaces::vlan_enforcement_nets($host_id)";
-    tie $management_network, 'pfconfig::cached_scalar', "interfaces::management_network($host_id)";
-    tie $monitor_int, 'pfconfig::cached_scalar', "interfaces::monitor_int($host_id)";
-    tie @routed_isolation_nets, 'pfconfig::cached_array', "interfaces::routed_isolation_nets($host_id)";
-    tie @routed_registration_nets, 'pfconfig::cached_array', "interfaces::routed_registration_nets($host_id)";
-    tie @inline_nets, 'pfconfig::cached_array', "interfaces::inline_nets($host_id)";
-    tie %ConfigDomain, 'pfconfig::cached_hash', "config::Domain($host_id)";
-}
-else {
-    tie %Config, 'pfconfig::cached_hash', "config::Pf";
-    tie @dhcplistener_ints,  'pfconfig::cached_array', "interfaces::dhcplistener_ints";
-    tie @ha_ints, 'pfconfig::cached_array', "interfaces::ha_ints";
-    tie @listen_ints, 'pfconfig::cached_array', "interfaces::listen_ints";
-    tie @inline_enforcement_nets, 'pfconfig::cached_array', "interfaces::inline_enforcement_nets";
-    tie @internal_nets, 'pfconfig::cached_array', "interfaces::internal_nets";
-    tie @portal_ints, 'pfconfig::cached_array', "interfaces::portal_ints";
-    tie @radius_ints, 'pfconfig::cached_array', "interfaces::radius_ints";
-    tie @vlan_enforcement_nets, 'pfconfig::cached_array', "interfaces::vlan_enforcement_nets";
-    tie $management_network, 'pfconfig::cached_scalar', "interfaces::management_network";
-    tie $monitor_int, 'pfconfig::cached_scalar', "interfaces::monitor_int";
-    tie @routed_isolation_nets, 'pfconfig::cached_array', "interfaces::routed_isolation_nets";
-    tie @routed_registration_nets, 'pfconfig::cached_array', "interfaces::routed_registration_nets";
-    tie @inline_nets, 'pfconfig::cached_array', "interfaces::inline_nets";
-    tie %ConfigDomain, 'pfconfig::cached_hash', "config::Domain";
-}
+my $host_id = $pf::config::cluster::host_id;
+# Cluster compatible namespaces requiring the host ID to be provided
+tie %Config, 'pfconfig::cached_hash', "config::Pf($host_id)";
+tie @dhcplistener_ints,  'pfconfig::cached_array', "interfaces::dhcplistener_ints($host_id)";
+tie @ha_ints, 'pfconfig::cached_array', "interfaces::ha_ints($host_id)";
+tie @listen_ints, 'pfconfig::cached_array', "interfaces::listen_ints($host_id)";
+tie @inline_enforcement_nets, 'pfconfig::cached_array', "interfaces::inline_enforcement_nets($host_id)";
+tie @internal_nets, 'pfconfig::cached_array', "interfaces::internal_nets($host_id)";
+tie @portal_ints, 'pfconfig::cached_array', "interfaces::portal_ints($host_id)";
+tie @radius_ints, 'pfconfig::cached_array', "interfaces::radius_ints($host_id)";
+tie @dhcp_ints, 'pfconfig::cached_array', "interfaces::dhcp_ints($host_id)";
+tie @dns_ints, 'pfconfig::cached_array', "interfaces::dns_ints($host_id)";
+tie @vlan_enforcement_nets, 'pfconfig::cached_array', "interfaces::vlan_enforcement_nets($host_id)";
+tie $management_network, 'pfconfig::cached_scalar', "interfaces::management_network($host_id)";
+tie $monitor_int, 'pfconfig::cached_scalar', "interfaces::monitor_int($host_id)";
+tie @routed_isolation_nets, 'pfconfig::cached_array', "interfaces::routed_isolation_nets($host_id)";
+tie @routed_registration_nets, 'pfconfig::cached_array', "interfaces::routed_registration_nets($host_id)";
+tie @inline_nets, 'pfconfig::cached_array', "interfaces::inline_nets($host_id)";
+tie %ConfigDomain, 'pfconfig::cached_hash', "config::Domain($host_id)";
+tie %ConfigNetworks, 'pfconfig::cached_hash', "config::Network($host_id)";
 
 tie %Default_Config, 'pfconfig::cached_hash', 'config::PfDefault';
 
@@ -247,13 +283,14 @@ tie $reverse_fqdn, 'pfconfig::cached_scalar', 'resource::reverse_fqdn';
 tie %Profiles_Config, 'pfconfig::cached_hash', 'config::Profiles';
 tie @Profile_Filters, 'pfconfig::cached_array', 'resource::Profile_Filters';
 
-tie %ConfigNetworks, 'pfconfig::cached_hash', 'config::Network';
 tie %ConfigAuthentication, 'pfconfig::cached_hash', 'resource::authentication_config_hash';
 tie %ConfigFloatingDevices, 'pfconfig::cached_hash', 'config::FloatingDevices';
 
 tie %ConfigFirewallSSO, 'pfconfig::cached_hash', 'config::Firewall_SSO';
 
-tie %ConfigRealm, 'pfconfig::cached_hash', 'config::Realm';
+tie %ConfigRealm, 'pfconfig::cached_hash', 'config::Realm', tenant_id_scoped => 1;
+
+tie @ConfigOrderedRealm, 'pfconfig::cached_array', 'config::OrderedRealm', tenant_id_scoped => 1;
 
 tie %ConfigProvisioning, 'pfconfig::cached_hash', 'config::Provisioning';
 
@@ -273,13 +310,29 @@ tie %ConfigPortalModules, 'pfconfig::cached_hash', 'config::PortalModules';
 
 tie $local_secret, 'pfconfig::cached_scalar', 'resource::local_secret';
 
+tie $unified_api_system_user, 'pfconfig::cached_scalar', 'resource::unified_api_system_user';
+
 tie %ConfigSwitchesGroup, 'pfconfig::cached_hash', 'resource::switches_group';
 
 tie %ConfigSwitchesList, 'pfconfig::cached_hash', 'resource::switches_list';
 
 tie %ConfigReport, 'pfconfig::cached_hash', 'config::Report';
 
+tie %ConfigSurvey, 'pfconfig::cached_hash', 'config::Survey';
+
 tie %ConfigRoles, 'pfconfig::cached_hash', 'config::Roles';
+
+tie %ConfigSelfService, 'pfconfig::cached_hash', 'config::SelfService';
+
+tie %ConfigAuthenticationLdap, 'pfconfig::cached_hash', 'resource::authentication_sources_ldap';
+
+tie %ConfigAuthenticationRadius, 'pfconfig::cached_hash', 'resource::authentication_sources_radius';
+
+tie %ConfigAuthenticationEduroam, 'pfconfig::cached_hash', 'resource::authentication_sources_eduroam';
+
+tie %ConfigEAP, 'pfconfig::cached_hash', 'resource::eap_config';
+
+tie %ConfigAuthenticationEdir, 'pfconfig::cached_hash', 'resource::authentication_sources_edir';
 
 $thread = 0;
 
@@ -291,7 +344,7 @@ Readonly::Scalar our $ACCOUNTING_POLICY_TIME => 'TimeExpired';
 Readonly::Scalar our $ACCOUNTING_POLICY_BANDWIDTH => 'BandwidthExpired';
 
 
-Readonly our $WIPS_VID => '1100020';
+Readonly our $WIPS_SECURITY_EVENT_ID => '1100020';
 
 # OS Specific
 Readonly::Scalar our $OS => os_detection();
@@ -304,72 +357,10 @@ Readonly::Scalar our $DIST_VERSION => $LINUX->distribution_version();
 # Interface types
 Readonly our $IF_INTERNAL => 'internal';
 
-# Interface enforcement techniques
-# connection type constants
-Readonly our $WIRELESS_802_1X   => 0b110000001;
-Readonly our $WIRELESS_MAC_AUTH => 0b100000010;
-Readonly our $WIRED_802_1X      => 0b011000100;
-Readonly our $WIRED_MAC_AUTH    => 0b001001000;
-Readonly our $WIRED_SNMP_TRAPS  => 0b001010000;
-Readonly our $INLINE            => 0b000100000;
-Readonly our $UNKNOWN           => 0b000000000;
-# masks to be used on connection types
-Readonly our $WIRELESS => 0b100000000;
-Readonly our $WIRED    => 0b001000000;
-Readonly our $EAP      => 0b010000000;
-
 # Catalyst-based access level constants
 Readonly::Scalar our $ADMIN_USERNAME => 'admin';
 Readonly our $WEB_ADMIN_NONE => 0;
 Readonly our $WEB_ADMIN_ALL => 4294967295;
-
-# TODO we should build a connection data class with these hashes and related constants
-# String to constant hash
-%connection_type = (
-    'Wireless-802.11-EAP'   => $WIRELESS_802_1X,
-    'Wireless-802.11-NoEAP' => $WIRELESS_MAC_AUTH,
-    'Ethernet-EAP'          => $WIRED_802_1X,
-    'Ethernet-NoEAP'        => $WIRED_MAC_AUTH,
-    'SNMP-Traps'            => $WIRED_SNMP_TRAPS,
-    'Inline'                => $INLINE,
-    'WIRED_MAC_AUTH'        => $WIRED_MAC_AUTH,
-);
-%connection_group = (
-    'Wireless'              => $WIRELESS,
-    'Ethernet'              => $WIRED,
-    'EAP'                   => $EAP,
-);
-
-# Their string equivalent for database storage
-%connection_type_to_str = (
-    $WIRELESS_802_1X => 'Wireless-802.11-EAP',
-    $WIRELESS_MAC_AUTH => 'Wireless-802.11-NoEAP',
-    $WIRED_802_1X => 'Ethernet-EAP',
-    $WIRED_MAC_AUTH => 'WIRED_MAC_AUTH',
-    $WIRED_SNMP_TRAPS => 'SNMP-Traps',
-    $INLINE => 'Inline',
-    $UNKNOWN => '',
-);
-%connection_group_to_str = (
-    $WIRELESS => 'Wireless',
-    $WIRED => 'Ethernet',
-    $EAP => 'EAP',
-);
-
-# String to constant hash
-# these duplicated in html/admin/common.php for web admin display
-# changes here should be reflected there
-%connection_type_explained = (
-    $WIRELESS_802_1X => 'WiFi 802.1X',
-    $WIRELESS_MAC_AUTH => 'WiFi MAC Auth',
-    $WIRED_802_1X => 'Wired 802.1x',
-    $WIRED_MAC_AUTH => 'Wired MAC Auth',
-    $WIRED_SNMP_TRAPS => 'Wired SNMP',
-    $INLINE => 'Inline',
-    $UNKNOWN => 'Unknown',
-);
-
-%connection_type_explained_to_str = map { $connection_type_explained{$_} => $connection_type_to_str{$_} } keys %connection_type_explained;
 
 # VoIP constants
 Readonly our $VOIP    => 'yes';
@@ -432,19 +423,6 @@ our $BANDWIDTH_UNITS_RE = qr/B|KB|MB|GB|TB/;
 =head1 SUBROUTINES
 
 =over
-
-=item os_detection -  check the os system
-
-=cut
-
-sub os_detection {
-    my $logger = get_logger();
-    if (-e '/etc/debian_version') {
-        return "debian";
-    }elsif (-e '/etc/redhat-release') {
-        return "rhel";
-    }
-}
 
 =item access_duration
 
@@ -644,6 +622,10 @@ sub duration {
             $year ++;
         }
         return ($days_year * 86400);
+    } elsif ($modifier eq "h") {
+        return ($num * 3600);
+    } elsif ($modifier eq "m") {
+        return ($num * 60);
     }
 }
 
@@ -854,37 +836,6 @@ sub is_network_type_inline {
     }
 }
 
-=item is_omapi_lookup_enabled
-
-Check whether pf::ip4log::ip2mac or pf::ip4log::mac2ip are configured to use OMAPI based on configuration parameters.
-
-=cut
-
-sub is_omapi_lookup_enabled {
-    if ( isenabled($Config{'omapi'}{'ip2mac_lookup'}) || isenabled($Config{'omapi'}{'mac2ip_lookup'}) ) {
-        return $TRUE;
-    }
-
-    return $FALSE;
-}
-
-=item is_omapi_configured
-
-Check if required OMAPI configuration parameters (omapi.key_name & omapi.key_base64) are present before configuring it
-
-=cut
-
-sub is_omapi_configured {
-    return $FALSE unless $Config{'omapi'}{'host'} eq "localhost";
-
-    if ( ($Config{'omapi'}{'key_name'} && $Config{'omapi'}{'key_name'} ne '') && ($Config{'omapi'}{'key_base64'} && $Config{'omapi'}{'key_base64'} ne '') ) {
-        return $TRUE;
-    }
-
-    $logger->warn("OMAPI lookup is locally enabled but missing required configuration parameters 'key_name' and/or 'key_base64'");
-    return $FALSE;
-}
-
 =item configreload
 
 Reload the config
@@ -902,19 +853,24 @@ sub configreload {
     require pfconfig::manager;
     my $manager = pfconfig::manager->new;
     $manager->expire_all;
+    load_configdata_into_db();
+    return ;
+}
 
-    # reload violations into DB
-    require pf::violation_config;
-    pf::violation_config::loadViolationsIntoDb();
+sub load_configdata_into_db {
+    # reload security_events into DB
+    require pf::security_event_config;
+    pf::security_event_config::loadSecurityEventsIntoDb();
 
     require pf::SwitchFactory;
     require pf::freeradius;
     pf::freeradius::freeradius_populate_nas_config(\%pf::SwitchFactory::SwitchConfig);
-    
+
     require pf::nodecategory;
     pf::nodecategory::nodecategory_populate_from_config( \%pf::config::ConfigRoles );
 
-    return ;
+    require pf::Survey;
+    pf::Survey::reload_from_config( \%pf::config::ConfigSurvey );
 }
 
 =back
@@ -927,7 +883,7 @@ Minor parts of this file may have been contributed. See CREDITS.
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2017 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 Copyright (C) 2005 Kevin Amorin
 

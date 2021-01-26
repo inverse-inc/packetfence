@@ -35,7 +35,6 @@ use Try::Tiny;
 use pf::util::dhcp;
 use pf::constants;
 use pf::constants::config qw( $NET_TYPE_INLINE_L2 $NET_TYPE_INLINE_L3 );
-use pf::clustermgmt;
 use pf::config qw(
     %Config
     @listen_ints
@@ -58,6 +57,8 @@ use NetPacket::IP;
 use NetPacket::IPv6;
 use NetPacket::UDP;
 use pf::CHI::Request;
+use pf::api::queue_cluster;
+use pf::cluster;
 
 # initialization
 # --------------
@@ -89,6 +90,11 @@ our $PROGRAM_NAME = $0 = "pfdhcplistener";
 
 my $logger = get_logger( $PROGRAM_NAME );
 
+our %NET_TYPES_FOR_EXTERNAL_QUEUE = (
+    'dhcp-listener' => 1,
+    'management' => 1,
+);
+
 
 my $is_inline_vlan;
 my $inline_sub_connection_type;
@@ -98,6 +104,7 @@ my $pcap;
 my $net_type;
 my $process_broadcast;
 my $interface;
+my $send_queue = 'pfdhcplistener';
 
 my $rate_limit_hash = {};
 my $rate_limit_cache = CHI->new( driver => 'Memory', datastore => $rate_limit_hash );
@@ -163,8 +170,9 @@ sub setup_global {
     my ($int) = @_;
     $interface = $int;
     $net_type = $Config{"interface $interface"}{'type'};
-    $interface_ip = $Config{"interface $interface"}{'ip'};
+    $interface_ip = $cluster_enabled ? pf::cluster::cluster_ip($interface) : $Config{"interface $interface"}{'ip'};
     $interface_vlan = get_vlan_from_int($interface) || $NO_VLAN;
+    $send_queue = queue_for_net_type($net_type);
     $net_addr = NetAddr::IP->new($Config{"interface $interface"}{'ip'},$Config{"interface $interface"}{'mask'});
 
     if (grep( { $_->tag("int") eq $interface} @inline_enforcement_nets) != 0 ) {
@@ -175,7 +183,16 @@ sub setup_global {
     return ;
 }
 
+=head2 queue_for_net_type
 
+Determine which send queue
+
+=cut
+
+sub queue_for_net_type {
+    my ($net_type) = @_;
+    return (any { exists $NET_TYPES_FOR_EXTERNAL_QUEUE{$_} } expand_csv($net_type) ) ? 'pfdhcplistener_external' : 'pfdhcplistener' ;
+}
 
 =head2 setup_pcap
 
@@ -311,7 +328,7 @@ sub process_pkt {
 
                 if ($is_inline_vlan) {
                     my $ip = new NetAddr::IP::Lite clean_ip($l3->{'src_ip'});
-                    if ($net_addr->contains($ip)) {
+                    if ($net_addr->contains($ip) || ($ip->addr eq '0.0.0.0')) {
                         $args{inline_sub_connection_type} = $NET_TYPE_INLINE_L2;
                     } else {
                         $args{inline_sub_connection_type} = $NET_TYPE_INLINE_L3;
@@ -319,7 +336,14 @@ sub process_pkt {
                 }
 
                 # If its a DHCPREQUEST, we take the IP address from the option
-                my $dhcp_ip = ( $dhcp->{'op'} == 1 && $dhcp->{'options'}{'53'} == 3 ) ? $dhcp->{'options'}{'50'} : $dhcp->{yiaddr};
+                my $dhcp_ip;
+                if ( $dhcp->{'op'} == 1 && $dhcp->{'options'}{'53'} == 3 && defined($dhcp->{'options'}{'50'}) ) {
+                    $dhcp_ip = $dhcp->{'options'}{'50'};
+                } elsif ( defined($dhcp->{yiaddr}) && $dhcp->{yiaddr} ne "0.0.0.0") {
+                    $dhcp_ip = $dhcp->{yiaddr};
+                } else {
+                    $dhcp_ip = $dhcp->{ciaddr};
+                }
                 my $rate_limit_key;
                 if(defined($dhcp_ip)) {
                     # Key is with BOOT type, DHCP type, IP and MAC
@@ -333,7 +357,7 @@ sub process_pkt {
                 #  - there is no rate limiting configured
                 #  - there is no cache entry (packet wasn't seen in the last $rate_limiting seconds)
                 if(!defined($rate_limit_key) || $rate_limiting == 0 || !$rate_limit_cache->get($rate_limit_key)) {
-                    my $apiclient = pf::api::queue->new(queue => 'pfdhcplistener');
+                    my $apiclient = api_client();
                     $apiclient->notify('process_dhcpv4', %args);
                     if(defined($rate_limit_key) && $rate_limiting != 0) {
                         $rate_limit_cache->set($rate_limit_key, 1, $rate_limiting);
@@ -345,12 +369,12 @@ sub process_pkt {
             }
 
             # IPv6 processing
-            elsif ( $l2->{type} eq ETH_TYPE_IPv6 ) {
+            elsif ( $l2->{type} eq ETH_TYPE_IPv6 && isenabled($Config{network}{dhcp_process_ipv6})) {
                 $pf::StatsD::statsd->increment("pfdhcplistener_$statsd_interface\::process_pkt_ipv6.count" );
 
                 # TODO: Rate-limiting for IPv6 just as for IPv4
 
-                my $apiclient = pf::api::queue->new(queue => 'pfdhcplistener');
+                my $apiclient = api_client();
                 $apiclient->notify('process_dhcpv6', MIME::Base64::encode($l4->{data}));
             }
 
@@ -374,6 +398,22 @@ sub process_pkt {
         Net::Pcap::pcap_stats($pcap,\%stats);
         return join(' ','pcap_stats',map { "$_ = $stats{$_}"  } keys %stats);
     });
+}
+
+=head2 api_client
+
+get the api client
+
+=cut
+
+sub api_client {
+    return pf::api::queue_cluster->new(
+        queue => $send_queue,
+        jsonrpc_args => {
+            connect_timeout_ms => 500,
+            timeout_ms => 500,
+        }
+    );
 }
 
 sub normal_sighandler {
@@ -601,7 +641,7 @@ Minor parts of this file may have been contributed. See CREDITS.
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2017 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 Copyright (C) 2005 Kevin Amorin
 

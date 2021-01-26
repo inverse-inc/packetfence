@@ -40,7 +40,7 @@ sub _build_file_handle {
     my $fh;
     unless (open($fh, '>>', $audit_log_path)) {
         my $logger = get_logger();
-        my $msg = "Cannot open $audit_log_path $@";
+        my $msg = "Cannot open $audit_log_path '$!'";
         $logger->error($msg);
         die $msg;
     }
@@ -99,7 +99,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2017 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 

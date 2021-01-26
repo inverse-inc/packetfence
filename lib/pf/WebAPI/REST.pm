@@ -104,7 +104,7 @@ sub handler {
 
     my $object;
     eval {
-        $object = $method_sub->($self->dispatch_to, @args);
+        $object = $method_sub->($self->dispatch_to, @args,$r->headers_in());
         unless(ref($object) eq "ARRAY" || ref($object) eq "HASH"){
             $object = {result => $object};
         }
@@ -173,7 +173,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2017 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 

@@ -41,9 +41,6 @@ BEGIN {
     our ( @ISA, @EXPORT );
     @ISA = qw(Exporter);
     @EXPORT = qw(
-        inline_accounting_db_prepare
-        $inline_accounting_db_prepared
-
         inline_accounting_update_session_for_ip
         inline_accounting_maintenance
     );
@@ -51,156 +48,113 @@ BEGIN {
 
 use pf::config qw($ACCOUNTING_POLICY_BANDWIDTH);
 use pf::constants::trigger qw($TRIGGER_TYPE_ACCOUNTING);
-use pf::db;
-use pf::violation;
-use pf::config::violation;
-
-# The next two variables and the _prepare sub are required for database handling magic (see pf::db)
-our $accounting_db_prepared = 0;
-# in this hash reference we hold the database statements. We pass it to the query handler and he will repopulate
-# the hash if required
-our $accounting_statements = {};
-
+use pf::dal::inline_accounting;
+use pf::error qw(is_error is_success);
+use pf::dal::node;
+use pf::security_event;
+use pf::config::security_event;
+use pf::constants qw(
+    $ZERO_DATE
+);
 
 =head1 SUBROUTINES
 
 =over
 
-=item inline_accounting_db_prepare
-
-Prepares all the SQL statements related to this module
-
 =cut
 
-sub accounting_db_prepare {
-    my $logger = get_logger();
-    $logger->debug("Preparing" . __PACKAGE__ . "database queries");
+=item inline_accounting_update_session_for_ip
 
-    $accounting_statements->{'accounting_update_session_for_ip'} =
-      get_db_handle()->prepare(qq[
-        UPDATE $accounting_table SET inbytes = inbytes + ?, outbytes = outbytes + ?, lastmodified = FROM_UNIXTIME(?)
-            WHERE ip = ? AND status = $ACTIVE
-      ]);
+inline_accounting_update_session_for_ip
 
-    $accounting_statements->{'accounting_insert_session_for_ip'} =
-      get_db_handle()->prepare(qq[
-        INSERT INTO $accounting_table(ip, inbytes, outbytes, firstseen, lastmodified, status)
-         VALUES (?, ?, ?, FROM_UNIXTIME(?), FROM_UNIXTIME(?), $ACTIVE)
-      ]);
-
-    $accounting_statements->{'accounting_active_session_for_ip'} =
-      get_db_handle()->prepare(qq[
-        SELECT firstseen FROM $accounting_table WHERE ip = ? AND status = $ACTIVE
-      ]);
-
-    $accounting_statements->{'accounting_select_node_bandwidth_balance_sql'} =
-      get_db_handle()->prepare(qq[
-        SELECT DISTINCT n.mac, i.ip, n.bandwidth_balance, COALESCE((a.outbytes + a.inbytes), 0) as bandwidth_consumed
-        FROM node n, ip4log i
-        LEFT JOIN $accounting_table a ON i.ip = a.ip AND a.status = $ACTIVE
-        WHERE n.mac = i.mac
-          AND n.status = "$pf::node::STATUS_REGISTERED"
-          AND (n.bandwidth_balance = 0
-               OR (n.bandwidth_balance < (a.outbytes + a.inbytes)))
-        FOR UPDATE
-      ]);
-
-    $accounting_statements->{'accounting_update_node_bandwidth_balance_sql'} =
-      get_db_handle()->prepare(qq[
-        UPDATE node n SET n.bandwidth_balance = n.bandwidth_balance -
-          COALESCE(
-            (SELECT SUM(a.outbytes+a.inbytes)
-             FROM $accounting_table a, ip4log i
-             WHERE a.ip = i.ip
-               AND i.end_time = 0
-               AND i.mac = n.mac
-               AND a.status = $INACTIVE
-            ),
-          0)
-        WHERE n.bandwidth_balance > 0
-      ]);
-
-    $accounting_statements->{'accounting_update_inactive_sessions_for_ip_sql'} =
-      get_db_handle()->prepare(qq[
-        UPDATE $accounting_table
-          SET status = $INACTIVE
-          WHERE status = $ACTIVE AND ip = ?
-      ]);
-
-    $accounting_statements->{'accounting_update_inactive_sessions_for_interval_sql'} =
-      get_db_handle()->prepare(qq[
-        UPDATE $accounting_table
-          SET status = $INACTIVE
-          WHERE status = $ACTIVE AND lastmodified < NOW() - INTERVAL ? SECOND
-      ]);
-
-    $accounting_statements->{'accounting_update_inactive_sessions_for_day_change_sql'} =
-      get_db_handle()->prepare(qq[
-        UPDATE $accounting_table
-          SET status = $INACTIVE
-          WHERE status = $ACTIVE AND DAY(lastmodified) != DAY(firstseen)
-      ]);
-
-    $accounting_statements->{'accounting_update_status_analyzed_sql'} =
-      get_db_handle()->prepare(qq[
-       UPDATE $accounting_table
-         SET status = $ANALYZED
-         WHERE status = $INACTIVE
-     ]);
-
-    $accounting_db_prepared = 1;
-
-    return $accounting_db_prepared;
-}
+=cut
 
 sub inline_accounting_update_session_for_ip {
     my ($ip, $inbytes, $outbytes, $firstseen, $lastmodified) = @_;
     my $logger = get_logger();
 
-    my $active_session_query =  db_query_execute("inline::accounting",
-                                                 $accounting_statements,
-                                                 'accounting_active_session_for_ip', $ip) || return(0);
+    my ( $status, $iter ) = pf::dal::inline_accounting->search(
+        -where => {
+            status => $ACTIVE,
+            ip     => $ip
+        },
+        -columns => [qw(firstseen)],
+    );
 
-    my $active_session = $active_session_query->fetchrow_arrayref();
-    if (defined($active_session)) {
-      db_query_execute("inline::accounting",
-                       $accounting_statements,
-                       'accounting_update_session_for_ip',
-                       $inbytes, $outbytes, $lastmodified, $ip) || return(0);
-    } else {
-        db_query_execute("inline::accounting",
-                         $accounting_statements,
-                         'accounting_insert_session_for_ip',
-                         $ip, $inbytes, $outbytes, $firstseen, $lastmodified) || return(0);
+    if ( is_error($status) ) {
+        return (0);
     }
 
-    return 1;
+    my $active_session = $iter->next(undef);
+    $iter->finish;
+    if (defined($active_session)) {
+        ($status, my $rows) = pf::dal::inline_accounting->update_items(
+            -set => {
+                inbytes      => \[ 'inbytes + ?',      $inbytes ],
+                outbytes     => \[ 'outbytes + ?',     $outbytes ],
+                lastmodified => \[ 'FROM_UNIXTIME(?)', $lastmodified ],
+            },
+            -where => {
+                ip     => $ip,
+                status => $ACTIVE,
+            }
+        );
+    }
+    else {
+        $status = pf::dal::inline_accounting->create(
+            {
+                ip           => $ip,
+                inbytes      => $inbytes,
+                outbytes     => $outbytes,
+                firstseen    => \[ 'FROM_UNIXTIME(?)', $firstseen ],
+                lastmodified => \[ 'FROM_UNIXTIME(?)', $lastmodified ],
+                status       => $ACTIVE,
+            }
+        );
+    }
+    return (is_success($status));
 }
 
 sub inline_accounting_maintenance {
     my $accounting_session_timeout = shift;
     my $logger = get_logger();
     my $result = 0;
+    my $status;
+    my $rows;
 
-    # Check if there's at least a violation using an accounting
-    if (@BANDWIDTH_EXPIRED_VIOLATIONS > 0) {
-        $logger->debug("There is an accounting violation. analyzing inline accounting data");
+    # Check if there's at least a security_event using an accounting
+    if (@BANDWIDTH_EXPIRED_SECURITY_EVENTS > 0) {
+        $logger->debug("There is an accounting security_event. analyzing inline accounting data");
 
         # Disable AutoCommit since we perform a SELECT .. FOR UPDATE statement
-        my $dbh = get_db_handle();
+        my $dbh = pf::dal->get_dbh();
         $dbh->begin_work or $logger->logdie("Can't enable database transactions: " . $dbh->errstr);
 
         # Extract nodes with no more bandwidth left (considering also active sessions)
-        my $bandwidth_query = db_query_execute('inline::accounting', $accounting_statements, 'accounting_select_node_bandwidth_balance_sql');
-        if ($bandwidth_query) {
-            while (my $row = $bandwidth_query->fetchrow_arrayref()) {
-                my ($mac, $ip, $bandwidth_balance, $bandwidth_consumed) = @$row;
-                $logger->debug("Node $mac/$ip has no more bandwidth (balance $bandwidth_balance, consumed $bandwidth_consumed), triggering violation");
-                # Trigger violation for this node
-                if (violation_trigger( { 'mac' => $mac, 'tid' => $ACCOUNTING_POLICY_BANDWIDTH, 'type' => $TRIGGER_TYPE_ACCOUNTING } )) {
-                    # Stop counters of active network sessions for this node
-                    db_query_execute('inline::accounting', $accounting_statements,
-                                     'accounting_update_inactive_sessions_for_ip_sql', $ip);
+        my ($status, $iter) = pf::dal::inline_accounting->search(
+            -where => {
+                'n.status' => $pf::node::STATUS_REGISTERED,
+                'n.bandwidth_balance' => [ 0, { "<" => \'inline_accounting.outbytes + inline_accounting.inbytes' } ],
+            },
+            -columns => [-distinct => qw(n.mac i.ip n.bandwidth_balance), 'COALESCE((inline_accounting.outbytes+inline_accounting.inbytes),0)|bandwidth_consumed'],
+            -from => [-join => 'node|n', '<=>{n.mac=i.mac}', 'ip4log|i', "=>{i.ip=inline_accounting.ip,inline_accounting.status='ACTIVE'}", 'inline_accounting'],
+            -for => 'UPDATE',
+        );
+        if (is_success($status)) {
+            while (my $row = $iter->next(undef)) {
+                my ($mac, $ip, $bandwidth_balance, $bandwidth_consumed) = @{$row}{qw(mac ip bandwidth_balance bandwidth_consumed)};
+                $logger->debug("Node $mac/$ip has no more bandwidth (balance $bandwidth_balance, consumed $bandwidth_consumed), triggering security_event");
+                # Trigger security_event for this node
+                if (security_event_trigger( { 'mac' => $mac, 'tid' => $ACCOUNTING_POLICY_BANDWIDTH, 'type' => $TRIGGER_TYPE_ACCOUNTING } )) {
+                    pf::dal::inline_accounting->update_items(
+                        -set => {
+                            status => $INACTIVE
+                        },
+                        -where => {
+                            status => $ACTIVE,
+                            ip => $ip,
+                        }
+                    );
                 }
             }
         }
@@ -213,29 +167,74 @@ sub inline_accounting_maintenance {
     }
 
     # Stop counters of active network sessions that have exceeded the timeout
-    $result = db_query_execute('inline::accounting', $accounting_statements,
-                               'accounting_update_inactive_sessions_for_interval_sql', $accounting_session_timeout);
-    if ($result && $result->rows > 0) {
-        $logger->debug("Mark " . $result->rows . " session(s) as inactive after " . $accounting_session_timeout . " seconds");
+    ($status, $rows) = pf::dal::inline_accounting->update_items(
+        -set => {
+            status => $INACTIVE
+        },
+        -where => {
+            status => $ACTIVE,
+            lastmodified => { "<" => \['NOW() - INTERVAL ? SECOND', $accounting_session_timeout]}
+        }
+    );
+    if (is_error($status)) {
+        $logger->error("Error stopping counters of active network sessions that have exceeded the timeout");
+    } elsif ($rows > 0) {
+        $logger->debug("Mark $rows session(s) as inactive after $accounting_session_timeout seconds");
     }
 
     # Stop counters of active network sessions that have spanned a new day
-    $result = db_query_execute('inline::accounting', $accounting_statements,
-                               'accounting_update_inactive_sessions_for_day_change_sql');
-    if ($result && $result->rows > 0) {
-        $logger->debug("Mark " . $result->rows . " session(s) as inactive after a day change");
+    ($status, $rows) = pf::dal::inline_accounting->update_items(
+        -set => {
+            status => $INACTIVE
+        },
+        -where => {
+            -and => [\'DAY(lastmodified) != DAY(firstseen)', {status => $ACTIVE}],
+        }
+    );
+    if (is_error($status)) {
+        $logger->error("Error stopping counters of active network sessions that have exceeded the timeout");
+    } elsif($rows > 0) {
+        $logger->debug("Mark $rows session(s) as inactive after a day change");
     }
 
     # Update bandwidth balance with new inactive sessions
-    $result = db_query_execute('inline::accounting', $accounting_statements, 'accounting_update_node_bandwidth_balance_sql');
-    if ($result && $result->rows > 0) {
-        $logger->debug("Updated the bandwidth balance of " . $result->rows . " nodes");
+    my ($subsql, @subbind) =  pf::dal::inline_accounting->select(
+        -from => ['inline_accounting', 'ip4log'],
+        -columns => [\'SUM(inline_accounting.outbytes+inline_accounting.inbytes)'],
+        -where => {
+            'inline_accounting.ip' => {-ident => 'ip4log.ip'},
+            'ip4log.mac' => {-ident => 'node.mac'},
+            'inline_accounting.status' => $INACTIVE,
+            'ip4log.end_time' => $ZERO_DATE,
+        },
+    );
+
+    ($status, $rows) = pf::dal::node->update_items(
+        -set => {
+            bandwidth_balance => \["bandwidth_balance - COALESCE(($subsql), ?)", @subbind, 0],
+        },
+        -where => {
+            bandwidth_balance => { ">" => 0 },
+        }
+    );
+
+    if (is_error($status)) {
+        $logger->error("Error updating bandwidth balance with new inactive sessions");
+    } elsif ($rows > 0) {
+        $logger->debug("Updated the bandwidth balance of $rows nodes");
     }
 
     # UPDATE inline_accounting: Mark INACTIVE entries as ANALYZED
-    $result = db_query_execute('inline::accounting', $accounting_statements, 'accounting_update_status_analyzed_sql');
-    if ($result && $result->rows > 0) {
-        $logger->debug("Mark " . $result->rows . " sessions as analyzed");
+    ($status, $rows) = pf::dal::inline_accounting->update_items(
+        -set => {
+            status => $ANALYZED
+        },
+        -where => {
+            status => $INACTIVE
+        }
+    );
+    if (is_success($status) && $rows > 0) {
+        $logger->debug("Mark $rows sessions as analyzed");
     }
 
     return 1;
@@ -249,7 +248,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2017 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 

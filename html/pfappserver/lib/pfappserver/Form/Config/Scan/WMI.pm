@@ -13,13 +13,11 @@ Form definition to create or update a WMI Scan Engine.
 use HTML::FormHandler::Moose;
 extends 'pfappserver::Form::Config::Scan';
 with 'pfappserver::Base::Form::Role::Help';
+use pf::ConfigStore::WMI;
 
 use pf::config;
 use pf::util;
 use File::Find qw(find);
-
-## Definition
-has 'roles' => (is => 'ro', default => sub {[]});
 
 has_field 'domain' =>
   (
@@ -32,6 +30,7 @@ has_field 'domain' =>
 has_field 'type' =>
   (
    type => 'Hidden',
+   default => 'wmi',
   );
 
 has_block definition =>
@@ -41,7 +40,7 @@ has_block definition =>
 
 has_field '+oses' =>
   (
-    default => ['Windows'],
+    inactive => 1,
   );
 
 has_field 'wmi_policy' =>
@@ -77,17 +76,13 @@ sub options_wmi_rules {
     return  map { { value => $_, label => $_ } } @{pf::ConfigStore::WMI->new->readAllIds};
 }
 
-sub oses {
-    return ["Windows" => "Windows"];
-}
-
 =over
 
 =back
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2017 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 
@@ -108,5 +103,5 @@ USA.
 
 =cut
 
-__PACKAGE__->meta->make_immutable;
+__PACKAGE__->meta->make_immutable unless $ENV{"PF_SKIP_MAKE_IMMUTABLE"};
 1;

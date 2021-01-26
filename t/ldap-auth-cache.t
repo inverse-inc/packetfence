@@ -133,7 +133,7 @@ unless ($pid) {
         }
     );
     close($reader);
-    $writer->write("\n");
+    $writer->write("done\n");
     close($writer);
     $listener->Bind;
     exit 0;
@@ -156,18 +156,22 @@ use Test::More tests => 6;    # last test to print
 use Test::NoWarnings;
 use pf::authentication;
 use pf::Authentication::constants;
+use pf::constants::realm;
 
-my $source = getAuthenticationSource('LDAP');
+my $source = getAuthenticationSource('LDAP0');
+
+$source->cache->clear;
 
 #my $ldap = Net::LDAP->new( 'localhost', port => 33389 ) or die "$@";
 
 isa_ok($source,'pf::Authentication::Source::LDAPSource');
 
-my $params = { username => 'bob'};
+my $params = { username => 'bob', context => $pf::constants::realm::ADMIN_CONTEXT};
 
 is(0,SHM::getCount(),"No search was done");
 
 my @action = pf::authentication::match([$source], $params, $Actions::SET_ROLE);
+
 is(SHM::getCount(),1,"The search was done the first time");
 
 @action = pf::authentication::match([$source], $params, $Actions::SET_ROLE);
@@ -191,7 +195,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2017 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 

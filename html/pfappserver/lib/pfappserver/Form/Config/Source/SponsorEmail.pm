@@ -12,29 +12,28 @@ Form definition to create or update an guest-sponsored user source.
 
 use HTML::FormHandler::Moose;
 extends 'pfappserver::Form::Config::Source';
-with 'pfappserver::Base::Form::Role::Help';
-with 'pfappserver::Base::Form::Role::SourceLocalAccount';
+with qw(
+  pfappserver::Base::Form::Role::Help
+  pfappserver::Base::Form::Role::SourceLocalAccount
+  pfappserver::Base::Form::Role::EmailFiltering
+  pfappserver::Base::Form::Role::SourcesAssociated
+);
 
+use pfappserver::Form::Field::Duration;
 use pf::Authentication::Source::SponsorEmailSource;
+use pf::config qw(%Config %Doc_Config);
+use pf::authentication;
 
 # Form fields
-has_field 'allow_localdomain' =>
-  (
-   type => 'Toggle',
-   checkbox_value => 'yes',
-   unchecked_value => 'no',
-   label => 'Allow Local Domain',
-   default => pf::Authentication::Source::SponsorEmailSource->meta->get_attribute('allow_localdomain')->default,
-   tags => { after_element => \&help,
-             help => 'Accept self-registration with email address from the local domain' },
-  );
+
+our $META = pf::Authentication::Source::SponsorEmailSource->meta;
 
 has_field 'email_activation_timeout' =>
   (
    type => 'Duration',
    label => 'Email Activation Timeout',
    required => 1,
-   default => pfappserver::Form::Field::Duration->duration_inflate(pf::Authentication::Source::SponsorEmailSource->meta->get_attribute('email_activation_timeout')->default),
+   default => pfappserver::Form::Field::Duration->duration_inflate($META->get_attribute('email_activation_timeout')->default),
    tags => { after_element => \&help,
              help => 'Delay given to a sponsor to click the activation link.' },
   );
@@ -46,7 +45,7 @@ has_field 'activation_domain' =>
    required => 0,
     tags => {
         after_element => \&help,
-        help => 'Set this value if you want to change the hostname in the validation link.',
+        help => 'Set this value if you want to change the hostname in the validation link. Changing this requires to restart haproxy to be fully effective.',
     },
   );
 
@@ -60,9 +59,48 @@ has_field 'sponsorship_bcc' => (
     },
 );
 
+has_field 'validate_sponsor' =>
+  (
+   type => 'Toggle',
+   checkbox_value => 'yes',
+   unchecked_value => 'no',
+   label => 'Sponsor Validation',
+   default => $META->get_attribute('validate_sponsor')->default,
+   tags => { after_element => \&help,
+             help => 'Force sponsor to authenticate when validating a guest request.' },
+  );
+
+has_field 'lang' =>
+  (
+   type => 'Select',
+   label => 'Language for sponsor email',
+   default => $Config{advanced}{language},
+   options_method => \&lang_options,
+   tags => { after_element => \&help,
+             help => 'Language for sponsor email.' },
+  );
+
+has_field 'register_on_activation' => (
+    type            => 'Toggle',
+    checkbox_value  => 'enabled',
+    unchecked_value => 'disabled',
+    default => $META->get_attribute('register_on_activation')->default,
+);
+
+sub lang_options {
+    return (
+        { value => '', label => 'Default' },
+        (
+            map { { value => $_, label => $_ } }
+              grep { $_ ne 'none' }
+              @{ $Doc_Config{'advanced.language'}{options} }
+        )
+    );
+}
+
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2017 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 
@@ -83,6 +121,6 @@ USA.
 
 =cut
 
-__PACKAGE__->meta->make_immutable;
+__PACKAGE__->meta->make_immutable unless $ENV{"PF_SKIP_MAKE_IMMUTABLE"};
 
 1;

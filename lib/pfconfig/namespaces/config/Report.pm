@@ -28,9 +28,9 @@ use base 'pfconfig::namespaces::config';
 sub init {
     my ($self) = @_;
     $self->{file}              = $report_config_file;
-    $self->{expandable_params} = [ qw(searches columns order_fields base_conditions) ];
+    $self->{expandable_params} = [ qw(searches columns order_fields base_conditions person_fields node_fields) ];
     
-    my $defaults = Config::IniFiles->new( -file => $report_default_config_file );
+    my $defaults = pf::IniFiles->new( -file => $report_default_config_file );
     $self->{added_params}->{'-import'} = $defaults;
 }
 
@@ -80,7 +80,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2017 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 

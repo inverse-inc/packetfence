@@ -17,9 +17,9 @@ use pf::Authentication::Source;
 
 use Moose;
 extends 'pf::Authentication::Source';
+with qw(pf::Authentication::InternalRole);
 
 has '+type' => ( default => 'SQL' );
-has 'stripped_user_name' => (isa => 'Str', is => 'rw', default => 'yes');
 
 =head1 METHODS
 
@@ -51,7 +51,7 @@ sub available_attributes {
 sub authenticate {
    my ( $self, $username, $password ) = @_;
 
-   my $result = pf::password::validate_password($username, $password);
+   my $result = pf::password::validate_password($username, $password, 0, -no_auto_tenant_id => 1);
 
    if ($result == $pf::password::AUTH_SUCCESS) {
      return ($TRUE, $AUTH_SUCCESS_MSG);
@@ -78,86 +78,82 @@ sub match {
 
     my $result;
     if ($params->{'username'}) {
-        $result = pf::password::view($params->{'username'});
+        $result = pf::password::view($params->{'username'}, -no_auto_tenant_id => 1);
     } elsif ($params->{'email'}) {
-        $result = pf::password::view_email($params->{'email'});
+        $result = pf::password::view_email($params->{'email'}, -no_auto_tenant_id => 1);
     }
 
     # User is defined in SQL source, let's build the actions and return that
-    if (defined $result) {
-
-        my @actions = ();
-        my $action;
-
-        my $access_duration = $result->{'access_duration'};
-        if (defined $access_duration) {
-            $action = pf::Authentication::Action->new({
-                type    => $Actions::SET_ACCESS_DURATION,
-                value   => $access_duration,
-                class   => pf::Authentication::Action->getRuleClassForAction($Actions::SET_ACCESS_DURATION),
-            });
-            push(@actions, $action);
-        }
-
-        my $access_level = $result->{'access_level'};
-        if (defined $access_level ) {
-            $action = pf::Authentication::Action->new({
-                type    => $Actions::SET_ACCESS_LEVEL,
-                value   => $access_level,
-                class   => pf::Authentication::Action->getRuleClassForAction($Actions::SET_ACCESS_LEVEL),
-            });
-            push(@actions, $action);
-        }
-
-        my $sponsor = $result->{'sponsor'};
-        if ($sponsor == 1) {
-            $action = pf::Authentication::Action->new({
-                type    => $Actions::MARK_AS_SPONSOR,
-                value   => 1,
-                class   => pf::Authentication::Action->getRuleClassForAction($Actions::MARK_AS_SPONSOR),
-            });
-            push(@actions, $action);
-        }
-
-        my $unregdate = $result->{'unregdate'};
-        if (defined $unregdate) {
-            $action = pf::Authentication::Action->new({
-                type    => $Actions::SET_UNREG_DATE,
-                value   => $unregdate,
-                class   => pf::Authentication::Action->getRuleClassForAction($Actions::SET_UNREG_DATE),
-            });
-            push(@actions, $action);
-        }
-
-        my $category = $result->{'category'};
-        if (defined $category) {
-            $action = pf::Authentication::Action->new({
-                type    => $Actions::SET_ROLE,
-                value   => $category,
-                class   => pf::Authentication::Action->getRuleClassForAction($Actions::SET_ROLE),
-            });
-            push(@actions, $action);
-        }
-
-        my $time_balance = $result->{'time_balance'};
-        if (defined $time_balance) {
-            $action =  pf::Authentication::Action->new({type => $Actions::SET_TIME_BALANCE,
-                                                        value => $time_balance});
-            push(@actions, $action);
-        }
-
-        my $bandwidth_balance = $result->{'bandwidth_balance'};
-        if (defined $bandwidth_balance) {
-            $action =  pf::Authentication::Action->new({type => $Actions::SET_BANDWIDTH_BALANCE,
-                                                        value => $bandwidth_balance});
-            push(@actions, $action);
-        }
-
-
-        return \@actions;
+    if (!defined $result) {
+        return undef;
     }
 
-    return undef;
+    my @actions = ();
+    my $action;
+
+    my $access_duration = $result->{'access_duration'};
+    if (defined $access_duration) {
+        push @actions, pf::Authentication::Action->new({
+            type    => $Actions::SET_ACCESS_DURATION,
+            value   => $access_duration,
+            class   => pf::Authentication::Action->getRuleClassForAction($Actions::SET_ACCESS_DURATION),
+        });
+    }
+
+    my $access_level = $result->{'access_level'};
+    if (defined $access_level ) {
+        push @actions, pf::Authentication::Action->new({
+            type    => $Actions::SET_ACCESS_LEVEL,
+            value   => $access_level,
+            class   => pf::Authentication::Action->getRuleClassForAction($Actions::SET_ACCESS_LEVEL),
+        });
+    }
+
+    my $sponsor = $result->{'sponsor'};
+    if ($sponsor == 1) {
+        push @actions, pf::Authentication::Action->new({
+            type    => $Actions::MARK_AS_SPONSOR,
+            value   => 1,
+            class   => pf::Authentication::Action->getRuleClassForAction($Actions::MARK_AS_SPONSOR),
+        });
+    }
+
+    my $unregdate = $result->{'unregdate'};
+    if (defined $unregdate) {
+        push @actions, pf::Authentication::Action->new({
+            type    => $Actions::SET_UNREG_DATE,
+            value   => $unregdate,
+            class   => pf::Authentication::Action->getRuleClassForAction($Actions::SET_UNREG_DATE),
+        });
+    }
+
+    my $category = $result->{'category'};
+    if (defined $category) {
+        push @actions, pf::Authentication::Action->new({
+            type    => $Actions::SET_ROLE,
+            value   => $category,
+            class   => pf::Authentication::Action->getRuleClassForAction($Actions::SET_ROLE),
+        });
+    }
+
+    my $time_balance = $result->{'time_balance'};
+    if (defined $time_balance) {
+        push @actions, pf::Authentication::Action->new({type => $Actions::SET_TIME_BALANCE, value => $time_balance});
+    }
+
+    my $bandwidth_balance = $result->{'bandwidth_balance'};
+    if (defined $bandwidth_balance) {
+        push @actions, pf::Authentication::Action->new({type => $Actions::SET_BANDWIDTH_BALANCE, value => $bandwidth_balance});
+
+    }
+
+    push @actions, pf::Authentication::Action->new({type => $Actions::SET_TENANT_ID, value => $result->{tenant_id}});
+
+    return pf::Authentication::Rule->new(
+        id => "default",
+        class => $params->{rule_class},
+        actions => \@actions,
+    );
 }
 
 =head1 AUTHOR
@@ -166,7 +162,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2017 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 
@@ -187,7 +183,7 @@ USA.
 
 =cut
 
-__PACKAGE__->meta->make_immutable;
+__PACKAGE__->meta->make_immutable unless $ENV{"PF_SKIP_MAKE_IMMUTABLE"};
 1;
 
 # vim: set shiftwidth=4:

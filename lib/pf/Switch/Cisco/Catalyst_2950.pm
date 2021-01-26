@@ -117,13 +117,15 @@ Warning: The list of subroutine is incomplete
 =cut
 
 # CAPABILITIES
-sub supportsFloatingDevice { return $TRUE; }
 # access technology supported
-sub supportsWiredDot1x { return $TRUE; }
-sub supportsRadiusDynamicVlanAssignment { return $FALSE; }
-sub supportsRadiusVoip { return $TRUE; }
 # special features
-sub supportsLldp { return $TRUE; }
+use pf::SwitchSupports qw(
+    FloatingDevice
+    WiredDot1x
+    -RadiusDynamicVlanAssignment
+    RadiusVoip
+    Lldp
+);
 # inline capabilities
 sub inlineCapabilities { return ($MAC,$PORT); }
 
@@ -410,27 +412,25 @@ sub authorizeMAC {
 
     my @oid_value;
     if ($deauthMac) {
-        my @macArray = split( /:/, $deauthMac );
-        my $completeOid = $oid_cpsSecureMacAddrRowStatus . "." . $ifIndex;
-        foreach my $macPiece (@macArray) {
-            $completeOid .= "." . hex($macPiece);
-        }
+        my $completeOid = $oid_cpsSecureMacAddrRowStatus . "." . $ifIndex . "." . mac2dec($deauthMac);
         push @oid_value, ( $completeOid, Net::SNMP::INTEGER, 6 );
     }
+
     if ($authMac) {
-        my @macArray = split( /:/, $authMac );
-        my $completeOid = $oid_cpsSecureMacAddrRowStatus . "." . $ifIndex;
-        foreach my $macPiece (@macArray) {
-            $completeOid .= "." . hex($macPiece);
-        }
+        my $completeOid = $oid_cpsSecureMacAddrRowStatus . "." . $ifIndex . "." . mac2dec($authMac);
         push @oid_value, ( $completeOid, Net::SNMP::INTEGER, 4 );
     }
 
     if ( scalar(@oid_value) > 0 ) {
         $logger->trace("SNMP set_request for cpsSecureMacAddrRowStatus");
-        my $result = $self->{_sessionWrite}
-            ->set_request( -varbindlist => \@oid_value );
+        my $result = $self->{_sessionWrite}->set_request( -varbindlist => \@oid_value );
+        if (!$result) {
+             $logger->error("SNMP error tyring to perform auth of $authMac "
+                                          . "Error message: ".$self->{_sessionWrite}->error());
+            return 0;
+        }
     }
+
     return 1;
 }
 
@@ -837,25 +837,32 @@ sub setTaggedVlans {
     my $OID_vlanTrunkPortVlansEnabled3k = '1.3.6.1.4.1.9.9.46.1.6.1.1.18';
     my $OID_vlanTrunkPortVlansEnabled4k = '1.3.6.1.4.1.9.9.46.1.6.1.1.19';
 
-    my @bits = split //, ("0" x 1024);
+    my @bits = split //, ("0" x 4096);
     foreach my $t (@vlans) {
-        if ($t > 1024) {
-            $logger->warn("We do not support Tagged Vlans > 1024 for now on Cisco switches. Sorry... but we could! " .
-                      "interested in sponsoring the feature?");
+        if ($t > 4096) {
+            $logger->warn("Tagged VLAN can't be greater than > 4096");
         } else {
             $bits[$t] = "1";
         }
     }
+
+    my $split;
+    my $loop = 0;
+    while (my @next_n = splice @bits, 0, 1024) {
+        $split->{$loop} = pack("B*",join ('', @next_n));
+        $loop++;
+    }
+
     my $bitString = join ('', @bits);
 
     my $taggedVlanMembers = pack("B*", $bitString);
 
     $logger->trace("SNMP set_request for OID_vlanTrunkPortVlansEnabled: $OID_vlanTrunkPortVlansEnabled");
     my $result = $self->{_sessionWrite}->set_request( -varbindlist => [
-            "$OID_vlanTrunkPortVlansEnabled.$ifIndex", Net::SNMP::OCTET_STRING, $taggedVlanMembers,
-            "$OID_vlanTrunkPortVlansEnabled2k.$ifIndex", Net::SNMP::OCTET_STRING, pack("B*", 0 x 1024),
-            "$OID_vlanTrunkPortVlansEnabled3k.$ifIndex", Net::SNMP::OCTET_STRING, pack("B*", 0 x 1024),
-            "$OID_vlanTrunkPortVlansEnabled4k.$ifIndex", Net::SNMP::OCTET_STRING, pack("B*", 0 x 1024) ] );
+            "$OID_vlanTrunkPortVlansEnabled.$ifIndex", Net::SNMP::OCTET_STRING, $split->{0},
+            "$OID_vlanTrunkPortVlansEnabled2k.$ifIndex", Net::SNMP::OCTET_STRING, $split->{1},
+            "$OID_vlanTrunkPortVlansEnabled3k.$ifIndex", Net::SNMP::OCTET_STRING, $split->{2},
+            "$OID_vlanTrunkPortVlansEnabled4k.$ifIndex", Net::SNMP::OCTET_STRING, $split->{3} ] );
     return defined($result);
 }
 
@@ -1041,9 +1048,9 @@ sub dot1xPortReauthenticate {
         {}
     );
 
-    require pf::violation;
-    my @violations = pf::violation::violation_view_open_desc($mac);
-    if ( scalar(@violations) > 0 ) {
+    require pf::security_event;
+    my @security_events = pf::security_event::security_event_view_open_desc($mac);
+    if ( scalar(@security_events) > 0 ) {
         my %message;
         $message{'subject'} = "VLAN isolation of $mac behind VoIP phone";
         $message{'message'} = "The following computer has been isolated behind a VoIP phone\n";
@@ -1056,11 +1063,11 @@ sub dot1xPortReauthenticate {
         $message{'message'} .= "Notes: " . $node_info->{'notes'} . "\n";
         $message{'message'} .= "Switch: " . $self->{'_ip'} . "\n";
         $message{'message'} .= "Port (ifIndex): " . $ifIndex . "\n\n";
-        $message{'message'} .= "The violation details are\n";
+        $message{'message'} .= "The security event details are\n";
 
-        foreach my $violation (@violations) {
-            $message{'message'} .= "Description: " . $violation->{'description'} . "\n";
-            $message{'message'} .= "Start: " . $violation->{'start_date'} . "\n";
+        foreach my $security_event (@security_events) {
+            $message{'message'} .= "Description: " . $security_event->{'description'} . "\n";
+            $message{'message'} .= "Start: " . $security_event->{'start_date'} . "\n";
         }
         $logger->info("sending email to admin regarding isolation of $mac behind VoIP phone");
         pfmailer(%message);
@@ -1125,7 +1132,7 @@ sub getPhonesLLDPAtIfIndex {
                 );
                 next if (!defined($portIdResult));
                 if ($portIdResult->{"$oid_lldpRemPortId.$CISCO::DEFAULT_LLDP_REMTIMEMARK.$lldpPort.$lldpRemIndex"}
-                        =~ /^0x([0-9A-Z]{2})([0-9A-Z]{2})([0-9A-Z]{2})([0-9A-Z]{2})([0-9A-Z]{2})([0-9A-Z]{2})$/i) {
+                        =~ /^(?:0x)?([0-9A-Z]{2})([0-9A-Z]{2})([0-9A-Z]{2})([0-9A-Z]{2})([0-9A-Z]{2})([0-9A-Z]{2})(?::..)?$/i) {
                     push @phones, lc("$1:$2:$3:$4:$5:$6");
                 }
             }
@@ -1149,8 +1156,7 @@ sub getIfIndexByNasPortId {
 
     my $OID_ifDesc = '1.3.6.1.2.1.2.2.1.2';
     my $ifDescHashRef;
-    my $cache = $self->cache;
-    my $result = $cache->compute($self->{'_id'} . "-" . $OID_ifDesc, sub { $self->{_sessionRead}->get_table( -baseoid => $OID_ifDesc )});
+    my $result = $self->cachedSNMPTable([-baseoid => $OID_ifDesc]);
     foreach my $key ( keys %{$result} ) {
         my $ifDesc = $result->{$key};
         if ( $ifDesc =~ /^$ifDesc_param$/i ) {
@@ -1190,7 +1196,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2017 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 

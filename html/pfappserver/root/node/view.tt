@@ -1,6 +1,6 @@
-      <div class="modal modal-large fade hide" id="modalNode">
+      <div class="modal modal-x-large fade hide" id="modalNode">
 
-        <form name="modalNode" action="[% c.uri_for(c.controller('Node').action_for('update'), [node.mac]) %]" class="form-horizontal form-condensed" >
+        <form name="modalNode" action="[% c.uri_for(c.controller('Node').action_for('update'), [node.mac], {tenant_id => node.tenant_id}) %]" class="form-horizontal form-condensed" >
 
         <div class="modal-header">
           <a class="close" data-dismiss="modal">&times;</a>
@@ -15,7 +15,7 @@
             <li><a href="#nodeIpLog" data-toggle="tab">[% l('IPv4 Address') %]</a></li>
             <li><a href="#nodeIpv6Log" data-toggle="tab">[% l('IPv6 Address') %]</a></li>
             [% FOREACH tab IN tabs %]
-            <li><a href="#nodeAdditionalTabView" data-href="[% c.uri_for(c.controller('Node').action_for('tab_view'), [node.mac], tab) %]" data-toggle="tab">[% l(tab) %]</a></li>
+            <li><a href="#nodeAdditionalTabView" data-href="[% c.uri_for(c.controller('Node').action_for('tab_view'), [node.mac], tab, {tenant_id => node.tenant_id}) %]" data-toggle="tab">[% l(tab) %]</a></li>
             [% END %]
           </ul>
 
@@ -123,6 +123,7 @@
             </div><!--tab-pane-->
 
             <div class="tab-pane fade in" id="nodeFingerprinting">
+              [% form.field('device_manufacturer').render | none %]
               [% form.field('device_class').render | none %]
               [% form.field('device_type').render | none %]
               [% form.field('fingerbank_info.device_fq').render | none %]
@@ -207,8 +208,9 @@
 
         <div class="modal-footer">
           [% IF node.multihost.size %]<p>[% l('This node is wired to a switchport on which other active devices were detected.') %]<br/>[% l('Therefore, you can apply change to ALL of those devices.') %]</p>[% END %]
-          [% IF can_access("NODES_UPDATE") && !form.readonly %]<a href="[% c.uri_for(c.controller('Node').action_for('reevaluate_access'), [ node.mac ]) %]" id="reevaluateNode" class="btn btn-warning pull-left"> [% l('Reevaluate access') %]</a>[% END %]
-          [% IF can_access("NODES_UPDATE") && !form.readonly %]<a href="[% c.uri_for(c.controller('Node').action_for('restart_switchport'), [ node.mac ]) %]" id="restartSwitchport" class="btn btn-danger pull-left"> [% l('Restart Switchport') %]</a>[% END %]
+          [% IF can_access("NODES_UPDATE") && !form.readonly %]<a href="[% c.uri_for(c.controller('Node').action_for('reevaluate_access'), [ node.mac ], {tenant_id => node.tenant_id}) %]" id="reevaluateNode" class="btn btn-warning pull-left"> [% l('Reevaluate access') %]</a>[% END %]
+          [% IF can_access("NODES_UPDATE") && !form.readonly %]<a href="[% c.uri_for(c.controller('Node').action_for('refresh_fingerbank_device'), [ node.mac ]) %]" id="refreshFingerbankDeviceNode" class="btn btn-warning pull-left"> [% l('Refresh device profiling') %]</a>[% END %]
+          [% IF can_access("NODES_UPDATE") && !form.readonly %]<a href="[% c.uri_for(c.controller('Node').action_for('restart_switchport'), [ node.mac ], {tenant_id => node.tenant_id}) %]" id="restartSwitchport" class="btn btn-danger pull-left"> [% l('Restart Switchport') %]</a>[% END %]
           <a href="#" class="btn" data-dismiss="modal">[% l('Close') %]</a>
           [% IF node.multihost.size %][% IF can_access("NODES_UPDATE") && !form.readonly %]<button type="submit" data-multihost="yes" class="btn btn-primary" data-loading-text="[% l('Saving (All Devices)') %]">[% l('Save (All Devices)') %]</button>[% END %][% END %]
           [% IF can_access("NODES_UPDATE") && !form.readonly %]<button type="submit" class="btn btn-primary" data-loading-text="[% l('Saving') %]">[% l('Save') %]</button>[% END %]
@@ -216,11 +218,3 @@
 
         </form>
       </div><!--modal-->
-
-<script>
-/* Ability to track submitted button (multihost feature) */
-$("form button[type=submit]").click(function() {
-    $("button[type=submit]", $(this).parents("form")).removeAttr("clicked");
-    $(this).attr("clicked", "true");
-});
-</script>

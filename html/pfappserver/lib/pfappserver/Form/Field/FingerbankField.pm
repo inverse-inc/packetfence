@@ -61,7 +61,7 @@ Inflate the value stored as an ID to the value
 sub fingerbank_inflate {
     my ($self, $value) = @_;
 
-    my ($status, $result) = $self->fingerbank_model->read($value);
+    my ($status, $result) = $self->fingerbank_model->read_hashref($value);
 
     if(is_success($status)) {
         my $value_field = $self->fingerbank_model->value_field;
@@ -105,7 +105,7 @@ sub _id_from_value {
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2017 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 
@@ -126,7 +126,7 @@ USA.
 
 =cut
 
-__PACKAGE__->meta->make_immutable;
+__PACKAGE__->meta->make_immutable unless $ENV{"PF_SKIP_MAKE_IMMUTABLE"};
 1;
 
 

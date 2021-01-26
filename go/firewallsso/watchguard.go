@@ -3,10 +3,13 @@ package firewallsso
 import (
 	"context"
 	"fmt"
+	"net"
+
 	"github.com/inverse-inc/packetfence/go/log"
 	"github.com/inverse-inc/packetfence/go/sharedutils"
-	"layeh.com/radius"
-	"net"
+	radius "github.com/inverse-inc/go-radius"
+	"github.com/inverse-inc/go-radius/rfc2865"
+	"github.com/inverse-inc/go-radius/rfc2866"
 )
 
 type WatchGuard struct {
@@ -22,10 +25,13 @@ func (fw *WatchGuard) Start(ctx context.Context, info map[string]string, timeout
 	client := fw.getRadiusClient(ctx)
 
 	var err error
-	client.LocalAddr, err = net.ResolveUDPAddr("udp", fw.getSourceIp(ctx).String()+":0")
+	client.Dialer.LocalAddr, err = net.ResolveUDPAddr("udp", fw.getSourceIp(ctx).String()+":0")
 	sharedutils.CheckError(err)
 
-	_, err = client.Exchange(p, fw.PfconfigHashNS+":"+fw.Port)
+	// Use the background context since we don't want the lib to use our context
+	ctx2, cancel := fw.RadiusContextWithTimeout()
+	defer cancel()
+	_, err = client.Exchange(ctx2, p, fw.PfconfigHashNS+":"+fw.Port)
 	if err != nil {
 		log.LoggerWContext(ctx).Error(fmt.Sprintf("Couldn't SSO to the WatchGuard, got the following error: %s", err))
 		return false, err
@@ -37,12 +43,12 @@ func (fw *WatchGuard) Start(ctx context.Context, info map[string]string, timeout
 // Build the RADIUS packet for an SSO start
 func (fw *WatchGuard) startRadiusPacket(ctx context.Context, info map[string]string, timeout int) *radius.Packet {
 	r := radius.New(radius.CodeAccountingRequest, []byte(fw.Password))
-	r.Set("Acct-Status-Type", uint32(1))
-	r.Set("User-Name", info["username"])
-	r.Set("Filter-Id", info["role"])
-	r.Set("Called-Station-Id", "00:11:22:33:44:55")
-	r.Set("Framed-IP-Address", net.ParseIP(info["ip"]))
-	r.Set("Calling-Station-Id", info["mac"])
+	rfc2866.AcctStatusType_Add(r, rfc2866.AcctStatusType_Value_Start)
+	rfc2865.UserName_AddString(r, info["username"])
+	rfc2865.FilterID_AddString(r, info["role"])
+	rfc2865.CalledStationID_AddString(r, "00:11:22:33:44:55")
+	rfc2865.FramedIPAddress_Add(r, net.ParseIP(info["ip"]))
+	rfc2865.CallingStationID_AddString(r, info["mac"])
 
 	return r
 }
@@ -54,10 +60,13 @@ func (fw *WatchGuard) Stop(ctx context.Context, info map[string]string) (bool, e
 	client := fw.getRadiusClient(ctx)
 
 	var err error
-	client.LocalAddr, err = net.ResolveUDPAddr("udp", fw.getSourceIp(ctx).String()+":0")
+	client.Dialer.LocalAddr, err = net.ResolveUDPAddr("udp", fw.getSourceIp(ctx).String()+":0")
 	sharedutils.CheckError(err)
 
-	_, err = client.Exchange(p, fw.PfconfigHashNS+":"+fw.Port)
+	// Use the background context since we don't want the lib to use our context
+	ctx2, cancel := fw.RadiusContextWithTimeout()
+	defer cancel()
+	_, err = client.Exchange(ctx2, p, fw.PfconfigHashNS+":"+fw.Port)
 	if err != nil {
 		log.LoggerWContext(ctx).Error(fmt.Sprintf("Couldn't SSO to the WatchGuard, got the following error: %s", err))
 		return false, err
@@ -69,13 +78,13 @@ func (fw *WatchGuard) Stop(ctx context.Context, info map[string]string) (bool, e
 // Build the RADIUS packet for an SSO stop
 func (fw *WatchGuard) stopRadiusPacket(ctx context.Context, info map[string]string) *radius.Packet {
 	r := radius.New(radius.CodeAccountingRequest, []byte(fw.Password))
-	r.Set("Acct-Session-Id", "acct_pf-"+info["mac"])
-	r.Set("Acct-Status-Type", uint32(2))
-	r.Set("User-Name", info["username"])
-	r.Set("Filter-Id", info["role"])
-	r.Set("Called-Station-Id", "00:11:22:33:44:55")
-	r.Set("Framed-IP-Address", net.ParseIP(info["ip"]))
-	r.Set("Calling-Station-Id", info["mac"])
+	rfc2866.AcctSessionID_AddString(r, "acct_pf-"+info["mac"])
+	rfc2866.AcctStatusType_Add(r, rfc2866.AcctStatusType_Value_Stop)
+	rfc2865.UserName_AddString(r, info["username"])
+	rfc2865.FilterID_AddString(r, info["role"])
+	rfc2865.CalledStationID_AddString(r, "00:11:22:33:44:55")
+	rfc2865.FramedIPAddress_Add(r, net.ParseIP(info["ip"]))
+	rfc2865.CallingStationID_AddString(r, info["mac"])
 
 	return r
 }

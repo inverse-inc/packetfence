@@ -10,7 +10,7 @@ function download_and_check {
   may_not_exist="${3:-"0"}"
   tmpencrypted=`mktemp`
 
-  if [ "`wget --server-response $u -O $tmpencrypted 2>&1 | awk '/^  HTTP/{print $2}'`" != "200" ] ; then
+  if [ "`curl -sD - $u -o $tmpencrypted 2>&1 | awk '/^HTTP/{print $2}'`" != "200" ] ; then
     echo "Failed to download $u"
     rm $tmpencrypted
     if [ $may_not_exist -eq 1 ];then
@@ -25,7 +25,7 @@ function download_and_check {
     if ! gpg --batch --yes --output $dst --decrypt $tmpencrypted; then
       echo "Failed to validate signature of $u"
       ERROR=1
-      rm $tmpencryped
+      rm $tmpencrypted
       return 1
     fi
     rm $tmpencrypted

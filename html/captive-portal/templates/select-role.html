@@ -1,0 +1,18 @@
+<div class="o-layout o-layout--center u-padding">
+  <div class="o-layout__item u-1/1 u-2/3@tablet u-3/5@desktop">
+    <form>
+      <div class="input-container">
+        <label for="new_role">Please select a role</label>
+        <select name="new_role">
+          [% FOREACH role IN roles.sort %]
+          <option value="[% role %]">[% role %]</option>
+          [% END %]
+        </select>
+      </div>
+      <button type="submit" name="submit" class="c-btn c-btn--primary u-1/1 u-margin-top">
+        [% i18n("Continue") %]
+      </button>
+    </form>
+  </div>
+</div>
+

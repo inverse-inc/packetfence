@@ -98,46 +98,67 @@ sub search {
     my ($self, $query) = @_;
     my ($status, $ids) = $self->readAllIds;
     my ($pageNum, $perPage) = @{$query}{qw(page_num per_page)};
-    $pageNum = 1 unless defined $pageNum;
-    $perPage = 25 unless defined $perPage;
-    my $start = ($pageNum - 1) * 25;
-    my $end = $start + $perPage - 1;
-    my $searchEntry = $query->{searches}->[0];
+    $pageNum //= 1;
+    $perPage //= 25;
+    my $start        = ($pageNum - 1) * 25;
+    my $end          = $start + $perPage - 1;
+    my $searchEntry  = $query->{searches}->[0];
     my $searchMethod = \&true_query;
-    if(defined $searchEntry->{value} ) {
+    if (defined $searchEntry->{value}) {
         $searchMethod = $QUERY_METHOD_LOOKUP{$searchEntry->{op}};
     }
-    my (@items,$item);
+    my (@items, $item);
     my $found_count = 0;
+    my $idKey = $self->idKey;
+    my $itemsKey = $self->itemsKey;
     foreach my $id (@$ids) {
-        next unless defined ($item = $self->configStore->read($id,$self->idKey));
-        if ($self->$searchMethod($searchEntry,$item)) {
-            if($start <= $found_count && $found_count <= $end) {
-                push @items,$item;
+        next unless defined ($item = $self->configStore->read($id, $idKey));
+        if ( $self->$searchMethod( $searchEntry, $item ) ) {
+            if ($start <= $found_count && $found_count <= $end) {
+                push @items, $item;
             }
             $found_count++;
         }
     }
     my $pageCount = calc_page_count($found_count, $perPage);
-    return (HTTP_OK,
-        {   $self->itemsKey => \@items,
-            page_num         => $pageNum,
-            per_page         => $perPage,
-            page_count       => $pageCount,
-            itemsKey        => $self->itemsKey
+    return (
+        HTTP_OK,
+        {
+            $itemsKey  => \@items,
+            page_num   => $pageNum,
+            per_page   => $perPage,
+            page_count => $pageCount,
+            itemsKey   => $self->itemsKey
         }
     );
 }
 
+=head2 read
 
+reads a section
 
+=cut
 
-__PACKAGE__->meta->make_immutable;
+sub read {
+    my ($self, $id) = @_;
+    my ($status, $result) = $self->hasId($id);
+    my $configStore = $self->configStore;
+    if(is_success($status)) {
+        unless ($result = $configStore->readWithoutInherited($id, $self->idKey)) {
+            $result = ["error reading [_1] from the configuration", $id];
+            $status =  HTTP_PRECONDITION_FAILED;
+        }
+    }
+
+    return ($status, $result);
+}
+
+__PACKAGE__->meta->make_immutable unless $ENV{"PF_SKIP_MAKE_IMMUTABLE"};
 
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2017 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 

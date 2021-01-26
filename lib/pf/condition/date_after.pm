@@ -30,7 +30,7 @@ has value => (
 );
 
 sub match {
-    my ($self, $arg) = @_;
+    my ($self, $arg, $args) = @_;
 
     my $date_format = "%Y-%m-%d %H:%M:%S";
 
@@ -49,7 +49,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2017 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 

@@ -1,3 +1,4 @@
+# Copyright (C) Inverse inc.
 # -*- text -*-
 ##
 ## radiusd.conf	-- FreeRADIUS server configuration file - 3.0.11
@@ -75,7 +76,7 @@ run_dir = ${localstatedir}/run
 db_dir = ${raddbdir}
 
 rpc_user   = %%rpc_user%%
-rpc_pass   = %%rpc_pass%%
+rpc_pass   = "%%rpc_pass%%"
 rpc_port   = %%rpc_port%%
 rpc_host   = %%rpc_host%%
 rpc_proto  = %%rpc_proto%%
@@ -111,7 +112,7 @@ rpc_proto  = %%rpc_proto%%
 #	make
 #	make install
 #
-libdir = /usr/lib64/freeradius
+libdir = /usr/lib64/freeradius:/usr/lib/freeradius
 
 #  pidfile: Where to place the PID of the RADIUS server.
 #

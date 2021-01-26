@@ -1,0 +1,17 @@
+/config/maintenance_tasks:
+  description: pf::UnifiedApi::Controller::Config::MaintenanceTasks
+  get:
+    description: List items
+    operationId: api.v1.Config::MaintenanceTasks.list
+    parameters: []
+    responses:
+      '200':
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ConfigMaintenanceTasksList'
+        description: List
+      '400':
+        $ref: '#/components/responses/BadRequest'
+      '422':
+        $ref: '#/components/responses/UnprocessableEntity'

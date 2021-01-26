@@ -22,6 +22,7 @@ use pf::web::custom;
 
 use pf::authentication;
 use pf::Authentication::constants;
+use pf::constants::realm;
 
 =head1 NAME
 
@@ -79,6 +80,7 @@ sub code : Path : Args(2) {
             get_logger->info("Extending duration to $unregdate");
             node_modify($node_mac, unregdate => $unregdate);
             pf::activation::set_status_verified($GUEST_ACTIVATION, $code);
+            pf::auth_log::record_completed_guest($activation_record->{source_id}, $node_mac, $pf::auth_log::COMPLETED);
             $c->stash(
                 title => "Access granted",
                 template => "activation/email.html",
@@ -122,6 +124,22 @@ sub login : Private {
     );
 }
 
+=head2 set_access_durations
+
+=cut
+
+sub set_access_durations : Private {
+    my ( $self, $c ) = @_;
+    if ( $c->has_errors ) {
+        $c->stash->{txt_auth_error} = join(' ', grep { ref ($_) eq '' } @{$c->error});
+        $c->clear_errors;
+    }
+    $c->stash(
+        title => "Choose the access duration",
+        template => $pf::web::guest::SPONSOR_SET_ACCESS_DURATIONS_TEMPLATE,
+    );
+}
+
 =head2 doSponsorRegistration
 
 =cut
@@ -138,44 +156,55 @@ sub doSponsorRegistration : Private {
         'username'   => $pid,
         'user_email' => $email
     };
-
+    my $sponsor_source_id = $activation_record->{source_id};
     my $profile = $c->profile;
-    my $sponsor_type =
-      pf::Authentication::Source::SponsorEmailSource->getDefaultOfType;
-    my $source = $profile->getSourceByType($sponsor_type);
-
+    my $source = getAuthenticationSource($sponsor_source_id);
     if ($source) {
+        if (isenabled($source->{validate_sponsor})) {
+            # if we have a username in session it means user has already authenticated
+            # so we go ahead and allow the guest in
+            if ( !defined( $c->user_session->{"username"} ) ) {
 
-        # if we have a username in session it means user has already authenticated
-        # so we go ahead and allow the guest in
-        if ( !defined( $c->user_session->{"username"} ) ) {
+                # User is not logged and didn't provide username or password: show login form
+                if (!(  $request->param("username") && $request->param("password")
+                    )
+                  ) {
+                    $logger->info(
+                        "Sponsor needs to authenticate in order to activate guest. Guest token: $code"
+                    );
+                    $c->detach('login');
+                }
 
-            # User is not logged and didn't provide username or password: show login form
-            if (!(  $request->param("username") && $request->param("password")
-                )
-              ) {
-                $logger->info(
-                    "Sponsor needs to authenticate in order to activate guest. Guest token: $code"
-                );
+                # User provided username and password: authenticate
+                $c->forward(Authenticate => 'authenticationLogin');
+                $c->detach('login') if $c->has_errors;
+            }
+            # Verify if the user has the role mark as sponsor
+            my $source_match = $c->user_session->{source_match} || $c->user_session->{source_id};
+            my $matched = pf::authentication::match2($source_match, {username => $c->user_session->{"username"}, rule_class => $Rules::ADMIN, 'context' => $pf::constants::realm::PORTAL_CONTEXT});
+            my $values = $matched->{values};
+
+            unless (defined $values->{$Actions::MARK_AS_SPONSOR}) {
+                $c->log->error( $c->user_session->{"username"} . " does not have permission to sponsor a user"  );
+                $c->user_session->{username} = undef;
+                $self->showError($c,"does not have permission to sponsor a user");
                 $c->detach('login');
             }
-
-            # User provided username and password: authenticate
-            $c->forward(Authenticate => 'authenticationLogin');
-            $c->detach('login') if $c->has_errors;
+            if ($values->{$Actions::SET_ACCESS_DURATIONS}) {
+                if ($request->param("access_duration")) {
+                    pf::activation::set_unregdate('sponsor',$activation_record->{'activation_code'}, pf::config::access_duration($request->param("access_duration")));
+                } else {
+                    my @options_duration = map { { value => $_, label => $_ } } split(',', $values->{$Actions::SET_ACCESS_DURATIONS});
+                    if (scalar(@options_duration) eq 1) {
+                        pf::activation::set_unregdate('sponsor',$activation_record->{'activation_code'}, pf::config::access_duration($values->{$Actions::SET_ACCESS_DURATIONS}));
+                    } else {
+                        my @options_duration = map { { value => $_, label => $_ } } split(',', $values->{$Actions::SET_ACCESS_DURATIONS});
+                        $c->stash->{set_access_durations} = \@options_duration;
+                        $c->detach('set_access_durations');
+                    }
+		        }
+            }
         }
-        # Verify if the user has the role mark as sponsor
-        my $source_match = $c->user_session->{source_match} || $c->user_session->{source_id};
-        my $value = pf::authentication::match($source_match, {username => $c->user_session->{"username"}, rule_class => $Rules::ADMIN}, $Actions::MARK_AS_SPONSOR);
-        unless (defined $value) {
-            $c->log->error( $c->user_session->{"username"} . " does not have permission to sponsor a user"  );
-            $c->user_session->{username} = undef;
-            $self->showError($c,"does not have permission to sponsor a user");
-            $c->detach('login');
-        }
-
-
-
         # handling log out (not exposed to the UI at this point)
         # TODO: if we ever expose it, we'll need to alter the form action to make sure to trim it
         # otherwise we'll submit our authentication but with ?action=logout so it'll delete the session right away
@@ -208,7 +237,7 @@ sub doSponsorRegistration : Private {
             # we create a password using the actions from the sponsor authentication source;
             # NOTE: When sponsoring a network access, the new user will be created (in the password table) using
             # the actions of the sponsor authentication source of the connection profile on which the *sponsor* has landed.
-            my $actions = pf::authentication::match( $source->{id}, { username => $pid, user_email => $pid } );
+            my $actions = pf::authentication::match( $source->{id}, { username => $pid, user_email => $pid , 'context' => $pf::constants::realm::PORTAL_CONTEXT} );
             $info{'password'} =
               pf::password::generate( $pid, $actions );
 
@@ -216,8 +245,25 @@ sub doSponsorRegistration : Private {
                 \%info );
         }
 
-        pf::activation::set_status_verified($SPONSOR_ACTIVATION, $code);
+        if(isenabled($source->register_on_activation)) {
+            $logger->info("Sponsor source is configured to register device when sponsor activates the access. Registering the device.");
+            my $unregdate = $activation_record->{unregdate};
+            my $category_id = $activation_record->{category_id};
+            if($category_id && $unregdate) {
+                get_logger->info("Extending duration to $unregdate and assigning role with ID $category_id");
+                my ($status, $status_msg) = node_register($node_mac, $activation_record->{pid}, unregdate => $unregdate, category_id => $category_id);
+                if(!$status) {
+                    $self->showError($c, "Unable to register the device: $status_msg");
+                    $c->detach();
+                }
+                pf::enforcement::reevaluate_access($node_mac, "manage_register")
+            }
+            else {
+                $self->showError($c, "Could not find unregistration date or role for this activation code.");
+            }
+        }
 
+        pf::activation::set_status_verified($SPONSOR_ACTIVATION, $code);
         # send to a success page
         $c->stash(
             title => "Sponsor request accepted",
@@ -228,7 +274,7 @@ sub doSponsorRegistration : Private {
         $logger->warn( "No active sponsor source for profile "
               . $profile->getName
         );
-        $self->showError("No active sponsor source for this Connection Profile.");
+        $self->showError($c, "No active sponsor source for this Connection Profile.");
     }
 }
 
@@ -238,7 +284,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2017 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 
@@ -259,7 +305,7 @@ USA.
 
 =cut
 
-__PACKAGE__->meta->make_immutable;
+__PACKAGE__->meta->make_immutable unless $ENV{"PF_SKIP_MAKE_IMMUTABLE"};
 
 1;
 

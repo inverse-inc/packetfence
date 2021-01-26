@@ -1,0 +1,7 @@
+---
+# to run service by hand using Venom
+wpasupplicant__enabled: False
+wpasupplicant__state: stopped
+
+wpasupplicant__identity: "{{ hostvars['ad']['packetfence_domain_account'] }}"
+wpasupplicant__password: "{{ hostvars['ad']['packetfence_domain_password'] }}"

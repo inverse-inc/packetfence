@@ -16,7 +16,8 @@ use warnings;
 use Moose;
 use namespace::autoclean;
 use pf::db;
-
+use pf::config qw(%Config);
+use pf::util;
 BEGIN { extends 'Catalyst::Controller' }
 
 #
@@ -51,15 +52,14 @@ The root page (/)
 
 sub index :Path :Args(0) {
     my ( $self, $c ) = @_;
-    my $installation_type = $c->model('Configurator')->checkForUpgrade();
-    if ($installation_type ne $pfappserver::Model::Configurator::INSTALLATION) {
+    if ($c->model('Configurator')->isEnabled()) {
+        # Redirect to the configurator
+        $c->response->redirect($c->uri_for($c->controller('Configurator')->action_for('index')));
+    } else {
         # Redirect to the admin interface
         my $admin_url = $c->uri_for($c->controller('Admin')->action_for('index'));
         $c->log->info("Redirecting to admin interface $admin_url");
         $c->response->redirect($admin_url);
-    } else {
-        # Redirect to the configurator
-        $c->response->redirect($c->uri_for($c->controller('Configurator')->action_for('index')));
     }
     $c->detach();
 }
@@ -84,19 +84,37 @@ Attempt to render a view, if needed.
 
 sub end : ActionClass('RenderView') {
     my ( $self, $c ) = @_;
-    if (defined($c->req->header('accept')) && $c->req->header('accept') eq 'application/json'){
+    $self->updateResponseHeaders($c);
+    if (defined($c->req->header('accept')) && $c->req->header('accept') eq 'application/json') {
         $c->stash->{current_view} = 'JSON';
     }
+
     if (scalar @{$c->error}) {
-        for my $error ( @{ $c->error } ) {
+        for my $error (@{$c->error}) {
             $c->log->error($error);
         }
         $c->stash->{status_msg} = $c->pf_localize('An error condition has occured. See server side logs for details.');
         $c->response->status(500);
         $c->clear_errors;
     }
-    elsif (exists $c->stash->{status_msg} && defined $c->stash->{status_msg} ) {
-        $c->stash->{status_msg} = $c->pf_localize($c->stash->{status_msg});
+    elsif (defined (my $status_msg = $c->stash->{status_msg})) {
+        $c->stash->{status_msg} = $c->pf_localize($status_msg);
+    }
+}
+
+=head2 updateResponseHeaders
+
+updateResponseHeaders
+
+=cut
+
+sub updateResponseHeaders {
+    my ($self, $c) = @_;
+    my $response = $c->response;
+    $response->header('Cache-Control' => 'no-cache, no-store');
+    $response->header('X-Frame-Options' => 'SAMEORIGIN');
+    if (isenabled($Config{'advanced'}{'admin_csp_security_headers'})){
+        $c->csp_server_headers();
     }
 }
 
@@ -108,7 +126,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2017 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 
@@ -129,6 +147,6 @@ USA.
 
 =cut
 
-__PACKAGE__->meta->make_immutable;
+__PACKAGE__->meta->make_immutable unless $ENV{"PF_SKIP_MAKE_IMMUTABLE"};
 
 1;

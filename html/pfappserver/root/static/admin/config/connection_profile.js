@@ -224,16 +224,14 @@ function initReadPage(element) {
         select.find("option:selected").removeAttr("selected");
         var options = select.find('option[value!=""]');
         // Select the next option that was not yet selected
-        try {
-            options.each(function(index,element) {
-                var selector = '[value="' + element.value + '"]';
-                if(selected_options.filter(selector).length === 0) {
-                    $(element).attr("selected", "selected");
-                    throw "";
-                }
-            });
-        }
-        catch(e) {}
+        options.each(function(index,element) {
+            var selector = '[value="' + element.value + '"]';
+            if(selected_options.filter(selector).length === 0) {
+                $(element).attr("selected", "selected");
+                return false;
+            }
+        });
+
         // If all options have been added, remove the add button
         var rows = row.siblings(':not(.hidden)').addBack();
         if (rows.length == options.length) {
@@ -253,7 +251,7 @@ function initReadPage(element) {
     });
     $('#filter').on('change', 'select[name$=".type"]', function(event) {
         var type_input = $(event.currentTarget);
-        updateFilterMatchInput(type_input,false);
+        updateFilterMatchInput(type_input, false);
     });
     $('[id$="Empty"]').on('click', '[href="#add"]', function(event) {
         var match = /(.+)Empty/.exec(event.delegateTarget.id);
@@ -268,7 +266,7 @@ function initReadPage(element) {
     });
 }
 
-function updateFilterMatchInput(type_input, keep) {
+function updateFilterMatchInput(type_input, keep_value) {
     var match_input = type_input.next();
     var type_value = type_input.val();
     var match_input_template_id = '#' + type_value + "_filter_match";
@@ -277,7 +275,7 @@ function updateFilterMatchInput(type_input, keep) {
         match_input_template = $('#default_filter_match');
     }
     if ( match_input_template.length ) {
-        changeInputFromTemplate(match_input, match_input_template, keep);
+        changeInputFromTemplate(match_input, match_input_template, keep_value);
         if (type_value == "switch") {
             type_input.next().typeahead({
                 source: searchSwitchesGenerator($('#section h2')),

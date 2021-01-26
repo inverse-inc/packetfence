@@ -78,19 +78,23 @@ sub available_actions {
     return \@actions;
 }
 
-=head2 match_in_subclass
+=head2 match
 
 =cut
 
 sub match {
     my ($self, $params) = @_;
-    return [ 
-        pf::Authentication::Action->new({
-            type    => $Actions::SET_ROLE,
-            value   => $REJECT_ROLE,
-            class   => pf::Authentication::Action->getRuleClassForAction($Actions::SET_ROLE),
-        }) 
-    ];
+    return pf::Authentication::Rule->new(
+        id => $self->id,
+        class => $Rules::AUTH,
+        actions => [
+            pf::Authentication::Action->new({
+                type    => $Actions::SET_ROLE,
+                value   => $REJECT_ROLE,
+                class   => pf::Authentication::Action->getRuleClassForAction($Actions::SET_ROLE),
+            })
+        ],
+    );
        
 }
 
@@ -119,7 +123,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2017 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 

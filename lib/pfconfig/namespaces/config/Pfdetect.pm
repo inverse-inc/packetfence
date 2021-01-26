@@ -19,52 +19,39 @@ use warnings;
 
 use pfconfig::namespaces::config;
 use pf::file_paths qw($pfdetect_config_file);
-use pf::util;
-use Sort::Naturally qw(nsort);
+use pf::IniFiles;
+use pf::log;
+use pf::config::builder::pfdetect;
 
-use base 'pfconfig::namespaces::config';
+use base 'pfconfig::namespaces::resource';
 
 sub init {
     my ($self) = @_;
     $self->{file} = $pfdetect_config_file;
-    $self->{config} = $self->{cache}->get_cache('config::Pf');
 }
 
-sub build_child {
+sub build {
     my ($self) = @_;
-    my %tmp_cfg = %{ $self->{cfg} };
-    # There for backward compatibility for when suricata or snort is configured directly in PacketFence
-    # Should this feature go, the code below can be removed
-    # This will start a pfdetect process if the detection engine is enabled in PacketFence
-    #
-    my @parser_ids = grep { /^\S+$/  } keys %tmp_cfg;
-    my %config_data;
-    for my $id (@parser_ids) {
-        my $entry = $tmp_cfg{$id};
-        $config_data{$id} = $entry;
-        if ($entry->{type} eq 'regex') {
-            my @rules; 
-            my @rule_ids = grep { /^$id rule/  } keys %tmp_cfg;
-            for my $rule_id (@rule_ids) {
-                $rule_id =~ /^$id rule (.*)/;
-                my $rule = {%{$tmp_cfg{$rule_id}}, name => $1};
-                my $regex = eval {qr/$rule->{regex}/};
-                if ($@) {
-                    print STDERR "Invalid regex '$rule->{regex}'\n";
-                    next;
-                }
-                $rule->{regex}  = $regex;
-                my @action_keys = nsort grep { /^action\d+$/ } keys %$rule;
-                $rule->{actions} = [delete @$rule{@action_keys}];
-                push @rules, $rule;
-            }
-            $entry->{rules} = \@rules;
-        }
+    my $file = $self->{file};
+    my $ini = pf::IniFiles->new(-file => $file, -allowempty => 1);
+    unless ($ini) {
+        my $error_msg = join("\n", @pf::IniFiles::errors, "");
+        get_logger->error($error_msg);
+        return {};
     }
 
-    return \%config_data;
+    my $builder = pf::config::builder::pfdetect->new();
+    my ($errors, $data) = $builder->build($ini);
+    for my $err (@{ $errors // [] }) {
+        my $error_msg =  "$file: $err->{rule}) $err->{message}";
+        get_logger->error($error_msg);
+        warn($error_msg);
+    }
+    foreach my $key (keys %{$data}) {
+        $data->{$key}->{'tenant_id'} = $data->{$key}->{'tenant_id'} + 0;
+    }
+    return $data;
 }
-
 
 =head1 AUTHOR
 
@@ -72,7 +59,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2017 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 

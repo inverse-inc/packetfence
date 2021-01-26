@@ -21,6 +21,8 @@ use POSIX;
 use URI::Escape::XS;
 use pf::log;
 use Tie::IxHash;
+use MIME::Lite;
+use pf::config::util;
 
 use pf::util qw(load_oui download_oui);
 # imported only for the $TIME_MODIFIER_RE regex. Ideally shouldn't be
@@ -30,62 +32,17 @@ use pf::config qw(
     %Doc_Config
 );
 use pf::admin_roles;
-use pfappserver::Form::Config::Pf;
+use pf::constants::pfconf;
 
 BEGIN {extends 'pfappserver::Base::Controller'; }
 
 =head1 METHODS
-
-=cut
-
-=head2 _process_section
-
-=cut
-
-our %ALLOWED_SECTIONS = (
-    general => undef,
-    network => undef,
-    fencing => undef,
-    parking => undef,
-    device_registration => undef,
-    guests_self_registration => undef,
-    guests_admin_registration => undef,
-    billing => undef,
-    alerting => undef,
-    scan => undef,
-    maintenance => undef,
-    expire => undef,
-    services => undef,
-    snmp_traps => undef,
-    inline => undef,
-    captive_portal => undef,
-    advanced => undef,
-    provisioning => undef,
-    webservices => undef,
-    active_active => undef,
-    graphite => undef,
-    omapi => undef,
-    pki => undef,
-    metadefender => undef,
-    mse_tab => undef,
-    radius_authentication_methods => undef,
-    define_policy => undef,
-    network_conf => undef,
-    system_config => undef,
-    portal_config => undef,
-    compliance => undef,
-    integration => undef,
-    database => undef,
-    database_advanced => undef,
-    node_import => undef,
-);
 
 =head2 index
 
 =cut
 
 sub index :Path :Args(0) { }
-
 
 =head2 section
 
@@ -99,11 +56,12 @@ sub section :Path :Args(1) :AdminRole('CONFIGURATION_MAIN_READ') {
 
     $c->stash->{doc_anchor} = exists($Doc_Config{$section}) ? $Doc_Config{$section}{guide_anchor} : undef;
 
-    if (exists $ALLOWED_SECTIONS{$section} ) {
+    if (exists $pf::constants::pfconf::ALLOWED_SECTIONS{$section} ) {
         my ($params, $form);
         my ($status,$status_msg,$results);
 
         $c->stash->{section} = $section;
+        $c->stash(fingerbank_configured => fingerbank::Config::is_api_key_configured);
 
         my $model = $c->model('Config::Pf');
         $form = $c->form("Config::Pf", section => $section);
@@ -174,9 +132,10 @@ sub duration :Local :Args(2) {
 =cut
 
 sub switches :Local {
-    my ($self, $c) = @_;
+    my ($self, $c, $name) = @_;
 
-    $c->go('Controller::Config::Switch', 'index');
+    $c->stash->{tab} = $name;
+    $c->forward('_handle_tab_view');
 }
 
 =head2 floating_devices
@@ -196,7 +155,7 @@ sub floating_devices :Local {
 sub authentication :Local {
     my ($self, $c) = @_;
 
-    $c->go('Controller::Authentication', 'index');
+    $c->go('Controller::Config::Source', 'index');
 }
 
 =head2 users
@@ -209,14 +168,14 @@ sub users :Local {
     $c->go('Controller::User', 'create');
 }
 
-=head2 violations
+=head2 security_events
 
 =cut
 
-sub violations :Local {
+sub security_events :Local {
     my ($self, $c) = @_;
 
-    $c->go('Controller::Violation', 'index');
+    $c->go('Controller::SecurityEvent', 'index');
 }
 
 =head2 domains
@@ -413,6 +372,20 @@ sub all_subsections : Private {
             return \%map;
         }->(),
 
+        switches => sub {
+            tie my %map, 'Tie::IxHash', (
+                switch => {
+                    controller => 'Controller::Config::Switch',
+                    name => 'Switches',
+                },
+                switch_group => {
+                    controller => 'Controller::Config::SwitchGroup',
+                    name => 'Switch Groups',
+                },
+            );
+            return \%map;
+        }->(),
+
         main => sub {
             tie my %map, 'Tie::IxHash', (
                 general => {
@@ -434,7 +407,7 @@ sub all_subsections : Private {
                     name => 'Advanced', 
                 },
                 maintenance => {
-                    controller => 'Controller::Config::Pfmon',
+                    controller => 'Controller::Config::Pfcron',
                     name => 'Maintenance', 
                 },
                 services => {
@@ -465,6 +438,10 @@ sub all_subsections : Private {
                     action_args => ['inline'],
                     name => 'Inline', 
                 },
+                trafficshaping => {
+                    controller => 'Controller::Config::TrafficShaping',
+                    name => 'Inline Traffic Shaping',
+                },
                 fencing => {
                     controller => 'Controller::Configuration',
                     action => 'section',
@@ -486,6 +463,12 @@ sub all_subsections : Private {
                 general => {
                     controller => 'Controller::Config::Fingerbank::Settings',
                     name => 'General Settings', 
+                },
+                device_change => {
+                    controller => 'Controller::Configuration',
+                    action => 'section',
+                    action_args => ['fingerbank_device_change'],
+                    name => 'Device change detection', 
                 },
                 combinations => {
                     controller => 'Controller::Config::Fingerbank::Combination',
@@ -540,9 +523,41 @@ sub all_subsections : Private {
     }
 }
 
+sub test_smtp : Local {
+    my ($self, $c) = @_;
+    my $form = $c->form("Config::Pf", section => "alerting"); 
+    my ($status, $status_msg) = (200, "success");
+    $form->process(params => $c->request->params);
+    if ($form->has_errors) {
+        $status = HTTP_PRECONDITION_FAILED;
+        $status_msg = $form->field_errors;
+    } else {
+        my $alerting_config = $form->value;
+        my $email = $c->request->param('test_emailaddr') || $alerting_config->{emailaddr};
+        my $msg = MIME::Lite->new(
+            To => $email,
+            Subject => "PacketFence SMTP Test",
+            Data => "PacketFence SMTP Test successful!\n"
+        );
+
+        my $results = eval {
+            pf::config::util::do_send_mime_lite($msg, %$alerting_config);
+        };
+        # the variable $@ holds the error
+        if ($@) {
+            $status = 400;
+            $status_msg = pf::util::strip_filename_from_exceptions($@);
+        }
+    }
+
+    $c->response->status($status);
+    $c->stash->{status_msg} = $status_msg; # TODO: localize status message
+    $c->stash->{current_view} = 'JSON';
+}
+
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2017 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 
@@ -563,6 +578,6 @@ USA.
 
 =cut
 
-__PACKAGE__->meta->make_immutable;
+__PACKAGE__->meta->make_immutable unless $ENV{"PF_SKIP_MAKE_IMMUTABLE"};
 
 1;

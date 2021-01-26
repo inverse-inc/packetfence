@@ -43,10 +43,12 @@ use pf::services::util;
 use pf::filter_engine::profile;
 use pf::factory::condition::profile;
 use pfconfig::cached_scalar;
+use pf::db;
 use pf::access_filter::radius;
 use pf::access_filter::dhcp;
 use pf::access_filter::dns;
 use pf::access_filter::vlan;
+use pf::access_filter::remote_profile;
 
 our %DISPATCH = (
     filter_profile => \&filter_profile,
@@ -54,9 +56,11 @@ our %DISPATCH = (
     filter_dns => \&filter_dns,
     filter_dhcp => \&filter_dhcp,
     filter_vlan => \&filter_vlan,
+    filter_remote_profile => \&filter_remote_profile,
 );
 
 tie our $PROFILE_FILTER_ENGINE , 'pfconfig::cached_scalar' => 'FilterEngine::Profile';
+tie our $REMOTE_PROFILE_FILTER_ENGINE , 'pfconfig::cached_scalar' => 'FilterEngine::RemoteProfile';
 my $RADIUS_FILTER = pf::access_filter::radius->new;
 my $DHCP_FILTER = pf::access_filter::dhcp->new;
 my $DNS_FILTER = pf::access_filter::dns->new;
@@ -248,6 +252,7 @@ creates a new child to run a task
 
 sub runtask {
     my ($task) = @_;
+    db_disconnect();
     my $pid = fork();
     if ($pid) {
         $CHILDREN{$pid} = $task;
@@ -502,6 +507,17 @@ sub filter_vlan {
     return $VLAN_FILTER->filter(@params);
 }
 
+=head2 filter_remote_profile
+
+filter_remote_profile
+
+=cut
+
+sub filter_remote_profile {
+    my (@params) = @_;
+    return $REMOTE_PROFILE_FILTER_ENGINE->filter(@params);
+}
+
 =head1 AUTHOR
 
 Inverse inc. <info@inverse.ca>
@@ -510,7 +526,7 @@ Minor parts of this file may have been contributed. See CREDITS.
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2017 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 Copyright (C) 2005 Kevin Amorin
 

@@ -43,26 +43,7 @@ sub build {
         @{$self->{config}->{fencing}->{isolation_passthroughs} // []},
     );
 
-    my %passthroughs = (
-        normal => {}, 
-        wildcard => {},  
-    );
-    foreach my $passthrough (@all_passthroughs) {
-        my ($domain, $ports) = $self->_new_passthrough($passthrough);
-        my $ns = "normal";
-        if($domain =~ /\*\.(.*)/) {
-            $ns = "wildcard";
-            $domain = $1;
-        }
-        if(defined($passthroughs{$ns}{$domain})) {
-            push @{$passthroughs{$ns}{$domain}}, @$ports;
-        }
-        else {
-            $passthroughs{$ns}{$domain} = $ports;
-        }
-    }
-
-    return \%passthroughs;
+    return $self->_build(\@all_passthroughs);
 }
 
 =head1 AUTHOR
@@ -71,7 +52,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2017 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 

@@ -28,9 +28,6 @@ BEGIN {
     our ( @ISA, @EXPORT );
     @ISA = qw(Exporter);
     @EXPORT = qw(
-        $person_db_prepared
-        person_db_prepare
-
         person_exist
         person_delete
         person_add
@@ -40,15 +37,18 @@ BEGIN {
         person_view_simple
         person_modify
         person_nodes
-        person_violations
-        person_custom_search
+        person_security_events
         person_cleanup
         persons_without_nodes
+        person_unassign_nodes
         $PID_RE
     );
 }
 
-use pf::db;
+use pf::dal::person;
+use pf::dal::node;
+use pf::dal::security_event;
+use pf::error qw(is_error is_success);
 use List::MoreUtils qw(any);
 
 =head1 GLOBALS
@@ -57,11 +57,6 @@ use List::MoreUtils qw(any);
 
 =cut
 
-# The next two variables and the _prepare sub are required for database handling magic (see pf::db)
-our $person_db_prepared = 0;
-# in this hash reference we hold the database statements. We pass it to the query handler and he will repopulate
-# the hash if required
-our $person_statements = {};
 
 =item $unquoted_pid_re
 
@@ -72,14 +67,9 @@ in pf::pfcmd and pf::pfcmd::pfcmd
 
 our $PID_RE = qr{ [a-zA-Z0-9\-\_\.\@\/\\]+ }x;
 
-our @FIELDS = qw(
-    pid firstname lastname email telephone company address notes sponsor anniversary
-    birthday gender lang nickname cell_phone work_phone title building_number apartment_number
-    room_number custom_field_1 custom_field_2 custom_field_3 custom_field_4 custom_field_5 custom_field_6
-    custom_field_7 custom_field_8 custom_field_9 portal source
-);
+our @FIELDS = @pf::dal::_person::FIELD_NAMES;
 
-our @NON_PROMPTABLE_FIELDS = qw(pid sponsor portal source);
+our @NON_PROMPTABLE_FIELDS = qw(pid sponsor portal source tenant_id);
 
 our @PROMPTABLE_FIELDS;
 foreach my $field (@FIELDS){
@@ -93,112 +83,13 @@ foreach my $field (@FIELDS){
 
 =cut
 
-sub person_db_prepare {
-    my $logger = get_logger();
-    $logger->debug("Preparing pf::person database queries");
-
-    $person_statements->{'person_exist_sql'} = get_db_handle()->prepare(qq[ select count(*) from person where pid=? ]);
-
-    $person_statements->{'person_add_sql'} = get_db_handle()->prepare(
-        qq[ INSERT INTO person
-                   (pid, firstname, lastname, email, telephone, company, address, notes, sponsor, anniversary,
-                    birthday, gender, lang, nickname, cell_phone, work_phone, title,
-                    building_number, apartment_number, room_number,
-                    custom_field_1, custom_field_2, custom_field_3, custom_field_4, custom_field_5,
-                    custom_field_6, custom_field_7, custom_field_8, custom_field_9, portal, source)
-            VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?) ]);
-
-    $person_statements->{'person_view_sql'} = get_db_handle()->prepare(
-        qq[ SELECT p.pid, p.firstname, p.lastname, p.email, p.telephone, p.company, p.address,
-                   p.notes, p.sponsor, p.anniversary, p.birthday, p.gender, p.lang, p.nickname,
-                   p.cell_phone, p.work_phone, p.title, p.building_number,
-                   p.apartment_number, p.room_number, p.custom_field_1, p.custom_field_2,
-                   p.custom_field_3, p.custom_field_4, p.custom_field_5, p.custom_field_6,
-                   p.custom_field_7, p.custom_field_8, p.custom_field_9, p.portal, p.source,
-                   count(n.mac) as nodes,
-                   t.password, t.valid_from as 'valid_from', t.expiration as 'expiration',
-                   t.access_duration as 'access_duration', t.access_level as 'access_level',
-                   t.sponsor as 'can_sponsor', t.unregdate as 'unregdate', t.login_remaining as 'login_remaining',
-                   nc.name as 'category'
-            FROM person p
-            LEFT JOIN node n ON p.pid = n.pid
-            LEFT JOIN password t ON p.pid = t.pid
-            LEFT JOIN node_category nc ON nc.category_id = t.category
-            WHERE p.pid = ? ]);
-
-    $person_statements->{'person_view_all_sql'} =
-        qq[ SELECT p.pid, p.firstname, p.lastname, p.email, p.telephone, p.company, p.address,
-                   p.notes, p.sponsor, p.anniversary, p.birthday, p.gender, p.lang, p.nickname,
-                   p.cell_phone, p.work_phone, p.title, p.building_number,
-                   p.apartment_number, p.room_number, p.custom_field_1, p.custom_field_2,
-                   p.custom_field_3, p.custom_field_4, p.custom_field_5, p.custom_field_6,
-                   p.custom_field_7, p.custom_field_8, p.custom_field_9, p.portal, p.source,
-                   count(n.mac) as nodes,
-                   t.password, t.valid_from as 'valid_from', t.expiration as 'expiration',
-                   t.access_duration as 'access_duration', t.access_level as 'access_level',
-                   t.sponsor as 'can_sponsor', t.unregdate as 'unregdate',
-                   t.category as 'category'
-            FROM person p
-            LEFT JOIN node n ON p.pid = n.pid
-            LEFT JOIN password t ON p.pid = t.pid
-            GROUP BY pid ];
-
-    $person_statements->{'person_count_all_sql'} = qq[ SELECT count(*) as nb FROM person ];
-
-    $person_statements->{'person_delete_sql'} = get_db_handle()->prepare(qq[ delete from person where pid=? ]);
-
-    $person_statements->{'person_modify_sql'} = get_db_handle()->prepare(
-        qq[ UPDATE person
-            SET pid=?, firstname=?, lastname=?, email=?, telephone=?, company=?, address=?, notes=?, sponsor=?,
-                anniversary=?, birthday=?, gender=?, lang=?, nickname=?, cell_phone=?, work_phone=?,
-                title=?, building_number=?, apartment_number=?, room_number=?, custom_field_1=?, custom_field_2=?,
-                custom_field_3=?, custom_field_4=?, custom_field_5=?, custom_field_6=?, custom_field_7=?, custom_field_8=?,
-                custom_field_9=?, portal=?, source=?
-            WHERE pid=? ]);
-
-    $person_statements->{'person_nodes_sql'} = get_db_handle()->prepare(
-        qq[ SELECT mac, pid, regdate, unregdate, lastskip, status, user_agent, computername, device_class, time_balance, bandwidth_balance
-            FROM node
-            WHERE pid = ? ]);
-
-    $person_statements->{'person_violations_sql'} = get_db_handle()->prepare(
-        qq[ SELECT violation.id, violation.mac, violation.vid, class.description, start_date, release_date, violation.status
-            FROM violation
-            LEFT JOIN node ON violation.mac = node.mac
-            LEFT JOIN class ON violation.vid = class.vid
-            WHERE pid = ?
-            ORDER BY start_date desc ]);
-
-    $person_statements->{'person_view_simple_sql'} = get_db_handle()->prepare(
-        qq[ SELECT pid, firstname, lastname, email, telephone, company, address,
-                   notes, sponsor, anniversary, birthday, gender, lang, nickname,
-                   cell_phone, work_phone, title, building_number,
-                   apartment_number, room_number, custom_field_1, custom_field_2,
-                   custom_field_3, custom_field_4, custom_field_5, custom_field_6,
-                   custom_field_7, custom_field_8, custom_field_9, portal, source
-            FROM person
-            WHERE pid = ? ]);
-
-    $person_statements->{'persons_without_nodes_sql'} = get_db_handle()->prepare(
-        qq[
-            SELECT person.pid as pid from person
-            LEFT JOIN node on node.pid=person.pid
-            GROUP BY pid
-            HAVING count(node.mac)=0;
-            ]);
-
-    $person_db_prepared = 1;
-}
-
 #
 #
 #
 sub person_exist {
     my ($pid) = @_;
-    my $query = db_query_execute(PERSON, $person_statements, 'person_exist_sql', $pid) || return (0);
-    my ($val) = $query->fetchrow_array();
-    $query->finish();
-    return ($val);
+    my $status = pf::dal::person->exists({pid => $pid});
+    return (is_success($status));
 }
 
 #
@@ -214,19 +105,21 @@ sub person_delete {
         $logger->error("delete of non-existent person '$pid' failed");
         return 0;
     }
-
-    my @nodes = person_nodes($pid);
-    if ( scalar(@nodes) > 0 ) {
-        $logger->error( "person $pid has "
-                . scalar(@nodes)
-                . " node(s) registered in its name. Person deletion prohibited"
-        );
+    my ($status, $count) = pf::dal::node->count(
+        -where => {
+            pid => $pid
+        }
+    );
+    if ( $count ) {
+        $logger->error("person $pid has $count node(s) registered in its name. Person deletion prohibited");
         return 0;
     }
-
-    db_query_execute(PERSON, $person_statements, 'person_delete_sql', $pid) || return (0);
-    $logger->info("person $pid deleted");
-    return (1);
+    $status = pf::dal::person->remove_by_id({pid => $pid});
+    my $result = is_success($status);
+    if ($result) {
+        $logger->info("person $pid deleted");
+    }
+    return ($result);
 }
 
 #
@@ -235,15 +128,18 @@ sub person_delete {
 sub person_add {
     my ( $pid, %data ) = @_;
     my $logger = get_logger();
+    $data{pid} = $pid;
+    my $status = pf::dal::person->create(\%data);
 
-    if ( person_exist($pid) ) {
+    if ( $status == $STATUS::CONFLICT ) {
         $logger->error("attempt to add existing person $pid");
         return (2);
     }
-    $data{pid} = $pid;
-    db_query_execute(PERSON, $person_statements, 'person_add_sql', @data{@FIELDS}) || return (0);
-    $logger->info("person $pid added");
-    return (1);
+    my $result = is_success($status);
+    if ($result) {
+        $logger->info("person $pid added");
+    }
+    return ($result);
 }
 
 #
@@ -251,127 +147,106 @@ sub person_add {
 #
 sub person_view {
     my ($pid) = @_;
-
-    my $query  = db_query_execute(PERSON, $person_statements, 'person_view_sql', $pid)
-        || return (0);
-    my $ref = $query->fetchrow_hashref();
-
-    # just get one row and finish
-    $query->finish();
-    return ($ref);
+    my ($status, $item) = pf::dal::person->find({pid => $pid});
+    if (is_error($status)) {
+        return (0)
+    }
+    return ($item->to_hash);
 }
 
 sub person_view_simple {
     my ($pid) = @_;
-
-    my $query  = db_query_execute(PERSON, $person_statements, 'person_view_simple_sql', $pid)
-        || return (0);
-    my $ref = $query->fetchrow_hashref();
-
-    # just get one row and finish
-    $query->finish();
+    my ($status, $iter) = pf::dal::person->search(
+        -where => {
+            pid => $pid,
+        },
+        -columns => \@FIELDS,
+        # Don't do the full join
+        -from => pf::dal::person->table,
+    );
+    if (is_error($status)) {
+        return (0)
+    }
+    my $ref = $iter->next(undef);
     return ($ref);
 }
 
 sub person_count_all {
     my ( %params ) = @_;
     my $logger = get_logger();
-
-    # Hack! we prepare the statement here so that $person_count_all_sql is pre-filled
-    person_db_prepare() if (!$person_db_prepared);
-    my $person_count_all_sql = $person_statements->{'person_count_all_sql'};
+    my $where = {};
 
     if ( defined( $params{'where'} ) ) {
         if ( $params{'where'}{'type'} eq 'pid' ) {
-            $person_count_all_sql
-                .= " WHERE pid='" . $params{'where'}{'value'} . "'";
+            $where->{pid} = $params{'where'}{'value'};
         }
         elsif ( $params{'where'}{'type'} eq 'any' ) {
             if (exists($params{'where'}{'like'})) {
-                $person_count_all_sql .= " WHERE"
-                  . " pid LIKE " . get_db_handle->quote('%' . $params{'where'}{'like'} . '%')
-                  . " OR firstname LIKE " . get_db_handle->quote('%' . $params{'where'}{'like'} . '%')
-                  . " OR lastname LIKE " . get_db_handle->quote('%' . $params{'where'}{'like'} . '%')
-                  . " OR email LIKE " . get_db_handle->quote('%' . $params{'where'}{'like'} . '%');
+                my $like = $params{'where'}{'like'};
+                my $like_op = {"-like" => "%${like}%"};
+                $where = [pid => $like_op, firstname => $like_op, lastname => $like_op, email => $like_op];
             }
         }
     }
-
-    # Hack! Because of the nature of the query built here (we cannot prepare it), we construct it as a string
-    # and pf::db will recognize it and prepare it as such
-    $person_statements->{'person_count_all_sql_custom'} = $person_count_all_sql;
-    $logger->debug($person_count_all_sql);
-
-    return db_data(PERSON, $person_statements, 'person_count_all_sql_custom');
-}
-
-sub person_custom_search {
-    my ($sql, @args) = @_;
-    my $logger = get_logger();
-
-    $person_statements->{'person_custom_search'} = $sql;
-    return db_data(PERSON, $person_statements, 'person_custom_search', @args);
+    my ($status, $count) = pf::dal::person->count(
+        -where => $where
+    );
+    return {nb => $count};
 }
 
 sub person_view_all {
     my ( %params ) = @_;
     my $logger = get_logger();
-
-    # Hack! we prepare the statement here so that $person_view_all_sql is pre-filled
-    person_db_prepare() if (!$person_db_prepared);
-    my $person_view_all_sql = $person_statements->{'person_view_all_sql'};
+    my %where;
+    my %search  = (
+            -where => \%where,
+            -group_by => 'person.pid',
+    );
 
     if ( defined( $params{'where'} ) ) {
         if ( $params{'where'}{'type'} eq 'pid' ) {
-            $person_view_all_sql
-                .= " HAVING p.pid='" . $params{'where'}{'value'} . "'";
+            $where{pid} = $params{'where'}{'value'};
         }
         elsif ( $params{'where'}{'type'} eq 'any' ) {
-            my $like = get_db_handle->quote('%' . $params{'where'}{'like'} . '%');
-            $person_view_all_sql .= " HAVING"
-              . " pid LIKE $like"
-              . " OR p.firstname LIKE $like"
-              . " OR p.lastname LIKE $like"
-              . " OR p.email LIKE $like";
+            if (exists($params{'where'}{'like'})) {
+                my $like = $params{'where'}{'like'};
+                my $like_op = {"-like" => "%${like}%"};
+                $where{'-or'} = [pid => $like_op, firstname => $like_op, lastname => $like_op, email => $like_op];
+            }
         }
     }
+
     if ( defined( $params{'orderby'} ) ) {
-        $person_view_all_sql .= " " . $params{'orderby'};
+        $search{'-order_by'} = $params{'orderby'};
     }
     if ( defined( $params{'limit'} ) ) {
-        $person_view_all_sql .= " " . $params{'limit'};
+        $search{'-limit'} = $params{'limit'};
     }
 
-    # Hack! Because of the nature of the query built here (we cannot prepare it), we construct it as a string
-    # and pf::db will recognize it and prepare it as such
-    $person_statements->{'person_view_all_sql_custom'} = $person_view_all_sql;
-    $logger->debug($person_view_all_sql);
+    my ($status, $iter) = pf::dal::person->search(%search);
 
-    return db_data(PERSON, $person_statements, 'person_view_all_sql_custom');
+    if (is_error($status)) {
+        return;
+    }
+    return @{$iter->all(undef) // []};
 }
 
 sub person_modify {
     my ( $pid, %data ) = @_;
 
     my $logger = get_logger();
-    if ( !person_exist($pid) ) {
-        if ( person_add( $pid, %data ) ) {
-            $logger->warn(
-                "modify of non-existent person $pid attempted - person added"
-            );
-            return (2);
-        } else {
-            $logger->error(
-                "modify of non-existent person $pid attempted - person add failed"
-            );
-            return (0);
-        }
+    my ($status, $item) = pf::dal::person->find_or_create({%data, pid => $pid});
+    if (is_error($status)) {
+        return (0);
     }
-    my $existing = person_view($pid);
-    foreach my $item ( keys(%data) ) {
-        $existing->{$item} = $data{$item};
+    if ($status == $STATUS::CREATED) {
+        $logger->warn(
+            "modify of non-existent person $pid attempted - person added"
+        );
+        return (2);
     }
-    my $new_pid   = $existing->{'pid'};
+    $item->merge(\%data);
+    my $new_pid = $item->pid;
 
     # compare pid case insensitively to prevent juser from not matching Juser
     if ( lc $pid ne lc $new_pid && person_exist($new_pid) ) {
@@ -379,22 +254,70 @@ sub person_modify {
             "modify of pid $pid to $new_pid conflicts with existing person");
         return (0);
     }
-
-    db_query_execute(PERSON, $person_statements, 'person_modify_sql', @{$existing}{@FIELDS}, $pid) || return (0);
+    $status = $item->save;
+    if (is_error($status)) {
+        return (0);
+    }
     $logger->info("person $pid modified to $new_pid") if ($pid ne $new_pid);
     return (1);
 }
 
 sub person_nodes {
     my ($pid) = @_;
+    my ($status, $iter) = pf::dal::node->search(
+        -where => {
+            pid => $pid,
+        },
+        -columns => [qw(mac pid notes regdate unregdate lastskip status user_agent computername device_class time_balance bandwidth_balance)],
+        #To avoid join
+        -from => pf::dal::node->table,
+        -with_class => undef,
+    );
+    if (is_error($status)) {
+        return;
+    }
 
-    return db_data(PERSON, $person_statements, 'person_nodes_sql', $pid);
+    return @{$iter->all // []};
 }
 
-sub person_violations {
-    my ($pid) = @_;
+=head2 person_unassign_nodes
 
-    return db_data(PERSON, $person_statements, 'person_violations_sql', $pid);
+unassign the nodes of a person
+
+=cut
+
+sub person_unassign_nodes {
+    my ($pid) = @_;
+    my ($status, $count) = pf::dal::node->update_items(
+        -where => {
+            pid => $pid,
+        },
+        -set => {
+            pid => $default_pid
+        }
+    );
+    if (is_error($status)) {
+        return undef;
+    }
+
+    return $count;
+}
+
+sub person_security_events {
+    my ($pid) = @_;
+    my ($status, $iter) = pf::dal::security_event->search(
+        -where => {
+            pid => $pid,
+        },
+        -from => [-join => qw(security_event =>{security_event.mac=node.mac} node =>{security_event.security_event_id=class.security_event_id} class)],
+        -order_by => {-desc => 'start_date'},
+
+    );
+    if (is_error($status)) {
+        return;
+    }
+
+    return @{$iter->all(undef) // []};
 }
 
 =head2 persons_without_nodes
@@ -404,7 +327,16 @@ Get all the persons who are not the owner of at least one node.
 =cut
 
 sub persons_without_nodes {
-   return db_data(PERSON, $person_statements, 'persons_without_nodes_sql');
+    my ($status, $iter) = pf::dal::person->search(
+        -from => [-join => 'person', '=>{node.pid=person.pid,node.tenant_id=person.tenant_id}', 'node'],
+        -columns => ['person.pid'],
+        -group_by => 'pid',
+        -having => 'count(node.mac)=0',
+    );
+    if (is_error($status)) {
+        return;
+    }
+    return @{ $iter->all(undef) // []};
 }
 
 =head2 person_cleanup
@@ -415,7 +347,7 @@ Clean all persons that are not the owner of a node and that are not a local acco
 
 sub person_cleanup {
     my @to_delete = map { $_->{pid} } persons_without_nodes();
-    my $now = DateTime->now();
+    my $now = DateTime->now(time_zone => 'local');
     foreach my $pid (@to_delete) {
         if($pf::constants::BUILTIN_USERS{$pid}){
             get_logger->debug("User $pid is set for deletion but is a built-in user. Not deleting...");
@@ -424,11 +356,12 @@ sub person_cleanup {
         my $password = pf::password::view($pid);
         if(defined($password)){
             my $expiration = $password->{expiration};
-            if ($expiration eq '0000-00-00 00:00:00' ) {
+            if ($expiration eq $ZERO_DATE) {
                 get_logger->debug("Not deleting $pid because the password is set not to expire");
                 next;
             }
             $expiration = DateTime::Format::MySQL->parse_datetime($expiration);
+            $expiration->set_time_zone('local');
             my $cmp = DateTime->compare($now, $expiration);
             if($cmp < 0){
                 get_logger->debug("Not deleting $pid because the local account is still valid.");
@@ -450,7 +383,7 @@ Minor parts of this file may have been contributed. See CREDITS.
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2017 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 Copyright (C) 2005 Kevin Amorin
 
@@ -476,4 +409,3 @@ USA.
 =cut
 
 1;
-

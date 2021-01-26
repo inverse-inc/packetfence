@@ -14,14 +14,19 @@ pfconfig::namespaces::FilterEngine::AccessScopes
 
 use strict;
 use warnings;
-use pf::log;
 use pfconfig::namespaces::config;
-use pf::factory::condition::access_filter;
-use pf::filter;
-use pf::filter_engine;
-use pf::condition_parser qw(parse_condition_string);
+use pf::config::builder::scoped_filter_engines;
+use pf::config::builder::filter_engine;
+use pf::log;
+use pf::IniFiles;
 
 use base 'pfconfig::namespaces::resource';
+
+=head2 parentConfig
+
+Parent pfconfig::namespaces::config object
+
+=cut
 
 sub parentConfig {
     my ($self) = @_;
@@ -30,94 +35,39 @@ sub parentConfig {
 }
 
 
-sub build {
-    my ($self)            = @_;
-    my $config   = $self->parentConfig;
-    my %AccessFiltersConfig = %{$config->build};
+=head2 build
 
-    $self->{errors} = [];
-    if($config->{parse_error}){
-        push @{$self->{errors}}, $config->{parse_error};
-    }
-
-    $self->{prebuilt_conditions} = {};
-    my (%AccessScopes, @filter_data, %filters_scopes);
-    foreach my $rule (@{$config->{ordered_sections}}) {
-        my $logger = get_logger();
-        my $data = $AccessFiltersConfig{$rule};
-        if ($rule =~ /^[^:]+:(.*)$/) {
-            my $condition = $1;
-            $logger->info("Building rule '$rule'");
-            my ($parsed_conditions, $msg) = parse_condition_string($condition);
-            unless (defined $parsed_conditions) {
-                $self->_error("Error building rule '$rule'", $msg);
-                next;
-            }
-            $data->{_rule} = $rule;
-            push @filter_data, [$parsed_conditions, $data];
-        }
-        else {
-            $logger->info("Building condition '$rule'");
-            my $condition = eval { pf::factory::condition::access_filter->instantiate($data) };
-            unless (defined $condition) {
-                $self->_error("Error building condition '$rule'");
-                next;
-            }
-            $self->{prebuilt_conditions}{$rule} = $condition;
-        }
-    }
-
-    foreach my $filter_data (@filter_data) {
-        $self->build_filter(\%filters_scopes, @$filter_data);
-    }
-    while (my ($scope, $filters) = each %filters_scopes) {
-        $AccessScopes{$scope} = pf::filter_engine->new({filters => $filters});
-    }
-    return \%AccessScopes;
-}
-
-=head2 _error
-
-Record and display an error that occured while building the engine
+Build the scoped filter engines
 
 =cut
 
-sub _error {
-    my ($self, $msg, $add_info) = @_;
-    my $long_msg = $msg. (defined($add_info) ? " : $add_info" : '');
-    warn($long_msg."\n");
-    get_logger->error($long_msg);
-    push @{$self->{errors}}, $msg;
+sub build {
+    my ($self)            = @_;
+    my $config   = $self->parentConfig;
+    $config->init;
+    my $file = $config->{file};
+    my $ini = pf::IniFiles->new(%{$config->{added_params}}, -file => $file, -allowempty => 1);
+    unless ($ini) {
+        my $error_msg = join("\n", @pf::IniFiles::errors, "");
+        get_logger->error($error_msg);
+        warn($error_msg);
+        return {};
+    }
+
+    my $builder = $self->builder();
+    my ($errors, $accessScopes) = $builder->build($ini);
+    for my $err (@{ $errors // [] }) {
+        my $error_msg =  "$file: $err->{rule}) $err->{message}";
+        get_logger->error($error_msg);
+        warn($error_msg);
+    }
+
+    $self->{errors} = $errors;
+    return $accessScopes;
 }
 
-sub build_filter {
-    my ($self, $filters_scopes, $parsed_conditions, $data) = @_;
-    my $condition = eval { $self->build_filter_condition($parsed_conditions) };
-    if ($condition) {
-        push @{$filters_scopes->{$data->{scope}}}, pf::filter->new({
-            answer    => $data,
-            condition => $condition,
-        });
-    } else {
-        $self->_error("Error build rule '$data->{_rule}'", $@)
-    }
-}
-
-sub build_filter_condition {
-    my ($self, $parsed_condition) = @_;
-    if (ref $parsed_condition) {
-        local $_;
-        my ($type, @parsed_conditions) = @$parsed_condition;
-        my $conditions = [map {$self->build_filter_condition($_)} @parsed_conditions];
-        if($type eq 'NOT' ) {
-            return pf::condition::not->new({condition => $conditions->[0]});
-        }
-        my $module = $type eq 'AND' ? 'pf::condition::all' : 'pf::condition::any';
-        return $module->new({conditions => $conditions});
-    }
-    my $condition = $self->{prebuilt_conditions}->{$parsed_condition};
-    return $condition if defined $condition;
-    die "condition '$parsed_condition' was not found\n";
+sub builder {
+    return pf::config::builder::filter_engine->new;
 }
 
 =head1 AUTHOR
@@ -126,7 +76,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2017 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 

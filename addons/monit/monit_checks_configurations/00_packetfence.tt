@@ -16,124 +16,233 @@ CHECK PROGRAM patch WITH PATH /usr/local/pf/addons/pf-maint.pl -t
 
 CHECK PROCESS packetfence-config MATCHING "pfconfig"
     group PacketFence
-    start program = "[% SERVICE_BIN %] packetfence-config start" with timeout 60 seconds
+    start program = "[% SERVICE_BIN %] packetfence-config restart" with timeout 60 seconds
     stop program  = "[% SERVICE_BIN %] packetfence-config stop"
     if 3 restarts within 10 cycles then alert
 
-CHECK PROCESS packetfence-redis-cache MATCHING "redis-server \*:6379"
+CHECK PROCESS packetfence-redis-cache MATCHING "redis-server 127.0.0.1:6379"
     group PacketFence
-    start program = "[% SERVICE_BIN %] packetfence-redis-cache start" with timeout 60 seconds
+    start program = "[% SERVICE_BIN %] packetfence-redis-cache restart" with timeout 60 seconds
     stop program  = "[% SERVICE_BIN %] packetfence-redis-cache stop"
     if failed host 127.0.0.1 port 6379 protocol redis for 5 cycles then alert
     if 3 restarts within 10 cycles then alert
 
-CHECK PROCESS packetfence-haproxy MATCHING "haproxy-systemd-wrapper"
+CHECK PROCESS packetfence-haproxy-portal MATCHING "haproxy-portal"
     group PacketFence
-    start program = "/usr/local/pf/bin/pfcmd service haproxy start" with timeout 60 seconds
-    stop program  = "/usr/local/pf/bin/pfcmd service haproxy stop"
+    start program = "/usr/local/pf/bin/pfcmd service haproxy-portal restart" with timeout 60 seconds
+    stop program  = "/usr/local/pf/bin/pfcmd service haproxy-portal stop"
     if 3 restarts within 10 cycles then alert
-    [% IF ACTIVE_ACTIVE %]if failed host 127.0.0.1 port 3306 protocol mysql for 5 cycles then alert[% END %]
 
-CHECK PROCESS packetfence-dhcpd MATCHING "dhcpd"
+CHECK PROCESS packetfence-haproxy-admin MATCHING "haproxy-admin"
     group PacketFence
-    start program = "/usr/local/pf/bin/pfcmd service dhcpd start" with timeout 60 seconds
-    stop program  = "/usr/local/pf/bin/pfcmd service dhcpd stop"
+    start program = "/usr/local/pf/bin/pfcmd service haproxy-admin restart" with timeout 60 seconds
+    stop program  = "/usr/local/pf/bin/pfcmd service haproxy-admin stop"
     if 3 restarts within 10 cycles then alert
-    if cpu usage > 90% for 10 cycles then restart
-    if mem > 1024 MB for 10 cycles then restart
+
+[% IF ACTIVE_ACTIVE %]
+CHECK PROCESS packetfence-haproxy-db MATCHING "haproxy-db"
+    group PacketFence
+    start program = "/usr/local/pf/bin/pfcmd service haproxy-db restart" with timeout 60 seconds
+    stop program  = "/usr/local/pf/bin/pfcmd service haproxy-db stop"
+    if 3 restarts within 10 cycles then alert
+    if failed host 127.0.0.1 port 3306 protocol mysql for 5 cycles then alert
+[% END %]
+
+CHECK PROCESS packetfence-pfdhcp MATCHING "sbin/pfdhcp"
+    group PacketFence
+    start program = "/usr/local/pf/bin/pfcmd service pfdhcp start" with timeout 60 seconds
+    stop program  = "/usr/local/pf/bin/pfcmd service pfdhcp stop"
+    if 3 restarts within 10 cycles then alert
+
+CHECK PROCESS packetfence-pfperl-api MATCHING "pfperl-api"
+    group PacketFence
+    start program = "/usr/local/pf/bin/pfcmd service pfperl-api start" with timeout 60 seconds
+    stop program  = "/usr/local/pf/bin/pfcmd service pfperl-api stop"
+    if 3 restarts within 10 cycles then alert
+
+CHECK PROCESS packetfence-pfstats MATCHING "pfstats"
+    group PacketFence
+    start program = "/usr/local/pf/bin/pfcmd service pfstats start" with timeout 60 seconds
+    stop program  = "/usr/local/pf/bin/pfcmd service pfstats stop"
+    if 3 restarts within 10 cycles then alert
 
 CHECK PROCESS packetfence-httpd.aaa MATCHING "pf/var/conf/httpd.conf.d/httpd.aaa"
     group PacketFence
-    start program = "/usr/local/pf/bin/pfcmd service httpd.aaa start" with timeout 60 seconds
+    start program = "/usr/local/pf/bin/pfcmd service httpd.aaa restart" with timeout 60 seconds
     stop program  = "/usr/local/pf/bin/pfcmd service httpd.aaa stop"
     if 3 restarts within 10 cycles then alert
 
-CHECK PROCESS packetfence-httpd.admin MATCHING "pf/var/conf/httpd.conf.d/httpd.admin"
-    group PacketFence
-    start program = "/usr/local/pf/bin/pfcmd service httpd.admin start" with timeout 60 seconds
-    stop program  = "/usr/local/pf/bin/pfcmd service httpd.admin stop"
-    if 3 restarts within 10 cycles then alert
-
-CHECK PROCESS packetfence-httpd.graphite MATCHING "pf/var/conf/httpd.conf.d/httpd.graphite"
-    group PacketFence
-    start program = "/usr/local/pf/bin/pfcmd service httpd.graphite start" with timeout 60 seconds
-    stop program  = "/usr/local/pf/bin/pfcmd service httpd.graphite stop"
-    if 3 restarts within 10 cycles then alert
-
-CHECK PROCESS packetfence-httpd.parking MATCHING "pf/var/conf/httpd.conf.d/httpd.parking"
-    group PacketFence
-    start program = "/usr/local/pf/bin/pfcmd service httpd.parking start" with timeout 60 seconds
-    stop program  = "/usr/local/pf/bin/pfcmd service httpd.parking stop"
-    if 3 restarts within 10 cycles then alert
+# Deprecated
+#CHECK PROCESS packetfence-httpd.admin MATCHING "pf/var/conf/httpd.conf.d/httpd.admin"
+#    group PacketFence
+#    start program = "/usr/local/pf/bin/pfcmd service httpd.admin restart" with timeout 60 seconds
+#    stop program  = "/usr/local/pf/bin/pfcmd service httpd.admin stop"
+#    if 3 restarts within 10 cycles then alert
 
 CHECK PROCESS packetfence-httpd.portal MATCHING "pf/var/conf/httpd.conf.d/httpd.portal"
     group PacketFence
-    start program = "/usr/local/pf/bin/pfcmd service httpd.portal start" with timeout 60 seconds
+    start program = "/usr/local/pf/bin/pfcmd service httpd.portal restart" with timeout 60 seconds
     stop program  = "/usr/local/pf/bin/pfcmd service httpd.portal stop"
+    if 3 restarts within 10 cycles then alert
+
+check program monitoring-httpd.portal with path "/bin/bash /usr/local/pf/addons/monit/check-httpd.portal.sh"
+    group PacketFence
+    every 10 cycles    # every 20 seconds (if 1 cycle is 2 seconds)
+    start program = "/usr/local/pf/bin/pfcmd service httpd.portal restart" with timeout 60 seconds
+    stop program  = "/usr/local/pf/bin/pfcmd service httpd.portal stop"
+    # must be failing for a minute before we act
+    if status != 0 for 3 cycles then restart
     if 3 restarts within 10 cycles then alert
 
 CHECK PROCESS packetfence-httpd.webservices MATCHING "pf/var/conf/httpd.conf.d/httpd.webservices"
     group PacketFence
-    start program = "/usr/local/pf/bin/pfcmd service httpd.webservices start" with timeout 60 seconds
+    start program = "/usr/local/pf/bin/pfcmd service httpd.webservices restart" with timeout 60 seconds
     stop program  = "/usr/local/pf/bin/pfcmd service httpd.webservices stop"
+    if 3 restarts within 10 cycles then alert
+
+CHECK PROCESS packetfence-keepalived MATCHING "keepalived"
+    group PacketFence
+    start program = "/usr/local/pf/bin/pfcmd service keepalived restart" with timeout 60 seconds
+    stop program  = "/usr/local/pf/bin/pfcmd service keepalived stop"
     if 3 restarts within 10 cycles then alert
 
 CHECK PROCESS packetfence-pfdns MATCHING "pfdns"
     group PacketFence
-    start program = "/usr/local/pf/bin/pfcmd service pfdns start" with timeout 60 seconds
+    start program = "/usr/local/pf/bin/pfcmd service pfdns restart" with timeout 60 seconds
     stop program  = "/usr/local/pf/bin/pfcmd service pfdns stop"
     if 3 restarts within 10 cycles then alert
 
-CHECK PROCESS packetfence-pfmon MATCHING "pfmon"
+CHECK PROCESS packetfence-pfipset MATCHING "pfipset"
     group PacketFence
-    start program = "/usr/local/pf/bin/pfcmd service pfmon start" with timeout 60 seconds
-    stop program  = "/usr/local/pf/bin/pfcmd service pfmon stop"
+    start program = "/usr/local/pf/bin/pfcmd service pfipset start" with timeout 60 seconds
+    stop program  = "/usr/local/pf/bin/pfcmd service pfipset stop"
     if 3 restarts within 10 cycles then alert
+
+CHECK PROCESS packetfence-pfcron MATCHING "pfcron"
+    group PacketFence
+    start program = "/usr/local/pf/bin/pfcmd service pfcron restart" with timeout 60 seconds
+    stop program  = "/usr/local/pf/bin/pfcmd service pfcron stop"
+    if 3 restarts within 10 cycles then alert
+
+CHECK PROCESS packetfence-pffilter MATCHING "pffilter"
+    group PacketFence
+    start program = "/usr/local/pf/bin/pfcmd service pffilter restart" with timeout 60 seconds
+    stop program  = "/usr/local/pf/bin/pfcmd service pffilter stop"
+    if 3 restarts within 10 cycles then alert
+
 
 CHECK PROCESS packetfence-pfdhcplistener MATCHING "pfdhcplistener"
     group PacketFence
-    start program = "/usr/local/pf/bin/pfcmd service pfdhcplistener start" with timeout 60 seconds
+    start program = "/usr/local/pf/bin/pfcmd service pfdhcplistener restart" with timeout 60 seconds
     stop program  = "/usr/local/pf/bin/pfcmd service pfdhcplistener stop"
     if 3 restarts within 10 cycles then alert
 
 CHECK PROCESS packetfence-pfqueue MATCHING "pfqueue"
     group PacketFence
-    start program = "/usr/local/pf/bin/pfcmd service pfqueue start" with timeout 60 seconds
+    start program = "/usr/local/pf/bin/pfcmd service pfqueue restart" with timeout 60 seconds
     stop program  = "/usr/local/pf/bin/pfcmd service pfqueue stop"
     if 3 restarts within 10 cycles then alert
 
-CHECK PROCESS packetfence-radiusd-acct MATCHING "pf/raddb -n acct"
-    group PacketFence
-    start program = "[% SERVICE_BIN %] packetfence-radiusd-acct start"
-    stop program  = "[% SERVICE_BIN %] packetfence-radiusd-acct stop"
-    if 3 restarts within 10 cycles then alert
+# Service disabled by default
+#CHECK PROCESS packetfence-radiusd-acct MATCHING "pf/raddb -n acct"
+#    group PacketFence
+#    start program = "[% SERVICE_BIN %] packetfence-radiusd-acct restart"
+#    stop program  = "[% SERVICE_BIN %] packetfence-radiusd-acct stop"
+#    if failed host 127.0.0.1 port 18122 type udp protocol radius secret adminsecret for 5 cycles then alert
+#    if 3 restarts within 10 cycles then alert
 
 CHECK PROCESS packetfence-radiusd-auth MATCHING "pf/raddb -n auth"
     group PacketFence
-    start program = "[% SERVICE_BIN %] packetfence-radiusd-auth start"
+    start program = "[% SERVICE_BIN %] packetfence-radiusd-auth restart"
     stop program  = "[% SERVICE_BIN %] packetfence-radiusd-auth stop"
-    if failed host 127.0.0.1 port 18120 type udp protocol radius secret testing123 for 5 cycles then alert
+    if failed host 127.0.0.1 port 18121 type udp protocol radius secret adminsecret for 5 cycles then alert
     if 3 restarts within 10 cycles then alert
 
-CHECK PROCESS packetfence-redis_queue MATCHING "redis-server \*:6379"
+CHECK PROCESS packetfence-redis_queue MATCHING "redis-server 127.0.0.1:6380"
     group PacketFence
-    start program = "/usr/local/pf/bin/pfcmd service redis_queue start" with timeout 60 seconds
+    start program = "/usr/local/pf/bin/pfcmd service redis_queue restart" with timeout 60 seconds
     stop program = "/usr/local/pf/bin/pfcmd service redis_queue stop"
     if failed host 127.0.0.1 port 6380 protocol redis for 5 cycles then alert
+    if 3 restarts within 10 cycles then alert
+
+CHECK PROCESS packetfence-netdata MATCHING "netdata"
+    group PacketFence
+    start program = "[% SERVICE_BIN %] packetfence-netdata restart"
+    stop program  = "[% SERVICE_BIN %] packetfence-netdata stop"
+    if 3 restarts within 10 cycles then alert
+
+CHECK PROCESS packetfence-httpd.dispatcher MATCHING "httpd.dispatcher"
+    group PacketFence
+    start program = "/usr/local/pf/bin/pfcmd service httpd.dispatcher start" with timeout 60 seconds
+    stop program  = "/usr/local/pf/bin/pfcmd service httpd.dispatcher stop"
+    if 3 restarts within 10 cycles then alert
+    if failed host 127.0.0.1 port 8888 protocol http status 200 for 5 cycles then restart
+
+CHECK PROCESS packetfence-httpd.admin_dispatcher MATCHING "httpd.admin_dispatcher"
+    group PacketFence
+    start program = "/usr/local/pf/bin/pfcmd service httpd.admin_dispatcher start" with timeout 60 seconds
+    stop program  = "/usr/local/pf/bin/pfcmd service httpd.admin_dispatcher stop"
+    if 3 restarts within 10 cycles then alert
+
+CHECK PROCESS packetfence-fingerbank-collector MATCHING "fingerbank-collector"
+    group PacketFence
+    start program = "/usr/local/pf/bin/pfcmd service fingerbank-collector restart" with timeout 60 seconds
+    stop program = "/usr/local/pf/bin/pfcmd service fingerbank-collector stop"
+    if failed host 127.0.0.1 port 6380 protocol redis for 5 cycles then alert
+    if 3 restarts within 10 cycles then alert
+
+
+CHECK PROCESS packetfence-pfsso MATCHING "pfsso"
+    group PacketFence
+    start program = "/usr/local/pf/bin/pfcmd service pfsso start" with timeout 60 seconds
+    stop program  = "/usr/local/pf/bin/pfcmd service pfsso stop"
+    if 3 restarts within 10 cycles then alert
+    if failed host localhost port 8777 protocol http status 404 for 5 cycles then restart
+
+CHECK PROCESS packetfence-api-frontend MATCHING "api-frontend"
+    group PacketFence
+    start program = "/usr/local/pf/bin/pfcmd service api-frontend start" with timeout 60 seconds
+    stop program  = "/usr/local/pf/bin/pfcmd service api-frontend stop"
+    if 3 restarts within 10 cycles then alert
+    if failed host localhost port 9999 protocol https status 401 for 5 cycles then restart
+
+CHECK PROCESS packetfence-pfacct MATCHING "pfacct"
+    group PacketFence
+    start program = "/usr/local/pf/bin/pfcmd service pfacct start" with timeout 60 seconds
+    stop program  = "/usr/local/pf/bin/pfcmd service pfacct stop"
+    if 3 restarts within 10 cycles then alert
+
+CHECK PROCESS packetfence-pfcertmanager MATCHING "pfcertmanager"
+    group PacketFence
+    start program = "/usr/local/pf/bin/pfcmd service pfcertmanager start" with timeout 60 seconds
+    stop program  = "/usr/local/pf/bin/pfcmd service pfcertmanager stop"
+    if 3 restarts within 10 cycles then alert
+
+
+CHECK PROCESS packetfence-pfpki MATCHING "pfpki"
+    group PacketFence
+    start program = "/usr/local/pf/bin/pfcmd service pfpki start" with timeout 60 seconds
+    stop program  = "/usr/local/pf/bin/pfcmd service pfpki stop"
     if 3 restarts within 10 cycles then alert
 
 [% IF DOMAINS.size > 0 %]
 CHECK PROCESS packetfence-winbind MATCHING "winbindd-wrapper"
     group PacketFence
-    start program = "/usr/local/pf/bin/pfcmd service windbindd start" with timeout 60 seconds
-    stop program = "/usr/local/pf/bin/pfcmd service windbindd stop"
+    start program = "/usr/local/pf/bin/pfcmd service winbindd restart" with timeout 60 seconds
+    stop program = "/usr/local/pf/bin/pfcmd service winbindd stop"
     if 3 restarts within 10 cycles then alert
 
 [% FOREACH domain IN DOMAINS.keys %]
-CHECK PROCESS packetfence-winbind-[% domain %] MATCHING "/chroots/[% domain %] /usr/sbin/winbindd"
+CHECK PROCESS packetfence-winbind-[% domain %] MATCHING "/usr/sbin/winbindd -s /etc/samba/[% domain %].conf -l /var/log/samba[% domain %] --foreground"
     group PacketFence
     if changed ppid then alert
     depends on packetfence-winbind
 [% END %]
 
 [% END %]
+
+check program monitoring-mysql-connections with path /usr/local/pf/addons/monit/monitoring-scripts/monitor_mysql_connections.pl
+    group OS
+    every 30 cycles    # every minute (if 1 cycle is 2 seconds)
+    if status != 0 then alert
+

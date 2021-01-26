@@ -21,17 +21,23 @@ use warnings;
 ### pf::dal::_scan is auto generated any change to this file will be lost
 ### Instead change in the pf::dal::scan module
 ###
+
 use base qw(pf::dal);
+
+use Role::Tiny::With;
+with qw(pf::dal::roles::has_tenant_id);
 
 our @FIELD_NAMES;
 our @INSERTABLE_FIELDS;
 our @PRIMARY_KEYS;
 our %DEFAULTS;
 our %FIELDS_META;
+our @COLUMN_NAMES;
 
 BEGIN {
     @FIELD_NAMES = qw(
         id
+        tenant_id
         ip
         mac
         type
@@ -43,6 +49,7 @@ BEGIN {
 
     %DEFAULTS = (
         id => '',
+        tenant_id => '1',
         ip => '',
         mac => '',
         type => '',
@@ -54,6 +61,7 @@ BEGIN {
 
     @INSERTABLE_FIELDS = qw(
         id
+        tenant_id
         ip
         mac
         type
@@ -68,6 +76,12 @@ BEGIN {
             type => 'VARCHAR',
             is_auto_increment => 0,
             is_primary_key => 1,
+            is_nullable => 0,
+        },
+        tenant_id => {
+            type => 'INT',
+            is_auto_increment => 0,
+            is_primary_key => 0,
             is_nullable => 0,
         },
         ip => {
@@ -117,6 +131,19 @@ BEGIN {
     @PRIMARY_KEYS = qw(
         id
     );
+
+    @COLUMN_NAMES = qw(
+        scan.id
+        scan.tenant_id
+        scan.ip
+        scan.mac
+        scan.type
+        scan.start_date
+        scan.update_date
+        scan.status
+        scan.report_id
+    );
+
 }
 
 use Class::XSAccessor {
@@ -133,13 +160,13 @@ sub _defaults {
     return {%DEFAULTS};
 }
 
-=head2 field_names
+=head2 table_field_names
 
 Field names of scan
 
 =cut
 
-sub field_names {
+sub table_field_names {
     return [@FIELD_NAMES];
 }
 
@@ -165,6 +192,16 @@ our $FIND_SQL = do {
     my $where = join(", ", map { "$_ = ?" } @PRIMARY_KEYS);
     "SELECT * FROM `scan` WHERE $where;";
 };
+
+=head2 find_columns
+
+find_columns
+
+=cut
+
+sub find_columns {
+    return [@COLUMN_NAMES];
+}
 
 =head2 _find_one_sql
 
@@ -205,14 +242,14 @@ Get the meta data for scan
 sub get_meta {
     return \%FIELDS_META;
 }
- 
+
 =head1 AUTHOR
 
 Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2017 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 

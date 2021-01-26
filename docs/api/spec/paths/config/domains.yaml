@@ -1,0 +1,17 @@
+/config/domains:
+  description: pf::UnifiedApi::Controller::Config::Domains
+  get:
+    description: List items
+    operationId: api.v1.Config::Domains.list
+    parameters: []
+    responses:
+      '200':
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ConfigDomainsList'
+        description: List
+      '400':
+        $ref: '#/components/responses/BadRequest'
+      '422':
+        $ref: '#/components/responses/UnprocessableEntity'

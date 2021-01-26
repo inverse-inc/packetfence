@@ -1,0 +1,18 @@
+# Copyright (C) Inverse inc.
+0.0.0.0:22226 {
+  pfconfigpool {
+    dont_rlock /api/v1/remote_clients/events
+    dont_rlock /api/v1/remote_clients/my_events
+  }
+
+  logger {
+    level INFO
+  }
+  statsd {
+    proto udp
+    prefix pfztn
+  }
+
+  wgorchestrator
+}
+

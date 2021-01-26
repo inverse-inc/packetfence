@@ -56,8 +56,8 @@ sub _build_client {
 =cut
 
 sub call {
-    my ($self) = @_;
-    die "call not implemented\n";
+    my ($self, $method) = @_;
+    die "call not implemented $method failed\n";
 }
 
 =head2 notify
@@ -90,7 +90,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2017 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 

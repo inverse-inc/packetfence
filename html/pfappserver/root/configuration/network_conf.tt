@@ -5,7 +5,6 @@
 
   <dl>
     <dt>[% l('Networks:') %]</dt> <dd>[% l('This allows you to configure networks managed by PacketFence, in-bound and fencing configuration parameters as well as parking of endpoints.') %]</dd>
-    <dt>[% l('OMAPI:') %]</dt> <dd>[% l('This allows you to enable or not OMAPI-based IP address to MAC address lookups.') %]</dd>
     <dt>[% l('SNMP:') %]</dt> <dd>[% l('The SNMP engine in PacketFence can be configured here.') %]</dd>
     <dt>[% l('Floating Devices:') %]</dt> <dd>[% l('This allows you to create floating devices in PacketFence - like a switch for example that moves around in the network. PacketFence will automatically reconfigure a switch port and a floating device is connected.') %]</dd>
   </dl>

@@ -1,0 +1,11 @@
+ConfigMaintenanceTasksList:
+  allOf:
+  - $ref: '#/components/schemas/Iterable'
+  - properties:
+      items:
+        description: List
+        items:
+          $ref: '#/components/schemas/ConfigMaintenanceTask'
+        type: array
+    type: object
+  description: List

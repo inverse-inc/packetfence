@@ -1,3 +1,5 @@
+#!/usr/bin/perl
+
 =head1 NAME
 
 admin_roles
@@ -17,7 +19,7 @@ BEGIN {
     use setup_test_config;
 }
 
-use Test::More tests => 7;                      # last test to print
+use Test::More tests => 12;                      # last test to print
 
 use Test::NoWarnings;
 
@@ -37,8 +39,33 @@ is_deeply(
 
 is_deeply(
     [admin_allowed_options(['User Manager',"Alt User Manager"], 'allowed_access_levels')],
-    ['User Manager', 'Node Manager', 'NONE','Violation Manager'],
+    ['User Manager', 'Node Manager', 'NONE','Security Event Manager'],
     "Alt User Manager and User Manager allowed options for access levels"
+);
+
+ok(
+    check_allowed_options(['User Manager',"Alt User Manager"], 'allowed_access_levels', 'User Manager'),
+    "'User Manager' is a valid option"
+);
+
+ok(
+    check_allowed_options(['User Manager',"Alt User Manager"], 'allowed_access_levels', 'User Manager', 'Node Manager'),
+    "All options are good"
+);
+
+ok(
+    !check_allowed_options(['User Manager',"Alt User Manager"], 'allowed_access_levels', 'User Manager2', 'Node Manager'),
+    "One is option is bad"
+);
+
+ok(
+    !check_allowed_options(['User Manager',"Alt User Manager"], 'allowed_access_levels', 'User Manager2', 'Node Manager2'),
+    "All options are bad"
+);
+
+ok(
+    !check_allowed_options(['User Manager',"Alt User Manager"], 'allowed_access_levels', 'User Manager2'),
+    "'User Manager2' is not valid option"
 );
  
 =head1 AUTHOR
@@ -47,7 +74,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2017 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 

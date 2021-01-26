@@ -18,7 +18,6 @@ use strict;
 use warnings;
 
 use pfconfig::namespaces::config;
-use Config::IniFiles;
 use pf::file_paths qw($pf_default_file);
 
 use base 'pfconfig::namespaces::config';
@@ -42,7 +41,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2017 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 

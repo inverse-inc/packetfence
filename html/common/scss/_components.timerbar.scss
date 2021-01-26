@@ -1,0 +1,21 @@
+/// _components.timerbar.scss -*- Mode: scss; indent-tabs-mode: nil; basic-offset: 2; fill-column: 80 -*-
+
+.c-timerbar {
+  height: 15px;
+  width: 100%;
+  background-color: lightgrey;
+  [class|=loaded] {
+    height: 15px;
+    width: 0;
+    background-color: gray;
+    transition: width 500ms ease-out;
+  }
+
+  $i: 0;
+  @while $i <= 100 { // number of 15-minutes blocks in a day
+    .loaded-#{$i} {
+      width: $i * 1%;
+    }
+    $i: $i + 5;
+  }
+}

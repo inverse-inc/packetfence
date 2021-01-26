@@ -37,7 +37,7 @@ RANDFILE        = $HOME/private/.rand
 x509_extensions = custom 
 default_days    = 1825
 default_crl_days= 90
-default_md      = SHA1
+idefault_md     = SHA512
 preserve        = Yes
 policy          = policy_optional 
 
@@ -70,6 +70,11 @@ issuerAltName		= issuer:copy
 keyUsage 		= digitalSignature, nonRepudiation, keyEncipherment
 extendedKeyUsage	= serverAuth
 nsCertType		= server
+subjectAltName          = @alt_names
+
+[alt_names]
+DNS.1 = *
+DNS.2 = 192.0.2.1
 
 [ v3_ca ]
 subjectKeyIdentifier	= hash

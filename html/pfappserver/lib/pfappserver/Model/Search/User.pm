@@ -16,9 +16,9 @@ use strict;
 use warnings;
 use Moose;
 use pf::log;
-use pf::person qw(person_custom_search);
-use HTTP::Status qw(is_success :constants);
+use HTTP::Status qw(is_success :constants is_error);
 use pf::util qw(calc_page_count);
+use pf::dal::person;
 use SQL::Abstract::More;
 use pf::admin_roles;
 use POSIX qw(ceil);
@@ -29,6 +29,7 @@ my %COLUMN_MAP = (
     name => \"concat(firstname,' ', lastname)",
     ip_address => 'iplog.ip',
     nodes => \"count(node.mac)",
+    sponsor => "person.sponsor",
 );
 
 our @DEFAULT_COLUMNS = (
@@ -61,7 +62,7 @@ Return the default search
 sub default_search {
     return {
     -columns => [@DEFAULT_COLUMNS],
-    -from => [-join => qw[ person =>{password.pid=person.pid} password =>{node.pid=person.pid} node  ] ],
+    -from => [-join => qw[person =>{password.pid=person.pid} password =>{node.pid=person.pid} node]],
     -group_by => 'person.pid',
     };
 }
@@ -84,26 +85,27 @@ sub search {
     $self->_build_where($c, $params, $search_info);
     $self->_build_limit($c, $params, $search_info);
     $self->_build_order_by($c, $params, $search_info);
-    my ($sql, @bind) = $sqla->select(%$search_info);
-    my @items = person_custom_search($sql, @bind);
-    $search_info->{-columns} = ['person.pid|pid'];
-    delete @{$search_info}{'-limit', '-offset',  '-order_by'};
-    ($sql, @bind) = $sqla->select(%$search_info);
-    my @count = person_custom_search("SELECT COUNT(*) AS count FROM ( $sql ) as X", @bind);
-    my %results;
-    my $count = 0;
-
-    if ($count[0]) {
-        $count = $count[0]->{count};
+    my ($status, $iter) = pf::dal::person->search(%$search_info);
+    if (is_error($status)) {
+        return ($status, undef);
+    }
+    my $items = $iter->all(undef);
+    ($status, my $count) = pf::dal::person->count(
+        -where => $search_info->{-where},
+    );
+    if (is_error($status)) {
+        return ($status, undef);
     }
     my $per_page = $params->{per_page};
-    $results{items}      = \@items;
-    $results{count}      = $count;
-    $results{page_count} = ceil($count / $per_page);
-    $results{per_page}   = $per_page;
-    $results{page_num}   = $params->{page_num};
-    $results{by}   = $params->{by};
-    $results{direction}   = $params->{direction};
+    my %results = (
+        items => $items,
+        count => $count,
+        page_count => ceil($count / $per_page),
+        per_page => $per_page,
+        page_num => $params->{page_num},
+        by => $params->{by},
+        direction => $params->{direction},
+    );
     return (HTTP_OK, \%results);
 }
 
@@ -178,12 +180,12 @@ sub _build_order_by {
     my ($self, $c, $params, $search_info) = @_;
     my ($by, $direction) = @$params{qw(by direction)};
     $by //= 'person.pid';
-    $direction //= 'ASC';
-    $direction = uc($direction);
-    if ($direction ne 'ASC' && $direction ne 'DESC') {
-        $direction = 'ASC';
+    $direction //= 'asc';
+    $direction = lc($direction);
+    if ($direction ne 'desc') {
+        $direction = 'asc';
     }
-    $search_info->{-order_by} = ["$by $direction"];
+    $search_info->{-order_by} = { "-$direction" => $by };
 }
 
 =head2 _build_clause
@@ -205,8 +207,8 @@ sub _build_clause {
         unless exists $OP_MAP{$op};
     my $sql_op = $OP_MAP{$op};
     if($sql_op eq 'LIKE' || $sql_op eq 'NOT LIKE') {
-        #escaping the % and _ charcaters
-        my $escaped = $value =~ s/([%_])/\\$1/g;
+        #escaping the % and _ \ charcaters
+        my $escaped = $value =~ s/([%_\\])/\\$1/g;
         if($op eq 'like' || $op eq 'not_like') {
             $value = "\%$value\%";
         } elsif ($op eq 'starts_with') {
@@ -215,7 +217,7 @@ sub _build_clause {
             $value = "\%$value";
         }
         if ($escaped) {
-            return { $name => { like => \[q{? ESCAPE '\'}, $value] } };
+            return { $name => { like => \[q{? ESCAPE '\\\\'}, $value] } };
         }
     }
     return {$name => {$sql_op => $value}};
@@ -235,11 +237,11 @@ sub fixup_name {
     return $name;
 }
 
-__PACKAGE__->meta->make_immutable;
+__PACKAGE__->meta->make_immutable unless $ENV{"PF_SKIP_MAKE_IMMUTABLE"};
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2017 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 

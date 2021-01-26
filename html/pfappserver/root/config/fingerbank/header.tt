@@ -6,35 +6,11 @@
       <i class="icon-angle-down"></i>
     </a>
     <ul class="dropdown-menu">
-      <li>
-        <a class="updates_section_status_msg" data-sibling=".options"
-           href="[%c.uri_for(c.controller('Config::Fingerbank::DB').action_for('submit')) %]">
-          <i class="icon-share"></i> [% l('Submit Unknown/Unmatched Fingerprints') %]
-        </a>
-      </li>
       [% IF can_access("FINGERBANK_UPDATE") %]
       <li>
-        <a class="updates_section_status_msg"
+        <a data-sibling=".options" class="updates_section_status_msg"
            href="[% c.uri_for(c.controller('Config::Fingerbank::DB').action_for('update_upstream_db')) %]">
           <i class="icon-refresh"></i> [% l('Update Fingerbank DB') %]
-        </a>
-      </li>
-      <li>
-        <a class="updates_section_status_msg"
-           href="[% c.uri_for(c.controller('Config::Fingerbank::DB').action_for('initialize_mysql')) %]">
-          <i class="icon-refresh"></i> [% l('Initialize MySQL database') %]
-        </a>
-      </li>
-      <li>
-        <a class="updates_section_status_msg"
-           href="[% c.uri_for(c.controller('Config::Fingerbank::DB').action_for('update_redis_db')) %]">
-          <i class="icon-refresh"></i> [% l('Update Redis DB') %]
-        </a>
-      </li>
-      <li>
-        <a class="updates_section_status_msg"
-           href="[% c.uri_for(c.controller('Config::Fingerbank::DB').action_for('update_p0f_map')) %]">
-          <i class="icon-refresh"></i> [% l('Update Fingebank p0f map') %]
         </a>
       </li>
       [% END %]

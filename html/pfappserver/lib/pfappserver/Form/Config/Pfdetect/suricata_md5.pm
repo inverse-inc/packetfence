@@ -12,6 +12,12 @@ Form definition to create or update a pfdetect detector.
 
 use HTML::FormHandler::Moose;
 extends 'pfappserver::Form::Config::Pfdetect';
+with qw(pfappserver::Base::Form::Role::PfdetectRateLimit);
+
+has_field '+type' =>
+  (
+   default => 'suricata_md5',
+  );
 
 =over
 
@@ -19,7 +25,7 @@ extends 'pfappserver::Form::Config::Pfdetect';
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2017 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 
@@ -40,5 +46,5 @@ USA.
 
 =cut
 
-__PACKAGE__->meta->make_immutable;
+__PACKAGE__->meta->make_immutable unless $ENV{"PF_SKIP_MAKE_IMMUTABLE"};
 1;

@@ -16,7 +16,7 @@ use HTML::FormHandler::Moose;
 extends 'HTML::FormHandler::Field::Compound';
 
 use pf::Authentication::constants;
-use pf::util qw(validate_date);
+use pf::util qw(validate_unregdate);
 
 
 # Form select options
@@ -35,6 +35,20 @@ has_field 'description' => (
     type     => 'Text',
     label    => 'Description',
     required => 0,
+);
+
+=head2 status
+
+The status of the rule if it is enabled or disabled
+
+=cut
+
+has_field 'status' => (
+    type            => 'Toggle',
+    label           => 'Enable rule',
+    checkbox_value  => 'enabled',
+    unchecked_value => 'disabled',
+    default         => 'enabled'
 );
 
 has_field 'match' => (
@@ -118,7 +132,7 @@ sub validate {
             $action->add_error("You can't have more than one action of the same type.");
         }
         if ($type eq $Actions::SET_UNREG_DATE) {
-            if (!validate_date($action->field("value")->value)) {
+            if (!validate_unregdate($action->field("value")->value)) {
                 $actions->add_error("Unregistration date must not exceed 2038-01-18.");
             }
         }
@@ -126,8 +140,8 @@ sub validate {
     }
 
     if ($class eq 'authentication') {
-        unless ($typesCount{$Actions::SET_ROLE}) {
-            $actions->add_error("You must set a role.");
+        unless ($typesCount{$Actions::SET_ROLE} || $typesCount{$Actions::SET_ROLE_ON_NOT_FOUND}) {
+            $actions->add_error("You must set a role or a role on not found.");
         }
 
         if (!$typesCount{$Actions::SET_UNREG_DATE} && !$typesCount{$Actions::SET_ACCESS_DURATION}) {
@@ -140,9 +154,10 @@ sub validate {
     }
 }
 
+
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2017 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 
@@ -163,6 +178,6 @@ USA.
 
 =cut
 
-__PACKAGE__->meta->make_immutable;
+__PACKAGE__->meta->make_immutable unless $ENV{"PF_SKIP_MAKE_IMMUTABLE"};
 
 1;

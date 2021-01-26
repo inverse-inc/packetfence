@@ -15,7 +15,12 @@ pf::CHI
 use strict;
 use warnings;
 use base qw(CHI);
-use Module::Pluggable search_path => ['CHI::Driver', 'pf::Role::CHI'], sub_name => '_preload_chi_drivers', require => 1, except => qr/(^CHI::Driver::.*Test|FastMmap)/;
+use Module::Pluggable
+  search_path => [ 'CHI::Driver', 'pf::CHI::Role' ],
+  sub_name    => '_preload_chi_drivers',
+  require     => 1,
+  inner       => 0,
+  except      => qr/(^CHI::Driver::.*Test|FastMmap)/;
 use Clone();
 use pf::file_paths qw(
     $chi_defaults_config_file
@@ -26,7 +31,7 @@ use pf::file_paths qw(
 );
 use pf::IniFiles;
 use Hash::Merge;
-use List::MoreUtils qw(uniq any);
+use List::MoreUtils qw(uniq);
 use List::Util qw(first);
 use DBI;
 use Scalar::Util qw(tainted reftype);
@@ -34,13 +39,13 @@ use pf::log;
 use Log::Any::Adapter;
 use pf::Redis;
 use CHI::Driver;
+use pf::CHI::db;
+use pf::constants qw($DIR_MODE);
 Log::Any::Adapter->set('Log4perl');
 
 my @PRELOADED_CHI_DRIVERS;
 
-
-Hash::Merge::specify_behavior(
-    {
+my %SPECS = (
     #Always take the value from the right side
     'SCALAR' => {
         'SCALAR' => sub {$_[1]},
@@ -65,11 +70,13 @@ Hash::Merge::specify_behavior(
             Hash::Merge::_merge_hashes($_[0], $_[1]);
         },
       },
-    },
-    'PF_CHI_MERGE'
 );
 
-our @CACHE_NAMESPACES = qw(configfilesdata configfiles httpd.admin httpd.portal pfdns switch.overlay ldap_auth omapi fingerbank firewall_sso switch metadefender accounting clustering person_lookup route_int provisioning switch_distributed);
+my $merger = Hash::Merge->new();
+$merger->specify_behavior(\%SPECS, 'PF_CHI_MERGE');
+$merger->set_behavior('PF_CHI_MERGE');
+
+our @CACHE_NAMESPACES = qw(configfilesdata configfiles httpd.admin httpd.portal pfdns switch.overlay ldap_auth fingerbank firewall_sso switch accounting clustering person_lookup route_int provisioning switch_distributed pfdhcp_api openvas_scans local_mac ntlm_cache_username_lookup trigger_security_event);
 
 our $chi_default_config = pf::IniFiles->new( -file => $chi_defaults_config_file) or die "Cannot open $chi_defaults_config_file";
 
@@ -77,6 +84,7 @@ our $chi_config = pf::IniFiles->new( -file => $chi_config_file, -allowempty => 1
 
 our $pf_default_config = pf::IniFiles->new( -file => $pf_default_file) or die "Cannot open $pf_default_file";
 
+our $dbi_info;
 
 our %DEFAULT_CONFIG = (
     'namespace' => {
@@ -128,24 +136,22 @@ sub chiConfigFromIniFile {
             my $value =  listify($storage->{$param});
             $storage->{$param} = [ map { split /\s*,\s*/, $_ } @$value ];
         }
-        push @{$storage->{traits}}, '+pf::Role::CHI::Driver::ComputeWithUndef';
+        push @{$storage->{traits}}, '+pf::CHI::Role::Driver::ComputeWithUndef';
     }
     setDefaultStorage($args{storage});
     setRawL1CacheAsLast($args{storage}{configfiles});
-    my $merge = Hash::Merge->new('PF_CHI_MERGE');
-    my $config = $merge->merge( \%DEFAULT_CONFIG, \%args );
+    my $config = $merger->merge( \%DEFAULT_CONFIG, \%args );
     return $config;
 }
 
 sub setDefaultStorage {
     my ($storageUnits) = @_;
     my $defaults = delete $storageUnits->{DEFAULT} || \%DEFAULT_STORAGE;
-    my $merge = Hash::Merge->new('PF_CHI_MERGE');
     foreach my $name (@CACHE_NAMESPACES) {
         $storageUnits->{$name} = {} unless exists $storageUnits->{$name};
         my $clonedDefaults = Clone::clone($defaults);
         my $storage = $storageUnits->{$name};
-        %$storage = %{$merge->merge( $storage, $clonedDefaults )};
+        %$storage = %{$merger->merge( $storage, $clonedDefaults )};
     }
 }
 
@@ -161,20 +167,15 @@ sub copyStorage {
 
 sub setFileDriverParams {
     my ($storage) = @_;
-    $storage->{dir_create_mode} = oct('02775');
+    $storage->{dir_create_mode} = $DIR_MODE;
     $storage->{file_create_mode} = oct('00664');
     $storage->{umask_on_store} = oct('00007');
-    $storage->{traits} = ['+pf::Role::CHI::Driver::FileUmask', '+pf::Role::CHI::Driver::Untaint'];
+    $storage->{traits} = ['+pf::CHI::Role::Driver::FileUmask', '+pf::CHI::Role::Driver::Untaint'];
 }
 
 sub setDBIDriverParams {
     my ($storage, $dbi) = @_;
-    $storage->{dbh} = sub {
-        my $pf_config = pf::IniFiles->new( -file => $pf_config_file, -allowempty => 1, -import => $pf_default_config) or die "Cannot open $pf_config_file";
-        my ($db,$host,$port,$user,$pass) = @{sectionData($pf_config, "database")}{qw(db host port user pass)};
-        return DBI->connect( "dbi:mysql:dbname=$db;host=$host;port=$port",
-        $user, $pass, { RaiseError => 0, PrintError => 0 } );
-    }
+    $storage->{dbh} = \&pf::CHI::db::db_connect;
 }
 
 sub setRawL1CacheAsLast {
@@ -210,7 +211,6 @@ sub preload_chi_drivers {
     }
 }
 
-
 __PACKAGE__->config(chiConfigFromIniFile());
 
 =head2 listify
@@ -237,8 +237,6 @@ sub get_redis_config {
     return $config;
 }
 
-
-
 =head1 AUTHOR
 
 Inverse inc. <info@inverse.ca>
@@ -246,7 +244,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2017 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 

@@ -1,0 +1,17 @@
+/config/billing_tiers:
+  description: pf::UnifiedApi::Controller::Config::BillingTiers
+  get:
+    description: List items
+    operationId: api.v1.Config::BillingTiers.list
+    parameters: []
+    responses:
+      '200':
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ConfigBillingTiersList'
+        description: List
+      '400':
+        $ref: '#/components/responses/BadRequest'
+      '422':
+        $ref: '#/components/responses/UnprocessableEntity'

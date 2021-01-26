@@ -18,14 +18,14 @@ use strict;
 use warnings;
 
 [% content %]
- 
+
 =head1 AUTHOR
 
 Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-[% now.year %] Inverse inc.
+Copyright (C) 2005-[% IF year %][% year %][%ELSE%][% now.year %][%END%] Inverse inc.
 
 =head1 LICENSE
 

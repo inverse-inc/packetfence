@@ -12,8 +12,11 @@ Form definition to create or update an Email-verified user source.
 
 use HTML::FormHandler::Moose;
 extends 'pfappserver::Form::Config::Source';
-with 'pfappserver::Base::Form::Role::Help';
-with 'pfappserver::Base::Form::Role::SourceLocalAccount';
+with qw(
+  pfappserver::Base::Form::Role::Help
+  pfappserver::Base::Form::Role::SourceLocalAccount
+  pfappserver::Base::Form::Role::EmailFiltering
+);
 
 use pf::Authentication::Source::EmailSource;
 use pfappserver::Form::Field::Duration;
@@ -29,17 +32,6 @@ has_field 'email_activation_timeout' =>
              help => 'This is the delay given to a guest who registered by email confirmation to log into his email and click the activation link.' },
   );
 
-has_field 'allow_localdomain' =>
-  (
-   type => 'Toggle',
-   checkbox_value => 'yes',
-   unchecked_value => 'no',
-   label => 'Allow Local Domain',
-   default => pf::Authentication::Source::EmailSource->meta->get_attribute('allow_localdomain')->default,
-   tags => { after_element => \&help,
-             help => 'Accept self-registration with email address from the local domain' },
-  );
-
 has_field 'activation_domain' =>
   (
    type => 'Text',
@@ -47,13 +39,13 @@ has_field 'activation_domain' =>
    required => 0,
     tags => {
         after_element => \&help,
-        help => 'Set this value if you want to change the hostname in the validation link.',
+        help => 'Set this value if you want to change the hostname in the validation link. Changing this requires to restart haproxy to be fully effective.',
     },
   );
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2017 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 
@@ -74,5 +66,6 @@ USA.
 
 =cut
 
-__PACKAGE__->meta->make_immutable;
+__PACKAGE__->meta->make_immutable unless $ENV{"PF_SKIP_MAKE_IMMUTABLE"};
+
 1;

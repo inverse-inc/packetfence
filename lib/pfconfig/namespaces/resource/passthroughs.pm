@@ -27,6 +27,7 @@ sub init {
     my ($self) = @_;
     $self->{config}         = $self->{cache}->get_cache('config::Pf');
     $self->{authentication_sources} = $self->{cache}->get_cache('resource::authentication_sources');
+    $self->{provisioning} = $self->{cache}->get_cache('config::Provisioning');
 }
 
 =head2 build
@@ -54,17 +55,27 @@ sub build {
     my @all_passthroughs = (
         @{$self->{config}->{fencing}->{passthroughs} // []},
         map{
-            $_->isa("pf::Authentication::Source::OAuthSource") 
-                ? split(/\s*,\s*/, $_->{domains})
-                : () 
+            ($_->isa("pf::Authentication::Source::OAuthSource") || $_->isa("pf::Authentication::Source::BillingSource") )
+                ? split(/\s*,\s*/, $_->{domains} // '')
+                : ()
         } @{$self->{authentication_sources} // []},
     );
+    push (@all_passthroughs, map{
+            split(/\s*,\s*/, $self->{provisioning}->{$_}->{domains} // '')
+        } keys %{$self->{provisioning}});
 
+
+    return $self->_build(\@all_passthroughs);
+}
+
+sub _build {
+    my ($self, $all_passthroughs) = @_;
+    
     my %passthroughs = (
-        normal => {}, 
-        wildcard => {},  
+        normal => {},
+        wildcard => {},
     );
-    foreach my $passthrough (@all_passthroughs) {
+    foreach my $passthrough (@$all_passthroughs) {
         my ($domain, $ports) = $self->_new_passthrough($passthrough);
         my $ns = "normal";
         if($domain =~ /\*\.(.*)/) {
@@ -98,7 +109,7 @@ sub _new_passthrough {
     my ($self, $passthrough) = @_;
 
     if($passthrough =~ /(.*?):(udp:|tcp:)?([0-9]+)/) {
-        my $domain = $1;
+        my $domain = lc($1);
         # NOTE: proto contains the ':' at the end
         my $proto = $2;
         my $port = $3;
@@ -121,7 +132,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2017 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 

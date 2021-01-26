@@ -57,16 +57,13 @@ Constructor of the array
 =cut
 
 sub TIEARRAY {
-    my ( $class, $config ) = @_;
+    my ( $class, $config, %extra ) = @_;
     my $self = bless {}, $class;
-
     $self->init();
-
-    $self->{"_namespace"} = $config;
-    $self->{"_control_file_path"} = pfconfig::util::control_file_path($config);
-
+    $self->set_namespace($config);
+    $self->{"_scoped_by_tenant_id"} = $extra{tenant_id_scoped};
+    $self->{"_control_file_path"} = pfconfig::util::control_file_path($self->{_namespace});
     $self->{element_socket_method} = "array_element";
-
     return $self;
 }
 
@@ -133,7 +130,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2017 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 

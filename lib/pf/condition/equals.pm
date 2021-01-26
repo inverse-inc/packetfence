@@ -36,9 +36,9 @@ Check is the $arg equals the value
 =cut
 
 sub match {
-    my ($self,$arg) = @_;
+    my ($self,$arg,$args) = @_;
     return $FALSE if(!defined($arg));
-    return $arg eq $self->value;
+    return $arg eq $self->evalParam($self->value, $args);
 }
 
 =head1 AUTHOR
@@ -47,7 +47,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2017 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 

@@ -1,0 +1,261 @@
+# Copyright (C) Inverse inc.
+[metric 'redis queue stats count']
+type=api
+statsd_type=gauge
+statsd_ns=source.packetfence.redis.queue_stats_count
+api_method=GET
+api_path=/api/v1/queues/stats
+api_compile=$.items[*].queue, $.items[*].stats.count
+interval=60s
+randomize=true
+management=false
+
+[metric 'redis queue stats expired']
+type=api
+statsd_type=gauge
+statsd_ns=source.packetfence.redis.queue_stats_expired
+api_method=GET
+api_path=/api/v1/queues/stats
+api_compile=$.items[*].stats.expired[*].name, $.items[*].stats.expired[*].count
+interval=60s
+randomize=true
+management=false
+
+[metric 'redis queue stats outstanding']
+type=api
+statsd_type=gauge
+statsd_ns=source.packetfence.redis.queue_stats_outstanding
+api_method=GET
+api_path=/api/v1/queues/stats
+api_compile=$.items[*].stats.outstanding[*].name, $.items[*].stats.outstanding[*].count
+interval=60s
+randomize=true
+management=false
+
+[metric 'total number of registered devices per role']
+type=mysql_query
+statsd_type=gauge
+statsd_ns=source.packetfence.devices.registered_per_role
+mysql_query=select name, count(distinct node.mac) from node_category left join node on node.category_id=node_category.category_id and node.status='reg' group by node_category.category_id
+interval=60s
+randomize=true
+management=true
+
+[metric 'total number of connected devices per connection type']
+type=mysql_query
+statsd_type=gauge
+statsd_ns=source.packetfence.devices.connected_per_connection_type
+mysql_query=select connection_type, count(distinct mac) from locationlog where end_time is null group by connection_type
+interval=720s
+management=true
+
+[metric 'total number of connected devices per ssid']
+type=mysql_query
+statsd_type=gauge
+statsd_ns=source.packetfence.devices.connected_per_ssid
+mysql_query= select ssid, count(distinct mac) from locationlog where ssid != '' and end_time is null group by ssid
+interval=720s
+management=true
+
+[metric 'total number of unregistered devices']
+type=mysql_query
+statsd_type=gauge
+statsd_ns=source.packetfence.devices.unregistered
+mysql_query=select count(distinct mac) from node where status='unreg'
+interval=60s
+randomize=true
+management=true
+
+[metric 'number of devices currently registered']
+type=mysql_query
+statsd_type=gauge
+statsd_ns=source.packetfence.devices.registered
+mysql_query=select count(distinct mac) from node where status='reg' and (unregdate >= NOW() or unregdate = '0000-00-00 00:00:00')
+interval=60s
+randomize=true
+management=true
+
+[metric 'number of new registered devices during the past hour']
+type=mysql_query
+statsd_type=gauge
+statsd_ns=source.packetfence.devices.registered_last_hour
+mysql_query=select count(distinct mac) from node where status='reg' and regdate >= NOW() - INTERVAL 1 HOUR
+interval=1s
+management=true
+
+[metric 'number of new registered devices during the past day']
+type=mysql_query
+statsd_type=gauge
+statsd_ns=source.packetfence.devices.registered_last_day
+mysql_query=select count(distinct mac) from node where status='reg' and regdate >= NOW() - INTERVAL 1 DAY
+interval=24s
+management=true
+
+[metric 'number of new registered devices during the past week']
+type=mysql_query
+statsd_type=gauge
+statsd_ns=source.packetfence.devices.registered_last_week
+mysql_query=select count(distinct mac) from node where status='reg' and regdate >= NOW() - INTERVAL 1 WEEK
+interval=168s
+management=true
+
+[metric 'number of new registered devices during the past month']
+type=mysql_query
+statsd_type=gauge
+statsd_ns=source.packetfence.devices.registered_last_month
+mysql_query=select count(distinct mac) from node where status='reg' and regdate >= NOW() - INTERVAL 1 MONTH
+interval=720s
+management=true
+
+[metric 'number of new registered devices during the past year']
+type=mysql_query
+statsd_type=gauge
+statsd_ns=source.packetfence.devices.registered_last_year
+mysql_query=select count(distinct mac) from node where status='reg' and regdate >= NOW() - INTERVAL 1 YEAR
+interval=8760s
+management=true
+
+[metric 'number of devices currently online and registered']
+type=mysql_query
+statsd_type=gauge
+statsd_ns=source.packetfence.devices.online_registered
+mysql_query=select count(distinct n.mac) from node n join radacct r on r.callingstationid=n.mac where n.status='reg' and (n.unregdate >= NOW() or n.unregdate = '0000-00-00 00:00:00') and r.acctstoptime is null
+interval=720s
+randomize=true
+management=true
+
+[metric 'number of devices currently online and unregistered']
+type=mysql_query
+statsd_type=gauge
+statsd_ns=source.packetfence.devices.online_unregistered
+mysql_query=select count(distinct n.mac) from node n join radacct r on r.callingstationid=n.mac where n.status!='reg' and (n.unregdate >= NOW() or n.unregdate = '0000-00-00 00:00:00') and r.acctstoptime is null
+interval=720s
+randomize=true
+management=true
+
+[metric 'number of currently open security events']
+type=mysql_query
+statsd_type=gauge
+statsd_ns=source.packetfence.security_events
+mysql_query=select count(distinct mac) from security_event where status='open'
+interval=60s
+randomize=true
+management=true
+
+[metric 'number of successful radius authentications in the last day']
+type=mysql_query
+statsd_type=gauge
+statsd_ns=source.packetfence.authentication.success_last_day
+mysql_query=select count(1) from radius_audit_log where auth_status='Accept' and created_at >= NOW() - INTERVAL 1 DAY;
+interval=60s
+randomize=true
+management=true
+
+[metric 'number of failed radius authentications in the last day']
+type=mysql_query
+statsd_type=gauge
+statsd_ns=source.packetfence.authentication.failed_last_day
+mysql_query=select count(1) from radius_audit_log where auth_status='Reject' and created_at >= NOW() - INTERVAL 1 DAY;
+interval=60s
+randomize=true
+management=true
+
+[metric 'number of dhcp free ip addresses']
+type=api
+statsd_type=gauge
+statsd_ns=source.packetfence.dhcp_leases.free
+api_method=GET
+api_path=/api/v1/dhcp/stats
+api_compile=$.items[*].network.free, $.items[*].free
+interval=60s
+randomize=true
+management=true
+
+[metric 'number of dhcp used ip addresses']
+type=api
+statsd_type=gauge
+statsd_ns=source.packetfence.dhcp_leases.used
+api_method=GET
+api_path=/api/v1/dhcp/stats
+api_compile=$.items[*].network.used, $.items[*].used
+interval=60s
+randomize=true
+management=true
+
+[metric 'percent of dhcp free ip addresses']
+type=api
+statsd_type=gauge
+statsd_ns=source.packetfence.dhcp_leases.percentfree
+api_method=GET
+api_path=/api/v1/dhcp/stats
+api_compile=$.items[*].network, $.items[*].percentfree
+interval=60s
+randomize=true
+management=true
+
+[metric 'percent of dhcp used ip addresses']
+type=api
+statsd_type=gauge
+statsd_ns=source.packetfence.dhcp_leases.percentused
+api_method=GET
+api_path=/api/v1/dhcp/stats
+api_compile=$.items[*].network, $.items[*].percentused
+interval=60s
+randomize=true
+management=true
+
+[metric 'Events in packetfence.log']
+type=tail_file
+file=/usr/local/pf/logs/packetfence.log
+match=ERROR,httpd.portal.*Unable to match MAC address to IP.*ip2mac.*
+statsd_ns=source.packetfence.packetfence_log.error,source.packetfence.packetfence_log.portal.ip2mac
+management=false
+
+[metric 'Events in pfdhcp.log']
+type=tail_file
+file=/usr/local/pf/logs/pfdhcp.log
+match=DHCPDISCOVER,DHCPOFFER,DHCPREQUEST,DHCPACK,DHCPNAK,DHCPDECLINE,DHCPRELEASE,DHCPINFORM
+statsd_ns=source.packetfence.pfdhcp_log.dhcpdiscover,source.packetfence.pfdhcp_log.dhcpoffer,source.packetfence.pfdhcp_log.dhcprequest,source.packetfence.pfdhcp_log.dhcpack,source.packetfence.pfdhcp_log.dhcpnak,source.packetfence.pfdhcp_log.dhcpdecline,source.packetfence.pfdhcp_log.dhcprelease,source.packetfence.pfdhcp_log.dhcpinform
+management=false
+
+[metric 'Events in load_balancer.log']
+type=tail_file
+file=/usr/local/pf/logs/radius-load_balancer.log
+match=unknown client,invalid Message-Authenticator
+statsd_ns=source.packetfence.radius_load_balancer_log.unknown_client,source.packetfence.radius_load_balancer_log.invalid_message_authenticator
+management=false
+
+[metric 'Events in radius.log']
+type=tail_file
+file=/usr/local/pf/logs/radius.log
+match=unknown client,invalid Message-Authenticator,0xc0000072,c000006d,0xc0000001,sql_reject,Ignoring duplicate packet
+statsd_ns=source.packetfence.radius_log.unknown_client,source.packetfence.radius_log.invalid_message_authenticator,source.packetfence.radius_log.account_disabled,source.packetfence.radius_log.bad_username_or_password,source.packetfence.radius_log.reading_winbind_reply_failed,source.packetfence.radius_log.sql_reject,source.packetfence.radius_log.duplicate_packet
+management=false
+
+[metric 'Events in radius-acct.log']
+type=tail_file
+file=/usr/local/pf/logs/radius-acct.log
+match=ERROR
+statsd_ns=source.packetfence.radius_acct_log.error
+management=false
+
+[metric 'Events in mariadb_error.log']
+type=tail_file
+file=/usr/local/pf/logs/mariadb_error.log
+match=DESYNCED
+statsd_ns=source.packetfence.mariadb_error_log.desynced
+management=false
+
+[metric 'Events in pfcron.log']
+type=tail_file
+file=/usr/local/pf/logs/pfcron.log
+match=ERROR,WARNING
+statsd_ns=source.packetfence.pfcron_log.error,source.packetfence.pfcron_log.warning
+management=false
+
+[metric 'Events in fingerbank.log']
+type=tail_file
+file=/usr/local/pf/logs/fingerbank.log
+match=An error occured while interrogating upstream Fingerbank project
+statsd_ns=source.packetfence.fingerbank_log.api_error
+management=true

@@ -1,4 +1,5 @@
 package pf::api::local;
+
 =head1 NAME
 
 pf::api::local local client for pf::api
@@ -16,7 +17,6 @@ To avoid circular dependencies pf::api needs to be included before consuming thi
 
 use strict;
 use warnings;
-use pf::db;
 use Moo;
 
 
@@ -51,7 +51,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2017 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 

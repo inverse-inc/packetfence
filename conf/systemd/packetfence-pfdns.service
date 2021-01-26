@@ -1,15 +1,16 @@
+# Copyright (C) Inverse inc.
 [Unit]
-Description=PacketFence DNS Service
-Wants=packetfence-base.target packetfence-config.service packetfence-iptables.service
-After=packetfence-base.target packetfence-config.service packetfence-iptables.service
+Description=PacketFence GO DNS Server Daemon
+Wants=packetfence-keepalived.service packetfence-base.target packetfence-config.service packetfence-iptables.service
+After=packetfence-keepalived.service packetfence-base.target packetfence-config.service packetfence-iptables.service
 Before=packetfence-httpd.portal.service
 
 [Service]
-Type=notify
 StartLimitBurst=3
-StartLimitInterval=10
-PIDFile=/usr/local/pf/var/run/pfdns.pid
-ExecStart=/usr/local/pf/sbin/pfdns
+StartLimitInterval=60
+Type=notify
+ExecStartPre=/bin/perl -I/usr/local/pf/lib '-Mpf::services::manager::pfdns' -e 'pf::services::manager::pfdns->new()->generateConfig()'
+ExecStart=/usr/local/pf/sbin/pfdns -conf=/usr/local/pf/var/conf/pfdns.conf
 Restart=on-failure
 Slice=packetfence.slice
 

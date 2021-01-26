@@ -15,6 +15,7 @@ extends 'captiveportal::DynamicRouting::Module::Authentication';
 with 'captiveportal::Role::FieldValidation';
 
 use pf::activation qw($SMS_ACTIVATION);
+use pf::util qw(normalize_time);
 use pf::log;
 use pf::constants;
 use pf::sms_carrier;
@@ -23,7 +24,7 @@ use pf::auth_log;
 
 has '+pid_field' => (default => sub { "telephone" });
 
-has '+source' => (isa => 'pf::Authentication::Source::SMSSource|pf::Authentication::Source::TwilioSource');
+has '+source' => (isa => 'pf::Authentication::Source::SMSSource|pf::Authentication::Source::TwilioSource|pf::Authentication::Source::ClickatellSource');
 
 =head2 allowed_urls_auth_module
 
@@ -170,14 +171,28 @@ sub validate_info {
     }
 
     $self->update_person_from_fields();
-    my ( $status, $message ) = pf::activation::sms_activation_create_send( $self->current_mac, $pid, $telephone, $self->app->profile->getName, $mobileprovider, $self->source );
+
+    my %args = (
+        mac         => $self->current_mac,
+        pid         => $pid,
+        pending     => $telephone,
+        type        => "sms",
+        portal      => $self->app->profile->getName,
+        provider_id => $mobileprovider,
+        timeout     => normalize_time($self->source->{sms_activation_timeout}),
+        source      => $self->source,
+        message     => $self->app->i18n($self->source->message),
+        style       => 'digits',
+        code_length => $self->source->pin_code_length,
+    );
+    my ( $status, $message ) = pf::activation::sms_activation_create_send( %args );
     unless ( $status ) {
         $self->app->flash->{error} = $message;
         $self->prompt_fields();
         return;
     };
 
-    pf::auth_log::record_guest_attempt($self->source->id, $self->current_mac, $pid);
+    pf::auth_log::record_guest_attempt($self->source->id, $self->current_mac, $pid, $self->app->profile->name);
 
     $self->session->{telephone} = $telephone;
     $self->session->{mobileprovider} = $mobileprovider;
@@ -196,12 +211,16 @@ Validate the provided PIN
 sub validate_pin {
     my ($self, $pin) = @_;
     get_logger->debug("Mobile phone number validation attempt");
+    if (pf::activation::is_expired($pin)) {
+        pf::auth_log::change_record_status($self->source->id, $self->current_mac, $pf::auth_log::FAILED);
+        return ($FALSE, $self->app->i18n($GUEST::ERROR_EXPIRED_PIN));
+    }
     my $mac = $self->current_mac;
     if (my $record = pf::activation::validate_code_with_mac($SMS_ACTIVATION, $pin, $mac)) {
         return ($TRUE, 0, $record);
     }
-    pf::auth_log::change_record_status($self->source->id, $mac, $pf::auth_log::FAILED);
-    return ($FALSE, $GUEST::ERROR_INVALID_PIN);
+    pf::auth_log::change_record_status($self->source->id, $mac, $pf::auth_log::FAILED, $self->app->profile->name);
+    return ($FALSE, $self->app->i18n($GUEST::ERROR_INVALID_PIN));
 }
 
 =head2 validation
@@ -230,7 +249,7 @@ sub validation {
         $self->username($record->{pid});
         my $mac = $self->current_mac;
         pf::activation::set_status_verified_by_mac($SMS_ACTIVATION, $pin, $mac);
-        pf::auth_log::record_completed_guest($self->source->id, $mac, $pf::auth_log::COMPLETED);
+        pf::auth_log::record_completed_guest($self->source->id, $mac, $pf::auth_log::COMPLETED, $self->app->profile->name);
         $self->done();
     }
     else {
@@ -258,7 +277,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2017 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 
@@ -279,7 +298,7 @@ USA.
 
 =cut
 
-__PACKAGE__->meta->make_immutable;
+__PACKAGE__->meta->make_immutable unless $ENV{"PF_SKIP_MAKE_IMMUTABLE"};
 
 1;
 

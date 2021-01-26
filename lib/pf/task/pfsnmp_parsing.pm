@@ -14,6 +14,7 @@ pf::task::pfsnmp_parsing
 
 use strict;
 use warnings;
+use base 'pf::task';
 use pf::log;
 use pf::Redis;
 use pf::SwitchFactory;
@@ -25,6 +26,7 @@ use pf::config::util;
 use pf::constants qw($TRUE $FALSE);
 use pf::util;
 use pf::config qw(%Config);
+use pf::config::pfqueue qw(%ConfigPfqueue);
 use pf::util::pfqueue qw(task_counter_id consumer_redis_client);
 use pf::constants::pfqueue qw($PFQUEUE_COUNTER);
 
@@ -42,35 +44,38 @@ sub doTask {
     my ($trapInfo, $variables) = @$args;
     my $switch_id = $trapInfo->{switchIp};
     unless (defined $switch_id) {
-        $logger->error("No switch found in trap");
-        return;
+        my $msg = "No switch found in trap";
+        $logger->error($msg);
+        return {message => $msg, status => 422}, undef;
     }
 
     my $switch = pf::SwitchFactory->instantiate($switch_id);
     unless ($switch) {
-        $logger->error("Can not instantiate switch '$switch_id' !");
-        return;
+        my $msg = "Can not instantiate switch '$switch_id' !";
+        $logger->error($msg);
+        return {message => $msg, status => 404}, undef;
     }
 
     my $trap = $switch->normalizeTrap($args);
     unless ($trap) {
-        $logger->error("Unable to normalize trap sent from '$switch_id' ");
-        return;
+        my $msg = "Unable to normalize trap sent from '$switch_id' !";
+        $logger->error($msg);
+        return {message => $msg, status => 422}, undef;
     }
 
     if ($trap->{trapType} eq 'unknown') {
         $logger->debug("ignoring unknown trap for '$switch_id'");
-        return;
+        return undef, undef;
     }
 
     if ($self->performTrapLimiting($switch, $trap->{trapIfIndex})) {
         $logger->debug("too many traps for $switch_id");
-        return;
+        return undef, undef;
     }
 
     unless ($switch->handleTrap($trap)) {
         $logger->error("Skipping general trap handling for $switch_id");
-        return;
+        return undef, undef;
     }
 
     $trap->{switchId} = $switch_id;
@@ -84,11 +89,12 @@ sub doTask {
 
     if (ignoreTrap($switch, $trap)) {
         $logger->debug("Trap ignored for '$switch_id'");
-        return;
+        return undef, undef;
     }
 
     my $client = pf::pfqueue::producer::redis->new(queue => 'pfsnmp');
-    $client->submit("pfsnmp", "pfsnmp", $trap);
+    $client->submit_hashed($ConfigPfqueue{queue_config}{pfsnmp}{workers}, $switch_id, "pfsnmp", "pfsnmp", $trap);
+    return undef, undef;
 }
 
 =head2 ignoreTrap
@@ -172,7 +178,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2017 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 

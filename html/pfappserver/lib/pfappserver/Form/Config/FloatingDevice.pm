@@ -25,6 +25,14 @@ has_field 'id' =>
    accept => ['default'],
    required => 1,
    messages => { required => 'Please specify the MAC address of the floating device.' },
+   tags => {
+     option_pattern => sub {
+       {
+           message  => "Mac Address",
+           regex => "[0-9A-Fa-f][0-9A-Fa-f](:[0-9A-Fa-f][0-9A-Fa-f]){5}",
+       }
+     }
+   }
   );
 has_field 'ip' =>
   (
@@ -79,7 +87,7 @@ sub validate {
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2017 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 
@@ -100,5 +108,5 @@ USA.
 
 =cut
 
-__PACKAGE__->meta->make_immutable;
+__PACKAGE__->meta->make_immutable unless $ENV{"PF_SKIP_MAKE_IMMUTABLE"};
 1;

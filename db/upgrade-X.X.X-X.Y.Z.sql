@@ -1,4 +1,3 @@
---
 -- PacketFence SQL schema upgrade from X.X.X to X.Y.Z
 --
 
@@ -7,13 +6,16 @@
 -- Setting the major/minor/sub-minor version of the DB
 --
 
-SET @MAJOR_VERSION = 7;
+SET @MAJOR_VERSION = 10;
 SET @MINOR_VERSION = 2;
 SET @SUBMINOR_VERSION = 9;
 
-SET @PREV_MAJOR_VERSION = 7;
+
+
+SET @PREV_MAJOR_VERSION = 10;
 SET @PREV_MINOR_VERSION = 2;
 SET @PREV_SUBMINOR_VERSION = 0;
+
 
 --
 -- The VERSION_INT to ensure proper ordering of the version in queries
@@ -44,6 +46,30 @@ END
 //
 
 DELIMITER ;
+\! echo "Checking PacketFence schema version...";
 call ValidateVersion;
+DROP PROCEDURE IF EXISTS ValidateVersion;
 
-INSERT INTO pf_version (id, version) VALUES (@VERSION_INT, CONCAT_WS('.', @MAJOR_VERSION, @MINOR_VERSION, @SUBMINOR_VERSION));
+\! echo "Altering node_category"
+ALTER TABLE node_category
+    ADD COLUMN IF NOT EXISTS `include_parent_acls` varchar(255) default NULL,
+    ADD COLUMN IF NOT EXISTS `fingerbank_dynamic_access_list` varchar(255) default NULL,
+    ADD COLUMN IF NOT EXISTS `acls` TEXT NOT NULL,
+    ADD COLUMN IF NOT EXISTS `inherit_vlan` varchar(50) default NULL;
+
+\! echo "Creating remote_clients table"
+CREATE TABLE IF NOT EXISTS `remote_clients` (
+  id int NOT NULL AUTO_INCREMENT,
+  tenant_id int NOT NULL DEFAULT 1,
+  public_key varchar(255) NOT NULL,
+  mac varchar(17) NOT NULL,
+  created_at datetime NOT NULL,
+  updated_at datetime NOT NULL,
+  PRIMARY KEY (id),
+  UNIQUE KEY remote_clients_private_key (`public_key`)
+) ENGINE=InnoDB;
+
+\! echo "Incrementing PacketFence schema version...";
+INSERT IGNORE INTO pf_version (id, version) VALUES (@VERSION_INT, CONCAT_WS('.', @MAJOR_VERSION, @MINOR_VERSION, @SUBMINOR_VERSION));
+
+\! echo "Upgrade completed successfully.";

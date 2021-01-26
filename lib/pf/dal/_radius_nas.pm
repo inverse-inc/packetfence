@@ -21,17 +21,23 @@ use warnings;
 ### pf::dal::_radius_nas is auto generated any change to this file will be lost
 ### Instead change in the pf::dal::radius_nas module
 ###
+
 use base qw(pf::dal);
+
+use Role::Tiny::With;
+with qw(pf::dal::roles::has_tenant_id);
 
 our @FIELD_NAMES;
 our @INSERTABLE_FIELDS;
 our @PRIMARY_KEYS;
 our %DEFAULTS;
 our %FIELDS_META;
+our @COLUMN_NAMES;
 
 BEGIN {
     @FIELD_NAMES = qw(
         id
+        tenant_id
         nasname
         shortname
         type
@@ -44,9 +50,11 @@ BEGIN {
         start_ip
         end_ip
         range_length
+        unique_session_attributes
     );
 
     %DEFAULTS = (
+        tenant_id => '1',
         nasname => '',
         shortname => undef,
         type => 'other',
@@ -59,9 +67,11 @@ BEGIN {
         start_ip => '0',
         end_ip => '0',
         range_length => '0',
+        unique_session_attributes => undef,
     );
 
     @INSERTABLE_FIELDS = qw(
+        tenant_id
         nasname
         shortname
         type
@@ -74,12 +84,19 @@ BEGIN {
         start_ip
         end_ip
         range_length
+        unique_session_attributes
     );
 
     %FIELDS_META = (
         id => {
             type => 'INT',
             is_auto_increment => 1,
+            is_primary_key => 0,
+            is_nullable => 0,
+        },
+        tenant_id => {
+            type => 'INT',
+            is_auto_increment => 0,
             is_primary_key => 0,
             is_nullable => 0,
         },
@@ -155,11 +172,36 @@ BEGIN {
             is_primary_key => 0,
             is_nullable => 1,
         },
+        unique_session_attributes => {
+            type => 'VARCHAR',
+            is_auto_increment => 0,
+            is_primary_key => 0,
+            is_nullable => 1,
+        },
     );
 
     @PRIMARY_KEYS = qw(
         nasname
     );
+
+    @COLUMN_NAMES = qw(
+        radius_nas.id
+        radius_nas.tenant_id
+        radius_nas.nasname
+        radius_nas.shortname
+        radius_nas.type
+        radius_nas.ports
+        radius_nas.secret
+        radius_nas.server
+        radius_nas.community
+        radius_nas.description
+        radius_nas.config_timestamp
+        radius_nas.start_ip
+        radius_nas.end_ip
+        radius_nas.range_length
+        radius_nas.unique_session_attributes
+    );
+
 }
 
 use Class::XSAccessor {
@@ -176,13 +218,13 @@ sub _defaults {
     return {%DEFAULTS};
 }
 
-=head2 field_names
+=head2 table_field_names
 
 Field names of radius_nas
 
 =cut
 
-sub field_names {
+sub table_field_names {
     return [@FIELD_NAMES];
 }
 
@@ -208,6 +250,16 @@ our $FIND_SQL = do {
     my $where = join(", ", map { "$_ = ?" } @PRIMARY_KEYS);
     "SELECT * FROM `radius_nas` WHERE $where;";
 };
+
+=head2 find_columns
+
+find_columns
+
+=cut
+
+sub find_columns {
+    return [@COLUMN_NAMES];
+}
 
 =head2 _find_one_sql
 
@@ -248,14 +300,14 @@ Get the meta data for radius_nas
 sub get_meta {
     return \%FIELDS_META;
 }
- 
+
 =head1 AUTHOR
 
 Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2017 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 

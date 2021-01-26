@@ -21,8 +21,6 @@ BEGIN {
     our ( @ISA, @EXPORT );
     @ISA = qw(Exporter);
     @EXPORT = qw(
-        $savedsearch_db_prepared
-        savedsearch_db_prepare
         savedsearch_for_pid_and_namespace
         savedsearch_view
         savedsearch_view_all
@@ -35,99 +33,12 @@ BEGIN {
 
 }
 
-our $savedsearch_db_prepared = 0;
-
-our $savedsearch_statements = {};
-
-use pf::db;
+use pf::dal::savedsearch;
+use pf::error qw(is_error is_success);
 
 =head1 Subroutines
 
 =over
-
-=item savedsearch_db_prepare
-
-Instantiate SQL statements to be prepared
-
-=cut
-
-sub savedsearch_db_prepare {
-    my $logger = get_logger();
-    $logger->debug("Preparing pf::savedsearch database queries");
-    my $dbh = get_db_handle();
-
-    $savedsearch_statements->{'savedsearch_exist_sql'} = $dbh->prepare(
-        qq[ select count(*) from savedsearch where id=?]
-    );
-
-    $savedsearch_statements->{'savedsearch_add_sql'} = $dbh->prepare(
-        qq[ insert into savedsearch( pid,namespace,name,query,in_dashboard ) values (?,?,?,?,?) ]
-    );
-
-    $savedsearch_statements->{'savedsearch_count_sql'} = $dbh->prepare(
-        qq[ select count(*) from savedsearch where]
-    );
-
-    $savedsearch_statements->{'savedsearch_name_taken_sql'} = $dbh->prepare(
-        qq[ select count(*) as `taken` from `savedsearch` where `pid` = ? && `namespace` = ? && `name` = ?]
-    );
-
-    $savedsearch_statements->{'savedsearch_view_sql'} = $dbh->prepare(
-        qq[ select * from savedsearch where id=? ]
-    );
-
-    $savedsearch_statements->{'savedsearch_view_all_sql'} = $dbh->prepare(
-        qq[ select * from savedsearch ]
-    );
-
-    $savedsearch_statements->{'savedsearch_delete_sql'} = $dbh->prepare(
-        qq[ delete from savedsearch where id=? ]
-    );
-
-    $savedsearch_statements->{'savedsearch_update_sql'} = $dbh->prepare(
-        qq[ update savedsearch set name=?,pid=?,namespace=?,query=?,in_dashboard=? where id=? ]
-    );
-
-    $savedsearch_statements->{'savedsearch_update_query_sql'} = $dbh->prepare(
-        qq[ update savedsearch set query=? where id=? ]
-    );
-
-    $savedsearch_statements->{'savedsearch_for_pid_and_namespace_sql'} = $dbh->prepare(
-        qq[ select id,name,query,in_dashboard from savedsearch where pid=? and namespace=? ]
-    );
-
-    $savedsearch_db_prepared = 1;
-}
-
-BEGIN {
-    no strict qw(refs);
-    #Results expected to return a single query
-    for my $name (qw(for_pid_and_namespace view view_all)) {
-        my $sub_name = __PACKAGE__ . "::_savedsearch_$name";
-        my $statement_name = "savedsearch_${name}_sql";
-        *{$sub_name} = sub {
-            my (@args) = @_;
-            my $logger = get_logger();
-            $logger->debug("Executing $statement_name with " . join(" ",@args));
-            return db_data(USERPREF, $savedsearch_statements, $statement_name, @args);
-        }
-    }
-    #Return row count from non select statement
-    for my $name (qw(update delete add)) {
-        my $sub_name = __PACKAGE__ . "::_savedsearch_$name";
-        my $statement_name = "savedsearch_${name}_sql";
-        *{$sub_name} = sub {
-            my (@args) = @_;
-            my $logger = get_logger();
-            my $sth = db_query_execute(USERPREF, $savedsearch_statements, $statement_name, @args);
-            if($sth) {
-                return $sth->rows;
-            }
-            return undef;
-        }
-    }
-}
-
 
 =item savedsearch_for_pid_and_namespace
 
@@ -136,7 +47,17 @@ Find all saved search for a user with in a namespace
 =cut
 
 sub savedsearch_for_pid_and_namespace {
-    goto &_savedsearch_for_pid_and_namespace;
+    my ($pid, $namespace) = @_;
+    my ($status, $iter) = pf::dal::savedsearch->search(
+        -where => {
+            pid => $pid,
+            namespace => $namespace,
+        },
+    );
+    if (is_error($status)) {
+        return;
+    }
+    return @{$iter->all(undef) // []};
 }
 
 =item savedsearch_view
@@ -146,7 +67,12 @@ find a saved search by id
 =cut
 
 sub savedsearch_view {
-    goto &_savedsearch_view;
+    my ($id) = @_;
+    my ($status, $item) = pf::dal::savedsearch->find({id => $id});
+    if (is_error($status)) {
+        return undef;
+    }
+    return $item->to_hash();
 }
 
 =item savedsearch_view_all
@@ -156,7 +82,11 @@ find all saved searches
 =cut
 
 sub savedsearch_view_all {
-    goto &_savedsearch_view;
+    my ($status, $iter) = pf::dal::savedsearch->search();
+    if (is_error($status)) {
+        return;
+    }
+    return @{$iter->all(undef) // []};
 }
 
 =item savedsearch_update
@@ -167,28 +97,37 @@ updates saved searches
 
 sub savedsearch_update {
     my ($savedsearch) = @_;
-    return _savedsearch_update(@{$savedsearch}{qw(name pid namespace query in_dashboard id)});
+    my %values = %$savedsearch;
+    my ($status, $item) = pf::dal::savedsearch->find({id => delete $values{id}});
+    if (is_error($status)) {
+        return undef;
+    }
+    $item->merge(\%values);
+    $status = $item->save;
+    return is_success($status);
 }
 
 =item savedsearch_delete
 
-deletes saved searche by id
+deletes saved search by id
 
 =cut
 
 sub savedsearch_delete {
-    goto &_savedsearch_delete;
+    my ($id) = @_;
+    my $status = pf::dal::savedsearch->remove_by_id({id => $id});
+    return is_success($status);
 }
 
 =item savedsearch_count
 
-counts all saved searche
+counts all saved search
 
 =cut
 
 sub savedsearch_count {
-    my $sth = db_query_execute(USERPREF, $savedsearch_statements, "savedsearch_count_sql");
-    return ($sth->fetchrow_array)[0];
+    my ($status, $count) = pf::dal::savedsearch->count();
+    return $count;
 }
 
 =item savedsearch_add
@@ -199,7 +138,8 @@ adds a saved searche
 
 sub savedsearch_add {
     my ($savedsearch) = @_;
-    return _savedsearch_add(@{$savedsearch}{qw(pid namespace name query in_dashboard)});
+    my $status = pf::dal::savedsearch->create($savedsearch);
+    return is_success($status);
 }
 
 =item savedsearch_name_taken
@@ -210,8 +150,15 @@ checks if the name is taken
 
 sub savedsearch_name_taken {
     my ($savedsearch) = @_;
-    my $sth = db_query_execute(USERPREF, $savedsearch_statements, "savedsearch_name_taken_sql", @{$savedsearch}{qw(pid namespace name)} );
-    return ($sth->fetchrow_array)[0];
+    my ($status, $count) = pf::dal::savedsearch->count(
+        -where => {
+            pid => $savedsearch->{pid},
+            namespace => $savedsearch->{namespace},
+            name => $savedsearch->{name},
+        },
+        -limit => 1,
+    );
+    return $count;
 }
 
 =back
@@ -222,7 +169,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2017 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 

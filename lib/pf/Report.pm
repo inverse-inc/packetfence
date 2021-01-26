@@ -2,15 +2,19 @@ package pf::Report;
 
 use Moose;
 use SQL::Abstract::More;
-use pf::db;
+use pf::dal;
+use pf::error qw(is_error is_success);
 use pf::log;
 use Tie::IxHash;
+use List::MoreUtils qw(any);
 
 use constant REPORT => 'Report';
 
 has 'id', (is => 'rw', isa => 'Str');
 
 has 'description', (is => 'rw', isa => 'Str');
+
+has 'long_description', (is => 'rw', isa => 'Str');
 
 has 'group_field', (is => 'rw', isa => 'Str');
 
@@ -30,8 +34,9 @@ has 'columns', (is => 'rw', isa => 'ArrayRef[Str]');
 
 has 'date_field', (is => 'rw', isa => 'Str');
 
-# empty since no queries are prepared upfront
-sub Report_db_prepare {}
+has 'person_fields', (is => 'rw', isa => 'ArrayRef[Str]');
+
+has 'node_fields', (is => 'rw', isa => 'ArrayRef[Str]');
 
 sub generate_sql_query {
     my ($self, %infos) = @_;
@@ -39,10 +44,11 @@ sub generate_sql_query {
 
     my $sqla = SQL::Abstract::More->new();
     my $and = [];
+    $infos{search}{type} //= $self->base_conditions_operator;
 
     # Date range handling
-    push @$and, $self->date_field => { ">", $infos{start_date}} if($infos{start_date});
-    push @$and, $self->date_field => { "<", $infos{end_date}} if($infos{end_date});
+    push @$and, $self->date_field => { ">=", $infos{start_date}} if($infos{start_date});
+    push @$and, $self->date_field => { "<=", $infos{end_date}} if($infos{end_date});
 
     # Search handling
     # conditions = [
@@ -65,6 +71,11 @@ sub generate_sql_query {
             $logger->debug("Matching for any conditions for the provided search");
             push @$and, \@conditions;
         }
+    }
+
+    if(my $search = $infos{sql_abstract_search}) {
+        $logger->debug("Adding provided SQL abstract search");
+        push @$and, $search;
     }
 
     if(@{$self->base_conditions} > 0) {
@@ -150,39 +161,88 @@ sub query {
     my ($self, %infos) = @_;
     $self->ensure_default_infos(\%infos);
     my ($sql, $params) = $self->generate_sql_query(%infos);
-    my $print_params = join(", ", map { "'$_'" } @$params);
-    get_logger->debug("Executing query : $sql, with the following params : $print_params");
-    return $self->_db_data(REPORT, {'report_sql' => $sql}, 'report_sql', @$params);
+    get_logger->debug(sub { "Executing query : $sql, with the following params : " . join(", ", map { "'$_'" } @$params) });
+    return $self->_db_data($sql, @$params);
 }
 
 sub page_count {
     my ($self, %infos) = @_;
     $self->ensure_default_infos(\%infos);
     my ($sql, $params) = $self->generate_sql_query(%infos, count_only => 1);
-    my @results = $self->_db_data(REPORT, {'report_sql' => $sql}, 'report_sql', @$params);
-    my $pages = $results[0]->{count} / $infos{per_page};
+    my ($status, $results) = $self->_db_data($sql, @$params);
+    return undef if(is_error($status));
+
+    my $pages = $results->[0]->{count} / $infos{per_page};
     return (($pages == int($pages)) ? $pages : int($pages + 1));
 }
 
 sub _db_data {
-    my ($self, $from_module, $module_statements_ref, $query, @params) = @_;
-
-    my $sth = db_query_execute($from_module, $module_statements_ref, $query, @params) || return (0);
+    my ($self, $sql, @params) = @_;
 
     my ( $ref, @array );
+    my ($status, $sth) = pf::dal->db_execute($sql, @params);
+    if (is_error($status)) {
+        return ($status);
+    }
     # Going through data as array ref and putting it in ordered hash to respect the order of the select in the final report
     my $fields = $sth->{NAME};
-    my $fieldsLength = @$fields;
     while ( $ref = $sth->fetchrow_arrayref() ) {
         tie my %record, 'Tie::IxHash';
-        foreach my $i (0..($fieldsLength-1)) {
-            $record{$fields->[$i]} = $ref->[$i];
-        }
+        @record{@$fields} = @$ref;
         push( @array, \%record );
     }
     $sth->finish();
-    return (@array);
+    return (200, \@array);
 }
+
+=head2 is_person_field
+
+Check if a field is part of the person fields
+
+=cut
+
+sub is_person_field {
+    my ($self, $field) = @_;
+    return any { $_ eq $field } @{$self->person_fields};
+}
+
+=head2 is_node_field
+
+Check if a field is part of the node fields
+
+=cut
+
+sub is_node_field {
+    my ($self, $field) = @_;
+    return any { $_ eq $field } @{$self->node_fields};
+}
+
+=head1 AUTHOR
+
+Inverse inc. <info@inverse.ca>
+
+=head1 COPYRIGHT
+
+Copyright (C) 2016-2021 Inverse inc.
+
+=head1 LICENSE
+
+This program is free software; you can redistribute it and/or
+modify it under the terms of the GNU General Public License
+as published by the Free Software Foundation; either version 2
+of the License, or (at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program; if not, write to the Free Software
+Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301,
+USA.
+
+=cut
 
 1;
 

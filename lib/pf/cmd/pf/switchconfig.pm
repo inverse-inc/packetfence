@@ -33,7 +33,7 @@ sub configStoreName { "pf::ConfigStore::Switch" }
 
 sub display_fields {
     qw(id ip type mode inlineTrigger VoIPEnabled vlans normalVlan
-      registrationVlan isolationVlan macDetectionVlan guestVlan voiceVlan inlineVlan customVlan1 customVlan2 customVlan3 customVlan4 customVlan5
+      registrationVlan isolationVlan guestVlan voiceVlan inlineVlan customVlan1 customVlan2 customVlan3 customVlan4 customVlan5
       uplink deauthMethod cliTransport cliUser cliPwd cliEnablePwd wsTransport wsUser wsPwd SNMPVersionTrap SNMPCommunityTrap
       SNMPUserNameTrap SNMPAuthProtocolTrap SNMPAuthPasswordTrap SNMPPrivProtocolTrap SNMPPrivPasswordTrap SNMPVersion
       SNMPCommunityRead SNMPCommunityWrite SNMPEngineID SNMPUserNameRead SNMPAuthProtocolRead SNMPAuthPasswordRead
@@ -49,7 +49,7 @@ Minor parts of this file may have been contributed. See CREDITS.
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2017 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 

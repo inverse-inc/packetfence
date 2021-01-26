@@ -1,0 +1,86 @@
+.no-borders {
+  border-width: 0;
+}
+
+.no-border-radius {
+   border-radius: 0;
+}
+
+.is-borders {
+  transition: all 300ms ease;
+  &.input-group {
+    &.is-focus {
+      & > div,
+      & > input,
+      & > textarea {
+        border-color: $input-focus-border-color;
+      }
+    }
+    &.is-invalid {
+      & > div,
+      & > input,
+      & > textarea {
+        border-color: $form-feedback-invalid-color;
+      }
+    }
+    &.is-valid {
+      & > div,
+      & > input,
+      & > textarea {
+        border-color: $form-feedback-valid-color;
+      }
+    }
+    & > div,
+    & > input,
+    & > textarea {
+      border-color: transparent;
+      border-style: solid;
+      border-top-width: 1px;
+      border-right-width: 0;
+      border-bottom-width: 1px;
+      border-left-width: 0;
+
+      /* clip border-radius */
+      background-clip: border-box;
+      height: auto;
+
+      &:first-child {
+          border-top-left-radius: $border-radius;
+          border-bottom-left-radius: $border-radius;
+          border-left-width: 1px;
+      }
+      &:last-child {
+          border-top-right-radius: $border-radius;
+          border-bottom-right-radius: $border-radius;
+          border-right-width: 1px;
+      }
+    }
+    .input-group-prepend,
+    .input-group-append {
+      height: $input-height;
+    }
+  }
+}
+
+.nav-tabs > *:not(.nav-item) {
+  flex: 1 1 auto !important;
+  &.text-right {
+    justify-content: flex-end;
+    & > * {
+      justify-content: inherit;
+    }
+  }
+}
+
+.base-flex-wrap {
+  display: flex;
+  flex-wrap: wrap;
+  & > * {
+    flex: 1 0 !important;
+    margin: 0.25rem 0.25rem 0.25rem 0 !important;
+  }
+  .valid-feedback,
+  .invalid-feedback {
+    margin-bottom: 0.25rem !important;
+  }
+}

@@ -1,6 +1,26 @@
       <div class="modal modal-large fade hide" id="modalSwitch">
       </div>
 
+      <div class="modal modal-large fade hide" id="modalSwitchImport">
+        <iframe class="hidden" src="about:blank" id="iframe_form" name="iframe_form"></iframe>
+        <form autocomplete="off" name="modalSwitchImport" class="form-horizontal form-condensed" action="[% c.uri_for(c.controller.action_for('import_csv')) %]" enctype="multipart/form-data" method="post" target="iframe_form">
+          <div class="modal-header">
+            <a class="close" data-dismiss="modal">&times;</a>
+            <h3>[% l('Import switches from CSV') %] [% doc('_import_from_csv') | none %]</h3>
+          </div>
+        
+          <div class="modal-body">
+            [% import_form.field('importcsv').render | none %]
+            [% import_form.field('delimiter').render | none %]
+          </div><!--modal-body-->
+        
+          <div class="modal-footer">
+            <a href="#" class="btn" data-dismiss="modal">[% l('Close') %]</a>
+            [% IF can_access("SWITCHES_CREATE") %]<button type="submit" id="import_csv_btn" class="btn btn-primary" data-loading-text="[% l('Importing') %]">[% l('Import') %]</button>[% END %]
+          </div>
+        </form>
+      </div>
+
       <div class="modal fade hide" id="deleteSwitch">
         <div class="modal-header">
           <a class="close" data-dismiss="modal">&times;</a>
@@ -15,41 +35,29 @@
         </div>
       </div>
 
-      <div class="card">
-        <div class="card-title">
-          <h2>[% l('Switches') %] [% doc('_network_devices_definition_switches_conf') | none %]</h2>
-        </div>
-        <div class="card-block">
-      <div class="tab-content">
-        <ul class="nav nav-tabs">
-          <li [% IF controller_namespace == 'Config::Switch' %]class="active" [% END %]>
-            <a href="[% c.pf_hash_for(c.controller('Config::Switch').action_for('index'),[]) %]">[% l('Switches') %]</a>
-          </li>
-          <li [% IF controller_namespace == 'Config::SwitchGroup' %]class="active" [% END %]>
-            <a href="[% c.pf_hash_for(c.controller('Config::SwitchGroup').action_for('index'),[]) %]">[% l('Switch Groups') %]</a>
-          </li>
-        </ul>
-      </div>
+  <div class="card">
+    <div class="card-block">
       [% INCLUDE config/switch/list.tt %]
+    </div>
 
-      [%- IF can_access("SWITCHES_CREATE") %]
-      <div class="form-actions">
-
+    [%- IF can_access("SWITCHES_CREATE") %]
+      <div class="card-actions form-actions">
         [% IF controller_namespace == 'Config::Switch' %]
           <div class="btn-group">
-            <a class="btn dropdown-toggle" data-toggle="dropdown">[% l('Add switch to group') %] <span class="caret"></span></a>
+            <a class="btn dropdown-toggle" data-toggle="dropdown">[% l('Add switch') %] <span class="caret"></span></a>
             <ul class="dropdown-menu">
+              <li class="disabled"><a href="#">[% l('To group') %]</a></li>
               [% FOREACH group IN switch_groups %]
               <li><a class="createSwitch" href="[% c.uri_for(c.controller.action_for('create_in_group'), group) %]">[% group %]</a></li>
               [% #Add a separator after the default group %]
-              [% IF group == "default" %]<li role="separator" class="divider"></li>[% END %]
+              [% IF group == "default" && loop.count > 1 %]<li role="separator" class="divider"></li>[% END %]
               [% END %]
             </ul>
           </div>
         [% ELSE %]
           <a class="btn createSwitch" href="[% c.uri_for(c.controller.action_for('create')) %]">[% l('Add ' _ model_name) %]</a>
         [% END %]
+          <a href="#modalSwitchImport" id="importSwitchCsv" class="btn" data-toggle="modal">[% l('Import from CSV') %]</a>
       </div>
-      [%- END %]
-        </div>
-      </div>
+    [%- END %]
+  </div>

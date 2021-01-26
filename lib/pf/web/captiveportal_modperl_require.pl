@@ -16,7 +16,6 @@ BEGIN {
 
 use Cache::FileCache();
 use pf::config();
-use pf::useragent();
 use pf::util();
 use pf::web();
 use pf::web::guest();
@@ -30,7 +29,6 @@ use pf::locationlog();
 # by problem described here:
 # http://log4perl.sourceforge.net/releases/Log-Log4perl/docs/html/Log/Log4perl/FAQ.html#792b4
 
-our $useragent_cache = new Cache::FileCache( { 'namespace' => 'CaptivePortal_UserAgents' } );
 our $lost_devices_cache = new Cache::FileCache( { 'namespace' => 'CaptivePortal_LostDevices' } );
 
 =head1 AUTHOR
@@ -39,7 +37,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2017 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 

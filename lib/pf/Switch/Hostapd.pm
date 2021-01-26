@@ -43,8 +43,10 @@ use pf::util::radius qw(perform_disconnect);
 
 # CAPABILITIES
 # access technology supported
-sub supportsWirelessDot1x { return $TRUE; }
-sub supportsWirelessMacAuth { return $TRUE; }
+use pf::SwitchSupports qw(
+    WirelessDot1x
+    WirelessMacAuth
+);
 # inline capabilities
 sub inlineCapabilities { return ($MAC,$SSID); }
 
@@ -66,7 +68,7 @@ Return the reference to the deauth technique or the default deauth technique.
 =cut
 
 sub deauthTechniques {
-    my ($self, $method) = @_;
+    my ($self, $method, $connection_type) = @_;
     my $logger = $self->logger;
     my $default = $SNMP::RADIUS;
     my %tech = (
@@ -177,6 +179,44 @@ sub radiusDisconnect {
     return;
 }
 
+=item returnRadiusAccessAccept
+
+Prepares the RADIUS Access-Accept response for the network device.
+
+=cut
+
+
+sub returnRadiusAccessAccept {
+    my ($self, $args) = @_;
+    my $logger = $self->logger;
+
+    $args->{'unfiltered'} = $TRUE;
+    my @super_reply = @{$self->SUPER::returnRadiusAccessAccept($args)};
+    my $status = shift @super_reply;
+    my %radius_reply = @super_reply;
+    my $radius_reply_ref = \%radius_reply;
+    return [$status, %$radius_reply_ref] if($status == $RADIUS::RLM_MODULE_USERLOCK);
+
+    if ($args->{profile}->dpskEnabled()) {
+        if (defined($args->{owner}->{psk})) {
+            $radius_reply_ref = {
+                %$radius_reply_ref,
+                'Tunnel-Password' => $args->{owner}->{psk},
+            };
+        } else {
+            $radius_reply_ref = {
+                %$radius_reply_ref,
+                'Tunnel-Password' => $args->{profile}->{_default_psk_key},
+            };
+        }
+    }
+
+    my $filter = pf::access_filter::radius->new;
+    my $rule = $filter->test('returnRadiusAccessAccept', $args);
+    ($radius_reply_ref, $status) = $filter->handleAnswerInRule($rule,$args,$radius_reply_ref);
+    return [$status, %$radius_reply_ref];
+}
+
 
 =back
 
@@ -186,7 +226,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2017 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 

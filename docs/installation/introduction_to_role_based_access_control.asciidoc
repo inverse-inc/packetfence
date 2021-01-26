@@ -1,0 +1,111 @@
+// to display images directly on GitHub
+ifdef::env-github[]
+:encoding: UTF-8
+:lang: en
+:doctype: book
+:toc: left
+:imagesdir: ../images
+endif::[]
+
+////
+
+    This file is part of the PacketFence project.
+
+    See PacketFence_Network_Devices_Configuration_Guide-docinfo.xml for 
+    authors, copyright and license information.
+
+////
+
+//== Introduction to Role-based Access Control
+
+One important key concept from NAC solutions is for seggretating network accesses. For example, an employee from the finance department might not have the same network access level as an other employee from the marketing department. Guests should also not have the same access level as normal employees within an organization. PacketFence uses roles internally to identify and differentiate users. For seggretating network access, PacketFence can use one or all of the following techniques:
+
+[options="compact"]
+ * ACL
+ * VLAN or VLAN pool
+ * equipment role
+
+The techniques to use depends on the wired/WiFi equipment itself. A role in PacketFence will be eventually mapped to a VLAN, an ACL or an external role. You must define the roles to use in your organization for network access.
+
+In our previous configuration examples, we made use of two roles that come by default in PacketFence: default and guest. We will now add two new roles - one for consultants and one used to authenticate machines on the network.
+
+=== Adding Roles
+
+Roles in PacketFence can be created from _Configuration -> Policies and Access Control -> Roles_. From this interface, you can also limit the number of devices users belonging to certain roles can register.
+
+Roles are dynamically computed by PacketFence, based on the rules (ie., a set of conditions and actions) from authentication sources, using a first-match wins algorithm. Roles are then matched to VLAN or VLAN pool or internal roles or ACL on equipment from the _Configuration -> Policies and Access Control -> Switches_ module. For a VLAN pool instead of defining a VLAN identifier, you can set a value like that: 20..23,27..30 - which means that the VLAN returned by PacketFence can be 20 to 23 and 27 to 30 (inclusively). There are three algorithms: one based on a hash of the username (default one), another one based on a round-robin (last registered device +1) and one that selects a VLAN randomly in the pool.
+
+_Configuration -> Policies and Access Control -> Roles_, click on `New Role`. Provide the following information:
+
+[options="compact"]
+ * Name: employee
+ * Description: Role used for employees
+ * Max nodes per user: 2
+
+Redo the operation of the other role:
+
+[options="compact"]
+ * Name: corporate_machine
+ * Description: Corporate owned machines
+ * Max nodes per user: 1
+
+Let's say we have two roles: employee and corporate_machine (defined above).
+
+Now, we want to assign roles to employees and their corporate machines using Active Directory (over LDAP), both using PacketFence's captive portal.
+
+=== Using the Employee Role
+
+From the _Configuration -> Policies and Access Control -> Authentication Sources_, we select `New internal source -> AD`. We provide the following information:
+
+[options="compact"]
+* *Name:* ad1
+* *Description:* Active Directory for Employees
+* *Host:* 192.168.1.2:389 without SSL/TLS
+* *Base DN:* CN=Users,DC=acme,DC=local
+* *Scope:* subtree
+* *Username Attribute:* sAMAccountName
+* *Bind DN:* CN=Administrator,CN=Users,DC=acme,DC=local
+* *Password:* acme123
+
+Then, we add an *Authentication rules* by clicking on the `Add rule` button and provide the following information:
+
+[options="compact"]
+* *Name:* employees
+* *Description:* Rule for all employees
+* Don't set any condition (as it's a catch-all rule)
+* Set the following *actions:*
+  * Role - employee
+  * Access duration - 7 days
+
+Test the connection and save everything. Using the newly defined source, any username that actually matches in the source (using the *sAMAccountName*) will have the employee role and a 7 days Access Duration.
+
+=== Using the Corporate_Machine Role
+
+If you would like to differentiate user authentication and machine authentication using Active Directory, one way to do it is by creating a second authentication sources, for machines:
+
+[options="compact"]
+* *Name:* ad2
+* *Description:* Active Directory for Corporate Machines 
+* *Host:* 192.168.1.2:389 without SSL/TLS
+* *Base DN:* CN=Computers,DC=acme,DC=local
+* *Scope:* One-level
+* *Username Attribute:* servicePrincipalName
+* *Bind DN:* CN=Administrator,CN=Users,DC=acme,DC=local
+* *Password:* acme123
+
+Then, we add an 'Authentication rules':
+
+[options="compact"]
+* *Name:* machines
+* *Description:* Rule for corporate machines
+* Don't set any condition (as it's a catch-all rule)
+* Set the following *actions:*
+  * Role - corporate_machine
+  * Access duration - 7 days
+
+Using this configuration, employees can only connect corporate machines, not personal devices.
+
+NOTE: When a rule is defined as a catch-all, it will always match if the username attribute matches the queried one. This applies for Active Directory, LDAP and Apache htpasswd file sources. Kerberos and RADIUS will act as true catch-all, and accept everything.
+
+NOTE: If you want to use other LDAP attributes in your authentication source, add them in _Configuration -> System Configuration -> Main Configuration -> Advanced -> Custom LDAP attributes_. They will then be available in the rules you define.
+

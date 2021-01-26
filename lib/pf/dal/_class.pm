@@ -21,6 +21,7 @@ use warnings;
 ### pf::dal::_class is auto generated any change to this file will be lost
 ### Instead change in the pf::dal::class module
 ###
+
 use base qw(pf::dal);
 
 our @FIELD_NAMES;
@@ -28,10 +29,11 @@ our @INSERTABLE_FIELDS;
 our @PRIMARY_KEYS;
 our %DEFAULTS;
 our %FIELDS_META;
+our @COLUMN_NAMES;
 
 BEGIN {
     @FIELD_NAMES = qw(
-        vid
+        security_event_id
         description
         auto_enable
         max_enables
@@ -51,7 +53,7 @@ BEGIN {
     );
 
     %DEFAULTS = (
-        vid => '',
+        security_event_id => '',
         description => 'none',
         auto_enable => 'Y',
         max_enables => '0',
@@ -71,7 +73,7 @@ BEGIN {
     );
 
     @INSERTABLE_FIELDS = qw(
-        vid
+        security_event_id
         description
         auto_enable
         max_enables
@@ -91,7 +93,7 @@ BEGIN {
     );
 
     %FIELDS_META = (
-        vid => {
+        security_event_id => {
             type => 'INT',
             is_auto_increment => 0,
             is_primary_key => 1,
@@ -196,8 +198,29 @@ BEGIN {
     );
 
     @PRIMARY_KEYS = qw(
-        vid
+        security_event_id
     );
+
+    @COLUMN_NAMES = qw(
+        class.security_event_id
+        class.description
+        class.auto_enable
+        class.max_enables
+        class.grace_period
+        class.window
+        class.vclose
+        class.priority
+        class.template
+        class.max_enable_url
+        class.redirect_url
+        class.button_text
+        class.enabled
+        class.vlan
+        class.target_category
+        class.delay_by
+        class.external_command
+    );
+
 }
 
 use Class::XSAccessor {
@@ -214,13 +237,13 @@ sub _defaults {
     return {%DEFAULTS};
 }
 
-=head2 field_names
+=head2 table_field_names
 
 Field names of class
 
 =cut
 
-sub field_names {
+sub table_field_names {
     return [@FIELD_NAMES];
 }
 
@@ -246,6 +269,16 @@ our $FIND_SQL = do {
     my $where = join(", ", map { "$_ = ?" } @PRIMARY_KEYS);
     "SELECT * FROM `class` WHERE $where;";
 };
+
+=head2 find_columns
+
+find_columns
+
+=cut
+
+sub find_columns {
+    return [@COLUMN_NAMES];
+}
 
 =head2 _find_one_sql
 
@@ -286,14 +319,14 @@ Get the meta data for class
 sub get_meta {
     return \%FIELDS_META;
 }
- 
+
 =head1 AUTHOR
 
 Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2017 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 

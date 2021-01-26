@@ -11,11 +11,6 @@ use strict;
 use warnings;
 use pf::log;
 
-use constant DASHBOARD => 'pfcmd::dashboard';
-
-use pf::db;
-use pf::pfcmd::report;
-
 BEGIN {
     use Exporter ();
     our ( @ISA, @EXPORT );
@@ -24,9 +19,9 @@ BEGIN {
         $dashboard_db_prepared
         dashboard_db_prepare
 
-        nugget_recent_violations
-        nugget_recent_violations_opened
-        nugget_recent_violations_closed
+        nugget_recent_security_events
+        nugget_recent_security_events_opened
+        nugget_recent_security_events_closed
         nugget_recent_registrations
         nugget_current_grace
         nugget_current_activity
@@ -34,61 +29,57 @@ BEGIN {
     );
 };
 
-use pf::db;
+use pf::dal;
+use pf::error qw(is_error);
 use pf::pfcmd::report;
 
-# The next two variables and the _prepare sub are required for database handling magic (see pf::db)
-our $dashboard_db_prepared = 0;
-# in this hash reference we hold the database statements. We pass it to the query handler and he will repopulate
-# the hash if required
-our $dashboard_statements = {};
+our $nugget_recent_security_events_sql =
+        qq [ select v.mac,v.start_date,c.description as security_event from security_event v left join class c on v.security_event_id=c.security_event_id where unix_timestamp(start_date) > unix_timestamp(now()) - ? * 3600 order by start_date desc limit 10 ];
 
-sub dashboard_db_prepare {
-    my $logger = get_logger();
-    $logger->debug("Preparing pf::pfcmd::dashboard database queries");
+our $nugget_recent_security_events_opened_sql =
+        qq [ select v.mac,v.start_date,c.description as security_event from security_event v left join class c on v.security_event_id=c.security_event_id where unix_timestamp(start_date) > unix_timestamp(now()) - ? * 3600 and v.status="open" order by start_date desc limit 10 ];
 
-    $dashboard_statements->{'nugget_recent_violations_sql'} = get_db_handle()->prepare(
-        qq [ select v.mac,v.start_date,c.description as violation from violation v left join class c on v.vid=c.vid where unix_timestamp(start_date) > unix_timestamp(now()) - ? * 3600 order by start_date desc limit 10 ]);
+our $nugget_recent_security_events_closed_sql =
+        qq [ select v.mac,v.start_date,c.description as security_event from security_event v left join class c on v.security_event_id=c.security_event_id where unix_timestamp(start_date) > unix_timestamp(now()) - ? * 3600 and v.status="closed" order by start_date desc limit 10 ];
 
-    $dashboard_statements->{'nugget_recent_violations_opened_sql'} = get_db_handle()->prepare(
-        qq [ select v.mac,v.start_date,c.description as violation from violation v left join class c on v.vid=c.vid where unix_timestamp(start_date) > unix_timestamp(now()) - ? * 3600 and v.status="open" order by start_date desc limit 10 ]);
+our $nugget_recent_registrations_sql =
+        qq [ select n.pid,n.mac,n.regdate from node n where n.status="reg" and unix_timestamp(regdate) > unix_timestamp(now()) - ? * 3600 order by regdate desc limit 10 ];
 
-    $dashboard_statements->{'nugget_recent_violations_closed_sql'} = get_db_handle()->prepare(
-        qq [ select v.mac,v.start_date,c.description as violation from violation v left join class c on v.vid=c.vid where unix_timestamp(start_date) > unix_timestamp(now()) - ? * 3600 and v.status="closed" order by start_date desc limit 10 ]);
+our $nugget_current_grace_sql =
+        qq [ select n.pid,n.lastskip from node n where status="grace" order by n.lastskip desc limit 10 ];
 
-    $dashboard_statements->{'nugget_recent_registrations_sql'} = get_db_handle()->prepare(
-        qq [ select n.pid,n.mac,n.regdate from node n where n.status="reg" and unix_timestamp(regdate) > unix_timestamp(now()) - ? * 3600 order by regdate desc limit 10 ]);
 
-    $dashboard_statements->{'nugget_current_grace_sql'} = get_db_handle()->prepare(
-        qq [ select n.pid,n.lastskip from node n where status="grace" order by n.lastskip desc limit 10 ]);
-
-    $dashboard_db_prepared = 1;
-
-    return 1;
+sub nugget_recent_security_events {
+    my ($interval) = @_;
+    return _db_data($nugget_recent_security_events_sql, $interval);
 }
 
-sub nugget_recent_violations {
-    my ($interval) = @_;
-    return db_data(DASHBOARD, $dashboard_statements, 'nugget_recent_violations_sql', $interval);
+sub _db_data {
+   my ($sql, @bind) = @_;
+   my ($status, $sth) = pf::dal->db_execute($sql, @bind);
+    if (is_error($status)) {
+        return;
+    }
+    return @{$sth->fetchall_arrayref() // []};
 }
 
-sub nugget_recent_violations_opened {
+sub nugget_recent_security_events_opened {
     my ($interval) = @_;
-    return db_data(DASHBOARD, $dashboard_statements, 'nugget_recent_violations_opened_sql', $interval);
+    return _db_data($nugget_recent_security_events_opened_sql, $interval);
 }
 
-sub nugget_recent_violations_closed {
+sub nugget_recent_security_events_closed {
     my ($interval) = @_;
-    return db_data(DASHBOARD, $dashboard_statements, 'nugget_recent_violations_closed_sql', $interval);
+    return _db_data($nugget_recent_security_events_closed_sql, $interval);
 }
 
 sub nugget_recent_registrations {
     my ($interval) = @_;
-    return db_data(DASHBOARD, $dashboard_statements, 'nugget_recent_registrations_sql', $interval);
+    return _db_data($nugget_recent_registrations_sql, $interval);
 }
 
 sub nugget_current_grace {
-    return db_data(DASHBOARD, $dashboard_statements, 'nugget_current_grace_sql');
+    return _db_data($nugget_current_grace_sql);
 }
 
 sub nugget_current_activity {
@@ -133,7 +124,7 @@ Minor parts of this file may have been contributed. See CREDITS.
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2017 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 Copyright (C) 2005 Kevin Amorin
 

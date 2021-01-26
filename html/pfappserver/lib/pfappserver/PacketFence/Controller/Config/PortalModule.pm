@@ -142,6 +142,7 @@ after view => sub {
     my ($self, $c) = @_;
     $c->stash->{node_roles} = $c->model('Config::Roles')->listFromDB();
     $c->stash->{access_durations} = [split(/\s*,\s*/, $Config{'guests_admin_registration'}{'access_duration_choices'})];
+    $c->stash->{root_modules} = [map { $_->{id} } $self->getModel($c)->configStore->search("type", "Root", "id")];
 };
 
 sub _module_as_hashref : Private {
@@ -169,7 +170,7 @@ sub create_type : Path('create') : Args(1) {
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2017 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 
@@ -190,6 +191,6 @@ USA.
 
 =cut
 
-__PACKAGE__->meta->make_immutable;
+__PACKAGE__->meta->make_immutable unless $ENV{"PF_SKIP_MAKE_IMMUTABLE"};
 
 1;

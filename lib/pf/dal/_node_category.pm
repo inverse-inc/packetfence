@@ -21,6 +21,7 @@ use warnings;
 ### pf::dal::_node_category is auto generated any change to this file will be lost
 ### Instead change in the pf::dal::node_category module
 ###
+
 use base qw(pf::dal);
 
 our @FIELD_NAMES;
@@ -28,6 +29,7 @@ our @INSERTABLE_FIELDS;
 our @PRIMARY_KEYS;
 our %DEFAULTS;
 our %FIELDS_META;
+our @COLUMN_NAMES;
 
 BEGIN {
     @FIELD_NAMES = qw(
@@ -35,18 +37,27 @@ BEGIN {
         name
         max_nodes_per_pid
         notes
+        include_parent_acls
+        fingerbank_dynamic_access_list
+        acls
     );
 
     %DEFAULTS = (
         name => '',
         max_nodes_per_pid => '0',
         notes => undef,
+        include_parent_acls => undef,
+        fingerbank_dynamic_access_list => undef,
+        acls => '',
     );
 
     @INSERTABLE_FIELDS = qw(
         name
         max_nodes_per_pid
         notes
+        include_parent_acls
+        fingerbank_dynamic_access_list
+        acls
     );
 
     %FIELDS_META = (
@@ -74,11 +85,40 @@ BEGIN {
             is_primary_key => 0,
             is_nullable => 1,
         },
+        include_parent_acls => {
+            type => 'VARCHAR',
+            is_auto_increment => 0,
+            is_primary_key => 0,
+            is_nullable => 1,
+        },
+        fingerbank_dynamic_access_list => {
+            type => 'VARCHAR',
+            is_auto_increment => 0,
+            is_primary_key => 0,
+            is_nullable => 1,
+        },
+        acls => {
+            type => 'TEXT',
+            is_auto_increment => 0,
+            is_primary_key => 0,
+            is_nullable => 0,
+        },
     );
 
     @PRIMARY_KEYS = qw(
         category_id
     );
+
+    @COLUMN_NAMES = qw(
+        node_category.category_id
+        node_category.name
+        node_category.max_nodes_per_pid
+        node_category.notes
+        node_category.include_parent_acls
+        node_category.fingerbank_dynamic_access_list
+        node_category.acls
+    );
+
 }
 
 use Class::XSAccessor {
@@ -95,13 +135,13 @@ sub _defaults {
     return {%DEFAULTS};
 }
 
-=head2 field_names
+=head2 table_field_names
 
 Field names of node_category
 
 =cut
 
-sub field_names {
+sub table_field_names {
     return [@FIELD_NAMES];
 }
 
@@ -127,6 +167,16 @@ our $FIND_SQL = do {
     my $where = join(", ", map { "$_ = ?" } @PRIMARY_KEYS);
     "SELECT * FROM `node_category` WHERE $where;";
 };
+
+=head2 find_columns
+
+find_columns
+
+=cut
+
+sub find_columns {
+    return [@COLUMN_NAMES];
+}
 
 =head2 _find_one_sql
 
@@ -167,14 +217,14 @@ Get the meta data for node_category
 sub get_meta {
     return \%FIELDS_META;
 }
- 
+
 =head1 AUTHOR
 
 Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2017 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 

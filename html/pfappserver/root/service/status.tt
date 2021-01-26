@@ -9,13 +9,24 @@
     <button type="button" data-dismiss="modal" class="btn btn-primary btn-danger">[% l('Stop Anyway') %]</button>
   </div>
 </div>
+<div class="modal fade hide" id="confirmRestart">
+  <div class="modal-header"><h3>[% l('Warning!') %]</h3></div>
+  <div class="modal-body">
+    <p>[% l('The web admin interface will no longer be accessible while restarting this service.') %]</p>
+    <p>[% l('Are you sure you want to continue?') %]</p>
+  </div>
+  <div class="modal-footer">
+    <button class="btn" data-dismiss="modal">[% l('Cancel') %]</button>
+    <button type="button" data-dismiss="modal" class="btn btn-primary btn-danger">[% l('Restart Anyway') %]</button>
+  </div>
+</div>
 <div class="card">
   <h2 class="card-title">[% l('Services on:') %] [% server_hostname %]</h2>
     <div class="form-actions">
       <div class="pull-right">
-        <button type="submit" class="btn btn-danger" data-toggle="modal" data-confirm-stop-href="[%c.uri_for(c.controller.action_for('stop'),['pf'])%]" data-target="#confirmStop" ><i class="icon-fixed-width icon-stop"></i> [% l('Stop All') %]</button>
-        <button type="submit" class="btn btn-success" data-href-background="[%c.uri_for(c.controller.action_for('start'),['pf'])%]"><i class="icon-fixed-width icon-play"></i> [% l('Start All') %]</button>
-        <button type="submit" class="btn btn-warning" data-href-background="[%c.uri_for(c.controller.action_for('restart'),['pf'])%]"><i class="icon-fixed-width icon-refresh"></i> [% l('Restart All') %]</button>
+        <button type="submit" class="btn btn-danger" data-toggle="modal" data-confirm-stop-href="[%c.uri_for(c.controller.action_for('stop'), ['pf'])%]" data-target="#confirmStop" ><i class="icon-fixed-width icon-stop"></i> [% l('Stop All') %]</button>
+        <button type="submit" class="btn btn-success" data-href-background="[%c.uri_for(c.controller.action_for('start'), ['pf'])%]"><i class="icon-fixed-width icon-play"></i> [% l('Start All') %]</button>
+        <button type="submit" class="btn btn-warning" data-restart-admin="[%c.uri_for(c.controller.action_for('restart'), ['pf'])%]"><i class="icon-fixed-width icon-refresh"></i> [% l('Restart All') %]</button>
       </div>
     </div>
     <div class="card-block">
@@ -30,7 +41,7 @@
     <tbody>
       [%- FOREACH service IN services %]
       <tr>
-        <td>[% service.name %]</td>
+        <td [% IF !service.is_managed %] class="muted" [% END %]>[% service.name %] </td>
         <td>
           <span id="service-[% service.name %]"
           class="label[% IF service.status %] label-success[% END %]">
@@ -40,20 +51,24 @@
           <span class="pull-right">
             [% IF service.status -%]
                 [% IF service.name == "httpd.admin"%]
-                    <a class="btn btn-small btn-danger" data-target="#confirmStop" data-toggle="modal" data-confirm-stop-href="[%c.uri_for(c.controller.action_for('stop'),[service.name])%]"><i class="icon-fixed-width icon-stop"></i> [% l('Stop') %]</a>
+                    <a class="btn btn-small btn-danger" data-target="#confirmStop" data-toggle="modal" data-confirm-stop-href="[%c.uri_for(c.controller.action_for('stop'), [service.name])%]"><i class="icon-fixed-width icon-stop"></i> [% l('Stop') %]</a>
+                    <button type="button" class="btn btn-warning" data-restart-admin="[%c.uri_for(c.controller.action_for('restart'), ['service.name'])%]"><i class="icon-fixed-width icon-refresh"></i> [% l('Restart') %]</button>
+                [% ELSIF service.name == "haproxy-admin"%]
+                    <a class="btn btn-small btn-danger" data-target="#confirmStop" data-toggle="modal" data-confirm-stop-href="[%c.uri_for(c.controller.action_for('stop'), [service.name])%]"><i class="icon-fixed-width icon-stop"></i> [% l('Stop') %]</a>
+                    <button type="button" class="btn btn-warning" data-restart-admin="[%c.uri_for(c.controller.action_for('restart'), ['service.name'])%]"><i class="icon-fixed-width icon-refresh"></i> [% l('Restart') %]</button>
                 [% ELSE -%]
-                    <a class="btn btn-small btn-danger" data-href-background="[%c.uri_for(c.controller.action_for('stop'),[service.name])%]"><i class="icon-fixed-width icon-stop"></i> [% l('Stop') %]</a>
+                    <a class="btn btn-small btn-danger" data-href-background="[%c.uri_for(c.controller.action_for('stop'), [service.name])%]"><i class="icon-fixed-width icon-stop"></i> [% l('Stop') %]</a>
+                    <a class="btn btn-small" data-href-background="[%c.uri_for(c.controller.action_for('restart'), [service.name])%]"><i class="icon-fixed-width icon-refresh"></i> [% l('Restart') %]</a>
                 [% END -%]
-                <a class="btn btn-small" data-href-background="[%c.uri_for(c.controller.action_for('restart'),[service.name])%]"><i class="icon-fixed-width icon-refresh"></i> [% l('Restart') %]</a>
             [% ELSE -%]
-            <a class="btn btn-small btn-success" data-href-background="[%c.uri_for(c.controller.action_for('start'),[service.name])%]"><i class="icon-fixed-width icon-play"></i> [% l('Start') %]</a>
+            <a class="btn btn-small btn-success" data-href-background="[%c.uri_for(c.controller.action_for('start'), [service.name])%]"><i class="icon-fixed-width icon-play"></i> [% l('Start') %]</a>
             [% END -%]
           </span>
         </td>
       </tr>
       [% FOREACH subservice IN service.managers %]
       <tr>
-        <td>--&nbsp;[% subservice.name %]</td>
+        <td [% IF !service.is_managed %]class="muted"[% END %]>--&nbsp;[% subservice.name %]</td>
         <td>
           <span id="service-[% subservice.name %]"
           class="label[% IF subservice.status %] label-success[% END %]">
@@ -68,9 +83,9 @@
 </div>
     <div class="form-actions">
       <div class="pull-right">
-        <button type="submit" class="btn btn-danger" data-toggle="modal" data-confirm-stop-href="[%c.uri_for(c.controller.action_for('stop'),['pf'])%]" data-target="#confirmStop" ><i class="icon-fixed-width icon-stop"></i> [% l('Stop All') %]</button>
-        <button type="submit" class="btn btn-success" data-href-background="[%c.uri_for(c.controller.action_for('start'),['pf'])%]"><i class="icon-fixed-width icon-play"></i> [% l('Start All') %]</button>
-        <button type="submit" class="btn btn-warning" data-href-background="[%c.uri_for(c.controller.action_for('restart'),['pf'])%]"><i class="icon-fixed-width icon-refresh"></i> [% l('Restart All') %]</button>
+        <button type="submit" class="btn btn-danger" data-toggle="modal" data-confirm-stop-href="[%c.uri_for(c.controller.action_for('stop'), ['pf'])%]" data-target="#confirmStop" ><i class="icon-fixed-width icon-stop"></i> [% l('Stop All') %]</button>
+        <button type="submit" class="btn btn-success" data-href-background="[%c.uri_for(c.controller.action_for('start'), ['pf'])%]"><i class="icon-fixed-width icon-play"></i> [% l('Start All') %]</button>
+        <button type="submit" class="btn btn-warning" data-restart-admin="[%c.uri_for(c.controller.action_for('restart'), ['pf'])%]"><i class="icon-fixed-width icon-refresh"></i> [% l('Restart All') %]</button>
       </div>
     </div>
 </div>

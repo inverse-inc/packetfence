@@ -21,17 +21,23 @@ use warnings;
 ### pf::dal::_auth_log is auto generated any change to this file will be lost
 ### Instead change in the pf::dal::auth_log module
 ###
+
 use base qw(pf::dal);
+
+use Role::Tiny::With;
+with qw(pf::dal::roles::has_tenant_id);
 
 our @FIELD_NAMES;
 our @INSERTABLE_FIELDS;
 our @PRIMARY_KEYS;
 our %DEFAULTS;
 our %FIELDS_META;
+our @COLUMN_NAMES;
 
 BEGIN {
     @FIELD_NAMES = qw(
         id
+        tenant_id
         process_name
         mac
         pid
@@ -39,9 +45,11 @@ BEGIN {
         attempted_at
         completed_at
         source
+        profile
     );
 
     %DEFAULTS = (
+        tenant_id => '1',
         process_name => '',
         mac => '',
         pid => 'default',
@@ -49,9 +57,11 @@ BEGIN {
         attempted_at => '',
         completed_at => undef,
         source => '',
+        profile => undef,
     );
 
     @INSERTABLE_FIELDS = qw(
+        tenant_id
         process_name
         mac
         pid
@@ -59,6 +69,7 @@ BEGIN {
         attempted_at
         completed_at
         source
+        profile
     );
 
     %FIELDS_META = (
@@ -66,6 +77,12 @@ BEGIN {
             type => 'INT',
             is_auto_increment => 1,
             is_primary_key => 1,
+            is_nullable => 0,
+        },
+        tenant_id => {
+            type => 'INT',
+            is_auto_increment => 0,
+            is_primary_key => 0,
             is_nullable => 0,
         },
         process_name => {
@@ -110,11 +127,31 @@ BEGIN {
             is_primary_key => 0,
             is_nullable => 0,
         },
+        profile => {
+            type => 'VARCHAR',
+            is_auto_increment => 0,
+            is_primary_key => 0,
+            is_nullable => 1,
+        },
     );
 
     @PRIMARY_KEYS = qw(
         id
     );
+
+    @COLUMN_NAMES = qw(
+        auth_log.id
+        auth_log.tenant_id
+        auth_log.process_name
+        auth_log.mac
+        auth_log.pid
+        auth_log.status
+        auth_log.attempted_at
+        auth_log.completed_at
+        auth_log.source
+        auth_log.profile
+    );
+
 }
 
 use Class::XSAccessor {
@@ -131,13 +168,13 @@ sub _defaults {
     return {%DEFAULTS};
 }
 
-=head2 field_names
+=head2 table_field_names
 
 Field names of auth_log
 
 =cut
 
-sub field_names {
+sub table_field_names {
     return [@FIELD_NAMES];
 }
 
@@ -163,6 +200,16 @@ our $FIND_SQL = do {
     my $where = join(", ", map { "$_ = ?" } @PRIMARY_KEYS);
     "SELECT * FROM `auth_log` WHERE $where;";
 };
+
+=head2 find_columns
+
+find_columns
+
+=cut
+
+sub find_columns {
+    return [@COLUMN_NAMES];
+}
 
 =head2 _find_one_sql
 
@@ -203,14 +250,14 @@ Get the meta data for auth_log
 sub get_meta {
     return \%FIELDS_META;
 }
- 
+
 =head1 AUTHOR
 
 Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2017 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 

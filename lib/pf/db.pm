@@ -40,34 +40,32 @@ use constant PREPARED_VAR      => '_db_prepared'; # prepare flag with <modulenam
 use constant PREPARE_PF_PREFIX => 'pf::';         # prefix to access exported _prepare(d) variables
 
 our $MYSQL_READONLY_ERROR = 1290;
+our $WSREP_NOT_READY_ERROR = 1047;
 
 our ( $DBH, $LAST_CONNECT, $DB_Config, $NO_DIE_ON_DBH_ERROR );
+
+our $MAX_STATEMENT_TIME = 0.0;
 
 BEGIN {
     use Exporter ();
     our ( @ISA, @EXPORT );
     @ISA    = qw(Exporter);
-    @EXPORT = qw(db_data db_connect db_disconnect get_db_handle db_query_execute db_ping db_cancel_current_query db_now db_readonly_mode db_check_readonly $MYSQL_READONLY_ERROR);
+    @EXPORT = qw(db_data db_connect db_disconnect get_db_handle db_query_execute db_ping db_cancel_current_query db_now db_readonly_mode db_check_readonly db_set_max_statement_timeout $MYSQL_READONLY_ERROR);
 
 }
 
 sub CLONE {
     if($DBH) {
-        $DBH = undef;
-        $LAST_CONNECT = 0;
-    }
-}
-
-sub AT_FORK_CHILD {
-    if ($DBH) {
+        my $clone = $DBH->clone();
         $DBH->{InactiveDestroy} = 1;
-        $DBH->disconnect;
         undef $DBH;
-        $LAST_CONNECT = 0;
+        $DBH = $clone;
+        $LAST_CONNECT = time();
+        on_connect($DBH);
     }
 }
 
-POSIX::AtFork->add_to_child(\&AT_FORK_CHILD);
+POSIX::AtFork->add_to_child(\&CLONE);
 
 END {
     $DBH->disconnect if $DBH;
@@ -87,54 +85,128 @@ manages the list of database connection handler per thread
 =cut
 
 sub db_connect {
-    my ($mydbh) = @_;
+    if (is_old_connection_good($DBH)) {
+        return $DBH;
+    }
     my $logger = get_logger();
-    $mydbh = 0 if ( !defined $mydbh );
-    my $caller = ( caller(1) )[3] || basename($0);
-    $logger->debug("function $caller is calling db_connect");
+    $logger->debug("(Re)Connecting to MySQL (pid: $$)");
+    my ($dsn, $user, $pass) = db_data_source_info();
+    # make sure we have a database handle
+    if ( $DBH = DBI->connect($dsn, $user, $pass, { RaiseError => 0, PrintError => 0, mysql_auto_reconnect => 1 })) {
+        $logger->debug("connected");
+        return on_connect($DBH);
+    }
 
-    $mydbh = $DBH if ($DBH);
+    $logger->logcroak("unable to connect to database: " . $DBI::errstr) unless $NO_DIE_ON_DBH_ERROR;
+    $logger->error("unable to connect to database: " . $DBI::errstr);
+    $pf::StatsD::statsd->increment(called() . ".error.count" );
+    return ();
+}
 
-    my $recently_connected = (defined($LAST_CONNECT) && $LAST_CONNECT && (time()-$LAST_CONNECT < 30));
-    if ($recently_connected && $mydbh) {
+=head2 is_old_connection_good
+
+is_old_connection_good
+
+=cut
+
+sub is_old_connection_good {
+    my ($dbh) = @_;
+    my $logger = get_logger();
+    if (!defined $dbh) {
+        return 0;
+    }
+
+    if (was_recently_connected()) {
         $logger->debug("not checking db handle, it has been less than 30 sec from last connection");
-        return $mydbh;
+        return 1;
     }
 
     $logger->debug("checking handle");
-    if ( $mydbh && $mydbh->ping() ) {
+    if ( $dbh->ping() ) {
         $LAST_CONNECT = time();
         $logger->debug("we are currently connected");
-        return $mydbh;
+        return 1;
     }
 
-    $logger->debug("(Re)Connecting to MySQL (pid: $$)");
+    return 0;
+}
 
-    my $host = $DB_Config->{'host'};
-    my $port = $DB_Config->{'port'};
-    my $user = $DB_Config->{'user'};
-    my $pass = $DB_Config->{'pass'};
-    my $db   = $DB_Config->{'db'};
+=head2 was_recently_connected
 
-    # TODO database prepared statements are disabled by default in dbd::mysql
-    # we should test with them, see http://search.cpan.org/~capttofu/DBD-mysql-4.013/lib/DBD/mysql.pm#DESCRIPTION
-    $mydbh = DBI->connect( "dbi:mysql:dbname=$db;host=$host;port=$port;mysql_client_found_rows=0",
-        $user, $pass, { RaiseError => 0, PrintError => 0, mysql_auto_reconnect => 1 } );
+was_recently_connected
 
-    # make sure we have a database handle
-    if ($mydbh) {
+=cut
 
-        $logger->debug("connected");
-        $LAST_CONNECT = time();
-        $DBH = $mydbh;
-        return ($mydbh);
+sub was_recently_connected {
+    return defined($LAST_CONNECT) && $LAST_CONNECT && (time()-$LAST_CONNECT < 30);
+}
 
-    } else {
-        $logger->logcroak("unable to connect to database: " . $DBI::errstr) unless $NO_DIE_ON_DBH_ERROR;
-        $logger->error("unable to connect to database: " . $DBI::errstr);
-        $pf::StatsD::statsd->increment(called() . ".error.count" );
-        return ();
+=head2 on_connect
+
+on_connect
+
+=cut
+
+sub on_connect {
+    my ($dbh) = @_;
+    $LAST_CONNECT = time();
+    if (my $sql = init_command($dbh)) {
+        $dbh->do($sql);
     }
+    return $dbh;
+}
+
+=head2 db_data_source_info
+
+db_data_source_info
+
+=cut
+
+sub db_data_source_info {
+    my ($self) = @_;
+    my $config = db_config();
+    my $dsn = "dbi:mysql:dbname=$config->{db};host=$config->{host};port=$config->{port};mysql_client_found_rows=0";
+    get_logger->trace(sub {"connecting with $dsn"});
+
+    return (
+        $dsn,
+        $config->{user},
+        $config->{pass},
+    );
+}
+
+=head2 init_command
+
+init_command
+
+=cut
+
+sub init_command {
+    my ($dbh) = @_;
+    my $sql = '';
+    if (my $new_timeout = db_get_max_statement_timeout()) {
+        my ($name, $current_timeout) = $dbh->selectrow_array("SHOW VARIABLES WHERE Variable_name in ('max_statement_time', 'max_execution_time')");
+        if ($name) {
+            $sql .= "SET SESSION $name=" . convert_timeout($current_timeout, $new_timeout);
+        }
+    }
+    return $sql;
+}
+
+sub convert_timeout {
+    my ($current_timeout, $new_timeout) = @_;
+    $new_timeout = int($new_timeout * 1000) if $current_timeout =~ /^\d+$/;#If the current value is a pure integer then convert timeout to millisecond
+    return $new_timeout;
+}
+
+=head2 db_config
+
+db config
+
+=cut
+
+sub db_config {
+    return {%$DB_Config};
 }
 
 =item * db_ping
@@ -159,7 +231,7 @@ db_handle_error
 
 sub db_handle_error {
     my ($err) = @_;
-    if ($err == $MYSQL_READONLY_ERROR) {
+    if ($err == $MYSQL_READONLY_ERROR || $err == $WSREP_NOT_READY_ERROR) {
         db_set_readonly_mode(1);
     }
     return ;
@@ -175,6 +247,7 @@ sub db_disconnect {
         $logger->debug("disconnecting db");
         $DBH->disconnect();
         $LAST_CONNECT = 0;
+        $DBH = undef;
     }
 }
 
@@ -360,7 +433,10 @@ sub db_query_execute {
     }
     if ($done) {
         if (defined $dbi_err && $dbi_err == $MYSQL_READONLY_ERROR) {
-            $logger->warn("Database issue: attempting to update a readonly database");
+            $logger->warn("Database issue: attempting to update a readonly database (read_only is ON)");
+        }
+        elsif (defined $dbi_err && $dbi_err == $WSREP_NOT_READY_ERROR) {
+            $logger->warn("Database issue: attempting to update a database that is not ready for writes (wsrep_ready is OFF)");
         }
         else {
             $logger->error("Database issue: Failed with a non-repeatable error with query $query");
@@ -460,11 +536,53 @@ sub db_readonly_mode {
         db_connect()
     };
     return 0 unless $dbh;
+
+    # check if the read_only flag is set
     my $sth = $dbh->prepare_cached('SELECT @@global.read_only;');
     return 0 unless $sth->execute;
     my $row = $sth->fetch;
     $sth->finish;
-    return $row->[0];
+    my $readonly = $row->[0];
+    # If readonly no need to check wsrep health
+    return 1 if $readonly;
+    # If wsrep is not healthly then it is in readonly mode
+    return !db_wsrep_healthy();
+}
+
+=head2 db_wsrep_healthy
+
+check if the wsrep_ready status is ON if there is a wsrep_provider_name
+
+=cut
+
+sub db_wsrep_healthy {
+    my $logger = get_logger();
+    my $dbh = eval {
+        db_connect()
+    };
+    return 0 unless $dbh;
+
+    my $sth = $dbh->prepare_cached('show status like "wsrep_provider_name";');
+    return 0 unless $sth->execute;
+    my $row = $sth->fetch;
+    $sth->finish;
+
+    if(defined($row) && $row->[1] ne "") {
+        $logger->debug("There is a wsrep provider, checking the wsrep_ready flag");
+        # check if the wsrep_ready status is ON
+        $sth = $dbh->prepare_cached('show status like "wsrep_ready";');
+        return 0 unless $sth->execute;
+        $row = $sth->fetch;
+        $sth->finish;
+        # If there is no wsrep_ready row, then we're not in read only because we don't use wsrep
+        # If its there and not set to ON, then we're in read only
+        return (defined($row) && $row->[1] eq "ON");
+    }
+    # wsrep isn't enabled
+    else {
+        $logger->debug("No wsrep provider so considering wsrep as healthy");
+        return 1;
+    }
 }
 
 =item db_check_readonly
@@ -479,6 +597,35 @@ sub db_check_readonly {
     return $mode;
 }
 
+=item db_set_max_statement_timeout
+
+Set the max statement timeout
+
+In order to take effect must be set before connecting to the database
+
+=cut
+
+sub db_set_max_statement_timeout {
+    my ($timeout) = @_;
+    $timeout //= 0.0;
+    $timeout += 0.0;
+    if ($MAX_STATEMENT_TIME != $timeout) {
+        db_disconnect();
+        $DBH = undef;
+        $MAX_STATEMENT_TIME = $timeout;
+    }
+}
+
+=head2 db_get_max_statement_timeout
+
+Get the max statement timeout
+
+=cut
+
+sub db_get_max_statement_timeout {
+    return $MAX_STATEMENT_TIME + 0.0 ;
+}
+
 =back
 
 =head1 AUTHOR
@@ -489,7 +636,7 @@ Minor parts of this file may have been contributed. See CREDITS.
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2017 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 Copyright (C) 2005 Kevin Amorin
 

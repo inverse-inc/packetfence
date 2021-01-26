@@ -16,7 +16,12 @@ The factory for creating pf::scan objects
 
 use strict;
 use warnings;
-use Module::Pluggable search_path => 'pf::scan', sub_name => 'modules' , require => 1, except => qr/^pf::scan::wmi::(.*)$/;
+use Module::Pluggable
+  search_path => 'pf::scan',
+  sub_name    => 'modules',
+  require     => 1,
+  inner       => 0,
+  except      => qr/^pf::scan::wmi::(.*)$/;
 use List::MoreUtils qw(any);
 use pf::scan;
 use pf::config qw(
@@ -55,7 +60,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2017 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 

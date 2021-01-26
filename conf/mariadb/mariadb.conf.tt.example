@@ -1,3 +1,4 @@
+# Copyright (C) Inverse inc.
 #
 # These groups are read by MariaDB server.
 # Use it for options that only the server (but not clients) should see
@@ -32,6 +33,15 @@ query_cache_size = [% query_cache_size %]M
 # Try number of CPU's*2 for thread_concurrency
 thread_concurrency = [% thread_concurrency %]
 
+# Disable DNS lookup
+skip-name-resolve
+
+# Performance schema
+performance_schema = [% performance_schema %]
+
+# max_connect_errors
+max_connect_errors = [% max_connect_errors %]
+
 # Point the following paths to a dedicated disk
 #tmpdir   = /tmp/
 
@@ -45,8 +55,7 @@ thread_concurrency = [% thread_concurrency %]
 
 [% IF cluster_enabled %]
 # Replication Master Server (default)
-# binary logging is required for replication
-log-bin=mysql-bin
+#log-bin=mysql-bin
 binlog-format=row
 expire_logs_days=2
 max_binlog_size=13107200
@@ -121,7 +130,6 @@ innodb_log_group_home_dir = /var/lib/mysql
  #You can set .._buffer_pool_size up to 50 - 80 %
  #of RAM but beware of setting memory usage too high
 innodb_buffer_pool_size = [% innodb_buffer_pool_size %]M
-innodb_additional_mem_pool_size = [% innodb_additional_mem_pool_size %]M
 innodb_log_buffer_size = 8M
 
 innodb_flush_log_at_trx_commit = 2
@@ -136,14 +144,26 @@ innodb_file_per_table
 
 max_connections=[% max_connections %]
 
-[% IF cluster_enabled %]
+[% IF masterslave %]
+[% IF masterslavemode == "SLAVE" %]
+server-id = [% slave_server_id %]
+
+gtid_domain_id = [% gtid_domain_id %]
+
+log_slave_updates
+log_bin=mariadb-bin
+read_only=ON
+[% END %]
+[% END %]
+
+[% IF cluster_enabled && masterslavemode == "MASTER" %]
 #
 # * Galera-related settings
 #
 [galera]
 # Mandatory settings
 wsrep_on=ON
-wsrep_provider=/usr/lib64/galera/libgalera_smm.so
+wsrep_provider=[% libgalera %]
 default_storage_engine=InnoDB
 innodb_autoinc_lock_mode=2
 wsrep_cluster_name=pfcluster
@@ -153,9 +173,27 @@ wsrep_node_address="[% server_ip %]"
 wsrep_on=ON 
 wsrep_sst_method = xtrabackup
 wsrep_sst_auth = "[% replication_user %]:[% replication_password %]"
-wsrep_notify_cmd=/usr/local/pf/var/run/db-update
+# Uncomment the line below so that the database goes into read_only mode when its not a primary view or there is only 1 member left in your cluster
+# This was known to cause issues with rapid cluster state changes, see #2593 for details
+#wsrep_notify_cmd=/usr/local/pf/var/run/db-update
 wsrep_provider_options=''
+wsrep_dirty_reads=ON
 #
 # Optional setting
 wsrep_slave_threads=1
+
+[% IF masterslave %]
+[% IF masterslavemode == "MASTER" %]
+wsrep_gtid_mode=ON
+wsrep_gtid_domain_id=[% gtid_domain_id %]
+log_slave_updates=ON
+log_bin=mariadb-bin
+gtid_domain_id=[% server_id %]
 [% END %]
+
+[% END %]
+
+[% END %]
+
+[mysqld_safe]
+syslog

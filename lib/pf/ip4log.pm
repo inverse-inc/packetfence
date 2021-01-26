@@ -25,208 +25,23 @@ use pf::config qw(
     %Config
 );
 use pf::constants;
-use pf::db;
+use pf::dal;
+use pf::dal::ip4log;
+use pf::dal::ip4log_archive;
+use pf::dal::ip4log_history;
+use pf::error qw(is_error is_success);
 use pf::log;
 use pf::node qw(node_add_simple node_exist);
-use pf::OMAPI;
 use pf::util;
-
-BEGIN {
-    use Exporter ();
-    our ( @ISA, @EXPORT );
-    @ISA = qw(Exporter);
-    @EXPORT = qw(
-        ip4log_db_prepare
-        $ip4log_db_prepared
-    );
-}
-
+use pf::config::util;
+use pf::dhcp::api;
+use List::MoreUtils qw(any);
 
 use constant IP4LOG                         => 'ip4log';
 use constant IP4LOG_CACHE_EXPIRE            => 60;
 use constant IP4LOG_DEFAULT_HISTORY_LIMIT   => '25';
 use constant IP4LOG_DEFAULT_ARCHIVE_LIMIT   => '18446744073709551615'; # Yeah, that seems odd, but that's the MySQL documented way to use LIMIT with "unlimited"
 use constant IP4LOG_FLOORED_LEASE_LENGTH    => '120';  # In seconds. Default to 2 minutes
-
-
-# The next two variables and the _prepare sub are required for database handling magic (see pf::db)
-our $ip4log_db_prepared = 0;
-# in this hash reference we hold the database statements. We pass it to the query handler and he will repopulate
-# the hash if required
-our $ip4log_statements = {};
-
-sub ip4log_db_prepare {
-    my $logger = pf::log::get_logger();
-    $logger->debug("Preparing pf::ip4log database queries");
-
-    # We could have used the ip4log_list_open_by_ip_sql statement but for performances, we enforce the LIMIT 1
-    # We add a 30 seconds grace time for devices that don't actually respect lease times 
-    $ip4log_statements->{'ip4log_view_by_ip_sql'} = get_db_handle()->prepare(
-        qq [ SELECT mac, ip, start_time, end_time FROM ip4log WHERE ip = ? AND (end_time = 0 OR ( end_time + INTERVAL 30 SECOND ) > NOW()) ORDER BY start_time DESC LIMIT 1 ]
-    );
-
-    # We could have used the ip4log_list_open_by_mac_sql statement but for performances, we enforce the LIMIT 1
-    # We add a 30 seconds grace time for devices that don't actually respect lease times 
-    $ip4log_statements->{'ip4log_view_by_mac_sql'} = get_db_handle()->prepare(
-        qq [ SELECT mac, ip, start_time, end_time FROM ip4log WHERE mac = ? AND (end_time = 0 OR ( end_time + INTERVAL 30 SECOND ) > NOW()) ORDER BY start_time DESC LIMIT 1 ]
-    );
-
-    $ip4log_statements->{'ip4log_list_open_sql'} = get_db_handle()->prepare(
-        qq [ SELECT mac, ip, start_time, end_time FROM ip4log WHERE end_time=0 OR end_time > NOW() ]
-    );
-
-    $ip4log_statements->{'ip4log_list_open_by_ip_sql'} = get_db_handle()->prepare(
-        qq [ SELECT mac, ip, start_time, end_time FROM ip4log WHERE ip = ? AND (end_time = 0 OR end_time > NOW()) ORDER BY start_time DESC ]
-    );
-
-    $ip4log_statements->{'ip4log_list_open_by_mac_sql'} = get_db_handle()->prepare(
-        qq [ SELECT mac, ip, start_time, end_time FROM ip4log WHERE mac = ? AND (end_time = 0 OR end_time > NOW()) ORDER BY start_time DESC ]
-    );
-
-    # Using WHERE clause and ORDER BY clause in subqueries to fasten resultset
-    # Using UNION ALL rather than UNION to avoid the cost of 'SELECT DISTINCT'
-    # UNIX_TIMESTAMPs are used by graphs for dashboard and reports purposes
-    $ip4log_statements->{'ip4log_get_history_by_ip_sql'} = get_db_handle()->prepare(
-        qq [ SELECT * FROM
-                (SELECT mac, ip, start_time, end_time, UNIX_TIMESTAMP(start_time) AS start_timestamp, UNIX_TIMESTAMP(end_time) AS end_timestamp
-                FROM ip4log
-                WHERE ip = ?
-                ORDER BY start_time DESC) AS a
-             UNION ALL
-             SELECT * FROM
-                (SELECT mac, ip, start_time, end_time, UNIX_TIMESTAMP(start_time) AS start_timestamp, UNIX_TIMESTAMP(end_time) AS end_timestamp
-                FROM ip4log_history
-                WHERE ip = ?
-                ORDER BY start_time DESC) AS b
-             ORDER BY start_time DESC LIMIT ? ]
-    );
-
-    # Using WHERE clause and ORDER BY clause in subqueries to fasten resultset
-    # Using UNION ALL rather than UNION to avoid the cost of 'SELECT DISTINCT'
-    # UNIX_TIMESTAMPs are used by graphs for dashboard and reports purposes
-    $ip4log_statements->{'ip4log_get_history_by_ip_with_date_sql'} = get_db_handle()->prepare(
-        qq [ SELECT * FROM
-                (SELECT mac, ip, start_time, end_time, UNIX_TIMESTAMP(start_time) AS start_timestamp, UNIX_TIMESTAMP(end_time) AS end_timestamp
-                FROM ip4log
-                WHERE ip = ? AND start_time < FROM_UNIXTIME(?) AND (end_time > FROM_UNIXTIME(?) OR end_time = 0)
-                ORDER BY start_time DESC) AS a
-             UNION ALL
-             SELECT * FROM
-                (SELECT mac, ip, start_time, end_time, UNIX_TIMESTAMP(start_time) AS start_timestamp, UNIX_TIMESTAMP(end_time) AS end_timestamp
-                FROM ip4log_history
-                WHERE ip = ? AND start_time < FROM_UNIXTIME(?) AND (end_time > FROM_UNIXTIME(?) OR end_time = 0)
-                ORDER BY start_time DESC) AS b
-             ORDER BY start_time DESC LIMIT ? ]
-    );
-
-    # Using WHERE clause and ORDER BY clause in subqueries to fasten resultset
-    # Using UNION ALL rather than UNION to avoid the cost of 'SELECT DISTINCT'
-    # UNIX_TIMESTAMPs are used by graphs for dashboard and reports purposes
-    $ip4log_statements->{'ip4log_get_history_by_mac_sql'} = get_db_handle()->prepare(
-        qq [ SELECT * FROM
-                (SELECT mac, ip, start_time, end_time, UNIX_TIMESTAMP(start_time) AS start_timestamp, UNIX_TIMESTAMP(end_time) AS end_timestamp
-                FROM ip4log
-                WHERE mac = ?
-                ORDER BY start_time DESC) AS a
-             UNION ALL
-             SELECT * FROM
-                (SELECT mac, ip, start_time, end_time, UNIX_TIMESTAMP(start_time) AS start_timestamp, UNIX_TIMESTAMP(end_time) AS end_timestamp
-                FROM ip4log_history
-                WHERE mac = ?
-                ORDER BY start_time DESC) AS b
-             ORDER BY start_time DESC LIMIT ? ]
-    );
-
-    # Using WHERE clause and ORDER BY clause in subqueries to fasten resultset
-    # Using UNION ALL rather than UNION to avoid the cost of 'SELECT DISTINCT'
-    # UNIX_TIMESTAMPs are used by graphs for dashboard and reports purposes
-    $ip4log_statements->{'ip4log_get_history_by_mac_with_date_sql'} = get_db_handle()->prepare(
-        qq [ SELECT * FROM
-                (SELECT mac, ip, start_time, end_time, UNIX_TIMESTAMP(start_time) AS start_timestamp, UNIX_TIMESTAMP(end_time) AS end_timestamp
-                FROM ip4log
-                WHERE mac = ? AND start_time < FROM_UNIXTIME(?) AND (end_time > FROM_UNIXTIME(?) OR end_time = 0)
-                ORDER BY start_time DESC) AS a
-             UNION ALL
-             SELECT * FROM
-                (SELECT mac, ip, start_time, end_time, UNIX_TIMESTAMP(start_time) AS start_timestamp, UNIX_TIMESTAMP(end_time) AS end_timestamp
-                FROM ip4log_history
-                WHERE mac = ? AND start_time < FROM_UNIXTIME(?) AND (end_time > FROM_UNIXTIME(?) OR end_time = 0)
-                ORDER BY start_time DESC) AS b
-             ORDER BY start_time DESC LIMIT ? ]
-    );
-
-    # UNIX_TIMESTAMPs are used by graphs for dashboard and reports purposes
-    $ip4log_statements->{'ip4log_get_archive_by_ip_sql'} = get_db_handle()->prepare(
-        qq [ SELECT mac, ip, start_time, end_time, UNIX_TIMESTAMP(start_time) AS start_timestamp, UNIX_TIMESTAMP(end_time) AS end_timestamp
-             FROM ip4log_archive
-             WHERE ip = ?
-             ORDER BY start_time DESC LIMIT ? ]
-    );
-
-    # UNIX_TIMESTAMPs are used by graphs for dashboard and reports purposes
-    $ip4log_statements->{'ip4log_get_archive_by_ip_with_date_sql'} = get_db_handle()->prepare(
-        qq [ SELECT mac, ip, start_time, end_time, UNIX_TIMESTAMP(start_time) AS start_timestamp, UNIX_TIMESTAMP(end_time) AS end_timestamp
-             FROM ip4log_archive
-             WHERE ip = ? AND start_time < FROM_UNIXTIME(?) AND (end_time > FROM_UNIXTIME(?) OR end_time = 0)
-             ORDER BY start_time DESC LIMIT ? ]
-    );
-
-    # UNIX_TIMESTAMPs are used by graphs for dashboard and reports purposes
-    $ip4log_statements->{'ip4log_get_archive_by_mac_sql'} = get_db_handle()->prepare(
-        qq [ SELECT mac, ip, start_time, end_time, UNIX_TIMESTAMP(start_time) AS start_timestamp, UNIX_TIMESTAMP(end_time) AS end_timestamp
-             FROM ip4log_archive
-             WHERE mac = ?
-             ORDER BY start_time DESC LIMIT ? ]
-    );
-
-    # UNIX_TIMESTAMPs are used by graphs for dashboard and reports purposes
-    $ip4log_statements->{'ip4log_get_archive_by_mac_with_date_sql'} = get_db_handle()->prepare(
-        qq [ SELECT mac, ip, start_time, end_time, UNIX_TIMESTAMP(start_time) AS start_timestamp, UNIX_TIMESTAMP(end_time) AS end_timestamp
-             FROM ip4log_archive
-             WHERE mac = ? AND start_time < FROM_UNIXTIME(?) AND (end_time > FROM_UNIXTIME(?) OR end_time = 0)
-             ORDER BY start_time DESC LIMIT ? ]
-    );
-
-    $ip4log_statements->{'ip4log_exists_sql'} = get_db_handle()->prepare(
-        qq [ SELECT 1 FROM ip4log WHERE ip = ? ]
-    );
-
-    $ip4log_statements->{'ip4log_insert_sql'} = get_db_handle()->prepare(
-        qq [ INSERT INTO ip4log (mac, ip, start_time) VALUES (?, ?, NOW()) ]
-    );
-
-    $ip4log_statements->{'ip4log_insert_with_lease_length_sql'} = get_db_handle()->prepare(
-        qq [ INSERT INTO ip4log (mac, ip, start_time, end_time) VALUES (?, ?, NOW(), DATE_ADD(NOW(), INTERVAL ? SECOND)) ]
-    );
-
-    $ip4log_statements->{'ip4log_update_sql'} = get_db_handle()->prepare(
-        qq [ UPDATE ip4log SET mac = ?, start_time = NOW(), end_time = "0000-00-00 00:00:00" WHERE ip = ? ]
-    );
-
-    $ip4log_statements->{'ip4log_update_with_lease_length_sql'} = get_db_handle()->prepare(
-        qq [ UPDATE ip4log SET mac = ?, start_time = NOW(), end_time = DATE_ADD(NOW(), INTERVAL ? SECOND) WHERE ip = ? ]
-    );
-
-    $ip4log_statements->{'ip4log_close_sql'} = get_db_handle()->prepare(
-        qq [ UPDATE ip4log SET end_time = NOW() WHERE ip = ? ]
-    );
-
-    $ip4log_statements->{'ip4log_rotate_insert_sql'} = get_db_handle()->prepare(
-        qq [ INSERT INTO ip4log_archive(mac,ip,start_time,end_time) SELECT mac, ip, start_time, end_time FROM ip4log_history WHERE end_time < DATE_SUB(?, INTERVAL ? SECOND) LIMIT ? ]
-    );
-    $ip4log_statements->{'ip4log_rotate_delete_sql'} = get_db_handle()->prepare(
-        qq [ DELETE FROM ip4log_history WHERE end_time < DATE_SUB(?, INTERVAL ? SECOND) LIMIT ? ]
-    );
-
-    $ip4log_statements->{'ip4log_history_cleanup_sql'} = get_db_handle()->prepare(
-        qq [ DELETE FROM ip4log_history WHERE end_time < DATE_SUB(?, INTERVAL ? SECOND) LIMIT ? ]
-    );
-    $ip4log_statements->{'ip4log_archive_cleanup_sql'} = get_db_handle()->prepare(
-        qq [ DELETE FROM ip4log_archive WHERE end_time < DATE_SUB(?, INTERVAL ? SECOND) LIMIT ? ]
-    );
-
-    $ip4log_db_prepared = 1;
-}
 
 
 =head2 ip2mac
@@ -249,15 +64,18 @@ sub ip2mac {
     my $mac;
 
     # TODO: Special case that need to be documented
-    if ($ip eq "127.0.0.1" || (ref($management_network) && $management_network->{'Tip'} eq $ip)) {
+    if ($ip eq "127.0.0.1" || (ref($management_network) && $management_network->{'Tip'} eq $ip) || any{ $_ eq $ip } portal_hosts) {
         return ( pf::util::clean_mac("00:11:22:33:44:55") );
     }
 
-    # We first query OMAPI since it is the fastest way and more reliable source of info in most cases
-    if ( isenabled($Config{omapi}{ip2mac_lookup}) ) {
-        $logger->debug("Trying to match MAC address to IP '$ip' using OMAPI");
-        $mac = _ip2mac_omapi($ip);
-        $logger->debug("Matched IP '$ip' to MAC address '$mac' using OMAPI") if $mac;
+    # We first query the pfdhcp API since it is the fastest way and more reliable source of info in most cases
+    if ( isenabled($Config{pfdhcp}{ip2mac_lookup}) ) {
+        $logger->debug("Trying to match MAC address to IP '$ip' using the pfdhcp API");
+        my $res = _lookup_cached_pfdhcp_api("ip", $ip);
+        if(defined($res)) {
+            $mac = $res->{mac};
+            $logger->debug("Matched IP '$ip' to MAC address '$mac' using the pfdhcp API");
+        }
     }
 
     # If we don't have a result from OMAPI, we use the SQL 'ip4log' table
@@ -273,20 +91,6 @@ sub ip2mac {
     }
 
     return pf::util::clean_mac($mac);
-}
-
-=head2 _ip2mac_omapi
-
-Look for the MAC address of a given IP address in the DHCP leases using OMAPI
-
-Not meant to be used outside of this class. Refer to L<pf::ip4log::ip2mac>
-
-=cut
-
-sub _ip2mac_omapi {
-    my ( $ip ) = @_;
-    my $data = _lookup_cached_omapi('ip-address' => $ip);
-    return $data->{'obj'}{'hardware-address'} if defined $data;
 }
 
 =head2 _ip2mac_sql
@@ -322,11 +126,14 @@ sub mac2ip {
 
     my $ip;
 
-    # We first query OMAPI since it is the fastest way and more reliable source of info in most cases
-    if ( isenabled($Config{omapi}{mac2ip_lookup}) ) {
-        $logger->debug("Trying to match IP address to MAC '$mac' using OMAPI");
-        $ip = _mac2ip_omapi($mac);
-        $logger->debug("Matched MAC '$mac' to IP address '$ip' using OMAPI") if $ip;
+    # We first query the pfdhcp API since it is the fastest way and more reliable source of info in most cases
+    if ( isenabled($Config{pfdhcp}{mac2ip_lookup}) ) {
+        $logger->debug("Trying to match IP address to MAC '$mac' using the pfdhcp API");
+        my $res = _lookup_cached_pfdhcp_api("mac", $mac);
+        if(defined($res)) {
+            $ip = $res->{ip};
+            $logger->debug("Matched MAC '$mac' to IP address '$ip' using the pfdhcp API");
+        }
     }
 
     # If we don't have a result from OMAPI, we use the SQL 'ip4log' table
@@ -342,20 +149,6 @@ sub mac2ip {
     }
 
     return $ip;
-}
-
-=head2 _mac2ip_omapi
-
-Look for the IP address of a given MAC address in the DHCP leases using OMAPI
-
-Not meant to be used outside of this class. Refer to L<pf::ip4log::mac2ip>
-
-=cut
-
-sub _mac2ip_omapi {
-    my ( $mac ) = @_;
-    my $data = _lookup_cached_omapi('hardware-address' => $mac);
-    return $data->{'obj'}{'ip-address'} if defined $data;
 }
 
 =head2 _mac2ip_sql
@@ -384,9 +177,9 @@ sub get_history {
 
     $params{'limit'} = defined $params{'limit'} ? $params{'limit'} : IP4LOG_DEFAULT_HISTORY_LIMIT;
 
-    return _history_by_mac($search_by, %params) if ( pf::util::valid_mac($search_by) );
+    return _history_by({mac => $search_by}, %params) if ( pf::util::valid_mac($search_by) );
 
-    return _history_by_ip($search_by, %params) if ( pf::util::valid_ip($search_by) );
+    return _history_by({ip => $search_by}, %params) if ( pf::util::valid_ip($search_by) );
 }
 
 =head2 get_archive
@@ -405,128 +198,57 @@ sub get_archive {
     return get_history( $search_by, %params );
 }
 
-=head2 _history_by_ip
+=head2 _history_by
 
-Get the full ip4log for a given IP address.
-
-Not meant to be used outside of this class. Refer to L<pf::ip4log::get_history> or L<pf::ip4log::get_archive>
-
-=cut
-
-sub _history_by_ip {
-    my ( $ip, %params ) = @_;
-    my $logger = pf::log::get_logger;
-
-    my @history = ();
-
-    if ( defined($params{'start_time'}) && defined($params{'end_time'}) ) {
-        # We are passing the arguments twice to match the prepare statement of the query
-        @history = db_data(IP4LOG, $ip4log_statements, 'ip4log_get_history_by_ip_with_date_sql',
-            $ip, $params{'end_time'}, $params{'start_time'}, $ip, $params{'end_time'}, $params{'start_time'}, $params{'limit'}
-        );
-        # Handling archive
-        if ( $params{'with_archive'} ) {
-            my $number_of_results = @history;
-            my $limit = $params{'limit'} - $number_of_results;
-            push ( @history,
-                db_data(IP4LOG, $ip4log_statements, 'ip4log_get_archive_by_ip_with_date_sql',
-                $ip, $params{'end_time'}, $params{'start_time'}, $limit)
-            ) if $limit > 0;
-        }
-    }
-
-    elsif ( defined($params{'date'}) ) {
-        # We are passing the arguments twice to match the prepare statement of the query
-        @history = db_data(IP4LOG, $ip4log_statements, 'ip4log_get_history_by_ip_with_date_sql',
-            $ip, $params{'date'}, $params{'date'}, $ip, $params{'date'}, $params{'date'}, $params{'limit'}
-        );
-        # Handling archive
-        if ( $params{'with_archive'} ) {
-            my $number_of_results = @history;
-            my $limit = $params{'limit'} - $number_of_results;
-            push ( @history,
-                db_data(IP4LOG, $ip4log_statements, 'ip4log_get_archive_by_ip_with_date_sql',
-                $ip, $params{'date'}, $params{'date'}, $limit)
-            ) if $limit > 0;
-        }
-    }
-
-    else {
-        # We are passing the arguments twice to match the prepare statement of the query
-        @history = db_data(IP4LOG, $ip4log_statements, 'ip4log_get_history_by_ip_sql', $ip, $ip, $params{'limit'});
-        # Handling archive
-        if ( $params{'with_archive'} ) {
-            my $number_of_results = @history;
-            my $limit = $params{'limit'} - $number_of_results;
-            push ( @history,
-                db_data(IP4LOG, $ip4log_statements, 'ip4log_get_archive_by_ip_sql', $ip, $limit)
-            ) if $limit > 0;
-        }
-    }
-
-    return @history;
-}
-
-=head2 _history_by_mac
-
-Get the full ip4log for a given MAC address.
+Get the full ip4log for a given search
 
 Not meant to be used outside of this class. Refer to L<pf::ip4log::get_history> or L<pf::ip4log::get_archive>
 
 =cut
 
-sub _history_by_mac {
-    my ( $mac, %params ) = @_;
+sub _history_by {
+    my ( $where, %params ) = @_;
     my $logger = pf::log::get_logger;
+    my $start_time;
+    my $end_time;
+    my $limit = $params{'limit'};
+    my @columns = qw(mac ip start_time end_time unix_timestamp(start_time)|start_timestamp unix_timestamp(end_time)|end_timestamp);
 
-    my @history = ();
+    my %select_args = (
+            -from => 'ip4log',
+            -columns => \@columns,
+            -where => $where,
+            -union_all => [
+                -from => 'ip4log_history',
+                -columns => \@columns,
+                -where => $where,
+            ],
+            -order_by => { -desc => 'start_time' },
+            -limit => $limit,
+    );
 
     if ( defined($params{'start_time'}) && defined($params{'end_time'}) ) {
-        # We are passing the arguments twice to match the prepare statement of the query
-        @history = db_data(IP4LOG, $ip4log_statements, 'ip4log_get_history_by_mac_with_date_sql',
-            $mac, $params{'end_time'}, $params{'start_time'}, $mac, $params{'end_time'}, $params{'start_time'}, $params{'limit'}
-        );
-        # Handling archive
-        if ( $params{'with_archive'} ) {
-            my $number_of_results = @history;
-            my $limit = $params{'limit'} - $number_of_results;
-            push ( @history,
-                db_data(IP4LOG, $ip4log_statements, 'ip4log_get_archive_by_mac_with_date_sql',
-                $mac, $params{'end_time'}, $params{'start_time'}, $limit)
-            ) if $limit > 0;
-        }
+        $start_time = $params{'start_time'};
+        $end_time = $params{'end_time'};
     }
 
     elsif ( defined($params{'date'}) ) {
-        # We are passing the arguments twice to match the prepare statement of the query
-        @history = db_data(IP4LOG, $ip4log_statements, 'ip4log_get_history_by_mac_with_date_sql',
-            $mac, $params{'date'}, $params{'date'}, $mac, $params{'date'}, $params{'date'}, $params{'limit'}
-        );
-        # Handling archive
-        if ( $params{'with_archive'} ) {
-            my $number_of_results = @history;
-            my $limit = $params{'limit'} - $number_of_results;
-            push ( @history,
-                db_data(IP4LOG, $ip4log_statements, 'ip4log_get_archive_by_mac_with_date_sql',
-                $mac, $params{'date'}, $params{'date'}, $limit)
-            ) if $limit > 0;
-        }
+        $start_time = $params{'date'};
+        $end_time = $params{'date'};
     }
 
-    else {
-        # We are passing the arguments twice to match the prepare statement of the query
-        @history = db_data(IP4LOG, $ip4log_statements, 'ip4log_get_history_by_mac_sql', $mac, $mac, $params{'limit'});
-        # Handling archive
-        if ( $params{'with_archive'} ) {
-            my $number_of_results = @history;
-            my $limit = $params{'limit'} - $number_of_results;
-            push ( @history,
-                db_data(IP4LOG, $ip4log_statements, 'ip4log_get_archive_by_mac_sql', $mac, $limit)
-            ) if $limit > 0;
-        }
+    if ($start_time && $end_time) {
+        $where->{start_time} = {"<" => \['from_unixtime(?)', $end_time]};
+        $where->{end_time} = [{">" => \['from_unixtime(?)', $start_time]}, $ZERO_DATE];
     }
-
-    return @history;
+    if ( $params{'with_archive'} ) {
+        push @{$select_args{-union_all}}, -union_all => [
+            -from => 'ip4log_archive',
+            -columns => \@columns,
+            -where => $where,
+        ];
+    }
+    return _db_list(\%select_args);
 }
 
 =head2 view
@@ -563,11 +285,23 @@ sub _view_by_ip {
 
     $logger->debug("Viewing an 'ip4log' table entry for the following IP address '$ip'");
 
-    my $query = db_query_execute(IP4LOG, $ip4log_statements, 'ip4log_view_by_ip_sql', $ip) || return (0);
-    my $ref = $query->fetchrow_hashref();
+    my ($status, $iter) = pf::dal::ip4log->search(
+        -where => {
+            ip => $ip,
+            -or => [
+                end_time => $ZERO_DATE,
+                \'(end_time + INTERVAL 30 SECOND) > NOW()'
+            ],
+        },
+        -order_by => { -desc => 'start_time' },
+        -limit => 1,
+        -columns => [qw(mac ip start_time end_time)],
+    );
 
-    # just get one row and finish
-    $query->finish();
+    if (is_error($status)) {
+        return (0);
+    }
+    my $ref = $iter->next(undef);
 
     return ($ref);
 }
@@ -586,11 +320,23 @@ sub _view_by_mac {
 
     $logger->debug("Viewing an 'ip4log' table entry for the following MAC address '$mac'");
 
-    my $query = db_query_execute(IP4LOG, $ip4log_statements, 'ip4log_view_by_mac_sql', $mac) || return (0);
-    my $ref = $query->fetchrow_hashref();
+    my ($status, $iter) = pf::dal::ip4log->search(
+        -where => {
+            mac => $mac,
+            -or => [
+                end_time => $ZERO_DATE,
+                \'(end_time + INTERVAL 30 SECOND) > NOW()'
+            ],
+        },
+        -order_by => { -desc => 'start_time' },
+        -limit => 1,
+        -columns => [qw(mac ip start_time end_time)],
+    );
 
-    # just get one row and finish
-    $query->finish();
+    if (is_error($status)) {
+        return (0);
+    }
+    my $ref = $iter->next(undef);
 
     return ($ref);
 }
@@ -613,7 +359,24 @@ sub list_open {
     # Either way, we return the complete list
     $logger->debug("Listing all currently open 'ip4log' table entries");
     $logger->debug("For debugging purposes, here's the given parameter if any: '" . ($search_by // "undef") . "'");
-    return db_data(IP4LOG, $ip4log_statements, 'ip4log_list_open_sql') if ( !defined($search_by) );
+    return _db_list(
+        {
+            -where => {
+                end_time => [$ZERO_DATE, {">" => \'NOW()'}],
+            },
+            -columns => [qw(mac ip start_time end_time)],
+        }
+    ) if !defined($search_by);;
+}
+
+sub _db_list {
+    my ($args) = @_;
+    my ($status, $iter) = pf::dal::ip4log->search(%$args);
+
+    if (is_error($status)) {
+        return;
+    }
+    return @{$iter->all(undef) // []};
 }
 
 =head2 _list_open_by_ip
@@ -630,7 +393,19 @@ sub _list_open_by_ip {
 
     $logger->debug("Listing all currently open 'ip4log' table entries for the following IP address '$ip'");
 
-    return db_data(IP4LOG, $ip4log_statements, 'ip4log_list_open_by_ip_sql', $ip);
+    return _db_list(
+        {
+            -where => {
+                ip => $ip,
+                -or => [
+                    end_time => $ZERO_DATE,
+                    \'end_time > NOW()'
+                ],
+            },
+            -order_by => { -desc => 'start_time' },
+            -columns => [qw(mac ip start_time end_time)],
+        }
+    );
 }
 
 =head2 _list_open_by_mac
@@ -647,7 +422,19 @@ sub _list_open_by_mac {
 
     $logger->debug("Listing all currently open 'ip4log' table entries for the following MAC address '$mac'");
 
-    return db_data(IP4LOG, $ip4log_statements, 'ip4log_list_open_by_mac_sql', $mac);
+    return _db_list(
+        {
+            -where => {
+                mac => $mac,
+                -or => [
+                    end_time => $ZERO_DATE,
+                    \'end_time > NOW()'
+                ],
+            },
+            -order_by => { -desc => 'start_time' },
+            -columns => [qw(mac ip start_time end_time)],
+        }
+    );
 }
 
 =head2 _exists
@@ -660,7 +447,7 @@ Not meant to be used outside of this class.
 
 sub _exists {
     my ( $ip ) = @_;
-    return db_data(IP4LOG, $ip4log_statements, 'ip4log_exists_sql', $ip);
+    return (is_success(pf::dal::ip4log->exists({ip => $ip})));
 }
 
 =head2 open
@@ -695,59 +482,27 @@ sub open {
         return;
     }
 
-    if ( _exists($ip) ) {
-        $logger->debug("An 'ip4log' table entry already exists for that IP ($ip). Proceed with updating it");
-        _update($ip, $mac, $lease_length);
-    } else {
+    my %args = (
+        mac => $mac,
+        ip => $ip,
+        start_time => \"NOW()",
+        end_time => $ZERO_DATE,
+    );
+
+    if ($lease_length) {
+        $args{end_time} = \['DATE_ADD(NOW(), INTERVAL ? SECOND)', $lease_length],
+    }
+    my $item = pf::dal::ip4log->new(\%args);
+    #does an upsert of the ip4log
+    my $status = $item->save();
+
+    return if is_error($status);
+    if ($STATUS::CREATED == $status) {
         $logger->debug("No 'ip4log' table entry found for that IP ($ip). Creating a new one");
-        _insert($ip, $mac, $lease_length);
-    }
-
-    return (0);
-}
-
-=head2 _insert
-
-Insert a new 'ip4log' table entry.
-
-Not meant to be used outside of this class. Refer to L<pf::ip4log::open>
-
-=cut
-
-sub _insert {
-    my ( $ip, $mac, $lease_length ) = @_;
-    my $logger = pf::log::get_logger;
-
-    if ( $lease_length ) {
-        $logger->debug("Adding a new 'ip4log' table entry for IP address '$ip' with MAC address '$mac' (Lease length: $lease_length secs)");
-        db_query_execute(IP4LOG, $ip4log_statements, 'ip4log_insert_with_lease_length_sql', $mac, $ip, $lease_length);
     } else {
-        $logger->debug("Adding a new 'ip4log' table entry for IP address '$ip' with MAC address '$mac' (No lease provided)");
-        db_query_execute(IP4LOG, $ip4log_statements, 'ip4log_insert_sql', $mac, $ip);
+        $logger->debug("An 'ip4log' table entry already exists for that IP ($ip). Proceed with updating it");
     }
-}
-
-=head2 _update
-
-Update an existing 'ip4log' table entry.
-
-Please note that a trigger (ip4log_insert_in_ip4log_history_before_update_trigger) exists in the database schema to copy the old existing record into the 'ip4log_history' table and adjust the end_time accordingly.
-
-Not meant to be used outside of this class. Refer to L<pf::ip4log::open>
-
-=cut
-
-sub _update {
-    my ( $ip, $mac, $lease_length ) = @_;
-    my $logger = pf::log::get_logger;
-
-    if ( $lease_length ) {
-        $logger->debug("Updating an existing 'ip4log' table entry for IP address '$ip' with MAC address '$mac' (Lease length: $lease_length secs)");
-        db_query_execute(IP4LOG, $ip4log_statements, 'ip4log_update_with_lease_length_sql', $mac, $lease_length, $ip);
-    } else {
-        $logger->debug("Updating an existing 'ip4log' table entry for IP address '$ip' with MAC address '$mac' (No lease provided)");
-        db_query_execute(IP4LOG, $ip4log_statements, 'ip4log_update_sql', $mac, $ip);
-    }
+    return (1);
 }
 
 =head2 close
@@ -765,10 +520,16 @@ sub close {
         return (0);
     }
 
-    $logger->debug("Closing existing 'ip4log' table entry for IP address '$ip' as of now");
-    db_query_execute(IP4LOG, $ip4log_statements, 'ip4log_close_sql', $ip);
+    my ($status, $rows) = pf::dal::ip4log->update_items(
+        -set => {
+            end_time => \'NOW()',
+        },
+        -where => {
+            ip => $ip,
+        }
+    );
 
-    return (0);
+    return ($rows);
 }
 
 sub rotate {
@@ -777,23 +538,42 @@ sub rotate {
     my $logger = pf::log::get_logger();
 
     $logger->debug("Calling rotate with window='$window_seconds' seconds, batch='$batch', timelimit='$time_limit'");
-    my $now = pf::db::db_now();
+    my $now = pf::dal->now();
     my $start_time = time;
     my $end_time;
     my $rows_rotated = 0;
+    my $where = {
+        end_time => {
+            "<" => \[ 'DATE_SUB(?, INTERVAL ? SECOND)', $now, $window_seconds ]
+        },
+    };
+
+    my ( $subsql, @insert_bind ) = pf::dal::ip4log_history->select(
+        -columns => [qw(tenant_id mac ip start_time end_time)],
+        -where => $where,
+        -limit => $batch,
+        -from => pf::dal::ip4log_history->table,
+        -no_auto_tenant_id => 1,
+    );
+
+    my %rotate_search = (
+        -where => $where,    
+        -limit => $batch,
+        -no_auto_tenant_id => 1,
+    );
+
+    my $insert_sql = "INSERT INTO ip4log_archive (`tenant_id`, `mac`, `ip`, `start_time`, `end_time`) $subsql;";
 
     while (1) {
         my $query;
         my ( $rows_inserted, $rows_deleted );
         pf::db::db_transaction_execute( sub{
-            $query = db_query_execute(IP4LOG, $ip4log_statements, 'ip4log_rotate_insert_sql', $now, $window_seconds, $batch) || return (0);
-            $rows_inserted = $query->rows;
-            $query->finish;
+            my ($status, $sth) = pf::dal::ip4log_archive->db_execute($insert_sql, @insert_bind);
+            $rows_inserted = $sth->rows;
+            $sth->finish;
             if ($rows_inserted > 0 ) {
-                $logger->debug("Inserted '$rows_inserted' entries from ip4log_history to ip4log_archive while rotating");
-                $query = db_query_execute(IP4LOG, $ip4log_statements, 'ip4log_rotate_delete_sql', $now, $window_seconds, $batch) || return (0);
-                $rows_deleted = $query->rows;
-                $query->finish;
+                my ($status, $rows) = pf::dal::ip4log_history->remove_items(%rotate_search);
+                $rows_deleted = $rows // 0;
                 $logger->debug("Deleted '$rows_deleted' entries from ip4log_history while rotating");
             } else {
                 $rows_deleted = 0;
@@ -819,7 +599,7 @@ Cleanup the ip4log_archive table
 
 sub cleanup_archive {
     my ( $window_seconds, $batch, $time_limit ) = @_;
-    return _cleanup($window_seconds, $batch, $time_limit, 'ip4log_archive_cleanup_sql');
+    return _cleanup($window_seconds, $batch, $time_limit, "pf::dal::ip4log_archive");
 }
 
 =head2 cleanup_history
@@ -830,7 +610,7 @@ Cleanup the ip4log_history table
 
 sub cleanup_history {
     my ( $window_seconds, $batch, $time_limit ) = @_;
-    return _cleanup($window_seconds, $batch, $time_limit, 'ip4log_history_cleanup_sql');
+    return _cleanup($window_seconds, $batch, $time_limit, "pf::dal::ip4log_history");
 }
 
 =head2 _cleanup
@@ -840,91 +620,73 @@ The generic cleanup for ip4log tables
 =cut
 
 sub _cleanup {
-    my ( $window_seconds, $batch, $time_limit, $query_name ) = @_;
+    my $timer = pf::StatsD::Timer->new({sample_rate => 0.2});
+    my ( $window_seconds, $batch, $time_limit, $dal ) = @_;
     my $logger = pf::log::get_logger();
-    $logger->debug("Calling cleanup with for $query_name window='$window_seconds' seconds, batch='$batch', timelimit='$time_limit'");
+    $logger->debug("Calling cleanup with for $dal window='$window_seconds' seconds, batch='$batch', timelimit='$time_limit'");
 
     if ( $window_seconds eq "0" ) {
         $logger->debug("Not deleting because the window is 0");
         return;
     }
 
-    my $now = pf::db::db_now();
-    my $start_time = time;
-    my $end_time;
-    my $rows_deleted = 0;
+    my $now = pf::dal->now();
 
-    while (1) {
-        my $query = db_query_execute(IP4LOG, $ip4log_statements, $query_name, $now, $window_seconds, $batch) || return (0);
-        my $rows = $query->rows;
-        $query->finish;
-        $end_time = time;
-        $rows_deleted += $rows if $rows > 0;
-        $logger->trace("Deleted '$rows_deleted' entries with $query_name (start: '$start_time', end: '$end_time')");
-        last if $rows <= 0 || ( ( $end_time - $start_time ) > $time_limit );
-    }
-
-    $logger->info("Deleted '$rows_deleted' entries with $query_name (start: '$start_time', end: '$end_time')");
-    return (0);
+    my ($status, $rows) = $dal->batch_remove(
+        {
+            -where => {
+                end_time => {
+                    "<" => \[ 'DATE_SUB(?, INTERVAL ? SECOND)', $now, $window_seconds ]
+                },
+            },
+            -limit => $batch,
+            -no_auto_tenant_id => 1,
+        },
+        $time_limit
+    );
+    return ($rows);
 }
 
-=head2 omapiCache
-
-Get the OMAPI cache
-
-=cut
-
-sub omapiCache { pf::CHI->new(namespace => 'omapi') }
-
-=head2 _get_omapi_client
-
-Get the omapi client
-return undef if omapi is disabled
-
-=cut
-
-sub _get_omapi_client {
-    my ($self) = @_;
-    return unless pf::config::is_omapi_lookup_enabled;
-
-    return pf::OMAPI->get_client();
+sub pfdhcp_cache {
+    return pf::CHI->new(namespace => "pfdhcp_api");
 }
 
-=head2 _lookup_cached_omapi
+=head2 _lookup_cached_pfdhcp_api
 
-Will retrieve the lease from the cache or from the dhcpd server using omapi
+Will retrieve the lease from the cache or from the DHCP server using the pfdhcp API
 
 =cut
 
-sub _lookup_cached_omapi {
+sub _lookup_cached_pfdhcp_api {
     my ($type, $id) = @_;
-    my $cache = omapiCache();
-    return $cache->compute(
-        $id,
-        {expire_if => \&_expire_lease, expires_in => IP4LOG_CACHE_EXPIRE},
+    my $cache = pfdhcp_cache();
+    return $cache->compute_with_undef(
+        "$type:$id",
         sub {
-            my $data = _get_lease_from_omapi($type, $id);
-            return unless $data && $data->{op} == 3;
+            get_logger->debug("Getting lease from the pfdhcp API");
+            my $data = _get_lease_from_pfdhcp_api($type, $id);
+            return unless $data;
             #Do not return if the lease is expired
-            return if $data->{obj}->{ends} < time;
+            return if $data->{ends_at} < time;
             return $data;
-        }
+        },
+        {expire_if => \&_expire_lease, expires_in => IP4LOG_CACHE_EXPIRE},
     );
 }
 
 =head2 _get_lease_from_omapi
 
-Get the lease information using omapi
+Get the lease information using the pfdhcp API
 
 =cut
 
-sub _get_lease_from_omapi {
+sub _get_lease_from_pfdhcp_api {
     my ($type,$id) = @_;
-    my $omapi = _get_omapi_client();
-    return unless $omapi;
+    my $client = pf::dhcp::api->default_client();
+    return unless $client;
     my $data;
     eval {
-        $data = $omapi->lookup({type => 'lease'}, { $type => $id});
+        $data = $client->get_lease($type, $id);
     };
     if($@) {
         get_logger->error("$@");
@@ -941,10 +703,9 @@ Check if the lease has expired
 sub _expire_lease {
     my ($cache_object) = @_;
     my $lease = $cache_object->value;
-    return 1 unless defined $lease && defined $lease->{obj}->{ends};
-    return $lease->{obj}->{ends} < time;
+    return 0 unless defined $lease && defined $lease->{ends_at};
+    return $lease->{ends_at} < time;
 }
-
 
 =head1 AUTHOR
 
@@ -952,7 +713,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2017 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 

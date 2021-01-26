@@ -1,0 +1,116 @@
+// to display images directly on GitHub
+ifdef::env-github[]
+:encoding: UTF-8
+:lang: en
+:doctype: book
+:toc: left
+:imagesdir: ../images
+endif::[]
+
+////
+
+    This file is part of the PacketFence project.
+
+    See PacketFence_Network_Devices_Configuration_Guide-docinfo.xml for 
+    authors, copyright and license information.
+
+////
+
+//== Best Practices
+
+=== RHEL7 systemd early swapoff bug mitigation
+
+A https://bugzilla.redhat.com/show_bug.cgi?id=1031158[known bug] is still present in systemd-219-30.el7_3.7.x86_64 shipped with CentOS. (Debian fixed it in 228-3).
+
+The bug arises because not all swap aliases are registered, which results in an incorrect dependence tree which results in swapoff being called way too early at shutdown.
+
+
+==== Workaround
+
+ * Obtain the list of swap items that should be considered by systemd for it to enforce a correct ordering:
+
+----
+#grep swap /var/log/dmesg |grep "dead -> active"
+----
+
+In our example, that gave the following output:
+
+
+ [    1.995413] systemd[1]: dev-dm\x2d1.swap changed dead -> active
+ [    1.995495] systemd[1]: dev-cl-swap.swap changed dead -> active
+ [    1.995550] systemd[1]: dev-disk-by\x2did-dm\x2dname\x2dcl\x2dswap.swap changed dead -> active
+ [    1.995616] systemd[1]: dev-disk-by\x2did-dm\x2duuid\x2dLVM\x2dXOAK7DHxMdmQCrNdwWE3Pt836Q9pHYSGyrO9ycCGeIYavzbamVWNKMaVUMLf1NWZ.swap changed dead -> active
+ [    1.995678] systemd[1]: dev-disk-by\x2duuid-6509e6e1\x2daf2d\x2d4d23\x2d9ebd\x2da9aa8801e658.swap changed dead -> active
+
+
+ * Create /etc/systemd/system/swap.target and fill it with all swap aliases obtained from the previous command:
+
+
+ [Unit]
+ Description=Swap
+ Documentation=man:systemd.special(7)
+ After=dev-disk-by\x2duuid-6509e6e1\x2daf2d\x2d4d23\x2d9ebd\x2da9aa8801e658.swap dev-dm1.swap dev-disk-by\x2did-dm\x2duuid\x2dLVM\x2dXOAK7DHxMdmQCrNdwWE3Pt836Q9pHYSGyrO9ycCGeIYavzbamVWNKMaVUMLf1NWZ.swap dev-disk-by\x2did-dm\x2dname\x2dcl\x2dswap.swap dev-cl-swap.swap dev-dm\x2d1.swap
+
+
+=== IPTables
+
+IPTables is now entirely managed by PacketFence. However, if you need to perform some custom rules, you can modify [filename]`/usr/local/pf/conf/iptables.conf` to your own needs. However, the default template should work for most users.
+
+=== Log Rotations
+
+PacketFence can generate a lot of log entries in huge production environments. This is why we recommend to use `logrotate` to periodically rotate your logs. A working logrotate script is provided with the PacketFence package. This script is located under the `/usr/local/pf/packetfence.logrotate` file, and it's configured to do a daily log rotation and keeping old logs with compression. It has been added during PacketFence initial installation.
+
+=== Large Registration Network
+
+When using the inline or VLAN enforcement mode in large environments, you may have ARP table overflows. This happens when a lot of devices are on the same layer 2 segment. The symptoms are dhcpd not handing out IP addresses as it should or failing pings in the registration or quarantine VLANs. To identify if you have this problem look into your `dmesg` log and if you see `Neighbour table overflow` messages.
+
+In order to mitigate the problem, you need to tweak kernel settings.  In order to enlarge the ARP cache table on a live system, change the following in sysctl.conf :
+
+---
+net.ipv4.neigh.default.gc_thresh1 = 2048
+net.ipv4.neigh.default.gc_thresh2 = 4096
+net.ipv4.neigh.default.gc_thresh3 = 8192
+---
+
+Then run the following as root to enable the changes:
+
+---
+# sysctl -p
+---
+
+This means that the layer 2 garbage collection will kick in at 2048 MAC addresses exposed to the server with the most aggressive collection kicking in at 8192. This should be large enough for most but feel free to increase if necessary (at the cost of more kernel memory consumed). Another approach to solve this problem is to do more segmentation of your layer 2 networks.
+
+=== Active Directory fail-over
+
+The authentication and authorization layer of PacketFence relies on 2 different components to connect to your Active Directory when doing 802.1x. For authentication, winbindd is used to perform NTLM authentication when doing EAP-PEAP MSCHAPv2. For authorization, LDAP connections are used to compute the role of the user. 
+When using the captive portal or 802.1x authentication that doesn't rely on NTLM authentication (EAP-TLS, EAP-TTLS, etc), then only LDAP is used.
+
+If you have multiple Active Directory servers, you will want to apply the following set of best practices to your installation so that PacketFence is able to efficiently detect a failure of one of your AD server and switch to the next one. This is even more important if your PacketFence deployment points to Active Directory servers located in 2 different availability zones (i.e. 2 different datacenters).
+
+==== Authentication layer
+
+In order to ensure the authentication layer will be able to fail-over efficiently, you will want to ensure that the 'Sticky DC' parameter of your domain configuration is set to `*`. Additionally, you will want to specify more than one DNS servers in that configuration. If you have more than one availability zone, then you will want to alternate the order of the servers. For example, if you have the following DNS servers in the first availability zone: `10.0.1.100,10.0.1.101` and the following in the second availability zone: `10.0.2.100,10.0.2.101`, then the DNS servers list should be: `10.0.1.100,10.0.2.100,10.0.1.101,10.0.2.101` which will ensure the second DNS server to be queried is part of a different availability zone than the first one when winbindd queries DNS to find an available Active Directory domain controller. 
+
+Note that after changing the settings above, you need to regenerate the domain configuration and restart winbindd using:
+
+  /usr/local/pf/bin/pfcmd generatedomainconfig
+  /usr/local/pf/bin/pfcmd service winbindd restart
+
+==== Authorization layer
+
+The authorization layer of PacketFence uses the DNS servers setup on the operating system to resolve names. With that in mind, you will need to ensure that the servers in `/etc/resolv.conf` allow for proper fail-over should one of them fail. Similarly to the authentication layer, you will want to alternate the order of the servers based on the different availability zones you have. You will also want to have aggressive settings for fail-over to the next DNS server. For example, if you have the following DNS servers in the first availability zone: `10.0.1.100,10.0.1.101` and the following in the second availability zone: `10.0.2.100,10.0.2.101`, then the resulting `/etc/resolv.conf` should be:
+
+```
+search example.com
+
+options timeout:1
+options retries:1
+
+nameserver 10.0.1.100
+nameserver 10.0.2.100
+nameserver 10.0.1.101
+nameserver 10.0.2.101
+```
+
+Once the DNS servers of the OS are setup to fail-over efficiently, you will need to review the configuration of the different Active Directory sources you have in PacketFence ('Configuration->Policies and access control->Authentication Sources'). In these sources, you will need to ensure that you are either using a DNS name that resolves to multiple servers of your Active Directory domain or that multiple IP addresses are specified to connect. If you are not sure about the robustness of your DNS layer, use multiple IP addresses.
+

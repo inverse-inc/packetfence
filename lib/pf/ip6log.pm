@@ -25,208 +25,20 @@ use pf::config qw(
     %Config
 );
 use pf::constants;
-use pf::db;
+use pf::dal;
+use pf::dal::ip6log;
+use pf::dal::ip6log_archive;
+use pf::dal::ip6log_history;
+use pf::error qw(is_error is_success);
 use pf::log;
 use pf::node qw(node_add_simple node_exist);
 use pf::util;
 use pf::util::IP;
 
-BEGIN {
-    use Exporter ();
-    our ( @ISA, @EXPORT );
-    @ISA = qw(Exporter);
-    @EXPORT = qw(
-        ip6log_db_prepare
-        $ip6log_db_prepared
-    );
-}
-
-
 use constant IP6LOG                         => 'ip6log';
 use constant IP6LOG_DEFAULT_HISTORY_LIMIT   => '25';
 use constant IP6LOG_DEFAULT_ARCHIVE_LIMIT   => '18446744073709551615'; # Yeah, that seems odd, but that's the MySQL documented way to use LIMIT with "unlimited"
 use constant IP6LOG_FLOORED_LEASE_LENGTH    => '120';  # In seconds. Default to 2 minutes
-
-
-# The next two variables and the _prepare sub are required for database handling magic (see pf::db)
-our $ip6log_db_prepared = 0;
-# in this hash reference we hold the database statements. We pass it to the query handler and he will repopulate
-# the hash if required
-our $ip6log_statements = {};
-
-sub ip6log_db_prepare {
-    my $logger = pf::log::get_logger();
-    $logger->debug("Preparing pf::ip6log database queries");
-
-    # We could have used the ip6log_list_open_by_ip_sql statement but for performances, we enforce the LIMIT 1
-    # We add a 30 seconds grace time for devices that don't actually respect lease times 
-    $ip6log_statements->{'ip6log_view_by_ip_sql'} = get_db_handle()->prepare(
-        qq [ SELECT mac, ip, type, start_time, end_time FROM ip6log WHERE ip = ? AND (end_time = 0 OR ( end_time + INTERVAL 30 SECOND ) > NOW()) ORDER BY start_time DESC LIMIT 1 ]
-    );
-
-    # We could have used the ip6log_list_open_by_mac_sql statement but for performances, we enforce the LIMIT 1
-    # We add a 30 seconds grace time for devices that don't actually respect lease times 
-    $ip6log_statements->{'ip6log_view_by_mac_sql'} = get_db_handle()->prepare(
-        qq [ SELECT mac, ip, type, start_time, end_time FROM ip6log WHERE mac = ? AND (end_time = 0 OR ( end_time + INTERVAL 30 SECOND ) > NOW()) ORDER BY start_time DESC LIMIT 1 ]
-    );
-
-    $ip6log_statements->{'ip6log_list_open_sql'} = get_db_handle()->prepare(
-        qq [ SELECT mac, ip, type, start_time, end_time FROM ip6log WHERE end_time=0 OR end_time > NOW() ]
-    );
-
-    $ip6log_statements->{'ip6log_list_open_by_ip_sql'} = get_db_handle()->prepare(
-        qq [ SELECT mac, ip, type, start_time, end_time FROM ip6log WHERE ip = ? AND (end_time = 0 OR end_time > NOW()) ORDER BY start_time DESC ]
-    );
-
-    $ip6log_statements->{'ip6log_list_open_by_mac_sql'} = get_db_handle()->prepare(
-        qq [ SELECT mac, ip, type, start_time, end_time FROM ip6log WHERE mac = ? AND (end_time = 0 OR end_time > NOW()) ORDER BY start_time DESC ]
-    );
-
-    # Using WHERE clause and ORDER BY clause in subqueries to fasten resultset
-    # Using UNION ALL rather than UNION to avoid the cost of 'SELECT DISTINCT'
-    # UNIX_TIMESTAMPs are used by graphs for dashboard and reports purposes
-    $ip6log_statements->{'ip6log_get_history_by_ip_sql'} = get_db_handle()->prepare(
-        qq [ SELECT * FROM
-                (SELECT mac, ip, type, start_time, end_time, UNIX_TIMESTAMP(start_time) AS start_timestamp, UNIX_TIMESTAMP(end_time) AS end_timestamp
-                FROM ip6log
-                WHERE ip = ?
-                ORDER BY start_time DESC) AS a
-             UNION ALL
-             SELECT * FROM
-                (SELECT mac, ip, type, start_time, end_time, UNIX_TIMESTAMP(start_time) AS start_timestamp, UNIX_TIMESTAMP(end_time) AS end_timestamp
-                FROM ip6log_history
-                WHERE ip = ?
-                ORDER BY start_time DESC) AS b
-             ORDER BY start_time DESC LIMIT ? ]
-    );
-
-    # Using WHERE clause and ORDER BY clause in subqueries to fasten resultset
-    # Using UNION ALL rather than UNION to avoid the cost of 'SELECT DISTINCT'
-    # UNIX_TIMESTAMPs are used by graphs for dashboard and reports purposes
-    $ip6log_statements->{'ip6log_get_history_by_ip_with_date_sql'} = get_db_handle()->prepare(
-        qq [ SELECT * FROM
-                (SELECT mac, ip, type, start_time, end_time, UNIX_TIMESTAMP(start_time) AS start_timestamp, UNIX_TIMESTAMP(end_time) AS end_timestamp
-                FROM ip6log
-                WHERE ip = ? AND start_time < FROM_UNIXTIME(?) AND (end_time > FROM_UNIXTIME(?) OR end_time = 0)
-                ORDER BY start_time DESC) AS a
-             UNION ALL
-             SELECT * FROM
-                (SELECT mac, ip, type, start_time, end_time, UNIX_TIMESTAMP(start_time) AS start_timestamp, UNIX_TIMESTAMP(end_time) AS end_timestamp
-                FROM ip6log_history
-                WHERE ip = ? AND start_time < FROM_UNIXTIME(?) AND (end_time > FROM_UNIXTIME(?) OR end_time = 0)
-                ORDER BY start_time DESC) AS b
-             ORDER BY start_time DESC LIMIT ? ]
-    );
-
-    # Using WHERE clause and ORDER BY clause in subqueries to fasten resultset
-    # Using UNION ALL rather than UNION to avoid the cost of 'SELECT DISTINCT'
-    # UNIX_TIMESTAMPs are used by graphs for dashboard and reports purposes
-    $ip6log_statements->{'ip6log_get_history_by_mac_sql'} = get_db_handle()->prepare(
-        qq [ SELECT * FROM
-                (SELECT mac, ip, type, start_time, end_time, UNIX_TIMESTAMP(start_time) AS start_timestamp, UNIX_TIMESTAMP(end_time) AS end_timestamp
-                FROM ip6log
-                WHERE mac = ?
-                ORDER BY start_time DESC) AS a
-             UNION ALL
-             SELECT * FROM
-                (SELECT mac, ip, type, start_time, end_time, UNIX_TIMESTAMP(start_time) AS start_timestamp, UNIX_TIMESTAMP(end_time) AS end_timestamp
-                FROM ip6log_history
-                WHERE mac = ?
-                ORDER BY start_time DESC) AS b
-             ORDER BY start_time DESC LIMIT ? ]
-    );
-
-    # Using WHERE clause and ORDER BY clause in subqueries to fasten resultset
-    # Using UNION ALL rather than UNION to avoid the cost of 'SELECT DISTINCT'
-    # UNIX_TIMESTAMPs are used by graphs for dashboard and reports purposes
-    $ip6log_statements->{'ip6log_get_history_by_mac_with_date_sql'} = get_db_handle()->prepare(
-        qq [ SELECT * FROM
-                (SELECT mac, ip, type, start_time, end_time, UNIX_TIMESTAMP(start_time) AS start_timestamp, UNIX_TIMESTAMP(end_time) AS end_timestamp
-                FROM ip6log
-                WHERE mac = ? AND start_time < FROM_UNIXTIME(?) AND (end_time > FROM_UNIXTIME(?) OR end_time = 0)
-                ORDER BY start_time DESC) AS a
-             UNION ALL
-             SELECT * FROM
-                (SELECT mac, ip, type, start_time, end_time, UNIX_TIMESTAMP(start_time) AS start_timestamp, UNIX_TIMESTAMP(end_time) AS end_timestamp
-                FROM ip6log_history
-                WHERE mac = ? AND start_time < FROM_UNIXTIME(?) AND (end_time > FROM_UNIXTIME(?) OR end_time = 0)
-                ORDER BY start_time DESC) AS b
-             ORDER BY start_time DESC LIMIT ? ]
-    );
-
-    # UNIX_TIMESTAMPs are used by graphs for dashboard and reports purposes
-    $ip6log_statements->{'ip6log_get_archive_by_ip_sql'} = get_db_handle()->prepare(
-        qq [ SELECT mac, ip, type, start_time, end_time, UNIX_TIMESTAMP(start_time) AS start_timestamp, UNIX_TIMESTAMP(end_time) AS end_timestamp
-             FROM ip6log_archive
-             WHERE ip = ?
-             ORDER BY start_time DESC LIMIT ? ]
-    );
-
-    # UNIX_TIMESTAMPs are used by graphs for dashboard and reports purposes
-    $ip6log_statements->{'ip6log_get_archive_by_ip_with_date_sql'} = get_db_handle()->prepare(
-        qq [ SELECT mac, ip, type, start_time, end_time, UNIX_TIMESTAMP(start_time) AS start_timestamp, UNIX_TIMESTAMP(end_time) AS end_timestamp
-             FROM ip6log_archive
-             WHERE ip = ? AND start_time < FROM_UNIXTIME(?) AND (end_time > FROM_UNIXTIME(?) OR end_time = 0)
-             ORDER BY start_time DESC LIMIT ? ]
-    );
-
-    # UNIX_TIMESTAMPs are used by graphs for dashboard and reports purposes
-    $ip6log_statements->{'ip6log_get_archive_by_mac_sql'} = get_db_handle()->prepare(
-        qq [ SELECT mac, ip, type, start_time, end_time, UNIX_TIMESTAMP(start_time) AS start_timestamp, UNIX_TIMESTAMP(end_time) AS end_timestamp
-             FROM ip6log_archive
-             WHERE mac = ?
-             ORDER BY start_time DESC LIMIT ? ]
-    );
-
-    # UNIX_TIMESTAMPs are used by graphs for dashboard and reports purposes
-    $ip6log_statements->{'ip6log_get_archive_by_mac_with_date_sql'} = get_db_handle()->prepare(
-        qq [ SELECT mac, ip, type, start_time, end_time, UNIX_TIMESTAMP(start_time) AS start_timestamp, UNIX_TIMESTAMP(end_time) AS end_timestamp
-             FROM ip6log_archive
-             WHERE mac = ? AND start_time < FROM_UNIXTIME(?) AND (end_time > FROM_UNIXTIME(?) OR end_time = 0)
-             ORDER BY start_time DESC LIMIT ? ]
-    );
-
-    $ip6log_statements->{'ip6log_exists_sql'} = get_db_handle()->prepare(
-        qq [ SELECT 1 FROM ip6log WHERE ip = ? ]
-    );
-
-    $ip6log_statements->{'ip6log_insert_sql'} = get_db_handle()->prepare(
-        qq [ INSERT INTO ip6log (mac, ip, type, start_time) VALUES (?, ?, ?, NOW()) ]
-    );
-
-    $ip6log_statements->{'ip6log_insert_with_lease_length_sql'} = get_db_handle()->prepare(
-        qq [ INSERT INTO ip6log (mac, ip, type, start_time, end_time) VALUES (?, ?, ?, NOW(), DATE_ADD(NOW(), INTERVAL ? SECOND)) ]
-    );
-
-    $ip6log_statements->{'ip6log_update_sql'} = get_db_handle()->prepare(
-        qq [ UPDATE ip6log SET mac = ?, type = ?, start_time = NOW(), end_time = "0000-00-00 00:00:00" WHERE ip = ? ]
-    );
-
-    $ip6log_statements->{'ip6log_update_with_lease_length_sql'} = get_db_handle()->prepare(
-        qq [ UPDATE ip6log SET mac = ?, type = ?, start_time = NOW(), end_time = DATE_ADD(NOW(), INTERVAL ? SECOND) WHERE ip = ? ]
-    );
-
-    $ip6log_statements->{'ip6log_close_sql'} = get_db_handle()->prepare(
-        qq [ UPDATE ip6log SET end_time = NOW() WHERE ip = ? ]
-    );
-
-    $ip6log_statements->{'ip6log_rotate_insert_sql'} = get_db_handle()->prepare(
-        qq [ INSERT INTO ip6log_archive SELECT mac, ip, type, start_time, end_time FROM ip6log_history WHERE end_time < DATE_SUB(?, INTERVAL ? SECOND) LIMIT ? ]
-    );
-    $ip6log_statements->{'ip6log_rotate_delete_sql'} = get_db_handle()->prepare(
-        qq [ DELETE FROM ip6log_history WHERE end_time < DATE_SUB(?, INTERVAL ? SECOND) LIMIT ? ]
-    );
-
-    $ip6log_statements->{'ip6log_history_cleanup_sql'} = get_db_handle()->prepare(
-        qq [ DELETE FROM ip6log_history WHERE end_time < DATE_SUB(?, INTERVAL ? SECOND) LIMIT ? ]
-    );
-    $ip6log_statements->{'ip6log_archive_cleanup_sql'} = get_db_handle()->prepare(
-        qq [ DELETE FROM ip6log_archive WHERE end_time < DATE_SUB(?, INTERVAL ? SECOND) LIMIT ? ]
-    );
-
-    $ip6log_db_prepared = 1;
-}
-
 
 =head2 ip2mac
 
@@ -332,9 +144,9 @@ sub get_history {
 
     $params{'limit'} = defined $params{'limit'} ? $params{'limit'} : IP6LOG_DEFAULT_HISTORY_LIMIT;
 
-    return _history_by_mac($search_by, %params) if ( pf::util::valid_mac($search_by) );
+    return _history_by({ mac => $search_by} , %params) if ( pf::util::valid_mac($search_by) );
 
-    return _history_by_ip($search_by, %params) if ( pf::util::IP::is_ipv6($search_by) );
+    return _history_by({ip => $search_by}, %params) if ( pf::util::IP::is_ipv6($search_by) );
 }
 
 =head2 get_archive
@@ -353,128 +165,57 @@ sub get_archive {
     return get_history( $search_by, %params );
 }
 
-=head2 _history_by_ip
+=head2 _history_by
 
-Get the full ip6log for a given IP address.
-
-Not meant to be used outside of this class. Refer to L<pf::ip6log::get_history> or L<pf::ip6log::get_archive>
-
-=cut
-
-sub _history_by_ip {
-    my ( $ip, %params ) = @_;
-    my $logger = pf::log::get_logger;
-
-    my @history = ();
-
-    if ( defined($params{'start_time'}) && defined($params{'end_time'}) ) {
-        # We are passing the arguments twice to match the prepare statement of the query
-        @history = db_data(IP6LOG, $ip6log_statements, 'ip6log_get_history_by_ip_with_date_sql',
-            $ip, $params{'end_time'}, $params{'start_time'}, $ip, $params{'end_time'}, $params{'start_time'}, $params{'limit'}
-        );
-        # Handling archive
-        if ( $params{'with_archive'} ) {
-            my $number_of_results = @history;
-            my $limit = $params{'limit'} - $number_of_results;
-            push ( @history,
-                db_data(IP6LOG, $ip6log_statements, 'ip6log_get_archive_by_ip_with_date_sql',
-                $ip, $params{'end_time'}, $params{'start_time'}, $limit)
-            ) if $limit > 0;
-        }
-    }
-
-    elsif ( defined($params{'date'}) ) {
-        # We are passing the arguments twice to match the prepare statement of the query
-        @history = db_data(IP6LOG, $ip6log_statements, 'ip6log_get_history_by_ip_with_date_sql',
-            $ip, $params{'date'}, $params{'date'}, $ip, $params{'date'}, $params{'date'}, $params{'limit'}
-        );
-        # Handling archive
-        if ( $params{'with_archive'} ) {
-            my $number_of_results = @history;
-            my $limit = $params{'limit'} - $number_of_results;
-            push ( @history,
-                db_data(IP6LOG, $ip6log_statements, 'ip6log_get_archive_by_ip_with_date_sql',
-                $ip, $params{'date'}, $params{'date'}, $limit)
-            ) if $limit > 0;
-        }
-    }
-
-    else {
-        # We are passing the arguments twice to match the prepare statement of the query
-        @history = db_data(IP6LOG, $ip6log_statements, 'ip6log_get_history_by_ip_sql', $ip, $ip, $params{'limit'});
-        # Handling archive
-        if ( $params{'with_archive'} ) {
-            my $number_of_results = @history;
-            my $limit = $params{'limit'} - $number_of_results;
-            push ( @history,
-                db_data(IP6LOG, $ip6log_statements, 'ip6log_get_archive_by_ip_sql', $ip, $limit)
-            ) if $limit > 0;
-        }
-    }
-
-    return @history;
-}
-
-=head2 _history_by_mac
-
-Get the full ip6log for a given MAC address.
+Get the full ip6log for a given search.
 
 Not meant to be used outside of this class. Refer to L<pf::ip6log::get_history> or L<pf::ip6log::get_archive>
 
 =cut
 
-sub _history_by_mac {
-    my ( $mac, %params ) = @_;
+sub _history_by {
+    my ( $where, %params ) = @_;
     my $logger = pf::log::get_logger;
+    my $start_time;
+    my $end_time;
+    my $limit = $params{'limit'};
+    my @columns = qw(mac ip type start_time end_time unix_timestamp(start_time)|start_timestamp unix_timestamp(end_time)|end_timestamp);
 
-    my @history = ();
+    my %select_args = (
+            -from => 'ip6log',
+            -columns => \@columns,
+            -where => $where,
+            -union_all => [
+                -from => 'ip6log_history',
+                -columns => \@columns,
+                -where => $where,
+            ],
+            -order_by => { -desc => 'start_time'},
+            -limit => $limit,
+    );
 
     if ( defined($params{'start_time'}) && defined($params{'end_time'}) ) {
-        # We are passing the arguments twice to match the prepare statement of the query
-        @history = db_data(IP6LOG, $ip6log_statements, 'ip6log_get_history_by_mac_with_date_sql',
-            $mac, $params{'end_time'}, $params{'start_time'}, $mac, $params{'end_time'}, $params{'start_time'}, $params{'limit'}
-        );
-        # Handling archive
-        if ( $params{'with_archive'} ) {
-            my $number_of_results = @history;
-            my $limit = $params{'limit'} - $number_of_results;
-            push ( @history,
-                db_data(IP6LOG, $ip6log_statements, 'ip6log_get_archive_by_mac_with_date_sql',
-                $mac, $params{'end_time'}, $params{'start_time'}, $limit)
-            ) if $limit > 0;
-        }
+        $start_time = $params{'start_time'};
+        $end_time = $params{'end_time'};
     }
 
     elsif ( defined($params{'date'}) ) {
-        # We are passing the arguments twice to match the prepare statement of the query
-        @history = db_data(IP6LOG, $ip6log_statements, 'ip6log_get_history_by_mac_with_date_sql',
-            $mac, $params{'date'}, $params{'date'}, $mac, $params{'date'}, $params{'date'}, $params{'limit'}
-        );
-        # Handling archive
-        if ( $params{'with_archive'} ) {
-            my $number_of_results = @history;
-            my $limit = $params{'limit'} - $number_of_results;
-            push ( @history,
-                db_data(IP6LOG, $ip6log_statements, 'ip6log_get_archive_by_mac_with_date_sql',
-                $mac, $params{'date'}, $params{'date'}, $limit)
-            ) if $limit > 0;
-        }
+        $start_time = $params{'date'};
+        $end_time = $params{'date'};
     }
 
-    else {
-        # We are passing the arguments twice to match the prepare statement of the query
-        @history = db_data(IP6LOG, $ip6log_statements, 'ip6log_get_history_by_mac_sql', $mac, $mac, $params{'limit'});
-        # Handling archive
-        if ( $params{'with_archive'} ) {
-            my $number_of_results = @history;
-            my $limit = $params{'limit'} - $number_of_results;
-            push ( @history,
-                db_data(IP6LOG, $ip6log_statements, 'ip6log_get_archive_by_mac_sql', $mac, $limit)
-            ) if $limit > 0;
-        }
+    if ($start_time && $end_time) {
+        $where->{start_time} = {"<" => \['from_unixtime(?)', $end_time]};
+        $where->{end_time} = [{">" => \['from_unixtime(?)', $start_time]}, $ZERO_DATE];
     }
-
-    return @history;
+    if ( $params{'with_archive'} ) {
+        push @{$select_args{-union_all}}, -union_all => [
+            -from => 'ip6log_archive',
+            -columns => \@columns,
+            -where => $where,
+        ];
+    }
+    return _db_list(\%select_args);
 }
 
 =head2 view
@@ -511,11 +252,23 @@ sub _view_by_ip {
 
     $logger->debug("Viewing an 'ip6log' table entry for the following IP address '$ip'");
 
-    my $query = db_query_execute(IP6LOG, $ip6log_statements, 'ip6log_view_by_ip_sql', $ip) || return (0);
-    my $ref = $query->fetchrow_hashref();
+    my ($status, $iter) = pf::dal::ip6log->search(
+        -where => {
+            ip => $ip,
+            -or => [
+                end_time => $ZERO_DATE,
+                \'(end_time + INTERVAL 30 SECOND) > NOW()'
+            ],
+        },
+        -order_by => {-desc => 'start_time'},
+        -limit => 1,
+        -columns => [qw(mac ip type start_time end_time)],
+    );
 
-    # just get one row and finish
-    $query->finish();
+    if (is_error($status)) {
+        return (0);
+    }
+    my $ref = $iter->next(undef);
 
     return ($ref);
 }
@@ -534,12 +287,23 @@ sub _view_by_mac {
 
     $logger->debug("Viewing an 'ip6log' table entry for the following MAC address '$mac'");
 
-    my $query = db_query_execute(IP6LOG, $ip6log_statements, 'ip6log_view_by_mac_sql', $mac) || return (0);
-    my $ref = $query->fetchrow_hashref();
+    my ($status, $iter) = pf::dal::ip6log->search(
+        -where => {
+            mac => $mac,
+            -or => [
+                end_time => $ZERO_DATE,
+                \'(end_time + INTERVAL 30 SECOND) > NOW()'
+            ],
+        },
+        -order_by => { -desc => 'start_time' },
+        -limit => 1,
+        -columns => [qw(mac ip type start_time end_time)],
+    );
 
-    # just get one row and finish
-    $query->finish();
-
+    if (is_error($status)) {
+        return (0);
+    }
+    my $ref = $iter->next(undef);
     return ($ref);
 }
 
@@ -561,7 +325,24 @@ sub list_open {
     # Either way, we return the complete list
     $logger->debug("Listing all currently open 'ip6log' table entries");
     $logger->debug("For debugging purposes, here's the given parameter if any: '" . ($search_by // "undef") . "'");
-    return db_data(IP6LOG, $ip6log_statements, 'ip6log_list_open_sql') if ( !defined($search_by) );
+    return _db_list(
+        {
+            -where => {
+                end_time => [$ZERO_DATE, {">" => \'NOW()'}],
+            },
+            -columns => [qw(mac ip type start_time end_time)],
+        }
+    ) if !defined($search_by);;
+}
+
+sub _db_list {
+    my ($args) = @_;
+    my ($status, $iter) = pf::dal::ip6log->search(%$args);
+
+    if (is_error($status)) {
+        return;
+    }
+    return @{$iter->all(undef) // []};
 }
 
 =head2 _list_open_by_ip
@@ -577,8 +358,19 @@ sub _list_open_by_ip {
     my $logger = pf::log::get_logger;
 
     $logger->debug("Listing all currently open 'ip6log' table entries for the following IP address '$ip'");
-
-    return db_data(IP6LOG, $ip6log_statements, 'ip6log_list_open_by_ip_sql', $ip);
+    return _db_list(
+        {
+            -where => {
+                ip => $ip,
+                -or => [
+                    end_time => $ZERO_DATE,
+                    \'end_time > NOW()'
+                ],
+            },
+            -order_by => { -desc => 'start_time' },
+            -columns => [qw(mac ip type start_time end_time)],
+        }
+    );
 }
 
 =head2 _list_open_by_mac
@@ -595,7 +387,19 @@ sub _list_open_by_mac {
 
     $logger->debug("Listing all currently open 'ip6log' table entries for the following MAC address '$mac'");
 
-    return db_data(IP6LOG, $ip6log_statements, 'ip6log_list_open_by_mac_sql', $mac);
+    return _db_list(
+        {
+            -where => {
+                mac => $mac,
+                -or => [
+                    end_time => $ZERO_DATE,
+                    \'end_time > NOW()'
+                ],
+            },
+            -order_by => { -desc => 'start_time' },
+            -columns => [qw(mac ip type start_time end_time)],
+        }
+    );
 }
 
 =head2 _exists
@@ -608,7 +412,7 @@ Not meant to be used outside of this class.
 
 sub _exists {
     my ( $ip ) = @_;
-    return db_data(IP6LOG, $ip6log_statements, 'ip6log_exists_sql', $ip);
+    return (is_success(pf::dal::ip6log->exists({ip => $ip})));
 }
 
 =head2 open
@@ -642,60 +446,28 @@ sub open {
         $logger->warn("Trying to open an 'ip6log' table entry with an invalid MAC address '" . ($mac // "undef") . "'");
         return;
     }
+    my %args = (
+        mac => $mac,
+        ip => $ip,
+        type => $type,
+        start_time => \"NOW()",
+        end_time => $ZERO_DATE,
+    );
 
-    if ( _exists($ip) ) {
-        $logger->debug("An 'ip6log' table entry already exists for that IP ($ip). Proceed with updating it");
-        _update($ip, $mac, $type, $lease_length);
-    } else {
+    if ($lease_length) {
+        $args{end_time} = \['DATE_ADD(NOW(), INTERVAL ? SECOND)', $lease_length],
+    }
+    my $item = pf::dal::ip6log->new(\%args);
+    #does an upsert of the ip4log
+    my $status = $item->save();
+
+    return if is_error($status);
+    if ($STATUS::CREATED == $status) {
         $logger->debug("No 'ip6log' table entry found for that IP ($ip). Creating a new one");
-        _insert($ip, $mac, $type, $lease_length);
-    }
-
-    return (0);
-}
-
-=head2 _insert
-
-Insert a new 'ip6log' table entry.
-
-Not meant to be used outside of this class. Refer to L<pf::ip6log::open>
-
-=cut
-
-sub _insert {
-    my ( $ip, $mac, $type, $lease_length ) = @_;
-    my $logger = pf::log::get_logger;
-
-    if ( $lease_length ) {
-        $logger->debug("Adding a new 'ip6log' table entry for IP address '$ip' with MAC address '$mac' (Lease length: $lease_length secs)");
-        db_query_execute(IP6LOG, $ip6log_statements, 'ip6log_insert_with_lease_length_sql', $mac, $ip, $type, $lease_length);
     } else {
-        $logger->debug("Adding a new 'ip6log' table entry for IP address '$ip' with MAC address '$mac' (No lease provided)");
-        db_query_execute(IP6LOG, $ip6log_statements, 'ip6log_insert_sql', $mac, $ip, $type);
+        $logger->debug("An 'ip6log' table entry already exists for that IP ($ip). Proceed with updating it");
     }
-}
-
-=head2 _update
-
-Update an existing 'ip6log' table entry.
-
-Please note that a trigger (ip6log_insert_in_ip6log_history_before_update_trigger) exists in the database schema to copy the old existing record into the 'ip6log_history' table and adjust the end_time accordingly.
-
-Not meant to be used outside of this class. Refer to L<pf::ip6log::open>
-
-=cut
-
-sub _update {
-    my ( $ip, $mac, $type, $lease_length ) = @_;
-    my $logger = pf::log::get_logger;
-
-    if ( $lease_length ) {
-        $logger->debug("Updating an existing 'ip6log' table entry for IP address '$ip' with MAC address '$mac' (Lease length: $lease_length secs)");
-        db_query_execute(IP6LOG, $ip6log_statements, 'ip6log_update_with_lease_length_sql', $mac, $type, $lease_length, $ip);
-    } else {
-        $logger->debug("Updating an existing 'ip6log' table entry for IP address '$ip' with MAC address '$mac' (No lease provided)");
-        db_query_execute(IP6LOG, $ip6log_statements, 'ip6log_update_sql', $mac, $type, $ip);
-    }
+    return (1);
 }
 
 =head2 close
@@ -712,11 +484,18 @@ sub close {
         $logger->warn("Trying to close an 'ip6log' table entry with an invalid IP address '" . ($ip // "undef") . "'");
         return (0);
     }
-
     $logger->debug("Closing existing 'ip6log' table entry for IP address '$ip' as of now");
-    db_query_execute(IP6LOG, $ip6log_statements, 'ip6log_close_sql', $ip);
 
-    return (0);
+    my ($status, $rows) = pf::dal::ip6log->update_items(
+        -set => {
+            end_time => \'NOW()',
+        },
+        -where => {
+            ip => $ip,
+        }
+    );
+
+    return ($rows);
 }
 
 
@@ -730,25 +509,43 @@ sub rotate {
     my $timer = pf::StatsD::Timer->new({sample_rate => 0.2});
     my ( $window_seconds, $batch, $time_limit ) = @_;
     my $logger = pf::log::get_logger();
-
     $logger->debug("Calling rotate with window='$window_seconds' seconds, batch='$batch', timelimit='$time_limit'");
-    my $now = pf::db::db_now();
+    my $now = pf::dal->now();
     my $start_time = time;
     my $end_time;
     my $rows_rotated = 0;
+    my $where = {
+        end_time => {
+            "<" => \[ 'DATE_SUB(?, INTERVAL ? SECOND)', $now, $window_seconds ]
+        },
+    };
+
+    my ( $subsql, @bind ) = pf::dal::ip6log_history->select(
+        -columns => [qw(tenant_id mac ip type start_time end_time)],
+        -where => $where,
+        -limit => $batch,
+        -from => pf::dal::ip6log_history->table,
+        -no_auto_tenant_id => 1,
+    );
+
+    my %rotate_search = (
+        -where => $where,    
+        -limit => $batch,
+        -no_auto_tenant_id => 1,
+    );
+
+    my $sql = "INSERT INTO ip6log_archive (tenant_id, mac, ip, type, start_time, end_time) $subsql;";
 
     while (1) {
         my $query;
         my ( $rows_inserted, $rows_deleted );
         pf::db::db_transaction_execute( sub{
-            $query = db_query_execute(IP6LOG, $ip6log_statements, 'ip6log_rotate_insert_sql', $now, $window_seconds, $batch) || return (0);
-            $rows_inserted = $query->rows;
-            $query->finish;
+            my ($status, $sth) = pf::dal::ip6log_archive->db_execute($sql, @bind);
+            $rows_inserted = $sth->rows;
+            $sth->finish;
             if ($rows_inserted > 0 ) {
-                $logger->debug("Inserted '$rows_inserted' entries from ip6log_history to ip6log_archive while rotating");
-                $query = db_query_execute(IP6LOG, $ip6log_statements, 'ip6log_rotate_delete_sql', $now, $window_seconds, $batch) || return (0);
-                $rows_deleted = $query->rows;
-                $query->finish;
+                my ($status, $rows) = pf::dal::ip6log_history->remove_items(%rotate_search);
+                $rows_deleted = $rows // 0;
                 $logger->debug("Deleted '$rows_deleted' entries from ip6log_history while rotating");
             } else {
                 $rows_deleted = 0;
@@ -773,7 +570,7 @@ Cleanup the ip6log_archive table
 
 sub cleanup_archive {
     my ( $window_seconds, $batch, $time_limit ) = @_;
-    return _cleanup($window_seconds, $batch, $time_limit, 'ip6log_archive_cleanup_sql');
+    return _cleanup($window_seconds, $batch, $time_limit, "pf::dal::ip6log_archive");
 }
 
 =head2 cleanup_history
@@ -784,7 +581,7 @@ Cleanup the ip6log_history table
 
 sub cleanup_history {
     my ( $window_seconds, $batch, $time_limit ) = @_;
-    return _cleanup($window_seconds, $batch, $time_limit, 'ip6log_history_cleanup_sql');
+    return _cleanup($window_seconds, $batch, $time_limit, "pf::dal::ip6log_history");
 }
 
 
@@ -796,34 +593,30 @@ The generic cleanup for ip6log tables
 
 sub _cleanup {
     my $timer = pf::StatsD::Timer->new({sample_rate => 0.2});
-    my ( $window_seconds, $batch, $time_limit, $query_name ) = @_;
+    my ( $window_seconds, $batch, $time_limit, $dal ) = @_;
     my $logger = pf::log::get_logger();
-    $logger->debug("Calling cleanup with window='$window_seconds' seconds, batch='$batch', timelimit='$time_limit'");
-
+    $logger->debug("Calling cleanup with for $dal window='$window_seconds' seconds, batch='$batch', timelimit='$time_limit'");
     if ( $window_seconds eq "0" ) {
         $logger->debug("Not deleting because the window is 0");
         return;
     }
 
-    my $now = pf::db::db_now();
-    my $start_time = time;
-    my $end_time;
-    my $rows_deleted = 0;
+    my $now = pf::dal->now();
 
-    while (1) {
-        my $query = db_query_execute(IP6LOG, $ip6log_statements, $query_name, $now, $window_seconds, $batch) || return (0);
-        my $rows = $query->rows;
-        $query->finish;
-        $end_time = time;
-        $rows_deleted += $rows if $rows > 0;
-        $logger->trace("Deleted '$rows_deleted' entries with $query_name (start: '$start_time', end: '$end_time')");
-        last if $rows <= 0 || ( ( $end_time - $start_time ) > $time_limit );
-    }
-
-    $logger->info("Deleted '$rows_deleted' entries with $query_name (start: '$start_time', end: '$end_time')");
-    return (0);
+    my ($status, $rows) = $dal->batch_remove(
+        {
+            -where => {
+                end_time => {
+                    "<" => \[ 'DATE_SUB(?, INTERVAL ? SECOND)', $now, $window_seconds ]
+                }
+            },
+            -limit => $batch,
+            -no_auto_tenant_id => 1,
+        },
+        $time_limit
+    );
+    return ($rows);
 }
-
 
 =head1 AUTHOR
 
@@ -831,7 +624,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2017 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 

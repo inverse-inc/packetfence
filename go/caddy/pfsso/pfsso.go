@@ -8,6 +8,7 @@ import (
 	"io"
 	"net/http"
 	"strconv"
+	"strings"
 	"time"
 
 	"github.com/inverse-inc/packetfence/go/caddy/caddy"
@@ -34,6 +35,7 @@ type PfssoHandler struct {
 	router *httprouter.Router
 	// The cache for the cached updates feature
 	updateCache *cache.Cache
+	firewalls   *firewallsso.FirewallsContainer
 }
 
 // Setup the pfsso middleware
@@ -46,10 +48,6 @@ func setup(c *caddy.Controller) error {
 	if err != nil {
 		return err
 	}
-
-	// Declare all pfconfig resources that will be necessary
-	pfconfigdriver.PfconfigPool.AddRefreshable(ctx, &firewallsso.Firewalls)
-	pfconfigdriver.PfconfigPool.AddStruct(ctx, &pfconfigdriver.Config.Interfaces.ManagementNetwork)
 
 	httpserver.GetConfig(c).AddMiddleware(func(next httpserver.Handler) httpserver.Handler {
 		pfsso.Next = next
@@ -67,11 +65,16 @@ func buildPfssoHandler(ctx context.Context) (PfssoHandler, error) {
 	pfsso.updateCache = cache.New(1*time.Hour, 30*time.Second)
 
 	router := httprouter.New()
-	router.POST("/pfsso/update", pfsso.handleUpdate)
-	router.POST("/pfsso/start", pfsso.handleStart)
-	router.POST("/pfsso/stop", pfsso.handleStop)
+	router.POST("/api/v1/firewall_sso/update", pfsso.handleUpdate)
+	router.POST("/api/v1/firewall_sso/start", pfsso.handleStart)
+	router.POST("/api/v1/firewall_sso/stop", pfsso.handleStop)
 
 	pfsso.router = router
+
+	// Declare all pfconfig resources that will be necessary
+	pfsso.firewalls = firewallsso.NewFirewallsContainer(ctx)
+	pfconfigdriver.PfconfigPool.AddRefreshable(ctx, pfsso.firewalls)
+	pfconfigdriver.PfconfigPool.AddStruct(ctx, &pfconfigdriver.Config.Interfaces.ManagementNetwork)
 
 	return pfsso, nil
 }
@@ -98,6 +101,11 @@ func (h PfssoHandler) parseSsoRequest(ctx context.Context, body io.Reader) (map[
 		return nil, 0, err
 	}
 
+	if info["stripped_username"] == "" {
+		log.LoggerWContext(ctx).Warn("No stripped_username set in the request, using the username as the stripped_username and no realm")
+		info["stripped_username"] = info["username"]
+	}
+
 	return info, int(timeout), nil
 }
 
@@ -113,10 +121,16 @@ func (h PfssoHandler) validateInfo(ctx context.Context, info map[string]string) 
 }
 
 // Spawn an async SSO request for a specific firewall
-func (h PfssoHandler) spawnSso(ctx context.Context, firewall firewallsso.FirewallSSOInt, f func() (bool, error)) {
+func (h PfssoHandler) spawnSso(ctx context.Context, firewall firewallsso.FirewallSSOInt, info map[string]string, f func(info map[string]string) (bool, error)) {
+	// Perform a copy of the information hash before spawning the goroutine
+	infoCopy := map[string]string{}
+	for k, v := range info {
+		infoCopy[k] = v
+	}
+
 	go func() {
 		defer panichandler.Standard(ctx)
-		sent, err := f()
+		sent, err := f(infoCopy)
 		if err != nil {
 			log.LoggerWContext(ctx).Error(fmt.Sprintf("Error while sending SSO to %s: %s"+firewall.GetFirewallSSO(ctx).PfconfigHashNS, err))
 		}
@@ -150,14 +164,23 @@ func (h PfssoHandler) handleUpdate(w http.ResponseWriter, r *http.Request, p htt
 	ctx = h.addInfoToContext(ctx, info)
 
 	var shouldStart bool
-	for _, firewall := range firewallsso.Firewalls.Structs {
-		cacheKey := firewall.GetFirewallSSO(ctx).PfconfigHashNS + ":" + info["ip"]
+	for _, firewall := range h.firewalls.All(ctx) {
+		cacheKey := firewall.GetFirewallSSO(ctx).PfconfigHashNS + "|mac|" + info["mac"] + "|ip|" + info["ip"] + "|username|" + info["username"] + "|role|" + info["role"]
 		// Check whether or not this firewall has cache updates
 		// Then check if an entry in the cache exists
 		//  If it does exist, we don't send a Start
 		//  Otherwise, we add an entry in the cache
 		// Note that this has a race condition between the cache.Get and the cache.Set but it is acceptable since worst case will be that 2 SSO will be sent if both requests came in at that same nanosecond
 		if firewall.ShouldCacheUpdates(ctx) {
+			// Delete any entries for this MAC that aren't matching this cache key
+			for k, _ := range h.updateCache.Items() {
+				// If its not our current cache key but its made for the same MAC, then we'll remove it since its not relevant anymore
+				if k != cacheKey && strings.Contains(k, "|mac|"+info["mac"]) {
+					log.LoggerWContext(ctx).Debug("Deleting irrelevant cache key " + k)
+					h.updateCache.Delete(k)
+				}
+			}
+
 			if _, found := h.updateCache.Get(cacheKey); !found {
 
 				var cacheTimeout int
@@ -183,7 +206,7 @@ func (h PfssoHandler) handleUpdate(w http.ResponseWriter, r *http.Request, p htt
 		if shouldStart {
 			//Creating a shallow copy here so the anonymous function has the right reference
 			firewall := firewall
-			h.spawnSso(ctx, firewall, func() (bool, error) {
+			h.spawnSso(ctx, firewall, info, func(info map[string]string) (bool, error) {
 				return firewallsso.ExecuteStart(ctx, firewall, info, timeout)
 			})
 		} else {
@@ -208,10 +231,10 @@ func (h PfssoHandler) handleStart(w http.ResponseWriter, r *http.Request, p http
 
 	ctx = h.addInfoToContext(ctx, info)
 
-	for _, firewall := range firewallsso.Firewalls.Structs {
+	for _, firewall := range h.firewalls.All(ctx) {
 		//Creating a shallow copy here so the anonymous function has the right reference
 		firewall := firewall
-		h.spawnSso(ctx, firewall, func() (bool, error) {
+		h.spawnSso(ctx, firewall, info, func(info map[string]string) (bool, error) {
 			return firewallsso.ExecuteStart(ctx, firewall, info, timeout)
 		})
 	}
@@ -232,10 +255,18 @@ func (h PfssoHandler) handleStop(w http.ResponseWriter, r *http.Request, p httpr
 
 	ctx = h.addInfoToContext(ctx, info)
 
-	for _, firewall := range firewallsso.Firewalls.Structs {
+	// Delete any cache entries for this IP
+	for k, _ := range h.updateCache.Items() {
+		if strings.Contains(k, "|ip|"+info["ip"]+"|") {
+			log.LoggerWContext(ctx).Debug("Deleting irrelevant cache key " + k)
+			h.updateCache.Delete(k)
+		}
+	}
+
+	for _, firewall := range h.firewalls.All(ctx) {
 		//Creating a shallow copy here so the anonymous function has the right reference
 		firewall := firewall
-		h.spawnSso(ctx, firewall, func() (bool, error) {
+		h.spawnSso(ctx, firewall, info, func(info map[string]string) (bool, error) {
 			return firewallsso.ExecuteStop(ctx, firewall, info)
 		})
 	}

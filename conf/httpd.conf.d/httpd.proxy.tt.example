@@ -25,6 +25,9 @@
   <IfModule !mod_log_config.c>
     LoadModule log_config_module /usr/lib/apache2/modules/mod_log_config.so
   </IfModule>
+  <IfModule !mod_logio.c>
+    LoadModule logio_module /usr/lib/apache2/modules/mod_logio.so
+  </IfModule>
   <IfModule !mod_ssl.c>
     LoadModule ssl_module /usr/lib/apache2/modules/mod_ssl.so
   </IfModule>
@@ -48,6 +51,9 @@
   </IfModule>
   <IfModule !mod_systemd.c>
     LoadModule systemd_module     /usr/lib/apache2/modules/mod_systemd.so
+  </IfModule>
+  <IfModule !mod_proxy_connect.c>
+   LoadModule proxy_connect_module /usr/lib/apache2/modules/mod_proxy_connect.so
   </IfModule>
 </IfDefine>
 
@@ -76,6 +82,9 @@
   <IfModule !mod_log_config.c>
     LoadModule log_config_module modules/mod_log_config.so
   </IfModule>
+  <IfModule !mod_logio.c>
+    LoadModule logio_module modules/mod_logio.so
+  </IfModule>
   <IfModule !mod_ssl.c>
     LoadModule ssl_module modules/mod_ssl.so
   </IfModule>
@@ -99,6 +108,9 @@
   </IfModule>
   <IfModule !mod_systemd.c>
     LoadModule systemd_module modules/mod_systemd.so
+  </IfModule>
+  <IfModule !mod_proxy_connect.c>
+   LoadModule proxy_connect_module modules/mod_proxy_connect.so
   </IfModule>
 </IfDefine>
 

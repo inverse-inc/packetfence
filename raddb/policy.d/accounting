@@ -46,7 +46,7 @@ acct_unique {
 	#
 	else {
 		update request {
-			&Acct-Unique-Session-Id := "%{md5:%{User-Name},%{Calling-Station-Id}}"
+			&Acct-Unique-Session-Id := "%{md5:%{User-Name},%{Calling-Station-Id},%{Acct-Session-Id}}"
 		 }
 	}
 }

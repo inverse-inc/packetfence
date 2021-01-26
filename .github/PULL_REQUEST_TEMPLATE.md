@@ -26,6 +26,12 @@ fixes #ISSUE_NUMBER
 (REQUIRED)
 YES | NO
 
+# Checklist
+(REQUIRED) - [yes, no or n/a]
+- [ ] Document the feature
+- [ ] Add unit tests
+- [ ] Add acceptance tests (TestLink)
+
 # NEWS file entries
 (REQUIRED, but may be optional...)
 ## New Features

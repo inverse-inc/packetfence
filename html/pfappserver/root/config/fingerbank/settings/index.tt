@@ -1,5 +1,36 @@
-<h2>[% l('Fingerbank Settings') %]</h2>
-<br/>
+<div>
+  [% IF account_info_error %]
+  <h3 class="alert alert-danger">Impossible to fetch Fingerbank account information: [% account_info_error %]</h3>
+  [% ELSE %]
+  <h3>Account information on [% fingerbank_config.upstream.host %]</h3>
+  <table class="table table-condensed unbordered">
+  <tbody>
+    <tr>
+      <td><b>Username</b></td>
+      <td>[% account_info.name %]</td>
+    </tr>
+    <tr>
+      <td><b>Account type</b></td>
+      <td>[% IF account_info.github_uid ; "Github" ; ELSE ; "Corporate" ; END %]</td>
+      <td rowspan="3">
+        <form action="[% fingerbank_base_uri %]/sso/login" method="GET" target="_blank">
+          <input type="hidden" name="username" value="[% account_info.name %]">
+          <input type="hidden" name="key" value="[% account_info.key %]">
+          <input type="hidden" name="redirect_url" value="/users/[% account_info.id %]">
+          <input type="submit" class="btn btn-primary" value="View complete account profile">
+        </form>
+      </td>
+    </tr>
+    <tr>
+      <td><b>Requests in the current hour</b></td>
+      <td>[% account_info.timeframed_requests %]</td>
+    </tr>
+  </tbody>
+  </table>
+  [% END %]
+</div>
+
+<hr>
 
 <form name="section" class="form-horizontal" action="[%c.uri_for(c.controller.action_for('index'))%]" method="post">
   [% FOREACH field IN form.fields %]

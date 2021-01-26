@@ -21,7 +21,7 @@ has_field '+signup_template' => ( required => 0 );
 # overriding to remove the signup template
 sub child_definition {
     my ($self) = @_;
-    return (qw(source_id custom_fields with_aup aup_template));
+    return (qw(custom_fields with_aup aup_template));
 }
 
 before 'setup' => sub {
@@ -37,7 +37,7 @@ before 'setup' => sub {
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2017 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 
@@ -58,5 +58,5 @@ USA.
 
 =cut
 
-__PACKAGE__->meta->make_immutable;
+__PACKAGE__->meta->make_immutable unless $ENV{"PF_SKIP_MAKE_IMMUTABLE"};
 1;

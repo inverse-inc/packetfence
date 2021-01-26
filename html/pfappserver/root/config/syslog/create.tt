@@ -1,0 +1,1 @@
+[% INCLUDE config/syslog/view.tt %]

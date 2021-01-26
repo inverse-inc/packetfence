@@ -29,9 +29,6 @@ use List::MoreUtils qw(natatime);
 use Time::HiRes qw(time);
 use NetAddr::IP;
 
-use constant FREERADIUS => 'freeradius';
-use constant SWITCHES_CONF => '/switches.conf';
-
 BEGIN {
     use Exporter ();
     our ( @ISA, @EXPORT );
@@ -44,9 +41,14 @@ BEGIN {
     );
 }
 
-use pf::config;
+use pf::config qw($local_secret $management_network);
 use pf::db;
+use pf::dal::radius_nas;
+use pf::dal;
 use pf::util qw(valid_mac);
+use pf::error qw(is_error);
+use pf::constants qw($DEFAULT_TENANT_ID);
+use pf::cluster;
 
 # The next two variables and the _prepare sub are required for database handling magic (see pf::db)
 our $freeradius_db_prepared = 0;
@@ -59,64 +61,29 @@ our $freeradius_statements = {};
 
 =over
 
-=item freeradius_db_prepare
+=head2 freeradius_db_prepare
 
 Prepares all the SQL statements related to this module
 
 =cut
 
-sub freeradius_db_prepare {
-    my $logger = get_logger();
-    $logger->debug("Preparing pf::freeradius database queries");
-    my $dbh = get_db_handle();
-    if($dbh) {
-
-        $freeradius_statements->{'freeradius_delete_all_sql'} = $dbh->prepare(qq[
-            TRUNCATE TABLE radius_nas
-        ]);
-
-        $freeradius_statements->{'freeradius_delete_expired_sql'} = $dbh->prepare(qq[
-            DELETE FROM radius_nas WHERE config_timestamp != ?;
-        ]);
-
-        $freeradius_statements->{'freeradius_insert_nas'} = $dbh->prepare(qq[
-            INSERT INTO radius_nas (
-                nasname, shortname, secret, description
-            ) VALUES (
-                ?, ?, ?, ?
-            )
-        ]);
-
-        $freeradius_db_prepared = 1;
-    }
-}
-
-=item _delete_all_nas
-
-Empties the radius_nas table
-
-=cut
-
-sub _delete_all_nas {
-    my $logger = get_logger();
-    $logger->debug("emptying radius_nas table");
-
-    db_query_execute(FREERADIUS, $freeradius_statements, 'freeradius_delete_all_sql')
-        || return 0;;
-    return 1;
-}
-
 sub _delete_expired {
     my ($timestamp) = @_;
     my $logger = get_logger();
+    my ($status, $rows) = pf::dal::radius_nas->remove_items(
+        -where => {
+            config_timestamp => {"!=" => $timestamp},
+        }
+    );
     $logger->debug("emptying radius_nas table");
+    if (is_error($status)) {
+        return undef;
+    }
 
-    db_query_execute(FREERADIUS, $freeradius_statements, 'freeradius_delete_expired_sql', $timestamp)
-        || return 0;;
-    return 1;
+    return $rows;
 }
 
-=item _insert_nas_bulk
+=head2 _insert_nas_bulk
 
 Add a new NAS (FreeRADIUS client) record
 
@@ -126,44 +93,44 @@ sub _insert_nas_bulk {
     my (@rows) = @_;
     my $logger = get_logger();
     return 0 unless @rows;
-    my $row_count = @rows;
-    my $sql = "REPLACE INTO radius_nas ( nasname, shortname, secret, description, config_timestamp, start_ip, end_ip, range_length) VALUES ( ?, ?, ?, ?, ?, ?, ?, ?)" . ",( ?, ?, ?, ?, ?, ?, ?, ?)" x ($row_count -1)    ;
-    $freeradius_statements->{'freeradius_insert_nas_bulk'} = $sql;
+    my $sqla = pf::dal::radius_nas->get_sql_abstract;
+    my ($sql, @bind) = $sqla->update_multi(
+        'radius_nas',
+        [qw(tenant_id nasname shortname secret description config_timestamp start_ip end_ip range_length)],
+        \@rows
+    );
+    my ($status, $sth) = pf::dal::radius_nas->db_execute($sql, @bind);
+    if (is_error($status)) {
+        return 0;
+    }
 
-    db_query_execute(
-        FREERADIUS, $freeradius_statements, 'freeradius_insert_nas_bulk', map  { @$_ } @rows
-    ) || return 0;
+    $sth->finish;
     return 1;
 }
 
-=item _insert_nas
-
-Add a new NAS (FreeRADIUS client) record
-
-=cut
-
-sub _insert_nas {
-    my ($nasname, $shortname, $secret, $description) = @_;
-    my $logger = get_logger();
-
-    db_query_execute(
-        FREERADIUS, $freeradius_statements, 'freeradius_insert_nas', $nasname, $shortname, $secret, $description
-    ) || return 0;
-    return 1;
-}
-
-=item freeradius_populate_nas_config
+=head2 freeradius_populate_nas_config
 
 Populates the radius_nas table with switches in switches.conf.
 
 =cut
 
+my %skip = (default => undef, '127.0.0.1' => undef);
+
 # First, we aim at reduced complexity. I prefer to dump and reload than to deal with merging config vs db changes.
 sub freeradius_populate_nas_config {
     my $logger = get_logger();
-    return unless db_ping;
-    my ($switch_config,$timestamp) = @_;
-    my %skip = (default => undef, '127.0.0.1' => undef );
+    unless(db_ping()){
+        $logger->error("Can't connect to db");
+        return;
+    }
+
+    if (db_readonly_mode()) {
+        my $msg = "Cannot reload the RADIUS clients table when the database is in read only mode\n";
+        print STDERR $msg;
+        $logger->error($msg);
+        return;
+    }
+    my ($switch_config, $timestamp) = @_;
     my $radiusSecret;
 
     #Only switches with a secert except default and 127.0.0.1
@@ -178,24 +145,95 @@ sub freeradius_populate_nas_config {
     unless (defined $timestamp ) {
         $timestamp = int (time * 1000000);
     }
+
+    my @entries = (
+        (map { { %{$switch_config->{$_}}, id => $_ } } @switches),
+        additional_switches(),
+    );
     #Looping through all the switches 100 at a time
-    my $it = natatime 100,@switches;
-    while (my @ids = $it->() ) {
+    my $it = natatime 100, @entries;
+    while (my @sw = $it->()) {
         my @rows = map {
-            _build_radius_nas_row($_,$switch_config->{$_},$timestamp)
-        } @ids;
+            _build_radius_nas_row($_->{id}, $_, $timestamp)
+        } @sw;
         # insert NAS
         _insert_nas_bulk( @rows );
     }
     _delete_expired($timestamp);
+    validate_radius_nas_table($timestamp);
 }
 
-=item _build_radius_nas_row
+sub additional_switches {
+    if ($cluster_enabled) {
+        my $cluster_ip = pf::cluster::management_cluster_ip();
+        my $int = $management_network->{'Tint'};
+        return map {
+            {
+                id            => $_,
+                radiusSecret  => $local_secret,
+                TenantId      => 1,
+                type          => 'PacketFence'
+            }
+        } (values %{pf::cluster::members_ips($int)}, $cluster_ip);
+    }
+
+    return;
+}
+
+our $validate_radius_nas_table_sql = <<SQL;
+    SELECT
+        (SELECT COUNT(1) FROM radius_nas) = (SELECT COUNT(1) FROM radius_nas WHERE config_timestamp = ?) AS config_valid,
+        (SELECT COUNT(DISTINCT config_timestamp) FROM radius_nas WHERE config_timestamp != ?) as other_processes;
+SQL
+
+=head2 validate_radius_nas_table
+
+validate radius nas table
+
+=cut
+
+sub validate_radius_nas_table {
+    my $logger = get_logger();
+    my ($ts) = @_;
+    my $validation = validation_results($ts);
+    if (!$validation->{config_valid}) {
+        if ($validation->{other_processes}) {
+            my $msg = "The radius_nas table is invalid.\nAt least $validation->{other_processes} reloaded\nrerun 'pfcmd configreload' on a single server\n";
+            print STDERR $msg;
+            $logger->error($msg);
+        }
+    }
+    return ;
+}
+
+=head2 validation_results
+
+validation_results
+
+=cut
+
+sub validation_results {
+    my ($timestamp) = @_;
+    my $logger = get_logger();
+    my ($status, $sth) = pf::dal->db_execute($validate_radius_nas_table_sql, $timestamp, $timestamp);
+    if (is_error($status)) {
+        my $msg = "Problem connecting to the database to verify radius_nas table\n";
+        print STDERR $msg;
+        $logger->error($msg);
+        return undef;
+    }
+
+    my $validation = $sth->fetchrow_hashref;
+    $sth->finish;
+    return $validation;
+}
+
+=head2 _build_radius_nas_row
 
 =cut
 
 sub _build_radius_nas_row {
-    my ($id,$data,$timestamp) = @_;
+    my ($id, $data, $timestamp) = @_;
     my $start_ip = 0;
     my $end_ip = 0;
     my $range_length = 0;
@@ -206,7 +244,7 @@ sub _build_radius_nas_row {
             $range_length = $end_ip - $start_ip + 1;
         }
     }
-    [ $id, $id, $data->{radiusSecret}, $id . " (" . $data->{'type'} .")", $timestamp, $start_ip ,$end_ip, $range_length ]
+    [$data->{TenantId} // $DEFAULT_TENANT_ID, $id, $id, $data->{radiusSecret}, $id . " (" . $data->{'type'} .")", $timestamp, $start_ip, $end_ip, $range_length]
 }
 
 =back
@@ -217,7 +255,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2017 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 

@@ -1,0 +1,24 @@
+// Decrease the font size of buttons;
+// a hack is required since there's no variable specific to the font sizes of buttons.
+$font-size-base-orig: $font-size-base;
+$font-size-sm-orig: $font-size-sm;
+
+$font-size-base: $font-size-base * 0.9;
+$font-size-sm: $font-size-base * .775;
+
+@import "../../node_modules/bootstrap/scss/buttons";
+
+// Restore font sizes
+$font-size-base: $font-size-base-orig;
+$font-size-sm: $font-size-sm-orig;
+
+.btn[disabled]:hover {
+    cursor: not-allowed;
+}
+
+.btn.rounded-circle {
+    width: $font-size-base * 2;
+    height: $font-size-base * 2;
+    padding: 0;
+    line-height: $font-size-base * 2;
+}

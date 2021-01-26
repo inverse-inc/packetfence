@@ -16,10 +16,29 @@ use warnings;
 use Moo;
 use pf::file_paths qw($scan_config_file);
 extends 'pf::ConfigStore';
+use pf::constants;
+with 'pf::ConfigStore::Role::ReverseLookup';
+use pfconfig::cached_hash;
+tie our %ProfileReverseLookup, 'pfconfig::cached_hash', 'resource::ProfileReverseLookup';
 
 sub configFile { $scan_config_file };
 
 sub pfconfigNamespace {'config::Scan'}
+
+=head2 canDelete
+
+canDelete
+
+=cut
+
+sub canDelete {
+    my ($self, $id) = @_;
+    if ($self->isInProfile('scans', $id)) {
+        return "Used in a profile", $FALSE;
+    }
+
+    return $self->SUPER::canDelete($id);
+}
 
 =head2 cleanupAfterRead
 
@@ -29,6 +48,11 @@ Clean up switch data
 
 sub cleanupAfterRead {
     my ($self, $id, $profile) = @_;
+    for my $f (qw(registration pre_registration post_registration)) {
+        next if !exists $profile->{$f} || !defined $profile->{$f};
+        $profile->{$f} += 0;
+    }
+
     $self->expand_list($profile, $self->_fields_expanded);
 }
 
@@ -51,7 +75,7 @@ sub _fields_expanded {
     return qw(categories oses rules);
 }
 
-__PACKAGE__->meta->make_immutable;
+__PACKAGE__->meta->make_immutable unless $ENV{"PF_SKIP_MAKE_IMMUTABLE"};
 
 =head1 AUTHOR
 
@@ -59,7 +83,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2017 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 

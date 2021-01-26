@@ -4,7 +4,7 @@
 
 [% IF section == "maintenance" %]
 <div class="alert alert-warning">
-    <strong>[% l('Note: ') %]</strong>[% l('Modifying any of theses values requires to restart \'pfmon\' service to be effective.') %]
+    <strong>[% l('Note: ') %]</strong>[% l('Modifying any of theses values requires to restart \'pfcron\' service to be effective.') %]
 </div>
 [% END %]
   </div>
@@ -19,6 +19,22 @@
     <div class="card-actions form-actions">
       <button type="submit" class="btn btn-primary" data-loading-text="[% l('Saving') %]">[% l('Save') %]</button>
       <button type="reset" class="btn">[% l('Reset') %]</button>
+      [% IF section == "alerting" %]
+      <a class="btn" data-toggle="modal" href="#testSMTPModal">[% l('Test SMTP') %]</a>
+      <div class="modal modal-large fade hide" id="testSMTPModal">
+        <div class="modal-header">
+          <h3><i>[% l('Test SMTP') %]</i> <span id="content"></span></h3>
+        </div>
+        <div class="modal-body">
+          [% field = form.field('emailaddr').clone('html_name', 'test_emailaddr', 'id', 'test_emailaddr') %]
+          [% field.tags.help  = "Comma-delimited list of email address(es) to receive test message." %]
+          [% field.render | none %]
+        </div>
+        <div class="modal-footer">
+          <a href="#" class="btn" data-dismiss="modal">[% l('Cancel') %]</a>
+          <a id="testSMTPBtn" class="btn btn-primary" href="[% c.uri_for(c.controller.action_for('test_smtp')) %]">[% l('Test SMTP') %]</a>
+        </div>
+      [% END %]
     </div>
     [%- END %]
   </form>

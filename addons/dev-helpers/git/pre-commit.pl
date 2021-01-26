@@ -49,7 +49,7 @@ sub perl_compile {
     my ($file_name) = @_;
     if(does_file_match({file_match => qr/\.(pm|cgi|pl)$/},$file_name)) {
         $file_name = quotemeta($file_name);
-        my $results = qx{/usr/bin/perl -c -Ilib -Ihtml/pfappserver/lib -Ihtml/captive-portal/lib $file_name 2>&1};
+        my $results = qx{/usr/bin/perl -c -Ilib $file_name 2>&1};
         push @ERRORS,$results if $? != 0;
     }
 }
@@ -214,7 +214,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2017 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 

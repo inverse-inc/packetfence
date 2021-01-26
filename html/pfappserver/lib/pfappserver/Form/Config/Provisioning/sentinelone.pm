@@ -23,7 +23,7 @@ has_field 'host' =>
 
 has_field 'port' =>
   (
-   type => 'PosInteger',
+   type => 'Port',
    required => $TRUE,
    default => $HTTPS_PORT,
   );
@@ -49,7 +49,7 @@ has_field 'api_password' =>
    required => $TRUE,
   );
 
-has_field 'win_agent_download_uri' =>
+has_field 'windows_agent_download_uri' =>
   (
    type => 'Text',
    label => 'Windows agent download URI',
@@ -65,12 +65,12 @@ has_field 'mac_osx_agent_download_uri' =>
 
 has_block definition =>
   (
-   render_list => [ qw(id type description category oses host port protocol api_username api_password win_agent_download_uri mac_osx_agent_download_uri) ],
+   render_list => [ qw(id type description category oses host port protocol api_username api_password windows_agent_download_uri mac_osx_agent_download_uri apply_role role_to_apply autoregister) ],
   );
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2017 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 
@@ -91,5 +91,5 @@ USA.
 
 =cut
 
-__PACKAGE__->meta->make_immutable;
+__PACKAGE__->meta->make_immutable unless $ENV{"PF_SKIP_MAKE_IMMUTABLE"};
 1;

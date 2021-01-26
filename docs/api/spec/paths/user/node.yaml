@@ -1,0 +1,92 @@
+/user/{user_id}/node/{node_id}:
+  delete:
+    description: Remove an item
+    operationId: api.v1.Users.Nodes.remove
+    parameters:
+    - in: path
+      name: user_id
+      schema:
+        type: string
+    - in: path
+      name: node_id
+      schema:
+        type: string
+    responses:
+      '204':
+        description: Item deleted
+  description: pf::UnifiedApi::Controller::Users::Nodes
+  get:
+    description: Get an item
+    operationId: api.v1.Users.Nodes.get
+    parameters:
+    - in: path
+      name: user_id
+      schema:
+        type: string
+    - in: path
+      name: node_id
+      schema:
+        type: string
+    responses:
+      '200':
+        content:
+          application/json:
+            schema:
+              description: Item
+              properties:
+                item:
+                  $ref: '#/components/schemas/UsersNode'
+              type: object
+        description: Get item
+      '400':
+        $ref: '#/components/responses/BadRequest'
+      '422':
+        $ref: '#/components/responses/UnprocessableEntity'
+  patch:
+    description: Update an item
+    operationId: api.v1.Users.Nodes.update
+    parameters:
+    - in: path
+      name: user_id
+      schema:
+        type: string
+    - in: path
+      name: node_id
+      schema:
+        type: string
+    requestBody:
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/UsersNode'
+    responses:
+      '200':
+        $ref: '#/components/responses/Message'
+      '400':
+        $ref: '#/components/responses/BadRequest'
+      '422':
+        $ref: '#/components/responses/UnprocessableEntity'
+  put:
+    description: Replace an item
+    operationId: api.v1.Users.Nodes.replace
+    parameters:
+    - in: path
+      name: user_id
+      schema:
+        type: string
+    - in: path
+      name: node_id
+      schema:
+        type: string
+    requestBody:
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/UsersNode'
+    responses:
+      '200':
+        $ref: '#/components/responses/Message'
+      '400':
+        $ref: '#/components/responses/BadRequest'
+      '422':
+        $ref: '#/components/responses/UnprocessableEntity'

@@ -5,12 +5,12 @@
         <div class="span4">
           <div class="page-header step">
             <h1>[% l('Step') %] [% step_index %]</h1>
-            </div>
+          </div>
         </div>
         <div class="span14">
           <div class="page-header">
             <h1>[% l('Enforcement') %]
-            <small>[% l('Choose your enforcement mechanisms') %]</small></h1>
+              <small>[% l('Choose your enforcement mechanisms') %]</small></h1>
           </div>
         </div>
       </div>
@@ -27,51 +27,65 @@
             <form name="enforcement" class="form-horizontal">
               <h2 class="card-title">[% l('Enforcement Mechanisms') %]</h2>
               <div class="card-block">
-              <table class="table">
-                <thead>
-                  <tr>
-                    <th>
-                      <input type="checkbox" name="enforcement" value="inline"[% IF c.session.enforcements.inline %] checked=""[% END %]> [% l('Inline enforcement') %]
-                    </th>
-                    <th>
-                      <input type="checkbox" name="enforcement" value="vlan"[% IF c.session.enforcements.vlan %] checked=""[% END %]> [% l('VLAN enforcement') %]
-                    </th>
-                    <th>
-                      <input type="checkbox" name="enforcement" value="webauth"[% IF c.session.enforcements.hotspot %] checked=""[% END %]> [% l('WebAuth enforcement') %]
-                    </th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr>
-                    <td>
-                      [% l('Activate this mechanism if you have unmanageable equipment such as entry-level consumer switches or access points. PacketFence becomes the gateway of that inline network, and will NAT the traffic to the Internet.') %]
-                    </td>
-                    <td>
-                      [% l('PacketFence is the server that assigns the VLAN (or roles) to the devices. This is the prefered enforcement mechanism for manageable equipment.') %]
-                    </td>
-                    <td>
-                      [% l('PacketFence is the server that assigns the Role (or ACL) to the devices. This mode is for web authentication.') %]
-                    </td>
-                  </tr>
-                  <tr>
-                    <td class="graph">
-                      <img src="[% c.uri_for('/static/configurator/enforcement-inline.png') %]">
-                    </td>
-                    <td class="graph">
-                      <img src="[% c.uri_for('/static/configurator/enforcement-vlan.png') %]">
-                    </td>
-                   <td class="graph">
-                      <img src="[% c.uri_for('/static/configurator/enforcement-vlan.png') %]">
-                    </td>
-                  </tr>
-                </tbody>
-              </table>
+
+
+                <table>
+                  <tbody>
+                    <tr>
+                      <td width="50%">
+                        <label class="checkbox">
+                          <input type="checkbox" name="enforcement" value="inline"[% IF c.session.enforcements.inline %] checked=""[% END %] /> [% l('Inline enforcement') %]
+                          <div class="help-block">
+                            [% l('Activate this mechanism if you have unmanageable equipment such as entry-level consumer switches or access points. PacketFence becomes the gateway of that inline network, and will NAT the traffic to the Internet.') %]
+                          </div>
+                        </label>
+                      </td>
+                      <td class="cell-centered cell-border-bottom">
+                        <img src="[% c.uri_for('/static/configurator/enforcement-inline.png') %]">
+                      </td>
+                    </tr>
+                    <tr><td>&nbsp;</td></tr>
+                    <tr>
+                      <td>
+                        <label class="checkbox">
+                          <input type="checkbox" name="enforcement" value="vlan"[% IF c.session.enforcements.vlan %] checked=""[% END %] /> [% l('VLAN enforcement') %]
+                          <div class="help-block">
+                            [% l('PacketFence is the server that assigns the VLAN (or roles) to the devices. This is the prefered enforcement mechanism for manageable equipment.') %]
+                          </div>
+                        </label>
+                      </td>
+                      <td class="cell-centered" rowspan="6">
+                        <img src="[% c.uri_for('/static/configurator/enforcement-vlan.png') %]">
+                      </td>
+                    </tr>
+                    <tr>
+                      <td>
+                        <label class="checkbox">
+                          <input type="checkbox" name="enforcement" value="webauth"[% IF c.session.enforcements.hotspot %] checked=""[% END %] /> [% l('WebAuth enforcement') %]
+                          <div class="help-block">
+                            [% l('PacketFence is the server that assigns the Role (or ACL) to the devices. This mode is for web authentication.') %]
+                          </div>
+                        </label>
+                      </td>
+                    </tr>
+                    <tr>
+                      <td>
+                        <label class="checkbox">
+                          <input type="checkbox" name="enforcement" value="radius"[% IF c.session.enforcements.radius %] checked=""[% END %] /> [% l('RADIUS enforcement') %]
+                          <div class="help-block">
+                            [% l('PacketFence is the server that validates the RADIUS authentication and returns the VLAN (or roles) to the devices. This mode does not have a registration option, it is either accept or deny with the final VLAN.') %]
+                          </div>
+                        </label>
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
 
               </div>
               <div class="form-actions">
                 <button type="submit" class="btn btn-primary pull-right"  href="[% next_step %]">[% l('Continue') %] <i class="icon-arrow-circle-right icon-white"></i></button>
               </div>
             </form>
-         </div>
-      </div>
-    </div><!--/container-->
+          </div>
+        </div>
+      </div><!--/container-->

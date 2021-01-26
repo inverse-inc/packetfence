@@ -27,7 +27,7 @@ BEGIN { use lib qw(/usr/local/pf/t); }
 BEGIN { use setup_test_config; }
 BEGIN { use_ok('pf::services') }
 BEGIN { use_ok('pf::services::manager::httpd') }
-BEGIN { use_ok('pf::services::manager::dhcpd') }
+BEGIN { use_ok('pf::services::manager::pfdhcp') }
 BEGIN { use_ok('pf::services::manager::snmptrapd') }
 
 use pf::constants;
@@ -88,7 +88,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2017 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 

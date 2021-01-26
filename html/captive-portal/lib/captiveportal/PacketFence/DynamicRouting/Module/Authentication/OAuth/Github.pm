@@ -15,7 +15,7 @@ extends 'captiveportal::DynamicRouting::Module::Authentication::OAuth';
 
 has '+source' => (isa => 'pf::Authentication::Source::GithubSource');
 
-has '+token_scheme' => (default => sub{"uri-query:access_token"});
+has '+token_scheme' => (default => "auth-header:token");
 
 =head2 _extract_username_from_response
 
@@ -34,7 +34,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2017 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 
@@ -55,7 +55,7 @@ USA.
 
 =cut
 
-__PACKAGE__->meta->make_immutable;
+__PACKAGE__->meta->make_immutable unless $ENV{"PF_SKIP_MAKE_IMMUTABLE"};
 
 1;
 

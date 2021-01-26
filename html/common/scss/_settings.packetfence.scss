@@ -1,9 +1,13 @@
 /// _settings.packetfence.scss -*- Mode: scss; indent-tabs-mode: nil; basic-offset: 2; fill-column: 80 -*-
 
-$pf-namespace:               null !default;
-
 // Border radius of buttons and frames
 $pf-border-radius:           8px;
 
 // Buttons shadow
 $pf-btn-box-shadow:          0px 1px 3px 0px rgba(0,0,0,0.2);
+
+// Fixed header height
+$pf-header-height:           60px;
+
+// Fixed header height ratio for bigger screens
+$pf-header-tablet-ratio:     1.2;

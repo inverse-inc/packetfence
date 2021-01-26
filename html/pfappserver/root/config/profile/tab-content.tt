@@ -1,6 +1,7 @@
   <div class="hidden" id="filter_templates">
      <input type="text" name="default_filter_match" id="default_filter_match" value="" class="input-medium" data-required="required"/>
      <input id="switch_filter_match" name="switch_filter_match" autocomplete="off" type="text" class="span6" data-provide="typeahead" placeholder="[% l('String...') %]">
+     <input type="text" name="ssid_filter_match" id="ssid_filter_match" value="" class="input-medium" data-required="required" placeholder="[% l('Enter SSID') %]" list="ssid_datalist"/>
      <select name="switch_group_filter_match" id="switch_group_filter_match" data-required="required">
        [% FOREACH switch_group IN switch_groups %]
           <option value="[% switch_group %]">[% switch_group %]</option>
@@ -22,6 +23,11 @@
        [% END %]
      </select>
   </div>
+     <datalist id="ssid_datalist">
+        [% FOREACH ssid IN ssids %]
+            <option value="[% ssid %]">[% ssid %]</option>
+        [% END %]
+     </datalist>
           [% IF item && item.id.defined %]
             [%  CALL form.field('id').set_element_attr('readonly','readonly') %]
           [% END %]
@@ -108,6 +114,13 @@
                   [%- END -%]<br/>
                   <a href="#add">[% l('Add a Scan.') %]</a>
                 </p>
+              </div>
+            </div>
+          </div>
+          <div class="control-group">
+            <div>
+              [% form.field('self_service').render | none %]
+              <div id="self_serviceEmpty" class="unwell unwell-horizontal[% ' hidden' IF form.field('self_service').index > 1 %]">
               </div>
             </div>
           </div>

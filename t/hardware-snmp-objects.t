@@ -43,7 +43,7 @@ my @mocked_switch_subs = `egrep "^sub " $lib_path/pf/Switch/MockedSwitch.pm | aw
 my @pf_snmp_subs = `egrep "^sub " $lib_path/pf/Switch.pm | awk '{ print \$2 }'`;
 # these methods are whitelisted because they have no [significant] side-effect, thus not useful to mock
 my @whitelist = (
-    'new', 'isUpLink', 'setVlanWithName', 'setVlanByName', 'setMacDetectionVlan',
+    'new', 'isUpLink', 'setVlanWithName', 'setVlanByName',
     'getMode', 'isTestingMode', 'isIgnoreMode', 'isRegistrationMode',
     'isProductionMode', 'isDiscoveryMode', 'getBitAtPosition', 'modifyBitmask', 'flipBits',
     'createPortListWithOneItem', 'reverseBitmask', 'generateFakeMac', 'isFakeMac', 'isFakeVoIPMac', 'getVlanFdbId',
@@ -59,7 +59,8 @@ my @whitelist = (
     'identifyConnectionType', 'logger', 'returnRoleAttributes', 'cachedSNMPRequest', 'getRelayAgentInfoOptRemoteIdSub', 'TO_JSON',
     'normalizeTrap', 'findTrapNormalizer', '_findTrapNormalizer', 'linkDownTrapNormalizer', 'linkUpTrapNormalizer', 'dot11DeauthenticateTrapNormalizer', 
     'findTrapVarWithBase', 'getIfIndexFromTrap', 'findTrapOID', 'getMacFromTrapVariablesForOIDBase', 'extractMacFromVariable', 
-    'handleTrap', 'getExclusiveLock', 'getExclusiveLockForScope', 'cache_distributed'
+    'handleTrap', 'getExclusiveLock', 'getExclusiveLockForScope', 'cache_distributed', 'setCurrentTenant', 'cachedSNMPTable', 'parseRequestUsername', 'getCiscoAvPairAttribute', 'supportsVPN', 'vpnAttributes', 'parseVPNRequest', 'canDoCliAccess', 'fingerbank_dynamic_acl', '_parentRoleForVlan',
+    'find_user_by_psk',
 );
 
 my @missing_subs;
@@ -92,7 +93,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2017 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 

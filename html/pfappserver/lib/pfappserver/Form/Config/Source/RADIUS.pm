@@ -2,7 +2,7 @@ package pfappserver::Form::Config::Source::RADIUS;
 
 =head1 NAME
 
-pfappserver::Form::Config::Source::RADIUS - Web form for a Kerberos user source
+pfappserver::Form::Config::Source::RADIUS - Web form for a RADIUS user source
 
 =head1 DESCRIPTION
 
@@ -11,8 +11,9 @@ Form definition to create or update a RADIUS user source.
 =cut
 
 use HTML::FormHandler::Moose;
+use pf::config qw(%Config);
 extends 'pfappserver::Form::Config::Source';
-with 'pfappserver::Base::Form::Role::Help';
+with 'pfappserver::Base::Form::Role::Help', 'pfappserver::Base::Form::Role::InternalSource';
 
 # Form fields
 has_field 'host' =>
@@ -21,13 +22,19 @@ has_field 'host' =>
    label => 'Host',
    element_class => ['input-small'],
    element_attr => {'placeholder' => '127.0.0.1'},
+   default => '127.0.0.1',
+   required => 1,
   );
 has_field 'port' =>
   (
-   type => 'PosInteger',
+   type => 'Port',
    label => 'Port',
    element_class => ['input-mini'],
    element_attr => {'placeholder' => '1812'},
+   default => 1812,
+   required => 1,
+   tags => { after_element => \&help,
+             help => 'If you use this source in the realm configuration the accounting port will be this port + 1' },
   );
 has_field 'secret' =>
   (
@@ -41,23 +48,38 @@ has_field 'timeout' =>
   (
    type => 'PosInteger',
    label => 'Timeout',
+   required => 1,
    element_class => ['input-mini'],
    element_attr => {'placeholder' => '1'},
+   default => 1,
   );
-has_field 'stripped_user_name' =>
+has_field 'monitor',
   (
-   type            => 'Toggle',
-   checkbox_value  => 'yes',
-   unchecked_value => 'no',
-   default         => 'yes',
-   label           => 'Use stripped username ',
+   type => 'Toggle',
+   label => 'Monitor',
+   checkbox_value => '1',
+   unchecked_value => '0',
    tags => { after_element => \&help,
-             help => 'Use stripped username returned by RADIUS to test the following rules.' },
-  );
+             help => 'Do you want to monitor this source?' },
+   default => pf::Authentication::Source::RADIUSSource->meta->get_attribute('monitor')->default,
+);
+has_field 'options',
+  (
+   type => 'TextArea',
+   label => 'Options',
+   tags => { after_element => \&help,
+             help => 'Define options for FreeRADIUS home_server definition (if you use the source in the realm configuration). Need a radius restart.' },
+   default => 'type = auth+acct',
+);
+
+sub _options_set_role_from_source {
+    my ($self) = @_;
+    return map { $_ => $_} @{$Config{radius_configuration}{radius_attributes}};
+}
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2017 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 
@@ -78,5 +100,5 @@ USA.
 
 =cut
 
-__PACKAGE__->meta->make_immutable;
+__PACKAGE__->meta->make_immutable unless $ENV{"PF_SKIP_MAKE_IMMUTABLE"};
 1;

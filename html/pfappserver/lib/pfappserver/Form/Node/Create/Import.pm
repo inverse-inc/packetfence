@@ -12,13 +12,11 @@ Form to import multiple nodes from a CSV file.
 
 use HTML::FormHandler::Moose;
 extends 'pfappserver::Base::Form';
+with qw(pfappserver::Role::Form::RolesAttribute);
 
 use pf::config qw(%Config);
 
 has '+enctype' => ( default => 'multipart/form-data');
-
-# Form select options
-has 'roles' => ( is => 'ro' );
 
 =head2 FIELDS
 
@@ -130,7 +128,7 @@ sub default_default_category_id {
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2017 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 
@@ -151,5 +149,5 @@ USA.
 
 =cut
 
-__PACKAGE__->meta->make_immutable;
+__PACKAGE__->meta->make_immutable unless $ENV{"PF_SKIP_MAKE_IMMUTABLE"};
 1;

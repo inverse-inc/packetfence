@@ -7,10 +7,10 @@ use pf::config;
 use pf::node;
 use pf::person;
 use pf::web;
-use pf::violation qw(violation_view_open);
-use pf::constants::violation qw($LOST_OR_STOLEN);
+use pf::security_event qw(security_event_view_open);
+use pf::constants::security_event qw($LOST_OR_STOLEN);
 use pf::password qw(view);
-use pf::config qw(%Config);
+use pf::authentication;
 
 BEGIN { extends 'captiveportal::Base::Controller'; }
 
@@ -29,6 +29,7 @@ Catalyst Controller.
 sub auto :Private {
     my ( $self, $c ) = @_;
     $c->session->{release_bypass} = $TRUE;
+    $c->stash->{isDeviceRegEnable} = $c->forward(DeviceRegistration => "isDeviceRegEnabled");
     $c->forward('setupCurrentNodeInfo');
     return 1;
 }
@@ -54,9 +55,6 @@ sub index : Path : Args(0) {
     if (view($pid)) {
         $c->stash->{hasLocalAccount} = $TRUE;
     }
-    if (isenabled( $Config{'device_registration'}{'status'} ) ) {
-        $c->stash->{isDeviceRegEnable} = $TRUE;
-    }
     $c->stash(
         title => "Status - Network Access",
         template => 'status.html',
@@ -65,11 +63,11 @@ sub index : Path : Args(0) {
     );
 }
 
-sub is_lost_stolen : Path : Args(1) {
+sub is_lost_stolen {
     my ( $mac ) = @_;
    
-    my @violations = violation_view_open($mac);
-    if ( grep {$_->{'vid'} eq $LOST_OR_STOLEN} @violations ) {
+    my @security_events = security_event_view_open($mac);
+    if ( grep {$_->{'security_event_id'} eq $LOST_OR_STOLEN} @security_events ) {
         return $TRUE
     } else {
         return $FALSE
@@ -79,13 +77,16 @@ sub is_lost_stolen : Path : Args(1) {
 sub userIsAuthenticated : Private {
     my ( $self, $c ) = @_;
     my $pid   = $c->user_session->{"username"};
-    my @nodes = person_nodes($pid);
-    foreach my $node (@nodes) {
+    my @person_nodes = person_nodes($pid);
+    my @nodes;
+    foreach my $person_node (@person_nodes) {
+        my $node = node_view($person_node->{mac});
         setExpiration($node);
         my $mac = $node->{'mac'};
         if (is_lost_stolen($mac)) {
             $node->{lostOrStolen} = $TRUE;
         }
+        push @nodes, $node;
     }
     $c->stash(
         nodes    => \@nodes,
@@ -113,7 +114,7 @@ sub setExpiration {
             # Node has a usage duration
             $node_info->{'expiration'} = $node_info->{'last_start_timestamp'} + $node_info->{'time_balance'};
             if ( $node_info->{'expiration'} < time ) {
-                # No more access time; RADIUS accounting should have triggered a violation
+                # No more access time; RADIUS accounting should have triggered a security_event
                 delete $node_info->{'expiration'};
                 $node_info->{'time_balance'} = 0;
             }
@@ -183,6 +184,30 @@ sub logout : Local {
     $c->forward('index');
 }
 
+sub billing_cancel_subscription : Path('/status/billing/cancel_subscription') : Args(2) {
+    my ($self, $c, $source_id, $subscription_id) = @_;
+    my $source = getAuthenticationSource($source_id);
+    $c->stash->{template} = "status/billing_cancel_subscription.html";
+    if(!$source) {
+        $c->stash(
+            error => "Unable to find source $source_id",    
+        );
+    }
+    
+    if($c->request->method eq "POST") {
+        my ($res, $msg) = $source->handleCancelLink($subscription_id, $c->request->parameters);
+        if($res) {
+            $c->stash->{status} = "canceled";
+        }
+        else {
+            $c->stash(
+                error => $msg,
+            );
+        }
+    }
+
+}
+
 
 =head1 AUTHOR
 
@@ -190,7 +215,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2017 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 

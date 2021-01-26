@@ -1,0 +1,286 @@
+// to display images directly on GitHub
+ifdef::env-github[]
+:encoding: UTF-8
+:lang: en
+:doctype: book
+:toc: left
+:imagesdir: ../images
+endif::[]
+
+////
+
+    This file is part of the PacketFence project.
+
+    See PacketFence_Network_Devices_Configuration_Guide-docinfo.xml for 
+    authors, copyright and license information.
+
+////
+
+//== Performance Optimizations
+
+=== NTLM Authentication Caching
+
+NOTE: This section assumes that you already have an Active Directory domain configuration both in _Configuration -> Policies and Access Control -> Domains -> Active Directory Domains_ and _Configuration -> Policies and Access Control -> Sources_. If you don't, you need to first configure those. Refer to the appropriate sections of this guide for details on how to configure those two components.
+
+CAUTION: The cache requires minimally Windows Server 2008. Older versions will not work.
+
+When using NTLM authentication against an Active Directory for 802.1X EAP-PEAP connections, this can become a bottleneck when handling dozens of authentications per seconds.
+
+To overcome this limitation, it is possible to use a Redis driven cache inside PacketFence to reduce the amount of authentications requiring an external NTLM authentication call. Should a user be in the cache, PacketFence will attempt to compare the 802.1X credentials with those. In the even that the validation fails, a call to ntlm_auth is made. In the event of a cache miss, an ntlm_auth call is made as well. This ensures that even if a user changes his password, his new password is immediately valid for 802.1X EAP-PEAP connections even if the cache contains the outdated entry.
+
+NOTE: The NTLM cache doesn't cache clear text passwords, it caches the NT hash of the user password.
+
+==== PacketFence Configuration
+
+First of all, you will need to enable the NTLM caching globally by enabling 'NTLM Redis cache' in _Configuration -> System Configuration -> Radius Configuration_. You then need to restart radiusd.
+
+Once that is done, you need to configure PacketFence to start caching the credentials. In order to do so, go in _Configuration -> Policies and Access Control -> Domains -> Active Directory Domains_ and select the domain you want to cache the credentials for.
+
+Next, go in the *NTLM cache* tab and:
+
+ * Enable 'NTLM cache'
+ * Select the Active Directory authentication source that is tied to this domain.
+ * Adjust the 'LDAP filter' if necessary. Note that this is only used for the batch job.
+ * Adjust the 'Expiration'
+ * Enable 'NTLM cache background job' and/or 'NTLM cache on connection'. In the case of this example, both will be enabled.
+
+image::domain-ntlm-cache.png[scaledwidth="100%",alt="Domain NTLM cache"]
+
+Once done, click on `Save` to commit your changes.
+
+After that, you will need to enable the `redis_ntlm_cache` service which is used by PacketFence to store the cached credentials. In order to do so, go in _Configuration -> System Configuration -> Main Configuration -> Services_ and enable 'redis_ntlm_cache' and save the changes.
+
+Next, start the service via pfcmd:
+
+  /usr/local/pf/bin/pfcmd service redis_ntlm_cache start
+
+If you chose to enable *NTLM cache background job* in one of your domains, you will need to enable the `pfmon` (or `pfcron`, if Packetfence version is >= 10.2) job that will periodically cache the credentials. This can be configured in _Configuration -> System Configuration -> Main Configuration -> Maintenance -> populate_ntlm_redis_cache_. It is advised to set the interval of this task to half the expiration of the credentials you have set in the domain configuration. This will ensure you have an optimal cache hit. Once done, restart the `pfmon` (or `pfcron`, if Packetfence version is >= 10.2) service.
+
+==== Active Directory configuration
+
+In order for PacketFence to be able to fetch the NTLM credentials from your Active Directory, it will need a user who has replication rights. The user to which you have to grant the rights, is the one that is configured in the authentication source that you associated in the 'NTLM cache' section of your domain.
+
+Please refer to the following Microsoft KB entry to configure the replication rights (Replicating Directory Changes and Replicating Directory Changes All): https://support.microsoft.com/en-us/kb/303972
+
+=== SNMP Traps Limit
+
+PacketFence mainly rely on SNMP traps to communicate with equipment. Due to the fact that traps coming in from approved (configured) devices are all processed by the daemon, it is possible for someone who want to generate a certain load on the PacketFence server to force the generation of non-legitimate SNMP traps or a switch can randomly generate a high quantity of traps sent to PacketFence for an unknown reason.
+
+Because of that, it is possible to limit the number of SNMP traps coming in from a single switch port and take action if that limit is reached. For example, if over 100 traps are received by PacketFence from the same switch port in a minute, the switch port will be shut and a notification email will be sent.
+
+Here's the default config for the SNMP traps limit feature. As you can see, by default, PacketFence will log the abnormal activity after 100 traps from the same switch port in a minute. These configurations are in the `conf/pf.conf` file:
+
+  [snmp_traps]
+  trap_limit = enabled
+  trap_limit_threshold = 100
+  trap_limit_action =
+
+Alternatively, you can configure these parameters from the PacketFence Web administrative GUI, in the _Configuration -> Network Configuration -> SNMP_ section.
+
+=== MariaDB optimizations
+
+==== Tuning MariaDB
+
+If you're PacketFence system is acting very slow, this could be due to your MariaDB configuration. You should do the following to tune performance:
+
+Check the system load
+
+  # uptime
+  11:36:37 up 235 days,  1:21,  1 user, load average: 1.25, 1.05, 0.79
+
+Check iostat and CPU
+
+  # iostat 5
+  avg-cpu:  %user   %nice    %sys %iowait   %idle
+             0.60    0.00    3.20   20.20   76.00
+  Device:            tps   Blk_read/s   Blk_wrtn/s   Blk_read   Blk_wrtn
+  cciss/c0d0       32.40         0.00      1560.00          0       7800
+  avg-cpu:  %user   %nice    %sys %iowait   %idle
+             0.60    0.00    2.20    9.20   88.00
+  Device:            tps   Blk_read/s   Blk_wrtn/s   Blk_read   Blk_wrtn
+  cciss/c0d0        7.80         0.00        73.60          0        368
+  avg-cpu:  %user   %nice    %sys %iowait   %idle
+             0.60    0.00    1.80   23.80   73.80
+  Device:            tps   Blk_read/s   Blk_wrtn/s   Blk_read   Blk_wrtn
+  cciss/c0d0       31.40         0.00      1427.20          0       7136
+  avg-cpu:  %user   %nice    %sys %iowait   %idle
+             0.60    0.00    2.40   18.16   78.84
+  Device:            tps   Blk_read/s   Blk_wrtn/s   Blk_read   Blk_wrtn
+  cciss/c0d0       27.94         0.00      1173.65          0       5880
+
+As you can see, the load-average is 1.25 and iowait is peaking at 20% - this is not good. If your iowait is low but your MariaDB is taking over %50 CPU this is also not good. Check your MariaDB install for the following variables:
+
+  MariaDB> show variables;
+  | innodb_additional_mem_pool_size | 1048576      |
+  | innodb_autoextend_increment     | 8            |
+  | innodb_buffer_pool_awe_mem_mb   | 0            |
+  | innodb_buffer_pool_size         | 8388608      |
+
+PacketFence relies heavily on InnoDB, so you should increase the `buffer_pool` size from the default values.
+
+Go in the administration GUI , in _Configuration -> System Configuration -> Database -> Advanced_ and raise the value of *InnoDB buffer pool size*.
+
+Then restart packetfence-mariadb
+
+  # systemctl restart packetfence-mariadb
+
+Wait 10 minutes re-check iostat and CPU
+
+----
+# uptime
+12:01:58 up 235 days,  1:46,  1 user, load average: 0.15, 0.39, 0.52
+# iostat 5
+Device:            tps   Blk_read/s   Blk_wrtn/s   Blk_read   Blk_wrtn
+cciss/c0d0        8.00         0.00        75.20          0        376
+
+avg-cpu:  %user   %nice    %sys %iowait   %idle
+           0.60    0.00    2.99   13.37   83.03
+
+Device:            tps   Blk_read/s   Blk_wrtn/s   Blk_read   Blk_wrtn
+cciss/c0d0       14.97         0.00       432.73          0       2168
+avg-cpu:  %user   %nice    %sys %iowait   %idle
+           0.20    0.00    2.60    6.60   90.60
+
+Device:            tps   Blk_read/s   Blk_wrtn/s   Blk_read   Blk_wrtn
+cciss/c0d0        4.80         0.00        48.00          0        240
+----
+
+==== MariaDB Optimization Tool
+
+We recommend that you run the http://mysqltuner.com/[MySQL Tuner] on your database setup after a couple of weeks to help you identify MariaDB configuration improvement. The tool is bundled with PacketFence and can be run from the command-line:
+
+  # /usr/local/pf/bin/pftest mysql
+
+==== Avoid "Too many connections" problems
+
+In a wireless context, there tends to be a lot of connections made to the database by our `freeradius` module. The default MariaDB value tend to be low (100) so we encourage you to increase that value to at least 300. See http://dev.mysql.com/doc/refman/5.0/en/too-many-connections.html for details.
+
+==== Avoid "Host <hostname> is blocked" problems
+
+In a wireless context, there tend to be a lot of connections made to the database by our freeradius module. When the server is loaded, these connection attempts can timeout. If a connection times out during connection, MariaDB will consider this a connection error and after 10 of these (by default) he will lock the host out with a:
+
+  Host 'host_name' is blocked because of many connection errors. Unblock with 'mysqladmin flush-hosts'
+
+This will grind PacketFence to a halt so you want to avoid that at all cost. One way to do so is to increase the number of maximum connections (see above), to periodically flush hosts or to allow more connection errors. See http://dev.mysql.com/doc/refman/5.0/en/blocked-host.html for details.
+
+==== Using Percona XtraBackup
+
+When dealing with a large database, the database backup and maintenance script (`/usr/local/pf/addons/backup-and-maintenance.sh`) which uses mysqldump may create a long lock on your database which may cause service to hang.
+
+This is fixed easily by using Percona XtraBackup which can complete a full database backup without locking your tables.
+
+The installation instructions below are made for CentOS 7 but adjusting them to Debian should only be a matter of installing the proper packages for your MariaDB version.
+
+First install the Percona repository:
+
+  # yum install http://www.percona.com/downloads/percona-release/redhat/0.1-3/percona-release-0.1-3.noarch.rpm
+
+Make sure to disable the newly installed repository not to interfere with future updates:
+
+  # sed -i -e 's/^enabled\ \=.*/enabled = 0/g' /etc/yum.repos.d/percona-release.repo
+
+Next, install Percona XtraBackup by manually specifying the Percona repository:
+
+  # yum install percona-xtrabackup --enablerepo=percona-release-`uname -m`
+
+Once this is done, grant the proper rights to the `pf` user (or the one you configured in pf.conf):
+
+  # mysql -u root -p
+  MariaDB> GRANT RELOAD, LOCK TABLES, REPLICATION CLIENT ON *.* TO 'pf'@'localhost';
+  MariaDB> FLUSH PRIVILEGES;
+
+Next, run the maintenance script [filename]`/usr/local/pf/addons/backup-and-maintenance.sh` and ensure that the following line is part of the output:
+
+  innobackupex: completed OK!
+
+If the backup fails, check [filename]`/usr/local/pf/logs/innobackup.log` for details and refer to the Percona XtraBackup documentation for troubleshooting.
+
+NOTE: In the event that you want to stop using Percona XtraBackups for your MariaDB backups, simply uninstall it and the database script will fallback to mysqldump.
+
+=== Captive Portal Optimizations
+
+==== Avoid captive portal overload due to non-browser HTTP requests
+
+By default we allow every query to be redirected and reach PacketFence for the captive portal operation. In a lot of cases, this means that a lot of non-user initiated queries reach PacketFence and waste its resources for nothing since they are not from browsers. (iTunes, Windows update, MSN Messenger, Google Desktop, ...).
+
+Since version 4.3 of PacketFence, you can define HTTP filters for Apache from the configuration of PacketFence.
+
+Some rules have been enabled by default, like one to reject requests with no defined user agent. All rules, including some examples, are defined in the configuration file [filename]`/usr/local/pf/conf/apache_filters.conf`.
+
+Filters are defined with at least two blocks. First are the tests. For example:
+
+  [get_ua_is_dalvik]
+  filter = user_agent
+  method = GET
+  operator = match
+  value = Dalvik
+
+  [get_uri_not_generate204]
+  filter = uri
+  method = GET
+  operator = match_not
+  value = /generate_204
+
+The last block defines the relationship between the tests and the desired action. For example:
+
+  [block_dalvik:get_ua_is_dalvik&get_uri_not_generate204]
+  action = 501
+  redirect_url =
+
+This filter will return an error code (501) if the user agent is Dalvik and the URI doesn't contain _/generate_204.
+
+=== Dashboard Optimizations (statistics collection)
+
+The collection and aggregation of statistics in the whisper database can be I/O intensive per moment. This means that it can be beneficial to separate them on another disk even if it is a virtual disk that will share the same underlying physical disk.
+
+First, add a disk in your virtual machine or bare metal server and reboot (this example will use /dev/sdb as the new device.
+
+Make sure packetfence is stopped:
+
+  # service packetfence stop
+
+Create an ext4 partition:
+
+  # mkfs.ext4 /dev/sdb
+
+Then move the old databases to a backup point:
+
+  # mv /usr/local/pf/var/graphite /usr/local/pf/var/graphite.bak
+
+Mount your new disk and check that it is mounted:
+
+  # echo "/dev/sdb /usr/local/pf/var/graphite             ext4    defaults        1 1" >> /etc/fstab
+  # mkdir /usr/local/pf/var/graphite
+  # mount -a
+  # dh -h
+
+Apply the proper user rights and restore your database from your backup
+
+  # chown pf.pf /usr/local/pf/var/graphite
+  # cp -frp /usr/local/pf/var/graphite.bak/* /usr/local/pf/var/graphite/
+
+Start packetfence and make sure your stats are still there and being collected properly. Then remove the backup you made `rm -fr /usr/local/pf/var/graphite.bak/`.
+
+=== Troubleshooting
+
+This section will address specific problems and known solutions.
+
+==== "Internet Explorer cannot display the webpage"
+
+Problem: Internet Explorer 8-10 may raise an "Internet Explorer cannot display the webpage" error while attempting to access PacketFence administration interface because TLSv1.2 is not activated but required since PacketFence 7.
+
+Solution:
+
+ * PacketFence administration interface is not started:
+
+  # cd /usr/local/pf
+  # bin/pfcmd service httpd.admin start
+
+
+ * It is strongly advised that you update your browser to Internet Explorer 11 or download an alternative.
+
+
+ * TLSv1.2 needs to be activated manually in Internet Explorer 8-10.
+
+  Within Internet Explorer: click `Tools -> Internet Options -> Advanced` and make sure that TLS v1.2 is enabled under the security section. Retry.
+

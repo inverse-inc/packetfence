@@ -39,11 +39,13 @@ BEGIN {
 }
 
 use Net::Radius::Packet;
-use Net::Radius::Dictionary;
 use IO::Select;
 use IO::Socket qw/:DEFAULT :crlf/;
+use pf::radius_audit_log;
+use pf::node qw (node_view);
+use pf::util qw (clean_mac);
+use pf::util::radius_dictionary qw($RADIUS_DICTIONARY);
 
-my $dictionary = new Net::Radius::Dictionary "/usr/local/pf/lib/pf/util/dictionary";
 my $default_port = '3799';
 my $default_timeout = 10;
 
@@ -109,7 +111,7 @@ sub perform_dynauth {
         Proto => 'udp',
     ) or die ("Couldn't create UDP connection: $@");
 
-    my $radius_request = Net::Radius::Packet->new($dictionary);
+    my $radius_request = Net::Radius::Packet->new($RADIUS_DICTIONARY);
     $radius_request->set_code($radius_code);
     # sets a random byte into id
     $radius_request->set_identifier( int(rand(256)) );
@@ -144,7 +146,7 @@ sub perform_dynauth {
             die("No answer from $connection_info->{'nas_ip'} on port $connection_info->{'nas_port'}")
                 if (!$socket->recv($rad_data, $MAX_TO_READ));
 
-            my $radius_reply = Net::Radius::Packet->new($dictionary, $rad_data);
+            my $radius_reply = Net::Radius::Packet->new($RADIUS_DICTIONARY, $rad_data);
             # identifies if the reply is related to the request? damn you udp...
             if ($radius_reply->identifier() != $radius_request->identifier()) {
                 die("Received an invalid RADIUS packet identifier: " . $radius_reply->identifier());
@@ -156,12 +158,48 @@ sub perform_dynauth {
             foreach my $key ($radius_reply->attributes()) {
                 $return{$key} = $radius_reply->attr($key);
             }
+            record_coa($connection_info, $radius_code, $attributes, $vsa, %return);
             return \%return;
 
         } else {
+            record_coa($connection_info, $radius_code, $attributes, $vsa, 'Reply-Message' => 'Error - Timeout');
             die("Timeout waiting for a reply from $connection_info->{'nas_ip'} on port $connection_info->{'nas_port'}");
         }
     }
+}
+
+=item record_coa
+
+record CoA in the radius audit log
+
+=cut
+
+sub record_coa {
+    my ($connection_info, $radius_code, $attributes, $vsa, %return) = @_;
+    my $request = join(' =22=2C ', map { $_." =3D ".$attributes->{$_} } keys %{$attributes});
+    my $request_vsa = join(' =22=2C ', map { $_->{'attribute'}." =3D ".$_->{'value'} } @{$vsa});
+    my $response = join(' =22=2C ', map { $_." =3D ".$return{$_} } keys %return);
+    my $mac;
+    my %radius_audit_log;
+    if (exists($attributes->{'Calling-Station-Id'}) ) {
+        $mac = clean_mac($attributes->{'Calling-Station-Id'});
+        my $node = node_view($mac);
+        $radius_audit_log{'node_status'} = $node->{'status'};
+        $radius_audit_log{'user_name'} = $node->{'pid'};
+        $radius_audit_log{'computer_name'} = $node->{'computername'};
+        $radius_audit_log{'is_phone'} = ( ($node->{'voip'} eq 'no') ? '0' : '1');
+    }
+
+    $radius_audit_log{'event_type'} = $radius_code;
+    $radius_audit_log{'mac'} = $mac;
+    $radius_audit_log{'switch_ip_address'} = $attributes->{'NAS-IP-Address'} || '';
+    $radius_audit_log{'nas_ip_address'} = $attributes->{'NAS-IP-Address'} || '';
+    $radius_audit_log{'nas_port'} = $attributes->{'NAS-Port'} || '';
+    $radius_audit_log{'radius_source_ip_address'} = $connection_info->{'LocalAddr'};
+    $radius_audit_log{'auth_status'} = $return{'Code'} || '';
+    $radius_audit_log{'radius_request'} = $request."=22=2C".$request_vsa;
+    $radius_audit_log{'radius_reply'} = $response;
+    pf::radius_audit_log::radius_audit_log_add(%radius_audit_log);
 }
 
 =item perform_disconnect
@@ -253,7 +291,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2017 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 

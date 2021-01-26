@@ -26,6 +26,9 @@ $sidenavSubsectionColor:        darken($navbarInverseText, 30%);
  */
 .sidenav-fluid {
   @include grid-fluid($fluidGridColumnWidth + $fluidGridGutterWidth, 0);
+  .row-fluid [class*="span"].hide {
+    display: none;
+  }
 }
 
 /**
@@ -69,7 +72,7 @@ $sidenavSubsectionColor:        darken($navbarInverseText, 30%);
       background: transparent !important;
     }
     // The line
-    &:not(:last-child)::before {
+    &:not(:last-child):not(.sidenav-subsection--last)::before {
       content: '';
       position: absolute;
       background: $sidenavSubsectionColor;
@@ -126,6 +129,15 @@ $sidenavSubsectionColor:        darken($navbarInverseText, 30%);
       left: $sidenavItemBulletSize/2 - 1px;
       top: $sidenavItemBulletSize;
     }
+  }
+  p.sidenav-item {
+        margin-top:5px;
+        margin-bottom:0px;
+  }
+  p.sidenav-description {
+        margin-top:0px;
+        margin-bottom:5px;
+        font-style:italic;
   }
 }
 

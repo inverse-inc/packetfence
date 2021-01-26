@@ -88,6 +88,17 @@ sub filter_vlan {
     return $self->send_request('filter_vlan', [$scope, $data]);
 }
 
+=head2 filter_remote_profile
+
+filter_remote_profile
+
+=cut
+
+sub filter_remote_profile {
+    my ($self, $scope, $data) = @_;
+    return $self->send_request('filter_remote_profile', [$scope, $data]);
+}
+
 =head2 send_request
 
 Send the request to the pffilter service
@@ -135,7 +146,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2017 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 

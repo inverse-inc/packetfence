@@ -47,6 +47,10 @@ our $WAIT_TIME_ALIVE = 10;
 our $failed = $TRUE;
 our $failed_counts = {};
 
+our $MYSQL_CONNECT_TIMEOUT = 5;
+
+our $GALERA_ENABLED = ($cluster_enabled && isenabled($Config{active_active}{galera_replication}));
+
 # init signal handlers
 my $old_child_sigaction = POSIX::SigAction->new;
 POSIX::sigaction(
@@ -157,12 +161,12 @@ Whether or not there is a ping quorum (i.e. servers are booted and online)
 
 sub ping_quorum {
     my $alive = 0;
-    foreach my $server (pf::cluster::enabled_servers()) {
+    foreach my $server (pf::cluster::mysql_servers()) {
         if(ping($server->{management_ip})) {
             $alive ++;
         }
     }
-    return ($alive > (scalar(pf::cluster::enabled_servers()) / 2));
+    return ($alive > (scalar(pf::cluster::db_enabled_hosts()) / 2));
 }
 
 =head2 test_db
@@ -173,9 +177,8 @@ Test the connection to the database for a specific host using the replication cr
 
 sub test_db {
     my ($host) = @_;
-    my $mydbh = DBI->connect( "dbi:mysql:dbname=mysql;host=$host;port=3306",
+    my $mydbh = DBI->connect( "dbi:mysql:dbname=mysql;host=$host;port=3306;mysql_connect_timeout=$MYSQL_CONNECT_TIMEOUT",
         $Config{active_active}{galera_replication_username}, $Config{active_active}{galera_replication_password}, { RaiseError => 0, PrintError => 0, mysql_auto_reconnect => 1 } );
-
     # make sure we have a database handle
     if ($mydbh) {
         return 1;
@@ -194,7 +197,7 @@ One of the cluster members has its database running.
 sub db_available {
     my $alive = 0;
 
-    foreach my $server (pf::cluster::enabled_servers()) {
+    foreach my $server (pf::cluster::mysql_servers()) {
         my $host = $server->{management_ip};
         $alive ++ if(test_db($host));
     }
@@ -262,8 +265,10 @@ Refer to the clustering guide for details on how this works.
 =cut
 
 sub attempt_start {
+    clean_wsrep_recovery();
+    launch_mysql($FALSE, "--wsrep-recover");
     # Just start it without anything special if we're in standalone mode or if we're a single cluster node
-    if(!$cluster_enabled || scalar(pf::cluster::enabled_servers()) == 1) {
+    if(!$GALERA_ENABLED || scalar(pf::cluster::db_enabled_hosts()) == 1) {
         fork_launch_mysql("standalone");
     }
     elsif(!_check_pid($MYSQLD_SPAWNER_PID) && -f "/var/lib/mysql/gvwstate.dat") {
@@ -272,6 +277,23 @@ sub attempt_start {
     else {
         startup_clean_shutdown();
     }
+}
+
+=head2 clean_wsrep_recovery
+
+Will clean wsrep_recovery.* files in the MySQL data dir
+
+=cut
+
+sub clean_wsrep_recovery {
+    File::Find::find({wanted => sub {
+        my ($dev,$ino,$mode,$nlink,$uid,$gid);
+
+        (($dev,$ino,$mode,$nlink,$uid,$gid) = lstat($_)) &&
+        -f _ &&
+        /^wsrep_recovery\..*\z/s &&
+        unlink($_);
+    }}, '/var/lib/mysql/');
 }
 
 =head2 bootstrap_new_cluster
@@ -312,7 +334,7 @@ while($RUNNING){
         print "MariaDB is not alive \n";
         attempt_start();
     }
-    elsif($cluster_enabled) {
+    elsif($GALERA_ENABLED) {
         if(test_db(pf::cluster::current_server()->{management_ip})) {
             # We're coming from a previous failure, so we log it 
             if($failed) {

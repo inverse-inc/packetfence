@@ -21,18 +21,12 @@ use warnings;
 
 use pfconfig::namespaces::config;
 use pf::file_paths qw($billing_tiers_config_file);
-use pf::constants::authentication;
-use pf::Authentication::constants;
-use pf::Authentication::Action;
-use pf::Authentication::Condition;
-use pf::Authentication::Rule;
-use pf::constants::authentication;
-
 use base 'pfconfig::namespaces::config';
 
 sub init {
     my ($self) = @_;
     $self->{file}            = $billing_tiers_config_file;
+    $self->{child_resources} = [ qw(resource::RolesReverseLookup) ];
 }
 
 sub build_child {
@@ -40,10 +34,11 @@ sub build_child {
 
     my %cfg = %{ $self->{cfg} };
 
-    foreach my $key (keys %cfg){
-        $cfg{$key}{id} = $key;
+    while (my ($key, $val) = each %cfg) {
+        $val->{id} = $key;
     }
 
+    $self->roleReverseLookup(\%cfg, 'billing_tiers', qw(role));
     return \%cfg;
 }
 
@@ -54,7 +49,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2017 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 

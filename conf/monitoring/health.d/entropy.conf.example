@@ -1,0 +1,16 @@
+
+# check if entropy is too low
+# the alarm is checked every 1 minute
+# and examines the last hour of data
+
+   alarm: lowest_entropy
+      on: system.entropy
+      os: linux
+   hosts: *
+  lookup: min -10m unaligned
+   units: entries
+   every: 5m
+    warn: $this < (($status >= $WARNING) ? (200) : (100))
+   delay: down 1h multiplier 1.5 max 2h
+    info: minimum entries in the random numbers pool in the last 10 minutes
+      to: silent

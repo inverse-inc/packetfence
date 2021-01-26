@@ -53,14 +53,14 @@ sub handle_callback {
         get_logger->info("OAuth2 successfull for username ".$self->username);
         $self->source->lookup_from_provider_info($self->username, $info);
         
-        pf::auth_log::record_completed_oauth($self->source->id, $self->current_mac, $pid, $pf::auth_log::COMPLETED);
+        pf::auth_log::record_completed_oauth($self->source->id, $self->current_mac, $pid, $pf::auth_log::COMPLETED, $self->app->profile->name);
 
         $self->done();
     }
     else {
         get_logger->info("OAuth2: failed to validate the token, redireting to login page.");
         get_logger->debug(sub { use Data::Dumper; "OAuth2 failed response : ".Dumper($curl_return_code) });
-        pf::auth_log::change_record_status($self->source->id, $self->current_mac, $pf::auth_log::FAILED);
+        pf::auth_log::change_record_status($self->source->id, $self->current_mac, $pf::auth_log::FAILED, $self->app->profile->name);
         $self->app->flash->{error} = "OAuth2 Error: Failed to validate the token, please retry";
         $self->landing();
         return;
@@ -97,7 +97,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2017 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 
@@ -118,7 +118,7 @@ USA.
 
 =cut
 
-__PACKAGE__->meta->make_immutable;
+__PACKAGE__->meta->make_immutable unless $ENV{"PF_SKIP_MAKE_IMMUTABLE"};
 
 1;
 

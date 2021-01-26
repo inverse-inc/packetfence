@@ -33,6 +33,7 @@ sub doTask {
     my ($self, $args) = @_;
     my $api_client = pf::api::can_fork->new();
     $api_client->notify(@$args);
+    return (undef, undef);
 }
 
 =head1 AUTHOR
@@ -41,7 +42,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2017 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 

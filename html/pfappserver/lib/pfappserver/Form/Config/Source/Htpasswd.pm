@@ -13,7 +13,7 @@ Form definition to create or update a htpasswd user source.
 use HTML::FormHandler::Moose;
 use pf::Authentication::Source::HtpasswdSource;
 extends 'pfappserver::Form::Config::Source';
-with 'pfappserver::Base::Form::Role::Help';
+with 'pfappserver::Base::Form::Role::Help', 'pfappserver::Base::Form::Role::InternalSource';
 
 # Form fields
 has_field 'path' =>
@@ -24,16 +24,6 @@ has_field 'path' =>
    element_class => ['input-xxlarge'],
    # Default value needed for creating dummy source
    default => '',
-  );
-has_field 'stripped_user_name' =>
-  (
-   type            => 'Toggle',
-   checkbox_value  => 'yes',
-   unchecked_value => 'no',
-   default         => 'yes',
-   label           => 'Use stripped username ',
-   tags => { after_element => \&help,
-             help => 'Use stripped username returned by RADIUS to test the following rules.' },
   );
 
 =head2 validate
@@ -46,15 +36,15 @@ sub validate {
     my $self = shift;
 
     $self->SUPER::validate();
-
-    unless (-r $self->value->{path}) {
+    my $path = $self->value->{path};
+    unless (defined($path) && -r $path) {
         $self->field('path')->add_error("The file is not readable by the user 'pf'.");
     }
 }
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2017 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 
@@ -75,5 +65,5 @@ USA.
 
 =cut
 
-__PACKAGE__->meta->make_immutable;
+__PACKAGE__->meta->make_immutable unless $ENV{"PF_SKIP_MAKE_IMMUTABLE"};
 1;

@@ -33,7 +33,8 @@ use warnings;
 use IO::Socket::UNIX qw( SOCK_STREAM );
 use JSON::MaybeXS;
 use pf::log;
-use pfconfig::util qw($undef_element);
+use pfconfig::util qw($undef_element normalize_namespace_query);
+use pf::config::tenant;
 use pfconfig::constants;
 use Sereal::Decoder qw(sereal_decode_with_object);
 use Time::HiRes qw(stat time);
@@ -98,10 +99,18 @@ It will return undef if it's not there or invalid
 
 sub get_from_subcache {
     my ( $self, $key ) = @_;
-    if ( defined( $self->{_subcache}{$key} ) ) {
+    my $res;
+    if ($self->{_scoped_by_tenant_id}) {
+	my $tenant_id = pf::config::tenant::get_tenant();
+	$res = $self->{_subcache}{$tenant_id}{$key};
+    } else {
+	$res = $self->{_subcache}{$key};
+    }
+
+    if ( defined( $res ) ) {
         my $valid = $self->is_valid();
         if ($valid) {
-            return $self->{_subcache}{$key};
+            return $res;
         }
         else {
             $self->{_subcache}    = {};
@@ -114,17 +123,19 @@ sub get_from_subcache {
 
 =head2 get_from_subcache
 
-Sets an element in the subcache so it can be reused accross accesses
+Sets an element in the subcache so it can be reused across accesses
 
 =cut
 
 sub set_in_subcache {
-    my ( $self, $key, $result ) = @_;
-
-    $self->{memorized_at} = time unless $self->{memorized_at};
-    $self->{_subcache}    = {}   unless $self->{_subcache};
-    $self->{_subcache}{$key} = $result;
-
+    my ($self, $key, $result) = @_;
+    $self->{memorized_at} //= time;
+    if ($self->{_scoped_by_tenant_id}) {
+        my $tenant_id = pf::config::tenant::get_tenant();
+        $self->{_subcache}{$tenant_id}{$key} = $result;
+    } else {
+        $self->{_subcache}{$key} = $result;
+    }
 }
 
 =head2 compute_from_subcache
@@ -137,23 +148,20 @@ sub compute_from_subcache {
     my ($self, $key, $on_miss) = @_;
 
     my $subcache_value = $self->get_from_subcache($key);
-    if(defined($subcache_value) && ref($subcache_value) eq "pfconfig::undef_element"){
+    if (defined($subcache_value) && ref($subcache_value) eq "pfconfig::undef_element") {
         return undef;
-    }
-    elsif(defined($subcache_value)){
+    } elsif (defined($subcache_value)) {
         return $subcache_value;
     }
 
     my $result = $on_miss->();
-    if(defined($result)){
-        $self->set_in_subcache($key,$result);
-    }
-    else {
+    if (defined($result)) {
+        $self->set_in_subcache($key, $result);
+    } else {
         $self->set_in_subcache($key, $undef_element);
     }
 
     return $result;
-
 }
 
 =head2 _get_from_socket
@@ -171,10 +179,11 @@ sub _get_from_socket {
 
     $method = $method || $self->{element_socket_method};
 
+    my $json = JSON->new->allow_nonref;
     my %info;
     my $payload;
-    %info = ( ( method => $method, key => $what ), %additionnal_info );
-    $payload = encode_json( \%info );
+    %info = ( ( method => $method, key => $what, tenant_id => pf::config::tenant::get_tenant() ), %additionnal_info );
+    $payload = $json->encode( \%info );
 
     my $socket;
 
@@ -250,7 +259,7 @@ sub is_valid {
         return 1;
     }
     else {
-        $logger->debug("Memory configuration is not valid anymore for key $what in local cached_hash");
+            $logger->debug("Memory configuration is not valid anymore for key $what in local cached_hash");
         return 0;
     }
 }
@@ -262,13 +271,24 @@ sub logger {
     return $self->{logger};
 }
 
+=head2 set_namespace
+
+Set the namespace of this object while normalizing it if needed
+
+=cut
+
+sub set_namespace {
+    my ($self, $namespace) = @_;
+    $self->{_namespace} = normalize_namespace_query($namespace);
+}
+
 =head1 AUTHOR
 
 Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2017 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 

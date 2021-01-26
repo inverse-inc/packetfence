@@ -79,6 +79,7 @@
                     <br/>
                   <input type="text" name="filter" placeholder="[% l('Search...') %]">
                     <div class="btn-group pull-right">
+                      <button type="button" id="simpleUserSearchResetBtn" class="btn btn-primary"><i class="icon-refresh icon-white"></i> [% l('Reset Search') %]</button>
                       <button class="btn btn-primary"><i class="icon-search icon-white"></i> [% l('Search') %]</button>
                       <a class="btn btn-primary dropdown-toggle" data-toggle="dropdown"><span class="caret"></span></a>
                       <ul class="dropdown-menu">
@@ -90,7 +91,7 @@
               </div><!--#simple-->
               <div class="tab-pane" id="advanced">
                 <form id="advancedUserSearch" method="POST" name="advancedUserSearch" class="form-inline" action="[% c.uri_for(c.controller('User').action_for('advanced_search')) %]">
-                  <table id="advancedUserSearchConditions" class="table-dynamic">
+                  <table id="advancedUserSearchConditions" class="table table-condensed table-dynamic unbordered">
                     <thead>
                       <tr>
                         <td>
@@ -124,7 +125,6 @@
                             <option value="gender">[% l('gender') %]</option>
                             <option value="lang">[% l('lang') %]</option>
                             <option value="nickname">[% l('nickname') %]</option>
-                            <option value="organization">[% l('organization') %]</option>
                             <option value="cell_phone">[% l('cell_phone') %]</option>
                             <option value="work_phone">[% l('work_phone') %]</option>
                             <option value="title">[% l('title') %]</option>
@@ -175,7 +175,6 @@
                             <option value="gender">[% l('gender') %]</option>
                             <option value="lang">[% l('lang') %]</option>
                             <option value="nickname">[% l('nickname') %]</option>
-                            <option value="organization">[% l('organization') %]</option>
                             <option value="cell_phone">[% l('cell_phone') %]</option>
                             <option value="work_phone">[% l('work_phone') %]</option>
                             <option value="title">[% l('title') %]</option>
@@ -230,6 +229,7 @@
                         </td>
                         <td>
                           <div class="btn-group pull-right">
+                            <button type="button" id="advancedUserSearchResetBtn" class="btn btn-primary"><i class="icon-refresh icon-white"></i> [% l('Reset Search') %]</button>
                             <button class="btn btn-primary"><i class="icon-search icon-white"></i> [% l('Search') %]</button>
                             <a class="btn btn-primary dropdown-toggle" data-toggle="dropdown"><span class="caret"></span></a>
                             <ul class="dropdown-menu">

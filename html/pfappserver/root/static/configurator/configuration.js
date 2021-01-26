@@ -14,6 +14,7 @@ function initStep() {
 
 function saveStep(href) {
     var valid = true;
+    resetAlert($('form[name="config"] h3').first());
 
     $('form[name="config"] .control-group').each(function(index) {
         var e = $(this);
@@ -47,7 +48,6 @@ function saveStep(href) {
     }
     else {
         var form = $('form[name="config"] h3').first();
-        resetAlert(form.parent());
         showError(form, 'Please verify your configuration.');
         $("body,html").animate({scrollTop:0}, 'fast');
     }

@@ -15,6 +15,7 @@ examples:
 
   pfcmd node view all
   pfcmd node view all order by pid limit 10,20
+  pfcmd node view 00:01:02:03:04:05
   pfcmd node view pid="admin" order by pid desc limit 10,20
   pfcmd node count all
   pfcmd node add 00:01:02:03:04:05 status="reg" pid="admin"
@@ -105,14 +106,18 @@ sub parse_view {
         $params{'where'}{'value'} = $4;
     }
     if($8) {
-        $params{orderby} = "order by $8";
+        my $orderby = $8;
         if($9) {
-            $params{orderby} .= " $9";
+            if (lc($9) eq 'desc') {
+                $orderby = "-$orderby";
+            }
         }
+        $params{orderby} = [$orderby];
     }
     if($10) {
         my $limit = "limit $11,$12";
-        $params{limit} = $limit;
+        $params{offset} = $11;
+        $params{limit} = $12;
     }
     $self->{params} = \%params;
     return 1;
@@ -269,19 +274,14 @@ handles 'pfcmd node delete' command
 sub action_delete {
     my ($self) = @_;
     my ($mac) = $self->action_args;
-    unless (node_exist($mac)) {
-        print STDERR "node '$mac' does not exist\n";
-        return $EXIT_FAILURE;
+    my ($deleted, $error) = node_delete($mac);
+    if ($deleted) {
+        return $EXIT_SUCCESS;
     }
-    my $r = node_delete($mac);
-    unless($r) {
-        my $error = "Cannot delete node $mac since there are some records in locationlog table "
-                    . "indicating that this node might still be connected and active on the network ";
-        print STDERR $error,"\n";
-        get_logger->error($error);
-        return $EXIT_FAILURE;
-    }
-    return $EXIT_SUCCESS;
+
+    print STDERR $error,"\n";
+    get_logger->error($error);
+    return $EXIT_FAILURE;
 }
 
 =head2 parse_delete
@@ -356,7 +356,7 @@ Minor parts of this file may have been contributed. See CREDITS.
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2017 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 

@@ -1,0 +1,60 @@
+/**
+ * Bootstrap common files
+ */
+@import "bootstrap/scss/functions";
+@import "variables";
+@import "bootstrap/scss/mixins";
+@import "bootstrap/scss/root";
+@import "reboot";
+@import "type";
+@import "bootstrap/scss/images";
+@import "bootstrap/scss/code";
+@import "bootstrap/scss/grid";
+@import "tables";
+@import "forms";
+@import "buttons";
+@import "transitions";
+@import "dropdown";
+@import "bootstrap/scss/button-group";
+@import "input-group";
+@import "custom-forms";
+@import "nav";
+@import "navbar";
+@import "card";
+@import "bootstrap/scss/breadcrumb";
+@import "bootstrap/scss/pagination";
+@import "bootstrap/scss/badge";
+// @import "bootstrap/scss/jumbotron";
+@import "alert";
+@import "bootstrap/scss/progress";
+@import "bootstrap/scss/media";
+@import "bootstrap/scss/list-group";
+@import "bootstrap/scss/close";
+@import "bootstrap/scss/modal";
+@import "bootstrap/scss/tooltip";
+@import "popover";
+// @import "bootstrap/scss/carousel";
+// @import "bootstrap/scss/spinners";
+@import "utilities";
+@import "bootstrap/scss/print";
+
+/**
+ * Bootstrap documentation components
+ */
+@import "sidebar";
+
+/**
+ * Custom components
+ */
+@import "draggable";
+@import "icon";
+@import "ip";
+@import "netdata";
+@import "mac";
+@import "icon-counter";
+@import "form-chosen";
+
+/**
+ * New components
+ */
+@import "base";

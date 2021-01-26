@@ -43,7 +43,7 @@ Lookup the person information from the authentication hash received during the O
 sub lookup_from_provider_info {
     my ( $self, $pid, $info ) = @_;
 
-    person_modify( $pid, firstname => $info->{first_name}, lastname => $info->{last_name}, email => $info->{email} );
+    person_modify( $pid, firstname => $info->{first_name}, lastname => $info->{last_name}, email => $info->{email}, gender => $info->{gender}, birthday => $info->{birthday}, locale => $info->{locale} );
 }
 
 =head1 AUTHOR
@@ -52,7 +52,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2017 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 
@@ -73,7 +73,7 @@ USA.
 
 =cut
 
-__PACKAGE__->meta->make_immutable;
+__PACKAGE__->meta->make_immutable unless $ENV{"PF_SKIP_MAKE_IMMUTABLE"};
 1;
 
 # vim: set shiftwidth=4:

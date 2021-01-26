@@ -21,16 +21,22 @@ use warnings;
 ### pf::dal::_node is auto generated any change to this file will be lost
 ### Instead change in the pf::dal::node module
 ###
+
 use base qw(pf::dal);
+
+use Role::Tiny::With;
+with qw(pf::dal::roles::has_tenant_id);
 
 our @FIELD_NAMES;
 our @INSERTABLE_FIELDS;
 our @PRIMARY_KEYS;
 our %DEFAULTS;
 our %FIELDS_META;
+our @COLUMN_NAMES;
 
 BEGIN {
     @FIELD_NAMES = qw(
+        tenant_id
         mac
         pid
         category_id
@@ -54,6 +60,7 @@ BEGIN {
         device_class
         device_version
         device_score
+        device_manufacturer
         bypass_vlan
         voip
         autoreg
@@ -64,6 +71,7 @@ BEGIN {
     );
 
     %DEFAULTS = (
+        tenant_id => '1',
         mac => '',
         pid => 'default',
         category_id => undef,
@@ -87,6 +95,7 @@ BEGIN {
         device_class => undef,
         device_version => undef,
         device_score => undef,
+        device_manufacturer => undef,
         bypass_vlan => undef,
         voip => 'no',
         autoreg => 'no',
@@ -97,6 +106,7 @@ BEGIN {
     );
 
     @INSERTABLE_FIELDS = qw(
+        tenant_id
         mac
         pid
         category_id
@@ -120,6 +130,7 @@ BEGIN {
         device_class
         device_version
         device_score
+        device_manufacturer
         bypass_vlan
         voip
         autoreg
@@ -130,6 +141,12 @@ BEGIN {
     );
 
     %FIELDS_META = (
+        tenant_id => {
+            type => 'INT',
+            is_auto_increment => 0,
+            is_primary_key => 1,
+            is_nullable => 0,
+        },
         mac => {
             type => 'VARCHAR',
             is_auto_increment => 0,
@@ -179,7 +196,7 @@ BEGIN {
             is_nullable => 1,
         },
         bandwidth_balance => {
-            type => 'INT',
+            type => 'BIGINT',
             is_auto_increment => 0,
             is_primary_key => 0,
             is_nullable => 1,
@@ -263,6 +280,12 @@ BEGIN {
             is_nullable => 1,
         },
         device_score => {
+            type => 'INT',
+            is_auto_increment => 0,
+            is_primary_key => 0,
+            is_nullable => 1,
+        },
+        device_manufacturer => {
             type => 'VARCHAR',
             is_auto_increment => 0,
             is_primary_key => 0,
@@ -321,8 +344,45 @@ BEGIN {
     );
 
     @PRIMARY_KEYS = qw(
+        tenant_id
         mac
     );
+
+    @COLUMN_NAMES = qw(
+        node.tenant_id
+        node.mac
+        node.pid
+        node.category_id
+        node.detect_date
+        node.regdate
+        node.unregdate
+        node.lastskip
+        node.time_balance
+        node.bandwidth_balance
+        node.status
+        node.user_agent
+        node.computername
+        node.notes
+        node.last_arp
+        node.last_dhcp
+        node.dhcp_fingerprint
+        node.dhcp6_fingerprint
+        node.dhcp_vendor
+        node.dhcp6_enterprise
+        node.device_type
+        node.device_class
+        node.device_version
+        node.device_score
+        node.device_manufacturer
+        node.bypass_vlan
+        node.voip
+        node.autoreg
+        node.sessionid
+        node.machine_account
+        node.bypass_role_id
+        node.last_seen
+    );
+
 }
 
 use Class::XSAccessor {
@@ -339,13 +399,13 @@ sub _defaults {
     return {%DEFAULTS};
 }
 
-=head2 field_names
+=head2 table_field_names
 
 Field names of node
 
 =cut
 
-sub field_names {
+sub table_field_names {
     return [@FIELD_NAMES];
 }
 
@@ -371,6 +431,16 @@ our $FIND_SQL = do {
     my $where = join(", ", map { "$_ = ?" } @PRIMARY_KEYS);
     "SELECT * FROM `node` WHERE $where;";
 };
+
+=head2 find_columns
+
+find_columns
+
+=cut
+
+sub find_columns {
+    return [@COLUMN_NAMES];
+}
 
 =head2 _find_one_sql
 
@@ -411,14 +481,14 @@ Get the meta data for node
 sub get_meta {
     return \%FIELDS_META;
 }
- 
+
 =head1 AUTHOR
 
 Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2017 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 

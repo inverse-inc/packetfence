@@ -64,12 +64,12 @@ sub match_in_subclass {
     my $username =  $params->{'username'};
     foreach my $condition (@{ $own_conditions }) {
         if ($condition->{'attribute'} eq "username") {
-            if ( $condition->matches("username", $username) ) {
+            if ( $condition->matches("username", $username, $params) ) {
                 push(@{ $matching_conditions }, $condition);
             }
         }
     }
-    return $username;
+    return ($username, undef);
 }
 
 =head2 lookup_from_provider_info
@@ -98,7 +98,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2017 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 
@@ -119,7 +119,7 @@ USA.
 
 =cut
 
-__PACKAGE__->meta->make_immutable;
+__PACKAGE__->meta->make_immutable unless $ENV{"PF_SKIP_MAKE_IMMUTABLE"};
 1;
 
 # vim: set shiftwidth=4:

@@ -121,3 +121,7 @@ table .category-header {
   bottom:100% !important; 
   top:auto !important; 
 }
+
+.configuration-section-title {
+  border-bottom:1px solid #eee;
+}

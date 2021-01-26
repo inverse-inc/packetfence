@@ -14,7 +14,7 @@ search_node
 
 use strict;
 use warnings;
-use lib qw(/usr/local/pf/lib /usr/local/pf/html/pfappserver/lib);
+use lib qw(/usr/local/pf/lib);
 use pf::SearchBuilder::Node;
 use pfappserver::Base::Model::Search;
 use pfappserver::Model::Search::Node;
@@ -52,7 +52,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2017 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 

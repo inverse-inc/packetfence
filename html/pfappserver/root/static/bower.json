@@ -2,15 +2,18 @@
   "name": "pfappserver",
   "private": true,
   "devDependencies": {
+    "ace-builds": "1.3.x",
     "bootstrap-sass": "v2.3.2.2",
-    "font-awesome": "latest",
+    "sass-mq": "4.x",
+    "font-awesome": "4.x",
     "flowtype": "latest",
     "clipboard": "latest",
     "bootstrap-switch": "1.9.0",
     "bootstrap-datepicker": "1.6.x",
     "chosen": "v1.7.0",
-    "jquery": "latest",
-    "jquery-ui": "latest"
+    "jquery": "3.x",
+    "jquery-ui": "latest",
+    "raphael": "2.x"
   },
   "resolutions": {
     "jquery": "3.x"

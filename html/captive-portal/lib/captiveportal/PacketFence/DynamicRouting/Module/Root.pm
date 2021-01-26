@@ -31,8 +31,8 @@ use pf::node;
 use pf::config qw($default_pid);
 use pf::constants qw($TRUE $FALSE);
 use pf::util;
-use pf::violation;
-use pf::constants::scan qw($POST_SCAN_VID);
+use pf::security_event;
+use pf::constants::scan qw($POST_SCAN_SECURITY_EVENT_ID);
 use pf::inline;
 use pf::Portal::Session;
 use pf::SwitchFactory;
@@ -83,10 +83,11 @@ Reevaluate the access of the user and show the release page
 
 sub release {
     my ($self) = @_;
-    # One last check for the violations
-    return unless($self->handle_violations());
+    # One last check for the security_events
+    return unless($self->handle_security_events());
 
-    return $self->app->redirect("http://" . $self->app->request->header("host") . "/access") unless($self->app->request->path eq "access");
+    my $lang = $self->app->session->{lang} // "";
+    return $self->app->redirect("http://" . $self->app->request->header("host") . "/access?lang=$lang") unless($self->app->request->path eq "access");
 
     get_logger->info("Releasing device");
 
@@ -94,7 +95,7 @@ sub release {
 
     unless($self->handle_web_form_release){
         reevaluate_access( $self->current_mac, 'manage_register', force => 1 );
-        return $self->render("release.html", $self->_release_args());
+        $self->render("release.html", $self->_release_args());
     }
 }
 
@@ -146,33 +147,34 @@ sub unknown_state {
                 # set the cache, incrementing before on purpose (otherwise it's not hitting the cache)
                 $self->app->user_cache->set("unknown_state_hits", ++$cached_lost_device, "5 minutes");
 
-                get_logger->info("Reevaluating access of device.");
+                get_logger->info("Device is registered and still on the portal, attempting to release it again.");
 
-                reevaluate_access( $self->current_mac, 'manage_register', force => 1 );
+                $self->release();
+            } else {
+                get_logger->warn("Too many attempts to release the device.");
+                return $self->app->error("Your network should be enabled within a minute or two. If it is not reboot your computer.");
             }
-
-            return $self->app->error("Your network should be enabled within a minute or two. If it is not reboot your computer.");
         }
     }
 }
 
-=head2 handle_violations
+=head2 handle_security_events
 
-Check if the user has a violation and redirect him to the proper page if he does
+Check if the user has a security_event and redirect him to the proper page if he does
 
 =cut
 
-sub handle_violations {
+sub handle_security_events {
     my ($self) = @_;
     my $mac           = $self->current_mac;
 
-    my $violation = violation_view_top($mac);
+    my $security_event = security_event_view_top($mac);
 
-    return 1 unless(defined($violation));
+    return 1 unless($security_event);
 
-    return 1 if ($violation->{vid} == $POST_SCAN_VID);
+    return 1 if ($security_event->{security_event_id} == $POST_SCAN_SECURITY_EVENT_ID);
 
-    $self->app->redirect("/violation");
+    $self->app->redirect("/security_event");
     return 0;
 }
 
@@ -191,7 +193,7 @@ sub validate_mac {
     return $TRUE;
 }
 
-=head2 execute_actions
+=head2 execute_child
 
 Execute the flow for this module
 
@@ -202,13 +204,16 @@ sub execute_child {
 
     return unless($self->validate_mac);
 
-    # Make sure there are no outstanding violations
-    return unless($self->handle_violations());
+    # Make sure there are no outstanding security_events
+    return unless($self->handle_security_events());
 
-    # The user should be released, he is already registered and doesn't have any violation
+    # The user should be released, he is already registered and doesn't have any security_event
     # HACK alert : E-mail registration has the user registered but still going in the portal
     # release_bypass is there for that. If it is set, it will keep the user in the portal
     my $node = node_view($self->current_mac);
+    if (!defined($self->app->session->{release_bypass})) {
+        $self->app->session->{release_bypass} = $TRUE;
+    }
     if($self->app->profile->canAccessRegistrationWhenRegistered() && $self->app->session->{release_bypass}) {
         get_logger->info("Allowing user through portal even though he is registered as the release bypass is set and the connection profile is configured to let registered users use the registration module of the portal.");
     }
@@ -239,6 +244,8 @@ sub apply_new_node_info {
     my ($self) = @_;
     get_logger->debug(sub { use Data::Dumper; "Applying new node_info to user ".Dumper($self->new_node_info)});
 
+    my $node_view = node_view($self->current_mac);
+
     # When device is pending, we take the role+unregdate from the computed node info. 
     # This way, if the role wasn't set during the portal process (like in provisioning agent re-install), then it will pick the role it had before
     if($self->node_info->{status} eq $pf::node::STATUS_PENDING) {
@@ -257,28 +264,38 @@ sub apply_new_node_info {
     $self->new_node_info->{category} = $self->node_info->{category};
     $self->new_node_info->{unregdate} = $self->node_info->{unregdate};
 
+    # We check if the username is the default PID. If it is and there is a non-default PID already on the node, we take it instead of the default PID
+    if($self->username eq $default_pid) {
+        get_logger->debug("Username is set to the default PID and there is already a PID set on the node (".$node_view->{pid}."). Keeping it instead of the default PID.");
+        $self->username($node_view->{pid});
+    }
+
     my ( $status, $status_msg );
     ( $status, $status_msg ) = pf::node::node_register($self->current_mac, $self->username, %{$self->new_node_info()});
     if ($status) {
         $self->app->flash->{notice} = "";
         my $notice = "";
         if($self->new_node_info->{category}) {
-            $notice .= sprintf("Role %s has been assigned to your device", $self->new_node_info->{category});
+            $notice .= $self->app->i18n_format("Role %s has been assigned to your device", $self->new_node_info->{category});
         }
         if($self->new_node_info->{unregdate}) {
-            $notice .= sprintf(" with unregistration date : %s,", $self->new_node_info->{unregdate});
+            $notice .= $self->app->i18n_format(" with unregistration date : %s,", $self->new_node_info->{unregdate});
         }
         if ($self->new_node_info->{time_balance}) {
-            $notice .= sprintf(" with time balance : %s,", $self->new_node_info->{time_balance});
+            $notice .= $self->app->i18n_format(" with time balance : %s,", $self->new_node_info->{time_balance});
         }
         if ($self->new_node_info->{bandwidth_balance}) {
-            $notice .= sprintf(" with bandwidth balance : %s,", $self->new_node_info->{bandwidth_balance});
+            $notice .= $self->app->i18n_format(" with bandwidth balance : %s,", $self->new_node_info->{bandwidth_balance});
         }
         $self->app->flash->{notice} = [ $notice ];
         return $TRUE;
     }
     else {
-        $self->app->error("Couldn't register your device. Please contact your local support staff.");
+        if (defined($status_msg) && $status_msg ne '') {
+            $self->app->error($status_msg);
+        } else {
+            $self->app->error("Couldn't register your device. Please contact your local support staff.");
+        }
         $self->detach();
     }
 }
@@ -331,12 +348,12 @@ Show the account details created in the pre-registration
 
 sub show_preregistration_account {
     my ($self) = @_;
-    if(my $account = $self->app->session->{local_account_info}){
-        $self->render("account.html", {account => $account, title => "Account created"});
-    }
-    else {
-        $self->app->error("Cannot find any created account.");
-    }
+    captiveportal::DynamicRouting::Module::ShowLocalAccount->new(
+        id => "__TMP_ShowLocalAccount_Module__", 
+        parent => $self, 
+        app => $self->app, 
+        skipable => $FALSE
+    )->execute();
 }
 
 =head2 record_destination_url
@@ -358,7 +375,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2017 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 
@@ -379,7 +396,7 @@ USA.
 
 =cut
 
-__PACKAGE__->meta->make_immutable;
+__PACKAGE__->meta->make_immutable unless $ENV{"PF_SKIP_MAKE_IMMUTABLE"};
 
 1;
 

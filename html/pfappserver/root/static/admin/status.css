@@ -6,9 +6,6 @@
     width: 600px;
 }
 /* dashboard */
-#dashboard .nav-tabs li a {
-    height: 100px;
-}
 .counter {
     n0margin-top: 50px;
     text-align: center;

@@ -1,0 +1,17 @@
+<!-- START survey.html -->
+<form action="/signup" method="post">
+  <div class="c-card[% IF fields.exists('aup') %] c-card--hidden c-card--disabled[% END %] o-layout o-layout--center u-padding">
+    <div class="o-layout__item u-1/1 u-2/3@tablet u-3/5@desktop">
+      [% FOREACH field IN fields_order %]
+      <div class="input-container">
+        [% form.get_field(field).render | none %]
+      </div>
+      [% END %]
+
+      <button type="submit" name="submit" class="c-btn c-btn--primary u-1/1 u-margin-top">
+        [% i18n("Continue") %]
+      </button>
+    </div>
+  </div>
+</form>
+<!-- END survey.html -->

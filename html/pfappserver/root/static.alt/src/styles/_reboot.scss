@@ -1,0 +1,7 @@
+@import "../../node_modules/bootstrap/scss/reboot";
+
+a.disabled {
+    pointer-events: none;
+    color: $btn-link-disabled-color;
+    transition: $btn-transition;
+}

@@ -1,3 +1,4 @@
+# Copyright (C) Inverse inc.
 [general]
 backend=mysql
 
@@ -7,3 +8,4 @@ user=pf
 pass=packet
 db=pf
 port=3306
+table=keyed

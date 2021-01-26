@@ -1,17 +1,25 @@
 global_defs {
    notification_email {
-     %%emailaddr%%
+    %%emailaddr%%
    }
    notification_email_from %%fromaddr%%
    smtp_server %%smtpserver%%
    smtp_connect_timeout 30
-   router_id PacketFence
+   router_id %%router_id%%
 }
 
-vrrp_script haproxy {
-  script "killall -0 haproxy"
-  interval 2
-  weight 2
+vrrp_track_process radius_load_balancer {
+  process /usr/sbin/radiusd -d /usr/local/pf/raddb -n load_balancer -fm
+  full_command
+  quorum 1
+  delay 15
+}
+
+vrrp_track_process haproxy_portal {
+  process /usr/sbin/haproxy -Ws -f /usr/local/pf/var/conf/haproxy-portal.conf -p /usr/local/pf/var/run/haproxy-portal.pid
+  full_command
+  quorum 1
+  delay 15
 }
 
 %%vrrp%%

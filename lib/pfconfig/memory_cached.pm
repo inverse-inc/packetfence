@@ -25,6 +25,7 @@ use warnings;
 
 use pf::log;
 use pfconfig::cached;
+use pfconfig::util qw(normalize_namespace_query);
 our @ISA = ( 'pfconfig::cached' );
 
 =head2 init
@@ -35,6 +36,8 @@ Constructor
 
 sub init {
     my ( $self, @namespaces ) = @_;
+
+    @namespaces = map { normalize_namespace_query($_) } @namespaces;
 
     $self->{"_namespaces"} = \@namespaces;
 
@@ -67,7 +70,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2017 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 

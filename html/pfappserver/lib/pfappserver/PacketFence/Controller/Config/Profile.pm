@@ -32,6 +32,7 @@ use pf::Connection::ProfileFactory;
 use captiveportal::DynamicRouting::Application;
 use pf::config qw(%connection_type %ConfigSwitchesGroup);
 use pf::constants qw($TRUE $FALSE);
+use pf::locationlog qw(locationlog_unique_ssids);
 use pf::util;
 use pf::file_paths qw(
     $captiveportal_profile_templates_path
@@ -39,6 +40,7 @@ use pf::file_paths qw(
     $captiveportal_templates_path
 );
 use List::Util qw(any);
+use List::MoreUtils qw(uniq);
 use pf::constants::eap_type qw(%RADIUS_EAP_TYPE_2_VALUES);
 
 Readonly our %FILTER_FILES =>
@@ -52,6 +54,7 @@ BEGIN {
     extends 'pfappserver::Base::Controller';
 }
 with 'pfappserver::Base::Controller::Crud::Config' => {excludes => [qw(object)]};
+with 'pfappserver::Base::Controller::Crud::Config::Clone';
 
 __PACKAGE__->config(
     # Reconfigure the models and forms for actions
@@ -64,6 +67,7 @@ __PACKAGE__->config(
         view   => { AdminRole => 'CONNECTION_PROFILES_READ' },
         list   => { AdminRole => 'CONNECTION_PROFILES_READ' },
         create => { AdminRole => 'CONNECTION_PROFILES_CREATE' },
+        clone  => { AdminRole => 'CONNECTION_PROFILES_CREATE' },
         update => { AdminRole => 'CONNECTION_PROFILES_UPDATE' },
         remove => { AdminRole => 'CONNECTION_PROFILES_DELETE' },
     },
@@ -116,6 +120,24 @@ after create => sub {
     }
 };
 
+after clone => sub {
+    my ($self, $c) = @_;
+    if (is_success($c->response->status) && $c->request->method eq 'POST') {
+        my $model = $self->getModel($c);
+        my $profile_dir = $self->_makeFilePath($c);
+        my $cloned_profile_dir = $self->_cloneFilePath($c);
+        pf_make_dir($profile_dir);
+        my($num_of_files_and_dirs, $num_of_dirs, $depth_traversed) = dircopy($cloned_profile_dir, $profile_dir);
+        $c->log->info("Copied $num_of_files_and_dirs files, $num_of_dirs directories, $depth_traversed deep with: $cloned_profile_dir to $profile_dir");
+        $c->response->location(
+            $c->pf_hash_for(
+                $c->controller('Config::Profile')->action_for('view'),
+                [$c->stash->{$model->idKey}]
+            )
+        );
+    }
+};
+
 =head2 after view
 
 Append additional data after the view
@@ -125,11 +147,26 @@ Append additional data after the view
 after view => sub {
     my ($self, $c) = @_;
     my ($status, $roles) = $c->model('Config::Roles')->listFromDB;
+    # get list of ssids from database locationlog
+    my @ssids = locationlog_unique_ssids();
+    # get list of ssids from form fields
+    my $form_filter = $c->stash->{form}->field('filter');
+    if(defined $form_filter) {
+        foreach my $ssid (@{$form_filter->value//[]}) {
+            if(defined $ssid->{type} && $ssid->{type} eq "ssid" 
+                && defined $ssid->{match} && $ssid->{match} ne ""
+            ) {
+                push(@ssids, $ssid->{match});
+            }
+        }
+    }
+    my @unique_ssids = uniq( @ssids );
     $c->stash({
         connection_types => [ keys %connection_type ],
         connection_sub_types => [ sort keys %RADIUS_EAP_TYPE_2_VALUES ],
         node_roles => $roles,
         switch_groups => [ keys %ConfigSwitchesGroup ],
+        ssids => [ @unique_ssids ],
     });
 };
 
@@ -420,7 +457,7 @@ Add fake profile data for a preview
 sub add_fake_profile_data {
     my ($self, $c, $template, @pathparts) = @_;
     $self->SUPER::add_fake_profile_data($c);
-    if ($template eq 'remediation.html' && $pathparts[0] eq 'violations' ) {
+    if ($template eq 'remediation.html' && $pathparts[0] eq 'security_events' ) {
         $c->stash( sub_template => catfile(@pathparts) );
     }
 }
@@ -434,6 +471,17 @@ Make the file path for the current profile
 sub _makeFilePath {
     my ($self, $c, @pathparts) = @_;
     return catfile($captiveportal_profile_templates_path,$c->stash->{id}, @pathparts);
+}
+
+=head2 _cloneFilePath
+
+Clone the file path for the current profile, from the previous profile
+
+=cut
+
+sub _cloneFilePath {
+    my ($self, $c, @pathparts) = @_;
+    return catfile($captiveportal_profile_templates_path,$c->stash->{cloned_id}, @pathparts);
 }
 
 =head2 mergedPaths
@@ -758,7 +806,7 @@ sub revertableOrDeletable {
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2017 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 

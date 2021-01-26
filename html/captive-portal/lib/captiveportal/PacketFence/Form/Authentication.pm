@@ -22,6 +22,7 @@ has '+widget_name_space' => ( default => 'captiveportal::Form::Widget' );
 use pf::log;
 use pf::sms_carrier;
 use pf::util;
+use pf::web::util;
 
 has 'source' => (is => 'rw');
 
@@ -45,7 +46,13 @@ has_field 'fields[password]' => (type => 'Password', label => 'Password');
 
 has_field 'fields[email]' => (type => "Email", label => "Email");
 
-has_field 'fields[telephone]' => (type => "Text", label => "Telephone", html5_type_attr => "tel");
+has_field 'fields[telephone]' => (
+    type => "Text", 
+    label => "Telephone", 
+    html5_type_attr => "tel", 
+    validate_method => \&check_telephone, 
+    apply => [{transform => sub{ $_[0] =~ s/(-|\s|\(|\))//g; return $_[0] }}],
+);
 
 has_field 'fields[sponsor]' => (type => "Email", label => "Sponsor Email");
 
@@ -53,7 +60,7 @@ has_field 'fields[mobileprovider]' => (type => "Select", label => "Mobile provid
 
 has_field 'fields[aup]' => (type => 'AUP', id => 'aup', validate_method => \&check_aup);
 
-has_field 'fields[email_instructions]' => (type => 'Display', set_html => 'render_email_instructions');
+has_field 'fields[email_instructions]' => (type => 'Display', set_html => 'render_email_instructions', default => 1);
 
 has_field 'fields[birthday]' => (type => 'Date', label => 'Date Of Birth');
 
@@ -68,13 +75,15 @@ Render the instructions for e-mail registration
 sub render_email_instructions {
     my ($self) = @_;
     my $current_module = $self->form->module;
-    my $email_timeout;
-    if(defined($current_module) && $current_module->isa("captiveportal::DynamicRouting::Module::Authentication") && $current_module->source->isa("pf::Authentication::Source::EmailSource")){
-        $email_timeout = normalize_time($current_module->source->email_activation_timeout);
-        $email_timeout = $email_timeout / 60 . " minutes";
+    my $source = $current_module->source;
+    unless (defined($current_module) && $current_module->isa("captiveportal::DynamicRouting::Module::Authentication") && $source->isa("pf::Authentication::Source::EmailSource")) {
+        return '';
     }
-    return 
-        "<div class='text-center'>".$self->app->i18n("After registering, you will be given temporary network access".(defined($email_timeout) ? " during $email_timeout" : "").". In order to complete your registration, you will need to click on the link emailed to you.")."</div>" .
+    my $email_timeout = normalize_time($source->email_activation_timeout);
+    $email_timeout = int($email_timeout / 60);
+    return "<div class='text-center email-instructions'>" .
+        $self->app->i18n_format("After registering, you will be given temporary network access for %s minutes. In order to complete your registration, you will need to click on the link emailed to you.", $email_timeout) .
+        "</div>" .
         "<input name='fields[email_instructions]' type='hidden' value='1'>";
 }
 
@@ -87,10 +96,10 @@ Check AUP form
 sub check_aup_form {
     my ($self, $field) = @_;
     if($self->module->with_aup && $self->app->request->method eq "POST"){
-        get_logger->debug("AUP is required and it's value is : ". $field->value);
+        get_logger->debug($self->app->i18n_format("AUP is required and it's value is : %s", $field->value));
         unless($field->value){
-            $field->add_error("You must accept the terms and conditions");
-            $self->app->flash->{error} = "You must accept the terms and conditions";
+            $field->add_error($self->app->i18n("You must accept the terms and conditions"));
+            $self->app->flash->{error} = $self->app->i18n("You must accept the terms and conditions");
         }
     }
 }
@@ -106,6 +115,35 @@ sub check_aup {
     $self->form->check_aup_form($self);
     return ;
 }
+
+=head2 check_telephone_form
+
+Check telephone form
+
+=cut
+
+sub check_telephone_form {
+    my ($self, $field) = @_;
+    if($self->app->request->method eq "POST"){
+        if (!pf::web::util::validate_phone_number($field->value)) {
+            $field->add_error($self->app->i18n("Enter a valid telephone number"));
+            $self->app->flash->{error} = $self->app->i18n("Telephone number is not valid");
+        }
+    }
+}
+
+=head2 check_telephone
+
+Check that the telephone is valid
+
+=cut
+
+sub check_telephone {
+    my ($self) = @_;
+    $self->form->check_telephone_form($self);
+    return ;
+}
+
 
 =head2 get_field
 
@@ -147,7 +185,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2017 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 
@@ -168,6 +206,6 @@ USA.
 
 =cut
 
-__PACKAGE__->meta->make_immutable;
+__PACKAGE__->meta->make_immutable unless $ENV{"PF_SKIP_MAKE_IMMUTABLE"};
 
 1;

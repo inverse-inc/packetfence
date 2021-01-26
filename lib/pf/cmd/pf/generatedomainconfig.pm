@@ -30,6 +30,7 @@ sub _run {
     pf::domain::generate_smb_conf();
     pf::domain::generate_resolv_conf();
     pf_run("sudo /usr/local/pf/bin/pfcmd service iptables restart");
+    pf_run("sudo /usr/local/pf/bin/pfcmd service winbindd updatesystemd");
     pf::domain::restart_winbinds();
     return $EXIT_SUCCESS; 
 }
@@ -42,7 +43,7 @@ Minor parts of this file may have been contributed. See CREDITS.
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2017 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 

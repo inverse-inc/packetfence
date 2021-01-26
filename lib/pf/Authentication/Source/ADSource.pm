@@ -18,25 +18,22 @@ extends 'pf::Authentication::Source::LDAPSource';
 
 has '+type' => ( default => 'AD' );
 
-=head2 available_attributes
+=head2 ldap_attributes
 
-Available ldap search attributes for Active Directory
+Add ldap search attributes for Active Directory
 memberOf:1.2.840.113556.1.4.1941: attribute is for nested group, see https://msdn.microsoft.com/en-us/library/aa746475%28v=vs.85%29.aspx
 
 =cut
 
-sub available_attributes {
-  my $self = shift;
-  my $super_attributes = $self->SUPER::available_attributes;
-  my $ad_attributes =
-    [
-     { value => "sAMAccountName", type => $Conditions::SUBSTRING },
-     { value => "sAMAccountType", type => $Conditions::SUBSTRING },
-     { value => "userAccountControl", type => $Conditions::SUBSTRING },
-     { value => "memberOf:1.2.840.113556.1.4.1941:", type => $Conditions::SUBSTRING },
-    ];
-  
-  return [@$super_attributes, @$ad_attributes];
+sub ldap_attributes {
+  my ($self) = @_;
+  return (
+    $self->SUPER::ldap_attributes,
+     { value => "sAMAccountName", type => $Conditions::LDAP_ATTRIBUTE },
+     { value => "sAMAccountType", type => $Conditions::LDAP_ATTRIBUTE },
+     { value => "userAccountControl", type => $Conditions::LDAP_ATTRIBUTE },
+     { value => "memberOf:1.2.840.113556.1.4.1941:", type => $Conditions::LDAP_ATTRIBUTE },
+    );
 }
 
 =head2 findAtttributeFrom
@@ -75,7 +72,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2017 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 
@@ -96,7 +93,7 @@ USA.
 
 =cut
 
-__PACKAGE__->meta->make_immutable;
+__PACKAGE__->meta->make_immutable unless $ENV{"PF_SKIP_MAKE_IMMUTABLE"};
 1;
 
 # vim: set shiftwidth=4:

@@ -1,3 +1,5 @@
+#!/usr/bin/perl
+
 =head1 NAME
 
 util::dns test
@@ -22,7 +24,7 @@ BEGIN {
 }
 
 use Test::Deep;
-use Test::More tests => 29;
+use Test::More tests => 37;
 #This test will running last
 use Test::NoWarnings;
 use Socket;
@@ -32,8 +34,18 @@ use_ok("pf::util::dns");
 
 my ($match, $ports);
 
-($match, $ports) = pf::util::dns::matches_passthrough();
+($match, $ports) = pf::util::dns::matches_passthrough(undef, 'passthroughs');
 is($match, $FALSE, "undef domain will not match passthroughs");
+
+eval {
+    ($match, $ports) = pf::util::dns::matches_passthrough("zammitcorp.com", undef);
+};
+is($@, "Undefined passthrough zone provided\n", "undef zone will die with an error");
+
+eval {
+    ($match, $ports) = pf::util::dns::matches_passthrough("zammitcorp.com", "vidange");
+};
+is($@, "Invalid passthrough zone vidange\n", "undef zone will die with an error");
 
 ($match, $ports) = pf::util::dns::matches_passthrough("zammitcorp.com", 'passthroughs');
 is($match, $TRUE, "valid passthrough domain will match passthroughs");
@@ -87,13 +99,27 @@ cmp_deeply([], $ports, "ports for previous test are OK");
 is($match, $TRUE, "valid wildcard passthrough domain that multiple ports will match wildcard passthroughs");
 cmp_deeply(['tcp:1234', 'tcp:80', 'tcp:443'], $ports, "ports for previous test are OK");
 
+# test isolation passthroughs
+
+($match, $ports) = pf::util::dns::matches_passthrough("www.github.com", 'isolation_passthroughs');
+is($match, $FALSE, "invalid passthrough shouldn't match");
+cmp_deeply([], $ports, "ports for previous test are OK");
+
+($match, $ports) = pf::util::dns::matches_passthrough("isolation.zammitcorp.com", 'isolation_passthroughs');
+is($match, $TRUE, "normal isolation passthrough should match");
+cmp_deeply(['tcp:80', 'tcp:443'], $ports, "ports for previous test are OK");
+
+($match, $ports) = pf::util::dns::matches_passthrough("something.wild-isolation.zammitcorp.com", 'isolation_passthroughs');
+is($match, $TRUE, "wildcard isolation passthrough should match");
+cmp_deeply(['tcp:80', 'tcp:443'], $ports, "ports for previous test are OK");
+
 =head1 AUTHOR
 
 Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2017 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 

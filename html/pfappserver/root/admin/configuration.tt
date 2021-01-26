@@ -1,5 +1,5 @@
 [%  jsFiles = [
-        'app/ace/ace'
+        'js/vendor/ace/ace',
         'app/client/fineuploader',
         'app/client/jquery-plugin',
         'app/pf-bootstrap-swap-class',
@@ -12,7 +12,7 @@
         'app/client/fineuploader',
         'css/jqtree',
         'admin/config/switches',
-        'admin/config/violations',
+        'admin/config/security_events',
         ] -%]
 
 [% MACRO list_entry(controller_name, action, description) BLOCK %]
@@ -78,8 +78,7 @@
               </li>
             </ul>
           </div>
-          <div class="sidenav sidenav-section span3 offset1"
-               style="display: none"
+          <div class="sidenav sidenav-section span3 offset1 hide"
                data-category="policy">
             <ul class="nav nav-header">
               <li>[% l('Policies and Access Control') %]</li>
@@ -96,15 +95,14 @@
               [% list_entry( 'Config::Source', 'index', 'Authentication Sources') | none %]
               [%- END %]
               [%- IF can_access("SWITCHES_READ") %]
-              [% list_entry( 'Config::Switch', 'index', 'Switches') | none %]
+              [% pf_section_entry('switches', 'Network Devices', subsections.switches) | none %]
               [%- END %]
               [%- IF can_access("CONNECTION_PROFILES_READ") %]
               [% list_entry( 'Config::Profile', 'index', 'Connection Profiles') | none %]
               [%- END %]
             </ul>
           </div>
-          <div class="sidenav sidenav-section sidenav-inverse span3 offset1"
-               style="display: none"
+          <div class="sidenav sidenav-section sidenav-inverse span3 offset1 hide"
                data-category="compliance">
             <ul class="nav nav-header">
               <li>[% l('Compliance') %]</li>
@@ -117,13 +115,12 @@
               [%- IF can_access("SCAN_READ","WMI_READ","CONFIGURATION_MAIN_READ") %]
               [% pf_section_entry( 'scans', 'Scans', subsections.scans) | none %]
               [%- END %]
-              [%- IF can_access("VIOLATIONS_READ") %]
-              [% list_entry('Violation', 'index', 'Violations') | none %]
+              [%- IF can_access("SECURITY_EVENTS_READ") %]
+              [% list_entry('SecurityEvent', 'index', 'Security Events') | none %]
               [%- END %]
             </ul>
           </div>
-          <div class="sidenav sidenav-section sidenav-inverse span3 offset1"
-               style="display: none"
+          <div class="sidenav sidenav-section sidenav-inverse span3 offset1 hide"
                data-category="integration">
             <ul class="nav nav-header">
               <li>[% l('Integration') %]</li>
@@ -137,19 +134,20 @@
               [% pf_section_entry( 'mse_tab', 'Cisco Mobility Sevices Engine') | none %]
               [%- END %]
               [%- IF can_access("CONFIGURATION_MAIN_READ") %]
-              [% pf_section_entry( 'metadefender', 'OPSWAT Metadefender') | none %]
               [% pf_section_entry( 'webservices', 'Web Services') | none %]
               [%- END %]
               [%- IF can_access("PFDETECT_READ") %]
               [% list_entry('Config::Pfdetect', 'index', 'Syslog Parsers') | none %]
+              [%- END %]
+              [%- IF can_access("SYSLOG_READ") %]
+              [% list_entry('Config::Syslog', 'index', 'Syslog Forwarding') | none %]
               [%- END %]
               [%- IF can_access("WRIX_READ") %]
               [% list_entry('Config::Wrix', 'index', 'WRIX') | none %]
               [%- END %]
             </ul>
           </div>
-          <div class="sidenav sidenav-section sidenav-inverse span3 offset1"
-               style="display: none"
+          <div class="sidenav sidenav-section sidenav-inverse span3 offset1 hide"
                data-category="portal_config">
             <ul class="nav nav-header">
               <li>[% l('Advanced Access Configuration') %]</li>
@@ -177,11 +175,12 @@
               [%- IF can_access("CONFIGURATION_MAIN_READ") %]
               [% pf_section_entry( 'guests_admin_registration', 'Access Duration') | none %]
               [%- END %]
-              [% pf_section_entry( 'device_registration', 'Device Registration') | none %]
+              [%- IF can_access("SELF_SERVICE_READ") %]
+              [% list_entry('Config::SelfService', 'index', 'Self Service Portal') | none %]
+              [%- END %]
             </ul>
           </div>
-          <div class="sidenav sidenav-section sidenav-inverse span3 offset1"
-               style="display: none"
+          <div class="sidenav sidenav-section sidenav-inverse span3 offset1 hide"
                data-category="network_conf">
             <ul class="nav nav-header">
               <li>[% l('Network Configuration') %]</li>
@@ -193,7 +192,6 @@
               [% pf_section_entry( 'networks', 'Networks', subsections.networks) | none %]
               [%- END %]
               [%- IF can_access("CONFIGURATION_MAIN_READ") %]
-              [% pf_section_entry( 'omapi', 'OMAPI') | none %]
               [% pf_section_entry( 'snmp_traps', 'SNMP') | none %]
               [%- END %]
               [%- IF can_access("FLOATING_DEVICES_READ") %]
@@ -201,8 +199,7 @@
               [%- END %]
             </ul>
           </div>
-          <div class="sidenav sidenav-section sidenav-inverse span3 offset1"
-               style="display: none"
+          <div class="sidenav sidenav-section sidenav-inverse span3 offset1 hide"
                data-category="system">
             <ul class="nav nav-header">
               <li>[% l('System Configuration') %]</li>
@@ -211,12 +208,12 @@
             </ul>
             <ul class="nav nav-list">
               [%- IF can_access("CONFIGURATION_MAIN_READ") %]
-              [%- IF can_access("PFMON_READ") %]
+              [%- IF can_access("PFCRON_READ") %]
               [% pf_section_entry( 'main', 'Main Configuration', subsections.main) | none %]
               [%- END %]
               [% pf_section_entry( 'database', 'Database', subsections.database) | none %]
               [% pf_section_entry( 'active_active', 'Cluster') | none %]
-              [% pf_section_entry( 'radius_authentication_methods', 'Authentication Methods') | none %]
+              [% pf_section_entry( 'radius_configuration', 'Radius Configuration') | none %]
               [% pf_section_entry( 'node_import', 'Node Import') | none %]
               [%- END %]
               [%- IF can_access("ADMIN_ROLES_READ") %]

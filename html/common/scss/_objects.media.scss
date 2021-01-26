@@ -1,12 +1,24 @@
 /// _objects.media.scss -*- Mode: scss; indent-tabs-mode: nil; basic-offset: 2; fill-column: 80 -*-
 
-.#{$inuit-media-namespace}media--notice {
-  background-color: $pf-color-notice;
+.o-media--notice {
+  color: $pf-color-notice;
+  background-color: $pf-media-background;
+  border: 1px solid darken($pf-media-background, 10%);
   border-radius: $pf-border-radius;
+
+  .c-iconic use {
+    fill: $pf-color-notice;
+  }
 }
 
 
-.#{$inuit-media-namespace}media--error {
-  background-color: $pf-color-error;
+.o-media--error {
+  color: $pf-color-error;
+  background-color: $pf-media-background;
+  border: 1px solid darken($pf-media-background, 10%);
   border-radius: $pf-border-radius;
+
+  .c-iconic use {
+    fill: $pf-color-error;
+  }
 }

@@ -161,7 +161,7 @@ has_field 'user_agent' =>
 has_field 'dhcp_fingerprint' =>
   (
    type => 'Uneditable',
-   label => 'DHCP fingerprint',
+   label => 'DHCP Fingerprint',
   );
 has_field 'dhcp_vendor' =>
   (
@@ -186,7 +186,12 @@ has_field 'device_type' =>
 has_field 'device_class' =>
  (
    type => 'Uneditable',
-   label => 'Device class',
+   label => 'Device Class',
+ );
+has_field 'device_manufacturer' =>
+ (
+   type => 'Uneditable',
+   label => 'Device Manufacturer',
  );
 has_field 'fingerbank_info' =>
   (
@@ -195,7 +200,7 @@ has_field 'fingerbank_info' =>
 has_field 'fingerbank_info.device_fq' =>
  (
    type => 'Uneditable',
-   label => 'Fully qualified device name',
+   label => 'Fully Qualified Device Name',
  );
 has_field 'fingerbank_info.version' =>
  (
@@ -325,7 +330,7 @@ sub _build_readonly {
     my $init_object = $self->init_object;
     return undef unless defined $init_object;
     my $role = $self->init_object->{category};
-    return undef unless defined $role;
+    return undef unless defined $role && length($role) > 0;
     my %allowed_node_roles = map {$_ => undef} $self->_get_allowed_options('allowed_node_roles');
     return
         keys %allowed_node_roles == 0     ? undef
@@ -335,7 +340,7 @@ sub _build_readonly {
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2017 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 
@@ -356,6 +361,6 @@ USA.
 
 =cut
 
-__PACKAGE__->meta->make_immutable;
+__PACKAGE__->meta->make_immutable unless $ENV{"PF_SKIP_MAKE_IMMUTABLE"};
 
 1;

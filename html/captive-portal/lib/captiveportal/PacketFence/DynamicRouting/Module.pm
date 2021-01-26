@@ -16,11 +16,13 @@ use pf::constants qw($TRUE $FALSE $default_pid);
 use pf::config qw(
     %Config
     %CAPTIVE_PORTAL
+    $fqdn
 );
 use Hash::Merge qw(merge);
 use List::MoreUtils qw(any);
 use pf::node;
 use pf::person;
+use pf::util;
 use captiveportal::Base::Actions;
 use captiveportal::DynamicRouting::Detach;
 
@@ -67,12 +69,14 @@ Lists the actions that can be applied to this module
 
 sub available_actions {
     return [
+        'default_actions',
         'set_role',
         'set_unregdate',
         'set_access_duration',
         'no_action',
         'set_time_balance',
         'set_bandwidth_balance',
+        'destination_url',
     ];
 }
 
@@ -211,14 +215,16 @@ The arguments that are used when releasing a device on the network
 sub _release_args {
     my ($self) = @_;
     return {
-        timer         => $Config{'fencing'}{'redirtimer'},
+        timer => $Config{'captive_portal'}{'network_redirect_delay'},
         destination_url  => $self->app->session->{destination_url},
-        initial_delay => $CAPTIVE_PORTAL{'NET_DETECT_INITIAL_DELAY'},
-        retry_delay   => $CAPTIVE_PORTAL{'NET_DETECT_RETRY_DELAY'},
+        initial_delay => $Config{'captive_portal'}{'network_detection_initial_delay'},
+        retry_delay   => $Config{'captive_portal'}{'network_detection_retry_delay'},
         external_ip => $Config{'captive_portal'}{'network_detection_ip'},
-        auto_redirect => $Config{'captive_portal'}{'network_detection'},
+        auto_redirect => isenabled($Config{'captive_portal'}{'network_detection'}),
         image_path => $Config{'captive_portal'}{'image_path'},
         title => "release: enabling network",
+        network_logoff_popup => isenabled($self->app->profile->{_network_logoff_popup}),
+        hostname => $fqdn,
     };
 }
 
@@ -291,7 +297,13 @@ Actions to be executed when the module has been completed.
 
 sub execute_actions {
     my ($self) = @_;
+    # Execute the default actions before anything else
+    if(my $params = $self->actions->{default_actions}) {
+        $AUTHENTICATION_ACTIONS{default_actions}->($self, @{$params});
+    }
+
     while(my ($action, $params) = each %{$self->actions}){
+        next if $action eq "default_actions";
         get_logger->debug("Executing action $action with params : ".join(',', @{$params}));
         $AUTHENTICATION_ACTIONS{$action}->($self, @{$params});
     }
@@ -314,6 +326,10 @@ sub done {
         return;
     }
     $self->parent->next();
+
+    if(my $redirect = $self->app->request->param("done_redirect_to")) {
+        $self->app->redirect($redirect);
+    }
 }
 
 =head2 next
@@ -370,7 +386,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2017 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 
@@ -391,7 +407,7 @@ USA.
 
 =cut
 
-__PACKAGE__->meta->make_immutable;
+__PACKAGE__->meta->make_immutable unless $ENV{"PF_SKIP_MAKE_IMMUTABLE"};
 
 1;
 

@@ -32,4 +32,11 @@ DEFAULT
     PacketFence-Computer-Name             !* ANY,
     PacketFence-Handled                   !* ANY,
     PacketFence-Request-Time              !* ANY,
-    PacketFence-Authorization-Status      !* ANY
+    PacketFence-NasName                   !* ANY,
+    PacketFence-Proxied-To                !* ANY,
+    PacketFence-Authorization-Status      !* ANY,
+    PacketFence-Tenant-Id                 !* ANY,
+    PacketFence-ShortName                 !* ANY,
+    PacketFence-Proxied-From              !* ANY,
+    PacketFence-UserName                  !* ANY,
+    PacketFence-NTLMv2-Only               !* ANY

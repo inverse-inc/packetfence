@@ -16,7 +16,6 @@ use warnings;
 use HTTP::Status qw(:constants is_error is_success);
 use namespace::autoclean;
 use Moose;
-use pfappserver::Form::SavedSearch;
 use pf::admin_roles;
 use pf::constants qw($TRUE $FALSE);
 use List::MoreUtils qw(none);
@@ -25,6 +24,13 @@ use pf::cluster;
 use pf::authentication;
 use pf::Authentication::constants qw($LOGIN_CHALLENGE);
 use pf::util;
+use pf::config qw(
+    %Config
+    @listen_ints
+);
+use DateTime;
+use fingerbank::Constant;
+use fingerbank::Model::Device;
 
 BEGIN { extends 'pfappserver::Base::Controller'; }
 
@@ -43,8 +49,15 @@ sub auto :Private {
     delete $c->session->{'enforcements'};
 
     my $action = $c->action->name;
+
+    # Default to the new administration interface when hitting the index
+    if($action eq 'index') {
+        $c->response->redirect($c->uri_for($self->action_for('alt')));
+        $c->detach();
+    }
+
     # login and logout actions have no checks
-    if ($action eq 'login' || $action eq 'logout') {
+    if ($action eq 'login' || $action eq 'logout' || $action eq 'alt') {
         return 1;
     }
 
@@ -107,6 +120,7 @@ sub login :Local :Args(0) {
 
                     # Save the updated roles data
                     $c->persist_user();
+                    $c->change_session_id();
 
                     # Don't send a standard 302 redirect code; return the redirection URL in the JSON payload
                     # and perform the redirection on the client side
@@ -118,7 +132,7 @@ sub login :Local :Args(0) {
                         $uri = $req->params->{'redirect_url'};
                     }
                     if (!defined $uri || $uri !~ /^http/i) {
-                        $uri = $c->uri_for($self->action_for('index'))->as_string;
+                        $uri = $c->uri_for($self->action_for('status'))->as_string;
                     }
                     $c->stash->{success} = $uri;
                 } else {
@@ -134,11 +148,12 @@ sub login :Local :Args(0) {
             }
         };
         if ($@) {
+            $c->log->error($@);
             $c->response->status(HTTP_INTERNAL_SERVER_ERROR);
             $c->stash->{status_msg} = $c->loc("Unexpected error. See server-side logs for details.");
         }
     } elsif ($c->user_in_realm( 'admin' )) {
-        $c->response->redirect($c->uri_for($self->action_for('index')));
+        $c->response->redirect($c->uri_for($self->action_for('status')));
         $c->detach();
     } elsif ($req->params->{'redirect_action'}) {
         $c->stash->{redirect_action} = $req->params->{'redirect_action'};
@@ -155,7 +170,7 @@ sub challenge :Local :Args(0) {
     my $req = $c->req;
     my $user_challenge = $c->session->{user_challenge};
     unless (defined $user_challenge) {
-        $c->response->redirect($c->uri_for($self->action_for('index')));
+        $c->response->redirect($c->uri_for($self->action_for('status')));
         $c->detach();
     }
 
@@ -182,7 +197,7 @@ sub challenge :Local :Args(0) {
             $c->response->redirect($req->params->{'redirect_action'});
         }
         else {
-            $c->response->redirect($c->uri_for($self->action_for('index')));
+            $c->response->redirect($c->uri_for($self->action_for('status')));
         }
         $c->detach();
     }
@@ -203,11 +218,11 @@ sub logout :Local :Args(0) {
 
 our @ROLES_TO_ACTIONS = (
     {
-        roles => [qw(SERVICES)],
+        roles => [qw(SERVICES_READ)],
         action => 'status',
     },
     {
-        roles => [qw(REPORTS)],
+        roles => [qw(REPORTS_READ)],
         action => 'reports',
     },
     {
@@ -262,20 +277,31 @@ sub object :Chained('/') :PathPart('admin') :CaptureArgs(0) {
     $c->stash->{'server_hostname'}  = $c->model('Admin')->server_hostname();
 }
 
+
+sub alt :Local :Args(0) {
+    my ( $self, $c ) = @_;
+
+    $c->stash->{current_view} = 'HTML';
+    $c->stash->{'template'} = 'admin/v-index.tt';
+}
+
 =head2 status
 
 =cut
 
 sub status :Chained('object') :PathPart('status') :Args(0) {
     my ( $self, $c ) = @_;
-    $c->stash->{cluster_enabled} = $cluster_enabled;
+    $c->stash(
+        cluster_enabled => $cluster_enabled,
+        listen_ints    => \@listen_ints,
+    )
 }
 
 =head2 reports
 
 =cut
 
-sub reports :Chained('object') :PathPart('reports') :Args(0) :AdminRole('REPORTS') {
+sub reports :Chained('object') :PathPart('reports') :Args(0) :AdminRole('REPORTS_READ') {
     my ( $self, $c ) = @_;
 
     $c->forward('Controller::Graph', 'reports');
@@ -296,25 +322,23 @@ sub auditing :Chained('object') :PathPart('auditing') :Args(0) :AdminRole('AUDIT
 sub nodes :Chained('object') :PathPart('nodes') :Args(0) :AdminRole('NODES_READ') {
     my ( $self, $c ) = @_;
     my $sg = pf::ConfigStore::SwitchGroup->new;
- 
+    my $sw = pf::ConfigStore::Switch->new();
     my $switch_groups = [
-    map {
-        local $_ = $_;
+        map {
+            local $_ = $_;
             my $id = $_;
-            {id => $id, members => [$sg->members($id, 'id')]}
-         } @{$sg->readAllIds}];
+            { id => $id, members => [ $sw->membersOfGroup($id) ] }
+        } @{ $sg->readAllIds }
+    ];
+    my $switches = [
+        map {
+            { id => $_->{id}, description  => $_->{description} }
+        } @{$sw->readAll('id')}
+    ];
 
     my $id = $c->user->id;
     my ($status, $saved_searches) = $c->model("SavedSearch::Node")->read_all($id);
     (undef, my $roles) = $c->model('Config::Roles')->listFromDB();
-    my $switches_list = pf::ConfigStore::Switch->new->readAll("Id");
-    my @switches_filtered = grep { !defined $_->{group} && $_->{Id} !~ /^group(.*)/ && $_->{Id} ne 'default' } @$switches_list;
-    my $switches = [
-    map {
-        local $_ = $_;
-        my $id = $_->{Id};
-        {id => $id} 
-        } @switches_filtered];
 
     $c->stash(
         saved_searches => $saved_searches,
@@ -322,6 +346,7 @@ sub nodes :Chained('object') :PathPart('nodes') :Args(0) :AdminRole('NODES_READ'
         roles => $roles,
         switch_groups => $switch_groups,
         switches => $switches,
+        mobile_oses => [ map { fingerbank::Model::Device->read($_)->name } values(%fingerbank::Constant::MOBILE_IDS) ],
     );
 }
 
@@ -337,6 +362,10 @@ sub users :Chained('object') :PathPart('users') :Args(0) :AdminRoleAny('USERS_RE
         saved_searches => $saved_searches,
         saved_search_form => $c->form("SavedSearch")
     );
+
+    # Remove some CSP restrictions to accomodate Chosen (the select-on-steroid widget):
+    #  - Allows use of inline source elements (eg style attribute)
+    $c->stash->{csp_headers} = { style => "'unsafe-inline'" };
 }
 
 =head2 configuration
@@ -348,6 +377,53 @@ sub configuration :Chained('object') :PathPart('configuration') :Args(0) {
 
     $c->stash->{subsections} = $c->forward('Controller::Configuration', 'all_subsections');
 
+    # Remove some CSP restrictions to accomodate ACE (the text editor used for portal profiles files):
+    #  - Allows loading resources via the data scheme (eg Base64 encoded images);
+    #  - Allows use of inline source elements (eg style attribute)
+    $c->stash->{csp_headers} = { img => 'data:', style => "'unsafe-inline'", script => 'blob:' };
+}
+
+=head2 time_offset
+
+Returns a json structure that represents the time offset of the server time
+
+    {
+      "time_offset" : {
+        "start" : {
+          "time" : "11:00",
+          "date" : "2017-09-01"
+        },
+        "end" : {
+          "time" : "12:00",
+          "date" : "2017-09-01"
+        }
+      }
+    }
+
+It expects a normalize_time timespec to calculate the server time
+
+=cut
+
+
+sub time_offset :Chained('object') :PathPart('time_offset') :Args(1) {
+    my ( $self, $c, $time_spec) = @_;
+    $c->stash->{current_view} = 'JSON';
+    my $seconds = normalize_time($time_spec) // 0;
+    my $end_date = DateTime->now(time_zone => $Config{general}{timezone});
+    my $start_date = $end_date->clone->subtract(seconds => $seconds);
+    $c->stash(
+        time_offset => {
+            start => {
+                time => $start_date->hms,
+                date => $start_date->ymd,
+            },
+            end => {
+                time => $end_date->hms,
+                date => $end_date->ymd,
+            },
+        },
+    );
+    return ;
 }
 
 =head2 help
@@ -382,7 +458,7 @@ sub fixpermissions :Chained('object') :PathPart('fixpermissions') :Args(0) {
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2017 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 
@@ -403,6 +479,6 @@ USA.
 
 =cut
 
-__PACKAGE__->meta->make_immutable;
+__PACKAGE__->meta->make_immutable unless $ENV{"PF_SKIP_MAKE_IMMUTABLE"};
 
 1;

@@ -20,12 +20,15 @@ use pf::db;
 use pf::CHI;
 use pf::CHI::Request;
 use pf::SwitchFactory();
+use pf::dal;
+use pf::constants qw($DEFAULT_TENANT_ID);
 
 use Apache2::Const -compile => 'OK';
 
 sub handler {
     my $r = shift;
     pf::CHI::Request::clear_all();
+    pf::dal->reset_tenant();
     return Apache2::Const::OK;
 }
 
@@ -60,8 +63,9 @@ sub post_config {
     my ($class, $conf_pool, $log_pool, $temp_pool, $s) = @_;
     pf::StatsD->closeStatsd;
     db_disconnect();
-    preloadSwitches();
+    $class->preloadSwitches();
     pf::CHI->clear_memoized_cache_objects;
+    $class->post_config_hook();
     return Apache2::Const::OK;
 }
 
@@ -76,6 +80,14 @@ sub preloadSwitches {
     pf::SwitchFactory->preloadConfiguredModules();
 }
 
+=head2 post_config_hook
+
+post config hook allow child class to add additional actions
+
+=cut
+
+sub post_config_hook { }
+
 =head1 AUTHOR
 
 Inverse inc. <info@inverse.ca>
@@ -83,7 +95,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2017 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 

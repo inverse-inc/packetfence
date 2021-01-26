@@ -1,7 +1,8 @@
+# Copyright (C) Inverse inc.
 [default_policy]
 description=Default portal policy
 type=Root
-modules=default_registration_policy,default_provisioning_policy
+modules=default_registration_policy,default_show_local_account,default_provisioning_policy
 
 [default_pending_policy]
 modules=default_provisioning_policy
@@ -20,7 +21,7 @@ type=Authentication::Login
 [default_guest_policy]
 description=Guest signup
 type=Authentication::Choice
-multi_source_object_classes=pf::Authentication::Source::EmailSource,pf::Authentication::Source::SMSSource,pf::Authentication::Source::TwilioSource,pf::Authentication::Source::SponsorEmailSource,pf::Authentication::Source::NullSource
+multi_source_object_classes=pf::Authentication::Source::ClickatellSource,pf::Authentication::Source::EmailSource,pf::Authentication::Source::SMSSource,pf::Authentication::Source::TwilioSource,pf::Authentication::Source::SponsorEmailSource,pf::Authentication::Source::NullSource
 
 [default_oauth_policy]
 description=OAuth login
@@ -45,3 +46,10 @@ multi_source_object_classes=pf::Authentication::Source::BlackholeSource
 description=Default Provisioning policy
 type=Provisioning
 skipable=disabled
+
+[default_show_local_account]
+skipable=1
+actions=
+template=account.html
+type=ShowLocalAccount
+description=Show local account

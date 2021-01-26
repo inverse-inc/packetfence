@@ -5,13 +5,20 @@
 ### [% class %] is auto generated any change to this file will be lost
 ### Instead change in the [% class.replace('::_', '::') %] module
 ###
+
 use base qw(pf::dal);
+
+[%- IF HAS_TENANT_ID %]
+use Role::Tiny::With;
+with qw(pf::dal::roles::has_tenant_id);
+[% END -%]
 
 our @FIELD_NAMES;
 our @INSERTABLE_FIELDS;
 our @PRIMARY_KEYS;
 our %DEFAULTS;
 our %FIELDS_META;
+our @COLUMN_NAMES;
 
 BEGIN {
     @FIELD_NAMES = qw(
@@ -30,7 +37,7 @@ BEGIN {
 
     @INSERTABLE_FIELDS = qw(
 [% FOREACH col IN cols -%]
-[%- NEXT IF col.mysql_is_auto_increment -%]
+[%- NEXT IF col.mysql_is_auto_increment || col.is_virtual -%]
 [%- NEXT IF col.pf_default_value == "'CURRENT_TIMESTAMP'" -%]
         [% col.COLUMN_NAME %]
 [% END -%]
@@ -59,6 +66,13 @@ BEGIN {
         [% col.COLUMN_NAME %]
 [% END -%]
     );
+
+    @COLUMN_NAMES = qw(
+[% FOREACH col IN cols -%]
+        [% TABLE_NAME %].[% col.COLUMN_NAME %]
+[% END -%]
+    );
+
 }
 
 use Class::XSAccessor {
@@ -75,13 +89,13 @@ sub _defaults {
     return {%DEFAULTS};
 }
 
-=head2 field_names
+=head2 table_field_names
 
 Field names of [% TABLE_NAME %]
 
 =cut
 
-sub field_names {
+sub table_field_names {
     return [@FIELD_NAMES];
 }
 
@@ -108,6 +122,16 @@ our $FIND_SQL = do {
     my $where = join(", ", map { "$_ = ?" } @PRIMARY_KEYS);
     "SELECT * FROM `[% TABLE_NAME %]` WHERE $where;";
 };
+
+=head2 find_columns
+
+find_columns
+
+=cut
+
+sub find_columns {
+    return [@COLUMN_NAMES];
+}
 
 =head2 _find_one_sql
 

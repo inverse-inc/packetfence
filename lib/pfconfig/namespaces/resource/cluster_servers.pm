@@ -20,8 +20,9 @@ use pfconfig::namespaces::config::Cluster;
 use base 'pfconfig::namespaces::resource';
 
 sub init {
-    my ($self) = @_;
+    my ($self, $cluster_name) = @_;
 
+    $self->{cluster_name} = $cluster_name || "DEFAULT";
     $self->{cluster_resource} = pfconfig::namespaces::config::Cluster->new($self->{cache});
 }
 
@@ -30,7 +31,7 @@ sub build {
     my @cluster_ips;
     $self->{cluster_resource}->build();
 
-    return $self->{cluster_resource}->{_servers};
+    return $self->{cluster_resource}->{_servers}->{$self->{cluster_name}};
 }
 
 
@@ -40,7 +41,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2017 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 

@@ -1,0 +1,26 @@
+# - better handling of disconnection than ArubaSwitch.pm
+# - don't want a getIfIndexByNasPortId function for these switches
+# tested on Aruba 2530 running Aruba OS 16.10
+description = Aruba Switch NG
+radiusDisconnect = disconnect
+
+acceptVlan = <<EOT
+Tunnel-Medium-Type = 6
+Tunnel-Type = 13
+Tunnel-Private-Group-Id = $vlan
+EOT
+
+acceptRole = <<EOT
+Filter-Id = $role
+EOT
+
+reject = <<EOT
+Reply-Message = This node is not allowed to use this service
+EOT
+
+disconnect = <<EOT
+Calling-Station-Id = ${macToEUI48($mac)}
+User-Name = $last_accounting.username
+NAS-IP-Address = $disconnectIp
+Acct-Session-Id = $last_accounting.acctsessionid
+EOT

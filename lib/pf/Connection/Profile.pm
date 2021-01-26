@@ -137,9 +137,16 @@ sub findFirstTemplate {
     return undef;
 }
 
-sub findViolationTemplate {
+sub findSecurityEventTemplate {
     my ($self, $template, $langs) = @_;
-    my @subTemplates  = ((map {"violations/${template}.${_}.html"} @$langs), "violations/$template.html");
+    my @new_langs;
+    for my $lang (@$langs) {
+        push @new_langs, $lang;
+        if ($lang =~ /^(..)_(..)/) {
+            push @new_langs, lc($1);
+        }
+    }
+    my @subTemplates  = ((map {"security_events/${template}.${_}.html"} @new_langs), "security_events/$template.html");
     return $self->findFirstTemplate(\@subTemplates);
 }
 
@@ -151,12 +158,12 @@ Get the billing tiers for this connection profile
 
 sub getBillingTiers {
     my ($self) = @_;
-    my @tier_ids = split(/\s*,\s*/,$self->{_billing_tiers});
-    if(@tier_ids == 0){
-        @tier_ids = sort(keys %ConfigBillingTiers);
+    my $tier_ids = $self->{_billing_tiers};
+    if(@$tier_ids == 0){
+        $tier_ids = [sort(keys %ConfigBillingTiers)];
     }
     my @tiers;
-    foreach my $tier_id (@tier_ids) {
+    foreach my $tier_id (@$tier_ids) {
         my $tier = $ConfigBillingTiers{$tier_id};
         $tier->{id} = $tier_id;
         push @tiers, $tier;
@@ -266,6 +273,11 @@ sub getSources {
 sub getProvisioners {
     my ($self) = @_;
     return $self->{'_provisioners'};
+}
+
+sub getSelfService {
+    my ($self) = @_;
+    return $self->{'_self_service'};
 }
 
 =item getSourcesAsObjects
@@ -475,7 +487,7 @@ sub findProvisioner {
 
     $node_attributes ||= node_attributes($mac);
     my $os = $node_attributes->{'device_type'};
-    unless(defined $os){
+    if(!defined($os) && any { scalar(@{$_->oses}) > 0 } @provisioners){
         $logger->warn("Can't find provisioner for $mac since we don't have it's OS");
         return;
     }
@@ -492,6 +504,28 @@ Reuse dot1x credentials when authenticating
 sub dot1xRecomputeRoleFromPortal {
     my ($self) = @_;
     return $self->{'_dot1x_recompute_role_from_portal'};
+}
+
+=item macAuthRecomputeRoleFromPortal
+
+Reuse the mac address on a authorize source when authenticating
+
+=cut
+
+sub macAuthRecomputeRoleFromPortal {
+    my ($self) = @_;
+    return $self->{'_mac_auth_recompute_role_from_portal'};
+}
+
+=item dot1xUnsetOnUnmatch
+
+On autoreg if no authentication source return a role then unset the current node one
+
+=cut
+
+sub dot1xUnsetOnUnmatch {
+    my ($self) = @_;
+    return $self->{'_dot1x_unset_on_unmatch'};
 }
 
 =item getScans
@@ -513,7 +547,7 @@ The scanObjects
 
 sub scanObjects {
     my ($self) = @_;
-    return grep { defined $_ } map { pf::factory::scan->new($_) } @{ [split(/\s*,\s*/, $self->getScans // '')] || [] };
+    return grep { defined $_ } map { pf::factory::scan->new($_) } @{  $self->getScans // [] };
 }
 
 =item findScan
@@ -534,12 +568,30 @@ sub findScan {
 
     $node_attributes ||= node_attributes($mac);
     my $os = $node_attributes->{'device_type'};
-    unless(defined $os){
-        $logger->warn("Can't find scan engine for $mac since we don't have it's OS");
+
+    return first { $_->match($os,$node_attributes) } @scanners;
+}
+
+=item findScans
+
+return all scans that match the device
+
+=cut
+
+sub findScans {
+    my $timer = pf::StatsD::Timer->new({level => 7});
+    my ($self, $mac, $node_attributes) = @_;
+    my $logger = get_logger();
+    my @scanners = $self->scanObjects;
+    unless(@scanners){
+        $logger->trace("No scan engine configured for connection profile");
         return;
     }
 
-    return first { $_->match($os,$node_attributes) } @scanners;
+    $node_attributes ||= node_attributes($mac);
+    my $os = $node_attributes->{'device_type'};
+
+    return grep { $_->match($os,$node_attributes) } @scanners;
 }
 
 =item getFilteredAuthenticationSources
@@ -550,7 +602,7 @@ Return a list of authentication sources for the given connection profile filtere
 
 sub getFilteredAuthenticationSources {
     my ($self, $username, $realm) = @_;
-    return filter_authentication_sources([ $self->getInternalSources, $self->getExclusiveSources ], $username, $realm);
+    return @{filter_authentication_sources([ $self->getInternalSources, $self->getExclusiveSources ], $username, $realm) // []};
 }
 
 =item getRootModuleId
@@ -597,6 +649,55 @@ sub canAccessRegistrationWhenRegistered {
     return isenabled($self->{_access_registration_when_registered});
 }
 
+=item dpskEnabled
+
+Is DPSK is enable or not on this connection profile
+This is implicitely enabled if unbound DPSK is enabled
+
+=cut
+
+sub dpskEnabled {
+    my ($self) = @_;
+    return isenabled($self->{'_dpsk'}) || isenabled($self->{'_unbound_dpsk'});
+};
+
+=item unboundDpskEnabled
+
+Is Unbound DPSK is enable or not on this connection profile
+
+=cut
+
+sub unboundDpskEnabled {
+    my ($self) = @_;
+    return isenabled($self->{'_unbound_dpsk'});
+};
+
+=item unregOnAcctStop
+
+Deregister device on accounting stop
+
+=cut
+
+sub unregOnAcctStop {
+    my ($self) = @_;
+    return isenabled($self->{'_unreg_on_acct_stop'});
+}
+
+=item autoRegister
+
+is autoregister enabled
+
+=cut
+
+sub autoRegister {
+    my ($self) = @_;
+    return isenabled($self->{'_autoregister'});
+}
+
+sub TO_JSON {
+    return {%{$_[0]}};
+}
+
 =back
 
 =head1 AUTHOR
@@ -605,7 +706,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2017 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 

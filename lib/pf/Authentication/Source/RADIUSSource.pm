@@ -22,14 +22,17 @@ use Authen::Radius;
 Authen::Radius->load_dictionary("/usr/share/freeradius/dictionary");
 
 use Moose;
+use List::Util qw(first);
 extends 'pf::Authentication::Source';
+with qw(pf::Authentication::InternalRole);
 
 has '+type' => ( default => 'RADIUS' );
 has 'host' => (isa => 'Maybe[Str]', is => 'rw', default => '127.0.0.1');
 has 'port' => (isa => 'Maybe[Int]', is => 'rw', default => 1812);
 has 'timeout' => (isa => 'Maybe[Int]', is => 'rw', default => 1);
 has 'secret' => (isa => 'Str', is => 'rw', required => 1);
-has 'stripped_user_name' => (isa => 'Str', is => 'rw', default => 'yes');
+has 'monitor' => ( isa => 'Bool', is => 'rw', default => '1' );
+has 'options' => (isa => 'Str', is => 'rw', required => 1);
 
 =head2 dynamic_routing_module
 
@@ -49,8 +52,8 @@ sub available_attributes {
   my $self = shift;
 
   my $super_attributes = $self->SUPER::available_attributes;
-  my @attributes = @{$Config{advanced}->{radius_attributes}};
-  my @radius_attributes = map { { value => $_, type => $Conditions::SUBSTRING } } @attributes;
+  my @attributes = @{$Config{radius_configuration}->{radius_attributes} // []};
+  my @radius_attributes = map { { value => "radius_request.".$_, type => $Conditions::SUBSTRING } } @attributes;
   return [@$super_attributes, @radius_attributes];
 }
 
@@ -181,26 +184,37 @@ sub check_radius_password {
 
 sub match_in_subclass {
     my ($self, $params, $rule, $own_conditions, $matching_conditions, $extra) = @_;
-    $params->{'username'} = $params->{'stripped_user_name'} if (defined($params->{'stripped_user_name'} ) && $params->{'stripped_user_name'} ne '' && isenabled($self->{'stripped_user_name'}));
     my $username =  $params->{'username'};
 
     foreach my $condition (@{ $own_conditions }) {
-        if ($condition->{'attribute'} eq "username") {
-            if ( $condition->matches("username", $username) ) {
+        my $name = $condition->{'attribute'};
+        if ($name eq "username") {
+            if ( $condition->matches("username", $username, $params) ) {
+                push(@{ $matching_conditions }, $condition);
+            }
+        } elsif (defined($extra)) {
+            my $attribute = first { $_->{Name} eq $name } @{ $extra->{attributes}};
+            if ($attribute && $condition->matches($name, $attribute->{'Value'}) ) {
                 push(@{ $matching_conditions }, $condition);
             }
         }
-        if (defined($extra)) {
-            for my $attribute (@{ $extra->{attributes}} ) {
-                if ($condition->{'attribute'} eq $attribute->{'Name'} ) {
-                    if ( $condition->matches($condition->{'attribute'}, $attribute->{'Value'}) ) {
-                        push(@{ $matching_conditions }, $condition);
-                    }
-                }
-            }
+    }
+    return ($username, undef);
+}
+
+sub lookupRole {
+    my ($self, $rule, $role_info, $params, $extra, $attributes) = @_;
+    for my $attribute (@{ $extra->{attributes}} ) {
+        $$attributes->{"radius_attribute"}->{$attribute->{'Name'}} = $attribute->{'RawValue'};
+    }
+    if (defined $extra) {
+        my $attribute = first { $_->{Name} eq $role_info } @{ $extra->{attributes}};
+        if ($attribute) {
+            return $attribute->{Value};
         }
     }
-    return $username;
+
+    return undef;
 }
 
 =head1 AUTHOR
@@ -209,7 +223,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2017 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 
@@ -230,7 +244,7 @@ USA.
 
 =cut
 
-__PACKAGE__->meta->make_immutable;
+__PACKAGE__->meta->make_immutable unless $ENV{"PF_SKIP_MAKE_IMMUTABLE"};
 1;
 
 # vim: set shiftwidth=4:

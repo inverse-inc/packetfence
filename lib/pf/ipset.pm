@@ -21,7 +21,6 @@ use pf::log;
 use Readonly;
 use NetAddr::IP;
 
-#use pf::class qw(class_view_all class_trappable);
 use pf::config qw(
     %connection_type_to_str
     %Config
@@ -35,14 +34,18 @@ use pf::config qw(
     $SELFREG_MODE_GOOGLE
     $SELFREG_MODE_FACEBOOK
     $INLINE
+    $management_network
+    @internal_nets
+    is_type_inline
 );
 use pf::node qw(nodes_registered_not_violators node_view node_deregister $STATUS_REGISTERED);
 use pf::nodecategory;
 use pf::util;
-use pf::violation qw(violation_view_open_uniq violation_count);
 use pf::ip4log;
 use pf::authentication;
-use pf::constants::parking qw($PARKING_IPSET_NAME);
+use pf::constants::node qw($STATUS_UNREGISTERED);
+use pf::api::unifiedapiclient;
+use pf::config::cluster;
 
 Readonly my $FW_TABLE_FILTER => 'filter';
 Readonly my $FW_TABLE_MANGLE => 'mangle';
@@ -54,6 +57,8 @@ Readonly my $FW_FILTER_INPUT_INT_HA => 'input-highavailability-if';
 Readonly my $FW_FILTER_FORWARD_INT_INLINE => 'forward-internal-inline-if';
 Readonly my $FW_PREROUTING_INT_INLINE => 'prerouting-int-inline-if';
 Readonly my $FW_POSTROUTING_INT_INLINE => 'postrouting-int-inline-if';
+
+tie our %NetworkConfig, 'pfconfig::cached_hash', "resource::network_config($host_id)";
 
 =head1 SUBROUTINES
 
@@ -74,9 +79,6 @@ sub iptables_generate {
     my @lines = pf_run($cmd);
     my @roles = pf::nodecategory::nodecategory_view_all;
 
-    $cmd = "sudo ipset --create $PARKING_IPSET_NAME hash:ip 2>&1";
-    @lines  = pf_run($cmd);
-
     foreach my $network ( keys %ConfigNetworks ) {
         next if ( !pf::config::is_network_type_inline($network) );
         my $inline_obj = new Net::Netmask( $network, $ConfigNetworks{$network}{'netmask'} );
@@ -85,18 +87,22 @@ sub iptables_generate {
         # Using the role ID in the name instead of the role name due to ipset name length constraint (max32)
         foreach my $role ( @roles ) {
             if ( $ConfigNetworks{$network}{'type'} =~ /^$NET_TYPE_INLINE_L3$/i ) {
-                $cmd = "sudo ipset --create PF-iL3_ID$role->{'category_id'}_$network bitmap:ip range $network/$inline_obj->{BITS} 2>&1";
+                $cmd = "sudo ipset --create PF-iL3_ID$role->{'category_id'}_$network bitmap:ip range $network/$inline_obj->{BITS} timeout $ConfigNetworks{$network}{'dhcp_default_lease_time'} 2>&1";
             } else {
-                $cmd = "sudo ipset --create PF-iL2_ID$role->{'category_id'}_$network bitmap:ip range $network/$inline_obj->{BITS} 2>&1";
+                $cmd = "sudo ipset --create PF-iL2_ID$role->{'category_id'}_$network bitmap:ip range $network/$inline_obj->{BITS} timeout $ConfigNetworks{$network}{'dhcp_default_lease_time'} 2>&1";
             }
             my @lines  = pf_run($cmd);
         }
 
         foreach my $IPTABLES_MARK ($IPTABLES_MARK_UNREG, $IPTABLES_MARK_REG, $IPTABLES_MARK_ISOLATION) {
             if ($ConfigNetworks{$network}{'type'} =~ /^$NET_TYPE_INLINE_L3$/i) {
-                $cmd = "sudo ipset --create pfsession_$mark_type_to_str{$IPTABLES_MARK}\_$network bitmap:ip range $network/$inline_obj->{BITS} 2>&1";
+                $cmd = "sudo ipset --create pfsession_$mark_type_to_str{$IPTABLES_MARK}\_$network bitmap:ip range $network/$inline_obj->{BITS} timeout $ConfigNetworks{$network}{'dhcp_default_lease_time'} 2>&1";
             } else {
-                $cmd = "sudo ipset --create pfsession_$mark_type_to_str{$IPTABLES_MARK}\_$network bitmap:ip,mac range $network/$inline_obj->{BITS} 2>&1";
+                if (isenabled($ConfigNetworks{$network}{'split_network'}) && ($IPTABLES_MARK eq $IPTABLES_MARK_UNREG) ) {
+                    $cmd = "sudo ipset --create pfsession_$mark_type_to_str{$IPTABLES_MARK}\_$network bitmap:ip,mac range $network/$inline_obj->{BITS} timeout 45 2>&1";
+                } else {
+                    $cmd = "sudo ipset --create pfsession_$mark_type_to_str{$IPTABLES_MARK}\_$network bitmap:ip,mac range $network/$inline_obj->{BITS} timeout $ConfigNetworks{$network}{'dhcp_default_lease_time'} 2>&1";
+                }
             }
             my @lines  = pf_run($cmd);
         }
@@ -176,9 +182,10 @@ sub generate_mangle_rules {
         }
     }
 
-    # mark all open violations
+    # mark all open security_events
     # TODO performance: only those whose's last connection_type is inline?
-    my @macarray = violation_view_open_uniq();
+    require pf::security_event;
+    my @macarray = pf::security_event::security_event_view_open_uniq();
     if ( $macarray[0] ) {
         foreach my $row (@macarray) {
             foreach my $network ( keys %ConfigNetworks ) {
@@ -234,21 +241,57 @@ sub generate_mangle_postrouting_rules {
 
     my $rules = '';
 
-    my @roles = pf::nodecategory::nodecategory_view_all;
+    my $indice = 100;
+    my $index = {};
+    my $indice2 = 1;
 
-    foreach my $network ( keys %ConfigNetworks ) {
-        next if ( !pf::config::is_network_type_inline($network) );
-        foreach my $role ( @roles ) {
-            if ($ConfigNetworks{$network}{'type'} =~ /^$NET_TYPE_INLINE_L3$/i) {
-                $rules .=  "-A $FW_POSTROUTING_INT_INLINE -m set --match-set PF-iL3_ID$role->{'category_id'}_$network src -j CLASSIFY --set-class 1:$role->{'category_id'}\n";
-                $rules .=  "-A $FW_POSTROUTING_INT_INLINE -m set --match-set PF-iL3_ID$role->{'category_id'}_$network dst -j CLASSIFY --set-class 1:$role->{'category_id'}\n";
-            } else {
-                $rules .=  "-A $FW_POSTROUTING_INT_INLINE -m set --match-set PF-iL2_ID$role->{'category_id'}_$network src -j CLASSIFY --set-class 1:$role->{'category_id'}\n";
-                $rules .=  "-A $FW_POSTROUTING_INT_INLINE -m set --match-set PF-iL2_ID$role->{'category_id'}_$network dst -j CLASSIFY --set-class 1:$role->{'category_id'}\n";
-            }
+    my @ints = split(',', $self->get_network_snat_interface());
+    push @ints,  $management_network->tag("int");
+    foreach my $int (@ints) {
+        $index->{$int} = $indice;
+        $indice --;
+    }
+
+    foreach my $interface (@internal_nets) {
+        my $dev = $interface->tag("int");
+        my $enforcement_type = $Config{"interface $dev"}{'enforcement'};
+        if (is_type_inline($enforcement_type)) {
+            $index->{$dev} = $indice2;
+            $indice2 ++;
         }
     }
 
+    my @roles = pf::nodecategory::nodecategory_view_all;
+
+    foreach my $network ( keys %NetworkConfig ) {
+
+        next if ( !pf::config::is_network_type_inline($network) );
+        my $dev = $NetworkConfig{$network}{'interface'}{'int'};
+        my $source_interface = $dev;
+
+        my $gateway = (defined $NetworkConfig{$network}{'next_hop'} ? $NetworkConfig{$network}{'next_hop'} : $Config{"interface $dev"}{'ip'});
+
+        if (!defined $NetworkConfig{$network}{'next_hop'}) {
+            undef $source_interface;
+        }
+
+        my $interface = find_outgoing_interface($gateway, $source_interface);
+        if (!(defined($index->{$interface}))) {
+            $logger->warn($interface." is not defined in the configuration, check your routing table");
+            $index->{$interface} = $indice;
+            $indice --;
+        }
+
+        foreach my $role ( @roles ) {
+            if ($ConfigNetworks{$network}{'type'} =~ /^$NET_TYPE_INLINE_L3$/i) {
+                $rules .=  "-A $FW_POSTROUTING_INT_INLINE -m set --match-set PF-iL3_ID$role->{'category_id'}_$network src -j CLASSIFY --set-class $index->{$interface}:$role->{'category_id'}\n";
+                $rules .=  "-A $FW_POSTROUTING_INT_INLINE -m set --match-set PF-iL3_ID$role->{'category_id'}_$network dst -j CLASSIFY --set-class $index->{$dev}:$role->{'category_id'}\n";
+            } else {
+                $rules .=  "-A $FW_POSTROUTING_INT_INLINE -m set --match-set PF-iL2_ID$role->{'category_id'}_$network src -j CLASSIFY --set-class $index->{$interface}:$role->{'category_id'}\n";
+                $rules .=  "-A $FW_POSTROUTING_INT_INLINE -m set --match-set PF-iL2_ID$role->{'category_id'}_$network dst -j CLASSIFY --set-class $index->{$dev}:$role->{'category_id'}\n";
+            }
+        }
+    }
     return $rules;
 }
 
@@ -264,31 +307,27 @@ sub iptables_mark_node {
         my $iplog = $newip || pf::ip4log::mac2ip($mac);
 
         if (defined $iplog) {
+            my $node_info = pf::node::node_view($mac);
+            my $role_id = $node_info->{'category_id'} // "0";
             my $ip = new NetAddr::IP::Lite clean_ip($iplog);
             if ($net_addr->contains($ip)) {
-                #Prevent double entries in ipset
-                $self->ipset_remove_ip($iplog, $mark, $network);
-                my $cmd;
 
                 if ($ConfigNetworks{$network}{'type'} =~ /^$NET_TYPE_INLINE_L3$/i) {
-                    $cmd = "sudo ipset --add pfsession_$mark_type_to_str{$mark}\_$network $iplog -exist 2>&1";
+                    call_ipsetd("/ipset/mark_layer3?local=0",{
+                        "network" => $network,
+                        "type"    => $mark_type_to_str{$mark},
+                        "role_id" => "".$role_id,
+                        "ip"      => $iplog
+                    });
                 } else {
-                    $cmd = "sudo ipset --add pfsession_$mark_type_to_str{$mark}\_$network $iplog,$mac -exist 2>&1";
+                    call_ipsetd("/ipset/mark_layer2?local=0",{
+                        "network" => $network,
+                        "type"    => $mark_type_to_str{$mark},
+                        "role_id" => "".$role_id,
+                        "ip"      => $iplog,
+                        "mac"     => $mac
+                    });
                 }
-
-                my @lines  = pf_run($cmd);
-
-                if ( $mark_type_to_str{$mark} eq "Reg" ) {
-                    my $node_info = pf::node::node_view($mac);
-                    my $role_id = $node_info->{'category_id'};
-                    if ($ConfigNetworks{$network}{'type'} =~ /^$NET_TYPE_INLINE_L3$/i) {
-                        $cmd = "sudo ipset --add PF-iL3_ID$role_id\_$network $iplog -exist 2>&1";
-                    } else {
-                        $cmd = "sudo ipset --add PF-iL2_ID$role_id\_$network $iplog -exist 2>&1";
-                    }
-                }
-
-                pf_run($cmd);
             }
         } else {
             $logger->error("Unable to mark mac $mac");
@@ -301,176 +340,39 @@ sub iptables_mark_node {
 sub iptables_unmark_node {
     my ( $self, $mac, $mark ) = @_;
     my $logger = get_logger();
-
-    my $ipset = $self->get_ip_from_ipset_by_mac($mac, $mark);
-
-    my $node_info = pf::node::node_view($mac);
-    my $role_id = $node_info->{'category_id'};
-
-    while ( my ($network, $iplist) = each(%$ipset) ) {
-        if (defined($iplist)) {
-            foreach my $IP ( split( ',', $iplist ) ) {
-                my $cmd = "sudo ipset --del pfsession_$mark_type_to_str{$mark}\_$network $IP -exist 2>&1";
-                my @lines  = pf_run($cmd);
-
-                if ($ConfigNetworks{$network}{'type'} =~ /^$NET_TYPE_INLINE_L3$/i) {
-                    $cmd = "sudo ipset del PF-iL3_ID$role_id\_$network $IP -exist 2>&1";
-                } else {
-                    $cmd = "sudo ipset del PF-iL2_ID$role_id\_$network $IP -exist 2>&1";
-                }
-                pf_run($cmd);
-
-                $cmd = "sudo /usr/sbin/conntrack -D -s $IP 2>&1";
-                pf_run($cmd);
-                $logger->info("Flushed connections for $IP.");
-
-            }
-        }
-    }
+    call_ipsetd("/ipset/unmark_mac?local=0",{
+        "mac" => $mac
+    });
     return (1);
+}
+
+=item call_ipsetd
+
+call_ipsetd
+
+=cut
+
+sub call_ipsetd {
+    my ($path, $data) = @_;
+    my $response;
+    eval {
+        $response = pf::api::unifiedapiclient->default_client->call("POST", "/api/v1$path", $data);
+    };
+    if ($@) {
+        get_logger()->error("Error updating ipset $path : $@");;
+    }
+    return $response;
 }
 
 =item get_mangle_mark_for_mac
 
-Fetches the current mangle mark for a given mark.
-Useful to re-evaluate what to do with a given node who's state changed.
-
-Returns IPTABLES MARK constant ($IPTABLES_MARK_...) or undef on failure.
+Return 4
 
 =cut
 
-# TODO migrate to IPTables::Interface (to get rid of IPTables::ChainMgr) once it supports fetching iptables info
 sub get_mangle_mark_for_mac {
     my ( $self, $mac ) = @_;
-
-    my $logger = get_logger();
-    my $_EXIT_CODE_EXISTS = 1;
-
-    my $iplog = pf::ip4log::mac2ip($mac);
-
-    foreach my $network ( keys %ConfigNetworks ) {
-        next if ( !pf::config::is_network_type_inline($network) );
-
-        my $net_addr = NetAddr::IP->new($network,$ConfigNetworks{$network}{'netmask'});
-
-        if (defined $iplog) {
-            my $ip = new NetAddr::IP::Lite clean_ip($iplog);
-
-            if ($net_addr->contains($ip)) {
-                foreach my $IPTABLES_MARK ($IPTABLES_MARK_UNREG, $IPTABLES_MARK_REG, $IPTABLES_MARK_ISOLATION) {
-                    my $cmd;
-                    if ($ConfigNetworks{$network}{'type'} =~ /^$NET_TYPE_INLINE_L3$/i) {
-                        $cmd = "sudo ipset --test pfsession_$mark_type_to_str{$IPTABLES_MARK}\_$network $iplog 2>&1";
-                    } else {
-                        $cmd = "sudo ipset --test pfsession_$mark_type_to_str{$IPTABLES_MARK}\_$network $iplog,$mac 2>&1";
-                    }
-                    my @out = pf_run($cmd, , accepted_exit_status => [ $_EXIT_CODE_EXISTS ]);
-
-                    if (defined($out[0]) && !($out[0] =~ m/NOT/i)) {
-                        return $IPTABLES_MARK;
-                    }
-                }
-            }
-        } else {
-            $logger->error("Unable to list iptables mangle table: $!");
-            return $IPTABLES_MARK_UNREG;
-        }
-    }
-    return $IPTABLES_MARK_UNREG;
-}
-
-=item ipset_remove_ip
-
-Remove ip from ipset session
-
-=cut
-
-sub ipset_remove_ip {
-    my ( $self, $ip, $mark, $network) = @_;
-    my $logger = get_logger();
-    my ($cmd, $out);
-    $cmd = "sudo ipset --list pfsession_$mark_type_to_str{$mark}\_$network 2>&1";
-    $out  = pf_run($cmd);
-    my @lines = split "\n+", $out;
-
-    my $mac = pf::ip4log::ip2mac($ip);
-    my $node_info = pf::node::node_view($mac);
-    my $role_id = $node_info->{'category_id'};
-
-    foreach my $line (@lines) {
-
-        # skip emtpy lines from ipset list
-        next if $line =~ m/^\s*$/;
-
-        # skip comment lines from ipset list
-        next if $line =~ m/:\s|:\Z/;
-        if ($line =~ m/^\s* $ip , .* \s* $/ix) {
-            $cmd = "sudo ipset --del pfsession_$mark_type_to_str{$mark}\_$network $ip -exist 2>&1";
-            $out = pf_run($cmd);
-
-            if ($ConfigNetworks{$network}{'type'} =~ /^$NET_TYPE_INLINE_L3$/i) {
-                $cmd = "sudo ipset --del PF-iL3_ID$role_id\_$network $ip -exist 2>&1";
-            } else {
-                $cmd = "sudo ipset --del PF-iL2_ID$role_id\_$network $ip -exist 2>&1";
-            }
-            pf_run($cmd);
-
-            $cmd = "sudo /usr/sbin/conntrack -D -s $ip 2>&1";
-            pf_run($cmd);
-            $logger->info("Flushed connections for $ip.");
-        }
-    }
-}
-
-=item get_ip_from_ipset_by_mac
-
-Fetches all the ip address from ipset by mac address
-
-=cut
-
-sub get_ip_from_ipset_by_mac {
-    my ( $self, $mac, $mark) = @_;
-    my $logger = get_logger();
-    my $session = {};
-    my ($cmd, $out);
-    foreach my $network ( keys %ConfigNetworks ) {
-        next if ( !pf::config::is_network_type_inline($network) );
-        my $ip;
-        my $net_addr = NetAddr::IP->new($network,$ConfigNetworks{$network}{'netmask'});
-        if ($ConfigNetworks{$network}{'type'} =~ /^$NET_TYPE_INLINE_L3$/i) {
-            my $net_addr = NetAddr::IP->new($network,$ConfigNetworks{$network}{'netmask'});
-            my $tmp_ip = new NetAddr::IP::Lite clean_ip(pf::ip4log::mac2ip($mac));
-            if ($net_addr->contains($tmp_ip)) {
-                $ip = $tmp_ip->addr;
-            }
-        } else {
-            $cmd = "sudo ipset --list pfsession_$mark_type_to_str{$mark}\_$network 2>&1";
-            $out = pf_run($cmd);
-            my @lines = split "\n+", $out;
-
-            # ipv4 address in quad decimal
-            my $ip_quad_dec_rx = qr(\d{1,3} \. \d{1,3} \. \d{1,3} \. \d{1,3})x;
-
-            foreach my $line (@lines) {
-
-                # skip emtpy lines from ipset list
-                next if $line =~ m/^\s*$/;
-
-                # skip comment lines from ipset list
-                next if $line =~ m/:\s|:\Z/;
-
-                if ($line =~ m/^\s* ($ip_quad_dec_rx) , $mac \s* $/ix) {
-                    $ip  .= $1.",";
-                    unless ( $ip && $mac ) {
-                        $logger->warn("Couldn't parse line: $line");
-                        next;
-                    }
-                }
-            }
-        }
-        $session->{$network} = $ip;
-    }
-    return $session;
+    return 4;
 }
 
 =item update_ipset
@@ -486,8 +388,12 @@ sub update_node {
     my $src_ip = new NetAddr::IP::Lite clean_ip($srcip);
     my $old_ip = new NetAddr::IP::Lite clean_ip($oldip);
     my $id = $view_mac->{'category_id'};
+    my $open_security_event_count = pf::security_event::security_event_count_reevaluate_access($srcmac);
+    my $mark = $IPTABLES_MARK_UNREG if ($view_mac->{'status'} eq $STATUS_UNREGISTERED) // $IPTABLES_MARK_REG;
+    if ($open_security_event_count != 0) {
+        $mark = $IPTABLES_MARK_ISOLATION;
+    }
     if ($view_mac->{'last_connection_type'} eq $connection_type_to_str{$INLINE}) {
-        my $mark = $self->get_mangle_mark_for_mac($srcmac);
         foreach my $network ( keys %ConfigNetworks ) {
             next if ( !pf::config::is_network_type_inline($network) );
 
@@ -495,18 +401,24 @@ sub update_node {
 
             #Delete from ipset session if the ip change
             if ($net_addr->contains($old_ip)) {
-                if ($ConfigNetworks{$network}{'type'} =~ /^$NET_TYPE_INLINE_L3$/i) {
-                    pf_run("sudo ipset del PF-iL3_ID$id\_$network $old_ip -exist 2>&1");
-                } else {
-                    pf_run("sudo ipset del PF-iL2_ID$id\_$network $old_ip -exist 2>&1");
-                }
+                 call_ipsetd("/ipset/unmark_ip?local=0",{
+                    "ip" => $oldip
+                 });
             }
             #Add in ipset session if the ip change
             if ($net_addr->contains($src_ip)) {
-                 if ($ConfigNetworks{$network}{'type'} =~ /^$NET_TYPE_INLINE_L3$/i) {
-                    pf_run("sudo ipset add PF-iL3_ID$id\_$network $src_ip -exist 2>&1");
+                if ($ConfigNetworks{$network}{'type'} =~ /^$NET_TYPE_INLINE_L3$/i) {
+                    call_ipsetd("/ipset/mark_ip_layer3?local=0",{
+                        "network" => $network,
+                        "role_id" => "".$id,
+                        "ip"      => $srcip
+                    });
                 } else {
-                    pf_run("sudo ipset add PF-iL2_ID$id\_$network $src_ip -exist 2>&1");
+                    call_ipsetd("/ipset/mark_ip_layer2?local=0",{
+                        "network" => $network,
+                        "role_id" => "".$id,
+                        "ip"      => $srcip
+                    });
                 }
             }
 
@@ -587,7 +499,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2017 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 

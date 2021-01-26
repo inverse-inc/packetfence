@@ -1,0 +1,16 @@
+---
+- name: configure hostapd on Cumulus Linux
+  hosts: cumulus
+  become: true
+  gather_facts: no
+  
+  collections:
+    - inverse_inc.cumulus
+
+  pre_tasks:
+  - name: wait for SSH available before provisioning
+    wait_for_connection:
+
+  roles:
+    - role: hostapd
+    - role: restserver

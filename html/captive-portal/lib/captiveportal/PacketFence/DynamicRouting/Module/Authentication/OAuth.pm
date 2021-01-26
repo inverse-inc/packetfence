@@ -91,8 +91,7 @@ sub execute_child {
     }
     elsif($self->app->request->path eq "oauth2/go" && $self->app->request->method eq "POST"){
         if(!$self->with_aup || $self->request_fields->{aup}){
-            pf::auth_log::record_oauth_attempt($self->source->id, $self->current_mac);
-            $self->app->redirect($self->get_client->authorize);
+            $self->redirect_to_provider();
         }
         else {
             $self->app->flash->{error} = "You must accept the terms and conditions";
@@ -100,8 +99,27 @@ sub execute_child {
         }
     }
     else {
-        $self->landing();
+        # If there is an AUP, then we must display the form
+        if($self->with_aup) {
+            $self->landing();
+        }
+        else {
+            get_logger->debug("No AUP, proceeding directly to provider");
+            $self->redirect_to_provider();
+        }
     }
+}
+
+=head2 redirect_to_provider
+
+Redirects to the OAuth provider and registers the attempt in the authlog
+
+=cut
+
+sub redirect_to_provider {
+    my ($self) = @_;
+    pf::auth_log::record_oauth_attempt($self->source->id, $self->current_mac, $self->app->profile->name);
+    $self->app->redirect($self->get_client->authorize);
 }
 
 =head2 get_token
@@ -121,7 +139,7 @@ sub get_token {
     };
     if ($@) {
         get_logger->warn("OAuth2: failed to receive the token from the provider: $@");
-        pf::auth_log::change_record_status($self->source->id, $self->current_mac, $pf::auth_log::FAILED);
+        pf::auth_log::change_record_status($self->source->id, $self->current_mac, $pf::auth_log::FAILED, $self->app->profile->name);
         $self->app->flash->{error} = "OAuth2 Error: Failed to get the token";
         $self->landing();
         return;
@@ -150,18 +168,23 @@ sub handle_callback {
         my $pid = $self->_extract_username_from_response($info); 
         
         $self->username($pid);
+        if($info->{email}) { 
+            $self->app->session->{email} = $info->{email}; 
+        }
 
         get_logger->info("OAuth2 successfull for username ".$self->username);
         $self->source->lookup_from_provider_info($self->username, $info);
         
-        pf::auth_log::record_completed_oauth($self->source->id, $self->current_mac, $pid, $pf::auth_log::COMPLETED);
+        pf::auth_log::record_completed_oauth($self->source->id, $self->current_mac, $pid, $pf::auth_log::COMPLETED, $self->app->profile->name);
+
+        $self->update_person_from_fields();
 
         $self->done();
     }
     else {
         get_logger->info("OAuth2: failed to validate the token, redireting to login page.");
         get_logger->debug(sub { use Data::Dumper; "OAuth2 failed response : ".Dumper($response) });
-        pf::auth_log::change_record_status($self->source->id, $self->current_mac, $pf::auth_log::FAILED);
+        pf::auth_log::change_record_status($self->source->id, $self->current_mac, $pf::auth_log::FAILED, $self->app->profile->name);
         $self->app->flash->{error} = "OAuth2 Error: Failed to validate the token, please retry";
         $self->landing();
         return;
@@ -210,7 +233,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2017 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 
@@ -231,7 +254,7 @@ USA.
 
 =cut
 
-__PACKAGE__->meta->make_immutable;
+__PACKAGE__->meta->make_immutable unless $ENV{"PF_SKIP_MAKE_IMMUTABLE"};
 
 1;
 

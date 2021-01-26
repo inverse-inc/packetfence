@@ -1,0 +1,67 @@
+cursor:
+  in: query
+  name: cursor
+  required: false
+  schema:
+    type: string
+  description: The cursor pointer to fetch the data (value should be taken from previousCursor and nextCursor)
+
+limit:
+  in: query|body
+  name: limit
+  required: false
+  schema:
+    type: int
+  description: The maximum amount of entries to get.
+
+fields:
+  in: body
+  name: fields
+  required: false
+  schema:
+    type: array
+    items:
+      type: string
+    example:
+      - mac
+      - pid
+      - ip4log.ip
+  description: Comma delimited fields that should be added to the resource by performing joins. For example, in order to get the IP address of a node when calling the nodes endpoints, setting 'ip4log.ip' into this field will provide the latest IP address of the device in the 'ip4log.ip' field of every node that is returned.
+
+search_query:
+  in: body
+  name: query
+  required: true
+  schema:
+    $ref: "#/components/schemas/Search"
+  description: The JSON encoded search query following the Search schema defined in this spec
+
+sort:
+  in: body
+  name: sort
+  required: false
+  schema:
+    example:
+      - iplog.ip DESC
+      - node.detectdate ASC
+    type: array
+    items: 
+      type: string
+  description: A list of fields to sort on along with the ordering way (ASC or DESC).
+
+local:
+  in: query
+  name: local
+  required: false
+  schema:
+    type: integer
+    default: 0
+  description: The local is used to determine if the request should be forwarded to the rest of the cluster. A value of '0' forwards the request and either a missing or alternate value does not forward the request to the rest of the cluster.
+
+ipset_name:
+  name: set_name
+  in: path
+  required: true
+  description: The name of the ipset to manipulate
+  schema:
+    type: string

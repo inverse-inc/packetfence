@@ -1,0 +1,21 @@
+<mj-attributes>
+  <mj-body background-color="#F2F2F2" />
+  <mj-wrapper padding="20px" background-color="#ffffff" />
+  <mj-divider width="30px" border-width="3px" border-color="#555" />
+  <mj-text padding="0" align="center" font-family="Helvetica, Arial, sans-serif" color="#333" />
+  <mj-button background-color="#348eda" color="white" font-size="16px" border-radius="10px" font-family="Helvetica, Arial, sans-serif" />
+  <mj-class name="title" inline="inline" align="center" font-weight="500" font-size="32px" line-height="40x" color="#555" />
+/>
+</mj-attributes>
+<mj-style inline="inline">
+  .label {
+    font-size: 10px;
+    color: #333;
+    text-transform: uppercase;
+    margin-bottom: 0;
+  }
+  .value {
+    font-weight: 600;
+    margin-top: 5px;
+  }
+</mj-style>

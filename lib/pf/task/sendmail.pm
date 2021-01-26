@@ -16,7 +16,6 @@ use strict;
 use warnings;
 use base 'pf::task';
 use POSIX;
-use Net::SMTP;
 use pf::util qw(untaint_chain);
 use pf::log;
 use pf::config;
@@ -31,7 +30,8 @@ Sendmail
 
 sub doTask {
     my ($self, $args) = @_;
-    return pf::config::util::send_email(@$args);
+    pf::config::util::send_email(@$args);
+    return undef, undef;
 }
 
 =head1 AUTHOR
@@ -40,7 +40,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2017 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 

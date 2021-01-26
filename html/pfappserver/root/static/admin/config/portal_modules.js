@@ -81,6 +81,26 @@ $('#section').on('click', '#actionsContainer a[href="#add"]', function(event) {
   setTimeout(initActionMatchInput, 3000);
 });
 
+$('#section').on('section.loaded',function(event) {
+    var dataEl = document.getElementById('modulesTreeData');
+
+    if (dataEl) {
+        var data = JSON.parse(dataEl.textContent || dataEl.innerHTML);
+        $('#modulesTree').tree({
+            data: data
+        });
+        $('#modulesTree').bind(
+            'tree.click',
+            function(event){
+                var node = event.node;
+                window.location.hash = '#config/portal_module/'+node.id+'/read';
+            }
+        );
+    }
+
+    initActionMatchInput();
+});
+
 function initActionMatchInput() {
   $('select[name$=".type"]:not(:disabled)').each(function(i,e){
       updateActionMatchInput($(e),true);

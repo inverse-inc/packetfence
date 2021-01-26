@@ -1,0 +1,19 @@
+name: Enable MAC Authentication on dot1x interface on switch01
+version: 2
+testcases:
+- name: enable_mac_auth_on_switch01
+  steps:
+  - type: http
+    method: POST
+    basic_auth_user: "{{.switch01.api.user}}"
+    basic_auth_password: "{{.switch01.api.password}}"
+    url: '{{.switch01.api.url}}/nclu/v1/rpc'
+    ignore_verify_ssl: true
+    body: >-
+      {
+       "cmd": "add interface {{.switch01.dot1x_interface.id}} dot1x mab"
+      }
+    headers:
+      "Content-Type": "application/json"
+    assertions:
+      - result.statuscode ShouldEqual 200

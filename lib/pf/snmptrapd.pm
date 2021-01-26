@@ -15,7 +15,6 @@ pfsnmptrapd
 use strict;
 use warnings;
 use lib qw(/usr/local/pf/lib);
-use JSON::MaybeXS;
 use NetSNMP::TrapReceiver;
 use pf::pfqueue::producer::redis;
 #      "receivedfrom" : "UDP: [192.168.57.101]:36745->[192.168.57.101]",
@@ -26,7 +25,7 @@ our $TRAP_RECEIVED_FROM = qr/
 
 /sx;
 
-our $JSON = JSON::MaybeXS->new;
+our $WORKER;
 
 =head2 receiver
 
@@ -45,7 +44,7 @@ sub receiver {
         redis => _redis_client(),
     });
 #    Delay parsing by two seconds to allow snmp to do it's magic
-    $producer->submit_delayed("pfsnmp_parsing", "pfsnmp_parsing", 2000, [$trapInfo, $variables]);
+    $producer->submit_delayed_hashed($WORKER, $switchIp, "pfsnmp_parsing", "pfsnmp_parsing", 2000, [$trapInfo, $variables]);
     return NETSNMPTRAPD_HANDLER_OK;
 }
 
@@ -73,7 +72,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2017 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 

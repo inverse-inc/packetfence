@@ -1,0 +1,9 @@
+name: Check locales on portal from node01
+version: 2
+testcases:
+  - name: check_locales_on_portal
+    steps:
+      - type: ssh
+        host: '{{.node01_mgmt_ip}}'
+        user: '{{.ssh_user}}'
+        command: '/src/t/venom/venom-wrapper.sh {{.nodes_test_suite_dir}}/captive_portal/check_locales.yml'

@@ -15,6 +15,8 @@ Form definition to create or update an Eduroam authentication source.
 use strict;
 use warnings;
 
+use pf::config qw( %Config );
+
 use HTML::FormHandler::Moose;
 
 extends 'pfappserver::Form::Config::Source';
@@ -32,6 +34,15 @@ has_field 'server1_address' => (
     },
 );
 
+has_field 'server1_port' => (
+    type            => 'Port',
+    label           => 'Eduroam server 1 port',
+    element_attr    => {
+        placeholder     => pf::Authentication::Source::EduroamSource->meta->get_attribute('server1_port')->default,
+    },
+    default         => pf::Authentication::Source::EduroamSource->meta->get_attribute('server1_port')->default,
+);
+
 has_field 'server2_address' => (
     type        => 'Text',
     label       => 'Server 2 address',
@@ -42,6 +53,15 @@ has_field 'server2_address' => (
         after_element   => \&help,
         help            => 'Eduroam server 2 address',
     },
+);
+
+has_field 'server2_port' => (
+    type            => 'Port',
+    label           => 'Eduroam server 2 port',
+    element_attr    => {
+        placeholder     => pf::Authentication::Source::EduroamSource->meta->get_attribute('server2_port')->default,
+    },
+    default         => pf::Authentication::Source::EduroamSource->meta->get_attribute('server2_port')->default,
 );
 
 has_field 'radius_secret' => (
@@ -57,7 +77,7 @@ has_field 'radius_secret' => (
 );
 
 has_field 'auth_listening_port' => (
-    type            => 'PosInteger',
+    type            => 'Port',
     label           => 'Authentication listening port',
     tags            => {
         after_element   => \&help,
@@ -70,13 +90,57 @@ has_field 'auth_listening_port' => (
 );
 
 
+has_field 'reject_realm' =>
+  (
+   type => 'Select',
+   multiple => 1,
+   label => 'Reject Realms',
+   options_method => \&options_realm,
+   element_class => ['chzn-deselect'],
+   element_attr => {'data-placeholder' => 'Click to add a realm'},
+   tags => { after_element => \&help,
+             help => 'Realms that will be rejected' },
+   default => '',
+  );
+
+has_field 'local_realm' =>
+  (
+   type => 'Select',
+   multiple => 1,
+   label => 'Local Realms',
+   options_method => \&options_realm,
+   element_class => ['chzn-deselect'],
+   element_attr => {'data-placeholder' => 'Click to add a realm'},
+   tags => { after_element => \&help,
+             help => 'Realms that will be authenticate locally' },
+   default => '',
+  );
+
+has_field 'monitor',
+  (
+   type => 'Toggle',
+   label => 'Monitor',
+   checkbox_value => '1',
+   unchecked_value => '0',
+   tags => { after_element => \&help,
+             help => 'Do you want to monitor this source?' },
+   default => pf::Authentication::Source::EduroamSource->meta->get_attribute('monitor')->default,
+);
+
+sub options_realm {
+    my $self = shift;
+    my @roles = map { $_ => $_ } sort keys %pf::config::ConfigRealm;
+    return @roles;
+}
+
+
 =head1 AUTHOR
 
 Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2017 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 

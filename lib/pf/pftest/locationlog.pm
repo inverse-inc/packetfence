@@ -18,13 +18,14 @@ use strict;
 use warnings;
 use base qw(pf::cmd);
 use pf::constants::exit_code qw($EXIT_SUCCESS $EXIT_FAILURE);
+use pf::constants qw($ZERO_DATE);
 sub parseArgs { $_[0]->args == 0 }
 
 sub _run {
     my ($self) = @_;
     require pf::db;
     my $dbh = pf::db::db_connect();
-    my $sth = $dbh->prepare(q[ select mac,count(mac) as entries from locationlog where end_time = '0000-00-00 00:00:00' group by mac having count(mac) > 1; ]);
+    my $sth = $dbh->prepare(qq[ select mac,count(mac) as entries from locationlog where end_time = '$ZERO_DATE' group by mac having count(mac) > 1; ]);
     die unless $sth;
     $sth->execute();
     my $rv  = $sth->rows;
@@ -44,7 +45,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2017 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 

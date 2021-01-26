@@ -1,0 +1,459 @@
+// to display images directly on GitHub
+ifdef::env-github[]
+:encoding: UTF-8
+:lang: en
+:doctype: book
+:toc: left
+:imagesdir: ../images
+endif::[]
+
+////
+
+    This file is part of the PacketFence project.
+
+    See PacketFence_Network_Devices_Configuration_Guide-docinfo.xml for 
+    authors, copyright and license information.
+
+////
+
+//== Advanced Network Topics
+
+=== Floating Network Devices
+
+PacketFence supports floating network devices. A Floating network device is a device for which PacketFence has a different behavior compared to a regular device. This functionality was originally added to support mobile Access Points.
+
+CAUTION: Right now PacketFence only supports floating network devices on Cisco and Nortel switches configured with port-security.
+
+For a regular device, PacketFence put it in the VLAN corresponding to its status (Registration, Quarantine or Regular VLAN) and authorizes it on the port (port-security).
+
+A floating network device is a device that PacketFence does not manage as a regular device.
+
+When a floating network device is plugged, PacketFence will let/allow all the MAC addresses that will be connected to this device (or appear on the port) and if necessary, configure the port as multi-vlan (trunk) and set PVID and tagged VLANs on the port.
+
+When an floating network device is unplugged, PacketFence will reconfigure the port like before it was plugged.
+
+==== How it works
+
+Configuration:
+
+[options="compact"]
+* floating network devices have to be identified using their MAC address.
+* linkup/linkdown traps are not enabled on the switches, only port-security traps are.
+
+When PacketFence receives a port-security trap for a floating network device, it changes the port configuration so that:
+
+[options="compact"]
+* it disables port-security
+* it sets the PVID
+* it eventually sets the port as multi-vlan (trunk) and sets the tagged Vlans
+* it enables linkdown traps
+
+When PF receives a linkdown trap on a port in which a floating network device was plugged, it changes the port configuration so that:
+
+[options="compact"]
+* it enables port-security
+* it disables linkdown traps
+
+==== Identification
+
+As we mentioned earlier, each floating network device has to be identified. There are two ways to do it:
+
+[options="compact"]
+* by editing `conf/floating_network_device.conf`
+* through the Web GUI, in _Configuration -> Network Configuration -> Floating Device_
+
+Here are the settings that are available:
+
+MAC Address::
+  MAC address of the floating device
+IP Address::
+  IP address of the floating device (not required, for information only)
+trunkPort::
+  Yes/no. Should the port be configured as a multi-vlan port?
+pvid::
+  VLAN in which PacketFence should put the port
+taggedVlan::
+  Comma separated list of VLANs. If the port is a multi-vlan, these are the Vlans that have to be tagged on the port.
+
+=== Production DHCP access
+
+In order to perform all of its access control duties, PacketFence needs to be able to map MAC addresses into IP addresses.
+
+For all the networks/VLANs where you want PacketFence to have the ability to isolate a node or to have IP information about nodes, you will need to perform *one* of the techniques below.
+
+Also note that this doesn't need to be done for the registration, isolation VLANs and inline interfaces since PacketFence acts as the DHCP server in these networks.
+
+==== IP Helpers
+
+If you are already using IP Helpers for your production DHCP in your production VLANs this approach is the simplest one and the one that works the best.
+
+Add PacketFence's management IP address as the last `ip helper-address` statement in your network equipment. At this point PacketFence will receive a copy of all DHCP requests for that VLAN and will record what IP were distributed to what node using a `pfdhcplistener` daemon.
+
+By default no DHCP Server should be running on that interface where you are sending the requests. This is by design otherwise PacketFence would reply to the DHCP requests which would be a bad thing.
+
+==== Obtain a copy of the DHCP traffic
+
+Get a copy of all the DHCP Traffic to a dedicated physical interface in the PacketFence server and run `pfdhcplistener` on that interface. It will involve configuring your switch properly to perform port mirroring (aka network span) and adding in PacketFence the proper interface statement at the operating system level and in `pf.conf`.
+
+`/etc/sysconfig/network-scripts/ifcfg-eth2`:
+
+  DEVICE=eth2
+  ONBOOT=yes
+  BOOTPROTO=none
+
+Add to `pf.conf`: (IPs are not important they are there only so that PacketFence will start)
+
+  [interface eth2]
+  mask=255.255.255.0
+  type=dhcp-listener
+  gateway=192.168.1.5
+  ip=192.168.1.1
+
+Restart PacketFence and you should be good to go.
+
+==== Interface in every VLAN
+
+Because DHCP traffic is broadcast traffic, an alternative for small networks with few local VLANs is to put a VLAN interface for every VLAN on the PacketFence server and have a `pfdhcplistener` listen on that VLAN interface.
+
+On the network side you need to make sure that the VLAN truly reaches all the way from your client to your DHCP infrastructure up to the PacketFence server.
+
+On the PacketFence side, first you need an operating system VLAN interface like the one below. Stored in `/etc/sysconfig/network-scripts/ifcfg-eth0.1010`:
+
+  # Engineering VLAN
+  DEVICE=eth0.1010
+  ONBOOT=yes
+  BOOTPROTO=static
+  IPADDR=10.0.101.4
+  NETMASK=255.255.255.0
+  VLAN=yes
+
+Then you need to specify in `pf.conf` that you are interested in that VLAN's DHCP by setting type to `dhcp-listener`.
+
+  [interface eth0.1010]
+  mask=255.255.255.0
+  type=dhcp-listener
+  gateway=10.0.101.1
+  ip=10.0.101.4
+
+Repeat the above for all your production VLANs then restart PacketFence.
+
+==== Host production DHCP on PacketFence
+
+It's an option. Just modify `conf/dhcpd.conf` so that it will host your production DHCP properly and make sure that a `pfdhcplistener` runs on the same interface where production DHCP runs. However, please note that this is *NOT* recommended. See https://packetfence.org/bugs/view.php?id=1050[this ticket] to see why.
+
+=== Routed Networks
+
+If your isolation and registration networks are not locally-reachable (at layer 2) on the network, but routed to the PacketFence server, you'll have to let the PacketFence server know this. PacketFence can even provide DHCP and DNS in these routed networks and provides an easy to use configuration interface.
+
+image::diagram-routed-net.png[scaledwidth="100%",alt="Routed network example diagram"]
+
+For dhcpd, make sure that the clients DHCP requests are correctly forwarded (IP Helpers in the remote routers) to the PacketFence server.
+
+If we consider the network architecture illustrated in the above schema, `conf/pf.conf` will include the local registration and isolation interfaces only.
+
+   [interface eth0.2]
+   enforcement=vlan
+   ip=192.168.2.1
+   type=internal
+   mask=255.255.255.0
+
+   [interface eth0.3]
+   enforcement=vlan
+   ip=192.168.3.1
+   type=internal
+   mask=255.255.255.0
+
+NOTE: PacketFence will not start unless you have at least one 'internal' interface, so you need to create local registration and isolation VLANs even if you don't intend to use them.  Also, the 'internal' interfaces are the only ones on which dhcpd listens, so the remote registration and isolation subnets need to point their DHCP helper-address to those particular IPs.
+
+Then you need to provide the routed networks information to PacketFence. You can do it through the GUI in *Administration -> Networks* (or in `conf/networks.conf`).
+
+`conf/networks.conf` will look like this:
+
+   [192.168.2.0]
+   netmask=255.255.255.0
+   gateway=192.168.2.1
+   next_hop=
+   domain-name=registration.example.com
+   dns=192.168.2.1
+   dhcp_start=192.168.2.10
+   dhcp_end=192.168.2.200
+   dhcp_default_lease_time=300
+   dhcp_max_lease_time=600
+   type=vlan-registration
+   named=enabled
+   dhcpd=enabled
+
+   [192.168.3.0]
+   netmask=255.255.255.0
+   gateway=192.168.3.1
+   next_hop=
+   domain-name=isolation.example.com
+   dns=192.168.3.1
+   dhcp_start=192.168.3.10
+   dhcp_end=192.168.3.200
+   dhcp_default_lease_time=300
+   dhcp_max_lease_time=600
+   type=vlan-isolation
+   named=enabled
+   dhcpd=enabled
+
+   [192.168.20.0]
+   netmask=255.255.255.0
+   gateway=192.168.20.254
+   next_hop=192.168.2.254
+   domain-name=registration.example.com
+   dns=192.168.2.1
+   dhcp_start=192.168.20.10
+   dhcp_end=192.168.20.200
+   dhcp_default_lease_time=300
+   dhcp_max_lease_time=600
+   type=vlan-registration
+   named=enabled
+   dhcpd=enabled
+
+   [192.168.30.0]
+   netmask=255.255.255.0
+   gateway=192.168.30.254
+   next_hop=192.168.3.254
+   domain-name=isolation.example.com
+   dns=192.168.3.1
+   dhcp_start=192.168.30.10
+   dhcp_end=192.168.30.200
+   dhcp_default_lease_time=300
+   dhcp_max_lease_time=600
+   type=vlan-isolation
+   named=enabled
+   dhcpd=enabled
+
+
+Then you need to enable and start `packetfence-routes` service:
+[source,bash]
+----
+/usr/local/pf/bin/pfcmd service pf updatesystemd
+/usr/local/pf/bin/pfcmd service routes start
+----
+
+`packetfence-routes` service will use this file to add static routes
+corresponding to routed networks (192.168.20.0/24 and 192.168.30.0/24) in
+PacketFence's server routing table. The `next_hop` statement in each routed
+network section defines next hop for such routes.
+
+DHCP clients on the registration and isolation networks receive the PF
+server IP as their DNS server (dns=x.x.x.x), and PF spoofs DNS responses to
+force clients via the portal.  However, clients could manually configure
+their DNS settings to escape the portal.  To prevent this you will need to
+apply an ACL on the access router nearest the clients, permitting access
+only to the PF server and local DHCP broadcast traffic.
+
+For example, for the VLAN 20 remote registration network:
+
+   ip access-list extended PF_REGISTRATION
+    permit ip any host 192.168.2.1
+    permit udp any any eq 67
+    deny ip any any log
+   interface vlan 20
+    ip address 192.168.20.254 255.255.255.0
+    ip helper-address 192.168.2.1
+    ip access-group PF_REGISTRATION in
+
+If your edge switches support 'vlan-isolation' you can also apply the ACL
+there.  This has the advantage of preventing machines in isolation from
+attempting to attack each other.
+
+=== Network Devices Definition (switches.conf)
+
+This section applies only for VLAN enforcement. Users planning to do inline enforcement only can skip this section.
+
+PacketFence needs to know which switches, access points or controllers it manages, their type and configuration. All this information is stored in `/usr/local/pf/conf/switches.conf`. You can modify the configuration directly in the `switches.conf` file or you can do it from the Web Administration panel under _Configuration -> Policies and Access Control -> Switches_ - which is now the preferred way.
+
+The `/usr/local/pf/conf/switches.conf` configuration file contains a default section including:
+
+[options="compact"]
+* Default SNMP read/write communities for the switches
+* Default working mode (see the note below about possible working modes)
+
+and a switch section for each switch (managed by PacketFence) including:
+
+[options="compact"]
+* Switch IP/Mac/Range
+* Switch vendor/type
+* Switch uplink ports (trunks and non-managed IfIndex)
+* per-switch re-definition of the VLANs (if required)
+
+NOTE: `switches.conf` is loaded at startup. A reload is required when changes
+are manually made to this file `/usr/local/pf/bin/pfcmd configreload`.
+
+NOTE: All the ports declared as uplinks will be ignored and not managed by PacketFence. This parameter is defined in the [default] section of `switches.conf`. You can define a different uplink list for each switch.
+
+==== Switch import from CSV
+
+Using this, you will able to import a list of switches and update its description and switch group.
+
+NOTE: You must create the switch group prior to importing the switches.
+
+The CSV must have the following format: "description, IP or MAC, switch group". The first line will be skipped. If an entry with one provided IP/MAC already exist it will be updated. 
+In order to only define the switch group through the import, leave the description field empty.
+
+==== Working modes
+
+There are three different working modes for a switch in PacketFence:
+
+Testing::
+pfsetvlan writes in the log files what it would normally do, but it doesn't do anything.
+Registration::
+pfsetvlan automatically-register all MAC addresses seen on the switch ports. As in testing mode, no VLAN changes are done.
+Production::
+pfsetvlan sends the SNMP writes to change the VLAN on the switch ports.
+
+==== RADIUS
+
+To set the RADIUS secret, set it from the Web administrative interface when adding a switch. Alternatively, edit the switch config file (`/usr/local/pf/conf/switches.conf`) and set the following parameters:
+
+  radiusSecret = secretPassPhrase
+
+Moreover, the RADIUS secret is required to support the RADIUS Dynamic Authentication (Change of authorization or Disconnect) as defined in RFC3576.
+
+==== SNMP v1, v2c and v3
+
+PacketFence uses SNMP to communicate with most switches. PacketFence also supports SNMP v3. You can use SNMP v3 for communication in both directions: from the switch to PacketFence and from PacketFence to the switch. SNMP usage is discouraged, you should now use RADIUS. However, even if RADIUS is being used, some switches might also require SNMP to be configured to work properly with PacketFence.
+
+===== From PacketFence to a switch
+
+Edit the switch config file (`/usr/local/pf/conf/switches.conf`) and set the following parameters:
+
+  SNMPVersion = 3
+  SNMPEngineID = AA5ED139B81D4A328D18ACD1
+  SNMPUserNameRead = readUser
+  SNMPAuthProtocolRead = MD5
+  SNMPAuthPasswordRead = authpwdread
+  SNMPPrivProtocolRead = AES
+  SNMPPrivPasswordRead = privpwdread
+  SNMPUserNameWrite = writeUser
+  SNMPAuthProtocolWrite = MD5
+  SNMPAuthPasswordWrite = authpwdwrite
+  SNMPPrivProtocolWrite = AES
+  SNMPPrivPasswordWrite = privpwdwrite
+
+===== From a switch to PacketFence
+
+Edit the switch config file ([filename]`/usr/local/pf/conf/switches.conf`) and set the following parameters:
+
+  SNMPVersionTrap = 3
+  SNMPUserNameTrap = readUser
+  SNMPAuthProtocolTrap = MD5
+  SNMPAuthPasswordTrap = authpwdread
+  SNMPPrivProtocolTrap = AES
+  SNMPPrivPasswordTrap = privpwdread
+
+===== Switch Configuration
+
+Here is a switch configuration example in order to enable SNMP v3 in both directions on a Cisco Switch.
+
+  snmp-server engineID local AA5ED139B81D4A328D18ACD1
+  snmp-server group readGroup v3 priv
+  snmp-server group writeGroup v3 priv read v1default write v1default
+  snmp-server user readUser readGroup v3 auth md5 authpwdread priv aes 128 privpwdread
+  snmp-server user writeUser writeGroup v3 auth md5 authpwdwrite priv aes 128 privpwdwrite
+  snmp-server enable traps port-security
+  snmp-server enable traps port-security trap-rate 1
+  snmp-server host 192.168.0.50 version 3 priv readUser  port-security
+
+By default a switch has a SNMPv3 engine identifier (SNMPEngineID), you can get it with `show snmp engineid`.
+
+===== Test from a PacketFence server
+
+With the `net-snmp` package properly installed, you can test SNMPv3 communication with your switch:
+
+----
+snmpget -v3 -l authPriv -u readUser -a MD5 -A "authpwdread" \
+-x AES -X "privpwdread" IP_OF_YOUR_SWITCH sysName.0
+----
+
+NOTE: Passwords should be at least 8 characters length.
+
+==== Command-Line Interface: Telnet and SSH
+
+WARNING: Privilege detection is disabled in the current PacketFence version due to some issues (see https://packetfence.org/bugs/view.php?id=1370[#1370]). So make sure that the `cliUser` and `cliPwd` you provide always get you into a privileged mode (except for Trapeze hardware).
+
+PacketFence needs sometimes to establish an interactive command-line session with a switch. This can be done using Telnet. You can also use SSH. In order to do so, edit the switch configuration file ([filename]`/usr/local/pf/conf/switches.conf`) and set the following parameters:
+
+  cliTransport = SSH (or Telnet)
+  cliUser = admin
+  cliPwd = admin_pwd
+  cliEnablePwd =
+
+It can also be done through the Web Administration Interface under _Configuration -> Policies and Access Control -> Switches_.
+
+==== Web Services Interface
+
+PacketFence sometimes needs to establish a dialog with the Web Services capabilities of a switch. In order to do so, edit the switch config file ([filename]`/usr/local/pf/conf/switches.conf`) and set the following parameters:
+
+  wsTransport = http (or https)
+  wsUser = admin
+  wsPwd = admin_pwd
+
+It can also be done through the Web Administration Interface under _Configuration -> Policies and Access Control -> Switches_.
+
+==== Role-based enforcement support
+
+Some network devices support the assignment of a specific set of rules (firewall or ACLs) to a user. The idea is that these rules can be a lot more accurate to control what a user can or cannot do compared to VLAN which have a larger network management overhead.
+
+PacketFence supports assigning roles on devices for switches and WiFi controllers that support it. The current role assignment strategy is to assign it along with the VLAN (that may change in the future). A special internal role to external role assignment must be configured in the switch configuration file ([filename]`/usr/local/pf/conf/switches.conf`).
+
+The current format is the following:
+
+  Format: <rolename>Role=<controller_role>
+
+And you assign it to the global `roles` parameter or the per-switch one. For example:
+
+  adminRole=full-access
+  engineeringRole=full-access
+  salesRole=little-access
+
+would return the `full-access` role to the nodes categorized as admin or engineering and the role `little-access` to nodes categorized as sales. It can also be done through the Web Administration Interface under _Configuration -> Policies and Access Control -> Switches_.
+
+
+CAUTION: Make sure that the roles are properly defined on the network devices prior to assigning roles!
+
+=== More on VoIP Integration
+
+VoIP has been growing in popularity on enterprise networks.  At first sight, the IT administrators think that deploying VoIP with a NAC poses a huge complicated challenge to resolve.  In fact, depending of the hardware you have, not really.  In this section, we will see why.
+
+==== CDP and LLDP are your friend
+
+For those of you who are unaware of the existence of CDP or LLDP (or LLDP-MED), I suggest you start reading on this topic.  Cisco Discovery Protocol (CDP) is device-discovery protocol that runs on all Cisco-manufactured equipment including routers, access servers, bridges, and switches. Using CDP, a device can advertise its existence to other devices and receive information about other devices on the same LAN or on the remote side of a WAN.  In the world of VoIP, CDP is able to determine if the connecting device is an IP Phone or not, and tell the IP Phone to tag its ethernet frame using the configured voice VLAN on the switchport.
+
+On many other vendors, you are likely to find LLDP or LLDP-MED support.  Link Layer Discovery Protocol (LLDP) is a vendor-neutral Link Layer protocol in the Internet Protocol Suite used by network devices for advertising their identity, capabilities, and neighbors.  Same as CDP, LLDP can tell an IP Phone which VLAN id is the voice VLAN.
+
+==== VoIP and VLAN assignment techniques
+
+As you already know, PacketFence supports many VLAN assignment techniques such as port-security, MAC authentication or 802.1X. Let's see how VoIP is doing with each of those.
+
+===== Port-security
+
+Using port-security, the VoIP device rely on CDP/LLDP to tag its ethernet frame using the configured voice VLAN on the switch port.  After that, we ensure that a security trap is sent from the voice VLAN so that PacketFence can authorize the mac address on the port.  When the PC connects, another security trap will be sent, but from the data VLAN.  That way, we will have 1 mac address authorized on the voice VLAN, and 1 on the access VLAN.
+
+NOTE: Not all vendors support VoIP on port-security, please refer to the Network Configuration Guide.
+
+===== MAC Authentication and 802.1X
+
+On Cisco switches, we are looking at the multi-domain configuration.  The multi-domain means that we can have one device on the VOICE domain, and one device on the DATA domain.  The domain assignment is done using a Cisco Vendor-Specific Attributes (VSA).  When the phone connects to the switchport, PacketFence will respond with the proper VSA only, no RADIUS tunneled attributes.  CDP then tells the phone to tag its ethernet frames using the configured voice VLAN on the port.  When a PC connects, the RADIUS server will return tunneled attributes, and the switch will place the port in the provided access VLAN.
+
+On other vendor hardware, it is possible to make VoIP work using RADIUS VSAs.  When a phone connects to a switchport, PacketFence needs to return the proper VSA to tell the switch to allow tagged frames from this device.  When the PC will connect, we will be able to return standard RADIUS tunnel attributes to the switch, that will be the untagged VLAN.
+
+NOTE: Again, refer to the Network Configuration Guide to see if VoIP is supported on your switch hardware.
+
+==== What if CDP/LLDP feature is missing
+
+It is possible that your phone doesn't support CDP or LLDP.  If it's the case, you are probably looking at the "DHCP way" of provisioning your phone with a voice VLAN.  Some models will ask for a specific DHCP option so that the DHCP server can give the phone a voice VLAN id.  The phone will then reboot, and tag its ethernet frame using the provided VLAN tag.
+
+In order to make this scenario work with PacketFence, you need to ensure that you tweak the registration and your production DHCP server to provide the DHCP option.  You also need to make sure there is a voice VLAN properly configured on the port, and that you auto-register your IP Phones (On the first connect, the phone will be assigned on the registration VLAN).
+
+=== DHCP Option 82
+
+PacketFence is able to locate a device on the network even if the switch port is not managed by PacketFence.
+To use this feature you need to add all the switches in PacketFence and enable SNMP read (switch and PacketFence side) and enable DHCP option 82 in _Configuration -> Network Configuration -> Networks -> Network_.
+Once enabled, restart the `pfdhcplistener` and `pfmon` (or `pfcron`, if Packetfence version is >= 10.2) services.
+`pfmon` (or `pfcron`, if Packetfence version is >= 10.2) will query via SNMP all the switches to create a map (MAC <-> switch)
+`pfdhcplistener` will parse the DHCP Option 82 and will use the map to resolve the MAC to the switch and will update the locationlog of the device.
+

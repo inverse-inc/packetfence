@@ -15,25 +15,95 @@ use strict;
 use warnings;
 use base qw(pf::cmd);
 use Role::Tiny::With;
-use pf::constants::exit_code qw($EXIT_SUCCESS);
+use pf::constants qw($TRUE $FALSE);
+use pf::constants::exit_code qw($EXIT_SUCCESS $EXIT_FAILURE);
+use pf::file_paths qw($install_dir);
+use pf::error qw(is_success);
 with 'pf::cmd::roles::show_parent_help';
+
+=head2 parseArgs
+
+Parse the arguments for this command
+
+=cut
 
 sub parseArgs {
     my ($self) = @_;
-    my ($file) = $self->args;
-    if($file) {
-        $self->{file} = $file;
-        return 1;
+
+    my ( $file, @params ) = $self->args;
+
+    unless(defined($file)) {
+        print STDERR "You must specify a file name\n";
+        return $FALSE;
     }
-    return 0;
+
+    unless(-f $file) {
+        print STDERR "File $file doesn't exist...\n";
+        return $FALSE;
+    }
+
+    require pf::config;
+
+    my %params = (
+        'columns'           => "mac",
+        'default-role'      => "default",
+        'default-unregdate' => "2038-01-01 00:00:00",
+        'default-voip'      => "no",
+        'default-owner'     => "default",
+        'delimiter'         => "comma",
+    );
+    foreach my $param ( @params ) {
+        my ($name, $val) = split('=', $param);
+        if ( exists($params{$name}) ) {
+            if ( length($val) >= 1 ) {
+                $params{$name} = $val;
+            }
+            else {
+                print STDERR "Invalid parameter value '$val' for parameter '$name'\n";
+            }
+        }
+        else {
+            print STDERR "Unknown parameter '$name'\n";
+        }
+    }
+
+    my @columns = map { { enabled => 1, name => $_ } } split(/\s*,\s*/, $params{columns});
+
+    $self->{params} = {
+        %params,
+        filename => $file,
+        columns => \@columns,
+    };
+
+    return $TRUE;
 }
+
+=head2 _run
+
+Run the import
+
+=cut
 
 sub _run {
     my ($self) = @_;
+    require pf::nodecategory;
     require pf::import;
-    pf::import::nodes($self->{file});
-    print "Import process complete\n";
-    return $EXIT_SUCCESS;
+    
+    my $params = $self->{params};
+    my ($status, $info) = pf::import::nodes(
+        $params->{filename},
+        {
+            columns => $params->{columns},
+            delimiter => $params->{delimiter},
+            default_pid => $params->{"default-owner"},
+            default_category_id => pf::nodecategory::nodecategory_view_by_name($params->{"default-role"})->{category_id},
+            default_voip => $params->{"default-voip"},
+            default_unregdate => $params->{"default-unregdate"},
+        },
+    );
+    
+    print "Import process complete. Imported $info->{count} and skipped $info->{skipped}\n";
+    return is_success($status) ? $EXIT_SUCCESS : $EXIT_FAILURE;
 }
 
 =head1 AUTHOR
@@ -44,7 +114,7 @@ Minor parts of this file may have been contributed. See CREDITS.
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2017 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 

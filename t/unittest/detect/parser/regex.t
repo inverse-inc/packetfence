@@ -15,7 +15,7 @@ use warnings;
 #
 use lib '/usr/local/pf/lib';
 
-use Test::More tests => 6;
+use Test::More tests => 4;
 #This test will running last
 use Test::NoWarnings;
 use Test::MockObject::Extends;
@@ -38,20 +38,18 @@ my $config = {
             regex => qr/from: (?<scrip>\d{1,3}(\.\d{1,3}){3}), to: (?<dstip>\d{1,3}(\.\d{1,3}){3}), mac: (?<mac>[a-fA-F0-9]{12})/,
             name => 'from to',
             last_if_match => 0,
-            actions => ['modify_node: $scrip, $dstip, $mac', 'violation_log: bob, bob'],
+            actions => ['modify_node: $scrip, $dstip, $mac', 'security_event_log: bob, bob'],
         },
         {
             regex => qr/from: (?<scrip>\d{1,3}(\.\d{1,3}){3}), to: (?<dstip>\d{1,3}(\.\d{1,3}){3})/,
             name => 'from to',
             last_if_match => 1,
-            actions => ['modify_node: $scrip, $dstip', 'violation_log: bob, bob'],
+            actions => ['modify_node: $scrip, $dstip', 'security_event_log: bob, bob'],
         },
     ],
 };
 
-my $parser = Test::MockObject::Extends->new(pf::detect::parser::regex->new($config));
-
-is($parser->parse("from: 1.2.3.4, to: 1.2.3"), undef, "Invalid line");
+my $parser = pf::detect::parser::regex->new($config);
 
 my $matches = $parser->matchLine("from: 1.2.3.4, to: 1.2.3.5");
 
@@ -59,8 +57,12 @@ is_deeply(
     $matches,
     [
         {
+            'success' => 1,
             rule => $config->{rules}[1],
-            actions => [['modify_node', ['1.2.3.4', '1.2.3.5']], ['violation_log', ['bob', 'bob']]],
+            actions => [
+                { api_method => 'modify_node', api_parameters => ['1.2.3.4', '1.2.3.5']},
+                { api_method => 'security_event_log', api_parameters => ['bob', 'bob']}
+            ],
         }
     ],
     "Match one rule"
@@ -72,23 +74,24 @@ is_deeply(
     $matches,
     [
         {
+            'success' => 1,
             rule => $config->{rules}[0],
-            actions => [['modify_node', ['1.2.3.4', '1.2.3.5', 'aa:bb:cc:dd:ee:ff']], ['violation_log', ['bob', 'bob']]],
+            actions => [
+                { api_method => 'modify_node', api_parameters => ['1.2.3.4', '1.2.3.5', 'aa:bb:cc:dd:ee:ff']}, 
+                { api_method => 'security_event_log', api_parameters => ['bob', 'bob']}
+            ],
         },
         {
+            'success' => 1,
             rule => $config->{rules}[1],
-            actions => [['modify_node', ['1.2.3.4', '1.2.3.5']], ['violation_log', ['bob', 'bob']]],
+            actions => [
+                {api_method => 'modify_node', api_parameters =>['1.2.3.4', '1.2.3.5']},
+                {api_method => 'security_event_log', api_parameters => ['bob', 'bob']}
+            ],
         }
     ],
     "Match two rules"
 );
-
-$parser->mock("sendActions", sub {});
-
-my $result = $parser->parse("from: 1.2.3.4, to: 1.2.3.5");
-
-is($result, "0", "Parsing is good");
-
 
 =head1 AUTHOR
 
@@ -96,7 +99,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2017 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 

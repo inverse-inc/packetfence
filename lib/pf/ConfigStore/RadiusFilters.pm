@@ -15,14 +15,18 @@ pf::ConfigStore::RadiusFilters
 use strict;
 use warnings;
 use Moo;
-use pf::file_paths qw($radius_filters_config_file);
-extends 'pf::ConfigStore';
+use pf::file_paths qw($radius_filters_config_file $radius_filters_config_default_file);
+extends 'pf::ConfigStore::FilterEngine';
 
 sub configFile { $radius_filters_config_file };
 
+sub importConfigFile { $radius_filters_config_default_file };
+
 sub pfconfigNamespace {'config::RadiusFilters'}
 
-__PACKAGE__->meta->make_immutable;
+sub ordered_arrays { ['answers', 'answer'] }
+
+__PACKAGE__->meta->make_immutable unless $ENV{"PF_SKIP_MAKE_IMMUTABLE"};
 
 =head1 AUTHOR
 
@@ -30,7 +34,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2017 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 

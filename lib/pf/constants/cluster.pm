@@ -27,6 +27,8 @@ use pf::file_paths qw(
     $radius_ca_cert
     $conf_dir
     $local_secret_file
+    $unified_api_system_pass_file
+    $network_behavior_policy_config_file
 );
 
 our @EXPORT_OK = qw(@FILES_TO_SYNC);
@@ -39,6 +41,8 @@ our @FILES_TO_SYNC = (
     $radius_server_cert,
     $radius_ca_cert,
     $local_secret_file, 
+    $unified_api_system_pass_file,
+    $network_behavior_policy_config_file,
     $pfconfig::constants::CONFIG_FILE_PATH, 
     "$conf_dir/iptables.conf", 
     $fingerbank::FilePath::CONF_FILE, 
@@ -51,7 +55,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2017 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 

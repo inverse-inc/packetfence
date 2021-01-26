@@ -21,6 +21,7 @@ use warnings;
 ### pf::dal::_dhcp_option82_history is auto generated any change to this file will be lost
 ### Instead change in the pf::dal::dhcp_option82_history module
 ###
+
 use base qw(pf::dal);
 
 our @FIELD_NAMES;
@@ -28,6 +29,7 @@ our @INSERTABLE_FIELDS;
 our @PRIMARY_KEYS;
 our %DEFAULTS;
 our %FIELDS_META;
+our @COLUMN_NAMES;
 
 BEGIN {
     @FIELD_NAMES = qw(
@@ -131,6 +133,20 @@ BEGIN {
     @PRIMARY_KEYS = qw(
         dhcp_option82_history_id
     );
+
+    @COLUMN_NAMES = qw(
+        dhcp_option82_history.dhcp_option82_history_id
+        dhcp_option82_history.mac
+        dhcp_option82_history.created_at
+        dhcp_option82_history.option82_switch
+        dhcp_option82_history.switch_id
+        dhcp_option82_history.port
+        dhcp_option82_history.vlan
+        dhcp_option82_history.circuit_id_string
+        dhcp_option82_history.module
+        dhcp_option82_history.host
+    );
+
 }
 
 use Class::XSAccessor {
@@ -147,13 +163,13 @@ sub _defaults {
     return {%DEFAULTS};
 }
 
-=head2 field_names
+=head2 table_field_names
 
 Field names of dhcp_option82_history
 
 =cut
 
-sub field_names {
+sub table_field_names {
     return [@FIELD_NAMES];
 }
 
@@ -179,6 +195,16 @@ our $FIND_SQL = do {
     my $where = join(", ", map { "$_ = ?" } @PRIMARY_KEYS);
     "SELECT * FROM `dhcp_option82_history` WHERE $where;";
 };
+
+=head2 find_columns
+
+find_columns
+
+=cut
+
+sub find_columns {
+    return [@COLUMN_NAMES];
+}
 
 =head2 _find_one_sql
 
@@ -219,14 +245,14 @@ Get the meta data for dhcp_option82_history
 sub get_meta {
     return \%FIELDS_META;
 }
- 
+
 =head1 AUTHOR
 
 Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2017 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 

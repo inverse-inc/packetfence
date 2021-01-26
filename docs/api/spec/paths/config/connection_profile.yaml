@@ -1,0 +1,70 @@
+/config/connection_profile/{connection_profile_id}:
+  delete:
+    description: Remove an item
+    operationId: api.v1.Config::ConnectionProfiles.remove
+    parameters:
+    - in: path
+      name: connection_profile_id
+      schema:
+        type: string
+    responses:
+      '204':
+        description: Deleted a config item
+  description: pf::UnifiedApi::Controller::Config::ConnectionProfiles
+  get:
+    description: Get an item
+    operationId: api.v1.Config::ConnectionProfiles.get
+    parameters:
+    - in: path
+      name: connection_profile_id
+      schema:
+        type: string
+    responses:
+      '200':
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ConfigConnectionProfile'
+        description: Item
+      '400':
+        $ref: '#/components/responses/BadRequest'
+      '422':
+        $ref: '#/components/responses/UnprocessableEntity'
+  patch:
+    description: Update an item
+    operationId: api.v1.Config::ConnectionProfiles.update
+    parameters:
+    - in: path
+      name: connection_profile_id
+      schema:
+        type: string
+    requestBody:
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ConfigConnectionProfile'
+    responses:
+      '400':
+        $ref: '#/components/responses/BadRequest'
+      '422':
+        $ref: '#/components/responses/UnprocessableEntity'
+  put:
+    description: Replace an item
+    operationId: api.v1.Config::ConnectionProfiles.replace
+    parameters:
+    - in: path
+      name: connection_profile_id
+      schema:
+        type: string
+    requestBody:
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ConfigConnectionProfile'
+    responses:
+      '201':
+        $ref: '#/components/responses/Created'
+      '400':
+        $ref: '#/components/responses/BadRequest'
+      '422':
+        $ref: '#/components/responses/UnprocessableEntity'

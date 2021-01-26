@@ -1,5 +1,4 @@
-<div id="radiuslog-sidenav" class="sidenav sidenav-section offset1 span3"
-     style="display: none"
+<div id="radiuslog-sidenav" class="sidenav sidenav-section offset1 span3 hide"
      data-category="radius">
   [% INCLUDE admin/auditing_radius_log.tt %]
 </div><!--/.sidenav-section-->
@@ -41,11 +40,16 @@
                       <input type="text" class="input-small input-date" id="end_date" name="end.date" value="[% end.date %]" data-date-format="yyyy-mm-dd" date-datestart="[% end_date %]" />
                       <input type="text" name="end.time" id="end_time" value="[% end.time %]" class="timepicker-default input-small" placeholder="HH:MM"/>
                       [% l('Last') %]
-                      <a href="#last30mins">[% l('30 minutes') %]</a> |
-                      <a href="#last1hour">  [% l('1 hour') %]</a> |
-                      <a href="#last6hours"> [% l('6 hours') %]</a> |
-                      <a href="#last12hours">[% l('12 hours') %]</a> |
-                      <a href="#last24hours">[% l('24 hours') %]</a>
+                      <a data-toggle="date-picker" data-start-date="#start_date" data-start-time="#start_time"
+                         href="[% c.uri_for(c.controller('Admin').action_for('time_offset'),'30m') %]">[% l('30 minutes') %]</a> |
+                      <a data-toggle="date-picker" data-start-date="#start_date" data-start-time="#start_time"
+                        href="[% c.uri_for(c.controller('Admin').action_for('time_offset'),'1h') %]">[% l('1 hour') %]</a> |
+                      <a data-toggle="date-picker" data-start-date="#start_date" data-start-time="#start_time"
+                         href="[% c.uri_for(c.controller('Admin').action_for('time_offset'),'6h') %]">[% l('6 hours') %]</a> |
+                      <a data-toggle="date-picker" data-start-date="#start_date" data-start-time="#start_time"
+                         href="[% c.uri_for(c.controller('Admin').action_for('time_offset'),'12h') %]">[% l('12 hours') %]</a> |
+                      <a data-toggle="date-picker" data-start-date="#start_date" data-start-time="#start_time"
+                         href="[% c.uri_for(c.controller('Admin').action_for('time_offset'),'24h') %]">[% l('24 hours') %]</a>
                     </div>
                   </td>
                 </tr>
@@ -80,7 +84,7 @@
                   <td>
                     <div id="searchConditionsEmpty" class="unwell unwell-horizontal">
                       <p>
-                        <i class="icon-search" style="line-height: 24px"></i>
+                        <i class="icon-search"></i>
                         <a href="#add">[% l('Add a condition.') %]</a>
                       </p>
                     </div>
@@ -103,6 +107,7 @@
                   </td>
                   <td>
                     <div class="btn-group pull-right">
+                      <button type="button" id="radiuslog_reset" class="btn btn-primary"><i class="icon-refresh icon-white"></i> [% l('Reset Search') %]</button>
                       <button class="btn btn-primary"><i class="icon-search icon-white"></i> [% l('Search') %]</button>
                       <a class="btn btn-primary dropdown-toggle" data-toggle="dropdown"><span class="caret"></span></a>
                       <ul class="dropdown-menu">

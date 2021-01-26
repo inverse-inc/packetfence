@@ -69,7 +69,7 @@ sub hasId {
     }
     else
     {
-        if ( $self->fingerbankModel->read($id))
+        if ( $self->fingerbankModel->read_hashref($id))
         {
             $status = HTTP_OK;
             $status_msg = [ "[_1] exists", $id ];
@@ -98,7 +98,7 @@ sub read {
     }
     else
     {
-        ($status, $result ) = $self->fingerbankModel->read($id);
+        ($status, $result ) = $self->fingerbankModel->read_hashref($id);
         if ( $status != HTTP_OK )
         {
             $result = [ "[_1] does not exists", $id ];
@@ -155,7 +155,7 @@ sub create {
 sub update_or_create {
     my ( $self, $id, $assignments ) = @_;
     my $primaryKey = $self->primaryKey;
-    my ($status,undef) = $self->fingerbankModel->read($id);
+    my ($status,undef) = $self->fingerbankModel->read_hashref($id);
     if ( $status == HTTP_OK)
     {
         return $self->update( $id, $assignments );
@@ -283,11 +283,11 @@ sub ACCEPT_CONTEXT {
     return $self->new(  { scope => $c->stash->{scope} || 'Upstream', %args } );
 }
 
-__PACKAGE__->meta->make_immutable;
+__PACKAGE__->meta->make_immutable unless $ENV{"PF_SKIP_MAKE_IMMUTABLE"};
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2017 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 

@@ -1,0 +1,385 @@
+// to display images directly on GitHub
+ifdef::env-github[]
+:encoding: UTF-8
+:lang: en
+:doctype: book
+:toc: left
+:imagesdir: ../images
+endif::[]
+
+////
+
+    This file is part of the PacketFence project.
+
+    See PacketFence_Network_Devices_Configuration_Guide-docinfo.xml for 
+    authors, copyright and license information.
+
+////
+
+//== Intrusion Detection System Integration
+
+=== Regex Syslog Parser
+
+You are now able to create syslog parser using regex. This will allow you complex filters and rules to work on data receive via syslog.
+
+Configuring a Regex Syslog Parser
+
+- Enabled - You can enable/disable the parser from running
+- Alert Pipe - A previously created alert pipe (FIFO)
+- Rules - The list of rules that defines how to match log file entries and what action(s) to take when matching
+
+Regex Syslog Parser Rule
+
+- Name - The name of the rule
+- Regex - The regex to match against a log entry. The regex may have https://github.com/google/re2/wiki/Syntax[named captures] which can be used for parameter replacement start a '$'.
+- Actions - A list of actions to take when the regex matches
+- IP to MAC - Perform automatic translation of IPs to MACs and the other way around
+- Last if matches - Stop processing the other rules if this rule matched
+
+Defining Actions
+
+An action have two parts
+
+- method - The name of the action you want to take
+- parameter list - The list of parameters you want to provide to the method. Each parameter is seperated by a comma. The parameters that are to be replaced by a named capture.
+
+Example Action
+
+Regex -
+
+    mac\s*:\s*(?P&lt;mac&gt;[a-zA-Z0-9]{2}(:[a-zA-Z0-9]{2}){5}), notes\s*:\s*(P?&lt;notes&gt;.*)
+
+Action -
+
+    modify_node:  mac, $mac, notes, $notes
+
+=== Suricata IDS
+
+PacketFence already contains a syslog parser for Suricata. This is an example to raise a security event from a syslog alert on the Suricata SID.
+
+The first step is to create the syslog regex parser and then create the security event.
+
+==== Syslog regex parser configuration
+
+To create the syslog regex parser you will need to go to _Configuration -> Integration -> Syslog Parsers -> Add a Syslog Parser -> regex_
+
+Here is the configuration of the syslog regex parser:
+
+    Detector *: Suricata
+    Enabled: checked
+    Alert pipe: /usr/local/pf/var/suricata (To create the fifo file, do: mkfifo /usr/local/pf/var/suricata)
+
+    Rules:
+
+    Rule - New:
+
+    Name *: ET P2P Kaaza Media desktop p2pnetworking.exe
+    Regex *: (?P<date>\d{2}\/\d{2}\/\d{4}-\d{2}:\d{2}:\d{2}.*?)  \[\*\*\] \[\d+:(?P<sid>\d+):\d+\] (?P<message>.*?) \[\*\*\].* (?P<srcip>\d{1,3}(\.\d{1,3}){3}):(?P<srcport>\d+) -> (?P<ip>\d{1,3}(\.\d{1,3}){3}):(?P<port>\d+)
+    Action: trigger_security_event mac, $mac, tid, $sid, type, detect
+    Last if match: unchecked
+    IP to MAC: checked
+
+Save the regex rule.
+
+You can directly test your rule. In the previous example the parser expect a syslog string like this:
+
+    02/26/2017-14:29:00.524309  [**] [1:2000340:10] ET P2P Kaaza Media desktop p2pnetworking.exe Activity [**] [Classification: Potential Corporate Privacy Violation] [Priority: 1] {UDP} 173.194.7.75:443 -> 1.2.3.4:46742
+
+In order to have a correct match in the rule, you will need to have a valid iplog entry in the database. Put the string in the test box and then click on the `RUN TEST` button, you should get:
+
+    Click to see actions for - 02/26/2017-14:29:00.524309 [**] [1:2000340:10] ET P2P Kaaza Media desktop p2pnetworking.exe Activity [**] [Classification: Potential Corporate Privacy Violation] [Priority: 1] {UDP} 173.194.7.75:443 -> 1.2.3.4:46742
+
+    - ET P2P Kaaza Media desktop p2pnetworking.exe : trigger_security_event('mac', '00:11:22:33:44:55', 'tid', '2000340', 'type', 'detect')
+
+We can see that PacketFence will execute the security event on the MAC address 00:11:22:33:44:55.
+
+==== Security Event Creation
+
+Now you will need to create the security event with the trigger id '2000340' in order to isolate the device. In order to do so, go to _Configuration -> Compliance -> Security Events -> New Security Event_
+
+Definition:
+
+    Enabled: ON
+    Identifier: 1500001
+    Description: ET P2P Kaaza Media
+    Action: Reevaluate Access Action; Log message
+    Priority: 1
+
+Triggers:
+
+* Click on the `(+)` button
+* Look for 'detect' in the dropdown list
+* Add the trigger ID: 2000340 and click the `ADD` button
+* Click on the `<` button next to 'Select Some Options'
+
+Remediation:
+
+    Auto Enable: checked
+    Max Enables: 2
+    Grace: 5 minutes
+    Template: p2p.html
+
+Click on the `SAVE` button.
+
+Now you will need to restart the pfqueue and the pfdetect services.
+
+    /usr/local/pf/bin/pfcmd service pfqueue restart
+
+    /usr/local/pf/bin/pfcmd service pfdetect restart
+
+Make sure that you have your pipe file otherwise the process won't start.
+
+=== Security Onion
+
+==== Installation and Configuration
+
+Security Onion is a Ubuntu-based security suite. The latest installation instructions are available directly from the Security Onion website, https://github.com/Security-Onion-Solutions/security-onion/wiki/Installation
+
+Since a security suite consists of multiple pieces of software tied together, you may be prompted for different options during the installation process. A detailed "Production Deployment" guide can also be found directly from the Security Onion website: https://github.com/Security-Onion-Solutions/security-onion/wiki/ProductionDeployment
+
+==== PacketFence Integration
+
+Once Security Onion is installed and minimally configured, integration with PacketFence is required to be able to raise security events based on sensor(s) alerts. syslog is used to forward sensor(s) alerts from Security Onion to the PacketFence detection mechanisms.
+
+The simplest way is as follow (based on https://github.com/Security-Onion-Solutions/security-onion/wiki/ThirdPartyIntegration);
+
+On the Security Onion server:
+
+NOTE: Must be done on the master server running 'sguild'.
+
+Configure [filename]`/etc/syslog-ng/syslog-ng.conf` by adding the following to enable sending sguild log entries to PacketFence:
+
+  ### PacketFence / IDS integration
+  # This line specifies where the sguild.log file is located
+  # -> Make sure to configure the right path along with the right filename (on a Security Onion setup, that should be pretty much standard)
+  source s_sguil { file("/var/log/nsm/securityonion/sguild.log" program_override("securityonion_ids")); };
+  # This line filters on the string “Archived Alert”
+  filter f_sguil { match("Archived Alert"); };
+  # This line tells syslog-ng to send the data read to the PacketFence management IP address using UDP 514
+  # -> Make sure to configure the right PacketFence management interface IP address
+  destination d_packetfence_alerts { udp("PACKETFENCE_MGMT_IP" port(514)); };
+  # This line indicates syslog-ng to use the s_sguil source, apply the f_sguil filter and send it to the d_packetfence_alerts destination
+  log { source(s_sguil); filter(f_sguil); destination(d_packetfence_alerts); };
+
+NOTE: Ensure you change PACKETFENCE_MGMT_IP to the management IP address of your PacketFence server
+
+Sending sguild alert output to syslog requires DEBUG to be changed from 1 to 2 under [filename]`/etc/sguild/sguild.conf`
+
+  set DEBUG 2
+
+A restart of the sguild daemon is then required
+
+  sudo nsm_server_ps-restart
+
+A restart of the syslog-ng daemon is then required
+
+  service syslog-ng restart
+
+On the PacketFence server:
+
+Modify rsyslog configuration to allow incoming UDP packets by uncommenting the following two lines in [filename]`/etc/rsyslog.conf`:
+
+  $ModLoad imudp
+  $UDPServerRun 514
+
+Configure [filename]`/etc/rsyslog.d/securityonion_ids.conf` so it contains the following which will redirect Security Onion sguild log entries and stop further processing of current matched message:
+
+  if $programname == 'securityonion_ids' then /usr/local/pf/var/securityonion_ids
+  & ~
+
+Make sure the receiving alert pipe (FIFO) exists
+
+  mkfifo /usr/local/pf/var/securityonion_ids
+
+Restart the rsyslog daemon
+
+  service rsyslog restart
+
+At this point, Security Onion should be able to send detected alerts log entries to PacketFence.
+
+A configuration of a new 'syslog parser' as well as some security events are the only remaining steps to make full usage of the Security Onion IDS integration.
+
+Configuration of a new 'syslog parser' should use the followings:
+
+  Type: security_onion
+  Alert pipe: the previously created alert pipe (FIFO) which is, in this case, /usr/local/pf/var/securityonion_ids
+
+Configuration of a new security event can use the following trigger types:
+
+  Type: detect
+  Triggers ID: The IDS triggered rule ID
+
+  Type: suricata_event
+  Trigger ID: The rule class of the triggered IDS alert
+
+=== ERSPAN
+
+ERSPAN permits to mirror a local port traffic (low bandwidth) to a remote IP, E.G: your Security Onion already deployed box. ERSPAN encapsulates port traffic into ERSPAN then GRE and send that traffic to one/multiple destination(s). ERSPAN is a Cisco technology which is available only on some platforms, including: Catalyst 6500, 7600, Nexus, and ASR 1000.
+
+One way of accessing encapsulated traffic at the destination host is through a software called RCDCAP, which is a daemon that creates a virtual interface if not existing, on which both GRE and ERSPAN headers are decapsulated prior to the traffic being injected to the previous interface. Security Onion can then feed on that interface like it would on any other, and if the RCDCAP daemon dies, continue to listen to that interface even though decapsulated traffic won't be available anymore.
+
+
+Assumptions for the example:
+The switch is at IP 172.16.0.1, the monitored switch port is GigabitEthernet0/10 and the Security Onion monitoring destination IP is 10.10.10.10 on eth2, eth2 ideally being a dedicated interface.
+
+On Security Onion:
+
+ * Enable Inverse repository for Security Onion:
+
+[source,bash]
+----
+sudo bash -c 'cat << EOL >/etc/apt/sources.list.d/securityonion-inverse.list
+deb http://inverse.ca/downloads/PacketFence/securityonion trusty trusty
+EOL'
+
+gpg --keyserver keyserver.ubuntu.com --recv 19CDA6A9810273C4
+gpg --export --armor 19CDA6A9810273C4 | sudo apt-key add -
+----
+
+ * Install RCDCAP
+
+[source,bash]
+----
+  sudo apt-get update
+  sudo apt-get install rcdcap
+----
+
+  * Modify network file (/etc/network/inferfaces) so that eth2 has an IP and a proper MTU. Decapsulated traffic will be injected on mon1. Make sure that the configuration is similar to the following:
+
+[source,ini,numbered]
+----
+auto eth2
+iface eth2 inet static
+  address 10.10.10.10
+  netmask 255.255.255.240
+  up ip link set $IFACE arp on up
+  up ip link set dev $IFACE mtu 1900
+  post-up ethtool -G $IFACE rx 4096; for i in rx tx sg tso ufo gso gro lro; do ethtool -K $IFACE $i off; done
+  post-up echo 1 > /proc/sys/net/ipv6/conf/$IFACE/disable_ipv6
+
+auto mon1
+iface mon1 inet manual
+  pre-up rcdcap -i eth1 --erspan --tap-persist --tap-device $IFACE --expression "host 172.16.0.1" -d
+  up ip link set $IFACE promisc on arp off up
+  down ip link set $IFACE promisc off down
+  post-up ethtool -G $IFACE rx ; for i in rx tx sg tso ufo gso gro lro; do ethtool -K $IFACE $i off; done
+  post-up echo 1 > /proc/sys/net/ipv6/conf/$IFACE/disable_ipv6
+----
+
+  * Rerun Security Onion wizard and make sure to skip network configuration step. Make sure that mon1 is selected for monitoring purposes, note that eth2 doesn't need to.
+
+  sudo sosetup
+
+On the Switch:
+
+  monitor session 10 type erspan-source
+  description ERSPAN to 10.10.10.10
+  source interface GigabitEthernet0/10
+  destination
+  erspan-id 10
+  ip address 10.10.10.10
+  origin ip address 172.16.0.1
+  no shutdown   !   Default is shutdown
+
+=== StreamScan Comprimise Detection System (CDS)
+
+This is an example to raise a security event from a syslog alert on a StreamScan alert ID.
+
+The first step is to create the syslog regex parser and then create the security event.
+
+==== Syslog regex parser configuration
+
+To create the syslog regex parser you will need to go to _Configuration -> Integration -> Syslog Parsers -> Add a Syslog Parser -> regex_
+
+Here is the configuration of the syslog regex parser:
+
+    Detector *: StreamScan
+    Enabled: checked
+    Alert pipe: /usr/local/pf/var/cds
+
+    Rules:
+
+    Rule - New:
+
+    Name *: ET TROJAN
+    Regex *:  CDS\[(?<cds_id>\d+)\].*?type=(?<type>[^ ]*).*?threat="(?<threat>.*?)" direction=(?<direction>[^ ]+) sourceip=(?<sourceip>\d+(\.\d+){3}) sourceport=(?<sourceport>\d+) destip=(?<ip>\d+(\.\d+){3}) destport=(?<destport>\d+) app=(?<app>[^ ]*) timestamp=(?<timestamp>[^ ]*) sid=(?<sid>\d+)
+    Action: trigger_security_event mac, $mac, tid, $sid, type, detect
+    Last if match: unchecked
+    IP to MAC: checked
+
+Save the regex rule.
+
+You can directly test your rule. In the previous example the parser expect a syslog string like this:
+
+    Apr 24 16:50:41 ubuntu CDS[13423]: type=alert threat="ET TROJAN Likely Zbot Generic Post to gate.php no accept headers" direction=outgoing sourceip=192.168.254.194 sourceport=53252 destip=5.175.143.42 destport=80 app=HTTP timestamp=2017-04-24_16-50-41.832096 sid=2022985
+
+In order to have a correct match in the rule, you will need to have a valid iplog entry in the database. Put the string in the test box and then click on the 'RUN TEST' button, you should get:
+
+    Results
+
+    Click to see actions for - Apr 24 16:50:41 ubuntu CDS[13423]: type=alert threat="ET TROJAN Likely Zbot Generic Post to gate.php no accept headers" direction=outgoing sourceip=192.168.254.194 sourceport=53252 destip=5.175.143.42 destport=80 app=HTTP timestamp=2017-04-24_16-50-41.832096 sid=2022985
+    - security event: trigger_security_event('mac', '00:11:22:33:44:55', 'tid', '2022985', 'type', 'detect')
+
+We can see that PacketFence will execute the security event on the MAC address 00:11:22:33:44:55.
+
+==== Security Event Creation
+
+Now you will need to create the security event with the trigger id '2000340' in order to isolate the device. In order to do so, go to _Configuration -> Compliance -> Security Events -> New Security Event_.
+
+Definition:
+
+    Enabled: ON
+    Identifier: 2022985
+    Description: ET Trojan
+    Action: Reevaluate Access Action; Log message
+    Priority: 1
+
+Triggers:
+
+* Click on the + button
+* Look for 'detect' in the dropdown list
+* Add the trigger ID: 2022985 and click the ADD button
+* Click on the '<' button next to 'Select Some Options'
+
+Remediation:
+
+    Auto Enable: checked
+    Max Enables: 2
+    Grace: 5 minutes
+    Template: generic.html
+
+Click on the SAVE button.
+
+Now you will need to restart the pfqueue and the pfdetect services.
+
+    /usr/local/pf/bin/pfcmd service pfqueue restart
+
+    /usr/local/pf/bin/pfcmd service pfdetect restart
+
+Make sure that you have your pipe file otherwise the process won't start.
+
+==== Rsyslog Configuration
+
+You will need to create a rsyslog configuration to forward all the syslog messages sent by StreamScan to the pipe file `/usr/local/pf/var/cds`
+
+    mkfifo /usr/local/pf/var/cds
+
+First you need to enable the syslog under the rsyslog configuration file located at /etc/rsyslog.conf, uncomment the two parameters:
+
+    # Provides UDP syslog reception
+    $ModLoad imudp
+    $UDPServerRun 514
+
+Then create the forwarding configuration:
+
+    vim /etc/rsyslog.d/cds.conf
+
+Put the follow configuration in it where the IP 1.2.3.4 is your syslog source server:
+
+    if ($fromhost-ip=='172.20.20.181') then /usr/local/pf/var/cds
+    &~
+
+Restart rsyslog to apply the configuration
+
+    service rsyslog restart
+

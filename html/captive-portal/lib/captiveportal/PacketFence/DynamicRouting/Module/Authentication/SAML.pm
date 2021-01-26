@@ -16,6 +16,10 @@ with 'captiveportal::Role::Routed';
 
 use pf::util;
 use pf::auth_log;
+use pf::config::util;
+use pf::constants::realm;
+
+has 'landing_template' => ('is' => 'rw', default => sub {'saml.html'});
 
 has '+source' => (isa => 'pf::Authentication::Source::SAMLSource');
 
@@ -48,7 +52,16 @@ SAML index
 
 sub index {
     my ($self) = @_;
-    $self->render("saml.html", {source => $self->source, title => "SAML authentication"});
+    if($self->with_aup) {
+        $self->render($self->landing_template, {
+            title => "SAML authentication",
+            source => $self->source, 
+            form => $self->form,
+        });
+    }
+    else {
+        $self->redirect();
+    }
 }
 
 =head2 redirect
@@ -59,8 +72,14 @@ Redirect the user to the SAML IDP
 
 sub redirect {
     my ($self) = @_;
-    pf::auth_log::record_oauth_attempt($self->source->id, $self->current_mac);
-    $self->app->redirect($self->source->sso_url);
+    if(!$self->with_aup || $self->request_fields->{aup}){
+        pf::auth_log::record_oauth_attempt($self->source->id, $self->current_mac, $self->app->profile->name);
+        $self->app->redirect($self->source->sso_url);
+    }
+    else {
+        $self->app->flash->{error} = "You must accept the terms and conditions";
+        $self->landing();
+    }
 }
 
 =head2 assertion
@@ -74,19 +93,17 @@ sub assertion {
 
     my ($username, $msg) = $self->source->handle_response($self->app->request->param("SAMLResponse"));
 
-    # We strip the username if the authorization source requires it.
-    if(isenabled($self->source->authorization_source->{stripped_user_name})){
-        ($username, undef) = strip_username($username);
-    }
+    # We strip the username if required
+    ($username, undef) = pf::config::util::strip_username_if_needed($username, $pf::constants::realm::PORTAL_CONTEXT);
 
     if($username){
-        pf::auth_log::record_completed_oauth($self->source->id, $self->current_mac, $username, $pf::auth_log::COMPLETED);
+        pf::auth_log::record_completed_oauth($self->source->id, $self->current_mac, $username, $pf::auth_log::COMPLETED, $self->app->profile->name);
         $self->username($username);
         $self->done();
     }
     else {
         $self->app->error($msg);
-        pf::auth_log::change_record_status($self->source->id, $self->current_mac, $pf::auth_log::FAILED);
+        pf::auth_log::change_record_status($self->source->id, $self->current_mac, $pf::auth_log::FAILED, $self->app->profile->name);
     }
 }
 
@@ -96,7 +113,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2017 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 
@@ -117,7 +134,7 @@ USA.
 
 =cut
 
-__PACKAGE__->meta->make_immutable;
+__PACKAGE__->meta->make_immutable unless $ENV{"PF_SKIP_MAKE_IMMUTABLE"};
 
 1;
 

@@ -21,16 +21,22 @@ use warnings;
 ### pf::dal::_userlog is auto generated any change to this file will be lost
 ### Instead change in the pf::dal::userlog module
 ###
+
 use base qw(pf::dal);
+
+use Role::Tiny::With;
+with qw(pf::dal::roles::has_tenant_id);
 
 our @FIELD_NAMES;
 our @INSERTABLE_FIELDS;
 our @PRIMARY_KEYS;
 our %DEFAULTS;
 our %FIELDS_META;
+our @COLUMN_NAMES;
 
 BEGIN {
     @FIELD_NAMES = qw(
+        tenant_id
         mac
         pid
         start_time
@@ -38,6 +44,7 @@ BEGIN {
     );
 
     %DEFAULTS = (
+        tenant_id => '1',
         mac => '',
         pid => undef,
         start_time => '0000-00-00 00:00:00',
@@ -45,6 +52,7 @@ BEGIN {
     );
 
     @INSERTABLE_FIELDS = qw(
+        tenant_id
         mac
         pid
         start_time
@@ -52,6 +60,12 @@ BEGIN {
     );
 
     %FIELDS_META = (
+        tenant_id => {
+            type => 'INT',
+            is_auto_increment => 0,
+            is_primary_key => 1,
+            is_nullable => 0,
+        },
         mac => {
             type => 'VARCHAR',
             is_auto_increment => 0,
@@ -79,9 +93,19 @@ BEGIN {
     );
 
     @PRIMARY_KEYS = qw(
+        tenant_id
         mac
         start_time
     );
+
+    @COLUMN_NAMES = qw(
+        userlog.tenant_id
+        userlog.mac
+        userlog.pid
+        userlog.start_time
+        userlog.end_time
+    );
+
 }
 
 use Class::XSAccessor {
@@ -98,13 +122,13 @@ sub _defaults {
     return {%DEFAULTS};
 }
 
-=head2 field_names
+=head2 table_field_names
 
 Field names of userlog
 
 =cut
 
-sub field_names {
+sub table_field_names {
     return [@FIELD_NAMES];
 }
 
@@ -130,6 +154,16 @@ our $FIND_SQL = do {
     my $where = join(", ", map { "$_ = ?" } @PRIMARY_KEYS);
     "SELECT * FROM `userlog` WHERE $where;";
 };
+
+=head2 find_columns
+
+find_columns
+
+=cut
+
+sub find_columns {
+    return [@COLUMN_NAMES];
+}
 
 =head2 _find_one_sql
 
@@ -170,14 +204,14 @@ Get the meta data for userlog
 sub get_meta {
     return \%FIELDS_META;
 }
- 
+
 =head1 AUTHOR
 
 Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2017 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 

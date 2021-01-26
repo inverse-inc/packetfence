@@ -1,3 +1,17 @@
+// Copyright 2015 Light Code Labs, LLC
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
 package httpserver
 
 import (
@@ -26,6 +40,7 @@ func SetupIfMatcher(controller *caddy.Controller) (RequestMatcher, error) {
 				return matcher, err
 			}
 			matcher.ifs = append(matcher.ifs, ifc)
+			matcher.Enabled = true
 		case "if_op":
 			if !c.NextArg() {
 				return matcher, c.ArgErr()
@@ -48,121 +63,102 @@ const (
 	isOp         = "is"
 	notOp        = "not"
 	hasOp        = "has"
-	notHasOp     = "not_has"
 	startsWithOp = "starts_with"
 	endsWithOp   = "ends_with"
 	matchOp      = "match"
-	notMatchOp   = "not_match"
 )
 
-func operatorError(operator string) error {
-	return fmt.Errorf("Invalid operator %v", operator)
+// ifCondition is a 'if' condition.
+type ifFunc func(a, b string) bool
+
+// ifCond is statement for a IfMatcher condition.
+type ifCond struct {
+	a   string
+	op  string
+	b   string
+	neg bool
+	rex *regexp.Regexp
+	f   ifFunc
 }
 
-// ifCondition is a 'if' condition.
-type ifCondition func(string, string) bool
+// newIfCond creates a new If condition.
+func newIfCond(a, op, b string) (ifCond, error) {
+	i := ifCond{a: a, op: op, b: b}
+	if strings.HasPrefix(op, "not_") {
+		i.neg = true
+		i.op = op[4:]
+	}
 
-var ifConditions = map[string]ifCondition{
-	isOp:         isFunc,
-	notOp:        notFunc,
-	hasOp:        hasFunc,
-	notHasOp:     notHasFunc,
-	startsWithOp: startsWithFunc,
-	endsWithOp:   endsWithFunc,
-	matchOp:      matchFunc,
-	notMatchOp:   notMatchFunc,
+	switch i.op {
+	case isOp:
+		// It checks for equality.
+		i.f = i.isFunc
+	case notOp:
+		// It checks for inequality.
+		i.f = i.notFunc
+	case hasOp:
+		// It checks if b is a substring of a.
+		i.f = strings.Contains
+	case startsWithOp:
+		// It checks if b is a prefix of a.
+		i.f = strings.HasPrefix
+	case endsWithOp:
+		// It checks if b is a suffix of a.
+		i.f = strings.HasSuffix
+	case matchOp:
+		// It does regexp matching of a against pattern in b and returns if they match.
+		var err error
+		if i.rex, err = regexp.Compile(i.b); err != nil {
+			return ifCond{}, fmt.Errorf("Invalid regular expression: '%s', %v", i.b, err)
+		}
+		i.f = i.matchFunc
+	default:
+		return ifCond{}, fmt.Errorf("Invalid operator %v", i.op)
+	}
+
+	return i, nil
 }
 
 // isFunc is condition for Is operator.
-// It checks for equality.
-func isFunc(a, b string) bool {
+func (i ifCond) isFunc(a, b string) bool {
 	return a == b
 }
 
 // notFunc is condition for Not operator.
-// It checks for inequality.
-func notFunc(a, b string) bool {
+func (i ifCond) notFunc(a, b string) bool {
 	return a != b
 }
 
-// hasFunc is condition for Has operator.
-// It checks if b is a substring of a.
-func hasFunc(a, b string) bool {
-	return strings.Contains(a, b)
-}
-
-// notHasFunc is condition for NotHas operator.
-// It checks if b is not a substring of a.
-func notHasFunc(a, b string) bool {
-	return !strings.Contains(a, b)
-}
-
-// startsWithFunc is condition for StartsWith operator.
-// It checks if b is a prefix of a.
-func startsWithFunc(a, b string) bool {
-	return strings.HasPrefix(a, b)
-}
-
-// endsWithFunc is condition for EndsWith operator.
-// It checks if b is a suffix of a.
-func endsWithFunc(a, b string) bool {
-	return strings.HasSuffix(a, b)
-}
-
 // matchFunc is condition for Match operator.
-// It does regexp matching of a against pattern in b
-// and returns if they match.
-func matchFunc(a, b string) bool {
-	matched, _ := regexp.MatchString(b, a)
-	return matched
-}
-
-// notMatchFunc is condition for NotMatch operator.
-// It does regexp matching of a against pattern in b
-// and returns if they do not match.
-func notMatchFunc(a, b string) bool {
-	matched, _ := regexp.MatchString(b, a)
-	return !matched
-}
-
-// ifCond is statement for a IfMatcher condition.
-type ifCond struct {
-	a  string
-	op string
-	b  string
-}
-
-// newIfCond creates a new If condition.
-func newIfCond(a, operator, b string) (ifCond, error) {
-	if _, ok := ifConditions[operator]; !ok {
-		return ifCond{}, operatorError(operator)
-	}
-	return ifCond{
-		a:  a,
-		op: operator,
-		b:  b,
-	}, nil
+func (i ifCond) matchFunc(a, b string) bool {
+	return i.rex.MatchString(a)
 }
 
 // True returns true if the condition is true and false otherwise.
 // If r is not nil, it replaces placeholders before comparison.
 func (i ifCond) True(r *http.Request) bool {
-	if c, ok := ifConditions[i.op]; ok {
+	if i.f != nil {
 		a, b := i.a, i.b
 		if r != nil {
 			replacer := NewReplacer(r, nil, "")
 			a = replacer.Replace(i.a)
-			b = replacer.Replace(i.b)
+			if i.op != matchOp {
+				b = replacer.Replace(i.b)
+			}
 		}
-		return c(a, b)
+		if i.neg {
+			return !i.f(a, b)
+		}
+		return i.f(a, b)
 	}
-	return false
+	return i.neg // false if not negated, true otherwise
 }
 
 // IfMatcher is a RequestMatcher for 'if' conditions.
 type IfMatcher struct {
-	ifs  []ifCond // list of If
-	isOr bool     // if true, conditions are 'or' instead of 'and'
+	Enabled bool     // if true, matcher has been configured; otherwise it's no-op
+	ifs     []ifCond // list of If
+	isOr    bool     // if true, conditions are 'or' instead of 'and'
 }
 
 // Match satisfies RequestMatcher interface.
@@ -195,7 +191,7 @@ func (m IfMatcher) Or(r *http.Request) bool {
 }
 
 // IfMatcherKeyword checks if the next value in the dispenser is a keyword for 'if' config block.
-// If true, remaining arguments in the dispinser are cleard to keep the dispenser valid for use.
+// If true, remaining arguments in the dispenser are cleared to keep the dispenser valid for use.
 func IfMatcherKeyword(c *caddy.Controller) bool {
 	if c.Val() == "if" || c.Val() == "if_op" {
 		// clear remaining args

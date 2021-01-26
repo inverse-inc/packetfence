@@ -95,23 +95,29 @@ configuration.
 =cut
 
 sub status {
-    my ($self) = @_;
+    my ($self, $just_managed) = @_;
     my $logger = get_logger();
     my @services;
-    foreach my $manager (grep { defined($_) && $_->isManaged } map {  pf::services::get_service_manager($_)  } @pf::services::ALL_SERVICES) {
+    foreach my $manager (grep { defined($_) && $_->name ne 'pf'} map {  pf::services::get_service_manager($_)  } @pf::services::ALL_SERVICES) {
+        my $is_managed = $manager->isManaged();
+        if ($just_managed && !$is_managed) {
+            next;
+        }
         my %info = (
             name   => $manager->name,
             status => $manager->status(1),
+            is_managed => $is_managed,
         );
         if ($manager->isa("pf::services::manager::submanager")) {
             foreach my $submanager ($manager->managers) {
-                push @{$info{managers}}, {name => $submanager->name, status => $submanager->status(1)};
+                push @{$info{managers}}, {name => $submanager->name, status => $submanager->status(1), is_managed => $is_managed};
             }
         }
         push @services, \%info;
     }
 
-    return ($STATUS::OK, { services => \@services}) if @services;
+    return ($STATUS::OK, { services => \@services})
+        if @services;
 
     return ($STATUS::INTERNAL_SERVER_ERROR, "Unidentified error see server side logs for details.");
 }
@@ -130,7 +136,7 @@ sub server_status {
     my ($self, $cluster_id) = @_;
     my $server_status;
     eval {
-        ($server_status) = pf::cluster::call_server($cluster_id, 'services_status', ['pf']);
+        ($server_status) = pf::cluster::call_server($cluster_id, 'services_status', [keys(%pf::services::ALL_MANAGERS)]);
     };
     unless($@) {
         my %services_ref = map { $_ => $server_status->{$_} ne '0' } keys %$server_status;
@@ -263,7 +269,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2017 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 
@@ -284,6 +290,6 @@ USA.
 
 =cut
 
-__PACKAGE__->meta->make_immutable;
+__PACKAGE__->meta->make_immutable unless $ENV{"PF_SKIP_MAKE_IMMUTABLE"};
 
 1;

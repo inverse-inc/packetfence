@@ -5,6 +5,16 @@
   max-width: 0;
 }
 
+.cell-centered {
+  text-align: center;
+  vertical-align: middle;
+}
+
+.cell-border-bottom {
+  border-bottom: 1px solid $tableBorder;
+  padding-left: 1em;
+}
+
 // No-border cells
 .table.unbordered {
   td, th {

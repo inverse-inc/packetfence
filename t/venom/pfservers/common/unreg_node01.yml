@@ -1,0 +1,18 @@
+name: Unregister and reevaluate access of node01
+version: 2
+testcases:
+- name: unreg_node01
+  steps:
+  - type: http
+    method: PATCH
+    url: '{{.pfserver_webadmin_url}}/api/v1/node/{{.node01_eth1_mac_address_url_encoded}}'
+    ignore_verify_ssl: true
+    body: >-
+      {
+        "status": "unreg"
+      }
+    headers:
+      "Authorization": "{{.pfserver_token}}"
+      "Content-Type": "application/json"
+    assertions:
+      - result.statuscode ShouldEqual 200

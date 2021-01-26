@@ -1,4 +1,9 @@
+/* -*- Mode: js; indent-tabs-mode: nil; js-indent-level: 4 -*- */
 $(function () {
+    /* Load localized labels */
+    var labels = document.getElementById('labels');
+    window.labels = JSON.parse(labels.textContent || labels.innerHTML);
+
     /* Activate toggle buttons */
     $('body').on(
         {'mouseenter': function(event) {
@@ -247,6 +252,63 @@ function _(key) {
     }
 
     return value;
+}
+
+/* Fixes chosen 'cut-off' when in overflow hidden elements.
+   See https://github.com/harvesthq/chosen/issues/86
+*/
+function fixChosenClipping($chosenSelect) {
+    // Disable mouse scroll if its dropdown is open.
+    $chosenSelect
+        .bind('chosen:showing_dropdown', function() {
+            $(this).next('.chosen-container')
+                .bind("mousewheel", function() {
+                    return false;
+                });
+            $(window).scroll(function() {
+                $chosenSelect.next('.chosen-container').trigger('mouseenter.chosen');
+            });
+        })
+        .bind('chosen:hiding_dropdown', function() {
+            $(this).next('.chosen-container')
+                .unbind('mousewheel');
+            $(this).find('.chosen-drop')
+                .removeClass('fixed')
+                .attr('style', '');
+            $(window).off('scroll');
+        });
+
+    // Reposition the dropdown to fixed, so it's always on top.
+    $chosenSelect.next('.chosen-container')
+        .bind('mouseenter.chosen', function() {
+            var x = $(this).offset().left,
+                y = $(this).offset().top + $(this).height(),
+                w = $(this).width(),
+                $dropdown = $(this).find('.chosen-drop');
+
+            // If the menu is partially visible, don't change
+            // its dropdown to be fixed. This is only needed if your
+            // chosen menu might be clipped by a div or something.
+
+            // Find all the parents that might be clipping off.
+            var parents = $(this).parents().filter(function() {
+                var overflow = $(this).css('overflow');
+                return overflow === 'auto' || overflow === 'hidden' || overflow === 'scroll';
+            });
+
+            // If at least one parent is clipping off the bottom of
+            // the menu, don't proceed any further.
+            for (var i = 0; i < parents.length; i++) {
+                var parentEdge = $(parents[i]).offset().top + $(parents[i]).outerHeight();
+                if (y > parentEdge) {
+                    $dropdown.css({ 'display': 'none' });
+                    return false;
+                }
+            }
+
+            $dropdown.addClass('fixed')
+                .css({ 'top': y - $(document).scrollTop(), 'left': x, 'width': w });
+        });
 }
 
 String.prototype.asCSSIdentifier = function() {

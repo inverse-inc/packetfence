@@ -1,0 +1,13 @@
+@import "../../node_modules/bootstrap/scss/alert";
+
+.alert-info {
+    background-image: linear-gradient(to right, #d1ecf1, #d9eff6, #e0f2f9, #e8f5fc, #eff8ff);
+}
+
+.alert-warning {
+    background-image: linear-gradient(to right, #fdf3d7, #fef5de, #fef8e5, #fffaed, #fffcf4);
+}
+
+.alert-danger {
+    background-image: linear-gradient(to right, #f4aaaa, #f7bab9, #f9c9c9, #fbd8d8, #fce8e8);
+}

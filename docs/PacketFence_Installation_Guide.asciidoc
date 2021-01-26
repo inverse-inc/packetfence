@@ -1,0 +1,155 @@
+= Installation Guide
+////
+
+    This file is part of the PacketFence project.
+
+    See includes/global-attributes.asciidoc for authors, copyright and
+    license information.
+
+////
+include::includes/global-attributes.asciidoc[]
+
+== About this Guide
+
+This guide will walk you through the installation and the day to day administration of the PacketFence solution.
+
+The latest version of this guide is available at https://packetfence.org/documentation/
+
+=== Other sources of information
+
+<<PacketFence_Clustering_Guide.asciidoc#,Clustering Guide>>::
+  Covers installation in a clustered environment.
+<<PacketFence_Developers_Guide.asciidoc#,Developer's Guide>>::
+  Covers API, captive portal customization, application code customizations and
+  instructions for supporting new equipment.
+<<PacketFence_Network_Devices_Configuration_Guide.asciidoc#,Network Devices Configuration Guide>>::
+  Covers switches, WiFi controllers and access points configuration.
+<<PacketFence_Upgrade_Guide.asciidoc#,Upgrade Guide>>::
+  Covers compatibility related changes, manual instructions and general notes
+  about upgrading.
+link:https://packetfence.org/news.html[PacketFence News]
+  Covers noteworthy features, improvements and bug fixes by release.
+
+These files are included in the package and release tarballs.
+
+== Introduction
+
+PacketFence is a fully supported, trusted, Free and Open Source network access control (NAC) system. Boosting an impressive feature set including a captive portal for registration and remediation, centralized wired and wireless management, 802.1X support, layer-2 isolation of problematic devices, integration with IDS, vulnerability scanners and firewalls; PacketFence can be used to effectively secure networks - from small to very large heterogeneous networks. For a more detailed presentation on PacketFence please visit https://packetfence.org.
+
+== System Requirements
+
+include::installation/system_requirements.asciidoc[]
+
+== Installation
+
+include::installation/installation.asciidoc[]
+
+== Getting Started
+
+include::installation/getting_started.asciidoc[]
+
+== Enabling the Captive Portal
+
+include::installation/enabling_the_captive_portal.asciidoc[]
+
+== Authentication Sources
+
+include::installation/authentication_sources.asciidoc[]
+
+== Introduction to Role-based Access Control
+
+include::installation/introduction_to_role_based_access_control.asciidoc[]
+
+== Supported Enforcement Modes
+
+include::installation/enforcement/supported_enforcement_modes.asciidoc[]
+
+== Adding Inline Enforcement to Existing Installation
+
+include::installation/enforcement/inline.asciidoc[]
+
+== Adding VLAN Enforcement to Existing Installation
+
+include::installation/enforcement/out-of-band.asciidoc[]
+
+== Troubleshooting PacketFence
+
+include::installation/troubleshooting_packetfence.asciidoc[]
+
+== Authentication Mechanisms
+
+include::installation/authentication_mechanisms.asciidoc[]
+
+== Advanced Portal Configuration
+
+include::installation/advanced_portal_configuration.asciidoc[]
+
+== Advanced Access Configuration
+
+include::installation/advanced_access_configuration.asciidoc[]
+
+== Advanced RADIUS Configuration
+
+include::installation/advanced_radius_configuration.asciidoc[]
+
+== Fingerbank Integration
+
+include::installation/fingerbank_integration.asciidoc[]
+
+== Network Devices Anomaly Detection
+
+include::installation/network_devices_anomaly_detection.asciidoc[]
+
+== Intrusion Detection System Integration
+
+include::installation/intrusion_detection_system_integration.asciidoc[]
+
+== Firewall SSO Integration
+
+include::installation/firewall_sso_integration.asciidoc[]
+
+== Performing Compliance Checks
+
+include::installation/performing_compliance_checks.asciidoc[]
+
+[[provision]]
+== Integrating Provisioning Agents
+
+include::installation/integrating_provisioning_agents.asciidoc[]
+
+== PKI Integration
+
+include::installation/pki_integration.asciidoc[]
+
+== Best Practices
+
+include::installation/best_practices.asciidoc[]
+
+== Performance Optimizations
+
+include::installation/performance_optimizations.asciidoc[]
+
+== Advanced Network Topics
+
+include::installation/advanced_network_topics.asciidoc[]
+
+== Additional Integration
+
+include::installation/additional_integration.asciidoc[]
+
+== Advanced Topics
+
+include::installation/advanced_topics.asciidoc[]
+
+// INCLUDES
+
+include::includes/additional-info.asciidoc[]
+
+include::includes/commercial-support.asciidoc[]
+
+include::includes/license.asciidoc[]
+== Appendix
+
+include::installation/appendix.asciidoc[]
+
+// vim: set syntax=asciidoc tabstop=2 shiftwidth=2 expandtab:

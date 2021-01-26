@@ -17,7 +17,7 @@ Script to synchronize cluster either as the master node or as a slave node
   To sync the configuration from a master server to this server :
    sync --from=<master-ip> --api-user=<master-api-user> --api-password=<master-api-password>
 
-Add files to /usr/local/pf/conf/cluster-files.txt (one per line) to sync additionnal files during the cluster synchronization.
+Add files to /usr/local/pf/conf/cluster-files.txt (one per line) to sync additional files during the cluster synchronization.
 
 
 =head1 DESCRIPTION
@@ -66,7 +66,7 @@ GetOptions (
     "as-master" => \$as_master,
     "with-fingerbank-db" => \$with_fingerbank_db,
     "file=s" => \$file,
-    "h" => \$help,
+    "help|h" => \$help,
 );
 
 if($help){
@@ -97,7 +97,7 @@ if (-e '/usr/local/pf/conf/cluster-files.txt') {
 }
 
 if($as_master){
-    pf::cluster::increment_config_version();
+    pf::config::cluster::increment_config_version();
     if($file){
         unless($file =~ /^\//){
             get_logger->fatal("File path has to be absolute.");
@@ -129,7 +129,7 @@ if($master_server){
     foreach my $store (@stores) {
         my $cs = $store->new;
         my $config_file = $cs->configFile;
-        push @files, $config_file;
+        push @files, $config_file if $config_file;
     }
 
     push @files, $config_version_file;
@@ -160,7 +160,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2017 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 

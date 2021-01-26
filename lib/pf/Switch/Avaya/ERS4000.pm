@@ -23,8 +23,10 @@ use Net::SNMP;
 
 use base ('pf::Switch::Avaya');
 
-sub supportsRadiusVoip { return $SNMP::TRUE; }
-sub supportsWiredMacAuth { return $SNMP::TRUE; }
+use pf::SwitchSupports qw(
+    RadiusVoip
+    WiredMacAuth
+);
 
 sub description { 'Avaya ERS 4000 Series' }
 
@@ -34,7 +36,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2017 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 

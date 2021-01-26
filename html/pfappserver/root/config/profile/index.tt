@@ -34,12 +34,14 @@
     <thead>
       <tr class="disabled">
         <th class="hidden-phone"></th>
+        <th>[% l('Status') %]</th>
         <th>[% l('Name') %]</th>
         <th>[% l('Description') %]</th>
         <th></th>
       </tr>
-      <tr style="font-weight: normal">
+      <tr>
         <td class="hidden-phone"></td>
+        <td><span class="badge badge-success"><i class="icon"></i></span></td>
         <td><a href="[% c.pf_hash_for(c.controller('Config::Profile').action_for('view'), ['default']) %]">[% l('default') %]</a></td>
         <td>[% l('Default Profile') %]</td>
         <td>
@@ -58,6 +60,7 @@
       [%IF profile_id != 'default' %]
       <tr>
         <td class="sort-handle hidden-phone">[% loop.index + 1 %]</td>
+        <td><span class="badge[% IF profile.field('status').value == 'enabled' %] badge-success[% END %]"><i class="icon"></i></span></td>
         <td>
            [% id_field.render_element | none %] 
             <a href="[% c.pf_hash_for(c.controller('Config::Profile').action_for('view'), [ profile_id ]) %]">[% profile_id | html %]</a>
@@ -65,13 +68,15 @@
         <td>[% profile.field('description').value %]</td>
         <td>
           <div class="text-right">
-            [% IF can_access("CONNECTION_PROFILES_DELETE") %]<a class="btn btn-mini btn-danger call-modal" data-modal="deleteProfile" data-modal-content="[% profile_id | html %]"  href="[% c.uri_for(c.controller('Config::Profile').action_for('remove'), [ profile_id ]) %]">[% l('Delete') %]</a>[% END %] <a class="btn btn-mini" href="/portal_preview/captive-portal?PORTAL=[% profile_id %]" target="_blank">[% l('Preview') %]</a>
+            [% IF can_access("CONNECTION_PROFILES_CREATE") %]<a class="btn btn-mini" data-modal="cloneProfile" data-modal-content="[% profile_id | html %]"  href="[% c.pf_hash_for(c.controller('Config::Profile').action_for('clone'), [ profile_id ]) %]">[% l('Clone') %]</a>[% END %]
+            [% IF can_access("CONNECTION_PROFILES_DELETE") %]<a class="btn btn-mini btn-danger call-modal" data-modal="deleteProfile" data-modal-content="[% profile_id | html %]"  href="[% c.uri_for(c.controller('Config::Profile').action_for('remove'), [ profile_id ]) %]">[% l('Delete') %]</a>[% END %] 
+            <a class="btn btn-mini" href="/portal_preview/captive-portal?PORTAL=[% profile_id %]" target="_blank">[% l('Preview') %]</a>
           </div>
         </td>
       </tr>
       [% END %]
       [% END -%]
-      <tr><td class="hidden-phone"></td><td colspan="3"></td></tr>
+      <tr><td class="hidden-phone"></td><td colspan="4"></td></tr>
     </tbody>
   </table>
 </form>

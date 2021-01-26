@@ -23,6 +23,7 @@ use pf::ConfigStore::Switch;
 use pf::ConfigStore::Profile;
 use pf::ConfigStore::Domain;
 use pf::ConfigStore::Realm;
+use pf::radius_audit_log;
 
 
 BEGIN { extends 'pfappserver::Base::Controller'; }
@@ -51,21 +52,21 @@ sub index :Path :Args(0) :AdminRole('RADIUS_LOG_READ') {
     my ($status, $saved_searches) = $c->model("SavedSearch::RadiusLog")->read_all($id);
     (undef, my $roles) = $c->model('Config::Roles')->listFromDB();
     my $sg = pf::ConfigStore::SwitchGroup->new;
+    my $sw = pf::ConfigStore::Switch->new();
 
     my $switch_groups = [
-    map {
-        local $_ = $_;
+        map {
+            local $_ = $_;
             my $id = $_;
-            {id => $id, members => [$sg->members($id, 'id')]}
-         } @{$sg->readAllIds}];
-    my $switches_list = pf::ConfigStore::Switch->new->readAll("Id");
-    my @switches_filtered = grep { !defined $_->{group} && $_->{Id} !~ /^group(.*)/ && $_->{Id} !~ m/\// && $_->{Id} ne 'default' } @$switches_list;
+            { id => $id, members => [ $sw->membersOfGroup($id) ] }
+        } @{ $sg->readAllIds }
+    ];
     my $switches = [
-    map {
-        local $_ = $_;
-        my $id = $_->{Id};
-        {id => $id}
-        } @switches_filtered];
+        map {
+            local $_ = $_;
+            { $_ => $_ }
+        } @{$sw->readAllIds}
+    ];
     my $sources = getAllAuthenticationSources();
     my $profiles = pf::ConfigStore::Profile->new->readAll("Id");
     my $domains = pf::ConfigStore::Domain->new->readAll("Id");
@@ -189,8 +190,11 @@ sub view :Chained('object') :PathPart('read') :Args(0) :AdminRole('RADIUS_LOG_RE
         radius_fields => \@pf::radius_audit_log::RADIUS_FIELDS,
     });
     for my $field (@pf::radius_audit_log::RADIUS_FIELDS) {
-        $c->stash->{item}{$field} =~ s/=2C /"\n"/ge;
-        $c->stash->{item}{$field} =~ s/=([A-Z0-9]{2})/chr(hex($1))/ge;
+        my $value = $c->stash->{item}{$field};
+        next if !defined $value;
+        $value =~ s/=2C /"\n"/ge;
+        $value =~ s/=([A-Z0-9]{2})/chr(hex($1))/ge;
+        $c->stash->{item}{$field} = $value;
     }
 }
 
@@ -200,7 +204,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2017 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 
@@ -221,6 +225,6 @@ USA.
 
 =cut
 
-__PACKAGE__->meta->make_immutable;
+__PACKAGE__->meta->make_immutable unless $ENV{"PF_SKIP_MAKE_IMMUTABLE"};
 
 1;

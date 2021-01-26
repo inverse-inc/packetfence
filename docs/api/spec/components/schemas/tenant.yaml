@@ -1,0 +1,11 @@
+Tenant:
+  properties:
+    domain_name:
+      type: string
+    id:
+      type: integer
+    name:
+      type: string
+    portal_domain_name:
+      type: string
+  type: object

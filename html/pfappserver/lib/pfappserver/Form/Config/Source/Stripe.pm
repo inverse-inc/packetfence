@@ -20,13 +20,20 @@ use pf::log;
 extends 'pfappserver::Form::Config::Source::Billing';
 with 'pfappserver::Base::Form::Role::Help';
 
+has_field '+currency' => (
+    default => 'USD',
+);
 # Form fields
 has_field 'secret_key' => (
-    type => 'Text'
+    type => 'Text',
+    default => '',
+    required => 1,
 );
 
 has_field 'publishable_key' => (
-    type => 'Text'
+    type => 'Text',
+    default => '',
+    required => 1,
 );
 
 has_field 'style' => (
@@ -49,13 +56,39 @@ has_field 'domains' =>
              help => 'Comma separated list of domains that will be resolve with the correct IP addresses.' },
   );
 
+=head2 currencies
+
+The list of currencies for Stripe
+
+=cut
+
+sub currencies {
+    qw(
+      AED AFN ALL AMD ANG AOA ARS AUD AWG AZN
+      BAM BBD BDT BGN BIF BMD BND BOB BRL BSD
+      BWP BZD CAD CDF CHF CLP CNY COP CRC CVE
+      CZK DJF DKK DOP DZD EGP ETB EUR FJD FKP
+      GBP GEL GIP GMD GNF GTQ GYD HKD HNL HRK
+      HTG HUF IDR ILS INR ISK JMD JPY KES KGS
+      KHR KMF KRW KYD KZT LAK LBP LKR LRD LSL
+      MAD MDL MGA MKD MMK MNT MOP MRO MUR MVR
+      MWK MXN MYR MZN NAD NGN NIO NOK NPR NZD
+      PAB PEN PGK PHP PKR PLN PYG QAR RON RSD
+      RUB RWF SAR SBD SCR SEK SGD SHP SLL SOS
+      SRD STD SVC SZL THB TJS TOP TRY TTD TWD
+      TZS UAH UGX USD UYU UZS VND VUV WST XAF
+      XCD XOF XPF YER ZAR ZMW
+    );
+}
+
+
 =head1 AUTHOR
 
 Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2017 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 

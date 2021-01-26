@@ -1,0 +1,19 @@
+# Copyright (C) Inverse inc.
+### rlm_perl logger ###
+log4perl.rootLogger = INFO, RLM_PERL
+
+### Categories ###
+# Below, you can specify different categories (based on package names) for different logging levels
+#log4perl.category.pf.SNMP = WARN
+
+### Logging for rlm_perl to avoid segfaults
+log4perl.appender.RLM_PERL                              = pf::log::FileAppender
+log4perl.appender.RLM_PERL.filename                     = /usr/local/pf/bin/pflogger-packetfence
+log4perl.appender.RLM_PERL.syswrite                     = 0
+log4perl.appender.RLM_PERL.mode                         = pipe
+log4perl.appender.RLM_PERL.layout                       = PatternLayout
+log4perl.appender.RLM_PERL.layout.ConversionPattern     = %Z%X{proc}(%X{tid}) %p: %m (%M)%n
+log4perl.appender.RLM_PERL.umask                        = 0002
+log4perl.appender.RLM_PERL.user                         = pf
+log4perl.appender.RLM_PERL.group                        = pf
+log4perl.appender.RLM_PERL.binmode                      = utf8

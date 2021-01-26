@@ -2,11 +2,11 @@ package pf::Switch::Fortinet::FortiGate;
 
 =head1 NAME
 
-pf::Switch::Fortinet::FortiGate - Object oriented module to FortiGate using the external captive portal
+pf::Switch::Fortinet::FortiGate - Object oriented module to FortiGate using the external captive portal and VPN
 
 =head1 SYNOPSIS
 
-The pf::Switch::Fortinet::FortiGate  module implements an object oriented interface to interact with the FortiGate captive portal
+The pf::Switch::Fortinet::FortiGate  module implements an object oriented interface to interact with the FortiGate captive portal and with VPN
 
 =head1 STATUS
 
@@ -23,7 +23,7 @@ Not doing deauthentication in web auth
 use strict;
 use warnings;
 use pf::node;
-use pf::violation;
+use pf::security_event;
 use pf::locationlog;
 use pf::util;
 use LWP::UserAgent;
@@ -31,6 +31,8 @@ use HTTP::Request::Common;
 use pf::log;
 use pf::constants;
 use pf::accounting qw(node_accounting_dynauth_attr);
+use pf::config qw ($WEBAUTH_WIRELESS);
+use pf::constants::role qw($REJECT_ROLE);
 
 use base ('pf::Switch::Fortinet');
 
@@ -40,11 +42,14 @@ use base ('pf::Switch::Fortinet');
 
 sub description { 'FortiGate Firewall with web auth + 802.1X' }
 
-sub supportsExternalPortal { return $TRUE; }
-sub supportsWebFormRegistration { return $TRUE }
-sub supportsWirelessMacAuth { return $TRUE; }
-sub supportsWiredMacAuth { return $TRUE; }
-sub supportsWirelessDot1x { return $TRUE; }
+use pf::SwitchSupports qw(
+    ExternalPortal
+    WebFormRegistration
+    WirelessMacAuth
+    WiredMacAuth
+    WirelessDot1x
+    VPN
+);
 
 =item getIfIndexByNasPortId
 
@@ -78,6 +83,7 @@ sub parseExternalPortalRequest {
         grant_url               => $req->param('post'),
         status_code             => '200',
         synchronize_locationlog => $TRUE,
+        connection_type         => $WEBAUTH_WIRELESS,
     );
 
     return \%params;
@@ -107,18 +113,12 @@ sub returnRadiusAccessAccept {
     my $rule = $filter->test('returnRadiusAccessAccept', $args);
 
     if ( $self->externalPortalEnforcement ) {
-        my $violation = pf::violation::violation_view_top($args->{'mac'});
-        # if user is unregistered or is in violation then we reject him to show him the captive portal
-        if ( $node->{status} eq $pf::node::STATUS_UNREGISTERED || defined($violation) ){
+        my $security_event = pf::security_event::security_event_view_top($args->{'mac'});
+        # if user is unregistered or is in security_event then we reject him to show him the captive portal
+        if ( $node->{status} eq $pf::node::STATUS_UNREGISTERED || defined($security_event) ){
             $logger->info("[$args->{'mac'}] is unregistered. Refusing access to force the eCWP");
-            my $radius_reply_ref = {
-                'Tunnel-Medium-Type' => $RADIUS::ETHERNET,
-                'Tunnel-Type' => $RADIUS::VLAN,
-                'Tunnel-Private-Group-ID' => -1,
-            };
-            ($radius_reply_ref, $status) = $filter->handleAnswerInRule($rule,$args,$radius_reply_ref);
-            return [$status, %$radius_reply_ref];
-
+            $args->{user_role} = $REJECT_ROLE;
+            $self->handleRadiusDeny();
         }
         else{
             $logger->info("Returning ACCEPT");
@@ -146,15 +146,13 @@ sub getAcceptForm {
     my $post = $cgi_session->param("ecwp-original-param-post");
 
     my $html_form = qq[
-        <form name="weblogin_form" method="POST" action="$post">
+        <form name="weblogin_form" data-autosubmit="1000" method="POST" action="$post">
             <input type="hidden" name="username" value="$mac">
             <input type="hidden" name="password" value="$mac">
             <input type="hidden" name="magic" value="$magic">
             <input type="submit" style="display:none;">
         </form>
-        <script language="JavaScript" type="text/javascript">
-        window.setTimeout('document.weblogin_form.submit();', 1000);
-        </script>
+        <script src="/content/autosubmit.js" type="text/javascript"></script>
     ];
 
     $logger->debug("Generated the following html form : ".$html_form);
@@ -196,6 +194,77 @@ sub getVersion {
     return 0;
 }
 
+=item identifyConnectionType
+
+Determine Connection Type based on radius attributes
+
+=cut
+
+
+sub identifyConnectionType {
+    my ( $self, $connection, $radius_request ) = @_;
+    my $logger = $self->logger;
+
+    my @require = qw(Fortinet-Vdom-Name);
+    my @found = grep {exists $radius_request->{$_}} @require;
+
+    if (@require == @found) {
+        $connection->isVPN($TRUE);
+        $connection->isCLI($FALSE);
+    } else {
+        $connection->isVPN($FALSE);
+    }
+}
+
+
+=item returnAuthorizeVPN
+
+Return radius attributes to allow VPN access
+
+=cut
+
+sub returnAuthorizeVPN {
+    my ($self, $args) = @_;
+    my $logger = $self->logger;
+
+
+    my $radius_reply_ref = {};
+    my $status;
+    # should this node be kicked out?
+    my $kick = $self->handleRadiusDeny($args);
+    return $kick if (defined($kick));
+
+    my $node = $args->{'node_info'};
+    my $filter = pf::access_filter::radius->new;
+    my $rule = $filter->test('returnRadiusAccessAccept', $args);
+    $logger->info("Returning ACCEPT");
+    ($radius_reply_ref, $status) = $filter->handleAnswerInRule($rule,$args,$radius_reply_ref);
+    return [$status, %$radius_reply_ref];
+}
+
+=item parseVPNRequest
+
+Redefinition of pf::Switch::parseVPNRequest due to specific attribute being used
+
+=cut
+
+sub parseVPNRequest {
+    my ( $self, $radius_request ) = @_;
+    my $logger = $self->logger;
+
+    my $client_ip       = ref($radius_request->{'Calling-Station-Id'}) eq 'ARRAY'
+                           ? clean_ip($radius_request->{'Calling-Station-Id'}[0])
+                           : clean_ip($radius_request->{'Calling-Station-Id'});
+
+    my $user_name       = $self->parseRequestUsername($radius_request);
+    my $nas_port_type   = $radius_request->{'NAS-Port-Type'};
+    my $port            = $radius_request->{'NAS-Port'};
+    my $eap_type        = ( exists($radius_request->{'EAP-Type'}) ? $radius_request->{'EAP-Type'} : 0 );
+    my $nas_port_id     = ( defined($radius_request->{'NAS-Port-Id'}) ? $radius_request->{'NAS-Port-Id'} : undef );
+
+    return ($nas_port_type, $eap_type, undef, $port, $user_name, $nas_port_id, undef, $nas_port_id);
+}
+
 
 =head1 AUTHOR
 
@@ -203,7 +272,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2017 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 

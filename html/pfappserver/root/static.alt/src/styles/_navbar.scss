@@ -1,0 +1,22 @@
+@import "../../node_modules/bootstrap/scss/navbar";
+
+.navbar {
+  z-index: $zindex-modal-backdrop !important;
+}
+
+.navbar-toggler {
+    border-width: 0;
+}
+
+.navbar-brand img {
+    height: $nav-link-height;
+}
+
+.navbar .navbar-nav > .nav-item,
+.pf-sidenav-group {
+    font-weight: 600;
+}
+
+.alert-danger.navbar-dark .navbar-nav .nav-link {
+    color: $danger;
+}

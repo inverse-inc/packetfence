@@ -21,17 +21,23 @@ use warnings;
 ### pf::dal::_radius_audit_log is auto generated any change to this file will be lost
 ### Instead change in the pf::dal::radius_audit_log module
 ###
+
 use base qw(pf::dal);
+
+use Role::Tiny::With;
+with qw(pf::dal::roles::has_tenant_id);
 
 our @FIELD_NAMES;
 our @INSERTABLE_FIELDS;
 our @PRIMARY_KEYS;
 our %DEFAULTS;
 our %FIELDS_META;
+our @COLUMN_NAMES;
 
 BEGIN {
     @FIELD_NAMES = qw(
         id
+        tenant_id
         created_at
         mac
         ip
@@ -69,9 +75,11 @@ BEGIN {
         radius_request
         radius_reply
         request_time
+        radius_ip
     );
 
     %DEFAULTS = (
+        tenant_id => '1',
         mac => '',
         ip => undef,
         computer_name => undef,
@@ -108,9 +116,11 @@ BEGIN {
         radius_request => undef,
         radius_reply => undef,
         request_time => undef,
+        radius_ip => undef,
     );
 
     @INSERTABLE_FIELDS = qw(
+        tenant_id
         mac
         ip
         computer_name
@@ -147,6 +157,7 @@ BEGIN {
         radius_request
         radius_reply
         request_time
+        radius_ip
     );
 
     %FIELDS_META = (
@@ -154,6 +165,12 @@ BEGIN {
             type => 'INT',
             is_auto_increment => 1,
             is_primary_key => 1,
+            is_nullable => 0,
+        },
+        tenant_id => {
+            type => 'INT',
+            is_auto_increment => 0,
+            is_primary_key => 0,
             is_nullable => 0,
         },
         created_at => {
@@ -378,11 +395,61 @@ BEGIN {
             is_primary_key => 0,
             is_nullable => 1,
         },
+        radius_ip => {
+            type => 'VARCHAR',
+            is_auto_increment => 0,
+            is_primary_key => 0,
+            is_nullable => 1,
+        },
     );
 
     @PRIMARY_KEYS = qw(
         id
     );
+
+    @COLUMN_NAMES = qw(
+        radius_audit_log.id
+        radius_audit_log.tenant_id
+        radius_audit_log.created_at
+        radius_audit_log.mac
+        radius_audit_log.ip
+        radius_audit_log.computer_name
+        radius_audit_log.user_name
+        radius_audit_log.stripped_user_name
+        radius_audit_log.realm
+        radius_audit_log.event_type
+        radius_audit_log.switch_id
+        radius_audit_log.switch_mac
+        radius_audit_log.switch_ip_address
+        radius_audit_log.radius_source_ip_address
+        radius_audit_log.called_station_id
+        radius_audit_log.calling_station_id
+        radius_audit_log.nas_port_type
+        radius_audit_log.ssid
+        radius_audit_log.nas_port_id
+        radius_audit_log.ifindex
+        radius_audit_log.nas_port
+        radius_audit_log.connection_type
+        radius_audit_log.nas_ip_address
+        radius_audit_log.nas_identifier
+        radius_audit_log.auth_status
+        radius_audit_log.reason
+        radius_audit_log.auth_type
+        radius_audit_log.eap_type
+        radius_audit_log.role
+        radius_audit_log.node_status
+        radius_audit_log.profile
+        radius_audit_log.source
+        radius_audit_log.auto_reg
+        radius_audit_log.is_phone
+        radius_audit_log.pf_domain
+        radius_audit_log.uuid
+        radius_audit_log.radius_request
+        radius_audit_log.radius_reply
+        radius_audit_log.request_time
+        radius_audit_log.radius_ip
+    );
+
 }
 
 use Class::XSAccessor {
@@ -399,13 +466,13 @@ sub _defaults {
     return {%DEFAULTS};
 }
 
-=head2 field_names
+=head2 table_field_names
 
 Field names of radius_audit_log
 
 =cut
 
-sub field_names {
+sub table_field_names {
     return [@FIELD_NAMES];
 }
 
@@ -431,6 +498,16 @@ our $FIND_SQL = do {
     my $where = join(", ", map { "$_ = ?" } @PRIMARY_KEYS);
     "SELECT * FROM `radius_audit_log` WHERE $where;";
 };
+
+=head2 find_columns
+
+find_columns
+
+=cut
+
+sub find_columns {
+    return [@COLUMN_NAMES];
+}
 
 =head2 _find_one_sql
 
@@ -471,14 +548,14 @@ Get the meta data for radius_audit_log
 sub get_meta {
     return \%FIELDS_META;
 }
- 
+
 =head1 AUTHOR
 
 Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2017 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 

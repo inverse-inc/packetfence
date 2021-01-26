@@ -176,12 +176,6 @@ has_field 'nickname' =>
    label => 'nickname',
   );
 
-has_field 'organization' =>
-  (
-   type => 'Text',
-   label => 'organization',
-  );
-
 has_field 'cell_phone' =>
   (
    type => 'Text',
@@ -272,6 +266,15 @@ has_field 'custom_field_9' =>
    label => 'custom_field_9',
   );
 
+has_field 'psk' =>
+  (
+   type => 'Text',
+   Label => 'PSK key',
+   minlength => 8,
+   tags => { after_element => \&help,
+         help => 'Minimum of 8 characters.' },
+  );
+
 =head2 Blocks
 
 =over
@@ -289,7 +292,7 @@ has_block 'user' =>
 
 has_block 'miscellaneous' =>
   (
-   render_list => [qw(anniversary birthday gender lang nickname organization cell_phone work_phone title building_number apartment_number room_number)]
+   render_list => [qw(anniversary birthday gender lang nickname cell_phone work_phone title building_number apartment_number room_number psk)]
   );
 
 has_block 'custom_fields' =>
@@ -343,7 +346,7 @@ sub update_fields {
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2017 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 
@@ -364,5 +367,5 @@ USA.
 
 =cut
 
-__PACKAGE__->meta->make_immutable;
+__PACKAGE__->meta->make_immutable unless $ENV{"PF_SKIP_MAKE_IMMUTABLE"};
 1;

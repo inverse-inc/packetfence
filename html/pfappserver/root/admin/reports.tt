@@ -24,13 +24,21 @@
               <li class="nav-header">[% l('Nodes') %]</li>
               [% list_entry('graph/nodes', 'Nodes States') | none %]
               [% list_entry('graph/os', 'Operating Systems') | none %]
-              [% list_entry('graph/violations', 'Violations') | none %]
+              [% list_entry('graph/security_events', 'Security Events') | none %]
               <li class="nav-header">[% l('Connections') %]</li>
               [% list_entry('graph/connectiontype', 'Types') | none %]
               [% list_entry('graph/ssid','SSIDs') | none %]
               <li class="nav-header">[% l('ACCOUNTING') %]</li>
               [% list_entry('graph/nodebandwidth', 'Top 25 Bandwidth Consumers') | none %]
               [% list_entry('graph/osclassbandwidth', 'Bandwidth per Operating System') | none %]
+              <li class="nav-header">[% l('Authentication') %]</li>
+              [% list_entry('graph/topauthenticationfailures_by_mac', 'Top 25 Failures by MAC') | none %]
+              [% list_entry('graph/topauthenticationfailures_by_ssid', 'Top 25 Failures by SSID') | none %]
+              [% list_entry('graph/topauthenticationfailures_by_username', 'Top 25 Failures by Username') | none %]
+              [% list_entry('graph/topauthenticationsuccesses_by_mac', 'Top 25 Successes by MAC') | none %]
+              [% list_entry('graph/topauthenticationsuccesses_by_ssid', 'Top 25 Successes by SSID') | none %]
+              [% list_entry('graph/topauthenticationsuccesses_by_username', 'Top 25 Successes by Username') | none %]
+              [% list_entry('graph/topauthenticationsuccesses_by_computername', 'Top 25 Successes by Computername') | none %]
               <li class="nav-header">[% l('Other reports') %]</li>
               [% FOREACH report_id IN builtin_report_ids %]
               [% list_entry('dynamicreport/' _ report_id, dynamic_reports.$report_id.description) | none %]

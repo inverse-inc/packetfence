@@ -5,6 +5,7 @@ use namespace::autoclean;
 use pf::constants;
 use pf::constants::eap_type qw($EAP_TLS);
 use pf::constants::Connection::Profile qw($DEFAULT_PROFILE);
+use pf::constants::realm;
 use pf::config qw(%Profiles_Config);;
 use pf::web qw(i18n i18n_format);
 use pf::node;
@@ -17,7 +18,7 @@ use HTML::Entities;
 use List::MoreUtils qw(any uniq all);
 use pf::config;
 use pf::auth_log;
-use pf::person qw(person_modify person_exist person_add);
+use pf::person;
 use Email::Valid;
 
 BEGIN { extends 'captiveportal::Base::Controller'; }
@@ -56,6 +57,7 @@ sub setupMatchParams : Private {
     if ($locationlog_entry) {
         $params->{connection_type} = $locationlog_entry->{'connection_type'};
         $params->{SSID}            = $locationlog_entry->{'ssid'};
+        $params->{realm}           = $locationlog_entry->{'realm'};
     }
     $c->stash->{matchParams} = $params;
 }
@@ -80,21 +82,22 @@ sub authenticationLogin : Private {
     $logger->debug("authentication attempt");
 
     if ($request->{'match'} eq "status/login") {
-        use pf::person;
         my $person_info = pf::person::person_view($request->param("username"));
-        my $source = pf::authentication::getAuthenticationSource($person_info->{source});
-        if (defined($source) && $source->{'class'} eq 'external') {
-            # Source is external, we have to use local source to authenticate
-            $c->stash( use_local_source => 1 );
+        if($person_info) {
+            my $source = pf::authentication::getAuthenticationSource($person_info->{source});
+            if (defined($source) && $source->{'class'} eq 'external') {
+                # Source is external, we have to use local source to authenticate
+                $c->stash( use_local_source => 1 );
+            }
+            my $portal = $person_info->{portal};
+            unless (defined $portal && length($portal) && exists $Profiles_Config{$portal}) {
+                $portal = $DEFAULT_PROFILE;
+            }
+            my $options = {
+                portal => $portal,
+            };
+            $profile = pf::Connection::ProfileFactory->instantiate( $mac, $options);
         }
-        my $portal = $person_info->{portal};
-        unless (defined $portal && length($portal) && exists $Profiles_Config{$portal}) {
-            $portal = $DEFAULT_PROFILE;
-        }
-        my $options = {
-            portal => $portal,
-        };
-        $profile = pf::Connection::ProfileFactory->instantiate( $mac, $options);
     }
     $c->stash( profile => $profile );
 
@@ -103,44 +106,31 @@ sub authenticationLogin : Private {
     my ($stripped_username, $realm) = strip_username($username);
     my $password = $request->param("password");
 
-    my @sources = $self->getSources($c, $username, $realm);
+    my $sources = $self->getSources($c, $username, $realm);
 
-    # If all sources use the stripped username, we strip it
-    # Otherwise, we leave it as is
-    my $use_stripped = all { isenabled($_->{stripped_user_name}) } @sources;
-    if($use_stripped){
-        $username = $stripped_username;
-    }
-
-    if(isenabled($profile->reuseDot1xCredentials)) {
-        my $mac       = $portalSession->clientMac;
-        my $node_info = node_view($mac);
-        my $username = $node_info->{'last_dot1x_username'};
-        if ($username =~ /^(.*)@/ || $username =~ /^[^\/]+\/(.*)$/ ) {
-            $username = $1;
+    # validate login and password
+    ( $return, $message, $source_id, $extra ) =
+      pf::authentication::authenticate( {
+              'username' => $username, 
+              'password' => $password, 
+              'rule_class' => $Rules::AUTH,
+              'context' => $pf::constants::realm::PORTAL_CONTEXT,
+          }, @{$sources} );
+    if ( defined($return) && $return == 1 ) {
+        pf::auth_log::record_auth($source_id, $portalSession->clientMac, $username, $pf::auth_log::COMPLETED, $profile->name);
+        # save login into session
+        $c->user_session->{username} = $username // $default_pid;
+        $c->user_session->{source_id} = $source_id;
+        $c->user_session->{source_match} = $source_id;
+        $c->user_session->{extra} = $extra;
+        if(!person_exist($username)){
+            person_add($username);
         }
-        $c->user_session->{username} = $username;
-        $c->user_session->{source_id} = $sources[0]->id;
-        $c->user_session->{source_match} = \@sources;
+        # Logging USER/IP/MAC of the just-authenticated user
+        $logger->info("Successfully authenticated ".$username."/".$portalSession->clientIP->normalizedIP."/".$portalSession->clientMac);
     } else {
-        # validate login and password
-        ( $return, $message, $source_id, $extra ) =
-          pf::authentication::authenticate( { 'username' => $username, 'password' => $password, 'rule_class' => $Rules::AUTH }, @sources );
-        if ( defined($return) && $return == 1 ) {
-            pf::auth_log::record_auth($source_id, $portalSession->clientMac, $username, $pf::auth_log::COMPLETED);
-            # save login into session
-            $c->user_session->{username} = $username // $default_pid;
-            $c->user_session->{source_id} = $source_id;
-            $c->user_session->{source_match} = $source_id;
-            if(!person_exist($username)){
-                person_add($username);
-            }
-            # Logging USER/IP/MAC of the just-authenticated user
-            $logger->info("Successfully authenticated ".$username."/".$portalSession->clientIP->normalizedIP."/".$portalSession->clientMac);
-        } else {
-            pf::auth_log::record_auth(join(',',map { $_->id } @sources), $portalSession->clientMac, $username, $pf::auth_log::FAILED);
-            $c->error($message);
-        }
+        pf::auth_log::record_auth(join(',',map { $_->id } @{$sources}), $portalSession->clientMac, $username, $pf::auth_log::FAILED, $profile->name);
+        $c->error($message);
     }
 }
 
@@ -168,15 +158,12 @@ sub getSources : Private {
         }
     }
 
-    my $realm_source = get_realm_authentication_source($stripped_username, $realm);
-    if( $realm_source && any { $_ eq $realm_source} @sources ){
+    my $realm_source = get_realm_authentication_source($stripped_username, $realm, \@sources);
+    if (ref($realm_source) eq 'ARRAY') {
         $c->log->info("Realm source is part of the connection profile sources. Using it as the only auth source.");
         return ($realm_source);
     }
-    elsif ( $realm_source ) {
-        $c->log->info("Realm source ".$realm_source->id." is configured in the realm $realm but is not in the connection profile. Ignoring it and using the connection profile sources.");
-    }
-    return @sources;
+    return \@sources;
 }
 
 sub _clean_username {
@@ -196,7 +183,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2017 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 
@@ -217,6 +204,6 @@ USA.
 
 =cut
 
-__PACKAGE__->meta->make_immutable;
+__PACKAGE__->meta->make_immutable unless $ENV{"PF_SKIP_MAKE_IMMUTABLE"};
 
 1;

@@ -59,8 +59,64 @@ if(!$activate && !$deactivate) {
 }
 elsif($activate) {
     pf::cluster::activate_maintenance();
+    if(system("systemctl cat monit > /dev/null 2>&1") == 0) {
+        print "==========\nStopping and disabling Monit...\n";
+        do_command("systemctl stop monit");
+        do_command("systemctl disable monit");
+    }
+
+    print "==========\nStopping PacketFence...\n";
+    do_command("/usr/local/pf/bin/pfcmd service pf stop");
+    
+    print "==========\nStopping PacketFence MariaDB...\n";
+    do_command("systemctl stop packetfence-mariadb");
+
+    print "==========\nSetting default target to multi-user\n";
+    do_command("systemctl set-default multi-user.target");
+
+    print "==========\nNode has been put into maintenance mode...\n";
+
+    exit 0;
 }
 elsif($deactivate) {
     pf::cluster::deactivate_maintenance();
+    
+    print "==========\nStarting PacketFence Redis Cache...\n";
+    do_command("systemctl start packetfence-redis-cache");
+
+    print "==========\nStarting PacketFence MariaDB...\n";
+    do_command("systemctl start packetfence-mariadb");
+
+    print "==========\nStarting PacketFence...\n";
+    do_command("/usr/local/pf/bin/pfcmd service pf start");
+    
+    if(system("systemctl cat monit > /dev/null 2>&1") == 0) {
+        print "==========\nStarting and enabling Monit...\n";
+        do_command("systemctl start monit");
+        do_command("systemctl enable monit");
+    }
+
+    print "==========\nSetting default target to packetfence-cluster\n";
+    do_command("systemctl set-default packetfence-cluster.target");
+
+    print "==========\nNode has been put out of the maintenance mode...\n";
+
 }
 
+=head2 do_command
+
+Perform a command and output an error as well as exit if it fails
+
+=cut
+
+sub do_command {
+    my ($command) = @_;
+    my $ret = system($command);
+
+    if($ret != 0) {
+        print "=========\nFailed to execute $command\n==========\n";
+        exit 1;
+    }
+    
+    return 1;
+}

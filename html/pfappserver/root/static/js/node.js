@@ -45,9 +45,9 @@ var NodeView = function(options) {
 
     var read = $.proxy(this.readNode, this);
     var body = $('body');
-    options.parent.on('click', '#nodes [href*="node"][href$="/read"]', read);
+    options.parent.on('click', '[href*="node"][href*="/read"]', read);
 
-    this.proxyClick(body, '.node [href*="node"][href$="/read"]', this.readNode);
+    this.proxyClick(body, '.node [href*="node"][href*="/read"]', this.readNode);
 
     this.proxyFor(body, 'show', '#modalNode', this.showNode);
 
@@ -59,7 +59,11 @@ var NodeView = function(options) {
 
     this.proxyFor(body, 'change', 'form[name="simpleNodeSearch"] [name$=".op"]', this.changeOpField);
 
+    this.proxyFor(body, 'click', '#simpleNodeSearchResetBtn', this.resetSimpleSearch);
+
     this.proxyFor(body, 'submit', 'form[name="advancedNodeSearch"]', this.submitSearch);
+
+    this.proxyFor(body, 'click', '#advancedNodeSearchResetBtn', this.resetAdvancedSearch);
 
     this.proxyFor(body, 'change', 'form[name="advancedNodeSearch"] [name$=".name"]', this.changeSearchField);
 
@@ -67,23 +71,27 @@ var NodeView = function(options) {
 
     this.proxyFor(body, 'submit', '#modalNode form[name="modalNode"]', this.updateNode);
 
-    this.proxyClick(body, '#modalNode [href$="/delete"]', this.deleteNode);
+    this.proxyClick(body, '#modalNode [href*="node"][href8="/delete"]', this.deleteNode);
 
-    this.proxyFor(body, 'show', 'a[data-toggle="tab"][href="#nodeViolations"]', this.loadTab);
+    this.proxyFor(body, 'show', 'a[data-toggle="tab"][href="#nodeSecurityEvents"]', this.loadTab);
 
     this.proxyFor(body, 'show', 'a[data-toggle="tab"][href="#nodeAdditionalTabView"]', this.loadTab);
 
     this.proxyFor(body, 'click', '[data-href*="/node"][data-href*="/tab_process"]', this.tabProcess);
 
-    this.proxyClick(body, '#modalNode [href*="/close/"]', this.closeViolation);
+    this.proxyClick(body, '#modalNode [href*="/close/"]', this.closeSecurityEvent);
 
-    this.proxyClick(body, '#modalNode [href*="/run/"]', this.runViolation);
+    this.proxyClick(body, '#modalNode [href*="/run/"]', this.runSecurityEvent);
 
     this.proxyClick(body, '#modalNode #reevaluateNode', this.reevaluateAccess);
     
+    this.proxyClick(body, '#modalNode #refreshFingerbankDeviceNode', this.refreshFingerbankDevice);
+    
     this.proxyClick(body, '#modalNode #restartSwitchport', this.restartSwitchport);
 
-    this.proxyClick(body, '#modalNode #addViolation', this.triggerViolation);
+    this.proxyClick(body, '#modalNode #addSecurityEvent', this.triggerSecurityEvent);
+    
+    this.proxyClick(body, '#modalNode #runRapid7Scan', this.runRapid7Scan);
 
     /* Update the advanced search form to the next page or sort the query */
     this.proxyClick(body, '.nodes .pagination a', this.searchPagination);
@@ -145,6 +153,15 @@ NodeView.prototype.readNode = function(e) {
         success: function(data) {
             $('body').append(data);
             var modal = $("#modalNode");
+            /* Ability to track submitted button (multihost feature) */
+            modal.find("form button[type=submit]").click(function() {
+                $(this, $(this).parents("form")).removeAttr("clicked");
+                $(this).attr("clicked", "true");
+            });
+            modal.on('hidden', function () {
+                modal.remove();
+                $("#modalNode").remove();
+            });
             modal.modal({ show: true });
         },
         errorSibling: section.find('h2').first()
@@ -350,13 +367,13 @@ NodeView.prototype.deleteNode = function(e) {
     });
 };
 
-NodeView.prototype.closeViolation = function(e) {
+NodeView.prototype.closeSecurityEvent = function(e) {
     e.preventDefault();
 
     var that = this;
     var btn = $(e.target);
     var row = btn.closest('tr');
-    var pane = $('#nodeViolations');
+    var pane = $('#nodeSecurityEvents');
     resetAlert(pane);
     this.nodes.get({
         url: btn.attr("href"),
@@ -369,13 +386,13 @@ NodeView.prototype.closeViolation = function(e) {
     });
 };
 
-NodeView.prototype.runViolation = function(e) {
+NodeView.prototype.runSecurityEvent = function(e) {
     e.preventDefault();
 
     var that = this;
     var btn = $(e.target);
     var row = btn.closest('tr');
-    var pane = $('#nodeViolations');
+    var pane = $('#nodeSecurityEvents');
     resetAlert(pane);
     this.nodes.get({
         url: btn.attr("href"),
@@ -388,18 +405,18 @@ NodeView.prototype.runViolation = function(e) {
     });
 };
 
-NodeView.prototype.triggerViolation = function(e) {
+NodeView.prototype.triggerSecurityEvent = function(e) {
     e.preventDefault();
 
     var modal = $('#modalNode');
     var modal_body = modal.find('.modal-body');
     var btn = $(e.target);
-    var href = btn.attr('href');
-    var vid = modal.find('#vid').val();
-    var pane = $('#nodeViolations');
+    var option = modal.find('#security_event_id').find(':selected');
+    var href = option.attr("trigger_url");
+    var pane = $('#nodeSecurityEvents');
     resetAlert(pane);
     this.nodes.get({
-        url: [href, vid].join('/'),
+        url: href,
         success: function(data) {
             pane.html(data);
             pane.find('.switch').bootstrapSwitch();
@@ -408,7 +425,42 @@ NodeView.prototype.triggerViolation = function(e) {
     });
 };
 
+NodeView.prototype.runRapid7Scan = function(e) {
+    e.preventDefault();
+
+    var modal = $('#modalNode');
+    var modal_body = modal.find('.modal-body');
+    var btn = $(e.target);
+    var option = modal.find('#rapid7ScanTemplateSelection').find(':selected');
+    var href = option.attr("trigger_url");
+    var pane = $('#runRapid7Scan').closest('div');
+    resetAlert(pane);
+    this.nodes.get({
+        url: href,
+        success: function(data) {
+            showSuccess(pane, data.status_msg);
+        },
+        errorSibling: pane.children().first()
+    });
+};
+
 NodeView.prototype.reevaluateAccess = function(e){
+    e.preventDefault();
+    
+    var modal = $('#modalNode');
+    var modal_body = modal.find('.modal-body');
+    var link = $(e.target);
+    var url = link.attr('href');
+    this.nodes.get({
+        url: url,
+        success: function(data) {
+            showSuccess(modal_body.children().first(), data.status_msg);
+        },
+        errorSibling: modal_body.children().first()
+    });
+}
+
+NodeView.prototype.refreshFingerbankDevice = function(e){
     e.preventDefault();
     
     var modal = $('#modalNode');
@@ -726,3 +778,17 @@ NodeView.prototype.searchSwitch = function(query, process) {
         }
     });
 }
+
+NodeView.prototype.resetAdvancedSearch = function(e) {
+    var form = $('form[name="advancedNodeSearch"]');
+    form.find('#advancedSearchConditions').find('tbody').children(':not(.hidden)').find('[href="#delete"]').click();
+    form.find('#advancedSearchConditionsEmpty [href="#add"]').click();
+    form[0].reset();
+    form.submit();
+};
+
+NodeView.prototype.resetSimpleSearch = function(e) {
+    var form = $('#simpleNodeSearch');
+    form[0].reset();
+    form.submit();
+};

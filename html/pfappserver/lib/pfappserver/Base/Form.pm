@@ -16,19 +16,20 @@ The Base class for Forms
 use HTML::FormHandler::Moose;
 extends 'HTML::FormHandler';
 with 'HTML::FormHandler::Widget::Theme::Bootstrap';
+use pf::I18N::pfappserver;
 
 has '+field_name_space' => ( default => 'pfappserver::Form::Field' );
 has '+widget_name_space' => ( default => 'pfappserver::Form::Widget' );
-has '+language_handle' => ( builder => 'get_language_handle_from_ctx' );
+has '+language_handle' => ( builder => '_build_language_handler', lazy => 1 );
+has languages => ( is => 'rw', default => sub { [] });
 
-=head2 get_language_handle_from_ctx
+=head2 _build_language_handler
 
 =cut
 
-sub get_language_handle_from_ctx {
+sub _build_language_handler {
     my $self = shift;
-
-    return pfappserver::I18N->get_handle( @{ $self->ctx->languages } );
+    return pf::I18N::pfappserver->get_handle( @{ $self->languages // [] } );
 }
 
 =head2 html_attributes
@@ -63,6 +64,11 @@ sub build_update_subfields {{
        {
         element_class => ['input-mini'],
         element_attr => {'min' => '0'},
+       },
+       'PSKLength' =>
+       {
+        element_class => ['input-mini'],
+        element_attr => {'min' => '8'},
        },
        'TextArea' =>
        {
@@ -107,7 +113,7 @@ sub update_field {
         $field->set_element_attr('data-required' => 'required');
         $field->tags->{label_after} = ' <i class="icon-required"></i>';
     }
-    if ($field->type eq 'PosInteger') {
+    if ($field->type eq 'PosInteger' || $field->type eq 'PSKLength') {
         $field->type_attr($field->html5_type_attr);
         $field->set_element_attr('data-type' => 'number');
     }
@@ -153,7 +159,7 @@ To automatically add the context to the Form
 
 sub ACCEPT_CONTEXT {
     my ($self, $c, @args) = @_;
-    return $self->new(ctx => $c, @args);
+    return $self->new(ctx => $c, languages => $c->languages, @args);
 }
 
 =head2 id_validator
@@ -171,10 +177,23 @@ sub id_validator {
    };   
 }
 
+=head2 id_pattern
+
+id_pattern
+
+=cut
+
+sub id_pattern {
+    return {
+        regex => "^[a-zA-Z0-9][a-zA-Z0-9\._-]*\$",
+        message =>
+            "The id is invalid. The id can only contain alphanumeric characters, dashes, period and underscores."
+    };
+}
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2017 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 
@@ -195,7 +214,6 @@ USA.
 
 =cut
 
-__PACKAGE__->meta->make_immutable;
+__PACKAGE__->meta->make_immutable unless $ENV{"PF_SKIP_MAKE_IMMUTABLE"};
 
 1;
-

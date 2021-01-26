@@ -20,6 +20,12 @@ use pf::log;
 use pf::constants;
 use fingerbank::Constant;
 
+use pf::util;
+use pf::person;
+use pf::password;
+
+use Crypt::GeneratePassword qw(word);
+
 use Moo;
 extends 'pf::provisioner';
 
@@ -65,6 +71,30 @@ Passphrase if no eap/not open network
 =cut
 
 has passcode => (is => 'rw');
+
+=head2 dpsk
+
+Does DPSK need to be activated
+
+=cut
+
+has dpsk => (is => 'rw');
+
+=head2 dpsk_use_local_password
+
+Should the dpsk be the same as the password of a local user if it exists
+
+=cut
+
+has dpsk_use_local_password => (is => 'rw');
+
+=head2 psk_size
+
+psk key length
+
+=cut
+
+has psk_size => (is => 'rw');
 
 =head2 security_type
 
@@ -140,6 +170,10 @@ has server_certificate_path => (is => 'rw');
 
 has server_certificate => (is => 'ro' , builder => 1, lazy => 1);
 
+has ca_cert_path => (is => 'rw');
+
+has ca_cert => (is => 'ro' , builder => 1, lazy => 1);
+
 =head1 METHODS
 
 =head2 _build_server_cert
@@ -167,7 +201,6 @@ sub _certificate_cn {
         return $1;
     }
     else {
-        get_logger->error("Cannot find CN of server certificate at ".$self->server_certificate_path);
         return undef;
     }
 }
@@ -193,6 +226,54 @@ sub server_certificate_cn {
         get_logger->error("cannot find cn of server certificate at ".$self->server_certificate_path);
     }
 }
+
+=head2 _build_ca_cert
+
+Builds an X509 object the ca_cert_path
+
+=cut
+
+sub _build_ca_cert {
+    my ($self) = @_;
+    if($self->ca_cert_path){
+        return Crypt::OpenSSL::X509->new_from_file($self->ca_cert_path);
+    }
+    else {
+        get_logger->error("cannot build the RADIUS server CA with file: ".$self->ca_cert_path);
+        return "";
+    }
+}
+
+
+=head2 raw_ca_cert_string
+
+Get the Radius server CA content minus the ascii armor
+
+=cut
+
+sub raw_ca_cert_string {
+    my ($self) = @_;
+    if($self->ca_cert){
+        return $self->_raw_server_cert_string($self->ca_cert);
+    }
+    else {
+        get_logger->error("cannot find the RADIUS server CA file at ".$self->ca_cert_path);
+        return "";
+    }
+}
+
+sub ca_cert_cn {
+    my ($self) = @_;
+    my $cn = $self->_certificate_cn($self->ca_cert);
+    if(defined($cn)){
+        return $cn;
+    }
+    else {
+        get_logger->error("cannot find cn of RADIUS server CA at ".$self->ca_cert_path);
+        return "";
+    }
+}
+
 
 =head2 authorize
 
@@ -223,7 +304,7 @@ sub sign_profile {
     if($self->cert_chain) {
         $smime->setPublicKey($self->cert_chain);
     }
-    return decode_base64($smime->signonly($content));
+    return decode_base64($smime->signonly_attached($content));
 }
 
 =head2 _build_profile_template
@@ -245,13 +326,46 @@ sub _build_profile_template {
     return "wireless-profile-noeap.xml";
 }
 
+sub generate_dpsk {
+    my ($self,$username) = @_;
+    my $person = person_view($username);
+    my $password = pf::password::view($username);
+    if (
+            isenabled($self->dpsk_use_local_password)
+            && defined($password) && pf::password::password_get_hash_type($password->{password}) eq 'plaintext'
+            && length($password->{password}) >= 8
+        ) {
+        get_logger->info("Using password of local user $username for PSK");
+        person_modify($username,psk => $password->{password});
+        return $password->{password};
+    }
+    elsif (defined $person->{psk} && $person->{psk} ne '') {
+        get_logger->debug("Returning psk key $person->{psk} for user $username");
+        return $person->{psk};
+    }
+    else {
+        my $psk_size;
+        if ($self->psk_size >= 8) {
+            $psk_size = $self->psk_size;
+        } else {
+            $psk_size = 8;
+            get_logger->info("PSK key redefined to 8");
+        }
+        my $psk = word(8,$psk_size);
+        person_modify($username,psk => $psk);
+        get_logger->info("PSK key has been generated for user ".$username);
+        get_logger->debug("Returning psk key $psk for user $username");
+        return $psk;
+    }
+}
+
 =head1 AUTHOR
 
 Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2017 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 

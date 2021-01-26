@@ -34,7 +34,7 @@ has_field 'host' =>
 
 has_field 'port' =>
   (
-   type => 'PosInteger',
+   type => 'Port',
    required => 1,
    default => 443,
   );
@@ -69,22 +69,22 @@ has_field 'critical_issues_threshold' =>
    type => 'PosInteger',
    default => 0,
    tags => { after_element => \&help,
-             help => 'Raise the non compliance violation the number of critical issues is greater or equal than this. 0 deactivates it' },
+             help => 'Raise the non compliance security event the number of critical issues is greater or equal than this. 0 deactivates it' },
   );
 
 has_block definition =>
   (
-   render_list => [ qw(id type description category oses client_id client_secret host port protocol access_token refresh_token agent_download_uri) ],
+   render_list => [ qw(id type description category oses client_id client_secret host port protocol access_token refresh_token agent_download_uri apply_role role_to_apply autoregister) ],
   );
 
 has_block compliance =>
   (
-   render_list => [ qw(non_compliance_violation critical_issues_threshold) ]
+   render_list => [ qw(non_compliance_security_event critical_issues_threshold) ]
   );
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2017 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 
@@ -105,5 +105,5 @@ USA.
 
 =cut
 
-__PACKAGE__->meta->make_immutable;
+__PACKAGE__->meta->make_immutable unless $ENV{"PF_SKIP_MAKE_IMMUTABLE"};
 1;

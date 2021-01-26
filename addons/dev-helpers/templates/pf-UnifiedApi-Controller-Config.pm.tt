@@ -1,0 +1,12 @@
+[% WRAPPER "class-wrapper.tt" -%]
+
+use Mojo::Base qw(pf::UnifiedApi::Controller::Config);
+
+has 'config_store_class' => '[% config_store_class %]';
+has 'form_class' => '[% form_class %]';
+has 'primary_key' => '[% url_param_key %]';
+
+use [% config_store_class %];
+use [% form_class %];
+
+[%- END %]

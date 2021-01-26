@@ -1,0 +1,37 @@
+Class:
+  properties:
+    auto_enable:
+      type: string
+    button_text:
+      type: string
+    delay_by:
+      type: integer
+    description:
+      type: string
+    enabled:
+      type: string
+    external_command:
+      type: string
+    grace_period:
+      type: integer
+    max_enable_url:
+      type: string
+    max_enables:
+      type: integer
+    priority:
+      type: integer
+    redirect_url:
+      type: string
+    target_category:
+      type: string
+    template:
+      type: string
+    vclose:
+      type: integer
+    vid:
+      type: integer
+    vlan:
+      type: string
+    window:
+      type: string
+  type: object

@@ -14,6 +14,7 @@ use HTML::FormHandler::Moose;
 extends 'pfappserver::Form::Config::Network';
 with 'pfappserver::Base::Form::Role::Help';
 
+use pfappserver::Model::Config::Network;
 use HTTP::Status qw(:constants is_success);
 use pf::config;
 
@@ -28,7 +29,7 @@ has_field 'gateway' =>
   (
    type => 'IPAddress',
    label => 'Client Gateway',
-   required_when => { 'fake_mac_enabled' => sub { $_[0] ne '1' } },
+   required_when => { 'dhcpd' => sub { $_[0] eq 'enabled' } },
    messages => { required => 'Please specify the gateway.' },
   );
 has_field 'netmask' =>
@@ -78,6 +79,14 @@ has_field 'nat_enabled' => (
     label => 'Enable NATting',
 );
 
+has_field 'coa' => (
+    type => 'Toggle',
+    checkbox_value => "enabled",
+    unchecked_value => "disabled",
+    default => "disabled",
+    label => 'Enable CoA',
+);
+
 has_field 'dhcpd' =>
   (
    type => 'Toggle',
@@ -110,12 +119,15 @@ Make sure the router IP has a gateway.
 
 sub validate {
     my $self = shift;
-
+    require pfappserver::Model::Interface;
     $self->SUPER::validate();
+
+    my $network_model = pfappserver::Model::Config::Network->new;
+    my $interface_model = pfappserver::Model::Interface->new;
 
     if ($self->network && $self->network ne $self->value->{network} || !$self->network) {
         # Build a list of existing networks
-        my ($status, $result) = $self->ctx->model('Config::Network')->readAllIds();
+        my ($status, $result) = $network_model->readAllIds();
         if (is_success($status)) {
             my %networks = map { $_ => 1 } @$result;
             if (defined $networks{$self->value->{network}}) {
@@ -123,12 +135,12 @@ sub validate {
             }
         }
     }
-    my $interface = $self->ctx->model('Interface')->interfaceForDestination($self->value->{next_hop});
+    my $interface = $interface_model->interfaceForDestination($self->value->{next_hop});
     unless ($interface) {
         $self->field('next_hop')->add_error("The router IP has no gateway on a network interface.");
     }
     elsif ( $self->value->{type} eq $pf::config::NET_TYPE_INLINE_L3 ) {
-        if ( $self->ctx->model('Interface')->getEnforcement($interface) ne $pf::config::NET_TYPE_INLINE_L2 ) {
+        if ( $interface_model->getEnforcement($interface) ne $pf::config::NET_TYPE_INLINE_L2 ) {
              $self->field('next_hop')->add_error("Inline Layer 3 network can only be defined behind a Inline Layer 2 network.");
         }
     }
@@ -136,7 +148,7 @@ sub validate {
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2017 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 
@@ -157,5 +169,5 @@ USA.
 
 =cut
 
-__PACKAGE__->meta->make_immutable;
+__PACKAGE__->meta->make_immutable unless $ENV{"PF_SKIP_MAKE_IMMUTABLE"};
 1;

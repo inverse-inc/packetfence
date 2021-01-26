@@ -1,0 +1,17 @@
+/config/scans:
+  description: pf::UnifiedApi::Controller::Config::Scans
+  get:
+    description: List items
+    operationId: api.v1.Config::Scans.list
+    parameters: []
+    responses:
+      '200':
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ConfigScansList'
+        description: List
+      '400':
+        $ref: '#/components/responses/BadRequest'
+      '422':
+        $ref: '#/components/responses/UnprocessableEntity'

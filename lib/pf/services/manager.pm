@@ -37,6 +37,9 @@ use pf::constants;
 use pf::file_paths qw($var_dir $install_dir $systemd_unit_dir);
 use pf::log;
 use pf::util;
+use pf::util::console;
+
+use Term::ANSIColor;
 
 use File::Slurp qw(read_file);
 use Proc::ProcessTable;
@@ -72,6 +75,8 @@ Method that launches the service.
 =cut
 
 has launcher => ( is => 'rw', lazy => 1, builder => '_build_launcher' );
+
+has restart_launcher => ( is => 'rw', lazy => 1, builder => '_build_restart_launcher' );
 
 has pidFile => ( is => 'ro', lazy => 1, builder => '_buildpidFile' );
 
@@ -198,18 +203,6 @@ sub _build_executable {
     return $service;
 }
 
-=head2 restart
-
-restart the service
-
-=cut
-
-sub restart {
-    my ($self,$quick) = @_;
-    $self->stop($quick);
-    return $self->start($quick);
-}
-
 =head2 status
 
 returns the pid or list of pids for the service(s)
@@ -224,25 +217,40 @@ sub status {
 
 
 sub print_status {
-    my ($self)        = @_;
-    my $name          = $self->name;
-    my @output        = `systemctl --all --no-pager`;
-    my $header        = shift @output;
-    my $service_regex = qr/ 
-        packetfence- 
-        $name 
-        \.service 
-        /ox;
-
-    my $rc;
-    for (@output) {
-        if (/$service_regex/) {
-            print;
-            my ( $unit, $load, $active, $sub, $desc ) = split;
-            $rc = $active eq "active" ? 1 : 0;
+    my ($self) = @_;
+    my @output = `systemctl --all --no-pager`;
+    my $header = shift @output;
+    my $name   = $self->name;
+    my $colors = pf::util::console::colors();
+    my $loop = $TRUE;
+    for my $output (@output) {
+        next if ($output =~ /packetfence-tracking-config.service/);
+        if ($output =~ /(packetfence-$name\.(service|path))\s+loaded\s+active/) {
+            my $service = $1;
+            $service .= (" " x (50 - length($service)));
+            print "$service\t$colors->{success}started   ".$self->pid."$colors->{reset}\n";
+            $loop = $FALSE;
+        } elsif ($output =~ /(packetfence-$name\.(service|path))\s+loaded.*/) {
+            my $service = $1;
+            if ($name =~ /(radiusd).*/) {
+                $name = $1;
+            }
+            my $manager = pf::services::get_service_manager($name);
+            my $isManaged = $manager->isManaged;
+            $service .= (" " x (50 - length($service)));
+            if ($isManaged && !$manager->optional) {
+                print "$service\t$colors->{error}stopped   ".$self->pid."$colors->{reset}\n";
+            } else {
+                print "$service\t$colors->{warning}stopped   ".$self->pid."$colors->{reset}\n";
+            }
+            $loop = $FALSE;
         }
     }
-    return $rc;
+    if ($loop) {
+       my $service = "packetfence-$name.service";
+       $service .= (" " x (50 - length($service)));
+       print "$service\t$colors->{warning}disabled  ".$self->pid."$colors->{reset}\n";
+    }
 }
 
 
@@ -259,7 +267,11 @@ sub pid {
     my $pid = `sudo systemctl show -p MainPID packetfence-$name`;
     chomp $pid;
     $pid = (split(/=/, $pid))[1];
-    $logger->debug("sudo systemctl packetfence-$name returned $pid");
+    if (defined $pid) {
+        $logger->debug("sudo systemctl packetfence-$name returned $pid");
+    } else {
+        $logger->error("Error getting pid for $name");
+    }
     return $pid;
 }
 
@@ -397,18 +409,13 @@ checks if process is alive
 =cut
 
 sub isAlive {
-    my ($self,$pid) = @_;
-    my $result;
-    $pid = $self->pid unless defined $pid;
-    eval {
-        $result = pf_run("sudo kill -0 $pid >/dev/null 2>&1", (accepted_exit_status => [ 0 ]));
-    };
-    if($@ || !defined($result)){
-        return $FALSE;
-    }
-    else {
-        return $TRUE;
-    }
+    my ($self) = @_;
+    my $logger = get_logger();
+    my $target = $self->systemdTarget;
+    my $res = system("sudo systemctl -q is-active $target &> /dev/null");
+    my $alive = $res == 0 ? 1 : 0;
+    $logger->debug("sudo systemctl -q is-active $target returned code $res");
+    return $alive;
 }
 
 
@@ -448,6 +455,17 @@ sub isEnabled {
     }
 }
 
+=head2 systemdTarget
+
+systemdTarget
+
+=cut
+
+sub systemdTarget {
+    my ($self) = @_;
+    return "packetfence-" . $self->name;
+}
+
 =head2 sysdEnable 
 
 Enable the service in systemd.
@@ -456,9 +474,7 @@ Enable the service in systemd.
 
 sub sysdEnable {
     my $self = shift;
-    my $rc   = 1;
-    $rc = system( "sudo systemctl enable packetfence-" . $self->name );
-    return $rc == 0;
+    return system( "sudo systemctl enable " . $self->systemdTarget) == 0;
 }
 
 =head2 sysdDisable
@@ -469,9 +485,52 @@ Disable the service in systemd.
 
 sub sysdDisable {
     my $self = shift;
-    my $rc   = 1;
-    $rc = system( "sudo systemctl disable packetfence-" . $self->name );
-    return $rc == 0;
+    return system( "sudo systemctl disable " . $self->systemdTarget) == 0;
+}
+
+=head2 _build_restart_launcher
+
+Build the command to restart the service.
+
+=cut
+sub _build_restart_launcher {
+    my ($self) = @_;
+    my $name = $self->{name};
+    return "sudo systemctl restart packetfence-" . $name;
+}
+
+
+=head2 restartService
+
+restart the service using the restart_launcher and arguments passed
+
+=cut
+
+sub restartService {
+    my ($self) = @_;
+    my $cmdLine = $self->restart_launcher;
+    if ($cmdLine =~ /^(.+)$/) {
+        $cmdLine = $1;
+        my $logger = get_logger();
+        $logger->debug(sprintf("Restarting Daemon %s with command %s",$self->name,$cmdLine));
+        my $t0 = Time::HiRes::time();
+        my $return_value = system($cmdLine);
+        my $elapsed = Time::HiRes::time() - $t0;
+        $logger->info(sprintf("Daemon %s took %.3f seconds to start.", $self->name, $elapsed));
+        return $return_value == 0;
+    }
+    return;
+}
+
+=head2 restart
+
+restart the service
+
+=cut
+
+sub restart {
+    my ($self) = @_;
+    return $self->restartService();
 }
 
 =head1 AUTHOR
@@ -481,7 +540,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2017 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 
@@ -503,4 +562,3 @@ USA.
 =cut
 
 1;
-

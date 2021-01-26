@@ -1,24 +1,19 @@
-<div class="media media--error u-p u-mb">
-  <div class="media__img">[% flashIcon(level='error') %]</div>
-  <p class="media__body">[% i18n("You should not seeing this page, something went wrong.") %]</p>
-</div>
-
-[% IF skipable %]<p>[% i18n("To the user : try clicking Continue to see if it fixes the problem") %]</p>[% END %]
-<p>[% i18n("To the administrator : you should probably file a bug report on the PacketFence website") %]</p>
-
-[% IF skipable %]
-<div class="layout layout--center">
-  <div class="layout__item u-2/3 u-1/1-palm">
-    <ul class="list-ui list-ui--tiny list-ui--btns list-ui--light u-mt">
-      <li>
-        <a href="/captive-portal?next=next" class="btn btn--full">
-          <div class="flag">
-            <div class="flag__img">[% svgIcon(id='ic_forward_black_24px',size='small') %]</div>
-            <p class="flag__body">[% i18n("Continue") %]</p>
-          </div>
-        </a>
-      </li>
-    </ul>
+<div class="u-padding">
+  <div class="o-media o-media--error u-padding u-margin-bottom">
+    <div class="o-media__img">[% flashIcon(level='error') %]</div>
+    <p class="o-media__body">[% i18n("You should not seeing this page, something went wrong.") %]</p>
   </div>
+
+  [% IF skipable %]<p>[% i18n("To the user : try clicking Continue to see if it fixes the problem") %]</p>[% END %]
+  <p>[% i18n("To the administrator : you should probably file a bug report on the PacketFence website") %]</p>
+
+  [% IF skipable %]
+  <div class="o-layout o-layout--center">
+    <div class="o-layout__item u-1/1 u-2/3@tablet u-3/5@desktop">
+      <a href="/captive-portal?next=next" class="c-btn c-btn--secondary u-1/1">
+        [% i18n("Continue") %]
+      </a>
+    </div>
+  </div>
+  [% END %]
 </div>
-[% END %]

@@ -20,7 +20,8 @@ use pf::file_paths qw(
     $portal_modules_default_config_file
 );
 extends 'pf::ConfigStore';
-
+with 'pf::ConfigStore::Role::ReverseLookup';
+use pf::constants;
 use pf::log;
 
 sub configFile { $portal_modules_config_file};
@@ -28,6 +29,25 @@ sub configFile { $portal_modules_config_file};
 sub importConfigFile { $portal_modules_default_config_file }
 
 sub pfconfigNamespace {'config::PortalModules'}
+
+=head2 canDelete
+
+canDelete
+
+=cut
+
+sub canDelete {
+    my ( $self, $id ) = @_;
+    if ($self->isInProfile('root_module', $id)) {
+        return "Used in a profile", $FALSE;
+    }
+
+    if ($self->isInPortalModules('modules', $id)) {
+        return "Used in a portal module", $FALSE;
+    }
+
+    return $self->SUPER::canDelete($id);
+}
 
 =head2 cleanupAfterRead
 
@@ -46,7 +66,9 @@ sub cleanupAfterRead {
     }
 
     # Multiple sources are stored in this special field to the admin forms can display it differently
-    $object->{multi_source_ids} = $object->{source_id}; 
+    if (exists $object->{source_id}) {
+        $object->{multi_source_ids} = [$self->split_list($object->{source_id})];
+    }
 }
 
 =head2 cleanupBeforeCommit
@@ -57,16 +79,15 @@ Clean data before update or creating
 
 sub cleanupBeforeCommit {
     my ($self, $id, $object) = @_;
-    
+    my $multi_source_ids = delete $object->{multi_source_ids};
+    my $source_id = $object->{source_id};
     # portal_modules.conf always stores sources in source_id whether they are multiple or single, so we take multi_source_ids and put it in source_id
-    if (defined($object->{multi_source_ids}) && scalar(@{$object->{multi_source_ids}}) > 0) {
+    if (defined($multi_source_ids) && (scalar(@$multi_source_ids) > 0 || !defined($source_id) || length($source_id) == 0 )) {
         get_logger->debug("Multiple sources were defined for this object, taking the content of multi_source_ids to put it in source_id");
-        $object->{source_id} = delete $object->{multi_source_ids};
-    } else {
-        delete $object->{multi_source_ids};
+        $object->{source_id} = $multi_source_ids;
     }
 
-    $self->flatten_list($object, $self->_fields_expanded);
+    $self->flatten_list($object, $self->_fields_expanded, 'source_id');
     $self->join_lines($object, $self->_fields_line_expanded);
 }
 
@@ -77,9 +98,8 @@ sub cleanupBeforeCommit {
 sub _fields_expanded {
     return qw(
     modules
-    source_id
-    multi_source_ids
     custom_fields
+    fields_to_save
     actions
     );
 }
@@ -108,7 +128,7 @@ sub _fields_line_expanded {
     );
 }
 
-__PACKAGE__->meta->make_immutable;
+__PACKAGE__->meta->make_immutable unless $ENV{"PF_SKIP_MAKE_IMMUTABLE"};
 
 =head1 AUTHOR
 
@@ -116,7 +136,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2017 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 

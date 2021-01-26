@@ -1,0 +1,2 @@
+[Service]
+ExecStartPre=/usr/local/pf/bin/pfcmd generatesyslogconfig

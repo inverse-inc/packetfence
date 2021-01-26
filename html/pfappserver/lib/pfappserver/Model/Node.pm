@@ -18,11 +18,7 @@ use namespace::autoclean;
 use Time::localtime;
 use Time::Local;
 
-use pf::accounting qw(
-    node_accounting_view
-    node_accounting_daily_bw node_accounting_weekly_bw node_accounting_monthly_bw node_accounting_yearly_bw
-    node_accounting_daily_time node_accounting_weekly_time node_accounting_monthly_time node_accounting_yearly_time
-);
+use pf::accounting qw();
 use pf::constants;
 use pf::config qw($EAP);
 use pf::error qw(is_error is_success);
@@ -34,12 +30,14 @@ use pf::log;
 use pf::node;
 use pf::person;
 use pf::enforcement qw(reevaluate_access);
-use pf::useragent qw(node_useragent_view);
 use pf::util;
 use pf::config::util;
-use pf::violation;
+use pf::security_event;
 use pf::SwitchFactory;
 use pf::Connection;
+use Text::CSV;
+use pf::import;
+use pf::fingerbank;
 
 =head1 METHODS
 
@@ -80,59 +78,7 @@ sub field_names {
     return [qw(mac detect_date regdate unregdate computername pid last_ip status device_class category)];
 }
 
-=head2 countAll
-
-=cut
-
-sub countAll {
-    my ( $self, %params ) = @_;
-
-    my $logger = get_logger();
-    my ($status, $status_msg);
-
-    my $count;
-    eval {
-        my @result = node_count_all(undef, %params);
-        $count = pop @result;
-    };
-    if ($@) {
-        $status_msg = "Can't count nodes from database.";
-        $logger->error($status_msg);
-        return ($STATUS::INTERNAL_SERVER_ERROR, $status_msg);
-    }
-
-    return ($STATUS::OK, $count->{nb});
-}
-
-=head2 search
-
-Used to perform a simple search
-
-=cut
-
-sub search {
-    my ( $self, %params ) = @_;
-
-    my $logger = get_logger();
-    my ($status, $status_msg);
-
-    my @nodes;
-    eval {
-        @nodes = node_view_all(undef, %params);
-        @nodes = grep { keys %$_ ? $_ : undef } @nodes;
-    };
-    if ($@) {
-        $status_msg = "Can't fetch nodes from database.";
-        $logger->error($status_msg);
-        return ($STATUS::INTERNAL_SERVER_ERROR, $status_msg);
-    }
-
-    return ($STATUS::OK, \@nodes);
-}
-
 =head2 view
-
-From pf::lookup::node::lookup_node()
 
 =cut
 
@@ -153,7 +99,7 @@ sub view {
             }
         }
         foreach (qw[detect_date regdate unregdate]) {
-            $node->{$_} = '' if exists $node->{$_} && $node->{$_} eq '0000-00-00 00:00:00';
+            $node->{$_} = '' if exists $node->{$_} && $node->{$_} eq $ZERO_DATE;
         }
 
         # Show 802.1X username only if connection is of type EAP
@@ -176,7 +122,7 @@ sub view {
 
         # Fetch IP address history
         my @iplog_history = pf::ip4log::get_history($mac);
-        map { $_->{end_time} = '' if ($_->{end_time} eq '0000-00-00 00:00:00') } @iplog_history;
+        map { $_->{end_time} = '' if ($_->{end_time} eq $ZERO_DATE) } @iplog_history;
         $node->{iplog}->{history} = \@iplog_history;
 
         if ($node->{iplog}->{'ip'}) {
@@ -188,7 +134,7 @@ sub view {
         }
 
         my @ip6log_history = pf::ip6log::get_history($mac);
-        map { $_->{end_time} = '' if ($_->{end_time} eq '0000-00-00 00:00:00') } @ip6log_history;
+        map { $_->{end_time} = '' if ($_->{end_time} eq $ZERO_DATE) } @ip6log_history;
         $node->{ip6log}->{history} = \@ip6log_history;
 
         if ($node->{ip6log}->{'ip'}) {
@@ -204,17 +150,6 @@ sub view {
         # Check for multihost
         $node->{'multihost'} = [pf::node::check_multihost($mac, {'switch_id' => $node->{'last_switch'}, 'switch_port' => $node->{'last_port'}, 'connection_type' => $node->{'last_connection_type'}})];
 
-        #    my $node_accounting = node_accounting_view($mac);
-        #    if (defined($node_accounting->{'mac'})) {
-        #        my $daily_bw = node_accounting_daily_bw($mac);
-        #        my $weekly_bw = node_accounting_weekly_bw($mac);
-        #        my $monthly_bw = node_accounting_monthly_bw($mac);
-        #        my $yearly_bw = node_accounting_yearly_bw($mac);
-        #        my $daily_time = node_accounting_daily_time($mac);
-        #        my $weekly_time = node_accounting_weekly_time($mac);
-        #        my $monthly_time = node_accounting_monthly_time($mac);
-        #        my $yearly_time = node_accounting_yearly_time($mac);
-        #    }
     };
     if ($@) {
         $status_msg = ["Can't retrieve node ([_1]) from database.",$mac];
@@ -266,20 +201,17 @@ sub update {
     my $previous_node_ref;
 
     $previous_node_ref = node_view($mac);
+    $node_ref->{pid} ||= $default_pid;
     if ($previous_node_ref->{status} ne $node_ref->{status}) {
         # Status was modified
-        my $option;
         if ($node_ref->{status} eq $pf::node::STATUS_REGISTERED) {
-            $option = "register";
-            ( $result, $status_msg ) = pf::node::node_register($mac, $previous_node_ref->{pid}, %{$node_ref});
+            ( $result, $status_msg ) = pf::node::node_register($mac, $node_ref->{pid}, %{$node_ref});
         }
         elsif ($node_ref->{status} eq $pf::node::STATUS_UNREGISTERED) {
-            $option = "deregister";
             $result = node_deregister($mac, %{$node_ref});
         }
     }
     unless (defined $result) {
-        $node_ref->{pid} ||= $default_pid;
         $result = node_modify($mac, %{$node_ref});
     }
     if ($result) {
@@ -306,134 +238,8 @@ See pf::import::nodes
 =cut
 
 sub importCSV {
-    my ($self, $data, $user, $allowed_roles) = @_;
-    my $logger = get_logger();
-    my ($status, $message);
-    my $filename = $data->{nodes_file}->filename;
-    my $tmpfilename = $data->{nodes_file}->tempname;
-    my $delimiter = $data->{delimiter};
-    my $default_node_pid = $data->{default_pid};
-    my $default_category_id = $data->{default_category_id};
-    my $default_voip = $data->{default_voip};
-    $allowed_roles //= {};
-
-    $logger->debug("CSV file import nodes from $tmpfilename ($filename, \"$delimiter\")");
-
-    # Build hash table for columns order
-    my $count = 0;
-    my $skipped = 0;
-    my %index = ();
-    foreach my $column (@{$data->{columns}}) {
-        if ($column->{enabled} || $column->{name} eq 'mac') {
-            # Add checked columns and mandatory columns
-            $index{$column->{name}} = $count;
-            $count++;
-        }
-    }
-
-    # Map delimiter to its actual character
-    if ($delimiter eq 'comma') {
-        $delimiter = ',';
-    } elsif ($delimiter eq 'semicolon') {
-        $delimiter = ';';
-    } elsif ($delimiter eq 'colon') {
-        $delimiter = ':';
-    } elsif ($delimiter eq 'tab') {
-        $delimiter = "\t";
-    }
-
-    # Read CSV file
-    $count = 0;
-    my $import_fh;
-    my $has_pid = exists $index{'pid'};
-    unless (open ($import_fh, "<", $tmpfilename)) {
-        $logger->warn("Can't open CSV file $filename: $@");
-        return  ($STATUS::INTERNAL_SERVER_ERROR, "Can't read CSV file.");
-    }
-    my $csv = Text::CSV->new({ binary => 1, sep_char => $delimiter });
-    while (my $row = $csv->getline($import_fh)) {
-        my ($pid, $mac, $node, %data, $result);
-
-        if($has_pid) {
-            $pid = $row->[$index{'pid'}] || undef;
-            if ( $pid ) {
-                if($pid !~ /$pf::person::PID_RE/) {
-                    $logger->debug("Ignored invalid PID ($pid)");
-                    $skipped++;
-                    next;
-                }
-                if(!person_exist($pid)) {
-                    $logger->info("Adding non-existant person $pid");
-                    person_add($pid);
-                }
-            }
-        }
-
-        $mac = $row->[$index{'mac'}] || undef;
-        if (!$mac || !valid_mac($mac)) {
-            $logger->debug("Ignored invalid MAC ($mac)");
-            $skipped++;
-            next;
-        }
-        $mac = clean_mac($mac);
-        $pid ||= $default_node_pid || $default_pid;
-        $node = node_view($mac);
-        %data =
-          (
-           'mac'         => $mac,
-           'pid'         => $pid,
-           'category'    => $index{'category'}  ? $row->[$index{'category'}]  : undef,
-           'category_id' => $index{'category'}  ? undef                       : $default_category_id,
-           'unregdate'   => $index{'unregdate'} ? $row->[$index{'unregdate'}] : undef,
-           'voip'        => $index{'voip'}      ? $row->[$index{'voip'}]      : $default_voip,
-           'notes'       => $index{'notes'}     ? $row->[$index{'notes'}]     : undef,
-          );
-        if (exists $index{'bypass_vlan'}) {
-                $data{'bypass_vlan'} = $row->[$index{'bypass_vlan'}];
-        }
-        if (exists $index{'bypass_role'}) {
-            $data{'bypass_role_id'} = nodecategory_lookup($row->[$index{'bypass_role'}]);
-        }
-        my $category = $data{category};
-        $logger->info("Category " . $category // "'undef'");
-        if ( (defined $category && !exists $allowed_roles->{$category} ) ) {
-            $logger->warn("Ignored $mac since category $category is not allowed for user");
-            $skipped++;
-            next;
-        }
-        my $bypass_vlan = $data{bypass_vlan};
-        if ( (defined $bypass_vlan && !exists $allowed_roles->{$bypass_vlan} ) ) {
-            $logger->warn("Ignored $mac since bypass_vlan $bypass_vlan is not allowed for user");
-            $skipped++;
-            next;
-        }
-        if (!defined($node) || (ref($node) eq 'HASH' && $node->{'status'} ne $pf::node::STATUS_REGISTERED)) {
-            $logger->debug("Register MAC $mac ($pid)");
-            $result = node_register($mac, $pid, %data);
-        }
-        else {
-            $logger->debug("Modify already registered MAC $mac ($pid)");
-            $result = node_modify($mac, %data);
-        }
-        if ($result) {
-            $count++;
-        }
-        else {
-            $skipped++;
-        }
-    }
-    unless ($csv->eof) {
-        $logger->warn("Problem with CSV file importation: " . $csv->error_diag());
-        ($status, $message) = ($STATUS::INTERNAL_SERVER_ERROR, ["Problem with importation: [_1]" , $csv->error_diag()]);
-    }
-    else {
-        ($status, $message) = ($STATUS::CREATED, { count => $count, skipped => $skipped });
-    }
-    close $import_fh;
-
-    $logger->info("CSV file ($filename) import $count nodes, skip $skipped nodes");
-
-    return ($status, $message);
+    my ($self, @args) = @_;
+    return pf::import::nodes(@args);
 }
 
 =head2 delete
@@ -445,10 +251,10 @@ sub delete {
 
     my $logger = get_logger();
     my ($status, $status_msg) = ($STATUS::OK);
-
-    unless (node_delete($mac)) {
+    my ($deleted, $msg) = node_delete($mac);
+    unless ($deleted) {
         $status = $STATUS::INTERNAL_SERVER_ERROR;
-        $status_msg = "The node can't be delete because it's still active.";
+        $status_msg = $msg;
     }
 
     return ($status, $status_msg);
@@ -466,6 +272,20 @@ sub reevaluate {
     unless(reevaluate_access($mac, "admin_modify")){
         $status = $STATUS::INTERNAL_SERVER_ERROR;
         $status_msg = "The access couldn't be reevaluated.";
+    }
+
+    return ($status, $status_msg);
+}
+
+sub refresh_fingerbank_device {
+    my ($self, $mac) = @_;
+
+    my $logger = get_logger();
+    my ($status, $status_msg) = ($STATUS::OK);
+
+    unless(pf::fingerbank::process($mac, $TRUE)){
+        $status = $STATUS::INTERNAL_SERVER_ERROR;
+        $status_msg = "Couldn't refresh device profiling through Fingerbank";
     }
 
     return ($status, $status_msg);
@@ -518,25 +338,25 @@ sub availableStatus {
              $pf::node::STATUS_PENDING ];
 }
 
-=head2 violations
+=head2 security_events
 
-Return the open violations associated to the MAC.
+Return the open security events associated to the MAC.
 
 =cut
 
-sub violations {
+sub security_events {
     my ($self, $mac) = @_;
 
     my $logger = get_logger();
     my ($status, $status_msg);
 
-    my @violations;
+    my @security_events;
     eval {
-        @violations = violation_view_desc($mac);
-        map { $_->{release_date} = '' if ($_->{release_date} eq '0000-00-00 00:00:00') } @violations;
+        @security_events = security_event_view_desc($mac);
+        map { $_->{release_date} = '' if ($_->{release_date} eq $ZERO_DATE) } @security_events;
     };
     if ($@) {
-        $status_msg = "Can't fetch violations from database.";
+        $status_msg = "Can't fetch security events from database.";
         $logger->error($status_msg);
         return ($STATUS::INTERNAL_SERVER_ERROR, $status_msg);
     }
@@ -544,95 +364,95 @@ sub violations {
     # Check for multihost
     my @multihost = pf::node::check_multihost($mac);
 
-    return ($STATUS::OK, { 'violations' => \@violations, 'multihost' => \@multihost });
+    return ($STATUS::OK, { 'security_events' => \@security_events, 'multihost' => \@multihost });
 }
 
-=head2 addViolation
+=head2 addSecurityEvent
 
 =cut
 
-sub addViolation {
-    my ($self, $mac, $vid) = @_;
+sub addSecurityEvent {
+    my ($self, $mac, $security_event_id) = @_;
 
-    if (violation_add($mac, $vid, ('force' => $TRUE))) {
-        return ($STATUS::OK, 'The violation was successfully added.');
+    if (security_event_add($mac, $security_event_id, ('force' => $TRUE))) {
+        return ($STATUS::OK, 'The security event was successfully added.');
     }
     else {
-        return ($STATUS::INTERNAL_SERVER_ERROR, 'An error occurred while adding the violation.');
+        return ($STATUS::INTERNAL_SERVER_ERROR, 'An error occurred while adding the security event.');
     }
 }
 
-=head2 closeViolation
+=head2 closeSecurityEvent
 
 =cut
 
-sub closeViolation {
+sub closeSecurityEvent {
     my ($self, $id) = @_;
-    if($self->_closeViolation($id)) {
-        return ($STATUS::OK, 'The violation was successfully closed.');
+    if($self->_closeSecurityEvent($id)) {
+        return ($STATUS::OK, 'The security event was successfully closed.');
     }
-    return ($STATUS::INTERNAL_SERVER_ERROR, 'An error occurred while closing the violation.');
+    return ($STATUS::INTERNAL_SERVER_ERROR, 'An error occurred while closing the security event.');
 }
 
-=head2 runViolation
+=head2 runSecurityEvent
 
 =cut
 
-sub runViolation {
+sub runSecurityEvent {
     my ($self, $id) = @_;
-    if(violation_run_delayed($id)) {
-        return ($STATUS::OK, 'The violation was successfully ran');
+    if(security_event_run_delayed($id)) {
+        return ($STATUS::OK, 'The security event was successfully ran');
     }
-    return ($STATUS::INTERNAL_SERVER_ERROR, 'An error occurred while running the violation.');
+    return ($STATUS::INTERNAL_SERVER_ERROR, 'An error occurred while running the security event.');
 }
 
-=head2 closeViolations
+=head2 closeSecurityEvents
 
 =cut
 
-sub bulkCloseViolations {
+sub bulkCloseSecurityEvents {
     my ($self, @macs) = @_;
     my $count = 0;
 
     foreach my $mac (@macs) {
-        foreach my $violation (violation_view_open_desc($mac)) {
-            $count++ if $self->_closeViolation($violation->{id});
+        foreach my $security_event (security_event_view_open_desc($mac)) {
+            $count++ if $self->_closeSecurityEvent($security_event->{id});
         }
     }
-    return ($STATUS::OK, ["[_1] violation(s) were closed.",$count]);
+    return ($STATUS::OK, ["[_1] security event(s) were closed.",$count]);
 }
 
-=head2 _closeViolation
+=head2 _closeSecurityEvent
 
 helper function for doing a force close
 
 =cut
 
-sub _closeViolation{
+sub _closeSecurityEvent{
     my ($self,$id) = @_;
     my $result;
-    my $violation = violation_exist_id($id);
-    if ($violation) {
-        if (violation_force_close($violation->{mac}, $violation->{vid})) {
-            pf::enforcement::reevaluate_access($violation->{mac}, "admin_modify");
+    my $security_event = security_event_exist_id($id);
+    if ($security_event) {
+        if (security_event_force_close($security_event->{mac}, $security_event->{security_event_id})) {
+            pf::enforcement::reevaluate_access($security_event->{mac}, "admin_modify");
             $result = 1;
         }
     }
     return $result;
 }
 
-=head2 bulkApplyViolation
+=head2 bulkApplySecurityEvent
 
 =cut
 
-sub bulkApplyViolation {
-    my ($self, $violation_id, @macs) = @_;
+sub bulkApplySecurityEvent {
+    my ($self, $security_event_id, @macs) = @_;
     my $count = 0;
     foreach my $mac (@macs) {
-        my ($last_id) = violation_add( $mac, $violation_id, ('force' => $TRUE) );
+        my ($last_id) = security_event_add( $mac, $security_event_id, ('force' => $TRUE) );
         $count++ if $last_id > 0;;
     }
-    return ($STATUS::OK, ["[_1] violation(s) were opened.",$count]);
+    return ($STATUS::OK, ["[_1] security event(s) were opened.",$count]);
 }
 
 
@@ -903,7 +723,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2017 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 
@@ -924,6 +744,6 @@ USA.
 
 =cut
 
-__PACKAGE__->meta->make_immutable;
+__PACKAGE__->meta->make_immutable unless $ENV{"PF_SKIP_MAKE_IMMUTABLE"};
 
 1;

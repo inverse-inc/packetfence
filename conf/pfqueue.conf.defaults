@@ -1,5 +1,6 @@
+# Copyright (C) Inverse inc.
 #
-# Copyright (C) 2005-2017 Inverse inc.
+#
 #
 # See the enclosed file COPYING for license information (GPL).
 # If you did not receive this file, see
@@ -16,6 +17,15 @@ workers=8
 # stay alive forever
 #
 max_tasks=2000
+#
+# To avoid workers exiting at the same time
+# Workers will die after
+# max_tasks +- (a number from 0 to task_jitter)
+# A task jitter less than or equal to 0 will disable it
+# Also a task jitter cannot be more than 25% of the max_tasks
+# If it is greater than max_tasks * 0.25 then it will be set to max_tasks / 4
+#
+task_jitter=100
 
 #
 #Connection details of the queue consumer
@@ -52,6 +62,19 @@ weight=4
 workers=1
 
 #
+# pfdhcplistener_external queue configuration
+#
+[queue pfdhcplistener_external]
+#
+# The weight of queue among shared workers
+#
+weight=4
+#
+# The number of dedicated workers for queue
+#
+workers=1
+
+#
 # pfdetect queue configuration
 #
 [queue pfdetect]
@@ -69,23 +92,36 @@ workers=1
 #
 [queue pfsnmp]
 #
-# The weight of queue among shared workers
-#
-weight=4
-#
 # The number of dedicated workers for queue
 #
-workers=0
+workers=4
+#
+# If the queue is hashed
+#
+hashed=enabled
 
 #
 # pfsnmp_parsing queue configuration
 #
 [queue pfsnmp_parsing]
 #
+# The number of dedicated workers for queue
+#
+workers=2
+#
+#
+#
+hashed=enabled
+
+#
+# priority queue configuration
+#
+[queue priority]
+#
 # The weight of queue among shared workers
 #
-weight=2
+weight=8
 #
 # The number of dedicated workers for queue
 #
-workers=0
+workers=2

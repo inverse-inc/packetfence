@@ -1,0 +1,17 @@
+/config/admin_roles:
+  description: pf::UnifiedApi::Controller::Config::AdminRoles
+  get:
+    description: List items
+    operationId: api.v1.Config::AdminRoles.list
+    parameters: []
+    responses:
+      '200':
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ConfigAdminRolesList'
+        description: List
+      '400':
+        $ref: '#/components/responses/BadRequest'
+      '422':
+        $ref: '#/components/responses/UnprocessableEntity'

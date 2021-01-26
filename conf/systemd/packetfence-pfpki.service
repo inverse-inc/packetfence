@@ -1,0 +1,16 @@
+[Unit]
+Description=PacketFence PKI Daemon
+Wants=packetfence-base.target packetfence-config.service packetfence-iptables.service
+After=packetfence-base.target packetfence-config.service packetfence-iptables.service
+Before=packetfence-httpd.portal.service
+
+[Service]
+StartLimitBurst=3
+StartLimitInterval=60
+Type=notify
+ExecStart=/usr/local/pf/sbin/pfhttpd -conf /usr/local/pf/conf/caddy-services/pfpki.conf -log-name=pfpki
+Restart=on-failure
+Slice=packetfence.slice
+
+[Install]
+WantedBy=packetfence.target

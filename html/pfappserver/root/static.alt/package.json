@@ -1,0 +1,68 @@
+{
+  "name": "packetfence-admin",
+  "version": "10.2.0",
+  "private": true,
+  "scripts": {
+    "serve": "vue-cli-service serve",
+    "build": "vue-cli-service build",
+    "lint": "vue-cli-service lint --report-unused-disable-directives",
+    "build-debug": "env VUE_APP_DEBUG=true vue-cli-service build --mode development",
+    "build-report": "vue-cli-service build --report"
+  },
+  "dependencies": {
+    "@vue/composition-api": "^1.0.0-beta.24",
+    "axios": "0.21.1",
+    "bootstrap": "4.5.2",
+    "bootstrap-vue": "2.17.3",
+    "core-js": "3.8.2",
+    "d3-force": "^2.1.1",
+    "date-fns": "^1.30.1",
+    "messageformat": "^2.3.0",
+    "mime-types": "^2.1.28",
+    "papaparse": "5.2.0",
+    "plotly.js-basic-dist-min": "^1.58.2",
+    "promised-debounce": "^0.4.2",
+    "typeface-b612-mono": "0.0.75",
+    "uuid": "^3.4.0",
+    "vue": "2.6.12",
+    "vue-awesome": "^3.5.4",
+    "vue-browser-acl": "^0.15.2",
+    "vue-flatpickr-component": "8.1.6",
+    "vue-i18n": "8.22.2",
+    "vue-multiselect": "2.1.6",
+    "vue-router": "3.4.9",
+    "vue-scrollto": "2.20.0",
+    "vue-text-highlight": "2.0.10",
+    "vue-timeago": "^5.1.2",
+    "vue2-ace-editor": "0.0.15",
+    "vue2vis": "0.0.18",
+    "vuedraggable": "2.24.3",
+    "vuelidate": "0.7.6",
+    "vuex": "3.5.1",
+    "yup": "^0.32.8"
+  },
+  "devDependencies": {
+    "@babel/core": "^7.11.6",
+    "@babel/polyfill": "^7.11.5",
+    "@vue/cli-plugin-babel": "^4.5.10",
+    "@vue/cli-plugin-eslint": "^4.5.10",
+    "@vue/cli-service": "^4.5.10",
+    "@vue/eslint-config-standard": "^5.0.0",
+    "babel-eslint": "^10.1.0",
+    "eslint": "6.8.0",
+    "eslint-plugin-vue": "6.2.2",
+    "node-sass": "^4.14.1",
+    "sass-loader": "^7.3.1",
+    "stylelint": "^13.7.1",
+    "stylelint-config-idiomatic-css": "^1.1.0",
+    "vue-cli-plugin-bootstrap-vue": "0.7.0",
+    "vue-cli-plugin-i18n": "^1.0.1",
+    "vue-template-compiler": "2.6.12",
+    "webpack-bundle-analyzer": "^4.2.0"
+  },
+  "postcss": {
+    "plugins": {
+      "autoprefixer": {}
+    }
+  }
+}

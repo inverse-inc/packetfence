@@ -1,0 +1,21 @@
+DhcpOption82:
+  properties:
+    circuit_id_string:
+      type: string
+    created_at:
+      type: string
+    host:
+      type: string
+    mac:
+      type: string
+    module:
+      type: string
+    option82_switch:
+      type: string
+    port:
+      type: string
+    switch_id:
+      type: string
+    vlan:
+      type: string
+  type: object

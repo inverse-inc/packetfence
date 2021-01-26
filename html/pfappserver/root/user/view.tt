@@ -22,7 +22,7 @@
             <li><a href="#userCustomFields" data-toggle="tab">[% l('Custom Fields') %]</a></li>
             [%- IF can_access("NODES_READ") %]
             <li><a href="#userDevices" data-href="[% c.uri_for(c.controller('User').action_for('nodes'), [user.pid]) %]" data-toggle="tab">[% l('Devices') %]</a></li>
-            <li><a href="#userViolations" data-href="[% c.uri_for(c.controller('User').action_for('violations'), [user.pid]) %]" data-toggle="tab">[% l('Violations') %]</a></li>
+            <li><a href="#userSecurityEvents" data-href="[% c.uri_for(c.controller('User').action_for('security_events'), [user.pid]) %]" data-toggle="tab">[% l('Security Events') %]</a></li>
             [%- END %]
           </ul>
 
@@ -132,7 +132,7 @@
             <div class="tab-pane fade" id="userDevices">
             </div><!--tab-pane-->
 
-            <div class="tab-pane fade" id="userViolations">
+            <div class="tab-pane fade" id="userSecurityEvents">
             </div><!--tab-pane-->
             [%- END %]
 
@@ -149,8 +149,8 @@
         </div><!--modal-body-->
 
         <div class="modal-footer">
-          [% IF can_access("USERS_DELETE") %]<a href="[% c.uri_for(c.controller('User').action_for('delete'), [ user.pid ]) %]" id="deleteUser" class="btn btn-danger pull-left[% ' disabled' IF  nodes.size > 0 %]"><i class="icon-trash icon-white"></i> [% l('Delete') %]</a>[% END %]
-          [% IF can_access("USERS_UPDATE") %]<a href="[% c.uri_for(c.controller('User').action_for('unassignNodes'), [ user.pid ]) %]" id="unassignUserNodes" class="btn btn-warning pull-left[% ' disabled' IF  nodes.size > 0 %]"><i class="icon-trash icon-white"></i> [% l('Unassign nodes') %]</a>[% END %]
+          [% IF can_access("USERS_DELETE") %]<a href="[% c.uri_for(c.controller('User').action_for('delete'), [ user.pid ]) %]" id="deleteUser" class="btn btn-danger pull-left[% ' disabled' IF nodes && nodes.size > 0 %]"><i class="icon-trash icon-white"></i> [% l('Delete') %]</a>[% END %]
+          [% IF can_access("USERS_UPDATE") %]<a href="[% c.uri_for(c.controller('User').action_for('unassignNodes'), [ user.pid ]) %]" id="unassignUserNodes" class="btn btn-warning pull-left[% ' disabled' IF nodes && nodes.size > 0 %]"><i class="icon-trash icon-white"></i> [% l('Unassign nodes') %]</a>[% END %]
           <a href="#" class="btn" data-dismiss="modal">[% l('Close') %]</a>
           [% IF can_access("USERS_UPDATE") %]<button type="submit" class="btn btn-primary" data-loading-text="[% l('Saving') %]">[% l('Save') %]</button>[% END %]
         </div><!--modal-footer-->

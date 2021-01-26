@@ -29,6 +29,8 @@ use warnings;
 
 use JSON::MaybeXS;
 use pf::log;
+use pf::IniFiles;
+use List::MoreUtils qw(uniq);
 
 use base 'pfconfig::namespaces::resource';
 
@@ -41,7 +43,7 @@ sub init {
 
 sub _parse_error {
     my ($self) = @_;
-    my $message = "Can't parse ".$self->{file}. " : ".join(', ', @Config::IniFiles::errors);
+    my $message = "Can't parse ".$self->{file}. " : ".join(', ', @pf::IniFiles::errors);
     print STDERR "$message\n";
     get_logger->error($message);
     $self->{parse_error} = $message;
@@ -55,7 +57,7 @@ sub build {
     $self->{added_params}->{-file} = $self->{file};
     $self->{added_params}->{-allowempty} = 1;
 
-    tie %tmp_cfg, 'Config::IniFiles', %{$self->{added_params}} or $self->_parse_error();
+    tie %tmp_cfg, 'pf::IniFiles', %{$self->{added_params}} or $self->_parse_error();
 
     @{ $self->{ordered_sections} } = keys %tmp_cfg;
 
@@ -145,13 +147,43 @@ sub GroupMembers {
     return @members;
 }
 
+
+sub roleReverseLookup {
+    my ($self, $cfg, $namespace, @fields) = @_;
+    $self->{roleReverseLookup} = {};
+    while (my ($id, $item) = each %$cfg) {
+        $self->updateRoleReverseLookup($id, $item, $namespace, @fields);
+    }
+
+}
+
+sub updateRoleReverseLookup {
+    my ($self, $id, $item, $namespace, @fields) = @_;
+    my @categories;
+    for my $field (@fields) {
+        next unless exists $item->{$field};
+        my $value = $item->{$field};
+        next if !defined $value;;
+        if (ref($value) eq '') {
+            $value = [split /\s*,\s*/, $value];
+        }
+
+        push @categories, @$value;
+    }
+
+    @categories = uniq @categories;
+    for my $c (@categories) {
+        push @{$self->{roleReverseLookup}{$c}{$namespace}}, $id;
+    }
+}
+
 =head1 AUTHOR
 
 Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2017 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 

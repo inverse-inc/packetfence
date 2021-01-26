@@ -26,6 +26,7 @@ use pf::Authentication::constants qw($LOGIN_SUCCESS $LOGIN_FAILURE $LOGIN_CHALLE
 use pf::web::guest;
 use pf::node qw(node_view);
 use pf::lookup::person;
+use pf::constants::realm;
 
 has '+pid_field' => (default => sub { "username" });
 
@@ -68,6 +69,8 @@ sub sources_classes {
         "pf::Authentication::Source::EAPTLSSource",
         "pf::Authentication::Source::HTTPSource",
         "pf::Authentication::Source::RADIUSSource",
+        "pf::Authentication::Source::PotdSource",
+        "pf::Authentication::Source::AuthorizationSource",
     ];
 }
 
@@ -124,21 +127,14 @@ sub authenticate {
 
     my ($stripped_username, $realm) = strip_username($username);
 
-    my @sources = filter_authentication_sources($self->sources, $stripped_username, $realm);
-    get_logger->info("Authenticating user using sources : ", join(',', (map {$_->id} @sources)));
+    my $sources = filter_authentication_sources($self->sources, $stripped_username, $realm);
+    get_logger->info("Authenticating user using sources : ", join(',', (map {$_->id} @{$sources})));
 
-    unless(@sources){
+    unless(@{$sources}){
         get_logger->info("No sources found for $username");
         $self->app->flash->{error} = "No authentication source found for this username";
         $self->prompt_fields();
         return;
-    }
-
-    # If all sources use the stripped username, we strip it
-    # Otherwise, we leave it as is
-    my $use_stripped = all { isenabled($_->{stripped_user_name}) } @sources;
-    if($use_stripped){
-        $username = $stripped_username;
     }
 
     if ($self->app->reached_retry_limit("login_retries", $self->app->profile->{'_login_attempt_limit'})) {
@@ -155,10 +151,10 @@ sub authenticate {
         get_logger->info("Reusing 802.1x credentials with username '$username' and realm '$realm'");
 
         # Fetch appropriate source to use with 'reuseDot1xCredentials' feature
-        my $source = pf::config::util::get_realm_authentication_source($username, $realm);
+        my $source = pf::config::util::get_realm_authentication_source($username, $realm, \@{$sources});
         
         # No source found for specified realm
-        unless ( defined($source) ) {
+        unless ( ref($source) eq 'ARRAY' ) {
             get_logger->error("Unable to find an authentication source for the specified realm '$realm' while using reuseDot1xCredentials");
             $self->app->flash->{error} = "Cannot find a valid authentication source for '" . $node_info->{'last_dot1x_username'} . "'";
 
@@ -173,9 +169,11 @@ sub authenticate {
             SSID => $node_info->{'last_ssid'},
             stripped_user_name => $username,
             rule_class => 'authentication',
+            realm => $node_info->{'realm'},
+            context => $pf::constants::realm::PORTAL_CONTEXT,
         };
         my $source_id;
-        my $role = pf::authentication::match($source->id, $params, $Actions::SET_ROLE, \$source_id);
+        my $role = pf::authentication::match([@{$source}], $params, $Actions::SET_ROLE, \$source_id);
 
         if ( defined($role) ) {
             $self->source(pf::authentication::getAuthenticationSource($source_id));
@@ -196,9 +194,15 @@ sub authenticate {
 
         # validate login and password
         my ( $return, $message, $source_id, $extra ) =
-          pf::authentication::authenticate( { 'username' => $username, 'password' => $password, 'rule_class' => $Rules::AUTH }, @sources );
+          pf::authentication::authenticate( { 
+                  'username' => $username, 
+                  'password' => $password, 
+                  'rule_class' => $Rules::AUTH,
+                  'context' => $pf::constants::realm::PORTAL_CONTEXT,
+              }, @{$sources} );
         if (!defined $return || $return == $LOGIN_FAILURE) {
-            pf::auth_log::record_auth(join(',',map { $_->id } @sources), $self->current_mac, $username, $pf::auth_log::FAILED);
+            pf::auth_log::record_auth(join(',',map { $_->id } @{$sources}), $self->current_mac, $username, $pf::auth_log::FAILED, $self->app->profile->name);
+            $self->on_action('on_failure');
             $self->app->flash->{error} = $message;
             $self->prompt_fields();
             return;
@@ -208,7 +212,6 @@ sub authenticate {
         $self->username($username);
         $self->source(pf::authentication::getAuthenticationSource($source_id));
         if ( $return == $LOGIN_SUCCESS ) {
-
             if($self->source->type eq "SQL"){
                 unless(pf::password::consume_login($username)){
                     $self->app->flash->{error} = "Account has used all of its available logins";
@@ -217,9 +220,10 @@ sub authenticate {
                 }
             }
 
-            pf::auth_log::record_auth($source_id, $self->current_mac, $username, $pf::auth_log::COMPLETED);
+            pf::auth_log::record_auth($source_id, $self->current_mac, $username, $pf::auth_log::COMPLETED, $self->app->profile->name);
             # Logging USER/IP/MAC of the just-authenticated user
             get_logger->info("Successfully authenticated ".$username);
+            $self->on_action('on_success');
         } elsif ($return == $LOGIN_CHALLENGE) {
             $self->challenge_data($message);
             $self->display_challenge();
@@ -227,7 +231,7 @@ sub authenticate {
         }
     }
 
-    pf::lookup::person::async_lookup_person($username,$self->source->id);
+    pf::lookup::person::async_lookup_person($username,$self->source->id,$pf::constants::realm::PORTAL_CONTEXT);
     $self->update_person_from_fields();
     $self->done();
 }
@@ -291,13 +295,28 @@ sub clean_username {
 
 sub allowed_urls_auth_module { ['/challenge'] }
 
+=head2 on_action
+
+change the root portal module if an action is define
+
+=cut
+
+sub on_action {
+    my ($self, $action) = @_;
+    if ($self->actions->{$action} && @{$self->actions->{$action}} > 0) {
+        $self->app->session->{'sub_root_module_id'} = @{$self->actions->{$action}}[0];
+        $self->redirect_root();
+        $self->detach;
+    }
+}
+
 =head1 AUTHOR
 
 Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2017 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 
@@ -318,6 +337,6 @@ USA.
 
 =cut
 
-__PACKAGE__->meta->make_immutable;
+__PACKAGE__->meta->make_immutable unless $ENV{"PF_SKIP_MAKE_IMMUTABLE"};
 
 1;

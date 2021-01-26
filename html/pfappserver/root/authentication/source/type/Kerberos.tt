@@ -1,3 +1,0 @@
-[% form.field('host').render | none %]
-[% form.field('realm').render | none %]
-[% form.field('stripped_user_name').render | none %]

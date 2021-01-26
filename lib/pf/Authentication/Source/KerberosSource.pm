@@ -17,11 +17,11 @@ use Authen::Krb5::Simple;
 
 use Moose;
 extends 'pf::Authentication::Source';
+with qw(pf::Authentication::InternalRole);
 
 has '+type' => ( default => 'Kerberos' );
 has 'host' => (isa => 'Str', is => 'rw', required => 1);
-has 'realm' => (isa => 'Str', is => 'rw', required => 1);
-has 'stripped_user_name' => (isa => 'Str', is => 'rw', default => 'yes');
+has 'authenticate_realm' => (isa => 'Str', is => 'rw', required => 1);
 
 =head2 dynamic_routing_module
 
@@ -48,7 +48,7 @@ sub authenticate {
 
   my ( $self, $username, $password ) = @_;
 
-  my $kerberos = Authen::Krb5::Simple->new( realm => $self->{'realm'} );
+  my $kerberos = Authen::Krb5::Simple->new( realm => $self->{'authenticate_realm'} );
 
   if ($kerberos->authenticate($username, $password)) {
     return ($TRUE, $AUTH_SUCCESS_MSG);
@@ -66,8 +66,7 @@ sub authenticate {
 sub match_in_subclass {
     my ($self, $params, $rule, $own_conditions, $matching_conditions) = @_;
 
-    $params->{'username'} = $params->{'stripped_user_name'} if (defined($params->{'stripped_user_name'} ) && $params->{'stripped_user_name'} ne '' && isenabled($self->{'stripped_user_name'}));
-    return $params->{'username'};
+    return ($params->{'username'}, undef);
 }
 
 
@@ -77,7 +76,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2017 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 
@@ -98,7 +97,7 @@ USA.
 
 =cut
 
-__PACKAGE__->meta->make_immutable;
+__PACKAGE__->meta->make_immutable unless $ENV{"PF_SKIP_MAKE_IMMUTABLE"};
 1;
 
 # vim: set shiftwidth=4:

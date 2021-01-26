@@ -26,58 +26,23 @@ BEGIN {
     use Exporter ();
     our (@ISA, @EXPORT_OK);
     @ISA = qw(Exporter);
-    @EXPORT_OK = qw(scan_insert_sql scan_select_sql scan_update_status_sql);
 }
 
 use pf::constants;
 use pf::constants::scan qw($SEVERITY_HOLE $SEVERITY_WARNING $SEVERITY_INFO $STATUS_CLOSED $STATUS_NEW $STATUS_STARTED);
 use pf::config;
-use pf::db;
+use pf::dal::scan;
+use pf::error qw(is_error is_success);
 use pf::ip4log;
 use pf::scan::nessus;
 use pf::scan::openvas;
 use pf::scan::wmi;
 use pf::util;
-use pf::violation qw(violation_close violation_exist_open violation_trigger violation_modify);
+use pf::security_event qw(security_event_close security_event_exist_open security_event_trigger security_event_modify);
 use pf::Connection::ProfileFactory;
 use pf::api::jsonrpcclient;
 use Text::CSV_XS;
 use List::MoreUtils qw(any);
-
-# DATABASE HANDLING
-use constant SCAN       => 'scan';
-our $scan_db_prepared   = 0;
-our $scan_statements    = {};
-
-sub scan_db_prepare {
-    my $logger = get_logger();
-
-    $logger->debug("Preparing database statements.");
-
-    $scan_statements->{'scan_insert_sql'} = get_db_handle()->prepare(qq[
-            INSERT INTO scan (
-                id, ip, mac, type, start_date, update_date, status, report_id
-            ) VALUES (
-                ?, ?, ?, ?, ?, ?, ?, ?
-            )
-    ]);
-
-    $scan_statements->{'scan_select_sql'} = get_db_handle()->prepare(qq[
-            SELECT id, ip, mac, type, start_date, update_date, status, report_id
-            FROM scan
-            WHERE id = ?
-    ]);
-
-    $scan_statements->{'scan_update_sql'} = get_db_handle()->prepare(qq[
-            UPDATE scan SET
-                status = ?, report_id =?
-            WHERE id = ?
-    ]);
-
-    $scan_db_prepared = 1;
-    return 1;
-}
-
 
 =head1 SUBROUTINES
 
@@ -111,12 +76,12 @@ sub instantiate_scan_engine {
 
 =item parse_scan_report
 
-Parse a scan report from the scan object and trigger violations if needed
+Parse a scan report from the scan object and trigger security_events if needed
 
 =cut
 
 sub parse_scan_report {
-    my ( $scan, $scan_vid ) = @_;
+    my ( $scan, $scan_security_event_id ) = @_;
     my $logger = get_logger();
 
     $logger->debug("Scan report to analyze. Scan id: $scan");
@@ -125,21 +90,23 @@ sub parse_scan_report {
 
     my ($mac, $ip, $type) = @{$scan}{qw(_scanMac _scanIp _type)};
 
-    # Trigger a violation for each vulnerability
+    # Trigger a security_event for each vulnerability
     my $failed_scan = 0;
 
     my $csv = Text::CSV_XS->new ({ binary => 1, sep_char => ',' });
     open my $io, "<", \$scan_report;
     my $row = $csv->getline($io);
     if ($row->[0] eq 'Plugin ID') {
-        while (my $row = $csv->getline($io)) {
-            $logger->info("Calling violation_trigger for ip: $ip, mac: $mac, type: $type, trigger: ".$row->[0]);
-            my $violation_added = violation_trigger( { 'mac' => $mac, 'tid' => $row->[0], 'type' => $type } );
 
-            # If a violation has been added, consider the scan failed
-            if ( $violation_added ) {
+        while (my $row = $csv->getline($io)) {
+            $logger->info("Calling security_event_trigger for ip: $ip, mac: $mac, type: $type, trigger: ".$row->[0]);
+            my $security_event_added = security_event_trigger( { 'mac' => $mac, 'tid' => $row->[0], 'type' => $type } );
+
+            # If a security_event has been added, consider the scan failed
+            if ( $security_event_added ) {
                 $failed_scan = 1;
             }
+
         }
     } else {
         my @count_vulns = (
@@ -147,46 +114,47 @@ sub parse_scan_report {
             Parse::Nessus::NBE::nstatvulns(@$scan_report, $SEVERITY_WARNING),
             Parse::Nessus::NBE::nstatvulns(@$scan_report, $SEVERITY_INFO),
         );
-        # Trigger a violation for each vulnerability
+        # Trigger a security_event for each vulnerability
         foreach my $current_vuln (@count_vulns) {
             # Parse nstatvulns format
             my ( $trigger_id, $number ) = split(/\|/, $current_vuln);
 
-            $logger->info("Calling violation_trigger for ip: $ip, mac: $mac, type: $type, trigger: $trigger_id");
-            my $violation_added = violation_trigger( { 'mac' => $mac, 'tid' => $trigger_id, 'type' => $type } );
+            $logger->info("Calling security_event_trigger for ip: $ip, mac: $mac, type: $type, trigger: $trigger_id");
+            my $security_event_added = security_event_trigger( { 'mac' => $mac, 'tid' => $trigger_id, 'type' => $type } );
 
-            # If a violation has been added, consider the scan failed
-            if ( $violation_added ) {
+            # If a security_event has been added, consider the scan failed
+            if ( $security_event_added ) {
                 $failed_scan = 1;
             }
         }
     }
 
     # If scan is requested because of registration scanning
-    #   Clear scan violation if the host didn't generate any violation
-    #   Otherwise we keep the violation and clear the ticket_ref (so we can re-scan once he remediates)
+    #   Clear scan security_event if the host didn't generate any security_event
+    #   Otherwise we keep the security_event and clear the ticket_ref (so we can re-scan once he remediates)
     # If the scan came from elsewhere
     #   Do nothing
 
-    # The way we accomplish the above workflow is to differentiate by checking if special violation exists or not
-    if ( my $violation_id = violation_exist_open($mac, $scan_vid) ) {
-        $logger->trace("Scan is completed and there is an open scan violation. We have something to do!");
+    # The way we accomplish the above workflow is to differentiate by checking if special security_event exists or not
+    if ( my $security_event_id = security_event_exist_open($mac, $scan_security_event_id) ) {
+        $logger->trace("Scan is completed and there is an open scan security_event. We have something to do!");
 
-        # We passed the scan so we can close the scan violation
+        # We passed the scan so we can close the scan security_event
         if ( !$failed_scan ) {
             my $apiclient = pf::api::jsonrpcclient->new;
             my %data = (
-               'vid' => $scan_vid,
+               'security_event_id' => $scan_security_event_id,
                'mac' => $mac,
                'reason' => 'manage_vclose',
             );
-            $apiclient->notify('close_violation', %data );
-            $apiclient->notify('reevaluate_access', %data );
-        # Scan completed but a violation has been found
-        # HACK: we empty the violation's ticket_ref field which we use to track if scan is in progress or not
+        
+            $apiclient->notify('close_security_event', %data );
+
+        # Scan completed but a security_event has been found
+        # HACK: we empty the security_event's ticket_ref field which we use to track if scan is in progress or not
         } else {
-            $logger->debug("Modifying violation id $violation_id to empty its ticket_ref field");
-            violation_modify($violation_id, (ticket_ref => ""));
+            $logger->debug("Modifying security_event id $security_event_id to empty its ticket_ref field");
+            security_event_modify($security_event_id, (ticket_ref => ""));
         }
     }
 
@@ -203,13 +171,8 @@ Retrieve a scan object populated from the database using the scan id
 sub retrieve_scan {
     my ( $scan_id ) = @_;
     my $logger = get_logger();
-
-    my $query = db_query_execute(SCAN, $scan_statements, 'scan_select_sql', $scan_id) || return 0;
-    my $scan_infos = $query->fetchrow_hashref();
-    $query->finish();
-
-    if (!defined($scan_infos) || $scan_infos->{'id'} ne $scan_id) {
-        $logger->warn("Invalid scan object requested");
+    my ($status, $scan_infos) = pf::dal::scan->find({id => $scan_id});
+    if (is_error($status)) {
         return;
     }
 
@@ -228,8 +191,10 @@ Prepare the scan attributes, call the engine instantiation and start the scan
 =cut
 
 sub run_scan {
-    my ( $host_ip, $mac ) = @_;
+    my ( $host_ip, $mac , $current_scanner ) = @_;
     my $logger = get_logger();
+
+    $host_ip = (defined($host_ip) ? ($host_ip) : (pf::ip4log::mac2ip($mac)) );
 
 
     $host_ip =~ s/\//\\/g;          # escape slashes
@@ -243,9 +208,12 @@ sub run_scan {
     }
 
     my $profile = pf::Connection::ProfileFactory->instantiate($host_mac);
-    my $scanner = $profile->findScan($host_mac);
+
+    my $scanner = (defined($current_scanner)) ? ($current_scanner) : ($profile->findScan($host_mac)) ;
+    
     # If no scan detected then we abort
     if (!$scanner) {
+        $logger->debug("No scan engine found for $host_mac");
         return $FALSE;
     }
     # Preparing the scan attributes
@@ -261,6 +229,7 @@ sub run_scan {
     }
 
     my %scan_attributes = (
+            scanner_id => $scanner->{_id},
             id         => $id,
             scanIp     => $host_ip,
             scanMac    => $host_mac,
@@ -270,9 +239,20 @@ sub run_scan {
         $scanner->{"_".$key}=$val;
     }
 
-    db_query_execute(SCAN, $scan_statements, 'scan_insert_sql',
-            $id, $host_ip, $host_mac, $type, $date, '0000-00-00 00:00:00', $STATUS_NEW, 'NULL'
-    ) || return 0;
+    my $status = pf::dal::scan->create({
+        id => $id,
+        ip => $host_ip,
+        mac => $host_ip,
+        type => $type,
+        start_date => $date,
+        update_date => $ZERO_DATE,
+        status => $STATUS_NEW,
+        report_id => 'NULL',
+    });
+
+    if (is_error($status)) {
+        return 0;
+    }
 
     # Instantiate the new scan object
     my $scan = $scanner;
@@ -285,10 +265,10 @@ sub run_scan {
 
         my $apiclient = pf::api::jsonrpcclient->new;
         my %data = (
-           'vid' => $failed_scan,
+           'security_event_id' => $failed_scan,
            'mac' => $host_mac,
         );
-        $apiclient->notify('close_violation', %data );
+        $apiclient->notify('close_security_event', %data );
     }
 }
 
@@ -309,11 +289,19 @@ Update the status and reportId of the scan in the database.
 sub statusReportSyncToDb {
     my ( $self ) = @_;
     my $logger = get_logger();
-
-    db_query_execute(SCAN, $scan_statements, 'scan_update_sql',
-        $self->{'_status'}, $self->{'_reportId'}, $self->{'_id'}
-    ) || return 0;
-    return $TRUE;
+    my ($status, $rows) = pf::dal::scan->update_items(
+        -set => {
+            status => $self->{_status},
+            report_id => $self->{_reportId},
+        },
+        -where => {
+            id => $self->{'_id'}
+        }
+    );
+    if (is_error($status)) {
+        return $FALSE;
+    }
+    return $rows ? $TRUE : $FALSE;
 }
 
 =item isNotExpired
@@ -353,12 +341,12 @@ Check if the category matches the configuration of the scanner
 
 sub matchCategory {
     my ($self, $node_attributes) = @_;
-    my $category = [split(/\s*,\s*/, $self->{_categories})];
+    my $categories = $self->{_categories} || [];
     my $node_cat = $node_attributes->{'category'};
 
-    get_logger->debug( sub { "Tring to match the role '$node_cat' against " . join(",", @$category) });
+    get_logger->debug( sub { "Trying to match the role '$node_cat' against " . join(",", @$categories) });
     # validating that the node is under the proper category for provisioner
-    return @$category == 0 || any { $_ eq $node_cat } @$category;
+    return @$categories == 0 || !defined($node_cat) || any { $_ eq $node_cat } @$categories;
 }
 
 =item matchOS
@@ -368,21 +356,19 @@ Check if the OS matches the configuration of the scanner
 =cut
 
 sub matchOS {
-    my ($self, $node_attributes) = @_;
+    my ($self, $node_os, $node_attributes) = @_;
     my @oses = @{$self->{_oses} || []};
+    my $logger = get_logger();
 
     #if no oses are defined then it will match all the oses
     return $TRUE if @oses == 0;
 
-    my $fingerbank_info = pf::node::fingerbank_info($node_attributes->{mac}, $node_attributes);
-    get_logger->debug( sub { "Trying see if any of the devices : ".join(',', @{$fingerbank_info->{device_hierarchy_ids}})." are in : " . join(",", @oses) });
+    if (defined $node_os) {
+        my $device_name = $node_attributes->{device_type};
+        $logger->debug( sub { "Trying see if device $device_name is one of: " . join(",", @oses) });
 
-    #if there is no device info then fail
-    return $FALSE if @{$fingerbank_info->{device_hierarchy_ids}} == 0;
-
-    foreach my $device_id (@{$fingerbank_info->{device_hierarchy_ids}}) {
-        if(any {$device_id eq $_} @oses){
-            return $TRUE;
+        for my $os (@oses) {
+            return $TRUE if fingerbank::Model::Device->is_a($device_name, $os);
         }
     }
     return $FALSE;
@@ -395,9 +381,8 @@ Check if the device matches the configuration of the scanner
 =cut
 
 sub match {
-    my ($self, $os, $node_attributes) = @_;
-    $node_attributes->{device_type} = defined($os) ? $os : $node_attributes->{device_name};
-    return $self->matchCategory($node_attributes) && $self->matchOS($node_attributes) ;
+    my ($self, $node_os, $node_attributes) = @_;
+    return $self->matchCategory($node_attributes) && $self->matchOS($node_os,$node_attributes);
 }
 
 =back
@@ -408,7 +393,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2017 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 

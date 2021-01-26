@@ -12,7 +12,7 @@
           </div>
 [% END %]
           <form name="challenge" class="form-horizontal" action="[% c.uri_for(c.controller.action_for('challenge')) %]" method="post">
-            <input type="hidden" name="redirect_url" value="[% redirect_action || c.uri_for(c.controller.action_for('index')) %]">
+            <input type="hidden" name="redirect_url" value="[% redirect_action || c.uri_for(c.controller.action_for('status')) %]">
             <div class="control-group">
               <label class="control-label" for="password">[% l('Challenge') %]</label>
               <div class="controls">

@@ -1,0 +1,22 @@
+/ip6logs/search:
+  description: pf::UnifiedApi::Controller::Ip6logs
+  post:
+    operationId: api.v1.Ip6logs.search
+    parameters: []
+    requestBody:
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Search'
+      description: Search for items
+    responses:
+      '200':
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Ip6logsList'
+        description: List
+      '400':
+        $ref: '#/components/responses/BadRequest'
+      '422':
+        $ref: '#/components/responses/UnprocessableEntity'

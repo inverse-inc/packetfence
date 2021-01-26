@@ -1,0 +1,20 @@
+/// _utilities.text.scss -*- Mode: scss; indent-tabs-mode: nil; basic-offset: 2 -*-
+
+.text-center {
+    text-align:center;
+}
+
+.letter-expand {
+    letter-spacing: 0.5em;
+}
+
+.text-p3 {
+    @include inuit-font-size($pf-font-small, 1.5);
+}
+
+.caption {
+    color: $pf-input-label;
+    font-weight: 600;
+    font-size: 75%;
+    text-transform: uppercase;
+}

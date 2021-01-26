@@ -60,10 +60,12 @@ TODO: This list is incomplete
 
 # CAPABILITIES
 # access technology supported
-sub supportsWirelessDot1x { return $TRUE; }
-sub supportsWirelessMacAuth { return $TRUE; }
 # special features
-sub supportsSaveConfig { return $FALSE; }
+use pf::SwitchSupports qw(
+    WirelessDot1x
+    WirelessMacAuth
+    -SaveConfig
+);
 # inline capabilities
 sub inlineCapabilities { return ($MAC,$SSID); }
 
@@ -134,7 +136,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2017 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 

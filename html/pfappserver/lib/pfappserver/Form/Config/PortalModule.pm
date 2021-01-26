@@ -12,7 +12,10 @@ Form definition to create or update a portal module.
 
 use HTML::FormHandler::Moose;
 extends 'pfappserver::Base::Form';
-with 'pfappserver::Base::Form::Role::Help';
+with qw (
+    pfappserver::Base::Form::Role::Help
+    pfappserver::Role::Form::RolesAttribute
+);
 
 ## Definition
 has_field 'id' =>
@@ -26,12 +29,21 @@ has_field 'id' =>
              'The id is invalid. A portal module id can only contain alphanumeric characters, dashes, and or underscores'
        }
    ],
+   tags => {
+      option_pattern => \&pfappserver::Base::Form::id_pattern,
+   },
    messages => { required => 'Please specify an identifier' },
   );
 
 has_field 'type' =>
   (
    type => 'Hidden',
+   default_method => sub {
+    my ($field) = @_;
+    my $type = ref($field->form);
+    $type =~ s/^pfappserver::Form::Config::PortalModule:://;
+    return $type;
+   },
    messages => { required => 'There was no type specified' },
   );
 
@@ -70,7 +82,6 @@ has_block definition =>
 
 sub BUILD {
     my ($self) = @_;
-    $self->field('actions.contains')->field('type')->options([$self->options_actions]);
     $self->block('definition')->add_to_render_list(qw(id type description), $self->child_definition());
     $self->setup();
 }
@@ -104,22 +115,6 @@ sub remove_field {
     }
 }
 
-=head2 options_actions
-
-Options available for the actions
-
-=cut
-
-sub options_actions {
-    my ($self) = @_;
-    return map { 
-        {
-            value => $_,
-            label => $_,
-        }
-    } ("Select an option", @{$self->for_module->available_actions});
-}
-
 =head2 dynamic_tables
 
 Get all the DynamicTable fields of this form
@@ -128,13 +123,7 @@ Get all the DynamicTable fields of this form
 
 sub dynamic_tables {
     my ($self) = @_;
-    my @fields;
-    foreach my $field ($self->all_fields){
-        if($field->type eq "DynamicTable" && $field->is_active) {
-            push @fields, $field->name;
-        }
-    }
-    return @fields;
+    return map { $_->name } grep { $_->type eq "DynamicTable" && $_->is_active } $self->all_fields;
 }
 
 =over
@@ -143,7 +132,7 @@ sub dynamic_tables {
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2017 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 
@@ -164,5 +153,5 @@ USA.
 
 =cut
 
-__PACKAGE__->meta->make_immutable;
+__PACKAGE__->meta->make_immutable unless $ENV{"PF_SKIP_MAKE_IMMUTABLE"};
 1;

@@ -27,7 +27,10 @@ has_field 'id' =>
    label => 'Group name',
    required => 1,
    messages => { required => 'Please specify a group name' },
-   apply => [ pfappserver::Base::Form::id_validator('group name') ]
+   apply => [ pfappserver::Base::Form::id_validator('group name') ],
+   tags => {
+      option_pattern => \&pfappserver::Base::Form::id_pattern,
+   },
   );
 
 =head2 group
@@ -38,6 +41,7 @@ Overide the field from switch so a group cannot be specified
 
 has_field 'group' =>
   (
+   inactive => 1,
    type => 'Hidden',
    value => '',
    default => '',
@@ -46,7 +50,7 @@ has_field 'group' =>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2017 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 
@@ -67,6 +71,6 @@ USA.
 
 =cut
 
-__PACKAGE__->meta->make_immutable;
+__PACKAGE__->meta->make_immutable unless $ENV{"PF_SKIP_MAKE_IMMUTABLE"};
 
 1;

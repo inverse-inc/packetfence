@@ -1,0 +1,5 @@
+[radius]
+default = yes
+cert = /usr/local/pf/raddb/certs/server.crt
+ca = /usr/local/pf/raddb/certs/ca.pem
+key = /usr/local/pf/raddb/certs/server.key

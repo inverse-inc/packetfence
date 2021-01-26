@@ -1,4 +1,5 @@
 package pf::ConfigStore::Domain;
+
 =head1 NAME
 
 pf::ConfigStore::Domain
@@ -16,13 +17,24 @@ use strict;
 use warnings;
 use Moo;
 use pf::file_paths qw($domain_config_file);
+use pf::constants qw($FALSE);
 extends 'pf::ConfigStore';
+with 'pf::ConfigStore::Role::ReverseLookup';
 
 sub configFile { $domain_config_file };
 
+sub canDelete {
+    my ($self, $id) = @_;
+    if ($self->isInRealm('domain', $id)) {
+        return "Used in a realm", $FALSE;
+    }
+
+    return $self->SUPER::canDelete($id);
+}
+
 sub pfconfigNamespace {'config::Domain'}
 
-__PACKAGE__->meta->make_immutable;
+__PACKAGE__->meta->make_immutable unless $ENV{"PF_SKIP_MAKE_IMMUTABLE"};
 
 =head1 AUTHOR
 
@@ -30,7 +42,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2017 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 

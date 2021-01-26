@@ -32,6 +32,39 @@ function init() {
 
         return false;
     });
+    
+    $('#section').on('click', '#testSMTPBtn', function(event) {
+        event.preventDefault(); 
+        var btn = $(this);
+        var href = btn.attr('href');
+        var modal = $('#testSMTPModal');
+        var form = $('form[name="section"]');
+        var valid = isFormValid(form);
+
+        if (valid) {
+            btn.button('loading');
+            $.ajax({
+                type: 'POST',
+                url: href,
+                data: form.serialize()
+            })
+            .always(function() {
+                btn.button('reset');
+                modal.modal('toggle');
+                $("body,html").animate({scrollTop:0}, 'fast');
+                resetAlert($('#section'));
+            })
+            .done(function(data) {
+                showSuccess(form, data.status_msg);
+            })
+            .fail(function(jqXHR) {
+                var status_msg = getStatusMsg(jqXHR);
+                showPermanentError(form, status_msg);
+            });
+        }
+
+        return false;
+    });
 
     $('#section').on('section.loaded', function(event) {
         /* Set the focus on the first editable and visible field */

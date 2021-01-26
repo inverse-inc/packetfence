@@ -19,10 +19,10 @@ use Apache::Htpasswd;
 
 use Moose;
 extends 'pf::Authentication::Source';
+with qw(pf::Authentication::InternalRole);
 
 has '+type' => (default => 'Htpasswd');
 has 'path' => (isa => 'Str', is => 'rw', required => 1);
-has 'stripped_user_name' => (isa => 'Str', is => 'rw', default => 'yes');
 
 =head1 METHODS
 
@@ -80,7 +80,6 @@ sub match_in_subclass {
     my ($self, $params, $rule, $own_conditions, $matching_conditions) = @_;
     local $_;
 
-    $params->{'username'} = $params->{'stripped_user_name'} if (defined($params->{'stripped_user_name'} ) && $params->{'stripped_user_name'} ne '' && isenabled($self->{'stripped_user_name'}));
     # First check if the username is found in the htpasswd file
     my $username = $params->{'username'} || $params->{'email'};
     my $password_file = $self->{'path'};
@@ -92,16 +91,16 @@ sub match_in_subclass {
             # We should only have conditions based on the username attribute.
             foreach my $condition (@{ $own_conditions }) {
                 if ($condition->{'attribute'} eq "username") {
-                    if ( $condition->matches("username", $username) ) {
+                    if ( $condition->matches("username", $username, $params) ) {
                         push(@{ $matching_conditions }, $condition);
                     }
                 }
             }
-            return $username;
+            return ($username, undef);
         }
     }
 
-    return undef;
+    return (undef, undef);
 }
 
 =head1 AUTHOR
@@ -110,7 +109,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2017 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 
@@ -131,7 +130,7 @@ USA.
 
 =cut
 
-__PACKAGE__->meta->make_immutable;
+__PACKAGE__->meta->make_immutable unless $ENV{"PF_SKIP_MAKE_IMMUTABLE"};
 1;
 
 # vim: set shiftwidth=4:

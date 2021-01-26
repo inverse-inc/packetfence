@@ -16,6 +16,25 @@ extends 'pfappserver::Form::Config::PortalModule::Authentication';
 use captiveportal::DynamicRouting::Module::Authentication::SAML;
 sub for_module {'captiveportal::PacketFence::DynamicRouting::Module::Authentication::SAML'}
 
+has_field 'landing_template' =>
+  (
+   type => 'Text',
+   label => 'Landing template',
+   required => 1,
+   tags => { after_element => \&help,
+             help => 'The template to use prior to the redirection to the SAML provider' },
+  );
+
+sub child_definition {
+    my ($self) = @_;
+    return ($self->source_fields, qw(with_aup landing_template));
+}
+
+sub BUILD {
+    my ($self) = @_;
+    $self->field('landing_template')->default($self->for_module->meta->find_attribute_by_name('landing_template')->default->());
+}
+
 ## Definition
 
 =over
@@ -24,7 +43,7 @@ sub for_module {'captiveportal::PacketFence::DynamicRouting::Module::Authenticat
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2017 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 
@@ -45,5 +64,5 @@ USA.
 
 =cut
 
-__PACKAGE__->meta->make_immutable;
+__PACKAGE__->meta->make_immutable unless $ENV{"PF_SKIP_MAKE_IMMUTABLE"};
 1;

@@ -1,3 +1,87 @@
+packetfence (10.2.9-1) unstable; urgency=low
+
+  * Version 10.2.9
+
+ -- Inverse <info@inverse.ca>  Wed, 07 Oct 2020 11:17:00 +0100
+
+packetfence (10.2.0-1) unstable; urgency=low
+
+  * Version 10.2.0
+
+ -- Inverse <info@inverse.ca>  Wed, 07 Oct 2020 11:17:00 +0100
+
+packetfence (10.1.0-1) unstable; urgency=low
+
+  * Version 10.1.0
+
+ -- Inverse <info@inverse.ca>  Wed, 17 Jun 2020 11:17:00 +0100
+
+packetfence (10.0.0-1) unstable; urgency=low
+
+  * Version 10.0.0
+
+ -- Inverse <info@inverse.ca>  Thu, 16 Apr 2020 11:17:00 +0100
+
+packetfence (9.3.0) unstable; urgency=low
+
+  * Version 9.3.0
+
+ -- Inverse <info@inverse.ca>  Fri, 13 Jan 2020 07:34:00 +0100
+
+packetfence (9.2.0) unstable; urgency=low
+
+  * Version 9.2.0
+
+ -- Inverse <info@inverse.ca>  Wed, 15 May 2019 12:00:00 -0400
+
+packetfence (9.1.9-1) unstable; urgency=low
+
+  * Adapt Debian packaging to CI.
+
+ -- Inverse <info@inverse.ca>  Wed, 15 May 2019 12:00:00 -0400
+
+packetfence (9.0.0) unstable; urgency=low
+
+  * Version 9.0.0
+
+ -- Inverse <info@inverse.ca>  Wed, 15 May 2019 12:00:00 -0400
+
+packetfence (8.3.0) unstable; urgency=low
+
+  * Version 8.3.0
+
+ -- Inverse <info@inverse.ca>  Wed, 09 Jan 2019 12:00:00 -0400
+
+packetfence (8.2.0) unstable; urgency=low
+
+  * Version 8.2.0
+
+ -- Inverse <info@inverse.ca>  Wed, 07 Nov 2018 12:00:00 -0400
+
+packetfence (8.1.0) unstable; urgency=low
+
+  * Version 8.1.0
+
+ -- Inverse <info@inverse.ca>  Thu, 09 Jul 2018 12:00:00 -0400
+
+packetfence (8.0.0) unstable; urgency=low
+
+  * Version 8.0.0
+
+ -- Inverse <info@inverse.ca>  Thu, 26 Apr 2018 12:00:00 -0400
+
+packetfence (7.4.0) unstable; urgency=low
+
+  * Version 7.4.0
+
+ -- Inverse <info@inverse.ca>  Thu, 25 Jan 2018 12:00:00 -0400
+
+packetfence (7.3.0) unstable; urgency=low
+
+  * Version 7.3.0
+
+ -- Inverse <info@inverse.ca>  Mon, 25 Sep 2017 12:00:00 -0400
+
 packetfence (7.2.0) unstable; urgency=low
 
   * Version 7.2.0

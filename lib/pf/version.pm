@@ -16,40 +16,14 @@ use strict;
 use warnings;
 
 use pf::constants;
-use pf::db;
 use pf::file_paths qw($conf_dir);
 use pf::log;
+use pf::dal::pf_version;
+use pf::error qw(is_error);
 
-use constant PF_VERSION => 'version';
-
-# The next two variables and the _prepare sub are required for database handling magic (see pf::db)
-our $version_db_prepared = 0;
-
-# In this hash reference we hold the database statements. We pass it to the query handler and it will repopulate
-# the hash if required.
-our $version_statements = {};
+my $logger = get_logger();
 
 =head1 SUBROUTINES
-
-=head2 version_db_prepare
-
-Initialize database prepared statements
-
-=cut
-
-sub version_db_prepare {
-
-    $version_statements->{'version_check_db_sql'} = get_db_handle()->prepare(qq[
-        SELECT version FROM pf_version WHERE version LIKE ?;
-    ]);
-
-    $version_statements->{'version_get_last_db_version_sql'} = get_db_handle()->prepare(qq[
-        SELECT version FROM pf_version ORDER BY id DESC limit 1;
-    ]);
-
-    $version_db_prepared = 1;
-    return 1;
-}
 
 =head2 version_check_db
 
@@ -58,25 +32,25 @@ Checks the version of database schema
 =cut
 
 sub version_check_db {
-    my $logger = get_logger();
-
     my $current_pf_minor_version = version_get_current();
     $current_pf_minor_version =~ s/(\.\d+).*$/$1/; # Keeping only the major/minor part (i.e: X.Y.Z -> X.Y)
+    my ($status, $iterator) = pf::dal::pf_version->search(
+        -where => {
+            version => {'LIKE' => "${current_pf_minor_version}.%" },
+        }
+    );
 
-    my $sth = db_query_execute(PF_VERSION, $version_statements, 'version_check_db_sql', $current_pf_minor_version . '.%');
-    unless ( $sth ) {
-        $logger->error("Can't get DB handle while trying to check for database schema version");
+    if (is_error($status)) {
         return undef;
     }
 
-    my $row = $sth->fetch;
-    $sth->finish;
+    my $row = $iterator->next;
     unless ( $row ) {
         $logger->error("Can't get any result from DB while trying to check for database schema version");
         return undef;
     }
 
-    return $row->[0];
+    return $row->{version};
 }
 
 =head2 version_get_last_db_version_sql
@@ -86,22 +60,21 @@ Get the last schema version in the datbase
 =cut
 
 sub version_get_last_db_version {
-    my $logger = get_logger();
+    my ($status, $iterator) = pf::dal::pf_version->search(
+        -limit => 1,
+        -order_by => {-desc => 'id'},
+    );
 
-    my $sth = db_query_execute(PF_VERSION, $version_statements, 'version_get_last_db_version_sql');
-    unless ( $sth ) {
-        $logger->error("Can't get DB handle while trying to check for database schema version");
+    if (is_error($status)) {
         return undef;
     }
-
-    my $row = $sth->fetch;
-    $sth->finish;
+    my $row = $iterator->next;
     unless ( $row ) {
         $logger->error("Can't get any result from DB while trying to check for database schema version");
         return undef;
     }
 
-    return $row->[0];
+    return $row->{version};
 }
 
 =head2 version_get_release
@@ -146,7 +119,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2017 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 

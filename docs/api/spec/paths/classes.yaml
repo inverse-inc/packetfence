@@ -1,0 +1,21 @@
+/classes:
+  description: pf::UnifiedApi::Controller::Classes
+  get:
+    description: List items
+    operationId: api.v1.Classes.list
+    parameters:
+    - $ref: '#/components/parameters/cursor'
+    - $ref: '#/components/parameters/limit'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/sort'
+    responses:
+      '200':
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ClassesList'
+        description: List
+      '400':
+        $ref: '#/components/responses/BadRequest'
+      '422':
+        $ref: '#/components/responses/UnprocessableEntity'

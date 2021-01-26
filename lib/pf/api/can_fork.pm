@@ -18,7 +18,6 @@ To avoid circular dependencies pf::api needs to be included before consuming thi
 use strict;
 use warnings;
 use pf::log;
-use pf::db;
 use pf::util::webapi;
 use POSIX;
 use Moo;
@@ -47,7 +46,6 @@ sub notify {
     my ($self, $method, @args) = @_;
     my $pid;
     if (pf::api->shouldFork($method)) {
-        db_disconnect();
         $pid = fork;
         unless (defined $pid) {
             $logger->error("Error fork $!");
@@ -62,7 +60,7 @@ sub notify {
     pf::util::webapi::add_mac_to_log_context(\@args);
     eval {pf::api->$method(@args);};
     if ($@) {
-        $logger->error($@);
+        $logger->error("Error handling $method : $@");
     }
     if (defined $pid && $pid == 0 ) {
         POSIX::_exit(0);
@@ -76,7 +74,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2017 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 

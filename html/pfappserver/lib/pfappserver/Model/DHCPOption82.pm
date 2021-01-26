@@ -16,6 +16,7 @@ use warnings;
 use Moose;
 use namespace::autoclean;
 use pf::dhcp_option82;
+use pf::dal::dhcp_option82;
 use pf::error qw(is_error is_success);
 use SQL::Abstract::More;
 use POSIX qw(ceil);
@@ -51,32 +52,29 @@ sub search {
     $params->{page_num} ||= 1;
     $params->{per_page} ||= 25;
     my $sqla = SQL::Abstract::More->new;
-    my @where_options = $self->_build_where($params);
-    my @additional_options = ($self->_build_limit($params),$self->_build_order_by($params));
-    my $table = $self->table;
-    my ($sql, @bind) = $sqla->select(
-        -from => $table,
-        @where_options,
-        @additional_options
+    my $where = $self->_build_where($params);
+    my %search = (
+        -where => $where,
+        $self->_build_limit($params),
+        $self->_build_order_by($params)
     );
-    my @items =  dhcp_option82_custom($sql, @bind);
-    ($sql, @bind) = $sqla->select(
-        -from => $table,
-        -columns => [qw(count(*)|count)],
-        @where_options,
-    );
-    my @count =  dhcp_option82_custom($sql, @bind);
-    my %results;
-    my $count = 0;
-    if($count[0]) {
-        $count = $count[0]->{count};
+    my ($status, $iter) = pf::dal::dhcp_option82->search(%search);
+    if (is_error($status)) {
+        return ($status, "Error searching in dhcp_option82");
+    }
+    my $items = $iter->all(undef);
+    ($status, my $count) = pf::dal::dhcp_option82->count(-where => $where);
+    if (is_error($status)) {
+        return ($status, "Error searching in dhcp_option82");
     }
     my $per_page = $params->{per_page};
-    $results{items} = \@items;
-    $results{count} = $count;
-    $results{page_count} = ceil( $count / $per_page );
-    $results{per_page} = $per_page;
-    $results{page_num} = $params->{page_num};
+    my %results = (
+        items => $items,
+        count => $count,
+        page_count => ceil( $count / $per_page ),
+        per_page => $per_page,
+        page_num => $params->{page_num},
+    );
     return ($STATUS::OK,\%results);
 }
 
@@ -90,7 +88,7 @@ sub _build_where {
         my $relational_op = $all_or_any eq "any" ? "-or" : "-and";
         $where{$relational_op} =  \@clauses;
     }
-    return -where => \%where;
+    return \%where;
 }
 
 sub _build_limit {
@@ -103,7 +101,7 @@ sub _build_limit {
 
 sub _build_order_by {
     my ($self, $params) = @_;
-    return -order_by => [qw(-created_at)];
+    return -order_by => { -desc => 'created_at' };
 }
 
 our %OP_MAP = (
@@ -134,7 +132,7 @@ sub _build_clause {
     my $sql_op = $OP_MAP{$op};
     if($sql_op eq 'LIKE' || $sql_op eq 'NOT LIKE') {
         #escaping the % and _ charcaters
-        my $escaped = $value =~ s/([%_])/\\$1/g;
+        my $escaped = $value =~ s/([%_\\])/\\$1/g;
         if($op eq 'like' || $op eq 'not_like') {
             $value = "\%$value\%";
         } elsif ($op eq 'starts_with') {
@@ -143,7 +141,7 @@ sub _build_clause {
             $value = "\%$value";
         }
         if ($escaped) {
-            return { $name => { like => \[q{? ESCAPE '\'}, $value] } };
+            return { $name => { like => \[q{? ESCAPE '\\\\'}, $value] } };
         }
     }
     return {$name => {$sql_op => $value}};
@@ -157,7 +155,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2017 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 
@@ -178,6 +176,6 @@ USA.
 
 =cut
 
-__PACKAGE__->meta->make_immutable;
+__PACKAGE__->meta->make_immutable unless $ENV{"PF_SKIP_MAKE_IMMUTABLE"};
 
 1;

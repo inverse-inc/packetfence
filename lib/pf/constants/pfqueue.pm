@@ -21,12 +21,31 @@ our @EXPORT_OK = qw(
     $PFQUEUE_QUEUE_PREFIX
     $PFQUEUE_EXPIRED_COUNTER
     $PFQUEUE_WORKERS_DEFAULT
+    $PFQUEUE_HASHED_DEFAULT
     $PFQUEUE_MAX_TASKS_DEFAULT
+    $PFQUEUE_TASK_JITTER_DEFAULT
     $PFQUEUE_WEIGHT_DEFAULT
     $PFQUEUE_DELAYED_QUEUE_BATCH_DEFAULT
     $PFQUEUE_DELAYED_QUEUE_WORKERS_DEFAULT
     $PFQUEUE_DELAYED_QUEUE_SLEEP_DEFAULT
     $PFQUEUE_WEIGHTS
+
+    $STATUS_KEY
+    $STATUS_MSG_KEY
+    $SUB_TASKS_KEY
+    $CURRENT_SUB_TASK_KEY
+    $PROGRESS_KEY
+    $RESULT_KEY
+    $MSG_KEY
+    $ERROR_KEY
+
+    $FAILED_MSG
+    $COMPLETED_MSG
+    $IN_PROGRESS_MSG
+    
+    $STATUS_COMPLETED
+    $STATUS_FAILED
+    $STATUS_IN_PROGRESS
 );
 
 our %EXPORT_TAGS = (
@@ -38,6 +57,8 @@ our $PFQUEUE_COUNTER = "TaskCounters";
 our $PFQUEUE_EXPIRED_COUNTER = "ExpiredCounters";
 
 our $PFQUEUE_QUEUE_PREFIX = "Queue:";
+
+our $PFQUEUE_HASHED_DEFAULT = 'disabled';
 
 our $PFQUEUE_WORKERS_DEFAULT = 0;
 
@@ -51,7 +72,30 @@ our $PFQUEUE_DELAYED_QUEUE_SLEEP_DEFAULT = 100;
 
 our $PFQUEUE_MAX_TASKS_DEFAULT = 2000;
 
+our $PFQUEUE_TASK_JITTER_DEFAULT = 100;
+
 our $PFQUEUE_WEIGHTS = 'QueueWeights';
+
+=head2 Job status related constants
+
+=cut
+
+our $STATUS_KEY = "status";
+our $STATUS_MSG_KEY = "status_msg";
+our $SUB_TASKS_KEY = "sub_tasks";
+our $CURRENT_SUB_TASK_KEY = "sub_task";
+our $PROGRESS_KEY = "progress";
+our $RESULT_KEY = "item";
+our $MSG_KEY    = "message";
+our $ERROR_KEY = 'error';
+
+our $STATUS_COMPLETED = 200;
+our $STATUS_FAILED = 400;
+our $STATUS_IN_PROGRESS = 202;
+
+our $FAILED_MSG = 'Failed';
+our $COMPLETED_MSG = 'Completed';
+our $IN_PROGRESS_MSG = 'In Progress';
 
 =head1 AUTHOR
 
@@ -59,7 +103,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2017 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 

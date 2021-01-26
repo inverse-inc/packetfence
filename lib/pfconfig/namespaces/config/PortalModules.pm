@@ -22,7 +22,7 @@ use pf::file_paths qw(
     $portal_modules_default_config_file
     $portal_modules_config_file
 );
-use Config::IniFiles;
+use pf::IniFiles;
 
 use base 'pfconfig::namespaces::config';
 
@@ -30,29 +30,54 @@ sub init {
     my ($self) = @_;
     $self->{file} = $portal_modules_config_file;
 
-    my $defaults = Config::IniFiles->new( -file => $portal_modules_default_config_file );
+    my $defaults = pf::IniFiles->new( -file => $portal_modules_default_config_file );
     $self->{added_params}->{'-import'} = $defaults;
+    $self->{child_resources} = [
+        'resource::PortalModuleReverseLookup',
+        'resource::RolesReverseLookup',
+    ];
 }
 
 sub build_child {
     my ($self) = @_;
 
     my %tmp_cfg = %{$self->{cfg}};
+    my %reverseLookup;
+    my %roleReverseLookup;
+    while ( my ($key, $module) = each %tmp_cfg) {
+        $self->expand_list($module, qw(modules fields_to_save custom_fields multi_source_types multi_source_auth_classes multi_source_object_classes));
+        foreach my $field (qw(modules source_id)) {
+            my $values = $module->{$field};
+            if (ref ($values) eq '') {
+                next if !defined $values || $values eq '';
 
-    foreach my $module_id (keys %tmp_cfg){
-        $self->expand_list($tmp_cfg{$module_id}, qw(modules custom_fields actions multi_source_types multi_source_auth_classes multi_source_object_classes));
-
-        if(defined($tmp_cfg{$module_id}{actions})){
-            if(@{$tmp_cfg{$module_id}{actions}}){
-                $tmp_cfg{$module_id}{actions} = inflate_actions($tmp_cfg{$module_id}{actions});
+                $values = [$values];
             }
-            else {
-                delete $tmp_cfg{$module_id}{actions};
+
+            for my $val (@$values) {
+                push @{$reverseLookup{$field}{$val}}, $key;
             }
         }
-
+        my $actions = $module->{actions};
+        if (defined $actions) {
+            if ($actions) {
+                $self->expand_list($module, qw(actions));
+                $module->{actions} = inflate_actions($module->{actions});
+                if (exists $module->{actions}{set_role}) {
+                    my $role = $module->{actions}{set_role};
+                    if (defined $role) {
+                        push @{$roleReverseLookup{$role->[0]}{portal_module}}, $key;
+                    }
+                }
+            }
+            else {
+                delete $module->{actions};
+            }
+        }
     }
 
+    $self->{reverseLookup} = \%reverseLookup;
+    $self->{roleReverseLookup} = \%roleReverseLookup;
     return \%tmp_cfg;
 }
 
@@ -109,7 +134,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2017 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 

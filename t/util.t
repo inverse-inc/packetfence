@@ -8,8 +8,257 @@ BEGIN {
     use lib qw(/usr/local/pf/t);
     use setup_test_config;
 }
-use Test::More tests => 50;
+
+use pf::constants qw($TRUE $FALSE);
+
+our (
+    @INVALID_DATES,
+    @STRIP_FILENAME_FROM_EXCEPTIONS_TESTS,
+    @NORMALIZE_TIME_TESTS,
+    @EXPAND_CSV_TESTS,
+    @VALID_UNREG_DATE_TESTS,
+    @MAC2DEC,
+    @NODE_ID_TESTS
+);
+
+BEGIN {
+    no warnings 'portable';
+    @NODE_ID_TESTS = (
+        {
+            mac => "00:00:00:00:00:00",
+            tenant_id => 1,
+            node_id => (1 << 48),
+        },
+        {
+            mac => "aa:00:00:00:00:ff",
+            tenant_id => 2,
+            node_id => (2 << 48) | 0xaa00000000ff,
+        }
+    );
+    @MAC2DEC = (
+        {
+            in  => "aa:bb:cc:dd:ee:ff",
+            out => "170.187.204.221.238.255",
+            msg => "mac2dec aa:bb:cc:dd:ee:ff -> 170.187.204.221.238.255",
+        },
+        {
+            in  => "11:22:33:44:55:66",
+            out => "17.34.51.68.85.102",
+            msg => "mac2dec 11:22:33:44:55:66 -> 17.34.51.68.85.102",
+        },
+        {
+            in  => "ff:ee:dd:cc:bb:aa",
+            out => "255.238.221.204.187.170",
+            msg => "mac2dec ff:ee:dd:cc:bb:aa -> 255.238.221.204.187.170",
+        },
+    );
+
+    @INVALID_DATES = (
+        {
+            in  => undef,
+            msg => "undef date",
+        },
+        {
+            in  => "garbage",
+            msg => "Invalid date",
+        },
+        {
+            in  => "2017",
+            msg => "invalid date year only",
+        },
+        {
+            in  => "2017-02",
+            msg => "invalid date year month only",
+        },
+    );
+
+    @STRIP_FILENAME_FROM_EXCEPTIONS_TESTS = (
+        {
+            in  => undef,
+            out => undef,
+            msg => "Undef returns undef",
+        },
+        {
+            in  => '',
+            out => '',
+            msg => "empty string"
+        },
+        {
+            in  => 'Blah blah blah at -e line 1.',
+            out => 'Blah blah blah',
+            msg => "simple die string"
+        },
+        {
+            in  => 'Blah at blah and at blah at -e line 1.',
+            out => 'Blah at blah and at blah',
+            msg => "With multiple at in exception string"
+        },
+        {
+            in  => 'Blah at blah and at blah',
+            out => 'Blah at blah and at blah',
+            msg => "Nothing needs to be stripped"
+        },
+        {
+            in  => "\nBlah at blah \nalso blah at -e line 1.\n",
+            out => "\nBlah at blah \nalso blah\n",
+            msg => "Exception with multiple lines"
+        },
+    );
+
+    @NORMALIZE_TIME_TESTS = (
+        {
+            in  => undef,
+            out => undef,
+            msg => "undef normalize attempt",
+        },
+        {
+            in  => "5Z",
+            out => 0,
+            msg => "illegal normalize attempt",
+        },
+        {
+            in  => "5",
+            out => 5,
+            msg =>
+              "normalizing w/o a time resolution specified (seconds assumed)"
+        },
+        {
+            in => "2s",
+            out => 2 * 1,
+            msg => "normalizing seconds"
+        },
+        {
+            in => "2m",
+            out => 2 * 60,
+            msg => "normalizing minutes"
+        },
+        {
+            in => "2h",
+            out => 2 * 60 * 60,
+            msg => "normalizing hours"
+        },
+        {
+            in => "2D",
+            out => 2 * 24 * 60 * 60,
+            msg => "normalizing days"
+        },
+        {
+            in => "2W",
+            out => 2 * 7 * 24 * 60 * 60,
+            msg => "normalizing weeks"
+        },
+        {
+            in  => "2M",
+            out => 2 * 30 * 24 * 60 * 60,
+            msg => "normalizing months"
+        },
+        {
+            in  => "2Y",
+            out => 2 * 365 * 24 * 60 * 60,
+            msg => "normalizing years"
+        },
+    );
+
+    @EXPAND_CSV_TESTS = (
+        {
+            in  => '',
+            out => [],
+            msg => "empty string",
+        },
+        {
+            in  => [],
+            out => [],
+            msg => "empty array",
+        },
+        {
+            in  => undef,
+            out => [],
+            msg => "undef"
+        },
+        {
+            in  => "a,b,c",
+            out => [qw(a b c)],
+            msg => "simply list",
+        },
+        {
+            in  => [qw(a b c)],
+            out => [qw(a b c)],
+            msg => "simply array",
+        },
+        {
+            in  => "a , b , c",
+            out => [qw(a b c)],
+            msg => "simply list with spaces",
+        },
+        {
+            in  => [qw(a b ), "c,d"],
+            out => [qw(a b c d)],
+            msg => "list with in a list ",
+        },
+    );
+
+    @VALID_UNREG_DATE_TESTS = (
+        {
+            in  => '0-01-01',
+            out => $TRUE,
+            msg => "Allow a zero year 0-01-01"
+        },
+        {
+            in  => '0-01-41',
+            out => $FALSE,
+            msg => "Invalid month day with zero year 0-01-41"
+        },
+        {
+            in  => '0000-01-31',
+            out => $TRUE,
+            msg => "Allow a zero year 0000-01-31"
+        },
+        {
+            in  => '0000-01-41',
+            out => $FALSE,
+            msg => "Invalid month day with zero year 0000-01-41"
+        },
+        {
+            in  => '0001-01-01',
+            out => $FALSE,
+            msg => "0001-01-01"
+        },
+        {
+            in  => '1970-01-01',
+            out => $TRUE,
+            msg => "valid date 1970-01-01",
+        },
+        {
+            in  => '2037-12-31',
+            out => $TRUE,
+            msg => "valid date 2037-12-31",
+        },
+        {
+            in  => '2038-01-01',
+            out => $TRUE,
+            msg => "valid date 2038-01-01"
+        },
+        {
+            in  => '0000-00-00',
+            out => $TRUE,
+            msg => "valid date 0000-00-00",
+        },
+    );
+}
+
+use Test::More;
 use Test::NoWarnings;
+
+BEGIN {
+    plan tests => 44 +
+      ((scalar @NODE_ID_TESTS) * 3) +
+      scalar @STRIP_FILENAME_FROM_EXCEPTIONS_TESTS +
+      scalar @INVALID_DATES +
+      scalar @NORMALIZE_TIME_TESTS +
+      scalar @EXPAND_CSV_TESTS +
+      scalar @VALID_UNREG_DATE_TESTS +
+      scalar @MAC2DEC;
+}
 
 BEGIN {
     use_ok('pf::util');
@@ -37,6 +286,7 @@ is_deeply(undef, strip_username(undef),
 is(clean_mac("aabbccddeeff"), "aa:bb:cc:dd:ee:ff", "clean MAC address of the form xxxxxxxxxxxx");
 is(clean_mac("aa:bb:cc:dd:ee:ff"), "aa:bb:cc:dd:ee:ff", "clean MAC address of the form xx:xx:xx:xx:xx:xx");
 is(clean_mac("aa-bb-cc-dd-ee-ff"), "aa:bb:cc:dd:ee:ff", "clean MAC address of the form xx-xx-xx-xx-xx-xx");
+is(clean_mac("AA-BB-CC-DD-EE-FF"), "aa:bb:cc:dd:ee:ff", "clean MAC address of the form xx-xx-xx-xx-xx-xx");
 is(clean_mac("aabb-ccdd-eeff"), "aa:bb:cc:dd:ee:ff", "clean MAC address of the form xxxx-xxxx-xxxx");
 is(clean_mac("aabb.ccdd.eeff"), "aa:bb:cc:dd:ee:ff", "clean MAC address of the form xxxx.xxxx.xxxx");
 is(clean_mac("aabbccddeeff"), "aa:bb:cc:dd:ee:ff", "clean MAC address of the form xxxxxxxxxxxx");
@@ -102,21 +352,75 @@ ok(!is_in_list("sms","email"), "is_in_list negative");
 ok(!is_in_list("sms",""), "is_in_list empty list");
 ok(is_in_list("sms","sms, email"), "is_in_list positive with spaces");
 
-# normalize time
-is(normalize_time("5Z"), 0, "illegal normalize attempt");
-is(normalize_time("5"), 5, "normalizing w/o a time resolution specified (seconds assumed)");
-is(normalize_time("2s"), 2 * 1, "normalizing seconds");
-is(normalize_time("2m"), 2 * 60, "normalizing minutes");
-is(normalize_time("2h"), 2 * 60 * 60, "normalizing hours");
-is(normalize_time("2D"), 2 * 24 * 60 * 60, "normalizing days");
-is(normalize_time("2W"), 2 * 7 * 24 * 60 * 60, "normalizing weeks");
-is(normalize_time("2M"), 2 * 30 * 24 * 60 * 60, "normalizing months");
-is(normalize_time("2Y"), 2 * 365 * 24 * 60 * 60, "normalizing years");
+{
+    for my $test (@NORMALIZE_TIME_TESTS) {
+        is(normalize_time($test->{in}), $test->{out}, $test->{msg});
+    }
+}
 
+{
+    foreach my $test (@EXPAND_CSV_TESTS) {
+        is_deeply( [ expand_csv( $test->{in} ) ], $test->{out}, "expand_csv $test->{msg}" );
+    }
+}
 
+{
+    for my $test (@INVALID_DATES) {
+        ok(!valid_date($test->{in}), $test->{msg});
+    }
+}
 
 # TODO add more tests, we should test:
 #  - all methods ;)
+
+for my $test (@STRIP_FILENAME_FROM_EXCEPTIONS_TESTS) {
+    is (
+        strip_filename_from_exceptions($test->{in}),
+        $test->{out},
+        $test->{msg}
+    )
+}
+
+for my $test (@VALID_UNREG_DATE_TESTS) {
+    is (
+        validate_unregdate($test->{in}),
+        $test->{out},
+        $test->{msg}
+    )
+}
+
+for my $test (@MAC2DEC) {
+    is (
+        mac2dec($test->{in}),
+        $test->{out},
+        $test->{msg}
+    )
+}
+
+
+{
+
+    for my $test (@NODE_ID_TESTS) {
+        my $node_id = $test->{node_id};
+        my $tenant_id = $test->{tenant_id};
+        my $mac = $test->{mac};
+        is(
+            make_node_id($tenant_id, $mac),
+            $node_id,
+            "Convert tenant_id mac ($tenant_id, $mac) to a node_id ($node_id)"
+        );
+        
+        my ($expect_tenant_id, $expected_mac) = split_node_id($node_id);
+        is($expect_tenant_id, $tenant_id, "split_node_id($node_id) tenant_id");
+        is($expected_mac, $mac, "split_node_id($node_id) mac");
+    }
+
+}
+
+{
+    is(extract("j.domain.com", "(.*?)\.domain.com", '$1'), 'j', 'Extract');
+    is(extract('[inverse-test@staff.it.acme.edu](mailto:inverse-test@staff.it.acme.edu)','@(\w+)','$1.VLAN'), "staff.VLAN")
+}
 
 =head1 AUTHOR
 
@@ -124,7 +428,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2017 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 

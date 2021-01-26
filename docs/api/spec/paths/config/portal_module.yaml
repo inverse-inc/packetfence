@@ -1,0 +1,70 @@
+/config/portal_module/{portal_module_id}:
+  delete:
+    description: Remove an item
+    operationId: api.v1.Config::PortalModules.remove
+    parameters:
+    - in: path
+      name: portal_module_id
+      schema:
+        type: string
+    responses:
+      '204':
+        description: Deleted a config item
+  description: pf::UnifiedApi::Controller::Config::PortalModules
+  get:
+    description: Get an item
+    operationId: api.v1.Config::PortalModules.get
+    parameters:
+    - in: path
+      name: portal_module_id
+      schema:
+        type: string
+    responses:
+      '200':
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ConfigPortalModule'
+        description: Item
+      '400':
+        $ref: '#/components/responses/BadRequest'
+      '422':
+        $ref: '#/components/responses/UnprocessableEntity'
+  patch:
+    description: Update an item
+    operationId: api.v1.Config::PortalModules.update
+    parameters:
+    - in: path
+      name: portal_module_id
+      schema:
+        type: string
+    requestBody:
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ConfigPortalModule'
+    responses:
+      '400':
+        $ref: '#/components/responses/BadRequest'
+      '422':
+        $ref: '#/components/responses/UnprocessableEntity'
+  put:
+    description: Replace an item
+    operationId: api.v1.Config::PortalModules.replace
+    parameters:
+    - in: path
+      name: portal_module_id
+      schema:
+        type: string
+    requestBody:
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ConfigPortalModule'
+    responses:
+      '201':
+        $ref: '#/components/responses/Created'
+      '400':
+        $ref: '#/components/responses/BadRequest'
+      '422':
+        $ref: '#/components/responses/UnprocessableEntity'

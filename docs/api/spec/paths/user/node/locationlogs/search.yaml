@@ -1,0 +1,30 @@
+/user/{user_id}/node/{node_id}/locationlogs/search:
+  description: pf::UnifiedApi::Controller::Users::Nodes::Locationlogs
+  post:
+    operationId: api.v1.Users.Nodes.Locationlogs.search
+    parameters:
+    - in: path
+      name: user_id
+      schema:
+        type: string
+    - in: path
+      name: node_id
+      schema:
+        type: string
+    requestBody:
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Search'
+      description: Search for items
+    responses:
+      '200':
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UsersNodesLocationlogsList'
+        description: List
+      '400':
+        $ref: '#/components/responses/BadRequest'
+      '422':
+        $ref: '#/components/responses/UnprocessableEntity'

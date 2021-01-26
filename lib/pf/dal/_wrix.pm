@@ -21,6 +21,7 @@ use warnings;
 ### pf::dal::_wrix is auto generated any change to this file will be lost
 ### Instead change in the pf::dal::wrix module
 ###
+
 use base qw(pf::dal);
 
 our @FIELD_NAMES;
@@ -28,6 +29,7 @@ our @INSERTABLE_FIELDS;
 our @PRIMARY_KEYS;
 our %DEFAULTS;
 our %FIELDS_META;
+our @COLUMN_NAMES;
 
 BEGIN {
     @FIELD_NAMES = qw(
@@ -378,6 +380,47 @@ BEGIN {
     @PRIMARY_KEYS = qw(
         id
     );
+
+    @COLUMN_NAMES = qw(
+        wrix.id
+        wrix.Provider_Identifier
+        wrix.Location_Identifier
+        wrix.Service_Provider_Brand
+        wrix.Location_Type
+        wrix.Sub_Location_Type
+        wrix.English_Location_Name
+        wrix.Location_Address1
+        wrix.Location_Address2
+        wrix.English_Location_City
+        wrix.Location_Zip_Postal_Code
+        wrix.Location_State_Province_Name
+        wrix.Location_Country_Name
+        wrix.Location_Phone_Number
+        wrix.SSID_Open_Auth
+        wrix.SSID_Broadcasted
+        wrix.WEP_Key
+        wrix.WEP_Key_Entry_Method
+        wrix.WEP_Key_Size
+        wrix.SSID_1X
+        wrix.SSID_1X_Broadcasted
+        wrix.Security_Protocol_1X
+        wrix.Client_Support
+        wrix.Restricted_Access
+        wrix.Location_URL
+        wrix.Coverage_Area
+        wrix.Open_Monday
+        wrix.Open_Tuesday
+        wrix.Open_Wednesday
+        wrix.Open_Thursday
+        wrix.Open_Friday
+        wrix.Open_Saturday
+        wrix.Open_Sunday
+        wrix.Longitude
+        wrix.Latitude
+        wrix.UTC_Timezone
+        wrix.MAC_Address
+    );
+
 }
 
 use Class::XSAccessor {
@@ -394,13 +437,13 @@ sub _defaults {
     return {%DEFAULTS};
 }
 
-=head2 field_names
+=head2 table_field_names
 
 Field names of wrix
 
 =cut
 
-sub field_names {
+sub table_field_names {
     return [@FIELD_NAMES];
 }
 
@@ -426,6 +469,16 @@ our $FIND_SQL = do {
     my $where = join(", ", map { "$_ = ?" } @PRIMARY_KEYS);
     "SELECT * FROM `wrix` WHERE $where;";
 };
+
+=head2 find_columns
+
+find_columns
+
+=cut
+
+sub find_columns {
+    return [@COLUMN_NAMES];
+}
 
 =head2 _find_one_sql
 
@@ -466,14 +519,14 @@ Get the meta data for wrix
 sub get_meta {
     return \%FIELDS_META;
 }
- 
+
 =head1 AUTHOR
 
 Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2017 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 

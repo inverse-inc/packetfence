@@ -94,9 +94,31 @@ has_field 'domains' =>
              help => 'Comma-separated list of domains that will be resolved with the correct IP addresses.' },
   );
 
+has_field 'username_attribute' =>
+  (
+   type => 'Text',
+   label => 'Attribute of the username in the response',
+   required => 1,
+    element_attr => {
+        'placeholder' =>
+            pf::Authentication::Source::OpenIDSource->meta->get_attribute('username_attribute')->default
+    },
+    default => pf::Authentication::Source::OpenIDSource->meta->get_attribute('username_attribute')->default,
+  );
+
+has_field 'person_mappings' =>
+  (
+   type => 'Repeatable',
+  );
+
+has_field 'person_mappings.contains' =>
+  (
+   type => 'PersonMapping',
+  );
+
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2017 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 
@@ -117,5 +139,5 @@ USA.
 
 =cut
 
-__PACKAGE__->meta->make_immutable;
+__PACKAGE__->meta->make_immutable unless $ENV{"PF_SKIP_MAKE_IMMUTABLE"};
 1;

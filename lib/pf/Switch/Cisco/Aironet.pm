@@ -69,12 +69,15 @@ TODO: This list is incomplete
 
 # CAPABILITIES
 # access technology supported
-sub supportsWirelessDot1x { return $TRUE; }
-sub supportsWirelessMacAuth { return $TRUE; }
 # disabling special features supported by generic Cisco's but not on Aironet
-sub supportsSaveConfig { return $FALSE; }
-sub supportsCdp { return $FALSE; }
-sub supportsLldp { return $FALSE; }
+
+use pf::SwitchSupports qw(
+    WirelessDot1x
+    WirelessMacAuth
+    -SaveConfig
+    -Cdp
+    -Lldp
+);
 # inline capabilities
 sub inlineCapabilities { return ($MAC,$SSID); }
 
@@ -115,7 +118,7 @@ sub deauthenticateMacDefault {
     if ($@) {
         $logger->error(
             "ERROR: Can not connect to access point $self->{'_ip'} using "
-                . $self->{_cliTransport} );
+                . $self->{_cliTransport} . ": '$@'" );
         return 1;
     }
 
@@ -203,34 +206,7 @@ Overriding default extractSsid because on Aironet AP SSID is in the Cisco-AVPair
 # Same as in pf::Switch::Cisco::Aironet_WDS. Please keep both in sync. Once Moose push in a role.
 sub extractSsid {
     my ($self, $radius_request) = @_;
-    my $logger = $self->logger;
-
-    if (defined($radius_request->{'Cisco-AVPair'})) {
-        if (ref($radius_request->{'Cisco-AVPair'}) eq 'ARRAY') {
-            foreach my $ciscoAVPair (@{$radius_request->{'Cisco-AVPair'}}) {
-                $logger->trace("Cisco-AVPair: ".$ciscoAVPair);
-
-                if ($ciscoAVPair =~ /^ssid=(.*)$/) { # ex: Cisco-AVPair = "ssid=PacketFence-Secure"
-                    return $1;
-                } else {
-                    $logger->info("Unable to extract SSID of Cisco-AVPair: ".$ciscoAVPair);
-                }
-            }
-        } else {
-            if ($radius_request->{'Cisco-AVPair'} =~ /^ssid=(.*)$/) { # ex: Cisco-AVPair = "ssid=PacketFence-Secure"
-                return $1;
-            } else {
-                $logger->info("Unable to extract SSID of Cisco-AVPair: ".$radius_request->{'Cisco-AVPair'});
-
-            }
-        }
-    }
-
-    $logger->warn(
-        "Unable to extract SSID for module " . ref($self) . ". SSID-based VLAN assignments won't work. "
-        . "Make sure you enable Vendor Specific Attributes (VSA) on the AP if you want them to work."
-    );
-    return;
+    return $self->getCiscoAvPairAttribute($radius_request, 'ssid');
 }
 
 =item deauthTechniques
@@ -240,7 +216,7 @@ Return the reference to the deauth technique or the default deauth technique.
 =cut
 
 sub deauthTechniques {
-    my ($self, $method) = @_;
+    my ($self, $method, $connection_type) = @_;
     my $logger = $self->logger;
     my $default = $SNMP::TELNET;
     my %tech = (
@@ -263,7 +239,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2017 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 

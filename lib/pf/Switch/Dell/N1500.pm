@@ -8,6 +8,7 @@ pf::Switch::Dell::N1500
 =head1 SYNOPSIS
 
 pf::Switch::Dell::N1500 module manages access to Dell N1500 Series
+Tested on Firmware >= 6.6.0.17
 
 =head1 STATUS
 
@@ -24,22 +25,31 @@ use pf::constants;
 use pf::config qw(
     $WIRED_802_1X
     $WIRED_MAC_AUTH
+    $WEBAUTH_WIRED
 );
+
+use Try::Tiny;
 
 sub description { 'N1500 Series' }
 
 # importing switch constants
 use pf::Switch::constants;
-use pf::util::radius qw(perform_coa);
+use pf::util::radius qw(perform_coa perform_disconnect);
+use pf::util;
 
 # CAPABILITIES
 # access technology supported
-sub supportsWiredMacAuth { return $TRUE; }
-sub supportsWiredDot1x { return $TRUE; }
 # VoIP technology supported
-sub supportsRadiusVoip { return $TRUE; }
-sub supportsRadiusDynamicVlanAssignment { return $TRUE; }
-sub supportsLldp { return $TRUE; }
+use pf::SwitchSupports qw(
+    WiredMacAuth
+    WiredDot1x
+    RadiusVoip
+    RadiusDynamicVlanAssignment
+    Lldp
+    AccessListBasedEnforcement
+    RoleBasedEnforcement
+    ExternalPortal
+);
 
 =head2 isVoIPEnabled
 
@@ -62,7 +72,7 @@ sub wiredeauthTechniques {
     my ($self, $method, $connection_type) = @_;
     my $logger = $self->logger;
     if ($connection_type == $WIRED_802_1X) {
-        my $default = $SNMP::SNMP;
+        my $default = $SNMP::RADIUS;
         my %tech = (
             $SNMP::SNMP => 'dot1xPortReauthenticate',
             $SNMP::RADIUS => 'deauthenticateMacRadius',
@@ -175,6 +185,7 @@ sub getPhonesLLDPAtIfIndex {
                 my $cache_lldpRemTimeMark     = $1;
                 my $cache_lldpRemLocalPortNum = $2;
                 my $cache_lldpRemIndex        = $3;
+
                 if ( $self->getBitAtPosition($result->{$oid}, $SNMP::LLDP::TELEPHONE) ) {
                     $logger->trace(
                         "SNMP get_request for lldpRemPortId: $oid_lldpRemPortId.$cache_lldpRemTimeMark.$cache_lldpRemLocalPortNum.$cache_lldpRemIndex"
@@ -188,9 +199,7 @@ sub getPhonesLLDPAtIfIndex {
                         && ($MACresult->{
                                 "$oid_lldpRemPortId.$cache_lldpRemTimeMark.$cache_lldpRemLocalPortNum.$cache_lldpRemIndex"
                             }
-                            =~ /([0-9A-Z]{2})\s?([0-9A-Z]{2})\s?([0-9A-Z]{2})\s?([0-9A-Z]{2})\s?([0-9A-Z]{2})\s?([0-9A-Z]{2})$/i
-                        )
-                        )
+                            =~ /^(?:0x)?([0-9A-F]{2})([0-9A-F]{2})([0-9A-F]{2})([0-9A-F]{2})([0-9A-F]{2})([0-9A-F]{2})(?::..)?$/i))
                     {
                         push @phones, lc("$1:$2:$3:$4:$5:$6");
                     }
@@ -216,7 +225,7 @@ sub getBitAtPosition {
    if ($bitStream =~ /^0x/) {
        $bitStream =~ s/^0x//i;
        my $bin = join('',map { unpack("B4",pack("H",$_)) } (split //, $bitStream));
-       return substr($bin, $position, 1);
+       return substr($bin, $position - 8, 1);
    } else {
        my $bin = substr(unpack('B*', $bitStream), -8);
        return substr($bin, $position, 1);
@@ -231,8 +240,7 @@ Get Voice over IP RADIUS Vendor Specific Attribute (VSA).
 
 sub getVoipVsa {
     my ($self) = @_;
-    return (
-    );
+    return ('Cisco-AVPair' => "device-traffic-class=voice");
 }
 
 =head2 deauthenticateMacRadius
@@ -244,7 +252,6 @@ Method to deauth a wired node with CoA.
 sub deauthenticateMacRadius {
     my ($self, $ifIndex,$mac) = @_;
     my $logger = $self->logger;
-
 
     # perform CoA
     $self->radiusDisconnect($mac);
@@ -283,7 +290,7 @@ sub radiusDisconnect {
         my $connection_info = {
             nas_ip => $send_disconnect_to,
             secret => $self->{'_radiusSecret'},
-            LocalAddr => $self->deauth_source_ip(),
+            LocalAddr => $self->deauth_source_ip($send_disconnect_to),
         };
 
         $logger->debug("network device (".$self->{'_id'}.") supports roles. Evaluating role to be returned");
@@ -295,12 +302,11 @@ sub radiusDisconnect {
 
         my $attributes_ref = {
             'Calling-Station-Id' => $mac,
-            'NAS-IP-Address' => $send_disconnect_to,
         };
 
         # merging additional attributes provided by caller to the standard attributes
         $attributes_ref = { %$attributes_ref, %$add_attributes_ref };
-        $response = perform_coa($connection_info, $attributes_ref);
+        $response = perform_disconnect($connection_info, $attributes_ref);
     } catch {
         chomp;
         $logger->warn("Unable to perform RADIUS CoA-Request on (".$self->{'_id'}.") : $_");
@@ -318,6 +324,151 @@ sub radiusDisconnect {
     return;
 }
 
+=head2 returnRadiusAccessAccept
+
+Prepares the RADIUS Access-Accept reponse for the network device.
+
+Overrides the default implementation to add the dynamic acls
+
+=cut
+
+sub returnRadiusAccessAccept {
+    my ($self, $args) = @_;
+    my $logger = $self->logger;
+    $args->{'unfiltered'} = $TRUE;
+    my @super_reply = @{$self->SUPER::returnRadiusAccessAccept($args)};
+    my $status = shift @super_reply;
+    my %radius_reply = @super_reply;
+    my $radius_reply_ref = \%radius_reply;
+    return [$status, %$radius_reply_ref] if($status == $RADIUS::RLM_MODULE_USERLOCK);
+    my @av_pairs = defined($radius_reply_ref->{'Cisco-AVPair'}) ? @{$radius_reply_ref->{'Cisco-AVPair'}} : ();
+
+    if ( isenabled($self->{_AccessListMap}) && $self->supportsAccessListBasedEnforcement ){
+        if( defined($args->{'user_role'}) && $args->{'user_role'} ne "" && defined(my $access_list = $self->getAccessListByName($args->{'user_role'}, $args->{mac}))){
+            if ($access_list) {
+                my $acl_num = 101;
+                while($access_list =~ /([^\n]+)\n?/g){
+                    push(@av_pairs, $self->returnAccessListAttribute($acl_num)."=".$1);
+                    $acl_num ++;
+                    $logger->info("(".$self->{'_id'}.") Adding access list : $1 to the RADIUS reply");
+                }
+                $logger->info("(".$self->{'_id'}.") Added access lists to the RADIUS reply.");
+            } else {
+                $logger->info("(".$self->{'_id'}.") No access lists defined for this role ".$args->{'user_role'});
+            }
+        }
+    }
+
+    my $role = $self->getRoleByName($args->{'user_role'});
+    if ( isenabled($self->{_UrlMap}) && $self->externalPortalEnforcement ) {
+        if( defined($args->{'user_role'}) && $args->{'user_role'} ne "" && defined($self->getUrlByName($args->{'user_role'}))){
+            my $mac = $args->{'mac'};
+            $args->{'session_id'} = "sid".$self->setSession($args);
+            my $redirect_url = $self->getUrlByName($args->{'user_role'});
+            $redirect_url .= '/' unless $redirect_url =~ m(\/$);
+            $redirect_url .= $args->{'session_id'};
+            #override role if a role in role map is defined
+            if (isenabled($self->{_RoleMap}) && $self->supportsRoleBasedEnforcement()) {
+                my $role_map = $self->getRoleByName($args->{'user_role'});
+                $role = $role_map if (defined($role_map));
+                # remove the role if any as we push the redirection ACL along with it's role
+                delete $radius_reply_ref->{$self->returnRoleAttribute()};
+            }
+            $logger->info("Adding web authentication redirection to reply using role: '$role' and URL: '$redirect_url'");
+            push @av_pairs, "url-redirect-acl=$role";
+            push @av_pairs, "url-redirect=".$redirect_url;
+
+        }
+    }
+
+
+    $radius_reply_ref->{'Cisco-AVPair'} = \@av_pairs;
+
+    my $filter = pf::access_filter::radius->new;
+    my $rule = $filter->test('returnRadiusAccessAccept', $args);
+    ($radius_reply_ref, $status) = $filter->handleAnswerInRule($rule,$args,$radius_reply_ref);
+    return [$status, %$radius_reply_ref];
+}
+
+=head2 returnAccessListAttribute
+
+Returns the attribute to use when pushing an ACL using RADIUS
+
+=cut
+
+sub returnAccessListAttribute {
+    my ($self, $acl_num) = @_;
+    return "ip:inacl#$acl_num";
+}
+
+=head2 returnRoleAttribute
+
+What RADIUS Attribute (usually VSA) should the role be returned into.
+
+=cut
+
+sub returnRoleAttribute {
+    my ($self) = @_;
+
+    return 'Filter-Id';
+}
+
+=head2 returnRoleAttributes
+
+Return the specific role attribute of the switch.
+
+=cut
+
+sub returnRoleAttributes {
+    my ($self, $role) = @_;
+    return ($self->returnRoleAttribute() => $role.".in");
+}
+
+=head2 parseExternalPortalRequest
+
+Parse external portal request using URI and it's parameters then return an hash reference with the appropriate parameters
+
+See L<pf::web::externalportal::handle>
+
+=cut
+
+sub parseExternalPortalRequest {
+    my ( $self, $r, $req ) = @_;
+    my $logger = $self->logger;
+
+    # Using a hash to contain external portal parameters
+    my %params = ();
+
+    # Cisco Catalyst 2960 uses external portal session ID handling process
+    my $uri = $r->uri;
+    return unless ($uri =~ /.*sid(.*[^\/])/);
+    my $session_id = $1;
+
+    my $locationlog = pf::locationlog::locationlog_get_session($session_id);
+    my $switch_id = $locationlog->{switch};
+    my $client_mac = $locationlog->{mac};
+    my $client_ip = defined($r->headers_in->{'X-Forwarded-For'}) ? $r->headers_in->{'X-Forwarded-For'} : $r->connection->remote_ip;
+
+    my $redirect_url;
+    if ( defined($req->param('redirect')) ) {
+        $redirect_url = $req->param('redirect');
+    }
+    elsif ( defined($r->headers_in->{'Referer'}) ) {
+        $redirect_url = $r->headers_in->{'Referer'};
+    }
+
+    %params = (
+        session_id              => $session_id,
+        switch_id               => $switch_id,
+        client_mac              => $client_mac,
+        client_ip               => $client_ip,
+        redirect_url            => $redirect_url,
+        synchronize_locationlog => $FALSE,
+        connection_type         => $WEBAUTH_WIRED,
+);
+
+    return \%params;
+}
 
 =head1 AUTHOR
 
@@ -325,7 +476,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2017 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 

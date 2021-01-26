@@ -14,6 +14,41 @@ pf::condition
 use strict;
 use warnings;
 use Moose;
+use Scalar::Util qw(reftype);
+
+=head2 evalParam
+
+evaluate all the variables
+
+=cut
+
+sub evalParam {
+    my ($self, $answer, $args) = @_;
+    $answer =~ s/\$([a-zA-Z_0-9]+)/$args->{$1} \/\/ ''/ge;
+    $answer =~ s/\$\{([a-zA-Z0-9_\-]+(?:\.[a-zA-Z0-9_\-]+)*)\}/&_replaceParamsDeep($1,$args)/ge;
+    return $answer;
+}
+
+=head2 _replaceParamsDeep
+
+evaluate all the variables deeply
+
+=cut
+
+sub _replaceParamsDeep {
+    my ($param_string, $args) = @_;
+    my @params = split /\./, $param_string;
+    my $param  = pop @params;
+    my $hash   = $args;
+    foreach my $key (@params) {
+        if (exists $hash->{$key} && reftype($hash->{$key}) eq 'HASH') {
+            $hash = $hash->{$key};
+            next;
+        }
+        return '';
+    }
+    return $hash->{$param} // '';
+}
 
 =head1 AUTHOR
 
@@ -21,7 +56,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2017 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 

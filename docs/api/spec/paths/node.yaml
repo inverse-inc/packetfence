@@ -1,0 +1,140 @@
+/node/{node_id}:
+  delete:
+    description: Remove an item
+    operationId: api.v1.Nodes.remove
+    parameters:
+    - in: path
+      name: node_id
+      schema:
+        type: string
+    responses:
+      '204':
+        description: Item deleted
+  description: |-
+    pf::UnifiedApi::Controller::Nodes
+
+      register
+        register
+
+      deregister
+        deregister
+
+      bulk_register
+        bulk_register
+
+      bulk_init_results
+        bulk_init_results
+
+      bulk_deregister
+        bulk_deregister
+
+      fingerbank_info
+        fingerbank_info
+
+      fingerbank_refresh
+        fingerbank_refresh
+
+      bulk_close_violations
+        bulk_close_violations
+
+      close_violation
+        close_violation
+
+      create_error_msg
+        create_error_msg
+
+      bulk_reevaluate_access
+        bulk_reevaluate_access
+
+      bulk_fingerbank_refresh
+        bulk_fingerbank_refresh
+
+      bulk_restart_switchport
+        bulk_restart_switchport
+
+      bulk_apply_violation
+        bulk_apply_violation
+
+      apply_violation
+        apply_violation
+
+      bulk_apply_role
+        bulk_apply_role
+
+      bulk_apply_bypass_role
+        bulk_apply_bypass_role
+
+      do_bulk_update_field
+        do_bulk_update_field
+
+      restart_switchport
+        restart_switchport
+
+      do_restart_switchport
+        do_restart_switchport
+
+      reevaluate_access
+        reevaluate_access
+  get:
+    description: Get an item
+    operationId: api.v1.Nodes.get
+    parameters:
+    - in: path
+      name: node_id
+      schema:
+        type: string
+    responses:
+      '200':
+        content:
+          application/json:
+            schema:
+              description: Item
+              properties:
+                item:
+                  $ref: '#/components/schemas/Node'
+              type: object
+        description: Get item
+      '400':
+        $ref: '#/components/responses/BadRequest'
+      '422':
+        $ref: '#/components/responses/UnprocessableEntity'
+  patch:
+    description: Update an item
+    operationId: api.v1.Nodes.update
+    parameters:
+    - in: path
+      name: node_id
+      schema:
+        type: string
+    requestBody:
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Node'
+    responses:
+      '200':
+        $ref: '#/components/responses/Message'
+      '400':
+        $ref: '#/components/responses/BadRequest'
+      '422':
+        $ref: '#/components/responses/UnprocessableEntity'
+  put:
+    description: Replace an item
+    operationId: api.v1.Nodes.replace
+    parameters:
+    - in: path
+      name: node_id
+      schema:
+        type: string
+    requestBody:
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Node'
+    responses:
+      '200':
+        $ref: '#/components/responses/Message'
+      '400':
+        $ref: '#/components/responses/BadRequest'
+      '422':
+        $ref: '#/components/responses/UnprocessableEntity'

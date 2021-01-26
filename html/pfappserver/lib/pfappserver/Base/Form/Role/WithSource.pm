@@ -22,6 +22,7 @@ after 'setup' => sub {
     if($self->for_module->does('captiveportal::Role::MultiSource')){
         $self->field('multi_source_ids.contains')->options([$self->options_sources(multiple => $TRUE)]);
         $self->field('multi_source_ids')->inactive($FALSE);
+        $self->field('source_id')->inactive($TRUE);
     }
     else {
         $self->field('source_id')->options([$self->options_sources(multiple => $FALSE)]);
@@ -113,7 +114,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2017 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 

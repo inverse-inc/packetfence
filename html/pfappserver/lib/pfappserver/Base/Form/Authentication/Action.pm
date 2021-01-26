@@ -14,7 +14,10 @@ Authentication::Rule).
 
 use HTML::FormHandler::Moose;
 extends 'pfappserver::Base::Form';
-with 'pfappserver::Base::Form::Role::AllowedOptions';
+with qw(
+    pfappserver::Base::Form::Role::AllowedOptions
+    pfappserver::Role::Form::RolesAttribute
+);
 
 use HTTP::Status qw(:constants is_success);
 use List::MoreUtils qw(uniq);
@@ -58,14 +61,28 @@ our %ACTION_FIELD_OPTIONS = (
         type    => 'Hidden',
         default => '1'
     },
+    $Actions::SET_ACCESS_DURATIONS => {
+        type           => 'Select',
+        do_label       => 0,
+        wrapper        => 0,
+        multiple       => 1,
+        element_class => ['chzn-select'],
+        element_attr => {'data-placeholder' => 'Click to add an access duration'},
+        options_method => \&options_durations,
+    },
     $Actions::SET_ACCESS_LEVEL => {
         type          => 'Select',
         do_label      => 0,
         wrapper       => 0,
         multiple      => 1,
         element_class => ['chzn-select'],
-        element_attr => {'data-placeholder' => 'Click to add a access right'},
+        element_attr => {'data-placeholder' => 'Click to add an access right'},
         options_method => \&options_access_level,
+    },
+    $Actions::SET_TENANT_ID => {
+        type          => 'Text',
+        do_label      => 0,
+        wrapper       => 0,
     },
     $Actions::SET_ROLE => {
         type           => 'Select',
@@ -97,6 +114,13 @@ our %ACTION_FIELD_OPTIONS = (
         type           => 'Text',
         do_label       => 0,
         wrapper        => 0,
+    },
+    $Actions::SET_ROLE_FROM_SOURCE => {
+        type           => 'Select',
+        do_label       => 0,
+        wrapper        => 0,
+        element_class => ['chzn-deselect'],
+        options_method => \&options_set_role_from_source,
     },
 );
 
@@ -164,12 +188,8 @@ Populate the select field for the 'access level' template action.
 =cut
 
 sub options_access_level {
-    my $self = shift;
-    my @options_values = $self->form->_get_allowed_options('allowed_access_levels');
-    unless( @options_values ) {
-        @options_values = keys %ADMIN_ROLES;
-    }
-    return map { {value => $_, label => $self->_localize($_) } } @options_values;
+    my ($self) = @_;
+    return map { { value => $_, label => $_ } } $self->form->allowed_access_levels();
 }
 
 =head2 options_roles
@@ -182,8 +202,8 @@ sub options_roles {
     my $self = shift;
     my @options_values = $self->form->_get_allowed_options('allowed_roles');
     unless( @options_values ) {
-        my ($status, $result) = $self->form->ctx->model('Config::Roles')->listFromDB();
-        @options_values = map { $_->{name} } @$result if (is_success($status));
+        my $result = $self->form->roles;
+        @options_values = map { $_->{name} } @$result;
     }
     # Build a list of existing roles
     return map { { value => $_, label => $_ } } @options_values;
@@ -198,24 +218,31 @@ in the pf.conf configuration file.
 
 sub options_durations {
     my $self = shift;
-    my @options_values = $self->form->_get_allowed_options('allowed_access_durations');
-    my $durations;
-    if(@options_values) {
-        $durations = pf::web::util::get_translated_time_hash(
-            \@options_values,
-            $self->form->ctx->languages()->[0]
-        );
-    } else {
-        my $default_choices = $Config{'guests_admin_registration'}{'access_duration_choices'};
-        my @choices = uniq admin_allowed_options_all([$self->form->ctx->user->roles],'allowed_access_durations'), split (/\s*,\s*/, $default_choices);
-        $durations = pf::web::util::get_translated_time_hash(
-            \@choices,
-            $self->form->ctx->languages()->[0]
-        );
-    }
-    my @options = map { $durations->{$_}[0] => $durations->{$_}[1] } sort { $a <=> $b } keys %$durations;
+    my $form = $self->form;
+    my @options_values = $form->_get_allowed_options('allowed_access_durations');
+    if (@options_values) {
+        return make_durations_options($form, \@options_values);
+    };
 
-    return \@options;
+    my $default_choices = $Config{'guests_admin_registration'}{'access_duration_choices'};
+    my @choices = uniq admin_allowed_options_all([$form->user_roles],'allowed_access_durations'), split (/\s*,\s*/, $default_choices);
+    return make_durations_options($form, \@choices);
+}
+
+=head2 make_durations_options
+
+make_durations_options
+
+=cut
+
+sub make_durations_options {
+    my ($form, $choices) = @_;
+    my $durations = pf::web::util::get_translated_time_array(
+        $choices,
+        $form->languages()->[0]
+    );
+
+    return map { {value => $_->[1], label => $_->[2]} } sort { $a->[0] <=> $b->[0] } @$durations;
 }
 
 =head2 options_durations_absolute
@@ -227,27 +254,33 @@ in the pf.conf configuration file.
 
 sub options_durations_absolute {
     my $self = shift;
-    my @options_values = $self->form->_get_allowed_options('allowed_access_durations');
-    @options_values = grep { $_ =~ /^(\d+)($TIME_MODIFIER_RE)$/} @options_values;
-    my $durations;
-    if(@options_values) {
-        $durations = pf::web::util::get_translated_time_hash(
-            \@options_values,
-            $self->form->ctx->languages()->[0]
-        );
-    } else {
-        my $default_choices = $Config{'guests_admin_registration'}{'access_duration_choices'};
-        my @choices = uniq admin_allowed_options_all([$self->form->ctx->user->roles],'allowed_access_durations'), split (/\s*,\s*/, $default_choices);
-        @choices = grep { $_ =~ /^(\d+)($TIME_MODIFIER_RE)$/} @choices;
-        $durations = pf::web::util::get_translated_time_hash(
-            \@choices,
-            $self->form->ctx->languages()->[0]
-        );
-    }
-    my @options = map { $durations->{$_}[0] => $durations->{$_}[1] } sort { $a <=> $b } keys %$durations;
+    my $form = $self->form;
+    my @options_values = grep { $_ =~ /^(\d+)($TIME_MODIFIER_RE)$/} $form->_get_allowed_options('allowed_access_durations');
+    if (@options_values) {
+        return make_durations_options($form, \@options_values);
+    };
 
-    return \@options;
+    my $default_choices = $Config{'guests_admin_registration'}{'access_duration_choices'};
+    my @choices = grep { $_ =~ /^(\d+)($TIME_MODIFIER_RE)$/} uniq admin_allowed_options_all([$form->user_roles],'allowed_access_durations'), split (/\s*,\s*/, $default_choices);
+    return make_durations_options($form, \@choices);
 }
+
+=head2 options_set_role_from_source
+
+retrive the realms
+
+=cut
+
+sub options_set_role_from_source {
+    my ($self) = @_;
+    my $form = $self->form;
+    if ($form->can('_options_set_role_from_source')) {
+        return $form->_options_set_role_from_source();
+    }
+
+    return map { $_ => $_} @{$Config{advanced}->{ldap_attributes}};
+}
+
 
 =head2 validate
 
@@ -273,7 +306,7 @@ sub validate {
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2017 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 
@@ -294,5 +327,5 @@ USA.
 
 =cut
 
-__PACKAGE__->meta->make_immutable;
+__PACKAGE__->meta->make_immutable unless $ENV{"PF_SKIP_MAKE_IMMUTABLE"};
 1;

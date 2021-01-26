@@ -25,13 +25,13 @@ Send the Activation SMS
 =cut
 
 sub sendActivationSMS {
-    my ( $self, $pin, $mac ) = @_;
+    my ( $self, $pin, $mac ,$message ) = @_;
     require pf::activation;
 
     my $activation = pf::activation::view_by_code_mac($pf::activation::SMS_ACTIVATION, $pin, $mac);
     my $phone_number = $activation->{'contact_info'};
 
-    return $self->sendSMS({to=> $phone_number, message => "PIN: $pin", activation => $activation});
+    return $self->sendSMS({to=> $phone_number, message => $message, activation => $activation});
 }
 
 =head1 AUTHOR
@@ -40,7 +40,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2017 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 

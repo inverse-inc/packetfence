@@ -21,17 +21,23 @@ use warnings;
 ### pf::dal::_ip4log_archive is auto generated any change to this file will be lost
 ### Instead change in the pf::dal::ip4log_archive module
 ###
+
 use base qw(pf::dal);
+
+use Role::Tiny::With;
+with qw(pf::dal::roles::has_tenant_id);
 
 our @FIELD_NAMES;
 our @INSERTABLE_FIELDS;
 our @PRIMARY_KEYS;
 our %DEFAULTS;
 our %FIELDS_META;
+our @COLUMN_NAMES;
 
 BEGIN {
     @FIELD_NAMES = qw(
         id
+        tenant_id
         mac
         ip
         start_time
@@ -39,6 +45,7 @@ BEGIN {
     );
 
     %DEFAULTS = (
+        tenant_id => '1',
         mac => '',
         ip => '',
         start_time => '',
@@ -46,6 +53,7 @@ BEGIN {
     );
 
     @INSERTABLE_FIELDS = qw(
+        tenant_id
         mac
         ip
         start_time
@@ -57,6 +65,12 @@ BEGIN {
             type => 'INT',
             is_auto_increment => 1,
             is_primary_key => 1,
+            is_nullable => 0,
+        },
+        tenant_id => {
+            type => 'INT',
+            is_auto_increment => 0,
+            is_primary_key => 0,
             is_nullable => 0,
         },
         mac => {
@@ -88,6 +102,16 @@ BEGIN {
     @PRIMARY_KEYS = qw(
         id
     );
+
+    @COLUMN_NAMES = qw(
+        ip4log_archive.id
+        ip4log_archive.tenant_id
+        ip4log_archive.mac
+        ip4log_archive.ip
+        ip4log_archive.start_time
+        ip4log_archive.end_time
+    );
+
 }
 
 use Class::XSAccessor {
@@ -104,13 +128,13 @@ sub _defaults {
     return {%DEFAULTS};
 }
 
-=head2 field_names
+=head2 table_field_names
 
 Field names of ip4log_archive
 
 =cut
 
-sub field_names {
+sub table_field_names {
     return [@FIELD_NAMES];
 }
 
@@ -136,6 +160,16 @@ our $FIND_SQL = do {
     my $where = join(", ", map { "$_ = ?" } @PRIMARY_KEYS);
     "SELECT * FROM `ip4log_archive` WHERE $where;";
 };
+
+=head2 find_columns
+
+find_columns
+
+=cut
+
+sub find_columns {
+    return [@COLUMN_NAMES];
+}
 
 =head2 _find_one_sql
 
@@ -176,14 +210,14 @@ Get the meta data for ip4log_archive
 sub get_meta {
     return \%FIELDS_META;
 }
- 
+
 =head1 AUTHOR
 
 Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2017 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 

@@ -18,14 +18,20 @@ use pf::log;
 use pf::util;
 
 extends 'pf::Authentication::Source';
-with 'pf::Authentication::CreateLocalAccountRole';
+with qw(
+    pf::Authentication::CreateLocalAccountRole
+    pf::Authentication::EmailFilteringRole
+);
 
 has '+class' => (default => 'external');
 has '+type' => (default => 'SponsorEmail');
-has 'allow_localdomain' => (isa => 'Str', is => 'rw', default => 'yes');
 has 'activation_domain' => (isa => 'Maybe[Str]', is => 'rw');
 has 'sponsorship_bcc' => (isa => 'Maybe[Str]', is => 'rw');
 has 'email_activation_timeout' => (isa => 'Str', is => 'rw', default => '30m');
+has 'validate_sponsor' => (isa => 'Str', is => 'rw', default => 'yes');
+has 'lang' => (isa => 'Maybe[Str]', is => 'rw', default => '');
+has 'sources' => (isa => 'ArrayRef[Str]', is => 'rw', default => sub{[]});
+has 'register_on_activation' => (isa => 'Maybe[Str]', is => 'rw', default => 'disabled');
 
 =head2 dynamic_routing_module
 
@@ -77,7 +83,7 @@ sub available_actions {
 
 sub match_in_subclass {
     my ($self, $params, $rule, $own_conditions, $matching_conditions) = @_;
-    return $params->{'username'};
+    return ($params->{'username'}, undef);
 }
 
 =head2 mandatoryFields
@@ -119,7 +125,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2017 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 
@@ -140,7 +146,7 @@ USA.
 
 =cut
 
-__PACKAGE__->meta->make_immutable;
+__PACKAGE__->meta->make_immutable unless $ENV{"PF_SKIP_MAKE_IMMUTABLE"};
 1;
 
 # vim: set shiftwidth=4:

@@ -12,6 +12,7 @@ This is to create an action for a portal module
 
 use HTML::FormHandler::Moose;
 extends 'HTML::FormHandler::Field::Compound';
+
 use namespace::autoclean;
 
 use pf::config;
@@ -31,9 +32,10 @@ has_field 'type' =>
    do_label => 0,
    required => 1,
    widget_wrapper => 'None',
-   default => 'Select an option',
+   options_method => \&options_type,
   );
-has_field 'arguments' =>
+
+has_field 'value' =>
   (
    type => 'Hidden',
    do_label => 0,
@@ -52,8 +54,10 @@ sub action_inflate {
     my ($self, $value) = @_;
     my $hash = {};
     if (defined $value) {
-        @{$hash}{'type', 'arguments'} = pfconfig::namespaces::config::PortalModules::inflate_action($value);
-        $hash->{arguments} = join(',',@{$hash->{arguments}});
+        @{$hash}{'type', 'value'} = pfconfig::namespaces::config::PortalModules::inflate_action($value);
+        my $type = $hash->{type};
+        $hash->{type} = 'set_unreg_date' if $type eq 'set_unregdate';
+        $hash->{value} = join(',',@{$hash->{value}});
     }
     return $hash;
 }
@@ -68,13 +72,44 @@ Deflate an action to the format :
 sub action_deflate {
     my ($self, $value) = @_;
     my $type = $value->{type};
-    my $joined_arguments = $value->{arguments};
+    $type = 'set_unregdate' if $type eq 'set_unreg_date';
+    my $joined_arguments = $value->{value};
     return "${type}(${joined_arguments})";
+}
+
+sub options_type {
+    my ($self) = @_;
+    my $form = $self->form;
+    return (
+        { value => '', label => $form->_localize('Select an option') },
+        (
+            map {
+                my $v = {
+                    value => ( $_ ne 'set_unregdate' ? $_ : 'set_unreg_date' ),
+                    label => $form->_localize($_),
+                };
+                if ($_ eq 'set_role') {
+                    $v->{siblings} = {
+                        type => {
+                            allowed_values => options_roles($self),
+                        }
+                    }
+                }
+                $v
+            } @{ $form->for_module->available_actions }
+        )
+    );
+}
+
+sub options_roles {
+    my $self = shift;
+    my @roles = map { { text => $_->{name}, value => $_->{name} } } @{$self->form->roles || []};
+    return \@roles;
 }
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2017 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 
@@ -95,5 +130,5 @@ USA.
 
 =cut
 
-__PACKAGE__->meta->make_immutable;
+__PACKAGE__->meta->make_immutable unless $ENV{"PF_SKIP_MAKE_IMMUTABLE"};
 1;

@@ -1,7 +1,8 @@
+# Copyright (C) Inverse inc.
 
 pidfile = %%pid_file%%
 
-$INCLUDE radiusd.conf
+$INCLUDE radiusd_loadbalancer.conf
 
 %%listen%%
 
@@ -12,6 +13,17 @@ listen {
     socket = %%socket_file%%
     mode = rw
 }
+
+listen {
+        #  ONLY Status-Server is allowed to this port.
+        #  ALL other packets are ignored.
+        type = status
+
+        ipaddr = 127.0.0.1
+        port = 18123
+        virtual_server = status
+}
+
 
 log {
 	#

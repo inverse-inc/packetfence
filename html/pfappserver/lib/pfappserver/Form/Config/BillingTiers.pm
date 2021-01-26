@@ -12,12 +12,13 @@ Form definition to create or update billing tiers.
 
 use HTML::FormHandler::Moose;
 extends 'pfappserver::Base::Form';
-with 'pfappserver::Base::Form::Role::Help';
+with qw (
+    pfappserver::Base::Form::Role::Help
+    pfappserver::Role::Form::RolesAttribute
+);
 
 use pf::config;
 use pf::util;
-
-has roles => ( is => 'rw' );
 
 ## Definition
 has_field 'id' =>
@@ -26,7 +27,10 @@ has_field 'id' =>
    label => 'Billing Tier',
    required => 1,
    messages => { required => 'Please specify a billing tier identifier' },
-   apply => [ pfappserver::Base::Form::id_validator('billing tier') ]
+   apply => [ pfappserver::Base::Form::id_validator('billing tier') ],
+   tags => {
+      option_pattern => \&pfappserver::Base::Form::id_pattern,
+   }
   );
 
 has_field 'name' =>
@@ -97,25 +101,13 @@ sub options_roles {
     return @roles;
 }
 
-=head2 ACCEPT_CONTEXT
-
-To automatically add the context to the Form
-
-=cut
-
-sub ACCEPT_CONTEXT {
-    my ($self, $c, @args) = @_;
-    my ($status, $roles) = $c->model('Config::Roles')->listFromDB();
-    return $self->SUPER::ACCEPT_CONTEXT($c, roles => $roles, @args);
-}
-
 =over
 
 =back
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2017 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 
@@ -136,6 +128,6 @@ USA.
 
 =cut
 
-__PACKAGE__->meta->make_immutable;
+__PACKAGE__->meta->make_immutable unless $ENV{"PF_SKIP_MAKE_IMMUTABLE"};
 1;
 

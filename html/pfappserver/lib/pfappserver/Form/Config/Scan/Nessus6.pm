@@ -18,9 +18,6 @@ use pf::config;
 use pf::util;
 use File::Find qw(find);
 
-## Definition
-has 'roles' => (is => 'ro', default => sub {[]});
-
 has_field 'ip' =>
   (
    type => 'Text',
@@ -31,7 +28,7 @@ has_field 'ip' =>
 
 has_field 'port' =>
   (
-   type => 'PosInteger',
+   type => 'Port',
    label => 'Port of the service',
    tags => { after_element => \&help,
              help => 'If you use an alternative port, please specify' },
@@ -40,6 +37,7 @@ has_field 'port' =>
 has_field 'type' =>
   (
    type => 'Hidden',
+   default => 'nessus6',
   );
 
 has_block definition =>
@@ -64,13 +62,24 @@ has_field 'scannername' =>
              help => 'Name of the scanner to use on the nessus server' },
   );
 
+has_field 'verify_hostname' =>
+  (
+   type => 'Toggle',
+   label => 'Verify Hostname',
+   tags => { after_element => \&help,
+             help => 'Verify hostname of server' },
+   checkbox_value  => 'enabled',
+   unchecked_value => 'disabled',
+   default => 'enabled',
+  );
+
 =over
 
 =back
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2017 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 
@@ -91,5 +100,5 @@ USA.
 
 =cut
 
-__PACKAGE__->meta->make_immutable;
+__PACKAGE__->meta->make_immutable unless $ENV{"PF_SKIP_MAKE_IMMUTABLE"};
 1;

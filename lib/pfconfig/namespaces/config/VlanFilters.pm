@@ -22,6 +22,7 @@ use pf::file_paths qw(
     $vlan_filters_config_file
     $vlan_filters_config_default_file
 );
+use pf::IniFiles;
 
 use base 'pfconfig::namespaces::config';
 
@@ -30,7 +31,7 @@ sub init {
     $self->{file} = $vlan_filters_config_file;
     $self->{child_resources} = [ 'FilterEngine::VlanScopes'];
 
-    my $defaults = Config::IniFiles->new( -file => $vlan_filters_config_default_file );
+    my $defaults = pf::IniFiles->new( -file => $vlan_filters_config_default_file );
     $self->{added_params}->{'-import'} = $defaults;
 }
 
@@ -39,7 +40,7 @@ sub build_child {
     my %tmp_cfg = %{ $self->{cfg} };
 
     $self->cleanup_whitespaces( \%tmp_cfg );
-
+    $self->roleReverseLookup(\%tmp_cfg, 'vlan_filters', qw(role));
     return \%tmp_cfg;
 
 }
@@ -50,7 +51,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2017 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 

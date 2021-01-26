@@ -18,6 +18,7 @@ use Moose;
 use Readonly;
 use URI::Escape::XS qw(uri_escape uri_unescape);
 use namespace::autoclean;
+use pf::cluster;
 
 BEGIN { extends 'pfappserver::Base::Controller'; }
 
@@ -28,34 +29,10 @@ BEGIN { extends 'pfappserver::Base::Controller'; }
 sub index :Path : Args(0) {
     my ($self, $c) = @_;
     my $model = $c->model('Pfqueue');
-    my $counters = [ map { $_->{count} > 0 ? $_ : () } @{$model->counters} ];
     $c->stash({
-        counters => $counters,
-        miss_counters => $model->miss_counters,
-        queue_counts => $model->queue_counts,
+        stats => $model->stats,
+        hostname => $pf::cluster::host_id
     });
-    $c->forward('graphs');
-}
-
-=head2 graphs
-
-Generate the graphs for the queue page
-
-=cut
-
-sub graphs :Private {
-    my ($self, $c, $start, $end) = @_;
-    my $width = $c->request->param('width');
-
-    my $graph = {
-                'description' => $c->loc('Last hour queue counts'),
-                'target' => 'aliasByNode(stats.gauges.*.pfqueue.stats.queue_counts.*,6)',
-                'columns' => 2
-               };
-
-    $graph->{url} = $c->forward(Graph => '_buildGraphiteURL', ['-1h', "", $graph]);
-
-    $c->stash->{queue_counts_graph} = $graph;
 }
 
 sub counters :Args {
@@ -69,9 +46,16 @@ sub counters :Args {
     });
 }
 
+sub cluster :Local : Args(0) {
+    my ($self, $c) = @_;
+    $c->stash({
+        servers => pf::cluster::queue_stats(),
+    });
+}
+
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2017 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 
@@ -92,6 +76,6 @@ USA.
 
 =cut
 
-__PACKAGE__->meta->make_immutable;
+__PACKAGE__->meta->make_immutable unless $ENV{"PF_SKIP_MAKE_IMMUTABLE"};
 
 1;

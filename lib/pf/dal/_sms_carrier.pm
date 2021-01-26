@@ -21,6 +21,7 @@ use warnings;
 ### pf::dal::_sms_carrier is auto generated any change to this file will be lost
 ### Instead change in the pf::dal::sms_carrier module
 ###
+
 use base qw(pf::dal);
 
 our @FIELD_NAMES;
@@ -28,6 +29,7 @@ our @INSERTABLE_FIELDS;
 our @PRIMARY_KEYS;
 our %DEFAULTS;
 our %FIELDS_META;
+our @COLUMN_NAMES;
 
 BEGIN {
     @FIELD_NAMES = qw(
@@ -39,14 +41,12 @@ BEGIN {
     );
 
     %DEFAULTS = (
-        id => '',
         name => undef,
         email_pattern => '',
         created => '',
     );
 
     @INSERTABLE_FIELDS = qw(
-        id
         name
         email_pattern
         created
@@ -55,7 +55,7 @@ BEGIN {
     %FIELDS_META = (
         id => {
             type => 'INT',
-            is_auto_increment => 0,
+            is_auto_increment => 1,
             is_primary_key => 1,
             is_nullable => 0,
         },
@@ -88,6 +88,15 @@ BEGIN {
     @PRIMARY_KEYS = qw(
         id
     );
+
+    @COLUMN_NAMES = qw(
+        sms_carrier.id
+        sms_carrier.name
+        sms_carrier.email_pattern
+        sms_carrier.created
+        sms_carrier.modified
+    );
+
 }
 
 use Class::XSAccessor {
@@ -104,13 +113,13 @@ sub _defaults {
     return {%DEFAULTS};
 }
 
-=head2 field_names
+=head2 table_field_names
 
 Field names of sms_carrier
 
 =cut
 
-sub field_names {
+sub table_field_names {
     return [@FIELD_NAMES];
 }
 
@@ -136,6 +145,16 @@ our $FIND_SQL = do {
     my $where = join(", ", map { "$_ = ?" } @PRIMARY_KEYS);
     "SELECT * FROM `sms_carrier` WHERE $where;";
 };
+
+=head2 find_columns
+
+find_columns
+
+=cut
+
+sub find_columns {
+    return [@COLUMN_NAMES];
+}
 
 =head2 _find_one_sql
 
@@ -176,14 +195,14 @@ Get the meta data for sms_carrier
 sub get_meta {
     return \%FIELDS_META;
 }
- 
+
 =head1 AUTHOR
 
 Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2017 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 

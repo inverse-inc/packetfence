@@ -18,13 +18,19 @@ use warnings;
 use HTML::FormHandler::Moose::Role;
 use List::MoreUtils qw(uniq);
 
+use pf::config qw($fqdn);
 use pf::authentication;
 use pf::ConfigStore::Provisioning;
 use pf::ConfigStore::BillingTiers;
 use pf::ConfigStore::Scan;
+use pf::ConfigStore::SelfService;
+use pf::ConfigStore::PortalModule;
 use pf::web::constants;
 use pf::constants::Connection::Profile;
+use pf::constants::role qw( $POOL_USERNAMEHASH $POOL_RANDOM $POOL_ROUND_ROBBIN $POOL_PER_USER_VLAN);
 use pfappserver::Form::Field::Duration;
+use pfappserver::Base::Form;
+use pf::config qw(%Profiles_Config);
 with 'pfappserver::Base::Form::Role::Help';
 
 =head1 BLOCKS
@@ -37,7 +43,7 @@ The main definition block
 
 has_block 'definition' =>
   (
-    render_list => [qw(id description root_module preregistration autoregister reuse_dot1x_credentials dot1x_recompute_role_from_portal)],
+    render_list => [qw(id description root_module preregistration autoregister reuse_dot1x_credentials dot1x_recompute_role_from_portal mac_auth_recompute_role_from_portal dot1x_unset_on_unmatch dpsk unbound_dpsk default_psk_key unreg_on_acct_stop vlan_pool_technique)],
   );
 
 =head2 captive_portal
@@ -48,7 +54,7 @@ The captival portal block
 
 has_block 'captive_portal' =>
   (
-    render_list => [qw(logo redirecturl always_use_redirecturl block_interval sms_pin_retry_limit sms_request_limit login_attempt_limit access_registration_when_registered)],
+    render_list => [qw(logo redirecturl always_use_redirecturl block_interval sms_pin_retry_limit sms_request_limit login_attempt_limit access_registration_when_registered network_logoff network_logoff_popup)],
   );
 
 =head1 Fields
@@ -66,6 +72,7 @@ has_field 'id' =>
    required => 1,
    apply => [ pfappserver::Base::Form::id_validator('profile name') ],
    tags => { after_element => \&help,
+             option_pattern => \&pfappserver::Base::Form::id_pattern,
              help => 'A profile id can only contain alphanumeric characters, dashes, period and or underscores.' },
   );
 
@@ -107,6 +114,7 @@ has_field 'root_module' =>
    label => 'Root Portal Module',
    options_method => \&options_root_module,
    element_class => ['chzn-select'],
+   default => "default_policy",
 #   element_attr => {'data-placeholder' => 'Click to add a required field'},
    tags => { after_element => \&help,
              help => 'The Root Portal Module to use' },
@@ -121,6 +129,7 @@ Accepted languages for the profile
 has_field 'locale' =>
 (
     'type' => 'DynamicTable',
+    'label' => 'Locales',
     'sortable' => 1,
     'do_label' => 0,
 );
@@ -143,7 +152,7 @@ has_field 'redirecturl' =>
    type => 'Text',
    label => 'Redirection URL',
    tags => { after_element => \&help,
-             help => 'Default URL to redirect to on registration/mitigation release. This is only used if a per-violation redirect URL is not defined.' },
+             help => 'Default URL to redirect to on registration/mitigation release. This is only used if a per security event redirect URL is not defined.' },
   );
 
 =head2 always_use_redirecturl
@@ -193,6 +202,69 @@ has_field 'autoregister' =>
    unchecked_value => 'disabled',
    tags => { after_element => \&help,
              help => 'This activates automatic registation of devices for the profile. Devices will not be shown a captive portal and RADIUS authentication credentials will be used to register the device. This option only makes sense in the context of an 802.1x authentication.' },
+  );
+
+=head2 unbound_dpsk
+
+Controls whether or not this connection profile to enabled Dynamic Unbound PSK
+
+=cut
+
+has_field 'unbound_dpsk' =>
+  (
+   type => 'Toggle',
+   checkbox_value => 'enabled',
+   unchecked_value => 'disabled',
+   default => 'disabled',
+  );
+
+=head2 dpsk
+
+Controls whether or not this connection profile to enabled Dynamic PSK
+
+=cut
+
+has_field 'dpsk' =>
+  (
+   type => 'Toggle',
+   label => 'Enable DPSK',
+   checkbox_value => 'enabled',
+   unchecked_value => 'disabled',
+   default => 'disabled',
+   tags => { after_element => \&help,
+             help => 'This enables the Dynamic PSK feature on this connection profile. It means that the RADIUS server will answer requests with specific attributes like the PSK key to use to connect on the SSID.'},
+  );
+
+=head2 default_psk_key
+
+Define the default PSK key to connect on this connection profile
+
+=cut
+
+has_field 'default_psk_key' =>
+  (
+   type => 'Text',
+   label => 'Default PSK key',
+   minlength => 8,
+   tags => { after_element => \&help,
+             help => 'This is the default PSK key when you enable DPSK on this connection profile. The minimum length is eight characters.' },
+  );
+
+=head2 unreg_on_acct_stop
+
+Controls whether or not this connection profile will unregister a devices on accounting stop
+
+=cut
+
+has_field 'unreg_on_acct_stop' =>
+  (
+   type => 'Toggle',
+   label => 'Automatically deregister devices on accounting stop',
+   checkbox_value => 'enabled',
+   unchecked_value => 'disabled',
+   default => 'disabled',
+   tags => { after_element => \&help,
+             help => 'This activates automatic deregistation of devices for the profile if PacketFence receives a RADIUS accounting stop.' },
   );
 
 =head2 sources
@@ -246,7 +318,7 @@ has_field 'billing_tiers.contains' =>
     type => 'Select',
     options_method => \&options_billing_tiers,
     widget_wrapper => 'DynamicTableRow',
-  );
+);
 
 =head2 provisioners
 
@@ -303,6 +375,34 @@ has_field 'dot1x_recompute_role_from_portal' =>
              help => 'When enabled, PacketFence will not use the role initialy computed on the portal but will use the dot1x username to recompute the role.' },
   );
 
+=head2 mac_auth_recompute_role_from_portal
+
+=cut
+
+has_field 'mac_auth_recompute_role_from_portal' =>
+  (
+    type => 'Checkbox',
+    checkbox_value => 'enabled',
+    unchecked_value => 'disabled',
+    default => 'disabled',
+    tags => { after_element => \&help,
+             help => 'When enabled, PacketFence will not use the role initialy computed on the portal but will use an authorized source if defined to recompute the role.' },
+  );
+  
+=head2 dot1x_unset_on_unmatch
+
+=cut
+
+has_field 'dot1x_unset_on_unmatch' =>
+  (
+    type => 'Checkbox',
+    checkbox_value => 'enabled',
+    unchecked_value => 'disabled',
+    default => 'disabled',
+    tags => { after_element => \&help,
+             help => 'When enabled, PacketFence will unset the role of the device if no authentication sources returned one.' },
+  );
+
 =head2 block_interval
 
 The amount of time a user is blocked after reaching the defined limit for login, sms request and sms pin retry
@@ -314,7 +414,10 @@ has_field 'block_interval' =>
     type => 'Duration',
     label => 'Block Interval',
     #Use the inflate method from pfappserver::Form::Field::Duration
-    default => pfappserver::Form::Field::Duration->duration_inflate($pf::constants::Connection::Profile::BLOCK_INTERVAL_DEFAULT_VALUE),
+    validate_when_empty => 1,
+    default_method => sub {
+        pfappserver::Form::Field::Duration->duration_inflate($pf::constants::Connection::Profile::BLOCK_INTERVAL_DEFAULT_VALUE)
+    },
     tags => { after_element => \&help,
              help => 'The amount of time a user is blocked after reaching the defined limit for login, sms request and sms pin retry.' },
   );
@@ -392,6 +495,51 @@ has_field 'scans.contains' =>
     widget_wrapper => 'DynamicTableRow',
   );
 
+=head2 self_service
+
+The definition for Device registration Sources field
+
+=cut
+
+has_field 'self_service' =>
+  (
+    type => 'Select',
+    options_method => \&options_self_service,
+  );
+
+
+=head2 network_logoff
+
+Controls whether or not this connection profile allows access to /networklogoff to terminate network access
+
+=cut
+
+has_field 'network_logoff' =>
+  (
+   type => 'Toggle',
+   label => 'Network Logoff',
+   checkbox_value => 'enabled',
+   unchecked_value => 'disabled',
+   tags => { after_element => \&help,
+             help => "This allows users to access the network logoff page (http://$fqdn/networklogoff) in order to terminate their network access (switch their device back to unregistered)" },
+  );
+
+=head2 network_logoff_popup
+
+Controls whether or not this connection profile will automatically open the network logoff page in a popup at the end of the registration
+
+=cut
+
+has_field 'network_logoff_popup' =>
+  (
+   type => 'Toggle',
+   label => 'Network Logoff Popup',
+   checkbox_value => 'enabled',
+   unchecked_value => 'disabled',
+   tags => { after_element => \&help,
+             help => 'When the "Network Logoff" feature is enabled, this will have it opened in a popup at the end of the registration process.' },
+  );
+
 =head2 preregistration
 
 Controls whether or not this connection profile is used for preregistration
@@ -408,6 +556,24 @@ has_field 'access_registration_when_registered' =>
              help => 'This allows already registered users to be able to re-register their device by first accessing the status page and then accessing the portal. This is useful to allow users to extend their access even though they are already registered.' },
   );
 
+=head2 vlan_pool
+
+Control the vlan pool technique you want to use
+
+=cut
+
+has_field 'vlan_pool_technique' =>
+  (
+   type => 'Select',
+   multiple => 0,
+   required => 0,
+   label => 'Vlan Pool Technique',
+   options_method => \&options_vlan_pool,
+   element_class => ['chzn-select'],
+   default_method => \&field_default_value,
+   tags => { after_element => \&help,
+             help => 'The Vlan Pool Technique to use' },
+  );
 
 =head1 METHODS
 
@@ -459,6 +625,17 @@ sub options_scan {
     return  map { { value => $_, label => $_ } } @{pf::ConfigStore::Scan->new->readAllIds};
 }
 
+=head2 options_self_service
+
+Returns the list of self_service profile to be displayed
+
+=cut
+
+sub options_self_service {
+    return  map { { value => $_, label => $_ } } '',@{pf::ConfigStore::SelfService->new->readAllIds};
+}
+
+
 =head2 options_root_module
 
 Returns the list of root modules to be displayed
@@ -469,6 +646,18 @@ sub options_root_module {
     my $cs = pf::ConfigStore::PortalModule->new;
     return map { $_->{type} eq "Root" ? { value => $_->{id}, label => $_->{description} } : () } @{$cs->readAll("id")};
 }
+
+=head2 options_vlan_pool
+
+Returns the list of the vlan pool technique
+
+=cut
+
+sub options_vlan_pool {
+
+    return map{ { value => $_, label => $_ } } ( $POOL_ROUND_ROBBIN, $POOL_RANDOM, $POOL_USERNAMEHASH, $POOL_PER_USER_VLAN );
+}
+
 
 =head2 validate
 
@@ -489,14 +678,30 @@ sub validate {
     my %external;
     foreach my $source_id (@uniq_sources) {
         my $source = pf::authentication::getAuthenticationSource($source_id);
-        next unless $source && $source->class eq 'external';
-        $external{$source->{'type'}} = 0 unless (defined $external{$source->{'type'}});
-        $external{$source->{'type'}}++;
-        if ($external{$source->{'type'}} > 1) {
+        next unless $source;
+        my $class = $source->class;
+        my $type = $source->type;
+        if ($class eq 'exclusive' && @uniq_sources > 1) {
+            $self->field('sources')->add_error("Only one authentication source of type '$type' can be selected.");
+        }
+        next if $class ne 'external';
+        $external{$type}++;
+        if ($external{$type} > 1) {
             $self->field('sources')->add_error('Only one authentication source of each external type can be selected.');
             last;
         }
     }
+}
+
+=head2 field_default_value
+
+field_default_value
+
+=cut
+
+sub field_default_value {
+    my ($f) = @_;
+    return $Profiles_Config{default}{$f->name};
 }
 
 =head1 AUTHOR
@@ -505,7 +710,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2017 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 

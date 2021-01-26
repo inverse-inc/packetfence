@@ -1,0 +1,94 @@
+[android_blacklisted]
+status=disabled
+blacklisted_ip_hosts_threshold=1
+device_attributes_diff_score=0
+whitelisted_ips=1.1.1.1/32,8.8.4.4/32,8.8.8.8/32
+description=Android devices should not talk to blacklisted hosts
+watched_device_attributes=
+devices_excluded=
+devices_included=33453
+device_attributes_diff_threshold_overrides=
+watch_blacklisted_ips=enabled
+blacklisted_ip_hosts_window=10m
+blacklisted_ports=22-23,6667,3128,8080
+blacklisted_ports_window=10s
+
+[iot_pristine_match]
+status=disabled
+blacklisted_ip_hosts_threshold=1
+device_attributes_diff_score=20
+description=IoT devices should match pristine profile
+watched_device_attributes=dhcp_fingerprint,dhcp_vendor,hostname
+devices_excluded=
+devices_included=15
+device_attributes_diff_threshold_overrides=hostname:10
+watch_blacklisted_ips=disabled
+blacklisted_ip_hosts_window=10s
+
+[compromised_iot]
+status=disabled
+blacklisted_ip_hosts_threshold=1
+device_attributes_diff_score=0
+description=Compromised IoT devices
+blacklisted_ports_window=1m
+watched_device_attributes=
+devices_excluded=
+devices_included=15
+device_attributes_diff_threshold_overrides=
+watch_blacklisted_ips=enabled
+blacklisted_ip_hosts_window=10s
+
+[use_of_insecure_protocols]
+status=disabled
+blacklisted_ip_hosts_threshold=1
+blacklisted_ports=20,21,23,26,80,161,1723,6667,6697
+device_attributes_diff_score=0
+whitelisted_ips=10.0.0.0/8, 172.0.0.0/8, 192.168.0.0/16
+description=Use of insecure protocols
+blacklisted_ports_window=1m
+watched_device_attributes=
+devices_excluded=
+devices_included=
+device_attributes_diff_threshold_overrides=
+watch_blacklisted_ips=enabled
+blacklisted_ip_hosts_window=10s
+
+[printers_non_printing_traffic]
+status=disabled
+blacklisted_ip_hosts_threshold=1
+blacklisted_ports=1-24,26-66,69-79,81-136,139-160,163-200,207-212,214-514,516-529,531-720,732-1999,2001-2500,2504-3000,3002-6868,6870-9099
+device_attributes_diff_score=0
+description=Printers doing non-printing traffic
+blacklisted_ports_window=1m
+watched_device_attributes=
+devices_excluded=
+devices_included=8
+device_attributes_diff_threshold_overrides=
+watch_blacklisted_ips=enabled
+blacklisted_ip_hosts_window=10s
+
+[use_of_vm_in_nat]
+status=disabled
+blacklisted_ip_hosts_threshold=1
+device_attributes_diff_score=0
+description=Use of virtual machines in NAT
+blacklisted_ports_window=1m
+watched_device_attributes=dhcp_fingerprint,dhcp_vendor
+devices_excluded=8238,16842
+devices_included=16879
+device_attributes_diff_threshold_overrides=user_agents:50,mdns_services:25,upnp_server_strings:25,upnp_user_agents:25
+watch_blacklisted_ips=disabled
+blacklisted_ip_hosts_window=10s
+
+[pristine_chromebook_profile]
+status=disabled
+blacklisted_ip_hosts_threshold=1
+device_attributes_diff_score=25
+description=Pristine Chromebook profile
+blacklisted_ports_window=1m
+watched_device_attributes=
+devices_excluded=
+devices_included=130
+device_attributes_diff_threshold_overrides=dhcp_fingerprint:25,user_agents:20,tcp_syn_signatures:15,tcp_syn_ack_signatures:15
+watch_blacklisted_ips=enabled
+blacklisted_ip_hosts_window=10s

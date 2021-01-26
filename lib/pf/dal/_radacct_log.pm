@@ -21,17 +21,23 @@ use warnings;
 ### pf::dal::_radacct_log is auto generated any change to this file will be lost
 ### Instead change in the pf::dal::radacct_log module
 ###
+
 use base qw(pf::dal);
+
+use Role::Tiny::With;
+with qw(pf::dal::roles::has_tenant_id);
 
 our @FIELD_NAMES;
 our @INSERTABLE_FIELDS;
 our @PRIMARY_KEYS;
 our %DEFAULTS;
 our %FIELDS_META;
+our @COLUMN_NAMES;
 
 BEGIN {
     @FIELD_NAMES = qw(
         id
+        tenant_id
         acctsessionid
         username
         nasipaddress
@@ -44,6 +50,7 @@ BEGIN {
     );
 
     %DEFAULTS = (
+        tenant_id => '1',
         acctsessionid => '',
         username => '',
         nasipaddress => '',
@@ -56,6 +63,7 @@ BEGIN {
     );
 
     @INSERTABLE_FIELDS = qw(
+        tenant_id
         acctsessionid
         username
         nasipaddress
@@ -72,6 +80,12 @@ BEGIN {
             type => 'INT',
             is_auto_increment => 1,
             is_primary_key => 1,
+            is_nullable => 0,
+        },
+        tenant_id => {
+            type => 'INT',
+            is_auto_increment => 0,
+            is_primary_key => 0,
             is_nullable => 0,
         },
         acctsessionid => {
@@ -133,6 +147,21 @@ BEGIN {
     @PRIMARY_KEYS = qw(
         id
     );
+
+    @COLUMN_NAMES = qw(
+        radacct_log.id
+        radacct_log.tenant_id
+        radacct_log.acctsessionid
+        radacct_log.username
+        radacct_log.nasipaddress
+        radacct_log.acctstatustype
+        radacct_log.timestamp
+        radacct_log.acctinputoctets
+        radacct_log.acctoutputoctets
+        radacct_log.acctsessiontime
+        radacct_log.acctuniqueid
+    );
+
 }
 
 use Class::XSAccessor {
@@ -149,13 +178,13 @@ sub _defaults {
     return {%DEFAULTS};
 }
 
-=head2 field_names
+=head2 table_field_names
 
 Field names of radacct_log
 
 =cut
 
-sub field_names {
+sub table_field_names {
     return [@FIELD_NAMES];
 }
 
@@ -181,6 +210,16 @@ our $FIND_SQL = do {
     my $where = join(", ", map { "$_ = ?" } @PRIMARY_KEYS);
     "SELECT * FROM `radacct_log` WHERE $where;";
 };
+
+=head2 find_columns
+
+find_columns
+
+=cut
+
+sub find_columns {
+    return [@COLUMN_NAMES];
+}
 
 =head2 _find_one_sql
 
@@ -221,14 +260,14 @@ Get the meta data for radacct_log
 sub get_meta {
     return \%FIELDS_META;
 }
- 
+
 =head1 AUTHOR
 
 Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2017 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 

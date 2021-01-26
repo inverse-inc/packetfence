@@ -20,7 +20,6 @@ use Net::SNMP;
 use Try::Tiny;
 
 use pf::constants;
-use pf::constants::role qw($MAC_DETECTION_ROLE);
 # importing switch constants
 use pf::Switch::constants;
 use pf::util;
@@ -28,8 +27,10 @@ use pf::util::radius qw(perform_coa);
 
 # CAPABILITIES
 # special features
-sub supportsSaveConfig { return $TRUE; }
-sub supportsCdp { return $TRUE; }
+use pf::SwitchSupports qw(
+    SaveConfig
+    Cdp
+);
 
 #
 # %TRAP_NORMALIZERS
@@ -192,12 +193,9 @@ sub parseTrap {
         #populate list of Vlans we must potentially connect to to
         #convert the dot1dBasePort into an ifIndex
         my @vlansToTest = ();
-        my $macDetectionVlan = $self->getVlanByName($MAC_DETECTION_ROLE);
         push @vlansToTest, $trapHashRef->{'trapVlan'};
-        push @vlansToTest, $macDetectionVlan;
         foreach my $currentVlan ( values %{ $self->{_vlans} } ) {
-            if (   ( $currentVlan != $trapHashRef->{'trapVlan'} )
-                && ( $currentVlan != $macDetectionVlan ) )
+            if ( $currentVlan != $trapHashRef->{'trapVlan'} )
             {
                 push @vlansToTest, $currentVlan;
             }
@@ -1054,24 +1052,24 @@ sub getUpLinks {
     }
 
     # CDP is enabled
-    my $oid_cdpCachePlateform = '1.3.6.1.4.1.9.9.23.1.2.1.1.8';
+    my $oid_cdpCacheCapabilities = '1.3.6.1.4.1.9.9.23.1.2.1.1.9';
 
-    # fetch the upLinks. MIB: cdpCachePlateform
-    $logger->trace("SNMP get_table for cdpCachePlateform: $oid_cdpCachePlateform");
+    # fetch the upLinks. MIB: cdpCacheCapabilities
+    $logger->trace("SNMP get_next_request for $oid_cdpCacheCapabilities");
     # we could have chosen another oid since many of them return uplinks.
-    $result = $self->{_sessionRead}->get_table(-baseoid => $oid_cdpCachePlateform);
+    $result = $self->{_sessionRead}->get_table(-baseoid => $oid_cdpCacheCapabilities);
     if (!defined($result)) {
         $logger->warn(
             "Problem while determining dynamic uplinks for switch "
-            . "$self->{_ip}: can not read cdpCachePlateform."
+            . "$self->{_ip}: can not read cdpCacheCapabilities."
         );
         return -1;
     }
 
     my @upLinks;
     foreach my $key ( keys %{$result} ) {
-        if ( !( $result->{$key} =~ /^Cisco IP Phone/ ) ) {
-            $key =~ /^$oid_cdpCachePlateform\.(\d+)\.\d+$/;
+        if ( !(hex($result->{$key}) & 0x00000080 )) {
+            $key =~ /^$oid_cdpCacheCapabilities\.(\d+)\.\d+$/;
             push @upLinks, $1;
             $logger->debug("upLink: $1");
         }
@@ -1708,12 +1706,9 @@ sub cmnMacChangedNotificationTrapNormalizer {
     #populate list of Vlans we must potentially connect to to
     #convert the dot1dBasePort into an ifIndex
     my @vlansToTest      = ();
-    my $macDetectionVlan = $self->getVlanByName($MAC_DETECTION_ROLE);
     push @vlansToTest, $trapHashRef->{'trapVlan'};
-    push @vlansToTest, $macDetectionVlan;
     foreach my $currentVlan (values %{$self->{_vlans}}) {
-        if (   ($currentVlan != $trapHashRef->{'trapVlan'})
-            && ($currentVlan != $macDetectionVlan))
+        if ($currentVlan != $trapHashRef->{'trapVlan'})
         {
             push @vlansToTest, $currentVlan;
         }
@@ -1795,7 +1790,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2017 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 

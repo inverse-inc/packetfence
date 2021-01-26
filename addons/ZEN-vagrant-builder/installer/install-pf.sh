@@ -2,20 +2,26 @@
 
 echo "nameserver 8.8.8.8" > /etc/resolv.conf
 
+# Upgrade to latest version
+yum upgrade -y
+
 # Install the PacketFence repos
-yum localinstall http://packetfence.org/downloads/PacketFence/RHEL7/`uname -i`/RPMS/packetfence-release-1.2-6.el7.centos.noarch.rpm -y
+yum localinstall http://inverse.ca/downloads/PacketFence/CentOS7/x86_64/RPMS/packetfence-release-2.0.0-20191126180126.98740132.0007.el7.noarch.rpm -y
 
 # Update the release to be sure we run its latest version
 yum update packetfence-release --enablerepo=packetfence -y
+
+# Utils installation
+yum install ntpd -y
 
 # PacketFence installation
 yum install perl -y
 yum install --enablerepo=$PFREPO $PFPACKAGE -y
 
 # Setting the hostname
-hostname PacketFence-ZEN
-echo "PacketFence-ZEN" > /etc/hostname
-echo "NETWORKING=yes HOSTNAME=PacketFence-ZEN" > /etc/sysconfig/network
+hostname packetfence
+echo "packetfence" > /etc/hostname
+echo "NETWORKING=yes HOSTNAME=packetfence" > /etc/sysconfig/network
 
 # Setting up rc.local so it modifies /etc/issue to display instructions on setting up the ZEN
 cat /vagrant/installer/rc.local > /etc/rc.local

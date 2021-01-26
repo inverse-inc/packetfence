@@ -37,7 +37,7 @@ BEGIN {
 use pf::file_paths qw($var_dir);;
 use pf::util;
 use pf::constants qw($TRUE $FALSE);
-use pf::constants::pfqueue qw($PFQUEUE_WEIGHTS $PFQUEUE_MAX_TASKS_DEFAULT);
+use pf::constants::pfqueue qw($PFQUEUE_WEIGHTS $PFQUEUE_MAX_TASKS_DEFAULT $PFQUEUE_TASK_JITTER_DEFAULT);
 use pf::config::pfqueue;
 use pf::services::util;
 use pf::db;
@@ -45,6 +45,7 @@ use Config::IniFiles;
 use pf::SwitchFactory;
 use pf::pfqueue::consumer::redis;
 use pf::api;
+use pf::dal;
 use pf::client;
 use pf::CHI::Request;
 pf::client::setClient("pf::api::can_fork");
@@ -52,7 +53,6 @@ use threads;
 use pf::factory::task;
 use pf::services::manager::pfdetect;
 use pf::services::manager::snmptrapd;
-use pf::services::manager::pfsetvlan;
 
 
 
@@ -95,6 +95,7 @@ $HAS_LOCK = 1;
 our $running = 1;
 our $TASKS;
 our @delay_queues;
+our @weighted_queues;
 
 # standard signals and daemonize
 daemonize($PROGRAM_NAME) if ($daemonize);
@@ -129,10 +130,12 @@ Register all tasks
 sub register_tasks {
     my @weights;
     foreach my $queue_config (@{$ConfigPfqueue{queues}} ) {
-        my $name = $queue_config->{name};
-        if (skip_queue($name)) {
+        my $real_name = $queue_config->{real_name};
+        if (skip_queue($real_name)) {
             next;
         }
+
+        my $name = $queue_config->{name};
         my $queue_name = "Queue:$name";
         my $weight = $queue_config->{weight};
         if ($weight) {
@@ -153,11 +156,11 @@ sub register_tasks {
     }
     if (@weights) {
         @weights = sort { $a->{weight} <=> $b->{weight} } @weights;
-        my $weighted_queues = distribute_queues(\@weights);
+        @weighted_queues = distribute_queues(\@weights);
         my $consumer = get_consumer('worker');
         my $redis = $consumer->redis;
         $redis->del($PFQUEUE_WEIGHTS);
-        $redis->lpush($PFQUEUE_WEIGHTS, @$weighted_queues);
+        $redis->lpush($PFQUEUE_WEIGHTS, @weighted_queues);
         my $workers = $ConfigPfqueue{pfqueue}{workers};
         for (1 .. $workers) {
             register_task("worker", \&process_multiple_queues, {} );
@@ -254,6 +257,7 @@ creates a new child to run a task
 
 sub run_task {
     my ($task) = @_;
+    db_disconnect();
     my $pid = fork();
     if ($pid) {
         $CHILDREN{$pid} = $task;
@@ -303,6 +307,7 @@ sub _run_task {
     while (worker_should_run()) {
         $consumer = get_consumer($id) unless $consumer;
         pf::CHI::Request::clear_all();
+        pf::dal->reset_tenant();
         pf::log::reset_log_context();
         eval {
             #reload all cached configs before running the task
@@ -326,10 +331,16 @@ sub _run_task {
 
 sub get_tasks_count {
     my $tasks_count = $ConfigPfqueue{pfqueue}{max_tasks} // $PFQUEUE_MAX_TASKS_DEFAULT;
-    if ($tasks_count == 0) {
-        $tasks_count = -1;
+    if ($tasks_count <= 0) {
+        return -1;
     }
-    return $tasks_count;
+    my $task_jitter = $ConfigPfqueue{pfqueue}{task_jitter} // $PFQUEUE_TASK_JITTER_DEFAULT;
+    #The jitter cannot be greater than 25% of the max task
+    if ($task_jitter > $tasks_count / 4) {
+        $task_jitter = int($tasks_count / 4);
+    }
+
+    return add_jitter($tasks_count, $task_jitter);
 }
 
 =head2 is_parent_alive
@@ -365,17 +376,33 @@ sub process_multiple_queues {
     my $redis = $consumer->redis;
     my @queues;
     $redis->multi(sub{});
-    $redis->lrange($PFQUEUE_WEIGHTS, 0, -1);
+    $redis->lrange($PFQUEUE_WEIGHTS, 0, -1, sub {});
     $redis->rpoplpush($PFQUEUE_WEIGHTS, $PFQUEUE_WEIGHTS, sub {});
     $redis->exec(sub{
         my ($replies, $error) = @_;
-        return if defined $error;
+        if (defined $error) {
+            $logger->error($error);
+            return;
+        }
         my ($lrange_reply, $lrange_error) =  @{$replies->[0]};
-        return if $lrange_error;
+        if (defined $lrange_error) {
+            $logger->error($lrange_error);
+            return;
+        }
         @queues = map { $_->[0] } @$lrange_reply;
     });
     $redis->wait_all_responses();
-    $consumer->process_next_job(\@queues);
+    if (@queues) {
+        $consumer->process_next_job(\@queues);
+    } else {
+        $logger->warn("The queue weights were deleted from redis repopulating");
+        # Repopulate the queue weights only once
+        $redis->watch($PFQUEUE_WEIGHTS);
+        $redis->multi(sub{});
+        $redis->lpush($PFQUEUE_WEIGHTS, @weighted_queues, sub {});
+        $redis->exec(sub {});
+        $redis->wait_all_responses();
+    }
 }
 
 =head2 process_queue
@@ -486,11 +513,6 @@ our %QUEUE_TO_SERVICE = (
     pfsnmp_parsing => 'pf::services::manager::snmptrapd',
 );
 
-our %QUEUE_OFF_TO_SERVICE = (
-    pfsnmp => 'pf::services::manager::pfsetvlan',
-    pfsnmp_parsing => 'pf::services::manager::pfsetvlan',
-);
-
 =head2 skip_queue
 
 Checks to see if a queue should be worked on
@@ -499,13 +521,6 @@ Checks to see if a queue should be worked on
 
 sub skip_queue {
     my ($name) = @_;
-    if (exists $QUEUE_OFF_TO_SERVICE{$name}) {
-        # If the service is enable then skip queue
-        my $manger = $QUEUE_OFF_TO_SERVICE{$name}->new;
-        if ($manger->isManaged) {
-            return $TRUE;
-        }
-    }
     if (exists $QUEUE_TO_SERVICE{$name}) {
         my $manger = $QUEUE_TO_SERVICE{$name}->new;
         # If the service is disabled then skip queue
@@ -534,7 +549,7 @@ sub distribute_queues {
             }
         }
     }
-    return \@distribution;
+    return @distribution;
 }
 
 =head1 AUTHOR
@@ -545,7 +560,7 @@ Minor parts of this file may have been contributed. See CREDITS.
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2017 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 

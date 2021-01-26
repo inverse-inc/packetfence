@@ -1,3 +1,4 @@
+# Copyright (C) Inverse inc.
 [Unit]
 Description=PacketFence Proxy  Apache HTTP Server 
 Documentation=man:httpd(8)
@@ -9,8 +10,8 @@ After=packetfence-base.target packetfence-config.service packetfence-iptables.se
 StartLimitBurst=3
 StartLimitInterval=10
 Type=notify
-PIDFile=/usr/local/pf/var/run/httpd.proxy.pid
-ExecStartPre=/usr/local/pf/bin/pfcmd service httpd.proxy generateconfig
+ExecStartPre=/usr/bin/rm -f /usr/local/pf/var/run/httpd.proxy.pid
+ExecStartPre=/bin/perl -I/usr/local/pf/lib '-Mpf::services::manager::httpd_proxy' -e 'pf::services::manager::httpd_proxy->new()->generateConfig()'
 ExecStart=/usr/sbin/httpd -f /usr/local/pf/var/conf/httpd.conf.d/httpd.proxy -DFOREGROUND  -Drhel
 ExecReload=/bin/kill -USR1 ${MAINPID}
 PrivateTmp=true

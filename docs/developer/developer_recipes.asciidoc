@@ -1,0 +1,111 @@
+//== Developer recipes
+
+=== Virtual environment
+
+To test PacketFence on several distributions, we used Vagrant virtual machines. You can set up
+a similar environment to develop.
+
+==== Virtual environment: prerequisites
+
+Install following softwares:
+
+* link:https://www.vagrantup.com/docs/installation/[Vagrant] (>= 2.2.10) provided by Hashicorp
+* libvirt, KVM/QEMU and vagrant-libvirt if you want to use libvirt as a provider for Vagrant
+* pywinrm > 0.3.0 if you want to use `ad` virtual machine
+* Ansible >= 2.10
+
+==== Virtual environment: initial setup
+
+.Install Ansible and PacketFence's source code:
+[source,bash]
+----
+sudo yum install -y epel-release
+sudo yum install -y git python-pip
+pip install --user ansible
+git clone https://github.com/inverse-inc/packetfence.git
+----
+
+.Install PacketFence's collection and Ansible roles:
+[source,bash]
+----
+cd packetfence/addons/vagrant
+ansible-galaxy install -r requirements.yml
+----
+
+.Start a virtual machine
+[source,bash]
+----
+vagrant up VM_NAME
+----
+
+=== Running development version
+
+==== Bleeding edge
+
+For day to day development one can run a checkout of the current development branch in
+`/usr/local/pf/` and develop there within a working setup.
+
+
+==== Not so bleeding edge
+
+If you prefer to use packages, you can install latest PacketFence packages from nightly builds.
+
+===== Initial setup
+
+Install <<_virtual_environment_prerequisites,prequisites>> and follow
+<<_virtual_environment_initial_setup,initial setup>> then start `pf*night`
+machines.
+
+These machines will be auto-configured to install nightly builds from development
+repositories.
+
+===== Packages from PPA
+
+If you want to install latest packages built in the pipeline, available on
+link:https://inverse-inc.gitlab.io/packetfence/[GitLab], you can use
+following commands:
+
+[source,bash]
+----
+CI_PROJECT_NAME="ppa" CI_PAGES_URL="http://inverse-inc.gitlab.io/packetfence" vagrant up VM_NAME
+----
+
+WARNING: Packages available here could be build on other branches than devel.
+
+
+===== Day to day usage
+
+To keep your machine up-to-date, you can run the following commands:
+
+[source,bash]
+----
+vagrant provision --provision-with=install VM_NAME
+----
+
+Make sure you read the <<PacketFence_Upgrade_Guide.asciidoc#,Upgrade Guide>> after every upgrades to avoid any surprises.
+
+===== Running an Ansible playbook against Vagrant virtual machines
+
+If you want to use Ansible directly against Vagrant virtual machines (already started), you can use following commands:
+
+[source,bash]
+----
+ansible-playbook site.yml --limit VM_NAME
+----
+
+It's possible because we use a static Ansible inventory. This inventory is
+also used by Vagrant to start virtual machines.
+
+===== Specific version of a package
+
+If you want to install a specific version of a package, you can create a YAML
+file that override default inventory, for example:
+
+[source,bash]
+----
+cat >> extra.yml << EOF
+packetfence_install__centos_packages:
+  - packetfence-9.2.0-20191126180126.98740132.0007.el7
+EOF
+ansible-playbook site.yml --limit VM_NAME -e @extra.yml
+----

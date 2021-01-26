@@ -1,0 +1,17 @@
+/config/connection_profiles:
+  description: pf::UnifiedApi::Controller::Config::ConnectionProfiles
+  get:
+    description: List items
+    operationId: api.v1.Config::ConnectionProfiles.list
+    parameters: []
+    responses:
+      '200':
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ConfigConnectionProfilesList'
+        description: List
+      '400':
+        $ref: '#/components/responses/BadRequest'
+      '422':
+        $ref: '#/components/responses/UnprocessableEntity'

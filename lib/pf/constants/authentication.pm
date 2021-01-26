@@ -19,6 +19,7 @@ use Module::Pluggable
   'search_path' => [qw(pf::Authentication::Source)],
   'sub_name'    => 'sources',
   'require'     => 1,
+  'inner'       => 0,
   ;
 
 our @SOURCES = __PACKAGE__->sources();
@@ -33,7 +34,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2017 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 

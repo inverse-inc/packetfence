@@ -21,17 +21,22 @@ use warnings;
 ### pf::dal::_locationlog is auto generated any change to this file will be lost
 ### Instead change in the pf::dal::locationlog module
 ###
+
 use base qw(pf::dal);
+
+use Role::Tiny::With;
+with qw(pf::dal::roles::has_tenant_id);
 
 our @FIELD_NAMES;
 our @INSERTABLE_FIELDS;
 our @PRIMARY_KEYS;
 our %DEFAULTS;
 our %FIELDS_META;
+our @COLUMN_NAMES;
 
 BEGIN {
     @FIELD_NAMES = qw(
-        id
+        tenant_id
         mac
         switch
         port
@@ -44,15 +49,18 @@ BEGIN {
         start_time
         end_time
         switch_ip
+        switch_ip_int
         switch_mac
         stripped_user_name
         realm
         session_id
         ifDesc
+        voip
     );
 
     %DEFAULTS = (
-        mac => undef,
+        tenant_id => '1',
+        mac => '',
         switch => '',
         port => '',
         vlan => undef,
@@ -64,14 +72,17 @@ BEGIN {
         start_time => '0000-00-00 00:00:00',
         end_time => '0000-00-00 00:00:00',
         switch_ip => undef,
+        switch_ip_int => undef,
         switch_mac => undef,
         stripped_user_name => undef,
         realm => undef,
         session_id => undef,
         ifDesc => undef,
+        voip => 'no',
     );
 
     @INSERTABLE_FIELDS = qw(
+        tenant_id
         mac
         switch
         port
@@ -89,20 +100,21 @@ BEGIN {
         realm
         session_id
         ifDesc
+        voip
     );
 
     %FIELDS_META = (
-        id => {
+        tenant_id => {
             type => 'INT',
-            is_auto_increment => 1,
+            is_auto_increment => 0,
             is_primary_key => 1,
             is_nullable => 0,
         },
         mac => {
             type => 'VARCHAR',
             is_auto_increment => 0,
-            is_primary_key => 0,
-            is_nullable => 1,
+            is_primary_key => 1,
+            is_nullable => 0,
         },
         switch => {
             type => 'VARCHAR',
@@ -170,6 +182,12 @@ BEGIN {
             is_primary_key => 0,
             is_nullable => 1,
         },
+        switch_ip_int => {
+            type => 'INT',
+            is_auto_increment => 0,
+            is_primary_key => 0,
+            is_nullable => 1,
+        },
         switch_mac => {
             type => 'VARCHAR',
             is_auto_increment => 0,
@@ -200,11 +218,46 @@ BEGIN {
             is_primary_key => 0,
             is_nullable => 1,
         },
+        voip => {
+            type => 'ENUM',
+            is_auto_increment => 0,
+            is_primary_key => 0,
+            is_nullable => 0,
+            enums_values => {
+                'no' => 1,
+                'yes' => 1,
+            },
+        },
     );
 
     @PRIMARY_KEYS = qw(
-        id
+        tenant_id
+        mac
     );
+
+    @COLUMN_NAMES = qw(
+        locationlog.tenant_id
+        locationlog.mac
+        locationlog.switch
+        locationlog.port
+        locationlog.vlan
+        locationlog.role
+        locationlog.connection_type
+        locationlog.connection_sub_type
+        locationlog.dot1x_username
+        locationlog.ssid
+        locationlog.start_time
+        locationlog.end_time
+        locationlog.switch_ip
+        locationlog.switch_ip_int
+        locationlog.switch_mac
+        locationlog.stripped_user_name
+        locationlog.realm
+        locationlog.session_id
+        locationlog.ifDesc
+        locationlog.voip
+    );
+
 }
 
 use Class::XSAccessor {
@@ -221,13 +274,13 @@ sub _defaults {
     return {%DEFAULTS};
 }
 
-=head2 field_names
+=head2 table_field_names
 
 Field names of locationlog
 
 =cut
 
-sub field_names {
+sub table_field_names {
     return [@FIELD_NAMES];
 }
 
@@ -253,6 +306,16 @@ our $FIND_SQL = do {
     my $where = join(", ", map { "$_ = ?" } @PRIMARY_KEYS);
     "SELECT * FROM `locationlog` WHERE $where;";
 };
+
+=head2 find_columns
+
+find_columns
+
+=cut
+
+sub find_columns {
+    return [@COLUMN_NAMES];
+}
 
 =head2 _find_one_sql
 
@@ -293,14 +356,14 @@ Get the meta data for locationlog
 sub get_meta {
     return \%FIELDS_META;
 }
- 
+
 =head1 AUTHOR
 
 Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2017 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 

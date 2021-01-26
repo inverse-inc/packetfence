@@ -26,14 +26,14 @@ __PACKAGE__->config(
     }
 );
 
-sub index :Path :Args(1) :AdminRole('REPORTS') {
+sub index :Path :Args(1) :AdminRole('REPORTS_READ') {
     my ($self, $c, $report_id) = @_;
 
     $c->stash->{template} = "dynamicreport/index.tt";
     $c->forward("_search", [$report_id]);
 }
 
-sub search :Local :AdminRole('REPORTS') {
+sub search :Local :AdminRole('REPORTS_READ') {
     my ($self, $c) = @_;
 
     my $report_id = $c->req->param('report_id');
@@ -47,7 +47,7 @@ sub search :Local :AdminRole('REPORTS') {
     $c->forward("_search", [$report_id, $search]);
 }
 
-sub _search :AdminRole('REPORTS') {
+sub _search :AdminRole('REPORTS_READ') {
     my ($self, $c, $report_id, $form) = @_;
     my $report = $c->stash->{report} = pf::factory::report->new($report_id);
 
@@ -71,13 +71,10 @@ sub _search :AdminRole('REPORTS') {
     $infos{start_date} = $form->{start}->{date} . " " . $form->{start}->{time} if($form->{start});
     $infos{end_date} = $form->{end}->{date} . " " . $form->{end}->{time} if($form->{end});
 
-    use Data::Dumper;
-    $c->log->info(Dumper(\%infos));
-
-    my @items = $report->query(%infos);
+    my ($status, $items) = $report->query(%infos);
 
     $c->stash->{searches} = $report->searches;
-    $c->stash->{items} = \@items;
+    $c->stash->{items} = $items;
     $c->stash->{page_count} = $report->page_count(%infos);
 
     if ($c->request->param('export')) {
@@ -86,4 +83,30 @@ sub _search :AdminRole('REPORTS') {
         });
     }
 }
+
+=head1 COPYRIGHT
+
+Copyright (C) 2016-2021 Inverse inc.
+
+=head1 LICENSE
+
+This program is free software; you can redistribute it and/or
+modify it under the terms of the GNU General Public License
+as published by the Free Software Foundation; either version 2
+of the License, or (at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program; if not, write to the Free Software
+Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301,
+USA.
+
+=cut
+
+__PACKAGE__->meta->make_immutable unless $ENV{"PF_SKIP_MAKE_IMMUTABLE"};
+
 1;

@@ -1,13 +1,13 @@
+# Copyright (C) Inverse inc.
 [Unit]
 Description=PacketFence pffilter Service
-Wants=packetfence-base.target packetfence-config.service packetfence-iptables.service packetfence-redis_queue.service
-After=packetfence-base.target packetfence-config.service packetfence-iptables.service packetfence-redis_queue.service
+Wants=packetfence-base.target packetfence-config.service packetfence-iptables.service
+After=packetfence-base.target packetfence-config.service packetfence-iptables.service
 
 [Service]
 Type=notify
 StartLimitBurst=3
 StartLimitInterval=10
-PIDFile=/usr/local/pf/var/run/pffilter.pid
 ExecStart=/usr/local/pf/sbin/pffilter
 User=pf
 Restart=on-failure

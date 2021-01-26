@@ -10,10 +10,14 @@ Form definition to create or update a LDAP user source.
 
 =cut
 
-use pf::Authentication::Source::LDAPSource;
+BEGIN {
+    use pf::Authentication::Source::LDAPSource;
+}
 use HTML::FormHandler::Moose;
 extends 'pfappserver::Form::Config::Source';
-with 'pfappserver::Base::Form::Role::Help';
+with 'pfappserver::Base::Form::Role::Help', 'pfappserver::Base::Form::Role::InternalSource';
+
+use pf::config qw(%Config);
 
 our $META = pf::Authentication::Source::LDAPSource->meta;
 
@@ -24,25 +28,58 @@ has_field 'host' =>
    type => 'Text',
    label => 'Host',
    element_class => ['input-small'],
-   element_attr => {'placeholder' => '127.0.0.1'},
+   element_attr => {'placeholder' => ''},
    default => $META->get_attribute('host')->default,
+   required => 1,
   );
 has_field 'port' =>
   (
-   type => 'PosInteger',
+   type => 'Port',
    label => 'Port',
    element_class => ['input-mini'],
    element_attr => {'placeholder' => '389'},
    default => $META->get_attribute('port')->default,
   );
-has_field 'connection_timeout' =>
+has_field 'dead_duration' =>
   (
     type         => 'PosInteger',
+    element_attr => {
+        'placeholder' => $META->get_attribute('dead_duration')->default
+    },
+    default => $META->get_attribute('dead_duration')->default,
+  );
+has_field 'connection_timeout' =>
+  (
+    type         => 'Float',
     label        => 'Connection timeout',
     element_attr => {
         'placeholder' => $META->get_attribute('connection_timeout')->default
     },
     default => $META->get_attribute('connection_timeout')->default,
+    tags => { after_element => \&help,
+             help => 'LDAP connection Timeout' },
+  );
+has_field 'write_timeout' =>
+  (
+    type         => 'Float',
+    label        => 'Request timeout',
+    element_attr => {
+        'placeholder' => $META->get_attribute('write_timeout')->default
+    },
+    default => $META->get_attribute('write_timeout')->default,
+    tags => { after_element => \&help,
+             help => 'LDAP request timeout' },
+  );
+has_field 'read_timeout' =>
+  (
+    type         => 'Float',
+    label        => 'Response timeout',
+    element_attr => {
+        'placeholder' => $META->get_attribute('read_timeout')->default
+    },
+    default => $META->get_attribute('read_timeout')->default,
+    tags => { after_element => \&help,
+             help => 'LDAP response timeout' },
   );
 has_field 'encryption' =>
   (
@@ -79,13 +116,20 @@ has_field 'scope' =>
     { value => 'sub', label => 'Subtree' },
     { value => 'children', label => 'Children' },
    ],
-   default => 'base',
+   default => 'sub',
   );
 has_field 'usernameattribute' =>
   (
-   type => 'Text',
+   type => 'Select',
    label => 'Username Attribute',
    required => 1,
+   options_method => \&options_attributes,
+   element_class  => ['chzn-deselect', 'input-xxlarge'],
+   element_attr   => { 'data-placeholder' => 'Click to select an attribute' },
+   tags           => {
+       after_element => \&help,
+       help          => 'Main reference attribute that contain the username'
+   },
    # Default value needed for creating dummy source
    default => '',
   );
@@ -107,18 +151,6 @@ has_field 'password' =>
    # Default value needed for creating dummy source
    default => '',
   );
-has_field 'stripped_user_name' =>
-  (
-   type            => 'Toggle',
-   checkbox_value  => 'yes',
-   unchecked_value => 'no',
-   default         => 'yes',
-   label           => 'Use stripped username ',
-   tags => { after_element => \&help,
-             help => 'Use stripped username returned by RADIUS to test the following rules.' },
-   default => $META->get_attribute('stripped_user_name')->default,
-  );
-
 has_field 'cache_match',
   (
    type => 'Toggle',
@@ -141,6 +173,64 @@ has_field 'email_attribute' => (
     },
 );
 
+has_field 'monitor',
+  (
+   type => 'Toggle',
+   label => 'Monitor',
+   checkbox_value => '1',
+   unchecked_value => '0',
+   tags => { after_element => \&help,
+             help => 'Do you want to monitor this source?' },
+   default => $META->get_attribute('monitor')->default,
+);
+
+has_field 'shuffle',
+  (
+   type => 'Toggle',
+   label => 'Shuffle',
+   checkbox_value => '1',
+   unchecked_value => '0',
+   tags => { after_element => \&help,
+             help => 'Randomly choose LDAP server to query' },
+   default => $META->get_attribute('shuffle')->default,
+);
+
+has_field 'searchattributes' => (
+    type           => 'Select',
+    label          => 'Search Attributes',
+    multiple       => 1,
+    options_method => \&options_attributes,
+    element_class  => ['chzn-deselect', 'input-xxlarge'],
+    element_attr   => { 'data-placeholder' => 'Click to select an attribute' },
+    tags           => {
+        after_element => \&help,
+        help          => 'Other attributes that can be used as the username (requires to restart the radiusd service to be effective)'
+    },
+    default => '',
+);
+
+has_field 'append_to_searchattributes' => (
+    type => 'Text',
+    label => 'Append search attributes ldap filter',
+    required => 0,
+    default => '',
+    tags => {
+        after_element => \&help,
+        help => 'Append this ldap filter to the generated generated ldap filter generated for the search attributes.',
+    },
+);
+
+=head2 options_attributes
+
+retrive the realms
+
+=cut
+
+sub options_attributes {
+    my ($self) = @_;
+    return map { $_ => $_} @{$Config{advanced}->{ldap_attributes}};
+}
+
 =head2 validate
 
 Make sure a password is specified when a bind DN is specified.
@@ -161,7 +251,7 @@ sub validate {
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2017 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 
@@ -182,5 +272,5 @@ USA.
 
 =cut
 
-__PACKAGE__->meta->make_immutable;
+__PACKAGE__->meta->make_immutable unless $ENV{"PF_SKIP_MAKE_IMMUTABLE"};
 1;

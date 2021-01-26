@@ -63,9 +63,10 @@ Readonly::Scalar our $URL_ACCESS                => '/access';
 Readonly::Scalar our $URL_LOGOUT                => '/logout';
 Readonly::Scalar our $URL_BILLING               => '/billing';
 Readonly::Scalar our $URL_BILLING_CHILD         => '/billing/(.*)';
+Readonly::Scalar our $URL_SSL_INSPECTION_CHILD  => '/ssl_inspection/(.*)';
 Readonly::Scalar our $URL_CAPTIVE_PORTAL        => '/captive-portal';
-Readonly::Scalar our $URL_VIOLATION             => '/violation';
-Readonly::Scalar our $URL_RELEASE               => '/violation/release';
+Readonly::Scalar our $URL_SECURITY_EVENT        => '/security_event';
+Readonly::Scalar our $URL_RELEASE               => '/security_event/release';
 Readonly::Scalar our $URL_REMEDIATION           => '/remediation';
 Readonly::Scalar our $URL_ENABLER               => '/enabler';
 Readonly::Scalar our $URL_WISPR                 => '/wispr';
@@ -77,6 +78,7 @@ Readonly::Scalar our $URL_STATUS_RESET_PASSWORD => '/status/reset_password';
 Readonly::Scalar our $URL_STATUS_LOGIN          => '/status/login';
 Readonly::Scalar our $URL_STATUS_LOGOUT         => '/status/logout';
 Readonly::Scalar our $URL_STATUS_BILLING        => '/status/billing';
+Readonly::Scalar our $URL_STATUS_BILLING_CANCEL => '/status/billing/cancel_subscription/(.+)';
 Readonly::Scalar our $URL_NODE_MANAGER          => '/node/manager/(.+)';
 Readonly::Scalar our $URL_SAML_REDIRECT         => '/saml/redirect';
 Readonly::Scalar our $URL_SAML                  => '/saml/(.+)';
@@ -84,13 +86,13 @@ Readonly::Scalar our $URL_SPONSOR_CHECK         => '/sponsor/check';
 Readonly::Scalar our $URL_SWITCH                => '/switchto/(.+)';
 Readonly::Scalar our $URL_RECORD_DESTINATION    => '/record_destination_url';
 Readonly::Scalar our $URL_CHALLENGE             => '/challenge';
+Readonly::Scalar our $URL_NETWORK_LOGOFF        => '/networklogoff';
 
 # guest related
 Readonly::Scalar our $URL_SIGNUP                => '/signup';
 Readonly::Scalar our $URL_EMAIL_ACTIVATION      => '/activate/email(.*)';
 Readonly::Scalar our $URL_EMAIL_ACTIVATION_LINK => '/activate/email';
 Readonly::Scalar our $URL_SMS_ACTIVATION        => '/activate/sms';
-Readonly::Scalar our $URL_PREREGISTER           => '/preregister';
 Readonly::Scalar our $URL_ADMIN_MANAGE_GUESTS   => '/guests/manage';
 
 Readonly::Scalar our $URL_GAMING_REGISTRATION   => '/gaming-registration';
@@ -99,23 +101,32 @@ Readonly::Scalar our $URL_DEVICE_REG_LOGOUT     => '/device-registration/logout'
 
 # External Captive Portal URL detection constant
 Readonly::Scalar our $EXT_URL_AEROHIVE              => '^/AeroHIVE::AP';
+Readonly::Scalar our $EXT_URL_AEROHIVE_SHORT        => '^/AeroHIVE';
 Readonly::Scalar our $EXT_URL_ARUBA                 => '^/Aruba';
 Readonly::Scalar our $EXT_URL_CISCO_CATALYST_2960   => '^/Cisco::Catalyst_2960';
 Readonly::Scalar our $EXT_URL_CISCO_WLC             => '^/Cisco::WLC';
+Readonly::Scalar our $EXT_URL_CISCO_ASA             => '^/Cisco::ASA';
 Readonly::Scalar our $EXT_URL_COOVACHILLI           => '^/CoovaChilli';
 Readonly::Scalar our $EXT_URL_MERAKI                => '^/Meraki::MR';
+Readonly::Scalar our $EXT_URL_MERAKI_V2             => '^/Meraki::MR_v2';
 Readonly::Scalar our $EXT_URL_RUCKUS                => '^/Ruckus';
 Readonly::Scalar our $EXT_URL_RUCKUS_SMARTZONE      => '^/RuckusSmartZone';
 Readonly::Scalar our $EXT_URL_XIRRUS                => '^/Xirrus';
 Readonly::Scalar our $EXT_URL_MIKROTIK              => '^/Mikrotik';
 Readonly::Scalar our $EXT_URL_FORTIGATE             => '^/Fortinet::FortiGate';
+Readonly::Scalar our $EXT_URL_CAMBIUM               => '^/Cambium';
+Readonly::Scalar our $EXT_URL_MOJO                  => '^/Mojo';
+Readonly::Scalar our $EST_URL_DELL                  => '^/Dell:N1500';
+Readonly::Scalar our $EXT_URL_EXOS                  => '^/Extreme::EXOS';
+
 # Ubiquiti doesn't support setting the URL so we much detect it using this URL which will then map to the Ubiquiti module in pf::web::externalportal
-Readonly::Scalar our $EXT_URL_UBIQUITI              => '^/guest/s/default';
+Readonly::Scalar our $EXT_URL_UBIQUITI              => '^/guest/s/[a-zA-Z0-9]+/';
 
 # Provisioning engine
 Readonly::Scalar our $URL_WIRELESS_PROFILE => '/wireless-profile.mobileconfig';
 Readonly::Scalar our $URL_ANDROID_PROFILE  => '/profile.xml';
 Readonly::Scalar our $URL_TLS_GENERATION   => '/tlsprofile';
+
 
 =head2 Apache Config related
 
@@ -172,7 +183,7 @@ code (ex: fr) will be used for any locale matching the language code (ex: fr_FR 
 
 Readonly::Array our @LOCALES =>
   (
-   qw(en_US es_ES fr_FR fr_CA de_DE he_IL it_IT nl_NL pl_PL pt_BR)
+   qw(en_US es_ES fr_FR fr_CA de_DE he_IL it_IT nb_NO nl_NL pl_PL pt_BR)
   );
 
 =item ALLOWED_RESOURCES_PROFILE_FILTER
@@ -256,7 +267,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2017 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 

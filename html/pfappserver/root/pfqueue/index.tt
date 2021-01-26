@@ -1,87 +1,29 @@
+[% PROCESS pfqueue/stats.inc %]
 <div class="card">
-  <h2 class="card-title">[% l('Queue') %]</h2>
+    <script>
+      // this section has to appear before loading dashboard.js
 
-<div class="card-block">
-  <table class="table table-condensed table-striped">
-    <thead>
-      <tr><th colspan="3">[%l('Queue Counts')%]</th></tr>
-      <tr>
-        <th>[% l('Queue') %]</th>
-        <th width="30%">[% l('Count') %]</th>
-      </tr>
+      // Disable bootstrap
+      var netdataNoBootstrap = true;
 
-    </thead>
+      // Select a theme.
+      // uncomment on of the two themes:
+      var netdataTheme = 'default'; // this is white
+      // var netdataTheme = 'slate'; // this is dark
 
-    [% FOREACH counter IN queue_counts %]
-      <tr>
-        <td> [% counter.name %]</td>
-        <td> [% counter.count %]</td>
-      </tr>
-    [% END %]
-    
-  </table>
+      // Set the default netdata server.
+      // on charts without a 'data-host', this one will be used.
+      // the default is the server that dashboard.js is downloaded from.
+      var netdataServer = '/netdata/127.0.0.1';
+    </script>
 
-  <div>
-    <h5>[% queue_counts_graph.description %]</h5>
-    <span style="float: left; width: [% queue_counts_graph.width %]px;">
-      <img src="[% queue_counts_graph.url %]" style="height: [% queue_counts_graph.height %]px; width: [% queue_counts_graph.width %]px;">
-    </span>
-  </div>
+    <!--
+      Load dashboard.js
+      to host this HTML file on your web server,
+      you have to load dashboard.js from the netdata server.
+    -->
+    <script type="text/javascript" src="/netdata/127.0.0.1/dashboard.js?v20170724-7"></script>
 
-  [% IF counters && counters.size > 0 %]
-  <table class="table table-condensed table-striped">
-    <thead>
-      <tr><th colspan="3">[%l('Outstanding Task Counters')%]</th></tr>
-      <tr>
-        <th width="30%">[% l('Queue') %]</th>
-        <th>[% l('Task type') %]</th>
-        <th width="30%">[% l('Count') %]</th>
-      </tr>
-    </thead>
-    [% FOREACH counter IN counters %]
-      <tr>
-        <td> [% counter.queue %]</td>
-        <td>[% counter.name %] </td>
-        <td> [% counter.count %]</td>
-      </tr>
-    [% END %]
-  </table>
-  [% ELSE %]
-  <div class="unwell">
-   <p> <i class="icon-group icon-large"></i>
-     [% l('No Task Counters.') %]
-   </p>
-  </div>
-  [% END %]
-  [% IF miss_counters && miss_counters.size > 0 %]
-  <table class="table table-condensed table-striped">
-    <thead>
-      <tr><th colspan="3">[%l('Expired Task Counters')%]</th></tr>
-      <tr>
-        <th width="30%">[% l('Queue') %]</th>
-        <th>[% l('Task type') %]</th>
-        <th width="30%">[% l('Count') %]</th>
-      </tr>
-    </thead>
-    [% FOREACH counter IN miss_counters %]
-      <tr>
-        <td>[% counter.queue %]</td>
-        <td>[% counter.name %] </td>
-        <td>[% counter.count %]</td>
-      </tr>
-    [% END %]
-  </table>
-  [% ELSE %]
-    <tr>
-      <td colspan="3">
-      <div class="unwell">
-       <p> <i class="icon-group icon-large"></i>
-         [% l('No Expired Task Counters.') %]
-       </p>
-      </div>
-      </td>
-    </tr>
-  [% END %]
-</div>
-</div>
+<h2 class="card-title">[% l('Queue') %]</h2>
+[% show_stats(stats, 1, hostname, "127.0.0.1") | none %]
 </div>

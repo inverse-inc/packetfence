@@ -50,7 +50,7 @@ Matches the first filter an returns the answer
 sub match_first {
     my ($self, @args) = @_;
     my $arg = $self->build_match_arg(@args);
-    my $filter = first { $_->match($arg) } $self->all_filters;
+    my $filter = first { $_->match($arg,@args) } $self->all_filters;
     return undef unless $filter;
     return $filter->get_answer($arg);
 }
@@ -64,11 +64,10 @@ Matches all the filters and returns all the answers for the filters
 sub match_all {
     my ($self, @args) = @_;
     my $arg = $self->build_match_arg(@args);
-    my @filters = grep {$_->match($arg)} $self->all_filters;
+    my @filters = grep {$_->match($arg,@args)} $self->all_filters;
     return unless @filters;
     return map {$_->get_answer($arg)} @filters;
 }
-
 
 =head2 build_match_arg
 
@@ -88,7 +87,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2017 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 

@@ -11,18 +11,25 @@ pf::Authentication::Source::EduroamSource
 use pf::Authentication::constants;
 use pf::constants qw($TRUE $FALSE);
 use pf::log;
+use pf::config qw(%Config);
 
 use Moose;
 extends 'pf::Authentication::Source';
+with qw(pf::Authentication::InternalRole);
 
 has '+type'                 => (default => 'Eduroam');
 has '+class'                => (isa => 'Str', is => 'ro', default => 'exclusive');
 has '+unique'               => (isa => 'Bool', is => 'ro', default => $TRUE);
 has 'server1_address'       => (isa => 'Str', is => 'rw');
+has 'server1_port'          => (isa => 'Str', is => 'rw', default => '1812');
 has 'server2_address'       => (isa => 'Str', is => 'rw');
+has 'server2_port'          => (isa => 'Str', is => 'rw', default => '1812');
 has 'radius_secret'         => (isa => 'Str', is => 'rw');
 has 'auth_listening_port'   => (isa => 'Maybe[Int]', is => 'rw', default => '11812');
-
+has 'local_realm'           => (isa => 'ArrayRef[Str]', is => 'rw');
+has 'reject_realm'          => (isa => 'ArrayRef[Str]', is => 'rw');
+has 'monitor' => ( isa => 'Bool', is => 'rw', default => '1' );
+has '+realms' => (default => sub { ["eduroam"] });
 
 =head2 available_rule_classes
 
@@ -49,17 +56,17 @@ sub available_actions {
 
 =head2 available_attributes
 
-Allow to make a condition on the user's username.
+Add additional available attributes
 
 =cut
 
 sub available_attributes {
-  my $self = shift;
+    my $self = shift;
 
-  my $super_attributes = $self->SUPER::available_attributes;
-  my $own_attributes = [{ value => "username", type => $Conditions::SUBSTRING }];
-
-  return [@$super_attributes, @$own_attributes];
+    my $super_attributes = $self->SUPER::available_attributes;
+    my @attributes = @{$Config{radius_configuration}->{radius_attributes} // []};
+    my @radius_attributes = map { { value => "radius_request.".$_, type => $Conditions::SUBSTRING } } @attributes;
+    return [@$super_attributes, @radius_attributes];
 }
 
 
@@ -75,13 +82,13 @@ sub match_in_subclass {
 
     foreach my $condition ( @{ $own_conditions } ) {
         if ( $condition->{'attribute'} eq "username" ) {
-            if ( $condition->matches("username", $username) ) {
+            if ( $condition->matches("username", $username, $params) ) {
                 push(@{ $matching_conditions }, $condition);
             }
         }
     }
 
-    return $username;
+    return ($username, undef);
 }
 
 
@@ -91,7 +98,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2017 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 
@@ -112,7 +119,7 @@ USA.
 
 =cut
 
-__PACKAGE__->meta->make_immutable;
+__PACKAGE__->meta->make_immutable unless $ENV{"PF_SKIP_MAKE_IMMUTABLE"};
 1;
 
 # vim: set shiftwidth=4:

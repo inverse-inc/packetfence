@@ -19,6 +19,7 @@ use pf::radius_audit_log;
 use pf::error qw(is_error is_success);
 use SQL::Abstract::More;
 use POSIX qw(ceil);
+use pf::dal::radius_audit_log;
 
 =head1 METHODS
 
@@ -34,7 +35,7 @@ sub view {
     my $item = radius_audit_log_view($id);
     return ($STATUS::NOT_FOUND,["Item [_1] not found", $id]) unless defined $item;
     _unescape_item($item);
-    return ($STATUS::OK,$item);
+    return ($STATUS::OK, $item);
 }
 
 sub view_entries {
@@ -44,7 +45,7 @@ sub view_entries {
     my $offset = $page_number - 1;
     $offset = 0 if $offset < 0;
     my @items = radius_audit_log_view_all($offset, $items_per_page);
-    return ($STATUS::OK,\@items);
+    return ($STATUS::OK, \@items);
 }
 
 sub search {
@@ -52,42 +53,39 @@ sub search {
     $params->{page_num} ||= 1;
     $params->{per_page} ||= 25;
     my $sqla = SQL::Abstract::More->new;
-    my @where_options = $self->_build_where($params);
-    my @additional_options = ($self->_build_limit($params),$self->_build_order_by($params));
-    my $table = $self->table;
-    my ($sql, @bind) = $sqla->select(
-        -from => $table,
-        @where_options,
-        @additional_options
+    my $where = $self->_build_where($params);
+    my %search = (
+        -where => $where,
+        $self->_build_limit($params),
+        $self->_build_order_by($params)
     );
-    my @items =  radius_audit_log_custom($sql, @bind);
-    foreach my $item (@items) {
+    my ($status, $iter) = pf::dal::radius_audit_log->search(%search);
+    if (is_error($status)) {
+        return ($status, "Error searching in radius_audit_log");
+    }
+    my $items = $iter->all(undef);
+    foreach my $item (@$items) {
         _unescape_item($item);
     }
-    ($sql, @bind) = $sqla->select(
-        -from => $table,
-        -columns => [qw(count(*)|count)],
-        @where_options,
-    );
-    my @count =  radius_audit_log_custom($sql, @bind);
-    my %results;
-    my $count = 0;
-    if($count[0]) {
-        $count = $count[0]->{count};
+    ($status, my $count) = pf::dal::radius_audit_log->count(-where => $where);
+    if (is_error($status)) {
+        return ($status, "Error searching in radius_audit_log");
     }
     my $per_page = $params->{per_page};
-    $results{items} = \@items;
-    $results{count} = $count;
-    $results{page_count} = ceil( $count / $per_page );
-    $results{per_page} = $per_page;
-    $results{page_num} = $params->{page_num};
-    return ($STATUS::OK,\%results);
+    my %results = (
+        items => $items,
+        count => $count,
+        page_count => ceil( $count / $per_page ),
+        per_page => $per_page,
+        page_num => $params->{page_num},
+    );
+    return ($STATUS::OK, \%results);
 }
 
 sub _unescape_item {
     my ($item) = @_;
     foreach my $key (keys %$item) {
-        next if exists $pf::radius_audit_log::RADIUS_FIELDS{$key};
+        next if exists $pf::radius_audit_log::RADIUS_FIELDS{$key} || !defined $item->{$key};
         $item->{$key} =~ s/=([a-fA-F0-9]{2})/chr(hex($1))/ge;
     }
 }
@@ -103,7 +101,7 @@ sub _build_where {
         $where{$relational_op} =  \@clauses;
     }
     $self->_add_date_range($params, \%where);
-    return -where => \%where;
+    return \%where;
 }
 
 sub _add_date_range {
@@ -130,7 +128,7 @@ sub _build_limit {
 
 sub _build_order_by {
     my ($self, $params) = @_;
-    return -order_by => [qw(-id)];
+    return -order_by => {-desc => 'id'},
 }
 
 our %OP_MAP = (
@@ -161,7 +159,7 @@ sub _build_clause {
     my $sql_op = $OP_MAP{$op};
     if($sql_op eq 'LIKE' || $sql_op eq 'NOT LIKE') {
         #escaping the % and _ charcaters
-        my $escaped = $value =~ s/([%_])/\\$1/g;
+        my $escaped = $value =~ s/([%_\\])/\\$1/g;
         if($op eq 'like' || $op eq 'not_like') {
             $value = "\%$value\%";
         } elsif ($op eq 'starts_with') {
@@ -170,7 +168,7 @@ sub _build_clause {
             $value = "\%$value";
         }
         if ($escaped) {
-            return { $name => { like => \[q{? ESCAPE '\'}, $value] } };
+            return { $name => { like => \[q{? ESCAPE '\\\\'}, $value] } };
         }
     }
     return {$name => {$sql_op => $value}};
@@ -184,7 +182,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2017 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 
@@ -205,6 +203,6 @@ USA.
 
 =cut
 
-__PACKAGE__->meta->make_immutable;
+__PACKAGE__->meta->make_immutable unless $ENV{"PF_SKIP_MAKE_IMMUTABLE"};
 
 1;

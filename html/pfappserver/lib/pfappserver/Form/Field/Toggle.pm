@@ -13,31 +13,39 @@ value matches the checkbox_value attribute.
 
 use Moose;
 extends 'HTML::FormHandler::Field::Checkbox';
-use pf::config;
+use pf::util qw(isenabled) ;
 use namespace::autoclean;
 
 has '+checkbox_value' => ( default => 'Y' );
 has 'unchecked_value' => ( is => 'ro', default => 'N' );
-has '+inflate_default_method'=> ( default => sub { \&toggle_inflate } );
-has '+deflate_value_method'=> ( default => sub { \&toggle_deflate } );
+has '+inflate_default_method'=> ( default => sub { \&inflate } );
+has '+deflate_value_method'=> ( default => sub { \&deflate } );
+has '+input_without_param' => ( default => undef );
 
-sub toggle_inflate {
+sub inflate {
     my ($self, $value) = @_;
-
-    return $self->{checkbox_value} if (pf::config::isenabled($value));
-    return $self->{unchecked_value};
+    return isenabled($value) ? $self->checkbox_value : $self->unchecked_value;
 }
 
-sub toggle_deflate {
+sub deflate {
     my ($self, $value) = @_;
+    if ($self->required) {
+        return $self->inflate($value);
+    }
 
-    return $self->{checkbox_value} if (pf::config::isenabled($value));
-    return $self->{unchecked_value};
+    return !defined $value ? undef : $self->inflate($value)
+}
+
+sub value {
+    my $field = shift;
+    return $field->next::method(@_) if @_;
+    my $v = HTML::FormHandler::Field::value($field);
+    return defined $v ? $v : ($field->required ? $field->unchecked_value : undef);
 }
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2017 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 
@@ -58,5 +66,5 @@ USA.
 
 =cut
 
-__PACKAGE__->meta->make_immutable;
+__PACKAGE__->meta->make_immutable unless $ENV{"PF_SKIP_MAKE_IMMUTABLE"};
 1;

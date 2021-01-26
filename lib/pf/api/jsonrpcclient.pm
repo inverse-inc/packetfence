@@ -25,9 +25,14 @@ use warnings;
 use JSON::MaybeXS;
 use pf::config qw(%Config);
 use pf::log;
+use pf::dal;
 use WWW::Curl::Easy;
 use Moo;
 use HTTP::Status qw(:constants);
+
+our $logger = get_logger();
+
+our $JSON = JSON->new->convert_blessed(1);
 
 =head1 Attributes
 
@@ -81,7 +86,32 @@ has port => (is => 'rw', default => sub {$Config{'webservices'}{'port'}} );
 
 =cut
 
-has id => (is => 'rw', default => sub {0} );
+has id => (is => 'rw', default => 0 );
+
+=head2 method
+
+  the method to use to send the request (Post/Get)
+  default Post
+
+=cut
+
+has method => (is => 'rw', default => "post" );
+
+=head2 connect_timeout_ms
+
+Curl connection timeout in milli seconds
+
+=cut
+
+has connect_timeout_ms => (is => 'rw', default => 0) ;
+
+=head2 timeout_ms
+
+Curl transfer timeout in milli seconds
+
+=cut
+
+has timeout_ms => (is => 'rw', default => 0 ) ;
 
 use constant REQUEST => 0;
 use constant RESPONSE => 2;
@@ -100,10 +130,13 @@ sub call {
     my ($self,$function,@args) = @_;
     my $response;
     my $curl = $self->curl($function);
-    my $request = $self->build_jsonrpc_request($function,\@args);
+    if ($self->method eq 'post') {
+        my $request = $self->build_jsonrpc_request($function,\@args);
+        $curl->setopt(CURLOPT_POSTFIELDSIZE,length($request));
+        $curl->setopt(CURLOPT_POSTFIELDS, $request);
+    }
+
     my $response_body;
-    $curl->setopt(CURLOPT_POSTFIELDSIZE,length($request));
-    $curl->setopt(CURLOPT_POSTFIELDS, $request);
     $curl->setopt(CURLOPT_WRITEDATA, \$response_body);
     $curl->setopt(CURLOPT_SSL_VERIFYPEER, 0);
 
@@ -141,25 +174,32 @@ sub notify {
     my ($self,$function,@args) = @_;
     my $response;
     my $curl = $self->curl($function);
-    my $request = $self->build_jsonrpc_notification($function,\@args);
+    if ($self->method eq 'post') {
+        my $request = $self->build_jsonrpc_notification($function,\@args);
+        $curl->setopt(CURLOPT_POSTFIELDSIZE,length($request));
+        $curl->setopt(CURLOPT_POSTFIELDS, $request);
+    }
+
     my $response_body;
-    $curl->setopt(CURLOPT_POSTFIELDSIZE,length($request));
-    $curl->setopt(CURLOPT_POSTFIELDS, $request);
     $curl->setopt(CURLOPT_WRITEDATA, \$response_body);
 
     # Starts the actual request
     my $curl_return_code = $curl->perform;
+    my $results = 0;
 
     # Looking at the results...
     if ( $curl_return_code == 0 ) {
         my $response_code = $curl->getinfo(CURLINFO_HTTP_CODE);
         if($response_code != HTTP_NO_CONTENT) {
-            get_logger->error( "An error occured while processing the JSONRPC request return code ($response_code)");
+            $logger->error( "An error occured while processing the JSONRPC request return code ($response_code)");
+        } else {
+            $results = 1;
         }
     } else {
-        get_logger->error("An error occured while sending a JSONRPC request: $curl_return_code ".$curl->strerror($curl_return_code)." ".$curl->errbuf);
+        $logger->error("An error occured while sending a JSONRPC request: $curl_return_code ".$curl->strerror($curl_return_code)." ".$curl->errbuf);
     }
-    return;
+
+    return $results;
 }
 
 =head2 curl
@@ -177,6 +217,8 @@ sub curl {
     $curl->setopt(CURLOPT_NOSIGNAL, 1);
     $curl->setopt(CURLOPT_URL, $url);
     $curl->setopt(CURLOPT_HTTPHEADER, ['Content-Type: application/json-rpc',"Request: $function"]);
+    $curl->setopt(CURLOPT_CONNECTTIMEOUT_MS, $self->connect_timeout_ms // 0);
+    $curl->setopt(CURLOPT_TIMEOUT_MS, $self->timeout_ms // 0);
     if($self->proto eq 'https') {
         if($self->username && $self->password) {
             $curl->setopt(CURLOPT_USERNAME, $self->username);
@@ -212,12 +254,19 @@ sub url {
 =cut
 
 sub build_jsonrpc_request {
-    my ($self,$function,$args) = @_;
-    my $id = $self->id;
-    my $request = {method => $function, jsonrpc => '2.0', id => $id , params => $args };
-    $id++;
-    $self->id($id);
-    return encode_json $request;
+    my ($self, $function, $args) = @_;
+    return $self->_build_jsonrpc_data($function, $args, $self->next_id)
+}
+
+=head2 next_id
+
+next_id
+
+=cut
+
+sub next_id {
+    my ($self) = @_;
+    return $self->{id}++;
 }
 
 =head2 build_jsonrpc_notification
@@ -227,11 +276,26 @@ sub build_jsonrpc_request {
 =cut
 
 sub build_jsonrpc_notification {
-    my ($self,$function,$args) = @_;
-    my $request = {method => $function, jsonrpc => '2.0', params => $args };
-    return encode_json $request;
+    my ($self, $function, $args) = @_;
+    return $self->_build_jsonrpc_data($function, $args)
 }
 
+sub _build_jsonrpc_data {
+    my ($self, $function, $args, $id) = @_;
+    return $JSON->encode({method => $function, jsonrpc => '2.0', params => $args, tenant_id => pf::dal->get_tenant(), (defined $id ? (id => $id) : ()) });
+}
+
+sub BUILDARGS {
+    my ($class, @args) = @_;
+    my %args = (
+        %{$Config{'webservices'}{jsonrpcclient_args} // {}},
+        (
+            @args == 1 ? (%{$args[0]}) : @args
+        )
+    );
+
+    return \%args;
+}
 
 =head1 AUTHOR
 
@@ -240,7 +304,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2017 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 
@@ -262,4 +326,3 @@ USA.
 =cut
 
 1;
-

@@ -37,10 +37,10 @@ Check if the value starts with the string passed as an argument
 =cut
 
 sub match {
-    my ($self,$arg) = @_;
-    my $value = quotemeta $self->value;
+    my ($self,$arg,$args) = @_;
+    my $value = quotemeta $self->evalParam($self->value, $args);
     return 0 if(!defined($arg));
-    return $arg =~ /^$value/;
+    return $arg =~ /^$value/i;
 }
 
 =head1 AUTHOR
@@ -49,7 +49,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2017 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 

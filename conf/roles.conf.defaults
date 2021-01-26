@@ -1,3 +1,4 @@
+# Copyright (C) Inverse inc.
 [default]
 max_nodes_per_pid=0
 notes=Placeholder role/category, feel free to edit
@@ -17,3 +18,11 @@ notes=VoIP devices
 [REJECT]
 max_nodes_per_pid=0
 notes=Reject role (Used to block access)
+
+[User]
+max_nodes_per_pid=0
+notes=User role
+
+[Machine]
+max_nodes_per_pid=0
+notes=Machine role

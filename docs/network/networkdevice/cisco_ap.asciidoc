@@ -1,0 +1,300 @@
+// to display images directly on GitHub
+ifdef::env-github[]
+:encoding: UTF-8
+:lang: en
+:doctype: book
+:toc: left
+:imagesdir: ../../images
+endif::[]
+
+////
+
+    This file is part of the PacketFence project.
+
+    See PacketFence_Network_Devices_Configuration_Guide-docinfo.xml for 
+    authors, copyright and license information.
+
+////
+
+
+//=== Cisco
+
+==== Aironet 1121, 1130, 1242, 1250, 1600
+
+CAUTION: With this equipment, the same VLAN cannot be shared between two SSIDs. Have this in mind in your design. For example, you need two isolation VLAN if you want to isolate hosts on the public and secure SSIDs.
+
+[float]
+===== MAC-Authentication + 802.1X configuration
+
+Radio Interfaces:
+
+----
+dot11 vlan-name normal vlan 1
+dot11 vlan-name registration vlan 2
+dot11 vlan-name isolation vlan 3
+dot11 vlan-name guest vlan 5
+
+interface Dot11Radio0
+  encryption vlan 1 mode ciphers aes-ccm
+  encryption vlan 2 mode ciphers aes-ccm
+  ssid PacketFence-Public
+  ssid PacketFence-Secure
+
+interface Dot11Radio0.2
+  encapsulation dot1Q 2
+  no ip route-cache
+  bridge-group 253
+  bridge-group 253 subscriber-loop-control
+  bridge-group 253 block-unknown-source
+  no bridge-group 253 source-learning
+  no bridge-group 253 unicast-flooding
+  bridge-group 253 spanning-disabled
+
+interface Dot11Radio0.3
+  encapsulation dot1Q 3
+  no ip route-cache
+  bridge-group 254
+  bridge-group 254 subscriber-loop-control
+  bridge-group 254 block-unknown-source
+  no bridge-group 254 source-learning
+  no bridge-group 254 unicast-flooding
+  bridge-group 254 spanning-disabled
+
+interface Dot11Radio0.5
+  encapsulation dot1Q 5
+  no ip route-cache
+  bridge-group 255
+  bridge-group 255 subscriber-loop-control
+  bridge-group 255 block-unknown-source
+  no bridge-group 255 source-learning
+  no bridge-group 255 unicast-flooding
+  bridge-group 255 spanning-disabled
+----
+
+LAN interfaces:
+
+----
+interface FastEthernet0.2
+  encapsulation dot1Q 2
+  no ip route-cache
+  bridge-group 253
+  no bridge-group 253 source-learning
+  bridge-group 253 spanning-disabled
+
+interface FastEthernet0.3
+  encapsulation dot1Q 3
+  no ip route-cache
+  bridge-group 254
+  no bridge-group 254 source-learning
+  bridge-group 254 spanning-disabled
+
+interface FastEthernet0.5
+  encapsulation dot1Q 5
+  no ip route-cache
+  bridge-group 255
+  no bridge-group 255 source-learning
+  bridge-group 255 spanning-disabled
+----
+
+Then create the two SSIDs:
+
+----
+dot11 ssid PacketFence-Secure
+  vlan 3 backup normal
+  authentication open eap eap_methods
+  authentication key-management wpa
+
+dot11 ssid PacketFence-Public
+  vlan 2 backup guest
+  authentication open mac-address mac_methods
+  mbssid guest-mode
+----
+
+Configure the RADIUS server (we assume here that the FreeRADIUS server and the PacketFence server are located on the same box):
+
+----
+radius-server host 192.168.1.5 auth-port 1812 acct-port 1813 key useStrongerSecret
+aaa group server radius rad_eap
+  server 192.168.1.5 auth-port 1812 acct-port 1813
+aaa authentication login eap_methods group rad_eap
+aaa group server radius rad_mac
+  server 192.168.1.5 auth-port 1812 acct-port 1813
+aaa authentication login mac_methods group rad_mac
+----
+
+==== Aironet 1600
+
+CoA and radius:
+
+----
+radius-server attribute 32 include-in-access-req format %h
+radius-server vsa send accounting
+aaa server radius dynamic-author
+ client 192.168.1.5
+ server-key 7 useStrongerSecret
+ port 3799
+ auth-type all
+----
+
+==== Aironet (WDS)
+
+  To be contributed...
+
+
+==== Wireless LAN Controller (WLC) or Wireless Services Module (WiSM)
+
+In this section, we cover the basic configuration of the WiSM for PacketFence using the web interface.
+
+* First, globally define the FreeRADIUS server running on PacketFence
+  (PacketFence's IP) and make sure _Support for RFC 3576_ (also called _Support for CoA_) is enabled. When the option is missing from your WLC, it is enabled by default.
+
+image::cisco-wlc-radius-define.png[scaledwidth="100%",alt="Freeradius server"]
+
+* Then we create two SSIDs:
+[options="compact"]
+** PacketFence-Public: non-secure with MAC authentication only
+** PacketFence-Secure: secure with WPA2 Enterprise PEAP/MSCHAPv2
+
+image::cisco-wlc-ssid-create.png[scaledwidth="100%",alt="SSID creation"]
+
+* In the secure SSID, make sure 802.1X is enabled and select the appropriate encryption for your needs (recommended: WPA + WPA2)
+
+image::cisco-wlc-l2-secu.png[scaledwidth="100%",alt="SSID L2 secure"]
+
+* No layer 3 security
+
+image::cisco-wlc-l3-secu.png[scaledwidth="100%",alt="SSID L3 secure"]
+
+* We set the IP of the FreeRADIUS server
+
+image::cisco-wlc-secure-radius.png[scaledwidth="100%",alt="Radius secure"]
+
+* VERY IMPORTANT: Allow AAA override (this allows VLAN assignment from RADIUS)
+
+image::cisco-wlc-secure-radius-advance.png[scaledwidth="100%",alt="Radius advanced secure"]
+
+* Edit the non-secure SSID: Enable MAC authentication at level 2
+
+image::cisco-wlc-l2-non-secure.png[scaledwidth="100%",alt="SSID L2 non secure"]
+
+* Nothing at level 3
+
+image::cisco-wlc-l3-non-secure.png[scaledwidth="100%",alt="SSID L3 non secure"]
+
+* We set the IP of the FreeRADIUS server
+
+image::cisco-wlc-secure-radius.png[scaledwidth="100%",alt="Radius secure"]
+
+* VERY IMPORTANT: Allow AAA override (this allows VLAN assignment from RADIUS)
+
+image::cisco-wlc-non-secure-radius-advance.png[scaledwidth="100%",alt="Radius advanced non secure"]
+
+* Finally, in _Controller -> Interfaces_ tab, create an interface per VLAN that could be assigned
+
+image::cisco-wlc-interface-ssid.png[scaledwidth="100%",alt="SSID Interface"]
+
+WARNING: When creating interfaces, it's important to configure DHCP servers. Otherwise, WLC will block DHCP requests.
+
+You are good to go!
+
+===== Wireless LAN Controller (WLC) Web Auth
+
+In this section, we cover the basic configuration of the WLC Web Auth for PacketFence using the web interface.
+The idea is to forward the device to the captive portal with an ACL if the device is in an unreg state and 
+allow the device to reach Internet (or the normal network) by changing the ACL once registered.
+In the unreg state, the WLC will intercept the HTTP traffic and forward the device to the captive portal.
+
+In this sample configuration, the captive portal uses the IP address 172.16.0.250, the administration interface
+uses the IP address 172.16.0.249 and the WLC uses the IP address 172.16.0.248.
+The DHCP and DNS servers are not managed by PacketFence (WLC DHCP Server, Production DHCP Server)
+
+* First, globally define the FreeRADIUS server running on PacketFence
+  (PacketFence's Administration Interface) and make sure _Support for RFC 3576_ is enabled (if not present it is enabled by default)
+
+* Then we create a SSID:
+[options="compact"]
+** OPEN SSID: non-secure with MAC authentication only
+
+image::SSID_1.png[scaledwidth="100%",alt="SSID step 1"]
+
+image::SSID_2.png[scaledwidth="100%",alt="SSID step 2"]
+
+image::SSID_3.png[scaledwidth="100%",alt="SSID step 3"]
+
+image::SSID_4.png[scaledwidth="100%",alt="SSID step 4"]
+
+image::SSID_5.png[scaledwidth="100%",alt="SSID step 5"]
+
+image::SSID_6.png[scaledwidth="100%",alt="SSID step 6"]
+
+NOTE: On more recent controllers, the value 'Radius NAC' in the 'NAC State' setting will be called 'ISE NAC'.
+
+image::SSID_7.png[scaledwidth="100%",alt="SSID step 7"]
+
+* Then you have to create two ACLs - one to deny all traffic except the required one to hit the portal (Pre-Auth-For-WebRedirect ) and the other
+one to allow anything (Authorize_any) .
+
+image::ACL.png[scaledwidth="100%",alt="ACL"]
+
+* Then the last step is to configure the WLC in PacketFence.
+Role by Web Auth URL
+
+image::wlc_packetfence.png[scaledwidth="100%",alt="ACL"]
+
+Role definition
+
+image::wlc_packetfence2.png[scaledwidth="100%",alt="ACL"]
+
+===== Wireless LAN Controller (WLC) IPSK
+
+In this section, we cover the basic configuration of the WLC IPSK feature.
+Starting from WLC 8.5 release, Cisco introduces the IPSK feature.
+Identity PSKs are unique pre-shared keys created for individuals or groups of users on the same SSID.
+
+In this section we will cover the WLC configuration and the PacketFence configuration.
+
+WLC Configuration:
+
+
+* First, globally define the RADIUS server running on PacketFence
+  (PacketFence's IP) and make sure _Support for RFC 3576_ (also called _Support for CoA_) is enabled. When the option is missing from your WLC, it is enabled by default.
+
+* Next, configure a new SSID like in the following screenshots
+
+image::ipsk1.png[scaledwidth="100%",alt="SSID step 1"]
+
+image::ipsk2.png[scaledwidth="100%",alt="SSID step 2"]
+
+image::ipsk_radius.png[scaledwidth="100%",alt="SSID step 3"]
+
+image::ipsk_advanced.png[scaledwidth="100%",alt="SSID step 4"]
+
+PacketFence Configuration:
+
+* First because there is no way to detect in the RADIUS request that the request is for an SSID configured for IPSK, you need to configure PacketFence to trigger IPSK on a connection profile.
+  To do that, create a new connection profile, set a Filter based on the SSID (Example SSID PSK_SSID), enable IPSK and set a default PSK key.
+  So each time a device will connect on this specific SSID PacketFence will know that it has to answer with specific VSA attributes.
+
+* Second step is to associate the device to a user, you have two ways to do it, the first one is to manually edit an user and in Miscellaneous tab fill the PSK entry (8 characters minimum) then edit
+  a node and change the owner with the one you just edit before.
+  The second way to associate the device is to use a provisioner. There are also 2 ways to do it, use the "IPSK" provisioner (it will show you a page on the portal with the PSK key to use and the 
+  SSID to connect to, or use the "Windows/Apple Devices/Android" provisioner and configure it to do IPSK.
+
+image::dpsk_provisioner.png[scaledwidth="100%",alt="Provisioner IPKS"]
+
+
+==== Troubleshooting ignored RADIUS replies
+
+In the event the WLC ignores the RADIUS replies from PacketFence (you receive multiple requests but access is never granted), validate the following elements : 
+
+* RADIUS secret is properly configured in PacketFence and the WLC controller.
+* The SSL certificate used by PacketFence is not expired.
+
+==== Device Sensor
+
+When using a Cisco WLC, you can enable device sensor by making sure the configuration looks like the following screenshot:
+
+image::wlc-device-sensor.png[scaledwidth="100%",alt="Device Sensor"]
+
+NOTE: Please refer to the wired configuration of Cisco equipment to learn more about device sensor.
+

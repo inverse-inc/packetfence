@@ -3,7 +3,11 @@
 package pf;
 use strict;
 use warnings;
-use Module::Pluggable search_path => 'pf', except =>[qw(pf::WebAPI)], sub_name => 'modules';
+use Module::Pluggable
+  search_path => 'pf',
+  except      => [qw(pf::WebAPI)],
+  inner       => 0,
+  sub_name    => 'modules';
 
 =head1 NAME
 
@@ -25,7 +29,6 @@ use File::Spec::Functions;
 # pf core libs
 use lib '/usr/local/pf/lib';
 use Test::More;
-use Test::NoWarnings;
 
 for my $module ( pf->modules ) {
     my $test = "${module}.t";
@@ -44,7 +47,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2017 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 

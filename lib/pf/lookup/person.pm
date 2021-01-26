@@ -9,7 +9,7 @@ pf::lookup::person - lookup person information
 The lookup_person function is called via
 "pfcmd lookup person E<lt>pidE<gt>"
 through the administrative GUI,
-or as the content of a violation action
+or as the content of a security_event action
 
 Define this function to return whatever data you'd like.
 
@@ -35,7 +35,7 @@ Lookup informations on a person
 =cut
 
 sub lookup_person {
-    my ($pid, $source_id) = @_;
+    my ($pid, $source_id, $context) = @_;
     my $logger = get_logger();
     unless (defined $source_id) {
         $logger->info("undefined source id provided");
@@ -46,19 +46,30 @@ sub lookup_person {
        $logger->info("Unable to locate the source $source_id");
        return;
     }
+    
+    my $stripped;
+    if(defined($context)) {
+        ($stripped, undef) = pf::config::util::strip_username_if_needed($pid, $context);
+    }
+    else {
+        $stripped = $pid;
+        $logger->warn("No context defined for person lookup, username will not be stripped and left as-is ($pid)");
+    }
 
     unless (person_exist($pid)) {
         $logger->info("Person $pid is not a registered user!");
         return;
     }
-    my $person = $CHI_CACHE->get("$source_id.$pid");
+
+    my $cache_key = "$source_id.$pid.$context";
+    my $person = $CHI_CACHE->get($cache_key);
     unless($person){
-        $person = $source->search_attributes($pid);
+        $person = $source->search_attributes($stripped);
         if (!$person) {
-           $logger->debug("Cannot search attributes for user '$pid'");
+           $logger->debug("Cannot search attributes for user '$stripped'");
            return;
         } else {
-            $CHI_CACHE->set("$source_id.$pid", $person);
+            $CHI_CACHE->set($cache_key, $person);
             $logger->info("Successfully did a person lookup for $pid");
             person_modify($pid, %$person);
             return;
@@ -75,9 +86,9 @@ Lookup a person asynchronously using the queue
 =cut
 
 sub async_lookup_person {
-    my ($pid, $source_id) = @_;
+    my ($pid, $source_id, $context) = @_;
     my $client = pf::pfqueue::producer::redis->new();
-    $client->submit("general", person_lookup => {pid => $pid, source_id => $source_id});
+    $client->submit("general", person_lookup => {pid => $pid, source_id => $source_id, context => $context});
 }
 
 =head1 AUTHOR
@@ -88,7 +99,7 @@ Minor parts of this file may have been contributed. See CREDITS.
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2017 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 

@@ -21,6 +21,7 @@ func (fw *BarracudaNG) getSshSession(ctx context.Context) (*ssh.Session, error) 
 		Auth: []ssh.AuthMethod{
 			ssh.Password(fw.Password),
 		},
+		HostKeyCallback: ssh.InsecureIgnoreHostKey(),
 	}
 	connection, err := ssh.Dial("tcp", fw.PfconfigHashNS+":"+fw.Port, sshConfig)
 

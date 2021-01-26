@@ -1,0 +1,17 @@
+/config/pki_providers:
+  description: pf::UnifiedApi::Controller::Config::PkiProviders
+  get:
+    description: List items
+    operationId: api.v1.Config::PkiProviders.list
+    parameters: []
+    responses:
+      '200':
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ConfigPkiProvidersList'
+        description: List
+      '400':
+        $ref: '#/components/responses/BadRequest'
+      '422':
+        $ref: '#/components/responses/UnprocessableEntity'

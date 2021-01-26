@@ -35,6 +35,7 @@
         [% form.block('standard').render | none %]
         [% INCLUDE "config/source/type/${item.type}.tt" %]
         [% form.block('local_account').render | none %]
+        [% form.block('internal_sources').render | none %]
         [% form.block('rules').render | none %]
 
     <div class="form-actions">

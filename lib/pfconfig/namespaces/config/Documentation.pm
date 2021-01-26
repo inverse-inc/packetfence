@@ -18,7 +18,6 @@ use strict;
 use warnings;
 
 use pfconfig::namespaces::config;
-use Config::IniFiles;
 use pf::file_paths qw($pf_doc_file);
 
 use base 'pfconfig::namespaces::config';
@@ -26,7 +25,7 @@ use base 'pfconfig::namespaces::config';
 sub init {
     my ($self) = @_;
     $self->{file} = $pf_doc_file;
-    $self->{child_resources} = [ 'config::PfDefault' ];
+    $self->{child_resources} = [ 'config::PfDefault', 'config::Pf' ];
 }
 
 sub build_child {
@@ -75,7 +74,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2017 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 

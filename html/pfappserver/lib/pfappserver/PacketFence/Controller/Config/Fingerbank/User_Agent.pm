@@ -15,7 +15,7 @@ use namespace::autoclean;
 
 BEGIN {
     extends 'pfappserver::Base::Controller';
-    with 'pfappserver::Base::Controller::Crud::Fingerbank';
+    with 'pfappserver::Base::Controller::Crud::Fingerbank' => { -excludes => 'index' };
 }
 
 __PACKAGE__->config(
@@ -30,9 +30,28 @@ __PACKAGE__->config(
     },
 );
 
+=head1 index
+
+Setup the scope and forwards
+
+Overwrite L<pfappserver::Base::Controller::Crud::Fingerbank::index> because we don't want "upstream" scope with Combinations
+
+=cut
+
+sub index {
+    my ( $self, $c ) = @_;
+
+    $c->stash(
+        scope                   => 'Local',
+        fingerbank_configured   => fingerbank::Config::is_api_key_configured,
+        action                  => 'list',
+    );
+    $c->forward('list');
+}
+
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2017 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 
@@ -53,6 +72,6 @@ USA.
 
 =cut
 
-__PACKAGE__->meta->make_immutable;
+__PACKAGE__->meta->make_immutable unless $ENV{"PF_SKIP_MAKE_IMMUTABLE"};
 
 1;

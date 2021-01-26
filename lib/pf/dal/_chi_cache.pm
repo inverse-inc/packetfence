@@ -21,6 +21,7 @@ use warnings;
 ### pf::dal::_chi_cache is auto generated any change to this file will be lost
 ### Instead change in the pf::dal::chi_cache module
 ###
+
 use base qw(pf::dal);
 
 our @FIELD_NAMES;
@@ -28,6 +29,7 @@ our @INSERTABLE_FIELDS;
 our @PRIMARY_KEYS;
 our %DEFAULTS;
 our %FIELDS_META;
+our @COLUMN_NAMES;
 
 BEGIN {
     @FIELD_NAMES = qw(
@@ -72,6 +74,13 @@ BEGIN {
     @PRIMARY_KEYS = qw(
         key
     );
+
+    @COLUMN_NAMES = qw(
+        chi_cache.key
+        chi_cache.value
+        chi_cache.expires_at
+    );
+
 }
 
 use Class::XSAccessor {
@@ -88,13 +97,13 @@ sub _defaults {
     return {%DEFAULTS};
 }
 
-=head2 field_names
+=head2 table_field_names
 
 Field names of chi_cache
 
 =cut
 
-sub field_names {
+sub table_field_names {
     return [@FIELD_NAMES];
 }
 
@@ -120,6 +129,16 @@ our $FIND_SQL = do {
     my $where = join(", ", map { "$_ = ?" } @PRIMARY_KEYS);
     "SELECT * FROM `chi_cache` WHERE $where;";
 };
+
+=head2 find_columns
+
+find_columns
+
+=cut
+
+sub find_columns {
+    return [@COLUMN_NAMES];
+}
 
 =head2 _find_one_sql
 
@@ -160,14 +179,14 @@ Get the meta data for chi_cache
 sub get_meta {
     return \%FIELDS_META;
 }
- 
+
 =head1 AUTHOR
 
 Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2017 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 

@@ -1,0 +1,4 @@
+# Copyright (C) Inverse inc.
+[local]
+type=file
+logs=ALL

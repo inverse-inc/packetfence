@@ -3,11 +3,12 @@ package caddystatsd
 import (
 	"context"
 	"fmt"
-	"github.com/inverse-inc/packetfence/go/statsd"
+	"net/http"
+
 	"github.com/inverse-inc/packetfence/go/caddy/caddy"
 	"github.com/inverse-inc/packetfence/go/caddy/caddy/caddyhttp/httpserver"
+	"github.com/inverse-inc/packetfence/go/statsd"
 	_statsd "gopkg.in/alexcesaro/statsd.v2"
-	"net/http"
 )
 
 func init() {

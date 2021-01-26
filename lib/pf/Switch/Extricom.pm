@@ -45,8 +45,10 @@ use pf::util;
 
 # CAPABILITIES
 # access technology supported
-sub supportsWirelessDot1x { return $TRUE; }
-sub supportsWirelessMacAuth { return $TRUE; }
+use pf::SwitchSupports qw(
+    WirelessDot1x
+    WirelessMacAuth
+);
 # inline capabilities
 sub inlineCapabilities { return ($MAC,$SSID); }
 
@@ -168,18 +170,8 @@ sub connectWrite {
                     $sysLocation
                 ]
             );
-            if ( !defined($result) ) {
-                $logger->error( "error creating SNMP v"
-                        . $self->{_SNMPVersion}
-                        . " write connection to "
-                        . $self->{_id} . ": "
-                        . $self->{_sessionWrite}->error()
-                        . " it looks like you specified a read-only community instead of a read-write one"
-                );
-                $self->{_sessionWrite} = undef;
-                return 0;
-            }
        }
+       # We no longer check the $result here since it is always false even when the call succeeds.
     }
     return 1;
 }
@@ -231,7 +223,7 @@ Return the reference to the deauth technique or the default deauth technique.
 =cut
 
 sub deauthTechniques {
-    my ($self, $method) = @_;
+    my ($self, $method, $connection_type) = @_;
     my $logger = $self->logger;
     my $default = $SNMP::SNMP;
     my %tech = (
@@ -252,7 +244,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2017 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 

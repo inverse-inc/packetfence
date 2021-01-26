@@ -1,8 +1,10 @@
+/* -*- Mode: javascript; indent-tabs-mode: nil; c-basic-offset: 2 -*- */
+
 /**
  * PacketFence Javascript Library
  *
  * @author      Inverse inc. <info@inverse.ca>
- * @copyright   2005-2015 Inverse inc.
+ * @copyright   2005-2017 Inverse inc.
  * @license     http://opensource.org/licenses/gpl-2.0.php      GPL
  */
 
@@ -12,12 +14,15 @@
    Called when access to the network outside registration or quarantine works
  */
 var network_redirected = false;
+var network_logoff_popup = "";
 function networkAccessCallback(destination_url) {
 
   network_redirected = true;
 
   //show a web notification
   if (txt_web_notification) showWebNotification(txt_web_notification, '/content/images/unlock.png');
+
+  if(network_logoff_popup != "") window.open(network_logoff_popup);
 
   // Try to redirect browser in 3 seconds
   setTimeout(function() {
@@ -58,6 +63,9 @@ function detectNetworkAccess(retry_delay, destination_url, external_ip, image_pa
   "use strict";
   var errorDetected, loaded, netdetect, checker, initNetDetect;
 
+  var varsEl = document.getElementById('variables');
+  var vars = JSON.parse(variables.textContent || variables.innerHTML);
+
   netdetect = $('#netdetect');
   netdetect.error(function() {
     errorDetected = true;
@@ -68,9 +76,11 @@ function detectNetworkAccess(retry_delay, destination_url, external_ip, image_pa
     loaded = true;
   });
   initNetDetect = function() {
-    errorDetected = loaded = undefined;
-    var netdetect = $('#netdetect');
-    netdetect.attr('src',"http://" + external_ip + image_path + "?r=" + Date.now());
+    if(vars["auto_redirect"] != 0) {
+      errorDetected = loaded = undefined;
+      var netdetect = $('#netdetect');
+      netdetect.attr('src',"http://" + external_ip + image_path + "?r=" + Date.now());
+    }
     setTimeout(checker, retry_delay * 1000);
   };
   checker = function() {
@@ -104,7 +114,6 @@ function initWebNotifications(){
       // This allows to use Notification.permission with Chrome/Safari
       if (Notification.permission !== status) {
         Notification.permission = status;
-        console.log(Notification.status);
       }
     });
   }
@@ -129,7 +138,11 @@ function canWebNotifications(){
 */
 function showWebNotification(message, icon){
   if (canWebNotifications()){
-    var notification = new Notification(message, {icon:icon});
+    try {
+      var notification = new Notification(message, {icon:icon});
+    } catch(err) {
+      console.log("Error while creating notification...", err);
+    }
   }  
 }
 
@@ -163,3 +176,33 @@ function getPortalUrl(url) {
     return url;
   }
 }
+
+
+$(function() {
+  'use strict';
+
+  /**
+    Will record the destination URL on the server if the browser has a javascript interpreter
+    This prevents the destination URL from being computed from an API call.
+  */
+  var wanted_destination_url = getQueryParams()["destination_url"];
+  if (wanted_destination_url){
+    $.post(
+      "/record_destination_url",
+      { destination_url: wanted_destination_url }
+    );
+  }
+
+  $(document).on('keyup', '.tabbable',function(e){
+    if(e.which==13 || e.which==32) {
+      this.click()
+    }
+  });
+
+  $('.disable-on-click').one('click', function(e){
+    var target = $(e.target);
+    target.click();
+    target.attr("disabled", true);
+  });
+});
+

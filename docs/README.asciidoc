@@ -1,170 +1,21 @@
-Documentation README
-====================
+= Documentation README
 
-CAUTION: This is work in progress.
+The documentation of PacketFence is formatted in http://www.methods.co.nz/asciidoc/[AsciiDoc].
 
-asciidoc
---------
+To convert the documentation to the PDF or HTML format, you need various tools:
 
-* Documentation: http://www.methods.co.nz/asciidoc/
-* Useful cheatsheet: http://powerman.name/doc/asciidoc
+* https://asciidoctor.org/[asciidoctor] (.asciidoc to .html)
+* https://asciidoctor.org/docs/asciidoctor-pdf/[asciidoctor-pdf] (.asciidoc to .pdf)
+* https://github.com/rouge-ruby/rouge[rouge] (syntax highlighter)
 
-Minimum version 8.6.2 is required to produce the PDF Guides.
+The Makefile at the root of the repository will call those tools:
 
-Convert to PDF 
-~~~~~~~~~~~~~~
+* To generate PDF documents
 
-Here's the example with the Admin guide.
+  make pdf
 
-. First asciidoc to docbook
+* To generate HTML documents
 
-  $ asciidoc -a docinfo2 -b docbook -d book \
-    -o docs/docbook/PacketFence_Administration_Guide.docbook \
-    docs/PacketFence_Administration_Guide.asciidoc
-
-. Then render the PDF from the docbook
-
-  $ fop -c docs/fonts/fop-config.xml \
-    -xsl docs/docbook/xsl/packetfence-fo.xsl \
-    -xml docs/docbook/PacketFence_Administration_Guide.docbook \
-    -pdf docs/PacketFence_Administration_Guide.pdf
-
-Batch convert
--------------
-
-  $ for GUIDE in PacketFence_Administration_Guide \
-      PacketFence_Network_Devices_Configuration_Guide \
-      PacketFence_Developers_Guide PacketFenceZEN_Installation_Guide; do
-        asciidoc -a docinfo2 -b docbook -d book \
-          -o docs/docbook/$GUIDE.docbook \
-          docs/$GUIDE.asciidoc;
-        fop -c docs/fonts/fop-config.xml \
-          -xml docs/docbook/$GUIDE.docbook \
-          -xsl docs/docbook/xsl/packetfence-fo.xsl \
-          -pdf docs/$GUIDE.pdf
-    done
-
-Troubleshooting
----------------
-
-IO Exception with stylesheet file: titlepage-fo.xsl
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-If you get an error like:
-
-  file://.../docs/docbook/xsl/packetfence-fo.xsl; Line #46; Column #40; Had IO Exception with stylesheet file: titlepage-fo.xsl
-
-or
-
-  ERROR:  '.../docs/docbook/xsl/titlepage-fo.xsl (No such file or directory)'
-  FATAL ERROR:  'Could not compile stylesheet'
-
-It's because you are missing the XSL template for the titlepage. Rebuilt it with:
-
-Debian / Ubuntu::
-----
-  $ xsltproc -o docs/docbook/xsl/titlepage-fo.xsl /usr/share/xml/docbook/stylesheet/docbook-xsl/template/titlepage.xsl docs/docbook/xsl/titlepage-fo.xml
-----
-CentOS / RHEL / Fedora::
-----
-  $ xsltproc -o docs/docbook/xsl/titlepage-fo.xsl /usr/share/sgml/docbook/xsl-stylesheets/template/titlepage.xsl docs/docbook/xsl/titlepage-fo.xml
-----
-OSX::
-----
-  $ xsltproc -o docs/docbook/xsl/titlepage-fo.xsl /opt/local/share/xsl/docbook-xsl/template/titlepage.xsl docs/docbook/xsl/titlepage-fo.xml
-----
-
-NOTE: On some platform the titlepage.xsl is located elsewhere (like `/opt/local/share/xsl/docbook-xsl/template/titlepage.xsl` on OSX).
-
-Title page template modified but no effect visible
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-If you modify the titlepage template (`docs/docbook/xsl/titlepage-fo.xml`) you need to rebuilt the XSL template. See <<_io_exception_with_stylesheet_file_titlepage_fo_xsl,IO Exception with stylesheet file: titlepage-fo.xsl>> to find out how.
-
-On OSX: failed to load external entity (or IO Exceptions)
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-Errors like:
-
-  warning: failed to load external entity "/usr/share/xml/docbook/stylesheet/docbook-xsl/template/titlepage.xsl"
-
-or
-
-  Had IO Exception with stylesheet file: /usr/share/xml/docbook/stylesheet/docbook-xsl/fo/docbook.xsl
-
-Are caused because docbook installation (with macport) on OSX uses different directories than on Linux. Simplest way to get everything working without changing source is to create a symlink:
-
-  $ sudo mkdir -p /usr/share/xml/docbook/stylesheet/
-  $ sudo ln -s /opt/local/share/xsl/docbook-xsl /usr/share/xml/docbook/stylesheet/
-
-
-Making it work on RHEL5 / CentOS 5
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-Turns out this is quite tricky and unfortunately doesn't yield the best results.
-
-. First make sure you have rpmforge repository enabled. If you don't have it, see the Admin guide, it is covered there.
-. Install jpackage repository
-
-  # yum install jpackage-release
-  # wget http://www.jpackage.org/jpackage50.repo
-  # mv jpackage50.repo /etc/yum.repos.d/jpackage50.repo
-  
-. Edit `/etc/yum.repos.d/jpackage50.repo` and enable the generic and rhel repos.
-
-. Install the tools
-
-  # yum install xmlgraphics-fop libxslt asciidoc
-
-. If you are bitten by 'Missing Dependency: /usr/bin/rebuild-security-providers
- is needed by package' install http://plone.lucidsolutions.co.nz/linux/centos/jpackage-jpackage-utils-compatibility-for-centos-5.x[RPM provided here].
-
-  # rpm -Uvh http://plone.lucidsolutions.co.nz/linux/centos/images/jpackage-utils-compat-el5-0.0.1-1.noarch.rpm
-
-. Second attempt to install the tools
-
-  # yum install xmlgraphics-fop libxslt asciidoc
-
-. Patch xmlgraphics-fop
-
-  patch -p0 < docs/docbook/xmlgraphics-fop-centos5.patch
-
-. Create the appropriate symlink
-
-  # ln -s /usr/bin/xmlgraphics-fop /usr/bin/fop
-
-. You are good to go!
-
-
-CentOS 6 / RHEL6 / Fedora: Could not compile stylesheet
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-Getting an error similar to:
-
-  Compiler warnings:
-    file:/usr/share/sgml/docbook/xsl-stylesheets/fo/table.xsl: line 451: Attribute 'border-start-style' outside of element.
-    file:/usr/share/sgml/docbook/xsl-stylesheets/fo/table.xsl: line 452: Attribute 'border-end-style' outside of element.
-    file:/usr/share/sgml/docbook/xsl-stylesheets/fo/table.xsl: line 453: Attribute 'border-top-style' outside of element.
-    file:/usr/share/sgml/docbook/xsl-stylesheets/fo/table.xsl: line 454: Attribute 'border-bottom-style' outside of element.
-    file:/usr/share/sgml/docbook/xsl-stylesheets/fo/index.xsl: line 351: Attribute 'rx:key' outside of element.
-  ERROR:  'The first argument to the non-static Java function 'insertCallouts' is not a valid object reference.'
-  FATAL ERROR:  'Could not compile stylesheet'
-  Jan 17, 2012 9:13:28 PM org.apache.fop.cli.Main startFOP
-  SEVERE: Exception
-  org.apache.fop.apps.FOPException: Could not compile stylesheet
-  ...
-
-Try patching your `/usr/bin/fop` with `docs/docbook/fop-centos6.patch`:
-
-  patch -p0 < docs/docbook/fop-centos6.patch
-
-
-CentOS 6 / RHEL6 / Fedora: Output is not the same
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-You are probably not running asciidoc >= 8.6.2. Install from rpmforge-extras:
-
-  yum install --enablerepo=rpmforge-extras asciidoc
-
+  make html
 
 // vim: set syntax=asciidoc tabstop=2 shiftwidth=2 expandtab:

@@ -1,0 +1,37 @@
+@import "../../node_modules/bootstrap/scss/forms";
+
+.col-form-label {
+    color: $gray-600;
+    font-size: $font-size-sm;
+    font-weight: 500;
+    line-height: $font-size-base / $font-size-sm * $line-height-base;
+
+    &[class*=col-]:not([class*=offset-]) {
+        @include media-breakpoint-up(sm) {
+            text-align: right;
+        }
+    }
+}
+
+.col-form-label-lg {
+    font-size: $font-size-lg;
+    line-height: $font-size-base / $font-size-lg * $line-height-base;
+}
+
+.form-control {
+    transition: $custom-forms-transition;
+}
+
+.form-text {
+    white-space: pre-line; /* allow \n to break */
+    outline: 0; /* hide border on click */
+}
+
+.input-group > .custom-range {
+    padding: 0 !important;
+    border: 0 !important;
+}
+
+[tabindex="-1"] {
+  outline: 0;
+}

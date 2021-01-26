@@ -2,12 +2,13 @@ package pfconfigdriver
 
 import (
 	"context"
-	"github.com/davecgh/go-spew/spew"
-	"github.com/inverse-inc/packetfence/go/log"
-	"github.com/inverse-inc/packetfence/go/sharedutils"
 	"os"
 	"os/exec"
 	"testing"
+
+	"github.com/davecgh/go-spew/spew"
+	"github.com/inverse-inc/packetfence/go/log"
+	"github.com/inverse-inc/packetfence/go/sharedutils"
 )
 
 var ctx = log.LoggerNewContext(context.Background())
@@ -158,7 +159,7 @@ func TestArrayElements(t *testing.T) {
 
 	expected := 2
 	if len(li.Element) != expected {
-		t.Errorf("Wrong number of interfaces detected (%s instead of %s)", len(li.Element), expected)
+		t.Errorf("Wrong number of interfaces detected (%d instead of %d)", len(li.Element), expected)
 	}
 
 	expectedInts := []string{"eth1.1", "eth1.2"}
@@ -167,6 +168,57 @@ func TestArrayElements(t *testing.T) {
 			t.Errorf("Wrong value at position %d. Got %s instead of %s", i, li.Element[i], intName)
 		}
 	}
+}
+
+func TestDecodeInElement(t *testing.T) {
+	var ar AdminRoles
+
+	FetchDecodeSocket(ctx, &ar)
+
+	val, found := ar.Element["ALL"]
+
+	if !found {
+		t.Error("Cannot find the decoded element")
+	}
+
+	if len(val.Actions) == 0 {
+		t.Error("Actions are empty when they shouldn't be")
+	}
+
+}
+
+func TestCreateQuery(t *testing.T) {
+	general := PfConfGeneral{}
+
+	query := createQuery(ctx, &general)
+
+	// Test namespace that doesn't have the hostname overlay
+	if query.ns != "config::Pf();general" {
+		t.Error("Wrong namespace name out of createQuery", query.ns)
+	}
+
+	// Test enabling the overlay on non-enabled struct
+	general.PfconfigHostnameOverlay = "yes"
+	query = createQuery(ctx, &general)
+	if query.ns != "config::Pf("+myHostname+");general" {
+		t.Error("Wrong namespace name out of createQuery", query.ns)
+	}
+
+	// Test a struct that overrides the field
+	mgmt := ManagementNetwork{}
+	query = createQuery(ctx, &mgmt)
+	if query.ns != "interfaces::management_network("+myHostname+")" {
+		t.Error("Wrong namespace name out of createQuery", query.ns)
+	}
+
+	// Test requesting a hostname overlay manually
+	general.PfconfigNS = "config::Pf(testing)"
+	general.PfconfigHostnameOverlay = "yes"
+	query = createQuery(ctx, &general)
+	if query.ns != "config::Pf(testing);general" {
+		t.Error("Wrong namespace name out of createQuery", query.ns)
+	}
+
 }
 
 // fetches resource::fqdn requesting Sereal encoding for the reply

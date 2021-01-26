@@ -1,0 +1,289 @@
+<!--
+  https://github.com/euvl/vue-js-toggle-button
+
+  Other sources of inspiration:
+
+  https://lusaxweb.github.io/vuesax/#/docs/switch
+  https://vmware.github.io/clarity/documentation/v0.11/toggle-switches
+-->
+<template>
+  <component class="v-switch-wrapper" :class="{ 'is-focus': focus }" :is="wrapper" :label-cols="(columnLabel) ? 3 : 0" :label="$t(columnLabel)">
+    <b-input type="text" name="vaccum" readonly :value="null" style="position: absolute; width: 1px; height: 1px; left: -9999px; padding: 0px; border: 0px;"
+      @focus="focus = true" @blur="focus = false" @keyup.space="toggle"><!-- Vaccum tabIndex --></b-input>
+    <label role="checkbox"
+          :class="className"
+          :aria-checked="ariaChecked">
+      <input type="checkbox"
+            class="v-switch-input"
+            @change.stop="toggle">
+      <div class="v-switch-core mr-2"
+            :style="coreStyle">
+        <div class="v-switch-button"
+            :style="buttonStyle"/>
+      </div>
+      <template v-if="labels">
+        <span class="v-switch-label v-left"
+              :style="labelStyle"
+              v-if="toggled"
+              v-html="labelChecked"/>
+        <span class="v-switch-label v-right"
+              :style="labelStyle"
+              v-else
+              v-html="labelUnchecked"/>
+      </template>
+      <slot/>
+    </label>
+    <b-form-text v-if="text" v-html="text"></b-form-text>
+  </component>
+</template>
+
+<script>
+const constants = {
+  colorChecked: null, // default is $blue
+  colorUnchecked: null, // default is $gray-500
+  labelChecked: 'on',
+  labelUnchecked: 'off',
+  width: 40,
+  height: 22,
+  margin: 3
+}
+const contains = (object, title) => {
+  return typeof object === 'object' && Object.prototype.hasOwnProperty.call(object, title)
+}
+const px = v => v + 'px'
+export default {
+  name: 'pf-form-toggle',
+  props: {
+    value: {
+      default: null
+    },
+    values: {
+      type: [Boolean, Object],
+      default: () => ({
+        checked: true,
+        unchecked: false
+      }),
+      validator (value) {
+        return typeof value === 'object'
+          ? (value.checked || value.unchecked)
+          : typeof value === 'boolean'
+      }
+    },
+    disabled: {
+      type: Boolean,
+      default: false
+    },
+    color: {
+      type: Object,
+      default: () => ({ checked: constants.colorChecked, unchecked: constants.colorUnchecked }),
+      validator: (value) => (Object.keys(value).length === 0 || 'checked' in value || 'unchecked' in value),
+    },
+    cssColors: {
+      type: Boolean,
+      default: false
+    },
+    columnLabel: {
+      type: String,
+      default: null
+    },
+    labels: {
+      type: [Boolean, Object],
+      default: false,
+      validator (value) {
+        return typeof value === 'object'
+          ? (value.checked || value.unchecked)
+          : typeof value === 'boolean'
+      }
+    },
+    text: {
+      type: String,
+      default: null
+    },
+    height: {
+      type: Number,
+      default: constants.height
+    },
+    width: {
+      type: Number,
+      default: constants.width
+    }
+  },
+  computed: {
+    wrapper () {
+      return this.columnLabel ? 'b-form-group' : 'div'
+    },
+    className () {
+      let { toggled, disabled } = this
+      return ['vue-js-switch', { toggled, disabled }]
+    },
+    ariaChecked () {
+      return this.toggled.toString()
+    },
+    coreStyle () {
+      return {
+        width: px(this.width),
+        height: px(this.height),
+        backgroundColor: this.cssColors ? null : this.colorCurrent,
+        borderRadius: px(Math.round(this.height / 2))
+      }
+    },
+    buttonRadius () {
+      return this.height - constants.margin * 2
+    },
+    distance () {
+      return px(this.width - this.height + constants.margin)
+    },
+    buttonStyle () {
+      return {
+        width: px(this.buttonRadius),
+        height: px(this.buttonRadius),
+        transform: this.toggled
+          ? `translate3d(${this.distance}, 3px, 0px)`
+          : null
+      }
+    },
+    labelStyle () {
+      return {
+        lineHeight: px(this.height)
+      }
+    },
+    colorChecked () {
+      let { color } = this
+      if (typeof color !== 'object') {
+        return color || constants.colorChecked
+      }
+      return contains(color, 'checked')
+        ? color.checked
+        : constants.colorChecked
+    },
+    colorUnchecked () {
+      let { color } = this
+      return contains(color, 'unchecked')
+        ? color.unchecked
+        : constants.colorUnchecked
+    },
+    colorCurrent () {
+      return this.toggled
+        ? this.colorChecked
+        : this.colorUnchecked
+    },
+    labelChecked () {
+      return contains(this.labels, 'checked')
+        ? this.labels.checked
+        : constants.labelChecked
+    },
+    labelUnchecked () {
+      return contains(this.labels, 'unchecked')
+        ? this.labels.unchecked
+        : constants.labelUnchecked
+    }
+  },
+  watch: {
+    value (a) {
+      this.toggled = (typeof this.values === 'object')
+        ? (a === this.values.checked)
+        : !!a
+    }
+  },
+  data () {
+    return {
+      focus: false,
+      toggled: (typeof this.values === 'object')
+        ? (this.value === this.values.checked)
+        : !!this.value
+    }
+  },
+  methods: {
+    toggle (event) {
+      this.toggled = !this.toggled
+      let value = (typeof this.values === 'object')
+        ? (this.toggled)
+          ? this.values.checked
+          : this.values.unchecked
+        : this.value
+      this.$emit('input', value)
+      this.$emit('change', {
+        value: value,
+        srcEvent: event
+      })
+      this.$emit(
+        ((this.toggled) ? 'checked' : 'unchecked'),
+        ((this.toggled) ? this.values.checked : this.values.unchecked)
+      )
+    }
+  }
+}
+</script>
+
+<style lang="scss">
+$colorChecked: $blue;
+$colorUnchecked: $gray-500;
+$margin: 3px;
+
+.vue-js-switch {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  overflow: hidden;
+  padding-top: calc(#{$input-padding-y} + #{$input-border-width});
+  vertical-align: middle;
+  margin: 0;
+  user-select: none;
+  color: rgba(0, 0, 0, 0.65);
+  font-size: $font-size-sm;
+  font-weight: 600;
+  cursor: pointer;
+  .v-switch-input {
+    display: none;
+  }
+  .v-switch-label {
+    position: absolute;
+    color: white;
+    font-weight: 600;
+    &.v-left {
+      left: 10px;
+    }
+    &.v-right {
+      right: 15px;
+    }
+  }
+  .v-switch-core {
+    position: relative;
+    display: inline-block;
+    box-sizing: border-box;
+    margin: 0 $margin 0 0;
+    background-color: $colorUnchecked;
+    outline: 0;
+    transition: border-color .3s, background-color .3s;
+    user-select: none;
+    .v-switch-button {
+      position: absolute;
+      top: 0;
+      left: 0;
+      display: block;
+      overflow: hidden;
+      transition: transform 300ms;
+      transform: translate3d($margin, $margin, 0);
+      border-radius: 100%;
+      background-color: #fff;
+    }
+  }
+
+  &.disabled {
+    pointer-events: none;
+    opacity: 0.6;
+  }
+  &.toggled .v-switch-core {
+    background-color: $colorChecked;
+  }
+}
+.v-switch-wrapper {
+  &.is-focus {
+    .v-switch-button {
+      box-sizing: border-box;
+      border: 2px solid #fff;
+      background-color: $input-focus-border-color;
+    }
+  }
+}
+</style>

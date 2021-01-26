@@ -56,6 +56,8 @@ var RadiusAuditLogView = function(options) {
     var that = this;
     this.parent = options.parent;
     this.items = options.items;
+    var resetSearch = $.proxy(this.resetSearch, this);
+    options.parent.on('click', '#radiuslog_reset', resetSearch);
 };
 
 RadiusAuditLogView.prototype = (function(){
@@ -64,3 +66,12 @@ RadiusAuditLogView.prototype = (function(){
     return new F();
 })();
 
+RadiusAuditLogView.prototype.resetSearch = function(e) {
+    e.preventDefault();
+    var form = $('form[name="search"]');
+    form.find('#start_date,#start_time,#end_date,#end_time').val('');
+    form.find('select[name="per_page"]').val('25');
+    form.find('select[name="all_or_any"]').val('all');
+    $('#searchConditions').find('tbody').children(':not(.hidden)').find('[href="#delete"]').click();
+    form.submit();
+};

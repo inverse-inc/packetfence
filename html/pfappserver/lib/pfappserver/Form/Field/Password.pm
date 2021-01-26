@@ -17,11 +17,11 @@ use namespace::autoclean;
 has '+password' => ( default => 0 );
 
 sub build_element_attr {
-    return { autocomplete => 'off', readonly => 1, onmouseover => "this.removeAttribute('readonly');", onfocus=>"this.removeAttribute('readonly');" };
+    return { autocomplete => 'off', readonly => 1 , 'data-pf-toggle' => 'password' };
 }
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2017 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 
@@ -42,5 +42,6 @@ USA.
 
 =cut
 
-__PACKAGE__->meta->make_immutable;
+__PACKAGE__->meta->make_immutable unless $ENV{"PF_SKIP_MAKE_IMMUTABLE"};
+
 1;

@@ -48,8 +48,8 @@ sub match {
     my ($self, $last_switch) = @_;
     return $FALSE unless defined $last_switch;
     my $switch = pf::SwitchFactory->instantiate($last_switch);
-    return $FALSE unless defined $switch;
-    if (defined($switch->{_group}) & $switch->{_group} eq $self->value) {
+    return $FALSE if(!defined($switch) || !$switch);
+    if (defined($switch->{_group}) && $switch->{_group} eq $self->value) {
         return $TRUE;
     } else {
         return $FALSE;
@@ -62,7 +62,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2017 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 

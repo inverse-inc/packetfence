@@ -1,49 +1,82 @@
+include config.mk
+
 all:
 	@echo "Please chose which documentation to build:"
 	@echo ""
 	@echo " 'pdf' will build all guides using the PDF format"
-	@echo " 'PacketFence_Administration_Guide.pdf' will build the Administration guide in PDF"
-	@echo " 'PacketFence_Developers_Guide.pdf' will build the Develoeprs guide in PDF"
-	@echo " 'PacketFence_Network_Devices_Configuration_Guide.pdf' will build the Network Devices Configuration guide in PDF"
+	@echo " 'docs/PacketFence_Installation_Guide.pdf' will build the Installation guide in PDF"
+	@echo " 'docs/PacketFence_Clustering_Guide.pdf' will build the Clustering guide in PDF"
+	@echo " 'docs/PacketFence_Developers_Guide.pdf' will build the Developers guide in PDF"
+	@echo " 'docs/PacketFence_Network_Devices_Configuration_Guide.pdf' will build the Network Devices Configuration guide in PDF"
+	@echo " 'docs/PacketFence_Upgrade_Guide.pdf' will build the Upgrade guide in PDF"
 
-pdf: $(patsubst %.asciidoc,%.pdf,$(notdir $(wildcard docs/PacketFence_*.asciidoc)))
+ASCIIDOCS := $(notdir $(wildcard docs/PacketFence_*.asciidoc))
+PDFS = $(patsubst %.asciidoc,docs/%.pdf, $(ASCIIDOCS))
 
-%.pdf : docs/%.asciidoc
-	asciidoc \
-		-a docinfo2 \
-		-b docbook \
-		-d book \
-		-o docs/docbook/$(notdir $<).docbook \
+clean:
+	rm -f docs/*.html docs/*.pdf
+
+docs/%.pdf: docs/%.asciidoc
+	asciidoctor-pdf \
+		-a pdf-theme=docs/asciidoctor-pdf-theme.yml \
+		-a pdf-fontsdir=docs/fonts \
+		-a release_version=`cat conf/pf-release | cut -d' ' -f 2` \
+		-a release_month=`date +%B` \
 		$<
-	xsltproc \
-		-o $<.fo \
-		docs/docbook/xsl/packetfence-fo.xsl docs/docbook/$(notdir $<).docbook
-	fop \
-		-c docs/fonts/fop-config.xml \
-		$<.fo \
-		-pdf docs/$@
 
-html: $(patsubst %.asciidoc,%.html,$(notdir $(wildcard docs/PacketFence_*.asciidoc)))
+.PHONY: pdf
 
-%.html : docs/%.asciidoc
+pdf: $(PDFS)
+
+HTML = $(patsubst %.asciidoc,docs/%.html, $(ASCIIDOCS))
+
+docs/%.html: docs/%.asciidoc
 	asciidoctor \
-		-D docs/html \
 		-n \
+		-r ./docs/asciidoctor-html.rb \
+		-a stylesdir=../html/pfappserver/root/static.alt/dist/css \
+		-a stylesheet=$(notdir $(wildcard ./html/pfappserver/root/static.alt/dist/css/app*.css)) \
+		-a release_version=`cat conf/pf-release | cut -d' ' -f 2` \
+		-a release_month=`date +%B` \
 		$<
 
-html/pfappserver/root/static/doc:
-	make html
-	mkdir -p docs/html/docs/images/
-	cp -a docs/images/* docs/html/docs/images/
-	mv docs/html html/pfappserver/root/static/doc
+docs/index.js: $(HTML)
+	find $$(dirname "$@") -type f  -iname  '*.html' -and -not -iname '*template*' -printf "{\"name\":\"%f\", \"size\":%s, \"last_modifed\" : %T@}\n" | jq -s '{ items: [ .[] |  {name, size, last_modifed : (.last_modifed*1000 | floor)} ] }' > $@
+
+.PHONY: images
+
+images:
+	@echo "install images dir and all subdirectories"
+	for subdir in `find docs/images/* -type d -printf "%f\n"` ; do \
+		install -d -m0755 $(DESTDIR)/usr/local/pf/html/pfappserver/root/static/doc/images/$$subdir ; \
+		for img in `find docs/images/$$subdir -type f`; do \
+			install -m0644 $$img $(DESTDIR)/usr/local/pf/html/pfappserver/root/static/doc/images/$$subdir ; \
+		done \
+	done
+	@echo "install only images at depth0 in images/ directory"
+	for img in `find docs/images/* -maxdepth 0 -type f`; do \
+		install -m0644 $$img $(DESTDIR)/usr/local/pf/html/pfappserver/root/static/doc/images/ ; \
+	done
+
+.PHONY: html
+
+html: $(HTML) docs/index.js
 
 pfcmd.help:
-	/usr/local/pf/bin/pfcmd help > docs/pfcmd.help
+	/usr/local/pf/bin/pfcmd help > docs/installation/pfcmd.help
 
 .PHONY: configurations
 
+configurations: SHELL:=/bin/bash
 configurations:
 	find -type f -name '*.example' -print0 | while read -d $$'\0' file; do cp -n $$file "$$(dirname $$file)/$$(basename $$file .example)"; done
+	touch /usr/local/pf/conf/pf.conf
+
+.PHONY: configurations_force
+
+configurations_hard: SHELL:=/bin/bash
+configurations_hard:
+	find -type f -name '*.example' -print0 | while read -d $$'\0' file; do cp $$file "$$(dirname $$file)/$$(basename $$file .example)"; done
 	touch /usr/local/pf/conf/pf.conf
 
 # server certs and keys
@@ -61,29 +94,29 @@ conf/ssl/server.crt: | conf/ssl/server.crt
 conf/ssl/server.key: | conf/ssl/server.key
 	openssl genrsa -out /usr/local/pf/conf/ssl/server.key 2048
 
-conf/pf_omapi_key:
-	/usr/bin/openssl rand -base64 -out /usr/local/pf/conf/pf_omapi_key 32
-
 conf/local_secret:
 	date +%s | sha256sum | base64 | head -c 32 > /usr/local/pf/conf/local_secret
+
+conf/unified_api_system_pass:
+	date +%s | sha256sum | base64 | head -c 32 > /usr/local/pf/conf/unified_api_system_pass
 
 bin/pfcmd: src/pfcmd.c
 	$(CC) -O2 -g -std=c99  -Wall $< -o $@
 
 bin/ntlm_auth_wrapper: src/ntlm_auth_wrap.c
-	cc -g -std=c99  -Wall  src/ntlm_auth_wrap.c -o bin/ntlm_auth_wrapper
+	$(CC) -g -std=c99 -Wall $< -o $@
 
-.PHONY:permissions
+.PHONY: permissions
 
 /etc/sudoers.d/packetfence.sudoers: packetfence.sudoers
-	cp packetfence.sudoers /etc/sudoers.d/packetfence.sudoers
+	cp packetfence.sudoers /etc/sudoers.d/packetfence
 
-.PHONY:sudo
+.PHONY: sudo
 
-sudo:/etc/sudoers.d/packetfence.sudoers
+sudo: /etc/sudoers.d/packetfence.sudoers
 
 
-permissions:
+permissions: bin/pfcmd
 	./bin/pfcmd fixpermissions
 
 raddb/certs/server.crt:
@@ -94,14 +127,14 @@ raddb/certs/server.crt:
 raddb/sites-enabled:
 	mkdir raddb/sites-enabled
 	cd raddb/sites-enabled;\
-	for f in packetfence packetfence-tunnel dynamic-clients;\
+	for f in packetfence packetfence-tunnel dynamic-clients status;\
 		do ln -s ../sites-available/$$f $$f;\
 	done
 
 .PHONY: translation
 
 translation:
-	for TRANSLATION in de en es fr he_IL it nl pl_PL pt_BR; do\
+	for TRANSLATION in de en es fr he_IL it nb_NO nl pl_PL pt_BR; do\
 		/usr/bin/msgfmt conf/locale/$$TRANSLATION/LC_MESSAGES/packetfence.po\
 		  --output-file conf/locale/$$TRANSLATION/LC_MESSAGES/packetfence.mo;\
 	done
@@ -110,7 +143,6 @@ translation:
 
 mysql-schema:
 	ln -f -s /usr/local/pf/db/pf-schema-X.Y.Z.sql /usr/local/pf/db/pf-schema.sql;
-	ln -f -s /usr/local/pf/db/pf_graphite-schema-5.1.0.sql /usr/local/pf/db/pf_graphite-schema.sql
 
 .PHONY: chown_pf
 
@@ -123,9 +155,69 @@ fingerbank:
 	rm -f /usr/local/pf/lib/fingerbank
 	ln -s /usr/local/fingerbank/lib/fingerbank /usr/local/pf/lib/fingerbank \
 
+.PHONY: systemd
+
+systemd:
+	cp /usr/local/pf/conf/systemd/packetfence* /usr/lib/systemd/system/
+	systemctl daemon-reload
+
 .PHONY: pf-dal
 
 pf-dal:
 	perl /usr/local/pf/addons/dev-helpers/bin/generator-data-access-layer.pl
 
-devel: configurations conf/ssl/server.crt conf/pf_omapi_key conf/local_secret bin/pfcmd raddb/certs/server.crt sudo translation mysql-schema raddb/sites-enabled fingerbank chown_pf permissions bin/ntlm_auth_wrapper html/pfappserver/root/static/doc
+devel: configurations conf/ssl/server.key conf/ssl/server.crt conf/local_secret bin/pfcmd raddb/certs/server.crt sudo translation mysql-schema raddb/sites-enabled fingerbank chown_pf permissions bin/ntlm_auth_wrapper conf/unified_api_system_pass
+
+test:
+	cd t && ./smoke.t
+
+.PHONY: html_install
+
+# install -D will automatically create target directories
+# $$file in destination of install command contain relative path
+html_install:
+	@echo "create directories under $(DESTDIR)$(HTMLDIR)"
+	install -d -m0755 $(DESTDIR)$(HTML_PARKINGDIR)
+	install -d -m0755 $(DESTDIR)$(HTML_COMMONDIR)
+	install -d -m0755 $(DESTDIR)$(HTML_CPDIR)
+	install -d -m0755 $(DESTDIR)$(HTML_PFAPPDIR)
+
+	@echo "install $(SRC_HTML_PARKINGDIR) files"
+	for file in $(parking_files); do \
+            install -v -m 0644 $$file -D $(DESTDIR)$(PF_PREFIX)/$$file ; \
+	done
+
+	@echo "install $(SRC_HTML_COMMONDIR) dirs and files"
+	for file in $(common_files); do \
+	    install -v -m 0644 $$file -D $(DESTDIR)$(PF_PREFIX)/$$file ; \
+	done
+
+	@echo "install $(SRC_HTML_CPDIR) dirs and files"
+	for file in $(cp_files); do \
+	    install -v -m 0644 $$file -D $(DESTDIR)$(PF_PREFIX)/$$file ; \
+	done
+
+	@echo "install $(SRC_HTML_PFAPPDIR) without static and static.alt dir"
+	for file in $(pfapp_files); do \
+	    install -v -m 0644 $$file -D $(DESTDIR)$(PF_PREFIX)/$$file ; \
+	done
+
+	@echo "install $(SRC_HTML_PFAPPDIR_STATIC) dirs and files"
+	for file in $(pfapp_static_files); do \
+	    install -v -m 0644 $$file -D $(DESTDIR)$(PF_PREFIX)/$$file ; \
+	done
+
+	@echo "install $(SRC_HTML_PFAPPDIR_ALT) dirs and files"
+	for file in $(pfapp_alt_files); do \
+	    install -v -m 0644 $$file -D $(DESTDIR)$(PF_PREFIX)/$$file ; \
+	done
+
+	@echo "install symlinks"
+	for link in $(symlink_files); do \
+	    cp -v --no-dereference $$link $(DESTDIR)$(PF_PREFIX)/$$link ; \
+	done
+
+.PHONY: conf/git_commit_id
+conf/git_commit_id:
+	echo $$CI_COMMIT_SHA > $@
+

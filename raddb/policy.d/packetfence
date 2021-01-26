@@ -6,6 +6,7 @@ mac-addr-regexp = '([0-9a-f]{2})[^0-9a-f]?([0-9a-f]{2})[^0-9a-f]?([0-9a-f]{2})[^
 # If this fails, the mschap module will try to authenticate using ntlm_auth.
 
 packetfence-local-auth { 
+    packetfence-set-tenant-id
     # Disable ntlm_auth
     update control {
         &MS-CHAP-Use-NTLM-Auth := No
@@ -31,6 +32,36 @@ packetfence-local-auth {
     }
 
 }
+
+#Set the realm if it's machine authentication
+packetfence-set-realm-if-machine {
+    if (User-Name =~ /host\/([a-z0-9_-]*)[\.](.*)/i) {
+        update {
+            &request:Realm := "%{2}"
+        }
+    }
+}
+
+#Update the PacketFence-Tenant-Id defaulting to the default tenant_id
+packetfence-set-tenant-id {
+    if(!NAS-IP-Address || NAS-IP-Address == "0.0.0.0"){
+        update request {
+            NAS-IP-Address := "%{Packet-Src-IP-Address}"
+        }
+    }
+    if ( "%{%{control:PacketFence-Tenant-Id}:-0}" == "0") {
+        update control {
+            &PacketFence-Tenant-Id = "%{sql: SELECT IFNULL((SELECT tenant_id FROM radius_nas WHERE nasname = '%{NAS-IP-Address}'), 0)}"
+        }
+
+    }
+
+    if ( &control:PacketFence-Tenant-Id == 0 ) {
+        update control {
+            &PacketFence-Tenant-Id := "%{sql: SELECT IFNULL((SELECT tenant_id from radius_nas WHERE start_ip <= INET_ATON('%{NAS-IP-Address}') and INET_ATON('%{NAS-IP-Address}') <= end_ip order by range_length limit 1), 1)}"
+        }
+    }
+}
 ### END Local SQL authentication
 packetfence-switch-access { 
     if ( \
@@ -42,34 +73,42 @@ packetfence-switch-access {
 }
 
 request-timing {
-    if (control:PacketFence-Request-Time != 0) {
+    if ("%{%{control:PacketFence-Request-Time}:-0}" != 0) {
         update control {
             &PacketFence-Request-Time := "%{expr: %{control:PacketFence-Request-Time} - %{control:Tmp-Integer-0}}"
         }
     }
 }
 
-
 packetfence-eap-mac-policy {
     if ( &EAP-Type ) {
-
-        if (&Calling-Station-Id && (&Calling-Station-Id =~ /^${policy.mac-addr-regexp}$/i)) {
+        if (&User-Name && (&User-Name =~ /^${policy.mac-addr-regexp}$/i)) {
             update {
-                &request:Tmp-String-1 := "%{tolower:%{1}%{2}%{3}%{4}%{5}%{6}}"
+                &request:Tmp-String-2 := "%{tolower:%{1}%{2}%{3}%{4}%{5}%{6}}"
             }
-            if  ( &Tmp-String-1 == "%{tolower:%{User-Name}}" ) {
+            if (&Calling-Station-Id && (&Calling-Station-Id =~ /^${policy.mac-addr-regexp}$/i)) {
                 update {
-                    &control:Cleartext-Password := &request:User-Name
+                    &request:Tmp-String-1 := "%{tolower:%{1}%{2}%{3}%{4}%{5}%{6}}"
                 }
-                updated
+                if  ( &Tmp-String-1 == &Tmp-String-2 ) {
+                    update {
+                        &control:Cleartext-Password := &request:User-Name
+                    }
+                    updated
+                }
             }
         }
+
     }
     noop
 }
 
+
 packetfence-audit-log-accept {
-    if(&User-Name != "dummy") {
+    if (&User-Name && (&User-Name == "dummy")) {
+        noop
+    }
+    else {
         request-timing
         -sql {
             fail = 1
@@ -78,7 +117,10 @@ packetfence-audit-log-accept {
 }
 
 packetfence-audit-log-reject {
-    if(&User-Name != "dummy") {
+    if (&User-Name && (&User-Name == "dummy")) {
+            noop
+    }
+    else {
         request-timing
         -sql_reject {
             fail = 1
@@ -105,6 +147,25 @@ packetfence-mschap-authenticate {
     }
 }
 
+
+packetfence-allied-gs950-mab {
+    if ( &EAP-Type ) {
+        if (&User-Name && (&User-Name =~ /^${policy.mac-addr-regexp}$/i)) {
+            update {
+                &request:Tmp-String-1 := "%{tolower:%{1}%{2}%{3}%{4}%{5}%{6}}"
+            }
+            if  ( &Tmp-String-1 == "%{tolower:%{User-Name}}" ) {
+                update {
+                    &control:Cleartext-Password := &request:User-Name
+                    &request:Calling-Station-Id := &request:User-Name
+                    &request:NAS-Port-Type := "Ethernet"
+                }
+                updated
+            }
+        }
+    }
+    noop
+}
 
 packetfence-cache-ntlm-hit {
   update control {
@@ -146,4 +207,44 @@ packetfence-control-ntlm-failure {
       reject
     }
   }
+}
+
+last-regexp = '(.*)(.)'
+
+packetfence-balanced-key-policy {
+    if (&PacketFence-KeyBalanced && (&PacketFence-KeyBalanced =~ /^${policy.last-regexp}$/i)) {
+        update {
+            &request:PacketFence-KeyBalanced := "%{md5:%{2}%{1}}"
+            &control:Load-Balance-Key := "%{md5:%{2}%{1}}"
+        }
+    }
+    else {
+        update {
+            &request:PacketFence-KeyBalanced := "%{md5:%{Calling-Station-Id}%{User-Name}}"
+            &control:Load-Balance-Key := "%{md5:%{Calling-Station-Id}%{User-Name}}"
+        }
+    }
+}
+
+packetfence-nas-ip-address {
+    if(!NAS-IP-Address || NAS-IP-Address == "0.0.0.0"){
+            update request {
+                    NAS-IP-Address := "%{Packet-Src-IP-Address}"
+            }
+    }
+}
+
+packetfence-degraded-auth {
+    packetfence-set-tenant-id
+    # Disable ntlm_auth
+    update control {
+        &MS-CHAP-Use-NTLM-Auth := No
+    }
+    # Check password table for local user
+    sql_degraded
+    if (fail || notfound || noop) {
+        update control {
+            &MS-CHAP-Use-NTLM-Auth := Yes
+        }
+    }
 }

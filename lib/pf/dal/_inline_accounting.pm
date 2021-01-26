@@ -21,18 +21,24 @@ use warnings;
 ### pf::dal::_inline_accounting is auto generated any change to this file will be lost
 ### Instead change in the pf::dal::inline_accounting module
 ###
+
 use base qw(pf::dal);
+
+use Role::Tiny::With;
+with qw(pf::dal::roles::has_tenant_id);
 
 our @FIELD_NAMES;
 our @INSERTABLE_FIELDS;
 our @PRIMARY_KEYS;
 our %DEFAULTS;
 our %FIELDS_META;
+our @COLUMN_NAMES;
 
 BEGIN {
     @FIELD_NAMES = qw(
         outbytes
         inbytes
+        tenant_id
         ip
         firstseen
         lastmodified
@@ -42,6 +48,7 @@ BEGIN {
     %DEFAULTS = (
         outbytes => '0',
         inbytes => '0',
+        tenant_id => '1',
         ip => '',
         firstseen => '',
         lastmodified => '',
@@ -51,6 +58,7 @@ BEGIN {
     @INSERTABLE_FIELDS = qw(
         outbytes
         inbytes
+        tenant_id
         ip
         firstseen
         lastmodified
@@ -66,6 +74,12 @@ BEGIN {
         },
         inbytes => {
             type => 'BIGINT',
+            is_auto_increment => 0,
+            is_primary_key => 0,
+            is_nullable => 0,
+        },
+        tenant_id => {
+            type => 'INT',
             is_auto_increment => 0,
             is_primary_key => 0,
             is_nullable => 0,
@@ -100,6 +114,17 @@ BEGIN {
         ip
         firstseen
     );
+
+    @COLUMN_NAMES = qw(
+        inline_accounting.outbytes
+        inline_accounting.inbytes
+        inline_accounting.tenant_id
+        inline_accounting.ip
+        inline_accounting.firstseen
+        inline_accounting.lastmodified
+        inline_accounting.status
+    );
+
 }
 
 use Class::XSAccessor {
@@ -116,13 +141,13 @@ sub _defaults {
     return {%DEFAULTS};
 }
 
-=head2 field_names
+=head2 table_field_names
 
 Field names of inline_accounting
 
 =cut
 
-sub field_names {
+sub table_field_names {
     return [@FIELD_NAMES];
 }
 
@@ -148,6 +173,16 @@ our $FIND_SQL = do {
     my $where = join(", ", map { "$_ = ?" } @PRIMARY_KEYS);
     "SELECT * FROM `inline_accounting` WHERE $where;";
 };
+
+=head2 find_columns
+
+find_columns
+
+=cut
+
+sub find_columns {
+    return [@COLUMN_NAMES];
+}
 
 =head2 _find_one_sql
 
@@ -188,14 +223,14 @@ Get the meta data for inline_accounting
 sub get_meta {
     return \%FIELDS_META;
 }
- 
+
 =head1 AUTHOR
 
 Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2017 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 

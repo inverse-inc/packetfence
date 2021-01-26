@@ -1,0 +1,71 @@
+// to display images directly on GitHub
+ifdef::env-github[]
+:encoding: UTF-8
+:lang: en
+:doctype: book
+:toc: left
+:imagesdir: ../../images
+endif::[]
+
+////
+
+    This file is part of the PacketFence project.
+
+    See PacketFence_Network_Devices_Configuration_Guide-docinfo.xml for 
+    authors, copyright and license information.
+
+////
+
+
+//=== Cambium
+
+==== cnPilot E410
+
+===== 802.1X
+
+To setup the Cambium cnPilot E410 AP to use 802.1x, first, you need to already have configured the VLANs that will be used in the AP under _Configure -> Network_. Make sure that in _Configure -> Network -> Ethernet Ports_, the port is configured to *Trunk Multiple VLANs*, and the list of VLANs are allowed.
+
+Next, go to _Configure -> WLAN_, and click on `Add New WLAN`. Give it the desired ID, and enter your SSID, default VLAN, and select *WPA2 Enterprise* for Security.
+
+image::cambium-dot1x-basic.png[scaledwidth="100%",alt="Cambium WLAN Basic"]
+
+In the *RADIUS Server_ tab, enter the management IP address of PacketFence (VIP in case of a cluster) and the Radius secret for Authentication and Accounting servers.
+
+Check the *Dynamic Authorization* and *Dynamic VLAN* boxes and save.
+
+image::cambium-dot1x-radius.png[scaledwidth="100%",alt="Cambium WLAN Radius"]
+
+===== MAC Authentication
+
+To enable MAC authentication in the Cambium E410, go to _Configure -> WLAN_, select your WLAN, set the Security to open and click on the tab *Access*.
+
+In the *MAC Authentication* section, select Radius as the policy, and check the box for *Password* to use the MAC address as the password in the Radius request. Click on Save.
+
+image::cambium-mac-auth.png[scaledwidth="100%",alt="Cambium MAC Authentication"]
+
+===== Web Authentication
+
+To enable Web Authentication, go to your WLAN in _Configure -> WLAN_, create a new WLAN with open Security, and click on the tab *Guest Access* to set the following:
+
+* Enable: check the box
+* Portal Mode: External Hotspot
+* Access Policy: Radius
+* Redirect Mode: HTTP
+* External Page URL: http://_IP_ADDRESS_OF_PACKETFENCE/Cambium
+* External Portal Type: Standard
+* Success Action: Your preferred action.
+* Prefix Query Strings in Redirect URL: check the box
+* Redirection URL Query String: check Client IP
+* Redirect: check HTTP-only
+
+Click Save.
+
+In the *Add Whitelist* section, add the IP address or domain name of your PacketFence server, then save.
+
+image::cambium-web-auth.png[scaledwidth="100%",alt="Cambium Web Authentication"]
+
+image::cambium-web-auth-whitelist.png[scaledwidth="100%",alt="Cambium Web Authentication Whitelist"]
+
+On PacketFence web admin, in the Switch configuration for your AP, Roles tab, check Role by Web Auth URL box, and enter http://_IP_ADDRESS_OF_PACKETFENCE/Cambium in the registration field.
+
+image::cambium-role-web-auth.png[scaledwidth="100%",alt="Cambium Role for Web Authentication"]

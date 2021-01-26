@@ -15,6 +15,7 @@ use warnings;
 
 use Moose;
 use namespace::autoclean;
+use pf::constants qw($TRUE $FALSE);
 
 extends 'Catalyst::Model';
 
@@ -22,11 +23,19 @@ extends 'Catalyst::Model';
 my @mechanisms           = qw/vlan inline option webauth/;
 # TODO once we display option we should move 'other' over to there
 my %types   = (
-    vlan        => [ 'management', 'vlan-registration', 'vlan-isolation'],
+    vlan        => [ 'management', 'vlan-registration', 'vlan-isolation' ],
     inline      => [ 'management', 'inline', 'inlinel2', 'inlinel3' ], # inline is kept for backwards compat.
-#    option      => [ 'high-availability', 'dhcp-listener', 'monitor' ],
+    webauth     => ['management', 'portal'],
+    other       => ['dns-enforcement', 'dhcp-listener'],
+    radius      => ['management'],
+);
+
+my %required_types   = (
+    vlan        => [ 'management', 'vlan-registration' ],
+    inline      => [ 'management', 'inline', 'inlinel2', 'inlinel3' ], # inline is kept for backwards compat.
     webauth     => ['management', 'portal'],
     other       => ['dns-enforcement'],
+    radius      => ['management'],
 );
 
 =head1 METHODS
@@ -43,12 +52,40 @@ sub getAvailableMechanisms {
     return \@mechanisms;
 }
 
+=item getRequiredTypes
+
+Get the required types for a mechanism
+
+=cut
+
+sub getRequiredTypes {
+    my ( $self, $mechanism, $interface, $interfaces ) = @_;
+
+    return $self->getTypes($TRUE, $mechanism, $interface, $interfaces);
+}
+
 =item getAvailableTypes
+
+Get the available types for a mechanism
 
 =cut
 
 sub getAvailableTypes {
     my ( $self, $mechanism, $interface, $interfaces ) = @_;
+
+    return $self->getTypes($FALSE, $mechanism, $interface, $interfaces);
+}
+
+=item getTypes
+
+Get the types for a mechanism
+
+=cut
+
+sub getTypes {
+    my ( $self, $only_required, $mechanism, $interface, $interfaces ) = @_;
+
+    my %types = $only_required ? %required_types : %types;
 
     my @mechanisms;
     my @available_types;
@@ -103,7 +140,7 @@ sub _isInArray {
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2017 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 
@@ -124,6 +161,6 @@ USA.
 
 =cut
 
-__PACKAGE__->meta->make_immutable;
+__PACKAGE__->meta->make_immutable unless $ENV{"PF_SKIP_MAKE_IMMUTABLE"};
 
 1;
