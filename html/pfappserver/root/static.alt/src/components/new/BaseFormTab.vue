@@ -3,8 +3,10 @@
     :active="active"
     :title-link-class="{ 'has-invalid': !isValid }"
   >
-    <template v-slot:title>
-      {{ title }} <b-badge pill variant="danger" class="num-invalid ml-1" :data-num-invalid="numInvalid">{{ numInvalid }}</b-badge>
+    <template #title>
+      <slot name="title">
+        {{ title }} <b-badge pill variant="danger" class="num-invalid ml-1" :data-num-invalid="numInvalid">{{ numInvalid }}</b-badge>
+      </slot>
     </template>
     <slot/>
   </b-tab>
