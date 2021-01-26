@@ -43,6 +43,8 @@ For a list of compatibility related changes see the <<PacketFence_Upgrade_Guide.
 * Improve CLI login support on HP and Aruba switches
 * Use the "Authorization" header when performing API calls to Github in the OAuth context
 * Replace xsltproc/fop by asciidoctor-pdf (#5968)
+* FortiGate Role Based Enforcement (#5645)
+* Add support for roles (RBAC) for Ruckus WLAN controllers (#2530)
 
 === Bug Fixes
 
