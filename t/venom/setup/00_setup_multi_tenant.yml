@@ -1,0 +1,47 @@
+name: Setup multi-tenant
+version: 2
+testcases:
+- name: get_unified_pass
+  steps:
+    - type: exec
+      script: "cat {{.pfserver_conf_dir}}/unified_api_system_pass"
+      vars:
+        system_password:
+          from: result.systemout
+      
+- name: get_login_token
+  steps:
+    - type: http
+      method: POST
+      url: '{{.pfserver_webadmin_url}}/api/v1/login'
+      ignore_verify_ssl: true
+      body: >-
+        {
+        "username": "{{.pfserver_default_system_user}}",
+        "password": "{{.get_unified_pass.system_password}}"
+        }      
+      headers:
+        "Content-Type": "application/json"
+      assertions:
+        - result.statuscode ShouldEqual 200
+      vars:
+        token:
+          from: result.bodyjson.token
+
+- name: check_token_info
+  steps:
+    - type: http
+      method: GET
+      url: '{{.pfserver_webadmin_url}}/api/v1/token_info'
+      ignore_verify_ssl: true
+      headers:
+        "Content-Type": "application/json"
+        "Authorization": "{{.get_login_token.token}}"
+      assertions:
+        - result.statuscode ShouldEqual 200
+        - result.bodyjson.item.tenant.id ShouldEqual 0
+
+- name: write-token-to-file
+  steps:
+    - type: exec
+      script: "echo 'export TOKEN={{.get_login_token.token}}' > {{.venom_result_dir}}/env"

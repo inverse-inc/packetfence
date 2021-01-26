@@ -25,7 +25,7 @@ test: setup global_config dot1x_eap_peap wired_mac_auth wireless_dot1x_eap_peap 
 
 .PHONY: setup
 setup:
-	./venom-wrapper.sh setup
+	./venom-wrapper.sh setup/00_setup.yml
 
 .PHONY: setup_multi_tenant
 setup_multi_tenant:

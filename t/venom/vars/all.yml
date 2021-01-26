@@ -126,11 +126,11 @@ eap_peap.roles.ad_machine.vlan_id: 100
 
 
 ################################################################################
-# global_config_tenant test suite specific variables
+# global_config_multi_tenant test suite specific variables
 ################################################################################
-global_config_tenant.tenant.name: example
-global_config_tenant.tenant.domain_name: '{{.configurator.domain}}'
-global_config_tenant.tenant.portal_domain_name: '{{.configurator.hostname}}.{{.configurator.domain}}'
+global_config_multi_tenant.tenant.name: example
+global_config_multi_tenant.tenant.domain_name: '{{.configurator.domain}}'
+global_config_multi_tenant.tenant.portal_domain_name: '{{.configurator.hostname}}.{{.configurator.domain}}'
 
 ################################################################################
 # dot1x_eap_peap test suite specific variables
