@@ -36,9 +36,9 @@ setup_multi_tenant:
 global_config: setup
 	./venom-wrapper.sh $(PFSERVERS_DIR)/global_config
 
-.PHONY: global_config_tenant
-global_config:
-	./venom-wrapper.sh $(PFSERVERS_DIR)/global_config_tenant
+.PHONY: global_config_multi_tenant
+global_config_multi_tenant:
+	./venom-wrapper.sh $(PFSERVERS_DIR)/global_config_multi_tenant
 
 .PHONY: dot1x_eap_peap
 dot1x_eap_peap: setup global_config
@@ -77,7 +77,7 @@ pfdhcplistener_single_tenant: setup
 	./venom-wrapper.sh $(PFSERVERS_DIR)/pfdhcplistener_single_tenant/teardown
 
 .PHONY: pfdhcplistener_multi_tenant
-pfdhcplistener_multi_tenant: global_config_tenant
+pfdhcplistener_multi_tenant: global_config_multi_tenant setup_multi_tenant
 	./venom-wrapper.sh $(PFSERVERS_DIR)/pfdhcplistener_multi_tenant
 	./venom-wrapper.sh $(PFSERVERS_DIR)/pfdhcplistener_multi_tenant/teardown
 
