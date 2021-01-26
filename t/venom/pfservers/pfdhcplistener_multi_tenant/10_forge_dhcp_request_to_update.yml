@@ -21,7 +21,7 @@ testcases:
   - name: forge_dhcp_request_node10
     steps:
     - type: exec
-      script: "perl {{.pfserver_root_dir}}/addons/stress-tester/dhcp_perl.pl --mac={{.pfdhcplistener.nodes.node10.mac}} --ip={{.pfdhcplistener.nodes.node10.second_ip}} --hostname={{.pfdhcplistener.nodes.node10.hostname}} --dhcp-fingerprint={{.pfdhcplistener.nodes.node10.dhcp_fingerprint}} --dhcp-vendor={{.pfdhcplistener.nodes.node10.dhcp_vendor}} --server={{.pfdhcplistener.nodes.node10.dhcp_server}}"
+      script: "perl {{.pfserver_root_dir}}/addons/stress-tester/dhcp_test --mac={{.pfdhcplistener.nodes.node10.mac}} --ip={{.pfdhcplistener.nodes.node10.second_ip}} --hostname={{.pfdhcplistener.nodes.node10.hostname}} --dhcp-fingerprint={{.pfdhcplistener.nodes.node10.dhcp_fingerprint}} --dhcp-vendor={{.pfdhcplistener.nodes.node10.dhcp_vendor}} --server={{.pfdhcplistener.nodes.node10.dhcp_server}}"
 
   # let node be **updated** in DB
   - name: sleep_some_time

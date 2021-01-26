@@ -4,7 +4,7 @@ testcases:
   - name: forge_dhcp_request_node10
     steps:
     - type: exec
-      script: "perl {{.pfserver_root_dir}}/addons/stress-tester/dhcp_perl.pl --mac={{.pfdhcplistener_single_tenant.nodes.node10.mac}} --ip={{.pfdhcplistener_single_tenant.nodes.node10.first_ip}} --hostname={{.pfdhcplistener_single_tenant.nodes.node10.hostname}} --dhcp-fingerprint={{.pfdhcplistener_single_tenant.nodes.node10.dhcp_fingerprint}} --dhcp-vendor={{.pfdhcplistener_single_tenant.nodes.node10.dhcp_vendor}} --server={{.pfdhcplistener_single_tenant.nodes.node10.dhcp_server}}"
+      script: "perl {{.pfserver_root_dir}}/addons/stress-tester/dhcp_test --mac={{.pfdhcplistener_single_tenant.nodes.node10.mac}} --ip={{.pfdhcplistener_single_tenant.nodes.node10.first_ip}} --hostname={{.pfdhcplistener_single_tenant.nodes.node10.hostname}} --dhcp-fingerprint={{.pfdhcplistener_single_tenant.nodes.node10.dhcp_fingerprint}} --dhcp-vendor={{.pfdhcplistener_single_tenant.nodes.node10.dhcp_vendor}} --server={{.pfdhcplistener_single_tenant.nodes.node10.dhcp_server}}"
 
   # let node be created in DB
   - name: sleep_some_time
