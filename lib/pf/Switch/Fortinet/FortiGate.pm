@@ -48,6 +48,7 @@ use pf::SwitchSupports qw(
     WirelessMacAuth
     WiredMacAuth
     WirelessDot1x
+    RoleBasedEnforcement
     VPN
 );
 
@@ -157,6 +158,18 @@ sub getAcceptForm {
 
     $logger->debug("Generated the following html form : ".$html_form);
     return $html_form;
+}
+
+=item returnRoleAttribute
+
+What RADIUS Attribute (usually VSA) should the role returned into.
+
+=cut
+
+sub returnRoleAttribute {
+    my ($self) = @_;
+
+    return 'Fortinet-Group-Name';
 }
 
 =item deauthenticateMacDefault
