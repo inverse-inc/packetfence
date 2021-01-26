@@ -1,28 +1,20 @@
 <template>
-  <base-form-group
-    class="base-form-group-input-password"
-    :label-cols="labelCols"
-    :column-label="columnLabel"
-    :text="text"
-    :disabled="isLocked"
+  <base-input-group
     :state="inputState"
     :invalid-feedback="inputInvalidFeedback"
     :valid-feedback="inputValidFeedback"
-    :is-focus="isFocus"
+    :text="inputText"
+    :isFocus="isFocus"
+    :isLocked="isLocked"
   >
     <b-form-input ref="input"
       class="base-input"
-      :class="{
-        'is-focus': isFocus,
-        'is-blur': !isFocus
-      }"
       :disabled="isLocked"
+      :readonly="inputReadonly"
       :placeholder="inputPlaceholder"
-      :readonly="readonly"
       :tabIndex="inputTabIndex"
       :type="inputType"
       :value="inputValue"
-      :autocomplete="namespace || 'password'"
       @input="onInput"
       @change="onChange"
       @focus="onFocus"
@@ -40,13 +32,13 @@
         </b-button>
       </b-button-group>
     </template>
-  </base-form-group>
+  </base-input-group>
 </template>
 <script>
-import BaseFormGroup from './BaseFormGroup'
+import BaseInputGroup from './BaseInputGroup'
 
 const components = {
-  BaseFormGroup
+  BaseInputGroup
 }
 
 import { computed, ref, unref } from '@vue/composition-api'
@@ -61,7 +53,7 @@ export const props = {
   ...useInputProps,
   ...useInputMetaProps,
   ...useInputValidatorProps,
-  ...useInputValueProps,
+  ...useInputValueProps
 }
 
 export const setup = (props, context) => {
@@ -70,6 +62,7 @@ export const setup = (props, context) => {
 
   const {
     placeholder,
+    readonly,
     tabIndex,
     text,
     isFocus,
@@ -80,8 +73,8 @@ export const setup = (props, context) => {
 
   const {
     value,
-    onChange,
-    onInput
+    onInput,
+    onChange
   } = useInputValue(metaProps, context)
 
   const {
@@ -121,6 +114,7 @@ export const setup = (props, context) => {
   return {
     // useInput
     inputPlaceholder: placeholder,
+    inputReadonly: readonly,
     inputTabIndex: tabIndex,
     inputText: text,
     isFocus,
@@ -130,8 +124,8 @@ export const setup = (props, context) => {
 
     // useInputValue
     inputValue: value,
-    onChange,
     onInput,
+    onChange,
 
     // useInputValidator
     inputState: state,
@@ -149,15 +143,10 @@ export const setup = (props, context) => {
 
 // @vue/component
 export default {
-  name: 'base-form-group-input-password',
+  name: 'base-input-group-password',
   inheritAttrs: false,
   components,
   props,
   setup
 }
 </script>
-<style lang="scss">
-.base-input[type="password"] {
-  font-family: $font-family-monospace;
-}
-</style>

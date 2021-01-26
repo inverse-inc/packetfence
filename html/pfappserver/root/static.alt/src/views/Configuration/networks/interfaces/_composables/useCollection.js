@@ -1,6 +1,13 @@
 import { computed, toRefs } from '@vue/composition-api'
 import i18n from '@/utils/locale'
 
+export const useItemProps = {
+  prefixRouteName: { // from Configurator
+    type: String,
+    default: ''
+  }
+}
+
 const useItemDefaults = (_, props) => {
   const {
     id
@@ -43,19 +50,20 @@ const useItemTitleBadge = (props, context, form) => {
 
 const useRouter = (props, context, form) => {
   const {
-    id
+    id,
+    prefixRouteName
   } = toRefs(props)
   const { root: { $router } = {} } = context
   return {
-    goToCollection: () => $router.push({ name: 'interfaces' }),
+    goToCollection: () => $router.push({ name: `${prefixRouteName.value}interfaces` }),
     goToItem: () => {
       let { id = id.value, vlan } = form.value
       if (id.indexOf('.') === -1 && vlan) // if `id` omits `vlan` and `vlan` is defined
         id += `.${vlan}` // append `vlan` to `id`
-      return $router.push({ name: 'interface', params: { id } })
+      return $router.push({ name: `${prefixRouteName.value}interface`, params: { id } })
         .catch(e => { if (e.name !== "NavigationDuplicated") throw e })
     },
-    goToClone: () => $router.push({ name: 'cloneInterface', params: { id: id.value } }),
+    goToClone: () => $router.push({ name: `${prefixRouteName.value}cloneInterface`, params: { id: id.value } }),
   }
 }
 

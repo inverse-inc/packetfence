@@ -1,7 +1,6 @@
 <template>
   <router-view></router-view>
 </template>
-
 <script>
 import { onBeforeUnmount } from '@vue/composition-api'
 import apiCall, { baseURL } from '@/utils/api'
@@ -36,6 +35,7 @@ const setup = (props, context) => {
   return
 }
 
+// @vue/component
 export default {
   name: 'Configurator',
   setup

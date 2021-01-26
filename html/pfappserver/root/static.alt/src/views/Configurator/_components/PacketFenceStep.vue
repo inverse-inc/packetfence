@@ -6,13 +6,12 @@
     :invalid-feedback="invalidFeedback"
     :is-loading="isLoading"
     @next="save">
-    <database-view form-store-name="formPacketFence" ref="database" />
-    <general-view class="mt-3" form-store-name="formPacketFence" ref="general" />
-    <alerting-view class="mt-3" form-store-name="formPacketFence" ref="alerting" />
-    <administrator-view class="mt-3" form-store-name="formPacketFence" ref="administrator" />
+    <database-view ref="database" />
+    <general-view ref="general" class="mt-3" />
+    <alerting-view ref="alerting" class="mt-3" />
+    <administrator-view ref="administrator" class="mt-3" />
   </base-step>
 </template>
-
 <script>
 import BaseStep from './BaseStep'
 import DatabaseView from './DatabaseView'
@@ -20,15 +19,18 @@ import GeneralView from './GeneralView'
 import AlertingView from './AlertingView'
 import AdministratorView from './AdministratorView'
 
+const components = {
+  BaseStep,
+  DatabaseView,
+  GeneralView,
+  AlertingView,
+  AdministratorView
+}
+
+// @vue/component
 export default {
   name: 'packetfence-step',
-  components: {
-    BaseStep,
-    DatabaseView,
-    GeneralView,
-    AlertingView,
-    AdministratorView
-  },
+  components,
   data () {
     return {
       isLoading: false
@@ -46,7 +48,7 @@ export default {
     }
   },
   methods: {
-    save (nextRouteName) {
+    save (nextRoute) {
       const { database, general, alerting, administrator } = this.$refs
       this.isLoading = true
       database.save().then(() => {
@@ -57,7 +59,7 @@ export default {
           return administrator.save()
         })
       }).then(() => {
-        this.$router.push({ name: nextRouteName })
+        this.$router.push(nextRoute)
       }).finally(() => {
         this.isLoading = false
       })

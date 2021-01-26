@@ -12,14 +12,13 @@
         :sort-compare="sortCompareInterface"
         :hover="interfaces && interfaces.length > 0"
         @row-clicked="onRowClickInterface"
-        @row-hovered="onRowHoverInterface"
         show-empty
         responsive
         fixed
         sort-icon-left
       >
         <template v-slot:empty>
-          <pf-empty-table :isLoading="isInterfacesLoading">{{ $t('No interfaces found') }}</pf-empty-table>
+          <pf-empty-table :isLoading="isLoading">{{ $t('No interfaces found') }}</pf-empty-table>
         </template>
         <template v-slot:cell(is_running)="{ item }">
           <pf-form-range-toggle
@@ -55,90 +54,117 @@
           <span v-if="item.vlan"
             class="float-right text-nowrap"
           >
-            <pf-button-delete size="sm" variant="outline-danger" class="mr-1" :disabled="isInterfacesLoading" :confirm="$t('Delete VLAN?')" @on-delete="removeInterface(item)" reverse/>
-            <b-button size="sm" variant="outline-primary" class="mr-1" :disabled="isInterfacesLoading" @click.stop.prevent="cloneInterface(item)">{{ $t('Clone') }}</b-button>
+            <pf-button-delete size="sm" variant="outline-danger" class="mr-1" :disabled="isLoading" :confirm="$t('Delete VLAN?')" @on-delete="removeInterface(item)" reverse/>
+            <b-button size="sm" variant="outline-primary" class="mr-1" :disabled="isLoading" @click.stop.prevent="cloneInterface(item)">{{ $t('Clone') }}</b-button>
           </span>
           <span v-else
             class="float-right text-nowrap"
           >
-            <b-button size="sm" variant="outline-primary" class="mr-1" :disabled="isInterfacesLoading" @click.stop.prevent="addVlanInterface(item)">{{ $t('New VLAN') }}</b-button>
+            <b-button size="sm" variant="outline-primary" class="mr-1" :disabled="isLoading" @click.stop.prevent="addVlanInterface(item)">{{ $t('New VLAN') }}</b-button>
           </span>
         </template>
       </b-table>
 
-      <pf-form-row>
-        <pf-button
-          v-if="managementTypeCount === 0"
-          variant="outline-primary"
-          class="float-right"
-          @click="detectManagementInterface()">{{ $t('Detect Management Interface') }}</pf-button>
-      </pf-form-row>
+      <b-row v-if="managementTypeCount === 0"
+        align-v="center" class="is-invalid">
+        <b-col cols="6">
+          <div class="invalid-feedback d-block">{{ $t('At least one Interface must be of Type "management".') }}</div>
+        </b-col>
+        <b-col cols="6" class="text-right">
+          <pf-button
+            variant="outline-primary"
+            class="float-right"
+            :disabled="isLoading"
+            @click="detectManagementInterface()">{{ $t('Detect Management Interface') }}</pf-button>
+        </b-col>
+      </b-row>
 
       <hr/>
 
-      <pf-form-input :column-label="$t('Default Gateway')"
-        form-store-name="formNetwork" form-namespace="gateway"
-      />
-      <pf-form-input :column-label="$t('Server Hostname')" :text="rebootAlert"
-        form-store-name="formNetwork" form-namespace="hostname"
-      />
-      <pf-form-chosen :column-label="$t('DNS Servers')"
-        :multiple="true" :taggable="true"
-        :tag-placeholder="$t('Click to add host')"
-        @tag="addDnsServer"
-        form-store-name="formNetwork" form-namespace="dns_servers"
-      />
+      <base-form
+        :form="form"
+        :schema="schema"
+        :isLoading="isLoading"
+      >
+        <form-group-gateway namespace="gateway"
+          :column-label="$i18n.t('Default Gateway')"
+        />
+
+        <form-group-hostname namespace="hostname"
+          :column-label="$i18n.t('Server Hostname')"
+          :text="rebootAlert"
+        />
+
+        <form-group-dns-servers namespace="dns_servers"
+          :column-label="$i18n.t('DNS Servers')"
+          :taggable="true"
+          :tag-placeholder="$t('Click to add host')"
+        />
+      </base-form>
     </div>
   </b-card>
 </template>
 
 <script>
+import {
+  BaseForm,
+  BaseFormGroupChosenMultiple,
+  BaseFormGroupInput
+} from '@/components/new/'
 import pfButton from '@/components/pfButton'
 import pfButtonDelete from '@/components/pfButtonDelete'
 import pfEmptyTable from '@/components/pfEmptyTable'
 import pfFormChosen from '@/components/pfFormChosen'
 import pfFormInput from '@/components/pfFormInput'
 import pfFormRangeToggle from '@/components/pfFormRangeToggle'
-import pfFormRow from '@/components/pfFormRow'
 import {
   columns as columnsInterface
 } from '../_config/interface'
 import network from '@/utils/network'
 
+const components = {
+  BaseForm,
+
+  FormGroupGateway:    BaseFormGroupInput,
+  FormGroupHostname:   BaseFormGroupInput,
+  FormGroupDnsServers: BaseFormGroupChosenMultiple,
+  pfButton,
+  pfButtonDelete,
+  pfEmptyTable,
+  pfFormChosen,
+  pfFormInput,
+  pfFormRangeToggle
+}
+
+import yup from '@/utils/yup'
+
 export default {
   name: 'interfaces-list',
-  components: {
-    pfButton,
-    pfButtonDelete,
-    pfEmptyTable,
-    pfFormChosen,
-    pfFormInput,
-    pfFormRangeToggle,
-    pfFormRow
-  },
+  components,
   data () {
     return {
+      form: {
+        gateway: undefined,
+        hostname: undefined,
+        dns_servers: undefined
+      },
+      schema: yup.object({
+        gateway: yup.string().nullable().required(this.$i18n.t('Gateway required.')),
+        hostname: yup.string().nullable().required(this.$i18n.t('Hostname required.')),
+        dns_servers: yup.array().ensure().required(this.$i18n.t('DNS server(s) required.')).of(yup.string().nullable())
+      }),
       interfaces: [] // interfaces from store
     }
   },
   computed: {
-    form () {
-      return this.$store.getters[`formNetwork/$form`]
-    },
-    hostname () {
-      return this.$store.getters[`formNetwork/$formNS`]('hostname')
-    },
-    gateway () {
-      return this.$store.getters[`formNetwork/$formNS`]('gateway')
-    },
     rebootAlert () {
-      if (this.isInterfacesLoading || typeof this.hostname  !== 'string' || this.$store.state.system.hostname === this.hostname) {
+      if (this.isLoading || typeof this.hostname  !== 'string' || this.$store.state.system.hostname === this.hostname) {
         return null
       } else {
         return `<span class="text-warning">${this.$i18n.t('Please reboot the server at the end of the configuration wizard to apply changes.')}</span>`
       }
     },
-    isInterfacesLoading () {
+    isLoading () {
       return this.$store.getters[`$_interfaces/isLoading`]
     },
     fieldsInterface () {
@@ -156,19 +182,19 @@ export default {
           if (item.vlan) this.interfaces[index]._rowVariant = 'secondary' // set table row variant on vlans
         })
       })
-      this.$store.dispatch('system/getGateway').then((gateway) => {
-        this.$store.dispatch(`formNetwork/appendForm`, { gateway })
+      this.$store.dispatch('system/getGateway').then(gateway => {
+        this.form.gateway = gateway
         this.$watch('managementTypeCount', () => {
             this.$set(this.form, 'management_type', this.managementTypeCount)
           },
           { immediate: true }
         )
       })
-      this.$store.dispatch('system/getHostname').then((hostname) => {
-        this.$store.dispatch(`formNetwork/appendForm`, { hostname })
+      this.$store.dispatch('system/getHostname').then(hostname => {
+        this.form.hostname = hostname
       })
-      this.$store.dispatch('system/getDnsServers').then((dns_servers) => {
-        this.$store.dispatch(`formNetwork/appendForm`, { dns_servers })
+      this.$store.dispatch('system/getDnsServers').then(dns_servers => {
+        this.form.dns_servers = dns_servers
       })
     },
     detectManagementInterface () {
@@ -233,14 +259,8 @@ export default {
       }
       return null // default sort
     },
-    /**
-     * DNS Servers
-     */
-    addDnsServer (value) {
-      this.form.dns_servers.push(value)
-    },
     save () {
-      const { gateway, hostname, dns_servers } = this.$store.getters['formNetwork/$form']
+      const { gateway, hostname, dns_servers } = this.form
       return Promise.all([
         this.$store.dispatch('system/getGateway').then((initialGateway) => {
           if (initialGateway === gateway) {
