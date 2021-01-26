@@ -59,6 +59,7 @@ sub description { 'Ruckus Wireless Controllers' }
 
 # CAPABILITIES
 # access technology supported
+
 use pf::SwitchSupports qw(
     WirelessDot1x
     -WirelessMacAuth
@@ -118,11 +119,17 @@ sub parseTrap {
     my $trapHashRef;
     my $logger = $self->logger;
 
-    $logger->debug("trap currently not handled.  TrapString was: $trapString");
-    $trapHashRef->{'trapType'} = 'unknown';
-
+    # Handle WIPS Trap
+    if ( $trapString =~ /\.1\.3\.6\.1\.4\.1\.25053\.2\.2\.2\.20 = STRING: \"([a-f0-9]{2}:[a-f0-9]{2}:[a-f0-9]{2}:[a-f0-9]{2}:[a-f0-9]{2}:[a-f0-9]{2})/ ) {
+        $trapHashRef->{'trapType'}    = 'wirelessIPS';
+        $trapHashRef->{'trapMac'} = clean_mac($1);
+    } else {
+        $logger->debug("trap currently not handled.  TrapString was: $trapString");
+        $trapHashRef->{'trapType'} = 'unknown';
+    }
     return $trapHashRef;
 }
+
 
 =item deauthenticateMacDefault
 
@@ -168,6 +175,20 @@ sub deauthTechniques {
         $method = $default;
     }
     return $method,$tech{$method};
+}
+
+
+
+=item returnRoleAttribute
+
+What RADIUS Attribute (usually VSA) should the role returned into.
+
+=cut
+
+sub returnRoleAttribute {
+    my ($self) = @_;
+
+    return 'Ruckus-User-Groups';
 }
 
 
