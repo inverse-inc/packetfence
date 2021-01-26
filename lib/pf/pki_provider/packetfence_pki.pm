@@ -84,7 +84,6 @@ sub get_bundle {
         id => "/pki/$cn"
     });
 
-    $obj->merge(\%data);
 
     $return = pf::api::unifiedapiclient->default_client->call("GET", "/api/v1/pki/cert/$profile/$cn/download/$certpwd");
 
@@ -112,6 +111,8 @@ sub revoke {
         if ($key_value) {
             my $return = pf::api::unifiedapiclient->default_client->call("DELETE", "/api/v1/pki/cert/$key_value->{value}/$cn/1");
         }
+    } else {
+        $logger->error("Unable to revoke user certificate $cn");
     }
 
     my ($status, $count) = pf::dal::key_value_storage->remove_items(%options);
