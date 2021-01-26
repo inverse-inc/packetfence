@@ -9,7 +9,7 @@ export const props = {
     type: Array,
     default: () => ([
       { value: false, label: i18n.t('Basic Mode') },
-      { value: true, label: i18n.t('Advanced Mode') }
+      { value: true, label: i18n.t('Advanced Mode'), color: 'var(--primary)' }
     ])
   }
 }

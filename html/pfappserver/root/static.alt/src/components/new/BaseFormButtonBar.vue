@@ -7,13 +7,6 @@
         @click="onSave"
       >
         {{ saveButtonLabel }}
-        <!---
-        <template v-if="isNew">{{ $t('Create') }}</template>
-        <template v-else-if="actionKey && isClone && canClose">{{ $t('Create & {actionKeyButtonVerb}', { actionKeyButtonVerb }) }}</template>
-        <template v-else-if="isClone">{{ $t('Create') }}</template>
-        <template v-else-if="actionKey">{{ $t('Save & {actionKeyButtonVerb}', { actionKeyButtonVerb }) }}</template>
-        <template v-else>{{ $t('Save') }}</template>
-        --->
       </base-button-save>
       <b-button v-if="canClone"
         :disabled="isLoading"

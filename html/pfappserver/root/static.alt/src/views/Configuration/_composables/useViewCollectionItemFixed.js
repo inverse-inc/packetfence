@@ -5,7 +5,7 @@ import useEventJail from '@/composables/useEventJail'
 export const useViewCollectionItemFixedProps = {
   id: {
     type: String
-  },
+  }
 }
 
 export const useViewCollectionItemFixed = (collection, props, context) => {

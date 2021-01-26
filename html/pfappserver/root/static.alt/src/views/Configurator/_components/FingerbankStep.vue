@@ -7,11 +7,11 @@
     <fingerbank-view form-store-name="formFingerbank" ref="fingerbank" />
   </base-step>
 </template>
-
 <script>
 import BaseStep from './BaseStep'
 import FingerbankView from './FingerbankView'
 
+// @vue/component
 export default {
   name: 'fingerbank-step',
   components: {
@@ -24,8 +24,8 @@ export default {
     }
   },
   methods: {
-    save (nextRouteName) {
-      this.$router.push({ name: nextRouteName })
+    save (nextRoute) {
+      this.$router.push(nextRoute)
     }
   }
 }
