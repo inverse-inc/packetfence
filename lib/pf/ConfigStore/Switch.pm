@@ -60,13 +60,14 @@ Clean up switch data
 
 sub cleanupAfterRead {
     my ( $self, $id, $switch ) = @_;
-    my $logger = get_logger();
 
     my $config = $self->cachedConfig;
     # if the uplink attribute is set to dynamic or not set and the group we inherit from is dynamic
     if ( ($switch->{uplink} && $switch->{uplink} eq 'dynamic') ) {
         $switch->{uplink_dynamic} = 'dynamic';
         $switch->{uplink}         = undef;
+    } elsif (defined $switch->{uplink_dynamic} && $switch->{uplink_dynamic} eq '0') {
+        $switch->{uplink_dynamic} = undef;
     }
     $self->expand_list( $switch, 'inlineTrigger' );
     if ( exists $switch->{inlineTrigger} ) {
@@ -77,7 +78,7 @@ sub cleanupAfterRead {
     # Config::Inifiles expands the access lists into an array
     # We put it back as a string so it works in the admin UI
     foreach my $attr (keys %$switch){
-        if($attr =~ /AccessList$/ && ref($switch->{$attr}) eq 'ARRAY'){
+        if (ends_with($attr, "AccessList") && ref($switch->{$attr}) eq 'ARRAY') {
             $switch->{$attr} = join "\n", @{$switch->{$attr}};
         }
     }
@@ -111,9 +112,13 @@ _normalizeUplink
 sub _normalizeUplink {
     my ($self, $switch) = @_;
     my $uplink_dynamic = $switch->{uplink_dynamic};
-    if ( $uplink_dynamic && $uplink_dynamic eq 'dynamic' ) {
-        $switch->{uplink}         = 'dynamic';
-        $switch->{uplink_dynamic} = undef;
+    if ( defined $uplink_dynamic ) {
+        if ($uplink_dynamic eq 'dynamic' ) {
+            $switch->{uplink}         = 'dynamic';
+            $switch->{uplink_dynamic} = undef;
+        } elsif ($uplink_dynamic eq '0') {
+            $switch->{uplink_dynamic} = undef;
+        }
     }
 }
 
@@ -125,16 +130,15 @@ parentSections
 
 sub parentSections {
     my ($self, $id, $item) = @_;
-    my $inherit_from = $item->{group};
+    my $inherit_from = $item->{group} // $self->cachedConfig->val($id, 'group');
     my $default_section = $self->default_section;
     return if defined $default_section && $id eq $default_section;
     my @parents;
     if (defined $inherit_from && (!defined $default_section || $default_section ne $inherit_from) && $id ne $inherit_from) {
         push @parents, "group $inherit_from";
     }
-    push @parents, $self->SUPER::parentSections($id, $item);
 
-    return @parents;
+    return @parents, $self->SUPER::parentSections($id, $item);
 }
 
 =head2 _normalizeInlineTrigger
@@ -215,7 +219,7 @@ __PACKAGE__->meta->make_immutable unless $ENV{"PF_SKIP_MAKE_IMMUTABLE"};
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2019 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 

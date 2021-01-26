@@ -17,6 +17,8 @@ use warnings;
 use NetAddr::IP;
 use pf::util;
 use pf::constants::config qw(%NET_INLINE_TYPES);
+use pf::constants::dhcp;
+use List::MoreUtils qw(uniq);
 
 use base 'pfconfig::namespaces::resource';
 use pfconfig::namespaces::config::Network;
@@ -45,7 +47,10 @@ sub build {
 
     foreach my $network ( keys %{$self->{networks}} ) {
         $ConfigNetwork{$network} = $self->{networks}{$network};
-        foreach my $interface (@{$self->{interfaces}{'internal_nets'} // [] }) {
+        if ($ConfigNetwork{$network}{'pool_backend'} && $ConfigNetwork{$network}{'pool_backend'} eq "") {
+            $ConfigNetwork{$network}{'pool_backend'} = $pf::constants::dhcp::MEMORY_POOL;
+        }
+        foreach my $interface (uniq(@{$self->{interfaces}{'internal_nets'} // [] }, @{$self->{interfaces}{'dhcp_ints'} // [] }, @{$self->{interfaces}{'dns_ints'} // [] }, @{$self->{interfaces}{'radius_ints'} // [] }, @{$self->{interfaces}{'portal_ints'} // [] })) {
             my $ipe = $interface->tag("vip") || $interface->tag("ip");
             my $net_addr = NetAddr::IP->new($ipe,$interface->mask());
             my %interface;
@@ -85,7 +90,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2019 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 

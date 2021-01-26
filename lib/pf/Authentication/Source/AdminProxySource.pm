@@ -115,12 +115,12 @@ sub match_in_subclass {
     my $group_header =  $params->{'group_header'};
     foreach my $condition (@{ $own_conditions }) {
         if ($condition->{'attribute'} eq "group_header") {
-            if ( $condition->matches("group_header", $group_header) ) {
+            if ( $condition->matches("group_header", $group_header, $params) ) {
                 push(@{ $matching_conditions }, $group_header);
             }
         }
     }
-    return $group_header;
+    return ($group_header, undef);
 }
 
 =head1 AUTHOR
@@ -129,7 +129,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2019 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 

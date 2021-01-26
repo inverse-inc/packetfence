@@ -57,6 +57,12 @@ __PACKAGE__->modules;
 
 sub instantiate {
     my ($class, $data) = @_;
+    my $op = $data->{operator};
+    return unless defined $op;
+    if ($op eq 'true') {
+        return pf::condition::true->new();
+    }
+
     my $filter = $data->{filter};
     return unless defined $filter;
 
@@ -136,7 +142,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2019 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 

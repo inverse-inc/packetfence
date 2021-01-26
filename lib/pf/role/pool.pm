@@ -19,8 +19,10 @@ use pf::config qw(%Config);
 use pf::util;
 use pf::log();
 use pf::constants::role qw(:all);
+use pf::error qw(is_error is_success);
 
 use pf::node;
+use pf::dal;
 
 use Number::Range;
 
@@ -53,12 +55,15 @@ sub getVlanFromPool {
     return $args->{'vlan'} if $self->rangeValidator($args->{'vlan'});
     my $range = Number::Range->new($args->{'vlan'});
     my $vlan;
-    if ($Config{advanced}{vlan_pool_technique} eq $POOL_USERNAMEHASH) {
+    if ($args->{'profile'}->{'_vlan_pool_technique'} eq $POOL_USERNAMEHASH ) {
         $logger->trace("Use $POOL_USERNAMEHASH algorithm for VLAN pool");
         $vlan = $self->getVlanByUsername($args, $range);
-    } elsif ($Config{advanced}{vlan_pool_technique} eq $POOL_RANDOM) {
+    } elsif ($args->{'profile'}->{'_vlan_pool_technique'} eq $POOL_RANDOM) {
         $logger->trace("Use $POOL_RANDOM algorithm for VLAN pool");
         $vlan = $self->getRandomVlanInPool($args, $range);
+    } elsif ($args->{'profile'}->{'_vlan_pool_technique'} eq $POOL_PER_USER_VLAN) {
+        $logger->trace("Use $POOL_PER_USER_VLAN algorithm for VLAN pool");
+        $vlan = $self->getPerUserVlan($args, $range);
     } else {
         $logger->trace("Use round robin algorithm for VLAN pool");
         $vlan = $self->getRoundRobin($args, $range);
@@ -135,10 +140,10 @@ sub getRoundRobin {
     }
     my $last_reg_node = node_last_reg_non_inline_on_category($args->{'mac'}, $args->{'user_role'});
     my $last_reg_mac = $last_reg_node->{mac};
-    $logger->debug("Last registered node in role $args->{'user_role'} is $last_reg_mac");
     my @array = $range->range;
 
     if (defined($last_reg_mac) && $last_reg_mac ne '') {
+        $logger->debug("Last registered node in role $args->{'user_role'} is $last_reg_mac");
         my $new_vlan;
         my $last_reg_mac_info = node_view($last_reg_mac);
         $logger->debug("Last VLAN assigned to registered device: ".$last_reg_mac_info->{'last_vlan'});
@@ -180,13 +185,80 @@ sub getVlanByUsername {
 
 }
 
+sub getPerUserVlan {
+    my ($self, $args, $range) = @_;
+    my $logger = pf::log::get_logger();
+
+    my $pid = $args->{node_info}->{pid};
+    my @vlans = $range->range;
+    my $sql_vlans = join(",", map { pf::dal->get_dbh->quote($_) } @vlans);
+
+    my ($status, $res) = pf::dal->db_execute("
+    SELECT vlan 
+    FROM   locationlog 
+           JOIN node 
+             ON node.tenant_id = locationlog.tenant_id 
+                AND node.mac = locationlog.mac 
+    WHERE  vlan IN ( $sql_vlans ) 
+           AND node.status = 'reg' 
+           AND pid = ? 
+    LIMIT 1
+    ", $pid);
+
+    if(is_error($status)) {
+        $logger->error("Error while finding available VLAN for $pid");
+        return;
+    }
+
+    if(defined(my $row = $res->fetchrow_hashref)) {
+        my $vlan = $row->{vlan};
+        $logger->info("Found VLAN $vlan for $pid with registered devices in it.");
+        $res->finish();
+        return $vlan;
+    }
+    else {
+        $logger->debug("Unable to find a VLAN in the pool that $pid has devices in. Finding an available VLAN for this user.");
+        ($status, $res) = pf::dal->db_execute("
+        SELECT vlan 
+        FROM   locationlog 
+               JOIN node 
+                 ON node.tenant_id = locationlog.tenant_id 
+                    AND node.mac = locationlog.mac 
+        WHERE  vlan IN ( $sql_vlans ) 
+               AND node.status != 'unreg' 
+        ");
+        if(is_error($status)) {
+            $logger->error("Error while finding available VLAN for $pid");
+            return;
+        }
+
+        my %used_vlans = map{$_->[0] => 1} @{$res->fetchall_arrayref};
+        $res->finish();
+        my $available_vlan;
+        for my $vlan (@vlans) {
+            if(!exists($used_vlans{$vlan})) {
+                $available_vlan = $vlan;
+                last;
+            }
+        }
+        if($available_vlan) {
+            $logger->info("Found available VLAN $available_vlan in the pool for $pid");
+            return $available_vlan;
+        }
+        else {
+            $logger->error("No available VLAN in the pool");
+            return;
+        }
+    }
+}
+
 =head1 AUTHOR
 
 Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2019 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 

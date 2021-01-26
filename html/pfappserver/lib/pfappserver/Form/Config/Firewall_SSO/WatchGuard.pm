@@ -25,6 +25,7 @@ has_field '+port' =>
 has_field 'type' =>
   (
    type => 'Hidden',
+   default => 'WatchGuard',
   );
 
 has_block definition =>
@@ -34,7 +35,7 @@ has_block definition =>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2019 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 

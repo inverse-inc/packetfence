@@ -16,6 +16,8 @@ use Mojo::Base 'pf::UnifiedApi::Controller::RestRoute';
 use pf::db;
 use pf::config::util qw(is_inline_configured);
 use pf::version;
+use pf::cluster;
+use Fcntl qw(SEEK_SET);
 
 sub get {
     my ($self) = @_;
@@ -24,9 +26,31 @@ sub get {
            readonly_mode => db_check_readonly() ? $self->json_true : $self->json_false,
            is_inline_configured => is_inline_configured() ? $self->json_true : $self->json_false,
            version => pf::version::version_get_current(),
+           hostname => $host_id,
+           uptime(),
         }
     );
 
+}
+
+my $UPTIME_FH;
+open ($UPTIME_FH, '<', "/proc/uptime");
+
+=head2 uptime
+
+uptime
+
+=cut
+
+sub uptime {
+    if (!$UPTIME_FH) {
+        return ;
+    }
+
+    seek($UPTIME_FH, 0, SEEK_SET);
+    my $uptime_info = <$UPTIME_FH>;
+    my ($uptime, $idle) = $uptime_info =~ /(\d+(?:\.\d+)?) ((\d+(?:\.\d+)?))/;
+    return (uptime => $uptime)
 }
 
 =head1 AUTHOR
@@ -35,7 +59,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2019 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 

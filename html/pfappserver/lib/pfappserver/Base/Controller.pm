@@ -237,6 +237,7 @@ sub add_fake_profile_data {
     my ($self, $c) = @_;
     $c->stash(
         logo        => $Config{'general'}{'logo'},
+        timer       => $Config{'captive_portal'}{'network_redirect_delay'},
         client_mac  => '00:11:22:33:44:55',
         client_ip   => '1.2.3.4',
         username    => 'mcrispin',
@@ -285,7 +286,7 @@ sub getModel {
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2019 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 

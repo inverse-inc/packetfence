@@ -41,7 +41,7 @@ has_field 'id' =>
    label => 'Name',
    required => 1,
    messages => { required => 'Please specify the name of the source entry' },
-   apply => [ pfappserver::Base::Form::id_validator('source name') ],
+   apply => [ pfappserver::Base::Form::id_validator('source name'), { check => qr/^([^\s\.])+$/, message => 'The name must not contain spaces or dots.' } ],
    tags => {
       option_pattern => \&pfappserver::Base::Form::id_pattern,
    },
@@ -416,7 +416,7 @@ sub getSourceArgs {
             }
         }
     }
-    for my $r (qw(realms searchattributes local_realm reject_realm)) {
+    for my $r (qw(realms searchattributes sources local_realm reject_realm)) {
         $args->{$r} //= [];
         if (ref($args->{$r}) ne "ARRAY" ) {
             $args->{$r} = [$args->{$r}];
@@ -485,7 +485,7 @@ sub validate_rules {
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2019 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 

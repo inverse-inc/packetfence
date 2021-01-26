@@ -19,29 +19,12 @@ extends qw(pf::UnifiedApi::Search::Builder);
 use pf::dal::node;
 use pf::dal::locationlog;
 use pf::dal::radacct;
+use pf::util qw(clean_mac ip2int valid_ip);
 use pf::constants qw($ZERO_DATE);
 
 our @LOCATION_LOG_JOIN = (
     "=>{locationlog.mac=node.mac,node.tenant_id=locationlog.tenant_id,locationlog.end_time='$ZERO_DATE'}",
-    'locationlog',
-    {
-        operator  => '=>',
-        condition => {
-            'node.mac'       => { '=' => { -ident => '%2$s.mac' } },
-            'node.tenant_id' => { '=' => { -ident => '%2$s.tenant_id' } },
-            'locationlog2.end_time' => $ZERO_DATE,
-            -or                     => [
-                '%1$s.start_time' => { '<' => { -ident => '%2$s.start_time' } },
-                '%1$s.start_time' => undef,
-                -and              => [
-                    '%1$s.start_time' =>
-                      { '=' => { -ident => '%2$s.start_time' } },
-                    '%1$s.id' => { '<' => { -ident => '%2$s.id' } },
-                ],
-            ],
-        },
-    },
-    'locationlog|locationlog2',
+    "locationlog",
 );
 
 our @IP4LOG_JOIN = (
@@ -73,41 +56,47 @@ our @IP6LOG_JOIN = (
     'ip6log',
 );
 
-our @RADACCT_JOIN = (
-    '=>{node.mac=radacct.callingstationid,node.tenant_id=radacct.tenant_id}',
-    'radacct|radacct',
+our @ONLINE_JOIN = (
+    '=>{node.mac=online.mac,node.tenant_id=online.tenant_id}',
+    'bandwidth_accounting|online',
     {
         operator  => '=>',
-        condition => {
-            'node.mac' => { '=' => { -ident => '%2$s.callingstationid' } },
-            'node.tenant_id' => { '=' => { -ident => '%2$s.tenant_id' } },
-            -or              => [
-                '%1$s.acctstarttime' =>
-                  { '<' => { -ident => '%2$s.acctstarttime' } },
+        condition => [
+            -and => [
+            'online.node_id' => { '=' => { -ident => '%2$s.node_id' } },
+            \"(online.last_updated,online.unique_session_id,online.time_bucket) < (b2.last_updated,b2.unique_session_id,b2.time_bucket)",
+            ],
+        ],
+    },
+    'bandwidth_accounting|b2',
+);
+
+sub online_join {
+    my ($self, $s) = @_;
+    return (
+        {
+            operator  => '=>',
+            condition => {
+                'node.mac' => { '=' => { -ident => '%2$s.mac' } },
+                'online.tenant_id' => $s->{dal}->get_tenant() ,
+            },
+        },
+        'bandwidth_accounting|online',
+        {
+            operator  => '=>',
+            condition => [
                 -and => [
-                    -or => [
-                        '%1$s.acctstarttime' =>
-                          { '=' => { -ident => '%2$s.acctstarttime' } },
-                        -and => [
-                            '%1$s.acctstarttime' => undef,
-                            '%2$s.acctstarttime' => undef
-                        ],
-                    ],
-                    '%1$s.radacctid' =>
-                      { '<' => { -ident => '%2$s.radacctid' } },
+                'online.node_id' => { '=' => { -ident => '%2$s.node_id' } },
+                \"(online.last_updated,online.unique_session_id,online.time_bucket) < (b2.last_updated,b2.unique_session_id,b2.time_bucket)",
                 ],
             ],
         },
-    },
-    'radacct|r2'
-);
+        'bandwidth_accounting|b2',
+    );
+}
 
-our %RADACCT_WHERE = (
-    'r2.radacctid' => undef,
-);
-
-our %LOCATION_LOG_WHERE = (
-    'locationlog2.id' => undef,
+our %ONLINE_WHERE = (
+    'b2.node_id' => undef,
 );
 
 our @NODE_CATEGORY_JOIN = (
@@ -154,11 +143,11 @@ our %ALLOWED_JOIN_FIELDS = (
         namespace     => 'ip6log',
     },
     'online' => {
-        join_spec     => \@RADACCT_JOIN,
-        where_spec    => \%RADACCT_WHERE,
-        namespace     => 'radacct',
+        join_spec     => \&online_join,
+        where_spec    => \%ONLINE_WHERE,
+        namespace     => 'online',
         rewrite_query => \&rewrite_online_query,
-        column_spec   => "IF(radacct.acctstarttime IS NULL,'unknown',IF(radacct.acctstoptime IS NULL, 'on', 'off'))|online",
+        column_spec   => "IF(online.node_id IS NULL,'unknown',IF(online.last_updated != '0000-00-00 00:00:00', 'on', 'off'))|online",
     },
     'node_category.name' => {
         join_spec   => \@NODE_CATEGORY_JOIN,
@@ -170,8 +159,13 @@ our %ALLOWED_JOIN_FIELDS = (
         namespace   => 'node_category_bypass_role',
         column_spec => \"IFNULL(node_category_bypass_role.name, '') as `node_category_bypass_role.name`",
     },
-    map_dal_fields_to_join_spec("pf::dal::radacct", \@RADACCT_JOIN, \%RADACCT_WHERE),
-    map_dal_fields_to_join_spec("pf::dal::locationlog", \@LOCATION_LOG_JOIN, \%LOCATION_LOG_WHERE),
+    map_dal_fields_to_join_spec("pf::dal::locationlog", \@LOCATION_LOG_JOIN, undef, {switch_ip => 1}),
+    'locationlog.switch_ip' => {
+        join_spec     => \@LOCATION_LOG_JOIN,
+        namespace     => 'locationlog',
+        rewrite_query => \&rewrite_switch_ip,
+        column_spec   => make_join_column_spec( 'locationlog', 'switch_ip' ),
+    },
     'security_event.open_count' => {
         namespace => 'security_event_open',
         join_spec => \@SECURITY_EVENT_OPEN_JOIN,
@@ -200,8 +194,22 @@ our %ALLOWED_JOIN_FIELDS = (
         group_by => 1,
         column_spec => \"GROUP_CONCAT(security_event_close.security_event_id) AS `security_event.close_security_event_id`"
     },
+    'mac' => {
+        rewrite_query => \&rewrite_mac_query,
+    }
 );
 
+sub rewrite_mac_query {
+    my ( $self, $s, $q ) = @_;
+
+    my $value       = $q->{value};
+    my $cleaned_mac = clean_mac($value);
+    if ( $cleaned_mac ne "0" ) {
+        $q->{value} = $cleaned_mac;
+    }
+
+    return ( 200, $q );
+}
 
 sub non_searchable {
     my ($self, $s, $q) = @_;
@@ -244,39 +252,38 @@ sub rewrite_online_query {
         return (422, { message => "value of " . ($value // "(null)"). " is not valid for the online field" });
     }
 
-    if ($op eq 'equals') {
+    if ($value eq 'unknown') {
         $q->{value} = undef;
-        if ($value eq 'unknown') {
-            $q->{field} = 'radacct.acctstarttime';
-        } else {
+        $q->{field} = 'online.node_id';
+    } else {
+        if ($op eq 'equals') {
+            $q->{field} = 'online.last_updated';
+            $q->{'value'} = '0000-00-00 00:00:00';
             if ($value eq 'on') {
-                delete @{$q}{'field' ,'value'};
-                $q->{op} = 'and';
-                $q->{'values'} = [
-                    { op => 'not_equals', value => undef, field => 'radacct.acctstarttime' },
-                    { op => 'equals', value => undef, field => 'radacct.acctstoptime' },
-                ];
-            } else {
-                $q->{field} = 'radacct.acctstoptime';
-                $q->{op} = 'not_equals';
+                $q->{op} = $op eq 'equals' ? 'not_equals' : 'equals';
             }
-        }
-    } elsif ($op eq 'not_equals') {
-        $q->{value} = undef;
-        if ($value eq 'unknown') {
-            $q->{field} = 'radacct.acctstarttime';
         } else {
-            delete @{$q}{'field' ,'value'};
-            $q->{op} = 'or';
-            $q->{'values'} = [
-                { op => 'equals', value => undef, field => 'radacct.acctstarttime' },
-                { op => 'equals', value => undef, field => 'radacct.acctstoptime' },
-            ];
-            if ($value eq 'on') {
-                $q->{'values'}[-1]{op} = 'not_equals';
-            }
+            my %unknown_query = (
+                value => undef,
+                field => 'online.node_id',
+                op => 'equals',
+            );
+            my %last_updated_query = (
+                field => 'online.last_updated',
+                value => '0000-00-00 00:00:00',
+                op => $value eq 'on' ? 'equals' : 'not_equals'
+            );
+
+            %$q = (
+                op => 'or',
+                values => [
+                    \%unknown_query,
+                    \%last_updated_query
+                ],
+            );
         }
     }
+
     return (200, $q);
 }
 
@@ -306,13 +313,23 @@ sub allowed_join_fields {
     \%ALLOWED_JOIN_FIELDS
 }
 
+sub rewrite_switch_ip {
+    my ($self, $s, $q) = @_;
+    if (valid_ip($q->{value})) {
+        $q->{value} = ip2int($q->{value});
+        $q->{field} = 'locationlog.switch_ip_int';
+    }
+
+    return (200, $q);
+}
+
 =head1 AUTHOR
 
 Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2019 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 

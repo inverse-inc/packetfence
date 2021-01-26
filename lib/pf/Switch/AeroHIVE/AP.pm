@@ -49,15 +49,16 @@ use pf::config qw(
 use pf::Switch::constants;
 
 use base ('pf::Switch::AeroHIVE');
+use pf::SwitchSupports qw(
+    ExternalPortal
+    WebFormRegistration
+    WiredMacAuth
+    WiredDot1x
+);
 
 
 sub description { 'AeroHIVE AP' }
 
-
-sub supportsExternalPortal { return $TRUE; }
-sub supportsWebFormRegistration { return $TRUE; }
-sub supportsWiredMacAuth { return $TRUE; }
-sub supportsWiredDot1x { return $TRUE; }
 
 =head1 METHODS
 
@@ -221,7 +222,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2019 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 

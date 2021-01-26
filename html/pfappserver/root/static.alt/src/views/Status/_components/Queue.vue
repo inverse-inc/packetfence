@@ -1,6 +1,6 @@
 <template>
   <div>
-    <b-card no-body class="mt-3">
+    <b-card no-body>
       <b-card-header>
         <h4 class="d-inline" v-t="'Queue'"></h4>
       </b-card-header>
@@ -14,9 +14,10 @@
           show-empty
           responsive
           fixed
+          sort-icon-left
           striped
         >
-          <template slot="empty">
+          <template v-slot:empty>
             <pf-empty-table :isLoading="isLoading" text="">{{ $t('No stats found') }}</pf-empty-table>
           </template>
         </b-table>
@@ -37,9 +38,10 @@
           show-empty
           responsive
           fixed
+          sort-icon-left
           striped
         >
-          <template slot="empty">
+          <template v-slot:empty>
             <pf-empty-table :isLoading="isLoading" text="">{{ $t('No stats found') }}</pf-empty-table>
           </template>
         </b-table>
@@ -60,9 +62,10 @@
           show-empty
           responsive
           fixed
+          sort-icon-left
           striped
         >
-          <template slot="empty">
+          <template v-slot:empty>
             <pf-empty-table :isLoading="isLoading" text="">{{ $t('No stats found') }}</pf-empty-table>
           </template>
         </b-table>
@@ -75,7 +78,7 @@
 import pfEmptyTable from '@/components/pfEmptyTable'
 
 export default {
-  name: 'Queue',
+  name: 'queue',
   components: {
     pfEmptyTable
   },
@@ -171,7 +174,7 @@ export default {
       this.$store.dispatch(`${this.storeName}/getStats`)
     }, this.statsIntervalTimeout)
   },
-  beforeDestroy () {
+  beforeUnmount () {
     if (this.statsInterval) clearInterval(this.statsInterval)
   }
 }

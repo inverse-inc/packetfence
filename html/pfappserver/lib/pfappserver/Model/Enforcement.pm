@@ -26,7 +26,7 @@ my %types   = (
     vlan        => [ 'management', 'vlan-registration', 'vlan-isolation' ],
     inline      => [ 'management', 'inline', 'inlinel2', 'inlinel3' ], # inline is kept for backwards compat.
     webauth     => ['management', 'portal'],
-    other       => ['dns-enforcement'],
+    other       => ['dns-enforcement', 'dhcp-listener'],
     radius      => ['management'],
 );
 
@@ -140,7 +140,7 @@ sub _isInArray {
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2019 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 

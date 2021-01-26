@@ -19,7 +19,7 @@ use warnings;
 use Exporter;
 our ( @ISA, @EXPORT );
 @ISA = qw(Exporter);
-@EXPORT = qw($cluster_enabled $multi_zone_enabled $host_id);
+@EXPORT = qw($cluster_enabled $multi_zone_enabled $host_id $master_multi_zone);
 
 use pf::log;
 use File::Slurp qw(read_file write_file);
@@ -56,6 +56,21 @@ our $cluster_enabled = sub {
     }
 }->();
 
+our $master_multi_zone = sub {
+    my $cfg = cluster_ini_config();
+    return $FALSE unless($cfg);
+    my $multi_zone = $cfg->val('general', 'multi_zone');
+
+    if (isenabled($multi_zone)) {
+        foreach my $section ($cfg->Sections()) {
+            if ($section =~ /^(\w+)\s+CLUSTER/) {
+                return $1;
+            }
+        }
+    }
+    return 'DEFAULT';
+}->();
+
 =head2 cluster_ini_config
 
 Get the cluster.conf Config::IniFiles object
@@ -83,7 +98,10 @@ Set the configuration version for this server
 
 sub set_config_version {
     my ($ver) = @_;
-    return write_file($config_version_file, $ver);
+    my $old_umask = umask(0002);
+    my $results = write_file($config_version_file, { perms => 0660}, $ver);
+    umask($old_umask);
+    return $results;
 }
 
 =head2 get_config_version
@@ -104,6 +122,24 @@ sub get_config_version {
     return $result;
 }
 
+=head2
+
+Get the configuration of a specific cluster
+
+=cut
+
+sub getClusterConfig {
+    my ($cluster_name) = @_;
+    my %cluster_servers;
+
+    if ($cluster_enabled) {
+        tie %cluster_servers, 'pfconfig::cached_hash', "config::Cluster($cluster_name)";
+
+        return \%cluster_servers;
+    }
+    return;
+}
+
 
 =head1 AUTHOR
 
@@ -111,7 +147,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2019 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 

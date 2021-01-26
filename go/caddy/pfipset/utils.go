@@ -93,7 +93,7 @@ func updateClusterRequest(ctx context.Context, origReq *http.Request) {
 }
 
 func (IPSET *pfIPSET) mac2ip(ctx context.Context, Mac string, Set ipset.IPSet) []string {
-	r := "((?:[0-9]{1,3}.){3}(?:[0-9]{1,3}))," + Mac
+	r := "(?i)((?:[0-9]{1,3}.){3}(?:[0-9]{1,3}))," + Mac
 
 	rgx := regexp.MustCompile(r)
 
@@ -125,7 +125,7 @@ func (IPSET *pfIPSET) initIPSet(ctx context.Context, db *sql.DB) {
 	logger := log.LoggerWContext(ctx)
 
 	IPSET.ListALL, _ = ipset.ListAll()
-	rows, err := db.Query("select distinct n.mac, i.ip, n.category_id as node_id from node as n left join locationlog as l on n.mac=l.mac left join ip4log as i on n.mac=i.mac where l.connection_type = \"inline\" and n.status=\"reg\" and n.mac=i.mac and i.end_time > NOW()")
+	rows, err := db.Query("select distinct n.mac, i.ip, n.category_id as node_id from node as n left join locationlog as l on n.mac=l.mac left join ip4log as i on n.mac=i.mac where l.connection_type = \"inline\" and n.status=\"reg\" and n.mac=i.mac and i.end_time > NOW() and l.tenant_id=\"1\"")
 	if err != nil {
 		// Log here
 		logger.Error("Error while fetching the inline nodes in the database: " + err.Error())
@@ -215,7 +215,7 @@ func (IPSET *pfIPSET) detectType(ctx context.Context) error {
 }
 
 func validateMac(mac string) (string, bool) {
-	re := regexp.MustCompile("(?:[0-9A-Fa-f]{2}:){5}[0-9A-Fa-f]{2}")
+	re := regexp.MustCompile("(?i)(?:[0-9A-Fa-f]{2}:){5}[0-9A-Fa-f]{2}")
 	if re.Match([]byte(mac)) {
 		return mac, true
 	}

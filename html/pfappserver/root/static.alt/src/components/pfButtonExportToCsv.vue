@@ -9,7 +9,7 @@
 
 <script>
 export default {
-  name: 'pfButtonExportToCsv',
+  name: 'pf-button-export-to-csv',
   props: {
     disabled: {
       type: Boolean,
@@ -20,16 +20,13 @@ export default {
       default: 'outline-primary'
     },
     searchableStoreName: {
-      type: String,
-      required: true
+      type: String
     },
     searchableOptions: {
-      type: Object,
-      required: true
+      type: Object
     },
     columns: {
-      type: Array,
-      required: true
+      type: Array
     },
     data: {
       type: Array,
@@ -51,7 +48,7 @@ export default {
       this.visibleColumns.forEach(column => {
         if (column.formatter) formatters[column.key] = column.formatter
       })
-      const header = this.visibleColumns.map(column => column.label)
+      const header = this.visibleColumns.map(column => column.key)
       let keyMap = {} // build map to sort data same as header
       Object.keys(this.data[0]).forEach(key => {
         const idx = header.findIndex(column => column === key)
@@ -73,7 +70,7 @@ export default {
     download () {
       let csvContentArray = []
       this.contents().forEach(rowArray => {
-        let row = rowArray.map(col => `"${col.replace('"', '\\"')}"`).join(',')
+        let row = rowArray.map(col => `"${col.toString().replace('"', '\\"')}"`).join(',')
         csvContentArray.push(row)
       })
       // window.open(encodeURI(`data:text/csv;charset=utf-8,${csvContentArray.join('\r\n')}`)) // doesn't allow naming

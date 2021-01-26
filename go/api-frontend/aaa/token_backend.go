@@ -22,9 +22,26 @@ const (
 
 type TokenInfo struct {
 	AdminRoles map[string]bool
-	TenantId   int
+	Tenant     Tenant
 	Username   string
 	CreatedAt  time.Time
+}
+
+type Tenant struct {
+	Name             string `json:"name"`
+	PortalDomainName string `json:"portal_domain_name"`
+	DomainName       string `json:"domain_name"`
+	Id               int    `json:"id"`
+}
+
+func (ti *TokenInfo) IsTenantMaster() bool {
+	// If we're not in multi-tenant mode
+	// Or we're in multi-tenant mode and the current token is for the master tenant (tenant 0)
+	if !multipleTenants || (multipleTenants && ti.Tenant.Id == AccessAllTenants) {
+		return true
+	} else {
+		return false
+	}
 }
 
 func (ti *TokenInfo) AdminActions() map[string]bool {
@@ -34,6 +51,10 @@ func (ti *TokenInfo) AdminActions() map[string]bool {
 		for role, _ := range pfconfigdriver.Config.AdminRoles.Element[role].Actions {
 			adminRolesMap[role] = true
 		}
+	}
+
+	if ti.IsTenantMaster() {
+		adminRolesMap["TENANT_MASTER"] = true
 	}
 
 	return adminRolesMap

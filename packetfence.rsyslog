@@ -46,11 +46,6 @@ if $syslogtag contains "pfdhcplistener" then -/usr/local/pf/logs/pfdhcplistener.
 & stop
 
 # HTTPD services 
-if $syslogtag contains "httpd_parking_err" then -/usr/local/pf/logs/httpd.parking.error
-& stop
-if $syslogtag contains "httpd_parking" then -/usr/local/pf/logs/httpd.parking.access
-& stop
-
 if $syslogtag contains "httpd_portal_err" then -/usr/local/pf/logs/httpd.portal.error
 & stop
 if $syslogtag contains "httpd_portal" then -/usr/local/pf/logs/httpd.portal.access
@@ -95,6 +90,14 @@ if $syslogtag contains "portal_catalyst" then -/usr/local/pf/logs/httpd.portal.c
 if $programname == "pfconfig" then -/usr/local/pf/logs/pfconfig.log
 & stop
 
+# PFACCT
+if $programname == "pfacct" then -/usr/local/pf/logs/pfacct.log
+& stop
+
+# PFCERTMANAGER
+if $programname == "pfcertmanager" then -/usr/local/pf/logs/pfcertmanager.log
+& stop
+
 # PFDNS
 if $programname == "pfdns" then -/usr/local/pf/logs/pfdns.log
 & stop
@@ -137,7 +140,7 @@ if $programname == "pfhttpd" then -/usr/local/pf/logs/packetfence.log
 if $programname == "pfipset" then -/usr/local/pf/logs/packetfence.log
 & stop
 
-if $programname == "pfdhcp" then -/usr/local/pf/logs/packetfence.log
+if $programname == "pfdhcp" then -/usr/local/pf/logs/pfdhcp.log
 & stop
 
 # MARIADB

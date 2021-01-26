@@ -414,8 +414,9 @@ sub authorizeMAC {
         );
         my $result = $self->{_sessionWrite}->set_request(-varbindlist => \@auth_oid_to_set);
         if (!defined($result)) {
-            $logger->warn("SNMP error tyring to perform auth. This could be normal. "
+            $logger->error("SNMP error tyring to perform auth. This could be normal. "
                 . "Error message: ".$self->{_sessionWrite}->error());
+            return 0;
         }
     }
     return 1;
@@ -511,7 +512,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2019 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 

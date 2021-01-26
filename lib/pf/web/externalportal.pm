@@ -24,6 +24,7 @@ use Hash::Merge qw(merge);
 use UNIVERSAL::require;
 
 use pf::config qw(
+    %Config
     $WEBAUTH
 );
 use pf::ip4log;
@@ -36,6 +37,7 @@ use pf::web::util;
 use pf::constants;
 use pf::access_filter::switch;
 use pf::dal;
+use pf::dal::tenant;
 
 # Some vendors don't support some charatcters in their redirect URL
 # This here below allows to map some URLs to a specific switch module
@@ -80,6 +82,7 @@ sub handle {
     my $params = $req->param;
     my $headers_in = $r->headers_in();
 
+    $self->_setup_tenant($req);
 
     my $args = {
         uri => $uri,
@@ -125,6 +128,8 @@ sub handle {
     my %params = (
         session_id              => undef,   # External portal session ID when working by session ID flow
         switch_id               => undef,   # Switch ID
+        switch_mac              => undef,   # Switch MAC
+        switch_ip               => undef,   # Switch IP
         client_mac              => undef,   # Client (endpoint) MAC address
         client_ip               => undef,   # Client (endpoint) IP address
         ssid                    => undef,   # SSID connecting to
@@ -140,6 +145,7 @@ sub handle {
         $logger->error("Error in parsing external portal request from switch module");
         return $FALSE;
     }
+    Hash::Merge::set_behavior('RIGHT_PRECEDENT');
     %params = %{ merge(\%params, $switch_params) };
     
     $logger->debug(sub { use Data::Dumper; "Handling external portal request using the following parameters: " . Dumper(%params) });
@@ -154,16 +160,21 @@ sub handle {
         return $FALSE;
     }
 
-    my $switch = pf::SwitchFactory->instantiate($params{'switch_id'});
+
+    my $switch = pf::SwitchFactory->instantiate(\%params);
+
 
     unless ( ref($switch) ) {
         $logger->error("Unable to instantiate switch object using switch_id '" . $params{'switch_id'} . "'");
         return $FALSE;
     }
 
-    $switch->setCurrentTenant();
-
-    pf::ip4log::open($params{'client_ip'}, $params{'client_mac'}, 3600);
+    if(isenabled($Config{advanced}{update_iplog_with_external_portal_requests})) {
+        pf::ip4log::open($params{'client_ip'}, $params{'client_mac'}, 3600);
+    }
+    else {
+        $params{client_ip} = pf::ip4log::mac2ip($params{client_mac});
+    }
 
     # Updating locationlog if required
     $switch->synchronize_locationlog("0", "0", $params{'client_mac'}, 0, $params{'connection_type'}, undef, $params{'client_mac'}, $params{'ssid'}) if ( $params{'synchronize_locationlog'} );
@@ -197,6 +208,17 @@ sub _setup_session {
 
 }
 
+sub _setup_tenant {
+    my ($self, $req) = @_;
+    my $hostname = $req->get_server_name;
+    my $logger = get_logger();
+    $logger->trace("Trying to find tenant for hostname $hostname");
+    if(my $tenant = pf::dal::tenant->search(-where => { portal_domain_name => $hostname })->next()) {
+        $logger->debug("Found tenant for portal domain name $hostname");
+        pf::dal->set_tenant($tenant->id);
+    }
+}
+
 
 =back
 
@@ -206,7 +228,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2019 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 

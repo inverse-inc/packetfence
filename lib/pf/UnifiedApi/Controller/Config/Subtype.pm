@@ -19,6 +19,9 @@ use pf::error qw(is_error);
 
 sub form_class_by_type {
     my ($self, $type) = @_;
+    if (!defined $type) {
+        return undef;
+    }
     my $lookup = $self->type_lookup;
     return exists $lookup->{$type} ? $lookup->{$type} : undef;
 }
@@ -48,8 +51,7 @@ sub type_lookup {
 
 sub cached_form_key {
     my ($self, $item, @args) = @_;
-    my $type = $item->{type};
-    return "cached_form_$type";
+    return $self->form_class_by_type($item->{type});
 }
 
 =head2 options
@@ -87,6 +89,7 @@ sub options_with_no_type {
                     map { $self->type_allowed_info($_) } keys %{$self->type_lookup}
                 ],
                 type => "string",
+                allow_custom => $self->json_false,
             },
         }
     );
@@ -114,7 +117,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2019 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 

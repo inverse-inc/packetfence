@@ -15,9 +15,11 @@ pf::UnifiedApi::Controller
 use strict;
 use warnings;
 use Mojo::Base 'Mojolicious::Controller';
-use pf::error qw(is_error);
+use pf::error qw(is_error is_success);
 use JSON::MaybeXS qw();
 use pf::admin_roles;
+use pf::dal::admin_api_audit_log;
+use Mojo::JSON qw(encode_json);
 has activity_timeout => 300;
 has 'openapi_generator_class' => undef;
 
@@ -110,13 +112,106 @@ sub _get_allowed_options {
     return admin_allowed_options($self->stash->{user_roles}, $option);
 }
 
+sub audit_request {
+    my ($self) = @_;
+    if ($self->is_auditable) {
+        my $record = $self->make_audit_record();
+        my $log = pf::dal::admin_api_audit_log->new($record);
+        $log->insert;
+    }
+}
+
+sub is_auditable {
+    my ($self) = @_;
+    return is_success($self->res->code) && $self->stash->{auditable};
+}
+
+=head2 make_audit_record
+
+make_audit_record
+
+=cut
+
+sub make_audit_record {
+    my ($self) = @_;
+    my $stash = $self->stash;
+    my $status =  $self->res->code;
+    my $req = $self->req;
+    my $method = $req->method;
+    my $path = $req->url->path;
+    my $request = $self->make_audit_record_request();
+
+    my $current_user = $stash->{current_user};
+    return {
+        user_name => $current_user,
+        method => $method,
+        request => $request,
+        status => $status,
+        action => $self->match->endpoint->name,
+        url => $path,
+        object_id => $self->id,
+    }
+}
+
+=head2 make_audit_record_request
+
+make_audit_record_request
+
+=cut
+
+sub make_audit_record_request {
+    my ($self) = @_;
+    my $json = $self->req->json;
+    $self->cleanup_audit_record_request($json);
+    return encode_json($json);
+}
+
+=head2 cleanup_audit_record_request
+
+cleanup_audit_record_request
+
+=cut
+
+sub cleanup_audit_record_request {
+    my ($self, $request) = @_;
+    if (exists $request->{items}) {
+        for my $item (@{$request->{items}}) {
+            $self->cleanup_audit_item($item);
+        }
+    }
+
+    $self->cleanup_audit_item($request);
+}
+
+sub cleanup_audit_item {
+    my ($self, $request) = @_;
+    if (ref($request) ne 'HASH') {
+        return;
+    }
+
+    for my $f ($self->fields_to_mask) {
+        if (exists $request->{$f}) {
+            $request->{$f} = '************************';
+        }
+    }
+}
+
+sub fields_to_mask { qw(password) }
+
+sub escape_url_param {
+    my ($self, $param) = @_;
+    return $param unless defined $param;
+    $param =~ s/%2[fF]|~/\//g;
+    return $param;
+}
+
 =head1 AUTHOR
 
 Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2019 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 

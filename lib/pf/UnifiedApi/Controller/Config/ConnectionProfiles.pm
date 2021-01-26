@@ -14,8 +14,10 @@ pf::UnifiedApi::Controller::Config::ConnectionProfiles
 
 use strict;
 use warnings;
+use captiveportal::DynamicRouting::Application;
 use Mojo::Base qw(pf::UnifiedApi::Controller::Config);
 use pf::ConfigStore::Profile;
+use pf::UnifiedApi::Request;
 use pfappserver::Form::Config::Profile;
 use pfappserver::Form::Config::Profile::Default;
 use File::Slurp qw(write_file);
@@ -25,6 +27,7 @@ use File::Find;
 use File::stat;
 use pf::cluster;
 use File::Spec::Functions qw(catfile splitpath);
+use pf::config qw(%Config);
 use pf::util;
 use List::Util qw(any first none);
 use pf::file_paths qw(
@@ -157,7 +160,7 @@ sub new_file {
        return $self->render_error(412, "'$file' already exists");
     }
 
-    my $content = $self->req->body;
+    my $content = $self->req->text;
     eval {
         my (undef, $file_parent_dir, undef) = splitpath($path);
         pf_make_dir($file_parent_dir);
@@ -192,9 +195,9 @@ sub replace_file {
        return $self->render_error(412, "'$file' does not exists");
     }
 
-    my $content = $self->req->body;
+    my $content = $self->req->text;
     eval {
-        pf::util::safe_file_update($path, $content);
+        pf::util::safe_file_update($path, $content, ":encoding(UTF-8)");
     };
     if ($@) {
        return $self->render_error(422, "Error writing to the '$file'");
@@ -392,8 +395,7 @@ sub mergePaths {
             },
             no_chdir => 1
         },
-        $templateDir,
-        @parentDirs
+        grep { -e $_ } ( $templateDir, @parentDirs)
     );
 
     $root = $paths{''};;
@@ -543,13 +545,99 @@ sub cached_form_key {
     return $id eq 'default' ? 'cached_form_default' : 'cached_form'
 }
 
+=head2 create_response
+
+create_response
+
+=cut
+
+sub create_response {
+    my ($self, $id) = @_;
+    my $resp = $self->SUPER::create_response($id);
+    my $path = profileFilePath($self->id, '');
+    if (-e -d $path) {
+        my $count = do {
+            opendir(my $dh, $path);
+            my $c =()= readdir($dh);
+            closedir($dh);
+            $c -= 2
+        };
+        if ($count) {
+            $resp->{warnings} = [
+                { message => "There are $count files in profile template please review", id => $id},
+            ];
+        }
+    }
+
+    return $resp;
+}
+
+sub preview_file {
+    my ($self) = @_;
+    my $file = $self->stash->{file_name};
+    if (!valid_file_path($file)) {
+       return $self->render_error(412, "invalid characters in file '$file'");
+    }
+
+    my $id = $self->id;
+    my $path = findPath($id, $file);
+    if (!defined $path) {
+        return $self->render_error(404, "'$file' not found");
+    }
+    my $profile =
+      pf::Connection::ProfileFactory->instantiate( "00:11:22:33:44:55",
+        { portal => $self->id } );
+
+    my $application = captiveportal::DynamicRouting::Application->new(
+        user_session => {},
+        session => {client_mac => '00:11:22:33:44:55', client_ip => '1.2.3.4'},
+        profile => $profile,
+        request => bless($self->req, 'pf::UnifiedApi::Request'),
+        root_module_id => $profile->getRootModuleId(),
+    );
+
+    $application->render($file, $self->fake_profile_data);
+    $self->render(text => $application->template_output);
+}
+
+sub fake_profile_data {
+    return {
+        logo             => $Config{'general'}{'logo'},
+        timer            => $Config{'captive_portal'}{'network_redirect_delay'},
+        client_mac       => '00:11:22:33:44:55',
+        client_ip        => '1.2.3.4',
+        username         => 'mcrispin',
+        last_port        => '4097',
+        last_vlan        => '102',
+        last_ssid        => 'PacketFence-Secure',
+        last_switch      => '10.0.0.4',
+        message          => 'Test message',
+        dhcp_fingerprint => '1,28,2,3,15,6,119,12,44,47,26,121,42',
+        last_connection_type => 'Wireless-802.11-EAP',
+        nodes                => [
+            {
+                status       => 'reg',
+                mac          => '00:11:22:33:44:55',
+                device_class => 'Ubuntu',
+                regdate      => '2016-01-02 03:04:05'
+            },
+            {
+                status       => 'reg',
+                mac          => '11:22:33:44:55:66',
+                device_class => 'Android',
+                regdate      => '2016-02-03 04:05:06'
+            }
+        ]
+    };
+}
+
 =head1 AUTHOR
 
 Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2019 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 

@@ -18,18 +18,6 @@ export default {
   },
   data () {
     return {
-      standardReports: reportCategories.map(reportCategory => {
-        return {
-          name: reportCategory.name,
-          items: reportCategory.reports.map(report => {
-            return {
-              name: report.name,
-              path: `/reports/standard/chart/${report.tabs[0].path}`,
-              icon: report.chart ? 'chart-pie' : null
-            }
-          })
-        }
-      }),
       otherReports: this.$store.dispatch('$_reports/all').then(reports => {
         this.otherReports = reports.sort((a, b) => {
           return a.description.localeCompare(b.description)
@@ -37,7 +25,7 @@ export default {
           return report.type === 'builtin'
         }).map(report => {
           return {
-            name: report.description,
+            name: this.$i18n.t(report.description),
             path: `/reports/dynamic/chart/${report.id}`,
             saveSearchNamespace: `dymamicReports::${report.id}`
           }
@@ -47,10 +35,10 @@ export default {
         this.dynamicReports = reports.sort((a, b) => {
           return a.description.localeCompare(b.description)
         }).filter(report => {
-          return !report.type
+          return !report.type || report.type !== 'builtin'
         }).map(report => {
           return {
-            name: report.description,
+            name: this.$i18n.t(report.description),
             path: `/reports/dynamic/chart/${report.id}`,
             saveSearchNamespace: `dymamicReports::${report.id}`
           }
@@ -59,6 +47,20 @@ export default {
     }
   },
   computed: {
+    standardReports () {
+      return reportCategories().map(reportCategory => {
+        return {
+          name: this.$i18n.t(reportCategory.name),
+          items: reportCategory.reports.map(report => {
+            return {
+              name: this.$i18n.t(report.name),
+              path: `/reports/standard/chart/${report.tabs[0].path}`,
+              icon: report.chart ? 'chart-pie' : null
+            }
+          })
+        }
+      })
+    },
     sections () {
       return [
         {

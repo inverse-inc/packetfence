@@ -1,4 +1,8 @@
 search [% dns_name %]
+
+options timeout:1
+options attempts:1
+
 [% FOREACH dns_server IN dns_servers %]
 nameserver [% dns_server %]
 [% END %]

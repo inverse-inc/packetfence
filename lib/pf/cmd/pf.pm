@@ -32,6 +32,7 @@ pfcmd <command> [options]
   networkconfig               | query/modify network configuration parameters
   node                        | manipulate node entries
   pfconfig                    | interact with pfconfig
+  pfcron                      | run pfcron tasks
   pfqueue                     | query/modify pfqueue tasks and counters
   reload                      | rebuild fingerprint or security events tables without restart
   service                     | start/stop/restart and get PF daemon status
@@ -66,7 +67,7 @@ Minor parts of this file may have been contributed. See CREDITS.
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2019 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 

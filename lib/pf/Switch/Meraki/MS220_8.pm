@@ -33,7 +33,6 @@ use pf::config qw(
 use pf::constants;
 use pf::util;
 use pf::node;
-use pf::util::radius qw(perform_coa);
 use Try::Tiny;
 use pf::Switch::Meraki::MR_v2;
 
@@ -44,9 +43,11 @@ use pf::Switch::Meraki::MR_v2;
 # CAPABILITIES
 # access technology supported
 sub description { 'Meraki switch MS220_8' }
-sub supportsWiredMacAuth { return $TRUE; }
-sub supportsWiredDot1x { return $TRUE; }
-sub supportsRadiusVoip { return $TRUE; }
+use pf::SwitchSupports qw(
+    WiredMacAuth
+    WiredDot1x
+    RadiusVoip
+);
 
 sub isVoIPEnabled {
     my ($self) = @_;
@@ -163,7 +164,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2019 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 

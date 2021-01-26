@@ -1,8 +1,8 @@
 <template>
   <b-navbar-nav class="notifications">
-    <b-nav-item-dropdown v-if="isAuthenticated" :extra-menu-classes="visible ? 'd-flex flex-column' : ''" right no-caret
-      @click.native.stop.prevent @show="show()" @hidden="markAsRead()" :disabled="isEmpty">
-      <template slot="button-content">
+    <b-nav-item-dropdown v-if="isAuthenticated" :menu-class="visible ? 'd-flex flex-column' : ''" right no-caret
+      @click.stop.prevent @show="show()" @hidden="markAsRead()" :disabled="isEmpty">
+      <template v-slot:button-content>
         <icon-counter name="bell" v-model="count" :variant="variant"></icon-counter>
       </template>
       <!-- menu items -->
@@ -10,7 +10,7 @@
         <div v-for="(notification) in notifications" :key="notification.id">
           <b-dropdown-item>
             <small>
-              <b-row no-gutters>
+              <b-row no-gutters @click.stop="clipboard(notification)">
                 <b-col>
                   <div class="notification-message" :class="{'text-secondary': !notification.unread}">
                     <b-badge pill v-if="notification.value" class="mr-2" :variant="notification.variant">{{notification.value}}</b-badge>
@@ -82,7 +82,7 @@ export default {
       return this.$store.state.notification.all
     },
     newNotifications () {
-      return this.$store.state.notification.all.filter(n => n.new)
+      return this.notifications.filter(n => n.new)
     },
     count () {
       return this.unread.length || this.notifications.length
@@ -91,7 +91,7 @@ export default {
       return this.notifications.length === 0
     },
     unread () {
-      return this.$store.state.notification.all.filter(n => n.unread)
+      return this.notifications.filter(n => n.unread)
     },
     variant () {
       return (this.unread.length > 0) ? 'danger' : 'secondary'
@@ -103,7 +103,7 @@ export default {
     },
     markAsRead () {
       this.visible = false
-      this.$store.state.notification.all.forEach((notification) => {
+      this.notifications.forEach((notification) => {
         notification.unread = false
       })
     },
@@ -111,18 +111,26 @@ export default {
       notification.new = notification.unread = false
     },
     clear () {
-      this.$store.commit('notification/CLEAR')
+      this.$store.commit('notification/$RESET')
+    },
+    clipboard (notification) {
+      const { url, message } = notification
+      try {
+        // remove HTML without executing inline script
+        const doc = new DOMParser().parseFromString(message, 'text/html')
+        const txt = doc.body.textContent || ''
+        if (txt) {
+          navigator.clipboard.writeText(`${url}: ${txt}`)
+        }
+      } catch (e) {
+        // noop
+      }
     }
   }
 }
 </script>
 
 <style lang="scss">
-@import "../../node_modules/bootstrap/scss/functions";
-@import "../../node_modules/bootstrap/scss/mixins/breakpoints";
-@import "../../node_modules/bootstrap/scss/mixins/box-shadow";
-@import "../styles/variables";
-
 $enable-shadows: true;
 
 .notifications-toasts {

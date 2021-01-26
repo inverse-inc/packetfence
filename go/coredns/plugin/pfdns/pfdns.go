@@ -3,9 +3,19 @@
 package pfdns
 
 import (
+	"bytes"
 	"database/sql"
 	"errors"
 	"fmt"
+	"strings"
+
+	"net"
+	"net/url"
+	"os"
+	"regexp"
+	"strconv"
+	"sync"
+	"time"
 
 	"github.com/inverse-inc/packetfence/go/coredns/plugin"
 	"github.com/inverse-inc/packetfence/go/coredns/request"
@@ -14,13 +24,7 @@ import (
 	"github.com/inverse-inc/packetfence/go/sharedutils"
 	"github.com/inverse-inc/packetfence/go/unifiedapiclient"
 	cache "github.com/patrickmn/go-cache"
-	"net"
-	"net/url"
-	"os"
-	"regexp"
-	"strconv"
-	"sync"
-	"time"
+
 	//Import mysql driver
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/inverse-inc/packetfence/go/log"
@@ -30,12 +34,14 @@ import (
 )
 
 type pfdns struct {
+	InternalPortalIP    net.IP
 	RedirectIP          net.IP
 	Db                  *sql.DB
 	IP4log              *sql.Stmt // prepared statement for ip4log queries
 	IP6log              *sql.Stmt // prepared statement for ip6log queries
 	Nodedb              *sql.Stmt // prepared statement for node table queries
 	SecurityEvent       *sql.Stmt // prepared statement for security_event
+	DNSAudit            *sql.Stmt // prepared statement for dns_audit_log
 	Bh                  bool      //  whether blackholing is enabled or not
 	BhIP                net.IP
 	BhCname             string
@@ -44,15 +50,17 @@ type pfdns struct {
 	FqdnPort            map[*regexp.Regexp][]string
 	FqdnIsolationPort   map[*regexp.Regexp][]string
 	FqdnDomainPort      map[*regexp.Regexp][]string
-	Network             map[*net.IPNet]net.IP
-	NetworkType         map[*net.IPNet]string
+	Network             map[string]net.IP
+	NetworkType         map[*net.IPNet]*pfconfigdriver.NetworkConf
 	DNSFilter           *cache.Cache
 	IpsetCache          *cache.Cache
 	apiClient           *unifiedapiclient.Client
 	refreshLauncher     *sync.Once
 	PortalFQDN          map[int]map[*net.IPNet]*regexp.Regexp
 	mutex               sync.Mutex
+	detectionBypass     bool
 	detectionMechanisms []*regexp.Regexp
+	recordDNS           bool
 }
 
 // Ports array
@@ -68,7 +76,7 @@ type dbConf struct {
 	DB         string `json:"db"`
 }
 
-func (pf *pfdns) Ip2Mac(ctx context.Context, ip string, ipVersion int) (string, error) {
+func (pf *pfdns) IP2Mac(ctx context.Context, ip string, ipVersion int) (string, error) {
 	var (
 		mac string
 		err error
@@ -87,16 +95,16 @@ func (pf *pfdns) Ip2Mac(ctx context.Context, ip string, ipVersion int) (string, 
 }
 
 func (pf *pfdns) HasSecurityEvents(ctx context.Context, mac string) bool {
-	security_event := false
+	securityEvent := false
 	var securityEventCount int
 	err := pf.SecurityEvent.QueryRow(mac, 1).Scan(&securityEventCount)
 	if err != nil {
 		log.LoggerWContext(ctx).Error(fmt.Sprintf("HasSecurityEvent %s %s\n", mac, err))
 	} else if securityEventCount != 0 {
-		security_event = true
+		securityEvent = true
 	}
 
-	return security_event
+	return securityEvent
 }
 
 func (pf *pfdns) RefreshPfconfig(ctx context.Context) {
@@ -111,6 +119,10 @@ func (pf *pfdns) RefreshPfconfig(ctx context.Context) {
 			go func(ctx context.Context) {
 				for {
 					pfconfigdriver.PfconfigPool.Refresh(ctx)
+					err = pf.detectVIP(ctx)
+					if err != nil {
+						log.LoggerWContext(ctx).Error(err.Error())
+					}
 					time.Sleep(1 * time.Second)
 				}
 			}(ctx)
@@ -126,6 +138,7 @@ func (pf *pfdns) ServeDNS(ctx context.Context, w dns.ResponseWriter, r *dns.Msg)
 	pf.RefreshPfconfig(ctx)
 
 	state := request.Request{W: w, Req: r}
+
 	a := new(dns.Msg)
 	a.SetReply(r)
 	a.Compress = true
@@ -137,17 +150,19 @@ func (pf *pfdns) ServeDNS(ctx context.Context, w dns.ResponseWriter, r *dns.Msg)
 	var ipVersion int
 	srcIP := state.IP()
 	bIP := net.ParseIP(srcIP)
+
 	if bIP.To4() == nil {
 		ipVersion = 6
 	} else {
 		ipVersion = 4
 	}
-
-	mac, err := pf.Ip2Mac(ctx, srcIP, ipVersion)
+	mac, err := pf.IP2Mac(ctx, srcIP, ipVersion)
 	if err != nil {
 		log.LoggerWContext(ctx).Error(fmt.Sprintf("ERROR cannot find mac for ip %s\n", srcIP))
 		mac = "00:00:00:00:00:00"
 	}
+
+	var answer *dns.Msg
 
 	var status = "unreg"
 	var category string
@@ -166,7 +181,7 @@ func (pf *pfdns) ServeDNS(ctx context.Context, w dns.ResponseWriter, r *dns.Msg)
 	// Domain bypass
 	for k, v := range pf.FqdnDomainPort {
 		if k.MatchString(state.QName()) {
-			answer, err := pf.LocalResolver(state)
+			answer, err = pf.LocalResolver(state)
 			if err != nil {
 				log.LoggerWContext(ctx).Error("Local resolver error for fqdn" + state.QName() + " with the following error" + err.Error())
 			} else {
@@ -181,20 +196,23 @@ func (pf *pfdns) ServeDNS(ctx context.Context, w dns.ResponseWriter, r *dns.Msg)
 					}
 				}
 				log.LoggerWContext(ctx).Debug(srcIP + " : " + mac + " Domain bypass for fqdn " + state.QName())
+				state.SizeAndDo(answer)
+				pf.logreply(ctx, srcIP, mac, state.QName(), state.Type(), answer, "Portal")
 				w.WriteMsg(answer)
+
 			}
 			return 0, nil
 		}
 	}
 
-	security_event := pf.HasSecurityEvents(ctx, mac)
-	if security_event {
+	securityEvent := pf.HasSecurityEvents(ctx, mac)
+	if securityEvent {
 		// Passthrough bypass
 		if !(PortalDetection) {
 
 			for k, v := range pf.FqdnIsolationPort {
 				if k.MatchString(state.QName()) {
-					answer, err := pf.LocalResolver(state)
+					answer, err = pf.LocalResolver(state)
 					if err != nil {
 						log.LoggerWContext(ctx).Error("Local resolver error for fqdn" + state.QName() + " with the following error" + err.Error())
 					} else {
@@ -209,6 +227,8 @@ func (pf *pfdns) ServeDNS(ctx context.Context, w dns.ResponseWriter, r *dns.Msg)
 							}
 						}
 						log.LoggerWContext(ctx).Debug(srcIP + " : " + mac + " isolation passthrough  for fqdn " + state.QName())
+						state.SizeAndDo(answer)
+						pf.logreply(ctx, srcIP, mac, state.QName(), state.Type(), answer, "Isolation passthrough")
 						w.WriteMsg(answer)
 					}
 					return 0, nil
@@ -220,7 +240,7 @@ func (pf *pfdns) ServeDNS(ctx context.Context, w dns.ResponseWriter, r *dns.Msg)
 	if !(PortalDetection) {
 		for k, v := range pf.FqdnPort {
 			if k.MatchString(state.QName()) {
-				answer, err := pf.LocalResolver(state)
+				answer, err = pf.LocalResolver(state)
 				if err != nil {
 					log.LoggerWContext(ctx).Error("Local resolver error for fqdn" + state.QName() + " with the following error" + err.Error())
 				} else {
@@ -235,6 +255,8 @@ func (pf *pfdns) ServeDNS(ctx context.Context, w dns.ResponseWriter, r *dns.Msg)
 						}
 
 					}
+					state.SizeAndDo(answer)
+					pf.logreply(ctx, srcIP, mac, state.QName(), state.Type(), answer, "Passthrough")
 					w.WriteMsg(answer)
 					log.LoggerWContext(ctx).Debug(srcIP + " : " + mac + " passthrough for fqdn " + state.QName())
 				}
@@ -245,9 +267,8 @@ func (pf *pfdns) ServeDNS(ctx context.Context, w dns.ResponseWriter, r *dns.Msg)
 
 	// DNS Filter code
 	var Type string
-
 	for k, v := range pf.NetworkType {
-		switch v {
+		switch v.Type {
 		case "inlinel2":
 			Type = "inline"
 
@@ -274,23 +295,41 @@ func (pf *pfdns) ServeDNS(ctx context.Context, w dns.ResponseWriter, r *dns.Msg)
 					log.LoggerWContext(ctx).Error(fmt.Sprintf("error getting node status %s %s\n", mac, err))
 				}
 				// Defer to the proxy middleware if the device is registered
-				if status == "reg" && !security_event && category != "REJECT" {
-					log.LoggerWContext(ctx).Debug(srcIP + " : " + mac + " serve dns " + state.QName())
-					return pf.Next.ServeDNS(ctx, w, r)
+				if status == "reg" && !securityEvent && category != "REJECT" {
+					var found bool
+					found = false
+					for i := 0; i <= len(pf.PortalFQDN); i++ {
+						if found {
+							break
+						}
+						for c, d := range pf.PortalFQDN[i] {
+							if c.Contains(bIP) {
+								if d.MatchString(state.QName()) {
+									found = true
+								}
+							}
+						}
+					}
+					if !found {
+						log.LoggerWContext(ctx).Debug(srcIP + " : " + mac + " serve dns " + state.QName())
+						return pf.Next.ServeDNS(ctx, w, r)
+					}
 				} else if status == "reg" && category == "REJECT" {
 					rr, _ = dns.NewRR("30 IN A 127.0.0.1")
 					a.Answer = []dns.RR{rr}
 					log.LoggerWContext(ctx).Debug("REJECT " + mac + " IP " + srcIP + " Query " + state.QName())
 					state.SizeAndDo(a)
+					pf.logreply(ctx, srcIP, mac, state.QName(), state.Type(), a, Type)
 					w.WriteMsg(a)
 					return 0, nil
 				}
 			}
-			cacheKey := pf.MakeKeyCache(mac, category, security_event, state.QName())
-			answer, found := pf.DNSFilter.Get(cacheKey)
-			if found && answer != "null" {
+
+			cacheKey := pf.MakeKeyCache(mac, category, securityEvent, state.QName())
+			reply, found := pf.DNSFilter.Get(cacheKey)
+			if found && reply != "null" {
 				log.LoggerWContext(ctx).Debug("Get answer from the cache for " + state.QName())
-				rr, _ = dns.NewRR(answer.(string))
+				rr, _ = dns.NewRR(reply.(string))
 			} else {
 				info, err := pffilter.FilterDns(Type, map[string]interface{}{
 					"qname":    state.QName(),
@@ -302,21 +341,22 @@ func (pf *pfdns) ServeDNS(ctx context.Context, w dns.ResponseWriter, r *dns.Msg)
 					pf.DNSFilter.Set(cacheKey, "null", cache.DefaultExpiration)
 					break
 				}
-				var answer string
+				var response string
 				for a, b := range info.(map[string]interface{}) {
 					if a == "answer" {
-						answer = b.(string)
+						response = b.(string)
 						break
 					}
 				}
 				log.LoggerWContext(ctx).Debug("Get answer from pffilter for " + state.QName())
-				pf.DNSFilter.Set(cacheKey, answer, cache.DefaultExpiration)
-				rr, _ = dns.NewRR(answer)
+				pf.DNSFilter.Set(cacheKey, response, cache.DefaultExpiration)
+				rr, _ = dns.NewRR(response)
 			}
 
 			a.Answer = []dns.RR{rr}
 			log.LoggerWContext(ctx).Debug("DNS Filter matched for MAC " + mac + " IP " + srcIP + " Query " + state.QName())
 			state.SizeAndDo(a)
+			pf.logreply(ctx, srcIP, mac, state.QName(), state.Type(), a, "DNS Filter")
 			w.WriteMsg(a)
 			return 0, nil
 		}
@@ -336,21 +376,47 @@ func (pf *pfdns) ServeDNS(ctx context.Context, w dns.ResponseWriter, r *dns.Msg)
 					if d.MatchString(state.QName()) {
 						rr.(*dns.A).Hdr = dns.RR_Header{Name: state.QName(), Rrtype: dns.TypeA, Class: state.QClass(), Ttl: 60}
 					} else {
-						rr.(*dns.A).Hdr = dns.RR_Header{Name: state.QName(), Rrtype: dns.TypeA, Class: state.QClass(), Ttl: 15}
+						var ttl uint32
+						ttl = 15
+						if PortalDetection {
+							ttl = 5
+						}
+						rr.(*dns.A).Hdr = dns.RR_Header{Name: state.QName(), Rrtype: dns.TypeA, Class: state.QClass(), Ttl: ttl}
 					}
 					found = true
 					break
 				}
 			}
 		}
-		for k, v := range pf.Network {
+
+		var returnedIP []byte
+		found = false
+		id, _ := GlobalTransactionLock.RLock()
+		for n, v := range pf.Network {
+			_, k, _ := net.ParseCIDR(n)
 			if k.Contains(bIP) {
-				returnedIP := append([]byte(nil), v.To4()...)
-				rr.(*dns.A).A = returnedIP
-				break
+				for w, x := range pf.NetworkType {
+					if k.String() == w.String() {
+						if x.NextHop != "" {
+							returnedIP = append([]byte(nil), v.To4()...)
+						} else {
+							returnedIP = append([]byte(nil), []byte{pf.InternalPortalIP[0], pf.InternalPortalIP[1], pf.InternalPortalIP[2], pf.InternalPortalIP[3]}...)
+						}
+						rr.(*dns.A).A = returnedIP
+						found = true
+						break
+					}
+				}
 			} else {
-				rr.(*dns.A).A = pf.RedirectIP.To4()
+				if found {
+					break
+				}
+				rr.(*dns.A).A = nil
 			}
+		}
+		GlobalTransactionLock.RUnlock(id)
+		if rr.(*dns.A).A == nil {
+			rr.(*dns.A).A = append([]byte(nil), []byte{127, 0, 0, 2}...)
 		}
 	case 2:
 		rr = new(dns.AAAA)
@@ -365,27 +431,39 @@ func (pf *pfdns) ServeDNS(ctx context.Context, w dns.ResponseWriter, r *dns.Msg)
 					if d.MatchString(state.QName()) {
 						rr.(*dns.AAAA).Hdr = dns.RR_Header{Name: state.QName(), Rrtype: dns.TypeAAAA, Class: state.QClass(), Ttl: 60}
 					} else {
-						rr.(*dns.AAAA).Hdr = dns.RR_Header{Name: state.QName(), Rrtype: dns.TypeAAAA, Class: state.QClass(), Ttl: 15}
+						var ttl uint32
+						ttl = 15
+						if PortalDetection {
+							ttl = 5
+						}
+						rr.(*dns.AAAA).Hdr = dns.RR_Header{Name: state.QName(), Rrtype: dns.TypeAAAA, Class: state.QClass(), Ttl: ttl}
 					}
 					found = true
 					break
 				}
 			}
 		}
-		for k, v := range pf.Network {
+		id, _ := GlobalTransactionLock.RLock()
+		for n, v := range pf.Network {
+			_, k, _ := net.ParseCIDR(n)
 			if k.Contains(bIP) {
 				returnedIP := append([]byte(nil), v.To16()...)
 				rr.(*dns.AAAA).AAAA = returnedIP
 				break
 			} else {
-				rr.(*dns.AAAA).AAAA = pf.RedirectIP.To16()
+				rr.(*dns.AAAA).AAAA = nil
 			}
+		}
+		GlobalTransactionLock.RUnlock(id)
+		if rr.(*dns.AAAA).AAAA == nil {
+			rr.(*dns.AAAA).AAAA = net.IPv6loopback
 		}
 	}
 
 	a.Answer = []dns.RR{rr}
 	log.LoggerWContext(ctx).Debug("Returned portal for MAC " + mac + " with IP " + srcIP + "for fqdn " + state.QName())
 	state.SizeAndDo(a)
+	pf.logreply(ctx, srcIP, mac, state.QName(), state.Type(), a, "Portal")
 	w.WriteMsg(a)
 
 	return 0, nil
@@ -401,82 +479,7 @@ func readConfig(ctx context.Context) pfconfigdriver.PfConfDatabase {
 	return sections
 }
 
-// DetectVIP
-func (pf *pfdns) detectVIP() error {
-	var ctx = context.Background()
-	var NetIndex net.IPNet
-	pf.Network = make(map[*net.IPNet]net.IP)
-
-	var interfaces pfconfigdriver.ListenInts
-	pfconfigdriver.FetchDecodeSocket(ctx, &interfaces)
-
-	var DNSinterfaces pfconfigdriver.DNSInts
-	pfconfigdriver.FetchDecodeSocket(ctx, &DNSinterfaces)
-
-	var keyConfNet pfconfigdriver.PfconfigKeys
-	keyConfNet.PfconfigNS = "config::Network"
-	keyConfNet.PfconfigHostnameOverlay = "yes"
-	pfconfigdriver.FetchDecodeSocket(ctx, &keyConfNet)
-
-	var keyConfCluster pfconfigdriver.NetInterface
-	keyConfCluster.PfconfigNS = "config::Pf(CLUSTER," + pfconfigdriver.FindClusterName(ctx) + ")"
-
-	var int_dns []string
-
-	for _, vi := range DNSinterfaces.Element {
-		for key, dns_int := range vi.(map[string]interface{}) {
-			if key == "int" {
-				int_dns = append(int_dns, dns_int.(string))
-			}
-		}
-	}
-
-	for _, v := range sharedutils.RemoveDuplicates(append(interfaces.Element, int_dns...)) {
-
-		keyConfCluster.PfconfigHashNS = "interface " + v
-		pfconfigdriver.FetchDecodeSocket(ctx, &keyConfCluster)
-		// Nothing in keyConfCluster.Ip so we are not in cluster mode
-		var VIP net.IP
-
-		eth, _ := net.InterfaceByName(v)
-		adresses, _ := eth.Addrs()
-		for _, adresse := range adresses {
-			var NetIP *net.IPNet
-			var IP net.IP
-			IP, NetIP, _ = net.ParseCIDR(adresse.String())
-			a, b := NetIP.Mask.Size()
-			if a == b {
-				continue
-			}
-			if keyConfCluster.Ip != "" {
-				VIP = net.ParseIP(keyConfCluster.Ip)
-			} else {
-				VIP = IP
-			}
-			for _, key := range keyConfNet.Keys {
-				var ConfNet pfconfigdriver.NetworkConf
-				ConfNet.PfconfigHashNS = key
-				pfconfigdriver.FetchDecodeSocket(ctx, &ConfNet)
-				if (NetIP.Contains(net.ParseIP(ConfNet.DhcpStart)) && NetIP.Contains(net.ParseIP(ConfNet.DhcpEnd))) || NetIP.Contains(net.ParseIP(ConfNet.NextHop)) {
-					NetIndex.Mask = net.IPMask(net.ParseIP(ConfNet.Netmask))
-					NetIndex.IP = net.ParseIP(key)
-					Index := NetIndex
-					pf.Network[&Index] = VIP
-				}
-				if ConfNet.RegNetwork != "" {
-					IP2, NetIP2, _ := net.ParseCIDR(ConfNet.RegNetwork)
-					if NetIP.Contains(IP2) {
-						pf.Network[NetIP2] = VIP
-					}
-				}
-			}
-		}
-	}
-	return nil
-}
-
-func (pf *pfdns) DomainPassthroughInit() error {
-	var ctx = context.Background()
+func (pf *pfdns) DomainPassthroughInit(ctx context.Context) error {
 	var keyConfDNS pfconfigdriver.PfconfigKeys
 	keyConfDNS.PfconfigNS = "resource::domain_dns_servers"
 
@@ -516,8 +519,7 @@ func (pf *pfdns) DomainPassthroughInit() error {
 }
 
 // WebservicesInit read pfconfig webservices configuration
-func (pf *pfdns) WebservicesInit() error {
-	var ctx = context.Background()
+func (pf *pfdns) WebservicesInit(ctx context.Context) error {
 	var webservices pfconfigdriver.PfConfWebservices
 	webservices.PfconfigNS = "config::Pf"
 	webservices.PfconfigMethod = "hash_element"
@@ -530,13 +532,12 @@ func (pf *pfdns) WebservicesInit() error {
 }
 
 // detectType of each network
-func (pf *pfdns) detectType() error {
-	var ctx = context.Background()
+func (pf *pfdns) detectType(ctx context.Context) error {
 	var NetIndex net.IPNet
-	pf.NetworkType = make(map[*net.IPNet]string)
+	pf.NetworkType = make(map[*net.IPNet]*pfconfigdriver.NetworkConf)
 
-	var interfaces pfconfigdriver.ListenInts
-	pfconfigdriver.FetchDecodeSocket(ctx, &interfaces)
+	pfconfigdriver.FetchDecodeSocket(ctx, &pfconfigdriver.Config.Interfaces.ListenInts)
+	pfconfigdriver.FetchDecodeSocket(ctx, &pfconfigdriver.Config.Interfaces.DNSInts)
 
 	var keyConfNet pfconfigdriver.PfconfigKeys
 	keyConfNet.PfconfigNS = "config::Network"
@@ -546,7 +547,16 @@ func (pf *pfdns) detectType() error {
 	var keyConfCluster pfconfigdriver.NetInterface
 	keyConfCluster.PfconfigNS = "config::Pf(CLUSTER," + pfconfigdriver.FindClusterName(ctx) + ")"
 
-	for _, v := range interfaces.Element {
+	var intDNS []string
+
+	for _, vi := range pfconfigdriver.Config.Interfaces.DNSInts.Element {
+		for key, DNSint := range vi.(map[string]interface{}) {
+			if key == "int" {
+				intDNS = append(intDNS, DNSint.(string))
+			}
+		}
+	}
+	for _, v := range sharedutils.RemoveDuplicates(append(pfconfigdriver.Config.Interfaces.ListenInts.Element, intDNS...)) {
 
 		keyConfCluster.PfconfigHashNS = "interface " + v
 		pfconfigdriver.FetchDecodeSocket(ctx, &keyConfCluster)
@@ -566,16 +576,17 @@ func (pf *pfdns) detectType() error {
 				var ConfNet pfconfigdriver.NetworkConf
 				ConfNet.PfconfigHashNS = key
 				pfconfigdriver.FetchDecodeSocket(ctx, &ConfNet)
+
 				if (NetIP.Contains(net.ParseIP(ConfNet.DhcpStart)) && NetIP.Contains(net.ParseIP(ConfNet.DhcpEnd))) || NetIP.Contains(net.ParseIP(ConfNet.NextHop)) {
 					NetIndex.Mask = net.IPMask(net.ParseIP(ConfNet.Netmask))
 					NetIndex.IP = net.ParseIP(key)
 					Index := NetIndex
-					pf.NetworkType[&Index] = ConfNet.Type
+					pf.NetworkType[&Index] = &ConfNet
 				}
 				if ConfNet.RegNetwork != "" {
 					IP2, NetIP2, _ := net.ParseCIDR(ConfNet.RegNetwork)
 					if NetIP.Contains(IP2) {
-						pf.NetworkType[NetIP2] = ConfNet.Type
+						pf.NetworkType[NetIP2] = &ConfNet
 					}
 				}
 			}
@@ -584,8 +595,7 @@ func (pf *pfdns) detectType() error {
 	return nil
 }
 
-func (pf *pfdns) DbInit() error {
-	var ctx = context.Background()
+func (pf *pfdns) DbInit(ctx context.Context) error {
 
 	var err error
 
@@ -617,10 +627,23 @@ func (pf *pfdns) DbInit() error {
 		return err
 	}
 
+	pf.DNSAudit, err = pf.Db.Prepare("insert into dns_audit_log (ip, mac, qname, qtype, scope ,answer) VALUES (?, ?, ?, ?, ?, ?)")
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "pfdns: database security_event prepared statement error: %s", err)
+		return err
+	}
+
 	if err != nil {
 		log.LoggerWContext(ctx).Error(fmt.Sprintf("Error while connecting to database: %s", err))
 		return err
 	}
+
+	go func() {
+		for {
+			pf.Db.Ping()
+			time.Sleep(5 * time.Second)
+		}
+	}()
 
 	return nil
 }
@@ -652,18 +675,18 @@ func (pf *pfdns) LocalResolver(request request.Request) (*dns.Msg, error) {
 }
 
 func (pf *pfdns) SetPassthrough(ctx context.Context, passthrough, ip, port string, local bool) error {
-	query_local := "0"
+	queryLocal := "0"
 	if local {
-		query_local = "1"
+		queryLocal = "1"
 	}
 
-	cache_key := passthrough + ":" + ip + ":" + port + ":" + query_local
-	_, found := pf.IpsetCache.Get(cache_key)
+	cacheKey := passthrough + ":" + ip + ":" + port + ":" + queryLocal
+	_, found := pf.IpsetCache.Get(cacheKey)
 	if found {
 		return nil
 	}
 
-	err := pf.apiClient.CallWithBody(ctx, "POST", "/api/v1/ipset/"+passthrough+"?local="+query_local, map[string]interface{}{
+	err := pf.apiClient.CallWithBody(ctx, "POST", "/api/v1/ipset/"+passthrough+"?local="+queryLocal, map[string]interface{}{
 		"ip":   ip,
 		"port": port,
 	}, &unifiedapiclient.DummyReply{})
@@ -671,7 +694,7 @@ func (pf *pfdns) SetPassthrough(ctx context.Context, passthrough, ip, port strin
 	if err != nil {
 		log.LoggerWContext(ctx).Error(fmt.Sprintf("Not able to contact Unified API to adjust passthroughs %s", err))
 	} else {
-		pf.IpsetCache.Set(cache_key, 1, cache.DefaultExpiration)
+		pf.IpsetCache.Set(cacheKey, 1, cache.DefaultExpiration)
 	}
 
 	return err
@@ -723,12 +746,20 @@ func (pf *pfdns) PortalFQDNInit(ctx context.Context) error {
 	return nil
 }
 
-func (pf *pfdns) MakeKeyCache(mac string, category string, security_event bool, qname string) string {
-	return mac + category + strconv.FormatBool(security_event) + qname
+func (pf *pfdns) MakeKeyCache(mac string, category string, securityEvent bool, qname string) string {
+	return mac + category + strconv.FormatBool(securityEvent) + qname
 }
 
 func (pf *pfdns) MakeDetectionMecanism(ctx context.Context) error {
-	portal := pfconfigdriver.Config.PfConf.CaptivePortal
+	var portal pfconfigdriver.PfConfCaptivePortal
+
+	pfconfigdriver.FetchDecodeSocket(ctx, &portal)
+
+	pf.detectionBypass = false
+	if portal.DetectionMecanismBypass == "enabled" {
+		pf.detectionBypass = true
+	}
+
 	pf.detectionMechanisms = make([]*regexp.Regexp, 0)
 	var err error
 	for _, v := range portal.DetectionMecanismUrls {
@@ -757,14 +788,28 @@ func (pf *pfdns) addDetectionMechanismsToList(ctx context.Context, r string) err
 
 // checkDetectionMechanisms compare the url to the detection mechanisms regex
 func (pf *pfdns) checkDetectionMechanisms(ctx context.Context, e string) bool {
-	if pf.detectionMechanisms == nil {
+	if pf.detectionMechanisms == nil || pf.detectionBypass {
 		return false
 	}
-
 	for _, rgx := range pf.detectionMechanisms {
 		if rgx.MatchString(e) {
 			return true
 		}
 	}
 	return false
+}
+
+// logreply will log in the db the dns answer
+func (pf *pfdns) logreply(ctx context.Context, ip string, mac string, qname string, qtype string, reply *dns.Msg, scope string) {
+	var b bytes.Buffer
+	var re = regexp.MustCompile(`\s+`)
+
+	for _, rr := range reply.Answer {
+		text := re.ReplaceAllString(rr.String(), " ")
+		b.WriteString(text)
+		b.WriteString(" \n ")
+	}
+	if pf.recordDNS {
+		pf.DNSAudit.ExecContext(ctx, ip, mac, strings.TrimRight(qname, "."), qtype, scope, strings.TrimRight(b.String(), " \n "))
+	}
 }

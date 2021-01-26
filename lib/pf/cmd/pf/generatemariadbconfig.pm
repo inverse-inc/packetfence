@@ -21,6 +21,7 @@ use warnings;
 use base qw(pf::cmd);
 
 use Template;
+use List::MoreUtils qw(uniq);
 use pf::file_paths qw(
     $conf_dir
     $install_dir
@@ -50,6 +51,8 @@ sub _run {
         server_ip => $management_network ? $management_network->{Tvip} // $management_network->{Tip} : "",
         performance_schema => $Config{database_advanced}{performance_schema},
         max_connect_errors => $Config{database_advanced}{max_connect_errors},
+        masterslave => $Config{database_advanced}{masterslave},
+        readonly => $Config{database_advanced}{readonly},
     );
 
     # Only generate cluster configuration if there is more than 1 enabled host in the cluster
@@ -60,9 +63,15 @@ sub _run {
             cluster_enabled => $cluster_enabled,
 
             server_ip => pf::cluster::current_server()->{management_ip},
-            servers_ip => [(map { $_->{management_ip} } pf::cluster::mysql_servers())],
 
-            # TODO: have real configurable user
+            masterslavemode => (defined($ConfigCluster{CLUSTER}{masterslavemode}) ? "SLAVE" : "MASTER"),
+
+            slave_server_id => (unpack 'N', pack 'C4', split '\.', pf::cluster::current_server()->{management_ip}),
+
+            gtid_domain_id => (unpack 'N', pack 'C4', split '\.', pf::cluster::current_server()->{management_ip}) + (pf::cluster::cluster_index() + 1),
+
+            servers_ip => [uniq(split(',', $Config{database_advanced}{other_members})), (map { $_->{management_ip} } pf::cluster::mysql_servers())],
+
             replication_user => $Config{active_active}{galera_replication_username},
             replication_password => $Config{active_active}{galera_replication_password},
 
@@ -71,11 +80,29 @@ sub _run {
 
             db_config => $Config{database},
         );
-        if ($DISTRIB eq 'debian') {
-            $vars{'libgalera'} = '/usr/lib/galera/libgalera_smm.so';
-        } else {
-            $vars{'libgalera'} = '/usr/lib64/galera/libgalera_smm.so';
-        }
+    } elsif ($Config{database_advanced}{other_members} ne "" && $Config{database_advanced}{masterslave} eq "OFF") {
+        %vars = (
+            %vars,
+
+            cluster_enabled => 1,
+
+            server_ip => defined( $management_network->tag('vip') ) ? $management_network->tag('vip') : $management_network->tag('ip'),
+            servers_ip => [sort (uniq(split(',', $Config{database_advanced}{other_members}), (defined( $management_network->tag('vip') ) ? $management_network->tag('vip') : $management_network->tag('ip'))))],
+
+            replication_user => $Config{active_active}{galera_replication_username},
+            replication_password => $Config{active_active}{galera_replication_password},
+
+            hostname => $host_id,
+            server_id => (unpack 'N', pack 'C4', split '\.', $vars{'server_ip'}),
+
+            db_config => $Config{database},
+        );
+    }
+
+    if ($DISTRIB eq 'debian') {
+        $vars{'libgalera'} = '/usr/lib/galera/libgalera_smm.so';
+    } else {
+        $vars{'libgalera'} = '/usr/lib64/galera/libgalera_smm.so';
     }
 
     my $maria_conf = "$install_dir/var/conf/mariadb.conf";
@@ -103,7 +130,7 @@ Minor parts of this file may have been contributed. See CREDITS.
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2019 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 

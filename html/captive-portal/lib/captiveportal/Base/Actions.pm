@@ -39,6 +39,7 @@ our %AUTHENTICATION_ACTIONS = (
     on_failure => sub {},
     on_success => sub {},
     destination_url => sub {$_[0]->app->session->{destination_url} = $_[1];$_[0]->app->session->{portal_module_force_destination_url} = $TRUE},
+    unregdate_from_sponsor_source => sub { $_[0]->new_node_info->{unregdate} = $_[0]->session->{unregdate} if defined($_[0]->session->{unregdate}) },
 );
 
 =head2 authentication_match_wrapper
@@ -68,7 +69,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2019 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 

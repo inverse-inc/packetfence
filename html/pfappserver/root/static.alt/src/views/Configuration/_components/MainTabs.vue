@@ -14,7 +14,7 @@
         <advanced-view />
       </b-tab>
       <b-tab :title="$t('Maintenance')" @click="changeTab('maintenance_tasks')" no-body>
-        <maintenance-tasks-list storeName="$_maintenance_tasks" />
+        <maintenance-tasks-list />
       </b-tab>
       <b-tab :title="$t('Services')" @click="changeTab('services')">
         <services-view />
@@ -24,14 +24,14 @@
 </template>
 
 <script>
-import GeneralView from './GeneralView'
-import AlertingView from './AlertingView'
-import AdvancedView from './AdvancedView'
+import GeneralView from '../general/_components/TheView'
+import AlertingView from '../alerting/_components/TheView'
+import AdvancedView from '../advanced/_components/TheView'
 import MaintenanceTasksList from './MaintenanceTasksList'
-import ServicesView from './ServicesView'
+import ServicesView from '../services/_components/TheView'
 
 export default {
-  name: 'MainTabs',
+  name: 'main-tabs',
   components: {
     GeneralView,
     AlertingView,
@@ -46,8 +46,13 @@ export default {
     }
   },
   computed: {
-    tabIndex () {
-      return ['general', 'alerting', 'advanced', 'maintenance_tasks', 'services'].indexOf(this.tab)
+    tabIndex: {
+      get () {
+        return ['general', 'alerting', 'advanced', 'maintenance_tasks', 'services'].indexOf(this.tab)
+      },
+      set () {
+        // noop
+      }
     }
   },
   methods: {

@@ -18,7 +18,6 @@ use JSON::MaybeXS;
 use fingerbank::Model::DHCP_Fingerprint;
 use fingerbank::Model::DHCP_Vendor;
 use fingerbank::Model::MAC_Vendor;
-use fingerbank::Model::User_Agent;
 use fingerbank::Query;
 use fingerbank::FilePath;
 use fingerbank::Model::Endpoint;
@@ -29,7 +28,9 @@ use pf::cluster;
 use pf::constants;
 use pf::constants::fingerbank qw($RATE_LIMIT);
 use pf::error qw(is_success);
+use pf::file_paths qw($network_behavior_policy_config_file);
 
+use pf::node;
 use pf::client;
 use pf::error qw(is_error);
 use pf::CHI;
@@ -43,12 +44,12 @@ use POSIX::AtFork;
 use DateTime;
 use DateTime::Format::RFC3339;
 use pf::config qw(%Config);
-use pf::util qw(isdisabled isenabled);
+use pf::util qw(isdisabled isenabled valid_mac);
 
 # Do not remove, even if its not explicitely used. When taking collector requests out of the cache, this must be imported.
 use URI::http;
 
-our @fingerbank_based_security_event_triggers = ('Device', 'DHCP_Fingerprint', 'DHCP_Vendor', 'MAC_Vendor', 'User_Agent');
+our @fingerbank_based_security_event_triggers = ('Device', 'DHCP_Fingerprint', 'DHCP_Vendor', 'MAC_Vendor');
 
 our %ACTION_MAP = (
     "update-upstream-db" => sub {
@@ -76,6 +77,7 @@ $fingerbank::Config::CACHE = cache();
 
 my $collector;
 my $collector_ua;
+my $api_client;
 
 =head1 METHODS
 
@@ -130,18 +132,17 @@ sub process {
             $query_success = $FALSE;
         }
 
-        # Processing the device class based on it's parents
-        my ( $top_level_parent, $parents ) = _parse_parents($query_result);
-        $query_result->{device_class} = find_device_class($top_level_parent, $query_result->{'device'}{'name'});
-
-        if(!defined($query_result->{device_class})) {
-            $logger->error("Issue figuring out device class.");
-            $query_success = $FALSE;
-        }
-
-        $query_result->{parents} = $parents;
-
         if($query_success) {
+            # Processing the device class based on it's parents
+            my ( $top_level_parent, $parents ) = _parse_parents($query_result);
+            $query_result->{device_class} = find_device_class($top_level_parent, $query_result->{'device'}{'name'});
+
+            if(!defined($query_result->{device_class})) {
+                $logger->error("Issue figuring out device class.");
+                $query_success = $FALSE;
+            }
+            $query_result->{parents} = $parents;
+
             record_result($mac, $query_args, $query_result);
         }
     
@@ -164,6 +165,8 @@ Currently done via a call to the Fingerbank collector
 sub endpoint_attributes {
     my ($mac) = @_;
     my $timer = pf::StatsD::Timer->new({level => 7});
+
+    return undef unless(valid_mac($mac));
 
     $collector //= fingerbank::Collector->new_from_config;
     $collector_ua //= $collector->get_lwp_client();
@@ -222,6 +225,8 @@ sub update_collector_endpoint_data {
     my ($mac, $data) = @_;
     my $timer = pf::StatsD::Timer->new({level => 7});
 
+    return undef unless(valid_mac($mac));
+
     $collector //= fingerbank::Collector->new_from_config;
     $collector_ua //= $collector->get_lwp_client();
     
@@ -264,14 +269,22 @@ sub _trigger_new_dhcp_security_event {
 
     my $apiclient = pf::client::getClient;
 
-    my %security_event_data = (
+    my $security_event_data = {
         'mac'   => $mac,
         'tid'   => 'new_dhcp_info',
         'type'  => 'internal',
-    );
+    };
 
-    $apiclient->notify('trigger_security_event', %security_event_data);
+    $apiclient->notify('trigger_security_event', %$security_event_data);
 
+    my $cache = pf::CHI->new( namespace => 'trigger_security_event' );
+
+    $security_event_data = $cache->get($mac);
+
+    if ($security_event_data) {
+        $apiclient->notify('trigger_security_event', %$security_event_data);
+        $cache->remove($mac);
+    }
 }
 
 =head2 _parse_parents
@@ -324,7 +337,8 @@ sub find_device_class {
     my $logger = get_logger;
     my $result = cache()->compute("pf::fingerbank::find_device_class($top_level_parent,$device_name)", sub {
         my $timer = pf::StatsD::Timer->new({level => 7, stat => "pf::fingerbank::find_device_class::cache-compute"});
-        while (my ($k, $other_device_id) = each(%fingerbank::Constant::DEVICE_CLASS_IDS)) {
+        foreach my $k (@fingerbank::Constant::DEVICE_CLASS_LOOKUP_ORDER) {
+            my $other_device_id = $fingerbank::Constant::DEVICE_CLASS_IDS{$k};
             $logger->debug("Checking if device $device_name is a $other_device_id");
             my $is_a = fingerbank::Model::Device->is_a($device_name, $other_device_id);
             if(!defined($is_a)) {
@@ -355,6 +369,10 @@ sub sync_local_db {
 sub sync_upstream_db {
     pf::cluster::sync_files([$fingerbank::FilePath::UPSTREAM_DB_FILE], async => $TRUE);
     clear_cache();
+}
+
+sub sync_nba_conf {
+    pf::cluster::sync_files([$network_behavior_policy_config_file]);
 }
 
 sub clear_cache {
@@ -581,6 +599,35 @@ sub device_class_transition_allowed {
     }
 }
 
+sub get_hosts_ports {
+    my ($mac) = @_;
+
+    my $logger = get_logger;
+
+    $api_client //= fingerbank::API->new_from_config;
+
+    my $node = node_view($mac);
+    my $device_type = $node->{device_type};
+
+    unless(defined($device_type)) {
+        $logger->error("Unable to compute hosts/ports for device because we don't have the Fingerbank device profiling information for it.");
+        return;
+    }
+
+    my $device_id = device_name_to_device_id($device_type);
+
+    if(!defined($device_id)) {
+        $logger->error("Unable to find device ID for $mac. Unable to obtain hosts and ports it should communicate with through Fingerbank.");
+        return;
+    }
+
+    my $rules = cache()->compute_with_undef("get_hosts_ports-$device_id", sub {
+        return $api_client->device_outbound_communications($device_id);
+    });
+    
+    return $rules;
+}
+
 =head2 CLONE
 
 Clear the cache in a thread environment
@@ -590,6 +637,7 @@ Clear the cache in a thread environment
 sub CLONE {
     $collector_ua = undef;
     $collector = undef;
+    $api_client = undef;
 }
 
 POSIX::AtFork->add_to_child(\&CLONE);
@@ -600,7 +648,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2019 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 

@@ -17,9 +17,14 @@ use warnings;
 use Mojo::Base 'pf::UnifiedApi::Controller::RestRoute';
 use pf::cluster;
 
+sub config {
+    my ($self) = @_;
+    $self->render(json => { item => \%ConfigCluster });
+}
+
 sub servers {
     my ($self) = @_;
-    my @servers = pf::cluster::enabled_servers;
+    my @servers = pf::cluster::config_enabled_servers;
     $self->render(json => { items => \@servers });
 }
 
@@ -29,7 +34,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2019 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 

@@ -14,13 +14,12 @@ use HTML::FormHandler::Moose;
 extends 'pfappserver::Base::Form';
 with 'pfappserver::Base::Form::Role::Help';
 
-use pf::config;
+use pf::config qw(%ConfigAuthenticationLdap %ConfigEAP);
 use pf::authentication;
 use pf::util;
 use pf::ConfigStore::Domain;
 
 has domains => ( is => 'rw', builder => '_build_domains');
-tie our %ConfigAuthenticationLdap, 'pfconfig::cached_hash', 'resource::authentication_sources_ldap';
 
 ## Definition
 has_field 'id' =>
@@ -33,6 +32,15 @@ has_field 'id' =>
    tags => {
       option_pattern => \&pfappserver::Base::Form::id_pattern,
    },
+  );
+
+has_field 'regex' =>
+  (
+   type => 'Text',
+   label => 'Regex Realm',
+   required => 0,
+   tags => { after_element => \&help,
+             help => 'PacketFence will use this Realm configuration if the regex match with the UserName (optional)' },
   );
 
 has_field 'options' =>
@@ -127,6 +135,86 @@ has_field 'radius_acct_proxy_type' =>
              help => 'Home server pool type' },
   );
 
+has_field 'eduroam_options' =>
+  (
+   type => 'TextArea',
+   label => 'Eduroam Realm Options',
+   required => 0,
+   tags => { after_element => \&help,
+             help => 'You can add FreeRADIUS options in the realm definition' },
+  );
+
+has_field 'eduroam_radius_auth' =>
+  (
+   type => 'Select',
+   multiple => 1,
+   label => 'Eduroam RADIUS AUTH',
+   options_method => \&options_radius,
+   element_class => ['chzn-select'],
+   element_attr => {'data-placeholder' => 'Click to select a RADIUS Server'},
+   tags => { after_element => \&help,
+             help => 'The RADIUS Server(s) to proxy authentication' },
+  );
+
+has_field 'eduroam_radius_auth_proxy_type' =>
+  (
+   type => 'Select',
+   label => 'type',
+   required => 1,
+   options =>
+   [
+    { value => 'keyed-balance', label => 'Keyed Balance' },
+    { value => 'fail-over', label => 'Fail Over' },
+    { value => 'load-balance', label => 'Load Balance' },
+    { value => 'client-balance', label => 'Client Balance' },
+    { value => 'client-port-balance', label => 'Client Port Balance' },
+   ],
+   default => 'keyed-balance',
+   tags => { after_element => \&help,
+             help => 'Home server pool type' },
+  );
+
+  has_field 'eduroam_radius_auth_compute_in_pf' =>
+  (
+   type => 'Toggle',
+   checkbox_value => "enabled",
+   unchecked_value => "disabled",
+   default => "enabled",
+   label => 'Authorize from PacketFence',
+   tags => { after_element => \&help,
+             help => 'Should we forward the request to PacketFence to have a dynamic answer or do we use the remote proxy server answered attributes ?' },
+  );
+
+has_field 'eduroam_radius_acct' =>
+  (
+   type => 'Select',
+   multiple => 1,
+   label => 'Eduroam RADIUS ACCT',
+   options_method => \&options_radius,
+   element_class => ['chzn-select'],
+   element_attr => {'data-placeholder' => 'Click to select a RADIUS Server'},
+   tags => { after_element => \&help,
+             help => 'The RADIUS Server(s) to proxy accounting' },
+  );
+
+has_field 'eduroam_radius_acct_proxy_type' =>
+  (
+   type => 'Select',
+   label => 'type',
+   required => 1,
+   options =>
+   [
+    { value => 'keyed-balance', label => 'Keyed Balance' },
+    { value => 'fail-over', label => 'Fail Over' },
+    { value => 'load-balance', label => 'Load Balance' },
+    { value => 'client-balance', label => 'Client Balance' },
+    { value => 'client-port-balance', label => 'Client Port Balance' },
+   ],
+   default => 'load-balance',
+   tags => { after_element => \&help,
+             help => 'Home server pool type' },
+  );
+
 has_field 'radius_strip_username' =>
   (
    type => 'Toggle',
@@ -183,7 +271,44 @@ has_field 'ldap_source' =>
              help => 'The LDAP Server to query the custom attributes' },
   );
 
-=head2 options_roles
+has_field 'eap' =>
+  (
+   type => 'Select',
+   multiple => 0,
+   label => 'EAP',
+   default => "default",
+   options_method => \&options_eap,
+   element_class => ['chzn-deselect'],
+   element_attr => {'data-placeholder' => 'Click to select a eap configuration'},
+   tags => { after_element => \&help,
+             help => 'The EAP configuration to use for this realm' },
+  );
+
+has_field 'ldap_source_ttls_pap' =>
+  (
+   type => 'Select',
+   multiple => 0,
+   label => 'LDAP Source for TTLS PAP',
+   options_method => \&options_ldap,
+   element_class => ['chzn-select'],
+   element_attr => {'data-placeholder' => 'Click to select an LDAP Server'},
+   tags => { after_element => \&help,
+             help => 'The LDAP Server to use for EAP TTLS PAP authentication and authorization' },
+  );
+
+has_field 'edir_source' =>
+  (
+   type => 'Select',
+   multiple => 0,
+   label => 'eDirectory Source for PEAP',
+   options_method => \&options_edir,
+   element_class => ['chzn-select'],
+   element_attr => {'data-placeholder' => 'Click to select an eDirectory Server'},
+   tags => { after_element => \&help,
+             help => 'The eDirectory Server to use for EAP PEAP authentication and authorization' },
+  );
+
+=head2 options_domains
 
 =cut
 
@@ -218,8 +343,28 @@ sub options_ldap {
 sub options_radius {
     my $self = shift;
     my @radius = map { $_ => $_ } keys %pf::config::ConfigAuthenticationRadius;
-    unshift @radius, ("" => "");
+    push @radius , map { $_ => $_ } keys %pf::config::ConfigAuthenticationEduroam;
     return @radius;
+}
+
+=head2 options_eap
+
+=cut
+
+sub options_eap {
+    my $self = shift;
+    my @eap = map { $_ => $_ } keys %ConfigEAP;
+    return @eap;
+}
+
+=head2 options_edir
+
+=cut
+
+sub options_edir {
+    my $self = shift;
+    my @edir = map { $_ => $_ } keys %pf::config::ConfigAuthenticationEdir;
+    return @edir;
 }
 
 =over
@@ -228,7 +373,7 @@ sub options_radius {
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2019 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 

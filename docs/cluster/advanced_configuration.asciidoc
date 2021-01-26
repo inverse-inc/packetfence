@@ -1,0 +1,117 @@
+//== Advanced configuration
+
+=== Removing a server from the cluster
+
+NOTE: Removing a server from the cluster requires a restart of the PacketFence service on all nodes.
+
+First, you will need to stop PacketFence on your server and put it offline:
+
+ /usr/local/pf/bin/pfcmd service pf stop
+ shutdown -h now
+
+Then you need to remove all the configuration associated to the server from `/usr/local/pf/conf/cluster.conf` on one of the remaining nodes.
+Configuration for a server is always prefixed by the server's hostname.
+
+Once you have removed the configuration, you need to reload it and synchronize it with the remaining nodes in the cluster.
+
+  # /usr/local/pf/bin/pfcmd configreload hard
+  # /usr/local/pf/bin/cluster/sync --as-master
+
+Now restart PacketFence on all the servers so that the removed node is not part of the clustering configuration.
+
+Note that if you remove a node and end up having an even number of servers, you will get unexpected behaviors in MariaDB. You should always aim to have an odd number of servers at all time in your cluster.
+
+=== Resynchronizing the configuration manually
+
+If you did a manual change in a configuration file, an additional step is now needed.
+
+In order to be sure the configuration is properly synced on all nodes, you will need to enter this command on the previously selected master node.
+
+----
+# /usr/local/pf/bin/cluster/sync --as-master
+----
+
+=== Adding files to the synchronization
+
+In the event that you do modifications to non-synchronized files like switch modules, files in `raddb/`, etc, you can add those files to be synchronized when using `/usr/local/pf/bin/cluster/sync`.
+
+On one of the nodes, create `/usr/local/pf/conf/cluster-files.txt`
+
+Add the additional files one per line in this file. We advise you add this file to the synchronization too.
+
+Example :
+
+----
+/usr/local/pf/conf/cluster-files.txt
+/usr/local/pf/raddb/modules/mschap
+----
+
+=== HAProxy dashboard
+
+You have the possibility to configure the HAProxy dashboard on each node which will give you statistics about the current state of your cluster.
+
+Configuration is done in `/usr/local/pf/conf/haproxy-portal.conf`:
+
+----
+listen stats
+  bind %%management_ip%%:1025
+  mode http
+  timeout connect 10s
+  timeout client 1m
+  timeout server 1m
+  stats enable
+  stats uri /stats
+  stats realm HAProxy\ Statistics
+  stats auth admin:packetfence
+----
+
+NOTE: We strongly advise you change the username and password to something else than admin/packetfence although access to this dashboard doesn't compromise the server.
+
+Next, uncomment the following line from `/usr/local/pf/conf/iptables.conf`
+
+CAUTION: If you're upgrading from a version prior to 5.0, the line may not be there. Add it close to the other management rules:
+
+----
+-A input-management-if --protocol tcp --match tcp --dport 1025 --jump ACCEPT
+----
+
+Now restart `haproxy-portal` and `iptables` in all nodes in order to complete the configuration: 
+
+----
+# /usr/local/pf/bin/pfcmd service haproxy-portal restart
+# /usr/local/pf/bin/pfcmd service iptables restart
+----
+
+You should now be able to connect to the dashboard on each node using following URL : http://NODE_MANAGEMENT_IP:1025/stats
+
+NOTE: The same principle can be applied to `haproxy-db` with port 1026 in `haproxy-db.conf`
+
+=== Configuration conflict handling
+
+NOTE: It is not recommended to perform configuration while one or more node of the cluster is experiencing issues. Still, should that be the case, this section will explain the conflict resolution that will occur when the nodes will reattach together.
+
+When modifying the configuration through the administration interface, the configuration will be automatically synchronized to all the nodes that are online. In the event that one or more nodes cannot be updated, an error message will be displayed with affected nodes.
+
+A scheduled check runs on the management server (controlled through maintenance.cluster_check_interval) in order to validate if all servers are running the same configuration version.
+When the failed node(s) will come back online, that scheduled check will ensure that the new configuration is pushed on the new node(s).
+You can disable this check by setting maintenance.cluster_check_interval to 0 and restarting pfcron. In that case, you will need to manually resolve the conflict when the node(s) come back online by running `/usr/local/pf/bin/cluster/sync --as-master` on the node you want to keep the configuration of.
+
+General facts about conflict resolution:
+
+ * If the configuration is not pushed to at least half of the servers of your cluster, when the failed nodes will come back online, they will have quorum on the previous configuration and the one they are running will be pushed to all the servers.
+ * In a two node cluster, the most recent configuration is always selected when resolving a conflict.
+ * In a two node cluster, no decision is taken unless the peer server has its webservices available.
+
+==== Going deeper in the conflict handling
+
+The section below will explain with more details, the steps that are taken in order to take the decision of which server should be declared as the master when one or more servers have conflicting configuration version.
+
+The first step is to get the configuration version from each server through a webservice call.
+
+The results are then organized by version identifier. Should all alive servers run the same version, the state is considered as healthy and nothing happens.
+
+Then, should there be more than one version identifier across the alive servers, the algorithm validates that there are at least 2 servers **configured** in the cluster. If there aren't, then the most recent version is pushed on the peer node.
+
+After that, the algorithm looks at which version is on the most servers. In the event that the dead servers are in higher number than the alive ones, the most recent version is taken. Otherwise, the version that is present on the most servers will be selected.
+
+When pushing a version to the other servers, if the current server has the most recent version or is part of the quorum (depending on which push strategy was defined above), then it will be the one pushing the new configuration to the other servers. Otherwise, a webservice call is made to one of the servers running the selected version so that it pushes its configuration to its peers.

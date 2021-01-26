@@ -16,7 +16,7 @@ pf::UnifiedApi::Controller::Config::Filters
 
 use strict;
 use warnings;
-use pf::constants::filters qw(%CONFIGSTORE_MAP);
+use pf::constants::filters qw(%FILTER_NAMES %CONFIGSTORE_MAP);
 use File::Slurp;
 use pf::util;
 use pf::error qw(is_error);
@@ -89,7 +89,7 @@ sub replace {
         return $self->render_error($status, "Invalid $id file" ,$errors);
     }
 
-    my $body = $self->req->body;
+    my $body = $self->req->text;
     $body .= "\n" if $body !~ m/\n\z/s;
     pf::util::safe_file_update($self->fileName, $body);
     my ($success, $msg) = $self->configStore->commitPfconfig();
@@ -108,7 +108,7 @@ Is a filter valid
 
 sub isFilterValid {
     my ($self) = @_;
-    my $body = $self->req->body;
+    my $body = $self->req->text;
     $body .= "\n" if $body !~ m/\n\z/s;
     my %args = $self->configStore->configIniFilesArgs();
     $args{'-file'} = \$body;
@@ -136,7 +136,7 @@ sub list {
     my ($self) = @_;
     return $self->render( json => {
         items => [
-           map { my $id = $_; $id =~ s/-filters//; { id => $id } } keys %CONFIGSTORE_MAP
+           map { { id => $_, name => $FILTER_NAMES{$_} } } sort keys %FILTER_NAMES
         ],
     } );
 }
@@ -147,7 +147,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2019 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 

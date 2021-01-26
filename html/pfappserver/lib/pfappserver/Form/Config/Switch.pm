@@ -30,9 +30,10 @@ use pf::Switch::constants;
 use pf::constants::role qw(@ROLES);
 use pf::SwitchFactory;
 use pf::util;
-use List::MoreUtils qw(any);
+use List::MoreUtils qw(any uniq);
 use pf::ConfigStore::SwitchGroup;
 use pf::ConfigStore::Switch;
+use pf::dal::tenant;
 
 ## Definition
 has_field 'id' =>
@@ -48,6 +49,15 @@ has_field 'description' =>
    type => 'Text',
    required_when => { 'id' => sub { $_[0] ne 'default' } },
   );
+
+has_field 'TenantId' =>
+  (
+   type => 'Select',
+   label => 'Tenant ID',
+   options_method => \&options_tenant,
+   element_class => ['chzn-deselect'],
+  );
+
 has_field 'type' =>
   (
    type => 'Select',
@@ -84,7 +94,7 @@ has_field 'useCoA' =>
   (
    type => 'Toggle',
    label => 'Use CoA',
-   default => 'enabled',
+   default => 'Y',
    tags => { after_element => \&help,
              help => 'Use CoA when available to deauthenticate the user. When disabled, RADIUS Disconnect will be used instead if it is available.' },
   );
@@ -567,6 +577,11 @@ sub _add_role_mappings {
         wrap_label_method => \&role_label_wrap,
     };
     push(@$list, $role . 'AccessList' => $text_area_field);
+    
+    my $toggle_field = {
+        type    => 'Toggle',
+    };
+    push(@$list, $role . 'DynamicAccessListFingerbank' => $toggle_field);
 }
 
 sub role_label_wrap {
@@ -663,19 +678,7 @@ Extract the descriptions from the various Switch modules.
 =cut
 
 sub options_type {
-    my $self = shift;
-
-    # Sort vendors and switches for display
-    my @modules;
-    foreach my $vendor (sort keys %pf::SwitchFactory::VENDORS) {
-        my $vendors = $pf::SwitchFactory::VENDORS{$vendor};
-        my @switches = map {{ value => $_, label => $vendors->{$_} }} sort keys %$vendors;
-        push @modules, { group => $vendor,
-                         options => \@switches,
-                         value => '' };
-    }
-
-    return ({group => '', options => [{value => '', label => ''}], value => ''}, @modules);
+    return pf::SwitchFactory::form_options();
 }
 
 =head2 options_groups
@@ -755,6 +758,14 @@ sub options_wsTransport {
     return ({label => '' ,value => '' }, @transports);
 }
 
+sub options_tenant {
+    my $self = shift;
+
+    my @tenants = map { $_->{id} != 0 ? ($_->{id} => $_->{name}) : () } @{pf::dal::tenant->search->all};
+
+    return @tenants;
+}
+
 =head2 validate
 
 If one of the inline triggers is $ALWAYS, ignore any other trigger.
@@ -771,13 +782,14 @@ sub validate {
     my $self = shift;
     my $config = pf::ConfigStore::Switch->new;
     my $groupConfig = pf::ConfigStore::SwitchGroup->new;
+    tie my %TemplateSwitches, 'pfconfig::cached_hash', 'config::TemplateSwitches';
 
     my @triggers;
     my $always = any { $_->{type} eq $ALWAYS } @{$self->value->{inlineTrigger}};
 
     if ($self->value->{type}) {
         my $type = 'pf::Switch::'. $self->value->{type};
-        if ($type->require()) {
+        if ($type->require() || $TemplateSwitches{$self->value->{type}}) {
             @triggers = map { $_->{type} } @{$self->value->{inlineTrigger}};
             if ( @triggers && !$always) {
                 # Make sure the selected switch type supports the selected inline triggers.
@@ -794,7 +806,7 @@ sub validate {
                 }
             }
         } else {
-            $self->field('type')->add_error("The chosen type is not supported.");
+            $self->field('type')->add_error("The chosen type (" . $self->value->{type} . ") is not supported.");
         }
     } else {
         my $group_name = $self->value->{group} || '';
@@ -827,7 +839,7 @@ sub validate {
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2019 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 

@@ -1,22 +1,18 @@
 <template>
-  <b-form-row class="pf-field mx-0 mb-1 px-0" align-v="center"
-    v-on="forwardListeners"
-  >
+  <b-form-row class="pf-field mx-0 mb-1 px-0" align-v="center">
     <b-col v-if="$slots.prepend" cols="1" align-self="start" class="text-center col-form-label">
       <slot name="prepend"></slot>
     </b-col>
     <b-col cols="10" align-self="start">
-      <component
+      <component ref="component"
+        :form-store-name="formStoreName"
+        :form-namespace="`${formNamespace}`"
         v-model="inputValue"
         v-bind="field.attrs"
-        v-on="forwardListeners"
         :is="field.component"
-        :vuelidate="vuelidate"
         :disabled="disabled"
-        ref="component"
         no-gutter
       ></component>
-
     </b-col>
     <b-col v-if="$slots.append" cols="1" align-self="start" class="text-center col-form-label">
       <slot name="append"></slot>
@@ -26,67 +22,56 @@
 
 <script>
 /* eslint key-spacing: ["error", { "mode": "minimum" }] */
+import pfMixinForm from '@/components/pfMixinForm'
+
 export default {
   name: 'pf-field',
+  mixins: [
+    pfMixinForm
+  ],
   props: {
-    value: {
+    default: {
       type: Object,
-      default: () => { return this.default }
+      default: () => (null)
+    },
+    value: {
+      type: [String, Object],
+      default: () => (null)
     },
     field: {
       type: Object,
-      default: () => { return {} }
-    },
-    vuelidate: {
-      type: Object,
-      default: () => { return {} }
+      default: () => ({})
     },
     disabled: {
       type: Boolean,
       default: false
     }
   },
-  data () {
-    return {
-      default: null // default value
-    }
-  },
   computed: {
     inputValue: {
       get () {
-        return this.value
+        let value
+        if (this.formStoreName) {
+          value = { ...this.default, ...this.formStoreValue } // use FormStore
+        } else {
+          value = this.value // use native (v-model)
+        }
+        return value
       },
-      set (newValue) {
-        this.emitValidations()
-        this.$emit('input', newValue)
+      set (newValue = null) {
+        if (this.formStoreName) {
+          this.formStoreValue = newValue // use FormStore
+        } else {
+          this.$emit('input', newValue) // use native (v-model)
+        }
       }
-    },
-    forwardListeners () {
-      const { input, ...listeners } = this.$listeners
-      return listeners
     }
   },
   methods: {
-    buildLocalValidations () {
-      const { field } = this
-      if (field) {
-        const { validators } = field
-        if (validators) {
-          return validators
-        }
-      }
-      return {}
-    },
-    emitValidations () {
-      this.$emit('validations', this.buildLocalValidations())
-    },
     focus () {
-      const { component: { $refs: { input: { $el } } } } = this.$refs
-      if ('focus' in $el) $el.focus()
+      const { $refs: { component: { focus = () => {} } = {} } = {} } = this
+      focus()
     }
-  },
-  created () {
-    this.emitValidations()
   }
 }
 </script>

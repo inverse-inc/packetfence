@@ -1,5 +1,4 @@
-import store from '@/store'
-import LoginStore from '../_store'
+import { reset as resetStore } from '@/store'
 import LoginView from '../'
 
 const route = {
@@ -8,10 +7,7 @@ const route = {
   name: 'login',
   component: LoginView,
   beforeEnter: (to, from, next) => {
-    // Register store module only once
-    if (!store.state.$_auth) {
-      store.registerModule('$_auth', LoginStore)
-    }
+    resetStore()
     next()
   }
 }

@@ -8,19 +8,21 @@ const STORAGE_SEARCH_LIMIT_KEY = 'radiuslogs-search-limit'
 const STORAGE_VISIBLE_COLUMNS_KEY = 'radiuslogs-visible-columns'
 
 // Default values
-const state = {
-  results: [], // search results
-  cache: {}, // radius log details
-  message: '',
-  itemStatus: '',
-  searchStatus: '',
-  searchFields: [],
-  searchQuery: null,
-  searchSortBy: 'mac',
-  searchSortDesc: false,
-  searchMaxPageNumber: 1,
-  searchPageSize: localStorage.getItem(STORAGE_SEARCH_LIMIT_KEY) || 10,
-  visibleColumns: JSON.parse(localStorage.getItem(STORAGE_VISIBLE_COLUMNS_KEY)) || false
+const state = () => {
+  return {
+    results: [], // search results
+    cache: {}, // radius log details
+    message: '',
+    itemStatus: '',
+    searchStatus: '',
+    searchFields: [],
+    searchQuery: null,
+    searchSortBy: 'mac',
+    searchSortDesc: false,
+    searchMaxPageNumber: 1,
+    searchPageSize: localStorage.getItem(STORAGE_SEARCH_LIMIT_KEY) || 10,
+    visibleColumns: JSON.parse(localStorage.getItem(STORAGE_VISIBLE_COLUMNS_KEY)) || false
+  }
 }
 
 const getters = {
@@ -50,7 +52,7 @@ const actions = {
     localStorage.setItem(STORAGE_VISIBLE_COLUMNS_KEY, JSON.stringify(columns))
     commit('VISIBLE_COLUMNS_UPDATED', columns)
   },
-  search: ({ state, getters, commit, dispatch }, page) => {
+  search: ({ state, commit }, page) => {
     let sort = [state.searchSortDesc ? `${state.searchSortBy} DESC` : state.searchSortBy]
     let body = {
       cursor: state.searchPageSize * (page - 1),

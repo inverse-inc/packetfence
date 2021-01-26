@@ -357,7 +357,9 @@
                                   <p class="label" style="font-size: 10px; color: #333; text-transform: uppercase; margin-bottom: 0;">[% i18n("Phone number") %]</p>
                                   <p class="value" style="font-weight: 600; margin-top: 5px;">[% telephone %]</p>[% END %]
                                   <p class="label" style="font-size: 10px; color: #333; text-transform: uppercase; margin-bottom: 0;">[% i18n("Email") %]</p>
-                                  <p class="value" style="font-weight: 600; margin-top: 5px;">[% pid %]</p>
+                                  <p class="value" style="font-weight: 600; margin-top: 5px;">[% email %]</p>[% IF pid != email %]
+                                  <p class="label" style="font-size: 10px; color: #333; text-transform: uppercase; margin-bottom: 0;">[% i18n("PID") %]</p>
+                                  <p class="value" style="font-weight: 600; margin-top: 5px;">[% pid %]</p>[% END %]
                                 </div>
                               </td>
                             </tr>

@@ -1,3 +1,17 @@
+// Copyright 2015 Light Code Labs, LLC
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
 // This file is adapted from code in the net/http/httputil
 // package of the Go standard library, which is by the
 // Go Authors, and bears this copyright and license info:
@@ -14,11 +28,13 @@ package proxy
 import (
 	"context"
 	"crypto/tls"
+	"crypto/x509"
+	"fmt"
 	"io"
+	"log"
 	"net"
 	"net/http"
 	"net/url"
-	"path"
 	"strings"
 	"sync"
 	"time"
@@ -26,15 +42,20 @@ import (
 	"golang.org/x/net/http2"
 
 	"github.com/inverse-inc/packetfence/go/caddy/caddy/caddyhttp/httpserver"
+	"github.com/lucas-clemente/quic-go"
+	"github.com/lucas-clemente/quic-go/h2quic"
 )
 
 var (
 	defaultDialer = &net.Dialer{
 		Timeout:   30 * time.Second,
 		KeepAlive: 30 * time.Second,
+		DualStack: true,
 	}
 
 	bufferPool = sync.Pool{New: createBuffer}
+
+	defaultCryptoHandshakeTimeout = 10 * time.Second
 )
 
 func createBuffer() interface{} {
@@ -49,7 +70,9 @@ func pooledIoCopy(dst io.Writer, src io.Reader) {
 	// Due to that we extend buf's length to its capacity here and
 	// ensure it's always non-zero.
 	bufCap := cap(buf)
-	io.CopyBuffer(dst, src, buf[0:bufCap:bufCap])
+	if _, err := io.CopyBuffer(dst, src, buf[0:bufCap:bufCap]); err != nil {
+		log.Println("[ERROR] failed to copy buffer: ", err)
+	}
 }
 
 // onExitFlushLoop is a callback set by tests to detect the state of the
@@ -67,7 +90,6 @@ type ReverseProxy struct {
 	Director func(*http.Request)
 
 	// The transport used to perform proxy requests.
-	// If nil, http.DefaultTransport is used.
 	Transport http.RoundTripper
 
 	// FlushInterval specifies the flush interval
@@ -79,6 +101,8 @@ type ReverseProxy struct {
 	// dialer is used when values from the
 	// defaultDialer need to be overridden per Proxy
 	dialer *net.Dialer
+
+	srvResolver srvResolver
 }
 
 // Though the relevant directive prefix is just "unix:", url.Parse
@@ -93,13 +117,42 @@ func socketDial(hostName string, timeout time.Duration) func(network, addr strin
 	}
 }
 
+func (rp *ReverseProxy) srvDialerFunc(locator string, timeout time.Duration) func(network, addr string) (conn net.Conn, err error) {
+	service := locator
+	if strings.HasPrefix(locator, "srv://") {
+		service = locator[6:]
+	} else if strings.HasPrefix(locator, "srv+https://") {
+		service = locator[12:]
+	}
+
+	return func(network, addr string) (conn net.Conn, err error) {
+		_, addrs, err := rp.srvResolver.LookupSRV(context.Background(), "", "", service)
+		if err != nil {
+			return nil, err
+		}
+		return net.DialTimeout("tcp", fmt.Sprintf("%s:%d", addrs[0].Target, addrs[0].Port), timeout)
+	}
+}
+
+func singleJoiningSlash(a, b string) string {
+	aSlash := strings.HasSuffix(a, "/")
+	bSlash := strings.HasPrefix(b, "/")
+	switch {
+	case aSlash && bSlash:
+		return a + b[1:]
+	case !aSlash && !bSlash && b != "":
+		return a + "/" + b
+	}
+	return a + b
+}
+
 // NewSingleHostReverseProxy returns a new ReverseProxy that rewrites
 // URLs to the scheme, host, and base path provided in target. If the
 // target's path is "/base" and the incoming request was for "/dir",
 // the target request will be for /base/dir.
 // Without logic: target's path is "/", incoming is "/api/messages",
 // without is "/api", then the target request will be for /messages.
-func NewSingleHostReverseProxy(target *url.URL, without string, keepalive int, timeout time.Duration) *ReverseProxy {
+func NewSingleHostReverseProxy(target *url.URL, without string, keepalive int, timeout, fallbackDelay time.Duration) *ReverseProxy {
 	targetQuery := target.RawQuery
 	director := func(req *http.Request) {
 		if target.Scheme == "unix" {
@@ -107,12 +160,18 @@ func NewSingleHostReverseProxy(target *url.URL, without string, keepalive int, t
 			// scheme and host have to be faked
 			req.URL.Scheme = "http"
 			req.URL.Host = "socket"
+		} else if target.Scheme == "srv" {
+			req.URL.Scheme = "http"
+			req.URL.Host = target.Host
+		} else if target.Scheme == "srv+https" {
+			req.URL.Scheme = "https"
+			req.URL.Host = target.Host
 		} else {
 			req.URL.Scheme = target.Scheme
 			req.URL.Host = target.Host
 		}
 
-		// We should remove the `without` prefix at first.
+		// remove the `without` prefix
 		if without != "" {
 			req.URL.Path = strings.TrimPrefix(req.URL.Path, without)
 			if req.URL.Opaque != "" {
@@ -123,12 +182,32 @@ func NewSingleHostReverseProxy(target *url.URL, without string, keepalive int, t
 			}
 		}
 
-		hadTrailingSlash := strings.HasSuffix(req.URL.Path, "/")
-		req.URL.Path = path.Join(target.Path, req.URL.Path)
-		// path.Join will strip off the last /, so put it back if it was there.
-		if hadTrailingSlash && !strings.HasSuffix(req.URL.Path, "/") {
-			req.URL.Path = req.URL.Path + "/"
+		// prefer returns val if it isn't empty, otherwise def
+		prefer := func(val, def string) string {
+			if val != "" {
+				return val
+			}
+			return def
 		}
+
+		// Make up the final URL by concatenating the request and target URL.
+		//
+		// If there is encoded part in request or target URL,
+		// the final URL should also be in encoded format.
+		// Here, we concatenate their encoded parts which are stored
+		// in URL.Opaque and URL.RawPath, if it is empty use
+		// URL.Path instead.
+		if req.URL.Opaque != "" || target.Opaque != "" {
+			req.URL.Opaque = singleJoiningSlash(
+				prefer(target.Opaque, target.Path),
+				prefer(req.URL.Opaque, req.URL.Path))
+		}
+		if req.URL.RawPath != "" || target.RawPath != "" {
+			req.URL.RawPath = singleJoiningSlash(
+				prefer(target.RawPath, target.Path),
+				prefer(req.URL.RawPath, req.URL.Path))
+		}
+		req.URL.Path = singleJoiningSlash(target.Path, req.URL.Path)
 
 		// Trims the path of the socket from the URL path.
 		// This is done because req.URL passed to your proxied service
@@ -140,6 +219,12 @@ func NewSingleHostReverseProxy(target *url.URL, without string, keepalive int, t
 			// See comment on socketDial for the trim
 			socketPrefix := target.String()[len("unix://"):]
 			req.URL.Path = strings.TrimPrefix(req.URL.Path, socketPrefix)
+			if req.URL.Opaque != "" {
+				req.URL.Opaque = strings.TrimPrefix(req.URL.Opaque, socketPrefix)
+			}
+			if req.URL.RawPath != "" {
+				req.URL.RawPath = strings.TrimPrefix(req.URL.RawPath, socketPrefix)
+			}
 		}
 
 		if targetQuery == "" || req.URL.RawQuery == "" {
@@ -153,10 +238,14 @@ func NewSingleHostReverseProxy(target *url.URL, without string, keepalive int, t
 	if timeout != defaultDialer.Timeout {
 		dialer.Timeout = timeout
 	}
+	if fallbackDelay != defaultDialer.FallbackDelay {
+		dialer.FallbackDelay = fallbackDelay
+	}
 
 	rp := &ReverseProxy{
 		Director:      director,
 		FlushInterval: 250 * time.Millisecond, // flushing good for streaming & server-sent events
+		srvResolver:   net.DefaultResolver,
 		dialer:        &dialer,
 	}
 
@@ -164,14 +253,23 @@ func NewSingleHostReverseProxy(target *url.URL, without string, keepalive int, t
 		rp.Transport = &http.Transport{
 			Dial: socketDial(target.String(), timeout),
 		}
-	} else {
-		// if keepalive is equal to the default,
-		// just use default transport, to avoid creating
-		// a brand new transport
+	} else if target.Scheme == "quic" {
+		rp.Transport = &h2quic.RoundTripper{
+			QuicConfig: &quic.Config{
+				HandshakeTimeout: defaultCryptoHandshakeTimeout,
+				KeepAlive:        true,
+			},
+		}
+	} else if keepalive != http.DefaultMaxIdleConnsPerHost || strings.HasPrefix(target.Scheme, "srv") {
+		dialFunc := rp.dialer.Dial
+		if strings.HasPrefix(target.Scheme, "srv") {
+			dialFunc = rp.srvDialerFunc(target.String(), timeout)
+		}
+
 		transport := &http.Transport{
 			Proxy:                 http.ProxyFromEnvironment,
-			Dial:                  rp.dialer.Dial,
-			TLSHandshakeTimeout:   10 * time.Second,
+			Dial:                  dialFunc,
+			TLSHandshakeTimeout:   defaultCryptoHandshakeTimeout,
 			ExpectContinueTimeout: 1 * time.Second,
 			ResponseHeaderTimeout: 10 * time.Minute,
 		}
@@ -181,7 +279,20 @@ func NewSingleHostReverseProxy(target *url.URL, without string, keepalive int, t
 			transport.MaxIdleConnsPerHost = keepalive
 		}
 		if httpserver.HTTP2 {
-			http2.ConfigureTransport(transport)
+			if err := http2.ConfigureTransport(transport); err != nil {
+				log.Println("[ERROR] failed to configure transport to use HTTP/2: ", err)
+			}
+		}
+		rp.Transport = transport
+	} else {
+		transport := &http.Transport{
+			Proxy: http.ProxyFromEnvironment,
+			Dial:  rp.dialer.Dial,
+		}
+		if httpserver.HTTP2 {
+			if err := http2.ConfigureTransport(transport); err != nil {
+				log.Println("[ERROR] failed to configure transport to use HTTP/2: ", err)
+			}
 		}
 		rp.Transport = transport
 	}
@@ -192,22 +303,38 @@ func NewSingleHostReverseProxy(target *url.URL, without string, keepalive int, t
 // when it is OK for upstream to be using a bad certificate,
 // since this transport skips verification.
 func (rp *ReverseProxy) UseInsecureTransport() {
-	if rp.Transport == nil {
-		transport := &http.Transport{
-			Proxy:               http.ProxyFromEnvironment,
-			Dial:                defaultDialer.Dial,
-			TLSHandshakeTimeout: 10 * time.Second,
-			TLSClientConfig:     &tls.Config{InsecureSkipVerify: true},
+	if transport, ok := rp.Transport.(*http.Transport); ok {
+		if transport.TLSClientConfig == nil {
+			transport.TLSClientConfig = &tls.Config{}
 		}
-		if httpserver.HTTP2 {
-			http2.ConfigureTransport(transport)
-		}
-		rp.Transport = transport
-	} else if transport, ok := rp.Transport.(*http.Transport); ok {
-		transport.TLSClientConfig = &tls.Config{InsecureSkipVerify: true}
+		transport.TLSClientConfig.InsecureSkipVerify = true
 		// No http2.ConfigureTransport() here.
 		// For now this is only added in places where
 		// an http.Transport is actually created.
+	} else if transport, ok := rp.Transport.(*h2quic.RoundTripper); ok {
+		if transport.TLSClientConfig == nil {
+			transport.TLSClientConfig = &tls.Config{}
+		}
+		transport.TLSClientConfig.InsecureSkipVerify = true
+	}
+}
+
+// UseOwnCertificate is used to facilitate HTTPS proxying
+// with locally provided certificate.
+func (rp *ReverseProxy) UseOwnCACertificates(CaCertPool *x509.CertPool) {
+	if transport, ok := rp.Transport.(*http.Transport); ok {
+		if transport.TLSClientConfig == nil {
+			transport.TLSClientConfig = &tls.Config{}
+		}
+		transport.TLSClientConfig.RootCAs = CaCertPool
+		// No http2.ConfigureTransport() here.
+		// For now this is only added in places where
+		// an http.Transport is actually created.
+	} else if transport, ok := rp.Transport.(*h2quic.RoundTripper); ok {
+		if transport.TLSClientConfig == nil {
+			transport.TLSClientConfig = &tls.Config{}
+		}
+		transport.TLSClientConfig.RootCAs = CaCertPool
 	}
 }
 
@@ -217,28 +344,20 @@ func (rp *ReverseProxy) ServeHTTP(rw http.ResponseWriter, outreq *http.Request, 
 	transport := rp.Transport
 	if requestIsWebsocket(outreq) {
 		transport = newConnHijackerTransport(transport)
-	} else if transport == nil {
-		transport = &http.Transport{
-			Dial: rp.dialer.Dial,
-		}
 	}
 
 	rp.Director(outreq)
 
-	// Original incoming server request may be canceled by the
-	// user or by std lib(e.g. too many idle connections).
-	// Now we issue the new outgoing client request which
-	// doesn't depend on the original one. (issue 1345)
-	ctx, cancel := context.WithCancel(context.Background())
-	defer cancel()
-	outreq = outreq.WithContext(ctx)
+	if outreq.URL.Scheme == "quic" {
+		outreq.URL.Scheme = "https" // Change scheme back to https for QUIC RoundTripper
+	}
 
 	res, err := transport.RoundTrip(outreq)
 	if err != nil {
 		return err
 	}
 
-	isWebsocket := res.StatusCode == http.StatusSwitchingProtocols && strings.ToLower(res.Header.Get("Upgrade")) == "websocket"
+	isWebsocket := res.StatusCode == http.StatusSwitchingProtocols && strings.EqualFold(res.Header.Get("Upgrade"), "websocket")
 
 	// Remove hop-by-hop headers listed in the
 	// "Connection" header of the response.
@@ -259,7 +378,7 @@ func (rp *ReverseProxy) ServeHTTP(rw http.ResponseWriter, outreq *http.Request, 
 	}
 
 	if isWebsocket {
-		res.Body.Close()
+		defer res.Body.Close()
 		hj, ok := rw.(http.Hijacker)
 		if !ok {
 			panic(httpserver.NonHijackerError{Underlying: rw})
@@ -283,12 +402,19 @@ func (rp *ReverseProxy) ServeHTTP(rw http.ResponseWriter, outreq *http.Request, 
 			if err != nil {
 				return err
 			}
-			outreq.Write(backendConn)
+			if err := outreq.Write(backendConn); err != nil {
+				log.Println("[ERROR] failed to write: ", err)
+			}
 		}
 		defer backendConn.Close()
 
+		proxyDone := make(chan struct{}, 2)
+
 		// Proxy backend -> frontend.
-		go pooledIoCopy(conn, backendConn)
+		go func() {
+			pooledIoCopy(conn, backendConn)
+			proxyDone <- struct{}{}
+		}()
 
 		// Proxy frontend -> backend.
 		//
@@ -300,35 +426,74 @@ func (rp *ReverseProxy) ServeHTTP(rw http.ResponseWriter, outreq *http.Request, 
 				if err != nil {
 					return err
 				}
-				backendConn.Write(rbuf)
+				if _, err := backendConn.Write(rbuf); err != nil {
+					log.Println("[ERROR] failed to write data to connection: ", err)
+				}
 			}
 		}
-		pooledIoCopy(backendConn, conn)
+		go func() {
+			pooledIoCopy(backendConn, conn)
+			proxyDone <- struct{}{}
+		}()
+
+		// If one side is done, we are done.
+		<-proxyDone
 	} else {
+		// NOTE:
+		//   Closing the Body involves acquiring a mutex, which is a
+		//   unnecessarily heavy operation, considering that this defer will
+		//   pretty much never be executed with the Body still unclosed.
+		bodyOpen := true
+		closeBody := func() {
+			if bodyOpen {
+				_ = res.Body.Close()
+				bodyOpen = false
+			}
+		}
+		defer closeBody()
+
+		// Copy all headers over.
+		// res.Header does not include the "Trailer" header,
+		// which means we will have to do that manually below.
 		copyHeader(rw.Header(), res.Header)
 
-		// The "Trailer" header isn't included in the Transport's response,
-		// at least for *http.Transport. Build it up from Trailer.
-		if len(res.Trailer) > 0 {
-			trailerKeys := make([]string, 0, len(res.Trailer))
+		// The "Trailer" header isn't included in res' Header map, which
+		// is why we have to build one ourselves from res.Trailer.
+		//
+		// But res.Trailer does not necessarily contain all trailer keys at this
+		// point yet. The HTTP spec allows one to send "unannounced trailers"
+		// after a request and certain systems like gRPC make use of that.
+		announcedTrailerKeyCount := len(res.Trailer)
+		if announcedTrailerKeyCount > 0 {
+			vv := make([]string, 0, announcedTrailerKeyCount)
 			for k := range res.Trailer {
-				trailerKeys = append(trailerKeys, k)
+				vv = append(vv, k)
 			}
-			rw.Header().Add("Trailer", strings.Join(trailerKeys, ", "))
+			rw.Header()["Trailer"] = vv
 		}
 
+		// Now copy over the status code as well as the response body.
 		rw.WriteHeader(res.StatusCode)
-		if len(res.Trailer) > 0 {
+		if announcedTrailerKeyCount > 0 {
 			// Force chunking if we saw a response trailer.
-			// This prevents net/http from calculating the length for short
-			// bodies and adding a Content-Length.
+			// This prevents net/http from calculating the length
+			// for short bodies and adding a Content-Length.
 			if fl, ok := rw.(http.Flusher); ok {
 				fl.Flush()
 			}
 		}
 		rp.copyResponse(rw, res.Body)
-		res.Body.Close() // close now, instead of defer, to populate res.Trailer
-		copyHeader(rw.Header(), res.Trailer)
+
+		// Now close the body to fully populate res.Trailer.
+		closeBody()
+
+		// Since Go does not remove keys from res.Trailer we
+		// can safely do a length comparison to check whether
+		// we received further, unannounced trailers.
+		//
+		// Most of the time forceSetTrailers should be false.
+		forceSetTrailers := len(res.Trailer) != announcedTrailerKeyCount
+		shallowCopyTrailers(rw.Header(), res.Trailer, forceSetTrailers)
 	}
 
 	return nil
@@ -369,12 +534,32 @@ func copyHeader(dst, src http.Header) {
 			if _, shouldSkip := skipHeaders[k]; shouldSkip {
 				continue
 			}
-			// otherwise, overwrite
-			dst.Del(k)
+			// otherwise, overwrite to avoid duplicated fields that can be
+			// problematic (see issue #1086) -- however, allow duplicate
+			// Server fields so we can see the reality of the proxying.
+			if k != "Server" {
+				dst.Del(k)
+			}
 		}
 		for _, v := range vv {
 			dst.Add(k, v)
 		}
+	}
+}
+
+// shallowCopyTrailers copies all headers from srcTrailer to dstHeader.
+//
+// If forceSetTrailers is set to true, the http.TrailerPrefix will be added to
+// all srcTrailer key names. Otherwise the Go stdlib will ignore all keys
+// which weren't listed in the Trailer map before submitting the Response.
+//
+// WARNING: Only a shallow copy will be created!
+func shallowCopyTrailers(dstHeader, srcTrailer http.Header, forceSetTrailers bool) {
+	for k, vv := range srcTrailer {
+		if forceSetTrailers {
+			k = http.TrailerPrefix + k
+		}
+		dstHeader[k] = vv
 	}
 }
 
@@ -423,8 +608,8 @@ func newConnHijackerTransport(base http.RoundTripper) *connHijackerTransport {
 	}
 	if b, _ := base.(*http.Transport); b != nil {
 		tlsClientConfig := b.TLSClientConfig
-		if tlsClientConfig.NextProtos != nil {
-			tlsClientConfig = cloneTLSClientConfig(tlsClientConfig)
+		if tlsClientConfig != nil && tlsClientConfig.NextProtos != nil {
+			tlsClientConfig = tlsClientConfig.Clone()
 			tlsClientConfig.NextProtos = nil
 		}
 
@@ -508,7 +693,7 @@ func getTransportDialTLS(t *http.Transport) func(network, addr string) (net.Conn
 			errc <- err
 		}()
 		if err := <-errc; err != nil {
-			plainConn.Close()
+			_ = plainConn.Close()
 			return nil, err
 		}
 		if !tlsClientConfig.InsecureSkipVerify {
@@ -517,7 +702,7 @@ func getTransportDialTLS(t *http.Transport) func(network, addr string) (net.Conn
 				hostname = stripPort(addr)
 			}
 			if err := tlsConn.VerifyHostname(hostname); err != nil {
-				plainConn.Close()
+				_ = plainConn.Close()
 				return nil, err
 			}
 		}
@@ -548,39 +733,8 @@ func (tlsHandshakeTimeoutError) Timeout() bool   { return true }
 func (tlsHandshakeTimeoutError) Temporary() bool { return true }
 func (tlsHandshakeTimeoutError) Error() string   { return "net/http: TLS handshake timeout" }
 
-// cloneTLSClientConfig is like cloneTLSConfig but omits
-// the fields SessionTicketsDisabled and SessionTicketKey.
-// This makes it safe to call cloneTLSClientConfig on a config
-// in active use by a server.
-func cloneTLSClientConfig(cfg *tls.Config) *tls.Config {
-	if cfg == nil {
-		return &tls.Config{}
-	}
-	return &tls.Config{
-		Rand:                        cfg.Rand,
-		Time:                        cfg.Time,
-		Certificates:                cfg.Certificates,
-		NameToCertificate:           cfg.NameToCertificate,
-		GetCertificate:              cfg.GetCertificate,
-		RootCAs:                     cfg.RootCAs,
-		NextProtos:                  cfg.NextProtos,
-		ServerName:                  cfg.ServerName,
-		ClientAuth:                  cfg.ClientAuth,
-		ClientCAs:                   cfg.ClientCAs,
-		InsecureSkipVerify:          cfg.InsecureSkipVerify,
-		CipherSuites:                cfg.CipherSuites,
-		PreferServerCipherSuites:    cfg.PreferServerCipherSuites,
-		ClientSessionCache:          cfg.ClientSessionCache,
-		MinVersion:                  cfg.MinVersion,
-		MaxVersion:                  cfg.MaxVersion,
-		CurvePreferences:            cfg.CurvePreferences,
-		DynamicRecordSizingDisabled: cfg.DynamicRecordSizingDisabled,
-		Renegotiation:               cfg.Renegotiation,
-	}
-}
-
 func requestIsWebsocket(req *http.Request) bool {
-	return strings.ToLower(req.Header.Get("Upgrade")) == "websocket" && strings.Contains(strings.ToLower(req.Header.Get("Connection")), "upgrade")
+	return strings.EqualFold(req.Header.Get("Upgrade"), "websocket") && strings.Contains(strings.ToLower(req.Header.Get("Connection")), "upgrade")
 }
 
 type writeFlusher interface {

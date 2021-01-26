@@ -33,6 +33,7 @@ my %values = (
     mac                 => '00:01:02:03:04:05',
     switch              => '0.0.0.1',
     switch_ip           => '0.0.0.2',
+    switch_ip_int       => 2,
     switch_mac          => '06:07:08:09:0a:0b',
     port                => '1234',
     vlan                => '99',
@@ -42,16 +43,17 @@ my %values = (
     dot1x_username      => 'test dot1x_username',
     ssid                => 'test ssid',
     stripped_user_name  => 'test stripped_user_name',
+    session_id          => undef,
     realm               => 'test realm',
-    session_id          => 'test session_id',
     ifDesc              => 'test ifDesc',
     start_time          => '0000-00-00 00:00:01',
     end_time            => '0000-00-00 00:00:02',
+    voip                => 'no',
 );
 my $status = pf::dal::locationlog->create(\%values);
 
 #run tests
-use Test::More tests => 76;
+use Test::More tests => 74;
 use Test::Mojo;
 use Test::NoWarnings;
 my $t = Test::Mojo->new('pf::UnifiedApi');
@@ -69,10 +71,8 @@ $t->get_ok('/api/v1/locationlogs' => json => { })
   ->json_is('/items/0/ssid','test ssid')
   ->json_is('/items/0/stripped_user_name','test stripped_user_name')
   ->json_is('/items/0/realm','test realm')
-  ->json_is('/items/0/session_id','test session_id')
   ->json_is('/items/0/ifDesc','test ifDesc')
   ->json_is('/items/0/start_time','0000-00-00 00:00:01')
-  ->json_is('/items/0/end_time','0000-00-00 00:00:02')  
 #  ->json_has('/')
   ->status_is(200);
 
@@ -237,7 +237,7 @@ $t->post_ok(
   ->status_is(200)
 ;
 
-is_deeply($t->tx->res->json->{items}[0], { mac => '01:02:03:04:05:01'});
+is_deeply($t->tx->res->json->{items}[0], { mac => '01:02:03:04:05:01'}, "fields [mac]");
 
 $t->post_ok(
     '/api/v1/locationlogs/search' => json => { }
@@ -323,7 +323,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2019 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 

@@ -16,6 +16,7 @@ use strict;
 use warnings;
 use pfconfig::namespaces::config;
 use pf::config::builder::scoped_filter_engines;
+use pf::config::builder::filter_engine;
 use pf::log;
 use pf::IniFiles;
 
@@ -53,7 +54,7 @@ sub build {
         return {};
     }
 
-    my $builder = pf::config::builder::scoped_filter_engines->new;
+    my $builder = $self->builder();
     my ($errors, $accessScopes) = $builder->build($ini);
     for my $err (@{ $errors // [] }) {
         my $error_msg =  "$file: $err->{rule}) $err->{message}";
@@ -65,13 +66,17 @@ sub build {
     return $accessScopes;
 }
 
+sub builder {
+    return pf::config::builder::filter_engine->new;
+}
+
 =head1 AUTHOR
 
 Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2019 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 

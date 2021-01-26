@@ -4,8 +4,8 @@
       <h4 class="mb-0" v-t="'Database Configuration'"></h4>
     </b-card-header>
     <b-tabs ref="tabs" v-model="tabIndex" card>
-      <b-tab :title="$t('General Configuration')" @click="changeTab('database')">
-        <database-view />
+      <b-tab :title="$t('General Configuration')" @click="changeTab('database_general')">
+        <database-general-view />
       </b-tab>
       <b-tab :title="$t('Advanced Configuration')" @click="changeTab('database_advanced')">
         <database-advanced-view />
@@ -15,24 +15,29 @@
 </template>
 
 <script>
-import DatabaseView from './DatabaseView'
-import DatabaseAdvancedView from './DatabaseAdvancedView'
+import DatabaseGeneralView from '../database/general/_components/TheView'
+import DatabaseAdvancedView from '../database/advanced/_components/TheView'
 
 export default {
-  name: 'DatabaseTabs',
+  name: 'database-tabs',
   components: {
-    DatabaseView,
+    DatabaseGeneralView,
     DatabaseAdvancedView
   },
   props: {
     tab: {
       type: String,
-      default: 'database'
+      default: 'database_general'
     }
   },
   computed: {
-    tabIndex () {
-      return ['database', 'database_advanced'].indexOf(this.tab)
+    tabIndex: {
+      get () {
+        return ['database_general', 'database_advanced'].indexOf(this.tab)
+      },
+      set () {
+        // noop
+      }
     }
   },
   methods: {

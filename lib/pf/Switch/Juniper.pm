@@ -25,6 +25,8 @@ a full disable / commit / enable / commit is performed on the switch making it v
 
 Users behind VoIP phones are not supported yet.
 
+=item Radius CLI Login
+
 =back
 
 =cut
@@ -43,9 +45,12 @@ use pf::util;
 
 # capabilities
 # TODO implement supportsSnmpTraps globally
-sub supportsSnmpTraps { return $FALSE; }
-sub supportsWiredMacAuth { return $TRUE; }
-sub supportsWiredDot1x { return $FALSE; }
+use pf::SwitchSupports qw(
+    WiredMacAuth
+    RoleBasedEnforcement
+    -SnmpTraps
+    -WiredDot1x
+);
 # inline capabilities
 sub inlineCapabilities { return ($MAC,$PORT); }
 
@@ -54,6 +59,46 @@ sub inlineCapabilities { return ($MAC,$PORT); }
 =over
 
 =cut
+
+=item returnAuthorizeWrite
+
+Return radius attributes to allow write access
+
+=cut
+
+sub returnAuthorizeWrite {
+   my ($self, $args) = @_;
+   my $logger = $self->logger;
+   my $radius_reply_ref = {};
+   my $status;
+   $radius_reply_ref->{'Juniper-Local-User-Name'} = 'super-user';
+   $radius_reply_ref->{'Reply-Message'} = "Switch enable access granted by PacketFence";
+   $logger->info("User $args->{'user_name'} logged in $args->{'switch'}{'_id'} with write access");
+   my $filter = pf::access_filter::radius->new;
+   my $rule = $filter->test('returnAuthorizeWrite', $args);
+   ($radius_reply_ref, $status) = $filter->handleAnswerInRule($rule,$args,$radius_reply_ref);
+   return [$status, %$radius_reply_ref];
+}
+
+=item returnAuthorizeRead
+
+Return radius attributes to allow read access
+
+=cut
+
+sub returnAuthorizeRead {
+   my ($self, $args) = @_;
+   my $logger = $self->logger;
+   my $radius_reply_ref = {};
+   my $status;
+   $radius_reply_ref->{'Juniper-Local-User-Name'} = 'read-only';
+   $radius_reply_ref->{'Reply-Message'} = "Switch read access granted by PacketFence";
+   $logger->info("User $args->{'user_name'} logged in $args->{'switch'}{'_id'} with read access");
+   my $filter = pf::access_filter::radius->new;
+   my $rule = $filter->test('returnAuthorizeRead', $args);
+   ($radius_reply_ref, $status) = $filter->handleAnswerInRule($rule,$args,$radius_reply_ref);
+   return [$status, %$radius_reply_ref];
+}
 
 =item NasPortToIfIndex
 
@@ -196,6 +241,18 @@ sub handleReAssignVlanTrapForWiredMacAuth {
 
 }
 
+=item returnRoleAttribute
+
+Juniper uses the standard Filter-Id parameter.
+
+=cut
+
+sub returnRoleAttribute {
+    my ($self) = @_;
+
+    return 'Filter-Id';
+}
+
 =back
 
 =head1 AUTHOR
@@ -204,7 +261,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2019 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 

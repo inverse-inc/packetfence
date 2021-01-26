@@ -52,7 +52,7 @@ sub generateConfig {
     foreach my $key ( keys %domain_dns_servers ) {
         my $dns = join ' ',@{$domain_dns_servers{$key}};
         $tags{'domain'} .= <<"EOT";
-    proxy $key. $dns
+    forward $key. $dns
 EOT
     }
 
@@ -61,10 +61,14 @@ EOT
         next if ( !pf::config::is_network_type_inline($network) );
         my $net_addr = NetAddr::IP->new($network,$ConfigNetworks{$network}{'netmask'});
         my $cidr = $net_addr->cidr();
+        my $dns =  join ' ',split(',',$ConfigNetworks{$network}{'dns'});
         $tags{'inline'} .= <<"EOT";
-    proxy $cidr . $ConfigNetworks{$network}{'dns'}
+    forward . $dns {
+        network_source $cidr
+    }
 EOT
     }
+
     $tt->process("$conf_dir/pfdns.conf", \%tags, "$generated_conf_dir/pfdns.conf") or die $tt->error();
 }
 
@@ -75,7 +79,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2019 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 

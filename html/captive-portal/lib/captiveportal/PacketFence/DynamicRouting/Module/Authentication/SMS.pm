@@ -217,7 +217,6 @@ sub validate_pin {
     }
     my $mac = $self->current_mac;
     if (my $record = pf::activation::validate_code_with_mac($SMS_ACTIVATION, $pin, $mac)) {
-        $self->transfer_saving_fields();
         return ($TRUE, 0, $record);
     }
     pf::auth_log::change_record_status($self->source->id, $mac, $pf::auth_log::FAILED, $self->app->profile->name);
@@ -278,7 +277,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2019 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 

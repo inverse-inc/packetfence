@@ -33,6 +33,7 @@ use HTTP::Status qw(:constants);
 use pf::error qw(is_success);
 use pf::constants::api;
 use POSIX::AtFork;
+use pf::cluster;
 
 =head1 Attributes
 
@@ -111,13 +112,23 @@ The current token that was obtained by the login
 
 has token => (is => 'rw');
 
+=head2 tenant_id
+
+The tenant ID to send in the X-PacketFence-Tenant-Id header if any. When sent to undef (default value), it doesn't send it
+
+=cut
+
+has tenant_id => (is => 'rw', default => sub{undef});
+
 use constant REQUEST => 0;
 use constant RESPONSE => 2;
 use constant NOTIFICATION => 2;
 
 my $default_client;
+my $management_client;
 sub CLONE {
     $default_client = pf::api::unifiedapiclient->new;
+    $management_client = pf::api::unifiedapiclient->new(host => pf::cluster::management_cluster_ip())
 }
 POSIX::AtFork->add_to_child(\&CLONE);
 CLONE();
@@ -135,6 +146,22 @@ sub default_client {
     return $default_client;
 }
 
+=head2 management_client
+
+Get the management client which points to the virtual IP address (in cluster) or the default client (in standalone)
+Most requests should use this when talking to management so that the token is shared across usages.
+
+=cut
+
+sub management_client {
+    if($cluster_enabled) {
+        return $management_client;
+    }
+    else {
+        return $default_client;
+    }
+}
+
 =head2 call
 
 Calls an JSON REST method
@@ -145,7 +172,7 @@ sub call {
     use bytes;
     my @params = @_;
     my $self = shift @params;
-    my ($method,$path,$args) = @params;
+    my ($method,$path,$args,$retrying) = @params;
 
     my $response;
     my $curl = $self->connection();
@@ -164,8 +191,11 @@ sub call {
     $curl->setopt(CURLOPT_CUSTOMREQUEST, $method);
 
     if($self->token) {
-        $curl->setopt(CURLOPT_HTTPHEADER, ["Authorization: Bearer ".$self->token]);
+        $curl->pushopt(CURLOPT_HTTPHEADER, ["Authorization: Bearer ".$self->token]);
     }
+
+    my $tenant_id = ( defined($self->tenant_id) ) ? $self->tenant_id : $pf::config::tenant::CURRENT_TENANT;
+    $curl->pushopt(CURLOPT_HTTPHEADER, ["X-PacketFence-Tenant-Id: " . $tenant_id]);
 
     # Starts the actual request
     my $curl_return_code = $curl->perform;
@@ -185,18 +215,26 @@ sub call {
             }
         }
         # If we got a 401 and aren't currently logging in then we try to login and retry the request
-        elsif($response_code == 401 && $path ne $pf::constants::api::LOGIN_PATH) {
+        elsif(!$retrying || ($response_code == 401 && $path ne $pf::constants::api::LOGIN_PATH)) {
             get_logger->info("Request to $path is unauthorized, will perform a login");
+            $self->connection($self->curl);
             $self->login();
-            return $self->call(@params);
+            return $self->call($method,$path,$args,1);
         }
         else {
             $response = decode_json($response_body);
-            die $response->{message};
+            die $response_code . " " . $response->{message};
         }
     } else {
         my $msg = "An error occured while sending a JSON REST request to the Unified API: $curl_return_code ".$curl->strerror($curl_return_code)." ".$curl->errbuf;
-        die $msg;
+        if(!$retrying) {
+            get_logger->warn("Failed communicating with API, will retry. Failure was: ".$msg);
+            $self->connection($self->curl);
+            $self->call($method,$path,$args,1);
+        }
+        else {
+            die $msg;
+        }
     }
 }
 
@@ -270,6 +308,17 @@ sub build_json_rest_payload {
     return encode_json $args;
 }
 
+=head2 reset_tenant_id
+
+Resets the tenant ID of the client
+
+=cut
+
+sub reset_tenant_id {
+    my ($self) = @_;
+    $self->tenant_id(undef);
+}
+
 =head1 AUTHOR
 
 Inverse inc. <info@inverse.ca>
@@ -277,7 +326,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2019 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 

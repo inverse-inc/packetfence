@@ -1,0 +1,20 @@
+# Copyright (C) Inverse inc.
+[Unit]
+Description=PacketFence Certificat Manager Daemon
+Wants=packetfence-base.target packetfence-config.service packetfence-iptables.service
+After=packetfence-base.target packetfence-config.service packetfence-iptables.service
+Before=packetfence-radiusd-auth.service
+
+[Service]
+StartLimitBurst=3
+StartLimitInterval=60
+Type=notify
+WatchdogSec=30s
+Environment=LOG_LEVEL=INFO
+ExecStartPre=-/usr/bin/umount -l /usr/local/pf/conf/certmanager
+ExecStart=/usr/local/pf/sbin/pfcertmanager
+Restart=on-failure
+Slice=packetfence.slice
+
+[Install]
+WantedBy=packetfence.target

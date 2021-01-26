@@ -39,30 +39,13 @@ use pf::util;
 
 =over
 
-=item supportsRadiusVoip
-
-This switch module supports VoIP authorization over RADIUS.
-Use getVoipVsa to return specific RADIUS attributes for VoIP to work.
-
 =cut
 
-sub supportsRadiusVoip { return $TRUE; }
-
-=item supportsWiredDot1x
-
-This switch module supports wired 802.1x authentication.
-
-=cut
-
-sub supportsWiredDot1x { return $TRUE; }
-
-=item supportsWiredAuth
-
-This switch module supports wired MAC authentication.
-
-=cut
-
-sub supportsWiredMacAuth { return $TRUE; }
+use pf::SwitchSupports qw(
+    RadiusVoip
+    WiredDot1x
+    WiredMacAuth
+);
 
 # inline capabilities
 sub inlineCapabilities { return ($MAC,$PORT); }
@@ -158,7 +141,7 @@ sub getVoipVsa {
     return (
         'Tunnel-Type'               => $RADIUS::VLAN,
         'Tunnel-Medium-Type'        => $RADIUS::ETHERNET,
-        'Tunnel-Private-Group-ID'   => $self->getVlanByName($VOICE_ROLE),
+        'Tunnel-Private-Group-ID'   => $self->getVlanByName($VOICE_ROLE) . "",
     );
 }
 
@@ -252,7 +235,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2019 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 

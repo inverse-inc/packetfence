@@ -56,7 +56,7 @@ my $item = {
     type        => 'accept'
 };
 
-$t->post_ok($collection_base_url => json => { id => 'test', description => 'v1', type => 'accept'})
+$t->post_ok($collection_base_url => json => $item)
   ->status_is(201);
 
 $t->post_ok($collection_base_url => json => $item)
@@ -103,7 +103,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2019 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 

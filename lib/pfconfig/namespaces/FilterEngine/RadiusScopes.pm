@@ -17,6 +17,7 @@ use warnings;
 use pf::log;
 use pfconfig::namespaces::config;
 use pfconfig::namespaces::config::RadiusFilters;
+use pf::config::builder::filter_engine::radius;
 
 use base 'pfconfig::namespaces::FilterEngine::AccessScopes';
 
@@ -25,13 +26,17 @@ sub parentConfig {
     return pfconfig::namespaces::config::RadiusFilters->new($self->{cache});
 }
 
+sub builder {
+    return pf::config::builder::filter_engine::radius->new();
+}
+
 =head1 AUTHOR
 
 Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2019 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 

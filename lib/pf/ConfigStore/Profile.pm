@@ -57,6 +57,11 @@ sub cleanupAfterRead {
     my ($self, $id, $profile) = @_;
     $self->expand_list($profile, $self->_fields_expanded);
     $profile->{filter} = [ map {s/,,/,/g;$_} split( /\s*(?<!,),(?!,)\s*/, $profile->{filter} || '' ) ];
+    if ($profile->{advanced_filter}) {
+        $self->expandCondition($profile, 'advanced_filter');
+    } else {
+        $profile->{advanced_filter} = undef;
+    }
 }
 
 =head2 cleanupBeforeCommit
@@ -70,6 +75,10 @@ sub cleanupBeforeCommit {
     $self->flatten_list($profile, $self->_fields_expanded);
     if (exists $profile->{filter}) {
         $profile->{filter} = join(",", map { s/,/,,/g;$_ } @{$profile->{filter} // []});
+    }
+
+    if (defined $profile->{advanced_filter}) {
+        $self->flattenCondition($profile, 'advanced_filter');
     }
 }
 
@@ -85,7 +94,7 @@ __PACKAGE__->meta->make_immutable unless $ENV{"PF_SKIP_MAKE_IMMUTABLE"};
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2019 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 

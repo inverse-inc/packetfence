@@ -1,0 +1,158 @@
+// to display images directly on GitHub
+ifdef::env-github[]
+:encoding: UTF-8
+:lang: en
+:doctype: book
+:toc: left
+:imagesdir: ../../images
+endif::[]
+
+////
+
+    This file is part of the PacketFence project.
+
+    See PacketFence_Network_Devices_Configuration_Guide-docinfo.xml for 
+    authors, copyright and license information.
+
+////
+
+  
+//=== Meru
+
+==== Meru Controllers (MC)
+
+In this section, we cover the basic configuration of the Meru wireless controller for PacketFence via the web GUI.
+
+[float]
+===== Disable PMK Caching
+
+If you are running a WPA2 SSID, you may need to disable PMK caching in order to avoid deauthentication issues.  This is true if you are running AP 300s using any 5.0 versions including 5.0-87, or any versions below 4.0-160.
+
+Here are the commands to run to disable the PMK caching at the AP level.  First, login the AP, and run this command to see which radios are broadcasting your SSID.
+   vap display
+
+Second, disable the PMK caching on those radios.
+   radio pmkid radio00 disable
+
+You can also add those commands to the AP bootscript.  Contact your Meru support representative for that part.
+
+[float]
+===== VLAN Definition
+
+Here, we create our PacketFence VLANs for client use. Go to _Configuration -> Wired -> VLAN_, and select Add.
+
+* VLAN Name is the human readable name (ie. RegistrationVLAN)
+* Tag is the VLAN ID
+* Fast Ethernet Interface Index refers to the controller's ethernet interface
+* IP Address – An IP address for this controller on this VLAN
+* Netmask – Network mask for this VLAN
+* IP Address of the default gateway – Wired IP router for this VLAN
+* Set the Override Default DHCP server flag to off
+* Leave the DHCP server IP address and the DHCP relay Pass-Through to default
+
+Click *OK* to add the VLAN.
+
+[float]
+===== AAA Authentication Server 
+
+Here, we create our PacketFence RADIUS server for use. Under _Configuration -> Security -> Radius_, select *Add*.
+
+* Give the RADIUS Profile a name
+* Write a description of the profile
+* Give the RADIUS IP, RADIUS Secret and the RADIUS authentication port
+* Select Colon for the MAC address delimiter
+* Select MAC Address as the password type
+
+Click *OK* to add the RADIUS profile.
+
+[float]
+===== AAA Accounting Server 
+
+Here, we create our PacketFence RADIUS server for use. Under _Configuration -> Security -> Radius_, select *Add*.
+
+* Give the RADIUS Profile a name
+* Write a description of the profile
+* Give the RADIUS IP, RADIUS Secret and the RADIUS accounting port
+* Select Colon for the MAC address delimiter
+* Select MAC Address as the password type
+
+Click *OK* to add the RADIUS accounting profile.
+
+[float]
+===== AAA Profiles – Open SSID
+
+Here, we create our wireless security profiles for use. 
+Under _Configuration -> Security -> Profile_, select *Add*.
+
+* Give the security profile a name
+* Select Clear as the L2 Modes Allowed
+* Leave Data Encrypt empty
+* Disable the Captive Portal
+* Enable the Mac Filtering
+
+Click *OK* to save the profile.
+
+[float]
+===== MAC Filtering
+
+When using the OpenSSID, you need to activate the mac filtering. 
+Under _Configuration -> Mac Filtering_:
+
+* Set ACL Environment State to Permit list enabled
+* Select your RADIUS profile
+
+[float]
+===== AAA Profiles – Secure SSID
+
+Here, we create our wireless security profiles for use. 
+Under _Configuration -> Security -> Profile_, select *Add*.
+
+* Give the security profile a name
+* Select WPA2 as the L2 Modes Allowed
+* Select CCMP-AES for Data Encrypt
+* Select your PacketFence RADIUS Authentication Profile
+* Disable the Captive Portal
+* Enable the 802.1X network initiation
+* Leave the Mac Filtering to off
+
+Click *OK* to save the profile.
+
+[float]
+===== WLAN SSIDs
+
+Here, we create our SSID and tie it to a security profile. 
+Under _Configuration -> Wireless -> ESS_, select *Add*.
+
+* Give the ESS profile a name, and enable it
+* Write an SSID name
+* Select your security profile name previously created
+* Select your PacketFence RADIUS Accounting Profile (if you want to do accounting)
+* Enable the SSID Broadcast
+* Make the new AP to join the ESS
+* Set the tunnel interface type to RADIUS and Configured VLAN
+* Select the registration VLAN for the VLAN Name
+
+Click *OK* to create the SSID. Repeat those steps for the open and secure SSID by choosing the right security profile.
+
+[float]
+===== WLAN SSIDs – Adding to access point
+
+Here, we tie our SSIDs to access points. 
+Under _Configuration -> Wireless -> ESS_, select the SSID you want to add to your aps. Then, select the *ESS-AP Table*, and click *Add*.
+
+* Select the AP ID from the drop down list
+* Click *OK* to associate the SSID with this AP
+
+[float]
+===== Roles (Per-User Firewall)
+
+Since PacketFence 3.3.0, we now support roles (per-user firewall rules) for the Meru hardware.  To add firewall rules, go in _Configuration -> QoS System Settings -> QoS and Firewall Rules_.  When you add a rule, you have to pay attention to two things:
+
+* The rule is applied to the controller physical interface right away, so make sure you are not too wide on your ACL to lock you out!
+* The rules are grouped using the Firewall Filter ID (We will use this ID for the roles)
+
+So, since the matching is done using the Firewall Filter ID configuration field, your roles line in switches.conf would look like :
+
+   roles=Guests=1;Staff=2
+
+NOTE: You need to have the *Per-User Firewall* license in order to benefit this feature.

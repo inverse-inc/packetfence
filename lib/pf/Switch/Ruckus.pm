@@ -59,10 +59,12 @@ sub description { 'Ruckus Wireless Controllers' }
 
 # CAPABILITIES
 # access technology supported
-sub supportsWirelessDot1x { return $TRUE; }
-sub supportsWirelessMacAuth { return $FALSE; }
-sub supportsExternalPortal { return $TRUE; }
-sub supportsRoleBasedEnforcement { return $TRUE; }
+use pf::SwitchSupports qw(
+    WirelessDot1x
+    -WirelessMacAuth
+    ExternalPortal
+    RoleBasedEnforcement
+);
 
 # inline capabilities
 sub inlineCapabilities { return ($MAC,$SSID); }
@@ -75,7 +77,7 @@ Will be activated only if HTTP is selected as a deauth method
 
 sub supportsWebFormRegistration {
     my ($self) = @_;
-    return $self->{_deauthMethod} eq $SNMP::HTTP;
+    return ($self->{_deauthMethod} // '') eq $SNMP::HTTP ? $TRUE : $FALSE;
 }
 
 =item getVersion
@@ -155,7 +157,7 @@ Return the reference to the deauth technique or the default deauth technique.
 =cut
 
 sub deauthTechniques {
-    my ($self, $method) = @_;
+    my ($self, $method, $connection_type) = @_;
     my $logger = $self->logger;
     my $default = $SNMP::RADIUS;
     my %tech = (
@@ -247,7 +249,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2019 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 

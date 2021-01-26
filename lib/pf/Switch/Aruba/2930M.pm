@@ -24,7 +24,9 @@ use pf::util;
 use pf::radius::constants;
 sub description {'Aruba 2930M Series'}
 
-sub supportsAccessListBasedEnforcement { return $TRUE }
+use pf::SwitchSupports qw(
+    AccessListBasedEnforcement
+);
 
 =head2 returnRadiusAccessAccept
 
@@ -46,8 +48,7 @@ sub returnRadiusAccessAccept {
     my @acls = defined($radius_reply_ref->{'NAS-Filter-Rule'}) ? @{$radius_reply_ref->{'NAS-Filter-Rule'}} : ();
 
     if ( isenabled($self->{_AccessListMap}) && $self->supportsAccessListBasedEnforcement ){
-        if( defined($args->{'user_role'}) && $args->{'user_role'} ne "" && defined($self->getAccessListByName($args->{'user_role'}))){
-            my $access_list = $self->getAccessListByName($args->{'user_role'});
+        if( defined($args->{'user_role'}) && $args->{'user_role'} ne "" && defined(my $access_list = $self->getAccessListByName($args->{'user_role'}, $args->{mac}))){
             if ($access_list) {
                 while($access_list =~ /([^\n]+)\n?/g){
                     push(@acls, $1);
@@ -75,7 +76,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2019 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 

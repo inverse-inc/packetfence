@@ -12,66 +12,63 @@
         </b-row>
       </b-card-header>
       <div class="card-body mb-3">
-        <div
-          @mouseout="unhighlightRoute()"
+        <b-table class="table-clickable"
+          :items="interfaces"
+          :fields="fieldsInterface"
+          :sort-by="'id'"
+          :sort-desc="false"
+          :sort-compare="sortCompareInterface"
+          :hover="interfaces && interfaces.length > 0"
+          @row-clicked="onRowClickInterface"
+          @row-hovered="onRowHoverInterface"
+          show-empty
+          responsive
+          fixed
+          sort-icon-left
         >
-          <b-table class="table-clickable"
-            :items="interfaces"
-            :fields="fieldsInterface"
-            :sort-by="'id'"
-            :sort-desc="false"
-            :sort-compare="sortCompareInterface"
-            :hover="interfaces && interfaces.length > 0"
-            @row-clicked="onRowClickInterface"
-            @row-hovered="onRowHoverInterface"
-            @mouseout="unhighlightRoute"
-            show-empty
-            responsive
-            fixed
-          >
-            <template slot="empty">
-              <pf-empty-table :isLoading="isInterfacesLoading">{{ $t('No interfaces found') }}</pf-empty-table>
-            </template>
-            <template slot="is_running" slot-scope="data">
-              <pf-form-range-toggle
-                v-model="data.item.is_running"
-                :values="{ checked: true, unchecked: false }"
-                :icons="{ checked: 'check', unchecked: 'times' }"
-                :colors="{ checked: 'var(--success)', unchecked: 'var(--danger)' }"
-                :disabled="isInterfacesLoading"
-                @input="toggleRunningInterface(data.item, $event)"
-                @click.stop.prevent
-              >{{ (data.item.is_running === true) ? $t('up') : $t('down') }}</pf-form-range-toggle>
-            </template>
-            <template slot="id" slot-scope="data">
-              <span class="text-nowrap mr-2">{{ data.item.name }}</span>
-              <b-badge v-if="data.item.vlan" variant="secondary">VLAN {{ data.item.vlan }}</b-badge>
-            </template>
-            <template slot="network" slot-scope="data">
-              <router-link v-if="layer2NetworkIds.includes(data.value)" :to="{ name: 'layer2_network', params: { id: data.value } }">{{ data.value }}</router-link>
-              <template v-else>{{ data.value }}</template>
-            </template>
-            <template slot="additional_listening_daemons" slot-scope="data">
-              <b-badge v-for="(daemon, index) in data.item.additional_listening_daemons" :key="index" class="mr-1" variant="secondary">{{ daemon }}</b-badge>
-            </template>
-            <template slot="high_availability" slot-scope="data">
-              <icon name="circle" :class="{ 'text-success': data.item.high_availability === 1, 'text-danger': data.item.high_availability === 0 }"></icon>
-            </template>
-            <template slot="buttons" slot-scope="data">
-              <span v-if="data.item.vlan"
-                class="float-right text-nowrap"
-              >
-                <pf-button-delete size="sm" variant="outline-danger" class="mr-1" :disabled="isInterfacesLoading" :confirm="$t('Delete VLAN?')" @on-delete="removeInterface(data.item)" reverse/>
-                <b-button size="sm" variant="outline-primary" class="mr-1" :disabled="isInterfacesLoading" @click.stop.prevent="cloneInterface(data.item)">{{ $t('Clone') }}</b-button>
-              </span>
-              <span v-else
-                class="float-right text-nowrap"
-              >
-                <b-button size="sm" variant="outline-primary" class="mr-1" :disabled="isInterfacesLoading" @click.stop.prevent="addVlanInterface(data.item)">{{ $t('New VLAN') }}</b-button>
-              </span>
-            </template>
-          </b-table>
-        </div>
+          <template v-slot:empty>
+            <pf-empty-table :isLoading="isInterfacesLoading">{{ $t('No interfaces found') }}</pf-empty-table>
+          </template>
+          <template v-slot:cell(is_running)="{ item }">
+            <pf-form-range-toggle
+              v-model="item.is_running"
+              :values="{ checked: true, unchecked: false }"
+              :icons="{ checked: 'check', unchecked: 'times' }"
+              :colors="{ checked: 'var(--success)', unchecked: 'var(--danger)' }"
+              :right-labels="{ checked: $t('up'), unchecked: $t('down') }"
+              :lazy="{ checked: enableInterface(item), unchecked: disableInterface(item) }"
+              :disabled="item.type === 'management'"
+              @click.stop.prevent
+            />
+          </template>
+          <template v-slot:cell(id)="item">
+            <span class="text-nowrap mr-2">{{ item.item.name }}</span>
+            <b-badge v-if="item.item.vlan" variant="secondary">VLAN {{ item.item.vlan }}</b-badge>
+          </template>
+          <template v-slot:cell(network)="item">
+            <router-link v-if="layer2NetworkIds.includes(item.value)" :to="{ name: 'layer2_network', params: { id: item.value } }">{{ item.value }}</router-link>
+            <template v-else>{{ item.value }}</template>
+          </template>
+          <template v-slot:cell(additional_listening_daemons)="item">
+            <b-badge v-for="(daemon, index) in item.item.additional_listening_daemons" :key="index" class="mr-1" variant="secondary">{{ daemon }}</b-badge>
+          </template>
+          <template v-slot:cell(high_availability)="item">
+            <icon name="circle" :class="{ 'text-success': item.item.high_availability === 1, 'text-danger': item.item.high_availability === 0 }"></icon>
+          </template>
+          <template v-slot:cell(buttons)="item">
+            <span v-if="item.item.vlan"
+              class="float-right text-nowrap"
+            >
+              <pf-button-delete size="sm" variant="outline-danger" class="mr-1" :disabled="isInterfacesLoading" :confirm="$t('Delete VLAN?')" @on-delete="removeInterface(item.item)" reverse/>
+              <b-button size="sm" variant="outline-primary" class="mr-1" :disabled="isInterfacesLoading" @click.stop.prevent="cloneInterface(item.item)">{{ $t('Clone') }}</b-button>
+            </span>
+            <span v-else
+              class="float-right text-nowrap"
+            >
+              <b-button size="sm" variant="outline-primary" class="mr-1" :disabled="isInterfacesLoading" @click.stop.prevent="addVlanInterface(item.item)">{{ $t('New VLAN') }}</b-button>
+            </span>
+          </template>
+        </b-table>
       </div>
     </b-card>
 
@@ -95,30 +92,29 @@
             <pf-button-service service="pfdns" class="mr-1" restart start stop></pf-button-service>
           </b-col>
         </b-row>
-        <div
-          @mouseout="unhighlightLayer2()"
+        <b-table class="table-clickable"
+          :items="layer2Networks"
+          :fields="fieldsLayer2Network"
+          :sort-by="'id'"
+          :sort-desc="false"
+          :hover="layer2Networks && layer2Networks.length > 0"
+          @row-clicked="onRowClickLayer2Network"
+          @row-hovered="onRowHoverLayer2Network"
+          show-empty
+          responsive
+          fixed
+          sort-icon-left
         >
-          <b-table class="table-clickable"
-            :items="layer2Networks"
-            :fields="fieldsLayer2Network"
-            :sort-by="'id'"
-            :sort-desc="false"
-            :sort-compare="sortCompareLayer2Network"
-            :hover="layer2Networks && layer2Networks.length > 0"
-            @row-clicked="onRowClickLayer2Network"
-            @row-hovered="onRowHoverLayer2Network"
-            show-empty
-            responsive
-            fixed
-          >
-            <template slot="empty">
-              <pf-empty-table :isLoading="isLayer2NetworksLoading">{{ $t('No layer2 networks found') }}</pf-empty-table>
-            </template>
-            <template slot="dhcpd" slot-scope="data">
-              <icon name="circle" :class="{ 'text-success': data.item.dhcpd === 'enabled', 'text-danger': data.item.dhcpd === 'disabled' }"></icon>
-            </template>
-          </b-table>
-        </div>
+          <template v-slot:empty>
+            <pf-empty-table :isLoading="isLayer2NetworksLoading">{{ $t('No layer2 networks found') }}</pf-empty-table>
+          </template>
+          <template v-slot:cell(dhcpd)="item">
+            <icon name="circle" :class="{ 'text-success': item.item.dhcpd === 'enabled', 'text-danger': item.item.dhcpd === 'disabled' }"></icon>
+          </template>
+          <template v-slot:cell(netflow_accounting_enabled)="item">
+            <icon name="circle" :class="{ 'text-success': item.item.netflow_accounting_enabled === 'enabled', 'text-danger': item.item.netflow_accounting_enabled === 'disabled' }"></icon>
+          </template>
+        </b-table>
       </div>
     </b-card>
 
@@ -140,41 +136,39 @@
           </b-col>
           <b-col cols="auto">
             <pf-button-service service="iptables" class="mr-1" restart start stop></pf-button-service>
-            <pf-button-service service="routes" class="mr-1" restart start stop></pf-button-service>
             <pf-button-service service="pfdhcp" class="mr-1" restart start stop></pf-button-service>
             <pf-button-service service="pfdns" class="mr-1" restart start stop></pf-button-service>
           </b-col>
         </b-row>
-        <div
-          @mouseout="unhighlightRoute()"
+        <b-table class="table-clickable"
+          :items="routedNetworks"
+          :fields="fieldsRoutedNetwork"
+          :sort-by="'id'"
+          :sort-desc="false"
+          :hover="routedNetworks && routedNetworks.length > 0"
+          @row-clicked="onRowClickRoutedNetwork"
+          @row-hovered="onRowHoverRoutedNetwork"
+          show-empty
+          responsive
+          fixed
+          sort-icon-left
         >
-          <b-table class="table-clickable"
-            :items="routedNetworks"
-            :fields="fieldsRoutedNetwork"
-            :sort-by="'id'"
-            :sort-desc="false"
-            :sort-compare="sortCompareRoutedNetwork"
-            :hover="routedNetworks && routedNetworks.length > 0"
-            @row-clicked="onRowClickRoutedNetwork"
-            @row-hovered="onRowHoverRoutedNetwork"
-            show-empty
-            responsive
-            fixed
-          >
-            <template slot="empty">
-              <pf-empty-table :isLoading="isRoutedNetworksLoading">{{ $t('No routed networks found') }}</pf-empty-table>
-            </template>
-            <template slot="dhcpd" slot-scope="data">
-              <icon name="circle" :class="{ 'text-success': data.item.dhcpd === 'enabled', 'text-danger': data.item.dhcpd === 'disabled' }"></icon>
-            </template>
-            <template slot="buttons" slot-scope="data">
-              <span class="float-right text-nowrap">
-                <pf-button-delete size="sm" variant="outline-danger" class="mr-1" :disabled="isRoutedNetworksLoading" :confirm="$t('Delete Routed Network?')" @on-delete="removeRoutedNetwork(data.item)" reverse/>
-                <b-button size="sm" variant="outline-primary" class="mr-1" :disabled="isRoutedNetworksLoading" @click.stop.prevent="cloneRoutedNetwork(data.item)">{{ $t('Clone') }}</b-button>
-              </span>
-            </template>
-          </b-table>
-        </div>
+          <template v-slot:empty>
+            <pf-empty-table :isLoading="isRoutedNetworksLoading">{{ $t('No routed networks found') }}</pf-empty-table>
+          </template>
+          <template v-slot:cell(dhcpd)="item">
+            <icon name="circle" :class="{ 'text-success': item.item.dhcpd === 'enabled', 'text-danger': item.item.dhcpd === 'disabled' }"></icon>
+          </template>
+          <template v-slot:cell(netflow_accounting_enabled)="item">
+            <icon name="circle" :class="{ 'text-success': item.item.netflow_accounting_enabled === 'enabled', 'text-danger': item.item.netflow_accounting_enabled === 'disabled' }"></icon>
+          </template>
+          <template v-slot:cell(buttons)="item">
+            <span class="float-right text-nowrap">
+              <pf-button-delete size="sm" variant="outline-danger" class="mr-1" :disabled="isRoutedNetworksLoading" :confirm="$t('Delete Routed Network?')" @on-delete="removeRoutedNetwork(item.item)" reverse/>
+              <b-button size="sm" variant="outline-primary" class="mr-1" :disabled="isRoutedNetworksLoading" @click.stop.prevent="cloneRoutedNetwork(item.item)">{{ $t('Clone') }}</b-button>
+            </span>
+          </template>
+        </b-table>
       </div>
     </b-card>
   </div>
@@ -186,18 +180,12 @@ import pfButtonDelete from '@/components/pfButtonDelete'
 import pfButtonService from '@/components/pfButtonService'
 import pfEmptyTable from '@/components/pfEmptyTable'
 import pfFormRangeToggle from '@/components/pfFormRangeToggle'
-import {
-  pfConfigurationInterfacesListColumns as columnsInterface
-} from '@/globals/configuration/pfConfigurationInterfaces'
-import {
-  pfConfigurationLayer2NetworksListColumns as columnsLayer2Network
-} from '@/globals/configuration/pfConfigurationLayer2Networks'
-import {
-  pfConfigurationRoutedNetworksListColumns as columnsRoutedNetwork
-} from '@/globals/configuration/pfConfigurationRoutedNetworks'
+import { columns as columnsInterface } from '../_config/interface'
+import { columns as columnsLayer2Network } from '../_config/layer2Network'
+import { columns as columnsRoutedNetwork } from '../_config/routedNetwork'
 
 export default {
-  name: 'InterfacesList',
+  name: 'interfaces-list',
   components: {
     pfButtonDelete,
     pfButtonService,
@@ -220,7 +208,10 @@ export default {
       return this.$store.getters[`$_interfaces/isWaiting`]
     },
     fieldsInterface () {
-      return columnsInterface
+      return columnsInterface.map(column => {
+        const { label } = column
+        return { ...column, label: this.$i18n.t(label) }
+      })
     },
     isLayer2NetworksLoading () {
       return this.$store.getters[`$_layer2_networks/isLoading`]
@@ -229,7 +220,10 @@ export default {
       return this.$store.getters[`$_layer2_networks/isWaiting`]
     },
     fieldsLayer2Network () {
-      return columnsLayer2Network
+      return columnsLayer2Network.map(column => {
+        const { label } = column
+        return { ...column, label: this.$i18n.t(label) }
+      })
     },
     layer2NetworkIds () {
       return this.layer2Networks.map(network => network.id)
@@ -241,26 +235,26 @@ export default {
       return this.$store.getters[`$_routed_networks/isWaiting`]
     },
     fieldsRoutedNetwork () {
-      return columnsRoutedNetwork
+      return columnsRoutedNetwork.map(column => {
+        const { label } = column
+        return { ...column, label: this.$i18n.t(label) }
+      })
     }
   },
   methods: {
     init () {
-      this.$store.dispatch(`$_interfaces/all`).then(data => {
-        this.interfaces = data.items
+      this.$store.dispatch(`$_interfaces/all`).then(interfaces => {
+        this.interfaces = interfaces
         this.interfaces.forEach((item, index) => {
           if (item.vlan) this.interfaces[index]._rowVariant = 'secondary' // set table row variant on vlans
         })
       })
-      this.$store.dispatch(`$_routed_networks/all`).then(data => {
-        this.routedNetworks = data.items
+      this.$store.dispatch(`$_routed_networks/all`).then(routedNetworks => {
+        this.routedNetworks = routedNetworks
       })
-      this.$store.dispatch(`$_layer2_networks/all`).then(data => {
-        this.layer2Networks = data.items
+      this.$store.dispatch(`$_layer2_networks/all`).then(layer2Networks => {
+        this.layer2Networks = layer2Networks
       })
-    },
-    ipv4NetmaskToSubnet (ip, netmask) {
-      return network.ipv4NetmaskToSubnet(ip, network)
     },
     /**
      * Interface
@@ -269,7 +263,7 @@ export default {
       this.$router.push({ name: 'cloneInterface', params: { id: item.id } })
     },
     removeInterface (item) {
-      this.$store.dispatch(`$_interfaces/deleteInterface`, item.id).then(response => {
+      this.$store.dispatch(`$_interfaces/deleteInterface`, item.id).then(() => {
         this.init() // reload
       })
     },
@@ -293,16 +287,25 @@ export default {
       }
       this.highlightedRoute = null
     },
-    toggleRunningInterface (item, event) {
-      if (!item.is_running) { // inverted logic because our model already changed
-        this.$store.dispatch(`$_interfaces/downInterface`, item.id).then(data => {
-        }).catch(() => {
-          this.init() // reload
+    enableInterface (item) {
+      return () => { // 'enabled'
+        return new Promise((resolve, reject) => {
+          this.$store.dispatch(`$_interfaces/upInterface`, item.id).then(() => {
+            resolve(true)
+          }).catch(() => {
+            reject() // resewt
+          })
         })
-      } else {
-        this.$store.dispatch(`$_interfaces/upInterface`, item.id).then(data => {
-        }).catch(() => {
-          this.init() // reload
+      }
+    },
+    disableInterface (item) {
+      return () => { // 'disabled'
+        return new Promise((resolve, reject) => {
+          this.$store.dispatch(`$_interfaces/downInterface`, item.id).then(() => {
+            resolve(false)
+          }).catch(() => {
+            reject() // reset
+          })
         })
       }
     },
@@ -326,9 +329,6 @@ export default {
       }
       this.highlightedRoute = null
     },
-    unhighlightLayer2 () {
-      this.highlightedRoute = null
-    },
 
     /**
      * Routed Network
@@ -337,7 +337,7 @@ export default {
       this.$router.push({ name: 'cloneRoutedNetwork', params: { id: item.id } })
     },
     removeRoutedNetwork (item) {
-      this.$store.dispatch(`$_routed_networks/deleteRoutedNetwork`, item.id).then(response => {
+      this.$store.dispatch(`$_routed_networks/deleteRoutedNetwork`, item.id).then(() => {
         this.init() // reload
       })
     },
@@ -350,9 +350,6 @@ export default {
         return
       }
       this.highlightedRoute = null
-    },
-    unhighlightRoute () {
-      this.highlightedRoute = null
     }
   },
   created () {
@@ -360,7 +357,7 @@ export default {
   },
   watch: {
     highlightedRoute: {
-      handler: function (a, b) {
+      handler: function (a) {
         if (this.interfaces.length > 0) {
           this.interfaces.forEach((iface, i) => {
             if (a && iface.ipaddress && iface.network && network.ipv4NetmaskToSubnet(iface.ipaddress, iface.network) === a) {

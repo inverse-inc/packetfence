@@ -72,12 +72,12 @@ has_field 'alt_agent_download_uri' =>
 
 has_block definition =>
   (
-   render_list => [ qw(id type description category oses client_id client_secret host port protocol access_token refresh_token agent_download_uri alt_agent_download_uri) ],
+   render_list => [ qw(id type description category oses client_id client_secret host port protocol access_token refresh_token agent_download_uri alt_agent_download_uri apply_role role_to_apply autoregister) ],
   );
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2019 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 

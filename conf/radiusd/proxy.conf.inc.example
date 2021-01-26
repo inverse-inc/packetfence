@@ -2,4 +2,9 @@
 
 %%config%%
 
+%%eduroam_config%%
+
 %%radius_sources%%
+
+%%pfacct%%
+

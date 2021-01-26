@@ -22,12 +22,10 @@ use Fcntl;
 use Net::Radius::Dictionary;
 use Net::Radius::Packet;
 use Net::UDP;
+use lib qw(/usr/local/pf/lib);
+use pf::util::radius_dictionary ($RADIUS_DICTIONARY);
 
 my $secret = "qwerty";  # Shared secret on the term server. This seems to be ignored actually.
- 
-# Parse the RADIUS dictionary file (must have dictionary in current dir)
-my $dict = new Net::Radius::Dictionary "/usr/local/pf/lib/pf/util/dictionary"
-  or die "Couldn't read dictionary: $!";
  
 # Set up the network socket (must have radius-dynauth in /etc/services)
 my $s = new Net::UDP { thisservice => "radius-dynauth" } or die $!;
@@ -44,9 +42,9 @@ while (1) {
     # Get the data
     $rec = $s->recv(undef, undef, $whence);
     # Unpack it
-    my $p = new Net::Radius::Packet $dict, $rec;
+    my $p = new Net::Radius::Packet $RADIUS_DICTIONARY, $rec;
     # Create a response packet
-    my $rp = new Net::Radius::Packet $dict;
+    my $rp = new Net::Radius::Packet $RADIUS_DICTIONARY;
 
     if ( my ($request_type) = $p->code =~ /(CoA|Disconnect)-Request/ ) {
 
@@ -92,7 +90,7 @@ Christopher Masto.
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2019 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 Changes (c) 2002,2003 Luis E. Muñoz <luismunoz@cpan.org>.
 

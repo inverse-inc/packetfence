@@ -50,7 +50,7 @@ sub format_response {
         $radius_return = $RADIUS::RLM_MODULE_OK
     }
 
-    unless ($radius_return == $RADIUS::RLM_MODULE_OK) {
+    unless ($radius_return == $RADIUS::RLM_MODULE_OK || $radius_return == $RADIUS::RLM_MODULE_NOOP || $radius_return == $RADIUS::RLM_MODULE_UPDATED) {
         die pf::api::error->new(status => Apache2::Const::HTTP_UNAUTHORIZED, response => $response);
     }
 
@@ -78,7 +78,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2019 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 

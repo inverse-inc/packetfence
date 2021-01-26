@@ -1,0 +1,238 @@
+// to display images directly on GitHub
+ifdef::env-github[]
+:encoding: UTF-8
+:lang: en
+:doctype: book
+:toc: left
+:imagesdir: ../images
+endif::[]
+
+////
+
+    This file is part of the PacketFence project.
+
+    See PacketFence_Network_Devices_Configuration_Guide-docinfo.xml for 
+    authors, copyright and license information.
+
+////
+
+//== Switch configuration
+
+=== Assumptions
+
+Throughout this configuration example we use the following assumptions for our network infrastructure: 
+
+[options="compact"]
+* PacketFence is fully configured with FreeRADIUS running (if you want 802.1X or MAC Auth) 
+* PacketFence IP address: 192.168.1.5 
+* Normal VLAN: 1 
+* Registration VLAN: 2 
+* Isolation VLAN: 3 
+* MAC Detection VLAN: 4 
+* Guest VLAN: 5
+* VoIP, Voice VLAN: 100 
+* use SNMP v2c
+* SNMP Read community: public
+* SNMP Write community: private
+* SNMP Trap community: public 
+* RADIUS Secret: useStrongerSecret 
+
+=== 3COM
+
+include::networkdevice/3com.asciidoc[]
+
+=== Alcatel
+
+include::networkdevice/alcatel.asciidoc[]
+
+=== AlliedTelesis
+
+include::networkdevice/alliedTelesis.asciidoc[]
+
+=== Amer
+
+include::networkdevice/amer.asciidoc[]
+
+=== Avaya
+
+include::networkdevice/avaya.asciidoc[]
+
+=== Brocade
+
+include::networkdevice/brocade.asciidoc[]
+
+=== Cisco
+
+include::networkdevice/cisco.asciidoc[]
+
+=== Cisco Small Business (SMB)
+
+include::networkdevice/cisco_small_business.asciidoc[]
+
+=== D-Link
+
+include::networkdevice/dlink.asciidoc[]
+
+=== Dell
+
+include::networkdevice/dell.asciidoc[]
+
+=== Edge core
+
+include::networkdevice/edge_core.asciidoc[]
+
+=== Enterasys
+
+include::networkdevice/enterasys.asciidoc[]
+
+=== Extreme Networks
+
+include::networkdevice/extreme_networks.asciidoc[]
+
+=== Foundry
+
+include::networkdevice/foundry.asciidoc[]
+
+=== H3C
+
+include::networkdevice/h3c.asciidoc[]
+
+=== HP
+
+include::networkdevice/hp.asciidoc[]
+
+=== HP ProCurve
+
+include::networkdevice/hp_procurve.asciidoc[]
+
+=== Huawei
+
+include::networkdevice/huawei_switchs.asciidoc[]
+
+=== IBM
+
+include::networkdevice/ibm.asciidoc[]
+
+=== Intel
+
+==== Express 460 and Express 530
+
+PacketFence support these switches _without VoIP_ using one trap type:
+
+* linkUp/linkDown
+
+Exact command-line configuration to be contributed...
+
+=== Juniper
+
+include::networkdevice/juniper.asciidoc[]
+
+=== LG-Ericsson
+
+include::networkdevice/lgericsson.asciidoc[]
+
+=== Linksys
+
+PacketFence supports Linksys switches _without VoIP_ using one trap type:
+
+* linkUp/linkDown
+
+Don't forget to update the startup config!
+
+==== SRW224G4
+
+Global config settings
+
+  no snmp-server trap authentication
+  snmp-server community CS_2000_le rw view Default 
+  snmp-server community CS_2000_ls ro view Default 
+  snmp-server host 192.168.1.5 public 2
+
+On each interface
+
+  switchport access vlan 4
+
+=== Netgear
+
+include::networkdevice/netgear.asciidoc[]
+
+=== Pica8
+
+PacketFence supports Pica8 switches without VoIP using CoA to:
+
+* bounce-host-port
+* reauthenticate-host
+
+Notes
+
+* **SNMP is not supported yet**
+* **Port Security is not supported**
+
+For interfaces with MAC Authentication, perform the following:
+
+  set interface gigabit-ethernet ge-1/1/25 family ethernet-switching port-mode trunk
+  set protocols dot1x interface ge-1/1/25 auth-mode mac-radius
+  set protocols dot1x interface ge-1/1/25 dynamic-vlan-enable true
+  set protocols dot1x traceoptions interface ge-1/1/25 flag all disable false
+
+For interfaces with 802.1X, perform:
+
+  set interface gigabit-ethernet ge-1/1/4 family ethernet-switching port-mode trunk
+  set protocols dot1x interface ge-1/1/4 auth-mode dot1x
+  set protocols dot1x interface ge-1/1/4 dynamic-vlan-enable true
+  set protocols dot1x traceoptions interface ge-1/1/4 flag all disable false
+  
+Global configuration:
+
+  set protocols dot1x aaa radius nas-ip 10.10.51.169
+  set protocols dot1x aaa radius authentication server-ip 192.168.1.5 shared-key useStrongerSecret
+  set protocols dot1x aaa radius dynamic-author client 192.168.1.5 shared-key useStrongerSecret
+  set protocols dot1x traceoptions interface ge-1/1/4 flag all disable false
+  set protocols dot1x traceoptions flag radius disable false
+  set vlans vlan-id 10
+  set vlans vlan-id 20
+  set vlans vlan-id 30
+  commit
+
+* `10.10.51.169` is the switch IP
+* For interfaces where auth-mode is unknown, use the following command
+    set protocols dot1x interface ge-1/1/12 auth-mode dot1x-mac-radius
+  This allows the switch to first try 802.1X and if there is no response from the client then fallback to MAC Authentication.
+* Create VLAN(s) on the switch as per your requirements
+* Please note that traceoptions are only for debugging
+
+=== SMC
+
+==== TigerStack 6128L2, 8824M and 8848M
+
+PacketFence supports these switches without VoIP using two different trap types:
+
+* linkUp/linkDown
+* Port Security (with static MACs)
+
+*We recommend to enable Port Security only.*
+
+Global config settings
+
+  SNMP-server host 192.168.1.5 public version 2c udp-port 162
+  no snmp-server enable traps link-up-down
+
+On each interface: 
+
+  port security max-mac-count 1
+  port security
+  port security action trap
+
+==== TigerStack 6224M
+
+Supports linkUp/linkDown mode
+
+Global config settings
+
+  SNMP-server host 192.168.1.5 public version 1
+
+
+=== Ubiquiti
+
+include::networkdevice/ubiquiti.asciidoc[]
+

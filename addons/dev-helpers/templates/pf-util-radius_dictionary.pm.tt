@@ -1,0 +1,11 @@
+[% WRAPPER "class-wrapper.tt" class="pf::util::radius_dictionary" -%]
+use Net::Radius::Dictionary;
+use Exporter qw(import);
+our @EXPORT_OK = qw($RADIUS_DICTIONARY);
+
+our $RADIUS_DICTIONARY = bless(
+    [% INSERT "$dump" %],
+    "Net::Radius::Dictionary",
+);
+
+[%- END -%]

@@ -29,7 +29,7 @@ use base 'pfconfig::namespaces::config';
 sub init {
     my ($self, $host_id) = @_;
     $self->{file}            = $switches_config_file;
-    $self->{child_resources} = [ 'resource::default_switch', 'resource::switches_group', 'resource::switches_ranges', 'interfaces::management_network', 'resource::SwitchTypesConfigured', 'resource::cli_switches', 'resource::SwitchReverseLookup' ];
+    $self->{child_resources} = [qw(resource::default_switch resource::switches_group resource::switches_ranges interfaces::management_network resource::SwitchTypesConfigured resource::cli_switches resource::SwitchReverseLookup resource::switches_list resource::RolesReverseLookup)];
 
     $host_id //= "";
     $self->{management_network} = $self->{cache}->get_cache("interfaces::management_network($host_id)");
@@ -75,6 +75,7 @@ sub build_child {
         }
     }
 
+    my %roleReverseLookup;
     while ( my ($name, $switch) = each %tmp_cfg) {
 
         # transforming uplink and inlineTrigger to arrays
@@ -86,15 +87,23 @@ sub build_child {
         $self->updateReverseLookup($name, $switch, qw(group));
         # transforming vlans and roles to hashes
         my %merged = ( Vlan => {}, Role => {}, AccessList => {} , Url => {} );
+        my %roles;
         foreach my $key ( grep {/(Vlan|Role|AccessList|Url)$/} keys %{$switch} ) {
             next unless my $value = $switch->{$key};
-            if ( my ( $type_key, $type ) = ( $key =~ /^(.+)(Vlan|Role|AccessList|Url)$/ ) ) {
+            if ( my ( $type_key, $type ) = ( $key =~ /^(.+)(DynamicAccessListFingerbank|Vlan|Role|AccessList|Url)$/ ) ) {
                 $merged{$type}{$type_key} = $value;
+                $roles{$type_key} = undef;
             }
         }
+
+        for my $r (keys %roles) {
+            push @{$roleReverseLookup{$r}{switch}}, $name;
+        }
+
         $switch->{roles}        = $merged{Role};
         $switch->{vlans}        = $merged{Vlan};
         $switch->{access_lists} = $merged{AccessList};
+        $switch->{fingerbank_dynamic_access_list} = $merged{DynamicAccessListFingerbank};
         $switch->{urls}         = $merged{Url};
         $switch->{VoIPEnabled}  = (
             $switch->{VoIPEnabled} =~ /^\s*(y|yes|true|enabled|1)\s*$/i
@@ -114,7 +123,7 @@ sub build_child {
         }
     }
 
-    if($self->{management_network}){
+    if ($self->{management_network}) {
         my @management_ips;
         push @management_ips, $self->{management_network}->tag('vip') if(defined($self->{management_network}->tag('vip')));
         push @management_ips, $self->{management_network}->tag('ip') if(defined($self->{management_network}->tag('ip')));
@@ -133,6 +142,7 @@ sub build_child {
         $self->cleanup_after_read( $key, $tmp_cfg{$key} );
     }
 
+    $self->{roleReverseLookup} = \%roleReverseLookup;
     return \%tmp_cfg;
 
 }
@@ -178,7 +188,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2019 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 

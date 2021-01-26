@@ -39,14 +39,13 @@ BEGIN {
 }
 
 use Net::Radius::Packet;
-use Net::Radius::Dictionary;
 use IO::Select;
 use IO::Socket qw/:DEFAULT :crlf/;
 use pf::radius_audit_log;
 use pf::node qw (node_view);
 use pf::util qw (clean_mac);
+use pf::util::radius_dictionary qw($RADIUS_DICTIONARY);
 
-my $dictionary = new Net::Radius::Dictionary "/usr/local/pf/lib/pf/util/dictionary";
 my $default_port = '3799';
 my $default_timeout = 10;
 
@@ -112,7 +111,7 @@ sub perform_dynauth {
         Proto => 'udp',
     ) or die ("Couldn't create UDP connection: $@");
 
-    my $radius_request = Net::Radius::Packet->new($dictionary);
+    my $radius_request = Net::Radius::Packet->new($RADIUS_DICTIONARY);
     $radius_request->set_code($radius_code);
     # sets a random byte into id
     $radius_request->set_identifier( int(rand(256)) );
@@ -147,7 +146,7 @@ sub perform_dynauth {
             die("No answer from $connection_info->{'nas_ip'} on port $connection_info->{'nas_port'}")
                 if (!$socket->recv($rad_data, $MAX_TO_READ));
 
-            my $radius_reply = Net::Radius::Packet->new($dictionary, $rad_data);
+            my $radius_reply = Net::Radius::Packet->new($RADIUS_DICTIONARY, $rad_data);
             # identifies if the reply is related to the request? damn you udp...
             if ($radius_reply->identifier() != $radius_request->identifier()) {
                 die("Received an invalid RADIUS packet identifier: " . $radius_reply->identifier());
@@ -163,6 +162,7 @@ sub perform_dynauth {
             return \%return;
 
         } else {
+            record_coa($connection_info, $radius_code, $attributes, $vsa, 'Reply-Message' => 'Error - Timeout');
             die("Timeout waiting for a reply from $connection_info->{'nas_ip'} on port $connection_info->{'nas_port'}");
         }
     }
@@ -291,7 +291,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2019 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 

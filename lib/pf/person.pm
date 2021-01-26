@@ -328,7 +328,7 @@ Get all the persons who are not the owner of at least one node.
 
 sub persons_without_nodes {
     my ($status, $iter) = pf::dal::person->search(
-        -from => [-join => qw(person =>{node.pid=person.pid} node)],
+        -from => [-join => 'person', '=>{node.pid=person.pid,node.tenant_id=person.tenant_id}', 'node'],
         -columns => ['person.pid'],
         -group_by => 'pid',
         -having => 'count(node.mac)=0',
@@ -347,7 +347,7 @@ Clean all persons that are not the owner of a node and that are not a local acco
 
 sub person_cleanup {
     my @to_delete = map { $_->{pid} } persons_without_nodes();
-    my $now = DateTime->now();
+    my $now = DateTime->now(time_zone => 'local');
     foreach my $pid (@to_delete) {
         if($pf::constants::BUILTIN_USERS{$pid}){
             get_logger->debug("User $pid is set for deletion but is a built-in user. Not deleting...");
@@ -361,6 +361,7 @@ sub person_cleanup {
                 next;
             }
             $expiration = DateTime::Format::MySQL->parse_datetime($expiration);
+            $expiration->set_time_zone('local');
             my $cmp = DateTime->compare($now, $expiration);
             if($cmp < 0){
                 get_logger->debug("Not deleting $pid because the local account is still valid.");
@@ -382,7 +383,7 @@ Minor parts of this file may have been contributed. See CREDITS.
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2019 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 Copyright (C) 2005 Kevin Amorin
 

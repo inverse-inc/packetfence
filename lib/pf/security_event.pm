@@ -28,7 +28,6 @@ use pfconfig::cached_scalar;
 use fingerbank::Model::Device;
 use fingerbank::Model::DHCP_Fingerprint;
 use fingerbank::Model::DHCP_Vendor;
-use fingerbank::Model::User_Agent;
 use pf::security_event_config;
 use pf::node;
 use pf::StatsD::Timer;
@@ -170,7 +169,7 @@ sub security_event_modify {
         $existing->{release_date} = $ZERO_DATE;
     }
 
-    $status = $existing->save();
+    $status = $existing->update();
 
     return (is_success($status));
 }
@@ -385,7 +384,7 @@ sub security_event_add {
         my $msg = "security_event $security_event_id already exists for $mac, not adding again";
         $logger->info($msg);
         security_event_add_warnings($msg);
-        return ($security_event->{security_event_id});
+        return ($security_event->{id});
     }
 
     my $latest_security_event = ( security_event_view_open($mac) )[0];
@@ -397,7 +396,7 @@ sub security_event_add {
             $logger->warn(
                 "hostscan detected from $mac, but security_event $latest_security_event_id exists - ignoring"
             );
-            return (1);
+            return ($latest_security_event->{id});
         }
 
         #replace UNKNOWN hostscan with known security_event
@@ -443,7 +442,7 @@ sub security_event_add {
     });
     if (is_success($status)) {
         my $last_id = get_db_handle->last_insert_id(undef,undef,undef,undef);
-        $logger->info("security event $security_event_id added for $mac");
+        $logger->info("security event $security_event_id added for $mac as $data{status}");
         if($data{status} eq 'open') {
             pf::action::action_execute( $mac, $security_event_id, $data{notes} );
             security_event_post_open_action($mac, $security_event_id);
@@ -521,7 +520,6 @@ sub info_for_security_event_engine {
         dhcp_vendor => "fingerbank::Model::DHCP_Vendor",
         dhcp6_fingerprint => "fingerbank::Model::DHCP6_Fingerprint",
         dhcp6_enterprise => "fingerbank::Model::DHCP6_Enterprise",
-        user_agent => "fingerbank::Model::User_Agent",
     };
     my $results = {};
     foreach my $attr (keys %$attr_map){
@@ -532,8 +530,9 @@ sub info_for_security_event_engine {
             return is_success($status) ? $result->id : undef;
         });
     }
-    my ($mac_vendor) = $cache->compute_with_undef("pf::fingerbank::mac_vendor_from_mac_$mac", sub {
-        return pf::fingerbank::mac_vendor_from_mac($mac);
+    my ($mac_vendor_id) = $cache->compute_with_undef("mac_vendor_id_from_mac_$mac", sub {
+        my $mac_vendor = pf::fingerbank::mac_vendor_from_mac($mac);
+        return $mac_vendor ? $mac_vendor->id : undef;
     });
 
     my $accounting_history = pf::accounting_events_history->new->latest_mac_history($mac);
@@ -545,8 +544,7 @@ sub info_for_security_event_engine {
       dhcp6_fingerprint_id => $results->{dhcp6_fingerprint},
       dhcp6_enterprise_id => $results->{dhcp6_enterprise},
       mac => $mac,
-      mac_vendor_id => defined($mac_vendor) ? $mac_vendor->{id} : undef,
-      user_agent_id => $results->{user_agent},
+      mac_vendor_id => $mac_vendor_id,
       last_switch => $node_info->{'last_switch'},
       role => $node_info->{category},
       last_accounting_events => $accounting_history,
@@ -640,7 +638,7 @@ sub security_event_trigger {
             next;
         }
         # Compute the release date
-        my $date = 0;
+        my $date = $ZERO_DATE;
         my %data;
 
         my $class = class_view($security_event_id);
@@ -887,11 +885,13 @@ sub security_event_maintenance {
     my $start_time = time;
     my $end_time;
     my $rows_processed = 0;
+    my @processed;
     while(1) {
         my ($status, $iter) = pf::dal::security_event->search(
             -where => {
                 status => ["open", "delayed"],
                 release_date => [-and => {"!=" => $ZERO_DATE}, {"<=" => \'NOW()'}],
+                id => { -not_in => \@processed },
             },
            -limit => $batch,
            -columns => [qw(id mac security_event_id notes status)],
@@ -905,6 +905,7 @@ sub security_event_maintenance {
         while (my $row = $iter->next(undef)) {
             if($row->{status} eq 'delayed' ) {
                 $client->notify(security_event_delayed_run => ($row));
+                push @processed, $row->{id};
             }
             else {
                 my $mac = $row->{mac};
@@ -1022,7 +1023,7 @@ Minor parts of this file may have been contributed. See CREDITS.
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2019 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 Copyright (C) 2005 Kevin Amorin
 

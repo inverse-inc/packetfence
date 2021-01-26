@@ -32,7 +32,8 @@ sub build {
     $self->{cluster_resource}->build();
 
     my @servers;
-    for my $cluster_name (keys(%{$self->{cluster_resource}->{_servers}})) {
+    my $clusters = $self->{cluster_resource}->{_clusters_uniq_list} // [keys(%{$self->{cluster_resource}->{_servers}})];
+    for my $cluster_name (@$clusters) {
         push @servers, @{$self->{cluster_resource}->{_servers}->{$cluster_name}};
     }
 
@@ -46,7 +47,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2019 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 

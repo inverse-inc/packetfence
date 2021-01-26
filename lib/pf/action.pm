@@ -185,7 +185,7 @@ sub action_api {
     }
     $logger->warn($return);
 
-    my $cmd = "sudo $return 2>&1";
+    my $cmd = "$return 2>&1";
 
     my @lines  = pf_run($cmd);
     return;
@@ -225,7 +225,6 @@ sub action_execute {
     }
     if (!$leave_open && !($security_event_id eq $POST_SCAN_SECURITY_EVENT_ID || $security_event_id eq $PRE_SCAN_SECURITY_EVENT_ID || $security_event_id eq $SCAN_SECURITY_EVENT_ID)) {
         $logger->info("this is a non-reevaluate-access security_event, closing security_event entry now");
-        require pf::security_event;
         pf::security_event::security_event_force_close( $mac, $security_event_id );
     }
     return (1);
@@ -236,7 +235,7 @@ sub action_enforce_provisioning {
     my $logger = get_logger();
     my $profile = pf::Connection::ProfileFactory->instantiate($mac);
     if (defined(my $provisioner = $profile->findProvisioner($mac))) {
-        my $result = $provisioner->authorize($mac);
+        my $result = $provisioner->authorize_enforce($mac);
         if ($result == $TRUE) {
             $logger->debug("$mac is still authorized with it's provisioner");
         }
@@ -357,7 +356,15 @@ sub action_autoregister {
     }
     else {
         require pf::role::custom;
-        ( $status, $status_msg ) = pf::node::node_register($mac, "default", "unregdate"=>$unregdate);
+
+        my $node_info = node_view($mac);
+        my $pid = $node_info->{'pid'} || 'default';
+        my %info = (
+            auto_registered => 1,
+            unregdate => $unregdate,
+        );
+        ( $status, $status_msg ) = pf::node::node_register($mac, $pid, %info);
+
         if(!$status){
             $logger->error("auto-registration of node $mac failed");
             return;
@@ -376,7 +383,7 @@ sub action_close {
    $logger->info("SECURITY_EVENT_ID to close: $class->{'vclose'}");
 
    if (defined($class->{'vclose'})) {
-     my $result = security_event_force_close($mac,$class->{'vclose'});
+     my $result = pf::security_event::security_event_force_close($mac,$class->{'vclose'});
 
      # If close is a success, reevaluate the Access for the node
      if ($result) {
@@ -397,7 +404,7 @@ Minor parts of this file may have been contributed. See CREDITS.
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2019 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 Copyright (C) 2005 Kevin Amorin
 

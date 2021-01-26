@@ -5,10 +5,22 @@
     <h2>[% i18n("Registration pending") %]</h2>
   </div>
 
+  [% IF register_on_activation %]
+  <div class="o-media o-media--notice u-padding u-margin-bottom">
+    <div class="o-media__img">[% flashIcon(level='notice', size='tiny') %]</div>
+    <p class="o-media__body">[% i18n("Your registration is pending approval. You can safely close this page, your network access will be automatically enabled once the sponsor activates your access.") %]</p>
+  </div>
+  [% ELSE %]
+  <div class="o-media o-media--error u-padding u-margin-bottom">
+    <div class="o-media__img">[% flashIcon(level='error', size='tiny') %]</div>
+    <p class="o-media__body">[% i18n("Do not close this page until your access has been approved") %]</p>
+  </div>
+
   <div class="o-media o-media--notice u-padding u-margin-bottom">
     <div class="o-media__img">[% flashIcon(level='notice', size='tiny') %]</div>
     <p class="o-media__body">[% i18n("Your registration is pending approval. Once approved you will be automatically redirected.") %]</p>
   </div>
+  [% END %]
 
   <noscript>
     <div class="o-box">

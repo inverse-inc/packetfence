@@ -42,12 +42,14 @@ use base ('pf::Switch::Fortinet');
 
 sub description { 'FortiGate Firewall with web auth + 802.1X' }
 
-sub supportsExternalPortal { return $TRUE; }
-sub supportsWebFormRegistration { return $TRUE }
-sub supportsWirelessMacAuth { return $TRUE; }
-sub supportsWiredMacAuth { return $TRUE; }
-sub supportsWirelessDot1x { return $TRUE; }
-sub supportsVPN { return $TRUE; }
+use pf::SwitchSupports qw(
+    ExternalPortal
+    WebFormRegistration
+    WirelessMacAuth
+    WiredMacAuth
+    WirelessDot1x
+    VPN
+);
 
 =item getIfIndexByNasPortId
 
@@ -221,7 +223,7 @@ Return radius attributes to allow VPN access
 
 =cut
 
-sub returnRadiusAuthorizeVPN {
+sub returnAuthorizeVPN {
     my ($self, $args) = @_;
     my $logger = $self->logger;
 
@@ -270,7 +272,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2019 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 

@@ -7,9 +7,9 @@ import (
 
 	"github.com/inverse-inc/packetfence/go/log"
 	"github.com/inverse-inc/packetfence/go/sharedutils"
-	"layeh.com/radius"
-	"layeh.com/radius/rfc2865"
-	"layeh.com/radius/rfc2866"
+	radius "github.com/inverse-inc/go-radius"
+	"github.com/inverse-inc/go-radius/rfc2865"
+	"github.com/inverse-inc/go-radius/rfc2866"
 )
 
 type WatchGuard struct {

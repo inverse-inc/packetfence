@@ -1,4 +1,5 @@
 /* eslint key-spacing: ["error", { "mode": "minimum" }] */
+import i18n from '@/utils/locale'
 
 export const pfSearchConditionType = {
   /**
@@ -20,6 +21,7 @@ export const pfSearchConditionType = {
   ONLINE:                  'online',
   YESNO:                   'yesno',
   NAS_PORT_TYPE:           'nas_port_type',
+  SWITCH_IP:               'switch_ip',
 
   /**
    * Promise fields
@@ -105,6 +107,17 @@ pfConditionOperators[pfSearchConditionType.NAS_PORT_TYPE] = {
   'equals':                pfSearchConditionValue.SELECT,
   'not_equals':            pfSearchConditionValue.SELECT
 }
+pfConditionOperators[pfSearchConditionType.SWITCH_IP] = {
+  'equals':                pfSearchConditionValue.TEXT,
+  'not_equals':            pfSearchConditionValue.TEXT,
+  'starts_with':           pfSearchConditionValue.TEXT,
+  'ends_with':             pfSearchConditionValue.TEXT,
+  'contains':              pfSearchConditionValue.TEXT,
+  'greater_than':          pfSearchConditionValue.TEXT,
+  'less_than':             pfSearchConditionValue.TEXT,
+  'greater_than_equals':   pfSearchConditionValue.TEXT,
+  'less_than_equals':      pfSearchConditionValue.TEXT
+}
 
 /**
  * Promise fields
@@ -138,31 +151,47 @@ pfConditionOperators[pfSearchConditionType.SWITCH_GROUP] = {
  * Values of some condition types
  */
 export const pfSearchConditionValues = {}
-// See lib/pf/config.pm#L344-L350
+// See lib/pf/constants/config.pm#L167-L178
 pfSearchConditionValues[pfSearchConditionType.CONNECTION_TYPE] = [
   {
     value: 'Wireless-802.11-EAP',
-    text: 'WiFi 802.1X'
+    text: i18n.t('WiFi 802.1X')
   },
   {
     value: 'Wireless-802.11-NoEAP',
-    text: 'WiFi MAC Auth'
+    text: i18n.t('WiFi MAC Auth')
   },
   {
     value: 'Ethernet-EAP',
-    text: 'Wired 802.1x'
+    text: i18n.t('Wired 802.1x')
   },
   {
-    value: 'WIRED_MAC_AUTH',
-    text: 'Wired MAC Auth'
+    value: 'Ethernet-NoEAP',
+    text: i18n.t('Wired MAC Auth')
   },
   {
     value: 'SNMP-Traps',
-    text: 'Wired SNMP'
+    text: i18n.t('Wired SNMP')
   },
   {
     value: 'Inline',
-    text: 'Inline'
+    text: i18n.t('Inline')
+  },
+  {
+    value: 'Ethernet-Web-Auth',
+    text: i18n.t('Wired Web Auth')
+  },
+  {
+    value: 'Wireless-Web-Auth',
+    text: i18n.t('Wifi Web Auth')
+  },
+  {
+    value: 'VPN-Access',
+    text: i18n.t('VPN Access')
+  },
+  {
+    value: 'CLI-Access',
+    text: i18n.t('CLI Access')
   }
 ]
 pfSearchConditionValues[pfSearchConditionType.NODE_STATUS] = [
@@ -252,7 +281,7 @@ pfSearchConditionValues[pfSearchConditionType.DOMAIN] = (store) => {
   return store.getters['config/domainsList']
 }
 pfSearchConditionValues[pfSearchConditionType.REALM] = (store) => {
-  store.dispatch('config/getRealms')
+  store.dispatch('config/getRealms', store.getters['session/tenantIdMask'])
   return store.getters['config/realmsList']
 }
 pfSearchConditionValues[pfSearchConditionType.ROLE] = (store) => {

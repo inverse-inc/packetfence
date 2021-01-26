@@ -1,33 +1,41 @@
 <template>
-  <b-card class="h-100" no-body>
+  <b-card no-body ref="container">
+    <b-card-header>
+      <h4 class="mb-0">
+        {{ $t('Portal Modules') }}
+        <pf-button-help class="ml-1" url="PacketFence_Installation_Guide.html#_portal_modules" />
+      </h4>
+    </b-card-header>
     <!-- Visual representation of portal modules -->
-    <b-tabs class="tab-pane-scroll flex-grow-1" :class="{ minimize: minimize }" v-model="tabIndex" card>
+    <b-tabs class="flex-grow-1" :class="{ minimize: minimize }" v-scroll-100 v-model="tabIndex" card>
       <b-tab v-for="rootModule in rootModules" :key="rootModule.id" :title="rootModule.description">
         <b-form-row class="justify-content-end">
           <b-button variant="link" @click="minimize = !minimize"><icon :name="minimize ? 'expand' : 'compress'"></icon></b-button>
-          <pf-button-delete class="mr-1" :disabled="isLoading" :confirm="$t('Delete Module?')" @on-delete="remove(rootModule.id)"/>
+          <pf-button-delete class="mr-1" :disabled="isLoading" :confirm="$t('Delete Module?')" @on-delete="remove(rootModule.id)" reverse/>
           <b-form @submit.prevent="save(rootModule)">
-            <pf-button-save :disabled="invalidForm" :isLoading="isLoading" v-t="'Save'"></pf-button-save>
+            <pf-button-save :isLoading="isLoading" v-t="'Save'"></pf-button-save>
           </b-form>
         </b-form-row>
         <div class="position-relative">
           <div class="steps-row">
             <template v-for="step in stepsCount(rootModule.id)">
-            <icon class="card-bg" name="caret-right" :key="step"><!-- force proper spacing --></icon>
-            <div class="step-col" :key="step">
+            <icon class="card-bg" name="caret-right" :key="`${step}-icon`" v-show="!minimize"><!-- force proper spacing --></icon>
+            <div class="step-col" :key="`${step}-div`">
               <div class="step">
                 <div class="float-right py-1 pr-2 text-secondary small"><span v-show="!minimize" v-t="'step'"></span> {{ step }}</div>
               </div>
             </div>
             </template>
           </div>
-          <b-row align-v="center" class="pt-5">
-            <icon class="connector-arrow" name="circle"></icon>
-            <portal-module :id="rootModule.id" :modules="items" :storeName="storeName" :minimize="minimize" />
+          <b-row align-v="center" class="pt-5 pl-3 row-nowrap">
+            <icon class="connector-circle" name="circle"></icon>
+            <portal-module :id="rootModule.id" :modules="items" :minimize="minimize" />
           </b-row>
         </div>
       </b-tab>
-      <b-button class="ml-3 mb-1" variant="outline-primary" slot="tabs" :to="{ name: 'newPortalModule', params: { moduleType: 'Root' } }">{{ $t('New Root Module') }}</b-button>
+      <template v-slot:tabs-end>
+        <b-button class="ml-3 mb-1" variant="outline-primary" :to="{ name: 'newPortalModule', params: { moduleType: 'Root' } }">{{ $t('New Root Module') }}</b-button>
+      </template>
       <!-- Loading progress indicator -->
       <b-container class="my-5" v-if="isLoading && !items.length">
         <b-row class="justify-content-md-center text-secondary">
@@ -40,22 +48,25 @@
     <!-- All portal modules grouped by type -->
     <b-card-footer class="card-footer-fixed disconnect">
       <b-tabs small card>
-        <b-tab title-link-class="text-nowrap" v-for="moduleType in activeModuleTypes" :key="moduleType">
-          <template slot="title"><icon :style="{ color: getColorByType(moduleType) }" name="circle" scale=".5"></icon> {{ getModuleTypeName(moduleType) }}</template>
-          <draggable element="b-row" :list="getModulesByType(moduleType)" :move="validateMove"
-            :options="{ group: { name: 'portal-module', pull: 'clone', revertClone: true, put: false }, ghostClass: 'portal-module-row-ghost', dragClass: 'portal-module-row-drag' }">
-            <portal-module :id="mid" v-for="mid in getModulesByType(moduleType)" :module="getModule(mid)" :modules="items" :key="mid" :storeName="storeName" v-show="mid" is-root></portal-module>
+        <b-tab title-link-class="text-nowrap" v-for="(moduleType, moduleIndex) in activeModuleTypes" :key="`${moduleType.name}-${moduleIndex}`">
+          <template v-slot:title><icon :style="{ color: getColorByType(moduleType) }" name="circle" scale=".5"></icon> {{ getModuleTypeName(moduleType) }}</template>
+          <draggable tag="b-row" :list="getModulesByType(moduleType)" :move="validateMove"
+            :group="{ name: 'portal-module', pull: 'clone', revertClone: true, put: false }"
+            ghost-class="portal-module-row-ghost" drag-class="portal-module-row-drag">
+            <portal-module :id="mid" v-for="mid in getModulesByType(moduleType)" :module="getModule(mid)" :modules="items" :key="mid" v-show="mid" is-root></portal-module>
           </draggable>
         </b-tab>
-        <b-dropdown :text="$t('New Module')" class="text-nowrap pr-3 ml-3 mb-1" size="sm" variant="outline-primary" boundary="viewport" slot="tabs">
-          <template v-for="group in moduleTypes">
-            <b-dropdown-header class="text-secondary" v-t="group.name" :key="group.name"></b-dropdown-header>
-            <b-dropdown-item v-for="moduleType in group.types" :key="moduleType.name" :to="{ name: 'newPortalModule', params: { moduleType: moduleType.type } }">
-              <icon :style="{ color: moduleType.color }" class="mb-1" name="circle" scale=".5"></icon> {{ moduleType.name }}
-            </b-dropdown-item>
-            <b-dropdown-divider :key="group.name"></b-dropdown-divider>
-          </template>
-        </b-dropdown>
+        <template v-slot:tabs-end>
+          <b-dropdown :text="$t('New Module')" class="text-nowrap pr-3 ml-3 mb-1" size="sm" variant="outline-primary" :boundary="$refs.container">
+            <template v-for="(group, groupIndex) in moduleTypes">
+              <b-dropdown-header class="text-secondary px-2" v-t="group.name" :key="`${group.name}-${groupIndex}`"></b-dropdown-header>
+              <b-dropdown-item v-for="(moduleType, moduleIndex) in group.types" :key="`${moduleType.name}-${moduleIndex}`" :to="{ name: 'newPortalModule', params: { moduleType: moduleType.type } }">
+                <icon :style="{ color: moduleType.color }" class="mb-1" name="circle" scale=".5"></icon> {{ moduleType.name }}
+              </b-dropdown-item>
+              <b-dropdown-divider :key="group.name"></b-dropdown-divider>
+            </template>
+          </b-dropdown>
+        </template>
       </b-tabs>
     </b-card-footer>
   </b-card>
@@ -63,35 +74,35 @@
 
 <script>
 import pfMixinSearchable from '@/components/pfMixinSearchable'
-import { pfSearchConditionType as conditionType } from '@/globals/pfSearch'
-import draggable from 'vuedraggable'
+const draggable = () => import('vuedraggable')
 import PortalModule from './PortalModule'
-import PortalModuleButton from './PortalModuleButton'
+import pfButtonHelp from '@/components/pfButtonHelp'
 import pfButtonSave from '@/components/pfButtonSave'
 import pfButtonDelete from '@/components/pfButtonDelete'
+import scroll100 from '@/directives/scroll-100'
 import {
-  pfConfigurationPortalModuleTypes as moduleTypes,
-  pfConfigurationPortalModuleTypeName as moduleTypeName
-} from '@/globals/configuration/pfConfigurationPortalModules'
+  columns,
+  fields,
+  moduleTypes,
+  moduleTypeName
+} from '@/views/Configuration/_config/portalModule'
 
 export default {
-  name: 'PortalModulesList',
+  name: 'portal-modules-list',
   mixins: [
     pfMixinSearchable
   ],
   components: {
     draggable,
     PortalModule,
-    PortalModuleButton,
+    pfButtonHelp,
     pfButtonSave,
     pfButtonDelete
   },
+  directives: {
+    scroll100
+  },
   props: {
-    storeName: { // from router
-      type: String,
-      default: null,
-      required: true
-    },
     searchableOptions: {
       type: Object,
       default: () => ({
@@ -113,51 +124,15 @@ export default {
   },
   data () {
     return {
+      columns, // ../_config/portalModule
+      fields, // ../_config/portalModule
       moduleTypes: moduleTypes(),
       getModuleTypeName: moduleTypeName,
       tabIndex: 0,
       minimize: false,
-      columns: [
-        {
-          key: 'id',
-          label: this.$i18n.t('Name'),
-          sortable: true,
-          visible: true
-        },
-        {
-          key: 'description',
-          label: this.$i18n.t('Description'),
-          sortable: true,
-          visible: true
-        },
-        {
-          key: 'type',
-          label: this.$i18n.t('Type'),
-          sortable: true,
-          visible: true
-        }
-      ],
-      fields: [
-        {
-          value: 'id',
-          text: 'Name',
-          types: [conditionType.SUBSTRING]
-        },
-        {
-          value: 'description',
-          text: 'Description',
-          types: [conditionType.SUBSTRING]
-        },
-        {
-          value: 'type',
-          text: 'Type',
-          types: [conditionType.SUBSTRING]
-        }
-      ],
       requestPage: 1,
       currentPage: 1,
-      pageSizeLimit: 1000,
-      parentNodes: []
+      pageSizeLimit: 1000
     }
   },
   computed: {
@@ -166,12 +141,20 @@ export default {
     },
     activeModuleTypes () {
       let types = {}
+      let sortedTypes = []
       this.items.forEach(module => {
         if (module.type !== 'Root') {
           types[module.type] = true
         }
       })
-      return Object.keys(types)
+      this.moduleTypes.forEach(group => {
+        group.types.forEach(item => {
+          if (types[item.type]) {
+            sortedTypes.push(item.type)
+          }
+        })
+      })
+      return sortedTypes
     }
   },
   methods: {
@@ -207,16 +190,27 @@ export default {
         let module = this.getModule(id)
         if (module) {
           let modules = module.modules
-          let mlevel = level + 1
+          let mlevel = level
+          const isChained = (module.type === 'Chained')
+          if (!isChained) {
+            mlevel++
+          }
           if (mlevel > count) {
             count = mlevel
           }
+          let maxLevel = mlevel
           if (modules) {
             modules.forEach(mid => {
-              _module(mid, mlevel)
+              if (isChained) {
+                maxLevel = _module(mid, maxLevel)
+              } else {
+                maxLevel = Math.max(maxLevel, _module(mid, mlevel))
+              }
             })
           }
+          return maxLevel
         }
+        return level
       }
       if (rootModule) {
         _module(rootModule.id, 0)
@@ -243,7 +237,7 @@ export default {
       return false
     },
     save (module) {
-      this.$store.dispatch(`${this.storeName}/updatePortalModule`, module)
+      this.$store.dispatch('$_portalmodules/updatePortalModule', module)
       if (module.modules) {
         module.modules.forEach(mid => {
           const childModule = {
@@ -257,42 +251,16 @@ export default {
     remove (id) {
       const index = this.items.findIndex(module => module.id === id)
       if (index >= 0) {
-        this.$store.dispatch(`${this.storeName}/deletePortalModule`, id).then(response => {
+        this.$store.dispatch('$_portalmodules/deletePortalModule', id).then(() => {
           this.$delete(this.items, index)
         })
       }
     }
-  },
-  mounted () {
-    if (this.parentNodes.length === 0) {
-      // Find all parent DOM nodes
-      let parentNode = this.$el.parentNode
-      while (parentNode && 'classList' in parentNode) {
-        this.parentNodes.push(parentNode)
-        parentNode = parentNode.parentNode
-      }
-    }
-    // Force all parent nodes to take 100% of the window height
-    this.parentNodes.forEach(node => {
-      node.classList.add('h-100')
-    })
-  },
-  beforeDestroy () {
-    // Remove height constraint on all parent nodes
-    this.parentNodes.forEach(node => {
-      node.classList.remove('h-100')
-    })
   }
 }
 </script>
 
 <style lang="scss">
-@import "../../../../node_modules/bootstrap/scss/functions";
-@import "../../../styles/variables";
-
-.tab-pane-scroll {
-  overflow: auto;
-}
 .card-bg {
   color: $card-bg;
 }
@@ -325,6 +293,7 @@ export default {
 
 .card-footer-fixed {
   overflow: auto;
+  overflow-y: hidden;
   height: 20vh;
   min-height: 12rem;
   padding: 0;

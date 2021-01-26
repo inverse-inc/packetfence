@@ -57,7 +57,7 @@ ok(!exists($SwitchConfig{zammit}), "zammit switch doesn't exists");
 # Test keys and KEYS
 
 
-my $SWITCH_COUNT = 26;
+my $SWITCH_COUNT = 31;
 
 my @extra_switches;
 
@@ -115,7 +115,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2019 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 

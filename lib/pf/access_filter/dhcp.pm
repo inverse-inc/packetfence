@@ -60,20 +60,12 @@ sub filterRule {
     my $dhcp_reply = {};
     if(defined $rule) {
         $logger->info(evalParam($rule->{'log'},$args)) if defined($rule->{'log'});
-        if (defined($rule->{'action'}) && $rule->{'action'} ne '') {
-            $self->dispatchAction($rule, $args);
+        $self->dispatchActions($rule, $args);
+        for my $a (@{$rule->{answers}}) {
+            next if $a eq '';
+            my @answer = $a =~ /([.0-9a-zA-Z_-]*)\s*=\s*(.*)/;
+            evalAnswer(\@answer,$args,\$dhcp_reply);
         }
-        my $i = 1;
-        while (1) {
-            if (defined($rule->{"answer$i"}) && $rule->{"answer$i"} ne '') {
-                my @answer = $rule->{"answer$i"} =~ /([.0-9a-zA-Z_-]*)\s*=>\s*(.*)/;
-                evalAnswer(\@answer,$args,\$dhcp_reply);
-            } else {
-                last;
-            }
-            $i++;
-        }
-
     }
     return $dhcp_reply;
 }
@@ -154,7 +146,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2019 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 

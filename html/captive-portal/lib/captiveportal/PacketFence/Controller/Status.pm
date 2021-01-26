@@ -10,6 +10,7 @@ use pf::web;
 use pf::security_event qw(security_event_view_open);
 use pf::constants::security_event qw($LOST_OR_STOLEN);
 use pf::password qw(view);
+use pf::authentication;
 
 BEGIN { extends 'captiveportal::Base::Controller'; }
 
@@ -76,13 +77,16 @@ sub is_lost_stolen {
 sub userIsAuthenticated : Private {
     my ( $self, $c ) = @_;
     my $pid   = $c->user_session->{"username"};
-    my @nodes = person_nodes($pid);
-    foreach my $node (@nodes) {
+    my @person_nodes = person_nodes($pid);
+    my @nodes;
+    foreach my $person_node (@person_nodes) {
+        my $node = node_view($person_node->{mac});
         setExpiration($node);
         my $mac = $node->{'mac'};
         if (is_lost_stolen($mac)) {
             $node->{lostOrStolen} = $TRUE;
         }
+        push @nodes, $node;
     }
     $c->stash(
         nodes    => \@nodes,
@@ -180,6 +184,30 @@ sub logout : Local {
     $c->forward('index');
 }
 
+sub billing_cancel_subscription : Path('/status/billing/cancel_subscription') : Args(2) {
+    my ($self, $c, $source_id, $subscription_id) = @_;
+    my $source = getAuthenticationSource($source_id);
+    $c->stash->{template} = "status/billing_cancel_subscription.html";
+    if(!$source) {
+        $c->stash(
+            error => "Unable to find source $source_id",    
+        );
+    }
+    
+    if($c->request->method eq "POST") {
+        my ($res, $msg) = $source->handleCancelLink($subscription_id, $c->request->parameters);
+        if($res) {
+            $c->stash->{status} = "canceled";
+        }
+        else {
+            $c->stash(
+                error => $msg,
+            );
+        }
+    }
+
+}
+
 
 =head1 AUTHOR
 
@@ -187,7 +215,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2019 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 

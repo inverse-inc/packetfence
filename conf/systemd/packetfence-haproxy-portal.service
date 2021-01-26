@@ -1,6 +1,7 @@
+# Copyright (C) Inverse inc.
 [Unit]
 Description=PacketFence HAProxy Load Balancer for the captive portal
-Before=packetfence-httpd.portal.service packetfence-httpd.admin.service 
+Before=packetfence-httpd.admin.service
 Wants=packetfence-config.service 
 
 [Service]
@@ -11,6 +12,7 @@ ExecStartPre=/bin/perl -I/usr/local/pf/lib '-Mpf::services::manager::haproxy_por
 ExecStart=/usr/sbin/haproxy -Ws -f /usr/local/pf/var/conf/haproxy-portal.conf -p /usr/local/pf/var/run/haproxy-portal.pid
 ExecReload=/bin/kill -USR2 $MAINPID
 Restart=on-failure
+SuccessExitStatus=143
 Slice=packetfence.slice
 
 [Install]

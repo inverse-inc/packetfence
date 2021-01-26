@@ -1,3 +1,17 @@
+// Copyright 2015 Light Code Labs, LLC
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
 package caddyfile
 
 import (
@@ -40,6 +54,7 @@ type parser struct {
 	block           ServerBlock // current server block being parsed
 	validDirectives []string    // a directive must be valid or it's an error
 	eof             bool        // if we encounter a valid EOF in a hard place
+	definedSnippets map[string][]Token
 }
 
 func (p *parser) parseAll() ([]ServerBlock, error) {
@@ -78,6 +93,24 @@ func (p *parser) begin() error {
 	if p.eof {
 		// this happens if the Caddyfile consists of only
 		// a line of addresses and nothing else
+		return nil
+	}
+
+	if ok, name := p.isSnippet(); ok {
+		if p.definedSnippets == nil {
+			p.definedSnippets = map[string][]Token{}
+		}
+		if _, found := p.definedSnippets[name]; found {
+			return p.Errf("redeclaration of previously declared snippet %s", name)
+		}
+		// consume all tokens til matched close brace
+		tokens, err := p.snippetTokens()
+		if err != nil {
+			return err
+		}
+		p.definedSnippets[name] = tokens
+		// empty block keys so we don't save this block as a real server.
+		p.block.Keys = nil
 		return nil
 	}
 
@@ -207,69 +240,57 @@ func (p *parser) doImport() error {
 	if p.NextArg() {
 		return p.Err("Import takes only one argument (glob pattern or file)")
 	}
-
-	// make path relative to Caddyfile rather than current working directory (issue #867)
-	// and then use glob to get list of matching filenames
-	absFile, err := filepath.Abs(p.Dispenser.filename)
-	if err != nil {
-		return p.Errf("Failed to get absolute path of file: %s", p.Dispenser.filename)
-	}
-
-	var matches []string
-	var globPattern string
-	if !filepath.IsAbs(importPattern) {
-		globPattern = filepath.Join(filepath.Dir(absFile), importPattern)
-	} else {
-		globPattern = importPattern
-	}
-	matches, err = filepath.Glob(globPattern)
-
-	if err != nil {
-		return p.Errf("Failed to use import pattern %s: %v", importPattern, err)
-	}
-	if len(matches) == 0 {
-		if strings.Contains(globPattern, "*") {
-			log.Printf("[WARNING] No files matching import pattern: %s", importPattern)
-		} else {
-			return p.Errf("File to import not found: %s", importPattern)
-		}
-	}
-
 	// splice out the import directive and its argument (2 tokens total)
 	tokensBefore := p.tokens[:p.cursor-1]
 	tokensAfter := p.tokens[p.cursor+1:]
-
-	// collect all the imported tokens
 	var importedTokens []Token
-	for _, importFile := range matches {
-		newTokens, err := p.doSingleImport(importFile)
+
+	// first check snippets. That is a simple, non-recursive replacement
+	if p.definedSnippets != nil && p.definedSnippets[importPattern] != nil {
+		importedTokens = p.definedSnippets[importPattern]
+	} else {
+		// make path relative to the file of the _token_ being processed rather
+		// than current working directory (issue #867) and then use glob to get
+		// list of matching filenames
+		absFile, err := filepath.Abs(p.Dispenser.File())
 		if err != nil {
-			return err
+			return p.Errf("Failed to get absolute path of file: %s: %v", p.Dispenser.filename, err)
 		}
-		var importLine int
-		importDir := filepath.Dir(importFile)
-		for i, token := range newTokens {
-			if token.Text == "import" {
-				importLine = token.Line
-				continue
-			}
-			if token.Line == importLine {
-				var abs string
-				if filepath.IsAbs(token.Text) {
-					abs = token.Text
-				} else if !filepath.IsAbs(importFile) {
-					abs = filepath.Join(filepath.Dir(absFile), token.Text)
-				} else {
-					abs = filepath.Join(importDir, token.Text)
-				}
-				newTokens[i] = Token{
-					Text: abs,
-					Line: token.Line,
-					File: token.File,
-				}
+
+		var matches []string
+		var globPattern string
+		if !filepath.IsAbs(importPattern) {
+			globPattern = filepath.Join(filepath.Dir(absFile), importPattern)
+		} else {
+			globPattern = importPattern
+		}
+		if strings.Count(globPattern, "*") > 1 || strings.Count(globPattern, "?") > 1 ||
+			(strings.Contains(globPattern, "[") && strings.Contains(globPattern, "]")) {
+			// See issue #2096 - a pattern with many glob expansions can hang for too long
+			return p.Errf("Glob pattern may only contain one wildcard (*), but has others: %s", globPattern)
+		}
+		matches, err = filepath.Glob(globPattern)
+
+		if err != nil {
+			return p.Errf("Failed to use import pattern %s: %v", importPattern, err)
+		}
+		if len(matches) == 0 {
+			if strings.ContainsAny(globPattern, "*?[]") {
+				log.Printf("[WARNING] No files matching import glob pattern: %s", importPattern)
+			} else {
+				return p.Errf("File to import not found: %s", importPattern)
 			}
 		}
-		importedTokens = append(importedTokens, newTokens...)
+
+		// collect all the imported tokens
+
+		for _, importFile := range matches {
+			newTokens, err := p.doSingleImport(importFile)
+			if err != nil {
+				return err
+			}
+			importedTokens = append(importedTokens, newTokens...)
+		}
 	}
 
 	// splice the imported tokens in the place of the import statement
@@ -300,8 +321,12 @@ func (p *parser) doSingleImport(importFile string) ([]Token, error) {
 		return nil, p.Errf("Could not read tokens while importing %s: %v", importFile, err)
 	}
 
-	// Tack the filename onto these tokens so errors show the imported file's name
-	filename := filepath.Base(importFile)
+	// Tack the file path onto these tokens so errors show the imported file's name
+	// (we use full, absolute path to avoid bugs: issue #1892)
+	filename, err := filepath.Abs(importFile)
+	if err != nil {
+		return nil, p.Errf("Failed to get absolute path of file: %s: %v", p.Dispenser.filename, err)
+	}
 	for i := 0; i < len(importedTokens); i++ {
 		importedTokens[i].File = filename
 	}
@@ -316,7 +341,7 @@ func (p *parser) doSingleImport(importFile string) ([]Token, error) {
 // are loaded into the current server block for later use
 // by directive setup functions.
 func (p *parser) directive() error {
-	dir := p.Val()
+	dir := replaceEnvVars(p.Val())
 	nesting := 0
 
 	// TODO: More helpful error message ("did you mean..." or "maybe you need to install its server type")
@@ -337,6 +362,12 @@ func (p *parser) directive() error {
 			nesting--
 		} else if p.Val() == "}" && nesting == 0 {
 			return p.Err("Unexpected '}' because no matching opening brace")
+		} else if p.Val() == "import" && p.isNewLine() {
+			if err := p.doImport(); err != nil {
+				return err
+			}
+			p.cursor-- // cursor is advanced when we continue, so roll back one more
+			continue
 		}
 		p.tokens[p.cursor].Text = replaceEnvVars(p.tokens[p.cursor].Text)
 		p.block.Tokens[dir] = append(p.block.Tokens[dir], p.tokens[p.cursor])
@@ -396,8 +427,13 @@ func replaceEnvVars(s string) string {
 func replaceEnvReferences(s, refStart, refEnd string) string {
 	index := strings.Index(s, refStart)
 	for index != -1 {
-		endIndex := strings.Index(s, refEnd)
-		if endIndex != -1 {
+		endIndex := strings.Index(s[index:], refEnd)
+		if endIndex == -1 {
+			break
+		}
+
+		endIndex += index
+		if endIndex > index+len(refStart) {
 			ref := s[index : endIndex+len(refEnd)]
 			s = strings.Replace(s, ref, os.Getenv(ref[len(refStart):len(ref)-len(refEnd)]), -1)
 		} else {
@@ -413,4 +449,42 @@ func replaceEnvReferences(s, refStart, refEnd string) string {
 type ServerBlock struct {
 	Keys   []string
 	Tokens map[string][]Token
+}
+
+func (p *parser) isSnippet() (bool, string) {
+	keys := p.block.Keys
+	// A snippet block is a single key with parens. Nothing else qualifies.
+	if len(keys) == 1 && strings.HasPrefix(keys[0], "(") && strings.HasSuffix(keys[0], ")") {
+		return true, strings.TrimSuffix(keys[0][1:], ")")
+	}
+	return false, ""
+}
+
+// read and store everything in a block for later replay.
+func (p *parser) snippetTokens() ([]Token, error) {
+	// TODO: disallow imports in snippets for simplicity at import time
+	// snippet must have curlies.
+	err := p.openCurlyBrace()
+	if err != nil {
+		return nil, err
+	}
+	count := 1
+	tokens := []Token{}
+	for p.Next() {
+		if p.Val() == "}" {
+			count--
+			if count == 0 {
+				break
+			}
+		}
+		if p.Val() == "{" {
+			count++
+		}
+		tokens = append(tokens, p.tokens[p.cursor])
+	}
+	// make sure we're matched up
+	if count != 0 {
+		return nil, p.SyntaxErr("}")
+	}
+	return tokens, nil
 }

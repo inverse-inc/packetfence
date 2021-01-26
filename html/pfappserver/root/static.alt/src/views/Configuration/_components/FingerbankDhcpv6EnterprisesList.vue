@@ -4,32 +4,31 @@
       ref="pfConfigList"
       :config="config"
     >
-      <template slot="pageHeader">
+      <template v-slot:pageHeader>
         <b-card-header>
           <b-row class="align-items-center px-0" no-gutters>
             <b-col cols="auto" class="mr-auto">
               <h4 class="d-inline mb-0" v-t="'DHCPv6 Enterprises'"></h4>
-              <b-badge class="ml-2" variant="secondary" v-t="scope"></b-badge>
             </b-col>
             <b-col cols="auto" align="right" class="flex-grow-0">
               <b-button-group>
-                <b-button v-t="'All'" :variant="(scope === 'all') ? 'primary' : 'outline-secondary'" @click="changeScope('all')"></b-button>
-                <b-button v-t="'Local'" :variant="(scope === 'local') ? 'primary' : 'outline-secondary'" @click="changeScope('local')"></b-button>
-                <b-button v-t="'Upstream'" :variant="(scope === 'upstream') ? 'primary' : 'outline-secondary'" @click="changeScope('upstream')"></b-button>
+                <b-button v-t="'All'" :variant="(localScope === 'all') ? 'primary' : 'outline-secondary'" @click="changeScope('all')"></b-button>
+                <b-button v-t="'Local'" :variant="(localScope === 'local') ? 'primary' : 'outline-secondary'" @click="changeScope('local')"></b-button>
+                <b-button v-t="'Upstream'" :variant="(localScope === 'upstream') ? 'primary' : 'outline-secondary'" @click="changeScope('upstream')"></b-button>
               </b-button-group>
             </b-col>
           </b-row>
         </b-card-header>
       </template>
-      <template slot="buttonAdd" v-if="scope === 'local'">
-        <b-button variant="outline-primary" :to="{ name: 'newFingerbankDhcpv6Enterprise', params: { scope: 'local' } }">{{ $t('New DHCPv6 Enterprise') }}</b-button>
+      <template v-slot:buttonAdd v-if="localScope === 'local'">
+        <b-button variant="outline-primary" :to="{ name: 'newFingerbankDhcpv6Enterprise', params: { localScope: 'local' } }">{{ $t('New DHCPv6 Enterprise') }}</b-button>
       </template>
-      <template slot="emptySearch" slot-scope="state">
-        <pf-empty-table :isLoading="state.isLoading">{{ $t('No {scope} DHCPv6 enterprises found', { scope: ((scope !== 'all') ? scope : '') }) }}</pf-empty-table>
+      <template v-slot:emptySearch="state">
+        <pf-empty-table :isLoading="state.isLoading">{{ $t('No DHCPv6 enterprises found') }}</pf-empty-table>
       </template>
-      <template slot="buttons" slot-scope="item">
+      <template v-slot:cell(buttons)="item">
         <span class="float-right text-nowrap">
-          <pf-button-delete size="sm" v-if="!item.not_deletable && scope === 'local'" variant="outline-danger" class="mr-1" :disabled="isLoading" :confirm="$t('Delete DHCPv6 Enterprise?')" @on-delete="remove(item)" reverse/>
+          <pf-button-delete size="sm" v-if="!item.not_deletable && localScope === 'local'" variant="outline-danger" class="mr-1" :disabled="isLoading" :confirm="$t('Delete DHCPv6 Enterprise?')" @on-delete="remove(item)" reverse/>
           <b-button size="sm" variant="outline-primary" class="mr-1" @click.stop.prevent="clone(item)">{{ $t('Clone') }}</b-button>
         </span>
       </template>
@@ -41,62 +40,53 @@
 import pfButtonDelete from '@/components/pfButtonDelete'
 import pfConfigList from '@/components/pfConfigList'
 import pfEmptyTable from '@/components/pfEmptyTable'
-import pfFingerbankScore from '@/components/pfFingerbankScore'
-
-import {
-  pfConfigurationFingerbankDhcpv6EnterprisesListConfig as config
-} from '@/globals/configuration/pfConfigurationFingerbank'
+import { config } from '../_config/fingerbank/dhcpV6Enterprise'
 
 export default {
-  name: 'FingerbankDhcpv6EnterprisesList',
+  name: 'fingerbank-dhcpv6-enterprises-list',
   components: {
     pfButtonDelete,
     pfConfigList,
-    pfEmptyTable,
-    pfFingerbankScore
+    pfEmptyTable
   },
   props: {
-    storeName: { // from router
-      type: String,
-      default: null,
-      required: true
-    },
     scope: {
       type: String,
-      default: 'all',
-      required: false
+      default: 'all'
     }
   },
   data () {
     return {
       data: [],
-      config: config(this)
+      config: config(this),
+      localScope: this.scope
     }
   },
   methods: {
     clone (item) {
-      this.$router.push({ name: 'cloneFingerbankDhcpv6Enterprise', params: { scope: this.scope, id: item.id } })
+      this.$router.push({ name: 'cloneFingerbankDhcpv6Enterprise', params: { scope: 'local', id: item.id } })
     },
     remove (item) {
-      this.$store.dispatch(`${this.storeName}/deleteDhcpv6Enterprise`, item.id).then(response => {
-        this.$router.go() // reload
+      this.$store.dispatch('$_fingerbank/deleteDhcpv6Enterprise', item.id).then(() => {
+        const { $refs: { pfConfigList: { refreshList = () => {} } = {} } = {} } = this
+        refreshList() // soft reload
       })
     },
     changeScope (scope) {
-      this.scope = scope
+      this.localScope = scope
+      this.config = config(this) // reset config
     }
   },
   created () {
-    this.$store.dispatch(`${this.storeName}/dhcpv6Enterprises`).then(data => {
+    this.$store.dispatch('$_fingerbank/dhcpv6Enterprises').then(data => {
       this.data = data
     })
   },
   watch: {
     scope: {
-      handler: function (a, b) {
-        if (a !== b) {
-          this.config = config(this) // reset config
-        }
+      handler: function (a) {
+        this.localScope = a
+        this.config = config(this) // reset config
       }
     }
   }

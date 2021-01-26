@@ -18,11 +18,7 @@ use namespace::autoclean;
 use Time::localtime;
 use Time::Local;
 
-use pf::accounting qw(
-    node_accounting_view
-    node_accounting_daily_bw node_accounting_weekly_bw node_accounting_monthly_bw node_accounting_yearly_bw
-    node_accounting_daily_time node_accounting_weekly_time node_accounting_monthly_time node_accounting_yearly_time
-);
+use pf::accounting qw();
 use pf::constants;
 use pf::config qw($EAP);
 use pf::error qw(is_error is_success);
@@ -83,8 +79,6 @@ sub field_names {
 }
 
 =head2 view
-
-From pf::lookup::node::lookup_node()
 
 =cut
 
@@ -156,17 +150,6 @@ sub view {
         # Check for multihost
         $node->{'multihost'} = [pf::node::check_multihost($mac, {'switch_id' => $node->{'last_switch'}, 'switch_port' => $node->{'last_port'}, 'connection_type' => $node->{'last_connection_type'}})];
 
-        #    my $node_accounting = node_accounting_view($mac);
-        #    if (defined($node_accounting->{'mac'})) {
-        #        my $daily_bw = node_accounting_daily_bw($mac);
-        #        my $weekly_bw = node_accounting_weekly_bw($mac);
-        #        my $monthly_bw = node_accounting_monthly_bw($mac);
-        #        my $yearly_bw = node_accounting_yearly_bw($mac);
-        #        my $daily_time = node_accounting_daily_time($mac);
-        #        my $weekly_time = node_accounting_weekly_time($mac);
-        #        my $monthly_time = node_accounting_monthly_time($mac);
-        #        my $yearly_time = node_accounting_yearly_time($mac);
-        #    }
     };
     if ($@) {
         $status_msg = ["Can't retrieve node ([_1]) from database.",$mac];
@@ -268,10 +251,10 @@ sub delete {
 
     my $logger = get_logger();
     my ($status, $status_msg) = ($STATUS::OK);
-
-    unless (node_delete($mac)) {
+    my ($deleted, $msg) = node_delete($mac);
+    unless ($deleted) {
         $status = $STATUS::INTERNAL_SERVER_ERROR;
-        $status_msg = "The node can't be delete because it's still active.";
+        $status_msg = $msg;
     }
 
     return ($status, $status_msg);
@@ -740,7 +723,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2019 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 

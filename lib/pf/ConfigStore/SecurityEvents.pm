@@ -18,7 +18,7 @@ use pf::file_paths qw(
     $security_events_config_file
     $security_events_default_config_file
 );
-
+use List::MoreUtils qw(uniq);
 use pf::security_event_config;
 
 extends 'pf::ConfigStore';
@@ -152,6 +152,10 @@ Clean data before update or creating
 
 sub cleanupBeforeCommit {
     my ($self, $id, $security_event) = @_;
+    if (exists $security_event->{actions} && ref($security_event->{actions}) eq 'ARRAY') {
+       $security_event->{actions} = [uniq @{$security_event->{actions}}];
+    }
+
     $self->flatten_list($security_event, qw(actions trigger whitelisted_roles));
     if ($security_event->{'window_dynamic'}) {
         $security_event->{'window'} = 'dynamic';
@@ -173,7 +177,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2019 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 

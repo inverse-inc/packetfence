@@ -46,7 +46,7 @@ set_tenant
 
 sub set_tenant {
     my ($tenant_id) = @_;
-    $CURRENT_TENANT = $tenant_id || $DEFAULT_TENANT_ID;
+    $CURRENT_TENANT = $tenant_id // $DEFAULT_TENANT_ID;
 }
 
 =head1 AUTHOR
@@ -55,7 +55,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2019 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 

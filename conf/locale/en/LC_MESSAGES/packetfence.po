@@ -1,12 +1,12 @@
 # English translations for PacketFence package.
-# Copyright (C) 2005-2019 Inverse inc.
+# Copyright (C) 2005-2021 Inverse inc.
 # This file is distributed under the same license as the PacketFence package.
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: 7.4.9\n"
+"Project-Id-Version: 10.2.9\n"
 "POT-Creation-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"PO-Revision-Date: 2018-04-19 08:58-0400\n"
+"PO-Revision-Date: 2020-12-11 12:09-0400\n"
 "Last-Translator: Inverse inc. <info@inverse.ca>\n"
 "Language-Team: English\n"
 "Language: en\n"
@@ -39,10 +39,30 @@ msgstr ""
 msgid "%s: Guest access request accepted"
 msgstr ""
 
+# html/captive-portal/templates/ssl_inspection/windows.html
+msgid "A <i>Security Warning</i> will appear, asking if you're sure you'd like to install the certificate. Click the <i>Yes</i> button."
+msgstr ""
+
+# html/captive-portal/templates/ssl_inspection/windows.html
+msgid "A confirmation will appear, indicating that the certificate import was successful. Press <i>OK</i>."
+msgstr ""
+
+# html/captive-portal/templates/ssl_inspection/chrome.html
+msgid "A file browser will appear, allowing you to select the certificate. Locate the certificate you downloaded previously (it may be in a folder called <i>Downloads</i>), and double-click to open it."
+msgstr ""
+
+# html/captive-portal/templates/ssl_inspection/chrome.html
+msgid "A prompt will appear asking whether to trust the certificate authority. Select <i>Trust this certificate for identifying websites</i> and then click <i>OK</i>."
+msgstr ""
+
 # html/captive-portal/templates/pki_provider/packetfence_local.html
 # html/captive-portal/templates/pki_provider/packetfence_pki.html
 # html/captive-portal/templates/pki_provider/scep.html
 msgid "A random certificate password has been generated for you. Please note it as it will be necessary to complete the process."
+msgstr ""
+
+# html/captive-portal/templates/ssl_inspection/ios.html
+msgid "A screen will appear called <i>Install Profile</i>. Tap the <i>Install</i> button in the top-right corner of the screen."
 msgstr ""
 
 # html/captive-portal/lib/captiveportal/PacketFence/Form/Authentication.pm
@@ -51,6 +71,10 @@ msgstr ""
 
 # html/captive-portal/templates/emails/emails-guest_sponsor_confirmed.html
 msgid "Access Authorized"
+msgstr ""
+
+# html/captive-portal/templates/activation/sponsor_set_access_durations.html
+msgid "Access duration"
 msgstr ""
 
 # html/captive-portal/lib/captiveportal/PacketFence/Controller/Activate/Email.pm
@@ -69,16 +93,22 @@ msgstr ""
 msgid "According to the provisioner configuration, this device cannot access the network."
 msgstr ""
 
-# html/captive-portal/lib/captiveportal/PacketFence/DynamicRouting/Module/Root.pm
+# html/captive-portal/lib/captiveportal/PacketFence/DynamicRouting/Module/ShowLocalAccount.pm
 msgid "Account created"
 msgstr ""
 
+# html/captive-portal/templates/emails/emails-guest_email_activation.html
 # html/captive-portal/templates/emails/emails-guest_email_preregistration.html
-msgid "Activate your network access"
+# html/captive-portal/templates/emails/emails-guest_sponsor_activation.html
+msgid "Activate Access"
 msgstr ""
 
 # pf::person::FIELDS
 msgid "Address"
+msgstr ""
+
+# html/captive-portal/templates/ssl_inspection/opera.html
+msgid "After clicking <i>Install</i>, another dialogue will appear, asking if you are <i>sure you want to trust this issuer</i>. Click <i>OK</i> here."
 msgstr ""
 
 # html/captive-portal/lib/captiveportal/PacketFence/Form/Authentication.pm
@@ -87,6 +117,10 @@ msgstr ""
 
 # html/captive-portal/templates/provisioner/sepm.html
 msgid "Alternate installer"
+msgstr ""
+
+# html/captive-portal/templates/ssl_inspection/osx.html
+msgid "Always trust certificate"
 msgstr ""
 
 # html/captive-portal/templates/emails/emails-guest_admin_pregistration.html
@@ -114,12 +148,36 @@ msgstr ""
 msgid "An type and activation code is required"
 msgstr ""
 
+# html/captive-portal/lib/captiveportal/PacketFence/DynamicRouting/Module/SSL_Inspection.pm
+msgid "Android certificate installation"
+msgstr ""
+
+# html/captive-portal/templates/ssl_inspection/android.html
+msgid "Android certificate installation confirmation"
+msgstr ""
+
+# html/captive-portal/templates/ssl_inspection/android.html
+msgid "Android certificate name prompt"
+msgstr ""
+
+# html/captive-portal/templates/ssl_inspection/android.html
+msgid "Android devices vary greatly, so you may not see exactly the same thing if you are using another device or a different version of Android; however, the general process and wording should be the same."
+msgstr ""
+
 # pf::person::FIELDS
 msgid "Anniversary"
 msgstr ""
 
 # pf::person::FIELDS
 msgid "Apartment_number"
+msgstr ""
+
+# html/captive-portal/templates/ssl_inspection/windows.html
+msgid "At the <i>Completing the Certificate Import Wizard</i> screen, press the <i>Finish</i> button."
+msgstr ""
+
+# html/captive-portal/templates/ssl_inspection/windows.html
+msgid "Back at the main wizard screen, the <i>Certificate store</i> box should now show <i>Trusted Root Certification Authorities</i>. Press <i>Next</i> again."
 msgstr ""
 
 # html/captive-portal/templates/status.html
@@ -142,12 +200,24 @@ msgstr ""
 msgid "Birthday"
 msgstr ""
 
+# html/captive-portal/templates/ssl_inspection/firefox.html
+msgid "Browse for the certificate file you downloaded earlier and select it."
+msgstr ""
+
 # pf::person::FIELDS
 msgid "Building_number"
 msgstr ""
 
+# html/captive-portal/templates/billing/confirm_AuthorizeNet.html
+msgid "CVC"
+msgstr ""
+
 # html/captive-portal/templates/status.html
 msgid "Cancel"
+msgstr ""
+
+# html/captive-portal/templates/billing/confirm_AuthorizeNet.html
+msgid "Card Number"
 msgstr ""
 
 # pf::person::FIELDS
@@ -161,6 +231,22 @@ msgstr ""
 msgid "Certificate generation for EAP TLS connection"
 msgstr ""
 
+# html/captive-portal/lib/captiveportal/PacketFence/DynamicRouting/Module/SSL_Inspection.pm
+msgid "Certificate installation"
+msgstr ""
+
+# html/captive-portal/templates/ssl_inspection/osx.html
+msgid "Certificate is not trusted"
+msgstr ""
+
+# html/captive-portal/templates/ssl_inspection/osx.html
+msgid "Certificate is trusted"
+msgstr ""
+
+# html/captive-portal/templates/ssl_inspection/common.html
+msgid "Certificate test failed. Please download the certificate and install it by following the instructions, or contact your administrator."
+msgstr ""
+
 # html/captive-portal/templates/status.html
 msgid "Change my password"
 msgstr ""
@@ -169,8 +255,36 @@ msgstr ""
 msgid "Change your password"
 msgstr ""
 
-# html/captive-portal/templates/saml.html
-msgid "Click here to login on %s"
+# html/captive-portal/lib/captiveportal/PacketFence/Controller/Activate/Email.pm
+msgid "Choose the access duration"
+msgstr ""
+
+# html/captive-portal/lib/captiveportal/PacketFence/DynamicRouting/Module/SSL_Inspection.pm
+msgid "Chrome OS certificate installation"
+msgstr ""
+
+# html/captive-portal/templates/ssl_inspection/chrome.html
+msgid "Chrome Settings menu option"
+msgstr ""
+
+# html/captive-portal/templates/ssl_inspection/chrome.html
+msgid "Chrome Settings page"
+msgstr ""
+
+# html/captive-portal/templates/ssl_inspection/chrome.html
+msgid "Chrome certificate authority prompt"
+msgstr ""
+
+# html/captive-portal/templates/ssl_inspection/chrome.html
+msgid "Chrome certificate manager"
+msgstr ""
+
+# html/captive-portal/templates/ssl_inspection/chrome.html
+msgid "Chrome download bar"
+msgstr ""
+
+# html/captive-portal/templates/ssl_inspection/chrome.html
+msgid "Chrome file browser"
 msgstr ""
 
 # pf::person::FIELDS
@@ -189,23 +303,29 @@ msgstr ""
 msgid "Confirm your password"
 msgstr ""
 
+# html/captive-portal/templates/account.html
 # html/captive-portal/templates/billing/confirm_Stripe.html
 # html/captive-portal/templates/challenge.html
 # html/captive-portal/templates/message.html
 # html/captive-portal/templates/provisioner/accept.html
+# html/captive-portal/templates/provisioner/airwatch.html
 # html/captive-portal/templates/provisioner/android.html
+# html/captive-portal/templates/provisioner/dpsk.html
 # html/captive-portal/templates/provisioner/ibm.html
+# html/captive-portal/templates/provisioner/intune.html
 # html/captive-portal/templates/provisioner/jamf.html
 # html/captive-portal/templates/provisioner/mobileconfig.html
 # html/captive-portal/templates/provisioner/mobileiron.html
 # html/captive-portal/templates/provisioner/opswat.html
 # html/captive-portal/templates/provisioner/sentinelone.html
 # html/captive-portal/templates/provisioner/sepm.html
+# html/captive-portal/templates/provisioner/servicenow.html
 # html/captive-portal/templates/provisioner/symantec.html
 # html/captive-portal/templates/provisioner/windows.html
 # html/captive-portal/templates/select-role.html
 # html/captive-portal/templates/signin.html
 # html/captive-portal/templates/sms/validate.html
+# html/captive-portal/templates/ssl_inspection.html
 # html/captive-portal/templates/survey.html
 msgid "Continue"
 msgstr ""
@@ -218,8 +338,16 @@ msgstr ""
 msgid "Could not find unregistration date for this activation code."
 msgstr ""
 
+# html/captive-portal/lib/captiveportal/PacketFence/Controller/Activate/Email.pm
+msgid "Could not find unregistration date or role for this activation code."
+msgstr ""
+
 # html/captive-portal/templates/account.html
 msgid "Created account %s"
+msgstr ""
+
+# html/captive-portal/templates/status.html
+msgid "Current Role "
 msgstr ""
 
 # pf::person::FIELDS
@@ -266,6 +394,22 @@ msgstr ""
 msgid "Declare as lost or stolen"
 msgstr ""
 
+# html/captive-portal/templates/ssl_inspection/windows.html
+msgid "Depending on your browser and configuration, you may see a <i>Security Warning</i> which asks if you're sure you want to open the file; if so, click <i>Open</i> once more."
+msgstr ""
+
+# html/captive-portal/templates/ssl_inspection/windows.html
+msgid "Depending on your browser and configuration, you will probably be asked whether you would like to open the file or save it; choose <i>Open</i>. Depending on your browser, you may then have to click <i>Open</i> a second time."
+msgstr ""
+
+# html/captive-portal/templates/ssl_inspection/chrome.html
+msgid "Depending on your configuration, you may be prompted to save the certificate. If so, select a folder to save the file in, and then click <i>Save</i>. (In Chrome OS and some other configurations, the file may simply download immediately.) When the download has finished, the icon will flash in the download bar at the bottom of the screen50"
+msgstr ""
+
+# html/captive-portal/templates/ssl_inspection/android.html
+msgid "Depending on your device and its configuration, you may be prompted to enter your device PIN. If you don't have a PIN set, you maybe prompted to create one."
+msgstr ""
+
 # html/captive-portal/templates/billing/tier.html
 msgid "Description"
 msgstr ""
@@ -290,17 +434,56 @@ msgstr ""
 msgid "Do NOT authorize access if you were not expecting this guest."
 msgstr ""
 
+# html/captive-portal/templates/waiting.html
+msgid "Do not close this page until your access has been approved"
+msgstr ""
+
+# html/captive-portal/templates/ssl_inspection/chrome.html
+msgid "Do not double-click the file after the download has finished; instead, click the Chrome menu (usually appearing as three horizontal lines) in the top right corner. Then, click the <i>Settings</i> option."
+msgstr ""
+
 # html/captive-portal/templates/provisioner/sepm.html
 # html/captive-portal/templates/provisioner/symantec.html
 msgid "Download"
 msgstr ""
 
+# html/captive-portal/templates/provisioner/intune.html
+msgid "Download Android Agent"
+msgstr ""
+
+# html/captive-portal/templates/ssl_inspection/android.html
+# html/captive-portal/templates/ssl_inspection/chrome.html
+# html/captive-portal/templates/ssl_inspection/firefox.html
+# html/captive-portal/templates/ssl_inspection/ios.html
+# html/captive-portal/templates/ssl_inspection/opera.html
+# html/captive-portal/templates/ssl_inspection/osx.html
+# html/captive-portal/templates/ssl_inspection/other.html
+# html/captive-portal/templates/ssl_inspection/windows.html
+msgid "Download Certificate"
+msgstr ""
+
+# html/captive-portal/templates/provisioner/intune.html
+msgid "Download IOS Agent"
+msgstr ""
+
+# html/captive-portal/templates/provisioner/intune.html
 # html/captive-portal/templates/provisioner/sentinelone.html
 msgid "Download Mac OSX Agent"
 msgstr ""
 
+# html/captive-portal/templates/provisioner/intune.html
 # html/captive-portal/templates/provisioner/sentinelone.html
 msgid "Download Windows Agent"
+msgstr ""
+
+# html/captive-portal/templates/ssl_inspection/android.html
+# html/captive-portal/templates/ssl_inspection/chrome.html
+# html/captive-portal/templates/ssl_inspection/firefox.html
+# html/captive-portal/templates/ssl_inspection/ios.html
+# html/captive-portal/templates/ssl_inspection/opera.html
+# html/captive-portal/templates/ssl_inspection/osx.html
+# html/captive-portal/templates/ssl_inspection/windows.html
+msgid "Download the certificate to your device."
 msgstr ""
 
 # html/captive-portal/templates/pki_provider/packetfence_pki.html
@@ -322,8 +505,16 @@ msgstr ""
 msgid "Enter a valid telephone number"
 msgstr ""
 
-# html/captive-portal/templates/violations/bandwidth_expiration.html
+# html/captive-portal/templates/security_events/bandwidth_expiration.html
 msgid "Expiration"
+msgstr ""
+
+# html/captive-portal/templates/billing/confirm_AuthorizeNet.html
+msgid "Expiration (MM/YYYY)"
+msgstr ""
+
+# html/captive-portal/templates/emails/emails-guest_password_of_the_day.html
+msgid "Expire"
 msgstr ""
 
 # html/captive-portal/templates/emails/emails-billing_confirmation.html
@@ -336,6 +527,18 @@ msgstr ""
 
 # html/captive-portal/templates/emails/emails-guest_email_activation.html
 msgid "Failure to do so within %s minutes will result in a termination of your network access."
+msgstr ""
+
+# html/captive-portal/templates/ssl_inspection/firefox.html
+msgid "Firefox CA trust prompt"
+msgstr ""
+
+# html/captive-portal/templates/ssl_inspection/firefox.html
+msgid "Firefox cannot get ssl updates from our servers. If you start having web page connection issues again, you will need to come back to this page and redo steps to get the newest certificate."
+msgstr ""
+
+# html/captive-portal/lib/captiveportal/PacketFence/DynamicRouting/Module/SSL_Inspection.pm
+msgid "Firefox certificate installation"
 msgstr ""
 
 # html/captive-portal/templates/emails/emails-guest_sponsor_activation.html
@@ -374,10 +577,11 @@ msgstr ""
 # html/captive-portal/templates/emails/emails-guest_email_preregistration.html
 # html/captive-portal/templates/emails/emails-guest_email_preregistration_confirmed.html
 # html/captive-portal/templates/emails/emails-guest_local_account_creation.html
+# html/captive-portal/templates/emails/emails-guest_password_of_the_day.html
 # html/captive-portal/templates/emails/emails-guest_sponsor_activation.html
 # html/captive-portal/templates/emails/emails-guest_sponsor_confirmed.html
 # html/captive-portal/templates/emails/emails-guest_sponsor_preregistration.html
-# html/captive-portal/templates/emails/emails-violation-triggered.html
+# html/captive-portal/templates/emails/emails-security_event-triggered.html
 msgid "Hello"
 msgstr ""
 
@@ -385,15 +589,27 @@ msgstr ""
 msgid "Here are the info."
 msgstr ""
 
-# html/captive-portal/templates/emails/emails-violation-triggered.html
-msgid "Here is the information of the infringing device"
+# html/captive-portal/templates/emails/emails-security_event-triggered.html
+msgid "Here is the device information"
 msgstr ""
 
 # html/captive-portal/templates/emails/emails-guest_sponsor_activation.html
 msgid "Here is the information the guest provided with registration form"
 msgstr ""
 
-# html/captive-portal/templates/emails/emails-violation-triggered.html
+# html/captive-portal/templates/provisioner/dpsk.html
+msgid "Here is your password to connect on the following SSID."
+msgstr ""
+
+# html/captive-portal/templates/emails/emails-guest_password_of_the_day.html
+msgid "Here the new password updated for the Password Of the Day"
+msgstr ""
+
+# html/captive-portal/templates/ssl_inspection/osx.html
+msgid "Here, you will be asked whether to always trust Securly certificates. Click <i>Always Trust</i>."
+msgstr ""
+
+# html/captive-portal/templates/emails/emails-security_event-triggered.html
 msgid "Hostname"
 msgstr ""
 
@@ -421,12 +637,25 @@ msgstr ""
 msgid "If you are using an Apple phone or tablet"
 msgstr ""
 
+# html/captive-portal/templates/ssl_inspection/osx.html
+msgid "If you did not see the prompts mentioned above you will need to manually <i>Trust</i> the newly installed certificate. Continue with the following steps."
+msgstr ""
+
 # html/captive-portal/templates/provisioner/sepm.html
 msgid "If you find the program above not working you can try this one:"
 msgstr ""
 
+# html/captive-portal/templates/ssl_inspection/other.html
+msgid "If you have a device that does not fall under one of the categories located on the page menus above, you will need to figure out how to install the certificate on your own device. We do not support any devices outside of the ones listed on the page menus. You may download our certificate below."
+msgstr ""
+
+# html/captive-portal/templates/ssl_inspection/ios.html
+msgid "If you have a passcode set, you may be required to enter it. If you don't have one set, you may be prompted to create one, depending on your device configuration."
+msgstr ""
+
 # html/captive-portal/templates/emails/emails-guest_email_preregistration_confirmed.html
 # html/captive-portal/templates/emails/emails-guest_local_account_creation.html
+# html/captive-portal/templates/emails/emails-guest_password_of_the_day.html
 # html/captive-portal/templates/emails/emails-guest_sponsor_confirmed.html
 # html/captive-portal/templates/emails/emails-guest_sponsor_preregistration.html
 msgid "If you have any questions regarding the registration process please contact your local support staff."
@@ -449,6 +678,18 @@ msgstr ""
 msgid "In order to complete your connection to the secure SSID, you will need to run the agent available below."
 msgstr ""
 
+# html/captive-portal/templates/ssl_inspection/firefox.html
+msgid "In the Certificate Manager window click on the <i>Authorities</i> Tab and click on <i>Import</i>."
+msgstr ""
+
+# html/captive-portal/templates/ssl_inspection/firefox.html
+msgid "In the Options page click <i>Advanced</i> on the lefthand side. Under Requests make sure <i>Select One automatically</i> is selected and click the button <i>View Certificates</i> at the bottom."
+msgstr ""
+
+# html/captive-portal/templates/ssl_inspection/firefox.html
+msgid "In your firefox browser click on the <i>menu</i> botton at the top right of your browser and select <i>Options</i>."
+msgstr ""
+
 # html/captive-portal/templates/provisioner/ibm.html
 # html/captive-portal/templates/provisioner/mobileiron.html
 # html/captive-portal/templates/provisioner/opswat.html
@@ -461,12 +702,24 @@ msgstr ""
 msgid "Install wireless profile"
 msgstr ""
 
+# html/captive-portal/templates/provisioner/mobileconfig.html
+msgid "Install wireless profile anyway"
+msgstr ""
+
 # html/captive-portal/templates/billing/index.html
 msgid "Internet Access Package"
 msgstr ""
 
 # html/captive-portal/templates/emails/emails-guest_local_account_creation.html
 msgid "Just to let you know that an user account has been created while registering your device. You may now want to use it for different features (devices registration, status page)."
+msgstr ""
+
+# html/captive-portal/templates/ssl_inspection/osx.html
+msgid "KeychainAccess"
+msgstr ""
+
+# html/captive-portal/templates/ssl_inspection/osx.html
+msgid "KeychainAccess application"
 msgstr ""
 
 # pf::person::FIELDS
@@ -480,12 +733,17 @@ msgstr ""
 
 # html/captive-portal/templates/activation/sponsor_login.html
 # html/captive-portal/templates/oauth2/landing.html
+# html/captive-portal/templates/saml.html
 # html/captive-portal/templates/status/login.html
 msgid "Login"
 msgstr ""
 
 # html/captive-portal/templates/status/login.html
 msgid "Login to manage registered devices"
+msgstr ""
+
+# html/captive-portal/templates/networklogoff.html
+msgid "Logoff"
 msgstr ""
 
 # html/captive-portal/templates/status.html
@@ -498,12 +756,32 @@ msgstr ""
 msgid "MAC"
 msgstr ""
 
-# html/captive-portal/templates/emails/emails-violation-triggered.html
+# html/captive-portal/templates/emails/emails-security_event-triggered.html
 msgid "MAC Address"
+msgstr ""
+
+# html/captive-portal/lib/captiveportal/PacketFence/DynamicRouting/Module/SSL_Inspection.pm
+msgid "Mac OSX certificate installation"
+msgstr ""
+
+# html/captive-portal/templates/ssl_inspection/osx.html
+msgid "Make sure <i>System</i> is selected in the left column and then double click on your certificate."
+msgstr ""
+
+# html/captive-portal/templates/ssl_inspection/osx.html
+msgid "Make sure <i>Trust</i> is expanded and select the dropdown next to <i>When using this certificate:</i> and change it to <i>Always Trust</i>."
 msgstr ""
 
 # html/captive-portal/lib/captiveportal/PacketFence/Form/Authentication.pm
 msgid "Mobile provider"
+msgstr ""
+
+# html/captive-portal/templates/billing/confirm_AuthorizeNet.html
+msgid "Name on Card"
+msgstr ""
+
+# html/captive-portal/lib/captiveportal/PacketFence/Controller/NetworkLogoff.pm
+msgid "Network Logoff"
 msgstr ""
 
 # html/captive-portal/templates/emails/emails-guest_email_activation.html
@@ -513,6 +791,26 @@ msgstr ""
 # html/captive-portal/templates/release.html
 # html/captive-portal/templates/scan-in-progress.html
 msgid "Network access has been granted"
+msgstr ""
+
+# lib/pf/pfcron/task/password_of_the_day.pm
+msgid "New password of the day"
+msgstr ""
+
+# html/captive-portal/templates/ssl_inspection/opera.html
+msgid "Next, a dialogue will appear, asking if you would like to install the certificate authority. Click <i>Install</i>."
+msgstr ""
+
+# html/captive-portal/templates/ssl_inspection/osx.html
+msgid "Next, you might be prompted to enter in your login information to make the change. After entering your login information, click <i>Update Settings</i>."
+msgstr ""
+
+# html/captive-portal/templates/ssl_inspection/windows.html
+msgid "Next, you will be presented with a <i>Certificate</i> dialogue. Click the <i>Install Certificate...</i> button near the bottom of this window."
+msgstr ""
+
+# html/captive-portal/templates/ssl_inspection/osx.html
+msgid "Next, you will be prompted to enter the user name and password you use to log on to the computer; do so, and click <i>Modify Keychain</i>."
 msgstr ""
 
 # pf::person::FIELDS
@@ -535,7 +833,7 @@ msgstr ""
 msgid "Notes"
 msgstr ""
 
-# html/captive-portal/templates/emails/emails-violation-triggered.html
+# html/captive-portal/templates/emails/emails-security_event-triggered.html
 msgid "OS"
 msgstr ""
 
@@ -543,14 +841,33 @@ msgstr ""
 msgid "OS Type "
 msgstr ""
 
+# html/captive-portal/templates/ssl_inspection/osx.html
+msgid "OS X Downloads icon"
+msgstr ""
+
+# html/captive-portal/templates/ssl_inspection/osx.html
+msgid "OS X Keychain Access prompt"
+msgstr ""
+
+# html/captive-portal/templates/ssl_inspection/osx.html
+msgid "OS X password prompt"
+msgstr ""
+
+# html/captive-portal/templates/ssl_inspection/firefox.html
+msgid "On the next windows make sure to checkmark that all options and click <i>OK</i>."
+msgstr ""
+
 # html/captive-portal/templates/emails/emails-guest_email_preregistration_confirmed.html
 msgid "Once on site, select guest access on the captive portal and use the following username and password to authenticate"
 msgstr ""
 
+# html/captive-portal/templates/provisioner/airwatch.html
 # html/captive-portal/templates/provisioner/ibm.html
+# html/captive-portal/templates/provisioner/intune.html
 # html/captive-portal/templates/provisioner/jamf.html
 # html/captive-portal/templates/provisioner/opswat.html
 # html/captive-portal/templates/provisioner/sentinelone.html
+# html/captive-portal/templates/provisioner/sepm.html
 # html/captive-portal/templates/provisioner/symantec.html
 msgid "Once the application is installed, click 'Continue' to activate your network connection"
 msgstr ""
@@ -559,8 +876,8 @@ msgstr ""
 msgid "Once the application is installed, click Continue to activate your network connection"
 msgstr ""
 
-# html/captive-portal/templates/provisioner/sepm.html
-msgid "Once the application is installed, click next to activate your network connection"
+# html/captive-portal/templates/provisioner/servicenow.html
+msgid "Once the verification has completed, click 'Continue' to activate your network connection"
 msgstr ""
 
 # html/captive-portal/templates/emails/emails-guest_sponsor_activation.html
@@ -579,6 +896,34 @@ msgstr ""
 msgid "One of the password fields hasn't been filled"
 msgstr ""
 
+# html/captive-portal/templates/ssl_inspection/osx.html
+msgid "Open up Keychain Access (<i>Finder > Applications > Utilities > Keychain Access</i>)."
+msgstr ""
+
+# html/captive-portal/templates/ssl_inspection/osx.html
+msgid "Opening the file will launch the Keychain Access application; here, you maybe asked whether to add the certifitcate to the login keychain or the System keychain. It is preferred if the certificate is added to the System keychain in-case there are other users who might potentially login. Then click <i>Add</i>."
+msgstr ""
+
+# html/captive-portal/templates/ssl_inspection/opera.html
+msgid "Opera CA install prompt"
+msgstr ""
+
+# html/captive-portal/lib/captiveportal/PacketFence/DynamicRouting/Module/SSL_Inspection.pm
+msgid "Opera certificate installation"
+msgstr ""
+
+# html/captive-portal/templates/ssl_inspection/opera.html
+msgid "Opera issuer trust prompt"
+msgstr ""
+
+# html/captive-portal/templates/ssl_inspection/menu.html
+msgid "Other"
+msgstr ""
+
+# html/captive-portal/templates/emails/emails-guest_sponsor_activation.html
+msgid "PID"
+msgstr ""
+
 # html/captive-portal/templates/sms/validate.html
 msgid "PIN"
 msgstr ""
@@ -593,6 +938,7 @@ msgstr ""
 # html/captive-portal/templates/emails/emails-guest_admin_pregistration.html
 # html/captive-portal/templates/emails/emails-guest_email_preregistration_confirmed.html
 # html/captive-portal/templates/emails/emails-guest_local_account_creation.html
+# html/captive-portal/templates/emails/emails-guest_password_of_the_day.html
 # html/captive-portal/templates/emails/emails-guest_sponsor_preregistration.html
 # html/captive-portal/templates/pki_provider/packetfence_local.html
 # html/captive-portal/templates/pki_provider/packetfence_pki.html
@@ -602,8 +948,20 @@ msgstr ""
 msgid "Password"
 msgstr ""
 
+# html/captive-portal/templates/emails/emails-guest_password_of_the_day.html
+msgid "Password Of the Day"
+msgstr ""
+
+# html/captive-portal/templates/provisioner/dpsk.html
+msgid "Password: "
+msgstr ""
+
 # html/captive-portal/lib/captiveportal/PacketFence/DynamicRouting/Module/Authentication/Billing.pm
 msgid "Pay for your access"
+msgstr ""
+
+# html/captive-portal/templates/billing/confirm_AuthorizeNet.html
+msgid "Pay with Authorize.Net"
 msgstr ""
 
 # html/captive-portal/templates/emails/emails-guest_sponsor_activation.html
@@ -614,13 +972,25 @@ msgstr ""
 msgid "Pid"
 msgstr ""
 
+# html/captive-portal/templates/ssl_inspection/other.html
+msgid "Please <u>check back periodically</u> on this webpage for new and updated browser certificates for your unsupported device. These browser certificates will help allow full device functionality with our network."
+msgstr ""
+
 # html/captive-portal/templates/emails/emails-guest_email_activation.html
 # html/captive-portal/templates/emails/emails-guest_email_preregistration.html
 msgid "Please ignore this request if you have not requested network access."
 msgstr ""
 
+# html/captive-portal/templates/ssl_inspection.html
+msgid "Please install the certificate."
+msgstr ""
+
 # pf::person::FIELDS
 msgid "Portal"
+msgstr ""
+
+# pf::person::FIELDS
+msgid "Potd"
 msgstr ""
 
 # html/captive-portal/templates/emails/emails-guest_email_preregistration_confirmed.html
@@ -634,6 +1004,10 @@ msgstr ""
 
 # html/captive-portal/templates/billing/tier.html
 msgid "Price"
+msgstr ""
+
+# pf::person::FIELDS
+msgid "Psk"
 msgstr ""
 
 # html/captive-portal/templates/status.html
@@ -676,12 +1050,32 @@ msgstr ""
 msgid "SAML authentication"
 msgstr ""
 
+# html/captive-portal/templates/provisioner/dpsk.html
+msgid "SSID: "
+msgstr ""
+
+# html/captive-portal/templates/emails/emails-security_event-triggered.html
+msgid "Security Event %s was detected on your device."
+msgstr ""
+
+# html/captive-portal/templates/emails/emails-security_event-triggered.html
+msgid "Security Event detected !"
+msgstr ""
+
 # html/captive-portal/templates/device-registration/registration.html
 msgid "Select Console"
 msgstr ""
 
+# html/captive-portal/templates/activation/sponsor_set_access_durations.html
+msgid "Select access duration"
+msgstr ""
+
 # html/captive-portal/templates/content-with-choice.html
 msgid "Select an authentication method"
+msgstr ""
+
+# html/captive-portal/templates/device-registration/registration.html
+msgid "Select registration role"
 msgstr ""
 
 # pf::person::FIELDS
@@ -716,6 +1110,16 @@ msgstr ""
 msgid "Status - Network Access"
 msgstr ""
 
+# html/captive-portal/templates/ssl_inspection/android.html
+# html/captive-portal/templates/ssl_inspection/chrome.html
+# html/captive-portal/templates/ssl_inspection/firefox.html
+# html/captive-portal/templates/ssl_inspection/ios.html
+# html/captive-portal/templates/ssl_inspection/opera.html
+# html/captive-portal/templates/ssl_inspection/osx.html
+# html/captive-portal/templates/ssl_inspection/windows.html
+msgid "Step"
+msgstr ""
+
 # html/captive-portal/lib/captiveportal/PacketFence/Form/Authentication.pm
 # pf::person::FIELDS
 msgid "Telephone"
@@ -727,6 +1131,10 @@ msgstr ""
 
 # pf::person::FIELDS
 msgid "Tenant_id"
+msgstr ""
+
+# html/captive-portal/templates/ssl_inspection/common.html
+msgid "Test Certificate"
 msgstr ""
 
 # html/captive-portal/templates/emails/emails-guest_sponsor_activation.html
@@ -742,6 +1150,22 @@ msgstr ""
 msgid "Thank you for your understanding"
 msgstr ""
 
+# html/captive-portal/templates/ssl_inspection/windows.html
+msgid "The <i>Certificate Import Wizard</i> will open next. Depending on your configuration, you may be asked whether to install for the <i>Current User</i> or the <i>Local Machine</i>; if asked, you should normally select <i>Local Machine</i>. In either case, click <i>Next</i>."
+msgstr ""
+
+# html/captive-portal/templates/ssl_inspection/windows.html
+msgid "The <i>Select Certificate Store</i> dialogue will open. Highlight <i>Trusted Root Certification Authorities</i> in the list, and then press <i>OK</i> at the bottom."
+msgstr ""
+
+# html/captive-portal/templates/ssl_inspection/chrome.html
+msgid "The Chrome Settings page will open in a new tab. If necessary, scroll all the way down to the bottom; then, click the <i>Show advanced settings</i> link."
+msgstr ""
+
+# html/captive-portal/templates/ssl_inspection/chrome.html
+msgid "The Settings page will expand to reveal several new options. Scroll down nearly to the bottom and click the <i>Manage certificates...</i> button."
+msgstr ""
+
 # html/captive-portal/lib/captiveportal/PacketFence/Controller/Activate/Email.pm
 msgid "The activation code provided is invalid. Reasons could be: it never existed, it was already used or has expired."
 msgstr ""
@@ -754,12 +1178,32 @@ msgstr ""
 msgid "The network access of device %s has been revoked."
 msgstr ""
 
+# html/captive-portal/templates/ssl_inspection/windows.html
+msgid "The next screen will ask whether you would like to have Windows <i>automatically select a certificate store</i> or you would like to select it yourself. Opt to select yourself, by clicking on <i>Place all certificates in the following store</i>. Then, press the <i>Browse</i> button to the right."
+msgstr ""
+
 # html/captive-portal/templates/readonly.html
 msgid "The system is in maintenance mode"
 msgstr ""
 
 # html/captive-portal/templates/status/reset_password.html
 msgid "The two entered passwords did not match"
+msgstr ""
+
+# html/captive-portal/templates/ssl_inspection/chrome.html
+msgid "These images show Chrome running on Chrome OS version 47; you may not see exactly the same thing if you are using Chrome for Linux; however, the general process and wording should be the same."
+msgstr ""
+
+# html/captive-portal/templates/ssl_inspection/windows.html
+msgid "These images show Internet Explorer 10 running on Windows 8; you may not see exactly the same thing if you are using another browser or a different version of Windows; however, the general process and wording should be the same."
+msgstr ""
+
+# html/captive-portal/templates/ssl_inspection/opera.html
+msgid "These images show Opera on macOS. If your computer runs Windows or Linux, the buttons may look different - but the words should be the same."
+msgstr ""
+
+# html/captive-portal/templates/ssl_inspection/ios.html
+msgid "These images show iOS 9 running on an iPad; if you have a different version of iOS, the layout and buttons may be different — but the words should be the same.) Also, you maybe presented with a warning about the unverified authenticity of the profile. You may read over this if you like; otherwise, tap <i>Install</i> again (in the top-right corner."
 msgstr ""
 
 # html/captive-portal/templates/account.html
@@ -770,17 +1214,73 @@ msgstr ""
 msgid "This device is declared as lost or stolen."
 msgstr ""
 
+# html/captive-portal/lib/captiveportal/PacketFence/Controller/NetworkLogoff.pm
+msgid "This feature cannot be accessed because the system is not able to find your MAC address. Please contact your network administrator for more details."
+msgstr ""
+
+# html/captive-portal/lib/captiveportal/PacketFence/Controller/NetworkLogoff.pm
+msgid "This feature is currently disabled. Please contact your network administrator for more details."
+msgstr ""
+
+# html/captive-portal/templates/ssl_inspection/opera.html
+msgid "This guide is for Opera version 12 and below. Newer versions of Opera will use your computer system's certificate or keychain manager instead of your browser's local certificate manager. If you have Opera version 15 or above, please download either the <a href=\"../ssl_inspection/osx\">macOS</a> or <a href=\"../ssl_inspection/windows\">Windows</a> based certificate, or any of the other platforms, depending on your system."
+msgstr ""
+
+# html/captive-portal/templates/ssl_inspection/android.html
+msgid "This guide will help you install the SSL filtering certificate for Android-based mobile devices, including the Nexus, Galaxy, Droid, and Evo, as well as several other phones and tablets. This guide is not primarily for district owned Android devices."
+msgstr ""
+
+# html/captive-portal/templates/ssl_inspection/ios.html
+msgid "This guide will help you install the SSL filtering certificate for Apple mobile devices, including the iPad, iPhone, and iPod touch. This guide is <i>not</i> primarily for district owned iPads."
+msgstr ""
+
+# html/captive-portal/templates/ssl_inspection/chrome.html
+msgid "This guide will help you install the SSL filtering certificate for Chrome OS and Chrome for Linux — this also includes Chrome-based browsers which do not use the operating system's built-in key store."
+msgstr ""
+
+# html/captive-portal/templates/ssl_inspection/windows.html
+msgid "This guide will help you install the SSL filtering certificate for Windows-based browsers which use the operating system's built-in certificate store — this includes Internet Explorer, Chrome, and Safari."
+msgstr ""
+
+# html/captive-portal/templates/ssl_inspection/firefox.html
+msgid "This guide will help you install the SSL filtering certificate for browsers based on the Mozilla platform, such as Firefox."
+msgstr ""
+
+# html/captive-portal/templates/ssl_inspection/osx.html
+msgid "This guide will help you install the SSL filtering certificate for browsers which use macOS built-in Keychain facility — this includes Safari and Chrome. This guide is not primarily for district owned macOS computers."
+msgstr ""
+
+# html/captive-portal/templates/ssl_inspection/opera.html
+msgid "This guide will help you install the SSL filtering certificate for the Opera browser."
+msgstr ""
+
 # html/captive-portal/templates/emails/emails-billing_confirmation.html
+# html/captive-portal/templates/emails/emails-billing_stripe_customer.subscription.deleted.html
+# html/captive-portal/templates/emails/emails-guest_admin_pregistration.html
+# html/captive-portal/templates/emails/emails-guest_email_activation.html
 # html/captive-portal/templates/emails/emails-guest_email_preregistration.html
+# html/captive-portal/templates/emails/emails-guest_email_preregistration_confirmed.html
 # html/captive-portal/templates/emails/emails-guest_local_account_creation.html
+# html/captive-portal/templates/emails/emails-guest_password_of_the_day.html
 # html/captive-portal/templates/emails/emails-guest_sponsor_activation.html
 # html/captive-portal/templates/emails/emails-guest_sponsor_confirmed.html
-# html/captive-portal/templates/emails/emails-violation-triggered.html
+# html/captive-portal/templates/emails/emails-guest_sponsor_preregistration.html
+# html/captive-portal/templates/emails/emails-security_event-triggered.html
 msgid "This is a post only E-mail, please do not reply."
 msgstr ""
 
 # html/captive-portal/templates/status.html
 msgid "This is your current device."
+msgstr ""
+
+# html/captive-portal/templates/ssl_inspection/android.html
+# html/captive-portal/templates/ssl_inspection/chrome.html
+# html/captive-portal/templates/ssl_inspection/firefox.html
+# html/captive-portal/templates/ssl_inspection/ios.html
+# html/captive-portal/templates/ssl_inspection/opera.html
+# html/captive-portal/templates/ssl_inspection/osx.html
+# html/captive-portal/templates/ssl_inspection/windows.html
+msgid "This network employs a technology called captive portal which allows the administrator(s) to restrict network access to trusted users. In order to prevent certificate security warnings when accessing this portal, the network's filtering unit must issue to your computer or mobile device a file called an SSL certificate."
 msgstr ""
 
 # html/captive-portal/templates/emails/emails-guest_admin_pregistration.html
@@ -803,12 +1303,24 @@ msgstr ""
 msgid "Title"
 msgstr ""
 
+# html/captive-portal/templates/provisioner/servicenow.html
+msgid "To complete your network activation we need to verify that your device is corporate-owned."
+msgstr ""
+
 # html/captive-portal/templates/provisioner/mobileiron.html
 msgid "To complete your network activation you need to install MobileIron"
 msgstr ""
 
+# html/captive-portal/templates/provisioner/airwatch.html
+msgid "To complete your network activation you need to install the Airwatch agent."
+msgstr ""
+
 # html/captive-portal/templates/provisioner/ibm.html
 msgid "To complete your network activation you need to install the IBM client."
+msgstr ""
+
+# html/captive-portal/templates/provisioner/intune.html
+msgid "To complete your network activation you need to install the Intune client."
 msgstr ""
 
 # html/captive-portal/templates/provisioner/jamf.html
@@ -860,6 +1372,10 @@ msgstr ""
 msgid "Unable to detect network connectivity. Try restarting your web browser or opening a new tab to see if your access has been succesfully enabled."
 msgstr ""
 
+# html/captive-portal/lib/captiveportal/PacketFence/Controller/Activate/Email.pm
+msgid "Unable to register the device: $status_msg"
+msgstr ""
+
 # html/captive-portal/templates/status.html
 msgid "Unregister"
 msgstr ""
@@ -879,17 +1395,62 @@ msgstr ""
 # html/captive-portal/templates/emails/emails-guest_admin_pregistration.html
 # html/captive-portal/templates/emails/emails-guest_email_preregistration_confirmed.html
 # html/captive-portal/templates/emails/emails-guest_local_account_creation.html
+# html/captive-portal/templates/emails/emails-guest_password_of_the_day.html
 # html/captive-portal/templates/emails/emails-guest_sponsor_preregistration.html
 # html/captive-portal/templates/status/login.html
 msgid "Username"
 msgstr ""
 
-# html/captive-portal/templates/emails/emails-violation-triggered.html
-msgid "Violation %s was detected on your device."
+# html/captive-portal/templates/ssl_inspection/osx.html
+msgid "Utilities folder from the Finder"
 msgstr ""
 
-# html/captive-portal/templates/emails/emails-violation-triggered.html
-msgid "Violation detected !"
+# html/captive-portal/templates/activation/sponsor_set_access_durations.html
+msgid "Validate"
+msgstr ""
+
+# html/captive-portal/templates/ssl_inspection/chrome.html
+msgid "When the <i>Certificate manager</i> screen appears, click the <i>Authorities</i> tab. Then, click the <i>Import...</i> button near the bottom."
+msgstr ""
+
+# html/captive-portal/templates/ssl_inspection/osx.html
+msgid "When the certificate finishes downloading, it will appear in your default Downloads folder. Usually, this can be accessed via the Dock near the Trash icon, or, depending on your browser, it may appear in a dedicated downloads window. Locate the file and double-click to open it."
+msgstr ""
+
+# html/captive-portal/templates/networklogoff.html
+msgid "When you are done with your usage of this device, please click on the Logoff button below to terminate your network session"
+msgstr ""
+
+# html/captive-portal/templates/ssl_inspection/windows.html
+msgid "Windows Certificate Import Wizard"
+msgstr ""
+
+# html/captive-portal/templates/ssl_inspection/windows.html
+msgid "Windows Certificate dialogue"
+msgstr ""
+
+# html/captive-portal/templates/ssl_inspection/windows.html
+msgid "Windows Security Warning dialogue"
+msgstr ""
+
+# html/captive-portal/templates/ssl_inspection/windows.html
+msgid "Windows Select Certificate Store prompt"
+msgstr ""
+
+# html/captive-portal/lib/captiveportal/PacketFence/DynamicRouting/Module/SSL_Inspection.pm
+msgid "Windows certificate installation"
+msgstr ""
+
+# html/captive-portal/templates/ssl_inspection/other.html
+msgid "Windows phones and Linux devices are included in the devices that will need a browser certificate."
+msgstr ""
+
+# html/captive-portal/templates/ssl_inspection/windows.html
+msgid "Windows save prompt"
+msgstr ""
+
+# html/captive-portal/templates/ssl_inspection/windows.html
+msgid "Windows security prompt"
 msgstr ""
 
 # pf::person::FIELDS
@@ -906,12 +1467,20 @@ msgstr ""
 msgid "You do not own this device %s, therefor you can not declare it as lost or stolen."
 msgstr ""
 
-# html/captive-portal/templates/emails/emails-violation-triggered.html
+# html/captive-portal/templates/emails/emails-security_event-triggered.html
 msgid "You have been detected doing malicious activity on the network."
 msgstr ""
 
 # html/captive-portal/templates/status.html
 msgid "You have no registered devices."
+msgstr ""
+
+# html/captive-portal/templates/ssl_inspection/osx.html
+msgid "You may not see exactly the same thing if you are using another browser or a different version of macOS; however, the general process and wording should be the same."
+msgstr ""
+
+# html/captive-portal/templates/ssl_inspection/osx.html
+msgid "You may now close the window."
 msgstr ""
 
 # html/captive-portal/lib/captiveportal/PacketFence/Form/Authentication.pm
@@ -920,6 +1489,48 @@ msgstr ""
 
 # html/captive-portal/templates/provisioner/accept.html
 msgid "You should not seeing this page, something went wrong."
+msgstr ""
+
+# html/captive-portal/templates/ssl_inspection/osx.html
+msgid "You should now see a blue \"+\" right next to the certificate."
+msgstr ""
+
+# html/captive-portal/templates/ssl_inspection/android.html
+msgid "You will be prompted to enter a name for the certificate. Enter a meaningful name for this network and click <i>OK</i>."
+msgstr ""
+
+# html/captive-portal/templates/ssl_inspection/android.html
+msgid "You will see a confirmation that the certificate has been installed. In your notifications, it might say <i>Network may be monitored by an unknown third party</i>. That is normal and should be ignored."
+msgstr ""
+
+# html/captive-portal/templates/ssl_inspection/ios.html
+msgid "You will see a confirmation that the profile has been installed, and that the certificate is <i>Verified</i>. Simply tap the <i>Done</i> button in the top-right corner."
+msgstr ""
+
+# html/captive-portal/templates/ssl_inspection/osx.html
+msgid "You're done! After entering your password, you can close Keychain Access and continue browsing as usual; in most cases, you will not notice anything different after the certificate is installed."
+msgstr ""
+
+# html/captive-portal/templates/ssl_inspection/chrome.html
+msgid "You're done! After trusting the CA, you can click OK, close the Settings page, and continue browsing as usual; in most cases, you will not notice anything different after the certificate is installed."
+msgstr ""
+
+# html/captive-portal/templates/ssl_inspection/osx.html
+msgid "You're done! You can close Keychain Access and continue browsing as usual; in most cases, you will not notice anything different after the certificate is installed."
+msgstr ""
+
+# html/captive-portal/templates/ssl_inspection/windows.html
+msgid "You're done! You may close any remaining certificate windows and continue browsing as usual; in most cases, you will not notice anything different after the certificate is installed."
+msgstr ""
+
+# html/captive-portal/templates/ssl_inspection/ios.html
+msgid "You're done! You may close or switch away from the Settings application and continue browsing as usual; in most cases, you will not notice anything different after the certificate is installed."
+msgstr ""
+
+# html/captive-portal/templates/ssl_inspection/android.html
+# html/captive-portal/templates/ssl_inspection/firefox.html
+# html/captive-portal/templates/ssl_inspection/opera.html
+msgid "You're done! You may continue browsing as usual; in most cases, you will not notice anything different after the certificate is installed."
 msgstr ""
 
 # html/captive-portal/templates/status.html
@@ -976,6 +1587,10 @@ msgstr ""
 msgid "Your registration is pending approval. Once approved you will be automatically redirected."
 msgstr ""
 
+# html/captive-portal/templates/waiting.html
+msgid "Your registration is pending approval. You can safely close this page, your network access will be automatically enabled once the sponsor activates your access."
+msgstr ""
+
 # html/captive-portal/templates/emails/emails-billing_stripe_customer.subscription.deleted.html
 msgid "Your subscribtion was cancelled."
 msgstr ""
@@ -996,7 +1611,7 @@ msgstr ""
 msgid "en_US"
 msgstr "English"
 
-# html/captive-portal/lib/captiveportal/PacketFence/Controller/Violation.pm
+# html/captive-portal/lib/captiveportal/PacketFence/Controller/SecurityEvent.pm
 # lib/pf/web/release.pm
 msgid "error: max re-enables reached"
 msgstr "Maximum re-enables reached!"
@@ -1025,6 +1640,22 @@ msgstr ""
 msgid "help: provide info"
 msgstr "If you have questions about this page, contact your local support staff for assistance. Please provide the following information: "
 
+# html/captive-portal/lib/captiveportal/PacketFence/DynamicRouting/Module/SSL_Inspection.pm
+msgid "iOS certificate installation"
+msgstr ""
+
+# html/captive-portal/templates/ssl_inspection/ios.html
+msgid "iOS certificate trust prompt"
+msgstr ""
+
+# html/captive-portal/templates/ssl_inspection/ios.html
+msgid "iOS passcode prompt"
+msgstr ""
+
+# html/captive-portal/templates/ssl_inspection/ios.html
+msgid "iOS trust prompt"
+msgstr ""
+
 # pf::web::constants (Locales)
 msgid "it_IT"
 msgstr "Italiano"
@@ -1032,6 +1663,10 @@ msgstr "Italiano"
 # pf::web::constants (Locales)
 msgid "nl_NL"
 msgstr "Dutch"
+
+# pf::web::constants (Locales)
+msgid "no"
+msgstr "Norwegian"
 
 # pf::web::constants (Locales)
 msgid "pl_PL"
@@ -1062,21 +1697,18 @@ msgid "scan in progress contact support if too long"
 msgstr ""
 
 # html/captive-portal/lib/captiveportal/PacketFence/Controller/Remediation.pm
-# html/captive-portal/lib/captiveportal/PacketFence/Controller/Violation.pm
+# html/captive-portal/lib/captiveportal/PacketFence/Controller/SecurityEvent.pm
 # html/captive-portal/templates/scan-in-progress.html
 msgid "scan: scan in progress"
 msgstr "Your system is being scanned"
 
-# html/captive-portal/lib/captiveportal/PacketFence/Controller/Violation.pm
+# html/captive-portal/lib/captiveportal/PacketFence/Controller/Remediation.pm
+# html/captive-portal/lib/captiveportal/PacketFence/Controller/SecurityEvent.pm
+msgid "security event: quarantine established"
+msgstr ""
+
+# html/captive-portal/lib/captiveportal/PacketFence/Controller/SecurityEvent.pm
 # lib/pf/web.pm
 msgid "system scan in progress"
 msgstr "Your system is being scanned - this process will take approximately %s seconds."
 
-# html/captive-portal/lib/captiveportal/PacketFence/Controller/Remediation.pm
-# html/captive-portal/lib/captiveportal/PacketFence/Controller/Violation.pm
-msgid "violation: quarantine established"
-msgstr "Your system has been put in quarantine."
-
-# html/pfappserver/lib/pfappserver/Form/Config/Source/Twilio.pm
-msgid "PIN: $pin"
-msgstr ""

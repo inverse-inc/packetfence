@@ -45,6 +45,7 @@ use pf::config qw(
 );
 use pf::accounting qw(node_accounting_current_sessionid);
 use pf::node qw(node_attributes);
+use pf::util::radius qw(perform_disconnect);
 
 =head1 SUBROUTINES
 
@@ -52,11 +53,13 @@ use pf::node qw(node_attributes);
 
 # CAPABILITIES
 # access technology supported
-sub supportsRoleBasedEnforcement { return $TRUE; }
-sub supportsWiredMacAuth { return $TRUE; }
-sub supportsWiredDot1x { return $TRUE; }
-sub supportsRadiusDynamicVlanAssignment { return $TRUE; }
-# sub supportsRadiusVoip { return $TRUE; }
+use pf::SwitchSupports qw(
+    RoleBasedEnforcement
+    WiredMacAuth
+    WiredDot1x
+    RadiusDynamicVlanAssignment
+);
+
 # inline capabilities
 sub inlineCapabilities { return ($MAC,$PORT); }
 
@@ -235,7 +238,6 @@ sub radiusDisconnect {
         my $role = $roleResolver->getRoleForNode($mac, $self);
 
         my $acctsessionid = node_accounting_current_sessionid($mac);
-        my $node_info = node_attributes($mac);
         # transforming MAC to the expected format 00-11-22-33-CA-FE
         $mac = uc($mac);
         $mac =~ s/:/-/g;
@@ -286,7 +288,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2019 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 

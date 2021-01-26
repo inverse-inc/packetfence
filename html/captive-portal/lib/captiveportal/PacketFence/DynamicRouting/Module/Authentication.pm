@@ -42,7 +42,7 @@ has 'with_aup' => ('is' => 'rw', default => sub {1});
 
 has 'aup_template' => (is => 'rw', default => sub {'aup_text.html'});
 
-has '+actions' => (default => sub {{"on_success" => [], "on_failure" => [], "destination_url" => [], "role_from_source" => [], "unregdate_from_source" => [], "time_balance_from_source" => [], "bandwidth_balance_from_source" => []}});
+has '+actions' => (default => sub {{"on_success" => [], "on_failure" => [], "destination_url" => [], "role_from_source" => [], "unregdate_from_source" => [], "time_balance_from_source" => [], "bandwidth_balance_from_source" => [], "unregdate_from_sponsor_source" => []}});
 
 has 'signup_template' => ('is' => 'rw', default => sub {'signin.html'});
 
@@ -68,6 +68,7 @@ sub available_actions {
         'bandwidth_balance_from_source',
         'on_failure',
         'on_success',
+        'unregdate_from_sponsor_source',
     ];
 }
 
@@ -164,7 +165,12 @@ sub execute_actions {
 
     $self->app->session->{source} = $self->source;
     if(isenabled($self->source->{create_local_account})){
-        $self->create_local_account();
+        if(!$self->create_local_account()) {
+            $self->app->flash->{error} = "Unable to create the local account with this username. Please try registering using a different email or phone number.";
+            # Make sure the current source is not remembered since it failed...
+            $self->session->{source_id} = undef;
+            return $FALSE;
+        }
     }
 
     get_logger->debug(sub { use Data::Dumper; "new_node_info after auth module actions : ".Dumper($self->new_node_info) });
@@ -232,12 +238,9 @@ Transfer $self->app->session->{saving_fields} in $self->app->session->{saved_fie
 sub transfer_saving_fields {
     my ($self) = @_;
 
-    foreach my $key (keys %{$self->app->session->{saving_fields}}) {
-        if (grep { $_ eq $key } @{$self->fields_to_save}) {
-            $self->app->session->{saved_fields}->{$key} = $self->app->session->{saving_fields}->{$key};
-        }
+    foreach my $key (@{$self->fields_to_save}) {
+        $self->app->session->{saved_fields}->{$key} = $self->request_fields->{$key};
     }
-    delete $self->app->session->{saving_fields};
 }
 
 =head2 auth_source_params
@@ -285,7 +288,7 @@ sub create_local_account {
     my $email = $self->session->{fields}->{email} // $self->session->{email} // $self->app->session->{email};
     unless($email){
         get_logger->error("Can't create account since there is no user e-mail in the session.");
-        return;
+        return $FALSE;
     }
 
     get_logger->debug("External source local account creation is enabled for this source. We proceed");
@@ -294,8 +297,27 @@ sub create_local_account {
     # with different parameters coming from the authentication source (ie.: expiration date)
     $actions = $actions // pf::authentication::match( $self->source->id, $auth_params, undef, $self->session->{extra} );
 
+    if(pf::config::normalize_time($self->source->local_account_expiration) != 0) {
+        push @$actions, pf::Authentication::Action->new(class => "authentication", type => "expiration", value => pf::config::access_duration($self->source->local_account_expiration));
+    }
+    else {
+        for my $action (@$actions) {
+            if($action->type eq "set_access_duration") {
+                push @$actions, pf::Authentication::Action->new(class => "authentication", type => "expiration", value => pf::config::access_duration($action->value));
+            }
+            if($action->type eq "set_unreg_date") {
+                push @$actions, pf::Authentication::Action->new(class => "authentication", type => "expiration", value => $action->value);
+            }
+        }
+    }
+    
     my $login_amount = ($self->source->local_account_logins eq $LOCAL_ACCOUNT_UNLIMITED_LOGINS) ? undef : $self->source->local_account_logins;
     $password = pf::password::generate($self->app->session->{username}, $actions, $password, $login_amount, $self->source);
+
+    if(!defined($password)) {
+        get_logger->error("Unable to create local account");
+        return $FALSE;
+    }
 
     # We send the guest and email with the info of the local account
     my %info = (
@@ -303,7 +325,7 @@ sub create_local_account {
         'password'  => $password,
         'email'     => $email,
         'subject'   => $self->app->i18n_format(
-            "%s: Guest account creation information", $Config{'general'}{'domain'}
+            "%s: Account creation information", $Config{'general'}{'domain'}
         ),
     );
     $self->app->session->{local_account_info} = {
@@ -314,10 +336,12 @@ sub create_local_account {
         password => $password,
     };
     pf::web::guest::send_template_email(
-            $pf::web::guest::TEMPLATE_EMAIL_LOCAL_ACCOUNT_CREATION, $info{'subject'}, \%info
+            $pf::web::guest::TEMPLATE_EMAIL_LOCAL_ACCOUNT_CREATION, $info{'subject'}, \%info, { INCLUDE_PATH => [ map { $_ . "/emails/" } @{$self->app->profile->{_template_paths}} ] }
     );
 
     get_logger->info("Local account for external source " . $self->source->id . " created with PID " . $self->app->session->{username});
+    
+    return $TRUE;
 }
 
 =head2 prompt_fields
@@ -356,6 +380,8 @@ sub update_person_from_fields {
     my ($self, %options) = @_;
     $options{additionnal_fields} //= {};
     my $lang = clean_locale($self->app->session->{locale});
+
+    $self->transfer_saving_fields();
     
     # we assume we use 'username' field as the PID when using 'reuseDot1x' feature
     if ( isenabled($self->app->profile->reuseDot1xCredentials) ) {
@@ -368,7 +394,7 @@ sub update_person_from_fields {
     }
 
     # not sure we should set the portal + source here...
-    person_modify($options{pid}, %{ $self->request_fields }, portal => $self->app->profile->getName, source => $self->source->id, lang => $lang, %{$options{additionnal_fields}});
+    person_modify($options{pid}, %{$self->app->session->{saved_fields}}, %{ $self->request_fields }, portal => $self->app->profile->getName, source => $self->source->id, lang => $lang, %{$options{additionnal_fields}});
 }
 
 =head1 AUTHOR
@@ -377,7 +403,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2019 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 

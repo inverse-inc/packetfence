@@ -1,47 +1,48 @@
 <template>
-  <b-form-group :label-cols="(columnLabel) ? labelCols : 0" :label="columnLabel"
-    :state="isValid()" :invalid-feedback="getInvalidFeedback()"
+  <b-form-group :label-cols="(columnLabel) ? labelCols : 0" :label="columnLabel" :state="inputState"
     class="pf-form-input" :class="{ 'mb-0': !columnLabel }">
+    <template v-slot:invalid-feedback>
+      {{ inputInvalidFeedback }}
+    </template>
     <b-input-group>
-      <b-form-input
+      <b-form-input ref="input"
         v-model="inputValue"
         v-bind="$attrs"
-        ref="input"
-        :state="isValid()"
+        :state="inputState"
         :disabled="disabled"
         :readonly="readonly"
-        @input.native="validate()"
-        @keyup.native="onChange($event)"
-        @change.native="onChange($event)"
       />
-      <b-input-group-append>
-        <b-button v-if="readonly || disabled" class="input-group-text" tabindex="-1" disabled><icon name="lock"></icon></b-button>
-        <b-button-group v-else-if="test" rel="testResultGroup">
-          <b-button v-if="testResult !== null" variant="light" disabled tabindex="-1">
+      <b-input-group-append v-show="$slots.append || readonly || disabled || test">
+        <b-button-group v-show="$slots.append" rel="testResultGroup">
+          <slot name="append"></slot>
+        </b-button-group>
+        <b-button-group v-show="test" rel="testResultGroup">
+          <b-button v-show="testResult !== null" variant="light" disabled tabindex="-1">
             <span class="mr-1" :class="{ 'text-danger': !testResult, 'text-success': testResult }">{{ testMessage }}</span>
           </b-button>
         </b-button-group>
-        <b-button-group v-if="!disabled" rel="prefixButtonGroup">
-          <b-button v-if="test" class="input-group-text" @click="runTest()" :disabled="isLoading || isTesting || !this.value || isValid() === false" tabindex="-1">
+        <b-button-group v-show="test" rel="prefixButtonGroup">
+          <b-button class="input-group-text" @click="runTest()" :disabled="readonly || disabled || isTesting || !inputValue || inputState === false" tabindex="-1">
             {{ $t('Test') }}
-            <icon v-show="isTesting" name="circle-notch" spin class="ml-2 mr-1"></icon>
-            <icon v-if="testResult !== null && testResult" name="check" class="ml-2 mr-1 text-success"></icon>
-            <icon v-if="testResult !== null && !testResult" name="times" class="ml-2 mr-1 text-danger"></icon>
+            <icon v-show="isTesting" name="circle-notch" spin class="ml-3 mr-1"></icon>
+            <icon v-show="testResult !== null && testResult" name="check" class="ml-3 mr-1 text-success"></icon>
+            <icon v-show="testResult !== null && !testResult" name="times" class="ml-3 mr-1 text-danger"></icon>
           </b-button>
         </b-button-group>
+        <b-button v-show="!isTesting && (readonly || disabled)" class="input-group-text" tabindex="-1" disabled><icon name="lock"></icon></b-button>
       </b-input-group-append>
     </b-input-group>
-    <b-form-text v-if="text" v-html="text"></b-form-text>
+    <b-form-text v-show="text" v-html="text"></b-form-text>
   </b-form-group>
 </template>
 
 <script>
-import pfMixinValidation from '@/components/pfMixinValidation'
+import pfMixinForm from '@/components/pfMixinForm'
 
 export default {
   name: 'pf-form-input',
   mixins: [
-    pfMixinValidation
+    pfMixinForm
   ],
   props: {
     value: {
@@ -51,7 +52,7 @@ export default {
       type: String
     },
     labelCols: {
-      type: Number,
+      type: [String, Number],
       default: 3
     },
     text: {
@@ -65,10 +66,6 @@ export default {
     readonly: {
       type: Boolean,
       default: false
-    },
-    formatter: {
-      type: Function,
-      default: null
     },
     test: {
       type: Function,
@@ -85,10 +82,18 @@ export default {
   computed: {
     inputValue: {
       get () {
-        return (this.formatter) ? this.formatter(this.value) : this.value
+        if (this.formStoreName) {
+          return this.formStoreValue // use FormStore
+        } else {
+          return this.value // use native (v-model)
+        }
       },
-      set (newValue) {
-        this.$emit('input', newValue || null)
+      set (newValue = null) {
+        if (this.formStoreName) {
+          this.formStoreValue = newValue // use FormStore
+        } else {
+          this.$emit('input', newValue) // use native (v-model)
+        }
       }
     }
   },
@@ -100,7 +105,7 @@ export default {
       if (this.test) {
         this.isTesting = true
         this.testResult = null
-        this.test().then(response => {
+        this.test().then(() => {
           this.testResult = true
           this.testMessage = null
           this.$emit('pass')
@@ -123,11 +128,6 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-@import "../../node_modules/bootstrap/scss/functions";
-@import "../../node_modules/bootstrap/scss/mixins/border-radius";
-@import "../../node_modules/bootstrap/scss/mixins/transition";
-@import "../styles/variables";
-
 /**
  * Add btn-primary color(s) on hover
  */

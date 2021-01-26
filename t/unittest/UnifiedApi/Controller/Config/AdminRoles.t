@@ -26,8 +26,12 @@ BEGIN {
     use setup_test_config;
 }
 
-use Test::More tests => 10;
+use pf::ConfigStore::AdminRoles;
+use Test::More tests => 14;
 use Test::Mojo;
+use Utils;
+
+my ($fh, $filename) = Utils::tempfileForConfigStore("pf::ConfigStore::AdminRoles");
 
 #This test will running last
 use Test::NoWarnings;
@@ -50,7 +54,11 @@ $t->get_ok("$base_url/User Manager")
   ->status_is(200)
   ->json_is('/item/id', 'User Manager');
 
+$t->patch_ok("$base_url/User Manager" => json => { allowed_access_durations => '1h,3h,12h,1D,2D,3D,5D', })
+  ->status_is(200);
 
+$t->patch_ok("$base_url/User Manager" => json => { allowed_access_durations => '1h,3h,12h,1D,2D,3D,5d', })
+  ->status_is(422);
 
 =head1 AUTHOR
 
@@ -58,7 +66,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2019 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 

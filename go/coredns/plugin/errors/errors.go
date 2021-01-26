@@ -1,79 +1,103 @@
-// Package errors implements an HTTP error handling plugin.
+// Package errors implements an error handling plugin.
 package errors
 
 import (
-	"fmt"
-	"log"
-	"runtime"
-	"strings"
+	"context"
+	"regexp"
+	"sync/atomic"
 	"time"
+	"unsafe"
 
 	"github.com/inverse-inc/packetfence/go/coredns/plugin"
+	clog "github.com/inverse-inc/packetfence/go/coredns/plugin/pkg/log"
 	"github.com/inverse-inc/packetfence/go/coredns/request"
 
 	"github.com/miekg/dns"
-	"golang.org/x/net/context"
 )
+
+var log = clog.NewWithPlugin("errors")
+
+type pattern struct {
+	ptimer  unsafe.Pointer
+	count   uint32
+	period  time.Duration
+	pattern *regexp.Regexp
+}
+
+func (p *pattern) timer() *time.Timer {
+	return (*time.Timer)(atomic.LoadPointer(&p.ptimer))
+}
+
+func (p *pattern) setTimer(t *time.Timer) {
+	atomic.StorePointer(&p.ptimer, unsafe.Pointer(t))
+}
 
 // errorHandler handles DNS errors (and errors from other plugin).
 type errorHandler struct {
-	Next    plugin.Handler
-	LogFile string
-	Log     *log.Logger
+	patterns []*pattern
+	stopFlag uint32
+	Next     plugin.Handler
+}
+
+func newErrorHandler() *errorHandler {
+	return &errorHandler{}
+}
+
+func (h *errorHandler) logPattern(i int) {
+	cnt := atomic.SwapUint32(&h.patterns[i].count, 0)
+	if cnt > 0 {
+		log.Errorf("%d errors like '%s' occurred in last %s",
+			cnt, h.patterns[i].pattern.String(), h.patterns[i].period)
+	}
+}
+
+func (h *errorHandler) inc(i int) bool {
+	if atomic.LoadUint32(&h.stopFlag) > 0 {
+		return false
+	}
+	if atomic.AddUint32(&h.patterns[i].count, 1) == 1 {
+		ind := i
+		t := time.AfterFunc(h.patterns[ind].period, func() {
+			h.logPattern(ind)
+		})
+		h.patterns[ind].setTimer(t)
+		if atomic.LoadUint32(&h.stopFlag) > 0 && t.Stop() {
+			h.logPattern(ind)
+		}
+	}
+	return true
+}
+
+func (h *errorHandler) stop() {
+	atomic.StoreUint32(&h.stopFlag, 1)
+	for i := range h.patterns {
+		t := h.patterns[i].timer()
+		if t != nil && t.Stop() {
+			h.logPattern(i)
+		}
+	}
 }
 
 // ServeDNS implements the plugin.Handler interface.
-func (h errorHandler) ServeDNS(ctx context.Context, w dns.ResponseWriter, r *dns.Msg) (int, error) {
-	defer h.recovery(ctx, w, r)
-
+func (h *errorHandler) ServeDNS(ctx context.Context, w dns.ResponseWriter, r *dns.Msg) (int, error) {
 	rcode, err := plugin.NextOrFailure(h.Name(), h.Next, ctx, w, r)
 
 	if err != nil {
+		strErr := err.Error()
+		for i := range h.patterns {
+			if h.patterns[i].pattern.MatchString(strErr) {
+				if h.inc(i) {
+					return rcode, err
+				}
+				break
+			}
+		}
 		state := request.Request{W: w, Req: r}
-		errMsg := fmt.Sprintf("%s [ERROR %d %s %s] %v", time.Now().Format(timeFormat), rcode, state.Name(), state.Type(), err)
-
-		h.Log.Println(errMsg)
+		log.Errorf("%d %s %s: %s", rcode, state.Name(), state.Type(), strErr)
 	}
 
 	return rcode, err
 }
 
-func (h errorHandler) Name() string { return "errors" }
-
-func (h errorHandler) recovery(ctx context.Context, w dns.ResponseWriter, r *dns.Msg) {
-	rec := recover()
-	if rec == nil {
-		return
-	}
-
-	// Obtain source of panic
-	// From: https://gist.github.com/swdunlop/9629168
-	var name, file string // function name, file name
-	var line int
-	var pc [16]uintptr
-	n := runtime.Callers(3, pc[:])
-	for _, pc := range pc[:n] {
-		fn := runtime.FuncForPC(pc)
-		if fn == nil {
-			continue
-		}
-		file, line = fn.FileLine(pc)
-		name = fn.Name()
-		if !strings.HasPrefix(name, "runtime.") {
-			break
-		}
-	}
-
-	// Trim file path
-	delim := "/coredns/"
-	pkgPathPos := strings.Index(file, delim)
-	if pkgPathPos > -1 && len(file) > pkgPathPos+len(delim) {
-		file = file[pkgPathPos+len(delim):]
-	}
-
-	panicMsg := fmt.Sprintf("%s [PANIC %s %s] %s:%d - %v", time.Now().Format(timeFormat), r.Question[0].Name, dns.Type(r.Question[0].Qtype), file, line, rec)
-	// Currently we don't use the function name, since file:line is more conventional
-	h.Log.Printf(panicMsg)
-}
-
-const timeFormat = "02/Jan/2006:15:04:05 -0700"
+// Name implements the plugin.Handler interface.
+func (h *errorHandler) Name() string { return "errors" }

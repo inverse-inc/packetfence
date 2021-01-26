@@ -28,7 +28,7 @@ use pf::config qw(
 );
 
 our @EXPORT_OK = qw(
-        $TRIGGER_TYPE_ACCOUNTING $TRIGGER_TYPE_CUSTOM $TRIGGER_TYPE_DETECT $TRIGGER_TYPE_INTERNAL $TRIGGER_TYPE_MAC $TRIGGER_TYPE_NESSUS $TRIGGER_TYPE_OPENVAS $TRIGGER_TYPE_OS $TRIGGER_TYPE_USERAGENT $TRIGGER_TYPE_VENDORMAC $TRIGGER_TYPE_PROVISIONER $TRIGGER_TYPE_SWITCH $TRIGGER_TYPE_SWITCH_GROUP @VALID_TRIGGER_TYPES
+        $TRIGGER_TYPE_ACCOUNTING $TRIGGER_TYPE_CUSTOM $TRIGGER_TYPE_DETECT $TRIGGER_TYPE_INTERNAL $TRIGGER_TYPE_MAC $TRIGGER_TYPE_NESSUS $TRIGGER_TYPE_OPENVAS $TRIGGER_TYPE_OS $TRIGGER_TYPE_VENDORMAC $TRIGGER_TYPE_PROVISIONER $TRIGGER_TYPE_SWITCH $TRIGGER_TYPE_SWITCH_GROUP @VALID_TRIGGER_TYPES
         $TRIGGER_TYPE_NEXPOSE_EVENT_STARTS_WITH
         $TRIGGER_TYPE_SURICATA_EVENT
         $TRIGGER_ID_PROVISIONER
@@ -50,7 +50,6 @@ Readonly::Scalar our $TRIGGER_TYPE_PROVISIONER => 'provisioner';
 Readonly::Scalar our $TRIGGER_TYPE_SURICATA_EVENT => 'suricata_event';
 Readonly::Scalar our $TRIGGER_TYPE_SWITCH_GROUP => 'switch_group';
 Readonly::Scalar our $TRIGGER_TYPE_SWITCH => 'switch';
-Readonly::Scalar our $TRIGGER_TYPE_USERAGENT => 'useragent';
 Readonly::Scalar our $TRIGGER_TYPE_VENDORMAC => 'vendormac';
 
 Readonly::Scalar our $TRIGGER_ID_PROVISIONER => 'check';
@@ -73,7 +72,7 @@ Readonly::Scalar our $NEXPOSE_CATEGORIES => sub {
     return \%map;
 }->();
 
-Readonly::Scalar our $TRIGGER_MAP => {
+our $TRIGGER_MAP = {
   $TRIGGER_TYPE_INTERNAL => {
     "1100010" => "Rogue DHCP detection",
     "new_dhcp_info" => "DHCP packet received",
@@ -81,6 +80,12 @@ Readonly::Scalar our $TRIGGER_MAP => {
     "connection_type_change" => "Connection transport changed",
     "parking_detected" => "Parking detected",
     "node_discovered" => "Node discovered",
+    "new_dhcp_info_from_managed_network" => "DHCP packet received from managed network",
+    "new_dhcp_info_from_production_network" => "DHCP packet received from production network",
+    "node_maintenance" => "Node maintenance",
+    "fingerbank_diff_score_too_low" => "Fingerbank Collector detected a network behavior that doesn't match the known profile",
+    "fingerbank_blacklisted_ips_threshold_too_high" => "Fingerbank Collector detected traffic to blacklisted IPs",
+    "fingerbank_blacklisted_ports" => "Fingerbank Collector detected traffic to blacklisted ports",
   },
   $TRIGGER_TYPE_PROVISIONER => {
     $TRIGGER_ID_PROVISIONER => "Check status",
@@ -97,7 +102,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2019 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 

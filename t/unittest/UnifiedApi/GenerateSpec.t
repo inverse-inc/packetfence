@@ -75,51 +75,59 @@ is_deeply(
                 server_name => {
                     type => 'string',
                     description => 'This server\'s name (account name) in your Active Directory. \'%h\' is a placeholder for this server hostname. In a cluster, you must use %h and ensure your hostnames are less than 14 characters. You can mix \'%h\' with a prefix or suffix (ex: \'pf-%h\') ',
-				},
+                },
                 sticky_dc => {
                     type => 'string',
                     description => 'This is used to specify a sticky domain controller to connect to. If not specified, default \'*\' will be used to connect to any available domain controller',
-				},
+                },
                 dns_name => {
                     type => 'string',
                     description => 'The DNS name (FQDN) of the domain.'
-				},
+                },
                 ou => {
                     type => 'string',
-                    description => 'Precreate the computer account in a specific OU. The OU string read from top to bottom without RDNs and delimited by a \'/\'. E.g. "Computers/Servers/Unix"',
-				},
+                    description => 'Use a specific OU for the PacketFence account. The OU string read from top to bottom without RDNs and delimited by a \'/\'. E.g. "Computers/Servers/Unix". IMPORTANT NOTE: Due to a bug in the current version of samba, you will need to precreate a computer object in the OU you specify above when you\'re not using the default value (\'Computers\'). Otherwise you will get the following error: "Failed to join domain: failed to precreate account in ou ou=XYZ,dc=ACME,dc=CORP: No such object"',
+                },
                 registration => {
                     type => 'string',
                     description => 'If this option is enabled, the device will be able to reach the Active Directory from the registration VLAN.',
-				},
+                },
                 ntlm_cache => {
                     type => 'string',
                     description => 'Should the NTLM cache be enabled for this domain?',
-				},
+                },
                 ntlm_cache_source => {
                     type => 'string',
                     description => 'The source to use to connect to your Active Directory server for NTLM caching.',
-				},
+                },
                 ntlm_cache_filter => {
                     type => 'string',
                     description => 'An LDAP query to filter out the users that should be cached.',
-				},
+                },
                 ntlm_cache_expiry => {
                     type => 'integer',
                     description => 'The amount of seconds an entry should be cached. This should be adjusted to twice the value of maintenance.populate_ntlm_redis_cache_interval if using the batch mode.',
-				},
+                },
                 ntlm_cache_batch => {
                     type => 'string',
                     description => 'When this is enabled, all users matching the LDAP filter will be inserted in the cache via a background job (maintenance.populate_ntlm_redis_cache_interval controls the interval).',
-				},
+                },
                 ntlm_cache_batch_one_at_a_time => {
                     type => 'string',
                     description => 'Whether or not to fetch users on your AD one by one instead of doing a single batch fetch. This is useful when your AD is loaded or experiencing issues during the sync. Note that this makes the batch job much longer and is about 4 times slower when enabled.',
-				},
+                },
                 ntlm_cache_on_connection => {
                     type => 'string',
                     description => 'When this is enabled, an async job will cache the NTLM credentials of the user every time he connects.',
-				},
+                },
+                status => {
+                    type => 'string',
+                    description => 'Enabled',
+                },
+                ntlmv2_only => {
+                    type => 'string',
+                    description => 'If you enabled "Send NTLMv2 Response Only. Refuse LM & NTLM" (only allow ntlm v2) in Network Security: LAN Manager authentication level',
+                },
             },
             required => [qw(
                 id
@@ -166,8 +174,30 @@ cmp_deeply(
                     description => 'This allows already registered users to be able to re-register their device by first accessing the status page and then accessing the portal. This is useful to allow users to extend their access even though they are already registered.',
                 },
                 'advanced_filter' => {
-                    type => 'string',
+                    type => 'object',
                     description => 'Advanced filter',
+                    properties => {
+                        'field' => {
+                            type => 'string',
+                            description => 'Field',
+                        },
+                        'op' => {
+                            type => 'string',
+                            description => 'Value',
+                        },
+                        'value' => {
+                            type => 'string',
+                            description => 'Value',
+                        },
+                        'values' => {
+                            type => 'array',
+                            description => 'Values',
+                            items => {
+                                type => 'string',
+                                description => 'Value',
+                            },
+                        },
+                    },
                 },
                 'always_use_redirecturl' => {
                     type => 'string',
@@ -207,13 +237,21 @@ cmp_deeply(
                     type => 'string',
                     description => 'Profile Description',
                 },
-                'device_registration' => {
+                'self_service' => {
                     type => 'string',
-                    description => 'Device registration',
+                    description => 'Self service',
+                },
+                unbound_dpsk => {
+                    type => 'string',
+                    description => 'Unbound dpsk',
                 },
                 'dot1x_recompute_role_from_portal' => {
                     type => 'string',
                     description => 'When enabled, PacketFence will not use the role initialy computed on the portal but will use the dot1x username to recompute the role.',
+                },
+                'mac_auth_recompute_role_from_portal' => {
+                    type => 'string',
+                    description => 'When enabled, PacketFence will not use the role initialy computed on the portal but will use an authorized source if defined to recompute the role.',
                 },
                 'filter' => {
                     type => 'array',
@@ -317,6 +355,10 @@ cmp_deeply(
                     type => 'string',
                     description => 'This activates automatic deregistation of devices for the profile if PacketFence receives a RADIUS accounting stop.',
                 },
+                'vlan_pool_technique' => {
+                    type => 'string',
+                    'description' => 'The Vlan Pool Technique to use',
+                },
                 'network_logoff' => {
                     type => 'string',
                     description => 'This allows users to access the network logoff page (http://pf.pfdemo.org/networklogoff) in order to terminate their network access (switch their device back to unregistered)',
@@ -396,6 +438,10 @@ cmp_deeply(
                         type => 'string',
                         description => 'Alert pipe',
                     },
+                    tenant_id => {
+                        type => 'string',
+                        description => 'Tenant ID',
+                    },
                 },
             },
             {
@@ -417,6 +463,90 @@ cmp_deeply(
                     path => {
                         type => 'string',
                         description => 'Alert pipe',
+                    },
+                    'rate_limit' => {
+                        type => 'object',
+                        description => 'Rate limit requests.',
+                        properties => {
+                            unit => {
+                                type => 'string',
+                                description => 'Unit',
+                            },
+                            interval => {
+                                type => 'integer',
+                                description => 'Interval',
+                            }
+                        }
+                    },
+                    tenant_id => {
+                        type => 'string',
+                        description => 'Tenant ID',
+                    },
+                },
+            },
+            {
+                type => 'object',
+                required => ['id', 'path', 'type'],
+                properties => {
+                    id => {
+                        type => 'string',
+                        description => 'Detector',
+                    },
+                    status => {
+                        type => 'string',
+                        description => 'Enabled',
+                    },
+                    type => {
+                        type => 'string',
+                        description => 'Type',
+                    },
+                    path => {
+                        type => 'string',
+                        description => 'Alert pipe',
+                    },
+                    tenant_id => {
+                        type => 'string',
+                        description => 'Tenant ID',
+                    },
+                    'rate_limit' => {
+                        type => 'object',
+                        description => 'Rate limit requests.',
+                        properties => {
+                            unit => {
+                                type => 'string',
+                                description => 'Unit',
+                            },
+                            interval => {
+                                type => 'integer',
+                                description => 'Interval',
+                            }
+                        }
+                    },
+                },
+            },
+            {
+                type => 'object',
+                required => ['id', 'path', 'type'],
+                properties => {
+                    id => {
+                        type => 'string',
+                        description => 'Detector',
+                    },
+                    status => {
+                        type => 'string',
+                        description => 'Enabled',
+                    },
+                    type => {
+                        type => 'string',
+                        description => 'Type',
+                    },
+                    path => {
+                        type => 'string',
+                        description => 'Alert pipe',
+                    },
+                    tenant_id => {
+                        type => 'string',
+                        description => 'Tenant ID',
                     },
                     'rate_limit' => {
                         type => 'object',
@@ -468,77 +598,9 @@ cmp_deeply(
                             }
                         }
                     },
-                },
-            },
-            {
-                type => 'object',
-                required => ['id', 'path', 'type'],
-                properties => {
-                    id => {
+                    tenant_id => {
                         type => 'string',
-                        description => 'Detector',
-                    },
-                    status => {
-                        type => 'string',
-                        description => 'Enabled',
-                    },
-                    type => {
-                        type => 'string',
-                        description => 'Type',
-                    },
-                    path => {
-                        type => 'string',
-                        description => 'Alert pipe',
-                    },
-                    'rate_limit' => {
-                        type => 'object',
-                        description => 'Rate limit requests.',
-                        properties => {
-                            unit => {
-                                type => 'string',
-                                description => 'Unit',
-                            },
-                            interval => {
-                                type => 'integer',
-                                description => 'Interval',
-                            }
-                        }
-                    },
-                },
-            },
-            {
-                type => 'object',
-                required => ['id', 'path', 'type'],
-                properties => {
-                    id => {
-                        type => 'string',
-                        description => 'Detector',
-                    },
-                    status => {
-                        type => 'string',
-                        description => 'Enabled',
-                    },
-                    type => {
-                        type => 'string',
-                        description => 'Type',
-                    },
-                    path => {
-                        type => 'string',
-                        description => 'Alert pipe',
-                    },
-                    'rate_limit' => {
-                        type => 'object',
-                        description => 'Rate limit requests.',
-                        properties => {
-                            unit => {
-                                type => 'string',
-                                description => 'Unit',
-                            },
-                            interval => {
-                                type => 'integer',
-                                description => 'Interval',
-                            }
-                        }
+                        description => 'Tenant ID',
                     },
                 },
             },
@@ -576,6 +638,10 @@ cmp_deeply(
                             }
                         }
                     },
+                    tenant_id => {
+                        type => 'string',
+                        description => 'Tenant ID',
+                    },
                 },
             },
             {
@@ -597,6 +663,10 @@ cmp_deeply(
                     path => {
                         type => 'string',
                         description => 'Alert pipe',
+                    },
+                    tenant_id => {
+                        type => 'string',
+                        description => 'Tenant ID',
                     },
                     rules => {
                         type => 'array',
@@ -672,7 +742,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2019 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 

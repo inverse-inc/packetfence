@@ -14,7 +14,7 @@ pf::RoseDB::Wrix
 use strict;
 use warnings;
 
-use base qw(pf::Base::RoseDB::Wrix);
+use base qw(pf::base::RoseDB::Wrix);
 
 =head1 AUTHOR
 
@@ -22,7 +22,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2019 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 

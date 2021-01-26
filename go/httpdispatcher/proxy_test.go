@@ -42,15 +42,17 @@ func TestMain(m *testing.M) {
 }
 
 func TestSimpleRedirect(t *testing.T) {
+	testproxy := NewProxy(ctx)
 	req := httptest.NewRequest("GET", "http://www.inverse.ca", bytes.NewBuffer([]byte("")))
 	recorder := httptest.NewRecorder()
 	testproxy.ServeHTTP(recorder, req)
-	if recorder.Code != 302 {
+	if recorder.Code != 200 {
 		t.Fatalf("Received non-302 response: %d\n", recorder.Code)
 	}
 }
 
 func TestSimpleNotImplemented(t *testing.T) {
+	testproxy := NewProxy(ctx)
 	req := httptest.NewRequest("POST", "http://www.packetfence.org", bytes.NewBuffer([]byte("")))
 	recorder := httptest.NewRecorder()
 	testproxy.ServeHTTP(recorder, req)
@@ -60,8 +62,9 @@ func TestSimpleNotImplemented(t *testing.T) {
 }
 
 func TestSimpleProxy(t *testing.T) {
-	req := httptest.NewRequest("GET", "http://captive.apple.com", bytes.NewBuffer([]byte("")))
-	req.Host = "captive.apple.com"
+	testproxy := NewProxy(ctx)
+	req := httptest.NewRequest("GET", "http://detectportal.firefox.com", bytes.NewBuffer([]byte("")))
+	req.Host = "detectportal.firefox.com"
 	recorder := httptest.NewRecorder()
 	testproxy.ServeHTTP(recorder, req)
 	if recorder.Code != 200 {

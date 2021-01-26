@@ -1,9 +1,19 @@
-
 /**
  * "config" store module
  */
+import Vue from 'vue'
 import apiCall from '@/utils/api'
+import duration from '@/utils/duration'
 import i18n from '@/utils/locale'
+import acl from '@/utils/acl'
+
+const encodeURL = (url) => {
+  if (Array.isArray(url)) {
+    return url.map(segment => encodeURIComponent(segment.toString().replace('/', '~'))).join('/')
+  } else {
+    return url
+  }
+}
 
 const api = {
   getAdminRoles () {
@@ -69,6 +79,9 @@ const api = {
   getBaseRadiusConfiguration () {
     return apiCall({ url: 'config/base/radius_configuration', method: 'get' })
   },
+  getBaseDnsConfiguration () {
+    return apiCall({ url: 'config/base/dns_configuration', method: 'get' })
+  },
   getBaseServices () {
     return apiCall({ url: 'config/base/services', method: 'get' })
   },
@@ -87,11 +100,11 @@ const api = {
   getConnectionProfiles () {
     return apiCall({ url: 'config/connection_profiles', method: 'get' })
   },
-  getDeviceRegistrations () {
-    return apiCall({ url: 'config/device_registrations', method: 'get' })
-  },
   getDomains () {
     return apiCall({ url: 'config/domains', method: 'get' })
+  },
+  getFilterEngines (collection) {
+    return apiCall({ url: encodeURL(['config', 'filter_engines', collection]), method: 'get' })
   },
   getFirewalls () {
     return apiCall({ url: 'config/firewalls', method: 'get' })
@@ -105,8 +118,20 @@ const api = {
   getLayer2Networks () {
     return apiCall({ url: 'config/l2_networks', method: 'get', params: { limit: 1000 } })
   },
+  getNetworkBehaviorPolicies () {
+    return apiCall({ url: 'config/network_behavior_policies', method: 'get' })
+  },
   getMaintenanceTasks () {
     return apiCall({ url: 'config/maintenance_tasks', method: 'get' })
+  },
+  getPkiCas () {
+    return apiCall({ url: 'pki/cas', method: 'get', params: { limit: 1000 } })
+  },
+  getPkiProfiles () {
+    return apiCall({ url: 'pki/profiles', method: 'get', params: { limit: 1000 } })
+  },
+  getPkiCerts () {
+    return apiCall({ url: 'pki/certs', method: 'get', params: { limit: 1000 } })
   },
   getPkiProviders () {
     return apiCall({ url: 'config/pki_providers', method: 'get' })
@@ -117,8 +142,26 @@ const api = {
   getProvisionings () {
     return apiCall({ url: 'config/provisionings', method: 'get' })
   },
-  getRealms () {
-    return apiCall({ url: 'config/realms', method: 'get' })
+  getRadiusEaps () {
+    return apiCall({ url: 'config/radiusd/eap_profiles', method: 'get' })
+  },
+  getRadiusFasts () {
+    return apiCall({ url: 'config/radiusd/fast_profiles', method: 'get' })
+  },
+  getRadiusOcsps () {
+    return apiCall({ url: 'config/radiusd/ocsp_profiles', method: 'get' })
+  },
+  getRadiusSsls () {
+    return apiCall({ url: 'config/ssl_certificates', method: 'get' })
+  },
+  getRadiusTlss () {
+    return apiCall({ url: 'config/radiusd/tls_profiles', method: 'get' })
+  },
+  getRealms (tenantId) {
+    return apiCall({ url: 'config/realms', method: 'get', headers: { 'X-PacketFence-Tenant-Id': tenantId } })
+  },
+  getRemoteConnectionProfiles () {
+    return apiCall({ url: 'config/remote_connection_profiles', method: 'get' })
   },
   getRoles () {
     return apiCall({ url: 'node_categories', method: 'get', params: { limit: 1000 } })
@@ -130,19 +173,28 @@ const api = {
     return apiCall({ url: 'config/scans', method: 'get' })
   },
   getSecurityEvents () {
-    return apiCall({ url: 'config/security_events', method: 'get' })
+    return apiCall({ url: 'config/security_events', method: 'get', params: { limit: 1000 } })
+  },
+  getSelfServices () {
+    return apiCall({ url: 'config/self_services', method: 'get' })
   },
   getSources () {
-    return apiCall({ url: 'config/sources', method: 'get' })
+    return apiCall({ url: 'config/sources', method: 'get', params: { limit: 1000 } })
   },
   getSsids () {
     return apiCall({ url: 'reports/ssid', method: 'get' })
   },
   getSwitches () {
-    return apiCall({ url: 'config/switches', method: 'get' })
+    return apiCall({ url: 'config/switches', method: 'get', params: { limit: 1000, raw: 1 } })
   },
   getSwitchGroups () {
-    return apiCall({ url: 'config/switch_groups', method: 'get' })
+    return apiCall({ url: 'config/switch_groups', method: 'get', params: { limit: 1000, raw: 1 } })
+  },
+  getSwitchGroupMembers (id) {
+    return apiCall({ url: `config/switch_group/${id}/members`, method: 'get' })
+  },
+  getSwitchTemplates () {
+    return apiCall({ url: 'config/template_switches', method: 'get' })
   },
   getSyslogForwarders () {
     return apiCall({ url: 'config/syslog_forwarders', method: 'get' })
@@ -164,6 +216,20 @@ const api = {
   },
   postFixPermissions () {
     return apiCall({ url: 'config/fix_permissions', method: 'post' })
+  },
+  flattenCondition: (data) => {
+    return apiCall.postQuiet('config/flatten_condition', data).then(response => {
+      return response.data
+    }).catch(err => {
+      throw err
+    })
+  },
+  parseCondition: (data) => {
+    return apiCall.postQuiet('config/parse_condition', data).then(response => {
+      return response.data
+    }).catch(err => {
+      throw err
+    })
   }
 }
 
@@ -174,126 +240,158 @@ const types = {
   ERROR: 'error'
 }
 
-const state = { // set intitial states to `false` (not `[]` or `{}`) to avoid infinite loop when response is empty.
-  adminRolesStatus: '',
-  adminRoles: false,
-  baseActiveActiveStatus: '',
-  baseActiveActive: false,
-  baseAdvancedStatus: '',
-  baseAdvanced: false,
-  baseAlertingStatus: '',
-  baseAlerting: false,
-  baseCaptivePortalStatus: '',
-  baseCaptivePortal: false,
-  baseDatabaseStatus: '',
-  baseDatabase: false,
-  baseDatabaseAdvancedStatus: '',
-  baseDatabaseAdvanced: false,
-  baseDatabaseEncryptionStatus: '',
-  baseDatabaseEncryption: false,
-  baseFencingStatus: '',
-  baseFencing: false,
-  baseFingerbankDeviceChangeStatus: '',
-  baseFingerbankDeviceChange: false,
-  baseGeneralStatus: '',
-  baseGeneral: false,
-  baseGuestsAdminRegistrationStatus: '',
-  baseGuestsAdminRegistration: false,
-  baseInlineStatus: '',
-  baseInline: false,
-  baseMseTabStatus: '',
-  baseMseTab: false,
-  baseNetworkStatus: '',
-  baseNetwork: false,
-  baseNodeImportStatus: '',
-  baseNodeImport: false,
-  baseParkingStatus: '',
-  baseParking: false,
-  basePFDHCPStatus: '',
-  basePFDHCP: false,
-  basePortsStatus: '',
-  basePorts: false,
-  baseProvisioningStatus: '',
-  baseProvisioning: false,
-  baseRadiusConfigurationStatus: '',
-  baseRadiusConfiguration: false,
-  baseServicesStatus: '',
-  baseServices: false,
-  baseSNMPTrapsStatus: '',
-  baseSNMPTraps: false,
-  baseWebServicesStatus: '',
-  baseWebServices: false,
-  billingTiersStatus: '',
-  billingTiers: false,
-  checkupStatus: '',
-  connectionProfilesStatus: '',
-  connectionProfiles: false,
-  deviceRegistrationsStatus: '',
-  deviceRegistrations: false,
-  domainsStatus: '',
-  domains: false,
-  firewallsStatus: '',
-  firewalls: false,
-  fixPermissionsStatus: '',
-  floatingDevicesStatus: '',
-  floatingDevices: false,
-  interfacesStatus: '',
-  interfaces: false,
-  layer2NetworksStatus: '',
-  layer2Networks: false,
-  maintenanceTasksStatus: '',
-  maintenanceTasks: false,
-  pkiProvidersStatus: '',
-  pkiProviders: false,
-  portalModulesStatus: '',
-  portalModules: false,
-  provisioningsStatus: '',
-  provisionings: false,
-  realmsStatus: '',
-  realms: false,
-  rolesStatus: '',
-  roles: false,
-  routedNetworksStatus: '',
-  routedNetworks: false,
-  scansStatus: '',
-  scans: false,
-  securityEventsStatus: '',
-  securityEvents: false,
-  ssidsStatus: '',
-  ssids: false,
-  sourcesStatus: '',
-  sources: false,
-  switchesStatus: '',
-  switches: false,
-  switchGroupsStatus: '',
-  switchGroups: false,
-  syslogForwardersStatus: '',
-  syslogForwarders: false,
-  syslogParsersStatus: '',
-  syslogParsers: false,
-  tenantsStatus: '',
-  tenants: false,
-  trafficShapingPoliciesStatus: '',
-  trafficShapingPolicies: false,
-  wmiRulesStatus: '',
-  wmiRules: false,
-  wrixLocationsStatus: '',
-  wrixLocations: false
+const initialState = () => { // set intitial states to `false` (not `[]` or `{}`) to avoid infinite loop when response is empty.
+  return {
+    adminRoles: false,
+    adminRolesStatus: '',
+    baseActiveActive: false,
+    baseActiveActiveStatus: '',
+    baseAdvanced: false,
+    baseAdvancedStatus: '',
+    baseAlerting: false,
+    baseAlertingStatus: '',
+    baseCaptivePortal: false,
+    baseCaptivePortalStatus: '',
+    baseDatabase: false,
+    baseDatabaseAdvanced: false,
+    baseDatabaseAdvancedStatus: '',
+    baseDatabaseEncryption: false,
+    baseDatabaseEncryptionStatus: '',
+    baseDatabaseStatus: '',
+    baseFencing: false,
+    baseFencingStatus: '',
+    baseFingerbankDeviceChange: false,
+    baseFingerbankDeviceChangeStatus: '',
+    baseGeneral: false,
+    baseGeneralStatus: '',
+    baseGuestsAdminRegistration: false,
+    baseGuestsAdminRegistrationStatus: '',
+    baseInline: false,
+    baseInlineStatus: '',
+    baseMseTab: false,
+    baseMseTabStatus: '',
+    baseNetwork: false,
+    baseNetworkStatus: '',
+    baseNodeImport: false,
+    baseNodeImportStatus: '',
+    basePFDHCP: false,
+    basePFDHCPStatus: '',
+    baseParking: false,
+    baseParkingStatus: '',
+    basePorts: false,
+    basePortsStatus: '',
+    baseProvisioning: false,
+    baseProvisioningStatus: '',
+    baseRadiusConfiguration: false,
+    baseRadiusConfigurationStatus: '',
+    baseDnsConfiguration: false,
+    baseDnsConfigurationStatus: '',
+    baseSNMPTraps: false,
+    baseSNMPTrapsStatus: '',
+    baseServices: false,
+    baseServicesStatus: '',
+    baseWebServices: false,
+    baseWebServicesStatus: '',
+    billingTiers: false,
+    billingTiersStatus: '',
+    checkupStatus: '',
+    connectionProfiles: false,
+    connectionProfilesStatus: '',
+    domains: false,
+    domainsStatus: '',
+    filterEngines: false,
+    filterEnginesStatus: '',
+    firewalls: false,
+    firewallsStatus: '',
+    fixPermissionsStatus: '',
+    floatingDevices: false,
+    floatingDevicesStatus: '',
+    interfaces: false,
+    interfacesStatus: '',
+    layer2Networks: false,
+    layer2NetworksStatus: '',
+    maintenanceTasks: false,
+    maintenanceTasksStatus: '',
+    networkBehaviorPolicies: false,
+    networkBehaviorPoliciesStatus: '',
+    pkiCas: false,
+    pkiCasStatus: '',
+    pkiProfiles: false,
+    pkiProfilesStatus: '',
+    pkiCerts: false,
+    pkiCertsStatus: '',
+    pkiProviders: false,
+    pkiProvidersStatus: '',
+    portalModules: false,
+    portalModulesStatus: '',
+    provisionings: false,
+    provisioningsStatus: '',
+    radiusEaps: false,
+    radiusEapsStatus: '',
+    radiusFasts: false,
+    radiusFastsStatus: '',
+    radiusOcsps: false,
+    radiusOcspsStatus: '',
+    radiusSsls: false,
+    radiusSslsStatus: '',
+    radiusTlss: false,
+    radiusTlssStatus: '',
+    realms: {},
+    realmsStatus: '',
+    remoteConnectionProfiles: false,
+    remoteConnectionProfilesStatus: '',
+    roles: false,
+    rolesStatus: '',
+    routedNetworks: false,
+    routedNetworksStatus: '',
+    scans: false,
+    scansStatus: '',
+    securityEvents: false,
+    securityEventsStatus: '',
+    selfServices: false,
+    selfServicesStatus: '',
+    sources: false,
+    sourcesStatus: '',
+    ssids: false,
+    ssidsStatus: '',
+    switchGroups: false,
+    switchGroupsStatus: '',
+    switchTemplates: false,
+    switchTemplatesStatus: '',
+    switches: false,
+    switchesStatus: '',
+    syslogForwarders: false,
+    syslogForwardersStatus: '',
+    syslogParsers: false,
+    syslogParsersStatus: '',
+    tenants: false,
+    tenantsStatus: '',
+    trafficShapingPolicies: false,
+    trafficShapingPoliciesStatus: '',
+    wmiRules: false,
+    wmiRulesStatus: '',
+    wrixLocations: false,
+    wrixLocationsStatus: ''
+  }
 }
 
 const helpers = {
   sortSecurityEvents: (securityEvents) => {
     let sortedIds = Object.keys(securityEvents).sort((a, b) => {
+      var aDesc = securityEvents[a].desc
+      var bDesc = securityEvents[b].desc
       if (a === 'defaults') {
-        return a
-      } else if (!securityEvents[a].desc && !securityEvents[b].desc) {
+        return -1
+      } else if (b === 'defaults') {
+        return 1
+      } else if (!aDesc && !bDesc) {
         return a.localeCompare(b)
       } else if (!securityEvents[b].desc) {
-        return a
+        return -1
       } else if (!securityEvents[a].desc) {
-        return b
+        return 1
       } else {
-        return securityEvents[a].desc.localeCompare(securityEvents[b].desc)
+        return aDesc.localeCompare(bDesc)
       }
     })
     let sortedSecurityEvents = []
@@ -301,16 +399,6 @@ const helpers = {
       sortedSecurityEvents.push(securityEvents[id])
     }
     return sortedSecurityEvents
-  },
-  groupSwitches: (switches) => {
-    let ret = []
-    if (switches) {
-      let groups = [...new Set(switches.map(sw => sw.group))]
-      groups.forEach(function (group, index, groups) {
-        ret.push({ group: group, switches: switches.filter(sw => sw.group === group) })
-      })
-    }
-    return ret
   }
 }
 
@@ -396,11 +484,14 @@ const getters = {
   isLoadingConnectionProfiles: state => {
     return state.connectionProfilesStatus === types.LOADING
   },
-  isLoadingDeviceRegistrations: state => {
-    return state.deviceRegistrationsStatus === types.LOADING
+  isLoadingSelfServices: state => {
+    return state.selfServicesStatus === types.LOADING
   },
   isLoadingDomains: state => {
     return state.domainsStatus === types.LOADING
+  },
+  isLoadingFilterEngines: state => {
+    return state.filterEnginesStatus === types.LOADING
   },
   isLoadingFirewalls: state => {
     return state.firewallsStatus === types.LOADING
@@ -420,6 +511,18 @@ const getters = {
   isLoadingMaintenanceTasks: state => {
     return state.maintenanceTasksStatus === types.LOADING
   },
+  isLoadingNetworkBehaviorPolicies: state => {
+    return state.networkBehaviorPoliciesStatus === types.LOADING
+  },
+  isLoadingPkiCas: state => {
+    return state.pkiCasStatus === types.LOADING
+  },
+  isLoadingPkiProfiles: state => {
+    return state.pkiProfilesStatus === types.LOADING
+  },
+  isLoadingPkiCerts: state => {
+    return state.pkiCertsStatus === types.LOADING
+  },
   isLoadingPkiProviders: state => {
     return state.pkiProvidersStatus === types.LOADING
   },
@@ -429,8 +532,26 @@ const getters = {
   isLoadingProvisionings: state => {
     return state.provisioningsStatus === types.LOADING
   },
+  isLoadingRadiusEaps: state => {
+    return state.radiusEapsStatus === types.LOADING
+  },
+  isLoadingRadiusFasts: state => {
+    return state.radiusFastsStatus === types.LOADING
+  },
+  isLoadingRadiusOcsps: state => {
+    return state.radiusOcspsStatus === types.LOADING
+  },
+  isLoadingRadiusSsls: state => {
+    return state.radiusSslsStatus === types.LOADING
+  },
+  isLoadingRadiusTlss: state => {
+    return state.radiusTlssStatus === types.LOADING
+  },
   isLoadingRealms: state => {
     return state.realmsStatus === types.LOADING
+  },
+  isLoadingRemoteConnectionProfiles: state => {
+    return state.remoteConnectionProfilesStatus === types.LOADING
   },
   isLoadingRoles: state => {
     return state.rolesStatus === types.LOADING
@@ -456,6 +577,9 @@ const getters = {
   isLoadingSwitchGroups: state => {
     return state.switchGroupsStatus === types.LOADING
   },
+  isLoadingSwitchTemplates: state => {
+    return state.switchTemplatesStatus === types.LOADING
+  },
   isLoadingSyslogForwarders: state => {
     return state.syslogForwardersStatus === types.LOADING
   },
@@ -475,62 +599,9 @@ const getters = {
     return state.wrixLocationsStatus === types.LOADING
   },
   accessDurationsList: state => {
-    if (!state.baseGuestsAdminRegistration) return []
-    const unit2str = (unit, isPlural = false) => {
-      const plural = (isPlural) ? 's' : ''
-      switch (unit) {
-        case 's': return (plural) ? i18n.t('seconds') : i18n.t('second')
-        case 'm': return (plural) ? i18n.t('minutes') : i18n.t('minute')
-        case 'h': return (plural) ? i18n.t('hours') : i18n.t('hour')
-        case 'D': return (plural) ? i18n.t('days') : i18n.t('day')
-        case 'W': return (plural) ? i18n.t('weeks') : i18n.t('week')
-        case 'M': return (plural) ? i18n.t('months') : i18n.t('month')
-        case 'Y': return (plural) ? i18n.t('years') : i18n.t('year')
-      }
-    }
-    const unit2seconds = (unit) => {
-      let seconds = 1
-      switch (unit) { // compound seconds w/ fallthrough
-        case 'Y': seconds *= 12
-          /* falls through */
-        case 'M': seconds *= 30.4375 // leap-year
-          /* falls through */
-        case 'W': seconds *= 7
-          /* falls through */
-        case 'D': seconds *= 24
-          /* falls through */
-        case 'h': seconds *= 60
-          /* falls through */
-        case 'm': seconds *= 60
-          /* falls through */
-      }
-      return seconds
-    }
-    return state.baseGuestsAdminRegistration.access_duration_choices.split(',').map((duration) => {
-      // destructure duration using regular expression
-      const [
-        // eslint-disable-next-line no-unused-vars
-        _, // ignore
-        interval, // \d+
-        unit, // [smhDWMY]{1}
-        base, // [FR]
-        // eslint-disable-next-line no-unused-vars
-        __, // ignore
-        extendedInterval, // [+-]\d+
-        extendedUnit // [smhDWMY]{1}
-      ] = duration.match(/(\d+)([smhDWMY]){1}([FR])?(([+-]\d+)([smhDWMY]){1})?/)
-      let name = interval + ' ' + unit2str(unit, Math.abs(interval) > 1)
-      if (base && extendedInterval && extendedUnit) {
-        let baseStr = ''
-        switch (base) {
-          case 'F': baseStr = unit2str('D'); break // relative to start of day
-          case 'R': baseStr = unit2str(unit); break // relative to start of period (unit)
-        }
-        name += ' (@' + baseStr + ' ' + extendedInterval + ' ' + unit2str(extendedUnit, Math.abs(extendedInterval) > 1) + ')'
-      }
-      // fwd `sort`ing
-      const sort = (~~interval * unit2seconds(unit)) + (~~extendedInterval * unit2seconds(extendedUnit))
-      return { name: name, value: duration, sort: sort }
+    if (!state.baseGuestsAdminRegistration || !('access_duration_choices' in state.baseGuestsAdminRegistration)) return []
+    return state.baseGuestsAdminRegistration.access_duration_choices.split(',').map((accessDuration) => {
+      return duration.deserialize(accessDuration)
     }).sort((a, b) => {
       return (a.sort > b.sort) ? 1 : -1
     })
@@ -538,67 +609,79 @@ const getters = {
   adminRolesList: state => {
     if (!state.adminRoles) return []
     return state.adminRoles.map((item) => {
-      return { value: item.id, name: item.id }
+      return { value: item.id, text: item.id }
     })
   },
   domainsList: state => {
     if (!state.domains) return []
     return state.domains.map((item) => {
-      return { value: item.id, name: item.id }
+      return { value: item.id, text: item.id }
     })
   },
   connectionProfilesList: state => {
     if (!state.connectionProfiles) return []
     return state.connectionProfiles.map((item) => {
-      return { value: item.id, name: item.id, text: `${item.id} - ${item.description}` }
+      return { value: item.id, text: ((item.description) ? `${item.id} - ${item.description}` : `${item.id}`) }
     })
   },
   portalModulesList: state => {
     if (!state.portalModules) return []
     return state.portalModules.map((item) => {
-      return { value: item.id, name: item.description }
+      return { value: item.id, text: item.description }
     })
   },
   realmsList: state => {
-    if (!state.realms) return []
-    return state.realms.map((item) => {
-      return { value: item.id, name: item.id, text: item.id }
-    })
+    let list = []
+    for (let i in state.realms) {
+      list = [ ...list, ...state.realms[i].map((item) => {
+        return { value: item.id, text: item.id }
+      }) ]
+    }
+    return list
   },
   rolesList: state => {
     if (!state.roles) return []
-    return state.roles.map((item) => {
-      return { value: item.category_id, name: item.name, text: `${item.name} - ${item.notes}` }
+    return [
+      ...[{ value: null, text: i18n.t('empty - None') }],
+      ...state.roles.map((item) => {
+        return { value: item.category_id, text: ((item.notes) ? `${item.name} - ${item.notes}` : `${item.name}`) }
+      })
+    ]
+  },
+  rootPortalModulesList: state => {
+    if (!state.portalModules) return []
+    return state.portalModules.filter(item => item.type === 'Root').map((item) => {
+      return { value: item.id, text: item.description }
     })
   },
   sourcesList: state => {
     if (!state.sources) return []
     return state.sources.map((item) => {
-      return { value: item.id, name: item.description, text: `${item.id} - ${item.description}` }
+      return { value: item.id, text: ((item.description) ? `${item.id} - ${item.description}` : `${item.id}`) }
     })
   },
   ssidsList: state => { // TODO - replace once `config/ssid` endpoint is available
     if (!state.ssids) return []
     return state.ssids.filter(item => item.ssid !== 'Total').map((item) => {
-      return { value: item.ssid, name: item.ssid, text: item.ssid }
+      return { value: item.ssid, text: item.ssid }
     })
   },
   switchGroupsList: state => {
     if (!state.switchGroups) return []
     return state.switchGroups.map((item) => {
-      return { value: item.id, name: item.description }
+      return { value: item.id, text: item.description }
     })
   },
   switchesList: state => {
     if (!state.switches) return []
     return state.switches.map((item) => {
-      return { value: item.id, name: item.description }
+      return { value: item.id, text: item.description }
     })
   },
   tenantsList: state => {
     if (!state.tenants) return []
     return state.tenants.map((item) => {
-      return { value: item.id, name: item.name }
+      return { value: item.id, text: item.name }
     })
   },
   securityEventsList: state => {
@@ -608,9 +691,6 @@ const getters = {
   },
   sortedSecurityEvents: state => {
     return helpers.sortSecurityEvents(state.securityEvents)
-  },
-  groupedSwitches: state => {
-    return helpers.groupSwitches(state.switches)
   }
 }
 
@@ -643,21 +723,26 @@ const actions = {
   },
   getAdminRoles: ({ state, getters, commit }) => {
     if (getters.isLoadingAdminRoles) {
-      return
-    }
-    if (!state.adminRoles) {
-      commit('ADMIN_ROLES_REQUEST')
-      return api.getAdminRoles().then(response => {
-        commit('ADMIN_ROLES_UPDATED', response.data.items)
-        return state.adminRoles
-      })
-    } else {
       return Promise.resolve(state.adminRoles)
+    }
+    if (acl.$can('read', 'admin_roles')) {
+      if (!state.adminRoles) {
+        commit('ADMIN_ROLES_REQUEST')
+        return api.getAdminRoles().then(response => {
+          commit('ADMIN_ROLES_UPDATED', response.data.items)
+          return state.adminRoles
+        })
+      } else {
+        return Promise.resolve(state.adminRoles)
+      }
+    } else {
+      commit('ADMIN_ROLES_UPDATED', [])
+      return state.adminRoles
     }
   },
   getBaseActiveActive: ({ state, getters, commit }) => {
     if (getters.isLoadingBaseActiveActive) {
-      return
+      return Promise.resolve(state.baseActiveActive)
     }
     if (!state.baseActiveActive) {
       commit('BASE_ACTIVE_ACTIVE_REQUEST')
@@ -671,7 +756,7 @@ const actions = {
   },
   getBaseAdvanced: ({ state, getters, commit }) => {
     if (getters.isLoadingBaseAdvanced) {
-      return
+      return Promise.resolve(state.baseAdvanced)
     }
     if (!state.baseAdvanced) {
       commit('BASE_ADVANCED_REQUEST')
@@ -685,7 +770,7 @@ const actions = {
   },
   getBaseAlerting: ({ state, getters, commit }) => {
     if (getters.isLoadingBaseAlerting) {
-      return
+      return Promise.resolve(state.baseAlerting)
     }
     if (!state.baseAlerting) {
       commit('BASE_ALERTING_REQUEST')
@@ -699,7 +784,7 @@ const actions = {
   },
   getBaseCaptivePortal: ({ state, getters, commit }) => {
     if (getters.isLoadingBaseCaptivePortal) {
-      return
+      return Promise.resolve(state.baseCaptivePortal)
     }
     if (!state.baseCaptivePortal) {
       commit('BASE_CAPTIVE_PORTAL_REQUEST')
@@ -713,7 +798,7 @@ const actions = {
   },
   getBaseDatabase: ({ state, getters, commit }) => {
     if (getters.isLoadingBaseDatabase) {
-      return
+      return Promise.resolve(state.baseDatabase)
     }
     if (!state.baseDatabase) {
       commit('BASE_DATABASE_REQUEST')
@@ -727,7 +812,7 @@ const actions = {
   },
   getBaseDatabaseAdvanced: ({ state, getters, commit }) => {
     if (getters.isLoadingBaseDatabaseAdvanced) {
-      return
+      return Promise.resolve(state.baseDatabaseAdvanced)
     }
     if (!state.baseDatabaseAdvanced) {
       commit('BASE_DATABASE_ADVANCED_REQUEST')
@@ -741,7 +826,7 @@ const actions = {
   },
   getBaseDatabaseEncryption: ({ state, getters, commit }) => {
     if (getters.isLoadingBaseDatabaseEncryption) {
-      return
+      return Promise.resolve(state.baseDatabaseEncryption)
     }
     if (!state.baseDatabaseEncryption) {
       commit('BASE_DATABASE_ENCRYPTION_REQUEST')
@@ -755,7 +840,7 @@ const actions = {
   },
   getBaseFencing: ({ state, getters, commit }) => {
     if (getters.isLoadingBaseFencing) {
-      return
+      return Promise.resolve(state.baseFencing)
     }
     if (!state.baseFencing) {
       commit('BASE_FENCING_REQUEST')
@@ -769,7 +854,7 @@ const actions = {
   },
   getBaseFingerbankDeviceChange: ({ state, getters, commit }) => {
     if (getters.isLoadingBaseFingerbankDeviceChange) {
-      return
+      return Promise.resolve(state.baseFingerbankDeviceChange)
     }
     if (!state.baseFingerbankDeviceChange) {
       commit('BASE_FINGERBANK_DEVICE_CHANGE_REQUEST')
@@ -783,7 +868,7 @@ const actions = {
   },
   getBaseGeneral: ({ state, getters, commit }) => {
     if (getters.isLoadingBaseGeneral) {
-      return
+      return Promise.resolve(state.baseGeneral)
     }
     if (!state.baseGeneral) {
       commit('BASE_GENERAL_REQUEST')
@@ -797,21 +882,26 @@ const actions = {
   },
   getBaseGuestsAdminRegistration: ({ state, getters, commit }) => {
     if (getters.isLoadingBaseGuestsAdminRegistration) {
-      return
+      return Promise.resolve(state.baseGuestsAdminRegistration)
     }
-    if (!state.baseGuestsAdminRegistration) {
-      commit('BASE_GUESTS_ADMIN_REGISTRATION_REQUEST')
-      return api.getBaseGuestsAdminRegistration().then(response => {
-        commit('BASE_GUESTS_ADMIN_REGISTRATION_UPDATED', response.data.item)
-        return state.baseGuestsAdminRegistration
-      })
+    if (acl.$can('read', 'configuration_main')) {
+      if (!state.baseGuestsAdminRegistration) {
+        commit('BASE_GUESTS_ADMIN_REGISTRATION_REQUEST')
+        return api.getBaseGuestsAdminRegistration().then(response => {
+          commit('BASE_GUESTS_ADMIN_REGISTRATION_UPDATED', response.data.item)
+          return state.baseGuestsAdminRegistration
+        })
+      } else {
+        return Promise.resolve(state.baseGuestsAdminRegistration)
+      }
     } else {
+      commit('BASE_GUESTS_ADMIN_REGISTRATION_UPDATED', {})
       return Promise.resolve(state.baseGuestsAdminRegistration)
     }
   },
   getBaseInline: ({ state, getters, commit }) => {
     if (getters.isLoadingBaseInline) {
-      return
+      return Promise.resolve(state.baseInline)
     }
     if (!state.baseInline) {
       commit('BASE_INLINE_REQUEST')
@@ -825,7 +915,7 @@ const actions = {
   },
   getBaseMseTab: ({ state, getters, commit }) => {
     if (getters.isLoadingBaseMseTab) {
-      return
+      return Promise.resolve(state.baseMseTab)
     }
     if (!state.baseMseTab) {
       commit('BASE_MSE_TAB_REQUEST')
@@ -839,7 +929,7 @@ const actions = {
   },
   getBaseNetwork: ({ state, getters, commit }) => {
     if (getters.isLoadingBaseNetwork) {
-      return
+      return Promise.resolve(state.baseNetwork)
     }
     if (!state.baseNetwork) {
       commit('BASE_NETWORK_REQUEST')
@@ -853,7 +943,7 @@ const actions = {
   },
   getBaseNodeImport: ({ state, getters, commit }) => {
     if (getters.isLoadingBaseNodeImport) {
-      return
+      return Promise.resolve(state.baseNodeImport)
     }
     if (!state.baseNodeImport) {
       commit('BASE_NODE_IMPORT_REQUEST')
@@ -867,7 +957,7 @@ const actions = {
   },
   getBaseParking: ({ state, getters, commit }) => {
     if (getters.isLoadingBaseParking) {
-      return
+      return Promise.resolve(state.baseParking)
     }
     if (!state.baseParking) {
       commit('BASE_PARKING_REQUEST')
@@ -881,7 +971,7 @@ const actions = {
   },
   getBasePFDHCP: ({ state, getters, commit }) => {
     if (getters.isLoadingBasePFDHCP) {
-      return
+      return Promise.resolve(state.basePFDHCP)
     }
     if (!state.basePFDHCP) {
       commit('BASE_PFDHCP_REQUEST')
@@ -895,7 +985,7 @@ const actions = {
   },
   getBasePorts: ({ state, getters, commit }) => {
     if (getters.isLoadingBasePorts) {
-      return
+      return Promise.resolve(state.basePorts)
     }
     if (!state.basePorts) {
       commit('BASE_PORTS_REQUEST')
@@ -909,7 +999,7 @@ const actions = {
   },
   getBaseProvisioning: ({ state, getters, commit }) => {
     if (getters.isLoadingBaseProvisioning) {
-      return
+      return Promise.resolve(state.baseProvisioning)
     }
     if (!state.baseProvisioning) {
       commit('BASE_PROVISIONING_REQUEST')
@@ -923,7 +1013,7 @@ const actions = {
   },
   getBaseRadiusConfiguration: ({ state, getters, commit }) => {
     if (getters.isLoadingBaseRadiusConfiguration) {
-      return
+      return Promise.resolve(state.baseRadiusConfiguration)
     }
     if (!state.baseRadiusConfiguration) {
       commit('BASE_RADIUS_CONFIGURATION_REQUEST')
@@ -935,9 +1025,23 @@ const actions = {
       return Promise.resolve(state.baseRadiusConfiguration)
     }
   },
+  getBaseDnsConfiguration: ({ state, getters, commit }) => {
+    if (getters.isLoadingBaseDnsConfiguration) {
+      return Promise.resolve(state.baseDnsConfiguration)
+    }
+    if (!state.baseDnsConfiguration) {
+      commit('BASE_DNS_CONFIGURATION_REQUEST')
+      return api.getBaseDnsConfiguration().then(response => {
+        commit('BASE_DNS_CONFIGURATION_UPDATED', response.data.item)
+        return state.baseDnsConfiguration
+      })
+    } else {
+      return Promise.resolve(state.baseDnsConfiguration)
+    }
+  },
   getBaseServices: ({ state, getters, commit }) => {
     if (getters.isLoadingBaseServices) {
-      return
+      return Promise.resolve(state.baseServices)
     }
     if (!state.baseServices) {
       commit('BASE_SERVICES_REQUEST')
@@ -951,7 +1055,7 @@ const actions = {
   },
   getBaseSNMPTraps: ({ state, getters, commit }) => {
     if (getters.isLoadingBaseSNMPTraps) {
-      return
+      return Promise.resolve(state.baseSNMPTraps)
     }
     if (!state.baseSNMPTraps) {
       commit('BASE_SNMP_TRAPS_REQUEST')
@@ -965,7 +1069,7 @@ const actions = {
   },
   getBaseWebServices: ({ state, getters, commit }) => {
     if (getters.isLoadingBaseWebServices) {
-      return
+      return Promise.resolve(state.baseWebServices)
     }
     if (!state.baseWebServices) {
       commit('BASE_WEB_SERVICES_REQUEST')
@@ -979,7 +1083,7 @@ const actions = {
   },
   getBillingTiers: ({ state, getters, commit }) => {
     if (getters.isLoadingBillingTiers) {
-      return
+      return Promise.resolve(state.billingTiers)
     }
     if (!state.billingTiers) {
       commit('BILLING_TIERS_REQUEST')
@@ -993,7 +1097,7 @@ const actions = {
   },
   getConnectionProfiles: ({ state, getters, commit }) => {
     if (getters.isLoadingConnectionProfiles) {
-      return
+      return Promise.resolve(state.connectionProfiles)
     }
     if (!state.connectionProfiles) {
       commit('CONNECTION_PROFILES_REQUEST')
@@ -1005,23 +1109,23 @@ const actions = {
       return Promise.resolve(state.connectionProfiles)
     }
   },
-  getDeviceRegistrations: ({ state, getters, commit }) => {
-    if (getters.isLoadingDeviceRegistrations) {
-      return
+  getSelfServices: ({ state, getters, commit }) => {
+    if (getters.isLoadingSelfServices) {
+      return Promise.resolve(state.selfServices)
     }
-    if (!state.deviceRegistrations) {
-      commit('DEVICE_REGISTRATIONS_REQUEST')
-      return api.getDeviceRegistrations().then(response => {
-        commit('DEVICE_REGISTRATIONS_UPDATED', response.data.items)
-        return state.deviceRegistrations
+    if (!state.selfServices) {
+      commit('SELF_SERVICES_REQUEST')
+      return api.getSelfServices().then(response => {
+        commit('SELF_SERVICES_UPDATED', response.data.items)
+        return state.selfServices
       })
     } else {
-      return Promise.resolve(state.deviceRegistrations)
+      return Promise.resolve(state.selfServices)
     }
   },
   getDomains: ({ state, getters, commit }) => {
     if (getters.isLoadingDomains) {
-      return
+      return Promise.resolve(state.domains)
     }
     if (!state.domains) {
       commit('DOMAINS_REQUEST')
@@ -1033,9 +1137,23 @@ const actions = {
       return Promise.resolve(state.domains)
     }
   },
+  getFilterEngines: ({ state, getters, commit }, collection) => {
+    if (getters.isLoadingFilterEngines) {
+      return Promise.resolve(state.filterEngines[collection])
+    }
+    if (!state.filterEngines || !state.filterEngines[collection]) {
+      commit('FILTER_ENGINES_REQUEST')
+      return api.getFilterEngines(collection).then(response => {
+        commit('FILTER_ENGINES_UPDATED', { collection, filterEngines: response.data.items })
+        return state.filterEngines[collection]
+      })
+    } else {
+      return Promise.resolve(state.filterEngines[collection])
+    }
+  },
   getFirewalls: ({ state, getters, commit }) => {
     if (getters.isLoadingFirewalls) {
-      return
+      return Promise.resolve(state.firewalls)
     }
     if (!state.firewalls) {
       commit('FIREWALLS_REQUEST')
@@ -1049,7 +1167,7 @@ const actions = {
   },
   getFloatingDevices: ({ state, getters, commit }) => {
     if (getters.isLoadingFloatingDevices) {
-      return
+      return Promise.resolve(state.floatingDevices)
     }
     if (!state.floatingDevices) {
       commit('FLOATING_DEVICES_REQUEST')
@@ -1063,7 +1181,7 @@ const actions = {
   },
   getInterfaces: ({ state, getters, commit }) => {
     if (getters.isLoadingInterfaces) {
-      return
+      return Promise.resolve(state.interfaces)
     }
     if (!state.interfaces) {
       commit('INTERFACES_REQUEST')
@@ -1077,7 +1195,7 @@ const actions = {
   },
   getLayer2Networks: ({ state, getters, commit }) => {
     if (getters.isLoadingLayer2Networks) {
-      return
+      return Promise.resolve(state.layer2Networks)
     }
     if (!state.layer2Networks) {
       commit('LAYER2_NETWORKS_REQUEST')
@@ -1091,7 +1209,7 @@ const actions = {
   },
   getMaintenanceTasks: ({ state, getters, commit }) => {
     if (getters.isLoadingMaintenanceTasks) {
-      return
+      return Promise.resolve(state.maintenanceTasks)
     }
     if (!state.maintenanceTasks) {
       commit('MAINTENANCE_TASKS_REQUEST')
@@ -1103,9 +1221,83 @@ const actions = {
       return Promise.resolve(state.maintenanceTasks)
     }
   },
+  getNetworkBehaviorPolicies: ({ state, getters, commit }) => {
+    if (getters.isLoadingNetworkBehaviorPolicies) {
+      return Promise.resolve(state.networkBehaviorPolicies)
+    }
+    if (!state.networkBehaviorPolicies) {
+      commit('NETWORK_BEHAVIOR_POLICIES_REQUEST')
+      return api.getNetworkBehaviorPolicies().then(response => {
+        commit('NETWORK_BEHAVIOR_POLICIES_UPDATED', response.data.items)
+        return state.networkBehaviorPolicies
+      })
+    } else {
+      return Promise.resolve(state.networkBehaviorPolicies)
+    }
+  },
+  getPkiCas: ({ state, getters, commit }) => {
+    if (getters.isLoadingPkiCas) {
+      return Promise.resolve(state.pkiCas)
+    }
+    if (!state.pkiCas) {
+      commit('PKI_CAS_REQUEST')
+      return api.getPkiCas().then(response => {
+        const { data: { items = [] } = {} } = response
+        commit('PKI_CAS_UPDATED', items || [])
+        return state.pkiCas
+      })
+    } else {
+      return Promise.resolve(state.pkiCas)
+    }
+  },
+  resetPkiCas: ({ state, commit }) => {
+    if (state.pkiCas) {
+      commit('PKI_CAS_RESET')
+    }
+  },
+  getPkiProfiles: ({ state, getters, commit }) => {
+    if (getters.isLoadingPkiProfiles) {
+      return Promise.resolve(state.pkiProfiles)
+    }
+    if (!state.pkiProfiles) {
+      commit('PKI_PROFILES_REQUEST')
+      return api.getPkiProfiles().then(response => {
+        const { data: { items = [] } = {} } = response
+        commit('PKI_PROFILES_UPDATED', items || [])
+        return state.pkiProfiles
+      })
+    } else {
+      return Promise.resolve(state.pkiProfiles)
+    }
+  },
+  resetPkiProfiles: ({ state, commit }) => {
+    if (state.pkiProfiles) {
+      commit('PKI_PROFILES_RESET')
+    }
+  },
+  getPkiCerts: ({ state, getters, commit }) => {
+    if (getters.isLoadingPkiCerts) {
+      return Promise.resolve(state.pkiCerts)
+    }
+    if (!state.pkiCerts) {
+      commit('PKI_CERTS_REQUEST')
+      return api.getPkiCerts().then(response => {
+        const { data: { items = [] } = {} } = response
+        commit('PKI_CERTS_UPDATED', items || [])
+        return state.pkiCerts
+      })
+    } else {
+      return Promise.resolve(state.pkiCerts)
+    }
+  },
+  resetPkiCerts: ({ state, commit }) => {
+    if (state.pkiCerts) {
+      commit('PKI_CERTS_RESET')
+    }
+  },
   getPkiProviders: ({ state, getters, commit }) => {
     if (getters.isLoadingPkiProviders) {
-      return
+      return Promise.resolve(state.pkiProviders)
     }
     if (!state.pkiProviders) {
       commit('PKI_PROVIDERS_REQUEST')
@@ -1119,9 +1311,9 @@ const actions = {
   },
   getPortalModules: ({ state, getters, commit }) => {
     if (getters.isLoadingPortalModules) {
-      return
+      return Promise.resolve(state.portalModules)
     }
-    if (!state.portalModles) {
+    if (!state.portalModules) {
       commit('PORTAL_MODULES_REQUEST')
       return api.getPortalModules().then(response => {
         commit('PORTAL_MODULES_UPDATED', response.data.items)
@@ -1133,7 +1325,7 @@ const actions = {
   },
   getProvisionings: ({ state, getters, commit }) => {
     if (getters.isLoadingProvisionings) {
-      return
+      return Promise.resolve(state.provisionings)
     }
     if (!state.provisionings) {
       commit('PROVISIONINGS_REQUEST')
@@ -1145,37 +1337,126 @@ const actions = {
       return Promise.resolve(state.provisionings)
     }
   },
-  getRealms: ({ state, getters, commit }) => {
-    if (getters.isLoadingRealms) {
-      return
+  getRadiusEaps: ({ state, getters, commit }) => {
+    if (getters.isLoadingRadiusEaps) {
+      return Promise.resolve(state.radiusEaps)
     }
-    if (!state.realms) {
-      commit('REALMS_REQUEST')
-      return api.getRealms().then(response => {
-        commit('REALMS_UPDATED', response.data.items)
-        return state.realms
+    if (!state.radiusEaps) {
+      commit('RADIUS_EAPS_REQUEST')
+      return api.getRadiusEaps().then(response => {
+        commit('RADIUS_EAPS_UPDATED', response.data.items)
+        return state.radiusEaps
       })
     } else {
-      return Promise.resolve(state.realms)
+      return Promise.resolve(state.radiusEaps)
+    }
+  },
+  getRadiusFasts: ({ state, getters, commit }) => {
+    if (getters.isLoadingRadiusFasts) {
+      return Promise.resolve(state.radiusFasts)
+    }
+    if (!state.radiusFasts) {
+      commit('RADIUS_FASTS_REQUEST')
+      return api.getRadiusFasts().then(response => {
+        commit('RADIUS_FASTS_UPDATED', response.data.items)
+        return state.radiusFasts
+      })
+    } else {
+      return Promise.resolve(state.radiusFasts)
+    }
+  },
+  getRadiusOcsps: ({ state, getters, commit }) => {
+    if (getters.isLoadingRadiusOcsps) {
+      return Promise.resolve(state.radiusOcsps)
+    }
+    if (!state.radiusOcsps) {
+      commit('RADIUS_OCSPS_REQUEST')
+      return api.getRadiusOcsps().then(response => {
+        commit('RADIUS_OCSPS_UPDATED', response.data.items)
+        return state.radiusOcsps
+      })
+    } else {
+      return Promise.resolve(state.radiusOcsps)
+    }
+  },
+  getRadiusSsls: ({ state, getters, commit }) => {
+    if (getters.isLoadingRadiusSsls) {
+      return Promise.resolve(state.radiusSsls)
+    }
+    if (!state.radiusSsls) {
+      commit('RADIUS_SSLS_REQUEST')
+      return api.getRadiusSsls().then(response => {
+        commit('RADIUS_SSLS_UPDATED', response.data.items)
+        return state.radiusSsls
+      })
+    } else {
+      return Promise.resolve(state.radiusSsls)
+    }
+  },
+  getRadiusTlss: ({ state, getters, commit }) => {
+    if (getters.isLoadingRadiusTlss) {
+      return Promise.resolve(state.radiusTlss)
+    }
+    if (!state.radiusTlss) {
+      commit('RADIUS_TLSS_REQUEST')
+      return api.getRadiusTlss().then(response => {
+        commit('RADIUS_TLSS_UPDATED', response.data.items)
+        return state.radiusTlss
+      })
+    } else {
+      return Promise.resolve(state.radiusTlss)
+    }
+  },
+  getRealms: ({ state, getters, commit }, tenantId) => {
+    if (getters.isLoadingRealms) {
+      return Promise.resolve(state.realms[tenantId])
+    }
+    if (!state.realms[tenantId]) {
+      commit('REALMS_REQUEST', tenantId)
+      return api.getRealms(tenantId).then(response => {
+        commit('REALMS_UPDATED', { tenantId, items: response.data.items })
+        return state.realms[tenantId]
+      })
+    } else {
+      return Promise.resolve(state.realms[tenantId])
+    }
+  },
+  getRemoteConnectionProfiles: ({ state, getters, commit }) => {
+    if (getters.isLoadingRemoteConnectionProfiles) {
+      return Promise.resolve(state.remoteConnectionProfiles)
+    }
+    if (!state.remoteConnectionProfiles) {
+      commit('REMOTE_CONNECTION_PROFILES_REQUEST')
+      return api.getRemoteConnectionProfiles().then(response => {
+        commit('REMOTE_CONNECTION_PROFILES_UPDATED', response.data.items)
+        return state.remoteConnectionProfiles
+      })
+    } else {
+      return Promise.resolve(state.remoteConnectionProfiles)
     }
   },
   getRoles: ({ state, getters, commit }) => {
     if (getters.isLoadingRoles) {
-      return
+      return Promise.resolve(state.roles)
     }
-    if (!state.roles) {
-      commit('ROLES_REQUEST')
-      return api.getRoles().then(response => {
-        commit('ROLES_UPDATED', response.data.items)
-        return state.roles
-      })
+    if (acl.$can('read', 'nodes')) {
+      if (!state.roles) {
+        commit('ROLES_REQUEST')
+        return api.getRoles().then(response => {
+          commit('ROLES_UPDATED', response.data.items)
+          return state.roles
+        })
+      } else {
+        return Promise.resolve(state.roles)
+      }
     } else {
+      commit('ROLES_UPDATED', [])
       return Promise.resolve(state.roles)
     }
   },
   getRoutedNetworks: ({ state, getters, commit }) => {
     if (getters.isLoadingRoutedNetworks) {
-      return
+      return Promise.resolve(state.routedNetworks)
     }
     if (!state.routedNetworks) {
       commit('ROUTED_NETWORKS_REQUEST')
@@ -1189,7 +1470,7 @@ const actions = {
   },
   getScans: ({ state, getters, commit }) => {
     if (getters.isLoadingScans) {
-      return
+      return Promise.resolve(state.scans)
     }
     if (!state.scans) {
       commit('SCANS_REQUEST')
@@ -1203,21 +1484,25 @@ const actions = {
   },
   getSecurityEvents: ({ commit, getters, state }) => {
     if (getters.isLoadingSecurityEvents) {
-      return
-    }
-    if (!state.securityEvents) {
-      commit('SECURITY_EVENTS_REQUEST')
-      return api.getSecurityEvents().then(response => {
-        commit('SECURITY_EVENTS_UPDATED', response.data.items)
-        return state.securityEvents
-      })
-    } else {
       return Promise.resolve(state.securityEvents)
     }
+    if (acl.$can('read', 'security_events')) {
+      if (!state.securityEvents) {
+        commit('SECURITY_EVENTS_REQUEST')
+        return api.getSecurityEvents().then(response => {
+          commit('SECURITY_EVENTS_UPDATED', response.data.items)
+          return state.securityEvents
+        })
+      }
+    } else {
+      commit('SECURITY_EVENTS_UPDATED', [])
+      return state.securityEvents
+    }
+    return Promise.resolve(state.securityEvents)
   },
   getSources: ({ state, getters, commit }) => {
     if (getters.isLoadingSources) {
-      return
+      return Promise.resolve(state.sources)
     }
     if (!state.sources) {
       commit('SOURCES_REQUEST')
@@ -1231,7 +1516,7 @@ const actions = {
   },
   getSsids: ({ state, getters, commit }) => {
     if (getters.isLoadingSsids) {
-      return
+      return Promise.resolve(state.ssids)
     }
     if (!state.ssids) {
       commit('SSIDS_REQUEST')
@@ -1245,39 +1530,79 @@ const actions = {
   },
   getSwitches: ({ state, getters, commit }) => {
     if (getters.isLoadingSwitches) {
-      return
-    }
-    if (!state.switches) {
-      commit('SWICTHES_REQUEST')
-      return api.getSwitches().then(response => {
-        // group can be undefined
-        response.data.items.forEach(function (item, index, items) {
-          response.data.items[index] = Object.assign({ group: item.group || 'Default' }, item)
-        })
-        commit('SWICTHES_UPDATED', response.data.items)
-        return state.switches
-      })
-    } else {
       return Promise.resolve(state.switches)
+    }
+    if (acl.$can('read', 'switches')) {
+      if (!state.switches) {
+        commit('SWITCHES_REQUEST')
+        return api.getSwitches().then(response => {
+          // group can be undefined
+          response.data.items.forEach(function (item, index) {
+            response.data.items[index] = Object.assign({ group: item.group || 'default' }, item)
+          })
+          commit('SWITCHES_UPDATED', response.data.items)
+          return state.switches
+        })
+      } else {
+        return Promise.resolve(state.switches)
+      }
+    }
+    else {
+      commit('SWITCHES_UPDATED', [])
+      return state.switches
     }
   },
   getSwitchGroups: ({ state, getters, commit }) => {
     if (getters.isLoadingSwitchGroups) {
-      return
+      return Promise.resolve(state.switchGroups)
     }
     if (!state.switchGroups) {
-      commit('SWICTH_GROUPS_REQUEST')
+      commit('SWITCH_GROUPS_REQUEST')
       return api.getSwitchGroups().then(response => {
-        commit('SWICTH_GROUPS_UPDATED', response.data.items)
-        return state.switchGroups
+        const { data: { items: switchGroups = [] } = {} } = response
+        let promises = []
+        switchGroups.map((switchGroup, index) => {
+          const { id } = switchGroup
+          promises.push(api.getSwitchGroupMembers(id).then(response => {
+            const { data: { items: members = [] } = {} } = response
+            switchGroups[index].members = members
+          }))
+        })
+        return Promise.all(promises.map(p => p.catch(e => e))).then(() => {
+          commit('SWITCH_GROUPS_UPDATED', switchGroups)
+          return state.switchGroups
+        }).catch(err => {
+          commit('SWITCH_GROUPS_ERROR', err)
+          throw err
+        })
+      }).catch((err) => {
+        commit('SWITCH_GROUPS_ERROR', err)
+        throw err
       })
     } else {
       return Promise.resolve(state.switchGroups)
     }
   },
+  getSwitchTemplates: ({ state, getters, commit }) => {
+    if (getters.isLoadingSwitchTemplates) {
+      return Promise.resolve(state.switchTemplates)
+    }
+    if (!state.switchTemplates) {
+      commit('SWITCH_TEMPLATES_REQUEST')
+      return api.getSwitchTemplates().then(response => {
+        commit('SWITCH_TEMPLATES_UPDATED', response.data.items)
+        return state.switchTemplates
+      }).catch((err) => {
+        commit('SWITCH_TEMPLATES_ERROR', err)
+        throw err
+      })
+    } else {
+      return Promise.resolve(state.switchTemplates)
+    }
+  },
   getSyslogForwarders: ({ state, getters, commit }) => {
     if (getters.isLoadingSyslogForwarders) {
-      return
+      return Promise.resolve(state.syslogForwarders)
     }
     if (!state.syslogForwarders) {
       commit('SYSLOG_FORWARDERS_REQUEST')
@@ -1291,7 +1616,7 @@ const actions = {
   },
   getSyslogParsers: ({ state, getters, commit }) => {
     if (getters.isLoadingSyslogParsers) {
-      return
+      return Promise.resolve(state.syslogParsers)
     }
     if (!state.syslogParsers) {
       commit('SYSLOG_PARSERS_REQUEST')
@@ -1305,21 +1630,26 @@ const actions = {
   },
   getTenants: ({ state, getters, commit }) => {
     if (getters.isLoadingTenants) {
-      return
-    }
-    if (!state.tenants) {
-      commit('TENANTS_REQUEST')
-      return api.getTenants().then(response => {
-        commit('TENANTS_UPDATED', response.data.items)
-        return state.tenants
-      })
-    } else {
       return Promise.resolve(state.tenants)
+    }
+    if (acl.$can('read', 'system')) {
+      if (!state.tenants) {
+        commit('TENANTS_REQUEST')
+        return api.getTenants().then(response => {
+          commit('TENANTS_UPDATED', response.data.items)
+          return state.tenants
+        })
+      } else {
+        return Promise.resolve(state.tenants)
+      }
+    } else {
+      commit('TENANTS_UPDATED', [])
+      return state.tenants
     }
   },
   getTrafficShapingPolicies: ({ state, getters, commit }) => {
     if (getters.isLoadingTrafficShapingPolicies) {
-      return
+      return Promise.resolve(state.trafficShapingPolicies)
     }
     if (!state.trafficShapingPolicies) {
       commit('TRAFFIC_SHAPING_POLICIES_REQUEST')
@@ -1333,7 +1663,7 @@ const actions = {
   },
   getWmiRules: ({ commit, getters, state }) => {
     if (getters.isLoadingWmiRules) {
-      return
+      return Promise.resolve(state.wmiRules)
     }
     if (!state.wmiRules) {
       commit('WMI_RULES_REQUEST')
@@ -1347,7 +1677,7 @@ const actions = {
   },
   getWrixLocations: ({ commit, getters, state }) => {
     if (getters.isLoadingWrixLocations) {
-      return
+      return Promise.resolve(state.wrixLocations)
     }
     if (!state.wrixLocations) {
       commit('WRIX_LOCATIONS_REQUEST')
@@ -1358,6 +1688,22 @@ const actions = {
     } else {
       return Promise.resolve(state.wrixLocations)
     }
+  },
+  stringifyCondition: (_, json) => {
+    return api.flattenCondition({ condition: json }).then(response => {
+      const { item: { condition_string } = {} } = response
+      return condition_string
+    }).catch(err => {
+      throw err
+    })
+  },
+  parseCondition: (_, string) => {
+    return api.parseCondition({ condition: string }).then(response => {
+      const { item: { condition } = {} } = response
+      return condition
+    }).catch(err => {
+      throw err
+    })
   }
 }
 
@@ -1446,6 +1792,9 @@ const mutations = {
     state.baseGuestsAdminRegistration = baseGuestsAdminRegistration
     state.baseGuestsAdminRegistrationStatus = types.SUCCESS
   },
+  BASE_GUESTS_ADMIN_REGISTRATION_DELETED: (state) => {
+    state.baseGuestsAdminRegistration = false
+  },
   BASE_INLINE_REQUEST: (state) => {
     state.baseInlineStatus = types.LOADING
   },
@@ -1509,6 +1858,13 @@ const mutations = {
     state.baseRadiusConfiguration = baseRadiusConfiguration
     state.baseRadiusConfigurationStatus = types.SUCCESS
   },
+  BASE_DNS_CONFIGURATION_REQUEST: (state) => {
+    state.baseDnsConfigurationStatus = types.LOADING
+  },
+  BASE_DNS_CONFIGURATION_UPDATED: (state, baseDnsConfiguration) => {
+    state.baseDnsConfiguration = baseDnsConfiguration
+    state.baseDnsConfigurationStatus = types.SUCCESS
+  },
   BASE_SERVICES_REQUEST: (state) => {
     state.baseServicesStatus = types.LOADING
   },
@@ -1547,19 +1903,25 @@ const mutations = {
     state.connectionProfiles = connectionProfiles
     state.connectionProfilesStatus = types.SUCCESS
   },
-  DEVICE_REGISTRATIONS_REQUEST: (state) => {
-    state.deviceRegistrationsStatus = types.LOADING
-  },
-  DEVICE_REGISTRATIONS_UPDATED: (state, deviceRegistrations) => {
-    state.deviceRegistrations = deviceRegistrations
-    state.deviceRegistrationsStatus = types.SUCCESS
-  },
   DOMAINS_REQUEST: (state) => {
     state.domainsStatus = types.LOADING
   },
   DOMAINS_UPDATED: (state, domains) => {
     state.domains = domains
     state.domainsStatus = types.SUCCESS
+  },
+  FILTER_ENGINES_REQUEST: (state) => {
+    state.filterEnginesStatus = types.LOADING
+  },
+  FILTER_ENGINES_UPDATED: (state, { collection, filterEngines}) => {
+    if (!state.filterEngines) {
+      state.filterEngines = {}
+    }
+    state.filterEngines[collection] = filterEngines
+    state.filterEnginesStatus = types.SUCCESS
+  },
+  FILTER_ENGINES_DELETED: (state) => {
+    state.filterEngines = false
   },
   FIREWALLS_REQUEST: (state) => {
     state.firewallsStatus = types.LOADING
@@ -1599,6 +1961,44 @@ const mutations = {
     state.maintenanceTasks = maintenanceTasks
     state.maintenanceTasksStatus = types.SUCCESS
   },
+  NETWORK_BEHAVIOR_POLICIES_REQUEST: (state) => {
+    state.networkBehaviorPoliciesStatus = types.LOADING
+  },
+  NETWORK_BEHAVIOR_POLICIES_UPDATED: (state, networkBehaviorPolicies) => {
+    state.networkBehaviorPolicies
+      = networkBehaviorPolicies
+    state.networkBehaviorPoliciesStatus = types.SUCCESS
+  },
+  PKI_CAS_REQUEST: (state) => {
+    state.pkiCasStatus = types.LOADING
+  },
+  PKI_CAS_UPDATED: (state, pkiCas) => {
+    state.pkiCas = pkiCas
+    state.pkiCasStatus = types.SUCCESS
+  },
+  PKI_CAS_RESET: (state) => {
+    state.pkiCas = false
+  },
+  PKI_PROFILES_REQUEST: (state) => {
+    state.pkiProfilesStatus = types.LOADING
+  },
+  PKI_PROFILES_UPDATED: (state, pkiProfiles) => {
+    state.pkiProfiles = pkiProfiles
+    state.pkiProfilesStatus = types.SUCCESS
+  },
+  PKI_PROFILES_RESET: (state) => {
+    state.pkiProfiles = false
+  },
+  PKI_CERTS_REQUEST: (state) => {
+    state.pkiCertsStatus = types.LOADING
+  },
+  PKI_CERTS_UPDATED: (state, pkiCerts) => {
+    state.pkiCerts = pkiCerts
+    state.pkiCertsStatus = types.SUCCESS
+  },
+  PKI_CERTS_RESET: (state) => {
+    state.pkiCerts = false
+  },
   PKI_PROVIDERS_REQUEST: (state) => {
     state.pkiProvidersStatus = types.LOADING
   },
@@ -1609,8 +2009,8 @@ const mutations = {
   PORTAL_MODULES_REQUEST: (state) => {
     state.portalModulesStatus = types.LOADING
   },
-  PORTAL_MODULES_UPDATED: (state, portalModles) => {
-    state.portalModles = portalModles
+  PORTAL_MODULES_UPDATED: (state, portalModules) => {
+    state.portalModules = portalModules
     state.portalModulesStatus = types.SUCCESS
   },
   PROVISIONINGS_REQUEST: (state) => {
@@ -1620,12 +2020,56 @@ const mutations = {
     state.provisionings = provisionings
     state.provisioningsStatus = types.SUCCESS
   },
-  REALMS_REQUEST: (state) => {
+  RADIUS_EAPS_REQUEST: (state) => {
+    state.radiusEapsStatus = types.LOADING
+  },
+  RADIUS_EAPS_UPDATED: (state, eaps) => {
+    state.radiusEaps = eaps
+    state.radiusEapsStatus = types.SUCCESS
+  },
+  RADIUS_FASTS_REQUEST: (state) => {
+    state.radiusFastsStatus = types.LOADING
+  },
+  RADIUS_FASTS_UPDATED: (state, eaps) => {
+    state.radiusFasts = eaps
+    state.radiusFastsStatus = types.SUCCESS
+  },
+  RADIUS_OCSPS_REQUEST: (state) => {
+    state.radiusOcspsStatus = types.LOADING
+  },
+  RADIUS_OCSPS_UPDATED: (state, eaps) => {
+    state.radiusOcsps = eaps
+    state.radiusOcspsStatus = types.SUCCESS
+  },
+  RADIUS_SSLS_REQUEST: (state) => {
+    state.radiusSslsStatus = types.LOADING
+  },
+  RADIUS_SSLS_UPDATED: (state, eaps) => {
+    state.radiusSsls = eaps
+    state.radiusSslsStatus = types.SUCCESS
+  },
+  RADIUS_TLSS_REQUEST: (state) => {
+    state.radiusTlssStatus = types.LOADING
+  },
+  RADIUS_TLSS_UPDATED: (state, eaps) => {
+    state.radiusTlss = eaps
+    state.radiusTlssStatus = types.SUCCESS
+  },
+  REALMS_REQUEST: (state, tenantId) => {
+    if (!state.realms[tenantId])
+      Vue.set(state.realms, tenantId, [])
     state.realmsStatus = types.LOADING
   },
-  REALMS_UPDATED: (state, realms) => {
-    state.realms = realms
+  REALMS_UPDATED: (state, { tenantId, items }) => {
+    Vue.set(state.realms, tenantId, items)
     state.realmsStatus = types.SUCCESS
+  },
+  REMOTE_CONNECTION_PROFILES_REQUEST: (state) => {
+    state.remoteConnectionProfilesStatus = types.LOADING
+  },
+  REMOTE_CONNECTION_PROFILES_UPDATED: (state, remoteConnectionProfiles) => {
+    state.remoteConnectionProfiles = remoteConnectionProfiles
+    state.remoteConnectionProfilesStatus = types.SUCCESS
   },
   ROLES_REQUEST: (state) => {
     state.rolesStatus = types.LOADING
@@ -1659,6 +2103,13 @@ const mutations = {
     state.securityEvents = ref
     state.securityEventsStatus = types.SUCCESS
   },
+  SELF_SERVICES_REQUEST: (state) => {
+    state.selfServicesStatus = types.LOADING
+  },
+  SELF_SERVICES_UPDATED: (state, selfServices) => {
+    state.selfServices = selfServices
+    state.selfServicesStatus = types.SUCCESS
+  },
   SOURCES_REQUEST: (state) => {
     state.sourcesStatus = types.LOADING
   },
@@ -1673,19 +2124,32 @@ const mutations = {
     state.ssids = ssids
     state.ssidsStatus = types.SUCCESS
   },
-  SWICTHES_REQUEST: (state) => {
+  SWITCHES_REQUEST: (state) => {
     state.switchesStatus = types.LOADING
   },
-  SWICTHES_UPDATED: (state, switches) => {
+  SWITCHES_UPDATED: (state, switches) => {
     state.switches = switches
     state.switchesStatus = types.SUCCESS
   },
-  SWICTH_GROUPS_REQUEST: (state) => {
+  SWITCH_GROUPS_REQUEST: (state) => {
     state.switchGroupsStatus = types.LOADING
   },
-  SWICTH_GROUPS_UPDATED: (state, switchGroups) => {
+  SWITCH_GROUPS_UPDATED: (state, switchGroups) => {
     state.switchGroups = switchGroups
     state.switchGroupsStatus = types.SUCCESS
+  },
+  SWITCH_GROUPS_ERROR: (state) => {
+    state.switchGroupsStatus = types.ERROR
+  },
+  SWITCH_TEMPLATES_REQUEST: (state) => {
+    state.switchTemplatesStatus = types.LOADING
+  },
+  SWITCH_TEMPLATES_UPDATED: (state, switchTemplates) => {
+    state.switchTemplates = switchTemplates
+    state.switchTemplatesStatus = types.SUCCESS
+  },
+  SWITCH_TEMPLATES_ERROR: (state) => {
+    state.switchTemplatesStatus = types.ERROR
   },
   SYSLOG_FORWARDERS_REQUEST: (state) => {
     state.syslogForwardersStatus = types.LOADING
@@ -1728,12 +2192,16 @@ const mutations = {
   WRIX_LOCATIONS_UPDATED: (state, wrixLocations) => {
     state.wrixLocations = wrixLocations
     state.wrixLocationsStatus = types.SUCCESS
+  },
+  // eslint-disable-next-line no-unused-vars
+  $RESET: (state) => {
+    state = initialState()
   }
 }
 
 export default {
   namespaced: true,
-  state,
+  state: initialState(),
   getters,
   actions,
   mutations

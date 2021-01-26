@@ -29,11 +29,11 @@ func init() {
 }
 
 type PrettyTokenInfo struct {
-	AdminActions []string  `json:"admin_actions"`
-	AdminRoles   []string  `json:"admin_roles"`
-	TenantId     int       `json:"tenant_id"`
-	Username     string    `json:"username"`
-	ExpiresAt    time.Time `json:"expires_at"`
+	AdminActions []string   `json:"admin_actions"`
+	AdminRoles   []string   `json:"admin_roles"`
+	Tenant       aaa.Tenant `json:"tenant"`
+	Username     string     `json:"username"`
+	ExpiresAt    time.Time  `json:"expires_at"`
 }
 
 type ApiAAAHandler struct {
@@ -43,6 +43,13 @@ type ApiAAAHandler struct {
 	webservicesBackend *aaa.MemAuthenticationBackend
 	authentication     *aaa.TokenAuthenticationMiddleware
 	authorization      *aaa.TokenAuthorizationMiddleware
+}
+
+type Tenant struct {
+	name               string
+	portal_domain_name string
+	domain_name        string
+	id                 int
 }
 
 // Setup the api-aaa middleware
@@ -72,8 +79,12 @@ func buildApiAAAHandler(ctx context.Context) (ApiAAAHandler, error) {
 	pfconfigdriver.PfconfigPool.AddStruct(ctx, &pfconfigdriver.Config.PfConf.Webservices)
 	pfconfigdriver.PfconfigPool.AddStruct(ctx, &pfconfigdriver.Config.UnifiedApiSystemUser)
 	pfconfigdriver.PfconfigPool.AddStruct(ctx, &pfconfigdriver.Config.AdminRoles)
+	pfconfigdriver.PfconfigPool.AddStruct(ctx, &pfconfigdriver.Config.PfConf.Advanced)
 
-	tokenBackend := aaa.NewMemTokenBackend(15*time.Minute, 12*time.Hour)
+	tokenBackend := aaa.NewMemTokenBackend(
+		time.Duration(pfconfigdriver.Config.PfConf.Advanced.ApiInactivityTimeout)*time.Second,
+		time.Duration(pfconfigdriver.Config.PfConf.Advanced.ApiMaxExpiration)*time.Second,
+	)
 	apiAAA.authentication = aaa.NewTokenAuthenticationMiddleware(tokenBackend)
 
 	// Backend for the system Unified API user
@@ -97,7 +108,7 @@ func buildApiAAAHandler(ctx context.Context) (ApiAAAHandler, error) {
 		apiAAA.webservicesBackend.SetUser(pfconfigdriver.Config.PfConf.Webservices.User, pfconfigdriver.Config.PfConf.Webservices.Pass)
 	}
 
-	url, err := url.Parse("http://127.0.0.1:8080/api/v1/authentication/admin_authentication")
+	url, err := url.Parse("http://127.0.0.1:22224/api/v1/authentication/admin_authentication")
 	sharedutils.CheckError(err)
 	apiAAA.authentication.AddAuthenticationBackend(aaa.NewPfAuthenticationBackend(ctx, url, false))
 
@@ -153,6 +164,9 @@ func (h ApiAAAHandler) handleTokenInfo(w http.ResponseWriter, r *http.Request, p
 	ctx := r.Context()
 	defer statsd.NewStatsDTiming(ctx).Send("api-aaa.token_info")
 
+	if r.URL.Query().Get("no-expiration-extension") == "" {
+		h.authentication.TouchTokenInfo(ctx, r)
+	}
 	info, expiration := h.authorization.GetTokenInfoFromBearerRequest(ctx, r)
 
 	if info != nil {
@@ -160,7 +174,7 @@ func (h ApiAAAHandler) handleTokenInfo(w http.ResponseWriter, r *http.Request, p
 		prettyInfo := PrettyTokenInfo{
 			AdminActions: make([]string, len(info.AdminActions())),
 			AdminRoles:   make([]string, len(info.AdminRoles)),
-			TenantId:     info.TenantId,
+			Tenant:       info.Tenant,
 			Username:     info.Username,
 			ExpiresAt:    expiration,
 		}
@@ -220,7 +234,11 @@ func (h ApiAAAHandler) HandleAAA(w http.ResponseWriter, r *http.Request) bool {
 	if auth {
 		return true
 	} else {
-		w.WriteHeader(http.StatusForbidden)
+		if err.Error() == aaa.InvalidTokenInfoErr {
+			w.WriteHeader(http.StatusUnauthorized)
+		} else {
+			w.WriteHeader(http.StatusForbidden)
+		}
 		res, _ := json.Marshal(map[string]string{
 			"message": err.Error(),
 		})
@@ -239,8 +257,12 @@ func (h ApiAAAHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) (int, e
 
 	defer panichandler.Http(ctx, w)
 
-	// We always default to application/json
-	w.Header().Set("Content-Type", "application/json")
+	defer func() {
+		// We default to application/json if there is no content type
+		if w.Header().Get("Content-Type") == "" {
+			w.Header().Set("Content-Type", "application/json")
+		}
+	}()
 
 	if handle, params, _ := h.router.Lookup(r.Method, r.URL.Path); handle != nil {
 		handle(w, r, params)
@@ -249,7 +271,10 @@ func (h ApiAAAHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) (int, e
 		return 0, nil
 	} else {
 		if h.HandleAAA(w, r) {
-			return h.Next.ServeHTTP(w, r)
+			code, err := h.Next.ServeHTTP(w, r)
+
+			return code, err
+
 		} else {
 			// TODO change me and wrap actions into something that handles server errors
 			return 0, nil

@@ -213,6 +213,7 @@ sub run_scan {
     
     # If no scan detected then we abort
     if (!$scanner) {
+        $logger->debug("No scan engine found for $host_mac");
         return $FALSE;
     }
     # Preparing the scan attributes
@@ -340,12 +341,12 @@ Check if the category matches the configuration of the scanner
 
 sub matchCategory {
     my ($self, $node_attributes) = @_;
-    my $category = [split(/\s*,\s*/, $self->{_categories})];
+    my $categories = $self->{_categories} || [];
     my $node_cat = $node_attributes->{'category'};
 
-    get_logger->debug( sub { "Tring to match the role '$node_cat' against " . join(",", @$category) });
+    get_logger->debug( sub { "Trying to match the role '$node_cat' against " . join(",", @$categories) });
     # validating that the node is under the proper category for provisioner
-    return @$category == 0 || !defined($node_cat) || any { $_ eq $node_cat } @$category;
+    return @$categories == 0 || !defined($node_cat) || any { $_ eq $node_cat } @$categories;
 }
 
 =item matchOS
@@ -355,19 +356,21 @@ Check if the OS matches the configuration of the scanner
 =cut
 
 sub matchOS {
-    my ($self, $node_attributes) = @_;
+    my ($self, $node_os, $node_attributes) = @_;
     my @oses = @{$self->{_oses} || []};
+    my $logger = get_logger();
 
     #if no oses are defined then it will match all the oses
     return $TRUE if @oses == 0;
 
-    my $device_name = $node_attributes->{device_type};
-    get_logger->debug( sub { "Trying see if device $device_name is one of: " . join(",", @oses) });
+    if (defined $node_os) {
+        my $device_name = $node_attributes->{device_type};
+        $logger->debug( sub { "Trying see if device $device_name is one of: " . join(",", @oses) });
 
-    for my $os (@oses) {
-        return $TRUE if fingerbank::Model::Device->is_a($device_name, $os);
+        for my $os (@oses) {
+            return $TRUE if fingerbank::Model::Device->is_a($device_name, $os);
+        }
     }
-
     return $FALSE;
 }
 
@@ -378,9 +381,8 @@ Check if the device matches the configuration of the scanner
 =cut
 
 sub match {
-    my ($self, $os, $node_attributes) = @_;
-    $node_attributes->{device_type} = defined($os) ? $os : $node_attributes->{device_name};
-    return $self->matchCategory($node_attributes) && $self->matchOS($node_attributes) ;
+    my ($self, $node_os, $node_attributes) = @_;
+    return $self->matchCategory($node_attributes) && $self->matchOS($node_os,$node_attributes);
 }
 
 =back
@@ -391,7 +393,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2019 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 

@@ -1,3 +1,4 @@
+# Copyright (C) Inverse inc.
 :8888 {
   logger {
     level INFO
@@ -12,14 +13,31 @@
 
 :8889/common {
   root /usr/local/pf/html/common
+  mime {
+    .crt application/x-pem-file
+    .pem application/x-pem-file
+  }
 }
 
 
 :8889/content {
   root /usr/local/pf/html/captive-portal/content
+  mime {
+    .crt application/x-pem-file
+    .pem application/x-pem-file
+  }
 }
 
 :8889/.well-known/acme-challenge {
   root /usr/local/pf/conf/ssl/acme-challenge
 }
 
+
+:5252 {
+  header / {
+    Cache-Control "no-cache, no-store, must-revalidate"
+    Pragma "no-cache"
+    Expires "0"
+  }
+  root /usr/local/pf/html/parking
+}

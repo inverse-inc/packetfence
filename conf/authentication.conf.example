@@ -1,3 +1,4 @@
+# Copyright (C) Inverse inc.
 [local]
 description=Local Users
 type=SQL
@@ -13,6 +14,7 @@ description=All admins
 class=administration
 match=all
 action0=set_access_level=ALL
+status=enabled
 
 [sms]
 description=SMS-based registration
@@ -26,6 +28,7 @@ class=authentication
 match=all
 action0=set_role=guest
 action1=set_access_duration=1D
+status=enabled
 
 [email]
 description=Email-based registration
@@ -40,6 +43,7 @@ class=authentication
 match=all
 action0=set_role=guest
 action1=set_access_duration=1D
+status=enabled
 
 [sponsor]
 description=Sponsor-based registration
@@ -53,6 +57,7 @@ class=authentication
 match=all
 action0=set_role=guest
 action1=set_access_duration=1D
+status=enabled
 
 [null]
 description=Null Source
@@ -65,3 +70,4 @@ class=authentication
 match=all
 action0=set_role=guest
 action1=set_access_duration=1D
+status=enabled

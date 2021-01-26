@@ -3,16 +3,21 @@
       <b-alert variant="danger" :show="chartsError" fade>
         <h4 class="alert-heading" v-t="'Error'"></h4>
         <p>{{ $t('The charts of the dasboard are currently not available.') }}</p>
-        <pf-button-service service="netdata" class="mr-1" restart start></pf-button-service>
+        <pf-button-service service="netdata" class="mr-1" v-can:read="'services'" restart start></pf-button-service>
       </b-alert>
       <b-tabs nav-class="nav-fill">
-        <b-tab v-for="section in sections" :title="section.name" :key="section.name">
-          <template v-for="group in section.groups">
+        <b-tab v-for="(section, sectionIndex) in sections" :title="section.name" :key="`${section.name}-${sectionIndex}`">
+          <b-row align-h="center" v-if="sectionIndex === 0"><!-- Show uptime on first tab only -->
+            <b-col class="mt-3 text-center" :md="Math.max(parseInt(12/cluster.length), 3)" v-for="({ management_ip, host}, i) in cluster" :key="management_ip">
+              <badge :ip="management_ip" :chart="'system.uptime'" :label="`${host} - uptime`" :colors="palette(i)" />
+            </b-col>
+          </b-row>
+          <template v-for="(group, groupIndex) in section.groups">
             <!-- Named groups are rendered inside a card -->
-            <component :is="group.name ? 'b-card' : 'div'" class="mt-3" :key="group.name" :title="group.name">
+            <component :is="group.name ? 'b-card' : 'div'" class="mt-3" :key="`${group.name}-${groupIndex}`" :title="group.name">
               <b-row align-h="center">
-                <template v-for="chart in group.items">
-                <b-col class="mt-3" :md="cols(chart.cols, group.items.length)" v-for="(host, index) in chartHosts(chart)" :key="chart.metric + host">
+                <template v-for="(chart, chartIndex) in group.items">
+                <b-col class="mt-3" :md="cols(chart.cols, group.items.length)" v-for="(host, index) in chartHosts(chart)" :key="`${chart.metric}${host}-${chartIndex}`">
                   <chart :store-name="storeName" :definition="chart" :host="host" :data-colors="palette(index)"></chart>
                 </b-col>
                 </template>
@@ -55,12 +60,14 @@
 </template>
 
 <script>
+import Badge from './Badge'
 import Chart, { modes, libs, palettes } from './Chart'
 import pfButtonService from '@/components/pfButtonService'
 
 export default {
-  name: 'Dashboard',
+  name: 'dashboard',
   components: {
+    Badge,
     Chart,
     pfButtonService
   },
@@ -94,7 +101,7 @@ export default {
                     d3pie_smallsegmentgrouping_enabled: 'true',
                     decimal_digits: 0
                   },
-                  cols: 3
+                  cols: 4
                 },
                 {
                   title: this.$i18n.t('Connected devices per connection type'),
@@ -105,7 +112,7 @@ export default {
                     decimal_digits: 0,
                     colors: palettes[1]
                   },
-                  cols: 3
+                  cols: 4
                 },
                 {
                   title: this.$i18n.t('Connected devices per SSID'),
@@ -118,7 +125,7 @@ export default {
                     decimal_digits: 0,
                     colors: palettes[2]
                   },
-                  cols: 3
+                  cols: 4
                 }
               ]
             },
@@ -158,7 +165,7 @@ export default {
                 {
                   title: this.$i18n.t('CPU usage'),
                   metric: 'system.cpu',
-                  mode: modes.COMBINED,
+                  mode: modes.SINGLE,
                   library: libs.DYGRAPH,
                   params: {
                     dimensions: 'user,system',
@@ -335,6 +342,17 @@ export default {
                   metric: 'freeradius_Freeradius_Acct.accounting',
                   mode: modes.COMBINED,
                   library: libs.DYGRAPH,
+                  cols: 6
+                },
+                {
+                  title: this.$i18n.t('RADIUS pfacct'),
+                  metric: 'statsd_timer_pfacct.handleaccountingrequest',
+                  mode: modes.COMBINED,
+                  library: libs.DYGRAPH,
+                  params: {
+                    filter_graph: 'events',
+                    units: 'packets/s'
+                  },
                   cols: 6
                 }
               ]
@@ -601,10 +619,101 @@ export default {
               })
             }
           ] // groups
-        } // Queue section
+        }, // Queue section
+        {
+          name: this.$i18n.t('Logs'),
+          groups: [
+            {
+              name: 'packetfence.log',
+              items: [
+                {
+                  title: this.$i18n.t('Number of events'),
+                  metric: 'packetfence.logs.packetfence_log',
+                  mode: modes.COMBINED,
+                  library: libs.DYGRAPH,
+                  cols: 12
+                }
+              ]
+            },
+            {
+              name: 'pfdhcp.log',
+              items: [
+                {
+                  title: this.$i18n.t('Number of events'),
+                  metric: 'packetfence.logs.pfdhcp_log',
+                  mode: modes.COMBINED,
+                  library: libs.DYGRAPH,
+                  cols: 12
+                }
+              ]
+            },
+            {
+              name: 'load_balancer.log',
+              items: [
+                {
+                  title: this.$i18n.t('Number of events'),
+                  metric: 'packetfence.logs.load_balancer_log',
+                  mode: modes.COMBINED,
+                  library: libs.DYGRAPH,
+                  cols: 12
+                }
+              ]
+            },
+            {
+              name: 'radius.log',
+              items: [
+                {
+                  title: this.$i18n.t('Number of events'),
+                  metric: 'packetfence.logs.radius_log',
+                  mode: modes.COMBINED,
+                  library: libs.DYGRAPH,
+                  cols: 12
+                }
+              ]
+            },
+            {
+              name: 'mariadb_error.log',
+              items: [
+                {
+                  title: this.$i18n.t('Number of events'),
+                  metric: 'packetfence.logs.mariadb_error_log',
+                  mode: modes.COMBINED,
+                  library: libs.DYGRAPH,
+                  cols: 12
+                }
+              ]
+            },
+            {
+              name: 'pfcron.log',
+              items: [
+                {
+                  title: this.$i18n.t('Number of events'),
+                  metric: 'packetfence.logs.pfcron_log',
+                  mode: modes.COMBINED,
+                  library: libs.DYGRAPH,
+                  cols: 12
+                }
+              ]
+            },
+            {
+              name: 'fingerbank.log',
+              items: [
+                {
+                  title: this.$i18n.t('Number of events'),
+                  metric: 'packetfence.logs.fingerbank_log',
+                  mode: modes.COMBINED,
+                  library: libs.DYGRAPH,
+                  cols: 12
+                }
+              ]
+            }
+          ] // groups
+        } // Logs section
       ],
       sections: [],
+      pingNetdataTimer: false,
       pingNetdataInterval: 1000 * 30, // ms
+      getAlarmsTimer: false,
       alarmsInterval: 1000 * 60
     }
   },
@@ -625,7 +734,7 @@ export default {
       return this.new_chart.value !== null && this.new_chart.cols > 0 && this.new_chart.library !== null
     },
     cluster () {
-      return this.$store.state[this.storeName].cluster
+      return this.$store.state[this.storeName].cluster || []
     }
   },
   methods: {
@@ -667,13 +776,13 @@ export default {
       }
     },
     pingNetdata () {
-      const [firstChart] = this.$store.state[this.storeName].allCharts
+      const [firstChart] = this.$store.getters[`${this.storeName}/uniqueCharts`]
       if (firstChart) {
         // We have a list of charts; check if the first one is still available.
         // In case of an error, the interceptor will set CHART_ERROR
         this.$store.dispatch(`${this.storeName}/getChart`, firstChart.id)
-        setTimeout(this.pingNetdata, this.pingNetdataInterval)
-      } else {
+        this.pingNetdataTimer = setTimeout(this.pingNetdata, this.pingNetdataInterval)
+      } else if (this.$can('read', 'services')) {
         // No charts yet
         this.$store.dispatch('services/getService', 'netdata').then(service => {
           if (service.alive) {
@@ -681,11 +790,11 @@ export default {
               this.$store.dispatch(`${this.storeName}/allCharts`).then(() => {
                 this.init()
                 this.initNetdata()
-                setTimeout(this.pingNetdata, this.pingNetdataInterval)
+                this.pingNetdataTimer = setTimeout(this.pingNetdata, this.pingNetdataInterval)
               })
             }, 20000) // wait until netdata is ready
           } else {
-            setTimeout(this.pingNetdata, this.pingNetdataInterval)
+            this.pingNetdataTimer = setTimeout(this.pingNetdata, this.pingNetdataInterval)
           }
         })
       }
@@ -693,7 +802,7 @@ export default {
     getAlarms () {
       if (this.$store.state[this.storeName].allCharts) {
         this.cluster.forEach(({ management_ip: ip }) => {
-          this.$store.dispatch(`${this.storeName}/alarms`, ip).then(({ hostname, alarms }) => {
+          this.$store.dispatch(`${this.storeName}/alarms`, ip).then(({ hostname, alarms = {} } = {}) => {
             Object.keys(alarms).forEach(path => {
               const alarm = alarms[path]
               const label = alarm.chart.split('.')[0].replace(/_/g, ' ') + ' - ' + alarm.family
@@ -719,16 +828,16 @@ export default {
                 })
               }
             })
-            setTimeout(this.getAlarms, this.alarmsInterval)
+            this.getAlarmsTimer = setTimeout(this.getAlarms, this.alarmsInterval)
           })
         })
       } else {
-        setTimeout(this.getAlarms, this.alarmsInterval)
+        this.getAlarmsTimer = setTimeout(this.getAlarms, this.alarmsInterval)
       }
     },
     moduleCharts (module) {
       let charts = []
-      for (var chart of this.$store.state[this.storeName].allCharts) {
+      for (var chart of this.$store.getters[`${this.storeName}/uniqueCharts`]) {
         if ((chart.module && chart.module === module) || (!chart.module && module === 'other')) {
           charts.push(chart)
         }
@@ -736,7 +845,7 @@ export default {
       return charts
     },
     chartDimensions (chart) {
-      const definition = this.$store.state[this.storeName].allCharts.find(o => o.id === chart)
+      const definition = this.$store.getters[`${this.storeName}/uniqueCharts`].find(o => o.id === chart)
       if (definition) {
         const { dimensions } = definition
         return Object.values(dimensions).map(dimension => dimension.name)
@@ -744,16 +853,20 @@ export default {
       return []
     },
     chartHosts (chart) {
-      const { mode, params = {} } = chart
+      const { metric, mode, params = {} } = chart
       let hosts = []
       if (mode === modes.COMBINED) {
         // Cluster data is aggregated into one chart
-        hosts = [this.cluster.map(server => `/netdata/${server.management_ip}`).join(',')]
-        params['friendly-host-names'] = this.cluster.map(server => `/netdata/${server.management_ip}=${server.host}`).join(',')
+        hosts = [this.$store.getters[`${this.storeName}/hostsForChart`](metric).map(host => `/netdata/${host}`).join(',')]
+        params['friendly-host-names'] = this.cluster.filter(server => {
+          return this.$store.getters[`${this.storeName}/hostsForChart`](metric).includes(server.management_ip)
+        }).map(server => {
+          return `/netdata/${server.management_ip}=${server.host}`
+        }).join(',')
         chart.params = params
       } else if (mode === modes.SINGLE) {
         // Each cluster member has a chart
-        hosts = this.cluster.map(server => `/netdata/${server.management_ip}`)
+        hosts = this.$store.getters[`${this.storeName}/hostsForChart`](metric).map(host => `/netdata/${host}`)
       } else if (mode === modes.LOCAL) {
         // Only check localhost
         hosts = ['/netdata/127.0.0.1']
@@ -761,7 +874,7 @@ export default {
       return hosts
     },
     chartIsValid (chart) {
-      return !!this.$store.state[this.storeName].allCharts.find(c => c.id === chart.metric)
+      return !!this.$store.getters[`${this.storeName}/uniqueCharts`].find(c => c.id === chart.metric)
     },
     cols (count, siblings) {
       return siblings === 1 ? 12 : (count || 6)
@@ -770,7 +883,7 @@ export default {
       return palettes[index % palettes.length]
     },
     addChart (options) {
-      let definition = this.$store.state[this.storeName].allCharts.find(c => c.id === options.id)
+      let definition = this.$store.getters[`${this.storeName}/uniqueCharts`].find(c => c.id === options.id)
       let chart = Object.assign(definition, options)
       this.$store.dispatch(`${this.storeName}/addChart`, chart)
       this.initNetdata()
@@ -780,13 +893,17 @@ export default {
     if (this.$store.state[this.storeName].allCharts) {
       this.init()
     }
-    setTimeout(this.pingNetdata, this.pingNetdataInterval)
+    this.pingNetdataTimer = setTimeout(this.pingNetdata, this.pingNetdataInterval)
   },
   mounted () {
     if (this.$store.state[this.storeName].allCharts) {
       this.initNetdata()
       this.getAlarms()
     }
+  },
+  beforeUnmount () {
+    if (this.pingNetdataTimer) clearTimeout(this.pingNetdataTimer)
+    if (this.getAlarmsTimer) clearTimeout(this.getAlarmsTimer)
   }
 }
 </script>

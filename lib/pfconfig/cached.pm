@@ -99,15 +99,18 @@ It will return undef if it's not there or invalid
 
 sub get_from_subcache {
     my ( $self, $key ) = @_;
-    if ( defined( $self->{_subcache}{$key} ) ) {
+    my $res;
+    if ($self->{_scoped_by_tenant_id}) {
+	my $tenant_id = pf::config::tenant::get_tenant();
+	$res = $self->{_subcache}{$tenant_id}{$key};
+    } else {
+	$res = $self->{_subcache}{$key};
+    }
+
+    if ( defined( $res ) ) {
         my $valid = $self->is_valid();
         if ($valid) {
-            if ($self->{_scoped_by_tenant_id}) {
-                my $tenant_id = pf::config::tenant::get_tenant();
-                return $self->{_subcache}{$tenant_id}{$key};
-            } else {
-                return $self->{_subcache}{$key};
-            }
+            return $res;
         }
         else {
             $self->{_subcache}    = {};
@@ -176,10 +179,11 @@ sub _get_from_socket {
 
     $method = $method || $self->{element_socket_method};
 
+    my $json = JSON->new->allow_nonref;
     my %info;
     my $payload;
     %info = ( ( method => $method, key => $what, tenant_id => pf::config::tenant::get_tenant() ), %additionnal_info );
-    $payload = encode_json( \%info );
+    $payload = $json->encode( \%info );
 
     my $socket;
 
@@ -284,7 +288,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2019 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 

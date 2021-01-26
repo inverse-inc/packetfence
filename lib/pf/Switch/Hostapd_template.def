@@ -1,0 +1,20 @@
+# Do not edit.
+# Any changes will be lost on upgrade.
+
+description=Hostapd (template based)
+radiusDisconnect=disconnect
+acceptVlan = <<EOT
+Tunnel-Medium-Type  = 6
+Tunnel-Type = 13
+Tunnel-Private-Group-Id = $vlan
+EOT
+acceptRole = <<EOT
+Filter-Id = $role
+EOT
+reject=<<EOT
+Reply-Message = This node is not allowed to use this service
+EOT
+disconnect=<<EOT
+Calling-Station-Id = ${macToEUI48($mac)}
+NAS-IP-Address = $disconnectIp
+EOT

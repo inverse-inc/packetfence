@@ -1,23 +1,31 @@
 <template>
-  <b-card no-body>
+  <b-card ref="container" no-body>
     <pf-progress :active="isLoading"></pf-progress>
     <b-card-header>
       <div class="float-right"><pf-form-toggle v-model="advancedMode">{{ $t('Advanced') }}</pf-form-toggle></div>
       <h4 class="mb-0" v-t="'Search Nodes'"></h4>
     </b-card-header>
-    <pf-search :quick-with-fields="false" :quick-placeholder="$t('Search by MAC or owner')"  save-search-namespace="nodes"
-      :fields="fields" :storeName="storeName" :advanced-mode="advancedMode" :condition="condition"
-      @submit-search="onSearch" @reset-search="onReset" @import-search="onImport"></pf-search>
-    <div class="card-body">
+    <pf-search class="flex-shrink-0"
+      :quick-with-fields="false"
+      :quick-placeholder="$t('Search by MAC or owner')"
+      save-search-namespace="nodes"
+      :fields="fields"
+      :advanced-mode="advancedMode"
+      :condition="condition"
+      :storeName="storeName"
+      @submit-search="onSearch"
+      @reset-search="onReset"
+      @import-search="onImport"></pf-search>
+    <div class="card-body flex-shrink-0 pt-0">
       <b-row align-h="between" align-v="center">
         <b-col cols="auto" class="mr-auto">
           <b-dropdown size="sm" variant="link" :disabled="isLoading || selectValues.length === 0" no-caret no-flip>
-            <template slot="button-content">
+            <template v-slot:button-content>
               <icon name="cog" v-b-tooltip.hover.top.d300 :title="$t('Bulk Actions')"></icon>
             </template>
             <b-dropdown-item @click="applyBulkCloseSecurityEvent()">
               <icon class="position-absolute mt-1" name="ban"></icon>
-              <span class="ml-4">{{ $t('Clear Security Event') }}</span>
+              <span class="ml-4">{{ $t('Close Security Event') }}</span>
             </b-dropdown-item>
             <b-dropdown-item @click="applyBulkRegister()">
               <icon class="position-absolute mt-1" name="plus-circle"></icon>
@@ -45,7 +53,7 @@
             </b-dropdown-item>
             <b-dropdown-divider></b-dropdown-divider>
             <b-dropdown-header>{{ $t('Apply Role') }}</b-dropdown-header>
-            <b-dropdown-item v-for="role in roles" :key="role.category_id" @click="applyBulkRole(role)">
+            <b-dropdown-item v-for="role in roles" :key="`role-${role.category_id}`" @click="applyBulkRole(role)">
               <span class="d-block" v-b-tooltip.hover.left.d300.window :title="role.notes">{{role.name}}</span>
             </b-dropdown-item>
             <b-dropdown-item @click="applyBulkRole({category_id: null})">
@@ -56,7 +64,7 @@
             </b-dropdown-item>
             <b-dropdown-divider></b-dropdown-divider>
             <b-dropdown-header>{{ $t('Apply Bypass Role') }}</b-dropdown-header>
-            <b-dropdown-item v-for="role in roles" :key="role.category_id" @click="applyBulkBypassRole(role)">
+            <b-dropdown-item v-for="role in roles" :key="`bypass_role-${role.category_id}`" @click="applyBulkBypassRole(role)">
               <span class="d-block" v-b-tooltip.hover.left.d300.window :title="role.notes">{{role.name}}</span>
             </b-dropdown-item>
             <b-dropdown-item @click="applyBulkBypassRole({category_id: null})">
@@ -65,24 +73,26 @@
                 <span class="ml-4"><em>{{ $t('None') }}</em></span>
               </span>
             </b-dropdown-item>
-            <b-dropdown-divider></b-dropdown-divider>
-            <b-dropdown-header>{{ $t('Apply Security Event') }}</b-dropdown-header>
-            <b-dropdown-item v-for="security_event in security_events" v-if="security_event.enabled ==='Y'" :key="security_event.id" @click="applyBulkSecurityEvent(security_event)" v-b-tooltip.hover.left.d300 :title="security_event.id">
-              <span>{{security_event.desc}}</span>
-            </b-dropdown-item>
+            <template v-if="$can.apply(null, ['read', 'security_events'])">
+              <b-dropdown-divider></b-dropdown-divider>
+              <b-dropdown-header>{{ $t('Apply Security Event') }}</b-dropdown-header>
+              <b-dropdown-item v-for="security_event in security_events" :key="`security_event-${security_event.id}`" @click="applyBulkSecurityEvent(security_event)" v-b-tooltip.hover.left.d300 :title="security_event.id">
+                <span>{{security_event.desc}}</span>
+              </b-dropdown-item>
+            </template>
           </b-dropdown>
-          <b-dropdown size="sm" variant="link" no-caret>
-            <template slot="button-content">
+          <b-dropdown size="sm" variant="link" :boundary="$refs.container" no-caret>
+            <template v-slot:button-content>
               <icon name="columns" v-b-tooltip.hover.top.d300.window :title="$t('Visible Columns')"></icon>
             </template>
-            <template v-for="column in columns">
-              <b-dropdown-item :key="column.key" v-if="column.locked" disabled>
+            <template v-for="(column, columnIndex) in columns">
+              <b-dropdown-item :key="`dropdown-${columnIndex}`" v-if="column.locked" disabled>
                 <icon class="position-absolute mt-1" name="thumbtack"></icon>
-                <span class="ml-4">{{column.label}}</span>
+                <span class="ml-4">{{ $t(column.label) }}</span>
               </b-dropdown-item>
-              <a :key="column.key" v-else href="javascript:void(0)" :disabled="column.locked" class="dropdown-item" @click.stop="toggleColumn(column)">
+              <a :key="`icon-${columnIndex}`" v-else href="javascript:void(0)" :disabled="column.locked" class="dropdown-item" @click.stop="toggleColumn(column)">
                 <icon class="position-absolute mt-1" name="check" v-show="column.visible"></icon>
-                <span class="ml-4">{{column.label}}</span>
+                <span class="ml-4">{{ $t(column.label) }}</span>
               </a>
             </template>
           </b-dropdown>
@@ -91,18 +101,20 @@
           <b-container fluid>
             <b-row align-v="center">
               <b-form inline class="mb-0">
-                <b-form-select class="mb-3 mr-3" size="sm" v-model="pageSizeLimit" :options="[25,50,100,200,500,1000]" :disabled="isLoading"
+                <b-form-select class="mr-3" size="sm" v-model="pageSizeLimit" :options="[25,50,100,200,500,1000]" :disabled="isLoading"
                   @input="onPageSizeChange" />
               </b-form>
-              <b-pagination class="mr-3" align="right" v-model="currentPage" :per-page="pageSizeLimit" :total-rows="totalRows" :disabled="isLoading"
+              <b-pagination class="mr-3 my-0" align="right" v-model="currentPage" :per-page="pageSizeLimit" :total-rows="totalRows" :last-number="true" :disabled="isLoading"
                 @change="onPageChange" />
-              <pf-button-export-to-csv class="mb-3" filename="nodes.csv" :disabled="isLoading"
+              <pf-button-export-to-csv filename="nodes.csv" :disabled="isLoading"
                 :columns="columns" :data="items"
               />
             </b-row>
           </b-container>
         </b-col>
       </b-row>
+    </div>
+    <div class="card-body pt-0" v-scroll-100>
       <b-table
         v-model="tableValues"
         class="table-clickable"
@@ -113,38 +125,43 @@
         @sort-changed="onSortingChanged"
         @row-clicked="onRowClick"
         @head-clicked="clearSelected"
-        show-empty responsive hover no-local-sorting striped
+        show-empty hover no-local-sorting sort-icon-left striped
       >
-        <template slot="HEAD_actions" slot-scope="head">
+        <template v-slot:head(actions)>
           <b-form-checkbox id="checkallnone" v-model="selectAll" @change="onSelectAllChange"></b-form-checkbox>
-          <b-tooltip target="checkallnone" placement="right" v-if="selectValues.length === tableValues.length">{{ $t('Select None [ALT+N]') }}</b-tooltip>
-          <b-tooltip target="checkallnone" placement="right" v-else>{{ $t('Select All [ALT+A]') }}</b-tooltip>
+          <b-tooltip target="checkallnone" placement="right" v-if="selectValues.length === tableValues.length">{{ $t('Select None [Alt + N]') }}</b-tooltip>
+          <b-tooltip target="checkallnone" placement="right" v-else>{{ $t('Select All [Alt + A]') }}</b-tooltip>
         </template>
-        <template slot="actions" slot-scope="data">
+        <template v-slot:cell(actions)="item">
           <div class="text-nowrap">
-            <b-form-checkbox :id="data.value" :value="data.item" v-model="selectValues" @click.native.stop="onToggleSelected($event, data.index)"></b-form-checkbox>
-            <icon name="exclamation-triangle" class="ml-1" v-if="tableValues[data.index]._rowMessage" v-b-tooltip.hover.right :title="tableValues[data.index]._rowMessage"></icon>
+            <b-form-checkbox :id="item.value" :value="item.item" v-model="selectValues" @click.stop="onToggleSelected($event, item.index)"></b-form-checkbox>
+            <icon name="exclamation-triangle" class="ml-1" v-if="tableValues[item.index] && tableValues[item.index]._rowMessage" v-b-tooltip.hover.right :title="tableValues[item.index]._rowMessage"></icon>
           </div>
         </template>
-        <template slot="status" slot-scope="data">
-          <b-badge pill variant="success" v-if="data.value === 'reg'">{{ $t('registered') }}</b-badge>
+        <template v-slot:cell(status)="item">
+          <b-badge pill variant="success" v-if="item.value === 'reg'">{{ $t('registered') }}</b-badge>
           <b-badge pill variant="light" v-else>{{ $t('unregistered') }}</b-badge>
         </template>
-        <template slot="online" slot-scope="data">
-          <b-badge pill variant="success" v-if="data.value === 'on'">{{ $t('on') }}</b-badge>
-          <b-badge pill variant="danger" v-else-if="data.value === 'off'">{{ $t('off') }}</b-badge>
+        <template v-slot:cell(online)="item">
+          <b-badge pill variant="success" v-if="item.value === 'on'">{{ $t('on') }}</b-badge>
+          <b-badge pill variant="danger" v-else-if="item.value === 'off'">{{ $t('off') }}</b-badge>
           <b-badge pill variant="info" v-else>{{ $t('unknown') }}</b-badge>
         </template>
-        <template slot="mac" slot-scope="data">
-          <mac v-text="data.value"></mac>
+        <template v-slot:cell(mac)="item">
+          <mac v-text="item.value"></mac>
         </template>
-        <template slot="pid" slot-scope="data">
-          <b-button variant="link" :to="`../user/${data.value}`">{{ data.value }}</b-button>
+        <template v-slot:cell(pid)="item">
+          <b-button variant="link" :to="{ name: 'user', params: { pid: item.value } }">{{ item.value }}</b-button>
         </template>
-        <template slot="device_score" slot-scope="data">
-          <pf-fingerbank-score :score="data.value"></pf-fingerbank-score>
+        <template v-slot:cell(device_score)="item">
+          <pf-fingerbank-score :score="item.value"></pf-fingerbank-score>
         </template>
-        <template slot="empty">
+        <template v-slot:cell(buttons)="item">
+          <span class="float-right text-nowrap text-right">
+            <pf-button-delete size="sm" variant="outline-danger" class="mr-1" :disabled="isLoading" :confirm="$t('Delete Node?')" @on-delete="remove(item.item)" reverse/>
+          </span>
+        </template>
+        <template v-slot:empty>
           <pf-empty-table :isLoading="isLoading">{{ $t('No node found') }}</pf-empty-table>
         </template>
       </b-table>
@@ -154,38 +171,45 @@
         <b-form-input ref="bypassVlanInput" v-model="bypassVlanString" type="text" :placeholder="$t('Enter a VLAN')"/>
         <b-form-text v-t="'Leave empty to clear bypass VLAN.'"></b-form-text>
       </b-form-group>
-      <div slot="modal-footer">
+      <template v-slot:modal-footer>
         <b-button variant="secondary" class="mr-1" @click="showBypassVlanModal=false">{{ $t('Cancel') }}</b-button>
         <b-button variant="primary" @click="applyBulkBypassVlan()">{{ $t('Apply') }}</b-button>
-      </div>
+      </template>
     </b-modal>
   </b-card>
 </template>
 
 <script>
+import pfButtonDelete from '@/components/pfButtonDelete'
 import pfButtonExportToCsv from '@/components/pfButtonExportToCsv'
 import pfEmptyTable from '@/components/pfEmptyTable'
-import { pfFormatters as formatter } from '@/globals/pfFormatters'
 import pfMixinSearchable from '@/components/pfMixinSearchable'
 import pfMixinSelectable from '@/components/pfMixinSelectable'
 import pfFingerbankScore from '@/components/pfFingerbankScore'
 import pfFormToggle from '@/components/pfFormToggle'
 import pfProgress from '@/components/pfProgress'
+import scroll100 from '@/directives/scroll-100'
+import { pfFormatters as formatter } from '@/globals/pfFormatters'
 import { pfSearchConditionType as conditionType } from '@/globals/pfSearch'
+import bytes from '@/utils/bytes'
 import convert from '@/utils/convert'
 
 export default {
-  name: 'NodesSearch',
+  name: 'nodes-search',
   mixins: [
     pfMixinSelectable,
     pfMixinSearchable
   ],
   components: {
     pfProgress,
+    pfButtonDelete,
     pfButtonExportToCsv,
     pfEmptyTable,
     pfFingerbankScore,
     pfFormToggle
+  },
+  directives: {
+    scroll100
   },
   props: {
     storeName: { // from router
@@ -198,6 +222,7 @@ export default {
       default: () => ({
         searchApiEndpoint: 'nodes',
         defaultSortKeys: ['mac'],
+        defaultSortDesc: false,
         defaultSearchCondition: {
           op: 'and',
           values: [{
@@ -214,248 +239,249 @@ export default {
   },
   data () {
     return {
-      tableValues: Array,
-      sortBy: 'mac',
-      sortDesc: false,
+      tableValues: [],
+      requestPage: 1,
+      currentPage: 1,
+      pageSizeLimit: 10,
+      showBypassVlanModal: false,
+      bypassVlanString: null,
       /**
-       *  Fields on which a search can be defined.
-       *  The names must match the database schema.
-       *  The keys must conform to the format of the b-form-select's options property.
-       */
+      *  Fields on which a search can be defined.
+      *  The names must match the database schema.
+      *  The keys must conform to the format of the b-form-select's options property.
+      */
       fields: [ // keys match with b-form-select
         {
           value: 'tenant_id',
-          text: this.$i18n.t('Tenant'),
+          text: 'Tenant', // i18n defer
           types: [conditionType.INTEGER]
         },
         {
           value: 'status',
-          text: this.$i18n.t('Status'),
+          text: 'Status', // i18n defer
           types: [conditionType.NODE_STATUS],
           icon: 'power-off'
         },
         {
           value: 'mac',
-          text: this.$i18n.t('MAC Address'),
+          text: 'MAC Address', // i18n defer
           types: [conditionType.SUBSTRING],
           icon: 'id-card'
         },
         {
           value: 'bypass_role_id',
-          text: this.$i18n.t('Bypass Role'),
+          text: 'Bypass Role', // i18n defer
           types: [conditionType.ROLE, conditionType.SUBSTRING],
           icon: 'project-diagram'
         },
         {
           value: 'bypass_vlan',
-          text: this.$i18n.t('Bypass VLAN'),
+          text: 'Bypass VLAN', // i18n defer
           types: [conditionType.SUBSTRING],
           icon: 'project-diagram'
         },
         {
           value: 'computername',
-          text: this.$i18n.t('Computer Name'),
+          text: 'Computer Name', // i18n defer
           types: [conditionType.SUBSTRING],
           icon: 'desktop'
         },
         {
           value: 'locationlog.connection_type',
-          text: this.$i18n.t('Connection Type'),
+          text: 'Connection Type', // i18n defer
           types: [conditionType.CONNECTION_TYPE],
           icon: 'plug'
         },
         {
           value: 'detect_date',
-          text: this.$i18n.t('Detected Date'),
+          text: 'Detected Date', // i18n defer
           types: [conditionType.DATETIME],
           icon: 'calendar-alt'
         },
         {
           value: 'regdate',
-          text: this.$i18n.t('Registered Date'),
+          text: 'Registered Date', // i18n defer
           types: [conditionType.DATETIME],
           icon: 'calendar-alt'
         },
         {
           value: 'unregdate',
-          text: this.$i18n.t('Unregistered Date'),
+          text: 'Unregistered Date', // i18n defer
           types: [conditionType.DATETIME],
           icon: 'calendar-alt'
         },
         {
           value: 'last_arp',
-          text: this.$i18n.t('Last ARP Date'),
+          text: 'Last ARP Date', // i18n defer
           types: [conditionType.DATETIME],
           icon: 'calendar-alt'
         },
         {
           value: 'last_dhcp',
-          text: this.$i18n.t('Last DHCP Date'),
+          text: 'Last DHCP Date', // i18n defer
+          types: [conditionType.DATETIME],
+          icon: 'calendar-alt'
+        },
+        {
+          value: 'last_seen',
+          text: 'Last seen Date', // i18n defer
           types: [conditionType.DATETIME],
           icon: 'calendar-alt'
         },
         {
           value: 'device_class',
-          text: this.$i18n.t('Device Class'),
+          text: 'Device Class', // i18n defer
           types: [conditionType.SUBSTRING],
           icon: 'barcode'
         },
         {
           value: 'device_manufacturer',
-          text: this.$i18n.t('Device Manufacturer'),
+          text: 'Device Manufacturer', // i18n defer
           types: [conditionType.SUBSTRING],
           icon: 'barcode'
         },
         {
           value: 'device_type',
-          text: this.$i18n.t('Device Type'),
+          text: 'Device Type', // i18n defer
           types: [conditionType.SUBSTRING],
           icon: 'barcode'
         },
         {
           value: 'ip4log.ip',
-          text: this.$i18n.t('IPv4 Address'),
+          text: 'IPv4 Address', // i18n defer
           types: [conditionType.SUBSTRING],
           icon: 'project-diagram'
         },
         {
           value: 'ip6log.ip',
-          text: this.$i18n.t('IPv6 Address'),
+          text: 'IPv6 Address', // i18n defer
           types: [conditionType.SUBSTRING],
           icon: 'project-diagram'
         },
         {
           value: 'machine_account',
-          text: this.$i18n.t('Machine Account'),
+          text: 'Machine Account', // i18n defer
           types: [conditionType.SUBSTRING],
           icon: 'desktop'
         },
         {
           value: 'notes',
-          text: this.$i18n.t('Notes'),
+          text: 'Notes', // i18n defer
           types: [conditionType.SUBSTRING],
           icon: 'notes-medical'
         },
         {
           value: 'online',
-          text: this.$i18n.t('Online Status'),
+          text: 'Online Status', // i18n defer
           types: [conditionType.ONLINE],
           icon: 'power-off'
         },
         {
           value: 'pid',
-          text: this.$i18n.t('Owner'),
+          text: 'Owner', // i18n defer
           types: [conditionType.SUBSTRING],
           icon: 'user'
         },
         {
           value: 'category_id',
-          text: this.$i18n.t('Role'),
+          text: 'Role', // i18n defer
           types: [conditionType.ROLE, conditionType.SUBSTRING],
           icon: 'project-diagram'
         },
         {
           value: 'locationlog.switch',
-          text: this.$i18n.t('Source Switch Identifier'),
+          text: 'Source Switch Identifier', // i18n defer
           types: [conditionType.SUBSTRING],
           icon: 'sitemap'
         },
         {
           value: 'locationlog.switch_ip',
-          text: this.$i18n.t('Source Switch IP'),
-          types: [conditionType.SUBSTRING],
+          text: 'Source Switch IP', // i18n defer
+          types: [conditionType.SWITCH_IP],
           icon: 'sitemap'
         },
         {
           value: 'locationlog.switch_mac',
-          text: this.$i18n.t('Source Switch MAC'),
+          text: 'Source Switch MAC', // i18n defer
           types: [conditionType.SUBSTRING],
           icon: 'sitemap'
         },
         {
-          value: 'locationlog.switch_port',
-          text: this.$i18n.t('Source Switch Port'),
+          value: 'locationlog.port',
+          text: 'Source Switch Port', // i18n defer
           types: [conditionType.INTEGER],
           icon: 'sitemap'
         },
         {
-          value: 'locationlog.switch_port_description',
-          text: this.$i18n.t('Source Switch Port Description'),
-          types: [conditionType.SUBSTRING],
-          icon: 'sitemap'
-        },
-        {
-          value: 'locationlog.switch_description',
-          text: this.$i18n.t('Source Switch Description'),
+          value: 'locationlog.ifDesc',
+          text: 'Source Switch Port Description', // i18n defer
           types: [conditionType.SUBSTRING],
           icon: 'sitemap'
         },
         {
           value: 'locationlog.ssid',
-          text: this.$i18n.t('SSID'),
+          text: 'SSID', // i18n defer
           types: [conditionType.SUBSTRING],
           icon: 'wifi'
         },
         {
           value: 'user_agent',
-          text: this.$i18n.t('User Agent'),
+          text: 'User Agent', // i18n defer
           types: [conditionType.SUBSTRING],
           icon: 'user-secret'
         },
         /* TODO - #3400, #4166
         {
           value: 'security_event.open_security_event_id',
-          text: this.$i18n.t('Security Event Open'),
+          text: 'Security Event Open', // i18n defer
           types: [conditionType.SECURITY_EVENT],
           icon: 'exclamation-triangle'
         },
         {
           value: 'security_event.open_count',
-          text: this.$i18n.t('Security Event Open Count [Issue #3400]'),
+          text: 'Security Event Open Count [Issue #3400]', // i18n defer
           types: [conditionType.INTEGER],
           icon: 'exclamation-triangle'
         },
         {
           value: 'security_event.close_security_event_id',
-          text: this.$i18n.t('Security Event Closed'),
+          text: 'Security Event Closed', // i18n defer
           types: [conditionType.SECURITY_EVENT],
           icon: 'exclamation-circle'
         },
         {
           value: 'security_event.close_count',
-          text: this.$i18n.t('Security Event Close Count [Issue #3400]'),
+          text: 'Security Event Close Count [Issue #3400]', // i18n defer
           types: [conditionType.INTEGER],
           icon: 'exclamation-circle'
         },
         */
         {
           value: 'voip',
-          text: this.$i18n.t('VoIP'),
+          text: 'VoIP', // i18n defer
           types: [conditionType.YESNO],
           icon: 'phone'
         },
         {
           value: 'autoreg',
-          text: this.$i18n.t('Auto Registration'),
+          text: 'Auto Registration', // i18n defer
           types: [conditionType.YESNO],
           icon: 'magic'
         },
         {
           value: 'bandwidth_balance',
-          text: this.$i18n.t('Bandwidth Balance'),
+          text: 'Bandwidth Balance', // i18n defer
           types: [conditionType.PREFIXMULTIPLE],
           icon: 'balance-scale'
         }
       ],
       /**
-       * The columns that can be displayed in the results table.
-       */
+      * The columns that can be displayed in the results table.
+      */
       columns: [
         {
           key: 'actions',
-          label: this.$i18n.t('Actions'),
-          sortable: false,
-          visible: true,
+          label: 'Actions', // i18n defer
           locked: true,
           formatter: (value, key, item) => {
             return item.mac
@@ -463,302 +489,275 @@ export default {
         },
         {
           key: 'tenant_id',
-          label: this.$i18n.t('Tenant'),
-          sortable: true,
-          visible: false
+          label: 'Tenant', // i18n defer
+          sortable: true
         },
         {
           key: 'status',
-          label: this.$i18n.t('Status'),
+          label: 'Status', // i18n defer
           sortable: true,
           visible: true
         },
         {
           key: 'online',
-          label: this.$i18n.t('Online/Offline'),
+          label: 'Online/Offline', // i18n defer
           sortable: true,
           visible: true
         },
         {
           key: 'mac',
-          label: this.$i18n.t('MAC Address'),
+          label: 'MAC Address', // i18n defer
+          required: true,
           sortable: true,
           visible: true
         },
         {
           key: 'detect_date',
-          label: this.$i18n.t('Detected Date'),
+          label: 'Detected Date', // i18n defer
           sortable: true,
-          visible: false,
           formatter: formatter.datetimeIgnoreZero,
           class: 'text-nowrap'
         },
         {
           key: 'regdate',
-          label: this.$i18n.t('Registration Date'),
+          label: 'Registration Date', // i18n defer
           sortable: true,
-          visible: false,
           formatter: formatter.datetimeIgnoreZero,
           class: 'text-nowrap'
         },
         {
           key: 'unregdate',
-          label: this.$i18n.t('Unregistration Date'),
+          label: 'Unregistration Date', // i18n defer
           sortable: true,
-          visible: false,
           formatter: formatter.datetimeIgnoreZero,
           class: 'text-nowrap'
         },
         {
           key: 'computername',
-          label: this.$i18n.t('Computer Name'),
+          label: 'Computer Name', // i18n defer
           sortable: true,
           visible: true
         },
         {
           key: 'pid',
-          label: this.$i18n.t('Owner'),
+          label: 'Owner', // i18n defer
           sortable: true,
           visible: true
         },
         {
           key: 'ip4log.ip',
-          label: this.$i18n.t('IPv4 Address'),
+          label: 'IPv4 Address', // i18n defer
           sortable: true,
           visible: true
         },
         {
           key: 'ip6log.ip',
-          label: this.$i18n.t('IPv6 Address'),
-          sortable: true,
-          visible: false
+          label: 'IPv6 Address', // i18n defer
+          sortable: true
         },
         {
           key: 'device_class',
-          label: this.$i18n.t('Device Class'),
+          label: 'Device Class', // i18n defer
           sortable: true,
           visible: true
         },
         {
           key: 'device_manufacturer',
-          label: this.$i18n.t('Device Manufacturer'),
-          sortable: true,
-          visible: false
+          label: 'Device Manufacturer', // i18n defer
+          sortable: true
         },
         {
           key: 'device_score',
-          label: this.$i18n.t('Device Score'),
-          sortable: true,
-          visible: false
+          label: 'Device Score', // i18n defer
+          sortable: true
         },
         {
           key: 'device_type',
-          label: this.$i18n.t('Device Type'),
-          sortable: true,
-          visible: false
+          label: 'Device Type', // i18n defer
+          sortable: true
         },
         {
           key: 'device_version',
-          label: this.$i18n.t('Device Version'),
-          sortable: true,
-          visible: false
+          label: 'Device Version', // i18n defer
+          sortable: true
         },
         {
           key: 'dhcp6_enterprise',
-          label: this.$i18n.t('DHCPv6 Enterprise'),
-          sortable: true,
-          visible: false
+          label: 'DHCPv6 Enterprise', // i18n defer
+          sortable: true
         },
         {
           key: 'dhcp6_fingerprint',
-          label: this.$i18n.t('DHCPv6 Fingerprint'),
-          sortable: true,
-          visible: false
+          label: 'DHCPv6 Fingerprint', // i18n defer
+          sortable: true
         },
         {
           key: 'dhcp_fingerprint',
-          label: this.$i18n.t('DHCP Fingerprint'),
-          sortable: true,
-          visible: false
+          label: 'DHCP Fingerprint', // i18n defer
+          sortable: true
         },
         {
           key: 'category_id',
-          label: this.$i18n.t('Role'),
+          label: 'Role', // i18n defer
           sortable: true,
           visible: true,
           formatter: formatter.categoryId
         },
         {
           key: 'locationlog.connection_type',
-          label: this.$i18n.t('Connection Type'),
-          sortable: true,
-          visible: false
+          label: 'Connection Type', // i18n defer
+          sortable: true
         },
         {
           key: 'locationlog.session_id',
-          label: this.$i18n.t('Session ID'),
-          sortable: true,
-          visible: false
+          label: 'Session ID', // i18n defer
+          sortable: true
         },
         {
           key: 'locationlog.switch',
-          label: this.$i18n.t('Switch Identifier'),
-          sortable: true,
-          visible: false
+          label: 'Switch Identifier', // i18n defer
+          sortable: true
         },
         {
           key: 'locationlog.switch_ip',
-          label: this.$i18n.t('Switch IP Address'),
-          sortable: true,
-          visible: false
+          label: 'Switch IP Address', // i18n defer
+          sortable: true
         },
         {
           key: 'locationlog.switch_mac',
-          label: this.$i18n.t('Switch MAC Address'),
-          sortable: true,
-          visible: false
+          label: 'Switch MAC Address', // i18n defer
+          sortable: true
         },
         {
-          key: 'locationlog.switch_port',
-          label: this.$i18n.t('Switch Port'),
-          sortable: true,
-          visible: false
+          key: 'locationlog.port',
+          label: 'Switch Port', // i18n defer
+          sortable: true
         },
         {
-          key: 'locationlog.switch_port_description',
-          label: this.$i18n.t('Switch Port Description'),
-          sortable: true,
-          visible: false
-        },
-        {
-          key: 'locationlog.switch_description',
-          label: this.$i18n.t('Switch Description'),
-          sortable: true,
-          visible: false
+          key: 'locationlog.ifDesc',
+          label: 'Switch Port Description', // i18n defer
+          sortable: true
         },
         {
           key: 'locationlog.ssid',
-          label: this.$i18n.t('SSID'),
-          sortable: true,
-          visible: false
+          label: 'SSID', // i18n defer
+          sortable: true
         },
         {
           key: 'locationlog.vlan',
-          label: this.$i18n.t('VLAN'),
-          sortable: true,
-          visible: false
+          label: 'VLAN', // i18n defer
+          sortable: true
         },
         {
           key: 'bypass_vlan',
-          label: this.$i18n.t('Bypass VLAN'),
-          sortable: true,
-          visible: false
+          label: 'Bypass VLAN', // i18n defer
+          sortable: true
         },
         {
           key: 'bypass_role_id',
-          label: this.$i18n.t('Bypass Role'),
+          label: 'Bypass Role', // i18n defer
           sortable: true,
-          visible: false,
           formatter: formatter.bypassRoleId
         },
         {
           key: 'notes',
-          label: this.$i18n.t('Notes'),
-          sortable: true,
-          visible: false
+          label: 'Notes', // i18n defer
+          sortable: true
         },
         {
           key: 'voip',
-          label: this.$i18n.t('VoIP'),
-          sortable: true,
-          visible: false
+          label: 'VoIP', // i18n defer
+          sortable: true
         },
         {
           key: 'last_arp',
-          label: this.$i18n.t('Last ARP'),
+          label: 'Last ARP', // i18n defer
           sortable: true,
-          visible: false,
           formatter: formatter.datetimeIgnoreZero,
           class: 'text-nowrap'
         },
         {
           key: 'last_dhcp',
-          label: this.$i18n.t('Last DHCP'),
+          label: 'Last DHCP', // i18n defer
           sortable: true,
-          visible: false,
+          formatter: formatter.datetimeIgnoreZero,
+          class: 'text-nowrap'
+        },
+        {
+          key: 'last_seen',
+          label: 'Last seen', // i18n defer
+          sortable: true,
           formatter: formatter.datetimeIgnoreZero,
           class: 'text-nowrap'
         },
         {
           key: 'machine_account',
-          label: this.$i18n.t('Machine Account'),
-          sortable: true,
-          visible: false
+          label: 'Machine Account', // i18n defer
+          sortable: true
         },
         {
           key: 'autoreg',
-          label: this.$i18n.t('Auto Registration'),
-          sortable: true,
-          visible: false
+          label: 'Auto Registration', // i18n defer
+          sortable: true
         },
         {
           key: 'bandwidth_balance',
-          label: this.$i18n.t('Bandwidth Balance'),
+          label: 'Bandwidth Balance', // i18n defer
           sortable: true,
-          visible: false
+          formatter: (value) => {
+            return (value) ? `${bytes.toHuman(value, 2, true)}B` : ''
+          }
         },
         {
           key: 'time_balance',
-          label: this.$i18n.t('Time Balance'),
-          sortable: true,
-          visible: false
+          label: 'Time Balance', // i18n defer
+          sortable: true
         },
         {
           key: 'user_agent',
-          label: this.$i18n.t('User Agent'),
-          sortable: true,
-          visible: false
+          label: 'User Agent', // i18n defer
+          sortable: true
         },
         {
           key: 'security_event.open_security_event_id',
-          label: this.$i18n.t('Security Event Open'),
+          label: 'Security Event Open', // i18n defer
           sortable: true,
-          visible: false,
           class: 'text-nowrap',
-          formatter: formatter.securityEventIdsToDescCsv
+          formatter: (this.$can.apply(null, ['read', 'security_events']))
+            ? formatter.securityEventIdsToDescCsv
+            : formatter.noAdminRolePermission
         },
         /* TODO - #4166
         {
           key: 'security_event.open_count',
-          label: this.$i18n.t('Security Event Open Count'),
+          label: 'Security Event Open Count', // i18n defer
           sortable: true,
-          visible: false,
           class: 'text-nowrap'
         },
         */
         {
           key: 'security_event.close_security_event_id',
-          label: this.$i18n.t('Security Event Closed'),
+          label: 'Security Event Closed', // i18n defer
           sortable: true,
-          visible: false,
           class: 'text-nowrap',
-          formatter: formatter.securityEventIdsToDescCsv
-        }
+          formatter: (this.$can.apply(null, ['read', 'security_events']))
+            ? formatter.securityEventIdsToDescCsv
+            : formatter.noAdminRolePermission
+        },
         /* TODO - #4166
         {
           key: 'security_event.close_count',
-          label: this.$i18n.t('Security Event Closed Count'),
+          label: 'Security Event Closed Count', // i18n defer
           sortable: true,
-          visible: false,
           class: 'text-nowrap'
         }
         */
-      ],
-      requestPage: 1,
-      currentPage: 1,
-      pageSizeLimit: 10,
-      showBypassVlanModal: false,
-      bypassVlanString: null
+        {
+          key: 'buttons',
+          label: '',
+          locked: true
+        }
+      ]
     }
   },
   computed: {
@@ -768,7 +767,7 @@ export default {
     },
     security_events () {
       this.$store.dispatch('config/getSecurityEvents')
-      return this.$store.getters['config/sortedSecurityEvents']
+      return this.$store.getters['config/sortedSecurityEvents'].filter(securityEvent => securityEvent.enabled === 'Y')
     }
   },
   methods: {
@@ -794,7 +793,7 @@ export default {
           }) >= 0
         }).length !== condition.values[0].values.length
     },
-    onRowClick (item, index) {
+    onRowClick (item) {
       this.$router.push({ name: 'node', params: { mac: item.mac } })
     },
     applyBulkCloseSecurityEvent () {
@@ -804,7 +803,7 @@ export default {
           let successCount = 0
           let skippedCount = 0
           let failedCount = 0
-          items.forEach((item, _index, items) => {
+          items.forEach(item => {
             let index = this.tableValues.findIndex(value => value.mac === item.mac)
             switch (item.status) {
               case 'success': successCount++
@@ -816,7 +815,7 @@ export default {
             this.setRowVariant(index, convert.statusToVariant({ status: item.status }))
           })
           this.$store.dispatch('notification/info', {
-            message: this.$i18n.t('Closed security events on {nodeCount} nodes.', { nodeCount: items.length }),
+            message: this.$i18n.tc('Closed security events on 1 node. | Closed security events on {nodeCount} nodes.', items.length, { nodeCount: items.length }),
             success: successCount,
             skipped: skippedCount,
             failed: failedCount
@@ -836,7 +835,7 @@ export default {
           let successCount = 0
           let skippedCount = 0
           let failedCount = 0
-          items.forEach((item, _index, items) => {
+          items.forEach(item => {
             let index = this.tableValues.findIndex(value => value.mac === item.mac)
             switch (item.status) {
               case 'success':
@@ -850,7 +849,7 @@ export default {
             this.setRowVariant(index, convert.statusToVariant({ status: item.status }))
           })
           this.$store.dispatch('notification/info', {
-            message: this.$i18n.t('Registered {nodeCount} nodes.', { nodeCount: items.length }),
+            message: this.$i18n.tc('Registered 1 node. | Registered {nodeCount} nodes.', items.length, { nodeCount: items.length }),
             success: successCount,
             skipped: skippedCount,
             failed: failedCount
@@ -870,7 +869,7 @@ export default {
           let successCount = 0
           let skippedCount = 0
           let failedCount = 0
-          items.forEach((item, _index, items) => {
+          items.forEach(item => {
             let index = this.tableValues.findIndex(value => value.mac === item.mac)
             switch (item.status) {
               case 'success':
@@ -884,7 +883,7 @@ export default {
             this.setRowVariant(index, convert.statusToVariant({ status: item.status }))
           })
           this.$store.dispatch('notification/info', {
-            message: this.$i18n.t('Deregistered {nodeCount} nodes.', { nodeCount: items.length }),
+            message: this.$i18n.tc('Deregistered 1 node. | Deregistered {nodeCount} nodes.', items.length, { nodeCount: items.length }),
             success: successCount,
             skipped: skippedCount,
             failed: failedCount
@@ -904,7 +903,7 @@ export default {
           let successCount = 0
           let skippedCount = 0
           let failedCount = 0
-          items.forEach((item, _index, items) => {
+          items.forEach(item => {
             let index = this.tableValues.findIndex(value => value.mac === item.mac)
             switch (item.status) {
               case 'success': successCount++
@@ -916,7 +915,7 @@ export default {
             this.setRowVariant(index, convert.statusToVariant({ status: item.status }))
           })
           this.$store.dispatch('notification/info', {
-            message: this.$i18n.t('Reevaluated access on {nodeCount} nodes.', { nodeCount: items.length }),
+            message: this.$i18n.tc('Reevaluated access on 1 node. | Reevaluated access on {nodeCount} nodes.', items.length, { nodeCount: items.length }),
             success: successCount,
             skipped: skippedCount,
             failed: failedCount
@@ -936,7 +935,7 @@ export default {
           let successCount = 0
           let skippedCount = 0
           let failedCount = 0
-          items.forEach((item, _index, items) => {
+          items.forEach(item => {
             let index = this.tableValues.findIndex(value => value.mac === item.mac)
             switch (item.status) {
               case 'success': successCount++
@@ -948,7 +947,7 @@ export default {
             this.setRowVariant(index, convert.statusToVariant({ status: item.status }))
           })
           this.$store.dispatch('notification/info', {
-            message: this.$i18n.t('Restarted switch port on {nodeCount} nodes.', { nodeCount: items.length }),
+            message: this.$i18n.tc('Restarted switch port on 1 node. | Restarted switch port on {nodeCount} nodes.', items.length, { nodeCount: items.length }),
             success: successCount,
             skipped: skippedCount,
             failed: failedCount
@@ -968,7 +967,7 @@ export default {
           let successCount = 0
           let skippedCount = 0
           let failedCount = 0
-          items.forEach((item, _index, items) => {
+          items.forEach(item => {
             let index = this.tableValues.findIndex(value => value.mac === item.mac)
             switch (item.status) {
               case 'success': successCount++
@@ -980,7 +979,7 @@ export default {
             this.setRowVariant(index, convert.statusToVariant({ status: item.status }))
           })
           this.$store.dispatch('notification/info', {
-            message: this.$i18n.t('Refreshed fingerbank on {nodeCount} nodes.', { nodeCount: items.length }),
+            message: this.$i18n.tc('Refreshed fingerbank on 1 node. | Refreshed fingerbank on {nodeCount} nodes.', items.length, { nodeCount: items.length }),
             success: successCount,
             skipped: skippedCount,
             failed: failedCount
@@ -1000,7 +999,7 @@ export default {
           let successCount = 0
           let skippedCount = 0
           let failedCount = 0
-          items.forEach((item, _index, items) => {
+          items.forEach(item => {
             let index = this.tableValues.findIndex(value => value.mac === item.mac)
             switch (item.status) {
               case 'success':
@@ -1014,7 +1013,7 @@ export default {
             this.setRowVariant(index, convert.statusToVariant({ status: item.status }))
           })
           this.$store.dispatch('notification/info', {
-            message: this.$i18n.t('Applied role on {nodeCount} nodes.', { nodeCount: items.length }),
+            message: this.$i18n.tc('Applied role on 1 node. | Applied role on {nodeCount} nodes.', items.length, { nodeCount: items.length }),
             success: successCount,
             skipped: skippedCount,
             failed: failedCount
@@ -1034,7 +1033,7 @@ export default {
           let successCount = 0
           let skippedCount = 0
           let failedCount = 0
-          items.forEach((item, _index, items) => {
+          items.forEach(item => {
             let index = this.tableValues.findIndex(value => value.mac === item.mac)
             switch (item.status) {
               case 'success':
@@ -1048,7 +1047,7 @@ export default {
             this.setRowVariant(index, convert.statusToVariant({ status: item.status }))
           })
           this.$store.dispatch('notification/info', {
-            message: this.$i18n.t('Applied bypass role on {nodeCount} nodes.', { nodeCount: items.length }),
+            message: this.$i18n.tc('Applied bypass role on 1 node. | Applied bypass role on {nodeCount} nodes.', items.length, { nodeCount: items.length }),
             success: successCount,
             skipped: skippedCount,
             failed: failedCount
@@ -1064,11 +1063,11 @@ export default {
     applyBulkSecurityEvent (securityEvent) {
       const macs = this.selectValues.map(item => item.mac)
       if (macs.length > 0) {
-        this.$store.dispatch(`${this.storeName}/bulkApplySecurityEvent`, { vid: securityEvent.vid, items: macs }).then(items => {
+        this.$store.dispatch(`${this.storeName}/bulkApplySecurityEvent`, { security_event_id: securityEvent.id, items: macs }).then(items => {
           let successCount = 0
           let skippedCount = 0
           let failedCount = 0
-          items.forEach((item, _index, items) => {
+          items.forEach(item => {
             let index = this.tableValues.findIndex(value => value.mac === item.mac)
             switch (item.status) {
               case 'success': successCount++
@@ -1080,7 +1079,7 @@ export default {
             this.setRowVariant(index, convert.statusToVariant({ status: item.status }))
           })
           this.$store.dispatch('notification/info', {
-            message: this.$i18n.t('Applied security event on {nodeCount} nodes.', { nodeCount: items.length }),
+            message: this.$i18n.tc('Applied security event on 1 node. | Applied security event on {nodeCount} nodes.', items.length, { nodeCount: items.length }),
             success: successCount,
             skipped: skippedCount,
             failed: failedCount
@@ -1105,7 +1104,7 @@ export default {
           let successCount = 0
           let skippedCount = 0
           let failedCount = 0
-          items.forEach((item, _index, items) => {
+          items.forEach(item => {
             let index = this.tableValues.findIndex(value => value.mac === item.mac)
             switch (item.status) {
               case 'success':
@@ -1119,7 +1118,7 @@ export default {
             this.setRowVariant(index, convert.statusToVariant({ status: item.status }))
           })
           this.$store.dispatch('notification/info', {
-            message: this.$i18n.t('Applied bypass VLAN on {nodeCount} nodes.', { nodeCount: items.length }),
+            message: this.$i18n.tc('Applied bypass VLAN on 1 node. | Applied bypass VLAN on {nodeCount} nodes.', items.length, { nodeCount: items.length }),
             success: successCount,
             skipped: skippedCount,
             failed: failedCount
@@ -1131,6 +1130,11 @@ export default {
           })
         })
       }
+    },
+    remove (item) {
+      this.$store.dispatch(`${this.storeName}/deleteNode`, item.mac).then(() => {
+        this.onSearch()
+      })
     }
   }
 }

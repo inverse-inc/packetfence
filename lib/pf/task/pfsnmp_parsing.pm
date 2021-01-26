@@ -14,6 +14,7 @@ pf::task::pfsnmp_parsing
 
 use strict;
 use warnings;
+use base 'pf::task';
 use pf::log;
 use pf::Redis;
 use pf::SwitchFactory;
@@ -25,6 +26,7 @@ use pf::config::util;
 use pf::constants qw($TRUE $FALSE);
 use pf::util;
 use pf::config qw(%Config);
+use pf::config::pfqueue qw(%ConfigPfqueue);
 use pf::util::pfqueue qw(task_counter_id consumer_redis_client);
 use pf::constants::pfqueue qw($PFQUEUE_COUNTER);
 
@@ -91,7 +93,7 @@ sub doTask {
     }
 
     my $client = pf::pfqueue::producer::redis->new(queue => 'pfsnmp');
-    $client->submit("pfsnmp", "pfsnmp", $trap);
+    $client->submit_hashed($ConfigPfqueue{queue_config}{pfsnmp}{workers}, $switch_id, "pfsnmp", "pfsnmp", $trap);
     return undef, undef;
 }
 
@@ -176,7 +178,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2019 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 

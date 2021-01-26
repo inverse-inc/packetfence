@@ -37,6 +37,7 @@ has_field 'port' =>
 has_field 'type' =>
   (
    type => 'Hidden',
+   default => 'BarracudaNG',
   );
 
 has_block definition =>
@@ -68,7 +69,7 @@ sub options_categories {
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2019 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 

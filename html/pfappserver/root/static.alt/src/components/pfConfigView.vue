@@ -1,58 +1,59 @@
 <template>
   <b-form @submit.prevent="(isNew || isClone) ? create($event) : save($event)" class="pf-config-view">
     <b-card no-body v-bind="$attrs" :class="cardClass">
-      <slot name="header">
-        <b-card-header>
+      <b-card-header>
+        <slot name="header">
           <b-button-close @click="close" v-b-tooltip.hover.left.d300 :title="$t('Close [ESC]')"><icon name="times"></icon></b-button-close>
           <h4 class="mb-0">
             <span>{{ $t('Configuration Template') }}</span>
           </h4>
-        </b-card-header>
-      </slot>
-      <b-tabs v-if="form.fields[0].tab || form.fields.length > 1" v-model="tabIndex" :key="tabKey" card>
-        <b-tab v-for="(tab, t) in form.fields" :key="t" v-if="!('if' in tab) || tab.if"
-          :disabled="tab.disabled"
-          :title-link-class="{ 'text-danger': getTabErrorCount(t) > 0 }"
-          :title="tab.tab"
-          no-body
-        ></b-tab>
+        </slot>
+      </b-card-header>
+      <b-tabs v-if="view && (view[0].tab || view.length > 1)" v-model="tabIndex" :key="tabKey" card>
+        <template v-for="(tab, t) in conditionalView">
+          <b-tab :key="t"
+            :disabled="tab.disabled || disabled"
+            :title-link-class="{ 'is-invalid': tabErrorCount[t] > 0 }"
+            :title="tab.tab"
+            no-body
+          />
+        </template>
+        <template v-slot:tabs-end>
+          <slot name="tabs-end" />
+        </template>
       </b-tabs>
-      <template v-for="(tab, t) in form.fields">
-        <div class="card-body" v-if="tab.fields" v-show="t === tabIndex" :key="t">
-          <b-form-group v-for="row in tab.fields" :key="row.key" v-if="!('if' in row) || row.if"
-            :label-cols="('label' in row && row.fields) ? form.labelCols : 0" :label="row.label" :label-size="row.labelSize" :label-class="[(row.label && row.fields) ? '' : 'text-left', (row.fields) ? '' : 'offset-sm-3']"
-            :state="isValid()" :invalid-feedback="getInvalidFeedback()"
-            class="input-element" :class="{ 'mb-0': !row.label, 'pt-3': !row.fields }"
-          >
-            <b-input-group>
-              <template v-for="field in row.fields">
-                <span v-if="field.text" :key="field.index" :class="field.class">{{ field.text }}</span>
-                <component v-else-if="!('if' in field) || field.if"
-                  v-bind="field.attrs"
-                  v-on="kebabCaseListeners(field.listeners)"
-                  :key="field.key"
-                  :keyName="field.key"
-                  :is="field.component || defaultComponent"
-                  :is-loading="isLoading"
-                  :vuelidate="getVuelidateModel(field.key)"
-                  :class="getClass(row, field)"
-                  :value="getValue(field.key)"
-                  :disabled="(field.attrs && field.attrs.disabled) || disabled"
-                  @input="setValue(field.key, $event)"
-                  @validations="setComponentValidations(field.key, $event)"
-                ></component>
-              </template>
-            </b-input-group>
-            <b-form-text v-if="row.text" v-html="row.text"></b-form-text>
-          </b-form-group>
+      <template v-for="(tab, t) in conditionalView">
+        <div class="card-body" v-show="t === tabIndex" :key="t">
+          <template v-for="row in tab.rows">
+            <b-form-group :key="row.key"
+              :label-cols="('label' in row && row.cols) ? labelCols : 0"
+              :label="row.label"
+              :label-size="row.labelSize"
+              :label-class="[(row.label && row.cols) ? '' : 'text-left', (row.cols) ? '' : 'offset-sm-3']"
+              class="input-element" :class="{ 'mb-0': !row.label, 'pt-3': !row.cols }"
+            >
+              <b-input-group align-v="start">
+                <template v-for="col in row.cols">
+                  <span v-if="col.text" :key="col.index" class="d-inline py-2" :class="col.class">{{ col.text }}</span>
+                  <component v-show="(!('if' in col) || col.if) && col.component"
+                    v-bind="col.attrs"
+                    v-on="kebabCaseListeners(col.listeners)"
+                    :form-store-name="formStoreName"
+                    :form-namespace="`${(formNamespace) ? `${formNamespace}.` : ''}${col.namespace}`"
+                    :key="col.namespace"
+                    :is="col.component"
+                    :is-loading="isLoading"
+                    :class="getClass(row, col)"
+                    :disabled="(col.attrs && col.attrs.disabled) || disabled"
+                  ><span v-if="col.html">{{ col.html }}</span></component>
+                </template>
+              </b-input-group>
+              <b-form-text v-if="row.text" v-html="row.text"></b-form-text>
+            </b-form-group>
+          </template>
         </div>
       </template>
-      <slot name="footer">
-        <b-card-footer @mouseenter="vuelidate.$touch()">
-          <pf-button-save :disabled="invalidForm" :is-loading="isLoading">{{ isNew? $t('Create') : $t('Save') }}</pf-button-save>
-          <pf-button-delete v-if="isDeletable" class="ml-1" :disabled="isLoading" :confirm="$t('Delete Config?')" @on-delete="remove($event)"/>
-        </b-card-footer>
-      </slot>
+      <slot name="footer" />
     </b-card>
   </b-form>
 </template>
@@ -61,30 +62,25 @@
 import uuidv4 from 'uuid/v4'
 import pfButtonSave from '@/components/pfButtonSave'
 import pfButtonDelete from '@/components/pfButtonDelete'
-import pfFormInput from '@/components/pfFormInput'
-import pfMixinValidation from '@/components/pfMixinValidation'
+import { createDebouncer } from 'promised-debounce'
 
 export default {
   name: 'pfConfigView',
   components: {
     pfButtonSave,
-    pfButtonDelete,
-    pfFormInput
+    pfButtonDelete
   },
-  mixins: [
-    pfMixinValidation
-  ],
   props: {
-    form: {
-      type: Object,
+    formStoreName: {
+      type: String,
       required: true
     },
-    model: {
-      type: Object,
-      required: true
+    formNamespace: {
+      type: String,
+      default: null
     },
-    vuelidate: {
-      type: Object,
+    view: {
+      type: Array,
       required: true
     },
     isLoading: {
@@ -106,24 +102,72 @@ export default {
     },
     cardClass: {
       type: String
+    },
+    labelCols: {
+      type: Number,
+      default: 3
     }
   },
   data () {
     return {
       tabKey: uuidv4(), // control tabs DOM rendering
       tabIndex: this.initialTabIndex,
-      componentValidations: {}
+      tabErrorCountCache: false
     }
   },
   computed: {
-    defaultComponent () {
-      return pfFormInput
+    form () {
+      return this.$store.getters[`${this.formStoreName}/$form`]
+    },
+    invalidForm () {
+      return this.$store.getters[`${this.formStoreName}/$formInvalid`]
     },
     isDeletable () {
-      if (this.isNew || this.isClone || ('not_deletable' in this.model && this.model.not_deletable)) {
+      const { isNew, isClone, form: { not_deletable: notDeletable = false } = {} } = this
+      if (isNew || isClone || notDeletable) {
         return false
       }
       return true
+    },
+    tabErrorCount: {
+      get () {
+        if (!this.tabErrorCountDebouncer) {
+          // eslint-disable-next-line vue/no-side-effects-in-computed-properties
+          this.tabErrorCountDebouncer = createDebouncer()
+          // eslint-disable-next-line vue/no-side-effects-in-computed-properties
+          this.tabErrorCountCache = this.conditionalView.map(() => 0)
+        }
+        this.tabErrorCountDebouncer({
+          handler: () => {
+            this.tabErrorCountCache = this.conditionalView.map(view => {
+              return view.rows.reduce((rowCount, row) => {
+                if (!('cols' in row)) return rowCount
+                return row.cols.reduce((colCount, col) => {
+                  if (!('namespace' in col)) return colCount
+                  const { $invalid = false, $pending = false } = this.$store.getters[`${this.formStoreName}/$stateNS`](col.namespace)
+                  if ($invalid && !$pending) colCount++
+                  return colCount
+                }, rowCount)
+              }, 0)
+            })
+          },
+          time: 1000 // 1 second
+        })
+        return this.tabErrorCountCache
+      }
+    },
+    conditionalView () {
+      return this.view.map(tab => {
+        return {
+          ...tab,
+          rows: tab.rows.map(row => {
+            return {
+              ...row,
+              cols: (row.cols || []).filter(col => (!('if' in col) || col.if))
+            }
+          }).filter(row => (!('if' in row) || row.if) && row.cols && row.cols.length > 0)
+        }
+      }).filter(tab => (!('if' in tab) || tab.if) && tab.rows && tab.rows.length > 0)
     }
   },
   methods: {
@@ -139,100 +183,19 @@ export default {
     remove (event) {
       this.$emit('remove', event)
     },
-    getValue (key, model = this.model) {
-      if (key) {
-        if (key.includes('.')) { // handle dot-notation keys ('.')
-          const [ first, ...remainder ] = key.split('.')
-          return this.getValue(remainder.join('.'), model[first])
-        }
-        return model[key]
-      } else {
-        return model
+    getClass (row, col) {
+      const { attrs: { 'class': classDefinition = false } = {} } = col
+      let c = []
+      if (classDefinition) { // class is defined
+        c.push(classDefinition) // use manual definition
       }
-    },
-    setValue (key, value, model = this.model) {
-      if (key.includes('.')) { // handle dot-notation keys ('.')
-        const [ first, ...remainder ] = key.split('.')
-        if (!(first in model)) this.$set(model, first, {})
-        return this.setValue(remainder.join('.'), value, model[first])
+      else if (row.cols.length === 1) { // else if row is singular
+        c.push('px-0', 'col-sm-12') // remove padding, use entire width
       }
-      this.$set(model, key, value)
-    },
-    getVuelidateModel (key, model = this.vuelidate) {
-      if (key) {
-        if (key.includes('.')) { // handle dot-notation keys ('.')
-          const [ first, ...remainder ] = key.split('.')
-          return this.getVuelidateModel(remainder.join(','), model[first])
-        }
-        return model[key]
-      }
-    },
-    setComponentValidations (key, validations) {
-      this.$set(this.componentValidations, key, validations)
-      this.emitValidations()
-    },
-    getExternalValidations () {
-      const eachFieldValue = {}
-      const setEachFieldValue = (key, value, model = eachFieldValue) => {
-        if (key.includes('.')) { // handle dot-notation keys ('.')
-          const [ first, ...remainder ] = key.split('.')
-          if (!(first in model)) model[first] = {}
-          setEachFieldValue(remainder.join('.'), value, model[first])
-          return
-        }
-        this.$set(model, key, value)
-      }
-      if (this.form.fields.length > 0) {
-        this.form.fields.forEach(tab => {
-          if ('fields' in tab && (!('if' in tab) || tab.if)) {
-            tab.fields.forEach(row => {
-              if ('fields' in row && (!('if' in row) || row.if)) {
-                row.fields.forEach(field => {
-                  if (field.key) {
-                    setEachFieldValue(field.key, {})
-                    if ('validators' in field) {
-                      setEachFieldValue(field.key, field.validators)
-                    }
-                  }
-                })
-              }
-            })
-          }
-        })
-      }
-      // merge component validations
-      Object.keys(this.componentValidations).forEach(key => {
-        if (key in eachFieldValue) {
-          eachFieldValue[key] = { ...eachFieldValue[key], ...this.componentValidations[key] }
-        } else {
-          eachFieldValue[key] = this.componentValidations[key]
-        }
-      })
-      return eachFieldValue
-    },
-    emitValidations () {
-      this.$emit('validations', this.getExternalValidations())
-    },
-    getClass (row, field) {
-      let c = ['px-0'] // always remove padding
-      if ('attrs' in field && `class` in field.attrs) { // if class is defined
-        c.push(field.attrs.class) // use manual definition
-      } else if (row.fields.length === 1) { // else if row is singular
-        c.push('mx-1')
-        c.push('col-sm-12') // use entire width
+      else if (row.cols.findIndex(_col => _col.namespace === col.namespace) < row.cols.length - 1) { // else col has subsequent siblings
+        c.push('pl-0', 'pr-2') // remove left padding, add right padding
       }
       return c.join(' ')
-    },
-    getTabErrorCount (tabIndex) {
-      return this.form.fields[tabIndex].fields.reduce((tabCount, tab) => {
-        if (!('fields' in tab)) return tabCount // ignore labels
-        return tab.fields.reduce((fieldCount, field) => {
-          if (field.key in this.vuelidate && this.vuelidate[field.key].$anyError) {
-            fieldCount++
-          }
-          return fieldCount
-        }, tabCount)
-      }, 0)
     },
     kebabCaseListeners (listeners) {
       if (listeners) {
@@ -252,34 +215,17 @@ export default {
       }
     }
   },
-  watch: {
-    model: {
-      handler: function (a, b) {
-        this.$emit('validations', this.getExternalValidations())
-        this.tabKey = uuidv4() // redraw tabs
-        if (this.vuelidate.$dirty) {
-          this.$nextTick(() => {
-            this.vuelidate.$touch()
-          })
-        }
-      },
-      deep: true
-    },
-    vuelidate: {
-      handler: function (a, b) {
-      /**
-       * Vue's reactive model is broken for objects/arrays.
-       * When the vuelidate model is updated redraw the tabs so they pick
-       * up on validation changes outside their initiial rendering
-      **/
-        this.tabKey = uuidv4() // redraw tabs
-      },
-      deep: true
-    }
-  },
   mounted () {
     this.$store.commit('session/FORM_OK')
-    this.emitValidations()
+    // When tabs are defined, make sure to show the initial tab once the form has finished loading
+    // See https://github.com/inverse-inc/packetfence/issues/5721
+    if (this.view && (this.view[0].tab || this.view.length > 1)) {
+      let unwatch = this.$watch('isLoading', function () {
+        if (this.tabIndex < 0)
+          this.tabIndex = this.initialTabIndex
+        unwatch()
+      })
+    }
   }
 }
 </script>
@@ -290,6 +236,15 @@ export default {
     display: flex;
     justify-content: center;
     align-items: center;
+  }
+  .nav-tabs .nav-link {
+    transition: 300ms ease all;
+  }
+  .nav-tabs .nav-link.is-invalid {
+    color: $form-feedback-invalid-color;
+  }
+  .nav-tabs .nav-link.active.is-invalid {
+    border-color: $form-feedback-invalid-color;
   }
 }
 </style>

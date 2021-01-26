@@ -38,8 +38,10 @@ use base ('pf::Switch::Fortinet');
 
 sub description { 'FortiSwitch' }
 
-sub supportsWiredMacAuth { return $TRUE; }
-sub supportsWiredDot1x { return $TRUE; }
+use pf::SwitchSupports qw(
+    WiredMacAuth
+    WiredDot1x
+);
 
 =head2 wiredeauthTechniques
 
@@ -117,7 +119,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2018 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 

@@ -1,22 +1,20 @@
 <template>
-  <b-form-group :label-cols="(columnLabel) ? labelCols : 0" :label="$t(columnLabel)"
-    :state="isValid()" :invalid-feedback="getInvalidFeedback()"
+  <b-form-group :label-cols="(columnLabel) ? labelCols : 0" :label="$t(columnLabel)" :state="inputState"
     class="pf-form-select" :class="{ 'mb-0': !columnLabel }">
+    <template v-slot:invalid-feedback>
+      <icon name="circle-notch" spin v-if="!inputInvalidFeedback"></icon> {{ inputInvalidFeedback }}
+    </template>
     <b-input-group>
       <b-form-select
         v-model="inputValue"
         v-bind="$attrs"
-        :state="isValid()"
-        @input.native="validate()"
-        @keyup.native="onChange($event)"
-        @change.native="onChange($event)"
+        :state="inputState"
+        :disabled="disabled"
+        :readonly="readonly"
+        :options="options"
       >
-        <!-- BEGIN SLOTS -->
-        <!-- Forward default slot -->
+        <template v-slot:first><slot name="first"/></template>
         <slot/>
-        <!-- Forward named slots -->
-        <slot name="first" slot="first"/>
-        <!-- END SLOTS -->
       </b-form-select>
     </b-input-group>
     <b-form-text v-if="text" v-html="text"></b-form-text>
@@ -24,12 +22,12 @@
 </template>
 
 <script>
-import pfMixinValidation from '@/components/pfMixinValidation'
+import pfMixinForm from '@/components/pfMixinForm'
 
 export default {
   name: 'pf-form-select',
   mixins: [
-    pfMixinValidation
+    pfMixinForm
   ],
   props: {
     value: {
@@ -45,15 +43,35 @@ export default {
     text: {
       type: String,
       default: null
+    },
+    disabled: {
+      type: Boolean,
+      default: false
+    },
+    readonly: {
+      type: Boolean,
+      default: false
+    },
+    options: {
+      type: Array,
+      default: () => { return [] }
     }
   },
   computed: {
     inputValue: {
       get () {
-        return this.value
+        if (this.formStoreName) {
+          return this.formStoreValue // use FormStore
+        } else {
+          return this.value // use native (v-model)
+        }
       },
-      set (newValue) {
-        this.$emit('input', newValue)
+      set (newValue = null) {
+        if (this.formStoreName) {
+          this.formStoreValue = newValue // use FormStore
+        } else {
+          this.$emit('input', newValue) // use native (v-model)
+        }
       }
     }
   }

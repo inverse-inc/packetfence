@@ -1,0 +1,46 @@
+---
+environment__group_variables:
+  - name: 'PF_TEST_MGMT_INT'
+    value: "{{ packetfence_install__mgmt_interface['id'] }}"
+    
+  - name: 'PF_TEST_MGMT_IP'
+    value: "{{ packetfence_install__mgmt_interface['ip'] }}"
+    
+  - name: 'PF_TEST_MGMT_MASK'
+    value: "{{ packetfence_install__mgmt_interface['mask'] }}"
+
+  - name: 'PSONO_CI_SERVER_URL'
+    value: 'https://psono.inverse.ca/server'
+
+  # lookup variables available to GitLab runner
+  # defined in GitLab UI
+  
+  - name: 'PSONO_CI_API_KEY_ID'
+    value: '{{ lookup("env", "PSONO_CI_API_KEY_ID") }}'
+
+  - name: 'PSONO_CI_API_SECRET_KEY_HEX'
+    value: '{{ lookup("env", "PSONO_CI_API_SECRET_KEY_HEX") }}'
+
+  # add some MailHog environment variables in /etc/environment to used it
+  # with Venom
+  - name: 'MAILHOG_SMTP_SERVER_IP'
+    value: "{{ packetfence_install__mgmt_interface['ip'] }}"
+
+  - name: 'MAILHOG_SMTP_PORT'
+    value: '{{ mailhog__smtp_port }}'
+
+  - name: 'MAILHOG_API_PORT'
+    value: '{{ mailhog__api_port }}'
+
+  # to be used by Venom during configurator
+  - name: 'INTERNET_INT_IP'
+    value: "{{ ansible_default_ipv4['address'] }}"
+
+  - name: 'INTERNET_INT_MASK'
+    value: "{{ ansible_default_ipv4['netmask'] }}"
+  
+  - name: 'TIMEZONE'
+    value: "{{ ansible_date_time['tz'] }}"
+
+  - name: 'PF_LOG_LEVEL'
+    value: 'TRACE'    

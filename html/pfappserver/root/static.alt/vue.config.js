@@ -1,9 +1,25 @@
+const { BundleAnalyzerPlugin } = require('webpack-bundle-analyzer')
+
 module.exports = {
-  publicPath: '/static/alt',
+  publicPath: '/admin/alt',
   outputDir: 'dist',
-  indexPath: '../../admin/v-index.tt',
+  indexPath: 'index.html',
   css: {
-    sourceMap: process.env.VUE_APP_DEBUG
+    sourceMap: process.env.VUE_APP_DEBUG === 'true',
+    extract: process.env.VUE_APP_DEBUG !== 'true',
+    loaderOptions: {
+      sass: {
+        includePaths: ['node_modules', 'src/styles'],
+        data: [
+          `@import "bootstrap/scss/functions";`,
+          `@import "bootstrap/scss/mixins/border-radius";`,
+          `@import "bootstrap/scss/mixins/box-shadow";`,
+          `@import "bootstrap/scss/mixins/breakpoints";`,
+          `@import "bootstrap/scss/mixins/transition";`,
+          `@import "variables";`
+        ].join('')
+      }
+    }
   },
   pluginOptions: {
     i18n: {
@@ -14,9 +30,18 @@ module.exports = {
     }
   },
   chainWebpack: config => {
-    if (process.env.VUE_APP_DEBUG) {
+    if (process.env.VUE_APP_DEBUG === 'true') {
       config.optimization.minimize(false)
       config.optimization.delete('minimizer')
     }
-  }
+  },
+  configureWebpack: config => {
+    if (process.env.VUE_APP_DEBUG === 'true') {
+      config.plugins.push(new BundleAnalyzerPlugin({
+        analyzerMode: 'static',
+        openAnalyzer: false
+      }))
+    }
+  },
+  runtimeCompiler: true
 }

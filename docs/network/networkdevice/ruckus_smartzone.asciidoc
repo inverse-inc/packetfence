@@ -1,0 +1,68 @@
+// to display images directly on GitHub
+ifdef::env-github[]
+:encoding: UTF-8
+:lang: en
+:doctype: book
+:toc: left
+:imagesdir: ../../images
+endif::[]
+
+////
+
+    This file is part of the PacketFence project.
+
+    See PacketFence_Network_Devices_Configuration_Guide-docinfo.xml for 
+    authors, copyright and license information.
+
+////
+
+
+//=== Ruckus SmartZone
+
+==== Webauth
+
+==== SmartZone configuration
+
+First, you will need to define your RADIUS server in _Configuration -> Service and Profiles -> Authentication_.
+
+Create your server using the following information (where 192.168.1.5 is the IP address of your PacketFence management interface):
+
+* 'IP Address:' 192.168.1.5
+* 'Port': 1812
+* 'Secret': useStrongerSecret
+
+Then, in _Configuration -> Service and Profiles -> Accounting_, create a server with the following information:
+
+* 'IP Address:' 192.168.1.5
+* 'Port': 1813
+* 'Secret': useStrongerSecret
+
+After, create a Hotspot in _Configuration -> AP Zones -> Your Zone -> Hotspot WISPr -> Create New_. Adjust 192.168.1.5 to the IP address of your portal.
+
+image::ruckus-smartzone-webauth-hotspot.png[scaledwidth="100%",alt="Ruckus SmartZone Hotspot"]
+
+Then, still on this page, in the 'Walled Gardens', make sure you add the portal IP address in this list.
+
+Next, you will need to configure your WLAN to use the Hotspot authentication and point it to PacketFence. Also ensure you set 'Use the controller as a proxy'.
+
+image::ruckus-smartzone-webauth-ssid.png[scaledwidth="100%",alt="Ruckus SmartZone SSID"]
+
+Now, you should configure the Northbound API of the SmartZone so PacketFence can communicate with it. In order to do so, go in _Configuration -> System -> Northbound Portal Interface_ and set the 'Password' and save it. Keep the password closeby as it will be required for the PacketFence configuration. In this example, it will be `passwordForNorthboundAPI`.
+
+In order to receive the information not encrypted in the URL, you will need to connect on the Ruckus SmartZone controller using SSH and do the following command:
+
+ no encrypt-mac-ip
+
+
+==== PacketFence configuration
+
+In PacketFence, add a new switch in _Configuration -> Switches_ with the following configuration:
+
+* *Definition -> External Portal Enforcement* should be enabled
+* *Definition -> Type*: `Ruckus SmartZone Wireless Controller`
+* *Definition -> Mode*: `production`
+* *Roles -> Role by VLAN ID* should be enabled
+* *Roles -> registration VLAN*: `-1`
+* *Roles -> Role by Switch Role* should be disabled
+* *RADIUS -> Secret passphrase*: `useStrongerSecret`
+* *Web Services -> Password*: `passwordForNorthboundAPI`

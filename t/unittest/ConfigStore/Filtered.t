@@ -27,7 +27,7 @@ BEGIN {
     use Moo;
     extends 'pf::ConfigStore';
     with 'pf::ConfigStore::Filtered';
-    sub filter {
+    sub filterSection {
         $_[1] =~ /^\S+$/
     }
 }
@@ -55,7 +55,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2019 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 

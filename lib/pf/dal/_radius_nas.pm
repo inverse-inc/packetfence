@@ -50,6 +50,7 @@ BEGIN {
         start_ip
         end_ip
         range_length
+        unique_session_attributes
     );
 
     %DEFAULTS = (
@@ -66,6 +67,7 @@ BEGIN {
         start_ip => '0',
         end_ip => '0',
         range_length => '0',
+        unique_session_attributes => undef,
     );
 
     @INSERTABLE_FIELDS = qw(
@@ -82,6 +84,7 @@ BEGIN {
         start_ip
         end_ip
         range_length
+        unique_session_attributes
     );
 
     %FIELDS_META = (
@@ -169,6 +172,12 @@ BEGIN {
             is_primary_key => 0,
             is_nullable => 1,
         },
+        unique_session_attributes => {
+            type => 'VARCHAR',
+            is_auto_increment => 0,
+            is_primary_key => 0,
+            is_nullable => 1,
+        },
     );
 
     @PRIMARY_KEYS = qw(
@@ -190,6 +199,7 @@ BEGIN {
         radius_nas.start_ip
         radius_nas.end_ip
         radius_nas.range_length
+        radius_nas.unique_session_attributes
     );
 
 }
@@ -290,14 +300,14 @@ Get the meta data for radius_nas
 sub get_meta {
     return \%FIELDS_META;
 }
- 
+
 =head1 AUTHOR
 
 Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2019 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 

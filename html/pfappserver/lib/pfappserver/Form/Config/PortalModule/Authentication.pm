@@ -35,7 +35,8 @@ has_field 'with_aup' =>
   (
    type => 'Checkbox',
    label => 'Require AUP',
-   checkbox_value => '1',
+   checkbox_value => 1,
+   input_without_param => 0,
    tags => { after_element => \&help,
              help => 'Require the user to accept the AUP' },
   );
@@ -108,7 +109,7 @@ sub options_pid_field {
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2019 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 

@@ -25,7 +25,7 @@ use base 'pfconfig::namespaces::config';
 sub init {
     my ($self) = @_;
     $self->{file} = $pf_doc_file;
-    $self->{child_resources} = [ 'config::PfDefault' ];
+    $self->{child_resources} = [ 'config::PfDefault', 'config::Pf' ];
 }
 
 sub build_child {
@@ -74,7 +74,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2019 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 

@@ -19,6 +19,7 @@ Which generates all the companion modules for table in the database.
 use strict;
 use warnings;
 use pf::db;
+use Sub::Name;
 use pf::log;
 use pf::error qw(is_error is_success);
 use pf::SQL::Abstract;
@@ -131,6 +132,13 @@ sub db_execute {
             # retry client errors
             $logger->warn("database query failed with: $errstr (errno: $err), will try again");
             next;
+        }
+        my $warnings = $sth->{mysql_warning_count};
+        if ($warnings) {
+            my $warnings = $dbh->selectall_arrayref('SHOW WARNINGS');
+            for my $w (@$warnings) {
+                $logger->warn(join(": ", @$w));
+            }
         }
         return $STATUS::OK, $sth;
     } continue {
@@ -350,7 +358,7 @@ Insert the pf::dal object
 =cut
 
 sub insert {
-    my ($self) = @_;
+    my ($self, @args) = @_;
     if ($self->__from_table) {
         my $table = $self->table;
         $self->logger->error("Trying to insert duplicate row into $table");
@@ -365,6 +373,7 @@ sub insert {
         -into => $self->table,
         -values   => $insert_data,
         -no_auto_tenant_id => $self->{-no_auto_tenant_id},
+        @args,
     );
     return $status if is_error($status);
 
@@ -753,9 +762,13 @@ Wrap new and insert
 =cut
 
 sub create {
-    my ($self, @args) = @_;
-    my $obj = $self->new(@args);
-    return $obj->insert;
+    my ($self, $args) = @_;
+    my %insert_args = (
+        -ignore => delete $args->{-ignore},
+    );
+    my $obj = $self->new($args);
+
+    return $obj->insert(%insert_args);
 }
 
 =head2 find_from_tables
@@ -881,26 +894,38 @@ sub merge {
 
 sub set_tenant {
     my ($class, $tenant_id) = @_;
+
     if(!defined($tenant_id)) {
         get_logger->info("Undefined tenant ID specified, ignoring it and keeping current tenant");
         return $FALSE;
     }
 
-    my ($status, $count) = pf::dal->count(
-        -where => {
-            id => $tenant_id,
-        },
-        -from => 'tenant',
-    );
+    if ($tenant_id == pf::config::tenant::get_tenant()) {
+        return $TRUE
+    }
 
-    if (is_error($status)) {
-        get_logger->error("Problem looking up tenant ID ($tenant_id) in database");
+    if ($tenant_id < 0) {
+        get_logger->error("Cannot set a tenant id below 0");
         return $FALSE;
     }
 
-    if ($count == 0) {
-        get_logger->error("Invalid tenant ID ($tenant_id) specified, ignoring it and keeping current tenant");
-        return $FALSE;
+    if ($tenant_id > 1) {
+        my ($status, $count) = pf::dal->count(
+            -where => {
+                id => $tenant_id,
+            },
+            -from => 'tenant',
+        );
+
+        if (is_error($status)) {
+            get_logger->error("Problem looking up tenant ID ($tenant_id) in database");
+            return $FALSE;
+        }
+
+        if ($count == 0) {
+            get_logger->error("Invalid tenant ID ($tenant_id) specified, ignoring it and keeping current tenant");
+            return $FALSE;
+        }
     }
 
     get_logger->debug("Setting current tenant ID to $tenant_id");
@@ -942,6 +967,7 @@ Wrap select pf::SQL::Abstract->select
 
 sub select {
     my ($proto, @args) = @_;
+    @args = $proto->update_params_for_select(@args);
     my $sqla = $proto->get_sql_abstract;
     return $sqla->select(@args);
 }
@@ -954,7 +980,6 @@ Wrap call to select and db_execute
 
 sub do_select {
     my ($proto, @args) = @_;
-    @args = $proto->update_params_for_select(@args);
     my ($sql, @bind) = $proto->select(@args);
     return $proto->db_execute($sql, @bind);
 }
@@ -1098,10 +1123,16 @@ Wrap call to pf::SQL::Abstract->insert and db_execute
 =cut
 
 sub do_insert {
-    my ($proto, @args) = @_;
+    my ($proto, %args) = @_;
     my $sqla          = $proto->get_sql_abstract;
-    @args = $proto->update_params_for_insert(@args);
-    my ($stmt, @bind) = $sqla->insert(@args);
+    my $ignore        = delete $args{'-ignore'};
+    %args = $proto->update_params_for_insert(%args);
+    my ($stmt, @bind) = $sqla->insert(%args);
+    if ($ignore) {
+        my $s = $sqla->_sqlcase('insert ignore into');
+        $stmt =~ s/insert into/$s/ie;
+    }
+
     return $proto->db_execute($stmt, @bind);
 }
 
@@ -1140,10 +1171,16 @@ Wrap call to pf::SQL::Abstract->delete and db_execute
 =cut
 
 sub do_delete {
-    my ($proto, @args) = @_;
+    my ($proto, %args) = @_;
     my $sqla          = $proto->get_sql_abstract;
-    @args = $proto->update_params_for_delete(@args);
+    my $ignore        = delete $args{'-ignore'};
+    my @args = $proto->update_params_for_delete(%args);
     my ($stmt, @bind) = $sqla->delete(@args);
+    if ($ignore) {
+        my $s = $sqla->_sqlcase('delete ignore ');
+        $stmt =~ s/delete /$s/ie;
+    }
+
     return $proto->db_execute($stmt, @bind);
 }
 
@@ -1198,13 +1235,115 @@ sub batch_update {
     return $STATUS::OK, $rows_updated;
 }
 
+sub make_dal_finder {
+    my ($proto) = @_;
+    my $class = ref($proto) || $proto;
+    my @pkeys = @{$proto->primary_keys};
+    my $i = -1;
+    my %args = map { $i++; ($_ => "param_$i") } @pkeys;
+    if (exists $args{tenant_id}) {
+        $args{tenant_id} = pf::config::tenant::get_tenant();
+    }
+    my %reverse = map { $args{$_} => $_ } keys %args;
+    my $select_args = $proto->find_select_args(\%args);
+    my @select_args = $proto->update_params_for_select(%$select_args);
+    my ($sql, @bind) = $proto->get_sql_abstract->select(@select_args);
+    my %pos;
+
+    for (my $i =0;$i< @bind;$i++) {
+        my $b = $bind[$i];
+        my $col = $reverse{$b};
+        $pos{$col} = $i;
+    }
+    my $tenant_id_position;
+    my $pkey_position;
+    my $pkey;
+    if (exists $args{tenant_id} && @pkeys == 2) {
+        $tenant_id_position = $pos{tenant_id};
+        ($pkey) = grep { $_ ne 'tenant_id' } @pkeys;
+        $pkey_position = $pos{$pkey};
+    } elsif (@pkeys == 1) {
+        $pkey = $pkeys[0];
+        $pkey_position = 0;
+    }
+
+    if ($pkey) {
+        return subname "${class}::find" => sub {
+            my ($proto, $ids) = @_;
+            my @bind;
+            if ($tenant_id_position) {
+                $bind[$tenant_id_position] = $proto->get_tenant();
+            }
+
+            $bind[$pkey_position] = exists $ids->{$pkey} ? $ids->{$pkey} : undef;
+            my ($status, $sth) = $proto->db_execute($sql, @bind);
+            return $status, undef if is_error($status);
+            my $row = $sth->fetchrow_hashref;
+            $sth->finish;
+            unless ($row) {
+                return $STATUS::NOT_FOUND, undef;
+            }
+
+            my $dal = $proto->new_from_row($row);
+            return $STATUS::OK, $dal;
+        };
+    }
+
+    return subname "${class}::find" => sub {
+        my ($proto, $ids) = @_;
+        my @bind;
+        for my $p (@pkeys) {
+            my $i = $pos{$p};
+            if ($p eq 'tenant_id') {
+                $bind[$i] = $proto->get_tenant();
+            } else {
+                $bind[$i] = exists $ids->{$p} ? $ids->{$p} : undef;
+            }
+        }
+
+        my ($status, $sth) = $proto->db_execute($sql, @bind);
+        return $status, undef if is_error($status);
+        my $row = $sth->fetchrow_hashref;
+        $sth->finish;
+        unless ($row) {
+            return $STATUS::NOT_FOUND, undef;
+        }
+
+        my $dal = $proto->new_from_row($row);
+        return $STATUS::OK, $dal;
+    };
+}
+
+sub make_sql_executor {
+    my ($class_or_ref, $sql, @bind_names, %bind_pos) = @_;
+    return sub {
+        my ($proto, $args) = @_;
+        my @bind;
+        for my $n (@bind_names) {
+            my $indexes = $bind_pos{$n};
+            my $val;
+            if ($n eq 'tenant_id') {
+                my $val = $proto->get_tenant();
+            } else {
+                $val = exists $args->{$n} ? $args->{$n} : undef;
+            }
+
+            for my $i (@$indexes) {
+                $bind[$i] = $val;
+            }
+        }
+
+        return $proto->db_execute($sql, @bind);
+    }
+}
+
 =head1 AUTHOR
 
 Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2019 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 

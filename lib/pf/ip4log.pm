@@ -33,7 +33,9 @@ use pf::error qw(is_error is_success);
 use pf::log;
 use pf::node qw(node_add_simple node_exist);
 use pf::util;
+use pf::config::util;
 use pf::dhcp::api;
+use List::MoreUtils qw(any);
 
 use constant IP4LOG                         => 'ip4log';
 use constant IP4LOG_CACHE_EXPIRE            => 60;
@@ -62,7 +64,7 @@ sub ip2mac {
     my $mac;
 
     # TODO: Special case that need to be documented
-    if ($ip eq "127.0.0.1" || (ref($management_network) && $management_network->{'Tip'} eq $ip)) {
+    if ($ip eq "127.0.0.1" || (ref($management_network) && $management_network->{'Tip'} eq $ip) || any{ $_ eq $ip } portal_hosts) {
         return ( pf::util::clean_mac("00:11:22:33:44:55") );
     }
 
@@ -547,18 +549,20 @@ sub rotate {
     };
 
     my ( $subsql, @insert_bind ) = pf::dal::ip4log_history->select(
-        -columns => [qw(mac ip start_time end_time)],
+        -columns => [qw(tenant_id mac ip start_time end_time)],
         -where => $where,
         -limit => $batch,
         -from => pf::dal::ip4log_history->table,
+        -no_auto_tenant_id => 1,
     );
 
     my %rotate_search = (
         -where => $where,    
         -limit => $batch,
+        -no_auto_tenant_id => 1,
     );
 
-    my $insert_sql = "INSERT INTO ip4log_archive (`mac`, `ip`, `start_time`, `end_time`) $subsql;";
+    my $insert_sql = "INSERT INTO ip4log_archive (`tenant_id`, `mac`, `ip`, `start_time`, `end_time`) $subsql;";
 
     while (1) {
         my $query;
@@ -636,6 +640,7 @@ sub _cleanup {
                 },
             },
             -limit => $batch,
+            -no_auto_tenant_id => 1,
         },
         $time_limit
     );
@@ -708,7 +713,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2019 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 

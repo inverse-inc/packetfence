@@ -1,12 +1,13 @@
+# Copyright (C) Inverse inc.
 #
-# Copyright (C) 2005-2019 Inverse inc.
+#
 #
 # See the enclosed file COPYING for license information (GPL).
 # If you did not receive this file, see
 # http://www.fsf.org/licensing/licenses/gpl.html
 
 [default]
-type=Generic
+type=PacketFence::Standard
 description=Switches Default Values
 vlans = 1,2,3,4,5
 normalVlan = 1

@@ -64,7 +64,7 @@ sub new {
         $self->{'_' . $value} = $data{$value};
     }
 
-    $self->{'_oses'} = ['Windows'];
+    $self->{'_oses'} = ['Windows OS'];
     return $self;
 }
 
@@ -109,7 +109,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2019 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 

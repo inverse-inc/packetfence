@@ -2,7 +2,10 @@
   <div>
     <b-card no-body>
       <b-card-header>
-        <h4 class="mb-3" v-t="'Authentication Sources'"></h4>
+        <h4 class="mb-3">
+          {{ $t('Authentication Sources') }}
+          <pf-button-help class="ml-1" url="PacketFence_Installation_Guide.html#_authentication_sources" />
+        </h4>
         <p v-t="'Define the authentication sources to let users access the captive portal or the admin Web interface.'"></p>
         <p class="mb-0" v-t="'Each connection profile must be associated with one or multiple authentication sources while 802.1X connections use the ordered internal sources to determine which role to use. External sources are never used with 802.1X connections.'"></p>
       </b-card-header>
@@ -13,6 +16,7 @@
           <b-dropdown-item :to="{ name: 'newAuthenticationSource', params: { sourceType: 'AD' } }">Active Directory</b-dropdown-item>
           <b-dropdown-item :to="{ name: 'newAuthenticationSource', params: { sourceType: 'Authorization' } }">Authorization</b-dropdown-item>
           <b-dropdown-item :to="{ name: 'newAuthenticationSource', params: { sourceType: 'EAPTLS' } }">EAPTLS</b-dropdown-item>
+          <b-dropdown-item :to="{ name: 'newAuthenticationSource', params: { sourceType: 'EDIR' } }">Edirectory</b-dropdown-item>
           <b-dropdown-item :to="{ name: 'newAuthenticationSource', params: { sourceType: 'Htpasswd' } }">Htpasswd</b-dropdown-item>
           <b-dropdown-item :to="{ name: 'newAuthenticationSource', params: { sourceType: 'HTTP' } }">HTTP</b-dropdown-item>
           <b-dropdown-item :to="{ name: 'newAuthenticationSource', params: { sourceType: 'Kerberos' } }">Kerberos</b-dropdown-item>
@@ -29,10 +33,10 @@
           striped
           @end="sort(internalSources, $event)"
         >
-          <template slot="empty">
+          <template v-slot:empty>
             <pf-empty-table :isLoading="isLoading" :text="$t('Click the button to define a new source.')">{{ $t('No internal sources defined') }}</pf-empty-table>
           </template>
-          <template slot="buttons" slot-scope="{ item }">
+          <template v-slot:cell(buttons)="item">
             <span class="float-right text-nowrap">
               <pf-button-delete size="sm" v-if="!item.not_deletable" variant="outline-danger" class="mr-1" :disabled="isLoading" :confirm="$t('Delete Source?')" @on-delete="remove(item)" reverse/>
               <b-button size="sm" variant="outline-primary" class="mr-1" @click.stop.prevent="clone(item)">{{ $t('Clone') }}</b-button>
@@ -69,10 +73,10 @@
           striped
           @end="sort(externalSources, $event)"
         >
-          <template slot="empty">
+          <template v-slot:empty>
             <pf-empty-table :isLoading="isLoading" :text="$t('Click the button to define a new source.')">{{ $t('No external sources defined') }}</pf-empty-table>
           </template>
-          <template slot="buttons" slot-scope="{ item }">
+          <template v-slot:cell(buttons)="item">
             <span class="float-right text-nowrap">
               <pf-button-delete size="sm" v-if="!item.not_deletable" variant="outline-danger" class="mr-1" :disabled="isLoading" :confirm="$t('Delete Source?')" @on-delete="remove(item)" reverse/>
               <b-button size="sm" variant="outline-primary" class="mr-1" @click.stop.prevent="clone(item)">{{ $t('Clone') }}</b-button>
@@ -96,10 +100,10 @@
           striped
           @end="sort(exclusiveSources, $event)"
         >
-          <template slot="empty">
+          <template v-slot:empty>
             <pf-empty-table :isLoading="isLoading" :text="$t('Click the button to define a new source.')">{{ $t('No exclusive source defined') }}</pf-empty-table>
           </template>
-          <template slot="buttons" slot-scope="{ item }">
+          <template v-slot:cell(buttons)="item">
             <span class="float-right text-nowrap">
               <pf-button-delete size="sm" v-if="!item.not_deletable" variant="outline-danger" class="mr-1" :disabled="isLoading" :confirm="$t('Delete Source?')" @on-delete="remove(item)" reverse/>
               <b-button size="sm" variant="outline-primary" class="mr-1" @click.stop.prevent="clone(item)">{{ $t('Clone') }}</b-button>
@@ -124,10 +128,10 @@
           striped
           @end="sort(billingSources, $event)"
         >
-          <template slot="empty">
+          <template v-slot:empty>
             <pf-empty-table :isLoading="isLoading" :text="$t('Click the button to define a new source.')">{{ $t('No billing sources defined') }}</pf-empty-table>
           </template>
-          <template slot="buttons" slot-scope="{ item }">
+          <template v-slot:cell(buttons)="item">
             <span class="float-right text-nowrap">
               <pf-button-delete size="sm" v-if="!item.not_deletable" variant="outline-danger" class="mr-1" :disabled="isLoading" :confirm="$t('Delete Source?')" @on-delete="remove(item)" reverse/>
               <b-button size="sm" variant="outline-primary" class="mr-1" @click.stop.prevent="clone(item)">{{ $t('Clone') }}</b-button>
@@ -142,31 +146,22 @@
 
 <script>
 import pfButtonDelete from '@/components/pfButtonDelete'
-import pfConfigList from '@/components/pfConfigList'
+import pfButtonHelp from '@/components/pfButtonHelp'
 import pfEmptyTable from '@/components/pfEmptyTable'
 import pfTableSortable from '@/components/pfTableSortable'
-import {
-  pfConfigurationAuthenticationSourceListConfig as config
-} from '@/globals/configuration/pfConfigurationAuthenticationSources'
+import { config } from '../_config/authenticationSource'
 
 export default {
-  name: 'AuthenticationSourcesList',
+  name: 'authentication-sources-list',
   components: {
     pfButtonDelete,
-    pfConfigList,
+    pfButtonHelp,
     pfEmptyTable,
     pfTableSortable
   },
-  props: {
-    storeName: { // from router
-      type: String,
-      default: null,
-      required: true
-    }
-  },
   data () {
     return {
-      config: config(this),
+      config: config(this), // ../_config/authenticationSource
       sources: [],
       draggingRow: null,
       draggingRowIndex: null
@@ -174,7 +169,7 @@ export default {
   },
   computed: {
     isLoading () {
-      return this.$store.getters[`${this.storeName}/isLoading`]
+      return this.$store.getters['$_sources/isLoading']
     },
     internalSources () {
       return this.sources.filter(source => source.id !== 'local' && source.class === 'internal')
@@ -191,7 +186,7 @@ export default {
   },
   methods: {
     init () {
-      this.$store.dispatch(`${this.storeName}/all`).then(sources => {
+      this.$store.dispatch('$_sources/all').then(sources => {
         this.sources = sources
       })
     },
@@ -199,8 +194,8 @@ export default {
       this.$router.push({ name: 'cloneAuthenticationSource', params: { id: item.id } })
     },
     remove (item) {
-      this.$store.dispatch(`${this.storeName}/deleteAuthenticationSource`, item.id).then(response => {
-        this.$router.go() // reload
+      this.$store.dispatch('$_sources/deleteAuthenticationSource', item.id).then(() => {
+        this.init()
       })
     },
     sort (items, event) {
@@ -222,7 +217,7 @@ export default {
         ...this.sources.filter(_item => !items.map(item => item.id).includes(_item.id)), // all but sorted items
         ...items // sorted items
       ]
-      this.$store.dispatch(`${this.storeName}/sortAuthenticationSources`, items.map(item => item.id)).then(response => {
+      this.$store.dispatch('$_sources/sortAuthenticationSources', items.map(item => item.id)).then(() => {
         this.$store.dispatch('notification/info', { message: this.$i18n.t('Authentication sources resorted.') })
       })
     },

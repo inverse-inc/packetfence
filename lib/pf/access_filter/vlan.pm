@@ -28,9 +28,7 @@ tie our %VlanFilterEngineScopes, 'pfconfig::cached_hash', 'FilterEngine::VlanSco
 sub filterRule {
     my ($self, $rule, $args) = @_;
     if(defined $rule) {
-        if (defined($rule->{'action'}) && $rule->{'action'} ne '') {
-            $self->dispatchAction($rule, $args);
-        }
+        $self->dispatchActions($rule, $args);
         my $scope = $rule->{scope};
         if (defined($rule->{'role'}) && $rule->{'role'} ne '') {
             my $role = $rule->{'role'};
@@ -54,40 +52,6 @@ sub getEngineForScope {
     }
     return undef;
 }
-
-=head2 dispatchAction
-
-Return the reference to the function that call the api.
-
-=cut
-
-sub dispatchAction {
-    my ($self, $rule, $args) = @_;
-
-    my $param = $self->evalParamAction($rule->{'action_param'}, $args);
-    my $apiclient = pf::api::jsonrpcclient->new;
-    $apiclient->notify($rule->{'action'}, %{$param});
-}
-
-=head2 evalParam
-
-evaluate action parameters
-
-=cut
-
-sub evalParamAction {
-    my ($self, $action_param, $args) = @_;
-    my @params = split(/\s*,\s*/, $action_param);
-    my $return = {};
-    foreach my $param (@params) {
-        $param =~ s/\$([A-Za-z0-9_]+)/$args->{$1} \/\/ '' /ge;
-        $param =~ s/^\s+|\s+$//g;
-        my @param_unit = split(/\s*=\s*/, $param);
-        $return = {%$return, @param_unit};
-    }
-    return $return;
-}
-
 
 =head2 evalAnswer
 
@@ -144,7 +108,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2019 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 

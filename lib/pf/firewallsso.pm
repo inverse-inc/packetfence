@@ -18,6 +18,7 @@ use warnings;
 use pf::api::jsonrpcclient;
 use pf::config qw(
     %ConfigFirewallSSO
+    %Config
 );
 use pf::constants qw(
     $TRUE
@@ -42,7 +43,7 @@ sub do_sso {
     my ( %postdata ) = @_;
     my $logger = pf::log::get_logger();
 
-    unless ( scalar keys %ConfigFirewallSSO ) {
+    unless ( scalar keys %ConfigFirewallSSO && pf::util::isenabled($Config{'services'}{'pfsso'}) ) {
         $logger->debug("Trying to do firewall SSO without any firewall SSO configured. Exiting");
         return;
     }
@@ -55,7 +56,7 @@ sub do_sso {
     my $username = $node->{pid};
     my ($stripped_username, $realm) = pf::util::strip_username($username);
 
-    pf::api::unifiedapiclient->new->call("POST", "/api/v1/firewall_sso/".lc($postdata{method}), {
+    pf::api::unifiedapiclient->management_client->call("POST", "/api/v1/firewall_sso/".lc($postdata{method}), {
         ip                => $postdata{ip},
         mac               => $mac,
         # All values must be string for pfsso
@@ -83,7 +84,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2019 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 

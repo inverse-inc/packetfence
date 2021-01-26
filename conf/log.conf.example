@@ -1,3 +1,4 @@
+# Copyright (C) Inverse inc.
 ### Root/Parent (PacketFence) logger ###
 # Will log everything (even categories defined to log in another appender) unless 
 # specified using the additivity parameter
@@ -11,5 +12,5 @@ log4perl.rootLogger = INFO, PFSYSLOG
 log4perl.appender.PFSYSLOG                                = Log::Dispatch::Syslog
 log4perl.appender.PFSYSLOG.ident                          = packetfence
 log4perl.appender.PFSYSLOG.facility                       = local5
-log4perl.appender.PFSYSLOG.layout.ConversionPattern       = %p %X{proc}(%X{tid}): %m (%M)%n
+log4perl.appender.PFSYSLOG.layout.ConversionPattern       = %X{proc}(%X{tid}) %p: %m (%M)%n
 log4perl.appender.PFSYSLOG.layout                         = PatternLayout

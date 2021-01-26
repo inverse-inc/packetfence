@@ -15,9 +15,12 @@ use warnings;
 use pf::error qw(is_error is_success);
 use pf::util qw(expand_csv);
 use Mojo::Base 'pf::UnifiedApi::Controller::RestRoute';
-use Mojo::Util qw(url_unescape);
 use pf::UnifiedApi::Search::Builder::Fingerbank;
+use List::MoreUtils qw(any);
 use fingerbank::API;
+use pf::cluster;
+use pf::fingerbank;
+use pf::constants;
 
 =head2 url_param_name
 
@@ -132,6 +135,7 @@ sub create {
         return $self->render_error($status, $return);
     }
 
+    pf::fingerbank::sync_local_db();
     my $id = $return->{id};
     my $parent_route = $self->match->endpoint->parent->name;
     my $url = $self->url_for("$parent_route.resource.get", {$self->url_param_name => $id});
@@ -153,6 +157,7 @@ sub remove {
         return $self->render_error($status, $msg);
     }
 
+    pf::fingerbank::sync_local_db();
     return $self->render(json => {message => "Deleted $id successfully"});
 }
 
@@ -164,7 +169,7 @@ Get id of current resource
 
 sub id {
     my ($self) = @_;
-    url_unescape($self->stash->{$self->url_param_name});
+    $self->escape_url_param($self->stash->{$self->url_param_name});
 }
 
 sub build_list_search_info {
@@ -298,14 +303,42 @@ sub update {
 
     my $old_item = $self->item;
     my $new_item = {%$old_item, %$new_data};
+    my $model = $self->fingerbank_model;
+    my $db = fingerbank::DB_Factory->instantiate(schema => 'Local');
+    my $source =  $db->handle->source($model->_parseClassName);
+    my %data;
+    for my $c ($source->columns) {
+        next if !exists $new_item->{$c};
+        $data{$c} = $new_item->{$c};
+    }
 
     my $id = $self->id;
-    my ($status, $message) = $self->fingerbank_model->update($id, $new_item);
+    my ($status, $message) = $model->update($id, \%data);
     if (is_error($status)) {
         $self->render_error($status, $message);
     }
 
+    pf::fingerbank::sync_local_db();
     $self->render(status => 200, json => { message => "$id updated"});
+}
+
+=head2 update_upstream_db
+
+update_upstream_db
+
+=cut
+
+sub update_upstream_db {
+    my ($self) = @_;
+    pf::cluster::notify_each_server('fingerbank_update_component', action => "update-upstream-db", email_admin => $TRUE, fork_to_queue => $TRUE);
+    $self->render(status => 200, json => { message => "Successfully dispatched update request for Fingerbank upstream DB. An email will follow for status"});
+}
+
+sub can_use_nba_endpoints {
+    my ($self) = @_;
+    my $account = fingerbank::API->new_from_config->account_info;
+    my $result = any { $_ eq "NBA" } split(/\s*,\s*/, $account->{roles});
+    $self->render(status => 200, json => { result => \$result});
 }
 
 =head1 AUTHOR
@@ -314,7 +347,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2019 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 

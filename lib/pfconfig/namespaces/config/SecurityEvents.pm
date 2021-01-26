@@ -29,24 +29,21 @@ sub init {
     my ($self) = @_;
     $self->{file}            = $security_events_config_file;
     $self->{default_section} = "defaults";
-    $self->{child_resources} = [ 'FilterEngine::SecurityEvent' ];
+    $self->{child_resources} = [ 'FilterEngine::SecurityEvent', 'resource::RolesReverseLookup' ];
     my $defaults = pf::IniFiles->new(-file => $security_events_default_config_file);
     $self->{added_params}{'-import'} = $defaults;
 }
 
 sub build_child {
     my ($self) = @_;
-
     my %tmp_cfg = %{ $self->{cfg} };
-
     $self->cleanup_whitespaces( \%tmp_cfg );
-
     foreach my $key ( keys %tmp_cfg ) {
         $self->cleanup_after_read( $key, $tmp_cfg{$key} );
     }
 
+    $self->roleReverseLookup(\%tmp_cfg, 'security_events', qw(target_category whitelisted_roles vlan));
     return \%tmp_cfg;
-
 }
 
 sub cleanup_after_read {
@@ -61,7 +58,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2019 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 

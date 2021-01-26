@@ -46,9 +46,9 @@ match the last ip to see if it is in defined network
 =cut
 
 sub match {
-    my ($self, $device) = @_;
-    $logger->debug("Checking if device $device is a ".$self->value);
-    return fingerbank::Model::Device->is_a($device, $self->value);
+    my ($self, $device, $args) = @_;
+    $logger->debug("Checking if device $device is a ".$self->evalParam($self->value, $args));
+    return fingerbank::Model::Device->is_a($device, $self->evalParam($self->value, $args));
 }
 
 =head1 AUTHOR
@@ -57,7 +57,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2019 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 

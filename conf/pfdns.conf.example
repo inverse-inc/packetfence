@@ -1,3 +1,4 @@
+# Copyright (C) Inverse inc.
 .:54 {
     logger {
       level INFO
@@ -6,11 +7,13 @@
 
 [% domain %]
 
-proxy . /etc/resolv.conf
+    forward . /etc/resolv.conf {
+        prefer_udp
+    }
 }
 
 # all other domains are subject to interception
-:53 {
+.:53 {
     logger {
       level INFO
       processname pfdns
@@ -20,10 +23,33 @@ proxy . /etc/resolv.conf
     }
     # Anything not handled by pfdns will be resolved normally
 [% domain %]
+
+    # This configuration will check in the /etc/hosts and if the fqdn match it will return the corresponding ip.
+    # If it doesn't match then it will continue
+    hosts {
+        fallthrough
+    }
+
 [% inline %]
 
     # Default to system resolv.conf file
-    proxy . /etc/resolv.conf
+    forward . /etc/resolv.conf
     log stdout
     errors
+}
+
+https://.:853 {
+
+    [% domain %]
+
+    forward . /etc/resolv.conf {
+        prefer_udp
+    }
+}
+
+https://.:854 {
+   ztndns
+   forward . /etc/resolv.conf {
+      prefer_udp
+   }
 }

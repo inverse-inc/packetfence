@@ -3,5 +3,10 @@
 .text-pre {
     font-family: $font-family-monospace;
     font-size: $code-font-size;
-    white-space: pre-line; /* allow \n to break */
+    white-space: pre; /* allow \n to break */
   }
+
+.text-raw {
+    font-family: $font-family-monospace;
+    font-size: $code-font-size;
+}

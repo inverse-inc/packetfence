@@ -407,7 +407,7 @@ sub all_subsections : Private {
                     name => 'Advanced', 
                 },
                 maintenance => {
-                    controller => 'Controller::Config::Pfmon',
+                    controller => 'Controller::Config::Pfcron',
                     name => 'Maintenance', 
                 },
                 services => {
@@ -557,7 +557,7 @@ sub test_smtp : Local {
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2019 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 

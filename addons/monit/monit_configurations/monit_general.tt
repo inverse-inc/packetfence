@@ -15,7 +15,7 @@ Action:      $ACTION
 Description: $DESCRIPTION
 
 
-A copy of this alert have been sent to the PacketFence support team.
+A copy of this alert has been sent to the PacketFence support team.
 }
 
 # - Do not alert on 'nonexist' because we alert on 'restart'

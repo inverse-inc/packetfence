@@ -1,3 +1,4 @@
+# Copyright (C) Inverse inc.
 # Dhcp FILTERS configuration
 # ==========================
 #
@@ -8,16 +9,6 @@
 # - Discover: Rewrite the dhcp Offer
 # - Request: Rewrite the dhcp ACK
 #
-# A "Dhcp filter" configuration is mainly constituted of two (2) parts; rules(s)/condition(s) and action(s)
-# Some working examples covering useful use cases can be found at the bottom of this file
-# 
-# Rule(s)/Condition(s)
-# --------------------
-# Structure example of a rule/condition
-# [NAMEOFRULE]
-# filter = FILTER
-# operator = OPERATOR
-# value = VALUE
 #
 # Filter can be:
 #     options.optionVendorClassIdentifier
@@ -29,7 +20,7 @@
 #         7 for Release
 #         8 for Inform
 #     options.optionClientIdentifier
-#         is the mac of teh device like 001122334455
+#         is the mac of the device like 001122334455
 #     options.optionParameterRequestList
 #     options.optionMaximumDHCPMessageSize
 #     node_info.autoreg
@@ -162,25 +153,6 @@
 #                       },
 #          'mac' => '78:f8:82:9f:11:9d'
 #
-# Actions
-# -------
-# Structure example of an action
-# [NAMEOFTHEACTION:RULE1&RULE2&RULE3]
-# scope = Request
-# answer1 = 5 => 172.20.135.4
-# answer2 = 51 => 300
-# action = ACTION
-# action_param = ACTION PARAMETERS
-#
-#
-# Make sure to note the followings when defining an action:
-# - Actions are triggered on a first hit match, based on the order in the 'dhcp_filters.conf' file
-# - Action names must be unique
-# - Action definitions (what's inside []) contains the unique name, ':' delimiter, and some valid rule(s)/condition(s) names appended using boolean operators
-#
-# Scope can be:
-# - see beginning of this file for possible scope. They are usually extensions points of endpoint connection flow
-#
 #
 # Answer can be:
 # - the dhcp option number and the value associated or the special value to reject the dhcp request "Reject => True"
@@ -268,32 +240,15 @@
 # 101 OptionTZDatabaseString
 # 121 OptionClasslessRouteFormat
 #
-# Action can be:
-#    deregister_node (require param => mac)
-#    register_node (require param => mac pid)
-#    modify_node (require param => mac)
-#    trigger_violation (require param => mac tid type)
-#
-# Action parameter can be:
-# - The require param and optional attributes like (for action = modify_node):
-#    action_param = mac = $mac
-#
-#
 # EXAMPLES
 # --------
-#
-#[android_by_name]
-#filter = fingerbank_info.device_hierarchy_names
-#operator = includes
-#value = Generic Android
-
-#[1:android_by_name]
-#scope = Discover
-#answer1 = 5 => 172.20.135.4
-#answer2 = 51 => 300
-
-#[2:android_by_name]
-#scope = Request
-#answer1 = 5 => 172.20.135.4
-#answer2 = 51 => 300
+# Set the lease time to 300 seconds and the dns server to 172.20.135.4 for all Generic Android devices
+#[leaseTime]
+#run_actions=disabled
+#status=enabled
+#answer.0=35 = 300
+#description=Extend lease time
+#scopes=Discover,Request
+#condition=includes(fingerbank_info.device_name, "Generic Android")
+#answer.1=5 = 172.20.135.4
 

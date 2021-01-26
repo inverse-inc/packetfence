@@ -5,10 +5,12 @@ import Vue from 'vue'
 import api from '../_api'
 
 // Default values
-const state = {
-  reports: {}, // reports details
-  reportStatus: '',
-  message: ''
+const state = () => {
+  return {
+    reports: {}, // reports details
+    reportStatus: '',
+    message: ''
+  }
 }
 
 const getters = {
@@ -30,9 +32,14 @@ const actions = {
       return Promise.resolve(state.reports[id])
     }
     commit('REPORT_REQUEST')
-    return api.report(id).then(response => {
-      commit('REPORT_REPLACED', response)
-      return response
+    return new Promise((resolve, reject) => {
+      api.report(id).then(response => {
+        commit('REPORT_REPLACED', response)
+        resolve(response)
+      }).catch(err => {
+        commit('REPORT_ERROR', err.response)
+        reject(err)
+      })
     })
   },
   searchReport: ({ commit }, data) => {

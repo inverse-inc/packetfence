@@ -16,7 +16,6 @@ This module creates the configuration hash of all the switches group
 
 use strict;
 use warnings;
-use pf::ConfigStore::Switch;
 
 use base 'pfconfig::namespaces::resource';
 
@@ -43,7 +42,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2019 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 

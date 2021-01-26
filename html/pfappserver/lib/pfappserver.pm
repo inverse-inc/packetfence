@@ -29,6 +29,7 @@ use Catalyst qw/
     Session::State::Cookie
     StackTrace
     Unicode::Encoding
+    SmartURI
 /;
 
 use Try::Tiny;
@@ -164,6 +165,11 @@ __PACKAGE__->config(
            }
         }
        }
+     },
+
+     'Plugin::SmartURI' => {
+        disposition => 'relative',
+        uri_class   =>  'URI::SmartURI',
      },
 );
 
@@ -408,7 +414,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2019 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 

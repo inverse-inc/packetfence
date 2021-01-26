@@ -9,19 +9,27 @@
       <b-tabs ref="tabs" v-model="tabIndex" card>
 
         <b-tab title="Node Information">
-          <template slot="title">
+          <template v-slot:title>
             {{ $t('Node Information') }}
           </template>
           <pf-form-row :column-label="$t('MAC Address')"><mac>{{ item.mac }}</mac></pf-form-row>
           <pf-form-row :column-label="$t('Auth Status')">{{ item.auth_status }}</pf-form-row>
           <pf-form-row :column-label="$t('Auth Status')">{{ item.auth_type }}</pf-form-row>
-          <pf-form-row :column-label="$t('Auto Registration')">{{ item.auto_reg }}</pf-form-row>
+          <pf-form-row :column-label="$t('Auto Registration')">
+            <div v-if="item.auto_reg === '1'">{{ $t('Yes') }}</div>
+            <div v-else-if="item.auto_reg === '0'">{{ $t('No') }}</div>
+            <div v-else class="text-muted">{{ $t('Unknown') }}</div>
+          </pf-form-row>
           <pf-form-row :column-label="$t('Calling Station Identifier')"><mac>{{ item.calling_station_id }}</mac></pf-form-row>
           <pf-form-row :column-label="$t('Computer Name')">{{ item.computer_name }}</pf-form-row>
           <pf-form-row :column-label="$t('EAP Type')">{{ item.eap_type }}</pf-form-row>
           <pf-form-row :column-label="$t('Event Type')">{{ item.event_type }}</pf-form-row>
           <pf-form-row :column-label="$t('IP Address')">{{ item.ip }}</pf-form-row>
-          <pf-form-row :column-label="$t('Is a Phone')">{{ item.is_phone }}</pf-form-row>
+          <pf-form-row :column-label="$t('Is a Phone')">
+            <div v-if="item.is_phone === '1'">{{ $t('Yes') }}</div>
+            <div v-else-if="item.is_phone === '0'">{{ $t('No') }}</div>
+            <div v-else class="text-muted">{{ $t('Unknown') }}</div>
+          </pf-form-row>
           <pf-form-row :column-label="$t('Node Status')">{{ item.node_status }}</pf-form-row>
           <pf-form-row :column-label="$t('Domain')">{{ item.pf_domain }}</pf-form-row>
           <pf-form-row :column-label="$t('Profile')">{{ item.profile }}</pf-form-row>
@@ -36,7 +44,7 @@
         </b-tab>
 
         <b-tab title="Switch Information">
-          <template slot="title">
+          <template v-slot:title>
             {{ $t('Switch Information') }}
           </template>
           <pf-form-row :column-label="$t('Switch Identifier')">{{ item.switch_id }}</pf-form-row>
@@ -50,7 +58,7 @@
           <pf-form-row :column-label="$t('NAS Port')">{{ item.nas_port }}</pf-form-row>
           <pf-form-row :column-label="$t('NAS Port Identifer')">{{ item.nas_port_id }}</pf-form-row>
           <pf-form-row :column-label="$t('NAS Port Type')">{{ item.nas_port_type }}</pf-form-row>
-          <pf-form-row :column-label="$t('RADIUS Spurce IP Address')">{{ item.radius_source_ip_address }}</pf-form-row>
+          <pf-form-row :column-label="$t('RADIUS Source IP Address')">{{ item.radius_source_ip_address }}</pf-form-row>
           <pf-form-row :column-label="$t('Wi-Fi Network SSID')">{{ item.ssid }}</pf-form-row>
         </b-tab>
 
@@ -69,7 +77,7 @@
 import pfFormRow from '@/components/pfFormRow'
 
 export default {
-  name: 'RadiusLogView',
+  name: 'radius-log-view',
   components: {
     pfFormRow
   },
@@ -91,6 +99,9 @@ export default {
   computed: {
     isLoading () {
       return this.$store.getters[`${this.storeName}/isLoading`]
+    },
+    escapeKey () {
+      return this.$store.getters['events/escapeKey']
     }
   },
   methods: {
@@ -105,24 +116,17 @@ export default {
     close () {
       this.$router.push({ name: 'radiuslogs' })
     },
-    onKeyup (event) {
-      switch (event.keyCode) {
-        case 27: // escape
-          this.close()
-      }
-    },
     formatRadius (string) {
-      return string.replace(/, /g, '\n')
+      if (string) return string.replace(/, /g, '\n')
     }
   },
   created () {
     this.init()
   },
-  mounted () {
-    document.addEventListener('keyup', this.onKeyup)
-  },
-  beforeDestroy () {
-    document.removeEventListener('keyup', this.onKeyup)
+  watch: {
+    escapeKey (pressed) {
+      if (pressed) this.close()
+    }
   }
 }
 </script>

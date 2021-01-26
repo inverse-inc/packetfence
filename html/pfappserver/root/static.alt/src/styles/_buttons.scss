@@ -11,3 +11,14 @@ $font-size-sm: $font-size-base * .775;
 // Restore font sizes
 $font-size-base: $font-size-base-orig;
 $font-size-sm: $font-size-sm-orig;
+
+.btn[disabled]:hover {
+    cursor: not-allowed;
+}
+
+.btn.rounded-circle {
+    width: $font-size-base * 2;
+    height: $font-size-base * 2;
+    padding: 0;
+    line-height: $font-size-base * 2;
+}

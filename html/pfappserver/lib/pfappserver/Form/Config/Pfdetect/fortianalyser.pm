@@ -14,13 +14,18 @@ use HTML::FormHandler::Moose;
 extends 'pfappserver::Form::Config::Pfdetect';
 with qw(pfappserver::Base::Form::Role::PfdetectRateLimit);
 
+has_field '+type' =>
+  (
+   default => 'fortianalyser',
+  );
+
 =over
 
 =back
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2019 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 

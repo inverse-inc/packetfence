@@ -18,8 +18,8 @@ use Mojo::Base 'pf::UnifiedApi::Controller::RestRoute';
 use Mojo::JSON qw(decode_json);
 use pf::error qw(is_error);
 use pf::log;
+use pf::dal::admin_api_audit_log;
 use pf::util qw(expand_csv);
-use Mojo::Util qw(url_unescape);
 use pf::UnifiedApi::Search::Builder;
 use pf::UnifiedApi::OpenAPI::Generator::Crud;
 
@@ -179,6 +179,8 @@ sub search_builder {
 
 sub resource {
     my ($self) = @_;
+    my $url_param_name = $self->url_param_name;
+    $self->stash($url_param_name => $self->escape_url_param($self->stash->{$url_param_name}));
     my ($status, $item) = $self->do_get($self->get_lookup_info);
     if (is_error($status)) {
         return $self->render_error($status, "Unable to get resource with this identifier");
@@ -245,7 +247,7 @@ Get id of current resource
 
 sub id {
     my ($self) = @_;
-    url_unescape($self->stash->{$self->url_param_name});
+    return $self->escape_url_param($self->stash->{$self->url_param_name});
 }
 
 sub create_error_msg {
@@ -255,11 +257,14 @@ sub create_error_msg {
 sub render_create {
     my ($self, $status, $obj) = @_;
     if (is_error($status)) {
-        return $self->render_error($status, $self->create_error_msg($obj));
+        return $self->render_error($status, $obj->{message}, $obj->{errors});
     }
 
     my $id = $obj->{$self->primary_key};
-    $self->res->headers->location($self->make_location_url($id));
+    my $location_id = $id;
+    $location_id =~ s#/#~#g;
+    $self->res->headers->location($self->make_location_url($location_id));
+    $self->stash( $self->url_param_name => $id );
     return $self->render(json => { id => $id , message => "'$id' created"}, status => $status);
 }
 
@@ -278,8 +283,25 @@ sub make_create_data {
     }
     my $parent_data = $self->parent_data;
     @{$json}{keys %$parent_data} = values %$parent_data;
+    ($status, my $err) = $self->validate($json);
+    if (is_error($status)) {
+        return ($status, $err);
+    }
+
     $self->create_data_update($json);
     return ($status, $json);
+}
+
+
+=head2 validate
+
+validate
+
+=cut
+
+sub validate {
+    my ($self, $item) = @_;
+    return 200, undef;
 }
 
 =head2 create_data_update
@@ -296,6 +318,7 @@ sub parent_data {
     my %data;
     my $captures = $self->stash->{'mojo.captures'};
     @data{values %$map} = @{$captures}{keys %$map};
+    %data = map { $_ => $self->escape_url_param($data{$_}) } keys(%data);
 
     return \%data;
 }
@@ -315,6 +338,7 @@ sub create_obj {
     if (is_error($status)) {
         return ($status, {message => $self->status_to_error_msg($status)});
     }
+
     return ($status, $obj);
 }
 
@@ -326,9 +350,9 @@ sub remove {
 }
 
 sub render_remove {
-    my ($self, $status) = @_;
+    my ($self, $status, $msg) = @_;
     if (is_error($status)) {
-        return $self->render_error($status, "Unable to remove resource");
+        return $self->render_error($status, $msg // "Unable to remove resource");
     }
 
     my $id = $self->id;
@@ -337,7 +361,16 @@ sub render_remove {
 
 sub do_remove {
     my ($self) = @_;
+    my ($status, $msg) = $self->can_remove();
+    if (is_error($status)) {
+        return ($status, $msg);
+    }
+
     return $self->dal->remove_by_id($self->build_item_lookup);
+}
+
+sub can_remove {
+    return (200, '');
 }
 
 =head2 update
@@ -351,7 +384,15 @@ sub update {
     my $req = $self->req;
     my $res = $self->res;
     my $data = $self->update_data;
-    my ($status, $count) = $self->dal->update_items(
+    my ($status, $err) = $self->validate($data);
+    if (is_error($status)) {
+        return $self->render_error(
+            $status,
+            $err->{message},
+            $err->{errors}
+        );
+    }
+    ($status, my $count) = $self->dal->update_items(
         -where => $self->build_item_lookup,
         -set => {
             %$data,
@@ -452,7 +493,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2019 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 

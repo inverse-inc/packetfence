@@ -12,9 +12,30 @@
       @reset-search="onReset"
     ></pf-search>
     <div class="card-body pt-0">
-      <b-row align-h="end" align-v="start">
-        <b-col>
+      <b-row>
+        <b-col cols="auto" class="mr-auto mb-3">
           <slot name="buttonAdd"></slot>
+        </b-col>
+      </b-row>
+      <b-row align-h="end" align-v="center">
+        <b-col>
+          <b-dropdown size="sm" variant="link" :boundary="$refs.container" no-caret>
+            <template v-slot:button-content>
+              <icon name="columns" v-b-tooltip.hover.top.d300.window :title="$t('Visible Columns')"></icon>
+            </template>
+            <template v-for="column in columns">
+              <template v-if="column.label">
+                <b-dropdown-item :key="column.key" v-if="column.locked" disabled>
+                  <icon class="position-absolute mt-1" name="thumbtack"></icon>
+                  <span class="ml-4">{{ $t(column.label) }}</span>
+                </b-dropdown-item>
+                <a :key="column.key" v-else href="javascript:void(0)" :disabled="column.locked" class="dropdown-item" @click.stop="toggleColumn(column)">
+                  <icon class="position-absolute mt-1" name="check" v-show="column.visible"></icon>
+                  <span class="ml-4">{{ $t(column.label) }}</span>
+                </a>
+              </template>
+            </template>
+          </b-dropdown>
         </b-col>
         <b-col cols="auto">
           <b-container fluid>
@@ -23,8 +44,11 @@
                 <b-form-select class="mb-3 mr-3" size="sm" v-model="pageSizeLimit" :options="[25,50,100,200,500,1000]" :disabled="isLoading"
                   @input="onPageSizeChange" />
               </b-form>
-              <b-pagination align="right" :per-page="pageSizeLimit" :total-rows="totalRows" v-model="currentPage" :disabled="isLoading"
+              <b-pagination class="mr-3" align="right" :per-page="pageSizeLimit" :total-rows="totalRows" v-model="currentPage" :disabled="isLoading"
                 @change="onPageChange" />
+              <pf-button-export-to-csv class="mb-3" :filename="`${$route.path.slice(1).replace('/', '-')}.csv`" :disabled="isLoading"
+                :columns="columns" :data="items"
+              />
             </b-row>
           </b-container>
         </b-col>
@@ -39,12 +63,14 @@
         striped
         @end="sort"
       >
-        <slot name="emptySearch" slot="empty" v-bind="{ isLoading }">
-          <pf-empty-table :isLoading="isLoading">{{ $t('No results found') }}</pf-empty-table>
-        </slot>
+        <template v-slot:empty>
+          <slot name="emptySearch" v-bind="{ isLoading }">
+            <pf-empty-table :isLoading="isLoading">{{ $t('No results found') }}</pf-empty-table>
+          </slot>
+        </template>
         <!-- Proxy all possible column slots ([field]) into pf-table-sortable slots -->
-        <template v-for="column in config.columns" :slot="column.key" slot-scope="data">
-          <slot :name="column.key" v-bind="data.item">{{ data.item[column.key] }}</slot>
+        <template v-for="column in config.columns" v-slot:[cell(column.key)]="item">
+          <slot :name="cell(column.key)" v-bind="item">{{ item[column.key] }}</slot>
         </template>
       </pf-table-sortable>
 
@@ -59,20 +85,23 @@
         show-empty
         responsive
         fixed
+        sort-icon-left
         striped
       >
-        <slot name="emptySearch" slot="empty" v-bind="{ isLoading }">
-          <pf-empty-table :isLoading="isLoading">{{ $t('No results found') }}</pf-empty-table>
-        </slot>
+        <template v-slot:empty>
+          <slot name="emptySearch" v-bind="{ isLoading }">
+              <pf-empty-table :isLoading="isLoading">{{ $t('No results found') }}</pf-empty-table>
+          </slot>
+        </template>
         <!-- Proxy all possible column slots ([field], HEAD_[field], FOOT_[field]) into b-table slots -->
-        <template v-for="column in config.columns" :slot="column.key" slot-scope="data">
-          <slot :name="column.key" v-bind="data.item">{{ data.item[column.key] }}</slot>
+        <template v-for="column in config.columns" v-slot:[cell(column.key)]="data">
+          <slot :name="cell(column.key)" v-bind="data.item">{{ data.item[column.key] }}</slot>
         </template>
-        <template v-for="column in config.columns" :slot="'HEAD_' + column.key" slot-scope="data">
-          <slot :name="'HEAD_' + column.key">{{ data.label }}</slot>
+        <template v-for="column in config.columns" v-slot:[head(column.key)]="data">
+          <slot :name="head(column.key)">{{ $t(data.label) }}</slot>
         </template>
-        <template v-for="column in config.columns" :slot="'FOOT_' + column.key" slot-scope="data">
-          <slot :name="'FOOT_' + column.key">{{ data.label }}</slot>
+        <template v-for="column in config.columns" v-slot:[foot(column.key)]="data">
+          <slot :name="foot(column.key)">{{ $t(data.label) }}</slot>
         </template>
       </b-table>
 
@@ -81,6 +110,7 @@
 </template>
 
 <script>
+import pfButtonExportToCsv from '@/components/pfButtonExportToCsv'
 import pfMixinSearchable from '@/components/pfMixinSearchable'
 import pfEmptyTable from '@/components/pfEmptyTable'
 import pfSearch from '@/components/pfSearch'
@@ -92,6 +122,7 @@ export default {
     pfMixinSearchable
   ],
   components: {
+    pfButtonExportToCsv,
     pfEmptyTable,
     pfSearch,
     pfTableSortable
@@ -102,7 +133,7 @@ export default {
       default: () => ({
         columns: [],
         fields: [],
-        rowClickRoute (item, index) { return {} },
+        rowClickRoute () { return {} },
         searchPlaceholder: 'Search',
         searchableOptions: {
           searchApiEndpoint: null,
@@ -156,15 +187,18 @@ export default {
     },
     searchableQuickCondition () {
       return this.config.searchableQuickCondition
-    },
-    sortableItems () {
-      return this.items.filter(item => !item.not_sortable)
-    },
-    notSortableItems () {
-      return this.items.filter(item => item.not_sortable)
     }
   },
   methods: {
+    head (name) {
+      return `head(${name})`
+    },
+    cell (name) {
+      return `cell(${name})`
+    },
+    foot (name) {
+      return `foot(${name})`
+    },
     onRowClick (item, index) {
       this.$router.push(this.config.rowClickRoute(item, index))
     },
@@ -173,6 +207,9 @@ export default {
     },
     submitSearch () {
       this.$refs.pfSearch.onSubmit()
+    },
+    refreshList () {
+      this.resetSearch()
     }
   }
 }

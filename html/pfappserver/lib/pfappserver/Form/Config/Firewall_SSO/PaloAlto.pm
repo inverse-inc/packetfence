@@ -45,6 +45,7 @@ has_field '+port' =>
 has_field 'type' =>
   (
    type => 'Hidden',
+   default => 'PaloAlto',
   );
 
 has_field 'vsys' =>
@@ -63,7 +64,7 @@ has_block definition =>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2019 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 

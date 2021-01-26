@@ -21,10 +21,11 @@ DIRS=(proc lib lib64 bin usr sbin sys dev var/log/samba $ETC_DIRS)
 
 MOUNTS=(`mount | awk '{print $3}'`)
 
+# mount all $DIRS and submounts in chroot if not already mounted
 for dir in "${DIRS[@]}"; do
     value=$BASE/$NS/$dir
     if [[ ! " ${MOUNTS[@]} " =~ " ${value} " ]]; then
-        mount -o bind /$dir $BASE/$NS/$dir
+        mount -o rbind /$dir $BASE/$NS/$dir
     fi
 done
 

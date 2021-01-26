@@ -4,7 +4,7 @@
 import store from '@/store' // required for 'system/version'
 import apiCall from '@/utils/api'
 
-const IDENTIFIER_PREFIX = 'pfappserver::' // transparently prefix all identifiers - avoid key collisions
+export const IDENTIFIER_PREFIX = 'pfappserver::' // transparently prefix all identifiers - avoid key collisions
 
 const api = {
   allPreferences: () => {
@@ -34,12 +34,10 @@ const api = {
           }
         })
       }
-      return apiCall.getQuiet(`preference/${IDENTIFIER_PREFIX}${id}`).then(response => { // exists
+      return apiCall.getQuiet(['preference', `${IDENTIFIER_PREFIX}${id}`]).then(response => { // exists
         const { data: { item: { value = null } = {} } = {} } = response
         if (value) {
-          // eslint-disable-next-line
           const { meta: { created_at = null } = {} } = JSON.parse(value)
-          // eslint-disable-next-line
           if (created_at) { // retain `created_at`
             body = {
               id: `${IDENTIFIER_PREFIX}${id}`,
@@ -54,22 +52,22 @@ const api = {
             }
           }
         }
-        return apiCall.putQuiet(`preference/${IDENTIFIER_PREFIX}${id}`, body).then(response => {
+        return apiCall.putQuiet(['preference', `${IDENTIFIER_PREFIX}${id}`], body).then(response => {
           return response.data
         })
       }).catch(() => { // not exists
-        return apiCall.putQuiet(`preference/${IDENTIFIER_PREFIX}${id}`, body).then(response => {
+        return apiCall.putQuiet(['preference', `${IDENTIFIER_PREFIX}${id}`], body).then(response => {
           return response.data
         })
       })
     } else {
-      return apiCall.deleteQuiet(`preference/${IDENTIFIER_PREFIX}${id}`).then(response => {
+      return apiCall.deleteQuiet(['preference', `${IDENTIFIER_PREFIX}${id}`]).then(response => {
         return response
       })
     }
   },
   removePreference: id => {
-    return apiCall.deleteQuiet(`preference/${IDENTIFIER_PREFIX}${id}`).then(response => {
+    return apiCall.deleteQuiet(['preference', `${IDENTIFIER_PREFIX}${id}`]).then(response => {
       return response
     })
   }
@@ -82,9 +80,12 @@ const types = {
 }
 
 // Default values
-const state = {
-  message: '',
-  requestStatus: ''
+const initialState = () => {
+  return {
+    message: '',
+    requestStatus: '',
+    allPromise: null
+  }
 }
 
 const getters = {
@@ -92,13 +93,20 @@ const getters = {
 }
 
 const actions = {
-  all: () => {
-    return api.allPreferences().then(response => {
-      return response.items
+  all: ({ state, commit }) => {
+    commit('PREFERENCE_REQUEST')
+    if (state.allPromise == null) {
+      commit('PROMISE_UPDATED', api.allPreferences())
+    }
+    return state.allPromise.then(items => {
+      commit('PREFERENCE_SUCCESS')
+      return items
     })
   },
-  get: ({ state, commit }, id) => {
+  get: ({ commit }) => {
     commit('PREFERENCE_REQUEST')
+    return null
+    /*
     return api.getPreference(id).then(response => {
       commit('PREFERENCE_SUCCESS')
       return response
@@ -106,8 +114,9 @@ const actions = {
       commit('PREFERENCE_ERROR', err)
       throw err
     })
+    */
   },
-  set: ({ state, commit }, data) => {
+  set: ({ commit }, data) => {
     commit('PREFERENCE_REQUEST')
     return api.setPreference(data).then(response => {
       commit('PREFERENCE_SUCCESS')
@@ -117,7 +126,7 @@ const actions = {
       throw err
     })
   },
-  remove: ({ state, commit }, id) => {
+  remove: ({ commit }, id) => {
     commit('PREFERENCE_REQUEST')
     return api.removePreference(id).then(response => {
       commit('PREFERENCE_SUCCESS')
@@ -130,6 +139,9 @@ const actions = {
 }
 
 const mutations = {
+  PROMISE_UPDATED: (state, promise) => {
+    state.allPromise = promise
+  },
   PREFERENCE_REQUEST: (state) => {
     state.requestStatus = types.LOADING
     state.message = ''
@@ -144,12 +156,16 @@ const mutations = {
     if (message) {
       state.message = message
     }
+  },
+  // eslint-disable-next-line no-unused-vars
+  $RESET: (state) => {
+    state = initialState()
   }
 }
 
 export default {
   namespaced: true,
-  state,
+  state: initialState(),
   getters,
   actions,
   mutations

@@ -3,21 +3,21 @@
     :size="size" @mouseleave="stopInterrupt($event)"
     :class="['d-inline-flex', {'flex-row-reverse': reverse}]">
     <b-button
-      v-if="!interrupt"
+      v-if="!localInterrupt"
       type="button"
       :variant="variant"
       :disabled="disabled"
       @click.stop="startInterrupt($event)"
       ><slot>{{ $t('Delete') }}</slot></b-button>
     <b-button
-      v-if="interrupt"
+      v-if="localInterrupt"
       type="button"
       variant="outline-danger"
       class="text-nowrap"
       disabled
       >{{ confirm }}</b-button>
     <b-button
-      v-if="interrupt"
+      v-if="localInterrupt"
       type="button"
       variant="danger"
       @click.stop="onDelete($event)"
@@ -54,7 +54,7 @@ export default {
       default: 3000
     },
     disabled: {
-      type: Boolean,
+      type: [Boolean, Function],
       default: false
     },
     reverse: {
@@ -62,22 +62,36 @@ export default {
       default: false
     }
   },
+  data () {
+    return {
+      localInterrupt: this.interrupt
+    }
+  },
+  watch: {
+    interrupt: {
+      handler: function (a) {
+        this.localInterrupt = a
+      },
+      immediate: true
+    }
+
+  },
   methods: {
-    startInterrupt (event) {
+    startInterrupt () {
       if (this.timerStop) clearTimeout(this.timerStop)
-      this.interrupt = true
+      this.localInterrupt = true
       this.timerStop = setTimeout(this.stopInterrupt, this.timeout)
     },
-    stopInterrupt (event) {
+    stopInterrupt () {
       if (this.timerStop) clearTimeout(this.timerStop)
-      this.interrupt = false
+      this.localInterrupt = false
     },
     onDelete (event) {
       // emit to parent
       this.$emit('on-delete', event)
     }
   },
-  beforeDestroy () {
+  beforeUnmount () {
     if (this.timerStop) {
       clearTimeout(this.timerStop)
     }
@@ -86,9 +100,6 @@ export default {
 </script>
 
 <style lang="scss">
-@import "../../node_modules/bootstrap/scss/functions";
-@import "../styles/variables";
-
 .btn-group.flex-row-reverse {
   > .btn {
     &:not(:last-child):not(.dropdown-toggle) {

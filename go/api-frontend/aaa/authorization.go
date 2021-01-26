@@ -5,11 +5,14 @@ import (
 	"errors"
 	"fmt"
 	"net/http"
+	"os"
 	"regexp"
 	"strconv"
 	"strings"
+	"sync"
 	"time"
 
+	"github.com/inverse-inc/packetfence/go/db"
 	"github.com/inverse-inc/packetfence/go/log"
 )
 
@@ -18,13 +21,64 @@ var configApiPrefix = apiPrefix + "/config"
 var configNamespaceRe = regexp.MustCompile("^" + regexp.QuoteMeta(configApiPrefix))
 
 type adminRoleMapping struct {
-	prefix string
-	role   string
+	prefix     string
+	role       string
+	roleSuffix string
+}
+
+var multipleTenants = false
+var successMultipleTenants = false
+var successMultipleTenantsLock = &sync.Mutex{}
+
+func init() {
+	successMultipleTenants = computeMultipleTenants()
+}
+
+func computeMultipleTenants() bool {
+	successMultipleTenantsLock.Lock()
+	defer func() {
+		successMultipleTenantsLock.Unlock()
+		if err := recover(); err != nil {
+			fmt.Fprintf(os.Stderr, "Unable to connect to database to get multi-tenant status: %s \n", err)
+		}
+	}()
+
+	pfdb, err := db.DbFromConfig(context.Background())
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "Unable to connect to database to get multi-tenant status: %s \n", err)
+		return false
+	}
+	defer pfdb.Close()
+
+	res, err := pfdb.Query(`select count(1) from tenant`)
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "Unable to connect to database to get multi-tenant status: %s \n", err)
+		return false
+	}
+	defer res.Close()
+
+	for res.Next() {
+		var count int
+		err := res.Scan(&count)
+		if err != nil {
+			fmt.Fprintf(os.Stderr, "Unable to connect to database to get multi-tenant status: %s \n", err)
+			return false
+		}
+		if count > 2 {
+			log.Logger().Info("Running in multi-tenant mode")
+			multipleTenants = true
+		}
+	}
+
+	return true
 }
 
 const ALLOW_ANY = "*"
 
 var pathAdminRolesMap = []adminRoleMapping{
+	adminRoleMapping{prefix: apiPrefix + "/current_user", role: ALLOW_ANY},
+	adminRoleMapping{prefix: apiPrefix + "/radius_attributes", role: ALLOW_ANY},
+
 	adminRoleMapping{prefix: apiPrefix + "/preference/", role: ALLOW_ANY},
 	adminRoleMapping{prefix: apiPrefix + "/preferences", role: ALLOW_ANY},
 
@@ -38,10 +92,13 @@ var pathAdminRolesMap = []adminRoleMapping{
 	adminRoleMapping{prefix: apiPrefix + "/ip6logs", role: "NODES"},
 	adminRoleMapping{prefix: apiPrefix + "/locationlog/", role: "NODES"},
 	adminRoleMapping{prefix: apiPrefix + "/locationlogs", role: "NODES"},
+	adminRoleMapping{prefix: apiPrefix + "/nodes/network_graph", role: "NODES", roleSuffix: "_READ"},
 	adminRoleMapping{prefix: apiPrefix + "/node/", role: "NODES"},
 	adminRoleMapping{prefix: apiPrefix + "/nodes", role: "NODES"},
 	adminRoleMapping{prefix: apiPrefix + "/node_categories", role: "NODES"},
 	adminRoleMapping{prefix: apiPrefix + "/node_category/", role: "NODES"},
+	adminRoleMapping{prefix: apiPrefix + "/remote_client/", role: "REMOTE_CLIENTS"},
+	adminRoleMapping{prefix: apiPrefix + "/remote_clients", role: "REMOTE_CLIENTS"},
 	adminRoleMapping{prefix: apiPrefix + "/security_event/", role: "SECURITY_EVENTS"},
 	adminRoleMapping{prefix: apiPrefix + "/security_events", role: "SECURITY_EVENTS"},
 	adminRoleMapping{prefix: apiPrefix + "/user/", role: "USERS"},
@@ -59,6 +116,10 @@ var pathAdminRolesMap = []adminRoleMapping{
 	adminRoleMapping{prefix: apiPrefix + "/dhcp_option82s", role: "DHCP_OPTION_82"},
 	adminRoleMapping{prefix: apiPrefix + "/dhcp_option82/", role: "DHCP_OPTION_82"},
 	adminRoleMapping{prefix: apiPrefix + "/radius_audit_logs", role: "RADIUS_LOG"},
+	adminRoleMapping{prefix: apiPrefix + "/dns_audit_logs", role: "DNS_LOG"},
+	adminRoleMapping{prefix: apiPrefix + "/dns_audit_log/", role: "DNS_LOG"},
+	adminRoleMapping{prefix: apiPrefix + "/admin_api_audit_logs", role: "ADMIN_API_AUDIT_LOG"},
+	adminRoleMapping{prefix: apiPrefix + "/admin_api_audit_log/", role: "ADMIN_API_AUDIT_LOG"},
 
 	adminRoleMapping{prefix: configApiPrefix + "/admin_role/", role: "ADMIN_ROLES"},
 	adminRoleMapping{prefix: configApiPrefix + "/admin_roles", role: "ADMIN_ROLES"},
@@ -72,8 +133,8 @@ var pathAdminRolesMap = []adminRoleMapping{
 	adminRoleMapping{prefix: configApiPrefix + "/cluster_status", role: "SERVICES"},
 	adminRoleMapping{prefix: configApiPrefix + "/connection_profile/", role: "CONNECTION_PROFILES"},
 	adminRoleMapping{prefix: configApiPrefix + "/connection_profiles", role: "CONNECTION_PROFILES"},
-	adminRoleMapping{prefix: configApiPrefix + "/device_registration/", role: "DEVICE_REGISTRATION"},
-	adminRoleMapping{prefix: configApiPrefix + "/device_registrations", role: "DEVICE_REGISTRATION"},
+	adminRoleMapping{prefix: configApiPrefix + "/self_service/", role: "SELF_SERVICE"},
+	adminRoleMapping{prefix: configApiPrefix + "/self_services", role: "SELF_SERVICE"},
 	adminRoleMapping{prefix: configApiPrefix + "/domain/", role: "DOMAIN"},
 	adminRoleMapping{prefix: configApiPrefix + "/domains", role: "DOMAIN"},
 	adminRoleMapping{prefix: configApiPrefix + "/fingerbank_setting/", role: "FINGERBANK"},
@@ -86,11 +147,12 @@ var pathAdminRolesMap = []adminRoleMapping{
 	adminRoleMapping{prefix: configApiPrefix + "/interfaces", role: "INTERFACES"},
 	adminRoleMapping{prefix: configApiPrefix + "/l2_network/", role: "INTERFACES"},
 	adminRoleMapping{prefix: configApiPrefix + "/l2_networks", role: "INTERFACES"},
-	adminRoleMapping{prefix: configApiPrefix + "/maintenance_task/", role: "PFMON"},
-	adminRoleMapping{prefix: configApiPrefix + "/maintenance_tasks", role: "PFMON"},
+	adminRoleMapping{prefix: configApiPrefix + "/maintenance_task/", role: "PFCRON"},
+	adminRoleMapping{prefix: configApiPrefix + "/maintenance_tasks", role: "PFCRON"},
 	adminRoleMapping{prefix: configApiPrefix + "/pki_provider/", role: "PKI_PROVIDER"},
 	adminRoleMapping{prefix: configApiPrefix + "/pki_providers", role: "PKI_PROVIDER"},
 	adminRoleMapping{prefix: configApiPrefix + "/portal_module/", role: "PORTAL_MODULE"},
+	adminRoleMapping{prefix: configApiPrefix + "/pki/", role: "PKI"},
 	adminRoleMapping{prefix: configApiPrefix + "/portal_modules", role: "PORTAL_MODULE"},
 	adminRoleMapping{prefix: configApiPrefix + "/provisioning", role: "PROVISIONING"},
 	adminRoleMapping{prefix: configApiPrefix + "/provisionings/", role: "PROVISIONING"},
@@ -120,6 +182,19 @@ var pathAdminRolesMap = []adminRoleMapping{
 	adminRoleMapping{prefix: configApiPrefix + "/wmi_rules", role: "WMI"},
 }
 
+var allTenantsPaths = []string{
+	configApiPrefix + "/security_events",
+	configApiPrefix + "/security_event/",
+	configApiPrefix + "/base/guests_admin_registration",
+	configApiPrefix + "/admin_roles",
+}
+
+var multiTenantDenyPaths = []string{
+	apiPrefix + "/queues",
+	apiPrefix + "/services",
+	apiPrefix + "/service",
+}
+
 var methodSuffixMap = map[string]string{
 	"GET":     "_READ",
 	"OPTIONS": "_READ",
@@ -128,6 +203,8 @@ var methodSuffixMap = map[string]string{
 	"PATCH":   "_UPDATE",
 	"DELETE":  "_DELETE",
 }
+
+var InvalidTokenInfoErr = "Invalid token info"
 
 type TokenAuthorizationMiddleware struct {
 	tokenBackend TokenBackend
@@ -149,22 +226,29 @@ func (tam *TokenAuthorizationMiddleware) TokenFromBearerRequest(ctx context.Cont
 // Checks whether or not that request is authorized based on the path and method
 // It will extract the token out of the Authorization header and call the appropriate method
 func (tam *TokenAuthorizationMiddleware) BearerRequestIsAuthorized(ctx context.Context, r *http.Request) (bool, error) {
+
+	// If we were unable to get the multi-tenant status on init (because DB wasn't ready), then we try to find it here
+	if !successMultipleTenants {
+		log.LoggerWContext(ctx).Info("Multi-tenant status hasn't been initialized. Attempting to initialize it during this request.")
+		successMultipleTenants = computeMultipleTenants()
+	}
+
 	token := tam.TokenFromBearerRequest(ctx, r)
 	xptid := r.Header.Get("X-PacketFence-Tenant-Id")
 
 	tokenInfo, _ := tam.tokenBackend.TokenInfoForToken(token)
 
 	if tokenInfo == nil {
-		return false, errors.New("Invalid token info")
+		return false, errors.New(InvalidTokenInfoErr)
 	}
 
 	var tenantId int
 
-	if tokenInfo.TenantId == AccessAllTenants && xptid == "" {
+	if tokenInfo.Tenant.Id == AccessAllTenants && xptid == "" {
 		log.LoggerWContext(ctx).Debug("Token wasn't issued for a particular tenant and no X-PacketFence-Tenant-Id was provided. Request will use the default PacketFence tenant")
 	} else if xptid == "" {
 		log.LoggerWContext(ctx).Debug("Empty X-PacketFence-Tenant-Id, defaulting to token tenant ID")
-		tenantId = tokenInfo.TenantId
+		tenantId = tokenInfo.Tenant.Id
 		r.Header.Set("X-PacketFence-Tenant-Id", strconv.Itoa(tenantId))
 	} else {
 		var err error
@@ -192,7 +276,7 @@ func (tam *TokenAuthorizationMiddleware) BearerRequestIsAuthorized(ctx context.C
 // Checks whether or not that request is authorized based on the path and method
 func (tam *TokenAuthorizationMiddleware) IsAuthorized(ctx context.Context, method, path string, tenantId int, tokenInfo *TokenInfo) (bool, error) {
 	if tokenInfo == nil {
-		return false, errors.New("Invalid token info")
+		return false, errors.New(InvalidTokenInfoErr)
 	}
 
 	authAdminRoles, err := tam.isAuthorizedAdminActions(ctx, method, path, tokenInfo.AdminActions())
@@ -200,12 +284,12 @@ func (tam *TokenAuthorizationMiddleware) IsAuthorized(ctx context.Context, metho
 		return authAdminRoles, err
 	}
 
-	authTenant, err := tam.isAuthorizedTenantId(ctx, tenantId, tokenInfo.TenantId)
+	authTenant, err := tam.isAuthorizedTenantId(ctx, tenantId, tokenInfo.Tenant.Id)
 	if !authTenant || err != nil {
 		return authTenant, err
 	}
 
-	authConfig, err := tam.isAuthorizedConfigNamespace(ctx, path, tokenInfo.TenantId)
+	authConfig, err := tam.isAuthorizedMultiTenant(ctx, method, path, tokenInfo)
 	if !authConfig || err != nil {
 		return authConfig, err
 	}
@@ -236,11 +320,13 @@ func (tam *TokenAuthorizationMiddleware) isAuthorizedTenantId(ctx context.Contex
 func (tam *TokenAuthorizationMiddleware) isAuthorizedAdminActions(ctx context.Context, method, path string, roles map[string]bool) (bool, error) {
 
 	var baseAdminRole string
+	var suffix string
 	for _, o := range pathAdminRolesMap {
 		base := o.prefix
 		role := o.role
 		if strings.HasPrefix(path, base) && role != "" {
 			baseAdminRole = role
+			suffix = o.roleSuffix
 			break
 		}
 	}
@@ -251,12 +337,15 @@ func (tam *TokenAuthorizationMiddleware) isAuthorizedAdminActions(ctx context.Co
 		baseAdminRole = "SYSTEM"
 	}
 
-	suffix := methodSuffixMap[method]
-
+	// Take suffix from the methodSuffixMap unless it was defined above
 	if suffix == "" {
-		msg := fmt.Sprintf("Impossible to find admin role suffix for unknown method %s", method)
-		log.LoggerWContext(ctx).Warn(msg)
-		return false, errors.New(msg)
+		suffix = methodSuffixMap[method]
+
+		if suffix == "" {
+			msg := fmt.Sprintf("Impossible to find admin role suffix for unknown method %s", method)
+			log.LoggerWContext(ctx).Warn(msg)
+			return false, errors.New(msg)
+		}
 	}
 
 	// Rewrite suffix for search
@@ -280,13 +369,48 @@ func (tam *TokenAuthorizationMiddleware) isAuthorizedAdminActions(ctx context.Co
 	}
 }
 
-func (tam *TokenAuthorizationMiddleware) isAuthorizedConfigNamespace(ctx context.Context, path string, tokenTenantId int) (bool, error) {
+func (tam *TokenAuthorizationMiddleware) isAuthorizedMultiTenant(ctx context.Context, method string, path string, tokenInfo *TokenInfo) (bool, error) {
+	authConfig, err := tam.isAuthorizedConfigNamespace(ctx, method, path, tokenInfo)
+	if !authConfig || err != nil {
+		return authConfig, err
+	}
+
+	authMultiTenant, err := tam.isAuthorizedPathMultiTenant(ctx, method, path, tokenInfo)
+	if !authMultiTenant || err != nil {
+		return authMultiTenant, err
+	}
+
+	return true, nil
+}
+
+func (tam *TokenAuthorizationMiddleware) isAuthorizedPathMultiTenant(ctx context.Context, method string, path string, tokenInfo *TokenInfo) (bool, error) {
+	if !tokenInfo.IsTenantMaster() {
+		for _, base := range multiTenantDenyPaths {
+			if strings.HasPrefix(path, base) {
+				return false, errors.New(fmt.Sprintf("Token is not allowed to access this namespace because it is scoped to a single tenant."))
+			}
+		}
+		return true, nil
+	} else {
+		return true, nil
+	}
+}
+
+func (tam *TokenAuthorizationMiddleware) isAuthorizedConfigNamespace(ctx context.Context, method string, path string, tokenInfo *TokenInfo) (bool, error) {
 	// If we're not hitting the config namespace, then there is no need to enforce anything below
 	if !configNamespaceRe.MatchString(path) {
 		return true, nil
 	}
 
-	if tokenTenantId != AccessAllTenants {
+	if !tokenInfo.IsTenantMaster() {
+		if method == "GET" || method == "OPTIONS" {
+			for _, base := range allTenantsPaths {
+				if strings.HasPrefix(path, base) {
+					return true, nil
+				}
+			}
+		}
+
 		return false, errors.New(fmt.Sprintf("Token is not allowed to access the configuration namespace because it is scoped to a single tenant."))
 	} else {
 		return true, nil

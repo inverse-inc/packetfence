@@ -206,13 +206,23 @@ sub make_join_specs {
     foreach my $f (@{$s->{found_fields} // []}) {
         if (exists $allow_joins->{$f}) {
             my $jf = $allow_joins->{$f};
+            next if !exists $jf->{join_spec};
             my $namespace = $jf->{namespace};
             next if exists $found{$namespace};
             $found{$namespace} = 1;
-            push @join_specs, @{$jf->{join_spec} // []};
+            push @join_specs, $self->format_join_spec($jf->{join_spec}, $s);
         }
     }
     return @join_specs;
+}
+
+sub format_join_spec {
+    my ($self, $join_spec, $s) = @_;
+    if (ref($join_spec) eq 'CODE') {
+        return $join_spec->($self, $s);
+    }
+
+    return @{$join_spec // []};
 }
 
 =head2 $self->make_columns($search_info)
@@ -244,7 +254,7 @@ sub make_columns {
         push @{$s->{found_fields}}, @$cols;
         @$cols = map { $self->format_column($s, $_) } @$cols
     } else {
-        $cols = [@{$s->{dal}->table_field_names}];
+        $cols = $self->default_columns($s);
     }
 
     if ($s->{with_total_count}) {
@@ -252,6 +262,11 @@ sub make_columns {
     }
 
     return 200, $cols;
+}
+
+sub default_columns {
+    my ($self, $s) = @_;
+    return [map { $self->format_column($s, $_) } @{$s->{dal}->table_field_names}];
 }
 
 =head2 check_for_duplicated_fields
@@ -356,7 +371,17 @@ Checks if a field is a table field
 
 sub is_table_field {
     my ($self, $s, $f) = @_;
-    return exists $s->{dal}->get_meta->{$f};
+    my $dal = $s->{dal};
+    if ( exists $dal->get_meta->{$f} ) {
+        return 1;
+    }
+
+    my $table = $dal->table;
+    if ($f =~ /\Q$table\E\.(.*)$/ ) {
+        return exists $dal->get_meta->{$1};
+    }
+
+    return 0;
 }
 
 =head2 $self->verify_query($search_info, $query)
@@ -407,8 +432,12 @@ sub rewrite_query {
     my $f = $query->{field};
     my $status = 200;
     if ($self->is_table_field($s, $f)) {
-        $query->{field} = $s->{dal}->table . "." . $f;
-    } elsif ($self->is_field_rewritable($s, $f)) {
+        if ($f !~ /\./) {
+            $query->{field} = $s->{dal}->table . "." . $f;
+        }
+    }
+
+    if ($self->is_field_rewritable($s, $f)) {
         my $allowed = $self->allowed_join_fields;
         my $cb = $allowed->{$f}{rewrite_query};
         ($status, $query) = $self->$cb($s, $query);
@@ -524,9 +553,18 @@ sub additional_where_clause {
         my $namespace = $jf->{namespace};
         next if !exists $jf->{where_spec};
         $found{$namespace} = 1;
-        push @clauses, $jf->{where_spec};
+        push @clauses, $self->format_where_spec($jf->{where_spec}, $s);
     }
     return @clauses;
+}
+
+sub format_where_spec {
+    my ($self, $where, $s) = @_;
+    if (ref($where) eq 'CODE') {
+        return $where->($self, $s);
+    }
+
+    return $where;
 }
 
 =head2 $self->make_order_by($search_info)
@@ -547,7 +585,7 @@ sub make_order_by {
         if (defined $order_by) {
             push @order_by_specs, $order_by;
         } else {
-            push @errors, {messagmessage => "$sort_spec is invalid"};
+            push @errors, {message => "$sort_spec is invalid"};
         }
     }
 
@@ -634,7 +672,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2019 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 

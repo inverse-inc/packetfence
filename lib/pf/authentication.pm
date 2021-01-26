@@ -18,6 +18,7 @@ use pf::log;
 use pf::constants;
 use pf::config;
 use pf::config::util;
+use pf::tenant;
 
 use pf::Authentication::constants;
 use pf::Authentication::Action;
@@ -75,6 +76,7 @@ BEGIN {
             getAllAuthenticationSources
             deleteAuthenticationSource
             getAuthenticationClassByType
+            getInternalAuthenticationSources
             %guest_self_registration
        );
 }
@@ -283,8 +285,9 @@ If source_id_ref is defined then it will be set to the matching source_id
 =cut
 
 our %ACTION_VALUE_FILTERS = (
-    $Actions::SET_ACCESS_DURATION => \&pf::config::access_duration,
-    $Actions::SET_UNREG_DATE => \&pf::config::dynamic_unreg_date,
+    $Actions::SET_ACCESS_DURATION => sub { pf::config::access_duration($_[0]) },
+    $Actions::SET_UNREG_DATE => sub { pf::config::dynamic_unreg_date($_[0]) },
+    $Actions::SET_ROLE_FROM_SOURCE => \&role_from_source,
 );
 
 sub match {
@@ -323,28 +326,36 @@ sub match {
     $logger->info("Using sources ".join(', ', (map {$_->id} @sources))." for matching");
 
     foreach my $source (@sources) {
-        $actions = $source->match($params, $action, $extra);
-        unless (defined $actions) {
+        my ($rule, $ignored_action, $matched) = $source->match($params, $action, $extra);
+        unless (defined $rule) {
             $logger->trace(sub {"Skipped " . $source->id });
             next;
         }
+        $actions = $rule->{actions};
         if (defined $allowed_actions) {
 
             # Return the value only if the action matches
-            my $found_action = first {exists $allowed_actions->{$_->type} && $allowed_actions->{$_->type}} @{$actions};
+            my $found_action = first {my $t = $_->type;(!(defined $ignored_action) || $ignored_action ne $t) && exists $allowed_actions->{$t} && $allowed_actions->{$t}} @{$actions};
             if (defined $found_action) {
+                my $value = $found_action->value;
+                my $type  = $found_action->type;
                 $logger->debug(
                     sub {
                         "[" . $source->id . "] Returning '"
-                          . ( $found_action->value // "undef" )
+                          . ( $value // "undef" )
                           . "' for action '" . ( $action // "undef" )
                           . "' for username " . ( $params->{'username'} // "undef" )
                     }
                 );
+                if (exists $ACTION_VALUE_FILTERS{$type}) {
+                    $value = $ACTION_VALUE_FILTERS{$type}->($value, $source, $rule, $params, $extra, $matched);
+                    if (!defined $value) {
+                        $logger->debug( sub { "[" . $source->id . "] action '$type' matched but lookup failed" });
+                        next;
+                    }
+                }
+
                 $$source_id_ref = $source->id if defined $source_id_ref && ref $source_id_ref eq 'SCALAR';
-                my $value = $found_action->value;
-                my $type  = $found_action->type;
-                $value = $ACTION_VALUE_FILTERS{$type}->($value) if exists $ACTION_VALUE_FILTERS{$type};
                 return $value;
             }
 
@@ -359,6 +370,11 @@ sub match {
     }
 
     return undef;
+}
+
+sub role_from_source {
+    my ($role_info, $source, $rule, $params, $extra, $matched, $attributes) = @_;
+    return $source->lookupRole($rule, $role_info, $params, $extra, $matched, $attributes);
 }
 
 =item match2
@@ -382,7 +398,7 @@ If there is a match hash will be returned with the following information
 
 sub match2 {
     my $timer = pf::StatsD::Timer->new();
-    my ($source_id, $params, $extra) = @_;
+    my ($source_id, $params, $extra, $attributes) = @_;
     my ($actions, @sources);
     $logger->debug( sub { "Match called with parameters ".join(", ", map { "$_ => $params->{$_}" } keys %$params) });
 
@@ -408,22 +424,34 @@ sub match2 {
     $logger->info("Using sources ".join(', ', (map {$_->id} @sources))." for matching");
 
     foreach my $source (@sources) {
-        $actions = $source->match($params, undef, $extra);
-        next unless defined $actions;
+        my ($rule, $ignored_action, $matched) = $source->match($params, undef, $extra);
+        next unless defined $rule;
         my %values;
+        $actions = $rule->{actions};
+        my @new_actions;
         foreach my $action (@$actions) {
-            my $value = $action->value;
             my $type  = $action->type;
-            $value = $ACTION_VALUE_FILTERS{$type}->($value) if exists $ACTION_VALUE_FILTERS{$type};
+            next if defined $ignored_action && $ignored_action eq $type;
+            my $value = $action->value;
+            if (exists $ACTION_VALUE_FILTERS{$type}) {
+                $value = $ACTION_VALUE_FILTERS{$type}->($value, $source, $rule, $params, $extra, $matched, $attributes);
+                if (!defined $value) {
+                    #Setting action to undef to avoid the wrong actions to be returned
+                    $logger->debug( sub { "[" . $source->id . "] action '$type' matched but lookup failed" });
+                    next;
+                }
+            }
             $type = $Actions::MAPPED_ACTIONS{$type} if exists $Actions::MAPPED_ACTIONS{$type};
             $values{$type} = $value;
+            push @new_actions, $action;
         }
-        my %results = (
+
+        return {
             source_id => $source->id,
-            actions => $actions,
+            actions => \@new_actions,
             values => \%values,
-        );
-        return \%results;
+            rule_id => $rule->{id},
+        };
     }
 
     return undef;
@@ -477,7 +505,8 @@ sub adminAuthentication {
         my $roles = $values->{$Actions::SET_ACCESS_LEVEL} // "NONE";
         $roles = [split /\s*,\s*/,$roles];
 
-        my $tenant_id = $values->{$Actions::SET_TENANT_ID} // 0;
+        my $tenant_id = $values->{$Actions::SET_TENANT_ID} // 1;
+        $tenant_id = pf::tenant::tenant_view_by_id($tenant_id);
 
         return ((all{ $_ ne 'NONE'} @$roles), $roles, $tenant_id);
     }
@@ -507,7 +536,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2019 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 

@@ -1,0 +1,595 @@
+// to display images directly on GitHub
+ifdef::env-github[]
+:encoding: UTF-8
+:lang: en
+:doctype: book
+:toc: left
+:imagesdir: ../images
+endif::[]
+
+////
+
+    This file is part of the PacketFence project.
+
+    See PacketFence_Network_Devices_Configuration_Guide-docinfo.xml for 
+    authors, copyright and license information.
+
+////
+
+//== Additional Integration
+
+=== DHCP Remote Sensor
+
+The DHCP remote sensor consists of a lightweight binary that is installed on your production DHCP server in order to replicate the DHCP traffic 1 to 1 to the PacketFence server. This solution is more reliable than the DHCP relaying since PacketFence receives a copy of all your DHCP traffic and not only the broadcasted DHCP traffic. Supported DHCP servers are Microsoft DHCP server and CentOS 6 and 7.
+
+These sensors work by capturing the packets at the lowest level possible on your DHCP server and forward them to the PacketFence management interface
+
+==== Microsoft DHCP Sensor
+
+DHCP-Forwarder is an optimized version of precedent udp-reflector, which installs easily and only copy DHCPREQUESTS and DHCPACK packets to the destination.
+
+https://inverse.ca/downloads/PacketFence/windows-dhcp-forwarder/DHCP%20Forwarder%20Installer.exe[Download the installer here.]
+
+It will install WinPCAP, nssm, launch a configurator to ask for interface, IP and port, save the configuration, install and launch DHCP-Forwarder service.
+
+When you will be asked for a host IP and port, specify PacketFence management IP and 767 as the UDP port.
+
+WARNING: On some versions of Windows, the `getmac` command will return invalid output when running the installer in a language other than English. In order to workaround the issue, change your Windows language to English, then logout/login and run the installer again.
+
+The project page can be found https://github.com/inverse-inc/packetfence-dhcp-forwarder[here].
+
+==== Linux-based Sensor
+
+First download the RPM on your DHCP server.
+
+===== CentOS 6 and 7 servers
+
+For CentOS 6:
+
+----
+# for x86_64
+# wget http://inverse.ca/downloads/PacketFence/CentOS6/extra/x86_64/RPMS/udp-reflector-1.0-6.1.x86_64.rpm
+----
+
+For CentOS 7:
+
+----
+# for x86_64
+# wget http://inverse.ca/downloads/PacketFence/CentOS7/extra/x86_64/RPMS/udp-reflector-1.0-6.1.x86_64.rpm
+----
+
+Now install the sensor:
+
+----
+# rpm -i udp-reflector-*.rpm
+----
+
+===== Compiling the sensor from source on a Linux system
+
+First make sure you have the following packages installed:
+[options="compact"]
+* libpcap
+* libpcap-devel
+* gcc-c++
+
+Get the source code of the sensor:
+
+----
+# mkdir -p ~/udp-reflector && cd ~/udp-reflector
+# wget http://inverse.ca/downloads/PacketFence/udp-reflector/udp_reflector.cpp
+# g++ udp_reflector.cpp -o /usr/local/bin/udp_reflector -lpcap
+----
+
+===== Configuring the Sensor
+
+Place the following line in `/etc/rc.local`
+[options="compact"]
+* where `pcap0` is the pcap interface where your DHCP server listens on. (List them using `udp_reflector -l`)
+* where `192.168.1.5` is the management IP of your PacketFence server
+----
+/usr/local/bin/udp_reflector -s pcap0:67 -d 192.168.1.5:767 -b 25000 &
+----
+
+Start the sensor:
+
+----
+# /usr/local/bin/udp_reflector -s pcap0:67 -d 192.168.1.5:767 -b 25000 &
+----
+
+The DHCP traffic should now be reflected on your PacketFence server.
+
+=== Active Directory Integration
+
+==== Deleted Account
+
+Create the script `unreg_node_deleted_account.ps1` on the Windows Server with the following content. Make sure to change `@IP_PACKETFENCE` to the IP address of your PacketFence server. You'll also need to change the username and password as they must match the credentials defined in the Web admin interface under _Configuration -> Integration -> Web Services_.
+
+----
+#########################################################################################
+#Powershell script to unregister deleted Active Directory account based on the UserName.#
+#########################################################################################
+
+Get-EventLog -LogName Security -InstanceId 4726 |
+   Select ReplacementStrings,"Account name"|
+   % {
+    $url = "https://@IP_PACKETFENCE:9090/"
+    $username = "admin" # Username for the webservices
+    $password = "admin" # Password for the webservices
+    [System.Net.ServicePointManager]::ServerCertificateValidationCallback = {$true}
+    $command = '{"jsonrpc": "2.0", "method": "unreg_node_for_pid", "params": ["pid", "'+$_.ReplacementStrings[0]+'"]}'
+
+    $bytes = [System.Text.Encoding]::ASCII.GetBytes($command)
+    $web = [System.Net.WebRequest]::Create($url)
+    $web.Method = "POST"
+    $web.ContentLength = $bytes.Length
+    $web.ContentType = "application/json-rpc"
+    $web.Credentials = new-object System.Net.NetworkCredential($username, $password)
+    $stream = $web.GetRequestStream()
+    $stream.Write($bytes,0,$bytes.Length)
+    $stream.close()
+
+    $reader = New-Object System.IO.Streamreader -ArgumentList $web.GetResponse().GetResponseStream()
+    $reader.ReadToEnd()
+    $reader.Close()
+   }
+----
+
+===== Create the scheduled task based on an event ID
+
+*Start -> Run -> Taskschd.msc*
+
+*Task Scheduler -> Task Scheduler Library -> Event Viewer Task -> Create Task*
+
+General
+
+----
+Name: PacketFence-Unreg_node-for-deleted-account
+Check: Run whether user is logged on or not
+Check: Run with highest privileges
+----
+
+Triggers -> New
+
+----
+Begin on the task: On an event
+Log: Security
+Source: Microsoft Windows security auditing.
+Event ID: 4726
+----
+
+Actions -> New
+
+----
+Action: Start a program
+Program/script: powershell.exe
+Add arguments (optional): C:\scripts\unreg_node_deleted_account.ps1
+----
+
+Settings:
+
+----
+At the bottom, select in the list "Run a new instance in parallel" in order to unregister multiple nodes at the same time.
+----
+
+Validate with Ok and give the account who will run this task. (Usually _DOMAIN\Administrator_)
+
+==== Disabled Account
+
+Create the script `unreg_node_disabled_account.ps1` on the Windows Server with the following content. Make sure to change `@IP_PACKETFENCE` to the IP address of your PacketFence server. You'll also need to change the username and password as they must match the credentials defined in the Web admin interface under _Configuration -> Integration -> Web Services_.
+
+----
+##########################################################################################
+#Powershell script to unregister disabled Active Directory account based on the UserName.#
+##########################################################################################
+
+Get-EventLog -LogName Security -InstanceId 4725 |
+   Select ReplacementStrings,"Account name"|
+   % {
+    $url = "https://@IP_PACKETFENCE:9090/"
+    $username = "admin" # Username for the webservices
+    $password = "admin" # Password for the webservices
+    [System.Net.ServicePointManager]::ServerCertificateValidationCallback = {$true}
+    $command = '{"jsonrpc": "2.0", "method": "unreg_node_for_pid", "params": ["pid", "'+$_.ReplacementStrings[0]+'"]}'
+
+    $bytes = [System.Text.Encoding]::ASCII.GetBytes($command)
+    $web = [System.Net.WebRequest]::Create($url)
+    $web.Method = "POST"
+    $web.ContentLength = $bytes.Length
+    $web.ContentType = "application/json-rpc"
+    $web.Credentials = new-object System.Net.NetworkCredential($username, $password)
+    $stream = $web.GetRequestStream()
+    $stream.Write($bytes,0,$bytes.Length)
+    $stream.close()
+
+    $reader = New-Object System.IO.Streamreader -ArgumentList $web.GetResponse().GetResponseStream()
+    $reader.ReadToEnd()
+    $reader.Close()
+
+   }
+----
+
+===== Create the scheduled task based on an event ID
+
+*Start -> Run -> Taskschd.msc*
+
+*Task Scheduler -> Task Scheduler Library -> Event Viewer Task -> Create Task*
+
+General
+
+----
+Name: PacketFence-Unreg_node-for-disabled-account
+Check: Run whether user is logged on or not
+Check: Run with highest privileges
+----
+
+Triggers -> New
+
+----
+Begin on the task: On an event
+Log: Security
+Source: Microsoft Windows security auditing.
+Event ID: 4725
+----
+
+Actions -> New
+
+----
+Action: Start a program
+Program/script: powershell.exe
+Add arguments (optional): C:\scripts\unreg_node_disabled_account.ps1
+----
+
+Settings:
+
+----
+At the bottom, select in the list "Run a new instance in parallel"
+----
+
+Validate with Ok and give the account who will run this task. (Usually _DOMAIN\Administrator_)
+
+==== Locked Account
+
+Create the script `unreg_node_locked_account.ps1` on the Windows Server with the following content. Make sure to change `@IP_PACKETFENCE` to the IP address of your PacketFence server. You'll also need to change the username and password as they must match the credentials defined in the Web admin interface under _Configuration -> Integration -> Web Services_.
+
+----
+#########################################################################################
+#Powershell script to unregister locked Active Directory account based on the UserName.#
+#########################################################################################
+
+Get-EventLog -LogName Security -InstanceId 4740 |
+   Select ReplacementStrings,"Account name"|
+   % {
+    $url = "https://@IP_PACKETFENCE:9090/"
+    $username = "admin" # Username for the webservices
+    $password = "admin" # Password for the webservices
+    [System.Net.ServicePointManager]::ServerCertificateValidationCallback = {$true}
+    $command = '{"jsonrpc": "2.0", "method": "unreg_node_for_pid", "params": ["pid", "'+$_.ReplacementStrings[0]+'"]}'
+
+    $bytes = [System.Text.Encoding]::ASCII.GetBytes($command)
+    $web = [System.Net.WebRequest]::Create($url)
+    $web.Method = "POST"
+    $web.ContentLength = $bytes.Length
+    $web.ContentType = "application/json-rpc"
+    $web.Credentials = new-object System.Net.NetworkCredential($username, $password)
+    $stream = $web.GetRequestStream()
+    $stream.Write($bytes,0,$bytes.Length)
+    $stream.close()
+
+    $reader = New-Object System.IO.Streamreader -ArgumentList $web.GetResponse().GetResponseStream()
+    $reader.ReadToEnd()
+    $reader.Close()
+
+   }
+----
+
+===== Create the scheduled task based on an event ID
+
+*Start -> Run -> Taskschd.msc*
+
+*Task Scheduler -> Task Scheduler Library -> Event Viewer Task -> Create Task*
+
+General
+
+----
+Name: PacketFence-Unreg_node-for-locked-account
+Check: Run whether user is logged on or not
+Check: Run with highest privileges
+----
+
+Triggers -> New
+
+----
+Begin on the task: On an event
+Log: Security
+Source: Microsoft Windows security auditing.
+Event ID: 4740
+----
+
+Actions -> New
+
+----
+Action: Start a program
+Program/script: powershell.exe
+Add arguments (optional): C:\scripts\unreg_node_locked_account.ps1
+----
+
+Settings:
+
+----
+At the bottom, select in the list "Run a new instance in parallel"
+----
+
+Validate with Ok and give the account who will run this task. (Usually _DOMAIN\Administrator_)
+
+=== Switch Login Access
+
+PacketFence is able to act as an authentication and authorization service on the port 1815 for granting command-line interface (CLI) access to switches.
+PacketFence currently supports Cisco switches and these must be configured using the following guide: http://www.cisco.com/c/en/us/support/docs/security-vpn/remote-authentication-dial-user-service-radius/116291-configure-freeradius-00.html. From the PacketFence's web admin interface, you must configure an Admin Access role (_Configuration -> System Configuration -> Admin Access_) that contains the action 'Switches CLI - Read' or 'Switches CLI - Write' and assign this role to an internal user or in an Administration rule in an internal source.
+
+Then you need to enable `_CLI Access Enabled_` setting on switch(s) you want to manage in _Configuration -> Network devices -> Switches_.
+
+NOTE: Any user that has the 'ALL' administrative role will be able to login into your switches. If you want to provide all PacketFence administrative access to some users without allowing them to login into the switches, then apply the 'ALL_PF_ONLY' administrative role which will contains all the necessary PacketFence roles without the switch login.
+
+
+=== Cisco Mobility Services Engine (MSE)
+
+This section has been created to give a quick start to configure the Cisco MSE with PacketFence. In the first part we will explain how to use the Cisco MSE in order to present a captive portal based on the localization. Then in the second part we will integrate the device localization in the node view.
+
+==== Assumptions
+
+* You have at least one server with PacketFence 6.3 or later.
+* The PacketFence management IP will be 192.168.1.5.
+* An account has been created on the MSE in order to use RESTful API of the MSE. (Read only for localization , write to create notifications)
+* The Cisco MSE IP will be 192.168.1.6.
+
+==== Portal Based on Localization
+
+===== Enable httpd.collector service on PacketFence
+
+This service is mandatory and will receive the mse notifications in json format.
+To enable this service go in _Status -> Services_ and tick services.httpd_collector and leave the default order.
+
+image::httpd_collector.png[scaledwidth="100%",alt="Enable httpd_collector"]
+
+===== Create a Notification
+
+This part can be done directly on the MSE web admin GUI but we include a Perl script in [filename]`/usr/local/pf/addons/mse-subscribe.pl` that will help you to create one using the RESTful API of the MSE.
+
+So let say that you have a username with write permissions on the MSE (mswrite/password) now go in [filename]`/usr/local/pf/addons` then run:
+
+ ./mse-subscribe.pl --username=msewrite --password=password --url=http://192.168.1.6:8083 --target-ip=192.168.1.5 --target-port=9292 --url-path=/mse/ --zone=Campus>Building>Level>Zone --notification-name=Zone1
+
+This will create the notification and print out the notifications configured on the MSE.
+So now each time a device will enter or leave the specific zone PacketFence will be notified.
+
+===== Configure a Portal Filter
+
+In _Configuration Policies and Access Control -> Connection Profiles -> Add profile -> Advanced filter_ specify an advanced filter like that:
+
+ extended.mse_inout.locationMapHierarchy == "Campus>Building>Level>Zone"
+
+image::Connection_filter.png[scaledwidth="100%",alt="Connection Filter"]
+
+And fill the other configuration needed to configure a connection profile then save it.
+
+That's all, now when a device will hit the captive portal and will be in the specific zone then it will hit this connection profile.
+
+==== MSE Tab
+
+This configuration is really simple, you just have to enable and fill the URL, the username and password in _Configuration -> Integration -> Cisco Mobility Service Engine_.
+So in our example:
+
+ URL: http://192.168.1.6:8083
+ Username: mseread
+ Password: password
+
+image::MSE_Tab.png[scaledwidth="100%",alt="MSE Tab"]
+
+Now go in _Nodes_ and click on a MAC address and you will see that a new tab appears, then if you click on it you will be able to retrieve the map and the localization of the device.
+
+image::TAB.png[scaledwidth="100%",alt="Node TAB"]
+
+
+=== Monit
+
+`monit` is a utility for managing and monitoring processes, files, directories and filesystems on a Unix system. Monit conducts automatic maintenance and repair and can execute meaningful causal actions in error situations. E.g. Monit can start a process if it does not run, restart a process if it does not respond and stop a process if it uses too much resources.
+
+For further reference the monit documentation is available at: https://mmonit.com/monit/documentation/monit.html
+
+==== Install Monit
+
+The following must be done on each server of a cluster
+
+RHEL / CentOS
+
+----
+yum install monit --enablerepo=packetfence-extra -y
+----
+
+Debian
+
+----
+apt-get update
+apt-get install monit
+----
+
+
+==== Fetch the script signing key
+
+----
+gpg --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys E3A28334
+----
+
+
+==== Download the Packetfence monit addons
+
+The monit addons are included with Packetfence at `/usr/local/pf/addons/monit`. This step is only needed if you want to upgrade the scripts to the latest version without having to upgrade Packetfence. This means that you can have unexpected behaviors due to difference between PacketFence configuration and monit checks.
+
+----
+cd /tmp/ && wget http://inverse.ca/downloads/PacketFence/monitoring-scripts/v1/monit.tgz && tar xzvf monit.tgz
+----
+
+Replace the monit addons directory
+
+----
+mv /usr/local/pf/addons/monit /usr/local/pf/addons/monit.old ; mv /tmp/monit /usr/local/pf/addons/
+----
+
+
+==== Generate/Regenerate the monit configuration
+
+----
+/usr/local/pf/addons/monit/monit_build_configuration.pl 'email(s)' 'subject' 'configurations' 'mailserver'
+----
+
+Where :
+[options="compact"]
+* `email(s)`: CSV (no spaces) of recipient email addresses to send alerts.
+* `subject`: Email subject line prefix (example: 'Server 1'). Using a host identifier is useful when running multiple instances (cluster).
+* `configuration(s)`: CSV (no spaces) of configurations (example: 'packetfence,active-active,os-checks').
+** `packetfence`: Everything related to basic PacketFence
+** `portsec`: Will add some checks for port-security related services
+** `drbd`: Will add some checks for DRBD
+** `active-active`: Will add some checks for active-active clustering related services
+** `os-winbind`: Will add a check for the operating system winbindd process. Use it when the winbind/samba configuration is made outside PacketFence
+** `os-checks`: Will add some OS best-practices checks
+* `mailserver`: SMTP server, use _localhost_ if a SMTP relay is not required.
+
+CAUTION: A MTA is needed to correctly relay emails from monit. If _localhost_ is used as `mailserver`, make sure that a MTA is installed and configured on the server. 
+
+NOTE: This command will create configuration scripts in `/etc/monit.d/`, but it will not remove old(er) scripts from an earlier installation. During an upgrade any unused `/etc/monit.d/*.conf` files will be renamed to [filename]`/etc/monit.d/*.conf.bak`.
+
+
+==== Include the generated configurations in the monit config
+
+At the bottom of `/etc/monit.conf` add the line `include /etc/monit.d/*.conf` either manually, or using `sed`:
+
+
+RHEL / CentOS
+
+----
+sed -i -e 's/^include.*//g' /etc/monit.conf && echo "include /etc/monit.d/*.conf" >> /etc/monit.conf
+----
+
+Debian
+
+----
+sed -i -e 's/include.*\*$//g' /etc/monit/monitrc && echo "include /etc/monit/conf.d/*.conf" >> /etc/monit/monitrc
+----
+
+==== Remove the old monit script
+
+This step is only required during an upgrade from earlier versions.
+----
+rm /etc/monit.d/packetfence.monit
+----
+
+==== Run the monitoring script update to fetch the scripts and config
+
+This script will download **latest** shell scripts run by monit checks.
+
+RHEL / CentOS
+
+----
+yum install uuid -y
+/usr/local/pf/addons/monit/monitoring-scripts/update.sh
+----
+
+Debian
+
+----
+apt-get install uuid-runtime
+/usr/local/pf/addons/monit/monitoring-scripts/update.sh
+----
+
+Ensure the script outputs: `Update completed successfully`
+
+
+==== Ensure the pf group can write the logs
+
+----
+chmod g+w /usr/local/pf/logs/*
+----
+
+==== Run the monitoring scripts
+
+----
+/usr/local/pf/addons/monit/monitoring-scripts/run-all.sh
+----
+
+Ensure this script outputs `No error to report`
+
+==== Error: Syslog is not in asynchronous mode
+
+This step is only required if a `Syslog is not in asynchronous mode` error is received above.
+
+In `/etc/rsyslog.conf`, replace:
+----
+*.info;mail.none;authpriv.none;cron.none                /var/log/messages
+----
+
+with (a hyphen):
+----
+*.info;mail.none;authpriv.none;cron.none                -/var/log/messages
+----
+
+==== Ignore some checks
+
+Put full paths of checks in `/etc/monit.d/local-ignores`
+
+==== Enable and start monit
+
+Enable monit on startup
+
+----
+systemctl enable monit
+----
+
+Start monit
+
+----
+systemctl restart monit
+----
+
+==== Installing a MTA
+
+A MTA is needed to correctly relay emails from monit. If _localhost_ is used as smtpserver, make sure that a MTA is installed and configured on the server. 
+
+RHEL / CentOS
+
+----
+yum install mailx -y
+----
+
+Debian
+
+----
+apt-get install heirloom-mailx
+----
+
+==== Test the MTA
+
+----
+echo `hostname` | mail -s "Monit test" user@example.com
+----
+
+
+==== Monit Summary
+
+View the monit summary to ensure all services are status `Running`, `Accessible`, or `Status ok`. Address any services that display any other failed status. Monit will display the services in the same order that they are processed. If the summary appears stuck, troubleshoot the next service in the list.
+
+----
+monit summary
+----
+
+NOTE: `patch` updates only once a week. It is normal to see status `Waiting`.
+
+TIP: More information on the monit command line arguments is available at https://mmonit.com/monit/documentation/monit.html
+
+
+==== packetfence-etcd
+
+This step is only needed if `monit summary` is stuck `Waiting` on `packetfence-etcd`. This error indicates that the cluster is currently in 'Failure during bootstrapping'. Please follow the instructions in the PacketFence Clustering Guide on how to resolve this. 
+
+TIP: More information on `etcd` failures can be found at https://github.com/coreos/etcd/blob/master/Documentation/op-guide/failures.md
+

@@ -54,6 +54,7 @@ sub remove { return; }
 sub cleanupAfterRead {
     my ( $self,$section, $data ) = @_;
     my $defaults = $Default_Config{$section};
+    $self->flatten_list_cr($data, $self->_fields_expanded);
     foreach my $key ( keys %{$Config{$section}} ) {
         my $doc_section = "$section.$key";
         unless (exists $Doc_Config{$doc_section} && exists $data->{$key}  ) {
@@ -187,11 +188,19 @@ sub _Sections {
     return grep { /^\S+$/ } $self->SUPER::_Sections();
 }
 
+=head2 _fields_expanded
+
+=cut
+
+sub _fields_expanded {
+    return qw(staticroutes);
+}
+
 __PACKAGE__->meta->make_immutable unless $ENV{"PF_SKIP_MAKE_IMMUTABLE"};
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2019 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 

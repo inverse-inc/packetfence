@@ -21,16 +21,19 @@
         <slot/>
       </div>
     </b-nav-item>
-    <b-nav class="pf-sidenav my-2" v-if="showSavedSearches && savedSearches.length > 0" vertical>
+    <b-nav class="pf-sidenav mb-2" v-if="showSavedSearches && savedSearches.length > 0" vertical>
       <div class="pf-sidenav-group" v-t="'Saved Searches'"></div>
       <b-nav-item
         exact-active-class="active"
         v-for="search in savedSearches"
         :key="search.name"
         :to="search.route"
+        class="saved-search"
       >
-        <icon class="mx-1" name="trash-alt" role="button" @click.native.stop.prevent="deleteSavedSearch(search)"></icon>
-        <text-highlight :queries="[filter]">{{ search.name }}</text-highlight>
+        <div class="pf-sidebar-item ml-3">
+          <text-highlight :queries="[filter]">{{ search.name }}</text-highlight>
+          <icon class="mx-1" name="trash-alt" role="button" @click.stop.prevent="deleteSavedSearch(search)"></icon>
+        </div>
       </b-nav-item>
     </b-nav>
   </div>
@@ -40,7 +43,7 @@
 import TextHighlight from 'vue-text-highlight'
 
 export default {
-  name: 'pfSidebarItem',
+  name: 'pf-sidebar-item',
   components: {
     TextHighlight
   },
@@ -83,21 +86,34 @@ export default {
     if ('can' in this.item) {
       this.visible = this.$can.apply(null, this.item.can.split(' '))
     }
+    /*
     if ('saveSearchNamespace' in this.item) {
       this.$store.dispatch('saveSearch/get', this.item.saveSearchNamespace).then(savedSearches => {
-        // this.$set(this, 'savedSearches', savedSearches)
+        this.$set(this, 'savedSearches', savedSearches)
       })
     }
+    */
   }
 }
 </script>
 
 <style lang="scss">
-.pf-sidebar-item {
-  .pf-sidenav {
-    .pf-sidenav-group,
-    pf-sidebar-item {
-      padding-left: 0;
+@import '../styles/variables';
+
+.saved-search {
+  a {
+    svg.fa-icon {
+      visibility: hidden;
+    }
+  }
+}
+.saved-search:hover a,
+.saved-search a.active {
+  svg.fa-icon {
+    visibility: visible;
+    color: rgba($body-bg, .7);
+    &:hover {
+      color: $body-bg;
     }
   }
 }

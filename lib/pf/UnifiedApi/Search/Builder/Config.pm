@@ -15,7 +15,6 @@ use warnings;
 use Moo;
 use pf::factory::condition;
 use pf::util qw(mcmp make_string_rcmp make_string_cmp);
-use pf::generate_filter qw(filter_with_offset_limit);
 use pf::error qw(is_error);
 
 our %OP_TO_CONDITION = (
@@ -27,6 +26,14 @@ our %OP_TO_CONDITION = (
     'contains'   => 'pf::condition::matches',
     'ends_with'   => 'pf::condition::ends_with',
     'starts_with'   => 'pf::condition::starts_with',
+);
+
+our %NULL_VAL_OP_TO_CONDITION = (
+    'equals'     => 'pf::condition::not_defined',
+    'not_equals' => 'pf::condition::is_defined',
+    'contains'   => 'pf::condition::false',
+    'ends_with'   => 'pf::condition::false',
+    'starts_with'   => 'pf::condition::false',
 );
 
 our %LOGICAL_OPS = (
@@ -43,8 +50,17 @@ sub search {
 
     my $configStore = $search_info->{configStore};
     my $condition = $search_args->{condition};
-    my @items = $configStore->filter(sub { $condition->match($_[0]) }, 'id');
     my $cmps = $search_args->{cmps};
+    if ((!defined $cmps) && !defined $condition) {
+        return $self->search_simple($search_info);
+    }
+
+    if (defined $condition && !defined $cmps) {
+        return $self->search_filtered_simple($search_info, $condition);
+    }
+
+    $condition //= pf::condition::true->new;
+    my @items = $configStore->filter(sub { $condition->match($_[0]) }, 'id');
     if ($cmps) {
         @items = sort { mcmp($a, $b, $cmps) } @items;
     }
@@ -71,6 +87,83 @@ sub search {
       };
 }
 
+sub search_simple {
+    my ($self, $search_info) = @_;
+    my $configStore = $search_info->{configStore};
+    my $cursor = $search_info->{cursor} // 0;
+    my $nextCursor;
+    my $ids = $configStore->readAllIds();
+    my $count = scalar @$ids;
+    $self->_resortIds($search_info, $ids);
+    my $limit = $search_info->{limit} || 25;
+    if ($cursor > 0) {
+        splice(@$ids, 0, $cursor);
+    }
+
+    if (@$ids > $limit) {
+        $nextCursor = $cursor + $limit;
+        splice(@$ids, $limit);
+    }
+
+    my @items = map { $configStore->read($_, 'id') } @$ids;
+
+    return 200,
+      {
+        prevCursor  => $cursor,
+        items       => \@items,
+        total_count => $count,
+        ( defined $nextCursor ? ( nextCursor => $nextCursor ) : () ),
+      };
+}
+
+sub _resortIds {
+    my ($self, $search_info, $ids) = @_;
+    my $sort = $search_info->{sort} // [];
+    if (@$sort == 1 && $sort->[0]{field} eq 'id') {
+        if ($sort->[0]{dir} eq 'desc') {
+            @$ids = sort { $b cmp $a } @$ids;
+        } else {
+            @$ids = sort @$ids;
+        }
+    }
+}
+
+sub search_filtered_simple {
+    my ($self, $search_info, $condition) = @_;
+    my $configStore = $search_info->{configStore};
+    my $ids = $configStore->readAllIds();
+    $self->_resortIds($search_info, $ids);
+    my $count = scalar @$ids;
+    my $nextCursor;
+    my @items;
+    my $cursor = ($search_info->{cursor} // 0) + 0;
+    my $to_skip = $cursor;
+    my $limit = $search_info->{limit} || 25;
+    for my $id (@$ids) {
+        my $e = $configStore->read($id, 'id');
+        if ($condition->match($e)) {
+            if (@items >= $limit) {
+                $nextCursor = $cursor + $limit;
+                last;
+            }
+
+            if ($to_skip > 0) {
+                $to_skip--;
+                next;
+            }
+
+            push @items, $e;
+        }
+    }
+    return 200,
+      {
+        prevCursor  => $cursor,
+        items       => \@items,
+        total_count => $count,
+        ( defined $nextCursor ? ( nextCursor => $nextCursor ) : () ),
+      };
+}
+
 =head2 make_search_args
 
 make_search_args
@@ -83,6 +176,15 @@ sub make_search_args {
         condition => $self->make_condition($search_info),
         cmps      => $self->make_sort_cmps($search_info),
     );
+
+    # Sorting by id will be handled in search_simple
+    if (!defined $args{condition}) {
+        my $sort = $search_info->{sort} // [];
+        if (@$sort == 1 && $sort->[0]->{field} eq 'id') {
+            $args{cmps} = undef;
+        }
+    }
+
     return 200, \%args;
 }
 
@@ -118,7 +220,7 @@ sub make_condition {
     my ($self, $search) = @_;
     my $query = $search->{query};
     if (!defined $query) {
-        return pf::condition::true->new;
+        return undef;
     }
 
     return $self->query_to_condition($search, $query);
@@ -137,8 +239,20 @@ sub query_to_condition {
         die "$op is an invalid op";
     }
 
-    my $condition = $OP_TO_CONDITION{$op};
-    if ($LOGICAL_OPS{$op}) {
+    my $is_logical = exists $LOGICAL_OPS{$op};
+    my $value = $query->{value};
+    my $condition;
+    if (defined $value || $is_logical || $op eq 'not') {
+        $condition = $OP_TO_CONDITION{$op};
+    } else {
+        if (!exists $NULL_VAL_OP_TO_CONDITION{$op}) {
+            die "Cannot have a null value with op '$op'";
+        }
+
+        $condition = $NULL_VAL_OP_TO_CONDITION{$op};
+    }
+
+    if ($is_logical) {
         my @conditions = map { $self->query_to_condition($search, $_) } @{$query->{values}};
         if (@conditions == 1) {
             return $conditions[0];
@@ -153,6 +267,18 @@ sub query_to_condition {
         });
     }
 
+    if ($condition eq 'pf::condition::false') {
+        return $condition->new;
+    }
+
+    if (!defined $value) {
+        return pf::condition::key_undef->new({
+            key       => $query->{field},
+            condition => $condition->new( { value => $query->{value} } )
+        });
+    }
+
+
     return pf::condition::key->new({
         key       => $query->{field},
         condition => $condition->new( { value => $query->{value} } )
@@ -165,7 +291,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2019 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 

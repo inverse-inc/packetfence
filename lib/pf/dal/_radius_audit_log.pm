@@ -75,6 +75,7 @@ BEGIN {
         radius_request
         radius_reply
         request_time
+        radius_ip
     );
 
     %DEFAULTS = (
@@ -115,6 +116,7 @@ BEGIN {
         radius_request => undef,
         radius_reply => undef,
         request_time => undef,
+        radius_ip => undef,
     );
 
     @INSERTABLE_FIELDS = qw(
@@ -155,6 +157,7 @@ BEGIN {
         radius_request
         radius_reply
         request_time
+        radius_ip
     );
 
     %FIELDS_META = (
@@ -392,6 +395,12 @@ BEGIN {
             is_primary_key => 0,
             is_nullable => 1,
         },
+        radius_ip => {
+            type => 'VARCHAR',
+            is_auto_increment => 0,
+            is_primary_key => 0,
+            is_nullable => 1,
+        },
     );
 
     @PRIMARY_KEYS = qw(
@@ -438,6 +447,7 @@ BEGIN {
         radius_audit_log.radius_request
         radius_audit_log.radius_reply
         radius_audit_log.request_time
+        radius_audit_log.radius_ip
     );
 
 }
@@ -538,14 +548,14 @@ Get the meta data for radius_audit_log
 sub get_meta {
     return \%FIELDS_META;
 }
- 
+
 =head1 AUTHOR
 
 Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2019 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 

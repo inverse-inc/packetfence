@@ -21,16 +21,32 @@ use pf::authentication;
 use Sys::Hostname;
 
 ## Definition
-has_field 'id' =>
-  (
-   type => 'Text',
-   label => 'Identifier',
-   required => 1,
-   maxlength => 10,
-   messages => { required => 'Please specify an identifier' },
-   tags => { after_element => \&help,
-             help => 'Specify a unique identifier for your configuration.<br/>This doesn\'t have to be related to your domain' },
-  );
+has_field 'id' => (
+    type      => 'Text',
+    label     => 'Identifier',
+    required  => 1,
+    maxlength => 10,
+    messages  => { required => 'Please specify an identifier' },
+    tags      => {
+        after_element => \&help,
+        help => 'Specify a unique identifier for your configuration.<br/>This doesn\'t have to be related to your domain',
+        option_pattern => sub {
+            return {
+                regex => "^[0-9a-zA-Z]+\$",
+                message =>
+"The id is invalid. The id can only contain alphanumeric characters.",
+            };
+        },
+    },
+);
+
+has_field 'status' => (
+    type            => 'Toggle',
+    label           => 'Enabled',
+    checkbox_value  => 'enabled',
+    unchecked_value => 'disabled',
+    default => 'enabled',
+);
 
 has_field 'workgroup' =>
   (
@@ -118,7 +134,7 @@ has_field 'ou' => (
     message     => { required => 'Please specify a OU in which the machine account will be created' },
     tags        => {
         after_element   => \&help,
-        help            => 'Precreate the computer account in a specific OU. The OU string read from top to bottom without RDNs and delimited by a \'/\'. E.g. "Computers/Servers/Unix"',
+        help            => 'Use a specific OU for the PacketFence account. The OU string read from top to bottom without RDNs and delimited by a \'/\'. E.g. "Computers/Servers/Unix". IMPORTANT NOTE: Due to a bug in the current version of samba, you will need to precreate a computer object in the OU you specify above when you\'re not using the default value (\'Computers\'). Otherwise you will get the following error: "Failed to join domain: failed to precreate account in ou ou=XYZ,dc=ACME,dc=CORP: No such object"',
     },
 );
 
@@ -128,6 +144,14 @@ has_field 'registration' =>
    label => 'Allow on registration',
    tags => { after_element => \&help,
              help => 'If this option is enabled, the device will be able to reach the Active Directory from the registration VLAN.' },
+  );
+
+has_field 'ntlmv2_only' =>
+  (
+   type => 'Checkbox',
+   label => 'ntlmv2 only',
+   tags => { after_element => \&help,
+             help => 'If you enabled "Send NTLMv2 Response Only. Refuse LM & NTLM" (only allow ntlm v2) in Network Security: LAN Manager authentication level'},
   );
 
 has_field 'ntlm_cache' =>
@@ -266,7 +290,7 @@ sub validate {
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2019 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 

@@ -20,7 +20,7 @@ BEGIN {
     use setup_test_config;
 }
 
-use Test::More tests => 6;                      # last test to print
+use Test::More tests => 7;                      # last test to print
 
 use Test::NoWarnings;
 
@@ -29,6 +29,8 @@ use_ok("pf::condition::ends_with");
 my $filter = new_ok ( "pf::condition::ends_with", [value => 'test'],"Test regex based filter");
 
 ok($filter->match('123test'),"filter matches");
+
+ok($filter->match('123TEST'),"filter matches");
 
 ok(!$filter->match('test123'),"filter does not match matches");
 
@@ -40,7 +42,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2019 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 

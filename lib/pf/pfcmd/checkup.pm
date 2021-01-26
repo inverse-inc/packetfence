@@ -20,6 +20,7 @@ use Readonly;
 use pf::constants::filters;
 use pf::validation::profile_filters;
 use Graph;
+use pf::config::builder::filter_engine;
 use pf::constants;
 use pf::constants::config qw($TIME_MODIFIER_RE);
 use pf::config qw(
@@ -68,6 +69,8 @@ use pf::file_paths qw(
     @log_files
     $generated_conf_dir
     $pfdetect_config_file
+    $template_switches_config_file
+    $template_switches_default_config_file
 );
 use Crypt::OpenSSL::X509;
 use Date::Parse;
@@ -164,7 +167,6 @@ sub sanity_check {
     switches();
     connection_profiles();
     guests();
-    vlan_filter_rules();
     apache_filter_rules();
     db_check_version();
     valid_certs();
@@ -184,7 +186,7 @@ sub service_exists {
     foreach my $service (@services) {
         next if ($service eq 'pf');
         my $exe = ( $Config{'services'}{"${service}_binary"} || "$install_dir/sbin/$service" );
-        if ($service =~ /^(pfipset|pfsso|httpd\.dispatcher|api-frontend)$/) {
+        if ($service =~ /^(pfpki|pfipset|pfsso|httpd\.dispatcher|api-frontend)$/) {
             $exe = "$sbin_dir/pfhttpd";
         } elsif ($service =~ /httpd\.(.*)/) {
             $exe = ( $Config{'services'}{"httpd_binary"} || "$install_dir/sbin/$service" );
@@ -212,17 +214,18 @@ sub interfaces_defined {
     $cached_pf_config->build();
     foreach my $interface ( $cached_pf_config->GroupMembers("interface") ) {
         my %int_conf = %{$Config{$interface}};
-        my $int_with_no_config_required_regexp = qr/(?:monitor|dhcplistener|dhcp-listener|high-availability)/;
+        my $type = $int_conf{'type'};
+        my $int_with_no_config_required_regexp = qr/(?:monitor|dhcplistener|dhcp-listener|high-availability|other)/;
 
-        if (!defined($int_conf{'type'}) || $int_conf{'type'} !~ /$int_with_no_config_required_regexp/) {
+        if (!defined($type) || $type !~ /$int_with_no_config_required_regexp/) {
             if (!defined $int_conf{'ip'} || !defined $int_conf{'mask'}) {
                 add_problem( $FATAL, "incomplete network information for $interface" );
             }
         }
 
-        my $int_types = qr/(?:internal|management|managed|monitor|dhcplistener|dhcp-listener|high-availability|portal|radius|dhcp|dns)/;
-        if (defined($int_conf{'type'}) && $int_conf{'type'} !~ /$int_types/) {
-            add_problem( $FATAL, "invalid network type $int_conf{'type'} for $interface" );
+        my $int_types = qr/(?:internal|management|managed|monitor|dhcplistener|dhcp-listener|high-availability|portal|radius|dhcp|dns|other|)/;
+        if (defined($type) && $type !~ /$int_types/) {
+            add_problem( $FATAL, "invalid network type $type for $interface" );
         }
 
         $nb_management_interface++ if (defined($int_conf{'type'}) && $int_conf{'type'} =~ /management|managed/);
@@ -380,8 +383,10 @@ sub network {
 
     # check that networks.conf is not empty when services.pfdhcp
     # is enabled
-    if (isenabled($Config{'services'}{'pfdhcp'}) && ((!-e $network_config_file ) || (-z $network_config_file ))){
-        add_problem( $WARN, "networks.conf is empty but services.dhcpd is enabled. Disable it to remove this warning." );
+    unless ($pf::config::cluster::multi_zone_enabled) {
+        if (isenabled($Config{'services'}{'pfdhcp'}) && ((!-e $network_config_file ) || (-z $network_config_file ))){
+            add_problem( $WARN, "networks.conf is empty but services.dhcpd is enabled. Disable it to remove this warning." );
+        }
     }
 
     foreach my $network (keys %ConfigNetworks) {
@@ -412,9 +417,12 @@ sub network {
 
         # validate dns entry if named is enabled
         if (exists $net{'named'} &&  $net{'named'} =~ /enabled/i) {
-            for my $dns ( split( ",", $net{'dns'})) {
-                if (!valid_ip($dns)) {
-                    add_problem( $FATAL, "networks.conf: DNS IP is not valid for network $network" );
+            my @dns = split( /\s*,\s*/, $net{'dns'} // '');
+            if (@dns) {
+                for my $dns (@dns) {
+                    if ( !valid_ip($dns) ) {
+                        add_problem( $FATAL, "networks.conf: DNS IP '$dns' is not valid for network $network");
+                    }
                 }
             }
         }
@@ -635,7 +643,7 @@ sub is_config_documented {
                   || ($section =~ /^(services|interface|nessus_category_policy|nessus_scan_by_fingerprint)/));
 
         foreach my $item  (keys %{$Config{$section}}) {
-            next if ( $item =~ /^temporary_/i );
+            next if ( $item =~ /^temporary_/i ) || ("$section.$item" eq "webservices.jsonrpcclient_args");
             if ( !defined( $Doc_Config{"$section.$item"} ) ) {
                 add_problem( $WARN,
                     "unknown configuration parameter $section.$item ".
@@ -800,6 +808,8 @@ sub switches {
     require pf::ConfigStore::Switch;
     my $configStore = pf::ConfigStore::Switch->new;
     my %switches_conf;
+    my $defaults = pf::IniFiles->new(-file => $template_switches_default_config_file);
+    my $ini = pf::IniFiles->new(-file => $template_switches_config_file, -allowempty => 1, -import => $defaults);
 
     my @errors = @Config::IniFiles::errors;
     if ( scalar(@errors) ) {
@@ -816,7 +826,7 @@ sub switches {
         my $is_group = $section =~ /^group/;
         my $data = $switches_conf{$section};
         my $group_section = {};
-        if (exists $data->{group}) {
+        if (exists $data->{group} && $data->{group} ne "default") {
             my $group = "group $data->{group}";
             if (exists $switches_conf{$group}) {
                 $group_section = $switches_conf{$group};
@@ -838,9 +848,9 @@ sub switches {
             add_problem( $WARN, "switches.conf | Switch type for switch ($section) is not defined");
         } else {
             # check type
-            $type = "pf::Switch::$type";
-            $type = untaint_chain($type);
-            if ( !(eval "$type->require()" ) ) {
+            my $module = "pf::Switch::$type";
+            $module = untaint_chain($module);
+            if ( !(eval "$module->require()" ) && !$ini->SectionExists($type) ) {
                 add_problem( $WARN, "switches.conf | Switch type ($type) is invalid for switch $section" );
             }
         }
@@ -937,7 +947,7 @@ sub billing {
         }
     }
     # validate billing tiers have the necessary configuration
-    my @required_tier_params = qw(name description price role access_duration use_time_balance);
+    my @required_tier_params = qw(name description price role access_duration);
     foreach my $tier_id (keys %ConfigBillingTiers){
         foreach my $param (@required_tier_params){
             add_problem($WARN, "Missing parameter $param for billing tier $tier_id") unless($ConfigBillingTiers{$tier_id}{$param});
@@ -980,12 +990,12 @@ Make sure only one external authentication source is selected for each type.
 # TODO: We might want to check if specified auth module(s) are valid... to do so, we'll have to separate the auth thing from the extension check.
 sub connection_profiles {
 
-    my $profile_params = qr/(?:locale |filter|logo|guest_self_reg|guest_modes|template_path|
+    my $profile_params = qr/(?:locale |filter|top_op|logo|guest_self_reg|guest_modes|template_path|
         billing_tiers|description|sources|redirecturl|always_use_redirecturl|
         allowed_devices|allow_android_devices|
         reuse_dot1x_credentials|provisioners|filter_match_style|sms_pin_retry_limit|
-        sms_request_limit|login_attempt_limit|block_interval|dot1x_recompute_role_from_portal|dot1x_unset_on_unmatch|scan|root_module|preregistration|autoregister|access_registration_when_registered|device_registration|
-        dpsk|default_psk_key|status|unreg_on_acct_stop)/x;
+        sms_request_limit|login_attempt_limit|block_interval|dot1x_recompute_role_from_portal|mac_auth_recompute_role_from_portal|dot1x_unset_on_unmatch|scan|root_module|preregistration|autoregister|access_registration_when_registered|self_service|
+        dpsk|default_psk_key|status|unreg_on_acct_stop|vlan_pool_technique)/x;
     my $validator = pf::validation::profile_filters->new;
 
     foreach my $connection_profile ( keys %Profiles_Config ) {
@@ -1018,38 +1028,6 @@ sub connection_profiles {
             $external{$type}++;
             add_problem ( $WARN, "many authentication sources of type $type are selected for profile $connection_profile" )
               if ($external{$type} > 1);
-        }
-    }
-}
-
-=item vlan_filter_rules
-
-Make sure that the minimum parameters have been defined in access filter rules
-
-=cut
-
-sub vlan_filter_rules {
-    require pf::access_filter::vlan;
-    my %ConfigVlanFilters = %pf::access_filter::vlan::ConfigVlanFilters;
-    foreach my $rule  ( sort keys  %ConfigVlanFilters ) {
-        my $rule_data = $ConfigVlanFilters{$rule};
-        if ($rule =~ /^[^:]+:(.*)$/) {
-            my ($condition, $msg) = parse_condition_string($1);
-            add_problem ( $WARN, "Cannot parse condition '$1' in $rule for vlan filter rule" . "\n" . $msg)
-                if !defined $condition;
-            add_problem ( $WARN, "Missing scope attribute in $rule vlan filter rule")
-                if (!defined($rule_data->{'scope'}));
-            add_problem ( $WARN, "Missing role attribute in $rule vlan filter rule")
-                if (!defined($rule_data->{'role'}));
-        } else {
-            add_problem ( $WARN, "Missing filter attribute in $rule vlan filter rule")
-                if (!defined($rule_data->{'filter'}));
-            if (!defined($rule_data->{'operator'})) {
-                add_problem ( $WARN, "Missing operator attribute in $rule vlan filter rule");
-            } else {
-                add_problem ( $WARN, "Missing value attribute in $rule vlan filter rule")
-                    if (!defined($rule_data->{'value'}) && $rule_data->{'operator'} ne 'defined' && $rule_data->{'operator'} ne 'not_defined');
-            }
         }
     }
 }
@@ -1147,35 +1125,6 @@ sub valid_certs {
     if($@){
         add_problem($WARN, "Cannot open the following certificate $httpd_crt")
     }
-
-    my $radius_conf;
-    # if there is no file, we assume this is a first run
-    my $radius_configured = -e "$install_dir/raddb/radiusd.conf" ? 1 : 0 ;
-    if ( $radius_configured ) {
-
-        $radius_conf = read_file("$install_dir/raddb/mods-enabled/eap");
-
-        if($radius_conf =~ /certificate_file =\s*(.*)\s*/){
-             $radius_crt = $1;
-        }
-        else{
-            add_problem($WARN, "Cannot find the FreeRADIUS certificate in your configuration.");
-        }
-
-        eval {
-            if(pf::util::cert_expires_in($radius_crt)){
-                add_problem($WARN, "The certificate used by FreeRADIUS ($radius_crt) has expired.\n" .
-                         "Regenerate a new self-signed certificate or update your current certificate.");
-            }
-        };
-        if($@){
-            add_problem($WARN, "Cannot open the following certificate $radius_crt")
-        }
-    }
-    else {
-        # not a problem per se, we just warn you
-        print STDERR "Radius configuration is missing from raddb directory. Assuming this is a first run.\n";
-    }
 }
 
 sub portal_modules {
@@ -1268,23 +1217,24 @@ sub cluster {
         add_problem($FATAL, "current host ($pf::cluster::host_id) is missing from the cluster.conf file");
     }
 
-    # Check each member configuration
-    foreach my $server (@servers){
-        my $server_name = $server->{host};
-        if(!defined($server->{management_ip})){
-            add_problem($FATAL, "management_ip is not defined for $server_name")
-        }
-        elsif(!valid_ip($server->{management_ip})){
-            add_problem($FATAL, "management_ip is not a valid IP address for $server_name");
-        }
+    unless ($pf::config::cluster::multi_zone_enabled) {
+        # Check each member configuration
+        foreach my $server (@servers){
+            my $server_name = $server->{host};
+            if(!defined($server->{management_ip})){
+                add_problem($FATAL, "management_ip is not defined for $server_name")
+            }
+            elsif(!valid_ip($server->{management_ip})){
+                add_problem($FATAL, "management_ip is not a valid IP address for $server_name");
+            }
 
-        foreach my $int (@ints) {
-            unless(exists($server->{"interface ".$int->{name}})) {
-                add_problem($FATAL, "Interface $int->{name} is not defined for $server_name");
+            foreach my $int (@ints) {
+                unless(exists($server->{"interface ".$int->{name}})) {
+                    add_problem($FATAL, "Interface $int->{name} is not defined for $server_name");
+                }
             }
         }
     }
-
 }
 
 =item valid_fingerbank_device_id
@@ -1334,7 +1284,7 @@ Validate Access Filters
 =cut
 
 sub validate_access_filters {
-    my $builder = pf::config::builder::scoped_filter_engines->new();
+    my $builder = pf::config::builder::filter_engine->new();
     while (my ($f, $cs) = each %pf::constants::filters::CONFIGSTORE_MAP) {
         next if $f eq 'apache-filters';
        my $ini = $cs->configIniFile();
@@ -1356,7 +1306,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2019 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 

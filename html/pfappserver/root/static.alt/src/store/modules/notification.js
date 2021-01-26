@@ -5,9 +5,11 @@
 // import Vue from 'vue'
 import uuidv4 from 'uuid/v4'
 
-const state = {
-  all: [],
-  hideDelay: 5
+const initialState = () => {
+  return {
+    all: [],
+    hideDelay: 5
+  }
 }
 
 const getters = {}
@@ -22,7 +24,7 @@ const actions = {
       unread: true,
       timestamp: new Date()
     }
-    commit('NOTIFICATION', { base: notification, data })
+    commit('NOTIFICATION', { base: notification, data, commit })
   },
   warning: ({ commit }, data) => {
     let notification = {
@@ -32,7 +34,7 @@ const actions = {
       unread: true,
       timestamp: new Date()
     }
-    commit('NOTIFICATION', { base: notification, data })
+    commit('NOTIFICATION', { base: notification, data, commit })
   },
   danger: ({ commit }, data) => {
     let notification = {
@@ -42,7 +44,7 @@ const actions = {
       unread: true,
       timestamp: new Date()
     }
-    commit('NOTIFICATION', { base: notification, data })
+    commit('NOTIFICATION', { base: notification, data, commit })
   },
   status_success: ({ commit }, data) => {
     let notification = {
@@ -52,7 +54,7 @@ const actions = {
       unread: true,
       timestamp: new Date()
     }
-    commit('NOTIFICATION', { base: notification, data })
+    commit('NOTIFICATION', { base: notification, data, commit })
   },
   status_skipped: ({ commit }, data) => {
     let notification = {
@@ -62,7 +64,7 @@ const actions = {
       unread: true,
       timestamp: new Date()
     }
-    commit('NOTIFICATION', { base: notification, data })
+    commit('NOTIFICATION', { base: notification, data, commit })
   },
   status_failed: ({ commit }, data) => {
     let notification = {
@@ -72,34 +74,41 @@ const actions = {
       unread: true,
       timestamp: new Date()
     }
-    commit('NOTIFICATION', { base: notification, data })
+    commit('NOTIFICATION', { base: notification, data, commit })
   }
 }
 
 const mutations = {
   NOTIFICATION: (state, params) => {
+    const { base, data, commit } = params
     let notification
-    if (typeof params.data === 'string') {
-      notification = Object.assign(params.base, { message: params.data })
-    } else if (params.data.message) {
-      notification = Object.assign(params.base, params.data)
+    if (typeof data === 'string') {
+      notification = Object.assign(base, { message: data })
+    } else if (data.message) {
+      notification = Object.assign(base, data)
     }
     if (notification) {
       notification.id = uuidv4()
       state.all.splice(0, 0, notification)
       setTimeout(() => {
-        notification.new = false
+        commit('NOTIFICATION_UNMARK_NEW', notification)
       }, state.hideDelay * 1000)
     }
   },
-  CLEAR: (state) => {
-    state.all = []
+  NOTIFICATION_UNMARK_NEW: (state, notification) => {
+    notification.new = false
+  },
+  $RESET: (state) => {
+    const newState = initialState()
+    for (const key of Object.keys(newState)) { // preserve reactivity
+      state[key] = newState[key]
+    }
   }
 }
 
 export default {
   namespaced: true,
-  state,
+  state: initialState(),
   getters,
   actions,
   mutations

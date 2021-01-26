@@ -14,13 +14,17 @@ if hasattr(fp,'decode'):
 
 fp = fp.replace('<OperatingSystemSection ovf:id="80">', '<OperatingSystemSection ovf:id="101">')
 
-fp = fp.replace('<vssd:VirtualSystemType>virtualbox-2.2', '<vssd:VirtualSystemType>vmx-7')
+fp = fp.replace('<vssd:VirtualSystemType>virtualbox-2.2', '<vssd:VirtualSystemType>vmx-07')
 
 fp = fp.replace('<rasd:Caption>sataController', '<rasd:Caption>scsiController')
 fp = fp.replace('<rasd:Description>SATA Controller', '<rasd:Description>SCSI Controller')
 fp = fp.replace('<rasd:ElementName>sataController', '<rasd:ElementName>scsiController')
 fp = fp.replace('<rasd:ResourceSubType>AHCI', '<rasd:ResourceSubType>lsilogic')
 fp = fp.replace('<rasd:ResourceType>20', '<rasd:ResourceType>6')
+
+fp = fp.replace('ideController0', 'SCSIController')
+fp = fp.replace('ideController1', 'SCSIController')
+fp = fp.replace('<rasd:Description>IDE Controller', '<rasd:Description>SCSI Controller')
 
 end = fp.find('<rasd:Caption>sound')
 start = fp.rfind('<Item>', 0, end)

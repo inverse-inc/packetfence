@@ -1,3 +1,4 @@
+# Copyright (C) Inverse inc.
 # SWITCH FILTERS configuration
 # ============================
 #
@@ -6,6 +7,8 @@
 # It is possible to trigger rules / actions within the following specific connection flow scopes
 # - radius_authorize: Used when PacketFence receive a radius request
 # - external_portal: Used when an endpoint hit the captive portal for web authentication
+# - instantiate_module: Used when PacketFence instanciate a switch module
+# - reevaluate: Used when PacketFence reevaluate the access of the device
 #
 #
 # A "SWITCH Filter" configuration is mainly constituted of two (2) parts; rules(s)/condition(s) and action(s)
@@ -200,8 +203,9 @@
 #
 #[1:SSID]
 #scope = radius_authorize
-#param1 = ExternalPortalEnforcement => N
-#param2 = VlanMap => Y
+#param.0 = ExternalPortalEnforcement => N
+#param.1 = VlanMap => Y
+#param.2 = vlans => gaming => 40;registration => 10
 #
 #[status]
 #filter = node_info.status
@@ -210,7 +214,7 @@
 #
 #[2:!SSID&status]
 #scope = radius_authorize
-#param1 = ExternalPortalEnforcement => N
+#param.0 = ExternalPortalEnforcement => N
 #
 # - If the device hit the portal with theses parameters in the uri then use the Fortinet::FortiGate switch module
 #

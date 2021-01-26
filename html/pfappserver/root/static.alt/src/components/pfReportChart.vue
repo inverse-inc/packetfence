@@ -9,7 +9,7 @@
     <b-row class="mb-3" align-h="between" align-v="center">
       <b-col cols="auto" class="text-left" v-if="range">
         <b-form inline>
-          <b-btn variant="link" id="periods">
+          <b-btn variant="link" id="periods" :disabled="isLoading">
             <icon name="stopwatch"></icon>
           </b-btn>
           <b-popover class="popover-full" target="periods" triggers="click focus blur" placement="bottomright" container="pfReportChart" :show.sync="showPeriod">
@@ -30,8 +30,8 @@
                 </b-button-group>
             </b-form-row>
           </b-popover>
-          <pf-form-datetime v-model="datetimeStart" :max="maxStartDatetime" :prepend-text="$t('Start')" class="mr-3" :disabled="isLoading"></pf-form-datetime>
-          <pf-form-datetime v-model="datetimeEnd" :min="minEndDatetime" :prepend-text="$t('End')" class="mr-3" :disabled="isLoading"></pf-form-datetime>
+          <pf-form-datetime v-model="localDatetimeStart" :max="maxStartDatetime" :prepend-text="$t('Start')" class="mr-3" :disabled="isLoading"></pf-form-datetime>
+          <pf-form-datetime v-model="localDatetimeEnd" :min="minEndDatetime" :prepend-text="$t('End')" class="mr-3" :disabled="isLoading"></pf-form-datetime>
         </b-form>
       </b-col>
       <b-col cols="auto" class="mr-auto"></b-col>
@@ -50,7 +50,7 @@
 </template>
 
 <script>
-import Plotly from 'plotly.js'
+import Plotly from 'plotly.js-basic-dist-min'
 import { format, subSeconds } from 'date-fns'
 import {
   pfReportChartColorsFull as colorsFull,
@@ -87,6 +87,8 @@ export default {
   },
   data () {
     return {
+      localDatetimeStart: null,
+      localDatetimeEnd: null,
       chartSizeLimit: 25,
       showPeriod: false,
       maxStartDatetime: '9999-12-12 23:59:59',
@@ -100,8 +102,6 @@ export default {
         }
       }
     }
-  },
-  computed: {
   },
   methods: {
     queueRender () {
@@ -138,6 +138,9 @@ export default {
           labels = zip.map(zip => zip[1])
         }
       }
+      if (values.length === 1 && !values[0]) {
+        values[0] = 100
+      }
       let options = this.report.chart.options
       if (!options.marker) options.marker = {}
       options.marker = Object.assign(options.marker, { colors: colors })
@@ -147,41 +150,19 @@ export default {
       }, options)]
       Plotly.react(this.$refs.plotly, this.data, this.report.chart.layout, { displayModeBar: true, scrollZoom: true, displaylogo: false, showLink: false })
     },
-    getWindowWidth (event) {
-      const width = document.documentElement.clientWidth
-      if (event && width !== this.windowWidth) {
-        this.queueRender()
-      }
-      this.windowWidth = width
-    },
-    getWindowHeight (event) {
-      const height = document.documentElement.clientHeight
-      if (event && height !== this.windowHeight) {
-        this.queueRender()
-      }
-      this.windowHeight = height
-    },
     onChartSizeChange (chartSizeLimit) {
       this.chartSizeLimit = chartSizeLimit
       this.queueRender()
     },
     setRangeByPeriod (period) {
       this.showPeriod = false
-      this.$emit('changeDatetimeEnd', format(new Date(), 'YYYY-MM-DD HH:mm:ss'))
-      this.$emit('changeDatetimeStart', format(subSeconds(new Date(), period), 'YYYY-MM-DD HH:mm:ss'))
+      this.$emit('end', format(new Date(), 'YYYY-MM-DD HH:mm:ss'))
+      this.$emit('start', format(subSeconds(new Date(), period), 'YYYY-MM-DD HH:mm:ss'))
     }
-  },
-  mounted () {
-    this.$nextTick(() => {
-      window.addEventListener('resize', this.getWindowWidth)
-      window.addEventListener('resize', this.getWindowHeight)
-      this.getWindowWidth()
-      this.getWindowHeight()
-    })
   },
   watch: {
     items: {
-      handler: function (a, b) {
+      handler: function () {
         this.queueRender()
       },
       immediate: true,
@@ -196,25 +177,39 @@ export default {
       immediate: true,
       deep: true
     },
-    datetimeStart (a, b) {
+    datetimeStart: {
+      handler (a) {
+        this.localDatetimeStart = a
+      },
+      immediate: true
+    },
+    localDatetimeStart (a, b) {
       if (a !== b) {
-        this.$emit('changeDatetimeStart', a)
-        this.minEndDatetime = a
+        if (a.replace(/[0-9]/g, '0') === '0000-00-00 00:00:00') {
+          this.$emit('start', a)
+          this.minEndDatetime = a
+        }
       }
     },
-    datetimeEnd (a, b) {
+    datetimeEnd: {
+      handler (a) {
+        this.localDatetimeEnd = a
+      },
+      immediate: true
+    },
+    localDatetimeEnd (a, b) {
       if (a !== b) {
-        this.$emit('changeDatetimeEnd', a)
-        this.maxStartDatetime = a
+        if (a.replace(/[0-9]/g, '0') === '0000-00-00 00:00:00') {
+          this.$emit('end', a)
+          this.maxStartDatetime = a
+        }
       }
     }
   },
-  beforeDestroy () {
+  beforeUnmount () {
     if (this.timeoutRender) {
       clearTimeout(this.timeoutRender)
     }
-    window.removeEventListener('resize', this.getWindowWidth)
-    window.removeEventListener('resize', this.getWindowHeight)
   }
 }
 </script>
@@ -229,9 +224,6 @@ export default {
 </style>
 
 <style lang="scss" scoped>
-@import "../../node_modules/bootstrap/scss/functions";
-@import "../styles/variables";
-
 /**
  * Disable selection when double-clicking legend
  */

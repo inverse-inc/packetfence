@@ -28,6 +28,7 @@ use base 'pfconfig::namespaces::config';
 sub init {
     my ($self) = @_;
     $self->{_scoped_by_tenant_id} = 1;
+    $self->{child_resources} = [ "resource::RealmReverseLookup" , "config::OrderedRealm"];
     $self->{ini} = pf::IniFiles->new(
         -file       => $realm_config_file,
         -import     => pf::IniFiles->new(-file => $realm_default_config_file),
@@ -76,6 +77,13 @@ sub get_params {
         $data{$param} = $ini->val($section, $param);
     }
 
+    if (exists $data{domain}) {
+        my $domain = $data{domain};
+        if ($domain) {
+            push @{$self->{reverseLookup}{domain}{$domain}}, $section;
+        }
+    }
+
     $self->expand_list(\%data, qw(categories));
     return \%data;
 }
@@ -86,7 +94,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2019 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 

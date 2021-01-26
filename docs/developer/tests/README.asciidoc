@@ -1,0 +1,71 @@
+=== Unit tests
+
+==== Unit tests: prerequisites
+
+.Prerequisites to run unit tests:
+* MariaDB up and running
+* PacketFence package(s) installed with all dependencies in [filename]`/usr/local/pf` directory
+* Fingerbank API key configured
+* Environment variables defined:
+** `_PF_TEST_MGMT_INT_`
+** `_PF_TEST_MGMT_IP_`
+** `_PF_TEST_MGMT_MASK_`
+* <<_basic_setup,Golang environment>>
+
+You can meet these prerequisites by starting a `pf*dev` Vagrant virtual
+machine using instructions in <<_virtual_environment_initial_setup>> section.
+
+Inside `pf*dev` virtual machines, [filename]`t` directory  will be available under [filename]`/src/t`.
+
+==== Running all unit tests
+
+After a [command]`vagrant up` command, unit tests should have been run. If you
+want to run them again, execute following command:
+
+[source,bash]
+----
+vagrant provision --provision-with=run-unit-tests VM_NAME
+----
+
+This will upload [filename]`run-tests.sh` script on virtual machine to
+run it.
+
+IMPORTANT: Don't forget to run a `vagrant rsync VM_NAME` before running unit
+tests again if you modify [filename]`t` directory on your host. This will upload latest
+changes made to [filename]`/src/t` directory in `VM_NAME`.
+
+==== Running Perl unit tests
+
+If you want to run only Perl unit tests, disable Golang unit tests using
+`_GOLANG_UNIT_TESTS_` environment variable:
+
+[source,bash]
+----
+GOLANG_UNIT_TESTS=no vagrant provision --provision-with=run-unit-tests VM_NAME
+----
+
+==== Running Golang unit tests
+
+If you want to run only Golang unit tests, disable Perl unit tests using
+`_PERL_UNIT_TESTS_` environment variable:
+
+[source,bash]
+----
+PERL_UNIT_TESTS=no vagrant provision --provision-with=run-unit-tests VM_NAME
+----
+
+You can get more details on Golang unit tests in <<_running_the_tests,Golang section>>.
+
+==== Wrapper
+
+In [filename]`ci/lib/test`, you will find a [filename]`Makefile` used as a
+wrapper to start, test and destroy virtual machines. Examples:
+
+.Usage of Makefile
+[source,bash]
+----
+make -C ci/lib/test test-pfcen7dev-dev
+make -e -C ci/lib/test test-pfcen7dev-dev
+make PF_VM_NAME=pfdeb9dev PERL_UNIT_TESTS=no -C ci/lib/test test
+make PF_VM_NAME=pfdeb9dev clean
+----

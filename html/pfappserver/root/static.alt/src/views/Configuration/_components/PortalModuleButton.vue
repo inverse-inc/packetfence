@@ -2,8 +2,8 @@
   <div class="portal-module" :class="{ disabled: disabled }" @mouseout="delayHideButtons()">
     <transition name="slide-top-quick">
       <div class="front" @click="showButtons()" v-if="!buttonsVisible">
-        <h6 class="text-truncate"><icon class="mb-1" :style="{ color: module.color }" name="circle"></icon> <span class="portal-module-type ml-1">{{ getModuleTypeName(module.type) }}</span></h6>
-        <div class="portal-module-label text-truncate">{{ module.description }}</div>
+        <h6 class="text-truncate w-75"><icon class="mb-1" :style="{ color: module.color }" name="circle"></icon> <span class="portal-module-type ml-1">{{ getModuleTypeName(module.type) }}</span></h6>
+        <div class="portal-module-label w-75 text-truncate">{{ module.description }}</div>
       </div>
     </transition>
     <transition name="slide-bottom-quick" v-if="!disabled">
@@ -21,7 +21,7 @@
 
 <script>
 import { createDebouncer } from 'promised-debounce'
-import { pfConfigurationPortalModuleTypeName as moduleTypeName } from '@/globals/configuration/pfConfigurationPortalModules'
+import { moduleTypeName } from '@/views/Configuration/_config/portalModule'
 
 export default {
   name: 'portal-module-button',
@@ -77,7 +77,7 @@ export default {
         time: 1000 // 1 second
       })
     },
-    remove (event) {
+    remove () {
       this.$emit('remove', this.module.id)
       this.hideButtons()
     }
@@ -86,9 +86,6 @@ export default {
 </script>
 
 <style lang="scss">
-@import "../../../../node_modules/bootstrap/scss/functions";
-@import "../../../styles/variables";
-
 .portal-module {
   position: relative;
   flex: 0 0 $portal-module-width;
@@ -130,6 +127,9 @@ export default {
     flex-direction: column;
     justify-content: center;
     align-items: center;
+    max-width: $portal-module-width;
+    margin: auto;
+    text-align: center;
   }
   .back {
     flex-direction: row;
@@ -157,6 +157,16 @@ export default {
   }
 }
 
+.disconnected .portal-module,
+.minimize .disconnected .portal-module {
+  flex-basis: 100%;
+  border-width: $portal-module-border-width 0 0 0;
+  margin-bottom: $portal-module-border-width;
+  background-color: rgba($white, .2);
+  background-position: 0 0%,0% 0,0 0%,100% 0%;
+  background-size: $portal-module-border-width 16px;
+}
+
 /* Dense version */
 .minimize .portal-module {
   flex: 0 0 $portal-module-width/2;
@@ -166,10 +176,12 @@ export default {
   }
   .front {
     flex-direction: row;
-    margin: map-get($spacers, 1);
+    justify-content: center;
   }
   h6 {
     flex-shrink: 0;
+    width: auto !important;
+    padding: 0 map-get($spacers, 1);
     margin: 0;
     .fa-icon {
       margin: 0 map-get($spacers, 1) 0 0 !important;
@@ -179,7 +191,7 @@ export default {
     display: none;
   }
   .portal-module-label {
-    flex-grow: 1;
+    width: auto !important;
     font-size: $figure-caption-font-size * .8;
     line-height: 1em;
     text-align: left;

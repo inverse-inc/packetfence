@@ -48,7 +48,7 @@ func (tam *TokenAuthenticationMiddleware) GenerateToken() (string, error) {
 func (tam *TokenAuthenticationMiddleware) Login(ctx context.Context, username, password string) (bool, string, error) {
 	for _, backend := range tam.authBackends {
 		if auth, tokenInfo, err := backend.Authenticate(ctx, username, password); auth {
-			log.LoggerWContext(ctx).Info(fmt.Sprintf("API login for user %s for tenant %d", username, tokenInfo.TenantId))
+			log.LoggerWContext(ctx).Info(fmt.Sprintf("API login for user %s for tenant %d", username, tokenInfo.Tenant.Id))
 			token, err := tam.GenerateToken()
 			if err != nil {
 				return false, "", err

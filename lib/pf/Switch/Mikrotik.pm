@@ -45,12 +45,14 @@ use pf::util::radius qw(perform_disconnect);
 
 # CAPABILITIES
 # access technology supported
-sub supportsWirelessMacAuth { return $TRUE; }
+use pf::SwitchSupports qw(
+    WirelessMacAuth
+    ExternalPortal
+    WebFormRegistration
+);
 # inline capabilities
 sub inlineCapabilities { return ($MAC,$SSID); }
 
-sub supportsExternalPortal { return $TRUE; }
-sub supportsWebFormRegistration { return $TRUE }
 
 =item parseExternalPortalRequest
 
@@ -135,11 +137,12 @@ Return the reference to the deauth technique or the default deauth technique.
 =cut
 
 sub deauthTechniques {
-    my ($self, $method) = @_;
+    my ($self, $method, $connection_type) = @_;
     my $logger = $self->logger;
     my $default = $SNMP::SSH;
     my %tech = (
         $SNMP::SSH    => 'deauthenticateMacSSH',
+        $SNMP::RADIUS => 'deauthenticateMacRadius',
     );
 
     if (!defined($method) || !defined($tech{$method})) {
@@ -173,7 +176,7 @@ sub deauthenticateMacRadius {
 
 =item radiusDisconnect
 
-Sends a RADIUS Disconnect-Request to the NAS with the MAC as the Calling-Station-Id to disconnect.
+Sends a RADIUS Disconnect-Request to the NAS with the MAC as User-Name to disconnect.
 
 Has been tested with 6.18 Mikrotik OS version and doesn´t work yet
 
@@ -219,13 +222,12 @@ sub radiusDisconnect {
             LocalAddr => $self->deauth_source_ip($send_disconnect_to),
         };
 
-        # transforming MAC to the expected format 00-11-22-33-CA-FE
+        # transforming MAC to the expected format 00:11:22:33:CA:FE
         $mac = uc($mac);
-        $mac =~ s/:/-/g;
 
         # Standard Attributes
         my $attributes_ref = {
-            'Calling-Station-Id' => $mac,
+            'User-Name' => "$mac",
         };
 
         # merging additional attributes provided by caller to the standard attributes
@@ -275,8 +277,8 @@ sub returnRadiusAccessAccept {
     my $role = "";
     if ( (!$args->{'wasInline'} || ($args->{'wasInline'} && $args->{'vlan'} != 0) ) && isenabled($self->{_VlanMap})) {
         $radius_reply_ref = {
-            'Mikrotik-Wireless-VlanID' => $args->{'vlan'},
-            'Mikrotik-Wireless-VlanIDType' => "0",
+            'Mikrotik-Wireless-VLANID' => $args->{'vlan'} . "",
+            'Mikrotik-Wireless-VLANID-Type' => "0",
         };
     }
 
@@ -352,7 +354,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2019 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 

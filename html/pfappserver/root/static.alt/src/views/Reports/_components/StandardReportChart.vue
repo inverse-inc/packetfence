@@ -5,61 +5,63 @@
     </b-card-header>
 
     <b-tabs ref="tabs" v-model="tabIndex" card>
-      <b-tab v-for="tab in tabs" :key="report.category + report.name + tab.name" :title="tab.name" no-body>
-        <template slot="title">
+      <b-tab v-for="tab in tabs" :key="tab.name" :title="tab.name" no-body>
+        <template v-slot:title>
           {{ $t(tab.name) }}
         </template>
         <!-- TABS ARE ONLY VISUAL, NOTHING HERE... -->
       </b-tab>
     </b-tabs>
 
-    <pf-report-chart v-if="report.chart" :report="report" :range="range && (range.optional || range.mandatory)" :items="items" :datetime-start="datetimeStart" :datetime-end="datetimeEnd" @changeDatetimeStart="onChangeDatetimeStart" @changeDatetimeEnd="onChangeDatetimeEnd" class="mt-3"></pf-report-chart>
+    <pf-report-chart v-if="report.chart"
+      :report="report"
+      :range="range"
+      :items="items"
+      :datetime-start="datetimeStart"
+      :datetime-end="datetimeEnd"
+      :is-loading="isLoading"
+      @start="onChangeDatetimeStart"
+      @end="onChangeDatetimeEnd"
+      class="mt-3"
+    ></pf-report-chart>
 
     <div class="card-body">
-      <b-row align-h="between" align-v="center">
-        <b-col cols="auto" class="mr-auto">
-          <b-dropdown size="sm" variant="link" boundary="viewport" no-caret>
-            <template slot="button-content">
-              <icon name="columns" v-b-tooltip.hover.right.d1000 :title="$t('Visible Columns')"></icon>
-            </template>
-            <template v-for="column in columns">
-              <b-dropdown-item :key="column.key" v-if="column.locked" disabled>
-                <icon class="position-absolute mt-1" name="thumbtack"></icon>
-                <span class="ml-4">{{column.label}}</span>
-              </b-dropdown-item>
-              <a :key="column.key" v-else href="javascript:void(0)" :disabled="column.locked" class="dropdown-item" @click.stop="toggleColumn(column)">
-                <icon class="position-absolute mt-1" name="check" v-show="column.visible"></icon>
-                <span class="ml-4">{{column.label}}</span>
-              </a>
-            </template>
-          </b-dropdown>
-        </b-col>
-        <b-col cols="auto">
-          <b-container fluid>
-            <b-row align-v="center">
-              <b-form inline class="mb-0">
-                <b-form-select class="mb-3 mr-3" size="sm" v-model="pageSizeLimit" :options="[25,50,100,200,500,1000]" :disabled="isLoading"
-                  @input="onPageSizeChange" />
-              </b-form>
-              <b-pagination align="right" v-model="currentPage" :per-page="pageSizeLimit" :total-rows="totalRows" :disabled="isLoading"
-                @change="onPageChange" />
-            </b-row>
-          </b-container>
-        </b-col>
-      </b-row>
-      <b-table :items="items" :fields="visibleColumns" :per-page="pageSizeLimit" :current-page="requestPage" :sort-by="sortBy" :sort-desc="sortDesc" :sort-compare="sortCompare"
-        @sort-changed="onSortingChanged" show-empty responsive hover striped v-model="tableValues">
-        <template slot="empty">
+      <b-table :items="items" :fields="visibleColumns" :sort-by="sortBy" :sort-desc="sortDesc" :sort-compare="sortCompare"
+        @sort-changed="onSortingChanged" show-empty responsive hover sort-icon-left striped v-model="tableValues">
+        <template v-slot:empty>
           <pf-empty-table :isLoading="isLoading">{{ $t('No data found') }}</pf-empty-table>
         </template>
-        <template slot="mac" slot-scope="data">
-          <router-link :to="{ path: `/node/${data.value}` }">{{ data.value }}</router-link>
+        <template v-slot:cell(callingstationid)="item">
+          <template v-if="item && item.value !== 'Total'">
+            <router-link :to="{ name: 'node', params: { mac: item.value } }"><mac>{{ item.value }}</mac></router-link>
+          </template>
+          <template v-else>
+            {{ item.value }}
+          </template>
         </template>
-        <template slot="owner" slot-scope="data">
-          <router-link :to="{ path: `/user/${data.value}` }">{{ data.value }}</router-link>
+        <template v-slot:cell(mac)="item">
+          <template v-if="item && item.value !== 'Total'">
+            <router-link :to="{ name: 'node', params: { mac: item.value } }"><mac>{{ item.value }}</mac></router-link>
+          </template>
+          <template v-else>
+            {{ item.value }}
+          </template>
         </template>
-        <template slot="pid" slot-scope="data">
-          <router-link :to="{ path: `/user/${data.value}` }">{{ data.value }}</router-link>
+        <template v-slot:cell(owner)="item">
+          <template v-if="item && item.value !== 'Total'">
+            <router-link :to="{ name: 'user', params: { pid: item.value } }">{{ item.value }}</router-link>
+          </template>
+          <template v-else>
+            {{ item.value }}
+          </template>
+        </template>
+        <template v-slot:cell(pid)="item">
+          <template v-if="item && item.value !== 'Total'">
+            <router-link :to="{ name: 'user', params: { pid: item.value } }">{{ item.value }}</router-link>
+          </template>
+          <template v-else>
+            {{ item.value }}
+          </template>
         </template>
       </b-table>
     </div>
@@ -76,7 +78,7 @@ import {
 import pfReportChart from '@/components/pfReportChart'
 
 export default {
-  name: 'StandardReportChart',
+  name: 'standard-report-chart',
   components: {
     pfEmptyTable,
     pfReportChart
@@ -126,7 +128,8 @@ export default {
       return this.report.tabs
     },
     range () {
-      return this.tabs[this.tabIndex].range
+      const { tabs: { [Math.max(0, this.tabIndex)] : { range = false } = {} } = {} } = this
+      return range
     },
     /**
      * build report using routers' path,
@@ -134,7 +137,7 @@ export default {
      * search array and return single report matching path.
      */
     report () {
-      return reportCategories.map(category => category.reports.map(report => Object.assign({ category: category.name }, report))).reduce((l, n) => l.concat(n), []).filter(report => report.tabs.map(tab => tab.path).includes(this.path))[0]
+      return reportCategories().map(category => category.reports.map(report => Object.assign({ category: category.name }, report))).reduce((l, n) => l.concat(n), []).filter(report => report.tabs.map(tab => tab.path).includes(this.path))[0]
     },
     totalRows () {
       return this.items.length
@@ -147,9 +150,9 @@ export default {
      * otherwise use the default sort.
      */
     sortCompare (a, b, key) {
-      if (reportColumns[key].sort) {
+      if (reportColumns()[key].sort) {
         // custom sort
-        return reportColumns[key].sort(a[key], b[key])
+        return reportColumns()[key].sort(a[key], b[key])
       } else {
         // default sort
         return null
@@ -157,60 +160,96 @@ export default {
     },
     apiCall () {
       if (!this.apiEndpoint) return
+      this.items = []
       this.isLoading = true
-      let _this = this
       apiCall.get(this.apiEndpoint, {}).then(response => {
-        _this.items = response.data.items
-        _this.requestPage = 1
-        _this.isLoading = false
+        const len = response.data.items.length - 1
+        this.items = response.data.items.map((item, index) => {
+          return (index === len)
+            ? { ...item, ...{ _rowVariant: 'primary' } } // highlight totals
+            : item
+        })
+        this.requestPage = 1
       }).catch(err => {
-        _this.isLoading = false
         return err
+      }).finally(() => {
+        this.isLoading = false
       })
     },
-    getReportByName (name) {
-      return reportCategories.map(category => category.reports.map(report => Object.assign({ category: category.name }, report))).reduce((l, n) => l.concat(n), []).filter(report => report.name === name)[0]
+    getReportCategoryByPath (reportPath) {
+      return reportCategories().find(category => {
+        const { reports = [] } = category
+        return reports.find(report => {
+          const { tabs = [] } = report
+          return tabs.find(tab => {
+            const { path } = tab
+            return path === reportPath
+          })
+        })
+      })
     },
     getReportByPath (path) {
-      return reportCategories.map(category => category.reports.map(report => Object.assign({ category: category.name }, report))).reduce((l, n) => l.concat(n), []).filter(report => report.tabs.map(tab => tab.path).includes(path))[0]
+      return reportCategories().map(category => category.reports.map(report => Object.assign({ category: category.name }, report))).reduce((l, n) => l.concat(n), []).filter(report => report.tabs.map(tab => tab.path).includes(path))[0]
     },
     onChangeDatetimeStart (datetime) {
       this.datetimeStart = datetime
       const rpath = this.getApiEndpointRangePath(this.range)
-      this.apiEndpoint = `reports/${this.path}${rpath}`
+      if (rpath) {
+        this.apiEndpoint = `reports/${this.path}${rpath}`
+      }
     },
     onChangeDatetimeEnd (datetime) {
       this.datetimeEnd = datetime
       const rpath = this.getApiEndpointRangePath(this.range)
-      this.apiEndpoint = `reports/${this.path}${rpath}`
+      if (rpath) {
+        this.apiEndpoint = `reports/${this.path}${rpath}`
+      }
     },
     getApiEndpointRangePath (range) {
-      let rpath = ''
-      if (range && (range.required || range.optional)) {
-        rpath += (this.datetimeStart) ? '/' + this.datetimeStart : '/0000-00-00 00:00:00'
-        rpath += (this.datetimeEnd) ? '/' + this.datetimeEnd : '/9999-12-12 23:59:59'
+      const { datetimeStart, datetimeEnd } = this
+      if (range && datetimeStart && datetimeEnd) {
+        return `/${datetimeStart}/${datetimeEnd}`
       }
-      return rpath
+      return false
+    },
+    onSortingChanged () {
+      // noop
     }
   },
   beforeRouteUpdate (to, from, next) {
     // trigger on every page-leave and only within same route '/reports'
-    if (this.getReportByPath(to.params.path).name !== this.getReportByPath(from.params.path).name) {
+    if (
+      this.getReportCategoryByPath(from.params.path).name !== this.getReportCategoryByPath(to.params.path).name
+      ||
+      this.getReportByPath(to.params.path).name !== this.getReportByPath(from.params.path).name
+    ) {
       this.tabIndex = 0
     }
-    const report = reportCategories.map(category => category.reports).reduce((l, n) => l.concat(n), []).filter(report => report.tabs.map(tab => tab.path).includes(to.params.path))[0]
-    const range = report.tabs[this.tabIndex].range
-    const rpath = this.getApiEndpointRangePath(range)
-    this.apiEndpoint = `reports/${to.params.path}${rpath}`
+    const report = reportCategories().map(category => category.reports).reduce((l, n) => l.concat(n), []).filter(report => report.tabs.map(tab => tab.path).includes(to.params.path))[0]
+    const { tabs: { [this.tabIndex]: { range = false } = {} } = {} } = report
+    if (range) {
+      const rpath = this.getApiEndpointRangePath(range)
+      if (rpath) {
+        this.apiEndpoint = `reports/${to.params.path}${rpath}`
+      }
+    } else {
+      this.apiEndpoint = `reports/${to.params.path}`
+    }
     next()
   },
   beforeRouteEnter (to, from, next) {
     // triggered only once on page-load to this route '/reports'
     next(vm => {
-      vm.tabIndex = vm.report.tabs.findIndex(tab => tab.path === to.params.path)
+      vm.tabIndex = Math.max(0, vm.report.tabs.findIndex(tab => tab.path === to.params.path))
       const range = vm.report.tabs[vm.tabIndex].range
-      const rpath = vm.getApiEndpointRangePath(range)
-      vm.apiEndpoint = `reports/${to.params.path}${rpath}`
+      if (range) {
+        const rpath = vm.getApiEndpointRangePath(range)
+        if (rpath) {
+          vm.apiEndpoint = `reports/${to.params.path}${rpath}`
+        }
+      } else {
+        vm.apiEndpoint = `reports/${to.params.path}`
+      }
     })
   },
   watch: {
@@ -220,17 +259,23 @@ export default {
       }
     },
     tabIndex (a, b) {
+      a = Math.max(0, a)
       if (a !== b) {
+        this.items = []
         /**
          * mandatory `replace`,
          * `push` confuses beforeRouteEnter, beforeRouteUpdate w/ history.go(-1)
          */
-        this.$router.replace(`/reports/standard/chart/${this.report.tabs[a].path}`)
+        const newPath = `/reports/standard/chart/${this.report.tabs[a].path}`
+        if (newPath !== this.$route.path) {
+          this.$router.replace(newPath)
+        }
       }
     }
   },
   created () {
-    this.$store.dispatch('config/getRoles')
+    if (this.$can('read', 'nodes'))
+      this.$store.dispatch('config/getRoles')
     // if range defined in route, prepopulate datetime fields
     this.datetimeStart = (this.start_datetime) ? this.start_datetime : ''
     this.datetimeEnd = (this.end_datetime) ? this.end_datetime : ''

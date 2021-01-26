@@ -46,6 +46,7 @@ func TestSuricataMD5Parse(t *testing.T) {
 						"tid", "0806b949be8f93127a9fbf909221a121",
 						"type", "suricata_md5",
 					},
+					TenantID: 1,
 				},
 			},
 		},

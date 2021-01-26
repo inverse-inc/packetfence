@@ -2,7 +2,7 @@ package captiveportal::PacketFence::Controller::DeviceRegistration;;
 use Moose;
 use namespace::autoclean;
 use pf::Authentication::constants;
-use pf::config qw(%ConfigDeviceRegistration);
+use pf::config qw(%ConfigSelfService);
 use pf::constants;
 use pf::log;
 use pf::node;
@@ -10,8 +10,10 @@ use pf::util;
 use pf::error qw(is_success);
 use pf::web;
 use pf::enforcement qw(reevaluate_access);
+use pf::fingerbank;
 use fingerbank::DB_Factory;
 use pf::constants::realm;
+use POSIX;
 
 BEGIN { extends 'captiveportal::Base::Controller'; }
 
@@ -47,7 +49,7 @@ Checks whether or not a device registration policy is enabled on the current con
 
 sub isDeviceRegEnabled {
     my ($self, $c) = @_;
-    if ($c->profile->{'_device_registration'}) {
+    if ($c->profile->{'_self_service'}) {
         return $TRUE
     } else {
         return $FALSE;
@@ -77,13 +79,17 @@ sub index : Path : Args(0) {
         my $device_mac = clean_mac($request->param('device_mac'));
         my $device_type;
         $device_type = $request->param('console_type') if ( defined($request->param('console_type')) );
-
+        my $registration_role = $request->param('registration_role') if ( defined($request->param('registration_role')) );
         if(valid_mac($device_mac)) {
             # Register device
-            $c->forward('registerNode', [ $pid, $device_mac, $device_type ]);
+            $c->forward('registerNode', [ $pid, $device_mac, $device_type, $registration_role ]);
         }
         $c->stash(txt_auth_error => "Please verify the provided MAC address.");
     }
+
+    my $device_reg_profile = $c->profile->{'_self_service'};
+    my @registration_roles = map { { value => $_, label => $_ } } split(',', $ConfigSelfService{$device_reg_profile}{'device_registration_roles'});
+    $c->stash->{device_registration_list_roles} = \@registration_roles;
     # User is authenticated so display registration page
     $c->stash(title => "Registration", template => 'device-registration/registration.html');
 }
@@ -117,9 +123,9 @@ sub landing : Local : Args(0) {
 }
 
 sub registerNode : Private {
-    my ( $self, $c, $pid, $mac, $type ) = @_;
+    my ( $self, $c, $pid, $mac, $type, $role ) = @_;
     my $logger = $c->log;
-    my $device_reg_profile = $c->profile->{'_device_registration'};
+    my $device_reg_profile = $c->profile->{'_self_service'};
     if ( is_allowed($mac, $device_reg_profile) && valid_mac($mac) ) {
         my ($node) = node_view($mac);
         if( $node && $node->{status} ne $pf::node::STATUS_UNREGISTERED ) {
@@ -132,20 +138,28 @@ sub registerNode : Private {
             my $params = { username => $pid, 'context' => $pf::constants::realm::PORTAL_CONTEXT};
             $c->stash->{device_mac} = $mac;
             # Get role for device registration
-            my $role =
-              $ConfigDeviceRegistration{$device_reg_profile}{'category'};
-            if ($role) {
-                $logger->debug("Device registration role is $role (from pf.conf)");
-            } else {
-                # Use role of user
-                $role = pf::authentication::match( $source_id, $params , $Actions::SET_ROLE, undef, $c->user_session->{extra});
-                $logger->debug("Gaming devices role is $role (from username $pid)");
-            }
+            if (!(defined($role))) {
+                $role = $ConfigSelfService{$device_reg_profile}{'device_registration_roles'};
+                if ($role) {
+                    $logger->debug("Device registration role is $role (from self_service.conf)");
+                } else {
+                    # Use role of user
+                    $role = pf::authentication::match( $source_id, $params , $Actions::SET_ROLE, undef, $c->user_session->{extra});
+                    $logger->debug("Gaming devices role is $role (from username $pid)");
+                }
+	    }
 
-            my $unregdate = pf::authentication::match( $source_id, $params, $Actions::SET_UNREG_DATE, undef, $c->user_session->{extra});
-            if ( defined $unregdate ) {
-                $logger->debug("Got unregdate $unregdate for username $pid");
-                $info{unregdate} = $unregdate;
+            my $duration = $ConfigSelfService{$device_reg_profile}{'device_registration_access_duration'};
+            if($duration > 0) {
+                $info{unregdate} = POSIX::strftime("%Y-%m-%d %H:%M:%S", localtime(time + $duration));
+                $logger->debug("Got unregdate $info{unregdate} for username $pid through the self-service configuration");
+            }
+            else {
+                my $unregdate = pf::authentication::match( $source_id, $params, $Actions::SET_UNREG_DATE, undef, $c->user_session->{extra});
+                if ( defined $unregdate ) {
+                    $logger->debug("Got unregdate $unregdate for username $pid");
+                    $info{unregdate} = $unregdate;
+                }
             }
             my $time_balance = &pf::authentication::match( $source_id, $params, $Actions::SET_TIME_BALANCE);
             if ( defined $time_balance ) {
@@ -206,18 +220,26 @@ sub is_allowed {
     my ($mac, $device_reg_profile) = @_;
     $mac =~ s/O/0/i;
     my $logger = get_logger();
-    my $oses = $ConfigDeviceRegistration{$device_reg_profile}{'allowed_devices'};
+    my $oses = $ConfigSelfService{$device_reg_profile}{'device_registration_allowed_devices'};
 
     # If no oses are defined then it will allow every devices to be registered
     return $TRUE if @$oses == 0;
 
     # Verify if the device is existing in the table node and if it's device_type is allowed
+    node_add_simple($mac);
+    pf::fingerbank::process($mac, 1);
     my $node = node_view($mac);
     my $device_type = $node->{device_type};
+    my $device_manufacturer = $node->{device_manufacturer};
     for my $id (@$oses) {
         my $endpoint = fingerbank::Model::Endpoint->new(name => $device_type, version => undef, score => undef);
         if ( defined($device_type) && $endpoint->is_a_by_id($id)) {
             $logger->debug("The devices type ".$device_type." is authorized to be registered via the device-registration module");
+            return $TRUE;
+        }
+        my $endpoint_manufacturer = fingerbank::Model::Endpoint->new(name => $device_manufacturer, version => undef, score => undef);
+        if ( defined($device_manufacturer) && $endpoint_manufacturer->is_a_by_id($id)) {
+            $logger->debug("The devices manufacturer ".$device_manufacturer." is authorized to be registered via the device-registration module");
             return $TRUE;
         }
     }
@@ -260,7 +282,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2019 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 

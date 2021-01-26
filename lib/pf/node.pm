@@ -30,6 +30,7 @@ use CHI::Memoize qw(memoized);
 use pf::dal::node;
 use pf::config::tenant;
 use pf::dal::locationlog;
+use pf::client;
 use pf::constants::node qw(
     $STATUS_REGISTERED
     $STATUS_UNREGISTERED
@@ -156,6 +157,16 @@ sub node_view_reg_pid {
     return;
 }
 
+sub _can_delete {
+    my ($mac) = @_;
+    if ( defined( pf::locationlog::locationlog_view_open_mac($mac) ) ) {
+        my $msg = "$mac has an open locationlog entry. Node deletion prohibited";
+        return ($FALSE, $msg);
+    }
+
+    return ($TRUE,'');
+}
+
 #
 # delete and return 1
 #
@@ -167,16 +178,16 @@ sub node_delete {
     $mac = clean_mac($mac);
 
     if ( !node_exist($mac) ) {
-        $logger->error("delete of non-existent node '$mac' failed");
-        return (0);
+        return ($FALSE, "delete of non-existent node '$mac' failed");
     }
 
     require pf::locationlog;
-    # TODO that limitation is arbitrary at best, we need to resolve that.
-    if ( defined( pf::locationlog::locationlog_view_open_mac($mac) ) ) {
-        $logger->warn("$mac has an open locationlog entry. Node deletion prohibited");
-        return (0);
+    my ($can_delete, $msg) = _can_delete($mac);
+    if (!$can_delete) {
+        $logger->warn($msg);
+        return ($FALSE, $msg);
     }
+
     my %options = (
         -where => {
             mac => $mac,
@@ -189,10 +200,11 @@ sub node_delete {
 
     my ($status, $count) = pf::dal::node->remove_items(%options);
     if (is_error($status)) {
-        return (0);
+        return ($FALSE, "Unable to delete '$mac' internal error");
     }
+
     $logger->info("node $mac deleted");
-    return (1);
+    return ($TRUE, '');
 }
 
 our %DEFAULT_NODE_VALUES = (
@@ -233,6 +245,13 @@ sub node_add {
         $logger->warn("attempt to add existing node $mac");
         return (2);
     }
+    my $node_status = $data{status};
+    if ( defined $node_status && ( $node_status eq $STATUS_REGISTERED )) {
+        my $regdate = $data{regdate};
+        if ( !defined $regdate || $regdate eq '' || $regdate eq $ZERO_DATE ) {
+            $data{regdate} = \'NOW()';
+        }
+    }
 
     foreach my $field (keys %DEFAULT_NODE_VALUES)
     {
@@ -240,10 +259,6 @@ sub node_add {
     }
 
     _cleanup_attributes(\%data);
-
-    if ( ( $data{status} eq $STATUS_REGISTERED ) && ( $data{regdate} eq '' ) ) {
-        $data{regdate} = mysql_date();
-    }
 
     # category handling
     $data{'category_id'} = _node_category_handling(%data);
@@ -256,7 +271,7 @@ sub node_add {
 }
 
 #
-# simple wrapper for pfmon/pfdhcplistener-detected and auto-generated nodes
+# simple wrapper for pfcron/pfdhcplistener-detected and auto-generated nodes
 #
 sub node_add_simple {
     my ($mac) = @_;
@@ -266,6 +281,7 @@ sub node_add_simple {
         'detect_date' => $date,
         'status'      => 'unreg',
         'voip'        => 'no',
+        -ignore       => 1,
     );
     if ( !node_add( $mac, %tmp ) ) {
         return (0);
@@ -490,7 +506,7 @@ sub node_view_all {
             operator  => '=>',
             condition => {
                 'node.mac' => { '=' => { -ident => '%2$s.mac' } },
-                '%2$s.' => $ZERO_DATE,
+                '%2$s.end_time' => $ZERO_DATE,
             },
         },
         'locationlog',
@@ -498,7 +514,7 @@ sub node_view_all {
             operator  => '=>',
             condition => {
                 'node.mac' => { '=' => { -ident => '%2$s.mac' } },
-                '%2$s.' => [$ZERO_DATE, { ">", \'NOW()'}],
+                '%2$s.end_time' => [$ZERO_DATE, { ">", \'NOW()'}],
             },
         },
         'ip4log'
@@ -687,6 +703,7 @@ sub node_register {
     if ( any { isenabled($_->{'_registration'}) } @scanners) {
         # trigger Scan for On Registration scanners
         $logger->debug("Triggering On Registration Scan");
+        require pf::api;
         pf::api::trigger_scan('pf::api',ip => pf::ip4log::mac2ip($mac) , mac => $mac , net_type => 'registration');
     }
 
@@ -712,9 +729,9 @@ sub node_deregister {
     $info{'autoreg'}   = 'no';
 
     my $profile = pf::Connection::ProfileFactory->instantiate($mac);
-    if(my $provisioner = $profile->findProvisioner($mac)){
-        if(my $pki_provider = $provisioner->getPkiProvider() ){
-            if(isenabled($pki_provider->revoke_on_unregistration)){
+    if (my $provisioner = $profile->findProvisioner($mac)) {
+        if (my $pki_provider = $provisioner->getPkiProvider() ) {
+            if (isenabled($pki_provider->revoke_on_unregistration)) {
                 my $node_info = node_view($mac);
                 my $cn = $pki_provider->user_cn($node_info);
                 $pki_provider->revoke($cn);
@@ -740,7 +757,7 @@ sub node_deregister {
 
 =item * nodes_maintenance - handling deregistration on node expiration and node grace
 
-called by pfmon daemon for the configured interval
+called by pfcron daemon for the configured interval
 
 =cut
 
@@ -766,7 +783,17 @@ sub nodes_maintenance {
     while (my $row = $iter->next()) {
         my $currentMac = $row->{mac};
         pf::dal->set_tenant($row->{tenant_id});
+
+        my $apiclient = pf::client::getClient;
+        my %security_event = (
+            'mac'   => $currentMac,
+            'tid'   => 'node_maintenance',
+            'type'  => 'internal',
+        );
+        $apiclient->notify('trigger_security_event', %security_event);
+
         node_deregister($currentMac);
+
         require pf::enforcement;
         pf::enforcement::reevaluate_access( $currentMac, 'manage_deregister' );
 
@@ -1299,7 +1326,7 @@ Minor parts of this file may have been contributed. See CREDITS.
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2019 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 Copyright (C) 2005 Kevin Amorin
 

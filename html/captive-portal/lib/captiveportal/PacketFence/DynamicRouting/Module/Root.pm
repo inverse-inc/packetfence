@@ -86,7 +86,8 @@ sub release {
     # One last check for the security_events
     return unless($self->handle_security_events());
 
-    return $self->app->redirect("http://" . $self->app->request->header("host") . "/access?lang=".$self->app->session->{lang}) unless($self->app->request->path eq "access");
+    my $lang = $self->app->session->{lang} // "";
+    return $self->app->redirect("http://" . $self->app->request->header("host") . "/access?lang=$lang") unless($self->app->request->path eq "access");
 
     get_logger->info("Releasing device");
 
@@ -146,12 +147,13 @@ sub unknown_state {
                 # set the cache, incrementing before on purpose (otherwise it's not hitting the cache)
                 $self->app->user_cache->set("unknown_state_hits", ++$cached_lost_device, "5 minutes");
 
-                get_logger->info("Reevaluating access of device.");
+                get_logger->info("Device is registered and still on the portal, attempting to release it again.");
 
-                reevaluate_access( $self->current_mac, 'manage_register', force => 1 );
+                $self->release();
+            } else {
+                get_logger->warn("Too many attempts to release the device.");
+                return $self->app->error("Your network should be enabled within a minute or two. If it is not reboot your computer.");
             }
-
-            return $self->app->error("Your network should be enabled within a minute or two. If it is not reboot your computer.");
         }
     }
 }
@@ -168,7 +170,7 @@ sub handle_security_events {
 
     my $security_event = security_event_view_top($mac);
 
-    return 1 unless(defined($security_event));
+    return 1 unless($security_event);
 
     return 1 if ($security_event->{security_event_id} == $POST_SCAN_SECURITY_EVENT_ID);
 
@@ -191,7 +193,7 @@ sub validate_mac {
     return $TRUE;
 }
 
-=head2 execute_actions
+=head2 execute_child
 
 Execute the flow for this module
 
@@ -209,6 +211,9 @@ sub execute_child {
     # HACK alert : E-mail registration has the user registered but still going in the portal
     # release_bypass is there for that. If it is set, it will keep the user in the portal
     my $node = node_view($self->current_mac);
+    if (!defined($self->app->session->{release_bypass})) {
+        $self->app->session->{release_bypass} = $TRUE;
+    }
     if($self->app->profile->canAccessRegistrationWhenRegistered() && $self->app->session->{release_bypass}) {
         get_logger->info("Allowing user through portal even though he is registered as the release bypass is set and the connection profile is configured to let registered users use the registration module of the portal.");
     }
@@ -286,7 +291,11 @@ sub apply_new_node_info {
         return $TRUE;
     }
     else {
-        $self->app->error("Couldn't register your device. Please contact your local support staff.");
+        if (defined($status_msg) && $status_msg ne '') {
+            $self->app->error($status_msg);
+        } else {
+            $self->app->error("Couldn't register your device. Please contact your local support staff.");
+        }
         $self->detach();
     }
 }
@@ -366,7 +375,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2019 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 

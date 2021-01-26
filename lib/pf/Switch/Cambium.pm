@@ -30,7 +30,6 @@ use pf::config qw(
 use pf::constants;
 use pf::Switch::constants;
 use pf::util;
-use pf::util::radius qw(perform_disconnect);
 use pf::accounting qw(node_accounting_dynauth_attr);
 
 =head1 SUBROUTINES
@@ -44,10 +43,12 @@ sub description { return "Cambium" }
 
 # CAPABILITIES
 # access technology supported
-sub supportsWirelessDot1x { return $TRUE; }
-sub supportsWirelessMacAuth { return $TRUE; }
-sub supportsExternalPortal { return $TRUE; }
-sub supportsWebFormRegistration { return $TRUE }
+use pf::SwitchSupports qw(
+    WirelessDot1x
+    WirelessMacAuth
+    ExternalPortal
+    WebFormRegistration
+);
 sub inlineCapabilities { return ($MAC,$PORT); }
 
 sub getVersion {
@@ -105,7 +106,7 @@ Return the reference to the deauth technique or the default deauth technique.
 =cut
 
 sub deauthTechniques {
-    my ($self, $method) = @_;
+    my ($self, $method, $connection_type) = @_;
     my $logger = $self->logger;
     my $default = $SNMP::RADIUS;
     my %tech = (
@@ -194,7 +195,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2019 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 

@@ -21,6 +21,7 @@ use pf::config qw($default_pid $fqdn);
 use pf::constants qw($FALSE $TRUE);
 use pf::log;
 use pf::util;
+use Data::Dumper;
 
 use LWP::UserAgent;
 use XML::Simple;
@@ -188,7 +189,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2019 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 

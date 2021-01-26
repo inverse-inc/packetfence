@@ -1,3 +1,4 @@
+# Copyright (C) Inverse inc.
 [authentications]
 type=builtin
 description= All Authentications
@@ -13,6 +14,7 @@ date_field=attempted_at
 base_conditions_operator=any
 person_fields=Owner
 node_fields=MAC Address
+order_fields=-auth_log.attempted_at
 
 [SMS-Registration]
 type=builtin
@@ -32,6 +34,7 @@ base_conditions=activation.type:=:sms
 base_conditions_operator=all
 person_fields=Owner
 node_fields=MAC Address
+order_fields=-activation.expiration
 
 [Email-Registration]
 type=builtin
@@ -79,6 +82,7 @@ date_field=start_time
 #base_conditions=activation.type:=:sponsor
 base_conditions_operator=all
 node_fields=MAC Address
+order_fields=-ip4log_history.start_time
 
 [ip4log-archive]
 type=builtin

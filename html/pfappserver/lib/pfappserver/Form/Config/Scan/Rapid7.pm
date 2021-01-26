@@ -24,6 +24,7 @@ use File::Find qw(find);
 has_field 'type' =>
   (
    type => 'Hidden',
+   default => 'rapid7',
   );
 
 has_field 'host' =>
@@ -148,7 +149,7 @@ sub update_fields {
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2019 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 

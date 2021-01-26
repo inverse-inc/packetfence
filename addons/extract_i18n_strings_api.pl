@@ -2,17 +2,19 @@
 
 =head1 NAME
 
-extract_i18n_strings_api.pl - extract localizable strings
+extract_i18n_strings_api.pl - extract localizable strings that are used by the API
 
 =head1 TODO
 
 
 =head1 DESCRIPTION
 
-The script extracts the localized strings from the Javascript code.
+The script extracts the localized strings from the Javascript code and the default configuration
+files.
 
 =cut
 
+use Config::IniFiles;
 use File::Find;
 use lib qw(/usr/local/pf/lib);
 
@@ -132,6 +134,11 @@ sub parse_js {
                 my $string = $1;
                 add_string($string, "$file:$nb");
             }
+            # i18n defer inside <script>
+            if ($line =~ m/['`](.+?(?<!\/\/))['`],?\s+\/\/ i18n defer$/g) {
+                my $string = $1;
+                add_string($string, "$file:$nb");
+            }
             # Report untranslatable strings
             while ($line =~ m/(\$t\(|v-t="|i18n\.t\()([^'`].+?)[\)"]/g) {
                 my $string = $2;
@@ -140,6 +147,33 @@ sub parse_js {
             $nb++;
         }
         close(JS);
+    }
+}
+
+=head2 parse_conf
+
+Parse the default configuration files and look for the 'description' parameters.
+
+=cut
+
+sub parse_conf {
+    my $dir = CONF;
+    my @files = ();
+    my $defaults = sub {
+        return unless -f && m/\.conf\.defaults$/;
+        push(@files, $File::Find::name);
+    };
+    find($defaults, $dir);
+    my %ini;
+    foreach my $file (@files) {
+        tie %ini, 'Config::IniFiles', ( -file => $file );
+        foreach my $section (keys %ini) {
+            foreach my $key (keys %{$ini{$section}}) {
+                if ($key =~ m/description$/) {
+                    add_string($ini{$section}{$key}, "$file:[$section]/$key");
+                }
+            }
+        }
     }
 }
 
@@ -160,8 +194,8 @@ sub print_po {
     close(RELEASE);
 
     print <<EOT;
+# Copyright (C) Inverse inc.
 # English translations for $package package.
-# Copyright (C) 2005-2019 Inverse inc.
 # This file is distributed under the same license as the $package package.
 #
 msgid ""
@@ -181,7 +215,7 @@ EOT
 
     foreach my $string (sort keys %strings) {
         foreach my $file (sort @{$strings{$string}}) {
-            print "# $file\n";
+            print "#: $file\n";
         }
         my @lines = split("\n", $string);
         if (@lines > 1) {
@@ -222,6 +256,7 @@ sub verify {
 
 &parse_po;
 &parse_js;
+&parse_conf;
 &print_po;
 &verify;
 
@@ -231,7 +266,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2019 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 

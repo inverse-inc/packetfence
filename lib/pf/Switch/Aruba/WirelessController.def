@@ -1,0 +1,17 @@
+# Do not edit.
+# Any changes will be lost on upgrade.
+acceptVlan= <<EOT
+Tunnel-Type = 13
+Tunnel-Medium-Type = 6
+Tunnel-Private-Group-Id = $vlan
+EOT
+acceptRole=
+disconnect= <<EOT
+Calling-Station-Id = ${macToEUI48($mac)}
+NAS-IP-Address = $disconnectIp
+EOT
+description=Aruba Wireless Controller
+voip=
+radiusDisconnect=disconnect
+reject=Reply-Message = This node is not allowed to use this service
+coa=

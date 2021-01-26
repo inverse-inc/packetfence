@@ -1,3 +1,6 @@
+<!--
+https://github.com/bvaughn/progress-estimator
+-->
 <template>
     <b-progress class="fixed-top" height="4px" :value="percentage" v-show="visible"></b-progress>
 </template>
@@ -23,12 +26,12 @@ export default {
   },
   watch: {
     active: {
-      handler (after, before) {
+      handler (a) {
         const _this = this
         if (!this.$debouncer) {
           this.$debouncer = createDebouncer()
         }
-        if (after) {
+        if (a) {
           this.lastStart = performance.now()
           this.percentage = 10
           setTimeout(this.increasePercentage, this.lastDuration / 10)
@@ -72,10 +75,7 @@ export default {
 }
 </script>
 
-<style lang="scss" scoped>
-  @import "../../node_modules/bootstrap/scss/functions";
-  @import "../styles/variables";
-
+<style lang="scss">
   .progress.fixed-top {
     background-color: $gray-700;
   }

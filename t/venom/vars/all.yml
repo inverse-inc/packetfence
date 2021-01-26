@@ -1,0 +1,216 @@
+---
+################################################################################
+# Global variables
+################################################################################
+# Variables assigned based on environment variables
+venom_result_dir: '{{.VENOM_RESULT_DIR}}'
+internet_int_ip: '{{.INTERNET_INT_IP}}'
+internet_int_netmask: '{{.INTERNET_INT_MASK}}'
+pfserver_token: '{{.TOKEN}}'
+pfserver_mgmt_ip: '{{.PF_TEST_MGMT_IP}}'
+pfserver_mgmt_netmask: '{{.PF_TEST_MGMT_MASK}}'
+smtp_server: '{{.MAILHOG_SMTP_SERVER_IP}}'
+smtp_port: '{{.MAILHOG_SMTP_PORT}}'
+mariadb_socket: '{{.MARIADB_SOCKET}}'
+timezone: '{{.TIMEZONE}}'
+pf_log_level: '{{.PF_LOG_LEVEL}}'
+
+# ssh executor variables
+ssh_user: vagrant
+
+# pfserver variables
+pfserver_webadmin_url: 'https://{{.pfserver_mgmt_ip}}:1443'
+pfserver_default_admin_user: admin
+pfserver_admin_password: secret
+pfserver_root_dir: /usr/local/pf
+pfserver_conf_dir: '{{.pfserver_root_dir}}/conf'
+pfserver_bin_dir: '{{.pfserver_root_dir}}/bin'
+pfserver_pfcmd: '{{.pfserver_bin_dir}}/pfcmd'
+
+# PacketFence general settings
+pfserver_api_inactivity_timeout.interval: 12
+pfserver_api_inactivity_timeout.unit: h
+pfserver_pffilter_processes: 1
+pfserver_pfperl_api_processes: 2
+pfserver_pfqueue_workers: 2
+pfserver_haproxy_admin_server_timeout: 120s
+
+# ad variables
+ad_mgmt_ip: 172.17.17.100
+ad_domain_id: example
+ad_domain_upper: EXAMPLE
+ad_dns_domain: example.lan
+ad_domain_admin_user: vagrant-domain
+ad_domain_admin_password: VagrantPass1
+ad_base_dn: dc=example,dc=lan
+ad_domain_user: packetfence
+
+# switchs variables
+switch01_mgmt_ip: 172.17.17.201
+switch01.api.url: "https://{{.switch01_mgmt_ip}}:8080"
+switch01.api.user: cumulus
+switch01.api.password: CumulusLinux!
+switch01.dot1x_interface.id: swp12
+switch01.dot1x_interface.mac: 44:38:39:00:00:12
+
+# nodes variables
+node01_mgmt_ip: 172.17.17.251
+node01_eth1_mac_address: 00:03:00:11:11:01
+node01_eth1_mac_address_url_encoded: 00%3A03%3A00%3A11%3A11%3A01
+nodes_test_suite_dir: /src/t/venom/nodes
+
+# network detection
+network_detection_url: http://192.95.20.194/common/network-access-detection.gif
+
+# Access durations
+access_duration.choices: "1h,5m,10m,3h,12h,1D,2D,3D,5D"
+access_duration.default_choice: "5m"
+
+# Access level
+access_level_user_and_node.id: user_and_node_manager
+access_level_user_and_node.description: Users and Nodes management
+
+# Default VLAN id for all switches
+roles.registration.vlan_id: 2
+roles.isolation.vlan_id: 3
+
+# Fingerbank
+fingerbank_api_key.email: support@inverse.ca
+fingerbank_api_key.secret_id: d2c4d4f8-c5b1-4281-a724-e4ade5c31fe1
+
+### Maintenance tasks
+# Node cleanup
+node_cleanup.delete_window.interval: 1
+node_cleanup.delete_window.unit: m
+
+### Network devices
+# Switch group
+cumulus_switch_group.id: cumulus_switch_group
+cumulus_switch_group.description: Cumulus switch group
+cumulus_switch_group.radiusSecret: testing123
+
+# Switch
+cumulus_switch.id1: '{{.switch01_mgmt_ip}}'
+cumulus_switch.id2: '{{.switch01.dot1x_interface.mac}}'
+cumulus_switch.description: switch01
+
+################################################################################
+# dot1x_eap_peap test suite specific variables
+################################################################################
+# Roles
+dot1x_eap_peap.roles.ad_user.id: user_employee
+dot1x_eap_peap.roles.ad_user.notes: User employee
+dot1x_eap_peap.roles.ad_user.vlan_id: 100
+
+dot1x_eap_peap.roles.ad_machine.id: machine_employee
+dot1x_eap_peap.roles.ad_machine.notes: Machine Employee
+dot1x_eap_peap.roles.ad_machine.vlan_id: 100
+
+# Sources
+dot1x_eap_peap.sources.ad_user.name: dot1x_eap_peap_user_auth
+dot1x_eap_peap.sources.ad_user.description: '{{.ad_mgmt_ip}} user authentication'
+dot1x_eap_peap.sources.ad_user.access_duration: '{{.access_duration.default_choice}}'
+
+dot1x_eap_peap.sources.ad_machine.name: dot1x_eap_peap_machine_auth
+dot1x_eap_peap.sources.ad_machine.description: '{{.ad_mgmt_ip}} machine authentication'
+dot1x_eap_peap.sources.ad_machine.access_duration: '{{.access_duration.default_choice}}'
+
+# Connection profiles
+dot1x_eap_peap.profiles.wired.id: catch_dot1x_wired_eap_peap_mschapv2
+dot1x_eap_peap.profiles.wired.description: 802.1X wired EAP-PEAP-MSCHAPv2
+dot1x_eap_peap.profiles.wired.filters.connection_type: Ethernet-EAP
+dot1x_eap_peap.profiles.wired.filters.connection_sub_type: MS-EAP-Authentication
+dot1x_eap_peap.profiles.wired.unreg_on_acct_stop: enabled
+
+################################################################################
+## backup db and restore test suite specific variables
+#################################################################################
+# Create user for db
+backup_db_and_restore.user: adminvenom
+backup_db_and_restore.backup_dir: /root/backup
+
+################################################################################
+## wired_mac_auth test suite specific variables
+#################################################################################
+# Roles
+wired_mac_auth.roles.headless_device.id: headless_device
+wired_mac_auth.roles.headless_device.notes: Headless device
+wired_mac_auth.roles.headless_device.vlan_id: 100
+
+# Connection profiles
+wired_mac_auth.profiles.wired.id: catch_wired_mac_authentication
+wired_mac_auth.profiles.wired.description: Wired Mac authentication
+wired_mac_auth.profiles.wired.filters.connection_type: Ethernet-NoEAP
+wired_mac_auth.profiles.wired.unreg_on_acct_stop: disabled
+
+################################################################################
+# configurator test suite specific variables
+################################################################################
+### Step 1
+# Interface dhcp-listener
+configurator.interfaces.dhcp_listener.index: 2
+configurator.interfaces.dhcp_listener.ip: '{{.internet_int_ip}}'
+configurator.interfaces.dhcp_listener.netmask: '{{.internet_int_netmask}}'
+
+# Interface mgmt
+configurator.interfaces.mgmt.index: 3
+configurator.interfaces.mgmt.ip: '{{.pfserver_mgmt_ip}}'
+configurator.interfaces.mgmt.netmask: '{{.pfserver_mgmt_netmask}}'
+
+# Interface registration
+configurator.interfaces.reg.index: 4
+configurator.interfaces.reg.ip: 172.17.2.2
+configurator.interfaces.reg.netmask: 255.255.255.0
+configurator.interfaces.reg.dhcpd_enabled: enabled
+
+# Interface isolation
+configurator.interfaces.iso.index: 5
+configurator.interfaces.iso.ip: 172.17.3.2
+configurator.interfaces.iso.netmask: 255.255.255.0
+configurator.interfaces.iso.dhcpd_enabled: enabled
+
+# DNS servers
+configurator.dns.primary_ip: 8.8.8.8
+configurator.dns.secondary_ip: '{{.ad_mgmt_ip}}'
+
+### Step 2
+# Database
+configurator.db.users.root.id: root
+configurator.db.users.root.password: ebjiatKeygId
+configurator.db.users.pf.id: pf
+configurator.db.users.pf.password: AkuddIgTatzu
+configurator.db.name: pf
+
+# Alerting
+configurator.email: 'mailhog@{{.ad_dns_domain}}'
+configurator.from_email: 'packetfence@{{.ad_dns_domain}}'
+configurator.smtp.server: '{{.smtp_server}}'
+configurator.smtp.port: '{{.smtp_port}}'
+
+# General
+configurator.domain: '{{.ad_dns_domain}}'
+configurator.hostname: pf
+configurator.timezone: '{{.timezone}}'
+
+# Admin account
+configurator.admin.password: '{{.pfserver_admin_password}}'
+configurator.admin.valid_from: 1970-01-01 00:00:00
+
+### Step 3
+# Fingerbank
+configurator.fingerbank_api_key.secret_id: '{{.fingerbank_api_key.secret_id}}'
+
+################################################################################
+# captive_portal test suite specific variables
+################################################################################
+# Connection profiles
+captive_portal.profiles.id: catch_wired_mac_authentication
+captive_portal.profiles.description: Wired Mac authentication with specific locales
+captive_portal.profiles.filters.connection_type: Ethernet-NoEAP
+captive_portal.profiles.locales1: fr_FR
+captive_portal.profiles.locales2: en_US
+captive_portal.profiles.locales3: de_DE
+captive_portal.profiles.locales4: it_IT
+
+# URL
+captive_portal.reg.url: 'https://{{.configurator.interfaces.reg.ip}}/captive-portal'

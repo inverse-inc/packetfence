@@ -37,6 +37,10 @@ use pfappserver::Form::Config::Provisioning::sentinelone;
 use pfappserver::Form::Config::Provisioning::sepm;
 use pfappserver::Form::Config::Provisioning::symantec;
 use pfappserver::Form::Config::Provisioning::windows;
+use pfappserver::Form::Config::Provisioning::intune;
+use pfappserver::Form::Config::Provisioning::servicenow;
+use pfappserver::Form::Config::Provisioning::airwatch;
+use pfappserver::Form::Config::Provisioning::packetfence_ztn;
 
 our %TYPES_TO_FORMS = (
     map { $_ => "pfappserver::Form::Config::Provisioning::$_" } qw(
@@ -53,6 +57,10 @@ our %TYPES_TO_FORMS = (
       sepm
       symantec
       windows
+      intune
+      servicenow
+      airwatch
+      packetfence_ztn
     )
 );
 
@@ -60,13 +68,21 @@ sub type_lookup {
     return \%TYPES_TO_FORMS;
 }
  
+=head2 fields_to_mask
+
+fields_to_mask
+
+=cut
+
+sub fields_to_mask { qw(access_token refresh_token password passcode private_key applicationSecret access_token) }
+
 =head1 AUTHOR
 
 Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2019 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 
@@ -88,4 +104,3 @@ USA.
 =cut
 
 1;
-

@@ -22,13 +22,9 @@ use base ('pf::Switch::Enterasys');
 
 sub description { 'Enterasys Standalone D2' }
 
-=head2 supportsWiredAuth
-
-This switch module supports wired MAC authentication.
-
-=cut
-
-sub supportsWiredMacAuth { return $SNMP::TRUE; }
+use pf::SwitchSupports qw(
+    WiredMacAuth
+);
 
 =head1 SUBROUTINES
 
@@ -136,7 +132,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2019 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 

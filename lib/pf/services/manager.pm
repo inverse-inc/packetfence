@@ -76,6 +76,8 @@ Method that launches the service.
 
 has launcher => ( is => 'rw', lazy => 1, builder => '_build_launcher' );
 
+has restart_launcher => ( is => 'rw', lazy => 1, builder => '_build_restart_launcher' );
+
 has pidFile => ( is => 'ro', lazy => 1, builder => '_buildpidFile' );
 
 sub _buildpidFile { my $self = shift; return $var_dir . "/run/" . $self->name . ".pid"; }
@@ -201,18 +203,6 @@ sub _build_executable {
     return $service;
 }
 
-=head2 restart
-
-restart the service
-
-=cut
-
-sub restart {
-    my ($self,$quick) = @_;
-    $self->stop($quick);
-    return $self->start($quick);
-}
-
 =head2 status
 
 returns the pid or list of pids for the service(s)
@@ -234,12 +224,13 @@ sub print_status {
     my $colors = pf::util::console::colors();
     my $loop = $TRUE;
     for my $output (@output) {
-        if ($output =~ /(packetfence-$name\.service)\s+loaded\s+active/) {
+        next if ($output =~ /packetfence-tracking-config.service/);
+        if ($output =~ /(packetfence-$name\.(service|path))\s+loaded\s+active/) {
             my $service = $1;
             $service .= (" " x (50 - length($service)));
             print "$service\t$colors->{success}started   ".$self->pid."$colors->{reset}\n";
             $loop = $FALSE;
-        } elsif ($output =~ /(packetfence-$name\.service)\s+loaded.*/) {
+        } elsif ($output =~ /(packetfence-$name\.(service|path))\s+loaded.*/) {
             my $service = $1;
             if ($name =~ /(radiusd).*/) {
                 $name = $1;
@@ -261,6 +252,7 @@ sub print_status {
        print "$service\t$colors->{warning}disabled  ".$self->pid."$colors->{reset}\n";
     }
 }
+
 
 =head2 pid
 
@@ -419,10 +411,10 @@ checks if process is alive
 sub isAlive {
     my ($self) = @_;
     my $logger = get_logger();
-    my $name = $self->{name};
-    my $res = system("sudo systemctl status packetfence-$name &> /dev/null");
+    my $target = $self->systemdTarget;
+    my $res = system("sudo systemctl -q is-active $target &> /dev/null");
     my $alive = $res == 0 ? 1 : 0;
-    $logger->debug("sudo systemctl status packetfence-$name returned code $res");
+    $logger->debug("sudo systemctl -q is-active $target returned code $res");
     return $alive;
 }
 
@@ -496,6 +488,51 @@ sub sysdDisable {
     return system( "sudo systemctl disable " . $self->systemdTarget) == 0;
 }
 
+=head2 _build_restart_launcher
+
+Build the command to restart the service.
+
+=cut
+sub _build_restart_launcher {
+    my ($self) = @_;
+    my $name = $self->{name};
+    return "sudo systemctl restart packetfence-" . $name;
+}
+
+
+=head2 restartService
+
+restart the service using the restart_launcher and arguments passed
+
+=cut
+
+sub restartService {
+    my ($self) = @_;
+    my $cmdLine = $self->restart_launcher;
+    if ($cmdLine =~ /^(.+)$/) {
+        $cmdLine = $1;
+        my $logger = get_logger();
+        $logger->debug(sprintf("Restarting Daemon %s with command %s",$self->name,$cmdLine));
+        my $t0 = Time::HiRes::time();
+        my $return_value = system($cmdLine);
+        my $elapsed = Time::HiRes::time() - $t0;
+        $logger->info(sprintf("Daemon %s took %.3f seconds to start.", $self->name, $elapsed));
+        return $return_value == 0;
+    }
+    return;
+}
+
+=head2 restart
+
+restart the service
+
+=cut
+
+sub restart {
+    my ($self) = @_;
+    return $self->restartService();
+}
+
 =head1 AUTHOR
 
 Inverse inc. <info@inverse.ca>
@@ -503,7 +540,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2019 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 

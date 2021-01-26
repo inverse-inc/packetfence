@@ -113,7 +113,8 @@ sub handler {
         $params->{realm} = $locationlog_entry->{'realm'};
     }
     $params->{context} = $pf::constants::realm::PORTAL_CONTEXT;
-    my $matched = pf::authentication::match2($source_id, $params, $extra);
+    my $attributes;
+    my $matched = pf::authentication::match2($source_id, $params, $extra, \$attributes);
     if ($matched) {
         my $values = $matched->{values};
         my $role = $values->{$Actions::SET_ROLE};
@@ -168,7 +169,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2019 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 

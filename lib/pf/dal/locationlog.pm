@@ -18,6 +18,10 @@ use strict;
 use warnings;
 
 use base qw(pf::dal::_locationlog);
+our @INSERTABLE_FIELDS = grep { $_ ne 'session_id' } @pf::dal::_locationlog::INSERTABLE_FIELDS;
+sub _insertable_fields {
+    return [@INSERTABLE_FIELDS];
+}
  
 =head1 AUTHOR
 
@@ -25,7 +29,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2019 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 

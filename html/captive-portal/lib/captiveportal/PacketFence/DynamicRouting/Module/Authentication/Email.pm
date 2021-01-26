@@ -45,6 +45,9 @@ sub execute_child {
 
 sub required_fields_child {['email_instructions']}
 
+my @auto_included = qw(firstname lastname telephone company);
+my %auto_included = map { $_ => 1 } @auto_included;
+
 =head2 do_email_registration
 
 Perform the e-mail registration using the provided info
@@ -57,8 +60,9 @@ sub do_email_registration {
 
     # fetch role for this user
     my $source = $self->source;
-    my $pid = $self->request_fields->{$self->pid_field};
-    my $email = $self->request_fields->{email};
+    my $request_fields = $self->request_fields;
+    my $pid = $request_fields->{$self->pid_field};
+    my $email = $request_fields->{email};
 
     my ( $status, $status_msg ) = $source->authenticate($pid);
     unless ( $status ) {
@@ -75,6 +79,10 @@ sub do_email_registration {
     my $note = 'email activation. Date of arrival: ' . time2str("%Y-%m-%d %H:%M:%S", time);
     $self->update_person_from_fields(notes => $note);
 
+    for my $key ( grep { !exists $auto_included{$_} } @{$self->required_fields // []}) {
+        $info{$key} = $request_fields->{$key};
+    }
+
     $info{'firstname'} = $self->request_fields->{firstname};
     $info{'lastname'} = $self->request_fields->{lastname};
     $info{'telephone'} = $self->request_fields->{telephone};
@@ -88,7 +96,6 @@ sub do_email_registration {
     $self->username($pid);
 
     pf::auth_log::record_guest_attempt($source->id, $self->current_mac, $pid, $self->app->profile->name);
-    #CUSTOM: remove me once the auth_log is properly closed on email activation
     pf::auth_log::record_completed_guest($source->id, $self->current_mac, $pf::auth_log::COMPLETED, $self->app->profile->name);
 
     if($self->app->preregistration) {
@@ -163,7 +170,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2019 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 

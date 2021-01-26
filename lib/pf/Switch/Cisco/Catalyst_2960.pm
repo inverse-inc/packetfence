@@ -130,16 +130,17 @@ sub description { 'Cisco Catalyst 2960' }
 
 # CAPABILITIES
 # access technology supported
-sub supportsWiredMacAuth { return $TRUE; }
-sub supportsWiredDot1x { return $TRUE; }
 # VoIP technology supported
-sub supportsRadiusVoip { return $TRUE; }
 # override 2950's FALSE
-sub supportsRadiusDynamicVlanAssignment { return $TRUE; }
-
-sub supportsAccessListBasedEnforcement { return $TRUE }
-sub supportsRoleBasedEnforcement { return $TRUE; }
-sub supportsExternalPortal { return $TRUE; }
+use pf::SwitchSupports qw(
+    WiredMacAuth
+    WiredDot1x
+    RadiusVoip
+    RadiusDynamicVlanAssignment
+    AccessListBasedEnforcement
+    RoleBasedEnforcement
+    ExternalPortal
+);
 
 =head1 SUBROUTINES
 
@@ -307,6 +308,7 @@ sub authorizeMAC {
                 "SNMP error tyring to remove or add secure rows to ifIndex $ifIndex in port-security table. "
                 . "This could be normal. Error message: ".$self->{_sessionWrite}->error()
             );
+            return 0;
         }
     }
     return 1;
@@ -494,8 +496,7 @@ sub returnRadiusAccessAccept {
     my @av_pairs = defined($radius_reply_ref->{'Cisco-AVPair'}) ? @{$radius_reply_ref->{'Cisco-AVPair'}} : ();
 
     if ( isenabled($self->{_AccessListMap}) && $self->supportsAccessListBasedEnforcement ){
-        if( defined($args->{'user_role'}) && $args->{'user_role'} ne "" && defined($self->getAccessListByName($args->{'user_role'}))){
-            my $access_list = $self->getAccessListByName($args->{'user_role'});
+        if( defined($args->{'user_role'}) && $args->{'user_role'} ne "" && defined(my $access_list = $self->getAccessListByName($args->{'user_role'}, $args->{mac}))){
             if ($access_list) {
                 my $acl_num = 101;
                 while($access_list =~ /([^\n]+)\n?/g){
@@ -635,7 +636,7 @@ sub parseExternalPortalRequest {
 
     # Cisco Catalyst 2960 uses external portal session ID handling process
     my $uri = $r->uri;
-    return unless ($uri =~ /.*sid(.*[^\/])/);
+    return unless ($uri =~ /.*sid(\w+[^\/\&])/);
     my $session_id = $1;
 
     my $locationlog = pf::locationlog::locationlog_get_session($session_id);
@@ -671,7 +672,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2019 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 

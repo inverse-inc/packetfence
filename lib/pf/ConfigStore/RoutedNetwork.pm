@@ -24,13 +24,13 @@ with 'pf::ConfigStore::Filtered';
 
 =cut
 
-=head2 filter
+=head2 filterSection
 
 Filter the sections of this ConfigStore
 
 =cut
 
-sub filter { 
+sub filterSection {
     my ($self, $section) = @_;
     return $self->cachedConfig->exists($section, "next_hop");
 }
@@ -39,7 +39,7 @@ __PACKAGE__->meta->make_immutable unless $ENV{"PF_SKIP_MAKE_IMMUTABLE"};
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2019 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 

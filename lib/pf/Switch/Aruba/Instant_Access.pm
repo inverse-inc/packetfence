@@ -17,6 +17,8 @@ use warnings;
 use base ('pf::Switch::Aruba');
 use pf::constants qw($TRUE);
 use pf::node qw(node_attributes);
+use pf::util::radius qw(perform_disconnect perform_coa);
+use Try::Tiny;
 
 sub description { 'Aruba Instant Access' };
 
@@ -57,8 +59,7 @@ sub radiusDisconnect {
         my $roleResolver = pf::roles::custom->instance();
         my $role = $roleResolver->getRoleForNode($mac, $self);
 
-        my $node_info = node_attributes($mac);
-        # transforming MAC to the expected format 00-11-22-33-CA-FE
+        # transforming MAC to the expected format 00112233CAFE
         $mac = lc($mac);
         $mac =~ s/://g;
 
@@ -107,7 +108,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2019 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 

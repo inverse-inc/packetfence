@@ -41,14 +41,12 @@ BEGIN {
     );
 
     %DEFAULTS = (
-        id => '',
         name => undef,
         email_pattern => '',
         created => '',
     );
 
     @INSERTABLE_FIELDS = qw(
-        id
         name
         email_pattern
         created
@@ -57,7 +55,7 @@ BEGIN {
     %FIELDS_META = (
         id => {
             type => 'INT',
-            is_auto_increment => 0,
+            is_auto_increment => 1,
             is_primary_key => 1,
             is_nullable => 0,
         },
@@ -197,14 +195,14 @@ Get the meta data for sms_carrier
 sub get_meta {
     return \%FIELDS_META;
 }
- 
+
 =head1 AUTHOR
 
 Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2019 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 

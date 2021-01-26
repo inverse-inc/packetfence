@@ -35,11 +35,11 @@ sub description {
 =cut
 
 sub matches {
-    my ($self, $attr, $v) = @_;
+    my ($self, $attr, $v, $params) = @_;
 
     if (defined $v) {
 
-        my $value = $self->value;
+        my $value = $self->getValue($params);
         my $operator = $self->operator;
         my $attribute = $self->attribute;
 
@@ -120,13 +120,28 @@ sub matches {
     return 0;
 }
 
+sub getValue {
+    my ($self, $params) = @_;
+    my $value = $self->value;
+    if (defined $params) {
+        $value =~ s/\$\{([a-zA-Z0-9]+([._-][a-zA-Z0-9]+)*)\}/replaceVar($1, $params)/ge;
+    }
+
+    return $value;
+}
+
+sub replaceVar {
+    my ($name, $params) = @_;
+    return exists $params->{$name} ? $params->{$name} : '';
+}
+
 =head1 AUTHOR
 
 Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2019 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 

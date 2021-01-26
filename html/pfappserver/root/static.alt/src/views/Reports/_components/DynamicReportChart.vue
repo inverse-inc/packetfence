@@ -43,8 +43,8 @@
                   </b-button-group>
               </b-form-row>
             </b-popover>
-            <pf-form-datetime v-model="datetimeStart" :max="maxStartDatetime" :prepend-text="$t('Start')" class="mr-3" :disabled="isLoading"></pf-form-datetime>
-            <pf-form-datetime v-model="datetimeEnd" :min="minEndDatetime" :prepend-text="$t('End')" class="mr-3" :disabled="isLoading"></pf-form-datetime>
+            <pf-form-datetime v-model="datetimeStart" :max="maxStartDatetime" :prepend-text="$t('Start')" class="mr-3" :disabled="isLoadingReport"></pf-form-datetime>
+            <pf-form-datetime v-model="datetimeEnd" :min="minEndDatetime" :prepend-text="$t('End')" class="mr-3" :disabled="isLoadingReport"></pf-form-datetime>
           </b-form>
         </b-col>
       </b-row>
@@ -53,7 +53,7 @@
       <b-row align-h="between" align-v="center">
         <b-col cols="auto" class="mr-auto">
           <b-dropdown size="sm" variant="link" no-caret>
-            <template slot="button-content">
+            <template v-slot:button-content>
               <icon name="columns" v-b-tooltip.hover.right :title="$t('Visible Columns')"></icon>
             </template>
             <template v-for="column in columns">
@@ -72,35 +72,43 @@
           <b-container fluid>
             <b-row align-v="center">
               <b-form inline class="mb-0">
-                <b-form-select class="mb-3 mr-3" size="sm" v-model="pageSizeLimit" :options="[25,50,100,200,500,1000]" :disabled="isLoading"
+                <b-form-select class="mb-3 mr-3" size="sm" v-model="pageSizeLimit" :options="[25,50,100,200,500,1000]" :disabled="isLoadingReport"
                   @input="onPageSizeChange" />
               </b-form>
-              <b-pagination class="mr-3" align="right" :per-page="pageSizeLimit" :total-rows="totalRows" v-model="currentPage" :disabled="isLoading"
+              <b-pagination class="mr-3" align="right" :per-page="pageSizeLimit" :total-rows="totalRows" v-model="currentPage" :disabled="isLoadingReport"
                 @change="onPageChange" />
-              <pf-button-export-to-csv class="mb-3" :filename="`${report.description}.csv`" :disabled="isLoading"
+              <pf-button-export-to-csv class="mb-3" :filename="`${report.description}.csv`" :disabled="isLoadingReport"
                 :columns="visibleColumns" :data="items"
               />
             </b-row>
           </b-container>
         </b-col>
       </b-row>
-      <b-table :items="items" :fields="visibleColumns" :sort-by="sortBy" :sort-desc="sortDesc"
+      <b-table v-if="isLoadingReport"
+        :items="[]" :fields="visibleColumns" :sort-by="sortBy" :sort-desc="sortDesc"
         @sort-changed="onSortingChanged"
-        show-empty responsive hover no-local-sorting no-provider-sorting striped>
-        <template slot="empty">
-          <pf-empty-table :isLoading="isLoading">{{ $t('No report data found') }}</pf-empty-table>
+        show-empty responsive hover no-local-sorting no-provider-sorting sort-icon-left striped>
+        <template v-slot:empty>
+          <pf-empty-table :isLoading="true"></pf-empty-table>
         </template>
-        <template v-for="nodeField in nodeFields" :slot="nodeField" slot-scope="data">
-          <router-link :key="nodeField" :to="{ path: `/node/${data.value}` }">{{ data.value }}</router-link>
+      </b-table>
+      <b-table v-else
+        :items="items" :fields="visibleColumns" :sort-by="sortBy" :sort-desc="sortDesc"
+        @sort-changed="onSortingChanged"
+        show-empty responsive hover no-local-sorting no-provider-sorting sort-icon-left striped>
+        <template v-slot:empty>
+          <pf-empty-table :isLoading="isLoadingReport">{{ $t('No report data found') }}</pf-empty-table>
         </template>
-        <template v-for="personField in personFields" :slot="personField" slot-scope="data">
-          <router-link :key="personField" :to="{ path: `/user/${data.value}` }">{{ data.value }}</router-link>
+        <template v-for="nodeField in nodeFields" v-slot:[`cell(${nodeField})`]="{ value }">
+          <router-link :key="nodeField" :to="{ name: 'node', params: { mac: value } }">{{ value }}</router-link>
+        </template>
+        <template v-for="personField in personFields" v-slot:[`cell(${personField})`]="{ value }">
+          <router-link :key="personField" :to="{ name: 'user', params: { pid: value } }">{{ value }}</router-link>
         </template>
       </b-table>
     </div>
   </b-card>
 </template>
-
 <script>
 import { format, subSeconds } from 'date-fns'
 import pfButtonExportToCsv from '@/components/pfButtonExportToCsv'
@@ -112,7 +120,7 @@ import pfSearch from '@/components/pfSearch'
 import { pfSearchConditionType as conditionType } from '@/globals/pfSearch'
 
 export default {
-  name: 'DynamicReportChart',
+  name: 'dynamic-report-chart',
   mixins: [
     pfMixinSearchable
   ],
@@ -131,10 +139,6 @@ export default {
     id: { // from router
       type: String,
       default: null
-    },
-    searchableOptions: { // overloaded after `this.report` is set/reset
-      type: Object,
-      default: () => {}
     }
   },
   data () {
@@ -146,12 +150,14 @@ export default {
       datetimeStart: null,
       datetimeEnd: null,
       maxStartDatetime: '9999-12-12 23:59:59',
-      minEndDatetime: '0000-00-00 00:00:00'
+      minEndDatetime: '0000-00-00 00:00:00',
+      showPeriod: false,
+      searchableOptions: {}
     }
   },
   computed: {
-    isLoading () {
-      return this.$store.getters[`${this.storeName}/isLoading`]
+    isLoadingReport () {
+      return this.isLoading || this.$store.getters[`${this.storeName}/isLoading`]
     },
     parsedColumns () {
       let parsedColumns = []
@@ -205,7 +211,7 @@ export default {
       })
       names.sort((a, b) => b.localeCompare(a)) // reversed sort
       const [ last, ...csv ] = names // group
-      if (csv) {
+      if (csv.length) {
         return this.$i18n.t('Search for {csv} or {last}', { csv: csv.reverse().join(', '), last: last })
       } else {
         return this.$i18n.t('Search for {only}', { only: last })
@@ -273,7 +279,7 @@ export default {
       const searchCriteria = this.parsedSearches.map(search => {
         return { field: `${search.table}.${search.column}`, op: 'contains', value: null }
       })
-      let searchableOptions = {
+      this.searchableOptions = {
         searchApiEndpoint: `dynamic_report/${this.id}`,
         defaultSortKeys: [], // no local sorting
         defaultSortDesc: false, // no local sorting
@@ -284,7 +290,6 @@ export default {
           'end_date': (this.datetimeEnd !== '0000-00-00 00:00:00') ? this.datetimeEnd : '9999-12-12 23:59:59'
         }
       }
-      this.$set(this, 'searchableOptions', searchableOptions)
     },
     setRangeByPeriod (period) {
       this.datetimeEnd = format(new Date(), 'YYYY-MM-DD HH:mm:ss')
@@ -300,7 +305,7 @@ export default {
         this.init()
       }
     },
-    items (a, b) {
+    items (a) {
       if (a.length > 0 && this.columns.length === 1) { // columns were not initially known
         const columns = Object.keys(a[0]).map(column => {
           return {
@@ -327,7 +332,6 @@ export default {
         this.buildPropsFromReport()
       }
     }
-
   }
 }
 </script>
@@ -342,9 +346,6 @@ export default {
 </style>
 
 <style lang="scss" scoped>
-@import "../../../../node_modules/bootstrap/scss/functions";
-@import "../../../styles/variables";
-
 /**
  * Add btn-primary color(s) on hover
  */

@@ -40,10 +40,11 @@ Check if the value is part of the array that is passed as an argument
 =cut
 
 sub match {
-    my ($self, $arg) = @_;
+    my ($self, $arg, $args) = @_;
     return $FALSE if !defined $arg;
     my $reftype = reftype($arg) // '';
-    return any { $self->value eq $_ } ($reftype eq 'ARRAY' ? @$arg : $arg);
+    my $value = $self->evalParam($self->value, $args);
+    return any { $value eq $_ } ($reftype eq 'ARRAY' ? @$arg : $arg);
 }
 
 =head1 AUTHOR
@@ -52,7 +53,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2019 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 

@@ -24,13 +24,14 @@ use pf::log;
 use pf::person;
 use pf::lookup::person;
 use pf::security_event;
-use pf::constants::node qw($STATUS_REGISTERED);
+use pf::constants::node qw($STATUS_REGISTERED $STATUS_UNREGISTERED);
 use pf::util;
 use pf::util::statsd qw(called);
 use pf::dal::person;
 use pf::Connection::ProfileFactory; 
 use pf::constants::scan qw($SCAN_SECURITY_EVENT_ID $POST_SCAN_SECURITY_EVENT_ID);
 use pf::constants::parking qw($PARKING_SECURITY_EVENT_ID);
+use pf::Authentication::constants;
 
 =head2 setup_node_for_registration
 
@@ -41,17 +42,20 @@ setup a node for registration
 sub setup_node_for_registration {
     $pf::StatsD::statsd->increment( called() . ".called" );
     my $timer = pf::StatsD::Timer->new();
-    my ($node, $info) = @_;
+    my ($node, $info, $action) = @_;
     my $logger = get_logger();
     my $mac = $node->mac;
 
     my $status_msg = "";
     my $pid = $node->pid;
-
-    if ( $node->{__old_data}->{status} ne "reg" &&  pf::node::is_max_reg_nodes_reached($mac, $pid, $node->category, $node->category_id) ) {
-        $status_msg = "max nodes per pid met or exceeded";
-        $logger->error( "$status_msg - registration of $mac to $pid failed" );
-        return ($STATUS::PRECONDITION_FAILED, $status_msg);
+    if ( ($node->{__old_data}->{pid} ne $pid || $node->{__old_data}->{status} ne "reg") &&  pf::node::is_max_reg_nodes_reached($mac, $pid, $node->category, $node->category_id) ) {
+        if (!($action eq $Actions::SET_ROLE_FROM_SOURCE)) {
+            $node->status($STATUS_UNREGISTERED);
+            $status_msg = "max nodes per pid met or exceeded";
+            $status_msg = "no role computed by any sources" if (!defined($node->category));
+            $logger->error( "$status_msg - registration of $mac to $pid failed" );
+            return ($STATUS::PRECONDITION_FAILED, $status_msg);
+        }
     }
     $node->status($STATUS_REGISTERED);
     $node->regdate(mysql_date());
@@ -131,7 +135,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2019 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 

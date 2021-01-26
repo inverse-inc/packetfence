@@ -16,6 +16,7 @@ use strict;
 use warnings;
 use Mojo::Base 'pf::UnifiedApi::Controller';
 use pf::error qw(is_error);
+use pf::nodecategory;
 use pf::authentication;
 use pf::Authentication::constants qw($LOGIN_SUCCESS);
 
@@ -27,14 +28,31 @@ sub adminAuthentication {
         $self->render(status => $status, json => $json);
     }
 
-    my ($result, $roles, $tenant_id) = pf::authentication::adminAuthentication($json->{username}, $json->{password});
+    my ($result, $roles, $tenant) = pf::authentication::adminAuthentication($json->{username}, $json->{password});
 
     if($result == $LOGIN_SUCCESS) {
-        $self->render(status => 200, json => { result => $result, roles => $roles, tenant_id => int($tenant_id) });
+        $tenant->{'id'} = int($tenant->{'id'});
+        $self->render(status => 200, json => { result => $result+0, roles => $roles, tenant => $tenant });
     }
     else {
-        $self->render(status => 401, json => { result => $result, message => "Authentication failed." })
+        $self->render(status => 401, json => { result => $result+0, message => "Authentication failed." })
     }
+}
+
+sub roleAuthentication {
+    my ($self) = @_;
+    
+    my ($status, $json) = $self->parse_json;
+    if (is_error($status)) {
+        $self->render(status => $status, json => $json);
+    }
+
+    my $role_result = pf::authentication::match(pf::authentication::getInternalAuthenticationSources(), {username => $json->{username}, context => $pf::constants::realm::RADIUS_CONTEXT}, $Actions::SET_ROLE);
+    my $category_id = $role_result ? nodecategory_view_by_name($role_result)->{category_id} : undef;
+
+    my $unregdate_result = pf::authentication::match(pf::authentication::getInternalAuthenticationSources(), {username => $json->{username}, context => $pf::constants::realm::RADIUS_CONTEXT}, $Actions::SET_UNREG_DATE);
+
+    $self->render(status => 200, json => {role => $role_result, category_id => $category_id+0, unregdate => $unregdate_result});
 }
 
 =head1 AUTHOR
@@ -43,7 +61,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2019 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 

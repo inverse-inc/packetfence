@@ -1,6 +1,6 @@
 <template>
   <div>
-    <b-card no-body class="mt-3">
+    <b-card no-body>
       <b-card-header>
         <h4 class="d-inline mb-0" v-t="'Protected Services'"></h4>
         <p class="mt-3 mb-0" v-t="'These services can not be managed since they are required in order for this page to function.'"></p>
@@ -15,32 +15,35 @@
           show-empty
           responsive
           fixed
+          sort-icon-left
           striped
         >
-          <template slot="empty">
+          <template v-slot:empty>
             <pf-empty-table :isLoading="isLoading">{{ $t('No Services found') }}</pf-empty-table>
           </template>
-          <template slot="enabled" slot-scope="service">
+          <template v-slot:cell(enabled)="service">
             <pf-form-range-toggle
               v-model="service.item.enabled"
               :values="{ checked: true, unchecked: false }"
-              :icons="{ checked: 'check', unchecked: 'times' }"
-              :disabled="![200, 'error'].includes(service.item.status) || !('enabled' in service.item)"
+              :icons="{ checked: 'lock', unchecked: 'lock' }"
+              :right-labels="{ checked: $t('Enabled'), unchecked: $t('Disabled') }"
+              :disabled="true"
               @input="toggleEnabled(service.item, $event)"
               @click.stop.prevent
-            >{{ (service.item.enabled === true) ? $t('Enabled') : $t('Disabled') }}</pf-form-range-toggle>
+            />
           </template>
-          <template slot="alive" slot-scope="service">
+          <template v-slot:cell(alive)="service">
             <pf-form-range-toggle
               v-model="service.item.alive"
               :values="{ checked: true, unchecked: false }"
               :icons="{ checked: 'lock', unchecked: 'lock' }"
               :colors="{ checked: 'var(--success)', unchecked: 'var(--danger)' }"
+              :right-labels="{ checked: $t('Running'), unchecked: $t('Stopped') }"
               :disabled="true"
               @click.stop.prevent
-            >{{ (service.item.alive === true) ? $t('Running') : $t('Stopped') }}</pf-form-range-toggle>
+            />
           </template>
-          <template slot="pid" slot-scope="service">
+          <template v-slot:cell(pid)="service">
             <icon v-if="![200, 'error'].includes(service.item.status)" name="circle-notch" spin></icon>
             <span v-else-if="service.item.alive">{{ service.item.pid }}</span>
           </template>
@@ -75,41 +78,44 @@
           show-empty
           responsive
           fixed
+          sort-icon-left
           striped
         >
-          <template slot="empty">
+          <template v-slot:empty>
             <pf-empty-table :isLoading="isLoading">{{ $t('No Services found') }}</pf-empty-table>
           </template>
-          <template slot="name" slot-scope="service" class="align-items-center">
+          <template v-slot:cell(name)="service" class="align-items-center">
             <icon v-if="!service.item.alive && service.item.managed"
               name="exclamation-triangle" size="sm" class="text-danger mr-1" v-b-tooltip.hover.top.d300 :title="$t('Service {name} is required with this configuration.', { name: service.item.name})"></icon>
             <icon v-if="service.item.alive && !service.item.managed"
               name="exclamation-triangle" size="sm" class="text-success mr-1" v-b-tooltip.hover.top.d300 :title="$t('Service {name} is not required with this configuration.', { name: service.item.name})"></icon>
             {{ service.item.name }}
           </template>
-          <template slot="enabled" slot-scope="service">
+          <template v-slot:cell(enabled)="service">
             <pf-form-range-toggle
               v-model="service.item.enabled"
               :values="{ checked: true, unchecked: false }"
               :icons="{ checked: 'check', unchecked: 'times' }"
+              :right-labels="{ checked: $t('Enabled'), unchecked: $t('Disabled') }"
               :disabled="![200, 'error'].includes(service.item.status) || !('enabled' in service.item)"
               @input="toggleEnabled(service.item, $event)"
               @click.stop.prevent
-            >{{ (service.item.enabled === true) ? $t('Enabled') : $t('Disabled') }}</pf-form-range-toggle>
+            />
           </template>
-          <template slot="alive" slot-scope="service" class="text-nowrap">
+          <template v-slot:cell(alive)="service" class="text-nowrap">
             <pf-form-range-toggle
               v-model="service.item.alive"
               :values="{ checked: true, unchecked: false }"
               :icons="{ checked: 'check', unchecked: 'times' }"
               :colors="{ checked: 'var(--success)', unchecked: 'var(--danger)' }"
+              :right-labels="{ checked: $t('Running'), unchecked: $t('Stopped') }"
               :disabled="![200, 'error'].includes(service.item.status) || !('alive' in service.item)"
               class="d-inline"
               @input="toggleRunning(service.item, $event)"
               @click.stop.prevent
-            >{{ (service.item.alive === true) ? $t('Running') : $t('Stopped') }}</pf-form-range-toggle>
+            />
           </template>
-          <template slot="pid" slot-scope="service">
+          <template v-slot:cell(pid)="service">
             <icon v-if="![200, 'error'].includes(service.item.status)" name="circle-notch" spin></icon>
             <span v-else-if="service.item.alive">{{ service.item.pid }}</span>
           </template>
@@ -124,7 +130,7 @@ import pfEmptyTable from '@/components/pfEmptyTable'
 import pfFormRangeToggle from '@/components/pfFormRangeToggle'
 
 export default {
-  name: 'Services',
+  name: 'services',
   components: {
     pfEmptyTable,
     pfFormRangeToggle
@@ -136,34 +142,15 @@ export default {
       required: true
     }
   },
-  computed: {
-    blacklistedServices () {
-      return this.$store.getters[`${this.storeName}/blacklistedServices`]
-    },
-    isLoading () {
-      return this.$store.getters[`${this.storeName}/isServicesLoading`]
-    },
-    isStopping () {
-      return this.$store.getters[`${this.storeName}/isServicesStopping`]
-    },
-    isStarting () {
-      return this.$store.getters[`${this.storeName}/isServicesStarting`]
-    },
-    isRestarting () {
-      return this.$store.getters[`${this.storeName}/isServicesRestarting`]
-    },
-    manageableServices () {
-      return this.$store.state[this.storeName].services.filter(service => !(this.blacklistedServices.includes(service.name)))
-    },
-    protectedServices () {
-      return this.$store.state[this.storeName].services.filter(service => this.blacklistedServices.includes(service.name))
-    }
-  },
   data () {
     return {
       sortBy: 'name',
-      sortDesc: false,
-      fields: [
+      sortDesc: false
+    }
+  },
+  computed: {
+    fields () {
+      return [
         {
           key: 'name',
           label: this.$i18n.t('Service'),
@@ -189,18 +176,39 @@ export default {
           visible: true
         }
       ]
+    },
+    blacklistedServices () {
+      return this.$store.getters[`${this.storeName}/blacklistedServices`]
+    },
+    isLoading () {
+      return this.$store.getters[`${this.storeName}/isServicesLoading`]
+    },
+    isStopping () {
+      return this.$store.getters[`${this.storeName}/isServicesStopping`]
+    },
+    isStarting () {
+      return this.$store.getters[`${this.storeName}/isServicesStarting`]
+    },
+    isRestarting () {
+      return this.$store.getters[`${this.storeName}/isServicesRestarting`]
+    },
+    manageableServices () {
+      return this.$store.state[this.storeName].services.filter(service => !(this.blacklistedServices.includes(service.name)))
+    },
+    protectedServices () {
+      return this.$store.state[this.storeName].services.filter(service => this.blacklistedServices.includes(service.name))
     }
   },
   methods: {
     toggleEnabled (service, event) {
       switch (event) {
         case false:
-          this.$store.dispatch(`${this.storeName}/disableService`, service.name).then(response => {
+          this.$store.dispatch(`${this.storeName}/disableService`, service.name).then(() => {
             this.$store.dispatch('notification/info', { message: this.$i18n.t('Service <code>{service}</code> disabled.', { service: service.name }) })
           })
           break
         case true:
-          this.$store.dispatch(`${this.storeName}/enableService`, service.name).then(response => {
+          this.$store.dispatch(`${this.storeName}/enableService`, service.name).then(() => {
             this.$store.dispatch('notification/info', { message: this.$i18n.t('Service <code>{service}</code> enabled.', { service: service.name }) })
           })
           break
@@ -209,32 +217,32 @@ export default {
     toggleRunning (service, event) {
       switch (event) {
         case false:
-          this.$store.dispatch(`${this.storeName}/stopService`, service.name).then(response => {
+          this.$store.dispatch(`${this.storeName}/stopService`, service.name).then(() => {
             this.$store.dispatch('notification/info', { message: this.$i18n.t('Service <code>{service}</code> stopped.', { service: service.name }) })
           })
           break
         case true:
-          this.$store.dispatch(`${this.storeName}/startService`, service.name).then(response => {
+          this.$store.dispatch(`${this.storeName}/startService`, service.name).then(() => {
             this.$store.dispatch('notification/info', { message: this.$i18n.t('Service <code>{service}</code> started.', { service: service.name }) })
           })
           break
       }
     },
-    stopAllServices (event) {
+    stopAllServices () {
       this.$store.dispatch('notification/info', { message: this.$i18n.t('Stopping all services.') })
-      this.$store.dispatch(`${this.storeName}/stopAllServices`).then(response => {
+      this.$store.dispatch(`${this.storeName}/stopAllServices`).then(() => {
         this.$store.dispatch('notification/info', { message: this.$i18n.t('All services stopped.') })
       })
     },
-    startAllServices (event) {
+    startAllServices () {
       this.$store.dispatch('notification/info', { message: this.$i18n.t('Starting all services.') })
-      this.$store.dispatch(`${this.storeName}/startAllServices`).then(response => {
+      this.$store.dispatch(`${this.storeName}/startAllServices`).then(() => {
         this.$store.dispatch('notification/info', { message: this.$i18n.t('All services started.') })
       })
     },
-    restartAllServices (event) {
+    restartAllServices () {
       this.$store.dispatch('notification/info', { message: this.$i18n.t('Restarting all services.') })
-      this.$store.dispatch(`${this.storeName}/restartAllServices`).then(response => {
+      this.$store.dispatch(`${this.storeName}/restartAllServices`).then(() => {
         this.$store.dispatch('notification/info', { message: this.$i18n.t('All services restarted.') })
       })
     },

@@ -26,7 +26,7 @@ BEGIN {
     use setup_test_config;
 }
 
-use Test::More tests => 8;
+use Test::More tests => 15;
 use Test::Mojo;
 use Utils;
 use pf::ConfigStore::Source;
@@ -40,15 +40,33 @@ my $collection_base_url = '/api/v1/config/sources';
 
 my $base_url = '/api/v1/config/source';
 
-$t->get_ok($collection_base_url)
-  ->json_has('/items/0/class')
-  ->status_is(200);
-
 $t->post_ok($collection_base_url => json => {})
   ->status_is(422);
 
 $t->post_ok($collection_base_url, {'Content-Type' => 'application/json'} => '{')
   ->status_is(400);
+
+$t->delete_ok("$base_url/sms")
+  ->status_is(422);
+
+$t->get_ok($collection_base_url)
+  ->json_has('/items/0/class')
+  ->status_is(200);
+
+my $items = $t->tx->res->json->{items};
+
+my @names = reverse sort map { $_->{id} } @$items;
+
+$t->patch_ok("$collection_base_url/sort_items" => json => {items => \@names})
+  ->status_is(200);
+
+$t->get_ok($collection_base_url)
+  ->status_is(200);
+
+$items = $t->tx->res->json->{items};
+my @new_names = map { $_->{id} } @$items;
+
+is_deeply(\@new_names, \@names, "Resorting");
 
 =head1 AUTHOR
 
@@ -56,7 +74,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2019 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 

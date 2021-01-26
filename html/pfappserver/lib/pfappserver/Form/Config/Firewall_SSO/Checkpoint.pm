@@ -30,6 +30,7 @@ has_field '+port' =>
 has_field 'type' =>
   (
    type => 'Hidden',
+   default => 'Checkpoint',
   );
 
 =head1 AUTHOR
@@ -38,7 +39,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2019 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 

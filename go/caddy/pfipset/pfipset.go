@@ -120,7 +120,7 @@ func buildPfipsetHandler(ctx context.Context) (PfipsetHandler, error) {
 
 				pfconfigdriver.FetchDecodeSocket(ctx, &ConfNet)
 
-				if ConfNet.Type == "inline" {
+				if ConfNet.Type == "inlinel2" || ConfNet.Type == "inlinel3" || ConfNet.Type == "inline" {
 					Inline = true
 				}
 			}

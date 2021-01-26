@@ -30,6 +30,7 @@ use warnings;
 use JSON::MaybeXS;
 use pf::log;
 use pf::IniFiles;
+use List::MoreUtils qw(uniq);
 
 use base 'pfconfig::namespaces::resource';
 
@@ -146,13 +147,43 @@ sub GroupMembers {
     return @members;
 }
 
+
+sub roleReverseLookup {
+    my ($self, $cfg, $namespace, @fields) = @_;
+    $self->{roleReverseLookup} = {};
+    while (my ($id, $item) = each %$cfg) {
+        $self->updateRoleReverseLookup($id, $item, $namespace, @fields);
+    }
+
+}
+
+sub updateRoleReverseLookup {
+    my ($self, $id, $item, $namespace, @fields) = @_;
+    my @categories;
+    for my $field (@fields) {
+        next unless exists $item->{$field};
+        my $value = $item->{$field};
+        next if !defined $value;;
+        if (ref($value) eq '') {
+            $value = [split /\s*,\s*/, $value];
+        }
+
+        push @categories, @$value;
+    }
+
+    @categories = uniq @categories;
+    for my $c (@categories) {
+        push @{$self->{roleReverseLookup}{$c}{$namespace}}, $id;
+    }
+}
+
 =head1 AUTHOR
 
 Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2019 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 

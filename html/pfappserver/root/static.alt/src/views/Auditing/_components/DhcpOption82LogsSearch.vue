@@ -1,28 +1,36 @@
 <template>
-  <b-card no-body>
+  <b-card ref="container" no-body>
     <pf-progress :active="isLoading"></pf-progress>
     <b-card-header>
       <div class="float-right"><pf-form-toggle v-model="advancedMode">{{ $t('Advanced') }}</pf-form-toggle></div>
-      <h4 class="mb-0" v-t="'Search DHCP Option82 Logs'"></h4>
+      <h4 class="mb-0" v-t="'Search DHCP Option 82 Logs'"></h4>
     </b-card-header>
-    <pf-search :quick-with-fields="false" quick-placeholder="Search by MAC" save-search-namespace="dhcpoption82s"
-      :fields="fields" :advanced-mode="advancedMode" :condition="condition" :storeName="storeName"
-      @submit-search="onSearch" @reset-search="onReset"></pf-search>
-    <div class="card-body">
+    <pf-search class="flex-shrink-0"
+      :quick-with-fields="false"
+      :quick-placeholder="$t('Search by MAC')"
+      save-search-namespace="dhcpoption82s"
+      :fields="fields"
+      :advanced-mode="advancedMode"
+      :condition="condition"
+      :storeName="storeName"
+      @submit-search="onSearch"
+      @reset-search="onReset"
+      @import-search="onImport"></pf-search>
+    <div class="card-body flex-shrink-0 pt-0">
       <b-row align-h="between" align-v="center">
         <b-col cols="auto" class="mr-auto">
-          <b-dropdown size="sm" variant="link" no-caret>
-            <template slot="button-content">
+          <b-dropdown size="sm" variant="link" :boundary="$refs.container" no-caret>
+            <template v-slot:button-content>
               <icon name="columns" v-b-tooltip.hover.right :title="$t('Visible Columns')"></icon>
             </template>
             <template v-for="column in columns">
               <b-dropdown-item :key="column.key" v-if="column.locked" disabled>
                 <icon class="position-absolute mt-1" name="thumbtack"></icon>
-                <span class="ml-4">{{column.label}}</span>
+                <span class="ml-4">{{ $t(column.label) }}</span>
               </b-dropdown-item>
               <a :key="column.key" v-else href="javascript:void(0)" :disabled="column.locked" class="dropdown-item" @click.stop="toggleColumn(column)">
                 <icon class="position-absolute mt-1" name="check" v-show="column.visible"></icon>
-                <span class="ml-4">{{column.label}}</span>
+                <span class="ml-4">{{ $t(column.label) }}</span>
               </a>
             </template>
           </b-dropdown>
@@ -31,25 +39,27 @@
           <b-container fluid>
             <b-row align-v="center">
               <b-form inline class="mb-0">
-                <b-form-select class="mb-3 mr-3" size="sm" v-model="pageSizeLimit" :options="[25,50,100,200,500,1000]" :disabled="isLoading"
+                <b-form-select class="mr-3" size="sm" v-model="pageSizeLimit" :options="[25,50,100,200,500,1000]" :disabled="isLoading"
                   @input="onPageSizeChange" />
               </b-form>
-              <b-pagination class="mr-3" align="right" :per-page="pageSizeLimit" :total-rows="totalRows" v-model="currentPage" :disabled="isLoading"
+              <b-pagination class="mr-3 my-0" align="right" :per-page="pageSizeLimit" :total-rows="totalRows" :last-number="true" v-model="currentPage" :disabled="isLoading"
                 @change="onPageChange" />
-              <pf-button-export-to-csv class="mb-3" filename="dhcpoption82logs.csv" :disabled="isLoading"
+              <pf-button-export-to-csv filename="dhcpoption82logs.csv" :disabled="isLoading"
                 :columns="columns" :data="items"
               />
             </b-row>
           </b-container>
         </b-col>
       </b-row>
+    </div>
+    <div class="card-body pt-0" v-scroll-100>
       <b-table class="table-clickable" :items="items" :fields="visibleColumns" :sort-by="sortBy" :sort-desc="sortDesc"
         @sort-changed="onSortingChanged" @row-clicked="onRowClick"
-        show-empty responsive hover no-local-sorting striped>
-        <template slot="empty">
+        show-empty hover no-local-sorting sort-icon-left striped>
+        <template v-slot:empty>
           <pf-empty-table :isLoading="isLoading">{{ $t('No logs found') }}</pf-empty-table>
         </template>
-        <template slot="mac" slot-scope="data">
+        <template v-slot:cell(mac)="data">
           <router-link :to="{ path: `/node/${data.value}` }"><mac v-text="data.value"></mac></router-link>
         </template>
       </b-table>
@@ -66,9 +76,10 @@ import pfProgress from '@/components/pfProgress'
 import pfEmptyTable from '@/components/pfEmptyTable'
 import pfSearch from '@/components/pfSearch'
 import pfFormToggle from '@/components/pfFormToggle'
+import scroll100 from '@/directives/scroll-100'
 
 export default {
-  name: 'DhcpOption82LogsSearch',
+  name: 'dhcp-option82-logs-search',
   mixins: [
     pfMixinSearchable
   ],
@@ -78,6 +89,9 @@ export default {
     pfEmptyTable,
     pfSearch,
     pfFormToggle
+  },
+  directives: {
+    scroll100
   },
   props: {
     searchableOptions: {
@@ -112,103 +126,103 @@ export default {
       fields: [ // keys match with b-form-select
         {
           value: 'created_at',
-          text: 'Created',
+          text: 'Created', // i18n defer
           types: [conditionType.DATETIME]
         },
         {
           value: 'mac',
-          text: 'MAC Address',
+          text: 'MAC Address', // i18n defer
           types: [conditionType.SUBSTRING]
         },
         {
           value: 'circuit_id_string',
-          text: 'Circuit ID',
+          text: 'Circuit ID', // i18n defer
           types: [conditionType.SUBSTRING]
         },
         {
           value: 'host',
-          text: 'Host',
+          text: 'Host', // i18n defer
           types: [conditionType.SUBSTRING]
         },
         {
           value: 'module',
-          text: 'Module',
+          text: 'Module', // i18n defer
           types: [conditionType.SUBSTRING]
         },
         {
           value: 'option82_switch',
-          text: 'Option82 Switch',
+          text: 'Option82 Switch', // i18n defer
           types: [conditionType.SUBSTRING]
         },
         {
           value: 'port',
-          text: 'Port',
+          text: 'Port', // i18n defer
           types: [conditionType.INTEGER]
         },
         {
           value: 'switch_id',
-          text: 'Switch ID',
+          text: 'Switch ID', // i18n defer
           types: [conditionType.SUBSTRING]
         },
         {
           value: 'vlan',
-          text: 'VLAN',
+          text: 'VLAN', // i18n defer
           types: [conditionType.INTEGER]
         }
       ],
       columns: [
         {
           key: 'mac',
-          label: this.$i18n.t('MAC Address'),
+          label: 'MAC Address', // i18n defer
+          required: true,
           sortable: true,
           visible: true
         },
         {
           key: 'circuit_id_string',
-          label: this.$i18n.t('Circuit ID String'),
+          label: 'Circuit ID String', // i18n defer
           sortable: true,
-          visible: true,
-          locked: false
+          visible: true
         },
         {
           key: 'host',
-          label: this.$i18n.t('Host'),
+          label: 'Host', // i18n defer
           sortable: true,
           visible: true
         },
         {
           key: 'module',
-          label: this.$i18n.t('Module'),
+          label: 'Module', // i18n defer
           sortable: true,
           visible: true
         },
         {
           key: 'option82_switch',
-          label: this.$i18n.t('Option82 Switch'),
+          label: 'Option82 Switch', // i18n defer
           sortable: true,
           visible: true
         },
         {
           key: 'port',
-          label: this.$i18n.t('Port'),
+          label: 'Port', // i18n defer
           sortable: true,
           visible: true
         },
         {
           key: 'switch_id',
-          label: this.$i18n.t('Switch ID'),
+          label: 'Switch ID', // i18n defer
           sortable: true,
           visible: true
         },
         {
           key: 'vlan',
-          label: this.$i18n.t('DHCP Option 82 VLAN'),
+          label: 'DHCP Option 82 VLAN', // i18n defer
           sortable: true,
           visible: true
         },
         {
           key: 'created_at',
-          label: this.$i18n.t('Created At'),
+          label: 'Created At', // i18n defer
           sortable: true,
           visible: true,
           class: 'text-nowrap',
@@ -239,7 +253,7 @@ export default {
           }) >= 0
         }).length !== condition.values[0].values.length
     },
-    onRowClick (item, index) {
+    onRowClick (item) {
       this.$router.push({ name: 'dhcpoption82', params: { mac: item.mac } })
     }
   }

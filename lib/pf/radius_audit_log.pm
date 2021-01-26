@@ -77,6 +77,7 @@ our @FIELDS = qw(
     radius_request
     radius_reply
     request_time
+    radius_ip
 );
 
 our @NODE_FIELDS = qw(
@@ -233,7 +234,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2019 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 

@@ -2,14 +2,14 @@
 
 rm -f \
         work/box.ovf \
-        work/box-disk1.vmdk \
+        work/*.vmdk \
         work/box.ova \
         work/package.box \
         work/vagrant_private_key \
         work/Vagrantfile
 
-rm -f PacketFence-ZEN-*.ova
-rm -f PacketFence-ZEN-*.zip
+rm -f *.ova
+rm -f *.zip
 
 vagrant destroy -f
 

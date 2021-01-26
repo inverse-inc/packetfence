@@ -18,7 +18,10 @@ use warnings;
 use pf::log;
 use Readonly;
 use pf::accounting_events_history;
-use pf::config::pfmon qw(%ConfigPfmon);
+use pf::config::pfcron qw(%ConfigCron);
+use pf::config::tenant;
+use pf::util qw(make_node_id);
+use pf::error qw(is_success);
 
 use constant ACCOUNTING => 'accounting';
 
@@ -41,9 +44,6 @@ BEGIN {
         node_accounting_weekly_time
         node_accounting_monthly_time
         node_accounting_yearly_time
-        node_acct_maintenance_bw_all_exists
-        node_acct_maintenance_bw_inbound_exists
-        node_acct_maintenance_bw_outbound_exists
         $ACCOUNTING_TRIGGER_RE
     );
 }
@@ -65,6 +65,7 @@ use pf::util;
 use pf::CHI;
 use pf::dal::radacct_log;
 use pf::dal::radacct;
+use pf::dal::bandwidth_accounting;
 
 # This parses the specific accounting security_event trigger format
 Readonly our $ACCOUNTING_TRIGGER_RE => qr/
@@ -76,6 +77,19 @@ Readonly our $ACCOUNTING_TRIGGER_RE => qr/
 
 Readonly our $DIRECTION_IN => 'IN';
 Readonly our $DIRECTION_OUT => 'OUT';
+
+my %grouping_dates = (
+    daily   => 'DATE(time_bucket)',
+    weekly  => 'DATE_SUB(DATE(time_bucket), INTERVAL WEEKDAY(time_bucket) DAY)',
+    monthly => 'DATE_ADD(DATE(time_bucket),INTERVAL -DAY(time_bucket)+1 DAY)',
+    yearly  => 'DATE_ADD(DATE(time_bucket),INTERVAL -DAYOFYEAR(time_bucket)+1 DAY)',
+);
+
+my %direction_field = (
+    IN  => 'in_bytes',
+    OUT => 'out_bytes',
+    TOT => 'total_bytes',
+);
 
 =head1 SUBROUTINES
 
@@ -124,49 +138,31 @@ sub acct_maintenance {
             $logger->info("Found timeframed accounting policy : $acct_policy for security_event $security_event_id");
 
             # Grab the list of the mac address first without caring about the security_events
-            my $releaseDate = "1";
-            my @results;
-            if ($direction eq $DIRECTION_IN) {
-                @results = node_acct_maintenance_bw_inbound($interval, $releaseDate, $bwInBytes);
-            } elsif ($direction eq $DIRECTION_OUT) {
-                @results = node_acct_maintenance_bw_outbound($interval, $releaseDate, $bwInBytes);
-            } else {
-                $logger->info("Calling node acct maintenance total with $interval and $releaseDate for $bwInBytes");
-                @results = node_acct_maintenance_bw_total($interval, $releaseDate, $bwInBytes);
-            }
+            my $next = 0;
+            my $results;
+            while (defined $next) {
+                ($next, $results) = next_node_acct_maintenance_bw($next, 100, $direction, $interval, $bwInBytes);
+                # Now that we have the results, loop on the mac.  While doing that, we need to re-check from the last security_event if needed.
+                foreach my $mac (@$results) {
+                    my $cleanedMac = clean_mac($mac->{'mac'});
 
-            # Now that we have the results, loop on the mac.  While doing that, we need to re-check from the last security_event if needed.
-            foreach my $mac (@results) {
-                my $cleanedMac = clean_mac($mac->{'callingstationid'});
+                    #Do we have a closed security_event for the current mac
+                    $logger->info("Looking if we have a closed security_event in the present window for mac $cleanedMac and security_event_id $security_event_id");
 
-                #Do we have a closed security_event for the current mac
-                $logger->info("Looking if we have a closed security_event in the present window for mac $cleanedMac and security_event_id $security_event_id");
-
-                if (security_event_exist_acct($cleanedMac, $security_event_id, $interval)) {
-                    $logger->info("We have a closed security_event in the interval window for node $cleanedMac, need to recalculate using the last security_event release date");
-                    $events_history->add_to_history_hash($events_history_hash, $cleanedMac, $acct_policy);
-                    $history_added = $TRUE;
-
-                    my @security_event = security_event_view_last_closed($cleanedMac,$security_event_id);
-                    $releaseDate = $security_event[0]{'release_date'};
-
-                    if ($direction eq $DIRECTION_IN) {
-                         if(node_acct_maintenance_bw_inbound_exists($releaseDate,$bwInBytes,$mac->{'callingstationid'})) {
+                    if (security_event_exist_acct($cleanedMac, $security_event_id, $interval)) {
+                        $logger->info("We have a closed security_event in the interval window for node $cleanedMac, need to recalculate using the last security_event release date");
+                        $events_history->add_to_history_hash($events_history_hash, $cleanedMac, $acct_policy);
+                        $history_added = $TRUE;
+                        my @security_event = security_event_view_last_closed($cleanedMac,$security_event_id);
+                        my $releaseDate = $security_event[0]{'release_date'};
+                        if (node_acct_maintenance_bw_exists($mac->{tenant_id}, $mac->{mac}, $direction, $interval, $releaseDate, $bwInBytes)) {
                               security_event_trigger( { 'mac' => $cleanedMac, 'tid' => $acct_policy, 'type' => $TRIGGER_TYPE_ACCOUNTING } );
-                         }
-                    } elsif ($direction eq $DIRECTION_OUT) {
-                         if(node_acct_maintenance_bw_outbound_exists($releaseDate,$bwInBytes,$mac->{'callingstationid'})) {
-                                 security_event_trigger( { 'mac' => $cleanedMac, 'tid' => $acct_policy, 'type' => $TRIGGER_TYPE_ACCOUNTING } );
-                         }
+                        }
                     } else {
-                         if(node_acct_maintenance_bw_total_exists($releaseDate,$bwInBytes,$mac->{'callingstationid'})) {
-                                 security_event_trigger( { 'mac' => $cleanedMac, 'tid' => $acct_policy, 'type' => $TRIGGER_TYPE_ACCOUNTING } );
-                         }
+                        $events_history->add_to_history_hash($events_history_hash, $cleanedMac, $acct_policy);
+                        $history_added = $TRUE;
+                        security_event_trigger( { 'mac' => $cleanedMac, 'tid' => $acct_policy, 'type' => $TRIGGER_TYPE_ACCOUNTING } );
                     }
-                } else {
-                    $events_history->add_to_history_hash($events_history_hash, $cleanedMac, $acct_policy);
-                    $history_added = $TRUE;
-                    security_event_trigger( { 'mac' => $cleanedMac, 'tid' => $acct_policy, 'type' => $TRIGGER_TYPE_ACCOUNTING } );
                 }
             }
         }
@@ -177,8 +173,55 @@ sub acct_maintenance {
     }
 
     # Commit the data and give 3 times the acct_maintenance interval as a TTL which should be plenty for the next loop to populate this again
-    $events_history->commit($events_history_hash, $ConfigPfmon{acct_maintenance}{interval}*3) if $history_added;
+    $events_history->commit($events_history_hash, $ConfigCron{acct_maintenance}{interval}*3) if $history_added;
     return $TRUE;
+}
+
+sub next_node_acct_maintenance_bw {
+    my ($start, $limit, $direction, $interval, $bytes) = @_;
+    my $find_min_max_sql = <<SQL;
+    SELECT MIN(node_id), MAX(node_id) from (
+    (SELECT node_id FROM bandwidth_accounting node_id WHERE node_id > ? GROUP BY node_id ORDER BY node_id LIMIT ?)
+    UNION (SELECT node_id FROM bandwidth_accounting_history node_id WHERE node_id > ? GROUP BY node_id ORDER BY node_id LIMIT ?)) as x ;
+SQL
+
+    my ($status, $sth) = pf::dal::bandwidth_accounting->db_execute($find_min_max_sql, $start, $limit, $start, $limit);
+    my ($min, $max) = $sth->fetchrow_array();
+    $sth->finish;
+    if (!defined $max) {
+        return (undef, undef);
+    }
+    my $field = $direction_field{$direction};
+    my $date = $grouping_dates{$interval};
+    my $sql2 = <<"SQL";
+SELECT
+    tenant_id,
+    mac,
+    SUM($field) as $field FROM (
+        SELECT 
+            $date AS time_bucket,
+            node_id,
+            tenant_id,
+            mac,
+            SUM($field) AS $field 
+        FROM bandwidth_accounting
+        WHERE node_id BETWEEN ? AND ? GROUP BY node_id, $date 
+        UNION ALL SELECT 
+            $date AS time_bucket,
+            node_id,
+            tenant_id,
+            mac,
+            SUM($field) AS $field 
+        FROM bandwidth_accounting_history
+        WHERE node_id BETWEEN ? AND ? GROUP BY node_id, $date 
+        ) AS X GROUP BY node_id, time_bucket HAVING SUM($field) >= ?;
+SQL
+
+    ($status, $sth) = pf::dal::bandwidth_accounting->db_execute($sql2, $min, $max, $min, $max, $bytes);
+
+    my $r = $sth->fetchall_arrayref({});
+    $sth->finish;
+    return ($max, $r);
 }
 
 =item current_sessionid
@@ -299,36 +342,13 @@ sub node_accounting_view_all {
     ));
 }
 
-=item _node_accounting_bw
-
-_node_accounting_bw
-
-=cut
-
-sub _node_accounting_bw {
-    return _db_item (
-        -columns => [
-            'SUM(radacct_log.acctinputoctets)|acctinput',
-            'SUM(radacct_log.acctoutputoctets)|acctoutput',
-            'SUM(radacct_log.acctinputoctets+radacct_log.acctoutputoctets)|accttotal'
-        ],
-        -from => [-join => 'radacct_log', '=>{radacct_log.acctuniqueid=radacct.acctuniqueid}', "(select acctuniqueid, callingstationid from radacct group by acctuniqueid) as radacct"],
-        @_,
-    );
-}
-
 =item node_accounting_daily_bw - view bandwidth tranferred today for a node, returns an array of hashrefs
 
 =cut
 
 sub node_accounting_daily_bw {
     my ($mac) = @_;
-    return _node_accounting_bw(
-        -where => {
-            callingstationid => $mac,
-            timestamp => { ">=" => \"CURRENT_DATE()" },
-        },
-    );
+    return node_accounting_bw($mac, 'daily');
 }
 
 =item node_accounting_weekly_bw - view bandwidth tranferred this week for a node, returns an array of hashrefs
@@ -337,9 +357,7 @@ sub node_accounting_daily_bw {
 
 sub node_accounting_weekly_bw {
     my ($mac) = @_;
-    return _node_accounting_bw(
-        -where => [-and => [\"YEARWEEK(timestamp) = YEARWEEK(CURRENT_DATE())", {callingstationid => $mac}]],
-    );
+    return node_accounting_bw($mac, 'weekly');
 }
 
 =item node_accounting_monthly_bw - view bandwidth tranferred this month for a node, returns an array of hashrefs
@@ -348,9 +366,7 @@ sub node_accounting_weekly_bw {
 
 sub node_accounting_monthly_bw {
     my ($mac) = @_;
-    return _node_accounting_bw(
-        -where => [-and => [\"MONTH(timestamp) = MONTH(CURRENT_DATE())", {callingstationid => $mac}]],
-    );
+    return node_accounting_bw($mac, 'monthly');
 }
 
 =item node_accounting_yearly_bw - view bandwidth tranferred this year for a node, returns an array of hashrefs
@@ -359,9 +375,7 @@ sub node_accounting_monthly_bw {
 
 sub node_accounting_yearly_bw {
     my ($mac) = @_;
-    return _node_accounting_bw(
-        -where => [-and => [\"YEAR(timestamp) = YEAR(CURRENT_DATE())", {callingstationid => $mac}]],
-    );
+    return node_accounting_bw($mac, 'monthly');
 }
 
 sub _node_accounting_time {
@@ -440,178 +454,6 @@ our %INTERVAL_TO_METHOD = (
     monthly => 'MONTH',
     yearly => 'YEAR',
 );
-
-=item node_acct_maintenance_bw_inbound - get mac that downloaded more bandwidth than they should
-
-=cut
-
-sub node_acct_maintenance_bw_inbound {
-    my ($interval, $releaseDate, $bytes) = @_;
-    my $method = $INTERVAL_TO_METHOD{$interval};
-    return _db_items (
-        -columns => ['radacct.callingstationid' , 'SUM(radacct_log.acctinputoctets)|acctinput'],
-        -from => [-join => 'radacct_log', '=>{radacct_log.acctuniqueid=radacct.acctuniqueid}', "(select acctuniqueid, callingstationid from radacct group by acctuniqueid) as radacct"],
-        -group_by => 'radacct.callingstationid',
-        -where => [
-            -and => [
-                \"${method}(timestamp) = ${method}(timestamp)",
-                {"timestamp" => {">=" => $releaseDate}},
-            ],
-        ],
-        -having  => {
-            acctinput => { ">=" => $bytes}
-        },
-    );
-}
-
-=item node_acct_maintenance_bw_outbound - get mac that uploaded more bandwidth than they should
-
-=cut
-
-sub node_acct_maintenance_bw_outbound {
-    my ($interval, $releaseDate, $bytes) = @_;
-    my $method = $INTERVAL_TO_METHOD{$interval};
-    return _db_items(
-        -columns => [
-            'radacct.callingstationid',
-            'SUM(radacct_log.acctoutputoctets)|acctoutput'
-        ],
-        -from => [
-            -join => 'radacct_log',
-            '=>{radacct_log.acctuniqueid=radacct.acctuniqueid}', "(select acctuniqueid, callingstationid from radacct group by acctuniqueid) as radacct"
-        ],
-        -group_by => 'radacct.callingstationid',
-        -where    => [
-            -and => [
-                \"${method}(timestamp) = ${method}(timestamp)",
-                { "timestamp" => { ">=" => $releaseDate } },
-            ],
-        ],
-        -having => {
-            acctoutput => { ">=" => $bytes },
-        },
-    );
-}
-
-=item node_acct_maintenance_bw_total - get mac that used more bandwidth (IN + OUT) than they should
-
-=cut
-
-sub node_acct_maintenance_bw_total {
-    my ($interval, $releaseDate, $bytes) = @_;
-    my $method = $INTERVAL_TO_METHOD{$interval};
-    return _db_items(
-        -columns => [
-            'radacct.callingstationid',
-            'SUM(radacct_log.acctinputoctets)|acctinput',
-            'SUM(radacct_log.acctoutputoctets)|acctoutput',
-            'SUM(radacct_log.acctinputoctets + radacct_log.acctoutputoctets)|accttotal',
-        ],
-        -from => [
-            -join => 'radacct_log',
-            '=>{radacct_log.acctuniqueid=radacct.acctuniqueid}', "(select acctuniqueid, callingstationid from radacct group by acctuniqueid) as radacct"
-        ],
-        -group_by => 'radacct.callingstationid',
-        -where    => [
-            -and => [
-                \"${method}(timestamp) = ${method}(timestamp)",
-                { "timestamp" => { ">=" => $releaseDate } },
-            ],
-        ],
-        -having => {
-            accttotal => { ">=" => $bytes },
-        },
-    );
-}
-
-=item node_acct_maintenance_bw_inbound_exists - check if the mac bust the bandwidth down limit
-
-=cut
-
-sub node_acct_maintenance_bw_inbound_exists {
-    my ($releaseDate, $bytes, $mac) = @_;
-    return _db_items(
-        -columns => [
-            'radacct.callingstationid',
-            'SUM(radacct_log.acctinputoctets)|acctinput',
-        ],
-        -group_by => 'radacct.callingstationid',
-        -from => [
-            -join => 'radacct_log',
-            '=>{radacct_log.acctuniqueid=radacct.acctuniqueid}', "(select acctuniqueid, callingstationid from radacct group by acctuniqueid) as radacct" 
-        ],
-        -where => {
-            timestamp => {
-                ">=" => $releaseDate,
-                "<="=> \"NOW()",
-            },
-            'radacct.callingstationid' => $mac,
-        },
-        -having => {
-            acctinputoctets => { ">=" => $bytes},
-        },
-    );
-}
-
-=item node_acct_maintenance_bw_outbound_exists - check if the mac bust the bandwidth up limit
-
-=cut
-
-sub node_acct_maintenance_bw_outbound_exists {
-    my ($releaseDate, $bytes, $mac) = @_;
-    return _db_items(
-        -columns => [
-            'radacct.callingstationid',
-            'SUM(radacct_log.acctoutputoctets)|acctoutput',
-        ],
-        -group_by => 'radacct.callingstationid',
-        -from => [
-            -join => 'radacct_log',
-            '=>{radacct_log.acctuniqueid=radacct.acctuniqueid}', "(select acctuniqueid, callingstationid from radacct group by acctuniqueid) as radacct" 
-        ],
-        -where => {
-            timestamp => {
-                ">=" => $releaseDate,
-                "<="=> \"NOW()",
-            },
-            'radacct.callingstationid' => $mac,
-        },
-        -having => {
-            acctoutputoctets => { ">=" => $bytes},
-        },
-    );
-}
-
-=item node_acct_maintenance_bw_total_exists - check if the mac bust the bandwidth up-down limit
-
-=cut
-
-sub node_acct_maintenance_bw_total_exists {
-    my ($releaseDate, $bytes, $mac) = @_;
-    return _db_items(
-        -columns => [
-            'radacct.callingstationid',
-            'SUM(radacct_log.acctinputoctets)|acctinput',
-            'SUM(radacct_log.acctoutputoctets)|acctoutput',
-            'SUM(radacct_log.acctinputoctets+radacct_log.acctoutputoctets)|accttotal',
-        ],
-        -group_by => 'radacct.callingstationid',
-        -from => [
-            -join => 'radacct_log',
-            '=>{radacct_log.acctuniqueid=radacct.acctuniqueid}', "(select acctuniqueid, callingstationid from radacct group by acctuniqueid) as radacct" 
-        ],
-        -where => {
-            timestamp => {
-                ">=" => $releaseDate,
-                "<="=> \"NOW()",
-            },
-            'radacct.callingstationid' => $mac,
-        },
-        -having => {
-            accttotal => { ">=" => $bytes},
-        },
-    );
-}
 
 sub _translate_bw {
     my (@data) = @_;
@@ -728,9 +570,75 @@ sub cleanup {
         -no_auto_tenant_id => 1,
     );
     pf::dal::radacct_log->batch_remove(\%params, $time_limit);
+    return;
+}
 
+sub node_acct_maintenance_bw {
+    my ($direction, $interval, $releaseDate, $bytes) = @_;
+    my $field = $direction_field{$direction};
+    my $date = $grouping_dates{$interval};
+    my $sql = <<"SQL";
+    select tenant_id, mac, SUM($field) as $field FROM (
+        SELECT $date AS time_bucket, node_id, tenant_id, mac, SUM($field) AS $field FROM bandwidth_accounting WHERE time_bucket >= ? GROUP BY $date, node_id
+        UNION ALL SELECT $date AS time_bucket, node_id, tenant_id, mac, SUM($field) AS $field FROM bandwidth_accounting_history WHERE time_bucket >= ? GROUP BY $date, node_id
+    ) AS X GROUP BY time_bucket, node_id HAVING SUM($field) >= ?;
+SQL
+    my ($status, $sth) = pf::dal::bandwidth_accounting->db_execute($sql, $releaseDate, $releaseDate, $bytes);
+    if (is_success($status)) {
+        my $tbl_ary_ref = $sth->fetchall_arrayref({});
+        $sth->finish();
+        return @$tbl_ary_ref;
+    }
 
     return;
+}
+
+sub node_acct_maintenance_bw_exists {
+    my ($tenant_id, $mac, $direction, $interval, $releaseDate, $bytes) = @_;
+    my $field = $direction_field{$direction};
+    my $date = $grouping_dates{$interval};
+    my $node_id = make_node_id($tenant_id, $mac);
+    my $sql = <<"SQL";
+    select tenant_id, mac FROM (
+        SELECT $date AS time_bucket, tenant_id, mac, SUM($field) AS $field FROM bandwidth_accounting WHERE time_bucket >= ? AND node_id = ? GROUP BY $date
+        UNION ALL SELECT $date AS time_bucket, tenant_id, mac, SUM($field) AS $field FROM bandwidth_accounting_history WHERE time_bucket >= ? AND node_id = ? GROUP BY $date
+    ) AS X GROUP BY time_bucket HAVING SUM($field) >= ?;
+SQL
+    my ($status, $sth) = pf::dal::bandwidth_accounting->db_execute($sql, $releaseDate, $node_id, $releaseDate, $node_id, $bytes);
+    if (is_success($status)) {
+        my $tbl_ary_ref = $sth->fetchall_arrayref({});
+        $sth->finish();
+        return @$tbl_ary_ref;
+    }
+
+    return;
+}
+
+my %mac_grouping_dates = (
+    daily   => 'CURDATE()',
+    weekly  => 'DATE_SUB(CURDATE(), INTERVAL WEEKDAY(CURDATE()) DAY)',
+    monthly => 'DATE_ADD(CURDATE(),INTERVAL -DAY(CURDATE())+1 DAY)',
+    yearly  => 'DATE_ADD(CURDATE(),INTERVAL -DAYOFYEAR(CURDATE())+1 DAY)',
+);
+
+sub node_accounting_bw {
+    my ($mac, $interval) = @_;
+    my $tenant_id = pf::config::tenant::get_tenant();
+    my $date = $mac_grouping_dates{$interval};
+    my $node_id = make_node_id($tenant_id, $mac);
+    my $sql = <<"SQL";
+    select SUM(in_bytes) AS acctinput, SUM(out_bytes) AS acctoutput, SUM(total_bytes) AS accttotal FROM (
+        SELECT IFNULL(SUM(in_bytes), 0) AS in_bytes, IFNULL(SUM(out_bytes), 0) AS out_bytes, IFNULL(SUM(total_bytes), 0) AS total_bytes  FROM bandwidth_accounting WHERE time_bucket >= $date AND node_id = ?
+        UNION SELECT IFNULL(SUM(in_bytes), 0) AS in_bytes, IFNULL(SUM(out_bytes), 0) AS out_bytes, IFNULL(SUM(total_bytes), 0) AS total_bytes  FROM bandwidth_accounting_history WHERE time_bucket >= $date AND node_id = ?
+    ) AS X;
+SQL
+    my ($status, $sth) = pf::dal::bandwidth_accounting->db_execute($sql, $node_id, $node_id);
+    if (is_success($status)) {
+        my $tbl_ary_ref = $sth->fetchall_arrayref({});
+        return $tbl_ary_ref->[0];
+    }
+
+    return
 }
 
 =back
@@ -741,7 +649,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2019 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 

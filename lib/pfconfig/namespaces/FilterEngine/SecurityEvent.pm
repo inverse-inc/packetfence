@@ -35,7 +35,6 @@ sub init {
 
 sub build {
     my ($self) = @_;
-
     my $config_security_events = pfconfig::namespaces::config::SecurityEvents->new( $self->{cache} );
     my %SecurityEvents_Config = %{ $config_security_events->build };
     $self->{accounting_triggers} = [];
@@ -71,11 +70,21 @@ sub build {
                 push @{$self->{bandwidth_expired_security_events}}, $security_event;
             }
         }
-        $security_event_condition = pf::condition::any->new({conditions => \@conditions});
-        push @filters, pf::filter->new({answer => $security_event, condition => $security_event_condition});
+        next if @conditions == 0;
+        push @filters,
+          pf::filter->new(
+            {
+                answer    => $security_event,
+                condition => (
+                      @conditions == 1
+                    ? $conditions[0]
+                    : pf::condition::any->new( { conditions => \@conditions } )
+                )
+            }
+          );
     }
-    my $engine = pf::filter_engine->new({ filters => \@filters });
-    return $engine;
+
+    return pf::filter_engine->new({ filters => \@filters });
 }
 
 =head1 AUTHOR
@@ -84,7 +93,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2019 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 

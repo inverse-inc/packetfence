@@ -112,7 +112,9 @@ Returns the @db_cluster_servers list without the servers that are disabled on th
 =cut
 
 sub db_enabled_servers {
-    return map { (-f node_disabled_file($_->{host})) ? () : $_ } @db_cluster_servers;
+    my @enabled_servers = map { (-f node_disabled_file($_->{host})) ? () : $_ } @db_cluster_servers;
+    my @non_slave_enabled_servers = map { (defined(${pf::config::cluster::getClusterConfig($clusters_hostname_map{$_->{host}})}{CLUSTER}{masterslavemode}) && ${pf::config::cluster::getClusterConfig($clusters_hostname_map{$_->{host}})}{CLUSTER}{masterslavemode} eq 'SLAVE' ) ? () : $_ } @enabled_servers;
+    return @non_slave_enabled_servers;
 }
 
 =head2 db_enabled_hosts
@@ -167,19 +169,21 @@ sub is_management {
         $logger->debug("Clustering is not enabled. Cannot be management node.");
         return 0;
     }
-    my $cluster_ip = management_cluster_ip();
-    my @all_ifs = Net::Interface->interfaces();
-    foreach my $inf (@all_ifs) {
-        my @masks = $inf->netmask(AF_INET());
-        my @addresses = $inf->address(AF_INET());
-        for my $i (0 .. $#masks) {
-            if (inet_ntoa($addresses[$i]) eq $cluster_ip) {
-                return 1;
+    if ($cluster_name eq $pf::cluster::master_multi_zone) {
+
+        my $cluster_ip = management_cluster_ip();
+        my @all_ifs = Net::Interface->interfaces();
+        foreach my $inf (@all_ifs) {
+            my @masks = $inf->netmask(AF_INET());
+            my @addresses = $inf->address(AF_INET());
+            for my $i (0 .. $#masks) {
+                if (inet_ntoa($addresses[$i]) eq $cluster_ip) {
+                    return 1;
+                }
             }
         }
     }
     return 0;
-
 }
 
 =head2 get_host_id
@@ -244,6 +248,25 @@ sub cluster_index {
     my $cluster_index = first_index { $_ eq $host_id } enabled_hosts();
     return $cluster_index;
 }
+
+=head2 reg_cluster_index
+
+Returns the index of this server in the cluster and put the first one and the latest on at the end
+
+=cut
+
+sub reg_cluster_index {
+    my $cluster_index = first_index { $_ eq $host_id } enabled_hosts();
+    my $cluster_size = scalar enabled_hosts();
+    if ($cluster_index eq "0") {
+        return $cluster_size - 2;
+    } elsif ($cluster_index eq ($cluster_size - 1)) {
+        return $cluster_index;
+    } else {
+        return $cluster_index - ($cluster_size - 2);
+   }
+}
+
 
 =head2 mysql_servers
 
@@ -366,12 +389,15 @@ sub sync_storages {
             get_logger->info("Synching storage : $store");
             my $cs = $store->new;
             my $pfconfig_namespace = $cs->pfconfigNamespace;
-            my $config_file = $cs->configFile;
-            my %data = (
-                namespace => $pfconfig_namespace,
-                conf_file => $config_file,
-            );
-            my ($result) = $apiclient->call( 'expire_cluster', %data );
+            
+            if($pfconfig_namespace) {
+                my $config_file = $cs->configFile;
+                my %data = (
+                    namespace => $pfconfig_namespace,
+                    conf_file => $config_file,
+                );
+                my ($result) = $apiclient->call( 'expire_cluster', %data );
+            }
         };
         if($@){
             print STDERR "ERROR !!! Failed to sync store : $store ($@) \n";
@@ -726,13 +752,51 @@ sub find_server_by_hostname {
     return firstval { $_->{host} eq $hostname } pf::cluster::config_enabled_servers;
 }
 
+=head2 all_find_server_by_hostname
+
+Finds a server configuration using the hostname
+
+=cut
+
+sub all_find_server_by_hostname {
+    my ($hostname) = @_;
+    return firstval { $_->{host} eq $hostname } @config_cluster_servers;
+}
+
+=head2 isSlaveMode
+
+Return if the cluster is in Slave mode
+
+=cut
+
+sub isSlaveMode {
+    my ($self) = @_;
+    if (defined($ConfigCluster{CLUSTER}{masterslavemode}) && $ConfigCluster{CLUSTER}{masterslavemode} eq 'SLAVE' ) {
+        return $TRUE;
+    }
+    return $FALSE;
+}
+
+=head2 getDBMaster
+
+Return the db master
+
+=cut
+
+sub getDBMaster {
+    if (defined(${pf::config::cluster::getClusterConfig(${pf::config::cluster::getClusterConfig($clusters_hostname_map{$host_id})}{CLUSTER}{masterdb})}{CLUSTER}{management_ip})) {
+        return ${pf::config::cluster::getClusterConfig(${pf::config::cluster::getClusterConfig($clusters_hostname_map{$host_id})}{CLUSTER}{masterdb})}{CLUSTER}{management_ip};
+    }
+    return $FALSE;
+}
+
 =head1 AUTHOR
 
 Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2019 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 

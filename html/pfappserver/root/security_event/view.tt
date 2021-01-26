@@ -109,7 +109,6 @@
             [% END %]
 
             [% fingerbank_map = { 
-              'user_agent' => 'fingerbank::Model::User_Agent', 
               'dhcp_fingerprint' => 'fingerbank::Model::DHCP_Fingerprint', 
               'dhcp6_fingerprint' => 'fingerbank::Model::DHCP6_Fingerprint', 
               'dhcp6_enterprise' => 'fingerbank::Model::DHCP6_Enterprise', 

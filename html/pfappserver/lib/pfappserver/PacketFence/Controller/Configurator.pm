@@ -82,8 +82,7 @@ Configurator controller dispatcher
 sub object :Chained('/') :PathPart('configurator') :CaptureArgs(0) {
     my ( $self, $c ) = @_;
 
-    $c->stash->{installation_type} = $c->model('Configurator')->checkForUpgrade();
-    if ($c->stash->{installation_type} eq $pfappserver::Model::Configurator::CONFIGURATION) {
+    if (!$c->model('Configurator')->isEnabled()) {
         my $admin_url = $c->uri_for($c->controller('Admin')->action_for('index'));
         $c->log->info("Redirecting to admin interface $admin_url");
         $c->response->redirect($admin_url);
@@ -510,7 +509,7 @@ sub services :Chained('object') :PathPart('services') :Args(0) {
         } else {
             my ($HTTP_CODE, $services) = $c->model('Services')->status(1);
             if( all { $_->{status} ne '0' } @{ $services->{services} } ) {
-                $c->model('Configurator')->update_currently_at();
+                $c->model('Configurator')->disableConfigurator();
             }
             $c->controller('Service')->_process_model_results_as_json($c, $HTTP_CODE, $services);
         }
@@ -523,7 +522,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2019 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 

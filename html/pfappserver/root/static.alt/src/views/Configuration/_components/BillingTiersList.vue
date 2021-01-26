@@ -1,18 +1,24 @@
 <template>
   <b-card no-body>
     <pf-config-list
+      ref="pfConfigList"
       :config="config"
     >
-      <template slot="pageHeader">
-        <b-card-header><h4 class="mb-0" v-t="'Billing Tiers'"></h4></b-card-header>
+      <template v-slot:pageHeader>
+        <b-card-header>
+          <h4 class="mb-0">
+            {{ $t('Billing Tiers') }}
+            <pf-button-help class="ml-1" url="PacketFence_Installation_Guide.html#_billing_engine" />
+          </h4>
+        </b-card-header>
       </template>
-      <template slot="buttonAdd">
+      <template v-slot:buttonAdd>
         <b-button variant="outline-primary" :to="{ name: 'newBillingTier' }">{{ $t('New Billing Tier') }}</b-button>
       </template>
-      <template slot="emptySearch" slot-scope="state">
+      <template v-slot:emptySearch="state">
         <pf-empty-table :isLoading="state.isLoading">{{ $t('No billing tiers found') }}</pf-empty-table>
       </template>
-      <template slot="buttons" slot-scope="item">
+      <template v-slot:cell(buttons)="item">
         <span class="float-right text-nowrap">
           <pf-button-delete size="sm" v-if="!item.not_deletable" variant="outline-danger" class="mr-1" :disabled="isLoading" :confirm="$t('Delete Billing Tier?')" @on-delete="remove(item)" reverse/>
           <b-button size="sm" variant="outline-primary" class="mr-1" @click.stop.prevent="clone(item)">{{ $t('Clone') }}</b-button>
@@ -24,29 +30,27 @@
 
 <script>
 import pfButtonDelete from '@/components/pfButtonDelete'
+import pfButtonHelp from '@/components/pfButtonHelp'
 import pfConfigList from '@/components/pfConfigList'
 import pfEmptyTable from '@/components/pfEmptyTable'
-import {
-  pfConfigurationBillingTiersListConfig as config
-} from '@/globals/configuration/pfConfigurationBillingTiers'
+import { config } from '../_config/billingTier'
 
 export default {
-  name: 'BillingTiersList',
+  name: 'billing-tiers-list',
   components: {
     pfButtonDelete,
+    pfButtonHelp,
     pfConfigList,
     pfEmptyTable
   },
-  props: {
-    storeName: { // from router
-      type: String,
-      default: null,
-      required: true
-    }
-  },
   data () {
     return {
-      config: config(this)
+      config: config(this) // ../_config/billingTier
+    }
+  },
+  computed: {
+    isLoading () {
+      return this.$store.getters['$_billing_tiers/isLoading']
     }
   },
   methods: {
@@ -54,8 +58,9 @@ export default {
       this.$router.push({ name: 'cloneBillingTier', params: { id: item.id } })
     },
     remove (item) {
-      this.$store.dispatch(`${this.storeName}/deleteBillingTier`, item.id).then(response => {
-        this.$router.go() // reload
+      this.$store.dispatch('$_billing_tiers/deleteBillingTier', item.id).then(() => {
+        const { $refs: { pfConfigList: { refreshList = () => {} } = {} } = {} } = this
+        refreshList() // soft reload
       })
     }
   }

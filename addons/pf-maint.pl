@@ -40,6 +40,8 @@ use Pod::Usage;
 use IO::Handle;
 use Term::ReadKey;
 use IO::Interactive qw(is_interactive);
+use LWP::Protocol::connect;
+use LWP::Protocol::https;
 our $GITHUB_USER = 'inverse-inc';
 our $GITHUB_REPO = 'packetfence';
 our $PF_DIR      = $ENV{PF_DIR} || '/usr/local/pf';
@@ -53,6 +55,9 @@ our $COMMIT_ID_FILE = catfile($PF_DIR,'conf','git_commit_id');
 our $test;
 our $TERMINAL_WIDTH;
 
+$ENV{PERL_NET_HTTPS_SSL_SOCKET_CLASS} = "Net::SSL";
+$ENV{PERL_LWP_SSL_VERIFY_HOSTNAME} = 0;
+
 # Files that should be excluded from patching
 # Will only work when using git to patch a server
 our @excludes = (
@@ -60,6 +65,7 @@ our @excludes = (
     ".gitattributes",
     ".gitconfig",
     ".gitignore",
+    ".gitlab-ci.yml",
     "addons/logrotate",
     "packetfence.logrotate",
     # Directories
@@ -69,6 +75,7 @@ our @excludes = (
     "docs/*",
     "src/*",
     "t/*",
+    "ci/*",
 );
 
 our @patchable_binaries = (
@@ -77,6 +84,9 @@ our @patchable_binaries = (
     "pfdhcp",
     "pfstats",
     "pfdetect",
+    "galera-autofix",
+    "pfacct",
+    "pfcertmanager",
 );
 
 GetOptions(
@@ -204,9 +214,17 @@ if($BASE_BINARIES_URL) {
 
 $step++;
 print "=" x $TERMINAL_WIDTH . "\n";
-print "Step $step: Regenerating rsyslog configuration and restarting rsyslog\n";
-system("/usr/local/pf/bin/pfcmd generatesyslogconfig");
-system("systemctl restart rsyslog");
+{
+    local $ENV{PERL_NET_HTTPS_SSL_SOCKET_CLASS} = undef;
+    local $ENV{PERL_LWP_SSL_VERIFY_HOSTNAME} = undef;
+    local $ENV{PATH} = $ENV{PATH};
+    if ($ENV{PATH} =~ /^(.*)$/) {
+        $ENV{PATH} = $1;
+    }
+    print "Step $step: Regenerating rsyslog configuration and restarting rsyslog\n";
+    system("/usr/local/pf/bin/pfcmd generatesyslogconfig");
+    system("systemctl restart rsyslog");
+}
 
 print "=" x $TERMINAL_WIDTH . "\n";
 print "All done...\n";
@@ -274,7 +292,11 @@ sub get_url {
     my $request  = HTTP::Request->new( GET => $url ), my $response_body;
     my $ua       = LWP::UserAgent->new;
     $ua->show_progress(1);
-    $ua->env_proxy;
+    foreach ('http_proxy', 'HTTP_PROXY') {
+        if($ENV{$_} && $ENV{$_} =~ /^https?:\/\/(.+)/) {
+            $ua->proxy("https", "connect://$1");
+        }
+    }
     my $response = $ua->request($request);
     if ( $response->is_success ) {
         $response_body = $response->content;
@@ -342,6 +364,7 @@ sub download_and_install_alt_admin {
     print "Starting patching process.......\n";
     my $patch_path = "$ALT_ADMIN_DIRECTORY";
     my $archive_path = "$ALT_ADMIN_PATCH_WD/static.alt.tgz";
+
     my $data = get_url("$ALT_ADMIN_URL/maintenance/$PF_RELEASE/static.alt.tgz.sig");
     write_file("$archive_path-maintenance-encrypted", $data);
     
@@ -400,7 +423,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2019 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 

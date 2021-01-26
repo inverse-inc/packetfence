@@ -573,8 +573,8 @@ sub logstate :Local :AdminRole('REPORTS_READ') {
                 'columns' => 2
                },
                {
-                'description' => $c->loc('Logs Tracking pfmon.log'),
-                'target' => '*.tail-pfmon.counter*',
+                'description' => $c->loc('Logs Tracking pfcron.log'),
+                'target' => '*.tail-pfcron.counter*',
                 'columns' => 2
                },
                {
@@ -1105,7 +1105,7 @@ sub _generate_timeout_group {
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2019 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 

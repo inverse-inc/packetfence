@@ -1,3 +1,4 @@
+import bytes from '@/utils/bytes'
 import i18n from '@/utils/locale'
 import store from '@/store'
 import { pfFormatters as formatter } from '@/globals/pfFormatters'
@@ -66,425 +67,478 @@ export const pfReportChartOptions = {
 export const pfReportSort = {
   role: (a, b) => {
     switch (true) {
-      case a === b: return 0
-      case !a: return -1
-      case !b: return 1
-      default:
+      case a === b: {
+        return 0
+      }
+      case !a: {
+        return -1
+      }
+      case !b: {
+        return 1
+      }
+      default: {
         const aName = store.state.config.roles.filter(role => role.category_id === a).map(role => role.name)[0]
         const bName = store.state.config.roles.filter(role => role.category_id === b).map(role => role.name)[0]
         return toString(aName).localeCompare(toString(bName), undefined, { numeric: true })
+      }
     }
   }
 }
 
-export const pfReportColumns = {
-  acctinput: {
-    key: 'acctinput',
-    label: i18n.t('Bytes In'),
-    class: 'text-nowrap',
-    sortable: true,
-    visible: true
-  },
-  acctinputoctets: {
-    key: 'acctinputoctets',
-    label: i18n.t('Octets In'),
-    class: 'text-nowrap',
-    sortable: true,
-    visible: true
-  },
-  acctoutput: {
-    key: 'acctoutput',
-    label: i18n.t('Bytes Out'),
-    class: 'text-nowrap',
-    sortable: true,
-    visible: true
-  },
-  acctoutputoctets: {
-    key: 'acctoutputoctets',
-    label: i18n.t('Octets Out'),
-    class: 'text-nowrap',
-    sortable: true,
-    visible: true
-  },
-  accttotal: {
-    key: 'accttotal',
-    label: i18n.t('Bytes Total'),
-    class: 'text-nowrap',
-    sortable: true,
-    visible: true
-  },
-  accttotaloctets: {
-    key: 'accttotaloctets',
-    label: i18n.t('Octets Total'),
-    class: 'text-nowrap',
-    sortable: true,
-    visible: true
-  },
-  autoreg: {
-    key: 'autoreg',
-    label: i18n.t('Auto Registration'),
-    class: 'text-nowrap',
-    sortable: true,
-    visible: true
-  },
-  bandwidth_balance: {
-    key: 'bandwidth_balance',
-    label: i18n.t('Bandwidth Balance'),
-    class: 'text-nowrap',
-    sortable: true,
-    visible: true
-  },
-  bypass_role_id: {
-    key: 'bypass_role_id',
-    label: i18n.t('Bypass Role'),
-    class: 'text-nowrap',
-    sortable: true,
-    visible: true,
-    formatter: formatter.bypassRoleId,
-    sort: pfReportSort.role
-  },
-  bypass_vlan: {
-    key: 'bypass_vlan',
-    label: i18n.t('Bypass VLAN'),
-    class: 'text-nowrap',
-    sortable: true,
-    visible: true
-  },
-  callingstationid: {
-    key: 'callingstationid',
-    label: i18n.t('Calling Station ID'),
-    class: 'text-nowrap',
-    sortable: true,
-    visible: true
-  },
-  category_id: {
-    key: 'category_id',
-    label: i18n.t('Role'),
-    class: 'text-nowrap',
-    sortable: true,
-    visible: true,
-    formatter: formatter.categoryId,
-    sort: pfReportSort.role
-  },
-  computer_name: {
-    key: 'computer_name',
-    label: i18n.t('Computername'),
-    class: 'text-nowrap',
-    sortable: true,
-    visible: true
-  },
-  connection_type: {
-    key: 'connection_type',
-    label: i18n.t('Connection Type'),
-    class: 'text-nowrap',
-    sortable: true,
-    visible: true
-  },
-  connections: {
-    key: 'connections',
-    label: i18n.t('Connections'),
-    class: 'text-nowrap',
-    sortable: true,
-    visible: true
-  },
-  computername: {
-    key: 'computername',
-    label: i18n.t('Computername'),
-    class: 'text-nowrap',
-    sortable: true,
-    visible: true
-  },
-  count: {
-    key: 'count',
-    label: i18n.t('Count'),
-    class: 'text-nowrap',
-    sortable: true,
-    visible: true
-  },
-  description: {
-    key: 'description',
-    label: i18n.t('Description'),
-    class: 'text-nowrap',
-    sortable: true,
-    visible: true
-  },
-  detect_date: {
-    key: 'detect_date',
-    label: i18n.t('Detect Date'),
-    class: 'text-nowrap',
-    sortable: true,
-    visible: true,
-    formatter: formatter.datetimeIgnoreZero
-  },
-  device_class: {
-    key: 'device_class',
-    label: i18n.t('Device Class'),
-    class: 'text-nowrap',
-    sortable: true,
-    visible: true
-  },
-  device_manufacturer: {
-    key: 'device_manufacturer',
-    label: i18n.t('Device Manufacturer'),
-    class: 'text-nowrap',
-    sortable: true,
-    visible: true
-  },
-  device_score: {
-    key: 'device_score',
-    label: i18n.t('Device Score'),
-    class: 'text-nowrap',
-    sortable: true,
-    visible: true
-  },
-  device_type: {
-    key: 'device_type',
-    label: i18n.t('Device Type'),
-    class: 'text-nowrap',
-    sortable: true,
-    visible: true
-  },
-  device_version: {
-    key: 'device_version',
-    label: i18n.t('Device Version'),
-    class: 'text-nowrap',
-    sortable: true,
-    visible: true
-  },
-  dhcp6_enterprise: {
-    key: 'dhcp6_enterprise',
-    label: i18n.t('Device Enterprise'),
-    class: 'text-nowrap',
-    sortable: true,
-    visible: true
-  },
-  dhcp6_fingerprint: {
-    key: 'dhcp6_fingerprint',
-    label: i18n.t('DHCPv6 Fingerprint'),
-    class: 'text-nowrap',
-    sortable: true,
-    visible: true
-  },
-  dhcp_fingerprint: {
-    key: 'dhcp_fingerprint',
-    label: i18n.t('DHCP Fingerprint'),
-    class: 'text-nowrap',
-    sortable: true,
-    visible: true
-  },
-  dhcp_vendor: {
-    key: 'dhcp_vendor',
-    label: i18n.t('DHCP Vendor'),
-    class: 'text-nowrap',
-    sortable: true,
-    visible: true
-  },
-  end_time: {
-    key: 'end_time',
-    label: i18n.t('End Time'),
-    class: 'text-nowrap',
-    sortable: true,
-    visible: true
-  },
-  ip: {
-    key: 'ip',
-    label: i18n.t('IP Address'),
-    class: 'text-nowrap',
-    sortable: true,
-    visible: true
-  },
-  last_arp: {
-    key: 'last_arp',
-    label: i18n.t('Last ARP'),
-    class: 'text-nowrap',
-    sortable: true,
-    visible: true,
-    formatter: formatter.datetimeIgnoreZero
-  },
-  last_dhcp: {
-    key: 'last_dhcp',
-    label: i18n.t('Last DHCP'),
-    class: 'text-nowrap',
-    sortable: true,
-    visible: true,
-    formatter: formatter.datetimeIgnoreZero
-  },
-  last_seen: {
-    key: 'last_seen',
-    label: i18n.t('Last Seen'),
-    class: 'text-nowrap',
-    sortable: true,
-    visible: true,
-    formatter: formatter.datetimeIgnoreZero
-  },
-  lastskip: {
-    key: 'lastskip',
-    label: i18n.t('Last Skip'),
-    class: 'text-nowrap',
-    sortable: true,
-    visible: true,
-    formatter: formatter.datetimeIgnoreZero
-  },
-  mac: {
-    key: 'mac',
-    label: i18n.t('MAC Address'),
-    class: 'text-nowrap',
-    sortable: true,
-    visible: true
-  },
-  machine_account: {
-    key: 'machine_account',
-    label: i18n.t('Machine Account'),
-    class: 'text-nowrap',
-    sortable: true,
-    visible: true
-  },
-  nodes: {
-    key: 'nodes',
-    label: i18n.t('Nodes'),
-    class: 'text-nowrap',
-    sortable: true,
-    visible: true
-  },
-  notes: {
-    key: 'notes',
-    label: i18n.t('Notes'),
-    class: 'text-nowrap',
-    sortable: true,
-    visible: true
-  },
-  os: {
-    key: 'os',
-    label: i18n.t('Operating System'),
-    class: 'text-nowrap',
-    sortable: true,
-    visible: true
-  },
-  owner: {
-    key: 'owner',
-    label: i18n.t('Owner'),
-    class: 'text-nowrap',
-    sortable: true,
-    visible: true
-  },
-  percent: {
-    key: 'percent',
-    label: i18n.t('Percent'),
-    class: 'text-nowrap',
-    sortable: true,
-    visible: true
-  },
-  pid: {
-    key: 'pid',
-    label: i18n.t('PID'),
-    class: 'text-nowrap',
-    sortable: true,
-    visible: true
-  },
-  regdate: {
-    key: 'reg_date',
-    label: i18n.t('Registration Date'),
-    class: 'text-nowrap',
-    sortable: true,
-    visible: true,
-    formatter: formatter.datetimeIgnoreZero
-  },
-  sessionid: {
-    key: 'sessionid',
-    label: i18n.t('Session ID'),
-    class: 'text-nowrap',
-    sortable: true,
-    visible: true
-  },
-  ssid: {
-    key: 'ssid',
-    label: i18n.t('SSID'),
-    class: 'text-nowrap',
-    sortable: true,
-    visible: true
-  },
-  start_date: {
-    key: 'start_date',
-    label: i18n.t('Start Date'),
-    class: 'text-nowrap',
-    sortable: true,
-    visible: true,
-    formatter: formatter.datetimeIgnoreZero
-  },
-  start_time: {
-    key: 'start_time',
-    label: i18n.t('Start Time'),
-    class: 'text-nowrap',
-    sortable: true,
-    visible: true
-  },
-  status: {
-    key: 'status',
-    label: i18n.t('Status'),
-    class: 'text-nowrap',
-    sortable: true,
-    visible: true
-  },
-  time_balance: {
-    key: 'time_balance',
-    label: i18n.t('Time Balance'),
-    class: 'text-nowrap',
-    sortable: true,
-    visible: true
-  },
-  total: {
-    key: 'total',
-    label: i18n.t('Total'),
-    class: 'text-nowrap',
-    sortable: true,
-    visible: true
-  },
-  unregdate: {
-    key: 'unregdate',
-    label: i18n.t('Unregistration Date'),
-    class: 'text-nowrap',
-    sortable: true,
-    visible: true,
-    formatter: formatter.datetimeIgnoreZero
-  },
-  user_agent: {
-    key: 'user_agent',
-    label: i18n.t('User Agent'),
-    class: 'text-nowrap',
-    sortable: true,
-    visible: true
-  },
-  user_name: {
-    key: 'user_name',
-    label: i18n.t('Username'),
-    class: 'text-nowrap',
-    sortable: true,
-    visible: true
-  },
-  vendor: {
-    key: 'vendor',
-    label: i18n.t('Vendor'),
-    class: 'text-nowrap',
-    sortable: true,
-    visible: true
-  },
-  security_event: {
-    key: 'security_event',
-    label: i18n.t('Security Event'),
-    class: 'text-nowrap',
-    sortable: true,
-    visible: true
-  },
-  voip: {
-    key: 'voip',
-    label: i18n.t('VOIP'),
-    class: 'text-nowrap',
-    sortable: true,
-    visible: true
+export const pfReportColumns = () => {
+  return {
+    acctinput: {
+      key: 'acctinput',
+      label: i18n.t('Bytes In'),
+      class: 'text-nowrap',
+      sortable: true,
+      visible: true
+    },
+    acctinputoctets: {
+      key: 'acctinputoctets',
+      label: i18n.t('Octets In'),
+      class: 'text-nowrap',
+      sortable: true,
+      visible: true
+    },
+    acctoutput: {
+      key: 'acctoutput',
+      label: i18n.t('Bytes Out'),
+      class: 'text-nowrap',
+      sortable: true,
+      visible: true
+    },
+    acctoutputoctets: {
+      key: 'acctoutputoctets',
+      label: i18n.t('Octets Out'),
+      class: 'text-nowrap',
+      sortable: true,
+      visible: true
+    },
+    accttotal: {
+      key: 'accttotal',
+      label: i18n.t('Bytes Total'),
+      class: 'text-nowrap',
+      sortable: true,
+      visible: true
+    },
+    accttotaloctets: {
+      key: 'accttotaloctets',
+      label: i18n.t('Octets Total'),
+      class: 'text-nowrap',
+      sortable: true,
+      visible: true
+    },
+    autoreg: {
+      key: 'autoreg',
+      label: i18n.t('Auto Registration'),
+      class: 'text-nowrap',
+      sortable: true,
+      visible: true
+    },
+    bandwidth_balance: {
+      key: 'bandwidth_balance',
+      label: i18n.t('Bandwidth Balance'),
+      class: 'text-nowrap',
+      sortable: true,
+      visible: true
+    },
+    bypass_role_id: {
+      key: 'bypass_role_id',
+      label: i18n.t('Bypass Role'),
+      class: 'text-nowrap',
+      sortable: true,
+      visible: true,
+      formatter: formatter.bypassRoleId,
+      sort: pfReportSort.role
+    },
+    bypass_vlan: {
+      key: 'bypass_vlan',
+      label: i18n.t('Bypass VLAN'),
+      class: 'text-nowrap',
+      sortable: true,
+      visible: true
+    },
+    bytes: {
+      key: 'bytes',
+      label: i18n.t('Bytes Total'),
+      class: 'text-nowrap',
+      sortable: true,
+      visible: true,
+      formatter: (value) => {
+        return (value) ? `${bytes.toHuman(value, 2, true)}B` : ''
+      }
+    },
+    bytes_in: {
+      key: 'bytes_in',
+      label: i18n.t('Bytes In'),
+      class: 'text-nowrap',
+      sortable: true,
+      visible: true,
+      formatter: (value) => {
+        return (value) ? `${bytes.toHuman(value, 2, true)}B` : ''
+      }
+    },
+    bytes_out: {
+      key: 'bytes_out',
+      label: i18n.t('Bytes Out'),
+      class: 'text-nowrap',
+      sortable: true,
+      visible: true,
+      formatter: (value) => {
+        return (value) ? `${bytes.toHuman(value, 2, true)}B` : ''
+      }
+    },
+    callingstationid: {
+      key: 'callingstationid',
+      label: i18n.t('Calling Station ID'),
+      class: 'text-nowrap',
+      sortable: true,
+      visible: true
+    },
+    category_id: {
+      key: 'category_id',
+      label: i18n.t('Role'),
+      class: 'text-nowrap',
+      sortable: true,
+      visible: true,
+      formatter: formatter.categoryId,
+      sort: pfReportSort.role
+    },
+    computer_name: {
+      key: 'computer_name',
+      label: i18n.t('Computername'),
+      class: 'text-nowrap',
+      sortable: true,
+      visible: true
+    },
+    connection_type: {
+      key: 'connection_type',
+      label: i18n.t('Connection Type'),
+      class: 'text-nowrap',
+      sortable: true,
+      visible: true
+    },
+    connections: {
+      key: 'connections',
+      label: i18n.t('Connections'),
+      class: 'text-nowrap',
+      sortable: true,
+      visible: true
+    },
+    computername: {
+      key: 'computername',
+      label: i18n.t('Computername'),
+      class: 'text-nowrap',
+      sortable: true,
+      visible: true
+    },
+    count: {
+      key: 'count',
+      label: i18n.t('Count'),
+      class: 'text-nowrap',
+      sortable: true,
+      visible: true
+    },
+    description: {
+      key: 'description',
+      label: i18n.t('Description'),
+      class: 'text-nowrap',
+      sortable: true,
+      visible: true
+    },
+    detect_date: {
+      key: 'detect_date',
+      label: i18n.t('Detect Date'),
+      class: 'text-nowrap',
+      sortable: true,
+      visible: true,
+      formatter: formatter.datetimeIgnoreZero
+    },
+    device_class: {
+      key: 'device_class',
+      label: i18n.t('Device Class'),
+      class: 'text-nowrap',
+      sortable: true,
+      visible: true
+    },
+    device_manufacturer: {
+      key: 'device_manufacturer',
+      label: i18n.t('Device Manufacturer'),
+      class: 'text-nowrap',
+      sortable: true,
+      visible: true
+    },
+    device_score: {
+      key: 'device_score',
+      label: i18n.t('Device Score'),
+      class: 'text-nowrap',
+      sortable: true,
+      visible: true
+    },
+    device_type: {
+      key: 'device_type',
+      label: i18n.t('Device Type'),
+      class: 'text-nowrap',
+      sortable: true,
+      visible: true
+    },
+    device_version: {
+      key: 'device_version',
+      label: i18n.t('Device Version'),
+      class: 'text-nowrap',
+      sortable: true,
+      visible: true
+    },
+    dhcp6_enterprise: {
+      key: 'dhcp6_enterprise',
+      label: i18n.t('Device Enterprise'),
+      class: 'text-nowrap',
+      sortable: true,
+      visible: true
+    },
+    dhcp6_fingerprint: {
+      key: 'dhcp6_fingerprint',
+      label: i18n.t('DHCPv6 Fingerprint'),
+      class: 'text-nowrap',
+      sortable: true,
+      visible: true
+    },
+    dhcp_fingerprint: {
+      key: 'dhcp_fingerprint',
+      label: i18n.t('DHCP Fingerprint'),
+      class: 'text-nowrap',
+      sortable: true,
+      visible: true
+    },
+    dhcp_vendor: {
+      key: 'dhcp_vendor',
+      label: i18n.t('DHCP Vendor'),
+      class: 'text-nowrap',
+      sortable: true,
+      visible: true
+    },
+    end_time: {
+      key: 'end_time',
+      label: i18n.t('End Time'),
+      class: 'text-nowrap',
+      sortable: true,
+      visible: true
+    },
+    ip: {
+      key: 'ip',
+      label: i18n.t('IP Address'),
+      class: 'text-nowrap',
+      sortable: true,
+      visible: true
+    },
+    last_arp: {
+      key: 'last_arp',
+      label: i18n.t('Last ARP'),
+      class: 'text-nowrap',
+      sortable: true,
+      visible: true,
+      formatter: formatter.datetimeIgnoreZero
+    },
+    last_dhcp: {
+      key: 'last_dhcp',
+      label: i18n.t('Last DHCP'),
+      class: 'text-nowrap',
+      sortable: true,
+      visible: true,
+      formatter: formatter.datetimeIgnoreZero
+    },
+    last_seen: {
+      key: 'last_seen',
+      label: i18n.t('Last Seen'),
+      class: 'text-nowrap',
+      sortable: true,
+      visible: true,
+      formatter: formatter.datetimeIgnoreZero
+    },
+    lastskip: {
+      key: 'lastskip',
+      label: i18n.t('Last Skip'),
+      class: 'text-nowrap',
+      sortable: true,
+      visible: true,
+      formatter: formatter.datetimeIgnoreZero
+    },
+    mac: {
+      key: 'mac',
+      label: i18n.t('MAC Address'),
+      class: 'text-nowrap',
+      sortable: true,
+      visible: true
+    },
+    machine_account: {
+      key: 'machine_account',
+      label: i18n.t('Machine Account'),
+      class: 'text-nowrap',
+      sortable: true,
+      visible: true
+    },
+    nodes: {
+      key: 'nodes',
+      label: i18n.t('Nodes'),
+      class: 'text-nowrap',
+      sortable: true,
+      visible: true
+    },
+    notes: {
+      key: 'notes',
+      label: i18n.t('Notes'),
+      class: 'text-nowrap',
+      sortable: true,
+      visible: true
+    },
+    os: {
+      key: 'os',
+      label: i18n.t('Operating System'),
+      class: 'text-nowrap',
+      sortable: true,
+      visible: true
+    },
+    owner: {
+      key: 'owner',
+      label: i18n.t('Owner'),
+      class: 'text-nowrap',
+      sortable: true,
+      visible: true
+    },
+    percent: {
+      key: 'percent',
+      label: i18n.t('Percent Total'),
+      class: 'text-nowrap',
+      sortable: true,
+      visible: true
+    },
+    percent_in: {
+      key: 'percent_in',
+      label: i18n.t('Percent In'),
+      class: 'text-nowrap',
+      sortable: true,
+      visible: true
+    },
+    percent_out: {
+      key: 'percent_out',
+      label: i18n.t('Percent Out'),
+      class: 'text-nowrap',
+      sortable: true,
+      visible: true
+    },
+    pid: {
+      key: 'pid',
+      label: i18n.t('PID'),
+      class: 'text-nowrap',
+      sortable: true,
+      visible: true
+    },
+    regdate: {
+      key: 'reg_date',
+      label: i18n.t('Registration Date'),
+      class: 'text-nowrap',
+      sortable: true,
+      visible: true,
+      formatter: formatter.datetimeIgnoreZero
+    },
+    sessionid: {
+      key: 'sessionid',
+      label: i18n.t('Session ID'),
+      class: 'text-nowrap',
+      sortable: true,
+      visible: true
+    },
+    ssid: {
+      key: 'ssid',
+      label: i18n.t('SSID'),
+      class: 'text-nowrap',
+      sortable: true,
+      visible: true
+    },
+    start_date: {
+      key: 'start_date',
+      label: i18n.t('Start Date'),
+      class: 'text-nowrap',
+      sortable: true,
+      visible: true,
+      formatter: formatter.datetimeIgnoreZero
+    },
+    start_time: {
+      key: 'start_time',
+      label: i18n.t('Start Time'),
+      class: 'text-nowrap',
+      sortable: true,
+      visible: true
+    },
+    status: {
+      key: 'status',
+      label: i18n.t('Status'),
+      class: 'text-nowrap',
+      sortable: true,
+      visible: true
+    },
+    time_balance: {
+      key: 'time_balance',
+      label: i18n.t('Time Balance'),
+      class: 'text-nowrap',
+      sortable: true,
+      visible: true
+    },
+    total: {
+      key: 'total',
+      label: i18n.t('Total'),
+      class: 'text-nowrap',
+      sortable: true,
+      visible: true
+    },
+    unregdate: {
+      key: 'unregdate',
+      label: i18n.t('Unregistration Date'),
+      class: 'text-nowrap',
+      sortable: true,
+      visible: true,
+      formatter: formatter.datetimeIgnoreZero
+    },
+    user_agent: {
+      key: 'user_agent',
+      label: i18n.t('User Agent'),
+      class: 'text-nowrap',
+      sortable: true,
+      visible: true
+    },
+    user_name: {
+      key: 'user_name',
+      label: i18n.t('Username'),
+      class: 'text-nowrap',
+      sortable: true,
+      visible: true
+    },
+    vendor: {
+      key: 'vendor',
+      label: i18n.t('Vendor'),
+      class: 'text-nowrap',
+      sortable: true,
+      visible: true
+    },
+    security_event: {
+      key: 'security_event',
+      label: i18n.t('Security Event'),
+      class: 'text-nowrap',
+      sortable: true,
+      visible: true
+    },
+    voip: {
+      key: 'voip',
+      label: i18n.t('VOIP'),
+      class: 'text-nowrap',
+      sortable: true,
+      visible: true
+    }
   }
 }
 
-export const pfReportCategories = [
+export const pfReportCategories = () => [
   {
     name: i18n.t('Node'),
     reports: [
@@ -494,9 +548,7 @@ export const pfReportCategories = [
           {
             name: i18n.t('All'),
             path: 'os',
-            range: {
-              optional: true
-            }
+            range: true
           },
           {
             name: i18n.t('Active'),
@@ -504,10 +556,10 @@ export const pfReportCategories = [
           }
         ],
         columns: [
-          pfReportColumns.description,
-          pfReportColumns.dhcp_fingerprint,
-          pfReportColumns.count,
-          pfReportColumns.percent
+          pfReportColumns().description,
+          pfReportColumns().dhcp_fingerprint,
+          pfReportColumns().count,
+          pfReportColumns().percent
         ],
         chart: {
           labels: (items) => {
@@ -535,9 +587,9 @@ export const pfReportCategories = [
           }
         ],
         columns: [
-          pfReportColumns.description,
-          pfReportColumns.count,
-          pfReportColumns.percent
+          pfReportColumns().description,
+          pfReportColumns().count,
+          pfReportColumns().percent
         ],
         chart: {
           labels: (items) => {
@@ -561,18 +613,18 @@ export const pfReportCategories = [
           }
         ],
         columns: [
-          pfReportColumns.mac,
-          pfReportColumns.computername,
-          pfReportColumns.detect_date,
-          pfReportColumns.last_arp,
-          pfReportColumns.last_dhcp,
-          pfReportColumns.lastskip,
-          pfReportColumns.notes,
-          pfReportColumns.os,
-          pfReportColumns.pid,
-          pfReportColumns.regdate,
-          pfReportColumns.status,
-          pfReportColumns.user_agent
+          pfReportColumns().mac,
+          pfReportColumns().computername,
+          pfReportColumns().detect_date,
+          pfReportColumns().last_arp,
+          pfReportColumns().last_dhcp,
+          pfReportColumns().lastskip,
+          pfReportColumns().notes,
+          pfReportColumns().os,
+          pfReportColumns().pid,
+          pfReportColumns().regdate,
+          pfReportColumns().status,
+          pfReportColumns().user_agent
         ]
       },
       {
@@ -584,20 +636,20 @@ export const pfReportCategories = [
           }
         ],
         columns: [
-          pfReportColumns.mac,
-          pfReportColumns.computername,
-          pfReportColumns.detect_date,
-          pfReportColumns.ip,
-          pfReportColumns.last_arp,
-          pfReportColumns.last_dhcp,
-          pfReportColumns.lastskip,
-          pfReportColumns.notes,
-          pfReportColumns.os,
-          pfReportColumns.pid,
-          pfReportColumns.regdate,
-          pfReportColumns.start_time,
-          pfReportColumns.status,
-          pfReportColumns.user_agent
+          pfReportColumns().mac,
+          pfReportColumns().computername,
+          pfReportColumns().detect_date,
+          pfReportColumns().ip,
+          pfReportColumns().last_arp,
+          pfReportColumns().last_dhcp,
+          pfReportColumns().lastskip,
+          pfReportColumns().notes,
+          pfReportColumns().os,
+          pfReportColumns().pid,
+          pfReportColumns().regdate,
+          pfReportColumns().start_time,
+          pfReportColumns().status,
+          pfReportColumns().user_agent
         ]
       },
       {
@@ -613,18 +665,18 @@ export const pfReportCategories = [
           }
         ],
         columns: [
-          pfReportColumns.mac,
-          pfReportColumns.computername,
-          pfReportColumns.detect_date,
-          pfReportColumns.last_arp,
-          pfReportColumns.last_dhcp,
-          pfReportColumns.lastskip,
-          pfReportColumns.notes,
-          pfReportColumns.os,
-          pfReportColumns.pid,
-          pfReportColumns.regdate,
-          pfReportColumns.status,
-          pfReportColumns.user_agent
+          pfReportColumns().mac,
+          pfReportColumns().computername,
+          pfReportColumns().detect_date,
+          pfReportColumns().last_arp,
+          pfReportColumns().last_dhcp,
+          pfReportColumns().lastskip,
+          pfReportColumns().notes,
+          pfReportColumns().os,
+          pfReportColumns().pid,
+          pfReportColumns().regdate,
+          pfReportColumns().status,
+          pfReportColumns().user_agent
         ]
       },
       {
@@ -640,18 +692,18 @@ export const pfReportCategories = [
           }
         ],
         columns: [
-          pfReportColumns.mac,
-          pfReportColumns.computername,
-          pfReportColumns.detect_date,
-          pfReportColumns.last_arp,
-          pfReportColumns.last_dhcp,
-          pfReportColumns.lastskip,
-          pfReportColumns.notes,
-          pfReportColumns.os,
-          pfReportColumns.pid,
-          pfReportColumns.regdate,
-          pfReportColumns.status,
-          pfReportColumns.user_agent
+          pfReportColumns().mac,
+          pfReportColumns().computername,
+          pfReportColumns().detect_date,
+          pfReportColumns().last_arp,
+          pfReportColumns().last_dhcp,
+          pfReportColumns().lastskip,
+          pfReportColumns().notes,
+          pfReportColumns().os,
+          pfReportColumns().pid,
+          pfReportColumns().regdate,
+          pfReportColumns().status,
+          pfReportColumns().user_agent
         ]
       }
     ]
@@ -672,11 +724,11 @@ export const pfReportCategories = [
           }
         ],
         columns: [
-          pfReportColumns.mac,
-          pfReportColumns.computername,
-          pfReportColumns.dhcp_fingerprint,
-          pfReportColumns.user_agent,
-          pfReportColumns.vendor
+          pfReportColumns().mac,
+          pfReportColumns().computername,
+          pfReportColumns().dhcp_fingerprint,
+          pfReportColumns().user_agent,
+          pfReportColumns().vendor
         ]
       },
       {
@@ -692,37 +744,37 @@ export const pfReportCategories = [
           }
         ],
         columns: [
-          pfReportColumns.mac,
-          pfReportColumns.autoreg,
-          pfReportColumns.bandwidth_balance,
-          pfReportColumns.bypass_role_id,
-          pfReportColumns.bypass_vlan,
-          pfReportColumns.category_id,
-          pfReportColumns.computername,
-          pfReportColumns.detect_date,
-          pfReportColumns.device_class,
-          pfReportColumns.device_manufacturer,
-          pfReportColumns.device_score,
-          pfReportColumns.device_type,
-          pfReportColumns.device_version,
-          pfReportColumns.dhcp6_enterprise,
-          pfReportColumns.dhcp6_fingerprint,
-          pfReportColumns.dhcp_fingerprint,
-          pfReportColumns.dhcp_vendor,
-          pfReportColumns.last_arp,
-          pfReportColumns.last_dhcp,
-          pfReportColumns.last_seen,
-          pfReportColumns.lastskip,
-          pfReportColumns.machine_account,
-          pfReportColumns.notes,
-          pfReportColumns.pid,
-          pfReportColumns.regdate,
-          pfReportColumns.sessionid,
-          pfReportColumns.status,
-          pfReportColumns.time_balance,
-          pfReportColumns.unregdate,
-          pfReportColumns.user_agent,
-          pfReportColumns.voip
+          pfReportColumns().mac,
+          pfReportColumns().autoreg,
+          pfReportColumns().bandwidth_balance,
+          pfReportColumns().bypass_role_id,
+          pfReportColumns().bypass_vlan,
+          pfReportColumns().category_id,
+          pfReportColumns().computername,
+          pfReportColumns().detect_date,
+          pfReportColumns().device_class,
+          pfReportColumns().device_manufacturer,
+          pfReportColumns().device_score,
+          pfReportColumns().device_type,
+          pfReportColumns().device_version,
+          pfReportColumns().dhcp6_enterprise,
+          pfReportColumns().dhcp6_fingerprint,
+          pfReportColumns().dhcp_fingerprint,
+          pfReportColumns().dhcp_vendor,
+          pfReportColumns().last_arp,
+          pfReportColumns().last_dhcp,
+          pfReportColumns().last_seen,
+          pfReportColumns().lastskip,
+          pfReportColumns().machine_account,
+          pfReportColumns().notes,
+          pfReportColumns().pid,
+          pfReportColumns().regdate,
+          pfReportColumns().sessionid,
+          pfReportColumns().status,
+          pfReportColumns().time_balance,
+          pfReportColumns().unregdate,
+          pfReportColumns().user_agent,
+          pfReportColumns().voip
         ]
       }
     ]
@@ -743,11 +795,11 @@ export const pfReportCategories = [
           }
         ],
         columns: [
-          pfReportColumns.mac,
-          pfReportColumns.owner,
-          pfReportColumns.start_date,
-          pfReportColumns.status,
-          pfReportColumns.security_event
+          pfReportColumns().mac,
+          pfReportColumns().owner,
+          pfReportColumns().start_date,
+          pfReportColumns().status,
+          pfReportColumns().security_event
         ]
       }
     ]
@@ -761,9 +813,7 @@ export const pfReportCategories = [
           {
             name: i18n.t('All'),
             path: 'connectiontype',
-            range: {
-              optional: true
-            }
+            range: true
           },
           {
             name: i18n.t('Active'),
@@ -771,9 +821,9 @@ export const pfReportCategories = [
           }
         ],
         columns: [
-          pfReportColumns.connection_type,
-          pfReportColumns.connections,
-          pfReportColumns.percent
+          pfReportColumns().connection_type,
+          pfReportColumns().connections,
+          pfReportColumns().percent
         ],
         chart: {
           labels: (items) => {
@@ -801,9 +851,9 @@ export const pfReportCategories = [
           }
         ],
         columns: [
-          pfReportColumns.connection_type,
-          pfReportColumns.connections,
-          pfReportColumns.percent
+          pfReportColumns().connection_type,
+          pfReportColumns().connections,
+          pfReportColumns().percent
         ],
         chart: {
           labels: (items) => {
@@ -824,9 +874,7 @@ export const pfReportCategories = [
           {
             name: i18n.t('All'),
             path: 'ssid',
-            range: {
-              optional: true
-            }
+            range: true
           },
           {
             name: i18n.t('Active'),
@@ -834,9 +882,9 @@ export const pfReportCategories = [
           }
         ],
         columns: [
-          pfReportColumns.ssid,
-          pfReportColumns.nodes,
-          pfReportColumns.percent
+          pfReportColumns().ssid,
+          pfReportColumns().nodes,
+          pfReportColumns().percent
         ],
         chart: {
           labels: (items) => {
@@ -860,11 +908,8 @@ export const pfReportCategories = [
         name: i18n.t('Operating System Bandwidth'),
         tabs: [
           {
-            name: i18n.t('All'),
-            path: 'osclassbandwidth',
-            range: {
-              optional: true
-            }
+            name: i18n.t('Hour'),
+            path: 'osclassbandwidth/hour'
           },
           {
             name: i18n.t('Day'),
@@ -881,13 +926,21 @@ export const pfReportCategories = [
           {
             name: i18n.t('Year'),
             path: 'osclassbandwidth/year'
+          },
+          {
+            name: i18n.t('Custom'),
+            path: 'osclassbandwidth',
+            range: true
           }
         ],
         columns: [
-          pfReportColumns.dhcp_fingerprint,
-          pfReportColumns.accttotal,
-          pfReportColumns.accttotaloctets,
-          pfReportColumns.percent
+          pfReportColumns().dhcp_fingerprint,
+          pfReportColumns().bytes_in,
+          pfReportColumns().percent_in,
+          pfReportColumns().bytes_out,
+          pfReportColumns().percent_out,
+          pfReportColumns().bytes,
+          pfReportColumns().percent
         ],
         chart: {
           labels: (items) => {
@@ -896,7 +949,7 @@ export const pfReportCategories = [
           },
           values: (items) => {
             items.pop() // pop Total
-            return items.map(item => item.accttotaloctets)
+            return items.map(item => item.bytes)
           },
           options: pfReportChartOptions.pie,
           layout: pfReportChartLayout.pie
@@ -906,31 +959,99 @@ export const pfReportCategories = [
         name: i18n.t('Node Bandwidth'),
         tabs: [
           {
-            name: i18n.t('All'),
+            name: i18n.t('Hour'),
+            path: 'nodebandwidth/hour'
+          },
+          {
+            name: i18n.t('Day'),
+            path: 'nodebandwidth/day'
+          },
+          {
+            name: i18n.t('Week'),
+            path: 'nodebandwidth/week'
+          },
+          {
+            name: i18n.t('Month'),
+            path: 'nodebandwidth/month'
+          },
+          {
+            name: i18n.t('Year'),
+            path: 'nodebandwidth/year'
+          },
+          {
+            name: i18n.t('Custom'),
             path: 'nodebandwidth',
-            range: {
-              optional: true
-            }
+            range: true
           }
         ],
         columns: [
-          pfReportColumns.callingstationid,
-          pfReportColumns.acctinput,
-          pfReportColumns.acctinputoctets,
-          pfReportColumns.acctoutput,
-          pfReportColumns.acctoutputoctets,
-          pfReportColumns.accttotal,
-          pfReportColumns.accttotaloctets,
-          pfReportColumns.percent
+          pfReportColumns().mac,
+          pfReportColumns().bytes_in,
+          pfReportColumns().percent_in,
+          pfReportColumns().bytes_out,
+          pfReportColumns().percent_out,
+          pfReportColumns().bytes,
+          pfReportColumns().percent
         ],
         chart: {
           labels: (items) => {
             items.pop() // pop Total
-            return items.map(item => item.callingstationid)
+            return items.map(item => item.mac)
           },
           values: (items) => {
             items.pop() // pop Total
-            return items.map(item => item.accttotaloctets)
+            return items.map(item => item.bytes)
+          },
+          options: pfReportChartOptions.pie,
+          layout: pfReportChartLayout.pie
+        }
+      },
+      {
+        name: i18n.t('User Bandwidth'),
+        tabs: [
+          {
+            name: i18n.t('Day'),
+            path: 'userbandwidth/hour'
+          },
+          {
+            name: i18n.t('Day'),
+            path: 'userbandwidth/day'
+          },
+          {
+            name: i18n.t('Week'),
+            path: 'userbandwidth/week'
+          },
+          {
+            name: i18n.t('Month'),
+            path: 'userbandwidth/month'
+          },
+          {
+            name: i18n.t('Year'),
+            path: 'userbandwidth/year'
+          },
+          {
+            name: i18n.t('Custom'),
+            path: 'userbandwidth',
+            range: true
+          }
+        ],
+        columns: [
+          pfReportColumns().pid,
+          pfReportColumns().bytes_in,
+          pfReportColumns().percent_in,
+          pfReportColumns().bytes_out,
+          pfReportColumns().percent_out,
+          pfReportColumns().bytes,
+          pfReportColumns().percent
+        ],
+        chart: {
+          labels: (items) => {
+            items.pop() // pop Total
+            return items.map(item => item.pid)
+          },
+          values: (items) => {
+            items.pop() // pop Total
+            return items.map(item => item.bytes)
           },
           options: pfReportChartOptions.pie,
           layout: pfReportChartLayout.pie
@@ -945,32 +1066,26 @@ export const pfReportCategories = [
         name: i18n.t('Failures'),
         tabs: [
           {
-            name: 'by MAC',
+            name: i18n.t('by MAC'),
             path: 'topauthenticationfailures/mac',
-            range: {
-              required: true
-            }
+            range: true
           },
           {
-            name: 'by SSID',
+            name: i18n.t('by SSID'),
             path: 'topauthenticationfailures/ssid',
-            range: {
-              required: true
-            }
+            range: true
           },
           {
-            name: 'by Username',
+            name: i18n.t('by Username'),
             path: 'topauthenticationfailures/username',
-            range: {
-              required: true
-            }
+            range: true
           }
         ],
         columns: [
-          pfReportColumns.mac,
-          pfReportColumns.total,
-          pfReportColumns.count,
-          pfReportColumns.percent
+          pfReportColumns().mac,
+          pfReportColumns().total,
+          pfReportColumns().count,
+          pfReportColumns().percent
         ],
         chart: {
           labels: (items) => {
@@ -989,39 +1104,31 @@ export const pfReportCategories = [
         name: i18n.t('Successes'),
         tabs: [
           {
-            name: 'by MAC',
+            name: i18n.t('by MAC'),
             path: 'topauthenticationsuccesses/mac',
-            range: {
-              required: true
-            }
+            range: true
           },
           {
-            name: 'by SSID',
+            name: i18n.t('by SSID'),
             path: 'topauthenticationsuccesses/ssid',
-            range: {
-              required: true
-            }
+            range: true
           },
           {
-            name: 'by Username',
+            name: i18n.t('by Username'),
             path: 'topauthenticationsuccesses/username',
-            range: {
-              required: true
-            }
+            range: true
           },
           {
-            name: 'by Computername',
+            name: i18n.t('by Computername'),
             path: 'topauthenticationsuccesses/computername',
-            range: {
-              required: true
-            }
+            range: true
           }
         ],
         columns: [
-          pfReportColumns.mac,
-          pfReportColumns.total,
-          pfReportColumns.count,
-          pfReportColumns.percent
+          pfReportColumns().mac,
+          pfReportColumns().total,
+          pfReportColumns().count,
+          pfReportColumns().percent
         ],
         chart: {
           labels: (items) => {

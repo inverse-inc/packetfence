@@ -38,6 +38,7 @@ my %FIELDS = (
     split_network => undef,
     vip => undef,
     vlan => undef,
+    coa => undef,
 );
 
 my %FIELDS_TO_REMOVE_FROM_UPDATE = (
@@ -81,6 +82,11 @@ sub model {
     return pfappserver::Model::Interface->new;
 }
 
+sub configStore {
+    require pf::ConfigStore::Interface;
+    return pf::ConfigStore::Interface->new;
+}
+
 =head2 list
 
 List all the interfaces
@@ -120,7 +126,7 @@ sub normalize_interface {
         $interface->{$bool} = $interface->{$bool} ? $self->json_true : $self->json_false;
     }
 
-    ($interface->{type}, @{$interface->{additional_listening_daemons}}) = split(',', $interface->{type});
+    ($interface->{type}, @{$interface->{additional_listening_daemons}}) = grep { !/high-availability/ } split(',', $interface->{type});
     
     # Ensure all fields have a default value
     while(my ($field, $default) = each(%FIELDS)) {
@@ -163,6 +169,17 @@ sub get {
     }
 }
 
+=head2 id
+
+id
+
+=cut
+
+sub id {
+    my ($self) = @_;
+    return $self->stash->{interface_id};
+}
+
 =head2 create
 
 Create a new virtual interface
@@ -176,6 +193,8 @@ sub create {
     return unless($data);
     my $full_name = $id . "." . $data->{vlan};
     my $model = $self->model;
+    
+    $self->handle_management_change($data);
 
     $data = $self->format_type($data);
 
@@ -202,10 +221,37 @@ sub update {
     my $full_name = $self->stash->{interface_id};
     my $model = $self->model;
 
+    $self->handle_management_change($data);
+
     $data = $self->format_type($data);
 
     my ($status, $result) = $model->update($full_name, $data);
     $self->render(json => {message => pf::I18N::pfappserver->localize($result)}, status => $status);
+}
+
+=head2 handle_management_change
+
+Handle the case where a management interface is being set while another interface is already management.
+Since we can only have a single management interface, we need to remove the type from the existing management to prevent a conflict
+
+=cut
+
+sub handle_management_change {
+    my ($self, $data) = @_;
+    
+    if($data->{type} eq "management") {
+        my @management_ints = $self->configStore->search_like("type", "management", "id");
+        for my $mgmt_int (@management_ints) {
+            if($mgmt_int->{id} ne $self->stash->{interface_id}) {
+                my $id = delete $mgmt_int->{id};
+                $self->log->info("Management interface is currently being changed. Removing management from $id");
+                my $cs = $self->configStore;
+                $mgmt_int->{type} =~ s/^management,?//g;
+                $cs->update($id, $mgmt_int);
+                $cs->commit;
+            }
+        }
+    }
 }
 
 =head2 filter_update_fields
@@ -266,7 +312,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2019 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 

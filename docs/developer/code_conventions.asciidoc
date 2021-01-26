@@ -1,0 +1,47 @@
+//== Code conventions
+
+=== Code style
+
+CAUTION: Work in progress.
+
+We are slowly migrating away from an automated `perltidy` code style. The reason we are not doing another pass of tidy is that it messes up code history and makes maintainer's job more complicated than it should be. Every new change uses the new guidelines so over time the old code style will slowly disappear.
+
+* Lines of 120 character width maximum
+
+* No tab characters
+
+* Stay consistent with surrounding white spaces
+
+* Document each subroutine in POD format (`perldoc perlpod`)
+
+* Use constants instead of hard coded strings or numbers (use `constant` or `Readonly` modules)
+
+* in object-oriented modules we use CamelCase footnote:[http://en.wikipedia.org/wiki/CamelCase] notation (ex: `$radiusRequest->getVoIpAttributes();`)
+
+* in procedural modules we use Perl's usual notation (ex: `$node_info{'pid'} = $current_request{'pid'};`)
+
+* regular expressions should be documented (with the `/x` modifier)
+
+    if ($phone_number =~ /
+        ^\(?([2-9]\d{2})\)?  # captures first 3 digits allows parens
+        (?:-|.|\s)?          # separator -, ., space or nothing
+        (\d{3})              # captures 3 digits
+        (?:-|.|\s)?          # separator -, ., space or nothing
+        (\d{4})$             # captures last 4 digits
+        /x) {
+            return "$1$2$3";
+    }
+
+* `SQL` should be capitalized, properly indented and always use named fields (no *)
+
+    $node_statements->{'node_add_sql'} = get_db_handle()->prepare(<<'SQL');
+        INSERT INTO node (
+            mac, pid, category_id, status, voip, bypass_vlan,
+            detect_date, regdate, unregdate, lastskip,
+            user_agent, computername, dhcp_fingerprint,
+            last_arp, last_dhcp,
+            notes,
+        ) VALUES (
+            ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?
+        )
+    SQL

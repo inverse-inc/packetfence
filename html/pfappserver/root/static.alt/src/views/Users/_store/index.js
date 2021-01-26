@@ -3,24 +3,24 @@
 */
 import Vue from 'vue'
 import api from '../_api'
-import { pfConfigurationActions } from '@/globals/configuration/pfConfiguration'
+import { pfActions } from '@/globals/pfActions'
 
 const inflateActions = (data) => {
   data.actions = []
   if (data.access_duration) {
-    data.actions.push({ type: pfConfigurationActions.set_access_duration.value, value: data.access_duration })
+    data.actions.push({ type: pfActions.set_access_duration.value, value: data.access_duration })
   }
   if (data.access_level) {
-    data.actions.push({ type: pfConfigurationActions.set_access_level.value, value: data.access_level })
+    data.actions.push({ type: pfActions.set_access_level.value, value: data.access_level.split(',') })
   }
   if (data.can_sponsor && parseInt(data.can_sponsor)) {
-    data.actions.push({ type: pfConfigurationActions.mark_as_sponsor.value, value: data.can_sponsor })
+    data.actions.push({ type: pfActions.mark_as_sponsor.value, value: data.can_sponsor })
   }
   if (data.category) {
-    data.actions.push({ type: pfConfigurationActions.set_role.value, value: data.category })
+    data.actions.push({ type: pfActions.set_role.value, value: data.category })
   }
-  if (data.unregdate !== '0000-00-00 00:00:00') {
-    data.actions.push({ type: pfConfigurationActions.set_unreg_date.value, value: data.unregdate })
+  if (data.unregdate && data.unregdate !== '0000-00-00 00:00:00') {
+    data.actions.push({ type: pfActions.set_unreg_date.value, value: data.unregdate })
   }
 }
 
@@ -36,19 +36,19 @@ const deflateActions = (data) => {
 
     actions.forEach(action => {
       switch (action.type) {
-        case pfConfigurationActions.set_access_duration.value:
+        case pfActions.set_access_duration.value:
           data.access_duration = action.value
           break
-        case pfConfigurationActions.set_access_level.value:
-          data.access_level = action.value
+        case pfActions.set_access_level.value:
+          data.access_level = action.value.join(',')
           break
-        case pfConfigurationActions.mark_as_sponsor.value:
+        case pfActions.mark_as_sponsor.value:
           data.sponsor = 1
           break
-        case pfConfigurationActions.set_role.value:
+        case pfActions.set_role.value:
           data.category = action.value
           break
-        case pfConfigurationActions.set_unreg_date.value:
+        case pfActions.set_unreg_date.value:
           data.unregdate = action.value
           break
         default:
@@ -59,21 +59,31 @@ const deflateActions = (data) => {
 }
 
 // Default values
-const state = {
-  users: {}, // users details
-  userExists: {}, // node exists true|false
-  message: '',
-  userStatus: '',
-  createdUsers: []
+const state = () => {
+  return {
+    users: {}, // users details
+    usersStatus: '',
+    usersMessage: '',
+    usersNodes: {}, // user nodes
+    usersNodesStatus: '',
+    usersNodesMessage: '',
+    usersSecurityEvents: {}, // user security_events
+    usersSecurityEventsStatus: '',
+    usersSecurityEventsMessage: '',
+    userExists: {}, // node exists true|false
+    createdUsers: []
+  }
 }
 
 const getters = {
-  isLoading: state => state.userStatus === 'loading'
+  isLoading: state => [state.usersStatus, state.usersNodesStatus, state.usersSecurityEventsStatus].includes('loading'),
+  isLoadingNodes: state => state.usersNodesStatus === 'loading',
+  isLoadingSecurityEvents: state => state.usersSecurityEventsStatus === 'loading'
 }
 
 const actions = {
-  exists: ({ commit }, pid) => {
-    if (state.userExists.hasOwnProperty(pid)) {
+  exists: ({ state, commit }, pid) => {
+    if (pid in state.userExists) {
       if (state.userExists[pid]) {
         return Promise.resolve(true)
       }
@@ -108,30 +118,53 @@ const actions = {
       commit('USER_DESTROYED', pid)
     }
     commit('USER_REQUEST')
-    dispatch('getUser', pid).then(() => {
-      commit('USER_SUCCESS')
+    return new Promise((resolve, reject) => {
+      dispatch('getUser', pid).then(() => {
+        commit('USER_SUCCESS')
+        resolve(state.users[pid])
+      }).catch(err => {
+        commit('USER_ERROR', err.response)
+        reject(err)
+      })
+    })
+  },
+  getUser: ({ state, commit }, arg) => {
+    const body = (typeof arg === 'object') ? arg : { pid: arg }
+    const { pid } = body
+    if (state.users[pid]) {
+      return Promise.resolve(state.users[pid])
+    }
+    commit('USER_REQUEST')
+    return api.user({ quiet: true, ...body }).then(data => {
+      inflateActions(data)
+      commit('USER_REPLACED', data)
+      return state.users[pid]
+    }).catch(err => {
+      commit('USER_ERROR', err.response)
+      throw err
+    })
+  },
+  getUserNodes: ({ state, commit }, pid) => {
+    if (state.usersNodes[pid]) {
+      return Promise.resolve(state.usersNodes[pid])
+    }
+    commit('USER_NODES_REQUEST')
+    return api.nodes(pid).then(data => {
+      commit('USER_NODES_UPDATED', { pid, data })
+      return state.usersNodes[pid]
     }).catch(err => {
       commit('USER_ERROR', err.response)
       return err
     })
   },
-  getUser: ({ commit, state }, pid) => {
-    if (state.users[pid]) {
-      return Promise.resolve(state.users[pid])
+  getUserSecurityEvents: ({ state, commit }, pid) => {
+    if (state.usersSecurityEvents[pid]) {
+      return Promise.resolve(state.usersSecurityEvents[pid])
     }
-    commit('USER_REQUEST')
-    return api.user(pid).then(data => {
-      inflateActions(data)
-      commit('USER_REPLACED', data)
-      // Fetch nodes
-      api.nodes(pid).then(datas => {
-        commit('USER_UPDATED', { pid, prop: 'nodes', data: datas })
-      })
-      // Fetch security_events
-      api.securityEvents(pid).then(datas => {
-        commit('USER_UPDATED', { pid, prop: 'security_events', data: datas })
-      })
-      return JSON.parse(JSON.stringify(state.users[pid]))
+    commit('USER_SECURITY_EVENTS_REQUEST')
+    return api.securityEvents(pid).then(data => {
+      commit('USER_SECURITY_EVENTS_UPDATED', { pid, data })
+      return state.usersSecurityEvents[pid]
     }).catch(err => {
       commit('USER_ERROR', err.response)
       return err
@@ -175,11 +208,14 @@ const actions = {
   updatePassword: ({ commit }, data) => {
     deflateActions(data)
     commit('USER_REQUEST')
-    return api.updatePassword(data).then(response => {
-      commit('USER_SUCCESS')
-      return response
-    }).catch(err => {
-      commit('USER_ERROR', err.response)
+    return new Promise((resolve, reject) => {
+      api.updatePassword(data).then(response => {
+        commit('USER_SUCCESS')
+        resolve(response)
+      }).catch(err => {
+        commit('USER_ERROR', err.response)
+        reject(err)
+      })
     })
   },
   previewEmail: ({ commit }, user) => {
@@ -321,22 +357,57 @@ const actions = {
     }).catch(err => {
       commit('USER_ERROR', err.response)
     })
+  },
+  bulkImport: ({ commit }, data) => {
+    commit('USER_REQUEST')
+    return api.bulkImport(data).then(response => {
+      commit('USER_BULK_SUCCESS', response)
+      return response
+    }).catch(err => {
+      commit('USER_ERROR', err.response)
+    })
   }
 }
 
 const mutations = {
   USER_REQUEST: (state) => {
-    state.userStatus = 'loading'
+    state.usersStatus = 'loading'
   },
   USER_REPLACED: (state, data) => {
     Vue.set(state.users, data.pid, data)
     // TODO: update items if found in it
-    state.userStatus = 'success'
+    state.usersStatus = 'success'
   },
   USER_UPDATED: (state, params) => {
-    state.userStatus = 'success'
+    state.usersStatus = 'success'
     if (params.pid in state.users) {
       Vue.set(state.users[params.pid], params.prop, params.data)
+    }
+  },
+  USER_NODES_REQUEST: (state) => {
+    state.usersNodesStatus = 'loading'
+  },
+  USER_NODES_UPDATED: (state, params) => {
+    state.usersNodesStatus = 'success'
+    Vue.set(state.usersNodes, params.pid, params.data)
+  },
+  USER_NODES_ERROR: (state, response) => {
+    state.usersNodesStatus = 'error'
+    if (response && response.data) {
+      state.usersNodesMessage = response.data.usersMessage
+    }
+  },
+  USER_SECURITY_EVENTS_REQUEST: (state) => {
+    state.usersSecurityEventsStatus = 'loading'
+},
+  USER_SECURITY_EVENTS_UPDATED: (state, params) => {
+    state.usersSecurityEventsStatus = 'success'
+    Vue.set(state.usersSecurityEvents, params.pid, params.data)
+  },
+  USER_SECURITY_EVENTS_ERROR: (state, response) => {
+    state.usersSecurityEventsStatus = 'error'
+    if (response && response.data) {
+      state.usersSecurityEventsMessage = response.data.usersMessage
     }
   },
   USER_BULK_SUCCESS: (state, response) => {
@@ -348,16 +419,16 @@ const mutations = {
     })
   },
   USER_DESTROYED: (state, pid) => {
-    state.userStatus = 'success'
+    state.usersStatus = 'success'
     Vue.set(state.users, pid, null)
   },
   USER_SUCCESS: (state) => {
-    state.userStatus = 'success'
+    state.usersStatus = 'success'
   },
   USER_ERROR: (state, response) => {
-    state.userStatus = 'error'
+    state.usersStatus = 'error'
     if (response && response.data) {
-      state.message = response.data.message
+      state.usersMessage = response.data.usersMessage
     }
   },
   USER_EXISTS: (state, pid) => {

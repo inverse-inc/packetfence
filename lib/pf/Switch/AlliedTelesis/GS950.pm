@@ -43,8 +43,10 @@ sub description { return "Allied Telesis GS950" }
 
 # CAPABILITIES
 # access technology supported
-sub supportsWiredDot1x { return $TRUE; }
-sub supportsWiredMacAuth { return $TRUE; }
+use pf::SwitchSupports qw(
+    WiredDot1x
+    WiredMacAuth
+);
 
 =back
 
@@ -54,7 +56,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2019 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 

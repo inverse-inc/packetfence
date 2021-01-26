@@ -38,6 +38,8 @@ sub cleanupAfterRead {
     if (defined $logs && $logs eq 'ALL') {
         $data->{logs} = $pf::constants::syslog::ALL_LOGS;
         $data->{all_logs} = 'enabled';
+    } else {
+        $data->{all_logs} = 'disabled';
     }
     $self->expand_list($data, $self->_fields_expanded);
 }
@@ -69,7 +71,7 @@ __PACKAGE__->meta->make_immutable;
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2019 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 

@@ -3,14 +3,13 @@
     :text="service"
     :variant="buttonVariant"
     v-bind="$attrs"
-    v-on="forwardListeners"
     :disabled="isError"
   >
-    <template slot="button-content">
+    <template v-slot:button-content>
       <icon :name="buttonIcon.name" :spin="buttonIcon.spin" class="mr-1"></icon>
       {{ buttonText }}
     </template>
-    <b-dropdown-form>
+    <b-dropdown-form v-if="!hideDetails">
       <b-row class="row-nowrap">
         <b-col>{{ $t('Alive') }}</b-col>
         <b-col cols="auto">
@@ -27,22 +26,28 @@
         <b-col cols="auto"><icon :class="(status.managed) ? 'text-success' : 'text-danger'" name="circle"></icon></b-col>
       </b-row>
     </b-dropdown-form>
-    <b-dropdown-divider v-if="!isLoading"></b-dropdown-divider>
+    <b-dropdown-divider v-if="!isLoading && !hideDetails"></b-dropdown-divider>
     <b-dropdown-item v-if="canEnable" @click="doEnable"><icon name="toggle-on" class="mr-1" @click.stop="onClick"></icon> {{ $t('Enable') }}</b-dropdown-item>
     <b-dropdown-item v-if="canDisable" @click="doDisable"><icon name="toggle-off" class="mr-1" @click.stop="onClick"></icon> {{ $t('Disable') }}</b-dropdown-item>
-    <b-dropdown-item v-if="canRestart" @click="doRestart"><icon name="circle-notch" class="mr-1" @click.stop="onClick"></icon> {{ $t('Restart') }}</b-dropdown-item>
+    <b-dropdown-item v-if="canRestart" @click="doRestart"><icon name="redo" class="mr-1" @click.stop="onClick"></icon> {{ $t('Restart') }}</b-dropdown-item>
     <b-dropdown-item v-if="canStart" @click="doStart"><icon name="play" class="mr-1" @click.stop="onClick"></icon> {{ $t('Start') }}</b-dropdown-item>
     <b-dropdown-item v-if="canStop" @click="doStop"><icon name="stop" class="mr-1" @click.stop="onClick"></icon> {{ $t('Stop') }}</b-dropdown-item>
   </b-dropdown>
 </template>
 
 <script>
+import { blacklistedServices } from '@/store/modules/services'
+
 export default {
-  name: 'pfButtonService',
+  name: 'pf-button-service',
   props: {
     service: {
       type: String,
       default: null
+    },
+    hideDetails: {
+      type: Boolean,
+      default: false
     },
     enable: {
       type: Boolean,
@@ -111,11 +116,7 @@ export default {
       return (this.status.alive)
     },
     isError () {
-      return (this.status.status === 'error')
-    },
-    forwardListeners () {
-      const { input, ...listeners } = this.$listeners
-      return listeners
+      return (this.status.status === 'error') || blacklistedServices.find(bls => bls === this.service)
     },
     buttonVariant () {
       switch (true) {
@@ -173,36 +174,41 @@ export default {
   },
   methods: {
     doEnable () {
-      this.$store.dispatch('services/enableService', this.service).then(response => {
+      this.$store.dispatch('services/enableService', this.service).then(() => {
         this.$store.dispatch('notification/info', { message: this.$i18n.t('Service <code>{service}</code> enabled.', { service: this.service }) })
+        this.$emit('enable', this.service)
       }).catch(() => {
         this.$store.dispatch('notification/danger', { message: this.$i18n.t('Failed to enable service <code>{service}</code>. See the server error logs for more information.', { service: this.service }) })
       })
     },
     doDisable () {
-      this.$store.dispatch('services/disableService', this.service).then(response => {
+      this.$store.dispatch('services/disableService', this.service).then(() => {
         this.$store.dispatch('notification/info', { message: this.$i18n.t('Service <code>{service}</code> disabled.', { service: this.service }) })
+        this.$emit('disable', this.service)
       }).catch(() => {
         this.$store.dispatch('notification/danger', { message: this.$i18n.t('Failed to disable service <code>{service}</code>. See the server error logs for more information.', { service: this.service }) })
       })
     },
     doRestart () {
-      this.$store.dispatch('services/restartService', this.service).then(response => {
+      this.$store.dispatch('services/restartService', this.service).then(() => {
         this.$store.dispatch('notification/info', { message: this.$i18n.t('Service <code>{service}</code> restarted.', { service: this.service }) })
+        this.$emit('restart', this.service)
       }).catch(() => {
         this.$store.dispatch('notification/danger', { message: this.$i18n.t('Failed to restart service <code>{service}</code>.  See the server error logs for more information.', { service: this.service }) })
       })
     },
     doStart () {
-      this.$store.dispatch('services/startService', this.service).then(response => {
+      this.$store.dispatch('services/startService', this.service).then(() => {
         this.$store.dispatch('notification/info', { message: this.$i18n.t('Service <code>{service}</code> started.', { service: this.service }) })
+        this.$emit('start', this.service)
       }).catch(() => {
         this.$store.dispatch('notification/danger', { message: this.$i18n.t('Failed to start service <code>{service}</code>.  See the server error logs for more information.', { service: this.service }) })
       })
     },
     doStop () {
-      this.$store.dispatch('services/stopService', this.service).then(response => {
+      this.$store.dispatch('services/stopService', this.service).then(() => {
         this.$store.dispatch('notification/info', { message: this.$i18n.t('Service <code>{service}</code> killed.', { service: this.service }) })
+        this.$emit('stop', this.service)
       }).catch(() => {
         this.$store.dispatch('notification/danger', { message: this.$i18n.t('Failed to kill service <code>{service}</code>.  See the server error logs for more information.s', { service: this.service }) })
       })
@@ -215,7 +221,8 @@ export default {
     }
   },
   created () {
-    this.$store.dispatch('services/getService', this.service)
+    if (this.$can('read', 'services'))
+      this.$store.dispatch('services/getService', this.service)
   }
 }
 </script>

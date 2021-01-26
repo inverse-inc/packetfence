@@ -149,16 +149,16 @@ sub ssid_active {
     $self->render(json => { items => [report_ssid_active()]});
 }
 
-sub osclassbandwidth_all {
-    my ($self) = @_;
-    $self->render(json => { items => [report_osclassbandwidth_all()]});
-}
-
 sub osclassbandwidth_range {
     my ($self) = @_;
     my $start = $self->_get_datetime($self->param('start'));
     my $end = $self->_get_datetime($self->param('end'));
     $self->render(json => { items => [report_osclassbandwidth($start, $end)]});
+}
+
+sub osclassbandwidth_hour {
+    my ($self) = @_;
+    $self->render(json => { items => [report_osclassbandwidth_hour()]});
 }
 
 sub osclassbandwidth_day {
@@ -181,16 +181,68 @@ sub osclassbandwidth_year {
     $self->render(json => { items => [report_osclassbandwidth_year()]});
 }
 
-sub nodebandwidth_all {
-    my ($self) = @_;
-    $self->render(json => { items => [report_nodebandwidth_all()]});
-}
-
 sub nodebandwidth_range {
     my ($self) = @_;
     my $start = $self->_get_datetime($self->param('start'));
     my $end = $self->_get_datetime($self->param('end'));
     $self->render(json => { items => [report_nodebandwidth($start, $end)]});
+}
+
+sub nodebandwidth_hour {
+    my ($self) = @_;
+    $self->render(json => { items => [report_nodebandwidth_hour()]});
+}
+
+sub nodebandwidth_day {
+    my ($self) = @_;
+    $self->render(json => { items => [report_nodebandwidth_day()]});
+}
+
+sub nodebandwidth_week {
+    my ($self) = @_;
+    $self->render(json => { items => [report_nodebandwidth_week()]});
+}
+
+sub nodebandwidth_month {
+    my ($self) = @_;
+    $self->render(json => { items => [report_nodebandwidth_month()]});
+}
+
+sub nodebandwidth_year {
+    my ($self) = @_;
+    $self->render(json => { items => [report_nodebandwidth_year()]});
+}
+
+sub userbandwidth_range {
+    my ($self) = @_;
+    my $start = $self->_get_datetime($self->param('start'));
+    my $end = $self->_get_datetime($self->param('end'));
+    $self->render(json => { items => [report_userbandwidth($start, $end)]});
+}
+
+sub userbandwidth_hour {
+    my ($self) = @_;
+    $self->render(json => { items => [report_userbandwidth_hour()]});
+}
+
+sub userbandwidth_day {
+    my ($self) = @_;
+    $self->render(json => { items => [report_userbandwidth_day()]});
+}
+
+sub userbandwidth_week {
+    my ($self) = @_;
+    $self->render(json => { items => [report_userbandwidth_week()]});
+}
+
+sub userbandwidth_month {
+    my ($self) = @_;
+    $self->render(json => { items => [report_userbandwidth_month()]});
+}
+
+sub userbandwidth_year {
+    my ($self) = @_;
+    $self->render(json => { items => [report_userbandwidth_year()]});
 }
 
 sub topauthenticationfailures_by_mac {
@@ -244,8 +296,7 @@ sub topauthenticationsuccesses_by_computername {
 
 sub _get_datetime {
     my ($self, $datetime) = @_;
-    $datetime = uri_unescape($datetime);
-    return $datetime;
+    return $self->escape_url_param($datetime);
 }
 
 
@@ -255,7 +306,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2019 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 

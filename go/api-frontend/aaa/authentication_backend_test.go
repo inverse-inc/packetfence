@@ -32,7 +32,7 @@ func TestMemAuthenticationBackend(t *testing.T) {
 		t.Error("User doesn't have the right admin roles")
 	}
 
-	if tokenInfo.TenantId != 0 {
+	if tokenInfo.Tenant.Id != 0 {
 		t.Error("User doesn't have the right tenant ID")
 	}
 
@@ -51,7 +51,7 @@ func TestMemAuthenticationBackend(t *testing.T) {
 		t.Error("User doesn't have the right admin roles")
 	}
 
-	if tokenInfo.TenantId != 0 {
+	if tokenInfo.Tenant.Id != 0 {
 		t.Error("User doesn't have the right tenant ID")
 	}
 

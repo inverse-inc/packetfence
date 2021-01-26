@@ -1,3 +1,4 @@
+# Copyright (C) Inverse inc.
 [general]
 #
 # general.domain
@@ -90,6 +91,11 @@ force_listener_update_on_ack=disabled
 # network.interfaceSNAT
 # Choose interface(s) where you want to enable snat for passthrough (by default it's the management interface)
 interfaceSNAT=
+#
+# network.staticroutes
+#
+# This will add the static routes you defined here on the system (managed by keepalived)
+staticroutes=
 
 [fencing]
 # 
@@ -254,6 +260,11 @@ httpd_portal_modstatus=1444
 #
 # port to use for accessing the Unified API
 unifiedapi=9999
+#
+# ports.pfacct_netflow
+#
+# port for listening to netflow
+pfacct_netflow=2056
 
 [database]
 #
@@ -333,12 +344,36 @@ performance_schema=OFF
 #
 # The max_connect_errors MySQL configuration attribute. Only change if you know what you are doing. Will only affect a locally running MySQL server.
 max_connect_errors=100
+#
+# database_advanced.masterslave
+#
+# The masterslave configuration to enable or disable the master/slave configuration.
+masterslave=OFF
+#
+# database_advanced.other_members
+#
+# Comma delimited IPv4 address of other member mysql members - note that this is only to sync the database.
+other_members=
 
 [services]
+# services.pfztn
+#
+# Should pfztn be managed by PacketFence?
+pfztn=enabled
 # services.pfipset
 #
 # Should pfipset be managed by PacketFence?
 pfipset=enabled
+#
+# services.pfpki
+#
+# Should pfpki be managed by PacketFence?
+pfpki=enabled
+#
+# services.galera-autofix
+#
+# Should galera-autofix be managed by PacketFence?
+galera-autofix=enabled
 #
 # services.pfdhcp
 #
@@ -349,6 +384,16 @@ pfdhcp=enabled
 #
 # Location of the pfdhcp binary.
 pfdhcp_binary=/usr/local/pf/sbin/pfdhcp
+#
+# services.haproxy-admin
+#
+# Should haproxy-admin be started?
+haproxy-admin=enabled
+#
+# services.haproxy-admin_binary
+#
+# Location of the haproxy-admin binary. Only necessary to change if you are not running the RPMed version.
+haproxy-admin_binary=/usr/sbin/haproxy
 #
 # services.haproxy-portal
 #
@@ -390,6 +435,16 @@ radiusd=enabled
 # Location of the named binary. Only necessary to change if you are not running the RPMed version.
 radiusd_binary=/usr/sbin/radiusd
 #
+# services.radiusd_acct
+#
+# Should freeradius handling accounting
+radiusd_acct=disabled
+#
+# services.radiusd_auth
+#
+# Should freeradius handling authentication
+radiusd_auth=enabled
+#
 # services.iptables
 #
 # Should iptables be managed by PacketFence?
@@ -400,25 +455,15 @@ iptables=enabled
 # location of the iptables binary. only necessary to change if you are not running the rpmed version.
 iptables_binary=/sbin/iptables
 #
-# services.pfbandwidthd
-#
-# Should pfbandwidthd be managed by PacketFence?
-pfbandwidthd=disabled
-#
 # services.httpd_admin
 #
 # Should httpd.admin be started?
-httpd_admin=enabled
+httpd_admin=disabled
 #
 # services.httpd_portal
 #
 # Should httpd.portal be started?
 httpd_portal=enabled
-#
-# services.httpd_parking
-#
-# Should httpd.parking be started?
-httpd_parking=enabled
 #
 # services.pfperl-api
 #
@@ -439,6 +484,11 @@ httpd_collector=disabled
 #
 # Should httpd.dispatcher be started?
 httpd_dispatcher=enabled
+#
+# services.httpd_admin_dispatcher
+#
+# Should httpd.admin_dispatcher be started?
+httpd_admin_dispatcher=enabled
 #
 # services.httpd_aaa
 #
@@ -470,10 +520,10 @@ snmptrapd_binary=/usr/sbin/snmptrapd
 # Should pfqueue be managed by PacketFence?
 pfqueue=enabled
 #
-# services.pfmon
+# services.pfcron
 #
-# Should pfmon be managed by PacketFence?
-pfmon=enabled
+# Should pfcron be managed by PacketFence?
+pfcron=enabled
 #
 # services.redis_cache
 #
@@ -552,17 +602,6 @@ openssl_binary=/usr/bin/openssl
 # 
 # location of the arp binary. only necessary to change if you are not running the rpmed version.
 arp_binary=/sbin/arp
-
-#
-# services.routes
-#
-# Should routes be managed by PacketFence?
-routes=enabled
-#
-# services.routes_binary
-#
-# location of the routes binary. only necessary to change if you are not running the rpmed version.
-routes_binary=/sbin/ip
 #
 # services.netdata
 #
@@ -591,6 +630,27 @@ pfdns=enabled
 #
 # Location of the pfdns binary.
 pfdns_binary=/usr/local/pf/sbin/pfdns
+
+# services.pfacct
+#
+# Should pfacct be managed by PacketFence?
+pfacct=enabled
+#
+# services.pfacct_binary
+#
+# Location of the pfacct binary.
+pfacct_binary=/usr/local/pf/sbin/pfacct
+
+# services.pfcertmanager
+#
+# Should pfcertmanager be managed by PacketFence?
+pfcertmanager=enabled
+#
+# services.pfcertmanager_binary
+#
+# Location of the pfcertmanager binary.
+pfcertmanager_binary=/usr/local/pf/sbin/pfcertmanager
+
 #
 # services.api-frontend
 #
@@ -606,6 +666,16 @@ pfstats=enabled
 #
 # Location of the pfstats binary.
 pfstats_binary=/usr/local/pf/sbin/pfstats
+
+# services.tracking-config
+#
+# Should tracking-config be managed by PacketFence?
+tracking-config=enabled
+#
+# services.tracking-config_binary
+#
+# Location of the tracking-config binary.
+tracking-config_binary=/dev/null
 
 [snmp_traps]
 #
@@ -642,20 +712,20 @@ trap_limit_action =
 # inline.accounting
 #
 # Should we handle accouting data for inline clients?
-# This controls inline accouting tasks in pfmon.
+# This controls inline accouting tasks in pfcron.
 accounting = disabled
 #
 # inline.layer3_accounting_session_timeout
 #
 # Accounting 'sessions' created by pfbandwidthd (level 3 traffic only) that haven't been updated for more than this
 # amount of seconds will be considered inactive.
-# This should be higher than the interval at which pfmon runs
+# This should be higher than the interval at which pfcron runs
 # Defaults to 300 - 5 minutes
 layer3_accounting_session_timeout = 300
 # inline.layer3_accounting_sync_interval
 #
 # Interval at which pfbandwidthd (level 3 traffic only) should dump collected information into the database.
-# This should be lower than the interval at which pfmon runs
+# This should be lower than the interval at which pfcron runs
 # Defaults to 41 seconds
 layer3_accounting_sync_interval = 41
 #
@@ -678,6 +748,13 @@ should_reauth_on_vlan_change = disabled
 interfaceSNAT=
 
 [captive_portal]
+#
+# captive_portal.ip_address
+#
+# The IP address the portal uses in the registration and isolation networks.
+# This IP address should point to an IP outside the registration and isolation networks.
+# Do not change unless you know what you are doing.
+ip_address=66.70.255.147
 #
 # captive_portal.network_detection
 #
@@ -759,12 +836,12 @@ detection_mecanism_bypass = disabled
 #
 # Comma-delimited list of URLs known to be used by devices to detect the presence 
 # of a captive portal and trigger their captive portal mechanism.
-detection_mecanism_urls = http://www.gstatic.com/generate_204,http://clients3.google.com/generate_204,http://www.apple.com/library/test/success,http://connectivitycheck.android.com/generate_204,http://connectivitycheck.gstatic.com/generate_204,http://www.msftncsi.com/ncsi.txt,http://www.appleiphonecell.com,http://captive.apple.com,http://captive.roku.com/ok,http://detectportal.firefox.com/success.txt
+detection_mecanism_urls = http://www.gstatic.com/generate_204,http://clients3.google.com/generate_204,http://www.apple.com/library/test/success,http://connectivitycheck.android.com/generate_204,http://connectivitycheck.gstatic.com/generate_204,http://www.msftncsi.com/ncsi.txt,http://www.appleiphonecell.com,http://captive.apple.com,http://captive.roku.com/ok,http://detectportal.firefox.com/success.txt,http://www.msftconnecttest.com/connecttest.txt,http://fireoscaptiveportal.com/generate_204,http://connectivitycheck.cbg-app.huawei.com/generate_204,http://connect.rom.miui.com/generate_204,http://freetimecaptiveportal.com/generate_204,http://gateway.zscalerthree.net/generate_204,http://gateway.zscloud.net/generate_204,http://g.cn/generate_204,http://play.googleapis.com/generate_204,http://speedtest-global.spatialbuzz.net/generate_204,http://tabletcaptiveportal.com/generate204,http://www.google.cn/generate_204
 #
 # captive_portal.wispr_redirection
 #
 # Enable or disable WISPr redirection capabilities on the captive-portal
-wispr_redirection = enabled
+wispr_redirection = disabled
 #
 # captive_portal.rate_limiting
 #
@@ -783,6 +860,18 @@ other_domain_names=
 
 
 [advanced]
+#
+# advanced.api_inactivity_timeout
+#
+# The inactivity timeout of an API token
+# Requires to restart the api-frontend service to be fully effective.
+api_inactivity_timeout=15m
+#
+# advanced.api_max_expiration
+#
+# The maximum amount of time an API token can be valid
+# Requires to restart the api-frontend service to be fully effective.
+api_max_expiration=12h
 #
 # advanced.language
 #
@@ -839,7 +928,7 @@ disable_pf_domain_auth=disabled
 # advanced.ldap_attributes
 #
 # List of LDAP attributes that can be used in the sources configuration
-ldap_attributes=uid,cn,sAMAccountName,servicePrincipalName,UserPrincipalName,department,displayName,distinguishedName,givenName,memberOf,sn,eduPersonPrimaryAffiliation,mail,postOfficeBox,description,groupMembership
+ldap_attributes=uid,cn,sAMAccountName,servicePrincipalName,UserPrincipalName,department,displayName,distinguishedName,givenName,memberOf,sn,eduPersonPrimaryAffiliation,mail,postOfficeBox,description,groupMembership,basedn
 #
 # advanced.pffilter_processes
 #
@@ -855,6 +944,11 @@ pfperl_api_processes=8
 #
 # Use the information included in the accounting to update the iplog
 update_iplog_with_accounting=disabled
+#
+# advanced.update_iplog_with_external_portal_requests
+#
+# Use the information included in the accounting to update the iplog
+update_iplog_with_external_portal_requests=enabled
 #
 # advanced.locationlog_close_on_accounting_stop
 #
@@ -877,11 +971,6 @@ source_to_send_sms_when_creating_users=
 # Ability to manage all active devices from a same switch port
 multihost=disabled
 #
-# advanced.vlan_pool_technique
-#
-# The algorithm used to calculate the VLAN in a VLAN pool.
-vlan_pool_technique = username_hash
-#
 # active_directory_os_join_check_bypass
 #
 # Enable to bypass the operating system domain join verification.
@@ -895,6 +984,26 @@ statsd_listen_port = 8125
 #
 # Execution timeout for pfperl-api
 pfperl_api_timeout = 600
+
+# advanced.configurator
+#
+# Enable the Configurator and the Configurator API
+configurator = enabled
+
+# advanced.netflow_on_all_networks
+#
+# Listen to netflow on all networks
+netflow_on_all_networks = disabled
+
+# advanced.accounting_timebucket_size
+#
+# Accounting timebucket size
+accounting_timebucket_size = 5m
+
+# advanced.openid_attributes
+#
+# List of known OpenID Attributes
+openid_attributes=
 
 [provisioning]
 #
@@ -1020,7 +1129,7 @@ auth_on_management=enabled
 #
 # active_active.conflict_resolution_threshold
 #
-# Defines the amount of seconds after which pfmon attempts to resolve a configuration version conflict between cluster members.
+# Defines the amount of seconds after which pfcron attempts to resolve a configuration version conflict between cluster members.
 # For example, if this is set to 5 minutes, then a resolution will be attempted when the members will be detected running a different version for more than 5 minutes.
 conflict_resolution_threshold=5m
 #
@@ -1087,21 +1196,6 @@ pass=
 
 [radius_configuration]
 #
-# radius_configuration.eap_authentication_types
-#
-# EAP Supported Methods. EAP-FAST is disabled by default.
-eap_authentication_types=GTC,MD5,MSCHAPv2,PEAP,TLS,TTLS
-#
-# radius_configuration.eap_fast_opaque_key
-#
-# EAP-FAST 32 bytes Opaque Key (Considered only if EAP-FAST is enabled)
-eap_fast_opaque_key=0123456789abcdef0123456789ABCDEF
-#
-# radius_configuration.eap_fast_authority_identity
-#
-# EAP-FAST authority ID (Considered only if EAP-FAST is enabled)
-eap_fast_authority_identity=1234
-#
 # radius_configuration.record_accounting_in_sql
 #
 # Record the accounting data in the SQL tables.
@@ -1144,6 +1238,30 @@ filter_in_packetfence_accounting=disabled
 # Requires a restart of radiusd to be effective.
 filter_in_packetfence-tunnel_authorize=disabled
 #
+# advanced.filter_in_eduroam_authorize
+#
+# Send the radius request in the radius filter from the radius eduroam.authorize section.
+# Requires a restart of radiusd to be effective.
+filter_in_eduroam_authorize=disabled
+#
+# radius_configuration.filter_in_eduroam_pre_proxy
+#
+# Send the radius request in the radius filter from the radius eduroam.pre_proxy section.
+# Requires a restart of radiusd to be effective.
+filter_in_eduroam_pre_proxy=disabled
+#
+# radius_configuration.filter_in_eduroam_post_proxy
+#
+# Send the radius request in the radius filter from the radius eduroam.post_proxy section.
+# Requires a restart of radiusd to be effective.
+filter_in_eduroam_post_proxy=disabled
+#
+# radius_configuration.filter_in_eduroam_preacct
+#
+# Send the radius request in the radius filter from the radius eduroam.preacct section.
+# Requires a restart of radiusd to be effective.
+filter_in_eduroam_preacct=disabled
+#
 # radius_configuration.ntlm_redis_cache
 #
 # Enables a Redis driven cache for NTLM authentication. 
@@ -1155,7 +1273,7 @@ ntlm_redis_cache=disabled
 # radius_configuration.radius_attributes
 #
 # List of RADIUS attributes that can be used in the sources configuration
-radius_attributes=username,NAS-Identifier,Called-Station-Id,Calling-Station-Id
+radius_attributes=Packetfence-Raw,User-Name,username,NAS-Identifier,Called-Station-Id,Calling-Station-Id
 #
 # radius_configuration.normalize_radius_machine_auth_username
 #
@@ -1167,6 +1285,17 @@ normalize_radius_machine_auth_username=disabled
 # Which attributes to use to get the username from a RADIUS request
 # The order of the attributes are listed in this configuration parameter is followed while performing the lookup
 username_attributes=PacketFence-UserNameAttribute,TLS-Client-Cert-Subject-Alt-Name-Upn,TLS-Client-Cert-Common-Name,User-Name
+# radius_configuration.forward_key_balanced
+#
+# Send in the proxy request the attribute PacketFence-KeyBalanced to randomize the load balance in the next PacketFence RADIUS server
+forward_key_balanced=disabled
+
+[dns_configuration]
+#
+# dns_configuration.record_dns_in_sql
+#
+# Record dns requests and replies in SQL table
+record_dns_in_sql=disabled
 
 [pfdhcp]
 #

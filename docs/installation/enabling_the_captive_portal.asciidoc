@@ -1,0 +1,105 @@
+// to display images directly on GitHub
+ifdef::env-github[]
+:encoding: UTF-8
+:lang: en
+:doctype: book
+:toc: left
+:imagesdir: ../images
+endif::[]
+
+////
+
+    This file is part of the PacketFence project.
+
+    See PacketFence_Network_Devices_Configuration_Guide-docinfo.xml for 
+    authors, copyright and license information.
+
+////
+
+//== Enabling the Captive Portal
+
+In the previous section, we have succesfully configured 802.1X using PacketFence, Microsoft Active Directory and a Cisco Catalyst 2960 switch. While this demonstrates the fundamental role and capabilities of a NAC solution, most organizations are also looking at providing access to guests for example. One way of handling guests on a network is showing them a captive portal and let them register their own devices. This section will guide you in achieving this with PacketFence.
+
+There are two ways PacketFence can show its captive portal for unknown (or unregistered) devices:
+
+ * it can use Web Authentication (or also known as hotspot-style authentication) - this works with numerous equipment vendors
+ * it can use a registration VLAN, where PacketFence provides DHCP services and DNS black-holing services - this works with any equipment vendors that support RADIUS dynamic VLAN assignment
+
+For our example, we will use Web Authentication, as it is supported by the Cisco Catalyst 2960. For more information on various enforcement modes, please refer to the 'Supported Enforcement Modes' sections of this document.
+
+=== Creating Authentication Source for Guests
+
+To keep our example simple, we will simply create a captive portal for guests where they will only have to accept the terms and conditions prior to gaining network access. To do so, we must first create a 'Null' authentication source. From _Configuration -> Policies and Access Control -> Authentication Sources_, click on `New external source -> Null`. As 'Name' and 'Description', specify 'null-source'. Then add an 'Authentication Rules' with name 'catchall' with no condition and with the following tow 'Actions':
+
+[options="compact"]
+ * Role - guest
+ * Access duration - 12 hours
+
+Click on `Save` to save the new authentication source.
+
+=== Configure switchport for Web Authentication
+
+Connect to that switch over SSH as an admin.
+
+First, we need to enable Change-of-Authorization (CoA) in our Cisco Catalyst 2960 switch configuration. We essentially need to allow our PacketFence server (172.20.100.2) to send CoA requests to the switch:
+
+  aaa server radius dynamic-author
+   client 172.20.100.2 server-key useStrongerSecret
+   port 3799
+
+Then, we must enable Web Authentication on switch port no. 10. Add the following configuration to the global section:
+
+  ip device tracking
+  ip http server
+  ip http secure-server
+
+Then add the required access list:
+
+  ip access-list extended registration
+   deny ip any host 172.20.100.2
+   permit tcp any any eq www
+   permit tcp any any eq 443
+
+
+=== Adjust Switch Configuration in PacketFence
+
+Next we have to let PacketFence know that Web Auth is to be used on the Cisco Catalyst 2960 switch. From _Configuration -> Policies and Access Control -> Switches_ and click on your switch's IP to open its configuration options. From the 'Definition' tab, make sure 'Use CoA' and 'External Portal Enforcement' are checked and set the 'CoA Port' to 3799. From the 'Roles' tab, make the following changes:
+
+[options="compact"]
+ * in Role by VLAN ID, set the registration and guest VLAN ID to 20 - this will ensure unregistered clients are initially put in VLAN 20 and avoid a VLAN change once they properly authenticate from the captive portal
+ * make sure 'Role by Switch Role' is checked and set the registration role to 'registration' - this will ensure the registration access list created in the previous section is returned for unregistered users. This will limit their access to the PacketFence captive portal
+ * make sure 'Role by Web Auth URL' is checked and set the 'registration' URL to 'http://172.20.100.2/Cisco::Catalyst_2960'
+
+Click on `Save` to save all configuration changes.
+
+=== Enabling Portal on Management Interface
+
+By default the PacketFence's captive portal does not listen on the management interface. To change this, go in _Configuration -> Network Configuration -> Interfaces_ and click on the logical name of your management interface to bring the configuration panel. In 'Additionnal listening daemon(s)' - make sure you add 'portal'.
+
+You must then restart the following services from _Status -> Services_:
+
+[options="compact"]
+ * haproxy-portal
+ * httpd.portal
+ * iptables
+
+=== Configuring the Connection Profile
+
+For Web Authentication, we will create a new connection profile in PacketFence. That means the default connection profile will be used for 802.1X while the new connection profile will be used for Web Authentication and will be used to display a captive portal with our 'Null' authentication source. From _Configuration -> Policies and Access Control -> Connection Profiles_ click on `New Profile`. Specify the following information:
+
+[options="compact"]
+ * Profile Name: guest
+ * Filters: If any of the following conditions are met:
+  * Connection Type: Ethernet-NoEAP
+ * Sources: null-source
+
+Click on `Save` to save all configuration changes.
+
+=== Testing
+
+First make sure that the Microsoft Windows 7 endpoint is unplugged from the Cisco Catalyst 2960 switch. Then, make sure the endpoint is unregistered from PacketFence. To do this, from the _Nodes_ configuration module, locate its MAC address and click on it. From the node property window, change the 'Status' to 'unregistered'.
+
+Next, we need to disable 802.1X from the network configuration card from the Microsoft Windows 7 endpoint. We want to simulate here an authentication by MAC address, so we have to disable 802.1X to do this. From Windows' Network Connection connection panel, ask for the properties of the LAN interface you will use for testing. From the authentication tab, make sure 'Enable IEEE 802.1X authentication' is unchecked. Save all changes.
+
+Next, connect the endpoint in the Cisco Catalyst 2960 switch. After a few second, open a web browser and try to open any website - say http://packetfence.org. You should now see the captive portal. You should only need to accept the terms and conditions for gaining network access.
+

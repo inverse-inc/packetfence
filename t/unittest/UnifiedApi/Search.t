@@ -24,7 +24,7 @@ BEGIN {
     use setup_test_config;
 }
 
-use Test::More tests => 16;
+use Test::More tests => 17;
 use Test::Mojo;
 use pf::UnifiedApi::Search;
 
@@ -178,6 +178,21 @@ is_deeply(
 
 is_deeply(
     pf::UnifiedApi::Search::searchQueryToSqlAbstract(
+        {
+            "field" => "pid",
+            "op"    => "contains",
+            "value" => undef,
+        }
+    ),
+    {
+        pid => { "-like" => "%%" },
+    },
+
+    "pid LIKE NULL"
+);
+
+is_deeply(
+    pf::UnifiedApi::Search::searchQueryToSqlAbstract(
                 {
                     "field"  => "detect_date",
                     "op"     => "between",
@@ -309,7 +324,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2019 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 

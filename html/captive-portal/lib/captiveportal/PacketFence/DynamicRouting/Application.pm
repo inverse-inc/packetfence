@@ -32,6 +32,7 @@ use pf::api::queue;
 use pf::file_paths qw($install_dir);
 use pf::config qw(%Config);
 use pf::activation;
+use fingerbank::Config;
 
 has 'session' => (is => 'rw', required => 1);
 
@@ -52,6 +53,8 @@ has 'profile' => (is => 'rw', required => 1, isa => "pf::Connection::Profile");
 has 'template_output' => (is => 'rw');
 
 has 'response_code' => (is => 'rw', isa => 'Int', default => sub{200});
+
+has 'response_headers' => (is => 'rw', default => sub{{}});
 
 has 'title' => (is => 'rw', isa => 'Str|ArrayRef');
 
@@ -134,11 +137,34 @@ Fingerbank processing
 sub process_fingerbank {
     my ( $self ) = @_;
 
+    unless(fingerbank::Config::is_api_key_configured()) {
+        get_logger->debug("Skipping Fingerbank processing because no API key is configured");
+        return $FALSE;
+    }
+
     my $attributes = pf::fingerbank::endpoint_attributes($self->current_mac);
     if($attributes->{most_accurate_user_agent} ne $self->current_user_agent) {
         pf::fingerbank::update_collector_endpoint_data($self->current_mac, {
             most_accurate_user_agent => $self->current_user_agent,
             user_agents => {$self->current_user_agent => $TRUE},
+        });
+    }
+
+    $self->response_headers->{'Accept-CH'} = "ua, platform, arch, model, mobile";
+    $self->response_headers->{'Accept-CH-Lifetime'} = "300";
+
+    if(defined($self->request->header("sec-ch-ua"))) {
+        my $chua = $self->request->header("sec-ch-ua");
+        my $info = {};
+        for my $ch (qw(sec-ch-ua-platform sec-ch-ua-model sec-ch-ua-arch)) {
+            my $val = $self->request->header($ch);
+            if(defined($val)) {
+                get_logger->debug("Received client hint header '$ch' => '$val'");
+                $info->{$ch} = $val;
+            }
+        }
+        pf::fingerbank::update_collector_endpoint_data($self->current_mac, {
+            client_hints => {$chua => $info}, 
         });
     }
 
@@ -562,7 +588,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2019 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 

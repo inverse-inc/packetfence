@@ -1,0 +1,6 @@
+name: Delete node01 by running pfcron node_cleanup task
+version: 2
+testcases:
+- name: delete_node01_with_pfcron_node_cleanup
+  steps:
+  - script: /usr/local/pf/bin/pfcmd pfcron node_cleanup

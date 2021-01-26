@@ -22,7 +22,7 @@ has roles => ( is => 'rw', builder => '_build_roles');
 sub _build_roles {
     my ($self) = @_;
     my $cs = pf::ConfigStore::Roles->new;
-    return $cs->readAll('name');
+    return [sort { $a->{name} cmp $b->{name}  } @{$cs->readAll('name')}];
 }
 
 =head1 AUTHOR
@@ -31,7 +31,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2019 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 

@@ -30,6 +30,7 @@ has_field 'domain' =>
 has_field 'type' =>
   (
    type => 'Hidden',
+   default => 'wmi',
   );
 
 has_block definition =>
@@ -81,7 +82,7 @@ sub options_wmi_rules {
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2019 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 

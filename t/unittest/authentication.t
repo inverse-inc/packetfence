@@ -13,8 +13,9 @@ autentication
 
 use strict;
 use warnings;
+use Date::Parse;
 
-use Test::More tests => 57;                      # last test to print
+use Test::More tests => 58;                      # last test to print
 
 use Test::NoWarnings;
 use diagnostics;
@@ -262,7 +263,7 @@ is(
     pf::authentication::match(
         "htpasswd1",
         {
-            current_time_period => 1484846231,
+            current_time_period => str2time('Thu Jan 19 12:17:11 2017'),
             rule_class          => 'administration',
             username => 'in_time_period',
             context => $pf::constants::realm::ADMIN_CONTEXT,
@@ -271,7 +272,7 @@ is(
         \$source_id_ref
     ),
     'Security Event Manager',
-    "match time period condition ",
+    "match time period condition",
 );
 
 is($source_id_ref, 'htpasswd1', "Source id ref found");
@@ -415,10 +416,23 @@ is_deeply(
         'values'    => {
             'set_role'       => 'default',
             'set_unreg_date' => '2038-01-01'
-        }
+        },
+        rule_id => 'match_test',
     },
    "potd match rule"
 );
+
+{
+    my $source = pf::authentication::getAuthenticationSource("openid");
+    is_deeply(
+        $source->{person_mappings},
+        [
+            { person_field => 'nickname',  openid_field => 'alt_name' },
+            { person_field => 'telephone', openid_field => 'phone' },
+        ],
+        "person_mappings"
+    );
+}
 
 =head1 AUTHOR
 
@@ -426,7 +440,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2019 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 

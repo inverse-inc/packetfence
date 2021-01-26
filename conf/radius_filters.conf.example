@@ -1,3 +1,4 @@
+# Copyright (C) Inverse inc.
 # Radius filter configuration
 # 
 # you are able to rewrite the radius answer based on attributes values, by default the radius filter
@@ -24,63 +25,57 @@
 #
 # Specific scopes just to use radius filter to change the logic of Freeradius on the fly
 #
-# packetfence.authorize call the radius filter in the packetfence authorize section
-# packetfence.authenticate call the radius filter in the packetfence authenticate section
-# packetfence.pre-proxy call the radius filter in the packetfence pre-proxy section
-# packetfence.post-proxy call the radius filter in the packetfence post-proxy section
-# packetfence-tunnel.authorize call the radius filter in the packetfence-tunnel authorize section
-# packetfence.preacct call the radius filter in the packetfence preacct section
-# packetfence.accounting call the radius filter in the packetfence accounting section
-# Make a simple rule like this:
-#
-#[macauth]
-#filter = connection_type
-#operator = is
-#value = Ethernet-NoEAP
-#
-#[mac]
-#filter = mac
-#operator = is
-#value = 00:11:22:33:44:55
+# packetfence.authorize call the RADIUS filter in the packetfence authorize section
+# packetfence.authenticate call the RADIUS filter in the packetfence authenticate section
+# packetfence.pre-proxy call the RADIUS filter in the packetfence pre-proxy section
+# packetfence.post-proxy call the RADIUS filter in the packetfence post-proxy section
+# packetfence-tunnel.authorize call the RADIUS filter in the packetfence-tunnel authorize section
+# packetfence.preacct call the RADIUS filter in the packetfence preacct section
+# packetfence.accounting call the RADIUS filter in the packetfence accounting section
+# eduroam.authorize call the RADIUS filter in the eduroam accounting section
+# eduroam.pre-proxy  call the RADIUS filter in the pre-proxy accounting section
+# eduroam.post-proxy call the RADIUS filter in the post-proxy accounting section
+# eduroam.preacct call the RADIUS filter in the eduroam preacct section
 #
 #This rule will return the VLAN ID id 42 for this specific MAC address
 #
-#[1:macauth&mac]
-#scope = returnRadiusAccessAccept
-#merge_answer = no
-#answer1 = Tunnel-Medium-Type => 6
-#answer2 = Tunnel-Type => 13
-#answer3 = Tunnel-Private-Group-ID => 42
+#[SpecificVlanForMac]
+#answer.1=reply:Tunnel-Type = VLAN
+#status=enabled
+#answer.0=reply:Tunnel-Medium-Type = IEEE-802
+#description=Set the vlan ID 42 for a specific MAC
+#scopes=returnRadiusAccessAccept
+#radius_status=RLM_MODULE_OK
+#merge_answer=no
+#answer.2=reply:Tunnel-Private-Group-Id = 42
+#condition=connection_type == "Ethernet-NoEAP" && mac == "00:11:22:33:44:55"
 #
-# This rule will return access-accept if there is no security_event
-#
-#[security_event]
-#filter = security_event
-#operator = defined
-#
-#[2:macauth&!security_event]
-#scope = returnRadiusAccessAccept
 #
 # Advanced rule:
 #
 # This rule will return the vlan id associated to the user role and Cisco-AVPair where the attributes
 # has been evaluated.
 # merge_answer mean to not merge the original answer with radius filter answer.
-#[3:macauth&!security_event]
-#scope = returnRadiusAccessAccept
-#merge_answer = no
-#answer1 = Tunnel-Medium-Type => 6
-#answer2 = Tunnel-Type => 13
-#answer3 = Tunnel-Private-Group-ID => $vlan
-#answer4 = Cisco-AVPair => url-redirect-acl=$user_role;url-redirect=${switch._portalURL}/cep$session_id
+#[SpecificVlanForMac]
+#answer.1=reply:Tunnel-Type = VLAN
+#status=enabled
+#answer.0=reply:Tunnel-Medium-Type = IEEE-802
+#description=Set the vlan ID 42 for a specific MAC
+#scopes=returnRadiusAccessAccept
+#radius_status=RLM_MODULE_OK
+#merge_answer=no
+#answer.2=reply:Tunnel-Private-Group-Id = $vlan
+#answer.3=reply:Cisco-AVPair = url-redirect-acl=$user_role;url-redirect=${switch._portalURL}/cep$session_id
+#condition=connection_type == "Ethernet-NoEAP" && mac == "00:11:22:33:44:55"
+
 #
 # All the answer in the rule is computed by PacketFence so you can set static and dynamic values
 # Let say you defined this answer and the $user_role value is set to default:
 #
-#answer1 = Tunnel-Medium-Type => 6
-#answer2 = Tunnel-Type => 13
-#answer3 = Tunnel-Private-Group-ID => ${switch._vlans.$user_role}
-#answer4 = Cisco-AVPair => url-redirect-acl=$user_role;url-redirect=${switch._portalURL}/cep$session_id
+#answer.0=reply:Tunnel-Medium-Type = IEEE-802
+#answer.1 = Tunnel-Type = VLAN
+#answer.2 = Tunnel-Private-Group-ID = ${switch._vlans.$user_role}
+#answer.3 = Cisco-AVPair => url-redirect-acl=$user_role;url-redirect=${switch._portalURL}/cep$session_id
 #
 # PacketFence will first evaluate simple variables like $user_role to default then it will evaluate
 # ${switch._vlans.default} to 1 (see switch hash above).
@@ -105,115 +100,69 @@
 #'wasInline' => 0,
 #...
 #
-# Then PacketFence will evaluate the answer4 to Cisco-AVPair => url-redirect-acl=default;url-redirect=http://192.168.1.2/cepab23bc
+# Then PacketFence will evaluate the answer.3 to Cisco-AVPair = url-redirect-acl=default;url-redirect=http://192.168.1.2/cepab23bc
 #
 # You can also define a range of int values and it will return a random number in this range:
 #
-# answer5 = Session-Timeout => 200..300,500..700
+# answer.5=reply:Session-Timeout = 200..300,500..700
 #
 # will return a radius attribute Session-Timeout with a value between 200 and 300 or between 500 and 700
-#
-#### Fingerbank example ####
-#
-# There are two ways to detect if the device is an Android phone, either by looking at the hierarchy of device ID or looking at the hierarchy of device names
-# Although using device names is more intuitive, they are subject to (very rare) changes, so using the ID is recommended
-# To find a device ID by the name, the following command can be used : '/usr/local/pf/bin/pfcmd fingerbank find_device_id "Generic Android"'
-# See the Fingerbank section in the PacketFence Administration interface for a list of all devices or https://api.fingerbank.org/devices
-#
-# This would then give us the following condition (note the use of includes) : 
-#[android_by_id]
-#filter = fingerbank_info.device_hierarchy_ids
-#operator = includes
-#value = 202
-#
-# Same example using the name:
-#[android_by_name]
-#filter = fingerbank_info.device_hierarchy_names
-#operator = includes
-#value = Generic Android
-#
-# Next, lets add filtering on the Android operating system version using:
-# (CAUTION: the version is not always available, when not present, this condition will return false)
-#[version_4_plus]
-#filter = fingerbank_info.version
-#operator = greater_equals
-#value = 4
-#
-# We could also want to validate that the device score is high enough through the following condition:
-#[minimum_score]
-#filter = fingerbank_info.score
-#operator = greater_equals
-#value = 30
-#
-# The above will ensure that the score is higher than 30 (included) which is the level at which Fingerbank uses informations that aren't easily spoofable for its decision.
-#
-# We could now create a filter that sets the Session-Timeout to 5 minutes for all Android phones versions 4 and above that have a score of at least 30
-#
-#[1:android_by_id&version_4_plus&minimum_score]
-#scope = returnRadiusAccessAccept
-#merge_answer = yes
-#answer1 = Session-Timeout => 300
-#
 #
 #### authorize example ####
 #
 # There is some cases where you want to override the radius flow, like changing the value of Proxy-To-Realm to force the request to be sent to a specific Realm bases on the username.
 #
-#[acme]
-#filter = radius_request.User-Name
-#operator = regex
-#value = ^bobacme.*
-#
-#[1:acme]
-#scope=packetfence.authorize
-#merge_answer = yes
-#answer1 = control:Proxy-To-Realm => ACME
+#[ForceProxy]
+#status=enabled
+#answer.0=control:Proxy-To-Realm = ACME
+#top_op=and
+#description=Force proxy for a specific user
+#scopes=packetfence.authorize
+#merge_answer=yes
+#condition=radius_request.username =~ "^bobacme.*"
 #
 #### preacct example ####
 #
 # There is some cases where you want to override the radius flow, like changing the value of Proxy-To-Realm to force the request to be sent to a specific Realm bases on the username (for accounting).
 #
-#[acme]
-#filter = radius_request.User-Name
-#operator = regex
-#value = ^bobacme.*
-#
-#[1:acme]
-#scope=packetfence.preacct
-#merge_answer = yes
-#answer1 = control:Proxy-To-Realm => ACME
+#[ForceProxyAcct]
+#status=enabled
+#answer.0=control:Proxy-To-Realm = ACME
+#top_op=and
+#description=Force proxy for a specific user
+#scopes=packetfence.preacct
+#merge_answer=yes
+#condition=radius_request.username =~ "^bobacme.*"
 #
 #### pre-proxy example ####
 #
 # There is some cases where you want to modify the radius request before sending it to a remote radius server.
 # In this example we will rewrite the username based on the NAS-Identifier value.
 #
-#[Building1]
-#filter = radius_request.NAS-Identifier
-#operator = is
-#value = Building1
-#
-#[1:Building1]
-#scope=packetfence.pre-proxy
-#merge_answer = yes
-#answer1 = proxy-request:User-Name => Building1!${radius_request.User-Name}
+#[ForceProxyAcct]
+#status=enabled
+#answer.0=proxy-request:User-Name = Building1!${radius_request.User-Name}
+#top_op=and
+#description=Force proxy for a specific user
+#scopes=packetfence.pre-proxy
+#merge_answer=yes
+#condition=radius_request.NAS-Identifier == "Building1"
+
 #
 #### post-proxy example ####
 #
 # In this example we will add the vlan 33 for all the answers of the remote radius server
 #
-#[all]
-#filter = mac
-#operator = regex
-#value = .*
-#
-#[1:all]
-#scope=packetfence.post-proxy
-#merge_answer=yes
-#answer1 = reply:Tunnel-Private-Group-Id => 33
-#answer2 = reply:Tunnel-Type => 13
-#answer3 = reply:Tunnel-Medium-Type => 6
-#
+#[ForcePostProxy]
+#status=enabled
+#top_op=and
+#description=Force the vlan id to 33 on post-proxy
+#scopes=packetfence.post-proxy
+#merge_answer=no
+#answer.0=reply:Tunnel-Medium-Type = IEEE-802
+#answer.2=reply:Tunnel-Private-Group-Id = 33
+#answer.1=reply:Tunnel-Type = VLAN
+#condition=mac =~ "*"
 #
 #
 # filter can be for the scope returnRadiusAccessAccept:
@@ -307,7 +256,5 @@
 # The value of a time is specific and follow this logic:
 # http://search.cpan.org/~pryan/Period-1.20/Period.pm
 # For example, if you want to test the current date for Monday to Friday, 9am to 11am and for 2pm to 4pm:
-# [timeofday]
-# filter = time
-# operator = is
-# value = wd {Mon Tue Wed Thu Fri} hr {9am-11am}, wd {Mon Tue Wed Thu Fri} hr {2pm-4am}
+# condition=time_period(time, "wd {Mon Tue Wed Thu Fri} hr {9am-11am}, wd {Mon Tue Wed Thu Fri} hr {2pm-4am}")
+

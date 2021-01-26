@@ -1,47 +1,77 @@
 <template>
-  <b-form-group :label-cols="(columnLabel) ? labelCols : 0" :label="columnLabel"
-    :state="isValid()" :invalid-feedback="getInvalidFeedback()"
-    class="pf-form-chosen" :class="{ 'mb-0': !columnLabel, 'is-focus': focus, 'is-empty': !value, 'is-disabled': disabled }">
+  <b-form-group :label-cols="(columnLabel) ? labelCols : 0" :label="columnLabel" :state="inputState"
+    class="pf-form-chosen" :class="{ 'mb-0': !columnLabel, 'is-focus': isFocus, 'is-empty': !inputValue, 'is-disabled': disabled, [`pf-form-chosen-${size}`]: size }">
+    <template v-slot:invalid-feedback>
+      {{ inputInvalidFeedback }}
+    </template>
     <b-input-group>
-      <multiselect
-        v-model="inputValue"
+      <multiselect ref="multiselect"
+        v-model="multiselectValue"
         v-bind="$attrs"
-        v-on="forwardListeners"
-        ref="input"
         :allow-empty="allowEmpty"
         :clear-on-select="clearOnSelect"
         :disabled="disabled"
+        :group-label="groupLabel"
         :group-values="groupValues"
         :id="id"
-        :internal-search="internalSearch"
+        :internal-search="false"
         :multiple="multiple"
         :label="label"
-        :options="options"
+        :options="multiselectOptions"
         :options-limit="optionsLimit"
         :placeholder="placeholder"
+        :taggable="taggable"
+        :tag-placeholder="multiselectTagPlaceholder"
         :preserve-search="preserveSearch"
         :searchable="searchable"
         :show-labels="false"
-        :state="isValid()"
+        :state="inputState"
         :track-by="trackBy"
-        @change.native="onChange($event)"
-        @input.native="validate()"
-        @keyup.native.stop.prevent="onChange($event)"
+        :size="size"
         @search-change="onSearchChange($event)"
         @open="onFocus"
         @close="onBlur"
+        @tag="addTag"
       >
-        <b-media slot="noResult" class="text-secondary" md="auto">
-          <icon name="search" scale="2" slot="aside" class="ml-2"></icon>
-          <strong>{{ $t('No results') }}</strong>
-          <b-form-text class="font-weight-light">{{ $t('Please refine your search.') }}</b-form-text>
-        </b-media>
+        <template v-slot:singleLabel="{ option }">
+          {{ tagCache[option.value] || option.value }}
+        </template>
+        <template v-slot:tag="{ option }">
+          <span class="multiselect__tag" :class="(isFocus && optionsList.includes(option.value)) ? 'bg-primary' : 'bg-secondary'">
+            <span>{{ tagCache[option.value] || option.value }}</span>
+            <i aria-hidden="true" tabindex="1" class="multiselect__tag-icon" @click="removeTag(option.value)"></i>
+          </span>
+        </template>
+        <template v-slot:beforeList v-if="internalSearch || optionsSearchFunction">
+          <li class="multiselect__element" v-if="internalSearch">
+            <div class="col-form-label py-1 px-2 text-dark text-left bg-light border-bottom">{{ $t('Type to filter results') }}</div>
+          </li>
+          <li class="multiselect__element" v-if="optionsSearchFunction">
+            <div class="col-form-label py-1 px-2 text-dark text-left bg-light border-bottom">{{ $t('Type to search results') }}</div>
+          </li>
+        </template>
+        <template v-slot:noResult>
+          <template v-if="isLoading">
+            <b-media class="text-secondary" md="auto">
+              <template v-slot:aside><icon name="circle-notch" spin scale="1.5" class="mt-2 ml-2"></icon></template>
+              <strong>{{ $t('Loading results') }}</strong>
+              <b-form-text class="font-weight-light">{{ $t('Please wait...') }}</b-form-text>
+            </b-media>
+          </template>
+          <template v-else>
+            <b-media class="text-secondary" md="auto">
+              <template v-slot:aside><icon name="search" scale="1.5" class="mt-2 ml-2"></icon></template>
+              <strong>{{ $t('No results') }}</strong>
+              <b-form-text class="font-weight-light">{{ $t('Please refine your search.') }}</b-form-text>
+            </b-media>
+          </template>
+        </template>
       </multiselect>
-      <b-input-group-append v-if="readonly || disabled">
-        <b-button class="input-group-text" tabindex="-1" disabled><icon name="lock"></icon></b-button>
+      <b-input-group-append v-show="readonly || disabled" :size="size">
+        <b-button :size="size" class="input-group-text" tabindex="-1" disabled><icon name="lock"></icon></b-button>
       </b-input-group-append>
     </b-input-group>
-    <b-form-text v-if="text" v-html="text"></b-form-text>
+    <b-form-text v-show="text" v-html="text"></b-form-text>
   </b-form-group>
 </template>
 
@@ -49,12 +79,15 @@
 import Multiselect from 'vue-multiselect'
 import 'vue-multiselect/dist/vue-multiselect.min.css'
 import { createDebouncer } from 'promised-debounce'
-import pfMixinValidation from '@/components/pfMixinValidation'
+import pfMixinForm from '@/components/pfMixinForm'
+
+const SEARCH_BY_ID = true
+const SEARCH_BY_TEXT = false
 
 export default {
   name: 'pf-form-chosen',
   mixins: [
-    pfMixinValidation
+    pfMixinForm
   ],
   components: {
     Multiselect
@@ -71,7 +104,7 @@ export default {
       type: String
     },
     labelCols: {
-      type: Number,
+      type: [String, Number],
       default: 3
     },
     text: {
@@ -93,6 +126,13 @@ export default {
       type: Boolean,
       default: false
     },
+    readonly: {
+      type: Boolean,
+      default: false
+    },
+    groupLabel: {
+      type: String
+    },
     groupValues: {
       type: String
     },
@@ -107,10 +147,6 @@ export default {
       type: String,
       default: 'text'
     },
-    loading: {
-      type: Boolean,
-      default: false
-    },
     multiple: {
       type: Boolean,
       default: false
@@ -120,23 +156,27 @@ export default {
       default: () => { return [] }
     },
     optionsLimit: {
-      type: Number,
+      type: [String, Number],
       default: 100
     },
     optionsSearchFunction: {
       type: Function
     },
-    optionsSearchFunctionInitialized: { // true after first `optionsSearchFunction` call (for preloading)
+    placeholder: {
+      type: String,
+      default: null
+    },
+    taggable: {
       type: Boolean,
       default: false
     },
-    placeholder: {
+    tagPlaceholder: {
       type: String,
       default: null
     },
     preserveSearch: {
       type: Boolean,
-      default: false
+      default: true
     },
     searchable: {
       type: Boolean,
@@ -145,39 +185,78 @@ export default {
     trackBy: {
       type: String,
       default: 'value'
+    },
+    size: {
+      type: String,
+      default: 'md'
     }
+  },
+  errorCaptured (err) { // capture exceptions from vue-multiselect component
+    // eslint-disable-next-line
+    console.error(err)
+    return false // prevent error from propagating
   },
   data () {
     return {
-      focus: false
+      localOptions: [],
+      isLoading: false,
+      isFocus: false,
+      internalSearchQuery: null,
+      tagCache: {}
     }
+  },
+  mounted () {
+    this.localOptions = this.options
   },
   computed: {
     inputValue: {
       get () {
-        const currentValue = this.value || ((this.multiple) ? [] : null)
+        if (this.formStoreName && this.formNamespace) {
+          return this.formStoreValue // use FormStore
+        } else {
+          return this.value // use native (v-model)
+        }
+      },
+      set (newValue) {
+        if (this.formStoreName) {
+          this.formStoreValue = newValue // use FormStore
+        } else {
+          this.$emit('input', newValue) // use native (v-model)
+        }
+      }
+    },
+    multiselectValue: {
+      get () {
         if (this.collapseObject) {
           const options = (!this.groupValues)
-            ? (this.options ? this.options : [])
-            : this.options.reduce((options, group, index) => { // flatten group
+            ? (this.localOptions ? this.localOptions : [])
+            : this.localOptions.reduce((options, group) => { // flatten group
               options.push(...group[this.groupValues])
               return options
             }, [])
           if (options.length === 0) { // no options
-            return (this.multiple)
-              ? [...new Set(currentValue.map(value => {
+            if (this.multiple) {
+              const currentValue = (Array.isArray(this.inputValue)) ? this.inputValue : []
+              return [...new Set(currentValue.map(value => {
                 return { [this.trackBy]: value, [this.label]: value }
               }))]
-              : { [this.trackBy]: currentValue, [this.label]: currentValue }
+            } else {
+              const currentValue = (this.inputValue) ? this.inputValue : null
+              return { [this.trackBy]: currentValue, [this.label]: currentValue }
+            }
           } else { // is options
-            return (this.multiple)
-              ? [...new Set(currentValue.map(value => {
+            if (this.multiple) {
+              const currentValue = (Array.isArray(this.inputValue)) ? this.inputValue : []
+              return [...new Set(currentValue.map(value => {
                 return options.find(option => option[this.trackBy] === value) || { [this.trackBy]: value, [this.label]: value }
               }))]
-              : options.find(option => option[this.trackBy] === currentValue) || { [this.trackBy]: currentValue, [this.label]: currentValue }
+            } else {
+              const currentValue = (this.inputValue) ? this.inputValue : null
+              return options.find(option => option[this.trackBy] === currentValue) || { [this.trackBy]: currentValue, [this.label]: currentValue }
+            }
           }
         }
-        return currentValue
+        return this.inputValue
       },
       set (newValue) {
         if (this.collapseObject) {
@@ -185,48 +264,162 @@ export default {
             ? [...new Set(newValue.map(value => value[this.trackBy]))]
             : (newValue && newValue[this.trackBy])
         }
-        this.$emit('input', newValue)
+        this.inputValue = newValue
       }
     },
-    forwardListeners () {
-      const { input, ...listeners } = this.$listeners
-      return listeners
+    optionsList () {
+      return (this.localOptions || []).map(option => {
+        return option[this.trackBy]
+      })
+    },
+    multiselectOptions () {
+      if (this.internalSearchQuery) {
+        const compoundSearch = (text, compoundQuery = null) => {
+          if (!compoundQuery) return true
+          let [ query, ...rest ] = compoundQuery.split(' ')
+          // case-insensitive and locale-ized
+          const textLocale = text.toLocaleLowerCase(this.$i18n.locale)
+          const queryLocale = query.toLocaleLowerCase(this.$i18n.locale)
+          if (rest.length > 0) {
+            // && with recursion
+            return (textLocale.includes(queryLocale) && compoundSearch(text, rest.join(' ')))
+          }
+          return textLocale.includes(queryLocale)
+        }
+
+        if (this.groupValues) {
+          return this.localOptions.map(group => {
+            const { [this.groupLabel]: groupLabel, [this.groupValues]: groupValues } = group
+            if (compoundSearch(groupLabel, this.internalSearchQuery)) {
+              return group
+            }
+            return {
+              ...group,
+              [this.groupValues]: groupValues.filter(option => {
+                const { [this.label]: text } = option
+                return compoundSearch(text, this.internalSearchQuery)
+              })
+            }
+          }).filter(group => {
+            const { [this.groupValues]: groupValues } = group
+            return groupValues.length > 0
+          })
+        }
+        else {
+          return this.localOptions.filter(option => {
+            const { [this.label]: text } = option
+            return compoundSearch(text, this.internalSearchQuery)
+          })
+        }
+      }
+      else {
+        return this.localOptions
+      }
+    },
+    multiselectTagPlaceholder () {
+      return this.tagPlaceholder || this.$i18n.t('Click to add value')
     }
   },
   methods: {
-    onFocus (event) {
-      this.focus = true
-      this.onSearchChange() // initial (empty) search
+    focus () {
+      const { $refs: { multiselect: { $el } = {} } = {} } = this
+      $el.focus()
     },
-    onBlur (event) {
-      this.focus = false
+    onFocus () {
+      this.isFocus = true
+      this.onSearchChange(this.inputValue)
+    },
+    blur () {
+      const { $refs: { multiselect: { $el } = {} } = {} } = this
+      $el.blur()
+    },
+    onBlur () {
+      this.isFocus = false
+      this.onSearchChange(this.inputValue)
     },
     onSearchChange (query) {
-      if (this.optionsSearchFunction) {
+      if (this.internalSearch) {
+        if (query !== this.inputValue) {
+          this.internalSearchQuery = query
+        }
+        else {
+          this.internalSearchQuery = null
+        }
+      }
+      else if (this.optionsSearchFunction) {
+        if (query && query.constructor === Array) { // not a user defined query
+          query = ''
+        }
         if (!this.$debouncer) {
           this.$debouncer = createDebouncer()
         }
-        this.loading = true
+        this.isLoading = true
         this.$debouncer({
           handler: () => {
-            Promise.resolve(this.optionsSearchFunction(this, query)).then(options => {
-              this.loading = false
-              this.options = options
-            }).catch(() => {
-              this.loading = false
+            Promise.resolve(this.optionsSearchFunction(this, query, SEARCH_BY_TEXT)).then(options => {
+              this.localOptions = options
             }).finally(() => {
-              this.optionsSearchFunctionInitialized = true
+              this.isLoading = false
             })
           },
           time: 300
         })
       }
+    },
+    removeTag (value) {
+      this.inputValue = this.inputValue.filter(input => input !== value)
+    },
+    cacheTagsFromOptions (options) {
+      if (this.groupValues) {
+        let flattened = []
+        for (let group of options) {
+          flattened = [ ...flattened, ...( group[this.groupValues] || []) ]
+        }
+        options = flattened
+      }
+      (options || []).map(option => {
+        const { [this.trackBy]: value, [this.label]: label } = option
+        if (!(value in this.tagCache) || value !== label) {
+          this.$set(this.tagCache, value, label)
+        }
+      })
+    },
+    addTag (newTag) {
+      if (this.multiple) {
+        this.$set(this, 'inputValue', [ ...this.inputValue, newTag ])
+        this.focus()
+      } else {
+        this.$set(this, 'inputValue', newTag)
+        this.blur()
+      }
     }
   },
   watch: {
-    value: {
-      handler (a, b) {
-        this.onSearchChange(a) // prime the searchable cache with our current `value`
+    options: {
+      handler (a) {
+        this.cacheTagsFromOptions(a)
+        this.localOptions = a
+      },
+      immediate: true
+    },
+    inputValue: {
+      handler (a) {
+        this.internalSearchQuery = null
+        if (a) {
+          if (this.optionsSearchFunction) {
+            (((this.multiple) ? a : [a]) || []).map(value => {
+              if (!(value in this.tagCache)) {
+                Promise.resolve(this.optionsSearchFunction(this, value, SEARCH_BY_ID)).then(options => {
+                  this.cacheTagsFromOptions(options)
+                })
+              }
+            })
+          } else {
+            this.cacheTagsFromOptions((((this.multiple) ? a : [a]) || []).map(value => {
+              return { [this.label]: value, [this.trackBy]: value }
+            }))
+          }
+        }
       },
       immediate: true
     }
@@ -235,158 +428,6 @@ export default {
 </script>
 
 <style lang="scss">
-@import "../../node_modules/bootstrap/scss/functions";
-@import "../../node_modules/bootstrap/scss/mixins/border-radius";
-@import "../../node_modules/bootstrap/scss/mixins/box-shadow";
-@import "../styles/variables";
+/* See styles/_form-chosen.scss */
 
-/**
- * Adjust is-invalid and is-focus borders
- */
-.pf-form-chosen {
-
-  /* show placeholder even when empty */
-  &.is-empty {
-    .multiselect__input {
-      width: 100%!important;
-      position: relative!important;
-    }
-  }
-  &.is-empty:not(.is-focus) {
-    .multiselect__single {
-      display: none;
-    }
-  }
-
-  /* disable all transitions */
-  .multiselect__loading-enter-active,
-  .multiselect__loading-leave-active,
-  .multiselect__input,
-  .multiselect__single,
-  .multiselect__tag-icon,
-  .multiselect__select,
-  .multiselect-enter-active,.multiselect-leave-active {
-      transition: none !important;
-  }
-
-  .multiselect {
-      position: relative;
-      flex: 1 1 auto;
-      width: 1%;
-      min-height: auto;
-      border-width: 1px;
-      margin-bottom: 0;
-      font-size: $font-size-base;
-  }
-  .multiselect__tags {
-    min-height: auto;
-    padding: 4px 40px 4px 8px;
-    border: 1px solid $input-focus-bg;
-    background-color: $input-focus-bg;
-    @include border-radius($border-radius);
-    outline: 0;
-    .multiselect__input {
-      max-width: 100%;
-    }
-    span > span.multiselect__single { /* placeholder */
-      color: $input-placeholder-color;
-      // Override Firefox's unusual default opacity; see https://github.com/twbs/bootstrap/pull/11526.
-      opacity: 1;
-    }
-  }
-  .multiselect__select {
-    top: 0px;
-    right: 10px;
-    bottom: 0px;
-    width: auto;
-    height: auto;
-    padding: 0px;
-  }
-  .multiselect__tag {
-    margin-bottom: 0px;
-    background-color: $secondary;
-  }
-  .multiselect__tag-icon {
-    &:hover {
-      background-color: inherit;
-      color: lighten($secondary, 15%);
-    }
-    &:after {
-      color: $component-active-color;
-    }
-  }
-  .multiselect__input,
-  .multiselect__single {
-    padding: 0px;
-    margin: 0px;
-    background-color: $input-focus-bg;
-    color: $input-color;
-    font-size: $font-size-base;
-    &::placeholder {
-      color: $input-placeholder-color;
-    }
-  }
-  &.is-disabled {
-    .multiselect__input,
-    .multiselect__single {
-      background-color: $input-disabled-bg;
-    }
-  }
-  .multiselect__placeholder {
-    padding-top: 0px;
-    padding-bottom: $input-padding-y;
-    margin-bottom: 0px;
-    color: $input-placeholder-color;
-    font-size: $font-size-base;
-    line-height: $input-line-height;
-  }
-  .multiselect__content-wrapper {
-    z-index: $zindex-popover;
-    border: $dropdown-border-width solid $dropdown-border-color;
-    @include border-radius($dropdown-border-radius);
-    @include box-shadow($dropdown-box-shadow);
-  }
-  .multiselect--active:not(.multiselect--above) {
-    .multiselect__content-wrapper {
-      border-top-width: 0px;
-      border-bottom-width: 1px;
-      border-top-left-radius: 0 !important;
-      border-top-right-radius: 0 !important;
-      border-bottom-left-radius: $border-radius !important;
-      border-bottom-right-radius: $border-radius !important;
-    }
-  }
-  .multiselect--above {
-    .multiselect__content-wrapper {
-      border-bottom-width: 0px;
-      border-bottom-left-radius: 0 !important;
-      border-bottom-right-radius: 0 !important;
-    }
-  }
-  .multiselect__option--highlight {
-    background-color: $dropdown-link-active-bg;
-    color: $dropdown-link-active-color;
-  }
-  .multiselect--disabled {
-    background-color: $input-disabled-bg;
-    opacity: 1;
-    .multiselect__tags,
-    .multiselect__single {
-      background-color: $input-disabled-bg;
-    }
-    .multiselect__select {
-      background-color: transparent;
-    }
-  }
-  &.is-focus {
-    .multiselect__tags {
-      border-color: $input-focus-border-color;
-    }
-  }
-  &.is-invalid {
-    .multiselect__tags {
-      border-color: $form-feedback-invalid-color;
-    }
-  }
-}
 </style>

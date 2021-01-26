@@ -24,7 +24,7 @@ BEGIN {
     use setup_test_config;
 }
 
-use Test::More tests => 39;
+use Test::More tests => 32;
 
 #This test will running last
 use Test::NoWarnings;
@@ -291,7 +291,7 @@ my $sb = pf::UnifiedApi::Search::Builder::Nodes->new();
 }
 
 {
-    my @f = qw(mac locationlog.ssid locationlog.port radacct.acctsessionid online);
+    my @f = qw(mac locationlog.ssid locationlog.port);
 
     my %search_info = (
         dal => $dal,
@@ -311,8 +311,6 @@ my $sb = pf::UnifiedApi::Search::Builder::Nodes->new();
                 'node.mac',
                 \'`locationlog`.`ssid` AS `locationlog.ssid`',
                 \'`locationlog`.`port` AS `locationlog.port`',
-                \'`radacct`.`acctsessionid` AS `radacct.acctsessionid`',
-                "IF(radacct.acctstarttime IS NULL,'unknown',IF(radacct.acctstoptime IS NULL, 'on', 'off'))|online"
             ],
         ],
         'Return the columns'
@@ -325,8 +323,6 @@ my $sb = pf::UnifiedApi::Search::Builder::Nodes->new();
             200,
             {
                 'ip4log.ip' => { "=" => "1.1.1.1"},
-                'locationlog2.id' => undef,
-                'r2.radacctid' => undef,
             },
         ],
         'Return the joined tables'
@@ -342,7 +338,6 @@ my $sb = pf::UnifiedApi::Search::Builder::Nodes->new();
             [
                 -join => 'node',
                 @pf::UnifiedApi::Search::Builder::Nodes::LOCATION_LOG_JOIN,
-                @pf::UnifiedApi::Search::Builder::Nodes::RADACCT_JOIN,
                 @pf::UnifiedApi::Search::Builder::Nodes::IP4LOG_JOIN,
             ]
         ],
@@ -351,210 +346,7 @@ my $sb = pf::UnifiedApi::Search::Builder::Nodes->new();
 }
 
 {
-    my @f = qw(mac online radacct.acctsessionid);
-
-    my %search_info = (
-        dal    => $dal,
-        fields => \@f,
-    );
-
-    is_deeply(
-        [ $sb->make_columns( \%search_info ) ],
-        [
-            200,
-            [
-                'node.mac',
-                "IF(radacct.acctstarttime IS NULL,'unknown',IF(radacct.acctstoptime IS NULL, 'on', 'off'))|online",
-                \'`radacct`.`acctsessionid` AS `radacct.acctsessionid`'
-            ]
-        ],
-        'Return the columns with column spec'
-    );
-
-}
-
-{
-    my @f = qw(mac online);
-    my %search_info = (
-        dal    => $dal,
-        fields => \@f,
-        sort => ['online'],
-    );
-    my ($status, $results) = $sb->search(\%search_info);
-    is($status, 200, "Including online");
-}
-
-{
-    my $q = {
-        op    => 'equals',
-        field => 'online',
-        value => "unknown",
-    };
-
-    my $s = {
-        dal    => $dal,
-        fields => [qw(mac online)],
-        query  => $q,
-    };
-
-    ok(
-        $sb->is_field_rewritable($s, 'online'),
-        "Is online rewriteable"
-    );
-
-    is_deeply(
-        [ $sb->rewrite_query( $s, $q ) ],
-        [
-            200,
-            {
-                op    => 'equals',
-                value => undef,
-                field => 'radacct.acctstarttime'
-            }
-        ],
-        "Rewrite online='unknown'",
-    );
-
-    is_deeply(
-        [
-            $sb->rewrite_query(
-                $s, { op => 'equals', value => 'on', field => 'online' }
-            )
-        ],
-        [
-            200,
-            {
-                'op'     => 'and',
-                'values' => [
-                    {
-                        op    => 'not_equals',
-                        value => undef,
-                        field => 'radacct.acctstarttime'
-                    },
-                    {
-                        op    => 'equals',
-                        value => undef,
-                        field => 'radacct.acctstoptime'
-                    },
-                ],
-            },
-        ],
-        "Rewrite online='on'",
-    );
-
-    is_deeply(
-        [
-            $sb->rewrite_query(
-                $s, { op => 'equals', value => 'off', field => 'online' }
-            )
-        ],
-        [
-            200,
-            {
-                op    => 'not_equals',
-                value => undef,
-                field => 'radacct.acctstoptime'
-            },
-        ],
-        "Rewrite online='off'",
-    );
-
-    is_deeply(
-        [
-            $sb->rewrite_query(
-                $s, { op => 'not_equals', value => 'off', field => 'online' }
-            ),
-        ],
-        [
-            200,
-            {
-                op => 'or',
-                values => [
-                    { op => 'equals', value => undef, field => 'radacct.acctstarttime' },
-                    { op => 'equals', value => undef, field => 'radacct.acctstoptime' },
-                ],
-            },
-        ],
-        "Rewrite online!='off'",
-    );
-
-    is_deeply(
-        [
-            $sb->rewrite_query(
-                $s, { op => 'not_equals', value => 'on', field => 'online' }
-            ),
-        ],
-        [
-            200,
-            {
-                op     => 'or',
-                values => [
-                    {
-                        op    => 'equals',
-                        value => undef,
-                        field => 'radacct.acctstarttime'
-                    },
-                    {
-                        op    => 'not_equals',
-                        value => undef,
-                        field => 'radacct.acctstoptime'
-                    },
-                ],
-            },
-        ],
-        "Rewrite online!='on'",
-    );
-
-    is_deeply(
-        [
-            $sb->rewrite_query(
-                $s,
-                { op => 'not_equals', value => 'unknown', field => 'online' }
-            )
-        ],
-        [
-            200,
-            {
-                op    => 'not_equals',
-                value => undef,
-                field => 'radacct.acctstarttime',
-            },
-        ],
-        "Rewrite online!='unknown'",
-    );
-
-    is_deeply(
-        [
-            $sb->rewrite_query(
-                $s,
-                { op => 'contains', value => 'unknown', field => 'online' }
-            )
-        ],
-        [
-            422,
-            { message => "contains is not valid for the online field" },
-        ],
-        "Invalid op for online",
-    );
-}
-
-{
-    my @f = qw(mac online);
-    my %search_info = (
-        dal    => $dal,
-        fields => \@f,
-        query => {
-            op => 'equals',
-            field => 'online',
-            value => "unknown",
-        },
-    );
-    my ($status, $results) = $sb->search(\%search_info);
-    is($status, 200, "Query remap for online");
-}
-
-{
-    my @f = qw(status online mac pid ip4log.ip bypass_role_id);
+    my @f = qw(status mac pid ip4log.ip bypass_role_id);
 
     my %search_info = (
         dal => $dal,
@@ -567,7 +359,6 @@ my $sb = pf::UnifiedApi::Search::Builder::Nodes->new();
             200,
             [
                 'node.status',
-                "IF(radacct.acctstarttime IS NULL,'unknown',IF(radacct.acctstoptime IS NULL, 'on', 'off'))|online",
                 'node.mac',
                 'node.pid',
                 \'`ip4log`.`ip` AS `ip4log.ip`',
@@ -583,7 +374,6 @@ my $sb = pf::UnifiedApi::Search::Builder::Nodes->new();
         [
             200,
             {
-                'r2.radacctid' => undef,
             },
         ],
         'Return the joined tables'
@@ -596,7 +386,6 @@ my $sb = pf::UnifiedApi::Search::Builder::Nodes->new();
             200,
             [
                 -join => 'node',
-                @pf::UnifiedApi::Search::Builder::Nodes::RADACCT_JOIN,
                 @pf::UnifiedApi::Search::Builder::Nodes::IP4LOG_JOIN,
             ]
         ],
@@ -691,13 +480,116 @@ my $sb = pf::UnifiedApi::Search::Builder::Nodes->new();
     )
 }
 
+{
+    my @f = qw(mac);
+    my %search_info = (
+        dal => $dal,
+        fields => \@f,
+        query => {
+            op => 'and',
+            values => [
+                {
+                    op => 'greater_than_equals',
+                    field => 'locationlog.switch_ip',
+                    value => '1.2.3.1',
+                },
+                {
+                    op => 'less_than_equals',
+                    field => 'locationlog.switch_ip',
+                    value => '1.2.3.254',
+                },
+            ]
+        },
+    );
+
+    is_deeply(
+        [ $sb->make_columns( \%search_info ) ],
+        [
+            200,
+            [
+                'node.mac',
+            ],
+        ],
+        'Return the columns'
+    );
+
+    is_deeply(
+        [ $sb->make_where(\%search_info) ],
+        [
+            200,
+            {
+                '-and' => [
+                    {
+                        'locationlog.switch_ip_int' => {
+                            '>=' => 16909057,
+                        }
+                    },
+                    {
+                        'locationlog.switch_ip_int' => {
+                            '<=' => 16909310,
+                        }
+                    }
+                ]
+            }
+        ],
+        'Return the joined tables'
+    );
+
+}
+
+{
+    my @f = qw(mac online);
+
+    my %search_info = (
+        dal => $dal,
+        fields => \@f,
+    );
+
+    is_deeply(
+        [ $sb->make_columns( \%search_info ) ],
+        [ 200, [ 'node.mac', "IF(online.node_id IS NULL,'unknown',IF(online.last_updated != '0000-00-00 00:00:00', 'on', 'off'))|online" ]],
+        'Return the columns'
+    );
+
+    is_deeply(
+        [
+            $sb->make_from(\%search_info)
+        ],
+        [
+            200,
+            [
+                -join => 'node',
+                {
+                    operator  => '=>',
+                    condition => {
+                        'node.mac' => { '=' => { -ident => '%2$s.mac' } },
+                        'online.tenant_id' => 1 ,
+                    },
+                },
+                'bandwidth_accounting|online',
+                {
+                    operator  => '=>',
+                    condition => [
+                        -and => [
+                        'online.node_id' => { '=' => { -ident => '%2$s.node_id' } },
+                        \"(online.last_updated,online.unique_session_id,online.time_bucket) < (b2.last_updated,b2.unique_session_id,b2.time_bucket)",
+                        ],
+                    ],
+                },
+                'bandwidth_accounting|b2',
+          ]
+        ],
+        'Return the joined tables'
+    );
+}
+
 =head1 AUTHOR
 
 Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2019 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 

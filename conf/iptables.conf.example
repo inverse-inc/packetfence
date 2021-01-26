@@ -1,3 +1,4 @@
+# Copyright (C) Inverse inc.
 # iptables template
 # This file is manipulated on PacketFence's startup before being given to iptables
 *filter
@@ -58,9 +59,11 @@
 # -A input-management-if --protocol tcp --match tcp --dport 9393 --jump ACCEPT
 # -A input-management-if --protocol tcp --match tcp --dport 9292 --jump ACCEPT
 
-# Fingerbank collector (replication + API)
+# Fingerbank collector (replication, Netflow, API, sFlow)
 -A input-management-if --protocol udp --match udp --dport 1192 --jump ACCEPT
+-A input-management-if --protocol udp --match udp --dport 2055 --jump ACCEPT
 -A input-management-if --protocol tcp --match tcp --dport 4723 --jump ACCEPT
+-A input-management-if --protocol udp --match udp --dport 6343 --jump ACCEPT
 
 # VRRP
 -A input-management-if -d 224.0.0.0/8 -j ACCEPT
@@ -140,6 +143,8 @@
 :input-highavailability-if - [0:0]
 #SSH
 -A input-highavailability-if --match state --state NEW --match tcp --protocol tcp --dport 22 --jump ACCEPT
+#Galera autofix
+-A input-highavailability-if --protocol udp --match udp --dport 4253 --jump ACCEPT
 #Galera cluster
 -A input-highavailability-if --protocol tcp --match tcp --dport 4444 --jump ACCEPT
 -A input-highavailability-if --protocol tcp --match tcp --dport 4567 --jump ACCEPT
@@ -164,6 +169,8 @@
 
 ### FORWARD ###
 :FORWARD DROP [0:0]
+-I FORWARD -j NETFLOW
+
 :forward-internal-vlan-if - [0:0]
 %%filter_forward_vlan%%
 

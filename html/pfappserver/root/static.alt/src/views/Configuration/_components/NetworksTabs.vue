@@ -5,37 +5,37 @@
     </b-card-header>
     <b-tabs ref="tabs" v-model="tabIndex" card>
       <b-tab :title="$t('Network Settings')" @click="changeTab('network')">
-        <network-view :storeName="storeName" />
+        <network-view />
       </b-tab>
       <b-tab :title="$t('Interfaces')" @click="changeTab('interfaces')">
-        <interfaces-list :storeName="storeName" />
+        <interfaces-list />
       </b-tab>
       <b-tab :title="$t('Inline')" @click="changeTab('inline')">
-        <inline-view :storeName="storeName" />
+        <inline-view />
       </b-tab>
       <b-tab :title="$t('Inline Traffic Shaping')" @click="changeTab('traffic_shapings')">
-        <traffic-shapings-list :storeName="storeName" />
+        <traffic-shapings-list />
       </b-tab>
       <b-tab :title="$t('Fencing')" @click="changeTab('fencing')">
-        <fencing-view :storeName="storeName" />
+        <fencing-view />
       </b-tab>
       <b-tab :title="$t('Device Parking')" @click="changeTab('parking')">
-        <parking-view :storeName="storeName" />
+        <parking-view />
       </b-tab>
     </b-tabs>
   </b-card>
 </template>
 
 <script>
-import NetworkView from './NetworkView'
+import NetworkView from '../networks/network/_components/TheView'
 import InterfacesList from './InterfacesList'
-import InlineView from './InlineView'
+import InlineView from '../networks/inline/_components/TheView'
 import TrafficShapingsList from './TrafficShapingsList'
-import FencingView from './FencingView'
-import ParkingView from './ParkingView'
+import FencingView from '../networks/fencing/_components/TheView'
+import ParkingView from '../networks/parking/_components/TheView'
 
 export default {
-  name: 'NetworksTabs',
+  name: 'networks-tabs',
   components: {
     NetworkView,
     InterfacesList,
@@ -54,8 +54,13 @@ export default {
     }
   },
   computed: {
-    tabIndex () {
-      return ['network', 'interfaces', 'inline', 'traffic_shapings', 'fencing', 'parking'].indexOf(this.tab)
+    tabIndex: {
+      get () {
+        return ['network', 'interfaces', 'inline', 'traffic_shapings', 'fencing', 'parking'].indexOf(this.tab)
+      },
+      set () {
+        // noop
+      }
     }
   },
   methods: {

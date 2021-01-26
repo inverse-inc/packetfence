@@ -29,8 +29,10 @@ our @EXPORT_OK = qw(
     $GUEST_ROLE
     $GAMING_ROLE
     $REJECT_ROLE
+    $POOL_PER_USER_VLAN
     $POOL_USERNAMEHASH
     $POOL_RANDOM
+    $POOL_ROUND_ROBBIN
 );
 
 our %EXPORT_TAGS = (
@@ -74,6 +76,8 @@ Constant used in the pool code
 
 Readonly::Scalar our $POOL_USERNAMEHASH  => 'username_hash';
 Readonly::Scalar our $POOL_RANDOM  => 'random';
+Readonly::Scalar our $POOL_ROUND_ROBBIN => 'round_robbin';
+Readonly::Scalar our $POOL_PER_USER_VLAN => 'per_user_vlan';
 
 =head1 AUTHOR
 
@@ -81,7 +85,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2019 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 

@@ -21,11 +21,28 @@ use mro 'c3'; # implements next::method
 
 use Params::Validate  qw/validate SCALAR SCALARREF CODEREF ARRAYREF HASHREF
                                   UNDEF  BOOLEAN/;
+use Scalar::Util      qw/blessed reftype/;
 use Carp;                                  
 
 BEGIN {
     *puke = \&SQL::Abstract::puke;
+    *belch = \&SQL::Abstract::belch;
     *_called_with_named_args = \&SQL::Abstract::More::_called_with_named_args;
+}
+
+#----------------------------------------------------------------------
+# utility function : cheap version of Scalar::Does (too heavy to be included)
+#----------------------------------------------------------------------
+my %meth_for = (
+  ARRAY => '@{}',
+  HASH  => '%{}',
+ );
+
+sub does ($$) {
+  my ($data, $type) = @_;
+  my $reft = reftype $data;
+  return defined $reft && $reft eq $type
+      || blessed $data && overload::Method($data, $meth_for{$type});
 }
 
 use namespace::clean;
@@ -96,10 +113,7 @@ sub upsert {
             push @all_bind, $self->_bindtype($k, $v);
           }
           else {                          # literal SQL with bind
-            my ($sql, @bind) = @$v;
-            $self->_assert_bindval_matches_bindtype(@bind);
-            push @set, "$label = $sql";
-            push @all_bind, @bind;
+            puke "Unsupported data type specified to \$sql->upsert"
           }
         },
         ARRAYREFREF => sub { # literal SQL with bind
@@ -135,6 +149,66 @@ sub upsert {
   return ($sql, @all_bind);
 }
 
+
+sub _insert_values {
+  my ($self, $data) = @_;
+
+  my (@values, @all_bind);
+  foreach my $column (sort keys %$data) {
+    my ($values, @bind) = $self->_insert_value($column, $data->{$column});
+    push @values, $values;
+    push @all_bind, @bind;
+  }
+  my $sql = $self->_sqlcase('values')." ( ".join(", ", @values)." )";
+  return ($sql, @all_bind);
+}
+
+sub _insert_value {
+  my ($self, $column, $v) = @_;
+
+  my (@values, @all_bind);
+  $self->_SWITCH_refkind($v, {
+
+    ARRAYREF => sub {
+      if ($self->{array_datatypes}) { # if array datatype are activated
+        push @values, '?';
+        push @all_bind, $self->_bindtype($column, $v);
+      }
+      else {                  # else literal SQL with bind
+        puke "Unsupported data type specified to \$sql->insert"
+      }
+    },
+
+    ARRAYREFREF => sub {        # literal SQL with bind
+      my ($sql, @bind) = @${$v};
+      $self->_assert_bindval_matches_bindtype(@bind);
+      push @values, $sql;
+      push @all_bind, @bind;
+    },
+
+    # THINK: anything useful to do with a HASHREF ?
+    HASHREF => sub {       # (nothing, but old SQLA passed it through)
+      #TODO in SQLA >= 2.0 it will die instead
+      belch "HASH ref as bind value in insert is not supported";
+      push @values, '?';
+      push @all_bind, $self->_bindtype($column, $v);
+    },
+
+    SCALARREF => sub {          # literal SQL without bind
+      push @values, $$v;
+    },
+
+    SCALAR_or_UNDEF => sub {
+      push @values, '?';
+      push @all_bind, $self->_bindtype($column, $v);
+    },
+
+  });
+
+  my $sql = join(", ", @values);
+  return ($sql, @all_bind);
+}
+
 sub update {
   my $self = shift;
 
@@ -163,15 +237,115 @@ sub update {
   return ($sql, @bind);
 }
 
+sub merge_conditions {
+  my $self = shift;
+  my %merged;
 
- 
+  foreach my $cond (@_) {
+    if    (does($cond, 'HASH'))  {
+      foreach my $col (sort keys %$cond) {
+        my $curr = $cond->{$col};
+        if (exists $merged{$col}) {
+            my $prev = $merged{$col};
+            if (defined $prev && defined $curr && !ref $prev && !ref $curr && ($prev eq $curr)) {
+                next;
+            } else {
+                $merged{$col} = $prev ? [-and => $prev, $curr] : $curr;
+            }
+        } else {
+            $merged{$col} = $curr;
+        }
+      }
+    }
+    elsif (does($cond, 'ARRAY')) {
+      $merged{-nest} = $merged{-nest} ? {-and => [$merged{-nest}, $cond]}
+                                      : $cond;
+    }
+    elsif ($cond) {
+      $merged{$cond} = \"";
+    }
+  }
+  return \%merged;
+}
+
+sub _overridden_update {
+  # unfortunately, we can't just override the ARRAYREF part, so the whole
+  # parent method is copied here
+
+  my $self  = shift;
+  my $table = $self->_table(shift);
+  my $data  = shift || return;
+  my $where = shift;
+
+  # first build the 'SET' part of the sql statement
+  my (@set, @all_bind);
+  puke "Unsupported data type specified to \$sql->update"
+    unless ref $data eq 'HASH';
+
+  for my $k (sort keys %$data) {
+    my $v = $data->{$k};
+    my $r = ref $v;
+    my $label = $self->_quote($k);
+
+    $self->_SWITCH_refkind($v, {
+      ARRAYREF => sub {
+        if ($self->{array_datatypes}
+            || $self->is_bind_value_with_type($v)) {
+          push @set, "$label = ?";
+          push @all_bind, $self->_bindtype($k, $v);
+        }
+        else {                          # literal SQL with bind
+          puke "Unsupported data type specified to \$sql->insert"
+        }
+      },
+      ARRAYREFREF => sub { # literal SQL with bind
+        my ($sql, @bind) = @${$v};
+        $self->_assert_bindval_matches_bindtype(@bind);
+        push @set, "$label = $sql";
+        push @all_bind, @bind;
+      },
+      SCALARREF => sub {  # literal SQL without bind
+        push @set, "$label = $$v";
+      },
+      HASHREF => sub {
+        my ($op, $arg, @rest) = %$v;
+
+        puke 'Operator calls in update must be in the form { -op => $arg }'
+          if (@rest or not $op =~ /^\-(.+)/);
+
+        local $self->{_nested_func_lhs} = $k;
+        my ($sql, @bind) = $self->_where_unary_op ($1, $arg);
+
+        push @set, "$label = $sql";
+        push @all_bind, @bind;
+      },
+      SCALAR_or_UNDEF => sub {
+        push @set, "$label = ?";
+        push @all_bind, $self->_bindtype($k, $v);
+      },
+    });
+  }
+
+  # generate sql
+  my $sql = $self->_sqlcase('update') . " $table " . $self->_sqlcase('set ')
+          . CORE::join ', ', @set;
+
+  if ($where) {
+    my($where_sql, @where_bind) = $self->where($where);
+    $sql .= $where_sql;
+    push @all_bind, @where_bind;
+  }
+
+  return wantarray ? ($sql, @all_bind) : $sql;
+}
+
 =head1 AUTHOR
 
 Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2019 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 
@@ -193,4 +367,3 @@ USA.
 =cut
 
 1;
-

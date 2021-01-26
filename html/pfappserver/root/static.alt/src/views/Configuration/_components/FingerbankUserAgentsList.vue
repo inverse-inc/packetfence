@@ -4,37 +4,26 @@
       ref="pfConfigList"
       :config="config"
     >
-      <template slot="pageHeader">
+      <template v-slot:pageHeader>
         <b-card-header>
           <b-row class="align-items-center px-0" no-gutters>
             <b-col cols="auto" class="mr-auto">
-              <h4 class="d-inline mb-0" v-t="'DHCP Agents'"></h4>
-              <b-badge class="ml-2" variant="secondary" v-t="scope"></b-badge>
-            </b-col>
-            <b-col cols="auto" align="right" class="flex-grow-0">
-              <b-button-group>
-                <b-button v-t="'All'" :variant="(scope === 'all') ? 'primary' : 'outline-secondary'" @click="changeScope('all')"></b-button>
-                <b-button v-t="'Local'" :variant="(scope === 'local') ? 'primary' : 'outline-secondary'" @click="changeScope('local')"></b-button>
-                <b-button v-t="'Upstream'" :variant="(scope === 'upstream') ? 'primary' : 'outline-secondary'" @click="changeScope('upstream')"></b-button>
-              </b-button-group>
+              <h4 class="d-inline mb-0" v-t="'User Agents'"></h4>
             </b-col>
           </b-row>
         </b-card-header>
       </template>
-      <template slot="buttonAdd" v-if="scope === 'local'">
-        <b-button variant="outline-primary" :to="{ name: 'newFingerbankUserAgent', params: { scope: 'local' } }">{{ $t('New DHCP Agent') }}</b-button>
+      <template v-slot:buttonAdd>
+        <b-button variant="outline-primary" :to="{ name: 'newFingerbankUserAgent' }">{{ $t('New User Agent') }}</b-button>
       </template>
-      <template slot="emptySearch" slot-scope="state">
-        <pf-empty-table :isLoading="state.isLoading">{{ $t('No {scope} DHCP fingerprints found', { scope: ((scope !== 'all') ? scope : '') }) }}</pf-empty-table>
+      <template v-slot:emptySearch="state">
+        <pf-empty-table :isLoading="state.isLoading">{{ $t('No user agents found') }}</pf-empty-table>
       </template>
-      <template slot="buttons" slot-scope="item">
+      <template v-slot:cell(buttons)="item">
         <span class="float-right text-nowrap">
-          <pf-button-delete size="sm" v-if="!item.not_deletable && scope === 'local'" variant="outline-danger" class="mr-1" :disabled="isLoading" :confirm="$t('Delete DHCP Agent?')" @on-delete="remove(item)" reverse/>
+          <pf-button-delete size="sm" v-if="!item.not_deletable" variant="outline-danger" class="mr-1" :disabled="isLoading" :confirm="$t('Delete User Agent?')" @on-delete="remove(item)" reverse/>
           <b-button size="sm" variant="outline-primary" class="mr-1" @click.stop.prevent="clone(item)">{{ $t('Clone') }}</b-button>
         </span>
-      </template>
-      <template slot="score" slot-scope="data">
-        <pf-fingerbank-score :score="data.score"></pf-fingerbank-score>
       </template>
     </pf-config-list>
   </b-card>
@@ -44,31 +33,14 @@
 import pfButtonDelete from '@/components/pfButtonDelete'
 import pfConfigList from '@/components/pfConfigList'
 import pfEmptyTable from '@/components/pfEmptyTable'
-import pfFingerbankScore from '@/components/pfFingerbankScore'
-
-import {
-  pfConfigurationFingerbankUserAgentsListConfig as config
-} from '@/globals/configuration/pfConfigurationFingerbank'
+import { config } from '../_config/fingerbank/userAgent'
 
 export default {
-  name: 'FingerbankUserAgentsList',
+  name: 'fingerbank-user-agents-list',
   components: {
     pfButtonDelete,
     pfConfigList,
-    pfEmptyTable,
-    pfFingerbankScore
-  },
-  props: {
-    storeName: { // from router
-      type: String,
-      default: null,
-      required: true
-    },
-    scope: {
-      type: String,
-      default: 'all',
-      required: false
-    }
+    pfEmptyTable
   },
   data () {
     return {
@@ -78,30 +50,22 @@ export default {
   },
   methods: {
     clone (item) {
-      this.$router.push({ name: 'cloneFingerbankUserAgent', params: { scope: this.scope, id: item.id } })
+      this.$router.push({ name: 'cloneFingerbankUserAgent', params: { id: item.id } })
     },
     remove (item) {
-      this.$store.dispatch(`${this.storeName}/deleteUserAgent`, item.id).then(response => {
-        this.$router.go() // reload
+      this.$store.dispatch('$_fingerbank/deleteUserAgent', item.id).then(() => {
+        const { $refs: { pfConfigList: { refreshList = () => {} } = {} } = {} } = this
+        refreshList() // soft reload
       })
     },
-    changeScope (scope) {
-      this.scope = scope
+    isLoading () {
+      return this.$store.getters['$_fingerbank/isUserAgentsLoading']
     }
   },
   created () {
-    this.$store.dispatch(`${this.storeName}/userAgents`).then(data => {
+    this.$store.dispatch('$_fingerbank/userAgents').then(data => {
       this.data = data
     })
-  },
-  watch: {
-    scope: {
-      handler: function (a, b) {
-        if (a !== b) {
-          this.config = config(this) // reset config
-        }
-      }
-    }
   }
 }
 </script>

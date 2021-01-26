@@ -36,7 +36,6 @@ our @COLUMN_NAMES;
 
 BEGIN {
     @FIELD_NAMES = qw(
-        id
         tenant_id
         mac
         switch
@@ -50,16 +49,18 @@ BEGIN {
         start_time
         end_time
         switch_ip
+        switch_ip_int
         switch_mac
         stripped_user_name
         realm
         session_id
         ifDesc
+        voip
     );
 
     %DEFAULTS = (
         tenant_id => '1',
-        mac => undef,
+        mac => '',
         switch => '',
         port => '',
         vlan => undef,
@@ -71,11 +72,13 @@ BEGIN {
         start_time => '0000-00-00 00:00:00',
         end_time => '0000-00-00 00:00:00',
         switch_ip => undef,
+        switch_ip_int => undef,
         switch_mac => undef,
         stripped_user_name => undef,
         realm => undef,
         session_id => undef,
         ifDesc => undef,
+        voip => 'no',
     );
 
     @INSERTABLE_FIELDS = qw(
@@ -97,26 +100,21 @@ BEGIN {
         realm
         session_id
         ifDesc
+        voip
     );
 
     %FIELDS_META = (
-        id => {
-            type => 'INT',
-            is_auto_increment => 1,
-            is_primary_key => 1,
-            is_nullable => 0,
-        },
         tenant_id => {
             type => 'INT',
             is_auto_increment => 0,
-            is_primary_key => 0,
+            is_primary_key => 1,
             is_nullable => 0,
         },
         mac => {
             type => 'VARCHAR',
             is_auto_increment => 0,
-            is_primary_key => 0,
-            is_nullable => 1,
+            is_primary_key => 1,
+            is_nullable => 0,
         },
         switch => {
             type => 'VARCHAR',
@@ -184,6 +182,12 @@ BEGIN {
             is_primary_key => 0,
             is_nullable => 1,
         },
+        switch_ip_int => {
+            type => 'INT',
+            is_auto_increment => 0,
+            is_primary_key => 0,
+            is_nullable => 1,
+        },
         switch_mac => {
             type => 'VARCHAR',
             is_auto_increment => 0,
@@ -214,14 +218,24 @@ BEGIN {
             is_primary_key => 0,
             is_nullable => 1,
         },
+        voip => {
+            type => 'ENUM',
+            is_auto_increment => 0,
+            is_primary_key => 0,
+            is_nullable => 0,
+            enums_values => {
+                'no' => 1,
+                'yes' => 1,
+            },
+        },
     );
 
     @PRIMARY_KEYS = qw(
-        id
+        tenant_id
+        mac
     );
 
     @COLUMN_NAMES = qw(
-        locationlog.id
         locationlog.tenant_id
         locationlog.mac
         locationlog.switch
@@ -235,11 +249,13 @@ BEGIN {
         locationlog.start_time
         locationlog.end_time
         locationlog.switch_ip
+        locationlog.switch_ip_int
         locationlog.switch_mac
         locationlog.stripped_user_name
         locationlog.realm
         locationlog.session_id
         locationlog.ifDesc
+        locationlog.voip
     );
 
 }
@@ -340,14 +356,14 @@ Get the meta data for locationlog
 sub get_meta {
     return \%FIELDS_META;
 }
- 
+
 =head1 AUTHOR
 
 Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2019 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 

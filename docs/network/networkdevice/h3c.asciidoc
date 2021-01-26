@@ -1,0 +1,163 @@
+// to display images directly on GitHub
+ifdef::env-github[]
+:encoding: UTF-8
+:lang: en
+:doctype: book
+:toc: left
+:imagesdir: ../../images
+endif::[]
+
+////
+
+    This file is part of the PacketFence project.
+
+    See PacketFence_Network_Devices_Configuration_Guide-docinfo.xml for 
+    authors, copyright and license information.
+
+////
+
+
+//=== H3C
+
+==== S5120 Switch series
+
+PacketFence supports these switches with the following technologies:
+
+* 802.1X (with or without VoIP)
+* 802.1X with MAC Authentication fallback (with or without VoIP)
+* MAC Authentication (with or without VoIP)
+
+===== 802.1X
+
+RADIUS scheme creation:
+
+  radius scheme packetfence
+  primary authentication 192.168.1.5 1812 key useStrongerSecret
+  primary accounting 192.168.1.5 1813 key useStrongerSecret
+  user-name-format without-domain
+
+ISP-Domain creation:
+
+  domain packetfence
+  authentication default radius-scheme packetfence
+  authentication lan-access radius-scheme packetfence
+  authorization lan-access radius-scheme packetfence
+
+SNMP settings:
+
+  snmp-agent
+  snmp-agent community read public
+  snmp-agent community write private
+  snmp-agent sys-info version v2c
+
+Global configuration:
+
+  port-security enable
+  dot1x authentication-method eap
+
+Global configuration (with VoIP):
+
+Add the following to the previous global configuration.
+
+  undo voice vlan security enable
+  lldp compliance cdp
+
+Interfaces configuration:
+
+  port link-type hybrid
+  port hybrid vlan 5 untagged
+  port hybrid pvid vlan 5
+  mac-vlan enable
+  stp edged-port enable
+  port-security max-mac-count 1
+  port-security port-mode userlogin-secure
+  port-security intrusion-mode blockmac
+  dot1x re-authenticate
+  dot1x max-user 1
+  dot1x guest-vlan 5
+  undo dot1x handshake
+  dot1x mandatory-domain packetfence
+  undo dot1x multicast-trigger
+
+Interfaces configuration (with VoIP):
+
+Add the following to the previous interfaces configuration.
+
+  port hybrid vlan 100 tagged
+  undo voice vlan mode auto
+  voice vlan 100 enable
+  lldp compliance admin-status cdp txrx
+  port-security max-mac-count 3
+  dot1x max-user 2
+
+===== 802.1X with MAC Authentication fallback
+
+Since using MAC Authentication as a fallback of 802.1X, use the previous 802.1X configuration and add the followings.
+
+This configuration is the same with or without VoIP.
+
+Global configuration:
+
+  mac-authentication domain packetfence
+
+Interfaces configuration:
+
+  mac-authentication guest-vlan 5
+  port-security port-mode userlogin-secure-or-mac
+
+===== MAC Authentication
+
+RADIUS scheme creation:
+
+  radius scheme packetfence
+  primary authentication 192.168.1.5 1812 key useStrongerSecret
+  primary accounting 192.168.1.5 1813 key useStrongerSecret
+  user-name-format without-domain
+
+ISP-Domain creation:
+
+  domain packetfence
+  authentication default radius-scheme packetfence
+  authentication lan-access radius-scheme packetfence
+  authorization lan-access radius-scheme packetfence
+
+SNMP settings:
+
+  snmp-agent
+  snmp-agent community read public
+  snmp-agent community write private
+  snmp-agent sys-info version v2c
+
+Global configuration:
+
+  port-security enable
+  mac-authentication domain packetfence
+
+Global configuration (with VoIP):
+
+Add the following to the previous global configuration.
+
+  undo voice vlan security enable
+  lldp compliance cdp
+
+Interfaces configuration:
+
+  port link-type hybrid
+  port hybrid vlan 5 untagged
+  port hybrid pvid vlan 5
+  mac-vlan enable
+  stp edged-port enable
+  mac-authentication guest-vlan 5
+  port-security max-mac-count 1
+  port-security port-mode mac-authentication
+  port-security intrusion-mode blockmac
+
+Interfaces configuration (with VoIP):
+
+Add the following to the previous interfaces configuration.
+
+  port hybrid vlan 100 tagged
+  undo voice vlan mode auto
+  voice vlan 100 enable
+  lldp compliance admin-status cdp txrx
+  port-security max-mac-count 3

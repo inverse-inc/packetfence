@@ -1,0 +1,28 @@
+name: Configure SNAT interface
+version: 2
+testcases:
+# get_name_of: one-liner to get name (ex: eth0) based on index (ex: 1, 2)
+- name: get_name_of_dhcp_listener_int
+  steps:
+  - type: exec
+    script: "ip -o link show | egrep -v '^1:' | grep '^{{.configurator.interfaces.dhcp_listener.index}}' | awk -F ': ' '{print $2;}'"
+    vars:
+      dhcp_listener_interface:
+        from: result.systemout
+        
+- name: configure_snat_interface_for_passthroughs
+  steps:
+  - type: http
+    method: PATCH
+    url: '{{.pfserver_webadmin_url}}/api/v1/config/base/network'
+    ignore_verify_ssl: true
+    body: >-
+      {
+        "interfaceSNAT":"{{.get_name_of_dhcp_listener_int.dhcp_listener_interface}}"
+      }
+    headers:
+      "Authorization": "{{.pfserver_token}}"
+      "Content-Type": "application/json"
+    assertions:
+      - result.statuscode ShouldEqual 200
+      - result.bodyjson.message ShouldEqual "Settings updated"

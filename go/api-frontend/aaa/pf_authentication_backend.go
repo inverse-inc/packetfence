@@ -21,9 +21,9 @@ type PfAuthenticationBackend struct {
 }
 
 type PfAuthenticationReply struct {
-	Result   int
-	Roles    []string
-	TenantId int `json:"tenant_id"`
+	Result int
+	Roles  []string
+	Tenant Tenant `json:"tenant"`
 }
 
 func NewPfAuthenticationBackend(ctx context.Context, url *url.URL, checkCert bool) *PfAuthenticationBackend {
@@ -32,7 +32,7 @@ func NewPfAuthenticationBackend(ctx context.Context, url *url.URL, checkCert boo
 	tr := &http.Transport{
 		MaxIdleConnsPerHost:   30,
 		TLSHandshakeTimeout:   1 * time.Second,
-		ResponseHeaderTimeout: 5 * time.Second,
+		ResponseHeaderTimeout: 10 * time.Second,
 	}
 	tr.TLSClientConfig = &tls.Config{
 		InsecureSkipVerify: !checkCert,
@@ -60,6 +60,7 @@ func (pfab *PfAuthenticationBackend) Authenticate(ctx context.Context, username,
 
 	defer resp.Body.Close()
 	reply := PfAuthenticationReply{}
+
 	respBody, err := ioutil.ReadAll(resp.Body)
 	sharedutils.CheckError(err)
 
@@ -88,5 +89,5 @@ func (pfab *PfAuthenticationBackend) buildTokenInfo(ctx context.Context, data *P
 		adminRolesMap[role] = true
 	}
 
-	return &TokenInfo{AdminRoles: adminRolesMap, TenantId: data.TenantId}
+	return &TokenInfo{AdminRoles: adminRolesMap, Tenant: data.Tenant}
 }

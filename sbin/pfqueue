@@ -130,10 +130,12 @@ Register all tasks
 sub register_tasks {
     my @weights;
     foreach my $queue_config (@{$ConfigPfqueue{queues}} ) {
-        my $name = $queue_config->{name};
-        if (skip_queue($name)) {
+        my $real_name = $queue_config->{real_name};
+        if (skip_queue($real_name)) {
             next;
         }
+
+        my $name = $queue_config->{name};
         my $queue_name = "Queue:$name";
         my $weight = $queue_config->{weight};
         if ($weight) {
@@ -558,7 +560,7 @@ Minor parts of this file may have been contributed. See CREDITS.
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2019 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 

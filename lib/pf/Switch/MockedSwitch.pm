@@ -53,6 +53,7 @@ use pf::config qw(
 use pf::Switch::constants;
 use pf::util;
 use pf::config::util;
+use pf::constants::switch qw($DEFAULT_ACL_TEMPLATE);
 
 # these are in microseconds (not milliseconds!) because of Time::HiRes's usleep
 # TODO benchmark more sensible values
@@ -87,21 +88,22 @@ Warning: The list of subroutine is incomplete
 
 # CAPABILITIES
 # access technology supported
-sub supportsWiredMacAuth { return $TRUE; }
-sub supportsWiredDot1x { return $TRUE; }
-sub supportsRadiusDynamicVlanAssignment { return $TRUE; }
-sub supportsExternalPortal { return $TRUE; }
-sub supportsMABFloatingDevices { return $TRUE; }
-sub supportsWebFormRegistration { return $TRUE }
-sub supportsAccessListBasedEnforcement { return $TRUE }
+use pf::SwitchSupports qw(
+  WiredMacAuth
+  WiredDot1x
+  RadiusDynamicVlanAssignment
+  ExternalPortal
+  MABFloatingDevices
+  WebFormRegistration
+  AccessListBasedEnforcement
+  RadiusVoip
+  FloatingDevice
+  Cdp
+  -Lldp
+  -RoamingAccounting
+  -SaveConfig
+);
 # VoIP technology supported
-sub supportsRadiusVoip { return $TRUE; }
-# special features supported
-sub supportsFloatingDevice { return $TRUE; }
-sub supportsSaveConfig { return $FALSE; }
-sub supportsCdp { return $TRUE; }
-sub supportsLldp { return $FALSE; }
-sub supportsRoamingAccounting { return $FALSE }
 # inline capabilities
 sub inlineCapabilities { return ($MAC,$PORT,$SSID); }
 
@@ -534,11 +536,13 @@ Just performing the wait, no setAdminStatus
 
 sub bouncePort {
     my ($self, $ifIndex) = @_;
+    return $self->bouncePortSNMP($ifIndex);
+}
 
+sub bouncePortSNMP {
     #$self->setAdminStatus( $ifIndex, $SNMP::DOWN );
     sleep($Config{'snmp_traps'}{'bounce_duration'});
     #$self->setAdminStatus( $ifIndex, $SNMP::UP );
-
     return $TRUE;
 }
 
@@ -1444,19 +1448,11 @@ sub getMacBridgePortHash {
 sub getIfIndexForThisMac {
     my ( $self, $mac ) = @_;
     my $logger   = $self->logger;
-    my @macParts = split( ':', $mac );
     my @uplinks  = $self->getUpLinks();
     my $OID_dot1dTpFdbPort       = '1.3.6.1.2.1.17.4.3.1.2';    #BRIDGE-MIB
     my $OID_dot1dBasePortIfIndex = '1.3.6.1.2.1.17.1.4.1.2';    #BRIDGE-MIB
 
-    my $oid
-        = $OID_dot1dTpFdbPort . "."
-        . hex( $macParts[0] ) . "."
-        . hex( $macParts[1] ) . "."
-        . hex( $macParts[2] ) . "."
-        . hex( $macParts[3] ) . "."
-        . hex( $macParts[4] ) . "."
-        . hex( $macParts[5] );
+    my $oid = $OID_dot1dTpFdbPort . "." . mac2dec($mac);
 
     foreach my $vlan ( values %{ $self->{_vlans} } ) {
         my $result = undef;
@@ -1517,18 +1513,10 @@ sub getIfIndexForThisMac {
 sub isMacInAddressTableAtIfIndex {
     my ( $self, $mac, $ifIndex ) = @_;
     my $logger = $self->logger;
-    my @macParts = split( ':', $mac );
     my $OID_dot1dTpFdbPort       = '1.3.6.1.2.1.17.4.3.1.2';    #BRIDGE-MIB
     my $OID_dot1dBasePortIfIndex = '1.3.6.1.2.1.17.1.4.1.2';    #BRIDGE-MIB
 
-    my $oid
-        = $OID_dot1dTpFdbPort . "."
-        . hex( $macParts[0] ) . "."
-        . hex( $macParts[1] ) . "."
-        . hex( $macParts[2] ) . "."
-        . hex( $macParts[3] ) . "."
-        . hex( $macParts[4] ) . "."
-        . hex( $macParts[5] );
+    my $oid = $OID_dot1dTpFdbPort . "." . mac2dec($mac);
 
     my $vlan = $self->getVlan($ifIndex);
 
@@ -2730,6 +2718,11 @@ sub authorizeMAC {
         $logger->debug("BROKEN SNMP fake set_request for cpsIfVlanSecureMacAddrRowStatus");
         my $result = $self->{_sessionWrite}
             ->set_request( -varbindlist => \@oid_value );
+        if (!$result) {
+            $logger->error("SNMP error tyring to perform auth of $authMac "
+                                          . "Error message: ".$self->{_sessionWrite}->error());
+            return 0;
+        }
     }
     return 1;
 }
@@ -2832,7 +2825,7 @@ Return the reference to the deauth technique or the default deauth technique.
 =cut
 
 sub deauthTechniques {
-    my ($self, $method) = @_;
+    my ($self, $method, $connection_type) = @_;
     my $logger = $self->logger;
     return $TRUE;
 }
@@ -3200,6 +3193,74 @@ sub remove_switch_from_cache {
     }
 }
 
+=head2 generateACLFromTemplate
+
+Generate an ACL from a template
+
+=cut
+
+sub generateACLFromTemplate {
+    my ($self, $t, $args) = @_;
+
+    for my $k (qw(src_host src_port dst_host dst_port)) {
+        $args->{$k} //= "";
+    }
+
+    my $acl = pf::mini_template->new($t)->process($args);
+
+    # remove double spaces to cleanup ACL
+    $acl =~ s/  / /g;
+    return $acl;
+}
+
+sub aclTemplate { $DEFAULT_ACL_TEMPLATE }
+
+=head2 generateACL
+
+Generate an ACL using the default template
+
+=cut
+
+sub generateACL {
+    my ($self, $args) = @_;
+    return $self->generateACLFromTemplate($self->aclTemplate, $args);
+}
+
+sub extractSSIDFromCalledStationId {
+    my ($self, $radius_request) = @_;
+    # it's put in Called-Station-Id
+    # ie: Called-Station-Id = "aa-bb-cc-dd-ee-ff:Secure SSID" or "aa:bb:cc:dd:ee:ff:Secure SSID"
+    if (defined($radius_request->{'Called-Station-Id'})) {
+        if ($radius_request->{'Called-Station-Id'} =~ /^
+            # below is MAC Address with supported separators: :, - or nothing
+            [a-f0-9]{2}[-:]?[a-f0-9]{2}[-:]?[a-f0-9]{2}[-:]?[a-f0-9]{2}[-:]?[a-f0-9]{2}[-:]?[a-f0-9]{2}
+            :                                                                                           # : delimiter
+            (.*)                                                                                        # SSID
+        $/ix) {
+            return $1;
+        } else {
+            my $logger = $self->logger;
+            $logger->info("Unable to extract SSID of Called-Station-Id: ".$radius_request->{'Called-Station-Id'});
+        }
+    }
+
+    return undef;
+}
+
+sub extractSSIDAltAttribute {
+    my ($self, $radius_request) = @_;
+    my $attr = $self->ssidAltAttribute;
+    if (!exists $radius_request->{$attr}) {
+        return undef;
+    }
+
+    my $ssid = $radius_request->{$attr};
+    return $ssid;
+}
+
+sub ssidAltAttribute {
+    'Called-Station-SSID'
+}
 
 =back
 
@@ -3209,7 +3270,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2019 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 

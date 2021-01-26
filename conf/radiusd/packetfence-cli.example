@@ -12,6 +12,7 @@ server packetfence-cli {
 #  Make *sure* that 'preprocess' comes before any realm if you
 #  need to setup hints for the remote radius server
 authorize {
+	packetfence-nas-ip-address
 
 	# Add in PacketFence specific configuration
 	update {
@@ -262,7 +263,7 @@ accounting {
 	#  Log traffic to an SQL database.
 	#
 	#  See "Accounting queries" in mods-available/sql
-	#%%accounting_sql%%
+	# [% accounting_sql %]
 
 	#
 	#  If you receive stop packets with zero session length,

@@ -19,17 +19,14 @@ use Readonly;
 use namespace::autoclean;
 
 use pf::log;
-use pf::config;
+use pf::config qw(%Config);
 use pf::file_paths qw($install_dir $conf_dir);
 use pf::error;
 use pf::util;
 use Perl::Version;
+use pf::ConfigStore::Pf;
 
 extends 'Catalyst::Model';
-
-Readonly::Scalar our $CONFIGURATION => 'configuration';
-Readonly::Scalar our $INSTALLATION => 'installation';
-Readonly::Scalar our $UPGRADE => 'upgrade';
 
 =head1 METHODS
 
@@ -54,70 +51,23 @@ sub checkForRootUser {
     return 1;
 }
 
-=item checkForUpgrade
+=item isEnabled
 
 =cut
 
-sub checkForUpgrade {
+sub isEnabled {
     my ( $self ) = @_;
-    my $logger = get_logger();
-
-    my $filehandler;
-
-    if ( !(-e "$install_dir/conf/currently-at") ) {
-        return $INSTALLATION;
-    }
-
-    open( $filehandler, '<', "$install_dir/conf/currently-at" );
-    chomp (my $currently_at = <$filehandler>);
-    close( $filehandler );
-
-    open( $filehandler, '<', "$install_dir/conf/pf-release" );
-    chomp(my $pf_release = <$filehandler>);
-    close( $filehandler );
-    $logger->info("Currently at $currently_at, running release $pf_release");
-
-    if ( (!$currently_at) || ($currently_at eq $pf_release) ) {
-        $logger->info("Configuration process");
-        return $CONFIGURATION;
-    } else {
-        $currently_at =~ s/PacketFence //;
-        $currently_at =~ s/-/_/;
-        $pf_release =~ s/PacketFence //;
-        $pf_release =~ s/-/_/;
-        if ($currently_at =~ Perl::Version::MATCH) {
-            my $current_version = Perl::Version->new($currently_at);
-            my $release_version = Perl::Version->new($pf_release);
-            if($current_version->revision < $release_version->revision || $current_version->version < $release_version->version) {
-                $logger->info("Upgrade process");
-                return $UPGRADE;
-            } else {
-                $logger->info("Minor Change");
-                return $CONFIGURATION;
-            }
-        } else {
-            return $INSTALLATION;
-        }
-    }
+    return isenabled($Config{advanced}{configurator});
 }
 
-=item upate_currently_at
+=item disableConfigurator
 
 =cut
 
-sub update_currently_at {
-    my ( $self ) = @_;
-    my $logger = get_logger();
-
-    open PFRELEASE, '<', "$conf_dir/pf-release";
-    my @pfrelease  = <PFRELEASE>;
-    close PFRELEASE;
-
-    open CURRENTLYAT, '>', "$conf_dir/currently-at";
-    print CURRENTLYAT @pfrelease;
-    close CURRENTLYAT;
-
-    return $STATUS::OK;
+sub disableConfigurator {
+    my $cs = pf::ConfigStore::Pf->new;
+    $cs->update(advanced => {configurator => "disabled"});
+    return $cs->commit();
 }
 
 =back
@@ -128,7 +78,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2019 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 

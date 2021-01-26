@@ -1,0 +1,89 @@
+// to display images directly on GitHub
+ifdef::env-github[]
+:encoding: UTF-8
+:lang: en
+:doctype: book
+:toc: left
+:imagesdir: ../images
+endif::[]
+
+////
+
+    This file is part of the PacketFence project.
+
+    See PacketFence_Network_Devices_Configuration_Guide-docinfo.xml for 
+    authors, copyright and license information.
+
+////
+
+//== Troubleshooting PacketFence
+
+=== RADIUS Audit Log
+
+PacketFence provides a RADIUS auditing module which allows you to be aware of all the incoming RADIUS requests/responses handled by PacketFence. The RADIUS auditing module is available from _Auditing -> RADIUS Audit Log_. Advanced search criterias can be specified to create complex search expressions - which can be saved for later use. Clicking on a RADIUS log entry will display the endpoint information, where the RADIUS request originated from and the RADIUS payload exchanged between the NAS and PacketFence.
+
+=== Log files
+
+Here are the most important PacketFence log files:
+
+[options="compact"]
+* `/usr/local/pf/logs/packetfence.log` — PacketFence Core Log
+* `/usr/local/pf/logs/httpd.portal.access` — Apache – Captive Portal Access Log
+* `/usr/local/pf/logs/httpd.portal.error` — Apache – Captive Portal Error Log
+* `/usr/local/pf/logs/httpd.admin.access` — Apache – Web Admin/Services Access Log
+* `/usr/local/pf/logs/httpd.admin.error` — Apache – Web Admin/Services Error Log
+* `/usr/local/pf/logs/httpd.webservices.access` — Apache – Webservices Access Log
+* `/usr/local/pf/logs/httpd.webservices.error` — Apache – Webservices Error Log
+* `/usr/local/pf/logs/httpd.aaa.access` — Apache – AAA Access Log
+* `/usr/local/pf/logs/httpd.aaa.error` — Apache – AAA Error Log
+
+There are other log files in [filename]`/usr/local/pf/logs/` that could be relevant depending on what issue you are experiencing. Make sure you take a look at them.
+
+The main logging configuration file is [filename]`/usr/local/pf/conf/log.conf`. It contains the configuration for the `packetfence.log` file (`Log::Log4Perl`) and you normally don't need to modify it. The logging configuration files for every service are located under [filename]`/usr/local/pf/conf/log.conf.d/`.
+
+=== RADIUS Debugging
+
+First, check the FreeRADIUS logs. The file is located at [filename]`/usr/local/pf/logs/radius.log`.
+
+If this didn't help, run FreeRADIUS in debug mode. To do so, start it using the following commands.
+
+For the authentication radius process:
+
+[source,bash]
+----
+radiusd -X -d /usr/local/pf/raddb -n auth
+----
+
+For the accounting radius process:
+
+[source,bash]
+----
+radiusd -X -d /usr/local/pf/raddb -n acct
+----
+
+Additionally there is a `raddebug` tool that can extract debug logs from a
+running FreeRADIUS daemon. PacketFence's FreeRADIUS is pre-configured with such support.
+
+In order to have an output from `raddebug`, you need to either:
+
+a. Make sure user `pf` has a shell in `/etc/passwd`, add `/usr/sbin` to PATH (`export PATH=/usr/sbin:$PATH`) and execute `raddebug` as `pf`
+b. Run `raddebug` as root (less secure!)
+
+Now you can run `raddebug` easily:
+
+[source,bash]
+----
+raddebug -t 300 -f /usr/local/pf/var/run/radiusd.sock
+----
+
+The above will output FreeRADIUS' authentication debug logs for 5 minutes.
+
+Use the following to debug radius accounting:
+
+[source,bash]
+----
+raddebug -t 300 -f /usr/local/pf/var/run/radiusd-acct.sock
+----
+
+See `man raddebug` for all the options.
+

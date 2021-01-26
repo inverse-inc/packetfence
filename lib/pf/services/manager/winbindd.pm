@@ -37,7 +37,7 @@ has '+name' => (default => sub { 'winbindd'} );
 
 sub isManaged {
     my ($self) = @_;
-    return $TRUE if (keys %ConfigDomain);
+    return $TRUE if ($self->SUPER::isManaged && keys(%ConfigDomain));
     return $FALSE;
 }
 
@@ -78,9 +78,11 @@ sub build_namespaces(){
         my $OUTERLOGDIRECTORY="$CHROOT_PATH/$LOGDIRECTORY";
         my $OUTERRUNDIRECTORY="$CHROOT_PATH/var/run/samba$domain";
         my $PIDDIRECTORY="$var_dir/run/$domain";
+        my $PRIVATEDIRECTORY="$CHROOT_PATH/var/lib/samba/private";
         pf_run("sudo mkdir -p $OUTERLOGDIRECTORY && sudo chown root.root $OUTERLOGDIRECTORY");
         pf_run("sudo mkdir -p $OUTERRUNDIRECTORY && sudo chown root.root $OUTERRUNDIRECTORY");
         pf_run("sudo mkdir -p $PIDDIRECTORY && sudo chown root.root $PIDDIRECTORY");
+        pf_run("sudo mkdir -p $PRIVATEDIRECTORY && sudo chown root.root $PRIVATEDIRECTORY && sudo chmod 750 $PRIVATEDIRECTORY");
         pf_run("sudo /usr/local/pf/addons/create_chroot.sh $domain $domains_chroot_dir");
         my $ip_a = "169.254.0.".$i;
         my $ip_b = "169.254.0.".($i+1);
@@ -103,7 +105,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2019 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 

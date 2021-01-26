@@ -16,51 +16,6 @@ import { parse, format, isValid, compareAsc } from 'date-fns'
 const _common = require('vuelidate/lib/validators/common')
 
 /**
- *
- * Misc local helpers
- *
-**/
-
-// Get the unique id of a given $v.
-const idOfV = ($v) => {
-  if ($v.constructor === String) return undefined
-  const { '__ob__': { dep: { id } } } = $v
-  return id || undefined
-}
-
-/**
- *  Get the parent $v of a given id.
- *
- *  For use with "Field" functions.
- *  Searches for a member from a given |id|,
- *   starts with the base $v, and traverses the entire $v model tree recursively,
- *   returns the members' parent.
-**/
-const parentVofId = ($v, id) => {
-  const params = Object.keys($v.$params)
-  for (let i = 0; i < params.length; i++) {
-    const param = params[i]
-    if (typeof $v[param] === 'object' && typeof $v[param].$model === 'object') {
-      if ($v[param].$model && '__ob__' in $v[param].$model) {
-        if (idOfV($v[param].$model) === id) return $v
-      }
-      // recurse
-      let $parent = parentVofId($v[param], id)
-      if ($parent) return $parent
-    }
-  }
-  return undefined
-}
-
-// Get the id, parent and params from a given $v member
-const idParentParamsFromV = (vBase, vMember) => {
-  const id = idOfV(vMember)
-  const parent = (id) ? parentVofId(vBase, id) : undefined
-  const params = (id) ? Object.entries(parent.$params) : undefined
-  return { id: id, parent: parent, params: params }
-}
-
-/**
  * Default replacements - Fix Promises
 **/
 
@@ -68,8 +23,8 @@ const idParentParamsFromV = (vBase, vMember) => {
 export const and = (...validators) => {
   return _common.withParams({ type: 'and' }, function (...args) {
     return (
-      validators.length > 0 &&
-      Promise.all(validators.map(fn => fn.apply(this, args))).then(values => {
+      validators.filter(v => v).length > 0 &&
+      Promise.all(validators.filter(v => v).map(fn => fn.apply(this, args))).then(values => {
         return values.reduce((valid, value) => {
           return valid && value
         }, true)
@@ -80,10 +35,10 @@ export const and = (...validators) => {
 
 // Default vuelidate |or| replacement, handles Promises
 export const or = (...validators) => {
-  return _common.withParams({ type: 'and' }, function (...args) {
+  return _common.withParams({ type: 'or' }, function (...args) {
     return (
-      validators.length > 0 &&
-      Promise.all(validators.map(fn => fn.apply(this, args))).then(values => {
+      validators.filter(v => v).length > 0 &&
+      Promise.all(validators.filter(v => v).map(fn => fn.apply(this, args))).then(values => {
         return values.reduce((valid, value) => {
           return valid || value
         }, false)
@@ -114,14 +69,13 @@ export const alphaNum = () => {
  * Custom functions
  *
 **/
-
 export const conditional = (conditional) => {
   return (0, _common.withParams)({
     type: 'conditional',
     conditional: conditional
   }, function (value, vm) {
     return (conditional && conditional.constructor === Function)
-      ? (typeof value === 'undefined')
+      ? (value === undefined)
         ? conditional(undefined, vm)
         : conditional(JSON.parse(JSON.stringify(value)), vm) // dereference value
       : conditional
@@ -167,62 +121,9 @@ export const isDateFormat = (dateFormat, allowZero = true) => {
   })
 }
 
-export const isFingerbankDevice = (value) => {
+export const isMacAddress = (value) => {
   if (!value) return true
-  return /^([0-9A-F]{3})$/i.test(value)
-}
-
-export const isFingerprint = (value) => {
-  if (!value) return true
-  return /^(((25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?),)?)+(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$/.test(value)
-}
-
-export const isFQDN = (value) => {
-  if (!value) return true
-  const parts = value.split('.')
-  const tld = parts.pop()
-  if (!parts.length || !/^([a-z\u00a1-\uffff]{2,}|xn[a-z0-9-]{2,})$/i.test(tld)) {
-    return false
-  }
-  for (let i = 0; i < parts.length; i++) {
-    let part = parts[i]
-    if (part.indexOf('__') >= 0) {
-      return false
-    }
-    if (!/^[a-z\u00a1-\uffff0-9-_]+$/i.test(part)) {
-      return false
-    }
-    if (/[\uff01-\uff5e]/.test(part)) {
-      // disallow full-width chars
-      return false
-    }
-    if (part[0] === '-' || part[part.length - 1] === '-') {
-      return false
-    }
-  }
-  return true
-}
-
-export const isHex = (value) => {
-  if (!value) return true
-  return /^[0-9a-f]+$/i.test(value)
-}
-
-export const isOUI = (separator = ':') => {
-  return (0, _common.withParams)({
-    type: 'isOUI',
-    separator: separator
-  }, function (value) {
-    if (!value) return true
-    if (separator === '') {
-      return /^([0-9A-F]{6})$/i.test(value)
-    } else {
-      value.split(separator).forEach(segment => {
-        if (!/^([0-9A-F]{2})$/i.test(segment)) return false
-      })
-      return true
-    }
-  })
+  return value.toLowerCase().replace(/[^0-9a-f]/g, '').length === 12
 }
 
 export const isPattern = (pattern) => {
@@ -240,14 +141,19 @@ export const isPort = (value) => {
   return ~~value === parseFloat(value) && ~~value >= 1 && ~~value <= 65535
 }
 
-export const isPrice = (value) => {
-  if (!value) return true
-  return /^-?\d+\.\d{2}$/.test(value)
-}
-
 export const isVLAN = (value) => {
   if (!value) return true
   return ~~value === parseFloat(value) && ~~value >= 1 && ~~value <= 4096
+}
+
+export const emailsCsv = (value) => {
+  if (!value) return true
+  const emailRegex = /(^$|^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$)/
+  const emails = value.split(',')
+  for (var i = 0; i < emails.length; i++) {
+    if (!emailRegex.test(emails[i].trim())) return false
+  }
+  return true
 }
 
 export const compareDate = (comparison, date = new Date(), dateFormat = 'YYYY-MM-DD HH:mm:ss', allowZero = true) => {
@@ -277,317 +183,50 @@ export const compareDate = (comparison, date = new Date(), dateFormat = 'YYYY-MM
   })
 }
 
-export const isFilenameWithExtension = (extensions = ['html']) => {
+export const isValidUnregDateByAclUser = (dateFormat = 'YYYY-MM-DD', allowZero = true) => {
   return (0, _common.withParams)({
-    type: 'isFilenameWithExtension',
-    extensions: extensions
+    type: 'isValidUnregDateByAclUser',
+    dateFormat: dateFormat,
+    allowZero: allowZero
   }, function (value) {
-    const re = RegExp('^[a-zA-Z0-9_]*\\.(' + extensions.join('|') + ')$')
-    return re.test(value)
+    // ignore empty or zero'd (0000-00-00...)
+    if (!value || (value === dateFormat.replace(/[a-z]/gi, '0') && allowZero)) return true
+    value = parse(format((value instanceof Date && isValid(value) ? value : parse(value)), dateFormat))
+    return store.dispatch('session/getAllowedUserUnregDate').then(response => {
+      const { 0: unregDate } = response
+      if (unregDate) {
+        return compareAsc(parse(unregDate), value) >= 0
+      }
+      return true
+    }).catch(() => {
+      return true
+    })
   })
 }
 
-export const hasAdminRoles = (value, component) => {
-  return store.dispatch('config/getAdminRoles').then((response) => {
+export const hasInterfaces = () => {
+  return store.dispatch('config/getInterfaces').then(response => {
     return (response.length > 0)
   }).catch(() => {
     return true
   })
 }
 
-export const hasBillingTiers = (value, component) => {
-  return store.dispatch('config/getBillingTiers').then((response) => {
-    return (response.length > 0)
-  }).catch(() => {
-    return true
-  })
-}
-
-export const hasConnectionProfiles = (value, component) => {
-  return store.dispatch('config/getConnectionProfiles').then((response) => {
-    return (response.length > 0)
-  }).catch(() => {
-    return true
-  })
-}
-
-export const hasDeviceRegistrations = (value, component) => {
-  return store.dispatch('config/getDeviceRegistrations').then((response) => {
-    return (response.length > 0)
-  }).catch(() => {
-    return true
-  })
-}
-
-export const hasDomains = (value, component) => {
-  return store.dispatch('config/getDomains').then((response) => {
-    return (response.length > 0)
-  }).catch(() => {
-    return true
-  })
-}
-
-export const hasFirewalls = (value, component) => {
-  return store.dispatch('config/getFirewalls').then((response) => {
-    return (response.length > 0)
-  }).catch(() => {
-    return true
-  })
-}
-
-export const hasFloatingDevices = (value, component) => {
-  return store.dispatch('config/getFloatingDevices').then((response) => {
-    return (response.length > 0)
-  }).catch(() => {
-    return true
-  })
-}
-
-export const hasInterfaces = (value, component) => {
-  return store.dispatch('config/getInterfaces').then((response) => {
-    return (response.length > 0)
-  }).catch(() => {
-    return true
-  })
-}
-
-export const hasLayer2Networks = (value, component) => {
-  return store.dispatch('config/getLayer2Networks').then((response) => {
-    return (response.length > 0)
-  }).catch(() => {
-    return true
-  })
-}
-
-export const hasMaintenanceTasks = (value, component) => {
-  return store.dispatch('config/getMaintenanceTasks').then((response) => {
-    return (response.length > 0)
-  }).catch(() => {
-    return true
-  })
-}
-
-export const hasPkiProviders = (value, component) => {
-  return store.dispatch('config/getPkiProviders').then((response) => {
-    return (response.length > 0)
-  }).catch(() => {
-    return true
-  })
-}
-
-export const hasPortalModules = (value, component) => {
-  return store.dispatch('config/getPortalModules').then((response) => {
-    return (response.length > 0)
-  }).catch(() => {
-    return true
-  })
-}
-
-export const hasProvisionings = (value, component) => {
-  return store.dispatch('config/getProvisionings').then((response) => {
-    return (response.length > 0)
-  }).catch(() => {
-    return true
-  })
-}
-
-export const hasRealms = (value, component) => {
-  return store.dispatch('config/getRealms').then((response) => {
-    return (response.length > 0)
-  }).catch(() => {
-    return true
-  })
-}
-
-export const hasRoles = (value, component) => {
-  return store.dispatch('config/getRoles').then((response) => {
-    return (response.length > 0)
-  }).catch(() => {
-    return true
-  })
-}
-
-export const hasRoutedNetworks = (value, component) => {
-  return store.dispatch('config/getRoutedNetworks').then((response) => {
-    return (response.length > 0)
-  }).catch(() => {
-    return true
-  })
-}
-
-export const hasScans = (value, component) => {
-  return store.dispatch('config/getScans').then((response) => {
-    return (response.length > 0)
-  }).catch(() => {
-    return true
-  })
-}
-
-export const hasSecurityEvents = (value, component) => {
-  return store.dispatch('config/getSecurityEvents').then((response) => {
-    return (response.length > 0)
-  }).catch(() => {
-    return true
-  })
-}
-
-export const hasSources = (value, component) => {
-  return store.dispatch('config/getSources').then((response) => {
-    return (response.length > 0)
-  }).catch(() => {
-    return true
-  })
-}
-
-export const hasSwitches = (value, component) => {
-  return store.dispatch('config/getSwitches').then((response) => {
-    return (response.length > 0)
-  }).catch(() => {
-    return true
-  })
-}
-
-export const hasSwitchGroups = (value, component) => {
-  return store.dispatch('config/getSwitchGroups').then((response) => {
-    return (response.length > 0)
-  }).catch(() => {
-    return true
-  })
-}
-
-export const hasSyslogForwarders = (value, component) => {
-  return store.dispatch('config/getSyslogForwarders').then((response) => {
-    return (response.length > 0)
-  }).catch(() => {
-    return true
-  })
-}
-
-export const hasSyslogParsers = (value, component) => {
-  return store.dispatch('config/getSyslogParsers').then((response) => {
-    return (response.length > 0)
-  }).catch(() => {
-    return true
-  })
-}
-
-export const hasTrafficShapingPolicies = (value, component) => {
-  return store.dispatch('config/getTrafficShapingPolicies').then((response) => {
-    return (response.length > 0)
-  }).catch(() => {
-    return true
-  })
-}
-
-export const hasWmiRules = (value, component) => {
-  return store.dispatch('config/getWmiRules').then((response) => {
-    return (response.length > 0)
-  }).catch(() => {
-    return true
-  })
-}
-
-export const hasWRIXLocations = (value, component) => {
-  return store.dispatch('config/getWrixLocations').then((response) => {
-    return (response.length > 0)
-  }).catch(() => {
-    return true
-  })
-}
-
-export const adminRoleExists = (value, component) => {
-  if (!value) return true
-  return store.dispatch('config/getAdminRoles').then((response) => {
-    return (response.filter(adminRole => adminRole.id.toLowerCase() === value.toLowerCase()).length > 0)
-  }).catch(() => {
-    return true
-  })
-}
-
-export const billingTierExists = (value, component) => {
-  if (!value) return true
-  return store.dispatch('config/getBillingTiers').then((response) => {
-    return (response.filter(billingTier => billingTier.id.toLowerCase() === value.toLowerCase()).length > 0)
-  }).catch(() => {
-    return true
-  })
-}
-
-export const categoryIdNumberExists = (value, component) => {
+export const categoryIdNumberExists = (value) => {
   if (!value || !/^\d+$/.test(value)) return true
-  return store.dispatch('config/getRoles').then((response) => {
+  return store.dispatch('config/getRoles').then(response => {
     if (response.length === 0) return true
-    return (response.filter(role => role.category_id === value).length > 0)
+    else return response.filter(role => role.category_id === value).length > 0
   }).catch(() => {
     return true
   })
 }
 
-export const categoryIdStringExists = (value, component) => {
+export const categoryIdStringExists = (value) => {
   if (!value || /^\d+$/.test(value)) return true
-  return store.dispatch('config/getRoles').then((response) => {
+  return store.dispatch('config/getRoles').then(response => {
     if (response.length === 0) return true
-    return (response.filter(role => role.name.toLowerCase() === value.toLowerCase()).length > 0)
-  }).catch(() => {
-    return true
-  })
-}
-
-export const connectionProfileExists = (value, component) => {
-  if (!value) return true
-  return store.dispatch('config/getConnectionProfiles').then((response) => {
-    if (response.length === 0) return true
-    return (response.filter(connectionProfile => connectionProfile.id.toLowerCase() === value.toLowerCase()).length > 0)
-  }).catch(() => {
-    return true
-  })
-}
-
-export const deviceRegistrationExists = (value, component) => {
-  if (!value) return true
-  return store.dispatch('config/getDeviceRegistrations').then((response) => {
-    if (response.length === 0) return true
-    return (response.filter(deviceRegistration => deviceRegistration.id.toLowerCase() === value.toLowerCase()).length > 0)
-  }).catch(() => {
-    return true
-  })
-}
-
-export const domainExists = (value, component) => {
-  if (!value) return true
-  return store.dispatch('config/getDomains').then((response) => {
-    if (response.length === 0) return true
-    return (response.filter(domain => domain.id.toLowerCase() === value.toLowerCase()).length > 0)
-  }).catch(() => {
-    return true
-  })
-}
-
-export const firewallExists = (value, component) => {
-  if (!value) return true
-  return store.dispatch('config/getFirewalls').then((response) => {
-    if (response.length === 0) return true
-    return (response.filter(firewall => firewall.id.toLowerCase() === value.toLowerCase()).length > 0)
-  }).catch(() => {
-    return true
-  })
-}
-
-export const floatingDeviceExists = (value, component) => {
-  if (!value) return true
-  return store.dispatch('config/getFloatingDevices').then((response) => {
-    if (response.length === 0) return true
-    return (response.filter(floatingDevice => floatingDevice.id.toLowerCase() === value.toLowerCase()).length > 0)
-  }).catch(() => {
-    return true
-  })
-}
-
-export const interfaceExists = (value, component) => {
-  if (!value) return true
-  return store.dispatch('config/getInterfaces').then((response) => {
-    if (response.length === 0) return true
-    return (response.filter(iface => iface.id.toLowerCase() === value.toLowerCase()).length > 0)
+    else return response.filter(role => role.name.toLowerCase() === value.toLowerCase()).length > 0
   }).catch(() => {
     return true
   })
@@ -596,49 +235,29 @@ export const interfaceExists = (value, component) => {
 export const interfaceVlanExists = (id) => {
   return (0, _common.withParams)({
     type: 'interfaceVlanExists',
-    id: id
+    id
   }, function (value) {
     if (!(0, _common.req)(value)) return true
-    return store.dispatch('config/getInterfaces').then((response) => {
+    return store.dispatch('config/getInterfaces').then(response => {
+      if (id.includes('.')) { // split dot-notation `iface.vlan` to `iface` only.
+        id = id.split('.')[0]
+      }
       if (response.length === 0) return true
-      return (response.filter(iface => iface.master === id && iface.vlan === value).length > 0)
+      else return response.filter(iface => iface.master === id && iface.vlan === value).length > 0
     }).catch(() => {
       return true
     })
   })
 }
 
-export const fingerbankCombinationExists = (value, component) => {
+export const nodeExists = (value) => {
   if (!value) return true
-  return store.dispatch('fingerbank/getCombination', value).then(() => {
-    return true
-  }).catch(() => {
-    return false
+  // standardize MAC address
+  value = value.toLowerCase().replace(/[^0-9a-f]/g, '').split('').reduce((a, c, i) => {
+    a += ((i % 2) === 0 || i >= 11) ? c : c + ':'
+    return a
   })
-}
-
-export const layer2NetworkExists = (value, component) => {
-  if (!value) return true
-  return store.dispatch('config/getLayer2Networks').then((response) => {
-    if (response.length === 0) return true
-    return (response.filter(layer2Network => layer2Network.id.toLowerCase() === value.toLowerCase()).length > 0)
-  }).catch(() => {
-    return true
-  })
-}
-
-export const maintenanceTaskExists = (value, component) => {
-  if (!value) return true
-  return store.dispatch('config/getMaintenanceTasks').then((response) => {
-    if (response.length === 0) return true
-    return (response.filter(maintenanceTask => maintenanceTask.id.toLowerCase() === value.toLowerCase()).length > 0)
-  }).catch(() => {
-    return true
-  })
-}
-
-export const nodeExists = (value, component) => {
-  if (!value || value.length !== 17) return true
+  if (value.length !== 17) return true
   return store.dispatch('$_nodes/exists', value).then(() => {
     return false
   }).catch(() => {
@@ -646,330 +265,52 @@ export const nodeExists = (value, component) => {
   })
 }
 
-export const pkiProviderExists = (value, component) => {
+export const sourceExists = (value) => {
   if (!value) return true
-  return store.dispatch('config/getPkiProviders').then((response) => {
+  return store.dispatch('config/getSources').then(response => {
     if (response.length === 0) return true
-    return (response.filter(provider => provider.id.toLowerCase() === value.toLowerCase()).length > 0)
+    else return response.filter(source => source.id.toLowerCase() === value.toLowerCase()).length > 0
   }).catch(() => {
     return true
   })
 }
 
-export const portalModuleExists = (value, component) => {
+/*
+export const switchModeExists = (value) => {
   if (!value) return true
-  return store.dispatch('config/getPortalModules').then((response) => {
-    if (response.length === 0) return true
-    return (response.filter(module => module.id.toLowerCase() === value.toLowerCase()).length > 0)
-  }).catch(() => {
-    return true
-  })
-}
-
-export const provisioningExists = (value, component) => {
-  if (!value) return true
-  return store.dispatch('config/getProvisionings').then((response) => {
-    if (response.length === 0) return true
-    return (response.filter(provisioning => provisioning.id.toLowerCase() === value.toLowerCase()).length > 0)
-  }).catch(() => {
-    return true
-  })
-}
-
-export const realmExists = (value, component) => {
-  if (!value) return true
-  return store.dispatch('config/getRealms').then((response) => {
-    if (response.length === 0) return true
-    return (response.filter(realm => realm.id.toLowerCase() === value.toLowerCase()).length > 0)
-  }).catch(() => {
-    return true
-  })
-}
-
-export const roleExists = (value, component) => {
-  if (!value) return true
-  return store.dispatch('config/getRoles').then((response) => {
-    if (response.length === 0) return true
-    return (response.filter(role => role.name.toLowerCase() === value.toLowerCase()).length > 0)
-  }).catch(() => {
-    return true
-  })
-}
-
-export const routedNetworkExists = (value, component) => {
-  if (!value) return true
-  return store.dispatch('config/getRoutedNetworks').then((response) => {
-    if (response.length === 0) return true
-    return (response.filter(routedNetwork => routedNetwork.id.toLowerCase() === value.toLowerCase()).length > 0)
-  }).catch(() => {
-    return true
-  })
-}
-
-export const scanExists = (value, component) => {
-  if (!value) return true
-  return store.dispatch('config/getScans').then((response) => {
-    if (response.length === 0) return true
-    return (response.filter(scan => scan.id.toLowerCase() === value.toLowerCase()).length > 0)
-  }).catch(() => {
-    return true
-  })
-}
-
-export const securityEventExists = (value, component) => {
-  if (!value) return true
-  return store.dispatch('config/getSecurityEvents').then((response) => {
-    if (response.length === 0) return true
-    return (response.filter(securityEvent => securityEvent.id.toLowerCase() === value.toLowerCase()).length > 0)
-  }).catch(() => {
-    return true
-  })
-}
-
-export const sourceExists = (value, component) => {
-  if (!value) return true
-  return store.dispatch('config/getSources').then((response) => {
-    if (response.length === 0) return true
-    return (response.filter(source => source.id.toLowerCase() === value.toLowerCase()).length > 0)
-  }).catch(() => {
-    return true
-  })
-}
-
-export const switchExists = (value, component) => {
-  if (!value) return true
-  return store.dispatch('config/getSwitches').then((response) => {
-    if (response.length === 0) return true
-    return (response.filter(switche => switche.id.toLowerCase() === value.toLowerCase()).length > 0)
-  }).catch(() => {
-    return true
-  })
-}
-
-export const switchGroupExists = (value, component) => {
-  if (!value) return true
-  return store.dispatch('config/getSwitchGroups').then((response) => {
-    if (response.length === 0) return true
-    return (response.filter(switchGroup => switchGroup.id.toLowerCase() === value.toLowerCase()).length > 0)
-  }).catch(() => {
-    return true
-  })
-}
-
-export const syslogForwarderExists = (value, component) => {
-  if (!value) return true
-  return store.dispatch('config/getSyslogForwarders').then((response) => {
-    if (response.length === 0) return true
-    return (response.filter(syslogForwarder => syslogForwarder.id.toLowerCase() === value.toLowerCase()).length > 0)
-  }).catch(() => {
-    return true
-  })
-}
-
-export const syslogParserExists = (value, component) => {
-  if (!value) return true
-  return store.dispatch('config/getSyslogParsers').then((response) => {
-    if (response.length === 0) return true
-    return (response.filter(syslogParser => syslogParser.id.toLowerCase() === value.toLowerCase()).length > 0)
-  }).catch(() => {
-    return true
-  })
-}
-
-export const trafficShapingPolicyExists = (value, component) => {
-  if (!value) return true
-  return store.dispatch('config/getTrafficShapingPolicies').then((response) => {
-    if (response.length === 0) return true
-    return (response.filter(trafficShapingPolicy => trafficShapingPolicy.id.toLowerCase() === value.toLowerCase()).length > 0)
-  }).catch(() => {
-    return true
-  })
-}
-
-export const userExists = (value, component) => {
-  if (!value) return true
-  return store.dispatch('$_users/exists', value).then(results => {
-    return true
-  }).catch(() => {
-    return false
-  })
-}
-
-export const userNotExists = (value, component) => {
-  if (!value) return true
-  return store.dispatch('$_users/exists', value).then(results => {
+  return store.dispatch('$_switches/optionsBySwitchGroup', 'default').then((response) => {
+    const { meta: { mode: { allowed } = {} } = {} } = response
+    for (const { value: v } of allowed) {
+      if (v === value) return true
+    }
     return false
   }).catch(() => {
     return true
   })
 }
 
-export const wmiRuleExists = (value, component) => {
+export const switchTypeExists = (value) => {
   if (!value) return true
-  return store.dispatch('config/getWmiRules').then((response) => {
-    if (response.length === 0) return true
-    return (response.filter(wmiRule => wmiRule.id.toLowerCase() === value.toLowerCase()).length > 0)
-  }).catch(() => {
-    return true
-  })
-}
-
-export const WRIXLocationExists = (value, component) => {
-  if (!value) return true
-  return store.dispatch('config/getWrixLocations').then((response) => {
-    if (response.length === 0) return true
-    return (response.filter(wrixLocation => wrixLocation.id.toLowerCase() === value.toLowerCase()).length > 0)
-  }).catch(() => {
-    return true
-  })
-}
-
-/**
- * Field functions
- *
- * For use with pfFormField component.
- * Used to validate |key| fields with immediate siblings.
- * All functions ignore self.
-**/
-
-// Limit the count of sibling field |keys|
-export const limitSiblingFields = (keys, limit = 0) => {
-  return (0, _common.withParams)({
-    type: 'limitSiblingFields',
-    keys: keys,
-    limit: limit
-  }, function (value, field) {
-    if (!value) return true
-    const _keys = (keys.constructor === Array) ? keys : [keys] // force Array
-    let count = 0
-    const { id, parent, params } = idParentParamsFromV(this.$v, field)
-    if (params) {
-      // iterate through all params
-      for (let i = 0; i < params.length; i++) {
-        const [param] = params[i] // destructure
-        if (!parent[param].$model) continue // ignore empty models
-        if (idOfV(parent[param].$model) === id) continue // ignore (self)
-        // iterate through all keys, continue on 1st mismatch
-        if (_keys.find(key => {
-          return parent[param].$model[key] !== field[key]
-        })) {
-          continue // GTFO
-        }
-        if (++count > limit) return false
+  return store.dispatch('$_switches/optionsBySwitchGroup', 'default').then((response) => {
+    const { meta: { type: { allowed } = {} } = {} } = response
+    for (const { options } of allowed) {
+      for (let option of options) {
+        const { value: v } = option
+        if (v === value) return true
       }
     }
-    return true
-  })
-}
-
-// Require all of sibling field |key|s
-export const requireAllSiblingFields = (key, ...fieldTypes) => {
-  return (0, _common.withParams)({
-    type: 'requireAllSiblingFields',
-    key: key,
-    fieldTypes: fieldTypes
-  }, function (value, field) {
-    if (!value) return true
-    // dereference, preserve original
-    let _fieldTypes = JSON.parse(JSON.stringify(fieldTypes))
-    const { id, parent, params } = idParentParamsFromV(this.$v, field)
-    if (params) {
-      // iterate through all params
-      for (let i = 0; i < params.length; i++) {
-        const [param] = params[i] // destructure
-        if (!parent[param].$model) continue // ignore empty models
-        if (idOfV(parent[param].$model) === id) continue // ignore (self)
-        // iterate through _fieldTypes and substitute
-        _fieldTypes = _fieldTypes.map(fieldType => {
-          // substitute the fieldType with |true| if it exists
-          return (parent[param].$model[key] === fieldType) ? true : fieldType
-        })
-      }
-    }
-    // return |true| if all members of the the array are |true|,
-    // anything else return false
-    return _fieldTypes.reduce((bool, fieldType) => { return bool && (fieldType === true) }, true)
-  })
-}
-
-// Require any of sibling field |key|s
-export const requireAnySiblingFields = (key, ...fieldTypes) => {
-  return (0, _common.withParams)({
-    type: 'requireAnySiblingFields',
-    key: key,
-    fieldTypes: fieldTypes
-  }, function (value, field) {
-    if (!value) return true
-    // dereference, preserve original
-    let _fieldTypes = JSON.parse(JSON.stringify(fieldTypes))
-    const { id, parent, params } = idParentParamsFromV(this.$v, field)
-    if (params) {
-      // iterate through all params
-      for (let i = 0; i < params.length; i++) {
-        const [param] = params[i] // destructure
-        if (!parent[param].$model) continue // ignore empty models
-        if (idOfV(parent[param].$model) === id) continue // ignore (self)
-        // return |true| if any fieldType exists
-        if (_fieldTypes.includes(parent[param].$model[key])) return true
-      }
-    }
-    // otherwise return false
     return false
-  })
-}
-
-// Restrict all of sibling field |key|s
-export const restrictAllSiblingFields = (key, ...fieldTypes) => {
-  return (0, _common.withParams)({
-    type: 'restrictAllSiblingFields',
-    key: key,
-    fieldTypes: fieldTypes
-  }, function (value, field) {
-    if (!value) return true
-    // dereference, preserve original
-    let _fieldTypes = JSON.parse(JSON.stringify(fieldTypes))
-    const { id, parent, params } = idParentParamsFromV(this.$v, field)
-    if (params) {
-      // iterate through all params
-      for (let i = 0; i < params.length; i++) {
-        const [param] = params[i] // destructure
-        if (!parent[param].$model) continue // ignore empty models
-        if (idOfV(parent[param].$model) === id) continue // ignore (self)
-        // iterate through _fieldTypes and substitute
-        _fieldTypes = _fieldTypes.map(fieldType => {
-          // substitute the fieldType with |true| if it exists
-          return (parent[param].$model[key] === fieldType) ? true : fieldType
-        })
-      }
-    }
-    // return |false| if all members of the the array are |true|,
-    // anything else return true
-    return !_fieldTypes.reduce((bool, fieldType) => { return bool && (fieldType === true) }, true)
-  })
-}
-
-// Restrict any of sibling field |key|s
-export const restrictAnySiblingFields = (key, ...fieldTypes) => {
-  return (0, _common.withParams)({
-    type: 'restrictAnySiblingFieldTypes',
-    key: key,
-    fieldTypes: fieldTypes
-  }, function (value, field) {
-    if (!value) return true
-    // dereference, preserve original
-    let _fieldTypes = JSON.parse(JSON.stringify(fieldTypes))
-    const { id, parent, params } = idParentParamsFromV(this.$v, field)
-    if (params) {
-      // iterate through all params
-      for (let i = 0; i < params.length; i++) {
-        const [param] = params[i] // destructure
-        if (!parent[param].$model) continue // ignore empty models
-        if (idOfV(parent[param].$model) === id) continue // ignore (self)
-        // return |false| if any fieldType exists
-        if (_fieldTypes.includes(parent[param].$model[key])) return false
-      }
-    }
-    // otherwise return true
+  }).catch(() => {
     return true
+  })
+}
+*/
+
+export const userNotExists = (value) => {
+  if (!value) return true
+  return store.dispatch('$_users/exists', value).then(() => {
+    return true
+  }).catch(() => {
+    return false
   })
 }

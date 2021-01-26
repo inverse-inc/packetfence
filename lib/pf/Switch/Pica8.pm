@@ -73,10 +73,12 @@ sub description { return "Pica8" }
 
 # CAPABILITIES
 # access technology supported
-sub supportsWiredDot1x { return $TRUE; }
-sub supportsWiredMacAuth { return $TRUE; }
-sub supportsRadiusDynamicVlanAssignment { return $TRUE; }
-sub supportsExternalPortal { return $TRUE; }
+use pf::SwitchSupports qw(
+    WiredDot1x
+    WiredMacAuth
+    RadiusDynamicVlanAssignment
+    ExternalPortal
+);
 
 =item setAdminStatus - bounce host port with radius CoA technique
 

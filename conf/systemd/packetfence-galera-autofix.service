@@ -1,0 +1,15 @@
+# Copyright (C) Inverse inc.
+[Unit]
+Description=PacketFence MariaDB Galera conflict resolution
+After=network.target packetfence-config.service
+Wants=packetfence-config.service
+
+[Service]
+EnvironmentFile=-/usr/local/pf/conf/log.conf.d/galera-autofix.conf
+ExecStart=/usr/local/pf/sbin/galera-autofix
+Restart=on-failure
+Slice=packetfence-base.slice
+User=root
+
+[Install]
+WantedBy=packetfence-base.target

@@ -36,7 +36,7 @@ Allow TLS Certificate attributes to be matched against
 sub available_attributes {
     my ($self) = @_;
     my $super_attributes = $self->SUPER::available_attributes;
-    my @own_attributes = map { {value => $_, type => $Conditions::SUBSTRING}} qw(
+    my @own_attributes = map { {value => "radius_request.".$_, type => $Conditions::SUBSTRING}} qw(
       TLS-Client-Cert-Serial
       TLS-Client-Cert-Expiration
       TLS-Client-Cert-Issuer
@@ -53,7 +53,7 @@ sub available_attributes {
       TLS-Client-Cert-Subject-Alt-Name-Dns
     );
     my @attributes = @{$Config{radius_configuration}->{radius_attributes} // []};
-    my @radius_attributes = map { { value => $_, type => $Conditions::SUBSTRING } } @attributes;
+    my @radius_attributes = map { { value => "radius_request.".$_, type => $Conditions::SUBSTRING } } @attributes;
     return [uniq(@$super_attributes, @own_attributes, @radius_attributes)];
 }
 
@@ -74,18 +74,17 @@ sub available_actions {
 sub match_in_subclass {
     my ($self, $params, $rule, $own_conditions, $matching_conditions) = @_;
     my $match = $rule->match;
-    my $radius_params = $params->{radius_request};
     # If match any we just want the first
     my @conditions;
     if ($rule->match eq $Rules::ANY) {
-        my $c = first { $self->match_condition($_, $radius_params) } @$own_conditions;
+        my $c = first { $self->match_condition($_, $params) } @$own_conditions;
         push @conditions, $c if $c;
     }
     else {
-        @conditions = grep { $self->match_condition($_, $radius_params) } @$own_conditions;
+        @conditions = grep { $self->match_condition($_, $params) } @$own_conditions;
     }
     push @$matching_conditions, @conditions;
-    return $params->{'username'};
+    return ($params->{'username'}, undef);
 }
 
 =head1 AUTHOR
@@ -94,7 +93,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2019 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 

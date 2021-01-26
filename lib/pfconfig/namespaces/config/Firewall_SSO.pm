@@ -26,18 +26,18 @@ use base 'pfconfig::namespaces::config';
 sub init {
     my ($self) = @_;
     $self->{file} = $firewall_sso_config_file;
+    $self->{child_resources} = [ qw(resource::RolesReverseLookup) ];
 }
 
 sub build_child {
     my ($self) = @_;
     my %tmp_cfg = %{ $self->{cfg} };
-
-    foreach my $key ( keys %tmp_cfg ) {
-        $self->cleanup_after_read( $key, $tmp_cfg{$key} );
-        my @networks = map { pfconfig::objects::NetAddr::IP->new($_) // () } @{$tmp_cfg{$key}{networks}};
-        $tmp_cfg{$key}{networks} = \@networks;
+    while ( my ($key, $item) = each %tmp_cfg ) {
+        $self->cleanup_after_read( $key, $item);
+        $item->{networks} = [map { pfconfig::objects::NetAddr::IP->new($_) // () } @{$item->{networks}}];
     }
 
+    $self->roleReverseLookup(\%tmp_cfg, 'firewall_sso', qw(categories));
     return \%tmp_cfg;
 
 }
@@ -54,7 +54,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2019 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 

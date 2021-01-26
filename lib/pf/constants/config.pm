@@ -67,6 +67,7 @@ our @EXPORT_OK = qw(
   $WEBAUTH_WIRELESS
   $VIRTUAL_VPN
   $VIRTUAL_CLI
+  $VIRTUAL_WIREGUARD
 
   $WIRELESS
   $WIRED
@@ -79,6 +80,7 @@ our @EXPORT_OK = qw(
   %connection_type_explained_to_str
   %connection_group
   %connection_group_to_str
+  @connection_wired_types
 );
 
 use Readonly;
@@ -154,6 +156,7 @@ Readonly our $WEBAUTH_WIRELESS    => 0b10000100111;
 Readonly our $WEBAUTH_WIRED       => 0b00100101000;
 Readonly our $VIRTUAL_VPN         => 0b00000011001;
 Readonly our $VIRTUAL_CLI         => 0b00000011010;
+Readonly our $VIRTUAL_WIREGUARD   => 0b00000011011;
 
 # masks to be used on connection types
 Readonly our $WIRELESS   => 0b10000000000;
@@ -175,6 +178,7 @@ Readonly our %connection_type => (
     'Wireless-Web-Auth'     => $WEBAUTH_WIRELESS,
     'VPN-Access'            => $VIRTUAL_VPN,
     'CLI-Access'            => $VIRTUAL_CLI,
+    'WIREGUARD-Access'      => $VIRTUAL_WIREGUARD
 );
 Readonly our %connection_group => (
     'Wireless'              => $WIRELESS,
@@ -196,6 +200,7 @@ Readonly our %connection_type_to_str => (
     $WEBAUTH_WIRED  => 'Ethernet-Web-Auth',
     $VIRTUAL_CLI => 'CLI-Access',
     $VIRTUAL_VPN => 'VPN-Access',
+    $VIRTUAL_WIREGUARD => 'WIREGUARD-Access',
 );
 Readonly our %connection_group_to_str => (
     $WIRELESS => 'Wireless',
@@ -221,9 +226,11 @@ Readonly our %connection_type_explained => (
     $WEBAUTH_WIRED => 'Wired Web Auth',
     $VIRTUAL_VPN => 'VPN Access',
     $VIRTUAL_CLI => 'CLI Access',
+    $VIRTUAL_WIREGUARD => 'WIREGUARD Access',
 );
 
 Readonly our %connection_type_explained_to_str => map { $connection_type_explained{$_} => $connection_type_to_str{$_} } keys %connection_type_explained;
+Readonly our @connection_wired_types => grep { ( $connection_type{$_} & $WIRED) == $WIRED   } keys %connection_type;
 
 =head1 AUTHOR
 
@@ -231,7 +238,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2019 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 

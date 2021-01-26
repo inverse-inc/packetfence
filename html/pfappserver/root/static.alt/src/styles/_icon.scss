@@ -5,7 +5,7 @@
     width: auto;
     max-width: 100%;
     height: 1em;
-    max-height: 100%;
+    transition: transform 300ms ease;
 }
 
 /**
@@ -22,4 +22,8 @@
 .fa-overlap {
     margin-left: -.5em;
     filter: drop-shadow(0 0 2px #FFF);
+}
+
+.fa-180 {
+    transform: rotate( -180deg );
 }

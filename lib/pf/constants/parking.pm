@@ -17,11 +17,9 @@ use warnings;
 use base qw(Exporter);
 use Readonly;
 
-our @EXPORT_OK = qw($PARKING_DHCP_GROUP_NAME $PARKING_IPSET_NAME $PARKING_SECURITY_EVENT_ID);
+our @EXPORT_OK = qw($PARKING_DHCP_GROUP_NAME $PARKING_SECURITY_EVENT_ID);
 
 Readonly our $PARKING_DHCP_GROUP_NAME => "parking";
-
-Readonly our $PARKING_IPSET_NAME => "parking";
 
 Readonly our $PARKING_SECURITY_EVENT_ID => 1300003;
  
@@ -31,7 +29,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2019 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 

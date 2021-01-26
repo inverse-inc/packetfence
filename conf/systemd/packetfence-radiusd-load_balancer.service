@@ -1,7 +1,8 @@
+# Copyright (C) Inverse inc.
 [Unit]
 Description=PacketFence FreeRADIUS multi-protocol proxy load-balancer server
 Documentation=man:radiusd(8) man:radiusd.conf(5) http://wiki.freeradius.org/ http://networkradius.com/doc/
-Wants=packetfence-radiusd-auth.service packetfence-radiusd-acct.service
+Wants=packetfence-radiusd-auth.service
 After=packetfence-radiusd-auth.service packetfence-radiusd-acct.service packetfence-radiusd-eduroam.service
 Wants=packetfence-base.target packetfence-config.service packetfence-iptables.service
 After=packetfence-base.target packetfence-config.service packetfence-iptables.service

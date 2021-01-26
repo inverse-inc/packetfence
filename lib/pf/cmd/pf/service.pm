@@ -14,42 +14,46 @@ pfcmd service <service> [start|stop|restart|status|generateconfig|updatesystemd]
 
 Services managed by PacketFence:
 
-  api-frontend         | Golang daemon providing API
-  fingerbank-collector | Fingerprinting data collection daemon
-  haproxy-portal       | haproxy portal daemon
-  haproxy-db           | haproxy database daemon
-  httpd.aaa            | Apache AAA webservice
-  httpd.admin          | Apache Web admin
-  httpd.collector      | Apache Collector daemon
-  httpd.dispatcher     | Captive portal dispatcher
-  httpd.parking        | Apache Parking Portal
-  httpd.portal         | Apache Captive Portal
-  httpd.proxy          | Apache Proxy Interception
-  httpd.webservices    | Apache Webservices
-  iptables             | PacketFence firewall rules
-  keepalived           | Virtual IP management
-  netdata              | Monitoring service
-  pf                   | all services that should be running based on your config
-  pfbandwidthd         | A pf service to monitor bandwidth usages
-  pfdetect             | PF snort alert parser
-  pfdhcp               | dhcpd daemon
-  pfdhcplistener       | PF DHCP monitoring daemon
-  pfdns                | DNS daemon
-  pfipset              | IPSET daemon
-  pffilter             | PF conditions filtering daemon
-  pfmon                | PF monitoring daemon
-  pfperl-api           | Perl daemon providing API
-  pfqueue              | PF queueing service
-  pfsso                | Firewall SSO daemon
-  pfstats              | PF statistics daemon
-  radiusd              | FreeRADIUS daemon
-  radsniff             | radsniff daemon
-  redis_ntlm_cache     | Redis for the NTLM cache
-  redis_queue          | Redis for pfqueue
-  routes               | manage static routes
-  snmptrapd            | SNMP trap receiver daemon
-  tc                   | Traffic shaping service
-  winbindd             | Winbind daemon
+  api-frontend           | Golang daemon providing API
+  fingerbank-collector   | Fingerprinting data collection daemon
+  galera-autofix         | Automated recovery of Galera clusters
+  haproxy-admin          | haproxy admin daemon
+  haproxy-portal         | haproxy portal daemon
+  haproxy-db             | haproxy database daemon
+  httpd.aaa              | Apache AAA webservice
+  httpd.admin            | Apache Web admin
+  httpd.collector        | Apache Collector daemon
+  httpd.dispatcher       | Captive portal dispatcher
+  httpd.admin_dispatcher | Admin GUI dispatcher
+  httpd.portal           | Apache Captive Portal
+  httpd.proxy            | Apache Proxy Interception
+  httpd.webservices      | Apache Webservices
+  iptables               | PacketFence firewall rules
+  keepalived             | Virtual IP management
+  netdata                | Monitoring service
+  pfacct                 | Netflow and Radius Accounting service
+  pf                     | all services that should be running based on your config
+  pfcertmanager          | Certificate Manager Service
+  pfcron                 | PF Cron daemon
+  pfdetect               | PF snort alert parser
+  pfdhcp                 | dhcpd daemon
+  pfdhcplistener         | PF DHCP monitoring daemon
+  pfdns                  | DNS daemon
+  pfipset                | IPSET daemon
+  pffilter               | PF conditions filtering daemon
+  pfperl-api             | Perl daemon providing API
+  pfpki                  | PKI daemon
+  pfqueue                | PF queueing service
+  pfsso                  | Firewall SSO daemon
+  pfstats                | PF statistics daemon
+  radiusd                | FreeRADIUS daemon
+  radsniff               | radsniff daemon
+  redis_ntlm_cache       | Redis for the NTLM cache
+  redis_queue            | Redis for pfqueue
+  snmptrapd              | SNMP trap receiver daemon
+  tc                     | Traffic shaping service
+  tracking-config        | Tracking configuration change
+  winbindd               | Winbind daemon
 
 =head1 DESCRIPTION
 
@@ -144,8 +148,7 @@ sub _run {
 
 sub postPfStartService {
     my ($managers) = @_;
-    my $count = true {$_->status ne '0'} @$managers;
-    pf::config::configreload(1) unless $count;
+    pf::config::configreload(1);
 }
 
 
@@ -178,7 +181,14 @@ sub startService {
     if($checkupManagers && @$checkupManagers) {
         checkup( map {$_->name} @$checkupManagers);
         foreach my $manager (@$checkupManagers) {
-            _doStart($manager);
+            if ($manager->isManaged()) {
+                _doStart($manager);
+                _doStopSubServices() if ($manager->name eq 'pf');
+            } else {
+                _doUpdateSystemd($manager, $TRUE);
+                # Force stop
+                $manager->stop;
+            }
         }
     }
     return $EXIT_SUCCESS;
@@ -243,6 +253,16 @@ sub checkup {
     }
 }
 
+sub _doStopSubServices {
+    my @services = grep {$_ ne 'pf'} @pf::services::ALL_SERVICES;
+    my @managers = pf::services::getManagers(\@services);
+    foreach my $manager (@managers) {
+        if (!$manager->isManaged()) {
+            $manager->stop();
+        }
+    }
+}
+
 sub _doStart {
     my ($manager) = @_;
     if($manager->status ne '0' && $manager->name ne 'pf') {
@@ -291,8 +311,9 @@ sub _doUpdateSystemd {
             $color =  $COLORS->{error};
         }
     }
-
-    print $manager->name, "|${color}${command}$COLORS->{reset}\n" if $show;
+    my $service = "packetfence-".$manager->name.".service";
+    $service .= (" " x (50 - length($service)));
+    print "$service\t${color}${command}$COLORS->{reset}\n" if $show;
 }
 
 sub getIptablesTechnique {
@@ -331,18 +352,66 @@ sub isIptablesManaged {
    return $_[0] eq 'pf' && isenabled($Config{services}{iptables})
 }
 
-sub restartService {
-    stopService(@_);
-    local $SERVICE_HEADER = '';
-    return startService(@_);
-}
-
 sub statusOfService {
     my ($service,@services) = @_;
     my @managers = pf::services::getManagers(\@services);
     foreach my $manager (@managers) {
         $manager->print_status;
     }
+}
+
+sub restartService {
+    local $SERVICE_HEADER = '';
+    return _restartService(@_);
+}
+
+
+sub _doRestart {
+    my ($manager) = @_;
+    $manager->restart;
+    $manager->print_status;
+}
+
+sub _restartService {
+    my ($service,@services) = @_;
+    use sort qw(stable);
+    my @managers = pf::services::getManagers(\@services,JUST_MANAGED);
+
+    if ( !@managers ) {
+        print "Service '$service' is not managed by PacketFence. Therefore, no action will be performed\n";
+        return $EXIT_SUCCESS;
+    }
+
+    my $count = 0;
+    postPfStartService(\@managers) if $service eq 'pf';
+
+    my ($noCheckupManagers,$checkupManagers) = part { $_->shouldCheckup } @managers;
+
+    if($noCheckupManagers && @$noCheckupManagers) {
+        foreach my $manager (@$noCheckupManagers) {
+            _doRestart($manager);
+        }
+    }
+    # Just before the checkup we make sure that the configuration is correct in the cluster if applicable
+
+    if($cluster_enabled && $service eq 'pf') {
+        pf::cluster::handle_config_conflict();
+    }
+
+    if($checkupManagers && @$checkupManagers) {
+        checkup( map {$_->name} @$checkupManagers);
+        foreach my $manager (@$checkupManagers) {
+            if ($manager->isManaged()) {
+                _doRestart($manager);
+                _doStopSubServices() if ($manager->name eq 'pf');
+            } else {
+                _doUpdateSystemd($manager, $TRUE);
+                # Force stop
+                $manager->stop;
+            }
+        }
+    }
+    return $EXIT_SUCCESS;
 }
 
 =head1 AUTHOR
@@ -353,7 +422,7 @@ Minor parts of this file may have been contributed. See CREDITS.
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2019 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 

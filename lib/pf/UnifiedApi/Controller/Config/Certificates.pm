@@ -142,7 +142,7 @@ sub resource_info {
         lets_encrypt => isenabled(pf::ssl::lets_encrypt::resource_state($self->stash->{certificate_id})) ? $self->json_true : $self->json_false,
     };
     if($x509_ca) {
-        $data->{ca} = pf::ssl::x509_info($x509_ca);
+        $data->{ca} = [ map {pf::ssl::x509_info($_) } @{$x509_ca}];
     }
 
     return $data;
@@ -209,8 +209,14 @@ sub objects_from_payload {
         }
 
         if($data->{ca}) {
-            $ca = pf::ssl::x509_from_string($data->{ca}) or die "Failed to parse CA certificate\n";
-            push @cas, $ca;
+            my @texts = split_pem($data->{ca});
+            my @x509s;
+            for my $t (@texts) {
+                my $x509 = pf::ssl::x509_from_string($t) or die "Failed to parse CA certificate\n";
+                push @x509s, $x509;
+            }
+            push @cas, @x509s;
+            $ca = \@x509s;
         }
     };
     if($@) {
@@ -269,7 +275,7 @@ sub replace {
     my %to_install = (
         cert_file => join("\n", map { $_->as_string() } ($cert, @$intermediate_cas)),
         key_file => $key->get_private_key_string(),
-        ca_file => ($ca ? $ca->as_string() : ""),
+        ca_file => ($ca ? join("", map {$_->as_string()} @{$ca}) : undef),
     );
     $to_install{bundle_file} = join("\n", $to_install{cert_file}, $to_install{key_file});
 
@@ -376,7 +382,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2019 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 

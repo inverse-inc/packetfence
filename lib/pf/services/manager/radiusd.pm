@@ -25,9 +25,11 @@ use pf::file_paths qw(
     $conf_dir
     $install_dir
 );
+use pf::config qw(%Config);
 use pf::services::manager::radiusd_child;
 use pf::SwitchFactory;
 use pf::util;
+use pf::constants qw($TRUE $FALSE);
 
 use pfconfig::cached_array;
 
@@ -43,22 +45,7 @@ has '+name' => ( default => sub { 'radiusd' } );
 sub _build_radiusdManagers {
     my ($self) = @_;
 
-    my $listens = {};
-    if ($cluster_enabled) {
-        my $cluster_ip = pf::cluster::management_cluster_ip();
-        $listens->{load_balancer} = {};
-    }
-    $listens->{auth} = {};
-    $listens->{acct} = {};
-
-    # 'Eduroam' RADIUS instance manager
-    if ( @{ pf::authentication::getAuthenticationSourcesByType('Eduroam') } ) {
-        $listens->{eduroam} = {};
-    }
-
-    if ( @cli_switches > 0 ) {
-        $listens->{cli} = {};
-    }
+    my @listens = ('auth', 'load_balancer', 'acct', 'eduroam', 'cli');
 
     my @managers = map {
         my $id       = $_;
@@ -67,11 +54,11 @@ sub _build_radiusdManagers {
 
         pf::services::manager::radiusd_child->new(
             {   name         => $name,
-                forceManaged => $self->isManaged,
+                forceManaged => $self->_isManaged($id),
                 options      => $id,
             }
             )
-    } keys %$listens;
+    } @listens;
 
     return \@managers;
 }
@@ -82,6 +69,31 @@ sub managers {
     return @{$self->radiusdManagers};
 }
 
+sub _isManaged {
+    my ($self, $name) = @_;
+    if ($name eq "auth") {
+        if (isenabled($Config{services}{radiusd_auth})) {
+            return $TRUE;
+        }
+    } elsif ($name eq "acct") {
+        if (isenabled($Config{services}{radiusd_acct})) {
+            return $TRUE;
+        }
+    } elsif ($name eq "load_balancer") {
+        if ($cluster_enabled) {
+            return $TRUE;
+        }
+    } elsif ($name eq "eduroam") {
+        if ( @{ pf::authentication::getAuthenticationSourcesByType('Eduroam') } ) {
+            return $TRUE;
+        }
+    } elsif ($name eq "cli") {
+        if ( @cli_switches > 0 ) {
+            return $TRUE;
+        }
+    }
+    return $FALSE;
+}
 
 =head1 AUTHOR
 
@@ -90,7 +102,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2019 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 

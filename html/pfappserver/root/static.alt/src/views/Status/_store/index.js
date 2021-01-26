@@ -1,5 +1,9 @@
+/**
+* "$_status" store module
+*/
 import Vue from 'vue'
 import api from '../_api'
+import { blacklistedServices } from '@/store/modules/services'
 
 const STORAGE_CHARTS_KEY = 'dashboard-charts'
 
@@ -15,26 +19,22 @@ const types = {
   ERROR: 'error'
 }
 
-const state = {
-  allCharts: [],
-  allChartsStatus: '',
-  charts: localStorage.getItem(STORAGE_CHARTS_KEY) ? JSON.parse(localStorage.getItem(STORAGE_CHARTS_KEY)) : [],
-  alarmsStatus: '',
-  alarms: {},
-  services: [],
-  servicesStatus: '',
-  cluster: null,
-  clusterStatus: '',
-  clusterServices: [],
-  clusterServicesStatus: ''
+const state = () => {
+  return {
+    allCharts: {},
+    allChartsStatus: '',
+    charts: localStorage.getItem(STORAGE_CHARTS_KEY) ? JSON.parse(localStorage.getItem(STORAGE_CHARTS_KEY)) : [],
+    alarmsStatus: '',
+    alarms: {},
+    services: [],
+    servicesStatus: '',
+    clusterPromise: null,
+    cluster: null,
+    clusterStatus: '',
+    clusterServices: [],
+    clusterServicesStatus: ''
+  }
 }
-
-const blacklistedServices = [ // prevent start|stop|restart control on these services
-  'api-frontend',
-  'httpd.admin',
-  'pf',
-  'pfperl-api'
-]
 
 const getters = {
   isLoading: state => state.allChartsStatus === types.LOADING,
@@ -59,22 +59,43 @@ const getters = {
   isServicesStarting: state => state.servicesStatus === types.STARTING,
   isServicesRestarting: state => state.servicesStatus === types.RESTARTING,
   blacklistedServices: () => blacklistedServices,
-  isClusterServicesLoading: state => state.clusterServicesStatus === types.LOADING
+  isClusterServicesLoading: state => state.clusterServicesStatus === types.LOADING,
+  clusterIPs: state => state.cluster.map(server => server.management_ip ),
+  uniqueCharts: state => {
+    let charts = [].concat(...Object.values(state.allCharts))
+    // Remove duplicates
+    for (let i = 0; i < charts.length; ++i) {
+      for (let j = i + 1; j < charts.length; ++j) {
+          if (charts[i].id === charts[j].id)
+          charts.splice(j--, 1);
+      }
+    }
+    return charts
+  },
+  hostsForChart: state => id => {
+    return Object.keys(state.allCharts).filter(ip => {
+      return state.allCharts[ip].find(chart => chart.id === id)
+    })
+  }
 }
 
 const actions = {
-  allCharts: ({ state, commit }) => {
+  allCharts: ({ state, getters, commit }) => {
     if (state.allCharts.length > 0) {
       return Promise.resolve(state.allCharts)
     }
     if (state.allChartsStatus !== types.LOADING) {
       commit('ALL_CHARTS_REQUEST')
-      return api.charts().then(charts => {
-        commit('ALL_CHARTS_UPDATED', charts)
-      }).catch(err => {
-        commit('ALL_CHARTS_ERROR')
-        commit('session/CHARTS_ERROR', err.response, { root: true })
-      })
+      // Assume getCluster has been dispatched
+      return Promise.all(getters.clusterIPs.map(ip => {
+        return api.charts(ip).then(charts => {
+          commit('ALL_CHARTS_UPDATED', { [ip]: charts })
+        }).catch(err => {
+          commit('ALL_CHARTS_ERROR')
+          commit('session/CHARTS_ERROR', err.response, { root: true })
+          throw err
+        })
+      }))
     }
   },
   getChart: ({ commit }, id) => {
@@ -105,6 +126,7 @@ const actions = {
         commit('session/CHARTS_ERROR', err.response, { root: true })
       })
     }
+    throw new Error('$_status/alarms: another task is already in progress')
   },
   getServices: ({ state, commit }) => {
     if (state.services.length > 0) {
@@ -123,13 +145,15 @@ const actions = {
       }).catch(err => {
         commit('SERVICES_ERROR')
         commit('session/API_ERROR', err.response, { root: true })
+        throw err
       })
     }
+    throw new Error('$_status/getServices: another task is already in progress')
   },
   disableService: ({ state, commit }, id) => {
     const index = state.services.findIndex(service => service.name === id)
     commit('SERVICE_DISABLING', index)
-    return api.disableService(id).then(response => {
+    return api.disableService(id).then(() => {
       commit('SERVICE_DISABLED', index)
       commit('SERVICE_REQUEST', index)
       api.service(state.services[index].name, 'status').then(status => {
@@ -144,7 +168,7 @@ const actions = {
   enableService: ({ state, commit }, id) => {
     const index = state.services.findIndex(service => service.name === id)
     commit('SERVICE_ENABLING', index)
-    return api.enableService(id).then(response => {
+    return api.enableService(id).then(() => {
       commit('SERVICE_ENABLED', index)
       commit('SERVICE_REQUEST', index)
       api.service(state.services[index].name, 'status').then(status => {
@@ -160,7 +184,7 @@ const actions = {
     if (id in blacklistedServices) return
     const index = state.services.findIndex(service => service.name === id)
     commit('SERVICE_RESTARTING', index)
-    return api.restartService(id).then(response => {
+    return api.restartService(id).then(() => {
       commit('SERVICE_RESTARTED', index)
       commit('SERVICE_REQUEST', index)
       api.service(state.services[index].name, 'status').then(status => {
@@ -214,7 +238,7 @@ const actions = {
     if (id in blacklistedServices) return
     const index = state.services.findIndex(service => service.name === id)
     commit('SERVICE_STARTING', index)
-    return api.startService(id).then(response => {
+    return api.startService(id).then(() => {
       commit('SERVICE_STARTED', index)
       commit('SERVICE_REQUEST', index)
       api.service(state.services[index].name, 'status').then(status => {
@@ -270,7 +294,7 @@ const actions = {
     if (id in blacklistedServices) return
     const index = state.services.findIndex(service => service.name === id)
     commit('SERVICE_STOPPING', index)
-    return api.stopService(id).then(response => {
+    return api.stopService(id).then(() => {
       commit('SERVICE_STOPPED', index)
       commit('SERVICE_REQUEST', index)
       api.service(state.services[index].name, 'status').then(status => {
@@ -322,28 +346,38 @@ const actions = {
       return response
     })
   },
-  getCluster: ({ state, commit }) => {
-    if (state.cluster) {
-      return state.cluster
-    }
-    if (state.clusterStatus !== types.LOADING) {
-      commit('CLUSTER_REQUEST')
-      return api.cluster().then(servers => {
-        commit('CLUSTER_UPDATED', servers)
-        return servers
-      }).catch(() => {
+  getCluster: ({ state, dispatch, commit }) => {
+    if (!state.clusterPromise) {
+      const clusterPromise = api.cluster().then(servers => {
+        if (servers.length) {
+          commit('CLUSTER_UPDATED', servers)
+        } else {
+          return dispatch('system/getSummary', null, { root: true }).then(summary => {
+            const server = [{ host: summary.hostname, management_ip: '127.0.0.1' }]
+            commit('CLUSTER_UPDATED', server)
+          })
+        }
+      }).catch(err => {
         commit('CLUSTER_ERROR')
+        throw err
       })
+      commit('CLUSTER_REQUEST', clusterPromise)
     }
+    return state.clusterPromise
   },
   getClusterServices: ({ state, commit }) => {
     if (state.clusterServicesStatus !== types.LOADING) {
       commit('CLUSTER_SERVICES_REQUEST')
-      return api.clusterServices().then(servers => {
-        commit('CLUSTER_SERVICES_UPDATED', servers)
-        return servers
-      }).catch(() => {
-        commit('CLUSTER_SERVICES_ERROR')
+      Promise.all(state.cluster.map(server => {
+        commit('CLUSTER_SERVICES_UPDATED', { host: server.host, services: [] }) // placeholder to maintain natural order
+        return api.clusterServices(server.host).then(server => {
+          commit('CLUSTER_SERVICES_UPDATED', server)
+        }).catch(() => {
+          // Ignore error -- don't let Promise.all immediately rejects with an error
+          commit('CLUSTER_SERVICES_UPDATED', { host: 'crap', services: [] })
+        })
+      })).then(() => {
+        commit('CLUSTER_SERVICES_UPDATED')
       })
     }
   }
@@ -354,12 +388,13 @@ const mutations = {
     state.allChartsStatus = types.LOADING
   },
   ALL_CHARTS_UPDATED: (state, charts) => {
+    const [ first ] = Object.keys(charts)
     state.allChartsStatus = types.SUCCESS
-    state.allCharts = charts
+    Vue.set(state.allCharts, first, charts[first])
   },
   ALL_CHARTS_ERROR: (state) => {
     state.allChartsStatus = types.ERROR
-    state.allCharts = []
+    state.allCharts = {}
   },
   CHARTS_UPDATED: (state, chart) => {
     if (state.charts.filter(c => c.id === chart.id).length) {
@@ -372,7 +407,7 @@ const mutations = {
   ALARMS_REQUEST: (state) => {
     state.alarmsStatus = types.LOADING
   },
-  ALARMS_UPDATED: (state, alarms) => {
+  ALARMS_UPDATED: (state) => {
     state.alarmsStatus = types.SUCCESS
     // state.alarms = alarms // no caching necessary for now
   },
@@ -389,7 +424,7 @@ const mutations = {
       return { name }
     }))
   },
-  SERVICES_SUCCESS: (state, services) => {
+  SERVICES_SUCCESS: (state) => {
     state.servicesStatus = types.SUCCESS
   },
   SERVICES_ERROR: (state) => {
@@ -457,26 +492,39 @@ const mutations = {
     data.status.loading = false
     Vue.set(state.services, data.index, Object.assign(state.services[data.index], data.status))
   },
-  CLUSTER_REQUEST: (state) => {
+  CLUSTER_REQUEST: (state, clusterPromise) => {
     state.clusterStatus = types.LOADING
+    state.clusterPromise = clusterPromise
   },
   CLUSTER_UPDATED: (state, servers) => {
     state.clusterStatus = types.SUCCESS
-    if (servers.length > 0) {
-      state.cluster = servers
-    } else {
-      state.cluster = [{ host: 'localhost', management_ip: '127.0.0.1' }]
-    }
+    state.cluster = servers
   },
   CLUSTER_ERROR: (state) => {
     state.clusterServicesStatus = types.ERROR
+    state.clusterPromise = null
   },
   CLUSTER_SERVICES_REQUEST: (state) => {
     state.clusterServicesStatus = types.LOADING
   },
-  CLUSTER_SERVICES_UPDATED: (state, servers) => {
-    state.clusterServicesStatus = types.SUCCESS
-    state.clusterServices = servers
+  CLUSTER_SERVICES_UPDATED: (state, server) => {
+    if (server) {
+      let found = state.clusterServices.find(s => s.host === server.host)
+      if (found) { // replace
+        state.clusterServices = state.clusterServices.map(s => {
+          const { host } = s
+          return (host === server.host)
+            ? server
+            : s
+        })
+      }
+      else { // append
+        state.clusterServices.push(server)
+      }
+    } else {
+      // No more data -- done fetching services
+      state.clusterServicesStatus = types.SUCCESS
+    }
   },
   CLUSTER_SERVICES_ERROR: (state) => {
     state.clusterStatus = types.ERROR

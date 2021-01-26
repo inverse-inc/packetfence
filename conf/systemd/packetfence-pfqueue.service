@@ -1,3 +1,4 @@
+# Copyright (C) Inverse inc.
 [Unit]
 Description=PacketFence pfqueue Service
 Wants=packetfence-redis_queue.service

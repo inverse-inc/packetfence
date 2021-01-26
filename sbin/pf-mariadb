@@ -265,6 +265,8 @@ Refer to the clustering guide for details on how this works.
 =cut
 
 sub attempt_start {
+    clean_wsrep_recovery();
+    launch_mysql($FALSE, "--wsrep-recover");
     # Just start it without anything special if we're in standalone mode or if we're a single cluster node
     if(!$GALERA_ENABLED || scalar(pf::cluster::db_enabled_hosts()) == 1) {
         fork_launch_mysql("standalone");
@@ -275,6 +277,23 @@ sub attempt_start {
     else {
         startup_clean_shutdown();
     }
+}
+
+=head2 clean_wsrep_recovery
+
+Will clean wsrep_recovery.* files in the MySQL data dir
+
+=cut
+
+sub clean_wsrep_recovery {
+    File::Find::find({wanted => sub {
+        my ($dev,$ino,$mode,$nlink,$uid,$gid);
+
+        (($dev,$ino,$mode,$nlink,$uid,$gid) = lstat($_)) &&
+        -f _ &&
+        /^wsrep_recovery\..*\z/s &&
+        unlink($_);
+    }}, '/var/lib/mysql/');
 }
 
 =head2 bootstrap_new_cluster

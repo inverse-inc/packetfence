@@ -16,13 +16,15 @@ use strict;
 use warnings;
 use lib qw(/usr/local/pf/lib);
 use pf::IniFiles;
-use pf::file_paths qw($pfmon_config_file $pf_config_file);
+use pf::file_paths qw($conf_dir $pf_config_file);
 use Data::Dumper;
-use pf::ConfigStore::Pfmon;
+use pf::ConfigStore;
+use File::Spec::Functions;
 
 use pf::util;
 
 run_as_pf();
+my $pfmon_config_file = catfile($conf_dir, "pfmon.conf");
 
 my $ini = pf::IniFiles->new(-file => $pf_config_file);
 
@@ -47,7 +49,7 @@ my %NEW_KEY_OLD = (
    },
 );
 
-my $cs = pf::ConfigStore::Pfmon->new;
+my $cs = pf::ConfigStore->new( configFile => $pfmon_config_file );
 
 my $items = $cs->readAll('id');
 
@@ -94,7 +96,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2019 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 

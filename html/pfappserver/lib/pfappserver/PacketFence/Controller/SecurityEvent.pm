@@ -33,7 +33,6 @@ use fingerbank::Model::DHCP_Vendor;
 use fingerbank::Model::DHCP6_Fingerprint;
 use fingerbank::Model::DHCP6_Enterprise;
 use fingerbank::Model::MAC_Vendor;
-use fingerbank::Model::User_Agent;
 
 
 
@@ -167,10 +166,6 @@ sub prettify_trigger {
         my ($status, $elem) = fingerbank::Model::MAC_Vendor->read($tid);
         $pretty_value = $elem->{name} if(is_success($status));
     }
-    elsif($type eq "user_agent"){
-        my ($status, $elem) = fingerbank::Model::User_Agent->read($tid);
-        $pretty_value = $elem->{value} if(is_success($status));
-    }
     else {
         $pretty_value = (defined($TRIGGER_MAP->{$type}) && defined($TRIGGER_MAP->{$type}->{$tid})) ?
                         $TRIGGER_MAP->{$type}->{$tid} : undef;
@@ -269,7 +264,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2019 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 

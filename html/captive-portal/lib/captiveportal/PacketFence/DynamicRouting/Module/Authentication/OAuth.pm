@@ -168,6 +168,9 @@ sub handle_callback {
         my $pid = $self->_extract_username_from_response($info); 
         
         $self->username($pid);
+        if($info->{email}) { 
+            $self->app->session->{email} = $info->{email}; 
+        }
 
         get_logger->info("OAuth2 successfull for username ".$self->username);
         $self->source->lookup_from_provider_info($self->username, $info);
@@ -230,7 +233,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2019 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 

@@ -1,0 +1,247 @@
+// to display images directly on GitHub
+ifdef::env-github[]
+:encoding: UTF-8
+:lang: en
+:doctype: book
+:toc: left
+:imagesdir: ../../images
+endif::[]
+
+////
+
+    This file is part of the PacketFence project.
+
+    See PacketFence_Network_Devices_Configuration_Guide-docinfo.xml for 
+    authors, copyright and license information.
+
+////
+
+
+//=== Juniper
+
+PacketFence supports Juniper switches in MAC Authentication (Juniper's MAC RADIUS) mode and 802.1X.
+PacketFence supports VoIP on the EX2200 (JUNOS 12.6) and EX4200 (JUNOS 13.2)
+
+----
+# load replace terminal
+[Type ^D at a new line to end input]
+interfaces {
+    interface-range access-ports {
+        member-range ge-0/0/1 to ge-0/0/46;
+        unit 0 {
+            family ethernet-switching {
+                port-mode access;
+            }
+        }
+    }
+}
+
+protocols {
+    dot1x {
+        authenticator {
+            authentication-profile-name packetfence;
+            interface {
+                access-ports {
+                    supplicant multiple;
+                    mac-radius;
+                }
+            }
+        }
+    }
+}
+
+access {
+    radius-server {
+        192.168.1.5 {
+            port 1812;
+            secret "useStrongerSecret";
+        }
+    }
+
+    profile packetfence {
+        authentication-order radius;
+        radius {
+            authentication-server 192.168.1.5;
+            accounting-server 192.168.1.5;
+        }
+        accounting {
+            order radius;
+            accounting-stop-on-failure;
+            accounting-stop-on-access-deny;
+        }
+    }
+}
+
+ethernet-switching-options {
+    secure-access-port {
+        interface access-ports {
+            mac-limit 1 action drop;
+        }
+    }
+}
+
+snmp {
+    name "EX 4200";
+    description juniper;
+    location EX;
+    contact "email@example.com";
+    client-list list0 {
+        192.168.1.5/32;
+    }
+    community public {
+        authorization read-only;
+        client-list-name list0;
+    }
+    community private {
+        authorization read-write;
+        client-list-name list0;
+    }
+}
+
+Ctrl-D
+# commit comment "packetfenced"
+----
+
+Change the `interface-range` statement to reflect the ports you want to secure with PacketFence.
+
+==== VoIP configuration
+
+----
+# load replace terminal
+[Type ^D at a new line to end input]
+protocols{
+    lldp {
+        advertisement-interval 5;
+        transmit-delay 1;
+        ptopo-configuration-trap-interval 1;
+        lldp-configuration-notification-interval 1;
+        interface all;
+    }
+    lldp-med {
+        interface all;
+    }
+}
+
+ethernet-switching-options { 
+    secure-access-port {
+        interface access-ports {
+            mac-limit 2 action drop;
+        }
+    }
+    voip {
+        interface access-ports {
+            vlan voice;
+            forwarding-class voice;
+        }
+    }
+   }
+}
+
+vlans {
+    voice {
+        vlan-id 3;
+    }
+}
+
+Ctrl-D
+# commit comment "packetfenced VoIP"
+----
+
+==== 802.1X configuration
+
+----
+protocols {
+    dot1x {
+        authenticator {
+            authentication-profile-name packetfence;
+            interface {
+                access-ports {
+                    supplicant multiple;
+                    mac-radius;
+                }
+            }
+        }
+    }
+}
+Ctrl-D
+# commit comment "packetfenced dot1x"
+----
+
+
+==== MAC Authentication configuration
+
+----
+protocols {
+    dot1x {
+        authenticator {
+            authentication-profile-name packetfence;
+            interface {
+                access-ports {
+                    supplicant multiple;
+                    mac-radius {
+                        restrict;
+                    }
+                }
+            }
+        }
+    }
+}
+Ctrl-D
+# commit comment "packetfenced mac auth"
+----
+
+
+==== Configuration for MAC authentication floating devices
+
+To support floating devices on a Juniper switch you need to configure the 'flap-on-disconnect' option on each interface individually and remove it from the access-ports group.
+
+----
+# load replace terminal
+[Type ^D at a new line to end input]
+protocols {
+    dot1x {
+        authenticator {
+            authentication-profile-name packetfence;
+            interface {
+                ge-0/0/1.0 {
+                    mac-radius{
+                        flap-on-disconnect;
+                    }
+                }
+                 ge-0/0/2.0 {
+                    mac-radius{
+                        flap-on-disconnect;
+                    }
+                }
+                .....
+
+                access-ports {
+                    supplicant multiple;
+                    mac-radius {
+                        restrict; 
+                    }
+                }
+            }
+        }
+    }
+}
+Ctrl-D
+# commit comment "configured for floating devices"
+----
+
+NOTE: `flap-on-disconnect` option takes effect only
+when the `restrict` option is also set.
+
+
+==== Radius CLI login
+
+----
+set system authentication-order [ radius password ]
+
+set system radius-server 192.168.1.5 secret useStrongerSecret
+
+set system login user RO class read-only
+
+set system login user SU class super-user
+----
+

@@ -79,14 +79,22 @@ view a temporary password record, returns an hashref
 =cut
 
 sub view {
-    my ($pid) = @_;
-    my ($status, $item) = pf::dal::password->find({
-        pid => $pid
-    });
+    my ($pid, %opts) = @_;
+    my ($status, $iter) = pf::dal::password->search(
+        -where => {
+            'password.pid' => $pid,
+        },
+        %opts,
+    );
+
     if (is_error($status)) {
         return (undef);
     }
-    return ($item->to_hash());
+
+    my $item = $iter->next(undef);
+    $iter->finish;
+
+    return ($item);
 }
 
 =item view_email
@@ -96,11 +104,12 @@ view the temporary password record associated to an email address, returns an ha
 =cut
 
 sub view_email {
-    my ($email) = @_;
+    my ($email, %opts) = @_;
     my ($status, $iter) = pf::dal::password->search(
         -where => {
             'email' => $email,
         },
+        %opts,
     );
     if (is_error($status)) {
         return (undef);
@@ -265,9 +274,16 @@ sub _update_from_actions {
         $data,$actions,$Actions::SET_BANDWIDTH_BALANCE,
         'bandwidth_balance',undef
     );
+    _update_field_for_action(
+        $data,$actions,$Actions::SET_TENANT_ID,
+        'tenant_id',undef
+    );
     my @values = grep { $_->{type} eq $Actions::SET_ROLE } @{$actions};
     if (scalar @values > 0) {
         my $role_id = nodecategory_lookup( $values[0]->{value} );
+        if(!defined($role_id) && nodecategory_exist($values[0]->{value})) {
+            $role_id = $values[0]->{value};
+        }
         $data->{'category'} = $role_id;
     }
 }
@@ -283,6 +299,11 @@ sub _update_field_for_action {
     my @values = grep { $_->{type} eq $action } @{$actions};
     if ( scalar @values > 0 ) {
         $data->{$field} = $values[0]->{value};
+        if ($action eq $Actions::SET_ACCESS_LEVEL) {
+            if (ref($data->{$field}) eq 'ARRAY') {
+                $data->{$field} = join(",", @{$data->{$field}});
+            }
+        }
     }
     else {
         $data->{$field} = $default;
@@ -334,17 +355,17 @@ Return values:
 =cut
 
 sub validate_password {
-    my ( $pid, $password ) = @_;
-
+    my ( $pid, $password, $allow_potd, %opts) = @_;
     my $logger = get_logger();
     my ($status, $iter) = pf::dal::password->search(
         -where => {
-            pid => $pid,
+            'password.pid' => $pid,
+            'person.potd' => $allow_potd ? 'yes' : ['no', undef],
         },
-        -columns => [qw(pid password UNIX_TIMESTAMP(valid_from)|valid_from), 'UNIX_TIMESTAMP(DATE_FORMAT(expiration,"%Y-%m-%d 23:59:59"))|expiration', qw(access_duration category)],
+        -columns => [qw(password.pid|pid password.password|password UNIX_TIMESTAMP(valid_from)|valid_from), 'UNIX_TIMESTAMP(DATE_FORMAT(expiration,"%Y-%m-%d 23:59:59"))|expiration', qw(password.access_duration|access_duration password.category|category person.potd|potd)],
         #To avoid a join
-        -from => pf::dal::password->table,
         -limit => 1,
+        -no_auto_tenant_id => 1,
     );
 
     my $temppass_record = $iter->next(undef);
@@ -590,7 +611,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2019 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 

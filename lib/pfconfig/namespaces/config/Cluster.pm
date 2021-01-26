@@ -20,6 +20,7 @@ use warnings;
 use pfconfig::namespaces::config;
 use pf::util;
 use pf::file_paths qw($cluster_config_file);
+use List::MoreUtils qw(uniq);
 
 use base 'pfconfig::namespaces::config';
 
@@ -72,12 +73,15 @@ sub build_multi_zone {
         }
     }
 
+    @clusters = uniq(@clusters);
+    $self->{_clusters_uniq_list} = \@clusters;
+
     foreach my $cluster (@clusters) {
-        map { 
+        map {
             $_ =~ s/^$cluster //g;
             $tmp_cfg{$cluster}{$_} = $cfg->{"$cluster $_"};
         } $self->GroupMembers($cluster);
-        my $ordered_sections = [ map{ 
+        my $ordered_sections = [ map{
             $_ =~ s/^$cluster //g ? $_ : ();
         } @{$self->{ordered_sections}}];
         $tmp_cfg{$cluster} = $self->build_single_cluster($cluster, $ordered_sections, $tmp_cfg{$cluster});
@@ -141,7 +145,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2019 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 

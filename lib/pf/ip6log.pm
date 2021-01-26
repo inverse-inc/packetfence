@@ -521,18 +521,20 @@ sub rotate {
     };
 
     my ( $subsql, @bind ) = pf::dal::ip6log_history->select(
-        -columns => [qw(mac ip type start_time end_time)],
+        -columns => [qw(tenant_id mac ip type start_time end_time)],
         -where => $where,
         -limit => $batch,
         -from => pf::dal::ip6log_history->table,
+        -no_auto_tenant_id => 1,
     );
 
     my %rotate_search = (
         -where => $where,    
         -limit => $batch,
+        -no_auto_tenant_id => 1,
     );
 
-    my $sql = "INSERT INTO ip6log_archive (mac, ip, type, start_time, end_time) $subsql;";
+    my $sql = "INSERT INTO ip6log_archive (tenant_id, mac, ip, type, start_time, end_time) $subsql;";
 
     while (1) {
         my $query;
@@ -609,6 +611,7 @@ sub _cleanup {
                 }
             },
             -limit => $batch,
+            -no_auto_tenant_id => 1,
         },
         $time_limit
     );
@@ -621,7 +624,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2019 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 

@@ -26,7 +26,7 @@ BEGIN {
     use setup_test_config;
 }
 
-use Test::More tests => 21;
+use Test::More tests => 36;
 use Test::Mojo;
 use Utils;
 use pf::ConfigStore::Switch;
@@ -40,6 +40,31 @@ my $t = Test::Mojo->new('pf::UnifiedApi');
 my $collection_base_url = '/api/v1/config/switches';
 
 my $base_url = '/api/v1/config/switch';
+
+{
+    my $id = '111.1.1.1';
+    my $switch_url = "$base_url/$id";
+    my $group_id = 'bug-5482';
+    my $group_url = "/api/v1/config/switch_group/$group_id";
+    $t->patch_ok( $switch_url => json => { voiceVlan => 501 })
+        ->status_is(200);
+    $t->patch_ok( $group_url => json => { voiceRole => "zammit"});
+    $t->get_ok( $switch_url  )
+      ->status_is(200)
+      ->json_is("/item/voiceRole", "zammit");
+
+    $t->patch_ok( $switch_url => json => { voiceVlan => undef })
+        ->status_is(200);
+
+    $t->get_ok( $group_url )
+        ->status_is(200)
+        ->json_is("/item/voiceVlan", 500);
+
+    $t->get_ok( $switch_url  )
+      ->status_is(200)
+      ->json_is("/item/voiceVlan", "500")
+      ->json_is("/item/group", $group_id);
+}
 
 $t->get_ok($collection_base_url)
   ->status_is(200);
@@ -76,7 +101,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2019 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 

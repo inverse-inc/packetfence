@@ -142,7 +142,7 @@ sub csp_server_headers {
     my ($c) = @_;
 
     my $captive_portal_network_detection_ip = $Config{'captive_portal'}{'network_detection_ip'};
-    $c->response->header('Content-Security-Policy' => "default-src 'none'; script-src 'self' https://js.stripe.com https://jstest.authorize.net https://js.authorize.net; connect-src 'self'; img-src 'self' http://$captive_portal_network_detection_ip/; style-src 'self'; font-src 'self';");
+    $c->response->header('Content-Security-Policy' => "default-src 'none'; frame-src https://js.stripe.com; script-src 'self' https://js.stripe.com https://jstest.authorize.net https://js.authorize.net; connect-src 'self'; img-src 'self' http://$captive_portal_network_detection_ip/; style-src 'self'; font-src 'self';");
 }
 
 =head2 user_cache
@@ -278,7 +278,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2019 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 

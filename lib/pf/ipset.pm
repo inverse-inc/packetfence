@@ -43,7 +43,6 @@ use pf::nodecategory;
 use pf::util;
 use pf::ip4log;
 use pf::authentication;
-use pf::constants::parking qw($PARKING_IPSET_NAME);
 use pf::constants::node qw($STATUS_UNREGISTERED);
 use pf::api::unifiedapiclient;
 use pf::config::cluster;
@@ -80,9 +79,6 @@ sub iptables_generate {
     my @lines = pf_run($cmd);
     my @roles = pf::nodecategory::nodecategory_view_all;
 
-    $cmd = "sudo ipset --create $PARKING_IPSET_NAME hash:ip 2>&1";
-    @lines  = pf_run($cmd);
-
     foreach my $network ( keys %ConfigNetworks ) {
         next if ( !pf::config::is_network_type_inline($network) );
         my $inline_obj = new Net::Netmask( $network, $ConfigNetworks{$network}{'netmask'} );
@@ -91,18 +87,22 @@ sub iptables_generate {
         # Using the role ID in the name instead of the role name due to ipset name length constraint (max32)
         foreach my $role ( @roles ) {
             if ( $ConfigNetworks{$network}{'type'} =~ /^$NET_TYPE_INLINE_L3$/i ) {
-                $cmd = "sudo ipset --create PF-iL3_ID$role->{'category_id'}_$network bitmap:ip range $network/$inline_obj->{BITS} 2>&1";
+                $cmd = "sudo ipset --create PF-iL3_ID$role->{'category_id'}_$network bitmap:ip range $network/$inline_obj->{BITS} timeout $ConfigNetworks{$network}{'dhcp_default_lease_time'} 2>&1";
             } else {
-                $cmd = "sudo ipset --create PF-iL2_ID$role->{'category_id'}_$network bitmap:ip range $network/$inline_obj->{BITS} 2>&1";
+                $cmd = "sudo ipset --create PF-iL2_ID$role->{'category_id'}_$network bitmap:ip range $network/$inline_obj->{BITS} timeout $ConfigNetworks{$network}{'dhcp_default_lease_time'} 2>&1";
             }
             my @lines  = pf_run($cmd);
         }
 
         foreach my $IPTABLES_MARK ($IPTABLES_MARK_UNREG, $IPTABLES_MARK_REG, $IPTABLES_MARK_ISOLATION) {
             if ($ConfigNetworks{$network}{'type'} =~ /^$NET_TYPE_INLINE_L3$/i) {
-                $cmd = "sudo ipset --create pfsession_$mark_type_to_str{$IPTABLES_MARK}\_$network bitmap:ip range $network/$inline_obj->{BITS} 2>&1";
+                $cmd = "sudo ipset --create pfsession_$mark_type_to_str{$IPTABLES_MARK}\_$network bitmap:ip range $network/$inline_obj->{BITS} timeout $ConfigNetworks{$network}{'dhcp_default_lease_time'} 2>&1";
             } else {
-                $cmd = "sudo ipset --create pfsession_$mark_type_to_str{$IPTABLES_MARK}\_$network bitmap:ip,mac range $network/$inline_obj->{BITS} 2>&1";
+                if (isenabled($ConfigNetworks{$network}{'split_network'}) && ($IPTABLES_MARK eq $IPTABLES_MARK_UNREG) ) {
+                    $cmd = "sudo ipset --create pfsession_$mark_type_to_str{$IPTABLES_MARK}\_$network bitmap:ip,mac range $network/$inline_obj->{BITS} timeout 45 2>&1";
+                } else {
+                    $cmd = "sudo ipset --create pfsession_$mark_type_to_str{$IPTABLES_MARK}\_$network bitmap:ip,mac range $network/$inline_obj->{BITS} timeout $ConfigNetworks{$network}{'dhcp_default_lease_time'} 2>&1";
+                }
             }
             my @lines  = pf_run($cmd);
         }
@@ -356,7 +356,7 @@ sub call_ipsetd {
     my ($path, $data) = @_;
     my $response;
     eval {
-        $response = pf::api::unifiedapiclient->default_client->call("POST", "/api/v1/$path", $data);
+        $response = pf::api::unifiedapiclient->default_client->call("POST", "/api/v1$path", $data);
     };
     if ($@) {
         get_logger()->error("Error updating ipset $path : $@");;
@@ -407,7 +407,7 @@ sub update_node {
             }
             #Add in ipset session if the ip change
             if ($net_addr->contains($src_ip)) {
-                 if ($ConfigNetworks{$network}{'type'} =~ /^$NET_TYPE_INLINE_L3$/i) {
+                if ($ConfigNetworks{$network}{'type'} =~ /^$NET_TYPE_INLINE_L3$/i) {
                     call_ipsetd("/ipset/mark_ip_layer3?local=0",{
                         "network" => $network,
                         "role_id" => "".$id,
@@ -499,7 +499,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2019 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 

@@ -1,24 +1,32 @@
 <template>
-  <b-card no-body>
+  <b-card ref="container" no-body>
     <pf-progress :active="isLoading"></pf-progress>
     <b-card-header>
       <div class="float-right"><pf-form-toggle v-model="advancedMode">{{ $t('Advanced') }}</pf-form-toggle></div>
       <h4 class="mb-0" v-t="'Search Users'"></h4>
     </b-card-header>
-    <pf-search :quick-with-fields="false" :quick-placeholder="$t('Search by name or email')" save-search-namespace="users"
-      :fields="fields" :storeName="storeName" :advanced-mode="advancedMode" :condition="condition"
-      @submit-search="onSearch" @reset-search="onReset" @import-search="onImport"></pf-search>
-    <div class="card-body">
+    <pf-search class="flex-shrink-0"
+      :quick-with-fields="false"
+      :quick-placeholder="$t('Search by name or email')"
+      save-search-namespace="users"
+      :fields="fields"
+      :advanced-mode="advancedMode"
+      :condition="condition"
+      :storeName="storeName"
+      @submit-search="onSearch"
+      @reset-search="onReset"
+      @import-search="onImport"></pf-search>
+    <div class="card-body flex-shrink-0 pt-0">
       <b-row align-h="between" align-v="center">
         <b-col cols="auto" class="mr-auto">
 
           <b-dropdown size="sm" variant="link" :disabled="isLoading || selectValues.length === 0" no-caret>
-            <template slot="button-content">
+            <template v-slot:button-content>
               <icon name="cog" v-b-tooltip.hover.top.d300 :title="$t('Bulk Actions')"></icon>
             </template>
             <b-dropdown-item @click="applyBulkCloseSecurityEvent()">
               <icon class="position-absolute mt-1" name="ban"></icon>
-              <span class="ml-4">{{ $t('Clear Security Event') }}</span>
+              <span class="ml-4">{{ $t('Close Security Event') }}</span>
             </b-dropdown-item>
             <b-dropdown-item @click="applyBulkRegister()">
               <icon class="position-absolute mt-1" name="plus-circle"></icon>
@@ -43,7 +51,7 @@
             <b-dropdown-divider></b-dropdown-divider>
 
             <b-dropdown-header>{{ $t('Apply Role') }}</b-dropdown-header>
-            <b-dropdown-item v-for="role in roles" :key="role.category_id" @click="applyBulkRole(role)">
+            <b-dropdown-item v-for="role in roles" :key="`role-${role.category_id}`" @click="applyBulkRole(role)">
               <span class="d-block" v-b-tooltip.hover.left.d300.window :title="role.notes">{{role.name}}</span>
             </b-dropdown-item>
             <b-dropdown-item @click="applyBulkRole({category_id: null})" >
@@ -55,7 +63,7 @@
             <b-dropdown-divider></b-dropdown-divider>
 
             <b-dropdown-header>{{ $t('Apply Bypass Role') }}</b-dropdown-header>
-            <b-dropdown-item v-for="role in roles" :key="role.category_id" @click="applyBulkBypassRole(role)">
+            <b-dropdown-item v-for="role in roles" :key="`bypass_role-${role.category_id}`" @click="applyBulkBypassRole(role)">
               <span class="d-block" v-b-tooltip.hover.left.d300.window :title="role.notes">{{role.name}}</span>
             </b-dropdown-item>
             <b-dropdown-item @click="applyBulkBypassRole({category_id: null})">
@@ -66,24 +74,24 @@
             </b-dropdown-item>
             <b-dropdown-divider></b-dropdown-divider>
 
-            <b-dropdown-header>{{ $t('Apply Security Event') }}</b-dropdown-header>
-            <b-dropdown-item v-for="security_event in security_events" v-if="security_event.enabled ==='Y'" :key="security_event.id" @click="applyBulkSecurityEvent(security_event)" v-b-tooltip.hover.left.d300 :title="security_event.id">
+            <b-dropdown-header v-can:read="'security_events'">{{ $t('Apply Security Event') }}</b-dropdown-header>
+            <b-dropdown-item v-for="security_event in security_events" :key="security_event.id" @click="applyBulkSecurityEvent(security_event)" v-b-tooltip.hover.left.d300 :title="security_event.id">
               <span>{{security_event.desc}}</span>
             </b-dropdown-item>
 
           </b-dropdown>
-          <b-dropdown size="sm" variant="link" no-caret>
-            <template slot="button-content">
+          <b-dropdown size="sm" variant="link" :boundary="$refs.container" no-caret>
+            <template v-slot:button-content>
               <icon name="columns" v-b-tooltip.hover.top.d300.window :title="$t('Visible Columns')"></icon>
             </template>
             <template v-for="column in columns">
               <b-dropdown-item :key="column.key" v-if="column.locked" disabled>
                 <icon class="position-absolute mt-1" name="thumbtack"></icon>
-                <span class="ml-4">{{column.label}}</span>
+                <span class="ml-4">{{ $t(column.label) }}</span>
               </b-dropdown-item>
               <a :key="column.key" v-else href="javascript:void(0)" :disabled="column.locked" class="dropdown-item" @click.stop="toggleColumn(column)">
                 <icon class="position-absolute mt-1" name="check" v-show="column.visible"></icon>
-                <span class="ml-4">{{column.label}}</span>
+                <span class="ml-4">{{ $t(column.label) }}</span>
               </a>
             </template>
           </b-dropdown>
@@ -92,33 +100,44 @@
           <b-container fluid>
             <b-row align-v="center">
               <b-form inline class="mb-0">
-                <b-form-select class="mb-3 mr-3" size="sm" v-model="pageSizeLimit" :options="[25,50,100,200,500,1000]" :disabled="isLoading"
+                <b-form-select class="mr-3" size="sm" v-model="pageSizeLimit" :options="[25,50,100,200,500,1000]" :disabled="isLoading"
                   @input="onPageSizeChange" />
               </b-form>
-              <b-pagination class="mr-3" align="right" :per-page="pageSizeLimit" :total-rows="totalRows" v-model="currentPage" :disabled="isLoading"
+              <b-pagination class="mr-3 my-0" align="right" :per-page="pageSizeLimit" :total-rows="totalRows" :last-number="true" v-model="currentPage" :disabled="isLoading"
                 @change="onPageChange" />
-              <pf-button-export-to-csv class="mb-3" filename="users.csv" :disabled="isLoading"
+              <pf-button-export-to-csv filename="users.csv" :disabled="isLoading"
                 :columns="columns" :data="items"
               />
             </b-row>
           </b-container>
         </b-col>
       </b-row>
-      <b-table class="table-clickable" :items="items" :fields="visibleColumns" :sort-by="sortBy" :sort-desc="sortDesc" v-model="tableValues"
-        @sort-changed="onSortingChanged" @row-clicked="onRowClick" @head-clicked="clearSelected"
-        show-empty responsive hover no-local-sorting striped>
-        <template slot="HEAD_actions" slot-scope="head">
+    </div>
+    <div class="card-body pt-0" v-scroll-100>
+      <b-table
+        v-model="tableValues"
+        class="table-clickable"
+        :items="items"
+        :fields="visibleColumns"
+        :sort-by="sortBy"
+        :sort-desc="sortDesc"
+        @sort-changed="onSortingChanged"
+        @row-clicked="onRowClick"
+        @head-clicked="clearSelected"
+        show-empty hover no-local-sorting sort-icon-left striped
+      >
+        <template v-slot:head(actions)>
           <b-form-checkbox id="checkallnone" v-model="selectAll" :disabled="isLoading" @change="onSelectAllChange"></b-form-checkbox>
-          <b-tooltip target="checkallnone" placement="right" v-if="selectValues.length === tableValues.length">{{ $t('Select None [ALT+N]') }}</b-tooltip>
-          <b-tooltip target="checkallnone" placement="right" v-else>{{ $t('Select All [ALT+A]') }}</b-tooltip>
+          <b-tooltip target="checkallnone" placement="right" v-if="selectValues.length === tableValues.length">{{ $t('Select None [Alt + N]') }}</b-tooltip>
+          <b-tooltip target="checkallnone" placement="right" v-else>{{ $t('Select All [Alt + A]') }}</b-tooltip>
         </template>
-        <template slot="actions" slot-scope="data">
-          <b-form-checkbox :disabled="isLoading" :id="data.value" :value="data.item" v-model="selectValues" @click.native.stop="onToggleSelected($event, data.index)"></b-form-checkbox>
+        <template v-slot:cell(actions)="item">
+          <b-form-checkbox :disabled="isLoading" :id="item.value" :value="item.item" v-model="selectValues" @click.stop="onToggleSelected($event, item.index)"></b-form-checkbox>
           <!--
-          <icon name="exclamation-triangle" class="ml-1" v-if="tableValues[data.index]._rowMessage" v-b-tooltip.hover.right.d300 :title="tableValues[data.index]._rowMessage"></icon>
+          <icon name="exclamation-triangle" class="ml-1" v-if="tableValues[item.index]._rowMessage" v-b-tooltip.hover.right.d300 :title="tableValues[item.index]._rowMessage"></icon>
           -->
         </template>
-        <template slot="empty">
+        <template v-slot:empty>
           <pf-empty-table :isLoading="isLoading">{{ $t('No user found') }}</pf-empty-table>
         </template>
       </b-table>
@@ -127,27 +146,29 @@
 </template>
 
 <script>
-import pfButtonDelete from '@/components/pfButtonDelete'
 import pfButtonExportToCsv from '@/components/pfButtonExportToCsv'
 import pfProgress from '@/components/pfProgress'
 import pfEmptyTable from '@/components/pfEmptyTable'
 import pfMixinSearchable from '@/components/pfMixinSearchable'
 import pfMixinSelectable from '@/components/pfMixinSelectable'
 import pfFormToggle from '@/components/pfFormToggle'
+import scroll100 from '@/directives/scroll-100'
 import { pfSearchConditionType as conditionType } from '@/globals/pfSearch'
 
 export default {
-  name: 'UsersSearch',
+  name: 'users-search',
   mixins: [
     pfMixinSelectable,
     pfMixinSearchable
   ],
   components: {
-    pfButtonDelete,
     pfButtonExportToCsv,
     pfProgress,
     pfEmptyTable,
     pfFormToggle
+  },
+  directives: {
+    scroll100
   },
   props: {
     storeName: { // from router
@@ -160,6 +181,7 @@ export default {
       default: () => ({
         searchApiEndpoint: 'users',
         defaultSortKeys: ['pid'],
+        defaultSortDesc: false,
         defaultSearchCondition: {
           op: 'and',
           values: [{
@@ -176,183 +198,179 @@ export default {
   },
   data () {
     return {
-      tableValues: Array,
-      sortBy: 'pid',
-      sortDesc: false,
+      tableValues: [],
       // Fields must match the database schema
       fields: [ // keys match with b-form-select
         {
           value: 'tenant_id',
-          text: this.$i18n.t('Tenant'),
+          text: 'Tenant', // i18n defer
           types: [conditionType.INTEGER]
         },
         {
           value: 'pid',
-          text: this.$i18n.t('PID'),
+          text: 'PID', // i18n defer
           types: [conditionType.SUBSTRING]
         },
         {
           value: 'title',
-          text: this.$i18n.t('Title'),
+          text: 'Title', // i18n defer
           types: [conditionType.SUBSTRING]
         },
         {
           value: 'firstname',
-          text: this.$i18n.t('Firstname'),
+          text: 'Firstname', // i18n defer
           types: [conditionType.SUBSTRING]
         },
         {
           value: 'lastname',
-          text: this.$i18n.t('Lastname'),
+          text: 'Lastname', // i18n defer
           types: [conditionType.SUBSTRING]
         },
         {
           value: 'nickname',
-          text: this.$i18n.t('Nickname'),
+          text: 'Nickname', // i18n defer
           types: [conditionType.SUBSTRING]
         },
         {
           value: 'email',
-          text: this.$i18n.t('Email'),
+          text: 'Email', // i18n defer
           types: [conditionType.SUBSTRING]
         },
         {
           value: 'sponsor',
-          text: this.$i18n.t('Sponsor'),
+          text: 'Sponsor', // i18n defer
           types: [conditionType.SUBSTRING]
         },
         {
           value: 'anniversary',
-          text: this.$i18n.t('Anniversary'),
+          text: 'Anniversary', // i18n defer
           types: [conditionType.SUBSTRING]
         },
         {
           value: 'birthday',
-          text: this.$i18n.t('Birthday'),
+          text: 'Birthday', // i18n defer
           types: [conditionType.SUBSTRING]
         },
         {
           value: 'address',
-          text: this.$i18n.t('Address'),
+          text: 'Address', // i18n defer
           types: [conditionType.SUBSTRING]
         },
         {
           value: 'apartment_number',
-          text: this.$i18n.t('Apartment Number'),
+          text: 'Apartment Number', // i18n defer
           types: [conditionType.SUBSTRING]
         },
         {
           value: 'building_number',
-          text: this.$i18n.t('Building Number'),
+          text: 'Building Number', // i18n defer
           types: [conditionType.SUBSTRING]
         },
         {
           value: 'room_number',
-          text: this.$i18n.t('Room Number'),
+          text: 'Room Number', // i18n defer
           types: [conditionType.SUBSTRING]
         },
         {
           value: 'company',
-          text: this.$i18n.t('Company'),
+          text: 'Company', // i18n defer
           types: [conditionType.SUBSTRING]
         },
         {
           value: 'gender',
-          text: this.$i18n.t('Gender'),
+          text: 'Gender', // i18n defer
           types: [conditionType.SUBSTRING]
         },
         {
           value: 'lang',
-          text: this.$i18n.t('Language'),
+          text: 'Language', // i18n defer
           types: [conditionType.SUBSTRING]
         },
         {
           value: 'notes',
-          text: this.$i18n.t('Notes'),
+          text: 'Notes', // i18n defer
           types: [conditionType.SUBSTRING]
         },
         {
           value: 'portal',
-          text: this.$i18n.t('Portal'),
+          text: 'Portal', // i18n defer
           types: [conditionType.SUBSTRING]
         },
         {
           value: 'psk',
-          text: this.$i18n.t('PSK'),
+          text: 'PSK', // i18n defer
           types: [conditionType.SUBSTRING]
         },
         {
           value: 'source',
-          text: this.$i18n.t('Source'),
+          text: 'Source', // i18n defer
           types: [conditionType.SUBSTRING]
         },
         {
           value: 'cell_phone',
-          text: this.$i18n.t('Cellular Phone Number'),
+          text: 'Cellular Phone Number', // i18n defer
           types: [conditionType.SUBSTRING]
         },
         {
           value: 'telephone',
-          text: this.$i18n.t('Home Telephone Number'),
+          text: 'Home Telephone Number', // i18n defer
           types: [conditionType.SUBSTRING]
         },
         {
           value: 'work_phone',
-          text: this.$i18n.t('Work Telephone Number'),
+          text: 'Work Telephone Number', // i18n defer
           types: [conditionType.SUBSTRING]
         },
         {
           value: 'custom_field_1',
-          text: this.$i18n.t('Custom Field #1'),
+          text: 'Custom Field #1', // i18n defer
           types: [conditionType.SUBSTRING]
         },
         {
           value: 'custom_field_2',
-          text: this.$i18n.t('Custom Field #2'),
+          text: 'Custom Field #2', // i18n defer
           types: [conditionType.SUBSTRING]
         },
         {
           value: 'custom_field_3',
-          text: this.$i18n.t('Custom Field #3'),
+          text: 'Custom Field #3', // i18n defer
           types: [conditionType.SUBSTRING]
         },
         {
           value: 'custom_field_4',
-          text: this.$i18n.t('Custom Field #4'),
+          text: 'Custom Field #4', // i18n defer
           types: [conditionType.SUBSTRING]
         },
         {
           value: 'custom_field_5',
-          text: this.$i18n.t('Custom Field #5'),
+          text: 'Custom Field #5', // i18n defer
           types: [conditionType.SUBSTRING]
         },
         {
           value: 'custom_field_6',
-          text: this.$i18n.t('Custom Field #6'),
+          text: 'Custom Field #6', // i18n defer
           types: [conditionType.SUBSTRING]
         },
         {
           value: 'custom_field_7',
-          text: this.$i18n.t('Custom Field #7'),
+          text: 'Custom Field #7', // i18n defer
           types: [conditionType.SUBSTRING]
         },
         {
           value: 'custom_field_8',
-          text: this.$i18n.t('Custom Field #8'),
+          text: 'Custom Field #8', // i18n defer
           types: [conditionType.SUBSTRING]
         },
         {
           value: 'custom_field_9',
-          text: this.$i18n.t('Custom Field #9'),
+          text: 'Custom Field #9', // i18n defer
           types: [conditionType.SUBSTRING]
         }
       ],
       columns: [
         {
           key: 'actions',
-          label: this.$i18n.t('Actions'),
-          sortable: false,
-          visible: true,
+          label: 'Actions', // i18n defer
           locked: true,
           formatter: (value, key, item) => {
             return item.mac
@@ -360,215 +378,187 @@ export default {
         },
         {
           key: 'tenant_id',
-          label: this.$i18n.t('Tenant'),
-          sortable: true,
-          visible: false
+          label: 'Tenant', // i18n defer
+          sortable: true
         },
         {
           key: 'pid',
-          label: this.$i18n.t('Username'),
+          label: 'Username', // i18n defer
+          required: true,
           sortable: true,
           visible: true
         },
         {
           key: 'title',
-          label: this.$i18n.t('Title'),
-          sortable: true,
-          visible: false
+          label: 'Title', // i18n defer
+          sortable: true
         },
         {
           key: 'firstname',
-          label: this.$i18n.t('Firstname'),
+          label: 'Firstname', // i18n defer
           sortable: true,
           visible: true
         },
         {
           key: 'lastname',
-          label: this.$i18n.t('Lastname'),
+          label: 'Lastname', // i18n defer
           sortable: true,
           visible: true
         },
         {
           key: 'nickname',
-          label: this.$i18n.t('Nickname'),
-          sortable: true,
-          visible: false
+          label: 'Nickname', // i18n defer
+          sortable: true
         },
         {
           key: 'email',
-          label: this.$i18n.t('Email'),
+          label: 'Email', // i18n defer
           sortable: true,
           visible: true
         },
         {
           key: 'sponsor',
-          label: this.$i18n.t('Sponsor'),
-          sortable: true,
-          visible: false
+          label: 'Sponsor', // i18n defer
+          sortable: true
         },
         {
           key: 'anniversary',
-          label: this.$i18n.t('Anniversary'),
-          sortable: true,
-          visible: false
+          label: 'Anniversary', // i18n defer
+          sortable: true
         },
         {
           key: 'birthday',
-          label: this.$i18n.t('Birthday'),
-          sortable: true,
-          visible: false
+          label: 'Birthday', // i18n defer
+          sortable: true
         },
         {
           key: 'address',
-          label: this.$i18n.t('Address'),
-          sortable: true,
-          visible: false
+          label: 'Address', // i18n defer
+          sortable: true
         },
         {
           key: 'apartment_number',
-          label: this.$i18n.t('Apartment Number'),
+          label: 'Apartment Number', // i18n defer
           sortable: true,
-          visible: false,
           class: 'text-nowrap'
         },
         {
           key: 'building_number',
-          label: this.$i18n.t('Building Number'),
+          label: 'Building Number', // i18n defer
           sortable: true,
-          visible: false,
           class: 'text-nowrap'
         },
         {
           key: 'room_number',
-          label: this.$i18n.t('Room Number'),
+          label: 'Room Number', // i18n defer
           sortable: true,
-          visible: false,
           class: 'text-nowrap'
         },
         {
           key: 'company',
-          label: this.$i18n.t('Company'),
-          sortable: true,
-          visible: false
+          label: 'Company', // i18n defer
+          sortable: true
         },
         {
           key: 'gender',
-          label: this.$i18n.t('Gender'),
-          sortable: true,
-          visible: false
+          label: 'Gender', // i18n defer
+          sortable: true
         },
         {
           key: 'lang',
-          label: this.$i18n.t('Language'),
-          sortable: true,
-          visible: false
+          label: 'Language', // i18n defer
+          sortable: true
         },
         {
           key: 'notes',
-          label: this.$i18n.t('Notes'),
-          sortable: true,
-          visible: false
+          label: 'Notes', // i18n defer
+          sortable: true
         },
         {
           key: 'portal',
-          label: this.$i18n.t('Portal'),
-          sortable: true,
-          visible: false
+          label: 'Portal', // i18n defer
+          sortable: true
         },
         {
           key: 'psk',
-          label: this.$i18n.t('PSK'),
-          sortable: true,
-          visible: false
+          label: 'PSK', // i18n defer
+          sortable: true
         },
         {
           key: 'source',
-          label: this.$i18n.t('Source'),
-          sortable: true,
-          visible: false
+          label: 'Source', // i18n defer
+          sortable: true
         },
         {
           key: 'cell_phone',
-          label: this.$i18n.t('Cellular Phone Number'),
+          label: 'Cellular Phone Number', // i18n defer
           sortable: true,
-          visible: false,
           class: 'text-nowrap'
         },
         {
           key: 'telephone',
-          label: this.$i18n.t('Home Telephone Number'),
+          label: 'Home Telephone Number', // i18n defer
           sortable: true,
-          visible: false,
           class: 'text-nowrap'
         },
         {
           key: 'work_phone',
-          label: this.$i18n.t('Work Telephone Number'),
+          label: 'Work Telephone Number', // i18n defer
           sortable: true,
-          visible: false,
           class: 'text-nowrap'
         },
         {
           key: 'custom_field_1',
-          label: this.$i18n.t('Custom Field #1'),
+          label: 'Custom Field #1', // i18n defer
           sortable: true,
-          visible: false,
           class: 'text-nowrap'
         },
         {
           key: 'custom_field_2',
-          label: this.$i18n.t('Custom Field #2'),
+          label: 'Custom Field #2', // i18n defer
           sortable: true,
-          visible: false,
           class: 'text-nowrap'
         },
         {
           key: 'custom_field_3',
-          label: this.$i18n.t('Custom Field #3'),
+          label: 'Custom Field #3', // i18n defer
           sortable: true,
-          visible: false,
           class: 'text-nowrap'
         },
         {
           key: 'custom_field_4',
-          label: this.$i18n.t('Custom Field #4'),
+          label: 'Custom Field #4', // i18n defer
           sortable: true,
-          visible: false,
           class: 'text-nowrap'
         },
         {
           key: 'custom_field_5',
-          label: this.$i18n.t('Custom Field #5'),
+          label: 'Custom Field #5', // i18n defer
           sortable: true,
-          visible: false,
           class: 'text-nowrap'
         },
         {
           key: 'custom_field_6',
-          label: this.$i18n.t('Custom Field #6'),
+          label: 'Custom Field #6', // i18n defer
           sortable: true,
-          visible: false,
           class: 'text-nowrap'
         },
         {
           key: 'custom_field_7',
-          label: this.$i18n.t('Custom Field #7'),
+          label: 'Custom Field #7', // i18n defer
           sortable: true,
-          visible: false,
           class: 'text-nowrap'
         },
         {
           key: 'custom_field_8',
-          label: this.$i18n.t('Custom Field #8'),
+          label: 'Custom Field #8', // i18n defer
           sortable: true,
-          visible: false,
           class: 'text-nowrap'
         },
         {
           key: 'custom_field_9',
-          label: this.$i18n.t('Custom Field #9'),
+          label: 'Custom Field #9', // i18n defer
           sortable: true,
-          visible: false,
           class: 'text-nowrap'
         }
       ]
@@ -581,7 +571,7 @@ export default {
     },
     security_events () {
       this.$store.dispatch('config/getSecurityEvents')
-      return this.$store.getters['config/sortedSecurityEvents']
+      return this.$store.getters['config/sortedSecurityEvents'].filter(securityEvent => securityEvent.enabled === 'Y')
     }
   },
   methods: {
@@ -607,7 +597,7 @@ export default {
           }) >= 0
         }).length !== condition.values[0].values.length
     },
-    onRowClick (item, index) {
+    onRowClick (item) {
       this.$router.push({ name: 'user', params: { pid: item.pid } })
     },
     applyBulkSecurityEvent (securityEvent) {
@@ -615,7 +605,7 @@ export default {
       if (pids.length > 0) {
         this.$store.dispatch(`${this.storeName}/bulkApplySecurityEvent`, { vid: securityEvent.vid, items: pids }).then(items => {
           let securityEventCount = 0
-          items.forEach((item, _index, items) => {
+          items.forEach(item => {
             let index = this.tableValues.findIndex(value => value.pid === item.pid)
             if (item.security_events.length > 0) {
               securityEventCount += item.security_events.length
@@ -624,8 +614,9 @@ export default {
               this.setRowVariant(index, 'warning')
             }
           })
+          const securityEventString = this.$i18n.tc('Applied 1 security event | Applied {securityEventCount} security events', securityEventCount, { securityEventCount })
           this.$store.dispatch('notification/info', {
-            message: this.$i18n.t('Applied {securityEventCount} security events for {userCount} users.', { securityEventCount: securityEventCount, userCount: this.selectValues.length }),
+            message: this.$i18n.tc('{securityEventString} for 1 user. | {securityEventString} for {userCount} users.', this.selectValues.length, { securityEventString, userCount: this.selectValues.length }),
             success: securityEventCount
           })
         }).catch(() => {
@@ -641,7 +632,7 @@ export default {
       if (pids.length > 0) {
         this.$store.dispatch(`${this.storeName}/bulkCloseSecurityEvents`, { items: pids }).then(items => {
           let securityEventCount = 0
-          items.forEach((item, _index, items) => {
+          items.forEach(item => {
             let index = this.tableValues.findIndex(value => value.pid === item.pid)
             if (item.security_events.length > 0) {
               securityEventCount += item.security_events.length
@@ -650,8 +641,9 @@ export default {
               this.setRowVariant(index, 'warning')
             }
           })
+          const securityEventString = this.$i18n.tc('Closed 1 security event | Closed {securityEventCount} security events', securityEventCount, { securityEventCount })
           this.$store.dispatch('notification/info', {
-            message: this.$i18n.t('Closed {securityEventCount} security events for {userCount} users.', { securityEventCount: securityEventCount, userCount: this.selectValues.length }),
+            message: this.$i18n.tc('{securityEventString} for 1 user. | {securityEventString} for {userCount} users.', this.selectValues.length, { securityEventString, userCount: this.selectValues.length }),
             success: securityEventCount
           })
         }).catch(() => {
@@ -667,7 +659,7 @@ export default {
       if (pids.length > 0) {
         this.$store.dispatch(`${this.storeName}/bulkRegisterNodes`, { items: pids }).then(items => {
           let nodeCount = 0
-          items.forEach((item, _index, items) => {
+          items.forEach(item => {
             let index = this.tableValues.findIndex(value => value.pid === item.pid)
             if (item.nodes.length > 0) {
               nodeCount += item.nodes.length
@@ -676,8 +668,9 @@ export default {
               this.setRowVariant(index, 'warning')
             }
           })
+          const nodeString = this.$i18n.tc('Registered 1 node | Registered {nodeCount} nodes', nodeCount, { nodeCount })
           this.$store.dispatch('notification/info', {
-            message: this.$i18n.t('Registered {nodeCount} nodes for {userCount} users.', { nodeCount: nodeCount, userCount: this.selectValues.length }),
+            message: this.$i18n.tc('{nodeString} for 1 user. | {nodeString} for {userCount} users.', this.selectValues.length, { nodeString, userCount: this.selectValues.length }),
             success: nodeCount
           })
         }).catch(() => {
@@ -693,7 +686,7 @@ export default {
       if (pids.length > 0) {
         this.$store.dispatch(`${this.storeName}/bulkDeregisterNodes`, { items: pids }).then(items => {
           let nodeCount = 0
-          items.forEach((item, _index, items) => {
+          items.forEach(item => {
             let index = this.tableValues.findIndex(value => value.pid === item.pid)
             if (item.nodes.length > 0) {
               nodeCount += item.nodes.length
@@ -702,8 +695,9 @@ export default {
               this.setRowVariant(index, 'warning')
             }
           })
+          const nodeString = this.$i18n.tc('Deregistered 1 node | Deregistered {nodeCount} nodes', nodeCount, { nodeCount })
           this.$store.dispatch('notification/info', {
-            message: this.$i18n.t('Deregistered {nodeCount} nodes for {userCount} users.', { nodeCount: nodeCount, userCount: this.selectValues.length }),
+            message: this.$i18n.tc('{nodeString} for 1 user. | {nodeString} for {userCount} users.', this.selectValues.length, { nodeString, userCount: this.selectValues.length }),
             success: nodeCount
           })
         }).catch(() => {
@@ -719,7 +713,7 @@ export default {
       if (pids.length > 0) {
         this.$store.dispatch(`${this.storeName}/bulkApplyRole`, { category_id: role.category_id, items: pids }).then(items => {
           let nodeCount = 0
-          items.forEach((item, _index, items) => {
+          items.forEach(item => {
             let index = this.tableValues.findIndex(value => value.pid === item.pid)
             if (item.nodes.length > 0) {
               nodeCount += item.nodes.length
@@ -728,8 +722,9 @@ export default {
               this.setRowVariant(index, 'warning')
             }
           })
+          const nodeString = this.$i18n.tc('Applied role on 1 node | Applied role on {nodeCount} nodes', nodeCount, { nodeCount })
           this.$store.dispatch('notification/info', {
-            message: this.$i18n.t('Applied role on {nodeCount} nodes for {userCount} users.', { nodeCount: nodeCount, userCount: this.selectValues.length }),
+            message: this.$i18n.tc('{nodeString} for 1 user. | {nodeString} for {userCount} users.', this.selectValues.length, { nodeString, userCount: this.selectValues.length }),
             success: nodeCount
           })
         }).catch(() => {
@@ -745,7 +740,7 @@ export default {
       if (pids.length > 0) {
         this.$store.dispatch(`${this.storeName}/bulkApplyBypassRole`, { bypass_role_id: role.category_id, items: pids }).then(items => {
           let nodeCount = 0
-          items.forEach((item, _index, items) => {
+          items.forEach(item => {
             let index = this.tableValues.findIndex(value => value.pid === item.pid)
             if (item.nodes.length > 0) {
               nodeCount += item.nodes.length
@@ -754,8 +749,9 @@ export default {
               this.setRowVariant(index, 'warning')
             }
           })
+          const nodeString = this.$i18n.tc('Applied bypass role on 1 node | Applied bypass role on {nodeCount} nodes', nodeCount, { nodeCount })
           this.$store.dispatch('notification/info', {
-            message: this.$i18n.t('Applied bypass role on {nodeCount} nodes for {userCount} users.', { nodeCount: nodeCount, userCount: this.selectValues.length }),
+            message: this.$i18n.tc('{nodeString} for 1 user. | {nodeString} for {userCount} users.', this.selectValues.length, { nodeString, userCount: this.selectValues.length }),
             success: nodeCount
           })
         }).catch(() => {
@@ -771,7 +767,7 @@ export default {
       if (pids.length > 0) {
         this.$store.dispatch(`${this.storeName}/bulkReevaluateAccess`, { items: pids }).then(items => {
           let nodeCount = 0
-          items.forEach((item, _index, items) => {
+          items.forEach(item => {
             let index = this.tableValues.findIndex(value => value.pid === item.pid)
             if (item.nodes.length > 0) {
               nodeCount += item.nodes.length
@@ -780,8 +776,9 @@ export default {
               this.setRowVariant(index, 'warning')
             }
           })
+          const nodeString = this.$i18n.tc('Reevaluated access on 1 node | Reevaluated access on {nodeCount} nodes', nodeCount, { nodeCount })
           this.$store.dispatch('notification/info', {
-            message: this.$i18n.t('Reevaluated access on {nodeCount} nodes for {userCount} users.', { nodeCount: nodeCount, userCount: this.selectValues.length }),
+            message: this.$i18n.tc('{nodeString} for 1 user. | {nodeString} for {userCount} users.', this.selectValues.length, { nodeString, userCount: this.selectValues.length }),
             success: nodeCount
           })
         }).catch(() => {
@@ -797,7 +794,7 @@ export default {
       if (pids.length > 0) {
         this.$store.dispatch(`${this.storeName}/bulkRefreshFingerbank`, { items: pids }).then(items => {
           let nodeCount = 0
-          items.forEach((item, _index, items) => {
+          items.forEach(item => {
             let index = this.tableValues.findIndex(value => value.pid === item.pid)
             if (item.nodes.length > 0) {
               nodeCount += item.nodes.length
@@ -806,8 +803,9 @@ export default {
               this.setRowVariant(index, 'warning')
             }
           })
+          const fingerbankString = this.$i18n.tc('Refreshed fingerbank on 1 node | Refreshed fingerbank on {nodeCount} nodes', nodeCount, { nodeCount })
           this.$store.dispatch('notification/info', {
-            message: this.$i18n.t('Refreshed fingerbank on {nodeCount} nodes for {userCount} users.', { nodeCount: nodeCount, userCount: this.selectValues.length }),
+            message: this.$i18n.tc('{fingerbankString} for 1 user. | {fingerbankString} for {userCount} users.', this.selectValues.length, { fingerbankString, userCount: this.selectValues.length }),
             success: nodeCount
           })
         }).catch(() => {
@@ -823,12 +821,12 @@ export default {
       if (pids.length > 0) {
         this.$store.dispatch(`${this.storeName}/bulkDelete`, { items: pids }).then(items => {
           let nodeCount = 0
-          items.forEach((item, _index, items) => {
+          items.forEach(item => {
             let index = this.tableValues.findIndex(value => value.pid === item.pid)
             this.setRowVariant(index, 'success')
           })
           this.$store.dispatch('notification/info', {
-            message: this.$i18n.t('Deleted {userCount} users.', { userCount: this.selectValues.length }),
+            message: this.$i18n.tc('Deleted 1 user. | Deleted {userCount} users.', this.selectValues.length, { userCount: this.selectValues.length }),
             success: nodeCount
           })
           this.$refs.pfSearch.onSubmit() // resubmit search

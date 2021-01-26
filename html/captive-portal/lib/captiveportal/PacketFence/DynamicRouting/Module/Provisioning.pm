@@ -139,17 +139,17 @@ sub execute_child {
         my $tls_module = captiveportal::DynamicRouting::Module::TLSEnrollment->new(id => $self->id."_pki_module", parent => $self, app => $self->app, pki_provider_id => $provisioner->getPkiProvider()->id);
         $tls_module->execute();
     }
-    elsif ($self->is_dpsk) {
-        $self->show_provisioning({psk => $provisioner->generate_dpsk($self->username), ssid => $provisioner->ssid});
-    }
     elsif ($self->app->request->parameters->{next} && isenabled($self->skipable)){
         $self->done();
     }
-    elsif ($provisioner->authorize($mac) == 0) {
+    elsif ($self->is_dpsk) {
+        $self->show_provisioning({psk => $provisioner->generate_dpsk($self->username), ssid => $provisioner->ssid});
+    }
+    elsif ($provisioner->authorize_enforce($mac) == 0) {
         $self->app->flash->{notice} = [ "According to the provisioner %s, your device is not allowed to access the network. Please follow the instruction below.", $provisioner->description ];
         $self->show_provisioning();
     }
-    elsif ($provisioner->authorize($mac) == $TRUE || $provisioner->authorize($mac) == $pf::provisioner::COMMUNICATION_FAILED) {
+    elsif ($provisioner->authorize_enforce($mac) == $TRUE || $provisioner->authorize_enforce($mac) == $pf::provisioner::COMMUNICATION_FAILED) {
         $self->done();
     }
     else {
@@ -163,7 +163,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2019 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 

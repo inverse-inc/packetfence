@@ -11,7 +11,7 @@
           <b-input-group-prepend>
             <icon class="h-auto" name="search" scale=".75"></icon>
           </b-input-group-prepend>
-          <b-form-input v-model="filter" type="text" :placeholder="$t('Filter')"></b-form-input>
+          <b-form-input v-model="filter" class="border-0" type="text" :placeholder="$t('Filter')" ref="filter" v-b-tooltip.hover.bottom.d300 title="Alt + Shift + F"></b-form-input>
           <b-input-group-append v-if="filter">
             <b-btn @click="filter = ''"><icon name="times-circle"></icon></b-btn>
           </b-input-group-append>
@@ -26,43 +26,50 @@
           <template v-for="section in filteredSections">
             <!-- collapsable (root level) -->
             <template v-if="section.collapsable">
-              <component class="pf-sidenav-group" :is="section.path ? 'router-link': 'div'"
-                :key="`${section.name}_btn`" :to="section.path"
-                v-b-toggle="$sanitizedClass(section.name)">
-                <icon class="position-absolute mx-3" :name="section.icon" scale="1.25" v-if="section.icon"></icon>
-                <text-highlight class="ml-5" :queries="[filter]">{{ $t(section.name) }}</text-highlight>
-                <icon class="mx-1 mt-1" name="chevron-down"></icon>
-              </component>
-              <b-collapse :id="$sanitizedClass(section.name)" :key="section.name" :accordion="accordion(section.name)" :visible="isActive(section.name)">
-                <template v-for="item in section.items">
-                  <!-- single link -->
-                  <pf-sidebar-item v-if="item.path" :key="item.name" :item="item" :filter="filter"></pf-sidebar-item>
-                  <!-- collapsable (2nd level) -->
-                  <template v-else-if="item.collapsable">
-                    <div class="pf-sidenav-group" :key="`${item.name}_btn`" v-b-toggle="$sanitizedClass(`${section.name}_${item.name}`)">
-                      <text-highlight class="ml-5" :queries="[filter]">{{ $t(item.name) }}</text-highlight>
-                      <icon class="mx-1 mt-1" name="chevron-down"></icon>
-                    </div>
-                    <b-collapse :id="$sanitizedClass(`${section.name}_${item.name}`)" :key="item.name" :visible="isActive(item.name)">
-                      <pf-sidebar-item v-for="subitem in item.items" :key="subitem.name" :item="subitem" :filter="filter" indent></pf-sidebar-item>
-                    </b-collapse>
-                  </template>
-                  <!-- non-collapsable section with items (2nd level) -->
-                  <b-nav class="pf-sidenav my-2" v-else :key="item.name" vertical>
-                      <div class="pf-sidenav-group">
-                        <text-highlight :queries="[filter]">{{ $t(item.name) }}</text-highlight>
+              <template v-if="can(section)">
+                <component class="pf-sidenav-group" :is="section.path ? 'router-link': 'div'"
+                  :key="`${section.name}_btn`" :to="section.path"
+                  v-b-toggle="$sanitizedClass(section.name)">
+                  <icon class="position-absolute mx-3" :name="section.icon" scale="1.25" v-if="section.icon"></icon>
+                  <text-highlight class="ml-5" :queries="[filter]">{{ section.name }}</text-highlight>
+                  <icon v-if="section.loading"
+                    class="mx-1 mt-1" name="circle-notch" spin></icon>
+                  <icon v-else
+                    class="mx-1 mt-1" name="chevron-down"></icon>
+                </component>
+                <b-collapse :id="$sanitizedClass(section.name)" :key="section.name" :accordion="accordion(section.name)" :visible="isActive(section.name)">
+                  <template v-for="item in section.items">
+                    <!-- single link -->
+                    <pf-sidebar-item v-if="item.path" :key="item.name" :item="item" :filter="filter"></pf-sidebar-item>
+                    <!-- collapsable (2nd level) -->
+                    <template v-else-if="item.collapsable">
+                      <div class="pf-sidenav-group" :key="`${item.name}_btn`" v-b-toggle="$sanitizedClass(`${section.name}_${item.name}`)">
+                        <text-highlight class="ml-5" :queries="[filter]">{{ item.name }}</text-highlight>
+                        <icon class="mx-1" name="angle-double-down"></icon>
                       </div>
-                      <pf-sidebar-item v-for="subitem in item.items" :key="subitem.name" :item="subitem" :filter="filter" indent></pf-sidebar-item>
-                  </b-nav>
-                </template>
-              </b-collapse>
+                      <b-collapse :id="$sanitizedClass(`${section.name}_${item.name}`)" :key="item.name" :visible="isActive(item.name)">
+                        <pf-sidebar-item v-for="subitem in item.items" :key="subitem.name" :item="subitem" :filter="filter" indent></pf-sidebar-item>
+                      </b-collapse>
+                    </template>
+                    <!-- non-collapsable section with items (2nd level) -->
+                    <b-nav class="pf-sidenav my-2" v-else :key="item.name" vertical>
+                        <div class="pf-sidenav-group">
+                          <text-highlight :queries="[filter]">{{ $t(item.name) }}</text-highlight>
+                        </div>
+                        <pf-sidebar-item v-for="subitem in item.items" :key="subitem.name" :item="subitem" :filter="filter" indent></pf-sidebar-item>
+                    </b-nav>
+                  </template>
+                </b-collapse>
+              </template>
             </template>
             <!-- non-collapsable section with items -->
             <b-nav v-else-if="section.items" class="pf-sidenav my-2" :key="section.name" vertical>
-              <div class="pf-sidenav-group">
-                <text-highlight :queries="[filter]">{{ $t(section.name) }}</text-highlight>
-              </div>
-              <pf-sidebar-item v-for="item in section.items" :key="item.name" :item="item" :filter="filter" indent></pf-sidebar-item>
+              <template v-if="can(section)">
+                <div class="pf-sidenav-group">
+                  <text-highlight :queries="[filter]">{{ section.name }}</text-highlight>
+                </div>
+                <pf-sidebar-item v-for="item in section.items" :key="item.name" :item="item" :filter="filter" indent></pf-sidebar-item>
+              </template>
             </b-nav>
             <!-- single link -->
             <pf-sidebar-item v-else :key="section.name" :item="section" :filter="filter"></pf-sidebar-item>
@@ -124,6 +131,9 @@ export default {
         return _filterSection(section)
       })
       return filteredSections.filter(section => section !== undefined)
+    },
+    altShiftFKey () {
+      return this.$store.getters['events/altShiftFKey']
     }
   },
   methods: {
@@ -152,18 +162,39 @@ export default {
           }
         })
       }
+    },
+    focusFilter () {
+      const { $refs: { filter: { $el } = {} } = {} } = this
+      if ($el) {
+        $el.focus()
+        this.$nextTick(() => {
+          $el.select()
+        })
+      }
+    },
+    can (item) {
+      if ('can' in item) {
+        return this.$can.apply(null, item.can.split(' '))
+      }
+      return true
     }
   },
   watch: {
     '$route': {
-      handler: function (to, from) {
+      handler: function () {
         this.findActiveSections(this.value, [])
       },
       immediate: true
     },
     value (newValue) {
       this.findActiveSections(newValue, [])
+    },
+    altShiftFKey (pressed) {
+      if (pressed) this.focusFilter()
     }
+  },
+  mounted () {
+    this.focusFilter()
   }
 }
 </script>

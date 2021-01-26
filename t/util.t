@@ -16,10 +16,43 @@ our (
     @STRIP_FILENAME_FROM_EXCEPTIONS_TESTS,
     @NORMALIZE_TIME_TESTS,
     @EXPAND_CSV_TESTS,
-    @VALID_UNREG_DATE_TESTS
+    @VALID_UNREG_DATE_TESTS,
+    @MAC2DEC,
+    @NODE_ID_TESTS
 );
 
 BEGIN {
+    no warnings 'portable';
+    @NODE_ID_TESTS = (
+        {
+            mac => "00:00:00:00:00:00",
+            tenant_id => 1,
+            node_id => (1 << 48),
+        },
+        {
+            mac => "aa:00:00:00:00:ff",
+            tenant_id => 2,
+            node_id => (2 << 48) | 0xaa00000000ff,
+        }
+    );
+    @MAC2DEC = (
+        {
+            in  => "aa:bb:cc:dd:ee:ff",
+            out => "170.187.204.221.238.255",
+            msg => "mac2dec aa:bb:cc:dd:ee:ff -> 170.187.204.221.238.255",
+        },
+        {
+            in  => "11:22:33:44:55:66",
+            out => "17.34.51.68.85.102",
+            msg => "mac2dec 11:22:33:44:55:66 -> 17.34.51.68.85.102",
+        },
+        {
+            in  => "ff:ee:dd:cc:bb:aa",
+            out => "255.238.221.204.187.170",
+            msg => "mac2dec ff:ee:dd:cc:bb:aa -> 255.238.221.204.187.170",
+        },
+    );
+
     @INVALID_DATES = (
         {
             in  => undef,
@@ -177,8 +210,13 @@ BEGIN {
         },
         {
             in  => '0000-01-31',
+            out => $TRUE,
+            msg => "Allow a zero year 0000-01-31"
+        },
+        {
+            in  => '0000-01-41',
             out => $FALSE,
-            msg => "Invalid zero year 0000-01-31"
+            msg => "Invalid month day with zero year 0000-01-41"
         },
         {
             in  => '0001-01-01',
@@ -200,6 +238,11 @@ BEGIN {
             out => $TRUE,
             msg => "valid date 2038-01-01"
         },
+        {
+            in  => '0000-00-00',
+            out => $TRUE,
+            msg => "valid date 0000-00-00",
+        },
     );
 }
 
@@ -207,12 +250,14 @@ use Test::More;
 use Test::NoWarnings;
 
 BEGIN {
-    plan tests => 41 +
+    plan tests => 44 +
+      ((scalar @NODE_ID_TESTS) * 3) +
       scalar @STRIP_FILENAME_FROM_EXCEPTIONS_TESTS +
       scalar @INVALID_DATES +
       scalar @NORMALIZE_TIME_TESTS +
       scalar @EXPAND_CSV_TESTS +
-      scalar @VALID_UNREG_DATE_TESTS;
+      scalar @VALID_UNREG_DATE_TESTS +
+      scalar @MAC2DEC;
 }
 
 BEGIN {
@@ -241,6 +286,7 @@ is_deeply(undef, strip_username(undef),
 is(clean_mac("aabbccddeeff"), "aa:bb:cc:dd:ee:ff", "clean MAC address of the form xxxxxxxxxxxx");
 is(clean_mac("aa:bb:cc:dd:ee:ff"), "aa:bb:cc:dd:ee:ff", "clean MAC address of the form xx:xx:xx:xx:xx:xx");
 is(clean_mac("aa-bb-cc-dd-ee-ff"), "aa:bb:cc:dd:ee:ff", "clean MAC address of the form xx-xx-xx-xx-xx-xx");
+is(clean_mac("AA-BB-CC-DD-EE-FF"), "aa:bb:cc:dd:ee:ff", "clean MAC address of the form xx-xx-xx-xx-xx-xx");
 is(clean_mac("aabb-ccdd-eeff"), "aa:bb:cc:dd:ee:ff", "clean MAC address of the form xxxx-xxxx-xxxx");
 is(clean_mac("aabb.ccdd.eeff"), "aa:bb:cc:dd:ee:ff", "clean MAC address of the form xxxx.xxxx.xxxx");
 is(clean_mac("aabbccddeeff"), "aa:bb:cc:dd:ee:ff", "clean MAC address of the form xxxxxxxxxxxx");
@@ -343,13 +389,46 @@ for my $test (@VALID_UNREG_DATE_TESTS) {
     )
 }
 
+for my $test (@MAC2DEC) {
+    is (
+        mac2dec($test->{in}),
+        $test->{out},
+        $test->{msg}
+    )
+}
+
+
+{
+
+    for my $test (@NODE_ID_TESTS) {
+        my $node_id = $test->{node_id};
+        my $tenant_id = $test->{tenant_id};
+        my $mac = $test->{mac};
+        is(
+            make_node_id($tenant_id, $mac),
+            $node_id,
+            "Convert tenant_id mac ($tenant_id, $mac) to a node_id ($node_id)"
+        );
+        
+        my ($expect_tenant_id, $expected_mac) = split_node_id($node_id);
+        is($expect_tenant_id, $tenant_id, "split_node_id($node_id) tenant_id");
+        is($expected_mac, $mac, "split_node_id($node_id) mac");
+    }
+
+}
+
+{
+    is(extract("j.domain.com", "(.*?)\.domain.com", '$1'), 'j', 'Extract');
+    is(extract('[inverse-test@staff.it.acme.edu](mailto:inverse-test@staff.it.acme.edu)','@(\w+)','$1.VLAN'), "staff.VLAN")
+}
+
 =head1 AUTHOR
 
 Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2019 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 

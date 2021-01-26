@@ -5,7 +5,7 @@ import Vue from 'vue'
 import apiCall from '@/utils/api'
 
 const api = {
-  getStats: (id) => {
+  getStats: () => {
     return apiCall.getQuiet(`queues/stats`).then(response => {
       return response.data.items
     })
@@ -24,11 +24,13 @@ const types = {
 }
 
 // Default values
-const state = {
-  stats: false,
-  tasks: false,
-  message: '',
-  requestStatus: ''
+const initialState = () => {
+  return {
+    stats: false,
+    tasks: false,
+    message: '',
+    requestStatus: ''
+  }
 }
 
 const getters = {
@@ -49,7 +51,7 @@ const actions = {
       })
     })
   },
-  pollTaskStatus: ({ commit, state, dispatch }, id) => {
+  pollTaskStatus: ({ dispatch }, id) => {
     return api.pollTaskStatus(id).then(data => { // 'poll' returns immediately, or timeout after 15s
       if ('status' in data && data.status === 202) { // 202: in progress
         return dispatch('pollTaskStatus', id) // recurse
@@ -80,12 +82,16 @@ const mutations = {
     if (message) {
       state.message = message
     }
+  },
+  // eslint-disable-next-line no-unused-vars
+  $RESET: (state) => {
+    state = initialState()
   }
 }
 
 export default {
   namespaced: true,
-  state,
+  state: initialState(),
   getters,
   actions,
   mutations

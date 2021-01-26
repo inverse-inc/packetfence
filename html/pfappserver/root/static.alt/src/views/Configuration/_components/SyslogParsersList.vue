@@ -4,42 +4,44 @@
       ref="pfConfigList"
       :config="config"
     >
-      <template slot="pageHeader">
+      <template v-slot:pageHeader>
         <b-card-header>
           <h4 class="mb-0" v-t="'Syslog Parsers'"></h4>
         </b-card-header>
       </template>
-      <template slot="buttonAdd">
+      <template v-slot:buttonAdd>
         <b-dropdown :text="$t('New Syslog Parser')" variant="outline-primary">
           <b-dropdown-item :to="{ name: 'newSyslogParser', params: { syslogParserType: 'dhcp' } }">DHCP</b-dropdown-item>
           <b-dropdown-item :to="{ name: 'newSyslogParser', params: { syslogParserType: 'fortianalyser' } }">FortiAnalyzer</b-dropdown-item>
           <b-dropdown-item :to="{ name: 'newSyslogParser', params: { syslogParserType: 'nexpose' } }">Nexpose</b-dropdown-item>
-          <b-dropdown-item :to="{ name: 'newSyslogParser', params: { syslogParserType: 'regex' } }">regex</b-dropdown-item>
+          <b-dropdown-item :to="{ name: 'newSyslogParser', params: { syslogParserType: 'regex' } }">Regex</b-dropdown-item>
           <b-dropdown-item :to="{ name: 'newSyslogParser', params: { syslogParserType: 'security_onion' } }">Security Onion</b-dropdown-item>
           <b-dropdown-item :to="{ name: 'newSyslogParser', params: { syslogParserType: 'snort' } }">Snort</b-dropdown-item>
           <b-dropdown-item :to="{ name: 'newSyslogParser', params: { syslogParserType: 'suricata' } }">Suricata</b-dropdown-item>
           <b-dropdown-item :to="{ name: 'newSyslogParser', params: { syslogParserType: 'suricata_md5' } }">Suricata MD5</b-dropdown-item>
         </b-dropdown>
+        <pf-button-service service="pfdetect" class="ml-1" restart start stop :disabled="isLoading"></pf-button-service>
+        <pf-button-service service="pfqueue" class="ml-1" restart start stop :disabled="isLoading"></pf-button-service>
       </template>
-      <template slot="emptySearch" slot-scope="state">
+      <template v-slot:emptySearch="state">
         <pf-empty-table :isLoading="state.isLoading">{{ $t('No syslog parsers found') }}</pf-empty-table>
       </template>
-      <template slot="buttons" slot-scope="item">
+      <template v-slot:cell(buttons)="item">
         <span class="float-right text-nowrap">
           <pf-button-delete size="sm" v-if="!item.not_deletable" variant="outline-danger" class="mr-1" :disabled="isLoading" :confirm="$t('Delete Syslog Parser?')" @on-delete="remove(item)" reverse/>
           <b-button size="sm" variant="outline-primary" class="mr-1" @click.stop.prevent="clone(item)">{{ $t('Clone') }}</b-button>
         </span>
       </template>
-      <template slot="status" slot-scope="data">
+      <template v-slot:cell(status)="item">
         <pf-form-range-toggle
-          v-model="data.status"
+          v-model="item.status"
           :values="{ checked: 'enabled', unchecked: 'disabled' }"
           :icons="{ checked: 'check', unchecked: 'times' }"
           :colors="{ checked: 'var(--success)', unchecked: 'var(--danger)' }"
-          :disabled="isLoading"
-          @input="toggleStatus(data, $event)"
+          :right-labels="{ checked: $t('Enabled'), unchecked: $t('Disabled') }"
+          :lazy="{ checked: enable(item), unchecked: disable(item) }"
           @click.stop.prevent
-        >{{ (data.status === 'enabled') ? $t('Enabled') : $t('Disabled') }}</pf-form-range-toggle>
+        />
       </template>
     </pf-config-list>
   </b-card>
@@ -47,31 +49,29 @@
 
 <script>
 import pfButtonDelete from '@/components/pfButtonDelete'
+import pfButtonService from '@/components/pfButtonService'
 import pfConfigList from '@/components/pfConfigList'
 import pfEmptyTable from '@/components/pfEmptyTable'
 import pfFormRangeToggle from '@/components/pfFormRangeToggle'
-import {
-  pfConfigurationSyslogParsersListConfig as config
-} from '@/globals/configuration/pfConfigurationSyslogParsers'
+import { config } from '../_config/syslogParser'
 
 export default {
-  name: 'SyslogParsersList',
+  name: 'syslog-parsers-list',
   components: {
     pfButtonDelete,
+    pfButtonService,
     pfConfigList,
     pfEmptyTable,
     pfFormRangeToggle
   },
-  props: {
-    storeName: { // from router
-      type: String,
-      default: null,
-      required: true
-    }
-  },
   data () {
     return {
-      config: config(this)
+      config: config(this) // ../_config/syslogParser
+    }
+  },
+  computed: {
+    isLoading () {
+      return this.$store.getters['$_syslog_parsers/isLoading']
     }
   },
   methods: {
@@ -79,22 +79,35 @@ export default {
       this.$router.push({ name: 'cloneSyslogParser', params: { id: item.id } })
     },
     remove (item) {
-      this.$store.dispatch(`${this.storeName}/deleteSyslogParser`, item.id).then(response => {
-        this.$router.go() // reload
+      this.$store.dispatch('$_syslog_parsers/deleteSyslogParser', item.id).then(() => {
+        const { $refs: { pfConfigList: { refreshList = () => {} } = {} } = {} } = this
+        refreshList() // soft reload
       })
     },
-    toggleStatus (item, newStatus) {
-      switch (newStatus) {
-        case 'enabled':
-          this.$store.dispatch(`${this.storeName}/enableSyslogParser`, item).then(response => {
-            this.$refs.pfConfigList.submitSearch() // redo search
+    enable (item) {
+      return () => { // 'enabled'
+        return new Promise((resolve, reject) => {
+          this.$store.dispatch('$_syslog_parsers/enableSyslogParser', item).then(() => {
+            this.$store.dispatch(`${this.$refs.pfConfigList.searchableStoreName}/updateItem`, { key: 'id', id: item.id, prop: 'status', data: 'enabled' }).then(() => {
+              resolve('enabled')
+            })
+          }).catch(() => {
+            reject() // reset
           })
-          break
-        case 'disabled':
-          this.$store.dispatch(`${this.storeName}/disableSyslogParser`, item).then(response => {
-            this.$refs.pfConfigList.submitSearch() // redo search
+        })
+      }
+    },
+    disable (item) {
+      return () => { // 'disabled'
+        return new Promise((resolve, reject) => {
+          this.$store.dispatch('$_syslog_parsers/disableSyslogParser', item).then(() => {
+            this.$store.dispatch(`${this.$refs.pfConfigList.searchableStoreName}/updateItem`, { key: 'id', id: item.id, prop: 'status', data: 'disabled' }).then(() => {
+              resolve('disabled')
+            })
+          }).catch(() => {
+            reject() // reset
           })
-          break
+        })
       }
     }
   }

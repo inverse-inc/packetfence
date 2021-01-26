@@ -3,8 +3,8 @@ package firewallsso
 import (
 	"testing"
 
-	"layeh.com/radius/rfc2865"
-	"layeh.com/radius/rfc2866"
+	"github.com/inverse-inc/go-radius/rfc2865"
+	"github.com/inverse-inc/go-radius/rfc2866"
 	//"github.com/davecgh/go-spew/spew"
 )
 

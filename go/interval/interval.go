@@ -17,16 +17,17 @@ type Job struct {
 	SkipWait  chan bool
 	err       error
 	schedule  scheduled
-	isRunning bool
+	doRun     func() bool
 	sync.RWMutex
+	isRunning bool
 }
 
 type recurrent struct {
-	randomize bool
 	delay     int64
 	started   time.Time
 	count     int64
 	done      bool
+	randomize bool
 }
 
 func (r *recurrent) nextRun() (time.Duration, error) {
@@ -59,6 +60,12 @@ func Every(duration string) *Job {
 	r.delay = t.Nanoseconds()
 	j := new(Job)
 	j.schedule = r
+	return j
+}
+
+// DoRun test if the job need to be run
+func (j *Job) DoRun(doRun func() bool) *Job {
+	j.doRun = doRun
 	return j
 }
 
@@ -109,7 +116,7 @@ func runJob(job *Job) {
 		return
 	}
 	rj.count += 1
-	if job.IsRunning() {
+	if job.IsRunning() || !job.doRun() {
 		return
 	}
 	job.setRunning(true)

@@ -23,6 +23,7 @@ use base qw(Config::IniFiles);
 use Time::HiRes qw(stat time);
 
 *errors = \@Config::IniFiles::errors;
+
 use List::MoreUtils qw(all first_index uniq any none);
 use Scalar::Util qw(tainted reftype);
 our $PrettyName;
@@ -518,6 +519,27 @@ sub OutputConfigToFileHandle {
     return $self->SUPER::OutputConfigToFileHandle($fh, @args) ;
 }
 
+sub populate {
+    my $self = shift;
+    my $sect = shift;
+    my $hash = shift;
+    return if not defined $sect;
+
+    $self->_caseify(\$sect);
+    if (!defined $self->{v}{$sect}) {
+        return;
+    }
+
+    my $v = $self->{v}{$sect};
+    for my $k (@_) {
+        next if !exists $v->{$k} || !defined $v->{$k};
+        my $val = $v->{$k};
+        $hash->{$k} = ref $val ? [@$val] : $val;
+    }
+
+    return;
+}
+
 =head1 AUTHOR
 
 Inverse inc. <info@inverse.ca>
@@ -525,7 +547,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2019 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 

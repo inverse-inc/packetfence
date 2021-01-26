@@ -9,6 +9,7 @@
 *.local
 *.lockone
 .#*
+node_modules
 
 # Configuration not in git
 addons/stress-tester/plan.conf
@@ -27,13 +28,26 @@ conf/caddy-services/*.conf
 conf/pfdns.conf
 conf/pfdhcp.conf
 conf/etcd.conf.yml
+conf/ssl.conf
+conf/template_switches.conf
+conf/radiusd/eap_profiles.conf
+conf/radiusd/fast.conf
+conf/radiusd/ocsp.conf
+conf/radiusd/tls.conf
+conf/remote_profiles.conf
+conf/pfcron.conf
+conf/certmanager
 bin/pfcmd
 bin/ntlm_auth_wrapper
+sbin/pfcertmanager
 sbin/pfhttpd
 sbin/pfdetect
 sbin/pfdhcp
 sbin/pfdns
 sbin/pfstats
+sbin/pfacct
+sbin/pfcron
+sbin/galera-autofix
 src/pfcmd
 !conf/nessus/remotescan.nessus
 conf/snort/emerging*.rules
@@ -49,20 +63,30 @@ raddb/eduroam.conf
 raddb/cli.conf
 raddb/sql.conf
 raddb/proxy.conf.inc
+raddb/clients.eduroam.conf.inc
 raddb/load_balancer.conf
 raddb/clients.conf.inc
 raddb/sites-available/packetfence
 raddb/sites-available/packetfence-tunnel
 raddb/sites-available/eduroam
+raddb/mods-enabled/mschap
 raddb/proxy.conf.loadbalancer
 raddb/radiusd_loadbalancer.conf
+raddb/mods-enabled/ldap_packetfence
+raddb/mods-config/perl/multi_domain_constants.pm
+raddb/mods-enabled/eap
+raddb/mods-enabled/rest
+raddb/mods-enabled/sql
+raddb/mods-config/attr_filter/packetfence-pre-proxy
 conf/adminroles.conf
 conf/device_registration.conf
+conf/self_service.conf
 conf/pki_provider.conf
 conf/authentication.conf
 conf/floating_network_device.conf
 conf/guest-managers.conf
 conf/passthrough.lua.tt
+conf/passthrough_admin.lua.tt
 conf/log.conf
 conf/chi.conf
 conf/dhcp_filters.conf
@@ -84,18 +108,20 @@ conf/radiusd/eduroam-cluster
 conf/radiusd/eduroam.conf
 conf/radiusd/ldap_packetfence.conf
 conf/radiusd/load_balancer.conf
+conf/radiusd/mschap.conf
 conf/radiusd/packetfence
 conf/radiusd/packetfence-cli
 conf/radiusd/packetfence-cluster
+conf/radiusd/packetfence-pre-proxy
 conf/radiusd/packetfence-tunnel
 conf/radiusd/proxy.conf.inc
 conf/radiusd/proxy.conf.loadbalancer
-conf/radiusd/radiusd_loadbalancer.conf
+conf/radiusd/proxy.conf.loadbalancer
 conf/radiusd/radiusd.conf
+conf/radiusd/radiusd_loadbalancer.conf
+conf/radiusd/radiusd_loadbalancer.conf
 conf/radiusd/rest.conf
 conf/radiusd/sql.conf
-conf/radiusd/proxy.conf.loadbalancer
-conf/radiusd/radiusd_loadbalancer.conf
 conf/redis_cache.conf
 conf/redis_queue.conf
 conf/redis_ntlm_cache.conf
@@ -144,8 +170,10 @@ conf/pfconfig.conf
 conf/allowed-gaming-oui.txt
 conf/cluster.conf
 conf/domain.conf
+conf/network_behavior_policies.conf
 conf/haproxy-portal.conf
 conf/haproxy-db.conf
+conf/haproxy-admin.conf
 conf/keepalived.conf
 conf/report.conf
 conf/device_registration.conf
@@ -205,6 +233,8 @@ docs/*.fo
 docs/docbook/xsl/import-fo.xsl
 docs/docbook/xsl/titlepage-fo.xsl
 docs/docbook/*.docbook
+docs/*.html
+docs/index.js
 
 # trap stats graphs
 # TODO we should move them under var/
@@ -213,6 +243,7 @@ html/admin/traplog/
 # built by package or installer
 lib/pf/pfcmd/pfcmd_pregrammar.pm
 lib/fingerbank
+html/common/package-lock.json
 
 # directories that can be ignored
 logs/
@@ -220,6 +251,7 @@ var/
 raddb/sites-enabled/
 html/captive-portal/content/node_modules/
 html/common/node_modules/
+public/
 
 # dynamic template for admin
 html/pfappserver/root/admin/v-index.tt

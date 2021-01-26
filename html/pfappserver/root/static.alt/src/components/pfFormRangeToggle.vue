@@ -1,36 +1,39 @@
 <template>
-  <b-form-group :label-cols="(columnLabel) ? labelCols : 0" :label="columnLabel"
-    :state="isValid()" :invalid-feedback="getInvalidFeedback()"
-    class="pf-form-range-toggle" :class="{ 'is-focus': focus, 'mb-0': !columnLabel }">
-    <b-input type="text" ref="vacuum" readonly :value="null" :disabled="disabled"
+  <b-form-group :label-cols="(columnLabel) ? labelCols : 0" :label="columnLabel" :state="inputState"
+    class="pf-form-range-toggle" :class="{ 'is-focus': focus && !lazyLoading, 'mb-0': !columnLabel }">
+    <template v-slot:invalid-feedback>
+      <icon name="circle-notch" spin v-if="!inputInvalidFeedback"></icon> {{ inputInvalidFeedback }}
+    </template>
+    <b-input type="text" ref="vacuum" :value="null" :disabled="disabled" readonly
       style="overflow: hidden; width: 0px; height: 0px; margin: 0px; padding: 0px; border: 0px;"
-      @focus.native="focus = true"
-      @blur.native="focus = false"
-      @keydown.native.space.prevent
-      @keyup.native="keyUp"
+      @focus="focus = true"
+      @blur="focus = false"
+      @keydown.space.prevent
+      @keyup="keyUp"
     ><!-- Vaccum tabIndex --></b-input>
     <b-input-group :style="{ width: `${width}px` }">
       <label role="range" class="pf-form-range-toggle-label">
+        <span v-if="leftLabel" class="mr-2" :class="{ 'text-secondary': lazyLoading }">{{ leftLabel }}</span>
         <input-range
           v-model="inputValue"
-          v-on="forwardListeners"
           min="0"
           max="1"
           step="1"
           :color="color"
-          :label="label"
+          :label="innerLabel"
           :listenInput="false"
           :tooltip="Object.keys(tooltips).length > 0"
           :tooltipFunction="tooltip"
           :width="width"
-          :disabled="disabled"
-          class="d-inline-block mr-2"
+          :disabled="disabled || lazyLoading"
+          class="d-inline-block"
           tabIndex="-1"
           @click="click"
         >
-          <icon v-if="icon" :name="icon"></icon>
+          <icon v-if="icon" :name="icon" :spin="lazyLoading"></icon>
         </input-range>
-        <slot/>
+        <span v-if="rightLabel" class="ml-2" :class="{ 'text-secondary': lazyLoading }">{{ rightLabel }}</span>
+        <slot class="ml-2"/>
       </label>
     </b-input-group>
     <b-form-text v-if="text" v-html="text"></b-form-text>
@@ -39,12 +42,12 @@
 
 <script>
 import InputRange from '@/components/InputRange'
-import pfMixinValidation from '@/components/pfMixinValidation'
+import pfMixinForm from '@/components/pfMixinForm'
 
 export default {
   name: 'pf-form-range-toggle',
   mixins: [
-    pfMixinValidation
+    pfMixinForm
   ],
   components: {
     InputRange
@@ -57,7 +60,7 @@ export default {
       type: String
     },
     labelCols: {
-      type: Number,
+      type: [String, Number],
       default: 3
     },
     text: {
@@ -74,82 +77,156 @@ export default {
         return { checked: true, unchecked: false }
       },
       validator (value) {
-        return (value.checked && value.unchecked)
+        return ('checked' in value && 'unchecked' in value)
       }
     },
     colors: {
       type: Object,
-      default: () => { return {} },
-      validator (value) {
-        return (value.checked && value.unchecked)
-      }
+      default: () => ({}),
+      validator: (value) => (Object.keys(value).length === 0 || 'checked' in value || 'unchecked' in value)
     },
     icons: {
       type: Object,
-      default: () => { return {} },
-      validator (value) {
-        return (value.checked && value.unchecked)
-      }
+      default: () => ({}),
+      validator: (value) => (Object.keys(value).length === 0 || 'checked' in value || 'unchecked' in value)
     },
-    labels: {
+    innerLabels: {
       type: Object,
-      default: () => { return {} },
-      validator (value) {
-        return (value.checked && value.unchecked)
-      }
+      default: () => ({}),
+      validator: (value) => (Object.keys(value).length === 0 || 'checked' in value || 'unchecked' in value)
+    },
+    lazy: {
+      type: Object,
+      default: () => ({}),
+      validator: (value) => (Object.keys(value).length === 0 || 'checked' in value || 'unchecked' in value)
+    },
+    leftLabels: {
+      type: Object,
+      default: () => ({}),
+      validator: (value) => (Object.keys(value).length === 0 || 'checked' in value || 'unchecked' in value)
+    },
+    rightLabels: {
+      type: Object,
+      default: () => ({}),
+      validator: (value) => (Object.keys(value).length === 0 || 'checked' in value || 'unchecked' in value)
     },
     tooltips: {
       type: Object,
-      default: () => { return {} },
-      validator (value) {
-        return (value.left || value.middle || value.right)
-      }
+      default: () => ({}),
+      validator: (value) => (Object.keys(value).length === 0 || 'checked' in value || 'unchecked' in value)
     },
     width: {
-      type: Number,
+      type: [String, Number],
       default: 40
     }
   },
   data () {
     return {
-      focus: false
+      focus: false,
+      lazyLoading: false
     }
   },
   computed: {
     inputValue: {
       get () {
-        switch (this.value) {
+        let value
+        if (this.formStoreName) {
+          value = this.formStoreValue // use FormStore
+        } else {
+          value = this.value // use native (v-model)
+        }
+        switch (value) {
           case this.values.checked:
             return 1
           default:
             return 0
         }
       },
-      set (newValue) {
-        switch (parseInt(newValue)) {
+      set (newValue = null) {
+        let previousValue // for lazyLoading
+        switch (this.inputValue) {
           case 1:
-            this.$emit('input', this.values.checked)
+            previousValue = this.values.checked
             break
           default:
-            this.$emit('input', this.values.unchecked)
+            previousValue = this.values.unchecked
+        }
+
+        let value
+        switch (parseInt(newValue)) {
+          case 1:
+            value = this.values.checked
+            break
+          default:
+            value = this.values.unchecked
+        }
+        if (this.formStoreName) {
+          this.formStoreValue = value // use FormStore
+        } else {
+          this.$emit('input', value) // use native (v-model)
+        }
+
+        // lazy handling
+        if (Object.keys(this.lazy).length > 0) {
+          const { lazy: { checked: lazyChecked, unchecked: lazyUnchecked } = {}, values: { checked, unchecked } = {} } = this
+          switch (value) {
+            case checked:
+              this.lazyLoading = true
+              Promise.resolve(lazyChecked(value)).then((lazyValue) => {
+                value = lazyValue
+              }).catch((newValue = previousValue) => {
+                value = newValue
+              }).finally(() => {
+                this.lazyLoading = false
+                if (this.formStoreName) {
+                  this.formStoreValue = value // use FormStore
+                } else {
+                  this.$set(this, 'value', value)
+                  this.$emit('input', this.value) // use native (v-model)
+                }
+              })
+              break
+            case unchecked:
+              this.lazyLoading = true
+              Promise.resolve(lazyUnchecked(value)).then((lazyValue) => {
+                value = lazyValue
+              }).catch((newValue = previousValue) => {
+                value = newValue
+              }).finally(() => {
+                this.lazyLoading = false
+                if (this.formStoreName) {
+                  this.formStoreValue = value // use FormStore
+                } else {
+                  this.$set(this, 'value', value)
+                  this.$emit('input', this.value) // use native (v-model)
+                }
+              })
+              break
+          }
         }
       }
     },
-    forwardListeners () {
-      const { input, ...listeners } = this.$listeners
-      return listeners
-    },
     color () {
-      if (this.colors === null) return null
+      if (Object.keys(this.colors).length === 0) return null
       return (this.inputValue === 1) ? this.colors.checked : this.colors.unchecked
     },
     icon () {
-      if (this.icons === null) return null
+      if (this.lazyLoading) return 'circle-notch'
+      if (Object.keys(this.icons).length === 0) return null
       return (this.inputValue === 1) ? this.icons.checked : this.icons.unchecked
     },
-    label () {
-      if (this.labels === null) return null
-      return (this.inputValue === 1) ? this.labels.checked : this.labels.unchecked
+    innerLabel () {
+      if (Object.keys(this.innerLabels).length === 0) return null
+      if (this.lazyLoading) return null
+      return (this.inputValue === 1) ? this.innerLabels.checked : this.innerLabels.unchecked
+    },
+    leftLabel () {
+      if (Object.keys(this.leftLabels).length === 0) return null
+      return (this.inputValue === 1) ? this.leftLabels.checked : this.leftLabels.unchecked
+    },
+    rightLabel () {
+      if (Object.keys(this.rightLabels).length === 0) return null
+      return (this.inputValue === 1) ? this.rightLabels.checked : this.rightLabels.unchecked
     }
   },
   methods: {
@@ -160,11 +237,11 @@ export default {
       this.$refs.vacuum.$el.focus() // focus vacuum
       this.toggle(event)
     },
-    toggle (event) {
+    toggle () {
       this.inputValue = (this.inputValue === 1) ? 0 : 1
     },
     keyUp (event) {
-      if (this.disabled) return
+      if (this.disabled || this.lazyLoading) return
       switch (event.keyCode) {
         case 8: // backspace
         case 32: // space
@@ -181,13 +258,13 @@ export default {
           this.$set(this, 'inputValue', 1) // set index 1
           return
       }
-      if (this.values.checked.charAt(0).toLowerCase() !== this.values.unchecked.charAt(0).toLowerCase()) {
+      if (this.values.checked.toString().charAt(0).toLowerCase() !== this.values.unchecked.toString().charAt(0).toLowerCase()) {
         // allow first character from value(s)
         switch (String.fromCharCode(event.keyCode).toLowerCase()) {
-          case this.values.unchecked.charAt(0).toLowerCase():
+          case this.values.unchecked.toString().charAt(0).toLowerCase():
             this.$set(this, 'inputValue', 0) // set index 0
             break
-          case this.values.checked.charAt(0).toLowerCase():
+          case this.values.checked.toString().charAt(0).toLowerCase():
             this.$set(this, 'inputValue', 1) // set index 1
             break
         }
@@ -198,17 +275,18 @@ export default {
 </script>
 
 <style lang="scss">
-@import "../../node_modules/bootstrap/scss/functions";
-@import "../styles/variables";
-@import "../../node_modules/bootstrap/scss/root";
-
 @keyframes animateCursor {
-  0%, 100% { background-color: rgba(0, 0, 0, 1); }
-  10%, 90% { background-color: rgba(0, 0, 0, 0.8); }
-  20%, 80% { background-color: rgba(0, 0, 0, 0.6); }
-  30%, 70% { background-color: rgba(0, 0, 0, 0.4); }
-  40%, 60% { background-color: rgba(0, 0, 0, 0.2); }
-  50% { background-color: rgba(0, 0, 0, 0); }
+  0%, 100% { background-color: rgba(255, 255, 255, 1); }
+  5%, 95% { background-color: rgba(255, 255, 255, 0.9); }
+  10%, 90% { background-color: rgba(255, 255, 255, 0.8); }
+  15%, 85% { background-color: rgba(255, 255, 255, 0.7); }
+  20%, 80% { background-color: rgba(255, 255, 255, 0.6); }
+  25%, 75% { background-color: rgba(255, 255, 255, 0.5); }
+  30%, 70% { background-color: rgba(255, 255, 255, 0.4); }
+  35%, 65% { background-color: rgba(255, 255, 255, 0.3); }
+  40%, 60% { background-color: rgba(255, 255, 255, 0.2); }
+  45%, 55% { background-color: rgba(255, 255, 255, 0.1); }
+  50% { background-color: rgba(255, 255, 255, 0); }
 }
 
 .pf-form-range-toggle {
@@ -239,8 +317,6 @@ export default {
     vertical-align: middle;
     margin: 0;
     user-select: none;
-    font-size: $font-size-sm;
-    font-weight: 600;
   }
 
   .range {

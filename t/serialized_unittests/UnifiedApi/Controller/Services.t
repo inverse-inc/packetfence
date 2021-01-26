@@ -33,8 +33,8 @@ $t->get_ok("/api/v1/services" => json => { })
     ->json_has('/items')
     ->status_is(200);
 
-my $services = $t->tx->res->json->{items};
-foreach my $service (@$services) {
+my @services = grep { $_ ne 'iptables' && $_ ne "tracking-config" } @{$t->tx->res->json->{items}};
+foreach my $service (@services) {
     
   $t->get_ok("/api/v1/service/$service/status" => json => { }) 
     ->json_has('/alive')
@@ -62,7 +62,7 @@ foreach my $service (@$services) {
         $t->post_ok("/api/v1/service/$service/restart" => json => { })
         ->json_is('/restart', 1)
         ->json_has('/pid')
-        ->json_unlike('/pid', qr/$pid/)
+        ->json_unlike('/pid', qr/$pid/, "different pid for $service after restart")
         ->status_is(200);
     }
     if( $enabled ) {
@@ -99,7 +99,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2019 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 

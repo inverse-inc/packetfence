@@ -16,18 +16,7 @@ set -e
 # for details, see http://www.debian.org/doc/debian-policy/ or
 # the debian-policy package
 
-if $(dpkg-distribution --is_jessie) ; then
-    DIST=jessie
-fi
-if $(dpkg-distribution --is_wheezy) ; then
-    DIST=wheezy
-fi
-if $(dpkg-distribution --is_precise) ; then
-    DIST=precise
-fi
-if $(dpkg-distribution --is_stretch) ; then
-    DIST=stretch
-fi
+DIST=$(lsb_release -c -s)
 
 case "$1" in
     upgrade|deconfigure)
@@ -44,7 +33,7 @@ case "$1" in
             fi
         fi
         if [ ${DIST} = "jessie" ] || [ ${DIST} = "stretch" ]; then
-            systemctl stop packetfence-httpd.admin
+            systemctl stop packetfence-haproxy-admin
             systemctl set-default multi-user.target
             systemctl isolate multi-user.target
         fi

@@ -1,3 +1,4 @@
+# Copyright (C) Inverse inc.
 
 pidfile = [% pid_file %]
 
@@ -19,7 +20,7 @@ listen {
         ipaddr = [% ip %]
         port = 0
         type = auth
-        virtual_server = packetfence
+        virtual_server = [% virtual_server %]
 }
 
 listen {

@@ -105,7 +105,7 @@ sub build {
         }
 
         die "Missing mandatory element ip or netmask on interface $int"
-            if ( $type =~ /internal|managed|management|portal|radius|dhcp|dns/ && !defined($int_obj) );
+            if ( $type =~ /internal|managed|management|portal|radius|dhcp$|dns/ && !defined($int_obj) );
 
         foreach my $type ( split( /\s*,\s*/, $type ) ) {
             if ( $type eq 'internal' ) {
@@ -147,6 +147,7 @@ sub build {
             elsif ( $type eq 'portal' ) {
                 $int_obj->tag( "vip", $self->_fetch_virtual_ip( $int, $interface ) );
                 push @{ $self->{_interfaces}->{portal_ints} }, $int_obj;
+                push @{ $self->{_interfaces}->{listen_ints} }, $int if ( $int !~ /:\d+$/ );
             }
             elsif ( $type eq 'radius' ) {
                 $int_obj->tag( "vip", $self->_fetch_virtual_ip( $int, $interface ) );
@@ -195,7 +196,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2019 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 

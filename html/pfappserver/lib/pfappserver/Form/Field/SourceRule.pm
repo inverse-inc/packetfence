@@ -37,6 +37,20 @@ has_field 'description' => (
     required => 0,
 );
 
+=head2 status
+
+The status of the rule if it is enabled or disabled
+
+=cut
+
+has_field 'status' => (
+    type            => 'Toggle',
+    label           => 'Enable rule',
+    checkbox_value  => 'enabled',
+    unchecked_value => 'disabled',
+    default         => 'enabled'
+);
+
 has_field 'match' => (
     type            => 'Select',
     localize_labels => 1,
@@ -126,8 +140,8 @@ sub validate {
     }
 
     if ($class eq 'authentication') {
-        unless ($typesCount{$Actions::SET_ROLE}) {
-            $actions->add_error("You must set a role.");
+        unless ($typesCount{$Actions::SET_ROLE} || $typesCount{$Actions::SET_ROLE_ON_NOT_FOUND}) {
+            $actions->add_error("You must set a role or a role on not found.");
         }
 
         if (!$typesCount{$Actions::SET_UNREG_DATE} && !$typesCount{$Actions::SET_ACCESS_DURATION}) {
@@ -143,7 +157,7 @@ sub validate {
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2019 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 

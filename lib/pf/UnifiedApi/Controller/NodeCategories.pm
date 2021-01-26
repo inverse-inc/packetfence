@@ -19,7 +19,7 @@ use pf::dal::node_category;
 
 has dal => 'pf::dal::node_category';
 has url_param_name => 'node_category_id';
-has primary_key => 'id';
+has primary_key => 'category_id';
 
 =head1 AUTHOR
 
@@ -27,7 +27,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2019 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 

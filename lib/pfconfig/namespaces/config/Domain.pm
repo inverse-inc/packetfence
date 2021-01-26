@@ -30,11 +30,12 @@ sub init {
     my ($self, $host_id) = @_;
     $self->{host_id} = $host_id;
     $self->{file} = $domain_config_file;
-    $self->{child_resources} = [ 'resource::domain_dns_servers' ];
+    $self->{child_resources} = [ 'resource::domain_dns_servers', 'resource::NtlmRedisCachedDomains' ];
 }
 
 sub build_child {
     my ($self) = @_;
+    my %reverseLookup;
 
     my %tmp_cfg = %{$self->{cfg}};
 
@@ -59,7 +60,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2019 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 

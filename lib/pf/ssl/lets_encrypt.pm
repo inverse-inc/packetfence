@@ -54,8 +54,8 @@ sub obtain_certificate {
 
     my $le = Crypt::LE->new(
         debug => 2, 
-        logger => get_logger,
         live => isenabled($Config{lets_encrypt}{live}),
+        version => 2,
     );
     $le->generate_account_key();
     $le->load_csr_key($key_path);
@@ -155,7 +155,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2019 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 

@@ -16,11 +16,13 @@ with qw(
   pfappserver::Base::Form::Role::Help
   pfappserver::Base::Form::Role::SourceLocalAccount
   pfappserver::Base::Form::Role::EmailFiltering
+  pfappserver::Base::Form::Role::SourcesAssociated
 );
 
 use pfappserver::Form::Field::Duration;
 use pf::Authentication::Source::SponsorEmailSource;
-use pf::config qw(%Doc_Config);
+use pf::config qw(%Config %Doc_Config);
+use pf::authentication;
 
 # Form fields
 
@@ -72,11 +74,18 @@ has_field 'lang' =>
   (
    type => 'Select',
    label => 'Language for sponsor email',
-   default => '',
+   default => $Config{advanced}{language},
    options_method => \&lang_options,
    tags => { after_element => \&help,
              help => 'Language for sponsor email.' },
   );
+
+has_field 'register_on_activation' => (
+    type            => 'Toggle',
+    checkbox_value  => 'enabled',
+    unchecked_value => 'disabled',
+    default => $META->get_attribute('register_on_activation')->default,
+);
 
 sub lang_options {
     return (
@@ -91,7 +100,7 @@ sub lang_options {
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2019 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 

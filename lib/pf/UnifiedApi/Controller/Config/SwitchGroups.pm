@@ -41,13 +41,21 @@ sub members {
     return $self->render( json => { items => \@items } );
 }
 
+=head2 fields_to_mask
+
+fields_to_mask
+
+=cut
+
+sub fields_to_mask { qw(radiusSecret cliPwd wsPwd) }
+
 =head1 AUTHOR
 
 Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2019 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 

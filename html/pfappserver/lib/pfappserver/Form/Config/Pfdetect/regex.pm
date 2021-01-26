@@ -16,6 +16,11 @@ with 'pfappserver::Base::Form::Role::Help';
 use pfappserver::Form::Field::DynamicList;
 use pf::log;
 
+has_field '+type' =>
+  (
+   default => 'regex',
+  );
+
 =head2 rules
 
 The list of rule
@@ -75,7 +80,7 @@ has_block definition =>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2019 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 

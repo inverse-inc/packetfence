@@ -57,15 +57,13 @@ sub description { 'Cisco ASA Firewall' }
 
 # CAPABILITIES
 # access technology supported
-sub supportsRadiusDynamicVlanAssignment { return $TRUE; }
-
-sub supportsAccessListBasedEnforcement { return $TRUE }
-
-sub supportsExternalPortal { return $TRUE; }
-
-sub supportsRoleBasedEnforcement { return $TRUE; }
-
-sub supportsVPN { return $TRUE; }
+use pf::SwitchSupports qw(
+    RadiusDynamicVlanAssignment
+    AccessListBasedEnforcement
+    ExternalPortal
+    RoleBasedEnforcement
+    VPN
+);
 
 =item identifyConnectionType
 
@@ -113,7 +111,7 @@ Return the reference to the deauth technique or the default deauth technique.
 =cut
 
 sub deauthTechniques {
-    my ($self, $method) = @_;
+    my ($self, $method, $connection_type) = @_;
     my $logger = $self->logger;
     my $default = $SNMP::RADIUS;
     my %tech = (
@@ -177,8 +175,7 @@ sub returnAuthorizeVPN {
         }
     }
     if ( isenabled($self->{_AccessListMap}) && $self->supportsAccessListBasedEnforcement ){
-        if( defined($args->{'user_role'}) && $args->{'user_role'} ne "" && defined($self->getAccessListByName($args->{'user_role'}))){
-            my $access_list = $self->getAccessListByName($args->{'user_role'});
+        if( defined($args->{'user_role'}) && $args->{'user_role'} ne "" && defined(my $access_list = $self->getAccessListByName($args->{'user_role'}, $args->{mac}))){
             if ($access_list) {
                 my $acl_num = 101;
                 while($access_list =~ /([^\n]+)\n?/g){
@@ -400,7 +397,7 @@ sub parseExternalPortalRequest {
 
     # Cisco ASA uses external portal session ID handling process
     my $uri = $r->uri;
-    return unless ($uri =~ /.*sid(.*[^\/])/);
+    return unless ($uri =~ /.*sid(\w+[^\/\&])/);
     my $session_id = $1;
 
     my $locationlog = pf::locationlog::locationlog_get_session($session_id);
@@ -468,7 +465,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2019 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 

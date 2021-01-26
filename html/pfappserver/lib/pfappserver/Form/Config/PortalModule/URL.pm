@@ -22,8 +22,8 @@ has_field 'skipable' =>
   (
    type => 'Toggle',
    label => 'Skippable',
-   unchecked_value => '0',
-   checkbox_value => '1',
+   unchecked_value => 0,
+   checkbox_value => 1,
    tags => { after_element => \&help,
              help => 'Whether or not, this redirection can be skipped.' },
   );
@@ -64,7 +64,7 @@ sub BUILD {
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2019 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 

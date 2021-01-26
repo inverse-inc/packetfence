@@ -10,14 +10,22 @@ $(function() {
   window.retry_delay = vars.retry_delay;
   window.txt_web_notification = vars.txt_web_notification;
   window.timerbarAction = function() {
-    $('.timerbar').addClass('hide');
-    $('#detectionNotice').addClass('hide');
-    $('#detectionError').removeClass('hide');
+    if(vars["auto_redirect"] != 0) {
+      $('.timerbar').addClass('hide');
+      $('#detectionNotice').addClass('hide');
+      $('#detectionError').removeClass('hide');
+    }
+    else {
+      networkAccessCallback(vars.destination_url);
+    }
   }; 
 
-  if(vars.network_logoff_popup != 0) {
+  if (vars.network_logoff_popup != 0) {
     window.network_logoff_popup = "http://"+vars.hostname+"/networklogoff";
   }
+
+  // Initialize progress bar (requires timerbar.js)
+  initTimerbar();
 
   setTimeout(function() {
     // Start network detection after an initial delay

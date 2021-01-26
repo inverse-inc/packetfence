@@ -38,6 +38,10 @@ authorize {
 	#
 	filter_username
 
+        update {
+                &request:PacketFence-Outer-User := "%{outer.request:User-Name}"
+        }
+
 
 	#
 	#  If the users are logging in with an MS-CHAP-Challenge
@@ -70,13 +74,14 @@ authorize {
 	suffix
 	ntdomain
 
-%%userPrincipalName%%
+        [% authorize_filter %]
 
-	%%multi_domain%%
+[% userPrincipalName %]
 
-	%%redis_ntlm_cache_fetch%%
+	[% multi_domain %]
 
-	%%authorize_filter%%
+	[% redis_ntlm_cache_fetch %]
+
 	#
 	#  The "suffix" module takes care of stripping the domain
 	#  (e.g. "@example.com") from the User-Name attribute, and the
@@ -101,9 +106,10 @@ authorize {
 	#  for the many packets that go back and forth to set up TTLS
 	#  or PEAP.  The load on those servers will therefore be reduced.
 	#
-	eap {
-		ok = return
-	}
+
+[% authorize_eap_choice %]
+
+[% authorize_ldap_choice %]
 
 	#
 	#  Read the 'users' file
@@ -119,19 +125,8 @@ authorize {
 
 
 	#
-	#  The ldap module reads passwords from the LDAP database.
-	#-ldap
-	#
-	# Or if you want to cache the password (ex: Novell eDirectory using Universal Password) uncomment the following
-	#update control {
-	#    Cache-Status-Only = 'yes'
-	#}
-	#cache_password
-	#if (notfound) {
-	#       -ldap
-	#}
-	#cache_password
 
+[% edir_configuration %]
 
 	#
 	#  If no other module has claimed responsibility for
@@ -192,17 +187,34 @@ authenticate {
 		# If there is already an NT-Password populated in the control, we'll try it
 		# In the event it fails, it will fallback to an ntlm_auth call below
 		if(&control:NT-Password && &control:NT-Password != "") {
+			update {
+				&control:PacketFence-NTCacheHash := 1
+			}
 			mschap_local {
 				reject = 2
 			}
 			if (reject || fail) {
 				packetfence-mschap-authenticate
+				update {
+					&control:PacketFence-NTCacheHash := 0
+				}
+			}
+                        update control {
+                            Cache-Status-Only = 'yes'
+                        }
+			PacketFence-NTCacheHash
+			if (notfound) {
+				PacketFence-NTCacheHash
 			}
 		}
 		else {
 			packetfence-mschap-authenticate
 		}
 	}
+
+[% authentication_auth_type %]
+
+[% authentication_ldap_auth_type %]
 
 	# Uncomment it if you want to use ldap for authentication
 	#
@@ -259,13 +271,19 @@ session {
 #  then update the inner-tunnel reply.
 post-auth {
 	packetfence-set-tenant-id
-        if !( ("%{client:shortname}" =~ /eduroam_tlrs/)  || (&request:PacketFence-SHortName && &request:PacketFence-ShortName =~ /eduroam_tlrs/)) {
-               rest
-        }
+	PacketFence-NTCacheHash
+	if (ok) {
+		update {
+			&request:PacketFence-NTCacheHash := &control:PacketFence-NTCacheHash
+		}
+	}
+	if !( ("%{client:shortname}" =~ /eduroam_tlrs/)  || (&request:PacketFence-SHortName && &request:PacketFence-ShortName =~ /eduroam_tlrs/)) {
+		rest
+	}
 	update {
 		&request:User-Password := "******"
 	}
-	if (&control:PacketFence-Authorization-Status == "deny") {
+	if ("%{%{control:PacketFence-Authorization-Status}:-Allow}" == "deny") {
 		packetfence-audit-log-reject
 		reject
 	} else {
@@ -430,9 +448,9 @@ authorize {
 	suffix
 	ntdomain
 
-	%%multi_domain%%
+	[% multi_domain %]
 
-	%%redis_ntlm_cache_fetch%%
+	[% redis_ntlm_cache_fetch %]
 
 	#
 	#  The "suffix" module takes care of stripping the domain
@@ -608,7 +626,7 @@ post-auth {
 	update {
 		&request:User-Password := "******"
 	}
-	if (&control:PacketFence-Authorization-Status == "deny") {
+	if ("%{%{control:PacketFence-Authorization-Status}:-Allow}" == "deny") {
 		packetfence-audit-log-reject
 		reject
 	} else {

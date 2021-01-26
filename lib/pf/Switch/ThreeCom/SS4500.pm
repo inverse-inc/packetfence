@@ -80,9 +80,11 @@ sub description { '3COM SS4500' }
 
 =cut
 
-sub supportsWiredMacAuth { return $SNMP::TRUE; } 
-sub supportsRadiusVoip { return $SNMP::TRUE; }
-sub supportsLldp { return $SNMP::TRUE; }
+use pf::SwitchSupports qw(
+    WiredMacAuth
+    RadiusVoip
+    Lldp
+);
 
 
 sub getVersion {
@@ -384,9 +386,10 @@ sub _authorizeMacWithSnmp {
             "$oid_hwdot1qTpFdbSetOperate.$vlan.$mac_oid", Net::SNMP::INTEGER, $THREECOM::ADD,
         ]);
         if (!defined($result)) {
-            $logger->warn(
+            $logger->error(
                 "SNMP error tyring to perform auth. This could be normal. "
                 . "Error message: ".$self->{_sessionWrite}->error());
+            return 0;
         }
     }
     return 1;
@@ -718,7 +721,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2019 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 

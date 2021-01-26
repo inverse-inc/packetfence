@@ -178,7 +178,6 @@ sub authenticate {
         if ( defined($role) ) {
             $self->source(pf::authentication::getAuthenticationSource($source_id));
             $self->username($username);
-            $self->transfer_saving_fields();
         }
         else {
             get_logger->error("Unable to find a match in the '$realm' realm authentication source for credentials '" . $node_info->{'last_dot1x_username'} . "' while using reuseDot1xCredentials");
@@ -213,7 +212,6 @@ sub authenticate {
         $self->username($username);
         $self->source(pf::authentication::getAuthenticationSource($source_id));
         if ( $return == $LOGIN_SUCCESS ) {
-            $self->transfer_saving_fields();
             if($self->source->type eq "SQL"){
                 unless(pf::password::consume_login($username)){
                     $self->app->flash->{error} = "Account has used all of its available logins";
@@ -318,7 +316,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2019 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 

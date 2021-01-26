@@ -31,7 +31,7 @@ func TestMemTokenBackend(t *testing.T) {
 		AdminRoles: map[string]bool{
 			"Node Manager": true,
 		},
-		TenantId: 1,
+		Tenant: Tenant{Id: 1},
 	})
 
 	if !b.TokenIsValid(token) {
@@ -46,7 +46,7 @@ func TestMemTokenBackend(t *testing.T) {
 
 	roles = b.AdminActionsForToken(token)
 
-	if len(roles) != 4 {
+	if len(roles) != 5 {
 		t.Error("Got the wrong amount of roles for an existant token", spew.Sdump(roles))
 	}
 

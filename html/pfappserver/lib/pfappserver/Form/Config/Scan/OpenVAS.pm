@@ -37,6 +37,7 @@ has_field 'port' =>
 has_field 'type' =>
   (
    type => 'Hidden',
+   default => 'openvas',
   );
 
 has_block definition =>
@@ -75,7 +76,7 @@ has_field 'openvas_reportformatid' =>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2019 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 

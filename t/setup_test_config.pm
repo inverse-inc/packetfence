@@ -34,13 +34,17 @@ BEGIN {
         $management_network
     );
     # Setup IP and VIP of management network
-    if(defined($ENV{PF_TEST_MGMT_INT})){
-        my $section_name = "interface ".$ENV{PF_TEST_MGMT_INT};
-        $Config{$section_name}{ip} = $ENV{PF_TEST_MGMT_IP} // $pf::config::Config{$section_name}{ip};
-        $Config{$section_name}{vip} = $ENV{PF_TEST_MGMT_IP} // $pf::config::Config{$section_name}{vip};
-        $Config{$section_name}{mask} = $ENV{PF_TEST_MGMT_MASK} // $pf::config::Config{$section_name}{mask};
-        $management_network->tag('ip', $Config{$section_name}{ip});
-        $management_network->tag('vip', $Config{$section_name}{vip});
+    if (defined($ENV{PF_TEST_MGMT_INT})) {
+        my $int = $ENV{PF_TEST_MGMT_INT};
+        my $section_name = "interface $int";
+        my $ip = $Config{$section_name}{ip} = $ENV{PF_TEST_MGMT_IP} // $pf::config::Config{$section_name}{ip};
+        my $vip = $Config{$section_name}{vip} = $ENV{PF_TEST_MGMT_IP} // $pf::config::Config{$section_name}{vip};
+        my $mask = $Config{$section_name}{mask} = $ENV{PF_TEST_MGMT_MASK} // $pf::config::Config{$section_name}{mask};
+        untie $management_network;
+        $management_network = pfconfig::objects::Net::Netmask->new( $ip, $mask );
+        $management_network->tag('ip', $ip);
+        $management_network->tag('vip', $vip);
+        $management_network->tag( "int", $int );
     }
 
     #increase "inactivity timeout"
@@ -71,7 +75,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2019 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 

@@ -18,7 +18,7 @@ UPGRADED_DB="${DB_PREFIX}_upgraded_$$"
 
 PRISTINE_DB="${DB_PREFIX}_pristine_$$"
 
-HOST=127.0.0.1
+HOST=localhost
 
 MYSQL="mysql -upf_smoke_tester -ppacket -h$HOST"
 
@@ -31,6 +31,9 @@ if [ -e "$CURRENT_SCHEMA" ]; then
     LAST_SCHEMA=$(ls $PF_DIR/db/pf-schema-[0-9]*sql | sort --version-sort -r | head -1)
 else
     CURRENT_SCHEMA="$PF_DIR/db/pf-schema.sql"
+    if [ ! -f "$CURRENT_SCHEMA" ]; then
+        CURRENT_SCHEMA=$(ls $PF_DIR/db/pf-schema-[0-9]*sql | sort --version-sort -r | head -1 )
+    fi
     LAST_SCHEMA=$(ls $PF_DIR/db/pf-schema-[0-9]*sql | sort --version-sort -r | head -2 | tail -1)
     UPGRADE_SCRIPT=$(ls $PF_DIR/db/upgrade-[0-9]*sql | sort --version-sort -r | head -1)
 fi
@@ -74,16 +77,17 @@ for db in $UPGRADED_DB $PRISTINE_DB;do
     $MYSQLDUMP $db > "${db}.dump"
 done
 
-DIFF=$(diff -w "${PRISTINE_DB}.dump" "${UPGRADED_DB}.dump" | tee "${UPGRADED_DB}.diff" )
-
-if [ -z "$DIFF" ];then
-    echo "Upgrade is successful"
-    rm -f "${UPGRADED_DB}.diff" "${PRISTINE_DB}.dump" "${UPGRADED_DB}.dump"
-else
+#Ignore sort of indexes but ensure sort order of columns
+if [ -n "$(diff -w <(sort "${PRISTINE_DB}.dump" | perl -pi -e's/,$//')  <(sort "${UPGRADED_DB}.dump" | perl -pi -e's/,$//'))" ] ||
+    [ -n "$(diff -w <(perl -pi -e's/^\s*(KEY|CONSTRAINT).*$//' < "${PRISTINE_DB}.dump")   <(perl -pi -e's/^\s*(KEY|CONSTRAINT).*$//' <  "${UPGRADED_DB}.dump"))" ];then
+    diff -uw "${PRISTINE_DB}.dump" "${UPGRADED_DB}.dump" > "${UPGRADED_DB}.diff"
     echo "${RED_COLOR}Upgrade did not create the same db"
     echo "Please look at ${UPGRADED_DB}.diff for the differences"
     echo "You can also look at ${PRISTINE_DB}.dump and ${UPGRADED_DB}.dump${RESET_COLOR}"
     exit 1
+else
+    echo "Upgrade is successful"
+    rm -f "${PRISTINE_DB}".dump "${UPGRADED_DB}".dump
 fi
 
 for db in $UPGRADED_DB $PRISTINE_DB;do

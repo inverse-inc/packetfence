@@ -1,0 +1,189 @@
+// to display images directly on GitHub
+ifdef::env-github[]
+:encoding: UTF-8
+:lang: en
+:doctype: book
+:toc: left
+:imagesdir: ../images
+endif::[]
+
+////
+
+    This file is part of the PacketFence project.
+
+    See PacketFence_Network_Devices_Configuration_Guide-docinfo.xml for 
+    authors, copyright and license information.
+
+////
+
+//== Wireless Controllers and Access Point Configuration
+
+
+=== Assumptions
+
+Throughout this configuration example we use the following assumptions for our network infrastructure:
+
+[options="compact"]
+* PacketFence is fully configured with FreeRADIUS running
+* PacketFence IP address: 192.168.1.5
+* Normal VLAN: 1
+* Registration VLAN: 2
+* Isolation VLAN: 3
+* MAC Detection VLAN: 4
+* Guest VLAN: 5
+* VoIP, Voice VLAN: 100
+* use SNMP v2c
+* SNMP community name: public
+* RADIUS Secret: useStrongerSecret footnote:[Be careful to change the secret key to a much stronger one. A 16 character random secret with digits, upper case and lower case characters is recommended.]
+* Open SSID: PacketFence-Public
+* WPA-Enterprise SSID: PacketFence-Secure
+
+
+=== Unsupported Equipment
+
+Wireless network access configuration is a lot more consistent between vendors. This is due to the fact that the situation is a lot more standardized than the wired side: VLAN assignment is done centrally with RADIUS and that the client protocol is consistent (MAC-Authentication or 802.1X).
+
+This consistency has the benefit that a lot of the wireless network devices tend to work out-of-the-box with PacketFence. The only missing piece being, in most cases, remote deauthentication of the client which is used for VLAN assignment (deauth user so it'll reconnect and get new VLAN).
+
+So, even if your wireless equipment is not explicitly supported by PacketFence, it's recommended that you give it a try. The next section covers the objectives that you want to accomplish for trying out your equipment even if we don't have configuration for it.
+
+Here are the high-level requirements for proper wireless integration with PacketFence
+
+* The appropriate VLANs must exist
+* Allow controller to honor VLAN assignments from AAA (sometimes called AAA override)
+* Put your open SSID (if any) in MAC-Authentication mode and authenticate against the FreeRADIUS hosted on PacketFence
+* Put your secure SSID (if any) in 802.1X mode and authenticate against FreeRADIUS hosted on PacketFence.
+* On registration / isolation VLANs the DHCP traffic must reach the PacketFence server
+* On your production VLANs a copy of the DHCP traffic must reach PacketFence where a pfdhcplistener listens (configurable in `pf.conf` under `interfaces`)
+
+At this point, user registration with the captive-portal is possible and registered users should have access to the appropriate VLANs. However, VLAN changes (like after a registration) won't automatically happen, you will need to disconnect / reconnect. An explanation is provided in introduction section above about this behavior.
+
+You can try modules similar to your equipment if any (read appropriate instructions) or you can try to see if RFC3576 is supported. RFC3576 covers RADIUS Packet of Disconnect (PoD) also known as Disconnect Messages (DM) or Change of Authorization (CoA). You can try the Aruba module if you want to verify if RFC3576 is supported by your hardware.
+
+If none of the above worked then you can fallback to inline enforcement or let us know what equipment you are using on the https://lists.sourceforge.net/lists/listinfo/packetfence-devel[packetfence-devel mailing list].
+
+=== Aerohive Networks
+
+include::networkdevice/aerohive.asciidoc[]
+
+[float]
+===== Roles (User Profiles)
+
+Since PacketFence 3.3.0, we now support user profiles on the AeroHIVE hardware.  To build a User Profile, go to _Configuration -> User Profiles_, and create what you need.  When you define the switch
+definition in PacketFence, the role will match the User Profile attribute number.  Example
+
+   roles=CategoryStudent=1;CategoryStaff=2
+
+And in the AeroHIVE configuration, you have :
+
+   StudentProfile attribute number 1
+   StaffProfile attribute number 2
+
+Last step is to allow the User Profile to be returned for a particular SSID.  Go to _Configuration -> SSIDs -> Your_SSID -> User Profiles_ for Traffic Management*, and select the User Profiles you will
+return for the devices.
+
+In version 6 or later of the HiveOS, we do return VLAN ID matching the number that the *User Profile* has. Create your *User Profile* in the HiveManager as usual, assign the matching VLAN, and in PacketFence configuration add the wanted VLAN ID in the section *Roles by VLAN*.
+
+=== Anyfi Networks
+
+include::networkdevice/anyfi.asciidoc[]
+
+=== Avaya
+
+==== Wireless Controller
+
+NOTE: To be contributed....
+
+=== Aruba
+
+include::networkdevice/aruba.asciidoc[]
+
+=== Belair Networks (now Ericsson)
+
+include::networkdevice/belair_networks_ericsson.asciidoc
+
+=== Brocade
+
+==== RF Switches
+
+See the <<_motorola,Motorola RF Switches>> documentation.
+
+=== Cambium
+
+include::networkdevice/cambium.asciidoc[]
+
+=== Cisco
+
+include::networkdevice/cisco_ap.asciidoc[]
+
+=== CoovaChilli
+
+include::networkdevice/coovachilli.asciidoc[]
+
+=== D-Link
+
+==== DWL Access-Points and DWS 3026
+
+NOTE: To be contributed...
+
+=== Extricom
+
+include::networkdevice/extricom.asciidoc[]
+
+=== Fortinet FortiGate
+
+include::networkdevice/fortinet_fortigate.asciidoc[]
+
+=== Hostapd
+
+include::networkdevice/hostapd.asciidoc[]
+
+=== Huawei
+
+include::networkdevice/huawei_ap.asciidoc[]
+
+=== Meraki
+
+include::networkdevice/meraki.asciidoc[]
+
+=== Mikrotik
+
+include::networkdevice/mikrotik.asciidoc[]
+
+=== HP
+
+==== ProCurve Controller MSM710
+
+  To be contributed...
+
+=== Meru
+
+include::networkdevice/meru.asciidoc[]
+
+=== Mojo Networks
+
+include::networkdevice/mojo_networks.asciidoc[]
+
+=== Motorola
+
+include::networkdevice/motorola.asciidoc[]
+
+=== Ruckus
+
+include::networkdevice/ruckus.asciidoc[]
+
+=== Ruckus SmartZone
+
+include::networkdevice/ruckus_smartzone.asciidoc[]
+
+=== Trapeze
+
+include::networkdevice/trapeze.asciidoc[]
+
+=== Ubiquiti
+
+include::networkdevice/ubiquiti_ap.asciidoc[]
+
+=== Xirrus
+
+include::networkdevice/xirrus.asciidoc[]

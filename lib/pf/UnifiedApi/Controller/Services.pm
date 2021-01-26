@@ -25,29 +25,32 @@ sub resource {
     my $class = $self->_get_service_class($service_id);
 
     return 1 if defined($class);
-    $self->render_error(404, { message => $self->status_to_error_msg(404) });
+    $self->render_error(404, $self->status_to_error_msg(404));
     return undef;
-}
-
-sub cluster_status {
-    my ($self) = @_;
-    my @services = @pf::services::ALL_MANAGERS;
-    my @servers = pf::cluster::enabled_servers;
-
-    my @results;
-    for my $server (@servers) {
-        my $client = pf::api::unifiedapiclient->new;
-        $client->host($server->{management_ip});
-        my $stat = $client->call("GET", "/api/v1/services/status_all", {});
-        push @results, { host => $server->{host}, services => $stat->{items} };
-    }
-
-    $self->render(json => { items => \@results });
 }
 
 sub list {
     my ($self) = @_;
     $self->render(json => { items => [ map {$_->name} grep { $_->name ne 'pf' } @pf::services::ALL_MANAGERS ] });
+}
+
+sub update_systemd {
+    my ($self) = @_;
+    
+    my $service = $self->_get_service_class($self->param('service_id'));
+    my $services = $service->name eq 'pf' ? [ grep {$_ ne 'pf'} @pf::services::ALL_SERVICES ] : [ $service->name ];
+    my @managers = pf::services::getManagers( $services );
+
+    for my $manager (@managers) {
+        if ( $manager->isManaged ) {
+            $manager->sysdEnable();
+        }
+        else {
+            $manager->sysdDisable();
+        }
+    }
+    my $name = $service->name;
+    return $self->render(json => {message => "Updated systemd for $name"});
 }
 
 sub status {
@@ -152,7 +155,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2019 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 

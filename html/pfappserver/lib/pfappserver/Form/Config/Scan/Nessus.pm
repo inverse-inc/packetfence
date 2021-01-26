@@ -37,6 +37,7 @@ has_field 'port' =>
 has_field 'type' =>
   (
    type => 'Hidden',
+   default => 'nessus',
   );
 
 has_block definition =>
@@ -59,7 +60,7 @@ has_field 'nessus_clientpolicy' =>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2019 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 

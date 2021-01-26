@@ -40,7 +40,7 @@ sub build_child {
     my %tmp_cfg = %{ $self->{cfg} };
 
     $self->cleanup_whitespaces( \%tmp_cfg );
-
+    $self->roleReverseLookup(\%tmp_cfg, 'vlan_filters', qw(role));
     return \%tmp_cfg;
 
 }
@@ -51,7 +51,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2019 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 

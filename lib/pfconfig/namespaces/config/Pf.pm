@@ -26,11 +26,14 @@ use pf::file_paths qw(
     $pf_default_file
     $pf_config_file
     $log_dir
+    $server_pem
 );
 use pf::util;
 use pf::constants::config qw($DEFAULT_SMTP_PORT $DEFAULT_SMTP_PORT_SSL $DEFAULT_SMTP_PORT_TLS %ALERTING_PORTS);
-use List::MoreUtils qw(uniq);
+use pf::constants qw($TRUE $FALSE);
+use List::MoreUtils qw(uniq any);
 use DateTime::TimeZone;
+use Crypt::OpenSSL::X509;
 
 use base 'pfconfig::namespaces::config';
 
@@ -102,6 +105,9 @@ sub build_child {
         $logger->debug("Doing the cluster overlaying for host $self->{host_id}");
         while(my ($key, $config) = (each %{$ConfigCluster{$self->{host_id}}})){
             if($key =~ /^interface /){
+                unless(any {$_ eq $key} @{$self->{ordered_sections}}) {
+                    push @{$self->{ordered_sections}}, $key;
+                }
                 $logger->debug("Reconfiguring interface $key with cluster information");
                 while(my ($param, $value) = each(%$config)) {
                     $Config{$key}{$param} = $value;
@@ -157,13 +163,65 @@ sub build_child {
         $Config{alerting}{smtp_port} = $ALERTING_PORTS{$Config{alerting}{smtp_encryption}} // $DEFAULT_SMTP_PORT;
     }
 
-    unless ($Config{general}{timezone}) {
+    if ($Config{general}{timezone}) {
+        set_timezone($Config{general}{timezone});
+    }
+    else {
         my $tz = DateTime::TimeZone->new(name => 'local')->name();
         $logger->info("No timezone defined, using $tz");
         $Config{general}{timezone} = $tz;
     }
+    my $webservices = $Config{'webservices'};
+    $webservices->{jsonrpcclient_args} = {
+        username => $webservices->{'user'},
+        password => $webservices->{'pass'},
+        proto    => $webservices->{'proto'},
+        host     => $webservices->{'host'},
+        port     => $webservices->{'port'},
+    };
+
+
+    if (isenabled($Config{'captive_portal'}{'secure_redirect'}) && isSelfSigned()) {
+        $Config{'captive_portal'}{'secure_redirect'} = 'disabled';
+        get_logger->info("secure redirect has been disabled since the portal certificate is a self-signed");
+    }
 
     return \%Config;
+}
+
+sub set_timezone {
+    my ($tz) = @_;
+    my $lt = readlink("/etc/localtime"); 
+    $lt =~ s/(\.\.)?\/usr\/share\/zoneinfo\///g;
+    if($lt ne $tz) {
+        my $msg = "WARNING: The timezone is being changed from $lt to $tz on the system. It is advised to reboot the server so that all services start with the correct timezone.\n";
+        print STDERR $msg;
+        get_logger->warn($msg);
+        system("sudo timedatectl set-timezone $tz") && die "Unable to set timezone on the system \n";
+    }
+}
+
+sub isSelfSigned {
+    my $BUNDLE;
+    if (!open ($BUNDLE, '<', $server_pem)) {
+        return $FALSE;
+    }
+
+    my $pemcert = "";
+
+    while (my $row = <$BUNDLE>) {
+        $pemcert .= $row;
+        if($row =~ /^\-+END(\s\w+)?\sCERTIFICATE\-+$/) {
+            my $cert = Crypt::OpenSSL::X509->new_from_string($pemcert);
+            if ($cert->is_selfsigned) {
+                close $BUNDLE;
+                return $TRUE;
+            }
+            $pemcert = "";
+        }
+    }
+    close $BUNDLE;
+    return $FALSE;
 }
 
 =head1 AUTHOR
@@ -172,7 +230,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2019 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 

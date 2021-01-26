@@ -9,59 +9,53 @@
       <b-tabs ref="tabs" v-model="tabIndex" card>
 
         <b-tab title="Edit" active>
-          <template slot="title">
+          <template v-slot:title>
             {{ $t('Edit') }}
           </template>
           <b-row>
             <b-col>
-              <pf-form-input :column-label="$t('Owner')"
-                v-model="nodeContent.pid"
-                :vuelidate="$v.nodeContent.pid"
+              <pf-form-autocomplete :column-label="$t('Owner')"
+                :form-store-name="formStoreName" form-namespace="pid"
+                :suggestions="matchingUsers"
+                placeholder="default"
+                @search="searchUsers"
               />
               <pf-form-select :column-label="$t('Status')"
-                v-model="nodeContent.status"
+                :form-store-name="formStoreName" form-namespace="status"
                 :options="statuses"
-                :vuelidate="$v.nodeContent.status"
               />
               <pf-form-select :column-label="$t('Role')"
-                v-model="nodeContent.category_id"
+                :form-store-name="formStoreName" form-namespace="category_id"
                 :options="rolesWithNull"
-                :vuelidate="$v.nodeContent.category_id"
               />
               <pf-form-datetime :column-label="$t('Unregistration')"
-                v-model="nodeContent.unregdate"
+                :form-store-name="formStoreName" form-namespace="unregdate"
                 :moments="['1 hours', '1 days', '1 weeks', '1 months', '1 quarters', '1 years']"
-                :vuelidate="$v.nodeContent.unregdate"
-              ></pf-form-datetime>
+              />
               <pf-form-input :column-label="$t('Access Time Balance')"
-                v-model="nodeContent.time_balance"
-                :text="$t('seconds')"
-                :vuelidate="$v.nodeContent.time_balance"
+                :form-store-name="formStoreName" form-namespace="time_balance"
+                :text="$t('Seconds')"
                 type="number"
               />
               <pf-form-prefix-multiplier :column-label="$t('Bandwidth Balance')"
-                v-model="nodeContent.bandwidth_balance"
-                :max="globals.sqlLimits.ubigint.max"
-                :vuelidate="$v.nodeContent.bandwidth_balance"
-              ></pf-form-prefix-multiplier>
-              <pf-form-toggle :column-label="$t('Voice Over IP')"
-                v-model="nodeContent.voip"
+                :form-store-name="formStoreName" form-namespace="bandwidth_balance"
+                :max="sqlLimits.ubigint.max"
+              />
+              <pf-form-range-toggle :column-label="$t('Voice Over IP')"
+                :form-store-name="formStoreName" form-namespace="voip"
                 :values="{checked: 'yes', unchecked: 'no'}"
-                :vuelidate="$v.nodeContent.voip"
-              >{{ (nodeContent.voip === 'yes') ? $t('Yes') : $t('No') }}</pf-form-toggle>
+                :rightLabels="{checked: $t('Yes'), unchecked: $t('No')}"
+              />
               <pf-form-input :column-label="$t('Bypass VLAN')"
-                v-model="nodeContent.bypass_vlan"
-                :vuelidate="$v.nodeContent.bypass_vlan"
+                :form-store-name="formStoreName" form-namespace="bypass_vlan"
                 type="text"
               />
               <pf-form-select :column-label="$t('Bypass Role')"
-                v-model="nodeContent.bypass_role_id"
+                :form-store-name="formStoreName" form-namespace="bypass_role_id"
                 :options="rolesWithNull"
-                :vuelidate="$v.nodeContent.bypass_role_id"
-              ></pf-form-select>
+              />
               <pf-form-textarea :column-label="$t('Notes')"
-                v-model="nodeContent.notes"
-                :vuelidate="$v.nodeContent.notes"
+                :form-store-name="formStoreName" form-namespace="notes"
                 rows="3" max-rows="3"
               />
             </b-col>
@@ -69,14 +63,14 @@
         </b-tab>
 
         <b-tab title="Info">
-          <template slot="title">
+          <template v-slot:title>
             {{ $t('Info') }}
           </template>
           <!--
           <p class="h3 border border-left-0 border-top-0 border-right-0 pb-3 mb-3">{{ $t('Edit Node') }}</p>
           -->
           <b-row>
-            <b-col>
+            <b-col v-if="node">
               <pf-form-row class="text-nowrap" :column-label="$t('Computer Name')">
                 {{ node.computername }}
               </pf-form-row>
@@ -152,7 +146,7 @@
 
         <b-tab title="Fingerbank">
           <b-row>
-            <b-col>
+            <b-col v-if="node">
               <pf-form-row class="text-nowrap" :column-label="$t('Device Class')">
                 {{ node.device_class }}
               </pf-form-row>
@@ -199,7 +193,7 @@
         </b-tab>
 
         <b-tab title="Timeline">
-          <template slot="title">
+          <template v-slot:title>
             {{ $t('Timeline') }}
           </template>
           <b-row>
@@ -215,65 +209,70 @@
         </b-tab>
 
         <b-tab title="IPv4 Addresses">
-          <template slot="title">
-            {{ $t('IPv4') }} <b-badge pill v-if="node.ip4 && node.ip4.history && node.ip4.history.length > 0" variant="light" class="ml-1">{{ node.ip4.history.length }}</b-badge>
+          <template v-slot:title>
+            {{ $t('IPv4') }} <b-badge pill v-if="node && node.ip4 && node.ip4.history && node.ip4.history.length > 0" variant="light" class="ml-1">{{ node.ip4.history.length }}</b-badge>
           </template>
-          <b-table stacked="sm" :items="node.ip4.history" :fields="iplogFields" v-if="node.ip4" responsive show-empty striped>
-            <template slot="empty">
+          <b-table v-if="node && node.ip4"
+            :items="node.ip4.history" :fields="ipLogFields" :sort-by="iplogSortBy" :sort-desc="iplogSortDesc" responsive show-empty sort-icon-left striped>
+            <template v-slot:empty>
               <pf-empty-table :isLoading="isLoading" text="">{{ $t('No IPv4 addresses found') }}</pf-empty-table>
             </template>
           </b-table>
         </b-tab>
 
         <b-tab title="IPv6 Addresses">
-          <template slot="title">
-            {{ $t('IPv6') }} <b-badge pill v-if="node.ip6 && node.ip6.history && node.ip6.history.length > 0" variant="light" class="ml-1">{{ node.ip6.history.length }}</b-badge>
+          <template v-slot:title>
+            {{ $t('IPv6') }} <b-badge pill v-if="node && node.ip6 && node.ip6.history && node.ip6.history.length > 0" variant="light" class="ml-1">{{ node.ip6.history.length }}</b-badge>
           </template>
-          <b-table stacked="sm" :items="node.ip6.history" :fields="iplogFields" v-if="node.ip6" responsive show-empty striped>
-            <template slot="empty">
+          <b-table v-if="node && node.ip6"
+            :items="node.ip6.history" :fields="ipLogFields" :sort-by="iplogSortBy" :sort-desc="iplogSortDesc" responsive show-empty sort-icon-left striped>
+            <template v-slot:empty>
               <pf-empty-table :isLoading="isLoading" text="">{{ $t('No IPv6 addresses found') }}</pf-empty-table>
             </template>
           </b-table>
         </b-tab>
 
         <b-tab title="Location">
-          <template slot="title">
-            {{ $t('Location') }} <b-badge pill v-if="node.locations && node.locations.length > 0" variant="light" class="ml-1">{{ node.locations.length }}</b-badge>
+          <template v-slot:title>
+            {{ $t('Location') }} <b-badge pill v-if="node && node.locations && node.locations.length > 0" variant="light" class="ml-1">{{ node.locations.length }}</b-badge>
           </template>
-          <b-table stacked="sm" :items="node.locations" :fields="locationFields" responsive show-empty striped>
-              <template slot="switch" slot-scope="location">
-                {{ location.item.switch_ip }} / <mac>{{ location.item.switch_mac }}</mac><br/>
-                <b-badge class="mr-1"><icon name="wifi" class="align-baseline" scale=".6"></icon> {{ location.item.ssid }}</b-badge>
+          <b-table v-if="node"
+            :items="node.locations" :fields="locationLogFields" :sort-by="locationSortBy" :sort-desc="locationSortDesc" responsive show-empty sort-icon-left striped>
+              <template v-slot:cell(switch)="location">
+                <b-button variant="link" :to="{ name: 'switch', params: { id: location.item.switch_ip } }">{{ location.item.switch_ip }}</b-button> / <mac>{{ location.item.switch_mac }}</mac><br/>
+                <b-badge class="mr-1" v-if="location.item.port">{{ $t('Port') }}: {{ location.item.port }} <span v-if="location.item.ifDesc">({{ location.item.ifDesc }})</span></b-badge>
+                <b-badge class="mr-1" v-if="location.item.ssid"><icon name="wifi" class="align-baseline" scale=".6"></icon> {{ location.item.ssid }}</b-badge>
                 <b-badge class="mr-1">{{ $t('Role') }}: {{ location.item.role }}</b-badge>
                 <b-badge>{{ $t('VLAN') }}: {{ location.item.vlan }}</b-badge>
               </template>
-              <template slot="connection_type" slot-scope="location">
+              <template v-slot:cell(connection_type)="location">
                 {{ location.item.connection_type }} {{ connectionSubType(location.item.connection_sub_type) }}
               </template>
-              <template slot="empty">
+              <template v-slot:empty>
                 <pf-empty-table :isLoading="isLoading" text="">{{ $t('No location logs found') }}</pf-empty-table>
               </template>
             </b-table>
         </b-tab>
 
         <b-tab title="SecurityEvents">
-          <template slot="title">
-            {{ $t('Security Events') }} <b-badge pill v-if="node.security_events && node.security_events.length > 0" variant="light" class="ml-1">{{ node.security_events.length }}</b-badge>
+          <template v-slot:title>
+            {{ $t('Security Events') }} <b-badge pill v-if="node && node.security_events && node.security_events.length > 0" variant="light" class="ml-1">{{ node.security_events.length }}</b-badge>
           </template>
-          <b-table stacked="sm" :items="node.security_events" :fields="securityEventFields" :sortBy="securityEventSortBy" :sortDesc="securityEventSortDesc" responsive show-empty striped>
-            <template slot="description" slot-scope="security_event">
+          <b-table v-if="node"
+            :items="node.security_events" :fields="securityEventFields" :sortBy="securityEventSortBy" :sortDesc="securityEventSortDesc" responsive show-empty sort-icon-left striped>
+            <template v-slot:cell(description)="security_event">
               <icon v-if="!securityEventDescription(security_event.item.security_event_id)" name="circle-notch" spin></icon>
               <router-link v-else :to="{ path: `/configuration/security_event/${security_event.item.security_event_id}` }">{{ securityEventDescription(security_event.item.security_event_id) }}</router-link>
             </template>
-            <template slot="status" slot-scope="security_event">
+            <template v-slot:cell(status)="security_event">
               <b-badge pill variant="success" v-if="security_event.item.status === 'open'">{{ $t('open') }}</b-badge>
               <b-badge pill variant="danger" v-else-if="security_event.item.status === 'closed'">{{ $t('closed') }}</b-badge>
               <b-badge pill variant="secondary" v-else>{{ $t('unknown') }}</b-badge>
             </template>
-            <template slot="buttons" slot-scope="security_event">
+            <template v-slot:cell(buttons)="security_event">
               <b-button v-if="security_event.item.status === 'open'" size="sm" variant="outline-secondary" @click="release(security_event.item.id)">{{ $t('Release') }}</b-button>
             </template>
-            <template slot="empty">
+            <template v-slot:empty>
               <pf-empty-table :isLoading="isLoading" text="">{{ $t('No security events found') }}</pf-empty-table>
             </template>
           </b-table>
@@ -281,26 +280,27 @@
 
         <!-- TODO
         <b-tab title="WMI Rules">
-          <template slot="title">
+          <template v-slot:title>
             {{ $t('WMI Rules') }}
           </template>
         </b-tab>
         -->
 
         <b-tab title="Option82">
-          <template slot="title">
-            {{ $t('Option82') }} <b-badge pill v-if="node.dhcpoption82 && node.dhcpoption82.length > 0" variant="light" class="ml-1">{{ node.dhcpoption82.length }}</b-badge>
+          <template v-slot:title>
+            {{ $t('Option82') }} <b-badge pill v-if="node && node.dhcpoption82 && node.dhcpoption82.length > 0" variant="light" class="ml-1">{{ node.dhcpoption82.length }}</b-badge>
           </template>
-          <b-table stacked="sm" :items="node.dhcpoption82" :fields="dhcpOption82Fields" v-if="node.dhcpoption82" responsive show-empty striped>
-            <template slot="empty">
+          <b-table v-if="node && node.dhcpoption82"
+            :items="node.dhcpoption82" :fields="dhcpOption82Fields" :sortBy="dhcpOption82SortBy" :sortDesc="dhcpOption82SortDesc" responsive show-empty sort-icon-left striped>
+            <template v-slot:empty>
               <pf-empty-table :isLoading="isLoading" text="">{{ $t('No DHCP option82 logs found') }}</pf-empty-table>
             </template>
           </b-table>
         </b-tab>
 
       </b-tabs>
-      <b-card-footer @mouseenter="$v.nodeContent.$touch()" v-if="ifTab(['Edit', 'Location', 'Fingerbank', 'SecurityEvents'])">
-        <pf-button-save class="mr-1" v-if="ifTab(['Edit'])" :disabled="invalidForm" :isLoading="isLoading"/>
+      <b-card-footer v-if="ifTab(['Edit', 'Location', 'Fingerbank', 'SecurityEvents'])">
+        <pf-button-save class="mr-1" v-if="ifTab(['Edit'])" :disabled="disableSave" :isLoading="isLoading"/>
         <pf-button-delete class="mr-3" v-if="ifTab(['Edit'])" :disabled="isLoading" :confirm="$t('Delete Node?')" @on-delete="deleteNode()"/>
         <template v-if="ifTab(['Edit', 'Location'])">
           <template v-if="canReevaluateAccess(node)">
@@ -346,63 +346,85 @@ import pfButtonDelete from '@/components/pfButtonDelete'
 import pfButtonRefresh from '@/components/pfButtonRefresh'
 import pfEmptyTable from '@/components/pfEmptyTable'
 import pfFingerbankScore from '@/components/pfFingerbankScore'
+import pfFormAutocomplete from '@/components/pfFormAutocomplete'
 import pfFormDatetime from '@/components/pfFormDatetime'
 import pfFormInput from '@/components/pfFormInput'
 import pfFormPrefixMultiplier from '@/components/pfFormPrefixMultiplier'
+import pfFormRangeToggle from '@/components/pfFormRangeToggle'
 import pfFormRow from '@/components/pfFormRow'
 import pfFormSelect from '@/components/pfFormSelect'
 import pfFormTextarea from '@/components/pfFormTextarea'
-import pfFormToggle from '@/components/pfFormToggle'
 import { mysqlLimits as sqlLimits } from '@/globals/mysqlLimits'
 import { pfEapType as eapType } from '@/globals/pfEapType'
-import { pfRegExp as regExp } from '@/globals/pfRegExp'
-import {
-  pfDatabaseSchema as schema,
-  buildValidationFromTableSchemas
-} from '@/globals/pfDatabaseSchema'
 import {
   pfSearchConditionType as conditionType,
   pfSearchConditionValues as conditionValues
 } from '@/globals/pfSearch'
 import network from '@/utils/network'
+import usersApi from '@/views/Users/_api'
 
-const { validationMixin } = require('vuelidate')
-const { required } = require('vuelidate/lib/validators')
+import {
+  updateValidators,
+  ipLogFields,
+  locationLogFields,
+  securityEventFields,
+  dhcpOption82Fields
+} from '../_config/'
 
 export default {
-  name: 'NodeView',
+  name: 'node-view',
   components: {
-    'timeline': Timeline,
+    Timeline,
     pfButtonSave,
     pfButtonDelete,
     pfButtonRefresh,
     pfEmptyTable,
     pfFingerbankScore,
+    pfFormAutocomplete,
     pfFormDatetime,
     pfFormInput,
+    pfFormRangeToggle,
     pfFormRow,
     pfFormPrefixMultiplier,
     pfFormSelect,
-    pfFormTextarea,
-    pfFormToggle
+    pfFormTextarea
   },
-  mixins: [
-    validationMixin
-  ],
   props: {
-    storeName: { // from router
+    formStoreName: { // from router
       type: String,
       default: null,
       required: true
     },
-    mac: String
+    mac: { // from router
+      type: String,
+      default: null
+    }
   },
   data () {
     return {
-      globals: {
-        regExp: regExp,
-        sqlLimits: sqlLimits
-      },
+      sqlLimits, // @/globals/mysqlLimits
+      tabIndex: 0,
+      tabTitle: '',
+      matchingUsers: [],
+      nodeContent: {},
+
+      ipLogFields, // ../_config/
+      iplogSortBy: 'end_time',
+      iplogSortDesc: false,
+
+      locationLogFields, // ../_config/
+      locationSortBy: 'start_time',
+      locationSortDesc: true,
+
+      securityEventFields, // ../_config/
+      securityEventSortBy: 'start_date',
+      securityEventSortDesc: true,
+
+      dhcpOption82Fields, // ../_config/
+      dhcpOption82SortBy: 'created_at',
+      dhcpOption82SortDesc: true,
+
+      triggerSecurityEvent: null,
       visGroups: new DataSet(),
       visItems: new DataSet(),
       visOptions: {
@@ -415,176 +437,36 @@ export default {
           item: 'bottom'
         },
         selectable: false,
-        stack: false,
+        stack: true,
         tooltip: {
           followMouse: true
         }
-      },
-      tabIndex: 0,
-      tabTitle: '',
-      nodeContent: {},
-      iplogFields: [
-        {
-          key: 'ip',
-          label: this.$i18n.t('IP Address'),
-          sortable: true
-        },
-        {
-          key: 'start_time',
-          label: this.$i18n.t('Start Time'),
-          sortable: true,
-          formatter: this.$options.filters.shortDateTime,
-          class: 'text-nowrap'
-        },
-        {
-          key: 'end_time',
-          label: this.$i18n.t('End Time'),
-          sortable: true,
-          formatter: this.$options.filters.shortDateTime,
-          class: 'text-nowrap'
-        },
-        {
-          key: 'type',
-          label: this.$i18n.t('Type'),
-          sortable: true
-        }
-      ],
-      locationFields: [
-        {
-          key: 'switch',
-          label: this.$i18n.t('Switch/AP'),
-          sortable: true
-        },
-        {
-          key: 'connection_type',
-          label: this.$i18n.t('Connection Type'),
-          sortable: true
-        },
-        {
-          key: 'dot1x_username',
-          label: this.$i18n.t('Username'),
-          sortable: true
-        },
-        {
-          key: 'start_time',
-          label: this.$i18n.t('Start Time'),
-          sortable: true,
-          class: 'text-nowrap'
-        },
-        {
-          key: 'end_time',
-          label: this.$i18n.t('End Time'),
-          sortable: true,
-          formatter: this.$options.filters.shortDateTime,
-          class: 'text-nowrap'
-        }
-      ],
-      securityEventFields: [
-        {
-          key: 'description',
-          label: this.$i18n.t('Security Event'),
-          sortable: true
-        },
-        {
-          key: 'start_date',
-          label: this.$i18n.t('Start Time'),
-          sortable: true,
-          class: 'text-nowrap'
-        },
-        {
-          key: 'release_date',
-          label: this.$i18n.t('Release Date'),
-          sortable: true,
-          class: 'text-nowrap'
-        },
-        {
-          key: 'status',
-          label: this.$i18n.t('Status'),
-          sortable: true,
-          class: 'text-nowrap'
-        },
-        {
-          key: 'buttons',
-          label: '',
-          sortable: false,
-          class: 'text-right'
-        }
-      ],
-      securityEventSortBy: 'start_date',
-      securityEventSortDesc: true,
-      dhcpOption82Fields: [
-        {
-          key: 'created_at',
-          label: this.$i18n.t('Created At'),
-          sortable: true,
-          formatter: this.$options.filters.shortDateTime,
-          class: 'text-nowrap'
-        },
-        {
-          key: 'vlan',
-          label: this.$i18n.t('VLAN'),
-          sortable: true
-        },
-        {
-          key: 'switch_id',
-          label: this.$i18n.t('Switch IP'),
-          sortable: true,
-          class: 'text-nowrap'
-        },
-        {
-          key: 'option82_switch',
-          label: this.$i18n.t('Switch MAC'),
-          sortable: true,
-          class: 'text-nowrap'
-        },
-        {
-          key: 'port',
-          label: this.$i18n.t('Port'),
-          sortable: true
-        },
-        {
-          key: 'module',
-          label: this.$i18n.t('Module'),
-          sortable: true
-        },
-        {
-          key: 'host',
-          label: this.$i18n.t('Host'),
-          sortable: true
-        }
-      ],
-      triggerSecurityEvent: null
-    }
-  },
-  validations () {
-    return {
-      nodeContent: buildValidationFromTableSchemas(
-        schema.node, // use `node` table schema
-        {
-          // additional custom validations ...
-          pid: {
-            [this.$i18n.t('Username required.')]: required
-          }
-        }
-      )
+      }
     }
   },
   computed: {
+    form () {
+      return this.$store.getters[`${this.formStoreName}/$form`]
+    },
+    invalidForm () {
+      return this.$store.getters[`${this.formStoreName}/$formInvalid`]
+    },
     node () {
       return this.$store.state.$_nodes.nodes[this.mac]
     },
-    roles () {
-      return this.$store.getters['config/rolesList']
-    },
     rolesWithNull () {
-      // prepend a null value to roles
-      return [{ value: null, text: this.$i18n.t('No Role') }, ...this.$store.getters['config/rolesList']]
+      return [
+        { value: null, text: this.$i18n.t('No Role') }, // prepend a null value to roles
+        ...this.$store.getters['session/allowedNodeRolesList']
+      ]
     },
     securityEvents () {
       return this.$store.getters['config/sortedSecurityEvents']
     },
     securityEventsOptions () {
-      return this.securityEvents.filter(securityEvent => securityEvent.id !== 'defaults').map(securityEvent => { return { text: securityEvent.desc, value: securityEvent.id } })
+      return this.securityEvents
+        .filter(securityEvent => securityEvent.id !== 'defaults')
+        .map(securityEvent => { return { text: securityEvent.desc, value: securityEvent.id } })
     },
     statuses () {
       return conditionValues[conditionType.NODE_STATUS]
@@ -592,55 +474,73 @@ export default {
     isLoading () {
       return this.$store.getters['$_nodes/isLoading']
     },
-    invalidForm () {
-      return this.$v.nodeContent.$invalid || this.$store.getters['$_nodes/isLoading']
+    disableSave () {
+      return this.invalidForm || this.isLoading
+    },
+    escapeKey () {
+      return this.$store.getters['events/escapeKey']
     }
   },
   methods: {
+    init () {
+      // setup form store module
+      this.$store.dispatch(`${this.formStoreName}/clearForm`)
+      this.$store.dispatch(`${this.formStoreName}/clearFormValidations`)
+      this.$store.dispatch('$_nodes/getNode', this.mac).then(node => {
+        this.$store.dispatch(`${this.formStoreName}/setForm`, node)
+        this.$store.dispatch(`${this.formStoreName}/setFormValidations`, updateValidators)
+      })
+    },
+    refresh () {
+      this.$store.dispatch('$_nodes/refreshNode', this.mac).then(node => {
+        this.$store.dispatch(`${this.formStoreName}/setForm`, node)
+      })
+    },
+    save () {
+      this.$store.dispatch('$_nodes/updateNode', this.form).then(() => {
+        this.close()
+      })
+    },
+    close () {
+      this.$router.back()
+    },
+    release (id) {
+      this.$store.dispatch('$_nodes/clearSecurityEventNode', { security_event_id: id, mac: this.mac })
+    },
+    trigger () {
+      this.$store.dispatch('$_nodes/applySecurityEventNode', { security_event_id: this.triggerSecurityEvent, mac: this.mac })
+    },
+    deleteNode () {
+      this.$store.dispatch('$_nodes/deleteNode', this.mac).then(() => {
+        this.$router.push('/nodes/search')
+      })
+    },
     ifTab (set) {
       return this.$refs.tabs && set.includes(this.$refs.tabs.tabs[this.tabIndex].title)
     },
     applyReevaluateAccess () {
-      this.$store.dispatch(`${this.storeName}/reevaluateAccessNode`, this.mac).then(response => {
-        this.$store.dispatch('notification/info', { message: this.$i18n.t('Node access reevaluation initialized') })
-      }).catch((response) => {
-        this.$store.dispatch('notification/danger', { message: this.$i18n.t('Node access reevaluation failed') })
-      })
+      this.$store.dispatch('$_nodes/reevaluateAccessNode', this.mac)
     },
     applyRefreshFingerbank () {
-      this.$store.dispatch(`${this.storeName}/refreshFingerbankNode`, this.mac).then(response => {
-        this.$store.dispatch('notification/info', { message: this.$i18n.t('Node device profiling initialized') })
-      }).catch((response) => {
-        this.$store.dispatch('notification/danger', { message: this.$i18n.t('Node device profiling failed') })
-      })
+      this.$store.dispatch('$_nodes/refreshFingerbankNode', this.mac)
     },
     applyRestartSwitchport () {
-      this.$store.dispatch(`${this.storeName}/restartSwitchportNode`, this.mac).then(response => {
-        this.$store.dispatch('notification/info', { message: this.$i18n.t('Node switchport restarted') })
-      }).catch((response) => {
-        this.$store.dispatch('notification/danger', { message: this.$i18n.t('Node switchport restart failed') })
-      })
+      this.$store.dispatch('$_nodes/restartSwitchportNode', this.mac)
     },
     canReevaluateAccess (node) {
-      return (node.locations && node.locations.length > 0)
+      return (node && node.locations && node.locations.length > 0)
     },
-    cannotReevaluateAccessTooltip (node) {
+    cannotReevaluateAccessTooltip () {
       return this.$i18n.t('Node has no locations.')
     },
     canRestartSwitchport (node) {
-      return (node.locations && node.locations.filter(node =>
+      return (node && node.locations && node.locations.filter(node =>
         node.end_time === '0000-00-00 00:00:00' && // require zero end_time
         network.connectionTypeToAttributes(node.connection_type).isWired // require 'Wired'
       ).length > 0)
     },
-    cannotRestartSwitchportTooltip (node) {
+    cannotRestartSwitchportTooltip () {
       return this.$i18n.t('Node has no open wired connections.')
-    },
-    close () {
-      this.$router.push({ name: 'nodes' })
-    },
-    refresh () {
-      this.$store.dispatch('$_nodes/refreshNode', this.mac)
     },
     connectionSubType (type) {
       if (type && eapType[type]) {
@@ -651,192 +551,166 @@ export default {
       const { $store: { state: { config: { securityEvents: { [id]: { desc = '' } = {} } = {} } = {} } = {} } = {} } = this
       return desc
     },
-    save () {
-      this.$store.dispatch('$_nodes/updateNode', this.nodeContent).then(response => {
-        this.close()
-      })
-    },
-    release (id) {
-      this.$store.dispatch('$_nodes/clearSecurityEventNode', { security_event_id: id, mac: this.mac })
-    },
-    trigger () {
-      this.$store.dispatch('$_nodes/applySecurityEventNode', { security_event_id: this.triggerSecurityEvent, mac: this.mac })
-    },
-    deleteNode () {
-      this.$store.dispatch('$_nodes/deleteNode', this.mac).then(response => {
-        this.close()
-      })
-    },
-    onKeyup (event) {
-      switch (event.keyCode) {
-        case 27: // escape
-          this.close()
-      }
-    },
-    redrawVis () {
-      // buffer async calls to redraw
-      if (this.timeoutVis) clearTimeout(this.timeoutVis)
-      this.timeoutVis = setTimeout(this.setupVis, 100)
-    },
     setupVis () {
       const node = this.$store.state.$_nodes.nodes[this.mac]
-      const _this = this
-      if (node.detect_date && node.detect_date !== '0000-00-00 00:00:00') {
-        _this.addVisGroup({
-          id: this.mac + '-seen',
-          content: this.$i18n.t('Seen')
-        })
-        _this.addVisItem({
-          id: 'detect',
-          group: this.mac + '-seen',
-          start: new Date(node.detect_date),
-          end: (node.last_seen && node.last_seen !== '0000-00-00 00:00:00' && node.last_seen !== node.detect_date) ? new Date(node.last_seen) : null,
-          content: this.$i18n.t('Detected')
-        })
-      } else if (node.last_seen && node.last_seen !== '0000-00-00 00:00:00') {
-        _this.addVisGroup({
-          id: this.mac + '-seen',
-          content: this.$i18n.t('Seen')
-        })
-        this.addVisItem({
-          id: 'last_seen',
-          group: this.mac + '-seen',
-          start: new Date(node.last_seen),
-          content: this.$i18n.t('Last Seen')
-        })
-      }
-      if (node.regdate && node.regdate !== '0000-00-00 00:00:00') {
-        _this.addVisGroup({
-          id: this.mac + '-registered',
-          content: this.$i18n.t('Registered')
-        })
-        _this.addVisItem({
-          id: 'regdate',
-          group: this.mac + '-registered',
-          start: new Date(node.regdate),
-          end: (node.unregdate && node.unregdate !== '0000-00-00 00:00:00' && node.unregdate !== node.regdate) ? new Date(node.unregdate) : null,
-          content: this.$i18n.t('Registered')
-        })
-      }
-      if (node.last_arp && node.last_arp !== '0000-00-00 00:00:00') {
-        _this.addVisGroup({
-          id: this.mac + '-general',
-          content: this.$i18n.t('General')
-        })
-        _this.addVisItem({
-          id: 'last_arp',
-          group: this.mac + '-general',
-          start: new Date(node.last_arp),
-          content: this.$i18n.t('Last ARP')
-        })
-      }
-      if (node.last_dhcp && node.last_dhcp !== '0000-00-00 00:00:00') {
-        _this.addVisGroup({
-          id: this.mac + '-general',
-          content: this.$i18n.t('General')
-        })
-        _this.addVisItem({
-          id: 'last_dhcp',
-          group: this.mac + '-general',
-          start: new Date(node.last_dhcp),
-          content: this.$i18n.t('Last DHCP')
-        })
-      }
-      if (node.lastskip && node.lastskip !== '0000-00-00 00:00:00') {
-        _this.addVisGroup({
-          id: this.mac + '-general',
-          content: this.$i18n.t('General')
-        })
-        _this.addVisItem({
-          id: 'lastskip',
-          group: this.mac + '-general',
-          start: new Date(node.lastskip),
-          content: this.$i18n.t('Last Skip')
-        })
-      }
-      try {
-        node.ip4.history.forEach(function (ip4, index, ip4s) {
-          _this.addVisGroup({
-            id: _this.mac + '-ipv4',
-            content: _this.$i18n.t('IPv4 Addresses')
+      if (node) {
+        if (node.detect_date && node.detect_date !== '0000-00-00 00:00:00') {
+          this.addVisGroup({
+            id: `${this.mac}-seen`,
+            content: this.$i18n.t('Seen')
           })
-          _this.addVisItem({
-            id: 'ipv4-' + ip4.ip,
-            group: _this.mac + '-ipv4',
-            start: new Date(ip4.start_time),
-            end: (ip4.end_time !== '0000-00-00 00:00:00' && ip4.end_time !== ip4.start_time) ? new Date(ip4.end_time) : null,
-            content: ip4.ip
+          this.addVisItem({
+            id: 'detect',
+            group: `${this.mac}-seen`,
+            start: new Date(node.detect_date),
+            end: (node.last_seen && node.last_seen !== '0000-00-00 00:00:00' && node.last_seen !== node.detect_date) ? new Date(node.last_seen) : null,
+            content: this.$i18n.t('Detected')
           })
-        })
-      } catch (e) {
-        // noop
-      }
-      try {
-        node.ip6.history.forEach(function (ip6, index, ip6s) {
-          _this.addVisGroup({
-            id: _this.mac + '-ipv6',
-            content: _this.$i18n.t('IPv6 Addresses')
+        } else if (node.last_seen && node.last_seen !== '0000-00-00 00:00:00') {
+          this.addVisGroup({
+            id: `${this.mac}-seen`,
+            content: this.$i18n.t('Seen')
           })
-          _this.addVisItem({
-            id: 'ipv6-' + ip6.ip,
-            group: _this.mac + '-ipv6',
-            start: new Date(ip6.start_time),
-            end: (ip6.end_time !== '0000-00-00 00:00:00' && ip6.end_time !== ip6.start_time) ? new Date(ip6.end_time) : null,
-            content: ip6.ip
+          this.addVisItem({
+            id: 'last_seen',
+            group: `${this.mac}-seen`,
+            start: new Date(node.last_seen),
+            content: this.$i18n.t('Last Seen')
           })
-        })
-      } catch (e) {
-        // noop
-      }
-      try {
-        node.locations.forEach(function (location, index, locations) {
-          _this.addVisGroup({
-            id: _this.mac + '-location',
-            content: _this.$i18n.t('Locations')
+        }
+        if (node.regdate && node.regdate !== '0000-00-00 00:00:00') {
+          this.addVisGroup({
+            id: `${this.mac}-registered`,
+            content: this.$i18n.t('Registered')
           })
-          _this.addVisItem({
-            id: 'location-' + location.id,
-            group: _this.mac + '-location',
-            start: new Date(location.start_time),
-            end: (location.end_time && location.end_time !== '0000-00-00 00:00:00' && location.end_time !== location.start_time) ? new Date(location.end_time) : null,
-            content: location.ssid + '/' + _this.$i18n.t('Role') + ':' + location.role + '/VLAN:' + location.vlan
+          this.addVisItem({
+            id: 'regdate',
+            group: `${this.mac}-registered`,
+            start: new Date(node.regdate),
+            end: (node.unregdate && node.unregdate !== '0000-00-00 00:00:00' && node.unregdate !== node.regdate) ? new Date(node.unregdate) : null,
+            content: this.$i18n.t('Registered')
           })
-        })
-      } catch (e) {
-        // noop
-      }
-      try {
-        node.security_events.forEach(function (securityEvent, index, securityEvents) {
-          _this.addVisGroup({
-            id: _this.mac + '-security_event',
-            content: _this.$i18n.t('Security Events')
+        }
+        if (node.last_arp && node.last_arp !== '0000-00-00 00:00:00') {
+          this.addVisGroup({
+            id: `${this.mac}-general`,
+            content: this.$i18n.t('General')
           })
-          _this.addVisItem({
-            id: 'security_event' + securityEvent.security_event_id,
-            group: _this.mac + '-security_event',
-            start: new Date(securityEvent.start_date),
-            end: (securityEvent.release_date !== '0000-00-00 00:00:00' && securityEvent.release_date !== securityEvent.start_date) ? new Date(securityEvent.release_date) : null,
-            content: _this.securityEventDescription(securityEvent.security_event_id)
+          this.addVisItem({
+            id: 'last_arp',
+            group: `${this.mac}-general`,
+            start: new Date(node.last_arp),
+            content: this.$i18n.t('Last ARP')
           })
-        })
-      } catch (e) {
-        // noop
-      }
-      try {
-        node.dhcpoption82.forEach(function (dhcpoption82, index, dhcpoption82s) {
-          _this.addVisGroup({
-            id: _this.mac + '-dhcpoption82',
-            content: _this.$i18n.t('DHCP Option 82')
+        }
+        if (node.last_dhcp && node.last_dhcp !== '0000-00-00 00:00:00') {
+          this.addVisGroup({
+            id: `${this.mac}-general`,
+            content: this.$i18n.t('General')
           })
-          _this.addVisItem({
-            id: 'dhcpoption82' + dhcpoption82.created_at,
-            group: _this.mac + '-dhcpoption82',
-            start: new Date(dhcpoption82.created_at),
-            content: ((dhcpoption82.switch_id) ? (dhcpoption82.switch_id + '/') : '') + ((dhcpoption82.port) ? _this.$i18n.t('Port') + ':' + dhcpoption82.port + '/' : '') + 'VLAN:' + dhcpoption82.vlan
+          this.addVisItem({
+            id: 'last_dhcp',
+            group: `${this.mac}-general`,
+            start: new Date(node.last_dhcp),
+            content: this.$i18n.t('Last DHCP')
           })
-        })
-      } catch (e) {
-        // noop
+        }
+        if (node.lastskip && node.lastskip !== '0000-00-00 00:00:00') {
+          this.addVisGroup({
+            id: `${this.mac}-general`,
+            content: this.$i18n.t('General')
+          })
+          this.addVisItem({
+            id: 'lastskip',
+            group: `${this.mac}-general`,
+            start: new Date(node.lastskip),
+            content: this.$i18n.t('Last Skip')
+          })
+        }
+        try {
+          node.ip4.history.forEach(function (ip4) {
+            this.addVisGroup({
+              id: `${this.mac}-ipv4`,
+              content: this.$i18n.t('IPv4 Addresses')
+            })
+            this.addVisItem({
+              id: `ipv4-${ip4.ip}`,
+              group: `${this.mac}-ipv4`,
+              start: new Date(ip4.start_time),
+              end: (ip4.end_time !== '0000-00-00 00:00:00' && ip4.end_time !== ip4.start_time) ? new Date(ip4.end_time) : null,
+              content: ip4.ip
+            })
+          })
+        } catch (e) {
+          // noop
+        }
+        try {
+          node.ip6.history.forEach(function (ip6) {
+            this.addVisGroup({
+              id: `${this.mac}-ipv6`,
+              content: this.$i18n.t('IPv6 Addresses')
+            })
+            this.addVisItem({
+              id: `ipv6-${ip6.ip}`,
+              group: `${this.mac}-ipv6`,
+              start: new Date(ip6.start_time),
+              end: (ip6.end_time !== '0000-00-00 00:00:00' && ip6.end_time !== ip6.start_time) ? new Date(ip6.end_time) : null,
+              content: ip6.ip
+            })
+          })
+        } catch (e) {
+          // noop
+        }
+        try {
+          node.locations.forEach(function (location) {
+            this.addVisGroup({
+              id: `${this.mac}-location`,
+              content: this.$i18n.t('Locations')
+            })
+            this.addVisItem({
+              id: `location-${location.id}`,
+              group: `${this.mac}-location`,
+              start: new Date(location.start_time),
+              end: (location.end_time && location.end_time !== '0000-00-00 00:00:00' && location.end_time !== location.start_time) ? new Date(location.end_time) : null,
+              content: `${location.ssid}/${this.$i18n.t('Role')}:${location.role}/VLAN:${location.vlan}`
+            })
+          })
+        } catch (e) {
+          // noop
+        }
+        try {
+          node.security_events.forEach(function (securityEvent) {
+            this.addVisGroup({
+              id: `${this.mac}-security_event`,
+              content: this.$i18n.t('Security Events')
+            })
+            this.addVisItem({
+              id: `security_event-${securityEvent.security_event_id}`,
+              group: `${this.mac}-security_event`,
+              start: new Date(securityEvent.start_date),
+              end: (securityEvent.release_date !== '0000-00-00 00:00:00' && securityEvent.release_date !== securityEvent.start_date) ? new Date(securityEvent.release_date) : null,
+              content: this.securityEventDescription(securityEvent.security_event_id)
+            })
+          })
+        } catch (e) {
+          // noop
+        }
+        try {
+          node.dhcpoption82.forEach(function (dhcpoption82) {
+            this.addVisGroup({
+              id: `${this.mac}-dhcpoption82`,
+              content: this.$i18n.t('DHCP Option 82')
+            })
+            this.addVisItem({
+              id: `dhcpoption82-${dhcpoption82.created_at}`,
+              group: `${this.mac}-dhcpoption82`,
+              start: new Date(dhcpoption82.created_at),
+              content: ((dhcpoption82.switch_id) ? (`${dhcpoption82.switch_id}/`) : '') + ((dhcpoption82.port) ? `${this.$i18n.t('Port')}:${dhcpoption82.port}/` : '') + `VLAN:${dhcpoption82.vlan}`
+            })
+          })
+        } catch (e) {
+          // noop
+        }
       }
     },
     addVisGroup (group) {
@@ -851,62 +725,94 @@ export default {
         }
         this.visItems.add([item])
       }
+    },
+    redrawVis () {
+      // buffer async calls to redraw
+      if (this.timeoutVis) clearTimeout(this.timeoutVis)
+      this.timeoutVis = setTimeout(() => {
+        this.setupVis()
+        const { $refs: { timeline: { redraw = () => {} } = {} } = {} } = this
+        redraw()
+      }, 100)
+    },
+    searchUsers () {
+      let body = {
+        limit: 10,
+        fields: ['pid', 'firstname', 'lastname', 'email'],
+        sort: ['pid'],
+        query: {
+          op: 'and',
+          values: [{
+            op: 'or',
+            values: [
+              { field: 'pid', op: 'contains', value: this.form.pid },
+              { field: 'firstname', op: 'contains', value: this.form.pid },
+              { field: 'lastname', op: 'contains', value: this.form.pid },
+              { field: 'email', op: 'contains', value: this.form.pid }
+            ]
+          }]
+        }
+      }
+      usersApi.search(body).then((data) => {
+        this.matchingUsers = data.items.map(item => item.pid)
+      })
     }
   },
   watch: {
     node: {
-      handler: function (a, b) {
+      handler: function () {
         this.redrawVis()
       },
       deep: true
     },
     'node.ip4': {
-      handler: function (a, b) {
+      handler: function () {
         this.redrawVis()
       },
       deep: true
     },
     'node.ip6': {
-      handler: function (a, b) {
+      handler: function () {
         this.redrawVis()
       },
       deep: true
     },
     'node.locations': {
-      handler: function (a, b) {
+      handler: function () {
         this.redrawVis()
       },
       deep: true
     },
     'node.security_events': {
-      handler: function (a, b) {
+      handler: function () {
         this.redrawVis()
       },
       deep: true
     },
     'node.dhcpoption82': {
-      handler: function (a, b) {
+      handler: function () {
         this.redrawVis()
       },
       deep: true
     },
     securityEvents (a, b) {
       if (a !== b) this.redrawVis()
+    },
+    escapeKey (pressed) {
+      if (pressed) this.close()
     }
   },
   created () {
-    this.$store.dispatch('$_nodes/getNode', this.mac).then(node => {
-      this.nodeContent = node
-    })
-    this.$store.dispatch('config/getRoles')
-    this.$store.dispatch('config/getSecurityEvents')
+    if (this.$can.apply(null, ['read', 'security_events'])) {
+      this.$store.dispatch('config/getSecurityEvents')
+    }
+    this.$store.dispatch('session/getAllowedNodeRoles')
+    this.init()
   },
   mounted () {
     this.setupVis()
-    document.addEventListener('keyup', this.onKeyup)
   },
-  beforeDestroy () {
-    document.removeEventListener('keyup', this.onKeyup)
+  beforeUnmount () {
     if (this.timeoutVis) {
       clearTimeout(this.timeoutVis)
     }
@@ -915,9 +821,6 @@ export default {
 </script>
 
 <style lang="scss">
-@import "../../../../node_modules/bootstrap/scss/functions";
-@import "../../../styles/variables";
-
 $vis-item-bg: theme-color("primary");
 $vis-item-color: $white;
 

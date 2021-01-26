@@ -1,0 +1,23 @@
+name: Check Mac auth unregistered on switch01
+version: 2
+testcases:
+- name: check_mac_auth_unreg_on_switch01
+  steps:
+  - type: http
+    method: POST
+    basic_auth_user: "{{.switch01.api.user}}"
+    basic_auth_password: "{{.switch01.api.password}}"
+    url: '{{.switch01.api.url}}/nclu/v1/rpc'
+    ignore_verify_ssl: true
+    body: >-
+      {
+       "cmd": "show dot1x interface {{.switch01.dot1x_interface.id}} json"
+      }
+    headers:
+      "Content-Type": "application/json"
+    assertions:
+      # we didn't check MAC address on port to make this testcase reusable
+      - result.body ShouldContainSubstring "{{.roles.registration.vlan_id}}"
+      - result.body ShouldContainSubstring MAB
+      - result.body ShouldContainSubstring AUTHORIZED
+      - result.statuscode ShouldEqual 200

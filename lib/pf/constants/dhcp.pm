@@ -25,13 +25,21 @@ Readonly our $DEFAULT_LEASE_LENGTH => 86400;
 Readonly our $DHCP_API_DEFAULT_TIMEOUT => 500;
 Readonly our $DHCP_API_DEFAULT_CONNECT_TIMEOUT => 500;
 
+# DHCP server select ip algorithm
+Readonly our $RANDOM_ALGORITHM => 1;
+Readonly our $OLDEST_RELEASED_ALGORITHM => 2;
+
+# DHCP Pool Backend Type
+Readonly our $MEMORY_POOL => "memory";
+Readonly our $MYSQL_POOL => "mysql";
+
 =head1 AUTHOR
 
 Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2019 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 

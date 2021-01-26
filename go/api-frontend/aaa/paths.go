@@ -7,6 +7,7 @@ import (
 var publicPaths = []string{
 	apiPrefix + "/translations",
 	apiPrefix + "/translation/",
+	apiPrefix + "/configurator/",
 }
 
 func IsPathPublic(path string) bool {

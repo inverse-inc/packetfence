@@ -175,8 +175,8 @@
               [%- IF can_access("CONFIGURATION_MAIN_READ") %]
               [% pf_section_entry( 'guests_admin_registration', 'Access Duration') | none %]
               [%- END %]
-              [%- IF can_access("DEVICE_REGISTRATION_READ") %]
-              [% list_entry('Config::DeviceRegistration', 'index', 'Device Registration') | none %]
+              [%- IF can_access("SELF_SERVICE_READ") %]
+              [% list_entry('Config::SelfService', 'index', 'Self Service Portal') | none %]
               [%- END %]
             </ul>
           </div>
@@ -208,7 +208,7 @@
             </ul>
             <ul class="nav nav-list">
               [%- IF can_access("CONFIGURATION_MAIN_READ") %]
-              [%- IF can_access("PFMON_READ") %]
+              [%- IF can_access("PFCRON_READ") %]
               [% pf_section_entry( 'main', 'Main Configuration', subsections.main) | none %]
               [%- END %]
               [% pf_section_entry( 'database', 'Database', subsections.database) | none %]

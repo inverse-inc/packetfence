@@ -76,6 +76,7 @@ sub print_status {
     for my $output (@output) {
         if ($output =~ /(packetfence-(.+)\.service)\s+enabled/) {
             my $service = $1;
+            $service = "packetfence-tracking-config.path" if ($service eq "packetfence-tracking-config.service");
             my $main_service = $2;
             my $sub_service = $main_service;
             if ($sub_service =~ /(radiusd).*/) {
@@ -207,6 +208,19 @@ sub systemdTarget {
     my ($self) = @_;
     return "packetfence.target";
 }
+
+=head2 restartService
+
+restartService
+
+=cut
+
+sub restartService {
+    my ($self) = @_;
+    $self->stop();
+    return $self->start();
+}
+
 =head1 AUTHOR
 
 Inverse inc. <info@inverse.ca>
@@ -214,7 +228,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2019 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 

@@ -220,7 +220,7 @@ sub _release_args {
         initial_delay => $Config{'captive_portal'}{'network_detection_initial_delay'},
         retry_delay   => $Config{'captive_portal'}{'network_detection_retry_delay'},
         external_ip => $Config{'captive_portal'}{'network_detection_ip'},
-        auto_redirect => $Config{'captive_portal'}{'network_detection'},
+        auto_redirect => isenabled($Config{'captive_portal'}{'network_detection'}),
         image_path => $Config{'captive_portal'}{'image_path'},
         title => "release: enabling network",
         network_logoff_popup => isenabled($self->app->profile->{_network_logoff_popup}),
@@ -386,7 +386,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2019 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 

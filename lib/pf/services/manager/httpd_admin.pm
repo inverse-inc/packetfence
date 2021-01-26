@@ -50,9 +50,8 @@ sub vhosts {
             push @vhosts, $management_network->{'Tvip'};
         } elsif ( $cluster_enabled ){
             push @vhosts, pf::cluster::current_server->{management_ip};
-            push @vhosts, $ConfigCluster{'CLUSTER'}{'management_ip'};
         } else {
-            push @vhosts, $management_network->{'Tip'};
+            push @vhosts, '127.0.0.1';
        }
     } else {
         push @vhosts, "0.0.0.0";
@@ -96,7 +95,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2019 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 

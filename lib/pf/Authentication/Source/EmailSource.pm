@@ -76,13 +76,13 @@ sub match_in_subclass {
     my ($self, $params, $rule, $own_conditions, $matching_conditions) = @_;
     foreach my $condition (@{ $own_conditions }) {
         if ($condition->{'attribute'} eq "user_email") {
-            if ( $condition->matches("user_email", $params->{user_email}) ) {
+            if ( $condition->matches("user_email", $params->{user_email}, $params) ) {
                 push(@{ $matching_conditions }, $condition);
                 return $params->{user_email};
             }
         }
     }
-    return $params->{'username'};
+    return ($params->{'username'}, undef);
 }
 
 =head2 mandatoryFields
@@ -118,7 +118,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2019 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 

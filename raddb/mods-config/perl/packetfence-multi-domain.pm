@@ -23,6 +23,7 @@ use warnings;
 
 
 use lib '/usr/local/pf/lib/';
+use lib '/usr/local/pf/raddb/mods-config/perl/';
 
 use pf::log (service => 'rlm_perl');
 use pf::radius::constants;
@@ -30,10 +31,11 @@ use pf::radius::soapclient;
 use pf::radius::rpc;
 use pf::util::freeradius qw(clean_mac);
 use pfconfig::cached_hash;
+use pfconfig::cached_array;
 use pf::util::statsd qw(called);
 use pf::StatsD::Timer;
 use pf::config::tenant;
-tie our %ConfigRealm, 'pfconfig::cached_hash', 'config::Realm', tenant_id_scoped => 1;
+use multi_domain_constants;
 
 require 5.8.8;
 
@@ -52,30 +54,48 @@ RADIUS calls this method to authorize clients.
 
 sub authorize {
     my $timer = pf::StatsD::Timer->new({ sample_rate => 0.05, 'stat' => "freeradius::" . called() });
-    pf::config::tenant::set_tenant($RAD_CONFIG{'PacketFence-Tenant-Id'});
     # For debugging purposes only
     #&log_request_attributes;
+    
+    my $tenant_data = $multi_domain_constants::DATA->{$RAD_CONFIG{'PacketFence-Tenant-Id'}};
+    my %ConfigRealm = %{$tenant_data->{ConfigRealm}};
+    my @ConfigOrderedRealm = @{$tenant_data->{ConfigOrderedRealm}};
+    my %ConfigDomain = %{$tenant_data->{ConfigDomain}};
 
     # We try to find the realm that's configured in PacketFence
     my $realm_config;
     my $user_name = $RAD_REQUEST{'TLS-Client-Cert-Common-Name'} || $RAD_REQUEST{'User-Name'};
     if ($user_name =~ /^host\/([0-9a-zA-Z-_]+)\.(.*)$/) {
-        $realm_config = $ConfigRealm{lc($2)};
+        if (exists $ConfigRealm{lc($2)}) {
+            $realm_config = $ConfigRealm{lc($2)};
+        }
     } elsif (defined $RAD_REQUEST{"Realm"}) {
-        $realm_config = $ConfigRealm{$RAD_REQUEST{"Realm"}};
+        if (exists $ConfigRealm{$RAD_REQUEST{"Realm"}}) {
+            $realm_config = $ConfigRealm{$RAD_REQUEST{"Realm"}};
+        }
     }
 
     if ( !defined($realm_config) && defined($ConfigRealm{"default"}) ) {
-        $realm_config = $ConfigRealm{"default"};
+        foreach my $key ( @ConfigOrderedRealm ) {
+            if (defined($ConfigRealm{$key}->{regex}) && $user_name =~ /$ConfigRealm{$key}->{regex}/) {
+                $realm_config = $ConfigRealm{$key};
+            }
+        }
+        unless (defined $realm_config) {
+            $realm_config = $ConfigRealm{"default"};
+        }
     }
 
     #use Data::Dumper;
     #&radiusd::radlog($RADIUS::L_INFO, Dumper($realm));
+    $RAD_REQUEST{"PacketFence-NTLMv2-Only"} = '';
 
     if( defined($realm_config) && defined($realm_config->{domain}) ) {
         # We have found this realm in PacketFence. We use the domain associated with it for the authentication
         $RAD_REQUEST{"PacketFence-Domain"} = $realm_config->{domain};
+        $RAD_REQUEST{"PacketFence-NTLMv2-Only"} = $ConfigDomain{$realm_config->{domain}}->{ntlmv2_only} ? '--allow-mschapv2' : '';
     }
+
 
     # If it doesn't go into any of the conditions above, then the behavior will be the same as before (non chrooted ntlm_auth)
     return $RADIUS::RLM_MODULE_UPDATED;
@@ -201,7 +221,7 @@ L<http://wiki.freeradius.org/Rlm_perl>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2019 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 

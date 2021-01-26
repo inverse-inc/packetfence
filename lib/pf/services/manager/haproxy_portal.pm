@@ -62,15 +62,19 @@ sub generateConfig {
     } else {
          $tags{'os_path'} = '/usr/share/haproxy/';
     }
+    my $cluster_ip;
+    my $ip_cluster;
     my @ints = uniq(@listen_ints,@dhcplistener_ints,map { $_->{'Tint'} } @portal_ints);
     my @portal_ip;
+    my $rate_limiting = isenabled($Config{captive_portal}{rate_limiting});
+    my $rate_limiting_threshold = $Config{captive_portal}{rate_limiting_threshold};
     foreach my $interface ( @ints ) {
         my $cfg = $Config{"interface $interface"};
         next unless $cfg;
         my $i = 0;
         if ($interface eq $management_network->tag('int')) {
             $tags{'active_active_ip'} = pf::cluster::management_cluster_ip() || $cfg->{'vip'} || $cfg->{'ip'};
-            my $cluster_ip = pf::cluster::cluster_ip($interface) || $cfg->{'vip'} || $cfg->{'ip'};
+            $cluster_ip = pf::cluster::cluster_ip($interface) || $cfg->{'vip'} || $cfg->{'ip'};
             my @backend_ip = values %{pf::cluster::members_ips($interface)};
             push @backend_ip, '127.0.0.1' if !@backend_ip;
             my $backend_ip_config = '';
@@ -78,13 +82,14 @@ sub generateConfig {
                 next if($back_ip eq $cfg->{ip} && isdisabled($Config{active_active}{portal_on_management}));
 
                 $backend_ip_config .= <<"EOT";
-        server $back_ip $back_ip:80 check
+        server $back_ip $back_ip:80 check inter 30s
 EOT
             }
 
         }
         if ($cfg->{'type'} =~ /internal/ || $cfg->{'type'} =~ /portal/) {
             my $cluster_ip = pf::cluster::cluster_ip($interface) || $cfg->{'vip'} || $cfg->{'ip'};
+            $ip_cluster = $cluster_ip;
             push @portal_ip, $cluster_ip;
             my @backend_ip = values %{pf::cluster::members_ips($interface)};
             push @backend_ip, '127.0.0.1' if !@backend_ip;
@@ -93,12 +98,9 @@ EOT
                 next if($back_ip eq $cfg->{ip} && isdisabled($Config{active_active}{portal_on_management}));
 
                 $backend_ip_config .= <<"EOT";
-        server $back_ip $back_ip:80 check
+        server $back_ip $back_ip:80 check inter 30s
 EOT
             }
-
-            my $rate_limiting = isenabled($Config{captive_portal}{rate_limiting});
-            my $rate_limiting_threshold = $Config{captive_portal}{rate_limiting_threshold};
 
             $tags{'http'} .= <<"EOT";
 frontend portal-http-$cluster_ip
@@ -149,8 +151,11 @@ EOT
         default_backend $cluster_ip-backend
         $bind_process
 
+
 backend $cluster_ip-backend
         balance source
+        option httpchk GET /captive-portal HTTP/1.0\\r\\nUser-agent:\\ HAPROXY-load-balancing-check
+        default-server inter 5s fall 3 rise 2
         option httpclose
         option forwardfor
 EOT
@@ -218,6 +223,59 @@ EOT
         ? $management_network->tag('vip')
         : $management_network->tag('ip');
 
+    my $internal_portal_ip = $Config{captive_portal}{ip_address};
+    if (scalar @portal_ip > 0) {
+$tags{'http'} .= <<"EOT";
+
+frontend portal-http-$internal_portal_ip
+        bind $internal_portal_ip:80
+        capture request header Host len 40
+        stick-table type ip size 1m expire 10s store gpc0,http_req_rate(10s)
+        tcp-request connection track-sc1 src
+        http-request lua.change_host
+        acl host_exist var(req.host) -m found
+        http-request set-header Host %[var(req.host)] if host_exist
+        http-request lua.select
+        acl action var(req.action) -m found
+EOT
+            if($rate_limiting) {
+            $tags{'http'} .= <<"EOT";
+        acl unflag_abuser src_clr_gpc0 --
+        http-request allow if action unflag_abuser
+        http-request deny if { src_get_gpc0 gt 0 }
+EOT
+            }
+            $tags{'http'} .= <<"EOT";
+        reqadd X-Forwarded-Proto:\\ http
+        use_backend %[var(req.action)]
+        default_backend $ip_cluster-backend
+        $bind_process
+
+frontend portal-https-$internal_portal_ip
+        bind $internal_portal_ip:443 ssl no-sslv3 crt /usr/local/pf/conf/ssl/server.pem
+        capture request header Host len 40
+        stick-table type ip size 1m expire 10s store gpc0,http_req_rate(10s)
+        tcp-request connection track-sc1 src
+        http-request lua.change_host
+        acl host_exist var(req.host) -m found
+        http-request set-header Host %[var(req.host)] if host_exist
+        http-request lua.select
+        acl action var(req.action) -m found
+EOT
+            if($rate_limiting) {
+            $tags{'http'} .= <<"EOT";
+        acl unflag_abuser src_clr_gpc0 --
+        http-request allow if action unflag_abuser
+        http-request deny if { src_get_gpc0 gt 0 }
+EOT
+            }
+            $tags{'http'} .= <<"EOT";
+        reqadd X-Forwarded-Proto:\\ https
+        use_backend %[var(req.action)]
+        default_backend $ip_cluster-backend
+        $bind_process
+EOT
+    }
 
     $tags{captiveportal_templates_path} = $captiveportal_templates_path;
     parse_template( \%tags, $self->haproxy_config_template, "$generated_conf_dir/".$self->name.".conf" );
@@ -258,7 +316,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2019 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 

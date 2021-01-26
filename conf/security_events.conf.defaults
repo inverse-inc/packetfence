@@ -1,8 +1,10 @@
+# Copyright (C) Inverse inc.
 # Most of the snort rules are from Emerging Threats (http://www.emergingthreats.net/)
 #
 # In order to use different rulesets, please point the variable snort_rules,
 # defined below (in [defaults]), to your local file(s).
 #
+
 [defaults]
 priority=4
 max_enable=3
@@ -133,6 +135,12 @@ enabled=Y
 desc=Connection transport change
 trigger=internal::connection_type_change
 actions=log
+enabled=Y
+
+[1100020]
+desc=Wireless IPS
+trigger=internal::1100020
+actions=email_admin,log
 enabled=Y
 
 #
@@ -266,6 +274,18 @@ auto_enable=N
 delay_by=
 grace=
 
+[1300007]
+trigger=internal::fingerbank_diff_score_too_low
+actions=email_admin
+desc=Fingerbank profile anomaly
+enabled=Y
+
+[1300008]
+trigger=internal::fingerbank_blacklisted_ips_threshold_too_high,internal::fingerbank_blacklisted_ports
+actions=email_admin
+desc=Fingerbank detected blacklisted communication
+enabled=Y
+
 #
 # 1400000 - 1499999 Reserved for local security events
 #
@@ -372,3 +392,20 @@ actions=reevaluate_access,email_admin,log
 enabled=N
 priority=10
 trigger=DEVICE::143
+
+[3000006]
+trigger=custom::PROCESS_ANTIVIRUS
+actions=email_admin
+window=dynamic
+desc=Check if antivirus.exe is running
+enabled=Y
+access_duration=12h
+
+[3000007]
+desc=MAC Address randomization detection
+template=random_mac
+trigger=mac::^.[26ae].*
+actions=email_admin,log,reevaluate_access
+window=dynamic
+access_duration=12h
+enabled=N

@@ -39,21 +39,24 @@ import SearchableStore from '@/store/base/searchable'
 import pfSearch from '@/components/pfSearch'
 
 export default {
-  name: 'pfMixinSearchable',
+  name: 'pf-mixin-searchable',
   components: {
     pfSearch
   },
   props: {
+    /*
     searchableOptions: {
       type: Object,
-      default: {
+      default: () => ({
+        searchApiHeaders: {},
         searchApiEndpointOnly: false,
         defaultSearchCondition: () => {
           return { op: 'and', values: [{ op: 'or', values: [{ field: null, op: null, value: null }] }] }
         },
         extraFields: false
-      }
+      })
     },
+    */
     query: {
       type: String,
       default: null
@@ -85,12 +88,16 @@ export default {
       }
     },
     visibleColumns () {
-      return this.columns.filter(column => column.visible)
+      return this.columns.filter(column => {
+        return column.locked || column.visible
+      }).map(column => {
+        return { ...column, label: this.$i18n.t(column.label) }
+      })
     },
     searchFields () {
       return [...(new Set([ // unique array
         ...this.searchableOptions.defaultSortKeys, // always include default keys
-        ...this.visibleColumns.filter(column => !column.locked).map(column => column.key)
+        ...this.columns.filter(column => (column.required || column.visible) && !column.locked).map(column => column.key)
       ]))]
     },
     items () {
@@ -110,12 +117,17 @@ export default {
         }
       }
     },
-    searchableStoreName () {
-      const { searchableOptions: { searchApiEndpoint = null } = {} } = this
-      if (searchApiEndpoint) {
-        return '$_' + searchApiEndpoint.replace(/[/]/g, '_').replace(/[-: ]/g, '') + '_searchable'
-      } else {
-        return undefined
+    searchableStoreName: {
+      get () {
+        const { searchableOptions: { searchApiEndpoint = null } = {} } = this
+        if (searchApiEndpoint) {
+          return '$_' + searchApiEndpoint.replace(/[/]/g, '_').replace(/[-: ]/g, '') + '_searchable'
+        } else {
+          return undefined
+        }
+      },
+      set () {
+        // noop
       }
     }
   },
@@ -125,6 +137,7 @@ export default {
         // Register store module only once
         const searchableStore = new SearchableStore(
           this.searchableOptions.searchApiEndpoint,
+          this.searchableOptions.searchApiHeaders,
           this.searchableOptions.defaultSortKeys,
           this.searchableOptions.defaultSortDesc || false,
           this.pageSizeLimit
@@ -135,8 +148,8 @@ export default {
       // Restore visibleColumns, overwrite defaults
       if (this.$store.state[this.searchableStoreName].visibleColumns) {
         const visibleColumns = this.$store.state[this.searchableStoreName].visibleColumns
-        this.columns.forEach(function (column, index, columns) {
-          columns[index].visible = visibleColumns.includes(column.key)
+        this.columns.forEach((column, index) => {
+          this.$set(this.columns[index], 'visible', visibleColumns.includes(column.key))
         })
       }
       this.$store.dispatch(`${this.searchableStoreName}/setSearchFields`, this.searchFields)
@@ -157,6 +170,7 @@ export default {
         }
         // Import default condition
         this.searchableInitCondition()
+        // eslint-disable-next-line
       } while (false)
     },
     onSearch (searchCondition = '') {
@@ -196,9 +210,8 @@ export default {
         this.requestPage = this.currentPage
       })
       const { searchableOptions: { defaultRoute } = {} } = this
-      if (defaultRoute) {
+      if (defaultRoute && defaultRoute.name !== this.$router.currentRoute.name)
         this.$router.push(defaultRoute)
-      }
     },
     onImport (condition) {
       this.$set(this, 'condition', condition)
@@ -232,10 +245,12 @@ export default {
       this.$store.dispatch(`${this.searchableStoreName}/search`, this.requestPage)
     },
     toggleColumn (column) {
-      column.visible = !column.visible
-      this.$store.dispatch(`${this.searchableStoreName}/setVisibleColumns`, this.columns.filter(column => column.visible).map(column => column.key))
+      const wasVisible = column.visible // cache previous visibility
+      const cIndex = this.columns.findIndex(c => c.key === column.key)
+      this.$set(this.columns[cIndex], 'visible', !('visible' in column && column.visible))
+      this.$store.dispatch(`${this.searchableStoreName}/setVisibleColumns`, this.columns.filter(column => column.visible && !column.locked).map(column => column.key))
       this.$store.dispatch(`${this.searchableStoreName}/setSearchFields`, this.searchFields)
-      if (column.visible) {
+      if (!wasVisible) { // redo search if column was not previously visible
         this.$store.dispatch(`${this.searchableStoreName}/search`, this.requestPage)
       }
     },
@@ -247,7 +262,7 @@ export default {
   },
   watch: {
     searchableOptions: {
-      handler (a, b) {
+      handler () {
         this.initStore()
         this.onSearch()
       }
@@ -269,7 +284,7 @@ export default {
     condition: {
       handler (a, b) {
         // clear if query param !== condition
-        if (a && JSON.stringify(a) !== this.query) {
+        if (a && JSON.stringify(a) !== this.query && this.query !== null) {
           this.$router.push({ query: null })
         }
         if (JSON.stringify(a) !== JSON.stringify(b)) {
@@ -293,6 +308,10 @@ export default {
     }
     if (!this.columns) {
       throw new Error(`Missing 'columns' in data of component ${this.$options.name}`)
+    } else {
+      this.columns.forEach((column, cIndex) => {
+        this.$set(this.columns[cIndex], 'visible', !!column.visible)
+      })
     }
     const { searchableOptions: { defaultRoute, defaultSortKeys, defaultSearchCondition, searchApiEndpoint } = {} } = this
     if (defaultRoute && defaultSortKeys && defaultSearchCondition && searchApiEndpoint) {
@@ -301,13 +320,19 @@ export default {
   },
   mounted () {
     // called after the component's mounted function.
-    const { searchableOptions: { defaultSearchCondition, searchApiEndpointOnly } = {} } = this
-    if (!searchApiEndpointOnly && JSON.stringify(this.condition) === JSON.stringify(defaultSearchCondition)) {
-      // query all w/o criteria
-      this.$store.dispatch(`${this.searchableStoreName}/setSearchQuery`, null)
-    } else {
-      this.$store.dispatch(`${this.searchableStoreName}/setSearchQuery`, this.condition)
+    if (this.searchableStoreName) {
+      const { searchableOptions: { defaultSearchCondition, searchApiEndpointOnly } = {} } = this
+      if (!searchApiEndpointOnly && JSON.stringify(this.condition) === JSON.stringify(defaultSearchCondition)) {
+        // query all w/o criteria
+        this.$store.dispatch(`${this.searchableStoreName}/setSearchQuery`, null)
+      } else {
+        this.$store.dispatch(`${this.searchableStoreName}/setSearchQuery`, this.condition)
+      }
+      this.$store.dispatch(`${this.searchableStoreName}/search`, this.requestPage)
     }
     this.$store.dispatch(`${this.searchableStoreName}/search`, this.requestPage)
+  },
+  beforeDestroy () {
+    this.$store.dispatch(`${this.searchableStoreName}/setSearchQuery`, null)
   }
 }

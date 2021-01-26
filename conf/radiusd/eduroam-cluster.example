@@ -27,9 +27,9 @@ server eduroam.cluster {
         }
 
         authorize {
+            packetfence-set-realm-if-machine
             suffix
             ntdomain
-            %%reject_realm%%
             %%local_realm%%
             if(!NAS-IP-Address || NAS-IP-Address == "0.0.0.0"){
                     update request {

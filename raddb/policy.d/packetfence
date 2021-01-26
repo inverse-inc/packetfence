@@ -73,7 +73,7 @@ packetfence-switch-access {
 }
 
 request-timing {
-    if (control:PacketFence-Request-Time != 0) {
+    if ("%{%{control:PacketFence-Request-Time}:-0}" != 0) {
         update control {
             &PacketFence-Request-Time := "%{expr: %{control:PacketFence-Request-Time} - %{control:Tmp-Integer-0}}"
         }
@@ -209,3 +209,42 @@ packetfence-control-ntlm-failure {
   }
 }
 
+last-regexp = '(.*)(.)'
+
+packetfence-balanced-key-policy {
+    if (&PacketFence-KeyBalanced && (&PacketFence-KeyBalanced =~ /^${policy.last-regexp}$/i)) {
+        update {
+            &request:PacketFence-KeyBalanced := "%{md5:%{2}%{1}}"
+            &control:Load-Balance-Key := "%{md5:%{2}%{1}}"
+        }
+    }
+    else {
+        update {
+            &request:PacketFence-KeyBalanced := "%{md5:%{Calling-Station-Id}%{User-Name}}"
+            &control:Load-Balance-Key := "%{md5:%{Calling-Station-Id}%{User-Name}}"
+        }
+    }
+}
+
+packetfence-nas-ip-address {
+    if(!NAS-IP-Address || NAS-IP-Address == "0.0.0.0"){
+            update request {
+                    NAS-IP-Address := "%{Packet-Src-IP-Address}"
+            }
+    }
+}
+
+packetfence-degraded-auth {
+    packetfence-set-tenant-id
+    # Disable ntlm_auth
+    update control {
+        &MS-CHAP-Use-NTLM-Auth := No
+    }
+    # Check password table for local user
+    sql_degraded
+    if (fail || notfound || noop) {
+        update control {
+            &MS-CHAP-Use-NTLM-Auth := Yes
+        }
+    }
+}

@@ -24,7 +24,7 @@ BEGIN {
     use setup_test_config;
 }
 
-use Test::More tests => 62;
+use Test::More tests => 66;
 
 use pf::error qw(is_success is_error);
 use pf::db;
@@ -357,13 +357,26 @@ is_deeply(
     is($node->{tenant_id}, $pf::config::tenant::CURRENT_TENANT, "Current tenant is set use even when one is provided");
 }
 
+{
+    local $pf::config::tenant::CURRENT_TENANT = 0;
+    my $node = pf::dal::node->new({mac => $test_mac});
+    is($node->{tenant_id}, pf::dal->get_tenant, "Current tenant is added");
+    $node = pf::dal::node->new({mac => $test_mac, -no_auto_tenant_id => 1});
+    is($node->{tenant_id}, $pf::config::tenant::CURRENT_TENANT, "Current tenant is added when none id provide");
+    my $test_tenant_id = $$;
+    $node = pf::dal::node->new({mac => $test_mac, tenant_id => $test_tenant_id, -no_auto_tenant_id => 1});
+    is($node->{tenant_id}, $test_tenant_id, "Current tenant is not set use the one provided");
+    $node = pf::dal::node->new({mac => $test_mac, tenant_id => $test_tenant_id });
+    is($node->{tenant_id}, $pf::config::tenant::CURRENT_TENANT, "Current tenant is set use even when one is provided $pf::config::tenant::CURRENT_TENANT");
+}
+
 =head1 AUTHOR
 
 Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2019 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 

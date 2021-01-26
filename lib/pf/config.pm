@@ -87,6 +87,7 @@ use pf::constants::config qw(
   $WEBAUTH_WIRELESS
   $VIRTUAL_VPN
   $VIRTUAL_CLI
+  $VIRTUAL_WIREGUARD
 
   $WIRELESS
   $WIRED
@@ -99,6 +100,7 @@ use pf::constants::config qw(
   %connection_type_explained_to_str
   %connection_group
   %connection_group_to_str
+  @connection_wired_types
 );
 use pfconfig::cached_array;
 use pfconfig::cached_scalar;
@@ -134,6 +136,7 @@ our (
     %CAPTIVE_PORTAL,
 #realm.conf
     %ConfigRealm,
+    @ConfigOrderedRealm,
 #provisioning.conf
     %ConfigProvisioning,
 #domain.conf
@@ -166,12 +169,18 @@ our (
     %ConfigSurvey,
 #Roles
     %ConfigRoles,
-#device_Registration.conf
-    %ConfigDeviceRegistration,
+#self_service.conf
+    %ConfigSelfService,
 #ldap authentication sources
     %ConfigAuthenticationLdap,
 # Radius sources
     %ConfigAuthenticationRadius,
+# Eduroam source
+    %ConfigAuthenticationEduroam,
+# TLS configuration
+    %ConfigEAP,
+# EDIR sources
+    %ConfigAuthenticationEdir,
 );
 
 BEGIN {
@@ -193,13 +202,13 @@ BEGIN {
         $ACCOUNTING_POLICY_TIME $ACCOUNTING_POLICY_BANDWIDTH
         $WIPS_SECURITY_EVENT_ID $thread $fqdn $reverse_fqdn
         $IF_INTERNAL $IF_ENFORCEMENT_VLAN $IF_ENFORCEMENT_INLINE $IF_ENFORCEMENT_DNS
-        $WIRELESS_802_1X $WIRELESS_MAC_AUTH $WIRED_802_1X $WIRED_MAC_AUTH $WIRED_SNMP_TRAPS $UNKNOWN $INLINE $WEBAUTH $WEBAUTH_WIRED $WEBAUTH_WIRELESS $VIRTUAL_VPN $VIRTUAL_CLI
+        $WIRELESS_802_1X $WIRELESS_MAC_AUTH $WIRED_802_1X $WIRED_MAC_AUTH $WIRED_SNMP_TRAPS $UNKNOWN $INLINE $WEBAUTH $WEBAUTH_WIRED $WEBAUTH_WIRELESS $VIRTUAL_VPN $VIRTUAL_CLI $VIRTUAL_WIREGUARD
         $NET_TYPE_INLINE $NET_TYPE_INLINE_L2 $NET_TYPE_INLINE_L3
         $WIRELESS $WIRED $EAP $VIRTUAL
         $WEB_ADMIN_NONE $WEB_ADMIN_ALL
         $VOIP $NO_VOIP $NO_PORT $NO_VLAN
         %connection_type %connection_type_to_str %connection_type_explained %connection_type_explained_to_str
-        %connection_group %connection_group_to_str
+        %connection_group %connection_group_to_str @connection_wired_types
         $RADIUS_API_LEVEL $ROLE_API_LEVEL $INLINE_API_LEVEL $AUTHENTICATION_API_LEVEL $BILLING_API_LEVEL
         $ROLES_API_LEVEL
         $SELFREG_MODE_EMAIL $SELFREG_MODE_SMS $SELFREG_MODE_SPONSOR $SELFREG_MODE_GOOGLE $SELFREG_MODE_FACEBOOK $SELFREG_MODE_GITHUB $SELFREG_MODE_INSTAGRAM $SELFREG_MODE_LINKEDIN $SELFREG_MODE_PRINTEREST $SELFREG_MODE_WIN_LIVE $SELFREG_MODE_TWITTER $SELFREG_MODE_NULL $SELFREG_MODE_KICKBOX $SELFREG_MODE_BLACKHOLE
@@ -215,6 +224,7 @@ BEGIN {
         $DISTRIB $DIST_VERSION
         %Doc_Config
         %ConfigRealm
+        @ConfigOrderedRealm
         %ConfigProvisioning
         %ConfigDomain
         $default_pid
@@ -232,9 +242,12 @@ BEGIN {
         %ConfigReport
         %ConfigSurvey
         %ConfigRoles
-        %ConfigDeviceRegistration
+        %ConfigSelfService
         %ConfigAuthenticationLdap
         %ConfigAuthenticationRadius
+        %ConfigAuthenticationEduroam
+        %ConfigEAP
+        %ConfigAuthenticationEdir
     );
 }
 
@@ -277,6 +290,8 @@ tie %ConfigFirewallSSO, 'pfconfig::cached_hash', 'config::Firewall_SSO';
 
 tie %ConfigRealm, 'pfconfig::cached_hash', 'config::Realm', tenant_id_scoped => 1;
 
+tie @ConfigOrderedRealm, 'pfconfig::cached_array', 'config::OrderedRealm', tenant_id_scoped => 1;
+
 tie %ConfigProvisioning, 'pfconfig::cached_hash', 'config::Provisioning';
 
 tie %ConfigScan, 'pfconfig::cached_hash', 'config::Scan';
@@ -307,11 +322,17 @@ tie %ConfigSurvey, 'pfconfig::cached_hash', 'config::Survey';
 
 tie %ConfigRoles, 'pfconfig::cached_hash', 'config::Roles';
 
-tie %ConfigDeviceRegistration, 'pfconfig::cached_hash', 'config::DeviceRegistration';
+tie %ConfigSelfService, 'pfconfig::cached_hash', 'config::SelfService';
 
 tie %ConfigAuthenticationLdap, 'pfconfig::cached_hash', 'resource::authentication_sources_ldap';
 
 tie %ConfigAuthenticationRadius, 'pfconfig::cached_hash', 'resource::authentication_sources_radius';
+
+tie %ConfigAuthenticationEduroam, 'pfconfig::cached_hash', 'resource::authentication_sources_eduroam';
+
+tie %ConfigEAP, 'pfconfig::cached_hash', 'resource::eap_config';
+
+tie %ConfigAuthenticationEdir, 'pfconfig::cached_hash', 'resource::authentication_sources_edir';
 
 $thread = 0;
 
@@ -402,19 +423,6 @@ our $BANDWIDTH_UNITS_RE = qr/B|KB|MB|GB|TB/;
 =head1 SUBROUTINES
 
 =over
-
-=item os_detection -  check the os system
-
-=cut
-
-sub os_detection {
-    my $logger = get_logger();
-    if (-e '/etc/debian_version') {
-        return "debian";
-    }elsif (-e '/etc/redhat-release') {
-        return "rhel";
-    }
-}
 
 =item access_duration
 
@@ -614,6 +622,10 @@ sub duration {
             $year ++;
         }
         return ($days_year * 86400);
+    } elsif ($modifier eq "h") {
+        return ($num * 3600);
+    } elsif ($modifier eq "m") {
+        return ($num * 60);
     }
 }
 
@@ -871,7 +883,7 @@ Minor parts of this file may have been contributed. See CREDITS.
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2019 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 Copyright (C) 2005 Kevin Amorin
 

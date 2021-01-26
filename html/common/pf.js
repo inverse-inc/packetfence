@@ -63,6 +63,9 @@ function detectNetworkAccess(retry_delay, destination_url, external_ip, image_pa
   "use strict";
   var errorDetected, loaded, netdetect, checker, initNetDetect;
 
+  var varsEl = document.getElementById('variables');
+  var vars = JSON.parse(variables.textContent || variables.innerHTML);
+
   netdetect = $('#netdetect');
   netdetect.error(function() {
     errorDetected = true;
@@ -73,9 +76,11 @@ function detectNetworkAccess(retry_delay, destination_url, external_ip, image_pa
     loaded = true;
   });
   initNetDetect = function() {
-    errorDetected = loaded = undefined;
-    var netdetect = $('#netdetect');
-    netdetect.attr('src',"http://" + external_ip + image_path + "?r=" + Date.now());
+    if(vars["auto_redirect"] != 0) {
+      errorDetected = loaded = undefined;
+      var netdetect = $('#netdetect');
+      netdetect.attr('src',"http://" + external_ip + image_path + "?r=" + Date.now());
+    }
     setTimeout(checker, retry_delay * 1000);
   };
   checker = function() {
@@ -193,4 +198,11 @@ $(function() {
       this.click()
     }
   });
+
+  $('.disable-on-click').one('click', function(e){
+    var target = $(e.target);
+    target.click();
+    target.attr("disabled", true);
+  });
 });
+

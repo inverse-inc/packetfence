@@ -129,6 +129,9 @@ sub verify {
 
     $data = $self->session->{verify_data};
 
+    $self->session->{email} = $self->username;
+    $self->session->{billed_mac} = $self->current_mac;
+
     unless ($data) {
         eval {
             $data = $billing->verify($self->session, $request->parameters, $request->uri);
@@ -141,10 +144,6 @@ sub verify {
         $self->redirect_root();
         return 0;
     }
-
-
-    $self->session->{email} = $self->username;
-    $self->session->{billed_mac} = $self->current_mac;
 
     $self->process_transaction();
 }
@@ -254,7 +253,7 @@ sub process_transaction {
             email => $request_fields->{email},
         );
         my $info = $billing->confirmationInfo(\%parameters, $tier, $session);
-        pf::web::guest::send_template_email( 'billing_confirmation', $info->{'subject'}, $info );
+        pf::web::guest::send_template_email( 'billing_confirmation', $info->{'subject'}, $info, { INCLUDE_PATH => [ map { $_ . "/emails/" } @{$self->app->profile->{_template_paths}} ] });
     }
 
     if (isenabled($billing->create_local_account)) {
@@ -393,7 +392,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2019 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 

@@ -129,7 +129,7 @@ if($master_server){
     foreach my $store (@stores) {
         my $cs = $store->new;
         my $config_file = $cs->configFile;
-        push @files, $config_file;
+        push @files, $config_file if $config_file;
     }
 
     push @files, $config_version_file;
@@ -160,7 +160,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2019 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 

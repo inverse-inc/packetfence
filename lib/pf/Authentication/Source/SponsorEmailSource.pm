@@ -30,6 +30,8 @@ has 'sponsorship_bcc' => (isa => 'Maybe[Str]', is => 'rw');
 has 'email_activation_timeout' => (isa => 'Str', is => 'rw', default => '30m');
 has 'validate_sponsor' => (isa => 'Str', is => 'rw', default => 'yes');
 has 'lang' => (isa => 'Maybe[Str]', is => 'rw', default => '');
+has 'sources' => (isa => 'ArrayRef[Str]', is => 'rw', default => sub{[]});
+has 'register_on_activation' => (isa => 'Maybe[Str]', is => 'rw', default => 'disabled');
 
 =head2 dynamic_routing_module
 
@@ -81,7 +83,7 @@ sub available_actions {
 
 sub match_in_subclass {
     my ($self, $params, $rule, $own_conditions, $matching_conditions) = @_;
-    return $params->{'username'};
+    return ($params->{'username'}, undef);
 }
 
 =head2 mandatoryFields
@@ -123,7 +125,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2019 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 

@@ -17,13 +17,17 @@ use warnings;
 use Mojo::Base 'pf::UnifiedApi::Controller::Crud';
 use pf::dal::person;
 use pf::dal::node;
+use pf::log;
 use pf::dal::security_event;
 use pf::security_event;
 use pf::constants;
-use pf::person qw(person_security_events person_unassign_nodes person_delete);
+use pf::person qw(person_security_events person_unassign_nodes person_delete person_modify);
 use pf::node;
 use pf::constants qw($default_pid);
-use pf::error qw(is_error);
+use pf::error qw(is_error is_success);
+use pf::UnifiedApi::Search::Builder::Users;
+
+has 'search_builder_class' => 'pf::UnifiedApi::Search::Builder::Users';
 
 has dal => 'pf::dal::person';
 has url_param_name => 'user_id';
@@ -53,7 +57,9 @@ Remove the password field from the item
 
 sub cleanup_item {
     my ($self, $item) = @_;
-    delete $item->{password};
+    if (exists $item->{password}) {
+        $item->{has_password} =  defined (delete $item->{password}) ? $self->json_true : $self->json_false;
+    }
     $item = $self->SUPER::cleanup_item($item);
     if (exists $item->{category}) {
         $item->{category_name} = delete $item->{category};
@@ -62,6 +68,7 @@ sub cleanup_item {
     if (exists $item->{category_id}) {
         $item->{category} = delete $item->{category_id};
     }
+
     return $item;
 }
 
@@ -189,6 +196,17 @@ sub bulk_deregister {
     }
 
     return $self->render(json => { items => $results });
+}
+
+sub create_obj {
+    my ($self, $data) = @_;
+    my $obj = $self->dal->new($data);
+    my $status = $data->{pid_overwrite} ? $obj->create_or_update() : $obj->insert();
+    if (is_error($status)) {
+        return ($status, {message => $self->status_to_error_msg($status)});
+    }
+
+    return ($status, $obj);
 }
 
 =head2 bulk_close_security_events
@@ -498,12 +516,146 @@ sub bulk_delete {
     my $items = $data->{items} // [];
     my ($indexes, $results) = bulk_init_results($items);
     for my $pid ( @$items ) {
-         person_unassign_nodes($pid);
-         person_delete($pid);
-         $results->[$indexes->{$pid}]->{status} = 200;
+        my ($status, $msg) = _can_remove($pid);
+        if(is_success($status)) {
+            person_unassign_nodes($pid);
+            person_delete($pid);
+            $results->[$indexes->{$pid}]->{status} = 200;
+        }
+        else {
+            $results->[$indexes->{$pid}]->{status} = $status;
+            $results->[$indexes->{$pid}]->{msg} = $msg;
+        }
     }
 
     return $self->render(json => { items => $results });
+}
+
+=head2 bulk_import
+
+bulk_import
+
+=cut
+
+sub bulk_import {
+    my ($self) = @_;
+    my ($status, $data) = $self->parse_json;
+    if (is_error($status)) {
+        return $self->render(json => $data, status => $status);
+    }
+
+    my $items = $data->{items} // [];
+    my $count = @$items;
+    if ($count == 0) {
+        return $self->render(json => { items => [] });
+    }
+
+    my $stopOnError = $data->{stopOnFirstError};
+    my @results;
+    $#results = $count - 1;
+    my $i;
+    for ($i=0;$i<$count;$i++) {
+        my $result = $self->import_item($data, $items->[$i]);
+        $results[$i] = $result;
+        $status = $result->{status} // 200;
+        if ($stopOnError && $status == 422) {
+            $i++;
+            last;
+        }
+    }
+
+    for (;$i<$count;$i++) {
+        my $item = $items->[$i];
+        my $result = { item => $item, status => 424, message => "Skipped" };
+        $results[$i] =  $result;
+        my @errors = $self->import_item_check_for_errors($data, $item);
+        if (@errors) {
+            $result->{errors} = \@errors;
+        }
+    }
+
+    return $self->render(json => { items => \@results });
+}
+
+sub import_item {
+    my ($self, $request, $item) = @_;
+    my @errors = $self->import_item_check_for_errors($request, $item);
+    if (@errors) {
+        return { item => $item, errors => \@errors, message => 'Cannot save user', status => 422 };
+    }
+
+    my $pid = $item->{pid};
+    $item->{sponsor} //= $self->stash->{current_user};
+    my $exists = pf::person::person_exist($pid);
+    if ($exists) {
+        if ($request->{ignoreUpdateIfExists}) {
+            return { item => $item, status => 409, message => "Skip already exists", isNew => $self->json_false } ;
+        }
+    } else {
+        if ($request->{ignoreInsertIfNotExists}) {
+            return { item => $item, status => 404, message => "Skip does not exists", isNew => $self->json_true} ;
+        }
+    }
+
+    my $result = person_modify($pid, %$item);
+    if (!$result) {
+        return { item => $item, status => 422, message => "Cannot save user"};
+    }
+
+    my @actions = (
+        { type => 'valid_from', value => $item->{valid_from} },
+        { type => 'expiration', value => $item->{expiration} },
+        @{$item->{actions}}
+    );
+    $result = pf::password::generate($pid, \@actions, $item->{password});
+
+    return { item => $item, status => 200, password => $result, isNew => ( $exists ? $self->json_false : $self->json_true ) };
+}
+
+sub import_item_check_for_errors {
+    my ($self, $request,  $item) = @_;
+    my @errors;
+    my $logger = get_logger();
+    for my $f (qw(pid)) {
+        if ((!exists $item->{$f}) || !(defined ($item->{$f})) || length($item->{$f}) == 0) {
+            push @errors, { field => $f, message => "Missing $f" };
+        }
+    }
+
+    my $pid = $item->{pid};
+    if ($pid) {
+        if($pid !~ /$pf::person::PID_RE/) {
+            my $message = "Invalid PID ($pid)";
+            $logger->debug($message);
+            push @errors, { field => "pid", message => $message };
+        }
+
+        if ($pid eq $default_pid || $pid eq $admin_pid) {
+            push @errors, { field => "pid", message => "$pid cannot be updated via bulk import"};
+        }
+    }
+
+
+    if ($item->{'email'} && $item->{'email'} !~ /^[A-z0-9_.-]+@[A-z0-9_-]+(\.[A-z0-9_-]+)*\.[A-z]{2,6}$/) {
+        push @errors, { field => "email", message => 'invalid format' };
+    }
+
+    return @errors;
+}
+
+sub can_remove {
+    my ($self) = @_;
+    return _can_remove($self->id);
+}
+
+sub _can_remove {
+    my ($id) = @_;
+    if(exists $pf::constants::BUILTIN_USERS{$id}) {
+        return (422, "Cannot delete a built-in user");
+    }
+    else {
+        return (200, '');
+    }
 }
 
 =head1 AUTHOR
@@ -512,7 +664,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2019 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 

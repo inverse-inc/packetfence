@@ -4,6 +4,7 @@ import (
 	"bufio"
 	"bytes"
 	"crypto/rand"
+	"encoding/binary"
 	"errors"
 	"fmt"
 	"net"
@@ -14,6 +15,7 @@ import (
 	"strconv"
 	"strings"
 	"testing"
+	"time"
 	"unicode"
 
 	"github.com/cevaris/ordered_map"
@@ -150,6 +152,13 @@ func EnvOrDefaultInt(name string, defaultVal int) int {
 	return int(intVal)
 }
 
+func EnvOrDefaultDuration(name string, defaultVal time.Duration) time.Duration {
+	strVal := EnvOrDefault(name, defaultVal.String())
+	durVal, err := time.ParseDuration(strVal)
+	CheckError(err)
+	return durVal
+}
+
 func RandomBytes(length uint64) []byte {
 	rd := make([]byte, length)
 	rand.Read(rd)
@@ -284,4 +293,27 @@ func RemoveDuplicates(elements []string) []string {
 	}
 	// Return the new slice.
 	return result
+}
+
+// IsIPv4 return true if the ip is an IPv4 address
+func IsIPv4(address net.IP) bool {
+	return strings.Count(address.String(), ":") < 2
+}
+
+// IsIPv6 return true if the ip is an IPv6 address
+func IsIPv6(address net.IP) bool {
+	return strings.Count(address.String(), ":") >= 2
+}
+
+func IP2Int(ip net.IP) uint32 {
+	if len(ip) == 16 {
+		return binary.BigEndian.Uint32(ip[12:16])
+	}
+	return binary.BigEndian.Uint32(ip)
+}
+
+func Int2IP(nn uint32) net.IP {
+	ip := make(net.IP, 4)
+	binary.BigEndian.PutUint32(ip, nn)
+	return ip
 }

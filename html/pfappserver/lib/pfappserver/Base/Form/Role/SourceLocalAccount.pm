@@ -17,6 +17,7 @@ use warnings;
 use pf::config qw(%Config);
 use namespace::autoclean;
 use HTML::FormHandler::Moose::Role;
+use pfappserver::Form::Field::Duration
 with 'pfappserver::Base::Form::Role::Help';
 
 has_field 'create_local_account' => (
@@ -70,8 +71,14 @@ has_field 'password_length' => (
              help => 'The length of the password to generate.' },
 );
 
+has_field 'local_account_expiration' =>
+  (
+   type => 'Duration',
+   default => pfappserver::Form::Field::Duration->duration_inflate("0s"),
+  );
+
 has_block 'local_account' => (
-    render_list => [qw(create_local_account hash_passwords password_length local_account_logins)],
+    render_list => [qw(create_local_account hash_passwords password_length local_account_logins local_account_expiration)],
 );
 
 =head2 default_from_attribute
@@ -92,7 +99,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2019 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 

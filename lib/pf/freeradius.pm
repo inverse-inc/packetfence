@@ -41,13 +41,14 @@ BEGIN {
     );
 }
 
-use pf::config;
+use pf::config qw($local_secret $management_network);
 use pf::db;
 use pf::dal::radius_nas;
 use pf::dal;
 use pf::util qw(valid_mac);
 use pf::error qw(is_error);
 use pf::constants qw($DEFAULT_TENANT_ID);
+use pf::cluster;
 
 # The next two variables and the _prepare sub are required for database handling magic (see pf::db)
 our $freeradius_db_prepared = 0;
@@ -144,17 +145,39 @@ sub freeradius_populate_nas_config {
     unless (defined $timestamp ) {
         $timestamp = int (time * 1000000);
     }
+
+    my @entries = (
+        (map { { %{$switch_config->{$_}}, id => $_ } } @switches),
+        additional_switches(),
+    );
     #Looping through all the switches 100 at a time
-    my $it = natatime 100, @switches;
-    while (my @ids = $it->()) {
+    my $it = natatime 100, @entries;
+    while (my @sw = $it->()) {
         my @rows = map {
-            _build_radius_nas_row($_, $switch_config->{$_}, $timestamp)
-        } @ids;
+            _build_radius_nas_row($_->{id}, $_, $timestamp)
+        } @sw;
         # insert NAS
         _insert_nas_bulk( @rows );
     }
     _delete_expired($timestamp);
     validate_radius_nas_table($timestamp);
+}
+
+sub additional_switches {
+    if ($cluster_enabled) {
+        my $cluster_ip = pf::cluster::management_cluster_ip();
+        my $int = $management_network->{'Tint'};
+        return map {
+            {
+                id            => $_,
+                radiusSecret  => $local_secret,
+                TenantId      => 1,
+                type          => 'PacketFence'
+            }
+        } (values %{pf::cluster::members_ips($int)}, $cluster_ip);
+    }
+
+    return;
 }
 
 our $validate_radius_nas_table_sql = <<SQL;
@@ -232,7 +255,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2019 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 

@@ -95,7 +95,7 @@ sub startScan {
     my $format              = $self->{_format};
     my $verify_hostname     = isenabled($self->{_verify_hostname}) ? $TRUE : $FALSE;
 
-    my $nessus = Net::Nessus::REST->new(url => 'https://'.$host.':'.$port, ssl_opts => { verify_hostname => $verify_hostname });
+    my $nessus = Net::Nessus::REST->new(url => 'https://'.$host.':'.$port, ssl_opts => { verify_hostname => $verify_hostname, SSL_verify_mode => IO::Socket::SSL::SSL_VERIFY_NONE });
     $nessus->create_session(username => $user, password => $pass);
 
     my $scan_security_event_id = $POST_SCAN_SECURITY_EVENT_ID;
@@ -181,7 +181,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2019 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 

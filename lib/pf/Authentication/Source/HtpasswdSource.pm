@@ -91,16 +91,16 @@ sub match_in_subclass {
             # We should only have conditions based on the username attribute.
             foreach my $condition (@{ $own_conditions }) {
                 if ($condition->{'attribute'} eq "username") {
-                    if ( $condition->matches("username", $username) ) {
+                    if ( $condition->matches("username", $username, $params) ) {
                         push(@{ $matching_conditions }, $condition);
                     }
                 }
             }
-            return $username;
+            return ($username, undef);
         }
     }
 
-    return undef;
+    return (undef, undef);
 }
 
 =head1 AUTHOR
@@ -109,7 +109,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2019 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 

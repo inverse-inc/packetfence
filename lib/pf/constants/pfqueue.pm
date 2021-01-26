@@ -21,6 +21,7 @@ our @EXPORT_OK = qw(
     $PFQUEUE_QUEUE_PREFIX
     $PFQUEUE_EXPIRED_COUNTER
     $PFQUEUE_WORKERS_DEFAULT
+    $PFQUEUE_HASHED_DEFAULT
     $PFQUEUE_MAX_TASKS_DEFAULT
     $PFQUEUE_TASK_JITTER_DEFAULT
     $PFQUEUE_WEIGHT_DEFAULT
@@ -56,6 +57,8 @@ our $PFQUEUE_COUNTER = "TaskCounters";
 our $PFQUEUE_EXPIRED_COUNTER = "ExpiredCounters";
 
 our $PFQUEUE_QUEUE_PREFIX = "Queue:";
+
+our $PFQUEUE_HASHED_DEFAULT = 'disabled';
 
 our $PFQUEUE_WORKERS_DEFAULT = 0;
 
@@ -100,7 +103,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2019 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 

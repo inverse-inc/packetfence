@@ -26,6 +26,7 @@ use base 'pfconfig::namespaces::config';
 sub init {
     my ($self) = @_;
     $self->{file} = $admin_roles_config_file;
+    $self->{child_resources} = [ qw(resource::RolesReverseLookup) ];
 }
 
 sub build_child {
@@ -35,7 +36,7 @@ sub build_child {
 
     $self->cleanup_whitespaces( \%ADMIN_ROLES );
     foreach my $data ( values %ADMIN_ROLES ) {
-        my $actions = $data->{actions} || '';
+        my $actions = delete $data->{actions} || '';
         my %action_data = map { $_ => undef } split /\s*,\s*/, $actions;
         $data->{ACTIONS} = \%action_data;
     }
@@ -43,24 +44,10 @@ sub build_child {
     $ADMIN_ROLES{ALL}{ACTIONS} = { map { $_ => undef } @pf::constants::admin_roles::ADMIN_ACTIONS };
     $ADMIN_ROLES{ALL_PF_ONLY}{ACTIONS} = { map { $_ => undef } grep {$_ !~ /^SWITCH_LOGIN_/} @pf::constants::admin_roles::ADMIN_ACTIONS };
 
-    foreach my $key ( keys %ADMIN_ROLES ) {
-        $self->cleanup_after_read( $key, $ADMIN_ROLES{$key} );
-    }
-
+    $self->roleReverseLookup(\%ADMIN_ROLES, 'admin_roles', qw(allowed_roles allowed_node_roles));
     return \%ADMIN_ROLES;
 
 }
-
-sub cleanup_after_read {
-    my ( $self, $id, $item ) = @_;
-
-    delete $item->{actions};
-
-    # Seems we don't need to do it for the HASH, but I'll leave it here
-    # just in case. Remove this when confirmed everything works fine
-    #    $self->expand_list($item, qw(actions allowed_roles allowed_access_levels));
-}
-
 
 =head1 AUTHOR
 
@@ -68,7 +55,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2019 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 

@@ -3,13 +3,17 @@
 */
 import Vue from 'vue'
 import api from '../_api'
+import store from '@/store'
+import i18n from '@/utils/locale'
 
 // Default values
-const state = {
-  nodes: {}, // nodes details
-  nodeExists: {}, // node exists true|false
-  message: '',
-  nodeStatus: ''
+const state = () => {
+  return {
+    nodes: {}, // nodes details
+    nodeExists: {}, // node exists true|false
+    message: '',
+    nodeStatus: ''
+  }
 }
 
 const getters = {
@@ -17,8 +21,8 @@ const getters = {
 }
 
 const actions = {
-  exists: ({ commit }, mac) => {
-    if (state.nodeExists.hasOwnProperty(mac)) {
+  exists: ({ state, commit }, mac) => {
+    if (mac in state.nodeExists) {
       if (state.nodeExists[mac]) {
         return Promise.resolve(true)
       }
@@ -48,27 +52,17 @@ const actions = {
       })
     })
   },
-  refreshNode: ({ state, commit, dispatch }, mac) => {
-    if (state.nodes[mac]) {
-      commit('NODE_DESTROYED', mac)
-    }
-    commit('NODE_REQUEST')
-    dispatch('getNode', mac).then(() => {
-      commit('NODE_SUCCESS')
-    }).catch(err => {
-      commit('USER_ERROR', err.response)
-      return err
-    })
-  },
   getNode: ({ state, commit }, mac) => {
+    /* Fix #5334, always fetch a fresh copy
     if (state.nodes[mac]) {
       return Promise.resolve(state.nodes[mac])
     }
+    */
 
     let node = {}
 
     commit('NODE_REQUEST')
-    return api.node(mac).then(data => {
+    return api.node({ quiet: true, mac }).then(data => {
       Object.assign(node, data)
       if (node.status === null) {
         node.status = 'unreg'
@@ -122,11 +116,15 @@ const actions = {
       // Fetch locationlogs
       api.locationlogs(mac).then(datas => {
         commit('NODE_UPDATED', { mac, prop: 'locations', data: datas })
+      }).catch(() => {
+        // noop
       })
 
       // Fetch security_events
       api.security_events(mac).then(datas => {
         commit('NODE_UPDATED', { mac, prop: 'security_events', data: datas })
+      }).catch(() => {
+        // noop
       })
 
       // Fetch fingerbank
@@ -142,20 +140,40 @@ const actions = {
       // Fetch dhcpoption82
       api.dhcpoption82(mac).then(items => {
         commit('NODE_UPDATED', { mac, prop: 'dhcpoption82', data: items })
+      }).catch(() => {
+        // noop
       })
 
       // Fetch Rapid7
       api.rapid7Info(mac).then(items => {
         commit('NODE_UPDATED', { mac, prop: 'rapid7', data: items })
+      }).catch(() => {
+        // noop
       })
 
       return state.nodes[mac]
     })
   },
+  refreshNode: ({ state, commit, dispatch }, mac) => {
+    if (state.nodes[mac]) {
+      commit('NODE_DESTROYED', mac)
+    }
+    commit('NODE_REQUEST')
+    return new Promise((resolve, reject) => {
+      dispatch('getNode', mac).then(() => {
+        commit('NODE_SUCCESS')
+        resolve(state.nodes[mac])
+      }).catch(err => {
+        commit('NODE_ERROR', err.response)
+        reject(err)
+      })
+    })
+  },
   createNode: ({ commit }, data) => {
     commit('NODE_REQUEST')
-    if (data.unreg_date && data.unreg_time) {
-      data.unregdate = `${data.unreg_date} ${data.unreg_time}`
+    const { unreg_date, unreg_time } = data
+    if (unreg_date && unreg_time) {
+      data.unregdate = `${unreg_date} ${unreg_time}`
     }
     return new Promise((resolve, reject) => {
       api.createNode(data).then(response => {
@@ -223,14 +241,17 @@ const actions = {
     commit('NODE_REQUEST')
     return new Promise((resolve, reject) => {
       api.reevaluateAccessNode(data).then(response => {
-        if (response.status === 'success') {
+        if (response.status === 200) {
           commit('NODE_SUCCESS')
+          store.dispatch('notification/info', { message: i18n.t('Node access reevaluation initialized') })
         } else {
           commit('NODE_ERROR')
+          store.dispatch('notification/danger', { message: i18n.t('Node access reevaluation failed') })
         }
         resolve(response)
       }).catch(err => {
         commit('NODE_ERROR', err.response)
+        store.dispatch('notification/danger', { message: i18n.t('Node access reevaluation failed') })
         reject(err)
       })
     })
@@ -239,14 +260,17 @@ const actions = {
     commit('NODE_REQUEST')
     return new Promise((resolve, reject) => {
       api.refreshFingerbankNode(data).then(response => {
-        if (response.status === 'success') {
+        if (response.status === 200) {
           commit('NODE_SUCCESS')
+          store.dispatch('notification/info', { message: i18n.t('Node device profiling initialized') })
         } else {
           commit('NODE_ERROR')
+          store.dispatch('notification/danger', { message: i18n.t('Node device profiling failed') })
         }
         resolve(response)
       }).catch(err => {
         commit('NODE_ERROR', err.response)
+        store.dispatch('notification/danger', { message: i18n.t('Node device profiling failed') })
         reject(err)
       })
     })
@@ -255,14 +279,17 @@ const actions = {
     commit('NODE_REQUEST')
     return new Promise((resolve, reject) => {
       api.restartSwitchportNode(data).then(response => {
-        if (response.status === 'success') {
+        if (response.status === 200) {
           commit('NODE_SUCCESS')
+          store.dispatch('notification/info', { message: i18n.t('Node switchport restarted') })
         } else {
           commit('NODE_ERROR')
+          store.dispatch('notification/danger', { message: i18n.t('Node switchport restart failed') })
         }
         resolve(response)
       }).catch(err => {
         commit('NODE_ERROR', err.response)
+        store.dispatch('notification/danger', { message: i18n.t('Node switchport restart failed') })
         reject(err)
       })
     })
@@ -287,7 +314,7 @@ const actions = {
   },
   bulkApplySecurityEvent: ({ commit }, data) => {
     commit('NODE_REQUEST')
-    return api.bulkCloseSecurityEvents(data).then(response => {
+    return api.bulkApplySecurityEvent(data).then(response => {
       commit('NODE_BULK_SUCCESS', response)
       return response
     }).catch(err => {
@@ -356,6 +383,15 @@ const actions = {
     }).catch(err => {
       commit('NODE_ERROR', err.response)
     })
+  },
+  bulkImport: ({ commit }, data) => {
+    commit('NODE_REQUEST')
+    return api.bulkImport(data).then(response => {
+      commit('NODE_BULK_SUCCESS', response)
+      return response
+    }).catch(err => {
+      commit('NODE_ERROR', err.response)
+    })
   }
 }
 
@@ -367,6 +403,7 @@ const mutations = {
   NODE_REPLACED: (state, data) => {
     state.nodeStatus = 'success'
     if (!('fingerbank' in data)) data.fingerbank = {}
+    if ('unregdate' in data && data.unregdate === '0000-00-00 00:00:00') data.unregdate = ''
     Vue.set(state.nodes, data.mac, data)
     // TODO: update items if found in it
   },
@@ -388,7 +425,7 @@ const mutations = {
     state.nodeStatus = 'success'
     Vue.set(state.nodes, mac, null)
   },
-  NODE_SUCCESS: (state, response) => {
+  NODE_SUCCESS: (state) => {
     state.nodeStatus = 'success'
   },
   NODE_ERROR: (state, response) => {

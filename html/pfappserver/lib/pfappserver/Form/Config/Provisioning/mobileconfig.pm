@@ -31,8 +31,9 @@ has_field 'broadcast' =>
    label => 'Broadcast network',
    checkbox_value => 1,
    input_without_param => 0,
+   default => 1,
    tags => { after_element => \&help,
-             help => 'Uncheck this box if you are using a hidden SSID' },
+             help => 'Disable this box if you are using a hidden SSID' },
   );
 
 has_field 'security_type' =>
@@ -73,6 +74,12 @@ has_field 'dpsk' =>
              help => 'Define if the PSK needs to be generated' },
   );
 
+has_field 'dpsk_use_local_password' => (
+   type => 'Toggle',
+   checkbox_value => 'enabled',
+   unchecked_value => 'disabled',
+);
+
 has_field 'psk_size' =>
   (
    type => 'PSKLength',
@@ -89,6 +96,15 @@ has_field 'server_certificate_path' =>
   label => 'RADIUS server certificate path',
   tags => { after_element => \&help,
             help => 'The path to the RADIUS server certificate' },       
+ );
+
+has_field 'ca_cert_path' =>
+ (
+  type => 'Path',
+  required_when => { 'eap_type' => 25 },
+  label => 'RADIUS server CA path',
+  tags => { after_element => \&help,
+            help => 'The path to the RADIUS server CA' },
  );
 
 has_field 'cert_chain' =>
@@ -150,7 +166,7 @@ sub filter_deflate {
 
 has_block definition =>
   (
-   render_list => [ qw(id description type category ssid broadcast eap_type security_type dpsk passcode pki_provider server_certificate_path) ],
+   render_list => [ qw(id description type category ssid broadcast eap_type security_type dpsk dpsk_use_local_password passcode pki_provider server_certificate_path ca_cert_path apply_role role_to_apply autoregister) ],
   );
 
 has_block signing =>
@@ -179,7 +195,7 @@ sub option_security {
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2019 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 

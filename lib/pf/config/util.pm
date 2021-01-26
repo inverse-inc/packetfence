@@ -31,6 +31,7 @@ use pf::config qw(
     $UNKNOWN
     $management_network
     %ConfigRealm
+    @ConfigOrderedRealm
     $HTTPS
     $HTTP
 );
@@ -39,6 +40,7 @@ use pf::constants::config qw($DEFAULT_SMTP_PORT $DEFAULT_SMTP_PORT_SSL $DEFAULT_
 use IO::Socket::SSL qw(SSL_VERIFY_NONE);
 use pf::constants::config qw($TIME_MODIFIER_RE);
 use pf::constants::realm;
+use Encode qw(encode);
 use File::Basename;
 use Net::MAC::Vendor;
 use Net::SMTP;
@@ -47,7 +49,7 @@ use MIME::Lite::TT;
 use POSIX();
 use File::Spec::Functions;
 use File::Slurp qw(read_dir);
-use List::MoreUtils qw(all any);
+use List::MoreUtils qw(all any uniq);
 use Try::Tiny;
 use pf::file_paths qw(
     $html_dir
@@ -192,7 +194,7 @@ sub build_email {
     my $msg = MIME::Lite::TT->new(
         To          => $email,
         Bcc         => $data->{'bcc'} || '',
-        Subject     => $subject,
+        Subject     => encode('MIME-Header', $subject),
         Encoding    => 'base64',
         Template    => "emails-$template.html",
         TmplOptions => \%TmplOptions,
@@ -397,14 +399,17 @@ Returns the list of host and IP on which the portal is configured to listen
 sub portal_hosts {
     my @hosts;
     foreach my $net (@internal_nets) {
+        push @hosts, values(%{pf::cluster::members_ips($net->{Tint})}) if $cluster_enabled;
         push @hosts, $net->{Tip} if defined($net->{Tip});
         push @hosts, $net->{Tvip} if defined($net->{Tvip});
         push @hosts, $net->{Tipv6_address} if defined($net->{Tipv6_address});
     }
+
+    push @hosts, values(%{pf::cluster::members_ips($management_network->{Tint})}) if $cluster_enabled;
     push @hosts, $management_network->{Tip} if defined($management_network->{Tip});
     push @hosts, $management_network->{Tvip} if defined($management_network->{Tvip});
     push @hosts, $fqdn;
-    return @hosts;
+    return uniq @hosts;
 }
 
 =head2 get_realm_authentication_source
@@ -415,7 +420,22 @@ Find sources for a specific realm
 
 sub get_realm_authentication_source {
     my ( $username, $realm, $sources ) = @_;
-    return [grep { $_->realmIsAllowed($realm) } @{$sources}];
+    my $matched_realm = $realm;
+    foreach my $realm_key ( @pf::config::ConfigOrderedRealm ) {
+        if (defined($pf::config::ConfigRealm{$realm_key}->{regex}) && $pf::config::ConfigRealm{$realm_key}->{'regex'} ne '' && defined($realm) && $realm =~ /$pf::config::ConfigRealm{$realm_key}->{regex}/) {
+            $realm = $realm_key;
+            last;
+        }
+    }
+    $matched_realm //= 'null';
+    my @found = grep { $_->realmIsAllowed($realm) } @{$sources};
+    if (@found == 0 && $realm ne 'default' && !(exists $pf::config::ConfigRealm{$realm})) {
+        $matched_realm = 'default';
+        @found = grep { $_->realmIsAllowed('default') } @{$sources};
+    }
+    get_logger->debug("Used realm ". ((defined($realm)) ? $realm : "null") ." is associated to the configured realm $matched_realm");
+
+    return \@found;
 }
 
 =head2 filter_authentication_sources
@@ -647,12 +667,19 @@ Valid context are "portal" and "admin", basically any prefix to "_strip_username
 sub strip_username_if_needed {
     my ($username, $context) = @_;
     return $username unless(defined($username));
-    
+
     my $logger = get_logger;
 
     my ($stripped, $realm) = strip_username($username);
     $realm = $realm ? lc($realm) : undef;
-    
+
+    foreach my $realm_key ( @pf::config::ConfigOrderedRealm ) {
+        if (defined($pf::config::ConfigRealm{$realm_key}->{regex}) && $pf::config::ConfigRealm{$realm_key}->{'regex'} ne '' && defined($realm) && $realm =~ /$pf::config::ConfigRealm{$realm_key}->{regex}/) {
+            $realm = $realm_key;
+            last;
+        }
+    }
+
     my $realm_config = defined($realm) && exists($ConfigRealm{$realm}) ? $ConfigRealm{$realm} : $ConfigRealm{lc($pf::constants::realm::DEFAULT)};
 
     my $param = $context . "_strip_username";
@@ -675,7 +702,7 @@ Minor parts of this file may have been contributed. See CREDITS.
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2019 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 

@@ -1,0 +1,60 @@
+name: Check captive portal locales from node01
+version: 2
+testcases:
+
+- name: check_locale_from_browser
+  steps:
+  # locale not supported, fallback to fr_FR (first locale configured)
+  - type: http
+    method: GET
+    url: '{{.captive_portal.reg.url}}'
+    ignore_verify_ssl: true
+    headers:
+      "Accept-Language": "xx"
+    assertions:
+      - result.statuscode ShouldEqual 200
+      - result.body ShouldContainSubstring "Système d'enregistrement"
+
+  # locale supported, returned en_US
+  - type: http
+    method: GET
+    url: '{{.captive_portal.reg.url}}'
+    ignore_verify_ssl: true
+    headers:
+      "Accept-Language": "en_US"
+    assertions:
+      - result.statuscode ShouldEqual 200
+      - result.body ShouldContainSubstring "Registration system"
+
+  # not a locale, trying to match closest locale (it_IT)
+  - type: http
+    method: GET
+    url: '{{.captive_portal.reg.url}}'
+    ignore_verify_ssl: true
+    headers:
+      "Accept-Language": "it"
+    assertions:
+      - result.statuscode ShouldEqual 200
+      - result.body ShouldContainSubstring "Registrazione"      
+
+# at end due to caching of parameter in session
+- name: check_locale_from_url
+  steps:
+  - type: http
+    method: GET
+    url: '{{.captive_portal.reg.url}}?lang=de_DE'
+    ignore_verify_ssl: true
+    assertions:
+      - result.statuscode ShouldEqual 200
+      - result.body ShouldContainSubstring "Registrierungssystem"
+
+# should be identical than previous test, lang parameter stored in session
+- name: check_locale_from_session
+  steps:
+  - type: http
+    method: GET
+    url: '{{.captive_portal.reg.url}}'
+    ignore_verify_ssl: true
+    assertions:
+      - result.statuscode ShouldEqual 200
+      - result.body ShouldContainSubstring "Registrierungssystem"

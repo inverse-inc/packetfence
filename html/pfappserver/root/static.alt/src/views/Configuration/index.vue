@@ -17,9 +17,9 @@ export default {
   components: {
     pfSidebar
   },
-  data () {
-    return {
-      sections: [
+  computed: {
+    sections () {
+      return [
         {
           name: this.$i18n.t('Policies and Access Control'),
           path: '/configuration/policies_access_control',
@@ -40,7 +40,12 @@ export default {
                 { name: this.$i18n.t('Switch Groups'), path: '/configuration/switch_groups' }
               ]
             },
-            { name: this.$i18n.t('Connection Profiles'), path: '/configuration/connection_profiles' }
+            { name: this.$i18n.t('Connection Profiles'),
+              items: [
+                { name: this.$i18n.t('Standard Connection Profiles'), path: '/configuration/connection_profiles' },
+                { name: this.$i18n.t('Remote Connection Profiles'), path: '/configuration/remote_connection_profiles' }
+              ]
+            }
           ]
         },
         {
@@ -63,6 +68,7 @@ export default {
                 { name: this.$i18n.t('User Agents'), path: '/configuration/fingerbank/user_agents' }
               ]
             },
+            { name: this.$i18n.t('Network Anomaly Detection'), path: '/configuration/fingerbank/network_behavior_policies' },
             { name: this.$i18n.t('Scans'),
               items: [
                 { name: this.$i18n.t('Scan Engines'), path: '/configuration/scans/scan_engines' },
@@ -81,9 +87,18 @@ export default {
             { name: this.$i18n.t('Firewall SSO'), path: '/configuration/firewalls' },
             { name: this.$i18n.t('Cisco Mobility Services Engine'), path: '/configuration/mse' },
             { name: this.$i18n.t('Web Services'), path: '/configuration/webservices' },
+            { name: this.$i18n.t('Switch Templates'), path: '/configuration/switch_templates' },
             { name: this.$i18n.t('Syslog Parsers'), path: '/configuration/pfdetect' },
             { name: this.$i18n.t('Syslog Forwarding'), path: '/configuration/syslog' },
-            { name: this.$i18n.t('WRIX'), path: '/configuration/wrix' }
+            { name: this.$i18n.t('WRIX'), path: '/configuration/wrix' },
+            { name: this.$i18n.t('PKI'),
+              items: [
+                { name: this.$i18n.t('Certificate Authorities'), path: '/configuration/pki/cas' },
+                { name: this.$i18n.t('Templates'), path: '/configuration/pki/profiles' },
+                { name: this.$i18n.t('Certificates'), path: '/configuration/pki/certs' },
+                { name: this.$i18n.t('Revoked Certificates'), path: '/configuration/pki/revokedcerts' }
+              ]
+            }
           ]
         },
         {
@@ -93,13 +108,13 @@ export default {
           collapsable: true,
           items: [
             { name: this.$i18n.t('Captive Portal'), path: '/configuration/captive_portal' },
-            { name: this.$i18n.t('Filter Engines'), path: '/configuration/filters' },
+            { name: this.$i18n.t('Filter Engines'), path: '/configuration/filter_engines' },
             { name: this.$i18n.t('Billing Tiers'), path: '/configuration/billing_tiers' },
             { name: this.$i18n.t('PKI Providers'), path: '/configuration/pki_providers' },
             { name: this.$i18n.t('Provisioners'), path: '/configuration/provisionings' },
             { name: this.$i18n.t('Portal Modules'), path: '/configuration/portal_modules' },
             { name: this.$i18n.t('Access Duration'), path: '/configuration/access_duration' },
-            { name: this.$i18n.t('Device Registration'), path: '/configuration/device_registrations' }
+            { name: this.$i18n.t('Self Service Portal'), path: '/configuration/self_services' }
           ]
         },
         {
@@ -139,12 +154,22 @@ export default {
             },
             { name: this.$i18n.t('Database'),
               items: [
-                { name: this.$i18n.t('General'), path: '/configuration/database' },
+                { name: this.$i18n.t('General'), path: '/configuration/database_general' },
                 { name: this.$i18n.t('Advanced'), path: '/configuration/database_advanced' }
               ]
             },
             { name: this.$i18n.t('Cluster'), path: '/configuration/active_active' },
-            { name: this.$i18n.t('RADIUS Configuration'), path: '/configuration/radius' },
+            { name: this.$i18n.t('RADIUS'),
+              items: [
+                { name: this.$i18n.t('General'), path: '/configuration/radius' },
+                { name: this.$i18n.t('EAP Profiles'), path: '/configuration/radius/eap' },
+                { name: this.$i18n.t('TLS Profiles'), path: '/configuration/radius/tls' },
+                { name: this.$i18n.t('Fast Profiles'), path: '/configuration/radius/fast' },
+                { name: this.$i18n.t('SSL Certificates'), path: '/configuration/radius/ssl' },
+                { name: this.$i18n.t('OCSP Profiles'), path: '/configuration/radius/ocsp' }
+              ]
+            },
+            { name: this.$i18n.t('DNS Configuration'), path: '/configuration/dns' },
             { name: this.$i18n.t('Admin Access'), path: '/configuration/admin_roles' },
             { name: this.$i18n.t('SSL Certificates'), path: '/configuration/certificates' }
           ]

@@ -21,6 +21,7 @@ use pf::dal;
 use List::MoreUtils qw(all);
 use Sereal::Encoder qw(sereal_encode_with_object);
 use pf::Sereal qw($ENCODER);
+use Digest::JHash qw(jhash);
 use pf::task;
 use pf::util::pfqueue qw(task_counter_id);
 use pf::constants::pfqueue qw($PFQUEUE_COUNTER $PFQUEUE_QUEUE_PREFIX);
@@ -96,6 +97,16 @@ sub submit {
     return $id;
 }
 
+sub hashed_queue_name {
+    my ($queue, $count, $id) = @_;
+    return sprintf("%s_%03d", $queue, jhash($id) % $count );
+}
+
+sub submit_hashed {
+    my ($self, $count, $id, $queue, $task_type, $task_data, $expire_in, %opts) = @_;
+    return $self->submit(hashed_queue_name($queue, $count, $id), $task_type, $task_data, $expire_in, %opts);
+}
+
 sub submit_delayed {
     my ($self, $queue, $task_type, $delay, $task_data, $expire_in, %opts) = @_;
     $expire_in //= $DEFAULT_EXPIRATION;
@@ -118,6 +129,10 @@ sub submit_delayed {
     return $id;
 }
 
+sub submit_delayed_hashed {
+    my ($self, $count, $id, $queue, $task_type, $delay, $task_data, $expire_in, %opts) = @_;
+    return $self->submit_delayed(hashed_queue_name($queue, $count, $id), $task_type, $delay, $task_data, $expire_in, %opts);
+}
 
 =head1 AUTHOR
 
@@ -125,7 +140,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2019 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 

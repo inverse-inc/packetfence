@@ -66,9 +66,11 @@ use pf::util;
 
 # CAPABILITIES
 # access technology supported
-sub supportsSnmpTraps { return $TRUE; }
-sub supportsWiredDot1x { return $TRUE; }
-sub supportsWiredMacAuth { return $TRUE; }
+use pf::SwitchSupports qw(
+    SnmpTraps
+    WiredDot1x
+    WiredMacAuth
+);
 # inline capabilities
 sub inlineCapabilities { return ($MAC,$PORT); }
 
@@ -226,6 +228,7 @@ sub authorizeMAC {
             $logger->error(
                     "Error authorizing $authMac ( $mac_oid ) on ifIndex $ifIndex, vlan $authVlan: " .
                     $self->{_sessionWrite}->error );
+            return 0;
         } else {
             $logger->info( "Authorizing $authMac ( $mac_oid ) on ifIndex $ifIndex, vlan $authVlan" );
         }
@@ -519,7 +522,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2019 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 

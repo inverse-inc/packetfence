@@ -1,3 +1,4 @@
+# Copyright (C) Inverse inc.
 # Refuse empty user agent
 # Define the test
 [empty_ua_get]

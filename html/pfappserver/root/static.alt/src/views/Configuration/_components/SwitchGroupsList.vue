@@ -1,14 +1,15 @@
 <template>
   <pf-config-list
+    ref="pfConfigList"
     :config="config"
   >
-    <template slot="buttonAdd">
+    <template v-slot:buttonAdd>
       <b-button variant="outline-primary" :to="{ name: 'newSwitchGroup' }">{{ $t('New Switch Group') }}</b-button>
     </template>
-    <template slot="emptySearch" slot-scope="state">
+    <template v-slot:emptySearch="state">
       <pf-empty-table :isLoading="state.isLoading">{{ $t('No switch groups found') }}</pf-empty-table>
     </template>
-    <template slot="buttons" slot-scope="item">
+    <template v-slot:cell(buttons)="item">
       <span class="float-right text-nowrap">
         <pf-button-delete size="sm" v-if="!item.not_deletable" variant="outline-danger" class="mr-1" :disabled="isLoading" :confirm="$t('Delete Switch Group?')" @on-delete="remove(item)" reverse/>
         <b-button size="sm" variant="outline-primary" class="mr-1" @click.stop.prevent="clone(item)">{{ $t('Clone') }}</b-button>
@@ -21,27 +22,23 @@
 import pfButtonDelete from '@/components/pfButtonDelete'
 import pfConfigList from '@/components/pfConfigList'
 import pfEmptyTable from '@/components/pfEmptyTable'
-import {
-  pfConfigurationSwitchGroupsListConfig as config
-} from '@/globals/configuration/pfConfigurationSwitchGroups'
+import { config } from '../_config/switchGroup'
 
 export default {
-  name: 'SwitchGroupsList',
+  name: 'switch-groups-list',
   components: {
     pfButtonDelete,
     pfConfigList,
     pfEmptyTable
   },
-  props: {
-    storeName: { // from router
-      type: String,
-      default: null,
-      required: true
-    }
-  },
   data () {
     return {
       config: config(this)
+    }
+  },
+  computed: {
+    isLoading () {
+      return this.$store.getters['$_switch_groups/isLoading']
     }
   },
   methods: {
@@ -49,8 +46,9 @@ export default {
       this.$router.push({ name: 'cloneSwitchGroup', params: { id: item.id } })
     },
     remove (item) {
-      this.$store.dispatch(`${this.storeName}/deleteSwitchGroup`, item.id).then(response => {
-        this.$router.go() // reload
+      this.$store.dispatch('$_switch_groups/deleteSwitchGroup', item.id).then(() => {
+        const { $refs: { pfConfigList: { refreshList = () => {} } = {} } = {} } = this
+        refreshList() // soft reload
       })
     }
   }

@@ -35,13 +35,14 @@ const api = {
       }
     })
   },
-  restartService: name => {
-    return apiCall.post(`service/${name}/restart`).then(response => {
+  restartService: body => {
+    const post = body.quiet ? 'postQuiet' : 'post'
+    return apiCall[post](`service/${body.id}/restart`).then(response => {
       const { data: { restart } } = response
       if (parseInt(restart) > 0) {
         return response.data
       } else {
-        throw new Error(`Could not restart ${name}`)
+        throw new Error(`Could not restart ${body.id}`)
       }
     })
   },
@@ -64,6 +65,21 @@ const api = {
         throw new Error(`Could not stop ${name}`)
       }
     })
+  },
+  updateSystemd: name => {
+    return apiCall.post(['service', name, 'update_systemd'])
+  },
+  restartSystemService: ({ id, quiet }) => {
+    const post = quiet ? 'postQuiet' : 'post'
+    return apiCall[post](['system_service', id, 'restart'])
+  },
+  startSystemService: ({ id, quiet }) => {
+    const post = quiet ? 'postQuiet' : 'post'
+    return apiCall[post](['system_service', id, 'start'])
+  },
+  stopSystemService: ({ id, quiet }) => {
+    const post = quiet ? 'postQuiet' : 'post'
+    return apiCall[post](['system_service', id, 'top'])
   }
 }
 
@@ -78,11 +94,21 @@ const types = {
   ERROR: 'error'
 }
 
+export const blacklistedServices = [ // prevent start|stop|restart control on these services
+  'api-frontend',
+  'pf',
+  'pfperl-api',
+  'haproxy-admin',
+  'httpd.admin_dispatcher'
+]
+
 // Default values
-const state = {
-  cache: {}, // items details
-  message: '',
-  requestStatus: ''
+const initialState = () => {
+  return {
+    cache: {}, // items details
+    message: '',
+    requestStatus: ''
+  }
 }
 
 const getters = {
@@ -128,9 +154,11 @@ const actions = {
       throw err
     })
   },
-  restartService: ({ state, commit }, id) => {
+  restartService: ({ state, commit }, arg) => {
+    const body = (typeof arg === 'object') ? arg : { id: arg }
+    const { id } = body
     commit('SERVICE_RESTARTING', id)
-    return api.restartService(id).then(response => {
+    return api.restartService(body).then(response => {
       commit('SERVICE_RESTARTED', { id, response })
       return state.cache[id]
     }).catch((err) => {
@@ -152,7 +180,49 @@ const actions = {
   },
   stopService: ({ state, commit }, id) => {
     commit('SERVICE_STOPPING', id)
-    return api.stopService(id).then(response => {
+    return api.stopService(id).then(() => {
+      commit('SERVICE_STOPPED', { id })
+      return state.cache[id]
+    }).catch((err) => {
+      const { response } = err
+      commit('SERVICE_ERROR', { id, response })
+      throw err
+    })
+  },
+  updateSystemd: (context, id) => {
+    return api.updateSystemd(id)
+  },
+  restartSystemService: ({ state, commit }, arg) => {
+    const body = (typeof arg === 'object') ? arg : { id: arg }
+    const { id } = body
+    commit('SERVICE_RESTARTING', id)
+    return api.restartSystemService(body).then(response => {
+      commit('SERVICE_RESTARTED', { id, response })
+      return state.cache[id]
+    }).catch((err) => {
+      const { response } = err
+      commit('SERVICE_ERROR', { id, response })
+      throw err
+    })
+  },
+  startSystemService: ({ state, commit }, arg) => {
+    const body = (typeof arg === 'object') ? arg : { id: arg }
+    const { id } = body
+    commit('SERVICE_STARTING', id)
+    return api.startSystemService(body).then(response => {
+      commit('SERVICE_STARTED', { id, response })
+      return state.cache[id]
+    }).catch((err) => {
+      const { response } = err
+      commit('SERVICE_ERROR', { id, response })
+      throw err
+    })
+  },
+  stopSystemService: ({ state, commit }, arg) => {
+    const body = (typeof arg === 'object') ? arg : { id: arg }
+    const { id } = body
+    commit('SERVICE_STOPPING', id)
+    return api.stopSystemService(body).then(() => {
       commit('SERVICE_STOPPED', { id })
       return state.cache[id]
     }).catch((err) => {
@@ -245,12 +315,16 @@ const mutations = {
     if (response && response.data) {
       state.message = response.data.message
     }
+  },
+  // eslint-disable-next-line no-unused-vars
+  $RESET: (state) => {
+    state = initialState()
   }
 }
 
 export default {
   namespaced: true,
-  state,
+  state: initialState(),
   getters,
   actions,
   mutations

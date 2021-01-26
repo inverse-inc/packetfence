@@ -202,6 +202,7 @@ sub register_task {
 
 sub registertasks {
     for my $task (keys %ConfigDomain) {
+        next if isdisabled($ConfigDomain{$task}{status});
         register_task($task);
     }
 }
@@ -273,7 +274,7 @@ Minor parts of this file may have been contributed. See CREDITS.
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2019 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 Copyright (C) 2005 Kevin Amorin
 

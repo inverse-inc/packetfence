@@ -1,14 +1,15 @@
-// Package loadbalance is plugin for rewriting responses to do "load balancing"
+// Package loadbalance is a plugin for rewriting responses to do "load balancing"
 package loadbalance
 
 import (
+	"context"
+
 	"github.com/inverse-inc/packetfence/go/coredns/plugin"
 
 	"github.com/miekg/dns"
-	"golang.org/x/net/context"
 )
 
-// RoundRobin is plugin to rewrite responses for "load balancing".
+// RoundRobin is a plugin to rewrite responses for "load balancing".
 type RoundRobin struct {
 	Next plugin.Handler
 }

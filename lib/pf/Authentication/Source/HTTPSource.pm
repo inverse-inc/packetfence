@@ -147,22 +147,29 @@ sub authenticate {
 
     my ($curl_return_code, $response_code, $response_body, $curl) = $self->_post_curl($uri, $post_fields);
     if ($curl_return_code == 0 && $response_code == 200) {
-        my $result = decode_json($response_body);
-        if($result->{result}){
-            get_logger->info("Authentication valid with $username in custom source");
-        }
-        else {
-            get_logger->info("Authentication invalid with $username in custom source. Error is : ".$result->{message});
-        }
-        return ($result->{result}, $result->{message});
-    }
-    else {
+        return $self->handleResults($response_body, $username);
+    } else {
         my $curl_error = $curl->errbuf;
         get_logger->error("Could get proper reply for authentication request to ".$self->host.". Server replied with $response_body. Curl error : $curl_error");
         return ($FALSE, 'Unable to contact authentication server.');
     }
+}
 
+sub handleResults {
+    my ($self, $response_body, $username) = @_;
+    my $result = eval {decode_json($response_body) };
+    if ($@) {
+        get_logger->error("$@");
+        return ($FALSE, "Invalid response");
+    }
+    if ($result->{result}) {
+        get_logger->info( "Authentication valid with $username in custom source");
+    } else {
+        $result->{message} //= "Authentication failed";
+        get_logger->info( "Authentication invalid with $username in custom source. Error is : " . $result->{message} );
+    }
 
+    return ( $result->{result} // $FALSE, $result->{message} ); 
 }
 
 =head2 match
@@ -195,63 +202,57 @@ sub match {
         return undef;
     }
 
-    if (defined $result) {
-
-        my @actions = ();
-        my $action;
-
-        my $access_duration = $result->{'access_duration'};
-        if (defined $access_duration) {
-            $action =  pf::Authentication::Action->new({type => $Actions::SET_ACCESS_DURATION,
-                                                        value => $access_duration});
-            push(@actions, $action);
-        }
-
-        my $access_level = $result->{'access_level'};
-        if (defined $access_level ) {
-            $action =  pf::Authentication::Action->new({type => $Actions::SET_ACCESS_LEVEL,
-                                                        value => $access_level});
-            push(@actions, $action);
-        }
-
-        my $sponsor = $result->{'sponsor'};
-        if (defined($sponsor) && $sponsor == 1) {
-            $action =  pf::Authentication::Action->new({type => $Actions::MARK_AS_SPONSOR,
-                                                        value => 1});
-            push(@actions, $action);
-        }
-
-        my $unregdate = $result->{'unregdate'};
-        if (defined $unregdate) {
-            $action =  pf::Authentication::Action->new({type => $Actions::SET_UNREG_DATE,
-                                                        value => $unregdate});
-            push(@actions, $action);
-        }
-
-        my $category = $result->{'category'};
-        if (defined $category) {
-            $action =  pf::Authentication::Action->new({type => $Actions::SET_ROLE,
-                                                        value => $category});
-            push(@actions, $action);
-        }
-
-        my $time_balance = $result->{'time_balance'};
-        if (defined $time_balance) {
-            $action =  pf::Authentication::Action->new({type => $Actions::SET_TIME_BALANCE,
-                                                        value => $time_balance});
-            push(@actions, $action);
-        }
-
-        my $bandwidth_balance = $result->{'bandwidth_balance'};
-        if (defined $bandwidth_balance) {
-            $action =  pf::Authentication::Action->new({type => $Actions::SET_BANDWIDTH_BALANCE,
-                                                        value => $bandwidth_balance});
-            push(@actions, $action);
-        }
-        return \@actions;
+    if (!defined $result) {
+        return undef;
     }
 
-    return undef;
+    my @actions = ();
+
+    my $access_duration = $result->{'access_duration'};
+    if (defined $access_duration) {
+        push @actions, pf::Authentication::Action->new({type => $Actions::SET_ACCESS_DURATION, value => $access_duration});
+    }
+
+    my $access_level = $result->{'access_level'};
+    if (defined $access_level ) {
+        push @actions, pf::Authentication::Action->new({type => $Actions::SET_ACCESS_LEVEL, value => $access_level});
+    }
+
+    my $sponsor = $result->{'sponsor'};
+    if (defined($sponsor) && $sponsor == 1) {
+        push @actions, pf::Authentication::Action->new({type => $Actions::MARK_AS_SPONSOR, value => 1});
+    }
+
+    my $unregdate = $result->{'unregdate'};
+    if (defined $unregdate) {
+        push @actions, pf::Authentication::Action->new({type => $Actions::SET_UNREG_DATE, value => $unregdate});
+    }
+
+    my $category = $result->{'category'};
+    if (defined $category) {
+        push @actions, pf::Authentication::Action->new({type => $Actions::SET_ROLE, value => $category});
+    }
+
+    my $time_balance = $result->{'time_balance'};
+    if (defined $time_balance) {
+        push @actions, pf::Authentication::Action->new({type => $Actions::SET_TIME_BALANCE, value => $time_balance});
+    }
+
+    my $bandwidth_balance = $result->{'bandwidth_balance'};
+    if (defined $bandwidth_balance) {
+        push @actions, pf::Authentication::Action->new({type => $Actions::SET_BANDWIDTH_BALANCE, value => $bandwidth_balance});
+    }
+
+    my $tenant_id = $result->{'tenant_id'};
+    if (defined $tenant_id) {
+        push @actions, pf::Authentication::Action->new({type => $Actions::SET_TENANT_ID, value => $tenant_id});
+    }
+
+    return pf::Authentication::Rule->new(
+        id => "default",
+        class => $params->{rule_class},
+        actions => \@actions,
+    );
 }
 
 
@@ -261,7 +262,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2019 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 

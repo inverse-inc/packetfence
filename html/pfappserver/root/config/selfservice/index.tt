@@ -1,0 +1,32 @@
+      <div class="modal modal-large fade hide" id="modalItem">
+      </div>
+
+      <div class="modal fade hide" id="deleteSelfService">
+        <div class="modal-header">
+          <a class="close" data-dismiss="modal">&times;</a>
+          <h3><i>[% l('Delete Self Service Entry') %]</i> <span></span></h3>
+        </div>
+        <div class="modal-body">
+          <p>[% l('Really delete this Self Service entry?') %]</p>
+        </div>
+        <div class="modal-footer">
+          <a href="#" class="btn" data-dismiss="modal">[% l('Cancel') %]</a>
+          <a href="#" class="btn btn-primary btn-danger"><i class="icon-trash"></i> [% l('Delete') %]</a>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">
+      <h2>[% l('Self Service') %] [% doc('_self_service') | none %]</h2>
+        </div>
+
+        <div class="card-block">
+          [% INCLUDE config/selfservice/list.tt %]
+        </div>
+
+      [%- IF can_access("SELF_SERVICE_CREATE") %]
+        <div class="form-actions">
+          <a class="btn createItem" href="[% c.uri_for(c.controller('Config::SelfService').action_for('create')) %]">[% l('Add self service') %]</a>
+        </div>
+      [%- END %]
+      </div>

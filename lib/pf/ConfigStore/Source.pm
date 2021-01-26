@@ -14,7 +14,9 @@ pf::ConfigStore::Source
 
 use HTTP::Status qw(:constants is_error is_success);
 use Moo;
+use pf::constants;
 use namespace::autoclean;
+use pf::Authentication::utils;
 use pf::file_paths qw($authentication_config_file);
 use Sort::Naturally qw(nsort);
 extends 'pf::ConfigStore';
@@ -37,6 +39,7 @@ our %TYPE_TO_EXPANDED_FIELDS = (
     Eduroam => [qw(local_realm reject_realm)],
     AD => [qw(searchattributes)],
     LDAP => [qw(searchattributes)],
+    SponsorEmail => [qw(sources)],
 );
 
 sub _fields_expanded {
@@ -53,7 +56,11 @@ canDelete
 
 sub canDelete {
     my ($self, $id) = @_;
-    return !$self->isInProfile('sources', $id) && $self->SUPER::canDelete($id);
+    if ($self->isInProfile('sources', $id)) {
+        return "Used in a profile", $FALSE;
+    }
+
+   return $self->SUPER::canDelete($id);
 }
 
 =head2 _Sections
@@ -130,9 +137,7 @@ sub cleanupAfterRead {
         if(ref($item->{message}) eq 'ARRAY'){
             $item->{message} = $self->join_options($item->{message});
         }
-    }
-
-    if ($type eq 'Email') {
+    } elsif ($type eq 'Email') {
         for my $f (qw(allowed_domains banned_domains)) {
             next unless exists $item->{$f};
             my $val =  $item->{$f};
@@ -140,12 +145,12 @@ sub cleanupAfterRead {
                 $item->{$f} = $self->join_options($val);
             }
         }
-    }
-
-    if ($item->{type} eq 'RADIUS') {
+    } elsif ($type eq 'RADIUS') {
         if(ref($item->{options}) eq 'ARRAY'){
             $item->{options} = $self->join_options($item->{options});
         }
+    } elsif ($type eq 'OpenID') {
+        $self->expand_ordered_array($item, 'person_mappings', 'person_mapping');
     }
 
     $self->expand_list($item, $self->_fields_expanded($item));
@@ -154,7 +159,8 @@ sub cleanupAfterRead {
 
 sub cleanupBeforeCommit {
     my ($self, $id, $item) = @_;
-    if ($item->{type} eq 'Email') {
+    my $type = $item->{type};
+    if ($type eq 'Email') {
         for my $f (qw(allowed_domains banned_domains)) {
             next unless exists $item->{$f};
             my $val =  $item->{$f};
@@ -165,6 +171,8 @@ sub cleanupBeforeCommit {
                 $val =~ s/\r//sg;
             }
         }
+    } elsif ($type eq 'OpenID') {
+        $self->flatten_to_ordered_array($item, 'person_mappings', 'person_mapping');
     }
 
     $self->flatten_list($item, $self->_fields_expanded($item));
@@ -188,11 +196,20 @@ sub join_options {
     return join("\n",@$options);
 }
 
+sub cleanupBeforeDelete {
+    my ($self, $id) = @_;
+    my $section = $self->_formatSectionName($id);
+    my $cachedConfig = $self->cachedConfig();
+    for my $sub_section ( grep {/^$section rule/} $cachedConfig->Sections ) {
+        $cachedConfig->DeleteSection($sub_section);
+    }
+}
+
 __PACKAGE__->meta->make_immutable unless $ENV{"PF_SKIP_MAKE_IMMUTABLE"};
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2019 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 

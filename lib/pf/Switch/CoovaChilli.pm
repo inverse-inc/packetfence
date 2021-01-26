@@ -34,8 +34,10 @@ use pf::constants::role qw($REJECT_ROLE);
 
 sub description { 'CoovaChilli' }
 
-sub supportsExternalPortal { return $TRUE; }
-sub supportsWebFormRegistration { return $TRUE }
+use pf::SwitchSupports qw(
+    ExternalPortal
+    WebFormRegistration
+);
 
 
 =head1 METHODS
@@ -182,7 +184,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2019 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 

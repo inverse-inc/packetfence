@@ -44,7 +44,7 @@ sub available_attributes {
 sub authenticate {
    my ( $self, $username, $password ) = @_;
 
-   my $result = pf::password::validate_password($username, $password);
+   my $result = pf::password::validate_password($username, $password, 1);
 
    if ($result == $pf::password::AUTH_SUCCESS) {
      return ($TRUE, $AUTH_SUCCESS_MSG);
@@ -61,12 +61,12 @@ sub match_in_subclass {
     my ($self, $params, $rule, $own_conditions, $matching_conditions) = @_;
     foreach my $condition (@{ $own_conditions }) {
         if ($condition->{'attribute'} eq "username") {
-            if ( $condition->matches("username", $params->{'username'}) ) {
+            if ( $condition->matches("username", $params->{'username'}, $params) ) {
                 push(@{ $matching_conditions }, $condition);
             }
         }
     }
-    return $params->{'username'};
+    return ($params->{'username'}, undef);
 }
 
 
@@ -86,7 +86,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2019 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 

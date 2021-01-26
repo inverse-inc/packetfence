@@ -51,6 +51,10 @@ ConfigConnectionProfile:
       description: When enabled, PacketFence will not use the role initialy computed
         on the portal but will use the dot1x username to recompute the role.
       type: string
+    mac_auth_recompute_role_from_portal:
+      description: When enabled, PacketFence will not use the role initialy computed
+        on the portal but will use an authorize source if defined to recompute the role.
+      type: string
     dot1x_unset_on_unmatch:
       description: When enabled, PacketFence will unset the role of the device if no
         authentication sources returned one.
@@ -150,6 +154,11 @@ ConfigConnectionProfile:
     unreg_on_acct_stop:
       description: This activates automatic deregistation of devices for the profile
         if PacketFence receives a RADIUS accounting stop.
+      type: string
+    vlan_pool_technique:
+      description: 'The algorithm used to calculate the VLAN in a VLAN pool. <a
+        target="_blank" href="/static/doc/PacketFence_Installation_Guide.html#_roles_management"><i
+        class="icon-question-circle-o"></i></a> '
       type: string
   required:
   - id

@@ -48,6 +48,18 @@ sub startService {
     return 1;
 }
 
+=head2
+
+generateConfig
+
+=cut
+
+sub generateConfig {
+    my $technique;
+    $technique ||= getIptablesTechnique();
+    $technique->iptables_generate();
+    return 1;
+}
 
 =head2 getIptablesTechnique
 
@@ -136,7 +148,7 @@ sub isAlive {
     my $pid = $self->pid;
     my $_EXIT_CODE_EXISTS = "0";
     my $rules_applied = defined( pf_run( "sudo " . $Config{'services'}{"iptables_binary"} . " -S | grep " . $pf::iptables::FW_FILTER_INPUT_MGMT ,accepted_exit_status => [$_EXIT_CODE_EXISTS]) );
-    return ($pid && $rules_applied);
+    return ($pid && $rules_applied) ? 1 : 0;
 }
 
 =head1 AUTHOR
@@ -146,7 +158,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2019 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 

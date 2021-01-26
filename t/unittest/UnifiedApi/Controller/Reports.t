@@ -24,7 +24,7 @@ BEGIN {
     use setup_test_config;
 }
 
-use Test::More tests => 188;
+use Test::More tests => 176;
 use Test::Mojo;
 
 #This test will running last
@@ -155,56 +155,42 @@ $t->get_ok('/api/v1/reports/ssid/active' => json => {  })
   ->json_has('/items/0/ssid')
   ->status_is(200);
 
-$t->get_ok('/api/v1/reports/osclassbandwidth' => json => {  })
-  ->json_has('/items/0/accttotal')
-  ->json_has('/items/0/accttotaloctets')
-  ->json_has('/items/0/dhcp_fingerprint')
-  ->json_has('/items/0/percent')
-  ->status_is(200);
-
 $t->get_ok('/api/v1/reports/osclassbandwidth/1000-01-01/9999-01-01' => json => {  })
-  ->json_has('/items/0/accttotal')
-  ->json_has('/items/0/accttotaloctets')
+  ->json_has('/items/0/bytes_in')
+  ->json_has('/items/0/bytes')
   ->json_has('/items/0/dhcp_fingerprint')
   ->json_has('/items/0/percent')
   ->status_is(200);
 
 $t->get_ok('/api/v1/reports/osclassbandwidth/day' => json => {  })
-  ->json_has('/items/0/accttotal')
-  ->json_has('/items/0/accttotaloctets')
+  ->json_has('/items/0/bytes_in')
+  ->json_has('/items/0/bytes_out')
+  ->json_has('/items/0/bytes')
   ->json_has('/items/0/dhcp_fingerprint')
   ->json_has('/items/0/percent')
   ->status_is(200);
 
 $t->get_ok('/api/v1/reports/osclassbandwidth/week' => json => {  })
-  ->json_has('/items/0/accttotal')
-  ->json_has('/items/0/accttotaloctets')
+  ->json_has('/items/0/bytes_in')
+  ->json_has('/items/0/bytes_out')
+  ->json_has('/items/0/bytes')
   ->json_has('/items/0/dhcp_fingerprint')
   ->json_has('/items/0/percent')
   ->status_is(200);
 
 $t->get_ok('/api/v1/reports/osclassbandwidth/month' => json => {  })
-  ->json_has('/items/0/accttotal')
-  ->json_has('/items/0/accttotaloctets')
+  ->json_has('/items/0/bytes_in')
+  ->json_has('/items/0/bytes_out')
+  ->json_has('/items/0/bytes')
   ->json_has('/items/0/dhcp_fingerprint')
   ->json_has('/items/0/percent')
   ->status_is(200);
 
 $t->get_ok('/api/v1/reports/osclassbandwidth/year' => json => {  })
-  ->json_has('/items/0/accttotal')
-  ->json_has('/items/0/accttotaloctets')
+  ->json_has('/items/0/bytes_in')
+  ->json_has('/items/0/bytes_out')
+  ->json_has('/items/0/bytes')
   ->json_has('/items/0/dhcp_fingerprint')
-  ->json_has('/items/0/percent')
-  ->status_is(200);
-
-$t->get_ok('/api/v1/reports/nodebandwidth' => json => {  })
-  ->json_has('/items/0/acctinput')
-  ->json_has('/items/0/acctinputoctets')
-  ->json_has('/items/0/acctoutput')
-  ->json_has('/items/0/acctoutputoctets')
-  ->json_has('/items/0/accttotal')
-  ->json_has('/items/0/accttotaloctets')
-  ->json_has('/items/0/callingstationid')
   ->json_has('/items/0/percent')
   ->status_is(200);
 
@@ -263,7 +249,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2019 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 

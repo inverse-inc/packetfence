@@ -6,9 +6,9 @@ import (
 	"net"
 
 	"github.com/inverse-inc/packetfence/go/log"
-	"layeh.com/radius"
-	"layeh.com/radius/rfc2865"
-	"layeh.com/radius/rfc2866"
+	radius "github.com/inverse-inc/go-radius"
+	"github.com/inverse-inc/go-radius/rfc2865"
+	"github.com/inverse-inc/go-radius/rfc2866"
 )
 
 type Checkpoint struct {

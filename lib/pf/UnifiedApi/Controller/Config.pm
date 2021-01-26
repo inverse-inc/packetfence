@@ -16,18 +16,23 @@ use strict;
 use warnings;
 use Mojo::Base qw(pf::UnifiedApi::Controller::RestRoute);
 use pf::constants;
+use List::MoreUtils qw(any);
 use pf::UnifiedApi::OpenAPI::Generator::Config;
 use pf::UnifiedApi::GenerateSpec;
-use Mojo::Util qw(url_unescape);
-use pf::util qw(expand_csv);
+use Mojo::JSON qw(encode_json);
+use pf::util qw(expand_csv isenabled);
 use pf::error qw(is_error);
+use pf::error qw(is_error is_success);
 use pf::pfcmd::checkup ();
 use pf::UnifiedApi::Search::Builder::Config;
+use pf::condition_parser qw(parse_condition_string ast_to_object);
 
 has 'config_store_class';
 has 'form_class';
 has 'openapi_generator_class' => 'pf::UnifiedApi::OpenAPI::Generator::Config';
 has 'search_builder_class' => "pf::UnifiedApi::Search::Builder::Config";
+
+our %FORMS;
 
 sub search {
     my ($self) = @_;
@@ -36,7 +41,12 @@ sub search {
         return $self->render(json => $search_info_or_error, status => $status);
     }
 
-    ($status, my $response) = $self->search_builder->search($search_info_or_error);
+    return $self->handle_search($search_info_or_error);
+}
+
+sub handle_search {
+    my ($self, $search_info) = @_;
+    my ($status, $response) = $self->search_builder->search($search_info);
     if ( is_error($status) ) {
         return $self->render_error(
             $status,
@@ -44,10 +54,15 @@ sub search {
             $response->{errors}
         );
     }
-    local $_;
-    $response->{items} = [
-        map { $self->cleanup_item($_) } @{$response->{items} // []}
-    ];
+
+    unless ($search_info->{raw}) {
+        $response->{items} = $self->cleanup_items($response->{items} // []);
+    }
+
+    my $fields = $search_info->{fields};
+    if (defined $fields && @$fields) {
+        $self->remove_fields($fields, $response->{items});
+    }
 
     return $self->render(
         json   => $response,
@@ -75,7 +90,7 @@ sub build_search_info {
                 exists $data_or_error->{$_}
                   ? ( $_ => $data_or_error->{$_} )
                   : ()
-            } qw(limit query fields sort cursor with_total_count)
+            } qw(limit query fields sort cursor with_total_count raw)
         )
     );
 
@@ -91,7 +106,7 @@ sub normalize_sort_specs {
             my $dir       = 'asc';
             my $s         = $sort_spec;
             if ($s =~ s/  *(DESC|ASC)$//i) {
-                $dir = lc($dir);
+                $dir = lc($1);
             }
 
             { field => $s, dir => $dir }
@@ -106,22 +121,12 @@ sub search_builder {
 
 sub list {
     my ($self) = @_;
-    my $cs = $self->config_store;
     my ($status, $search_info_or_error) = $self->build_list_search_info;
     if (is_error($status)) {
         return $self->render(json => $search_info_or_error, status => $status);
     }
 
-    my $items = $self->do_search($search_info_or_error);
-    $items = $self->cleanup_items($items);
-    $self->render(
-        json => {
-            items  => $items,
-            nextCursor => ( @$items + ( $search_info_or_error->{cursor} // 0 ) ),
-            prevCursor => ( $search_info_or_error->{cursor} // 0 ),
-        },
-        status => 200,
-    );
+    return $self->handle_search($search_info_or_error);
 }
 
 =head2 cleanup_items
@@ -132,8 +137,10 @@ cleanup_items
 
 sub cleanup_items {
     my ($self, $items) = @_;
-    return [map {$self->cleanup_item($_, $self->cached_form($_)) } @$items];
+    return [grep { $self->item_shown($_) } map {$self->cleanup_item($_, $self->cached_form($_)) } @$items];
 }
+
+sub item_shown { 1 }
 
 =head2 do_search
 
@@ -152,6 +159,22 @@ sub do_search {
     );
 }
 
+=head2 remove_fields
+
+remove_fields
+
+=cut
+
+sub remove_fields {
+    my ($self, $fields, $items) = @_;
+    my $count = @$items;
+    for (my $i =0;$i<$count;$i++) {
+        my %new_item;
+        @new_item{@$fields} = @{$items->[$i]}{@$fields};
+        $items->[$i] = \%new_item;
+    }
+}
+
 =head2 build_list_search_info
 
 build_list_search_info
@@ -161,10 +184,10 @@ build_list_search_info
 sub build_list_search_info {
     my ($self) = @_;
     my $params = $self->req->query_params->to_hash;
-    my $info = {
+    my %search_info = (
+        configStore => $self->config_store,
         cursor => 0,
         limit => 25,
-        filter => sub { 1 },
         (
             map {
                 exists $params->{$_}
@@ -177,10 +200,16 @@ sub build_list_search_info {
                 exists $params->{$_}
                   ? ( $_ => [expand_csv($params->{$_})] )
                   : ()
-            } qw(sort)
+            } qw(sort fields)
+        ),
+        (
+            map {
+                $_ => isenabled($params->{$_})
+            } qw(raw)
         )
-    };
-    return 200, $info;
+    );
+    $search_info{sort} = $self->normalize_sort_specs($search_info{sort});
+    return 200, \%search_info;
 }
 
 =head2 items
@@ -213,21 +242,54 @@ sub form {
 }
 
 sub cached_form_key {
-    'cached_form'
+    my ($self, $item, @args) = @_;
+    return $self->form_class;
 }
 
 sub cached_form {
     my ($self, $item, @args) = @_;
     my $cached_form_key = $self->cached_form_key($item, @args);
-    if ($self->{$cached_form_key}){
-        return $self->{$cached_form_key};
+    if (defined $cached_form_key) {
+        if ($FORMS{$cached_form_key}){
+            my $form = $FORMS{$cached_form_key};
+            $self->reset_form($form, $item, @args);
+            return $form;
+        }
     }
+
     my ($status, $form) = $self->form($item, @args);
     if (is_error($status)) {
         return undef;
     }
 
-    return $self->{$cached_form_key} = $form;
+    if (defined $cached_form_key) {
+        $FORMS{$cached_form_key} = $form;
+    }
+
+    return $form;
+}
+
+=head2 reset_form
+
+reset_form
+
+=cut
+
+sub reset_form {
+    my ($self, $form, $item, @args) = @_;
+    $form->clear_fields;
+    my %all_args = (
+        @{$self->form_parameters($item)},
+        @args,
+        user_roles => $self->stash->{'admin_roles'}
+    );
+    while (my ($k, $v) = each %all_args) {
+        if ($form->can($k)) {
+            $form->$k($v);
+        }
+    }
+    $form->_build_fields;
+    return;
 }
 
 sub resource {
@@ -251,8 +313,9 @@ sub get {
 }
 
 sub item {
-    my ($self) = @_;
-    return $self->cleanup_item($self->item_from_store);
+    my ($self, $id) = @_;
+    my $skip_inheritance = isenabled($self->req->param('skip_inheritance'));
+    return $self->cleanup_item($self->item_from_store($id, $skip_inheritance));
 }
 
 sub id {
@@ -260,15 +323,19 @@ sub id {
     my $primary_key = $self->primary_key;
     my $stash = $self->stash;
     if (exists $stash->{$primary_key}) {
-        return url_unescape($stash->{$primary_key});
+        return $stash->{$primary_key};
     }
 
     return undef;
 }
 
 sub item_from_store {
-    my ($self) = @_;
-    return $self->config_store->read($self->id, 'id')
+    my ($self, $id, $skip_inheritance) = @_;
+    if ($skip_inheritance) {
+        return $self->config_store->readWithoutInherited($id // $self->id, 'id')
+    } else {
+        return $self->config_store->read($id // $self->id, 'id')
+    }
 }
 
 sub cleanup_item {
@@ -285,10 +352,16 @@ sub cleanup_item {
     $form->process($self->form_process_parameters_for_cleanup($item));
     $item = $form->value;
     $item->{not_deletable} = $cs->is_section_in_import($id) ? $self->json_true : $self->json_false;
-    my $default_section = $cs->default_section;
-    $item->{not_sortable} = (defined($cs->default_section) && $id eq $default_section) ? $self->json_true : $self->json_false;
+    $item->{not_sortable} = $self->is_sortable($cs, $id, $item);
     $item->{id} = $id;
     return $item;
+}
+
+sub is_sortable {
+    my ($self, $cs, $id, $item) = @_;
+    my $section = $cs->_formatSectionName($id);
+    my $default_section = $cs->default_section;
+    return ((defined($cs->default_section) && $id eq $default_section) || $cs->is_section_in_import($section)) ? $self->json_true : $self->json_false;
 }
 
 sub create {
@@ -309,16 +382,22 @@ sub create {
         return $self->render_error(409, "An attempt to add a duplicate entry was stopped. Entry already exists and should be modified instead of created");
     }
 
-    $item = $self->validate_item($item);
-    if (!defined $item) {
-        return 0;
+    (my $status, $item) = $self->validate_item($item);
+    if (is_error($status)) {
+        return $self->render(status => $status, json => $item);
     }
 
     delete $item->{id};
     $cs->create($id, $item);
     return unless($self->commit($cs));
+    $self->stash( $self->primary_key => $id );
     $self->res->headers->location($self->make_location_url($id));
-    $self->render(status => 201, json => { id => $id, message => "'$id' created" });
+    $self->render(status => 201, json => $self->create_response($id));
+}
+
+sub create_response {
+    my ($self, $id) = @_;
+    return { id => $id, message => "'$id' created" };
 }
 
 sub commit {
@@ -335,17 +414,15 @@ sub validate_item {
     my ($self, $item) = @_;
     my ($status, $form) = $self->form($item);
     if (is_error($status)) {
-        $self->render_error(422, "Unable to validate invalid no valid formater");
-        return undef;
+        return $status, { message => $form };
     }
 
     $form->process($self->form_process_parameters_for_validation($item));
     if (!$form->has_errors) {
-        return $form->value;
+        return 200, $form->value;
     }
 
-    $self->render_error(422, "Unable to validate", $self->format_form_errors($form));
-    return undef;
+    return 422, { message => "Unable to validate", errors => $self->format_form_errors($form) };
 }
 
 
@@ -382,12 +459,22 @@ sub make_location_url {
     return "$url/$id";
 }
 
+sub can_delete {
+    return (200, '');
+}
+
 sub remove {
     my ($self) = @_;
+    my ($status, $msg, $errors) = $self->can_delete();
+    if (is_error($status)) {
+        return $self->render_error($status, $msg, $errors);
+    }
+
     my $id = $self->id;
     my $cs = $self->config_store;
-    if (!$cs->remove($id, 'id')) {
-        return $self->render_error(422, "Unable to delete $id");
+    ($msg, my $deleted) = $cs->remove($id, 'id');
+    if (!$deleted) {
+        return $self->render_error(422, "Unable to delete $id - $msg");
     }
 
     return unless($self->commit($cs));
@@ -396,24 +483,37 @@ sub remove {
 
 sub update {
     my ($self) = @_;
-    my ($error, $new_data) = $self->get_json;
+    my ($error, $data) = $self->get_json;
     if (defined $error) {
         return $self->render_error(400, "Bad Request : $error");
     }
     my $old_item = $self->item;
-    my $new_item = {%$old_item, %$new_data};
+    my $new_item = {%$old_item, %$data};
     my $id = $self->id;
     $new_item->{id} = $id;
     delete $new_item->{not_deletable};
-    $new_data = $self->validate_item($new_item);
-    if (!defined $new_data) {
-        return;
+    my ($status, $new_data) = $self->validate_item($new_item);
+    if (is_error($status)) {
+        return $self->render(status => $status, json => $new_data);
     }
+
     delete $new_data->{id};
     my $cs = $self->config_store;
+    $self->cleanupItemForUpdate($old_item, $new_data, $data);
     $cs->update($id, $new_data);
     return unless($self->commit($cs));
     $self->render(status => 200, json => { message => "Settings updated"});
+}
+
+=head2 cleanupItemForUpdate
+
+cleanupItemForUpdate
+
+=cut
+
+sub cleanupItemForUpdate {
+    my ($self, $old_item, $new_data, $data) = @_;
+    return;
 }
 
 sub replace {
@@ -424,10 +524,11 @@ sub replace {
     }
     my $id = $self->id;
     $item->{id} = $id;
-    $item = $self->validate_item($item);
-    if (!defined $item) {
-        return 0;
+    (my $status, $item) = $self->validate_item($item);
+    if (is_error($status)) {
+        return $self->render(status => $status, json => $item);
     }
+
     my $cs = $self->config_store;
     delete $item->{id};
     $cs->update($id, $item);
@@ -557,7 +658,7 @@ sub field_meta {
         type        => $type,
         required    => $self->field_is_required($field),
         placeholder => $self->field_placeholder($field, $parent_meta->{placeholder}),
-        default     => $self->field_default($field, $parent_meta->{default}),
+        default     => $self->field_default($field, $parent_meta->{default}, $type),
     };
     my %extra = $self->field_extra_meta($field, $meta, $parent_meta);
     %$meta = (%$meta, %extra);
@@ -565,12 +666,20 @@ sub field_meta {
     if ($type ne 'array' && $type ne 'object') {
         if (defined (my $allowed = $self->field_allowed($field))) {
             $meta->{allowed} = $allowed;
+            $meta->{allow_custom} = $self->field_allow_custom($field);
         } elsif (defined (my $allowed_lookup = $self->field_allowed_lookup($field))) {
             $meta->{allowed_lookup} = $allowed_lookup;
+            $meta->{allow_custom} = $self->field_allow_custom($field);
         }
+
     }
 
     return $meta;
+}
+
+sub field_allow_custom {
+    my ($self, $field) = @_;
+    return $field->get_tag("allow_custom") ? $self->json_true : $self->json_false;
 }
 
 =head2 field_extra_meta
@@ -596,8 +705,29 @@ sub field_extra_meta {
             $self->field_integer_meta($field, \%extra);
         }
     }
+    if ($field->has_required_when) {
+        my $required_when = $self->field_required_when($field, $meta, $parent_meta);
+        if (defined $required_when) {
+            $extra{required_when} = $required_when;
+        }
+    }
 
     return %extra;
+}
+
+=head2 field_required_when
+
+field_required_when
+
+=cut
+
+sub field_required_when {
+    my ($self, $field, $meta, $parent_meta) = @_;
+    my $required_when = $field->required_when;
+    if (any { ref $_ } values %$required_when) {
+        return undef;
+    }
+    return $required_when;
 }
 
 =head2 field_meta_object_properties
@@ -696,7 +826,8 @@ Create the resource options
 
 sub resource_options {
     my ($self) = @_;
-    my ($status, $form) = $self->form($self->item);
+    my $item = $self->item;
+    my ($status, $form) = $self->form($item);
     if (is_error($status)) {
         return $self->render_error($status, $form);
     }
@@ -709,6 +840,7 @@ sub resource_options {
     my $parent = {
         placeholder => $self->_cleanup_placeholder($inheritedValues)
     };
+    $form->process($self->form_process_parameters_for_cleanup($item));
     for my $field ($form->fields) {
         next if $field->inactive;
         my $name = $field->name;
@@ -755,7 +887,10 @@ Get the default value of a field
 =cut
 
 sub field_default {
-    my ($self, $field, $inheritedValues) = @_;
+    my ($self, $field, $inheritedValues, $type) = @_;
+    if ($type eq 'array') {
+        return [];
+    }
     my $default = $field->get_default_value;
     return $default // (ref($inheritedValues) eq 'HASH' ? $inheritedValues->{$field->name} : $inheritedValues);
 }
@@ -863,21 +998,25 @@ sub field_allowed {
         if ($field->isa('HTML::FormHandler::Field::Select')) {
             $field->_load_options;
             $allowed = $field->options;
-        }
-
-
-        if ($field->isa('HTML::FormHandler::Field::Repeatable')) {
+        } elsif ($field->isa('HTML::FormHandler::Field::Repeatable')) {
             $field->init_state;
             my $element = $field->clone_element($field->name . "_temp");
             if ($element->isa('HTML::FormHandler::Field::Select') ) {
                 $element->_load_options();
                 $allowed = $element->options;
             }
+        } elsif ($field->isa('pfappserver::Form::Field::Toggle')) {
+            my $check = $field->checkbox_value;
+            my $uncheck = $field->unchecked_value;
+            $allowed = [
+                { label => $check, value => $check },
+                { label => $uncheck, value => $uncheck },
+            ];
         }
     }
 
     if ($allowed) {
-        $allowed = $self->map_options($allowed);
+        $allowed = $self->map_options($field, $allowed);
     }
 
     return $allowed;
@@ -902,6 +1041,11 @@ my %FB_MODEL_2_PATH = (
 
 sub field_allowed_lookup {
     my ($self, $field) = @_;
+    my $allowed_lookup  = $field->get_tag("allowed_lookup") || undef;
+    if ($allowed_lookup) {
+        return $allowed_lookup;
+    }
+
     if ($field->isa("pfappserver::Form::Field::FingerbankSelect") || $field->isa("pfappserver::Form::Field::FingerbankField")) {
         my $fingerbank_model = $field->fingerbank_model;
         my $name = $fingerbank_model->_parseClassName;
@@ -923,8 +1067,8 @@ map_options
 =cut
 
 sub map_options {
-    my ($self, $options) = @_;
-    return [ map { $self->map_option($_) } @$options ];
+    my ($self, $field, $options) = @_;
+    return [ map { $self->map_option($field, $_) } @$options ];
 }
 
 =head2 map_option
@@ -934,21 +1078,146 @@ map_option
 =cut
 
 sub map_option {
-    my ($self, $option) = @_;
+    my ($self, $field, $option) = @_;
     my %hash = %$option;
 
     if (exists $hash{label}) {
         $hash{text} = (delete $hash{label} // '') . "";
+        if ($field->can('localize_labels') && $field->localize_labels) {
+            $hash{text} = $field->_localize($hash{text});
+        }
     }
 
     if (exists $hash{options}) {
-       $hash{options} = $self->map_options($hash{options});
+       $hash{options} = $self->map_options($field, $hash{options});
        delete $hash{value};
-    } elsif (exists $hash{value} && defined $hash{value} && $hash{value} eq '') {
+    } elsif (exists $hash{value} && defined $hash{value} && $hash{value} eq '' && $field->required) {
         return;
     }
 
     return \%hash;
+}
+
+=head2 bulk_update
+
+bulk_update
+
+=cut
+
+sub bulk_update {
+    my ($self) = @_;
+    my ($error, $data) = $self->get_json;
+    if (defined $error) {
+        return $self->render_error( 400, "Bad Request : $error" );
+    }
+
+    my $items = $data->{items} // [];
+    return $self->bulk_action($items, "bulk_update_callback");
+}
+
+=head2 bulk_update_callback
+
+bulk_update_callback
+
+=cut
+
+sub bulk_update_callback {
+    my ($self, $cs, $id, $item, $results) = @_;
+    my $old_item = $self->item($id);
+    my $new_item = {%$old_item, %$item};
+    $new_item->{id} = $id;
+    my ($status, $new_data) = $self->validate_item($new_item);
+    if (is_error($status)) {
+        %$results = (%$results, %$new_data);
+        return $status;
+    }
+
+    delete $new_data->{id};
+    if ($cs->update($id, $new_data)) {
+        return 200;
+    }
+
+    $results->{message} = "unable to update";
+    return 422;
+}
+
+=head2 bulk_delete
+
+bulk_delete
+
+=cut
+
+sub bulk_delete {
+    my ($self) = @_;
+    my ($error, $data) = $self->get_json;
+    if (defined $error) {
+        return $self->render_error( 400, "Bad Request : $error" );
+    }
+
+    my $items = $data->{items} // [];
+    $items = [map { { id => $_ }  } @$items];
+    return $self->bulk_action($items, "bulk_delete_callback");
+}
+
+=head2 bulk_delete_callback
+
+bulk_delete_callback
+
+=cut
+
+sub bulk_delete_callback {
+    my ($self, $cs, $id, $item, $results) = @_;
+    if ($cs->remove($id)) {
+        return 200;
+    }
+
+    $results->{message} = "unable to delete";
+    return 422;
+}
+
+sub bulk_action {
+    my ($self, $items, $action) = @_;
+    my $cs = $self->config_store;
+    my @results;
+    my $i = 0;
+    my $success = 0;
+    for my $item (@$items) {
+        my $id = delete $item->{id};
+        my %results = (
+            index  => $i,
+            id     => $id,
+            status => 200,
+        );
+
+        push @results, \%results;
+
+        if (!defined $id) {
+            $results{status} = 422;
+            $results{message} = "no id given";
+            next;
+        }
+
+        if (!$cs->hasId($id)) {
+            $results{status} = 422;
+            $results{message} = "'$id' is not found";
+            next;
+        }
+
+        my $status = $self->$action($cs, $id, $item, \%results);
+        if (is_success($status)) {
+            $success++;
+        }
+
+        $results{status} = $status;
+    } continue {
+        $i++;
+    }
+
+    if ($success) {
+        $cs->commit();
+    }
+
+    return $self->render(status => 200, json => { items => \@results });
 }
 
 =head2 form_parameters
@@ -979,13 +1248,150 @@ sub fix_permissions {
     return $self->render(json => { message => $result });
 }
 
+sub bulk_import {
+    my ($self) = @_;
+    my ($status, $data) = $self->parse_json;
+    if (is_error($status)) {
+        return $self->render(json => $data, status => $status);
+    }
+
+    my $items = $data->{items} // [];
+    my $count = @$items;
+    if ($count == 0) {
+        return $self->render(json => { items => [] });
+    }
+    my $cs = $self->config_store;
+
+    my $stopOnError = $data->{stopOnFirstError};
+    my @results;
+    $#results = $count - 1;
+    my $i;
+    my $changed = 0;
+    for ($i=0;$i<$count;$i++) {
+        my $result = $self->import_item($data, $items->[$i], $cs);
+        $results[$i] = $result;
+        $status = $result->{status} // 200;
+        if ($stopOnError && $status == 422) {
+            $i++;
+            last;
+        }
+
+        $changed |= 1;
+    }
+
+    for (;$i<$count;$i++) {
+        my $item = $items->[$i];
+        my $result = { item => $item, status => 424, message => "Skipped" };
+        $results[$i] =  $result;
+        my $error = $self->import_item_check_for_errors($data, $item);
+        if ($error) {
+            %$result = (%$result, %$error);
+        }
+    }
+    if ($changed) {
+        $cs->commit;
+    }
+
+    return $self->render(json => { items => \@results });
+}
+
+sub import_item {
+    my ($self, $request, $item, $cs) = @_;
+    my $id = $item->{id};
+    if (!defined $id) {
+        return { field => 'id', message => 'Field id missing', status => 422 };
+    }
+    my $old_item = $self->item_from_store($item->{id});
+    my $error = $self->import_item_check_for_errors($request, $item, $old_item);
+    if ($error) {
+        return { %$error,  item => $item,  status => 422, };
+    }
+    
+    if ($old_item) {
+        if ($request->{ignoreUpdateIfExists}) {
+            return { item => $item, status => 409, message => "Skip already exists", isNew => $self->json_false} ;
+        }
+
+    } else {
+        if ($request->{ignoreInsertIfNotExists}) {
+            return { item => $item, status => 404, message => "Skip does not exists", isNew => $self->json_true} ;
+        }
+    }
+
+    delete $item->{id};
+    if ($old_item) {
+        $cs->update($id, $item);
+    } else {
+        $cs->create($id, $item);
+    }
+
+    $item->{id} = $id;
+    return { item => $item, status => 200, isNew => ( defined $old_item ? $self->json_false : $self->json_true ) };
+}
+
+sub import_item_check_for_errors {
+    my ($self, $request, $item, $old_item) = @_;
+    my $new_item = {%{$old_item // {}}, %$item};
+    my ($status, $new_data) = $self->validate_item($new_item);
+    if (is_error($status)) {
+        return $new_data;
+    }
+
+    return;
+}
+
+sub parse_condition {
+    my ($self) = @_;
+    my ($error, $item) = $self->get_json;
+    if (defined $error) {
+        return $self->render_error(400, "Bad Request : $error");
+    }
+
+    my $condition = $item->{condition};
+    if (!defined $condition) {
+        return $self->render_error(422, "No condition found");
+    }
+
+    if (ref $condition) {
+        return $self->render_error(422, "Condition must be a string");
+    }
+
+    my ($ast, $err) = parse_condition_string($condition);
+    if ($err) {
+        return $self->render_error(422, "Cannot parse condition", [$err]);
+    }
+
+    $self->render(json => { item => {condition_string => $condition, condition => ast_to_object($ast) } });
+}
+
+sub flatten_condition {
+    my ($self) = @_;
+    my ($error, $item) = $self->get_json;
+    if (defined $error) {
+        return $self->render_error(400, "Bad Request : $error");
+    }
+
+    my $condition = $item->{condition};
+    if (!defined $condition) {
+        return $self->render_error(422, "No condition found");
+    }
+
+    if (!ref $condition) {
+        return $self->render_error(422, "Condition must be a object");
+    }
+
+    my $string = pf::condition_parser::object_to_str($condition);
+
+    $self->render(json => { item => {condition_string => $string, condition => $condition } });
+}
+
 =head1 AUTHOR
 
 Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2019 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 

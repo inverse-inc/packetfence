@@ -16,14 +16,18 @@ modules.
 
 use strict;
 use warnings;
+no warnings 'portable';
 
 use Cwd;
+use Socket;
+use Number::Range;
 use File::Basename;
 use POSIX::2008;
 use Net::MAC::Vendor;
 use File::Path qw(make_path remove_tree);
 use POSIX qw(setuid setgid);
 use File::Spec::Functions;
+use Sort::Naturally qw(nsort);
 use File::Slurp qw(read_dir);
 use List::MoreUtils qw(all any);
 use Try::Tiny;
@@ -101,6 +105,15 @@ BEGIN {
         validate_unregdate
         find_outgoing_srcip
         mcmp make_string_cmp make_string_rcmp make_num_rcmp make_num_cmp
+        mac2dec
+        expand_ordered_array
+        make_node_id split_node_id
+        os_detection
+        random_from_range
+        extract
+        ends_with
+        split_pem
+        resolve
     );
 }
 
@@ -218,13 +231,13 @@ sub clean_mac {
     return "0" unless defined $mac;
 
     # trim garbage
-    $mac =~ s/[\s\-\.:]//g;
+    $mac =~ tr/\-\.:\t\n\r //d;
     # lowercase
     $mac = lc($mac);
     # inject :
-    $mac =~ s/([a-f0-9]{2})(?!$)/$1:/g if ( $mac =~ /^[a-f0-9]{12}$/i );
+    $mac =~ s/([a-f0-9]{2})(?!$)/$1:/g;
     # Untaint MAC (see perldoc perlsec if you don't know what Taint mode is)
-    if ($mac =~ /^([0-9a-zA-Z]{2}:[0-9a-zA-Z]{2}:[0-9a-zA-Z]{2}:[0-9a-zA-Z]{2}:[0-9a-zA-Z]{2}:[0-9a-zA-Z]{2})$/) {
+    if ($mac =~ /^([0-9a-z]{2}:[0-9a-z]{2}:[0-9a-z]{2}:[0-9a-z]{2}:[0-9a-z]{2}:[0-9a-z]{2})$/) {
         return $1;
     }
 
@@ -283,23 +296,27 @@ our $NON_VALID_MAC_REGEX = qr/^(00|ff)(:\g1){5}$/;
 our $VALID_PF_MAC_REGEX = qr/^[0-9a-f]{2}(:[0-9a-f]{2}){5}$/;
 
 sub valid_mac {
-    my ($mac) = @_;
-    return (0) unless defined $mac;
-    my $logger = get_logger();
-    if ( !defined($mac) ) {
-        return(0);
-    }
-    if ( $mac !~ $VALID_MAC_REGEX) {
-        $logger->debug("invalid MAC: $mac");
-        return (0);
-    }
-    $mac = clean_mac($mac);
-    if( !$mac || $mac =~ $NON_VALID_MAC_REGEX || $mac !~ $VALID_PF_MAC_REGEX) {
-        $logger->debug("invalid MAC: " . ($mac?$mac:"empty"));
-        return (0);
-    } else {
-        return (1);
-    }
+   my ($mac) = @_;
+   return (0) unless defined $mac;
+   my $logger = get_logger();
+   if ( !defined($mac) ) {
+       return(0);
+   }
+   if ( $mac !~ $VALID_MAC_REGEX) {
+       $logger->debug("invalid MAC: $mac");
+       return (0);
+   }
+   if ($mac =~ /^((?:\d{1,3}\.){3}\d{1,3})$/) {
+       $logger->debug("invalid MAC: $mac");
+       return (0);
+   }
+   $mac = clean_mac($mac);
+   if( !$mac || $mac =~ $NON_VALID_MAC_REGEX || $mac !~ $VALID_PF_MAC_REGEX) {
+       $logger->debug("invalid MAC: " . ($mac?$mac:"empty"));
+       return (0);
+   } else {
+       return (1);
+   }
 }
 
 =item  macoui2nb
@@ -478,12 +495,15 @@ This safely modifies the contents of a file using a rename
 =cut
 
 sub safe_file_update {
-    my ($file, $contents) = @_;
+    my ($file, $contents, $binmode) = @_;
     my ($volume, $dir, $filename) = File::Spec->splitpath($file);
     $dir = '.' if $dir eq '';
     # Creates a new file in the same directory to ensure it is on the same filesystem
     pf_make_dir($dir);
     my $temp = File::Temp->new(DIR => $dir) or die "cannot create temp file in $dir";
+    if (defined $binmode) {
+        binmode($temp, $binmode);
+    }
     syswrite $temp, $contents;
     $temp->flush;
     close $temp;
@@ -1092,7 +1112,7 @@ sub normalize_time {
     my ($date) = @_;
     return undef if (!defined($date));
     if ( $date =~ /^\d+$/ ) {
-        return ($date);
+        return int($date + 0);
 
     } else {
         my ( $num, $modifier ) = $date =~ /^(\d+)($pf::constants::config::TIME_MODIFIER_RE)/ or return (0);
@@ -1353,7 +1373,11 @@ Check if a date is between 1970-01-01 and 2038-01-18 or 0000-MM-DD
 sub validate_unregdate {
     my ($date) = @_;
     my $valid = $FALSE;
-    if ($date !~ /^0-(\d\d-\d\d)/) {
+    if ($date eq "0000-00-00") {
+        return $TRUE;
+    }
+
+    if ($date !~ /^0{1,4}-(\d\d-\d\d)/) {
         return validate_date($date);
     }
 
@@ -1387,7 +1411,7 @@ Parse an api action spec
 
 sub parse_api_action_spec {
     my ($spec) = @_;
-    unless ($spec =~ /^\s*(?<api_method>[a-zA-Z0-9_]+)\s*:\s*(?<api_parameters>.*)$/) {
+    unless ($spec =~ /^\s*(?<api_method>[a-zA-Z0-9_\.]+)\s*:\s*(?<api_parameters>.*)$/) {
         return undef;
     }
     #return a copy of the named captures hash
@@ -1610,6 +1634,104 @@ sub make_num_cmp {
     };
 }
 
+sub mac2dec {
+    my ($mac) = @_;
+    return join (".",  map { hex($_) } split( /:/, $mac ));
+}
+
+sub expand_ordered_array {
+    my ($item, $items_key, $item_key) = @_;
+    my @keys = nsort grep {/^\Q$item_key\E\.\d+$/} keys %$item;
+    $item->{$items_key} = [delete @$item{@keys}];
+}
+
+sub make_node_id {
+    my ($tenant_id, $mac) = @_;
+    $mac =~ tr/://d; #A faster way to delete a character
+    return ($tenant_id << 48) | hex($mac);
+}
+
+sub split_node_id {
+    my ($node_id) = @_;
+    my $tenant_id = $node_id >> 48;
+    my $mac = clean_mac(sprintf("%012x",$node_id & 0x0000FFFFFFFFFFFF));
+    return ($tenant_id, $mac);
+}
+
+=item os_detection -  check the os system
+
+=cut
+
+sub os_detection {
+    my $logger = get_logger();
+    if (-e '/etc/debian_version') {
+        return "debian";
+    }elsif (-e '/etc/redhat-release') {
+        return "rhel";
+    }
+}
+
+=head2 random_from_range
+
+return random int in a range
+
+=cut
+
+sub random_from_range {
+    my ($value) = @_;
+    my $range = Number::Range->new($value);
+    my $count = $range->size;
+    my @array = $range->range;
+    return $array[rand($count)];
+}
+
+=head2 extract
+
+extract
+
+=cut
+
+sub extract {
+    my ($str, $match, $template, $default) = @_;
+    if ($str =~ /$match/) {
+        my @start = @-;
+        my @end = @+;
+        my $out = $template;
+        $out =~ s/(\$(\d+))/substr($str, $start[$2], $end[$2] - $start[$2])/ge;
+        return $out;
+    }
+
+    return $default;
+}
+
+sub ends_with {
+    return $_[1] eq substr($_[0], -length($_[1]));
+}
+
+sub split_pem {
+    my ($s) = @_;
+    my @parts;
+    while ($s =~ /-----BEGIN (.*?)-----/g ) {
+        my $type = $1;
+        if ( $s =~ /(.*?)-----END \Q$type\E-----/gs) {
+            push @parts, "-----BEGIN $type-----\n$1-----END $type-----\n";
+        }
+    }
+    return @parts;
+}
+
+sub resolve {
+    my ($name) = @_;
+    my $logger = get_logger;
+    my @addresses = gethostbyname($name);
+    unless(@addresses) {
+        $logger->error("Unable to resolve $name");
+        return undef;
+    }
+    @addresses = map { inet_ntoa($_) } @addresses[4 .. $#addresses];
+    return \@addresses;
+}
+
 =back
 
 =head1 AUTHOR
@@ -1620,7 +1742,7 @@ Minor parts of this file may have been contributed. See CREDITS.
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2019 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 Copyright (C) 2005 Kevin Amorin
 

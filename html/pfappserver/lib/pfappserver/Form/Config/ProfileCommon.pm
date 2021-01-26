@@ -23,12 +23,14 @@ use pf::authentication;
 use pf::ConfigStore::Provisioning;
 use pf::ConfigStore::BillingTiers;
 use pf::ConfigStore::Scan;
-use pf::ConfigStore::DeviceRegistration;
+use pf::ConfigStore::SelfService;
 use pf::ConfigStore::PortalModule;
 use pf::web::constants;
 use pf::constants::Connection::Profile;
+use pf::constants::role qw( $POOL_USERNAMEHASH $POOL_RANDOM $POOL_ROUND_ROBBIN $POOL_PER_USER_VLAN);
 use pfappserver::Form::Field::Duration;
 use pfappserver::Base::Form;
+use pf::config qw(%Profiles_Config);
 with 'pfappserver::Base::Form::Role::Help';
 
 =head1 BLOCKS
@@ -41,7 +43,7 @@ The main definition block
 
 has_block 'definition' =>
   (
-    render_list => [qw(id description root_module preregistration autoregister reuse_dot1x_credentials dot1x_recompute_role_from_portal dot1x_unset_on_unmatch dpsk default_psk_key unreg_on_acct_stop)],
+    render_list => [qw(id description root_module preregistration autoregister reuse_dot1x_credentials dot1x_recompute_role_from_portal mac_auth_recompute_role_from_portal dot1x_unset_on_unmatch dpsk unbound_dpsk default_psk_key unreg_on_acct_stop vlan_pool_technique)],
   );
 
 =head2 captive_portal
@@ -202,6 +204,20 @@ has_field 'autoregister' =>
              help => 'This activates automatic registation of devices for the profile. Devices will not be shown a captive portal and RADIUS authentication credentials will be used to register the device. This option only makes sense in the context of an 802.1x authentication.' },
   );
 
+=head2 unbound_dpsk
+
+Controls whether or not this connection profile to enabled Dynamic Unbound PSK
+
+=cut
+
+has_field 'unbound_dpsk' =>
+  (
+   type => 'Toggle',
+   checkbox_value => 'enabled',
+   unchecked_value => 'disabled',
+   default => 'disabled',
+  );
+
 =head2 dpsk
 
 Controls whether or not this connection profile to enabled Dynamic PSK
@@ -359,6 +375,20 @@ has_field 'dot1x_recompute_role_from_portal' =>
              help => 'When enabled, PacketFence will not use the role initialy computed on the portal but will use the dot1x username to recompute the role.' },
   );
 
+=head2 mac_auth_recompute_role_from_portal
+
+=cut
+
+has_field 'mac_auth_recompute_role_from_portal' =>
+  (
+    type => 'Checkbox',
+    checkbox_value => 'enabled',
+    unchecked_value => 'disabled',
+    default => 'disabled',
+    tags => { after_element => \&help,
+             help => 'When enabled, PacketFence will not use the role initialy computed on the portal but will use an authorized source if defined to recompute the role.' },
+  );
+  
 =head2 dot1x_unset_on_unmatch
 
 =cut
@@ -465,16 +495,16 @@ has_field 'scans.contains' =>
     widget_wrapper => 'DynamicTableRow',
   );
 
-=head2 device_registration
+=head2 self_service
 
 The definition for Device registration Sources field
 
 =cut
 
-has_field 'device_registration' =>
+has_field 'self_service' =>
   (
     type => 'Select',
-    options_method => \&options_device_registration,
+    options_method => \&options_self_service,
   );
 
 
@@ -524,6 +554,25 @@ has_field 'access_registration_when_registered' =>
    unchecked_value => 'disabled',
    tags => { after_element => \&help,
              help => 'This allows already registered users to be able to re-register their device by first accessing the status page and then accessing the portal. This is useful to allow users to extend their access even though they are already registered.' },
+  );
+
+=head2 vlan_pool
+
+Control the vlan pool technique you want to use
+
+=cut
+
+has_field 'vlan_pool_technique' =>
+  (
+   type => 'Select',
+   multiple => 0,
+   required => 0,
+   label => 'Vlan Pool Technique',
+   options_method => \&options_vlan_pool,
+   element_class => ['chzn-select'],
+   default_method => \&field_default_value,
+   tags => { after_element => \&help,
+             help => 'The Vlan Pool Technique to use' },
   );
 
 =head1 METHODS
@@ -576,14 +625,14 @@ sub options_scan {
     return  map { { value => $_, label => $_ } } @{pf::ConfigStore::Scan->new->readAllIds};
 }
 
-=head2 options_device_registration
+=head2 options_self_service
 
-Returns the list of device_registration profile to be displayed
+Returns the list of self_service profile to be displayed
 
 =cut
 
-sub options_device_registration {
-    return  map { { value => $_, label => $_ } } '',@{pf::ConfigStore::DeviceRegistration->new->readAllIds};
+sub options_self_service {
+    return  map { { value => $_, label => $_ } } '',@{pf::ConfigStore::SelfService->new->readAllIds};
 }
 
 
@@ -597,6 +646,18 @@ sub options_root_module {
     my $cs = pf::ConfigStore::PortalModule->new;
     return map { $_->{type} eq "Root" ? { value => $_->{id}, label => $_->{description} } : () } @{$cs->readAll("id")};
 }
+
+=head2 options_vlan_pool
+
+Returns the list of the vlan pool technique
+
+=cut
+
+sub options_vlan_pool {
+
+    return map{ { value => $_, label => $_ } } ( $POOL_ROUND_ROBBIN, $POOL_RANDOM, $POOL_USERNAMEHASH, $POOL_PER_USER_VLAN );
+}
+
 
 =head2 validate
 
@@ -617,14 +678,30 @@ sub validate {
     my %external;
     foreach my $source_id (@uniq_sources) {
         my $source = pf::authentication::getAuthenticationSource($source_id);
-        next unless $source && $source->class eq 'external';
-        $external{$source->{'type'}} = 0 unless (defined $external{$source->{'type'}});
-        $external{$source->{'type'}}++;
-        if ($external{$source->{'type'}} > 1) {
+        next unless $source;
+        my $class = $source->class;
+        my $type = $source->type;
+        if ($class eq 'exclusive' && @uniq_sources > 1) {
+            $self->field('sources')->add_error("Only one authentication source of type '$type' can be selected.");
+        }
+        next if $class ne 'external';
+        $external{$type}++;
+        if ($external{$type} > 1) {
             $self->field('sources')->add_error('Only one authentication source of each external type can be selected.');
             last;
         }
     }
+}
+
+=head2 field_default_value
+
+field_default_value
+
+=cut
+
+sub field_default_value {
+    my ($f) = @_;
+    return $Profiles_Config{default}{$f->name};
 }
 
 =head1 AUTHOR
@@ -633,7 +710,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2019 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 

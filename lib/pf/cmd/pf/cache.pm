@@ -19,13 +19,18 @@ Namespaces:
   httpd.admin
   httpd.portal
   ldap_auth
+  local_mac
+  ntlm_cache_username_lookup
+  openvas_scans
   person_lookup
+  pfdhcp_api
   pfdns
   provisioning
   route_int
   switch
   switch.overlay
-  local_mac
+  switch_distributed
+  trigger_security_event
 
 Options:
 
@@ -181,7 +186,7 @@ Minor parts of this file may have been contributed. See CREDITS.
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2019 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 

@@ -34,6 +34,7 @@ use pf::error;
 use pf::constants;
 use pf::config qw(%Config);
 use pf::node;
+use pf::nodecategory qw(nodecategory_lookup);
 use pf::person;
 use pf::util;
 
@@ -58,7 +59,7 @@ sub nodes {
     my $default_node_pid = $data->{default_pid};
     my $default_category_id = $data->{default_category_id};
     my $default_voip = $data->{default_voip};
-    my $default_unregdate = $data->{default_unregdate};
+    my $default_unregdate = $data->{default_unregdate} // $ZERO_DATE;
 
     $logger->debug("CSV file import nodes from $tmpfilename ($filename, \"$delimiter\")");
 
@@ -96,7 +97,7 @@ sub nodes {
     my $csv = Text::CSV->new({ binary => 1, sep_char => $delimiter });
     my $result;
     while (my $row = $csv->getline($import_fh)) {
-        my ($pid, $mac, $node, %data, $result);
+        my ($pid, $mac, $node, %data);
         $result = undef;
         if($has_pid) {
             $pid = $row->[$index{'pid'}] || undef;
@@ -120,7 +121,6 @@ sub nodes {
 
         $mac = clean_mac($mac);
         $pid ||= $default_node_pid || $default_pid;
-        $node = node_view($mac);
         %data =
           (
            'mac'         => $mac,
@@ -146,6 +146,7 @@ sub nodes {
             next;
         }
 
+        $node = node_view($mac);
         if (!defined($node) || (ref($node) eq 'HASH' && $node->{'status'} ne $pf::node::STATUS_REGISTERED)) {
             $logger->debug("Register MAC $mac ($pid)");
             ($result, my $msg) = node_register($mac, $pid, %data);
@@ -184,7 +185,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2019 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 

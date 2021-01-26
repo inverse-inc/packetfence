@@ -1,5 +1,6 @@
+# Copyright (C) Inverse inc.
 # English translations for PacketFence package.
-# Copyright (C) 2005-2019 Inverse inc.
+#
 # This file is distributed under the same license as the PacketFence package.
 # 
 # Translators:
@@ -8,11 +9,14 @@
 # Diego de Souza Lopes <djkakaroto@gmail.com>, 2011-2018
 # Diego de Souza Lopes <djkakaroto@gmail.com>, 2013
 # Diego de Souza Lopes <djkakaroto@gmail.com>, 2011, 2012
+# Everton Bruno Bernardi <contato@evertonbernardi.eti.br>, 2020
+# George Almeida, 2020
+# Gustavo Pothin <guspothin@gmail.com>, 2019
 # inverse <info@inverse.ca>, 2013
 # Jeronimo Zucco <jczucco@gmail.com>, 2016
 # Liliane Lewis Xerxenevsky <liliane@cpd.ufrgs.br>, 2015
 # matheus schneider <matheus.schneider@ifsudestemg.edu.br>, 2018
-# Murilo Calegari <murilo478@gmail.com>, 2018
+# Murilo Calegari <murilo478@gmail.com>, 2018-2019
 # Raphae Brasil <zecarbf15@gmail.com>, 2016
 # Rogério Moura <rogeriosims@gmail.com>, 2018
 # Sandro Wambier <sandrowambier@gmail.com>, 2015
@@ -20,8 +24,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PacketFence\n"
 "POT-Creation-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"PO-Revision-Date: 2018-12-10 10:55+0000\n"
-"Last-Translator: Diego de Souza Lopes <djkakaroto@gmail.com>\n"
+"PO-Revision-Date: 2020-01-06 20:08+0000\n"
+"Last-Translator: Everton Bruno Bernardi <contato@evertonbernardi.eti.br>\n"
 "Language-Team: Portuguese (Brazil) (http://www.transifex.com/inverse/packetfence/language/pt_BR/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -32,7 +36,7 @@ msgstr ""
 # html/captive-
 # portal/lib/captiveportal/PacketFence/DynamicRouting/Module/Root.pm
 msgid " with bandwidth balance : %s,"
-msgstr "com balanceamento de largura de banda : %s,"
+msgstr "com saldo de largura de banda : %s,"
 
 # html/captive-
 # portal/lib/captiveportal/PacketFence/DynamicRouting/Module/Root.pm
@@ -154,7 +158,7 @@ msgstr "Aniversário"
 
 # pf::person::FIELDS
 msgid "Apartment_number"
-msgstr "Número do Apartamento"
+msgstr "Número do apartamento"
 
 # html/captive-portal/templates/status.html
 msgid "Bandwidth balance "
@@ -162,16 +166,16 @@ msgstr "Balanceamento de largura de banda"
 
 # html/captive-portal/templates/activation/sponsor_login.html
 msgid "Before we proceed with guest activation, we need you to authenticate."
-msgstr "Antes de prosseguir com a ativação de convidados, precisamos de você para autenticar."
+msgstr "Antes de prosseguirmos com a ativação do convidado, precisamos que você se autentique."
 
 # html/captive-portal/templates/emails/emails-
 # billing_stripe_customer.subscription.deleted.html
 msgid "Billing cancellation"
-msgstr "Cancelamento de faturamento"
+msgstr "Cancelamento de cobrança"
 
 # html/captive-portal/templates/emails/emails-billing_confirmation.html
 msgid "Billing invoice"
-msgstr "Boleto de Faturamento"
+msgstr "Fatura de cobrança"
 
 # pf::person::FIELDS
 msgid "Birthday"
@@ -179,7 +183,7 @@ msgstr "Aniversário"
 
 # pf::person::FIELDS
 msgid "Building_number"
-msgstr "Numero do Build"
+msgstr "Número da edificação"
 
 # html/captive-portal/templates/status.html
 msgid "Cancel"
@@ -187,7 +191,7 @@ msgstr "Cancelar"
 
 # pf::person::FIELDS
 msgid "Cell_phone"
-msgstr "Numero do Celular"
+msgstr "Número do celular"
 
 # html/captive-
 # portal/lib/captiveportal/PacketFence/DynamicRouting/Module/TLSEnrollment.pm
@@ -254,7 +258,7 @@ msgstr "Custo"
 # html/captive-
 # portal/lib/captiveportal/PacketFence/Controller/Activate/Email.pm
 msgid "Could not find unregistration date for this activation code."
-msgstr "Não pode achar a data de descadastro para este código de ativação."
+msgstr "Não foi possível encontrar a data de cancelamento de registro para este código de ativação."
 
 # html/captive-portal/templates/account.html
 msgid "Created account %s"
@@ -358,7 +362,7 @@ msgstr "E-mail"
 # portal/lib/captiveportal/PacketFence/Controller/Activate/Email.pm
 msgid ""
 "Email activation code has been verified. Access granted until : $unregdate"
-msgstr "E-mail com Código  de ativação verificado. Acesso permitido até: $unregdate"
+msgstr "E-mail com código de ativação verificado. Acesso permitido até: $unregdate"
 
 # html/captive-portal/lib/captiveportal/PacketFence/Form/Authentication.pm
 msgid "Enter a valid telephone number"
@@ -410,7 +414,7 @@ msgstr "O acesso de convidado à rede foi solicitado usando este endereço de e-
 
 # html/captive-portal/templates/emails/emails-guest_sponsor_activation.html
 msgid "Guest request"
-msgstr "Requisição de convidado."
+msgstr "Requisição de convidado"
 
 # html/captive-portal/templates/emails/emails-billing_confirmation.html
 # html/captive-portal/templates/emails/emails-
@@ -465,7 +469,7 @@ msgstr "Caso estiver utilizando um telefone com Windows"
 
 # html/captive-portal/templates/provisioner/mobileiron.html
 msgid "If you are using an Android phone or tablet"
-msgstr "Caso estiver utilizando um telefone ou tablet Android."
+msgstr "Caso estiver utilizando um telefone ou tablet com Android."
 
 # html/captive-portal/templates/provisioner/mobileiron.html
 msgid "If you are using an Apple phone or tablet"
@@ -521,7 +525,7 @@ msgstr "Instalar Agente"
 # html/captive-portal/templates/provisioner/android.html
 # html/captive-portal/templates/provisioner/mobileconfig.html
 msgid "Install wireless profile"
-msgstr "Instalar Perfil Wi-fi"
+msgstr "Instalar perfil Wi-fi"
 
 # html/captive-portal/templates/billing/index.html
 msgid "Internet Access Package"
@@ -1213,4 +1217,8 @@ msgstr "Seu sistema está sendo analisado - este processo levará aproximadament
 # html/captive-portal/lib/captiveportal/PacketFence/Controller/Remediation.pm
 # html/captive-portal/lib/captiveportal/PacketFence/Controller/Violation.pm
 msgid "violation: quarantine established"
-msgstr "violação: quarentena estabelecida"
+msgstr "O seu sistema foi colocado em quarentena."
+
+# html/pfappserver/lib/pfappserver/Form/Config/Source/Twilio.pm
+msgid "PIN: $pin"
+msgstr "PIN: $pin"

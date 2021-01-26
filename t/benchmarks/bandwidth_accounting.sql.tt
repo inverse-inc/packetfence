@@ -1,0 +1,38 @@
+[%- DEFAULT
+batch = 1000;
+total_nodes = 5000;
+days_back = 1 
+source_type = "radius"
+-%]
+
+TRUNCATE bandwidth_accounting;
+TRUNCATE bandwidth_accounting_history;
+[% SET
+cur = 1;
+next = batch;
+%]
+[% WHILE cur <= total_nodes %]
+INSERT INTO bandwidth_accounting 
+(node_id, tenant_id, mac, unique_session_id, time_bucket, in_bytes, out_bytes, last_updated, source_type)
+SELECT 
+    (1 << 48 | seq) as node_id,
+    1 AS tenant_id, 
+    LOWER(CONCAT_WS(
+        ':',
+        LPAD(HEX((seq >> 40) & 255), 2, '0'),
+        LPAD(HEX((seq >> 32) & 255), 2, '0'),
+        LPAD(HEX((seq >> 24) & 255), 2, '0'),
+        LPAD(HEX((seq >> 16) & 255), 2, '0'),
+        LPAD(HEX((seq >> 8) & 255), 2, '0'),
+        LPAD(HEX(seq & 255), 2, '0')
+    )) AS mac,
+    [% days_back + 1  %] * day + seq as unique_session_id,
+    time_bucket,
+    100 in_bytes,
+    100 out_bytes,
+    time_bucket,
+    '[% source_type %]'
+    FROM seq_[% cur %]_to_[% next %] JOIN (select CURDATE() + INTERVAL(s1.seq) MINUTE - INTERVAL(s2.seq) DAY AS time_bucket, s2.seq as day FROM seq_0_to_1435_step_5 as s1 JOIN seq_0_to_[% days_back %] as s2) AS x;
+[% SET next = next + batch -%]
+[% SET cur = cur + batch -%]
+[% END -%]

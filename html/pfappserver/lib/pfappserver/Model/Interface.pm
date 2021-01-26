@@ -271,6 +271,8 @@ sub get {
                 $result->{"$interface"}->{'dhcpd_enabled'} = $network->{dhcpd};
                 $result->{"$interface"}->{'nat_enabled'} = $network->{nat_enabled};
                 $result->{"$interface"}->{'split_network'} = $network->{split_network};
+                $result->{"$interface"}->{'coa'} = $network->{coa};
+                $result->{"$interface"}->{'netflow_accounting_enabled'} = $network->{netflow_accounting_enabled};
                 $result->{"$interface"}->{'reg_network'} = $network->{reg_network};
                 $result->{"$interface"}->{'network_iseditable'} = $TRUE;
             }
@@ -493,9 +495,6 @@ sub setType {
     my $type = $interface_ref->{type} || 'none';
     my ($status, $network_ref, $status_msg);
 
-    # we ignore interface type 'Other' (it basically means unsupported in configurator)
-    return if ( $type =~ /^other$/i );
-
     # we delete interface type 'None'
     if ( $type =~ /^none$/i && !$interface_ref->{high_availability} ) {
         $logger->debug("Deleting $interface interface");
@@ -524,12 +523,14 @@ sub setType {
                 if ( $is_vlan) {
                     $network_ref =
                       {
+                       pool_backend => 'memory',
                        dhcp_default_lease_time => 30,
                        dhcp_max_lease_time => 30,
                       };
                 } else {
                     $network_ref =
                       {
+                       pool_backend => 'memory',
                        dhcp_default_lease_time => 24 * 60 * 60,
                        dhcp_max_lease_time => 24 * 60 * 60,
                       };
@@ -546,6 +547,8 @@ sub setType {
             $network_ref->{dhcpd} = isenabled($interface_ref->{'dhcpd_enabled'}) ? 'enabled' : 'disabled';
             $network_ref->{nat_enabled} = isenabled($interface_ref->{'nat_enabled'}) ? 'enabled' : 'disabled';
             $network_ref->{split_network} = isenabled($interface_ref->{'split_network'}) ? 'enabled' : 'disabled';
+            $network_ref->{coa} = isenabled($interface_ref->{'coa'}) ? 'enabled' : 'disabled';
+            $network_ref->{netflow_accounting_enabled} = isenabled($interface_ref->{'netflow_accounting_enabled'}) ? 'enabled' : 'disabled';
             $network_ref->{reg_network} = $interface_ref->{'reg_network'};
             $network_ref->{dhcp_start} = Net::Netmask->new(@{$interface_ref}{qw(ipaddress netmask)})->nth(10);
             $network_ref->{dhcp_end} = Net::Netmask->new(@{$interface_ref}{qw(ipaddress netmask)})->nth(-10);
@@ -883,7 +886,7 @@ sub _build_models {
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2019 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 

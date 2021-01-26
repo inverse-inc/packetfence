@@ -31,6 +31,7 @@ use base qw(pf::base::cmd::action_cmd);
 use pf::file_paths qw($bin_dir);
 use pf::log;
 use pf::constants::exit_code qw($EXIT_SUCCESS $EXIT_FAILURE);
+use pf::ip4log;
 
 Readonly my $delimiter => '|';
 Readonly my $PFCMD     => $bin_dir . "/pfcmd";
@@ -286,7 +287,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2019 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 

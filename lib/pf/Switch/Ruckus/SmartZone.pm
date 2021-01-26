@@ -8,6 +8,13 @@ pf::Switch::Ruckus::SmartZone
 
 Implements methods to manage Ruckus SmartZone Wireless Controllers
 
+=head1 BUGS AND LIMITATIONS
+
+=head2 Unbound DPSK
+
+- Is currently only supported for WPA2 which uses AES along with HMAC-SHA1
+- Doesn't support 802.11r (Fast Transition). Make sure you disable this on your SmartZone.
+
 =cut
 
 use strict;
@@ -26,13 +33,19 @@ use pf::ip4log;
 use JSON::MaybeXS qw(encode_json);
 use pf::config qw (
     $WEBAUTH_WIRELESS
+    $WIRELESS_MAC_AUTH
     %connection_type_to_str
 );
 use pf::util::radius qw(perform_disconnect);
+use pf::log;
+use pf::util::wpa;
+use Crypt::PBKDF2;
 
 sub description { 'Ruckus SmartZone Wireless Controllers' }
-sub supportsWebFormRegistration { return $FALSE; }
-sub supportsWirelessMacAuth { return $TRUE; }
+use pf::SwitchSupports qw(
+    WirelessMacAuth
+    -WebFormRegistration
+);
 
 =over
 
@@ -72,7 +85,7 @@ Return the reference to the deauth technique or the default deauth technique.
 =cut
 
 sub deauthTechniques {
-    my ($self, $method) = @_;
+    my ($self, $method, $connection_type) = @_;
     my $logger = $self->logger;
     my $default = $SNMP::RADIUS;
     my %tech = (
@@ -94,13 +107,15 @@ Deauthenticate a client using HTTP or RADIUS depending on the connection type
 sub deauth {
     my ($self, $mac) = @_;
     my $node_info = node_view($mac);
-    if ($node_info->{last_connection_type} eq $connection_type_to_str{$WEBAUTH_WIRELESS}) {
-        $self->deauthenticateMacWebservices($mac);
+    if (isenabled($self->{_ExternalPortalEnforcement})) {
+        if($node_info->{last_connection_type} eq $connection_type_to_str{$WEBAUTH_WIRELESS} || $node_info->{last_connection_type} eq $connection_type_to_str{$WIRELESS_MAC_AUTH}) {
+            $self->deauthenticateMacWebservices($mac);
+            return;
+        }
     }
-    else {
-        $self->deauthenticateMacDefault($mac);
-    }
+    $self->deauthenticateMacDefault($mac);
 }
+
 
 =head2 radiusDisconnect
 
@@ -231,6 +246,105 @@ sub deauthenticateMacWebservices {
     }
 }
 
+=item returnRadiusAccessAccept
+
+Prepares the RADIUS Access-Accept reponse for the network device.
+
+Overrides the default implementation to add the dynamic PSK
+
+=cut
+
+sub returnRadiusAccessAccept {
+    my ($self, $args) = @_;
+    my $logger = $self->logger;
+
+    $args->{'unfiltered'} = $TRUE;
+    my @super_reply = @{$self->SUPER::returnRadiusAccessAccept($args)};
+    my $status = shift @super_reply;
+    my %radius_reply = @super_reply;
+    my $radius_reply_ref = \%radius_reply;
+    return [$status, %$radius_reply_ref] if($status == $RADIUS::RLM_MODULE_USERLOCK);
+
+    if ($args->{profile}->dpskEnabled()) {
+        if (defined($args->{owner}->{psk})) {
+            $radius_reply_ref->{"Ruckus-DPSK"} = $self->generate_dpsk_attribute_value($args->{ssid}, $args->{owner}->{psk});
+        } else {
+            $radius_reply_ref->{"Ruckus-DPSK"} = $self->generate_dpsk_attribute_value($args->{ssid}, $args->{profile}->{_default_psk_key});
+        }
+    }
+    
+    my $filter = pf::access_filter::radius->new;
+    my $rule = $filter->test('returnRadiusAccessAccept', $args);
+    ($radius_reply_ref, $status) = $filter->handleAnswerInRule($rule,$args,$radius_reply_ref);
+    return [$status, %$radius_reply_ref];
+}
+
+=head2 generate_dpsk_attribute_value
+
+Generates the RADIUS attribute value for Ruckus-DPSK given an SSID name and the passphrase
+
+=cut
+
+sub generate_dpsk_attribute_value {
+    my ($self, $ssid, $dpsk) = @_;
+
+    my $pbkdf2 = Crypt::PBKDF2->new(
+        iterations => 4096,
+        output_len => 32,
+    );
+     
+    my $hash = $pbkdf2->PBKDF2_hex($ssid, $dpsk);
+    return "0x00".$hash;
+}
+
+
+sub find_user_by_psk {
+    my ($self, $radius_request) = @_;
+    my ($status, $iter) = pf::dal::person->search(
+        -where => {
+            psk => {'!=' => [-and => '', undef]},
+        },
+    );
+
+    my $matched = 0;
+    my $pid;
+    while(my $person = $iter->next) {
+        get_logger->debug("User ".$person->{pid}." has a PSK. Checking if it matches the one in the packet");
+        if($self->check_if_radius_request_psk_matches($radius_request, $person->{psk})) {
+            get_logger->info("PSK matches the one of ".$person->{pid});
+            $matched ++;
+            $pid = $person->{pid};
+        }
+    }
+
+    if($matched > 1) {
+        get_logger->error("Multiple users use the same PSK. This cannot work with unbound DPSK. Ignoring it.");
+        return undef;
+    }
+    else {
+        return $pid;
+    }
+}
+
+sub check_if_radius_request_psk_matches {
+    my ($self, $radius_request, $psk) = @_;
+    if($radius_request->{"Ruckus-DPSK-Cipher"} != 4) {
+        get_logger->error("Ruckus-DPSK-Cipher isn't for WPA2 that uses AES and HMAC-SHA1. This isn't supported by this module.");
+        return $FALSE;
+    }
+
+    return pf::util::wpa::match_mic(
+      pf::util::wpa::calculate_ptk(
+        pf::util::wpa::calculate_pmk($radius_request->{"Ruckus-Wlan-Name"}, $psk),
+        pack("H*", pf::util::wpa::strip_hex_prefix($radius_request->{"Ruckus-BSSID"})),
+        pack("H*", $radius_request->{"User-Name"}),
+        pack("H*", pf::util::wpa::strip_hex_prefix($radius_request->{"Ruckus-DPSK-Anonce"})),
+        pf::util::wpa::snonce_from_eapol_key_frame(pack("H*", pf::util::wpa::strip_hex_prefix($radius_request->{"Ruckus-DPSK-EAPOL-Key-Frame"}))),
+      ),      
+      pack("H*", pf::util::wpa::strip_hex_prefix($radius_request->{"Ruckus-DPSK-EAPOL-Key-Frame"})),
+    );
+}
+
 =back
 
 =head1 AUTHOR
@@ -239,7 +353,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2019 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 

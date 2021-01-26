@@ -1,26 +1,27 @@
 <template>
   <b-card no-body>
     <pf-config-list
+      ref="pfConfigList"
       :config="config"
     >
-      <template slot="pageHeader">
+      <template v-slot:pageHeader>
         <b-card-header>
           <h4 class="mb-0" v-t="'PKI Providers'"></h4>
         </b-card-header>
       </template>
-      <template slot="buttonAdd">
+      <template v-slot:buttonAdd>
         <b-dropdown :text="$t('New PKI Provider')" variant="outline-primary">
           <b-dropdown-item :to="{ name: 'newPkiProvider', params: { providerType: 'packetfence_local' } }">Packetfence Local</b-dropdown-item>
           <b-dropdown-item :to="{ name: 'newPkiProvider', params: { providerType: 'packetfence_pki' } }">Packetfence PKI</b-dropdown-item>
           <b-dropdown-item :to="{ name: 'newPkiProvider', params: { providerType: 'scep' } }">SCEP PKI</b-dropdown-item>
         </b-dropdown>
       </template>
-      <template slot="emptySearch" slot-scope="state">
+      <template v-slot:emptySearch="state">
         <pf-empty-table :isLoading="state.isLoading">{{ $t('No PKI Providers found') }}</pf-empty-table>
       </template>
-      <template slot="buttons" slot-scope="item">
-        <span class="float-right text-nowrap">
-          <pf-button-delete size="sm" v-if="!item.not_deletable" variant="outline-danger" class="mr-1" :disabled="isLoading" :confirm="$t('Delete PKI Provider?')" @on-delete="remove(item)" reverse/>
+      <template v-slot:cell(buttons)="item">
+        <span class="float-right">
+          <pf-button-delete size="sm" v-if="!item.not_deletable" variant="outline-danger" class="mr-1 text-nowrap" :disabled="isLoading" :confirm="$t('Delete PKI Provider?')" @on-delete="remove(item)" reverse/>
           <b-button size="sm" variant="outline-primary" class="mr-1" @click.stop.prevent="clone(item)">{{ $t('Clone') }}</b-button>
         </span>
       </template>
@@ -32,27 +33,23 @@
 import pfButtonDelete from '@/components/pfButtonDelete'
 import pfConfigList from '@/components/pfConfigList'
 import pfEmptyTable from '@/components/pfEmptyTable'
-import {
-  pfConfigurationPkiProviderListConfig as config
-} from '@/globals/configuration/pfConfigurationPkiProviders'
+import { config } from '../_config/pkiProvider'
 
 export default {
-  name: 'PkiProvidersList',
+  name: 'pki-providers-list',
   components: {
     pfButtonDelete,
     pfConfigList,
     pfEmptyTable
   },
-  props: {
-    storeName: { // from router
-      type: String,
-      default: null,
-      required: true
-    }
-  },
   data () {
     return {
       config: config(this)
+    }
+  },
+  computed: {
+    isLoading () {
+      return this.$store.getters['$_pki_providers/isLoading']
     }
   },
   methods: {
@@ -60,8 +57,9 @@ export default {
       this.$router.push({ name: 'clonePkiProvider', params: { id: item.id } })
     },
     remove (item) {
-      this.$store.dispatch(`${this.storeName}/deletePkiProvider`, item.id).then(response => {
-        this.$router.go() // reload
+      this.$store.dispatch('$_pki_providers/deletePkiProvider', item.id).then(() => {
+        const { $refs: { pfConfigList: { refreshList = () => {} } = {} } = {} } = this
+        refreshList() // soft reload
       })
     }
   }

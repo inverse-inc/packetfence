@@ -1,0 +1,115 @@
+//== Contributing
+
+Here are some golden rules of contributing to PacketFence:
+
+* Be active on the https://lists.sourceforge.net/lists/listinfo/packetfence-devel[developer mailing list]
+
+The place to be if you want to contribute to the PacketFence project is our developers mailing list:
+https://lists.sourceforge.net/lists/listinfo/packetfence-devel. Let us know your issues, what you are
+working on and how you want to solve your problems. The more you collaborate the greater the chances that
+your work will be incorporated in a timely fashion.
+
+* Use the issue tracker: https://packetfence.org/bugs/
+
+Good chances that the bug you want to fix or the feature you want to implement is already filed and
+that information in the ticket will help you.
+
+* Please provide small, focused and manageable patches or pull-requests
+
+If you plan on doing a lot of code, use `git` and track our current stable branch called `stable`. Develop the
+feature in small chunks and stay in touch with us. This way it'll be merged quickly in our code base. Ideally
+there would be no big code dumps after finishing a feature.
+
+=== Creating patches
+
+NOTE: Since we migrated to git / github, using these tools is recommended
+over sending patches by hand.
+
+Patches should be sent in unified diff format. This can be obtained from the
+`diff` or `git` tools.
+
+  diff -u oldfile newfile
+
+or from a checkout of the PacketFence source code from `git`:
+
+  git diff
+
+=== Translations
+
+The internationalization process uses `gettext`. If you are new to `gettext`, please consult
+http://www.gnu.org/software/gettext/manual/gettext.html#Overview for a quick introduction.
+
+The PO files are stored in `/usr/local/pf/conf/locale`. List that directory to see the languages
+we currently have translations for.
+
+==== Online using Transifex
+
+We use the hosted service Transifex to translate PacketFence's PO files. It offers the
+possibility to translate all the strings online as well as providing a command-line tool to push your
+changes. It's very convenient.
+
+To use Transifex, you must first sign up for a free account here: https://www.transifex.net/plans/signup/free/
+
+* Once registered, https://www.transifex.net/projects/p/packetfence/teams[request a new team for your language]
+* Once authorized, you'll be able to start/continue translating PacketFence in your language
+
+If you need further help about using Transifex, you might want to have http://help.transifex.com/[a look here].
+
+==== Using traditional method
+
+If you want to add support for a new language, please follow these steps:
+
+[options="compact"]
+. create a new language subdirectory in `/usr/local/pf/conf/locale`
+. change into your newly created directory
+. create a new subdirectory `LC_MESSAGES`
+. change into your newly created directory
+. copy the file `/usr/local/pf/conf/locale/en/LC_MESSAGES/packetfence.po` into your directory
+. translate the message strings in `packetfence.po`
+. create the MO file by executing:
+
+  /usr/bin/msgfmt packetfence.po
+
+Submit your new translation to the PacketFence project by contacting us at packetfence-devel@lists.sourceforge.net.
+
+=== Admin GUI
+
+The Admin GUI can be customized via Controllers and templates.
+
+==== Templates
+
+You can add customize templates to the `/usr/local/pf/html/pfappserver/root-custom/` folder to override current templates.
+
+However when doing this you must keep track of any changes to those templates across versions.
+
+==== Stylesheets and JavaScript
+
+The main stylesheet is the result of processing some http://sass-lang.com/[Sass] files structured around the excellent http://getbootstrap.com/2.3.2/[Bootstrap] framework.
+
+* `/usr/local/pf/html/pfappserver/root/static/Gruntfile.js` -- the task runner configuration file
+* `/usr/local/pf/html/pfappserver/root/static/package.js` -- the npm dependencies required to process the Sass files and to package the JavaScript code
+* `/usr/local/pf/html/pfappserver/root/static/bower.json` -- the list of required components
+* `/usr/local/pf/html/pfappserver/root/static/scss/` -- the directory containing the Sass source files
+* `/usr/local/pf/html/pfappserver/root/static/css/styles.css` -- the generated stylesheet
+* `/usr/local/pf/html/pfappserver/root/static/js/vendor/` -- the directory containing the external JavaScript libraries
+
+In order to prepare your environment, you need to install http://gruntjs.com/[grunt] (the task runner) and https://bower.io/[bower] (the package manager):
+
+  sudo npm install -g grunt-cli
+  sudo npm install -g bower
+  cd /usr/local/pf/html/pfappserver/root/static/
+  npm install
+  bower install
+
+Once all modules and components are downloaded, you can customize the Sass files or JavaScript files and generate a new version of the static files:
+
+  grunt dist
+
+
+==== Controllers
+
+You change the behavior of the controllers by modifying the controllers in the path.
+
+`/usr/local/pf/html/pfappserver/lib/pfappserver/Controller/`
+
+However when doing this you must keep track of any changes to those Controllers across versions.

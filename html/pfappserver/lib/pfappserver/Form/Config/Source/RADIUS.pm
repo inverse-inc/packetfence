@@ -11,6 +11,7 @@ Form definition to create or update a RADIUS user source.
 =cut
 
 use HTML::FormHandler::Moose;
+use pf::config qw(%Config);
 extends 'pfappserver::Form::Config::Source';
 with 'pfappserver::Base::Form::Role::Help', 'pfappserver::Base::Form::Role::InternalSource';
 
@@ -70,9 +71,15 @@ has_field 'options',
              help => 'Define options for FreeRADIUS home_server definition (if you use the source in the realm configuration). Need a radius restart.' },
    default => 'type = auth+acct',
 );
+
+sub _options_set_role_from_source {
+    my ($self) = @_;
+    return map { $_ => $_} @{$Config{radius_configuration}{radius_attributes}};
+}
+
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2019 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 

@@ -9,7 +9,7 @@
       <pf-form-row :column-label="$t('Circuit ID String')">{{ item.circuit_id_string }}</pf-form-row>
       <pf-form-row :column-label="$t('Host')">{{ item.host }}</pf-form-row>
       <pf-form-row :column-label="$t('Module')">{{ item.module }}</pf-form-row>
-      <pf-form-row :column-label="$t('Option82 Switch')">{{ item.option82_switch }}</pf-form-row>
+      <pf-form-row :column-label="$t('DHCP Option 82 Switch')">{{ item.option82_switch }}</pf-form-row>
       <pf-form-row :column-label="$t('Port')">{{ item.port }}</pf-form-row>
       <pf-form-row :column-label="$t('Switch ID')">{{ item.switch_id }}</pf-form-row>
       <pf-form-row :column-label="$t('DHCP Option 82 VLAN')">{{ item.vlan }}</pf-form-row>
@@ -22,7 +22,7 @@
 import pfFormRow from '@/components/pfFormRow'
 
 export default {
-  name: 'DhcpOption82LogView',
+  name: 'dhcp-option82-log-view',
   components: {
     pfFormRow
   },
@@ -44,6 +44,9 @@ export default {
   computed: {
     isLoading () {
       return this.$store.getters[`${this.storeName}/isLoading`]
+    },
+    escapeKey () {
+      return this.$store.getters['events/escapeKey']
     }
   },
   methods: {
@@ -57,22 +60,15 @@ export default {
     },
     close () {
       this.$router.push({ name: 'dhcpoption82s' })
-    },
-    onKeyup (event) {
-      switch (event.keyCode) {
-        case 27: // escape
-          this.close()
-      }
     }
-  },
-  mounted () {
-    document.addEventListener('keyup', this.onKeyup)
   },
   created () {
     this.init()
   },
-  beforeDestroy () {
-    document.removeEventListener('keyup', this.onKeyup)
+  watch: {
+    escapeKey (pressed) {
+      if (pressed) this.close()
+    }
   }
 }
 </script>

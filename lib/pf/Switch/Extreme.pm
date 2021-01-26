@@ -77,8 +77,11 @@ use pf::util;
 
 # CAPABILITIES
 # access technology supported
-sub supportsWiredMacAuth { return $TRUE; }
-sub supportsWiredDot1x { return $TRUE; }
+use pf::SwitchSupports qw(
+    RoleBasedEnforcement
+    WiredMacAuth
+    WiredDot1x
+);
 # inline capabilities
 sub inlineCapabilities { return ($MAC,$PORT); }
 
@@ -1143,7 +1146,7 @@ sub authorizeMAC {
 
     # TODO: if it's a fake MAC we don't act on it (see #1070 for context)
     if ($authMac  && !$self->isFakeMac($authMac)) {
-        $self->_authorizeMAC($ifIndex, $authMac, $authVlan);
+        return $self->_authorizeMAC($ifIndex, $authMac, $authVlan);
     }
 
     return 1;
@@ -1184,7 +1187,7 @@ sub _authorizeMAC {
     };
 
     if ($response->fault) {
-        $logger->warn("error authorizing MAC: " . $response->faultstring
+        $logger->error("error authorizing MAC: " . $response->faultstring
             . " (Error code: " . $response->faultcode . ")");
         return 0;
     }
@@ -1555,6 +1558,29 @@ sub returnAuthorizeWrite {
     return [$status, %$radius_reply_ref];
 }
 
+=item returnRoleAttribute
+
+What RADIUS Attribute (usually VSA) should the role be returned into.
+
+=cut
+
+sub returnRoleAttribute {
+    my ($self) = @_;
+
+    return 'Filter-Id';
+}
+
+=item returnRoleAttributes
+
+Overriding L<pf::Switch>'s implementation to return the decorated role attribute of the switch.
+
+=cut
+
+sub returnRoleAttributes {
+    my ($self, $role) = @_;
+    return ($self->returnRoleAttribute() => "Enterasys:version=1:policy=".$role);
+}
+
 =back
 
 =head1 AUTHOR
@@ -1563,7 +1589,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2019 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 

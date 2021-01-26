@@ -1,18 +1,24 @@
 <template>
   <b-card no-body>
     <pf-config-list
+      ref="pfConfigList"
       :config="config"
     >
-      <template slot="pageHeader">
-        <b-card-header><h4 class="mb-0" v-t="'Security Events'"></h4></b-card-header>
+      <template v-slot:pageHeader>
+        <b-card-header>
+          <h4 class="mb-0">
+            {{ $t('Security Events') }}
+            <pf-button-help class="ml-1" url="PacketFence_Installation_Guide.html#_security_events" />
+          </h4>
+        </b-card-header>
       </template>
-      <template slot="buttonAdd">
+      <template v-slot:buttonAdd>
         <b-button variant="outline-primary" :to="{ name: 'newSecurityEvent' }">{{ $t('New Security Event') }}</b-button>
       </template>
-      <template slot="emptySearch" slot-scope="state">
+      <template v-slot:emptySearch="state">
         <pf-empty-table :isLoading="state.isLoading">{{ $t('No security events found') }}</pf-empty-table>
       </template>
-      <template slot="buttons" slot-scope="item">
+      <template v-slot:cell(buttons)="item">
         <span class="float-right text-nowrap">
           <pf-button-delete size="sm" v-if="!item.not_deletable" variant="outline-danger" class="mr-1" :disabled="isLoading" :confirm="$t('Delete Security Event?')" @on-delete="remove(item)" reverse/>
           <b-button size="sm" variant="outline-primary" class="mr-1" @click.stop.prevent="clone(item)">{{ $t('Clone') }}</b-button>
@@ -21,23 +27,24 @@
           </b-dropdown>
         </span>
       </template>
-      <template slot="enabled" slot-scope="data">
-        <pf-form-range-toggle v-if="data.id === 'defaults'"
-          v-model="data.enabled"
+      <template v-slot:cell(enabled)="item">
+        <pf-form-range-toggle v-if="item.id === 'defaults'"
+          v-model="item.enabled"
           :values="{ checked: 'Y', unchecked: 'N' }"
           :icons="{ checked: 'lock', unchecked: 'lock' }"
           :colors="{ checked: 'var(--success)', unchecked: 'var(--danger)' }"
+          :right-labels="{ checked: 'ON', unchecked: 'OFF' }"
           disabled
-        >{{ (data.enabled === 'Y') ? 'ON' : 'OFF' }}</pf-form-range-toggle>
+        />
         <pf-form-range-toggle v-else
-          v-model="data.enabled"
+          v-model="item.enabled"
           :values="{ checked: 'Y', unchecked: 'N' }"
           :icons="{ checked: 'check', unchecked: 'times' }"
           :colors="{ checked: 'var(--success)', unchecked: 'var(--danger)' }"
-          :disabled="isLoading"
-          @input="toggle(data, $event)"
+          :right-labels="{ checked: 'ON', unchecked: 'OFF' }"
+          :lazy="{ checked: enable(item), unchecked: disable(item) }"
           @click.stop.prevent
-        >{{ (data.enabled === 'Y') ? 'ON' : 'OFF' }}</pf-form-range-toggle>
+        />
       </template>
     </pf-config-list>
   </b-card>
@@ -45,27 +52,20 @@
 
 <script>
 import pfButtonDelete from '@/components/pfButtonDelete'
+import pfButtonHelp from '@/components/pfButtonHelp'
 import pfConfigList from '@/components/pfConfigList'
 import pfEmptyTable from '@/components/pfEmptyTable'
 import pfFormRangeToggle from '@/components/pfFormRangeToggle'
-import {
-  pfConfigurationSecurityEventListConfig as config
-} from '@/globals/configuration/pfConfigurationSecurityEvents'
+import { config } from '../_config/securityEvent'
 
 export default {
-  name: 'SecurityEventsList',
+  name: 'security-events-list',
   components: {
     pfButtonDelete,
+    pfButtonHelp,
     pfConfigList,
     pfEmptyTable,
     pfFormRangeToggle
-  },
-  props: {
-    storeName: { // from router
-      type: String,
-      default: null,
-      required: true
-    }
   },
   data () {
     return {
@@ -75,7 +75,7 @@ export default {
   },
   computed: {
     isLoading () {
-      return this.$store.getters[`${this.storeName}/isLoading`]
+      return this.$store.getters['$_security_events/isLoading']
     }
   },
   methods: {
@@ -83,32 +83,41 @@ export default {
       this.$router.push({ name: 'cloneSecurityEvent', params: { id: item.id } })
     },
     remove (item) {
-      this.$store.dispatch(`${this.storeName}/deleteSecurityEvent`, item.id).then(response => {
-        this.$router.go() // reload
+      this.$store.dispatch('$_security_events/deleteSecurityEvent', item.id).then(() => {
+        const { $refs: { pfConfigList: { refreshList = () => {} } = {} } = {} } = this
+        refreshList() // soft reload
       })
     },
-    toggle (item, event) {
-      switch (event) {
-        case 'Y':
-          this.$store.dispatch(`${this.storeName}/enableSecurityEvent`, { quiet: true, ...item }).then(response => {
+    enable (item) {
+      return () => { // 'enabled'
+        return new Promise((resolve, reject) => {
+          this.$store.dispatch('$_security_events/enableSecurityEvent', { quiet: true, ...item }).then(() => {
             this.$store.dispatch('notification/info', { message: this.$i18n.t('Security event {desc} enabled.', { desc: this.$strong(item.desc) }) })
+            resolve('Y')
           }).catch(err => {
             const { response: { data: { message: errMsg } = {} } = {} } = err
             let message = this.$i18n.t('Security event {desc} was not enabled', { desc: this.$strong(item.desc) })
             if (errMsg) message += ` (${errMsg})`
             this.$store.dispatch('notification/danger', { message })
+            reject() // reset
           })
-          break
-        case 'N':
-          this.$store.dispatch(`${this.storeName}/disableSecurityEvent`, { quiet: true, ...item }).then(response => {
+        })
+      }
+    },
+    disable (item) {
+      return () => { // 'disabled'
+        return new Promise((resolve, reject) => {
+          this.$store.dispatch('$_security_events/disableSecurityEvent', { quiet: true, ...item }).then(() => {
             this.$store.dispatch('notification/info', { message: this.$i18n.t('Security event {desc} disabled.', { desc: this.$strong(item.desc) }) })
+            resolve('N')
           }).catch(err => {
             const { response: { data: { message: errMsg } = {} } = {} } = err
             let message = this.$i18n.t('Security event {desc} was not disabled', { desc: this.$strong(item.desc) })
             if (errMsg) message += ` (${errMsg})`
             this.$store.dispatch('notification/danger', { message })
+            reject() // reset
           })
-          break
+        })
       }
     }
   },

@@ -6,39 +6,45 @@
       :sortable="true"
       @sort="sort"
     >
-      <template slot="pageHeader">
-        <b-card-header><h4 class="mb-0" v-t="'Connection Profiles'"></h4></b-card-header>
+      <template v-slot:pageHeader>
+        <b-card-header>
+          <h4 class="mb-0">
+            {{ $t('Connection Profiles') }}
+            <pf-button-help class="ml-1" url="PacketFence_Installation_Guide.html#_connection_profiles" />
+          </h4>
+        </b-card-header>
       </template>
-      <template slot="buttonAdd">
+      <template v-slot:buttonAdd>
         <b-button variant="outline-primary" :to="{ name: 'newConnectionProfile' }">{{ $t('New Connection Profile') }}</b-button>
       </template>
-      <template slot="emptySearch" slot-scope="state">
+      <template v-slot:emptySearch="state">
         <pf-empty-table :isLoading="state.isLoading">{{ $t('No connection profiles found') }}</pf-empty-table>
       </template>
-      <template slot="buttons" slot-scope="item">
+      <template v-slot:cell(buttons)="item">
         <span class="float-right text-nowrap">
           <pf-button-delete size="sm" v-if="!item.not_deletable" variant="outline-danger" class="mr-1" :disabled="isLoading" :confirm="$t('Delete Connection Profile?')" @on-delete="remove(item)" reverse/>
           <b-button size="sm" variant="outline-secondary" class="mr-1" @click.stop.prevent="preview(item)">{{ $t('Preview') }} <icon class="ml-1" name="external-link-alt"></icon></b-button>
           <b-button size="sm" variant="outline-primary" class="mr-1" @click.stop.prevent="clone(item)">{{ $t('Clone') }}</b-button>
         </span>
       </template>
-      <template slot="status" slot-scope="data">
-        <pf-form-range-toggle v-if="data.not_deletable"
-          v-model="data.status"
+      <template v-slot:cell(status)="item">
+        <pf-form-range-toggle v-if="item.not_deletable"
+          v-model="item.status"
           :values="{ checked: 'enabled', unchecked: 'disabled' }"
           :icons="{ checked: 'lock', unchecked: 'lock' }"
           :colors="{ checked: 'var(--success)', unchecked: 'var(--danger)' }"
+          :right-labels="{ checked: $t('Enabled'), unchecked: $t('Disabled') }"
           disabled
-        >{{ (data.status === 'enabled') ? $t('Enabled') : $t('Disabled') }}</pf-form-range-toggle>
+        />
         <pf-form-range-toggle v-else
-          v-model="data.status"
+          v-model="item.status"
           :values="{ checked: 'enabled', unchecked: 'disabled' }"
           :icons="{ checked: 'check', unchecked: 'times' }"
           :colors="{ checked: 'var(--success)', unchecked: 'var(--danger)' }"
-          :disabled="isLoading"
-          @input="toggleStatus(data, $event)"
+          :right-labels="{ checked: $t('Enabled'), unchecked: $t('Disabled') }"
+          :lazy="{ checked: enable(item), unchecked: disable(item) }"
           @click.stop.prevent
-        >{{ (data.status === 'enabled') ? $t('Enabled') : $t('Disabled') }}</pf-form-range-toggle>
+        />
       </template>
     </pf-config-list>
   </b-card>
@@ -46,27 +52,20 @@
 
 <script>
 import pfButtonDelete from '@/components/pfButtonDelete'
+import pfButtonHelp from '@/components/pfButtonHelp'
 import pfConfigList from '@/components/pfConfigList'
 import pfEmptyTable from '@/components/pfEmptyTable'
 import pfFormRangeToggle from '@/components/pfFormRangeToggle'
-import {
-  pfConfigurationConnectionProfileListConfig as config
-} from '@/globals/configuration/pfConfigurationConnectionProfiles'
+import { config } from '../_config/connectionProfile'
 
 export default {
-  name: 'ConnectionProfilesList',
+  name: 'connection-profiles-list',
   components: {
     pfButtonDelete,
+    pfButtonHelp,
     pfConfigList,
     pfEmptyTable,
     pfFormRangeToggle
-  },
-  props: {
-    storeName: { // from router
-      type: String,
-      default: null,
-      required: true
-    }
   },
   data () {
     return {
@@ -75,7 +74,7 @@ export default {
   },
   computed: {
     isLoading () {
-      return this.$store.getters[`${this.storeName}/isLoading`]
+      return this.$store.getters['$_connection_profiles/isLoading']
     }
   },
   methods: {
@@ -86,30 +85,43 @@ export default {
       this.$router.push({ name: 'cloneConnectionProfile', params: { id: item.id } })
     },
     remove (item) {
-      this.$store.dispatch(`${this.storeName}/deleteConnectionProfile`, item.id).then(response => {
-        this.$router.go() // reload
+      this.$store.dispatch('$_connection_profiles/deleteConnectionProfile', item.id).then(() => {
+        const { $refs: { pfConfigList: { refreshList = () => {} } = {} } = {} } = this
+        refreshList() // soft reload
       })
-    },
-    toggleStatus (item, newStatus) {
-      switch (newStatus) {
-        case 'enabled':
-          this.$store.dispatch(`${this.storeName}/enableConnectionProfile`, item).then(response => {
-            const searchableStoreName = this.$refs.pfConfigList.searchableStoreName
-            this.$store.dispatch(`${searchableStoreName}/updateItem`, { key: 'id', id: item.id, prop: 'status', data: 'enabled' })
-          })
-          break
-        case 'disabled':
-          this.$store.dispatch(`${this.storeName}/disableConnectionProfile`, item).then(response => {
-            const searchableStoreName = this.$refs.pfConfigList.searchableStoreName
-            this.$store.dispatch(`${searchableStoreName}/updateItem`, { key: 'id', id: item.id, prop: 'status', data: 'disabled' })
-          })
-          break
-      }
     },
     sort (items) {
-      this.$store.dispatch(`${this.storeName}/sortConnectionProfiles`, items.map(item => item.id)).then(response => {
+      this.$store.dispatch('$_connection_profiles/sortConnectionProfiles', items.map(item => item.id)).then(() => {
         this.$store.dispatch('notification/info', { message: this.$i18n.t('Connection profiles resorted.') })
       })
+    },
+    enable (item) {
+      return () => { // 'enabled'
+        return new Promise((resolve, reject) => {
+          this.$store.dispatch('$_connection_profiles/enableConnectionProfile', item).then(() => {
+            const searchableStoreName = this.$refs.pfConfigList.searchableStoreName
+            this.$store.dispatch(`${searchableStoreName}/updateItem`, { key: 'id', id: item.id, prop: 'status', data: 'enabled' }).then(() => {
+              resolve('enabled')
+            })
+          }).catch(() => {
+            reject() // reset
+          })
+        })
+      }
+    },
+    disable (item) {
+      return () => { // 'disabled'
+        return new Promise((resolve, reject) => {
+          this.$store.dispatch('$_connection_profiles/disableConnectionProfile', item).then(() => {
+            const searchableStoreName = this.$refs.pfConfigList.searchableStoreName
+            this.$store.dispatch(`${searchableStoreName}/updateItem`, { key: 'id', id: item.id, prop: 'status', data: 'disabled' }).then(() => {
+              resolve('disabled')
+            })
+          }).catch(() => {
+            reject() // reset
+          })
+        })
+      }
     }
   }
 }

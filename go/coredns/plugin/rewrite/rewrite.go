@@ -1,14 +1,14 @@
 package rewrite
 
 import (
+	"context"
 	"fmt"
 	"strings"
 
 	"github.com/inverse-inc/packetfence/go/coredns/plugin"
+	"github.com/inverse-inc/packetfence/go/coredns/request"
 
 	"github.com/miekg/dns"
-
-	"golang.org/x/net/context"
 )
 
 // Result is the result of a rewrite
@@ -19,9 +19,6 @@ const (
 	RewriteIgnored Result = iota
 	// RewriteDone is returned when rewrite is done on request.
 	RewriteDone
-	// RewriteStatus is returned when rewrite is not needed and status code should be set
-	// for the request.
-	RewriteStatus
 )
 
 // These are defined processing mode.
@@ -32,7 +29,7 @@ const (
 	Continue = "continue"
 )
 
-// Rewrite is plugin to rewrite requests internally before being handled.
+// Rewrite is a plugin to rewrite requests internally before being handled.
 type Rewrite struct {
 	Next     plugin.Handler
 	Rules    []Rule
@@ -42,9 +39,21 @@ type Rewrite struct {
 // ServeDNS implements the plugin.Handler interface.
 func (rw Rewrite) ServeDNS(ctx context.Context, w dns.ResponseWriter, r *dns.Msg) (int, error) {
 	wr := NewResponseReverter(w, r)
+	state := request.Request{W: w, Req: r}
+
 	for _, rule := range rw.Rules {
-		switch result := rule.Rewrite(w, r); result {
+		switch result := rule.Rewrite(ctx, state); result {
 		case RewriteDone:
+			if _, ok := dns.IsDomainName(state.Req.Question[0].Name); !ok {
+				err := fmt.Errorf("invalid name after rewrite: %s", state.Req.Question[0].Name)
+				state.Req.Question[0] = wr.originalQuestion
+				return dns.RcodeServerFailure, err
+			}
+			respRule := rule.GetResponseRule()
+			if respRule.Active {
+				wr.ResponseRewrite = true
+				wr.ResponseRules = append(wr.ResponseRules, respRule)
+			}
 			if rule.Mode() == Stop {
 				if rw.noRevert {
 					return plugin.NextOrFailure(rw.Name(), rw.Next, ctx, w, r)
@@ -52,15 +61,12 @@ func (rw Rewrite) ServeDNS(ctx context.Context, w dns.ResponseWriter, r *dns.Msg
 				return plugin.NextOrFailure(rw.Name(), rw.Next, ctx, wr, r)
 			}
 		case RewriteIgnored:
-			break
-		case RewriteStatus:
-			// only valid for complex rules.
-			// if cRule, ok := rule.(*ComplexRule); ok && cRule.Status != 0 {
-			// return cRule.Status, nil
-			// }
 		}
 	}
-	return plugin.NextOrFailure(rw.Name(), rw.Next, ctx, w, r)
+	if rw.noRevert || len(wr.ResponseRules) == 0 {
+		return plugin.NextOrFailure(rw.Name(), rw.Next, ctx, w, r)
+	}
+	return plugin.NextOrFailure(rw.Name(), rw.Next, ctx, wr, r)
 }
 
 // Name implements the Handler interface.
@@ -69,9 +75,11 @@ func (rw Rewrite) Name() string { return "rewrite" }
 // Rule describes a rewrite rule.
 type Rule interface {
 	// Rewrite rewrites the current request.
-	Rewrite(dns.ResponseWriter, *dns.Msg) Result
-	// Mode returns the processing mode stop or continue
+	Rewrite(ctx context.Context, state request.Request) Result
+	// Mode returns the processing mode stop or continue.
 	Mode() string
+	// GetResponseRule returns the rule to rewrite response with, if any.
+	GetResponseRule() ResponseRule
 }
 
 func newRule(args ...string) (Rule, error) {
@@ -85,7 +93,7 @@ func newRule(args ...string) (Rule, error) {
 	mode := Stop
 	switch arg0 {
 	case Continue:
-		mode = arg0
+		mode = Continue
 		ruleType = strings.ToLower(args[1])
 		expectNumArgs = len(args) - 1
 		startArg = 2
@@ -100,18 +108,25 @@ func newRule(args ...string) (Rule, error) {
 		startArg = 1
 	}
 
-	if ruleType != "edns0" && expectNumArgs != 3 {
-		return nil, fmt.Errorf("%s rules must have exactly two arguments", ruleType)
-	}
 	switch ruleType {
+	case "answer":
+		return nil, fmt.Errorf("response rewrites must begin with a name rule")
 	case "name":
-		return newNameRule(args[startArg], args[startArg+1])
+		return newNameRule(mode, args[startArg:]...)
 	case "class":
-		return newClassRule(args[startArg], args[startArg+1])
+		if expectNumArgs != 3 {
+			return nil, fmt.Errorf("%s rules must have exactly two arguments", ruleType)
+		}
+		return newClassRule(mode, args[startArg:]...)
 	case "type":
-		return newTypeRule(args[startArg], args[startArg+1])
+		if expectNumArgs != 3 {
+			return nil, fmt.Errorf("%s rules must have exactly two arguments", ruleType)
+		}
+		return newTypeRule(mode, args[startArg:]...)
 	case "edns0":
 		return newEdns0Rule(mode, args[startArg:]...)
+	case "ttl":
+		return newTTLRule(mode, args[startArg:]...)
 	default:
 		return nil, fmt.Errorf("invalid rule type %q", args[0])
 	}

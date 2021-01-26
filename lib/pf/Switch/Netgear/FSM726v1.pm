@@ -119,6 +119,7 @@ sub authorizeMAC {
                     "Error authorizing $authMac ( $mac_oid ) on ifIndex $ifIndex: " .
                     $self->{_sessionWrite}->error
             );
+            return 0;
         } else {
             $logger->info(
                     "Authorizing $authMac ( $mac_oid ) on ifIndex $ifIndex"
@@ -465,7 +466,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2019 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 

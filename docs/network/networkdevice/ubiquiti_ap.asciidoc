@@ -1,0 +1,120 @@
+// to display images directly on GitHub
+ifdef::env-github[]
+:encoding: UTF-8
+:lang: en
+:doctype: book
+:toc: left
+:imagesdir: ../../images
+endif::[]
+
+////
+
+    This file is part of the PacketFence project.
+
+    See PacketFence_Network_Devices_Configuration_Guide-docinfo.xml for 
+    authors, copyright and license information.
+
+////
+
+
+//=== Ubiquiti
+
+==== Web Authentication
+
+===== Unifi side
+
+In order to configure web authentication (external captive-portal) on Ubiquiti access points, you must have access to a Unifi controller and your APs must be connected to it.
+
+First, you must configure the guest policy. Go in _Settings -> hotspot -> general_ and configure it as shown below:
+
+image::ubiquiti-unifi-guest-policy.png[scaledwidth="100%",alt="Unifi web-auth policy"]
+
+Next, you must allow the device to reach the portal. Go in _Settings -> hotspot -> advanced_ and configure it as shown below:
+
+image::ubiquiti-unifi-guest-policy_access.png[scaledwidth="100%",alt="Unifi web-auth policy"]
+
+Make sure you enabled _Enable Guest Portal_, and that you've set _External portal server_.
+
+You also need to enter the IP address of a portal enabled interface on the PacketFence server in _Custom Portal_. Then in the _ACCESS CONTROL_ section, add that same IP address to the _Pre-Authorization Access_
+
+Then, still in the settings, create or edit a new SSID with the following settings:
+
+image::ubiquiti-unifi-guest-ssid.png[scaledwidth="100%",alt="Unifi web-auth SSID"]
+
+You need to ensure link:https://help.ubnt.com/hc/en-us/articles/115015457668-UniFi-Troubleshooting-STUN-Communication-Errors#whatisstun[STUN protocol] is allowed between access points and
+controller so that controller gets link:https://help.ubnt.com/hc/en-us/articles/204976094#1[instant notifications] from access points. That's important to have a correct deauthentication mechanism.
+
+===== PacketFence side
+
+You have two choices to define the APs in PacketFence, by ip address (or range) or by MAC addresses.
+
+By IP address:
+
+If you decide to define the AP by ip then you will need to define the controller as a switch and define the Controller IP and Webservices information (Transport/Username/Password) in his configuration.
+
+Then once done, restart pfcron service and run that to fill the PacketFence cache:
+
+ /usr/local/pf/bin/pfcmd pfcron ubiquiti_ap_mac_to_ip
+
+And verify that you have an entry for each AP
+
+ /usr/local/pf/bin/pfcmd cache switch_distributed list
+
+
+By MAC address:
+
+Once this is done, you will need to define all your APs MAC addresses in the PacketFence switches with a configuration similar to this:
+
+  [00:11:22:33:44:55]
+  description=Ubiquiti AP
+  ExternalPortalEnforcement=Y
+  type=Ubiquiti::Unifi
+  controllerIp=1.2.3.4
+  wsTransport=HTTPS
+  wsUser=admin
+  wsPwd=admin
+
+Where :
+
+[options="compact"]
+* *wsTransport* is the protocol used to connect to port 8443 of the Unifi controller and should be HTTPS. This is configured in the 'Web Services' tab of the switch.
+* *wsUser* is a valid administrator username on your Unifi controller. This is configured in the 'Web Services' tab of the switch.
+* *wsPwd* is the password that is associated to the wsUser. This is configured in the 'Web Services' tab of the switch.
+* *controllerIp* is the IP address of your Unifi controller. This is configured in the 'Definition' tab of the switch.
+
+==== VLAN Enforcement
+
+
+In order to configure VLAN enforcement on the Unifi controller, you need first to configure a RADIUS profile, then a secure wireless network.
+
+Important : You cannot reuse a VLAN ID for dynamic VLAN if it is set as a static value for another SSID on the same AP. So, if you have a SSID set to use VLAN 10, you cannot use VLAN ID 10 for RADIUS controlled VLAN users as those users will not get an IP address.
+
+===== AAA Configuration
+
+
+image::unifi-radius.png[scaledwidth="100%",alt="Unifi Radius Profile"]
+
+image::unifi-radius2.png[[scaledwidth="100%",alt="Unifi Radius Profile"]
+
+===== Open SSID
+
+Create a open profile:
+
+image::unifi-open.png[scaledwidth="100%",alt="Unifi Open Profile"]
+
+image::unifi-open2.png[[scaledwidth="100%",alt="Unifi Open Profile"]
+
+
+===== Secure SSID
+
+
+Create a secured profile:
+
+image::unifi-secure.png[scaledwidth="100%",alt="Unifi Secure SSID"]
+
+image::unifi-secure2.png[scaledwidth="100%",alt="Unifi Secure SSID"]
+
+===== CoA Support
+
+CoA support has been introduced in the new version of the controller (Tested on 5.13.10), so on access reevaluation if you selected RADIUS as disconnect method then PacketFence will try a CoA.
+

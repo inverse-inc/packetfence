@@ -69,6 +69,7 @@
         <div class="[ o-layout o-layout--middle ]">
           <div class="[ o-layout__item o-layout--left ] [ u-1/1 u-1/2@tablet ]">
             <ul class="o-list-bare u-margin-none">
+              [% IF node.category %]<li class="o-list-bare__item">[% i18n("Current Role ") %]<b>[% node.category %]</b></li>[% END %]
               [% IF node.device_class %]<li class="o-list-bare__item">[% i18n("OS Type ") %]<b>[% node.device_class %]</b></li>[% END %]
               [% IF node.computername %]<li class="o-list-bare__item">[% i18n("Computer name ") %]<b>[% node.computername %]</b></li>[% END %]
               [% IF node.bandwidth_balance %]<li class="o-list-bare__item">[% i18n("Bandwidth balance ") %]<b>[% node.bandwidth_balance %]</b></li>[% END %]
@@ -88,6 +89,7 @@
         <div class="[ o-layout o-layout--middle ]">
           <div class="[ o-layout__item o-layout--left ] [ u-1/1 u-1/2@tablet ]">
             <ul class="o-list-bare u-margin-none">
+              [% IF n.category %]<li class="o-list-bare__item">[% i18n("Current Role ") %]<b>[% n.category %]</b></li>[% END %]
               [% IF n.device_class %]<li class="o-list-bare__item">[% i18n("OS Type ") %]<b>[% n.device_class %]</b></li>[% END %]
               [% IF n.computername %]<li class="o-list-bare__item">[% i18n("Computer name ") %]<b>[% n.computername %]</b></li>[% END %]
               [% IF n.bandwidth_balance %]<li class="o-list-bare__item">[% i18n("Bandwidth balance ") %]<b>[% n.bandwidth_balance %]</b></li>[% END %]
@@ -105,6 +107,7 @@
         <div class="[ o-layout ]">
           <div class="[ o-layout__item o-layout--left ] [ u-1/1 u-1/2@tablet ]">
             <ul class="o-list-bare u-margin-none">
+                <li class="o-list-bare__item">[% i18n("Current Role ") %]<b>[% IF n.category ; n.category ; ELSE ; "None" ; END %]</b></li>
                 [% IF n.device_class %]<li class="o-list-bare__item">[% i18n("OS Type ") %]<b>[% n.device_class %]</b></li>[% END %]
                 [% IF n.computername %]<li class="o-list-bare__item">[% i18n("Computer name ") %]<b>[% n.computername %]</b></li>[% END %]
                 [% IF n.bandwidth_balance %]<li class="o-list-bare__item">[% i18n("Bandwidth balance ") %]<b>[% n.bandwidth_balance %]</b></li>[% END %]

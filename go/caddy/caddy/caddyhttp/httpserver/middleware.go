@@ -1,3 +1,17 @@
+// Copyright 2015 Light Code Labs, LLC
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
 package httpserver
 
 import (
@@ -6,6 +20,8 @@ import (
 	"os"
 	"path"
 	"time"
+
+	"github.com/inverse-inc/packetfence/go/caddy/caddy"
 )
 
 func init() {
@@ -17,6 +33,10 @@ type (
 	// idea of middleware: it chains one Handler to the next by being
 	// passed the next Handler in the chain.
 	Middleware func(Handler) Handler
+
+	// ListenerMiddleware is similar to the Middleware type, except it
+	// chains one net.Listener to the next.
+	ListenerMiddleware func(caddy.Listener) caddy.Listener
 
 	// Handler is like http.Handler except ServeHTTP may return a status
 	// code and/or error.
@@ -97,6 +117,10 @@ func (c ConfigSelector) Select(r *http.Request) (config HandlerConfig) {
 // path separator, just like URLs.  IndexFle handles path manipulation
 // internally for systems that use different path separators.
 func IndexFile(root http.FileSystem, fpath string, indexFiles []string) (string, bool) {
+	if len(fpath) == 0 {
+		// https://caddy.community/t/panic-runtime-error-index-out-of-range/5781
+		fpath = "/"
+	}
 	if fpath[len(fpath)-1] != '/' || root == nil {
 		return "", false
 	}
@@ -138,7 +162,7 @@ func SetLastModifiedHeader(w http.ResponseWriter, modTime time.Time) {
 
 // CaseSensitivePath determines if paths should be case sensitive.
 // This is configurable via CASE_SENSITIVE_PATH environment variable.
-var CaseSensitivePath = true
+var CaseSensitivePath = false
 
 const caseSensitivePathEnv = "CASE_SENSITIVE_PATH"
 
@@ -147,10 +171,10 @@ const caseSensitivePathEnv = "CASE_SENSITIVE_PATH"
 // This could have been in init, but init cannot be called from tests.
 func initCaseSettings() {
 	switch os.Getenv(caseSensitivePathEnv) {
-	case "0", "false":
-		CaseSensitivePath = false
-	default:
+	case "1", "true":
 		CaseSensitivePath = true
+	default:
+		CaseSensitivePath = false
 	}
 }
 
@@ -191,3 +215,18 @@ var EmptyNext = HandlerFunc(func(w http.ResponseWriter, r *http.Request) (int, e
 func SameNext(next1, next2 Handler) bool {
 	return fmt.Sprintf("%v", next1) == fmt.Sprintf("%v", next2)
 }
+
+// Context key constants.
+const (
+	// ReplacerCtxKey is the context key for a per-request replacer.
+	ReplacerCtxKey caddy.CtxKey = "replacer"
+
+	// RemoteUserCtxKey is the key for the remote user of the request, if any (basicauth).
+	RemoteUserCtxKey caddy.CtxKey = "remote_user"
+
+	// MitmCtxKey is the key for the result of MITM detection
+	MitmCtxKey caddy.CtxKey = "mitm"
+
+	// RequestIDCtxKey is the key for the U4 UUID value
+	RequestIDCtxKey caddy.CtxKey = "request_id"
+)

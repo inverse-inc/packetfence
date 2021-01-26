@@ -1,46 +1,49 @@
 <template>
-  <b-form-group :label-cols="(columnLabel) ? labelCols : 0" :label="$t(columnLabel)"
-    :state="isValid()" :invalid-feedback="getInvalidFeedback()"
-    class="pf-form-prefix-multiplier" :class="{ 'mb-0': !columnLabel, 'is-focus': focus}">
+  <b-form-group :label-cols="(columnLabel) ? labelCols : 0" :label="$t(columnLabel)" :state="inputState"
+    class="pf-form-prefix-multiplier" :class="{ 'mb-0': !columnLabel, 'is-focus': isFocus}">
+    <template v-slot:invalid-feedback>
+      <icon name="circle-notch" spin v-if="!inputInvalidFeedback"></icon> {{ inputInvalidFeedback }}
+    </template>
     <b-input-group class="pf-form-prefix-multiplier-input-group">
       <b-input-group-prepend v-if="prependText">
         <div class="input-group-text">
           {{ prependText }}
         </div>
       </b-input-group-prepend>
-      <b-form-input
-        v-model="inputValue"
+      <b-form-input ref="input"
+        v-model="humanValue"
         v-bind="$attrs"
-        ref="input"
-        :type="type"
-        :state="isValid()"
-        @input.native="validate()"
-        @keyup.native="onChange($event)"
-        @change.native="onChange($event)"
-        @focus.native="focus = true"
-        @blur.native="focus = false"
+        :state="inputState"
+        type="number" pattern="[0-9]"
+        @focus="isFocus = true"
+        @blur="isFocus = false"
       ></b-form-input>
-      <b-input-group-append>
-        <b-button-group v-if="prefixes.length > 0" rel="prefixButtonGroup">
-          <b-button v-for="(prefix, index) in prefixes" v-if="inRange(index)" :key="index" :variant="[prefix.selected ? 'primary' : 'light']" v-b-tooltip.hover.bottom.d300 :title="$t(prefix.name + units.name)" @click.stop="changeMultiplier($event, index)" tabindex="-1">{{ $t(prefix.label + units.label) }}</b-button>
-        </b-button-group>
-      </b-input-group-append>
+      <b-dropdown size="sm" v-if="prefixes.length > 0" variant="light">
+        <template v-slot:button-content>
+          <span class="mr-1">{{ currentPrefix.label  + units.label }}</span>
+        </template>
+        <template v-for="(prefix, index) in prefixesInRange">
+          <b-dropdown-item-button :key="index" :active="currentPrefix.label === prefix.label" @click="changeMultiplier(index)">{{ $t(prefix.label + units.label) }}</b-dropdown-item-button>
+        </template>
+      </b-dropdown>
     </b-input-group>
     <b-form-text v-if="text" v-html="text"></b-form-text>
   </b-form-group>
 </template>
 
 <script>
-import pfMixinValidation from '@/components/pfMixinValidation'
+import pfMixinForm from '@/components/pfMixinForm'
 
 export default {
   name: 'pf-form-prefix-multiplier',
   mixins: [
-    pfMixinValidation
+    pfMixinForm
   ],
+  /*
   model: {
     prop: 'realValue'
   },
+*/
   props: {
     realValue: {
       type: String
@@ -59,10 +62,6 @@ export default {
       type: String,
       default: null
     },
-    type: {
-      type: String,
-      default: 'number'
-    },
     prependText: {
       type: String
     },
@@ -75,12 +74,11 @@ export default {
     },
     max: {
       type: Number,
-      default: 4294967295 // Number.MAX_SAFE_INTEGER
+      default: 16 * Math.pow(1024, 6) // 16XB
     }
   },
   data () {
     return {
-      inputValue: '',
       prefixes: [
         {
           label: '',
@@ -137,83 +135,98 @@ export default {
           selected: false
         }
       ],
-      focus: false
+      isFocus: false
+    }
+  },
+  computed: {
+    inputValue: {
+      get () {
+        if (this.formStoreName) {
+          return this.formStoreValue // use FormStore
+        } else {
+          return this.value // use native (v-model)
+        }
+      },
+      set (newValue = null) {
+        newValue = (newValue === 0) ? null : newValue
+        if (this.formStoreName) {
+          this.formStoreValue = newValue // use FormStore
+        } else {
+          this.$emit('input', newValue) // use native (v-model)
+        }
+      }
+    },
+    currentPrefix () {
+      return this.prefixes.find(prefix => prefix.selected)
+    },
+    prefixesInRange () {
+      return this.prefixes.filter(prefix => prefix.multiplier <= this.max)
+    },
+    humanValue: {
+      get () {
+        if (+this.inputValue !== 0) {
+          // unselect all
+          this.unSelectPrefix()
+          // sort prefixes descending using multiplier, to iterate in order
+          const prefixes = JSON.parse(JSON.stringify(this.prefixes)).sort((a, b) => a.multiplier === b.multiplier ? 0 : a.multiplier < b.multiplier ? 1 : -1)
+          // find LCD for value
+          for (let i = 0; i < prefixes.length; i++) {
+            let quotient = this.inputValue / prefixes[i].multiplier
+            if (Math.abs(quotient) >= 1 && quotient === Math.round(quotient)) {
+              const index = this.prefixes.findIndex((p) => { return p.multiplier === prefixes[i].multiplier })
+              // eslint-disable-next-line vue/no-side-effects-in-computed-properties
+              this.prefixes[index].selected = true
+              return quotient.toString()
+            }
+          }
+          if (this.prefixes.findIndex((prefix) => { return prefix.selected }) === -1) {
+            // no selection, select multiplier 1
+            const index = this.prefixes.findIndex((prefix) => { return prefix.multiplier === 1 })
+            if (index >= 0) {
+              // eslint-disable-next-line vue/no-side-effects-in-computed-properties
+              this.prefixes[index].selected = true
+            }
+          }
+        }
+        return this.inputValue
+      },
+      set (newValue) {
+        if (+newValue === 0) {
+          this.inputValue = null
+        } else {
+          let multiplier = 1
+          const selectedIndex = this.prefixes.findIndex((prefix) => { return prefix.selected })
+          if (selectedIndex >= 0) {
+            // scale up
+            multiplier = this.prefixes[selectedIndex].multiplier
+          }
+          this.inputValue = +newValue * multiplier
+        }
+      }
     }
   },
   methods: {
-    changeMultiplier (event, newindex) {
-      const curindex = this.prefixes.findIndex((prefix) => { return prefix.selected })
-      if (curindex >= 0) {
-        this.prefixes[curindex].selected = false
-      }
-      this.prefixes[newindex].selected = true
-      this.realValue = this.inputValue * this.prefixes[newindex].multiplier
+    focus () {
+      this.$refs.input.focus()
     },
-    setInputValueFromRealValue () {
-      // unselect all
+    changeMultiplier (newIndex) {
+      if (+this.inputValue !== 0) {
+        const curIndex = this.prefixes.findIndex((prefix) => { return prefix.selected })
+        const factor = this.prefixes[newIndex].multiplier / this.prefixes[curIndex].multiplier
+        this.inputValue *= factor
+      } else {
+        this.prefixes.find(prefix => prefix.selected).selected = false
+        this.prefixes[newIndex].selected = true
+      }
+    },
+    unSelectPrefix () {
       this.prefixes.filter((prefix) => { return prefix.selected }).forEach((prefix) => { prefix.selected = false })
-      // sort prefixes descending using multiplier, to iterate in order
-      const prefixes = JSON.parse(JSON.stringify(this.prefixes)).sort((a, b) => a.multiplier === b.multiplier ? 0 : a.multiplier < b.multiplier ? 1 : -1)
-      // find LCD for value
-      for (let i = 0; i < prefixes.length; i++) {
-        let quotient = this.realValue / prefixes[i].multiplier
-        if (quotient >= 1 && quotient === Math.round(quotient)) {
-          const realIndex = this.prefixes.findIndex((p) => { return p.multiplier === prefixes[i].multiplier })
-          this.prefixes[realIndex].selected = true
-          this.inputValue = quotient.toString()
-          break
-        }
-      }
-      if (this.prefixes.findIndex((prefix) => { return prefix.selected }) === -1) {
-        // no selection, select multiplier 1
-        const index = this.prefixes.findIndex((prefix) => { return prefix.multiplier === 1 })
-        if (index >= 0) {
-          this.prefixes[index].selected = true
-        }
-      }
-    },
-    inRange (index) {
-      return this.prefixes[index].multiplier <= this.max
     }
-  },
-  watch: {
-    realValue (a, b) {
-      if (a !== b && a !== undefined) {
-        // inputValue initialized later
-        if (!this.initialized) {
-          this.initialized = true
-          this.setInputValueFromRealValue()
-        }
-        this.$emit('input', a)
-      }
-    },
-    inputValue (a, b) {
-      if (a !== b) {
-        const selectedIndex = this.prefixes.findIndex((prefix) => { return prefix.selected })
-        let multiplier = 1
-        if (selectedIndex >= 0) {
-          // scale up
-          multiplier = this.prefixes[selectedIndex].multiplier
-        }
-        this.realValue = a * multiplier
-      }
-    }
-  },
-  created () {
-    if (this.value) {
-      this.realValue = this.value
-    }
-    this.setInputValueFromRealValue()
   }
 }
 </script>
 
 <style lang="scss" scoped>
-@import "../../node_modules/bootstrap/scss/functions";
-@import "../../node_modules/bootstrap/scss/mixins/border-radius";
-@import "../../node_modules/bootstrap/scss/mixins/transition";
-@import "../styles/variables";
-
 /**
  * Adjust is-invalid and is-focus borders
  */
@@ -250,14 +263,5 @@ export default {
     border: 1px solid $form-feedback-invalid-color;
     box-shadow: 0 0 0 $input-focus-width rgba($form-feedback-invalid-color, .25);
   }
-}
-
-/**
- * Add btn-primary color(s) on hover
- */
-.btn-group[rel=prefixButtonGroup] button:hover {
-  background-color: $input-btn-hover-bg-color;
-  color: $input-btn-hover-text-color;
-  border-color: $input-btn-hover-bg-color;
 }
 </style>

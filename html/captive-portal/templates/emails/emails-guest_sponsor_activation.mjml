@@ -36,7 +36,9 @@
             [% IF telephone %]<p class="label">[% i18n("Phone number") %]</p>
             <p class="value">[% telephone %]</p>[% END %]
             <p class="label">[% i18n("Email") %]</p>
-            <p class="value">[% pid %]</p>
+            <p class="value">[% email %]</p>
+            [% IF pid != email %]<p class="label">PID
+            <p class="value">[% pid %]</p>[% END %]
           </mj-text>
         </mj-column>
       </mj-section>

@@ -111,7 +111,8 @@ sub join_domain {
     regenerate_configuration();
 
     $info //= $ConfigDomain{$domain};
-    (my $status, $output) = run("/usr/bin/sudo /sbin/ip netns exec $domain /usr/sbin/chroot $chroot_path net ads join -s /etc/samba/$domain.conf createcomputer=$info->{ou} -U '".escape_bind_user_string($info->{bind_dn}.'%'.$info->{bind_pass})."' 2>&1");
+    my $createcomputer = $info->{ou} ne "Computers" ? "createcomputer=$info->{ou}" : "";
+    (my $status, $output) = run("/usr/bin/sudo /sbin/ip netns exec $domain /usr/sbin/chroot $chroot_path net ads join -s /etc/samba/$domain.conf $createcomputer -U '".escape_bind_user_string($info->{bind_dn}.'%'.$info->{bind_pass})."' 2>&1");
     chomp($output);
     $logger->info("domain join : $output");
 
@@ -143,7 +144,7 @@ sub rejoin_domain {
     if ($info) {
         my ($unjoin_error, $leave_output) = unjoin_domain($domain, $info);
         if ($unjoin_error) {
-            $results->{unjoin} = $unjoin_error->{message};
+            $results->{unjoin} = $unjoin_error;
             push @errors, $unjoin_error;
         } else {
             $results->{unjoin} = $leave_output;
@@ -306,7 +307,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2019 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 

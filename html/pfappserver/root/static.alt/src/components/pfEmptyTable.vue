@@ -4,9 +4,9 @@
             <b-col cols="12" md="auto">
                 <icon v-if="isLoading" name="circle-notch" scale="1.5" spin></icon>
                 <b-media v-else>
-                    <icon :name="icon" scale="2" slot="aside"></icon>
+                    <template v-slot:aside><icon :name="icon" scale="2"></icon></template>
                     <h4><slot/></h4>
-                    <p class="font-weight-light" v-if="text">{{ text }}</p>
+                    <p class="font-weight-light" v-if="subtext">{{ subtext }}</p>
                 </b-media>
             </b-col>
         </b-row>
@@ -14,7 +14,6 @@
 </template>
 
 <script>
-import i18n from '@/utils/locale'
 export default {
   name: 'pf-empty-table',
   props: {
@@ -24,11 +23,16 @@ export default {
     },
     text: {
       type: String,
-      default: i18n.t('Please refine your search.')
+      default: null
     },
     icon: {
       type: String,
       default: 'search'
+    }
+  },
+  computed: {
+    subtext () {
+      return this.text !== null ? this.text : this.$i18n.t('Please refine your search.')
     }
   }
 }

@@ -11,7 +11,7 @@ var fortiAnalyserRegexPattern2 = regexp.MustCompile(`\=`)
 
 type FortiAnalyserParser struct {
 	Pattern1, Pattern2 *regexp.Regexp
-	RateLimitable
+	parser
 }
 
 func (s *FortiAnalyserParser) Parse(line string) ([]ApiCall, error) {
@@ -52,14 +52,15 @@ func (s *FortiAnalyserParser) Parse(line string) ([]ApiCall, error) {
 					"detect": logid,
 				},
 			},
+			TenantID: s.TenantID,
 		},
 	}, nil
 }
 
 func NewFortiAnalyserParser(config *PfdetectConfig) (Parser, error) {
 	return &FortiAnalyserParser{
-		Pattern1:      fortiAnalyserRegexPattern1.Copy(),
-		Pattern2:      fortiAnalyserRegexPattern2.Copy(),
-		RateLimitable: config.NewRateLimitable(),
+		Pattern1: fortiAnalyserRegexPattern1.Copy(),
+		Pattern2: fortiAnalyserRegexPattern2.Copy(),
+		parser:   setupParser(config),
 	}, nil
 }

@@ -29,7 +29,7 @@ has_field 'gateway' =>
   (
    type => 'IPAddress',
    label => 'Client Gateway',
-   required_when => { 'fake_mac_enabled' => sub { $_[0] ne '1' } },
+   required_when => { 'dhcpd' => sub { $_[0] eq 'enabled' } },
    messages => { required => 'Please specify the gateway.' },
   );
 has_field 'netmask' =>
@@ -77,6 +77,14 @@ has_field 'nat_enabled' => (
     unchecked_value => 0,
     default => 1,
     label => 'Enable NATting',
+);
+
+has_field 'coa' => (
+    type => 'Toggle',
+    checkbox_value => "enabled",
+    unchecked_value => "disabled",
+    default => "disabled",
+    label => 'Enable CoA',
 );
 
 has_field 'dhcpd' =>
@@ -140,7 +148,7 @@ sub validate {
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2019 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 

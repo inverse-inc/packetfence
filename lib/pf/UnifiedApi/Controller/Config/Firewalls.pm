@@ -31,6 +31,10 @@ use pfappserver::Form::Config::Firewall_SSO::FortiGate;
 use pfappserver::Form::Config::Firewall_SSO::JSONRPC;
 use pfappserver::Form::Config::Firewall_SSO::PaloAlto;
 use pfappserver::Form::Config::Firewall_SSO::JuniperSRX;
+use pfappserver::Form::Config::Firewall_SSO::LightSpeedRocket;
+use pfappserver::Form::Config::Firewall_SSO::SmoothWall;
+use pfappserver::Form::Config::Firewall_SSO::FamilyZone;
+use pfappserver::Form::Config::Firewall_SSO::CiscoIsePic;
 
 our %TYPES_TO_FORMS = (
     map { $_ => "pfappserver::Form::Config::Firewall_SSO::$_" } qw(
@@ -42,6 +46,10 @@ our %TYPES_TO_FORMS = (
       JSONRPC
       PaloAlto
       JuniperSRX
+      LightSpeedRocket
+      SmoothWall
+      FamilyZone
+      CiscoIsePic
     )
 );
 
@@ -55,7 +63,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2019 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 

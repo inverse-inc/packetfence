@@ -1,7 +1,7 @@
 <template>
   <b-row>
     <pf-sidebar v-model="sections"></pf-sidebar>
-    <b-col cols="12" md="9" xl="10" class="mt-3 mb-3">
+    <b-col cols="12" md="9" xl="10" class="py-3">
       <transition name="slide-bottom">
         <router-view></router-view>
       </transition>
@@ -11,6 +11,7 @@
 
 <script>
 import pfSidebar from '@/components/pfSidebar'
+import network from '@/utils/network'
 
 export default {
   name: 'Nodes',
@@ -22,6 +23,11 @@ export default {
       type: String,
       default: null,
       required: true
+    }
+  },
+  data () {
+    return {
+      switchGroupsMembers: []
     }
   },
   computed: {
@@ -48,14 +54,14 @@ export default {
             {
               name: this.$i18n.t('Offline Nodes'),
               path: {
-                name: 'search',
+                name: 'nodeSearch',
                 query: { query: JSON.stringify({ op: 'and', values: [{ op: 'or', values: [{ field: 'online', op: 'not_equals', value: 'on' }] }] }) }
               }
             },
             {
               name: this.$i18n.t('Online Nodes'),
               path: {
-                name: 'search',
+                name: 'nodeSearch',
                 query: { query: JSON.stringify({ op: 'and', values: [{ op: 'or', values: [{ field: 'online', op: 'equals', value: 'on' }] }] }) }
               }
             }
@@ -63,18 +69,34 @@ export default {
         },
         {
           name: this.$i18n.t('Switch Groups'),
+          can: 'master tenant',
           collapsable: true,
-          items: this.switchGroups.map(switchGroup => {
+          loading: this.isLoadingSwitchGroups,
+          items: this.switchGroupsMembers.map(switchGroup => {
             return {
-              name: switchGroup.group || this.$i18n.t('Default'),
+              name: switchGroup.id || this.$i18n.t('Default'),
               collapsable: true,
-              items: switchGroup.switches.filter(sw => sw.id !== 'default').map(sw => {
+              items: switchGroup.members.map(switchGroupMember => {
+                let query
+                if ((/^([0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\/[0-9]{1,2})$/.exec(switchGroupMember.id))) { // CIDR
+                  const [start, end] = network.cidrToRange(switchGroupMember.id)
+                  query = { query: JSON.stringify({ op: 'and', values: [
+                    { op: 'or', values: [{ field: 'locationlog.switch_ip', op: 'greater_than_equals', value: start }] },
+                    { op: 'or', values: [{ field: 'locationlog.switch_ip', op: 'less_than_equals', value: end }] }
+                  ] }) }
+                }
+                else if ((/^([0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3})$/.exec(switchGroupMember.id))) { // IPv4
+                  query = { query: JSON.stringify({ op: 'and', values: [{ op: 'or', values: [{ field: 'locationlog.switch_ip', op: 'equals', value: switchGroupMember.id }] }] }) }
+                }
+                else { // non-CIDR
+                  query = { query: JSON.stringify({ op: 'and', values: [{ op: 'or', values: [{ field: 'locationlog.switch', op: 'equals', value: switchGroupMember.id }] }] }) }
+                }
                 return {
-                  name: sw.id,
-                  caption: sw.description,
+                  name: switchGroupMember.id,
+                  caption: switchGroupMember.description,
                   path: {
-                    name: 'search',
-                    query: { query: JSON.stringify({ op: 'and', values: [{ op: 'or', values: [{ field: 'locationlog.switch', op: 'equals', value: this.getIpFromCIDR(sw.id) }] }] }) }
+                    name: 'nodeSearch',
+                    query
                   }
                 }
               })
@@ -86,21 +108,27 @@ export default {
     roles () {
       return this.$store.state.config.roles
     },
-    switches () {
-      return this.$store.state.config.switches
-    },
-    switchGroups () {
-      return this.$store.getters['config/groupedSwitches']
-    }
-  },
-  methods: {
-    getIpFromCIDR (cidr) {
-      return cidr.split('/', 1)[0] || cidr
+    isLoadingSwitchGroups () {
+      return this.$store.getters['config/isLoadingSwitchGroups']
     }
   },
   created () {
     this.$store.dispatch('config/getRoles')
-    this.$store.dispatch('config/getSwitches')
+    if (this.$can('master', 'tenant')) {
+      this.$store.dispatch('config/getSwitches').then(switches => {
+        this.$set(this, 'switchGroupsMembers', switches.reduce((groups, switche) => {
+          const { group = 'Default', id, description } = switche
+          const groupIndex = groups.findIndex(g => g.id === group)
+          if (groupIndex > -1) {
+            groups[groupIndex].members.push({ id, description })
+          }
+          else {
+            groups.push({ id: group, members: [{ id, description }] })
+          }
+          return groups
+        }, []))
+      })
+    }
   }
 }
 </script>

@@ -131,19 +131,19 @@ sub description { 'Cisco Wireless Controller (WLC)' }
 
 # CAPABILITIES
 # access technology supported
-sub supportsWirelessDot1x { return $TRUE; }
-sub supportsWirelessMacAuth { return $TRUE; }
-sub supportsRoleBasedEnforcement { return $TRUE; }
-sub supportsWiredMacAuth { return $TRUE; }
-sub supportsWiredDot1x { return $TRUE; }
-
-# disabling special features supported by generic Cisco's but not on WLCs
-sub supportsSaveConfig { return $FALSE; }
-sub supportsCdp { return $FALSE; }
-sub supportsLldp { return $FALSE; }
+use pf::SwitchSupports qw(
+    WirelessDot1x
+    WirelessMacAuth
+    RoleBasedEnforcement
+    WiredMacAuth
+    WiredDot1x
+    ExternalPortal
+    -SaveConfig
+    -Cdp
+    -Lldp
+);
 # inline capabilities
 sub inlineCapabilities { return ($MAC,$SSID); }
-sub supportsExternalPortal { return $TRUE; }
 
 =item deauthenticateMacDefault
 
@@ -196,11 +196,7 @@ sub _deauthenticateMacSNMP {
 
     #format MAC
     if ( length($mac) == 17 ) {
-        my @macArray = split( /:/, $mac );
-        my $completeOid = $OID_bsnMobileStationDeleteAction;
-        foreach my $macPiece (@macArray) {
-            $completeOid .= "." . hex($macPiece);
-        }
+        my $completeOid = $OID_bsnMobileStationDeleteAction . "." . mac2dec($mac);
         $logger->trace(
             "SNMP set_request for bsnMobileStationDeleteAction: $completeOid"
         );
@@ -337,7 +333,7 @@ Return the reference to the deauth technique or the default deauth technique.
 =cut
 
 sub deauthTechniques {
-    my ($self, $method) = @_;
+    my ($self, $method, $connection_type) = @_;
     my $logger = $self->logger;
     my $default = $SNMP::RADIUS;
     my %tech = (
@@ -615,7 +611,7 @@ sub parseExternalPortalRequest {
 
     # Cisco WLC uses external portal session ID handling process
     my $uri = $r->uri;
-    return unless ($uri =~ /.*sid(.*[^\/])/);
+    return unless ($uri =~ /.*sid(\w+[^\/\&])/);
     my $session_id = $1;
 
     my $locationlog = pf::locationlog::locationlog_get_session($session_id);
@@ -660,7 +656,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2019 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 

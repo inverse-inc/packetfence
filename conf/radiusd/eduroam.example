@@ -25,7 +25,8 @@ authorize {
 		&control:Tmp-Integer-0 := "%l"
 		&control:PacketFence-Request-Time := 0
 	}
-    packetfence-set-tenant-id
+	packetfence-set-realm-if-machine
+	packetfence-set-tenant-id
 	rewrite_calling_station_id
 	rewrite_called_station_id
 	#
@@ -65,6 +66,8 @@ authorize {
 	suffix
 	ntdomain
 
+%%authorize_filter%%
+
 	# Eduroam needs a "full" username with a domain part (username@domain)
 	# If request does not contain username with @domain part, reject it
 	# rather than sending it to Eduroam
@@ -73,7 +76,7 @@ authorize {
 %%local_realm%%
         }
         else {
-                reject
+%%local_realm_exception%%
         }
 	#
 	#  This module takes care of EAP-MD5, EAP-TLS, and EAP-LEAP
@@ -91,9 +94,8 @@ authorize {
 	#  initial set of packets that go back and forth to set up
 	#  TTLS or PEAP.
 	#
-	eap {
-		ok = return
-	}
+
+%%authorize_eap_choice%%
 
 	#
 	#  Read the 'users' file.  In v3, this is located in
@@ -180,7 +182,7 @@ authenticate {
 		mschap
 	}
 
-
+%%authentication_auth_type%%
 
 	#  Uncomment it if you want to use ldap for authentication
 	#
@@ -250,6 +252,7 @@ preacct {
 	#  home server as authentication requests.
 	#	IPASS
 	suffix
+%%preacct_filter%%
 	ntdomain
 
 	#
@@ -273,7 +276,7 @@ accounting {
     packetfence-set-tenant-id
 	rewrite_calling_station_id
 	rewrite_called_station_id
-
+%%local_realm_acct%%
 	#
 	#  If you receive stop packets with zero session length,
 	#  they will NOT be logged in the database.  The SQL module
@@ -335,6 +338,7 @@ post-auth {
 	#update {
 	#	&reply: += &session-state:
 	#}
+%%eduroam_post_auth%%
 	if (Realm == "eduroam") {
 		# Update the realm in the request so its consistent with the logic that will be performed in httpd.aaa
 		update request {
@@ -390,6 +394,7 @@ post-auth {
 #  Only a few modules currently have this method.
 #
 pre-proxy {
+%%pre_proxy_filter%%
 }
 
 #
@@ -432,5 +437,6 @@ post-proxy {
 #	Post-Proxy-Type Fail-Accounting {
 #			detail
 #	}
+%%post_proxy_filter%%
 }
 }

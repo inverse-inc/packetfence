@@ -24,20 +24,18 @@ BEGIN {
     use setup_test_config;
 }
 
-use Test::More tests => 23;
+use Test::More tests => 33;
 use Test::Mojo;
 use pf::node;
 use List::MoreUtils qw(all);
+use Utils;
 
 #This test will running last
 use Test::NoWarnings;
 
 my $t = Test::Mojo->new('pf::UnifiedApi');
 
-my $test_mac = sprintf(
-    "ff:ff:%02x:%02x:%02x:%02x",
-    unpack("C4", pack("N", $$))
-);
+my $test_mac = Utils::test_mac();
 
 my $test_user = "test_user_$$";
 
@@ -79,13 +77,37 @@ for my $pid ('default', $test_user) {
     ok( (all {$_->{pid} eq $pid} @$items), "All nodes are owned by the '$pid' user");
 }
 
+{
+    my $test_user = "host/test_user_$$";
+    my $id = $test_user;
+    $id =~ s#/#~#g;
+    my $test_mac = Utils::test_mac();
+
+    $t->post_ok('/api/v1/users/' => json => {pid => $test_user})
+      ->status_is(201)
+      ->header_is('Location' => "/api/v1/user/$id");
+
+    $t->post_ok("/api/v1/user/$id/nodes" => json => {mac => $test_mac})
+      ->status_is(201)
+      ->header_is('Location' => "/api/v1/user/$id/node/$test_mac");
+
+    my $location = $t->tx->res->headers->location;
+
+    $t->get_ok($location)
+      ->status_is(200);
+
+    $t->get_ok("/api/v1/user/$id/nodes")
+      ->status_is(200);
+}
+
+
 =head1 AUTHOR
 
 Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2019 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 

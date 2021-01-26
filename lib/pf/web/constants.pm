@@ -78,6 +78,7 @@ Readonly::Scalar our $URL_STATUS_RESET_PASSWORD => '/status/reset_password';
 Readonly::Scalar our $URL_STATUS_LOGIN          => '/status/login';
 Readonly::Scalar our $URL_STATUS_LOGOUT         => '/status/logout';
 Readonly::Scalar our $URL_STATUS_BILLING        => '/status/billing';
+Readonly::Scalar our $URL_STATUS_BILLING_CANCEL => '/status/billing/cancel_subscription/(.+)';
 Readonly::Scalar our $URL_NODE_MANAGER          => '/node/manager/(.+)';
 Readonly::Scalar our $URL_SAML_REDIRECT         => '/saml/redirect';
 Readonly::Scalar our $URL_SAML                  => '/saml/(.+)';
@@ -92,7 +93,6 @@ Readonly::Scalar our $URL_SIGNUP                => '/signup';
 Readonly::Scalar our $URL_EMAIL_ACTIVATION      => '/activate/email(.*)';
 Readonly::Scalar our $URL_EMAIL_ACTIVATION_LINK => '/activate/email';
 Readonly::Scalar our $URL_SMS_ACTIVATION        => '/activate/sms';
-Readonly::Scalar our $URL_PREREGISTER           => '/preregister';
 Readonly::Scalar our $URL_ADMIN_MANAGE_GUESTS   => '/guests/manage';
 
 Readonly::Scalar our $URL_GAMING_REGISTRATION   => '/gaming-registration';
@@ -116,6 +116,8 @@ Readonly::Scalar our $EXT_URL_MIKROTIK              => '^/Mikrotik';
 Readonly::Scalar our $EXT_URL_FORTIGATE             => '^/Fortinet::FortiGate';
 Readonly::Scalar our $EXT_URL_CAMBIUM               => '^/Cambium';
 Readonly::Scalar our $EXT_URL_MOJO                  => '^/Mojo';
+Readonly::Scalar our $EST_URL_DELL                  => '^/Dell:N1500';
+Readonly::Scalar our $EXT_URL_EXOS                  => '^/Extreme::EXOS';
 
 # Ubiquiti doesn't support setting the URL so we much detect it using this URL which will then map to the Ubiquiti module in pf::web::externalportal
 Readonly::Scalar our $EXT_URL_UBIQUITI              => '^/guest/s/[a-zA-Z0-9]+/';
@@ -181,7 +183,7 @@ code (ex: fr) will be used for any locale matching the language code (ex: fr_FR 
 
 Readonly::Array our @LOCALES =>
   (
-   qw(en_US es_ES fr_FR fr_CA de_DE he_IL it_IT nl_NL pl_PL pt_BR)
+   qw(en_US es_ES fr_FR fr_CA de_DE he_IL it_IT nb_NO nl_NL pl_PL pt_BR)
   );
 
 =item ALLOWED_RESOURCES_PROFILE_FILTER
@@ -265,7 +267,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2019 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 

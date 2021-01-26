@@ -15,7 +15,7 @@ $(function() {
   function initButtons() {
     // Don't propagate mouse clicks on disabled buttons and links
     $('.c-btn').on('click', function(event) {
-      if ($(this).hasClass('disabled')) {
+      if ($(this).hasClass('disabled') || this.disabled) {
         event.stopPropagation();
         return false;
       }
@@ -66,7 +66,7 @@ $(function() {
   }
 
   function initSvgSprite() {
-    $.get('/common/img/sprite.svg', function(data) {
+    $.get('./common/img/sprite.svg', function(data) {
       document.body.appendChild(data.documentElement);
     });
   }

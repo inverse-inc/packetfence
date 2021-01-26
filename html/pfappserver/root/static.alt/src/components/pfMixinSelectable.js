@@ -43,20 +43,20 @@
  *
  *     <b-table ... @head-clicked="clearSelected" ... />
  *
- *   6. declare a 'HEAD_actions' slot in <b-table/>:
+ *   6. declare a 'head(actions)' slot in <b-table/>:
  *
  *     <b-table ... >
- *       <template slot="HEAD_actions" slot-scope="head">
+ *       <template v-slot:head(actions)="head">
  *         <input type="checkbox" id="checkallnone" v-model="selectAll" @change="onSelectAllChange" @click.stop>
- *         <b-tooltip target="checkallnone" placement="right" v-if="selectValues.length === tableValues.length">{{$t('Select None [ALT+N]')}}</b-tooltip>
- *         <b-tooltip target="checkallnone" placement="right" v-else>{{$t('Select All [ALT+A]')}}</b-tooltip>
+ *         <b-tooltip target="checkallnone" placement="right" v-if="selectValues.length === tableValues.length">{{$t('Select None [Alt + N]')}}</b-tooltip>
+ *         <b-tooltip target="checkallnone" placement="right" v-else>{{$t('Select All [Alt + A]')}}</b-tooltip>
  *       </template>
  *     </b-table>
  *
  *   7. declare a 'actions' slot in <b-table/>:
  *
  *     <b-table ... >
- *       <template slot="actions" slot-scope="data">
+ *       <template v-slot:cell(actions)="data">
  *         <input type="checkbox" :id="data.value" :value="data.item" v-model="selectValues" @click.stop="onToggleSelected($event, data.index)">
  *         <icon name="exclamation-triangle" class="ml-1" v-if="tableValues[data.index]._rowMessage" v-b-tooltip.hover.right :title="tableValues[data.index]._rowMessage"></icon>
  *       </template>
@@ -75,26 +75,31 @@
  *
 **/
 export default {
-  name: 'pfMixinSelectable',
+  name: 'pf-mixin-selectable',
   props: {
     storeName: { // from router
       type: String,
-      default: null,
-      required: true
-    },
-    selectValues: {
-      type: Array,
-      default: []
-    },
-    selectAll: {
-      type: Boolean,
-      default: false
-    },
-    lastIndex: {
-      type: Number,
       default: null
     },
-    noInitBindKeys: Boolean
+    eventsListen: {
+      type: Boolean,
+      default: true
+    }
+  },
+  data () {
+    return {
+      selectValues: [],
+      selectAll: false,
+      lastIndex: null
+    }
+  },
+  computed: {
+    altAKey () {
+      return this.$store.getters['events/altAKey']
+    },
+    altNKey () {
+      return this.$store.getters['events/altNKey']
+    }
   },
   methods: {
     forceUpdate () {
@@ -118,7 +123,7 @@ export default {
       this.selectValues = []
       this.selectAll = false
       this.lastIndex = null
-      this.selectValues.forEach((item, index, items) => {
+      this.selectValues.forEach((item, index) => {
         this.setRowVariant(index, '')
         this.setRowMessage(index, '')
       })
@@ -140,22 +145,6 @@ export default {
         this.selectValues = this.selectValues.reduce((x, y) => subset.includes(y) ? x : [...x, y], [])
       }
     },
-    onKeyDown (event) {
-      switch (true) {
-        case (event.altKey && event.keyCode === 65): // ALT+A
-          event.preventDefault()
-          if ('isLoading' in this && !this.isLoading) {
-            this.selectValues = this.tableValues
-          }
-          break
-        case (event.altKey && event.keyCode === 78): // ALT+N
-          event.preventDefault()
-          if ('isLoading' in this && !this.isLoading) {
-            this.selectValues = []
-          }
-          break
-      }
-    },
     searchableStoreName () {
       if (this.storeName) {
         return this.storeName + '_searchable'
@@ -169,7 +158,7 @@ export default {
       this.selectAll = (this.tableValues.length === a.length && a.length > 0)
       if (JSON.stringify(a) !== JSON.stringify(b)) {
         const selectValues = this.selectValues
-        this.tableValues.forEach((item, index, items) => {
+        this.tableValues.forEach((item, index) => {
           this.setRowMessage(index, '')
           if (selectValues.includes(item)) {
             this.setRowVariant(index, 'info')
@@ -197,6 +186,20 @@ export default {
       },
       immediate: true,
       deep: true
+    },
+    altAKey (pressed) {
+      if (pressed && this.eventsListen) {
+        if (!('isLoading' in this) || !this.isLoading) {
+          this.selectValues = this.tableValues
+        }
+      }
+    },
+    altNKey (pressed) {
+      if (pressed && this.eventsListen) {
+        if (!('isLoading' in this) || !this.isLoading) {
+          this.selectValues = []
+        }
+      }
     }
   },
   created () {
@@ -211,17 +214,9 @@ export default {
       throw new Error(`Missing column 'actions' in properties of component ${this.$options.name}`)
     }
   },
-  mounted () {
-    if (!this.noInitBindKeys) {
-      document.addEventListener('keydown', this.onKeyDown)
-    }
-  },
   beforeDestroy () {
     if (this.forceUpdateTimeout) {
       clearTimeout(this.forceUpdateTimeout)
-    }
-    if (!this.noInitBindKeys) {
-      document.removeEventListener('keydown', this.onKeyDown)
     }
   }
 }

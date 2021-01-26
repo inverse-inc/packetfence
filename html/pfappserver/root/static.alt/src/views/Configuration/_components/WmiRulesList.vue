@@ -1,22 +1,28 @@
 <template>
   <b-card no-body>
     <pf-config-list
+      ref="pfConfigList"
       :config="config"
     >
-      <template slot="pageHeader">
-        <b-card-header><h4 class="mb-0" v-t="'WMI Rules'"></h4></b-card-header>
+      <template v-slot:pageHeader>
+        <b-card-header>
+          <h4 class="mb-0">
+            {{ $t('WMI Rules') }}
+            <pf-button-help class="ml-1" url="PacketFence_Installation_Guide.html#_wmi_rules_definition" />
+          </h4>
+        </b-card-header>
       </template>
-      <template slot="buttonAdd">
+      <template v-slot:buttonAdd>
         <b-button variant="outline-primary" :to="{ name: 'newWmiRule' }">{{ $t('New WMI Rule') }}</b-button>
       </template>
-      <template slot="emptySearch" slot-scope="state">
+      <template v-slot:emptySearch="state">
         <pf-empty-table :isLoading="state.isLoading">{{ $t('No WMI rules found') }}</pf-empty-table>
       </template>
-      <template slot="on_tab" slot-scope="data">
-        <icon name="circle" :class="{ 'text-success': data.on_tab === '1', 'text-danger': data.on_tab !== '1' }"
-          v-b-tooltip.hover.left.d300 :title="$t(data.on_tab)"></icon>
+      <template v-slot:cell(on_tab)="item">
+        <icon name="circle" :class="{ 'text-success': item.on_tab === '1', 'text-danger': item.on_tab !== '1' }"
+          v-b-tooltip.hover.left.d300 :title="$t(item.on_tab)"></icon>
       </template>
-      <template slot="buttons" slot-scope="item">
+      <template v-slot:cell(buttons)="item">
         <span class="float-right text-nowrap">
           <pf-button-delete size="sm" v-if="!item.not_deletable" variant="outline-danger" class="mr-1" :disabled="isLoading" :confirm="$t('Delete WMI Rule?')" @on-delete="remove(item)" reverse/>
           <b-button size="sm" variant="outline-primary" class="mr-1" @click.stop.prevent="clone(item)">{{ $t('Clone') }}</b-button>
@@ -28,29 +34,27 @@
 
 <script>
 import pfButtonDelete from '@/components/pfButtonDelete'
+import pfButtonHelp from '@/components/pfButtonHelp'
 import pfConfigList from '@/components/pfConfigList'
 import pfEmptyTable from '@/components/pfEmptyTable'
-import {
-  pfConfigurationWmiRuleListConfig as config
-} from '@/globals/configuration/pfConfigurationWmiRules'
+import { config } from '../_config/wmiRule'
 
 export default {
-  name: 'WmiRulesList',
+  name: 'wmi-rules-list',
   components: {
     pfButtonDelete,
+    pfButtonHelp,
     pfConfigList,
     pfEmptyTable
   },
-  props: {
-    storeName: { // from router
-      type: String,
-      default: null,
-      required: true
-    }
-  },
   data () {
     return {
-      config: config(this)
+      config: config(this) // ../_config/wmiRule
+    }
+  },
+  computed: {
+    isLoading () {
+      return this.$store.getters['$_wmi_rules/isLoading']
     }
   },
   methods: {
@@ -58,8 +62,9 @@ export default {
       this.$router.push({ name: 'cloneWmiRule', params: { id: item.id } })
     },
     remove (item) {
-      this.$store.dispatch(`${this.storeName}/deleteWmiRule`, item.id).then(response => {
-        this.$router.go() // reload
+      this.$store.dispatch('$_wmi_rules/deleteWmiRule', item.id).then(() => {
+        const { $refs: { pfConfigList: { refreshList = () => {} } = {} } = {} } = this
+        refreshList() // soft reload
       })
     }
   }

@@ -27,8 +27,10 @@ use pf::util::radius qw(perform_coa);
 
 # CAPABILITIES
 # special features
-sub supportsSaveConfig { return $TRUE; }
-sub supportsCdp { return $TRUE; }
+use pf::SwitchSupports qw(
+    SaveConfig
+    Cdp
+);
 
 #
 # %TRAP_NORMALIZERS
@@ -1788,7 +1790,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2019 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 

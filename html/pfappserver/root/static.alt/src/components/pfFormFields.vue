@@ -1,7 +1,9 @@
 <template>
-  <b-form-group :label-cols="(columnLabel) ? labelCols : 0" :label="columnLabel"
-    :state="isValid()" :invalid-feedback="getInvalidFeedback()"
+  <b-form-group :label-cols="(columnLabel) ? labelCols : 0" :label="columnLabel" :state="inputStateIfInvalidFeedback"
     class="pf-form-fields" :class="{ 'mb-0': !columnLabel }">
+    <template v-slot:invalid-feedback>
+      {{ invalidFeedback }}
+    </template>
     <b-input-group class="pf-form-fields-input-group">
       <!--
          - Vacuum-up label click event.
@@ -10,43 +12,43 @@
       <input type="text" name="vaccum" :value="null" style="position: absolute; width: 1px; height: 1px; padding: 0px; border: 0px; visibility: hidden;" />
 
       <b-container v-if="!inputValue || inputValue.length === 0"
-        class="mx-1 px-0"
+        class="mx-0 px-0"
       >
-        <b-button variant="outline-secondary" @click.stop="rowAdd()" :disabled="disabled">{{ buttonLabel || $t('Add row') }}</b-button>
+        <b-button :variant="(inputState === false) ? 'outline-danger' : 'outline-secondary'" @click.stop="rowAdd()" :disabled="disabled">{{ buttonLabel || $t('Add row') }}</b-button>
+        <small v-if="inputState === false" class="ml-2 text-danger">{{ inputInvalidFeedback }}</small>
         <small v-if="emptyText" class="ml-2">{{ emptyText }}</small>
       </b-container>
 
       <draggable v-else
         v-model="inputValue"
-        :options="{handle: '.draghandle', dragClass: 'dragclass'}"
+        handle=".draghandle"
+        dragClass="dragclass"
         class="container-fluid px-0"
         @start="onDragStart"
         @end="onDragEnd"
       >
         <b-container
-          v-for="(_, index) in inputValue" :key="uuids[index]"
+          v-for="(value, index) in inputValue" :key="index"
           class="mx-0 px-1 pf-form-field-component-container"
           @mouseleave="onMouseLeave()"
         >
-          <component
+          <component :ref="'component-' + index"
+            :is="field.component"
+            :form-store-name="formStoreName"
+            :form-namespace="`${formNamespace}.${index}`"
             v-model="inputValue[index]"
             v-bind="field.attrs"
             v-on="field.listeners"
-            :is="field.component"
-            :key="uuids[index]"
-            :uuid="uuids[index]"
-            :vuelidate="getVuelidateModel(index)"
-            :ref="'component-' + index"
+            :key="index"
             :drag="drag"
             :disabled="disabled"
-            @validations="setChildValidations(index, $event)"
             @mouseenter="onMouseEnter(index)"
             @mousemove="onMouseEnter(index)"
             @siblings="onSiblings($event)"
             no-gutter
             class="m-1"
           >
-            <template slot="prepend">
+            <template v-slot:prepend>
               <div class="draghandle" v-if="sortable && !disabled && hover === index && inputValue.length > 1">
                 <icon name="th" v-b-tooltip.hover.left.d300 :title="$t('Click and drag to re-order')"></icon>
               </div>
@@ -54,16 +56,16 @@
                 {{ index + 1 }}
               </div>
             </template>
-            <template slot="append">
+            <template v-slot:append>
               <icon name="minus-circle" v-if="canDel"
-                :class="['cursor-pointer mx-1', { 'text-primary': ctrlKey, 'text-secondary': !ctrlKey }]"
+                :class="['cursor-pointer mx-1', { 'text-primary': actionKey, 'text-secondary': !actionKey }]"
                 v-b-tooltip.hover.left.d300
-                :title="ctrlKey ? $t('Delete All') : $t('Delete Row')"
-                @click.native.stop.prevent="rowDel(index)"></icon>
+                :title="actionKey ? $t('Delete All') : $t('Delete Row')"
+                @click.stop.prevent="rowDel(index)"></icon>
               <icon name="plus-circle" v-if="canAdd"
-                :class="['cursor-pointer mx-1', { 'text-primary': ctrlKey, 'text-secondary': !ctrlKey }]"
-                v-b-tooltip.hover.left.d300 :title="ctrlKey ? $t('Clone Row') : $t('Add Row')"
-                @click.native.stop.prevent="rowAdd(index + 1)"></icon>
+                :class="['cursor-pointer mx-1', { 'text-primary': actionKey, 'text-secondary': !actionKey }]"
+                v-b-tooltip.hover.left.d300 :title="actionKey ? $t('Clone Row') : $t('Add Row')"
+                @click.stop.prevent="rowAdd(index + 1)"></icon>
             </template>
           </component>
         </b-container>
@@ -73,16 +75,13 @@
 </template>
 
 <script>
-import uuidv4 from 'uuid/v4'
-import draggable from 'vuedraggable'
-import pfMixinCtrlKey from '@/components/pfMixinCtrlKey'
-import pfMixinValidation from '@/components/pfMixinValidation'
+const draggable = () => import('vuedraggable')
+import pfMixinForm from '@/components/pfMixinForm'
 
 export default {
   name: 'pf-form-fields',
   mixins: [
-    pfMixinCtrlKey,
-    pfMixinValidation
+    pfMixinForm
   ],
   components: {
     draggable
@@ -93,14 +92,6 @@ export default {
       default: () => { return [] }
     },
     field: {
-      type: Object,
-      default: () => { return {} }
-    },
-    vuelidate: {
-      type: Object,
-      default: () => { return {} }
-    },
-    validators: {
       type: Object,
       default: () => { return {} }
     },
@@ -119,15 +110,15 @@ export default {
       type: String
     },
     labelCols: {
-      type: Number,
+      type: [String, Number],
       default: 3
     },
     minFields: {
-      type: Number,
+      type: [String, Number],
       default: 0
     },
     maxFields: {
-      type: Number,
+      type: [String, Number],
       default: 0
     },
     disabled: {
@@ -137,105 +128,74 @@ export default {
   },
   data () {
     return {
-      validations: {}, // validations
       hover: null, // true onmouseover
-      drag: false, // true ondrag
-      uuids: [] // uuid list used to manually handle DOM redraws (https://vuejs.org/v2/api/#key)
+      drag: false // true ondrag
     }
   },
   computed: {
     inputValue: {
       get () {
-        if (this.value && this.uuids.length < this.value.length) { // only on initial load
-          this.value.forEach((_, index) => {
-            // eslint-disable-next-line vue/no-side-effects-in-computed-properties
-            this.uuids[index] = uuidv4()
-          })
+        let value
+        if (this.formStoreName) {
+          value = this.formStoreValue // use FormStore
+        } else {
+          value = this.value // use native (v-model)
         }
-        return this.value
+        return value
       },
-      set (newValue) {
-        this.$emit('input', newValue)
+      set (newValue = null) {
+        if (this.formStoreName) {
+          this.formStoreValue = newValue // use FormStore
+        } else {
+          this.$emit('input', newValue) // use native (v-model)
+        }
       }
     },
     canAdd () {
-      return (!this.disabled && (!this.maxFields || this.maxFields > this.value.length))
+      return (!this.disabled && (!this.maxFields || this.maxFields > this.inputValue.length))
     },
     canDel () {
-      return (!this.disabled && (!this.minFields || this.minFields < this.value.length))
+      return (!this.disabled && (!this.minFields || this.minFields < this.inputValue.length))
+    },
+    actionKey () {
+      return this.$store.getters['events/actionKey']
     }
   },
   methods: {
-    rowAdd (index = 0, clone = this.ctrlKey) {
+    rowAdd (index = 0, clone = this.actionKey) {
       let inputValue = this.inputValue || []
-      let length = inputValue.length
       let newRow = (clone && (index - 1) in inputValue)
         ? JSON.parse(JSON.stringify(inputValue[index - 1])) // clone, dereference
         : null // use placeholder
       // push placeholder into middle of array
       this.inputValue = [...inputValue.slice(0, index), newRow, ...inputValue.slice(index)]
-      this.uuids = [...this.uuids.slice(0, index), uuidv4(), ...this.uuids.slice(index)]
-      // shift up validations
-      for (let i = length; i > index; i--) {
-        this.$set(this.validations, i, this.validations[i - 1])
-      }
-      this.$set(this.validations, index, {})
       // focus the type element in new row
-      if (!clone) { // Bugfix: focusing pfFormChosen steals ctrlKey's onkeyup event
-        this.$nextTick(() => { // wait until DOM updates with new row
+      if (!clone) { // Bugfix: focusing pfFormChosen steals actionKey's onkeyup event
+        setTimeout(() => { // wait until DOM updates with new row (nextTick is not enough)
           this.focus('component-' + index)
-        })
+        }, 300)
       }
-      this.emitValidations()
-      this.forceUpdate()
     },
-    rowDel (index, deleteAll = this.ctrlKey) {
+    rowDel (index, deleteAll = this.actionKey) {
       let length = this.inputValue.length
       if (deleteAll) {
         for (let i = length - 1; i >= 0; i--) { // delete all, bottom-up
           this.$delete(this.inputValue, i)
-          this.$delete(this.uuids, i)
         }
-        this.$set(this, 'validations', {})
       } else {
         this.inputValue.splice(index, 1) // delete 1 row
-        this.uuids.splice(index, 1)
-        // shift down validations
-        for (let i = index; i < length; i++) {
-          this.$set(this.validations, i, this.validations[i + 1])
-        }
-        this.$set(this.validations, length, {})
       }
-      this.emitValidations()
-      this.forceUpdate()
     },
-    onDragStart (event) {
+    onDragStart () {
       this.drag = true
       this.hover = null
     },
-    onDragEnd (event) {
-      this.drag = false
-      let { oldIndex, newIndex } = event // shifted, not swapped
-      // shift uuids
-      let uuids = this.uuids
-      uuids = [...uuids.slice(0, oldIndex), ...uuids.slice(oldIndex + 1)]
-      this.uuids = [...uuids.slice(0, newIndex), this.uuids[oldIndex], ...uuids.slice(newIndex)]
-      // adjust validations
-      let tmp = this.validations[oldIndex]
-      if (oldIndex > newIndex) {
-        // shift down (not swapped)
-        for (let i = oldIndex; i > newIndex; i--) {
-          this.$set(this.validations, i, this.validations[i - 1])
-        }
-      } else {
-        // shift up (not swapped)
-        for (let i = oldIndex; i < newIndex; i++) {
-          this.$set(this.validations, i, this.validations[i + 1])
-        }
-      }
-      this.$set(this.validations, newIndex, tmp)
-      this.emitValidations()
-      this.forceUpdate()
+    onDragEnd () {
+      setTimeout(() => { // defer drag stop until after DOM redraw
+        this.$nextTick(() => {
+          this.drag = false
+        })
+      }, 300)
     },
     onMouseEnter (index) {
       if (this.drag) return
@@ -252,62 +212,21 @@ export default {
         const { $refs: { ['component-' + index]: component } } = this
         if (component) {
           const [ { [ func ]: f } ] = component
-          if (typeof f === 'function') {
+          if (f.constructor === Function) {
             f(...args)
           }
         }
       })
     },
-    forceUpdate () {
-      this.$nextTick(() => {
-        this.$forceUpdate()
-      })
-    },
     focus (ref) {
-      const { $refs: { [ref]: [ { focus } ] } } = this
-      if (focus) focus()
-    },
-    getVuelidateModel (index) {
-      if (!(index in this.vuelidate)) {
-        this.$set(this.vuelidate, index, {})
-      }
-      return this.vuelidate[index]
-    },
-    setChildValidations (index, validations) {
-      this.$set(this.validations, index, validations)
-      this.emitValidations()
-    },
-    emitValidations () {
-      // build merge of local validations and child validations
-      let validators = {}
-      if (this.inputValue) {
-        const { field: { validators: fieldValidators } } = this
-        this.inputValue.map((_, index) => {
-          if (index in this.validations) {
-            validators[index] = { ...this.validations[index], ...fieldValidators }
-          }
-        })
-      }
-      this.$emit('validations', validators)
-    }
-  },
-  created () {
-    // initial uuid setup
-    if (this.inputValue) {
-      this.inputValue.forEach((_, index) => {
-        this.uuids[index] = uuidv4()
-      })
+      const { $refs: { [ref]: { 0: { focus = () => {} } = {} } = {} } = {} } = this
+      focus()
     }
   }
 }
 </script>
 
 <style lang="scss">
-@import "../../node_modules/bootstrap/scss/functions";
-@import "../../node_modules/bootstrap/scss/mixins/border-radius";
-@import "../../node_modules/bootstrap/scss/mixins/transition";
-@import "../styles/variables";
-
 .pf-form-fields {
   .pf-form-fields-input-group {
     border: 1px solid transparent;
@@ -349,12 +268,14 @@ export default {
     line-height: auto;
   }
   &.is-focus {
+    > [role="group"] > .pf-form-fields-input-group,
     > .form-row > [role="group"] > .pf-form-fields-input-group {
       border-color: $input-focus-border-color;
       box-shadow: 0 0 0 $input-focus-width rgba($input-focus-border-color, .25);
     }
   }
   &.is-invalid {
+    > [role="group"] > .pf-form-fields-input-group,
     > .form-row > [role="group"] > .pf-form-fields-input-group {
       border-color: $form-feedback-invalid-color;
       box-shadow: 0 0 0 $input-focus-width rgba($form-feedback-invalid-color, .25);

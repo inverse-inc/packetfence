@@ -17,16 +17,21 @@ use warnings;
 
 use pf::security_event qw (security_event_view_top);
 use pf::locationlog qw(locationlog_set_session);
-use pf::util qw(isenabled generate_session_id);
+use pf::util qw(isenabled generate_session_id random_from_range extract);
+use pf::mini_template qw(%FUNCS);
+use List::MoreUtils qw(uniq);
 use pf::CHI;
 use pf::radius::constants;
 use Scalar::Util qw(reftype);
-use Number::Range;
+use pf::log;
 
 use base qw(pf::access_filter);
 tie our %ConfigRadiusFilters, 'pfconfig::cached_hash', 'config::RadiusFilters';
 tie our %RadiusFilterEngineScopes, 'pfconfig::cached_hash', 'FilterEngine::RadiusScopes';
 
+our %LOOKUP = (
+    session_id => \&setSession,
+);
 
 =head1 SUBROUTINES
 
@@ -39,6 +44,7 @@ Test all the rules
 sub test {
     my ($self, $scope, $args) = @_;
     my $engine = $self->getEngineForScope($scope);
+    $args = $self->adjustCommonParams($args);
     if ($engine) {
         $args->{'security_event'} =  security_event_view_top($args->{'mac'});
         my $answer = $engine->match_first($args);
@@ -61,48 +67,88 @@ sub handleAnswerInRule {
     my $status = $RADIUS::RLM_MODULE_OK;
     if (defined $rule) {
         $radius_reply = {'Reply-Message' => "Request processed by PacketFence"};
-        my $i = 1;
         $logger->info(evalParam($rule->{'log'},$args)) if defined($rule->{'log'});
-        while (1) {
-            if (defined($rule->{"answer$i"}) && $rule->{"answer$i"} ne '') {
-                my @answer = $rule->{"answer$i"} =~ /([.0-9a-zA-Z_:-]*)\s*=>\s*(.*)/;
-                $args->{'session_id'} = setSession($args) if ($answer[1] =~ /\$session_id/);
-                evalAnswer(\@answer,$args,\$radius_reply);
-            } else {
-                last;
-            }
-            $i++;
+        my $answers = $rule->{answers} // [];
+        pf::mini_template::update_variables_for_set($answers, \%LOOKUP, $args, $self, $args);
+        for my $a (@$answers) {
+            $self->addAnswer($rule, $radius_reply, $a, $args);
         }
-        if (defined($rule->{'status'}) && $rule->{'status'} ne '') {
-            $status = '$RADIUS::'.$rule->{'status'};
+
+        my $radius_status = $rule->{'radius_status'};
+        if (defined($radius_status) && $radius_status ne '') {
+            $status = '$RADIUS::'.$radius_status;
             $status = eval($status);
         }
+
         if (defined($rule->{'merge_answer'}) && !(isenabled($rule->{'merge_answer'}))) {
-            return ($radius_reply,$status);
-        } else {
-            foreach my $key (keys %$radius_reply_ref) {
-                if (exists($radius_reply->{$key})) {
-                    my $type = reftype($radius_reply->{$key});
-                    if (defined($type) && $type eq 'ARRAY') {
-                        my @attribute;
-                        push(@attribute,@{$radius_reply_ref->{$key}});
-                        push(@attribute,@{$radius_reply->{$key}});
-                        $radius_reply_ref->{$key} = \@attribute;
-                        delete $radius_reply->{$key};
-                    }
+            return ($radius_reply, $status);
+        }
+
+        foreach my $key (keys %$radius_reply_ref) {
+            if (exists($radius_reply->{$key})) {
+                my $type = reftype($radius_reply->{$key});
+                if (defined($type) && $type eq 'ARRAY') {
+                    my @attribute;
+                    push(@attribute,@{$radius_reply_ref->{$key}});
+                    push(@attribute,@{$radius_reply->{$key}});
+                    $radius_reply_ref->{$key} = \@attribute;
+                    delete $radius_reply->{$key};
                 }
             }
-            $radius_reply_ref = {%$radius_reply_ref, %$radius_reply} if (keys %$radius_reply);
-            return ($radius_reply_ref,$status);
+        }
+        $radius_reply_ref = {%$radius_reply_ref, %$radius_reply} if (keys %$radius_reply);
+        return ($radius_reply_ref, $status);
+    }
+
+    return ($radius_reply_ref, $status);
+}
+
+sub addAnswer {
+    my ($self, $rule, $radius_reply, $a, $args) = @_;
+    my $name = $a->{name};
+    my $value = $a->{tmpl}->pre_process($args, \%FUNCS);
+    $self->updateAnswerNameValue($name, $value, $radius_reply);
+    my @values = split(';', $value);
+    if (exists($radius_reply->{$name})) {
+        if (reftype($radius_reply->{$name}) eq 'ARRAY') {
+            push @{$radius_reply->{$name}}, @values;
+        } else {
+            $radius_reply->{$name} = [$radius_reply->{$name}, @values];
         }
     } else {
-        return ($radius_reply_ref,$status);
+        $radius_reply->{$name} = (@values > 1) ? \@values : $values[0];
     }
 }
 
+sub updateAnswerNameValue {
+    my ($self, $name, $value, $radius_reply) = @_;
+    my $logger = $self->logger;
+    if ($name =~ /^([^:]+:)?Packetfence-Raw$/) {
+        my $prefix = $1 // 'reply:';
+        if (ref($value) eq 'ARRAY') {
+            my $key;
+            my @attributes;
+            foreach my $response (@{$value}) {
+                if ($response =~ /([\w\-:]*)\s?[:=]\s?([\w\-:]*)/) {
+                    $key = $1;
+                    $radius_reply->{"$prefix".$1} = $2;
+                } else {
+                    $logger->error("Packetfence-Raw: '$value' is not in a valid format");
+                }
+            }
+        } elsif ($value =~ /([\w\-:]*)\s?[:=]\s?([\w\-:]*)/) {
+            my ($new_name, $new_value) = ($1, $2);
+            if (defined $new_value && length($new_value)) {
+                $radius_reply->{"$prefix".$new_name} = $new_value;
+            } else {
+                $logger->error("Packetfence-Raw: '$value' is not in a valid format");
+            }
+        }
+    }
+}
 
 sub setSession {
-    my($args) = @_;
+    my($self, $args) = @_;
     my $mac = $args->{'mac'};
     my $session_id = generate_session_id(6);
     my $chi = pf::CHI->new(namespace => 'httpd.portal');
@@ -115,26 +161,6 @@ sub setSession {
     return $session_id;
 }
 
-=head2 evalAnswer
-
-evaluate the radius answer
-
-=cut
-
-sub evalAnswer {
-    my ($answer,$args,$radius_reply_ref) = @_;
-
-    my $return = evalParam(@{$answer}[1],$args);
-    my @multi_value = split(';',$return);
-    @{$answer}[0] =~ s/\s//g;
-    if (scalar @multi_value > 1) {
-        $$radius_reply_ref->{@{$answer}[0]} = \@multi_value;
-    } else {
-        $$radius_reply_ref->{@{$answer}[0]} = $return;
-    }
-
-}
-
 =head2 evalParam
 
 evaluate all the variables
@@ -143,7 +169,7 @@ evaluate all the variables
 
 sub evalParam {
     my ($answer, $args) = @_;
-    $answer = _random($answer) if rangeValidator($answer);
+    $answer = random_from_range($answer) if rangeValidator($answer);
     $answer =~ s/\$([a-zA-Z_0-9]+)/$args->{$1} \/\/ ''/ge;
     $answer =~ s/\$\{([a-zA-Z0-9_\-]+(?:\.[a-zA-Z0-9_\-]+)*)\}/&_replaceParamsDeep($1,$args)/ge;
     return $answer;
@@ -173,20 +199,6 @@ sub rangeValidator {
          )/x;
     return 0 if ($range =~ m/$validation/g);
     return 1;
-}
-
-=head2 _random
-
-return random int in a range
-
-=cut
-
-sub _random {
-    my ($value) = @_;
-    my $range = Number::Range->new($value);
-    my $count = $range->size;
-    my @array = $range->range;
-    return $array[rand($count)];
 }
 
 =head2 _replaceParamsDeep
@@ -224,13 +236,23 @@ sub getEngineForScope {
     return undef;
 }
 
+=head2 lookupSessionId
+
+lookupSessionId
+
+=cut
+
+sub lookupSessionId {
+    my ($self, $args) = @_;
+}
+
 =head1 AUTHOR
 
 Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2019 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 

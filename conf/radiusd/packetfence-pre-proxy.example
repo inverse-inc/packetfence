@@ -1,0 +1,38 @@
+#
+#       Configuration file for the rlm_attr_filter module.
+#       Please see rlm_attr_filter(5) manpage for more information.
+#
+#       $Id: afd89473dc50e4ff62389e35e5cb73b512e9d352 $
+#
+#       This configuration file is used to remove all of the PacketFence attributes
+#       in the proxy request.
+#
+DEFAULT
+    %%PacketFence-KeyBalanced%%
+    PacketFence-RPC-Server                !* ANY,
+    PacketFence-RPC-Port                  !* ANY,
+    PacketFence-RPC-User                  !* ANY,
+    PacketFence-RPC-Pass                  !* ANY,
+    PacketFence-RPC-Proto                 !* ANY,
+    PacketFence-Mac                       !* ANY,
+    PacketFence-UserName                  !* ANY,
+    PacketFence-Switch-Id                 !* ANY,
+    PacketFence-Switch-Mac                !* ANY,
+    PacketFence-Switch-Ip-Address         !* ANY,
+    PacketFence-Eap-Type                  !* ANY,
+    PacketFence-Connection-Type           !* ANY,
+    PacketFence-Source                    !* ANY,
+    PacketFence-SSID                      !* ANY,
+    PacketFence-IsPhone                   !* ANY,
+    PacketFence-AutoReg                   !* ANY,
+    PacketFence-Role                      !* ANY,
+    PacketFence-Status                    !* ANY,
+    PacketFence-IfIndex                   !* ANY,
+    PacketFence-Profile                   !* ANY,
+    PacketFence-Domain                    !* ANY,
+    PacketFence-Computer-Name             !* ANY,
+    PacketFence-Handled                   !* ANY,
+    PacketFence-Request-Time              !* ANY,
+    PacketFence-Authorization-Status      !* ANY,
+    PacketFence-Tenant-Id                 !* ANY
+

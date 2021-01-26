@@ -23,6 +23,7 @@ use pf::constants;
 use pf::file_paths qw($network_config_file);
 use pf::constants::config;
 use pfconfig::util qw(is_type_inline);
+use List::MoreUtils qw(any);
 
 use base 'pfconfig::namespaces::config';
 
@@ -57,6 +58,10 @@ sub build_child {
         while(my ($key, $config) = (each %{$ConfigCluster{CLUSTER}})){
             if($key =~ /^network ([0-9.]+)/){
                 my $net = $1;
+                unless(any {$_ eq $net} @{$self->{ordered_sections}}) {
+                    push @{$self->{ordered_sections}}, $key;
+                }
+
                 $logger->debug("Reconfiguring network $net with cluster information");
                 while(my ($param, $value) = each(%$config)) {
                     $ConfigNetworks{$net}{$param} = $value;
@@ -197,7 +202,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2019 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 

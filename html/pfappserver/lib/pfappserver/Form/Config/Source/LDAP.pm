@@ -30,6 +30,7 @@ has_field 'host' =>
    element_class => ['input-small'],
    element_attr => {'placeholder' => ''},
    default => $META->get_attribute('host')->default,
+   required => 1,
   );
 has_field 'port' =>
   (
@@ -38,6 +39,14 @@ has_field 'port' =>
    element_class => ['input-mini'],
    element_attr => {'placeholder' => '389'},
    default => $META->get_attribute('port')->default,
+  );
+has_field 'dead_duration' =>
+  (
+    type         => 'PosInteger',
+    element_attr => {
+        'placeholder' => $META->get_attribute('dead_duration')->default
+    },
+    default => $META->get_attribute('dead_duration')->default,
   );
 has_field 'connection_timeout' =>
   (
@@ -200,6 +209,17 @@ has_field 'searchattributes' => (
     default => '',
 );
 
+has_field 'append_to_searchattributes' => (
+    type => 'Text',
+    label => 'Append search attributes ldap filter',
+    required => 0,
+    default => '',
+    tags => {
+        after_element => \&help,
+        help => 'Append this ldap filter to the generated generated ldap filter generated for the search attributes.',
+    },
+);
+
 =head2 options_attributes
 
 retrive the realms
@@ -231,7 +251,7 @@ sub validate {
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2019 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 

@@ -39,6 +39,7 @@ has_field 'nac_name' =>
 has_field 'type' =>
   (
    type => 'Hidden',
+   default => 'Iboss',
   );
 
 has_block definition =>
@@ -48,7 +49,7 @@ has_block definition =>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2019 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 

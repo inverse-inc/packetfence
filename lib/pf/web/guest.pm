@@ -66,6 +66,7 @@ our $VERSION = 1.41;
 
 our $SPONSOR_CONFIRMED_TEMPLATE = "activation/sponsor_accepted.html";
 our $SPONSOR_LOGIN_TEMPLATE = "activation/sponsor_login.html";
+our $SPONSOR_SET_ACCESS_DURATIONS_TEMPLATE = "activation/sponsor_set_access_durations.html";
 
 # flag used in URLs
 Readonly our $GUEST_REGISTRATION => "guest-register";
@@ -113,11 +114,11 @@ sub aup {
 =cut
 
 sub send_template_email {
-    my ($template, $subject, $info) = @_;
+    my ($template, $subject, $info, $tmpoptions) = @_;
     utf8::decode($subject);
     my %data = %$info;
     $data{from} ||= $pf::web::guest::EMAIL_FROM;
-    return pf::config::util::send_email($template, $info->{email}, $subject, \%data);
+    return pf::config::util::send_email($template, $info->{email}, $subject, \%data, $tmpoptions);
 }
 
 =back
@@ -128,7 +129,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2019 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 

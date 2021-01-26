@@ -1,0 +1,11 @@
+---
+- name: Install MailHog
+  hosts: pfservers
+  gather_facts: True
+  become: True
+  collections:
+    - inverse_inc.utils
+
+  roles:
+    - role: mailhog
+      tags: mailhog

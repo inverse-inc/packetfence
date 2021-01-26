@@ -18,13 +18,9 @@ $sidebar-item-padding-right: map-get($spacers, 1);
     @supports (position: sticky) {
       position: sticky;
       z-index: $zindex-dropdown;
-      top: ($spacer * 4);
+      top: map-get($spacers, 6);
       max-height: calc(100vh - #{$spacer * 4});
     }
-  }
-
-  @include media-breakpoint-up(xl) {
-    flex: 0 1 320px;
   }
 }
 
@@ -39,6 +35,11 @@ $sidebar-item-padding-right: map-get($spacers, 1);
   // Override collapse behaviors
   @include media-breakpoint-up(md) {
     display: block !important;
+  }
+
+  [role=button],
+  a {
+    outline: none;
   }
 }
 
@@ -77,16 +78,17 @@ $sidebar-item-padding-right: map-get($spacers, 1);
   padding: $sidebar-item-padding-y $sidebar-item-padding-right $sidebar-item-padding-y $sidebar-item-padding-left;
   color: $gray-500;
   font-weight: 400;
+}
 
-  &[role=button] {
-    padding-left: 0;
-    color: rgba(0,0,0,.65);
-    font-weight: 700;
+.pf-sidenav-group[role=button],
+a.pf-sidenav-group {
+  padding-left: 0;
+  color: rgba(0,0,0,.65);
+  font-weight: 700;
 
-    &:hover {
-      color: rgba(0,0,0,.85);
-      text-decoration: none;
-    }
+  &:hover {
+    color: rgba(0,0,0,.85);
+    text-decoration: none;
   }
 }
 
@@ -100,7 +102,8 @@ $sidebar-item-padding-right: map-get($spacers, 1);
     display: block;
   }
 
-  [role=button] {
+  [role=button],
+  .nav-link {
     color: $link-color;
 
     &:hover {
@@ -108,11 +111,16 @@ $sidebar-item-padding-right: map-get($spacers, 1);
     }
   }
 }
+.active .pf-sidebar-item [role=button],
+.active .pf-sidebar-item .nav-link {
+  color: $component-active-color;
+}
 
 // Don't resize icons
 .pf-sidenav svg {
   flex-grow: 0;
   flex-shrink: 0;
+  min-width: 1rem;
   transition: transform 300ms ease;
 }
 
@@ -156,10 +164,11 @@ $sidebar-item-padding-right: map-get($spacers, 1);
 }
 
 .pf-sidenav .collapsed svg:last-child {
-  transform: rotate( -180deg );
+  transform: rotate(-90deg );
 }
 
-.pf-sidenav-group[role=button] {
+.pf-sidenav-group[role=button],
+a.pf-sidenav-group {
   position: relative;
   display: flex;
   justify-content: space-between;

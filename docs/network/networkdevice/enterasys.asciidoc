@@ -1,0 +1,137 @@
+// to display images directly on GitHub
+ifdef::env-github[]
+:encoding: UTF-8
+:lang: en
+:doctype: book
+:toc: left
+:imagesdir: ../../images
+endif::[]
+
+////
+
+    This file is part of the PacketFence project.
+
+    See PacketFence_Network_Devices_Configuration_Guide-docinfo.xml for 
+    authors, copyright and license information.
+
+////
+
+
+//=== Enterasys
+
+PacketFence supports Enterasys switches _without VoIP_ using two different trap types: 
+
+* linkUp/linkDown 
+* MAC Locking (Port Security with static MACs) 
+
+*We recommend to enable MAC locking only.*
+
+Don't forget to update the startup config! 
+
+==== Matrix N3 
+
+linkUp/linkDown traps are enabled by default so we disable them and enable MAC locking 
+only. Also, by default this switch doesn't do an electrical low-level linkDown when setting the 
+port to admin down. So we need to activate a global option called `forcelinkdown` to enable 
+this behavior. Without this option, clients don't understand that they lost their connection and 
+they never do a new DHCP on VLAN change. 
+
+Global config settings 
+
+  set snmp community public 
+  set snmp targetparams v2cPF user public security-model v2c message-processing v2c 
+  set snmp notify entryPF tag TrapPF 
+  set snmp targetaddr tr 192.168.1.5 param v2cPF taglist TrapPF 
+  set maclock enable 
+  set forcelinkdown enable 
+
+On each interface: 
+
+  set port trap ge.1.xx disable 
+  set maclock enable ge.1.xx 
+  set maclock static ge.1.xx 1 
+  set maclock firstarrival ge.1.xx 0 
+  set maclock trap ge.1.xx enable 
+
+where `xx` stands for the interface index.
+
+==== SecureStack C2 
+
+linkUp/linkDown traps are enabled by default so we disable them and enable MAC locking 
+only. 
+
+Global config settings 
+
+  set snmp community public 
+  set snmp targetparams v2cPF user public security-model v2c message-processing v2c 
+  set snmp notify entryPF tag TrapPF 
+  set snmp targetaddr tr 192.168.1.5 param v2cPF taglist TrapPF 
+  set maclock enable 
+
+On each interface: 
+
+  set port trap fe.1.xx disable 
+  set maclock enable fe.1.xx 
+  set maclock static fe.1.xx 1 
+  set maclock firstarrival fe.1.xx 0 
+
+where `xx` stands for the interface index 
+
+==== SecureStack C3 
+
+This switch has the particular _feature_ of allowing more than one untagged egress VLAN per 
+port. This means that you must add all the VLAN created for PacketFence as untagged egress 
+VLAN on the relevant interfaces. This is why there is a VLAN command on each interface 
+below. 
+
+linkUp/linkDown traps are enabled by default so we disable them and enable MAC locking 
+only. 
+
+Global config settings 
+
+  set snmp community public 
+  set snmp targetparams v2cPF user public security-model v2c message-processing v2c 
+  set snmp notify entryPF tag TrapPF 
+  set snmp targetaddr tr 192.168.1.5 param v2cPF taglist TrapPF 
+  set maclock enable 
+
+On each interface: 
+
+  set vlan egress 1,2,3 ge.1.xx untagged 
+  set port trap ge.1.xx disable 
+  set maclock enable ge.1.xx 
+  set maclock static ge.1.xx 1 
+  set maclock firstarrival ge.1.xx 0 
+  set maclock trap ge.1.xx enable 
+
+where `xx` stands for the interface index 
+
+==== Standalone D2 
+
+linkUp/linkDown traps are enabled by default so we disable them and enable MAC locking 
+only. 
+
+CAUTION: This switch Switch accepts multiple untagged VLAN per port when configured 
+through SNMP. This is problematic because on some occasions the untagged VLAN port list 
+can become inconsistent with the switch’s running config. To fix that, clear all untagged VLANs 
+of a port even if the CLI interface doesn’t show them. 
+To do so, use: `clear vlan egress <vlans> <ports>` 
+
+Global config settings 
+
+  set snmp community public 
+  set snmp targetparams v2cPF user public security-model v2c message-processing v2c 
+  set snmp notify entryPF tag TrapPF 
+  set snmp targetaddr tr 192.168.1.5 param v2cPF taglist TrapPF 
+  set maclock enable 
+
+On each interface: 
+
+  set port trap ge.1.xx disable 
+  set maclock enable ge.1.xx 
+  set maclock static ge.1.xx 1 
+  set maclock firstarrival ge.1.xx 0 
+  set maclock trap ge.1.xx enable 
+
+where `xx` stands for the interface index 
+

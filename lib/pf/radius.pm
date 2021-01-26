@@ -27,6 +27,7 @@ use pf::constants;
 use pf::constants::trigger qw($TRIGGER_TYPE_ACCOUNTING);
 use pf::constants::role qw($VOICE_ROLE);
 use pf::constants::realm;
+use pf::constants::domain qw($NTLM_REDIS_CACHE_HOST $NTLM_REDIS_CACHE_PORT);
 use pf::error qw(is_error);
 use pf::config qw(
     $ROLE_API_LEVEL
@@ -70,6 +71,8 @@ use pf::role::pool;
 use pf::dal;
 use pf::security_event;
 use pf::constants::security_event qw($LOST_OR_STOLEN);
+use pf::Redis;
+use pf::constants::eap_type qw($EAP_TLS $MS_EAP_AUTHENTICATION $EAP_PSK);
 
 our $VERSION = 1.03;
 
@@ -107,7 +110,8 @@ sub authorize {
     my $timer = pf::StatsD::Timer->new();
     my ($self, $radius_request) = @_;
     my $logger = $self->logger;
-    my ($do_auto_reg, %autoreg_node_defaults);
+    my ($do_auto_reg, %autoreg_node_defaults, $action);
+
     my($switch_mac, $switch_ip,$source_ip,$stripped_user_name,$realm) = $self->_parseRequest($radius_request);
     my $RAD_REPLY_REF;
 
@@ -126,13 +130,12 @@ sub authorize {
         goto AUDIT;
     }
 
-    $switch->setCurrentTenant();
+    $switch->setCurrentTenant($radius_request);
     my ($nas_port_type, $eap_type, $mac, $port, $user_name, $nas_port_id, $session_id, $ifDesc) = $switch->parseRequest($radius_request);
 
-    $user_name = normalize_username($user_name, $radius_request);
-
     if (!$mac) {
-        return [$RADIUS::RLM_MODULE_FAIL, ('Reply-Message' => "Mac is empty")];
+        $RAD_REPLY_REF = [$RADIUS::RLM_MODULE_FAIL, ('Reply-Message' => "Mac is empty")];
+        goto AUDIT;
     }
 
     Log::Log4perl::MDC->put( 'mac', $mac );
@@ -167,6 +170,7 @@ sub authorize {
         ifIndex => $port,
         ifDesc => $ifDesc,
         user_name => $user_name,
+        username => $user_name,
         nas_port_id => $nas_port_type // '',
         session_id => $session_id,
         connection_type => $connection_type,
@@ -197,8 +201,6 @@ sub authorize {
     #define the current connection value to instantiate the correct portal
     my $options = {};
 
-    $options->{'machine_account'} = '';
-
     # Handling machine auth detection
     if ( defined($user_name) && $user_name =~ /^host\// ) {
         $logger->info("is doing machine auth with account '$user_name'.");
@@ -226,6 +228,12 @@ sub authorize {
     $args->{'ssid'} = $ssid;
     $args->{'node_info'} = $node_obj;
     $args->{'fingerbank_info'} = pf::node::fingerbank_info($mac, $node_obj);
+    my $filter = pf::access_filter::radius->new;
+    my $rule = $filter->test('preProcess', $args);
+    if ($rule) {
+        my ($reply, $status) = $filter->handleAnswerInRule({%$rule, merge_answer => 'enabled' }, $args, $radius_request);
+        %$radius_request = %$reply;
+    }
     my $result = $role_obj->filterVlan('IsPhone',$args);
     # determine if we need to perform automatic registration
     # either the switch detects that this is a phone or we take the result from the vlan filters
@@ -240,7 +248,7 @@ sub authorize {
     $options->{'last_connection_sub_type'} = $args->{'connection_sub_type'};
     $options->{'last_connection_type'}     = connection_type_to_str($args->{'connection_type'});
     $options->{'last_switch'}              = $switch_id;
-    $options->{'last_port'}                = $args->{'switch'}->{switch_port} if (defined($args->{'switch'}->{switch_port}));
+    $options->{'last_port'}                = $port if defined $port && length($port);
     $options->{'last_vlan'}                = $args->{'vlan'} if (defined($args->{'vlan'}));
     $options->{'last_ssid'}                = $args->{'ssid'} if (defined($args->{'ssid'}));
     $options->{'last_dot1x_username'}      = $args->{'user_name'} if (defined($args->{'user_name'}));
@@ -249,23 +257,34 @@ sub authorize {
     $options->{'fingerbank_info'}     = $args->{'fingerbank_info'};
 
     my $profile = pf::Connection::ProfileFactory->instantiate($args->{'mac'},$options);
-    $args->{'profile'} = $profile; 
+    $args->{'profile'} = $profile;
+    $args->{'portal'} = $profile->getName;
     
+    (my $dpsk_accept, $connection, $connection_type, $connection_sub_type, $args) = $self->handleUnboundDPSK($radius_request, $switch, $profile, $connection, $args);
+    if(!$dpsk_accept) {
+        $logger->error("Unable to find a valid PSK for this request. Rejecting user.");
+        $RAD_REPLY_REF = [ $RADIUS::RLM_MODULE_USERLOCK, ('Reply-Message' => "Invalid PSK") ];
+        goto CLEANUP;
+    }
+
     $args->{'autoreg'} = 0;
     # should we auto-register? let's ask the VLAN object
     my ( $status, $status_msg );
     $do_auto_reg = $role_obj->shouldAutoRegister($args);
     if ($do_auto_reg) {
         $args->{'autoreg'} = 1;
-        %autoreg_node_defaults = $role_obj->getNodeInfoForAutoReg($args);
+        (my $attributes, $action , %autoreg_node_defaults) = $role_obj->getNodeInfoForAutoReg($args);
+        $args->{'action'} = $action;
+        $args = { %$args, %$attributes } if (ref($attributes) eq 'HASH');
         $node_obj->merge(\%autoreg_node_defaults);
         $logger->debug("[$mac] auto-registering node");
         # automatic registration
         $info{autoreg} = 1;
-        ($status, $status_msg) = pf::registration::setup_node_for_registration($node_obj, \%info);
+        ($status, $status_msg) = pf::registration::setup_node_for_registration($node_obj, \%info, $action);
         if (is_error($status)) {
             $logger->error("auto-registration of node failed $status_msg");
             $do_auto_reg = 0;
+            $node_obj->{status} = "unreg";
             $RAD_REPLY_REF = [ $RADIUS::RLM_MODULE_USERLOCK, ('Reply-Message' => $status_msg) ];
             goto CLEANUP;
         }
@@ -291,6 +310,14 @@ sub authorize {
 
     # Fetch VLAN depending on node status
     my $role = $role_obj->fetchRoleForNode($args);
+
+    if (defined($role->{attributes}) && exists($role->{attributes})) {
+        $args = { %$args, %{$role->{'attributes'}} };
+    }
+
+    if (!exists($args->{'action'})) {
+        $args->{'action'} = $role->{action};
+    }
     my $vlan;
     $args->{'node_info'}{'source'} = $role->{'source'} if (defined($role->{'source'}) && $role->{'source'} ne '');
     $args->{'node_info'}{'portal'} = $role->{'portal'} if (defined($role->{'portal'}) && $role->{'portal'} ne '');
@@ -299,14 +326,8 @@ sub authorize {
     $args->{'wasInline'} = $role->{wasInline};
     $args->{'user_role'} = $role->{role};
 
-    my $filter = pf::access_filter::switch->new;
-    my $switch_params = $filter->filter('radius_authorize', $args);
-
-    if (defined($switch_params)) {
-        foreach my $key (keys %{$switch_params}) {
-            $switch->{$key} = $switch_params->{$key};
-        }
-    }
+    my $switch_filter = pf::access_filter::switch->new;
+    $switch_filter->filterSwitch('radius_authorize',\$switch, $args);
 
     if (isenabled($switch->{_VlanMap})) {
         $vlan = $switch->getVlanByName($role->{role}) if (isenabled($switch->{_VlanMap}));
@@ -357,27 +378,6 @@ AUDIT:
     return $RAD_REPLY_REF;
 }
 
-=item normalize_username
-
-normalize username
-
-=cut
-
-sub normalize_username {
-    my ($username, $radius_request) = @_;
-    if (isdisabled($Config{radius_configuration}{normalize_radius_machine_auth_username})) {
-        return $username;
-    }
-    my $tls_username = $radius_request->{'TLS-Client-Cert-Common-Name'} // '';
-    if ($username eq $tls_username ) {
-       my $radius_username = $radius_request->{'User-Name'};
-       if ( "host/$tls_username" =~ /\Q$radius_username\E/i ) {
-            $username = $radius_username;
-       }
-    }
-    return $username;
-}
-
 =item accounting
 
 =cut
@@ -400,15 +400,16 @@ sub accounting {
         return [ $RADIUS::RLM_MODULE_FAIL, ( 'Reply-Message' => "Switch is not managed by PacketFence" ) ];
     }
 
-    $switch->setCurrentTenant();
+    $switch->setCurrentTenant($radius_request);
     my ($nas_port_type, $eap_type, $mac, $port, $user_name, $nas_port_id, $session_id, $ifDesc) = $switch->parseRequest($radius_request);
 
     # update last_seen of MAC address as some activity from it has been seen
     node_update_last_seen($mac);
+    my $acct_status_type = $radius_request->{'Acct-Status-Type'};
 
-    my $isStart   = $radius_request->{'Acct-Status-Type'}  == $ACCOUNTING::START;
-    my $isStop   = $radius_request->{'Acct-Status-Type'}  == $ACCOUNTING::STOP;
-    my $isUpdate = $radius_request->{'Acct-Status-Type'}  == $ACCOUNTING::INTERIM_UPDATE;
+    my $isStart  = $acct_status_type  == $ACCOUNTING::START;
+    my $isStop   = $acct_status_type  == $ACCOUNTING::STOP;
+    my $isUpdate = $acct_status_type  == $ACCOUNTING::INTERIM_UPDATE;
 
     my $connection = pf::Connection->new;
     $connection->identifyType($nas_port_type, $eap_type, $mac, $user_name, $switch);
@@ -417,6 +418,7 @@ sub accounting {
 
     if($isStart || $isUpdate){
         pf::accounting->cache->set($mac, $radius_request);
+        pf::fingerbank::process($mac);
     }
 
     if ($isStop || $isUpdate) {
@@ -479,6 +481,7 @@ sub accounting {
             }
         }
     }
+
     if(isenabled($Config{radius_configuration}{filter_in_packetfence_accounting})){
         my %RAD_REPLY_REF;
         my $node_obj = node_attributes($mac);
@@ -539,7 +542,7 @@ sub update_locationlog_accounting {
         return [ $RADIUS::RLM_MODULE_FAIL, ( 'Reply-Message' => "Switch is not managed by PacketFence" ) ];
     }
 
-    $switch->setCurrentTenant();
+    $switch->setCurrentTenant($radius_request);
     if ($switch->supportsRoamingAccounting()) {
         my ($nas_port_type, $eap_type, $mac, $port, $user_name, $nas_port_id, $session_id, $ifDesc) = $switch->parseRequest($radius_request);
         my $locationlog_mac = locationlog_last_entry_mac($mac);
@@ -838,7 +841,7 @@ sub switch_access {
         );
         return [ $RADIUS::RLM_MODULE_FAIL, ('Reply-Message' => "Switch is not managed by PacketFence") ];
     }
-    if ( isdisabled($switch->{_cliAccess}) && !$switch->supportsVPN()) {
+    if ( !$switch->canDoCliAccess && !$switch->supportsVPN()) {
         $logger->warn("CLI Access is not permit on this switch $switch->{_id}");
         return [ $RADIUS::RLM_MODULE_FAIL, ('Reply-Message' => "CLI or VPN Access is not allowed by PacketFence on this switch") ];
     }
@@ -850,8 +853,11 @@ sub switch_access {
         source_ip => $source_ip,
         stripped_user_name => $stripped_user_name,
         realm => $realm,
+        username => $user_name,
         user_name => $user_name,
         radius_request => $radius_request,
+        switch_group => $switch->{_group},
+        switch_id => $switch->{_id},
     };
 
     my $options = {};
@@ -859,10 +865,10 @@ sub switch_access {
     $options->{'last_connection_sub_type'} = $connection_sub_type;
     $options->{'last_connection_type'}     = connection_type_to_str($connection_type);
     $options->{'last_switch'}              = $switch->{_id};
-    $options->{'last_port'}                = $args->{'switch'}->{switch_port} if (defined($args->{'switch'}->{switch_port}));
+    $options->{'last_port'}                = $port if defined $port && length($port);
     $options->{'last_vlan'}                = $args->{'vlan'} if (defined($args->{'vlan'}));
     $options->{'last_ssid'}                = $args->{'ssid'} if (defined($args->{'ssid'}));
-    $options->{'last_dot1x_username'}      = $args->{'user_name'} if (defined($args->{'user_name'}));
+    $options->{'last_dot1x_username'}      = $args->{'user_name'} if (defined($args->{'username'}));
     $options->{'realm'}                    = $args->{'realm'} if (defined($args->{'realm'}));
     $options->{'radius_request'}           = $args->{'radius_request'};
 
@@ -913,21 +919,34 @@ sub switch_access {
             );
         }
     }
-    my ( $return, $message, $source_id, $extra ) = pf::authentication::authenticate( {
-            'username' =>  $radius_request->{'User-Name'},
-            'password' =>  $radius_request->{'User-Password'},
-            'rule_class' => $Rules::ADMIN,
-            'context' => $pf::constants::realm::RADIUS_CONTEXT,
-        }, @sources );
+    else {
+            my $profile = pf::Connection::ProfileFactory->instantiate($FAKE_MAC,$options);
+            $args->{'profile'} = $profile;
+            @sources = $profile->getFilteredAuthenticationSources($args->{'stripped_user_name'}, $args->{'realm'});
+    }
+    my ( $return, $message, $source_id, $extra );
+    $source_id = \@sources;
+    if (!defined($args->{'radius_request'}{'MS-CHAP-Challenge'}) && defined($radius_request->{"EAP-Type"}) && $radius_request->{"EAP-Type"} != $EAP_TLS && $radius_request->{"EAP-Type"} != $MS_EAP_AUTHENTICATION) {
+        ( $return, $message, $source_id, $extra ) = pf::authentication::authenticate( {
+                'username' =>  $radius_request->{'User-Name'},
+                'password' =>  $radius_request->{'User-Password'},
+                'rule_class' => $Rules::ADMIN,
+                'context' => $pf::constants::realm::RADIUS_CONTEXT,
+            }, @sources );
 
-    if ( !( defined($return) && $return == $TRUE ) ) {
-        $logger->info("User $args->{'user_name'} tried to login in $args->{'switch'}{'_id'} but authentication failed");
-        return [ $RADIUS::RLM_MODULE_FAIL, ( 'Reply-Message' => "Authentication failed on PacketFence" ) ];
+        if ( !( defined($return) && $return == $TRUE ) ) {
+            $logger->info("User $args->{'username'} tried to login in $args->{'switch'}{'_id'} but authentication failed");
+            return [ $RADIUS::RLM_MODULE_FAIL, ( 'Reply-Message' => "Authentication failed on PacketFence" ) ];
+        }
     }
     if ($connection->isVPN()) {
         return $switch->returnAuthorizeVPN($args);
     } else {
-        my $matched = pf::authentication::match2($source_id, { username => $radius_request->{'User-Name'}, 'rule_class' => $Rules::ADMIN, 'context' => $pf::constants::realm::RADIUS_CONTEXT }, $extra);
+        my $merged = { %$options, %$args };
+        $merged->{'rule_class'} = $Rules::ADMIN;
+        $merged->{'context'} = $pf::constants::realm::RADIUS_CONTEXT;
+        my $attributes;
+        my $matched = pf::authentication::match2($source_id, $merged, $extra, \$attributes);
         my $value = $matched->{values}{$Actions::SET_ACCESS_LEVEL} if $matched;
         if ($value) {
             my @values = split(',', $value);
@@ -957,6 +976,7 @@ our %ARGS_TO_RADIUS_ATTRIBUTES = (
     connection_type => 'PacketFence-Connection-Type',
     user_role => 'PacketFence-Role',
     time => 'PacketFence-Request-Time',
+    portal => 'PacketFence-Profile',
 );
 
 our %NODE_ATTRIBUTES_TO_RADIUS_ATTRIBUTES = (
@@ -1009,10 +1029,22 @@ Handle NTLM caching if necessary
 
 sub handleNtlmCaching {
     my ($self, $radius_request) = @_;
+    my $logger = get_logger;
     my $domain = $radius_request->{"PacketFence-Domain"};
+    my $usedNtHash = $radius_request->{"PacketFence-NTCacheHash"};
+
     if($domain && isenabled($ConfigDomain{$domain}{ntlm_cache}) && isenabled($ConfigDomain{$domain}{ntlm_cache_on_connection})) {
-        my $client = pf::api::queue->new(queue => "general");
-        $client->notify("cache_user_ntlm", $domain, $radius_request->{"Stripped-User-Name"});
+        my $radius_username = $radius_request->{'Stripped-User-Name'} || $radius_request->{'User-Name'};
+        my $cache_key = "$domain.$radius_username";
+        my $username = pf::domain::ntlm_cache::get_from_cache($cache_key);
+        if (defined($usedNtHash) && $usedNtHash && defined($username)) {
+            my $client = pf::api::queue_cluster->new(queue => "general");
+            $client->cluster_notify_all("update_user_in_redis_cache", $domain, $username);
+        }
+        else {
+            my $client = pf::api::queue->new(queue => "general");
+            $client->notify("cache_user_ntlm", $domain, $radius_username);
+        }
     }
 }
 
@@ -1055,10 +1087,8 @@ sub radius_filter {
         return [ $RADIUS::RLM_MODULE_FAIL, ('Reply-Message' => "Switch is not managed by PacketFence") ];
     }
 
-    $switch->setCurrentTenant();
+    $switch->setCurrentTenant($radius_request);
     my ($nas_port_type, $eap_type, $mac, $port, $user_name, $nas_port_id, $session_id, $ifDesc) = $switch->parseRequest($radius_request);
-
-    $user_name = normalize_username($user_name, $radius_request);
 
     if (!$mac) {
         return [$RADIUS::RLM_MODULE_FAIL, ('Reply-Message' => "Mac is empty")];
@@ -1121,6 +1151,31 @@ sub check_lost_stolen {
     }
 }
 
+sub handleUnboundDPSK {
+    my ($self, $radius_request, $switch, $profile, $connection, $args) = @_;
+    my $logger = get_logger;
+    
+    if($profile->unboundDpskEnabled()) {
+        my $accept = $FALSE;
+        if(my $pid = $switch->find_user_by_psk($radius_request)) {
+            $logger->info("Unbound DPSK user found $pid. Changing this request to use the 802.1x logic");
+            $connection->isMacAuth($FALSE);
+            $connection->is8021X($TRUE);
+            $connection->isEAP($TRUE);
+            $connection->subType($EAP_PSK);
+            $connection->_attributesToString;
+            $args->{connection_type} = $connection->attributesToBackwardCompatible;
+            $args->{connection_sub_type} = $connection->subType;
+            $args->{username} = $args->{stripped_user_name} = $args->{user_name} = $pid;
+            $accept = $TRUE;
+        }
+        return ($accept, $connection, $args->{connection_type}, $args->{connection_sub_type}, $args);
+    }
+    else {
+        return ($TRUE, $connection, $args->{connection_type}, $args->{connection_sub_type}, $args);
+    }
+}
+
 =back
 
 =head1 AUTHOR
@@ -1129,7 +1184,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2019 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 

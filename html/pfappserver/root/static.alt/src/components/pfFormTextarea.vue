@@ -1,28 +1,29 @@
 <template>
-  <b-form-group :label-cols="(columnLabel) ? labelCols : 0" :label="$t(columnLabel)"
-    :state="isValid()" :invalid-feedback="getInvalidFeedback()" :class="{ 'mb-0': !columnLabel }">
+  <b-form-group :label-cols="(columnLabel) ? labelCols : 0" :label="$t(columnLabel)" :state="inputState"
+    class="pf-form-textarea" :class="{ 'mb-0': !columnLabel }">
+    <template v-slot:invalid-feedback>
+      <icon name="circle-notch" spin v-if="!inputInvalidFeedback"></icon> <span v-html="inputInvalidFeedback"></span>
+    </template>
     <b-input-group v-if="placeholder && placeholderHtml" v-html="getPlaceholderHtml" class="mb-1 d-block"></b-input-group>
-    <b-form-textarea
-      ref="input"
-      v-model="inputValue"
-      v-bind="$attrs"
-      :state="isValid()"
-      :placeholder="filteredPlaceholder"
-      @input.native="validate()"
-      @keyup.native="onChange($event)"
-      @change.native="onChange($event)"
-    ></b-form-textarea>
+    <b-input-group>
+      <b-form-textarea ref="input"
+        v-model="inputValue"
+        v-bind="$attrs"
+        :state="inputState"
+        :placeholder="filteredPlaceholder"
+      ></b-form-textarea>
+    </b-input-group>
     <b-form-text v-if="text" v-html="text"></b-form-text>
   </b-form-group>
 </template>
 
 <script>
-import pfMixinValidation from '@/components/pfMixinValidation'
+import pfMixinForm from '@/components/pfMixinForm'
 
 export default {
   name: 'pf-form-textarea',
   mixins: [
-    pfMixinValidation
+    pfMixinForm
   ],
   props: {
     value: {
@@ -56,10 +57,18 @@ export default {
   computed: {
     inputValue: {
       get () {
-        return this.value
+        if (this.formStoreName) {
+          return this.formStoreValue // use FormStore
+        } else {
+          return this.value // use native (v-model)
+        }
       },
-      set (newValue) {
-        this.$emit('input', newValue)
+      set (newValue = null) {
+        if (this.formStoreName) {
+          this.formStoreValue = newValue // use FormStore
+        } else {
+          this.$emit('input', newValue) // use native (v-model)
+        }
       }
     },
     filteredPlaceholder () {
@@ -68,13 +77,24 @@ export default {
     },
     getPlaceholderHtml () {
       let html = []
-      html.push('<div class="border border-light rounded bg-light p-2 text-white">')
-      html.push(`<strong class="mr-1 text-dark">${this.labelHtml}:</strong> `)
-      this.placeholder.split(',').forEach(item => {
+      html.push('<div class="border border-gray rounded p-2">')
+      html.push(`<h6 class="mr-1">${this.labelHtml}</h6> `)
+      this.placeholder.split(/[,\n]/).forEach(item => {
         html.push(`<span class="badge badge-info mr-1">${item}</span> `)
       })
       html.push('</div>')
       return html.join('')
+    }
+  },
+  methods: {
+    focus () {
+      this.$refs.input.focus()
+    },
+    select (start, end) {
+      const { inputValue = '' } = this
+      start = start || 0
+      end = end || (inputValue||'').length
+      this.$refs.input.select(start, end)
     }
   }
 }

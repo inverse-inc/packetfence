@@ -119,6 +119,7 @@ for my $trigger (@SUGGESTED_VALUES) {
             options_method => sub {
                 return map { { label => $_, value => $_ } } keys %$value;
             },
+            localize_labels => ($trigger eq $TRIGGER_TYPE_INTERNAL ? 1 : undef),
         );
     }
 }
@@ -140,7 +141,7 @@ sub inflate {
         $value = $1;
     }
 
-    for my $t (split(/\&/, $value)) {
+    for my $t (split(/\s*\&\s*/, $value)) {
         my ($k, $v) = split (/::/, $t, 2);
         $trigger{lc($k)} = $v;
     }
@@ -184,7 +185,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2019 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 
