@@ -10,9 +10,14 @@ const components = {
   TheForm
 }
 
-import { useViewCollectionItem, useViewCollectionItemProps as props } from '../../../_composables/useViewCollectionItem'
+import { useViewCollectionItem, useViewCollectionItemProps } from '../../../_composables/useViewCollectionItem'
+import collection, { useItemProps } from '../_composables/useCollection'
 
-import collection from '../_composables/useCollection'
+const props = {
+  ...useViewCollectionItemProps,
+  ...useItemProps
+}
+
 const setup = (props, context) => useViewCollectionItem(collection, props, context)
 
 // @vue/component

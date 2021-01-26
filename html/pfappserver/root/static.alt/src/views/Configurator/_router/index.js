@@ -1,19 +1,23 @@
 import store from '@/store'
-import FormStore from '@/store/base/form'
+//import FormStore from '@/store/base/form'
 
 import ConfiguratorView from '../'
 
 import BasesStore from '@/views/Configuration/bases/_store'
-import InterfacesStore from '@/views/Configuration/networks/interfaces/_store/'
-import FingerbankStore from '@/views/Configuration/fingerbank/_store'
+//import InterfacesStore from '@/views/Configuration/networks/interfaces/_store/'
+//import FingerbankStore from '@/views/Configuration/fingerbank/_store'
 // import StatusStore from '@/views/Status/_store'
-import UsersStore from '@/views/Users/_store'
+//import UsersStore from '@/views/Users/_store'
 
-const InterfacesList = () => import(/* webpackChunkName: "Configurator" */ '../_components/InterfacesList')
-const InterfaceView = () => import(/* webpackChunkName: "Configurator" */ '../_components/InterfaceView')
-const NetworkStep = () => import(/* webpackChunkName: "Configurator" */ '../_components/NetworkStep')
-const PacketFenceStep = () => import(/* webpackChunkName: "Configurator" */ '../_components/PacketFenceStep')
-const FingerbankStep = () => import(/* webpackChunkName: "Configurator" */ '../_components/FingerbankStep')
+import NetworkRoutes from '../network/_router'
+import PacketfenceRoutes from '../packetfence/_router'
+import FingerbankRoutes from '../fingerbank/_router'
+
+//const InterfacesList = () => import(/* webpackChunkName: "Configurator" */ '../_components/InterfacesList')
+//const InterfaceView = () => import(/* webpackChunkName: "Configurator" */ '../_components/InterfaceView')
+//const NetworkStep = () => import(/* webpackChunkName: "Configurator" */ '../_components/NetworkStep')
+//const PacketFenceStep = () => import(/* webpackChunkName: "Configurator" */ '../_components/PacketFenceStep')
+//const FingerbankStep = () => import(/* webpackChunkName: "Configurator" */ '../_components/FingerbankStep')
 const StatusStep = () => import(/* webpackChunkName: "Configurator" */ '../_components/StatusStep')
 
 const route = {
@@ -37,6 +41,8 @@ const route = {
     }
   },
   children: [
+    ...NetworkRoutes,
+    /*
     {
       path: 'network',
       name: 'configurator-network',
@@ -95,6 +101,9 @@ const route = {
         }
       ]
     },
+    */
+    ...PacketfenceRoutes,
+    /*
     {
       path: 'packetfence',
       name: 'configurator-packetfence',
@@ -112,6 +121,9 @@ const route = {
         next()
       }
     },
+    */
+    ...FingerbankRoutes,
+    /*
     {
       path: 'fingerbank',
       name: 'configurator-fingerbank',
@@ -126,6 +138,7 @@ const route = {
         next()
       }
     },
+    */
     {
       path: 'status',
       name: 'configurator-status',

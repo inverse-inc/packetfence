@@ -23,6 +23,7 @@ import BaseFormGroupInputDateTime from './BaseFormGroupInputDateTime'
 import BaseFormGroupInputMultiplier from './BaseFormGroupInputMultiplier'
 import BaseFormGroupInputNumber from './BaseFormGroupInputNumber'
 import BaseFormGroupInputPassword from './BaseFormGroupInputPassword'
+import BaseFormGroupInputPasswordGenerator from './BaseFormGroupInputPasswordGenerator'
 import BaseFormGroupInputPasswordTest, { props as BaseFormGroupInputPasswordTestProps } from './BaseFormGroupInputPasswordTest'
 import BaseFormGroupInputTest, { props as BaseFormGroupInputTestProps } from './BaseFormGroupInputTest'
 import BaseFormGroupTextarea from './BaseFormGroupTextarea'
@@ -43,6 +44,7 @@ import BaseInputChosenOneSearchable, { props as BaseInputChosenOneSearchableProp
 import BaseInputGroup from './BaseInputGroup'
 import BaseInputGroupDate from './BaseInputGroupDate'
 import BaseInputGroupDateTime from './BaseInputGroupDateTime'
+import BaseInputGroupPassword from './BaseInputGroupPassword'
 import BaseInputGroupTextarea from './BaseInputGroupTextarea'
 import BaseInputGroupTextareaUpload, { props as BaseInputGroupTextareaUploadProps } from './BaseInputGroupTextareaUpload'
 import BaseInputGroupMultiplier from './BaseInputGroupMultiplier'
@@ -83,6 +85,7 @@ export {
   BaseFormGroupInputMultiplier,
   BaseFormGroupInputNumber,
   BaseFormGroupInputPassword,
+  BaseFormGroupInputPasswordGenerator,
   BaseFormGroupInputPasswordTest, BaseFormGroupInputPasswordTestProps,
   BaseFormGroupInputTest, BaseFormGroupInputTestProps,
   BaseFormGroupTextarea,
@@ -113,6 +116,7 @@ export {
   // bootstrap wrappers
   BaseInputGroupDate,
   BaseInputGroupDateTime,
+  BaseInputGroupPassword,
   BaseInputGroupMultiplier,
   BaseInputGroupTextarea,
   BaseInputGroupTextareaUpload, BaseInputGroupTextareaUploadProps,

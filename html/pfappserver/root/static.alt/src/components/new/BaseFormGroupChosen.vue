@@ -82,6 +82,7 @@
         <template v-slot:tag="{ option, option: { value } = {} }">
           <span class="multiselect__tag bg-secondary">
             <span v-if="multipleLabels[value]">{{ multipleLabels[value] }}</span>
+            <span v-else-if="taggable">{{ value }}</span>
             <icon v-else
               name="question-circle" variant="white" />
             <i aria-hidden="true" tabindex="1" class="multiselect__tag-icon" @click="onRemove(option)"></i>

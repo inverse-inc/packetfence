@@ -73,14 +73,6 @@ export const useFormButtonBar = (props, context) => {
   const onReset = value => emit('reset', value)
   const onSave = value => emit('save', value)
 
-  /*
-           <template v-if="isNew">{{ $t('Create') }}</template>
-        <template v-else-if="actionKey && isClone && canClose">{{ $t('Create & {actionKeyButtonVerb}', { actionKeyButtonVerb }) }}</template>
-        <template v-else-if="isClone">{{ $t('Create') }}</template>
-        <template v-else-if="actionKey">{{ $t('Save & {actionKeyButtonVerb}', { actionKeyButtonVerb }) }}</template>
-        <template v-else>{{ $t('Save') }}</template>
-        */
-
   const saveButtonLabel = computed(() => {
     switch (true) {
       case isClone.value && actionKey.value && canClose.value:

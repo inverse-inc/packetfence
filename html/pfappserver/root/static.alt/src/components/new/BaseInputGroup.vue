@@ -17,6 +17,7 @@
         <slot name="prepend"></slot>
       </template>
       <template v-slot:append v-if="$slots.append || isLocked">
+        <slot name="append"></slot>
         <b-button v-if="isLocked"
           class="input-group-text"
           :disabled="true"
@@ -26,7 +27,6 @@
             name="lock"
           />
         </b-button>
-        <slot name="append" v-else></slot>
       </template>
     </b-input-group>
     <small v-if="text"
