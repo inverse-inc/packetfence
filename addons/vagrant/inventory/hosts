@@ -88,7 +88,7 @@ all:
         dev:
           hosts:
             pfcen7dev:
-              box: centos/7
+              box: inverse-inc/pfcen7dev
               mgmt_ip: 172.17.17.10
               mgmt_netmask: 255.255.255.0
               ansible_host: "{{ mgmt_ip }}"
@@ -102,7 +102,7 @@ all:
               cpus: 2
               memory: 6144
             pfdeb9dev:
-              box: debian/stretch64
+              box: inverse-inc/pfdeb9dev
               mgmt_ip: 172.17.17.12
               mgmt_netmask: 255.255.255.0
               ansible_host: "{{ mgmt_ip }}"
