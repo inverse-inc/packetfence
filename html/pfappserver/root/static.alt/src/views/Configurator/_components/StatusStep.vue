@@ -11,12 +11,12 @@
     </template>
   </base-step>
 </template>
-
 <script>
 import BaseStep from './BaseStep'
 import PasswordsView from './PasswordsView'
 import pfButtonSave from '@/components/pfButtonSave'
 
+// @vue/component
 export default {
   name: 'status-step',
   components: {

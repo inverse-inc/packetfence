@@ -81,6 +81,10 @@ const props = {
   },
   disabled: {
     type: Boolean
+  },
+  acl: {
+    type: String,
+    default: 'SERVICES_XXX_READ'
   }
 }
 
@@ -102,7 +106,8 @@ const setup = (props, context) => {
     restart,
     start,
     stop,
-    disabled
+    disabled,
+    acl: _acl
   } = toRefs(props)
 
   const { root: { $store } = {}, emit } = context
@@ -112,7 +117,14 @@ const setup = (props, context) => {
     return _service || { status: 'loading' }
   })
 
-  const isAllowed = computed(() => acl.$can('read', 'services'))
+  const isAllowed = computed(() => {
+    if (_acl.value) {
+      const [ verb, ...nouns ] = Array.prototype.slice.call(_acl.value.toLowerCase().split('_')).reverse()
+      const noun = nouns.reverse().join('_')
+      return verb && nouns.length > 0 && acl.$can(verb, noun)
+    }
+    return true
+  })
   const isBlacklisted = computed(() => !!blacklistedServices.find(bls => bls === service.value))
   const isError = computed(() => status.value.status === 'error')
   const isLoading = computed(() => {

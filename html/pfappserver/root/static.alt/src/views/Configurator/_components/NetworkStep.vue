@@ -3,20 +3,20 @@
     :name="$t('Configure Network')"
     icon="project-diagram"
     :invalid-step="invalidStep"
-    :invalid-feedback="invalidFeedback"
+:invalid-feedback="invalidFeedback"
     :is-loading="isLoading"
     :disable-navigation="disableNavigation"
     @next="save">
     <router-view ref="interfaceslist"></router-view>
   </base-step>
 </template>
-
 <script>
 import BaseStep from './BaseStep'
 import {
   networkValidators
 } from '../_config/interface'
 
+// @vue/component
 export default {
   name: 'network-step',
   components: {
@@ -42,11 +42,11 @@ export default {
     }
   },
   methods: {
-    save (nextRouteName) {
+    save (nextRoute) {
       const { interfaceslist } = this.$refs
       this.isLoading = true
       interfaceslist.save().then(() => {
-        this.$router.push({ name: nextRouteName })
+        this.$router.push(nextRoute)
       }).finally(() => {
         this.isLoading = false
       })

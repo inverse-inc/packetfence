@@ -144,6 +144,7 @@ import 'vue2vis/dist/vue2vis.css'
 
 // Ignore custom elements defined outside of Vue
 Vue.config.ignoredElements = [
+  'ip',
   'mac'
 ]
 Vue.config.devtools = process.env.VUE_APP_DEBUG === 'true'

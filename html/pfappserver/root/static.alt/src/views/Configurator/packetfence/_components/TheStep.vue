@@ -1,0 +1,84 @@
+<template>
+  <base-step ref="rootRef"
+    :name="$t('Configure PacketFence')"
+    icon="cogs"
+    :invalid-step="!isValid"
+    :invalid-feedback="invalidFeedback"
+    :is-loading="isLoading"
+    @next="onSave">
+    <form-database ref="databaseRef" />
+    <form-general ref="generalRef" class="mt-3" />
+    <form-alerting ref="alertingRef" class="mt-3" />
+    <form-administrator ref="administratorRef" class="mt-3" />
+  </base-step>
+</template>
+<script>
+import BaseStep from '../../_components/BaseStep'
+import FormAdministrator from './FormAdministrator'
+import FormAlerting from './FormAlerting'
+import FormDatabase from './FormDatabase'
+import FormGeneral from './FormGeneral'
+
+const components = {
+  BaseStep,
+
+  FormAdministrator,
+  FormAlerting,
+  FormDatabase,
+  FormGeneral
+}
+
+import { computed, onMounted, provide, ref, watch } from '@vue/composition-api'
+import { useMutationObserver, useQuerySelectorAll } from '@/composables/useDom'
+
+const setup = (props, context) => {
+
+  const { refs, root: { $router } = {} } = context
+
+  const rootRef = ref(null)
+  const isLoading = ref(false)
+
+  // avoid having to pass events (state/invalidfeedback) up from deeply nested children within <router-view/>
+  //  use DOM querySelectorAll with MutationObserver instead
+  const _invalidNodes = useQuerySelectorAll(rootRef, '.form-group.is-invalid, .row.is-invalid')
+  const isValid = computed(() => (!_invalidNodes.value || _invalidNodes.value.length === 0))
+  const invalidFeedback = computed(() => (_invalidNodes.value && Array.prototype.slice.call(_invalidNodes.value)
+    .map(node => node.querySelector('.invalid-feedback').textContent)
+    .join(' ')
+  ))
+
+  const onSave = nextRoute => {
+    isLoading.value = true
+    const { databaseRef, generalRef, alertingRef, administratorRef } = refs
+    isLoading.value = true
+    databaseRef.onSave().then(() => {
+      return Promise.all([
+        generalRef.onSave(),
+        alertingRef.onSave()
+      ]).then(() => {
+        return administratorRef.onSave()
+      })
+    }).then(() => {
+      $router.push(nextRoute)
+    }).finally(() => {
+      isLoading.value = false
+    })
+  }
+
+  return {
+    rootRef,
+    isLoading,
+    isValid,
+    invalidFeedback,
+    onSave
+  }
+}
+
+
+// @vue/component
+export default {
+  name: 'the-step',
+  components,
+  setup
+}
+</script>
