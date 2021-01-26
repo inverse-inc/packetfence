@@ -66,7 +66,6 @@ export const setup = (props, context) => {
 
   const state = inject('state') // Configurator
   const form = ref({})
-
   const schema = computed(() => schemaFn(props))
 
   const userExists = ref(false)
