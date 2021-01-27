@@ -1,0 +1,9 @@
+name: Disable 802.1X on dot1x interface on wireless01
+version: 2
+testcases:
+- name: disable_dot1x_on_wireless01
+  steps:
+  - type: exec
+    script: systemctl stop hostapd_secure
+    assertions:
+      - result.statuscode ShouldEqual 0

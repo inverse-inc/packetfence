@@ -1,0 +1,9 @@
+name: Disable MAC Authentication on wireless01
+version: 2
+testcases:
+- name: disable_mac_auth_on_wireless01
+  steps:
+  - type: exec
+    script: systemctl stop hostapd_open
+    assertions:
+      - result.statuscode ShouldEqual 0
