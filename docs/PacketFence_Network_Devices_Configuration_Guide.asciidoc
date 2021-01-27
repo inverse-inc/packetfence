@@ -1,4 +1,5 @@
 = Network Devices Configuration Guide
+
 ////
 
     This file is part of the PacketFence project.
@@ -7,6 +8,7 @@
     license information.
 
 ////
+
 include::includes/global-attributes.asciidoc[]
 
 == About this Guide

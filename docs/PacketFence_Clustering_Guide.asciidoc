@@ -1,12 +1,14 @@
 = Clustering Quick Installation Guide
+
 ////
 
     This file is part of the PacketFence project.
 
-    See includes/global-attributes.asciidoc for authors, copyright and
-    license information.
+    See includes/global-attributes.asciidoc
+    for authors, copyright and license information.
 
 ////
+
 include::includes/global-attributes.asciidoc[]
 
 == About this Guide
