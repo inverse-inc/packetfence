@@ -41,6 +41,7 @@ func TestStringify(t *testing.T) {
 		{nil, "1122.3344.5566", "11:22:33:44:55:66", "17.34.51.68.85.102", 0x0001112233445566},
 		{nil, "a00000000009", "a0:00:00:00:00:09", "160.0.0.0.0.9", 0x0001a00000000009},
 		{nil, "1122.3344.5566:Bob SSID", "11:22:33:44:55:66", "17.34.51.68.85.102", 0x0001112233445566},
+		{nil, "1122-3344-5566:Bob SSID", "11:22:33:44:55:66", "17.34.51.68.85.102", 0x0001112233445566},
 		{nil, "112.233.445.566", "11:22:33:44:55:66", "17.34.51.68.85.102", 0x0001112233445566},
 		{nil, "112.233.445.566:Bob SSID", "11:22:33:44:55:66", "17.34.51.68.85.102", 0x0001112233445566},
 		{nil, "11:22:33:44:55:66", "11:22:33:44:55:66", "17.34.51.68.85.102", 0x0001112233445566},
@@ -58,7 +59,20 @@ func TestStringify(t *testing.T) {
 	for i, test := range newFromStringTests {
 		mac, err := NewFromString(test.fromStr)
 		if err != test.err {
-			t.Errorf("Test %d) Error is not valid expected '%s', got '%s'.", i, test.err, err)
+            var expectedStr, gotStr string
+            if test.err != nil {
+                expectedStr = test.err.Error()
+            } else {
+                expectedStr = "nil"
+            }
+
+            if err != nil {
+                gotStr = err.Error()
+            } else {
+                gotStr = "nil"
+            }
+
+            t.Errorf("Test %d) Error is not valid expected '%s', got '%s'.", i, expectedStr, gotStr)
 		}
 
 		if mac.String() != test.macStr {

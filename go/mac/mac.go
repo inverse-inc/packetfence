@@ -134,7 +134,7 @@ func (mac *Mac) InitFromString(s string) error {
 			}
 			x += 3
 		}
-	case length >= 14 && s[4] == '.':
+	case length >= 14 && (s[4] == '.' || s[4] == '-'):
 		// 0123.4567.89ab
 		// xxxx.xxxx.xxxx
 		for i, x := 0, 0; i < 14; i += 5 {
