@@ -12,7 +12,7 @@ endif::[]
     This file is part of the PacketFence project.
 
     See PacketFence_Developers_Guide.asciidoc
-    for  authors, copyright and license information.
+    for authors, copyright and license information.
 
 ////
 
