@@ -106,7 +106,7 @@ CREATE TABLE person (
 --
 
 CREATE TABLE `node_category` (
-  `category_id` int NOT NULL AUTO_INCREMENT,
+  `category_id` BIGINT NOT NULL AUTO_INCREMENT,
   `name` varchar(255) NOT NULL,
   `max_nodes_per_pid` int default 0,
   `notes` varchar(255) default NULL,
@@ -156,7 +156,7 @@ CREATE TABLE node (
   tenant_id int NOT NULL DEFAULT 1,
   mac varchar(17) NOT NULL,
   pid varchar(255) NOT NULL default "default",
-  category_id int default NULL,
+  category_id bigint default NULL,
   detect_date datetime NOT NULL default "0000-00-00 00:00:00",
   regdate datetime NOT NULL default "0000-00-00 00:00:00",
   unregdate datetime NOT NULL default "0000-00-00 00:00:00",
@@ -213,7 +213,7 @@ CREATE TABLE action (
 --
 
 CREATE TABLE security_event (
-  id int NOT NULL AUTO_INCREMENT,
+  id BIGINT NOT NULL AUTO_INCREMENT,
   tenant_id int NOT NULL DEFAULT 1,
   mac varchar(17) NOT NULL,
   security_event_id int(11) NOT NULL,
@@ -270,7 +270,7 @@ DELIMITER ;
 --
 
 CREATE TABLE ip4log_history (
-  id int NOT NULL PRIMARY KEY AUTO_INCREMENT,
+  id BIGINT NOT NULL PRIMARY KEY AUTO_INCREMENT,
   tenant_id int NOT NULL DEFAULT 1,
   mac varchar(17) NOT NULL,
   ip varchar(45) NOT NULL,
@@ -286,7 +286,7 @@ CREATE TABLE ip4log_history (
 --
 
 CREATE TABLE ip4log_archive (
-  id int NOT NULL PRIMARY KEY AUTO_INCREMENT,
+  id BIGINT NOT NULL PRIMARY KEY AUTO_INCREMENT,
   tenant_id int NOT NULL DEFAULT 1,
   mac varchar(17) NOT NULL,
   ip varchar(45) NOT NULL,
@@ -335,7 +335,7 @@ DELIMITER ;
 --
 
 CREATE TABLE ip6log_history (
-  id int NOT NULL PRIMARY KEY AUTO_INCREMENT,
+  id BIGINT NOT NULL PRIMARY KEY AUTO_INCREMENT,
   tenant_id int NOT NULL DEFAULT 1,
   mac varchar(17) NOT NULL,
   ip varchar(45) NOT NULL,
@@ -352,7 +352,7 @@ CREATE TABLE ip6log_history (
 --
 
 CREATE TABLE ip6log_archive (
-  id int NOT NULL PRIMARY KEY AUTO_INCREMENT,
+  id BIGINT NOT NULL PRIMARY KEY AUTO_INCREMENT,
   tenant_id int NOT NULL DEFAULT 1,
   mac varchar(17) NOT NULL,
   ip varchar(45) NOT NULL,
@@ -395,7 +395,7 @@ CREATE TABLE `locationlog` (
 ) ENGINE=InnoDB;
 
 CREATE TABLE `locationlog_history` (
-  `id` int NOT NULL PRIMARY KEY AUTO_INCREMENT,
+  `id` BIGINT NOT NULL PRIMARY KEY AUTO_INCREMENT,
   `tenant_id` int NOT NULL DEFAULT 1,
   `mac` varchar(17) default NULL,
   `switch` varchar(17) NOT NULL default '',
@@ -521,7 +521,7 @@ DELIMITER ;
 --
 
 CREATE TABLE sms_carrier (
-    id integer primary key AUTO_INCREMENT comment 'primary key for SMS carrier',
+    id BIGINT NOT NULL PRIMARY KEY AUTO_INCREMENT comment 'primary key for SMS carrier',
     name varchar(64) unique key comment 'name of the carrier',
     email_pattern varchar(255) not null comment 'sprintf pattern for making an email address from a phone number',
     created datetime not null comment 'date this record was created',
@@ -683,7 +683,7 @@ CREATE TABLE radacct (
 -- Adding RADIUS update log table
 
 CREATE TABLE radacct_log (
-  id int NOT NULL PRIMARY KEY AUTO_INCREMENT,
+  `id` BIGINT NOT NULL PRIMARY KEY AUTO_INCREMENT,
   `tenant_id` int NOT NULL DEFAULT 1,
   acctsessionid varchar(64) NOT NULL default '',
   username varchar(64) NOT NULL default '',
@@ -1048,13 +1048,12 @@ CREATE TABLE billing (
 --
 
 CREATE TABLE savedsearch (
-  id int NOT NULL AUTO_INCREMENT,
+  id BIGINT NOT NULL PRIMARY KEY AUTO_INCREMENT,
   pid varchar(255) NOT NULL,
   namespace varchar(255) NOT NULL,
   name varchar(255) NOT NULL,
   query text,
-  in_dashboard tinyint,
-  PRIMARY KEY (id)
+  in_dashboard tinyint
 ) ENGINE=InnoDB;
 
 --
@@ -1122,7 +1121,7 @@ CREATE TABLE wrix (
 --
 
 CREATE TABLE activation (
-  `code_id` int NOT NULL AUTO_INCREMENT,
+  `code_id` BIGINT NOT NULL PRIMARY KEY AUTO_INCREMENT,
   `tenant_id` int NOT NULL DEFAULT 1,
   `pid` varchar(255) default NULL,
   `mac` varchar(17) default NULL,
@@ -1136,7 +1135,6 @@ CREATE TABLE activation (
   `type` varchar(60) NOT NULL,
   `portal` varchar(255) default NULL,
   `source_id` varchar(255) default NULL,
-  PRIMARY KEY (code_id),
   KEY `mac` (mac),
   KEY `identifier` (pid, mac),
   KEY `activation` (activation_code, status)
@@ -1164,7 +1162,7 @@ CREATE TABLE pf_version ( `id` INT NOT NULL PRIMARY KEY, `version` VARCHAR(11) N
 --
 
 CREATE TABLE radius_audit_log (
-  id int NOT NULL AUTO_INCREMENT,
+  `id` BIGINT NOT NULL PRIMARY KEY AUTO_INCREMENT,
   `tenant_id` int NOT NULL DEFAULT 1,
   created_at TIMESTAMP NOT NULL,
   mac char(17) NOT NULL,
@@ -1204,7 +1202,6 @@ CREATE TABLE radius_audit_log (
   radius_reply TEXT,
   request_time int(11) DEFAULT NULL,
   radius_ip varchar(45) NULL,
-  PRIMARY KEY (id),
   KEY `created_at` (created_at),
   KEY `mac` (mac),
   KEY `ip` (ip),
@@ -1234,7 +1231,7 @@ CREATE TABLE `dhcp_option82` (
 --
 
 CREATE TABLE `dhcp_option82_history` (
-  `dhcp_option82_history_id` int NOT NULL PRIMARY KEY AUTO_INCREMENT,
+  `dhcp_option82_history_id` BIGINT NOT NULL PRIMARY KEY AUTO_INCREMENT,
   `mac` varchar(17) NOT NULL,
   `created_at` TIMESTAMP NOT NULL,
   `option82_switch` varchar(17) NULL,
@@ -1288,7 +1285,7 @@ DELIMITER ;
 --
 
 CREATE TABLE auth_log (
-  `id` int NOT NULL AUTO_INCREMENT,
+  `id` BIGINT NOT NULL PRIMARY KEY AUTO_INCREMENT,
   `tenant_id` int NOT NULL DEFAULT 1,
   `process_name` varchar(255) NOT NULL,
   `mac` varchar(17) NOT NULL,
@@ -1298,7 +1295,6 @@ CREATE TABLE auth_log (
   `completed_at` datetime,
   `source` varchar(255) NOT NULL,
   `profile` VARCHAR(255) DEFAULT NULL,
-  PRIMARY KEY (id),
   KEY pid (pid),
   KEY  attempted_at (attempted_at)
 ) ENGINE=InnoDB;
@@ -1364,7 +1360,7 @@ CREATE TABLE user_preference (
 --
 
 CREATE TABLE `dns_audit_log` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `id` BIGINT NOT NULL PRIMARY KEY AUTO_INCREMENT,
   `tenant_id` int(11) NOT NULL DEFAULT '1',
   `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   `ip` varchar(45) NOT NULL,
@@ -1373,7 +1369,6 @@ CREATE TABLE `dns_audit_log` (
   `qtype` varchar(255) DEFAULT NULL,
   `scope` varchar(22) DEFAULT NULL,
   `answer` varchar(255) DEFAULT NULL,
-   PRIMARY KEY (`id`),
    KEY `created_at` (`created_at`),
    KEY `mac` (`mac`),
    KEY `ip` (`ip`)
@@ -1384,7 +1379,7 @@ CREATE TABLE `dns_audit_log` (
 --
 
 CREATE TABLE `admin_api_audit_log` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `id` BIGINT NOT NULL PRIMARY KEY AUTO_INCREMENT,
   `tenant_id` int(11) NOT NULL DEFAULT '1',
   `created_at` timestamp(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6),
   `user_name` varchar(255) COLLATE utf8mb4_bin DEFAULT NULL,
@@ -1394,7 +1389,6 @@ CREATE TABLE `admin_api_audit_log` (
   `method` varchar(10) COLLATE utf8mb4_bin DEFAULT NULL,
   `request` mediumtext COLLATE utf8mb4_bin,
   `status` smallint(5) NOT NULL,
-   PRIMARY KEY (`id`),
    KEY `action` (`action`),
    KEY `user_name` (`user_name`),
    KEY `object_id_action` (`object_id`, `action`),
@@ -1407,13 +1401,12 @@ CREATE TABLE `admin_api_audit_log` (
 --
 
 CREATE TABLE dhcppool (
-  id                    int(11) unsigned NOT NULL auto_increment,
+  `id` BIGINT NOT NULL PRIMARY KEY AUTO_INCREMENT,
   pool_name             varchar(30) NOT NULL,
   idx                   int(11) NOT NULL,
   mac                   VARCHAR(30) NOT NULL,
   free                  BOOLEAN NOT NULL default '1',
   released              DATETIME(6) NULL default NULL,
-  PRIMARY KEY (id),
   UNIQUE KEY dhcppool_poolname_idx (pool_name, idx),
   KEY mac (mac),
   KEY released (released)
@@ -1424,7 +1417,7 @@ CREATE TABLE dhcppool (
 --
 
 CREATE TABLE `pki_cas` (
-  `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `id` BIGINT NOT NULL PRIMARY KEY AUTO_INCREMENT,
   `created_at` timestamp NULL DEFAULT NULL,
   `updated_at` timestamp NULL DEFAULT NULL,
   `deleted_at` timestamp NULL DEFAULT NULL,
@@ -1446,7 +1439,6 @@ CREATE TABLE `pki_cas` (
   `cert` longtext,
   `issuer_key_hash` varchar(255) DEFAULT NULL,
   `issuer_name_hash` varchar(255) DEFAULT NULL,
-  PRIMARY KEY (`id`),
   UNIQUE KEY `cn` (`cn`),
   UNIQUE KEY `uix_cas_issuer_key_hash` (`issuer_key_hash`),
   UNIQUE KEY `uix_cas_issuer_name_hash` (`issuer_name_hash`),
@@ -1460,7 +1452,7 @@ CREATE TABLE `pki_cas` (
 --
 
 CREATE TABLE `pki_certs` (
-  `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `id` BIGINT NOT NULL PRIMARY KEY AUTO_INCREMENT,
   `created_at` timestamp NULL DEFAULT NULL,
   `updated_at` timestamp NULL DEFAULT NULL,
   `deleted_at` timestamp NULL DEFAULT NULL,
@@ -1481,7 +1473,6 @@ CREATE TABLE `pki_certs` (
   `valid_until` timestamp NULL DEFAULT NULL,
   `date` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
   `serial_number` varchar(255) DEFAULT NULL,
-  PRIMARY KEY (`id`),
   UNIQUE KEY `cn` (`cn`),
   KEY `profile_name` (`profile_name`),
   KEY `valid_until` (`valid_until`),
@@ -1498,7 +1489,7 @@ CREATE TABLE `pki_certs` (
 --
 
 CREATE TABLE `pki_profiles` (
-  `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `id` BIGINT NOT NULL PRIMARY KEY AUTO_INCREMENT,
   `created_at` timestamp NULL DEFAULT NULL,
   `updated_at` timestamp NULL DEFAULT NULL,
   `deleted_at` timestamp NULL DEFAULT NULL,
@@ -1516,7 +1507,6 @@ CREATE TABLE `pki_profiles` (
   `p12_mail_from` varchar(255) DEFAULT NULL,
   `p12_mail_header` varchar(255) DEFAULT NULL,
   `p12_mail_footer` varchar(255) DEFAULT NULL,
-  PRIMARY KEY (`id`),
   UNIQUE KEY `name` (`name`),
   KEY `idx_profiles_deleted_at` (`deleted_at`),
   KEY `ca_id` (`ca_id`),
@@ -1529,7 +1519,7 @@ CREATE TABLE `pki_profiles` (
 --
 
 CREATE TABLE `pki_revoked_certs` (
-  `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `id` BIGINT NOT NULL PRIMARY KEY AUTO_INCREMENT,
   `created_at` timestamp NULL DEFAULT NULL,
   `updated_at` timestamp NULL DEFAULT NULL,
   `deleted_at` timestamp NULL DEFAULT NULL,
@@ -1552,7 +1542,6 @@ CREATE TABLE `pki_revoked_certs` (
   `serial_number` varchar(255) DEFAULT NULL,
   `revoked` timestamp NULL DEFAULT NULL,
   `crl_reason` int(11) DEFAULT NULL,
-  PRIMARY KEY (`id`),
   KEY `valid_until` (`valid_until`),
   KEY `crl_reason` (`crl_reason`),
   KEY `idx_revoked_certs_deleted_at` (`deleted_at`),
@@ -1835,15 +1824,13 @@ DELIMITER ;
 -- Table structure for remote clients
 --
 
-DROP TABLE if exists `remote_clients`;
 CREATE TABLE `remote_clients` (
-  id int NOT NULL AUTO_INCREMENT,
+  `id` BIGINT NOT NULL PRIMARY KEY AUTO_INCREMENT,
   tenant_id int NOT NULL DEFAULT 1,
   public_key varchar(255) NOT NULL,
   mac varchar(17) NOT NULL,
   created_at datetime NOT NULL,
   updated_at datetime NOT NULL,
-  PRIMARY KEY (id),
   UNIQUE KEY remote_clients_private_key (`public_key`)
 ) ENGINE=InnoDB;
 
