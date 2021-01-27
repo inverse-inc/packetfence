@@ -275,7 +275,7 @@ func (p *Proxy) Configure(ctx context.Context) {
 	p.addToEndpointList(ctx, "127.1")
 	p.addToEndpointList(ctx, "127.0.1")
 	p.addToEndpointList(ctx, "0177.1")
-	p.addToEbdpointList(ctx, "0177.0.1")
+	p.addToEndpointList(ctx, "0177.0.1")
 	p.addToEndpointList(ctx, "0x7f.1")
 	p.addToEndpointList(ctx, "0x7f.0.1")
 	p.addToEndpointList(ctx, "7f.00.00.01")
