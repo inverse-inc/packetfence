@@ -7,8 +7,8 @@ import (
 	"io/ioutil"
 	"net"
 	"net/http"
+	"os/exec"
 
-	"github.com/diegoguarnieri/go-conntrack/conntrack"
 	"github.com/gorilla/mux"
 	ipset "github.com/inverse-inc/go-ipset"
 	"github.com/inverse-inc/packetfence/go/log"
@@ -479,8 +479,7 @@ func (IPSET *pfIPSET) handleUnmarkMac(res http.ResponseWriter, req *http.Request
 		Ips := IPSET.mac2ip(req.Context(), Mac, v)
 		for _, i := range Ips {
 			IPSET.jobs <- job{"Del", v.Name, i}
-			conn, _ := conntrack.New()
-			conn.DeleteConnectionBySrcIp(i)
+			IPSET.DeleteConnectionBySrcIp(i)
 			logger.Info(fmt.Sprintf("Removed %s from %s", i, v.Name))
 		}
 	}
@@ -525,8 +524,7 @@ func (IPSET *pfIPSET) handleUnmarkIp(res http.ResponseWriter, req *http.Request)
 		r := ipset.Test(v.Name, Ip.String())
 		if r == nil {
 			IPSET.jobs <- job{"Del", v.Name, Ip.String()}
-			conn, _ := conntrack.New()
-			conn.DeleteConnectionBySrcIp(Ip.String())
+			IPSET.DeleteConnectionBySrcIp(Ip.String())
 			logger.Info(fmt.Sprintf("Removed %s from %s", Ip, v.Name))
 		}
 	}
@@ -543,6 +541,22 @@ func (IPSET *pfIPSET) handleUnmarkIp(res http.ResponseWriter, req *http.Request)
 	}
 }
 
+func (IPSET *pfIPSET) DeleteConnectionBySrcIp(ip string) {
+	if conntrackBinary != "" {
+		args := []string{"-D", "-s", ip}
+		stdout := bytes.Buffer{}
+		stderr := bytes.Buffer{}
+		cmd := exec.Cmd{
+			Path:   conntrackBinary,
+			Args:   args,
+			Stdout: &stdout,
+			Stderr: &stderr,
+		}
+
+		_ := cmd.Run()
+	}
+}
+
 func handleError(res http.ResponseWriter, code int) {
 	var result = map[string][]*Info{
 		"result": {
@@ -553,5 +567,14 @@ func handleError(res http.ResponseWriter, code int) {
 	res.WriteHeader(code)
 	if err := json.NewEncoder(res).Encode(result); err != nil {
 		panic(err)
+	}
+}
+
+var conntrackBinary = ""
+
+func init() {
+	path, err := exec.LookPath("conntrack")
+	if err == nil {
+		conntrackBinary = path
 	}
 }
