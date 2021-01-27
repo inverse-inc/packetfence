@@ -661,7 +661,7 @@ func (I *Interface) ServeDHCP(ctx context.Context, p dhcp.Packet, msgType dhcp.M
 							} else {
 								Reply = false
 								log.LoggerWContext(ctx).Info(answer.MAC.String() + " Asked for an IP " + reqIP.String() + " that hasnt been assigned by Offer " + dhcp.IPAdd(handler.start, index.(int)).String() + " xID " + sharedutils.ByteToString(p.XId()))
-								if index, found = handler.xid.Get(string(binary.BigEndian.Uint32(p.XId()))); found {
+								if index, found = handler.xid.Get(fmt.Sprintf("%d", (binary.BigEndian.Uint32(p.XId())))); found {
 									if index.(int) == 1 {
 										handler.hwcache.Delete(answer.MAC.String())
 									}
