@@ -177,21 +177,6 @@ sub deauthTechniques {
     return $method,$tech{$method};
 }
 
-
-
-=item returnRoleAttribute
-
-What RADIUS Attribute (usually VSA) should the role returned into.
-
-=cut
-
-sub returnRoleAttribute {
-    my ($self) = @_;
-
-    return 'Ruckus-User-Groups';
-}
-
-
 =item parseExternalPortalRequest
 
 Parse external portal request using URI and it's parameters then return an hash reference with the appropriate parameters
