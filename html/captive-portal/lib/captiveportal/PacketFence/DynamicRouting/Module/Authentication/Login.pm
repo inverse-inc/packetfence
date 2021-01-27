@@ -123,6 +123,7 @@ Authenticate the POSTed username and password
 sub authenticate {
     my ($self, $user) = @_;
     my $username = $user || $self->request_fields->{$self->pid_field};
+    my $pid = $self->request_fields->{$self->pid_field} || $username;
     my $password = $self->request_fields->{password};
 
     my ($stripped_username, $realm) = strip_username($username);
@@ -231,6 +232,7 @@ sub authenticate {
         }
     }
 
+    $self->username($pid);
     pf::lookup::person::async_lookup_person($username,$self->source->id,$pf::constants::realm::PORTAL_CONTEXT);
     $self->update_person_from_fields();
     $self->done();
