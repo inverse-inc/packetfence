@@ -1,6 +1,7 @@
 package pfipset
 
 import (
+	"bytes"
 	"context"
 	"encoding/json"
 	"fmt"
@@ -553,7 +554,7 @@ func (IPSET *pfIPSET) DeleteConnectionBySrcIp(ip string) {
 			Stderr: &stderr,
 		}
 
-		_ := cmd.Run()
+		_ = cmd.Run()
 	}
 }
 
