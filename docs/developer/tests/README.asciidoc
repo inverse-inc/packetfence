@@ -1,3 +1,21 @@
+// to display images directly on GitHub
+ifdef::env-github[]
+:encoding: UTF-8
+:lang: en
+:doctype: book
+:toc: left
+:imagesdir: ../../images
+endif::[]
+
+////
+
+    This file is part of the PacketFence project.
+
+    See PacketFence_Developers_Guide.asciidoc
+    for  authors, copyright and license information.
+
+////
+
 === Unit tests
 
 ==== Unit tests: prerequisites

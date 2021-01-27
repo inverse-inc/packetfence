@@ -7,6 +7,15 @@ ifdef::env-github[]
 :imagesdir: ../../images
 endif::[]
 
+////
+
+    This file is part of the PacketFence project.
+
+    See PacketFence_Developers_Guide.asciidoc
+    for  authors, copyright and license information.
+
+////
+
 === Integration tests
 
 The aim of integration tests is to test common PacketFence scenarios and
