@@ -6,7 +6,7 @@ to-10.2-pfdetect-conf -
 
 =head1 DESCRIPTION
 
-Add the new field tenant_id to the detect parsers
+Add the new field tenant_id to networks.conf
 
 =cut
 
