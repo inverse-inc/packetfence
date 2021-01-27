@@ -26,7 +26,6 @@ require (
 	github.com/coreos/pkg v0.0.0-20180928190104-399ea9e2e55f // indirect
 	github.com/davecgh/go-spew v1.1.1
 	github.com/dgryski/go-csnappy v0.0.0-20150721071530-9d18391da197 // indirect
-	github.com/diegoguarnieri/go-conntrack v0.0.0-20161208180411-9abb0707ff31
 	github.com/dnstap/golang-dnstap v0.2.2
 	github.com/domodwyer/mailyak v3.1.1+incompatible // indirect
 	github.com/dustin/go-humanize v1.0.0
