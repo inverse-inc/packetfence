@@ -2,12 +2,15 @@
   <router-view></router-view>
 </template>
 <script>
-import { onBeforeUnmount } from '@vue/composition-api'
+import { onBeforeUnmount, provide, ref } from '@vue/composition-api'
 import apiCall, { baseURL } from '@/utils/api'
 
 const setup = (props, context) => {
 
   const { root: { $router } = {} } = context
+
+  const state = ref({})
+  provide('state', state)
 
   const requestInterceptor = apiCall.interceptors.request.use((config) => {
     config.baseURL = '/api/v1/configurator/'

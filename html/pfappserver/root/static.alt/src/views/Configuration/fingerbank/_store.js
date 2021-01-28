@@ -168,7 +168,7 @@ const actions = {
           }, {})
       })
       commit('GENERAL_SETTINGS_REPLACED', refactored)
-      return refactored
+      return state.generalSettings.cache
     }).catch(err => {
       commit('GENERAL_SETTINGS_ERROR', err.response)
       throw err
@@ -211,7 +211,7 @@ const actions = {
   },
   getCombination: ({ state, commit }, id) => {
     if (state.combinations.cache[id]) {
-      return Promise.resolve(state.combinations.cache[id]).then(cache => JSON.parse(JSON.stringify(cache)))
+      return Promise.resolve(state.combinations.cache[id])
     }
     commit('COMBINATION_REQUEST')
     return api.fingerbankCombination(id).then(item => {
@@ -671,9 +671,7 @@ const mutations = {
   },
   GENERAL_SETTINGS_REPLACED: (state, data) => {
     state.generalSettings.status = types.SUCCESS
-    if (!state.generalSettings.cache)
-      Vue.set(state.generalSettings, 'cache', {})
-    Vue.set(state.generalSettings.cache, data.id, JSON.parse(JSON.stringify(data)))
+    Vue.set(state.generalSettings, 'cache', data)
   },
   GENERAL_SETTINGS_ERROR: (state, response) => {
     state.generalSettings.status = types.ERROR

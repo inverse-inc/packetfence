@@ -114,7 +114,7 @@ const components = {
   FormGroupTestEmailAddr
 }
 
-import { computed, ref } from '@vue/composition-api'
+import { computed, inject, ref } from '@vue/composition-api'
 import i18n from '@/utils/locale'
 import schemaFn from '@/views/Configuration/alerting/schema'
 
@@ -124,6 +124,7 @@ export const setup = (props, context) => {
 
   const advancedMode = ref(false)
 
+  const state = inject('state') // Configurator
   const form = ref({})
   $store.dispatch('$_bases/getAlerting').then(_form => form.value = _form)
 
@@ -135,16 +136,18 @@ export const setup = (props, context) => {
   const isLoading = computed(() => $store.getters['$_bases/isLoading'])
 
   const onSave = () => {
-    return $store.dispatch('$_bases/updateAlerting', Object.assign({ quiet: true }, form.value)).catch(error => {
-      // Only show a notification in case of a failure
-      const { response: { data: { message = '' } = {} } = {} } = error
-      $store.dispatch('notification/danger', {
-        icon: 'exclamation-triangle',
-        url: message,
-        message: i18n.t('An error occured while updating the alerting configuration.')
+    return $store.dispatch('$_bases/updateAlerting', Object.assign({ quiet: true }, form.value))
+      .then(() => state.value.alerting = form.value)
+      .catch(error => {
+        // Only show a notification in case of a failure
+        const { response: { data: { message = '' } = {} } = {} } = error
+        $store.dispatch('notification/danger', {
+          icon: 'exclamation-triangle',
+          url: message,
+          message: i18n.t('An error occured while updating the alerting configuration.')
+        })
+        throw error
       })
-      throw error
-    })
   }
 
   return {

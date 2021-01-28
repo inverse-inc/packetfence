@@ -4,33 +4,42 @@
       <h4 class="d-inline mb-0" v-html="$t('Fingerbank')"/>
     </b-card-header>
     <b-form>
-      <div v-if="!fingerbankAccountName"
+      <div v-if="!fingerbankAccountName && !isLoading"
         class="alert alert-info m-3">
         <h4 class="alert-heading">{{ $i18n.t('This step is optional') }}</h4>
         <p class="mb-0" v-html="fingerbankAccountSignup" />
       </div>
-
       <base-form
         :form="form"
         :schema="schema"
         :isLoading="isLoading"
       >
-
-
-<span>e33c03a18a3af6610ad9324837a9903c9e22abe9</span>
-<pre>{{ {form} }}</pre>
-
         <base-form-group-input namespace="api_key"
           :column-label="$i18n.t('API Key')"
           :text="$i18n.t('API key to interact with upstream Fingerbank project. Changing this value requires to restart the Fingerbank collector.')"
-          :valid-feedback="(fingerbankAccountName) ? $i18n.t('API key is valid.') : null"
+          :valid-feedback="(fingerbankAccountName) ? $i18n.t('API key is valid.') : undefined"
         />
 
-        <template v-if="!fingerbankAccountName">
-          <base-form-group v-if="isPassword"
-            class="mb-3">
-            <b-button class="col-sm-7 col-lg-5 col-xl-4" variant="outline-primary"
+        <template v-if="!fingerbankAccountName && form.api_key && form.api_key.length > 0">
+          <base-form-group class="mb-3"
+            :class="{
+              'is-invalid': !fingerbankAccountIsValid
+            }">
+            <b-button class="col-sm-7 col-lg-5 col-xl-4"
+              :variant="(!fingerbankAccountIsValid) ? 'outline-danger' : 'outline-primary'"
+              :disabled="isLoading"
               @click="onVerify">{{ $t('Verify') }}</b-button>
+
+            <div v-if="!fingerbankAccountIsValid"
+              class="d-block invalid-feedback p-2">{{ $i18n.t('Invalid API key.') }}</div>
+          </base-form-group>
+        </template>
+
+        <template v-if="fingerbankAccountName">
+          <base-form-group class="mb-3">
+            <div class="alert alert-info w-100">
+              <p class="mb-0" v-html="$i18n.t('The API key is associated to Fingerbank account <b>{name}</b>', { name: fingerbankAccountName })" />
+            </div>
           </base-form-group>
         </template>
       </base-form>
@@ -50,24 +59,26 @@ const components = {
   BaseFormGroupInput
 }
 
-import { computed, ref } from '@vue/composition-api'
+import { computed, inject, ref, watch } from '@vue/composition-api'
 import i18n from '@/utils/locale'
 import yup from '@/utils/yup'
 
 const schemaFn = () => yup.object({
-  pid: yup.string().nullable().required(i18n.t('Administrator username required.')),
-  password: yup.string().nullable().required(i18n.t('Administrator password required.'))
+  api_key: yup.string().nullable()
 })
 
 export const setup = (props, context) => {
 
   const { root: { $store } = {} } = context
 
+  const state = inject('state') // Configurator
   const form = ref({})
   const meta = ref({})
   const schema = computed(() => schemaFn(props))
   const fingerbankAccountName = ref(null)
+  const fingerbankAccountIsValid = ref(true)
 
+  // double-quote workaround, embedding this in the template markup yields a parsing error
   const fingerbankAccountSignup = i18n.t(
     'You can visit the official <a href="{link}" target="_new">registration page</a> to create an account and get an API key.',
     { link: 'https://api.fingerbank.org/users/register' }
@@ -77,40 +88,47 @@ export const setup = (props, context) => {
     meta.value = _meta
   })
 
-  $store.dispatch('$_fingerbank/getGeneralSettings').then(_form => {
-    const { upstream, upstream: { api_key = null } = {} } = _form
-    form.value = upstream
-    if (api_key) {
-      $store.dispatch('$_fingerbank/getAccountInfo').then(({ name }) => {
-        fingerbankAccountName.value = name
-      })
-    }
-  })
+  const _getAccountInfo = () => {
+    return $store.dispatch('$_fingerbank/getGeneralSettings').then(_form => {
+      state.value.fingerbank = _form
+      const { upstream, upstream: { api_key = null } = {} } = _form
+      form.value = upstream
+      if (api_key) {
+        $store.dispatch('$_fingerbank/getAccountInfo').then(({ name }) => {
+          fingerbankAccountName.value = name
+        })
+      }
+    })
+  }
+  _getAccountInfo() // init
 
   const isLoading = computed(() => $store.getters['$_fingerbank/isGeneralSettingsLoading'])
 
   const onVerify = () => {
-    $store.dispatch('$_fingerbank/setGeneralSettings', { upstream: { ...form.value, quiet: true } }).then(() => {
-      $store.dispatch('$_fingerbank/getAccountInfo').then(({ name }) => {
-        fingerbankAccountName.value = name
+    $store.dispatch('$_fingerbank/setGeneralSettings', { upstream: { ...form.value, quiet: true } })
+      .then(() => {
+        fingerbankAccountIsValid.value = true
+        _getAccountInfo()
       })
-    }).catch(() => {
-      fingerbankAccountName.value = null
-    })
+      .catch(() => {
+        fingerbankAccountName.value = null
+        fingerbankAccountIsValid.value = false
+      })
   }
 
-  const onSave = () => {
-
-  }
+  // when api_key is mutated disassociate account
+  watch(() => form.value.api_key, () => {
+    fingerbankAccountName.value = null
+  })
 
   return {
     form,
     meta,
     schema,
     fingerbankAccountName,
+    fingerbankAccountIsValid,
     fingerbankAccountSignup,
     isLoading,
-    onSave,
     onVerify
   }
 }

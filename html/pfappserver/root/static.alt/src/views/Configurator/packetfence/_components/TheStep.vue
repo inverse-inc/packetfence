@@ -28,8 +28,8 @@ const components = {
   FormGeneral
 }
 
-import { computed, onMounted, provide, ref, watch } from '@vue/composition-api'
-import { useMutationObserver, useQuerySelectorAll } from '@/composables/useDom'
+import { computed, ref } from '@vue/composition-api'
+import { useQuerySelectorAll } from '@/composables/useDom'
 
 const setup = (props, context) => {
 
