@@ -353,7 +353,7 @@ sub locationlog_synchronize {
 
             # did something changed?
             if (!_is_locationlog_accurate($locationlog_mac, $switch, $ifIndex, $vlan,
-                $mac, $connection_type, $connection_sub_type, $user_name, $ssid, $role)) {
+                $mac, $connection_type, $connection_sub_type, $user_name, $ssid, $role, $switch_mac)) {
 
                 #If the last connection was inline then make sure to clean ipset
                 if ( ( (str_to_connection_type($locationlog_mac->{connection_type}) & $pf::config::INLINE) == $pf::config::INLINE ) && !($connection_type && ($connection_type & $pf::config::INLINE) == $pf::config::INLINE) ) {
@@ -467,7 +467,7 @@ return 1 if locationlog entry is accurate, 0 otherwise
 # Note: voip_status was removed from the accuracy check, feel free to revisit this assumption if we face VoIP problems
 sub _is_locationlog_accurate {
     my $timer = pf::StatsD::Timer->new({ sample_rate => 0.05, level => 7 });
-    my ( $locationlog_mac, $switch, $ifIndex, $vlan, $mac, $connection_type, $connection_sub_type, $user_name, $ssid, $role ) = @_;
+    my ( $locationlog_mac, $switch, $ifIndex, $vlan, $mac, $connection_type, $connection_sub_type, $user_name, $ssid, $role, $switch_mac) = @_;
     my $logger = get_logger();
     $logger->trace("verifying if locationlog is accurate called");
 
@@ -484,6 +484,7 @@ sub _is_locationlog_accurate {
     my $conn_typeChanged = ($locationlog_mac->{connection_type} ne connection_type_to_str($connection_type));
     my $userChanged = ($locationlog_mac->{'dot1x_username'} ne $user_name);
     my $ssidChanged = ($locationlog_mac->{'ssid'} ne $ssid);
+    my $switchMacChanged = ($locationlog_mac->{'switch_mac'} ne $switch_mac);
 
     my $roleChanged = '0';
     my $old_role = $locationlog_mac->{'role'};
@@ -499,7 +500,7 @@ sub _is_locationlog_accurate {
         $ifIndexChanged = ($locationlog_mac->{port} ne $ifIndex);
     }
 
-    if ($vlanChanged || $switchChanged || $conn_typeChanged || $ifIndexChanged || $userChanged || $ssidChanged || $roleChanged) {
+    if ($vlanChanged || $switchChanged || $conn_typeChanged || $ifIndexChanged || $userChanged || $ssidChanged || $roleChanged || $switchMacChanged) {
         $logger->trace("latest locationlog entry is not accurate");
         return 0;
     } else {
