@@ -5,6 +5,7 @@ import (
 	"net/http"
 	"time"
 
+	"github.com/erikdubbelboer/gspt"
 	"github.com/gorilla/mux"
 	"github.com/inverse-inc/packetfence/go/caddy/caddy"
 	"github.com/inverse-inc/packetfence/go/caddy/caddy/caddyhttp/httpserver"
@@ -34,6 +35,7 @@ func init() {
 		panic(err)
 	}
 	message.DefaultCatalog = cat
+	gspt.SetProcTitle("pfpki")
 }
 
 type (

@@ -2,12 +2,14 @@ package api
 
 import (
 	"context"
+	"net/http"
+
+	"github.com/erikdubbelboer/gspt"
 	"github.com/inverse-inc/packetfence/go/caddy/caddy"
 	"github.com/inverse-inc/packetfence/go/caddy/caddy/caddyhttp/httpserver"
 	"github.com/inverse-inc/packetfence/go/log"
 	"github.com/inverse-inc/packetfence/go/panichandler"
 	"github.com/julienschmidt/httprouter"
-	"net/http"
 )
 
 // Register the plugin in caddy
@@ -16,6 +18,7 @@ func init() {
 		ServerType: "http",
 		Action:     setup,
 	})
+	gspt.SetProcTitle("api-frontend")
 }
 
 type APIHandler struct {

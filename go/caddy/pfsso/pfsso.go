@@ -11,6 +11,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/erikdubbelboer/gspt"
 	"github.com/inverse-inc/packetfence/go/caddy/caddy"
 	"github.com/inverse-inc/packetfence/go/caddy/caddy/caddyhttp/httpserver"
 	"github.com/inverse-inc/packetfence/go/firewallsso"
@@ -28,6 +29,7 @@ func init() {
 		ServerType: "http",
 		Action:     setup,
 	})
+	gspt.SetProcTitle("pfsso")
 }
 
 type PfssoHandler struct {

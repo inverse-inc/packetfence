@@ -7,6 +7,7 @@ import (
 	"net/http"
 	"time"
 
+	"github.com/erikdubbelboer/gspt"
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/gorilla/mux"
 	"github.com/inverse-inc/packetfence/go/caddy/caddy"
@@ -30,6 +31,7 @@ func init() {
 		ServerType: "http",
 		Action:     setup,
 	})
+	gspt.SetProcTitle("pfipset")
 }
 
 type PfipsetHandler struct {

@@ -28,6 +28,7 @@ require (
 	github.com/dnstap/golang-dnstap v0.2.2
 	github.com/domodwyer/mailyak v3.1.1+incompatible // indirect
 	github.com/dustin/go-humanize v1.0.0
+	github.com/erikdubbelboer/gspt v0.0.0-20201015204752-6cb2489021da
 	github.com/farsightsec/golang-framestream v0.3.0
 	github.com/fdurand/arp v0.0.0-20180807174648-27b38d3af1be
 	github.com/fdurand/go-cache v0.0.0-20180104143916-cf0198ac7d92

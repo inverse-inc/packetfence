@@ -2,12 +2,14 @@ package caddyhttpdispatcher
 
 import (
 	"context"
+	"net/http"
+
+	"github.com/erikdubbelboer/gspt"
 	"github.com/inverse-inc/packetfence/go/caddy/caddy"
 	"github.com/inverse-inc/packetfence/go/caddy/caddy/caddyhttp/httpserver"
 	"github.com/inverse-inc/packetfence/go/httpdispatcher"
 	"github.com/inverse-inc/packetfence/go/panichandler"
 	"github.com/inverse-inc/packetfence/go/pfconfigdriver"
-	"net/http"
 )
 
 func init() {
@@ -15,6 +17,7 @@ func init() {
 		ServerType: "http",
 		Action:     setup,
 	})
+	gspt.SetProcTitle("httpd.dispatcher")
 }
 
 func setup(c *caddy.Controller) error {

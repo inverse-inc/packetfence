@@ -4,6 +4,7 @@ import (
 	"context"
 	"net/http"
 
+	"github.com/erikdubbelboer/gspt"
 	"github.com/inverse-inc/packetfence/go/caddy/caddy"
 	"github.com/inverse-inc/packetfence/go/caddy/caddy/caddyhttp/httpserver"
 	"github.com/inverse-inc/packetfence/go/httpdportalpreview"
@@ -15,6 +16,7 @@ func init() {
 		ServerType: "http",
 		Action:     setup,
 	})
+	gspt.SetProcTitle("httpd.admin_dispatcher")
 }
 
 func setup(c *caddy.Controller) error {
