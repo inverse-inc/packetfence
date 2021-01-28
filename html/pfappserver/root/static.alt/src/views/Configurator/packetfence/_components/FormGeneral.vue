@@ -58,7 +58,7 @@ const components = {
   FormGroupTimezone
 }
 
-import { computed, ref } from '@vue/composition-api'
+import { computed, inject, ref } from '@vue/composition-api'
 import i18n from '@/utils/locale'
 import schemaFn from '@/views/Configuration/general/schema'
 
@@ -66,6 +66,7 @@ export const setup = (props, context) => {
 
   const { root: { $store } = {} } = context
 
+  const state = inject('state') // Configurator
   const form = ref({})
   $store.dispatch('$_bases/getGeneral').then(_form => form.value = _form)
 
@@ -78,23 +79,26 @@ export const setup = (props, context) => {
 
   const onSave = () => {
     const { timezone } = form.value
-    return $store.dispatch('$_bases/getGeneral').then(({ timezone: initialTimezone }) => {
-      let restartMariaDB = (initialTimezone !== timezone)
-      return $store.dispatch('$_bases/updateGeneral', Object.assign({ quiet: true }, form.value)).then(() => {
-        if (restartMariaDB) {
-          return $store.dispatch('services/restartSystemService', { id: 'packetfence-mariadb', quiet: true })
-        }
-      }).catch(error => {
-        // Only show a notification in case of a failure
-        const { response: { data: { message = '' } = {} } = {} } = error
-        $store.dispatch('notification/danger', {
-          icon: 'exclamation-triangle',
-          url: message,
-          message: i18n.t('An error occured while updating the general configuration.')
-        })
-        throw error
+    return $store.dispatch('$_bases/getGeneral')
+      .then(({ timezone: initialTimezone }) => {
+        let restartMariaDB = (initialTimezone !== timezone)
+        return $store.dispatch('$_bases/updateGeneral', Object.assign({ quiet: true }, form.value))
+          .then(() => {
+            state.value.general = form.value
+            if (restartMariaDB)
+              return $store.dispatch('services/restartSystemService', { id: 'packetfence-mariadb', quiet: true })
+          })
+          .catch(error => {
+            // Only show a notification in case of a failure
+            const { response: { data: { message = '' } = {} } = {} } = error
+            $store.dispatch('notification/danger', {
+              icon: 'exclamation-triangle',
+              url: message,
+              message: i18n.t('An error occured while updating the general configuration.')
+            })
+            throw error
+          })
       })
-    })
   }
 
   return {

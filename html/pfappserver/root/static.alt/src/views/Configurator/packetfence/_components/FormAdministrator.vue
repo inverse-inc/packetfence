@@ -44,7 +44,7 @@ const components = {
   FormGroupPassword: BaseFormGroupInputPasswordGenerator
 }
 
-import { computed, ref } from '@vue/composition-api'
+import { computed, inject, ref } from '@vue/composition-api'
 import i18n from '@/utils/locale'
 import yup from '@/utils/yup'
 
@@ -57,7 +57,9 @@ export const setup = (props, context) => {
 
   const { root: { $store } = {} } = context
 
+  const state = inject('state') // Configurator
   const form = ref({})
+
   const schema = computed(() => schemaFn(props))
 
   const userExists = ref(false)
@@ -102,16 +104,18 @@ export const setup = (props, context) => {
         })
       }
     })
-    return savePromise.catch(error => {
-      // Only show a notification in case of a failure
-      const { response: { data: { message = '' } = {} } = {} } = error
-      $store.dispatch('notification/danger', {
-        icon: 'exclamation-triangle',
-        url: message,
-        message: i18n.t('An error occured while setting the administrator password.')
+    return savePromise
+      .then(() => state.value.administrator = form.value)
+      .catch(error => {
+        // Only show a notification in case of a failure
+        const { response: { data: { message = '' } = {} } = {} } = error
+        $store.dispatch('notification/danger', {
+          icon: 'exclamation-triangle',
+          url: message,
+          message: i18n.t('An error occured while setting the administrator password.')
+        })
+        throw error
       })
-      throw error
-    })
   }
 
   return {

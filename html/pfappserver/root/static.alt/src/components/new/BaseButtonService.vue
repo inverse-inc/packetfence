@@ -84,7 +84,7 @@ const props = {
   },
   acl: {
     type: String,
-    default: 'SERVICES_XXX_READ'
+    default: 'SERVICES_READ'
   }
 }
 
