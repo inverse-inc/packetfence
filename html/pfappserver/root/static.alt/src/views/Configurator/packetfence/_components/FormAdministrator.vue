@@ -1,7 +1,7 @@
 <template>
   <b-card no-body>
     <b-card-header>
-      <h4 class="d-inline mb-0" v-html="$t('Administrator')"/>
+      <h4 class="d-inline mb-0" v-t="'Administrator'"/>
     </b-card-header>
     <b-form>
       <base-form
@@ -107,6 +107,7 @@ export const setup = (props, context) => {
     return savePromise
       .then(() => state.value.administrator = form.value)
       .catch(error => {
+state.value.administrator = form.value
         // Only show a notification in case of a failure
         const { response: { data: { message = '' } = {} } = {} } = error
         $store.dispatch('notification/danger', {

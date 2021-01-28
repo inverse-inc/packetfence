@@ -1,7 +1,7 @@
 <template>
   <b-card no-body>
     <b-card-header>
-      <h4 class="d-inline mb-0" v-html="$t('Database')"/>
+      <h4 class="d-inline mb-0" v-t="'Database'"/>
     </b-card-header>
     <b-form>
       <base-form

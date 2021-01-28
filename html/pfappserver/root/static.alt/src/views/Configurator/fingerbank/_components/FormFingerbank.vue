@@ -1,7 +1,7 @@
 <template>
   <b-card no-body>
     <b-card-header>
-      <h4 class="d-inline mb-0" v-html="$t('Fingerbank')"/>
+      <h4 class="d-inline mb-0" v-t="'Fingerbank'"/>
     </b-card-header>
     <b-form>
       <div v-if="!fingerbankAccountName && !isLoading"
