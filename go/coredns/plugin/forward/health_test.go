@@ -14,6 +14,10 @@ import (
 )
 
 func TestHealth(t *testing.T) {
+	hcReadTimeout = 10 * time.Millisecond
+	hcWriteTimeout = 10 * time.Millisecond
+	readTimeout = 10 * time.Millisecond
+	defaultTimeout = 10 * time.Millisecond
 	const expected = 1
 	i := uint32(0)
 	q := uint32(0)
@@ -49,7 +53,7 @@ func TestHealth(t *testing.T) {
 
 	ForwardEntry.ServeDNS(context.TODO(), &test.ResponseWriter{}, req)
 
-	time.Sleep(1 * time.Second)
+	time.Sleep(20 * time.Millisecond)
 	i1 := atomic.LoadUint32(&i)
 	if i1 != expected {
 		t.Errorf("Expected number of health checks with RecursionDesired==true to be %d, got %d", expected, i1)
@@ -57,6 +61,10 @@ func TestHealth(t *testing.T) {
 }
 
 func TestHealthNoRecursion(t *testing.T) {
+	hcReadTimeout = 10 * time.Millisecond
+	readTimeout = 10 * time.Millisecond
+	defaultTimeout = 10 * time.Millisecond
+	hcWriteTimeout = 10 * time.Millisecond
 	const expected = 1
 	i := uint32(0)
 	q := uint32(0)
@@ -99,6 +107,11 @@ func TestHealthNoRecursion(t *testing.T) {
 }
 
 func TestHealthTimeout(t *testing.T) {
+	hcReadTimeout = 10 * time.Millisecond
+	hcWriteTimeout = 10 * time.Millisecond
+	readTimeout = 10 * time.Millisecond
+	defaultTimeout = 10 * time.Millisecond
+
 	const expected = 1
 	i := uint32(0)
 	q := uint32(0)
@@ -144,6 +157,12 @@ func TestHealthTimeout(t *testing.T) {
 }
 
 func TestHealthFailTwice(t *testing.T) {
+	hcReadTimeout = 10 * time.Millisecond
+	hcWriteTimeout = 10 * time.Millisecond
+	readTimeout = 10 * time.Millisecond
+	defaultTimeout = 10 * time.Millisecond
+	hcInterval = 10 * time.Millisecond
+
 	const expected = 2
 	i := uint32(0)
 	q := uint32(0)
@@ -185,7 +204,7 @@ func TestHealthFailTwice(t *testing.T) {
 
 	ForwardEntry.ServeDNS(context.TODO(), &test.ResponseWriter{}, req)
 
-	time.Sleep(3 * time.Second)
+	time.Sleep(25 * time.Millisecond)
 	i1 := atomic.LoadUint32(&i)
 	if i1 != expected {
 		t.Errorf("Expected number of health checks to be %d, got %d", expected, i1)
@@ -193,6 +212,12 @@ func TestHealthFailTwice(t *testing.T) {
 }
 
 func TestHealthMaxFails(t *testing.T) {
+	hcReadTimeout = 10 * time.Millisecond
+	hcWriteTimeout = 10 * time.Millisecond
+	readTimeout = 10 * time.Millisecond
+	defaultTimeout = 10 * time.Millisecond
+	hcInterval = 10 * time.Millisecond
+
 	s := dnstest.NewServer(func(w dns.ResponseWriter, r *dns.Msg) {
 		// timeout
 	})
@@ -214,7 +239,7 @@ func TestHealthMaxFails(t *testing.T) {
 
 	ForwardEntry.ServeDNS(context.TODO(), &test.ResponseWriter{}, req)
 
-	time.Sleep(readTimeout + 1*time.Second)
+	time.Sleep(100 * time.Millisecond)
 	fails := atomic.LoadUint32(&p.fails)
 	if !p.Down(f.maxfails) {
 		t.Errorf("Expected Proxy fails to be greater than %d, got %d", f.maxfails, fails)
@@ -222,6 +247,12 @@ func TestHealthMaxFails(t *testing.T) {
 }
 
 func TestHealthNoMaxFails(t *testing.T) {
+	hcReadTimeout = 10 * time.Millisecond
+	hcWriteTimeout = 10 * time.Millisecond
+	readTimeout = 10 * time.Millisecond
+	defaultTimeout = 10 * time.Millisecond
+	hcInterval = 10 * time.Millisecond
+
 	const expected = 0
 	i := uint32(0)
 	s := dnstest.NewServer(func(w dns.ResponseWriter, r *dns.Msg) {

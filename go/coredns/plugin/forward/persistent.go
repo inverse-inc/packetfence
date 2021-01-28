@@ -153,6 +153,7 @@ const (
 	minDialTimeout = 1 * time.Second
 	maxDialTimeout = 30 * time.Second
 
-	// Some resolves might take quite a while, usually (cached) responses are fast. Set to 2s to give us some time to retry a different upstream.
-	readTimeout = 2 * time.Second
 )
+
+// Some resolves might take quite a while, usually (cached) responses are fast. Set to 2s to give us some time to retry a different upstream.
+var readTimeout = 2 * time.Second
