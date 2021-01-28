@@ -322,12 +322,13 @@ sub action_email_user {
 sub action_email_recipient {
     my ($mac, $security_event_id, $notes) = @_;
     my $class_info  = class_view($security_event_id);
+    my $node_info = node_attributes($mac);
 
     my %message;
     my $description = $class_info->{'description'};
 
-    my $additionnal_message = join('<br/>', split('\n', $pf::security_event_config::SecurityEvent_Config{$security_event_id}{user_mail_message}));
-    my $to = $class_info->{email_recipient};
+    my $additionnal_message = join('<br/>', split('\n', $pf::security_event_config::SecurityEvent_Config{$security_event_id}{email_recipient_message}));
+    my $to = $pf::security_event_config::SecurityEvent_Config{$security_event_id}{recipient_email};
     if ($to ne "") {
         pf::config::util::send_email(
             'security_event-triggered',

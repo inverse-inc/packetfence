@@ -88,6 +88,22 @@
 
       <b-row no-gutters class="border-bottom">
         <b-col cols="3">
+          <input-toggle-email-recipient v-model="email_recipient"/>
+        </b-col>
+        <b-collapse :visible="email_recipient" class="col-sm-9 mt-3">
+
+          <form-group-email-recipient-message namespace="email_recipient_message"
+            :column-label="$t('Additional message')"
+          />
+          <form-group-recipient-message namespace="recipient_message"
+            :column-label="$t('Email address')"
+          />
+
+        </b-collapse>
+      </b-row>
+
+      <b-row no-gutters class="border-bottom">
+        <b-col cols="3">
           <input-toggle-external v-model="external"/>
         </b-col>
         <b-collapse :visible="external" class="col-sm-9 mt-3">
@@ -274,6 +290,20 @@ const setup = () => {
     }
   }))
 
+  const email_recipient = customRef((track, trigger) => ({
+    get() {
+      track()
+      return actionsValue.value.includes('email_recipient')
+    },
+    set(newValue) {
+      if (newValue)
+        add('email_recipient')
+      else
+        remove('email_recipient')
+      trigger()
+    }
+  }))
+
   const external = customRef((track, trigger) => ({
     get() {
       track()
@@ -318,6 +348,7 @@ const setup = () => {
     isolate,
     email_admin,
     email_user,
+    email_recipient,
     external,
     close
   }
