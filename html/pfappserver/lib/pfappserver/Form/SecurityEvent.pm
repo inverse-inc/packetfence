@@ -98,6 +98,23 @@ has_field 'user_mail_message' =>
              help => 'A message that will be added to the e-mail sent to the user regarding this security event.' }, 
   );
 
+  has_field 'email_recipient_message' =>
+  (
+   type => 'TextArea',
+   label => 'Additionnal message for the user',
+   element_class => ['input-large'],
+   tags => { after_element => \&help,
+             help => 'A message that will be added to the e-mail sent to the user regarding this security event.' },
+  );
+
+has_field 'recipient_email' =>
+  (
+   type => 'Text',
+   label => 'Recipient email',
+   tags => { after_element => \&help,
+             help => 'Recipient email addresses that will receive the security event email.' }
+  );
+
 has_field 'triggers' => (
     type => 'Repeatable',
     inactive => 1,
