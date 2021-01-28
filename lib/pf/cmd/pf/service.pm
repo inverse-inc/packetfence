@@ -18,13 +18,12 @@ Services managed by PacketFence:
   fingerbank-collector   | Fingerprinting data collection daemon
   galera-autofix         | Automated recovery of Galera clusters
   haproxy-admin          | haproxy admin daemon
-  haproxy-portal         | haproxy portal daemon
   haproxy-db             | haproxy database daemon
+  haproxy-portal         | haproxy portal daemon
   httpd.aaa              | Apache AAA webservice
-  httpd.admin            | Apache Web admin
+  httpd.admin_dispatcher | Admin GUI dispatcher
   httpd.collector        | Apache Collector daemon
   httpd.dispatcher       | Captive portal dispatcher
-  httpd.admin_dispatcher | Admin GUI dispatcher
   httpd.portal           | Apache Captive Portal
   httpd.proxy            | Apache Proxy Interception
   httpd.webservices      | Apache Webservices
@@ -39,8 +38,8 @@ Services managed by PacketFence:
   pfdhcp                 | dhcpd daemon
   pfdhcplistener         | PF DHCP monitoring daemon
   pfdns                  | DNS daemon
-  pfipset                | IPSET daemon
   pffilter               | PF conditions filtering daemon
+  pfipset                | IPSET daemon
   pfperl-api             | Perl daemon providing API
   pfpki                  | PKI daemon
   pfqueue                | PF queueing service
