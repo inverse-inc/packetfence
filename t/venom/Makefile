@@ -29,7 +29,7 @@ setup:
 
 # teardown is done at end of all test suites: all things configured here have no impact
 .PHONY: global_config
-global_config:
+global_config: setup
 	./venom-wrapper.sh $(PFSERVERS_DIR)/global_config
 
 .PHONY: dot1x_eap_peap
