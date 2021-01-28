@@ -69,7 +69,7 @@
                 :column-label="$i18n.t('Root Password')"
                 :text="$i18n.t('Current root password of the MySQL server.')"
                 :readonly="rootPasswordIsValid"
-                :valid-feedback="(rootPasswordIsValid) ? $i18n.t('MySQL root password is valid.') : null"
+                :valid-feedback="(rootPasswordIsValid) ? $i18n.t('MySQL root password is valid.') : undefined"
               />
             </template>
 
@@ -98,7 +98,7 @@
             :column-label="$i18n.t('Database name')"
             :text="$i18n.t('Name of the MySQL database used by PacketFence.')"
             :disabled="databaseExists"
-            :valid-feedback="(databaseExists) ? $i18n.t('MySQL database exists.') : null"
+            :valid-feedback="(databaseExists) ? $i18n.t('MySQL database exists.') : undefined"
           />
 
           <template v-if="!databaseExists">
@@ -127,12 +127,12 @@
             <base-input namespace="user"
               class="px-0 pr-lg-1 col-lg-6"
               :disabled="userIsValid"
-              :valid-feedback="(userIsValid) ? $i18n.t('MySQL user exists.') : null"
+              :valid-feedback="(userIsValid) ? $i18n.t('MySQL user exists.') : undefined"
             />
             <base-input-group-password namespace="pass"
               class="px-0 pl-lg-1 col-lg-6"
               :disabled="userIsValid"
-              :valid-feedback="(userIsValid) ? $i18n.t('MySQL password is valid.') : null"
+              :valid-feedback="(userIsValid) ? $i18n.t('MySQL password is valid.') : undefined"
             />
           </base-form-group>
 
@@ -187,7 +187,7 @@ const components = {
   BaseInputGroupPassword
 }
 
-import { computed, ref } from '@vue/composition-api'
+import { computed, inject, ref } from '@vue/composition-api'
 import i18n from '@/utils/locale'
 import password from '@/utils/password'
 import yup from '@/utils/yup'
@@ -214,12 +214,9 @@ export const setup = (props, context) => {
 
   const { root: { $store } = {} } = context
 
-  const form = ref({
-    db: '',
-    user: '',
-    pass: '',
-    root_pass: ''
-  })
+  const state = inject('state') // Configurator
+  const form = ref({ db: '', user: '', pass: '', root_pass: '' })
+
   const isLoading = computed(() => $store.getters['$_bases/isLoading'])
 
   // Make sure the database server is running
@@ -358,29 +355,33 @@ export const setup = (props, context) => {
 
   const onSave = () => {
     if (automaticConfiguration.value) {
-      return configureAutomatically().catch(error => {
-        // Only show a notification in case of a failure
-        const { response: { data: { message = '' } = {} } = {} } = error
-        $store.dispatch('notification/danger', {
-          icon: 'exclamation-triangle',
-          url: message,
-          message: i18n.t('An error occured while configuring the database. Please proceed manually.')
+      return configureAutomatically()
+        .then(() => state.value.database = form.value)
+        .catch(error => {
+          // Only show a notification in case of a failure
+          const { response: { data: { message = '' } = {} } = {} } = error
+          $store.dispatch('notification/danger', {
+            icon: 'exclamation-triangle',
+            url: message,
+            message: i18n.t('An error occured while configuring the database. Please proceed manually.')
+          })
+          automaticConfiguration.value = false
+          throw error
         })
-        automaticConfiguration.value = false
-        throw error
-      })
     }
     else {
-      return $store.dispatch('$_bases/updateDatabase', Object.assign({ quiet: true }, form.value)).catch(error => {
-        // Only show a notification in case of a failure
-        const { response: { data: { message = '' } = {} } = {} } = error
-        $store.dispatch('notification/danger', {
-          icon: 'exclamation-triangle',
-          url: message,
-          message: i18n.t('An error occured while updating the database configuration.')
+      return $store.dispatch('$_bases/updateDatabase', Object.assign({ quiet: true }, form.value))
+        .then(() => state.value.database = form.value)
+        .catch(error => {
+          // Only show a notification in case of a failure
+          const { response: { data: { message = '' } = {} } = {} } = error
+          $store.dispatch('notification/danger', {
+            icon: 'exclamation-triangle',
+            url: message,
+            message: i18n.t('An error occured while updating the database configuration.')
+          })
+          throw error
         })
-        throw error
-      })
     }
   }
 

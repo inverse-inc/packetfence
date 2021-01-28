@@ -13,7 +13,7 @@
       :tabIndex="inputTabIndex"
       :type="inputType"
       :value="inputValue"
-      :autocomplete="(inputType === 'password') ? (namespace || 'password') : false"
+      :autocomplete="(inputType === 'password') ? (namespace || 'password') : ''"
       @input="onInput"
       @change="onChange"
       @focus="onFocus"

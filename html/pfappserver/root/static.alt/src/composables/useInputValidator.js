@@ -1,4 +1,4 @@
-import { computed, inject, ref, toRefs, unref, watch } from '@vue/composition-api'
+import { computed, inject, ref, toRefs, watch } from '@vue/composition-api'
 import { createDebouncer } from 'promised-debounce'
 import yup from '@/utils/yup'
 
@@ -34,12 +34,12 @@ export const useInputValidator = (props, value, recursive = false) => {
   } = toRefs(props) // toRefs maintains reactivity w/ destructuring
 
   // defaults (dereferenced)
-  let localState = ref(unref(state))
-  let localInvalidFeedback = ref(unref(invalidFeedback))
-  let localValidFeedback = ref(unref(validFeedback))
+  let localState = ref(state.value)
+  let localInvalidFeedback = ref(invalidFeedback.value)
+  let localValidFeedback = ref(validFeedback.value)
 
   // yup | https://github.com/jquense/yup
-  let localValidator = ref(unref(validator))
+  let localValidator = ref(validator.value)
 
   let form = ref(undefined)
   let path = ref(undefined)
@@ -62,14 +62,14 @@ export const useInputValidator = (props, value, recursive = false) => {
       // reach throws an exception when a path is not defined in the schema
       //  https://github.com/jquense/yup/issues/599
       try {
-        const namespaceSchema = reach(unref(schema), unref(path))
-        if (unref(validator))
-          return unref(validator).concat(namespaceSchema) // merge schemas
+        const namespaceSchema = reach(schema.value, path.value)
+        if (validator.value)
+          return validator.value.concat(namespaceSchema) // merge schemas
         else
           return namespaceSchema
       } catch (e) { // path not defined in schema
-        if (unref(validator))
-          return unref(validator) // fallback to prop
+        if (validator.value)
+          return validator.value // fallback to prop
         return object().nullable() // fallback to placeholder
       }
     })
@@ -93,9 +93,9 @@ export const useInputValidator = (props, value, recursive = false) => {
 
     let validateDebouncer
     watch(
-      [value, localValidator],
+      [value, localValidator, validFeedback],
       () => {
-        const schema = unref(localValidator)
+        const schema = localValidator.value
         const thisPromise = ++lastPromise
 
         if (!validateDebouncer)
@@ -116,8 +116,8 @@ export const useInputValidator = (props, value, recursive = false) => {
               validationPromise = schema.validate(value.value, { recursive, abortEarly: !recursive }) // use value
 
             Promise.resolve(validationPromise).then(() => { // valid
-              if (unref(validFeedback) !== undefined)
-                setState(thisPromise, true, unref(validFeedback), null)
+              if (validFeedback.value !== undefined)
+                setState(thisPromise, true, validFeedback.value, null)
               else
                 setState(thisPromise, null, null, null)
 
@@ -152,8 +152,8 @@ export const useInputValidator = (props, value, recursive = false) => {
     localInvalidFeedback = invalidFeedback
     localValidFeedback = validFeedback
     localState = computed(() => {
-      if (unref(state) !== false)
-        return (unref(validFeedback) !== undefined)
+      if (state.value !== false)
+        return (validFeedback.value !== undefined)
           ? true // is validFeedback
           : null // no validFeeback
       return false
