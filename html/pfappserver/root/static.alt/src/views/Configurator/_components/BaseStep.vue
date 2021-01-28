@@ -23,9 +23,9 @@
             </b-col>
             <b-col cols="auto" class="ml-auto text-right">
               <slot name="button-next">
-                <b-button v-if="nextRoute" :disabled="invalidStep || isLoading" variant="primary" @click="next">
+                <base-button-save :disabled="invalidStep" :isLoading="isLoading" variant="primary" @click="next">
                   {{ $t('Next Step') }} <icon class="ml-1" name="chevron-right"></icon>
-                </b-button>
+                </base-button-save>
               </slot>
               <div class="d-block invalid-feedback" v-if="invalidFeedback && !isLoading" v-text="invalidFeedback"></div>
             </b-col>
@@ -38,9 +38,11 @@
 </template>
 
 <script>
+import { BaseButtonSave } from '@/components/new/'
 import Sidebar from './Sidebar'
 
 const components = {
+  BaseButtonSave,
   Sidebar
 }
 

@@ -4,12 +4,13 @@
     icon="check">
     <form-status ref="statusRef" />
     <template v-slot:button-next>
-
       <base-button-save :isLoading="isLoading" variant="primary" @click="onComplete">
         {{ $i18n.t('Start PacketFence') }} <icon class="ml-1" name="play"></icon>
       </base-button-save>
+
       <div v-if="invalidFeedback && !isLoading"
        class="d-block invalid-feedback" v-text="invalidFeedback"></div>
+
       <div v-else-if="progressFeedback"
         class="d-block valid-feedback" v-text="progressFeedback"></div>
     </template>
