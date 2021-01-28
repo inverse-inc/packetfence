@@ -16,7 +16,6 @@ Namespaces:
   configfilesdata
   fingerbank
   firewall_sso
-  httpd.admin
   httpd.portal
   ldap_auth
   local_mac

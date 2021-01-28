@@ -135,23 +135,6 @@ index 134282e8ae..a190a563e4 100644
  ExecReload=/bin/kill -USR1 ${MAINPID}
  PrivateTmp=true
  Restart=on-failure
-diff --git a/conf/systemd/packetfence-httpd.admin.service b/conf/systemd/packetfence-httpd.admin.service
-index e640e05b37..d213a36450 100644
---- a/conf/systemd/packetfence-httpd.admin.service
-+++ b/conf/systemd/packetfence-httpd.admin.service
-@@ -12,9 +12,9 @@ StartLimitInterval=10
- Type=notify
- Environment=X_PORTAL=default
- Environment=PF_SKIP_MAKE_IMMUTABLE=1
--ExecStartPre=/usr/bin/rm -f /usr/local/pf/var/run/httpd.admin.pid
--ExecStartPre=/bin/perl -I/usr/local/pf/lib '-Mpf::services::manager::httpd_admin' -e 'pf::services::manager::httpd_admin->new()->generateConfig()'
--ExecStart=/usr/sbin/httpd -f /usr/local/pf/var/conf/httpd.conf.d/httpd.admin -DFOREGROUND  -Drhel
-+ExecStartPre=/bin/rm -f /usr/local/pf/var/run/httpd.admin.pid
-+ExecStartPre=/usr/bin/perl -I/usr/local/pf/lib '-Mpf::services::manager::httpd_admin' -e 'pf::services::manager::httpd_admin->new()->generateConfig()'
-+ExecStart=/usr/sbin/apache2 -f /usr/local/pf/var/conf/httpd.conf.d/httpd.admin -DFOREGROUND  -Ddebian
- ExecReload=/bin/kill -USR1 ${MAINPID}
- PrivateTmp=true
- Restart=on-failure
 diff --git a/conf/systemd/packetfence-httpd.collector.service b/conf/systemd/packetfence-httpd.collector.service
 index c700c35996..3dd494ea92 100644
 --- a/conf/systemd/packetfence-httpd.collector.service
