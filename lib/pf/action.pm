@@ -42,6 +42,7 @@ Readonly::Scalar our $UNREG => 'unreg';
 Readonly::Scalar our $REEVALUATE_ACCESS => 'reevaluate_access';
 Readonly::Scalar our $EMAIL_USER => 'email_user';
 Readonly::Scalar our $EMAIL_ADMIN => 'email_admin';
+Readonly::Scalar our $EMAIL_RECIPIENT => 'email_recipient';
 Readonly::Scalar our $LOG => 'log';
 Readonly::Scalar our $EXTERNAL => 'external';
 Readonly::Scalar our $CLOSE => 'close';
@@ -54,6 +55,7 @@ Readonly::Array our @SECURITY_EVENT_ACTIONS =>
    $UNREG,
    $EMAIL_USER,
    $EMAIL_ADMIN,
+   $EMAIL_RECIPIENT,
    $REEVALUATE_ACCESS,
    $LOG,
    $EXTERNAL,
@@ -195,6 +197,7 @@ our %ACTIONS = (
     $REEVALUATE_ACCESS    => \&action_reevaluate_access,
     $EMAIL_ADMIN          => \&action_email_admin,
     $EMAIL_USER           => \&action_email_user,
+    $EMAIL_RECIPIENT      => \&action_email_recipient,
     $LOG                  => \&action_log,
     $EXTERNAL             => \&action_api,
     $CLOSE                => \&action_close,
@@ -313,6 +316,34 @@ sub action_email_user {
     }
     else {
         get_logger->warn("Cannot send security_event email for $security_event_id as node we don't have the e-mail address of $node_info->{pid}");
+    }
+}
+
+sub action_email_recipient {
+    my ($mac, $security_event_id, $notes) = @_;
+    my $class_info  = class_view($security_event_id);
+
+    my %message;
+    my $description = $class_info->{'description'};
+
+    my $additionnal_message = join('<br/>', split('\n', $pf::security_event_config::SecurityEvent_Config{$security_event_id}{user_mail_message}));
+    my $to = $class_info->{email_recipient};
+    if ($to ne "") {
+        pf::config::util::send_email(
+            'security_event-triggered',
+            $to,
+            "$description detection on $mac",
+            {
+                description         => $description,
+                hostname            => $node_info->{computername},
+                os                  => $node_info->{device_type},
+                mac                 => $mac,
+                additionnal_message => $additionnal_message,
+            }
+        );
+    }
+    else {
+        get_logger->warn("Cannot send security_event email for $security_event_id as node we don't have the recipient e-mail address");
     }
 }
 
