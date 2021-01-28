@@ -109,6 +109,12 @@ sub _send_json {
     return $self->_do_request($curl);
 }
 
+sub _get_json {
+    my ($self, $curl, $path) = @_;
+    $self->_set_url($curl, $path);
+    return $self->_do_request($curl);
+}
+
 =head2 _send_form
 
 send form data
@@ -206,7 +212,7 @@ sub charge {
 
 sub verify {
     my ($self, $session, $params, $uri) = @_;
-    use Data::Dumper; get_logger->debug(Dumper($params));
+    use Data::Dumper; get_logger->info(Dumper($params));
     my $token = $params->{stripeToken};
     die "No Token found" unless defined $token;
     my $style = $self->style;
@@ -240,12 +246,15 @@ sub subscribe_customer {
     }
 
     my ($code, $data);
-    if(my $cus = $self->get_customer_by_email($session->{email})) {
-        ($code, $data) = $self->_send_form($self->curl, "v1/customers/".$cus->{id}, $object);
+    ($code, $data) = $self->_send_form($self->curl, "v1/customers", $object);
+
+    my $subscriptions = $self->_get_json($self->curl, "v1/subscriptions?customer=".$data->{id});
+    if($subscriptions->{data}->[0]->{status} ne "active") {
+        my $msg = "The subscription is not active after payment(".$subscriptions->{data}->[0]->{status}."). Card payment didn't go through.";
+        $logger->error($msg);
+        return (500, {error => {message => $msg}});
     }
-    else {
-        ($code, $data) = $self->_send_form($self->curl, "v1/customers", $object);
-    }
+
     $session->{stripe_customer_id} = $data->{id};
     return ($code, $data);
 }
