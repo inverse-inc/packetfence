@@ -9,6 +9,7 @@ import (
 
 	"github.com/coredns/caddy"
 	"github.com/coredns/caddy/caddyfile"
+	"github.com/erikdubbelboer/gspt"
 	"github.com/inverse-inc/packetfence/go/coredns/plugin"
 	"github.com/inverse-inc/packetfence/go/coredns/plugin/pkg/dnsutil"
 	"github.com/inverse-inc/packetfence/go/coredns/plugin/pkg/parse"
@@ -33,6 +34,7 @@ func init() {
 		},
 		NewContext: newContext,
 	})
+	gspt.SetProcTitle("pfdns")
 }
 
 func newContext(i *caddy.Instance) caddy.Context {
