@@ -107,7 +107,6 @@ export const setup = (props, context) => {
     return savePromise
       .then(() => state.value.administrator = form.value)
       .catch(error => {
-state.value.administrator = form.value
         // Only show a notification in case of a failure
         const { response: { data: { message = '' } = {} } = {} } = error
         $store.dispatch('notification/danger', {
