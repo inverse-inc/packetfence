@@ -109,6 +109,12 @@ sub _send_json {
     return $self->_do_request($curl);
 }
 
+=head2 _get_json
+
+GET JSON data from the Stripe API
+
+=cut
+
 sub _get_json {
     my ($self, $curl, $path) = @_;
     $self->_set_url($curl, $path);
