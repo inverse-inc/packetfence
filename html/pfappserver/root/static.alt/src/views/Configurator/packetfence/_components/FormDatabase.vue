@@ -8,6 +8,7 @@
         :form="form"
         :schema="schema"
         :isLoading="isLoading"
+        :readonly="disabled"
       >
         <form-group-automatic-configuration v-if="rootPasswordIsRequired && setRootPassword && !rootPasswordIsValid && (!databaseExists || !userIsValid)"
           v-model="automaticConfiguration"
@@ -185,6 +186,12 @@ const components = {
   BaseFormGroupInputPasswordTest,
   BaseInput,
   BaseInputGroupPassword
+}
+
+const props = {
+  disabled: {
+    type: Boolean
+  }
 }
 
 import { computed, inject, ref } from '@vue/composition-api'
@@ -438,6 +445,7 @@ export default {
   name: 'form-database',
   inheritAttrs: false,
   components,
+  props,
   setup
 }
 </script>

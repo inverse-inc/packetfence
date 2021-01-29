@@ -9,6 +9,7 @@
         :meta="meta"
         :schema="schema"
         :isLoading="isLoading"
+        :readonly="disabled"
       >
         <form-group-domain namespace="domain"
           :column-label="$i18n.t('Domain')"
@@ -56,6 +57,12 @@ const components = {
   FormGroupDomain,
   FormGroupHostname,
   FormGroupTimezone
+}
+
+const props = {
+  disabled: {
+    type: Boolean
+  }
 }
 
 import { computed, inject, ref } from '@vue/composition-api'
@@ -115,6 +122,7 @@ export default {
   name: 'form-general',
   inheritAttrs: false,
   components,
+  props,
   setup
 }
 </script>

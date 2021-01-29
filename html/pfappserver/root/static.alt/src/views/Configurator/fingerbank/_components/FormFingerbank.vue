@@ -88,23 +88,30 @@ export const setup = (props, context) => {
     meta.value = _meta
   })
 
+  const _isLoadingSettings = ref(false)
+  const isLoading = computed(() => _isLoadingSettings.value || $store.getters['$_fingerbank/isGeneralSettingsLoading'])
+
   const _getAccountInfo = () => {
-    return $store.dispatch('$_fingerbank/getGeneralSettings').then(_form => {
-      state.value.fingerbank = _form
-      const { upstream, upstream: { api_key = null } = {} } = _form
-      form.value = upstream
-      if (api_key) {
-        $store.dispatch('$_fingerbank/getAccountInfo').then(({ name }) => {
-          fingerbankAccountName.value = name
-        })
-      }
-    })
+    _isLoadingSettings.value = true
+    return $store.dispatch('$_fingerbank/getGeneralSettings')
+      .then(_form => {
+        state.value.fingerbank = _form
+        const { upstream, upstream: { api_key = null } = {} } = _form
+        form.value = upstream
+        if (api_key) {
+          $store.dispatch('$_fingerbank/getAccountInfo').then(({ name }) => {
+            fingerbankAccountName.value = name
+          })
+        }
+      })
+      .finally(() => {
+        _isLoadingSettings.value = false
+      })
   }
   _getAccountInfo() // init
 
-  const isLoading = computed(() => $store.getters['$_fingerbank/isGeneralSettingsLoading'])
-
   const onVerify = () => {
+    _isLoadingSettings.value = true
     $store.dispatch('$_fingerbank/setGeneralSettings', { upstream: { ...form.value, quiet: true } })
       .then(() => {
         fingerbankAccountIsValid.value = true
@@ -113,6 +120,9 @@ export const setup = (props, context) => {
       .catch(() => {
         fingerbankAccountName.value = null
         fingerbankAccountIsValid.value = false
+      })
+      .finally(() => {
+        _isLoadingSettings.value = false
       })
   }
 

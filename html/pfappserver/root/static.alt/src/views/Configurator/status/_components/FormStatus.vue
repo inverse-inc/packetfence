@@ -66,8 +66,8 @@ export const setup = (props, context) => {
   const { root: { $store } = {} } = context
 
   const state = inject('state') // Configurator
-  const administrator = computed(() => state.value.administrator)
-  const database = computed(() => state.value.database)
+  const administrator = computed(() => state.value.administrator || {})
+  const database = computed(() => state.value.database || {})
 
   const onClipboard = password => {
     try {

@@ -90,7 +90,7 @@ const setup = (props, context) => {
         progressFeedback.value = null
       })
       .finally(() => {
-        this.isLoading = false
+        isLoading.value = false
       })
   }
 

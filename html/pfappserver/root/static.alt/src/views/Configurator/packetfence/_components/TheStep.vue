@@ -6,10 +6,10 @@
     :invalid-feedback="invalidFeedback"
     :is-loading="isLoading"
     @next="onSave">
-    <form-database ref="databaseRef" />
-    <form-general ref="generalRef" class="mt-3" />
-    <form-alerting ref="alertingRef" class="mt-3" />
-    <form-administrator ref="administratorRef" class="mt-3" />
+    <form-database ref="databaseRef" :disabled="isLoading" />
+    <form-general ref="generalRef" :disabled="isLoading" class="mt-3" />
+    <form-alerting ref="alertingRef" :disabled="isLoading" class="mt-3" />
+    <form-administrator ref="administratorRef" :disabled="isLoading" class="mt-3" />
   </base-step>
 </template>
 <script>

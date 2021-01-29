@@ -18,7 +18,7 @@
       }"
       :disabled="isLocked"
       :placeholder="inputPlaceholder"
-      :readonly="readonly"
+      :readonly="inputReadonly"
       :tabIndex="inputTabIndex"
       :type="inputType"
       :value="inputValue"
@@ -130,6 +130,7 @@ export const setup = (props, context) => {
 
   const {
     placeholder,
+    readonly,
     tabIndex,
     text,
     isFocus,
@@ -191,6 +192,7 @@ export const setup = (props, context) => {
 
     // useInput
     inputPlaceholder: placeholder,
+    inputReadonly: readonly,
     inputTabIndex: tabIndex,
     inputText: text,
     isFocus,
