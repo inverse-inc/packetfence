@@ -53,6 +53,7 @@ sub update_data {
 
 sub _handle_password_data {
     my ($self, $data) = @_;
+    delete $data->{tenant_id};
     if (exists($data->{password})) {
         if(my $algo = $self->req->query_params->to_hash->{password_algorithm}) {
             $data->{password} = pf::password::_hash_password($data->{password}, algorithm => $algo);
