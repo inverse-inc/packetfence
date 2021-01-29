@@ -192,11 +192,15 @@ sub doSponsorRegistration : Private {
             }
             if ($values->{$Actions::SET_ACCESS_DURATIONS}) {
                 if ($request->param("access_duration")) {
-                    pf::activation::set_unregdate('sponsor',$activation_record->{'activation_code'}, pf::config::access_duration($request->param("access_duration")));
+                    my $unregdate = pf::config::access_duration($request->param("access_duration"));
+                    pf::activation::set_unregdate('sponsor',$activation_record->{'activation_code'}, $unregdate);
+                    $activation_record->{unregdate} = $unregdate;
                 } else {
                     my @options_duration = map { { value => $_, label => $_ } } split(',', $values->{$Actions::SET_ACCESS_DURATIONS});
                     if (scalar(@options_duration) eq 1) {
-                        pf::activation::set_unregdate('sponsor',$activation_record->{'activation_code'}, pf::config::access_duration($values->{$Actions::SET_ACCESS_DURATIONS}));
+                        my $unregdate = pf::config::access_duration($values->{$Actions::SET_ACCESS_DURATIONS});
+                        pf::activation::set_unregdate('sponsor',$activation_record->{'activation_code'}, $unregdate);
+                        $activation_record->{unregdate} = $unregdate;
                     } else {
                         my @options_duration = map { { value => $_, label => $_ } } split(',', $values->{$Actions::SET_ACCESS_DURATIONS});
                         $c->stash->{set_access_durations} = \@options_duration;
