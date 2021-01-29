@@ -201,6 +201,12 @@ const props = {
   }
 }
 
+const props = {
+  disabled: {
+    type: Boolean
+  }
+}
+
 import { computed, inject, ref } from '@vue/composition-api'
 import apiCall from '@/utils/api'
 import i18n from '@/utils/locale'
