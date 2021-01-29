@@ -23,6 +23,8 @@ has 'form_class' => 'pfappserver::Form::Config::Pf';
 has 'primary_key' => 'base_id';
 
 use pf::ConfigStore::Pf;
+use pf::pfqueue::status_updater::redis;
+use pf::util::pfqueue qw(consumer_redis_client);
 use pf::config;
 use pf::util;
 use pfappserver::Form::Config::Pf;
@@ -31,6 +33,9 @@ use pf::error qw(is_error);
 use pf::ConfigStore::Pf;
 use pf::ConfigStore::Network;
 use pf::config qw(%Config);
+use Data::UUID;
+
+my $GENERATOR = Data::UUID->new;
 
 sub _update_domain_networks_conf {
     my ($self) = @_;
@@ -122,32 +127,48 @@ sub database_create {
         return;
     }
 
+    if ($json->{async}) {
+        my $task_id = $self->task_id;
+        my $subprocess = Mojo::IOLoop->subprocess;
+        $subprocess->run(
+            sub {
+                my ($subprocess) = @_;
+                my $updater = pf::pfqueue::status_updater::redis->new( connection => consumer_redis_client(), task_id => $task_id );
+                $updater->start;
+                my ($status, $data) = $self->do_database_create($json);
+                $updater->completed($data);
+            },
+            sub {},
+        );
+
+        return $self->render( json => {status => 202, task_id => $task_id }, status => 202);
+    }
+
+    my ($status, $data) = $self->do_database_create($json);
+    return $self->render(json => $data, status => $status);
+}
+
+sub do_database_create {
+    my ($self, $json) = @_;
     my ($status, $status_msg) = $self->database_model->connect("mysql", $json->{username}, $json->{password});
     if(is_error($status)) {
-        $self->render(json => {message => pf::I18N::pfappserver->localize($status_msg)}, status => $status);
-        return;
+        return $status, {message => pf::I18N::pfappserver->localize($status_msg), status => $status};
     }
 
     ($status, $status_msg) = $self->database_model->create($json->{database}, $json->{username}, $json->{password});
     if(is_error($status)) {
-        $self->render(json => {message => pf::I18N::pfappserver->localize($status_msg)}, status => $status);
-        return;
+        return $status, {message => pf::I18N::pfappserver->localize($status_msg), status => $status};
     }
 
     ($status, $status_msg) = $self->database_model->schema($json->{database}, $json->{username}, $json->{password});
     if(is_error($status)) {
-        $self->render(json => {message => pf::I18N::pfappserver->localize($status_msg)}, status => $status);
-        return;
+        return $status, {message => pf::I18N::pfappserver->localize($status_msg), status => $status};
     }
-
-    require pfappserver::Model::Config::Pfconfig;
-    pfappserver::Model::Config::Pfconfig->new->update_db_name($json->{database});
 
     my $pf_cs = pf::ConfigStore::Pf->new;
     $pf_cs->update("database", {db => $json->{database}});
     $pf_cs->commit();
-    
-    $self->render(json => {message => "Created database and loaded the schema"}, status => 200);
+    return 200, {message => "Created database and loaded the schema"};
 }
 
 sub database_assign {
