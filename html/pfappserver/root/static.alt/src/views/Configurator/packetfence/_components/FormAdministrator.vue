@@ -17,6 +17,7 @@
 
         <form-group-password namespace="password"
           :column-label="$i18n.t('Password')"
+          :readonly="disabled"
         />
 
         <base-form-group v-if="isPassword"
@@ -42,6 +43,12 @@ const components = {
 
   FormGroupPid:      BaseFormGroupInput,
   FormGroupPassword: BaseFormGroupInputPasswordGenerator
+}
+
+const props = {
+  disabled: {
+    type: Boolean
+  }
 }
 
 import { computed, inject, ref } from '@vue/composition-api'
@@ -88,14 +95,15 @@ export const setup = (props, context) => {
 
   const onSave = () => {
     let savePromise = new Promise((resolve, reject) => {
+      const { pid, password } = form.value
       form.value.valid_from = "1970-01-01 00:00:00"
       if (userExists.value) {
-        $store.dispatch('$_users/updatePassword', Object.assign({ quiet: true }, form.value)).then(resolve, reject)
+        $store.dispatch('$_users/updatePassword', Object.assign({ quiet: true }, { pid, password })).then(resolve, reject)
       } else {
         $store.dispatch('$_users/getUser', { pid: 'admin', quiet: true }).then(() => {
           // User exists
           userExists.value = true
-          $store.dispatch('$_users/updatePassword', Object.assign({ quiet: true }, form.value)).then(resolve, reject)
+          $store.dispatch('$_users/updatePassword', Object.assign({ quiet: true }, { pid, password })).then(resolve, reject)
         }).catch(() => {
           // User doesn't exist
           $store.dispatch('$_users/createUser', form.value).then(() => {
@@ -107,7 +115,6 @@ export const setup = (props, context) => {
     return savePromise
       .then(() => state.value.administrator = form.value)
       .catch(error => {
-state.value.administrator = form.value
         // Only show a notification in case of a failure
         const { response: { data: { message = '' } = {} } = {} } = error
         $store.dispatch('notification/danger', {
@@ -135,6 +142,7 @@ export default {
   name: 'form-administrator',
   inheritAttrs: false,
   components,
+  props,
   setup
 }
 </script>

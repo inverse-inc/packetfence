@@ -16,6 +16,7 @@
         :meta="meta"
         :schema="schema"
         :isLoading="isLoading"
+        :readonly="disabled"
       >
         <form-group-email-addr namespace="emailaddr"
           :column-label="$i18n.t('Recipients')"
@@ -114,6 +115,12 @@ const components = {
   FormGroupTestEmailAddr
 }
 
+const props = {
+  disabled: {
+    type: Boolean
+  }
+}
+
 import { computed, inject, ref } from '@vue/composition-api'
 import i18n from '@/utils/locale'
 import schemaFn from '@/views/Configuration/alerting/schema'
@@ -165,6 +172,7 @@ export default {
   name: 'form-alerting',
   inheritAttrs: false,
   components,
+  props,
   setup
 }
 </script>
