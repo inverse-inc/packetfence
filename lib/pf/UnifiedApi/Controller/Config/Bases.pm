@@ -109,14 +109,36 @@ sub database_secure_installation {
         return;
     }
 
+    if ($json->{async}) {
+        my $task_id = $self->task_id;
+        my $subprocess = Mojo::IOLoop->subprocess;
+        $subprocess->run(
+            sub {
+                my ($subprocess) = @_;
+                my $updater = pf::pfqueue::status_updater::redis->new( connection => consumer_redis_client(), task_id => $task_id );
+                $updater->start;
+                my ($status, $data) = $self->do_database_secure_installation($json);
+                $updater->completed($data);
+            },
+            sub {},
+        );
+
+        return $self->render( json => {status => 202, task_id => $task_id }, status => 202);
+    }
+
+    my ($status, $data) = $self->do_database_secure_installation($json);
+    return $self->render(json => $data, status => $status);
+}
+
+sub do_database_secure_installation {
+    my ($self, $json) = @_;
     my ($status, $status_msg) = $self->database_model->connect("mysql", $json->{username});
     if(is_error($status)) {
-        $self->render(json => {message => pf::I18N::pfappserver->localize($status_msg)}, status => $status);
-        return;
+        return $status, {message => pf::I18N::pfappserver->localize($status_msg), status => $status};
     }
 
     ($status, $status_msg) = $self->database_model->secureInstallation($json->{username}, $json->{password});
-    $self->render(json => {message => pf::I18N::pfappserver->localize($status_msg)}, status => $status);
+    return $status, {message => pf::I18N::pfappserver->localize($status_msg), status => $status};
 }
 
 sub database_create {
