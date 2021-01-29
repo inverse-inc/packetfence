@@ -28,6 +28,7 @@ For a list of compatibility related changes see the <<PacketFence_Upgrade_Guide.
 === New Features
 
 * Static routes management via admin gui
+* Aruba CX support
 
 === Enhancements
 
