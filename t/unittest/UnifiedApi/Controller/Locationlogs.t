@@ -17,6 +17,7 @@ use warnings;
 #
 use lib '/usr/local/pf/lib';
 use pf::dal::locationlog;
+use pf::dal::locationlog_history;
 
 BEGIN {
     #include test libs
@@ -27,6 +28,7 @@ BEGIN {
 
 #truncate the locationlog table
 pf::dal::locationlog->remove_items();
+pf::dal::locationlog_history->remove_items();
 
 #insert known data
 my %values = (
