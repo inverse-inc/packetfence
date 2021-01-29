@@ -70,12 +70,9 @@ const route = {
       path: '/node/:mac',
       name: 'node',
       component: NodeView,
-      props: (route) => ({ formStoreName: 'formNodeView', mac: route.params.mac }),
+      props: (route) => ({ id: route.params.mac }),
       beforeEnter: (to, from, next) => {
-        if (!store.state.formNodeView) { // Register store module only once
-          store.registerModule('formNodeView', FormStore)
-        }
-        store.dispatch('$_nodes/getNode', to.params.mac).then(() => {
+        store.dispatch('$_nodes/exists', to.params.mac).then(() => {
           next()
         }).catch(() => { // `mac` does not exist
           store.dispatch('notification/danger', { message: i18n.t('Node <code>{mac}</code> does not exist or is not available for this tenant.', to.params) })
