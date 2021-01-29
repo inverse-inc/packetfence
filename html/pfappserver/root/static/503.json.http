@@ -1,5 +1,0 @@
-HTTP/1.1 503 No server is available to handle this request
-Content-Type: application/json
-Content-Length: 76
-
-{ "status":503, "message":"No server is available to handle this request" }

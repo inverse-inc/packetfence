@@ -1,1 +1,0 @@
-[% INCLUDE 'config/wrix/list.tt' list_action = 'search' %]

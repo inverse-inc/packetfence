@@ -1,9 +1,0 @@
-<form id='search' name="search" class="form-inline" action="[% c.uri_for(c.controller.action_for('search'),[scope]) %]" method="POST">
-  <div class="pull-right">
-    [% INCLUDE per_page_select.tt %]
-    <input name="value" type="text" placeholder="[% l('String...') %]" value="[% value | html %]"/>
-    <button type="submit" class="btn-icon btn-icon-primary"><i class="icon-search icon-white"></i></button>
-    <button type="reset" class="btn-icon btn-icon-circle"><i class="icon-close"></i></button>
-  </div>
-</form>
-<br/>

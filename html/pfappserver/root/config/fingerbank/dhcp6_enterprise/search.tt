@@ -1,1 +1,0 @@
-[% INCLUDE config/fingerbank/dhcp6_enterprise/list.tt %]

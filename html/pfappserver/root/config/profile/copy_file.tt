@@ -1,4 +1,0 @@
-
-  <form id="copyModalForm" class="form-inline" method="POST" action="[% c.uri_for(c.controller('Config::Profile').action_for('copy_file'), [ id ], from.split('/') ) %]">
-    <label>Copy <strong>[% from | html %]</strong> to <strong>[% path | html %]</strong> <input type="text" name="to" /></label>
-  </form>
