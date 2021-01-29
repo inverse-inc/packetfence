@@ -1,12 +1,12 @@
-package pf::Switch::Aruba::cx;
+package pf::Switch::Aruba::CX;
 
 =head1 NAME
 
-pf::Switch::Aruba::cx
+pf::Switch::Aruba::CX
 
 =head1 SYNOPSIS
 
-Module to manage rebanded Aruba HP CX Switche
+Module to manage rebanded Aruba HP CX Switch
 
 =head1 STATUS
 
