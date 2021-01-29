@@ -29,7 +29,6 @@ const setup = (props, context) => {
   const { root: { $router } = {} } = context
 
   const rootRef = ref(null)
-  const isLoading = ref(false)
 
   // avoid having to pass events (state/invalidfeedback) up from deeply nested children within <router-view/>
   //  use DOM querySelectorAll with MutationObserver instead
@@ -48,7 +47,6 @@ const setup = (props, context) => {
 
   return {
     rootRef,
-    isLoading,
     isValid,
     invalidFeedback,
     progressFeedback,
