@@ -4,7 +4,6 @@ set -o nounset -o pipefail -o errexit
 export DEBIAN_FRONTEND=noninteractive
 
 # This script will install all PacketFence runtime dependencies
-# without fingerbank and other packetfence-* packages
 
 # https://askubuntu.com/a/791865
 apt-install-depends() {
