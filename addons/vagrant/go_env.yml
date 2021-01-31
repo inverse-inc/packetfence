@@ -1,4 +1,4 @@
-- hosts: dev
+- hosts: pfservers
   name: configure Golang environment for unit tests
   become: True
   collections:

@@ -71,7 +71,7 @@ If you prefer to use packages, you can install latest PacketFence packages from 
 ===== Initial setup
 
 Install <<_virtual_environment_prerequisites,prequisites>> and follow
-<<_virtual_environment_initial_setup,initial setup>> then start `pf*night`
+<<_virtual_environment_initial_setup,initial setup>> then start `pf*dev`
 machines.
 
 These machines will be auto-configured to install nightly builds from development
