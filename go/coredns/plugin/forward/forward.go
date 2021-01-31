@@ -187,23 +187,22 @@ func (fs Forwards) ServeDNS(ctx context.Context, w dns.ResponseWriter, r *dns.Ms
 		if upstreamErr != nil {
 			return dns.RcodeServerFailure, upstreamErr
 		}
-
 		return dns.RcodeServerFailure, ErrNoHealthy
 	}
 	return plugin.NextOrFailure(fs.Name(), fs.Next, ctx, w, r)
 }
 
 func (f *Forward) match(state request.Request) bool {
-	if !plugin.Name(f.from).Matches(state.Name()) || !f.isAllowedDomain(state.Name()) {
+	if !plugin.Name(f.from).Matches(state.Name()) || !f.isAllowedDomain(state.Name()) || !f.isIpAllowed(net.ParseIP(state.IP())) {
 		return false
 	}
 
-	network := f.sourceNetwork
+	return true
 
-	if network.Contains(net.ParseIP(state.IP())) {
-		return true
-	}
-	return false
+}
+
+func (f *Forward) isIpAllowed(ip net.IP) bool {
+    return len(f.sourceNetwork.IP) != len(ip) || f.sourceNetwork.Contains(ip)
 }
 
 func (f *Forward) isAllowedDomain(name string) bool {
