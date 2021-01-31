@@ -17,7 +17,7 @@ stages:
   - publish
   - test
   - upload
-  - build_zen
+  - build_pf_img
 
 ################################################################################
 # VARIABLES
@@ -126,10 +126,10 @@ variables:
   tags:
     - shell
 
-.build_vagrant_img_job:
+.build_vagrant_img_dev_job:
   stage: build_img
   variables:
-    RESULT_DIR: /var/tmp/vagrant_img
+    RESULT_DIR: /var/local/gitlab-runner/vagrant_img
     BOX_DESC: ${CI_PIPELINE_URL}
   script:
     - make -e -C ${VAGRANT_IMG_DIR} ${BOX_NAME}
@@ -236,13 +236,25 @@ variables:
     - shell
 
 .build_zen_job:
-  stage: build_zen
+  stage: build_pf_img
   environment:
     name: sourceforge
     url: ${SF_REPO_URL}/${CI_COMMIT_REF_NAME}
   after_script:
     - make -e -C ${ZENDIR} clean
     - make -e -C ${ZENDIR} clean_cache
+  tags:
+    - shell
+
+.build_vagrant_img_stable_job:
+  stage: build_pf_img
+  variables:
+    RESULT_DIR: /var/local/gitlab-runner/vagrant_img
+    BOX_DESC: ${CI_PIPELINE_URL}
+  script:
+    - make -e -C ${VAGRANT_IMG_DIR} ${BOX_NAME}
+  after_script:
+    - make -e -C ${VAGRANT_IMG_DIR} clean
   tags:
     - shell
 
@@ -342,7 +354,7 @@ build_docker_img_release:
 # build_vagrant_img jobs
 build_vagrant_img_dev_centos_7:
   extends:
-    - .build_vagrant_img_job
+    - .build_vagrant_img_dev_job
     - .job_dev_triggers
   variables:
     BOX_NAME: pfcen7dev
@@ -350,7 +362,7 @@ build_vagrant_img_dev_centos_7:
 
 build_vagrant_img_dev_debian_stretch:
   extends:
-    - .build_vagrant_img_job
+    - .build_vagrant_img_dev_job
     - .job_dev_triggers
   variables:
     BOX_NAME: pfdeb9dev
@@ -638,7 +650,7 @@ deploy_maintenance:
     url: ${PUBLIC_REPO_URL}/${CI_ENVIRONMENT_NAME}
 
 ########################################
-# BUILD_ZEN JOBS
+# BUILD_PF_IMG JOBS
 ########################################
 build_zen_devel:
   extends:
@@ -664,4 +676,20 @@ build_zen_release:
     - .job_release_triggers
   script:
     - make -e -C ${ZENDIR} zen-release
+  when: manual
+
+build_vagrant_img_stable_centos_7:
+  extends:
+    - .build_vagrant_img_stable_job
+    - .job_release_triggers
+  variables:
+    BOX_NAME: pfcen7stable
+  when: manual
+
+build_vagrant_img_stable_debian_stretch:
+  extends:
+    - .build_vagrant_img_stable_job
+    - .job_release_triggers
+  variables:
+    BOX_NAME: pfdeb9stable
   when: manual
