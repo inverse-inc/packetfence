@@ -65,17 +65,19 @@
         </template>
       </b-table>
 
-      <b-row v-if="managementTypeCount === 0"
+      <b-row v-if="managementTypeCount === 0 || isDetecting"
         align-v="center" class="is-invalid">
         <b-col cols="6">
           <div class="invalid-feedback d-block">{{ $t('At least one Interface must be of Type "management".') }}</div>
         </b-col>
         <b-col cols="6" class="text-right">
-          <pf-button
-            variant="outline-primary"
+          <base-button-save
             class="float-right"
-            :disabled="isLoading"
-            @click="detectManagementInterface()">{{ $t('Detect Management Interface') }}</pf-button>
+            :isLoading="isDetecting"
+            @click="detectManagementInterface"
+          >
+            {{ $t('Detect Management Interface') }}
+          </base-button-save>
         </b-col>
       </b-row>
 
@@ -107,6 +109,7 @@
 
 <script>
 import {
+  BaseButtonSave,
   BaseForm,
   BaseFormGroupChosenMultiple,
   BaseFormGroupInput
@@ -123,6 +126,7 @@ import {
 import network from '@/utils/network'
 
 const components = {
+  BaseButtonSave,
   BaseForm,
 
   FormGroupGateway:    BaseFormGroupInput,
@@ -153,7 +157,8 @@ export default {
         hostname: yup.string().nullable().required(this.$i18n.t('Hostname required.')),
         dns_servers: yup.array().ensure().required(this.$i18n.t('DNS server(s) required.')).of(yup.string().nullable())
       }),
-      interfaces: [] // interfaces from store
+      interfaces: [], // interfaces from store
+      isDetecting: false
     }
   },
   computed: {
@@ -199,6 +204,7 @@ export default {
     },
     detectManagementInterface () {
       if (this.managementTypeCount === 0) {
+        this.isDetecting = true
         // No interface is of type management -- force one
         let management_interface = this.interfaces.find(i => {
           return i.network && i.netmask && network.ipv4InSubnet(this.gateway, network.ipv4NetmaskToSubnet(i.network, i.netmask))
@@ -210,7 +216,21 @@ export default {
         }
         if (management_interface) {
           management_interface.type = 'management'
+          this.$store.dispatch('notification/danger', {
+            icon: 'exclamation-triangle',
+            message: this.$i18n.t('Management interface <code>{id}</code> found.', management_interface)
+          })
           this.$store.dispatch('$_interfaces/updateInterface', management_interface)
+            .finally(() => {
+              this.isDetecting = false
+            })
+        }
+        else {
+          this.$store.dispatch('notification/danger', {
+            icon: 'exclamation-triangle',
+            message: this.$i18n.t('Management interface not found.')
+          })
+          this.isDetecting = false
         }
       }
     },
