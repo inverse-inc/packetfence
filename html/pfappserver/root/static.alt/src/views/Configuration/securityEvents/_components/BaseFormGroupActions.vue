@@ -88,6 +88,25 @@
 
       <b-row no-gutters class="border-bottom">
         <b-col cols="3">
+          <input-toggle-email-recipient v-model="email_recipient"/>
+        </b-col>
+        <b-collapse :visible="email_recipient" class="col-sm-9 mt-3">
+
+          <form-group-email-recipient-message namespace="email_recipient_message"
+            :column-label="$t('Additional message')"
+          />
+          <form-group-recipient-email namespace="recipient_email"
+            :column-label="$t('Email address')"
+          />
+          <form-group-recipient-message namespace="recipient_template_email"
+            :column-label="$t('Template to use for the email')"
+          />
+
+        </b-collapse>
+      </b-row>
+
+      <b-row no-gutters class="border-bottom">
+        <b-col cols="3">
           <input-toggle-external v-model="external"/>
         </b-col>
         <b-collapse :visible="external" class="col-sm-9 mt-3">
@@ -134,6 +153,9 @@ import {
   BaseFormGroupChosenOne    as FormGroupTargetCategory,
   BaseFormGroupChosenOne    as FormGroupTemplate,
   BaseFormGroupTextarea     as FormGroupUserMailMessage,
+  BaseFormGroupTextarea     as FormGroupEmailRecipientMessage,
+  BaseFormGroupInput        as FormGroupRecipientEmail,
+  BaseFormGroupInput        as FormGroupRecipientTemplateEmail,
   BaseFormGroupChosenOne    as FormGroupVClose,
   BaseFormGroupChosenOne    as FormGroupVlan,
 } from '@/components/new'
@@ -141,6 +163,7 @@ import BaseInputToggleAutoreg from './BaseInputToggleAutoreg'
 import BaseInputToggleClose from './BaseInputToggleClose'
 import BaseInputToggleEmailAdmin from './BaseInputToggleEmailAdmin'
 import BaseInputToggleEmailUser from './BaseInputToggleEmailUser'
+import BaseInputToggleEmailRecipient from './BaseInputToggleEmailRecipient'
 import BaseInputToggleExternal from './BaseInputToggleExternal'
 import BaseInputToggleIsolate from './BaseInputToggleIsolate'
 import BaseInputToggleUnreg from './BaseInputToggleUnreg'
@@ -156,15 +179,19 @@ const components = {
   FormGroupTemplate,
   FormGroupUserMailMessage,
   FormGroupVClose,
+  FormGroupEmailRecipientMessage,
+  FormGroupRecipientEmail,
+  FormGroupRecipientTemplateEmail,
   FormGroupVlan,
 
-  InputToggleAutoreg:     BaseInputToggleAutoreg,
-  InputToggleClose:       BaseInputToggleClose,
-  InputToggleEmailAdmin:  BaseInputToggleEmailAdmin,
-  InputToggleEmailUser:   BaseInputToggleEmailUser,
-  InputToggleExternal:    BaseInputToggleExternal,
-  InputToggleIsolate:     BaseInputToggleIsolate,
-  InputToggleUnreg:       BaseInputToggleUnreg,
+  InputToggleAutoreg:        BaseInputToggleAutoreg,
+  InputToggleClose:          BaseInputToggleClose,
+  InputToggleEmailAdmin:     BaseInputToggleEmailAdmin,
+  InputToggleEmailUser:      BaseInputToggleEmailUser,
+  InputToggleEmailRecipient: BaseInputToggleEmailRecipient,
+  InputToggleExternal:       BaseInputToggleExternal,
+  InputToggleIsolate:        BaseInputToggleIsolate,
+  InputToggleUnreg:          BaseInputToggleUnreg,
 }
 
 import { customRef, inject, ref, unref, watch } from '@vue/composition-api'
@@ -274,6 +301,20 @@ const setup = () => {
     }
   }))
 
+  const email_recipient = customRef((track, trigger) => ({
+    get() {
+      track()
+      return actionsValue.value.includes('email_recipient')
+    },
+    set(newValue) {
+      if (newValue)
+        add('email_recipient')
+      else
+        remove('email_recipient')
+      trigger()
+    }
+  }))
+
   const external = customRef((track, trigger) => ({
     get() {
       track()
@@ -318,6 +359,7 @@ const setup = () => {
     isolate,
     email_admin,
     email_user,
+    email_recipient,
     external,
     close
   }
