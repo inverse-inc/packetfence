@@ -157,6 +157,7 @@ import BaseInputToggleAutoreg from './BaseInputToggleAutoreg'
 import BaseInputToggleClose from './BaseInputToggleClose'
 import BaseInputToggleEmailAdmin from './BaseInputToggleEmailAdmin'
 import BaseInputToggleEmailUser from './BaseInputToggleEmailUser'
+import BaseInputToggleEmailRecipient './BaseInputToggleEmailRecipient'
 import BaseInputToggleExternal from './BaseInputToggleExternal'
 import BaseInputToggleIsolate from './BaseInputToggleIsolate'
 import BaseInputToggleUnreg from './BaseInputToggleUnreg'
@@ -174,13 +175,14 @@ const components = {
   FormGroupVClose,
   FormGroupVlan,
 
-  InputToggleAutoreg:     BaseInputToggleAutoreg,
-  InputToggleClose:       BaseInputToggleClose,
-  InputToggleEmailAdmin:  BaseInputToggleEmailAdmin,
-  InputToggleEmailUser:   BaseInputToggleEmailUser,
-  InputToggleExternal:    BaseInputToggleExternal,
-  InputToggleIsolate:     BaseInputToggleIsolate,
-  InputToggleUnreg:       BaseInputToggleUnreg,
+  InputToggleAutoreg:        BaseInputToggleAutoreg,
+  InputToggleClose:          BaseInputToggleClose,
+  InputToggleEmailAdmin:     BaseInputToggleEmailAdmin,
+  InputToggleEmailUser:      BaseInputToggleEmailUser,
+  InputToggleEmailRecipient: BaseInputToggleEmailRecipient,
+  InputToggleExternal:       BaseInputToggleExternal,
+  InputToggleIsolate:        BaseInputToggleIsolate,
+  InputToggleUnreg:          BaseInputToggleUnreg,
 }
 
 import { customRef, inject, ref, unref, watch } from '@vue/composition-api'
