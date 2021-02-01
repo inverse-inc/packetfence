@@ -100,8 +100,6 @@ has_field 'additional_domains_to_resolve' =>
 has_field 'internal_domain_to_resolve' =>
   (
    type => 'Text',
-    required => 1,
-    default => "ztn",
   );
 
 has_field 'gateway' =>
@@ -119,7 +117,6 @@ has_field 'routes' =>
 has_field 'stun_server' =>
   (
     type => 'Text',
-    required => 1,
   );
 
 
