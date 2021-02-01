@@ -95,8 +95,11 @@
           <form-group-email-recipient-message namespace="email_recipient_message"
             :column-label="$t('Additional message')"
           />
-          <form-group-recipient-message namespace="recipient_message"
+          <form-group-recipient-message namespace="recipient_email"
             :column-label="$t('Email address')"
+          />
+          <form-group-recipient-message namespace="recipient_template_email"
+            :column-label="$t('Template to use for the email')"
           />
 
         </b-collapse>
@@ -157,7 +160,7 @@ import BaseInputToggleAutoreg from './BaseInputToggleAutoreg'
 import BaseInputToggleClose from './BaseInputToggleClose'
 import BaseInputToggleEmailAdmin from './BaseInputToggleEmailAdmin'
 import BaseInputToggleEmailUser from './BaseInputToggleEmailUser'
-import BaseInputToggleEmailRecipient './BaseInputToggleEmailRecipient'
+import BaseInputToggleEmailRecipient from './BaseInputToggleEmailRecipient'
 import BaseInputToggleExternal from './BaseInputToggleExternal'
 import BaseInputToggleIsolate from './BaseInputToggleIsolate'
 import BaseInputToggleUnreg from './BaseInputToggleUnreg'
