@@ -86,7 +86,7 @@ const setup = (props, context) => {
             })
         })
       })
-      .catch(error => {
+      .catch(() => {
         progressFeedback.value = null
       })
       .finally(() => {

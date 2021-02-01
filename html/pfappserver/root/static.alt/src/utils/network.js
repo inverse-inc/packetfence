@@ -48,8 +48,8 @@ export const connectionTypeToAttributes = (connectionType) => {
 }
 
 export const ipv4NetmaskToSubnet = (ip, netmask) => {
-  const _ip = ip.split('.').map(i => parseInt(i))
-  const _netmask = netmask.split('.').map(n => parseInt(n))
+  const _ip = (ip || '').split('.').map(i => parseInt(i))
+  const _netmask = (netmask || '').split('.').map(n => parseInt(n))
   let subnet = []
   _ip.forEach((_, idx) => {
     subnet.push(_ip[idx] & _netmask[idx])
@@ -65,8 +65,8 @@ export const ipv4Sort = (a, b) => {
 }
 
 export const ipv4InSubnet = (ip, subnet) => {
-  const _ip = ip.split('.').map(i => parseInt(i))
-  const _subnet = subnet.replace(/(\.0)+$/, '').split('.').map(s => parseInt(s))
+  const _ip = (ip || '').split('.').map(i => parseInt(i))
+  const _subnet = (subnet || '').replace(/(\.0)+$/, '').split('.').map(s => parseInt(s))
   return _ip.reduce((result, d, index) => {
     return result && (index >= _subnet.length || d === _subnet[index])
   }, true)
