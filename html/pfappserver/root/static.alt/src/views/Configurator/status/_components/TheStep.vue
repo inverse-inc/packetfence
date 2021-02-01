@@ -86,11 +86,11 @@ const setup = (props, context) => {
             })
         })
       })
-      .catch(() => {
+      .catch(error => {
         progressFeedback.value = null
       })
       .finally(() => {
-        isLoading.value = false
+        this.isLoading = false
       })
   }
 
