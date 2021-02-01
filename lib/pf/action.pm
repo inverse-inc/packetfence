@@ -331,7 +331,7 @@ sub action_email_recipient {
     my $to = $pf::security_event_config::SecurityEvent_Config{$security_event_id}{recipient_email};
     if ($to ne "") {
         pf::config::util::send_email(
-            'security_event-triggered',
+            $pf::security_event_config::SecurityEvent_Config{$security_event_id}{recipient_template_email},
             $to,
             "$description detection on $mac",
             {

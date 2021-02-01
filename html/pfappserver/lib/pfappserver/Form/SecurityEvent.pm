@@ -115,6 +115,15 @@ has_field 'recipient_email' =>
              help => 'Recipient email addresses that will receive the security event email.' }
   );
 
+has_field 'recipient_template_email' =>
+  (
+   type => 'Text',
+   label => 'Recipient template email',
+   tags => { after_element => \&help,
+             help => 'Template email to use to send the security event by email.' },
+   default => "security_event-triggered"
+  );
+
 has_field 'triggers' => (
     type => 'Repeatable',
     inactive => 1,
