@@ -3,6 +3,7 @@ package wgorchestrator
 import (
 	"encoding/base64"
 	"encoding/binary"
+	"encoding/json"
 	"errors"
 	"net/http"
 	"regexp"
@@ -85,7 +86,7 @@ func (h *WgorchestratorHandler) handleGetProfile(c *gin.Context) {
 			PID:          username,
 			Unregdate:    unregdate,
 			Status:       "reg",
-			CategoryID:   strconv.Itoa(categoryId),
+			CategoryID:   json.Number(strconv.Itoa(categoryId)),
 		},
 	})
 

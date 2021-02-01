@@ -2,45 +2,45 @@ package common
 
 import (
 	"context"
-	"strconv"
+	"encoding/json"
 
 	"github.com/inverse-inc/packetfence/go/log"
 	"github.com/inverse-inc/packetfence/go/unifiedapiclient"
 )
 
 type Node struct {
-	Autoreg            string `json:"autoreg,omitempty"`
-	BandwidthBalance   string `json:"bandwidth_balance,omitempty"`
-	BypassRoleID       string `json:"bypass_role_id,omitempty"`
-	BypassVLAN         string `json:"bypass_vlan,omitempty"`
-	CategoryID         string `json:"category_id,omitempty"`
-	Computername       string `json:"computername,omitempty"`
-	DetectDate         string `json:"detect_date,omitempty"`
-	DeviceClass        string `json:"device_class,omitempty"`
-	DeviceManufacturer string `json:"device_manufacturer,omitempty"`
-	DeviceScore        string `json:"device_score,omitempty"`
-	DeviceType         string `json:"device_type,omitempty"`
-	DeviceVersion      string `json:"device_version,omitempty"`
-	Dhcp6Enterprise    string `json:"dhcp6_enterprise,omitempty"`
-	Dhcp6Fingerprint   string `json:"dhcp6_fingerprint,omitempty"`
-	DhcpFingerprint    string `json:"dhcp_fingerprint,omitempty"`
-	DhcpVendor         string `json:"dhcp_vendor,omitempty"`
-	LastARP            string `json:"last_arp,omitempty"`
-	LastDHCP           string `json:"last_dhcp,omitempty"`
-	LastSeen           string `json:"last_seen,omitempty"`
-	LastSkip           string `json:"lastskip,omitempty"`
-	MAC                string `json:"mac,omitempty"`
-	MachineAccount     string `json:"machine_account,omitempty"`
-	Notes              string `json:"notes,omitempty"`
-	PID                string `json:"pid,omitempty"`
-	Regdate            string `json:"regdate,omitempty"`
-	Sessionid          string `json:"sessionid,omitempty"`
-	Status             string `json:"status,omitempty"`
-	TenantId           string `json:"tenant_id,omitempty"`
-	TimeBalance        string `json:"time_balance,omitempty"`
-	Unregdate          string `json:"unregdate,omitempty"`
-	UserAgent          string `json:"user_agent,omitempty"`
-	VoIP               string `json:"voip,omitempty"`
+	Autoreg            string      `json:"autoreg,omitempty"`
+	BandwidthBalance   string      `json:"bandwidth_balance,omitempty"`
+	BypassRoleID       string      `json:"bypass_role_id,omitempty"`
+	BypassVLAN         string      `json:"bypass_vlan,omitempty"`
+	CategoryID         json.Number `json:"category_id,omitempty"`
+	Computername       string      `json:"computername,omitempty"`
+	DetectDate         string      `json:"detect_date,omitempty"`
+	DeviceClass        string      `json:"device_class,omitempty"`
+	DeviceManufacturer string      `json:"device_manufacturer,omitempty"`
+	DeviceScore        string      `json:"device_score,omitempty"`
+	DeviceType         string      `json:"device_type,omitempty"`
+	DeviceVersion      string      `json:"device_version,omitempty"`
+	Dhcp6Enterprise    string      `json:"dhcp6_enterprise,omitempty"`
+	Dhcp6Fingerprint   string      `json:"dhcp6_fingerprint,omitempty"`
+	DhcpFingerprint    string      `json:"dhcp_fingerprint,omitempty"`
+	DhcpVendor         string      `json:"dhcp_vendor,omitempty"`
+	LastARP            string      `json:"last_arp,omitempty"`
+	LastDHCP           string      `json:"last_dhcp,omitempty"`
+	LastSeen           string      `json:"last_seen,omitempty"`
+	LastSkip           string      `json:"lastskip,omitempty"`
+	MAC                string      `json:"mac,omitempty"`
+	MachineAccount     string      `json:"machine_account,omitempty"`
+	Notes              string      `json:"notes,omitempty"`
+	PID                string      `json:"pid,omitempty"`
+	Regdate            string      `json:"regdate,omitempty"`
+	Sessionid          string      `json:"sessionid,omitempty"`
+	Status             string      `json:"status,omitempty"`
+	TenantId           string      `json:"tenant_id,omitempty"`
+	TimeBalance        string      `json:"time_balance,omitempty"`
+	Unregdate          string      `json:"unregdate,omitempty"`
+	UserAgent          string      `json:"user_agent,omitempty"`
+	VoIP               string      `json:"voip,omitempty"`
 }
 
 type NodeInfo struct {
@@ -65,8 +65,8 @@ type NodeInfo struct {
 }
 
 func (n *Node) CategoryID_int() int {
-	id, _ := strconv.Atoi(n.CategoryID)
-	return id
+	i, _ := n.CategoryID.Int64()
+	return int(i)
 }
 
 func FetchNodeInfo(ctx context.Context, mac string) (NodeInfo, unifiedapiclient.UnifiedAPIError) {
