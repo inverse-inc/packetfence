@@ -95,7 +95,7 @@
           <form-group-email-recipient-message namespace="email_recipient_message"
             :column-label="$t('Additional message')"
           />
-          <form-group-recipient-message namespace="recipient_email"
+          <form-group-recipient-email namespace="recipient_email"
             :column-label="$t('Email address')"
           />
           <form-group-recipient-message namespace="recipient_template_email"
@@ -153,6 +153,9 @@ import {
   BaseFormGroupChosenOne    as FormGroupTargetCategory,
   BaseFormGroupChosenOne    as FormGroupTemplate,
   BaseFormGroupTextarea     as FormGroupUserMailMessage,
+  BaseFormGroupTextarea     as FormGroupEmailRecipientMessage,
+  BaseFormGroupInput        as FormGroupRecipientEmail,
+  BaseFormGroupInput        as FormGroupRecipientTemplateEmail,
   BaseFormGroupChosenOne    as FormGroupVClose,
   BaseFormGroupChosenOne    as FormGroupVlan,
 } from '@/components/new'
@@ -176,6 +179,9 @@ const components = {
   FormGroupTemplate,
   FormGroupUserMailMessage,
   FormGroupVClose,
+  FormGroupEmailRecipientMessage,
+  FormGroupRecipientEmail,
+  FormGroupRecipientTemplateEmail,
   FormGroupVlan,
 
   InputToggleAutoreg:        BaseInputToggleAutoreg,
