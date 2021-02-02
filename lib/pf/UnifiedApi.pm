@@ -2207,6 +2207,7 @@ setup_api_v1_configurator_routes
 
 sub setup_api_v1_configurator_routes {
     my ($self, $root) = @_;
+    $root->register_sub_action({ method => [qw(POST GET PATCH PUT DELETE)], action => 'proxy_api_frontend', path => '/pfqueue/*'});
     my $config = $root->under("/config")->name("api.v1.Configurator.Config");
     $self->setup_api_v1_config_bases_routes($config, 1);
     $self->setup_api_v1_config_fingerbank_settings_routes($config);
