@@ -27,6 +27,7 @@ sub get {
            is_inline_configured => is_inline_configured() ? $self->json_true : $self->json_false,
            version => pf::version::version_get_current(),
            hostname => $host_id,
+           db_version => pf::version::version_get_last_db_version,
            uptime(),
         }
     );
