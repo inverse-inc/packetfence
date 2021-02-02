@@ -26,11 +26,11 @@ sub build {
     my ($self) = @_;
     my %list;
     while(my ($role, $config) = each %{$self->{config}}) {
-        my $parent = $config->{parent};
+        my $parent = $config->{parent_id};
         while($parent) {
             $list{$parent} //= [];
             push @{$list{$parent}}, $role;
-            $parent = $self->{config}->{$parent}->{parent};
+            $parent = $self->{config}->{$parent}->{parent_id};
         }
     }
     return \%list;
