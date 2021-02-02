@@ -204,7 +204,7 @@ func TestHealthFailTwice(t *testing.T) {
 
 	ForwardEntry.ServeDNS(context.TODO(), &test.ResponseWriter{}, req)
 
-	time.Sleep(25 * time.Millisecond)
+	time.Sleep(30 * time.Millisecond)
 	i1 := atomic.LoadUint32(&i)
 	if i1 != expected {
 		t.Errorf("Expected number of health checks to be %d, got %d", expected, i1)
