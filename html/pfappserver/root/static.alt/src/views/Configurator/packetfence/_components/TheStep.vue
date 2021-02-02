@@ -40,10 +40,21 @@ const setup = (props, context) => {
 
   // avoid having to pass events (state/invalidfeedback) up from deeply nested children within <router-view/>
   //  use DOM querySelectorAll with MutationObserver instead
-  const _invalidNodes = useQuerySelectorAll(rootRef, '.form-group.is-invalid, .row.is-invalid')
+  const _invalidNodes = useQuerySelectorAll(rootRef, '.is-invalid')
   const isValid = computed(() => (!_invalidNodes.value || _invalidNodes.value.length === 0))
   const invalidFeedback = computed(() => (_invalidNodes.value && Array.prototype.slice.call(_invalidNodes.value)
-    .map(node => node.querySelector('.invalid-feedback').textContent)
+    .map(node => {
+      let selection = node.querySelector('.invalid-feedback') // query children
+      if (!selection)
+        selection = node.parentNode.querySelector('.invalid-feedback') // query siblings
+      if (selection)
+        return selection.textContent
+    })
+    .reduce((strings, string) => { // unique, non-empty
+      if (string && !strings.includes(string))
+        strings.push(string)
+      return strings
+    }, [])
     .join(' ')
   ))
 
