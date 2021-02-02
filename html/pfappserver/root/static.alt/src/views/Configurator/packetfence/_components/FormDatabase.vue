@@ -80,13 +80,14 @@
                   'is-invalid': rootPasswordIsUnverified
                 }"
               >
-                <b-button class="col-sm-7 col-lg-5 col-xl-4"
-                  :disabled="form.root_pass.length === 0"
+                <base-button-save class="col-sm-7 col-lg-5 col-xl-4"
+                  :disabled="!canVerifyRootPassword"
+                  :isLoading="isVerifyingRootPassword"
                   :variant="(rootPasswordIsUnverified) ? 'outline-danger' : 'outline-primary'"
-                  @click="onVerifyRootPassword">{{ $t('Verify') }}</b-button>
+                  @click="onVerifyRootPassword">{{ $t('Verify') }}</base-button-save>
 
                 <div v-if="rootPasswordIsUnverified"
-                  class="d-block invalid-feedback p-2">{{ $i18n.t('Incorrect MySQL root password.') }}</div>
+                  class="d-block invalid-feedback py-2">{{ $i18n.t('Incorrect MySQL root password.') }}</div>
               </base-form-group>
             </template>
 
@@ -108,13 +109,14 @@
                   'is-invalid': databaseCreationError
                 }"
               >
-              <b-button class="col-sm-7 col-lg-5 col-xl-4"
+              <base-button-save class="col-sm-7 col-lg-5 col-xl-4"
+                :isLoading="isCreatingDatabase"
                 :disabled="!rootPasswordIsValid"
                 :variant="(databaseCreationError) ? 'outline-danger' : 'outline-primary'"
-                @click="onCreateDatabase">{{ $t('Create') }}</b-button>
+                @click="onCreateDatabase">{{ $t('Create') }}</base-button-save>
 
               <div v-if="databaseCreationError"
-                class="d-block invalid-feedback p-2">{{ databaseCreationError }}</div>
+                class="d-block invalid-feedback py-2">{{ databaseCreationError }}</div>
             </base-form-group>
           </template>
 
@@ -143,13 +145,14 @@
                   'is-invalid': userCreationError
                 }"
               >
-              <b-button class="col-sm-7 col-lg-5 col-xl-4"
-                :disabled="!rootPasswordIsValid"
+              <base-button-save class="col-sm-7 col-lg-5 col-xl-4"
+                :disabled="!canCreateUser"
+                :isLoading="isCreatingUser"
                 :variant="(userCreationError) ? 'outline-danger' : 'outline-primary'"
-                @click="onCreateUser">{{ $t('Create') }}</b-button>
+                @click="onCreateUser">{{ $t('Create') }}</base-button-save>
 
               <div v-if="userCreationError"
-                class="d-block invalid-feedback p-2">{{ userCreationError }}</div>
+                class="d-block invalid-feedback py-2">{{ userCreationError }}</div>
             </base-form-group>
           </template>
 
@@ -164,6 +167,8 @@ const DEFAULT_DATABASE = 'pf' // default database is "pf"
 const DEFAULT_USERNAME = 'pf' // default username is "pf"
 
 import {
+  BaseButtonSave,
+
   BaseForm,
   BaseFormGroup,
   BaseFormGroupInput,
@@ -176,10 +181,10 @@ import {
 } from '@/components/new/'
 
 const components = {
+  BaseButtonSave,
   BaseForm,
   BaseFormGroup,
   FormGroupAutomaticConfiguration:  BaseFormGroupToggleFalseTrue,
-
   BaseFormGroupInput,
   BaseFormGroupInputPassword,
   BaseFormGroupInputPasswordGenerator,
@@ -199,13 +204,6 @@ import i18n from '@/utils/locale'
 import password from '@/utils/password'
 import yup from '@/utils/yup'
 
-const schema = yup.object({
-  db: yup.string().nullable().required(i18n.t('MySQL database name required.')),
-  root_pass: yup.string().nullable().required(i18n.t('MySQL root password required.')),
-  user: yup.string().nullable().required(i18n.t('MySQL username required.')),
-  pass: yup.string().nullable().required(i18n.t('MySQL password required.'))
-})
-
 const passwordOptions = {
   pwlength: 16,
   upper: true,
@@ -224,6 +222,21 @@ export const setup = (props, context) => {
   const state = inject('state') // Configurator
   const form = ref({ db: '', user: '', pass: '', root_pass: '' })
 
+  const schema = computed(() => {
+    return yup.object({
+      db: yup.string().nullable()
+        .required(i18n.t('MySQL database name required.'))
+        .not(databaseExists.value, i18n.t('MySQL database not created.')),
+      root_pass: yup.string().nullable()
+        .required(i18n.t('MySQL root password required.'))
+        .not((rootPasswordIsUnverified.value || rootPasswordIsValid.value), i18n.t('MySQL root password not verified.')),
+      user: yup.string().nullable()
+        .required(i18n.t('MySQL username required.'))
+        .not(userIsValid.value, i18n.t('MySQL user not created.')),
+      pass: yup.string().nullable().required(i18n.t('MySQL password required.'))
+    })
+  })
+
   const isLoading = computed(() => $store.getters['$_bases/isLoading'])
 
   // Make sure the database server is running
@@ -236,14 +249,10 @@ export const setup = (props, context) => {
   })
 
   const automaticConfiguration = ref(false)
-  const databaseCreationError = ref(null)
   const databaseExists = ref(false)
-  const rootPasswordIsRequired = ref(false)
-  const rootPasswordIsValid = ref(false)
-  const rootPasswordIsUnverified = ref(false)
+  const rootPasswordIsRequired = ref(true)
   const setUserPassword = ref(false)
   const setRootPassword = ref(false)
-  const userCreationError = ref(null)
   const userIsValid = ref(false)
 
   const initialValidation = () => {
@@ -318,7 +327,16 @@ export const setup = (props, context) => {
     })
   }
 
+  const canCreateDatabase = computed(() => {
+    const { name = '' } = form.value || {}
+    return rootPasswordIsValid.value && name.length > 0
+  })
+
+  const isCreatingDatabase = ref(false)
+  const databaseCreationError = ref(null)
   const createDatabase = () => {
+    isCreatingDatabase.value = true
+    databaseCreationError.value = null
     return $store.dispatch('$_bases/createDatabase', {
       username: 'root',
       password: form.value.root_pass,
@@ -335,10 +353,24 @@ export const setup = (props, context) => {
       } = err
       databaseCreationError.value = message
       throw err
+    }).finally(() => {
+      isCreatingDatabase.value = false
     })
   }
 
+  const canCreateUser = computed(() => {
+    const { user = '', pass = '' } = form.value || {}
+    return rootPasswordIsValid.value
+      && databaseExists.value
+      && user && user.length > 0
+      && pass && pass.length > 0
+  })
+
+  const isCreatingUser = ref(false)
+  const userCreationError = ref(null)
   const assignDatabase = () => {
+    isCreatingUser.value = true
+    userCreationError.value = null
     return $store.dispatch('$_bases/assignDatabase', {
       root_username: 'root',
       root_password: form.value.root_pass,
@@ -357,6 +389,8 @@ export const setup = (props, context) => {
       } = err
       userCreationError.value = message
       throw err
+    }).finally(() => {
+      isCreatingUser.value = false
     })
   }
 
@@ -404,14 +438,26 @@ export const setup = (props, context) => {
     }
   }
 
+  const canVerifyRootPassword = computed(() => {
+    const { root_pass = '' } = form.value || {}
+    return root_pass.length > 0
+  })
+
+  const rootPasswordIsValid = ref(false)
+  const rootPasswordIsUnverified = ref(false)
+  const isVerifyingRootPassword = ref(false)
   const onVerifyRootPassword = () => {
+    isVerifyingRootPassword.value = true
     return $store.dispatch('$_bases/testDatabase', { username: 'root', password: form.value.root_pass }).then(() => {
       rootPasswordIsValid.value = true
+      rootPasswordIsUnverified.value = false
       $store.dispatch('$_bases/testDatabase', { username: 'root', database: form.value.db || DEFAULT_DATABASE }).then(() => {
         databaseExists.value = true // database exists
       })
     }).catch(() => {
       rootPasswordIsUnverified.value = true
+    }).finally(() => {
+      isVerifyingRootPassword.value = false
     })
   }
 
@@ -422,21 +468,30 @@ export const setup = (props, context) => {
     onSave,
 
     automaticConfiguration,
-    databaseCreationError,
     databaseExists,
     rootPasswordIsRequired,
     rootPasswordIsValid,
     rootPasswordIsUnverified,
     setUserPassword,
     setRootPassword,
-    userCreationError,
     userIsValid,
 
     onCopyRootPassword,
     onSetRootPassword: secureDatabase,
+
+    canVerifyRootPassword,
     onVerifyRootPassword,
+    isVerifyingRootPassword,
+
+    canCreateDatabase,
     onCreateDatabase: createDatabase,
-    onCreateUser: assignDatabase
+    isCreatingDatabase,
+    databaseCreationError,
+
+    canCreateUser,
+    onCreateUser: assignDatabase,
+    isCreatingUser,
+    userCreationError
   }
 }
 
