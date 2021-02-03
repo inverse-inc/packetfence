@@ -14,13 +14,35 @@
         :schema="schema"
         :isLoading="isLoading"
       >
-        <base-form-group-input namespace="api_key"
+        <form-group-proxy-use-proxy namespace="proxy.use_proxy"
+          :column-label="$i18n.t('Use proxy')"
+          :text="$i18n.t('Should Fingerbank interact with WWW using a proxy?')"
+        />
+
+        <template v-if="isProxy">
+          <form-group-proxy-host namespace="proxy.host"
+            :column-label="$i18n.t('Proxy Host')"
+            :text="$i18n.t('Host the proxy is listening on. Only the host must be specified here without any port or protocol.')"
+          />
+
+          <form-group-proxy-port namespace="proxy.port"
+            :column-label="$i18n.t('Proxy Port')"
+            :text="$i18n.t('Port the proxy is listening on.')"
+          />
+
+          <form-group-proxy-verify-ssl namespace="proxy.verify_ssl"
+            :column-label="$i18n.t('Verify SSL')"
+            :text="$i18n.t('Whether or not to verify SSL when using proxying.')"
+          />
+        </template>
+
+        <form-group-upstream-api-key namespace="upstream.api_key"
           :column-label="$i18n.t('API Key')"
           :text="$i18n.t('API key to interact with upstream Fingerbank project. Changing this value requires to restart the Fingerbank collector.')"
           :valid-feedback="(fingerbankAccountName) ? $i18n.t('API key is valid.') : undefined"
         />
 
-        <template v-if="!fingerbankAccountName && form.api_key && form.api_key.length > 0">
+        <template v-if="!fingerbankAccountName && isApiKey">
           <base-form-group class="mb-3"
             :class="{
               'is-invalid': !fingerbankAccountIsValid
@@ -31,7 +53,7 @@
               @click="onVerify">{{ $t('Verify') }}</b-button>
 
             <div v-if="!fingerbankAccountIsValid"
-              class="d-block invalid-feedback p-2">{{ $i18n.t('Invalid API key.') }}</div>
+              class="d-block invalid-feedback py-2">{{ $i18n.t('Invalid API key.') }}</div>
           </base-form-group>
         </template>
 
@@ -49,14 +71,25 @@
 <script>
 import {
   BaseForm,
-  BaseFormGroup,
-  BaseFormGroupInput
+  BaseFormGroup
 } from '@/components/new/'
+import {
+  FormGroupUpstreamApiKey,
+  FormGroupProxyUseProxy,
+  FormGroupProxyHost,
+  FormGroupProxyPort,
+  FormGroupProxyVerifySsl
+} from '@/views/Configuration/fingerbank/generalSettings/_components/'
 
 const components = {
   BaseForm,
   BaseFormGroup,
-  BaseFormGroupInput
+
+  FormGroupUpstreamApiKey,
+  FormGroupProxyUseProxy,
+  FormGroupProxyHost,
+  FormGroupProxyPort,
+  FormGroupProxyVerifySsl
 }
 
 import { computed, inject, ref, watch } from '@vue/composition-api'
@@ -72,7 +105,12 @@ export const setup = (props, context) => {
   const { root: { $store } = {} } = context
 
   const state = inject('state') // Configurator
-  const form = ref({})
+  const form = ref({
+    proxy: {
+      use_proxy: false
+    },
+    upstream: {}
+  })
   const meta = ref({})
   const schema = computed(() => schemaFn(props))
   const fingerbankAccountName = ref(null)
@@ -88,6 +126,18 @@ export const setup = (props, context) => {
     meta.value = _meta
   })
 
+  const isApiKey = computed(() => form.value && form.value.upstream && form.value.upstream.api_key && form.value.upstream.api_key.length > 0)
+  watch(() => form.value.upstream, () => {
+    fingerbankAccountName.value = null
+  }, { deep: true })
+
+  const isProxy = computed(() => form.value && form.value.proxy && form.value.proxy.use_proxy === 'enabled')
+  const isProxyMutated = ref(false)
+  watch(() => form.value.proxy, () => {
+    isProxyMutated.value = true
+    fingerbankAccountName.value = null
+  }, { deep: true })
+
   const _isLoadingSettings = ref(false)
   const isLoading = computed(() => _isLoadingSettings.value || $store.getters['$_fingerbank/isGeneralSettingsLoading'])
 
@@ -96,10 +146,10 @@ export const setup = (props, context) => {
     return $store.dispatch('$_fingerbank/getGeneralSettings')
       .then(_form => {
         state.value.fingerbank = _form
-        const { upstream, upstream: { api_key = null } = {} } = _form
-        form.value = upstream
+        const { proxy, upstream, upstream: { api_key = null } = {} } = _form
+        form.value = { proxy, upstream }
         if (api_key) {
-          $store.dispatch('$_fingerbank/getAccountInfo').then(({ name }) => {
+          return $store.dispatch('$_fingerbank/getAccountInfo').then(({ name }) => {
             fingerbankAccountName.value = name
           })
         }
@@ -108,22 +158,38 @@ export const setup = (props, context) => {
         _isLoadingSettings.value = false
       })
   }
-  _getAccountInfo() // init
+  _getAccountInfo().finally(() => { // init
+    isProxyMutated.value = false // reset after get
+  })
 
   const onVerify = () => {
     _isLoadingSettings.value = true
-    $store.dispatch('$_fingerbank/setGeneralSettings', { upstream: { ...form.value, quiet: true } })
-      .then(() => {
-        fingerbankAccountIsValid.value = true
-        _getAccountInfo()
+     const upstreamPromise = () => {
+      const { upstream } = form.value
+      upstream.quiet = true
+      return $store.dispatch('$_fingerbank/setGeneralSettings', { upstream })
+        .then(() => {
+          fingerbankAccountIsValid.value = true
+          _getAccountInfo()
+        })
+        .catch(() => {
+          fingerbankAccountName.value = null
+          fingerbankAccountIsValid.value = false
+        })
+        .finally(() => {
+          _isLoadingSettings.value = false
+        })
+    }
+    if (isProxyMutated.value) { // update proxy first
+      const { proxy } = form.value
+      proxy.quiet = true
+      return $store.dispatch('$_fingerbank/setGeneralSettings', { proxy }).then(() => {
+        return upstreamPromise()
       })
-      .catch(() => {
-        fingerbankAccountName.value = null
-        fingerbankAccountIsValid.value = false
-      })
-      .finally(() => {
-        _isLoadingSettings.value = false
-      })
+    }
+    else {
+      return upstreamPromise()
+    }
   }
 
   // when api_key is mutated disassociate account
@@ -139,6 +205,9 @@ export const setup = (props, context) => {
     fingerbankAccountIsValid,
     fingerbankAccountSignup,
     isLoading,
+    isApiKey,
+    isProxy,
+    isProxyMutated,
     onVerify
   }
 }

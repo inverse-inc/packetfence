@@ -26,7 +26,9 @@ export default {
     return apiCall.postQuiet('config/base/database/secure_installation', data)
   },
   createDatabase: data => {
-    return apiCall.postQuiet('config/base/database/create', data)
+    return apiCall.postQuiet('config/base/database/create', data).then(response => {
+      return response.data
+    })
   },
   assignDatabase: data => {
     return apiCall.postQuiet('config/base/database/assign', data)
