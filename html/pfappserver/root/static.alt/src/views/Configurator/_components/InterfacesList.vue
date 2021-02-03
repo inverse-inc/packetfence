@@ -120,10 +120,53 @@ import pfEmptyTable from '@/components/pfEmptyTable'
 import pfFormChosen from '@/components/pfFormChosen'
 import pfFormInput from '@/components/pfFormInput'
 import pfFormRangeToggle from '@/components/pfFormRangeToggle'
-import {
-  columns as columnsInterface
-} from '../_config/interface'
+import i18n from '@/utils/locale'
 import network from '@/utils/network'
+import {
+  typeFormatter,
+  sortColumns
+} from '@/views/Configuration/_config/interface'
+
+const columnsInterface = [
+  {
+    key: 'is_running',
+    label: i18n.t('Status'),
+    visible: true
+  },
+  {
+    key: 'id',
+    label: i18n.t('Logical Name'),
+    required: true,
+    sortable: true,
+    visible: true,
+    sort: sortColumns.id
+  },
+  {
+    key: 'ipaddress',
+    label: i18n.t('IP Address'),
+    sortable: true,
+    visible: true,
+    sort: sortColumns.ipaddress
+  },
+  {
+    key: 'network',
+    label: i18n.t('Default Network'),
+    sortable: true,
+    visible: true,
+    sort: sortColumns.network
+  },
+  {
+    key: 'type',
+    label: i18n.t('Type'),
+    visible: true,
+    formatter: typeFormatter
+  },
+  {
+    key: 'buttons',
+    label: '',
+    locked: true
+  }
+]
 
 const components = {
   BaseButtonSave,
