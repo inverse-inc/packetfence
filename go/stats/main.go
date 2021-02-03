@@ -109,6 +109,7 @@ func (s radiustype) Test(source interface{}, ctx context.Context) {
 	rfc2869.MessageAuthenticator_Set(packet, hash.Sum(nil))
 
 	client := radius.DefaultClient
+	client.MaxPacketErrors = 2
 	sources := strings.Split(radiusSource.Host, ",")
 	for num, src := range sources {
 		ctx2, cancel := context.WithTimeout(ctx, 5*time.Second)
@@ -116,6 +117,7 @@ func (s radiustype) Test(source interface{}, ctx context.Context) {
 		response, err := client.Exchange(ctx2, packet, src+":"+radiusSource.Port)
 		if err != nil {
 			StatsdClient.Gauge("source."+radiusSource.Type+"."+radiusSource.PfconfigHashNS+strconv.Itoa(num), 0)
+			log.LoggerWContext(ctx).Error(fmt.Sprintf("RADIUS test on %s returned this error: %s", sourceId, err.Error()))
 		} else {
 			StatsdClient.Gauge("source."+radiusSource.Type+"."+sourceId+strconv.Itoa(num), 1)
 			if response.Code == radius.CodeAccessAccept {
@@ -190,14 +192,15 @@ func (s eduroamtype) Test(source interface{}, ctx context.Context) {
 	hash.Write(encode)
 
 	rfc2869.MessageAuthenticator_Set(packet, hash.Sum(nil))
-
 	client := radius.DefaultClient
+	client.MaxPacketErrors = 2
 	ctx2, cancel := context.WithTimeout(ctx, 5*time.Second)
 	defer cancel()
-	response, err := client.Exchange(ctx2, packet, source.(pfconfigdriver.AuthenticationSourceEduroam).Server1Address+":1812")
+	response, err := client.Exchange(ctx2, packet, source.(pfconfigdriver.AuthenticationSourceEduroam).Server1Address+":"+source.(pfconfigdriver.AuthenticationSourceEduroam).Server1Port)
 
 	if err != nil {
 		StatsdClient.Gauge("source."+source.(pfconfigdriver.AuthenticationSourceEduroam).Type+"."+source.(pfconfigdriver.AuthenticationSourceEduroam).PfconfigHashNS+"1", 0)
+		log.LoggerWContext(ctx).Error(fmt.Sprintf("EDUROAM test on %s returned this error: %s", source.(pfconfigdriver.AuthenticationSourceEduroam).Server1Address, err.Error()))
 	} else {
 		StatsdClient.Count("source."+source.(pfconfigdriver.AuthenticationSourceEduroam).Type+"."+source.(pfconfigdriver.AuthenticationSourceEduroam).PfconfigHashNS+"1", 1)
 		if response.Code == radius.CodeAccessAccept {
@@ -217,9 +220,10 @@ func (s eduroamtype) Test(source interface{}, ctx context.Context) {
 	hash.Write(encode)
 	rfc2869.MessageAuthenticator_Set(packet, hash.Sum(nil))
 
-	response, err = client.Exchange(ctx, packet, source.(pfconfigdriver.AuthenticationSourceEduroam).Server2Address+":1812")
+	response, err = client.Exchange(ctx, packet, source.(pfconfigdriver.AuthenticationSourceEduroam).Server2Address+":"+source.(pfconfigdriver.AuthenticationSourceEduroam).Server2Port)
 	if err != nil {
 		StatsdClient.Gauge("source."+source.(pfconfigdriver.AuthenticationSourceEduroam).Type+"."+source.(pfconfigdriver.AuthenticationSourceEduroam).PfconfigHashNS+"2", 0)
+		log.LoggerWContext(ctx).Error(fmt.Sprintf("EDUROAM test on %s returned this error: %s", source.(pfconfigdriver.AuthenticationSourceEduroam).Server2Address, err.Error()))
 	} else {
 		StatsdClient.Gauge("source."+source.(pfconfigdriver.AuthenticationSourceEduroam).Type+"."+source.(pfconfigdriver.AuthenticationSourceEduroam).PfconfigHashNS+"2", 1)
 		if response.Code == radius.CodeAccessAccept {
