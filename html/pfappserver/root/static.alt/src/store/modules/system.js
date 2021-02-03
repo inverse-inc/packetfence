@@ -5,7 +5,6 @@ import Vue from 'vue'
 import i18n from '@/utils/locale'
 import store from '@/store'
 import apiCall from '@/utils/api'
-import acl from '@/utils/acl'
 
 const api = {
   getSummary: () => {
@@ -80,26 +79,21 @@ const actions = {
     if (state.summary) {
       return Promise.resolve(state.summary)
     }
-    if (acl.$can('read', 'system')) {
-      commit('SYSTEM_REQUEST')
-      return new Promise((resolve, reject) => {
-        api.getSummary().then(data => {
-          commit('SYSTEM_SUCCESS', data)
-          if (data.readonly_mode) {
-            store.dispatch('notification/danger', {
-              message: i18n.t('The database is in readonly mode. Not all functionality is available.')
-            })
-          }
-          resolve(state.summary)
-        }).catch(err => {
-          commit('SYSTEM_ERROR', err.response)
-          reject(err)
-        })
+    commit('SYSTEM_REQUEST')
+    return new Promise((resolve, reject) => {
+      api.getSummary().then(data => {
+        commit('SYSTEM_SUCCESS', data)
+        if (data.readonly_mode) {
+          store.dispatch('notification/danger', {
+            message: i18n.t('The database is in readonly mode. Not all functionality is available.')
+          })
+        }
+        resolve(state.summary)
+      }).catch(err => {
+        commit('SYSTEM_ERROR', err.response)
+        reject(err)
       })
-    } else {
-      commit('SYSTEM_SUCCESS', {})
-      return state.summary
-    }
+    })
   },
   getDnsServers: ({ commit, state }) => {
     if (state.dns_servers.length) {

@@ -100,7 +100,7 @@
             :column-label="$i18n.t('Database name')"
             :text="$i18n.t('Name of the MySQL database used by PacketFence.')"
             :disabled="databaseExists"
-            :valid-feedback="(databaseExists) ? $i18n.t('MySQL database exists.') : undefined"
+            :valid-feedback="(databaseExists) ? $i18n.t('MySQL database exists. Current database schema is version {databaseVersion}.', {databaseVersion}) : undefined"
           />
 
           <template v-if="!databaseExists">
@@ -463,6 +463,11 @@ export const setup = (props, context) => {
       })
   }
 
+  const databaseVersion = ref(null)
+  $store.dispatch('system/getSummary').then(({ db_version }) => {
+    databaseVersion.value = db_version
+  })
+
   return {
     form,
     schema,
@@ -489,6 +494,7 @@ export const setup = (props, context) => {
     onCreateDatabase: createDatabase,
     isCreatingDatabase,
     databaseCreationError,
+    databaseVersion,
 
     canCreateUser,
     onCreateUser: assignDatabase,
