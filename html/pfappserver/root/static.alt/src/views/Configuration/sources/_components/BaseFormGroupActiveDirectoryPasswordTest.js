@@ -7,11 +7,15 @@ export const props = {
 
   test: {
     type: Function,
-    default: (value, form) => store.dispatch('$_sources/testAuthenticationSource', form).catch(err => {
-      const { response: { data: { message } = {} } = {} } = err
-      if (message)
-        throw message
-    })
+    default: (value, form) => store.dispatch('$_sources/testAuthenticationSource', form)
+      .then(() => {
+        return i18n.t('Successfully validated with {host}.', form)
+      })
+      .catch(err => {
+        const { response: { data: { message } = {} } = {} } = err
+        if (message)
+          throw message
+      })
   },
   testLabel: {
     type: String,
