@@ -45,7 +45,9 @@ build {
       box_tag = "inverse-inc/${var.pfserver_name}"
       version = "${var.box_version}"
       access_token = "${var.access_token}"
-      version_description = "${var.box_description}"      
+      version_description = "${var.box_description}"
+      # temp workaround to a bug on Vagrant Cloud with Packer 1.6.6
+      no_direct_upload = true
     }
   }
 }
@@ -76,6 +78,8 @@ build {
       version = "${var.box_version}"
       access_token = "${var.access_token}"
       version_description = "${var.box_description}"
+      # temp workaround to a bug on Vagrant Cloud with Packer 1.6.6
+      no_direct_upload = true
     }
   }
 }
