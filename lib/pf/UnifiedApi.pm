@@ -1970,6 +1970,20 @@ sub setup_api_v1_queues_routes {
     return ;
 }
 
+=head2 setup_api_v1_pfqueues_routes
+
+setup_api_v1_queues_routes
+
+=cut
+
+sub setup_api_v1_pfqueues_routes {
+    my ($self, $root) = @_;
+    my $route = $root->any("/pfqueue/task/:job_id")->to(controller => 'Pfqueue')->name("api.v1.Pfqueues");
+    $route->register_sub_action({ path => "/status/poll", action => 'poll', method => "GET" });
+    $route->register_sub_action({ action => "status", method => "GET" });
+    return ;
+}
+
 =head2 setup_api_v1_fingerbank_routes
 
 setup_api_v1_fingerbank_routes
@@ -2207,19 +2221,18 @@ setup_api_v1_configurator_routes
 
 sub setup_api_v1_configurator_routes {
     my ($self, $root) = @_;
-    $root->register_sub_action({ method => [qw(POST GET PATCH PUT DELETE)], action => 'proxy_api_frontend', path => '/pfqueue/*'});
-    my $config = $root->under("/config")->name("api.v1.Configurator.Config");
-    $self->setup_api_v1_config_bases_routes($config, 1);
-    $self->setup_api_v1_config_fingerbank_settings_routes($config);
-    $self->setup_api_v1_config_interfaces_routes($config);
-    $self->setup_api_v1_config_system_routes($config);
-
+#    $self->setup_api_v1_pfqueues_routes($root);
     $self->setup_api_v1_translations_routes($root);
     $self->setup_api_v1_fingerbank_routes($root);
     $self->setup_api_v1_services_routes($root);
     $self->setup_api_v1_system_services_routes($root);
     $self->setup_api_v1_users_routes($root);
-
+    $self->setup_api_v1_system_summary_route($root);
+    my $config = $root->under("/config")->name("api.v1.Configurator.Config");
+    $self->setup_api_v1_config_bases_routes($config, 1);
+    $self->setup_api_v1_config_fingerbank_settings_routes($config);
+    $self->setup_api_v1_config_interfaces_routes($config);
+    $self->setup_api_v1_config_system_routes($config);
     return;
 }
 
