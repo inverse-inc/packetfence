@@ -69,6 +69,12 @@ func Start(ctx context.Context) error {
 }
 
 func StartNewCluster(ctx context.Context) error {
+	defer func() {
+		err := exec.Command(`systemctl`, `unset-environment`, `MARIADB_ARGS`).Run()
+		if err != nil {
+			log.LoggerWContext(ctx).Error("Failed to unset the MARIADB_ARGS environment variable in systemctl" + err.Error())
+		}
+	}()
 
 	err := exec.Command(`systemctl`, `set-environment`, `MARIADB_ARGS=--force-new-cluster`).Run()
 	if err != nil {
@@ -79,12 +85,6 @@ func StartNewCluster(ctx context.Context) error {
 	err = exec.Command(`systemctl`, `start`, `packetfence-mariadb.service`).Run()
 	if err != nil {
 		log.LoggerWContext(ctx).Error("Failed to start packetfence-mariadb in force new cluster mode: " + err.Error())
-		return err
-	}
-
-	err = exec.Command(`systemctl`, `unset-environment`, `MARIADB_ARGS`).Run()
-	if err != nil {
-		log.LoggerWContext(ctx).Error("Failed to unset the MARIADB_ARGS environment variable in systemctl" + err.Error())
 		return err
 	}
 
