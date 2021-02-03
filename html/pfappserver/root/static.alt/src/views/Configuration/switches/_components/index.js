@@ -1,4 +1,7 @@
-import { BaseViewCollectionItem } from '../../_components/new/'
+import {
+  BaseViewCollectionItem,
+  BaseFormGroupToggleNYDefault
+} from '@/views/Configuration/_components/new/'
 import {
   BaseFormButtonBar,
   BaseFormGroupChosenOne,
@@ -7,7 +10,6 @@ import {
   BaseFormGroupInputPassword
 } from '@/components/new/'
 import BaseFormGroupInlineTrigger from './BaseFormGroupInlineTrigger'
-import BaseFormGroupToggleNYDefault from './BaseFormGroupToggleNYDefault'
 import BaseFormGroupToggleStaticDynamicDefault from './BaseFormGroupToggleStaticDynamicDefault'
 import BaseFormGroupType from './BaseFormGroupType'
 import TheForm from './TheForm'
