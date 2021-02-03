@@ -1,4 +1,7 @@
-import { BaseViewCollectionItem } from '../../_components/new/'
+import {
+  BaseViewCollectionItem,
+  BaseFormGroupToggleNYDefault
+} from '@/views/Configuration/_components/new/'
 import {
   BaseFormButtonBar,
   BaseFormGroupChosenOne,
@@ -8,7 +11,6 @@ import {
   BaseFormGroupTextarea,
 } from '@/components/new/'
 import BaseFormGroupInlineTrigger from '../../switches/_components/BaseFormGroupInlineTrigger'
-import BaseFormGroupToggleNYDefault from '../../switches/_components/BaseFormGroupToggleNYDefault'
 import BaseFormGroupToggleStaticDynamicDefault from '../../switches/_components/BaseFormGroupToggleStaticDynamicDefault'
 import BaseFormGroupType from '../../switches/_components/BaseFormGroupType'
 import TheForm from './TheForm'
