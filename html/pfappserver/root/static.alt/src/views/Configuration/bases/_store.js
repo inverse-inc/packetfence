@@ -889,7 +889,6 @@ const actions = {
     return api.createDatabase({ ...data,
       async: true // use pfqueue polling
     }).then(({ task_id }) => {
-console.log('>>>', JSON.stringify(task_id, null, 2))
       return store.dispatch('pfqueue/pollTaskStatus', task_id).then(response => {
         commit('ITEM_SUCCESS')
         return response

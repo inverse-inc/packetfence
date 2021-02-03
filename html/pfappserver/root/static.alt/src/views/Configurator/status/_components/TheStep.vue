@@ -45,7 +45,7 @@ const setup = (props, context) => {
   const onComplete = () => {
     isLoading.value = true
     progressFeedback.value = i18n.t('Applying configuration')
-      $store.dispatch('services/restartSystemService', 'packetfence-config')
+    $store.dispatch('services/restartSystemService', 'packetfence-config')
       .then(() => {
         progressFeedback.value = i18n.t('Enabling PacketFence')
         return $store.dispatch('services/updateSystemd', 'pf').then(() => {
