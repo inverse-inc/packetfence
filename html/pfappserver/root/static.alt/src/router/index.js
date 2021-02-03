@@ -2,6 +2,7 @@ import Vue from 'vue'
 import Router from 'vue-router'
 import store from '@/store'
 import axios from 'axios'
+import acl from '@/utils/acl'
 
 import LoginRoute from '@/views/Login/_router'
 import StatusRoute from '@/views/Status/_router'
@@ -102,7 +103,7 @@ router.afterEach((to, from) => {
    * Fetch data required for ALL authenticated pages
    */
   if (store.state.session.username) {
-    if (store.state.system.summary === false) {
+    if (store.state.system.summary === false && acl.$can('read', 'system')) {
       store.dispatch('system/getSummary')
     }
   }
