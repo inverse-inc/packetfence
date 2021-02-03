@@ -448,17 +448,19 @@ export const setup = (props, context) => {
   const isVerifyingRootPassword = ref(false)
   const onVerifyRootPassword = () => {
     isVerifyingRootPassword.value = true
-    return $store.dispatch('$_bases/testDatabase', { username: 'root', password: form.value.root_pass }).then(() => {
-      rootPasswordIsValid.value = true
-      rootPasswordIsUnverified.value = false
-      $store.dispatch('$_bases/testDatabase', { username: 'root', database: form.value.db || DEFAULT_DATABASE }).then(() => {
-        databaseExists.value = true // database exists
+    return $store.dispatch('$_bases/testDatabase', { username: 'root', password: form.value.root_pass })
+      .then(() => {
+        rootPasswordIsValid.value = true
+        rootPasswordIsUnverified.value = false
+        $store.dispatch('$_bases/testDatabase', { username: 'root', database: form.value.db || DEFAULT_DATABASE })
+          .then(() => {
+            databaseExists.value = true // database exists
+          })
+      }).catch(() => {
+        rootPasswordIsUnverified.value = true
+      }).finally(() => {
+        isVerifyingRootPassword.value = false
       })
-    }).catch(() => {
-      rootPasswordIsUnverified.value = true
-    }).finally(() => {
-      isVerifyingRootPassword.value = false
-    })
   }
 
   return {
