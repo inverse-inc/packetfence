@@ -114,11 +114,13 @@ export const pfDatabaseSchema = {
         default: null
       }
     ),
+    /* Do not validate backend variable, fixes #5509
     detect_date: {
       type: pfDatetime,
       datetimeFormat: 'YYYY-MM-DD HH:mm:ss',
       default: '0000-00-00 00:00:00'
     },
+    */
     regdate: {
       type: pfDatetime,
       datetimeFormat: 'YYYY-MM-DD HH:mm:ss',
