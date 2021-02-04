@@ -202,6 +202,7 @@ const props = {
 }
 
 import { computed, inject, ref } from '@vue/composition-api'
+import apiCall from '@/utils/api'
 import i18n from '@/utils/locale'
 import password from '@/utils/password'
 import yup from '@/utils/yup'
@@ -345,6 +346,7 @@ export const setup = (props, context) => {
       database: form.value.db
     }).then(() => {
       databaseExists.value = true
+      _getSystemSummary()
     }).catch(err => {
       const {
         response: {
@@ -466,9 +468,11 @@ export const setup = (props, context) => {
   }
 
   const databaseVersion = ref(null)
-  $store.dispatch('system/getSummary').then(({ db_version }) => {
+  const _getSystemSummary = () => apiCall.getQuiet('system_summary').then(response => {
+    const { data: { db_version } = {} } = response
     databaseVersion.value = db_version
   })
+  _getSystemSummary()
 
   return {
     form,
