@@ -47,7 +47,7 @@ match the last ip to see if it is in defined network
 
 sub match {
     my ($self, $device, $args) = @_;
-    $logger->debug("Checking if device $device is a ".$self->evalParam($self->value, $args));
+    $logger->debug(sub { my $d = $device // "'undef'";  return "Checking if device $d is a ".$self->evalParam($self->value, $args) });
     return fingerbank::Model::Device->is_a($device, $self->evalParam($self->value, $args));
 }
 
