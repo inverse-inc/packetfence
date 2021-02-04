@@ -53,7 +53,7 @@ const actions = {
   },
   pollTaskStatus: ({ dispatch }, id) => {
     return api.pollTaskStatus(id).then(data => { // 'poll' returns immediately, or timeout after 15s
-      if ('status' in data && data.status === 202) { // 202: in progress
+      if ('status' in data && +data.status === 202) { // 202: in progress
         return dispatch('pollTaskStatus', id) // recurse
       }
       if ('error' in data) {
