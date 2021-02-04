@@ -43,6 +43,7 @@ import BaseInputGroup from './BaseInputGroup'
 import BaseInputGroupDate from './BaseInputGroupDate'
 import BaseInputGroupDateTime from './BaseInputGroupDateTime'
 import BaseInputGroupPassword from './BaseInputGroupPassword'
+import BaseInputGroupPasswordGenerator from './BaseInputGroupPasswordGenerator'
 import BaseInputGroupTextarea from './BaseInputGroupTextarea'
 import BaseInputGroupTextareaUpload, { props as BaseInputGroupTextareaUploadProps } from './BaseInputGroupTextareaUpload'
 import BaseInputGroupMultiplier from './BaseInputGroupMultiplier'
@@ -101,6 +102,7 @@ export {
   BaseInputGroup,
   BaseInputNumber,
   BaseInputPassword,
+  BaseInputGroupPasswordGenerator,
   BaseInputRange,
   BaseInputToggle, BaseInputToggleProps,
   BaseInputToggleAdvancedMode,

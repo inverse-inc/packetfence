@@ -132,7 +132,7 @@
               :disabled="userIsValid"
               :valid-feedback="(userIsValid) ? $i18n.t('MySQL user exists.') : undefined"
             />
-            <base-input-group-password namespace="pass"
+            <base-input-group-password-generator namespace="pass"
               class="px-0 pl-lg-1 col-lg-6"
               :disabled="userIsValid"
               :valid-feedback="(userIsValid) ? $i18n.t('MySQL password is valid.') : undefined"
@@ -177,7 +177,8 @@ import {
   BaseFormGroupInputPasswordTest,
   BaseFormGroupToggleFalseTrue,
   BaseInput,
-  BaseInputGroupPassword
+  BaseInputGroupPassword,
+  BaseInputGroupPasswordGenerator
 } from '@/components/new/'
 
 const components = {
@@ -190,7 +191,8 @@ const components = {
   BaseFormGroupInputPasswordGenerator,
   BaseFormGroupInputPasswordTest,
   BaseInput,
-  BaseInputGroupPassword
+  BaseInputGroupPassword,
+  BaseInputGroupPasswordGenerator
 }
 
 const props = {
