@@ -2221,7 +2221,7 @@ setup_api_v1_configurator_routes
 
 sub setup_api_v1_configurator_routes {
     my ($self, $root) = @_;
-#    $self->setup_api_v1_pfqueues_routes($root);
+    $self->setup_api_v1_pfqueues_routes($root);
     $self->setup_api_v1_translations_routes($root);
     $self->setup_api_v1_fingerbank_routes($root);
     $self->setup_api_v1_services_routes($root);
