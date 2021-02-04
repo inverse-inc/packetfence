@@ -62,12 +62,10 @@ const setup = (props, context) => {
           })
         })
       })
-      .catch(() => {
-        progressFeedback.value = null
-      })
-      .finally(() => {
-        isLoading.value = false
-      })
+    })
+    .catch(() => {
+      isLoading.value = false
+    })
   }
 
   return {
