@@ -65,9 +65,10 @@ sub status_to_error_msg {
 }
 
 sub parse_json {
-    my ($self) = @_;
+    my ($self, $body) = @_;
+    $body //= $self->req->body;
     my $json = eval {
-        JSON::MaybeXS::decode_json($self->req->body)
+        JSON::MaybeXS::decode_json($body);
     };
     if ($@) {
         $self->log->error($@);
