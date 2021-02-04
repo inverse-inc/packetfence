@@ -4,6 +4,7 @@
     icon="check"
     :invalid-feedback="invalidFeedback"
     :progress-feedback="progressFeedback"
+    :is-loading="isLoading"
     >
     <form-status ref="statusRef" />
     <template v-slot:button-next>
@@ -42,45 +43,23 @@ const setup = (props, context) => {
   const onComplete = () => {
     isLoading.value = true
     progressFeedback.value = i18n.t('Applying configuration')
-    $store.dispatch('services/restartSystemService', 'packetfence-config')
-      .then(() => {
-        progressFeedback.value = i18n.t('Enabling PacketFence')
-        return $store.dispatch('services/updateSystemd', 'pf').then(() => {
-          progressFeedback.value = i18n.t('Starting PacketFence')
-          return $store.dispatch('services/restartService', { quiet: true, id: 'haproxy-admin' })
-            .catch(e => e)
-            .finally(() => {
-              const haproxyReady = new Promise((resolve, reject) => {
-                let count = 10 // try to reconnect at most 10 times
-                const pingHaproxy = () => {
-                  $store.dispatch('system/getHostname', { cache: false })
-                    .then(resolve)
-                    .catch(() => {
-                      count--
-                      if (count > 0) {
-                        setTimeout(pingHaproxy, 2000)
-                      } else {
-                        reject()
-                      }
-                    })
-                }
-                pingHaproxy()
-              })
-              return haproxyReady.then(() => {
-                return $store.dispatch('services/startService', 'pf').then(() => {
-                  progressFeedback.value = i18n.t('Disabling Configurator')
-                  return advancedPromise.then(data => {
-                    data.configurator = 'disabled'
-                    return $store.dispatch('$_bases/updateAdvanced', data).then(() => {
-                      progressFeedback.value = i18n.t('Redirecting to login page')
-                      setTimeout(() => {
-                        $router.push({ name: 'login' })
-                      }, 2000)
-                    })
-                  })
-                })
+    $store.dispatch('services/restartSystemService', 'packetfence-config').then(() => {
+      progressFeedback.value = i18n.t('Enabling PacketFence')
+      return $store.dispatch('services/updateSystemd', 'pf').then(() => {
+        progressFeedback.value = i18n.t('Starting PacketFence')
+        return $store.dispatch('services/restartServiceAsync', 'haproxy-admin').then(() => {
+          return $store.dispatch('services/startService', 'pf').then(() => {
+            progressFeedback.value = i18n.t('Disabling Configurator')
+            return advancedPromise.then(data => {
+              data.configurator = 'disabled'
+              return $store.dispatch('$_bases/updateAdvanced', data).then(() => {
+                progressFeedback.value = i18n.t('Redirecting to login page')
+                setTimeout(() => {
+                  $router.push({ name: 'login' })
+                }, 2000)
               })
             })
+          })
         })
       })
       .catch(() => {
@@ -89,6 +68,7 @@ const setup = (props, context) => {
       .finally(() => {
         isLoading.value = false
       })
+    })
   }
 
   return {

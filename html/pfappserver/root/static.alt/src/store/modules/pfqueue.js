@@ -61,6 +61,14 @@ const actions = {
       }
       return data.item
     }).catch(err => {
+      if (err.request && !err.response) { // request was sent but no response was received (Network Error)
+        return new Promise((resolve, reject) => {
+          setTimeout(() => {
+            dispatch('pollTaskStatus', id).then(resolve, reject) // recurse
+          }, 1000)
+        })
+      }
+      // something else happened
       throw err
     })
   }
