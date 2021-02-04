@@ -4,6 +4,7 @@
     icon="cogs"
     :invalid-step="!isValid"
     :invalid-feedback="invalidFeedback"
+    :progress-feedback="progressFeedback"
     :is-loading="isLoading"
     @next="onSave">
     <form-database ref="databaseRef" :disabled="isLoading" />
@@ -30,6 +31,7 @@ const components = {
 
 import { computed, ref } from '@vue/composition-api'
 import { useQuerySelectorAll } from '@/composables/useDom'
+import i18n from '@/utils/locale'
 
 const setup = (props, context) => {
 
@@ -58,20 +60,25 @@ const setup = (props, context) => {
     .join(' ')
   ))
 
+  const progressFeedback = ref(null)
   const onSave = nextRoute => {
+    progressFeedback.value = i18n.t('Updating database configuration')
     isLoading.value = true
     const { databaseRef, generalRef, alertingRef, administratorRef } = refs
     isLoading.value = true
     databaseRef.onSave().then(() => {
+      progressFeedback.value = i18n.t('Updating general and alerting configuration')
       return Promise.all([
         generalRef.onSave(),
         alertingRef.onSave()
       ]).then(() => {
+        progressFeedback.value = i18n.t('Updating administrator account')
         return administratorRef.onSave()
       })
     }).then(() => {
+      progressFeedback.value = i18n.t('Loading next step')
       $router.push(nextRoute)
-    }).finally(() => {
+    }).catch(() => {
       isLoading.value = false
     })
   }
@@ -81,6 +88,7 @@ const setup = (props, context) => {
     isLoading,
     isValid,
     invalidFeedback,
+    progressFeedback,
     onSave
   }
 }

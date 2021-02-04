@@ -1,18 +1,15 @@
 <template>
   <base-step ref="rootRef"
     :name="$t('Confirmation')"
-    icon="check">
+    icon="check"
+    :invalid-feedback="invalidFeedback"
+    :progress-feedback="progressFeedback"
+    >
     <form-status ref="statusRef" />
     <template v-slot:button-next>
       <base-button-save :isLoading="isLoading" variant="primary" @click="onComplete">
         {{ $i18n.t('Start PacketFence') }} <icon class="ml-1" name="play"></icon>
       </base-button-save>
-
-      <div v-if="invalidFeedback && !isLoading"
-       class="d-block invalid-feedback" v-text="invalidFeedback"></div>
-
-      <div v-else-if="progressFeedback"
-        class="d-block valid-feedback" v-text="progressFeedback"></div>
     </template>
   </base-step>
 </template>
@@ -37,8 +34,8 @@ const setup = (props, context) => {
   const rootRef = ref(null)
   const isLoading = ref(false)
 
-  const invalidFeedback = ref(undefined)
-  const progressFeedback = ref(undefined)
+  const invalidFeedback = ref(null)
+  const progressFeedback = ref(null)
 
   const advancedPromise = $store.dispatch('$_bases/getAdvanced') // prefetch advanced configuration
 
@@ -87,10 +84,7 @@ const setup = (props, context) => {
         })
       })
       .catch(() => {
-        progressFeedback.value = null
-      })
-      .finally(() => {
-        this.isLoading = false
+        isLoading.value = false
       })
   }
 
