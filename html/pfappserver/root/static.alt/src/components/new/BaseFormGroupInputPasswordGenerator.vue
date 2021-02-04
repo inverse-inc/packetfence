@@ -63,7 +63,7 @@
             <b-col><b-form-checkbox v-model="options.ambiguous">0Oo</b-form-checkbox></b-col>
           </b-form-row>
           <b-form-row>
-            <b-col class="text-right"><b-button variant="primary" size="sm" @click="doGenerate">{{ $t('Generate') }}</b-button></b-col>
+            <b-col class="text-right"><b-button variant="primary" size="sm" :disabled="isLocked || inputReadonly" @click="doGenerate">{{ $t('Generate') }}</b-button></b-col>
           </b-form-row>
         </div>
       </b-popover>
