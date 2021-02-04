@@ -20,6 +20,7 @@ const components = {
 
 import { computed, ref } from '@vue/composition-api'
 import { useQuerySelectorAll } from '@/composables/useDom'
+import i18n from '@/utils/locale'
 
 const setup = (props, context) => {
 
@@ -36,7 +37,9 @@ const setup = (props, context) => {
     .join(' ')
   ))
 
+  const progressFeedback = ref(null)
   const onSave = nextRoute => {
+    progressFeedback.value = i18n.t('Loading next step')
     $router.push(nextRoute)
   }
 
@@ -44,6 +47,7 @@ const setup = (props, context) => {
     rootRef,
     isValid,
     invalidFeedback,
+    progressFeedback,
     onSave
   }
 }
