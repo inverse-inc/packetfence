@@ -62,6 +62,7 @@ const setup = (props, context) => {
           })
         })
       })
+<<<<<<< HEAD
       .catch(() => {
         progressFeedback.value = null
       })
@@ -72,6 +73,12 @@ const setup = (props, context) => {
     })
 =======
 >>>>>>> (admin) cleanup code, improve forms
+=======
+    })
+    .catch(() => {
+      isLoading.value = false
+    })
+>>>>>>> (admin) async haproxy-admin restart
   }
 
   return {
