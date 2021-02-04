@@ -13,13 +13,57 @@ pf::UnifiedApi::Controller::Pfqueue
 use strict;
 use warnings;
 use Mojo::Base 'pf::UnifiedApi::Controller::RestRoute';
+use pf::util::pfqueue qw(consumer_redis_client);
+use pf::error qw(is_success is_error);
+my $POLL_TIMEOUT = 10;
 
 sub poll {
     my ($self) = @_;
+    my $job_id = $self->param('job_id');
+    my $redis = consumer_redis_client;
+    my ($status, $response) = $self->get_job_status($job_id, $redis);
+    if ((is_success($status) && $response->{status} != 202) || (is_error($status) && $status != 404 ) ) {
+        return $self->render(json => $response , status => $status);
+    }
+
+    my @topics = ("$job_id-Status-Updates");
+    my $savecallback = sub {};
+    $redis->subscribe(@topics, $savecallback);
+    $redis->wait_for_messages($POLL_TIMEOUT);
+    $redis->unsubscribe(@topics, $savecallback);
+    return $self->_send_status($job_id, $redis);
 }
 
 sub status {
     my ($self) = @_;
+    my $job_id = $self->param('job_id');
+    my $redis = consumer_redis_client;
+    return $self->_send_status($job_id, $redis);
+}
+
+sub _send_status {
+    my ($self, $job_id, $redis) = @_;
+    my ($status, $response) = $self->get_job_status($job_id, $redis);
+    return $self->render(json => $response , status => $status);
+}
+
+sub get_job_status {
+    my ($self, $job_id, $redis) = @_;
+    my %response = $redis->hgetall("$job_id-Status");
+    if (keys %response) {
+        for my $f (qw(error item)) {
+            if (exists $response{$f}) {
+                my $item = $response{$f};
+                my ($status, $json) = $self->parse_json($item);
+                if (is_success($status)) {
+                    $response{$f} = $json;
+                }
+            }
+        }
+        return (200, \%response);
+    }
+
+    return (404, {});
 }
 
 =head1 AUTHOR
