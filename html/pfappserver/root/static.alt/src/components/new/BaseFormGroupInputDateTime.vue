@@ -1,91 +1,106 @@
 <template>
-  <base-input-group ref="base-input-group"
+  <b-form-group ref="form-group"
+    class="base-form-group"
+    :class="{
+      'mb-0': !columnLabel
+    }"
     :state="inputState"
-    :invalid-feedback="inputInvalidFeedback"
-    :valid-feedback="inputValidFeedback"
-    :text="inputText"
-    :isFocus="isFocus"
-    :isLocked="isLocked"
+    :labelCols="labelCols"
+    :label="columnLabel"
   >
-    <b-form-input ref="input"
-      class="base-input"
-      :disabled="isLocked"
-      :readonly="inputReadonly"
-      :placeholder="inputPlaceholder"
-      :tabIndex="inputTabIndex"
-      :type="inputType"
-      :value="inputValue"
-      @input="onInput"
-      @change="onChange"
-      @focus="onFocus"
-      @blur="onBlur"
-    />
-    <template v-slot:append>
-      <b-button v-if="isLocked"
-        class="input-group-text"
-        :disabled="true"
-        tabIndex="-1"
-      >
-        <icon ref="icon-lock"
-          name="lock"
-        />
-      </b-button>
-      <b-button v-else
-        ref="popoverButtonRef"
-        class="input-group-text"
+    <b-input-group ref="input-group"
+      class="is-borders"
+      :class="{
+        'is-focus': isFocus || isShown,
+        'is-blur': !(isFocus || isShown),
+        'is-valid': inputState === true,
+        'is-invalid': inputState === false
+      }"
+    >
+      <b-form-input ref="input"
+        class="base-form-group-input base-input"
         :disabled="isLocked"
-        tabIndex="-1"
-        @click="onToggle"
-      >
-        <icon ref="icon-popover"
-          name="calendar-alt"
-        />
-      </b-button>
-      <b-popover :show.sync="isShown"
-        ref="popover"
-        custom-class="popover-full popover-no-padding"
-        placement="top"
-        triggers="manual"
-        :target="popoverTarget"
-        @hidden="onHidden"
-        @shown="onShown"
-      >
-        <b-row class="text-center" no-gutters>
-          <b-col cols="12" class="text-center py-1">
-            <b-calendar
-              :value="inputValueDate"
-              class="align-self-center"
-              :locale="$i18n.locale"
-              @input="onDate"
-              label-help=""
-              hide-header
-              block
-            ></b-calendar>
-          </b-col>
-        </b-row>
-        <b-row class="text-center" no-gutters>
-          <b-col cols="12" class="text-center py-1">
-            <b-time
-              :value="inputValueTime"
-              class="align-self-center"
-              :locale="$i18n.locale"
-              @input="onTime"
-              hide-header
-              show-seconds
-            ></b-time>
-          </b-col>
-        </b-row>
-      </b-popover>
+        :readonly="inputReadonly"
+        :state="inputState"
+        :placeholder="inputPlaceholder"
+        :tabIndex="inputTabIndex"
+        :type="inputType"
+        :value="inputValue"
+        @input="onInput"
+        @change="onChange"
+        @focus="onFocus"
+        @blur="onBlur"
+      />
+      <template v-slot:append>
+        <b-button v-if="isLocked"
+          class="input-group-text"
+          :disabled="true"
+          tabIndex="-1"
+        >
+          <icon ref="icon-lock"
+            name="lock"
+          />
+        </b-button>
+        <b-button v-else
+          ref="popoverButtonRef"
+          class="input-group-text"
+          :disabled="isLocked"
+          tabIndex="-1"
+          @click="onToggle"
+        >
+          <icon ref="icon-popover"
+            name="calendar-alt"
+          />
+        </b-button>
+        <b-popover :show.sync="isShown"
+          ref="popover"
+          custom-class="popover-full popover-no-padding"
+          placement="top"
+          triggers="manual"
+          :target="popoverTarget"
+          @hidden="onHidden"
+          @shown="onShown"
+        >
+          <b-row class="text-center" no-gutters>
+            <b-col cols="12" class="text-center py-1">
+              <b-calendar
+                :value="inputValueDate"
+                class="align-self-center"
+                :locale="$i18n.locale"
+                @input="onDate"
+                label-help=""
+                hide-header
+                block
+              ></b-calendar>
+            </b-col>
+          </b-row>
+          <b-row class="text-center" no-gutters>
+            <b-col cols="12" class="text-center py-1">
+              <b-time
+                :value="inputValueTime"
+                class="align-self-center"
+                :locale="$i18n.locale"
+                @input="onTime"
+                hide-header
+                show-seconds
+              ></b-time>
+            </b-col>
+          </b-row>
+        </b-popover>
+      </template>
+    </b-input-group>
+    <template v-slot:description v-if="inputText">
+      <div v-html="inputText"/>
     </template>
-  </base-input-group>
+    <template v-slot:invalid-feedback v-if="inputInvalidFeedback">
+      <div v-html="inputInvalidFeedback"/>
+    </template>
+    <template v-slot:valid-feedback v-if="inputValidFeedback">
+      <div v-html="inputValidFeedback"/>
+    </template>
+  </b-form-group>
 </template>
 <script>
-import { BaseInputGroup } from '@/components/new'
-
-const components = {
-  BaseInputGroup
-}
-
 import { parse, format } from 'date-fns'
 import { computed, onBeforeUnmount, onMounted, ref, toRefs } from '@vue/composition-api'
 import { useFormGroupProps } from '@/composables/useFormGroup'
@@ -191,7 +206,7 @@ export const setup = (props, context) => {
 
   const popoverTarget = ref(document.createElement('input'))
   onMounted(() => {
-    const { 'base-input-group': { $el } = {} } = refs
+    const { 'form-group': { $el } = {} } = refs
     popoverTarget.value = $el.querySelector('[role="group"]')
   })
 
@@ -265,10 +280,14 @@ export const setup = (props, context) => {
 
 // @vue/component
 export default {
-  name: 'base-input-group-date-time',
+  name: 'base-form-group-input-date-time',
   inheritAttrs: false,
-  components,
   props,
   setup
 }
 </script>
+<style lang="scss">
+.base-form-group-input-date {
+  border-radius: $border-radius !important;
+}
+</style>
