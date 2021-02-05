@@ -18,6 +18,7 @@ import BaseFormGroupChosenOneSearchable, { props as BaseFormGroupChosenOneSearch
 import BaseFormGroupChosenTimezone from './BaseFormGroupChosenTimezone'
 import BaseFormGroupInput from './BaseFormGroupInput'
 import BaseFormGroupInputDate from './BaseFormGroupInputDate'
+import BaseFormGroupInputDateTime from './BaseFormGroupInputDateTime'
 import BaseFormGroupInputMultiplier from './BaseFormGroupInputMultiplier'
 import BaseFormGroupInputNumber from './BaseFormGroupInputNumber'
 import BaseFormGroupInputPassword from './BaseFormGroupInputPassword'
@@ -77,6 +78,7 @@ export {
   BaseFormGroupChosenTimezone,
   BaseFormGroupInput,
   BaseFormGroupInputDate,
+  BaseFormGroupInputDateTime,
   BaseFormGroupInputMultiplier,
   BaseFormGroupInputNumber,
   BaseFormGroupInputPassword,
