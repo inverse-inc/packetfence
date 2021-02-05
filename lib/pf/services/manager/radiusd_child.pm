@@ -24,6 +24,7 @@ use NetAddr::IP;
 use Template;
 use Data::Dumper;
 use File::Slurp qw(write_file);
+use File::Path qw(make_path);
 
 use pfconfig::cached_array;
 use pfconfig::cached_hash;
@@ -40,6 +41,7 @@ use pf::file_paths qw(
     $conf_dir
     $install_dir
     $var_dir
+    $log_dir
 );
 
 use pf::config qw(
@@ -857,11 +859,15 @@ Generates the proxy.conf.inc configuration file
 
 sub generate_radiusd_proxy {
     my %tags;
+    my %details;
+
 
     $tags{'template'} = "$conf_dir/radiusd/proxy.conf.inc";
     $tags{'install_dir'} = $install_dir;
     $tags{'config'} = '';
     $tags{'radius_sources'} = '';
+    $details{'config'} = '';
+
     my @radius_sources;
 
     foreach my $realm ( @pf::config::ConfigOrderedRealm ) {
@@ -910,29 +916,50 @@ home_server_pool auth_pool_$realm {
 type = $pf::config::ConfigRealm{$realm}->{'radius_auth_proxy_type'}
 EOT
             push(@radius_sources, split(',',$pf::config::ConfigRealm{$realm}->{'radius_auth'}));
+            my $eduroam = $FALSE;
             foreach my $radius (split(',',$pf::config::ConfigRealm{$realm}->{'radius_auth'})) {
                 if (pf::authentication::getAuthenticationSource($radius)->{'type'} eq "Eduroam") {
+                    $eduroam = $TRUE;
                     $tags{'config'} .= <<"EOT";
 home_server = eduroam_server1
 home_server = eduroam_server2
 EOT
                 } else {
-                $tags{'config'} .= <<"EOT";
+                    $tags{'config'} .= <<"EOT";
 home_server = $radius
 EOT
                 }
             }
-            if ($pf::config::ConfigRealm{$realm}->{'home_server_auth_options'}) {
+            if (isenabled($pf::config::ConfigRealm{$realm}->{'radius_auth_home_server_pool_virtual_server'}) && !$eduroam) {
                 $tags{'config'} .= <<"EOT";
-$pf::config::ConfigRealm{$realm}->{'home_server_auth_options'}
+virtual_server = virtual_server_pool_auth_pool_$realm
 EOT
             }
-
+            if (isenabled($pf::config::ConfigRealm{$realm}->{'radius_auth_home_server_pool_fallback'}) && !$eduroam) {
+                $tags{'config'} .= <<"EOT";
+fallback = fallback_server_pool_auth_pool_$realm
+EOT
+            }
             $tags{'config'} .= <<"EOT";
 }
 EOT
+            if (isenabled($pf::config::ConfigRealm{$realm}->{'radius_auth_home_server_pool_virtual_server'}) && !$eduroam) {
+                $tags{'config'} .= <<"EOT";
+server virtual_server_pool_auth_pool_$realm {
+$pf::config::ConfigRealm{$realm}->{'radius_auth_virtual_server_options'}
+}
+EOT
+            }
+            if (isenabled($pf::config::ConfigRealm{$realm}->{'radius_auth_home_server_pool_fallback'}) && !$eduroam) {
+                $tags{'config'} .= <<"EOT";
+home_server fallback_server_pool_auth_pool_$realm {
+$pf::config::ConfigRealm{$realm}->{'radius_auth_fallback_server_options'}
+}
+EOT
+            }
         }
         if ($pf::config::ConfigRealm{$realm}->{'radius_acct'}) {
+
             $tags{'config'} .= <<"EOT";
 
 home_server_pool acct_pool_$realm {
@@ -945,23 +972,47 @@ EOT
 home_server = $radius
 EOT
             }
-            if ($pf::config::ConfigRealm{$realm}->{'home_server_acct_options'}) {
+            if (isenabled($pf::config::ConfigRealm{$realm}->{'radius_acct_home_server_pool_virtual_server'})) {
                 $tags{'config'} .= <<"EOT";
-$pf::config::ConfigRealm{$realm}->{'home_server_acct_options'}
+virtual_server = virtual_server_pool_acct_pool_$realm
 EOT
             }
-
+            if (isenabled($pf::config::ConfigRealm{$realm}->{'radius_acct_home_server_pool_fallback'})) {
+                $tags{'config'} .= <<"EOT";
+fallback = fallback_server_pool_acct_pool_$realm
+EOT
+            }
+            $tags{'config'} .= <<"EOT";
+}
+EOT
+            if (isenabled($pf::config::ConfigRealm{$realm}->{'radius_acct_home_server_pool_virtual_server'})) {
+                $tags{'config'} .= <<"EOT";
+server virtual_server_pool_acct_pool_$realm {
+$pf::config::ConfigRealm{$realm}->{'radius_acct_virtual_server_options'}
+}
+EOT
+            }
+            if (isenabled($pf::config::ConfigRealm{$realm}->{'radius_acct_home_server_pool_fallback'})) {
+                $tags{'config'} .= <<"EOT";
+home_server fallback_server_pool_acct_pool_$realm {
+$pf::config::ConfigRealm{$realm}->{'radius_acct_fallback_server_options'}
+}
+EOT
+            }
+        }
+        if(!$pf::config::ConfigRealm{$realm}->{'radius_auth'} && !$pf::config::ConfigRealm{$realm}->{'radius_acct'}) {
             $tags{'config'} .= <<"EOT";
 }
 EOT
         }
-         if(!$pf::config::ConfigRealm{$realm}->{'radius_auth'} && !$pf::config::ConfigRealm{$realm}->{'radius_acct'}) {
-            $tags{'config'} .= <<"EOT";
+        make_path("$log_dir/radacct/$realm");
+        $details{'config'} .= <<"EOT";
+detail $realm {
+        filename = \${radacctdir}/$realm/detail-%Y%m%d:%H:%G
 }
 EOT
-        }
         # Generate Eduroam realms config
-    my $eduroam_options = $pf::config::ConfigRealm{$realm}->{'eduroam_options'} || '';
+        my $eduroam_options = $pf::config::ConfigRealm{$realm}->{'eduroam_options'} || '';
         $tags{'eduroam_config'} .= <<"EOT";
 realm eduroam.$realm {
 $eduroam_options
@@ -1107,6 +1158,7 @@ EOT
     }
 
     parse_template( \%tags, "$conf_dir/radiusd/proxy.conf.inc", "$install_dir/raddb/proxy.conf.inc" );
+    parse_template( \%details, "$conf_dir/radiusd/packetfence-details.conf", "$install_dir/raddb/mods-enabled/packetfence-details" );
 
     undef %tags;
     my $real_realm;
