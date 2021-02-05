@@ -10,7 +10,6 @@ pftest <cmd> [options]
 
  Commands
   authentication              | checks authentication sources
-  mysql                       | runs the mysql tuner
   profile_filter              | checks which profile will be used for a mac
   locationlog                 | checks for multiple open locationlog entries
 
