@@ -480,6 +480,8 @@ type AuthenticationSourceEduroam struct {
 	RadiusSecret   string `json:"radius_secret"`
 	Server1Address string `json:"server1_address"`
 	Server2Address string `json:"server2_address"`
+	Server1Port    string `json:"server1_port"`
+	Server2Port    string `json:"server2_port"`
 	Monitor        string `json:"monitor"`
 	Type           string `json:"type"`
 }
