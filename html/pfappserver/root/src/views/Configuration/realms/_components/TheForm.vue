@@ -57,6 +57,11 @@
           :text="$i18n.t('Home server pool type.')"
         />
 
+        <form-group-home-server-auth-options namespace="home_server_auth_options"
+          :column-label="$i18n.t('Home Server Authentication Options')"
+          :text="$i18n.t('You can add FreeRADIUS home server accounting options here. If you add some then you know what you are doing.')"
+        />
+
         <form-group-radius-auth-compute-in-pf namespace="radius_auth_compute_in_pf"
           :column-label="$i18n.t('Authorize from PacketFence')"
           :text="$i18n.t('Should we forward the request to PacketFence to have a dynamic answer or do we use the remote proxy server answered attributes?')"
@@ -70,6 +75,11 @@
         <form-group-radius-acct-proxy-type namespace="radius_acct_proxy_type"
           :column-label="$i18n.t('Type')"
           :text="$i18n.t('Home server pool type.')"
+        />
+
+        <form-group-home-server-acct-options namespace="home_server_acct_options"
+          :column-label="$i18n.t('Home Server Accounting Options')"
+          :text="$i18n.t('You can add FreeRADIUS home server accounting options here. If you add some then you know what you are doing.')"
         />
 
       </base-form-tab>
@@ -163,9 +173,11 @@ import {
   FormGroupOptions,
   FormGroupRadiusAuth,
   FormGroupRadiusAuthProxyType,
+  FormGroupHomeServerAuthOptions,
   FormGroupRadiusAuthComputeInPf,
   FormGroupRadiusAcct,
   FormGroupRadiusAcctProxyType,
+  FormGroupHomeServerAcctOptions,
   FormGroupEduroamOptions,
   FormGroupEduroamRadiusAuth,
   FormGroupEduroamRadiusAuthProxyType,
@@ -193,9 +205,11 @@ const components = {
   FormGroupOptions,
   FormGroupRadiusAuth,
   FormGroupRadiusAuthProxyType,
+  FormGroupHomeServerAuthOptions,
   FormGroupRadiusAuthComputeInPf,
   FormGroupRadiusAcct,
   FormGroupRadiusAcctProxyType,
+  FormGroupHomeServerAcctOptions,
   FormGroupEduroamOptions,
   FormGroupEduroamRadiusAuth,
   FormGroupEduroamRadiusAuthProxyType,

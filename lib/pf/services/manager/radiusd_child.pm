@@ -922,6 +922,12 @@ home_server = $radius
 EOT
                 }
             }
+            if ($pf::config::ConfigRealm{$realm}->{'home_server_auth_options'}) {
+                $tags{'config'} .= <<"EOT";
+$pf::config::ConfigRealm{$realm}->{'home_server_auth_options'}
+EOT
+            }
+
             $tags{'config'} .= <<"EOT";
 }
 EOT
@@ -939,6 +945,12 @@ EOT
 home_server = $radius
 EOT
             }
+            if ($pf::config::ConfigRealm{$realm}->{'home_server_acct_options'}) {
+                $tags{'config'} .= <<"EOT";
+$pf::config::ConfigRealm{$realm}->{'home_server_acct_options'}
+EOT
+            }
+
             $tags{'config'} .= <<"EOT";
 }
 EOT

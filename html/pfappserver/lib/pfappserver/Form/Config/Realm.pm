@@ -94,6 +94,16 @@ has_field 'radius_auth_proxy_type' =>
              help => 'Home server pool type' },
   );
 
+has_field 'home_server_auth_options' =>
+  (
+   type => 'TextArea',
+   label => 'Authentication Home Server Options',
+   required => 0,
+   tags => { after_element => \&help,
+             help => 'You can add FreeRADIUS authentication home server options here. If you add some then you know what you are doing' },
+  );
+
+
   has_field 'radius_auth_compute_in_pf' =>
   (
    type => 'Toggle',
@@ -133,6 +143,15 @@ has_field 'radius_acct_proxy_type' =>
    default => 'load-balance',
    tags => { after_element => \&help,
              help => 'Home server pool type' },
+  );
+
+has_field 'home_server_acct_options' =>
+  (
+   type => 'TextArea',
+   label => 'Accounting Home Server Options',
+   required => 0,
+   tags => { after_element => \&help,
+             help => 'You can add FreeRADIUS accounting home server options here. If you add some then you know what you are doing' },
   );
 
 has_field 'eduroam_options' =>
