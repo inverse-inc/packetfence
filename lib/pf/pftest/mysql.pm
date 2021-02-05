@@ -1,11 +1,12 @@
 package pf::pftest::mysql;
+
 =head1 NAME
 
 pf::pftest::mysql add documentation
 
 =head1 SYNOPSIS
 
-pftest mysql tuner [user [password]]
+pftest mysql tuner [mysqltuner options]
 
 =head1 DESCRIPTION
 
@@ -20,7 +21,6 @@ use base qw(pf::cmd::subcmd);
 =head1 AUTHOR
 
 Inverse inc. <info@inverse.ca>
-
 
 =head1 COPYRIGHT
 
