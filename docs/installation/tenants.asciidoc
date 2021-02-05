@@ -1,0 +1,69 @@
+PacketFence supports multi-tenancy but by default, it is in single-tenant mode.
+
+=== General concepts
+
+==== Built-in tenants
+
+Tenant `1` is the default tenant. A default PacketFence installation will use this tenant transparently.
+
+Tenant `0` is the global tenant. In a multi-tenant configuration, you can modify
+configuration only in that tenant.
+
+All items configuration are global and shared between tenants. If you want
+to manage a multi-tenant configuration, you will need to deploy a specific configuration
+that will rely on tenant IDs.
+
+==== Domain name and portal domain name of a tenant
+
+A tenant can be created with two *optional* parameters:
+
+* a domain name: to create users in database using following convention: `username@DOMAIN_NAME_OF_TENANT`
+* a portal domain name: to assign nodes to a specific tenant when they reach PacketFence on this captive portal address
+
+These two parameters are used to assign tenants to PacketFence objects.
+
+When possible, we highly recommend you to create tenant with these two parameters.
+
+==== Network devices (switches)
+
+A network device is attached to one tenant at creation.
+
+When PacketFence receives a RADIUS request from a network device, it will
+instantiate a network device in this tenant and create node in this tenant.
+Then you can use `Tenant ID` field in connection profiles filters to apply
+specific configuration for each tenant.
+
+In some WebAuth scenarios, PacketFence doesn't receive RADIUS requests from
+network devices (only HTTP/s requests). Consequently, it can't assign tenant
+ID to nodes based on network devices' tenant ID. In that case, you need to
+define a portal domain name in your tenant and filter on `FQDN` field in
+connection profiles.
+
+=== Getting started
+
+==== Creating your tenant
+
+Following command will create a new tenant in database, mapped to
+`example.com` domain and with a specific captive portal address
+`portal.example.com`:
+
+[source,bash]
+----
+/usr/local/pf/bin/pfcmd tenant add example example.com portal.example.com
+----
+
+In order to apply changes, you need to restart PacketFence services (on each
+server in a cluster configuration):
+
+[source,bash]
+----
+systemctl restart packetfence-config
+/usr/local/pf/bin/pfcmd service pf restart
+----
+
+After that, if you try to connect on web admin using the default `admin`
+account, you will not be able to access any configuration items.  Now you need
+to do configuration actions using the `system` account which has a specific
+password defined in [filename]`/usr/local/pf/conf/unified_api_system_pass` in
+cleartext.  Or create an admin account in global tenant to manage
+configuration.
