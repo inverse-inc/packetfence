@@ -19,7 +19,7 @@ const useStore = (props, context, form) => {
   const { root: { $store } = {} } = context
   return {
     isLoading: computed(() => $store.getters['$_nodes/isLoading']),
-    reloadItem: () => $store.pdispatch('$_nodes/refreshNode', id.value),
+    reloadItem: () => $store.dispatch('$_nodes/refreshNode', id.value),
     deleteItem: () => $store.dispatch('$_nodes/deleteNode', id.value),
     getItem: () => $store.dispatch('$_nodes/getNode', id.value),
     updateItem: () => $store.dispatch('$_nodes/updateNode', form.value),

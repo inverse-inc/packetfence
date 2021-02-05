@@ -1,7 +1,6 @@
 <template>
   <base-form
     :form="form"
-    :schema="schema"
     :is-loading="isLoading">
     <base-form-tab title="Edit" active>
       <template v-slot:title>
@@ -16,21 +15,23 @@
           />
           <form-group-status namespace="status"
             :column-label="$i18n.t('Status')"
-            internal-search="false"
+            :internal-search="false"
             :options="statuses"
           />
           <form-group-role namespace="category_id"
             :column-label="$i18n.t('Role')"
-            internal-search="false"
+            :internal-search="false"
             :options="rolesWithNull"
           />
+          <!--
           <pf-form-datetime :column-label="$t('Unregistration')"
             :form-store-name="formStoreName" form-namespace="unregdate"
             :moments="['1 hours', '1 days', '1 weeks', '1 months', '1 quarters', '1 years']"
           />
-          <!-- <form-group-unregdate namespace="unregdate"
+          -->
+          <form-group-unregdate namespace="unregdate"
             :column-label="$i18n.t('Unregistration')"
-          /> -->
+          />
           <form-group-time-balance namespace="time_balance"
             :column-label="$i18n.t('Access Time Balance')"
             :text="$i18n.t('Seconds')"
@@ -47,7 +48,7 @@
           />
           <form-group-bypass-role namespace="bypass_role_id"
             :column-label="$i18n.t('Bypass Role')"
-            internal-search="false"
+            :internal-search="false"
             :options="rolesWithNull"
           />
           <form-group-notes namespace="notes"
@@ -304,7 +305,6 @@ import {
 } from '@/components/new/'
 import pfEmptyTable from '@/components/pfEmptyTable'
 import pfFingerbankScore from '@/components/pfFingerbankScore'
-import pfFormDatetime from '@/components/pfFormDatetime'
 import pfFormRow from '@/components/pfFormRow'
 import { mysqlLimits as sqlLimits } from '@/globals/mysqlLimits'
 import { pfEapType as eapType } from '@/globals/pfEapType'
@@ -355,7 +355,6 @@ const components = {
   Timeline,
   pfEmptyTable,
   pfFingerbankScore,
-  pfFormDatetime,
   pfFormRow
 }
 
@@ -375,7 +374,7 @@ const props = {
 
 const setup = (props, context) => {
 
-  const { id, form } = toRefs(props)
+  const { id } = toRefs(props)
   const { root: { $store } = {} } = context
 
   if (acl.$can('read', 'security_events')) {
@@ -687,7 +686,6 @@ const setup = (props, context) => {
     visItems,
     visOptions,
 
-    form,
     node,
     rolesWithNull,
     securityEvents,
