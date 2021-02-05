@@ -94,17 +94,47 @@ has_field 'radius_auth_proxy_type' =>
              help => 'Home server pool type' },
   );
 
-has_field 'home_server_auth_options' =>
+has_field 'radius_auth_home_server_pool_virtual_server' =>
   (
-   type => 'TextArea',
-   label => 'Authentication Home Server Options',
-   required => 0,
+   type => 'Toggle',
+   checkbox_value => "enabled",
+   unchecked_value => "disabled",
+   default => "disabled",
+   label => 'Enable Virtual Server',
    tags => { after_element => \&help,
-             help => 'You can add FreeRADIUS authentication home server options here. If you add some then you know what you are doing' },
+             help => 'If enable then the pre-proxy and post-proxy section are called when the request is proxied ?' },
   );
 
+has_field 'radius_auth_home_server_pool_fallback' =>
+  (
+   type => 'Toggle',
+   checkbox_value => "enabled",
+   unchecked_value => "disabled",
+   default => "disabled",
+   label => 'Enable Fallback Server',
+   tags => { after_element => \&help,
+             help => 'If enable then if ALL home_servers are dead this one will be used' },
+  );
 
-  has_field 'radius_auth_compute_in_pf' =>
+has_field 'radius_auth_virtual_server_options' =>
+  (
+   type => 'TextArea',
+   label => 'Authentication virtual server options',
+   required => 0,
+   tags => { after_element => \&help,
+             help => 'Write the unlang definition of the virtual server. This will be used if you enabled "Enable Virtual Server"' },
+  );
+
+has_field 'radius_auth_fallback_server_options' =>
+  (
+   type => 'TextArea',
+   label => 'Authentication fallback server options',
+   required => 0,
+   tags => { after_element => \&help,
+             help => 'Write the unlang definition of the fallback server. This will be used if you enabled "Enable Fallback"' },
+  );
+
+has_field 'radius_auth_compute_in_pf' =>
   (
    type => 'Toggle',
    checkbox_value => "enabled",
@@ -145,13 +175,44 @@ has_field 'radius_acct_proxy_type' =>
              help => 'Home server pool type' },
   );
 
-has_field 'home_server_acct_options' =>
+has_field 'radius_acct_home_server_pool_virtual_server' =>
+  (
+   type => 'Toggle',
+   checkbox_value => "enabled",
+   unchecked_value => "disabled",
+   default => "disabled",
+   label => 'Enable Virtual Server',
+   tags => { after_element => \&help,
+             help => 'If enable then the pre-proxy and post-proxy section are called when the request is proxied ?' },
+  );
+
+has_field 'radius_acct_home_server_pool_fallback' =>
+  (
+   type => 'Toggle',
+   checkbox_value => "enabled",
+   unchecked_value => "disabled",
+   default => "disabled",
+   label => 'Enable Fallback Server',
+   tags => { after_element => \&help,
+             help => 'If enable then if ALL home_servers are dead this one will be used' },
+  );
+
+has_field 'radius_acct_virtual_server_options' =>
   (
    type => 'TextArea',
-   label => 'Accounting Home Server Options',
+   label => 'Accounting virtual server options',
    required => 0,
    tags => { after_element => \&help,
-             help => 'You can add FreeRADIUS accounting home server options here. If you add some then you know what you are doing' },
+             help => 'Write the unlang definition of the virtual server. This will be used if you enabled "Enable Virtual Server"' },
+  );
+
+has_field 'radius_acct_fallback_server_options' =>
+  (
+   type => 'TextArea',
+   label => 'Accounting fallback server options',
+   required => 0,
+   tags => { after_element => \&help,
+             help => 'Write the unlang definition of the fallback server. This will be used if you enabled "Enable Fallback"' },
   );
 
 has_field 'eduroam_options' =>

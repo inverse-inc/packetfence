@@ -57,9 +57,24 @@
           :text="$i18n.t('Home server pool type.')"
         />
 
-        <form-group-home-server-auth-options namespace="home_server_auth_options"
-          :column-label="$i18n.t('Home Server Authentication Options')"
-          :text="$i18n.t('You can add FreeRADIUS home server accounting options here. If you add some then you know what you are doing.')"
+        <form-group-radius-auth-home-server-pool-virtual-server namespace="radius_auth_home_server_pool_virtual_server"
+          :column-label="$i18n.t('Enable Virtual Server')"
+          :text="$i18n.t('If enable then the pre-proxy and post-proxy section are called when the request is proxied ?')"
+        />
+
+        <form-group-radius-auth-virtual-server-options namespace="radius_auth_virtual_server_options"
+          :column-label="$i18n.t('Authentication virtual server options')"
+          :text="$i18n.t('Write the unlang definition of the virtual server. This will be used if you enabled Enable Virtual Server')"
+        />
+
+        <form-group-radius-auth-home-server-pool-fallback namespace="radius_auth_home_server_pool_fallback"
+          :column-label="$i18n.t('Enable Fallback Server')"
+          :text="$i18n.t('If enable then if ALL home_servers are dead this one will be used')"
+        />
+
+        <form-group-radius-auth-fallback-server-options namespace="radius_auth_fallback_server_options"
+          :column-label="$i18n.t('Authentication fallback server options')"
+          :text="$i18n.t('Write the unlang definition of the fallback server. This will be used if you enabled Enable Fallback')"
         />
 
         <form-group-radius-auth-compute-in-pf namespace="radius_auth_compute_in_pf"
@@ -77,9 +92,24 @@
           :text="$i18n.t('Home server pool type.')"
         />
 
-        <form-group-home-server-acct-options namespace="home_server_acct_options"
-          :column-label="$i18n.t('Home Server Accounting Options')"
-          :text="$i18n.t('You can add FreeRADIUS home server accounting options here. If you add some then you know what you are doing.')"
+        <form-group-radius-acct-home-server-pool-virtual-server namespace="radius_acct_home_server_pool_virtual_server"
+          :column-label="$i18n.t('Enable Virtual Server')"
+          :text="$i18n.t('If enable then the pre-proxy and post-proxy section are called when the request is proxied ?')"
+        />
+
+        <form-group-radius-acct-virtual-server-options namespace="radius_acct_virtual_server_options"
+          :column-label="$i18n.t('Accounting virtual server options')"
+          :text="$i18n.t('Write the unlang definition of the virtual server. This will be used if you enabled Enable Virtual Server')"
+        />
+
+        <form-group-radius-acct-home-server-pool-fallback namespace="radius_acct_home_server_pool_fallback"
+          :column-label="$i18n.t('Enable Fallback Server')"
+          :text="$i18n.t('If enable then if ALL home_servers are dead this one will be used')"
+        />
+
+        <form-group-radius-acct-fallback-server-options namespace="radius_acct_fallback_server_options"
+          :column-label="$i18n.t('Accounting fallback server options')"
+          :text="$i18n.t('Write the unlang definition of the fallback server. This will be used if you enabled Enable Fallback')"
         />
 
       </base-form-tab>
@@ -173,11 +203,17 @@ import {
   FormGroupOptions,
   FormGroupRadiusAuth,
   FormGroupRadiusAuthProxyType,
-  FormGroupHomeServerAuthOptions,
+  FormGroupradiusAuthHomeServerPoolVirtualServer,
+  FormGroupRadiusAuthVirtualServerOptions,
+  FormGroupRadiusAuthHomeServerPoolFallback,
+  FormGroupRadiusAuthFallbackServerOptions,
   FormGroupRadiusAuthComputeInPf,
   FormGroupRadiusAcct,
   FormGroupRadiusAcctProxyType,
-  FormGroupHomeServerAcctOptions,
+  FormGroupRadiusAcctHomeServerPoolVirtualServer,
+  FormGroupRadiusAcctVirtualServerOptions,
+  FormGroupRadiusAcctHomeServerPoolFallback,
+  FormGroupRadiusAcctFallbackServerOptions,
   FormGroupEduroamOptions,
   FormGroupEduroamRadiusAuth,
   FormGroupEduroamRadiusAuthProxyType,
@@ -205,11 +241,17 @@ const components = {
   FormGroupOptions,
   FormGroupRadiusAuth,
   FormGroupRadiusAuthProxyType,
-  FormGroupHomeServerAuthOptions,
+  FormGroupradiusAuthHomeServerPoolVirtualServer,
+  FormGroupRadiusAuthVirtualServerOptions,
+  FormGroupRadiusAuthHomeServerPoolFallback,
+  FormGroupRadiusAuthFallbackServerOptions,
   FormGroupRadiusAuthComputeInPf,
   FormGroupRadiusAcct,
   FormGroupRadiusAcctProxyType,
-  FormGroupHomeServerAcctOptions,
+  FormGroupRadiusAcctHomeServerPoolVirtualServer,
+  FormGroupRadiusAcctVirtualServerOptions,
+  FormGroupRadiusAcctHomeServerPoolFallback,
+  FormGroupRadiusAcctFallbackServerOptions,
   FormGroupEduroamOptions,
   FormGroupEduroamRadiusAuth,
   FormGroupEduroamRadiusAuthProxyType,
