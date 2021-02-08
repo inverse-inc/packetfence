@@ -19,6 +19,8 @@ hostapd__configs:
     hostapd__nas_identifier: 'HostAP-PF'
     hostapd__own_ip_addr: '{{ hostvars[inventory_hostname]["mgmt_ip"] }}'
     hostapd__ssid: 'PF-Open'
+    hostapd__vlan_file: '/etc/hostapd/hostapd.vlan'
+    hostapd__dynamic_vlan: '1'
 
   - name: secure
     hostapd__acct_server_addr: '{{ packetfence_server_mgmt_ip }}'
@@ -42,3 +44,5 @@ hostapd__configs:
     hostapd__wpa: '2'
     hostapd__wpa_key_mgmt: 'WPA-EAP'
     hostapd__wpa_pairwise: 'CCMP'
+    hostapd__vlan_file: '/etc/hostapd/hostapd.vlan'
+    hostapd__dynamic_vlan: '1'
