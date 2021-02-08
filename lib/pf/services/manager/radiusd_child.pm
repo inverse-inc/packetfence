@@ -876,9 +876,6 @@ EOT
 home_server = $radius
 EOT
             }
-            $tags{'config'} .= <<"EOT";
-}
-EOT
             if (isenabled($pf::config::ConfigRealm{$realm}->{'radius_auth_home_server_pool_virtual_server'})) {
                 $tags{'config'} .= <<"EOT";
 virtual_server = virtual_server_pool_auth_pool_$realm
