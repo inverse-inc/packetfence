@@ -207,8 +207,8 @@ sub update_config {
     return $cs->commit();
 }
 
-sub get_device_info {
-    my ($self, $mac) = @_;
+sub perform_get_device_info {
+    my ($self, $mac, $url) = @_;
     my $logger = get_logger();
 
     unless ($self->get_access_token()) {
@@ -216,8 +216,7 @@ sub get_device_info {
     }
     my $access_token = $self->get_access_token();
     my $curl = WWW::Curl::Easy->new;
-    my $url = $self->protocol.'://' . $self->host . ':' .  $self->port . '/v1.0/deviceManagement/managedDevices?$select=wiFiMacAddress,complianceState';
-    
+
     $logger->debug("Calling Graph API using URL : ".$url);
 
     my $response_body = '';
@@ -232,6 +231,23 @@ sub get_device_info {
     my $curl_info = $curl->getinfo(CURLINFO_HTTP_CODE); # or CURLINFO_RESPONSE_CODE depending on libcurl version
     return $self->decode_response($curl_info, $response_body);
 }
+
+sub get_device_info {
+    my ($self, $mac) = @_;
+    my $logger = get_logger();
+
+    my @infos;
+
+    my $info = $self->perform_get_device_info($mac, $self->protocol.'://' . $self->host . ':' .  $self->port . '/v1.0/deviceManagement/managedDevices?$select=wiFiMacAddress,complianceState,id');
+    push @infos, $info;
+
+    while($info && $info != $pf::provisioner::COMMUNICATION_FAILED && $info->{'@odata.nextLink'}) {
+        $info = $self->perform_get_device_info($mac, $info->{'@odata.nextLink'});
+        push @infos, $info;
+    }
+    return {value => [map{@{$_->{value}}} @infos]}
+}
+
 
 sub authorize {
     my ($self,$mac) = @_;
