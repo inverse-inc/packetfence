@@ -975,6 +975,7 @@ EOT
             if (isenabled($pf::config::ConfigRealm{$realm}->{'radius_acct_home_server_pool_virtual_server'})) {
                 $tags{'config'} .= <<"EOT";
 virtual_server = virtual_server_pool_acct_pool_$realm
+}
 EOT
             }
 #            if (isenabled($pf::config::ConfigRealm{$realm}->{'radius_acct_home_server_pool_fallback'})) {
@@ -982,9 +983,6 @@ EOT
 #fallback = fallback_server_pool_acct_pool_$realm
 #EOT
 #            }
-            $tags{'config'} .= <<"EOT";
-}
-EOT
             if (isenabled($pf::config::ConfigRealm{$realm}->{'radius_acct_home_server_pool_virtual_server'})) {
                 $tags{'config'} .= <<"EOT";
 server virtual_server_pool_acct_pool_$realm {
