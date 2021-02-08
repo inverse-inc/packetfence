@@ -4,6 +4,7 @@ source "vagrant" "centos-7" {
   source_path = "centos/7"
   provider = "libvirt"
   output_dir = "${var.output_dir}"
+  template = "templates/vagrantfile_template"
 }
 
 # Vagrant Debian 9 builds
@@ -12,4 +13,5 @@ source "vagrant" "debian-9" {
   source_path = "debian/stretch64"
   provider = "libvirt"
   output_dir = "${var.output_dir}"
+  template = "templates/vagrantfile_template"
 }
