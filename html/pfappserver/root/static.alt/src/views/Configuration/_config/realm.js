@@ -239,6 +239,30 @@ export const view = (form = {}, meta = {}) => {
           ]
         },
         {
+          label: i18n.t('Enable Virtual Server'),
+          text: i18n.t('If enable then the pre-proxy and post-proxy section are called when the request is proxied'),
+          cols: [
+            {
+              namespace: 'radius_auth_home_server_pool_virtual_server',
+              component: pfFormRangeToggle,
+              attrs: {
+                values: { checked: 'enabled', unchecked: 'disabled' }
+              }
+            }
+          ]
+        },
+        {
+          label: i18n.t('Authentication virtual server options'),
+          text: i18n.t('Write the unlang definition of the virtual server. This will be used if you enabled Enable Virtual Server.'),
+          cols: [
+            {
+              namespace: 'radius_auth_virtual_server_options',
+              component: pfFormTextarea,
+              attrs: attributesFromMeta(meta, 'radius_auth_virtual_server_options')
+            }
+          ]
+        },
+        {
           label: i18n.t('Authorize from PacketFence'),
           text: i18n.t('Should we forward the request to PacketFence to have a dynamic answer or do we use the remote proxy server answered attributes?'),
           cols: [
@@ -270,6 +294,30 @@ export const view = (form = {}, meta = {}) => {
               namespace: 'radius_acct_proxy_type',
               component: pfFormChosen,
               attrs: attributesFromMeta(meta, 'radius_acct_proxy_type')
+            }
+          ]
+        },
+        {
+          label: i18n.t('Enable Virtual Server'),
+          text: i18n.t('If enable then the pre-proxy and post-proxy section are called when the request is proxied'),
+          cols: [
+            {
+              namespace: 'radius_acct_home_server_pool_virtual_server',
+              component: pfFormRangeToggle,
+              attrs: {
+                values: { checked: 'enabled', unchecked: 'disabled' }
+              }
+            }
+          ]
+        },
+        {
+          label: i18n.t('Accounting virtual server options'),
+          text: i18n.t('Write the unlang definition of the virtual server. This will be used if you enabled Enable Virtual Server.'),
+          cols: [
+            {
+              namespace: 'radius_acct_virtual_server_options',
+              component: pfFormTextarea,
+              attrs: attributesFromMeta(meta, 'radius_acct_virtual_server_options')
             }
           ]
         },
@@ -450,8 +498,12 @@ export const validators = (form = {}, meta = {}) => {
     options: validatorsFromMeta(meta, 'options', i18n.t('Options')),
     radius_auth: validatorsFromMeta(meta, 'radius_auth', i18n.t('Servers')),
     radius_auth_proxy_type: validatorsFromMeta(meta, 'radius_auth_proxy_type', i18n.t('Type')),
+    radius_auth_home_server_pool_virtual_server: validatorsFromMeta(meta, 'radius_auth_home_server_pool_virtual_server', i18n.t('Enable Virtual Server')),
+    radius_auth_virtual_server_options: validatorsFromMeta(meta, 'radius_auth_virtual_server_options', i18n.t('Authentication virtual server options')),
     radius_acct: validatorsFromMeta(meta, 'radius_acct', i18n.t('Servers')),
     radius_acct_proxy_type: validatorsFromMeta(meta, 'radius_acct_proxy_type', i18n.t('Type')),
+    radius_acct_home_server_pool_virtual_server: validatorsFromMeta(meta, 'radius_acct_home_server_pool_virtual_server', i18n.t('Enable Virtual Server')),
+    radius_acct_virtual_server_options: validatorsFromMeta(meta, 'radius_acct_virtual_server_options', i18n.t('Accounting virtual server options')),
     eduroam_options: validatorsFromMeta(meta, 'eduroam_options', 'Realm options'),
     eduroam_radius_auth: validatorsFromMeta(meta, 'eduroam_radius_auth', 'RADIUS AUTH'),
     eduroam_radius_auth_proxy_type: validatorsFromMeta(meta, 'eduroam_radius_auth_proxy_type', 'Type'),
