@@ -14,7 +14,11 @@ BOX_DESC='local-test'
 # generate: X.Y.UTC_DATE
 # $$1 is to avoid make interpretation
 BOX_VERSION=$(shell perl -ne 'print $$1 if (m/.*?(\d+\.\d+)./)' ../../../conf/pf-release | echo "`cat -`.`date -u +%Y%m%d%H%M%S`")
+VAGRANT_LIBVIRT_VIRT_SYSPREP_OPTIONS=""
 VAGRANT_LIBVIRT_VIRT_SYSPREP_OPERATIONS="defaults,-ssh-userdir"
+PACKER_LOG=1
+# work only when PACKER_LOG value is different than 0
+PACKER_LOG_PATH=/var/tmp/packer.log
 #==============================================================================
 # Targets
 #==============================================================================
@@ -26,9 +30,12 @@ pfbox:	clean
 	PKR_VAR_centos_repo=$(CENTOS_REPO) \
 	PKR_VAR_box_version=$(BOX_VERSION) \
 	PKR_VAR_box_description="$(BOX_DESC)" \
+	PACKER_LOG=$(PACKER_LOG) \
+	PACKER_LOG_PATH=$(PACKER_LOG_PATH) \
 	packer validate -only="$(BUILD_NAME)" .
 
-	VAGRANT_LIBVIRT_VIRT_SYSPREP_OPERATIONS=$(VAGRANT_LIBVIRT_VIRT_SYSPREP_OPERATIONS) \
+	VAGRANT_LIBVIRT_VIRT_SYSPREP_OPTIONS="$(VAGRANT_LIBVIRT_VIRT_SYSPREP_OPTIONS)" \
+	VAGRANT_LIBVIRT_VIRT_SYSPREP_OPERATIONS="$(VAGRANT_LIBVIRT_VIRT_SYSPREP_OPERATIONS)" \
 	PKR_VAR_output_dir="$(RESULT_DIR)/$(BOX_NAME)" \
 	PKR_VAR_ansible_group=$(DEV_GROUP) \
 	PKR_VAR_pfserver_name=$(BOX_NAME) \
@@ -36,6 +43,8 @@ pfbox:	clean
 	PKR_VAR_box_version=$(BOX_VERSION) \
 	PKR_VAR_box_description="$(BOX_DESC)" \
 	ANSIBLE_FORCE_COLOR=$(ANSIBLE_FORCE_COLOR) \
+	PACKER_LOG=$(PACKER_LOG) \
+	PACKER_LOG_PATH=$(PACKER_LOG_PATH) \
 	packer build -only="$(BUILD_NAME)" .
 
 # CentOS 7 builds
@@ -59,6 +68,7 @@ pfcen7stable:
 # Debian 9 builds
 .PHONY: pfdeb9dev
 pfdeb9dev:
+	VAGRANT_LIBVIRT_VIRT_SYSPREP_OPTIONS="--run-command /usr/sbin/update-ca-certificates" \
 	VAGRANT_LIBVIRT_VIRT_SYSPREP_OPERATIONS="defaults,-ssh-userdir,-ssh-hostkeys,-customize" \
 	make -e \
 	BOX_NAME=$@ \
@@ -68,6 +78,7 @@ pfdeb9dev:
 
 .PHONY: pfdeb9stable
 pfdeb9stable:
+	VAGRANT_LIBVIRT_VIRT_SYSPREP_OPTIONS="--run-command /usr/sbin/update-ca-certificates" \
 	VAGRANT_LIBVIRT_VIRT_SYSPREP_OPERATIONS="defaults,-ssh-userdir,-ssh-hostkeys,-customize" \
 	make -e \
 	BOX_NAME=$@ \
