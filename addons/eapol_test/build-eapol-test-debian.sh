@@ -9,6 +9,6 @@ git clone --progress --depth 1 --no-single-branch \
     https://github.com/FreeRADIUS/freeradius-server.git ${HOME}/freeradius-server
 
 echo "Building eapol_test.."
-( cd ${HOME}/freeradius-server/scripts/travis/ \
+( cd ${HOME}/freeradius-server/scripts/ci/ \
       && ./eapol_test-build.sh \
       && cp ./eapol_test/eapol_test /usr/local/bin/ )
