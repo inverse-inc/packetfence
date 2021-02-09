@@ -15,6 +15,7 @@ node_modules
 addons/stress-tester/plan.conf
 conf/admin.conf
 conf/httpd.conf
+conf/wgorchestrator-auth.json
 conf/named.conf
 conf/cluster-files.txt
 conf/pf.conf
