@@ -239,10 +239,16 @@ sub get_device_info {
     my @infos;
 
     my $info = $self->perform_get_device_info($mac, $self->protocol.'://' . $self->host . ':' .  $self->port . '/v1.0/deviceManagement/managedDevices?$select=wiFiMacAddress,complianceState,id');
+    if($info == $pf::provisioner::COMMUNICATION_FAILED) {
+        return $pf::provisioner::COMMUNICATION_FAILED;
+    }
     push @infos, $info;
 
     while($info && $info != $pf::provisioner::COMMUNICATION_FAILED && $info->{'@odata.nextLink'}) {
         $info = $self->perform_get_device_info($mac, $info->{'@odata.nextLink'});
+        if($info == $pf::provisioner::COMMUNICATION_FAILED) {
+            return $pf::provisioner::COMMUNICATION_FAILED;
+        }
         push @infos, $info;
     }
     return {value => [map{@{$_->{value}}} @infos]}
