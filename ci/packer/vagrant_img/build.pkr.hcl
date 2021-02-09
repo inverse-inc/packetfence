@@ -35,9 +35,21 @@ build {
   }
 
   provisioner "shell" {
+    only = ["vagrant.centos-7"]
+    execute_command = "echo 'vagrant' | {{.Vars}} sudo -S -E bash '{{.Path}}'"
+    inline = ["yum clean all", "rm -rf /var/cache/yum/*"]
+  }
+
+  provisioner "shell" {
     only = ["vagrant.debian-9"]
     execute_command = "echo 'vagrant' | {{.Vars}} sudo -S -E bash '{{.Path}}'"
     script = "${var.pfroot_dir}/addons/dev-helpers/debian/install-pf-dependencies.sh"
+  }
+
+  provisioner "shell" {
+    only = ["vagrant.debian-9"]
+    execute_command = "echo 'vagrant' | {{.Vars}} sudo -S -E bash '{{.Path}}'"
+    inline = ["apt-get clean"]
   }
 
   post-processors {
@@ -70,6 +82,18 @@ build {
     galaxy_file = "${var.provisioner_dir}/requirements.yml"
     galaxy_force_install = true
     use_proxy = false
+  }
+
+  provisioner "shell" {
+    only = ["vagrant.centos-7"]
+    execute_command = "echo 'vagrant' | {{.Vars}} sudo -S -E bash '{{.Path}}'"
+    inline = ["yum clean all", "rm -rf /var/cache/yum/*"]
+  }
+
+  provisioner "shell" {
+    only = ["vagrant.debian-9"]
+    execute_command = "echo 'vagrant' | {{.Vars}} sudo -S -E bash '{{.Path}}'"
+    inline = ["apt-get clean"]
   }
 
   post-processors {
