@@ -33,7 +33,7 @@ const schemaHosts = yup.array().ensure().of(schemaHost).label(i18n.t('Hosts'))
 const schemaRule = yup.object({
   status: yup.string(),
   id: yup.string().nullable().label(i18n.t('Name'))
-    .isAlphaNumericHyphen()
+    .isAlphaNumericHyphenUnderscore()
     .max(255),
   description: yup.string().nullable()
     .max(255),
