@@ -1,16 +1,26 @@
 - hosts: pfservers
   name: upgrade OS to latest version
   become: True
-  gather_facts: False
+  gather_facts: True
   tags: upgrade
 
   tasks:
-    - name: update to latest OS version
-      package:
+    - name: update to latest OS version (Debian)
+      apt:
         name: '*'
         state: latest
-      register: site_register_upgrade
+        update_cache: yes
+      register: upgrade_os_deb_register
+      when: ansible_os_family == 'Debian'
+
+    - name: update to latest OS version (EL)
+      yum:
+        name: '*'
+        state: latest
+        update_cache: yes
+      register: upgrade_os_el_register
+      when: ansible_os_family == 'RedHat'
 
     - name: reboot to have latest Linux kernel packages in place when installing PacketFence
       reboot:
-      when: site_register_upgrade is changed
+      when: (upgrade_os_deb_register is changed or upgrade_os_el_register is changed)
