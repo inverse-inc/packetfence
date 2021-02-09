@@ -38,7 +38,14 @@ export default (props) => {
   } = props
 
   // reactive variables for `yup.when`
-  const { basic_filter_type } = form || {}
+  const { advanced_filter, basic_filter_type } = form || {}
+
+  // eval out-of-band to avoid cyclic
+  let _basic_filter_type
+  if (!basic_filter_type && !(advanced_filter && advanced_filter.values.length)) // both filters empty
+    _basic_filter_type = yup.string().nullable().required(i18n.t('Filter or Advanced Filter required.'))
+  else // at least one filter defined
+    _basic_filter_type = yup.string().nullable()
 
   return yup.object().shape({
     id: yup.string()
@@ -50,7 +57,7 @@ export default (props) => {
         ? yup.object().nullable() // don't validate when basic_filter_type is set
         : schemaAdvancedFilter.meta({ invalidFeedback: i18n.t('Advanced filter contains one or more errors.') })
        ),
-    basic_filter_type: yup.string().nullable(),
+    basic_filter_type: _basic_filter_type,
     basic_filter_value: yup.string()
       .when('basic_filter_type', () => {
         switch(basic_filter_type) {
