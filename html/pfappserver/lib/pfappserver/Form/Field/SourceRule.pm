@@ -29,6 +29,14 @@ has_field 'id' => (
     required => 1,
     messages => {required => 'Please specify an identifier for the rule.'},
     apply    => [{check => qr/^\S+$/, message => 'The name must not contain spaces.'}],
+   tags => {
+     option_pattern => sub {
+       {
+           message  => "The name must not contain spaces.",
+           regex => '^\S+$',
+       }
+     }
+   }
 );
 
 has_field 'description' => (
