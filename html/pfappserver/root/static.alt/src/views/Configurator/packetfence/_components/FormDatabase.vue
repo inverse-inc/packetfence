@@ -100,7 +100,10 @@
             :column-label="$i18n.t('Database name')"
             :text="$i18n.t('Name of the MySQL database used by PacketFence.')"
             :disabled="databaseExists"
-            :valid-feedback="(databaseExists) ? $i18n.t('MySQL database exists. Current database schema is version {databaseVersion}.', {databaseVersion}) : undefined"
+            :valid-feedback="
+              ((databaseExists) ? $i18n.t('MySQL database exists. ') : '') +
+              ((databaseVersion) ? $i18n.t('Current database schema is version {databaseVersion}. ', {databaseVersion}) : '')
+            "
           />
 
           <template v-if="!databaseExists">
@@ -395,6 +398,7 @@ export const setup = (props, context) => {
       throw err
     }).finally(() => {
       isCreatingUser.value = false
+      _getSystemSummary()
     })
   }
 
