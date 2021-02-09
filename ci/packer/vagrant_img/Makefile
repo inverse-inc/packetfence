@@ -68,7 +68,7 @@ pfcen7stable:
 # Debian 9 builds
 .PHONY: pfdeb9dev
 pfdeb9dev:
-	VAGRANT_LIBVIRT_VIRT_SYSPREP_OPTIONS="--run-command /usr/sbin/update-ca-certificates" \
+	VAGRANT_LIBVIRT_VIRT_SYSPREP_OPTIONS="--firstboot-command /usr/sbin/update-ca-certificates" \
 	VAGRANT_LIBVIRT_VIRT_SYSPREP_OPERATIONS="defaults,-ssh-userdir,-ssh-hostkeys,-customize" \
 	make -e \
 	BOX_NAME=$@ \
@@ -78,7 +78,7 @@ pfdeb9dev:
 
 .PHONY: pfdeb9stable
 pfdeb9stable:
-	VAGRANT_LIBVIRT_VIRT_SYSPREP_OPTIONS="--run-command /usr/sbin/update-ca-certificates" \
+	VAGRANT_LIBVIRT_VIRT_SYSPREP_OPTIONS="--firstboot-command /usr/sbin/update-ca-certificates" \
 	VAGRANT_LIBVIRT_VIRT_SYSPREP_OPERATIONS="defaults,-ssh-userdir,-ssh-hostkeys,-customize" \
 	make -e \
 	BOX_NAME=$@ \
