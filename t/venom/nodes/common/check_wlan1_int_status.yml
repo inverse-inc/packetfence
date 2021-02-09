@@ -4,7 +4,7 @@ testcases:
 - name: check_wlan1_int_status_on_wireless01
   steps:
   - type: exec
-    script: ip a s wlan1
+    script: "sudo ip a s wlan1"
     assertions:
       - result.systemout ShouldContainSubstring "state UP"
       - result.statuscode ShouldEqual 0
