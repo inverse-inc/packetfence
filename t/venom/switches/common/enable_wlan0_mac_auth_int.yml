@@ -4,6 +4,6 @@ testcases:
 - name: enable_mac_auth_on_wireless01
   steps:
   - type: exec
-    script: systemctl restart hostapd_open
+    script: "sudo systemctl restart hostapd_open"
     assertions:
       - result.statuscode ShouldEqual 0

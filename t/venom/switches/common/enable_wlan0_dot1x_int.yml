@@ -4,6 +4,6 @@ testcases:
 - name: enable_dot1x_on_wireless01
   steps:
   - type: exec
-    script: systemctl restart hostapd_secure
+    script: "sudo systemctl restart hostapd_secure"
     assertions:
       - result.statuscode ShouldEqual 0
