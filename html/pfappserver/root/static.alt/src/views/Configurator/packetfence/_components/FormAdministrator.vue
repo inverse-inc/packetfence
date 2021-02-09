@@ -65,7 +65,9 @@ export const setup = (props, context) => {
   const { root: { $store } = {} } = context
 
   const state = inject('state') // Configurator
-  const form = ref({})
+  const form = ref({
+    pid: 'admin'
+  })
 
   const schema = computed(() => schemaFn(props))
 
