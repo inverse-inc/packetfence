@@ -97,7 +97,7 @@ export default (props) => {
     logo: yup.string().nullable().label(i18n.t('Logo')),
     provisioners: schemaArray.unique(i18n.t('Duplicate provisioner.')),
     redirecturl: yup.string().nullable().label(i18n.t('Redirect')),
-    root_module: yup.string().label(i18n.t('Module')),
+    root_module: yup.string().nullable().label(i18n.t('Module')),
     scans: schemaArray.unique(i18n.t('Duplicate scanner.')),
     self_service: yup.string().nullable().label(i18n.t('Registration')),
     sms_pin_retry_limit: yup.string().nullable().label(i18n.t('Limit')),
