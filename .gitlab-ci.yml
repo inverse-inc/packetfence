@@ -137,6 +137,7 @@ variables:
     - make -e -C ${VAGRANT_IMG_DIR} clean
   tags:
     - shell
+    - inverse.ca
 
 .build_job:
   stage: build_pkg
@@ -256,6 +257,7 @@ variables:
   after_script:
     - make -e -C ${VAGRANT_IMG_DIR} clean
   tags:
+    - inverse.ca
     - shell
 
 .rpm_script:
@@ -439,7 +441,6 @@ sign_dev_and_release:
     expire_in: 1 day
     paths:
       - result/*
-  # run job on runners tag with inverse.ca AND shell
   tags:
     - shell
   extends:
@@ -475,7 +476,6 @@ pages:
     expire_in: 1 day
     paths:
       - public
-  # run job on runners tag with inverse.ca AND shell
   tags:
     - shell
   extends:
