@@ -29,6 +29,7 @@ type radiusRequest struct {
 	switchInfo *SwitchInfo
 	status     rfc2866.AcctStatusType
 	mac        mac.Mac
+	done       chan struct{}
 }
 
 type PfAcct struct {

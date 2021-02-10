@@ -95,6 +95,7 @@ func (h *PfAcct) HandleAccounting(w radius.ResponseWriter, r *radius.Request) {
 		status:     status,
 		switchInfo: switchInfo,
 		mac:        mac,
+		done:       make(chan struct{}),
 	}
 
 	h.sendRadiusRequestToQueue(rr)
@@ -105,6 +106,7 @@ func (h *PfAcct) HandleAccounting(w radius.ResponseWriter, r *radius.Request) {
 func (h *PfAcct) sendRadiusRequestToQueue(rr radiusRequest) {
 	queueIndex := djb2Hash(rr.mac[:]) % uint64(len(h.radiusRequests))
 	h.radiusRequests[queueIndex] <- rr
+	<-rr.done
 }
 
 func (h *PfAcct) handleAccountingRequest(rr radiusRequest) {
@@ -112,7 +114,10 @@ func (h *PfAcct) handleAccountingRequest(rr radiusRequest) {
 	defer h.NewTiming().Send("pfacct.accounting." + rr.status.String())
 	outPacket := r.Response(radius.CodeAccountingResponse)
 	rfc2865.ReplyMessage_SetString(outPacket, "Accounting OK")
-	defer w.Write(h.AddProxyState(outPacket, r))
+	defer func() {
+		w.Write(h.AddProxyState(outPacket, r))
+		rr.done <- struct{}{}
+	}()
 	ctx := r.Context()
 	in_bytes := int64(rfc2866.AcctInputOctets_Get(r.Packet))
 	out_bytes := int64(rfc2866.AcctOutputOctets_Get(r.Packet))
