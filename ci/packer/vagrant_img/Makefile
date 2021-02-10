@@ -34,8 +34,8 @@ pfbox:	clean
 	PACKER_LOG_PATH=$(PACKER_LOG_PATH) \
 	packer validate -only="$(BUILD_NAME)" .
 
-	VAGRANT_LIBVIRT_VIRT_SYSPREP_OPTIONS="$(VAGRANT_LIBVIRT_VIRT_SYSPREP_OPTIONS)" \
-	VAGRANT_LIBVIRT_VIRT_SYSPREP_OPERATIONS="$(VAGRANT_LIBVIRT_VIRT_SYSPREP_OPERATIONS)" \
+	VAGRANT_LIBVIRT_VIRT_SYSPREP_OPTIONS=$(VAGRANT_LIBVIRT_VIRT_SYSPREP_OPTIONS) \
+	VAGRANT_LIBVIRT_VIRT_SYSPREP_OPERATIONS=$(VAGRANT_LIBVIRT_VIRT_SYSPREP_OPERATIONS) \
 	PKR_VAR_output_dir="$(RESULT_DIR)/$(BOX_NAME)" \
 	PKR_VAR_ansible_group=$(ANSIBLE_GROUP) \
 	PKR_VAR_pfserver_name=$(BOX_NAME) \
@@ -68,8 +68,7 @@ pfcen7stable:
 # Debian 9 builds
 .PHONY: pfdeb9dev
 pfdeb9dev:
-	VAGRANT_LIBVIRT_VIRT_SYSPREP_OPTIONS="--firstboot-command /usr/sbin/update-ca-certificates" \
-	VAGRANT_LIBVIRT_VIRT_SYSPREP_OPERATIONS="defaults,-ssh-userdir,-ssh-hostkeys,-customize" \
+	VAGRANT_LIBVIRT_VIRT_SYSPREP_OPTIONS="'--run $(PWD)/provisioners/shell/sysprep.sh'" \
 	make -e \
 	BOX_NAME=$@ \
 	ANSIBLE_GROUP=$(DEV_GROUP) \
@@ -78,8 +77,7 @@ pfdeb9dev:
 
 .PHONY: pfdeb9stable
 pfdeb9stable:
-	VAGRANT_LIBVIRT_VIRT_SYSPREP_OPTIONS="--firstboot-command /usr/sbin/update-ca-certificates" \
-	VAGRANT_LIBVIRT_VIRT_SYSPREP_OPERATIONS="defaults,-ssh-userdir,-ssh-hostkeys,-customize" \
+	VAGRANT_LIBVIRT_VIRT_SYSPREP_OPTIONS="'--run $(PWD)/provisioners/shell/sysprep.sh'" \
 	make -e \
 	BOX_NAME=$@ \
 	ANSIBLE_GROUP=$(STABLE_GROUP) \
