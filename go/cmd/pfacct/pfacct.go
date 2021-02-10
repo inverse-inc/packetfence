@@ -15,8 +15,8 @@ import (
 	"github.com/inverse-inc/packetfence/go/log"
 	"github.com/inverse-inc/packetfence/go/mac"
 	"github.com/inverse-inc/packetfence/go/pfconfigdriver"
-	"github.com/inverse-inc/packetfence/go/tryableonce"
 	"github.com/inverse-inc/packetfence/go/sharedutils"
+	"github.com/inverse-inc/packetfence/go/tryableonce"
 	statsd "gopkg.in/alexcesaro/statsd.v2"
 )
 
@@ -30,6 +30,7 @@ type radiusRequest struct {
 	switchInfo *SwitchInfo
 	status     rfc2866.AcctStatusType
 	mac        mac.Mac
+	done       chan struct{}
 }
 
 type PfAcct struct {
