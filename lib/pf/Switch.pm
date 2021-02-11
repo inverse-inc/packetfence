@@ -1392,7 +1392,8 @@ sub isPhoneAtIfIndex {
     }
 
     if (!defined($self->{_VoIPDHCPDetect}) || isenabled($self->{_VoIPDHCPDetect}) ) {
-        if (defined($node_info->{device_class}) && $node_info->{device_class} =~ /VoIP Device/) {
+        my $fingerbank_info = pf::node::fingerbank_info($mac, $node_info);
+        if (defined($node_info->{device_class}) && defined($fingerbank_info->{device_fq}) && $node_info->{device_class} =~ /VoIP Device/ && $fingerbank_info->{device_fq} !~ /VoIP Server/) {
             $logger->debug("DHCP fingerprint for $mac indicates VoIP phone");
             return 1;
         }
