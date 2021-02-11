@@ -68,7 +68,7 @@ pfcen7stable:
 # Debian 9 builds
 .PHONY: pfdeb9dev
 pfdeb9dev:
-	VAGRANT_LIBVIRT_VIRT_SYSPREP_OPTIONS="'--run $(PWD)/provisioners/shell/sysprep.sh'" \
+	VAGRANT_LIBVIRT_VIRT_SYSPREP_OPTIONS="'--run $(CURDIR)/provisioners/shell/sysprep.sh'" \
 	make -e \
 	BOX_NAME=$@ \
 	ANSIBLE_GROUP=$(DEV_GROUP) \
@@ -77,7 +77,7 @@ pfdeb9dev:
 
 .PHONY: pfdeb9stable
 pfdeb9stable:
-	VAGRANT_LIBVIRT_VIRT_SYSPREP_OPTIONS="'--run $(PWD)/provisioners/shell/sysprep.sh'" \
+	VAGRANT_LIBVIRT_VIRT_SYSPREP_OPTIONS="'--run $(CURDIR)/provisioners/shell/sysprep.sh'" \
 	make -e \
 	BOX_NAME=$@ \
 	ANSIBLE_GROUP=$(STABLE_GROUP) \
