@@ -1005,6 +1005,16 @@ accounting_timebucket_size = 5m
 # List of known OpenID Attributes
 openid_attributes=
 
+# advanced.zero_trust_network_starting_ip
+#
+# The starting IP address of the Zero Trust network. Only change if you know what you are doing. Changing this value requires to restart all the PacketFence services and requires all the clients of the Zero Trust network to be restarted
+zero_trust_network_starting_ip=100.64.0.1
+
+# advanced.zero_trust_network_netmask
+#
+# The netmask (in numerical bits value) of the Zero Trust network. Only change if you know what you are doing. Changing this value requires to restart all the PacketFence services and requires all the clients of the Zero Trust network to be restarted
+zero_trust_network_netmask=10
+
 [provisioning]
 #
 # provisioning.autoconfig

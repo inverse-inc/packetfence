@@ -18,8 +18,13 @@ import (
 )
 
 // TODO: have this configurable and potentially support multiple ranges
-var startingIP = sharedutils.IP2Int(net.ParseIP("100.64.0.1"))
-var netmask = 10
+var wgNetworkStartingIP = sharedutils.IP2Int(net.ParseIP("100.64.0.1"))
+var wgNetworkNetmask = 10
+
+func ChangeStartingIP(ip net.IP, newNetmask int) {
+	wgNetworkStartingIP = sharedutils.IP2Int(ip)
+	wgNetworkNetmask = newNetmask
+}
 
 var PublishNewClientsTo *golongpoll.LongpollManager
 
@@ -98,11 +103,11 @@ func (rc *RemoteClient) ConnectionProfile(ctx context.Context, db *gorm.DB) *Rem
 
 func (rc *RemoteClient) IPAddress() net.IP {
 	//TODO: change this so that we don't get out of bounds too easily since IDs in a cluster jump by the size of the cluster
-	return sharedutils.Int2IP(startingIP + uint32(rc.ID))
+	return sharedutils.Int2IP(wgNetworkStartingIP + uint32(rc.ID))
 }
 
 func (rc *RemoteClient) Netmask() int {
-	return netmask
+	return wgNetworkNetmask
 }
 
 func (rc *RemoteClient) AllowedRoles(ctx context.Context, db *gorm.DB) []string {

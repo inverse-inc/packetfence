@@ -15,10 +15,6 @@ var pffilter = filter_client.NewClient()
 
 var GlobalRemoteConnectionProfiles *RemoteConnectionProfiles
 
-func InitGlobal() {
-	GlobalRemoteConnectionProfiles = NewRemoteConnectionProfiles(context.Background())
-}
-
 const DefaultRemoteConnectionProfile = "default"
 
 type RemoteConnectionProfiles struct {
