@@ -1,7 +1,0 @@
-<div class="modal modal-large fade hide" id="modalItem"></div>
-
-<p class="p3 p-warning">[% l('Enabling or disabling a task as well as modifying its interval requires a restart of pfmon to be fully effective') %]</p>
-
-<h2>[% l('Maintenance Tasks') %]</h2>
-
-[% INCLUDE config/pfmon/list.tt %]

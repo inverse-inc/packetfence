@@ -18,12 +18,15 @@ use strict;
 use warnings;
 
 use Config::IniFiles;
+use Symbol 'gensym','qualify_to_ref';   # For the 'any data type' hack
 use base qw(Config::IniFiles);
 use Time::HiRes qw(stat time);
 
 *errors = \@Config::IniFiles::errors;
-use List::MoreUtils qw(all first_index uniq);
+
+use List::MoreUtils qw(all first_index uniq any none);
 use Scalar::Util qw(tainted reftype);
+our $PrettyName;
 
 =head2 new
 
@@ -110,32 +113,80 @@ sub CopySection {
     return 1;
 } # end CopySection
 
+=head2 is_imported
+
+Check if a parameter is imported
+
+  $self->is_imported($section, $param)
+
+=cut
+
+sub is_imported {
+    my ($self, $section, $param) = @_;
+    if (!defined $self->{imported}) {
+        return 0;
+    }
+
+    if (!$self->exists($section, $param) ) {
+        return 0;
+    }
+
+    return none { $_ eq $param } @{$self->{myparms}{$section}};
+}
+
+=head2 MyParameters ($sect_name)
+
+Returns an array containing the parameters contained in the specified
+section.
+
+=cut
+
+sub MyParameters {
+    my $self = shift;
+    my $sect = shift;
+
+    return undef if not defined $sect;
+
+    $self->_caseify(\$sect);
+
+    return @{Config::IniFiles::_aref_or_empty($self->{myparms}{$sect})};
+}
 
 =head2 ResortSections
 
 =cut
 
 sub ResortSections {
-    my ($self,@sections) = @_;
+    my ($self, @sections) = @_;
     # If there is nothing to resort return true
-    if (@sections == 0 ) {
+    if (@sections == 0) {
         return 1;
     }
-    my $result;
-    if ( all { $self->SectionExists($_) } @sections ) {
-        my $first_section = $sections[0];
-        my $first_index = first_index { $_ eq $first_section } $self->Sections;
-        my %temp;
-        @temp{@sections} = ();
-        my @old_sections = $self->Sections;
-        my $old_length = $#old_sections;
-        my @before = grep {!exists $temp{$_} } @old_sections[0 .. $first_index];
-        $first_index++;
-        my @after = grep {!exists $temp{$_} } @old_sections[$first_index .. $#old_sections];
-        $self->{sects} = [@before,@sections,@after];
-        $result = 1;
+
+    if ( any { !$self->SectionExists($_) } @sections ) {
+        return 0;
     }
-    return $result;
+
+    if (@sections == 1) {
+        return 1;
+    }
+
+    my @old_sections = $self->Sections;
+    if (@old_sections == @sections) {
+        $self->{sects} = \@sections;
+        return 1
+    }
+
+    my $first_section = $sections[0];
+    my $first_index = first_index { $_ eq $first_section } @old_sections;
+    my %temp;
+    @temp{@sections} = ();
+    my $old_length = $#old_sections;
+    my @before = grep {!exists $temp{$_} } @old_sections[0 .. $first_index];
+    $first_index++;
+    my @after = grep {!exists $temp{$_} } @old_sections[$first_index .. $#old_sections];
+    $self->{sects} = [@before,@sections,@after];
+    return 1;
 } # end ResortSections
 
 =head2 ReorderByGroup
@@ -365,6 +416,130 @@ sub TIEHASH {
     return $object;
 }
 
+my $RET_CONTINUE = 1;
+# Return 1 to continue - undef to terminate the loop.
+sub _ReadConfig_handle_line
+{
+    my ($self, $fh, $line) = @_;
+
+    my $allCmt = $self->{allowed_comment_char};
+
+    # ignore blank lines
+    if ($line =~ /\A\s*\z/)
+    {
+        return $RET_CONTINUE;
+    }
+
+    # collect comments
+    if ($line =~/\A\s*[$allCmt]/)
+    {
+        return $self->_ReadConfig_handle_comment($line);
+    }
+
+    # New Section
+    if (my ($sect) = $line =~ /\A\s*\[\s*(\S|\S.*\S)\s*\]\s*\z/)
+    {
+        return $self->_ReadConfig_new_section($sect);
+    }
+
+    # New parameter
+    if (my ($parm, $value_to_assign) = $line =~ /^\s*([^=]*?[^=\s])\s*=\s*(.*)$/)
+    {
+        return $self->_ReadConfig_param_assignment($fh, $line, $parm, $value_to_assign);
+    }
+
+    $self->_add_error(
+        sprintf("Line %d in file %s is mal-formed:\n\t\%s",
+            $self->_read_line_num(), $self->GetFileNameForError(), $line
+        )
+    );
+
+    return $RET_CONTINUE;
+}
+
+=head2 GetFileNameForError
+
+Get file name for error
+
+=cut
+
+sub GetFileNameForError {
+    my ($self) = @_;
+    my $cf = $self->GetFileName();
+    my $ref = ref $cf;
+    if ($ref eq 'SCALAR' || ref eq 'IO::SCALAR') {
+        return $PrettyName // '<unknown>';
+    }
+
+    return $cf;
+}
+sub _make_filehandle {
+  my $self = shift;
+
+  #
+  # This code is 'borrowed' from Lincoln D. Stein's GD.pm module
+  # with modification for this module. Thanks Lincoln!
+  #
+
+  no strict 'refs';
+  my $thing = shift;
+
+  if (ref($thing) eq "SCALAR") {
+      if (eval { require IO::Scalar; $IO::Scalar::VERSION >= 2.109; }) {
+          return IO::Scalar->new($thing);
+      } else {
+          warn "SCALAR reference as file descriptor requires IO::stringy ".
+            "v2.109 or later" if ($^W);
+          return;
+      }
+  }
+
+  return $thing if defined(fileno $thing);
+
+  # otherwise try qualifying it into caller's package
+  my $fh = qualify_to_ref($thing,caller(1));
+  return $fh if defined(fileno $fh);
+
+  # otherwise treat it as a file to open
+  $fh = gensym;
+  open($fh, "<:encoding(UTF-8)", $thing) || return;
+
+  return $fh;
+} # end _make_filehandle
+
+=head2 OutputConfigToFileHandle
+
+OutputConfigToFileHandle
+
+=cut
+
+sub OutputConfigToFileHandle {
+    my ($self, $fh, @args) = @_;
+    binmode($fh, ":encoding(UTF-8)");
+    return $self->SUPER::OutputConfigToFileHandle($fh, @args) ;
+}
+
+sub populate {
+    my $self = shift;
+    my $sect = shift;
+    my $hash = shift;
+    return if not defined $sect;
+
+    $self->_caseify(\$sect);
+    if (!defined $self->{v}{$sect}) {
+        return;
+    }
+
+    my $v = $self->{v}{$sect};
+    for my $k (@_) {
+        next if !exists $v->{$k} || !defined $v->{$k};
+        my $val = $v->{$k};
+        $hash->{$k} = ref $val ? [@$val] : $val;
+    }
+
+    return;
+}
+
 =head1 AUTHOR
 
 Inverse inc. <info@inverse.ca>
@@ -372,7 +547,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2018 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 

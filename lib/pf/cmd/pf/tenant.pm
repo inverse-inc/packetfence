@@ -8,7 +8,7 @@ pf::cmd::pf::tenant -
 
 =head1 SYNOPSIS
 
- pfcmd tenant <add> name 
+ pfcmd tenant <add> name domain_name portal_domain_name
 
 =head1 DESCRIPTION
 
@@ -30,12 +30,12 @@ parse_add
 =cut
 
 sub parse_add {
-    my ($self, $name, @args) = @_;
+    my ($self, $name, $domain_name, $portal_domain_name) = @_;
     unless (defined $name) {
         print STDERR "Must provide a tenant name\n";
         return $FALSE;
     }
-    my %fields = (name => $name);
+    my %fields = (name => $name, domain_name => $domain_name, portal_domain_name => $portal_domain_name);
     $self->{fields} = \%fields;
     return $TRUE;
 }
@@ -62,7 +62,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2018 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 

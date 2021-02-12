@@ -1,0 +1,16 @@
+---
+gitlab_buildpkg_tools__rpm_keys:
+  - 'https://inverse.ca/downloads/GPG_PUBLIC_KEY'
+  - 'https://rpm.nodesource.com/pub/el/NODESOURCE-GPG-SIGNING-KEY-EL'
+
+gitlab_buildpkg_tools__rpm_deps_repos:
+  - name: packetfence-devel
+    baseurl: 'http://inverse.ca/downloads/PacketFence/centos/$releasever/devel/$basearch'
+  - name: nodejs
+    baseurl: 'https://rpm.nodesource.com/pub_12.x/el/$releasever/$basearch'
+
+# we only add repos, packages install will occur
+# during build depencies install from SPEC files
+gitlab_buildpkg_tools__rpm_pkgs:
+  - 'epel-release'
+

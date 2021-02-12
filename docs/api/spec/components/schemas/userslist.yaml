@@ -1,0 +1,10 @@
+UsersList:
+  allOf:
+  - $ref: '#/components/schemas/Iterable'
+  - properties:
+      items:
+        description: Items
+        items:
+          $ref: '#/components/schemas/User'
+        type: array
+    type: object

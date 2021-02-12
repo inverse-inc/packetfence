@@ -15,16 +15,18 @@ pf::constants::pfdetect
 use strict;
 use warnings;
 
-use Module::Pluggable
-  search_path => 'pf::detect::parser',
-  sub_name    => '_modules',
-  inner       => 0,
-  require     => 1;
+our @TYPES = qw(
+  dhcp
+  fortianalyser
+  nexpose
+  regex
+  security_onion
+  snort
+  suricata
+  suricata_md5
+);
 
-sub modules {
-  my ($class) = @_;
-  return map { (split('::', $_))[-1] } $class->_modules;
-}
+our $RATE_LIMIT_DEFAULT = '0s';
 
 =head1 AUTHOR
 
@@ -32,7 +34,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2018 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 

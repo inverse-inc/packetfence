@@ -30,13 +30,15 @@ use pfappserver::Form::Config::Scan::Nessus6;
 use pfappserver::Form::Config::Scan::Nessus;
 use pfappserver::Form::Config::Scan::OpenVAS;
 use pfappserver::Form::Config::Scan::WMI;
+use pfappserver::Form::Config::Scan::Rapid7;
 
 our %TYPES_TO_FORMS = (
-    map { $_ => "pfappserver::Form::Config::Scan::$_" } qw(
+    map { lc($_) => "pfappserver::Form::Config::Scan::$_" } qw(
         Nessus6
         Nessus
         OpenVAS
         WMI
+        Rapid7
     )
 );
 
@@ -50,7 +52,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2018 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 

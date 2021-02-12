@@ -1,18 +1,13 @@
-<div class="layout layout--center">[% i18n(message) | none %]</div>
+<div class="o-layout--center u-padding">
+  <p>[% i18n(message) | none %]</p>
 
-[% IF skipable %]
-<div class="layout layout--center">
-  <div class="layout__item u-2/3 u-1/1-palm">
-    <ul class="list-ui list-ui--tiny list-ui--btns list-ui--light u-mt">
-      <li>
-        <a href="?next=next" class="btn btn--full">
-          <div class="flag">
-            <div class="flag__img">[% svgIcon(id='ic_forward_black_24px',size='small') %]</div>
-            <p class="flag__body">[% i18n("Continue") %]</p>
-          </div>
-        </a>
-      </li>
-    </ul>
+  [% IF skipable %]
+  <div class="o-layout o-layout--center">
+    <div class="o-layout__item u-1/1 u-2/3@tablet u-3/5@desktop">
+      <a href="?next=next" class="c-btn c-btn--primary u-1/1">
+        [% i18n("Continue") %]
+      </a>
+    </div>
   </div>
+  [% END %]
 </div>
-[% END %]

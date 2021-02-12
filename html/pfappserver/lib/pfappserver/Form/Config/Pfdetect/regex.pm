@@ -16,6 +16,11 @@ with 'pfappserver::Base::Form::Role::Help';
 use pfappserver::Form::Field::DynamicList;
 use pf::log;
 
+has_field '+type' =>
+  (
+   default => 'regex',
+  );
+
 =head2 rules
 
 The list of rule
@@ -23,7 +28,7 @@ The list of rule
 =cut
 
 has_field 'rules' => (
-    'type' => 'DynamicList',
+    type => 'DynamicList',
     do_wrapper => 1,
     sortable => 1,
     do_label => 1,
@@ -37,8 +42,17 @@ has_field 'rules.contains' => (
 );
 
 has_field 'loglines' => (
-    'type' => 'TextArea',
-    'is_inactive' => 1,
+    type => 'TextArea',
+    inactive => 1,
+);
+
+has_field 'lines' => (
+    type => 'Repeatable',
+    inactive => 1,
+);
+
+has_field 'lines.contains' => (
+    type => 'Text',
 );
 
 =head2 build_rule_label
@@ -66,7 +80,7 @@ has_block definition =>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2018 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 

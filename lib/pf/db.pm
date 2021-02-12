@@ -56,9 +56,12 @@ BEGIN {
 
 sub CLONE {
     if($DBH) {
+        my $clone = $DBH->clone();
         $DBH->{InactiveDestroy} = 1;
         undef $DBH;
-        $LAST_CONNECT = 0;
+        $DBH = $clone;
+        $LAST_CONNECT = time();
+        on_connect($DBH);
     }
 }
 
@@ -162,7 +165,7 @@ db_data_source_info
 sub db_data_source_info {
     my ($self) = @_;
     my $config = db_config();
-    my $dsn = "dbi:mysql:dbname=$config->{db};host=$config->{host};port=$config->{port};mysql_client_found_rows=1";
+    my $dsn = "dbi:mysql:dbname=$config->{db};host=$config->{host};port=$config->{port};mysql_client_found_rows=0";
     get_logger->trace(sub {"connecting with $dsn"});
 
     return (
@@ -244,6 +247,7 @@ sub db_disconnect {
         $logger->debug("disconnecting db");
         $DBH->disconnect();
         $LAST_CONNECT = 0;
+        $DBH = undef;
     }
 }
 
@@ -632,7 +636,7 @@ Minor parts of this file may have been contributed. See CREDITS.
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2018 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 Copyright (C) 2005 Kevin Amorin
 

@@ -10,13 +10,10 @@ pf::UnifiedApi::Controller::Config::Switches -
 
 pf::UnifiedApi::Controller::Config::Switches
 
-
-
 =cut
 
 use strict;
 use warnings;
-
 
 use Mojo::Base qw(pf::UnifiedApi::Controller::Config);
 
@@ -25,16 +22,88 @@ has 'form_class' => 'pfappserver::Form::Config::Switch';
 has 'primary_key' => 'switch_id';
 
 use pf::ConfigStore::Switch;
+use pf::ConfigStore::SwitchGroup;
 use pfappserver::Form::Config::Switch;
 
+=head2 invalidate_cache
+
+invalidate switch cache
+
+=cut
+
+sub invalidate_cache {
+    my ($self) = @_;
+    my $switch_id = $self->id;
+    my $switch = pf::SwitchFactory->instantiate($switch_id);
+    unless ( ref($switch) ) {
+        return $self->render_error(422, "Cannot instantiate switch $switch");
+    }
+
+    $switch->invalidate_distributed_cache();
+    return $self->render(status => 200, json => { });
+}
+
+sub id {
+    my ($self) = @_;
+    my $id = $self->SUPER::id();
+    $id =~ s/%2[fF]|~/\//g;
+    return $id;
+}
  
+=head2 standardPlaceholder
+
+standardPlaceholder
+
+=cut
+
+sub standardPlaceholder {
+    my ($self) = @_;
+    my $params = $self->req->query_params->to_hash;
+    my $group = $params->{group} || $params->{type};
+    if (!defined $group || $group eq 'default' ) {
+        return $self->SUPER::standardPlaceholder();
+    }
+
+    my $cs = pf::ConfigStore::SwitchGroup->new;
+    my $values = $cs->read($group, 'id');
+    if (!defined $values) {
+        return $self->SUPER::standardPlaceholder();
+    }
+
+    return $self->_cleanup_placeholder($self->cleanup_item($values));
+}
+
+sub form_parameters {
+    [
+        inactive => [ qw(always_trigger) ],
+    ];
+}
+
+sub cleanupItemForUpdate {
+    my ($self, $old_item, $new_data, $data) = @_;
+    my %new_item;
+    while ( my ($k, $v) = each %$data ) {
+        $new_item{$k} = defined $v ? $new_data->{$k} : undef ;
+    }
+    %$new_data = %new_item;
+    return;
+}
+
+=head2 fields_to_mask
+
+fields_to_mask
+
+=cut
+
+sub fields_to_mask { qw(radiusSecret cliPwd wsPwd) }
+
 =head1 AUTHOR
 
 Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2018 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 
@@ -56,4 +125,3 @@ USA.
 =cut
 
 1;
-

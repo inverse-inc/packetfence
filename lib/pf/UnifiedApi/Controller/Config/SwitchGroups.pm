@@ -17,7 +17,6 @@ pf::UnifiedApi::Controller::Config::SwitchGroups
 use strict;
 use warnings;
 
-
 use Mojo::Base qw(pf::UnifiedApi::Controller::Config);
 
 has 'config_store_class' => 'pf::ConfigStore::SwitchGroup';
@@ -26,15 +25,37 @@ has 'primary_key' => 'switch_group_id';
 
 use pf::ConfigStore::SwitchGroup;
 use pfappserver::Form::Config::SwitchGroup;
+use pfappserver::Form::Config::Switch;
 
- 
+=head2 members
+
+members
+
+=cut
+
+sub members {
+    my ($self) = @_;
+    my $cs     = pf::ConfigStore::Switch->new;
+    my $form   = pfappserver::Form::Config::Switch->new;
+    my @items = map { $self->cleanup_item($_, $form) } $cs->membersOfGroup($self->id);
+    return $self->render( json => { items => \@items } );
+}
+
+=head2 fields_to_mask
+
+fields_to_mask
+
+=cut
+
+sub fields_to_mask { qw(radiusSecret cliPwd wsPwd) }
+
 =head1 AUTHOR
 
 Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2018 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 
@@ -56,4 +77,3 @@ USA.
 =cut
 
 1;
-

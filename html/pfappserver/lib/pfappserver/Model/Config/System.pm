@@ -19,6 +19,8 @@ use pf::log;
 use pf::error qw(is_error is_success);
 use pf::util;
 
+our $DB_SERVICE_NAME = "packetfence-mariadb";
+
 extends 'Catalyst::Model';
 
 =head1 METHODS
@@ -30,12 +32,13 @@ extends 'Catalyst::Model';
 sub check_mysqld_status {
     my ( $self ) = @_;
     my $logger = get_logger();
-
+    my $cmd = "systemctl show -p MainPID $DB_SERVICE_NAME";
     # -x: this causes the program to also return process id's of shells running the named scripts.
-    my $pid;
-    chomp($pid = `pidof -x mysqld`);
+    my $mainpid;
+    chomp($mainpid = `$cmd`);
+    my (undef,$pid) = split('=', $mainpid);
     $pid = 0 if ( !$pid );
-    $logger->info("pidof -x mysqld returned $pid");
+    $logger->info("$cmd returned $pid");
 
     return ($pid);
 }
@@ -67,6 +70,9 @@ sub getInterfaceForGateway {
 
         my $network = $interfaces_ref->{$interface}->{'network'};
         my $netmask = $interfaces_ref->{$interface}->{'netmask'};
+
+        next if(!defined($network) or !defined($netmask));
+
         my $subnet  = new Net::Netmask($network, $netmask);
 
         return $interface if ( $subnet->match($gateway) );
@@ -99,7 +105,7 @@ sub setDefaultRoute {
     $status = pf_run($cmd, accepted_exit_status => [ $_EXIT_CODE_EXISTS ]);
 
     # Everything goes as expected
-    if ( defined($status) && $status eq "" ) {
+    if (defined($status)) {
         $status_msg = "New default gateway successfully injected";
         $logger->info($status_msg);
         return ($STATUS::OK, $status_msg);
@@ -129,15 +135,9 @@ sub start_mysqld_service {
         return ($STATUS::OK, $status_msg);
     }
 
-    my $mysql_script = 'mysqld';
-    $mysql_script = 'mysql' if ( -e "/etc/init.d/mysql" );
-    if ( ( ($DISTRIB eq 'centos') || ($DISTRIB eq 'redhat') ) && ($DIST_VERSION gt 7)) {
-        $mysql_script = 'mariadb';
-    }
-
     # please keep LANG=C in case we need to fetch the output of the command
-    my $cmd = "setsid sudo service $mysql_script start 2>&1";
-    $logger->debug("Starting mysqld service: $cmd");
+    my $cmd = "setsid sudo service $DB_SERVICE_NAME start 2>&1";
+    $logger->debug("Starting $DB_SERVICE_NAME service: $cmd");
     $status = pf_run($cmd);
 
     # Everything goes as expected
@@ -343,31 +343,35 @@ sub writeNetworkConfigs {
 
     my $status_msg;
 
-    foreach my $interface ( sort keys(%$interfaces_ref) ) {
-        next if ( !($interfaces_ref->{$interface}->{'is_running'}) );
+    while (my ($interface, $interface_values) = each %$interfaces_ref) {
+        next if ( !$interface_values->{is_running} );
+        my %vars = (
+            logical_name => $interface,
+            vlan_device  => $interface_values->{'vlan'},
+            hwaddr       => $interface_values->{'hwaddress'},
+            ipaddr       => $interface_values->{'ipaddress'},
+            netmask      => $interface_values->{'netmask'},
+            ipv6_address => $interface_values->{'ipv6_address'},
+            ipv6_prefix  => $interface_values->{'ipv6_prefix'},
+        );
 
-        my $vars = {
-            logical_name    => $interface,
-            vlan_device     => $interfaces_ref->{$interface}->{'vlan'},
-            hwaddr          => $interfaces_ref->{$interface}->{'hwaddress'},
-            ipaddr          => $interfaces_ref->{$interface}->{'ipaddress'},
-            netmask         => $interfaces_ref->{$interface}->{'netmask'},
-            ipv6_address    => $interfaces_ref->{$interface}->{'ipv6_address'},
-            ipv6_prefix     => $interfaces_ref->{$interface}->{'ipv6_prefix'},
-        };
 
         my $template = Template->new({
             INCLUDE_PATH    => "/usr/local/pf/html/pfappserver/root/interface",
             OUTPUT_PATH     => $var_dir,
         });
-        $template->process( "interface_rhel.tt", $vars, $_interface_conf_file.$interface );
+        my $outfile = $_interface_conf_file.$interface;
+
+        $template->process( "interface_rhel.tt", \%vars, $outfile );
 
         if ( $template->error() ) {
             $status_msg = "Error while writing system network interfaces configuration";
             $logger->error("$status_msg");
             return ($STATUS::INTERNAL_SERVER_ERROR, $status_msg);
         }
-        my $cmd = "cat $var_dir$_interface_conf_file$interface | sudo tee $_network_conf_dir$_interfaces_conf_dir$_interface_conf_file$interface 2>&1";
+        my $interface_config_file = "$_network_conf_dir$_interfaces_conf_dir$_interface_conf_file$interface";
+        my $filter = variableExcludeRegex("$var_dir$outfile");
+        my $cmd = "grep --no-filename -Pv '$filter' $interface_config_file >> $var_dir$outfile;cat $var_dir$outfile | sudo tee $interface_config_file 2>&1";
         my $status = pf_run($cmd);
         # Something went wrong
         if ( !(defined($status) ) ) {
@@ -384,31 +388,31 @@ sub writeNetworkConfigs {
     }
 
     open IN, '<', $_network_conf_dir.$_network_conf_file;
-    chomp(my @content = <IN>);
+    my @content = <IN>;
     close IN;
 
-    @content = grep !/^GATEWAY=/, @content;
-
-    my $cmd = "echo @content | sudo tee $_network_conf_dir$_network_conf_file";
-    my $status = pf_run($cmd);
-    # Something went wrong
-    if ( !(defined($status) ) ) {
+    @content = grep { !/^GATEWAY=/ } @content;
+    open(my $out, "|-", "sudo tee $_network_conf_dir$_network_conf_file > /dev/null");
+    if (!$out) {
         $status_msg = "Something went wrong while writing the network file";
         $logger->warn($status_msg);
         return ($STATUS::INTERNAL_SERVER_ERROR, $status_msg);
     }
-    $cmd = "echo GATEWAY=$gateway | sudo tee -a $_network_conf_dir$_network_conf_file";
-
-    $status = pf_run($cmd);
-    # Something went wrong
-    if ( !(defined($status) ) ) {
-        $status_msg = "Something went wrong while writing the network file";
-        $logger->warn($status_msg);
-        return ($STATUS::INTERNAL_SERVER_ERROR, $status_msg);
-    }
+    print $out @content;
+    print $out "GATEWAY=$gateway\n";
+    close $out;
 
     $logger->info("System network configurations successfully written");
     return $STATUS::OK;
+}
+
+sub variableExcludeRegex {
+    my ($file) = @_;
+    open IN, '<', $file;
+    chomp(my @vars = <IN>);
+    close IN;
+    my @excludes = map { s/=.*//;$_ } grep { $_ ne ''  } @vars;
+    return '^(?:(?:' . join('|', @excludes) . ')=|$)';
 }
 
 package pfappserver::Model::Config::System::Debian;
@@ -486,7 +490,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2018 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 

@@ -50,6 +50,25 @@ func TestClientBuildRequest(t *testing.T) {
 		t.Error("An authorization header was set although the token is empty")
 	}
 
+	// Test the tenant ID
+
+	if r.Header.Get("X-PacketFence-Tenant-Id") != "" {
+		t.Error("Tenant ID was set when it wasn't specified in the client")
+	}
+
+	tenantId := 69
+	c.SetTenantId(testCtx, tenantId)
+
+	r = c.buildRequest(testCtx, method, path, body)
+	if r.Header.Get("X-PacketFence-Tenant-Id") != "69" {
+		t.Error("Tenant ID wasn't set correctly in the request")
+	}
+
+	c.ResetTenantId(testCtx)
+	r = c.buildRequest(testCtx, method, path, body)
+	if r.Header.Get("X-PacketFence-Tenant-Id") != "" {
+		t.Error("Tenant ID was set when it was reset in the client")
+	}
 }
 
 func TestClientRequest(t *testing.T) {

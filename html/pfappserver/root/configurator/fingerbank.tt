@@ -19,7 +19,7 @@
           <div class="well">
             <h3>[% l('Instructions') %]</H3>
             <p>[% l('On this page, you can configure Fingerbank which is used for device fingerprinting.') %]</p>
-            <p>[% l('If you do not configure a Fingerbank API key, you will not have access to any device profiling capabilities in PacketFence') %]</p>
+            <p>[% l('If you do not configure a Fingerbank API key, you will not have access to any device profiling capabilities in PacketFence.') %]</p>
           </div>
         </div>
         <div class="span14">

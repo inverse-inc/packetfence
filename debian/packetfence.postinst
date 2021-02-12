@@ -21,15 +21,7 @@ set -e
 LC_CTYPE=C
 export LC_CTYPE
 
-if $(dpkg-distribution --is_jessie) ; then
-    DIST=jessie
-fi
-if $(dpkg-distribution --is_wheezy) ; then
-    DIST=wheezy
-fi
-if $(dpkg-distribution --is_precise) ; then
-    DIST=precise
-fi
+DIST=$(lsb_release -c -s)
 
 case "$1" in
     configure)
@@ -38,6 +30,8 @@ case "$1" in
         find $PACKETFENCE/conf -type f -exec chmod 664 '{}' \;
         find $PACKETFENCE/conf -type d -exec chmod 775 '{}' \;
         chmod 2775 -R $PACKETFENCE/var
+        find $PACKETFENCE/var/conf -type f -exec chmod 664 '{}' \;
+        find $PACKETFENCE/var/conf -type d -exec chmod 775 '{}' \;
         chmod 2775 -R $PACKETFENCE/logs
         chmod 0755 $PACKETFENCE/addons/*.pl
         chmod 0755 $PACKETFENCE/addons/*.sh
@@ -56,7 +50,7 @@ case "$1" in
             rm $PACKETFENCE/db/pf-schema.sql
         fi
         cd $PACKETFENCE/db
-        VERSIONSQL=$(ls pf-schema-* |sort -r | head -1)
+        VERSIONSQL=$(ls pf-schema-* |sort --version-sort -r | head -1)
         ln -f -s $VERSIONSQL ./pf-schema.sql
 
         #Check if log files exist and create them with the correct owner
@@ -71,13 +65,20 @@ case "$1" in
         #Make ssl certificate
         cd /usr/local/pf
         make conf/ssl/server.pem
+        chown pf $PACKETFENCE/conf/ssl/server.key
 
+        echo "Disabling emergency error logging to the console"
+        /bin/sed -i 's/^\*.emerg/#*.emerg/g' /etc/rsyslog.conf
 
         # Create server local RADIUS secret
         if [ ! -f /usr/local/pf/conf/local_secret ]; then
             date +%s | sha256sum | base64 | head -c 32 > /usr/local/pf/conf/local_secret
         fi
 
+        # Create server API system user password
+        if [ ! -f /usr/local/pf/conf/unified_api_system_pass ]; then
+            date +%s | sha256sum | base64 | head -c 32 > /usr/local/pf/conf/unified_api_system_pass
+        fi
 
 	    if [ ! -f /usr/local/pf/raddb/certs/dh ]; then
 	        echo "Building default RADIUS certificates..."
@@ -95,12 +96,9 @@ case "$1" in
             echo "pf.conf already exists, won't touch it!"
         fi
 
-        echo "Restarting rsyslog"
-        systemctl restart rsyslog
-
         # managing services
         set +e
-        for service in apache2 snmptrapfmt freeradius apparmor haproxy keepalived redis-server smbd samba winbind nmbd mysql; do
+        for service in apache2 snmptrapfmt freeradius apparmor haproxy keepalived redis-server smbd samba winbind nmbd mysql snmpd netdata collectd; do
 
             if [ -e "/etc/init.d/"$service ] ; then
                 invoke-rc.d $service stop  > /dev/null 2>&1
@@ -110,7 +108,7 @@ case "$1" in
                     update-rc.d $service remove > /dev/null 2>&1
                 fi
             fi
-            if [ ${DIST} = "jessie" ] ; then
+            if [ ${DIST} = "jessie" ] || [ ${DIST} = "stretch" ]; then
                 if [ -e "/lib/systemd/system/"$service".service" ] ; then
                     systemctl stop $service
                     systemctl disable $service
@@ -128,7 +126,6 @@ case "$1" in
         sysctl -p /etc/sysctl.d/99-ip_forward.conf
  
         #Starting PacketFence.
-        echo "Starting PacketFence Administration GUI..."
         #removing old cache
         rm -rf /usr/local/pf/var/cache/
         # Start packetfence web administration
@@ -145,18 +142,32 @@ case "$1" in
         systemctl enable packetfence-redis-cache
         systemctl enable packetfence-config
         systemctl disable packetfence-iptables
-        systemctl enable packetfence-routes
-        systemctl enable packetfence-httpd.admin
+        systemctl enable packetfence-haproxy-admin
+        systemctl enable packetfence-tracking-config.path
         systemctl daemon-reload
         systemctl isolate packetfence-base.target
 
+        echo "Restarting rsyslog"
+        systemctl restart rsyslog
+
+        perl /usr/local/pf/addons/upgrade/add-default-params-to-auth.pl
         set +e
         /usr/local/pf/bin/pfcmd configreload
-        set -e
-        /bin/systemctl start packetfence-httpd.admin
+        /usr/local/pf/bin/pfcmd fixpermissions
+        echo "Starting PacketFence Administration GUI..."
+        /bin/systemctl start packetfence-httpd.admin_dispatcher
+        /bin/systemctl start packetfence-haproxy-admin
         systemctl enable packetfence-iptables
+        /usr/local/pf/bin/pfcmd service pf updatesystemd
+        # On new stretch install this should work but not on upgrade
+        if [ ${DIST} = "stretch" ]; then
+            set +e
+            /usr/bin/mysql -uroot -e "update mysql.user set plugin='' where User='root'"
+            /usr/bin/mysql -uroot -e "flush privileges"
+            set -e
+	fi
         echo Installation complete
-        echo "* Please fire up your Web browser and go to https://@ip_packetfence:1443/configurator to complete your PacketFence configuration."
+        echo "* Please fire up your Web browser and go to https://@ip_packetfence:1443 to complete your PacketFence configuration."
         echo "* Please stop your iptables service if you don't have access to configurator."
     ;;
 

@@ -13,6 +13,14 @@ set -e
 # for details, see http://www.debian.org/doc/debian-policy/ or
 # the debian-policy package
 
+disable_service_if_exists() {
+    SERVICE=$1
+    NUM=`set +e;systemctl list-units --full -all | grep -Fq "$SERVICE";echo $?`
+    if [ $NUM -eq 0 ]; then
+        systemctl disable $SERVICE
+    fi
+}
+
 stop_service_if_exists() {
     SERVICE=$1
     NUM=`set +e;invoke-rc.d --quiet --query $SERVICE stop;echo $?`
@@ -53,13 +61,15 @@ case "$1" in
                 echo "pf user already exist"
         fi
         usermod pf -a -G fingerbank,winbindd_priv
+        usermod -aG pf mysql
+        usermod -aG pf netdata
 
         # prevent conflicting mariadb service from starting 
         /bin/systemctl mask mariadb
         /bin/systemctl stop mariadb
         # journald 
         /usr/bin/install -d -g systemd-journal /var/log/journal
-        /usr/bin/setfacl -R -nm g:adm:rx,d:g:adm:rx /var/log/journal
+        /bin/setfacl -R -nm g:adm:rx,d:g:adm:rx /var/log/journal
         echo "RateLimitInterval=0" >> /etc/systemd/journald.conf
         echo "RateLimitBurst=0" >> /etc/systemd/journald.conf
         echo "ForwardToWall=no" >> /etc/systemd/journald.conf
@@ -121,27 +131,32 @@ case "$1" in
         if dpkg --compare-versions "$2" lt "7"; then
             # journald 
             /usr/bin/install -d -g systemd-journal /var/log/journal
-            /usr/bin/setfacl -R -nm g:adm:rx,d:g:adm:rx /var/log/journal
+            /bin/setfacl -R -nm g:adm:rx,d:g:adm:rx /var/log/journal
             echo "RateLimitInterval=0" >> /etc/systemd/journald.conf
             echo "RateLimitBurst=0" >> /etc/systemd/journald.conf
             echo "ForwardToWall=no" >> /etc/systemd/journald.conf
         fi
-        set +e 
-        rm /etc/init.d/packetfence
-        rm /etc/rc*.d/*packetfence
-        set -e 
+        set +e
+        /usr/sbin/update-rc.d -f packetfence remove
         stop_service_if_exists pfappserver
-        stop_service_if_exists packetfence
-
-
-        # prevent conflicting mariadb service from starting 
+        /usr/sbin/update-rc.d -f pfappserver remove
+        set -e
+        /bin/systemctl isolate packetfence-base.target
+        set +e
+        /bin/umount -l /usr/local/pf/conf/certmanager
+        set -e
+        # prevent conflicting mariadb service from starting
         /bin/systemctl mask mariadb
         /bin/systemctl stop mariadb
 
         usermod pf -a -G fingerbank,winbindd_priv
-        systemctl disable packetfence-redis-cache
-        systemctl disable packetfence-config
-        systemctl disable packetfence.service
+        usermod -aG pf mysql
+        usermod -aG pf netdata
+
+        disable_service_if_exists packetfence-redis-cache.service
+        disable_service_if_exists packetfence-config.service
+        disable_service_if_exists packetfence.service
+        disable_service_if_exists packetfence-haproxy.service
         exit 0
     ;;
     abort-upgrade)

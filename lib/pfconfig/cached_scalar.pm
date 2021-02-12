@@ -52,16 +52,13 @@ Constructor of the object
 =cut
 
 sub TIESCALAR {
-    my ( $class, $config ) = @_;
-    my $self = bless {}, $class;
-
+    my ($class, $config, %extra) = @_;
+    my $self = bless { }, $class;
     $self->init();
-
-    $self->{"_namespace"} = $config;
-    $self->{"_control_file_path"} = pfconfig::util::control_file_path($config);
-
-    $self->{element_socket_method} = "element";
-
+    $self->set_namespace($config);
+    $self->{"_scoped_by_tenant_id"} = $extra{tenant_id_scoped};
+    $self->{"_control_file_path"} = pfconfig::util::control_file_path($self->{_namespace});
+    $self->{"element_socket_method"} = "element";
     return $self;
 }
 
@@ -88,13 +85,25 @@ sub FETCH {
     return $result;
 }
 
+=head2 STORE
+
+Log attempts to store something in a pfconfig::cached_scalar
+
+=cut
+
+sub STORE {
+    my ($self) = @_;
+    $self->logger->logcroak("Trying to store a value in $self->{_namespace}");
+    return ;
+}
+
 =head1 AUTHOR
 
 Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2018 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 

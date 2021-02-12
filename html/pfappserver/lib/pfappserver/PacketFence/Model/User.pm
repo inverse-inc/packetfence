@@ -27,7 +27,7 @@ use pf::error qw(is_error is_success);
 use pf::person;
 use pf::log;
 use pf::node;
-use pf::violation;
+use pf::security_event;
 use pf::enforcement qw(reevaluate_access);
 use pf::util;
 use pf::config::util;
@@ -190,30 +190,30 @@ sub nodes {
     return ($STATUS::OK, \@nodes);
 }
 
-=head2 violations
+=head2 security_events
 
-Return the violations associated to the person ID.
+Return the security events associated to the person ID.
 
 =cut
 
-sub violations {
+sub security_events {
     my ($self, $pid) = @_;
 
     my $logger = get_logger();
     my ($status, $status_msg);
 
-    my @violations;
+    my @security_events;
     eval {
-        @violations = person_violations($pid);
-        map { $_->{release_date} = '' if ($_->{release_date} eq '0000-00-00 00:00:00') } @violations;
+        @security_events = person_security_events($pid);
+        map { $_->{release_date} = '' if ($_->{release_date} eq '0000-00-00 00:00:00') } @security_events;
     };
     if ($@) {
-        $status_msg = "Can't fetch violations from database.";
+        $status_msg = "Can't fetch security events from database.";
         $logger->error($status_msg);
         return ($STATUS::INTERNAL_SERVER_ERROR, $status_msg);
     }
 
-    return ($STATUS::OK, \@violations);
+    return ($STATUS::OK, \@security_events);
 }
 
 =head2 update
@@ -279,6 +279,9 @@ sub mail {
     # Fetch user information
     ($status, $status_msg) = $self->read($c, $pids);
     if (is_success($status)) {
+        my $lang = $Config{advanced}{language};
+        my $user_locale = clean_locale(setlocale(POSIX::LC_MESSAGES));
+        setlocale(POSIX::LC_MESSAGES, "$lang.utf8");
         foreach my $user (@$status_msg) {
             # we overwrite the password found in the database with the one in the session for the same user
             my $pid = $user->{'pid'};
@@ -300,6 +303,7 @@ sub mail {
                 $logger->error($@);
             }
         }
+        setlocale(POSIX::LC_MESSAGES, $user_locale);
     }
 
     if (@users) {
@@ -737,37 +741,37 @@ sub bulkApplyRole {
     return ($STATUS::OK, ["Role was changed for [_1] node(s)",$count]);
 }
 
-=head2 bulkApplyViolation
+=head2 bulkApplySecurityEvent
 
 =cut
 
-sub bulkApplyViolation {
-    my ($self, $violation_id, @ids) = @_;
+sub bulkApplySecurityEvent {
+    my ($self, $security_event_id, @ids) = @_;
     my $count = 0;
     my $logger = get_logger();
     foreach my $mac (map {$_->{mac}} map {person_nodes($_)} @ids  ) {
-        my ($last_id) = violation_add( $mac, $violation_id);
+        my ($last_id) = security_event_add( $mac, $security_event_id);
         $count++ if $last_id > 0;;
     }
-    return ($STATUS::OK, ["[_1] violation(s) were opened.",$count]);
+    return ($STATUS::OK, ["[_1] security event(s) were opened.",$count]);
 }
 
-=head2 closeViolations
+=head2 closeSecurityEvents
 
 =cut
 
-sub bulkCloseViolations {
+sub bulkCloseSecurityEvents {
     my ($self, @ids) = @_;
     my $count = 0;
     foreach my $mac (map {$_->{mac}} map {person_nodes($_)} @ids  ) {
-        foreach my $violation (violation_view_open_desc($mac)) {
-            if (violation_force_close( $mac, $violation->{vid})) {
+        foreach my $security_event (security_event_view_open_desc($mac)) {
+            if (security_event_force_close( $mac, $security_event->{security_event_id})) {
                 pf::enforcement::reevaluate_access($mac, 'manage_vclose');
                 $count++;
             }
         }
     }
-    return ($STATUS::OK, ["[_1] violation(s) were closed.",$count]);
+    return ($STATUS::OK, ["[_1] security event(s) were closed.",$count]);
 }
 
 =head2 bulkDelete
@@ -787,7 +791,7 @@ sub bulkDelete {
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2018 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 

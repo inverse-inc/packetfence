@@ -25,6 +25,7 @@ use DBI;
 
 my $config = check_config(pf::db::db_config());
 my $dbh = smoke_tester_db_connections($config);
+my $schema = "/usr/local/pf/db/pf-schema.sql";
 create_db($dbh, $config);
 apply_schema($config);
 load_standard_data();
@@ -41,10 +42,12 @@ sub check_config {
     return $config;
 }
 
-
 sub apply_schema {
     my ($config) = @_;
-    system("mysql -h$config->{host} -P$config->{port} -u$config->{user} -p$config->{pass} $config->{db} < /usr/local/pf/db/pf-schema.sql");
+    if (!-e $schema) {
+        die "schema '$schema' does not exists or symlink is broken\n";
+    }
+    system("mysql -h$config->{host} -P$config->{port} -u$config->{user} -p$config->{pass} $config->{db} < $schema");
     if ($?) {
         die "Unable to apply schema\n";
     }
@@ -57,6 +60,7 @@ sub smoke_tester_db_connections {
       DBI->connect( $dsn, $config->{user}, $config->{pass},
         { RaiseError => 0, PrintError => 0, mysql_auto_reconnect => 1 } )
       or die <<EOS;
+$dsn
 Cannot connection to db with test user please run
 mysql -uroot -p < /usr/local/pf/t/db/smoke_test.sql;
 EOS
@@ -92,7 +96,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2018 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 

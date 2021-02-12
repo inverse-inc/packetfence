@@ -1,0 +1,15 @@
+---
+- name: configure wpasupplicant on nodes to test 802.1X
+  hosts: nodes
+  become: true
+  gather_facts: no
+  
+  collections:
+    - inverse_inc.packetfence
+
+  pre_tasks:
+  - name: wait for SSH available (after reboot) before provisioning
+    wait_for_connection:
+
+  roles:
+    - role: wpasupplicant

@@ -25,27 +25,69 @@ sub resource {
     my $class = $self->_get_service_class($service_id);
 
     return 1 if defined($class);
-    $self->render_error(404, { message => $self->status_to_error_msg(404) });
+    $self->render_error(404, $self->status_to_error_msg(404));
     return undef;
 }
 
-
 sub list {
     my ($self) = @_;
-    $self->render(json => { items => [ map {$_->name} @pf::services::ALL_MANAGERS ] });
+    $self->render(json => { items => [ map {$_->name} grep { $_->name ne 'pf' } @pf::services::ALL_MANAGERS ] });
+}
+
+sub update_systemd {
+    my ($self) = @_;
+    
+    my $service = $self->_get_service_class($self->param('service_id'));
+    my $services = $service->name eq 'pf' ? [ grep {$_ ne 'pf'} @pf::services::ALL_SERVICES ] : [ $service->name ];
+    my @managers = pf::services::getManagers( $services );
+
+    for my $manager (@managers) {
+        if ( $manager->isManaged ) {
+            $manager->sysdEnable();
+        }
+        else {
+            $manager->sysdDisable();
+        }
+    }
+    my $name = $service->name;
+    return $self->render(json => {message => "Updated systemd for $name"});
 }
 
 sub status {
     my ($self) = @_;
     my $service = $self->_get_service_class($self->param('service_id'));
     if ($service) {
-        return $self->render(json => { 
-            alive => $service->isAlive(),
-            managed => $service->isManaged(),
-            enabled => $service->isEnabled(),
-            pid => $service->pid(), 
-        });
+        return $self->render(json => $self->service_info($service));
     }
+}
+
+=head2 service_info
+
+service_info
+
+=cut
+
+sub service_info {
+    my ($self, $service) = @_;
+    return {
+        id => $service->name,
+        alive => $service->isAlive(),
+        managed => $service->isManaged(),
+        enabled => $service->isEnabled(),
+        pid => $service->pid(),
+    };
+}
+
+=head2 status_all
+
+status_all
+
+=cut
+
+sub status_all {
+    my ($self) = @_;
+    my @services = map {$self->service_info($_) } grep { $_->name ne 'pf' } @pf::services::ALL_MANAGERS;
+    return $self->render(json => { items => \@services });
 }
 
 sub start {
@@ -113,7 +155,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2018 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 

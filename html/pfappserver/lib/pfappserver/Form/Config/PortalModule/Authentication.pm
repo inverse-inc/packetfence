@@ -35,7 +35,8 @@ has_field 'with_aup' =>
   (
    type => 'Checkbox',
    label => 'Require AUP',
-   checkbox_value => '1',
+   checkbox_value => 1,
+   input_without_param => 0,
    tags => { after_element => \&help,
              help => 'Require the user to accept the AUP' },
   );
@@ -66,7 +67,7 @@ The fields to display
 
 sub child_definition {
     my ($self) = @_;
-    return ($self->source_fields, qw(pid_field custom_fields with_aup aup_template signup_template), $self->auth_module_definition());
+    return ($self->source_fields, qw(pid_field custom_fields fields_to_save with_aup aup_template signup_template), $self->auth_module_definition());
 }
 
 =head2 BUILD
@@ -108,7 +109,7 @@ sub options_pid_field {
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2018 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 

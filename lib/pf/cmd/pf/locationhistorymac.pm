@@ -22,6 +22,7 @@ pf::cmd::pf::locationhistorymac
 use strict;
 use warnings;
 use base qw(pf::cmd::display);
+use Date::Parse;
 
 sub parseArgs {
     my ($self) = @_;
@@ -51,7 +52,7 @@ Minor parts of this file may have been contributed. See CREDITS.
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2018 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 

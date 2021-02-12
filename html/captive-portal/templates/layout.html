@@ -1,74 +1,99 @@
 <!DOCTYPE html>
 <html>
-  <head>
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-    <meta http-equiv="x-ua-compatible" content="ie=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <link href="/common/styles.css" media="screen" rel="stylesheet" type="text/css" />
-    <script src="/common/jquery-1.11.3.min.js" type="text/javascript"></script>
-    <script src="/common/pf.js" type="text/javascript"></script>
-    <script src="/content/captiveportal.js" type="text/javascript"></script>
-    <title>[% IF title.defined ; i18n(title) ; ELSE ; i18n("PacketFence Registration system") ; END %]</title>
-  </head>
-  <body>
-
-    <!--
-      title: [% i18n(title) %]
-      module: [% current_module.pretty_class_name %]
-      description: [% current_module.description %]
-      -->
-
-    <div class="layout layout--center frame--earlyMorning">
-      <div class="layout__item [ u-1/2 u-2/3-lap u-1/1-palm ]">
-
-        <!-- main container -->
-        <div class="frame [ u-m u-palm-m0 ] u-p">
-          <div class="layout--right">
-            [%- IF show_restart %]
-            <a href="/logout" alt="Restart"
-               title="[% i18n("Restart from the beginning") %]"
-               class="btn btn--icon u-palm-p0">
-              <div class="btn--hint"><span>[% i18n("Restart registration process") %]</span></div>
-              [% svgIcon(id='ic_replay_black_24px', size='tiny') %]
-            </a>
-            [%- END %]
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link href="/common/styles.css" media="screen" rel="stylesheet" type="text/css" />
+  <script src="/common/jquery-1.11.3.min.js" type="text/javascript"></script>
+  <script src="/common/pf.js" type="text/javascript"></script>
+  <script src="/content/captiveportal.js" type="text/javascript"></script>
+  <title>[% IF title.defined ; i18n(title) ; ELSE ; i18n("PacketFence Registration system") ; END %]</title>
+</head>
+<body>
+  <!--
+    title: [% title %]
+    module: [% current_module.pretty_class_name %]
+    description: [% current_module.description %]
+  -->
+  <header>
+    <div class="o-layout o-layout--center [ u-padding-left-small u-padding-top-small u-padding-right-small ] [ u-padding-left@tablet u-padding-top@tablet u-padding-right@tablet ]">
+      <div class="o-layout__item [ u-1/1@mobile u-2/3@tablet ]">
+        <div class="c-frame c-frame--first">
+          <div class="u-padding-horizontal u-padding-horizontal@tablet">
+            <div class="o-pack o-pack--middle">
+              <div class="o-pack__item">
+                <div id="dots"></div>
+              </div>
+              <div class="o-pack__item o-layout--right">
+                [%- IF show_restart %]
+                <a href="/logout">
+                  [% svgIcon(id='ic_replay_black_24px', size='tiny', variant='secondary') %]
+                </a>
+                [% ELSE %]
+                <!-- Uncomment to enable language switcher
+                  [% IF lang == "fr_FR" %]<a href="?lang=en_US">EN</a>
+                  [% ELSE %]<a href="?lang=fr_FR">FR</a>[% END %]
+                -->
+                [% END %]
+              </div>
+            </div>
           </div>
-          <div class="text-center">
-            [%- IF logo %]
-            <div class="box box--small">
-              <img src="[% logo %]" /><br/>
-            </div>
-            <div class="box box--hero box--small [ u-m u-mb-- u-m--palm ]">
-              [% moduleIcon(module=current_module.pretty_class_name) %]
-            </div>
-            [% ELSE %]
-            <div class="box box--hero [ u-m u-mb-- ]">
-              [% moduleIcon(module=current_module.pretty_class_name) %]
-            </div>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <div class="o-layout o-layout--center [ u-padding-left-small u-padding-right-small u-padding-bottom-small ] [ u-padding-left@tablet u-padding-right@tablet u-padding-bottom@tablet ]">
+      <div class="o-layout__item [ u-1/1 u-2/3@tablet ]">
+
+        <div class="c-frame c-frame--last">
+          <div class="o-layout--center u-padding-horizontal u-padding-horizontal@tablet">
+
+            [% IF logo %]<img src="[% logo %]" class="u-padding-bottom"/>[% END %]
+
+            [% IF title.defined %]
+            <!-- START title -->
+            <h1 class="o-layout--center">[% i18n(title) %]</h1>
+            <!-- END title -->
             [% END %]
-            <div id="dots"></div>
-            [% IF title.defined %]<h2>[% i18n(title) %]</h2>[% END %]
+
+            [% FOREACH level IN flash.keys %]
+            <!-- START flash -->
+            <div class="o-media o-media--[% level %] o-layout--left u-padding-small u-padding@tablet">
+              <div class="o-media__img">[% flashIcon(level=level, size='tiny') %]</div>
+              <p class="o-media__body">[% i18n(flash.$level) %]</p>
+            </div>
+            <!-- END flash -->
+            [% END %]
+
           </div>
-          [% FOREACH level IN flash.keys %]
-          <div class="media media--[% level %] u-p u-mb">
-            <div class="media__img">[% flashIcon(level=level) %]</div>
-            <p class="media__body">[% i18n(flash.$level) %]</p>
-          </div>
-          [% END %]
+
           [% content | none %]
-
-          [% UNLESS preregistration %]
-          <footer>
-            <div class="divider u-m"></div>
-            <p>[% i18n("help: provide info") %]</p>
-            <p class="u-mb--">IP <b>[% client_ip %]</b></p>
-            <p>MAC <b>[% client_mac %]</b></p>
-          </footer>
-          [% END %]
-
-        </div><!-- end of main container -->
+        </div><!-- /.c-frame -->
 
       </div>
     </div>
-  </body>
+  </main>
+
+  [% UNLESS preregistration %]
+  <footer>
+    <div class="o-layout o-layout--center u-padding-horizontal-small u-padding-horizontal@tablet">
+      <div class="o-layout__item o-layout--center [ u-1/1 u-2/3@tablet ]">
+        <div class="o-pack o-pack--middle">
+          <div class="o-pack__item o-layout--center">
+            <p class="text-p3">[% i18n("help: provide info") %]</p>
+            <p class="text-p3 u-margin-none">IP <b>[% client_ip %]</b></p>
+            <p class="text-p3">MAC <b>[% client_mac %]</b></p>
+          </div>
+        </div>
+        <!-- <div class="o-box u-padding-tiny u-padding@tablet">
+          <p class="text-center">[% i18n("help: provide info") %]</p>
+        </div> -->
+      </div>
+    </div>
+  </footer>
+  [% END %]
+</body>
 </html>

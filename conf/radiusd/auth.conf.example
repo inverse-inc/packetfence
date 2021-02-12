@@ -1,15 +1,8 @@
+# Copyright (C) Inverse inc.
 
 pidfile = [% pid_file %]
 
 $INCLUDE radiusd.conf
-
-listen {
-    ipaddr = 127.0.0.1
-    port = 18120
-    type = auth
-    virtual_server = packetfence
-}
-
 
 listen {
         #  ONLY Status-Server is allowed to this port.
@@ -27,7 +20,7 @@ listen {
         ipaddr = [% ip %]
         port = 0
         type = auth
-        virtual_server = packetfence
+        virtual_server = [% virtual_server %]
 }
 
 listen {

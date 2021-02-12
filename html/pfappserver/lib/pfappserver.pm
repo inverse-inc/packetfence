@@ -19,7 +19,6 @@ use Log::Log4perl::Catalyst;
 #                 directory
 
 use Catalyst qw/
-    -Debug
     ConfigLoader
     Static::Simple
     I18N
@@ -30,6 +29,7 @@ use Catalyst qw/
     Session::State::Cookie
     StackTrace
     Unicode::Encoding
+    SmartURI
 /;
 
 use Try::Tiny;
@@ -44,7 +44,9 @@ use pf::CHI;
 use pf::CHI::Request;
 use pf::web::util;
 use pf::SwitchFactory;
+use pf::I18N;
 pf::SwitchFactory->preloadAllModules();
+pf::I18N::setup_text_domain();
 
 extends 'Catalyst';
 
@@ -63,6 +65,8 @@ $VERSION = eval $VERSION;
 __PACKAGE__->config(
     name => 'pfappserver',
     default_view =>  'HTML',
+    encoding => 'UTF-8',
+    use_request_uri_for_path => 1,
     setup_components => {
         search_extra => [ qw(::Form ::F) ],
     },
@@ -73,7 +77,7 @@ __PACKAGE__->config(
             woff => 'font/woff'
         },
         # Include static content from captive portal in order to render previews of
-        # remediation pages (see pfappserver::Controller::Violation)
+        # remediation pages (see pfappserver::Controller::SecurityEvent)
         include_path => [
             pfappserver->config->{root},
             INSTALL_DIR . '/html/pfappserver/root',
@@ -85,12 +89,13 @@ __PACKAGE__->config(
             'admin',
             'pfappserver',
             'templates',
-            'violations',
+            'security_events',
         ],
         ignore_extensions => [ qw/cgi php inc tt html xml/ ],
     },
 
     'Plugin::Session' => {
+        cookie_secure => use_secure_cookie(),
         #chi will set the expire time
         chi_class => 'pf::CHI',
         chi_args => {
@@ -161,7 +166,23 @@ __PACKAGE__->config(
         }
        }
      },
+
+     'Plugin::SmartURI' => {
+        disposition => 'relative',
+        uri_class   =>  'URI::SmartURI',
+     },
 );
+
+
+=head2 use_secure_cookie
+
+use secure cookie
+
+=cut
+
+sub use_secure_cookie {
+    return $ENV{CATALYST_DEBUG} ? 0 : 1;
+}
 
 sub pf_hash_for {
     my ($self,@args) = @_;
@@ -217,6 +238,8 @@ sub form {
           if $c->stash->{current_form_instance};
         return $c->form( $c->stash->{current_form} )
           if $c->stash->{current_form};
+        return $c->form( $c->action->{form} )
+          if $c->action->{form};
     }
     return $c->form( $appclass->config->{default_form} )
       if $appclass->config->{default_form};
@@ -367,7 +390,7 @@ __PACKAGE__->log(Log::Log4perl::Catalyst->new(INSTALL_DIR . '/conf/log.conf.d/ht
 $SIG{__WARN__} = sub { __PACKAGE__->log->error(@_); };
 
 # Start the application
-__PACKAGE__->setup();
+__PACKAGE__->setup( __PACKAGE__->log->is_debug ? ('-Debug') : () );
 
 =head1 NAME
 
@@ -391,7 +414,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2018 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 

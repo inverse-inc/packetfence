@@ -17,8 +17,11 @@ use pf::constants;
 
 use base ('pf::Switch::Netgear');
 
-sub supportsWiredMacAuth { return $TRUE }
-sub supportsRadiusDynamicVlanAssignment { return $TRUE; }
+use pf::SwitchSupports qw(
+    WiredMacAuth
+    RadiusDynamicVlanAssignment
+);
+
 sub description { return 'Netgear M series' }
 
 
@@ -28,7 +31,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2018 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 

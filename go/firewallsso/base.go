@@ -14,7 +14,7 @@ import (
 	"github.com/inverse-inc/packetfence/go/log"
 	"github.com/inverse-inc/packetfence/go/pfconfigdriver"
 	"github.com/inverse-inc/packetfence/go/sharedutils"
-	"layeh.com/radius"
+	radius "github.com/inverse-inc/go-radius"
 )
 
 var usernameFormatRegexps = map[string]*regexp.Regexp{
@@ -159,6 +159,10 @@ func (fw *FirewallSSO) Start(ctx context.Context, info map[string]string, timeou
 func (fw *FirewallSSO) Stop(ctx context.Context, info map[string]string) (bool, error) {
 	log.LoggerWContext(ctx).Debug("Sending SSO stop")
 	return true, nil
+}
+
+func (fw *FirewallSSO) RadiusContextWithTimeout() (context.Context, context.CancelFunc) {
+	return context.WithDeadline(context.Background(), time.Now().Add(5*time.Second))
 }
 
 // Get the source IP address for the SSO packets

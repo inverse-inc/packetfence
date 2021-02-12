@@ -14,9 +14,11 @@ use strict;
 use warnings;
 use HTML::FormHandler::Moose;
 extends 'pfappserver::Base::Form';
-with 'pfappserver::Base::Form::Role::Help',
-     'pfappserver::Base::Form::Role::AllowedOptions',
-     'pfappserver::Role::Form::RolesAttribute';
+with qw(
+    pfappserver::Base::Form::Role::Help
+    pfappserver::Base::Form::Role::AllowedOptions
+    pfappserver::Role::Form::RolesAttribute
+);
 
 use pfappserver::Form::Field::DynamicList;
 use pfappserver::Base::Form::Authentication::Action;
@@ -39,7 +41,10 @@ has_field 'id' =>
    label => 'Name',
    required => 1,
    messages => { required => 'Please specify the name of the source entry' },
-   apply => [ pfappserver::Base::Form::id_validator('source name') ],
+   apply => [ pfappserver::Base::Form::id_validator('source name'), { check => qr/^([^\s\.])+$/, message => 'The name must not contain spaces or dots.' } ],
+   tags => {
+      option_pattern => \&pfappserver::Base::Form::id_pattern,
+   },
   );
 
 has_field 'type' => (
@@ -157,7 +162,10 @@ our %EXCLUDE = (
     action_templates => 1,
     local_account => 1,
     create_local_account => 1,
+    password_length => 1,
     local_account_logins => 1,
+    hash_passwords => 1,
+    password_length => 1,
     stripped_user_name => 1,
     realms => 1,
     (map { ("${_}_rules"  => 1) } @Rules::CLASSES),
@@ -263,10 +271,12 @@ sub options_connection {
        {
         group => 'Types',
         options => \@types,
+        value => '',
        },
        {
         group => 'Groups',
         options => \@groups,
+        value => '',
        },
       ];
 }
@@ -406,7 +416,7 @@ sub getSourceArgs {
             }
         }
     }
-    for my $r (qw(realms)) {
+    for my $r (qw(realms searchattributes sources local_realm reject_realm)) {
         $args->{$r} //= [];
         if (ref($args->{$r}) ne "ARRAY" ) {
             $args->{$r} = [$args->{$r}];
@@ -438,10 +448,27 @@ validate
 
 sub validate {
     my ($self) = @_;
+    my $source = $self->source_class;
+    if ($source->has_authentication_rules()) {
+        $self->validate_rules();
+    }
+
+    return;
+}
+
+=head2 validate_rules
+
+validate source admin/auth rules
+
+=cut
+
+sub validate_rules {
+    my ($self) = @_;
     my %rule_names;
     foreach my $class (@{$self->source_class->available_rule_classes}) {
         my $field_name = "${class}_rules";
         my $rules = $self->field($field_name);
+        next if $rules->inactive;
         foreach my $rule ($rules->fields) {
             my $id = $rule->field("id");
             my $value = $id->value;
@@ -452,12 +479,13 @@ sub validate {
             }
         }
     }
-    return ;
+
+    return;
 }
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2018 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 

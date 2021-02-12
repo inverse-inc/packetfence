@@ -15,10 +15,15 @@ pfcmd <command> [options]
  Commands
   cache                       | manage the cache subsystem
   checkup                     | perform a sanity checkup and report any problems
-  class                       | view violation classes
+  class                       | view security event classes
   configreload                | reload the configution
+  connectionprofileconfig     | query/modify connection profile configuration parameters
   fingerbank                  | Fingerbank related commands
+  fixpermissions              | fix permissions on pf tree
   floatingnetworkdeviceconfig | query/modify floating network devices configuration parameters
+  generatedomainconfig        | generate the domain configuration
+  generatemariadbconfig       | generate the MariaDB configuration
+  generatesyslogconfig        | generate the syslog configuration
   help                        | show help for pfcmd commands
   import                      | bulk import of information into the database
   ipmachistory                | IP/MAC history
@@ -27,13 +32,16 @@ pfcmd <command> [options]
   networkconfig               | query/modify network configuration parameters
   node                        | manipulate node entries
   pfconfig                    | interact with pfconfig
-  connectionprofileconfig     | query/modify connection profile configuration parameters
-  reload                      | rebuild fingerprint or violations tables without restart
+  pfcron                      | run pfcron tasks
+  pfqueue                     | query/modify pfqueue tasks and counters
+  reload                      | rebuild fingerprint or security events tables without restart
   service                     | start/stop/restart and get PF daemon status
   schedule                    | Nessus scan scheduling
   switchconfig                | query/modify switches.conf configuration parameters
   version                     | output version information
-  violationconfig             | query/modify violations.conf configuration parameters
+  security_event              | manipulate security events
+  security_eventconfig        | query/modify security_events.conf configuration parameters
+  tenant                      | manipulate tenants
 
 Please view "pfcmd help <command>" for details on each option
 
@@ -59,7 +67,7 @@ Minor parts of this file may have been contributed. See CREDITS.
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2018 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 

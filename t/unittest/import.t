@@ -45,7 +45,7 @@ for my $o (0..255) {
 
 $fh->flush;
 
-system("/usr/local/pf/bin/pfcmd import nodes $name columns=mac,pid");
+system("perl -T -I/usr/local/pf/t -Msetup_test_config /usr/local/pf/bin/pfcmd.pl import nodes $name columns=mac,pid");
 
 is($?, 0, "Succeeded importing 00:11:55:22:33:00 - 00:11:55:22:33:ff with the default user");
 
@@ -55,7 +55,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2018 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 

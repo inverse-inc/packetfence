@@ -36,10 +36,10 @@ Match a numeric greater than
 =cut
 
 sub match {
-    my ($self,$arg) = @_;
+    my ($self,$arg,$args) = @_;
     return $FALSE if(!defined($arg));
     no warnings 'numeric';
-    return $arg > $self->value;
+    return $arg > $self->evalParam($self->value, $args);
 }
 
 =head1 AUTHOR
@@ -48,7 +48,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2018 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 

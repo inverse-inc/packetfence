@@ -19,6 +19,8 @@ use pf::auth_log;
 use pf::config::util;
 use pf::constants::realm;
 
+has 'landing_template' => ('is' => 'rw', default => sub {'saml.html'});
+
 has '+source' => (isa => 'pf::Authentication::Source::SAMLSource');
 
 has '+route_map' => (default => sub {
@@ -50,7 +52,16 @@ SAML index
 
 sub index {
     my ($self) = @_;
-    $self->render("saml.html", {source => $self->source, title => "SAML authentication"});
+    if($self->with_aup) {
+        $self->render($self->landing_template, {
+            title => "SAML authentication",
+            source => $self->source, 
+            form => $self->form,
+        });
+    }
+    else {
+        $self->redirect();
+    }
 }
 
 =head2 redirect
@@ -61,8 +72,14 @@ Redirect the user to the SAML IDP
 
 sub redirect {
     my ($self) = @_;
-    pf::auth_log::record_oauth_attempt($self->source->id, $self->current_mac, $self->app->profile->name);
-    $self->app->redirect($self->source->sso_url);
+    if(!$self->with_aup || $self->request_fields->{aup}){
+        pf::auth_log::record_oauth_attempt($self->source->id, $self->current_mac, $self->app->profile->name);
+        $self->app->redirect($self->source->sso_url);
+    }
+    else {
+        $self->app->flash->{error} = "You must accept the terms and conditions";
+        $self->landing();
+    }
 }
 
 =head2 assertion
@@ -96,7 +113,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2018 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 

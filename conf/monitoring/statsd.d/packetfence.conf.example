@@ -1,0 +1,194 @@
+#
+# Documentation
+#   https://github.com/firehol/netdata/wiki/statsd
+#
+# Example
+#   https://github.com/firehol/netdata/blob/master/conf.d/statsd.d/example.conf
+#
+
+[app]
+    name = packetfence
+    metrics = *
+    private charts = yes
+    gaps when not collected = no
+
+[devices.registered_unregistered]
+    name = devices.registered_unregistered
+    title = registered/unregistered online devices
+    family = packetfence
+    context = chart.context
+    units = devices
+    priority = 91000
+    type = line
+    dimension = source.packetfence.devices.online_registered 'registered' last 1 1
+    dimension = source.packetfence.devices.online_unregistered 'unregistered' last 1 1
+
+[devices.registered_per_role]
+    name = devices.registered_per_role
+    title = devices roles
+    family = packetfence
+    context = chart.context
+    units = devices
+    priority = 91000
+    type = line
+    dimension = pattern 'source.packetfence.devices.registered_per_role.*' '' last 1 1
+
+[devices.connected_per_connection_type]
+    name = devices.connected_per_connection_type
+    title = connection types
+    family = packetfence
+    context = chart.context
+    units = devices
+    priority = 91000
+    type = line
+    dimension = pattern 'source.packetfence.devices.connected_per_connection_type.*' '' last 1 1
+
+[devices.connected_per_ssid]
+    name = devices.connected_per_ssid
+    title = ssid
+    family = packetfence
+    context = chart.context
+    units = devices
+    priority = 91000
+    type = line
+    dimension = pattern 'source.packetfence.devices.connected_per_ssid.*' '' last 1 1
+
+[redis.queue_stats_count]
+    name = redis.queue_stats_count
+    title = redis queue stats counters
+    family = packetfence
+    context = chart.context
+    units = count
+    priority = 91000
+    type = stacked
+    dimension = pattern 'source.packetfence.redis.queue_stats_count.*' '' last 1 1
+
+[redis.queue_stats_expired]
+    name = redis.queue_stats_expired
+    title = redis queue stats expired counters
+    family = packetfence
+    context = chart.context
+    units = expired
+    priority = 91000
+    type = stacked
+    dimension = pattern 'source.packetfence.redis.queue_stats_expired.*' '' last 1 1
+
+[redis.queue_stats_outstanding]
+    name = redis.queue_stats_outstanding
+    title = redis queue stats outstanding counters
+    family = packetfence
+    context = chart.context
+    units = outstanding
+    priority = 91000
+    type = stacked
+    dimension = pattern 'source.packetfence.redis.queue_stats_outstanding.*' '' last 1 1
+
+[dhcp.free_leases]
+    name = dhcp.free_leases
+    title = Dhcp free leases
+    family = packetfence
+    context = chart.context
+    units = Free
+    priority = 91000
+    type = line
+    dimension = pattern 'source.packetfence.dhcp_leases.free.*' '' last 1 1
+
+[dhcp.used_leases]
+    name = dhcp.used_leases
+    title = Dhcp used leases
+    family = packetfence
+    context = chart.context
+    units = Used
+    priority = 91000
+    type = line
+    dimension = pattern 'source.packetfence.dhcp_leases.used.*' '' last 1 1
+
+[dhcp.percent_free_leases]
+    name = dhcp.percent_free_leases
+    title = Dhcp percent free leases
+    family = packetfence
+    context = chart.context
+    units = Percent
+    priority = 91000
+    type = line
+    dimension = pattern 'source.packetfence.dhcp_leases.percentfree.*' '' last 1 1
+
+[dhcp.percent_used_leases]
+    name = dhcp.percent_used_leases
+    title = Dhcp percent used leases
+    family = packetfence
+    context = chart.context
+    units = Percent
+    priority = 91000
+    type = line
+    dimension = pattern 'source.packetfence.dhcp_leases.percentused.*' '' last 1 1
+
+[logs.packetfence_log]
+    name = packetfence.packetfence_log
+    title = packetfence.log file events
+    family = packetfence
+    context = chart.context
+    units = Events
+    priority = 91000
+    type = line
+    dimension = pattern 'source.packetfence.packetfence_log.*' '' last 1 1
+
+[logs.pfdhcp_log]
+    name = packetfence.pfdhcp_log
+    title = pfdhcp.log file events
+    family = packetfence
+    context = chart.context
+    units = Events
+    priority = 91000
+    type = line
+    dimension = pattern 'source.packetfence.pfdhcp_log.*' '' last 1 1
+
+[logs.load_balancer_log]
+    name = packetfence.load_balancer.log
+    title = load_balancer.log file events
+    family = packetfence
+    context = chart.context
+    units = Events
+    priority = 91000
+    type = line
+    dimension = pattern 'source.packetfence.load_balancer_log.*' '' last 1 1
+
+[logs.radius_log]
+    name = packetfence.radius_log
+    title = radius.log file events
+    family = packetfence
+    context = chart.context
+    units = Events
+    priority = 91000
+    type = line
+    dimension = pattern 'source.packetfence.radius_log.*' '' last 1 1
+
+[logs.mariadb_error_log]
+    name = packetfence.mariadb_error_log
+    title = mariadb_error.log file events
+    family = packetfence
+    context = chart.context
+    units = Events
+    priority = 91000
+    type = line
+    dimension = pattern 'source.packetfence.mariadb_error_log.*' '' last 1 1
+
+[logs.pfcron_log]
+    name = packetfence.pfcron_log
+    title = pfcron.log file events
+    family = packetfence
+    context = chart.context
+    units = Events
+    priority = 91000
+    type = line
+    dimension = pattern 'source.packetfence.pfcron_log.*' '' last 1 1
+
+[logs.fingerbank_log]
+    name = packetfence.fingerbank_log
+    title = fingerbank.log file events
+    family = packetfence
+    context = chart.context
+    units = Events
+    priority = 91000
+    type = line
+    dimension = pattern 'source.packetfence.fingerbank_log.*' '' last 1 1

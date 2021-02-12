@@ -1,3 +1,4 @@
+# Copyright (C) Inverse inc.
 [authentications]
 type=builtin
 description= All Authentications
@@ -13,10 +14,11 @@ date_field=attempted_at
 base_conditions_operator=any
 person_fields=Owner
 node_fields=MAC Address
+order_fields=-auth_log.attempted_at
 
 [SMS-Registration]
 type=builtin
-description=SMS registration
+description=SMS Registration
 # The table to search from
 base_table=activation
 # The columns to select
@@ -32,10 +34,11 @@ base_conditions=activation.type:=:sms
 base_conditions_operator=all
 person_fields=Owner
 node_fields=MAC Address
+order_fields=-activation.expiration
 
 [Email-Registration]
 type=builtin
-description=Email registration
+description=Email Registration
 # The table to search from
 base_table=activation
 # The columns to select
@@ -50,7 +53,7 @@ node_fields=MAC Address
 
 [Sponsor-Registration]
 type=builtin
-description=Sponsor registration
+description=Sponsor Registration
 # The table to search from
 base_table=activation
 # The columns to select
@@ -79,6 +82,7 @@ date_field=start_time
 #base_conditions=activation.type:=:sponsor
 base_conditions_operator=all
 node_fields=MAC Address
+order_fields=-ip4log_history.start_time
 
 [ip4log-archive]
 type=builtin
@@ -97,3 +101,38 @@ date_field=start_time
 base_conditions_operator=all
 node_fields=MAC Address
 
+[open-security-events]
+type=builtin
+description=Open Security Events
+long_description=<<EOT
+List of open security events on the network
+EOT
+base_table=security_event
+columns=security_event.start_date "Event date", class.description "Security Event Name", node.status "Node status", node.mac "MAC Address", node.computername "Computer Name", node.pid "Owner", node.device_class "Device Class", node_category.name "Role"
+joins=<<EOT
+=>{class.security_event_id=security_event.security_event_id} class|class
+=>{security_event.mac=node.mac} node|node
+=>{node_category.category_id=node.category_id} node_category|node_category
+EOT
+node_fields=MAC Address
+person_fields=Owner
+date_field=start_date
+base_conditions=security_event.status:=:open
+
+[closed-security-events]
+type=builtin
+description=Closed Security Events
+long_description=<<EOT
+List of closed security events on the network
+EOT
+base_table=security_event
+columns=security_event.start_date "Event date", class.description "Security Event Name", node.status "Node status", node.mac "MAC Address", node.computername "Computer Name", node.pid "Owner", node.device_class "Device Class", node_category.name "Role"
+joins=<<EOT
+=>{class.security_event_id=security_event.security_event_id} class|class
+=>{security_event.mac=node.mac} node|node
+=>{node_category.category_id=node.category_id} node_category|node_category
+EOT
+node_fields=MAC Address
+person_fields=Owner
+date_field=start_date
+base_conditions=security_event.status:=:closed

@@ -1,0 +1,9 @@
+user_id:
+  name: user_id
+  in: path
+  required: true
+  description: The user ID
+  schema:
+    type: string
+
+

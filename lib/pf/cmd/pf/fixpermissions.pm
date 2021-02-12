@@ -34,11 +34,14 @@ use pf::file_paths qw(
     $pfconfig_cache_dir
     $log_dir
     $conf_dir
+    $html_dir
     $lib_dir
     $config_version_file
+    $iptable_config_file
 );
 use pf::log;
 use pf::constants::exit_code qw($EXIT_SUCCESS $EXIT_FAILURE);
+use pf::constants qw($DIR_MODE $PFCMD_MODE);
 use pf::util;
 use File::Find;
 
@@ -57,11 +60,12 @@ Fix the permissions on pf and fingerbank files
 sub action_all {
     my $pfcmd = "${bin_dir}/pfcmd";
     my @extra_var_dirs = map { catfile($var_dir,$_) } qw(run cache conf sessions redis_cache redis_queue);
-    _changeFilesToOwner('pf',@log_files, @stored_config_files, $install_dir, $bin_dir, $conf_dir, $var_dir, $lib_dir, $log_dir, $generated_conf_dir, $tt_compile_cache_dir, $pfconfig_cache_dir, @extra_var_dirs, $config_version_file);
+    _changeFilesToOwner('pf',@log_files, @stored_config_files, $install_dir, $bin_dir, $conf_dir, $var_dir, $lib_dir, $log_dir, $generated_conf_dir, $tt_compile_cache_dir, $pfconfig_cache_dir, @extra_var_dirs, $config_version_file, $iptable_config_file);
+    _changePathToOwnerRecursive('pf', $html_dir);
     _changeFilesToOwner('root',$pfcmd);
-    chmod(06755,$pfcmd);
-    chmod(0664, @stored_config_files);
-    chmod(02775, $conf_dir, $var_dir, $log_dir, "$var_dir/redis_cache", "$var_dir/redis_queue");
+    chmod($PFCMD_MODE, $pfcmd);
+    chmod(0664, @stored_config_files, $iptable_config_file);
+    chmod($DIR_MODE, $conf_dir, $var_dir, $log_dir, "$var_dir/redis_cache", "$var_dir/redis_queue");
     _fingerbank();
     find({ wanted => \&wanted,untaint => 1}, $log_dir);
     print "Fixed permissions.\n";
@@ -115,7 +119,7 @@ sub action_file {
             return $EXIT_FAILURE;
         }
         _changeFilesToOwner($user,$file);
-        chmod 0660, $file;
+        chmod 0664, $file;
         print "Fixed permissions on file $file \n";
     }
 
@@ -136,12 +140,33 @@ sub _changeFilesToOwner {
     }
 }
 
+sub _changePathToOwnerRecursive {
+    my ($user,@paths) = @_;
+    my ($login,$pass,$uid,$gid) = getpwnam($user);
+    if(defined $uid && defined $gid) {
+        my ($group, undef, undef, undef)= getgrgid($gid);
+        finddepth ({no_chdir=>1, untaint=>1, wanted=>sub {
+            if( ! -l $File::Find::name) {
+              chown ($uid, $gid, untaint_chain($File::Find::name))
+                  or warn qq(Couldn't change ownership of "$File::Find::name\n");
+            }
+        }}, @paths);
+    }
+    else {
+        my $msg = "Problem getting group and user id for $user\n";
+        print STDERR $msg;
+        get_logger->error($msg);
+    }
+}
+
+
 sub _fingerbank {
     fingerbank::Util::fix_permissions();
 }
 
 sub wanted {
-    my $perm = -d $File::Find::name ? 0555 : 0664;
+    return if $File::Find::name eq $log_dir;
+    my $perm = -d $File::Find::name ? 02775 : 0664;
     chmod $perm, untaint_chain($File::Find::name);
 }
 
@@ -153,7 +178,7 @@ Minor parts of this file may have been contributed. See CREDITS.
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2018 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 

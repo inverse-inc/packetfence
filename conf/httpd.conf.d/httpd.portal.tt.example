@@ -132,7 +132,6 @@ PerlSwitches -I[% install_dir %]/lib
 # portal if the URL is not otherwised allowed by passthrough or part of the
 # portal itself.
 PerlPostConfigRequire [% install_dir %]/lib/pf/web/captiveportal_modperl_require.pl
-PerlModule Apache::SSLLookup
 PerlLoadModule captiveportal
 [% IF apache_version == "2.4" %]
 PerlLoadModule pf::web::apache2_version
@@ -140,6 +139,7 @@ PerlLoadModule pf::web::apache2_version
 PerlLoadModule pf::web::dispatcher
 PerlLoadModule pf::WebAPI::InitHandler
 PerlLoadModule pf::web::billinghook
+PerlLoadModule pf::web::openvashook
 PerlPostConfigHandler pf::WebAPI::InitHandler->post_config
 
 # The TransHandler handles the 'captive-portal' core piece redirecting to the
@@ -257,6 +257,10 @@ NameVirtualHost [% vhost %]:80
         Allow from all
         [% END %]
         SetHandler default-handler
+     </Location>
+     <Location /hook/openvas >
+        SetHandler modperl
+        PerlResponseHandler pf::web::openvashook
      </Location>
      <Location /hook/billing >
         SetHandler modperl

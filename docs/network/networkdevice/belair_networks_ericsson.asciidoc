@@ -1,0 +1,61 @@
+// to display images directly on GitHub
+ifdef::env-github[]
+:encoding: UTF-8
+:lang: en
+:doctype: book
+:toc: left
+:imagesdir: ../../images
+endif::[]
+
+////
+
+    This file is part of the PacketFence project.
+
+    See PacketFence_Network_Devices_Configuration_Guide-docinfo.xml for 
+    authors, copyright and license information.
+
+////
+
+
+//=== Belair Networks (now Ericsson)
+
+==== BE20
+
+The Belair Networks BE20s are fairly easy to configure.
+
+===== Add VLANs
+
+On the BE20 Web Interface, click on *Eth-1-1*.  By default, there will be nothing in there.  You need to first create an untagged VLAN (VLAN 0). In order to do that, you need to set
+the PVID, Reverse PVID, and the VLAN field to 0.  Then click add.
+
+Repeat that step for each of your VLANs by entering the proper VLAN ID in the VLAN field.
+   
+===== AAA Servers
+
+Once you have the VLANs setup, you need to add PacketFence into the AAA Server list.  Go to _System -> Radius Servers_.  Click on *Add server*, and fill out the proper information.
+
+* Ensure the Enabled checkbox is selected
+* IP Address: Insert the IP Address of the PacketFence Management Interface
+* Shared Secret: Insert the shared secret for RADIUS communication
+
+When done, click on the *Apply* button.
+
+===== Secure SSID
+
+Since the BE20 doesn't support Open SSID with MAC Authentication, we will only describe how to configure a WPA2-Enterprise SSID.  First, we will configure the 5GHz antenna.
+
+Click on _Wifi-1-1 -> Access SSID Config_.  From the *Configuration for SSID* dropdown, select the 1 entry.  Modify the fields like the following:
+
+* SSID: Put your SSID Name you would like
+* Type: Broadcast
+* Use Privacy Mode: WPA2(AES) with EAP/DOT1x
+* RADIUS NAS Identifier: You can put a string to identify your AP
+* Radius Accounting Enabled: Checkbox Selected
+* Radius Station ID Delimiter: dash
+* Radius StationId Append Ssid: Checkbox Selected
+* RADIUS Server 1: Select the AAA Server you created earlier
+
+When done click *Apply*.  Repeat the same configuration for the 2.4GHz Antenna (Wifi-1-2).
+
+That should conclude the configuration.  You can now save the configs to the flash by hitting the *Config Save* button on top of the Interface.
+

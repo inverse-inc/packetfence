@@ -2,13 +2,15 @@
 package chaos
 
 import (
+	"context"
+	"math/rand"
 	"os"
+	"time"
 
 	"github.com/inverse-inc/packetfence/go/coredns/plugin"
 	"github.com/inverse-inc/packetfence/go/coredns/request"
 
 	"github.com/miekg/dns"
-	"golang.org/x/net/context"
 )
 
 // Chaos allows CoreDNS to reply to CH TXT queries and return author or
@@ -16,7 +18,7 @@ import (
 type Chaos struct {
 	Next    plugin.Handler
 	Version string
-	Authors map[string]bool
+	Authors []string
 }
 
 // ServeDNS implements the plugin.Handler interface.
@@ -32,13 +34,15 @@ func (c Chaos) ServeDNS(ctx context.Context, w dns.ResponseWriter, r *dns.Msg) (
 	hdr := dns.RR_Header{Name: state.QName(), Rrtype: dns.TypeTXT, Class: dns.ClassCHAOS, Ttl: 0}
 	switch state.Name() {
 	default:
-		return c.Next.ServeDNS(ctx, w, r)
+		return plugin.NextOrFailure(c.Name(), c.Next, ctx, w, r)
 	case "authors.bind.":
-		for a := range c.Authors {
-			m.Answer = append(m.Answer, &dns.TXT{Hdr: hdr, Txt: []string{trim(a)}})
+		rnd := rand.New(rand.NewSource(time.Now().Unix()))
+
+		for _, i := range rnd.Perm(len(c.Authors)) {
+			m.Answer = append(m.Answer, &dns.TXT{Hdr: hdr, Txt: []string{c.Authors[i]}})
 		}
 	case "version.bind.", "version.server.":
-		m.Answer = []dns.RR{&dns.TXT{Hdr: hdr, Txt: []string{trim(c.Version)}}}
+		m.Answer = []dns.RR{&dns.TXT{Hdr: hdr, Txt: []string{c.Version}}}
 	case "hostname.bind.", "id.server.":
 		hostname, err := os.Hostname()
 		if err != nil {
@@ -46,17 +50,9 @@ func (c Chaos) ServeDNS(ctx context.Context, w dns.ResponseWriter, r *dns.Msg) (
 		}
 		m.Answer = []dns.RR{&dns.TXT{Hdr: hdr, Txt: []string{trim(hostname)}}}
 	}
-	state.SizeAndDo(m)
 	w.WriteMsg(m)
 	return 0, nil
 }
 
 // Name implements the Handler interface.
 func (c Chaos) Name() string { return "chaos" }
-
-func trim(s string) string {
-	if len(s) < 256 {
-		return s
-	}
-	return s[:255]
-}

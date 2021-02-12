@@ -1,0 +1,26 @@
+<!--Top navigation menu bar-->
+
+[%
+sections = [
+  # section,   name
+[ "ios",     "iOS" ],
+[ "android", "Android" ],
+[ "osx", "macOS" ],
+[ "windows", "Windows" ],
+[ "chrome", "Chrome OS" ],
+[ "firefox", "Firefox" ],
+[ "opera", "Opera" ],
+[ "other", i18n("Other") ]
+]
+%]
+
+<nav>
+  <ul class="o-list-inline o-layout--center caption">
+    [% FOREACH item IN sections %]
+    <li class="o-list-inline__item u-padding-horizontal-tiny">
+      [% IF section != item.0 %]<a href="/ssl_inspection/[% item.0 %]">[% item.1 %]</a>[% ELSE %][% item.1 %][% END %]
+    </li>
+    [% END %]
+  </ul>
+</nav>
+

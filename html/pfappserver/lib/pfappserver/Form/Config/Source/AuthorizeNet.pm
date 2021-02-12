@@ -20,23 +20,23 @@ extends 'pfappserver::Form::Config::Source::Billing';
 with 'pfappserver::Base::Form::Role::Help';
 
 has_field api_login_id => (
+    label => "API login ID",
     type => 'Text',
     required => 1,
-    # Default value needed for creating dummy source
     default => '',
 );
 
 has_field transaction_key => (
+    label => "Transaction key",
     type => 'Text',
+    default => '',
     required => 1,
-    # Default value needed for creating dummy source
 );
 
-has_field md5_hash => (
-    label => 'MD5 hash',
+has_field public_client_key => (
+    label => 'Public Client Key',
     type => 'Text',
     required => 1,
-    # Default value needed for creating dummy source
     default => '',
 );
 
@@ -52,13 +52,18 @@ has_field 'domains' =>
              help => 'Comma separated list of domains that will be resolve with the correct IP addresses.' },
   );
 
+has_block definition => (
+    render_list => [qw(api_login_id transaction_key public_client_key domains currency test_mode send_email_confirmation)]
+);
+
+
 =head1 AUTHOR
 
 Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2018 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 

@@ -1,7 +1,24 @@
+// Copyright 2015 Light Code Labs, LLC
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+// Package staticfiles provides middleware for serving static files from disk.
+// Its handler is the default HTTP handler for the HTTP server.
+//
+// TODO: Should this package be rolled into the httpserver package?
 package staticfiles
 
 import (
-	"fmt"
 	"math/rand"
 	"net/http"
 	"os"
@@ -10,6 +27,8 @@ import (
 	"runtime"
 	"strconv"
 	"strings"
+
+	"github.com/inverse-inc/packetfence/go/caddy/caddy"
 )
 
 // FileServer implements a production-ready file server
@@ -24,50 +43,49 @@ import (
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 type FileServer struct {
-	// Jailed disk access
-	Root http.FileSystem
+	Root http.FileSystem // jailed access to the file system
+	Hide []string        // list of files for which to respond with "Not Found"
 
-	// List of files to treat as "Not Found"
-	Hide []string
+	// A list of pages that may be understood as the "index" files to directories.
+	// Injected from *SiteConfig.
+	IndexPages []string
 }
 
 // ServeHTTP serves static files for r according to fs's configuration.
 func (fs FileServer) ServeHTTP(w http.ResponseWriter, r *http.Request) (int, error) {
-	// r.URL.Path has already been cleaned by Caddy.
-	if r.URL.Path == "" {
-		r.URL.Path = "/"
+	if r.Method != "GET" && r.Method != "HEAD" {
+		return http.StatusMethodNotAllowed, nil
 	}
-	return fs.serveFile(w, r, r.URL.Path)
+	return fs.serveFile(w, r)
 }
 
 // serveFile writes the specified file to the HTTP response.
 // name is '/'-separated, not filepath.Separator.
-func (fs FileServer) serveFile(w http.ResponseWriter, r *http.Request, name string) (int, error) {
-
-	location := name
+func (fs FileServer) serveFile(w http.ResponseWriter, r *http.Request) (int, error) {
+	reqPath := r.URL.Path
 
 	// Prevent absolute path access on Windows.
 	// TODO remove when stdlib http.Dir fixes this.
-	if runtime.GOOS == "windows" {
-		if filepath.IsAbs(name[1:]) {
-			return http.StatusNotFound, nil
-		}
+	if runtime.GOOS == "windows" && len(reqPath) > 0 && filepath.IsAbs(reqPath[1:]) {
+		return http.StatusNotFound, nil
 	}
 
-	f, err := fs.Root.Open(name)
+	// open the requested file
+	f, err := fs.Root.Open(reqPath)
 	if err != nil {
 		if os.IsNotExist(err) {
 			return http.StatusNotFound, nil
 		} else if os.IsPermission(err) {
 			return http.StatusForbidden, err
 		}
-		// Likely the server is under load and ran out of file descriptors
+		// otherwise, maybe the server is under load and ran out of file descriptors?
 		backoff := int(3 + rand.Int31()%3) // 3–5 seconds to prevent a stampede
 		w.Header().Set("Retry-After", strconv.Itoa(backoff))
 		return http.StatusServiceUnavailable, err
 	}
 	defer f.Close()
 
+	// get information about the file
 	d, err := f.Stat()
 	if err != nil {
 		if os.IsNotExist(err) {
@@ -75,73 +93,117 @@ func (fs FileServer) serveFile(w http.ResponseWriter, r *http.Request, name stri
 		} else if os.IsPermission(err) {
 			return http.StatusForbidden, err
 		}
-		// Return a different status code than above so as to distinguish these cases
+		// return a different status code than above to distinguish these cases
 		return http.StatusInternalServerError, err
 	}
 
-	// redirect to canonical path
-	url := r.URL.Path
+	// redirect to canonical path (being careful to preserve other parts of URL and
+	// considering cases where a site is defined with a path prefix that gets stripped)
+	urlCopy := *r.URL
+	pathPrefix, _ := r.Context().Value(caddy.CtxKey("path_prefix")).(string)
+	if pathPrefix != "/" {
+		urlCopy.Path = pathPrefix + urlCopy.Path
+	}
+	if urlCopy.Path == "" {
+		urlCopy.Path = "/"
+	}
 	if d.IsDir() {
-		// Ensure / at end of directory url
-		if !strings.HasSuffix(url, "/") {
-			Redirect(w, r, path.Base(url)+"/", http.StatusMovedPermanently)
-			return http.StatusMovedPermanently, nil
+		// ensure there is a trailing slash
+		if urlCopy.Path[len(urlCopy.Path)-1] != '/' {
+			for strings.HasPrefix(urlCopy.Path, "//") {
+				// prevent path-based open redirects
+				urlCopy.Path = strings.TrimPrefix(urlCopy.Path, "/")
+			}
+			urlCopy.Path += "/"
+			http.Redirect(w, r, urlCopy.String(), http.StatusMovedPermanently)
+			return 0, nil
 		}
 	} else {
-		// Ensure no / at end of file url
-		if strings.HasSuffix(url, "/") {
-			Redirect(w, r, "../"+path.Base(url), http.StatusMovedPermanently)
-			return http.StatusMovedPermanently, nil
+		// ensure no trailing slash
+		redir := false
+		if urlCopy.Path[len(urlCopy.Path)-1] == '/' {
+			urlCopy.Path = urlCopy.Path[:len(urlCopy.Path)-1]
+			redir = true
+		}
+
+		// if an index file was explicitly requested, strip file name from the request
+		// ("/foo/index.html" -> "/foo/")
+		var requestPage = path.Base(urlCopy.Path)
+		for _, indexPage := range fs.IndexPages {
+			if requestPage == indexPage {
+				urlCopy.Path = urlCopy.Path[:len(urlCopy.Path)-len(indexPage)]
+				redir = true
+				break
+			}
+		}
+
+		if redir {
+			for strings.HasPrefix(urlCopy.Path, "//") {
+				// prevent path-based open redirects
+				urlCopy.Path = strings.TrimPrefix(urlCopy.Path, "/")
+			}
+			http.Redirect(w, r, urlCopy.String(), http.StatusMovedPermanently)
+			return 0, nil
 		}
 	}
 
-	// use contents of an index file, if present, for directory
+	// use contents of an index file, if present, for directory requests
 	if d.IsDir() {
-		for _, indexPage := range IndexPages {
-			index := strings.TrimSuffix(name, "/") + "/" + indexPage
-			ff, err := fs.Root.Open(index)
+		for _, indexPage := range fs.IndexPages {
+			indexPath := path.Join(reqPath, indexPage)
+			indexFile, err := fs.Root.Open(indexPath)
 			if err != nil {
 				continue
 			}
 
-			// this defer does not leak fds because previous iterations
-			// of the loop must have had an err, so nothing to close
-			defer ff.Close()
-
-			dd, err := ff.Stat()
+			indexInfo, err := indexFile.Stat()
 			if err != nil {
-				ff.Close()
+				indexFile.Close()
 				continue
 			}
 
-			// Close previous file - release fd immediately
+			// this defer does not leak fds even though we are in a loop,
+			// because previous iterations of the loop must have had an
+			// err, so there's nothing to close from earlier iterations.
+			defer indexFile.Close()
+
+			// close previously-opened file immediately to release fd
 			f.Close()
 
-			d = dd
-			f = ff
-			location = index
+			// switch to using the index file, and we're done here
+			d = indexInfo
+			f = indexFile
+			reqPath = indexPath
 			break
 		}
 	}
 
-	// Still a directory? (we didn't find an index file)
-	// Return 404 to hide the fact that the folder exists
-	if d.IsDir() {
+	// return Not Found if we either did not find an index file (and thus are
+	// still a directory) or if this file is supposed to be hidden
+	if d.IsDir() || fs.IsHidden(d) {
 		return http.StatusNotFound, nil
 	}
 
-	if fs.IsHidden(d) {
-		return http.StatusNotFound, nil
-	}
-
-	filename := d.Name()
-
+	etagInfo := d
+	// look for compressed versions of the file on disk, if the client supports that encoding
 	for _, encoding := range staticEncodingPriority {
-		if !strings.Contains(r.Header.Get("Accept-Encoding"), encoding) {
+		// see if the client accepts a compressed encoding we offer
+		acceptEncoding := strings.Split(r.Header.Get("Accept-Encoding"), ",")
+		accepted := false
+		for _, acc := range acceptEncoding {
+			if strings.TrimSpace(acc) == encoding.name {
+				accepted = true
+				break
+			}
+		}
+
+		// if client doesn't support this encoding, don't even bother; try next one
+		if !accepted {
 			continue
 		}
 
-		encodedFile, err := fs.Root.Open(location + staticEncoding[encoding])
+		// see if the compressed version of this file exists
+		encodedFile, err := fs.Root.Open(reqPath + encoding.ext)
 		if err != nil {
 			continue
 		}
@@ -152,39 +214,39 @@ func (fs FileServer) serveFile(w http.ResponseWriter, r *http.Request, name stri
 			continue
 		}
 
-		// Close previous file - release fd
+		// close the encoded file when we're done, and close the
+		// previously-opened file immediately to release the fd
+		defer encodedFile.Close()
 		f.Close()
 
-		// Stat is needed for generating valid ETag
-		d = encodedFileInfo
-
-		// Encoded file will be served
+		// the encoded file is now what we're serving
 		f = encodedFile
-
+		etagInfo = encodedFileInfo
 		w.Header().Add("Vary", "Accept-Encoding")
-		w.Header().Set("Content-Encoding", encoding)
-
-		defer f.Close()
+		w.Header().Set("Content-Encoding", encoding.name)
+		w.Header().Set("Content-Length", strconv.FormatInt(encodedFileInfo.Size(), 10))
 		break
-
 	}
 
-	// Experimental ETag header
-	e := fmt.Sprintf(`W/"%x-%x"`, d.ModTime().Unix(), d.Size())
-	w.Header().Set("ETag", e)
+	etag := calculateEtag(etagInfo)
+
+	// Set the ETag returned to the user-agent. Note that a conditional If-None-Match
+	// request is handled in http.ServeContent below, which checks against this ETag value.
+	w.Header().Set("ETag", etag)
 
 	// Note: Errors generated by ServeContent are written immediately
 	// to the response. This usually only happens if seeking fails (rare).
-	http.ServeContent(w, r, filename, d.ModTime(), f)
+	// Its signature does not bubble the error up to us, so we cannot
+	// return it for any logging middleware to record. Oh well.
+	http.ServeContent(w, r, d.Name(), d.ModTime(), f)
 
 	return http.StatusOK, nil
 }
 
 // IsHidden checks if file with FileInfo d is on hide list.
 func (fs FileServer) IsHidden(d os.FileInfo) bool {
-	// If the file is supposed to be hidden, return a 404
 	for _, hiddenPath := range fs.Hide {
-		// Check if the served file is exactly the hidden file.
+		// TODO: Could these FileInfos be stored instead of their paths, to avoid opening them all the time?
 		if hFile, err := fs.Root.Open(hiddenPath); err == nil {
 			fs, _ := hFile.Stat()
 			hFile.Close()
@@ -196,19 +258,20 @@ func (fs FileServer) IsHidden(d os.FileInfo) bool {
 	return false
 }
 
-// Redirect sends an HTTP redirect to the client but will preserve
-// the query string for the new path. Based on http.localRedirect
-// from the Go standard library.
-func Redirect(w http.ResponseWriter, r *http.Request, newPath string, statusCode int) {
-	if q := r.URL.RawQuery; q != "" {
-		newPath += "?" + q
-	}
-	http.Redirect(w, r, newPath, statusCode)
+// calculateEtag produces a strong etag by default, although, for
+// efficiency reasons, it does not actually consume the contents
+// of the file to make a hash of all the bytes. ¯\_(ツ)_/¯
+// Prefix the etag with "W/" to convert it into a weak etag.
+// See: https://tools.ietf.org/html/rfc7232#section-2.3
+func calculateEtag(d os.FileInfo) string {
+	t := strconv.FormatInt(d.ModTime().Unix(), 36)
+	s := strconv.FormatInt(d.Size(), 36)
+	return `"` + t + s + `"`
 }
 
-// IndexPages is a list of pages that may be understood as
+// DefaultIndexPages is a list of pages that may be understood as
 // the "index" files to directories.
-var IndexPages = []string{
+var DefaultIndexPages = []string{
 	"index.html",
 	"index.htm",
 	"index.txt",
@@ -217,16 +280,9 @@ var IndexPages = []string{
 	"default.txt",
 }
 
-// staticEncoding is a map of content-encoding to a file extension.
-// If client accepts given encoding (via Accept-Encoding header) and compressed file with given extensions exists
-// it will be served to the client instead of original one.
-var staticEncoding = map[string]string{
-	"gzip": ".gz",
-	"br":   ".br",
-}
-
 // staticEncodingPriority is a list of preferred static encodings (most efficient compression to least one).
-var staticEncodingPriority = []string{
-	"br",
-	"gzip",
+var staticEncodingPriority = []struct{ name, ext string }{
+	{"zstd", ".zst"},
+	{"br", ".br"},
+	{"gzip", ".gz"},
 }

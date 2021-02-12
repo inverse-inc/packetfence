@@ -12,7 +12,10 @@ Form definition to create or update a network switch.
 
 use HTML::FormHandler::Moose;
 extends 'pfappserver::Base::Form';
-with 'pfappserver::Base::Form::Role::Help';
+with qw(
+    pfappserver::Base::Form::Role::Help
+    pfappserver::Role::Form::RolesAttribute
+);
 
 use File::Find qw(find);
 use File::Spec::Functions;
@@ -27,10 +30,10 @@ use pf::Switch::constants;
 use pf::constants::role qw(@ROLES);
 use pf::SwitchFactory;
 use pf::util;
-use List::MoreUtils qw(any);
+use List::MoreUtils qw(any uniq);
 use pf::ConfigStore::SwitchGroup;
-
-has 'roles' => ( is => 'rw' );
+use pf::ConfigStore::Switch;
+use pf::dal::tenant;
 
 ## Definition
 has_field 'id' =>
@@ -46,6 +49,15 @@ has_field 'description' =>
    type => 'Text',
    required_when => { 'id' => sub { $_[0] ne 'default' } },
   );
+
+has_field 'TenantId' =>
+  (
+   type => 'Select',
+   label => 'Tenant ID',
+   options_method => \&options_tenant,
+   element_class => ['chzn-deselect'],
+  );
+
 has_field 'type' =>
   (
    type => 'Select',
@@ -82,7 +94,7 @@ has_field 'useCoA' =>
   (
    type => 'Toggle',
    label => 'Use CoA',
-   default => 'enabled',
+   default => 'Y',
    tags => { after_element => \&help,
              help => 'Use CoA when available to deauthenticate the user. When disabled, RADIUS Disconnect will be used instead if it is available.' },
   );
@@ -565,6 +577,11 @@ sub _add_role_mappings {
         wrap_label_method => \&role_label_wrap,
     };
     push(@$list, $role . 'AccessList' => $text_area_field);
+    
+    my $toggle_field = {
+        type    => 'Toggle',
+    };
+    push(@$list, $role . 'DynamicAccessListFingerbank' => $toggle_field);
 }
 
 sub role_label_wrap {
@@ -585,22 +602,24 @@ sub update_fields {
     $init_object ||= $self->init_object;
     my $id = $init_object->{id} if $init_object;
     my $inherit_from = $init_object->{group} || "default";
-    my $cs = pf::ConfigStore::SwitchGroup->new;
-    my $placeholders = $cs->fullConfig($inherit_from);
+    my $cs = pf::ConfigStore::Switch->new;
+    my $placeholders = $id ? $cs->readInherited($id) : $cs->read($inherit_from);
 
     if (defined $id && $id eq 'default') {
         foreach my $role (@ROLES) {
             $self->field($role.'Vlan')->required(1);
         }
-    } elsif ($placeholders) {
+    }
+
+    if ($placeholders) {
         foreach my $field ($self->fields) {
-            my $placeholder = $placeholders->{$field->name};
+            my $name = $field->name;
+            my $placeholder = $placeholders->{$name};
             if (defined $placeholder && length $placeholder) {
                 if ($field->type eq 'Select') {
                     my $val = sprintf "%s (%s)", $self->_localize('Default'), $placeholder;
                     $field->element_attr({ 'data-placeholder' => $val });
-                }
-                elsif (
+                } elsif (
                     # if there is no value defined in the switch and the place holder is defined
                     # We check that it is not disabled because of special cases like uplink_dynamic
                     ( ( !defined($init_object->{$field->name}) && !pf::util::isdisabled($placeholder) )
@@ -609,8 +628,7 @@ sub update_fields {
                     # we only apply this to Checkbox and Toggle
                     && ($field->type eq "Checkbox" || $field->type eq "Toggle") ) {
                     $field->element_attr({ checked => "checked" });
-                }
-                elsif ($field->name ne 'id') {
+                } elsif ($name ne 'id') {
                     $field->element_attr({ placeholder => $placeholder });
                 }
             }
@@ -660,17 +678,7 @@ Extract the descriptions from the various Switch modules.
 =cut
 
 sub options_type {
-    my $self = shift;
-
-    # Sort vendors and switches for display
-    my @modules;
-    foreach my $vendor (sort keys %pf::SwitchFactory::VENDORS) {
-        my @switches = map {{ value => $_, label => $pf::SwitchFactory::VENDORS{$vendor}->{$_} }} sort keys %{$pf::SwitchFactory::VENDORS{$vendor}};
-        push @modules, { group => $vendor,
-                         options => \@switches };
-    }
-
-    return ({group => '', options => [{value => '', label => ''}]}, @modules);
+    return pf::SwitchFactory::form_options();
 }
 
 =head2 options_groups
@@ -745,9 +753,17 @@ sub options_cliTransport {
 sub options_wsTransport {
     my $self = shift;
 
-    my @transports = map { $_ => $_ } qw/HTTP HTTPS/;
+    my @transports = map { {label => uc($_), value =>  $_ } } qw/http https/;
 
-    return ('' => '', @transports);
+    return ({label => '' ,value => '' }, @transports);
+}
+
+sub options_tenant {
+    my $self = shift;
+
+    my @tenants = map { $_->{id} != 0 ? ($_->{id} => $_->{name}) : () } @{pf::dal::tenant->search->all};
+
+    return @tenants;
 }
 
 =head2 validate
@@ -766,13 +782,14 @@ sub validate {
     my $self = shift;
     my $config = pf::ConfigStore::Switch->new;
     my $groupConfig = pf::ConfigStore::SwitchGroup->new;
+    tie my %TemplateSwitches, 'pfconfig::cached_hash', 'config::TemplateSwitches';
 
     my @triggers;
     my $always = any { $_->{type} eq $ALWAYS } @{$self->value->{inlineTrigger}};
 
     if ($self->value->{type}) {
         my $type = 'pf::Switch::'. $self->value->{type};
-        if ($type->require()) {
+        if ($type->require() || $TemplateSwitches{$self->value->{type}}) {
             @triggers = map { $_->{type} } @{$self->value->{inlineTrigger}};
             if ( @triggers && !$always) {
                 # Make sure the selected switch type supports the selected inline triggers.
@@ -789,7 +806,7 @@ sub validate {
                 }
             }
         } else {
-            $self->field('type')->add_error("The chosen type is not supported.");
+            $self->field('type')->add_error("The chosen type (" . $self->value->{type} . ") is not supported.");
         }
     } else {
         my $group_name = $self->value->{group} || '';
@@ -811,16 +828,18 @@ sub validate {
         }
     }
 
-    if ($self->value->{uplink_dynamic} ne 'dynamic') {
-        unless ($self->value->{uplink} && $self->value->{uplink} =~ m/^(\d(,\s*)?)*$/) {
-            $self->field('uplink')->add_error("The uplinks must be a list of ports numbers.");
-        }
-    }
+    # Temporarily disabled as new admin sends uplink_dynamic as undef which has this evaluated everytime although the inherited value might be 'dynamic'
+    # The frontend does a validation of this requirement
+    #if ($self->value->{uplink_dynamic} ne 'dynamic') {
+    #    unless ($self->value->{uplink} && $self->value->{uplink} =~ m/^(\d(,\s*)?)*$/) {
+    #        $self->field('uplink')->add_error("The uplinks must be a list of ports numbers.");
+    #    }
+    #}
 }
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2018 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 

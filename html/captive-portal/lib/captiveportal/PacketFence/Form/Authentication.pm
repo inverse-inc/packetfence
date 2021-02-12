@@ -46,7 +46,13 @@ has_field 'fields[password]' => (type => 'Password', label => 'Password');
 
 has_field 'fields[email]' => (type => "Email", label => "Email");
 
-has_field 'fields[telephone]' => (type => "Text", label => "Telephone", html5_type_attr => "tel", validate_method => \&check_telephone);
+has_field 'fields[telephone]' => (
+    type => "Text", 
+    label => "Telephone", 
+    html5_type_attr => "tel", 
+    validate_method => \&check_telephone, 
+    apply => [{transform => sub{ $_[0] =~ s/(-|\s|\(|\))//g; return $_[0] }}],
+);
 
 has_field 'fields[sponsor]' => (type => "Email", label => "Sponsor Email");
 
@@ -54,7 +60,7 @@ has_field 'fields[mobileprovider]' => (type => "Select", label => "Mobile provid
 
 has_field 'fields[aup]' => (type => 'AUP', id => 'aup', validate_method => \&check_aup);
 
-has_field 'fields[email_instructions]' => (type => 'Display', set_html => 'render_email_instructions');
+has_field 'fields[email_instructions]' => (type => 'Display', set_html => 'render_email_instructions', default => 1);
 
 has_field 'fields[birthday]' => (type => 'Date', label => 'Date Of Birth');
 
@@ -119,7 +125,7 @@ Check telephone form
 sub check_telephone_form {
     my ($self, $field) = @_;
     if($self->app->request->method eq "POST"){
-        if (pf::web::util::validate_phone_number($field->value)) {
+        if (!pf::web::util::validate_phone_number($field->value)) {
             $field->add_error($self->app->i18n("Enter a valid telephone number"));
             $self->app->flash->{error} = $self->app->i18n("Telephone number is not valid");
         }
@@ -179,7 +185,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2017 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 

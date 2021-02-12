@@ -31,8 +31,8 @@ In order to access the configuration namespaces :
 use strict;
 use warnings;
 
-use JSON::MaybeXS;
 use Config::IniFiles;
+use JSON::MaybeXS;
 use List::MoreUtils qw(any firstval uniq);
 use Scalar::Util qw(refaddr reftype tainted blessed);
 use UNIVERSAL::require;
@@ -41,13 +41,14 @@ use pf::util;
 use Fcntl;
 use Time::HiRes qw(stat time);
 use File::Find;
-use pfconfig::util;
+use pfconfig::util qw(normalize_namespace_query);
 use POSIX;
 use POSIX::2008;
 use List::MoreUtils qw(first_index);
 use Tie::IxHash;
 use pfconfig::config;
 use pf::constants::user;
+use pf::config::tenant;
 
 =head2 config_builder
 
@@ -59,10 +60,9 @@ See it as a mini-factory
 sub config_builder {
     my ( $self, $namespace ) = @_;
     my $logger = get_logger;
-
     my $elem = $self->get_namespace($namespace);
     my $tmp  = $elem->build();
-
+    $self->{scoped_by_tenant_id}{$namespace} = $elem->{_scoped_by_tenant_id};
     return $tmp;
 }
 
@@ -122,6 +122,11 @@ Returns the overlayed namespaces for a static namespace
 sub overlayed_namespaces {
     my ($self, $base_namespace) = @_;
 
+    # Namespace is an empty overlay
+    if($base_namespace =~ /(.+)\(\)$/) {
+        $base_namespace = $1;
+    }
+
     # An overlayed namespace can't have overlayed namespaces
     return () if $self->is_overlayed_namespace($base_namespace);
 
@@ -130,7 +135,7 @@ sub overlayed_namespaces {
     $base_namespace = quotemeta($base_namespace);
     foreach my $namespace (@namespaces){
         if($namespace =~ /^$base_namespace/){
-            push @overlayed_namespaces, $namespace;
+            push @overlayed_namespaces, $namespace if $self->is_overlayed_namespace($namespace);
         }
     }
     return @overlayed_namespaces;
@@ -144,7 +149,7 @@ Returns an Array ref of all the overlayed namespaces persisted in the backend
 
 sub all_overlayed_namespaces {
     my ($self) = @_;
-    return [ uniq($self->{cache}->list_matching('\(.*\)$'), $self->list_control_overlayed_namespaces()) ];
+    return [ uniq($self->{cache}->list_matching('\(.+\)$'), $self->list_control_overlayed_namespaces()) ];
 }
 
 =head2 list_control_overlayed_namespaces
@@ -217,6 +222,7 @@ That sends the signal that the raw memory is expired
 sub touch_cache {
     my ( $self, $what ) = @_;
     $what =~ s/\//;/g;
+    $what = normalize_namespace_query($what);
     my $filename = pfconfig::util::control_file_path($what);
     $filename = untaint_chain($filename);
     touch_file($filename);
@@ -232,32 +238,42 @@ It should not have to build the L3 since that's the slowest. The L3 should be bu
 
 sub get_cache {
     my ( $self, $what ) = @_;
+
+    $what = normalize_namespace_query($what);
+
     my $logger = get_logger;
-
     # we look in raw memory and make sure that it's not expired
-    my $memory = $self->{memory}->{$what};
-    if ( defined($memory) && $self->is_valid($what) ) {
-        $logger->debug("Getting $what from memory");
-        return $memory;
-    }
-    else {
+    my $memory = $self->{memory}{$what};
+    unless (defined($memory) && $self->is_valid($what)) {
         my $cached = $self->{cache}->get($what);
-
         # raw memory is expired but cache is not
         if ($cached) {
             $logger->debug("Getting $what from cache backend");
-            $self->{memory}->{$what}       = $cached;
-            $self->{memorized_at}->{$what} = time;
-            return $cached;
-        }
-
-        # everything is expired. need to rebuild completely
-        else {
-            my $result = $self->cache_resource($what);
-            return $result;
+            $memory = $cached;
+            $self->{memory}{$what} = $cached;
+            $self->{memorized_at}{$what} = time;
+        } else {
+            # everything is expired. need to rebuild completely
+            $memory = $self->cache_resource($what);
         }
     }
 
+    if (defined $memory && $self->is_tenant_scoped($what)) {
+        $memory = $memory->{pf::config::tenant::get_tenant()};
+    }
+
+    return $memory;
+}
+
+=head2 is_tenant_scoped
+
+is_tenant_scoped
+
+=cut
+
+sub is_tenant_scoped {
+    my ($self, $key) = @_;
+    return $self->{scoped_by_tenant_id}{$key};
 }
 
 =head2 post_process_element
@@ -268,17 +284,40 @@ For now, it is used only to transform non-ordered hashes into ordered ones so fo
 =cut
 
 sub post_process_element {
-    my ($self, $element) = @_;
-    if(ref($element) eq 'HASH'){
-        tie my %copy, 'Tie::IxHash';
-        my @keys = keys(%$element);
-        @keys = sort(@keys);
-        foreach my $key (@keys){
-            $copy{$key} = $element->{$key};
+    my ($self, $what, $element) = @_;
+    if (!$self->is_tenant_scoped($what)) {
+        if (ref($element) eq 'HASH') {
+            return $self->tie_ixhash_copied($element);
         }
-        return \%copy;
+
+        return $element;
     }
-    return $element;
+
+    if (ref($element) ne 'HASH' ) {
+        return $element;
+    }
+
+    my %copy;
+    while (my ($k, $v) = each %$element) {
+        $copy{$k} = ref($v) eq 'HASH' ? $self->tie_ixhash_copied($v) : $v;
+    }
+
+    return \%copy;
+}
+
+=head2 tie_ixhash_copied
+
+tie_ixhash_copied
+
+=cut
+
+sub tie_ixhash_copied {
+    my ($self, $hash) = @_;
+    tie my %copy, 'Tie::IxHash';
+    my @keys = keys(%$hash);
+    @keys = sort(@keys);
+    @copy{@keys} = @{$hash}{@keys};
+    return \%copy;
 }
 
 =head2 cache_resource
@@ -294,7 +333,7 @@ sub cache_resource {
     $logger->debug("loading $what from outside");
     my $result = $self->config_builder($what);
     # inflates the element if necessary
-    $result = $self->post_process_element($result);
+    $result = $self->post_process_element($what, $result);
     my $cache_w = $self->{cache}->set( $what, $result, 864000 );
     $logger->trace("Cache write gave : $cache_w");
     unless ($cache_w) {
@@ -362,6 +401,8 @@ To fully expire a namespace with it's child resources and overlayed namespaces, 
 
 sub expire {
     my ( $self, $what, $light ) = @_;
+    $what = normalize_namespace_query($what);
+
     my $logger = get_logger;
     if(defined($light) && $light){
         $logger->info("Light expiring resource : $what");
@@ -375,6 +416,16 @@ sub expire {
 
     unless($self->is_overlayed_namespace($what)){
         my $namespace = $self->get_namespace($what);
+        # expire overlayed namespaces
+        my @overlayed_namespaces = $self->overlayed_namespaces($what);
+        foreach my $namespace (@overlayed_namespaces){
+            # prevent deep recursion on namespace itself
+            next if $namespace eq $what;
+
+            $logger->info("Expiring overlayed resource from base resource $what.");
+            $self->expire($namespace, $light);
+        }
+
         if ( $namespace->{child_resources} ) {
             foreach my $child_resource ( @{ $namespace->{child_resources} } ) {
                 $logger->info("Expiring child resource $child_resource. Master resource is $what");
@@ -382,12 +433,6 @@ sub expire {
             }
         }
 
-        # expire overlayed namespaces
-        my @overlayed_namespaces = $self->overlayed_namespaces($what);
-        foreach my $namespace (@overlayed_namespaces){
-            $logger->info("Expiring overlayed resource from base resource $what.");
-            $self->expire($namespace, $light);
-        }
     }
 }
 
@@ -463,8 +508,10 @@ sub preload_all {
     my @namespaces = $self->list_namespaces;
     print "\n------------------\n";
     foreach my $namespace (@namespaces) {
+        $namespace = normalize_namespace_query($namespace);
         print "Preloading $namespace\n";
         $self->get_cache($namespace);
+        $self->config_builder($namespace);
     }
     print "------------------\n";
 }
@@ -480,14 +527,7 @@ sub expire_all {
     my $logger = get_logger;
     my @namespaces = $self->list_top_namespaces;
     foreach my $namespace (@namespaces) {
-        if(defined($light) && $light){
-            $logger->info("Light expiring $namespace");
-            delete $self->{memorized_at}->{$namespace};
-        }
-        else{
-            $logger->info("Hard expiring $namespace");
-            $self->expire($namespace);
-        }
+        $self->expire($namespace, $light);
     }
 }
 
@@ -497,7 +537,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2018 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 

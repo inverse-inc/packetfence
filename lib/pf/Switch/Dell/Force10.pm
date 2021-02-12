@@ -25,12 +25,14 @@ sub description { 'Dell Force 10' }
 
 # CAPABILITIES
 # access technology supported
-sub supportsWiredMacAuth { return $TRUE; }
-sub supportsWiredDot1x { return $TRUE; }
 # VoIP technology supported
-sub supportsRadiusVoip { return $TRUE; }
 # override 2950's FALSE
-sub supportsRadiusDynamicVlanAssignment { return $TRUE; }
+use pf::SwitchSupports qw(
+    WiredMacAuth
+    WiredDot1x
+    RadiusVoip
+    RadiusDynamicVlanAssignment
+);
 
 sub getMinOSVersion {
     my ($self) = @_;
@@ -65,7 +67,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2018 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 

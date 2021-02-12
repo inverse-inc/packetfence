@@ -13,7 +13,9 @@ LinkedIn OAuth module
 use Moose;
 extends 'captiveportal::DynamicRouting::Module::Authentication::OAuth';
 
-has '+token_scheme' => (default => 'uri-query:oauth2_access_token');
+use JSON::MaybeXS;
+
+has '+token_scheme' => (default => 'auth-header:Bearer');
 
 has '+source' => (isa => 'pf::Authentication::Source::LinkedInSource');
 
@@ -25,9 +27,8 @@ The e-mail is returned as a quoted string
 
 sub _decode_response {
     my ($self, $response) = @_;
-    my $pid = $response->content();
-    $pid =~ s/"//g;
-    return {email => $pid};
+    my $data = decode_json($response->content());
+    return {email => $data->{elements}->[0]->{'handle~'}->{emailAddress}};
 }
 
 =head1 AUTHOR
@@ -36,7 +37,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2018 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 

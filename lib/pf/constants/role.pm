@@ -23,14 +23,16 @@ our @EXPORT_OK = qw(
     %STANDARD_ROLES
     $REGISTRATION_ROLE
     $ISOLATION_ROLE
-    $MAC_DETECTION_ROLE
     $INLINE_ROLE
     $VOICE_ROLE
     $DEFAULT_ROLE
     $GUEST_ROLE
     $GAMING_ROLE
     $REJECT_ROLE
-    $USERNAMEHASH
+    $POOL_PER_USER_VLAN
+    $POOL_USERNAMEHASH
+    $POOL_RANDOM
+    $POOL_ROUND_ROBBIN
 );
 
 our %EXPORT_TAGS = (
@@ -45,7 +47,6 @@ Required roles for every switch. Those are reserved words for any additional cus
 
 Readonly::Scalar our $REGISTRATION_ROLE  => 'registration';
 Readonly::Scalar our $ISOLATION_ROLE     => 'isolation';
-Readonly::Scalar our $MAC_DETECTION_ROLE => 'macDetection';
 Readonly::Scalar our $INLINE_ROLE        => 'inline';
 Readonly::Scalar our $VOICE_ROLE         => 'voice';
 Readonly::Scalar our $DEFAULT_ROLE       => 'default';
@@ -56,7 +57,6 @@ Readonly::Scalar our $REJECT_ROLE        => 'REJECT';
 Readonly::Array our @ROLES => (
     $REGISTRATION_ROLE,
     $ISOLATION_ROLE,
-    $MAC_DETECTION_ROLE,
     $INLINE_ROLE,
 );
 
@@ -74,7 +74,10 @@ Constant used in the pool code
 
 =cut
 
-Readonly::Scalar our $USERNAMEHASH  => 'username_hash';
+Readonly::Scalar our $POOL_USERNAMEHASH  => 'username_hash';
+Readonly::Scalar our $POOL_RANDOM  => 'random';
+Readonly::Scalar our $POOL_ROUND_ROBBIN => 'round_robbin';
+Readonly::Scalar our $POOL_PER_USER_VLAN => 'per_user_vlan';
 
 =head1 AUTHOR
 
@@ -82,7 +85,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2018 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 

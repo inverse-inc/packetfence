@@ -33,6 +33,9 @@ use pf::error qw(is_error is_success);
 use pf::log;
 use pf::node qw(node_add_simple node_exist);
 use pf::util;
+use pf::config::util;
+use pf::dhcp::api;
+use List::MoreUtils qw(any);
 
 use constant IP4LOG                         => 'ip4log';
 use constant IP4LOG_CACHE_EXPIRE            => 60;
@@ -61,17 +64,19 @@ sub ip2mac {
     my $mac;
 
     # TODO: Special case that need to be documented
-    if ($ip eq "127.0.0.1" || (ref($management_network) && $management_network->{'Tip'} eq $ip)) {
+    if ($ip eq "127.0.0.1" || (ref($management_network) && $management_network->{'Tip'} eq $ip) || any{ $_ eq $ip } portal_hosts) {
         return ( pf::util::clean_mac("00:11:22:33:44:55") );
     }
 
-    # TODO: replace by pfdhcp api call
-    # We first query OMAPI since it is the fastest way and more reliable source of info in most cases
-    #if ( isenabled($Config{omapi}{ip2mac_lookup}) ) {
-    #    $logger->debug("Trying to match MAC address to IP '$ip' using OMAPI");
-    #    $mac = _ip2mac_omapi($ip);
-    #    $logger->debug("Matched IP '$ip' to MAC address '$mac' using OMAPI") if $mac;
-    #}
+    # We first query the pfdhcp API since it is the fastest way and more reliable source of info in most cases
+    if ( isenabled($Config{pfdhcp}{ip2mac_lookup}) ) {
+        $logger->debug("Trying to match MAC address to IP '$ip' using the pfdhcp API");
+        my $res = _lookup_cached_pfdhcp_api("ip", $ip);
+        if(defined($res)) {
+            $mac = $res->{mac};
+            $logger->debug("Matched IP '$ip' to MAC address '$mac' using the pfdhcp API");
+        }
+    }
 
     # If we don't have a result from OMAPI, we use the SQL 'ip4log' table
     unless ($mac) {
@@ -121,13 +126,15 @@ sub mac2ip {
 
     my $ip;
 
-    # TODO: replace by pfdhcp api call
-    # We first query OMAPI since it is the fastest way and more reliable source of info in most cases
-    #if ( isenabled($Config{omapi}{mac2ip_lookup}) ) {
-    #    $logger->debug("Trying to match IP address to MAC '$mac' using OMAPI");
-    #    $ip = _mac2ip_omapi($mac);
-    #    $logger->debug("Matched MAC '$mac' to IP address '$ip' using OMAPI") if $ip;
-    #}
+    # We first query the pfdhcp API since it is the fastest way and more reliable source of info in most cases
+    if ( isenabled($Config{pfdhcp}{mac2ip_lookup}) ) {
+        $logger->debug("Trying to match IP address to MAC '$mac' using the pfdhcp API");
+        my $res = _lookup_cached_pfdhcp_api("mac", $mac);
+        if(defined($res)) {
+            $ip = $res->{ip};
+            $logger->debug("Matched MAC '$mac' to IP address '$ip' using the pfdhcp API");
+        }
+    }
 
     # If we don't have a result from OMAPI, we use the SQL 'ip4log' table
     unless ($ip) {
@@ -542,18 +549,20 @@ sub rotate {
     };
 
     my ( $subsql, @insert_bind ) = pf::dal::ip4log_history->select(
-        -columns => [qw(mac ip start_time end_time)],
+        -columns => [qw(tenant_id mac ip start_time end_time)],
         -where => $where,
         -limit => $batch,
         -from => pf::dal::ip4log_history->table,
+        -no_auto_tenant_id => 1,
     );
 
     my %rotate_search = (
         -where => $where,    
         -limit => $batch,
+        -no_auto_tenant_id => 1,
     );
 
-    my $insert_sql = "INSERT INTO ip4log_archive (`mac`, `ip`, `start_time`, `end_time`) $subsql;";
+    my $insert_sql = "INSERT INTO ip4log_archive (`tenant_id`, `mac`, `ip`, `start_time`, `end_time`) $subsql;";
 
     while (1) {
         my $query;
@@ -631,10 +640,71 @@ sub _cleanup {
                 },
             },
             -limit => $batch,
+            -no_auto_tenant_id => 1,
         },
         $time_limit
     );
     return ($rows);
+}
+
+sub pfdhcp_cache {
+    return pf::CHI->new(namespace => "pfdhcp_api");
+}
+
+=head2 _lookup_cached_pfdhcp_api
+
+Will retrieve the lease from the cache or from the DHCP server using the pfdhcp API
+
+=cut
+
+sub _lookup_cached_pfdhcp_api {
+    my ($type, $id) = @_;
+    my $cache = pfdhcp_cache();
+    return $cache->compute_with_undef(
+        "$type:$id",
+        sub {
+            get_logger->debug("Getting lease from the pfdhcp API");
+            my $data = _get_lease_from_pfdhcp_api($type, $id);
+            return unless $data;
+            #Do not return if the lease is expired
+            return if $data->{ends_at} < time;
+            return $data;
+        },
+        {expire_if => \&_expire_lease, expires_in => IP4LOG_CACHE_EXPIRE},
+    );
+}
+
+=head2 _get_lease_from_omapi
+
+Get the lease information using the pfdhcp API
+
+=cut
+
+sub _get_lease_from_pfdhcp_api {
+    my ($type,$id) = @_;
+    my $client = pf::dhcp::api->default_client();
+    return unless $client;
+    my $data;
+    eval {
+        $data = $client->get_lease($type, $id);
+    };
+    if($@) {
+        get_logger->error("$@");
+    }
+    return $data;
+}
+
+=head2 _expire_lease
+
+Check if the lease has expired
+
+=cut
+
+sub _expire_lease {
+    my ($cache_object) = @_;
+    my $lease = $cache_object->value;
+    return 0 unless defined $lease && defined $lease->{ends_at};
+    return $lease->{ends_at} < time;
 }
 
 =head1 AUTHOR
@@ -643,7 +713,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2018 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 

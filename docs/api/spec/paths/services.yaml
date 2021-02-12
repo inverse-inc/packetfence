@@ -12,7 +12,25 @@
             schema:
               $ref: "#/components/schemas/ServicesList"
 
-/service/:service/status:
+/services/cluster_status:
+  get:
+    summary: Returns a list of the status of the services on each cluster member
+    description: Returns a list of the status of the services on each cluster member
+    responses:
+      '200':
+        description: List of services
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                $SERVER_HOSTNAME:
+                  type: object
+                  properties:
+                    $SERVICE_NAME:
+                      $ref: "#/components/schemas/Service"
+
+/service/{service}/status:
   get:
     summary: Returns a service status
     parameters:
@@ -22,8 +40,6 @@
         description: The service name to fetch
         schema:
           type: string
-    parameters:
-      - $ref: '#/components/parameters/cursor'
     responses:
       '200':
         description: Service details
@@ -34,7 +50,7 @@
       '404':
         $ref: "#/components/responses/NotFound"
 
-/service/:service/start:
+/service/{service}/start:
   post:
     summary: Starts a service and return the PID
     parameters:
@@ -45,14 +61,17 @@
         schema:
           type: string
     requestBody:
-      required: false
+      content:
+        application/json:
+          schema:
+            type: object
     responses:
       '200':
-        $ref: "#/components/schemas/ServiceStart"
+        $ref: "#/components/responses/ServiceStart"
       '404':
         $ref: "#/components/responses/NotFound"
         
-/service/:service/stop:
+/service/{service}/stop:
   post:
     summary: Stops a service
     parameters:
@@ -63,14 +82,17 @@
         schema:
           type: string
     requestBody:
-      required: false
+      content:
+        application/json:
+          schema:
+            type: object
     responses:
       '200':
-        $ref: "#/components/schemas/ServiceStop"
+        $ref: "#/components/responses/ServiceStop"
       '404':
         $ref: "#/components/responses/NotFound"
 
-/service/:service/restart:
+/service/{service}/restart:
   post:
     summary: Restarts a service and returns the PID
     parameters:
@@ -81,14 +103,17 @@
         schema:
           type: string
     requestBody:
-      required: false
+      content:
+        application/json:
+          schema:
+            type: object
     responses:
       '200':
-        $ref: "#/components/schemas/ServiceRestart"
+        $ref: "#/components/responses/ServiceRestart"
       '404':
         $ref: "#/components/responses/NotFound"
 
-/service/:service/enable:
+/service/{service}/enable:
   post:
     summary: Enables a service so it starts automatically after reboot
     parameters:
@@ -99,14 +124,17 @@
         schema:
           type: string
     requestBody:
-      required: false
+      content:
+        application/json:
+          schema:
+            type: object
     responses:
       '200':
-        $ref: "#/components/schemas/ServiceEnable"
+        $ref: "#/components/responses/ServiceEnable"
       '404':
         $ref: "#/components/responses/NotFound"
 
-/service/:service/disable:
+/service/{service}/disable:
   post:
     summary: Disables a service so it doesn't start automatically after reboot
     parameters:
@@ -117,10 +145,13 @@
         schema:
           type: string
     requestBody:
-      required: false
+      content:
+        application/json:
+          schema:
+            type: object
     responses:
       '200':
-        $ref: "#/components/schemas/ServiceDisable"
+        $ref: "#/components/responses/ServiceDisable"
       '404':
         $ref: "#/components/responses/NotFound"
 

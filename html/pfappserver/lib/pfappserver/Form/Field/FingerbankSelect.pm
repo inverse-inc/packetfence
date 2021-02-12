@@ -18,7 +18,7 @@ has '+widget' => ( default => 'FingerbankSelect' );
 use namespace::autoclean;
 
 use List::MoreUtils qw(any uniq);
-use pf::error qw(is_success);
+use pf::error qw(is_success is_error);
 use pf::log;
 use fingerbank::Model::Device;
 use fingerbank::Model::Combination;
@@ -32,6 +32,7 @@ use fingerbank::Model::MAC_Vendor;
 use fingerbank::Model::User_Agent;
 
 has '+deflate_value_method'=> ( default => sub { \&_deflate } );
+has 'no_options' => (is => 'rw');
 
 =head2 build_options
 
@@ -41,6 +42,9 @@ Build the base options for validation (all of the rows in the Model mapped by ID
 
 sub build_options {
     my ($self) = @_;
+    if ($self->no_options) {
+        return [];
+    }
     # no need for pretty formatting, this is just for validation purposes
     my @options = map { 
         {
@@ -60,6 +64,11 @@ Modify the options to include only the base ones + the selected ones
 after 'value' => sub {
     my ($self) = @_;
     my @base_ids = $self->fingerbank_model->base_ids();
+    my $value = $self->result->value();
+    if (!$self->multiple) {
+        $value = defined $value ? [$value] : [];
+    }
+
     my @options = map {
         my ($status, $result) = $self->fingerbank_model->read($_);
         if(is_success($status)){
@@ -73,20 +82,44 @@ after 'value' => sub {
             get_logger->error("Unable to read device $_");
             ();
         }
-    } uniq(@base_ids, @{$self->result->value()});
+    } uniq(@base_ids, @{$value});
     $self->options(\@options);
 };
 
+=head2 validate
+
+validate
+
+=cut
+
+sub validate {
+    my ($self) = @_;
+    if (!$self->no_options) {
+        $self->SUPER::validate();
+        return;
+    }
+    my $value = $self->value;
+    my ($status, $result) = $self->fingerbank_model->read($value);
+    if (is_error($status)) {
+        $self->add_error("'$value' is not found");
+    }
+
+    return ;
+}
+
 sub _deflate {
     my ($self, $value) = @_;
-    $value = [ uniq @$value ];
+    if ($self->multiple) {
+        $value = [ uniq @$value ];
+    }
+
     return $value;
 }
 
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2018 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 

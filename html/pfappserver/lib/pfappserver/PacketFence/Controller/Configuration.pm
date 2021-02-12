@@ -21,6 +21,8 @@ use POSIX;
 use URI::Escape::XS;
 use pf::log;
 use Tie::IxHash;
+use MIME::Lite;
+use pf::config::util;
 
 use pf::util qw(load_oui download_oui);
 # imported only for the $TIME_MODIFIER_RE regex. Ideally shouldn't be
@@ -30,49 +32,17 @@ use pf::config qw(
     %Doc_Config
 );
 use pf::admin_roles;
-use pfappserver::Form::Config::Pf;
+use pf::constants::pfconf;
 
 BEGIN {extends 'pfappserver::Base::Controller'; }
 
 =head1 METHODS
-
-=cut
-
-=head2 _process_section
-
-=cut
-
-our %ALLOWED_SECTIONS = (
-    active_active     => undef,
-    advanced          => undef,
-    alerting          => undef,
-    captive_portal    => undef,
-    database          => undef,
-    database_advanced => undef,
-    fencing           => undef,
-    general           => undef,
-    inline            => undef,
-    metadefender      => undef,
-    mse_tab           => undef,
-    network           => undef,
-    node_import       => undef,
-    parking           => undef,
-    ports             => undef,
-    provisioning      => undef,
-    proxies           => undef,
-    services          => undef,
-    snmp_traps        => undef,
-    webservices       => undef,
-    guests_admin_registration     => undef,
-    radius_authentication_methods => undef,
-);
 
 =head2 index
 
 =cut
 
 sub index :Path :Args(0) { }
-
 
 =head2 section
 
@@ -86,11 +56,12 @@ sub section :Path :Args(1) :AdminRole('CONFIGURATION_MAIN_READ') {
 
     $c->stash->{doc_anchor} = exists($Doc_Config{$section}) ? $Doc_Config{$section}{guide_anchor} : undef;
 
-    if (exists $ALLOWED_SECTIONS{$section} ) {
+    if (exists $pf::constants::pfconf::ALLOWED_SECTIONS{$section} ) {
         my ($params, $form);
         my ($status,$status_msg,$results);
 
         $c->stash->{section} = $section;
+        $c->stash(fingerbank_configured => fingerbank::Config::is_api_key_configured);
 
         my $model = $c->model('Config::Pf');
         $form = $c->form("Config::Pf", section => $section);
@@ -197,14 +168,14 @@ sub users :Local {
     $c->go('Controller::User', 'create');
 }
 
-=head2 violations
+=head2 security_events
 
 =cut
 
-sub violations :Local {
+sub security_events :Local {
     my ($self, $c) = @_;
 
-    $c->go('Controller::Violation', 'index');
+    $c->go('Controller::SecurityEvent', 'index');
 }
 
 =head2 domains
@@ -436,7 +407,7 @@ sub all_subsections : Private {
                     name => 'Advanced', 
                 },
                 maintenance => {
-                    controller => 'Controller::Config::Pfmon',
+                    controller => 'Controller::Config::Pfcron',
                     name => 'Maintenance', 
                 },
                 services => {
@@ -493,6 +464,12 @@ sub all_subsections : Private {
                     controller => 'Controller::Config::Fingerbank::Settings',
                     name => 'General Settings', 
                 },
+                device_change => {
+                    controller => 'Controller::Configuration',
+                    action => 'section',
+                    action_args => ['fingerbank_device_change'],
+                    name => 'Device change detection', 
+                },
                 combinations => {
                     controller => 'Controller::Config::Fingerbank::Combination',
                     name => 'Combinations', 
@@ -546,9 +523,41 @@ sub all_subsections : Private {
     }
 }
 
+sub test_smtp : Local {
+    my ($self, $c) = @_;
+    my $form = $c->form("Config::Pf", section => "alerting"); 
+    my ($status, $status_msg) = (200, "success");
+    $form->process(params => $c->request->params);
+    if ($form->has_errors) {
+        $status = HTTP_PRECONDITION_FAILED;
+        $status_msg = $form->field_errors;
+    } else {
+        my $alerting_config = $form->value;
+        my $email = $c->request->param('test_emailaddr') || $alerting_config->{emailaddr};
+        my $msg = MIME::Lite->new(
+            To => $email,
+            Subject => "PacketFence SMTP Test",
+            Data => "PacketFence SMTP Test successful!\n"
+        );
+
+        my $results = eval {
+            pf::config::util::do_send_mime_lite($msg, %$alerting_config);
+        };
+        # the variable $@ holds the error
+        if ($@) {
+            $status = 400;
+            $status_msg = pf::util::strip_filename_from_exceptions($@);
+        }
+    }
+
+    $c->response->status($status);
+    $c->stash->{status_msg} = $status_msg; # TODO: localize status message
+    $c->stash->{current_view} = 'JSON';
+}
+
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2018 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 

@@ -24,11 +24,11 @@ has_field 'realms' => (
     multiple       => 1,
     label          => 'Associated Realms',
     options_method => \&options_realm,
-    element_class  => ['chzn-deselect'],
+    element_class  => ['chzn-deselect', 'input-xxlarge'],
     element_attr   => { 'data-placeholder' => 'Click to add a realm' },
     tags           => {
         after_element => \&help,
-        help          => 'Realms that will be associated with this source'
+        help          => 'Realms that will be associated with this source (For the Portal/Admin GUI/RADIUS post-auth, not for FreeRADIUS proxy)'
     },
     default => '',
 );
@@ -55,7 +55,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2018 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 

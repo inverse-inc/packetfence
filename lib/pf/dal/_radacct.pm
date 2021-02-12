@@ -62,6 +62,8 @@ BEGIN {
         servicetype
         framedprotocol
         framedipaddress
+        nasidentifier
+        calledstationssid
     );
 
     %DEFAULTS = (
@@ -90,6 +92,8 @@ BEGIN {
         servicetype => undef,
         framedprotocol => undef,
         framedipaddress => '',
+        nasidentifier => undef,
+        calledstationssid => undef,
     );
 
     @INSERTABLE_FIELDS = qw(
@@ -118,6 +122,8 @@ BEGIN {
         servicetype
         framedprotocol
         framedipaddress
+        nasidentifier
+        calledstationssid
     );
 
     %FIELDS_META = (
@@ -277,6 +283,18 @@ BEGIN {
             is_primary_key => 0,
             is_nullable => 0,
         },
+        nasidentifier => {
+            type => 'VARCHAR',
+            is_auto_increment => 0,
+            is_primary_key => 0,
+            is_nullable => 1,
+        },
+        calledstationssid => {
+            type => 'VARCHAR',
+            is_auto_increment => 0,
+            is_primary_key => 0,
+            is_nullable => 1,
+        },
     );
 
     @PRIMARY_KEYS = qw(
@@ -310,6 +328,8 @@ BEGIN {
         radacct.servicetype
         radacct.framedprotocol
         radacct.framedipaddress
+        radacct.nasidentifier
+        radacct.calledstationssid
     );
 
 }
@@ -328,13 +348,13 @@ sub _defaults {
     return {%DEFAULTS};
 }
 
-=head2 field_names
+=head2 table_field_names
 
 Field names of radacct
 
 =cut
 
-sub field_names {
+sub table_field_names {
     return [@FIELD_NAMES];
 }
 
@@ -410,14 +430,14 @@ Get the meta data for radacct
 sub get_meta {
     return \%FIELDS_META;
 }
- 
+
 =head1 AUTHOR
 
 Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2018 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 

@@ -49,11 +49,14 @@ Match a sub condition using the value in a hash
 =cut
 
 sub match {
-    my ($self,$arg) = @_;
+    my ($self,$arg,$args) = @_;
+    if (!(defined($args))) {
+        $args = $arg
+    }
     return $FALSE unless defined $arg && reftype ($arg) eq 'HASH';
     my $key = $self->key;
     return $FALSE unless exists $arg->{$key};
-    return $self->condition->match($arg->{$key});
+    return $self->condition->match($arg->{$key},$args);
 }
 
 =head1 AUTHOR
@@ -62,7 +65,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2018 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 

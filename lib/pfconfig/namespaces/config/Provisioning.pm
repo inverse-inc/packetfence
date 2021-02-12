@@ -19,28 +19,26 @@ use warnings;
 
 use pfconfig::namespaces::config;
 use pf::file_paths qw($provisioning_config_file);
+use List::MoreUtils qw(uniq);
 
 use base 'pfconfig::namespaces::config';
 
 sub init {
     my ($self) = @_;
     $self->{file} = $provisioning_config_file;
-    $self->{child_resources} = ['resource::ProvisioningReverseLookup'];
+    $self->{child_resources} = ['resource::ProvisioningReverseLookup', 'resource::passthroughs', 'resource::RolesReverseLookup'];
 }
 
 sub build_child {
     my ($self) = @_;
-
     my %tmp_cfg = %{ $self->{cfg} };
     my %reverseLookup;
-
     while ( my ($key, $provisioner) = each %tmp_cfg) {
         $self->cleanup_after_read($key, $provisioner);
         foreach my $field (qw(pki_provider)) {
             my $values = $provisioner->{$field};
             if (ref ($values) eq '') {
                 next if !defined $values || $values eq '';
-
                 $values = [$values];
             }
 
@@ -48,11 +46,18 @@ sub build_child {
                 push @{$reverseLookup{$field}{$val}}, $key;
             }
         }
+
+        if (exists $provisioner->{security_type}) {
+            my $value = $provisioner->{security_type};
+            if (defined $value && $value eq 'WPA2') {
+                $provisioner->{security_type} = 'WPA';
+            }
+        }
     }
+
     $self->{reverseLookup} = \%reverseLookup;
-
+    $self->roleReverseLookup(\%tmp_cfg, 'provisioning', qw(category role_to_apply));
     return \%tmp_cfg;
-
 }
 
 sub cleanup_after_read {
@@ -60,14 +65,13 @@ sub cleanup_after_read {
     $self->expand_list( $data, qw(category oses) );
 }
 
-
 =head1 AUTHOR
 
 Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2018 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 

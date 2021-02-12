@@ -15,11 +15,31 @@ pf::UnifiedApi::Controller::Locationlogs
 use strict;
 use warnings;
 use Mojo::Base 'pf::UnifiedApi::Controller::Crud';
-use pf::dal::locationlog;
+use pf::UnifiedApi::Search::Builder::Locationlogs;
+use pf::error qw(is_error);
 
 has dal => 'pf::dal::locationlog';
 has url_param_name => 'locationlog_id';
-has primary_key => 'id';
+has primary_key => 'mac';
+has 'search_builder_class' => 'pf::UnifiedApi::Search::Builder::Locationlogs';
+
+sub ssids {
+    my ($self) = @_;
+    my ($status, $iter) = $self->dal->search(
+        -columns => [-distinct => qw(ssid)],
+        -where => {
+            ssid => {
+                "!=" => ""
+            }
+        }
+    );
+
+    if (is_error($status)) {
+        return $self->render_error($status, "Error finding ssids");
+    }
+
+    $self->render(json => {items => $iter->all(undef)});
+}
 
 =head1 AUTHOR
 
@@ -27,7 +47,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2018 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 
@@ -49,4 +69,3 @@ USA.
 =cut
 
 1;
-

@@ -1,0 +1,15 @@
+name: Perform checkup
+version: 2
+testcases:
+- name: perform_checkup
+  steps:
+    - type: http
+      method: GET
+      url: '{{.pfserver_webadmin_url}}/api/v1/config/checkup'
+      ignore_verify_ssl: true
+      headers:
+        "Authorization": "{{.pfserver_token}}"
+        "Content-Type": "application/json"
+      assertions:
+        - result.statuscode ShouldEqual 200
+

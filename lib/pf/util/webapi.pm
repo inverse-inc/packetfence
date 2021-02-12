@@ -26,6 +26,7 @@ our %MAC_KEYS = (
 
 sub add_mac_to_log_context {
     my ($args) = @_;
+    pf::log::reset_log_context();
     return unless defined $args;
     my $params;
     if (@$args == 1) {
@@ -61,7 +62,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2018 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 

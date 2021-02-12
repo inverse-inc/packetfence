@@ -22,7 +22,7 @@ use Mojo::Base qw(pf::UnifiedApi::Controller::Config);
 
 has 'config_store_class' => 'pf::ConfigStore::TrafficShaping';
 has 'form_class' => 'pfappserver::Form::Config::TrafficShaping';
-has 'primary_key' => 'traffic_shaping_id';
+has 'primary_key' => 'traffic_shaping_policy_id';
 
 use pf::ConfigStore::TrafficShaping;
 use pfappserver::Form::Config::TrafficShaping;
@@ -34,7 +34,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2018 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 

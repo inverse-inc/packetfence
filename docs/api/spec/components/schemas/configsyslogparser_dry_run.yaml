@@ -1,0 +1,73 @@
+ConfigSyslogParserDryRunList:
+  type: object
+  properties:
+    items:
+      type: array
+      items:
+        $ref: '#/components/schemas/ConfigSyslogParserDryRun'
+
+ConfigSyslogParserDryRun:
+  type: object
+  properties:
+    line:
+      type: string
+      description: Line
+    matches:
+      type: array
+      description: The array of matches
+      items:
+        $ref: '#/components/schemas/ConfigSyslogParserDryRunMatch'
+
+ConfigSyslogParserDryRunMatch:
+  type: object
+  properties:
+    rule:
+      $ref: '#/components/schemas/ConfigSyslogParserDryRunRule'
+    actions:
+      type: array
+      items:
+        $ref: '#/components/schemas/ConfigSyslogParserDryRunAction'
+    success:
+      type: integer
+
+ConfigSyslogParserDryRunAction:
+  description: Action
+  properties:
+    api_method:
+      description: Api method
+      type: string
+    api_parameters:
+      description: Api parameters
+      type: string
+  type: object
+
+ConfigSyslogParserDryRunRule:
+  description: Rule
+  properties:
+    actions:
+      description: Actions
+      items:
+        description: Action
+        properties:
+          api_method:
+            description: Api method
+            type: string
+          api_parameters:
+            description: Api parameters
+            type: string
+        type: object
+      type: array
+    ip_mac_translation:
+      description: Perform automatic translation of IPs to MACs and the other
+        way around
+      type: string
+    last_if_match:
+      description: Stop processing rules if this rule matches
+      type: string
+    name:
+      description: Name
+      type: string
+    regex:
+      description: Regex
+      type: string
+  type: object

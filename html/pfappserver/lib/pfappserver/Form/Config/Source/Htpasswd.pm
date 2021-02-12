@@ -36,15 +36,15 @@ sub validate {
     my $self = shift;
 
     $self->SUPER::validate();
-
-    unless (-r $self->value->{path}) {
+    my $path = $self->value->{path};
+    unless (defined($path) && -r $path) {
         $self->field('path')->add_error("The file is not readable by the user 'pf'.");
     }
 }
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2018 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 

@@ -1,0 +1,274 @@
+# Do not edit file.
+# Changes will be lost on upgrade.
+
+[AeroHIVE::Access_Point]
+# Do not edit.
+# Any changes will be lost on upgrade.
+acceptVlan= <<EOT
+Tunnel-Type = 13
+Tunnel-Medium-Type = 6
+Tunnel-Private-Group-Id = $vlan
+EOT
+acceptRole=
+disconnect= <<EOT
+Calling-Station-Id = ${macToEUI48($mac)}
+NAS-IP-Address = $disconnectIp
+EOT
+description=AeroHive - Extreme Access Point
+voip=
+radiusDisconnect=disconnect
+reject=Reply-Message = This node is not allowed to use this service
+coa=
+
+[Aruba::ArubaSwitchNG]
+# - better handling of disconnection than ArubaSwitch.pm
+# - don't want a getIfIndexByNasPortId function for these switches
+# tested on Aruba 2530 running Aruba OS 16.10
+description=Aruba Switch NG
+radiusDisconnect=disconnect
+acceptVlan= <<EOT
+Tunnel-Medium-Type = 6
+Tunnel-Type = 13
+Tunnel-Private-Group-Id = $vlan
+EOT
+acceptRole=Filter-Id = $role
+reject=Reply-Message = This node is not allowed to use this service
+disconnect= <<EOT
+Calling-Station-Id = ${macToEUI48($mac)}
+User-Name = $last_accounting.username
+NAS-IP-Address = $disconnectIp
+Acct-Session-Id = $last_accounting.acctsessionid
+EOT
+
+[Aruba::WirelessController]
+# Do not edit.
+# Any changes will be lost on upgrade.
+acceptVlan= <<EOT
+Tunnel-Type = 13
+Tunnel-Medium-Type = 6
+Tunnel-Private-Group-Id = $vlan
+EOT
+acceptRole=
+disconnect= <<EOT
+Calling-Station-Id = ${macToEUI48($mac)}
+NAS-IP-Address = $disconnectIp
+EOT
+description=Aruba Wireless Controller
+voip=
+radiusDisconnect=disconnect
+reject=Reply-Message = This node is not allowed to use this service
+coa=
+
+[Brocade::Switch]
+# Do not edit.
+# Any changes will be lost on upgrade.
+description=Brocade Standard Switch
+radiusDisconnect=disconnect
+acceptVlan= <<EOT
+Tunnel-Medium-Type  = 6
+Tunnel-Type = 13
+Tunnel-Private-Group-Id = $vlan
+EOT
+acceptRole=Filter-Id = $role
+reject=Reply-Message = This node is not allowed to use this service
+disconnect= <<EOT
+Calling-Station-Id = ${macToEUI48($mac)}
+NAS-IP-Address = $disconnectIp
+EOT
+voip= <<EOT
+Tunnel-Medium-Type  = 6
+Tunnel-Type = 13
+Tunnel-Private-Group-Id = T:$switch._voiceVlan
+EOT
+
+[Cisco::Switch]
+# Do not edit.
+# Any changes will be lost on upgrade.
+description=Standard Cisco Switch
+radiusDisconnect=disconnect
+acceptVlan= <<EOT
+Tunnel-Medium-Type  = 6
+Tunnel-Type = 13
+Tunnel-Private-Group-Id = $vlan
+EOT
+acceptRole=Filter-Id = $role
+reject=Reply-Message = This node is not allowed to use this service
+disconnect= <<EOT
+Calling-Station-Id = ${macToEUI48($mac)}
+NAS-IP-Address = $disconnectIp
+EOT
+voip= <<EOT
+Tunnel-Medium-Type  = 6
+Tunnel-Type = 13
+Cisco-AVPair = device-traffic-class=voice
+EOT
+
+[HP::Switch]
+# Do not edit.
+# Any changes will be lost on upgrade.
+acceptVlan= <<EOT
+Tunnel-Medium-Type = 6
+Tunnel-Type = 13
+Tunnel-Private-Group-Id = $vlan
+EOT
+voip=Egress-VLAN-Name = 1${switch._voiceRole}
+acceptRole=
+coa=
+snmpDisconnect=enabled
+disconnect=
+description=Standard HP Switch
+reject=Reply-Message = This node is not allowed to use this service
+
+[Hostapd_template]
+# Do not edit.
+# Any changes will be lost on upgrade.
+description=Hostapd (template based)
+radiusDisconnect=disconnect
+acceptVlan= <<EOT
+Tunnel-Medium-Type  = 6
+Tunnel-Type = 13
+Tunnel-Private-Group-Id = $vlan
+EOT
+acceptRole=Filter-Id = $role
+reject=Reply-Message = This node is not allowed to use this service
+disconnect= <<EOT
+Calling-Station-Id = ${macToEUI48($mac)}
+NAS-IP-Address = $disconnectIp
+EOT
+
+[Huawei::S5720]
+# tested on Huawei S5720/S5735 running V200R011C10SPC600/V200R019C00SPC500
+# Do not edit.
+# Any changes will be lost on upgrade.
+description=Huawei S5720
+radiusDisconnect=coaOrDisconnect
+snmpDisconnect=disabled
+acceptVlan= <<EOT
+Tunnel-Medium-Type = 6
+Tunnel-Type = 13
+Tunnel-Private-Group-Id = $vlan
+EOT
+acceptRole=Filter-Id = $role
+reject=Reply-Message = This node is not allowed to use this service
+voip=Cisco-AVPair = device-traffic-class=voice
+disconnect= <<EOT
+Calling-Station-Id = ${macToEUI48($mac)}
+NAS-IP-Address = $disconnectIp
+EOT
+coa= <<EOT
+Calling-Station-Id = ${macToEUI48($mac)}
+NAS-IP-Address = $disconnectIp
+EOT
+cliAuthorizeRead=Huawei-Exec-Privilege = 1
+cliAuthorizeWrite=Huawei-Exec-Privilege = 15
+
+[Juniper::Mist]
+# Do not edit.
+# Any changes will be lost on upgrade.
+description=Mist AP
+radiusDisconnect=disconnect
+acceptVlan= <<EOT
+Tunnel-Medium-Type  = 6
+Tunnel-Type = 13
+Tunnel-Private-Group-Id = $vlan
+EOT
+acceptRole=Filter-Id = $role
+reject=Reply-Message = This node is not allowed to use this service
+disconnect= <<EOT
+Calling-Station-Id = ${macToEUI48($mac)}
+NAS-IP-Address = $disconnectIp
+EOT
+voip= <<EOT
+Tunnel-Medium-Type  = 6
+Tunnel-Type = 13
+Tunnel-Private-Group-Id = $switch._voiceVlan
+EOT
+
+[Meru::MC_v2]
+# Do not edit.
+# Any changes will be lost on upgrade.
+description=Meru Controller v2
+radiusDisconnect=disconnect
+acceptVlan= <<EOT
+Tunnel-Medium-Type = 6
+Tunnel-Type = 13
+Tunnel-Private-Group-Id = $vlan
+EOT
+acceptRole=Filter-Id = $role
+disconnect=Calling-Station-Id = $mac
+
+[PacketFence::SNMP]
+# Do not edit.
+# Any changes will be lost on upgrade.
+description=SNMP Switch
+snmpDisconnect=enabled
+acceptVlan= <<EOT
+Tunnel-Medium-Type  = 6
+Tunnel-Type = 13
+Tunnel-Private-Group-Id = $vlan
+EOT
+voip=
+acceptRole=
+coa=
+disconnect=
+reject=Reply-Message = This node is not allowed to use this service
+
+[PacketFence::Standard]
+# Do not edit.
+# Any changes will be lost on upgrade.
+description=Standard Switch
+radiusDisconnect=disconnect
+acceptVlan= <<EOT
+Tunnel-Medium-Type  = 6
+Tunnel-Type = 13
+Tunnel-Private-Group-Id = $vlan
+EOT
+acceptRole=Filter-Id = $role
+reject=Reply-Message = This node is not allowed to use this service
+disconnect= <<EOT
+Calling-Station-Id = ${macToEUI48($mac)}
+NAS-IP-Address = $disconnectIp
+EOT
+voip= <<EOT
+Tunnel-Medium-Type  = 6
+Tunnel-Type = 13
+Tunnel-Private-Group-Id = $switch._voiceVlan
+EOT
+
+[Ruckus::SmartZone_v2]
+# Do not edit.
+# Any changes will be lost on upgrade.
+acceptVlan= <<EOT
+Tunnel-Type = 13
+Tunnel-Medium-Type = 6
+Tunnel-Private-Group-Id = $vlan
+EOT
+acceptRole=
+disconnect= <<EOT
+Calling-Station-Id = ${macToEUI48($mac)}
+NAS-IP-Address = $disconnectIp
+EOT
+description=Ruckus SmartZone v2
+voip=
+radiusDisconnect=disconnect
+reject=Reply-Message = This node is not allowed to use this service
+coa=
+
+[Ruckus::ZoneDirector]
+# Do not edit.
+# Any changes will be lost on upgrade.
+acceptVlan= <<EOT
+Tunnel-Type = 13
+Tunnel-Medium-Type = 6
+Tunnel-Private-Group-Id = $vlan
+EOT
+acceptRole=
+disconnect= <<EOT
+Calling-Station-Id = ${macToEUI48($mac)}
+NAS-IP-Address = $disconnectIp
+EOT
+description=Ruckus SmartZone
+voip=
+radiusDisconnect=disconnect
+reject=Reply-Message = This node is not allowed to use this service
+coa=

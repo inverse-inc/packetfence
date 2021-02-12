@@ -16,8 +16,8 @@ use strict;
 use warnings;
 
 use pf::log;
-use pf::violation;
-use pf::constants::parking qw($PARKING_VID $PARKING_DHCP_GROUP_NAME $PARKING_IPSET_NAME);
+use pf::security_event;
+use pf::constants::parking qw($PARKING_SECURITY_EVENT_ID $PARKING_DHCP_GROUP_NAME);
 use pf::constants;
 use pf::config qw(%Config);
 use pf::util;
@@ -26,15 +26,15 @@ use pf::api::unifiedapiclient;
 =head2 trigger_parking
 
 Trigger the parking actions for a device if needed
-Will check if there is already a parking violation opened, if not, will open one
+Will check if there is already a parking security_event opened, if not, will open one
 Will make sure the proper parking actions are applied
 
 =cut
 
 sub trigger_parking {
-    my ($mac,$ip) = @_;
-    if(violation_count_open_vid($mac, $PARKING_VID) || violation_trigger( { mac => $mac, tid => 'parking_detected', type => 'INTERNAL' } )){
-        park($mac,$ip);
+    my ($mac) = @_;
+    if(security_event_count_open_security_event_id($mac, $PARKING_SECURITY_EVENT_ID) || security_event_trigger( { mac => $mac, tid => 'parking_detected', type => 'INTERNAL' } )){
+        park($mac);
     }
 }
 
@@ -45,37 +45,31 @@ Park a device by making its lease higher and by pointing it to another portal
 =cut
 
 sub park {
-    my ($mac,$ip) = @_;
+    my ($mac) = @_;
     get_logger->debug("Setting client in parking");
     if(isenabled($Config{parking}{place_in_dhcp_parking_group})){
         pf::api::unifiedapiclient->default_client->call("POST", "/api/v1/dhcp/options/mac/".$mac, [{
-            "option"      => "51",
+            "option"      => 0 + 51,
             "value"       => "3600",
             "type"        => "int",
         }]);
-    }
-    if(isenabled($Config{parking}{show_parking_portal})){
-        my $cmd = "sudo ipset add $PARKING_IPSET_NAME $ip 2>&1";
-        get_logger->debug("Adding device to parking ipset using $cmd");
-        my $_EXIT_CODE_EXISTS = "1";
-        my @lines = pf_run($cmd, accepted_exit_status => [$_EXIT_CODE_EXISTS]);
     }
 }
 
 =head2 unpark
 
-Attempt to unpark a device. The parking violation needs to be successfully closed for the actions to be removed.
+Attempt to unpark a device. The parking security_event needs to be successfully closed for the actions to be removed.
 
 =cut
 
 sub unpark {
-    my ($mac,$ip) = @_;
-    if(violation_close($mac, $PARKING_VID) != -1){
-        remove_parking_actions($mac,$ip);
+    my ($mac) = @_;
+    if(security_event_close($mac, $PARKING_SECURITY_EVENT_ID) != -1){
+        remove_parking_actions($mac);
         return $TRUE;
     }
     else {
-        get_logger->info("Device $mac cannot be unparked since the violation cannot be closed");
+        get_logger->info("Device $mac cannot be unparked since the security_event cannot be closed");
         return $FALSE;
     }
 }
@@ -87,11 +81,14 @@ Remove the parking actions that were taken against an IP + MAC
 =cut
 
 sub remove_parking_actions {
-    my ($mac, $ip) = @_;
-    get_logger->info("Removing parking actions for $mac - $ip");
-    pf::api::unifiedapiclient->default_client->call("DELETE", "/api/v1/dhcp/options/mac/$mac",{});
-    #TODO: use pfipset
-    pf_run("sudo ipset del $PARKING_IPSET_NAME $ip -exist 2>&1");
+    my ($mac) = @_;
+    get_logger->info("Removing parking actions for $mac");
+    eval {
+        pf::api::unifiedapiclient->default_client->call("DELETE", "/api/v1/dhcp/options/mac/$mac",{});
+    };
+    if($@) {
+        get_logger->error("Error while removing options from DHCP server: " . $@);
+    }
 }
 
 =head1 AUTHOR
@@ -100,7 +97,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2018 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 

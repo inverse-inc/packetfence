@@ -61,6 +61,27 @@ sub tenant_view_by_name {
     return $item;
 }
 
+=head2 tenant_view_by_id
+
+tenant_view_by_id
+
+=cut
+
+sub tenant_view_by_id {
+    my ($id) = @_;
+    my ($status, $iter) = pf::dal::tenant->search(
+        -where => {
+            id => $id,
+        },
+        -limit => 1,
+        -with_class => undef,
+    );
+    if (is_error($status)) {
+        return undef;
+    }
+    my $item = $iter->next;
+    return $item;
+}
 
 
 =head1 AUTHOR
@@ -69,7 +90,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2018 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 

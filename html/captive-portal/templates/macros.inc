@@ -1,21 +1,22 @@
 [%# Insert an SVG element from sprite.svg %]
 [% MACRO svgIcon BLOCK %]
-<svg class="iconic[% IF size %] iconic--[% size %][% END %]" viewBox="0 0 100 100">
-  <g class="iconic__hide">
+<svg class="c-iconic[% IF size %] c-iconic--[% size %][% END %][% IF variant %] c-iconic--[% variant %][% END %]" viewBox="0 0 100 100">
+  <g class="c-iconic__hide">
     <use xlink:href="#[% id %]"></use>
   </g>
-  <image class="iconic[% IF size %] iconic--[% size %][% END %]" src="/common/img/[% id %].png" xlink:href=""/>
+  <image class="c-iconic[% IF size %] c-iconic--[% size %][% END %]" src="/common/img/[% id %][% IF variant %]-[% variant %][% END %].png" xlink:href=""/>
 </svg>
 [% END %]
 
 [%# Select the appropriate SVG icon for the specified billing engine %]
 [% MACRO flashIcon BLOCK;
+ size = size OR 'tiny';
  SWITCH level.lower;
    CASE 'error';
-     svgIcon(id='ic_error_black_24px',size='small');
+     svgIcon(id='ic_error_black_24px',size=size);
    # Default
    CASE;
-     svgIcon(id='ic_warning_black_24px',size='small');
+     svgIcon(id='ic_warning_black_24px',size=size);
  END;
 END %]
 

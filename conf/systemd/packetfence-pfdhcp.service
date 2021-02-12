@@ -1,7 +1,8 @@
+# Copyright (C) Inverse inc.
 [Unit]
 Description=PacketFence GO DHCPv4 Server Daemon
-Wants=packetfence-base.target packetfence-config.service packetfence-iptables.service
-After=packetfence-base.target packetfence-config.service packetfence-iptables.service
+Wants=packetfence-keepalived.service packetfence-base.target packetfence-config.service packetfence-iptables.service
+After=packetfence-keepalived.service packetfence-base.target packetfence-config.service packetfence-iptables.service
 Before=packetfence-httpd.portal.service
 
 [Service]
@@ -9,7 +10,8 @@ StartLimitBurst=3
 StartLimitInterval=60
 Type=notify
 WatchdogSec=30s
-ExecStart=/usr/local/pf/bin/pfdhcp
+EnvironmentFile=-/usr/local/pf/conf/pfdhcp.conf
+ExecStart=/usr/local/pf/sbin/pfdhcp
 Restart=on-failure
 Slice=packetfence.slice
 

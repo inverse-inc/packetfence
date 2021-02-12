@@ -26,6 +26,7 @@ use pf::util;
 use pf::constants::pfqueue qw(
     $PFQUEUE_WORKERS_DEFAULT
     $PFQUEUE_WEIGHT_DEFAULT
+    $PFQUEUE_HASHED_DEFAULT
     $PFQUEUE_MAX_TASKS_DEFAULT
     $PFQUEUE_TASK_JITTER_DEFAULT
     $PFQUEUE_DELAYED_QUEUE_BATCH_DEFAULT
@@ -38,13 +39,15 @@ use base 'pfconfig::namespaces::config';
 sub init {
     my ($self) = @_;
     $self->{file} = $pfqueue_config_file;
-    my $defaults = Config::IniFiles->new(-file => $pfqueue_default_config_file);
+    my $defaults = pf::IniFiles->new(-file => $pfqueue_default_config_file);
     $self->{added_params}{'-import'} = $defaults;
 }
 
 sub build_child {
     my ($self) = @_;
-    my %tmp_cfg = %{ $self->{cfg} };
+    my @queues;
+    my %queue_config;
+    my %tmp_cfg = (%{ $self->{cfg} }, queues => \@queues, queue_config => \%queue_config);
     my $max_tasks = $tmp_cfg{pfqueue}{max_tasks};
     if (!defined($max_tasks) || $max_tasks <= 0) {
         $tmp_cfg{pfqueue}{max_tasks} = $PFQUEUE_MAX_TASKS_DEFAULT;
@@ -57,7 +60,14 @@ sub build_child {
         # Set defaults
         $data->{workers} //= $PFQUEUE_WORKERS_DEFAULT;
         $data->{weight} //= $PFQUEUE_WEIGHT_DEFAULT;
-        push @{$tmp_cfg{queues}},{ %$data, name => $queue };
+        $data->{hashed} //= $PFQUEUE_HASHED_DEFAULT;
+        if (isenabled ($data->{hashed})) {
+            push @queues, (map { real_name => $queue, name => sprintf("%s_%03d",$queue, $_), workers => 1, weight => 0 }, (0...$data->{workers}-1));
+        } else {
+            push @{$tmp_cfg{queues}},{ %$data, name => $queue, real_name => $queue };
+        }
+
+        $queue_config{$queue} = $data;
     }
     my %redis_args;
     my $consumer = $tmp_cfg{consumer};
@@ -77,7 +87,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2018 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 

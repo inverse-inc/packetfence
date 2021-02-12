@@ -1,0 +1,23 @@
+ConfigWMIRule:
+  properties:
+    action:
+      description: Add an action based on the result of the request
+      type: string
+    id:
+      description: Name
+      type: string
+    namespace:
+      description: Namespace
+      type: string
+    on_tab:
+      description: Scan this WMI element while editing a node
+      type: string
+    request:
+      description: Request
+      type: string
+  required:
+  - id
+  - request
+  - namespace
+  - action
+  type: object

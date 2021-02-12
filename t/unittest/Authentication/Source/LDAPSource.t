@@ -114,10 +114,20 @@ BEGIN {
 
 }
 
-use Test::More tests => 5 + 2 * ( scalar @CACHEABLE_RULES + scalar @NON_CACHEABLE_RULES);
+use Test::More tests => 9 + 2 * ( scalar @CACHEABLE_RULES + scalar @NON_CACHEABLE_RULES);
 
 #This test will running last
 use Test::NoWarnings;
+
+{
+    my $source = getAuthenticationSource('LDAP');
+    my $rules = $source->rules;
+    is_deeply(
+        $source->rule_cache_key($rules->[0], {username => 'bob', SSID => 'james'}, {}),
+        ['LDAP', 'Network_Team_Auth' , 'authentication', 'memberOf,equals,CN=NOC Users,DC=ldap,DC=inverse,DC=caSSID,starts,Network_Team_Auth', 'bob', 'SSID', 'james'],
+        'rule cache key',
+    );
+}
 
 my $source_id = 'LDAPCACHEMATCH';
 
@@ -154,13 +164,33 @@ for my $rule (@NON_CACHEABLE_RULES) {
 
 ok(!$source->is_rule_cacheable(undef), "undef is always uncacheable");
 
+{
+    my $source_id = 'LDAPADVANCED';
+
+    my $source = getAuthenticationSource($source_id);
+
+    ok($source, "Got source id $source_id");
+
+    BAIL_OUT("Cannot get $source_id") unless $source;
+
+    my $rule = $source->rules->[0];
+
+    ok($rule, "Got rule for $source_id");
+    my $filter = $source->ldap_filter_for_conditions($rule->conditions, $rule->match, $source->{usernameattribute}, { username => 'bob', 'radius.username' => "bobette" });
+    is(
+        $filter,
+        '(&(|(cn=bob)(samaccountname=bobette))(|(memberof=student)(memberof=staff)))',
+        "Use the advanced filter"
+    );
+}
+
 =head1 AUTHOR
 
 Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2018 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 
@@ -182,4 +212,3 @@ USA.
 =cut
 
 1;
-

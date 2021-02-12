@@ -47,8 +47,8 @@ sub generate_sql_query {
     $infos{search}{type} //= $self->base_conditions_operator;
 
     # Date range handling
-    push @$and, $self->date_field => { ">", $infos{start_date}} if($infos{start_date});
-    push @$and, $self->date_field => { "<", $infos{end_date}} if($infos{end_date});
+    push @$and, $self->date_field => { ">=", $infos{start_date}} if($infos{start_date});
+    push @$and, $self->date_field => { "<=", $infos{end_date}} if($infos{end_date});
 
     # Search handling
     # conditions = [
@@ -71,6 +71,11 @@ sub generate_sql_query {
             $logger->debug("Matching for any conditions for the provided search");
             push @$and, \@conditions;
         }
+    }
+
+    if(my $search = $infos{sql_abstract_search}) {
+        $logger->debug("Adding provided SQL abstract search");
+        push @$and, $search;
     }
 
     if(@{$self->base_conditions} > 0) {
@@ -164,8 +169,10 @@ sub page_count {
     my ($self, %infos) = @_;
     $self->ensure_default_infos(\%infos);
     my ($sql, $params) = $self->generate_sql_query(%infos, count_only => 1);
-    my @results = $self->_db_data($sql, @$params);
-    my $pages = $results[0]->{count} / $infos{per_page};
+    my ($status, $results) = $self->_db_data($sql, @$params);
+    return undef if(is_error($status));
+
+    my $pages = $results->[0]->{count} / $infos{per_page};
     return (($pages == int($pages)) ? $pages : int($pages + 1));
 }
 
@@ -175,7 +182,7 @@ sub _db_data {
     my ( $ref, @array );
     my ($status, $sth) = pf::dal->db_execute($sql, @params);
     if (is_error($status)) {
-        return;
+        return ($status);
     }
     # Going through data as array ref and putting it in ordered hash to respect the order of the select in the final report
     my $fields = $sth->{NAME};
@@ -185,7 +192,7 @@ sub _db_data {
         push( @array, \%record );
     }
     $sth->finish();
-    return (@array);
+    return (200, \@array);
 }
 
 =head2 is_person_field
@@ -209,6 +216,33 @@ sub is_node_field {
     my ($self, $field) = @_;
     return any { $_ eq $field } @{$self->node_fields};
 }
+
+=head1 AUTHOR
+
+Inverse inc. <info@inverse.ca>
+
+=head1 COPYRIGHT
+
+Copyright (C) 2016-2021 Inverse inc.
+
+=head1 LICENSE
+
+This program is free software; you can redistribute it and/or
+modify it under the terms of the GNU General Public License
+as published by the Free Software Foundation; either version 2
+of the License, or (at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program; if not, write to the Free Software
+Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301,
+USA.
+
+=cut
 
 1;
 

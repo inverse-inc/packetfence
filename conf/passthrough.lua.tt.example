@@ -14,13 +14,20 @@ core.register_action("select", { "http-req" }, function(txn)
 
     if ( string.match(txn.sf:path(), '/profile.xml')) then
         -- nothing, we let it go through for the XML profiles
+    elseif ( string.match(txn.sf:path(), '/%.well%-known/acme%-challenge') ) then
+        txn:set_var("req.action","static")
+    elseif ( string.match(txn.sf:path(), '/rfc7710') ) then
+        txn:set_var("req.action","proxy")
     elseif ( not ([% FOREACH host IN portal_host %] string.match(txn.sf:req_fhdr("Host"):lower(), '^[% host FILTER lower %][0-9:]*$') or[% END %] false ) ) then
         txn:set_var("req.action","proxy")
+    elseif ( string.match(txn.sf:path() , '/generate_204') ) then
+        txn:set_var("req.action","proxy")
     else
-        if (txn.sf:path() == '/') then
+        if (txn.sf:path() == '/' or string.match(txn.sf:path() , '/release%-parking') ) then
             txn:set_var("req.action","proxy")
         elseif ( string.match(txn.sf:path(), '^/common') or string.match(txn.sf:path(), '^/content') or string.match(txn.sf:path(), '^/favicon.ico$') ) then
             txn:set_var("req.action","static")
         end
     end
 end)
+

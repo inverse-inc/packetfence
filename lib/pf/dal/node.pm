@@ -19,13 +19,16 @@ use warnings;
 
 use pf::error qw(is_error is_success);
 use pf::api::queue;
+use pf::log;
 use pf::constants::node qw($NODE_DISCOVERED_TRIGGER_DELAY);
 use pf::constants qw($ZERO_DATE);
+use pf::util;
 use base qw(pf::dal::_node);
 
 our @LOCATION_LOG_GETTERS = qw(
   last_switch
   last_port
+  last_ifDesc
   last_vlan
   last_connection_type
   last_connection_sub_type
@@ -35,6 +38,7 @@ our @LOCATION_LOG_GETTERS = qw(
   realm
   last_switch_mac
   last_start_time
+  last_end_time
   last_role
   last_start_timestamp
 );
@@ -50,6 +54,9 @@ our @COLUMN_NAMES = (
     'nc.name|category',
     'nr.name|bypass_role',
 );
+
+*old_find = \&pf::dal::find;
+*find = __PACKAGE__->make_dal_finder();
 
 =head2 find_from_tables
 
@@ -91,7 +98,12 @@ sub pre_save {
 sub after_create_hook {
     my ($self) = @_;
     my $apiclient = pf::api::queue->new(queue => 'general');
-    $apiclient->notify_delayed($NODE_DISCOVERED_TRIGGER_DELAY, "trigger_violation", mac => $self->{mac}, type => "internal", tid => "node_discovered");
+    eval {
+        $apiclient->notify_delayed($NODE_DISCOVERED_TRIGGER_DELAY, "trigger_security_event", mac => $self->{mac}, type => "internal", tid => "node_discovered");
+    };
+    if ($@) {
+        $self->logger->error("Error submitting to the queue: $@");
+    }
     return ;
 }
 
@@ -153,6 +165,9 @@ sub _insert_data {
     if ($data->{detect_date} eq '0000-00-00 00:00:00') {
        $data->{detect_date} = $self->now;
     }
+
+    $data->{mac} = clean_mac($data->{mac});
+
     return $status, $data;
 }
 
@@ -180,6 +195,7 @@ sub _load_locationlog {
         -columns => [
             "locationlog.switch|last_switch",
             "locationlog.port|last_port",
+            "locationlog.ifDesc|last_ifDesc",
             "locationlog.vlan|last_vlan",
             "IF(ISNULL(`locationlog`.`connection_type`), '', `locationlog`.`connection_type`)|last_connection_type",
             "IF(ISNULL(`locationlog`.`connection_sub_type`), '', `locationlog`.`connection_sub_type`)|last_connection_sub_type",
@@ -189,11 +205,12 @@ sub _load_locationlog {
             "locationlog.realm|realm",
             "locationlog.switch_mac|last_switch_mac",
             "locationlog.start_time|last_start_time",
+            "locationlog.end_time|last_end_time",
             "locationlog.role|last_role",
             "UNIX_TIMESTAMP(`locationlog`.`start_time`)|last_start_timestamp",
           ],
         -from => 'locationlog',
-        -where => { mac => $self->mac, tenant_id => $self->tenant_id, end_time => $ZERO_DATE},
+        -where => { mac => $self->mac, tenant_id => $self->tenant_id },
         -no_auto_tenant_id => 1,
     );
     return $status, undef if is_error($status);
@@ -239,7 +256,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2018 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 

@@ -14,7 +14,7 @@ to generate or validate some configuration files.
 =head1 CONFIGURATION AND ENVIRONMENT
 
 Read the following configuration files: F<dhcpd_vlan.conf>,
-F<networks.conf>, F<violations.conf> and F<switches.conf>.
+F<networks.conf>, F<security_events.conf> and F<switches.conf>.
 
 Generate the following configuration file: F<snmptrapd.conf>.
 
@@ -32,7 +32,7 @@ use Module::Pluggable
     'require'     => 1,
     'inner'       => 0,
     'except' =>
-    qr/^pf::services::manager::roles|^pf::services::manager::(pf|systemd|httpd|submanager|radiusd_child|redis)$/,
+    qr/^pf::services::manager::roles|^pf::services::manager::(systemd|httpd|submanager|radiusd_child|redis|haproxy)$/,
     ;
 
 
@@ -108,7 +108,6 @@ sub service_list {
 
 sub getManagers {
     my ($services,$flags) = @_;
-    $services = (any { $_ eq 'pf'} @$services) ? [@pf::services::ALL_SERVICES] : $services;
     $flags = 0 unless defined $flags;
     my %seen;
     my $justManaged      = $flags & JUST_MANAGED;
@@ -139,7 +138,7 @@ Minor parts of this file may have been contributed. See CREDITS.
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2018 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 Copyright (C) 2005 Kevin Amorin
 

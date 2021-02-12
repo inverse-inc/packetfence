@@ -53,7 +53,6 @@ use threads;
 use pf::factory::task;
 use pf::services::manager::pfdetect;
 use pf::services::manager::snmptrapd;
-use pf::services::manager::pfsetvlan;
 
 
 
@@ -131,10 +130,12 @@ Register all tasks
 sub register_tasks {
     my @weights;
     foreach my $queue_config (@{$ConfigPfqueue{queues}} ) {
-        my $name = $queue_config->{name};
-        if (skip_queue($name)) {
+        my $real_name = $queue_config->{real_name};
+        if (skip_queue($real_name)) {
             next;
         }
+
+        my $name = $queue_config->{name};
         my $queue_name = "Queue:$name";
         my $weight = $queue_config->{weight};
         if ($weight) {
@@ -338,13 +339,8 @@ sub get_tasks_count {
     if ($task_jitter > $tasks_count / 4) {
         $task_jitter = int($tasks_count / 4);
     }
-    if ($task_jitter > 0 ) {
-        # find a random number between -task_jitter to +task_jitter
-        my $jitter = int(rand(2*$task_jitter + 1)) - $task_jitter;
-        $tasks_count += $task_jitter;
-    }
 
-    return $tasks_count;
+    return add_jitter($tasks_count, $task_jitter);
 }
 
 =head2 is_parent_alive
@@ -517,11 +513,6 @@ our %QUEUE_TO_SERVICE = (
     pfsnmp_parsing => 'pf::services::manager::snmptrapd',
 );
 
-our %QUEUE_OFF_TO_SERVICE = (
-    pfsnmp => 'pf::services::manager::pfsetvlan',
-    pfsnmp_parsing => 'pf::services::manager::pfsetvlan',
-);
-
 =head2 skip_queue
 
 Checks to see if a queue should be worked on
@@ -530,13 +521,6 @@ Checks to see if a queue should be worked on
 
 sub skip_queue {
     my ($name) = @_;
-    if (exists $QUEUE_OFF_TO_SERVICE{$name}) {
-        # If the service is enable then skip queue
-        my $manger = $QUEUE_OFF_TO_SERVICE{$name}->new;
-        if ($manger->isManaged) {
-            return $TRUE;
-        }
-    }
     if (exists $QUEUE_TO_SERVICE{$name}) {
         my $manger = $QUEUE_TO_SERVICE{$name}->new;
         # If the service is disabled then skip queue
@@ -576,7 +560,7 @@ Minor parts of this file may have been contributed. See CREDITS.
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2018 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 

@@ -13,11 +13,13 @@ Connection profile.
 use pf::authentication;
 
 use HTML::FormHandler::Moose;
+use pfappserver::Form::Config::FilterEngines;
 use pfappserver::Form::Field::ProfileFilter;
 extends 'pfappserver::Base::Form';
 with 'pfappserver::Form::Config::ProfileCommon';
 
 use pf::config;
+use pf::condition_parser;
 use List::MoreUtils qw(uniq);
 
 =head1 FIELDS
@@ -63,13 +65,28 @@ has_field 'filter_match_style' =>
     element_class => ['input-mini'],
 );
 
+=head2 status
+
+The status of the profile if it is enabled or disabled
+
+=cut
+
+has_field 'status' =>
+  (
+   type => 'Toggle',
+   label => 'Enable profile',
+   checkbox_value => 'enabled',
+   unchecked_value => 'disabled',
+   default => 'enabled'
+  );
+
 sub options_filter_match_style {
     return  map { { value => $_, label => $_ } } qw(all any);
 }
 
 has_field 'advanced_filter' => 
 (
-    type => 'TextArea',
+    type => 'FilterCondition',
 );
 
 =head1 METHODS
@@ -94,20 +111,146 @@ sub update_fields {
 
 =cut
 
-sub validate {
+after validate => sub {
     my ($self) = @_;
     my $value = $self->value;
-    if (@{$value->{filter}} == 0 && !exists $value->{advanced_filter} ) {
+    my $advanced_filter = $value->{advanced_filter};
+    my $condition_str = '';
+    if (defined $advanced_filter) {
+        $condition_str = pf::condition_parser::object_to_str($advanced_filter);
+    }
+
+    if (@{$value->{filter}} == 0 && (!defined $advanced_filter || $condition_str eq '')) {
         $self->field('filter')->add_error("A filter or an advanced filter must be specified");
         $self->field('advanced_filter')->add_error("A filter or an advanced filter must be specified");
     }
-    return 1;
+
+    if (defined $advanced_filter) {
+        my ($conditions, $err) = pf::condition_parser::parse_condition_string($advanced_filter);
+        if ($err) {
+            $self->field('advanced_filter')->add_error($err->{message});
+        }
+    }
+};
+
+sub make_field_options {
+    my ($self, $name) = @_;
+    my %options = (
+        label => $name,
+        value => $name,
+        $self->additional_field_options($name),
+    );
+    return \%options;
 }
 
+sub options_field {
+    my ($self) = @_;
+    return map { $self->make_field_options($_) } $self->options_field_names();
+}
+
+sub additional_field_options {
+    my ($self, $name) = @_;
+    my $options = $self->_additional_field_options;
+    if (!exists $options->{$name}) {
+        return;
+    }
+
+    my $more = $options->{$name};
+    my $ref = ref $more;
+    if ($ref eq 'HASH') {
+        return %$more;
+    } elsif ($ref eq 'CODE') {
+        return $more->($self, $name);
+    }
+
+    return;
+}
+
+=head2 definition
+
+The main definition block
+
+=cut
+
+has_block 'definition' =>
+  (
+    render_list => [qw(id description status root_module preregistration autoregister reuse_dot1x_credentials dot1x_recompute_role_from_portal mac_auth_recompute_role_from_portal dot1x_unset_on_unmatch dpsk unbound_dpsk default_psk_key unreg_on_acct_stop)],
+  );
+
+my %ADDITIONAL_FIELD_OPTIONS = (
+    %pfappserver::Form::Config::FilterEngines::ADDITIONAL_FIELD_OPTIONS
+);
+
+sub _additional_field_options {
+    return \%ADDITIONAL_FIELD_OPTIONS;
+}
+
+sub options_field_names {
+    qw(
+      autoreg
+      bandwidth_balance
+      bypass_role
+      bypass_role_id
+      bypass_vlan
+      category
+      category_id
+      computername
+      connection_sub_type
+      connection_type
+      detect_date
+      device_class
+      device_manufacturer
+      device_score
+      device_type
+      device_version
+      dhcp6_enterprise
+      dhcp6_fingerprint
+      dhcp_fingerprint
+      dhcp_vendor
+      fqdn
+      last_arp
+      last_connection_sub_type
+      last_connection_type
+      last_dhcp
+      last_dot1x_username
+      last_ifDesc
+      last_ip
+      last_port
+      last_role
+      last_seen
+      lastskip
+      last_ssid
+      last_start_time
+      last_start_timestamp
+      last_switch
+      last_switch_mac
+      last_vlan
+      mac
+      machine_account
+      notes
+      pid
+      port
+      realm
+      regdate
+      sessionid
+      ssid
+      status
+      stripped_user_name
+      switch
+      switch_mac
+      tenant_id
+      time_balance
+      unregdate
+      uri
+      user_agent
+      vlan
+      voip
+    );
+}
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2018 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 
@@ -129,4 +272,5 @@ USA.
 =cut
 
 __PACKAGE__->meta->make_immutable unless $ENV{"PF_SKIP_MAKE_IMMUTABLE"};
+
 1;

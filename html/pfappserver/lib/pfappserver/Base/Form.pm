@@ -65,6 +65,11 @@ sub build_update_subfields {{
         element_class => ['input-mini'],
         element_attr => {'min' => '0'},
        },
+       'PSKLength' =>
+       {
+        element_class => ['input-mini'],
+        element_attr => {'min' => '8'},
+       },
        'TextArea' =>
        {
         element_class => ['input-xlarge'],
@@ -108,7 +113,7 @@ sub update_field {
         $field->set_element_attr('data-required' => 'required');
         $field->tags->{label_after} = ' <i class="icon-required"></i>';
     }
-    if ($field->type eq 'PosInteger') {
+    if ($field->type eq 'PosInteger' || $field->type eq 'PSKLength') {
         $field->type_attr($field->html5_type_attr);
         $field->set_element_attr('data-type' => 'number');
     }
@@ -172,10 +177,23 @@ sub id_validator {
    };   
 }
 
+=head2 id_pattern
+
+id_pattern
+
+=cut
+
+sub id_pattern {
+    return {
+        regex => "^[a-zA-Z0-9][a-zA-Z0-9\._-]*\$",
+        message =>
+            "The id is invalid. The id can only contain alphanumeric characters, dashes, period and underscores."
+    };
+}
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2018 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 
@@ -199,4 +217,3 @@ USA.
 __PACKAGE__->meta->make_immutable unless $ENV{"PF_SKIP_MAKE_IMMUTABLE"};
 
 1;
-

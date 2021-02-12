@@ -19,17 +19,17 @@ Which generates all the companion modules for table in the database.
 use strict;
 use warnings;
 use pf::db;
+use Sub::Name;
 use pf::log;
 use pf::error qw(is_error is_success);
 use pf::SQL::Abstract;
+use pf::config::tenant;
 use pf::dal::iterator;
 use pf::constants qw($TRUE $FALSE $DEFAULT_TENANT_ID);
 
 use Class::XSAccessor {
     accessors => [qw(__from_table __old_data)],
 };
-
-our $CURRENT_TENANT = $DEFAULT_TENANT_ID;
 
 =head2 new
 
@@ -109,7 +109,7 @@ sub db_execute {
             $logger->error("Cannot connect to database retrying connection");
             next;
         }
-        $logger->trace(sub{"preparing statement query $sql with bind (" . join(", ", map { defined $_ ? $_ : "(undef)"} @bind) . ")"});
+        pf::log::logstacktrace(sub{"preparing statement query $sql with bind (" . join(", ", map { defined $_ ? $_ : "(undef)"} @bind) . ")"});
         my $sth = $dbh->prepare_cached($sql);
         unless ($sth && $sth->execute(@bind)) {
             my $err = $dbh->err;
@@ -124,6 +124,7 @@ sub db_execute {
                         $logger->trace("Ignoring error $errstr (errno: $err)");
                     } else {
                         $logger->error("Database query failed with non retryable error: $errstr (errno: $err) [$sql]{". join(", ", map { defined $_ ?  $_ : "NULL" } @bind)  . "}");
+                        db_disconnect();
                     }
                 }
                 last;
@@ -131,6 +132,13 @@ sub db_execute {
             # retry client errors
             $logger->warn("database query failed with: $errstr (errno: $err), will try again");
             next;
+        }
+        my $warnings = $sth->{mysql_warning_count};
+        if ($warnings) {
+            my $warnings = $dbh->selectall_arrayref('SHOW WARNINGS');
+            for my $w (@$warnings) {
+                $logger->warn(join(": ", @$w));
+            }
         }
         return $STATUS::OK, $sth;
     } continue {
@@ -192,7 +200,7 @@ Search for pf::dal using SQL::Abstract::More syntax
 sub search {
     my ($proto, %args) = @_;
     my $class = ref($proto) || $proto;
-    if ( exists $args{-with_class}) {
+    if ( CORE::exists $args{-with_class}) {
         $class = delete $args{-with_class};
     }
     my $no_default_join = delete $args{-no_default_join};
@@ -237,26 +245,7 @@ sub save {
         return $status;
     }
 
-    my $dbh  = $self->get_dbh;
-    unless ($dbh->begin_work) {
-        my $err = $dbh->err;
-        pf::db::db_handle_error($err);
-        return mysql_error_to_status_code($err);
-    }
-    eval {
-        $status = $self->create_or_update();
-    };
-
-    if ($@) {
-        $self->logger->info("Error saving : $@");
-    }
-
-    $status =  $self->commit_or_rollback($status, $dbh);
-    if ($status == $STATUS::CREATED) {
-        $self->_save_old_data();
-        $self->after_create_hook();
-    }
-    return $status;
+    return $self->upsert;
 }
 
 sub create_or_update {
@@ -273,6 +262,7 @@ sub commit_or_rollback {
     my ($self, $status, $dbh) = @_;
     if (is_error($status)) {
         if(!$dbh->rollback()) {
+            $self->logger->error("Error rolling back");
             my $err = $dbh->err;
             pf::db::db_handle_error($err);
             $status = mysql_error_to_status_code($err);
@@ -280,6 +270,7 @@ sub commit_or_rollback {
     } else {
         if (!$dbh->commit) {
             my $err = $dbh->err;
+            $self->logger->error("Error commiting");
             pf::db::db_handle_error($err);
             $status = mysql_error_to_status_code($err);
         }
@@ -303,7 +294,7 @@ Update the pf::dal object
 
 sub update {
     my ($self, $from_table) = @_;
-    return $STATUS::PRECONDITION_FAILED unless $self->__from_table || $from_table;
+    return $STATUS::UNPROCESSABLE_ENTITY unless $self->__from_table || $from_table;
     my $where         = $self->primary_keys_where_clause;
     my ($status, $update_data) = $self->_update_data;
     return $status if is_error($status);
@@ -323,6 +314,16 @@ sub update {
         $self->_save_old_data();
         return $STATUS::OK;
     }
+
+    my $info = $sth->{Database}{mysql_info};
+    if ($info =~ /^.*: (\d+).*: (\d+).*: (\d+)/) {
+        my ($matched, $row, $warning) = ($1, $2, $3);
+        if ($matched) {
+            $self->_save_old_data();
+            return $STATUS::OK;
+        }
+    }
+
     return $STATUS::NOT_FOUND;
 }
 
@@ -339,8 +340,14 @@ sub update_items {
         @args,
     );
     return $status, undef if is_error($status);
-
     my $rows = $sth->rows;
+    $sth->finish;
+    my $info = $sth->{Database}{mysql_info};
+    if ($info && $info =~ /^.*: (\d+).*: (\d+).*: (\d+)/) {
+        my ($matched, $row, $warning) = ($1, $2, $3);
+        return $STATUS::OK, $matched;
+    }
+
     return $STATUS::OK, $rows;
 }
 
@@ -351,7 +358,7 @@ Insert the pf::dal object
 =cut
 
 sub insert {
-    my ($self) = @_;
+    my ($self, @args) = @_;
     if ($self->__from_table) {
         my $table = $self->table;
         $self->logger->error("Trying to insert duplicate row into $table");
@@ -366,6 +373,7 @@ sub insert {
         -into => $self->table,
         -values   => $insert_data,
         -no_auto_tenant_id => $self->{-no_auto_tenant_id},
+        @args,
     );
     return $status if is_error($status);
 
@@ -452,6 +460,7 @@ sub upsert {
         -on_conflict => $on_conflict,
     );
     return $status if is_error($status);
+
     my $rows = $sth->rows;
     $self->_save_old_data();
     if ($rows == 1) {
@@ -459,6 +468,7 @@ sub upsert {
         $self->update_auto_increment_field($sth);
         $self->after_create_hook();
     }
+
     return $status;
 }
 
@@ -513,6 +523,7 @@ sub _update_data {
     my $updateable_fields = $self->_updateable_fields;
     my $old_data = $self->__old_data;
     my %data;
+    my $logger = $self->logger;
     foreach my $field (@$updateable_fields) {
         my $new_value = $self->{$field};
         my $old_value = $old_data->{$field};
@@ -520,7 +531,7 @@ sub _update_data {
         next if (defined $new_value && defined $old_value && $new_value eq $old_value);
         if (is_error($self->validate_field($field, $new_value))) {
             my $table = $self->table;
-            $self->logger->error("Skipping invalid value (" . ($new_value // "NULL" ) . ") in when updating field ${table}.${field}");
+            $logger->error("Skipping invalid value (" . ($new_value // "NULL" ) . ") in when updating field ${table}.${field}");
             next;
         }
         $data{$field} = $new_value;
@@ -537,19 +548,24 @@ Validate a field value
 sub validate_field {
     my ($self, $field, $value) = @_;
     my $logger = $self->logger;
+    my $meta = $self->get_meta;
+
+    if (!CORE::exists $meta->{$field}) {
+        return $STATUS::UNPROCESSABLE_ENTITY
+    }
+
     if (!$self->is_nullable($field)) {
         if (!defined $value) {
             my $table = $self->table;
             $logger->error("Trying to save a NULL value in a non nullable field ${table}.${field}");
-            return $STATUS::PRECONDITION_FAILED;
+            return $STATUS::UNPROCESSABLE_ENTITY;
         }
     }
     if ($self->is_enum($field) && defined $value) {
-        my $meta = $self->get_meta;
         unless (CORE::exists $meta->{$field} && CORE::exists $meta->{$field}{enums_values}{$value}) {
             my $table = $self->table;
             $logger->error("Trying to save a invalid value ($value) in a non nullable field ${table}.${field}");
-            return $STATUS::PRECONDITION_FAILED;
+            return $STATUS::UNPROCESSABLE_ENTITY;
         }
     }
     return $self->_validate_field($field, $value);
@@ -657,7 +673,7 @@ Remove row from the database
 
 sub remove {
     my ($self) = @_;
-    return $STATUS::PRECONDITION_FAILED unless $self->__from_table;
+    return $STATUS::UNPROCESSABLE_ENTITY unless $self->__from_table;
     my ($status, $count) = $self->remove_items(
         -where => $self->primary_keys_where_clause
     );
@@ -746,9 +762,13 @@ Wrap new and insert
 =cut
 
 sub create {
-    my ($self, @args) = @_;
-    my $obj = $self->new(@args);
-    return $obj->insert;
+    my ($self, $args) = @_;
+    my %insert_args = (
+        -ignore => delete $args->{-ignore},
+    );
+    my $obj = $self->new($args);
+
+    return $obj->insert(%insert_args);
 }
 
 =head2 find_from_tables
@@ -816,6 +836,18 @@ sub to_hash {
     return \%hash;
 }
 
+=head2 field_names
+
+field_names
+
+=cut
+
+sub field_names {
+    my ($self) = @_;
+    return $self->table_field_names;
+}
+
+
 =head2 now
 
 now
@@ -862,30 +894,42 @@ sub merge {
 
 sub set_tenant {
     my ($class, $tenant_id) = @_;
+
     if(!defined($tenant_id)) {
         get_logger->info("Undefined tenant ID specified, ignoring it and keeping current tenant");
         return $FALSE;
     }
 
-    my ($status, $count) = pf::dal->count(
-        -where => {
-            id => $tenant_id,
-        },
-        -from => 'tenant',
-    );
+    if ($tenant_id == pf::config::tenant::get_tenant()) {
+        return $TRUE
+    }
 
-    if (is_error($status)) {
-        get_logger->error("Problem looking up tenant ID ($tenant_id) in database");
+    if ($tenant_id < 0) {
+        get_logger->error("Cannot set a tenant id below 0");
         return $FALSE;
     }
 
-    if ($count == 0) {
-        get_logger->error("Invalid tenant ID ($tenant_id) specified, ignoring it and keeping current tenant");
-        return $FALSE;
+    if ($tenant_id > 1) {
+        my ($status, $count) = pf::dal->count(
+            -where => {
+                id => $tenant_id,
+            },
+            -from => 'tenant',
+        );
+
+        if (is_error($status)) {
+            get_logger->error("Problem looking up tenant ID ($tenant_id) in database");
+            return $FALSE;
+        }
+
+        if ($count == 0) {
+            get_logger->error("Invalid tenant ID ($tenant_id) specified, ignoring it and keeping current tenant");
+            return $FALSE;
+        }
     }
 
     get_logger->debug("Setting current tenant ID to $tenant_id");
-    $CURRENT_TENANT = $tenant_id;
+    pf::config::tenant::set_tenant($tenant_id);
     return $TRUE;
 }
 
@@ -896,7 +940,7 @@ reset_tenant
 =cut
 
 sub reset_tenant {
-    $CURRENT_TENANT = $DEFAULT_TENANT_ID;
+    return pf::config::tenant::reset_tenant();
 }
 
 =head2 table
@@ -912,7 +956,7 @@ sub table {
 
 
 sub get_tenant {
-    return $CURRENT_TENANT;
+    return pf::config::tenant::get_tenant();
 }
 
 =head2 select
@@ -923,6 +967,7 @@ Wrap select pf::SQL::Abstract->select
 
 sub select {
     my ($proto, @args) = @_;
+    @args = $proto->update_params_for_select(@args);
     my $sqla = $proto->get_sql_abstract;
     return $sqla->select(@args);
 }
@@ -935,7 +980,6 @@ Wrap call to select and db_execute
 
 sub do_select {
     my ($proto, @args) = @_;
-    @args = $proto->update_params_for_select(@args);
     my ($sql, @bind) = $proto->select(@args);
     return $proto->db_execute($sql, @bind);
 }
@@ -1079,10 +1123,16 @@ Wrap call to pf::SQL::Abstract->insert and db_execute
 =cut
 
 sub do_insert {
-    my ($proto, @args) = @_;
+    my ($proto, %args) = @_;
     my $sqla          = $proto->get_sql_abstract;
-    @args = $proto->update_params_for_insert(@args);
-    my ($stmt, @bind) = $sqla->insert(@args);
+    my $ignore        = delete $args{'-ignore'};
+    %args = $proto->update_params_for_insert(%args);
+    my ($stmt, @bind) = $sqla->insert(%args);
+    if ($ignore) {
+        my $s = $sqla->_sqlcase('insert ignore into');
+        $stmt =~ s/insert into/$s/ie;
+    }
+
     return $proto->db_execute($stmt, @bind);
 }
 
@@ -1121,10 +1171,16 @@ Wrap call to pf::SQL::Abstract->delete and db_execute
 =cut
 
 sub do_delete {
-    my ($proto, @args) = @_;
+    my ($proto, %args) = @_;
     my $sqla          = $proto->get_sql_abstract;
-    @args = $proto->update_params_for_delete(@args);
+    my $ignore        = delete $args{'-ignore'};
+    my @args = $proto->update_params_for_delete(%args);
     my ($stmt, @bind) = $sqla->delete(@args);
+    if ($ignore) {
+        my $s = $sqla->_sqlcase('delete ignore ');
+        $stmt =~ s/delete /$s/ie;
+    }
+
     return $proto->db_execute($stmt, @bind);
 }
 
@@ -1154,13 +1210,140 @@ sub batch_remove {
 }
 
 
+=head2 batch_update
+
+Batch update rows
+
+=cut
+
+sub batch_update {
+    my ($proto, $params, $time_limit) = @_;
+    my $logger = get_logger();
+    $logger->debug("calling batch_update with timelimit=$time_limit");
+    my $start_time = time;
+    my $end_time;
+    my $rows_updated = 0;
+    my $table = $proto->table;
+    while (1) {
+        my ($status, $rows) = $proto->update_items(%$params);
+        $end_time = time;
+        $rows_updated+=$rows if $rows > 0;
+        $logger->trace( sub { "updated $rows_updated entries from $table for batch_update ($start_time $end_time) " });
+        last if $rows <= 0 || (( $end_time - $start_time) > $time_limit );
+    }
+    $logger->info("updated $rows_updated entries from $table for batch_update ($start_time $end_time) ");
+    return $STATUS::OK, $rows_updated;
+}
+
+sub make_dal_finder {
+    my ($proto) = @_;
+    my $class = ref($proto) || $proto;
+    my @pkeys = @{$proto->primary_keys};
+    my $i = -1;
+    my %args = map { $i++; ($_ => "param_$i") } @pkeys;
+    if (exists $args{tenant_id}) {
+        $args{tenant_id} = pf::config::tenant::get_tenant();
+    }
+    my %reverse = map { $args{$_} => $_ } keys %args;
+    my $select_args = $proto->find_select_args(\%args);
+    my @select_args = $proto->update_params_for_select(%$select_args);
+    my ($sql, @bind) = $proto->get_sql_abstract->select(@select_args);
+    my %pos;
+
+    for (my $i =0;$i< @bind;$i++) {
+        my $b = $bind[$i];
+        my $col = $reverse{$b};
+        $pos{$col} = $i;
+    }
+    my $tenant_id_position;
+    my $pkey_position;
+    my $pkey;
+    if (exists $args{tenant_id} && @pkeys == 2) {
+        $tenant_id_position = $pos{tenant_id};
+        ($pkey) = grep { $_ ne 'tenant_id' } @pkeys;
+        $pkey_position = $pos{$pkey};
+    } elsif (@pkeys == 1) {
+        $pkey = $pkeys[0];
+        $pkey_position = 0;
+    }
+
+    if ($pkey) {
+        return subname "${class}::find" => sub {
+            my ($proto, $ids) = @_;
+            my @bind;
+            if ($tenant_id_position) {
+                $bind[$tenant_id_position] = $proto->get_tenant();
+            }
+
+            $bind[$pkey_position] = exists $ids->{$pkey} ? $ids->{$pkey} : undef;
+            my ($status, $sth) = $proto->db_execute($sql, @bind);
+            return $status, undef if is_error($status);
+            my $row = $sth->fetchrow_hashref;
+            $sth->finish;
+            unless ($row) {
+                return $STATUS::NOT_FOUND, undef;
+            }
+
+            my $dal = $proto->new_from_row($row);
+            return $STATUS::OK, $dal;
+        };
+    }
+
+    return subname "${class}::find" => sub {
+        my ($proto, $ids) = @_;
+        my @bind;
+        for my $p (@pkeys) {
+            my $i = $pos{$p};
+            if ($p eq 'tenant_id') {
+                $bind[$i] = $proto->get_tenant();
+            } else {
+                $bind[$i] = exists $ids->{$p} ? $ids->{$p} : undef;
+            }
+        }
+
+        my ($status, $sth) = $proto->db_execute($sql, @bind);
+        return $status, undef if is_error($status);
+        my $row = $sth->fetchrow_hashref;
+        $sth->finish;
+        unless ($row) {
+            return $STATUS::NOT_FOUND, undef;
+        }
+
+        my $dal = $proto->new_from_row($row);
+        return $STATUS::OK, $dal;
+    };
+}
+
+sub make_sql_executor {
+    my ($class_or_ref, $sql, @bind_names, %bind_pos) = @_;
+    return sub {
+        my ($proto, $args) = @_;
+        my @bind;
+        for my $n (@bind_names) {
+            my $indexes = $bind_pos{$n};
+            my $val;
+            if ($n eq 'tenant_id') {
+                my $val = $proto->get_tenant();
+            } else {
+                $val = exists $args->{$n} ? $args->{$n} : undef;
+            }
+
+            for my $i (@$indexes) {
+                $bind[$i] = $val;
+            }
+        }
+
+        return $proto->db_execute($sql, @bind);
+    }
+}
+
 =head1 AUTHOR
 
 Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2018 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 

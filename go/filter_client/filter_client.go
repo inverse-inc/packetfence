@@ -18,8 +18,8 @@ type Request struct {
 // Represents the json error received from the pffilter service
 type ClientError struct {
 	Code    int         `json:"code"`
-	Message string      `json:message`
-	Data    interface{} `json:data`
+	Message string      `json:"message"`
+	Data    interface{} `json:"data"`
 }
 
 // Represents the json repsonse received from the pffilter service
@@ -81,6 +81,11 @@ func (c *Client) FilterDns(scope string, data interface{}) (interface{}, error) 
 // Sends a filter_radius message to the pffilter service
 func (c *Client) FilterRadius(scope string, data interface{}) (interface{}, error) {
 	return c.AccessFilter("filter_radius", scope, data)
+}
+
+// Sends a filter_remote_profile message to the pffilter service
+func (c *Client) FilterRemoteProfile(scope string, data interface{}) (interface{}, error) {
+	return c.AccessFilter("filter_remote_profile", scope, data)
 }
 
 // Send a request to the pffilter service

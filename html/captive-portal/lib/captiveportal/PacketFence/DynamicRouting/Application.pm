@@ -16,6 +16,7 @@ use CHI;
 use Cache::FileCache;
 use Template::AutoFilter;
 use pf::constants;
+use pf::web::constants;
 use pf::log;
 use Locale::gettext qw(gettext ngettext);
 use captiveportal::Base::I18N;
@@ -30,6 +31,8 @@ use pf::web ();
 use pf::api::queue;
 use pf::file_paths qw($install_dir);
 use pf::config qw(%Config);
+use pf::activation;
+use fingerbank::Config;
 
 has 'session' => (is => 'rw', required => 1);
 
@@ -38,6 +41,8 @@ has 'user_session' => (is => 'rw', required => 1);
 has 'root_module' => (is => 'rw', isa => "captiveportal::DynamicRouting::Module::Root");
 
 has 'root_module_id' => (is => 'rw');
+
+has 'sub_root_module_id' => (is => 'rw');
 
 has 'request' => (is => 'ro', required => 1);
 
@@ -48,6 +53,8 @@ has 'profile' => (is => 'rw', required => 1, isa => "pf::Connection::Profile");
 has 'template_output' => (is => 'rw');
 
 has 'response_code' => (is => 'rw', isa => 'Int', default => sub{200});
+
+has 'response_headers' => (is => 'rw', default => sub{{}});
 
 has 'title' => (is => 'rw', isa => 'Str|ArrayRef');
 
@@ -130,11 +137,34 @@ Fingerbank processing
 sub process_fingerbank {
     my ( $self ) = @_;
 
+    unless(fingerbank::Config::is_api_key_configured()) {
+        get_logger->debug("Skipping Fingerbank processing because no API key is configured");
+        return $FALSE;
+    }
+
     my $attributes = pf::fingerbank::endpoint_attributes($self->current_mac);
     if($attributes->{most_accurate_user_agent} ne $self->current_user_agent) {
         pf::fingerbank::update_collector_endpoint_data($self->current_mac, {
             most_accurate_user_agent => $self->current_user_agent,
             user_agents => {$self->current_user_agent => $TRUE},
+        });
+    }
+
+    $self->response_headers->{'Accept-CH'} = "ua, platform, arch, model, mobile";
+    $self->response_headers->{'Accept-CH-Lifetime'} = "300";
+
+    if(defined($self->request->header("sec-ch-ua"))) {
+        my $chua = $self->request->header("sec-ch-ua");
+        my $info = {};
+        for my $ch (qw(sec-ch-ua-platform sec-ch-ua-model sec-ch-ua-arch)) {
+            my $val = $self->request->header($ch);
+            if(defined($val)) {
+                get_logger->debug("Received client hint header '$ch' => '$val'");
+                $info->{$ch} = $val;
+            }
+        }
+        pf::fingerbank::update_collector_endpoint_data($self->current_mac, {
+            client_hints => {$chua => $info}, 
         });
     }
 
@@ -277,36 +307,50 @@ Will compute it using the following logic :
 sub process_destination_url {
     my ($self) = @_;
     my $url = $self->session->{user_destination_url};
-
+    if ( defined($self->session->{portal_module_force_destination_url}) && $self->session->{portal_module_force_destination_url}) {
+        $url = $self->session->{destination_url};
+    }
     # Return connection profile's redirection URL if destination_url is not set or if redirection URL is forced
     if (!defined($url) || !$url || isenabled($self->profile->forceRedirectURL)) {
         $url = $self->profile->getRedirectURL;
+        goto SET_URL;
     }
 
     my $host;
+    my $path;
     eval {
-        $host = URI::URL->new($url)->host();
+        my $uri = URI::URL->new($url);
+        $host = $uri->host();
+        $path = $uri->path();
     };
     if($@) {
         get_logger->info("Invalid destination_url $url. Replacing with profile defined one.");
-        $url = $self->profile->getRedirectURL;
+        $url = $self->session->{destination_url} || $self->profile->getRedirectURL;
+        goto SET_URL;
     }
 
+    if($path eq $WEB::URL_NETWORK_LOGOFF) {
+        get_logger->info("The destination URL is pointing to the network logoff page, will leave it as is.");
+        goto SET_URL;
+    }
 
     my @portal_hosts = portal_hosts();
     # if the destination URL points to the portal, we put the default URL of the connection profile
     if ( any { $_ eq $host } @portal_hosts) {
         get_logger->info("Replacing destination URL $url since it points to the captive portal");
-        $url = $self->profile->getRedirectURL;
+        $url = $self->session->{destination_url} || $self->profile->getRedirectURL;
+        goto SET_URL;
     }
 
     # if the destination URL points to a network detection URL, we put the default URL of the connection profile
     if ( any { $_ eq $url } @{$Config{captive_portal}{detection_mecanism_urls}}) {
         get_logger->info("Replacing destination URL $url since it is a network detection URL");
         $url = $self->profile->getRedirectURL;
+        goto SET_URL;
     }
 
 
+SET_URL:
     $url = decode_entities(uri_unescape($url));
     $self->session->{destination_url} = $url;
 
@@ -327,6 +371,8 @@ sub render {
 
     my $inner_content = $self->_render($template,$args);
     my $profile = $self->profile;
+    $args->{lang} = $self->session->{lang};
+    my %saved_fields = %{$self->session->{saved_fields}} if (defined ($self->session->{saved_fields}) );
 
     my $layout_args = {
         flash => $self->flash,
@@ -336,6 +382,8 @@ sub render {
         title => $self->title,
         logo => $profile->getLogo,
         profile => $profile,
+        lang => $self->session->{lang},
+        %saved_fields,
     };
 
     $args->{layout} //= $TRUE;
@@ -382,6 +430,9 @@ sub _render {
 
     # Expose the preregistration flag in all templates
     $args->{preregistration} = $self->preregistration;
+
+    # Expose the application
+    $args->{application} = $self;
 
     my $processor = Template::AutoFilter->new($self->_template_toolkit_options($args));
 
@@ -510,10 +561,13 @@ Reset the session except for attributes that are not related to the device state
 
 sub reset_session {
     my ($self) = @_;
-    my @ignore = qw(destination_url client_mac client_ip);
+    my @ignore = qw(lang destination_url client_mac client_ip);
     foreach my $key (keys %{$self->session}){
         next if(any { $key eq $_ } @ignore);
         delete $self->session->{$key};
+    }
+    if(pf::activation::activation_has_entry($self->session->{client_mac},'sms')){
+        pf::activation::invalidate_codes_for_mac($self->session->{client_mac}, "sms");
     }
 }
 
@@ -534,7 +588,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2018 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 

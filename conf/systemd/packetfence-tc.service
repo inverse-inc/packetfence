@@ -1,3 +1,4 @@
+# Copyright (C) Inverse inc.
 [Unit]
 Description=PacketFence Traffic Shaping configuration
 Wants=packetfence-config.service
@@ -8,9 +9,9 @@ StartLimitBurst=3
 StartLimitInterval=10
 Type=oneshot
 RemainAfterExit=yes
-ExecStart=/bin/perl -I/usr/local/pf/lib '-Mpf::services::manager::tc' -e 'pf::services::manager::tc->new()->_start()'
+ExecStart=/bin/perl -I/usr/local/pf/lib -Mpf::db -Mpf::services::manager::tc -e 'my $db ; while(!$db) { eval { $db = db_connect() } ; sleep 1 } ; pf::services::manager::tc->new()->_start()'
 ExecStop=/bin/perl -I/usr/local/pf/lib '-Mpf::services::manager::tc' -e 'pf::services::manager::tc->new()->_stop()'
-Slice=packetfence-base.slice
+Slice=packetfence.slice
 
 [Install]
-WantedBy=packetfence-base.target
+WantedBy=packetfence.target

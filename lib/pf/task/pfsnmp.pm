@@ -14,6 +14,7 @@ pf::task::pfsnmp
 
 use strict;
 use warnings;
+use base 'pf::task';
 use pf::log;
 use pf::SwitchFactory;
 use pf::role::custom;
@@ -25,16 +26,18 @@ use pf::config qw(
     %ConfigFloatingDevices
     $WIRED_SNMP_TRAPS
     %Config
-    $WIPS_VID
+    $WIPS_SECURITY_EVENT_ID
     $VOIP
 );
 use pf::constants qw($TRUE $FALSE);
-use pf::violation;
+use pf::constants::role qw($REGISTRATION_ROLE);
+use pf::security_event;
 use pf::node;
 use pf::util;
 use pf::config::util;
 use pf::Connection::ProfileFactory;
 use pf::pfqueue::producer::redis;
+use pf::config::pfqueue qw(%ConfigPfqueue);
 use pf::Redis;
 use pf::rate_limiter;
 
@@ -53,23 +56,28 @@ sub doTask {
     my ($self, $trap) = @_;
     my $switch_id = $trap->{switchId};
     unless (defined $switch_id) {
-        $logger->error("No switch found in trap");
-        return;
+        my $msg = "No switch found in trap";
+        $logger->error($msg);
+        return {message => $msg, status => 422}, undef;
     }
 
     my $switch = pf::SwitchFactory->instantiate($switch_id);
     unless ($switch) {
-        $logger->error("Can not instantiate switch $switch_id !");
-        return;
+        my $msg = "Can not instantiate switch $switch_id !";
+        $logger->error($msg);
+        return {message => $msg, status => 404}, undef;
     }
 
     my $lock = $self->lockSwitch($switch, $trap);
 
     unless ($lock) {
-        $logger->debug("cannot get a lock on the switch $switch_id");
-        return;
+        my $msg = "cannot get a lock on the switch $switch_id";
+        $logger->error($msg);
+        return {message => $msg, status => 500}, undef;
     }
-    return $self->handleTrap($switch, $trap);
+
+    $self->handleTrap($switch, $trap);
+    return undef, undef;
 }
 
 our %TRAP_HANDLERS = (
@@ -176,9 +184,9 @@ sub handleUpTrap {
         return;
     }
 
-    # set into MAC detection VLAN
-    $logger->info("setting $switch_id port $switch_port to MAC detection VLAN");
-    $switch->setMacDetectionVlan($switch_port, \%switch_locker, 1);
+    # set into Registration VLAN
+    $logger->info("setting $switch_id port $switch_port to Registration VLAN");
+    $switch->setVlan( $switch_port, $switch->getVlanByName($REGISTRATION_ROLE), \%switch_locker, undef, 1 );
 
     # continue only if MAC learnt traps are not available on this port
     if ($switch->isLearntTrapsEnabled($switch_port)) {
@@ -320,8 +328,8 @@ sub handleMacTrap {
             else {
                 $logger->info("Removed trap for MAC $mac: MAC "
                       . $locationlog[0]->{'mac'}
-                      . " DEAD -> setting data VLAN on $switch_id ifIndex $switch_port to MAC detection VLAN");
-                $switch->setMacDetectionVlan($switch_port, \%switch_locker, 0);
+                      . " DEAD -> setting data VLAN on $switch_id ifIndex $switch_port to Registration VLAN");
+                $switch->setVlan( $switch_port, $switch->getVlanByName($REGISTRATION_ROLE), \%switch_locker, undef, 0 );
             }
         }
         else {
@@ -347,8 +355,8 @@ sub handleMacTrap {
             }
 
             if ($nothingLeftOnSwitchPort == 1) {
-                $logger->info("setting data VLAN on $switch_id ifIndex $switch_port to MAC detection VLAN");
-                $switch->setMacDetectionVlan($switch_port, \%switch_locker, 0);
+                $logger->info("setting data VLAN on $switch_id ifIndex $switch_port to MAC Registration VLAN");
+                $switch->setVlan( $switch_port, $switch->getVlanByName($REGISTRATION_ROLE), \%switch_locker, undef, 0 );
             }
             else {
                 $logger->info("no line in locationlog and MACs ("
@@ -454,9 +462,9 @@ sub handleDownTrap {
         return;
     }
 
-    # set into MAC detection VLAN
-    $logger->info("setting $switch_id port $switch_port to MAC detection VLAN");
-    $switch->setMacDetectionVlan($switch_port, \%switch_locker, 1);
+    # set into Registration VLAN
+    $logger->info("setting $switch_id port $switch_port to Registration VLAN");
+    $switch->setVlan( $switch_port, $switch->getVlanByName($REGISTRATION_ROLE), \%switch_locker, undef, 1 );
 }
 
 =head2 handleRoamingTrap
@@ -668,12 +676,20 @@ sub handleSecureMacAddrViolationTrap {
                 $logger->info(
 "authorizing $trapMac (old entry $old_mac_to_remove) at new location $switch_id ifIndex $switch_port"
                 );
-                $switch->authorizeMAC($switch_port, $old_mac_to_remove, $trapMac, $switch->getVlan($switch_port),
-                    $correctVlanForThisNode);
+                if (!$switch->authorizeMAC($switch_port, $old_mac_to_remove, $trapMac, $switch->getVlan($switch_port),
+                    $correctVlanForThisNode)) {
+                    $logger->error(
+    "Unable to authorize $trapMac (old entry $old_mac_to_remove) at new location $switch_id ifIndex $switch_port"
+                    );
+                    return;
+                }
             }
             else {
                 $logger->info("authorizing $trapMac at new location $switch_id ifIndex $switch_port");
-                $switch->authorizeMAC($switch_port, 0, $trapMac, 0, $correctVlanForThisNode);
+                if (!$switch->authorizeMAC($switch_port, 0, $trapMac, 0, $correctVlanForThisNode)) {
+                    $logger->error("Unable to authorize $trapMac at new location $switch_id ifIndex $switch_port");
+                    return;
+                }
             }
 
             #set the right VLAN
@@ -733,9 +749,8 @@ sub do_port_security {
                     }
                     my $fakeMac = $oldSwitch->generateFakeMac( $is_old_voip, $old_port );
                     $logger->info("de-authorizing $mac (new entry $fakeMac) at old location $old_switch ifIndex $old_port");
-                    $oldSwitch->authorizeMAC( $old_port, $mac, $fakeMac,
-                        ( $is_old_voip ? $oldSwitch->getVoiceVlan($old_port) : $oldSwitch->getVlan($old_port) ),
-                        ( $is_old_voip ? $oldSwitch->getVoiceVlan($old_port) : $oldSwitch->getVlan($old_port) ) );
+                    my $port_to_auth = $is_old_voip ? $oldSwitch->getVoiceVlan($old_port) : $oldSwitch->getVlan($old_port);
+                    $oldSwitch->authorizeMAC( $old_port, $mac, $fakeMac, $port_to_auth, $port_to_auth);
                 } else {
                     $logger->info("MAC not found on node's previous switch secure table or switch inaccessible.");
                 }
@@ -747,14 +762,14 @@ sub do_port_security {
     # check if $mac is not already secured on another port (in case locationlog is outdated)
     my $secureMacAddrHashRef = $switch->getAllSecureMacAddresses();
     if ( exists( $secureMacAddrHashRef->{$mac} ) ) {
-        foreach my $ifIndex ( keys( %{ $secureMacAddrHashRef->{$mac} } ) ) {
+        my $ifIndexes = $secureMacAddrHashRef->{$mac};
+        foreach my $ifIndex ( keys( %{ $ifIndexes } ) ) {
             if ( $ifIndex == $switch_port ) {
                 return 'stopTrapHandling';
             } else {
-                foreach my $vlan (
-                    @{ $secureMacAddrHashRef->{$mac}->{$ifIndex} } )
-                {
-                    my $is_voice_vlan = ($vlan == $switch->getVoiceVlan($ifIndex));
+                my $voice_vlan = $switch->getVoiceVlan($ifIndex);
+                foreach my $vlan ( @{ $ifIndexes->{$ifIndex} } ) {
+                    my $is_voice_vlan = $voice_vlan == $vlan;
                     my $fakeMac = $switch->generateFakeMac($is_voice_vlan, $ifIndex);
                     $logger->info( "$mac is a secure MAC address at "
                             . $switch->{_id}
@@ -790,10 +805,10 @@ sub node_update_PF {
     }
 
     #should we auto-register?
-    if ($role_obj->shouldAutoRegister({mac => $mac, switch => $switch, violation_autoreg => 0, isPhone => $isPhone, connection_type => $WIRED_SNMP_TRAPS})) {
+    if ($role_obj->shouldAutoRegister({mac => $mac, switch => $switch, security_event_autoreg => 0, isPhone => $isPhone, connection_type => $WIRED_SNMP_TRAPS, profile => pf::Connection::ProfileFactory->instantiate($mac)})) {
         # auto-register
-        my %autoreg_node_defaults = $role_obj->getNodeInfoForAutoReg({ switch => $switch, ifIndex => $switch_port,
-            mac => $mac, vlan => $vlan, violation_autoreg => 0, isPhone => $isPhone, connection_type => $WIRED_SNMP_TRAPS});
+        my ($attributes, $action , %autoreg_node_defaults) = $role_obj->getNodeInfoForAutoReg({ switch => $switch, ifIndex => $switch_port,
+            mac => $mac, vlan => $vlan, security_event_autoreg => 0, isPhone => $isPhone, connection_type => $WIRED_SNMP_TRAPS, profile => pf::Connection::ProfileFactory->instantiate($mac)});
         $logger->debug("auto-registering node $mac");
         if (!node_register($mac, $autoreg_node_defaults{'pid'}, %autoreg_node_defaults)) {
             $logger->error("auto-registration of node $mac failed");
@@ -878,7 +893,7 @@ requeueTrap
 sub requeueTrap {
     my ($self, $args) = @_;
     my $client = pf::pfqueue::producer::redis->new();
-    $client->submit("pfsnmp", "pfsnmp", $args);
+    $client->submit_hashed($ConfigPfqueue{queue_config}{pfsnmp}{workers}, $args->{switchId}, "pfsnmp", "pfsnmp", $args);
     return ;
 }
 
@@ -888,7 +903,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2018 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 

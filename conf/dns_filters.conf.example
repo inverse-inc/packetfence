@@ -1,24 +1,7 @@
+# Copyright (C) Inverse inc.
 # DNS filter configuration
 #
 # you can trigger rule in pfdns on specific scope (registration, isolation, inline, dnsenforcement)
-#
-# Make a simple rule like this:
-#
-# [packetfence]
-# filter = qname
-# operator = is
-# value = www.packetfence.org
-#
-# [1:packetfence]
-# scope = registration
-# answer = 30 IN A 10.0.0.1
-# rcode = NOERROR
-#
-# It means that when pfdns receive a dns request for the dns name www.packetfence.org then it will answer the ip 10.0.0.1
-# see http://search.cpan.org/~nlnetlabs/Net-DNS-0.74/lib/Net/DNS/RR.pm for more details
-#
-#
-#
 #
 # filter can be:
 #
@@ -32,6 +15,7 @@
 #     conn.sockhost
 #     conn.peerport
 #     time
+#     mac
 #
 # operator can be:
 #     is
@@ -79,25 +63,3 @@
 # wd {Mon Tue Wed Thu Fri} hr {9am-11am}, wd {Mon Tue Wed Thu Fri} hr {2pm-4am}
 #
 # answer is in the format of http://search.cpan.org/~nlnetlabs/Net-DNS-1.04/lib/Net/DNS/RR.pm
-#
-# rcode can be:
-#    NOERROR   No Error
-#    FORMERR   Format Error
-#    SERVFAIL  Server Failure
-#    NXDOMAIN  Non-Existent Domain
-#    NOTIMP    Not Implemented
-#    REFUSED   Query Refused
-#    YXDOMAIN  Name Exists when it should not
-#    YXRRSET   RR Set Exists when it should not
-#    NXRRSET   RR Set that should exist does not
-#    NOTAUTH   Server Not Authoritative for zone
-#    NOTAUTH   Not Authorized
-#    NOTZONE   Name not contained in zone
-#    BADVERS   Bad OPT Version
-#    BADSIG    TSIG Signature Failure
-#    BADKEY    Key not recognized
-#    BADTIME   Signature out of time window
-#    BADMODE   Bad TKEY Mode
-#    BADNAME   Duplicate key name
-#    BADALG    Algorithm not supported
-#    BADTRUNC  Bad Truncation

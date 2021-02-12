@@ -182,10 +182,10 @@ Returns an hashref that holds time values.
 
 =cut
 
-sub get_translated_time_hash {
+sub get_translated_time_array {
     my ($to_translate, $locale) = @_;
 
-    my %time;
+    my @times;
     foreach my $key (@{$to_translate}) {
         my ($unit, $unit_plural, $value) = get_translatable_time($key);
         my $strfmt = $value . " " . ni18n($unit, $unit_plural, $value);
@@ -199,10 +199,10 @@ sub get_translated_time_hash {
 
         # we normalize time so we can present the hash in a sorted fashion
         my $unix_timestamp = normalize_time($key);
-
-        $time{$unix_timestamp} = [$key, $strfmt];
+        push @times, [$unix_timestamp, $key, $strfmt];
     }
-    return \%time;
+
+    return \@times;
 }
 
 =item
@@ -305,7 +305,7 @@ Generate the URL to a section of documentation
 
 sub generate_doc_url {
     my ($section, $guide) = @_;
-    $guide //= "Administration_Guide";
+    $guide //= "Installation_Guide";
     return "/static/doc/PacketFence_$guide.html#$section"
 }
 
@@ -328,7 +328,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2018 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 

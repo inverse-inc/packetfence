@@ -18,6 +18,7 @@ use Moo;
 extends 'pf::services::manager';
 
 has '+name' => ( default => sub { 'pfstats' } );
+has '+optional' => ( default => sub {'1'} );
 
 =head1 AUTHOR
 
@@ -26,7 +27,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2018 inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 

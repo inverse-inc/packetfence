@@ -21,6 +21,7 @@ use pf::authentication;
 use pf::config;
 use pf::Authentication::constants;
 use pf::util;
+use pf::constants;
 use pf::constants::realm;
 
 our %AUTHENTICATION_ACTIONS = (
@@ -34,6 +35,11 @@ our %AUTHENTICATION_ACTIONS = (
     set_bandwidth_balance => sub { $_[0]->new_node_info->{bandwidth_balance} = pf::util::unpretty_bandwidth($_[1]) },
     time_balance_from_source => sub { $_[0]->new_node_info->{time_balance} = pf::util::normalize_time(authentication_match_wrapper($_[0]->source->id, $_[0]->auth_source_params, $Actions::SET_TIME_BALANCE)); },
     bandwidth_balance_from_source => sub { $_[0]->new_node_info->{bandwidth_balance} = pf::util::unpretty_bandwidth(authentication_match_wrapper($_[0]->source->id, $_[0]->auth_source_params, $Actions::SET_BANDWIDTH_BALANCE)); },
+    default_actions => \&execute_default_actions,
+    on_failure => sub {},
+    on_success => sub {},
+    destination_url => sub {$_[0]->app->session->{destination_url} = $_[1];$_[0]->app->session->{portal_module_force_destination_url} = $TRUE},
+    unregdate_from_sponsor_source => sub { $_[0]->new_node_info->{unregdate} = $_[0]->session->{unregdate} if defined($_[0]->session->{unregdate}) },
 );
 
 =head2 authentication_match_wrapper
@@ -48,13 +54,22 @@ sub authentication_match_wrapper {
     return pf::authentication::match(@all);
 }
 
+sub execute_default_actions {
+    my ($self) = @_;
+    my $default_actions = ref($self)->new(id => "dummy", app => $self->app, parent => $self)->actions;
+    while(my ($action, $params) = each(%$default_actions)) {
+        get_logger->debug("Executing action $action with params : ".join(',', @{$params}));
+        $AUTHENTICATION_ACTIONS{$action}->($self, @{$params});
+    }
+}
+
 =head1 AUTHOR
 
 Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2018 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 

@@ -1,0 +1,14 @@
+---
+roles:
+  - src: geerlingguy.nodejs
+  - src: inverse_inc.gitlab_buildpkg_tools
+
+collections:
+  - name: inverse_inc.packetfence
+  - name: debops.debops
+  - name: inverse_inc.windows
+  - name: inverse_inc.cumulus
+  - name: inverse_inc.utils
+  - name: inverse_inc.wireless
+
+

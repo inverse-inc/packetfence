@@ -1,0 +1,19 @@
+---
+# only for el8, see https://developers.redhat.com/blog/2018/11/14/python-in-rhel-8/
+- import_playbook: playbooks/python3.yml
+
+- hosts: ['devel_centos', 'devel_debian', 'stable_centos', 'stable_debian']
+  name: install upstream repos needed to install build requires
+  become: True
+
+  roles:
+    - role: inverse_inc.gitlab_buildpkg_tools
+
+  # when upstream up-to-date docker images take time to be released
+  tasks:
+    - name: update to latest OS version
+      package:
+        name: '*'
+        state: latest
+
+- import_playbook: playbooks/rubygems.yml

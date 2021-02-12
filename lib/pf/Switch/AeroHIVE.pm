@@ -54,6 +54,8 @@ use pf::roles::custom $ROLES_API_LEVEL;
 # importing switch constants
 use pf::Switch::constants;
 use pf::util;
+use pf::util::radius qw(perform_disconnect perform_coa);
+
 
 =head1 SUBROUTINES
 
@@ -63,13 +65,16 @@ use pf::util;
 
 # CAPABILITIES
 # access technology supported
-sub supportsRoleBasedEnforcement { return $TRUE; }
-sub supportsWirelessDot1x { return $TRUE; }
-sub supportsWirelessMacAuth { return $TRUE; }
+use pf::SwitchSupports qw(
+    RoleBasedEnforcement
+    WirelessDot1x
+    WirelessMacAuth
+    RoamingAccounting
+);
+
 # inline capabilities
 sub inlineCapabilities { return ($MAC,$SSID); }
 # locationlog update capabilities
-sub supportsRoamingAccounting { return $TRUE };
 
 =item getVersion
 
@@ -136,6 +141,103 @@ sub parseTrap {
     $logger->debug("trap currently not handled");
     $trapHashRef->{'trapType'} = 'unknown';
     return $trapHashRef;
+}
+
+=item radiusDisconnect
+
+Sends a RADIUS Disconnect-Request to the NAS with the MAC as the Calling-Station-Id to disconnect.
+
+Optionally you can provide other attributes as an hashref.
+
+Uses L<pf::util::radius> for the low-level RADIUS stuff.
+
+=cut
+
+# TODO consider whether we should handle retries or not?
+sub radiusDisconnect {
+    my ($self, $mac, $add_attributes_ref) = @_;
+    my $logger = $self->logger();
+
+    # initialize
+    $add_attributes_ref = {} if (!defined($add_attributes_ref));
+
+    if (!defined($self->{'_radiusSecret'})) {
+        $logger->warn(
+            "Unable to perform RADIUS Disconnect-Request on $self->{'_id'}: RADIUS Shared Secret not configured"
+        );
+        return;
+    }
+
+    $logger->info("deauthenticating");
+
+    # Where should we send the RADIUS Disconnect-Request?
+    # to network device by default
+    my $send_disconnect_to = $self->{'_ip'};
+    my $nas_ip_address = $self->{_switchIp};
+    # but if controllerIp is set, we send there
+    if (defined($self->{'_controllerIp'}) && $self->{'_controllerIp'} ne '') {
+        $logger->info("controllerIp is set, we will use controller $self->{_controllerIp} to perform deauth");
+        $send_disconnect_to = $self->{'_controllerIp'};
+    }
+    # allowing client code to override where we connect with NAS-IP-Address
+    if ( defined($add_attributes_ref->{'NAS-IP-Address'}) && $add_attributes_ref->{'NAS-IP-Address'} ne '' ) {
+        $logger->info("'NAS-IP-Address' additionnal attribute is set. Using it '" . $add_attributes_ref->{'NAS-IP-Address'} . "' to perform deauth");
+        $send_disconnect_to = $add_attributes_ref->{'NAS-IP-Address'};
+    }
+
+    my $response;
+    try {
+        my $roleResolver = pf::roles::custom->instance();
+        my $role = $roleResolver->getRoleForNode($mac, $self);
+        my $connection_info = {
+            nas_ip => $send_disconnect_to,
+            secret => $self->{'_radiusSecret'},
+            LocalAddr => $self->deauth_source_ip($send_disconnect_to),
+        };
+
+        if (defined($self->{'_disconnectPort'}) && $self->{'_disconnectPort'} ne '') {
+            $connection_info->{'nas_port'} = $self->{'_disconnectPort'};
+        }
+
+        # transforming MAC to the expected format 00-11-22-33-CA-FE
+        $mac = uc($mac);
+        $mac =~ s/:/-/g;
+
+        # Standard Attributes
+        my $attributes_ref = {
+            'Calling-Station-Id' => $mac,
+            'NAS-IP-Address' => $send_disconnect_to,
+        };
+
+        # merging additional attributes provided by caller to the standard attributes
+        $attributes_ref = { %$attributes_ref, %$add_attributes_ref };
+
+        if ( $self->shouldUseCoA({role => $role}) ) {
+            $attributes_ref = {
+                %$attributes_ref,
+                'Filter-Id' => $role,
+            };
+            $logger->info("[$self->{'_ip'}] Returning ACCEPT with Role: $role");
+            $response = perform_coa($connection_info, $attributes_ref);
+        }
+        else {
+            $response = perform_disconnect($connection_info, $attributes_ref);
+        }
+    } catch {
+        chomp;
+        $logger->warn("Unable to perform RADIUS Disconnect-Request: $_");
+        $logger->error("Wrong RADIUS secret or unreachable network device...") if ($_ =~ /^Timeout/);
+    };
+    return if (!defined($response));
+
+    return $TRUE if ( ($response->{'Code'} eq 'Disconnect-ACK') || ($response->{'Code'} eq 'CoA-ACK') );
+
+    $logger->warn(
+        "Unable to perform RADIUS Disconnect-Request."
+            . ( defined($response->{'Code'}) ? " $response->{'Code'}" : 'no RADIUS code' ) . ' received'
+            . ( defined($response->{'Error-Cause'}) ? " with Error-Cause: $response->{'Error-Cause'}." : '' )
+    );
+    return;
 }
 
 =item deauthenticateMacDefault
@@ -252,7 +354,7 @@ sub returnRadiusAccessAccept {
             $radius_reply_ref = {
                 'Tunnel-Medium-Type' => $RADIUS::IP,
                 'Tunnel-Type' => $RADIUS::GRE,
-                'Tunnel-Private-Group-ID' => $role,
+                'Tunnel-Private-Group-ID' => $role . "",
             };
         }
 
@@ -266,7 +368,7 @@ sub returnRadiusAccessAccept {
              %$radius_reply_ref,
             'Tunnel-Medium-Type' => $RADIUS::ETHERNET,
             'Tunnel-Type' => $RADIUS::VLAN,
-            'Tunnel-Private-Group-ID' => $args->{'vlan'},
+            'Tunnel-Private-Group-ID' => $args->{'vlan'} . "",
         };
 
         $logger->info("Returning ACCEPT with VLAN: $args->{'vlan'}");
@@ -300,7 +402,7 @@ Return the reference to the deauth technique or the default deauth technique.
 =cut
 
 sub deauthTechniques {
-    my ($self, $method) = @_;
+    my ($self, $method, $connection_type) = @_;
     my $logger = $self->logger;
     my $default = $SNMP::RADIUS;
     my %tech = (
@@ -323,7 +425,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2018 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 

@@ -16,7 +16,6 @@ use warnings;
 use HTTP::Status qw(:constants is_error is_success);
 use namespace::autoclean;
 use Moose;
-use pfappserver::Form::SavedSearch;
 use pf::admin_roles;
 use pf::constants qw($TRUE $FALSE);
 use List::MoreUtils qw(none);
@@ -25,7 +24,10 @@ use pf::cluster;
 use pf::authentication;
 use pf::Authentication::constants qw($LOGIN_CHALLENGE);
 use pf::util;
-use pf::config qw(%Config);
+use pf::config qw(
+    %Config
+    @listen_ints
+);
 use DateTime;
 use fingerbank::Constant;
 use fingerbank::Model::Device;
@@ -47,6 +49,13 @@ sub auto :Private {
     delete $c->session->{'enforcements'};
 
     my $action = $c->action->name;
+
+    # Default to the new administration interface when hitting the index
+    if($action eq 'index') {
+        $c->response->redirect($c->uri_for($self->action_for('alt')));
+        $c->detach();
+    }
+
     # login and logout actions have no checks
     if ($action eq 'login' || $action eq 'logout' || $action eq 'alt') {
         return 1;
@@ -111,6 +120,7 @@ sub login :Local :Args(0) {
 
                     # Save the updated roles data
                     $c->persist_user();
+                    $c->change_session_id();
 
                     # Don't send a standard 302 redirect code; return the redirection URL in the JSON payload
                     # and perform the redirection on the client side
@@ -122,7 +132,7 @@ sub login :Local :Args(0) {
                         $uri = $req->params->{'redirect_url'};
                     }
                     if (!defined $uri || $uri !~ /^http/i) {
-                        $uri = $c->uri_for($self->action_for('index'))->as_string;
+                        $uri = $c->uri_for($self->action_for('status'))->as_string;
                     }
                     $c->stash->{success} = $uri;
                 } else {
@@ -143,7 +153,7 @@ sub login :Local :Args(0) {
             $c->stash->{status_msg} = $c->loc("Unexpected error. See server-side logs for details.");
         }
     } elsif ($c->user_in_realm( 'admin' )) {
-        $c->response->redirect($c->uri_for($self->action_for('index')));
+        $c->response->redirect($c->uri_for($self->action_for('status')));
         $c->detach();
     } elsif ($req->params->{'redirect_action'}) {
         $c->stash->{redirect_action} = $req->params->{'redirect_action'};
@@ -160,7 +170,7 @@ sub challenge :Local :Args(0) {
     my $req = $c->req;
     my $user_challenge = $c->session->{user_challenge};
     unless (defined $user_challenge) {
-        $c->response->redirect($c->uri_for($self->action_for('index')));
+        $c->response->redirect($c->uri_for($self->action_for('status')));
         $c->detach();
     }
 
@@ -187,7 +197,7 @@ sub challenge :Local :Args(0) {
             $c->response->redirect($req->params->{'redirect_action'});
         }
         else {
-            $c->response->redirect($c->uri_for($self->action_for('index')));
+            $c->response->redirect($c->uri_for($self->action_for('status')));
         }
         $c->detach();
     }
@@ -208,11 +218,11 @@ sub logout :Local :Args(0) {
 
 our @ROLES_TO_ACTIONS = (
     {
-        roles => [qw(SERVICES)],
+        roles => [qw(SERVICES_READ)],
         action => 'status',
     },
     {
-        roles => [qw(REPORTS)],
+        roles => [qw(REPORTS_READ)],
         action => 'reports',
     },
     {
@@ -281,14 +291,17 @@ sub alt :Local :Args(0) {
 
 sub status :Chained('object') :PathPart('status') :Args(0) {
     my ( $self, $c ) = @_;
-    $c->stash->{cluster_enabled} = $cluster_enabled;
+    $c->stash(
+        cluster_enabled => $cluster_enabled,
+        listen_ints    => \@listen_ints,
+    )
 }
 
 =head2 reports
 
 =cut
 
-sub reports :Chained('object') :PathPart('reports') :Args(0) :AdminRole('REPORTS') {
+sub reports :Chained('object') :PathPart('reports') :Args(0) :AdminRole('REPORTS_READ') {
     my ( $self, $c ) = @_;
 
     $c->forward('Controller::Graph', 'reports');
@@ -309,26 +322,23 @@ sub auditing :Chained('object') :PathPart('auditing') :Args(0) :AdminRole('AUDIT
 sub nodes :Chained('object') :PathPart('nodes') :Args(0) :AdminRole('NODES_READ') {
     my ( $self, $c ) = @_;
     my $sg = pf::ConfigStore::SwitchGroup->new;
- 
+    my $sw = pf::ConfigStore::Switch->new();
     my $switch_groups = [
-    map {
-        local $_ = $_;
+        map {
+            local $_ = $_;
             my $id = $_;
-            {id => $id, members => [$sg->members($id, 'id')]}
-         } @{$sg->readAllIds}];
+            { id => $id, members => [ $sw->membersOfGroup($id) ] }
+        } @{ $sg->readAllIds }
+    ];
+    my $switches = [
+        map {
+            { id => $_->{id}, description  => $_->{description} }
+        } @{$sw->readAll('id')}
+    ];
 
     my $id = $c->user->id;
     my ($status, $saved_searches) = $c->model("SavedSearch::Node")->read_all($id);
     (undef, my $roles) = $c->model('Config::Roles')->listFromDB();
-    my $switches_list = pf::ConfigStore::Switch->new->readAll("Id");
-    my @switches_filtered = grep { !defined $_->{group} && $_->{Id} !~ /^group(.*)/ && $_->{Id} ne 'default' } @$switches_list;
-    my $switches = [
-    map {
-        local $_ = $_;
-        my $id = $_->{Id};
-        my $description = $_->{description};
-        {id => $id, description => $description} 
-        } @switches_filtered];
 
     $c->stash(
         saved_searches => $saved_searches,
@@ -448,7 +458,7 @@ sub fixpermissions :Chained('object') :PathPart('fixpermissions') :Args(0) {
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2018 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 

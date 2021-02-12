@@ -31,6 +31,14 @@ B<add> and B<subtract>.
 
 has 'with_operator' => (isa => 'Bool', is => 'ro', default => 0);
 
+=head2 with_time_only (default: disabled)
+
+If this boolean attribute is enabled, the time units will ONLY include hours, minutes and seconds.
+
+=cut
+
+has 'with_time_only' => (isa => 'Bool', is => 'ro', default => 0);
+
 =head2 with_time (default: enabled)
 
 If this boolean attribute is enabled, the time units will include hours, minutes and seconds.
@@ -148,12 +156,15 @@ sub options_unit {
            {value => 'h', label => 'hours'},
           );
     }
-    push(@options,
-         {value => 'D', label => 'days'},
-         {value => 'W', label => 'weeks'},
-         {value => 'M', label => 'months'},
-         {value => "Y", label => 'years'},
-        );
+
+    unless($self->{parent}->{with_time_only}) {
+        push(@options,
+             {value => 'D', label => 'days'},
+             {value => 'W', label => 'weeks'},
+             {value => 'M', label => 'months'},
+             {value => "Y", label => 'years'},
+            );
+    }
 
     return @options;
 }
@@ -185,7 +196,7 @@ sub duration_deflate {
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2018 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 

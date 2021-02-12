@@ -1,14 +1,16 @@
 module.exports = function(grunt) {
+  const sass = require('node-sass');
   require('es6-promise').polyfill();
   require('time-grunt')(grunt);
 
   grunt.initConfig({
     sass: {
       options: {
+        implementation: sass,
         sourceMap: true,
         outFile: 'styles.css',
         noCache: true,
-        includePaths: ['scss/']
+        includePaths: ['node_modules/inuitcss', 'scss/']
       },
       dist: {
         files: {
@@ -29,7 +31,7 @@ module.exports = function(grunt) {
         options: {
           map: false,
           processors: [
-            require('autoprefixer')({browsers: ['> 1%', 'last 2 versions', 'last 3 Firefox versions']}),
+            require('autoprefixer')(),
             require('csswring').postcss // minifier
           ]
         },
@@ -39,7 +41,7 @@ module.exports = function(grunt) {
         options: {
           map: true,
           processors: [
-            require('autoprefixer')({browsers: ['> 1%', 'last 2 versions', 'last 3 Firefox versions']})
+            require('autoprefixer')()
           ]
         },
         src: 'styles.css'

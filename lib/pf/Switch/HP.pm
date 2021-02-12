@@ -339,10 +339,18 @@ sub authorizeMAC {
     my $logger = $self->logger;
 
     if ( ($deauthMac) && ( !$self->isFakeMac($deauthMac) ) ) {
-        $self->_authorizeMAC( $ifIndex, $deauthMac, 0 );
+        if (!$self->_authorizeMAC( $ifIndex, $deauthMac, 0 )) {
+             $logger->warn("SNMP error tyring to perform de-auth of $deauthMac. This could be normal. "
+                                          . "Error message: ".$self->{_sessionWrite}->error());
+        }
     }
+
     if ( ($authMac) && ( !$self->isFakeMac($authMac) ) ) {
-        $self->_authorizeMAC( $ifIndex, $authMac, 1 );
+        if (!$self->_authorizeMAC( $ifIndex, $authMac, 1 )) {
+             $logger->error("SNMP error tyring to perform auth of $authMac "
+                                          . "Error message: ".$self->{_sessionWrite}->error());
+            return 0;
+        }
     }
     return 1;
 }
@@ -366,19 +374,11 @@ sub _authorizeMAC {
         return 1;
     }
 
-    #convert MAC into decimal
-    my @MACArray = split( /:/, $MACHexString );
-    my $MACDecString = '';
-    foreach my $hexPiece (@MACArray) {
-        if ( $MACDecString ne '' ) {
-            $MACDecString .= ".";
-        }
-        $MACDecString .= hex($hexPiece);
-    }
-
     if ( !$self->connectWrite() ) {
         return 0;
     }
+    #convert MAC into decimal
+    my $MACDecString = mac2dec($MACHexString);
 
     $logger->trace(
         "SNMP set_request for hpSecCfgStatus: $OID_hpSecCfgStatus.$hpSecCfgAddrGroupIndex.$ifIndex.$MACDecString"
@@ -518,7 +518,7 @@ sub returnAuthorizeWrite {
    my $logger = $self->logger;
    my $radius_reply_ref = {};
    my $status;
-   $radius_reply_ref->{'APC-Service-Type'} = 'Admin';
+   $radius_reply_ref->{'Service-Type'} = 'Administrative-User';
    $radius_reply_ref->{'Reply-Message'} = "Switch enable access granted by PacketFence";
    $logger->info("User $args->{'user_name'} logged in $args->{'switch'}{'_id'} with write access");
    my $filter = pf::access_filter::radius->new;
@@ -538,7 +538,7 @@ sub returnAuthorizeRead {
    my $logger = $self->logger;
    my $radius_reply_ref = {};
    my $status;
-   $radius_reply_ref->{'APC-Service-Type'} = 'ReadOnly';
+   $radius_reply_ref->{'Service-Type'} = 'NAS-Prompt-User';
    $radius_reply_ref->{'Reply-Message'} = "Switch read access granted by PacketFence";
    $logger->info("User $args->{'user_name'} logged in $args->{'switch'}{'_id'} with read access");
    my $filter = pf::access_filter::radius->new;
@@ -626,7 +626,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2018 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 

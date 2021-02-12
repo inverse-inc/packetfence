@@ -28,6 +28,7 @@ use pf::config qw(
     $MAC
     $SSID
     $WIRELESS_MAC_AUTH
+    $WEBAUTH_WIRELESS
 );
 sub description { 'Mikrotik' }
 
@@ -44,12 +45,14 @@ use pf::util::radius qw(perform_disconnect);
 
 # CAPABILITIES
 # access technology supported
-sub supportsWirelessMacAuth { return $TRUE; }
+use pf::SwitchSupports qw(
+    WirelessMacAuth
+    ExternalPortal
+    WebFormRegistration
+);
 # inline capabilities
 sub inlineCapabilities { return ($MAC,$SSID); }
 
-sub supportsExternalPortal { return $TRUE; }
-sub supportsWebFormRegistration { return $TRUE }
 
 =item parseExternalPortalRequest
 
@@ -72,6 +75,7 @@ sub parseExternalPortalRequest {
         client_ip               => $req->param('ip'),
         status_code             => '200',
         synchronize_locationlog => $TRUE,
+        connection_type         => $WEBAUTH_WIRELESS,
     );
 
     return \%params;
@@ -95,15 +99,13 @@ sub getAcceptForm {
     $mac =~ s/:/-/g;
     my $pass = md5_hex($cgi_session->param("ecwp-original-param-chap-id").$mac.$cgi_session->param("ecwp-original-param-chap-challenge"));
     my $html_form = qq[
-        <form name="sendin" method="POST" action="$linkLoginOnly">
+        <form name="weblogin_form" data-autosubmit="1000" method="POST" action="$linkLoginOnly">
             <input type="hidden" name="dst" value="$linkOrig" />
             <input type="hidden" name="popup" value="true" />
             <input type="hidden" name="username" value="$mac">
             <input type="hidden" name="password" value="$pass">
         </form>
-        <script language="JavaScript" type="text/javascript">
-        window.setTimeout('document.weblogin_form.submit();', 1000);
-        </script>
+        <script src="/content/autosubmit.js" type="text/javascript"></script>
     ];
 
     $logger->debug("Generated the following html form : ".$html_form);
@@ -135,11 +137,12 @@ Return the reference to the deauth technique or the default deauth technique.
 =cut
 
 sub deauthTechniques {
-    my ($self, $method) = @_;
+    my ($self, $method, $connection_type) = @_;
     my $logger = $self->logger;
     my $default = $SNMP::SSH;
     my %tech = (
         $SNMP::SSH    => 'deauthenticateMacSSH',
+        $SNMP::RADIUS => 'deauthenticateMacRadius',
     );
 
     if (!defined($method) || !defined($tech{$method})) {
@@ -173,7 +176,7 @@ sub deauthenticateMacRadius {
 
 =item radiusDisconnect
 
-Sends a RADIUS Disconnect-Request to the NAS with the MAC as the Calling-Station-Id to disconnect.
+Sends a RADIUS Disconnect-Request to the NAS with the MAC as User-Name to disconnect.
 
 Has been tested with 6.18 Mikrotik OS version and doesn´t work yet
 
@@ -219,13 +222,12 @@ sub radiusDisconnect {
             LocalAddr => $self->deauth_source_ip($send_disconnect_to),
         };
 
-        # transforming MAC to the expected format 00-11-22-33-CA-FE
+        # transforming MAC to the expected format 00:11:22:33:CA:FE
         $mac = uc($mac);
-        $mac =~ s/:/-/g;
 
         # Standard Attributes
         my $attributes_ref = {
-            'Calling-Station-Id' => $mac,
+            'User-Name' => "$mac",
         };
 
         # merging additional attributes provided by caller to the standard attributes
@@ -275,8 +277,8 @@ sub returnRadiusAccessAccept {
     my $role = "";
     if ( (!$args->{'wasInline'} || ($args->{'wasInline'} && $args->{'vlan'} != 0) ) && isenabled($self->{_VlanMap})) {
         $radius_reply_ref = {
-            'Mikrotik-Wireless-VlanID' => $args->{'vlan'},
-            'Mikrotik-Wireless-VlanIDType' => "0",
+            'Mikrotik-Wireless-VLANID' => $args->{'vlan'} . "",
+            'Mikrotik-Wireless-VLANID-Type' => "0",
         };
     }
 
@@ -352,7 +354,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2018 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 

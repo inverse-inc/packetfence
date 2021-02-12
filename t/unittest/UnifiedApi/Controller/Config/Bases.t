@@ -26,8 +26,12 @@ BEGIN {
     use setup_test_config;
 }
 
+use pf::ConfigStore::Pf;
 use Test::More tests => 7;
 use Test::Mojo;
+use Utils;
+
+my ($fh, $filename) = Utils::tempfileForConfigStore("pf::ConfigStore::Pf");
 
 #This test will running last
 use Test::NoWarnings;
@@ -52,7 +56,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2018 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 

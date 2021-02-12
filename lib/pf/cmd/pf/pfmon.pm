@@ -13,9 +13,13 @@ pfcmd pfmon <task> [options...]
 
 =over
 
+=item acct_cleanup
+
 =item acct_maintenance
 
 =item auth_log_cleanup
+
+=item certificates_check
 
 =item cleanup_chi_database_cache
 
@@ -37,6 +41,8 @@ pfcmd pfmon <task> [options...]
 
 =item option82_query
 
+=item password_of_the_day
+
 =item person_cleanup
 
 =item populate_ntlm_redis_cache
@@ -45,7 +51,11 @@ pfcmd pfmon <task> [options...]
 
 =item radius_audit_log_cleanup
 
-=item violation_maintenance
+=item dns_audit_log_cleanup
+
+=item security_event_maintenance
+
+=item switch_cache_lldpLocalPort_description
 
 =back
 
@@ -57,77 +67,15 @@ pf::cmd::pf::pfmon
 
 use strict;
 use warnings;
-use pf::config::pfmon qw(%ConfigPfmon);
-use pf::constants::exit_code qw($EXIT_SUCCESS);
-use pf::constants;
-use pf::factory::pfmon::task;
-use base qw(pf::cmd);
+use base qw(pf::cmd::pf::pfcron);
 
-=head2 parseArgs
-
-parse args of pfmon task
-
-=cut
-
-sub parseArgs {
-    my ($self) = @_;
-    my ($task_id, @args) = $self->args;
-    return 0 unless defined $task_id;
-    unless (exists $ConfigPfmon{$task_id}) {
-        print STDERR "$task_id is not a valid task\n";
-        return 0;
-    }
-    unless ($self->_parse_attributes(@args)) {
-        return 0;
-    }
-    $self->{task_id}  = $task_id;
-    return 1;
-}
-
-=head2 _run
-
-Run the pfmon task
-
-=cut
-
-sub _run {
-    my ($self) = @_;
-    my $task_id = $self->{task_id};
-    my $params = $self->{params};
-    my $task = pf::factory::pfmon::task->new($task_id, $params);
-    $task->run();
-    return $EXIT_SUCCESS;
-}
-
-=head2 _parse_attributes
-
-parse and validate the arguments for 'pfcmd pfmon <task> [args]' command
-
-=cut
-
-sub _parse_attributes {
-    my ($self,@attributes) = @_;
-    my %params;
-    for my $attribute (@attributes) {
-        if($attribute =~ /^([a-zA-Z0-9_-]+)=(.*)$/ ) {
-            $params{$1} = $2;
-        } else {
-            print STDERR "$attribute is incorrectly formatted\n";
-            return 0;
-        }
-    }
-    $self->{params} = \%params;
-    return 1;
-}
-
- 
 =head1 AUTHOR
 
 Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2018 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 
@@ -149,4 +97,3 @@ USA.
 =cut
 
 1;
-

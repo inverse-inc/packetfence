@@ -24,6 +24,8 @@ use pf::factory::pki_provider;
 use List::MoreUtils qw(any);
 use pf::CHI;
 use fingerbank::Model::Device;
+use pf::util qw(isenabled);
+use Time::HiRes qw(time);
 
 =head1 Constants
 
@@ -97,15 +99,39 @@ If the provisioner has to be enforced on each connection
 
 =cut
 
-has enforce => (is => 'rw', default => sub { 1 });
+has enforce => (is => 'rw', default => sub { 'enabled' });
 
-=head2 non_compliance_violation
+=head2 autoregister
 
-Which violation should be raised when a device is not compliant
+If a role should be applied to the devices authorized in the provisioner
 
 =cut
 
-has non_compliance_violation => (is => 'rw' );
+has autoregister => (is => 'rw', default => sub { 'disabled' });
+
+=head2 apply_role
+
+If a role should be applied to the devices authorized in the provisioner
+
+=cut
+
+has apply_role => (is => 'rw', default => sub { 'disabled' });
+
+=head2 role_to_apply
+
+Role to apply when apply_role is enabled
+
+=cut
+
+has role_to_apply => (is => 'rw', default => sub { 'default' });
+
+=head2 non_compliance_security_event
+
+Which security_event should be raised when a device is not compliant
+
+=cut
+
+has non_compliance_security_event => (is => 'rw' );
 
 =head2 pki_provider
 
@@ -219,6 +245,61 @@ sub cache {
     return pf::CHI->new(namespace => 'provisioning');
 }
 
+=head2 authorize_enforce
+
+Enforce the provisioning if necessary
+
+=cut
+
+sub authorize_enforce {
+    my ($self, $mac) = @_;
+    if(isenabled($self->enforce)) {
+        return $self->authorize($mac);
+    }
+    else {
+        return $TRUE;
+    }
+}
+
+=head2 authorize_apply_role
+
+Check if a role should be applied to the device based on the provisioner
+
+=cut
+
+sub authorize_apply_role {
+    my ($self, $mac) = @_;
+    my $type = $self->type;
+    my $started = time;
+    my $result = $self->cache->compute_with_undef("$type-authorize_apply_role($mac)",
+        sub {
+            if(isenabled($self->apply_role)) {
+                my $auth = $self->authorize($mac);
+                if($auth eq $pf::provisioner::COMMUNICATION_FAILED) {
+                    get_logger->error("Will not be able to apply the role to this device since the communication with the provisioner has failed");
+                    return undef;
+                }
+                elsif($auth) {
+                    my $role = $self->role_to_apply;
+                    return $role;
+                }
+            }
+            return undef;
+        }
+    );
+
+    my $elapsed_ms = ((time - $started) * 1000);
+    my $tolerable_latency = 750;
+    if($elapsed_ms > $tolerable_latency) {
+        get_logger->warn("Computing the provisioning authorization took more than $tolerable_latency milliseconds ($elapsed_ms ms). This will have a negative impact on the RADIUS response time and can cause a RADIUS timeout.");
+    }
+    else {
+        get_logger->debug("Computing the provisioning authorization took $elapsed_ms milliseconds");
+    }
+
+    return $result;
+}
+
 
 =head1 AUTHOR
 
@@ -226,7 +307,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2018 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 

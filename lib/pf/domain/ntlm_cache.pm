@@ -27,6 +27,10 @@ use pf::util;
 use File::Temp;
 use pf::Redis;
 use pf::constants::domain qw($NTLM_REDIS_CACHE_HOST $NTLM_REDIS_CACHE_PORT);
+use Socket;
+use pf::CHI;
+
+my $CHI_CACHE = pf::CHI->new( namespace => 'ntlm_cache_username_lookup' );
 
 =head2 fetch_valid_users
 
@@ -90,6 +94,7 @@ sub generate_valid_users_file {
     my $logger = get_logger;
     my ($users, $msg) = fetch_valid_users($domain);
     if($users) {
+        mkdir $domains_ntlm_cache_users_dir unless -d $domains_ntlm_cache_users_dir;
         my $file = catfile($domains_ntlm_cache_users_dir, "$domain.valid-users.txt");
         write_file($file, join("\n", @$users));
         my $msg = "Successfully created valid users file ($file) with ".scalar(@$users)." entries.";
@@ -233,19 +238,27 @@ sub secretsdump {
     return ($FALSE, $msg) unless($sAMAccountName);
 
     my $result;
-    eval {
-        my $command = "/usr/local/pf/addons/AD/secretsdump.py '".pf::domain::escape_bind_user_string($sAMAccountName)."':'".pf::domain::escape_bind_user_string($source->{password})."'@".$source->{host}." -just-dc-ntlm -output $tmpfile $opts";
-        $logger->debug("Executing sync command: $command");
-        $result = pf_run($command, accepted_exit_status => [ 0 ]);
-    };
-    if (!defined($result) || $@) {
-        return ($FALSE, "Can't generate hash list via secretsdump.py. Check logs for details.");
-    }
-    elsif($result =~ /Something wen't wrong/) {
-        return ($FALSE, "Cannot synchronize users hashes. Command output: $result");
+    my $success = $FALSE;
+    
+    foreach my $server (split(/\s*,\s*/, $source->{host})) {
+        eval {
+            my $command = "/usr/local/pf/addons/AD/secretsdump.py '".pf::domain::escape_bind_user_string($sAMAccountName)."':'".pf::domain::escape_bind_user_string($source->{password})."'@".inet_ntoa(inet_aton($server))." -just-dc-ntlm -output $tmpfile $opts";
+            $logger->debug("Executing sync command: $command");
+            $result = pf_run($command, accepted_exit_status => [ 0 ], working_directory => "/tmp");
+        };
+        if (!defined($result) || $@) {
+            $result = "Can't generate hash list via secretsdump.py. Check logs for details.";
+        }
+        elsif($result =~ /Something wen't wrong/) {
+            $result = "Cannot synchronize users hashes. Command output: $result";
+        }
+        else {
+            $success = $TRUE;
+            last;
+        }
     }
 
-    return $ntds_file;
+    return $success ? $ntds_file : ($FALSE, $result);
 }
 
 =head2 cache_user
@@ -260,16 +273,23 @@ sub cache_user {
     my $config = $ConfigDomain{$domain};
     my $source = getAuthenticationSource($config->{ntlm_cache_source});
     return ($FALSE, "Invalid LDAP source $config->{ntlm_cache_source}") unless(defined($source));
-    
-    if($username =~ /^host\//) {
-        ($username, my $msg) = $source->findAtttributeFrom("servicePrincipalName", $username, "sAMAccountName");
-        return ($FALSE, $msg) unless($username);
-    }
-    elsif (lc($source->{'usernameattribute'}) ne lc('sAMAccountName')) {
-        ($username, my $msg) = $source->findAtttributeFrom($source->{'usernameattribute'}, $username, "sAMAccountName");
-        return ($FALSE, $msg) unless($username);
-    }
+    my $cache_key = "$domain.$username";
+    my $user = get_from_cache($cache_key);
+    unless($user){
+        if($username =~ /^host\//) {
+            ($username, my $msg) = $source->findAtttributeFrom("servicePrincipalName", $username, "sAMAccountName");
+            return ($FALSE, $msg) unless($username);
+        }
+        elsif (lc($source->{'usernameattribute'}) ne lc('sAMAccountName')) {
+            ($username, my $msg) = $source->findAtttributeFrom($source->{'usernameattribute'}, $username, "sAMAccountName");
+            return ($FALSE, $msg) unless($username);
+        }
+        set_to_cache($cache_key, $username);
 
+    }
+    if (defined($user)) {
+        $username = $user;
+    }
     my ($ntds_file, $msg) = secretsdump($domain, $source, "-just-dc-user '$username'");
     return ($FALSE, $msg) unless($ntds_file);
 
@@ -350,14 +370,32 @@ Insert a user/NT hash combination inside redis for a given domain
 sub insert_user_in_redis_cache {
     my ($domain, $user, $nthash) = @_;
     my $logger = get_logger;
-    my $config = $ConfigDomain{$domain};
+    my $client = pf::api::queue_cluster->new(queue => "general");
+    $client->cluster_notify_all("insert_user_in_redis_cache", $domain, $user, $nthash);
+}
 
-    # pf::Redis has a cache for the connection
-    my $redis = pf::Redis->new(server => "$NTLM_REDIS_CACHE_HOST:$NTLM_REDIS_CACHE_PORT", reconnect => 5);
+=head2 get_from_cache
 
-    my $key = "NTHASH:$domain:$user";
-    $logger->info("Inserting '$key' => '$nthash'");
-    $redis->set($key, $nthash, 'EX', $config->{ntlm_cache_expiry});
+Get the value from the key
+
+=cut
+
+sub get_from_cache {
+    my ($key) = @_;
+
+    return $CHI_CACHE->get($key);
+}
+
+=head2 set_to_cache
+
+Set the value associated to the key
+
+=cut
+
+sub set_to_cache {
+    my ($key, $value) = @_;
+
+    $CHI_CACHE->set($key,$value);
 }
 
 =head1 AUTHOR
@@ -367,7 +405,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2018 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 

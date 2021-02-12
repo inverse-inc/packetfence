@@ -1,0 +1,79 @@
+---
+packetfence_install__configuration:
+
+      - name: 'pf.conf'
+        sections:
+
+          - name: 'general'
+            settings:
+
+              - name: 'domain'
+                value: '{{ dns_domain }}'
+
+              - name: 'timezone'
+                value: "{{ ansible_date_time['tz'] }}"
+
+          - name: 'database'
+            settings:
+
+              - name: 'pass'
+                value: '{{ packetfence_install__database_pass }}'
+
+          - name: 'advanced'
+            settings:
+
+              - name: 'configurator'
+                value: '{{ packetfence_install__configurator_status }}'
+
+              - name: 'hash_passwords'
+                value: 'ntlm'
+
+          - name: 'guests_admin_registration'
+            settings:
+
+              - name: 'access_duration_choices'
+                value: '10m,20m,1h,3h,12h,1D,2D,3D,5D'
+
+          - name: "interface {{ packetfence_install__mgmt_interface['id'] }}"
+            settings:
+
+              - name: 'ip'
+                value: "{{ packetfence_install__mgmt_interface['ip'] }}"
+
+              - name: 'mask'
+                value: "{{ packetfence_install__mgmt_interface['mask'] }}"
+
+              - name: 'type'
+                value: "{{ packetfence_install__mgmt_interface['type'] }}"
+
+      - name: 'pfconfig.conf'
+        sections:
+
+          - name: 'general'
+            settings:
+
+              - name: 'backend'
+                value: 'mysql'
+
+          - name: 'mysql'
+            settings:
+
+              - name: 'host'
+                value: 'localhost'
+
+              - name: 'user'
+                value: '{{ packetfence_install__database_default_user }}'
+
+              - name: 'pass'
+                value: '{{ packetfence_install__database_pass }}'
+
+              - name: 'db'
+                value: '{{ packetfence_install__database_db }}'
+
+              - name: 'port'
+                value: '3306'
+
+              - name: 'table'
+                value: 'keyed'
+
+

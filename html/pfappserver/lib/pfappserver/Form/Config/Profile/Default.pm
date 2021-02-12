@@ -21,10 +21,12 @@ has_field '+redirecturl' => ( required => 1 );
 
 has_field '+logo' => ( required => 1 );
 
+has_field 'status' => (type => 'NonEditable', value => 'enabled', noupdate => 1);
+
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2018 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 

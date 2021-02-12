@@ -1,6 +1,7 @@
 package sharedutils
 
 import (
+	"net/http"
 	"testing"
 )
 
@@ -81,4 +82,27 @@ func TestAllEquals(t *testing.T) {
 	if AllEquals(1, 2, 3, 4) {
 		t.Error("AllEquals didn't detect equality correctly")
 	}
+}
+
+func TestCopyHttpRequest(t *testing.T) {
+	req, err := http.NewRequest("GET", "http://test.com/test", nil)
+	CheckError(err)
+	req.Header.Add("X-Test-1", "test-1")
+
+	newReq, err := CopyHttpRequest(req)
+
+	if err != nil {
+		t.Error("Copying a valid HTTP request failed")
+	}
+
+	if newReq.Header.Get("X-Test-1") != "test-1" {
+		t.Error("Failed to get a header in the copied request")
+	}
+
+	req.Header.Add("X-Test-2", "test-2")
+
+	if newReq.Header.Get("X-Test-2") != "" {
+		t.Error("Header was set on copy after the request was copied")
+	}
+
 }

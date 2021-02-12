@@ -1,6 +1,7 @@
 /login:
   post:
     summary: Login into the API and obtain a token
+    description: This will perform a login against the PacketFence system user, the webservices credentials and any configured internal sources in PacketFence in this order. The order of priority for the PacketFence sources is the same as they are defined in authentication.conf (top to bottom). Token obtain via this API call are valid for 10 minutes. Upon expiration, a new token must be obtained by calling this API endpoint again.
     security:
       - none: []
     requestBody:

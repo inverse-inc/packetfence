@@ -2,25 +2,24 @@
 package erratic
 
 import (
+	"context"
 	"sync/atomic"
 	"time"
 
 	"github.com/inverse-inc/packetfence/go/coredns/request"
 
 	"github.com/miekg/dns"
-	"golang.org/x/net/context"
 )
 
-// Erratic is a plugin that returns erratic repsonses to each client.
+// Erratic is a plugin that returns erratic responses to each client.
 type Erratic struct {
-	drop uint64
-
+	q        uint64 // counter of queries
+	drop     uint64
 	delay    uint64
-	duration time.Duration
-
 	truncate uint64
 
-	q uint64 // counter of queries
+	duration time.Duration
+	large    bool // undocumented feature; return large responses for A request (>512B, to test compression).
 }
 
 // ServeDNS implements the plugin.Handler interface.
@@ -45,7 +44,6 @@ func (e *Erratic) ServeDNS(ctx context.Context, w dns.ResponseWriter, r *dns.Msg
 
 	m := new(dns.Msg)
 	m.SetReply(r)
-	m.Compress = true
 	m.Authoritative = true
 	if trunc {
 		m.Truncated = true
@@ -58,18 +56,35 @@ func (e *Erratic) ServeDNS(ctx context.Context, w dns.ResponseWriter, r *dns.Msg
 		rr := *(rrA.(*dns.A))
 		rr.Header().Name = state.QName()
 		m.Answer = append(m.Answer, &rr)
+		if e.large {
+			for i := 0; i < 29; i++ {
+				m.Answer = append(m.Answer, &rr)
+			}
+		}
 	case dns.TypeAAAA:
 		rr := *(rrAAAA.(*dns.AAAA))
 		rr.Header().Name = state.QName()
 		m.Answer = append(m.Answer, &rr)
-	default:
-		if !drop {
-			if delay {
-				time.Sleep(e.duration)
-			}
-			// coredns will return error.
-			return dns.RcodeServerFailure, nil
+	case dns.TypeAXFR:
+		if drop {
+			return 0, nil
 		}
+		if delay {
+			time.Sleep(e.duration)
+		}
+
+		xfr(state, trunc)
+		return 0, nil
+
+	default:
+		if drop {
+			return 0, nil
+		}
+		if delay {
+			time.Sleep(e.duration)
+		}
+		// coredns will return error.
+		return dns.RcodeServerFailure, nil
 	}
 
 	if drop {
@@ -80,7 +95,6 @@ func (e *Erratic) ServeDNS(ctx context.Context, w dns.ResponseWriter, r *dns.Msg
 		time.Sleep(e.duration)
 	}
 
-	state.SizeAndDo(m)
 	w.WriteMsg(m)
 
 	return 0, nil

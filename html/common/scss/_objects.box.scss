@@ -1,11 +1,8 @@
 /// _objecs.box.scss -*- Mode: scss; indent-tabs-mode: nil; basic-offset: 2; fill-column: 80 -*-
 
-$pf-box-hero-width: $inuit-base-line-height * 6;
-$pf-box-hero-width--palm: $inuit-base-line-height * 4;
+$pf-box-width--small: $inuit-global-line-height * 2;
 
-$pf-box-width--small: $inuit-base-line-height * 2;
-
-.#{$inuit-box-namespace}box {
+.o-box {
   position: relative;
 
   img {
@@ -13,80 +10,42 @@ $pf-box-width--small: $inuit-base-line-height * 2;
   }
 }
 
-.#{$inuit-box-namespace}box--large-height {
-  max-height: $inuit-base-line-height * 12;
+.o-box--large-height {
+  max-height: $inuit-global-line-height * 12;
   overflow: auto;
 
-  @include media-query(palm) {
-    max-height: $inuit-base-line-height * 12;
+  @include mq($until: mobile) {
+    max-height: $inuit-global-line-height * 12;
     padding: quarter($spacing-unit);
   }
 }
 
-.#{$inuit-box-namespace}box--tint {
-  @include font-size($inuit-base-font-size * 0.8, 1.5);
-  background-color: $pf-box-tint-background;
-  color: $pf-box-tint-color;
+.o-box--inverted {
+  background-color: $pf-background;
 }
 
-.#{$inuit-box-namespace}box--accent {
-  background-color: $pf-base-accent-color;
-}
-
-.#{$inuit-box-namespace}box--inverted {
-  background-color: $pf-color-gray;
-  color: #fff;
-}
-
-.#{$inuit-box-namespace}box--highlight {
-  border-left: 8px solid $pf-base-accent-color;
+.o-box--highlight {
+  border-left: 8px solid $pf-color-primary;
   > .layout {
     transform: translateX(-8px);
   }
 }
 
-.#{$inuit-box-namespace}box--overlook {
-  background-color: $pf-color-tint;
+.o-box--overlook {
+  background-color: $pf-background;
   background-image: repeating-linear-gradient(-45deg,
-                                              $pf-color-tint,
-                                              $pf-color-tint 2px,
+                                              $pf-background,
+                                              $pf-background 2px,
                                               transparent 2px,
                                               transparent 4px);
   opacity: 0.7;
 }
 
-.#{$inuit-box-namespace}box--overlap {
+.o-box--overlap {
   position: absolute;
   top: 0;
   right: 0;
   bottom: 0;
   left: 0;
   overflow: hidden;
-}
-
-.#{$inuit-box-namespace}box--hero {
-  display: inline-block;
-  background-color: $pf-base-accent-color;
-  border-radius: 50%;
-  height: $pf-box-hero-width;
-  padding: $pf-box-hero-width/2/2;
-  width: $pf-box-hero-width;
-
-  @include media-query(palm) {
-    height: $pf-box-hero-width--palm;
-    padding: $pf-box-hero-width--palm/2/2;
-    width: $pf-box-hero-width--palm;
-  }
-}
-
-.#{$inuit-box-namespace}box--hero.#{$inuit-box-namespace}box--small {
-  height: $pf-box-width--small;
-  padding: $pf-box-width--small/2/2;
-  width: $pf-box-width--small;
-
-  @include media-query(palm) {
-    height: $pf-box-width--small;
-    padding: $pf-box-width--small/2/2;
-    width: $pf-box-width--small;
-  }
 }

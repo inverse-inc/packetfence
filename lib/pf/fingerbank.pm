@@ -18,7 +18,6 @@ use JSON::MaybeXS;
 use fingerbank::Model::DHCP_Fingerprint;
 use fingerbank::Model::DHCP_Vendor;
 use fingerbank::Model::MAC_Vendor;
-use fingerbank::Model::User_Agent;
 use fingerbank::Query;
 use fingerbank::FilePath;
 use fingerbank::Model::Endpoint;
@@ -29,23 +28,28 @@ use pf::cluster;
 use pf::constants;
 use pf::constants::fingerbank qw($RATE_LIMIT);
 use pf::error qw(is_success);
+use pf::file_paths qw($network_behavior_policy_config_file);
 
+use pf::node;
 use pf::client;
 use pf::error qw(is_error);
 use pf::CHI;
 use pf::log;
-use pf::node qw(node_modify);
+use pf::node qw(node_modify node_attributes);
+use pf::dal::node;
 use pf::StatsD::Timer;
 use fingerbank::Config;
 use fingerbank::Collector;
 use POSIX::AtFork;
 use DateTime;
 use DateTime::Format::RFC3339;
+use pf::config qw(%Config);
+use pf::util qw(isdisabled isenabled valid_mac);
 
 # Do not remove, even if its not explicitely used. When taking collector requests out of the cache, this must be imported.
 use URI::http;
 
-our @fingerbank_based_violation_triggers = ('Device', 'DHCP_Fingerprint', 'DHCP_Vendor', 'MAC_Vendor', 'User_Agent');
+our @fingerbank_based_security_event_triggers = ('Device', 'DHCP_Fingerprint', 'DHCP_Vendor', 'MAC_Vendor');
 
 our %ACTION_MAP = (
     "update-upstream-db" => sub {
@@ -62,11 +66,18 @@ our %ACTION_MAP_CONDITION = (
     },
 );
 
+our %RECORD_RESULT_ATTR_MAP = (
+    most_accurate_user_agent => "user_agent",
+    hostname => "computername",
+    map { $_ => $_ } qw(dhcp_fingerprint dhcp_vendor dhcp6_fingerprint dhcp6_enterprise),
+);
+
 use fingerbank::Config;
 $fingerbank::Config::CACHE = cache();
 
 my $collector;
 my $collector_ua;
+my $api_client;
 
 =head1 METHODS
 
@@ -79,13 +90,21 @@ sub process {
     my ( $mac, $force ) = @_;
     my $logger = pf::log::get_logger;
 
+    unless(fingerbank::Config::is_api_key_configured()) {
+        $logger->debug("Skipping Fingerbank processing because no API key is configured");
+        return $FALSE;
+    }
+
     $force //= $FALSE;
+    
+    my $node_before = node_attributes($mac);
 
     my $cache = cache();
     my $cache_key = "pf::fingerbank::process($mac)";
 
     my $process_timestamp = $cache->compute($cache_key, sub {
-        return DateTime->now(); 
+        $force = $TRUE;
+        return DateTime->now(time_zone => "local");
     });
 
     # Querying for a resultset
@@ -98,29 +117,40 @@ sub process {
 
     $query_args->{mac} = $mac;
 
-    if(!$force && $query_args->{last_updated}->compare($process_timestamp) <= 0) {
-        $logger->info("No recent data found for $mac, will not trigger device profiling");
+    if(!$force && $query_args->{last_updated}->epoch <= $process_timestamp->epoch) {
+        $logger->debug("No recent data found for $mac, will not trigger device profiling. Was last updated at $query_args->{last_updated} and last process timestamp is $process_timestamp");
         return $TRUE;
     }
     else {
-        $cache->set($cache_key, DateTime->now());
+        $cache->set($cache_key, DateTime->now(time_zone => "local"));
+        my $query_success = $TRUE;
 
         my $query_result = _query($query_args);
 
         unless(defined($query_result)) {
             $logger->warn("Unable to perform a Fingerbank lookup for device with MAC address '$mac'");
-            return $FALSE;
+            $query_success = $FALSE;
         }
 
-        # Processing the device class based on it's parents
-        my ( $top_level_parent, $parents ) = _parse_parents($query_result);
-        $query_result->{device_class} = find_device_class($top_level_parent, $query_result->{'device'}{'name'});
-        $query_result->{parents} = $parents;
+        if($query_success) {
+            # Processing the device class based on it's parents
+            my ( $top_level_parent, $parents ) = _parse_parents($query_result);
+            $query_result->{device_class} = find_device_class($top_level_parent, $query_result->{'device'}{'name'});
 
-        record_result($mac, $query_args, $query_result);
+            if(!defined($query_result->{device_class})) {
+                $logger->error("Issue figuring out device class.");
+                $query_success = $FALSE;
+            }
+            $query_result->{parents} = $parents;
 
-        _trigger_violations($query_args, $query_result, $parents);
-        return $TRUE;
+            record_result($mac, $query_args, $query_result);
+        }
+    
+        my $node_after = node_attributes($mac);
+
+        check_device_class_change($node_before, $node_after);
+        _trigger_new_dhcp_security_event($mac);
+        return $query_success;
     }
 }
 
@@ -135,6 +165,8 @@ Currently done via a call to the Fingerbank collector
 sub endpoint_attributes {
     my ($mac) = @_;
     my $timer = pf::StatsD::Timer->new({level => 7});
+
+    return undef unless(valid_mac($mac));
 
     $collector //= fingerbank::Collector->new_from_config;
     $collector_ua //= $collector->get_lwp_client();
@@ -166,20 +198,21 @@ Given a MAC address, the endpoint attributes (from the collector) and the Finger
 sub record_result {
     my ($mac, $attributes, $query_result) = @_;
     my $timer = pf::StatsD::Timer->new({level => 7});
-
-    my %attr_map = (
-        most_accurate_user_agent => "user_agent",
-        map { $_ => $_ } qw(dhcp_fingerprint dhcp_vendor dhcp6_fingerprint dhcp6_enterprise),
+    pf::dal::node->update_items(
+        -table => [-join => 'node', "<=>{node.tenant_id=tenant.id}", "tenant"],
+        -set => {
+            'device_type'   => $query_result->{'device'}{'name'},
+            'device_class'  => $query_result->{device_class},
+            'device_version' => $query_result->{'version'},
+            'device_score' => $query_result->{'score'},
+            'device_manufacturer' => $query_result->{'manufacturer'}->{'name'} // "",
+            map { $RECORD_RESULT_ATTR_MAP{$_} => $attributes->{$_} } keys(%RECORD_RESULT_ATTR_MAP),
+        },
+        -where => {
+            mac => $mac,
+        },
+        -no_auto_tenant_id => 1,
     );
-
-    node_modify( $mac, (
-        'device_type'   => $query_result->{'device'}{'name'},
-        'device_class'  => $query_result->{device_class},
-        'device_version' => $query_result->{'version'},
-        'device_score' => $query_result->{'score'},
-        map { $attr_map{$_} => $attributes->{$_} } keys(%attr_map),
-    ) );
-
 }
 
 =head2 update_collector_endpoint_data
@@ -191,6 +224,8 @@ Updates the endpoint data in the collector for a specific MAC address
 sub update_collector_endpoint_data {
     my ($mac, $data) = @_;
     my $timer = pf::StatsD::Timer->new({level => 7});
+
+    return undef unless(valid_mac($mac));
 
     $collector //= fingerbank::Collector->new_from_config;
     $collector_ua //= $collector->get_lwp_client();
@@ -223,32 +258,38 @@ sub _query {
     return $fingerbank->match($args);
 }
 
-=head2 _trigger_violations
+=head2 _trigger_security_events
 
 =cut
 
-sub _trigger_violations {
+sub _trigger_new_dhcp_security_event {
     my $timer = pf::StatsD::Timer->new({level => 7});
-    my ( $query_args, $query_result, $parents ) = @_;
+    my ( $mac ) = @_;
     my $logger = pf::log::get_logger;
-
-    my $mac = $query_args->{'mac'};
 
     my $apiclient = pf::client::getClient;
 
-    my %violation_data = (
+    my $security_event_data = {
         'mac'   => $mac,
         'tid'   => 'new_dhcp_info',
         'type'  => 'internal',
-    );
+    };
 
-    $apiclient->notify('trigger_violation', %violation_data);
+    $apiclient->notify('trigger_security_event', %$security_event_data);
 
+    my $cache = pf::CHI->new( namespace => 'trigger_security_event' );
+
+    $security_event_data = $cache->get($mac);
+
+    if ($security_event_data) {
+        $apiclient->notify('trigger_security_event', %$security_event_data);
+        $cache->remove($mac);
+    }
 }
 
 =head2 _parse_parents
 
-Parsing the parents into an array of IDs to be able to trigger violations based on them.
+Parsing the parents into an array of IDs to be able to trigger security_events based on them.
 
 Also, looking at the top-level parent to determine the device class
 
@@ -296,9 +337,15 @@ sub find_device_class {
     my $logger = get_logger;
     my $result = cache()->compute("pf::fingerbank::find_device_class($top_level_parent,$device_name)", sub {
         my $timer = pf::StatsD::Timer->new({level => 7, stat => "pf::fingerbank::find_device_class::cache-compute"});
-        while (my ($k, $other_device_id) = each(%fingerbank::Constant::DEVICE_CLASS_IDS)) {
+        foreach my $k (@fingerbank::Constant::DEVICE_CLASS_LOOKUP_ORDER) {
+            my $other_device_id = $fingerbank::Constant::DEVICE_CLASS_IDS{$k};
             $logger->debug("Checking if device $device_name is a $other_device_id");
-            if(fingerbank::Model::Device->is_a($device_name, $other_device_id)) {
+            my $is_a = fingerbank::Model::Device->is_a($device_name, $other_device_id);
+            if(!defined($is_a)) {
+                $logger->error("Didn't get a valid result when checking if $device_name is a $other_device_id");
+                return undef;
+            }
+            elsif($is_a) {
                 my $other_device_name = fingerbank::Model::Device->read($other_device_id)->name; 
                 $logger->info("Device $device_name is a $other_device_name");
                 return $other_device_name;
@@ -322,6 +369,10 @@ sub sync_local_db {
 sub sync_upstream_db {
     pf::cluster::sync_files([$fingerbank::FilePath::UPSTREAM_DB_FILE], async => $TRUE);
     clear_cache();
+}
+
+sub sync_nba_conf {
+    pf::cluster::sync_files([$network_behavior_policy_config_file]);
 }
 
 sub clear_cache {
@@ -399,6 +450,184 @@ sub device_name_to_device_id {
     return $id;
 }
 
+=head2 check_device_class_change
+
+Check for a device class change and trigger any security_event if necessary
+
+=cut
+
+sub check_device_class_change {
+    my ($node_before, $node_after) = @_;
+    
+    my $logger = pf::log::get_logger;
+
+    my $allowed = device_class_transition_allowed($node_before->{device_class}, $node_before->{device_type}, $node_after->{device_class}, $node_after->{device_type});
+    if(!defined($allowed)) {
+        $logger->warn("Invalid result when checking for device class transition");
+    }
+    elsif(!$allowed) {
+        $logger->info("Endpoint has changed device class, triggering internal::fingerbank_device_change");
+        my $apiclient = pf::client::getClient;
+
+        my %security_event_data = (
+            'mac'   => $node_before->{mac},
+            'tid'   => 'fingerbank_device_change',
+            'type'  => 'internal',
+            'notes' => "Previous device detected: ".$node_before->{device_class},
+        );
+
+        $apiclient->notify('trigger_security_event', %security_event_data);
+    }
+    else {
+        my $before = $node_before->{device_class} // "Unknown";
+        my $after = $node_after->{device_class} // "Unknown";
+        $logger->debug("Endpoint has made a valid device class transition from $before to $after");
+    }
+}
+
+=head2 device_class_transition_allowed
+
+Checks if a device class transition is allowed according to the configuration
+
+=cut
+
+sub device_class_transition_allowed {
+    my ($previous_device_class, $previous_device_type, $new_device_class, $new_device_type) = @_;
+
+    my $config = $Config{fingerbank_device_change};
+
+    my $logger = pf::log::get_logger;
+    
+    if(isdisabled($config->{enable})) {
+        $logger->trace("Not checking Fingerbank device change because its disabled");
+        return $TRUE;
+    }
+
+    # Check if going from nothing to something or the opposite
+    if(!$previous_device_class || !$new_device_class) {
+        $logger->info("One of the two device class is empty in the transition. Not evaluating it.");
+        return $TRUE;
+    }
+
+    my $previous_device_class_id = device_name_to_device_id($previous_device_class);
+    return undef unless(defined($previous_device_class_id));
+    my $new_device_class_id = device_name_to_device_id($new_device_class);
+    return undef unless(defined($new_device_class_id));
+
+    if($previous_device_class_id eq $fingerbank::Constant::HARDWARE_MANUFACTURER_ID) {
+        $logger->info("The device is going from Hardware Manufacturer to another device. Not evaluating it.");
+        return $TRUE;
+    }
+
+    # Check for manual triggers
+    foreach my $transition (@{$config->{triggers}}) {
+        my $from = $transition->{from};
+        my $to = $transition->{to};
+
+        # Handle wildcard transitions
+        if($from eq "*") {
+            $from = $previous_device_class_id;
+        }
+
+        if($to eq "*") {
+            $to = $new_device_class_id;
+        }
+
+        if($previous_device_class_id eq $from && $new_device_class_id eq $to) {
+            $logger->info("Transition from $previous_device_class to $new_device_class is not allowed in configuration.");
+            return $FALSE;
+        }
+    }
+    
+    # Check if device class change is enabled
+    if(isdisabled($config->{trigger_on_device_class_change})) {
+        $logger->trace("Not checking device class change because its disabled");
+        return $TRUE;
+    }
+
+    # Check if both device classes are the same
+    return $TRUE if($previous_device_class eq $new_device_class);
+
+    ## Check if device is_a the previous device class 
+    # Was disabled, shouldn't be necessary, but leaving this in place in the event we need to perform derivation analysis to reduce the amount of false positives
+    # jsemaan@inverse.ca
+    #my $is_a = fingerbank::Model::Device->is_a($new_device_type, $previous_device_class);
+    #if(!defined($is_a)) {
+    #    $logger->error("Didn't get a valid result when checking if $new_device_type is a $previous_device_class");
+    #    return undef;
+    #}
+    #elsif($is_a) {
+    #    $logger->debug("Device $new_device_type is a $previous_device_class");
+    #    return $TRUE;
+    #}
+
+    ## Check if device is_a the previous device type 
+    #$is_a = fingerbank::Model::Device->is_a($new_device_type, $previous_device_type);
+    #if(!defined($is_a)) {
+    #    $logger->error("Didn't get a valid result when checking if $new_device_type is a $previous_device_type");
+    #    return undef;
+    #}
+    #elsif($is_a) {
+    #    $logger->debug("Device $new_device_type is a $previous_device_type");
+    #    return $TRUE;
+    #}
+
+    # Check if the transition is whitelisted
+    foreach my $transition (@{$config->{device_class_whitelist}}) {
+        my $from = $transition->{from};
+        my $to = $transition->{to};
+
+        # Handle wildcard transitions
+        if($from eq "*") {
+            $from = $previous_device_class_id;
+        }
+
+        if($to eq "*") {
+            $to = $new_device_class_id;
+        }
+
+        if($previous_device_class_id eq $from && $new_device_class_id eq $to) {
+            $logger->info("Transition from $previous_device_class to $new_device_class is allowed in configuration.");
+            return $TRUE;
+        }
+    }
+
+    # Check if the transition goes from a device class to another
+    if($previous_device_class ne $new_device_class) {
+        $logger->info("Detected device class transition from $previous_device_class to $new_device_class.");
+        return $FALSE;
+    }
+}
+
+sub get_hosts_ports {
+    my ($mac) = @_;
+
+    my $logger = get_logger;
+
+    $api_client //= fingerbank::API->new_from_config;
+
+    my $node = node_view($mac);
+    my $device_type = $node->{device_type};
+
+    unless(defined($device_type)) {
+        $logger->error("Unable to compute hosts/ports for device because we don't have the Fingerbank device profiling information for it.");
+        return;
+    }
+
+    my $device_id = device_name_to_device_id($device_type);
+
+    if(!defined($device_id)) {
+        $logger->error("Unable to find device ID for $mac. Unable to obtain hosts and ports it should communicate with through Fingerbank.");
+        return;
+    }
+
+    my $rules = cache()->compute_with_undef("get_hosts_ports-$device_id", sub {
+        return $api_client->device_outbound_communications($device_id);
+    });
+    
+    return $rules;
+}
+
 =head2 CLONE
 
 Clear the cache in a thread environment
@@ -408,6 +637,7 @@ Clear the cache in a thread environment
 sub CLONE {
     $collector_ua = undef;
     $collector = undef;
+    $api_client = undef;
 }
 
 POSIX::AtFork->add_to_child(\&CLONE);
@@ -418,7 +648,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2018 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 

@@ -18,12 +18,16 @@ use pf::log;
 use pf::constants qw($TRUE);
 use pf::config qw(%Config);
 use Date::Format qw(time2str);
+use List::MoreUtils qw(any);
 use pf::Authentication::constants;
 use pf::activation;
 use pf::web::guest;
 use pf::auth_log;
 use pf::util qw(normalize_time);
 use pf::constants::realm;
+use captiveportal::Base::Actions;
+use pf::nodecategory;
+use pf::util;
 
 has '+source' => (isa => 'pf::Authentication::Source::SponsorEmailSource');
 
@@ -129,6 +133,7 @@ sub check_activation {
     if($record->{status} eq "verified"){
         get_logger->info("Activation record has been validated.");
         $self->session->{sponsor_activated} = $TRUE;
+        $self->session->{unregdate} = $record->{'unregdate'};
         $self->app->response_code(200);
         $self->app->template_output('');
     }
@@ -139,6 +144,9 @@ sub check_activation {
     }
 }
 
+my @auto_included = qw(firstname lastname telephone company);
+my %auto_included = map { $_ => 1 } @auto_included;
+
 =head2 do_sponsor_registration
 
 Handle the signup and create the sponsor request
@@ -148,16 +156,23 @@ Handle the signup and create the sponsor request
 sub do_sponsor_registration {
     my ($self) = @_;
     my %info;
-    get_logger->info("registering  guest through a sponsor");
-
+    my $logger = get_logger();
+    $logger->info("registering guest through a sponsor");
     my $source = $self->source;
     my $pid = $self->request_fields->{$self->pid_field};
     my $email = $self->request_fields->{email};
     $info{'pid'} = $pid;
-
+    $info{'email'} = $email;
     my ( $status, $status_msg ) = $source->authenticate($pid);
     unless ( $status ) {
         $self->app->flash->{error} = $status_msg;
+        $self->prompt_fields();
+        return;
+    }
+
+    if ((any { $_ eq 'email' } @{$self->required_fields // []}) && !$source->isEmailAllowed($email)) {
+        $logger->warn("EmailSource ($source->{id}) failed to authenticate PID '$email' is banned");
+        $self->app->flash->{error} = $pf::constants::authentication::messages::EMAIL_UNAUTHORIZED;
         $self->prompt_fields();
         return;
     }
@@ -167,21 +182,26 @@ sub do_sponsor_registration {
 
     # form valid, adding person (using modify in case person already exists)
     my $note = 'sponsored confirmation Date of arrival: ' . time2str("%Y-%m-%d %H:%M:%S", time);
-
-    get_logger->info( "Adding guest person " . $pid );
+    $logger->info( "Adding guest person $pid" );
 
     $info{'bcc'} = $source->{sponsorship_bcc};
     $info{'activation_domain'} = $source->{activation_domain} if (defined($source->{activation_domain}));
     $info{'activation_timeout'} = normalize_time($source->{email_activation_timeout});
     # fetch more info for the activation email
     # this is meant to be overridden in pf::web::custom with customer specific needs
-    foreach my $key (qw(firstname lastname telephone company)) {
-        $info{$key} = $self->request_fields->{$key};
+    my $request_fields = $self->request_fields;
+    foreach my $key (@auto_included) {
+        $info{$key} = $request_fields->{$key};
+    }
+
+    for my $key ( grep { !exists $auto_included{$_} } @{$self->required_fields // []}) {
+        $info{$key} = $request_fields->{$key};
     }
 
     $info{'sponsor'} = $sponsor;
-    $info{'subject'} = $self->app->i18n_format("%s: Guest access request", $Config{'general'}{'domain'});
+    $info{'subject'} = ["%s: Guest access request", $Config{'general'}{'domain'}]; # i18n defer
     $info{'source_id'} = $source->id;
+    $info{'lang'} = $source->lang  // $Config{'advanced'}{'language'};
 
     # TODO this portion of the code should be throttled to prevent malicious intents (spamming)
     my ( $auth_return, $err, $activation_code ) =
@@ -197,11 +217,40 @@ sub do_sponsor_registration {
 
     pf::auth_log::record_guest_attempt($source->id, $self->current_mac, $pid, $self->app->profile->name);
 
+    if($source->register_on_activation) {
+        my $unregdate = $AUTHENTICATION_ACTIONS{unregdate_from_source}($self) // undef;
+        
+        if($unregdate) {
+            pf::activation::set_unregdate($pf::activation::SPONSOR_ACTIVATION, $activation_code, $unregdate);
+        }
+        else {
+            $self->app->flash->{error} = "Unable to find access duration for user.";
+            $self->app->redirect("/logout");
+            $self->detach();
+        }
+
+        my $role = nodecategory_view_by_name($AUTHENTICATION_ACTIONS{role_from_source}($self));
+        if($role) {
+            pf::activation::set_category_id($pf::activation::SPONSOR_ACTIVATION, $activation_code, $role->{category_id});
+        }
+        else {
+            $self->app->flash->{error} = "Unable to find role for user.";
+            $self->app->redirect("/logout");
+            $self->detach();
+        }
+    }
+
     $self->session->{activation_code} = $activation_code;
     $self->app->session->{email} = $email;
-    $self->username($email);
+    $self->username($pid);
 
-    $self->update_person_from_fields();
+    # update sponsor field with forced_sponsor value
+    if (!defined($self->request_fields->{sponsor})) {
+        $self->update_person_from_fields(additionnal_fields => {notes => $note, sponsor => $sponsor});
+    }
+    else {
+        $self->update_person_from_fields(additionnal_fields => {notes => $note});
+    }
 
     $self->waiting_room();
 }
@@ -214,7 +263,7 @@ Push the user in a waiting room where he will wait for the access to be activate
 
 sub waiting_room {
     my ($self) = @_;
-    $self->render("waiting.html", $self->_release_args());
+    $self->render("waiting.html", {register_on_activation => isenabled($self->source->register_on_activation), %{$self->_release_args()}});
 }
 
 =head2 _validate_sponsor
@@ -226,7 +275,13 @@ Validate the provided sponsor is allowed to do sponsoring
 sub _validate_sponsor {
     my ($self, $sponsor_email) = @_;
     # Putting no context to that authentication request as no stripping has to be done here since its an email
-    my $value = pf::authentication::match( pf::authentication::getInternalAuthenticationSources(), { email => $sponsor_email, 'rule_class' => $Rules::ADMIN , 'context' => $pf::constants::realm::NO_CONTEXT}, $Actions::MARK_AS_SPONSOR );
+    my @sources;
+    foreach my $source (@{$self->source->sources}) {
+        push @sources, pf::authentication::getAuthenticationSource($source);
+    }
+    @sources = @{pf::authentication::getInternalAuthenticationSources()} if !(scalar @sources);
+
+    my $value = pf::authentication::match( \@sources, { email => $sponsor_email, 'rule_class' => $Rules::ADMIN , 'context' => $pf::constants::realm::NO_CONTEXT}, $Actions::MARK_AS_SPONSOR );
 
     if (!defined $value) {
         $self->app->flash->{error} = [ $GUEST::ERRORS{$GUEST::ERROR_SPONSOR_NOT_ALLOWED}, $sponsor_email ];
@@ -255,7 +310,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2018 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 

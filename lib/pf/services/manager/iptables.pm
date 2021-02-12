@@ -48,6 +48,18 @@ sub startService {
     return 1;
 }
 
+=head2
+
+generateConfig
+
+=cut
+
+sub generateConfig {
+    my $technique;
+    $technique ||= getIptablesTechnique();
+    $technique->iptables_generate();
+    return 1;
+}
 
 =head2 getIptablesTechnique
 
@@ -88,6 +100,15 @@ sub _start {
     return $result;
 }
 
+sub startAndCheck {
+    my ($self) = @_;
+
+    while(1) {
+        $self->_start() unless($self->isAlive());
+        sleep 60;
+    }
+}
+
 =head2 stop
 
 Wrapper around systemctl. systemctl should in turn call the actual _stop.
@@ -109,9 +130,7 @@ stop iptables (called from systemd)
 sub _stop {
     my ($self) = @_;
     my $logger = get_logger();
-    if ( $self->isAlive() ) {
-        getIptablesTechnique->iptables_restore( $install_dir . '/var/iptables.bak' );
-    }
+    getIptablesTechnique->iptables_restore( $install_dir . '/var/iptables.bak' );
     return 1;
 }
 
@@ -129,24 +148,7 @@ sub isAlive {
     my $pid = $self->pid;
     my $_EXIT_CODE_EXISTS = "0";
     my $rules_applied = defined( pf_run( "sudo " . $Config{'services'}{"iptables_binary"} . " -S | grep " . $pf::iptables::FW_FILTER_INPUT_MGMT ,accepted_exit_status => [$_EXIT_CODE_EXISTS]) );
-    return ($pid && $rules_applied);
-}
-
-=head2 pid
-
-Override the default method to check pid since there really is no such thing for iptables (it's not a process).
-
-=cut
-
-sub pid {
-    my $self   = shift;
-    my $result = `sudo systemctl show -p ActiveState packetfence-iptables`;
-    chomp $result;
-    my $state = ( split( '=', $result ) )[1];
-    if ( grep { $state eq $_ } qw( active activating deactivating ) ) {
-        return -1;
-    }
-    else { return 0; }
+    return ($pid && $rules_applied) ? 1 : 0;
 }
 
 =head1 AUTHOR
@@ -156,7 +158,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2018 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 

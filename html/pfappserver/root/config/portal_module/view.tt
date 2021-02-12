@@ -15,6 +15,17 @@
           <option value="[% access_duration %]"> [% access_duration %] </option>
        [% END %]
      </select>
+     <select name="on_failure_action_match" id="on_failure_action_match" data-required="required">
+       [% FOREACH root_module IN root_modules %]
+          <option value="[% root_module %]"> [% root_module %] </option>
+       [% END %]
+     </select>
+     <select name="on_success_action_match" id="on_success_action_match" data-required="required">
+       [% FOREACH root_module IN root_modules %]
+          <option value="[% root_module %]"> [% root_module %] </option>
+       [% END %]
+     </select>
+     <input data-required="1" id="destination_url_action_match" name="destination_url_action_match" value="" class="text input-small" type="text">
      <input data-required="1" id="set_unregdate_action_match" name="set_unregdate_action_match" value="" class="input-date input-small" data-date-format="yyyy-mm-dd" placeholder="yyyy-mm-dd" type="text">
      <input data-required="1" id="set_bandwidth_balance_action_match" name="set_bandwidth_balance_action_match" value="" class="text input-small" type="text">
   </div>

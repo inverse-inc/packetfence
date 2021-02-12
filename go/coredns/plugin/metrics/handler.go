@@ -1,6 +1,8 @@
 package metrics
 
 import (
+	"context"
+
 	"github.com/inverse-inc/packetfence/go/coredns/plugin"
 	"github.com/inverse-inc/packetfence/go/coredns/plugin/metrics/vars"
 	"github.com/inverse-inc/packetfence/go/coredns/plugin/pkg/dnstest"
@@ -8,7 +10,6 @@ import (
 	"github.com/inverse-inc/packetfence/go/coredns/request"
 
 	"github.com/miekg/dns"
-	"golang.org/x/net/context"
 )
 
 // ServeDNS implements the Handler interface.
@@ -25,7 +26,7 @@ func (m *Metrics) ServeDNS(ctx context.Context, w dns.ResponseWriter, r *dns.Msg
 	rw := dnstest.NewRecorder(w)
 	status, err := plugin.NextOrFailure(m.Name(), m.Next, ctx, rw, r)
 
-	vars.Report(state, zone, rcode.ToString(rw.Rcode), rw.Len, rw.Start)
+	vars.Report(WithServer(ctx), state, zone, rcode.ToString(rw.Rcode), rw.Len, rw.Start)
 
 	return status, err
 }

@@ -1,4 +1,5 @@
 #!/usr/bin/perl -w
+
 =head1 NAME
 
 dao/node.t
@@ -70,7 +71,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2018 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 

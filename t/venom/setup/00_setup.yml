@@ -1,0 +1,27 @@
+version: 2
+name: Setup
+testcases:
+- name: get_login_token
+  steps:
+    - type: http
+      method: POST
+      url: '{{.pfserver_webadmin_url}}/api/v1/login'
+      ignore_verify_ssl: true
+      body: >-
+        {
+        "username": "{{.pfserver_default_admin_user}}",
+        "password": "{{.pfserver_admin_password}}"
+        }      
+      headers:
+        "Content-Type": "application/json"
+      assertions:
+        - result.statuscode ShouldEqual 200
+      vars:
+        token:
+          from: result.bodyjson.token
+
+
+- name: write-token-to-file
+  steps:
+    - type: exec
+      script: "echo 'export TOKEN={{.get_login_token.token}}' > {{.venom_result_dir}}/env"

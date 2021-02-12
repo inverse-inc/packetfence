@@ -37,6 +37,7 @@ BEGIN {
         nodecategory_view_all
         nodecategory_view
         nodecategory_view_by_name
+        nodecategory_view_by_names
         nodecategory_add
         nodecategory_modify
         nodecategory_exist
@@ -80,9 +81,45 @@ sub nodecategory_populate_from_config {
         $logger->error($msg);
         return;
     }
-    while(my ($id, $role) = each(%$config)) {
-        nodecategory_upsert($id, %$role);
+
+    my @keep;
+    my @entries = _order_nodecategory_config($config);
+    for my $args (@entries) {
+        my $id = $args->[0];
+        nodecategory_upsert($id, %{$args->[1]});
+        push @keep, $id;
     }
+    _nodecategory_bulk_delete(\@keep);
+}
+
+sub _nodecategory_bulk_delete {
+    my ($keep) = @_;
+    pf::dal::node_category->remove_items(
+        -ignore => 1,
+        -where => {
+            name => {
+                -not_in => $keep,
+            },
+        }
+    );
+}
+
+sub _order_nodecategory_config {
+    my ($config) = @_;
+    my %t;
+    while (my ($id, $role) = each(%$config)) {
+        my $parent = $role->{parent} // '';
+        push @{$t{$parent}}, [$id, {%$role}];
+    }
+
+    return _flatten_nodecategory($t{''}, \%t);
+}
+
+sub _flatten_nodecategory {
+    my ( $parents, $h ) = @_;
+    return @$parents,
+      map { _flatten_nodecategory( $h->{$_}, $h ) }
+      grep { exists $h->{$_} } map { $_->[0] } @$parents;
 }
 
 =item nodecategory_upsert
@@ -104,13 +141,18 @@ sub nodecategory_upsert {
         die "Missing ID for nodecategory_upsert" unless($id);
 
         $logger->info("Inserting/updating role with ID $id");
+        my $parent = $data{parent};
         my $obj = pf::dal::node_category->new({
             name => $id,
             max_nodes_per_pid => $data{max_nodes_per_pid},
             notes => $data{notes},
-
+            parent_id => defined $parent ? \['(SELECT category_id FROM (SELECT category_id FROM node_category WHERE name = ?) x )', $parent] : undef,
+            include_parent_acls => $data{include_parent_acls} // "disabled",
+            fingerbank_dynamic_access_list => $data{fingerbank_dynamic_access_list} // "disabled",
+            acls => join("\n", @{$data{acls} // []}),
+            vlan => $data{vlan},
         });
-        my ($status) = $obj->save;
+        my ($status) = $obj->upsert;
         if (is_error($status)) {
             $logger->error("Cannot save nodecategory (role) in the database.");
         }
@@ -126,7 +168,7 @@ sub nodecategory_upsert {
 =cut
 
 sub nodecategory_view_all {
-    my ($status, $iter) = pf::dal::node_category->search();
+    my ($status, $iter) = pf::dal::node_category->search(-with_class => undef, -order_by => 'name');
     if (is_error($status)) {
         return;
     }
@@ -161,6 +203,26 @@ sub nodecategory_view_by_name {
         return (0);
     }
     return ($iter->next(undef));
+}
+
+=item nodecategory_view_by_names - view a list of node categories by name. Returns an array of nodecategories
+
+=cut
+
+sub nodecategory_view_by_names {
+    my (@names) = @_;
+    my ($status, $iter) = pf::dal::node_category->search(
+        -where => {
+            name => {-in => \@names},
+        },
+        -with_class => undef,
+        -order_by => 'name',
+    );
+    if (is_error($status)) {
+        return ();
+    }
+
+    return @{$iter->all() // []};
 }
 
 =item nodecategory_add - add a node category
@@ -237,7 +299,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2018 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 

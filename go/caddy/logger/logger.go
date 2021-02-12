@@ -3,14 +3,15 @@ package caddylog
 import (
 	"context"
 	"fmt"
-	"github.com/inverse-inc/packetfence/go/log"
-	"github.com/inverse-inc/packetfence/go/requesthistory"
-	"github.com/inverse-inc/packetfence/go/sharedutils"
+	"net/http"
+	"strconv"
+
 	"github.com/inconshreveable/log15"
 	"github.com/inverse-inc/packetfence/go/caddy/caddy"
 	"github.com/inverse-inc/packetfence/go/caddy/caddy/caddyhttp/httpserver"
-	"net/http"
-	"strconv"
+	"github.com/inverse-inc/packetfence/go/log"
+	"github.com/inverse-inc/packetfence/go/requesthistory"
+	"github.com/inverse-inc/packetfence/go/sharedutils"
 )
 
 func init() {

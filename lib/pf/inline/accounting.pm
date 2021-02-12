@@ -51,8 +51,8 @@ use pf::constants::trigger qw($TRIGGER_TYPE_ACCOUNTING);
 use pf::dal::inline_accounting;
 use pf::error qw(is_error is_success);
 use pf::dal::node;
-use pf::violation;
-use pf::config::violation;
+use pf::security_event;
+use pf::config::security_event;
 use pf::constants qw(
     $ZERO_DATE
 );
@@ -122,9 +122,9 @@ sub inline_accounting_maintenance {
     my $status;
     my $rows;
 
-    # Check if there's at least a violation using an accounting
-    if (@BANDWIDTH_EXPIRED_VIOLATIONS > 0) {
-        $logger->debug("There is an accounting violation. analyzing inline accounting data");
+    # Check if there's at least a security_event using an accounting
+    if (@BANDWIDTH_EXPIRED_SECURITY_EVENTS > 0) {
+        $logger->debug("There is an accounting security_event. analyzing inline accounting data");
 
         # Disable AutoCommit since we perform a SELECT .. FOR UPDATE statement
         my $dbh = pf::dal->get_dbh();
@@ -134,18 +134,18 @@ sub inline_accounting_maintenance {
         my ($status, $iter) = pf::dal::inline_accounting->search(
             -where => {
                 'n.status' => $pf::node::STATUS_REGISTERED,
-                'n.bandwidth_balance' => [ 0, { "<" => \'a.outbytes + a.inbytes' } ],
+                'n.bandwidth_balance' => [ 0, { "<" => \'inline_accounting.outbytes + inline_accounting.inbytes' } ],
             },
-            -columns => [-distinct => qw(n.mac i.ip n.bandwidth_balance), 'COALESCE((a.outbytes+a.inbytes),0)|bandwidth_consumed'],
-            -from => [-join => 'node|n', '<=>{n.mac=i.mac}', 'ip4log|i', "=>{i.ip=a.ip,a.status='ACTIVE'}", 'inline_accounting|a'],
+            -columns => [-distinct => qw(n.mac i.ip n.bandwidth_balance), 'COALESCE((inline_accounting.outbytes+inline_accounting.inbytes),0)|bandwidth_consumed'],
+            -from => [-join => 'node|n', '<=>{n.mac=i.mac}', 'ip4log|i', "=>{i.ip=inline_accounting.ip,inline_accounting.status='ACTIVE'}", 'inline_accounting'],
             -for => 'UPDATE',
         );
         if (is_success($status)) {
             while (my $row = $iter->next(undef)) {
                 my ($mac, $ip, $bandwidth_balance, $bandwidth_consumed) = @{$row}{qw(mac ip bandwidth_balance bandwidth_consumed)};
-                $logger->debug("Node $mac/$ip has no more bandwidth (balance $bandwidth_balance, consumed $bandwidth_consumed), triggering violation");
-                # Trigger violation for this node
-                if (violation_trigger( { 'mac' => $mac, 'tid' => $ACCOUNTING_POLICY_BANDWIDTH, 'type' => $TRIGGER_TYPE_ACCOUNTING } )) {
+                $logger->debug("Node $mac/$ip has no more bandwidth (balance $bandwidth_balance, consumed $bandwidth_consumed), triggering security_event");
+                # Trigger security_event for this node
+                if (security_event_trigger( { 'mac' => $mac, 'tid' => $ACCOUNTING_POLICY_BANDWIDTH, 'type' => $TRIGGER_TYPE_ACCOUNTING } )) {
                     pf::dal::inline_accounting->update_items(
                         -set => {
                             status => $INACTIVE
@@ -176,7 +176,9 @@ sub inline_accounting_maintenance {
             lastmodified => { "<" => \['NOW() - INTERVAL ? SECOND', $accounting_session_timeout]}
         }
     );
-    if (is_success($status) && $rows > 0) {
+    if (is_error($status)) {
+        $logger->error("Error stopping counters of active network sessions that have exceeded the timeout");
+    } elsif ($rows > 0) {
         $logger->debug("Mark $rows session(s) as inactive after $accounting_session_timeout seconds");
     }
 
@@ -186,22 +188,24 @@ sub inline_accounting_maintenance {
             status => $INACTIVE
         },
         -where => {
-            status => $ACTIVE,
-            -and => \'DAY(lastmodified) != DAY(firstseen)',
+            -and => [\'DAY(lastmodified) != DAY(firstseen)', {status => $ACTIVE}],
         }
     );
-    if (is_success($status) && $rows > 0) {
+    if (is_error($status)) {
+        $logger->error("Error stopping counters of active network sessions that have exceeded the timeout");
+    } elsif($rows > 0) {
         $logger->debug("Mark $rows session(s) as inactive after a day change");
     }
 
     # Update bandwidth balance with new inactive sessions
     my ($subsql, @subbind) =  pf::dal::inline_accounting->select(
-        -from => ['inline_accounting a', 'ip4log i'],
+        -from => ['inline_accounting', 'ip4log'],
+        -columns => [\'SUM(inline_accounting.outbytes+inline_accounting.inbytes)'],
         -where => {
-            'a.ip' => {-ident => 'i.ip'},
-            'a.mac' => {-ident => 'i.mac'},
-            'a.status' => $INACTIVE,
-            'i.end_time' => $ZERO_DATE,
+            'inline_accounting.ip' => {-ident => 'ip4log.ip'},
+            'ip4log.mac' => {-ident => 'node.mac'},
+            'inline_accounting.status' => $INACTIVE,
+            'ip4log.end_time' => $ZERO_DATE,
         },
     );
 
@@ -214,7 +218,9 @@ sub inline_accounting_maintenance {
         }
     );
 
-    if (is_success($status) && $rows > 0) {
+    if (is_error($status)) {
+        $logger->error("Error updating bandwidth balance with new inactive sessions");
+    } elsif ($rows > 0) {
         $logger->debug("Updated the bandwidth balance of $rows nodes");
     }
 
@@ -242,7 +248,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2018 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 

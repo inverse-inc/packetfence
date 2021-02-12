@@ -1,108 +1,146 @@
 <template>
-  <b-card class="mt-3" header-tag="header" no-body>
-    <div slot="header">
-      <h4>Create Nodes</h4>
+  <b-card no-body>
+    <b-card-header>
+      <h4 class="mb-0" v-t="'Create Node'"></h4>
+    </b-card-header>
+    <div class="card-body">
+      <b-form @submit.prevent="create()">
+        <b-form-row align-v="center">
+          <b-col sm="12">
+            <pf-form-input :column-label="$t('MAC')"
+              :form-store-name="formStoreName" form-namespace="mac"
+            />
+            <pf-form-autocomplete :column-label="$t('Owner')"
+              :form-store-name="formStoreName" form-namespace="pid"
+              :suggestions="matchingUsers"
+              placeholder="default"
+              @search="searchUsers"
+            />
+            <pf-form-select :column-label="$t('Status')"
+              :form-store-name="formStoreName" form-namespace="status"
+              :options="statuses"
+            />
+            <pf-form-select :column-label="$t('Role')"
+              :form-store-name="formStoreName" form-namespace="category_id"
+              :options="roles"
+            />
+            <pf-form-datetime :column-label="$t('Unregistration')"
+              :form-store-name="formStoreName" form-namespace="unregdate"
+              :moments="['1 hours', '1 days', '1 weeks', '1 months', '1 quarters', '1 years']"
+            />
+            <pf-form-textarea :column-label="$t('Notes')"
+              :form-store-name="formStoreName" form-namespace="notes"
+              rows="3" max-rows="3"
+            />
+          </b-col>
+        </b-form-row>
+      </b-form>
     </div>
-    <div slot="actions">
-    </div>
-    <b-tabs card>
-      <b-tab title="Single">
-        <b-form :validated="validForm">
-          <b-form-group horizontal label-cols="3" label="MAC">
-            <b-form-input v-model.trim="mac" @blur="macVisited = true" :state="macState" :formatter="macFormat" required></b-form-input>
-            <b-form-feedback>Enter a valid MAC address</b-form-feedback>
-          </b-form-group>
-          <b-form-group horizontal label-cols="3" class="mt-3">
-            <b-button variant="outline-primary" :disabled="!validForm">Create Node</b-button>
-          </b-form-group>
-        </b-form>
-      </b-tab>
-      <b-tab title="Multiple">
-        <b-form>
-          <b-form-group horizontal label-cols="3" label="CSV File">
-            <b-form-file v-model="file" accept="text/*" choose-label="Choose a file" required></b-form-file>
-          </b-form-group>
-          <b-form-group horizontal label-cols="3" label="Column Delimiter">
-            <b-form-select v-model="delimiter" :options="delimiters"></b-form-select>
-          </b-form-group>
-          <b-form-group horizontal label-cols="3" label="Default Voice Over IP">
-            <b-form-checkbox v-model="voip" value="yes"></b-form-checkbox>
-          </b-form-group>
-          <b-row>
-            <b-col sm="3">Columns Order</b-col>
-            <b-col>
-              <draggable v-model="columns" :options="{ handle: '.draggable-handle' }">
-                <div class="draggable-item" v-for="(column, index) in columns">
-                  <span class="draggable-handle">{{ index }}</span>
-                  <b-form-checkbox v-model="column.value" value="1">{{column.text}}</b-form-checkbox>
-                </div>
-              </draggable>
-            </b-col>
-          </b-row>
-          <b-form-group horizontal label-cols="3" class="mt-3">
-            <b-button variant="outline-primary">Create Nodes</b-button>
-          </b-form-group>
-        </b-form>
-      </b-tab>
-    </b-tabs>
+    <b-card-footer>
+      <b-button variant="primary" :disabled="disableForm" @click="create()">
+        <icon name="circle-notch" spin v-show="isLoading"></icon> {{ $t('Create') }}
+      </b-button>
+    </b-card-footer>
+
   </b-card>
 </template>
 
 <script>
-import draggable from 'vuedraggable'
+import pfFormAutocomplete from '@/components/pfFormAutocomplete'
+import pfFormDatetime from '@/components/pfFormDatetime'
+import pfFormInput from '@/components/pfFormInput'
+import pfFormSelect from '@/components/pfFormSelect'
+import pfFormTextarea from '@/components/pfFormTextarea'
+import usersApi from '@/views/Users/_api'
+import {
+  pfSearchConditionType as conditionType,
+  pfSearchConditionValues as conditionValues
+} from '@/globals/pfSearch'
+
+import { form, createValidators } from '../_config/'
 
 export default {
-  name: 'NodesCreate',
+  name: 'nodes-create',
   components: {
-    draggable
+    pfFormAutocomplete,
+    pfFormDatetime,
+    pfFormInput,
+    pfFormSelect,
+    pfFormTextarea
+  },
+  props: {
+    formStoreName: { // from router
+      type: String,
+      default: null,
+      required: true
+    }
   },
   data () {
     return {
-      mac: '',
-      macVisited: false,
-      file: null,
-      delimiter: 'comma',
-      delimiters: [
-        { value: 'comma', text: 'Comma' },
-        { value: 'semicolon', text: 'Semicolon' },
-        { value: 'tab', text: 'Tab' }
-      ],
-      voip: null,
-      columns: [
-        { value: '1', name: 'mac', text: 'MAC Address' },
-        { value: '0', name: 'owner', text: 'Owner' },
-        { value: '0', name: 'role', text: 'Role' },
-        { value: '0', name: 'unregdate', text: 'Unregistration Date' }
-      ]
+      matchingUsers: []
     }
   },
   computed: {
-    macState () {
-      var macRE = /^([A-Fa-f0-9]{2}[:]){5}[A-Fa-f0-9]{2}$/
-      return macRE.test(this.mac) ? true : (this.macVisited ? false : null)
+    form () {
+      return this.$store.getters[`${this.formStoreName}/$form`]
     },
-    validForm () {
-      return this.macState === true
+    invalidForm () {
+      return this.$store.getters[`${this.formStoreName}/$formInvalid`]
+    },
+    disableForm () {
+      return this.invalidForm || this.isLoading
+    },
+    statuses () {
+      return conditionValues[conditionType.NODE_STATUS]
+    },
+    roles () {
+      return this.$store.getters['session/allowedNodeRolesList']
+    },
+    isLoading () {
+      return this.$store.getters['$_nodes/isLoading']
     }
   },
   methods: {
-    macFormat (value, event) {
-      var re = /[a-fA-F0-9]{2}/g
-      var validMac = []
-      var match
-      while ((match = re.exec(value))) {
-        validMac.push(match[0].toUpperCase())
+    init () {
+      // setup form store module
+      this.$store.dispatch(`${this.formStoreName}/setForm`, form)
+      this.$store.dispatch(`${this.formStoreName}/setFormValidations`, createValidators)
+    },
+    create () {
+      this.$store.dispatch('$_nodes/createNode', this.form).then(() => {
+        this.init()
+        this.close()
+      })
+    },
+    close () {
+      this.$router.push({ name: 'nodes' })
+    },
+    searchUsers () {
+      let body = {
+        limit: 10,
+        fields: ['pid', 'firstname', 'lastname', 'email'],
+        sort: ['pid'],
+        query: {
+          op: 'and',
+          values: [{
+            op: 'or',
+            values: [
+              { field: 'pid', op: 'contains', value: this.form.pid },
+              { field: 'firstname', op: 'contains', value: this.form.pid },
+              { field: 'lastname', op: 'contains', value: this.form.pid },
+              { field: 'email', op: 'contains', value: this.form.pid }
+            ]
+          }]
+        }
       }
-      match = /^(?:[a-fA-F0-9]{2}:?)*([a-fA-F0-9])$/g.exec(value)
-      if (match) {
-        validMac.push(match[1].toUpperCase())
-      }
-      // this.$nextTick(function () {
-      //   this.mac = validMac.slice(0, 6).join(':')
-      // })
-      return validMac.slice(0, 6).join(':')
+      usersApi.search(body).then((data) => {
+        this.matchingUsers = data.items.map(item => item.pid)
+      })
     }
+  },
+  created () {
+    this.$store.dispatch('session/getAllowedNodeRoles')
+    this.init()
   }
 }
 </script>
-

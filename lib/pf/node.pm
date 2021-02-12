@@ -19,15 +19,18 @@ Read the F<pf.conf> configuration file.
 
 use strict;
 use warnings;
+use List::Util qw(pairmap any);
 use pf::log;
 use Readonly;
 use pf::StatsD::Timer;
 use pf::util::statsd qw(called);
 use pf::error qw(is_success is_error);
-use pf::constants::parking qw($PARKING_VID);
+use pf::constants::parking qw($PARKING_SECURITY_EVENT_ID);
 use CHI::Memoize qw(memoized);
 use pf::dal::node;
+use pf::config::tenant;
 use pf::dal::locationlog;
+use pf::client;
 use pf::constants::node qw(
     $STATUS_REGISTERED
     $STATUS_UNREGISTERED
@@ -39,6 +42,7 @@ use pf::config qw(
     %Config
     $INLINE
     %connection_type_to_str
+    $VOIP
 );
 
 use constant NODE => 'node';
@@ -80,7 +84,7 @@ BEGIN {
 }
 
 use pf::constants;
-use pf::config::violation;
+use pf::config::security_event;
 use pf::config qw(
     %connection_type_to_str
     $INLINE
@@ -89,7 +93,7 @@ use pf::config qw(
 );
 use pf::db;
 use pf::nodecategory;
-use pf::constants::scan qw($SCAN_VID $POST_SCAN_VID);
+use pf::constants::scan qw($SCAN_SECURITY_EVENT_ID $POST_SCAN_SECURITY_EVENT_ID);
 use pf::util;
 use pf::Connection::ProfileFactory;
 use pf::ipset;
@@ -153,6 +157,16 @@ sub node_view_reg_pid {
     return;
 }
 
+sub _can_delete {
+    my ($mac) = @_;
+    if ( defined( pf::locationlog::locationlog_view_open_mac($mac) ) ) {
+        my $msg = "$mac has an open locationlog entry. Node deletion prohibited";
+        return ($FALSE, $msg);
+    }
+
+    return ($TRUE,'');
+}
+
 #
 # delete and return 1
 #
@@ -164,16 +178,16 @@ sub node_delete {
     $mac = clean_mac($mac);
 
     if ( !node_exist($mac) ) {
-        $logger->error("delete of non-existent node '$mac' failed");
-        return (0);
+        return ($FALSE, "delete of non-existent node '$mac' failed");
     }
 
     require pf::locationlog;
-    # TODO that limitation is arbitrary at best, we need to resolve that.
-    if ( defined( pf::locationlog::locationlog_view_open_mac($mac) ) ) {
-        $logger->warn("$mac has an open locationlog entry. Node deletion prohibited");
-        return (0);
+    my ($can_delete, $msg) = _can_delete($mac);
+    if (!$can_delete) {
+        $logger->warn($msg);
+        return ($FALSE, $msg);
     }
+
     my %options = (
         -where => {
             mac => $mac,
@@ -186,10 +200,11 @@ sub node_delete {
 
     my ($status, $count) = pf::dal::node->remove_items(%options);
     if (is_error($status)) {
-        return (0);
+        return ($FALSE, "Unable to delete '$mac' internal error");
     }
+
     $logger->info("node $mac deleted");
-    return (1);
+    return ($TRUE, '');
 }
 
 our %DEFAULT_NODE_VALUES = (
@@ -230,6 +245,13 @@ sub node_add {
         $logger->warn("attempt to add existing node $mac");
         return (2);
     }
+    my $node_status = $data{status};
+    if ( defined $node_status && ( $node_status eq $STATUS_REGISTERED )) {
+        my $regdate = $data{regdate};
+        if ( !defined $regdate || $regdate eq '' || $regdate eq $ZERO_DATE ) {
+            $data{regdate} = \'NOW()';
+        }
+    }
 
     foreach my $field (keys %DEFAULT_NODE_VALUES)
     {
@@ -237,10 +259,6 @@ sub node_add {
     }
 
     _cleanup_attributes(\%data);
-
-    if ( ( $data{status} eq $STATUS_REGISTERED ) && ( $data{regdate} eq '' ) ) {
-        $data{regdate} = mysql_date();
-    }
 
     # category handling
     $data{'category_id'} = _node_category_handling(%data);
@@ -253,7 +271,7 @@ sub node_add {
 }
 
 #
-# simple wrapper for pfmon/pfdhcplistener-detected and auto-generated nodes
+# simple wrapper for pfcron/pfdhcplistener-detected and auto-generated nodes
 #
 sub node_add_simple {
     my ($mac) = @_;
@@ -263,6 +281,7 @@ sub node_add_simple {
         'detect_date' => $date,
         'status'      => 'unreg',
         'voip'        => 'no',
+        -ignore       => 1,
     );
     if ( !node_add( $mac, %tmp ) ) {
         return (0);
@@ -438,12 +457,12 @@ sub node_view_all {
 #           locationlog.stripped_user_name as stripped_user_name, locationlog.realm as realm,
 #           locationlog.switch_mac as last_switch_mac,
 #           ip4log.ip as last_ip,
-#           COUNT(DISTINCT violation.id) as nbopenviolations,
+#           COUNT(DISTINCT security_event.id) as nbopensecurity_events,
 #           node.notes
 #       FROM node
 #           LEFT JOIN node_category as nr on node.bypass_role_id = nr.category_id
 #           LEFT JOIN node_category as nc on node.category_id = nc.category_id
-#           LEFT JOIN violation ON node.mac=violation.mac AND violation.status = 'open'
+#           LEFT JOIN security_event ON node.mac=security_event.mac AND security_event.status = 'open'
 #           LEFT JOIN locationlog ON node.mac=locationlog.mac AND  = 0
 #           LEFT JOIN ip4log ON node.mac=ip4log.mac AND (ip4log. = $ZERO_DATE OR ip4log.end_time > NOW())
 #       GROUP BY node.mac
@@ -466,7 +485,7 @@ sub node_view_all {
           locationlog.switch_mac|last_switch_mac
           ip4log.ip|last_ip
           ),
-        \"COUNT(DISTINCT violation.id) as nbopenviolations",
+        \"COUNT(DISTINCT security_event.id) as nbopensecurity_events",
         'node.notes'
     ];
 
@@ -482,12 +501,12 @@ sub node_view_all {
                 '%2$s.status' => 'open',
             },
         },
-        'violation',
+        'security_event',
         {
             operator  => '=>',
             condition => {
                 'node.mac' => { '=' => { -ident => '%2$s.mac' } },
-                '%2$s.' => $ZERO_DATE,
+                '%2$s.end_time' => $ZERO_DATE,
             },
         },
         'locationlog',
@@ -495,7 +514,7 @@ sub node_view_all {
             operator  => '=>',
             condition => {
                 'node.mac' => { '=' => { -ident => '%2$s.mac' } },
-                '%2$s.' => [$ZERO_DATE, { ">", \'NOW()'}],
+                '%2$s.end_time' => [$ZERO_DATE, { ">", \'NOW()'}],
             },
         },
         'ip4log'
@@ -648,7 +667,7 @@ sub node_register {
             return (0);
         }
            $logger->info("autoregister a node that is already registered, do nothing.");
-           return 1;
+           return (1);
        }
     }
     else {
@@ -670,25 +689,30 @@ sub node_register {
     }
     $pf::StatsD::statsd->increment( called() . ".called" );
 
-    # Closing any parking violations
-    # loading pf::violation here to prevent circular dependency
-    require pf::violation;
-    pf::violation::violation_force_close($mac, $PARKING_VID);
+    # Closing any parking security_events
+    # loading pf::security_event here to prevent circular dependency
+    require pf::security_event;
+    pf::security_event::security_event_force_close($mac, $PARKING_SECURITY_EVENT_ID);
 
     my $profile = pf::Connection::ProfileFactory->instantiate($mac);
-    my $scan = $profile->findScan($mac);
-    if (defined($scan)) {
-        # triggering a violation used to communicate the scan to the user
-        if ( isenabled($scan->{'registration'})) {
-            $logger->debug("Triggering on registration scan");
-            pf::violation::violation_add( $mac, $SCAN_VID );
-        }
-        if (isenabled($scan->{'post_registration'})) {
-            $logger->debug("Triggering post-registration scan");
-            pf::violation::violation_add( $mac, $POST_SCAN_VID );
-        }
+
+    my @scanners = $profile->findScans($mac);
+
+    return (1) unless scalar(@scanners) > 0;
+
+    if ( any { isenabled($_->{'_registration'}) } @scanners) {
+        # trigger Scan for On Registration scanners
+        $logger->debug("Triggering On Registration Scan");
+        require pf::api;
+        pf::api::trigger_scan('pf::api',ip => pf::ip4log::mac2ip($mac) , mac => $mac , net_type => 'registration');
     }
 
+    if ( any { isenabled($_->{'_post_registration'}) } @scanners) {
+        # trigger Event for Post Registration scanners
+        $logger->debug("Triggering Post Registration Scan Event");
+        pf::security_event::security_event_add( $mac, $POST_SCAN_SECURITY_EVENT_ID );
+    }
+    
     return (1);
 }
 
@@ -705,9 +729,9 @@ sub node_deregister {
     $info{'autoreg'}   = 'no';
 
     my $profile = pf::Connection::ProfileFactory->instantiate($mac);
-    if(my $provisioner = $profile->findProvisioner($mac)){
-        if(my $pki_provider = $provisioner->getPkiProvider() ){
-            if(isenabled($pki_provider->revoke_on_unregistration)){
+    if (my $provisioner = $profile->findProvisioner($mac)) {
+        if (my $pki_provider = $provisioner->getPkiProvider() ) {
+            if (isenabled($pki_provider->revoke_on_unregistration)) {
                 my $node_info = node_view($mac);
                 my $cn = $pki_provider->user_cn($node_info);
                 $pki_provider->revoke($cn);
@@ -733,14 +757,14 @@ sub node_deregister {
 
 =item * nodes_maintenance - handling deregistration on node expiration and node grace
 
-called by pfmon daemon for the configured interval
+called by pfcron daemon for the configured interval
 
 =cut
 
 sub nodes_maintenance {
     my $timer = pf::StatsD::Timer->new;
     my $logger = get_logger();
-    local $pf::dal::CURRENT_TENANT = $pf::dal::CURRENT_TENANT;
+    local $pf::config::tenant::CURRENT_TENANT = $pf::config::tenant::CURRENT_TENANT;
 
     $logger->debug("nodes_maintenance called");
     my ( $status, $iter ) = pf::dal::node->search(
@@ -759,7 +783,17 @@ sub nodes_maintenance {
     while (my $row = $iter->next()) {
         my $currentMac = $row->{mac};
         pf::dal->set_tenant($row->{tenant_id});
+
+        my $apiclient = pf::client::getClient;
+        my %security_event = (
+            'mac'   => $currentMac,
+            'tid'   => 'node_maintenance',
+            'type'  => 'internal',
+        );
+        $apiclient->notify('trigger_security_event', %security_event);
+
         node_deregister($currentMac);
+
         require pf::enforcement;
         pf::enforcement::reevaluate_access( $currentMac, 'manage_deregister' );
 
@@ -771,8 +805,8 @@ sub nodes_maintenance {
 
 =item nodes_registered_not_violators
 
-Returns a list of MACs which are registered and don't have any open violation.
-Since trap violations stay open, this has the intended effect of getting all MACs which should be allowed through.
+Returns a list of MACs which are registered and don't have any open security_event.
+Since trap security_events stay open, this has the intended effect of getting all MACs which should be allowed through.
 
 =cut
 
@@ -783,8 +817,8 @@ sub nodes_registered_not_violators {
         },
         -columns  => [qw(node.mac node.category_id)],
         -group_by => 'node.mac',
-        -having => 'count(violation.mac)=0',
-        -from => [-join => 'node', "=>{node.mac=violation.mac,violation.status='open'}", "violation"],
+        -having => 'count(security_event.mac)=0',
+        -from => [-join => 'node', "=>{node.mac=security_event.mac,security_event.status='open'}", "security_event"],
     );
     if (is_error($status)) {
         return;
@@ -850,7 +884,7 @@ Cleanup nodes that should be deleted or unregistered based on the maintenance pa
 
 sub node_cleanup {
     my $timer = pf::StatsD::Timer->new;
-    my ($delete_time, $unreg_time) = @_;
+    my ($delete_time, $unreg_time,$voip) = @_;
     my $logger = get_logger();
     $logger->debug("calling node_cleanup with delete_time=$delete_time unreg_time=$unreg_time");
     
@@ -858,11 +892,13 @@ sub node_cleanup {
         foreach my $row ( node_expire_lastseen($delete_time) ) {
             my $mac = $row->{'mac'};
             my $tenant_id = $row->{'tenant_id'};
-            require pf::locationlog;
-            if (pf::locationlog::locationlog_update_end_mac($mac, $tenant_id)) {
-                $logger->info("mac $mac not seen for $delete_time seconds, deleting");
-               node_delete($mac, $tenant_id);
+            if (isdisabled($voip) && $row->{'voip'} eq $VOIP) {
+                next;
             }
+            $logger->info("mac $mac not seen for $delete_time seconds, deleting");
+            require pf::locationlog;
+            pf::locationlog::locationlog_update_end_mac($mac, $tenant_id);
+            node_delete($mac, $tenant_id);
         }
     }
     else {
@@ -874,6 +910,9 @@ sub node_cleanup {
         foreach my $row ( node_unreg_lastseen($unreg_time) ) {
             my $mac = $row->{'mac'};
             my $tenant_id = $row->{'tenant_id'};
+            if (isdisabled($voip) && $row->{'voip'} eq $VOIP) {
+                next;
+            }
             $logger->info("mac $mac not seen for $unreg_time seconds, unregistering");
             pf::dal->set_tenant($tenant_id);
             node_deregister($mac);
@@ -889,7 +928,7 @@ sub node_cleanup {
 
 =item * node_update_bandwidth - update the bandwidth balance of a node
 
-Updates the bandwidth balance of a node and close the violations that use the bandwidth trigger.
+Updates the bandwidth balance of a node and close the security_events that use the bandwidth trigger.
 
 =cut
 
@@ -915,8 +954,8 @@ sub node_update_bandwidth {
         return (undef);
     }
     if ($rows) {
-        foreach my $vid (@BANDWIDTH_EXPIRED_VIOLATIONS){
-            pf::violation::violation_force_close($mac, $vid);
+        foreach my $security_event_id (@BANDWIDTH_EXPIRED_SECURITY_EVENTS){
+            pf::security_event::security_event_force_close($mac, $security_event_id);
         }
     }
     return ($rows);
@@ -1272,7 +1311,9 @@ sub node_last_reg_non_inline_on_category {
     if ( is_error($status) ) {
         return;
     }
-    return @{ $iter->all() // [] };
+    my $all = $iter->all();
+    my $result = $all ? $all->[0] : undef;
+    return $result;
 }
 
 =back
@@ -1285,7 +1326,7 @@ Minor parts of this file may have been contributed. See CREDITS.
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2018 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 Copyright (C) 2005 Kevin Amorin
 

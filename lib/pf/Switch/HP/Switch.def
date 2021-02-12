@@ -1,0 +1,14 @@
+# Do not edit.
+# Any changes will be lost on upgrade.
+acceptVlan= <<EOT
+Tunnel-Medium-Type = 6
+Tunnel-Type = 13
+Tunnel-Private-Group-Id = $vlan
+EOT
+voip=Egress-VLAN-Name = 1${switch._voiceRole}
+acceptRole=
+coa=
+snmpDisconnect=enabled
+disconnect=
+description=Standard HP Switch
+reject=Reply-Message = This node is not allowed to use this service

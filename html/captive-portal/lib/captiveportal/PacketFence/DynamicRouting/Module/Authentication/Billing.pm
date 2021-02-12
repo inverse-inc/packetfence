@@ -22,8 +22,8 @@ use Tie::IxHash;
 use pf::log;
 use List::Util qw(first);
 use pf::config;
-use pf::violation;
-use pf::config::violation;
+use pf::security_event;
+use pf::config::security_event;
 use pf::config::util;
 use pf::web::guest;
 use pf::util;
@@ -129,6 +129,9 @@ sub verify {
 
     $data = $self->session->{verify_data};
 
+    $self->session->{email} = $self->username;
+    $self->session->{billed_mac} = $self->current_mac;
+
     unless ($data) {
         eval {
             $data = $billing->verify($self->session, $request->parameters, $request->uri);
@@ -141,10 +144,6 @@ sub verify {
         $self->redirect_root();
         return 0;
     }
-
-
-    $self->session->{email} = $self->username;
-    $self->session->{billed_mac} = $self->current_mac;
 
     $self->process_transaction();
 }
@@ -239,10 +238,10 @@ sub process_transaction {
             $logger->info("Usage duration for $mac is now " . $info->{'time_balance'});
         }
 
-        # Close violations that use the 'Accounting::BandwidthExpired' trigger
-        foreach my $vid (@BANDWIDTH_EXPIRED_VIOLATIONS){
-            # Close any existing violation
-            violation_force_close($mac, $vid);
+        # Close security_events that use the 'Accounting::BandwidthExpired' trigger
+        foreach my $security_event_id (@BANDWIDTH_EXPIRED_SECURITY_EVENTS){
+            # Close any existing security_event
+            security_event_force_close($mac, $security_event_id);
         }
     }
 
@@ -254,7 +253,7 @@ sub process_transaction {
             email => $request_fields->{email},
         );
         my $info = $billing->confirmationInfo(\%parameters, $tier, $session);
-        pf::web::guest::send_template_email( 'billing_confirmation', $info->{'subject'}, $info );
+        pf::web::guest::send_template_email( 'billing_confirmation', $info->{'subject'}, $info, { INCLUDE_PATH => [ map { $_ . "/emails/" } @{$self->app->profile->{_template_paths}} ] });
     }
 
     if (isenabled($billing->create_local_account)) {
@@ -343,6 +342,7 @@ sub confirm {
         billing => $billing,
         tier => $self->session->{tier},
         title => "Tier confirmation",
+        request_fields => $self->session->{request_fields},
     });
 }
 
@@ -392,7 +392,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2018 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 

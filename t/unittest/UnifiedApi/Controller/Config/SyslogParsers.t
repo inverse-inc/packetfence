@@ -26,7 +26,7 @@ BEGIN {
     use setup_test_config;
 }
 
-use Test::More tests => 9;
+use Test::More tests => 16;
 use Test::Mojo;
 
 #This test will running last
@@ -49,13 +49,86 @@ $t->post_ok($collection_base_url, {'Content-Type' => 'application/json'} => '{')
 $t->post_ok($collection_base_url => json => { type => 'ko' })
   ->status_is(422);
 
+$t->post_ok("$collection_base_url/dry_run" => json => { type => 'dhcp' })
+  ->status_is(422);
+
+$t->post_ok("$collection_base_url/dry_run" => json => { type => 'regex' })
+  ->status_is(422);
+
+my $config = {
+    type => 'regex',
+    id => 'regex',
+    path => '/usr/local/pf/var/log-regex.log',
+    rules => [
+        {
+            regex => 'from: (?P<scrip>\d{1,3}(\.\d{1,3}){3}), to: (?P<dstip>\d{1,3}(\.\d{1,3}){3}), mac: (?P<mac>[a-fA-F0-9]{12})',
+            name => 'from to',
+            last_if_match => 0,
+            'ip_mac_translation' => 0,
+            actions => [
+                { api_method => 'modify_node', api_parameters => '$scrip, $dstip, $mac'},
+                { api_method => 'trigger_scan', api_parameters => 'bob, bob'},
+            ],
+        },
+        {
+            regex => 'from: (?P<scrip>\d{1,3}(\.\d{1,3}){3}), to: (?P<dstip>\d{1,3}(\.\d{1,3}){3})',
+            name => 'from to',
+            last_if_match => 1,
+            'ip_mac_translation' => 0,
+            actions => [
+                { api_method => 'modify_node', api_parameters => '$scrip, $dstip'},
+                { api_method => 'trigger_scan', api_parameters => 'bob, bob'},
+            ],
+        },
+    ],
+    lines => [
+        "from: 1.2.3.4, to: 1.2.3.5",
+    ]
+};
+
+$t->post_ok( "$collection_base_url/dry_run" => json => $config )
+  ->status_is(200)
+  ->json_is(
+    {
+        items => [
+            {
+                'matches' => [
+                    {
+                        'success' => 1,
+                        'actions' => [
+                            { api_method =>  'modify_node',  api_parameters => [ '1.2.3.4', '1.2.3.5' ] },
+                            { api_method => 'trigger_scan', api_parameters => [ 'bob',     'bob' ] }
+                        ],
+                        'rule' => {
+                            'ip_mac_translation' => 'disabled',
+                            'rate_limit'         => {
+                                unit     => 's',
+                                interval => 0,
+                            },
+                            'actions' => [
+                                'modify_node: $scrip, $dstip',
+                                'trigger_scan: bob, bob'
+                            ],
+                            'last_if_match' => 'enabled',
+                            'regex' => 'from: (?P<scrip>\\d{1,3}(\\.\\d{1,3}){3}), to: (?P<dstip>\\d{1,3}(\\.\\d{1,3}){3})',
+                            'name' => 'from to'
+                          }
+                    }
+                ],
+                'line' => 'from: 1.2.3.4, to: 1.2.3.5'
+            }
+        ],
+        status => 200,
+    }
+  );
+
 =head1 AUTHOR
 
 Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2018 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 
@@ -77,4 +150,3 @@ USA.
 =cut
 
 1;
-

@@ -39,6 +39,7 @@ use pf::util;
 use pf::config::util qw();
 use pf::Connection::ProfileFactory;
 use pf::web::guest::constants;
+use pf::web qw(i18n);
 use pf::constants::Connection::Profile qw($DEFAULT_PROFILE);
 
 =head1 CONSTANTS
@@ -151,6 +152,32 @@ sub find_unverified_code {
     return ($item->to_hash);
 }
 
+=head2 find_unverified_and_expired_code
+
+find an unused and expired pending activation record by doing a LIKE in the code, returns an hashref
+
+=cut
+
+sub find_unverified_and_expired_code {
+    my ($type, $activation_code) = @_;
+    my ($status, $iter) = pf::dal::activation->search(
+        -where => {
+            type => $type,
+            activation_code => $activation_code,
+            status => $UNVERIFIED,
+            expiration => { "<=" => \['NOW()']}
+        },
+    );
+    if (is_error($status)) {
+        return undef;
+    }
+    my $item = $iter->next;
+    if (!defined $item) {
+        return undef;
+    }
+    return ($item->to_hash);
+}
+
 =head2 view_by_code
 
 view an pending  activation record by exact activation code (including hash format). Returns an hashref
@@ -164,7 +191,6 @@ sub view_by_code {
             type => $type,
             activation_code => $activation_code,
         },
-        -no_auto_tenant_id => 1,
     );
     if (is_error($status)) {
         return undef;
@@ -174,6 +200,32 @@ sub view_by_code {
         return undef;
     }
     return ($item->to_hash);
+}
+
+=head2 is_code_in_use
+
+is_code_in_use
+
+=cut
+
+sub is_code_in_use {
+    my ($type, $code, $mac) = @_;
+    my ($status, $iter) = pf::dal::activation->search(
+        -columns => [ \"1" ],
+        -where   => {
+            type            => $type,
+            activation_code => $code,
+            status          => $UNVERIFIED,
+            expiration => { ">=" => \['NOW()']},
+            ($type eq 'sms' && defined($mac)) ? ( mac => $mac ) : (),
+        },
+    );
+
+    if (is_error($status)) {
+        return undef;
+    }
+
+    return $iter->rows;
 }
 
 =head2 view_by_code_mac
@@ -376,25 +428,44 @@ sub _generate_activation_code {
     my $no_unique = $data{'no_unique'};
     my $type = $data{'type'};
     my $style = $data{'style'} // 'md5';
+    my $generator = $style eq 'digits' ? \&digits_generator : \&md5_generator;
+    my $mac = $data{mac};
     do {
         # generating something not so easy to guess (and hopefully not in rainbowtables)
-        if ($style eq 'digits') {
-            $code = int(rand(9999999999)) + 1;
-        } else {
-            $code = md5_hex(
-                join("|",
-                    time + int(rand(10)),
-                    grep {defined $_} @data{qw(expiration mac pid contact_info)})
-            );
-        }
+        $code = $generator->(\%data);
         if ($code_length > 0) {
             $code = substr($code, 0, $code_length);
         }
         # make sure the generated code is unique
-        $code = undef if (!$no_unique && view_by_code($type, $code));
+        $code = undef if (!$no_unique && is_code_in_use($type, $code, $mac));
     } while (!defined($code));
 
     return $code;
+}
+
+=head2 digits_generator
+
+digits_generator
+
+=cut
+
+sub digits_generator {
+    return int(rand(9999999999)) + 1;;
+}
+
+=head2 md5_generator
+
+md5_generator
+
+=cut
+
+sub md5_generator {
+    my ($data) = @_;
+    return md5_hex(
+        join( "|",
+            time + int( rand(10) ),
+            grep { defined $_ } @{$data}{qw(expiration mac pid contact_info)} )
+    );
 }
 
 =head2 send_email
@@ -406,16 +477,18 @@ Send an email with the activation code
 sub send_email {
     my ($type, $activation_code, $template, %info) = @_;
     my $logger = get_logger();
+    my $lang = $info{lang};
     my $profile = pf::Connection::ProfileFactory->_from_profile($info{portal}) // pf::Connection::ProfileFactory->_from_profile($DEFAULT_PROFILE);
 
     my $user_locale = clean_locale(setlocale(POSIX::LC_MESSAGES));
-    if ($type eq $SPONSOR_ACTIVATION) {
-        $logger->debug('We are doing sponsor activation', $user_locale);
-        setlocale(POSIX::LC_MESSAGES, $Config{'advanced'}{'language'});
+    if ($lang) {
+        $logger->debug("Updating $user_locale to $lang");
+        setlocale(POSIX::LC_MESSAGES, $lang);
     }
     my $smtpserver = $Config{'alerting'}{'smtpserver'};
     $info{'from'} = $Config{'alerting'}{'fromaddr'} || 'root@' . $fqdn;
     $info{'currentdate'} = POSIX::strftime( "%m/%d/%y %H:%M:%S", localtime );
+    $info{'subject'} = i18n($info{'subject'});
 
     if (defined($info{'activation_domain'})) {
         $info{'activation_uri'} = "https://". $info{'activation_domain'} . "$WEB::URL_EMAIL_ACTIVATION_LINK/$type/$activation_code";
@@ -543,6 +616,24 @@ sub find_unverified_code_by_mac {
     return ($item->to_hash);
 }
 
+=head2 is_expired
+
+Test if the code expired
+
+=cut
+
+sub is_expired {
+    my ($activation_code) = @_;
+    my $logger = get_logger();
+
+    my $activation_record = find_unverified_and_expired_code($activation_code);
+    if (defined($activation_record)) {
+        $logger->info("Expired pending activation found , activation code: $activation_code");
+        return $TRUE;
+    }
+    return $FALSE;
+}
+
 =head2 set_status_verified
 
 Change the status of a given pending activation code to VERIFIED which means it can't be used anymore.
@@ -598,32 +689,41 @@ Create and send PIN code
 =cut
 
 sub sms_activation_create_send {
-    my ($mac, $pid, $phone_number, $portal, $provider_id, $authentication_source) = @_;
+    my (%args) = @_;
     my $logger = get_logger();
 
     my ( $success, $err ) = ( $TRUE, 0 );
-    my %args = (
-        mac         => $mac,
-        pid         => $pid,
-        pending     => $phone_number,
-        type        => "sms",
-        portal      => $portal,
-        provider_id => $provider_id,
-        code_length => $authentication_source->pin_code_length,
-        no_unique   => 1,
-        style       => 'digits',
-        source_id   => $authentication_source->id,
-    );
-
     my $activation_code = create(\%args);
     if (defined($activation_code)) {
-        unless ($authentication_source->sendActivationSMS($activation_code, $mac)) {
+        $args{'message'} =~ s/\$pin/$activation_code/;
+        unless ($args{'source'}->sendActivationSMS($activation_code, $args{'mac'}, $args{'message'})) {
             ($success, $err) = ($FALSE, $GUEST::ERRORS{$GUEST::ERROR_CONFIRMATION_SMS});
             invalidate_codes($args{'mac'}, $args{'pid'}, $args{'pending'});
         }
     }
 
     return ($success, $err, $activation_code);
+}
+
+=head2 set_category_id
+
+Set the unregdate that should be assigned to the node once the activation record has been validated
+
+=cut
+
+sub set_category_id {
+    my ($type, $activation_code, $category_id) = @_;
+    get_logger->debug("Setting category_id $category_id for activation code $activation_code");
+    my ($status, $rows) = pf::dal::activation->update_items(
+        -set => {
+            category_id => $category_id
+        },
+        -where => {
+            type => $type,
+            activation_code => $activation_code
+        }
+    );
+    return $rows;
 }
 
 =head2 set_unregdate
@@ -655,7 +755,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2018 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 

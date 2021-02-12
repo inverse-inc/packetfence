@@ -26,8 +26,12 @@ BEGIN {
     use setup_test_config;
 }
 
-use Test::More tests => 7;
+use Test::More tests => 24;
 use Test::Mojo;
+use Utils;
+use pf::ConfigStore::Roles;
+
+my ($fh, $filename) = Utils::tempfileForConfigStore("pf::ConfigStore::Roles");
 
 #This test will running last
 use Test::NoWarnings;
@@ -43,8 +47,33 @@ $t->get_ok($collection_base_url)
 $t->post_ok($collection_base_url => json => {})
   ->status_is(422);
 
+$t->post_ok($collection_base_url => json => { id => 'bob.bib', max_nodes_per_pid => 0})
+  ->status_is(422)
+  ->json_is("/errors/0/field", "id");
+
 $t->post_ok($collection_base_url, {'Content-Type' => 'application/json'} => '{')
   ->status_is(400);
+
+$t->delete_ok("$base_url/default")
+  ->status_is(422);
+
+$t->patch_ok("$base_url/gaming/reassign" => json => {})
+  ->status_is(422);
+
+$t->post_ok($collection_base_url => json => { id => 'bob' })
+  ->status_is(201);
+
+$t->patch_ok("$base_url/r1" => json => { parent_id => 'r2' })
+  ->status_is(422);
+
+$t->patch_ok("$base_url/r1" => json => { parent_id => 'r3' })
+  ->status_is(422);
+
+$t->delete_ok("$base_url/r1" => json => {  })
+  ->status_is(422);
+
+$t->delete_ok("$base_url/r3" => json => {  })
+  ->status_is(200);
 
 =head1 AUTHOR
 
@@ -52,7 +81,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2018 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 

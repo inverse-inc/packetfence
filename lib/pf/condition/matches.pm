@@ -37,10 +37,14 @@ Match if argument matches the value
 =cut
 
 sub match {
-    my ($self,$arg) = @_;
-    my $match = $self->value;
+    my ($self,$arg, $args) = @_;
+    my $match = $self->evalParam($self->value, $args);
     return 0 if(!defined($arg));
-    return $arg =~ /\Q$match\E/;
+    if ($match eq '') {
+        return 1;
+    }
+
+    return $arg =~ /\Q$match\E/i ? 1 : 0;
 }
 
 =head1 AUTHOR
@@ -49,7 +53,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2018 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 

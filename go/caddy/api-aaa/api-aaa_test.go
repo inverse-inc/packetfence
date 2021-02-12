@@ -48,7 +48,7 @@ func TestApiAAALogin(t *testing.T) {
 
 func TestApiAAATokenInfo(t *testing.T) {
 	_, token, _ := apiAAA.authentication.Login(ctx, "web", "services")
-	tokenInfo := apiAAA.authorization.GetTokenInfo(ctx, token)
+	tokenInfo, _ := apiAAA.authorization.GetTokenInfo(ctx, token)
 
 	req, _ := http.NewRequest("GET", "/api/v1/token_info", nil)
 	req.Header.Add("Authorization", "Bearer "+token)
@@ -68,7 +68,7 @@ func TestApiAAATokenInfo(t *testing.T) {
 	err := json.Unmarshal(b, &respMap)
 	sharedutils.CheckError(err)
 
-	if respMap.Item.TenantId != tokenInfo.TenantId {
+	if respMap.Item.Tenant.Id != tokenInfo.Tenant.Id {
 		t.Error("Tenant ID is not the same in the token info response as it is in the backend")
 	}
 

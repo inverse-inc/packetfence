@@ -24,8 +24,10 @@ sub init {
 
 sub build {
     my ($self) = @_;
-    push @{$self->{_interfaces}->{radius_ints}},$self->{_interfaces}->{management_network};
-    return $self->{_interfaces}->{radius_ints};
+    my $interfaces = $self->{_interfaces};
+    my $mn = $interfaces->{management_network};
+    push @{ $interfaces->{radius_ints} }, $mn if $mn;
+    return $interfaces->{radius_ints} // [];
 }
 
 
@@ -35,7 +37,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2018 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 

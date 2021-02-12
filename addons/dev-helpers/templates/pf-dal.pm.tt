@@ -37,7 +37,7 @@ BEGIN {
 
     @INSERTABLE_FIELDS = qw(
 [% FOREACH col IN cols -%]
-[%- NEXT IF col.mysql_is_auto_increment -%]
+[%- NEXT IF col.mysql_is_auto_increment || col.is_virtual -%]
 [%- NEXT IF col.pf_default_value == "'CURRENT_TIMESTAMP'" -%]
         [% col.COLUMN_NAME %]
 [% END -%]
@@ -89,13 +89,13 @@ sub _defaults {
     return {%DEFAULTS};
 }
 
-=head2 field_names
+=head2 table_field_names
 
 Field names of [% TABLE_NAME %]
 
 =cut
 
-sub field_names {
+sub table_field_names {
     return [@FIELD_NAMES];
 }
 

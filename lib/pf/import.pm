@@ -34,6 +34,7 @@ use pf::error;
 use pf::constants;
 use pf::config qw(%Config);
 use pf::node;
+use pf::nodecategory qw(nodecategory_lookup);
 use pf::person;
 use pf::util;
 
@@ -58,7 +59,7 @@ sub nodes {
     my $default_node_pid = $data->{default_pid};
     my $default_category_id = $data->{default_category_id};
     my $default_voip = $data->{default_voip};
-    my $default_unregdate = $data->{default_unregdate};
+    my $default_unregdate = $data->{default_unregdate} // $ZERO_DATE;
 
     $logger->debug("CSV file import nodes from $tmpfilename ($filename, \"$delimiter\")");
 
@@ -94,15 +95,15 @@ sub nodes {
         return  ($STATUS::INTERNAL_SERVER_ERROR, "Can't read CSV file.");
     }
     my $csv = Text::CSV->new({ binary => 1, sep_char => $delimiter });
+    my $result;
     while (my $row = $csv->getline($import_fh)) {
-        my ($pid, $mac, $node, %data, $result);
-
+        my ($pid, $mac, $node, %data);
+        $result = undef;
         if($has_pid) {
             $pid = $row->[$index{'pid'}] || undef;
             if ( $pid ) {
                 if($pid !~ /$pf::person::PID_RE/) {
                     $logger->debug("Ignored invalid PID ($pid)");
-                    $skipped++;
                     next;
                 }
                 if(!person_exist($pid)) {
@@ -115,12 +116,11 @@ sub nodes {
         $mac = $row->[$index{'mac'}] || undef;
         if (!$mac || !valid_mac($mac)) {
             $logger->debug("Ignored invalid MAC ($mac)");
-            $skipped++;
             next;
         }
+
         $mac = clean_mac($mac);
         $pid ||= $default_node_pid || $default_pid;
-        $node = node_view($mac);
         %data =
           (
            'mac'         => $mac,
@@ -134,35 +134,32 @@ sub nodes {
         if (exists $index{'bypass_vlan'}) {
                 $data{'bypass_vlan'} = $row->[$index{'bypass_vlan'}];
         }
+
         if (exists $index{'bypass_role'}) {
             $data{'bypass_role_id'} = nodecategory_lookup($row->[$index{'bypass_role'}]);
         }
+
         my $category = $data{category};
         $logger->info("Category " . ($category // "'undef'"));
         if ( defined($allowed_roles) && (defined $category && !exists $allowed_roles->{$category} ) ) {
             $logger->warn("Ignored $mac since category $category is not allowed for user");
-            $skipped++;
             next;
         }
-        my $bypass_vlan = $data{bypass_vlan};
-        if ( defined($allowed_roles) && (defined $bypass_vlan && !exists $allowed_roles->{$bypass_vlan} ) ) {
-            $logger->warn("Ignored $mac since bypass_vlan $bypass_vlan is not allowed for user");
-            $skipped++;
-            next;
-        }
+
+        $node = node_view($mac);
         if (!defined($node) || (ref($node) eq 'HASH' && $node->{'status'} ne $pf::node::STATUS_REGISTERED)) {
             $logger->debug("Register MAC $mac ($pid)");
-            $result = node_register($mac, $pid, %data);
-        }
-        else {
+            ($result, my $msg) = node_register($mac, $pid, %data);
+        } else {
             $logger->debug("Modify already registered MAC $mac ($pid)");
             $result = node_modify($mac, %data);
             node_update_last_seen($mac);
         }
+
+    } continue {
         if ($result) {
             $count++;
-        }
-        else {
+        } else {
             $skipped++;
         }
     }
@@ -188,7 +185,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2018 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 

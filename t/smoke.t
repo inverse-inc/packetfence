@@ -27,8 +27,11 @@ use TestUtils;
 `/usr/local/pf/t/pfconfig-test`;
 `/usr/local/pf/t/pfconfig-test-serial`;
 
-my $JOBS = $ENV{'PF_SMOKE_TEST_JOBS'} ||  6;
+my $cpuinfo = TestUtils::cpuinfo();
+
+my $JOBS = $ENV{'PF_SMOKE_TEST_JOBS'} || @$cpuinfo;
 my $SLOW_TESTS = $ENV{'PF_SMOKE_SLOW_TESTS'};
+my $NO_SERIAL_TESTS = $ENV{'PF_SMOKE_NO_SERIAL_TESTS'};
 our $db_setup_script = "/usr/local/pf/t/db/setup_test_db.pl";
 
 my $is_interactive = is_interactive();
@@ -44,22 +47,17 @@ my $par_harness = TAP::Harness->new(
 #
 # These test modify pfconfig data so they run serialized
 #
-my @ser_tests = qw(
-    binaries.t 
-    pfconfig.t 
-    merged_list.t
-    CHI.t
-);
+my @ser_tests = TestUtils::get_all_serialized_unittests();
 
 #
 # These tests just need to read pfconfig data so they can run in parallel
 #
 my @par_tests = (
+    'provisioner.t',
     @TestUtils::unit_tests,
     TestUtils::get_all_unittests(),
     @TestUtils::cli_tests,
     @TestUtils::quality_tests,
-    @TestUtils::config_store_test,
 );
 
 if ($SLOW_TESTS) {
@@ -73,7 +71,10 @@ create_test_db();
 my $aggregator = TAP::Parser::Aggregator->new;
 $aggregator->start();
 $par_harness->aggregate_tests( $aggregator, @par_tests );
-$ser_harness->aggregate_tests( $aggregator, @ser_tests );
+if (!$NO_SERIAL_TESTS) {
+    $ser_harness->aggregate_tests($aggregator, @ser_tests);
+}
+
 $aggregator->stop();
 $formatter->summary($aggregator);
 my $total  = $aggregator->total;
@@ -126,7 +127,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2018 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 

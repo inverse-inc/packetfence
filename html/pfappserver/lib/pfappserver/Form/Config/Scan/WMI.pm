@@ -19,9 +19,6 @@ use pf::config;
 use pf::util;
 use File::Find qw(find);
 
-## Definition
-has 'roles' => (is => 'ro', default => sub {[]});
-
 has_field 'domain' =>
   (
    type => 'Text',
@@ -33,6 +30,7 @@ has_field 'domain' =>
 has_field 'type' =>
   (
    type => 'Hidden',
+   default => 'wmi',
   );
 
 has_block definition =>
@@ -42,7 +40,7 @@ has_block definition =>
 
 has_field '+oses' =>
   (
-    default => ['Windows'],
+    inactive => 1,
   );
 
 has_field 'wmi_policy' =>
@@ -78,17 +76,13 @@ sub options_wmi_rules {
     return  map { { value => $_, label => $_ } } @{pf::ConfigStore::WMI->new->readAllIds};
 }
 
-sub oses {
-    return ["Windows" => "Windows"];
-}
-
 =over
 
 =back
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2018 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 

@@ -18,13 +18,22 @@ use Moo;
 use namespace::autoclean;
 use pf::IniFiles;
 use pf::log;
+use pf::util qw();
 use List::MoreUtils qw(uniq);
+use Sort::Naturally qw(nsort);
 use pfconfig::manager;
 use pf::api::jsonrpcclient;
-use pf::cluster;
+use pf::config::cluster;
 use pf::constants;
 use pf::CHI;
 use pf::generate_filter qw(filter_with_offset_limit);
+use pf::condition_parser qw(parse_condition_string ast_to_object);
+our %TOP_OPS = (
+    not_and => undef,
+    not_or => undef,
+    and => undef,
+    or => undef,
+);
 
 =head1 FIELDS
 
@@ -43,7 +52,7 @@ has cachedConfig =>
 
 has configFile => ( is => 'ro');
 
-has pfconfigNamespace => ( is => 'ro', default => sub {undef});
+has pfconfigNamespace => ( is => 'ro', default => undef);
 
 has default_section => ( is => 'ro');
 
@@ -58,7 +67,7 @@ validates id
 
 =cut
 
-sub validId { 1; }
+sub validId { return defined($_[1]) && length($_[1]) > 0 }
 
 =head2 validParam
 
@@ -70,33 +79,66 @@ sub validParam { 1; }
 
 =head2 _buildCachedConfig
 
-Build the pf::IniFiles object
+Build the cached pf::IniFiles object
 
 =cut
 
 sub _buildCachedConfig {
     my ($self) = @_;
-    my $chi             = $self->cache;
-    my $file_path       = $self->configFile;
-    my @args            = (-file => $file_path, -allowempty => 1);
-    my $default_section = $self->default_section;
-    push @args, -default => $default_section if defined $default_section;
-    my $importConfigFile = $self->importConfigFile;
-    if (defined $importConfigFile) {
-        push @args, -import => pf::IniFiles->new(-file => $importConfigFile, -allowempty => 1);
-    }
-    return $chi->compute(
-        $file_path,
+    return $self->cache->compute(
+        $self->configFile,
         {
             expire_if => sub { $self->expire_if(@_) }
         },
         sub {
-            my $config = pf::IniFiles->new(@args);
-            if ($config) {
-                $config->SetLastModTimestamp;
-            }
-            return $config;
-        });
+            return $self->configIniFile();
+        }
+    );
+}
+
+=head2 configIniFile
+
+Non cached pf::IniFiles object
+
+=cut
+
+sub configIniFile {
+    my ($self) = @_;
+    my %args = $self->configIniFilesArgs();
+    my $file_path = $args{'-file'};
+    my $file_exists = -e $file_path;
+    if (!$file_exists) {
+        delete $args{'-file'};
+    }
+
+    my $config = eval {pf::IniFiles->new(%args)};
+    if ($@) {
+        get_logger->error("Error opening $file_path : $@");
+        return undef;
+    }
+
+    if (!$file_exists) {
+        $config->SetFileName($file_path);
+    }
+
+    $config->SetLastModTimestamp;
+    return $config;
+}
+
+sub configIniFilesArgs {
+    my ($self) = @_;
+    my %args = (-file => $self->configFile, -allowempty => 1);
+    my $default_section = $self->default_section;
+    if (defined $default_section) {
+        $args{'-default'} = $default_section;
+    }
+
+    my $importConfigFile = $self->importConfigFile;
+    if (defined $importConfigFile && -e $importConfigFile) {
+        $args{'-import'} = pf::IniFiles->new(-file => $importConfigFile, -allowempty => 1);
+    }
+
+    return %args;
 }
 
 sub cache { pf::CHI->new(namespace => 'configfiles'); }
@@ -146,7 +188,7 @@ Get all the sections names
 =cut
 
 sub readAllIds {
-    my ($self,$itemKey) = @_;
+    my ($self) = @_;
     my @sections = $self->_Sections();
     return \@sections;
 }
@@ -158,19 +200,45 @@ Get all the sections as an array of hash refs
 =cut
 
 sub readAll {
-    my ($self,$idKey) = @_;
-    my $config = $self->cachedConfig;
-    my $default_section = $self->default_section if(defined($self->default_section));
+    my ($self, $idKey) = @_;
+    return $self->_readAll($idKey, "read");
+}
+
+=head2 _readAll
+
+_readAll
+
+=cut
+
+sub _readAll {
+    my ($self, $idKey, $method) = @_;
+    my $default_section = $self->default_section;
+    if (!defined $default_section) {
+        return [ map { $self->$method($_, $idKey) } $self->_Sections() ];
+    }
+
     my @sections;
     foreach my $id ($self->_Sections()) {
-        my $section = $self->read($id,$idKey);
-        if (defined $default_section &&  $id eq $default_section ) {
+        my $section = $self->$method($id, $idKey);
+        if ( $id eq $default_section ) {
             unshift @sections, $section;
         } else {
             push @sections,$section;
         }
     }
+
     return \@sections;
+}
+
+=head2 readAllWithoutInherited
+
+readAllWithoutInherited
+
+=cut
+
+sub readAllWithoutInherited {
+    my ($self, $idKey) = @_;
+    return $self->_readAll($idKey, "readWithoutInherited");
 }
 
 =head2 _Section
@@ -220,9 +288,11 @@ reads a section
 =cut
 
 sub read {
-    my ($self, $id, $idKey ) = @_;
+    my ($self, $id, $idKey) = @_;
     my $data = $self->readRaw($id, $idKey);
-    $self->cleanupAfterRead($id,$data);
+    if ($data) {
+        $self->cleanupAfterRead($id, $data);
+    }
     return $data;
 }
 
@@ -234,26 +304,75 @@ reads a section without doing post-read cleanup
 
 sub readRaw {
     my ($self, $id, $idKey ) = @_;
-    my $data;
-    my $config = $self->cachedConfig;
-    $id = $self->_formatSectionName($id);
-    if ( $config->SectionExists($id) ) {
-        $data = {};
-        my @default_params = $config->Parameters($self->default_section)
-            if (defined $self->default_section && length($self->default_section));
-        $data->{$idKey} = $self->_cleanupId($id) if defined $idKey;
-        foreach my $param (uniq $config->Parameters($id), @default_params) {
-            my $val;
-            my @vals = $config->val($id, $param);
-            if (@vals == 1 ) {
-                $val = $vals[0];
-            } else {
-                $val = \@vals;
-            }
-            $data->{$param} = $val;
-        }
+    return $self->readFromSection($id, $idKey, $self->cachedConfig);
+}
+
+=head2 readFromSection
+
+read all parameters from a section
+
+=cut
+
+sub readFromSection {
+    my ($self, $id, $idKey, $config) = @_;
+    my $section = $self->_formatSectionName($id);
+    if ( !$config->SectionExists($section) ) {
+        return undef;
     }
+
+    my $data = {};
+    $self->populateItem($config, $data, $section, $config->Parameters($section));
+    for my $parent ($self->parentSections($id, $data)) {
+        $self->populateItem($config, $data, $parent, grep {!exists $data->{$_}} $config->Parameters($parent))
+    }
+
+    $data->{$idKey} = $id if defined $idKey;
     return $data;
+}
+
+=head2 parentSections
+
+parentSections
+
+=cut
+
+sub parentSections {
+    my ($self, $id, $item) = @_;
+    my $default_section = $self->default_section;
+    if (defined $default_section && length($default_section) && $default_section ne $id) {
+        return $default_section;
+    }
+
+    return;
+}
+
+
+=head2 populateItem
+
+populateItem
+
+=cut
+
+sub populateItem {
+    my ($self, $config, $item, $id, @params) = @_;
+    $config->populate($id, $item, @params);
+    return ;
+}
+
+=head2 readFromImported
+
+read from the parameters from a section
+
+=cut
+
+sub readFromImported {
+    my ($self, $id, $idKey) = @_;
+    my $config = $self->cachedConfig();
+    if ($config->{imported}) {
+        return $self->readFromSection($id, $idKey, $config->{imported});
+    }
+
+    return {};
 }
 
 =head2 update
@@ -279,7 +398,8 @@ sub update {
 sub _update_section {
     my ($self, $section, $assignments) = @_;
     my $config = $self->cachedConfig;
-    my $default_section = $self->default_section if defined($self->default_section);
+    my @parentSections = $self->parentSections($section, $assignments);
+    my $default_section = $parentSections[0];
     my $imported = $config->{imported} if exists $config->{imported};
     my $use_default = $default_section && $section ne $default_section;
     while ( my ($param, $value) = each %$assignments ) {
@@ -302,13 +422,7 @@ sub _update_section {
                 $config->newval($section, $param, $value);
             }
         } else { #Handle deleting param from section
-            #if the param exists in the imported config then use that the value in the imported file
-            if ( defined $default_value ) {
-                $config->setval($section, $param, $default_value);
-            } elsif ( $imported && $imported->exists($section, $param) ) {
-                $config->setval($section, $param, $imported->val($section, $param));
-            } elsif ( $param_exists ) {
-                #
+            if ($param_exists) {
                 $config->delval($section, $param);
             }
         }
@@ -359,10 +473,41 @@ Removes an existing item
 
 sub remove {
     my ($self, $id) = @_;
-    if (!$self->canDelete($id)) {
+    my ($msg, $deletable) = $self->canDelete($id);
+    if (!$deletable) {
+        return $msg, $deletable;
+    }
+
+    $self->cleanupBeforeDelete($id);
+    my $section = $self->_formatSectionName($id);
+    my $deleted = $self->cachedConfig->DeleteSection($section);
+    return "Removed", $deleted;
+}
+
+
+=head2 cleanupBeforeDelete
+
+cleanup Before Delete
+
+=cut
+
+sub cleanupBeforeDelete { }
+
+
+=head2 remove_always
+
+remove_always
+
+=cut
+
+sub remove_always {
+    my ($self, $id) = @_;
+    my $realSectionName = $self->_formatSectionName($id);
+    if (!$self->cachedConfig->SectionExists($realSectionName)) {
         return $FALSE;
     }
-    return $self->cachedConfig->DeleteSection($self->_formatSectionName($id));
+
+    return $self->cachedConfig->DeleteSection($realSectionName);
 }
 
 
@@ -374,11 +519,18 @@ canDelete
 
 sub canDelete {
     my ($self, $id) = @_;
+    my $realSectionName = $self->_formatSectionName($id);
     my $default_section = $self->default_section;
-    return $TRUE
-        if !defined $default_section;
+    if ($default_section && $default_section eq $realSectionName) {
+        return "Cannot delete a standard item", $FALSE;
+    }
 
-    return $self->_formatSectionName($id) ne $default_section;
+    my $import = $self->cachedConfig->{imported};
+    if ($import && $import->SectionExists($realSectionName)) {
+        return "Cannot delete a standard item", $FALSE;
+    }
+
+    return "", $TRUE;
 }
 
 =head2 Copy
@@ -417,7 +569,12 @@ Sorting the items
 
 sub sortItems {
     my ( $self, $sections ) = @_;
-    return $self->cachedConfig->ResortSections(map { $_ = $self->_formatSectionName($_) } @$sections);
+    my $default_section = $self->default_section;
+    if ($default_section) {
+        @$sections = grep { $_ ne $default_section } @$sections;
+    }
+
+    return $self->cachedConfig->ResortSections(map { $self->_formatSectionName($_) } @$sections);
 }
 
 =head2 cleanupAfterRead
@@ -437,7 +594,7 @@ sub cleanupBeforeCommit { }
 =cut
 
 sub expand_list {
-    my ( $self,$object,@columns ) = @_;
+    my ($self, $object, @columns) = @_;
     foreach my $column (@columns) {
         if (exists $object->{$column}) {
             $object->{$column} = [ $self->split_list($object->{$column}) ];
@@ -481,26 +638,25 @@ sub commit {
     eval {
         $result = $self->rewriteConfig();
     };
-    if($@) {
+
+    if ($@) {
         $error = $@;
-        get_logger->error($error);
+        get_logger->error("rewriteConfig: $error");
     }
 
-    if($result){
-        if(pf::cluster::increment_config_version()) {
+    if ($result){
+        if (pf::config::cluster::increment_config_version()) {
             ($result,$error) = $self->commitPfconfig;
-        }
-        else {
+        } else {
             $result = $FALSE;
             $error = "Can't increment configuration version.";
         }
-    }
-    else {
+    } else {
         $error //= "Unable to commit changes to file please run '/usr/local/pf/bin/pfcmd fixpermissions' and try again";
         $self->rollback();
     }
 
-    if($error) {
+    if ($error) {
         get_logger->error($error);
     }
 
@@ -525,9 +681,9 @@ sub commitPfconfig {
         }
     }
     else{
-        get_logger->error("Can't expire pfconfig in ".ref($self)." because the pfconfig namespace is not defined.");
+        get_logger->warn("Can't expire pfconfig in ".ref($self)." because the pfconfig namespace is not defined.");
     }
-    return (1,"OK");
+    return (1, undef);
 }
 
 sub commitCluster {
@@ -600,11 +756,196 @@ sub filter_offset_limit {
     return filter_with_offset_limit($filter, $offset, $limit, $self->readAll($idKey));
 }
 
+=head2 is_section_in_import
+
+Check if section is in the imported Config::IniFiles
+
+=cut
+
+sub is_section_in_import {
+    my ($self, $section) = @_;
+    my $ini = $self->cachedConfig;
+    my $imported = $ini->{imported};
+    return $FALSE unless $imported;
+    return $imported->SectionExists($section) ? $TRUE : $FALSE;
+}
+
+=head2 readInherited
+
+readInherited
+
+=cut
+
+sub readInherited {
+    my ($self, $id, $idKey) = @_;
+    my $item = $self->readInheritedRaw($id, $idKey);
+    if (!defined $item) {
+        return undef;
+    }
+
+    $self->cleanupAfterRead($id, $item);
+    return $item;
+}
+
+=head2 readInheritedRaw
+
+readInheritedRaw
+
+=cut
+
+sub readInheritedRaw {
+    my ($self, $id, $idKey) = @_;
+    my $item = $self->readWithoutInherited($id, $idKey);
+    if (!defined $item) {
+        return undef;
+    }
+
+    my @parentSections = $self->parentSections($id, $item);
+    my $config = $self->cachedConfig;
+    my $import = $config->{imported};
+    if (@parentSections == 0 && !$import) {
+        return undef;
+    }
+
+    my $inherited = {};
+    for my $parent (@parentSections) {
+        $self->populateItem($config, $inherited, $parent, grep {!exists $inherited->{$_}} $config->Parameters($parent));
+    }
+
+    if ($import) {
+        my $section = $self->_formatSectionName($id);
+        $self->populateItem($import, $inherited, $section, grep { !exists $inherited->{$_}} $import->Parameters($section));
+    }
+
+    return $inherited;
+}
+
+sub flattenCondition {
+    my ($self, $item, $key) = @_;
+    my $condition = exists $item->{$key} ? $item->{$key} : undef;
+    if (!defined $condition) {
+        return;
+    }
+
+    my $top_op = $condition->{op};
+    if ($top_op eq 'and' || $top_op eq 'or' || $top_op eq 'not_and' || $top_op eq 'not_or') {
+        if (@{$condition->{values} // []} == 1) {
+            $item->{top_op} = $top_op;
+        }
+    } else {
+        $item->{top_op} = undef;
+    }
+
+    $item->{$key} = pf::condition_parser::object_to_str($condition);
+}
+
+
+sub expandCondition {
+    my ($self, $item, $key) = @_;
+    my $condition = exists $item->{$key} ? $item->{$key} : undef;
+    if (!defined $condition) {
+        return;
+    }
+
+    my ($ast, $err) = parse_condition_string($condition);
+    $condition = ast_to_object($ast);
+    my $top_op = delete $item->{top_op};
+    my $op = $condition->{op};
+    if ($top_op) {
+        if ($top_op eq 'not_and' || $top_op eq 'not_or') {
+            if ($op eq 'not' ) {
+                $condition->{op} = $top_op;
+            }
+        } else {
+            $condition = { op => $top_op, values => [$condition]};
+        }
+    } elsif (!exists $TOP_OPS{$op}) {
+        if ($op eq 'not') {
+            $condition = { op => 'not_and', values => $condition->{values}};
+        } else {
+            $condition = { op => 'and', values => [$condition]};
+        }
+    }
+
+    $item->{$key} = $condition;
+    return;
+}
+
+sub readWithoutInheritedRaw {
+    my ($self, $id, $idKey) = @_;
+    my $section = $self->_formatSectionName($id);
+    my $config = $self->cachedConfig;
+    if ( !$config->SectionExists($section) ) {
+        return undef;
+    }
+
+    my $item = {};
+    $self->populateItem($config, $item, $section, $config->MyParameters($section));
+    $item->{$idKey} = $id if defined $idKey;
+    return $item;
+}
+
+sub readWithoutInherited {
+    my ($self, $id, $idKey) = @_;
+    my $item = $self->readWithoutInheritedRaw($id, $idKey);
+    if (!defined $item) {
+        return undef;
+    }
+
+    $self->cleanupAfterRead($id, $item);
+    return $item;
+}
+
+sub readDefaults {
+    my ($self) = @_;
+    my $default_section = $self->default_section; 
+    if (!defined $default_section) {
+        return undef;
+    }
+    
+    return $self->read($default_section, 'id');
+}
+
+sub flatten_to_ordered_array {
+    my ($self, $item, $items_key, $item_key) = @_;
+    my $items = delete $item->{$items_key} // [];
+    my $i = 0;
+    for my $j (@$items) {
+        $item->{"${item_key}.$i"} = $j;
+        $i++;
+    }
+}
+
+sub expand_ordered_array {
+    my ($self, $item, $items_key, $item_key) = @_;
+    return pf::util::expand_ordered_array($item, $items_key, $item_key);
+}
+
+sub join_list_cr {
+    my ($self, @list) = @_;
+    return join("\n",@list);
+}
+
+=head2 flatten_list_cr
+
+=cut
+
+sub flatten_list_cr {
+    my ($self, $object, @columns) = @_;
+    foreach my $column (@columns) {
+        next unless exists $object->{$column};
+        my $val = $object->{$column};
+        if (ref($val) eq 'ARRAY') {
+            $object->{$column} = $self->join_list_cr(@$val);
+        }
+    }
+}
+
 __PACKAGE__->meta->make_immutable unless $ENV{"PF_SKIP_MAKE_IMMUTABLE"};
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2018 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 
@@ -626,4 +967,3 @@ USA.
 =cut
 
 1;
-

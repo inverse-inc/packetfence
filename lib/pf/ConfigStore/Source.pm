@@ -14,7 +14,9 @@ pf::ConfigStore::Source
 
 use HTTP::Status qw(:constants is_error is_success);
 use Moo;
+use pf::constants;
 use namespace::autoclean;
+use pf::Authentication::utils;
 use pf::file_paths qw($authentication_config_file);
 use Sort::Naturally qw(nsort);
 extends 'pf::ConfigStore';
@@ -26,6 +28,26 @@ sub configFile {$authentication_config_file};
 
 sub pfconfigNamespace { 'config::Authentication' }
 
+=head2 _fields_expanded
+
+_fields_expanded
+
+=cut
+
+our %TYPE_TO_EXPANDED_FIELDS = (
+    SMS => [qw(sms_carriers)],
+    Eduroam => [qw(local_realm reject_realm)],
+    AD => [qw(searchattributes)],
+    LDAP => [qw(searchattributes)],
+    SponsorEmail => [qw(sources)],
+);
+
+sub _fields_expanded {
+    my ($self, $item) = @_;
+    my $type = $item->{type} // '';
+    return ( qw(realms), exists $TYPE_TO_EXPANDED_FIELDS{$type} ? @{$TYPE_TO_EXPANDED_FIELDS{$type}}: ());
+}
+
 =head2 canDelete
 
 canDelete
@@ -34,7 +56,11 @@ canDelete
 
 sub canDelete {
     my ($self, $id) = @_;
-    return !$self->isInProfile('sources', $id) && $self->SUPER::canDelete($id);
+    if ($self->isInProfile('sources', $id)) {
+        return "Used in a profile", $FALSE;
+    }
+
+   return $self->SUPER::canDelete($id);
 }
 
 =head2 _Sections
@@ -104,21 +130,53 @@ sub cleanupAfterRead {
         $rule->{conditions} = [delete @$rule{@conditions_keys}];
         push @{$item->{"${class}_rules"}}, $rule;
     }
-    if ($item->{type} eq 'SMS') {
-        $self->expand_list($item, 'sms_carriers');
+    my $type = $item->{type};
+
+    if ($type eq 'SMS' || $type eq "Twilio") {
+        # This can be an array if it's fresh out of the file. We make it separated by newlines so it works fine the frontend
+        if(ref($item->{message}) eq 'ARRAY'){
+            $item->{message} = $self->join_options($item->{message});
+        }
+    } elsif ($type eq 'Email') {
+        for my $f (qw(allowed_domains banned_domains)) {
+            next unless exists $item->{$f};
+            my $val =  $item->{$f};
+            if (ref($val) eq 'ARRAY') {
+                $item->{$f} = $self->join_options($val);
+            }
+        }
+    } elsif ($type eq 'RADIUS') {
+        if(ref($item->{options}) eq 'ARRAY'){
+            $item->{options} = $self->join_options($item->{options});
+        }
+    } elsif ($type eq 'OpenID') {
+        $self->expand_ordered_array($item, 'person_mappings', 'person_mapping');
     }
-    $self->expand_list($item, qw(realms));
+
+    $self->expand_list($item, $self->_fields_expanded($item));
 }
+
 
 sub cleanupBeforeCommit {
     my ($self, $id, $item) = @_;
-    if ($item->{type} eq 'SMS') {
-        $self->flatten_list($item, 'sms_carriers');
+    my $type = $item->{type};
+    if ($type eq 'Email') {
+        for my $f (qw(allowed_domains banned_domains)) {
+            next unless exists $item->{$f};
+            my $val =  $item->{$f};
+            next unless defined $val;
+            if (ref($val) eq 'ARRAY') {
+                $item->{$f} = [ map { my $a = $_; $a =~ s/\r//sg;$a } @$val ];
+            } else {
+                $val =~ s/\r//sg;
+            }
+        }
+    } elsif ($type eq 'OpenID') {
+        $self->flatten_to_ordered_array($item, 'person_mappings', 'person_mapping');
     }
-    if ($item->{type} eq 'Eduroam') {
-        $self->flatten_list($item, qw(local_realm reject_realm));
-    }
-    $self->flatten_list($item, qw(realms));
+
+    $self->flatten_list($item, $self->_fields_expanded($item));
+
 }
 
 before rewriteConfig => sub {
@@ -127,12 +185,31 @@ before rewriteConfig => sub {
     $config->ReorderByGroup();
 };
 
+=head2 join_options
+
+Join options in array with a newline
+
+=cut
+
+sub join_options {
+    my ($self,$options) = @_;
+    return join("\n",@$options);
+}
+
+sub cleanupBeforeDelete {
+    my ($self, $id) = @_;
+    my $section = $self->_formatSectionName($id);
+    my $cachedConfig = $self->cachedConfig();
+    for my $sub_section ( grep {/^$section rule/} $cachedConfig->Sections ) {
+        $cachedConfig->DeleteSection($sub_section);
+    }
+}
 
 __PACKAGE__->meta->make_immutable unless $ENV{"PF_SKIP_MAKE_IMMUTABLE"};
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2018 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 

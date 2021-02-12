@@ -17,8 +17,11 @@ use strict;
 use warnings;
 use HTML::FormHandler::Moose;
 extends 'pfappserver::Form::Config::Source';
-with 'pfappserver::Base::Form::Role::Help';
-with 'pfappserver::Base::Form::Role::SourceLocalAccount';
+with qw(
+    pfappserver::Base::Form::Role::Help
+    pfappserver::Base::Form::Role::SourceLocalAccount
+    pfappserver::Base::Form::Role::NoRules
+);
 
 has_field currency => (
     type => 'Select',
@@ -68,7 +71,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2018 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 

@@ -1,0 +1,43 @@
+// to display images directly on GitHub
+ifdef::env-github[]
+:encoding: UTF-8
+:lang: en
+:doctype: book
+:toc: left
+:imagesdir: ../../images
+endif::[]
+
+////
+
+    This file is part of the PacketFence project.
+
+    See PacketFence_Network_Devices_Configuration_Guide-docinfo.xml for 
+    authors, copyright and license information.
+
+////
+
+
+//=== Extricom
+
+==== EXSW Wireless Switches (Controllers)
+
+In order to have the Extricom controller working with PacketFence, you need to define two ESSID definition, one for the "public" network, and one for the "secure" network. This can be done under a very short time period since Extricom supports RADIUS assigned VLANs out of the box.
+
+You first need to configure you RADIUS server. This is done under the: _WLAN Settings -> RADIUS_ tab. Enter the PacketFence RADIUS server information. For the ESSID configuration. in the administration UI, go to _WLAN Settings -> ESSID definitions_. Create the profiles per the following:
+
+[float]
+===== Public SSID
+
+* MAC Authentication must be ticked
+* Encryption method needs to be set to None
+* Select PacketFence as the MAC Authentication RADIUS server (previously added)
+
+[float]
+===== Secure SSID
+
+* Encryption method needs to be set to WPA Enterprise/WPA2 Enterprise
+* AES only needs to be selected
+* Select PacketFence as the RADIUS server (previously added)
+
+The final step is to enable SNMP Agent and SNMP Traps on the controller. This is done under the following tab in the administrative UI: _Advanced -> SNMP_.
+

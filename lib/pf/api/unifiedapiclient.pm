@@ -22,7 +22,10 @@ use strict;
 use warnings;
 
 use JSON::MaybeXS;
-use pf::config qw(%Config);
+use pf::config qw(
+    %Config
+    $unified_api_system_user
+);
 use pf::log;
 use WWW::Curl::Easy;
 use Moo;
@@ -30,6 +33,7 @@ use HTTP::Status qw(:constants);
 use pf::error qw(is_success);
 use pf::constants::api;
 use POSIX::AtFork;
+use pf::cluster;
 
 =head1 Attributes
 
@@ -39,7 +43,7 @@ the username of the JSON REST call
 
 =cut
 
-has username => ( is => 'rw', default => sub {$Config{'webservices'}{'user'}} );
+has username => ( is => 'rw', default => sub {$unified_api_system_user->{'user'}} );
 
 =head2 password
 
@@ -47,7 +51,7 @@ the password of the JSON REST call
 
 =cut
 
-has password => ( is => 'rw', default => sub {$Config{'webservices'}{'pass'}} );
+has password => ( is => 'rw', default => sub {$unified_api_system_user->{'pass'}} );
 
 =head2 proto
 
@@ -92,6 +96,14 @@ Curl transfer timeout in milli seconds
 
 has timeout_ms => (is => 'rw', default => sub {0} ) ;
 
+=head2 connection
+
+A curl connection for this object that can be kept persistent 
+
+=cut
+
+has connection => (is => 'rw', builder => 'curl', lazy => 1);
+
 =head2 token
 
 The current token that was obtained by the login
@@ -100,13 +112,23 @@ The current token that was obtained by the login
 
 has token => (is => 'rw');
 
+=head2 tenant_id
+
+The tenant ID to send in the X-PacketFence-Tenant-Id header if any. When sent to undef (default value), it doesn't send it
+
+=cut
+
+has tenant_id => (is => 'rw', default => sub{undef});
+
 use constant REQUEST => 0;
 use constant RESPONSE => 2;
 use constant NOTIFICATION => 2;
 
 my $default_client;
+my $management_client;
 sub CLONE {
     $default_client = pf::api::unifiedapiclient->new;
+    $management_client = pf::api::unifiedapiclient->new(host => pf::cluster::management_cluster_ip())
 }
 POSIX::AtFork->add_to_child(\&CLONE);
 CLONE();
@@ -124,6 +146,22 @@ sub default_client {
     return $default_client;
 }
 
+=head2 management_client
+
+Get the management client which points to the virtual IP address (in cluster) or the default client (in standalone)
+Most requests should use this when talking to management so that the token is shared across usages.
+
+=cut
+
+sub management_client {
+    if($cluster_enabled) {
+        return $management_client;
+    }
+    else {
+        return $default_client;
+    }
+}
+
 =head2 call
 
 Calls an JSON REST method
@@ -134,12 +172,14 @@ sub call {
     use bytes;
     my @params = @_;
     my $self = shift @params;
-    my ($method,$path,$args) = @params;
+    my ($method,$path,$args,$retrying) = @params;
 
     my $response;
-    my $curl = $self->curl($path);
+    my $curl = $self->connection();
+    my $url = $self->url($path);
+    $curl->setopt(CURLOPT_URL, $url);
 
-    if (ref($args) eq "HASH") {
+    if (ref($args) eq "HASH" || ref($args) eq "ARRAY") {
         my $request = $self->build_json_rest_payload($args);
         $curl->setopt(CURLOPT_POSTFIELDSIZE, length($request));
         $curl->setopt(CURLOPT_POSTFIELDS, $request);
@@ -151,8 +191,11 @@ sub call {
     $curl->setopt(CURLOPT_CUSTOMREQUEST, $method);
 
     if($self->token) {
-        $curl->setopt(CURLOPT_HTTPHEADER, ["Authorization: Bearer ".$self->token]);
+        $curl->pushopt(CURLOPT_HTTPHEADER, ["Authorization: Bearer ".$self->token]);
     }
+
+    my $tenant_id = ( defined($self->tenant_id) ) ? $self->tenant_id : $pf::config::tenant::CURRENT_TENANT;
+    $curl->pushopt(CURLOPT_HTTPHEADER, ["X-PacketFence-Tenant-Id: " . $tenant_id]);
 
     # Starts the actual request
     my $curl_return_code = $curl->perform;
@@ -172,18 +215,26 @@ sub call {
             }
         }
         # If we got a 401 and aren't currently logging in then we try to login and retry the request
-        elsif($response_code == 401 && $path ne $pf::constants::api::LOGIN_PATH) {
+        elsif(!$retrying || ($response_code == 401 && $path ne $pf::constants::api::LOGIN_PATH)) {
             get_logger->info("Request to $path is unauthorized, will perform a login");
+            $self->connection($self->curl);
             $self->login();
-            return $self->call(@params);
+            return $self->call($method,$path,$args,1);
         }
         else {
             $response = decode_json($response_body);
-            die $response->{message};
+            die $response_code . " " . $response->{message};
         }
     } else {
         my $msg = "An error occured while sending a JSON REST request to the Unified API: $curl_return_code ".$curl->strerror($curl_return_code)." ".$curl->errbuf;
-        die $msg;
+        if(!$retrying) {
+            get_logger->warn("Failed communicating with API, will retry. Failure was: ".$msg);
+            $self->connection($self->curl);
+            $self->call($method,$path,$args,1);
+        }
+        else {
+            die $msg;
+        }
     }
 }
 
@@ -206,16 +257,18 @@ sub login {
 =cut
 
 sub curl {
-    my ($self, $path) = @_;
-    my $url = $self->url($path);
+    my ($self) = @_;
     my $curl = WWW::Curl::Easy->new;
     $curl->setopt(CURLOPT_HEADER, 0);
     $curl->setopt(CURLOPT_DNS_USE_GLOBAL_CACHE, 0);
     $curl->setopt(CURLOPT_NOSIGNAL, 1);
-    $curl->setopt(CURLOPT_URL, $url);
     $curl->setopt(CURLOPT_HTTPHEADER, ['Content-Type: application/json']);
     $curl->setopt(CURLOPT_CONNECTTIMEOUT_MS, $self->connect_timeout_ms // 0);
     $curl->setopt(CURLOPT_TIMEOUT_MS, $self->timeout_ms // 0);
+    $curl->setopt(CURLOPT_TCP_KEEPALIVE, 1);
+    $curl->setopt(CURLOPT_TCP_KEEPIDLE, 30);
+    $curl->setopt(CURLOPT_TCP_KEEPINTVL, 10);
+
     if($self->proto eq 'https') {
         if($self->username && $self->password) {
             $curl->setopt(CURLOPT_USERNAME, $self->username);
@@ -255,6 +308,17 @@ sub build_json_rest_payload {
     return encode_json $args;
 }
 
+=head2 reset_tenant_id
+
+Resets the tenant ID of the client
+
+=cut
+
+sub reset_tenant_id {
+    my ($self) = @_;
+    $self->tenant_id(undef);
+}
+
 =head1 AUTHOR
 
 Inverse inc. <info@inverse.ca>
@@ -262,7 +326,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2018 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 

@@ -60,13 +60,19 @@ has_field 'twilio_phone_number' => (
     },
 );
 
+has_field 'message' => (
+    type => 'TextArea',
+    label => 'SMS text message ($pin will be replaced by the PIN number)',
+    default => 'PIN: $pin',
+);
+
 has_field 'pin_code_length' => (
     type => 'PosInteger',
     label => 'PIN Code Length',
     default => pf::Authentication::Source::TwilioSource->meta->get_attribute('pin_code_length')->default,
     tags => {
         after_element => \&help,
-        help => 'The length of the PIN code to be sent over sms',
+        help => 'The length of the PIN code to be sent over SMS',
     },
 );
 
@@ -77,7 +83,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2018 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 

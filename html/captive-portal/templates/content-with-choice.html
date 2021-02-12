@@ -1,33 +1,22 @@
 <!--
-    START content-with-choice.html
-    selected choice: [% mod_manager_current_module %]
-  -->
+  START content-with-choice.html
+  selected choice: [% mod_manager_current_module OR '(none)' %]
+-->
 [% IF modules.size > 1 %]
-<div class="card[% IF mod_manager_current_module %] card--hidden[% END %]">
-
-  <div class="layout--center">
-    <h3>[% i18n('Select an authentication method') %]</h3>
+<div class="c-card[% IF mod_manager_current_module %] c-card--hidden[% END %] o-layout o-layout--center u-padding">
+  <div class="o-layout__item u-1/1">
+    <h2 class="text-center">[% i18n('Select an authentication method') %]</h2>
   </div>
-
-  <div class="layout layout--center">
-    <div class="layout__item u-2/3 u-1/1-palm">
-      <ul class="list-ui list-ui--btns">
-        [% FOREACH module IN modules %]
-        <li class="list-ui__item [% module.pretty_class_name.lower %][% IF mod_manager_current_module == module.id %] list-ui__item--selected[% END %]">
-          <a href="/switchto/[% module.id %]"
-             class="btn btn--light btn--full">
-            <div class="flag">
-              <div class="flag__img">[% moduleIcon(module=module.pretty_class_name,size='small') %]</div>
-              <p class="flag__body">[% module.description || module.id %]</p>
-            </div>
-          </a>
-        </li>
-        [% END %]
-      </ul>
+  <div class="o-layout__item u-1/1 u-2/3@tablet">
+      [% FOREACH module IN modules %]
+      <div class="u-padding-vertical-small">
+        <a href="/switchto/[% module.id %]" class="c-btn c-btn--secondary c-btn--ghost u-1/1">
+          [% i18n(module.description) || i18n(module.id) %]
+        </a>
+      </div>
+      [% END %]
     </div>
   </div>
-
-</div>
 [% END %]
 <!-- END content-with-choice.html -->
 

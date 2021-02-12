@@ -1,16 +1,27 @@
 /// _components.iconic.scss -*- Mode: scss; indent-tabs-mode: nil; basic-offset: 2; fill-column: 80 -*-
 
-$pf-iconic-size--tiny:     $inuit-base-line-height;
-$pf-iconic-size--small:    $inuit-base-line-height * 3/2;
-$pf-iconic-size--large:    $inuit-base-line-height * 7/3;
+$pf-iconic-size--tiny:     $inuit-global-line-height;
+$pf-iconic-size--small:    $inuit-global-line-height * 3/2;
+$pf-iconic-size--large:    $inuit-global-line-height * 7/3;
 
-.#{$pf-namespace}iconic {
+.c-iconic {
   width: 100%; // fill container
 
   use {
-    fill: $inuit-base-text-color;
+    fill: $pf-base-text-color;
   }  
 
+  &--primary use {
+    fill: $pf-color-primary;
+  }
+
+  &--secondary use {
+    fill: $pf-color-secondary;
+  }
+}
+
+
+.c-iconic {
   &--tiny {
     height: $pf-iconic-size--tiny;
     width: $pf-iconic-size--tiny;
@@ -24,13 +35,13 @@ $pf-iconic-size--large:    $inuit-base-line-height * 7/3;
   &--large {
     width: $pf-iconic-size--large;
 
-    @include media-query(palm) {
+    @include mq($until: mobile) {
       width: $pf-iconic-size--small;
     }
   }
 }
 
-.#{$pf-namespace}iconic__hide {
+.c-iconic__hide {
   display: block;
   position: absolute;
   left: -100%;

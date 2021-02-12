@@ -1,3 +1,5 @@
+#!/usr/bin/perl
+
 =head1 NAME
 
 pf::node
@@ -23,7 +25,10 @@ BEGIN {
 }
 
 use pf::node;
-use Test::More tests => 14;
+use pf::locationlog;
+use Utils;
+use pf::constants::config qw($WIRELESS_802_1X);
+use Test::More tests => 17;
 
 #This test will running last
 use Test::NoWarnings;
@@ -62,13 +67,40 @@ is ($node->{category_id}, 4, "Proper category saved");
 
 ok (node_modify($node_mac, category_id => 4), "Not changing anything");
 
+
+{
+    my $mac = Utils::test_mac();
+    ok (node_modify($mac, category => "guest"), "creating $mac");
+    my ($res, $msg) = pf::node::_can_delete($mac);
+    ok ($res, "Can remove $mac");
+    locationlog_synchronize(
+        "192.168.0.1",
+        "192.168.0.1",
+        "00:22:33:44:55:66",
+        "12",
+        "12",
+        $mac,
+        "yes",
+        $WIRELESS_802_1X,
+        "",
+        "bob",
+        "BOBBY",
+        "bob",
+        "NULL",
+        "default",
+        "",
+    );
+    ($res, $msg) = pf::node::_can_delete($mac);
+    ok (!$res, "Cannot remove $mac");
+}
+
 =head1 AUTHOR
 
 Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2018 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 

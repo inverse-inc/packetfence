@@ -1,0 +1,23 @@
+/user/{user_id}/unassign_nodes:
+  description: pf::UnifiedApi::Controller::User
+  post:
+    operationId: api.v1.Users.unassign_nodes
+    parameters:
+    - in: path
+      name: user_id
+      schema:
+        type: string
+      description: The user id
+    responses:
+      '200':
+        content:
+          application/json:
+            schema:
+              properties:
+                count:
+                  type: integer
+                  description: The number of nodes unassigned
+      '400':
+        $ref: '#/components/responses/BadRequest'
+      '422':
+        $ref: '#/components/responses/UnprocessableEntity'

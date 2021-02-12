@@ -33,7 +33,7 @@ use pf::config;
 use pf::radius_audit_log;
 use pf::constants::admin_roles qw(@ADMIN_ACTIONS);
 use pf::dhcp_option82;
-use pf::factory::detect::parser;
+use pf::constants::pfdetect;
 use pf::factory::scan;
 
 use constant {
@@ -249,7 +249,7 @@ sub parse_forms {
             if ($line =~ m/(?:label|required|help|'data-placeholder')\s+=>\s+"(.+?[^\\])["]/ ||
                 $line =~ m/(?:label|required|help|'data-placeholder')\s+=>\s+'(.+?[^\\])[']/) {
                 my $string = $1;
-                add_string($string, $form);
+                add_string($string, $form) unless $string =~ m/^["']/;
             }
             if ($line =~ m/->(loc|_localize)\(['"]([^\$].+?[^'"\\])["'] *[\),]/) {
                 my $string = $2;
@@ -344,16 +344,16 @@ sub extract_modules {
         }
     }
 
-    const('pf::config', 'VALID_TRIGGER_TYPES', keys(%pf::factory::condition::violation::TRIGGER_TYPE_TO_CONDITION_TYPE));
+    const('pf::config', 'VALID_TRIGGER_TYPES', keys(%pf::factory::condition::security_event::TRIGGER_TYPE_TO_CONDITION_TYPE));
     const('pf::config', 'Inline triggers', [$pf::config::MAC, $pf::config::PORT, $pf::config::SSID, $pf::config::ALWAYS]);
     const('pf::config', 'Network types', [$pf::config::NET_TYPE_VLAN_REG, $pf::config::NET_TYPE_VLAN_ISOL, $pf::config::NET_TYPE_INLINE, 'management', 'other']);
     const('pf::radius_audit_log', 'RADIUS Audit Log', \@pf::radius_audit_log::FIELDS);
     const('pf::dhcp_option82', 'DHCP Option 82', [values %pf::dhcp_option82::HEADINGS]);
-    const('pf::factory::detect::parser', 'Detect Parsers', [map { /^pf::detect::parser::(.*)/;"pfdetect_type_$1"  } @pf::factory::detect::parser::MODULES]);
+    const('pf::factory::detect::parser', 'Detect Parsers', [map { "pfdetect_type_$_"  } @pf::constants::pfdetect::TYPES]);
     const('pf::factory::scan', 'Scans Engine', [map { /^pf::scan(.*)/; my $x = $1;  $x =~ s/(::)/_/g; "scan_type$x"  } @pf::factory::scan::MODULES]);
 
-    my @values = map { "${_}_action" } @pf::action::VIOLATION_ACTIONS;
-    const('pf::action', 'VIOLATION_ACTIONS', \@values);
+    my @values = map { "${_}_action" } @pf::action::SECURITY_EVENT_ACTIONS;
+    const('pf::action', 'SECURITY_EVENT_ACTIONS', \@values);
 
     @values = ();
     map {
@@ -369,45 +369,48 @@ sub extract_modules {
     const('pf::Authentication::Source', 'common_attributes', \@common);
     my $types = pf::authentication::availableAuthenticationSourceTypes();
     my %string_attributes = map {$_ => ''} qw(
-      id
-      client_secret
-      host
+      api_login_id
       authenticate_realm
-      secret
       basedn
-      encryption
-      scope
-      path
-      client_id
-      paypal_cert_file
       cert_file
-      key_file
-      payment_type
-      identity_token
+      cert_file
       cert_id
-      cert_file
-      key_file
-      paypal_cert_file
+      client_id
+      client_secret
+      domains
       email_address
+      encryption
+      host
+      id
+      identity_token
+      key_file
+      key_file
+      md5_hash
+      merchant_id
+      merchant_id
+      path
       payment_type
+      payment_type
+      paypal_cert_file
+      paypal_cert_file
+      public_client_key
       publishable_key
+      scope
+      secret
       secret_key
       shared_secret
-      merchant_id
-      md5_hash
-      transaction_key
-      api_login_id
       shared_secret
-      merchant_id
-      terminal_id
       shared_secret_direct
-      domains
+      terminal_id
+      transaction_key
+      options
     );
     foreach (@$types) {
         my $type = "pf::Authentication::Source::${_}Source";
+        const($type, 'name', [$_]);
         $type->require();
-       my $source = $type->new
-         ({
+        my $source = $type->new
+          ({
            %string_attributes,
            usernameattribute => 'cn',
            authentication_source => undef,
@@ -492,7 +495,7 @@ sub print_po {
 
     print <<EOT;
 # English translations for $package package.
-# Copyright (C) 2005-2018 Inverse inc.
+# Copyright (C) 2005-2021 Inverse inc.
 # This file is distributed under the same license as the $package package.
 #
 msgid ""
@@ -566,7 +569,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2018 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 

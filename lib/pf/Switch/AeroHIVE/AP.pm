@@ -32,21 +32,32 @@ use warnings;
 
 use pf::config qw(
     $WIRELESS_MAC_AUTH
+    $WEBAUTH_WIRELESS
 );
 use pf::constants;
 use pf::locationlog;
 use pf::node;
 use pf::util;
-use pf::violation;
+use pf::security_event;
+use pf::constants::role qw($REJECT_ROLE);
+use pf::config qw(
+    $WIRED_802_1X
+    $WIRED_MAC_AUTH
+    $WEBAUTH_WIRED
+    $WEBAUTH_WIRELESS
+);
+use pf::Switch::constants;
 
 use base ('pf::Switch::AeroHIVE');
+use pf::SwitchSupports qw(
+    ExternalPortal
+    WebFormRegistration
+    WiredMacAuth
+    WiredDot1x
+);
 
 
 sub description { 'AeroHIVE AP' }
-
-
-sub supportsExternalPortal { return $TRUE; }
-sub supportsWebFormRegistration { return $TRUE; }
 
 
 =head1 METHODS
@@ -80,18 +91,12 @@ sub returnRadiusAccessAccept {
     my $rule = $filter->test('returnRadiusAccessAccept', $args);
 
     if ( $self->externalPortalEnforcement ) {
-        my $violation = pf::violation::violation_view_top($args->{'mac'});
-        # if user is unregistered or is in violation then we reject him to show him the captive portal
-        if ( $node->{status} eq $pf::node::STATUS_UNREGISTERED || defined($violation) ){
+        my $security_event = pf::security_event::security_event_view_top($args->{'mac'});
+        # if user is unregistered or is in security_event then we reject him to show him the captive portal
+        if ( $node->{status} eq $pf::node::STATUS_UNREGISTERED || defined($security_event) ){
             $logger->info("[$args->{'mac'}] is unregistered. Refusing access to force the eCWP");
-            my $radius_reply_ref = {
-                'Tunnel-Medium-Type' => $RADIUS::ETHERNET,
-                'Tunnel-Type' => $RADIUS::VLAN,
-                'Tunnel-Private-Group-ID' => -1,
-            };
-            ($radius_reply_ref, $status) = $filter->handleAnswerInRule($rule,$args,$radius_reply_ref);
-            return [$status, %$radius_reply_ref];
-
+            $args->{user_role} = $REJECT_ROLE;
+            $self->handleRadiusDeny();
         }
         else{
             $logger->info("Returning ACCEPT");
@@ -128,6 +133,7 @@ sub parseExternalPortalRequest {
         grant_url               => $req->param('url'),
         status_code             => '200',
         synchronize_locationlog => $TRUE,
+        connection_type         => $WEBAUTH_WIRELESS,
     );
 
     return \%params;
@@ -143,7 +149,7 @@ sub getAcceptForm {
     my $last_ssid = $node->{last_ssid};
     $mac =~ s/:/-/g;
     my $html_form = qq[
-        <form name="weblogin_form" method="POST" action="http://1.1.1.1/reg.php">
+        <form name="weblogin_form" data-autosubmit="1000" method="POST" action="http://1.1.1.1/reg.php">
             <input type="hidden" name="Submit2" value="Submit">
             <input type="hidden" name="autherr" value="0">
             <input type="hidden" name="username" value="$mac">
@@ -151,14 +157,61 @@ sub getAcceptForm {
             <input type="hidden" name="ssid" value="$last_ssid">
             <input type="hidden" name="url" value="$destination_url">
         </form>
-        <script language="JavaScript" type="text/javascript">
-        window.setTimeout('document.weblogin_form.submit();', 1000);
-        </script>
+        <script src="/content/autosubmit.js" type="text/javascript"></script>
     ];
 
     $logger->debug("Generated the following html form : ".$html_form);
     return $html_form;
 }
+
+=head2 wiredeauthTechniques
+
+Return the reference to the deauth technique or the default deauth technique.
+
+=cut
+
+sub wiredeauthTechniques {
+    my ($self, $method, $connection_type) = @_;
+    my $logger = $self->logger;
+    if ($connection_type == $WIRED_802_1X) {
+        my $default = $SNMP::SNMP;
+        my %tech = (
+            $SNMP::RADIUS => 'deauthenticateMacRadius',
+        );
+
+        if (!defined($method) || !defined($tech{$method})) {
+            $method = $default;
+        }
+        return $method,$tech{$method};
+    }
+    if ($connection_type == $WIRED_MAC_AUTH) {
+        my $default = $SNMP::SNMP;
+        my %tech = (
+            $SNMP::RADIUS => 'deauthenticateMacRadius',
+        );
+
+        if (!defined($method) || !defined($tech{$method})) {
+            $method = $default;
+        }
+        return $method,$tech{$method};
+    }
+}
+
+=head2 deauthenticateMacRadius
+
+Method to deauth a wired node with CoA.
+
+=cut
+
+sub deauthenticateMacRadius {
+    my ($self, $ifIndex,$mac) = @_;
+    my $logger = $self->logger;
+
+
+    # perform CoA
+    $self->radiusDisconnect($mac );
+}
+
 
 
 =back
@@ -169,7 +222,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2018 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 

@@ -12,9 +12,8 @@ NAME		= pf
 PREFIX		= /usr/local
 INSTALL		= /usr/bin/install -c -D -m0644
 
-wheezy := $(shell (dpkg-distribution --is_wheezy && echo "yes") || echo "no")
-jessie := $(shell (dpkg-distribution --is_jessie && echo "yes") || echo "no")
-precise:= $(shell (dpkg-distribution --is_precise && echo "yes") || echo "no")
+# DIST = jessie or stretch or ..
+DIST = $(shell lsb_release -c -s)
 
 configure: configure-stamp
 configure-stamp:
@@ -72,13 +71,15 @@ install: build
 	done
 	# generate translations
 	# TODO this is duplicated in our RPM spec, we should aim to consolidate in a 'make' style step
-	for TRANSLATION in de en es fr he_IL it nl pl_PL pt_BR; do \
+	for TRANSLATION in de en es fr he_IL it nl pl_PL pt_BR nb_NO; do \
 		/usr/bin/msgfmt $(CURDIR)/debian/packetfence$(PREFIX)/$(NAME)/conf/locale/$$TRANSLATION/LC_MESSAGES/packetfence.po \
 		--output-file $(CURDIR)/debian/packetfence$(PREFIX)/$(NAME)/conf/locale/$$TRANSLATION/LC_MESSAGES/packetfence.mo; \
 	done
 	# Install empty directories not in our tarball since the git move
 	install -d -m0700 $(CURDIR)/debian/packetfence$(PREFIX)/$(NAME)/addons
+	install -d -m0700 $(CURDIR)/debian/packetfence$(PREFIX)/$(NAME)/conf/certmanager
 	install -d -m0700 $(CURDIR)/debian/packetfence$(PREFIX)/$(NAME)/conf/ssl
+	install -d -m0700 $(CURDIR)/debian/packetfence$(PREFIX)/$(NAME)/conf/ssl/acme-challenge
 	install -d -m0700 $(CURDIR)/debian/packetfence$(PREFIX)/$(NAME)/raddb/sites-enabled
 	install -d -m2770 $(CURDIR)/debian/packetfence$(PREFIX)/$(NAME)/logs
 	install -d -m2770 $(CURDIR)/debian/packetfence$(PREFIX)/$(NAME)/var/conf
@@ -93,15 +94,9 @@ install: build
 	install -d -m0700 $(CURDIR)/debian/packetfence$(PREFIX)/$(NAME)/var/webadmin_cache
 	install -d -m2770 $(CURDIR)/debian/packetfence$(PREFIX)/$(NAME)/var/cache/configfiles
 	install -d -m2770 $(CURDIR)/debian/packetfence$(PREFIX)/$(NAME)/var/cache/configfilesdata
-#ifeq ($(jessie),yes)
 	install -d -m0700 $(CURDIR)/debian/packetfence$(PREFIX)/$(NAME)/var/ssl_mutex
-#endif
 	touch $(CURDIR)/debian/packetfence$(PREFIX)/$(NAME)/var/cache_control
 	#Configurator integration
-#ifneq (,$(filter yes,$(wheezy) $(precise)))
-#	install -d -m0700 $(CURDIR)/debian/packetfence/etc/init.d
-#endif
-#ifeq ($(jessie),yes)
 	install -d -m0700 $(CURDIR)/debian/packetfence/lib/systemd/system
 	install -d -m0700 $(CURDIR)/debian/packetfence/etc/systemd/system
 	install -m0644 $(CURDIR)/debian/packetfence.target $(CURDIR)/debian/packetfence/etc/systemd/system
@@ -113,22 +108,19 @@ install: build
 	install -m0644 $(CURDIR)/debian/packetfence.slice $(CURDIR)/debian/packetfence/etc/systemd/system
 	install -m0644 $(CURDIR)/debian/packetfence-base.slice $(CURDIR)/debian/packetfence/etc/systemd/system
 	install -m0644 $(CURDIR)/debian/ifup@.service $(CURDIR)/debian/packetfence/etc/systemd/system
-#endif
-	install -m0644 $(CURDIR)/debian/packetfence-pfunified_api.service $(CURDIR)/debian/packetfence/etc/systemd/system
 	install -d -m0700 $(CURDIR)/debian/packetfence/etc/default
+	install -d -m0755 $(CURDIR)/debian/packetfence/etc/modprobe.d
+	install -d -m0755 $(CURDIR)/debian/packetfence/etc/modules-load.d
+	install -m0644 $(CURDIR)/debian/packetfence.modprobe $(CURDIR)/debian/packetfence/etc/modprobe.d/packetfence.conf
+	install -m0644 $(CURDIR)/debian/packetfence.modules-load $(CURDIR)/debian/packetfence/etc/modules-load.d/packetfence.conf
+
 	# copy the rsyslog systemd drop in
-	install -d -m0755 $(CURDIR)/debian/packetfence/etc/systemd/system/syslog.service.d/
-	install -m0600 $(CURDIR)/packetfence.rsyslog-drop-in.service  $(CURDIR)/debian/packetfence/etc/systemd/system/syslog.service.d/packetfence.conf
+	install -d -m0755 $(CURDIR)/debian/packetfence/etc/systemd/system/rsyslog.service.d/
+	install -m0600 $(CURDIR)/packetfence.rsyslog-drop-in.service  $(CURDIR)/debian/packetfence/etc/systemd/system/rsyslog.service.d/packetfence.conf
 	#Sudoer
 	install -oroot -groot -d -m0750 $(CURDIR)/debian/packetfence/etc/sudoers.d
 	install -oroot -groot -m0440 $(CURDIR)/debian/packetfence.sudoers $(CURDIR)/debian/packetfence/etc/sudoers.d/packetfence
-	#PacketFence remote ARP sensor
-	install -d -m0700 $(CURDIR)/debian/packetfence-remote-arp-sensor$(PREFIX)/$(NAME)/conf
-	install -d $(CURDIR)/debian/packetfence-remote-arp-sensor$(PREFIX)/$(NAME)/var
-	install -d $(CURDIR)/debian/packetfence-remote-arp-sensor$(PREFIX)/$(NAME)/var/run
-	install -d $(CURDIR)/debian/packetfence-remote-arp-sensor$(PREFIX)/$(NAME)/sbin
-	install -m0755 addons/pfarp_remote/sbin/pfarp_remote $(CURDIR)/debian/packetfence-remote-arp-sensor$(PREFIX)/$(NAME)/sbin
-	install -m0600 addons/pfarp_remote/conf/pfarp_remote.conf $(CURDIR)/debian/packetfence-remote-arp-sensor$(PREFIX)/$(NAME)/conf
+	rm -fr $(CURDIR)/debian/packetfence$(PREFIX)/$(NAME)/html/pfappserver/root/static/alt
 	#PacketFence pfcmd suid
 	install -d -m0755 $(CURDIR)/debian/packetfence-pfcmd-suid$(PREFIX)/$(NAME)/bin
 	gcc src/pfcmd.c -o $(CURDIR)/debian/packetfence-pfcmd-suid$(PREFIX)/$(NAME)/bin/pfcmd
@@ -138,37 +130,60 @@ install: build
 	mv bin/ntlm_auth_wrapper $(CURDIR)/debian/packetfence-ntlm-wrapper$(PREFIX)/$(NAME)/bin
 	# packetfence-config
 	install -d $(CURDIR)/debian/packetfence-config$(PREFIX)/$(NAME)/sbin
-#ifeq ($(jessie),yes)
 	install -d -m0700 $(CURDIR)/debian/packetfence-config/lib/systemd/system
-#endif
 	install -d -m0700 $(CURDIR)/debian/packetfence-config$(PREFIX)/$(NAME)/conf
 	install -d -m2770 $(CURDIR)/debian/packetfence-config$(PREFIX)/$(NAME)/var/cache/pfconfig
 	install -m0755 sbin/pfconfig $(CURDIR)/debian/packetfence-config$(PREFIX)/$(NAME)/sbin
 	install -m0600 conf/pfconfig.conf.example $(CURDIR)/debian/packetfence-config$(PREFIX)/$(NAME)/conf/pfconfig.conf
 	# packetfence-redis-cache
-#ifneq (,$(filter yes,$(wheezy) $(precise)))
-#	install -d -m0700 $(CURDIR)/debian/packetfence-redis-cache/etc/init.d
-#endif
-#ifeq ($(jessie),yes)
 	install -d -m0700 $(CURDIR)/debian/packetfence-redis-cache/lib/systemd/system
-#endif
 	install -d -m2770 $(CURDIR)/debian/packetfence-redis-cache$(PREFIX)/$(NAME)/var/run
 	install -d -m0700 $(CURDIR)/debian/packetfence-redis-cache$(PREFIX)/$(NAME)/conf
 	install -d -m2770 $(CURDIR)/debian/packetfence-redis-cache$(PREFIX)/$(NAME)/logs
 	install -d -m2770 $(CURDIR)/debian/packetfence-redis-cache$(PREFIX)/$(NAME)/var/redis_cache
 	install -m0600 conf/redis_cache.conf.example $(CURDIR)/debian/packetfence-redis-cache$(PREFIX)/$(NAME)/conf/redis_cache.conf
-	echo $(C_ID) > $(CURDIR)/debian/packetfence$(PREFIX)/$(NAME)/conf/git_commit_id
-	#Documentation
-	for i in `find * -name "*.asciidoc" -path 'docs/*' -type f`; do \
-		asciidoctor -D $(CURDIR)/debian/packetfence-doc$(PREFIX)/$(NAME)/html/pfappserver/root/static/doc -n $$i; \
+
+	# packetfence-tracking-config
+	install -m0644 $(CURDIR)/debian/packetfence-tracking-config.path $(CURDIR)/debian/packetfence/lib/systemd/system/packetfence-tracking-config.path
+
+	#Portal javascript/css
+	rm -f $(CURDIR)/debian/packetfence$(PREFIX)/$(NAME)/html/common/styles.css
+	rm -f $(CURDIR)/debian/packetfence$(PREFIX)/$(NAME)/html/common/styles.css.map
+	make -C html/common/ vendor
+	make -C html/common light-dist
+	install -d -m0755 $(CURDIR)/debian/packetfence-captive-portal-javascript$(PREFIX)/$(NAME)/html/common
+	install -m0644 $(CURDIR)/html/common/styles.css $(CURDIR)/debian/packetfence-captive-portal-javascript$(PREFIX)/$(NAME)/html/common/
+	install -m0644 $(CURDIR)/html/common/styles.css.map $(CURDIR)/debian/packetfence-captive-portal-javascript$(PREFIX)/$(NAME)/html/common/
+	# Admin javascript/css
+	make -C html/pfappserver/root/static/ vendor
+	make -C html/pfappserver/root/static/ light-dist
+	make -C html/pfappserver/root/static.alt/ vendor
+	make -C html/pfappserver/root/static.alt/ light-dist
+
+	# Documentation
+	make html
+	# install html in pfappserver for embedded doc
+	install -d -m0755 $(CURDIR)/debian/packetfence-doc$(PREFIX)/$(NAME)/html/pfappserver/root/static/doc
+	for i in `find "docs" "(" -name "*.html" -or -iname "*.js" ")" -type f`; do \
+		install -m0644 $$i $(CURDIR)/debian/packetfence-doc$(PREFIX)/$(NAME)/html/pfappserver/root/static/doc/; \
 	done
-	install -d -m0744 $(CURDIR)/debian/packetfence-doc$(PREFIX)/$(NAME)/html/pfappserver/root/static/doc/docs/images
-	for i in `find * -path 'docs/images/*' -type f`; do \
-		install -m0444 $$i $(CURDIR)/debian/packetfence-doc$(PREFIX)/$(NAME)/html/pfappserver/root/static/doc/docs/images/; \
+	# images
+	make DESTDIR=$(CURDIR)/debian/packetfence-doc images
+
+	install -d -m0755 $(CURDIR)/debian/packetfence-pfappserver-javascript$(PREFIX)/$(NAME)/html/pfappserver/root/static
+	for i in `find * -wholename "*js/pfappserver.*" -o -wholename "*js/reports.*" -o -wholename "*js/auditing.*" -o -wholename "*js/configuration.*" -o -wholename "*js/vendor/bootstrap.min.js*" -o -wholename "*js/vendor/jquery.min.*" -o -wholename "*js/vendor/jquery-ui.min.js*" -o -wholename "*js/vendor/jquery-extra.min.js*" -o -wholename "*js/vendor/raphael.min.js*" -o -wholename "*js/vendor/ace/*.js" -o -wholename "*js/vendor/fitty.min.js*" -o -wholename "*css/styles.css" -o -wholename "*css/styles.css.map" -path 'html/pfappserver/root/static/*' -type f`; do \
+		install -D -m0644 $$i $(CURDIR)/debian/packetfence-pfappserver-javascript$(PREFIX)/$(NAME)/$$i; \
+	done
+	install -d -m0755 $(CURDIR)/debian/packetfence-pfappserver-javascript$(PREFIX)/$(NAME)/html/pfappserver/root/static.alt
+	for i in `find 'html/pfappserver/root/static.alt/dist' -type f`; do \
+		install -D -m0644 $$i $(CURDIR)/debian/packetfence-pfappserver-javascript$(PREFIX)/$(NAME)/$$i; \
 	done
 	#Golang binary
-	install -d -m0744 $(CURDIR)/debian/packetfence-golang-daemon$(PREFIX)/$(NAME)/bin
-	PATH=$$PATH:/usr/lib/go-1.7/bin && addons/packages/build-go.sh build $(CURDIR)/ $(CURDIR)/debian/packetfence-golang-daemon$(PREFIX)/$(NAME)/bin $(CURDIR)/debian
+	install -d -m0744 $(CURDIR)/debian/packetfence-golang-daemon$(PREFIX)/$(NAME)/sbin
+	make -C go all
+	make -C go DESTDIR=$(CURDIR)/debian/packetfence-golang-daemon copy
+
+
 # Build architecture-independent files here.
 binary-indep: build install
 # We have nothing to do by default.
@@ -188,16 +203,17 @@ binary-arch: build install
 #	dh_installpam
 #	dh_installmime
 #	dh_python
-ifeq ($(jessie),yes)
 	dh_systemd_enable
-endif
 	dh_installinit --no-restart-on-upgrade
-	dh_installinit --name=packetfence-haproxy
+	dh_installinit --name=packetfence-galera-autofix
+	dh_installinit --name=packetfence-haproxy-admin
+	dh_installinit --name=packetfence-haproxy-portal
+	dh_installinit --name=packetfence-haproxy-db
 	dh_installinit --name=packetfence-httpd.aaa
 	dh_installinit --name=packetfence-httpd.admin
 	dh_installinit --name=packetfence-httpd.collector
 	dh_installinit --name=packetfence-httpd.dispatcher
-	dh_installinit --name=packetfence-httpd.parking
+	dh_installinit --name=packetfence-httpd.admin_dispatcher
 	dh_installinit --name=packetfence-httpd.portal
 	dh_installinit --name=packetfence-httpd.proxy
 	dh_installinit --name=packetfence-httpd.webservices
@@ -206,13 +222,16 @@ endif
 	dh_installinit --name=packetfence-mariadb
 	dh_installinit --name=packetfence-netdata
 	dh_installinit --name=packetfence-pfbandwidthd
+	dh_installinit --name=packetfence-pfacct
+	dh_installinit --name=packetfence-pfcertmanager
 	dh_installinit --name=packetfence-pfdetect
 	dh_installinit --name=packetfence-pfdhcplistener
 	dh_installinit --name=packetfence-pfdns
 	dh_installinit --name=packetfence-pffilter
-	dh_installinit --name=packetfence-pfmon
+	dh_installinit --name=packetfence-pfcron
+	dh_installinit --name=packetfence-pfperl-api
+	dh_installinit --name=packetfence-pfpki
 	dh_installinit --name=packetfence-pfqueue
-	dh_installinit --name=packetfence-pfsetvlan
 	dh_installinit --name=packetfence-pfsso
 	dh_installinit --name=packetfence-radiusd-acct
 	dh_installinit --name=packetfence-radiusd-auth
@@ -222,15 +241,16 @@ endif
 	dh_installinit --name=packetfence-radsniff
 	dh_installinit --name=packetfence-redis_ntlm_cache
 	dh_installinit --name=packetfence-redis_queue
-	dh_installinit --name=packetfence-routes
 	dh_installinit --name=packetfence-snmptrapd
 	dh_installinit --name=packetfence-tc
 	dh_installinit --name=packetfence-winbindd
-	dh_installinit --name=packetfence-etcd
 	dh_installinit --name=packetfence-pfdhcp
 	dh_installinit --name=packetfence-pfipset
 	dh_installinit --name=packetfence-pfunified-api
 	dh_installinit --name=packetfence-pfstats
+	dh_installinit --name=packetfence-api-frontend
+	dh_installinit --no-start --name=packetfence-tracking-config
+	dh_installinit --name=packetfence-pfztn
 
 	dh_installcron
 #	dh_installinfo
@@ -238,7 +258,10 @@ endif
 	dh_link \
 			/usr/local/pf/raddb/sites-available/dynamic-clients /usr/local/pf/raddb/sites-enabled/dynamic-clients \
 			/usr/local/pf/raddb/sites-available/status /usr/local/pf/raddb/sites-enabled/status \
-			/usr/local/fingerbank/lib/fingerbank /usr/local/pf/lib/fingerbank
+			/usr/local/fingerbank/lib/fingerbank /usr/local/pf/lib/fingerbank \
+			/usr/local/pf/html/pfappserver/lib/pfappserver /usr/local/pf/lib/pfappserver \
+			/usr/local/pf/html/captive-portal/lib/captiveportal /usr/local/pf/lib/captiveportal \
+			/usr/local/pf/html/pfappserver/root/static.alt/dist /usr/local/pf/html/pfappserver/root/static/alt
 	dh_strip
 	dh_compress
 	# PERMISSIONS
@@ -249,15 +272,20 @@ endif
 	chmod 0755 $(CURDIR)/debian/packetfence$(PREFIX)/$(NAME)/addons/pfconfig/comparator/*.pl
 	chmod 0755 $(CURDIR)/debian/packetfence$(PREFIX)/$(NAME)/addons/pfconfig/comparator/*.sh
 	chmod 0755 $(CURDIR)/debian/packetfence$(PREFIX)/$(NAME)/addons/upgrade/*.pl
+	chmod 0755 $(CURDIR)/debian/packetfence$(PREFIX)/$(NAME)/addons/upgrade/*.sh
 	chmod 0755 $(CURDIR)/debian/packetfence$(PREFIX)/$(NAME)/addons/watchdog/*.sh
+	chmod 0755 $(CURDIR)/debian/packetfence$(PREFIX)/$(NAME)/addons/monit/*.pl
+	chmod 0755 $(CURDIR)/debian/packetfence$(PREFIX)/$(NAME)/addons/monit/monitoring-scripts/*.pl
+	chmod 0755 $(CURDIR)/debian/packetfence$(PREFIX)/$(NAME)/addons/monit/monitoring-scripts/*.sh
+	chmod 0755 $(CURDIR)/debian/packetfence$(PREFIX)/$(NAME)/addons/packages/*.sh
+	chmod 0755 $(CURDIR)/debian/packetfence$(PREFIX)/$(NAME)/addons/dev-helpers/*.sh
+	chmod 0755 $(CURDIR)/debian/packetfence$(PREFIX)/$(NAME)/addons/hostapd/*.sh
+	chmod 0755 $(CURDIR)/debian/packetfence$(PREFIX)/$(NAME)/addons/eapol_test/*.sh
 	chmod 0755 $(CURDIR)/debian/packetfence$(PREFIX)/$(NAME)/bin/*
 	chmod 0755 $(CURDIR)/debian/packetfence$(PREFIX)/$(NAME)/bin/cluster/*
 	chmod 0755 $(CURDIR)/debian/packetfence$(PREFIX)/$(NAME)/sbin/*
 	chmod 0755 $(CURDIR)/debian/packetfence$(PREFIX)/$(NAME)/html/pfappserver/script/*.pl
-	dh_fixperms -X$(NAME)/bin -X$(NAME)/sbin -X$(NAME)/addons \
-                -X$(NAME)/conf/pfdetect_remote.conf \
-                -X$(NAME)sbin/pfdetect_remote -X$(NAME)/conf/pfarp_remote.conf \
-		-X$(NAME)sbin/pfarp_remote
+	dh_fixperms -X$(NAME)/bin -X$(NAME)/sbin -X$(NAME)/addons
 	chmod 2775 $(CURDIR)/debian/packetfence$(PREFIX)/$(NAME)/var/run
 	chown root:root $(CURDIR)/debian/packetfence-pfcmd-suid$(PREFIX)/$(NAME)/bin/pfcmd
 	chmod ug+s $(CURDIR)/debian/packetfence-pfcmd-suid$(PREFIX)/$(NAME)/bin/pfcmd
@@ -267,11 +295,11 @@ endif
 	dh_makeshlibs
 	dh_installdeb
 	dh_shlibdeps
-ifeq ($(jessie),yes)
-	dh_gencontrol -- '-Vpacketfence:dist=libscalar-list-utils-perl (>= 1.41-1),libfile-fcntllock-perl,libjson-xs-perl,libmoo-perl,libnet-dns-perl,python-twisted-bin,python-twisted-core,libconfig-inifiles-perl'
+ifeq ($(DIST),jessie)
+	dh_gencontrol -- '-Vpacketfence:dist=openssl-blacklist,openssl-blacklist-extra,libapache2-mod-proxy-html,apache2-mpm-prefork'
 endif
-ifneq (,$(filter yes,$(wheezy) $(precise)))
-	dh_gencontrol -- '-Vpacketfence:dist=libscalar-list-utils-perl (>= 1.42),apache2.2-common,libjson-xs-perl (>= 3),libmoo-perl (=1.004002-1),libnet-dns-perl (=0.66-3),freeradius-utils (>=3.0),python-twisted-bin (<=13.0), python-twisted-core (<=13.0),libconfig-inifiles-perl (>= 2.88)'
+ifeq ($(DIST),stretch)
+	dh_gencontrol -- '-Vpacketfence:dist=libclass-xsaccessor-perl,acl'
 endif
 	dh_md5sums
 	dh_builddeb

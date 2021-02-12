@@ -1,0 +1,26 @@
+<!--Body container that sets layout and inner content-->
+
+<div class="u-padding">
+
+  [% INCLUDE ssl_inspection/menu.html section = "other" %]
+
+  <div id="guide">
+    <p>[% i18n("If you have a device that does not fall under one of the categories located on the page menus above, you will need to figure out how to install the certificate on your own device. We do not support any devices outside of the ones listed on the page menus. You may download our certificate below.") %]</p>
+
+    <div class="o-layout o-layout--center u-padding-bottom">
+      <div class="o-layout__item u-1/1 u-2/3@tablet u-3/5@desktop">
+        <a href="[%ssl_path%]" class="c-btn c-btn--secondary u-1/1">[% i18n("Download Certificate") %]</a>
+      </div>
+    </div>
+    <p>
+      [% i18n("Windows phones and Linux devices are included in the devices that will need a browser certificate.") %]
+    </p>
+
+    <p>
+      [% i18n("Please <u>check back periodically</u> on this webpage for new and updated browser certificates for your unsupported device. These browser certificates will help allow full device functionality with our network.") | none %]
+    </p>
+  </div>
+
+</div>
+
+[% INCLUDE ssl_inspection/common.html %]

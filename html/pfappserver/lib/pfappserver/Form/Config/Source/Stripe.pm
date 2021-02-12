@@ -25,11 +25,15 @@ has_field '+currency' => (
 );
 # Form fields
 has_field 'secret_key' => (
-    type => 'Text'
+    type => 'Text',
+    default => '',
+    required => 1,
 );
 
 has_field 'publishable_key' => (
-    type => 'Text'
+    type => 'Text',
+    default => '',
+    required => 1,
 );
 
 has_field 'style' => (
@@ -84,7 +88,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2018 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 

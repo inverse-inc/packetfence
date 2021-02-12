@@ -16,10 +16,29 @@ use strict;
 use warnings;
 use Mojo::Base 'pf::UnifiedApi::Controller::Crud';
 use pf::dal::radius_audit_log;
+use pf::radius_audit_log;
 
 has dal => 'pf::dal::radius_audit_log';
 has url_param_name => 'radius_audit_log_id';
 has primary_key => 'id';
+
+=head2 cleanup_item
+
+cleanup_item
+
+=cut
+
+sub cleanup_item {
+    my ($self, $item) = @_;
+    foreach my $key (keys %$item) {
+        next if !defined $item->{$key};
+        my $value = $item->{$key};
+        $value =~ s/=([a-fA-F0-9]{2})/chr(hex($1))/ge;
+        $item->{$key} = $value;
+    }
+
+    return $item;
+}
 
 =head1 AUTHOR
 
@@ -27,7 +46,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2018 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 

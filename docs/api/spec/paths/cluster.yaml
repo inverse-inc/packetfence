@@ -1,0 +1,12 @@
+/cluster/servers:
+  get:
+    summary: Returns a list of the servers in the cluster
+    responses:
+      '200':
+        description: List of the servers in the cluster
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ClusterServers"
+
+

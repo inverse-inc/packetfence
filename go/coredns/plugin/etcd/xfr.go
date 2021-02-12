@@ -6,12 +6,12 @@ import (
 	"github.com/inverse-inc/packetfence/go/coredns/request"
 )
 
-// Serial implements the Transferer interface.
+// Serial returns the serial number to use.
 func (e *Etcd) Serial(state request.Request) uint32 {
 	return uint32(time.Now().Unix())
 }
 
-// MinTTL implements the Transferer interface.
+// MinTTL returns the minimal TTL.
 func (e *Etcd) MinTTL(state request.Request) uint32 {
 	return 30
 }

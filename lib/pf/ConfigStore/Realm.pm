@@ -20,6 +20,7 @@ use pf::file_paths qw(
     $realm_default_config_file
 );
 extends 'pf::ConfigStore';
+with qw(pf::ConfigStore::Role::TenantID);
 
 sub configFile { $realm_config_file }
 
@@ -58,7 +59,7 @@ sub cleanupBeforeCommit {
 =cut
 
 sub _fields_expanded {
-    return qw(categories);
+    return qw(categories radius_acct radius_auth);
 }
 
 
@@ -81,7 +82,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2018 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 

@@ -79,14 +79,22 @@ view a temporary password record, returns an hashref
 =cut
 
 sub view {
-    my ($pid) = @_;
-    my ($status, $item) = pf::dal::password->find({
-        pid => $pid
-    });
+    my ($pid, %opts) = @_;
+    my ($status, $iter) = pf::dal::password->search(
+        -where => {
+            'password.pid' => $pid,
+        },
+        %opts,
+    );
+
     if (is_error($status)) {
         return (undef);
     }
-    return ($item->to_hash());
+
+    my $item = $iter->next(undef);
+    $iter->finish;
+
+    return ($item);
 }
 
 =item view_email
@@ -96,11 +104,12 @@ view the temporary password record associated to an email address, returns an ha
 =cut
 
 sub view_email {
-    my ($email) = @_;
+    my ($email, %opts) = @_;
     my ($status, $iter) = pf::dal::password->search(
         -where => {
             'email' => $email,
         },
+        %opts,
     );
     if (is_error($status)) {
         return (undef);
@@ -140,11 +149,21 @@ Generates the password
 =cut
 
 sub _generate_password {
+    my ($size) = @_;
 
-    my $password = word(8, 12);
+    # Default to a size of 8 if none is requested
+    $size //= 8;
+
+    my $absolute_min = 4;
+    if($size < $absolute_min) {
+        get_logger->warn("Password length less than $absolute_min, making the password $absolute_min long.");
+        $size = $absolute_min;
+    }
+
+    my $password = word($size, $size);
     # if password is nasty generate another one (until we get a clean one)
     while(Crypt::GeneratePassword::restrict($password, undef)) {
-        $password = word(8, 12);
+        $password = word($size, $size);
     }
     return $password;
 }
@@ -182,15 +201,16 @@ Defaults to 0 (no per user limit)
 =cut
 
 sub generate {
-    my ( $pid, $actions, $password, $login_amount ) = @_;
+    my ( $pid, $actions, $password, $login_amount, $options ) = @_;
     my $logger = get_logger();
 
     my %data;
     $data{'pid'} = $pid;
-    $password ||= _generate_password();
+    $password ||= _generate_password($options->{'password_length'});
 
     # hash password
-    $data{'password'} = _hash_password( $password, algorithm => $Config{'advanced'}{'hash_passwords'}, );
+    my $hash = $options->{'hash_passwords'} || $Config{'advanced'}{'hash_passwords'};
+    $data{'password'} = _hash_password( $password, algorithm => $hash, );
 
     $data{'login_remaining'} = $login_amount;
 
@@ -254,9 +274,16 @@ sub _update_from_actions {
         $data,$actions,$Actions::SET_BANDWIDTH_BALANCE,
         'bandwidth_balance',undef
     );
+    _update_field_for_action(
+        $data,$actions,$Actions::SET_TENANT_ID,
+        'tenant_id',undef
+    );
     my @values = grep { $_->{type} eq $Actions::SET_ROLE } @{$actions};
     if (scalar @values > 0) {
         my $role_id = nodecategory_lookup( $values[0]->{value} );
+        if(!defined($role_id) && nodecategory_exist($values[0]->{value})) {
+            $role_id = $values[0]->{value};
+        }
         $data->{'category'} = $role_id;
     }
 }
@@ -272,6 +299,11 @@ sub _update_field_for_action {
     my @values = grep { $_->{type} eq $action } @{$actions};
     if ( scalar @values > 0 ) {
         $data->{$field} = $values[0]->{value};
+        if ($action eq $Actions::SET_ACCESS_LEVEL) {
+            if (ref($data->{$field}) eq 'ARRAY') {
+                $data->{$field} = join(",", @{$data->{$field}});
+            }
+        }
     }
     else {
         $data->{$field} = $default;
@@ -323,17 +355,17 @@ Return values:
 =cut
 
 sub validate_password {
-    my ( $pid, $password ) = @_;
-
+    my ( $pid, $password, $allow_potd, %opts) = @_;
     my $logger = get_logger();
     my ($status, $iter) = pf::dal::password->search(
         -where => {
-            pid => $pid,
+            'password.pid' => $pid,
+            'person.potd' => $allow_potd ? 'yes' : ['no', undef],
         },
-        -columns => [qw(pid password UNIX_TIMESTAMP(valid_from)|valid_from), 'UNIX_TIMESTAMP(DATE_FORMAT(expiration,"%Y-%m-%d 23:59:59"))|expiration', qw(access_duration category)],
+        -columns => [qw(password.pid|pid password.password|password UNIX_TIMESTAMP(valid_from)|valid_from), 'UNIX_TIMESTAMP(DATE_FORMAT(expiration,"%Y-%m-%d 23:59:59"))|expiration', qw(password.access_duration|access_duration password.category|category person.potd|potd)],
         #To avoid a join
-        -from => pf::dal::password->table,
         -limit => 1,
+        -no_auto_tenant_id => 1,
     );
 
     my $temppass_record = $iter->next(undef);
@@ -349,7 +381,7 @@ sub validate_password {
         # valid_from is in unix timestamp format so an int comparison is enough
         my $valid_from = $temppass_record->{'valid_from'};
         if ( defined $valid_from && $valid_from > time ) {
-            $logger->info("Password validation failed for $pid: password not yet valid");
+            $logger->info("Password validation failed for $pid: password not yet valid, please verify the Registration Window");
             return $AUTH_FAILED_NOT_YET_VALID;
         }
 
@@ -401,6 +433,18 @@ sub password_get_hash_type {
         $type = $1;
     }
     return $type;
+}
+
+=head2 default_hash_password
+
+Hash password using algorithm defined in the configuration
+
+=cut
+
+sub default_hash_password {
+    my ($plaintext) = @_;
+    my $hash = $Config{'advanced'}{'hash_passwords'};
+    return _hash_password( $plaintext, algorithm => $hash );
 }
 
 sub _hash_password {
@@ -567,7 +611,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2018 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 

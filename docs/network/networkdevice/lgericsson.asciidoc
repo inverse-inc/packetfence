@@ -1,0 +1,90 @@
+// to display images directly on GitHub
+ifdef::env-github[]
+:encoding: UTF-8
+:lang: en
+:doctype: book
+:toc: left
+:imagesdir: ../../images
+endif::[]
+
+////
+
+    This file is part of the PacketFence project.
+
+    See PacketFence_Network_Devices_Configuration_Guide-docinfo.xml for 
+    authors, copyright and license information.
+
+////
+
+
+//=== LG-Ericsson
+
+PacketFence supports iPECS series switches _without VoIP_ using two different trap types:
+
+* linkUp / linkDown
+* Port Security (with static MACs)
+
+On some recent models, we can also use more secure and robust features, like:
+
+* MAC Authentication
+* 802.1X
+
+==== ES-4500G Series
+
+===== LinkUp / LinkDown
+
+Firmware 1.2.3.2 is required for linkUp / linkDown
+
+Prior to config, make sure to create all necessaries VLANs and config the appropriate uplink port.
+
+Global config settings
+
+  snmp-server community public ro
+  snmp-server community private rw
+  !
+  snmp-server enable traps authentication
+  snmp-server host 192.168.1.5 public version 2c udp-port 162
+  snmp-server notify-filter traphost.192.168.1.5.public remote 192.168.1.5
+
+Firmware is kinda buggy so you'll need to enable linkUp / linkDown using the Web Interface under *Administration -> SNMP*.
+
+Some reports shows that the switch doesn't always send linkDown traps.
+
+On each interface (except uplink)
+
+  switchport allowed vlan add 4 untagged
+  switchport native vlan 4
+  switchport allowed vlan remove 1
+  switchport mode access
+
+===== Port-Security
+
+Firmware 1.2.3.2 is required for port-security.
+
+Prior to config, make sure to create all necessaries VLANs and config the appropriate uplink port.
+
+Global config settings
+
+  snmp-server community public ro
+  snmp-server community private rw
+  !
+  snmp-server enable traps authentication
+  snmp-server host 192.168.1.5 public version 2c udp-port 162
+  snmp-server notify-filter traphost.192.168.1.5.public remote 192.168.1.5
+
+On each interface (except uplink)
+
+  port security max-mac-count 1
+  port security
+  port security action trap
+  switchport allowed vlan add 2 untagged
+  switchport native vlan 2
+  switchport allowed vlan remove 1
+  switchport mode access
+
+The above _port security_ command may not work using the CLI. In this case, use the Web Interface under the _Security -> Port Security_ menu and enable each ports using the checkboxes.
+
+It is also recommended, when using port-security, to disable link-change (UP / DOWN) traps.
+
+Don't forget to update the startup config!
+

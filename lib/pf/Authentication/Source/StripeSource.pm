@@ -19,12 +19,14 @@ use WWW::Curl::Easy;
 use JSON::MaybeXS;
 use URI::Escape::XS qw(uri_escape);
 use List::Util qw(pairmap);
+use Digest::SHA qw(hmac_sha1_hex);
 
 use pf::config qw($default_pid);
 use pf::constants qw($FALSE $TRUE);
 use pf::Authentication::constants;
 use pf::util;
 use pf::log;
+use pf::error qw(is_error);
 
 extends 'pf::Authentication::Source::BillingSource';
 with 'pf::Authentication::CreateLocalAccountRole';
@@ -229,7 +231,23 @@ sub subscribe_customer {
         description => $tier->{description},
         'metadata[mac_address]' => $session->{billed_mac},
     };
-    my ($code, $data) = $self->_send_form($self->curl, "v1/customers", $object);
+
+    if($session->{request_fields}->{firstname} && $session->{request_fields}->{lastname}) {
+        $object->{name} = $session->{request_fields}->{firstname} . " " . $session->{request_fields}->{lastname};
+    }
+    if($session->{request_fields}->{address}) {
+        $object->{'address[line1]'} = $session->{request_fields}->{address};
+    }
+
+    my ($code, $data);
+    if(my $cus = $self->get_customer_by_email($session->{email})) {
+        ($code, $data) = $self->_send_form($self->curl, "v1/customers/".$cus->{id}, $object);
+    }
+    else {
+        ($code, $data) = $self->_send_form($self->curl, "v1/customers", $object);
+    }
+    $session->{stripe_customer_id} = $data->{id};
+    return ($code, $data);
 }
 
 sub handle_hook {
@@ -286,11 +304,29 @@ sub send_mail_for_event {
     }
 }
 
+sub get_customer_by_email {
+    my ($self, $email) = @_;
+    my $curl = $self->curl;
+    my $path = "/v1/customers?email=".uri_escape($email)."&expand[]=data.subscriptions";
+    $self->_set_url($curl, $path);
+    my $res = $self->_do_request($curl);
+    return $res->{data}->[0];
+}
+
 sub get_customer {
     my ($self, $customer) = @_;
     my $curl = $self->curl;
-    my $path = "/v1/customers/$customer";
+    my $path = "/v1/customers/$customer?expand[]=subscriptions";
     $self->_set_url($curl, $path);
+    return $self->_do_request($curl);
+}
+
+sub cancel_subscription {
+    my ($self, $subscription_id) = @_;
+    my $curl = $self->curl;
+    my $path = "/v1/subscriptions/$subscription_id?prorate=true&invoice_now=true";
+    $self->_set_url($curl, $path);
+    $curl->setopt(CURLOPT_CUSTOMREQUEST, "DELETE");
     return $self->_do_request($curl);
 }
 
@@ -309,13 +345,60 @@ sub mandatoryFields {
     return qw(email);
 }
 
+sub handleCancelLink {
+    my ($self, $subscription_id, $query_args) = @_;
+    my $validator = $query_args->{validator};
+    my $wants_validator = hmac_sha1_hex($subscription_id.$self->id.$self->publishable_key, $self->secret_key);
+    if($validator eq $wants_validator) {
+        my ($status, $subscription) = $self->cancel_subscription($subscription_id); 
+        if(is_error($status) || !$subscription) {
+            if($status == 404) {
+                return ($FALSE, "This subscription has already been canceled.");
+            }
+            else {
+                return ($FALSE, "Unable to cancel your subscription. Please contact your local support staff.");
+            }
+        }
+        else {
+            get_logger->info("Canceled subscription $subscription_id");
+            return ($TRUE, "Canceled subscription");
+        }
+    }
+    else {
+        my $msg = "Validator of the request doesn't match the subscription ID.";
+        get_logger->error($msg);
+        return ($FALSE, $msg);
+    }
+}
+
+sub cancelLinkPath {
+    my ($self, $parameters, $tier, $session) = @_;
+    return "status/billing/cancel_subscription/".$self->id."/".$session->{subscription_id} . "?validator=" . hmac_sha1_hex($session->{subscription_id}.$self->id.$self->publishable_key, $self->secret_key);;
+}
+
+sub additionalConfirmationInfo {
+    my ($self, $parameters, $tier, $session) = @_;
+    if($session->{stripe_customer_id}) {
+        my ($status, $customer) = $self->get_customer($session->{stripe_customer_id});
+        if(is_error($status)) {
+            get_logger->error("Unable to fetch stripe customer: ".Dumper($customer));
+            return ();
+        }
+        $session->{subscription_id} = $customer->{subscriptions}->{data}->[0]->{id};
+        return (cancel_link => $self->cancelLinkPath($parameters, $tier, $session));
+    }
+    else {
+        return ();
+    }
+}
+
 =head1 AUTHOR
 
 Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2018 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 

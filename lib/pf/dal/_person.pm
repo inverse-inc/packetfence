@@ -68,6 +68,8 @@ BEGIN {
         custom_field_9
         portal
         source
+        psk
+        potd
     );
 
     %DEFAULTS = (
@@ -103,6 +105,8 @@ BEGIN {
         custom_field_9 => undef,
         portal => undef,
         source => undef,
+        psk => undef,
+        potd => 'no',
     );
 
     @INSERTABLE_FIELDS = qw(
@@ -138,6 +142,8 @@ BEGIN {
         custom_field_9
         portal
         source
+        psk
+        potd
     );
 
     %FIELDS_META = (
@@ -333,6 +339,22 @@ BEGIN {
             is_primary_key => 0,
             is_nullable => 1,
         },
+        psk => {
+            type => 'VARCHAR',
+            is_auto_increment => 0,
+            is_primary_key => 0,
+            is_nullable => 1,
+        },
+        potd => {
+            type => 'ENUM',
+            is_auto_increment => 0,
+            is_primary_key => 0,
+            is_nullable => 0,
+            enums_values => {
+                'no' => 1,
+                'yes' => 1,
+            },
+        },
     );
 
     @PRIMARY_KEYS = qw(
@@ -373,6 +395,8 @@ BEGIN {
         person.custom_field_9
         person.portal
         person.source
+        person.psk
+        person.potd
     );
 
 }
@@ -391,13 +415,13 @@ sub _defaults {
     return {%DEFAULTS};
 }
 
-=head2 field_names
+=head2 table_field_names
 
 Field names of person
 
 =cut
 
-sub field_names {
+sub table_field_names {
     return [@FIELD_NAMES];
 }
 
@@ -473,14 +497,14 @@ Get the meta data for person
 sub get_meta {
     return \%FIELDS_META;
 }
- 
+
 =head1 AUTHOR
 
 Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2018 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 

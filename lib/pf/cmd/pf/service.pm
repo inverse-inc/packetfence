@@ -14,37 +14,46 @@ pfcmd service <service> [start|stop|restart|status|generateconfig|updatesystemd]
 
 Services managed by PacketFence:
 
-  haproxy          | haproxy daemon
-  httpd.aaa        | Apache AAA webservice
-  httpd.admin      | Apache Web admin
-  httpd.collector  | Apache Collector daemon
-  httpd.dispatcher | Captive portal dispatcher
-  httpd.parking    | Apache Parking Portal
-  httpd.portal     | Apache Captive Portal
-  httpd.proxy      | Apache Proxy Interception
-  httpd.webservices| Apache Webservices
-  iptables         | PacketFence firewall rules
-  keepalived       | Virtual IP management
-  netdata          | Monitoring service
-  pf               | all services that should be running based on your config
-  pfbandwidthd     | A pf service to monitor bandwidth usages
-  pfdetect         | PF snort alert parser
-  pfdhcp           | dhcpd daemon
-  pfdhcplistener   | PF DHCP monitoring daemon
-  pfdns            | DNS daemon
-  pfipset          | IPSET daemon
-  pffilter         | PF conditions filtering daemon
-  pfmon            | PF monitoring daemon
-  pfqueue          | PF queueing service
-  pfsetvlan        | PF VLAN isolation daemon
-  pfstats          | PF statistics daemon
-  radiusd          | FreeRADIUS daemon
-  radsniff         | radsniff daemon
-  redis_ntlm_cache | Redis for the NTLM cache
-  redis_queue      | Redis for pfqueue
-  routes           | manage static routes
-  snmptrapd        | SNMP trap receiver daemon
-  winbindd         | Winbind daemon
+  api-frontend           | Golang daemon providing API
+  fingerbank-collector   | Fingerprinting data collection daemon
+  galera-autofix         | Automated recovery of Galera clusters
+  haproxy-admin          | haproxy admin daemon
+  haproxy-portal         | haproxy portal daemon
+  haproxy-db             | haproxy database daemon
+  httpd.aaa              | Apache AAA webservice
+  httpd.admin            | Apache Web admin
+  httpd.collector        | Apache Collector daemon
+  httpd.dispatcher       | Captive portal dispatcher
+  httpd.admin_dispatcher | Admin GUI dispatcher
+  httpd.portal           | Apache Captive Portal
+  httpd.proxy            | Apache Proxy Interception
+  httpd.webservices      | Apache Webservices
+  iptables               | PacketFence firewall rules
+  keepalived             | Virtual IP management
+  netdata                | Monitoring service
+  pfacct                 | Netflow and Radius Accounting service
+  pf                     | all services that should be running based on your config
+  pfcertmanager          | Certificate Manager Service
+  pfcron                 | PF Cron daemon
+  pfdetect               | PF snort alert parser
+  pfdhcp                 | dhcpd daemon
+  pfdhcplistener         | PF DHCP monitoring daemon
+  pfdns                  | DNS daemon
+  pfipset                | IPSET daemon
+  pffilter               | PF conditions filtering daemon
+  pfperl-api             | Perl daemon providing API
+  pfpki                  | PKI daemon
+  pfqueue                | PF queueing service
+  pfsso                  | Firewall SSO daemon
+  pfstats                | PF statistics daemon
+  radiusd                | FreeRADIUS daemon
+  radsniff               | radsniff daemon
+  redis_ntlm_cache       | Redis for the NTLM cache
+  redis_queue            | Redis for pfqueue
+  snmptrapd              | SNMP trap receiver daemon
+  tc                     | Traffic shaping service
+  tracking-config        | Tracking configuration change
+  winbindd               | Winbind daemon
 
 =head1 DESCRIPTION
 
@@ -57,13 +66,14 @@ use warnings;
 use base qw(pf::cmd);
 use IO::Interactive qw(is_interactive);
 use Term::ANSIColor;
-our ($SERVICE_HEADER, $IS_INTERACTIVE);
-our ($RESET_COLOR, $WARNING_COLOR, $ERROR_COLOR, $SUCCESS_COLOR);
+our ($SERVICE_HEADER);
+our $COLORS;
 use pf::log;
 use pf::file_paths qw($install_dir);
 use pf::config qw(%Config);
 use pf::config::util;
 use pf::util;
+use pf::util::console;
 use pf::constants;
 use pf::constants::exit_code qw($EXIT_SUCCESS $EXIT_FAILURE $EXIT_SERVICES_NOT_STARTED $EXIT_FATAL);
 use pf::services;
@@ -91,11 +101,19 @@ sub parseArgs {
     return 0 unless $service eq 'pf' || any { $_ eq $service} @pf::services::ALL_SERVICES;
 
     my ( @services, @managers );
-    if ($service eq 'pf' ) {
-        @services = @pf::services::ALL_SERVICES;
-    }
-    else {
-        @services = ($service);
+    if (($action eq 'updatesystemd' || $action eq 'generateconfig') && $service eq 'pf') {
+        @services = grep {$_ ne 'pf'} @pf::services::ALL_SERVICES;
+    } else {
+        if($cluster_enabled && $service eq 'pf') {
+            if ($action eq 'status') {
+                @services = ($service);
+            } else {
+                @services = ('haproxy-db','pf');
+            }
+        }
+        else {
+            @services = ($service);
+        }
     }
     $self->{service}  = $service;
     $self->{services} = \@services;
@@ -110,24 +128,27 @@ sub _run {
     my $services = $self->{services};
     my $action = $self->{action};
     $SERVICE_HEADER ="service|command\n";
-    $IS_INTERACTIVE = is_interactive();
-    $RESET_COLOR =  $IS_INTERACTIVE ? color 'reset' : '';
-    $WARNING_COLOR = $IS_INTERACTIVE ? color $YELLOW_COLOR : '';
-    $ERROR_COLOR = $IS_INTERACTIVE ? color $RED_COLOR : '';
-    $SUCCESS_COLOR = $IS_INTERACTIVE ? color $GREEN_COLOR : '';
+    $COLORS = pf::util::console::colors();
     my $actionHandler;
     $action =~ /^(.*)$/;
     $action = $1;
     $actionHandler = $ACTION_MAP{$action};
     $service =~ /^(.*)$/;
     $service = $1;
+    # On pfcmd pf status we don't want to run updatesystemd
+    # On pfcmd pf updatesystemd we don't want to run it twice
+    if ($service eq 'pf' && ($action ne 'status' && $action ne 'updatesystemd')) {
+        updateSystemd->($service, grep {$_ ne 'pf'} @pf::services::ALL_SERVICES);
+    }
+    my $output = "Service";
+    $output .= (" " x 49);
+    print "$COLORS->{status}${output}Status    PID$COLORS->{reset}\n" if  ($action ne 'updatesystemd' && $action ne 'generateconfig');
     return $actionHandler->($service,@$services);
 }
 
 sub postPfStartService {
     my ($managers) = @_;
-    my $count = true {$_->status ne '0'} @$managers;
-    pf::config::configreload(1) unless $count;
+    pf::config::configreload(1);
 }
 
 
@@ -140,8 +161,6 @@ sub startService {
         print "Service '$service' is not managed by PacketFence. Therefore, no action will be performed\n";
         return $EXIT_SUCCESS;
     }
-
-    print $SERVICE_HEADER;
 
     my $count = 0;
     postPfStartService(\@managers) if $service eq 'pf';
@@ -162,7 +181,14 @@ sub startService {
     if($checkupManagers && @$checkupManagers) {
         checkup( map {$_->name} @$checkupManagers);
         foreach my $manager (@$checkupManagers) {
-            _doStart($manager);
+            if ($manager->isManaged()) {
+                _doStart($manager);
+                _doStopSubServices() if ($manager->name eq 'pf');
+            } else {
+                _doUpdateSystemd($manager, $TRUE);
+                # Force stop
+                $manager->stop;
+            }
         }
     }
     return $EXIT_SUCCESS;
@@ -182,9 +208,13 @@ sub generateConfig {
 sub updateSystemd {
     my ( $service, @services ) = @_;
     my @managers = pf::services::getManagers( \@services );
-    print $SERVICE_HEADER;
+    my $show = $FALSE;
+    if ($service ne 'pf') {
+        print $SERVICE_HEADER;
+        $show = $TRUE;
+    }
     for my $manager (@managers) {
-        _doUpdateSystemd($manager);
+        _doUpdateSystemd($manager, $show);
     }
     system("sudo systemctl daemon-reload");
     return $EXIT_SUCCESS;
@@ -202,6 +232,7 @@ sub checkup {
         @services = @pf::services::ALL_SERVICES;
     }
 
+    print "Checking configuration sanity...\n";
     my @problems = pf::pfcmd::checkup::sanity_check(pf::services::service_list(@services));
     foreach my $entry (@problems) {
         chomp $entry->{$pf::pfcmd::checkup::MESSAGE};
@@ -222,23 +253,24 @@ sub checkup {
     }
 }
 
-sub _doStart {
-    my ($manager) = @_;
-    my $command;
-    my $color = '';
-    if($manager->status ne '0') {
-        $color =  $WARNING_COLOR;
-        $command = 'already started';
-    } else {
-        if($manager->start) {
-            $command = 'start';
-            $color =  $SUCCESS_COLOR;
-        } else {
-            $command = 'not started';
-            $color =  $ERROR_COLOR;
+sub _doStopSubServices {
+    my @services = grep {$_ ne 'pf'} @pf::services::ALL_SERVICES;
+    my @managers = pf::services::getManagers(\@services);
+    foreach my $manager (@managers) {
+        if (!$manager->isManaged()) {
+            $manager->stop();
         }
     }
-    print $manager->name,"|${color}${command}${RESET_COLOR}\n";
+}
+
+sub _doStart {
+    my ($manager) = @_;
+    if($manager->status ne '0' && $manager->name ne 'pf') {
+        $manager->print_status;
+    } else {
+        $manager->start;
+        $manager->print_status;
+    }
 }
 
 sub _doGenerateConfig {
@@ -247,40 +279,41 @@ sub _doGenerateConfig {
     my $color = '';
     if($manager->generateConfig()) {
         $command = 'config generated';
-        $color =  $SUCCESS_COLOR;
+        $color =  $COLORS->{success};
     } else {
         $command = 'config not generated';
-        $color =  $ERROR_COLOR;
+        $color =  $COLORS->{error};
     }
-    print $manager->name,"|${color}${command}${RESET_COLOR}\n";
+    print $manager->name,"|${color}${command}$COLORS->{reset}\n";
 }
 
 sub _doUpdateSystemd {
-    my ($manager) = @_;
+    my ($manager, $show) = @_;
     my $command;
     my $color = '';
     if ( $manager->isManaged ) {
         if ( $manager->sysdEnable() ) {
             $command = 'Service enabled';
-            $color   = $SUCCESS_COLOR;
+            $color =  $COLORS->{success};
         }
         else {
             $command = 'Service not enabled';
-            $color   = $ERROR_COLOR;
+            $color =  $COLORS->{error};
         }
     }
     else {
         if ( $manager->sysdDisable() ) {
             $command = 'Service disabled';
-            $color   = $SUCCESS_COLOR;
+            $color =  $COLORS->{success};
         }
         else {
             $command = 'Service not disabled';
-            $color   = $ERROR_COLOR;
+            $color =  $COLORS->{error};
         }
     }
-
-    print $manager->name, "|${color}${command}${RESET_COLOR}\n";
+    my $service = "packetfence-".$manager->name.".service";
+    $service .= (" " x (50 - length($service)));
+    print "$service\t${color}${command}$COLORS->{reset}\n" if $show;
 }
 
 sub getIptablesTechnique {
@@ -293,23 +326,13 @@ sub stopService {
     my ($service,@services) = @_;
     my @managers = pf::services::getManagers(\@services);
 
-    print $SERVICE_HEADER;
     foreach my $manager (@managers) {
-        my $command;
-        my $color = '';
         if($manager->status eq '0') {
-            $command = 'already stopped';
-            $color =  $WARNING_COLOR;
+            $manager->print_status;
         } else {
-            if($manager->stop) {
-                $color =  $SUCCESS_COLOR;
-                $command = 'stop';
-            } else {
-                $color =  $ERROR_COLOR;
-                $command = 'not stopped';
-            }
+            $manager->stop;
+            $manager->print_status;
         }
-        print $manager->name,"|${color}${command}${RESET_COLOR}\n";
     }
     if(isIptablesManaged($service)) {
         my $count = true { $_->status eq '0'  } @managers;
@@ -329,34 +352,66 @@ sub isIptablesManaged {
    return $_[0] eq 'pf' && isenabled($Config{services}{iptables})
 }
 
-sub restartService {
-    stopService(@_);
-    local $SERVICE_HEADER = '';
-    return startService(@_);
-}
-
 sub statusOfService {
     my ($service,@services) = @_;
     my @managers = pf::services::getManagers(\@services);
-    print "service|shouldBeStarted|pid\n";
-    my $notStarted = 0;
     foreach my $manager (@managers) {
-        my $color = '';
-        my $isManaged = $manager->isManaged;
-        my $status = $manager->status;
-        if($status eq '0' ) {
-            if ($isManaged && !$manager->optional) {
-                $color =  $ERROR_COLOR;
-                $notStarted++;
-            } else {
-                $color =  $WARNING_COLOR;
-            }
-        } else {
-            $color =  $SUCCESS_COLOR;
-        }
-        print $manager->name,"|${color}$isManaged|$status${RESET_COLOR}\n";
+        $manager->print_status;
     }
-    return ( $notStarted ? $EXIT_SERVICES_NOT_STARTED : $EXIT_SUCCESS)
+}
+
+sub restartService {
+    local $SERVICE_HEADER = '';
+    return _restartService(@_);
+}
+
+
+sub _doRestart {
+    my ($manager) = @_;
+    $manager->restart;
+    $manager->print_status;
+}
+
+sub _restartService {
+    my ($service,@services) = @_;
+    use sort qw(stable);
+    my @managers = pf::services::getManagers(\@services,JUST_MANAGED);
+
+    if ( !@managers ) {
+        print "Service '$service' is not managed by PacketFence. Therefore, no action will be performed\n";
+        return $EXIT_SUCCESS;
+    }
+
+    my $count = 0;
+    postPfStartService(\@managers) if $service eq 'pf';
+
+    my ($noCheckupManagers,$checkupManagers) = part { $_->shouldCheckup } @managers;
+
+    if($noCheckupManagers && @$noCheckupManagers) {
+        foreach my $manager (@$noCheckupManagers) {
+            _doRestart($manager);
+        }
+    }
+    # Just before the checkup we make sure that the configuration is correct in the cluster if applicable
+
+    if($cluster_enabled && $service eq 'pf') {
+        pf::cluster::handle_config_conflict();
+    }
+
+    if($checkupManagers && @$checkupManagers) {
+        checkup( map {$_->name} @$checkupManagers);
+        foreach my $manager (@$checkupManagers) {
+            if ($manager->isManaged()) {
+                _doRestart($manager);
+                _doStopSubServices() if ($manager->name eq 'pf');
+            } else {
+                _doUpdateSystemd($manager, $TRUE);
+                # Force stop
+                $manager->stop;
+            }
+        }
+    }
+    return $EXIT_SUCCESS;
 }
 
 =head1 AUTHOR
@@ -367,7 +422,7 @@ Minor parts of this file may have been contributed. See CREDITS.
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2018 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 

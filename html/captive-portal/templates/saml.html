@@ -1,10 +1,14 @@
-<div class="card layout layout--center">
-  <div class="layout__item u-2/3 u-1/1-palm">
-    <a href="/saml/redirect" class="btn btn--full">
-      <div class="flag flag--light">
-        <div class="flag__img">[% svgIcon(id='ic_account_circle_black_24px',size='small') %]</div>
-        <p class="flag__body layout--left">[% i18n_format("Click here to login on %s", source.description) %]</p>
-      </div>
-    </a>
+<!-- [% source.type %] -->
+<form action="/saml/redirect" method="GET">
+
+  <div class="c-card u-padding u-padding-top-none">
+    [% form.get_field('aup').render | none %]
   </div>
-</div>
+      
+  <script src="/common/aup-autosubmit.js"></script>
+
+  <button id="button" type="submit" name="submit" class="c-btn c-btn--primary u-1/1 c-card--hidden">
+      [% i18n('Login') %]
+  </button>
+
+</form>

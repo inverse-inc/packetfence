@@ -34,7 +34,7 @@ has_field 'host' =>
 
 has_field 'port' =>
   (
-   type => 'PosInteger',
+   type => 'Port',
    required => 1,
   );
 
@@ -57,12 +57,12 @@ has_field 'agent_download_uri' =>
 
 has_block definition =>
   (
-   render_list => [ qw(id type description category username password host port protocol api_uri oses agent_download_uri) ],
+   render_list => [ qw(id type description category username password host port protocol api_uri oses agent_download_uri apply_role role_to_apply autoregister) ],
   );
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2018 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 

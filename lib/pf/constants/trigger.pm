@@ -1,4 +1,5 @@
 package pf::constants::trigger;
+
 =head1 NAME
 
 pf::constants::trigger add documentation
@@ -15,8 +16,10 @@ use strict;
 use warnings;
 use base qw(Exporter);
 use Readonly;
-use pf::metadefender();
-use pf::file_paths qw($suricata_categories_file);
+use pf::file_paths qw(
+    $suricata_categories_file
+    $nexpose_categories_file
+);
 use File::Slurp;
 use pf::SwitchFactory;
 use pf::config qw(
@@ -25,27 +28,31 @@ use pf::config qw(
 );
 
 our @EXPORT_OK = qw(
-        $TRIGGER_TYPE_ACCOUNTING $TRIGGER_TYPE_DETECT $TRIGGER_TYPE_INTERNAL $TRIGGER_TYPE_MAC $TRIGGER_TYPE_NESSUS $TRIGGER_TYPE_OPENVAS $TRIGGER_TYPE_METADEFENDER $TRIGGER_TYPE_OS $TRIGGER_TYPE_USERAGENT $TRIGGER_TYPE_VENDORMAC $TRIGGER_TYPE_PROVISIONER $TRIGGER_TYPE_SWITCH $TRIGGER_TYPE_SWITCH_GROUP @VALID_TRIGGER_TYPES
+        $TRIGGER_TYPE_ACCOUNTING $TRIGGER_TYPE_CUSTOM $TRIGGER_TYPE_DETECT $TRIGGER_TYPE_INTERNAL $TRIGGER_TYPE_MAC $TRIGGER_TYPE_NESSUS $TRIGGER_TYPE_OPENVAS $TRIGGER_TYPE_OS $TRIGGER_TYPE_VENDORMAC $TRIGGER_TYPE_PROVISIONER $TRIGGER_TYPE_SWITCH $TRIGGER_TYPE_SWITCH_GROUP @VALID_TRIGGER_TYPES
+        $TRIGGER_TYPE_NEXPOSE_EVENT_STARTS_WITH
+        $TRIGGER_TYPE_SURICATA_EVENT
         $TRIGGER_ID_PROVISIONER
         $TRIGGER_MAP
+        $SURICATA_CATEGORIES
 );
 
-# Violation trigger types
+# SecurityEvent trigger types
 Readonly::Scalar our $TRIGGER_TYPE_ACCOUNTING => 'accounting';
+Readonly::Scalar our $TRIGGER_TYPE_CUSTOM => 'custom';
 Readonly::Scalar our $TRIGGER_TYPE_DETECT => 'detect';
 Readonly::Scalar our $TRIGGER_TYPE_INTERNAL => 'internal';
 Readonly::Scalar our $TRIGGER_TYPE_MAC => 'mac';
 Readonly::Scalar our $TRIGGER_TYPE_NESSUS => 'nessus';
+Readonly::Scalar our $TRIGGER_TYPE_NEXPOSE_EVENT_STARTS_WITH => 'nexpose_event_starts_with';
 Readonly::Scalar our $TRIGGER_TYPE_OPENVAS => 'openvas';
-Readonly::Scalar our $TRIGGER_TYPE_METADEFENDER => 'metadefender';
 Readonly::Scalar our $TRIGGER_TYPE_OS => 'os';
-Readonly::Scalar our $TRIGGER_TYPE_SURICATA_EVENT => 'suricata_event';
-Readonly::Scalar our $TRIGGER_TYPE_USERAGENT => 'useragent';
-Readonly::Scalar our $TRIGGER_TYPE_VENDORMAC => 'vendormac';
 Readonly::Scalar our $TRIGGER_TYPE_PROVISIONER => 'provisioner';
-Readonly::Scalar our $TRIGGER_ID_PROVISIONER => 'check';
-Readonly::Scalar our $TRIGGER_TYPE_SWITCH => 'switch';
+Readonly::Scalar our $TRIGGER_TYPE_SURICATA_EVENT => 'suricata_event';
 Readonly::Scalar our $TRIGGER_TYPE_SWITCH_GROUP => 'switch_group';
+Readonly::Scalar our $TRIGGER_TYPE_SWITCH => 'switch';
+Readonly::Scalar our $TRIGGER_TYPE_VENDORMAC => 'vendormac';
+
+Readonly::Scalar our $TRIGGER_ID_PROVISIONER => 'check';
 
 Readonly::Scalar our $SURICATA_CATEGORIES => sub {
     my %map;
@@ -56,19 +63,35 @@ Readonly::Scalar our $SURICATA_CATEGORIES => sub {
     return \%map;
 }->();
 
-Readonly::Scalar our $TRIGGER_MAP => {
+Readonly::Scalar our $NEXPOSE_CATEGORIES => sub {
+    my %map;
+    my @categories = split("\n", read_file($nexpose_categories_file));
+    foreach my $category (@categories){
+        $map{$category} = $category;
+    }
+    return \%map;
+}->();
+
+our $TRIGGER_MAP = {
   $TRIGGER_TYPE_INTERNAL => {
     "1100010" => "Rogue DHCP detection",
     "new_dhcp_info" => "DHCP packet received",
     "hostname_change" => "Hostname changed",
+    "connection_type_change" => "Connection transport changed",
     "parking_detected" => "Parking detected",
     "node_discovered" => "Node discovered",
+    "new_dhcp_info_from_managed_network" => "DHCP packet received from managed network",
+    "new_dhcp_info_from_production_network" => "DHCP packet received from production network",
+    "node_maintenance" => "Node maintenance",
+    "fingerbank_diff_score_too_low" => "Fingerbank Collector detected a network behavior that doesn't match the known profile",
+    "fingerbank_blacklisted_ips_threshold_too_high" => "Fingerbank Collector detected traffic to blacklisted IPs",
+    "fingerbank_blacklisted_ports" => "Fingerbank Collector detected traffic to blacklisted ports",
   },
   $TRIGGER_TYPE_PROVISIONER => {
     $TRIGGER_ID_PROVISIONER => "Check status",
   },
   $TRIGGER_TYPE_SURICATA_EVENT => $SURICATA_CATEGORIES,
-  $TRIGGER_TYPE_METADEFENDER => $pf::metadefender::METADEFENDER_RESULT_IDS,
+  $TRIGGER_TYPE_NEXPOSE_EVENT_STARTS_WITH => $NEXPOSE_CATEGORIES,
   $TRIGGER_TYPE_SWITCH => \%ConfigSwitchesList,
   $TRIGGER_TYPE_SWITCH_GROUP => \%ConfigSwitchesGroup,
 };
@@ -79,7 +102,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2018 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 

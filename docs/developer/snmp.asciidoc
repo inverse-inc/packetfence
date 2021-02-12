@@ -1,0 +1,34 @@
+//== SNMP
+
+=== Introduction
+
+Good places to start reading about SNMP are http://en.wikipedia.org/wiki/SNMP
+and http://www.net-snmp.org/.
+
+When working with SNMP, you'll sooner or later (in fact more sooner than later) be confronted with having
+to translate between OIDs and variable names. When the OIDs are part of the Cisco MIBs, you can use the
+following tool to do the translation: http://tools.cisco.com/Support/SNMP/public.jsp. Otherwise, you'll
+have to use `snmptranslate` for example and setup your own collection of MIBs, provided (hopefully) by
+the manufacturer of your network equipment.
+
+=== Obtaining switch and port information
+
+Below are some example of how to obtain simple switch and port information using SNMP. We'll assume that
+your switch understands SNMP v2, has the read community `public` defined and is reachable at `192.168.1.10`.
+
+==== Switch Type
+
+  snmpwalk -v 2c -c public 192.168.1.10 sysDescr
+
+==== Switchport indexes and descriptions
+
+  snmpwalk -v 2c -c public 192.168.1.10 ifDescr
+
+==== Switchport types
+
+  snmpwalk -v 2c -c public 192.168.1.10 ifType
+
+==== Switchport status
+
+  snmpwalk -v 2c -c public 192.168.1.10 ifAdminStatus
+  snmpwalk -v 2c -c public 192.168.1.10 ifOperStatus

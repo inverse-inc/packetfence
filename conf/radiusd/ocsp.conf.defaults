@@ -1,0 +1,7 @@
+[default]
+ocsp_enable = no
+ocsp_override_cert_url = yes
+ocsp_url = http://127.0.0.1:22225/api/v1/pki/ocsp
+ocsp_use_nonce = yes
+ocsp_timeout = 0
+ocsp_softfail = no

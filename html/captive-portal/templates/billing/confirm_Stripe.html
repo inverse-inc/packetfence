@@ -1,13 +1,13 @@
 [% INCLUDE 'billing/tier.html' %]
 
 <form action="/billing/[% billing.id %]/verify" method="POST" id="payment-form">
-  <div class="payment-errors media media--error u-p u-m hide">
-    <div class="media__img">[% flashIcon(level='error') %]</div>
-    <p class="media__body"></p>
+  <div class="payment-errors o-media o-media--error u-padding u-margin hide">
+    <div class="o-media__img">[% flashIcon(level='error') %]</div>
+    <p class="o-media__body"></p>
   </div>
 
-  <div class="layout layout--center u-mt">
-    <div class="layout__item u-2/3 u-1/1-palm">
+  <div class="o-layout o-layout--center u-margin-top">
+    <div class="o-layout__item u-1/1 u-2/3@tablet u-3/5@desktop">
 
       <div class="input-container">
         <label for="name">Name</label>
@@ -31,12 +31,9 @@
         <input class="u-1/2" type="number" placeholder="YYYY" data-stripe="exp-year"/>
       </div>
 
-      <div class="u-mt">
-        <button type="submit" name="submit-btn" class="btn btn--full">
-          <div class="flag">
-            <div class="flag__img">[% svgIcon(id='stripe-icon',size='small') %]</div>
-            <p class="flag__body">[% i18n("Continue") %]</p>
-          </div>
+      <div class="u-padding-vertical">
+        <button type="submit" name="submit-btn" class="c-btn c-btn--primary u-1/1">
+          [% i18n("Continue") %]
         </button>
       </div>
     </div>
@@ -46,8 +43,8 @@
 
 <script type="text/javascript" src="https://js.stripe.com/v2/"></script>
 <script id="variables" type="text/json">
-{
-  "publishable_key": "[% billing.publishable_key %]"
-}
+  {
+    "publishable_key": "[% billing.publishable_key %]"
+  }
 </script>
 <script type="text/javascript" src="/content/billing/stripe.js"></script>

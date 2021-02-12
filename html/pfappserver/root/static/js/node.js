@@ -73,15 +73,15 @@ var NodeView = function(options) {
 
     this.proxyClick(body, '#modalNode [href*="node"][href8="/delete"]', this.deleteNode);
 
-    this.proxyFor(body, 'show', 'a[data-toggle="tab"][href="#nodeViolations"]', this.loadTab);
+    this.proxyFor(body, 'show', 'a[data-toggle="tab"][href="#nodeSecurityEvents"]', this.loadTab);
 
     this.proxyFor(body, 'show', 'a[data-toggle="tab"][href="#nodeAdditionalTabView"]', this.loadTab);
 
     this.proxyFor(body, 'click', '[data-href*="/node"][data-href*="/tab_process"]', this.tabProcess);
 
-    this.proxyClick(body, '#modalNode [href*="/close/"]', this.closeViolation);
+    this.proxyClick(body, '#modalNode [href*="/close/"]', this.closeSecurityEvent);
 
-    this.proxyClick(body, '#modalNode [href*="/run/"]', this.runViolation);
+    this.proxyClick(body, '#modalNode [href*="/run/"]', this.runSecurityEvent);
 
     this.proxyClick(body, '#modalNode #reevaluateNode', this.reevaluateAccess);
     
@@ -89,7 +89,9 @@ var NodeView = function(options) {
     
     this.proxyClick(body, '#modalNode #restartSwitchport', this.restartSwitchport);
 
-    this.proxyClick(body, '#modalNode #addViolation', this.triggerViolation);
+    this.proxyClick(body, '#modalNode #addSecurityEvent', this.triggerSecurityEvent);
+    
+    this.proxyClick(body, '#modalNode #runRapid7Scan', this.runRapid7Scan);
 
     /* Update the advanced search form to the next page or sort the query */
     this.proxyClick(body, '.nodes .pagination a', this.searchPagination);
@@ -155,6 +157,10 @@ NodeView.prototype.readNode = function(e) {
             modal.find("form button[type=submit]").click(function() {
                 $(this, $(this).parents("form")).removeAttr("clicked");
                 $(this).attr("clicked", "true");
+            });
+            modal.on('hidden', function () {
+                modal.remove();
+                $("#modalNode").remove();
             });
             modal.modal({ show: true });
         },
@@ -361,13 +367,13 @@ NodeView.prototype.deleteNode = function(e) {
     });
 };
 
-NodeView.prototype.closeViolation = function(e) {
+NodeView.prototype.closeSecurityEvent = function(e) {
     e.preventDefault();
 
     var that = this;
     var btn = $(e.target);
     var row = btn.closest('tr');
-    var pane = $('#nodeViolations');
+    var pane = $('#nodeSecurityEvents');
     resetAlert(pane);
     this.nodes.get({
         url: btn.attr("href"),
@@ -380,13 +386,13 @@ NodeView.prototype.closeViolation = function(e) {
     });
 };
 
-NodeView.prototype.runViolation = function(e) {
+NodeView.prototype.runSecurityEvent = function(e) {
     e.preventDefault();
 
     var that = this;
     var btn = $(e.target);
     var row = btn.closest('tr');
-    var pane = $('#nodeViolations');
+    var pane = $('#nodeSecurityEvents');
     resetAlert(pane);
     this.nodes.get({
         url: btn.attr("href"),
@@ -399,21 +405,40 @@ NodeView.prototype.runViolation = function(e) {
     });
 };
 
-NodeView.prototype.triggerViolation = function(e) {
+NodeView.prototype.triggerSecurityEvent = function(e) {
     e.preventDefault();
 
     var modal = $('#modalNode');
     var modal_body = modal.find('.modal-body');
     var btn = $(e.target);
-    var option = modal.find('#vid').find(':selected');
+    var option = modal.find('#security_event_id').find(':selected');
     var href = option.attr("trigger_url");
-    var pane = $('#nodeViolations');
+    var pane = $('#nodeSecurityEvents');
     resetAlert(pane);
     this.nodes.get({
         url: href,
         success: function(data) {
             pane.html(data);
             pane.find('.switch').bootstrapSwitch();
+        },
+        errorSibling: pane.children().first()
+    });
+};
+
+NodeView.prototype.runRapid7Scan = function(e) {
+    e.preventDefault();
+
+    var modal = $('#modalNode');
+    var modal_body = modal.find('.modal-body');
+    var btn = $(e.target);
+    var option = modal.find('#rapid7ScanTemplateSelection').find(':selected');
+    var href = option.attr("trigger_url");
+    var pane = $('#runRapid7Scan').closest('div');
+    resetAlert(pane);
+    this.nodes.get({
+        url: href,
+        success: function(data) {
+            showSuccess(pane, data.status_msg);
         },
         errorSibling: pane.children().first()
     });

@@ -1,0 +1,18 @@
+name: Teardown
+testcases:
+- name: delete_all_backups
+  steps:
+    - type: exec
+      script: 'find {{.backup_db_and_restore.backup_dir}} -name "packetfence-*" -delete'
+
+- name: delete_user_in_db
+  steps:
+  - type: http
+    method: DELETE
+    url: '{{.pfserver_webadmin_url}}/api/v1/user/{{.backup_db_and_restore.user}}'
+    ignore_verify_ssl: true
+    headers:
+      "Authorization": "{{.pfserver_token}}"
+      "Content-Type": "application/json"
+    assertions:
+      - result.statuscode ShouldEqual 200

@@ -15,32 +15,100 @@ pf::UnifiedApi::Controller::Config::Subtype
 use strict;
 use warnings;
 use Mojo::Base qw(pf::UnifiedApi::Controller::Config);
+use pf::error qw(is_error);
 
 sub form_class_by_type {
     my ($self, $type) = @_;
+    if (!defined $type) {
+        return undef;
+    }
     my $lookup = $self->type_lookup;
     return exists $lookup->{$type} ? $lookup->{$type} : undef;
 }
 
 sub form {
-    my ($self, $item) = @_;
+    my ($self, $item, @args) = @_;
     my $type = $item->{type};
     if ( !defined $type ) {
-        $self->render_error(422, "Unable to validate", [{ type => "type field is required"}]);
-        return undef;
+        return 422, "Unable to validate: 'type field is required'";
     }
+
     my $class = $self->form_class_by_type($type);
-
     if ( !$class  ){
-        $self->render_error(422, "Unable to validate", [{ type => "type field is invalid '$type'"}]);
-        return undef;
+        return 422, "Unable to validate: 'type field is invalid '$type''";
+    }
+    my $parameters = $self->form_parameters($item);
+    if (!defined $parameters) {
+        return 422, "Invalid requests";
     }
 
-    return $class->new;
+    return 200, $class->new(@$parameters, @args, user_roles => $self->stash->{'admin_roles'});
 }
 
 sub type_lookup {
     return {}
+}
+
+sub cached_form_key {
+    my ($self, $item, @args) = @_;
+    return $self->form_class_by_type($item->{type});
+}
+
+=head2 options
+
+Handle the OPTIONS HTTP method
+
+=cut
+
+sub options {
+    my ($self) = @_;
+    my $params = $self->req->query_params->to_hash;
+    my ($status, $form) = $self->form( { type => $params->{type} } );
+    return $self->render(
+        json => (
+              is_error($status)
+            ? $self->options_with_no_type
+            : $self->options_from_form($form, $self->default_values)
+        ),
+        status => 200
+    );
+}
+
+=head2 options_with_no_type
+
+Return options with no type information
+
+=cut
+
+sub options_with_no_type {
+    my ($self) = @_;
+    my %output = (
+        meta => {
+            type => {
+                allowed => [
+                    map { $self->type_allowed_info($_) } keys %{$self->type_lookup}
+                ],
+                type => "string",
+                allow_custom => $self->json_false,
+            },
+        }
+    );
+
+    return \%output;
+}
+
+=head2 type_allowed_info
+
+Create the type's allowed info
+
+=cut
+
+sub type_allowed_info {
+    my ($self, $type) = @_;
+    return {
+        value => $type,
+        text => $type,
+    };
 }
 
 =head1 AUTHOR
@@ -49,7 +117,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2018 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 

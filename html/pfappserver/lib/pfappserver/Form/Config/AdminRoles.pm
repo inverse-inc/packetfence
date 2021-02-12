@@ -17,11 +17,14 @@ extends 'pfappserver::Base::Form';
 with qw(
     pfappserver::Base::Form::Role::Help
     pfappserver::Role::Form::RolesAttribute
+    pfappserver::Base::Form::Role::AllowedOptions
 );
 
 use pf::admin_roles;
+use pf::constants::config;
 use pf::constants::admin_roles qw(@ADMIN_ACTIONS);
 use pf::Authentication::constants;
+use List::MoreUtils qw(all);
 
 ## Definition
 has_field 'id' =>
@@ -115,9 +118,23 @@ has_field 'allowed_access_durations' =>
    element_attr => {'data-placeholder' => 'Click to add a admin roles' },
    tags => { after_element => \&help,
              help => 'A comma seperated list of access durations available to the admin user. If none are provided then the default access durations are used'},
+   apply => [
+        { check => \&check_allowed_access_durations, message => "One or many access durations are invalid" },
+   ],
   );
 
 sub build_do_form_wrapper{ 0 }
+
+=head2 check_allowed_access_durations
+
+check_allowed_access_durations
+
+=cut
+
+sub check_allowed_access_durations {
+    my ($value, $field) = @_;
+    return all { /$pf::constants::config::TIME_MODIFIER_RE/ } split(/\s*,\s*/, $value);
+}
 
 sub options_actions {
     my $self = shift;
@@ -125,13 +142,13 @@ sub options_actions {
     my %groups;
     my @options;
     foreach my $role (@ADMIN_ACTIONS) {
-        $role =~ m/^(.+?)(_(WRITE|READ|CREATE|UPDATE|DELETE|SET_ROLE|SET_ACCESS_DURATION|SET_UNREG_DATE|SET_ACCESS_LEVEL|SET_TIME_BALANCE|SET_BANDWIDTH_BALANCE|MARK_AS_SPONSOR|CREATE_MULTIPLE|READ_SPONSORED|SET_TENANT_ID))?$/;
+        $role =~ m/^(.+?)(_(WRITE|READ|CREATE|UPDATE|DELETE|SET_ROLE|SET_ACCESS_DURATION|SET_ROLE_FROM_SOURCE|SET_UNREG_DATE|SET_ACCESS_LEVEL|SET_TIME_BALANCE|SET_BANDWIDTH_BALANCE|MARK_AS_SPONSOR|CREATE_MULTIPLE|READ_SPONSORED|SET_TENANT_ID))?$/;
         $groups{$1} = [] unless $groups{$1};
         push(@{$groups{$1}}, { value => $role, label => $self->_localize($role) })
     }
 
     @options = map {
-        { group => $self->_localize($_), options => $groups{$_} }
+        { group => $self->_localize($_), options => $groups{$_}, value => '' }
     } sort keys %groups;
 
     return \@options;
@@ -145,7 +162,7 @@ The list of allowed access levels
 
 sub options_allowed_access_levels {
     my ($self) = @_;
-    return  [map { { label => $_, value => $_ } } keys %ADMIN_ROLES];
+    return map { { value => $_, label => $_ } } $self->form->allowed_access_levels();
 }
 
 =head2 options_roles
@@ -160,18 +177,16 @@ sub options_roles {
 
 =head2 options_allowed_actions
 
-TODO: documention
-
 =cut
 
 sub options_allowed_actions {
     my ($self) = @_;
-    return  map { {label => $_, value => $_} } keys %Actions::ACTION_CLASS_TO_TYPE;
+    return map { { value => $_, label => $_ } } $self->form->allowed_actions();
 }
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2018 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 

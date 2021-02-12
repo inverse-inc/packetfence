@@ -19,6 +19,7 @@ use pf::log;
 use captiveportal::DynamicRouting::Module::TLSEnrollment;
 use pf::util;
 use pf::provisioner;
+use pf::node;
 
 has 'skipable' => (is => 'rw', default => sub {'disabled'});
 
@@ -79,6 +80,21 @@ sub is_eap_tls {
     return $FALSE;
 }
 
+=head2 is_dpsk
+
+Check if we are doing dpsk enrollment
+
+=cut
+
+sub is_dpsk {
+    my ($self) = @_;
+    my $provisioner = $self->get_provisioner();
+    if(ref($provisioner) =~ /dpsk/) {
+        return $TRUE;
+    }
+    return $FALSE;
+}
+
 =head2 show_provisioning
 
 Show the provisioner template
@@ -86,11 +102,14 @@ Show the provisioner template
 =cut
 
 sub show_provisioning {
-    my ($self) = @_;
+    my ($self, $arg) = @_;
+    $arg = $arg // {},
     my $args = {
-        provisioner => $self->get_provisioner, 
-        skipable => isenabled($self->skipable), 
+        fingerbank_info => pf::node::fingerbank_info($self->current_mac, $self->node_info),
+        provisioner => $self->get_provisioner,
+        skipable => isenabled($self->skipable),
         title => ["Provisioning : %s",$self->get_provisioner->id],
+        %{$arg},
     };
     $self->render($self->get_provisioner->template, $args);
 }
@@ -105,6 +124,9 @@ sub execute_child {
     my ($self) = @_;
     my $provisioner = $self->get_provisioner();
     my $mac = $self->current_mac;
+
+    # Save the new node attributes since the provisioning workflow may bring the user outside of the portal (DPSK, WPA2 provisioning, etc)
+    node_modify($mac, %{$self->new_node_info});
     
     unless($provisioner){
         get_logger->info("No provisioner found for $mac. Continuing.");
@@ -120,11 +142,14 @@ sub execute_child {
     elsif ($self->app->request->parameters->{next} && isenabled($self->skipable)){
         $self->done();
     }
-    elsif ($provisioner->authorize($mac) == 0) {
+    elsif ($self->is_dpsk) {
+        $self->show_provisioning({psk => $provisioner->generate_dpsk($self->username), ssid => $provisioner->ssid});
+    }
+    elsif ($provisioner->authorize_enforce($mac) == 0) {
         $self->app->flash->{notice} = [ "According to the provisioner %s, your device is not allowed to access the network. Please follow the instruction below.", $provisioner->description ];
         $self->show_provisioning();
     }
-    elsif ($provisioner->authorize($mac) == $TRUE || $provisioner->authorize($mac) == $pf::provisioner::COMMUNICATION_FAILED) {
+    elsif ($provisioner->authorize_enforce($mac) == $TRUE || $provisioner->authorize_enforce($mac) == $pf::provisioner::COMMUNICATION_FAILED) {
         $self->done();
     }
     else {
@@ -138,7 +163,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2018 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 

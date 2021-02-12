@@ -18,6 +18,7 @@ has 'description' => (isa => 'Str', is => 'rw', required => 0);
 has 'match' => (isa => 'Maybe[Str]', is => 'rw', default => $Rules::ANY);
 has 'actions' => (isa => 'ArrayRef', is => 'rw', required => 0);
 has 'conditions' => (isa => 'ArrayRef', is => 'rw', required => 0);
+has 'cache_key' => (isa => 'Str', is => 'rw');
 
 sub add_action {
   my ($self, $action) = @_;
@@ -47,7 +48,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2018 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 

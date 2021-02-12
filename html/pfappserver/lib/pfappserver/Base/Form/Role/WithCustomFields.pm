@@ -21,6 +21,7 @@ has_field 'custom_fields' =>
    type => 'Select',
    multiple => 1,
    label => 'Mandatory fields',
+   value_when_empty => [],
    options_method => \&options_custom_fields,
    element_class => ['chzn-select'],
    element_attr => {'data-placeholder' => 'Click to add a required field'},
@@ -28,8 +29,21 @@ has_field 'custom_fields' =>
              help => 'The additionnal fields that should be required for registration' },
   );
 
+has_field 'fields_to_save' =>
+  (
+   type => 'Select',
+   multiple => 1,
+   value_when_empty => [],
+   label => 'Fields to save',
+   options_method => \&options_custom_fields,
+   element_class => ['chzn-select'],
+   element_attr => {'data-placeholder' => 'Click to add a field'},
+   tags => { after_element => \&help,
+             help => 'These fields will be saved through the registration process' },
+  );
+
 sub options_custom_fields {
-    return map {$_ => $_} @pf::person::PROMPTABLE_FIELDS;
+    return map { {value => $_ , label => $_ }} @pf::person::PROMPTABLE_FIELDS;
 }
 
 =head1 AUTHOR
@@ -38,7 +52,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2018 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 

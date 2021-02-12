@@ -4,9 +4,9 @@ import (
 	"bytes"
 	"context"
 	"fmt"
-	"net/http"
-	"github.com/inverse-inc/packetfence/go/log"
 	"github.com/gorilla/rpc/v2/json2"
+	"github.com/inverse-inc/packetfence/go/log"
+	"net/http"
 )
 
 type JSONRPC struct {
@@ -27,10 +27,10 @@ type JSONRPC_Args struct {
 // Create JSON-RPC request body
 func (fw *JSONRPC) getRequestBody(action string, info map[string]string, timeout int) ([]byte, error) {
 	args := &JSONRPC_Args{
-		User: info["username"],
-		MAC: info["mac"],
-		IP: info["ip"],
-		Role: info["role"],
+		User:    info["username"],
+		MAC:     info["mac"],
+		IP:      info["ip"],
+		Role:    info["role"],
 		Timeout: timeout,
 	}
 	body, err := json2.EncodeClientRequest(action, args)
@@ -39,7 +39,7 @@ func (fw *JSONRPC) getRequestBody(action string, info map[string]string, timeout
 
 // Make a JSON-RPC request
 // Returns an error unless the server acknowledges success
-func (fw *JSONRPC) makeRpcRequest(ctx context.Context, action string, info map[string]string, timeout int) (error) {
+func (fw *JSONRPC) makeRpcRequest(ctx context.Context, action string, info map[string]string, timeout int) error {
 	body, err := fw.getRequestBody(action, info, timeout)
 	if err != nil {
 		log.LoggerWContext(ctx).Error(fmt.Sprintf("Cannot encode JSON-RPC call: %s", err))

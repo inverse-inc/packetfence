@@ -15,8 +15,8 @@ use HTML::FormHandler::Moose;
 extends 'HTML::FormHandler::Field::Compound';
 with 'pfappserver::Base::Form::Role::Help';
 use namespace::autoclean;
-use PPIx::Regexp;
-use pf::util qw(isenabled);
+use pf::util qw(isenabled strip_filename_from_exceptions);
+use pf::constants::pfdetect;
 
 =head2 name
 
@@ -38,7 +38,7 @@ Regex
 =cut
 
 has_field 'regex' => (
-    type     => 'Regex',
+    type     => 'RE2',
     label    => 'Regex',
     element_class => ['input-xxlarge'],
     required => 1,
@@ -100,6 +100,21 @@ has_field 'ip_mac_translation' => (
     },
 );
 
+has_field 'rate_limit' => (
+    type    => 'Duration',
+    label   => 'Rate Limit',
+    default_method => sub {
+        {
+            unit => 's',
+            interval => 0,
+        }
+    },
+    tags    => {
+        after_element => \&help,
+        help => 'Rate limit requests.'
+    },
+);
+
 =head2 validate
 
 Validate the rule is valid
@@ -109,19 +124,31 @@ Validate the rule is valid
 sub validate {
     my ($self) = @_;
     my $rule = $self->value;
-    my $regex = '/' . $rule->{regex} . '/';
-    my $re = PPIx::Regexp->new($regex);
-    my %captures = map { $_ => 1 } $re->capture_names();
+    my $regex = $rule->{regex};
+    my $re = eval {
+        use re::engine::RE2 -strict => 1;
+        qr/$regex/
+    };
+    if ($@) {
+        my $error = strip_filename_from_exceptions($@);
+        $error =~ s/(\[|\])/~$1/g;
+        $regex =~ s/(\[|\])/~$1/g;
+        $self->field('regex')->add_error("Invalid RE2 regex : $error");
+        return;
+    }
+
+    my $captures = $re->named_captures();
     my $ip_mac_translation = isenabled($rule->{ip_mac_translation});
     foreach my $action_field ($self->field('actions')->fields()) {
         my $api_parameters_field = $action_field->field('api_parameters');
         my $api_parameters = $api_parameters_field->value;
         for my $replace (map {s/^\$//;$_} grep {/^\$/} split(/\s*,\s*/, $api_parameters)) {
-            next if exists $captures{$replace};
-            next if $ip_mac_translation && (($replace eq 'mac' && exists $captures{ip}) || ($replace eq 'ip' && exists $captures{mac}  ));
+            next if exists $captures->{$replace};
+            next if $ip_mac_translation && (($replace eq 'mac' && exists $captures->{ip}) || ($replace eq 'ip' && exists $captures->{mac}  ));
             $api_parameters_field->add_error("$replace is not a named capture");
         }
     }
+
     return;
 }
 
@@ -131,7 +158,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2018 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 

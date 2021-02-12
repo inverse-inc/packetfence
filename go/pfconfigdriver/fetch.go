@@ -11,6 +11,7 @@ import (
 	"net"
 	"os"
 	"reflect"
+	"regexp"
 	"time"
 
 	"github.com/inverse-inc/packetfence/go/log"
@@ -25,6 +26,23 @@ const pfconfigTestSocketPath string = "/usr/local/pf/var/run/pfconfig-test.sock"
 var pfconfigSocketPathCache string
 
 var SocketTimeout time.Duration = 60 * time.Second
+
+var myHostname string
+
+var myClusterName string
+
+var clusterSummary *ClusterSummary
+
+var nsHasOverlayRe = regexp.MustCompile(`.*\(.*\)$`)
+
+var isNamespaceConfiguration = regexp.MustCompile(`^Pfconfig`)
+var isNotNamespaceConfiguration = regexp.MustCompile(`(^PfconfigKeys$)`)
+
+func init() {
+	var err error
+	myHostname, err = os.Hostname()
+	sharedutils.CheckError(err)
+}
 
 // Get the pfconfig socket path depending on whether or not we're in testing
 // Since the environment is not bound to change at runtime, the socket path is computed once and cached in pfconfigSocketPathCache
@@ -46,12 +64,23 @@ type Query struct {
 	encoding string
 	method   string
 	ns       string
+	basens   string
 }
 
 // Get the payload to send to pfconfig based on the Query attributes
 // Also sets the payload attribute at the same time
 func (q *Query) GetPayload() string {
-	return fmt.Sprintf(`{"method":"%s", "key":"%s","encoding":"%s"}`+"\n", q.method, q.ns, q.encoding)
+	j, err := json.Marshal(struct {
+		Encoding string `json:"encoding"`
+		Method   string `json:"method"`
+		NS       string `json:"key"`
+	}{
+		Encoding: q.encoding,
+		Method:   q.method,
+		NS:       q.ns,
+	})
+	sharedutils.CheckError(err)
+	return string(j) + "\n"
 }
 
 // Get a string identifier of the query
@@ -152,6 +181,15 @@ func metadataFromField(ctx context.Context, param interface{}, fieldName string)
 	}
 }
 
+func normalizeNamespace(ctx context.Context, ns string) string {
+	//TODO: compile once
+	if res, _ := regexp.MatchString(`\)$`, ns); res {
+		return ns
+	} else {
+		return ns + "()"
+	}
+}
+
 // Decode the struct from bytes given an encoding
 // For now only JSON is supported
 func decodeInterface(ctx context.Context, encoding string, b []byte, o interface{}) {
@@ -176,6 +214,54 @@ func decodeJsonInterface(ctx context.Context, b []byte, o interface{}) {
 	}
 }
 
+func listPfconfigFields(ctx context.Context, t reflect.Type, previousFields []string) []string {
+	for i := 0; i < t.NumField(); i++ {
+		f := t.Field(i)
+		if f.Type.Kind() == reflect.Struct {
+			previousFields = append(previousFields, listPfconfigFields(ctx, f.Type, previousFields)...)
+		} else if isNamespaceConfiguration.MatchString(f.Name) && !isNotNamespaceConfiguration.MatchString(f.Name) {
+			previousFields = append(previousFields, f.Name)
+		}
+	}
+	fieldsMap := map[string]bool{}
+	for _, v := range previousFields {
+		fieldsMap[v] = true
+	}
+	fields := make([]string, len(fieldsMap), len(fieldsMap))
+	i := 0
+	for v, _ := range fieldsMap {
+		fields[i] = v
+		i++
+	}
+
+	return fields
+}
+
+func transferMetadata(ctx context.Context, o1 interface{}, o2 interface{}) {
+	var ov1 reflect.Value
+	var ov2 reflect.Value
+
+	ov1 = reflect.ValueOf(o1)
+	for ov1.Kind() == reflect.Ptr || ov1.Kind() == reflect.Interface {
+		ov1 = ov1.Elem()
+	}
+
+	ov2 = reflect.ValueOf(o2)
+	for ov2.Kind() == reflect.Ptr || ov2.Kind() == reflect.Interface {
+		ov2 = ov2.Elem()
+	}
+
+	t := ov1.Type()
+	fields := listPfconfigFields(ctx, t, []string{})
+	for _, field := range fields {
+		ov2.FieldByName(field).SetString(metadataFromField(ctx, o1, field))
+	}
+
+	o1 = ov1.Interface()
+	o2 = ov2.Interface()
+
+}
+
 // Create a pfconfig query given a PfconfigObject
 // Will extract the query information from the struct and will create the payload accordingly
 // The struct should declare the following fields to be compatible
@@ -184,26 +270,59 @@ func decodeJsonInterface(ctx context.Context, b []byte, o interface{}) {
 //		PfconfigHashNS - the hash element key when using the hash_element method, this attribute has no effect when using any other method
 func createQuery(ctx context.Context, o PfconfigObject) Query {
 	query := Query{}
-	query.ns = metadataFromField(ctx, o, "PfconfigNS")
+
+	query.basens = metadataFromField(ctx, o, "PfconfigNS")
+
+	if metadataFromField(ctx, o, "PfconfigHostnameOverlay") == "yes" && !nsHasOverlayRe.MatchString(query.basens) {
+		query.basens = query.basens + "(" + myHostname + ")"
+	}
+
+	if GetClusterSummary(ctx).ClusterEnabled == 1 {
+		if metadataFromField(ctx, o, "PfconfigClusterNameOverlay") == "yes" && !nsHasOverlayRe.MatchString(query.basens) {
+			clusterName := FindClusterName(ctx)
+			if clusterName == "" {
+				panic("Can't determine cluster name for this host")
+			}
+
+			query.basens = query.basens + "(" + clusterName + ")"
+		}
+	}
+
+	// Make sure the namespace is normalized
+	query.basens = normalizeNamespace(ctx, query.basens)
+
 	query.method = metadataFromField(ctx, o, "PfconfigMethod")
 	if query.method == "hash_element" {
-		query.ns = query.ns + ";" + metadataFromField(ctx, o, "PfconfigHashNS")
+		query.ns = query.basens + ";" + metadataFromField(ctx, o, "PfconfigHashNS")
+	} else {
+		query.ns = query.basens
 	}
 	query.encoding = "json"
 	return query
+}
+
+func FindClusterName(ctx context.Context) string {
+	if myClusterName == "" {
+		var res ClusterName
+		res.PfconfigHashNS = myHostname
+		FetchDecodeSocketCache(ctx, &res)
+		myClusterName = res.Element
+	}
+	return myClusterName
 }
 
 // Checks wheter the LoadedAt field of the PfconfigObject (set by FetchDecodeSocket) is before or after the timestamp of the namespace control file.
 // If the LoadedAt field was set before the namespace control file, then the resource isn't valid anymore
 // If the namespace control file doesn't exist, the resource is considered invalid
 func IsValid(ctx context.Context, o PfconfigObject) bool {
-	ns := metadataFromField(ctx, o, "PfconfigNS")
+	q := createQuery(ctx, o)
+	ns := q.basens
 	controlFile := "/usr/local/pf/var/control/" + ns + "-control"
 
 	stat, err := os.Stat(controlFile)
 
 	if err != nil {
-		log.LoggerWContext(ctx).Error(fmt.Sprintf("Cannot stat %s. Will consider resource as invalid"))
+		log.LoggerWContext(ctx).Error(fmt.Sprintf("Cannot stat %s. Will consider resource as invalid", controlFile))
 		return false
 	} else {
 		controlTime := stat.ModTime()
@@ -230,19 +349,38 @@ func FetchDecodeSocketCache(ctx context.Context, o PfconfigObject) (bool, error)
 	return true, err
 }
 
+// Fetch the keys of a namespace
+func FetchKeys(ctx context.Context, name string) ([]string, error) {
+	keys := PfconfigKeys{PfconfigNS: name}
+	err := FetchDecodeSocket(ctx, &keys)
+	if err != nil {
+		return nil, err
+	}
+
+	return keys.Keys, nil
+}
+
 // Fetch and decode a namespace from pfconfig given a pfconfig compatible struct
 // This will fetch the json representation from pfconfig and decode it into o
 // o must be a pointer to the struct as this should be used by reference
 func FetchDecodeSocket(ctx context.Context, o PfconfigObject) error {
+	ptrT := reflect.TypeOf(o)
+	new := reflect.New(ptrT.Elem())
+	newo := new.Interface().(PfconfigObject)
+
+	transferMetadata(ctx, &o, &newo)
+
+	reflect.ValueOf(o).Elem().Set(reflect.ValueOf(newo).Elem())
+
 	query := createQuery(ctx, o)
 
 	jsonResponse := FetchSocket(ctx, query.GetPayload())
 
 	if query.method == "keys" {
-		if cs, ok := o.(*PfconfigKeys); ok {
-			decodeInterface(ctx, query.encoding, jsonResponse, &cs.Keys)
+		if cs, ok := o.(PfconfigKeysInt); ok {
+			decodeInterface(ctx, query.encoding, jsonResponse, cs.GetKeys())
 		} else {
-			panic("Wrong struct type for keys. Required PfconfigKeys")
+			panic("Wrong struct type for keys. Required PfconfigKeysInt")
 		}
 	} else if metadataFromField(ctx, o, "PfconfigArray") == "yes" || metadataFromField(ctx, o, "PfconfigDecodeInElement") == "yes" {
 		decodeInterface(ctx, query.encoding, jsonResponse, &o)
@@ -260,4 +398,25 @@ func FetchDecodeSocket(ctx context.Context, o PfconfigObject) error {
 	o.SetLoadedAt(time.Now())
 
 	return nil
+}
+
+func GetClusterSummary(ctx context.Context) ClusterSummary {
+	if clusterSummary != nil {
+		return *clusterSummary
+	}
+
+	query := Query{}
+	query.ns = "resource::cluster_summary"
+	query.method = "element"
+	query.encoding = "json"
+
+	clusterSummary = &ClusterSummary{}
+
+	jsonResponse := FetchSocket(ctx, query.GetPayload())
+	receiver := &PfconfigElementResponse{}
+	decodeInterface(ctx, query.encoding, jsonResponse, receiver)
+	b, _ := receiver.Element.MarshalJSON()
+	decodeInterface(ctx, query.encoding, b, clusterSummary)
+
+	return *clusterSummary
 }

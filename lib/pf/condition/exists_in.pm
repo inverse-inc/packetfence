@@ -38,7 +38,7 @@ Matches if the argument exists in the hash
 =cut
 
 sub match {
-    my ($self,$arg) = @_;
+    my ($self,$arg,$args) = @_;
     return $FALSE if(!defined($arg));
     return exists ${$self->lookup}{$arg} ? $TRUE : $FALSE;
 }
@@ -50,7 +50,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2018 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 

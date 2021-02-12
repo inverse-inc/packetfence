@@ -1,82 +1,66 @@
 /config/role/{role_id}:
   delete:
-    parameters: []
+    description: Remove an item
+    operationId: api.v1.Config::Roles.remove
+    parameters:
+    - in: path
+      name: role_id
+      schema:
+        type: string
     responses:
       '204':
         description: Deleted a config item
-    summary: Delete a config item
+  description: pf::UnifiedApi::Controller::Config::Roles
   get:
-    parameters: []
-    requestBody:
-      content:
-        application/json:
-          schema:
-            properties:
-              id:
-                description: Name
-                type: string
-              max_nodes_per_pid:
-                description: The maximum number of nodes a user having this role can
-                  register.
-                type: integer
-              notes:
-                description: Description
-                type: string
-            required:
-            - id
-            - max_nodes_per_pid
-            type: object
-      required: true
+    description: Get an item
+    operationId: api.v1.Config::Roles.get
+    parameters:
+    - in: path
+      name: role_id
+      schema:
+        type: string
     responses:
-      '201':
-        $ref: '#/components/responses/Created'
+      '200':
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ConfigRole'
+        description: Item
       '400':
         $ref: '#/components/responses/BadRequest'
       '422':
         $ref: '#/components/responses/UnprocessableEntity'
   patch:
-    parameters: []
+    description: Update an item
+    operationId: api.v1.Config::Roles.update
+    parameters:
+    - in: path
+      name: role_id
+      schema:
+        type: string
     requestBody:
       content:
         application/json:
           schema:
-            properties:
-              max_nodes_per_pid:
-                description: The maximum number of nodes a user having this role can
-                  register.
-                type: integer
-              notes:
-                description: Description
-                type: string
-            required:
-            - max_nodes_per_pid
-            type: object
-      required: true
+            $ref: '#/components/schemas/ConfigRole'
     responses:
-      '201':
-        $ref: '#/components/responses/Created'
       '400':
         $ref: '#/components/responses/BadRequest'
       '422':
         $ref: '#/components/responses/UnprocessableEntity'
   put:
-    parameters: []
+    description: Replace an item
+    operationId: api.v1.Config::Roles.replace
+    parameters:
+    - in: path
+      name: role_id
+      schema:
+        type: string
     requestBody:
       content:
         application/json:
           schema:
-            properties:
-              max_nodes_per_pid:
-                description: The maximum number of nodes a user having this role can
-                  register.
-                type: integer
-              notes:
-                description: Description
-                type: string
-            required:
-            - max_nodes_per_pid
-            type: object
-      required: true
+            $ref: '#/components/schemas/ConfigRole'
     responses:
       '201':
         $ref: '#/components/responses/Created'

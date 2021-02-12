@@ -1,0 +1,88 @@
+name: Join domain
+version: 2
+testcases:
+- name: create_domain
+  steps:
+  - type: http
+    method: POST
+    url: '{{.pfserver_webadmin_url}}/api/v1/config/domains'
+    ignore_verify_ssl: true
+    body: >-
+      {
+        "ad_server": "{{.ad_mgmt_ip}}",
+        "bind_dn": null,
+        "bind_pass": null,
+        "dns_name": "{{.ad_dns_domain}}",
+        "dns_servers": "{{.ad_mgmt_ip}}",
+        "id": "{{.ad_domain_id}}",
+        "ntlm_cache": null,
+        "ntlm_cache_batch": "disabled",
+        "ntlm_cache_batch_one_at_a_time": "disabled",
+        "ntlm_cache_expiry": 3600,
+        "ntlm_cache_filter": "(&(samAccountName=*)(!(|(lockoutTime=>0)(userAccountControl:1.2.840.113556.1.4.803:=2))))",
+        "ntlm_cache_on_connection": "disabled",
+        "ntlm_cache_source": null,
+        "ntlmv2_only": null,
+        "ou": "Computers",
+        "registration": null,
+        "server_name": "%h",
+        "status": "enabled",
+        "sticky_dc": "*",
+        "workgroup": "{{.ad_domain_upper}}"
+      }
+    headers:
+      "Authorization": "{{.pfserver_token}}"
+      "Content-Type": "application/json"
+    assertions:
+      - result.statuscode ShouldEqual 201
+
+- name: join_domain
+  steps:
+  - type: http
+    method: POST
+    url: '{{.pfserver_webadmin_url}}/api/v1/config/domain/{{.ad_domain_id}}/join'
+    ignore_verify_ssl: true
+    body: >-
+      {
+        "id": "{{.ad_domain_id}}",
+        "username": "{{.ad_domain_admin_user}}@{{.ad_dns_domain}}",
+        "password": "{{.ad_domain_admin_password}}"
+      }
+    headers:
+      "Authorization": "{{.pfserver_token}}"
+      "Content-Type": "application/json"
+    assertions:
+      - result.statuscode ShouldEqual 202
+    vars:
+      task_id:
+        from: result.bodyjson.task_id
+
+  - type: http
+    method: GET
+    url: '{{.pfserver_webadmin_url}}/api/v1/pfqueue/task/{{.join_domain.task_id}}/status/poll'
+    ignore_verify_ssl: true
+    headers:
+      "Authorization": "{{.pfserver_token}}"
+      "Content-Type": "application/json"
+    assertions:
+      - result.statuscode ShouldEqual 200
+      - result.bodyjson.message ShouldEqual Completed
+      - result.bodyjson.progress ShouldEqual 100
+      - result.bodyjson.status ShouldEqual 200
+    # wait two minutes before failing
+    retry: 8
+    delay: 15
+
+- name: test_join
+  steps:
+  - type: http
+    method: GET
+    url: '{{.pfserver_webadmin_url}}/api/v1/config/domain/{{.ad_domain_id}}/test_join'
+    ignore_verify_ssl: true
+    headers:
+      "Authorization": "{{.pfserver_token}}"
+      "Content-Type": "application/json"
+    assertions:
+      - result.statuscode ShouldEqual 200
+      - result.bodyjson.status ShouldEqual 200
+      - result.bodyjson.message ShouldEqual "Join is OK"

@@ -48,18 +48,18 @@ has_field boarding_host => (
 );
 
 has_field boarding_port => (
-    type => 'Text',
+    type => 'Port',
     required => 1,
 );
 
 has_block definition =>
   (
-   render_list => [ qw(id type description category oses username password host android_download_uri ios_download_uri windows_phone_download_uri boarding_host boarding_port) ],
+   render_list => [ qw(id type description category oses username password host android_download_uri ios_download_uri windows_phone_download_uri boarding_host boarding_port apply_role role_to_apply autoregister) ],
   );
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2018 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 

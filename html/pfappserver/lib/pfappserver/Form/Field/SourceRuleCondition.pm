@@ -15,6 +15,7 @@ use pfappserver::Form::Field::DynamicList;
 use HTML::FormHandler::Moose;
 extends 'HTML::FormHandler::Field::Compound';
 use pf::Authentication::constants;
+use Net::LDAP::Filter;
 has '+widget_wrapper' => (default => 'Bootstrap');
 has '+inflate_default_method'=> ( default => sub { \&inflate } );
 has '+deflate_value_method'=> ( default => sub { \&deflate } );
@@ -117,9 +118,20 @@ sub deflate {
     return join(",", @{$value}{qw(attribute operator value)});
 }
 
+sub validate {
+    my ($self) = @_;
+    my $value = $self->value;
+    if ($value->{operator} eq $Conditions::MATCH_FILTER) {
+        my $filter = Net::LDAP::Filter->new($value->{value});
+        if (!defined $filter) {
+            $self->field('value')->add_error(Net::LDAP::Filter::errstr());
+        }
+    }
+}
+
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2018 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 

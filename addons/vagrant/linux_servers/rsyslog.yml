@@ -1,0 +1,26 @@
+- hosts: service_rsyslog
+  name: Manage rsyslog service
+  become: True
+
+  collections:
+    - debops.debops
+    - debops.roles01
+    - debops.roles02
+    - debops.roles03
+
+  roles:
+    - role: logrotate
+      logrotate__dependent_config:
+        - '{{ rsyslog__logrotate__dependent_config }}'
+
+    - role: rsyslog
+      vars:
+        # can be remove after release of debops 2.1.3
+        rsyslog__default_forward: '{{ (rsyslog__syslog_srv_rr | selectattr("target", "defined")
+                               | list | sort)
+                              if (rsyslog__syslog_srv_rr and
+                                  "NXDOMAIN" not in rsyslog__syslog_srv_rr and
+                                  rsyslog__syslog_srv_rr[0] and
+                                  not rsyslog__remote_enabled|bool and
+                                  rsyslog__pki|bool)
+                              else [] }}'

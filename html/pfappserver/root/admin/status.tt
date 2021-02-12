@@ -1,5 +1,6 @@
 [%  jsFiles = [
         'admin/status',
+        'js/vendor/fitty.min'
         ]
      cssFiles = [
         'admin/status',
@@ -12,18 +13,27 @@
               <li class="divider-horizontal"></li>
             </ul>
             <ul class="nav nav-list">
-              [%- IF can_access("REPORTS") %]
-              <li><a href="#graph/dashboard">[% l('Dashboard') %]</a></li>
-              <li><a href="#graph/systemstate">[% l('System state') %]</a></li>
-              <li><a href="#graph/logstate">[% l('Logs state') %]</a></li>
+              [%- IF can_access("REPORTS_READ") %]
+              <li class="section active">
+                <a href="#graph/dashboard">[% l('Dashboard') %]</a>
+                <ul class="nav nav-list">
+                  <li class="sidenav-subsection active"><a href="#graph/dashboard" data-tab="dashboard-tabs/system">[% l('System') %]</a></li>
+                  <li class="sidenav-subsection"><a href="#graph/dashboard?tab=radius" data-tab="dashboard-tabs/radius">RADIUS</a></li>
+                  <li class="sidenav-subsection"><a href="#graph/dashboard?tab=authentication" data-tab="dashboard-tabs/authentication">[% l('Authentication') %]</a></li>
+                  [% IF listen_ints.size > 0 %]<li class="sidenav-subsection"><a href="#graph/dashboard?tab=dhcp" data-tab="dashboard-tabs/dhcp">DHCP</a></li>[% END %]
+                  <li class="sidenav-subsection"><a href="#graph/dashboard?tab=endpoints" data-tab="dashboard-tabs/endpoints">[% l('Endpoints') %]</a></li>
+                  <li class="sidenav-subsection"><a href="#graph/dashboard?tab=portal" data-tab="dashboard-tabs/portal">[% l('Portal') %]</a></li>
+                  <li class="sidenav-subsection"><a href="#graph/dashboard?tab=queue" data-tab="dashboard-tabs/queue">[% l('Queue') %]</a></li>
+                </ul>
+              </li>
               [%- END %]
-              [%- IF can_access("SERVICES") %]
+              [%- IF can_access("SERVICES_READ") %]
               <li><a href="#service">[% l('Services') %]</a></li>
               [%- END %]
-              [%- IF can_access("SERVICES") && cluster_enabled %]
+              [%- IF can_access("SERVICES_READ") && cluster_enabled %]
               <li><a href="#service/cluster_status">[% l('Cluster state') %]</a></li>
               [%- END %]
-              [%- IF can_access("SERVICES") %]
+              [%- IF can_access("SERVICES_READ") %]
               <li class="nav-header">[% l('Queue') %]</li>
               <li><a href="#pfqueue">[% l('Local Queue') %]</a></li>
               [% IF cluster_enabled %]
@@ -39,6 +49,6 @@
     </div>
     <div class="row-fluid">
       <div class="container-fluid offset3 span15 span18-navbarcollapse">
-        <div id="section" class="card">
+        <div id="section">
         </div>
       </div><!--/row-->

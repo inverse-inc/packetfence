@@ -104,7 +104,7 @@ Readonly::Scalar our $CREATED                           => 201;
 #Readonly::Scalar our $TEMPORARY_REDIRECT               => 307;
 
 Readonly::Scalar our $BAD_REQUEST                      => 400;
-#Readonly::Scalar our $UNAUTHORIZED                     => 401;
+Readonly::Scalar our $UNAUTHORIZED                     => 401;
 #Readonly::Scalar our $PAYMENT_REQUIRED                 => 402;
 Readonly::Scalar our $FORBIDDEN                         => 403;
 Readonly::Scalar our $NOT_FOUND                         => 404;
@@ -122,18 +122,18 @@ Readonly::Scalar our $PRECONDITION_FAILED               => 412;
 #Readonly::Scalar our $REQUEST_RANGE_NOT_SATISFIABLE    => 416;
 #Readonly::Scalar our $EXPECTATION_FAILED               => 417;
 #Readonly::Scalar our $I_AM_A_TEAPOT                    => 418;
-#Readonly::Scalar our $UNPROCESSABLE_ENTITY             => 422;
+Readonly::Scalar our $UNPROCESSABLE_ENTITY             => 422;
 #Readonly::Scalar our $LOCKED                           => 423;
 #Readonly::Scalar our $FAILED_DEPENDENCY                => 424;
 #Readonly::Scalar our $NO_CODE                          => 425;
 #Readonly::Scalar our $UPGRADE_REQUIRED                 => 426;
-#Readonly::Scalar our $PRECONDITION_REQUIRED            => 428;
+Readonly::Scalar our $PRECONDITION_REQUIRED            => 428;
 #Readonly::Scalar our $TOO_MANY_REQUESTS                => 429;
 #Readonly::Scalar our $REQUEST_HEADER_FIELDS_TOO_LARGE  => 431;
 #Readonly::Scalar our $RETRY_WITH                       => 449;
 
 Readonly::Scalar our $INTERNAL_SERVER_ERROR            => 500;
-#Readonly::Scalar our $NOT_IMPLEMENTED                  => 501;
+Readonly::Scalar our $NOT_IMPLEMENTED                  => 501;
 #Readonly::Scalar our $BAD_GATEWAY                      => 502;
 #Readonly::Scalar our $SERVICE_UNAVAILABLE              => 503;
 #Readonly::Scalar our $GATEWAY_TIMEOUT                  => 504;
@@ -152,7 +152,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2018 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 

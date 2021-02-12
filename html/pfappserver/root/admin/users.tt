@@ -125,7 +125,6 @@
                             <option value="gender">[% l('gender') %]</option>
                             <option value="lang">[% l('lang') %]</option>
                             <option value="nickname">[% l('nickname') %]</option>
-                            <option value="organization">[% l('organization') %]</option>
                             <option value="cell_phone">[% l('cell_phone') %]</option>
                             <option value="work_phone">[% l('work_phone') %]</option>
                             <option value="title">[% l('title') %]</option>
@@ -176,7 +175,6 @@
                             <option value="gender">[% l('gender') %]</option>
                             <option value="lang">[% l('lang') %]</option>
                             <option value="nickname">[% l('nickname') %]</option>
-                            <option value="organization">[% l('organization') %]</option>
                             <option value="cell_phone">[% l('cell_phone') %]</option>
                             <option value="work_phone">[% l('work_phone') %]</option>
                             <option value="title">[% l('title') %]</option>

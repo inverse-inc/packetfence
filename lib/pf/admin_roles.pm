@@ -23,7 +23,7 @@ use pf::db qw(db_check_readonly);
 use pf::constants::admin_roles qw(@ADMIN_ACTIONS %ADMIN_NOT_IN_READONLY);
 use DateTime::Format::Strptime;
 
-our @EXPORT = qw(admin_can admin_can_do_any admin_can_do_any_in_group %ADMIN_ROLES admin_allowed_options admin_allowed_options_all check_allowed_unreg_date);
+our @EXPORT = qw(admin_can admin_can_do_any admin_can_do_any_in_group %ADMIN_ROLES admin_allowed_options admin_allowed_options_all check_allowed_unreg_date check_allowed_options);
 our %ADMIN_ROLES;
 tie %ADMIN_ROLES, 'pfconfig::cached_hash', 'config::AdminRoles';
 
@@ -31,21 +31,21 @@ our %ADMIN_GROUP_ACTIONS = (
     CONFIGURATION_GROUP_READ => [
         qw( CONFIGURATION_MAIN_READ CONNECTION_PROFILES_READ
           ADMIN_ROLES_READ  INTERFACES_READ SWITCHES_READ FLOATING_DEVICES_READ
-          USERS_ROLES_READ  USERS_SOURCES_READ VIOLATIONS_READ
+          USERS_ROLES_READ  USERS_SOURCES_READ SECURITY_EVENTS_READ
           FINGERPRINTS_READ MAC_READ DOMAIN_READ
           FINGERBANK_READ FIREWALL_SSO_READ REALM_READ SCAN_READ
           WMI_READ PKI_PROVIDER_READ WRIX_READ FILTERS_READ PORTAL_MODULE_READ
-          DEVICE_REGISTRATION_READ
+          SELF_SERVICE_READ
           )
       ],
     LOGIN_GROUP => [
-        qw( SERVICES REPORTS USERS_READ NODES_READ CONFIGURATION_MAIN_READ
+        qw( SERVICES_READ REPORTS_READ USERS_READ NODES_READ CONFIGURATION_MAIN_READ
           CONNECTION_PROFILES_READ PROVISIONING_READ ADMIN_ROLES_READ INTERFACES_READ
           SWITCHES_READ FLOATING_DEVICES_READ USERS_ROLES_READ USERS_SOURCES_READ
-          VIOLATIONS_READ FINGERPRINTS_READ MAC_READ
+          SECURITY_EVENTS_READ FINGERPRINTS_READ MAC_READ
           FINGERBANK_READ FIREWALL_SSO_READ REALM_READ DOMAIN_READ SCAN_READ
           WMI_READ PKI_PROVIDER_READ WRIX_READ FILTERS_READ PORTAL_MODULE_READ
-          USERS_READ_SPONSORED AUDITING_READ DEVICE_REGISTRATION_READ
+          USERS_READ_SPONSORED AUDITING_READ SELF_SERVICE_READ
           )
       ],
 );
@@ -115,6 +115,23 @@ sub admin_allowed_options {
     return uniq @options;
 }
 
+=head2 check_allowed_options
+
+check_allowed_options
+
+=cut
+
+sub check_allowed_options {
+    my ($roles, $option, @check) = @_;
+    my @options = admin_allowed_options($roles, $option);
+    if (@options == 0) {
+        return 1;
+    }
+
+    my %valid = map { $_ => undef } @options;
+    return all { exists $valid{$_} } @check;
+}
+
 =head2 check_allowed_unreg_date
 
 Check if the unreg date can be assigned by the user
@@ -171,7 +188,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2018 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 

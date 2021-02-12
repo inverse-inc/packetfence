@@ -237,6 +237,7 @@ sub add_fake_profile_data {
     my ($self, $c) = @_;
     $c->stash(
         logo        => $Config{'general'}{'logo'},
+        timer       => $Config{'captive_portal'}{'network_redirect_delay'},
         client_mac  => '00:11:22:33:44:55',
         client_ip   => '1.2.3.4',
         username    => 'mcrispin',
@@ -265,11 +266,6 @@ sub add_fake_profile_data {
 
 sub getForm {
     my ($self, $c, @args) = @_;
-    unless (@args || (exists $c->stash->{current_form} && defined $c->stash->{current_form} )) {
-        if (exists $c->action->{form} && defined (my $form = $c->action->{form})) {
-            push @args,$form;
-        }
-    }
     return $c->form(@args);
 }
 
@@ -290,7 +286,7 @@ sub getModel {
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2018 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 

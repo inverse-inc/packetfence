@@ -1,26 +1,26 @@
+# Copyright (C) Inverse inc.
 #
-# Copyright (C) 2005-2018 Inverse inc.
+#
 #
 # See the enclosed file COPYING for license information (GPL).
 # If you did not receive this file, see
 # http://www.fsf.org/licensing/licenses/gpl.html
 
 [default]
-type=Generic
+type=PacketFence::Standard
 description=Switches Default Values
 vlans = 1,2,3,4,5
 normalVlan = 1
 registrationVlan = 2
 isolationVlan = 3
-macDetectionVlan = 4
 voiceVlan = 5
 inlineVlan = 6
 REJECTVlan = -1
 inlineTrigger = 
-normalRole = normal
-registrationRole = registration
-isolationRole = isolation
-macDetectionRole = macDetection
+normalRole = 
+registrationRole =
+isolationRole =
+macDetectionRole =
 voiceRole = voice
 inlineRole = inline
 VoIPEnabled = N

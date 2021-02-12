@@ -1,3 +1,7 @@
+# PacketFence
+
+[![pipeline status](https://gitlab.com/inverse-inc/packetfence/badges/devel/pipeline.svg)](https://gitlab.com/inverse-inc/packetfence/commits/devel)
+
 ## What is PacketFence?
 
 PacketFence is a fully supported, trusted, Free and Open Source
@@ -16,9 +20,9 @@ Follow the instructions provided in the [Administration Guide](https://packetfen
 
 ## More Information
 
-Noteworthy changes since the last release see the [NEWS](https://github.com/inverse-inc/packetfence/blob/devel/NEWS.asciidoc) file.
+Noteworthy changes since the last release see the [NEWS file](https://github.com/inverse-inc/packetfence/blob/devel/NEWS.asciidoc).
 
-Upgrading? See the [UPGRADE](https://github.com/inverse-inc/packetfence/blob/devel/UPGRADE.asciidoc) file.
+Upgrading? See the [Upgrade Guide](https://github.com/inverse-inc/packetfence/blob/devel/docs/PacketFence_Upgrade_Guide.asciidoc.asciidoc).
 
 For more details and developer visible changes see the [project's page on Github](https://github.com/inverse-inc/packetfence).
 
@@ -75,6 +79,7 @@ PacketFence is available in various languages. The following list describes the 
 * English - Inverse inc.
 * Brazilian Portuguese - Diego de Souza Lopes
 * French - Inverse inc.
+* Norwegian
 * Polish - Maciej Uhlig
 * Spanish (Spain) - Dominique Couot
 

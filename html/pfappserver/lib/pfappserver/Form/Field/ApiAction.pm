@@ -45,7 +45,6 @@ has_field api_parameters => (
     type => 'Text',
     do_label => 0,
     required => 1,
-    default => ' ',
     widget_wrapper => 'None',
     element_class => ['input-xxlarge'],
 );
@@ -82,8 +81,18 @@ Provide a list of api methods
 
 sub options_api_method {
     my ($self) = @_;
-    return {value => '', label => '--- choose ---'}, map {/^pf::api::(.*)$/;{value => $1, label => $1}} keys %pf::api::attributes::ALLOWED_ACTIONS;
-
+    return { value => '', label => '--- choose ---' }, map {
+        /^pf::api::(.*)$/;
+        {
+            value   => $1,
+            label   => $1,
+            sibling => {
+                api_parameters => {
+                    default => $pf::api::attributes::ALLOWED_ACTIONS{$_}
+                }
+            }
+        }
+    } sort keys %pf::api::attributes::ALLOWED_ACTIONS;
 }
 
 pf::api::attributes::updateAllowedAsActions();
@@ -94,7 +103,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2018 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 

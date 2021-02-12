@@ -1,0 +1,49 @@
+<mjml>
+  <mj-head>
+    <mj-include path="_header.mjml" />
+    <mj-preview>[% i18n("An account has been created for you to access our network.") %]</mj-preview>
+  </mj-head>
+  <mj-body>
+    <mj-section></mj-section>
+    <mj-wrapper>
+      <mj-section>
+        <mj-column>
+          <mj-text mj-class="title">[% i18n("PreRegistration") %]</mj-text>
+        </mj-column>
+      </mj-section>
+      <mj-section>
+        <mj-column>
+          <mj-divider></mj-divider>
+        </mj-column>
+      </mj-section>
+      <mj-section padding-top="0">
+        <mj-column>
+          <mj-text>
+            <p style="padding-bottom: 20px">[% i18n("Hello") %] [% firstname %] [% lastname %]</p>
+            <p>[% i18n("An account has been created for you to access our network.") %]</p>
+            <p>[% i18n("Once you will be on-site, authenticate using the following credentials to our captive portal") %]:</p>
+          </mj-text>
+        </mj-column>
+      </mj-section>
+      <mj-section padding-top="0">
+        <mj-column width="50%">
+          <mj-text align="left">
+            <p class="label">[% i18n("Username") %]</p>
+            <p class="value">[% username %]</p>
+            <p class="label">[% i18n("Password") %]</p>
+            <p class="value">[% password %]</p>
+          </mj-text>
+        </mj-column>
+      </mj-section>
+      <mj-section padding-top="0">
+        <mj-column>
+          <mj-text>
+            <p>[% i18n("This username and password will be valid starting") %] [% valid_from %]. [% txt_expiration %] [% txt_duration %]</p>
+            <p>[% i18n ("Please ignore this request if you have not requested network access.") %]</p>
+          </mj-text>
+        </mj-column>
+      </mj-section>
+    </mj-wrapper>
+    <mj-include path="_footer.mjml" />
+  </mj-body>
+</mjml>

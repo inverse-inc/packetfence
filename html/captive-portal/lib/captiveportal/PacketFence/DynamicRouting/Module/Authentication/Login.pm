@@ -69,6 +69,8 @@ sub sources_classes {
         "pf::Authentication::Source::EAPTLSSource",
         "pf::Authentication::Source::HTTPSource",
         "pf::Authentication::Source::RADIUSSource",
+        "pf::Authentication::Source::PotdSource",
+        "pf::Authentication::Source::AuthorizationSource",
     ];
 }
 
@@ -121,6 +123,7 @@ Authenticate the POSTed username and password
 sub authenticate {
     my ($self, $user) = @_;
     my $username = $user || $self->request_fields->{$self->pid_field};
+    my $pid = $self->request_fields->{$self->pid_field} || $username;
     my $password = $self->request_fields->{password};
 
     my ($stripped_username, $realm) = strip_username($username);
@@ -200,6 +203,7 @@ sub authenticate {
               }, @{$sources} );
         if (!defined $return || $return == $LOGIN_FAILURE) {
             pf::auth_log::record_auth(join(',',map { $_->id } @{$sources}), $self->current_mac, $username, $pf::auth_log::FAILED, $self->app->profile->name);
+            $self->on_action('on_failure');
             $self->app->flash->{error} = $message;
             $self->prompt_fields();
             return;
@@ -209,7 +213,6 @@ sub authenticate {
         $self->username($username);
         $self->source(pf::authentication::getAuthenticationSource($source_id));
         if ( $return == $LOGIN_SUCCESS ) {
-
             if($self->source->type eq "SQL"){
                 unless(pf::password::consume_login($username)){
                     $self->app->flash->{error} = "Account has used all of its available logins";
@@ -221,6 +224,7 @@ sub authenticate {
             pf::auth_log::record_auth($source_id, $self->current_mac, $username, $pf::auth_log::COMPLETED, $self->app->profile->name);
             # Logging USER/IP/MAC of the just-authenticated user
             get_logger->info("Successfully authenticated ".$username);
+            $self->on_action('on_success');
         } elsif ($return == $LOGIN_CHALLENGE) {
             $self->challenge_data($message);
             $self->display_challenge();
@@ -228,7 +232,8 @@ sub authenticate {
         }
     }
 
-    pf::lookup::person::async_lookup_person($username,$self->source->id);
+    $self->username($pid);
+    pf::lookup::person::async_lookup_person($username,$self->source->id,$pf::constants::realm::PORTAL_CONTEXT);
     $self->update_person_from_fields();
     $self->done();
 }
@@ -292,13 +297,28 @@ sub clean_username {
 
 sub allowed_urls_auth_module { ['/challenge'] }
 
+=head2 on_action
+
+change the root portal module if an action is define
+
+=cut
+
+sub on_action {
+    my ($self, $action) = @_;
+    if ($self->actions->{$action} && @{$self->actions->{$action}} > 0) {
+        $self->app->session->{'sub_root_module_id'} = @{$self->actions->{$action}}[0];
+        $self->redirect_root();
+        $self->detach;
+    }
+}
+
 =head1 AUTHOR
 
 Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2018 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 

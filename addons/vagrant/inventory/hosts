@@ -1,0 +1,201 @@
+---
+# inventory file use by Vagrantfile
+# to create VMs
+# also use as a Ansible inventory file to provision VMs
+all:
+  children:
+
+    cumulus:
+      hosts:
+        switch01:
+          # IP used by helper_scripts and Ansible, not Vagrant
+          mgmt_ip: 172.17.17.201
+          ansible_host: "{{ mgmt_ip }}"
+
+    nodes:
+      hosts:
+        node01:
+          # IP used by helper_scripts and Ansible, not Vagrant
+          mgmt_ip: 172.17.17.251
+          ansible_host: "{{ mgmt_ip }}"
+
+    winservers:
+      hosts:
+        ad:
+          box: jborean93/WindowsServer2016
+          mgmt_ip: 172.17.17.100
+          mgmt_netmask: 255.255.255.0
+          ansible_host:  "{{ mgmt_ip }}"
+          cpus: 2
+          memory: 2048
+
+    wireless:
+      hosts:
+        wireless01:
+          box: debian/buster64
+          mgmt_ip: 172.17.17.210
+          mgmt_netmask: 255.255.255.0
+          ansible_host: "{{ mgmt_ip }}"
+          cpus: 1
+          memory: 1024
+
+    service_venom:
+      hosts:
+        wireless01: {}
+
+    linux_servers:
+      hosts:
+        linux01:
+          box: debian/buster64
+          mgmt_ip: 172.17.17.101
+          mgmt_netmask: 255.255.255.0
+          ansible_host:  "{{ mgmt_ip }}"
+          cpus: 1
+          memory: 512
+        linux02:
+          box: debian/buster64
+          mgmt_ip: 172.17.17.102
+          mgmt_netmask: 255.255.255.0
+          ansible_host:  "{{ mgmt_ip }}"
+          cpus: 1
+          memory: 512          
+
+    service_rsyslog:
+      hosts:
+        linux01: {}
+
+    service_dhcpd:
+      hosts:
+        linux02: {}
+
+    stable_and_nightly:
+      children:
+        stable:
+          hosts:
+            pfcen7stable: {}
+            pfcen8stable: {}
+            pfdeb9stable: {}
+            pfdeb10stable: {}
+        nightly:
+          hosts:
+            pfcen7night: {}
+            pfcen8night: {}
+            pfdeb9night: {}
+            pfdeb10night: {}
+
+    pfservers:
+      children:
+        dev:
+          hosts:
+            pfcen7dev:
+              box: inverse-inc/pfcen7dev
+              mgmt_ip: 172.17.17.10
+              mgmt_netmask: 255.255.255.0
+              ansible_host: "{{ mgmt_ip }}"
+              cpus: 2
+              memory: 6144
+            pfcen8dev:
+              box: centos/8
+              mgmt_ip: 172.17.17.11
+              mgmt_netmask: 255.255.255.0
+              ansible_host: "{{ mgmt_ip }}"
+              cpus: 2
+              memory: 6144
+            pfdeb9dev:
+              box: debian/stretch64
+              mgmt_ip: 172.17.17.12
+              mgmt_netmask: 255.255.255.0
+              ansible_host: "{{ mgmt_ip }}"
+              cpus: 2
+              memory: 6144
+            pfdeb10dev:
+              box: debian/buster64
+              mgmt_ip: 172.17.17.13
+              mgmt_netmask: 255.255.255.0
+              ansible_host: "{{ mgmt_ip }}"
+              cpus: 2
+              memory: 6144
+
+        stable:
+          hosts:
+            pfcen7stable:
+              box: centos/7
+              mgmt_ip: 172.17.17.14
+              mgmt_netmask: 255.255.255.0
+              ansible_host: "{{ mgmt_ip }}"
+              cpus: 2
+              memory: 6144
+            pfcen8stable:
+              box: centos/8
+              mgmt_ip: 172.17.17.15
+              mgmt_netmask: 255.255.255.0
+              ansible_host: "{{ mgmt_ip }}"
+              cpus: 2
+              memory: 6144
+            pfdeb9stable:
+              box: debian/stretch64
+              mgmt_ip: 172.17.17.16
+              mgmt_netmask: 255.255.255.0
+              ansible_host: "{{ mgmt_ip }}"
+              cpus: 2
+              memory: 8192
+            pfdeb10stable:
+              box: debian/buster64
+              mgmt_ip: 172.17.17.17
+              mgmt_netmask: 255.255.255.0
+              ansible_host: "{{ mgmt_ip }}"
+              cpus: 2
+              memory: 8192
+
+        nightly:
+          hosts:
+            pfcen7night:
+              box: centos/7
+              mgmt_ip: 172.17.17.18
+              mgmt_netmask: 255.255.255.0
+              ansible_host: "{{ mgmt_ip }}"
+              cpus: 2
+              memory: 6144
+            pfcen8night:
+              box: centos/8
+              mgmt_ip: 172.17.17.19
+              mgmt_netmask: 255.255.255.0
+              ansible_host: "{{ mgmt_ip }}"
+              cpus: 2
+              memory: 6144
+            pfdeb9night:
+              box: debian/stretch64
+              mgmt_ip: 172.17.17.20
+              mgmt_netmask: 255.255.255.0
+              ansible_host: "{{ mgmt_ip }}"
+              cpus: 2
+              memory: 8192
+            pfdeb10night:
+              box: debian/buster64
+              mgmt_ip: 172.17.17.21
+              mgmt_netmask: 255.255.255.0
+              ansible_host: "{{ mgmt_ip }}"
+              cpus: 2
+              memory: 8192
+
+  vars:
+    tz: UTC
+    networks:
+      - name: 'mgmt'
+        subnet: '172.17.17.0/24'
+        forward_mode: 'route'
+
+      - name: 'registration'
+        subnet: '172.17.2.0/24'
+        forward_mode: 'route'
+
+      - name: 'isolation'
+        subnet: '172.17.3.0/24'
+        forward_mode: 'route'
+
+      - name: 'inline'
+        subnet: '172.17.6.0/24'
+        forward_mode: 'route'
+
+
+      

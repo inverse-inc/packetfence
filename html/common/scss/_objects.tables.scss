@@ -1,10 +1,10 @@
 /// _objecs.tables.scss -*- Mode: scss; indent-tabs-mode: nil; basic-offset: 2; fill-column: 80 -*-
 
-.#{$inuit-table-namespace}table caption {
+.o-table caption {
   text-align: left;
 }
 
 
-.#{$inuit-table-namespace}table--accent {
-  background-color: $pf-base-accent-color;
+.o-table--primary {
+  background-color: $pf-color-primary;
 }

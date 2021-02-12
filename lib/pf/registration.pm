@@ -19,17 +19,19 @@ use warnings;
 use pf::error;
 use pf::StatsD;
 use pf::StatsD::Timer;
+use List::Util qw(any);
 use pf::log;
 use pf::person;
 use pf::lookup::person;
-use pf::violation;
-use pf::constants::node qw($STATUS_REGISTERED);
+use pf::security_event;
+use pf::constants::node qw($STATUS_REGISTERED $STATUS_UNREGISTERED);
 use pf::util;
 use pf::util::statsd qw(called);
 use pf::dal::person;
 use pf::Connection::ProfileFactory; 
-use pf::constants::scan qw($SCAN_VID $POST_SCAN_VID);
-use pf::constants::parking qw($PARKING_VID);
+use pf::constants::scan qw($SCAN_SECURITY_EVENT_ID $POST_SCAN_SECURITY_EVENT_ID);
+use pf::constants::parking qw($PARKING_SECURITY_EVENT_ID);
+use pf::Authentication::constants;
 
 =head2 setup_node_for_registration
 
@@ -40,25 +42,17 @@ setup a node for registration
 sub setup_node_for_registration {
     $pf::StatsD::statsd->increment( called() . ".called" );
     my $timer = pf::StatsD::Timer->new();
-    my ($node, $info) = @_;
+    my ($node, $info, $action) = @_;
     my $logger = get_logger();
     my $mac = $node->mac;
-    my $auto_registered = 0;
 
     my $status_msg = "";
     my $pid = $node->pid;
-
-    # if it's for auto-registration and mac is already registered, we are done
-    if ($info->{'autoreg'}) {
-        $node->autoreg('yes');
-        if ($node->status eq 'reg' ) {
-            return ($STATUS::OK, '');
-        }
-    }
-    else {
-    # do not check for max_node if it's for auto-register
-        if ( is_max_reg_nodes_reached($mac, $pid, $node->category, $node->category_id) ) {
+    if ( ($node->{__old_data}->{pid} ne $pid || $node->{__old_data}->{status} ne "reg") &&  pf::node::is_max_reg_nodes_reached($mac, $pid, $node->category, $node->category_id) ) {
+        if (!($action eq $Actions::SET_ROLE_FROM_SOURCE)) {
+            $node->status($STATUS_UNREGISTERED);
             $status_msg = "max nodes per pid met or exceeded";
+            $status_msg = "no role computed by any sources" if (!defined($node->category));
             $logger->error( "$status_msg - registration of $mac to $pid failed" );
             return ($STATUS::PRECONDITION_FAILED, $status_msg);
         }
@@ -76,13 +70,13 @@ do the node registration after saving
 =cut
 
 sub finalize_node_registration {
-    my ($node, $info) = @_;
+    my ($node, $info, $options, $context) = @_;
 
-    do_person_create($node, $info);
-    # Closing any parking violations
-    pf::violation::violation_force_close($node->mac, $PARKING_VID);
+    do_person_create($node, $info, $context);
+    # Closing any parking security_events
+    pf::security_event::security_event_force_close($node->mac, $PARKING_SECURITY_EVENT_ID);
 
-    do_violation_scans($node);
+    do_security_event_scans($node, $options);
 
     return ;
 }
@@ -94,42 +88,44 @@ do the person create step of node registration
 =cut
 
 sub do_person_create {
-    my ($node, $info) = @_;
+    my ($node, $info, $context) = @_;
     my $pid = $node->pid;
     my ($status, $person) = pf::dal::person->find_or_create({"pid" => $pid});
     if ($status == $STATUS::CREATED ) {
-        pf::lookup::person::async_lookup_person($pid, $info->{'source'});
+        pf::lookup::person::async_lookup_person($pid, $node->{'source'}, $context);
     }
     if ($person) {
-        $person->source($info->{source});
-        $person->portal($info->{portal});
+        $person->source($node->{source});
+        $person->portal($node->{portal});
         $person->save;
     }
 }
 
-=head2 do_violation_scans
+=head2 do_security_event_scans
 
-do violation scans for a node
+do security_event scans for a node
 
 =cut
 
-sub do_violation_scans {
-    my ($node_obj) = @_;
+sub do_security_event_scans {
+    my ($node_obj, $options) = @_;
     my $mac = $node_obj->mac;
     my $logger = get_logger();
-    my $profile = pf::Connection::ProfileFactory->instantiate($node_obj);
-    my $scan = $profile->findScan($mac);
-    if (defined($scan)) {
-        # triggering a violation used to communicate the scan to the user
-        if ( isenabled($scan->{'registration'})) {
-            $logger->debug("Triggering on registration scan");
-            pf::violation::violation_add( $mac, $SCAN_VID );
-        }
-        if (isenabled($scan->{'post_registration'})) {
-            $logger->debug("Triggering post-registration scan");
-            pf::violation::violation_add( $mac, $POST_SCAN_VID );
-        }
+    my $profile = pf::Connection::ProfileFactory->instantiate($node_obj, $options);
+    my @scanners = $profile->findScans($mac);
+
+    return unless scalar(@scanners) > 0;
+
+    if ( any { pf::util::isenabled($_->{'_registration'}) } @scanners ){
+        $logger->info("Triggering On Registration Scan Event");
+        pf::security_event::security_event_add( $mac, $SCAN_SECURITY_EVENT_ID );
     }
+
+    if ( any { pf::util::isenabled($_->{'_post_registration'}) } @scanners ) {
+        $logger->debug("Triggering Post Registration Scan Event");
+        pf::security_event::security_event_add( $mac, $POST_SCAN_SECURITY_EVENT_ID );
+    }
+
     return ;
 }
 
@@ -139,7 +135,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2018 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 

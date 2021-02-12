@@ -12,7 +12,6 @@ import (
 	"github.com/inverse-inc/packetfence/go/api-frontend/aaa"
 	"github.com/inverse-inc/packetfence/go/caddy/caddy"
 	"github.com/inverse-inc/packetfence/go/caddy/caddy/caddyhttp/httpserver"
-	"github.com/inverse-inc/packetfence/go/db"
 	"github.com/inverse-inc/packetfence/go/log"
 	"github.com/inverse-inc/packetfence/go/panichandler"
 	"github.com/inverse-inc/packetfence/go/pfconfigdriver"
@@ -30,16 +29,27 @@ func init() {
 }
 
 type PrettyTokenInfo struct {
-	AdminRoles []string `json:"admin_roles"`
-	TenantId   int      `json:"tenant_id"`
-	Username   string   `json:"username"`
+	AdminActions []string   `json:"admin_actions"`
+	AdminRoles   []string   `json:"admin_roles"`
+	Tenant       aaa.Tenant `json:"tenant"`
+	Username     string     `json:"username"`
+	ExpiresAt    time.Time  `json:"expires_at"`
 }
 
 type ApiAAAHandler struct {
-	Next           httpserver.Handler
-	router         *httprouter.Router
-	authentication *aaa.TokenAuthenticationMiddleware
-	authorization  *aaa.TokenAuthorizationMiddleware
+	Next               httpserver.Handler
+	router             *httprouter.Router
+	systemBackend      *aaa.MemAuthenticationBackend
+	webservicesBackend *aaa.MemAuthenticationBackend
+	authentication     *aaa.TokenAuthenticationMiddleware
+	authorization      *aaa.TokenAuthorizationMiddleware
+}
+
+type Tenant struct {
+	name               string
+	portal_domain_name string
+	domain_name        string
+	id                 int
 }
 
 // Setup the api-aaa middleware
@@ -67,27 +77,38 @@ func buildApiAAAHandler(ctx context.Context) (ApiAAAHandler, error) {
 	apiAAA := ApiAAAHandler{}
 
 	pfconfigdriver.PfconfigPool.AddStruct(ctx, &pfconfigdriver.Config.PfConf.Webservices)
+	pfconfigdriver.PfconfigPool.AddStruct(ctx, &pfconfigdriver.Config.UnifiedApiSystemUser)
 	pfconfigdriver.PfconfigPool.AddStruct(ctx, &pfconfigdriver.Config.AdminRoles)
+	pfconfigdriver.PfconfigPool.AddStruct(ctx, &pfconfigdriver.Config.PfConf.Advanced)
 
-	tokenBackend := aaa.NewMemTokenBackend(1 * time.Hour)
+	tokenBackend := aaa.NewMemTokenBackend(
+		time.Duration(pfconfigdriver.Config.PfConf.Advanced.ApiInactivityTimeout)*time.Second,
+		time.Duration(pfconfigdriver.Config.PfConf.Advanced.ApiMaxExpiration)*time.Second,
+	)
 	apiAAA.authentication = aaa.NewTokenAuthenticationMiddleware(tokenBackend)
 
-	// Backend for the pf.conf webservices user
-	if pfconfigdriver.Config.PfConf.Webservices.User != "" {
-		apiAAA.authentication.AddAuthenticationBackend(aaa.NewMemAuthenticationBackend(
-			map[string]string{
-				pfconfigdriver.Config.PfConf.Webservices.User: pfconfigdriver.Config.PfConf.Webservices.Pass,
-			},
-			pfconfigdriver.Config.AdminRoles.Element["ALL"].Actions,
-		))
+	// Backend for the system Unified API user
+	if pfconfigdriver.Config.UnifiedApiSystemUser.User != "" {
+		apiAAA.systemBackend = aaa.NewMemAuthenticationBackend(
+			map[string]string{},
+			map[string]bool{"ALL": true},
+		)
+		apiAAA.systemBackend.SetUser(pfconfigdriver.Config.UnifiedApiSystemUser.User, pfconfigdriver.Config.UnifiedApiSystemUser.Pass)
+		apiAAA.authentication.AddAuthenticationBackend(apiAAA.systemBackend)
 	}
 
-	db, err := db.DbFromConfig(ctx)
-	sharedutils.CheckError(err)
+	// Backend for the pf.conf webservices user
+	apiAAA.webservicesBackend = aaa.NewMemAuthenticationBackend(
+		map[string]string{},
+		map[string]bool{"ALL": true},
+	)
+	apiAAA.authentication.AddAuthenticationBackend(apiAAA.webservicesBackend)
 
-	apiAAA.authentication.AddAuthenticationBackend(aaa.NewDbAuthenticationBackend(ctx, db, "api_user"))
+	if pfconfigdriver.Config.PfConf.Webservices.User != "" {
+		apiAAA.webservicesBackend.SetUser(pfconfigdriver.Config.PfConf.Webservices.User, pfconfigdriver.Config.PfConf.Webservices.Pass)
+	}
 
-	url, err := url.Parse("http://localhost:8080/api/v1/authentication/admin_authentication")
+	url, err := url.Parse("http://127.0.0.1:22224/api/v1/authentication/admin_authentication")
 	sharedutils.CheckError(err)
 	apiAAA.authentication.AddAuthenticationBackend(aaa.NewPfAuthenticationBackend(ctx, url, false))
 
@@ -143,17 +164,28 @@ func (h ApiAAAHandler) handleTokenInfo(w http.ResponseWriter, r *http.Request, p
 	ctx := r.Context()
 	defer statsd.NewStatsDTiming(ctx).Send("api-aaa.token_info")
 
-	info := h.authorization.GetTokenInfoFromBearerRequest(ctx, r)
+	if r.URL.Query().Get("no-expiration-extension") == "" {
+		h.authentication.TouchTokenInfo(ctx, r)
+	}
+	info, expiration := h.authorization.GetTokenInfoFromBearerRequest(ctx, r)
 
 	if info != nil {
 		// We'll want to render the roles as an array, not as a map
 		prettyInfo := PrettyTokenInfo{
-			AdminRoles: make([]string, len(info.AdminRoles)),
-			TenantId:   info.TenantId,
-			Username:   info.Username,
+			AdminActions: make([]string, len(info.AdminActions())),
+			AdminRoles:   make([]string, len(info.AdminRoles)),
+			Tenant:       info.Tenant,
+			Username:     info.Username,
+			ExpiresAt:    expiration,
 		}
 
 		i := 0
+		for r, _ := range info.AdminActions() {
+			prettyInfo.AdminActions[i] = r
+			i++
+		}
+
+		i = 0
 		for r, _ := range info.AdminRoles {
 			prettyInfo.AdminRoles[i] = r
 			i++
@@ -174,6 +206,10 @@ func (h ApiAAAHandler) handleTokenInfo(w http.ResponseWriter, r *http.Request, p
 }
 
 func (h ApiAAAHandler) HandleAAA(w http.ResponseWriter, r *http.Request) bool {
+	if aaa.IsPathPublic(r.URL.Path) {
+		return true
+	}
+
 	ctx := r.Context()
 	auth, err := h.authentication.BearerRequestIsAuthorized(ctx, r)
 
@@ -191,12 +227,18 @@ func (h ApiAAAHandler) HandleAAA(w http.ResponseWriter, r *http.Request) bool {
 		return false
 	}
 
+	h.authentication.TouchTokenInfo(ctx, r)
+
 	auth, err = h.authorization.BearerRequestIsAuthorized(ctx, r)
 
 	if auth {
 		return true
 	} else {
-		w.WriteHeader(http.StatusForbidden)
+		if err.Error() == aaa.InvalidTokenInfoErr {
+			w.WriteHeader(http.StatusUnauthorized)
+		} else {
+			w.WriteHeader(http.StatusForbidden)
+		}
 		res, _ := json.Marshal(map[string]string{
 			"message": err.Error(),
 		})
@@ -208,10 +250,19 @@ func (h ApiAAAHandler) HandleAAA(w http.ResponseWriter, r *http.Request) bool {
 func (h ApiAAAHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) (int, error) {
 	ctx := r.Context()
 
+	// Reload the webservices user info
+	if pfconfigdriver.Config.PfConf.Webservices.User != "" {
+		h.webservicesBackend.SetUser(pfconfigdriver.Config.PfConf.Webservices.User, pfconfigdriver.Config.PfConf.Webservices.Pass)
+	}
+
 	defer panichandler.Http(ctx, w)
 
-	// We always default to application/json
-	w.Header().Set("Content-Type", "application/json")
+	defer func() {
+		// We default to application/json if there is no content type
+		if w.Header().Get("Content-Type") == "" {
+			w.Header().Set("Content-Type", "application/json")
+		}
+	}()
 
 	if handle, params, _ := h.router.Lookup(r.Method, r.URL.Path); handle != nil {
 		handle(w, r, params)
@@ -220,7 +271,10 @@ func (h ApiAAAHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) (int, e
 		return 0, nil
 	} else {
 		if h.HandleAAA(w, r) {
-			return h.Next.ServeHTTP(w, r)
+			code, err := h.Next.ServeHTTP(w, r)
+
+			return code, err
+
 		} else {
 			// TODO change me and wrap actions into something that handles server errors
 			return 0, nil

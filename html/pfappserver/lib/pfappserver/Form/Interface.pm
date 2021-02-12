@@ -52,7 +52,7 @@ has_field 'type' =>
 has_field 'additional_listening_daemons' => (
     type            => 'Select',
     multiple        => 1,
-    label           => 'Additionnal listening daemon(s)',
+    label           => 'Additional listening daemon(s)',
     options_method  => \&options_additional_listening_daemons,
     element_class   => [ 'chzn-select' ],
     element_attr    => {
@@ -68,7 +68,7 @@ has_field 'dns' =>
              help => 'The primary DNS server of your network.' },
   );
 
-has_field 'dhcpd_enabled' => 
+has_field 'dhcpd_enabled' =>
    (
     type => 'Toggle',
     checkbox_value => 1,
@@ -76,19 +76,13 @@ has_field 'dhcpd_enabled' =>
     label => 'Enable DHCP Server',
    );
 
-has_field 'high_availability' => 
+has_field 'high_availability' =>
    (
     type => 'Toggle',
     checkbox_value => 1,
     unchecked_value => 0,
     default => 0,
    );
-
-has_field 'vip' =>
-  (
-   type => 'IPAddress',
-   label => 'Virtual IP Address',
-  );
 
 has_field 'nat_enabled' => (
     type => 'Toggle',
@@ -116,6 +110,22 @@ has_field 'reg_network' =>
              help => 'When split network by role is enabled then this network will be used as the registration network (example: 192.168.0.1/24).' },
   );
 
+has_field 'coa' => (
+    type => 'Toggle',
+    checkbox_value => "enabled",
+    unchecked_value => "disabled",
+    default => "disabled",
+    label => 'Enable CoA',
+);
+
+has_field 'netflow_accounting_enabled' =>
+  (
+   type => 'Toggle',
+   checkbox_value => 'enabled',
+   unchecked_value => 'disabled',
+   default => 'disabled',
+   label => 'Enable Net Flow Accounting'
+   );
 
 =head2 options_type
 
@@ -146,8 +156,27 @@ sub options_additional_listening_daemons {
     my $self = shift;
 
     return map { { value => $_, label => $_ } }
-        qw(portal radius);
+        qw(portal radius dhcp dns dhcp-listener);
 }
+
+=head2 deDup
+
+checks for duplicates types
+
+=cut
+
+
+sub deDup {
+        my $self = shift;
+        my $daemonN = shift;
+        if ( defined $self->value->{type} && any { $_ eq $self->value->{type} } @_ ) {
+            my %daemons = map { $_ => 1 } @{$self->value->{additional_listening_daemons}};
+            if ( exists($daemons{$daemonN}) ) {
+                my $index = firstidx { $_ eq $daemonN } @{$self->value->{additional_listening_daemons}};
+                splice @{$self->value->{additional_listening_daemons}}, $index, 1;
+            }
+        }
+    }
 
 =head2 validate
 
@@ -158,39 +187,27 @@ Force DNS to be defined when the 'inline' type is selected
 sub validate {
     my $self = shift;
 
-    if (defined $self->value->{type} &&  
-        ( $self->value->{type} eq 'inlinel2' or 
-          $self->value->{type} eq 'inline' ) 
-        ) {
+    if (defined $self->value->{type} && ( $self->value->{type} eq 'inlinel2' or $self->value->{type} eq 'inline' ) ) {
         unless ($self->value->{dns}) {
             $self->field('dns')->add_error('Please specify your DNS server.');
         }
     }
 
-    # Remove 'portal' additional listening daemon on already enabled httpd.portal interfaces
-    # TODO: Make a list of interface type rather than this ugly "or" - dwuelfrath@inverse.ca 2015.06.11
-    my @types = qw(vlan-registration vlan-isolation dns-enforcement inline inlinel2 portal);
-    if ( defined $self->value->{type} && any { $_ eq $self->value->{type} } @types ) {
-        my %daemons = map { $_ => 1 } @{$self->value->{additional_listening_daemons}};
-        if ( exists($daemons{'portal'}) ) {
-            my $index = firstidx { $_ eq 'portal' } @{$self->value->{additional_listening_daemons}};
-            splice @{$self->value->{additional_listening_daemons}}, $index, 1;
-        }
-    }
-    # Remove double radius type if exist
-    @types = qw(radius);
-    if ( defined $self->value->{type} && any { $_ eq $self->value->{type} } @types ) {
-        my %daemons = map { $_ => 1 } @{$self->value->{additional_listening_daemons}};
-        if ( exists($daemons{'radius'}) ) {
-            my $index = firstidx { $_ eq 'radius' } @{$self->value->{additional_listening_daemons}};
-            splice @{$self->value->{additional_listening_daemons}}, $index, 1;
-        }
-    }
+    $self->deDup('portal',qw(vlan-registration vlan-isolation dns-enforcement inline inlinel2 portal));
+
+    $self->deDup('radius',qw(radius));
+
+    $self->deDup('dns',qw(dns));
+
+    $self->deDup('dhcp',qw(dhcp));
+
+    $self->deDup('dhcp-listener',qw(dhcp-listener));
+
 }
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2018 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 

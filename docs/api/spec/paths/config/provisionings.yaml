@@ -1,0 +1,16 @@
+/config/provisionings:
+  description: pf::UnifiedApi::Controller::Config::Provisionings
+  get:
+    description: List items
+    operationId: api.v1.Config::Provisionings.list
+    parameters: []
+    responses:
+      '200':
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ConfigProvisioningsList'
+      '400':
+        $ref: '#/components/responses/BadRequest'
+      '422':
+        $ref: '#/components/responses/UnprocessableEntity'

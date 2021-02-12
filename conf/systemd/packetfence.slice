@@ -1,3 +1,4 @@
+# Copyright (C) Inverse inc.
 [Unit]
 Description=The PacketFence resource control slice
 Before=slices.target

@@ -46,6 +46,7 @@ our %ALLOWED_TYPES = (
     'time' => 1,
     'tenant' => 1,
     'advanced' => 1,
+    'fqdn' => 1,
 );
 
 our %TYPE_VALIDATOR = (
@@ -208,9 +209,9 @@ sub validate_tenant {
 
 sub validate_advanced {
     my ($self, $type, $value) = @_;
-    my ($array, $msg) = parse_condition_string($value);
+    my ($array, $err) = parse_condition_string($value);
     unless (defined $array) {
-        return ($FALSE, $msg);
+        return ($FALSE, $err->{highlighted_error});
     }
     return ($TRUE, undef);
 }
@@ -222,7 +223,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2018 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 

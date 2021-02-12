@@ -16,7 +16,7 @@ var sampleInfo = map[string]string{
 	"ip":       "1.2.3.4",
 	"mac":      "00:11:22:33:44:55",
 	"role":     "default",
-        "status":   "reg",
+	"status":   "reg",
 }
 
 func TestStart(t *testing.T) {

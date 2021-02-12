@@ -1,20 +1,16 @@
-<div class="layout layout--center">
-  <h3>Please select a role in the choices below</h3>
-  <div class="layout__item u-2/3 u-1/1-palm">
+<div class="o-layout o-layout--center u-padding">
+  <div class="o-layout__item u-1/1 u-2/3@tablet u-3/5@desktop">
     <form>
       <div class="input-container">
+        <label for="new_role">Please select a role</label>
         <select name="new_role">
           [% FOREACH role IN roles.sort %]
           <option value="[% role %]">[% role %]</option>
           [% END %]
         </select>
       </div>
-
-      <button type="submit" name="submit" class="btn btn--full u-mt">
-        <div class="flag flag--light">
-          <div class="flag__img">[% svgIcon(id='ic_done_black_24px',size='small') %]</div>
-          <p class="flag__body">[% i18n("Continue") %]</p>
-        </div>
+      <button type="submit" name="submit" class="c-btn c-btn--primary u-1/1 u-margin-top">
+        [% i18n("Continue") %]
       </button>
     </form>
   </div>

@@ -21,6 +21,7 @@ use pf::file_paths qw($pf_default_file);
 use pf::authentication;
 use pf::web::util;
 use List::MoreUtils qw(any);
+use fingerbank::Model::Device;
 
 # For passthroughs validation
 use pf::util::dns;
@@ -41,12 +42,14 @@ sub field_list {
 
     my $list = [];
     my $section = $self->section;
+    return [] if !defined $section;
     my $default_pf_config = pf::IniFiles->new(-file => $pf_default_file, -allowempty => 1);
     my @section_fields = $default_pf_config->Parameters($section);
     foreach my $name (@section_fields) {
         my $doc_section_name = "$section.$name";
         my $doc_section = $Doc_Config{$doc_section_name};
         my $defaults = $Default_Config{$section};
+        $doc_section->{description} //= '';
         $doc_section->{description} =~ s/\n//sg;
         my $doc_anchor = $doc_section->{guide_anchor};
         my $doc_anchor_html = defined($doc_anchor) ? " " . pf::web::util::generate_doc_link($doc_anchor) . " " : '';
@@ -95,6 +98,21 @@ sub field_list {
                 $field->{element_class} = ['chzn-deselect'];
                 $field->{element_attr} = {'data-placeholder' => 'Click to add an OS'};
                 $field->{fingerbank_model} = 'fingerbank::Model::Device';
+                last;
+            };
+            $type eq "fingerbank_device_transition" && do {
+                $field->{type} = 'TextArea';
+                $field->{element_class} = ['input-xxlarge'];
+                my @devices = map { 
+                    my (undef, $device) = fingerbank::Model::Device->read($_); 
+                    {name => $device->name, id => $_}
+                } @{fingerbank::Model::Device->all_device_class_ids};
+                @devices = sort {lc($a->{name}) cmp lc($b->{name})} @devices;
+                my $str = "";
+                $str .= "<ul>";
+                $str .= join("", map{ '<li><b>' . $_->{name} . '</b>' . " = " . $_->{id} . "</li>" } @devices); 
+                $str .= "</ul>";
+                $field->{tags}->{help} .= "<br><br>Valid device classes IDs are: $str";
                 last;
             };
             $type eq 'merged_list' && do {
@@ -152,8 +170,7 @@ sub field_list {
                 $field->{element_class} = ['chzn-deselect'];
                 $field->{element_attr} = {'data-placeholder' => 'Select a timezone'};
                 my @timezones = DateTime::TimeZone->all_names();
-                my @matched_options = map { m/^.+\/.+$/g } @timezones;
-                my @options = ({ value => '', label => ''}, map { { value => $_, label => $_ } } @matched_options);
+                my @options = ({ value => '', label => ''}, map { { value => $_, label => $_ } } @timezones);
                 $field->{options} = \@options;
                 last;
             };
@@ -250,8 +267,8 @@ sub field_list {
 }
 
 our %FIELD_VALIDATORS = (
-    "general.hostname" => sub { validate_fqdn_not_in_passthroughs(@_, [ "passthroughs", "isolation_passthroughs" ]) },
-    "general.domain" => sub { validate_fqdn_not_in_passthroughs(@_, [ "passthroughs", "isolation_passthroughs" ]) },
+    "general.hostname" => sub { validate_pf_hostname(@_) ; validate_fqdn_not_in_passthroughs(@_, [ "passthroughs", "isolation_passthroughs" ]) },
+    "general.domain" => sub { validate_pf_domain(@_) ; validate_fqdn_not_in_passthroughs(@_, [ "passthroughs", "isolation_passthroughs" ]) },
     "fencing.passthroughs" => sub { validate_fqdn_not_in_passthroughs(@_, ["passthroughs"]) },
     "fencing.isolation_passthroughs" => sub { validate_fqdn_not_in_passthroughs(@_, ["isolation_passthroughs"]) },
 );
@@ -266,6 +283,56 @@ sub validator_for_field {
     my ($self, $field) = @_;
 
     return $FIELD_VALIDATORS{$field};
+}
+
+=head2 validate_domain_name
+
+Basic validation of allowed characters and format of a domain name
+
+ - Must begin and end with an alphanumeric character
+ - Only alphanumeric, hyphens and dots are allowed
+
+=cut
+
+sub validate_domain_name {
+    my ($self, $field, $name) = @_;
+    if($name !~ /^[a-z0-9].*[a-z0-9]$/i) {
+        $field->add_error("Name must begin and end with an alphanumeric character.");
+    }
+    foreach my $char (split(//, $name)) {
+        if($char !~ /[a-z0-9.-]/i) {
+            $field->add_error("Name must only contain alphanumeric characters.");
+            last;
+        }
+    }
+}
+
+=head2 validate_pf_hostname
+
+Validate that the hostname is valid
+
+=cut
+
+sub validate_pf_hostname {
+    my (undef, $field) = @_;
+    my $hostname = $field->form->params->{hostname};
+    $field->form->validate_domain_name($field, $hostname);
+}
+
+=head2 validate_pf_domain
+
+Validate that the domain name is valid and doesn't end with .local (iOS popup bug)
+
+=cut
+
+
+sub validate_pf_domain {
+    my (undef, $field) = @_;
+    my $domain = $field->form->params->{domain};
+    $field->form->validate_domain_name($field, $domain);
+    if($domain =~ /\.local$/) {
+        $field->add_error("The domain name cannot end with '.local' as this causes issues with Apple iOS devices");
+    }
 }
 
 =head2 validate_fqdn_field
@@ -336,7 +403,7 @@ sub get_sms_source_ids {
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2018 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 

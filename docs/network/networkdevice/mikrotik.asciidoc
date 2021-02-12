@@ -1,0 +1,175 @@
+// to display images directly on GitHub
+ifdef::env-github[]
+:encoding: UTF-8
+:lang: en
+:doctype: book
+:toc: left
+:imagesdir: ../../images
+endif::[]
+
+////
+
+    This file is part of the PacketFence project.
+
+    See PacketFence_Network_Devices_Configuration_Guide-docinfo.xml for 
+    authors, copyright and license information.
+
+////
+
+  
+//=== Mikrotik
+
+This configuration has been tested on Access Point OmniTIK U-5hnD with RouterOS v6.18 and only MAC-Authentication is available now.
+The only deauthentication method available is SSH, so create an account in the Mikrotik AP and fill the information in PacketFence switch configuration.
+Also don't forget to use the pf account to ssh on the Access Point to receive the ssh key.
+
+[float]
+==== Open SSID
+
+In this setup we use the interface ether5 for the bridge (Trunk interface) and ether1 as the management interface.
+
+Configure your access point with the following configuration:
+
+  /interface wireless
+  # managed by CAPsMAN
+  # channel: 5180/20-Ce/an(17dBm), SSID: OPEN, local forwarding
+  set [ find default-name=wlan1 ] band=5ghz-a/n channel-width=20/40mhz-Ce disabled=no l2mtu=1600 mode=ap-bridge ssid=MikroTik-05A64D
+  /interface ethernet
+  set [ find default-name=ether1 ] name=ether1-gateway
+  set [ find default-name=ether2 ] name=ether2-master-local
+  set [ find default-name=ether3 ] master-port=ether2-master-local name=ether3-slave-local
+  set [ find default-name=ether4 ] master-port=ether2-master-local name=ether4-slave-local
+  set [ find default-name=ether5 ] name=ether5-master-local
+  /interface vlan
+  add interface=BR-CAPS l2mtu=1594 name=default vlan-id=1
+  add interface=BR-CAPS l2mtu=1594 name=isolation vlan-id=3
+  add interface=BR-CAPS l2mtu=1594 name=registration vlan-id=2
+  /caps-man datapath
+  add bridge=BR-CAPS client-to-client-forwarding=yes local-forwarding=yes name=datapath1
+  /caps-man interface
+  # 
+  add arp=enabled configuration.mode=ap configuration.ssid=OPEN datapath=datapath1 disabled=no l2mtu=1600 mac-address=\
+      D4:CA:6D:05:A6:4D master-interface=none mtu=1500 name=cap1 radio-mac=D4:CA:6D:05:A6:4D
+  /caps-man aaa
+  set interim-update=5m
+  /caps-man access-list
+  add action=query-radius interface=cap1 radius-accounting=yes signal-range=-120..120 time=0s-1d,sun,mon,tue,wed,thu,fri,sat
+  /caps-man manager
+  set enabled=yes
+  /interface bridge port
+  add bridge=bridge-local interface=ether2-master-local
+  add bridge=bridge-local interface=ether1-gateway
+  add bridge=BR-CAPS interface=ether5-master-local
+  /interface wireless cap
+  set bridge=BR-CAPS discovery-interfaces=BR-CAPS enabled=yes interfaces=wlan1
+  /ip accounting
+  set enabled=yes
+  /radius
+  add address=192.168.1.5 secret=useStrongerSecret service=wireless
+  /radius incoming
+  set accept=yes
+
+==== Webauth
+
+You can use webauth (external captive portal) on Mikrotik APs. In order to do so, you will have to activate the hotspot feature in the AP configuration as well as modify the redirection template so that it points to PacketFence.
+
+First, you must establish an FTP connection to your access point and replace the content of `hotspot/login.html` with the following:
+
+  <html>
+  <head><title>...</title></head>
+  <body>
+  $(if chap-id)
+  <noscript>
+  <center><b>JavaScript required. Enable JavaScript to continue.</b></center>
+  </noscript>
+  $(endif)
+  <center>If you are not redirected in a few seconds, click 'continue' below<br>
+  <form name="redirect" action="http://192.168.1.5/Mikrotik" method="get">
+    <input type="hidden" name="mac" value="$(mac)">
+    <input type="hidden" name="ip" value="$(ip)">
+    <input type="hidden" name="username" value="$(username)">
+    <input type="hidden" name="link-login" value="$(link-login)">
+    <input type="hidden" name="link-orig" value="$(link-orig)">
+    <input type="hidden" name="error" value="$(error)">
+    <input type="hidden" name="chap-id" value="$(chap-id)">
+    <input type="hidden" name="chap-challenge" value="$(chap-challenge)">
+    <input type="hidden" name="link-login-only" value="$(link-login-only)">
+    <input type="hidden" name="link-orig-esc" value="$(link-orig-esc)">
+    <input type="hidden" name="mac-esc" value="$(mac-esc)">
+    <input type="hidden" name="ap-id" value="AP_IP_ADDRESS_HERE">
+    <input type="submit" value="continue">
+  </form>
+  <script language="JavaScript">
+  <!--
+     document.redirect.submit();
+  //-->
+  </script></center>
+  </body>
+  </html>
+
+Next, in the `login.html` you have just uploaded, make sure you change `AP_IP_ADDRESS_HERE` by the management IP address of your access point and `192.168.1.5` by the IP address of your PacketFence captive portal.
+
+Now, you must configure the hotspot feature on your AP. This configuration is done on top of an existing SSID you have previously configured which is on interface `wlan1`. Adjust the interface name if needed.
+
+  /ip hotspot
+  setup
+
+  hotspot interface: wlan1
+
+  local address of network: 10.5.50.1/24
+  masquerade network: yes
+  
+Set pool for HotSpot addresses 
+
+  address pool of network: 10.5.50.2-10.5.50.254
+
+Select hotspot SSL certificate 
+
+  select certificate: none
+
+Select SMTP server 
+
+  ip address of smtp server: 0.0.0.0
+  
+Setup DNS configuration 
+
+  dns servers: 8.8.8.8
+  
+DNS name of local hotspot server 
+
+  dns name: myhotspot
+  
+Create local hotspot user 
+
+  name of local hotspot user: admin
+  password for the user: 
+
+
+Next, you need to allow access to the PacketFence portal in the hotspot access list. Change `192.168.1.5` with the IP address you pointed to in `login.html`
+
+  /ip hotspot walled-garden
+  add dst-host=192.168.1.5
+  add src-address=192.168.1.5
+
+  /ip hotspot walled-garden ip
+  add action=accept disabled=no dst-host=192.168.1.5
+  add action=accept disabled=no src-address=192.168.1.5
+
+Now, you will also need to configure the hotspot to point to your PacketFence RADIUS server:
+
+  /radius
+  add address=192.168.1.5 secret=useStrongerSecret service=hotspot
+
+  /ip hotspot profile
+  add hotspot-address=10.5.50.1 name=hsprof1 use-radius=yes
+
+Next, you need to configure PacketFence to use webauth for this Access Point using the following `switches.conf` configuration. Change `AP_IP_ADDRESS_HERE` by the IP address you've put in login.html.
+
+  [AP_IP_ADDRESS_HERE]
+  VlanMap=Y
+  RoleMap=N
+  mode=production
+  ExternalPortalEnforcement=Y
+  type=Mikrotik
+  radiusSecret=useStrongerSecret
+  registrationVlan=-1

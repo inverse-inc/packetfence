@@ -20,7 +20,7 @@ use namespace::autoclean;
 # Otherwise, the field value must be a valid IPv4 address.
 
 our $class_messages = {
-    'path' => 'It must be a valid path',
+    'path' => 'A valid path is required.',
 };
 
 sub get_class_messages {
@@ -49,7 +49,7 @@ apply
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2018 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 

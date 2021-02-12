@@ -28,6 +28,7 @@ use pf::factory::condition::profile;
 use pfconfig::cached_scalar;
 use List::Util qw(first);
 use pf::StatsD::Timer;
+use pf::constants qw($TRUE $FALSE $FAKE_MAC);
 
 =head1 SUBROUTINES
 
@@ -41,9 +42,18 @@ tie our $PROFILE_FILTER_ENGINE , 'pfconfig::cached_scalar' => 'FilterEngine::Pro
 
 sub instantiate {
     my ( $self, $mac_or_node_obj, $options ) = @_;
+    my ($profile_name, $exist)  = $self->get_profile_name($mac_or_node_obj, $options);
+    return $self->_from_profile($profile_name, $exist);
+}
+
+sub get_profile_name {
+    my ( $self, $mac_or_node_obj, $options ) = @_;
+
+    my $exist = $FALSE;
+
     $options ||= {};
     if (defined($options->{'portal'})) {
-        return $self->_from_profile($options->{'portal'});
+        return $options->{'portal'};
     }
     my $node_info;
     if (ref($mac_or_node_obj)) {
@@ -53,15 +63,15 @@ sub instantiate {
         $node_info = node_view($mac_or_node_obj) || {};
     }
 
-    $options->{last_ip} //= pf::ip4log::mac2ip($node_info->{mac});
+    if (exists($node_info->{mac}) || $mac_or_node_obj eq $FAKE_MAC) {
+        $exist = $TRUE;
+    }
 
+    $options->{last_ip} //= pf::ip4log::mac2ip($node_info->{mac});
     $node_info = {%$node_info, %$options};
 
-    my $profile_name = $PROFILE_FILTER_ENGINE->match_first($node_info);
-    my $instance = $self->_from_profile($profile_name);
-    return $instance;
+    return $PROFILE_FILTER_ENGINE->match_first($node_info), $exist;
 }
-
 
 =head2 _from_profile
 
@@ -71,10 +81,10 @@ Massages the profile values before creating the object
 
 sub _from_profile {
     my $timer = pf::StatsD::Timer->new({level => 7});
-    my ($self,$profile_name) = @_;
+    my ($self,$profile_name, $exist) = @_;
     my $logger = get_logger();
     $profile_name = "default" unless exists $Profiles_Config{$profile_name};
-    $logger->info("Instantiate profile $profile_name");
+    $logger->info("Instantiate profile $profile_name") if $exist;
     my $profile_ref    = $Profiles_Config{$profile_name};
     my %profile        = %$profile_ref;
     my $sources        = $profile{'sources'};
@@ -121,7 +131,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2018 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 

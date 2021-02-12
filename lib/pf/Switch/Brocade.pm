@@ -88,13 +88,15 @@ use pf::constants::role qw($VOICE_ROLE);
 
 # CAPABILITIES
 # access technology supported
-sub supportsWiredMacAuth { return $TRUE; }
-sub supportsWiredDot1x { return $TRUE; }
-sub supportsRadiusDynamicVlanAssignment { return $TRUE; }
-sub supportsRadiusVoip { return $TRUE; }
+use pf::SwitchSupports qw(
+    WiredMacAuth
+    WiredDot1x
+    RadiusDynamicVlanAssignment
+    RadiusVoip
+    Lldp
+);
 # inline capabilities
 sub inlineCapabilities { return ($MAC,$PORT); }
-sub supportsLldp { return $TRUE; }
 
 =item getVersion
 
@@ -261,7 +263,7 @@ sub getPhonesLLDPAtIfIndex {
     my $baseoid = "$oid_lldpRemSysCapEnabled.$CISCO::DEFAULT_LLDP_REMTIMEMARK.$lldpPort";
 
     $logger->trace(sub {"SNMP get_next_request for lldpRemSysCapEnabled: $baseoid"});
-    my $result = $self->cachedSNMPRequest([-baseoid => $baseoid]);
+    my $result = $self->cachedSNMPTable([-baseoid => $baseoid]);
 
     # Cap entries look like this:
     # iso.0.8802.1.1.2.1.4.1.1.12.0.10.29 = Hex-STRING: 24 00
@@ -347,7 +349,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2018 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 

@@ -31,8 +31,8 @@ use pf::node;
 use pf::config qw($default_pid);
 use pf::constants qw($TRUE $FALSE);
 use pf::util;
-use pf::violation;
-use pf::constants::scan qw($POST_SCAN_VID);
+use pf::security_event;
+use pf::constants::scan qw($POST_SCAN_SECURITY_EVENT_ID);
 use pf::inline;
 use pf::Portal::Session;
 use pf::SwitchFactory;
@@ -83,10 +83,11 @@ Reevaluate the access of the user and show the release page
 
 sub release {
     my ($self) = @_;
-    # One last check for the violations
-    return unless($self->handle_violations());
+    # One last check for the security_events
+    return unless($self->handle_security_events());
 
-    return $self->app->redirect("http://" . $self->app->request->header("host") . "/access") unless($self->app->request->path eq "access");
+    my $lang = $self->app->session->{lang} // "";
+    return $self->app->redirect("http://" . $self->app->request->header("host") . "/access?lang=$lang") unless($self->app->request->path eq "access");
 
     get_logger->info("Releasing device");
 
@@ -94,7 +95,7 @@ sub release {
 
     unless($self->handle_web_form_release){
         reevaluate_access( $self->current_mac, 'manage_register', force => 1 );
-        return $self->render("release.html", $self->_release_args());
+        $self->render("release.html", $self->_release_args());
     }
 }
 
@@ -146,33 +147,34 @@ sub unknown_state {
                 # set the cache, incrementing before on purpose (otherwise it's not hitting the cache)
                 $self->app->user_cache->set("unknown_state_hits", ++$cached_lost_device, "5 minutes");
 
-                get_logger->info("Reevaluating access of device.");
+                get_logger->info("Device is registered and still on the portal, attempting to release it again.");
 
-                reevaluate_access( $self->current_mac, 'manage_register', force => 1 );
+                $self->release();
+            } else {
+                get_logger->warn("Too many attempts to release the device.");
+                return $self->app->error("Your network should be enabled within a minute or two. If it is not reboot your computer.");
             }
-
-            return $self->app->error("Your network should be enabled within a minute or two. If it is not reboot your computer.");
         }
     }
 }
 
-=head2 handle_violations
+=head2 handle_security_events
 
-Check if the user has a violation and redirect him to the proper page if he does
+Check if the user has a security_event and redirect him to the proper page if he does
 
 =cut
 
-sub handle_violations {
+sub handle_security_events {
     my ($self) = @_;
     my $mac           = $self->current_mac;
 
-    my $violation = violation_view_top($mac);
+    my $security_event = security_event_view_top($mac);
 
-    return 1 unless(defined($violation));
+    return 1 unless($security_event);
 
-    return 1 if ($violation->{vid} == $POST_SCAN_VID);
+    return 1 if ($security_event->{security_event_id} == $POST_SCAN_SECURITY_EVENT_ID);
 
-    $self->app->redirect("/violation");
+    $self->app->redirect("/security_event");
     return 0;
 }
 
@@ -191,7 +193,7 @@ sub validate_mac {
     return $TRUE;
 }
 
-=head2 execute_actions
+=head2 execute_child
 
 Execute the flow for this module
 
@@ -202,13 +204,16 @@ sub execute_child {
 
     return unless($self->validate_mac);
 
-    # Make sure there are no outstanding violations
-    return unless($self->handle_violations());
+    # Make sure there are no outstanding security_events
+    return unless($self->handle_security_events());
 
-    # The user should be released, he is already registered and doesn't have any violation
+    # The user should be released, he is already registered and doesn't have any security_event
     # HACK alert : E-mail registration has the user registered but still going in the portal
     # release_bypass is there for that. If it is set, it will keep the user in the portal
     my $node = node_view($self->current_mac);
+    if (!defined($self->app->session->{release_bypass})) {
+        $self->app->session->{release_bypass} = $TRUE;
+    }
     if($self->app->profile->canAccessRegistrationWhenRegistered() && $self->app->session->{release_bypass}) {
         get_logger->info("Allowing user through portal even though he is registered as the release bypass is set and the connection profile is configured to let registered users use the registration module of the portal.");
     }
@@ -286,7 +291,11 @@ sub apply_new_node_info {
         return $TRUE;
     }
     else {
-        $self->app->error("Couldn't register your device. Please contact your local support staff.");
+        if (defined($status_msg) && $status_msg ne '') {
+            $self->app->error($status_msg);
+        } else {
+            $self->app->error("Couldn't register your device. Please contact your local support staff.");
+        }
         $self->detach();
     }
 }
@@ -339,13 +348,12 @@ Show the account details created in the pre-registration
 
 sub show_preregistration_account {
     my ($self) = @_;
-    if(my $account = $self->app->session->{local_account_info}){
-        $self->render("account.html", {account => $account, title => "Account created"});
-    }
-    else {
-        get_logger->warn("No created account found. Continuing normal portal flow");
-        $self->SUPER::execute_child();
-    }
+    captiveportal::DynamicRouting::Module::ShowLocalAccount->new(
+        id => "__TMP_ShowLocalAccount_Module__", 
+        parent => $self, 
+        app => $self->app, 
+        skipable => $FALSE
+    )->execute();
 }
 
 =head2 record_destination_url
@@ -367,7 +375,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2018 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 

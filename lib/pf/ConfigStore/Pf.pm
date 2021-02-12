@@ -13,6 +13,7 @@ pf::ConfigStore::PF
 =cut
 
 use Moo;
+use POSIX();
 use namespace::autoclean;
 use pf::config qw(
     %Default_Config
@@ -20,10 +21,13 @@ use pf::config qw(
     %Doc_Config
 );
 use pf::IniFiles;
+use pf::log;
 use pf::file_paths qw($pf_config_file $pf_default_file);
 
 extends 'pf::ConfigStore';
 has serviceUpdated => ( is => "rw" );
+
+our $logger = get_logger();
 
 =head2 Methods
 
@@ -50,6 +54,7 @@ sub remove { return; }
 sub cleanupAfterRead {
     my ( $self,$section, $data ) = @_;
     my $defaults = $Default_Config{$section};
+    $self->flatten_list_cr($data, $self->_fields_expanded);
     foreach my $key ( keys %{$Config{$section}} ) {
         my $doc_section = "$section.$key";
         unless (exists $Doc_Config{$doc_section} && exists $data->{$key}  ) {
@@ -67,7 +72,7 @@ sub cleanupAfterRead {
             $data->{$key} = POSIX::strftime("%Y-%m-%d", localtime($time));
         } elsif ($type eq 'multi') {
             my $value = $data->{$key};
-            my @values = split( /\s*,\s*/, $value ) if $value;
+            my @values = split( /\s*,\s*/, $value // '');
             $data->{$key} = \@values;
         } elsif ( $type eq 'list' ) {
             my $value = $data->{$key};
@@ -86,6 +91,15 @@ sub cleanupAfterRead {
             elsif ($defaults->{$key}) {
                 # No custom value, use default value
                 $data->{$key} = [split( /\s*,\s*/, $defaults->{$key})];
+            }
+        } elsif ( $type eq 'fingerbank_device_transition' ) {
+            my $value = $data->{$key};
+            if ($value) {
+                $data->{$key} = join("\n", split( /\s*,\s*/, $value));
+            }
+            elsif ($defaults->{$key}) {
+                # No custom value, use default value
+                $data->{$key} = join("\n", split( /\s*,\s*/, $defaults->{$key}));
             }
          } elsif ( $type eq 'merged_list' ) {
             my $value = $data->{$key};
@@ -107,21 +121,23 @@ sub cleanupAfterRead {
 }
 
 sub cleanupBeforeCommit {
-    my ( $self,$section, $assignment ) = @_;
-    while(my ($key,$value) = each %$assignment) {
+    my ($self, $section, $assignment) = @_;
+    while (my ($key,$value) = each %$assignment) {
         if(ref($value) eq 'ARRAY') {
             $assignment->{$key} = join(',',@$value);
         }
+
         my $doc_section = "$section.$key";
         if (exists $Doc_Config{$doc_section} ) {
             my $doc = $Doc_Config{$doc_section};
             my $type = $doc->{type} || "text";
-            if($type eq 'list' || $type eq 'merged_list' || $type eq 'fingerbank_select') {
+            if($type eq 'list' || $type eq 'merged_list' || $type eq 'fingerbank_select' || $type eq 'fingerbank_device_transition') {
                 my $value = $assignment->{$key};
                 $assignment->{$key} = join(",",split( /\v+/, $value )) if $value;
             }
         }
     }
+
     $self->serviceUpdated(1) if $section eq "services" ;
 }
 
@@ -129,17 +145,62 @@ sub commit {
     my $self = shift;
     my ( $result, $error ) = $self->SUPER::commit();
     if ( $result and $self->serviceUpdated ) {
-        my $rc =
-          system("sudo /usr/local/pf/bin/pfcmd service pf updatesystemd");
+        $self->updatesystemd();
     }
     return ( $result, $error );
+}
+
+=head2 updatesystemd
+
+Double fork to perform pfcmd service pf updatesystemd
+
+=cut
+
+sub updatesystemd {
+    my ($self) = @_;
+    local $SIG{CHLD} = 'IGNORE';
+    my $pid = fork();
+    if (!defined $pid) {
+        $logger->error("fork : $!");
+    } elsif ($pid == 0) {
+        $pid = fork();
+        if (!defined $pid) {
+            $logger->error("fork : $!");
+        } elsif ($pid == 0) {
+            {
+                exec("sudo /usr/local/pf/bin/pfcmd service pf updatesystemd");
+            }
+            $logger->error("unabled to exec : $!");
+        }
+        POSIX::_exit(0);
+    } else {
+        waitpid($pid, 0);
+    }
+    return ;
+}
+
+=head2 _Sections
+
+=cut
+
+sub _Sections {
+    my ($self) = @_;
+    return grep { /^\S+$/ } $self->SUPER::_Sections();
+}
+
+=head2 _fields_expanded
+
+=cut
+
+sub _fields_expanded {
+    return qw(staticroutes);
 }
 
 __PACKAGE__->meta->make_immutable unless $ENV{"PF_SKIP_MAKE_IMMUTABLE"};
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2018 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 

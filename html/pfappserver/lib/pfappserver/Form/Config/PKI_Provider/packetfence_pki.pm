@@ -23,7 +23,10 @@ has_field 'id' => (
         after_element   => \&help,
         help            => 'The unique ID of the PKI provider',
     },
-   apply => [ pfappserver::Base::Form::id_validator('PKI provider name') ]
+   apply => [ pfappserver::Base::Form::id_validator('PKI provider name') ],
+   tags => {
+      option_pattern => \&pfappserver::Base::Form::id_pattern,
+   },
 );
 
 has_field 'type' => (
@@ -43,7 +46,7 @@ has_field 'host' => (
 );
 
 has_field 'port' => (
-    type    => 'Text',
+    type    => 'Port',
     label   => 'Port',
     default => '9393',
     tags    => {
@@ -89,6 +92,27 @@ has_field 'profile' => (
         help            => 'Profile used for the generation of certificate',
     },
 );
+
+has_field 'locality' =>
+  (
+   type => 'Text',
+   tags => { after_element => \&help,
+             help => 'Locality for the certificate'},
+  );
+
+has_field 'streetaddress' =>
+  (
+   type => 'Text',
+   tags => { after_element => \&help,
+             help => 'Street Address for the certificate'},
+  );
+
+has_field 'postalcode' =>
+  (
+   type => 'Text',
+   tags => { after_element => \&help,
+             help => 'Postal Code for the certificate'},
+  );
 
 has_field 'country' => (
     type    => 'Country',
@@ -178,7 +202,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2018 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 

@@ -1,0 +1,7 @@
+name: Run configreload hard
+version: 2
+testcases:
+- name: run_configreload_hard
+  steps:
+  - type: exec
+    script: "{{.pfserver_pfcmd}} configreload hard"

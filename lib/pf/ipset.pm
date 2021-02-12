@@ -43,9 +43,9 @@ use pf::nodecategory;
 use pf::util;
 use pf::ip4log;
 use pf::authentication;
-use pf::constants::parking qw($PARKING_IPSET_NAME);
 use pf::constants::node qw($STATUS_UNREGISTERED);
 use pf::api::unifiedapiclient;
+use pf::config::cluster;
 
 Readonly my $FW_TABLE_FILTER => 'filter';
 Readonly my $FW_TABLE_MANGLE => 'mangle';
@@ -58,7 +58,7 @@ Readonly my $FW_FILTER_FORWARD_INT_INLINE => 'forward-internal-inline-if';
 Readonly my $FW_PREROUTING_INT_INLINE => 'prerouting-int-inline-if';
 Readonly my $FW_POSTROUTING_INT_INLINE => 'postrouting-int-inline-if';
 
-tie our %NetworkConfig, 'pfconfig::cached_hash', "resource::network_config";
+tie our %NetworkConfig, 'pfconfig::cached_hash', "resource::network_config($host_id)";
 
 =head1 SUBROUTINES
 
@@ -79,9 +79,6 @@ sub iptables_generate {
     my @lines = pf_run($cmd);
     my @roles = pf::nodecategory::nodecategory_view_all;
 
-    $cmd = "sudo ipset --create $PARKING_IPSET_NAME hash:ip 2>&1";
-    @lines  = pf_run($cmd);
-
     foreach my $network ( keys %ConfigNetworks ) {
         next if ( !pf::config::is_network_type_inline($network) );
         my $inline_obj = new Net::Netmask( $network, $ConfigNetworks{$network}{'netmask'} );
@@ -90,18 +87,22 @@ sub iptables_generate {
         # Using the role ID in the name instead of the role name due to ipset name length constraint (max32)
         foreach my $role ( @roles ) {
             if ( $ConfigNetworks{$network}{'type'} =~ /^$NET_TYPE_INLINE_L3$/i ) {
-                $cmd = "sudo ipset --create PF-iL3_ID$role->{'category_id'}_$network bitmap:ip range $network/$inline_obj->{BITS} 2>&1";
+                $cmd = "sudo ipset --create PF-iL3_ID$role->{'category_id'}_$network bitmap:ip range $network/$inline_obj->{BITS} timeout $ConfigNetworks{$network}{'dhcp_default_lease_time'} 2>&1";
             } else {
-                $cmd = "sudo ipset --create PF-iL2_ID$role->{'category_id'}_$network bitmap:ip range $network/$inline_obj->{BITS} 2>&1";
+                $cmd = "sudo ipset --create PF-iL2_ID$role->{'category_id'}_$network bitmap:ip range $network/$inline_obj->{BITS} timeout $ConfigNetworks{$network}{'dhcp_default_lease_time'} 2>&1";
             }
             my @lines  = pf_run($cmd);
         }
 
         foreach my $IPTABLES_MARK ($IPTABLES_MARK_UNREG, $IPTABLES_MARK_REG, $IPTABLES_MARK_ISOLATION) {
             if ($ConfigNetworks{$network}{'type'} =~ /^$NET_TYPE_INLINE_L3$/i) {
-                $cmd = "sudo ipset --create pfsession_$mark_type_to_str{$IPTABLES_MARK}\_$network bitmap:ip range $network/$inline_obj->{BITS} 2>&1";
+                $cmd = "sudo ipset --create pfsession_$mark_type_to_str{$IPTABLES_MARK}\_$network bitmap:ip range $network/$inline_obj->{BITS} timeout $ConfigNetworks{$network}{'dhcp_default_lease_time'} 2>&1";
             } else {
-                $cmd = "sudo ipset --create pfsession_$mark_type_to_str{$IPTABLES_MARK}\_$network bitmap:ip,mac range $network/$inline_obj->{BITS} 2>&1";
+                if (isenabled($ConfigNetworks{$network}{'split_network'}) && ($IPTABLES_MARK eq $IPTABLES_MARK_UNREG) ) {
+                    $cmd = "sudo ipset --create pfsession_$mark_type_to_str{$IPTABLES_MARK}\_$network bitmap:ip,mac range $network/$inline_obj->{BITS} timeout 45 2>&1";
+                } else {
+                    $cmd = "sudo ipset --create pfsession_$mark_type_to_str{$IPTABLES_MARK}\_$network bitmap:ip,mac range $network/$inline_obj->{BITS} timeout $ConfigNetworks{$network}{'dhcp_default_lease_time'} 2>&1";
+                }
             }
             my @lines  = pf_run($cmd);
         }
@@ -181,10 +182,10 @@ sub generate_mangle_rules {
         }
     }
 
-    # mark all open violations
+    # mark all open security_events
     # TODO performance: only those whose's last connection_type is inline?
-    require pf::violation;
-    my @macarray = pf::violation::violation_view_open_uniq();
+    require pf::security_event;
+    my @macarray = pf::security_event::security_event_view_open_uniq();
     if ( $macarray[0] ) {
         foreach my $row (@macarray) {
             foreach my $network ( keys %ConfigNetworks ) {
@@ -266,10 +267,20 @@ sub generate_mangle_postrouting_rules {
 
         next if ( !pf::config::is_network_type_inline($network) );
         my $dev = $NetworkConfig{$network}{'interface'}{'int'};
+        my $source_interface = $dev;
 
-        my $gateway = (defined $NetworkConfig{$network}{'next_hop'} ? $NetworkConfig{$network}{'next_hop'} : $NetworkConfig{$network}{'gateway'});
+        my $gateway = (defined $NetworkConfig{$network}{'next_hop'} ? $NetworkConfig{$network}{'next_hop'} : $Config{"interface $dev"}{'ip'});
 
-        my $interface = find_outgoing_interface($gateway);
+        if (!defined $NetworkConfig{$network}{'next_hop'}) {
+            undef $source_interface;
+        }
+
+        my $interface = find_outgoing_interface($gateway, $source_interface);
+        if (!(defined($index->{$interface}))) {
+            $logger->warn($interface." is not defined in the configuration, check your routing table");
+            $index->{$interface} = $indice;
+            $indice --;
+        }
 
         foreach my $role ( @roles ) {
             if ($ConfigNetworks{$network}{'type'} =~ /^$NET_TYPE_INLINE_L3$/i) {
@@ -305,14 +316,14 @@ sub iptables_mark_node {
                     call_ipsetd("/ipset/mark_layer3?local=0",{
                         "network" => $network,
                         "type"    => $mark_type_to_str{$mark},
-                        "role_id" => $role_id,
+                        "role_id" => "".$role_id,
                         "ip"      => $iplog
                     });
                 } else {
                     call_ipsetd("/ipset/mark_layer2?local=0",{
                         "network" => $network,
                         "type"    => $mark_type_to_str{$mark},
-                        "role_id" => $role_id,
+                        "role_id" => "".$role_id,
                         "ip"      => $iplog,
                         "mac"     => $mac
                     });
@@ -345,7 +356,7 @@ sub call_ipsetd {
     my ($path, $data) = @_;
     my $response;
     eval {
-        $response = pf::api::unifiedapiclient->default_client->call("POST", "/api/v1/$path", $data);
+        $response = pf::api::unifiedapiclient->default_client->call("POST", "/api/v1$path", $data);
     };
     if ($@) {
         get_logger()->error("Error updating ipset $path : $@");;
@@ -377,9 +388,9 @@ sub update_node {
     my $src_ip = new NetAddr::IP::Lite clean_ip($srcip);
     my $old_ip = new NetAddr::IP::Lite clean_ip($oldip);
     my $id = $view_mac->{'category_id'};
-    my $open_violation_count = pf::violation::violation_count_reevaluate_access($srcmac);
+    my $open_security_event_count = pf::security_event::security_event_count_reevaluate_access($srcmac);
     my $mark = $IPTABLES_MARK_UNREG if ($view_mac->{'status'} eq $STATUS_UNREGISTERED) // $IPTABLES_MARK_REG;
-    if ($open_violation_count != 0) {
+    if ($open_security_event_count != 0) {
         $mark = $IPTABLES_MARK_ISOLATION;
     }
     if ($view_mac->{'last_connection_type'} eq $connection_type_to_str{$INLINE}) {
@@ -396,17 +407,17 @@ sub update_node {
             }
             #Add in ipset session if the ip change
             if ($net_addr->contains($src_ip)) {
-                 if ($ConfigNetworks{$network}{'type'} =~ /^$NET_TYPE_INLINE_L3$/i) {
+                if ($ConfigNetworks{$network}{'type'} =~ /^$NET_TYPE_INLINE_L3$/i) {
                     call_ipsetd("/ipset/mark_ip_layer3?local=0",{
                         "network" => $network,
-                        "role_id" => $id,
-                        "ip"      => $src_ip
+                        "role_id" => "".$id,
+                        "ip"      => $srcip
                     });
                 } else {
                     call_ipsetd("/ipset/mark_ip_layer2?local=0",{
                         "network" => $network,
-                        "role_id" => $id,
-                        "ip"      => $src_ip
+                        "role_id" => "".$id,
+                        "ip"      => $srcip
                     });
                 }
             }
@@ -488,7 +499,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2018 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 

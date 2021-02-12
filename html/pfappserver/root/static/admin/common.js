@@ -143,7 +143,7 @@ function changeInputFromTemplate(oldInput, template, keep_value) {
     newInput.removeAttr('id');
     newInput.attr('id', oldInput.attr('id'));
     newInput.attr('name', oldInput.attr('name'));
-    newInput.attr('data-required', 1);
+    newInput.attr('data-required', oldInput.attr('data-required'));
     if (keep_value && oldInput.val()) {
         if (newInput.attr('multiple')) {
             newInput.val(oldInput.val().split(","));
@@ -282,7 +282,7 @@ function doUpdateSection(ajax_data) {
                     section.find('.chzn-deselect:visible').chosen({allow_single_deselect: true, search_contains: true});
                     fixChosenClipping(section.find('.chzn-select:visible, .chzn-deselect:visible'));
                     section.find('.switch').bootstrapSwitch();
-                    if (typeof Clipboard !== 'undefined' && Clipboard.isSupported())
+                    if (typeof ClipboardJS !== 'undefined' && ClipboardJS.isSupported())
                         section.find('.clipboard .icon-clipboard').tooltip({ title: _('Copy') });
                     else
                         section.find('.clipboard .icon-clipboard').remove();
@@ -623,8 +623,8 @@ $(function () { // DOM ready
     $('#navbar [data-toggle="tooltip"]').tooltip({placement: 'bottom'});
 
     /* Configure tooltips of "copy to clipboard" buttons */
-    if (typeof Clipboard !== "undefined" && Clipboard.isSupported()) {
-        var clipboard = new Clipboard('.icon-clipboard.btn-icon');
+    if (typeof ClipboardJS !== "undefined" && ClipboardJS.isSupported()) {
+        var clipboard = new ClipboardJS('.icon-clipboard.btn-icon');
         clipboard.on('success', function(e) {
             var btn = $(e.trigger);
             btn.tooltip('destroy').tooltip({ title: _('Copied') }).tooltip('show');
@@ -1308,8 +1308,8 @@ FingerbankSearch.setup = function() {
             }
           });
           if (search.add_action) {
-            if (search.add_action == 'violationsView.add_fingerbank_trigger')
-              violationsView.add_fingerbank_trigger(search, id, display);
+            if (search.add_action == 'security_eventsView.add_fingerbank_trigger')
+              security_eventsView.add_fingerbank_trigger(search, id, display);
             else
               console.warn("Unhandled add-action \"" + search.add_action + "\"");
           }

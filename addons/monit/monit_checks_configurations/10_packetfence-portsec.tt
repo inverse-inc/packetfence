@@ -1,11 +1,5 @@
 # PacketFence SNMP checks
 
-CHECK PROCESS packetfence-pfsetvlan MATCHING "pfsetvlan"
-       group PacketFence
-       start program = "/usr/local/pf/bin/pfcmd service pfsetvlan restart" with timeout 60 seconds
-       stop program = "/usr/local/pf/bin/pfcmd service pfsetvlan stop"
-       if 3 restarts within 10 cycles then alert
-
 CHECK PROCESS packetfence-snmptrapd MATCHING "snmptrapd"
        group PacketFence
        start program = "/usr/local/pf/bin/pfcmd service snmptrapd restart" with timeout 60 seconds

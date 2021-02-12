@@ -1,25 +1,27 @@
 <script id="variables" type="text/json">
-{
-  "waitTime": [% timer %],
-  "destination_url": "[% destination_url %]"
-}
+  {
+    "waitTime": [% timer || 30 %],
+    "destination_url": "[% destination_url %]"
+  }
 </script>
 <script type="text/javascript" src="/content/scan.js"></script>
 <script type="text/javascript" src="/content/timerbar.js"></script>
 
-<div class="text-center">
-  <p>[% i18n(txt_message) %]</p>
-</div>
-
-<div class="layout layout--center layout--auto">
-  <div class="layout__item">
-    <div class="timerbar"></div>
+<div class="u-padding">
+  <div class="text-center">
+    <p>[% i18n(txt_message) %]</p>
   </div>
-</div>
 
-<noscript>
-  <div class="media media--error u-p u-mb">
-    <div class="media__img">[% flashIcon(level='error') %]</div>
-    <p class="media__body">[% i18n("If you have scripting turned off, you will not be automatically redirected. Please enable scripting or open a new browser window from time to time to see if your access was enabled.") %]</p>
+  <div class="o-layout o-layout--center">
+    <div class="o-layout__item u-1/1 u-2/3@tablet u-3/5@desktop">
+      <div class="c-timerbar"></div>
+    </div>
   </div>
-</noscript>
+
+  <noscript>
+    <div class="o-media o-media--error u-padding u-margin-bottom">
+      <div class="o-media__img">[% flashIcon(level='error') %]</div>
+      <p class="o-media__body">[% i18n("If you have scripting turned off, you will not be automatically redirected. Please enable scripting or open a new browser window from time to time to see if your access was enabled.") %]</p>
+    </div>
+  </noscript>
+</div>

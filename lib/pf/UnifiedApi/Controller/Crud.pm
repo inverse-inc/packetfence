@@ -18,6 +18,15 @@ use Mojo::Base 'pf::UnifiedApi::Controller::RestRoute';
 use Mojo::JSON qw(decode_json);
 use pf::error qw(is_error);
 use pf::log;
+use pf::dal::admin_api_audit_log;
+use pf::util qw(expand_csv);
+use pf::UnifiedApi::Search::Builder;
+use pf::UnifiedApi::OpenAPI::Generator::Crud;
+
+our %OP_HAS_SUBQUERIES = (
+    'and' => 1,
+    'or' => 1,
+);
 
 =head1 ATTRIBUTES
 
@@ -55,34 +64,107 @@ Example:
 
 has 'parent_primary_key_map' => sub { {} };
 
+=head2 url_parent_ids
+
+url_parent_ids
+
+=cut
+
+has 'url_parent_ids' => sub { [] };
+
+
+=head2 search_builder_class
+
+search_builder_class
+
+=cut
+
+has 'search_builder_class' => "pf::UnifiedApi::Search::Builder";
+
+=head2 openapi_generator_class
+
+openapi_generator_class
+
+=cut
+
+has 'openapi_generator_class' => 'pf::UnifiedApi::OpenAPI::Generator::Crud';
+
 =head1 METHODS
 
 =cut
 
 sub list {
     my ($self) = @_;
-    my $number_of_results = $self->list_number_of_results;
-    my $limit = $number_of_results + 1;
-    my $cursor = $self->list_cursor();
-    my ($status, $iter) = $self->dal->search(
-        -limit => $limit,
-        -offset => $cursor,
-        -with_class => undef,
-        -where => $self->where_for_list,
-    );
-    my $items = $iter->all;
-    my $prevCursor = $cursor - $number_of_results;
-    my %results = (
-        items => $items,
-    );
-    if (@$items == $limit) {
-        pop @$items;
-        $results{nextCursor} = $cursor + $number_of_results
+    my ($status, $search_info_or_error) = $self->build_list_search_info;
+    if (is_error($status)) {
+        return $self->render(json => $search_info_or_error, status => $status);
     }
-    if ($prevCursor >= 0 ) {
-        $results{prevCursor} = $prevCursor;
+
+    ($status, my $response) = $self->search_builder->search($search_info_or_error);
+    if ( is_error($status) ) {
+        return $self->render_error(
+            $status,
+            $response->{message},
+            $response->{errors}
+        );
     }
-    $self->render(json => \%results, status => $status);
+    local $_;
+    $response->{items} = [
+        map { $self->cleanup_item($_) } @{$response->{items} // []}
+    ];
+
+    return $self->render(
+        json   => $response,
+        status => $status
+    );
+}
+
+sub build_list_search_info {
+    my ($self) = @_;
+    my $params = $self->req->query_params->to_hash;
+
+    return 200, {
+        dal => $self->dal,
+        query => $self->build_list_search_query,
+        (
+            map {
+                exists $params->{$_}
+                  ? ( $_ => $params->{$_} )
+                  : ()
+            } qw(limit cursor with_total_count)
+        ),
+        (
+            map {
+                exists $params->{$_}
+                  ? ( $_ => [expand_csv($params->{$_})] )
+                  : ()
+            } qw(fields sort)
+        )
+    };
+}
+
+sub build_list_search_query {
+    my ($self) = @_;
+    my $parent_data = $self->parent_data;
+    if (keys %$parent_data == 0) {
+        return undef;
+    }
+
+    my $query;
+    my @sub_queries;
+    while (my ($k, $v) = each %$parent_data) {
+        next if !defined $v || ref $v;
+        push @sub_queries, { field => $k, op => 'equals', value => $v };
+    }
+
+    if (@sub_queries) {
+        $query = {
+            values => \@sub_queries,
+            op => 'and',
+        }
+    }
+
+    return $query;
 }
 
 sub where_for_list {
@@ -90,22 +172,15 @@ sub where_for_list {
     $self->parent_data;
 }
 
-sub list_cursor {
+sub search_builder {
     my ($self) = @_;
-    my $cursor = $self->req->param('cursor') // 0;
-    $cursor += 0;
-    if ($cursor < 0) {
-        $cursor = 0;
-    }
-    return $cursor;
-}
-
-sub list_number_of_results {
-    return 100;
+    return $self->search_builder_class->new();
 }
 
 sub resource {
     my ($self) = @_;
+    my $url_param_name = $self->url_param_name;
+    $self->stash($url_param_name => $self->escape_url_param($self->stash->{$url_param_name}));
     my ($status, $item) = $self->do_get($self->get_lookup_info);
     if (is_error($status)) {
         return $self->render_error($status, "Unable to get resource with this identifier");
@@ -128,7 +203,20 @@ sub get_lookup_info {
 sub render_get {
     my ($self) = @_;
     my $stash = $self->stash;
-    return $self->render(json => { item => ${$stash->{item}}[-1], status => $stash->{status}});
+    my $item = $self->cleanup_item($self->item);
+    return $self->render(json => { item => $item }, status => $stash->{status});
+}
+
+=head2 item
+
+item
+
+=cut
+
+sub item {
+    my ($self) = @_;
+    my $stash = $self->stash;
+    return ${$stash->{item}}[-1];
 }
 
 sub do_get {
@@ -140,7 +228,7 @@ sub do_get {
 sub build_item_lookup {
     my ($self) = @_;
     my $lookup = $self->parent_data;
-    $lookup->{$self->primary_key} = $self->stash($self->url_param_name);
+    $lookup->{$self->primary_key} = $self->id;
     return $lookup;
 }
 
@@ -151,19 +239,39 @@ sub create {
     );
 }
 
+=head2 id
+
+Get id of current resource
+
+=cut
+
+sub id {
+    my ($self) = @_;
+    return $self->escape_url_param($self->stash->{$self->url_param_name});
+}
+
+sub create_error_msg {
+    "Unable to create resource"
+}
+
 sub render_create {
     my ($self, $status, $obj) = @_;
     if (is_error($status)) {
-        return $self->render_error($status, "Unable to create resource");
+        return $self->render_error($status, $obj->{message}, $obj->{errors});
     }
-    $self->res->headers->location($self->make_location_url($obj));
-    return $self->render(text => '', status => $status);
+
+    my $id = $obj->{$self->primary_key};
+    my $location_id = $id;
+    $location_id =~ s#/#~#g;
+    $self->res->headers->location($self->make_location_url($location_id));
+    $self->stash( $self->url_param_name => $id );
+    return $self->render(json => { id => $id , message => "'$id' created"}, status => $status);
 }
 
 sub make_location_url {
-    my ($self, $obj) = @_;
+    my ($self, $id) = @_;
     my $parent_route = $self->match->endpoint->parent->name;
-    my $url = $self->url_for("$parent_route.get", {$self->url_param_name => $obj->{$self->primary_key}});
+    my $url = $self->url_for("$parent_route.resource.get", {$self->url_param_name => $id});
     return "$url";
 }
 
@@ -175,17 +283,42 @@ sub make_create_data {
     }
     my $parent_data = $self->parent_data;
     @{$json}{keys %$parent_data} = values %$parent_data;
+    ($status, my $err) = $self->validate($json);
+    if (is_error($status)) {
+        return ($status, $err);
+    }
+
+    $self->create_data_update($json);
     return ($status, $json);
 }
+
+
+=head2 validate
+
+validate
+
+=cut
+
+sub validate {
+    my ($self, $item) = @_;
+    return 200, undef;
+}
+
+=head2 create_data_update
+
+create_data_update
+
+=cut
+
+sub create_data_update { }
 
 sub parent_data {
     my ($self) = @_;
     my $map = $self->parent_primary_key_map;
     my %data;
     my $captures = $self->stash->{'mojo.captures'};
-    while (my ($param_name, $field_name) = each %$map) {
-        $data{$field_name} = $captures->{$param_name};
-    }
+    @data{values %$map} = @{$captures}{keys %$map};
+    %data = map { $_ => $self->escape_url_param($data{$_}) } keys(%data);
 
     return \%data;
 }
@@ -205,6 +338,7 @@ sub create_obj {
     if (is_error($status)) {
         return ($status, {message => $self->status_to_error_msg($status)});
     }
+
     return ($status, $obj);
 }
 
@@ -216,16 +350,27 @@ sub remove {
 }
 
 sub render_remove {
-    my ($self, $status) = @_;
+    my ($self, $status, $msg) = @_;
     if (is_error($status)) {
-        return $self->render_error($status, "Unable to remove resource");
+        return $self->render_error($status, $msg // "Unable to remove resource");
     }
-    return $self->render(json => {}, status => $status);
+
+    my $id = $self->id;
+    return $self->render(json => { message => "Deleted $id successfully" }, status => $status);
 }
 
 sub do_remove {
     my ($self) = @_;
+    my ($status, $msg) = $self->can_remove();
+    if (is_error($status)) {
+        return ($status, $msg);
+    }
+
     return $self->dal->remove_by_id($self->build_item_lookup);
+}
+
+sub can_remove {
+    return (200, '');
 }
 
 =head2 update
@@ -239,31 +384,107 @@ sub update {
     my $req = $self->req;
     my $res = $self->res;
     my $data = $self->update_data;
-    my ($status, $count) = $self->dal->update_items(
+    my ($status, $err) = $self->validate($data);
+    if (is_error($status)) {
+        return $self->render_error(
+            $status,
+            $err->{message},
+            $err->{errors}
+        );
+    }
+    ($status, my $count) = $self->dal->update_items(
         -where => $self->build_item_lookup,
         -set => {
             %$data,
         },
         -limit => 1,
     );
+
     if ($count == 0) {
         $status = 404;
     }
-    $res->code($status);
-    if ($res->is_error) {
-
+    my $id = $self->id;
+    if (is_error($status)) {
+        return $self->render_error($status, "Cannot update '$id'");
     }
-    return $self->render(json => {});
+
+    $self->post_update($data);
+    return $self->render(json => { message => "'$id' updated" });
+}
+
+=head2 post_update
+
+post_update
+
+=cut
+
+sub post_update {
+    my ($self) = @_;
+    return ;
 }
 
 sub update_data {
     my ($self) = @_;
-    return $self->req->json;
+    my $data = $self->req->json;
+    my %update;
+    for my $field (@{$self->dal->table_field_names}) {
+        next if !exists $data->{$field};
+        $update{$field} = $data->{$field};
+    }
+
+    return \%update;
 }
 
 sub replace {
     my ($self) = @_;
     return $self->update;
+}
+
+sub search {
+    my ($self) = @_;
+    my ($status, $search_info_or_error) = $self->build_search_info;
+    if (is_error($status)) {
+        return $self->render(json => $search_info_or_error, status => $status);
+    }
+
+    ($status, my $response) = $self->search_builder->search($search_info_or_error);
+    if ( is_error($status) ) {
+        return $self->render_error(
+            $status,
+            $response->{message},
+            $response->{errors}
+        );
+    }
+    local $_;
+    $response->{items} = [
+        map { $self->cleanup_item($_) } @{$response->{items} // []}
+    ];
+
+    return $self->render(
+        json   => $response,
+        status => $status
+    );
+}
+
+sub cleanup_item { $_[1] }
+
+sub build_search_info {
+    my ($self) = @_;
+    my ( $status, $data_or_error ) = $self->parse_json;
+    if ( is_error($status) ) {
+        return $status, $data_or_error;
+    }
+
+    return 200, {
+        dal => $self->dal,
+        (
+            map {
+                exists $data_or_error->{$_}
+                  ? ( $_ => $data_or_error->{$_} )
+                  : ()
+            } qw(limit query fields sort cursor with_total_count)
+        )
+    };
 }
 
 =head1 AUTHOR
@@ -272,7 +493,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2018 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 
@@ -294,4 +515,3 @@ USA.
 =cut
 
 1;
-

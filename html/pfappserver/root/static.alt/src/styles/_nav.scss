@@ -1,0 +1,17 @@
+@import "../../node_modules/bootstrap/scss/nav";
+
+.nav-tabs {
+    .nav-link {
+        border-width: 0;
+        border-bottom-width: 3px;
+        outline: none;
+        &.active {
+            font-weight: 500;
+        }
+    }
+}
+
+.nav-tabs > li > a,
+.nav-pills > li > a {
+    margin-right: 0.5rem !important;
+}

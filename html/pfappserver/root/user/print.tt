@@ -1,5 +1,5 @@
 [% jsFiles = ['admin/user-print'] %]
-<script type="text/css" media="print" src="static/css/user_print.css"></script>
+<link rel="stylesheet" media="print" href="/static/css/user_print.css">
 <div class="container-fluid">
   <div class="row-fluid">
     <div class="span8 offset2">

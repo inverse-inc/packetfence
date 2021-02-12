@@ -64,26 +64,42 @@ DomainView.prototype.updateAndJoinDomain = function(e) {
   if (valid) {
       var modal_body = modal.find('.modal-body').first();
       resetAlert(modal_body);
+      id_input = modal_body.find('#id');
+      id_value = id_input.val();
+      if (!id_value.match(/^[a-zA-Z0-9]+$/)) {
+          showError(modal_body, "The id is invalid. The id can only contain alphanumeric characters.");
+          return;
+      }
+
       form.find('tr.hidden :input').attr('disabled', 'disabled');
       modal.modal('hide');
       that.showWait("The server is currently joining the domain");
-      this.items.post({
+      $.ajax({
           url: target.attr('href'),
-          data: form.serialize(),
-          always: function() {
-              // Restore hidden/template rows
-              form.find('tr.hidden :input').removeAttr('disabled');
-              btn.button('reset');
-              $('#modalDomainWait').modal('hide');
-          },
-          success: function(data) {
-              var content = $('<div></div>');
-              content.append('<h3>Result of the domain join</h3>'); 
-              content.append($('<pre>' + data.items.join_output + '</pre>'));
-              that.showResultModal(content); 
-              that.list();
-          },
-          errorSibling: $('#section')
+          type: 'POST',
+          data: form.serialize()
+      })
+      .always(function() {
+          // Restore hidden/template rows
+          form.find('tr.hidden :input').removeAttr('disabled');
+          btn.button('reset');
+      })
+      .done(function(data) {
+          $('#modalDomainWait').modal('hide');
+          var content = $('<div></div>');
+          content.append('<h3>Result of the domain join</h3>'); 
+          content.append($('<pre>' + data.items.join_output + '</pre>'));
+          that.showResultModal(content); 
+          that.list();
+      })
+      .fail(function(jqXHR) {
+        var waitModal = $('#modalDomainWait');
+        waitModal.one('hidden', function() {
+            modal.modal('show');
+            var status_msg = getStatusMsg(jqXHR);
+            showPermanentError(modal_body, status_msg);
+        });
+        waitModal.modal('hide');
       });
   }
 };
@@ -165,26 +181,29 @@ DomainView.prototype.setPassword = function(domain,callback) {
   var modal = $('#modalDomainSetPassword-'+domain);
   var form = $('#modalDomainSetPassword-'+domain+' form');
   form.submit(function(evt){
-    evt.preventDefault();
-    $.ajax({
-        'url'   : form.attr('action'),
-        'type'  : "POST",
-        'data'  : form.serialize(),
-        })
-        .done(function(data) {
-            modal.modal('hide');     
-            form.find('input[name="username"]').val('');
-            form.find('input[name="password"]').val('');
-            callback();
-        })
-        .fail(function(jqXHR) {
-            $("body,html").animate({scrollTop:0}, 'fast');
-            var status_msg = getStatusMsg(jqXHR);
-            form.find('input[name="username"]').val('');
-            form.find('input[name="password"]').val('');
-            showError($('#section h2'), status_msg);
-        });
-    return false;
+        evt.preventDefault();
+        var isValid = isFormValid(form);
+        if (isValid) {
+            $.ajax({
+                'url'   : form.attr('action'),
+                'type'  : "POST",
+                'data'  : form.serialize(),
+                })
+                .always(function(data) {
+                    form.find('input[name="username"]').val('');
+                    form.find('input[name="password"]').val('');
+                })
+                .done(function(data) {
+                    modal.modal('hide');
+                    callback();
+                })
+                .fail(function(jqXHR) {
+                    $("body,html").animate({scrollTop:0}, 'fast');
+                    var status_msg = getStatusMsg(jqXHR);
+                    showError(modal.find('.modal-body').first(), status_msg);
+                });
+        }
+        return false;
   });
   modal.modal('show');
 };

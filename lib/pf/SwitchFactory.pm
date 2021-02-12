@@ -23,20 +23,23 @@ use pf::freeradius;
 use Module::Load;
 use Benchmark qw(:all);
 use List::Util qw(first);
-use List::MoreUtils qw(any);
+use List::MoreUtils qw(any uniq);
 use pf::CHI;
 use pfconfig::cached_hash;
 use pfconfig::cached_array;
 use NetAddr::IP;
 use pf::StatsD::Timer;
 use pf::util::statsd qw(called);
+use pf::access_filter::switch;
+use pf::config::cluster;
 
 our %SwitchConfig;
-tie %SwitchConfig, 'pfconfig::cached_hash', 'config::Switch';
-my @SwitchRanges;
+tie %SwitchConfig, 'pfconfig::cached_hash', "config::Switch($host_id)";
+our @SwitchRanges;
 tie @SwitchRanges, 'pfconfig::cached_array', 'resource::switches_ranges';
 our %SwitchTypesConfigured;
 tie %SwitchTypesConfigured, 'pfconfig::cached_hash', 'resource::SwitchTypesConfigured';
+tie our %TemplateSwitches, 'pfconfig::cached_hash', 'config::TemplateSwitches';
 
 #Loading all the switch modules ahead of time
 use Module::Pluggable
@@ -75,7 +78,11 @@ sub hasId { exists $SwitchConfig{$_[0]} }
 
 sub instantiate {
     my $timer = pf::StatsD::Timer->new({level => 7});
-    my ( $class, $switchRequest ) = @_;
+    my ( $class, $switchRequest, $args ) = @_;
+
+    # Defaults to an empty hash to be backward compatible
+    $args //= {};
+
     my $logger = get_logger();
     my @requestedSwitches;
     my $requestedSwitch;
@@ -91,6 +98,14 @@ sub instantiate {
         if(exists $switchRequest->{switch_ip} && defined $switchRequest->{switch_ip}) {
             $switch_ip = $switchRequest->{switch_ip};
             push @requestedSwitches,$switch_ip;
+        }
+        if(exists $switchRequest->{switch_id} && defined $switchRequest->{switch_id}) {
+            push @requestedSwitches,$switchRequest->{switch_id};
+            if(valid_ip($switchRequest->{switch_id})) {
+                $switch_ip = $switchRequest->{switch_id};
+            } elsif (valid_mac($switchRequest->{switch_id})) {
+                $switch_mac = $switchRequest->{switch_id};
+            }
         }
     } else {
         @requestedSwitches = ($switchRequest);
@@ -149,18 +164,26 @@ sub instantiate {
     my $switchOverlay = $switch_overlay_cache->get($requestedSwitch) || {};
     my ($module, $type);
     $type = untaint_chain( $switch_data->{'type'} );
+    
+    my $filter = pf::access_filter::switch->new;
+    my $type_switch = $filter->filter('instantiate_module', $args);
+    $type = $type_switch if($type_switch);
+
     if ($requestedSwitch ne 'default') {
         $module = getModule($type);
     } else {
         $module = "pf::Switch";
     }
     unless ($module) {
+        $type //= '(undefined)';
         $logger->error("Can not load perl module for switch $requestedSwitch, type: $type. "
                   . "The type is unknown or the perl module has compilation errors. ");
         $pf::StatsD::statsd->increment(called() . ".error" );
         return 0;
     }
     $module = untaint_chain($module);
+    my $templateArgs = getTemplateArgs($type);
+
     # load the module to instantiate
 
     $logger->debug("creating new $module object");
@@ -171,9 +194,24 @@ sub instantiate {
          switchMac => $switch_mac,
          %$switch_data,
          %$switchOverlay,
+         %$templateArgs,
     });
 
+    # Don't let the switch overlay override the controller IP that is set in the configuration
+    if(defined $switch_data->{controllerIp}) {
+        $result->{_controllerIp} = $switch_data->{controllerIp}
+    }
+
     return $result;
+}
+
+sub getTemplateArgs {
+    my ($type) = @_;
+    if (defined $type && exists $TemplateSwitches{$type}) {
+        return { template => {%{$TemplateSwitches{$type}}} };
+    }
+
+    return {};
 }
 
 sub config {
@@ -189,6 +227,15 @@ Get the module from the type
 
 sub getModule {
     my ($type) = @_;
+    unless ($type) {
+        get_logger->error("Undefined type");
+        return undef;
+    }
+
+    if (exists $TemplateSwitches{$type}) {
+        $type = 'Template';
+    }
+
     unless(exists $TYPE_TO_MODULE{$type}) {
         my $module = "pf::Switch::$type";
         eval {
@@ -217,8 +264,7 @@ sub buildVendorsList {
         my $vendor = shift @p;
         #Include only concrete classes indictated by the existence of the description method
         if ($module->can('description')) {
-            $VENDORS{$vendor} = {} unless ($VENDORS{$vendor});
-            $VENDORS{$vendor}->{$switch} = $module->description;
+            push @{$VENDORS{$vendor}}, { value => $switch, label => $module->description, supports => [$module->supports] };
         }
     }
 }
@@ -233,6 +279,7 @@ sub preloadAllModules {
     my ($class) = @_;
     unless (@MODULES) {
         @MODULES  = $class->_all_modules;
+        load("pf::Switch::Template");
         buildTypeToModuleMap();
         buildVendorsList();
     }
@@ -247,6 +294,7 @@ Preloads only the configured switch modules
 sub preloadConfiguredModules {
     my ($class) = @_;
     unless (@MODULES) {
+        load("pf::Switch::Template");
         @MODULES = $class->_configured_modules;
         buildTypeToModuleMap();
     }
@@ -278,6 +326,38 @@ sub isTypeConfigured {
     exists $SwitchTypesConfigured{$_[0]}
 }
 
+=head2 form_options
+
+Extract the descriptions from the various Switch modules.
+
+=cut
+
+sub form_options {
+    # Sort vendors and switches for display
+    my @modules;
+    my $V2 = $TemplateSwitches{'::VENDORS'} // {};
+    foreach my $v ( uniq sort ( keys %VENDORS, keys %$V2)) {
+        my @switches =
+          map { {%{$_}} }
+          sort { $a->{value} cmp $b->{value} } (
+              (
+                exists $VENDORS{$v} ? @{ $VENDORS{$v} } : ()
+              ),
+              (
+                exists $V2->{$v} ? @{ $V2->{$v} } : ()
+              )
+        );
+        push @modules,
+          {
+            group   => $v,
+            options => \@switches,
+            value   => ''
+          };
+    }
+
+    return @modules;
+}
+
 =back
 
 =head1 AUTHOR
@@ -286,7 +366,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2018 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 

@@ -52,7 +52,7 @@ sub getClient {
 
 sub getManagementClient {
     if($cluster_enabled) {
-        return $CURRENT_CLIENT->new(proto => 'https', host => pf::cluster::management_cluster_ip());
+        return $pf::constants::api::DEFAULT_CLIENT->new(proto => 'https', host => pf::cluster::management_cluster_ip());
     }
     else {
         return getClient();
@@ -65,7 +65,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2018 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 

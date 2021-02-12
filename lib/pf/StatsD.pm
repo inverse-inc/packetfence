@@ -24,15 +24,20 @@ use base "Etsy::StatsD";
 use Sys::Hostname;
 use POSIX;
 use Readonly;
+use pf::file_paths qw($pf_default_file $pf_config_file);
+use pf::IniFiles;
 
 our $VERSION = 1.000000;
 our @EXPORT = qw($statsd);
 our $statsd;
 
+our $pf_default_config = pf::IniFiles->new( -file => $pf_default_file) or die "Cannot open $pf_default_file";
+our $pf_config = pf::IniFiles->new( -file => $pf_config_file, -allowempty => 1, -import => $pf_default_config) or die "Cannot open $pf_config_file";
+
 Readonly my $GRAPHITE_DELIMITER => ".";
 Readonly my $STATSD_DELIMITER   => ":";
 Readonly my $STATSD_HOST   => "127.0.0.1";
-Readonly my $STATSD_PORT   => 8125;
+Readonly my $STATSD_PORT   => $pf_config->val( 'advanced','statsd_listen_port');
 
 initStatsd();
 
@@ -108,7 +113,6 @@ Log timing information
 
 sub timing {
     my ( $self, $stats, $time, $sample_rate ) = @_;
-    $stats = $self->{hostname} . ".$stats";
     $time = ceil $time; # make sure it is at lease == 1
     $stats =~ s/\Q$STATSD_DELIMITER\E/_/g;
     $self->send( { $stats => "$time|ms" }, $sample_rate );
@@ -149,10 +153,10 @@ sub update {
     $delta = 1 unless defined $delta;
     my %data;
     if ( ref($stats) eq 'ARRAY' ) {
-        %data = map { "$self->{hostname}\.$_" => "$delta|c" }, @$stats;
+        %data = map { "$_" => "$delta|c" }, @$stats;
     }
     else {
-        %data = ( "$self->{hostname}\.$stats" => "$delta|c" );
+        %data = ( "$stats" => "$delta|c" );
     }
     $self->send( \%data, $sample_rate );
 }
@@ -165,7 +169,6 @@ Set the gauge
 
 sub gauge {
     my ($self, $stats, $gauge, $sample_rate) = @_;
-    $stats = $self->{hostname} . ".$stats";
     $stats =~ s/\Q$STATSD_DELIMITER\E/_/g;
     $self->send( { $stats => "$gauge|g" }, $sample_rate );
 }
@@ -178,7 +181,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2018 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 

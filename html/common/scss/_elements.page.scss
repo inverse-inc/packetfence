@@ -1,0 +1,19 @@
+/// _elements.page.scss -*- Mode: scss; indent-tabs-mode: nil; basic-offset: 2; fill-column: 80 -*-
+
+html, body {
+  height: 100%;
+}
+
+html {
+  font-family: "Arial", "Helvetica Neue", sans-serif;
+  color: $pf-base-text-color;
+  background-color: $pf-background;
+}
+
+main {
+  padding-top: $pf-header-height;
+  width: 100%;
+  @include mq($from: tablet) {
+    padding-top: $pf-header-height * 1.2;
+  }
+}

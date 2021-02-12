@@ -1,0 +1,40 @@
+/ip6logs:
+  description: pf::UnifiedApi::Controller::Ip6logs
+  get:
+    description: List items
+    operationId: api.v1.Ip6logs.list
+    parameters:
+    - $ref: '#/components/parameters/cursor'
+    - $ref: '#/components/parameters/limit'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/sort'
+    responses:
+      '200':
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Ip6logsList'
+        description: List
+      '400':
+        $ref: '#/components/responses/BadRequest'
+      '422':
+        $ref: '#/components/responses/UnprocessableEntity'
+  post:
+    description: Create an item
+    operationId: api.v1.Ip6logs.create
+    parameters: []
+    requestBody:
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Ip6log'
+      description: Create item
+    responses:
+      '201':
+        $ref: '#/components/responses/Created'
+      '400':
+        $ref: '#/components/responses/BadRequest'
+      '409':
+        $ref: '#/components/responses/Duplicate'
+      '422':
+        $ref: '#/components/responses/UnprocessableEntity'

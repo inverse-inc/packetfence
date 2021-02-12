@@ -7,12 +7,14 @@ import (
 )
 
 type MemTokenBackend struct {
-	store *cache.Cache
+	store         *cache.Cache
+	maxExpiration time.Duration
 }
 
-func NewMemTokenBackend(expiration time.Duration) *MemTokenBackend {
+func NewMemTokenBackend(expiration time.Duration, maxExpiration time.Duration) *MemTokenBackend {
 	return &MemTokenBackend{
-		store: cache.New(expiration, 10*time.Minute),
+		store:         cache.New(expiration, 10*time.Minute),
+		maxExpiration: maxExpiration,
 	}
 }
 
@@ -21,32 +23,49 @@ func (mtb *MemTokenBackend) TokenIsValid(token string) bool {
 	return found
 }
 
-func (mtb *MemTokenBackend) TokenInfoForToken(token string) *TokenInfo {
-	o, found := mtb.store.Get(token)
+func (mtb *MemTokenBackend) TokenInfoForToken(token string) (*TokenInfo, time.Time) {
+	o, expiration, found := mtb.store.GetWithExpiration(token)
 	if found {
-		return o.(*TokenInfo)
+		ti := o.(*TokenInfo)
+		if time.Now().Sub(ti.CreatedAt) > mtb.maxExpiration {
+			// Token has reached max expiration
+			return nil, time.Unix(0, 0)
+		}
+
+		if expiration.After(ti.CreatedAt.Add(mtb.maxExpiration)) {
+			expiration = ti.CreatedAt.Add(mtb.maxExpiration)
+		}
+
+		return ti, expiration
 	} else {
-		return nil
+		return nil, time.Unix(0, 0)
 	}
 }
 
 func (mtb *MemTokenBackend) TenantIdForToken(token string) int {
-	if ti := mtb.TokenInfoForToken(token); ti != nil {
-		return ti.TenantId
+	if ti, _ := mtb.TokenInfoForToken(token); ti != nil {
+		return ti.Tenant.Id
 	} else {
 		return AccessNoTenants
 	}
 }
 
-func (mtb *MemTokenBackend) AdminRolesForToken(token string) map[string]bool {
-	if ti := mtb.TokenInfoForToken(token); ti != nil {
-		return ti.AdminRoles
+func (mtb *MemTokenBackend) AdminActionsForToken(token string) map[string]bool {
+	if ti, _ := mtb.TokenInfoForToken(token); ti != nil {
+		return ti.AdminActions()
 	} else {
 		return make(map[string]bool)
 	}
 }
 
 func (mtb *MemTokenBackend) StoreTokenInfo(token string, ti *TokenInfo) error {
+	ti.CreatedAt = time.Now()
 	mtb.store.SetDefault(token, ti)
 	return nil
+}
+
+func (mtb *MemTokenBackend) TouchTokenInfo(token string) {
+	if ti, _ := mtb.TokenInfoForToken(token); ti != nil {
+		mtb.store.SetDefault(token, ti)
+	}
 }

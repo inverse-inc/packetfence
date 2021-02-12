@@ -25,6 +25,7 @@ has '+dynamic_routing_module'   => (is => 'rw', default => 'Authentication::SMS'
 has 'account_sid'               => (isa => 'Str', is => 'rw');
 has 'auth_token'                => (isa => 'Str', is => 'rw');
 has 'twilio_phone_number'       => (isa => 'Str', is => 'rw', default => '+15555551234');
+has 'message'                   => (isa => 'Maybe[Str]', is => 'rw', default => 'PIN: $pin');
 
 =head2 available_rule_classes
 
@@ -82,7 +83,7 @@ sub mandatoryFields {
 
 sub match_in_subclass {
     my ($self, $params, $rule, $own_conditions, $matching_conditions) = @_;
-    return $params->{'username'};
+    return ($params->{'username'}, undef);
 }
 
 
@@ -125,7 +126,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2018 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 

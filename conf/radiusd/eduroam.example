@@ -25,6 +25,8 @@ authorize {
 		&control:Tmp-Integer-0 := "%l"
 		&control:PacketFence-Request-Time := 0
 	}
+	packetfence-set-realm-if-machine
+	packetfence-set-tenant-id
 	rewrite_calling_station_id
 	rewrite_called_station_id
 	#
@@ -64,18 +66,18 @@ authorize {
 	suffix
 	ntdomain
 
+%%authorize_filter%%
+
 	# Eduroam needs a "full" username with a domain part (username@domain)
 	# If request does not contain username with @domain part, reject it
 	# rather than sending it to Eduroam
-	if (User-Name =~ /@/) {
-		update control {
-			Proxy-To-Realm := "eduroam"
-		}
-	}
-	else {
-		reject
-	}
-
+        if (User-Name =~ /@/) {
+%%reject_realm%%
+%%local_realm%%
+        }
+        else {
+%%local_realm_exception%%
+        }
 	#
 	#  This module takes care of EAP-MD5, EAP-TLS, and EAP-LEAP
 	#  authentication.
@@ -92,9 +94,8 @@ authorize {
 	#  initial set of packets that go back and forth to set up
 	#  TTLS or PEAP.
 	#
-	eap {
-		ok = return
-	}
+
+%%authorize_eap_choice%%
 
 	#
 	#  Read the 'users' file.  In v3, this is located in
@@ -181,7 +182,7 @@ authenticate {
 		mschap
 	}
 
-
+%%authentication_auth_type%%
 
 	#  Uncomment it if you want to use ldap for authentication
 	#
@@ -251,6 +252,7 @@ preacct {
 	#  home server as authentication requests.
 	#	IPASS
 	suffix
+%%preacct_filter%%
 	ntdomain
 
 	#
@@ -271,9 +273,10 @@ accounting {
 		&control:PacketFence-RPC-Pass = ${rpc_pass}
 		&control:PacketFence-RPC-Proto = ${rpc_proto}
 	}
+    packetfence-set-tenant-id
 	rewrite_calling_station_id
 	rewrite_called_station_id
-
+%%local_realm_acct%%
 	#
 	#  If you receive stop packets with zero session length,
 	#  they will NOT be logged in the database.  The SQL module
@@ -322,6 +325,7 @@ post-auth {
 		&control:PacketFence-RPC-Pass = ${rpc_pass}
 		&control:PacketFence-RPC-Proto = ${rpc_proto}
 	}
+	packetfence-set-tenant-id
 	#
 	#  For EAP-TTLS and PEAP, add the cached attributes to the reply.
 	#  The "session-state" attributes are automatically cached when
@@ -334,8 +338,14 @@ post-auth {
 	#update {
 	#	&reply: += &session-state:
 	#}
-
-	rest
+%%eduroam_post_auth%%
+	if (Realm == "eduroam") {
+		# Update the realm in the request so its consistent with the logic that will be performed in httpd.aaa
+		update request {
+			Realm = "eduroam"
+		}
+		rest
+	}
 	if (updated || ok || noop) {
 		request-timing
 		-sql
@@ -356,6 +366,7 @@ post-auth {
 	#  The "session-state" attributes are not available here.
 	#
 	Post-Auth-Type REJECT {
+		packetfence-set-tenant-id
 		request-timing
 		# log failed authentications in SQL, too.
 		-sql_reject
@@ -383,6 +394,7 @@ post-auth {
 #  Only a few modules currently have this method.
 #
 pre-proxy {
+%%pre_proxy_filter%%
 }
 
 #
@@ -425,5 +437,6 @@ post-proxy {
 #	Post-Proxy-Type Fail-Accounting {
 #			detail
 #	}
+%%post_proxy_filter%%
 }
 }

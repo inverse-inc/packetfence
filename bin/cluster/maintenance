@@ -81,6 +81,9 @@ elsif($activate) {
 elsif($deactivate) {
     pf::cluster::deactivate_maintenance();
     
+    print "==========\nStarting PacketFence Redis Cache...\n";
+    do_command("systemctl start packetfence-redis-cache");
+
     print "==========\nStarting PacketFence MariaDB...\n";
     do_command("systemctl start packetfence-mariadb");
 

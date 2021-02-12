@@ -21,11 +21,14 @@ use warnings;
 
 use pfconfig::namespaces::config;
 use pf::file_paths qw($authentication_config_file);
+use pf::util qw(isdisabled);
 use pf::constants::authentication;
 use pf::Authentication::constants;
 use pf::Authentication::Action;
 use pf::Authentication::Condition;
 use pf::Authentication::Rule;
+use pf::Authentication::utils;
+use Sort::Naturally qw(nsort);
 use pf::constants::authentication;
 
 use base 'pfconfig::namespaces::config';
@@ -37,7 +40,11 @@ sub init {
         'resource::authentication_config_hash',
         'resource::authentication_lookup',
         'resource::authentication_sources',
+        'resource::authentication_sources_monitored',
         'resource::guest_self_registration',
+        'resource::authentication_sources_ldap',
+        'resource::authentication_sources_radius',
+        'resource::RolesReverseLookup',
     ];
 }
 
@@ -53,6 +60,7 @@ sub build_child {
     my @authentication_sources = ();
     my %authentication_lookup  = ();
     my %authentication_config_hash = ();
+    my %roleReverseLookup;
     foreach my $source_id ( @{ $self->{ordered_sections} } ) {
 
         my $current_source_config = { %{$cfg{$source_id}} };
@@ -72,13 +80,24 @@ sub build_child {
         # Parse rules
         foreach my $rule_id ( $self->GroupMembers($source_id) ) {
             my ($id) = $rule_id =~ m/$source_id rule (\S+)$/;
+            my $rule_config = $cfg{$rule_id};
+            my $class = $rule_config->{class};
+            if (ref($class) || (defined $class && $class =~ /\n/s)) {
+                print STDERR "rule '$rule_id' seems to be defined multiple times skipping rule\n";
+                next;
+            }
+            my $status = $rule_config->{status} // 'enabled';
+            if (isdisabled($status)) {
+                next;
+            }
 
             my $current_rule = pf::Authentication::Rule->new( { match => $Rules::ANY, id => $id } );
             my %current_rule_config = ();
-
-            foreach my $parameter ( sort( keys( %{ $cfg{$rule_id} } ) ) ) {
+            my $cache_key = '';
+            foreach my $parameter ( nsort keys( %$rule_config ) ) {
+                my $config_value = $rule_config->{$parameter};
                 if ( $parameter =~ m/condition(\d+)/ ) {
-                    my ( $attribute, $operator, $value ) = split( ',', $cfg{$rule_id}{$parameter}, 3 );
+                    my ( $attribute, $operator, $value ) = split( ',', $config_value, 3 );
 
                     $current_rule->add_condition(
                         pf::Authentication::Condition->new(
@@ -89,48 +108,32 @@ sub build_child {
                         )
                     );
 
-                    $current_rule_config{'conditions'}{$parameter} = $cfg{$rule_id}{$parameter};
+                    $cache_key .= $config_value;
+                    $current_rule_config{'conditions'}{$parameter} = $config_value;
                 }
                 elsif ( $parameter =~ m/action(\d+)/ ) {
-                    my ( $type, $value ) = split( '=', $cfg{$rule_id}{$parameter}, 2 );
-
-                    if ( defined $value ) {
-                        $current_rule->add_action(
-                            pf::Authentication::Action->new(
-                                {   type  => $type,
-                                    value => $value,
-                                    class => pf::Authentication::Action->getRuleClassForAction($type),
-                                }
-                            )
-                        );
-                    }
-                    else {
-                        $current_rule->add_action(
-                            pf::Authentication::Action->new(
-                                {
-                                    type    => $type,
-                                    class   => pf::Authentication::Action->getRuleClassForAction($type),
-                                }
-                            )
-                        );
+                    my ( $type, $value ) = split( '=', $config_value, 2 );
+                    $current_rule->add_action(
+                        pf::Authentication::Action->new(
+                            {
+                                type  => $type,
+                                (defined $value ? (value => $value) : ()),
+                                class => pf::Authentication::Action->getRuleClassForAction($type),
+                            },
+                        )
+                    );
+                    if ( $type eq 'set_role') {
+                        push @{$roleReverseLookup{$value}{authentication}}, $rule_id;
                     }
 
-                    $current_rule_config{'actions'}{$parameter} = $cfg{$rule_id}{$parameter};
-                }
-                elsif ( $parameter =~ m/match/ ) {
-                    $current_rule->{'match'} = $cfg{$rule_id}{$parameter};
-                    $current_rule_config{'match'} = $cfg{$rule_id}{$parameter};
-                }
-                elsif ( $parameter =~ m/description/ ) {
-                    $current_rule->{'description'} = $cfg{$rule_id}{$parameter};
-                    $current_rule_config{'description'} = $cfg{$rule_id}{$parameter};
-                }
-                elsif ( $parameter =~ m/class/ ) {
-                    $current_rule->{'class'} = $cfg{$rule_id}{$parameter};
-                    $current_rule_config{'class'} = $cfg{$rule_id}{$parameter};
+                    $current_rule_config{'actions'}{$parameter} = $config_value;
+                } else {
+                    $current_rule->{$parameter} = $current_rule_config{$parameter} = $config_value;
                 }
             }
 
+            $current_rule->cache_key($cache_key);
+            $current_rule_config{cache_key} = $cache_key;
             $current_source->add_rule($current_rule);
             $current_source_config->{'rules'}->{$rule_id} = \%current_rule_config;
         }
@@ -144,7 +147,7 @@ sub build_child {
     $resources{authentication_sources} = \@authentication_sources;
     $resources{authentication_lookup}  = \%authentication_lookup;
     $resources{authentication_config_hash}  = \%authentication_config_hash;
-
+    $self->{roleReverseLookup} = \%roleReverseLookup;
     return \%resources;
 
 }
@@ -170,7 +173,12 @@ sub newAuthenticationSource {
 
 sub cleanup_after_read {
     my ( $self, $id, $data ) = @_;
-    $self->expand_list( $data, qw(realms local_realm reject_realm) );
+    my $type = $data->{type};
+    if (defined $type && $type eq 'OpenID') {
+        pf::Authentication::utils::inflatePersonMappings($data);
+    }
+
+    $self->expand_list( $data, qw(realms local_realm reject_realm searchattributes sources) );
 }
 
 =head1 AUTHOR
@@ -179,7 +187,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2018 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 

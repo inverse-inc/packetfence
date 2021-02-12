@@ -26,7 +26,11 @@
     [% form.field('dhcp_end').render | none %]
     [% form.field('dhcp_default_lease_time').render | none %]
     [% form.field('dhcp_max_lease_time').render | none %]
+    [% form.field('algorithm').render | none %]
+    [% form.field('ip_reserved').render | none %]
+    [% form.field('ip_assigned').render | none %]
     [% form.field('dns').render | none %]
+    [% form.field('portal_fqdn').render | none %]
     [% form.field('gateway').render | none %]
     </span>
     [% IF form.field('gateway') -%]

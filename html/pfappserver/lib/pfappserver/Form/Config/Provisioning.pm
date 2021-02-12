@@ -13,7 +13,7 @@ extends 'pfappserver::Base::Form';
 with qw (
     pfappserver::Base::Form::Role::Help
     pfappserver::Role::Form::RolesAttribute
-    pfappserver::Role::Form::ViolationsAttribute
+    pfappserver::Role::Form::SecurityEventsAttribute
 );
 
 use pf::config qw(%ConfigPKI_Provider);
@@ -42,6 +42,62 @@ has_field 'type' =>
    messages => { required => 'Please select Provisioning type' },
   );
 
+has_field 'sync_pid',
+  (
+   type => 'Toggle',
+   label => 'Sync PID',
+   checkbox_value => 'enabled',
+   unchecked_value => 'disabled',
+   tags => { after_element => \&help,
+             help => 'Whether or not the PID (username) should be synchronized from the provisioner to PacketFence.' },
+   default => 'disabled',
+  );
+
+has_field 'enforce',
+  (
+   type => 'Toggle',
+   label => 'Enforce',
+   checkbox_value => 'enabled',
+   unchecked_value => 'disabled',
+   tags => { after_element => \&help,
+             help => 'Whether or not the provisioner should be enforced. This will trigger checks to validate the device is compliant with the provisioner during RADIUS authentication and on the captive portal.' },
+   default => 'enabled',
+  );
+
+has_field 'autoregister',
+  (
+   type => 'Toggle',
+   label => 'Auto register',
+   checkbox_value => 'enabled',
+   unchecked_value => 'disabled',
+   tags => { after_element => \&help,
+             help => 'Whether or not devices should be automatically registered on the network if they are authorized in the provisioner.' },
+   default => 'disabled',
+  );
+
+has_field 'apply_role',
+  (
+   type => 'Toggle',
+   label => 'Apply role',
+   checkbox_value => 'enabled',
+   unchecked_value => 'disabled',
+   tags => { after_element => \&help,
+             help => 'When enabled, this will apply the configured role to the endpoint if it is authorized in the provisioner.' },
+   default => 'disabled',
+  );
+
+
+has_field 'role_to_apply' =>
+  (
+   type => 'Select',
+   label => 'Role to apply',
+   options_method => \&options_roles,
+   element_class => ['chzn-deselect'],
+   element_attr => {'data-placeholder' => 'Click to add a role'},
+   tags => { after_element => \&help,
+             help => 'When "Apply role" is enabled, this defines the role to apply when the device is authorized with the provisioner.' },
+  );
+
 has_field 'category' =>
   (
    type => 'Select',
@@ -66,15 +122,15 @@ has_field 'oses' =>
    fingerbank_model => "fingerbank::Model::Device",
   );
 
-has_field 'non_compliance_violation' =>
+has_field 'non_compliance_security_event' =>
   (
    type => 'Select',
-   label => 'Non compliance violation',
-   options_method => \&options_violations,
+   label => 'Non compliance security_event',
+   options_method => \&options_security_events,
    element_class => ['chzn-deselect'],
    element_attr => {'data-placeholder' => 'None'},
    tags => { after_element => \&help,
-             help => 'Which violation should be raised when non compliance is detected' },
+             help => 'Which security event should be raised when non compliance is detected' },
   );
 
 has_field 'pki_provider' =>
@@ -88,7 +144,7 @@ has_field 'pki_provider' =>
 
 has_block definition =>
   (
-   render_list => [ qw(id type description category pki_provider oses) ],
+   render_list => [ qw(id type description category pki_provider oses apply_role role_to_apply autoregister) ],
   );
 
 =head2 options_pki_provider
@@ -109,16 +165,16 @@ sub options_roles {
     return @roles;
 }
 
-sub options_violations {
+sub options_security_events {
     my $self = shift;
     return [
-        map { {value => $_->{id}, label => $_->{desc} } } @{$self->form->violations // []}
+        map { {value => $_->{id}, label => $_->{desc} } } @{$self->form->security_events // []}
     ];
 }
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2018 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 

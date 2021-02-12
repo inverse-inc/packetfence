@@ -33,7 +33,7 @@ our @COLUMN_NAMES;
 
 BEGIN {
     @FIELD_NAMES = qw(
-        vid
+        security_event_id
         description
         auto_enable
         max_enables
@@ -53,7 +53,7 @@ BEGIN {
     );
 
     %DEFAULTS = (
-        vid => '',
+        security_event_id => '',
         description => 'none',
         auto_enable => 'Y',
         max_enables => '0',
@@ -73,7 +73,7 @@ BEGIN {
     );
 
     @INSERTABLE_FIELDS = qw(
-        vid
+        security_event_id
         description
         auto_enable
         max_enables
@@ -93,7 +93,7 @@ BEGIN {
     );
 
     %FIELDS_META = (
-        vid => {
+        security_event_id => {
             type => 'INT',
             is_auto_increment => 0,
             is_primary_key => 1,
@@ -198,11 +198,11 @@ BEGIN {
     );
 
     @PRIMARY_KEYS = qw(
-        vid
+        security_event_id
     );
 
     @COLUMN_NAMES = qw(
-        class.vid
+        class.security_event_id
         class.description
         class.auto_enable
         class.max_enables
@@ -237,13 +237,13 @@ sub _defaults {
     return {%DEFAULTS};
 }
 
-=head2 field_names
+=head2 table_field_names
 
 Field names of class
 
 =cut
 
-sub field_names {
+sub table_field_names {
     return [@FIELD_NAMES];
 }
 
@@ -319,14 +319,14 @@ Get the meta data for class
 sub get_meta {
     return \%FIELDS_META;
 }
- 
+
 =head1 AUTHOR
 
 Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2018 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 

@@ -1,3 +1,4 @@
+# Copyright (C) Inverse inc.
 #
 # These groups are read by MariaDB server.
 # Use it for options that only the server (but not clients) should see
@@ -31,6 +32,15 @@ thread_cache_size = [% thread_cache_size %]
 query_cache_size = [% query_cache_size %]M
 # Try number of CPU's*2 for thread_concurrency
 thread_concurrency = [% thread_concurrency %]
+
+# Disable DNS lookup
+skip-name-resolve
+
+# Performance schema
+performance_schema = [% performance_schema %]
+
+# max_connect_errors
+max_connect_errors = [% max_connect_errors %]
 
 # Point the following paths to a dedicated disk
 #tmpdir   = /tmp/
@@ -120,7 +130,6 @@ innodb_log_group_home_dir = /var/lib/mysql
  #You can set .._buffer_pool_size up to 50 - 80 %
  #of RAM but beware of setting memory usage too high
 innodb_buffer_pool_size = [% innodb_buffer_pool_size %]M
-innodb_additional_mem_pool_size = [% innodb_additional_mem_pool_size %]M
 innodb_log_buffer_size = 8M
 
 innodb_flush_log_at_trx_commit = 2
@@ -135,7 +144,19 @@ innodb_file_per_table
 
 max_connections=[% max_connections %]
 
-[% IF cluster_enabled %]
+[% IF masterslave %]
+[% IF masterslavemode == "SLAVE" %]
+server-id = [% slave_server_id %]
+
+gtid_domain_id = [% gtid_domain_id %]
+
+log_slave_updates
+log_bin=mariadb-bin
+read_only=ON
+[% END %]
+[% END %]
+
+[% IF cluster_enabled && masterslavemode == "MASTER" %]
 #
 # * Galera-related settings
 #
@@ -160,6 +181,18 @@ wsrep_dirty_reads=ON
 #
 # Optional setting
 wsrep_slave_threads=1
+
+[% IF masterslave %]
+[% IF masterslavemode == "MASTER" %]
+wsrep_gtid_mode=ON
+wsrep_gtid_domain_id=[% gtid_domain_id %]
+log_slave_updates=ON
+log_bin=mariadb-bin
+gtid_domain_id=[% server_id %]
+[% END %]
+
+[% END %]
+
 [% END %]
 
 [mysqld_safe]

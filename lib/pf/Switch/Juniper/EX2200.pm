@@ -42,17 +42,20 @@ sub description { 'Juniper EX 2200 Series' }
 use pf::Switch::constants;
 use pf::accounting qw(node_accounting_current_sessionid);
 use pf::node qw(node_attributes);
-use pf::util::radius qw(perform_coa perform_disconnect);
+use pf::util::radius qw(perform_disconnect);
 use Try::Tiny;
 use pf::util;
 
-sub supportsWiredMacAuth { return $TRUE; }
-sub supportsRadiusVoip { return $TRUE; }
+use pf::SwitchSupports qw(
+    WiredMacAuth
+    WiredDot1x
+    RadiusVoip
+    RoleBasedEnforcement
+    FloatingDevice
+    MABFloatingDevices
+);
 # special features
-sub supportsFloatingDevice {return $TRUE}
-sub supportsMABFloatingDevices { return $TRUE }
 sub isVoIPEnabled {return $TRUE; }
-sub supportsWiredDot1x { return $TRUE; }
 
 # We overide it here because it's expensive and useless for this specific module
 # as it can do everything using RADIUS
@@ -77,11 +80,23 @@ sub getVoipVsa{
     return (
         'Tunnel-Medium-Type' => $RADIUS::ETHERNET,
         'Tunnel-Type' => $RADIUS::VLAN,
-        'Tunnel-Private-Group-ID' => $voiceVlan,
+        'Tunnel-Private-Group-ID' => "$voiceVlan",
     );
 
 }
 
+
+=head2 returnRoleAttribute
+
+What RADIUS Attribute (usually VSA) should the role returned into.
+
+=cut
+
+sub returnRoleAttribute {
+    my ($self) = @_;
+
+    return 'Filter-Id';
+}
 
 =head2 deauthenticateMacRadius
 
@@ -382,7 +397,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2018 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 

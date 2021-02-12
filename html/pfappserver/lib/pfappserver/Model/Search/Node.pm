@@ -144,6 +144,7 @@ sub default_query {
             "IFNULL(node_category_bypass_role.name, '')|bypass_role",
             (
                 map { "IFNULL($_,' ')|$_" } qw(
+                    device_manufacturer
                     device_class
                     device_type
                     device_version
@@ -170,28 +171,14 @@ sub default_query {
                     condition => {
                         'ip4log.ip' => {
                             "=" => \"( SELECT `ip` FROM `ip4log` WHERE `mac` = `node`.`mac` AND `tenant_id` = `node`.`tenant_id`  ORDER BY `start_time` DESC LIMIT 1 )",
-                        }
+                        },
+                        'ip4log.tenant_id' => {
+                            -ident => 'node.tenant_id'
+                        },
                     }
                 },
                 'ip4log',
                 "=>{locationlog.mac=node.mac,node.tenant_id=locationlog.tenant_id,locationlog.end_time='$ZERO_DATE'}", 'locationlog',
-                {
-                    operator  => '=>',
-                    condition => {
-                        'node.mac' => { '=' => { -ident => '%2$s.mac' } },
-                        'node.tenant_id' => { '=' => { -ident => '%2$s.tenant_id' } },
-                        'locationlog2.end_time' => $ZERO_DATE,
-                        -or => [
-                            '%1$s.start_time' => { '<' => { -ident => '%2$s.start_time' } },
-                            '%1$s.start_time' => undef,
-                            -and => [
-                                '%1$s.start_time' => { '=' => { -ident => '%2$s.start_time' } },
-                                '%1$s.id' => { '<' => { -ident => '%2$s.id' } },
-                            ],
-                        ],
-                    },
-                },
-                'locationlog|locationlog2',
                 '=>{node.mac=r1.callingstationid,node.tenant_id=r1.tenant_id}', 'radacct|r1',
                 {
                     operator  => '=>',
@@ -200,9 +187,11 @@ sub default_query {
                         'node.tenant_id' => { '=' => { -ident => '%2$s.tenant_id' } },
                         -or => [
                             '%1$s.acctstarttime' => { '<' => { -ident => '%2$s.acctstarttime' } },
-                            '%1$s.acctstarttime' => undef,
                             -and => [
-                                '%1$s.acctstarttime' => { '=' => { -ident => '%2$s.acctstarttime' } },
+                                -or => [
+                                    '%1$s.acctstarttime' => { '=' => { -ident => '%2$s.acctstarttime' } },
+                                    -and => ['%1$s.acctstarttime' => undef, '%2$s.acctstarttime' => undef],
+                                ],
                                 '%1$s.radacctid' => { '<' => { -ident => '%2$s.radacctid' } },
                             ],
                         ],
@@ -214,32 +203,32 @@ sub default_query {
     );
 }
 
-our @VIOLATION_JOINS_SPECS = (
-    '=>{violation_status.mac=node.mac}',
-    'violation|violation_status',
-    '=>{violation_status.vid=violation_status_class.vid}',
-    'class|violation_status_class',
+our @SECURITY_EVENT_JOINS_SPECS = (
+    '=>{security_event_status.mac=node.mac}',
+    'security_event|security_event_status',
+    '=>{security_event_status.security_event_id=security_event_status_class.security_event_id}',
+    'class|security_event_status_class',
 );
 
-our @VIOLATION_ADDITIONAL_COLUMNS = (
-    'violation_status.status|violation_status',
-    'violation_status_class.description|violation_name',
+our @SECURITY_EVENT_ADDITIONAL_COLUMNS = (
+    'security_event_status.status|security_event_status',
+    'security_event_status_class.description|security_event_name',
 );
 
 our %SEARCH_NAME_TO_TABLE_NAME = (
-    'violation' => {
-        'full_name'  => 'violation_status_class.description',
-        'joins_id'   => 'violation_joins',
-        'joins'      => \@VIOLATION_JOINS_SPECS,
-        'columns'    => \@VIOLATION_ADDITIONAL_COLUMNS,
-        'columns_id' => 'violation',
+    'security_event' => {
+        'full_name'  => 'security_event_status_class.description',
+        'joins_id'   => 'security_event_joins',
+        'joins'      => \@SECURITY_EVENT_JOINS_SPECS,
+        'columns'    => \@SECURITY_EVENT_ADDITIONAL_COLUMNS,
+        'columns_id' => 'security_event',
     },
-    'violation_status' => {
-        'full_name'  => 'violation_status.status',
-        'joins_id'   => 'violation_joins',
-        'joins'      => \@VIOLATION_JOINS_SPECS,
-        'columns'    => \@VIOLATION_ADDITIONAL_COLUMNS,
-        'columns_id' => 'violation',
+    'security_event_status' => {
+        'full_name'  => 'security_event_status.status',
+        'joins_id'   => 'security_event_joins',
+        'joins'      => \@SECURITY_EVENT_JOINS_SPECS,
+        'columns'    => \@SECURITY_EVENT_ADDITIONAL_COLUMNS,
+        'columns_id' => 'security_event',
     },
     'person_name' => {
         'full_name' => 'node.pid'
@@ -294,8 +283,10 @@ sub make_order_by {
     if ($direction ne 'desc') {
         $direction = 'asc';
     }
+
     my $by = $params->{by} // 'mac';
-    return { "-$direction" => $by };
+    my @order_by = ({ "-$direction" => 'tenant_id' }, { "-$direction" => $by });
+    return \@order_by;
 }
 
 sub make_condition {
@@ -405,7 +396,7 @@ sub make_top_level_conditions {
     my ($self, $params) = @_;
     my @conditions = (
         'r2.radacctid' => undef,
-        'locationlog2.id' => undef
+        'node.tenant_id' => pf::dal::get_tenant(),
     );
     if ($params->{online_date} ) {
         push @conditions, $self->make_online_date($params->{online_date});
@@ -508,7 +499,7 @@ __PACKAGE__->meta->make_immutable unless $ENV{"PF_SKIP_MAKE_IMMUTABLE"};
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2018 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 

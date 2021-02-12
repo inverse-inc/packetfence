@@ -1,0 +1,15 @@
+ClusterServers:
+  properties:
+    items:
+      description: Items
+      items:
+        $ref: '#/components/schemas/ClusterServer'
+      type: array
+  type: object
+
+ClusterServer:
+  properties:
+    host:
+      type: string
+    management_ip:
+      type: string

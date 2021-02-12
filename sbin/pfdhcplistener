@@ -58,6 +58,7 @@ use NetPacket::IPv6;
 use NetPacket::UDP;
 use pf::CHI::Request;
 use pf::api::queue_cluster;
+use pf::cluster;
 
 # initialization
 # --------------
@@ -169,7 +170,7 @@ sub setup_global {
     my ($int) = @_;
     $interface = $int;
     $net_type = $Config{"interface $interface"}{'type'};
-    $interface_ip = $Config{"interface $interface"}{'ip'};
+    $interface_ip = $cluster_enabled ? pf::cluster::cluster_ip($interface) : $Config{"interface $interface"}{'ip'};
     $interface_vlan = get_vlan_from_int($interface) || $NO_VLAN;
     $send_queue = queue_for_net_type($net_type);
     $net_addr = NetAddr::IP->new($Config{"interface $interface"}{'ip'},$Config{"interface $interface"}{'mask'});
@@ -335,7 +336,14 @@ sub process_pkt {
                 }
 
                 # If its a DHCPREQUEST, we take the IP address from the option
-                my $dhcp_ip = ( $dhcp->{'op'} == 1 && $dhcp->{'options'}{'53'} == 3 ) ? $dhcp->{'options'}{'50'} : $dhcp->{yiaddr};
+                my $dhcp_ip;
+                if ( $dhcp->{'op'} == 1 && $dhcp->{'options'}{'53'} == 3 && defined($dhcp->{'options'}{'50'}) ) {
+                    $dhcp_ip = $dhcp->{'options'}{'50'};
+                } elsif ( defined($dhcp->{yiaddr}) && $dhcp->{yiaddr} ne "0.0.0.0") {
+                    $dhcp_ip = $dhcp->{yiaddr};
+                } else {
+                    $dhcp_ip = $dhcp->{ciaddr};
+                }
                 my $rate_limit_key;
                 if(defined($dhcp_ip)) {
                     # Key is with BOOT type, DHCP type, IP and MAC
@@ -361,7 +369,7 @@ sub process_pkt {
             }
 
             # IPv6 processing
-            elsif ( $l2->{type} eq ETH_TYPE_IPv6 ) {
+            elsif ( $l2->{type} eq ETH_TYPE_IPv6 && isenabled($Config{network}{dhcp_process_ipv6})) {
                 $pf::StatsD::statsd->increment("pfdhcplistener_$statsd_interface\::process_pkt_ipv6.count" );
 
                 # TODO: Rate-limiting for IPv6 just as for IPv4
@@ -633,7 +641,7 @@ Minor parts of this file may have been contributed. See CREDITS.
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2018 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 Copyright (C) 2005 Kevin Amorin
 

@@ -12,7 +12,7 @@
         'app/client/fineuploader',
         'css/jqtree',
         'admin/config/switches',
-        'admin/config/violations',
+        'admin/config/security_events',
         ] -%]
 
 [% MACRO list_entry(controller_name, action, description) BLOCK %]
@@ -115,8 +115,8 @@
               [%- IF can_access("SCAN_READ","WMI_READ","CONFIGURATION_MAIN_READ") %]
               [% pf_section_entry( 'scans', 'Scans', subsections.scans) | none %]
               [%- END %]
-              [%- IF can_access("VIOLATIONS_READ") %]
-              [% list_entry('Violation', 'index', 'Violations') | none %]
+              [%- IF can_access("SECURITY_EVENTS_READ") %]
+              [% list_entry('SecurityEvent', 'index', 'Security Events') | none %]
               [%- END %]
             </ul>
           </div>
@@ -134,7 +134,6 @@
               [% pf_section_entry( 'mse_tab', 'Cisco Mobility Sevices Engine') | none %]
               [%- END %]
               [%- IF can_access("CONFIGURATION_MAIN_READ") %]
-              [% pf_section_entry( 'metadefender', 'OPSWAT Metadefender') | none %]
               [% pf_section_entry( 'webservices', 'Web Services') | none %]
               [%- END %]
               [%- IF can_access("PFDETECT_READ") %]
@@ -142,7 +141,7 @@
               [%- END %]
               [%- IF can_access("SYSLOG_READ") %]
               [% list_entry('Config::Syslog', 'index', 'Syslog Forwarding') | none %]
-              [%- END %
+              [%- END %]
               [%- IF can_access("WRIX_READ") %]
               [% list_entry('Config::Wrix', 'index', 'WRIX') | none %]
               [%- END %]
@@ -176,8 +175,8 @@
               [%- IF can_access("CONFIGURATION_MAIN_READ") %]
               [% pf_section_entry( 'guests_admin_registration', 'Access Duration') | none %]
               [%- END %]
-              [%- IF can_access("DEVICE_REGISTRATION_READ") %]
-              [% list_entry('Config::DeviceRegistration', 'index', 'Device Registration') | none %]
+              [%- IF can_access("SELF_SERVICE_READ") %]
+              [% list_entry('Config::SelfService', 'index', 'Self Service Portal') | none %]
               [%- END %]
             </ul>
           </div>
@@ -209,12 +208,12 @@
             </ul>
             <ul class="nav nav-list">
               [%- IF can_access("CONFIGURATION_MAIN_READ") %]
-              [%- IF can_access("PFMON_READ") %]
+              [%- IF can_access("PFCRON_READ") %]
               [% pf_section_entry( 'main', 'Main Configuration', subsections.main) | none %]
               [%- END %]
               [% pf_section_entry( 'database', 'Database', subsections.database) | none %]
               [% pf_section_entry( 'active_active', 'Cluster') | none %]
-              [% pf_section_entry( 'radius_authentication_methods', 'Authentication Methods') | none %]
+              [% pf_section_entry( 'radius_configuration', 'Radius Configuration') | none %]
               [% pf_section_entry( 'node_import', 'Node Import') | none %]
               [%- END %]
               [%- IF can_access("ADMIN_ROLES_READ") %]

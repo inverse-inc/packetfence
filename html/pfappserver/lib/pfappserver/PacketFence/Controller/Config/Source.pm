@@ -14,7 +14,6 @@ use HTTP::Status qw(:constants is_error is_success);
 use Moose;  # automatically turns on strict and warnings
 use namespace::autoclean;
 
-use pfappserver::Form::Config::Switch;
 use pf::authentication;
 
 BEGIN {
@@ -82,9 +81,7 @@ before [qw(clone view _processCreatePost update)] => sub {
     my $model = $self->getModel($c);
     my $itemKey = $model->itemKey;
     my $item = $c->stash->{$itemKey};
-    my $type = $item->{type};
-    my $form = $c->action->{form};
-    $c->stash->{current_form} = "${form}::${type}";
+    $self->setFormSubType($c, $item->{type});
 };
 
 before view => sub {
@@ -113,6 +110,13 @@ after [qw(create clone)] => sub {
     }
 };
 
+sub setFormSubType {
+    my ($self, $c, $type) = @_;
+    my $form = $c->action->{form};
+    $c->stash->{current_form} = "${form}::${type}";
+    return;
+}
+
 =head2 test
 
 Test the connection to a source of a specific type.
@@ -121,14 +125,12 @@ Test the connection to a source of a specific type.
 
 sub test :Local :Args(1) {
     my ($self, $c, $type) = @_;
-
     my ($status, $message) = (HTTP_METHOD_NOT_ALLOWED, 'The source cannot be tested.');
-    my %attrs = ();
-    foreach my $param (keys %{$c->request->params}) {
-        $attrs{$param} = $c->request->param($param) if ($c->request->param($param));
-    }
+    $self->setFormSubType($c, $type);
+    my $form = $self->getForm($c);
+    $form->process(params => $c->request->params);
     eval {
-        my $source = newAuthenticationSource($type, 'test', \%attrs);
+        my $source = newAuthenticationSource($type, 'test', $form->getSourceArgs());
         if ($source && $source->can('test')) {
             ($status, $message) = $source->test();
             $status = $status ? HTTP_OK : HTTP_BAD_REQUEST;
@@ -145,9 +147,22 @@ sub test :Local :Args(1) {
     $c->stash->{current_view} = 'JSON';
 }
 
+=head2 saml_metadata
+
+Generate the Service Provider metadata for a SAML source
+
+=cut
+
+sub saml_metadata :Local :Args(1) {
+    my ($self, $c, $source_id) = @_;
+
+    $c->response->body(pf::authentication::getAuthenticationSource($source_id)->generate_sp_metadata());
+    $c->response->content_type("text/xml");
+}
+
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2018 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 

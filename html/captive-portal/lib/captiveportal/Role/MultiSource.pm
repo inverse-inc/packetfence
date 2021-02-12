@@ -60,7 +60,9 @@ around 'source' => sub {
             return $source;
         }
         else {
-            die "Cannot find your current authentication source, please restart your registration process.";
+            get_logger->warn("Cannot find current authentication source, restarting registration process.");
+            $self->app->redirect("/logout");
+            $self->detach();
         }
     }
     else {
@@ -123,7 +125,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2018 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 

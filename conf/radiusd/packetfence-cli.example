@@ -12,6 +12,7 @@ server packetfence-cli {
 #  Make *sure* that 'preprocess' comes before any realm if you
 #  need to setup hints for the remote radius server
 authorize {
+	packetfence-nas-ip-address
 
 	# Add in PacketFence specific configuration
 	update {
@@ -255,13 +256,14 @@ preacct {
 #  Accounting.  Log the accounting data.
 #
 accounting {
+    packetfence-set-tenant-id
 	#rewrite_calling_station_id
 	#rewrite_called_station_id
 	#
 	#  Log traffic to an SQL database.
 	#
 	#  See "Accounting queries" in mods-available/sql
-	#%%accounting_sql%%
+	# [% accounting_sql %]
 
 	#
 	#  If you receive stop packets with zero session length,
@@ -299,7 +301,7 @@ session {
 #  Once we KNOW that the user has been authenticated, there are
 #  additional steps we can take.
 post-auth {
-
+	packetfence-set-tenant-id
 	# Add in PacketFence configuration
 	update {
 		&request:FreeRADIUS-Client-IP-Address := "%{Packet-Src-IP-Address}"
@@ -338,6 +340,7 @@ post-auth {
 	#  The "session-state" attributes are not available here.
 	#
 	Post-Auth-Type REJECT {
+		packetfence-set-tenant-id
 		update {
 			&request:User-Password := "******"
 		}

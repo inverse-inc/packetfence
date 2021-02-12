@@ -24,8 +24,8 @@ has condition => (
 );
 
 sub match {
-    my ($self,$arg) = @_;
-    return !$self->condition->match($arg);
+    my ($self,$arg,$args) = @_;
+    return !$self->condition->match($arg,$args);
 }
 
 =head1 AUTHOR
@@ -34,7 +34,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2018 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 

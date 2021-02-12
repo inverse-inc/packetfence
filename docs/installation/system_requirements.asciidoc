@@ -1,0 +1,61 @@
+// to display images directly on GitHub
+ifdef::env-github[]
+:encoding: UTF-8
+:lang: en
+:doctype: book
+:toc: left
+:imagesdir: ../images
+endif::[]
+
+////
+
+    This file is part of the PacketFence project.
+
+    See PacketFence_Network_Devices_Configuration_Guide-docinfo.xml for 
+    authors, copyright and license information.
+
+////
+
+//== System Requirements
+
+=== Assumptions
+
+PacketFence reuses many components in an infrastructure. Nonetheless, it will install the following ones and manage them itself:
+
+[options="compact"]
+* database server (MariaDB)
+* web server (Apache)
+* DHCP server (PacketFence)
+* RADIUS server (FreeRADIUS)
+* firewall (iptables)
+
+In this guide, we assume that all those components are running on the same server (i.e., "localhost" or "127.0.0.1") that PacketFence will be installed on.
+
+Good understanding of those underlying components and GNU/Linux is required to install PacketFence. When installing PacketFence, all these components will be properly installed. Moreover, PacketFence will manage the services listed above. Make sure that all the other services are automatically started by your operating system.
+
+=== Minimum Hardware Requirements
+
+The following provides a list of the minimum server hardware recommendations:
+
+[options="compact"]
+* Intel or AMD CPU 3 GHz, 2 CPU cores
+* 12 GB of RAM (16 GB recommended)
+* 100 GB of disk space (RAID-1 recommended)
+* 1 network card (2 recommended)
+
+==== Recommendations
+
+* Use logical volume management (LVM) to allocate space
+
+=== Operating System Requirements
+
+PacketFence supports the following operating systems on the x86_64 architecture:
+
+[options="compact"]
+* Red Hat Enterprise Linux 7.x Server
+* Community ENTerprise Operating System (CentOS) 7.x
+* Debian 9.0 (Stretch)
+
+Make sure that you can install additional packages from your standard distribution. For example, if you are using Red Hat Enterprise Linux, you have to be subscribed to the Red Hat Network before continuing with the PacketFence software installation.
+
+Other distributions such as Fedora, Gentoo and Ubuntu are known to work but this document does not cover them.

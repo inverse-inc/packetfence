@@ -29,7 +29,7 @@ BEGIN {
     use setup_test_config;
 }
 
-use Test::More tests => 28;
+use Test::More tests => 34;
 use Test::Mojo;
 use Test::NoWarnings;
 my $t = Test::Mojo->new('pf::UnifiedApi');
@@ -47,6 +47,7 @@ $t->get_ok('/api/v1/ip4logs' => json => { })
 #setup data
 my $ip = '0.0.0.1';
 my $mac = '00:01:02:03:04:05';
+my $escaped_mac = '00%3A01%3A02%3A03%3A04%3A05';
 my $lease_length = 120;
 my $dt_format = DateTime::Format::Strptime->new(pattern => '%Y-%m-%d %H:%M:%S');
 my $dt_start = DateTime->now(time_zone=>'local');
@@ -56,36 +57,47 @@ my $dt_end = DateTime->now(time_zone=>'local')->add(seconds => $lease_length);
 my $status = pf::ip4log::open($ip, $mac, $lease_length);
 
 #run unittest on single dB entry
-$t->get_ok('/api/v1/ip4logs' => json => { })
-  ->json_is('/items/0/end_time',$dt_format->format_datetime($dt_end))
-  ->json_is('/items/0/ip',$ip)
-  ->json_is('/items/0/start_time',$dt_format->format_datetime($dt_start))
+$t->get_ok('/api/v1/ip4logs')
+  ->status_is(200)
   ->json_is('/items/0/mac',$mac)
-  ->status_is(200);
-  
+  ->json_is('/items/0/ip',$ip)
+  ->json_has('/items/0/start_time')
+  ->json_has('/items/0/end_time')
+;
 #run unittest on list by mac
-$t->get_ok('/api/v1/ip4logs/open/'.$mac => json => { })
-  ->json_is('/item/end_time',$dt_format->format_datetime($dt_end))
+$t->get_ok('/api/v1/ip4logs/open/'.$mac)
+  ->status_is(200)
   ->json_is('/item/ip',$ip)
-  ->json_is('/item/start_time',$dt_format->format_datetime($dt_start))
   ->json_is('/item/mac',$mac)
-  ->status_is(200);
+  ->json_has('/item/start_time')
+  ->json_has('/item/end_time')
+;
+#run unittest on list by mac
+$t->get_ok('/api/v1/ip4logs/open/'.$escaped_mac)
+  ->status_is(200)
+  ->json_is('/item/ip',$ip)
+  ->json_is('/item/mac',$mac)
+  ->json_has('/item/start_time')
+  ->json_has('/item/end_time')
+;
   
 #run unittest on history list by mac
 $t->get_ok('/api/v1/ip4logs/history/'.$mac => json => { })
-  ->json_is('/items/0/end_time',$dt_format->format_datetime($dt_end))
+  ->status_is(200)
   ->json_is('/items/0/ip',$ip)
-  ->json_is('/items/0/start_time',$dt_format->format_datetime($dt_start))
   ->json_is('/items/0/mac',$mac)
-  ->status_is(200);
+  ->json_has('/items/0/start_time')
+  ->json_has('/items/0/end_time')
+;
   
 #run unittest on archive list by mac
 $t->get_ok('/api/v1/ip4logs/archive/'.$mac => json => { })
-  ->json_is('/items/0/end_time',$dt_format->format_datetime($dt_end))
   ->json_is('/items/0/ip',$ip)
-  ->json_is('/items/0/start_time',$dt_format->format_datetime($dt_start))
   ->json_is('/items/0/mac',$mac)
-  ->status_is(200);
+  ->json_has('/items/0/start_time')
+  ->json_has('/items/0/end_time')
+  ->status_is(200)
+;
   
 #debug output
 #my $j = $t->tx->res->json;
@@ -103,7 +115,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2018 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 

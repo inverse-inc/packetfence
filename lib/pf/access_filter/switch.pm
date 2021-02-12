@@ -33,17 +33,11 @@ sub filterRule {
         if (defined($rule->{'switch'}) && $rule->{'switch'} ne '') {
             my $switch = $rule->{'switch'};
             return $switch;
-        } elsif ($rule->{'scope'} eq 'radius_authorize') {
-            my $i = 1;
+        } elsif ($rule->{'scope'} eq 'radius_authorize' || $rule->{'scope'} eq 'reevaluate') {
             $logger->info(evalParam($rule->{'log'},$args)) if defined($rule->{'log'});
-            while (1) {
-                if (defined($rule->{"param$i"}) && $rule->{"param$i"} ne '') {
-                    my @answer = $rule->{"param$i"} =~ /([a-zA-Z_-]*)\s*=>\s*(.*)/;
-                    evalAnswer(\@answer,$args,\$switch_params);
-                } else {
-                    last;
-                }
-                $i++;
+            for my $p (@{$rule->{params} // []}) {
+                my @answer = $p =~ /([a-zA-Z_-]*)\s*=\s*(.*)/;
+                evalAnswer(\@answer,$args,\$switch_params);
             }
             return ($switch_params);
         }
@@ -119,6 +113,34 @@ sub getEngineForScope {
     return undef;
 }
 
+=head2 filterSwitch
+
+Filter the switch based off switch filters
+
+=cut
+
+sub filterSwitch {
+    my $timer = pf::StatsD::Timer->new({ sample_rate => 1});
+    my ($self, $scope, $switch, $args) = @_;
+    my $switch_params = $self->filter($scope, $args);
+
+    if (defined($switch_params)) {
+        foreach my $key (keys %{$switch_params}) {
+            if (ref($switch_params->{$key}) eq 'ARRAY') {
+                foreach my $param (@{$switch_params->{$key}}) {
+                    if ($param  =~ /([a-zA-Z_-]*)\s*=>\s*(.*)/) {
+                        $$switch->{$key}->{$1} = $2;
+                    }
+                }
+            } elsif ($switch_params->{$key} =~ /([a-zA-Z_-]*)\s*=>\s*(.*)/) {
+                $$switch->{$key}->{$1} = $2;
+            } else {
+                $$switch->{$key} = $switch_params->{$key};
+            }
+        }
+    }
+}
+
 
 =head1 AUTHOR
 
@@ -126,7 +148,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2018 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 

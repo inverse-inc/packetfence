@@ -1,0 +1,96 @@
+ConfigInterfaceBase:
+  type: object
+  properties:
+    dhcpd_enabled:
+      description: Whether or not DHCP is enabled for this interface
+      type: string
+      enum:
+        - enabled
+        - disabled
+    dns:
+      description: The DNS server of the network tied to the interface.
+      type: string
+    high_availability:
+      description: The RSA server key for the resource in PEM encoded format
+      type: string
+      enum:
+        - 1
+        - 0
+    ipaddress:
+      description: The IP address of the interface
+      type: string
+    nat_enabled:
+      description: Whether or not NAT is enabled for this interface
+      type: string
+      enum:
+        - 1
+        - 0
+    name:
+      description: The name of the interface
+      type: string
+    netmask:
+      description: The netmask of the interface
+      type: string
+    network:
+      description: The network associated to the interface
+      type: string
+    network_iseditable:
+      description: Whether or not the network is editable
+      type: boolean
+    reg_network:
+      description: Registration IP Address CIDR format
+      type: string
+    split_network:
+      description: Whether or not to perform network split by role
+      type: string
+      enum:
+    type:
+      description: The network type of the interface
+      type: string
+    vip:
+      description: The virtual IP address of the interface (only for active/passive clusters)
+      type: string
+
+ConfigInterfaceVlan:
+  type: object
+  properties:
+    vlan:
+      description: The VLAN for the interface if applicable
+      type: string
+
+
+ConfigInterfaceCreate:
+  allOf:
+    - $ref: '#/components/schemas/ConfigInterfaceBase'
+    - $ref: '#/components/schemas/ConfigInterfaceVlan'
+
+ConfigInterfaceUpdate:
+   $ref: '#/components/schemas/ConfigInterfaceBase'
+
+ConfigInterfaceGet:
+  allOf:
+    - $ref: '#/components/schemas/ConfigInterfaceBase'
+    - type: object
+      properties:
+        hwaddr:
+          description: The MAC address of the interface
+          type: string
+        ifindex:
+          description: The ifindex
+          type: string
+        is_running:
+          description: Whether or not the interface is running (up)
+          type: boolean
+        master:
+          description: The physical interface associated to a VLAN interface when applicable
+          type: string
+
+ConfigInterfacesList:
+  type: object
+  properties:
+    items:
+      type: array
+      items:
+        $ref: '#/components/schemas/ConfigInterfaceGet'
+
+

@@ -55,8 +55,8 @@ use DateTime::Format::MySQL;
 use pf::parking;
 use pf::cluster;
 use pf::dhcp_option82 qw(dhcp_option82_insert_or_update);
-use pf::violation;
-use pf::constants::parking qw($PARKING_VID);
+use pf::security_event;
+use pf::constants::parking qw($PARKING_SECURITY_EVENT_ID);
 
 has 'src_mac' => ('is' => 'ro');
 has 'dest_mac' => ('is' => 'ro');
@@ -72,6 +72,7 @@ has 'dhcp' => ('is' => 'ro');
 
 has 'accessControl' => (is => 'ro', builder => '_build_accessControl');
 has 'dhcp_networks' => (is => 'ro', builder => '_build_DHCP_networks');
+has 'managed_networks' => (is => 'ro', builder => '_build_managed_networks');
 
 our $logger = get_logger;
 my $ROGUE_DHCP_TRIGGER = '1100010';
@@ -140,6 +141,28 @@ sub _build_DHCP_networks {
     }
 
     return \@dhcp_networks;
+}
+
+=head2 _build_managed_networks
+
+Builds the list of networks which PacketFence manage
+
+=cut
+
+sub _build_managed_networks {
+    my ($self) = @_;
+
+    my @managed_networks;
+    foreach my $network (keys %ConfigNetworks) {
+        my %net = %{$ConfigNetworks{$network}};
+        my $network_obj = NetAddr::IP->new($network,$ConfigNetworks{$network}{netmask});
+        push @managed_networks, $network_obj;
+        if (defined($ConfigNetworks{$network}{reg_network})) {
+            push @managed_networks, NetAddr::IP->new(NetAddr::IP->new($ConfigNetworks{$network}{reg_network})->network());
+        }
+    }
+
+    return \@managed_networks;
 }
 
 sub _build_accessControl {
@@ -223,7 +246,7 @@ sub process_packet {
         }
 
         # updating the node first
-        # in case the fingerprint generates a violation and that autoreg uses fingerprint to auto-categorize nodes
+        # in case the fingerprint generates a security_event and that autoreg uses fingerprint to auto-categorize nodes
         # see #1216 for details
         my %tmp;
         $tmp{'dhcp_fingerprint'} = defined($dhcp->{'options'}{'55'}) ? $dhcp->{'options'}{'55'} : '';
@@ -326,8 +349,25 @@ sub parse_dhcp_request {
     }
     # We call the parking on all DHCPREQUEST since the actions have to be done on all servers and all servers receive the DHCPREQUEST
     else {
-        $self->checkForParking($client_mac, $client_ip);
+        $self->checkForParking($client_mac);
     }
+    my $cache = pf::CHI->new( namespace => 'trigger_security_event' );
+
+    my %security_event_data;
+    if ($self->pf_is_managing($client_ip)) {
+        %security_event_data = (
+            'mac'   => $client_mac,
+            'tid'   => 'new_dhcp_info_from_managed_network',
+            'type'  => 'internal',
+        );
+    } else {
+        %security_event_data = (
+            'mac'   => $client_mac,
+            'tid'   => 'new_dhcp_info_from_production_network',
+            'type'  => 'internal',
+        );
+    }
+    $cache->set($client_mac, \%security_event_data);
 
     # As per RFC2131 in a DHCPREQUEST if ciaddr is set and we broadcast, we are in re-binding state
     # in which case we are not interested in detecting rogue DHCP
@@ -421,6 +461,25 @@ sub pf_is_dhcp {
     return $FALSE;
 }
 
+=head2 pf_is_managing
+
+Verifies if PacketFence is managing the network the IP is in
+
+=cut
+
+sub pf_is_managing {
+    my ($self, $client_ip) = @_;
+
+    foreach my $network_obj (@{$self->{managed_networks}}) {
+        # We need to rebuild it everytime with the mask from the network as
+        # a DHCPREQUEST does not contain the subnet mask
+        my $net_addr = NetAddr::IP->new($client_ip,$network_obj->mask);
+        if($network_obj->contains($net_addr)){
+            return $TRUE;
+        }
+    }
+    return $FALSE;
+}
 
 =head2 checkForParking
 
@@ -429,7 +488,7 @@ Check if a device should be in parking and adjust the lease time through pfdhcp 
 =cut
 
 sub checkForParking {
-    my ($self, $client_mac, $client_ip) = @_;
+    my ($self, $client_mac) = @_;
 
     unless(defined($Config{parking}{threshold}) && $Config{parking}{threshold}){
         get_logger->trace("Not parking threshold configured, so will not try to do parking detection");
@@ -445,8 +504,8 @@ sub checkForParking {
         return;
     }
 
-    if(violation_count_open_vid($client_mac, $PARKING_VID)) {
-        pf::parking::trigger_parking($client_mac, $client_ip);
+    if(security_event_count_open_security_event_id($client_mac, $PARKING_SECURITY_EVENT_ID)) {
+        pf::parking::trigger_parking($client_mac);
     }
 
     my @locationlogs = locationlog_history_mac($client_mac);
@@ -458,7 +517,18 @@ sub checkForParking {
             $locationlog = $entry;
         }
         else {
-            if($entry->{role} eq $locationlog->{role}){
+            # If both are undefined then the role is equal
+            if(!defined($entry->{role}) && !defined($locationlog->{role})) {
+                $locationlog = $entry;
+            }
+            # If one of them is defined, the other isn't, then its not the same role
+            elsif(
+                defined($entry->{role}) && !defined($locationlog->{role})
+                || !defined($entry->{role}) && defined($locationlog->{role})
+            ) {
+                last;
+            }
+            elsif($entry->{role} eq $locationlog->{role}){
                  $locationlog = $entry;
             }
             else {
@@ -484,8 +554,8 @@ sub checkForParking {
         # This doesn't work against SNMP as there is no reauthentication, so
         # the locationlog entries will always be old.
         unless( $connection->isSNMP() ){
-            $logger->warn("$client_mac STUCK on the registration role for $diff seconds $client_ip. Triggering parking violation");
-            pf::parking::trigger_parking($client_mac, $client_ip);
+            $logger->warn("$client_mac STUCK on the registration role for $diff seconds $client_mac. Triggering parking security_event");
+            pf::parking::trigger_parking($client_mac);
         }
         else {
             $logger->debug("Cannot trigger parking for $client_mac as it is connected via SNMP enforcement.");
@@ -562,7 +632,7 @@ sub rogue_dhcp_handling {
            'tid' => $ROGUE_DHCP_TRIGGER,
            'type' => 'INTERNAL',
         );
-        $self->apiClient->notify('trigger_violation', %data );
+        $self->apiClient->notify('trigger_security_event', %data );
     } else {
         $logger->info("Unable to find MAC based on IP $dhcp_srv_ip for rogue DHCP server");
         $dhcp_srv_mac = 'unknown';
@@ -684,7 +754,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2018 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 

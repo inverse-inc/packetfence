@@ -35,8 +35,8 @@ sub isManaged {
 sub generateConfig {
     # Perform HTTPS setup
 
-    system("/usr/bin/systemctl set-environment COLLECTOR_HTTP_CERT=$server_cert");
-    system("/usr/bin/systemctl set-environment COLLECTOR_HTTP_KEY=$server_key");
+    system("systemctl set-environment COLLECTOR_HTTP_CERT=$server_cert");
+    system("systemctl set-environment COLLECTOR_HTTP_KEY=$server_key");
     system("/usr/local/fingerbank/collector/set-env-fingerbank-conf.pl");
 
     return $TRUE;
@@ -48,7 +48,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2018 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 

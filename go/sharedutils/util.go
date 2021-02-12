@@ -1,19 +1,54 @@
 package sharedutils
 
 import (
+	"bufio"
+	"bytes"
 	"crypto/rand"
+	"encoding/binary"
 	"errors"
 	"fmt"
 	"net"
+	"net/http"
+	"net/http/httputil"
 	"os"
+	"regexp"
 	"strconv"
 	"strings"
 	"testing"
+	"time"
 	"unicode"
 
 	"github.com/cevaris/ordered_map"
 	"github.com/kr/pretty"
 )
+
+var ISENABLED = map[string]bool{
+	"enabled": true,
+	"enable":  true,
+	"yes":     true,
+	"y":       true,
+	"true":    true,
+	"1":       true,
+
+	"disabled": false,
+	"disable":  false,
+	"false":    false,
+	"no":       false,
+	"n":        false,
+	"0":        false,
+}
+
+var macGarbageRegex = regexp.MustCompile(`[\s\-\.:]`)
+var validSimpleMacHexRegex = regexp.MustCompile(`^[a-fA-F0-9]{12}$`)
+var macPairHexRegex = regexp.MustCompile(`[a-fA-F0-9]{2}`)
+
+func IsEnabled(enabled string) bool {
+	if e, found := ISENABLED[strings.TrimSpace(enabled)]; found {
+		return e
+	}
+
+	return false
+}
 
 func UcFirst(str string) string {
 	for i, v := range str {
@@ -117,6 +152,13 @@ func EnvOrDefaultInt(name string, defaultVal int) int {
 	return int(intVal)
 }
 
+func EnvOrDefaultDuration(name string, defaultVal time.Duration) time.Duration {
+	strVal := EnvOrDefault(name, defaultVal.String())
+	durVal, err := time.ParseDuration(strVal)
+	CheckError(err)
+	return durVal
+}
+
 func RandomBytes(length uint64) []byte {
 	rd := make([]byte, length)
 	rand.Read(rd)
@@ -194,4 +236,84 @@ func ByteToString(a []byte) string {
 		buf = append(buf, hexDigit[b&0xF])
 	}
 	return string(buf)
+}
+
+func CopyHttpRequest(req *http.Request) (*http.Request, error) {
+	newReqData, err := httputil.DumpRequest(req, true)
+
+	if err != nil {
+		return nil, err
+	}
+
+	newReq, err := http.ReadRequest(bufio.NewReader(bytes.NewBuffer(newReqData)))
+
+	if err != nil {
+		return nil, err
+	}
+
+	return newReq, nil
+}
+
+func CleanMac(mac string) string {
+	mac = macGarbageRegex.ReplaceAllString(strings.ToLower(mac), "")
+	if !validSimpleMacHexRegex.MatchString(mac) {
+		return ""
+	}
+
+	return strings.TrimRight(
+		macPairHexRegex.ReplaceAllStringFunc(
+			mac,
+			func(s string) string { return s + ":" },
+		),
+		":",
+	)
+}
+
+func CleanIP(s string) (string, error) {
+	if ip := net.ParseIP(s); ip == nil {
+		return "", fmt.Errorf("%s is an invalid ip", s)
+	} else {
+		return ip.String(), nil
+	}
+}
+
+// RemoveDuplicates function remove duplicates elements in an array
+func RemoveDuplicates(elements []string) []string {
+	// Use map to record duplicates as we find them.
+	encountered := map[string]bool{}
+	result := []string{}
+
+	for v := range elements {
+		if encountered[elements[v]] != true {
+			// Record this element as an encountered element.
+			encountered[elements[v]] = true
+			// Append to result slice.
+			result = append(result, elements[v])
+		}
+	}
+	// Return the new slice.
+	return result
+}
+
+// IsIPv4 return true if the ip is an IPv4 address
+func IsIPv4(address net.IP) bool {
+	return strings.Count(address.String(), ":") < 2
+}
+
+// IsIPv6 return true if the ip is an IPv6 address
+func IsIPv6(address net.IP) bool {
+	return strings.Count(address.String(), ":") >= 2
+}
+
+func IP2Int(ip net.IP) uint32 {
+	if len(ip) == 16 {
+		return binary.BigEndian.Uint32(ip[12:16])
+	}
+	return binary.BigEndian.Uint32(ip)
+}
+
+func Int2IP(nn uint32) net.IP {
+	ip := make(net.IP, 4)
+	binary.BigEndian.PutUint32(ip, nn)
+	return ip
 }

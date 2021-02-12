@@ -13,7 +13,11 @@ Form definition to create or update a HTTP user source.
 use HTML::FormHandler::Moose;
 use pf::Authentication::Source::HTTPSource;
 extends 'pfappserver::Form::Config::Source';
-with 'pfappserver::Base::Form::Role::Help', 'pfappserver::Base::Form::Role::InternalSource';
+with qw(
+    pfappserver::Base::Form::Role::Help
+    pfappserver::Base::Form::Role::InternalSource
+    pfappserver::Base::Form::Role::NoRules
+);
 
 # Form fields
 has_field 'host' =>
@@ -26,7 +30,7 @@ has_field 'host' =>
   );
 has_field 'port' =>
   (
-   type => 'PosInteger',
+   type => 'Port',
    label => 'Port',
    element_class => ['input-mini'],
    element_attr => {'placeholder' => pf::Authentication::Source::HTTPSource->meta->get_attribute('port')->default},
@@ -76,7 +80,7 @@ has_field 'authorization_url' =>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2018 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 

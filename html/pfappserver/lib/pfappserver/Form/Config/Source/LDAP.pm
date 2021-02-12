@@ -17,6 +17,8 @@ use HTML::FormHandler::Moose;
 extends 'pfappserver::Form::Config::Source';
 with 'pfappserver::Base::Form::Role::Help', 'pfappserver::Base::Form::Role::InternalSource';
 
+use pf::config qw(%Config);
+
 our $META = pf::Authentication::Source::LDAPSource->meta;
 
 
@@ -26,20 +28,29 @@ has_field 'host' =>
    type => 'Text',
    label => 'Host',
    element_class => ['input-small'],
-   element_attr => {'placeholder' => '127.0.0.1'},
+   element_attr => {'placeholder' => ''},
    default => $META->get_attribute('host')->default,
+   required => 1,
   );
 has_field 'port' =>
   (
-   type => 'PosInteger',
+   type => 'Port',
    label => 'Port',
    element_class => ['input-mini'],
    element_attr => {'placeholder' => '389'},
    default => $META->get_attribute('port')->default,
   );
-has_field 'connection_timeout' =>
+has_field 'dead_duration' =>
   (
     type         => 'PosInteger',
+    element_attr => {
+        'placeholder' => $META->get_attribute('dead_duration')->default
+    },
+    default => $META->get_attribute('dead_duration')->default,
+  );
+has_field 'connection_timeout' =>
+  (
+    type         => 'Float',
     label        => 'Connection timeout',
     element_attr => {
         'placeholder' => $META->get_attribute('connection_timeout')->default
@@ -50,7 +61,7 @@ has_field 'connection_timeout' =>
   );
 has_field 'write_timeout' =>
   (
-    type         => 'PosInteger',
+    type         => 'Float',
     label        => 'Request timeout',
     element_attr => {
         'placeholder' => $META->get_attribute('write_timeout')->default
@@ -61,7 +72,7 @@ has_field 'write_timeout' =>
   );
 has_field 'read_timeout' =>
   (
-    type         => 'PosInteger',
+    type         => 'Float',
     label        => 'Response timeout',
     element_attr => {
         'placeholder' => $META->get_attribute('read_timeout')->default
@@ -105,13 +116,20 @@ has_field 'scope' =>
     { value => 'sub', label => 'Subtree' },
     { value => 'children', label => 'Children' },
    ],
-   default => 'base',
+   default => 'sub',
   );
 has_field 'usernameattribute' =>
   (
-   type => 'Text',
+   type => 'Select',
    label => 'Username Attribute',
    required => 1,
+   options_method => \&options_attributes,
+   element_class  => ['chzn-deselect', 'input-xxlarge'],
+   element_attr   => { 'data-placeholder' => 'Click to select an attribute' },
+   tags           => {
+       after_element => \&help,
+       help          => 'Main reference attribute that contain the username'
+   },
    # Default value needed for creating dummy source
    default => '',
   );
@@ -166,6 +184,53 @@ has_field 'monitor',
    default => $META->get_attribute('monitor')->default,
 );
 
+has_field 'shuffle',
+  (
+   type => 'Toggle',
+   label => 'Shuffle',
+   checkbox_value => '1',
+   unchecked_value => '0',
+   tags => { after_element => \&help,
+             help => 'Randomly choose LDAP server to query' },
+   default => $META->get_attribute('shuffle')->default,
+);
+
+has_field 'searchattributes' => (
+    type           => 'Select',
+    label          => 'Search Attributes',
+    multiple       => 1,
+    options_method => \&options_attributes,
+    element_class  => ['chzn-deselect', 'input-xxlarge'],
+    element_attr   => { 'data-placeholder' => 'Click to select an attribute' },
+    tags           => {
+        after_element => \&help,
+        help          => 'Other attributes that can be used as the username (requires to restart the radiusd service to be effective)'
+    },
+    default => '',
+);
+
+has_field 'append_to_searchattributes' => (
+    type => 'Text',
+    label => 'Append search attributes ldap filter',
+    required => 0,
+    default => '',
+    tags => {
+        after_element => \&help,
+        help => 'Append this ldap filter to the generated generated ldap filter generated for the search attributes.',
+    },
+);
+
+=head2 options_attributes
+
+retrive the realms
+
+=cut
+
+sub options_attributes {
+    my ($self) = @_;
+    return map { $_ => $_} @{$Config{advanced}->{ldap_attributes}};
+}
+
 =head2 validate
 
 Make sure a password is specified when a bind DN is specified.
@@ -186,7 +251,7 @@ sub validate {
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2018 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 

@@ -13,8 +13,9 @@ autentication
 
 use strict;
 use warnings;
+use Date::Parse;
 
-use Test::More tests => 56;                      # last test to print
+use Test::More tests => 58;                      # last test to print
 
 use Test::NoWarnings;
 use diagnostics;
@@ -26,6 +27,7 @@ BEGIN {
 
 use pf::constants;
 use pf::constants::realm;
+use pf::Authentication::constants;
 use pf::constants::authentication::messages;
 
 # pf core libs
@@ -117,7 +119,7 @@ is( pf::authentication::match(
         {username => 'user@domain.com', rule_class => 'administration', context => $pf::constants::realm::ADMIN_CONTEXT},
         'set_access_level'
     ),
-    'Violation Manager',
+    'Security Event Manager',
     "Return action in first matching source"
 );
 
@@ -231,7 +233,7 @@ is_deeply(
     pf::authentication::match("htpasswd1", { username => 'match_action', rule_class => 'administration', context => $pf::constants::realm::ADMIN_CONTEXT }, undef, \$source_id_ref),
     [
         pf::Authentication::Action->new({
-            'value' => 'Violation Manager',
+            'value' => 'Security Event Manager',
             'type'  => 'set_access_level',
             'class' => 'administration',
         })
@@ -244,7 +246,7 @@ is(
         "htpasswd1", {username => 'match_action', rule_class => 'administration', context => $pf::constants::realm::ADMIN_CONTEXT},
         'set_access_level', \$source_id_ref
     ),
-    'Violation Manager',
+    'Security Event Manager',
     "match first rule htpasswd1 by username with action"
 );
 
@@ -261,7 +263,7 @@ is(
     pf::authentication::match(
         "htpasswd1",
         {
-            current_time_period => 1484846231,
+            current_time_period => str2time('Thu Jan 19 12:17:11 2017'),
             rule_class          => 'administration',
             username => 'in_time_period',
             context => $pf::constants::realm::ADMIN_CONTEXT,
@@ -269,8 +271,8 @@ is(
         'set_access_level',
         \$source_id_ref
     ),
-    'Violation Manager',
-    "match time period condition ",
+    'Security Event Manager',
+    "match time period condition",
 );
 
 is($source_id_ref, 'htpasswd1', "Source id ref found");
@@ -384,13 +386,61 @@ for my $test (@tests) {
 
 }
 
+is_deeply(
+    pf::authentication::match2(
+        'potd',
+        {
+            context    => $pf::constants::realm::ADMIN_CONTEXT,
+            rule_class => $Rules::AUTH,
+            username   => 'match_test'
+        }
+    ),
+    {
+        'actions' => [
+            pf::Authentication::Action->new(
+                {
+                    'value' => 'default',
+                    'type'  => 'set_role',
+                    'class' => 'authentication',
+                }
+            ),
+            pf::Authentication::Action->new(
+                {
+                    'value' => '2038-01-01',
+                    'type'  => 'set_unreg_date',
+                    'class' => 'authentication',
+                }
+            ),
+        ],
+        'source_id' => 'potd',
+        'values'    => {
+            'set_role'       => 'default',
+            'set_unreg_date' => '2038-01-01'
+        },
+        rule_id => 'match_test',
+    },
+   "potd match rule"
+);
+
+{
+    my $source = pf::authentication::getAuthenticationSource("openid");
+    is_deeply(
+        $source->{person_mappings},
+        [
+            { person_field => 'nickname',  openid_field => 'alt_name' },
+            { person_field => 'telephone', openid_field => 'phone' },
+        ],
+        "person_mappings"
+    );
+}
+
 =head1 AUTHOR
 
 Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2018 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 

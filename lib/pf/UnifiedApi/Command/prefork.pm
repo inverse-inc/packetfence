@@ -8,12 +8,14 @@ pf::UnifiedApi::Command::prefork - Pre-fork command
 
 use Systemd::Daemon qw {-soft };
 use Mojo::Base qw(Mojolicious::Command::prefork);
+use pf::config qw(%Config);
 
 sub run {
   my ($self, @args) = @_;
   Systemd::Daemon::notify( READY => 1, STATUS => "Ready", unset => 1 );
+  my $timeout = $Config{advanced}{pfperl_api_timeout} // 600;
   eval {
-    $self->SUPER::run(@args);
+    $self->SUPER::run('-i', $timeout, '-H', $timeout, '-w', $Config{advanced}{pfperl_api_processes}, @args);
   };
   if ($@) {
       print STDERR $@;
@@ -33,7 +35,7 @@ Minor parts of this file may have been contributed. See CREDITS.
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2018 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 

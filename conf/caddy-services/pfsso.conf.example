@@ -1,4 +1,7 @@
+# Copyright (C) Inverse inc.
 :8777 {
+  bind 127.0.0.1
+
   pfconfigpool
   logger {
     level INFO

@@ -45,7 +45,7 @@ use pf::Switch::constants;
 use pf::util;
 use pf::accounting qw(node_accounting_current_sessionid);
 use pf::node qw(node_attributes);
-use pf::util::radius qw(perform_coa perform_disconnect);
+use pf::util::radius qw(perform_disconnect);
 use pf::log;
 
 sub description { 'Avaya Switch Module' }
@@ -62,9 +62,11 @@ TODO: This list is incomplete
 
 =cut
 
-sub supportsWiredMacAuth { return $SNMP::TRUE; }
-sub supportsWiredDot1x { return $SNMP::TRUE }
-sub supportsRadiusVoip { return $SNMP::TRUE }
+use pf::SwitchSupports qw(
+    WiredMacAuth
+    WiredDot1x
+    RadiusVoip
+);
 
 =head2 identifyConnectionType
 
@@ -102,7 +104,7 @@ User-Name
 sub parseRequest {
     my ($self, $radius_request) = @_;
     my $client_mac = clean_mac($radius_request->{'Calling-Station-Id'}) || clean_mac($radius_request->{'User-Name'});
-    my $user_name = $radius_request->{'User-Name'};
+    my $user_name       = $self->parseRequestUsername($radius_request);
     my $nas_port_type = $radius_request->{'NAS-Port-Type'};
     my $port = $radius_request->{'NAS-Port'};
     my $eap_type = 0;
@@ -340,24 +342,47 @@ sub _authorizeMAC {
     my $cfgStatus = ($authorize) ? 2 : 3;
     my $mac_oid = mac2oid($mac);
 
+
     my $result;
     my $return;
     if ($authorize) {
         $logger->trace( "SNMP set_request for s5SbsAuthCfgAccessCtrlType: $OID_s5SbsAuthCfgAccessCtrlType" );
         foreach $boardIndx (@boardIndx) {
-            $result = $self->{_sessionWrite}->set_request(
-                -varbindlist => [
-                    "$OID_s5SbsAuthCfgAccessCtrlType.$boardIndx.$portIndx.$mac_oid", Net::SNMP::INTEGER, $TRUE,
-                    "$OID_s5SbsAuthCfgStatus.$boardIndx.$portIndx.$mac_oid", Net::SNMP::INTEGER, $cfgStatus
-                ]
-            );
+
+            my $boardExist = $self->{_sessionRead}->get_table( -baseoid => "$OID_s5SbsAuthCfgStatus.$boardIndx" );
+            next if !(defined $boardExist);
+
+            if (defined($boardExist) && exists($boardExist->{"$OID_s5SbsAuthCfgStatus.$boardIndx.$portIndx.$mac_oid"}) && $boardExist->{"$OID_s5SbsAuthCfgStatus.$boardIndx.$portIndx.$mac_oid"} eq "1") {
+                $result = $self->{_sessionWrite}->set_request(
+                    -varbindlist => [
+                        "$OID_s5SbsAuthCfgAccessCtrlType.$boardIndx.$portIndx.$mac_oid", Net::SNMP::INTEGER, $TRUE,
+                    ]
+                );
+            } else {
+                # MAc exist in another place, remove it
+                foreach my $key (keys %{$boardExist}) {
+                    if ($key =~ /$mac_oid$/) {
+                        $result = $self->{_sessionWrite}->set_request(
+                            -varbindlist => [
+                            "$key", Net::SNMP::INTEGER, 3
+                            ]
+                        );
+                    }
+                }
+                $result = $self->{_sessionWrite}->set_request(
+                    -varbindlist => [
+                        "$OID_s5SbsAuthCfgAccessCtrlType.$boardIndx.$portIndx.$mac_oid", Net::SNMP::INTEGER, $TRUE,
+                        "$OID_s5SbsAuthCfgStatus.$boardIndx.$portIndx.$mac_oid", Net::SNMP::INTEGER, $cfgStatus
+                    ]
+                );
+            }
             if ($result) {
                 $return = 1;
             }
         }
     } else {
         foreach $boardIndx (@boardIndx) {
-            $logger->warn("Remove mac ".$OID_s5SbsAuthCfgStatus.$boardIndx.$portIndx.$mac_oid);
+            $logger->warn("Remove mac ".$OID_s5SbsAuthCfgStatus.".".$boardIndx.".".$portIndx.".".$mac_oid);
             $logger->trace( "SNMP set_request for s5SbsAuthCfgStatus: $OID_s5SbsAuthCfgStatus" );
             $result = $self->{_sessionWrite}->set_request(
                 -varbindlist => [
@@ -573,7 +598,6 @@ sub radiusDisconnect {
         my $roleResolver = pf::roles::custom->instance();
         my $role = $roleResolver->getRoleForNode($mac, $self);
 
-        my $node_info = node_attributes($mac);
         # transforming MAC to the expected format 00-11-22-33-CA-FE
         $mac = uc($mac);
         $mac =~ s/:/-/g;
@@ -625,7 +649,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2018 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 

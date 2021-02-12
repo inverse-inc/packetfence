@@ -1,20 +1,20 @@
 <script id="variables" type="text/json">
-{
-  "txt_web_notification": "[% i18n("Network access has been granted") %]",
-  "destination_url":      "[% destination_url %]",
-  "external_ip":          "[% external_ip %]",
-  "image_path":           "[% image_path %]",
-  "waitTime":              [% timer %],
-  "initial_delay":         [% initial_delay %],
-  "retry_delay":           [% retry_delay %]
-}
+  {
+    "txt_web_notification": "[% i18n("Network access has been granted") %]",
+    "destination_url":      "[% destination_url %]",
+    "external_ip":          "[% external_ip %]",
+    "image_path":           "[% image_path %]",
+    "waitTime":              [% timer || 30 %],
+    "initial_delay":         [% initial_delay || 0 %],
+    "retry_delay":           [% retry_delay || 0 %]
+  }
 </script>
 <script type="text/javascript" src="/content/release.js"></script>
 <script type="text/javascript" src="/content/timerbar.js"></script>
 
-<div class="card">
+<div class="u-padding">
 
-  <div class="layout--center">
+  <div class="o-layout--center">
     <h3>[% i18n("scan: scan in progress") %]</h3>
   </div>
 
@@ -22,25 +22,25 @@
     <p>[% i18n(txt_message) %]</p>
   </div>
 
-  <div id="detectionError" class="media media--error u-p u-mb hide">
-    <div class="media__img">[% flashIcon(level='error') %]</div>
-    <p class="media__body">[% i18n("Unable to detect network connectivity. Try restarting your web browser or opening a new tab to see if your access has been succesfully enabled.") %]</p>
+  <div id="detectionError" class="o-media o-media--error u-padding u-margin-bottom hide">
+    <div class="o-media__img">[% flashIcon(level='error') %]</div>
+    <p class="o-media__body">[% i18n("Unable to detect network connectivity. Try restarting your web browser or opening a new tab to see if your access has been succesfully enabled.") %]</p>
   </div>
 
-  <div class="layout layout--center layout--auto">
-    <div class="layout__item">
-      <div class="timerbar"></div>
+  <div class="o-layout o-layout--center">
+    <div class="o-layout__item u-1/1 u-2/3@tablet u-3/5@desktop">
+      <div class="c-timerbar"></div>
     </div>
   </div>
 
-</div>
+  <noscript>
+    <div class="o-media o-media--error u-padding u-margin-bottom">
+      <div class="o-media__img">[% flashIcon(level='error') %]</div>
+      <p class="o-media__body">[% i18n("If you have scripting turned off, you will not be automatically redirected. Please enable scripting or open a new browser window from time to time to see if your access was enabled.") %]</p>
+    </div>
+  </noscript>
 
-<noscript>
-  <div class="media media--error u-p u-mb">
-    <div class="media__img">[% flashIcon(level='error') %]</div>
-    <p class="media__body">[% i18n("If you have scripting turned off, you will not be automatically redirected. Please enable scripting or open a new browser window from time to time to see if your access was enabled.") %]</p>
-  </div>
-</noscript>
+</div>
 
 [%# DO NOT REMOVE! REQUIRED FOR NETWORK ACCESS DETECTION %]
 <div id="internet-detection" class="hide"><img id="netdetect"/></div>

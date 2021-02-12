@@ -27,17 +27,20 @@ use pf::config qw(
     @routed_isolation_nets
     @routed_registration_nets
     @inline_nets
-    %connection_type_to_str
     %connection_type
     $UNKNOWN
     $management_network
     %ConfigRealm
+    @ConfigOrderedRealm
     $HTTPS
     $HTTP
 );
+use Locale::gettext qw(gettext ngettext);
+use pf::constants::config qw($DEFAULT_SMTP_PORT $DEFAULT_SMTP_PORT_SSL $DEFAULT_SMTP_PORT_TLS %ALERTING_PORTS);
 use IO::Socket::SSL qw(SSL_VERIFY_NONE);
 use pf::constants::config qw($TIME_MODIFIER_RE);
 use pf::constants::realm;
+use Encode qw(encode);
 use File::Basename;
 use Net::MAC::Vendor;
 use Net::SMTP;
@@ -46,7 +49,7 @@ use MIME::Lite::TT;
 use POSIX();
 use File::Spec::Functions;
 use File::Slurp qw(read_dir);
-use List::MoreUtils qw(all any);
+use List::MoreUtils qw(all any uniq);
 use Try::Tiny;
 use pf::file_paths qw(
     $html_dir
@@ -66,7 +69,6 @@ BEGIN {
     get_routed_registration_nets get_inline_nets
     get_internal_devs get_internal_devs_phy
     get_internal_macs get_internal_info
-    connection_type_to_str str_to_connection_type
     get_translatable_time trappable_mac
     portal_hosts
     filter_authentication_sources
@@ -144,23 +146,25 @@ sub ip2device {
 
 sub pfmailer {
     my (%data) = @_;
-    my @to = split( /\s*,\s*/, $Config{'alerting'}{'emailaddr'} );
+    my $to = $Config{'alerting'}{'emailaddr'};
     my $host_prefix = $cluster_enabled ? " ($host_id)" : '';
     my $date = POSIX::strftime( "%m/%d/%y %H:%M:%S", localtime );
     my $subject = $Config{'alerting'}{'subjectprefix'} . $host_prefix . " " . $data{'subject'} . " ($date)";
     my $msg = MIME::Lite->new(
-        To      => \@to,
+        To      => $to,
         Subject => $subject,
         Data    => $data{message} . "\n",
     );
     return send_mime_lite($msg);
 }
 
-=head2 send_email - Send an email using a template
+=head2 build_email
+
+Build the MIME::TT object to send an email for a specific template
 
 =cut
 
-sub send_email {
+sub build_email {
     my ($template, $email, $subject, $data, $tmpoptions) = @_;
     my $logger = get_logger();
 
@@ -177,30 +181,92 @@ sub send_email {
     require pf::web;
 
     my %TmplOptions = (
-        INCLUDE_PATH => "$html_dir/captive-portal/templates/emails/",
         ENCODING     => 'utf8',
         %{$tmpoptions // {}},
     );
+    add_standard_include_path(\%TmplOptions);
     my %vars = (
+        i18n        => \&i18n,
+        i18n_format => \&i18n_format,
         %$data,
-        i18n        => \&pf::web::i18n,
-        i18n_format => \&pf::web::i18n_format
     );
     utf8::decode($subject);
     my $msg = MIME::Lite::TT->new(
         To          => $email,
         Bcc         => $data->{'bcc'} || '',
-        Subject     => $subject,
+        Subject     => encode('MIME-Header', $subject),
+        Encoding    => 'base64',
         Template    => "emails-$template.html",
         TmplOptions => \%TmplOptions,
         TmplParams  => \%vars,
-        TmplUpgrade => 1,
         ( $data->{'from'} ? ( From => $data->{'from'} ) : () ),
     );
-    $msg->attr( "Content-Type" => "text/html; charset=UTF-8;" );
+    $msg->attr( "Content-Type" => "text/html; charset=UTF-8" );
+    return $msg;
+}
+
+=head2 send_email - Send an email using a template
+
+=cut
+
+sub send_email {
+    my ($template, $email, $subject, $data, $tmpoptions) = @_;
+    my $msg = build_email($template, $email, $subject, $data, $tmpoptions);
     return send_mime_lite($msg);
 }
 
+sub i18n {
+    my $msgid = shift;
+
+    if(ref($msgid) eq "ARRAY"){
+        return i18n_format(@$msgid);
+    }
+
+    my $result = gettext($msgid);
+    return $result;
+}
+
+sub ni18n {
+    my $singular = shift;
+    my $plural = shift;
+    my $category = shift;
+
+    my $result = ngettext($singular, $plural, $category);
+    return $result;
+}
+
+=item i18n_format
+
+Pass message id through gettext then sprintf it.
+
+Meant to be called from the TT templates.
+
+=cut
+
+sub i18n_format {
+    my ($msgid, @args) = @_;
+
+    my $result = gettext($msgid);
+    $result = sprintf($result, @args);
+    return $result;
+}
+
+
+
+=head2 add_standard_include_path
+
+add standard email templates include paths
+
+=cut
+
+sub add_standard_include_path {
+    my ($options) = @_;
+    $options->{INCLUDE_PATH} //= [];
+    $options->{INCLUDE_PATH} = listify($options->{INCLUDE_PATH});
+    push @{$options->{INCLUDE_PATH}},
+        "$html_dir/captive-portal/profile-templates/default/emails",
+        "$html_dir/captive-portal/templates/emails/";
+}
 
 sub get_all_internal_ips {
     my @ips;
@@ -290,59 +356,6 @@ sub get_internal_info {
     return;
 }
 
-=head2 connection_type_to_str
-
-In the database we store the connection type as a string but we use a constant binary value internally.
-This converts from the constant binary value to the string.
-
-return connection_type string (as defined in pf::config) or an empty string if connection type not found
-
-=cut
-
-sub connection_type_to_str {
-    my ($conn_type) = @_;
-    my $logger = get_logger();
-
-    # convert connection_type constant into a string for database
-    if (defined($conn_type) && $conn_type ne '' && defined($connection_type_to_str{$conn_type})) {
-
-        return $connection_type_to_str{$conn_type};
-    } else {
-        my ($package, undef, undef, $routine) = caller(1);
-        $logger->warn("unable to convert connection_type to string. called from $package $routine");
-        return '';
-    }
-}
-
-
-=head2 str_to_connection_type
-
-In the database we store the connection type as a string but we use a constant binary value internally.
-This parses the string from the database into the the constant binary value.
-
-return connection_type constant (as defined in pf::config) or undef if connection type not found
-
-=cut
-
-sub str_to_connection_type {
-    my ($conn_type_str) = @_;
-    my $logger = get_logger();
-
-    # convert database string into connection_type constant
-    if (defined($conn_type_str) && $conn_type_str ne '' && defined($connection_type{$conn_type_str})) {
-
-        return $connection_type{$conn_type_str};
-    } elsif (defined($conn_type_str) && $conn_type_str eq '') {
-
-        $logger->debug("got an empty connection_type, this happens if we discovered the node but it never connected");
-        return $UNKNOWN;
-
-    } else {
-        my ($package, undef, undef, $routine) = caller(1);
-        $logger->warn("unable to parse string into a connection_type constant. called from $package $routine");
-        return;
-    }
-}
 
 =head2 get_translatable_time
 
@@ -386,14 +399,17 @@ Returns the list of host and IP on which the portal is configured to listen
 sub portal_hosts {
     my @hosts;
     foreach my $net (@internal_nets) {
+        push @hosts, values(%{pf::cluster::members_ips($net->{Tint})}) if $cluster_enabled;
         push @hosts, $net->{Tip} if defined($net->{Tip});
         push @hosts, $net->{Tvip} if defined($net->{Tvip});
         push @hosts, $net->{Tipv6_address} if defined($net->{Tipv6_address});
     }
+
+    push @hosts, values(%{pf::cluster::members_ips($management_network->{Tint})}) if $cluster_enabled;
     push @hosts, $management_network->{Tip} if defined($management_network->{Tip});
     push @hosts, $management_network->{Tvip} if defined($management_network->{Tvip});
     push @hosts, $fqdn;
-    return @hosts;
+    return uniq @hosts;
 }
 
 =head2 get_realm_authentication_source
@@ -404,7 +420,22 @@ Find sources for a specific realm
 
 sub get_realm_authentication_source {
     my ( $username, $realm, $sources ) = @_;
-    return [grep { $_->realmIsAllowed($realm) } @{$sources}];
+    my $matched_realm = $realm;
+    foreach my $realm_key ( @pf::config::ConfigOrderedRealm ) {
+        if (defined($pf::config::ConfigRealm{$realm_key}->{regex}) && $pf::config::ConfigRealm{$realm_key}->{'regex'} ne '' && defined($realm) && $realm =~ /$pf::config::ConfigRealm{$realm_key}->{regex}/) {
+            $realm = $realm_key;
+            last;
+        }
+    }
+    $matched_realm //= 'null';
+    my @found = grep { $_->realmIsAllowed($realm) } @{$sources};
+    if (@found == 0 && $realm ne 'default' && !(exists $pf::config::ConfigRealm{$realm})) {
+        $matched_realm = 'default';
+        @found = grep { $_->realmIsAllowed('default') } @{$sources};
+    }
+    get_logger->debug("Used realm ". ((defined($realm)) ? $realm : "null") ." is associated to the configured realm $matched_realm");
+
+    return \@found;
 }
 
 =head2 filter_authentication_sources
@@ -449,9 +480,10 @@ get the configuration for sending email
 =cut
 
 sub get_send_email_config {
-    my $config = $Config{alerting};
+    my ($config) = @_;
     my %args;
-    my $encryption = $config->{smtp_encryption};
+    my $encryption = $config->{smtp_encryption} // 'none';
+    $encryption = 'none' if !exists $ALERTING_PORTS{$encryption};
     if ($encryption eq 'ssl') {
         $args{SSL} = 1;
     } elsif ($encryption eq 'starttls') {
@@ -471,7 +503,7 @@ sub get_send_email_config {
     $args{Hostname} = $config->{smtpserver};
     $args{Hello} = $fqdn;
     $args{Timeout} = $config->{smtp_timeout};
-    $args{Port} = $config->{smtp_port};
+    $args{Port} = $config->{smtp_port} || $ALERTING_PORTS{$encryption};
     return \%args;
 }
 
@@ -483,14 +515,8 @@ Submit a mime lite object using the current alerting settings
 
 sub send_mime_lite {
     my ($mime, @args) = @_;
-    my $result = $FALSE;
-    eval {
-        $mime->send(
-            'sub',
-            \&send_using_smtp_callback,
-            @args
-        );
-        $result = $mime->last_send_successful();
+    my $result = eval {
+        do_send_mime_lite($mime, @args);
     };
     if ($@) {
         my $to = $mime->{_extracted_to};
@@ -498,10 +524,24 @@ sub send_mime_lite {
         $msg =~ s/\n//g;
         get_logger->error($msg);
     }
-    else {
-        $result = $result ? $TRUE : $FALSE;
-    }
-    return $result;
+
+    return $result ? $TRUE : $FALSE;
+}
+
+=head2 do_send_mime_lite
+
+do_send_mime_lite
+
+=cut
+
+sub do_send_mime_lite {
+    my ($mime, @args) = @_;
+    $mime->send(
+        'sub',
+        \&send_using_smtp_callback,
+        @args
+    );
+    return $mime->last_send_successful();
 }
 
 =head2 send_using_smtp_callback
@@ -512,8 +552,9 @@ Using the configuration of from pf.conf
 =cut
 
 sub send_using_smtp_callback {
-    my ( $self, %args ) = @_;
-    my $config = get_send_email_config();
+    my ($self, %args) = @_;
+    my $alerting_config = merge_with_alert_config(\%args);
+    my $config = get_send_email_config($alerting_config);
     %args = (%$config, %args);
 
     # We may need the "From:" and "To:" headers to pass to the
@@ -596,6 +637,25 @@ sub send_using_smtp_callback {
     return $self->{last_send_successful} = 1;
 }
 
+=head2 merge_with_alert_config
+
+merge_with_alert_config
+
+=cut
+
+sub merge_with_alert_config {
+    my ($config) = @_;
+    my %alerting_config = %{$Config{alerting}};
+    for my $k (keys %alerting_config ) {
+        next unless exists $config->{$k};
+        if (defined (my $val = delete $config->{$k})) {
+            $alerting_config{$k} = $val;
+        }
+    }
+
+    return \%alerting_config;
+}
+
 =head2 strip_username_if_needed
 
 Strips a username if configured in the realm configuration
@@ -607,12 +667,19 @@ Valid context are "portal" and "admin", basically any prefix to "_strip_username
 sub strip_username_if_needed {
     my ($username, $context) = @_;
     return $username unless(defined($username));
-    
+
     my $logger = get_logger;
 
     my ($stripped, $realm) = strip_username($username);
     $realm = $realm ? lc($realm) : undef;
-    
+
+    foreach my $realm_key ( @pf::config::ConfigOrderedRealm ) {
+        if (defined($pf::config::ConfigRealm{$realm_key}->{regex}) && $pf::config::ConfigRealm{$realm_key}->{'regex'} ne '' && defined($realm) && $realm =~ /$pf::config::ConfigRealm{$realm_key}->{regex}/) {
+            $realm = $realm_key;
+            last;
+        }
+    }
+
     my $realm_config = defined($realm) && exists($ConfigRealm{$realm}) ? $ConfigRealm{$realm} : $ConfigRealm{lc($pf::constants::realm::DEFAULT)};
 
     my $param = $context . "_strip_username";
@@ -635,7 +702,7 @@ Minor parts of this file may have been contributed. See CREDITS.
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2018 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 

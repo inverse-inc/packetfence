@@ -10,4 +10,7 @@ $(function() {
   window.timerbarAction = function() {
     top.location.href = vars.destination_url;
   };
+
+  // Initialize progress bar (requires timerbar.js)
+  initTimerbar();
 });

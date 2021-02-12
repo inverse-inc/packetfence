@@ -8,12 +8,14 @@
       <thead>
         <tr>
           <th>[% l('Process running') %]</th>
+          <th>[% l('Handle') %]</th>
         </tr>
       </thead>
       <tbody>
       [% FOREACH process IN rules.scan_result %]
         <tr>
           <td>[% process.Name | html %]</td>
+          <td>[% process.Handle | html %]</td>
         </tr>
       [% END %]
       </tbody>
@@ -40,8 +42,8 @@
             <td><span class="label label-failure">[% rules.item_exist | html %]</span></td>
           [% END %]
           [% IF rules.item_exist == 'Yes' %]
-            <td>[% item.displayName | html %]</td>
-            <td>[% item.productState | html %]</td>
+            <td>[% ( item.displayName || item.UserName || item.Name ) | html %]</td>
+            <td>[% ( item.productState || item.BuildNumber ) | html %]</td>
           [% END %]
         </tr>
       [% END %]

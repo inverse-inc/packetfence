@@ -1,3 +1,5 @@
+#!/usr/bin/perl
+
 =head1 NAME
 
 pfconfig::cached_array
@@ -30,7 +32,7 @@ ok(@array_test eq 3, "test array test is valid");
 
 my @array_test_result = ("first", "second", "third");
 
-ok(@array_test ~~ @array_test_result, "test arrays are the same");
+is_deeply(\@array_test, \@array_test_result, "test arrays are the same");
 
 ##
 # Test FETCH
@@ -62,7 +64,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2018 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 

@@ -1,0 +1,66 @@
+// to display images directly on GitHub
+ifdef::env-github[]
+:encoding: UTF-8
+:lang: en
+:doctype: book
+:toc: left
+:imagesdir: ../../images
+endif::[]
+
+////
+
+    This file is part of the PacketFence project.
+
+    See PacketFence_Network_Devices_Configuration_Guide-docinfo.xml for 
+    authors, copyright and license information.
+
+////
+
+
+//=== Trapeze
+
+In order to have the Trapeze controller working with PacketFence, you need to define the RADIUS configuration and the proper service profiles.
+
+[float]
+==== RADIUS configuration
+
+  set radius server PF address 192.168.1.5 timeout 5 retransmit 3 deadtime 0 key secret
+  set server group PF-RADIUS members PF
+
+[float]
+==== Service Profiles
+
+Here we define two service profiles, one for the open SSID (PacketFence-Public)
+and one for the WPA2-Enterprise SSID (PacketFence-Secure):
+
+----
+set service-profile PF-Open ssid-name PacketFence-Public
+set service-profile PF-Open ssid-type clear
+set service-profile PF-Open auth-fallthru last-resort
+set service-profile PF-Open cipher-tkip enable
+set service-profile PF-Open auth-dot1x disable
+set service-profile PF-Open 11n mode-na required
+set service-profile PF-Open attr vlan-name WLAN_REG
+
+set service-profile PF-Secure ssid-name PacketFence-Secure
+set service-profile PF-Secure cipher-tkip enable
+set service-profile PF-Secure cipher-ccmp enable
+set service-profile PF-Secure wpa-ie enable
+set service-profile PF-Secure rsn-ie enable
+set service-profile PF-Secure 11n mode-na required
+set service-profile PF-Secure attr vlan-name Wlan
+
+set radio-profile default service-profile PacketFence-Public
+set radio-profile default service-profile PacketFence-Secure
+----
+
+[float]
+==== AAA configuration
+
+Finally, we need to tie the service profiles with the proper AAA configuration.
+
+  set accounting dot1x ssid PacketFence-Secure ** start-stop PF-RADIUS
+  set accounting mac ssid PacketFence-Public * start-stop PF-RADIUS
+  set authentication mac ssid PacketFence-Public * PF-RADIUS
+  set authentication dot1x ssid PacketFence-Secure ** pass-through PF-RADIUS
+

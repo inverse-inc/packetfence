@@ -19,11 +19,6 @@ use namespace::autoclean;
 use POSIX;
 use SQL::Abstract::More;
 use JSON::MaybeXS;
-use pfappserver::Form::User;
-use pfappserver::Form::User::Create;
-use pfappserver::Form::User::Create::Single;
-use pfappserver::Form::User::Create::Multiple;
-use pfappserver::Form::User::Create::Import;
 use pf::admin_roles;
 use pf::authentication qw(getAuthenticationSource);
 use pf::config qw(%Config);
@@ -38,7 +33,7 @@ __PACKAGE__->config(
         bulk_register        => { AdminRole => 'USERS_UPDATE' },
         bulk_deregister      => { AdminRole => 'USERS_UPDATE' },
         bulk_apply_role      => { AdminRole => 'USERS_UPDATE' },
-        bulk_apply_violation => { AdminRole => 'USERS_UPDATE' },
+        bulk_apply_security_event => { AdminRole => 'USERS_UPDATE' },
         bulk_delete          => { AdminRole => 'USERS_DELETE' },
     },
     action_args => {
@@ -103,7 +98,7 @@ sub view :Chained('object') :PathPart('read') :Args(0) :AdminRoleAny(USERS_READ)
     my ($form);
     my $user = $c->stash->{user};
 
-    $form = pfappserver::Form::User->new(ctx => $c, init_object => $user);
+    $form = $self->getForm($c, 'User', init_object => $user);
     $form->process();
     $form->field('actions')->add_extra unless @{$user->{actions}}; # an action must be chosen
     $c->stash->{form} = $form;
@@ -157,7 +152,7 @@ sub update :Chained('object') :PathPart('update') :Args(0) :AdminRole('USERS_UPD
 
     my ($form, $status, $message);
 
-    $form = pfappserver::Form::User->new(ctx => $c, init_object => $c->stash->{user});
+    $form = $self->getForm($c, "User", init_object => $c->stash->{user});
     $form->process(params => $c->request->params);
     if ($form->has_errors) {
         $status = HTTP_BAD_REQUEST;
@@ -174,15 +169,15 @@ sub update :Chained('object') :PathPart('update') :Args(0) :AdminRole('USERS_UPD
     $c->stash->{current_view} = 'JSON';
 }
 
-=head2 violations
+=head2 security_events
 
-Show violations for user
+Show security_events for user
 
 =cut
 
-sub violations :Chained('object') :PathPart :Args(0) :AdminRole('NODES_READ') {
+sub security_events :Chained('object') :PathPart :Args(0) :AdminRole('NODES_READ') {
     my ($self, $c) = @_;
-    my ($status, $result) = $self->getModel($c)->violations($c->stash->{user}->{pid});
+    my ($status, $result) = $self->getModel($c)->security_events($c->stash->{user}->{pid});
     if (is_success($status)) {
         $c->stash->{items} = $result;
     } else {
@@ -252,13 +247,13 @@ sub create :Local :AdminRoleAny('USERS_CREATE') :AdminRoleAny('USERS_CREATE_MULI
 
     ($status, $result) = $c->model('Config::Roles')->listFromDB();
     if (is_success($status)) {
-        @roles = map { $_->{name} => $_->{name} } @$result;
+        @roles = @$result;
     }
 
-    $form = pfappserver::Form::User::Create->new(ctx => $c, roles => \@roles);
-    $form_single = pfappserver::Form::User::Create::Single->new(ctx => $c);
-    $form_multiple = pfappserver::Form::User::Create::Multiple->new(ctx => $c);
-    $form_import = pfappserver::Form::User::Create::Import->new(ctx => $c);
+    $form = $self->getForm($c, "User::Create", roles => \@roles);
+    $form_single = $self->getForm($c, "User::Create::Single");
+    $form_multiple = $self->getForm($c, "User::Create::Multiple");
+    $form_import = $self->getForm($c, "User::Create::Import");
 
     if (scalar(keys %{$c->request->params}) > 1) {
         # We consider the request parameters only if we have at least two entries.
@@ -414,13 +409,13 @@ sub advanced_search :Local :Args() :AdminRoleAny(USERS_READ) :AdminRoleAny(USERS
         }
         $c->stash(current_view => 'JSON') if ($c->request->params->{'json'});
     }
-    my ( $roles, $violations );
+    my ( $roles, $security_events );
     (undef, $roles) = $c->model('Config::Roles')->listFromDB();
-    (undef, $violations) = $c->model('Config::Violations')->readAll();
+    (undef, $security_events) = $c->model('Config::SecurityEvents')->readAll();
     $c->stash(
         status_msg => $status_msg,
         roles => $roles,
-        violations => $violations,
+        security_events => $security_events,
     );
 
     if($c->request->param('export')) { 
@@ -525,7 +520,7 @@ sub sms :Local :AdminRole('USERS_UPDATE') {
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2018 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 

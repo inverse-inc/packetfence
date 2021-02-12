@@ -25,6 +25,7 @@ use pf::log;
 use Readonly;
 use NetAddr::IP;
 use pf::constants;
+use pf::config::cluster;
 
 BEGIN {
     use Exporter ();
@@ -52,10 +53,12 @@ use pf::config qw(
     is_inline_enforcement_enabled
     is_type_inline
     @radius_ints
+    @dhcp_ints
+    @dns_ints
 );
 use pf::file_paths qw($generated_conf_dir $conf_dir);
 use pf::util;
-use pf::violation qw(violation_view_open_uniq violation_count);
+use pf::security_event qw(security_event_view_open_uniq security_event_count);
 use pf::authentication;
 use pf::cluster;
 use pf::ConfigStore::Provisioning;
@@ -66,6 +69,8 @@ use pf::ConfigStore::Domain;
 Readonly our $FW_FILTER_INPUT_MGMT      => 'input-management-if';
 Readonly our $FW_FILTER_INPUT_PORTAL    => 'input-portal-if';
 Readonly our $FW_FILTER_INPUT_RADIUS    => 'input-radius-if';
+Readonly our $FW_FILTER_INPUT_DHCP      => 'input-dhcp-if';
+Readonly our $FW_FILTER_INPUT_DNS       => 'input-dns-if';
 
 Readonly my $FW_TABLE_FILTER => 'filter';
 Readonly my $FW_TABLE_MANGLE => 'mangle';
@@ -81,6 +86,8 @@ Readonly my $FW_PREROUTING_INT_INLINE => 'prerouting-int-inline-if';
 Readonly my $FW_POSTROUTING_INT_INLINE => 'postrouting-int-inline-if';
 Readonly my $FW_POSTROUTING_INT_INLINE_ROUTED => 'postrouting-inline-routed';
 Readonly my $FW_PREROUTING_INT_VLAN => 'prerouting-int-vlan-if';
+
+tie our %NetworkConfig, 'pfconfig::cached_hash', "resource::network_config($host_id)";
 
 =head1 SUBROUTINES
 
@@ -118,17 +125,19 @@ sub iptables_generate {
         'routed_postrouting_inline' => '','input_inter_vlan_if' => '',
         'domain_postrouting' => '','mangle_postrouting_inline' => '',
         'filter_forward_isol_vlan' => '', 'input_inter_isol_vlan_if' => '',
+        'filter_forward' => '',
     );
 
     # global substitution variables
     $tags{'web_admin_port'} = $Config{'ports'}{'admin'};
     $tags{'webservices_port'} = $Config{'ports'}{'soap'};
     $tags{'aaa_port'} = $Config{'ports'}{'aaa'};
+    $tags{'unifiedapi_port'} = $Config{'ports'}{'unifiedapi'};
     $tags{'httpd_portal_modstatus'} = $Config{'ports'}{'httpd_portal_modstatus'};
     $tags{'httpd_collector_port'} = $Config{'ports'}{'collector'};
     # FILTER
     # per interface-type pointers to pre-defined chains
-    $tags{'filter_if_src_to_chain'} .= $self->generate_filter_if_src_to_chain();
+    ($tags{'filter_if_src_to_chain'},$tags{'filter_forward'}) = $self->generate_filter_if_src_to_chain();
 
     # eduroam RADIUS virtual-server
     if ( @{pf::authentication::getAuthenticationSourcesByType('Eduroam')} ) {
@@ -180,10 +189,6 @@ sub iptables_generate {
 
     generate_domain_rules(\$tags{'filter_forward_domain'}, \$tags{'domain_postrouting'});
 
-    # HTTP parking related rule
-    $tags{'nat_prerouting_vlan'} .= "-A PREROUTING -p tcp --dport 80 -m set --match-set $pf::constants::parking::PARKING_IPSET_NAME src -j REDIRECT --to-port 5252\n";
-    $tags{'nat_prerouting_vlan'} .= "-A PREROUTING -p tcp --dport 443 -m set --match-set $pf::constants::parking::PARKING_IPSET_NAME src -j REDIRECT --to-port 5252\n";
-
     parse_template( \%tags, "$conf_dir/iptables.conf", "$generated_conf_dir/iptables.conf" );
     $self->iptables_restore("$generated_conf_dir/iptables.conf");
 }
@@ -199,9 +204,10 @@ sub generate_filter_if_src_to_chain {
     my ($self) = @_;
     my $logger = get_logger();
     my $rules = '';
-
+    my $rules_forward = '';
     my $passthrough_enabled = (isenabled($Config{'fencing'}{'passthrough'}) || isenabled($Config{'fencing'}{'isolation_passthrough'}));
     my $isolation_passthrough_enabled = isenabled($Config{'fencing'}{'isolation_passthrough'});
+    my $internal_portal_ip = $Config{captive_portal}{ip_address};
 
     # internal interfaces handling
     foreach my $interface (@internal_nets) {
@@ -234,17 +240,18 @@ sub generate_filter_if_src_to_chain {
             $rules .= "# DHCP Sync\n";
             $rules .= "-A INPUT --in-interface $dev --protocol tcp --match tcp --dport 647 -j ACCEPT\n" if ($pf::cluster_enabled);
             $rules .= "-A INPUT --in-interface $dev --protocol udp --match udp --dport 67 -j ACCEPT\n";
-            $rules .= "-A INPUT --in-interface $dev -d ".$cluster_ip." --jump $FW_FILTER_INPUT_INT_VLAN\n" if ($cluster_enabled);
-            $rules .= "-A INPUT --in-interface $dev -d " . $interface->tag("vip") . " --jump $FW_FILTER_INPUT_INT_VLAN\n" if $interface->tag("vip");
-            $rules .= "-A INPUT --in-interface $dev -d " . $interface->tag("ip") . " --jump $FW_FILTER_INPUT_INT_VLAN\n";
-            $rules .= "-A INPUT --in-interface $dev -d 255.255.255.255 --jump $FW_FILTER_INPUT_INT_VLAN\n";
+            $rules .= "-A INPUT --in-interface $dev -d $internal_portal_ip --jump $chain\n";
+            $rules .= "-A INPUT --in-interface $dev -d ".$cluster_ip." --jump $chain\n" if ($cluster_enabled);
+            $rules .= "-A INPUT --in-interface $dev -d " . $interface->tag("vip") . " --jump $chain\n" if $interface->tag("vip");
+            $rules .= "-A INPUT --in-interface $dev -d " . $interface->tag("ip") . " --jump $chain\n";
+            $rules .= "-A INPUT --in-interface $dev -d 255.255.255.255 --jump $chain\n";
             if ($passthrough_enabled && ($type eq $pf::config::NET_TYPE_VLAN_REG)) {
-                $rules .= "-A FORWARD --in-interface $dev --jump $FW_FILTER_FORWARD_INT_VLAN\n";
-                $rules .= "-A FORWARD --out-interface $dev --jump $FW_FILTER_FORWARD_INT_VLAN\n";
+                $rules_forward .= "-A FORWARD --in-interface $dev --jump $FW_FILTER_FORWARD_INT_VLAN\n";
+                $rules_forward .= "-A FORWARD --out-interface $dev --jump $FW_FILTER_FORWARD_INT_VLAN\n";
             }
-            if ($isolation_passthrough_enabled && ($type eq $pf::config::NET_TYPE_VLAN_ISOL)) { 
-                $rules .= "-A FORWARD --in-interface $dev --jump $FW_FILTER_FORWARD_INT_ISOL_VLAN\n";
-                $rules .= "-A FORWARD --out-interface $dev --jump $FW_FILTER_FORWARD_INT_ISOL_VLAN\n";
+            if ($isolation_passthrough_enabled && ($type eq $pf::config::NET_TYPE_VLAN_ISOL)) {
+                $rules_forward .= "-A FORWARD --in-interface $dev --jump $FW_FILTER_FORWARD_INT_ISOL_VLAN\n";
+                $rules_forward .= "-A FORWARD --out-interface $dev --jump $FW_FILTER_FORWARD_INT_ISOL_VLAN\n";
             }
 
         # inline enforcement
@@ -255,13 +262,14 @@ sub generate_filter_if_src_to_chain {
             $rules .= "# DHCP Sync\n";
             $rules .= "-A INPUT --in-interface $dev --protocol tcp --match tcp --dport 647 -j ACCEPT\n" if ($cluster_enabled);
             $rules .= "-A INPUT --in-interface $dev --protocol udp --match udp --dport 67 -j ACCEPT\n";
+            $rules .= "-A INPUT --in-interface $dev -d $internal_portal_ip --jump $FW_FILTER_INPUT_INT_VLAN\n";
             $rules .= "-A INPUT --in-interface $dev -d ".$cluster_ip." --jump $FW_FILTER_INPUT_INT_INLINE\n" if ($cluster_enabled);
             $rules .= "-A INPUT --in-interface $dev --protocol udp --match udp --dport 53 --jump $FW_FILTER_INPUT_INT_INLINE\n";
             $rules .= "-A INPUT --in-interface $dev --protocol tcp --match tcp --dport 53 --jump $FW_FILTER_INPUT_INT_INLINE\n";
             $rules .= "-A INPUT --in-interface $dev -d $ip --jump $FW_FILTER_INPUT_INT_INLINE\n";
             $rules .= "-A INPUT --in-interface $dev -d 255.255.255.255 --jump $FW_FILTER_INPUT_INT_INLINE\n";
             $rules .= "-A INPUT --in-interface $dev -d $mgmt_ip --protocol tcp --match tcp --dport 443 --jump ACCEPT\n";
-            $rules .= "-A FORWARD --in-interface $dev --jump $FW_FILTER_FORWARD_INT_INLINE\n";
+            $rules_forward .= "-A FORWARD --in-interface $dev --jump $FW_FILTER_FORWARD_INT_INLINE\n";
 
         # nothing? something is wrong
         } else {
@@ -284,6 +292,16 @@ sub generate_filter_if_src_to_chain {
         $rules .= "-A INPUT --in-interface $dev -p vrrp -j ACCEPT\n";
         $rules .= "-A INPUT --in-interface $dev --jump $FW_FILTER_INPUT_RADIUS\n";
     }
+    # 'dhcp' interfaces handling
+    foreach my $dhcp_interface ( @dhcp_ints ) {
+        my $dev = $dhcp_interface->tag("int");
+        $rules .= "-A INPUT --in-interface $dev --jump $FW_FILTER_INPUT_DHCP\n";
+    }
+    # 'dns' interfaces handling
+    foreach my $dns_interface ( @dns_ints ) {
+        my $dev = $dns_interface->tag("int");
+        $rules .= "-A INPUT --in-interface $dev --jump $FW_FILTER_INPUT_DNS\n";
+    }
 
     # management interface handling
     if($management_network) {
@@ -305,16 +323,16 @@ sub generate_filter_if_src_to_chain {
                 my $inline_obj = new Net::Netmask( $network, $ConfigNetworks{$network}{'netmask'} );
                 my $nat = $ConfigNetworks{$network}{'nat_enabled'};
                 if (defined ($nat) && (isdisabled($nat))) {
-                    $rules .= "-A FORWARD -d $network/$inline_obj->{BITS} --in-interface $val ";
-                    $rules .= "--jump ACCEPT";
-                    $rules .= "\n";
+                    $rules_forward .= "-A FORWARD -d $network/$inline_obj->{BITS} --in-interface $val ";
+                    $rules_forward .= "--jump ACCEPT";
+                    $rules_forward .= "\n";
                 }
             }
-            $rules .= "-A FORWARD --in-interface $val --match state --state ESTABLISHED,RELATED --jump ACCEPT\n";
+            $rules_forward .= "-A FORWARD --in-interface $val --match state --state ESTABLISHED,RELATED --jump ACCEPT\n";
         }
     }
 
-    return $rules;
+    return ($rules,$rules_forward);
 }
 
 
@@ -334,16 +352,8 @@ sub generate_inline_rules {
         # We skip non-inline networks/interfaces
         next if ( !pf::config::is_network_type_inline($network) );
         # Set the correct gateway if it is an inline Layer 3 network
-        my $gateway = $ConfigNetworks{$network}{'gateway'};
-        if ( $ConfigNetworks{$network}{'type'} eq $pf::config::NET_TYPE_INLINE_L3 ) {
-            foreach my $test_network ( keys %ConfigNetworks ) {
-                my $net_addr = NetAddr::IP->new($test_network,$ConfigNetworks{$test_network}{'netmask'});
-                my $ip = new NetAddr::IP::Lite clean_ip($ConfigNetworks{$network}{'next_hop'});
-                if ($net_addr->contains($ip)) {
-                    $gateway = $ConfigNetworks{$test_network}{'gateway'};
-                }
-            }
-        }
+        my $dev = $NetworkConfig{$network}{'interface'}{'int'};
+        my $gateway = $Config{"interface $dev"}{'ip'};
 
         my $rule = "--protocol udp --destination-port 53 -s $network/$ConfigNetworks{$network}{'netmask'}";
         $$nat_prerouting_ref .= "-A $FW_PREROUTING_INT_INLINE $rule --match mark --mark 0x$IPTABLES_MARK_UNREG "
@@ -426,26 +436,37 @@ sub generate_passthrough_rules {
     # add passthroughs required by the provisionings
     generate_provisioning_passthroughs();
 
+    $logger->info("Adding IP based passthrough for connectivitycheck.gstatic.com");
+    # Allow the host for the onboarding of devices
+    my $cmd = untaint_chain("sudo ipset --add pfsession_passthrough 172.217.13.99,80 2>&1");
+    pf_run($cmd);
+    $cmd = untaint_chain("sudo ipset --add pfsession_passthrough 172.217.13.99,443 2>&1");
+    pf_run($cmd);
+
     $logger->info("Adding NAT Masquerade statement.");
-    my $mgmt_int = $management_network->tag("int");
-    my $SNAT_ip;
-    if (defined($management_network->{'Tip'}) && $management_network->{'Tip'} ne '') {
-        if (defined($management_network->{'Tvip'}) && $management_network->{'Tvip'} ne '') {
-            $SNAT_ip = $management_network->{'Tvip'};
-        } else {
-            $SNAT_ip = $management_network->{'Tip'};
-       }
+    my ($SNAT_ip, $mgmt_int);
+    if ($management_network) {
+        $mgmt_int = $management_network->tag("int");
+        if (defined($management_network->{'Tip'}) && $management_network->{'Tip'} ne '') {
+            if (defined($management_network->{'Tvip'}) && $management_network->{'Tvip'} ne '') {
+                $SNAT_ip = $management_network->{'Tvip'};
+            } else {
+                $SNAT_ip = $management_network->{'Tip'};
+           }
+        }
     }
 
-    foreach my $network ( keys %ConfigNetworks ) {
-        my $network_obj = new Net::Netmask( $network, $ConfigNetworks{$network}{'netmask'} );
-        if ( pf::config::is_network_type_inline($network) ) {
-            my $nat = $ConfigNetworks{$network}{'nat_enabled'};
-            if (defined ($nat) && (isenabled($nat))) {
+    if ($SNAT_ip) {
+        foreach my $network ( keys %ConfigNetworks ) {
+            my $network_obj = new Net::Netmask( $network, $ConfigNetworks{$network}{'netmask'} );
+            if ( pf::config::is_network_type_inline($network) ) {
+                my $nat = $ConfigNetworks{$network}{'nat_enabled'};
+                if (defined ($nat) && (isenabled($nat))) {
+                    $$nat_rules_ref .= "-A POSTROUTING -s $network/$network_obj->{BITS} -o $mgmt_int -j SNAT --to $SNAT_ip\n";
+                }
+            } else {
                 $$nat_rules_ref .= "-A POSTROUTING -s $network/$network_obj->{BITS} -o $mgmt_int -j SNAT --to $SNAT_ip\n";
             }
-        } else {
-            $$nat_rules_ref .= "-A POSTROUTING -s $network/$network_obj->{BITS} -o $mgmt_int -j SNAT --to $SNAT_ip\n";
         }
     }
 
@@ -461,7 +482,7 @@ sub generate_passthrough_rules {
                     $$nat_rules_ref .= "-A POSTROUTING -s $network/$network_obj->{BITS} -o $int -j SNAT --to ".$if->address."\n";
                 }
             } else {
-                $$nat_rules_ref .= "-A POSTROUTING -s $network/$network_obj->{BITS} -o $mgmt_int -j SNAT --to ".$if->address."\n";
+                $$nat_rules_ref .= "-A POSTROUTING -s $network/$network_obj->{BITS} -o $int -j SNAT --to ".$if->address."\n";
             }
         }
     }
@@ -561,16 +582,8 @@ sub generate_nat_redirect_rules {
             # We skip non-inline networks/interfaces
             next if ( !pf::config::is_network_type_inline($network) );
             # Set the correct gateway if it is an inline Layer 3 network
-            my $gateway = $ConfigNetworks{$network}{'gateway'};
-            if ( $ConfigNetworks{$network}{'type'} eq $pf::config::NET_TYPE_INLINE_L3 ) {
-                foreach my $test_network ( keys %ConfigNetworks ) {
-                    my $net_addr = NetAddr::IP->new($test_network,$ConfigNetworks{$test_network}{'netmask'});
-                    my $ip = new NetAddr::IP::Lite clean_ip($ConfigNetworks{$network}{'next_hop'});
-                    if ($net_addr->contains($ip)) {
-                        $gateway = $ConfigNetworks{$test_network}{'gateway'};
-                    }
-                }
-            }
+            my $dev = $NetworkConfig{$network}{'interface'}{'int'};
+            my $gateway = $Config{"interface $dev"}{'ip'};
 
             # Destination NAT to the portal on the ISOLATION mark
             $rules .=
@@ -780,6 +793,8 @@ sub generate_domain_rules {
         $$filter_forward_domain .= "-A FORWARD -i $name-b -j ACCEPT\n";
     }
 
+    return if !$management_network;
+
     # MOVE ME TO SOMEWHERE - BUT WHERE ????? - ANYWHERE IS BETTER THAN THIS !
     my $domain_network = "169.254.0.0/16";
 
@@ -798,7 +813,7 @@ Minor parts of this file may have been contributed. See CREDITS.
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2018 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 Copyright (C) 2005 Kevin Amorin
 

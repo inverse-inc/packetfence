@@ -35,6 +35,7 @@ use pf::util;
 
 use Moose;
 
+tie our %NetworkConfig, 'pfconfig::cached_hash', "resource::network_config";
 
 has 'apiClient'    => (is => 'ro', default => sub { pf::client::getClient });
 has 'filterEngine' => (is => 'rw', default => sub { pf::access_filter::dhcp->new });
@@ -81,8 +82,12 @@ Returns an hash of arrays
 sub _get_local_dhcp_servers {
     # Look for local DHCP servers by IP if not already existent in local cache and fill it up
     unless ( @local_dhcp_servers_ip ) {
-        foreach my $network ( keys %ConfigNetworks ) {
-            push @local_dhcp_servers_ip, $ConfigNetworks{$network}{'gateway'} if ($ConfigNetworks{$network}{'dhcpd'} eq 'enabled');
+        foreach my $network ( keys %NetworkConfig ) {
+            if ($NetworkConfig{$network}{'dhcpd'} eq 'enabled') {
+                push @local_dhcp_servers_ip, $NetworkConfig{$network}{'gateway'};
+                push @local_dhcp_servers_ip, $NetworkConfig{$network}{'vip'} if ($NetworkConfig{$network}{'vip'});
+                push @local_dhcp_servers_ip, split(',',$NetworkConfig{$network}{'cluster_ips'}) if ($NetworkConfig{$network}{'cluster_ips'});
+            }
         }
     }
 
@@ -103,7 +108,7 @@ Different IP based tasks processing part of the DHCP flow
 - Firewall SSO
 - Inline enforcement
 - Conformity scan
-- Parking violation
+- Parking security_event
 - iplog
 
 =cut
@@ -123,7 +128,7 @@ sub processIPTasks {
     $self->preProcessIPTasks(\%iptasks_arguments);
 
     # update last_seen of MAC address as some activity from it has been seen
-    pf::node::node_update_last_seen($iptasks_arguments{'ip'});
+    pf::node::node_update_last_seen($iptasks_arguments{'mac'});
 
     # Firewall SSO
     if (isenabled($pf::config::Config{advanced}{sso_on_dhcp})) {
@@ -150,7 +155,7 @@ sub processIPTasks {
         $self->apiClient->notify('trigger_scan', %iptasks_arguments );
     }
 
-    # Parking violation
+    # Parking security_event
     $self->checkForParking($iptasks_arguments{'mac'}, $iptasks_arguments{'ip'});
     if ( $iptasks_arguments{'oldmac'} && $iptasks_arguments{'oldmac'} ne $iptasks_arguments{'mac'} ) {
         # Remove the actions that were for the previous MAC address
@@ -191,7 +196,7 @@ sub processFingerbank {
     # DHCP filters (Fingerbank scope)
     # If there is a match, we override Fingerbank call
     my $dhcp_filter_rule = $self->filterEngine->filter('Fingerbank', $fingerbank_args);
-    unless ( $dhcp_filter_rule ) {
+    unless ( (keys %$dhcp_filter_rule) > 0 ) {
         $self->apiClient->notify('fingerbank_process', $fingerbank_args->{mac});
     }
 }
@@ -202,7 +207,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2018 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 

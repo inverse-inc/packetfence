@@ -16,6 +16,9 @@ use strict;
 use warnings;
 our %FIELDS_TYPES_TO_SCHEMA_TYPES = (
     PosInteger => 'integer',
+    Port       => 'integer',
+    Integer    => 'integer',
+    IntRange   => 'integer',
 );
 use Lingua::EN::Inflexion qw(noun);
 
@@ -53,10 +56,13 @@ sub formsToSchema {
 
 sub objectSchema {
     my ($form) = @_;
+    my $required = formHandlerRequiredProperties($form);
     return {
         type       => 'object',
         properties => formHandlerProperties($form),
-        required   => formHandlerRequiredProperties($form),
+        (
+            @$required != 0 ? (required => $required) : ()
+        ),
     }
 }
 
@@ -116,6 +122,7 @@ sub fieldType {
     if (exists $FIELDS_TYPES_TO_SCHEMA_TYPES{$type}) {
         return $FIELDS_TYPES_TO_SCHEMA_TYPES{$type};
     }
+
     return "string";
 }
 
@@ -146,7 +153,8 @@ sub listSchema {
                 type    => 'array',
                 'items' => {
                     '$ref' => "#/components/schemas/$name"
-                }
+                },
+                description => "List",
             }
         },
     };
@@ -168,7 +176,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2018 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 

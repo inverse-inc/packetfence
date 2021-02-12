@@ -1,0 +1,22 @@
+///* ========================================================================
+//   #GLOBAL
+//   ======================================================================== */
+
+// The global settings file contains any project-wide variables; things that
+// need to be made available to the entire codebase.
+
+
+
+// Standardise some UI treatments.
+
+// $global-radius: 2.5vh#{"/"}50% !default;
+$global-radius: 1.5rem !default;
+// $global-radius: 10%#{"/"}50% !default;
+// $global-radius-tablet: 8%#{"/"}50% !default;
+// $global-radius-wide: 6%#{"/"}50% !default;
+
+$global-transition: all 300ms ease-in-out !default;
+
+// $pf-font-size-p1:          $inuit-global-font-size;
+// $pf-font-size-p2:          $inuit-global-font-size * 0.750;
+// $pf-font-size-p3:          $inuit-global-font-size * 0.5625;

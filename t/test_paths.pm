@@ -36,10 +36,11 @@ BEGIN {
     $pf::file_paths::admin_roles_config_file = catfile($test_dir,'data/admin_roles.conf');
     $pf::file_paths::chi_config_file = catfile($test_dir,'data/chi.conf');
     $pf::file_paths::profiles_config_file = catfile($test_dir,'data/profiles.conf');
+    $pf::file_paths::remote_profiles_config_file = catfile($test_dir,'data/remote_profiles.conf');
     $pf::file_paths::authentication_config_file = catfile($test_dir,'data/authentication.conf');
     $pf::file_paths::log_config_file = catfile($test_dir,'log.conf');
     $pf::file_paths::vlan_filters_config_file = catfile($test_dir,'data/vlan_filters.conf');
-    $pf::file_paths::violations_config_file = catfile($test_dir,'data/violations.conf');
+    $pf::file_paths::security_events_config_file = catfile($test_dir,'data/security_events.conf');
     $pf::file_paths::firewall_sso_config_file = catfile($test_dir,'data/firewall_sso.conf');
     $pf::file_paths::scan_config_file = catfile($test_dir,'data/scan.conf');
     $pf::file_paths::provisioning_config_file = catfile($test_dir,'data/provisioning.conf');
@@ -47,6 +48,16 @@ BEGIN {
     $pf::file_paths::config_file = catfile($test_dir,'data/pf.conf');
     $pf::file_paths::pf_config_file = catfile($test_dir,'data/pf.conf');
     $pf::file_paths::realm_config_file = catfile($test_dir,'data/realm.conf');
+    $pf::file_paths::roles_config_file = catfile($test_dir,'data/roles.conf');
+
+    $pf::file_paths::server_cert = catfile($test_dir,'data/server.crt');
+    $pf::file_paths::server_key = catfile($test_dir,'data/server.key');
+    $pf::file_paths::server_pem = catfile($test_dir,'data/server.pem');
+    $pf::file_paths::template_switches_config_file = catfile($test_dir,'data/template_switches.conf');
+
+    $pf::file_paths::radius_server_cert = catfile($test_dir,'data/radius_server.crt');
+    $pf::file_paths::radius_server_key = catfile($test_dir,'data/radius_server.key');
+    $pf::file_paths::radius_ca_cert = catfile($test_dir,'data/radius_ca.pem');
 
     $pfconfig::constants::CONFIG_FILE_PATH = catfile($test_paths::test_dir, 'data/pfconfig.conf');
     $pfconfig::constants::SOCKET_PATH = "/usr/local/pf/var/run/pfconfig-test.sock";
@@ -87,7 +98,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2018 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 

@@ -1,71 +1,278 @@
 <template>
-    <div class="card-body">
-        <div v-if="!advancedMode">
-            <b-form v-if="quickWithoutFields">
-              <div class="input-group">
-                <div class="input-group-prepend">
-                  <div class="input-group-text"><icon name="search"></icon></div>
-                </div>
-                <b-form-input v-model="quickSearch" type="text" :placeholder="quickPlaceholder"></b-form-input>
-              </div>
-            </b-form>
-            <b-form class="d-flex" inline v-else>
-              <b-form-select v-model="values[0].field" :options="fields"></b-form-select>
-              <b-form-select v-model="values[0].op" :options="operators(0)"></b-form-select>
-              <b-form-input  v-model="values[0].value" type="text"></b-form-input>
-              <!-- <b-button class="ml-auto" type="submit">Search</b-button> -->
-            </b-form>
-        </div>
-        <div v-if="advancedMode">
-          <b-form inline>
-          </b-form>
-        </div>
+  <div class="card-body">
+    <!-- Advanced Search Mode -->
+    <transition name="fade" mode="out-in">
+    <div v-if="advancedMode">
+      <b-form inline @submit.prevent="onSubmit" @reset.prevent="onReset">
+        <pf-search-boolean :model="condition" :fields="fields" :advancedMode="advancedMode"/>
+        <b-container fluid class="text-right mt-3 px-0">
+          <b-button class="mr-1" type="reset" variant="secondary">{{ $t('Clear') }}</b-button>
+          <b-button-group>
+            <b-button type="submit" variant="primary">{{ $t('Search') }}</b-button>
+            <b-dropdown variant="primary" right>
+              <template v-if="canSaveSearch">
+                <b-dropdown-header>{{ $t('Saved Searches') }}</b-dropdown-header>
+                <b-dropdown-item @click="localShowSaveSearchModal=true">
+                  <icon class="position-absolute mt-1" name="save"></icon>
+                  <span class="ml-4">{{ $t('Save Search') }}</span>
+                </b-dropdown-item>
+                <template v-if="savedSearches.length > 0">
+                  <b-dropdown-item v-for="search in savedSearches" :key="search.name" :to="search.route">
+                    <icon class="position-absolute mt-1" name="trash-alt" @click.stop.prevent="deleteSavedSearch(search)"></icon>
+                    <span class="ml-4">{{ search.name }}</span>
+                  </b-dropdown-item>
+                </template>
+                <b-dropdown-divider></b-dropdown-divider>
+              </template>
+              <b-dropdown-header>{{ $t('Import / Export Search') }}</b-dropdown-header>
+              <b-dropdown-item @click="localShowImportJsonModal=true">
+                <icon class="position-absolute mt-1" name="sign-out-alt"></icon>
+                <span class="ml-4">{{ $t('Export to JSON') }}</span>
+              </b-dropdown-item>
+              <b-dropdown-item @click="localShowImportJsonModal=true">
+                <icon class="position-absolute mt-1" name="sign-in-alt"></icon>
+                <span class="ml-4">{{ $t('Import from JSON') }}</span>
+              </b-dropdown-item>
+            </b-dropdown>
+          </b-button-group>
+        </b-container>
+      </b-form>
+      <b-modal v-model="localShowImportJsonModal" size="lg" centered id="exportJsonModal" :title="$t('Export to JSON')">
+        <b-form-textarea ref="exportJsonTextarea" v-model="jsonCondition" :rows="3" :max-rows="3" readonly></b-form-textarea>
+        <template v-slot:modal-footer>
+          <b-button variant="secondary" class="mr-1" @click="localShowImportJsonModal=false">{{ $t('Cancel') }}</b-button>
+          <b-button variant="primary" @click="copyJsonTextarea">{{ $t('Copy to Clipboard') }}</b-button>
+        </template>
+      </b-modal>
+      <b-modal v-model="localShowImportJsonModal" size="lg" centered id="importJsonModal" :title="$t('Import from JSON')" @shown="focusImportJsonTextarea">
+        <b-card v-if="importJsonError" class="mb-3" bg-variant="danger" text-variant="white"><icon name="exclamation-triangle" class="mr-1"></icon>{{ importJsonError }}</b-card>
+        <b-form-textarea ref="importJsonTextarea" v-model="localImportJsonString" :rows="3" :max-rows="3" :placeholder="$t('Enter JSON')"></b-form-textarea>
+        <template v-slot:modal-footer>
+          <b-button variant="secondary" class="mr-1" @click="localShowImportJsonModal=false">{{ $t('Cancel') }}</b-button>
+          <b-button variant="primary" @click="importJsonTextarea">{{ $t('Import JSON') }}</b-button>
+        </template>
+      </b-modal>
+      <b-modal v-model="localShowSaveSearchModal" size="sm" centered id="saveSearchModal" :title="$t('Save Search')" @shown="focusSaveSearchInput">
+        <b-form-input ref="saveSearchInput" v-model="localSaveSearchString" type="text"
+          :placeholder="$t('Enter a unique name')" @keyup="keyUpSaveSearchInput"/>
+        <template v-slot:modal-footer>
+          <b-button variant="secondary" class="mr-1" @click="localShowSaveSearchModal=false">{{ $t('Cancel') }}</b-button>
+          <b-button variant="primary" @click="saveSearch">{{ $t('Save') }}</b-button>
+        </template>
+      </b-modal>
     </div>
+    <!-- Simple Search Mode with Search Fields -->
+    <b-form inline @submit.prevent="onSubmit" @reset.prevent="onReset" v-else-if="quickWithFields">
+      <b-container class="px-0" fluid>
+        <b-row class="align-items-center px-0" no-gutters>
+          <b-col cols="auto" class="mr-auto">
+            <pf-search-boolean :model="condition" :fields="fields" :store="store" :advancedMode="false"/>
+          </b-col>
+          <b-col cols="auto" align="right" class="flex-grow-0">
+            <b-button type="reset" variant="secondary" class="mr-1">{{ $t('Clear') }}</b-button>
+            <b-button type="submit" variant="primary">{{ $t('Search') }}</b-button>
+          </b-col>
+        </b-row>
+      </b-container>
+    </b-form>
+    <!-- Quick Search Mode -->
+    <b-form @submit.prevent="onSubmit" @reset.prevent="onReset" v-else>
+      <div class="input-group">
+        <div class="input-group-prepend">
+          <div class="input-group-text"><icon name="search"></icon></div>
+        </div>
+        <b-form-input v-model="quickValue" type="text" :placeholder="quickPlaceholder"></b-form-input>
+        <b-button class="ml-1" type="reset" variant="secondary">{{ $t('Clear') }}</b-button>
+        <b-button class="ml-1" type="submit" variant="primary">{{ $t('Search') }}</b-button>
+      </div>
+    </b-form>
+    </transition>
+  </div>
 </template>
 
 <script>
-import { pfConditionOperators as conditionOperators } from '@/globals/pfSearch'
+import pfSearchBoolean from './pfSearchBoolean'
 
 export default {
   name: 'pf-search',
   components: {
+    pfSearchBoolean
   },
   props: {
+    storeName: { // from router
+      type: String,
+      default: null
+    },
+    condition: {
+      type: Object
+    },
     advancedMode: {
-      type: Boolean
+      type: Boolean,
+      default: false
     },
     fields: {
       type: Array
     },
-    quickWithoutFields: {
+    quickWithFields: {
       type: Boolean,
-      default: false
+      default: true
     },
     quickPlaceholder: {
       type: String,
       default: 'Search'
+    },
+    showExportJsonModal: {
+      type: Boolean,
+      default: false
+    },
+    showImportJsonModal: {
+      type: Boolean,
+      default: false
+    },
+    importJsonString: {
+      type: String
+    },
+    showSaveSearchModal: {
+      type: Boolean,
+      default: false
+    },
+    saveSearchString: {
+      type: String
+    },
+    saveSearchNamespace: {
+      type: String
     }
   },
   data () {
     return {
-      quickSearch: '',
-      values: [{ field: null, op: null, value: null }]
+      quickValue: '',
+      localShowExportJsonModal: this.showExportJsonModal,
+      localShowImportJsonModal: this.showImportJsonModal,
+      localShowSaveSearchModal: this.showSaveSearchModal,
+      localSaveSearchString: this.saveSearchString,
+      localImportJsonString: this.importJsonString,
+      importJsonError: null
     }
   },
   computed: {
+    jsonCondition () {
+      return JSON.stringify(this.condition)
+    },
+    canSaveSearch () {
+      return (this.saveSearchNamespace)
+    },
+    savedSearches () {
+      return this.$store.getters['saveSearch/cache'][this.saveSearchNamespace] || []
+    }
   },
   methods: {
-    operators: function (i) {
-      var value = this.values[i]
-      var option = this.fields.filter(option => value.field === option.value)
-      if (option.length) {
-        return conditionOperators[option[0].type]
-          .map(function (operator) {
-            return { value: operator, text: operator + ' loc' }
-          })
+    onSubmit () {
+      let query = this.condition
+      if (!this.advancedMode) {
+        if (this.quickWithFields) {
+          query.values.splice(1)
+        } else {
+          query = this.quickValue
+        }
       }
+      this.$emit('submit-search', query)
+    },
+    onReset () {
+      this.quickValue = ''
+      this.$emit('reset-search')
+    },
+    copyJsonTextarea () {
+      if (document.queryCommandSupported('copy')) {
+        this.$refs.exportJsonTextarea.$el.select()
+        document.execCommand('copy')
+        this.localShowExportJsonModal = false
+        this.$store.dispatch('notification/info', { message: this.$i18n.t('Search copied to clipboard') })
+      }
+    },
+    importJsonTextarea () {
+      this.importJsonError = ''
+      try {
+        const json = JSON.parse(this.localImportJsonString)
+        this.$emit('import-search', json)
+        this.localImportJsonString = ''
+        this.localShowImportJsonModal = false
+        this.$store.dispatch('notification/info', { message: this.$i18n.t('Search imported') })
+      } catch (e) {
+        if (e instanceof SyntaxError) {
+          this.importJsonError = this.$i18n.t('Invalid JSON') + ': ' + e.message
+        } else {
+          this.importJsonError = this.$i18n.t('Unhandled error') + ': ' + e.message
+        }
+      }
+    },
+    focusImportJsonTextarea () {
+      this.$refs.importJsonTextarea.focus()
+    },
+    focusSaveSearchInput () {
+      this.$refs.saveSearchInput.focus()
+    },
+    keyUpSaveSearchInput (event) {
+      switch (event.keyCode) {
+        case 13: // [ENTER] submits
+          if (this.localSaveSearchString.length > 0) this.saveSearch()
+          break
+      }
+    },
+    saveSearch () {
+      const { $route: { path, params } = {} } = this
+      this.$store.dispatch('saveSearch/set', {
+        namespace: this.saveSearchNamespace,
+        search: {
+          name: this.localSaveSearchString,
+          route: {
+            path,
+            params,
+            query: {
+              query: JSON.stringify(this.condition)
+            }
+          }
+        }
+      }).then(() => {
+        this.localSaveSearchString = ''
+        this.localShowSaveSearchModal = false
+      })
+    },
+    deleteSavedSearch (search) {
+      this.$store.dispatch('saveSearch/remove', { namespace: this.saveSearchNamespace, search: { name: search.name } })
+    }
+  },
+  mounted () {
+    const { condition = null, advancedMode = false, quickWithFields = false } = this
+    if (condition && !advancedMode && !quickWithFields) {
+      this.quickValue = this.condition.values[0].value
+    }
+  },
+  watch: {
+    showExportJsonModal: {
+      handler (a) {
+        this.localShowExportJsonModal = a
+      },
+      immediate: true
+    },
+    showImportJsonModal: {
+      handler (a) {
+        this.localShowImportJsonModal = a
+      },
+      immediate: true
+    },
+    showSaveSearchModal: {
+      handler (a) {
+        this.localShowSaveSearchModal = a
+      },
+      immediate: true
+    },
+    saveSearchString: {
+      handler (a) {
+        this.localSaveSearchString = a
+      },
+      immediate: true
+
     }
   }
 }
 </script>
-

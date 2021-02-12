@@ -48,9 +48,7 @@ sub filterRule {
     my $logger = $self->logger;
     if(defined $rule) {
         $logger->info(evalParam($rule->{'log'},$args)) if defined($rule->{'log'});
-        if (defined($rule->{'action'}) && $rule->{'action'} ne '') {
-            $self->dispatchAction($rule, $args);
-        }
+        $self->dispatchActions($rule, $args);
         my $answer = $rule->{answer};
         if (defined $answer && $answer ne '') {
             my %results = %$rule;
@@ -120,7 +118,7 @@ evaluate all the variables
 sub evalParam {
     my ($answer, $args) = @_;
     $answer =~ s/\$([a-zA-Z_0-9]+)/$args->{$1} \/\/ ''/ge;
-    $answer =~ s/\${([a-zA-Z0-9_\-]+(?:\.[a-zA-Z0-9_\-]+)*)}/&_replaceParamsDeep($1,$args)/ge;
+    $answer =~ s/\$\{([a-zA-Z0-9_\-]+(?:\.[a-zA-Z0-9_\-]+)*)\}/&_replaceParamsDeep($1,$args)/ge;
     return $answer;
 }
 
@@ -130,7 +128,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2018 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 

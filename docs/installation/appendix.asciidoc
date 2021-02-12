@@ -1,0 +1,141 @@
+// to display images directly on GitHub
+ifdef::env-github[]
+:encoding: UTF-8
+:lang: en
+:doctype: book
+:toc: left
+:imagesdir: ../images
+endif::[]
+
+////
+
+    This file is part of the PacketFence project.
+
+    See PacketFence_Network_Devices_Configuration_Guide-docinfo.xml for 
+    authors, copyright and license information.
+
+////
+
+//== Appendix
+
+[appendix]
+=== Administration Tools
+
+==== pfcmd
+
+`pfcmd` is the command line interface to most PacketFence functionalities.
+
+When executed without any arguments `pfcmd` returns a basic help message with all main options:
+
+----
+include::pfcmd.help[]
+----
+
+The node view option shows all information contained in the node database table for a specified MAC address
+
+  # /usr/local/pf/bin/pfcmd node view 52:54:00:12:35:02
+  mac|pid|detect_date|regdate|unregdate|lastskip|status|user_agent|computername|notes|last_arp|last_dhcp|switch|port|vlan|dhcp_fingerprint
+  52:54:00:12:35:02|1|2008-10-23 17:32:16||||unreg||||2008-10-23 21:12:21|||||
+
+[appendix]
+=== Restoring a Percona XtraBackup dump
+
+If you enabled Percona XtraBackup for your nightly backup, you can use the following instructions to restore it. In this example we will be restoring `/root/backup/packetfence-db-dump-innobackup-2016-12-20_00h31.xbstream.gz`
+
+First, create a restore directory, move the backup to it and gunzip the backup:
+
+  # mkdir /root/backup/restore
+  # cd /root/backup/restore
+  # cp ../packetfence-db-dump-innobackup-2016-12-20_00h31.xbstream.gz .
+  # gunzip packetfence-db-dump-innobackup-2016-12-20_00h31.xbstream.gz
+
+Then extract the xbstream data:
+
+  # xbstream -x < packetfence-db-dump-innobackup-2016-12-20_00h31.xbstream
+
+Once done, you should have a lot of files that were extracted in the restore dir. Now, lets place the xbstream back in the backup directory
+
+  # mv packetfence-db-dump-innobackup-2016-12-20_00h31.xbstream ../
+
+Next, install qpress (available from the percona repository) and process any qp file that were extracted:
+
+CentOS:
+
+  # yum install qpress --enablerepo=percona-release-`uname -m`
+  # for i in $(find -name "*.qp"); do qpress -vd $i $(dirname ${i}) && rm -f $i; done
+
+
+Debian:
+
+  # apt-key adv --keyserver keys.gnupg.net --recv-keys 1C4CBDCDCD2EFD2A
+  # echo 'deb http://repo.percona.com/apt VERSION main' >> /etc/apt/sources.list
+  # echo 'deb-src http://repo.percona.com/apt VERSION main' >> /etc/apt/sources.list
+  # apt-get update
+  # apt-get install qpress
+  # for i in $(find -name "*.qp"); do qpress -vd $i $(dirname ${i}) && rm -f $i; done
+
+Next, apply the innodb log:
+
+  # innobackupex --apply-log ./
+
+We will now stop MariaDB, move the existing data directory and replace it by the data that was extracted:
+
+NOTE: Make sure you adjust the commands above to your environment.
+
+  # service packetfence-mariadb stop
+  # mv /var/lib/mysql /var/lib/mysql.bak
+  # mkdir /var/lib/mysql
+  # mv * /var/lib/mysql
+  # chown -R mysql: /var/lib/mysql
+  # service packetfence-mariadb start
+
+Should the service fail to start, make sure you look into the MariaDB error logs.
+
+[appendix]
+=== How to restore a standalone PacketFence server ?
+
+For the restore procedure, we make the following assumptions:
+
+- database `pf` removed (but user `pf` still presents in DB)
+- `/usr/local/pf` removed
+
+Procedure:
+----
+# cd /root/backup/
+# BACKUP_FILES=packetfence-files-dump-2018-10-01_00h30.tgz
+# BACKUP_DB_FILE=packetfence-db-dump-2018-10-01_00h30.sql.gz
+----
+
+Reinstall PacketFence (to avoid creating var directories by hand):
+
+ # yum reinstall packetfence --enablerepo=packetfence
+
+Restore files (overwrite packages files):
+
+ # tar x -vf $BACKUP_FILES -C /
+
+Generate the new configuration:
+----
+# /usr/local/pf/bin/pfcmd fixpermissions
+# /usr/local/pf/bin/pfcmd pfconfig clear_backend
+# systemctl restart packetfence-redis-cache
+# systemctl restart packetfence-config
+# /usr/local/pf/bin/pfcmd configreload hard
+----
+
+Create the database:
+----
+# gzip -d $BACKUP_DB_FILE
+# mysql -u root -p -e "create database pf;"
+# mysql -u root -p pf < /usr/local/pf/db/pf-schema-YOUR.PF.VERSION.sql
+----
+
+Restore the database dump (filename without .gz extension):
+----
+# mysql -u root -p pf < ${BACKUP_DB_FILE%.*}
+# systemctl restart packetfence-mariadb
+----
+
+Restart PacketFence:
+
+ # /usr/local/pf/bin/pfcmd service pf restart

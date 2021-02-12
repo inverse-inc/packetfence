@@ -1,10 +1,15 @@
+import { reset as resetStore } from '@/store'
 import LoginView from '../'
 
 const route = {
-  path: '/',
-  alias: ['/login', '/logout', '/expire'],
+  path: '/login',
+  alias: ['/logout', '/expire'],
   name: 'login',
-  component: LoginView
+  component: LoginView,
+  beforeEnter: (to, from, next) => {
+    resetStore()
+    next()
+  }
 }
 
 export default route

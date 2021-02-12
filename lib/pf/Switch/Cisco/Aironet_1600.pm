@@ -25,7 +25,7 @@ use pf::config qw(
 );
 use pf::Switch::constants;
 use pf::util qw(format_mac_as_cisco);
-use pf::util::radius qw(perform_coa perform_disconnect);
+use pf::util::radius qw(perform_coa);
 
 use base ('pf::Switch::Cisco::Aironet');
 
@@ -38,7 +38,7 @@ Specifices the type of deauth
 =cut
 
 sub deauthTechniques {
-    my ($self, $method) = @_;
+    my ($self, $method, $connection_type) = @_;
     my $logger = $self->logger;
     my $default = $SNMP::RADIUS;
     my %tech = (
@@ -108,10 +108,6 @@ sub radiusDisconnect {
             LocalAddr => $self->deauth_source_ip($send_disconnect_to),
         };
 
-        $logger->debug("network device (".$self->{'_id'}.") supports roles. Evaluating role to be returned");
-        my $roleResolver = pf::roles::custom->instance();
-        my $role = $roleResolver->getRoleForNode($mac, $self);
-
         # Standard Attributes
         my $attributes_ref = {
             'Calling-Station-Id' => $mac,
@@ -146,7 +142,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2018 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 

@@ -19,6 +19,8 @@ use base 'pfconfig::namespaces::interfaces';
 
 sub init {
     my ($self, $host_id) = @_;
+    $self->{child_resources} = [ 'config::Stats' ];
+
     $self->{_interfaces} = defined($host_id) ? $self->{cache}->get_cache("interfaces($host_id)") : $self->{cache}->get_cache("interfaces");
 }
 
@@ -35,7 +37,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2018 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 

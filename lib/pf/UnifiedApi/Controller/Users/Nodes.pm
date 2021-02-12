@@ -21,6 +21,7 @@ has 'dal' => 'pf::dal::node';
 has 'url_param_name' => 'node_id';
 has 'primary_key' => 'mac';
 has 'parent_primary_key_map' => sub { {user_id => 'pid'} };
+has 'url_parent_ids' =>  sub { [qw(user_id)] };
 
 =head1 AUTHOR
 
@@ -28,7 +29,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2018 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 

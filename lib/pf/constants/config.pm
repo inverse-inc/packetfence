@@ -49,9 +49,38 @@ our @EXPORT_OK = qw(
   $SELFREG_MODE_KICKBOX
   $SELFREG_MODE_BLACKHOLE
   %NET_INLINE_TYPES
+
   $DEFAULT_SMTP_PORT
   $DEFAULT_SMTP_PORT_SSL
   $DEFAULT_SMTP_PORT_TLS
+  %ALERTING_PORTS
+
+  $WIRELESS_802_1X
+  $WIRELESS_MAC_AUTH
+  $WIRED_802_1X
+  $WIRED_MAC_AUTH
+  $WIRED_SNMP_TRAPS
+  $UNKNOWN
+  $INLINE
+  $WEBAUTH
+  $WEBAUTH_WIRED
+  $WEBAUTH_WIRELESS
+  $VIRTUAL_VPN
+  $VIRTUAL_CLI
+  $VIRTUAL_WIREGUARD
+
+  $WIRELESS
+  $WIRED
+  $EAP
+  $VIRTUAL
+
+  %connection_type
+  %connection_type_to_str
+  %connection_type_explained
+  %connection_type_explained_to_str
+  %connection_group
+  %connection_group_to_str
+  @connection_wired_types
 );
 
 use Readonly;
@@ -100,6 +129,108 @@ Readonly our $DEFAULT_SMTP_PORT => 25;
 Readonly our $DEFAULT_SMTP_PORT_SSL => 465;
 Readonly our $DEFAULT_SMTP_PORT_TLS => 587;
 
+Readonly our %ALERTING_PORTS => (
+    none => $DEFAULT_SMTP_PORT,
+    ssl => $DEFAULT_SMTP_PORT_SSL,
+    starttls => $DEFAULT_SMTP_PORT_TLS,
+);
+
+# Interface enforcement techniques
+# connection type constants
+# 1 : Wireless
+# 2 : Eap
+# 3 : Wired
+# 4 : Inline
+# 5 : SNMP
+# 6 : WebAuth
+# 7 : VIRTUAL
+
+Readonly our $WIRELESS_802_1X     => 0b11000000000;
+Readonly our $WIRELESS_MAC_AUTH   => 0b10000000001;
+Readonly our $WIRED_802_1X        => 0b01100000010;
+Readonly our $WIRED_MAC_AUTH      => 0b00100000011;
+Readonly our $WIRED_SNMP_TRAPS    => 0b00101000100;
+Readonly our $INLINE              => 0b00010000101;
+Readonly our $UNKNOWN             => 0b00000000000;
+Readonly our $WEBAUTH_WIRELESS    => 0b10000100111;
+Readonly our $WEBAUTH_WIRED       => 0b00100101000;
+Readonly our $VIRTUAL_VPN         => 0b00000011001;
+Readonly our $VIRTUAL_CLI         => 0b00000011010;
+Readonly our $VIRTUAL_WIREGUARD   => 0b00000011011;
+
+# masks to be used on connection types
+Readonly our $WIRELESS   => 0b10000000000;
+Readonly our $WIRED      => 0b00100000000;
+Readonly our $EAP        => 0b01000000000;
+Readonly our $WEBAUTH    => 0b00000100000;
+Readonly our $VIRTUAL    => 0b00000010000;
+
+# TODO we should build a connection data class with these hashes and related constants
+# String to constant hash
+Readonly our %connection_type => (
+    'Wireless-802.11-EAP'   => $WIRELESS_802_1X,
+    'Wireless-802.11-NoEAP' => $WIRELESS_MAC_AUTH,
+    'Ethernet-EAP'          => $WIRED_802_1X,
+    'Ethernet-NoEAP'        => $WIRED_MAC_AUTH,
+    'SNMP-Traps'            => $WIRED_SNMP_TRAPS,
+    'Inline'                => $INLINE,
+    'Ethernet-Web-Auth'     => $WEBAUTH_WIRED,
+    'Wireless-Web-Auth'     => $WEBAUTH_WIRELESS,
+    'VPN-Access'            => $VIRTUAL_VPN,
+    'CLI-Access'            => $VIRTUAL_CLI,
+    'WIREGUARD-Access'      => $VIRTUAL_WIREGUARD
+);
+Readonly our %connection_group => (
+    'Wireless'              => $WIRELESS,
+    'Ethernet'              => $WIRED,
+    'EAP'                   => $EAP,
+    'Web-Auth'              => $WEBAUTH,
+    'Virtual'               => $VIRTUAL,
+);
+
+Readonly our %connection_type_to_str => (
+    $WIRELESS_802_1X => 'Wireless-802.11-EAP',
+    $WIRELESS_MAC_AUTH => 'Wireless-802.11-NoEAP',
+    $WIRED_802_1X => 'Ethernet-EAP',
+    $WIRED_MAC_AUTH => 'Ethernet-NoEAP',
+    $WIRED_SNMP_TRAPS => 'SNMP-Traps',
+    $INLINE => 'Inline',
+    $UNKNOWN => '',
+    $WEBAUTH_WIRELESS => 'Wireless-Web-Auth',
+    $WEBAUTH_WIRED  => 'Ethernet-Web-Auth',
+    $VIRTUAL_CLI => 'CLI-Access',
+    $VIRTUAL_VPN => 'VPN-Access',
+    $VIRTUAL_WIREGUARD => 'WIREGUARD-Access',
+);
+Readonly our %connection_group_to_str => (
+    $WIRELESS => 'Wireless',
+    $WIRED => 'Ethernet',
+    $EAP => 'EAP',
+    $WEBAUTH => 'Web-Auth',
+    $VIRTUAL => 'Virtual',
+);
+
+# Their string equivalent for database storage
+# String to constant hash
+# these duplicated in html/admin/common.php for web admin display
+# changes here should be reflected there
+Readonly our %connection_type_explained => (
+    $WIRELESS_802_1X => 'WiFi 802.1X',
+    $WIRELESS_MAC_AUTH => 'WiFi MAC Auth',
+    $WIRED_802_1X => 'Wired 802.1x',
+    $WIRED_MAC_AUTH => 'Wired MAC Auth',
+    $WIRED_SNMP_TRAPS => 'Wired SNMP',
+    $INLINE => 'Inline',
+    $UNKNOWN => 'Unknown',
+    $WEBAUTH_WIRELESS => 'Wifi Web Auth',
+    $WEBAUTH_WIRED => 'Wired Web Auth',
+    $VIRTUAL_VPN => 'VPN Access',
+    $VIRTUAL_CLI => 'CLI Access',
+    $VIRTUAL_WIREGUARD => 'WIREGUARD Access',
+);
+
+Readonly our %connection_type_explained_to_str => map { $connection_type_explained{$_} => $connection_type_to_str{$_} } keys %connection_type_explained;
+Readonly our @connection_wired_types => grep { ( $connection_type{$_} & $WIRED) == $WIRED   } keys %connection_type;
 
 =head1 AUTHOR
 
@@ -107,7 +238,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2018 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 
@@ -129,4 +260,3 @@ USA.
 =cut
 
 1;
-

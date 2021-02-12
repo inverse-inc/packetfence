@@ -1,3 +1,4 @@
+# Copyright (C) Inverse inc.
 # iptables template
 # This file is manipulated on PacketFence's startup before being given to iptables
 *filter
@@ -21,14 +22,17 @@
 -A input-management-if --protocol tcp --match tcp --dport %%web_admin_port%% --jump ACCEPT
 # Webservices
 -A input-management-if --protocol tcp --match tcp --dport %%webservices_port%% --jump ACCEPT
-# AAA 
+# AAA
 -A input-management-if --protocol tcp --match tcp --dport %%aaa_port%% --jump ACCEPT
+# Unified API
+-A input-management-if --protocol tcp --match tcp --dport %%unifiedapi_port%% --jump ACCEPT
 # httpd.portal modstatus
 -A input-management-if --protocol tcp --match tcp --dport %%httpd_portal_modstatus%% --jump ACCEPT
 # httpd.collector
 -A input-management-if --protocol tcp --match tcp --dport %%httpd_collector_port%% --jump ACCEPT
-# haproxy stats (uncomment if activating the haproxy dashboard)
+# haproxy stats (uncomment if activating the haproxy dashboard) - 1025 for haproxy-portal, 1026 for haproxy-db
 #-A input-management-if --protocol tcp --match tcp --dport 1025 --jump ACCEPT
+#-A input-management-if --protocol tcp --match tcp --dport 1026 --jump ACCEPT
 # Netdata
 -A input-management-if --protocol tcp --match tcp --dport 19999 --jump ACCEPT
 
@@ -55,12 +59,11 @@
 # -A input-management-if --protocol tcp --match tcp --dport 9393 --jump ACCEPT
 # -A input-management-if --protocol tcp --match tcp --dport 9292 --jump ACCEPT
 
-# Fingerbank collector (replication + API)
+# Fingerbank collector (replication, Netflow, API, sFlow)
 -A input-management-if --protocol udp --match udp --dport 1192 --jump ACCEPT
+-A input-management-if --protocol udp --match udp --dport 2055 --jump ACCEPT
 -A input-management-if --protocol tcp --match tcp --dport 4723 --jump ACCEPT
-
-# GO IPSET API
--A input-management-if --protocol tcp --match tcp --dport 22223 --jump ACCEPT
+-A input-management-if --protocol udp --match udp --dport 6343 --jump ACCEPT
 
 # VRRP
 -A input-management-if -d 224.0.0.0/8 -j ACCEPT
@@ -70,14 +73,6 @@
 
 # Syslog
 -A input-management-if --protocol udp --match udp --dport 514 --jump ACCEPT
-
-# ETCD
--A input-management-if --protocol tcp --match tcp --dport 2380 --jump ACCEPT
--A input-management-if --protocol tcp --match tcp --dport 2379 --jump ACCEPT
-
-# GO DHCP API
--A input-management-if --protocol tcp --match tcp --dport 22222 --jump ACCEPT
-
 
 :input-portal-if - [0:0]
 -A input-portal-if --protocol tcp --match tcp --dport 80  --jump ACCEPT
@@ -93,11 +88,20 @@
 -A input-radius-if --protocol tcp --match tcp --dport 2083 --jump ACCEPT
 %%eduroam_radius_listening%%
 
+:input-dns-if - [0:0]
+-A input-dns-if --protocol tcp --match tcp --dport 53 --jump ACCEPT
+-A input-dns-if --protocol udp --match udp --dport 53 --jump ACCEPT
+
+:input-dhcp-if - [0:0]
+-A input-dhcp-if --protocol udp --match udp --dport 67  --jump ACCEPT
+-A input-dhcp-if --protocol tcp --match tcp --dport 67  --jump ACCEPT
+
+
 :input-internal-vlan-if - [0:0]
 # DNS
 -A input-internal-vlan-if --protocol tcp --match tcp --dport 53  --jump ACCEPT
 -A input-internal-vlan-if --protocol udp --match udp --dport 53  --jump ACCEPT
-# HTTP (captive-portal) 
+# HTTP (captive-portal)
 -A input-internal-vlan-if --protocol tcp --match tcp --dport 80  --jump ACCEPT
 -A input-internal-vlan-if --protocol tcp --match tcp --dport 443 --jump ACCEPT
 -A input-internal-vlan-if --protocol tcp --match tcp --dport 647 --jump ACCEPT
@@ -113,7 +117,7 @@
 # DHCP
 -A input-internal-isol_vlan-if --protocol udp --match udp --dport 67  --jump ACCEPT
 -A input-internal-isol_vlan-if --protocol tcp --match tcp --dport 67  --jump ACCEPT
-# HTTP (captive-portal) 
+# HTTP (captive-portal)
 -A input-internal-isol_vlan-if --protocol tcp --match tcp --dport 80  --jump ACCEPT
 -A input-internal-isol_vlan-if --protocol tcp --match tcp --dport 443 --jump ACCEPT
 -A input-internal-isol_vlan-if --protocol tcp --match tcp --dport 647 --jump ACCEPT
@@ -125,7 +129,7 @@
 # DNS
 -A input-internal-inline-if --protocol tcp --match tcp --dport 53  --jump ACCEPT
 -A input-internal-inline-if --protocol udp --match udp --dport 53  --jump ACCEPT
-# HTTP (captive-portal) 
+# HTTP (captive-portal)
 # prevent registered users from reaching it
 # TODO: Must work in dispatcher and Catalyst to redirect registered client out of the portal
 #-A input-internal-inline-if --protocol tcp --match tcp --dport 80  --match mark --mark 0x1 --jump DROP
@@ -139,6 +143,8 @@
 :input-highavailability-if - [0:0]
 #SSH
 -A input-highavailability-if --match state --state NEW --match tcp --protocol tcp --dport 22 --jump ACCEPT
+#Galera autofix
+-A input-highavailability-if --protocol udp --match udp --dport 4253 --jump ACCEPT
 #Galera cluster
 -A input-highavailability-if --protocol tcp --match tcp --dport 4444 --jump ACCEPT
 -A input-highavailability-if --protocol tcp --match tcp --dport 4567 --jump ACCEPT
@@ -158,8 +164,13 @@
 -A input-highavailability-if --protocol tcp --match tcp --dport 3121 --jump ACCEPT
 -A input-highavailability-if --protocol tcp --match tcp --dport 21064 --jump ACCEPT
 
+# These will redirect to the proper chains based on conf/pf.conf's configuration
+%%filter_if_src_to_chain%%
+
 ### FORWARD ###
 :FORWARD DROP [0:0]
+-I FORWARD -j NETFLOW
+
 :forward-internal-vlan-if - [0:0]
 %%filter_forward_vlan%%
 
@@ -169,11 +180,12 @@
 :forward-internal-inline-if - [0:0]
 %%filter_forward_inline%%
 
+%%filter_forward%%
+
+%%filter_forward_domain%%
+
 :OUTPUT ACCEPT [0:0]
 
-# These will redirect to the proper chains based on conf/pf.conf's configuration
-%%filter_if_src_to_chain%%
-%%filter_forward_domain%%
 COMMIT
 
 *mangle
@@ -221,7 +233,7 @@ COMMIT
 # - allowing through instead of doing NAT (make sure you have the proper return route)
 # - traffic out on some interface other than management
 # - overloading on multiple IP addresses
-# Comment the next two lines and do it here on the POSTROUTING chain. 
+# Comment the next two lines and do it here on the POSTROUTING chain.
 # Make sure to adjust the FORWARD rules also to allow traffic back-in.
 %%nat_postrouting_vlan%%
 
@@ -230,4 +242,3 @@ COMMIT
 #
 %%domain_postrouting%%
 COMMIT
-

@@ -51,10 +51,12 @@ use pf::util;
 
 =cut
 
-sub supportsFloatingDevice { return $TRUE; }
 
 # special features
-sub supportsLldp { return $TRUE; }
+use pf::SwitchSupports qw(
+    FloatingDevice
+    Lldp
+);
 
 #
 # %TRAP_NORMALIZERS
@@ -566,7 +568,7 @@ sub authorizeMAC {
         $self->_authorizeMAC( $ifIndex, $deauthMac, 0 );
     }
     if ( ($authMac) && ( !$self->isFakeMac($authMac) ) ) {
-        $self->_authorizeMAC( $ifIndex, $authMac, 1 );
+        return $self->_authorizeMAC( $ifIndex, $authMac, 1 );
     }
     return 1;
 }
@@ -615,7 +617,7 @@ sub _authorizeMAC {
 
     return $TRUE if (defined($result));
 
-    $logger->warn("MAC authorize / deauthorize failed with " . $self->{_sessionWrite}->error());
+    $logger->error("MAC authorize / deauthorize failed with " . $self->{_sessionWrite}->error());
     return;
 }
 
@@ -945,7 +947,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2018 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 

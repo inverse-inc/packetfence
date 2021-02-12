@@ -1,10 +1,10 @@
 .draggable-handle {
     display: inline-block;
+    width: 2 * $spacer;
     color: $text-muted;
     font-size: ($font-size-base * .875);
     font-weight: $font-weight-bold;
     text-align: center;
-    width: 2 * $spacer;
 
     &:hover {
         cursor: move;

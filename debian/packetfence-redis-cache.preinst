@@ -39,8 +39,7 @@ case "$1" in
     upgrade)
         stop_service_if_exists packetfence-redis-cache
         set +e 
-        rm /etc/init.d/packetfence-redis-cache
-        rm /etc/rc*.d/*packetfence-redis-cache
+        /usr/sbin/update-rc.d -f packetfence-redis-cache remove
         set -e 
         exit 0
     ;;

@@ -23,6 +23,7 @@ pf-maint.pl [options]
    -n --no-ask             Do not ask to patch
    -d --pf-dir             The PacketFence directory
    -p --patch-bin          The patch binary default /usr/bin/patch
+   -g --git-bin            The git binary default /usr/bin/git
    -t --test               Test if PacketFence has to be patched
 
 =cut
@@ -37,6 +38,10 @@ use Getopt::Long;
 use LWP::UserAgent;
 use Pod::Usage;
 use IO::Handle;
+use Term::ReadKey;
+use IO::Interactive qw(is_interactive);
+use LWP::Protocol::connect;
+use LWP::Protocol::https;
 our $GITHUB_USER = 'inverse-inc';
 our $GITHUB_REPO = 'packetfence';
 our $PF_DIR      = $ENV{PF_DIR} || '/usr/local/pf';
@@ -48,6 +53,10 @@ our $PATCH_BIN = '/usr/bin/patch';
 our $GIT_BIN = '/usr/bin/git';
 our $COMMIT_ID_FILE = catfile($PF_DIR,'conf','git_commit_id');
 our $test;
+our $TERMINAL_WIDTH;
+
+$ENV{PERL_NET_HTTPS_SSL_SOCKET_CLASS} = "Net::SSL";
+$ENV{PERL_LWP_SSL_VERIFY_HOSTNAME} = 0;
 
 # Files that should be excluded from patching
 # Will only work when using git to patch a server
@@ -56,6 +65,7 @@ our @excludes = (
     ".gitattributes",
     ".gitconfig",
     ".gitignore",
+    ".gitlab-ci.yml",
     "addons/logrotate",
     "packetfence.logrotate",
     # Directories
@@ -65,6 +75,18 @@ our @excludes = (
     "docs/*",
     "src/*",
     "t/*",
+    "ci/*",
+);
+
+our @patchable_binaries = (
+    "pfhttpd",
+    "pfdns",
+    "pfdhcp",
+    "pfstats",
+    "pfdetect",
+    "galera-autofix",
+    "pfacct",
+    "pfcertmanager",
 );
 
 GetOptions(
@@ -73,7 +95,7 @@ GetOptions(
     "pf-dir|d=s"      => \$PF_DIR,
     "commit|c=s"      => \$COMMIT,
     "patch-bin|p=s"   => \$PATCH_BIN,
-    "git-bin|p=s"     => \$GIT_BIN,
+    "git-bin|g=s"     => \$GIT_BIN,
     "base-commit|b=s" => \$BASE_COMMIT,
     "no-ask|n"        => \$NO_ASK,
     "help|h"          => \$help,
@@ -82,12 +104,14 @@ GetOptions(
 
 pod2usage(1) if $help;
 
+update_terminal_width();
+
 die "$PATCH_BIN does not exists or is not executable please install or make it executable" unless patch_bin_exists();
 
 unless(git_bin_exists()) {
-    print STDERR "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\n";
+    print STDERR "!" x $TERMINAL_WIDTH . "\n";
     print STDERR "$GIT_BIN does not exist, it is advised to install git to improve the patching process\n";
-    print STDERR "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\n";
+    print STDERR "!" x $TERMINAL_WIDTH . "\n";
 }
 
 our $PATCHES_DIR = catdir( $PF_DIR, '.patches' );
@@ -100,28 +124,110 @@ our $PF_RELEASE = $PF_RELEASE_REV;
 our $BASE_GITHUB_URL =
   "https://api.github.com/repos/$GITHUB_USER/$GITHUB_REPO";
 
+our $BASE_BINARIES_URL;
+if(-f "/etc/debian_version") {
+    $BASE_BINARIES_URL = "https://inverse.ca/downloads/PacketFence/debian";
+}
+else {
+    $BASE_BINARIES_URL = "https://inverse.ca/downloads/PacketFence/CentOS7/binaries";
+}
+
+our $BINARIES_DIRECTORY = "/usr/local/pf/sbin";
+
+our $BINARIES_SIGN_KEY_ID = "A0030E2C";
+
+our $ALT_ADMIN_DIRECTORY = "/usr/local/pf/html/pfappserver/root/static.alt/dist";
+our $ALT_ADMIN_PATCH_WD = "/usr/local/pf/html/pfappserver/root/static.alt";
+our $ALT_ADMIN_URL = "https://inverse.ca/downloads/PacketFence/CentOS7/binaries";
+
+our $step = 0;
+
 my $base = $BASE_COMMIT || get_base();
 
 die "Cannot base commit\n" unless $base;
+
+$step++;
+print "=" x $TERMINAL_WIDTH . "\n";
+print "Step $step: Patching of text based codefiles\n";
 
 print "Currently at $base\n";
 
 my $head = $COMMIT || get_head();
 if ($base eq $head) {
-    print "Already up to date\n";
-    exit 0;
+    print "Already up to date for text based patches\n";
+    exit 0 if defined($test);
+} 
+else {
+    print "Text based patche(s) available\n";
+    exit 1 if defined($test);
+
+    print "Latest maintenance version is $head\n";
+
+    my $patch_data = get_patch_data( $base, $head );
+    show_patch($patch_data);
+    accept_patch() unless $NO_ASK;
+    print "Downloading the patch........\n";
+    save_patch( $patch_data, $base, $head );
+    print "Applying the patch........\n";
+    apply_patch( $patch_data, $base, $head );
 }
-exit 1 if defined($test);
 
-print "Latest maintenance version is $head\n";
+if($BASE_BINARIES_URL) {
+    $step++;
+    print "=" x $TERMINAL_WIDTH . "\n";
+    print "Step $step: Patching of the Golang binaries\n";
 
-my $patch_data = get_patch_data( $base, $head );
-show_patch($patch_data);
-accept_patch() unless $NO_ASK;
-print "Downloading the patch........\n";
-save_patch( $patch_data, $base, $head );
-print "Applying the patch........\n";
-apply_patch( $patch_data, $base, $head );
+    my $should_patch = 0;
+    if($NO_ASK) {
+        $should_patch = 1;
+    }
+    elsif(accept_binary_patching()) {
+        $should_patch = 1;
+    }
+
+    if($should_patch) {
+        install_binary_sign_key_if_needed();
+        print "Downloading and replacing the binaries........\n";
+        download_and_install_binaries();
+    }
+}
+
+if($BASE_BINARIES_URL) {
+    $step++;
+    print "=" x $TERMINAL_WIDTH . "\n";
+    print "Step $step: Patching of the Administration interface frontend\n";
+
+    my $should_patch = 0;
+    if($NO_ASK) {
+        $should_patch = 1;
+    }
+    elsif(accept_alt_admin_patching()) {
+        $should_patch = 1;
+    }
+
+    if($should_patch) {
+        install_binary_sign_key_if_needed();
+        print "Downloading and replacing the files........\n";
+        download_and_install_alt_admin();
+    }
+}
+
+$step++;
+print "=" x $TERMINAL_WIDTH . "\n";
+{
+    local $ENV{PERL_NET_HTTPS_SSL_SOCKET_CLASS} = undef;
+    local $ENV{PERL_LWP_SSL_VERIFY_HOSTNAME} = undef;
+    local $ENV{PATH} = $ENV{PATH};
+    if ($ENV{PATH} =~ /^(.*)$/) {
+        $ENV{PATH} = $1;
+    }
+    print "Step $step: Regenerating rsyslog configuration and restarting rsyslog\n";
+    system("/usr/local/pf/bin/pfcmd generatesyslogconfig");
+    system("systemctl restart rsyslog");
+}
+
+print "=" x $TERMINAL_WIDTH . "\n";
+print "All done...\n";
 
 sub get_release_full {
     chomp( my $release = read_file( catfile( $PF_DIR, 'conf/pf-release' ) ) );
@@ -186,7 +292,11 @@ sub get_url {
     my $request  = HTTP::Request->new( GET => $url ), my $response_body;
     my $ua       = LWP::UserAgent->new;
     $ua->show_progress(1);
-    $ua->env_proxy;
+    foreach ('http_proxy', 'HTTP_PROXY') {
+        if($ENV{$_} && $ENV{$_} =~ /^https?:\/\/(.+)/) {
+            $ua->proxy("https", "connect://$1");
+        }
+    }
     my $response = $ua->request($request);
     if ( $response->is_success ) {
         $response_body = $response->content;
@@ -224,13 +334,96 @@ sub print_dot {
     print ".";
 }
 
+sub accept_alt_admin_patching {
+    print "." x $TERMINAL_WIDTH . "\n";
+    print "Should we patch the Administration interface frontend?\n";
+    print "Any custom code in it will be overwritten!!\n";
+    print "y/n [y]: ";
+    chomp(my $yes_no = <STDIN>);
+    return !($yes_no =~ /n/);
+}
+
+sub accept_binary_patching {
+    print "." x $TERMINAL_WIDTH . "\n";
+    print "Should we patch the Golang binaries?\n";
+    print "Any custom code in them will be overwritten!!\n";
+    print "y/n [y]: ";
+    chomp(my $yes_no = <STDIN>);
+    return !($yes_no =~ /n/);
+}
+
+sub install_binary_sign_key_if_needed {
+    my $rc = system("gpg --list-keys $BINARIES_SIGN_KEY_ID > /dev/null");
+    if($rc != 0) {
+        $rc = system("gpg --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys $BINARIES_SIGN_KEY_ID");
+        die "Cannot install signing key\n" if $rc != 0;
+    }
+}
+
+sub download_and_install_alt_admin {
+    print "Starting patching process.......\n";
+    my $patch_path = "$ALT_ADMIN_DIRECTORY";
+    my $archive_path = "$ALT_ADMIN_PATCH_WD/static.alt.tgz";
+
+    my $data = get_url("$ALT_ADMIN_URL/maintenance/$PF_RELEASE/static.alt.tgz.sig");
+    write_file("$archive_path-maintenance-encrypted", $data);
+    
+    my $result = system("gpg --always-trust --batch --yes --output $archive_path-maintenance-decrypted --decrypt $archive_path-maintenance-encrypted");
+    die "Cannot validate the binary signature\n" if $result != 0;
+
+    my $time = time;
+    rename($patch_path, "$patch_path-pre-maintenance-$time") or die "Cannot backup directory $patch_path: $!\n";
+    rename("$archive_path-maintenance-decrypted", $archive_path) or die "Cannot rename archive: $!\n";
+    unlink("$archive_path-maintenance-encrypted") or warn "Couldn't delete temporary download file, everything will keep working but the stale file will still be there ($!)\n";
+
+    system("tar -C $ALT_ADMIN_PATCH_WD -xf $archive_path");
+    die "Failed to extract administration interface archive in $patch_path\n" if($? != 0);
+
+    my ($login,$pass,$uid,$gid) = getpwnam('pf')
+        or die "pf not in passwd file";
+    chown $uid, $gid, $archive_path;
+
+    print "." x $TERMINAL_WIDTH . "\n";
+    print "Patching of the administration interface frontend was successful\n";
+}
+
+sub download_and_install_binaries {
+    foreach my $binary (@patchable_binaries) {
+        print "Performing patching of $binary.......\n";
+        my $binary_path = "$BINARIES_DIRECTORY/$binary";
+        my $data = get_url("$BASE_BINARIES_URL/maintenance/$PF_RELEASE/$binary.sig");
+        write_file("$binary_path-maintenance-encrypted", $data);
+        
+        my $result = system("gpg --always-trust --batch --yes --output $binary_path-maintenance-decrypted --decrypt $binary_path-maintenance-encrypted");
+        die "Cannot validate the binary signature\n" if $result != 0;
+
+        rename($binary_path, "$binary_path-pre-maintenance") or die "Cannot backup binary $binary_path: $!\n";
+        rename("$binary_path-maintenance-decrypted", $binary_path) or die "Cannot install binary: $!\n";
+        unlink("$binary_path-maintenance-encrypted") or warn "Couldn't delete temporary download file, everything will keep working but the stale file will still be there ($!)\n";
+        chmod 0755, "$binary_path";
+        my ($login,$pass,$uid,$gid) = getpwnam('pf')
+            or die "pf not in passwd file";
+        chown $uid, $gid, $binary_path;
+    }
+
+    print "." x $TERMINAL_WIDTH . "\n";
+    print "Patching of the binaries was successful\n";
+}
+
+sub update_terminal_width {
+    if (is_interactive()) {
+        ($TERMINAL_WIDTH, undef, undef, undef) = GetTerminalSize();
+    }
+    $TERMINAL_WIDTH //= 80;
+}
+
 =head1 AUTHOR
 
 Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2018 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 

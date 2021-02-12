@@ -25,7 +25,7 @@ use pf::scan;
 use pf::util;
 use pf::node;
 use pf::constants qw($TRUE $FALSE);
-use pf::constants::scan qw($SCAN_VID $PRE_SCAN_VID $POST_SCAN_VID $STATUS_STARTED);
+use pf::constants::scan qw($SCAN_SECURITY_EVENT_ID $PRE_SCAN_SECURITY_EVENT_ID $POST_SCAN_SECURITY_EVENT_ID $STATUS_STARTED);
 use Net::Nessus::REST;
 
 sub description { 'Nessus6 Scanner' }
@@ -95,21 +95,25 @@ sub startScan {
     my $format              = $self->{_format};
     my $verify_hostname     = isenabled($self->{_verify_hostname}) ? $TRUE : $FALSE;
 
-    my $nessus = Net::Nessus::REST->new(url => 'https://'.$host.':'.$port, ssl_opts => { verify_hostname => $verify_hostname });
+    my $nessus = Net::Nessus::REST->new(url => 'https://'.$host.':'.$port, ssl_opts => { verify_hostname => $verify_hostname, SSL_verify_mode => IO::Socket::SSL::SSL_VERIFY_NONE });
     $nessus->create_session(username => $user, password => $pass);
+
+    my $scan_security_event_id = $POST_SCAN_SECURITY_EVENT_ID;
+    $scan_security_event_id = $SCAN_SECURITY_EVENT_ID if ($self->{'_registration'});
+    $scan_security_event_id = $PRE_SCAN_SECURITY_EVENT_ID if ($self->{'_pre_registration'});
 
     # Verify nessus policy ID on the server, nessus remote scanner id, set scan name and launch the scan
 
     my $policy_id = $nessus->get_policy_id(name => $nessus_clientpolicy);
     if ($policy_id eq "") {
         $logger->warn("Nessus policy doesnt exist ".$nessus_clientpolicy);
-        return 1;
+        return $scan_security_event_id;
     }
 
     my $scanner_id = $nessus->get_scanner_id(name => $scanner_name);
     if ($scanner_id eq ""){
         $logger->warn("Nessus scanner name doesn't exist ".$scanner_id);
-        return 1;
+        return $scan_security_event_id;
     }
 
     #This is neccesary because the way of the new nessus API works, if the scan fails most likely
@@ -117,7 +121,7 @@ sub startScan {
     my $policy_uuid = $nessus->get_template_id( name => 'custom', type => 'scan');
     if ($policy_uuid eq ""){
         $logger->warn("Failled to obtain the uuid for the policy ".$policy_uuid);
-        return 1;
+        return $scan_security_event_id;
     }
 
 
@@ -134,7 +138,7 @@ sub startScan {
     );
     if ( $scan_id eq "") {
         $logger->warn("Failled to create the scan");
-        return 1;
+        return $scan_security_event_id;
     }
 
     $nessus->launch_scan(scan_id => $scan_id->{id});
@@ -149,7 +153,7 @@ sub startScan {
     while ($nessus->get_scan_status(scan_id => $scan_id->{id}) ne 'completed') {
         if ($counter > 3600) {
             $logger->info("Nessus scan is older than 1 hour ...");
-            return 1;
+            return $scan_security_event_id;
         }
         $logger->info("Nessus is scanning $hostaddr");
         sleep 15;
@@ -166,7 +170,7 @@ sub startScan {
     $nessus->delete_scan(scan_id => $scan_id->{id});
     $nessus->DESTROY;
 
-    pf::scan::parse_scan_report($self);
+    pf::scan::parse_scan_report($self,$scan_security_event_id);
 }
 
 =back
@@ -177,7 +181,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2018 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 

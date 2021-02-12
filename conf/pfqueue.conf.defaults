@@ -1,5 +1,6 @@
+# Copyright (C) Inverse inc.
 #
-# Copyright (C) 2005-2018 Inverse inc.
+#
 #
 # See the enclosed file COPYING for license information (GPL).
 # If you did not receive this file, see
@@ -91,26 +92,26 @@ workers=1
 #
 [queue pfsnmp]
 #
-# The weight of queue among shared workers
-#
-weight=4
-#
 # The number of dedicated workers for queue
 #
-workers=0
+workers=4
+#
+# If the queue is hashed
+#
+hashed=enabled
 
 #
 # pfsnmp_parsing queue configuration
 #
 [queue pfsnmp_parsing]
 #
-# The weight of queue among shared workers
-#
-weight=2
-#
 # The number of dedicated workers for queue
 #
-workers=0
+workers=2
+#
+#
+#
+hashed=enabled
 
 #
 # priority queue configuration

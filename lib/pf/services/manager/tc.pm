@@ -31,10 +31,12 @@ use pf::iptables;
 
 use IPC::Cmd qw[can_run run];
 use pf::constants qw($TRUE $FALSE);
+use pf::config::cluster;
 
+my $host_id = $pf::config::cluster::host_id;
 tie our %ConfigTrafficShaping, 'pfconfig::cached_hash', "config::TrafficShaping";
 
-tie our %NetworkConfig, 'pfconfig::cached_hash', "resource::network_config";
+tie our %NetworkConfig, 'pfconfig::cached_hash', "resource::network_config($host_id)";
 
 extends 'pf::services::manager';
 
@@ -223,9 +225,21 @@ sub manageTrafficShaping {
             next if ( !pf::config::is_network_type_inline($network) );
             my $dev = $NetworkConfig{$network}{'interface'}{'int'};
 
-            my $gateway = (defined $NetworkConfig{$network}{'next_hop'} ? $NetworkConfig{$network}{'next_hop'} : $NetworkConfig{$network}{'gateway'});
+            my $source_interface = $dev;
 
-            my $interface = find_outgoing_interface($gateway);
+            my $gateway = (defined $NetworkConfig{$network}{'next_hop'} ? $NetworkConfig{$network}{'next_hop'} : $Config{"interface $dev"}{'ip'});
+
+            if (!defined $NetworkConfig{$network}{'next_hop'}) {
+                undef $source_interface;
+            }
+
+            my $interface = find_outgoing_interface($gateway, $source_interface);
+
+            if (!(defined($index->{$interface}))) {
+                $logger->warn($interface." is not defined in the configuration, check your routing table");
+                $index->{$interface} = $indice;
+                $indice --;
+            }
 
             foreach my $role ( @roles ) {
                 my $upload;
@@ -281,7 +295,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2017 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 

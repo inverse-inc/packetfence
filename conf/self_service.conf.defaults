@@ -1,0 +1,6 @@
+# Copyright (C) Inverse inc.
+[default]
+description=default
+device_registration_allowed_devices=
+device_registration_roles=
+roles_allowed_to_unregister=

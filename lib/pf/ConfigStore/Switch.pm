@@ -22,12 +22,13 @@ use List::MoreUtils qw(part any);
 use pfconfig::manager;
 use pf::freeradius;
 
-extends qw(pf::ConfigStore Exporter);
-with 'pf::ConfigStore::Hierarchy';
+extends qw(pf::ConfigStore);
 
 sub configFile { $switches_config_file }
 
 sub importConfigFile { $switches_default_config_file }
+
+sub default_section { 'default' }
 
 sub pfconfigNamespace {'config::Switch'}
 
@@ -59,13 +60,14 @@ Clean up switch data
 
 sub cleanupAfterRead {
     my ( $self, $id, $switch ) = @_;
-    my $logger = get_logger();
 
     my $config = $self->cachedConfig;
     # if the uplink attribute is set to dynamic or not set and the group we inherit from is dynamic
     if ( ($switch->{uplink} && $switch->{uplink} eq 'dynamic') ) {
         $switch->{uplink_dynamic} = 'dynamic';
         $switch->{uplink}         = undef;
+    } elsif (defined $switch->{uplink_dynamic} && $switch->{uplink_dynamic} eq '0') {
+        $switch->{uplink_dynamic} = undef;
     }
     $self->expand_list( $switch, 'inlineTrigger' );
     if ( exists $switch->{inlineTrigger} ) {
@@ -76,17 +78,11 @@ sub cleanupAfterRead {
     # Config::Inifiles expands the access lists into an array
     # We put it back as a string so it works in the admin UI
     foreach my $attr (keys %$switch){
-        if($attr =~ /AccessList$/ && ref($switch->{$attr}) eq 'ARRAY'){
+        if (ends_with($attr, "AccessList") && ref($switch->{$attr}) eq 'ARRAY') {
             $switch->{$attr} = join "\n", @{$switch->{$attr}};
         }
     }
 
-}
-
-sub _formatGroup {
-    my ($self, $group) = @_;
-    # We prepend group to all groups except the default one
-    return $group eq $self->topLevelGroup ? $group : "group ".$group;
 }
 
 sub _splitInlineTrigger {
@@ -105,7 +101,6 @@ sub cleanupBeforeCommit {
     my ( $self, $id, $switch ) = @_;
     $self->_normalizeUplink($switch);
     $self->_normalizeInlineTrigger($switch);
-    $self->_removeParentValues($id, $switch);
 }
 
 =head2 _normalizeUplink
@@ -116,10 +111,34 @@ _normalizeUplink
 
 sub _normalizeUplink {
     my ($self, $switch) = @_;
-    if ( $switch->{uplink_dynamic} ) {
-        $switch->{uplink}         = 'dynamic';
-        $switch->{uplink_dynamic} = undef;
+    my $uplink_dynamic = $switch->{uplink_dynamic};
+    if ( defined $uplink_dynamic ) {
+        if ($uplink_dynamic eq 'dynamic' ) {
+            $switch->{uplink}         = 'dynamic';
+            $switch->{uplink_dynamic} = undef;
+        } elsif ($uplink_dynamic eq '0') {
+            $switch->{uplink_dynamic} = undef;
+        }
     }
+}
+
+=head2 parentSections
+
+parentSections
+
+=cut
+
+sub parentSections {
+    my ($self, $id, $item) = @_;
+    my $inherit_from = $item->{group} // $self->cachedConfig->val($id, 'group');
+    my $default_section = $self->default_section;
+    return if defined $default_section && $id eq $default_section;
+    my @parents;
+    if (defined $inherit_from && (!defined $default_section || $default_section ne $inherit_from) && $id ne $inherit_from) {
+        push @parents, "group $inherit_from";
+    }
+
+    return @parents, $self->SUPER::parentSections($id, $item);
 }
 
 =head2 _normalizeInlineTrigger
@@ -143,28 +162,6 @@ sub _normalizeInlineTrigger {
     }
     return ;
 }
-
-=head2 _removeParentValues
-
-_removeParentValues
-
-=cut
-
-sub _removeParentValues {
-    my ($self, $id, $switch) = @_;
-    my $parentAttribute = $self->parentAttribute;
-    my $topLevelGroup = $self->topLevelGroup;
-    my $parent_config = $self->fullConfigRaw($switch->{$parentAttribute} ? $self->_formatGroup($switch->{$parentAttribute}) : $topLevelGroup);
-    if($id ne $topLevelGroup) {
-        # Put the elements to undef if they are the same as in the inheritance
-        while (my ($key, $value) = each %$switch){
-            if(defined($value) && defined($parent_config->{$key}) && $value eq $parent_config->{$key}){
-                $switch->{$key} = undef;
-            }
-        }
-    }
-}
-
 
 =item remove
 
@@ -195,6 +192,26 @@ before rewriteConfig => sub {
     $config->{sects} = \@newSections;
 };
 
+=head2 _Sections
+
+=cut
+
+sub _Sections {
+    my ($self) = @_;
+    return grep { $_ ne 'default' && /^\S+$/ } $self->SUPER::_Sections();
+}
+
+sub defaultGroupFilter {
+    my $group = $_[0]->{group};
+    return !defined $group || $group eq 'default';
+}
+
+sub membersOfGroup {
+    my ( $self, $groupName ) = @_;
+    return $groupName eq 'default'
+      ? $self->filter( \&defaultGroupFilter, 'id' )
+      : $self->search( 'group', $groupName, 'id' );
+}
 
 __PACKAGE__->meta->make_immutable unless $ENV{"PF_SKIP_MAKE_IMMUTABLE"};
 
@@ -202,7 +219,7 @@ __PACKAGE__->meta->make_immutable unless $ENV{"PF_SKIP_MAKE_IMMUTABLE"};
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2018 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 

@@ -1,10 +1,13 @@
 CSS_FILES = styles.css styles.css.map
 
 all:
-	@echo "Use 'make dev' to generate the stylesheet and 'make dist' to commit the distribution version."
+	@echo "Use 'make vendor' to update external libraries, 'make dev' to generate the stylesheet and 'make dist' to commit the distribution version."
+
+vendor:
+	npm install
+	sudo npm install -g grunt-cli
 
 dev:
-	npm install --production
 	grunt --stack dev
 
 dist:
@@ -17,3 +20,6 @@ dist:
 		echo "Nothing to commit; skipping git-commit"; \
 	fi
 	git update-index --assume-unchanged $(CSS_FILES) $(JS_FILES) $(JS_LIB_FILES)
+
+light-dist:
+	grunt --stack dist

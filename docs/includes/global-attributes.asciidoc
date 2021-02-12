@@ -6,13 +6,28 @@
     Authors:
       - Inverse inc. <info@inverse.ca>
 
-    Copyright (C) 2005-2018 Inverse inc.
+    Copyright (C) 2005-2021 Inverse inc.
     License: GFDL 1.2 or later. http://www.gnu.org/licenses/fdl.html
 
 ////
+:release_version: 10.2.0
+:release_month: October
+:encoding: UTF-8
+:lang: en
+:doctype: book
+PacketFence v{release_version}
+:toc: left
+// set imagesdir for all asciidoc files
+:imagesdir: images
+:sectanchors:
+:sectlinks:
+// Add numbers to each section
+:sectnums:
+// Remove chapter prefix
+:chapter-signifier:
+:front-cover-image: image:pf-logo.png[fit=none,pdfwidth=50%,position=center]
+:source-highlighter: rouge
+:rouge-style: github
 
-// TODO have the build system take care of this
-
-:release_version: 7.4.0
-
+include::docinfo.asciidoc[]
 // vim: set syntax=asciidoc tabstop=2 shiftwidth=2 expandtab:

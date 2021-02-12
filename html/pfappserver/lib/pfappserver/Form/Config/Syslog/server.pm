@@ -30,14 +30,14 @@ has_field host => (
 );
 
 has_field port => (
-    type => 'PosInteger',
+    type => 'Port',
     default => '514',
     required => 1,
 );
 
 has_block definition =>
   (
-    render_list => [qw(type proto host port logs)],
+    render_list => [qw(type proto host port all_logs logs)],
   );
 
 =head1 AUTHOR
@@ -46,7 +46,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2018 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 

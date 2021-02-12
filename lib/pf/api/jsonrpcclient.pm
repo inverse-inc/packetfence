@@ -25,9 +25,14 @@ use warnings;
 use JSON::MaybeXS;
 use pf::config qw(%Config);
 use pf::log;
+use pf::dal;
 use WWW::Curl::Easy;
 use Moo;
 use HTTP::Status qw(:constants);
+
+our $logger = get_logger();
+
+our $JSON = JSON->new->convert_blessed(1);
 
 =head1 Attributes
 
@@ -81,7 +86,7 @@ has port => (is => 'rw', default => sub {$Config{'webservices'}{'port'}} );
 
 =cut
 
-has id => (is => 'rw', default => sub {0} );
+has id => (is => 'rw', default => 0 );
 
 =head2 method
 
@@ -90,7 +95,7 @@ has id => (is => 'rw', default => sub {0} );
 
 =cut
 
-has method => (is => 'rw', default => sub {"post"} );
+has method => (is => 'rw', default => "post" );
 
 =head2 connect_timeout_ms
 
@@ -98,7 +103,7 @@ Curl connection timeout in milli seconds
 
 =cut
 
-has connect_timeout_ms => (is => 'rw', default => sub {0}) ;
+has connect_timeout_ms => (is => 'rw', default => 0) ;
 
 =head2 timeout_ms
 
@@ -106,7 +111,7 @@ Curl transfer timeout in milli seconds
 
 =cut
 
-has timeout_ms => (is => 'rw', default => sub {0} ) ;
+has timeout_ms => (is => 'rw', default => 0 ) ;
 
 use constant REQUEST => 0;
 use constant RESPONSE => 2;
@@ -186,12 +191,12 @@ sub notify {
     if ( $curl_return_code == 0 ) {
         my $response_code = $curl->getinfo(CURLINFO_HTTP_CODE);
         if($response_code != HTTP_NO_CONTENT) {
-            get_logger->error( "An error occured while processing the JSONRPC request return code ($response_code)");
+            $logger->error( "An error occured while processing the JSONRPC request return code ($response_code)");
         } else {
             $results = 1;
         }
     } else {
-        get_logger->error("An error occured while sending a JSONRPC request: $curl_return_code ".$curl->strerror($curl_return_code)." ".$curl->errbuf);
+        $logger->error("An error occured while sending a JSONRPC request: $curl_return_code ".$curl->strerror($curl_return_code)." ".$curl->errbuf);
     }
 
     return $results;
@@ -249,12 +254,19 @@ sub url {
 =cut
 
 sub build_jsonrpc_request {
-    my ($self,$function,$args) = @_;
-    my $id = $self->id;
-    my $request = {method => $function, jsonrpc => '2.0', id => $id , params => $args };
-    $id++;
-    $self->id($id);
-    return encode_json $request;
+    my ($self, $function, $args) = @_;
+    return $self->_build_jsonrpc_data($function, $args, $self->next_id)
+}
+
+=head2 next_id
+
+next_id
+
+=cut
+
+sub next_id {
+    my ($self) = @_;
+    return $self->{id}++;
 }
 
 =head2 build_jsonrpc_notification
@@ -264,11 +276,26 @@ sub build_jsonrpc_request {
 =cut
 
 sub build_jsonrpc_notification {
-    my ($self,$function,$args) = @_;
-    my $request = {method => $function, jsonrpc => '2.0', params => $args };
-    return encode_json $request;
+    my ($self, $function, $args) = @_;
+    return $self->_build_jsonrpc_data($function, $args)
 }
 
+sub _build_jsonrpc_data {
+    my ($self, $function, $args, $id) = @_;
+    return $JSON->encode({method => $function, jsonrpc => '2.0', params => $args, tenant_id => pf::dal->get_tenant(), (defined $id ? (id => $id) : ()) });
+}
+
+sub BUILDARGS {
+    my ($class, @args) = @_;
+    my %args = (
+        %{$Config{'webservices'}{jsonrpcclient_args} // {}},
+        (
+            @args == 1 ? (%{$args[0]}) : @args
+        )
+    );
+
+    return \%args;
+}
 
 =head1 AUTHOR
 
@@ -277,7 +304,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2018 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 
@@ -299,4 +326,3 @@ USA.
 =cut
 
 1;
-

@@ -30,6 +30,7 @@ use TestUtils;
 
 my @wireless_devices;
 foreach my $networkdevice_class (TestUtils::get_networkdevices_classes()) {
+    next if $networkdevice_class eq 'pf::Switch::Template';
     # create the object
     $networkdevice_class->require();
     my $networkdevice_object = $networkdevice_class->new();
@@ -102,7 +103,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2018 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 

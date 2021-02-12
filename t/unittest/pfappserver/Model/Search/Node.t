@@ -33,11 +33,11 @@ use pf::dal::node;
 
 my $DEFAULT_LIKE_FORMAT = '%%%s%%';
 
-my @VIOLATION_JOINS = (
-    '=>{violation_status.mac=node.mac}',
-    'violation|violation_status',
-    '=>{violation_status.vid=violation_status_class.vid}',
-    'class|violation_status_class',
+my @SECURITY_EVENT_JOINS = (
+    '=>{security_event_status.mac=node.mac}',
+    'security_event|security_event_status',
+    '=>{security_event_status.security_event_id=security_event_status_class.security_event_id}',
+    'class|security_event_status_class',
 );
 
 my $params = {
@@ -54,17 +54,17 @@ my $params = {
     ]
 };
 
-is_deeply( pfappserver::Model::Search::Node->make_order_by($params), { -asc => 'mac' }, "MAC ASC");
+is_deeply( pfappserver::Model::Search::Node->make_order_by($params), [{-asc => 'tenant_id'}, { -asc => 'mac' }], "MAC ASC");
 
-is_deeply( pfappserver::Model::Search::Node->make_order_by({by => 'mac'}), { -asc => 'mac' }, "MAC ASC default order");
+is_deeply( pfappserver::Model::Search::Node->make_order_by({by => 'mac'}), [{-asc => 'tenant_id'}, { -asc => 'mac' }], "MAC ASC default order");
 
-is_deeply( pfappserver::Model::Search::Node->make_order_by({direction => 'desc', by => 'mac'}), { -desc => 'mac' }, "MAC DESC");
+is_deeply( pfappserver::Model::Search::Node->make_order_by({direction => 'desc', by => 'mac'}), [{-desc => 'tenant_id'}, { -desc => 'mac' }], "MAC DESC");
 
-is_deeply( pfappserver::Model::Search::Node->make_order_by({direction => 'DESC', by => 'mac'}), { -desc => 'mac' }, "MAC DESC upper");
+is_deeply( pfappserver::Model::Search::Node->make_order_by({direction => 'DESC', by => 'mac'}), [{-desc => 'tenant_id'},{ -desc => 'mac' }], "MAC DESC upper");
 
-is_deeply( pfappserver::Model::Search::Node->make_order_by({direction => 'ASC', by => 'mac'}), { -asc => 'mac' }, "MAC ASC upper");
+is_deeply( pfappserver::Model::Search::Node->make_order_by({direction => 'ASC', by => 'mac'}), [{-asc => 'tenant_id'}, { -asc => 'mac' }], "MAC ASC upper");
 
-is_deeply( pfappserver::Model::Search::Node->make_order_by({direction => 'BAD', by => 'mac'}), { -asc => 'mac' }, "MAC ASC bad");
+is_deeply( pfappserver::Model::Search::Node->make_order_by({direction => 'BAD', by => 'mac'}), [{-asc => 'tenant_id'}, { -asc => 'mac' }], "MAC ASC bad");
 
 is_deeply(
     pfappserver::Model::Search::Node->make_condition(
@@ -282,13 +282,13 @@ is_deeply(
         -where => [
             -and => [
                 'r2.radacctid' => undef,
-                'locationlog2.id' => undef,
+                'node.tenant_id' => 1,
                 -and => [{'node.mac' => { "=" => "ff:ff:ff:ff:ff:ff"}}]
             ],
         ],
         -limit => 26,
         -offset => 0,
-        -order_by => {-asc => 'mac'},
+        -order_by => [{-asc => 'tenant_id'}, {-asc => 'mac'}],
     },
     {
         pfappserver::Model::Search::Node->build_additional_search_args($params),
@@ -302,12 +302,12 @@ is_deeply(
         -where => [
             -and => [
                 'r2.radacctid' => undef,
-                'locationlog2.id' => undef
+                'node.tenant_id' => 1,
             ],
         ],
         -limit => 26,
         -offset => 0,
-        -order_by => {-asc => 'mac'},
+        -order_by => [{-asc => 'tenant_id'}, {-asc => 'mac'}],
     },
     {
         pfappserver::Model::Search::Node->build_additional_search_args(
@@ -358,7 +358,7 @@ is_deeply(
         -where => [
             -and => [
                     'r2.radacctid' => undef,
-                    'locationlog2.id' => undef ,
+                    'node.tenant_id' => 1,
                     {
                         "node.mac" => {
                             '-in',
@@ -373,7 +373,7 @@ is_deeply(
         ],
         -limit    => 26,
         -offset   => 0,
-        -order_by => { -asc => 'mac' },
+        -order_by => [{-asc => 'tenant_id'}, { -asc => 'mac' }],
     },
     {
         pfappserver::Model::Search::Node->build_additional_search_args(
@@ -406,7 +406,7 @@ is_deeply(
         -where => [
             -and => [
                     'r2.radacctid' => undef,
-                    'locationlog2.id' => undef ,
+                    'node.tenant_id' => 1,
                     {
                         "node.mac" => {
                             '-in',
@@ -422,7 +422,7 @@ is_deeply(
         ],
         -limit    => 26,
         -offset   => 0,
-        -order_by => { -asc => 'mac' },
+        -order_by => [{-asc => 'tenant_id'}, { -asc => 'mac' }],
     },
     {
         pfappserver::Model::Search::Node->build_additional_search_args(
@@ -455,7 +455,7 @@ is_deeply(
         -where => [
             -and => [
                     'r2.radacctid' => undef,
-                    'locationlog2.id' => undef ,
+                    'node.tenant_id' => 1,
                     -and => [
                         {'locationlog.switch_ip' => {"=" => '1.1.1.1'}},
                     ],
@@ -463,7 +463,7 @@ is_deeply(
         ],
         -limit    => 26,
         -offset   => 0,
-        -order_by => { -asc => 'mac' },
+        -order_by => [{-asc => 'tenant_id'}, { -asc => 'mac' }],
     },
     {
         pfappserver::Model::Search::Node->build_additional_search_args(
@@ -490,7 +490,7 @@ is_deeply(
         -where => [
             -and => [
                 'r2.radacctid'    => undef,
-                'locationlog2.id' => undef,
+                'node.tenant_id' => 1,
                 -and              => [
                     {
                         -and => [
@@ -503,7 +503,7 @@ is_deeply(
         ],
         -limit    => 26,
         -offset   => 0,
-        -order_by => { -asc => 'mac' },
+        -order_by => [{-asc => 'tenant_id'}, { -asc => 'mac' }],
     },
     {
         pfappserver::Model::Search::Node->build_additional_search_args(
@@ -530,7 +530,7 @@ is_deeply(
         -where => [
             -and => [
                     'r2.radacctid' => undef,
-                    'locationlog2.id' => undef ,
+                    'node.tenant_id' => 1,
                     -and              => [
                         {
                             -and => [
@@ -543,7 +543,7 @@ is_deeply(
         ],
         -limit    => 26,
         -offset   => 0,
-        -order_by => { -asc => 'mac' },
+        -order_by => [{-asc => 'tenant_id'}, { -asc => 'mac' }],
     },
     {
         pfappserver::Model::Search::Node->build_additional_search_args(
@@ -570,7 +570,7 @@ is_deeply(
         -where => [
             -and => [
                     'r2.radacctid' => undef,
-                    'locationlog2.id' => undef ,
+                    'node.tenant_id' => 1,
                     -and => [
                         {'r1.acctstarttime' => {"=" => undef}},
                     ],
@@ -578,7 +578,7 @@ is_deeply(
         ],
         -limit    => 26,
         -offset   => 0,
-        -order_by => { -asc => 'mac' },
+        -order_by => [{-asc => 'tenant_id'}, { -asc => 'mac' }],
     },
     {
         pfappserver::Model::Search::Node->build_additional_search_args(
@@ -605,7 +605,7 @@ is_deeply(
         -where => [
             -and => [
                     'r2.radacctid' => undef,
-                    'locationlog2.id' => undef ,
+                    'node.tenant_id' => 1,
                     -and => [
                         {'node.mac' => {"=" => 'ff:ff:ff:ff:ff:fe'}},
                     ],
@@ -613,7 +613,7 @@ is_deeply(
         ],
         -limit    => 26,
         -offset   => 0,
-        -order_by => { -asc => 'mac' },
+        -order_by => [{-asc => 'tenant_id'}, { -asc => 'mac' }],
     },
     {
         pfappserver::Model::Search::Node->build_additional_search_args(
@@ -645,11 +645,11 @@ is_deeply(
 );
 
 is_deeply(
-    \@pfappserver::Model::Search::Node::VIOLATION_JOINS_SPECS,
+    \@pfappserver::Model::Search::Node::SECURITY_EVENT_JOINS_SPECS,
     [
         pfappserver::Model::Search::Node->make_additionial_joins([
             {
-                name => 'violation_status',
+                name => 'security_event_status',
                 op => 'equal',
                 value => 'asas',
             }
@@ -660,16 +660,16 @@ is_deeply(
 );
 
 is_deeply(
-    \@pfappserver::Model::Search::Node::VIOLATION_JOINS_SPECS,
+    \@pfappserver::Model::Search::Node::SECURITY_EVENT_JOINS_SPECS,
     [
         pfappserver::Model::Search::Node->make_additionial_joins([
             {
-                name => 'violation_status',
+                name => 'security_event_status',
                 op => 'equal',
                 value => 'asas',
             },
             {
-                name => 'violation',
+                name => 'security_event',
                 op => 'equal',
                 value => 'asas',
             }
@@ -687,17 +687,17 @@ is_deeply(
 );
 
 is_deeply(
-    \@pfappserver::Model::Search::Node::VIOLATION_ADDITIONAL_COLUMNS,
+    \@pfappserver::Model::Search::Node::SECURITY_EVENT_ADDITIONAL_COLUMNS,
     [
         pfappserver::Model::Search::Node->make_additionial_columns([
             {
-                name => 'violation_status',
+                name => 'security_event_status',
                 op => 'equal',
                 value => 'asas',
             },
         ]),
     ],
-    "Find additional columns for violation status",
+    "Find additional columns for security event status",
 );
 
 =head1 AUTHOR
@@ -706,7 +706,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2018 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 

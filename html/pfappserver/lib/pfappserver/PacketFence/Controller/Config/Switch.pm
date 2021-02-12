@@ -56,16 +56,13 @@ sub begin :Private {
 
     $model = $c->model("Config::Switch");
     ($status, $switch_default) = $model->read('default');
-    ($status, $roles) = $c->model('Config::Roles')->listFromDB;
-    $roles = undef unless(is_success($status));
-    $c->stash->{roles} = $roles;
-
     $c->stash->{current_model_instance} = $model;
     $c->stash->{switch_default} = $switch_default;
-
     $c->stash->{model_name} = "Switch";
     $c->stash->{controller_namespace} = "Config::Switch";
-    $c->stash->{current_form_instance} = $c->form("Config::Switch", roles => $c->stash->{roles});
+    my $form = $c->form("Config::Switch");
+    $c->stash->{current_form_instance} = $form;
+    $c->stash->{roles} = $form->roles;
 }
 
 after qw(list search) => sub {
@@ -88,10 +85,7 @@ sub after_list {
     my $floatingDeviceModel = $c->model('Config::FloatingDevice');
     my @switches;
     my $groupsModel = $c->model("Config::SwitchGroup");
-    my $groupPrefix = $groupsModel->configStore->group;
-    my $cs = $c->model('Config::Switch')->configStore;
     foreach my $switch (@{$c->stash->{items}}) {
-        next if($switch->{id} =~ /^$groupPrefix /);
         my $id = $switch->{id};
         if ($id) {
             ($status, $floatingdevice) = $floatingDeviceModel->search('ip', $id);
@@ -99,16 +93,8 @@ sub after_list {
                 $switch->{floatingdevice} = pop @$floatingdevice;
             }
         }
-        my $fullConfig = $cs->fullConfigRaw($id);
-        $switch->{type} = $fullConfig->{type};
-        $switch->{group} ||= $cs->topLevelGroup;
-        $switch->{mode} = $fullConfig->{mode};
-        $switch->{description} //= $fullConfig->{description};
-        push @switches, $switch;
     }
     $c->stash->{switch_groups} = [ sort @{$groupsModel->readAllIds} ];
-    unshift @{$c->stash->{switch_groups}}, $groupsModel->configStore->topLevelGroup;
-    $c->stash->{items} = \@switches;
     $c->stash->{searchable} = 1;
 }
 
@@ -123,21 +109,20 @@ Search the switch configuration entries
 sub search : Local : AdminRole('SWITCHES_READ') {
     my ($self, $c) = @_;
 
-    my $groupsModel = $c->model("Config::SwitchGroup");
     # Changing default to empty value as switches inheriting from it don't have a group attribute
-    if($c->request->param("searches.0.value") eq $groupsModel->configStore->topLevelGroup){
+    if($c->request->param("searches.0.value") eq 'default') {
         $c->request->param("searches.0.value", "");
     }
 
-    my ($status, $status_msg, $result, $violations);
+    my ($status, $status_msg, $result, $security_events);
     my %search_results;
     my $model = $self->getModel($c);
-    my $form = $self->getForm($c);
+    my $form = $c->form('AdvancedSearch');
     $form->process(params => $c->request->params);
     if ($form->has_errors) {
         $status = HTTP_BAD_REQUEST;
         $status_msg = $form->field_errors;
-        $c->stash(current_view => 'JSON');
+        $c->stash(current_view => 'JSON', status_msg => $status_msg);
     } else {
         my $query = $form->value;
         $c->stash(current_view => 'JSON') if ($c->request->params->{'json'});
@@ -147,6 +132,7 @@ sub search : Local : AdminRole('SWITCHES_READ') {
             $c->stash($result);
         }
     }
+    $c->response->status($status);
 }
 
 =head2 after create
@@ -329,16 +315,8 @@ sub import_csv :Local :Args(0) :AdminRole('SWITCHES_CREATE') {
         $hostname =~ tr/\r\n//d;
 
         my $switch_ip = @$fields[1];
-        # Don't want to process them twice...
-        my ( $status, $msg ) = $model->hasId($switch_ip);
-        if (is_success($status)) {
-            $skip++;
-            $logger->warn("This entry has been skipped because this IP: $switch_ip is existing in the switch configuration file.");
-            next;
-        }
-    
         my $switch_group = @$fields[2];
-        ( $status, $msg ) = $model_group->hasId($switch_group);
+        my ( $status, $msg ) = $model_group->hasId($switch_group);
         if (is_error($status)) {
             $skip++;
             $logger->warn("This entry has been skipped because the switch group: $switch_group does not exist in the switch configutaion.");
@@ -346,11 +324,13 @@ sub import_csv :Local :Args(0) :AdminRole('SWITCHES_CREATE') {
         }
 
         my $assignements = {
-            description => $hostname,
             group => $switch_group,
         };
 
-        $model->create($switch_ip, $assignements);
+        # Only update the description if its non-empty
+        $assignements->{description} = $hostname if(length($hostname) > 0);
+
+        $model->update_or_create($switch_ip, $assignements);
         $switches++;
     }
     unless ($csv->eof) {
@@ -364,7 +344,7 @@ sub import_csv :Local :Args(0) :AdminRole('SWITCHES_CREATE') {
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2018 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 

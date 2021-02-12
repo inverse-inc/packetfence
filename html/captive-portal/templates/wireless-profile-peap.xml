@@ -78,6 +78,14 @@
                         <key>PayloadVersion</key>
                         <integer>1</integer>
                 </dict>
+                [% IF ( for_windows OR for_android ) AND provisioner.raw_ca_cert_string() != "" %]
+                <dict>
+                        <key>PayloadContent</key>
+                        <string>[% provisioner.raw_ca_cert_string() %]</string>
+                        <key>PayloadType</key>
+                        <string>com.apple.security.radius.ca</string>
+                </dict>
+                [% END %]
         </array>
         <key>PayloadDescription</key>
         <string>Profile description.</string>

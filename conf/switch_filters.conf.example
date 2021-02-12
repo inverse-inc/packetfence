@@ -1,3 +1,4 @@
+# Copyright (C) Inverse inc.
 # SWITCH FILTERS configuration
 # ============================
 #
@@ -6,6 +7,8 @@
 # It is possible to trigger rules / actions within the following specific connection flow scopes
 # - radius_authorize: Used when PacketFence receive a radius request
 # - external_portal: Used when an endpoint hit the captive portal for web authentication
+# - instantiate_module: Used when PacketFence instanciate a switch module
+# - reevaluate: Used when PacketFence reevaluate the access of the device
 #
 #
 # A "SWITCH Filter" configuration is mainly constituted of two (2) parts; rules(s)/condition(s) and action(s)
@@ -21,7 +24,8 @@
 # operator = OPERATOR
 # value = VALUE
 #
-# Filter can be:
+###############################
+# For the radius_authorize scope, the filter can be:
 #     node_info.autoreg
 #     node_info.status
 #     node_info.bypass_vlan
@@ -128,13 +132,43 @@
 #     Ethernet-NoEAP
 #     SNMP-Traps
 #     Inline
-#     WIRED_MAC_AUTH
+#     Ethernet-NoEAP
 # - for the radius_request
 #     All the attributes you can have in the RADIUS request (run FreeRADIUS in debug mode to see these attributes)
 #
 # - for the params
 #     It correspond of the attributes in the uri when the device hit the portal
 #
+###############################
+# For the instantiate_module scope, the filter can be:
+#     radius_request (when used in the context of a RADIUS request)
+#     locationlog (when used outside of the context of a RADIUS request)
+#
+# Attribute can be:
+# - for the radius_request
+#     All the attributes you can have in the RADIUS request (run FreeRADIUS in debug mode to see these attributes)
+# - for the locationlog
+#     id
+#     tenant_id
+#     mac
+#     switch
+#     port
+#     vlan
+#     role
+#     connection_type
+#     connection_sub_type
+#     dot1x_username
+#     ssid
+#     start_time
+#     end_time
+#     switch_ip
+#     switch_mac
+#     stripped_user_name
+#     realm
+#     session_id
+#     ifDesc
+#
+###############################
 # Actions
 # -------
 # Structure example of an action
@@ -169,8 +203,9 @@
 #
 #[1:SSID]
 #scope = radius_authorize
-#param1 = ExternalPortalEnforcement => N
-#param2 = VlanMap => Y
+#param.0 = ExternalPortalEnforcement => N
+#param.1 = VlanMap => Y
+#param.2 = vlans => gaming => 40;registration => 10
 #
 #[status]
 #filter = node_info.status
@@ -179,7 +214,7 @@
 #
 #[2:!SSID&status]
 #scope = radius_authorize
-#param1 = ExternalPortalEnforcement => N
+#param.0 = ExternalPortalEnforcement => N
 #
 # - If the device hit the portal with theses parameters in the uri then use the Fortinet::FortiGate switch module
 #
@@ -214,3 +249,19 @@
 #[1:login&post&magic&usermac&apmac&apip&userip]
 #scope = external_portal
 #switch = Fortinet::FortiGate
+#
+# - If the device is authenticating on a wireless connection, then use the Cisco::WLC_5500 module
+#
+#[wireless_radius]
+#filter = radius_request.NAS-Port-Type
+#operator = is
+#value = 19
+#
+#[wireless_locationlog]
+#filter = locationlog.connection_type
+#operator = regex
+#value = ^Wireless
+#
+#[msmodule4wired:wireless_locationlog|wireless_radius]
+#scope=instantiate_module
+#switch = Cisco::WLC_5500

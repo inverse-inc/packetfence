@@ -10,6 +10,10 @@ pf::Authentication::Source::OpenIDSource
 
 use pf::log;
 use Moose;
+use pf::config qw(%Config);
+use pf::constants qw($TRUE $FALSE);
+use pf::Authentication::constants;
+use pf::person qw(person_modify);
 extends 'pf::Authentication::Source::OAuthSource';
 with 'pf::Authentication::CreateLocalAccountRole';
 
@@ -24,7 +28,23 @@ has 'scope' => (isa => 'Str', is => 'rw', default => 'openid');
 has 'protected_resource_url' => (isa => 'Str', is => 'rw');
 has 'redirect_url' => (isa => 'Str', is => 'rw', required => 1, default => 'https://<hostname>/oauth2/callback');
 has 'domains' => (isa => 'Str', is => 'rw', required => 1);
+has 'username_attribute' => ( is => 'rw', default => 'email', isa => 'Str');
+has 'person_mappings' => ( is => 'rw', default => sub { [] });
 
+=head2 available_attributes
+
+Add additional available attributes
+
+=cut
+
+sub available_attributes {
+  my $self = shift;
+
+  my $super_attributes = $self->SUPER::available_attributes;
+  my @attributes = @{$Config{advanced}{openid_attributes} // []};
+  my @radius_attributes = map { { value => $_, type => $Conditions::SUBSTRING } } @attributes;
+  return [@$super_attributes, @radius_attributes];
+}
 =head2 dynamic_routing_module
 
 Which module to use for DynamicRouting
@@ -33,13 +53,71 @@ Which module to use for DynamicRouting
 
 sub dynamic_routing_module { 'Authentication::OAuth::OpenID' }
 
+=head2 lookup_from_provider_info
+
+lookup_from_provider_info
+
+=cut
+
+sub lookup_from_provider_info {
+    my ($self, $pid, $info) = @_;
+    my $person_info = $self->map_to_person($info);
+    if ($person_info) {
+        person_modify($pid, %$person_info);
+    }
+
+    return;
+}
+
+sub map_to_person {
+    my ($self, $info) = @_;
+    my $mappings = $self->person_mappings;
+    if (@$mappings == 0) {
+        return undef;
+    }
+
+    my %person;
+    for my $mapping (@$mappings) {
+        $person{$mapping->{person_field}} = $info->{$mapping->{openid_field}};
+    }
+
+    return \%person;
+}
+
+sub match_in_subclass {
+    my ($self, $params, $rule, $own_conditions, $matching_conditions, $extra) = @_;
+    my $username = $params->{$self->username_attribute};
+    foreach my $condition (@{ $own_conditions }) {
+        my $r = $self->match_condition($condition, $params);
+        if ($r) {
+            push(@{ $matching_conditions }, $condition);
+        }
+    }
+
+    return ($username, undef);
+}
+
+sub map_from_person {
+    my ($self, $person) = @_;
+    my $mappings = $self->person_mappings;
+    my %info = (
+        $self->username_attribute => $person->{pid},
+    );
+
+    for my $mapping (@$mappings) {
+        $info{$mapping->{openid_field}} = $person->{$mapping->{person_field}};
+    }
+
+    return \%info;
+}
+
 =head1 AUTHOR
 
 Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2018 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 

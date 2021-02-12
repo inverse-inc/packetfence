@@ -1,0 +1,10 @@
+NodeCategoriesList:
+  allOf:
+  - $ref: '#/components/schemas/Iterable'
+  - properties:
+      items:
+        description: Items
+        items:
+          $ref: '#/components/schemas/NodeCategory'
+        type: array
+    type: object

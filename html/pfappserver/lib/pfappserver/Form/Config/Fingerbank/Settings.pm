@@ -40,7 +40,11 @@ sub field_list {
 #                element_attr => { 'placeholder' => $config_defaults->{$field_name} },
                 tags => {
                     after_element   => \&help,
-                    help            => $field_doc->{description},
+                    help            => do {
+                        my $d = $field_doc->{description};
+                        $d = join("\n", @$d) if ref($d) eq 'ARRAY';
+                        $d
+                    },
                 },
             };
 
@@ -67,7 +71,7 @@ sub field_list {
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2018 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 

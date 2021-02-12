@@ -1,0 +1,78 @@
+WrixLocation:
+  properties:
+    Client_Support:
+      type: string
+    Coverage_Area:
+      type: string
+    English_Location_City:
+      type: string
+    English_Location_Name:
+      type: string
+    Latitude:
+      type: string
+    Location_Address1:
+      type: string
+    Location_Address2:
+      type: string
+    Location_Country_Name:
+      type: string
+    Location_Identifier:
+      type: string
+    Location_Phone_Number:
+      type: string
+    Location_State_Province_Name:
+      type: string
+    Location_Type:
+      type: string
+    Location_URL:
+      type: string
+    Location_Zip_Postal_Code:
+      type: string
+    Longitude:
+      type: string
+    MAC_Address:
+      type: string
+    Open_Friday:
+      type: string
+    Open_Monday:
+      type: string
+    Open_Saturday:
+      type: string
+    Open_Sunday:
+      type: string
+    Open_Thursday:
+      type: string
+    Open_Tuesday:
+      type: string
+    Open_Wednesday:
+      type: string
+    Provider_Identifier:
+      type: string
+    Restricted_Access:
+      type: string
+    SSID_1X:
+      type: string
+    SSID_1X_Broadcasted:
+      type: string
+    SSID_Broadcasted:
+      type: string
+    SSID_Open_Auth:
+      type: string
+    Security_Protocol_1X:
+      type: string
+    Service_Provider_Brand:
+      type: string
+    Sub_Location_Type:
+      type: string
+    UTC_Timezone:
+      type: string
+    WEP_Key:
+      type: string
+    WEP_Key_Entry_Method:
+      type: string
+    WEP_Key_Size:
+      type: string
+    id:
+      type: string
+  required: []
+  type: object

@@ -55,6 +55,8 @@ use pfappserver::Form::Config::PortalModule::Root;
 use pfappserver::Form::Config::PortalModule::SelectRole;
 use pfappserver::Form::Config::PortalModule::Survey;
 use pfappserver::Form::Config::PortalModule::URL;
+use pfappserver::Form::Config::PortalModule::ShowLocalAccount;
+use pfappserver::Form::Config::PortalModule::SSL_Inspection;
 
 our %TYPES_TO_FORMS = (
     map { $_ => "pfappserver::Form::Config::PortalModule::$_" } qw(
@@ -88,6 +90,8 @@ our %TYPES_TO_FORMS = (
         SelectRole
         Survey
         URL
+        ShowLocalAccount
+        SSL_Inspection
     )
 );
 
@@ -101,7 +105,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2018 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 

@@ -6,7 +6,7 @@
     </div>
     <div class="modal-body">
       <p>[% l('You have successfully configured and launched PacketFence.') %]</p>
-      <p>[% l('You will now be redirected to the administration interface where you can configure violations and monitor your new NAC.') %]</p>
+      <p>[% l('You will now be redirected to the administration interface where you can configure security events and monitor your new NAC.') %]</p>
       <div class="modal-footer">
         <a class="btn btn-primary" href="https://[% admin_ip | html %]:[% admin_port | html %]/">[% l('Visit Administration Interface Now!') %]</a>
       </div>

@@ -1,0 +1,18 @@
+/preferences:
+  description: pf::UnifiedApi::Controller::Preferences
+  get:
+    description: List items
+    operationId: api.v1.Preferences.list
+    responses:
+      '200':
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PreferencesList'
+        description: List
+      '400':
+        $ref: '#/components/responses/BadRequest'
+      '404':
+        $ref: '#/components/responses/NotFound'
+      '422':
+        $ref: '#/components/responses/UnprocessableEntity'

@@ -17,9 +17,11 @@ use warnings;
 use Moo;
 extends qw(pf::pfqueue::producer);
 use pf::Redis;
+use pf::dal;
 use List::MoreUtils qw(all);
 use Sereal::Encoder qw(sereal_encode_with_object);
 use pf::Sereal qw($ENCODER);
+use Digest::JHash qw(jhash);
 use pf::task;
 use pf::util::pfqueue qw(task_counter_id);
 use pf::constants::pfqueue qw($PFQUEUE_COUNTER $PFQUEUE_QUEUE_PREFIX);
@@ -78,7 +80,7 @@ Submit a task to the queue
 =cut
 
 sub submit {
-    my ($self, $queue, $task_type, $task_data, $expire_in) = @_;
+    my ($self, $queue, $task_type, $task_data, $expire_in, %opts) = @_;
     $expire_in //= $DEFAULT_EXPIRATION;
     my $queue_name = $PFQUEUE_QUEUE_PREFIX . $queue;
     my $task_counter_id = task_counter_id($queue_name, $task_type, $task_data);
@@ -86,7 +88,7 @@ sub submit {
     my $redis = $self->redis;
     # Batch the creation of the task and it's ttl and placing it on the queue to improve performance
     $redis->multi(sub {});
-    $redis->hmset($id, data => sereal_encode_with_object($ENCODER, [$task_type, $task_data]), expire => $expire_in, sub {});
+    $redis->hmset($id, data => sereal_encode_with_object($ENCODER, [$task_type, $task_data]), expire => $expire_in, tenant_id => pf::dal->get_tenant(), , %opts, sub {});
     $redis->expire($id, $expire_in, sub {});
     $redis->hincrby($PFQUEUE_COUNTER, $task_counter_id, 1, sub {});
     $redis->lpush($queue_name, $id, sub {});
@@ -95,8 +97,18 @@ sub submit {
     return $id;
 }
 
+sub hashed_queue_name {
+    my ($queue, $count, $id) = @_;
+    return sprintf("%s_%03d", $queue, jhash($id) % $count );
+}
+
+sub submit_hashed {
+    my ($self, $count, $id, $queue, $task_type, $task_data, $expire_in, %opts) = @_;
+    return $self->submit(hashed_queue_name($queue, $count, $id), $task_type, $task_data, $expire_in, %opts);
+}
+
 sub submit_delayed {
-    my ($self, $queue, $task_type, $delay, $task_data, $expire_in) = @_;
+    my ($self, $queue, $task_type, $delay, $task_data, $expire_in, %opts) = @_;
     $expire_in //= $DEFAULT_EXPIRATION;
     my $queue_name = $PFQUEUE_QUEUE_PREFIX . $queue;
     my $task_counter_id = task_counter_id($queue_name, $task_type, $task_data);
@@ -108,7 +120,7 @@ sub submit_delayed {
     $time_milli += $delay;
     # Batch the creation of the task and it's ttl and placing it on the queue to improve performance
     $redis->multi(sub {});
-    $redis->hmset($id, data => sereal_encode_with_object($ENCODER, [$task_type, $task_data]), expire => $expire_in, sub {});
+    $redis->hmset($id, data => sereal_encode_with_object($ENCODER, [$task_type, $task_data]), expire => $expire_in, tenant_id => pf::dal->get_tenant(), %opts, sub {});
     $redis->expire($id, $expire_in + int($delay / 1000), sub {});
     $redis->hincrby($PFQUEUE_COUNTER, $task_counter_id, 1, sub {});
     $redis->zadd("Delayed:$queue", $time_milli, $id, sub {});
@@ -117,6 +129,10 @@ sub submit_delayed {
     return $id;
 }
 
+sub submit_delayed_hashed {
+    my ($self, $count, $id, $queue, $task_type, $delay, $task_data, $expire_in, %opts) = @_;
+    return $self->submit_delayed(hashed_queue_name($queue, $count, $id), $task_type, $delay, $task_data, $expire_in, %opts);
+}
 
 =head1 AUTHOR
 
@@ -124,7 +140,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2018 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 

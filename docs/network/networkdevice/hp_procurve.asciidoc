@@ -1,0 +1,275 @@
+// to display images directly on GitHub
+ifdef::env-github[]
+:encoding: UTF-8
+:lang: en
+:doctype: book
+:toc: left
+:imagesdir: ../../images
+endif::[]
+
+////
+
+    This file is part of the PacketFence project.
+
+    See PacketFence_Network_Devices_Configuration_Guide-docinfo.xml for 
+    authors, copyright and license information.
+
+////
+
+
+//=== HP ProCurve
+
+PacketFence supports ProCurve switches _without VoIP_ using two different trap types:
+
+* linkUp/linkDown
+* Port Security (with static MACs)
+
+*We recommend to enable Port Security only.*
+
+Don't forget to update the startup config!
+
+NOTE: HP ProCurve only sends one security trap to PacketFence per security violation so make sure PacketFence runs when you configure port-security. Also, because of the above limitation, it is considered good practice to reset the intrusion flag as a first troubleshooting step.
+
+If you want to learn more about intrusion flag and port-security, please refer to the ProCurve documentation.
+
+CAUTION: If you configure a switch that is already in production be careful that enabling port-security causes active MAC addresses to be automatically added to the intrusion list without a security trap sent to PacketFence. This is undesired because PacketFence will not be notified that it needs to configure the port. As a work-around, unplug clients before activating port-security or remove the intrusion flag after you enabled port-security with: `port-security <port> clear-intrusion-flag`.
+
+==== 2500 Series
+
+linkUp/linkDown traps are enabled by default so we disable them and enable Port Security only.
+
+On 2500's, we need to secure bogus MAC addresses on ports in order for the switch to send a trap when a new MAC appears on a port.
+
+Global config settings:
+
+  snmp-server community "public" Unrestricted
+  snmp-server host 192.168.1.5 "public" Not-INFO
+  no snmp-server enable traps link-change 1-26
+
+On each interface: 
+
+  port-security xx learn-mode static action send-alarm mac-address 0200000000xx
+
+where `xx` stands for the interface index
+
+===== CLI authentication
+
+You can use PacketFence for RADIUS CLI authentication on the 2500 Series.
+
+Global config settings
+
+  radius-server host 192.168.1.5 key useStrongerSecret
+  aaa authentication ssh login radius local
+  aaa authentication telnet login radius local
+
+Next, make sure you configure the switch in PacketFence accordingly as well as the proper administrative access. Refer to the Administration Guide for more details.
+
+==== 2600 Series and 3400cl Series
+
+===== Port-Security
+
+linkUp/linkDown traps are enabled by default so we disable them and enable Port Security only.
+
+On 2600's, we *don't* need to secure bogus MAC addresses on ports in order for the switch to send a trap when a new MAC appears on a port.
+
+Global config settings
+
+  snmp-server community public manager unrestricted
+  snmp-server host 192.168.1.5 "public" Not-INFO
+  no snmp-server enable traps link-change 1-26
+
+On each interface: 
+
+  port-security xx learn-mode configured action send-alarm
+
+where `xx` stands for the interface index
+
+===== MAC Authentication (Firmware > 11.72)
+
+In order to enable RADIUS mac authentication on the ports, you first need to join the ports to either the registration or the mac detection vlan (as a security measure).
+
+Next, define the RADIUS server host:
+
+   radius-server host 192.168.1.5 key useStrongerSecret
+
+Next, we create a server-group that points to the PacketFence server,
+
+   aaa server-group radius "packetfence" host 192.168.1.5
+
+Configure the AAA authentication for MAC authentication to use the right server-group:
+
+   aaa authentication mac-based chap-radius server-group "packetfence"
+
+Optionally, you can configure the SSH and telnet authentication to point to PacketFence (make sure you also follow instructions in the Administration Guide to activate the CLI access):
+
+  aaa authentication login privilege-mode
+
+  aaa authentication ssh login radius server-group packetfence local
+  aaa authentication telnet login radius server-group packetfence local
+
+Finally, enable MAC authentication on all necessary ports:
+
+   aaa port-access mac-based 1-24
+
+Don't forget to permit address moves and the reauth period.  x represents the port index:
+
+   aaa port-access mac-based x addr-moves
+   aaa port-access mac-based x reauth-period 14400
+   
+(Thanks to Jean-Francois Laporte for this contribution)
+
+==== 2610
+
+===== 802.1X
+
+Define the RADIUS server host:
+
+   radius-server host 192.168.1.5 key "useStrongerSecret"
+   radius-server host 192.168.1.5 acct-port 1813 key "useStrongerSecret"
+
+Define the SNMP configuration:
+
+   snmp-server host 192.168.1.5 community "public" informs trap-level not-info
+   no snmp-server enable traps link-change C1
+
+Configure the server-group:
+
+   aaa server-group radius "packetfence" host 192.168.1.5
+
+Configure authentication:
+
+   aaa authentication port-access eap-radius server-group "packetfence"
+   aaa authentication mac-based chap-radius server-group "packetfence"
+
+Configure the port-security:
+
+   port-security C1 learn-mode port-access action send-alarm
+
+Configuration of the port:
+
+   aaa port-access authenticator C1
+   aaa port-access authenticator C1 client-limit 1
+   aaa port-access authenticator active
+   aaa port-access mac-based C1
+   aaa port-access mac-based C1 addr-moves
+   aaa port-access mac-based C1 reauth-period 14400
+   aaa port-access C1 controlled-direction in   
+
+(Thanks to Denis Bonnenfant for this contribution)
+
+==== 4100, 5300, 5400 Series
+
+===== Port-Security
+
+linkUp/linkDown traps are enabled by default and we have not found a way yet to disable them so do not forget to declare the trunk ports as uplinks in the switch config file.
+
+On 4100's, we need to secure bogus MAC addresses on ports in order for the switch to send a trap when a new MAC appears on a port. The ports are indexed differently on 4100's: it's based on the number of modules you have in your 4100, each module is indexed with a letter.
+
+Global config settings
+
+  snmp-server community "public" Unrestricted
+  snmp-server host 192.168.1.5 "public" Not-INFO
+  no snmp-server enable traps link-change 1-26
+
+You should configure interfaces like this:
+
+  port-security A1 learn-mode static action send-alarm mac-address 020000000001
+  ...
+  port-security A24 learn-mode static action send-alarm mac-address 020000000024
+  port-security B1 learn-mode static action send-alarm mac-address 020000000025
+  ...
+  port-security B24 learn-mode static action send-alarm mac-address 020000000048
+  port-security C1 learn-mode static action send-alarm mac-address 020000000049
+  ...
+
+===== MAC Authentication (with VoIP)
+
+In order to have MAC Authentication working with VoIP, you need to ensure that the Voice VLAN is tagged on all the port first. You also need to activate lldp notification on all ports that will handle VoIP. 
+*Finally, make sure to change the value of the $VOICEVLANAME variable in the Procurve 5400 module's source code.*
+
+RADIUS configuration
+  radius-server host 192.168.1.5 key strongKey
+
+MAC Authentication
+
+  aaa port-access mac-based C5-C7
+  aaa port-access mac-based C5 addr-limit 2
+  aaa port-access mac-based C6 addr-limit 2
+  aaa port-access mac-based C7 addr-limit 2
+  aaa port-access C5 controlled-direction in
+  aaa port-access C6 controlled-direction in
+  aaa port-access C7 controlled-direction in
+
+===== 802.1X (with VoIP)
+
+Same as MAC Authentication, you need to ensure that the Voice VLAN is tagged on all the port first if using 802.1X. You also need to activate lldp notification on all ports that will handle VoIP. 
+*Finally, make sure to change the value of the $VOICEVLANAME variable in the Procurve 5400 module's source code.*
+
+RADIUS configuration
+
+  radius-server host 192.168.1.5 key strongKey
+
+802.1X
+
+  aaa authentication port-access eap-radius
+  aaa port-access authenticator C3-C4
+  aaa port-access authenticator C3 client-limit 3
+  aaa port-access authenticator C4 client-limit 3
+  aaa port-access authenticator active
+
+===== Downloadable ACLs
+
+HP and Aruba switches running the ArubaOS-Switch operating system (previously called ProVision) support dynamic RADIUS-assigned ACLs. It requires RADIUS authentication using the 802.1X, Web authentication or MAC authentication available on the switch. You can define ACLs in PacketFence so that they can be automatically applied on the ports of the switches based on the role assigned. We have tested it successfully on the Aruba 2930M and 3810 series on version 16.05.0004.
+
+To use this feature, first configure RADIUS and the authentication method on your switch. Next, in the PacketFence web admin interface, go to _Configuration -> Policies and Access Control -> Switches_. Click on the switch you want, then on the 'Roles' tab, and check 'Role by access list'. Now you are able to add ACLs for each role.
+
+Configure RADIUS operation on the switch:
+
+  radius-server host <ipv4-address> key <key-string>
+
+Configure RADIUS network accounting on the switch (optional).
+
+  aaa accounting network <start-stop|stop-only> radius
+
+You can also view ACL counter hits using either of the following commands:
+
+  show access-list radius <port-list>
+  show port-access <authenticator|mac-based|web-based> <port-list> clients detailed
+
+Configure an authentication method. Options include 802.1X, web-based authentication, and MAC authentication. You can configure 802.1X, web-based authentication, and/or MAC authentication to operate simultaneously on the same ports.
+
+* 802.1X Option:
+
+  aaa port-access authenticator <port-list>
+  aaa authentication port-access chap-radius
+  aaa port-access authenticator active
+
+* MAC Authentication Option:
+
+  aaa port-access mac-based <port-list>
+
+* Web Authentication Option:
+
+  aaa port-access web-based <port-list>
+
+This command configures web-based authentication on the switch and activates this feature on the specified ports.
+
+For example, if you want the users that are in the registration VLAN to only use HTTP, HTTPS, DNS and DHCP you can configure this ACL in the registration role.
+
+image::aruba-registration-acl.png[scaledwidth="100%",alt="Registration ACL"]
+
+Now, your normal users are placed in the 'default' role and your guests in the 'guest' role.
+
+The 'default' role uses the network 192.168.5.0/24 and 'guest' uses the network 192.168.10.0/24.
+
+You can prevent communications between both networks using these access lists
+
+image::aruba-acl-default-guest.png[scaledwidth="100%",alt="Cross network deny ACL"]
+
+You could also only prevent your guest users from using shared directories
+
+image::aruba-acl-guest.png[scaledwidth="100%",alt="Deny shares ACL"]
+
+You could also restrict your users to use only your DNS server where 192.168.5.2 is your DNS server
+
+image::aruba-acl-default-dns.png[scaledwidth="100%",alt="Force DNS ACL"]

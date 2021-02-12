@@ -4,17 +4,20 @@
   "homepage": "https://packetfence.org",
   "bugs": "https://github.com/inverse-inc/packetfence/issues",
   "devDependencies": {
-    "autoprefixer": ">=6.0.3",
-    "bower": ">=1.3.8",
+    "autoprefixer": "9.x",
+    "bower": "^1.8.8",
     "grunt": ">=0.4.1",
     "grunt-cli": "^1.2.0",
-    "grunt-contrib-cssmin": "latest",
     "grunt-contrib-concat": "latest",
-    "grunt-contrib-jshint": ">=0.11.2",
-    "grunt-contrib-uglify": ">=0.9",
+    "grunt-contrib-cssmin": "latest",
+    "grunt-contrib-jshint": "^3.0.0",
+    "grunt-contrib-uglify": "^5.0.0",
     "grunt-contrib-watch": ">=0.5.3",
     "grunt-postcss": ">=0.6.0",
-    "grunt-sass": ">=0.18.1",
+    "grunt-sass": "^2.0.0",
     "time-grunt": "latest"
+  },
+  "dependencies": {
+    "fitty": "^2.3.3"
   }
 }

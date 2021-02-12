@@ -24,4 +24,7 @@ Iterable:
     nextCursor:
       description: The cursor to access the data after the one returned in the response
       type: string
+    total_count:
+      type: int
+      description: The total count of the query
 

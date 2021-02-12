@@ -2,7 +2,7 @@ package pfappserver::Form::Config::Source::RADIUS;
 
 =head1 NAME
 
-pfappserver::Form::Config::Source::RADIUS - Web form for a Kerberos user source
+pfappserver::Form::Config::Source::RADIUS - Web form for a RADIUS user source
 
 =head1 DESCRIPTION
 
@@ -11,6 +11,7 @@ Form definition to create or update a RADIUS user source.
 =cut
 
 use HTML::FormHandler::Moose;
+use pf::config qw(%Config);
 extends 'pfappserver::Form::Config::Source';
 with 'pfappserver::Base::Form::Role::Help', 'pfappserver::Base::Form::Role::InternalSource';
 
@@ -26,12 +27,14 @@ has_field 'host' =>
   );
 has_field 'port' =>
   (
-   type => 'PosInteger',
+   type => 'Port',
    label => 'Port',
    element_class => ['input-mini'],
    element_attr => {'placeholder' => '1812'},
    default => 1812,
    required => 1,
+   tags => { after_element => \&help,
+             help => 'If you use this source in the realm configuration the accounting port will be this port + 1' },
   );
 has_field 'secret' =>
   (
@@ -60,10 +63,23 @@ has_field 'monitor',
              help => 'Do you want to monitor this source?' },
    default => pf::Authentication::Source::RADIUSSource->meta->get_attribute('monitor')->default,
 );
+has_field 'options',
+  (
+   type => 'TextArea',
+   label => 'Options',
+   tags => { after_element => \&help,
+             help => 'Define options for FreeRADIUS home_server definition (if you use the source in the realm configuration). Need a radius restart.' },
+   default => 'type = auth+acct',
+);
+
+sub _options_set_role_from_source {
+    my ($self) = @_;
+    return map { $_ => $_} @{$Config{radius_configuration}{radius_attributes}};
+}
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2018 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 

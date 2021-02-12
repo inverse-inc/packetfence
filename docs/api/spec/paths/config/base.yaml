@@ -1,0 +1,70 @@
+/config/base/{base_id}:
+  delete:
+    description: Remove an item
+    operationId: api.v1.Config::Bases.remove
+    parameters:
+    - in: path
+      name: base_id
+      schema:
+        type: string
+    responses:
+      '204':
+        description: Deleted a config item
+  description: pf::UnifiedApi::Controller::Config::Bases
+  get:
+    description: Get an item
+    operationId: api.v1.Config::Bases.get
+    parameters:
+    - in: path
+      name: base_id
+      schema:
+        type: string
+    responses:
+      '200':
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ConfigBase'
+        description: Item
+      '400':
+        $ref: '#/components/responses/BadRequest'
+      '422':
+        $ref: '#/components/responses/UnprocessableEntity'
+  patch:
+    description: Update an item
+    operationId: api.v1.Config::Bases.update
+    parameters:
+    - in: path
+      name: base_id
+      schema:
+        type: string
+    requestBody:
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ConfigBase'
+    responses:
+      '400':
+        $ref: '#/components/responses/BadRequest'
+      '422':
+        $ref: '#/components/responses/UnprocessableEntity'
+  put:
+    description: Replace an item
+    operationId: api.v1.Config::Bases.replace
+    parameters:
+    - in: path
+      name: base_id
+      schema:
+        type: string
+    requestBody:
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ConfigBase'
+    responses:
+      '201':
+        $ref: '#/components/responses/Created'
+      '400':
+        $ref: '#/components/responses/BadRequest'
+      '422':
+        $ref: '#/components/responses/UnprocessableEntity'

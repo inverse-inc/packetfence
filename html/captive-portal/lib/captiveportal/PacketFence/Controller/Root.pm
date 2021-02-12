@@ -13,12 +13,11 @@ use pf::util;
 use pf::Portal::Session;
 use pf::web;
 use pf::node;
-use pf::violation;
+use pf::security_event;
 use pf::class;
 use Cache::FileCache;
 use List::Util qw(first);
 use POSIX;
-use Locale::gettext qw(bindtextdomain textdomain bind_textdomain_codeset);
 use List::Util 'first';
 use List::MoreUtils qw(uniq);
 use captiveportal::DynamicRouting::Factory;
@@ -27,7 +26,7 @@ use pf::StatsD::Timer;
 use File::Slurp qw(read_file);
 use pf::error;
 use pf::parking;
-use pf::constants::parking qw($PARKING_VID);
+use pf::constants::parking qw($PARKING_SECURITY_EVENT_ID);
 use pf::db;
 
 BEGIN { extends 'captiveportal::Base::Controller'; }
@@ -84,11 +83,11 @@ Check if the device is in parking and if it should be redirected to the parking 
 
 sub checkForParking :Private {
     my ($self, $c) = @_;
-    if (isenabled($Config{parking}{show_parking_portal}) && violation_count_open_vid($c->portalSession->clientMac, $PARKING_VID)) {
+    if (isenabled($Config{parking}{show_parking_portal}) && security_event_count_open_security_event_id($c->portalSession->clientMac, $PARKING_SECURITY_EVENT_ID)) {
         get_logger->warn("Client should not have reached the normal portal as it is in parking. Retriggering parking actions.");
         pf::parking::park($c->portalSession->clientMac, $c->portalSession->clientIP->normalizedIP);
-        # Redirecting to an invalid URL so it is caught by the parking portal
-        $c->res->redirect("http://$fqdn/back-to-parking");
+        # Redirecting back to the portal so it is caught by the parking portal
+        $c->res->redirect("http://$fqdn");
         $c->detach();
     }
 }
@@ -106,7 +105,7 @@ sub setupDynamicRouting : Private {
         session => $c->session,
         profile => $profile,
         request => $request,
-        root_module_id => ( defined($node->{status}) && $node->{status} eq $pf::node::STATUS_PENDING ) ? $PENDING_POLICY : $profile->getRootModuleId(),
+        root_module_id => ( defined($node->{status}) && $node->{status} eq $pf::node::STATUS_PENDING ) ? $PENDING_POLICY : ( ( defined($c->session->{'sub_root_module_id'}) ) ? $c->session->{'sub_root_module_id'} : $profile->getRootModuleId() ),
     );
     $application->session->{client_mac} = $c->portalSession->clientMac;
     $application->session->{client_ip} = $c->portalSession->clientIP->normalizedIP;
@@ -171,6 +170,9 @@ sub dynamic_application :Private {
         $c->response->header('Expire', '10');
         $c->response->body($application->template_output);
         $c->response->status($application->response_code);
+        while(my ($header, $value) = each %{$application->response_headers}) {
+            $c->response->header($header, $value);
+        }
     }
     $c->detach;
 }
@@ -195,10 +197,6 @@ sub setupLanguage : Private {
     }
     $c->stash->{locale} = $newlocale;
     $c->session->{locale} = $newlocale;
-    delete $ENV{'LANGUAGE'}; # Make sure $LANGUAGE is empty otherwise it will override LC_MESSAGES
-    bindtextdomain( "packetfence", "$conf_dir/locale" );
-    bind_textdomain_codeset( "packetfence", "utf-8" );
-    textdomain("packetfence");
 }
 
 
@@ -214,10 +212,14 @@ Retrieve the user preferred languages from the following ordered sources:
 
 =item 3. the browser accepted languages
 
+=item 4. closest locale that match the browser accepted languages
+
 =back
 
 If no language matches the authorized locales from the configuration, the first locale
 of the configuration is returned.
+
+First match wins.
 
 =cut
 
@@ -270,20 +272,20 @@ sub getLanguages :Private {
         }
     }
 
-    # 4. Check the closest language that match the browser
+    # 4. Check the closest locale that match the browser language
     # Browser = fr_FR and portal is en_US and fr_CA then fr_CA will be used
     foreach my $browser_language (@$browser_languages) {
         $browser_language =~ s/^(\w{2})(_\w{2})?/lc($1) . uc($2 || "")/e;
         my $language = $1;
         next unless(defined($language));
-        if (grep(/^$language$/, @authorized_locales)) {
+        if (grep(/^$language(.*)/, @authorized_locales)) {
             $lang = $browser_language;
             my $match = first { /$language(.*)/ } @authorized_locales;
-            push(@languages, $match) unless (grep/^$language$/, @languages);
-            $logger->debug("Language locale from the browser is $lang");
+            push(@languages, $match) unless (grep/^$language(.*)/, @languages);
+            $logger->debug("Closest locale that match the browser language is $match");
         }
         else {
-            $logger->debug("Language locale from the browser $browser_language is not supported");
+            $logger->debug("No closest locale found based on the browser $browser_language");
         }
     }
 
@@ -311,7 +313,6 @@ sub getRequestLanguages : Private{
     my @l = split(/,/, $s);
     map { s/;.+// } @l;
     map { s/-/_/g } @l;
-    #@l = map { m/^en(_US)?/? ():$_ } @l;
 
     return \@l;
 }
@@ -375,7 +376,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2018 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 

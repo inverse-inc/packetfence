@@ -52,6 +52,7 @@ sub _get_db {
         return undef;
     }
     $self->{_db} = $db;
+    $self->{_table} = $cfg->{table} // 'keyed';
     return $db;
 }
 
@@ -81,7 +82,40 @@ sub db_readonly_mode {
         $logger->error("Cannot connect to database to see if its in read-only mode. Will consider it in read-only.");
         return 1;
     }
-    return $result;
+    # If readonly no need to check wsrep health
+    return 1 if $result;
+    # If wsrep is not healthly then it is in readonly mode
+    return !$self->db_wsrep_healthy();
+}
+
+sub db_wsrep_healthy {
+    my ($self) = @_;
+
+    my $logger = get_logger();
+    my $dbh = $self->{_db} || $self->_get_db();
+    return 0 unless $dbh;
+
+    my $sth = $dbh->prepare_cached('show status like "wsrep_provider_name";');
+    return 0 unless $sth->execute;
+    my $row = $sth->fetch;
+    $sth->finish;
+
+    if(defined($row) && $row->[1] ne "") {
+        $logger->debug("There is a wsrep provider, checking the wsrep_ready flag");
+        # check if the wsrep_ready status is ON
+        $sth = $dbh->prepare_cached('show status like "wsrep_ready";');
+        return 0 unless $sth->execute;
+        $row = $sth->fetch;
+        $sth->finish;
+        # If there is no wsrep_ready row, then we're not in read only because we don't use wsrep
+        # If its there and not set to ON, then we're in read only
+        return (defined($row) && $row->[1] eq "ON");
+    }
+    # wsrep isn't enabled
+    else {
+        $logger->debug("No wsrep provider so considering wsrep as healthy");
+        return 1;
+    }
 }
 
 
@@ -125,7 +159,7 @@ sub get {
         $self->clear();
     }
 
-    my $statement = $db->prepare( "SELECT value FROM keyed WHERE id=" . $db->quote($key) );
+    my $statement = $db->prepare( "SELECT value FROM $self->{_table} WHERE id=" . $db->quote($key) );
     eval {
         $statement->execute();
     };
@@ -157,7 +191,7 @@ sub set {
     $value = sereal_encode_with_object($ENCODER, $value);
     my $result;
     eval {
-        $result = $db->do( "REPLACE INTO keyed (id, value) VALUES(?,?)", undef, $key, $value );
+        $result = $db->do( "REPLACE INTO $self->{_table} (id, value) VALUES(?,?)", undef, $key, $value );
     };
     if($@){
         $logger->error("Couldn't insert in table. Error : $@");
@@ -179,7 +213,7 @@ sub remove {
         $self->_db_error();
         return 0;
     }
-    my $result = $db->do( "DELETE FROM keyed where id=?", undef, $key );
+    my $result = $db->do( "DELETE FROM $self->{_table} where id=?", undef, $key );
     return $result;
 }
 
@@ -196,7 +230,7 @@ sub clear {
         $self->_db_error();
         return 0;
     }
-    my $result = $db->do( "DELETE FROM keyed" );
+    my $result = $db->do( "DELETE FROM $self->{_table}" );
     return $result;
 }
 
@@ -215,7 +249,7 @@ sub list {
         return ();
     }
     
-    my $statement = $db->prepare( "SELECT id FROM keyed");
+    my $statement = $db->prepare( "SELECT id FROM $self->{_table}");
     eval {
         $statement->execute();
     };
@@ -243,7 +277,7 @@ sub list_matching {
         return ();
     }
 
-    my $statement = $db->prepare( "SELECT id FROM keyed where id regexp ".$db->quote($expression) );
+    my $statement = $db->prepare( "SELECT id FROM $self->{_table} where id regexp ".$db->quote($expression) );
     eval {
         $statement->execute();
     };
@@ -270,7 +304,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2018 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 

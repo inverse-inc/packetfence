@@ -43,8 +43,8 @@ Matches any the sub conditions
 =cut
 
 sub match {
-    my ($self, $arg) = @_;
-    return any { $_->match($arg) } $self->all_conditions;
+    my ($self, $arg, $args) = @_;
+    return any { $_->match($arg, $args) } $self->all_conditions;
 }
 
 
@@ -54,7 +54,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2018 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 

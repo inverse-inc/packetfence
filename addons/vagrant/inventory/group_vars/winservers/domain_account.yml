@@ -1,0 +1,6 @@
+---
+packetfence_domain_account: 'packetfence'
+packetfence_domain_email: 'packetfence@{{ domain_setup__domain_name }}'
+
+# be careful with password restrictions
+packetfence_domain_password: 'P@ck3tF3nc3pass'

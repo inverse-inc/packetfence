@@ -37,16 +37,17 @@ BEGIN {
         person_view_simple
         person_modify
         person_nodes
-        person_violations
+        person_security_events
         person_cleanup
         persons_without_nodes
+        person_unassign_nodes
         $PID_RE
     );
 }
 
 use pf::dal::person;
 use pf::dal::node;
-use pf::dal::violation;
+use pf::dal::security_event;
 use pf::error qw(is_error is_success);
 use List::MoreUtils qw(any);
 
@@ -68,7 +69,7 @@ our $PID_RE = qr{ [a-zA-Z0-9\-\_\.\@\/\\]+ }x;
 
 our @FIELDS = @pf::dal::_person::FIELD_NAMES;
 
-our @NON_PROMPTABLE_FIELDS = qw(pid sponsor portal source);
+our @NON_PROMPTABLE_FIELDS = qw(pid sponsor portal source tenant_id);
 
 our @PROMPTABLE_FIELDS;
 foreach my $field (@FIELDS){
@@ -199,7 +200,7 @@ sub person_view_all {
     my %where;
     my %search  = (
             -where => \%where,
-            -group_by => 'person.vid',
+            -group_by => 'person.pid',
     );
 
     if ( defined( $params{'where'} ) ) {
@@ -267,7 +268,7 @@ sub person_nodes {
         -where => {
             pid => $pid,
         },
-        -columns => [qw(mac pid regdate unregdate lastskip status user_agent computername device_class time_balance bandwidth_balance)],
+        -columns => [qw(mac pid notes regdate unregdate lastskip status user_agent computername device_class time_balance bandwidth_balance)],
         #To avoid join
         -from => pf::dal::node->table,
         -with_class => undef,
@@ -279,20 +280,44 @@ sub person_nodes {
     return @{$iter->all // []};
 }
 
-sub person_violations {
+=head2 person_unassign_nodes
+
+unassign the nodes of a person
+
+=cut
+
+sub person_unassign_nodes {
     my ($pid) = @_;
-    my ($status, $iter) = pf::dal::violation->search(
+    my ($status, $count) = pf::dal::node->update_items(
         -where => {
             pid => $pid,
         },
-        -from => [-join => qw(violation =>{violation.mac=node.mac} node =>{violation.vid=class.vid} class)],
+        -set => {
+            pid => $default_pid
+        }
+    );
+    if (is_error($status)) {
+        return undef;
+    }
+
+    return $count;
+}
+
+sub person_security_events {
+    my ($pid) = @_;
+    my ($status, $iter) = pf::dal::security_event->search(
+        -where => {
+            pid => $pid,
+        },
+        -from => [-join => qw(security_event =>{security_event.mac=node.mac} node =>{security_event.security_event_id=class.security_event_id} class)],
         -order_by => {-desc => 'start_date'},
+
     );
     if (is_error($status)) {
         return;
     }
 
-    return @{$iter->all // []};
+    return @{$iter->all(undef) // []};
 }
 
 =head2 persons_without_nodes
@@ -303,7 +328,7 @@ Get all the persons who are not the owner of at least one node.
 
 sub persons_without_nodes {
     my ($status, $iter) = pf::dal::person->search(
-        -from => [-join => qw(person =>{node.pid=person.pid} node)],
+        -from => [-join => 'person', '=>{node.pid=person.pid,node.tenant_id=person.tenant_id}', 'node'],
         -columns => ['person.pid'],
         -group_by => 'pid',
         -having => 'count(node.mac)=0',
@@ -322,7 +347,7 @@ Clean all persons that are not the owner of a node and that are not a local acco
 
 sub person_cleanup {
     my @to_delete = map { $_->{pid} } persons_without_nodes();
-    my $now = DateTime->now();
+    my $now = DateTime->now(time_zone => 'local');
     foreach my $pid (@to_delete) {
         if($pf::constants::BUILTIN_USERS{$pid}){
             get_logger->debug("User $pid is set for deletion but is a built-in user. Not deleting...");
@@ -336,6 +361,7 @@ sub person_cleanup {
                 next;
             }
             $expiration = DateTime::Format::MySQL->parse_datetime($expiration);
+            $expiration->set_time_zone('local');
             my $cmp = DateTime->compare($now, $expiration);
             if($cmp < 0){
                 get_logger->debug("Not deleting $pid because the local account is still valid.");
@@ -357,7 +383,7 @@ Minor parts of this file may have been contributed. See CREDITS.
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2018 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 Copyright (C) 2005 Kevin Amorin
 

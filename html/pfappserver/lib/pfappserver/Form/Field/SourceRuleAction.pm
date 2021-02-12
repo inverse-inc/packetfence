@@ -72,7 +72,10 @@ inflate the value from the config store
 sub inflate {
     my ($self, $value) = @_;
     my %condition;
-    @condition{qw(type value)} = split /\s*=\s*/, $value;
+    @condition{qw(type value)} = split /\s*=\s*/, $value,2;
+    if ($condition{type} eq 'set_access_level') {
+        $condition{value} = [split /\s*,\s*/, $condition{value} ];
+    }
     return \%condition;
 }
 
@@ -93,7 +96,7 @@ sub deflate {
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2018 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 

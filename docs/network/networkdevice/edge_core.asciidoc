@@ -1,0 +1,59 @@
+// to display images directly on GitHub
+ifdef::env-github[]
+:encoding: UTF-8
+:lang: en
+:doctype: book
+:toc: left
+:imagesdir: ../../images
+endif::[]
+
+////
+
+    This file is part of the PacketFence project.
+
+    See PacketFence_Network_Devices_Configuration_Guide-docinfo.xml for 
+    authors, copyright and license information.
+
+////
+
+
+//=== Edge core
+
+PacketFence supports Edge-corE switches without VoIP using linkUp/linkDown traps.
+
+PacketFence also supports MAC authentication on the Edge-corE 4510
+
+==== 3526XA and 3528M 
+
+Global config settings 
+
+  SNMP-server host 192.168.1.5 public version 2c udp-port 162 
+
+==== 4510
+
+===== Basic configuration
+
+----
+
+network-access aging
+snmp-server community private rw
+snmp-server community public rw
+
+
+radius-server 1 host 192.168.1.5 auth-port 1812 acct-port 1813 timeout 5 retransmit 2 key useStrongerSecret
+radius-server key useStrongerSecret
+
+----
+
+===== On each controlled interface
+
+----
+
+interface ethernet 1/8
+ switchport allowed vlan add <your list of allowed vlans> untagged
+ network-access max-mac-count 1
+ network-access mode mac-authentication
+!
+
+----
+

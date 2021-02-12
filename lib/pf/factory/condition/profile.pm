@@ -1,4 +1,5 @@
 package pf::factory::condition::profile;
+
 =head1 NAME
 
 pf::factory::condition::profile
@@ -20,11 +21,15 @@ use Module::Pluggable
   require     => 1;
 our $DEFAULT_TYPE = 'ssid';
 our $PROFILE_FILTER_REGEX = qr/^(([^:]|::)+?):(.*)$/;
+use pf::constants::condition_parser qw($TRUE_CONDITION);
 use List::MoreUtils qw(any);
 use pf::condition_parser qw(parse_condition_string);
-use pf::config::util qw(str_to_connection_type);
+use pf::util qw(str_to_connection_type);
 use pf::constants::eap_type qw(%RADIUS_EAP_TYPE_2_VALUES);
 use pf::log;
+use pf::factory::condition;
+use base qw(pf::factory::condition);
+our %FUNC_OPS = %pf::factory::condition::FUNC_OPS;
 
 our %UNARY_OPS = (
     'NOT' => 'pf::condition::not',
@@ -42,11 +47,13 @@ our %CMP_OPS = (
     '!~'  => 'pf::condition::regex_not',
 );
 
-our %OPS = (%LOGICAL_OPS, %CMP_OPS, %UNARY_OPS);
+our %OPS = (%LOGICAL_OPS, %CMP_OPS, %UNARY_OPS, FUNC => 1);
 
-our @MODULES;
+our %NULLABLE_OPS = (
+    '==' => 'pf::condition::not_defined',
+    '!=' => 'pf::condition::is_defined',
+);
 
-__PACKAGE__->modules;
 
 sub factory_for {'pf::condition'};
 
@@ -68,15 +75,8 @@ our %PROFILE_FILTER_TYPE_TO_CONDITION_TYPE = (
     'tenant'              => {type => 'equals',        key  => 'tenant_id'},
     'time'                => {type => 'time'},
     'switch_group'        => {type => 'switch_group',  key  => 'last_switch'},
+    'fqdn'                => {type => 'equals',        key  => 'fqdn'},
 );
-
-sub modules {
-    my ($class) = @_;
-    unless(@MODULES) {
-        @MODULES = $class->_modules;
-    }
-    return @MODULES;
-}
 
 sub instantiate {
     my ($class, @args) = @_;
@@ -125,8 +125,8 @@ my %VALUE_FILTERS = (
 
 sub instantiate_advanced {
     my ($class, $filter) = @_;
-    my ($condition, $msg) = parse_condition_string($filter);
-    die "$msg" unless defined $condition;
+    my ($condition, $err) = parse_condition_string($filter);
+    die $err->{highlighted_error} unless defined $condition;
     return build_conditions($class, $condition);
 }
 
@@ -170,8 +170,35 @@ sub build_conditions {
         my $conditions = [map { build_conditions($self, $_) } @operands];
         return $class->new({conditions => $conditions});
     }
-    my ($first, @keys) = split /\./, $operands[0];
-    my $sub_condition = $class->new({ value => $operands[1] });
+    if (exists $NULLABLE_OPS{$op} && $operands[-1] eq '__NULL__' ) {
+       $class = $NULLABLE_OPS{$op};
+    } 
+    my ($sub_condition, $key);
+    if ($op eq 'FUNC') {
+        my $wrap_in_not;
+        my ($func, $params) = @operands;
+        if (!exists $FUNC_OPS{$func}) {
+            die "op '$func' not handled" unless ($func =~ s/^not_//);
+            die "op 'not_$func' not handled" unless exists $FUNC_OPS{$func};
+            $wrap_in_not = 1;
+        }
+
+        if ($func eq $TRUE_CONDITION) {
+            return pf::condition::true->new();
+        }
+
+        ($key, my $val) = @$params;
+        $sub_condition = $FUNC_OPS{$func}->new(value => $val);
+        if ($wrap_in_not) {
+            $sub_condition = pf::condition::not->new({condition => $sub_condition});
+        }
+
+    } else {
+        $key = $operands[0];
+        $sub_condition = $class->new({ value => $operands[1] });
+    }
+
+    my ($first, @keys) = split /\./, $key;
     if ($first eq 'extended' ) {
         die "No sub fields provided for the extended key\n" unless @keys > 1;
         my $extened_namespace = shift @keys;
@@ -183,7 +210,18 @@ sub build_conditions {
             })
         });
     }
+
+    $first = format_root_key($first);
     return _build_parent_condition($sub_condition, $first, @keys);
+}
+
+sub format_root_key {
+    my ($first) = @_;
+    return
+         exists $PROFILE_FILTER_TYPE_TO_CONDITION_TYPE{$first}
+      && exists $PROFILE_FILTER_TYPE_TO_CONDITION_TYPE{$first}{key}
+      ? $PROFILE_FILTER_TYPE_TO_CONDITION_TYPE{$first}{key}
+      : $first;
 }
 
 sub _build_parent_condition {
@@ -206,7 +244,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2018 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 

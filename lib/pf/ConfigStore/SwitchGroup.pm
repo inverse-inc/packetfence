@@ -1,4 +1,5 @@
 package pf::ConfigStore::SwitchGroup;
+
 =head1 NAME
 
 pf::ConfigStore::SwitchGroup
@@ -12,18 +13,16 @@ pf::ConfigStore::SwitchGroup;
 =cut
 
 use Moo;
+use pf::constants;
 use namespace::autoclean;
-use pf::ConfigStore::Pf;
 use pf::ConfigStore::Group;
 
 extends 'pf::ConfigStore::Switch';
 with 'pf::ConfigStore::Group';
-with 'pf::ConfigStore::Hierarchy';
 with 'pf::ConfigStore::Role::ReverseLookup';
 
-sub group { 'group' };
+sub group { 'group' }
 
-sub globalConfigStore { pf::ConfigStore::Switch->new }
 =head2 canDelete
 
 canDelete
@@ -32,14 +31,18 @@ canDelete
 
 sub canDelete {
     my ($self, $id) = @_;
-    return !$self->isInSwitch('group', $id) && $self->SUPER::canDelete($id);
+    if ($self->isInSwitch('group', $id)) {
+        return "Used is in a switch", $FALSE;
+    }
+
+    return $self->SUPER::canDelete($id);
 }
 
 __PACKAGE__->meta->make_immutable unless $ENV{"PF_SKIP_MAKE_IMMUTABLE"};
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2018 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 

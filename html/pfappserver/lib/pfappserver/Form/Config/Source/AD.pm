@@ -13,10 +13,14 @@ Form definition to create or update a Active Directory user source.
 use HTML::FormHandler::Moose;
 extends 'pfappserver::Form::Config::Source::LDAP';
 
+has_field '+usernameattribute' =>
+  (
+   default => 'sAMAccountName',
+  );
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2018 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 

@@ -22,6 +22,8 @@ use pf::file_paths qw(
 use pf::log;
 use pf::util;
 use pf::cluster;
+use pf::constants;
+use NetAddr::IP;
 
 use pf::config qw(
     $management_network
@@ -33,8 +35,30 @@ use Moo;
 extends 'pf::services::manager';
 
 has '+name' => (default => sub { 'netdata' } );
+has '+optional' => ( default => sub {'1'} );
 
-tie our @authenticationsources, 'pfconfig::cached_array', "resource::authentication_sources";
+tie our @authentication_sources_monitored, 'pfconfig::cached_array', "resource::authentication_sources_monitored";
+
+my $host_id = $pf::config::cluster::host_id;
+
+tie our %NetworkConfig, 'pfconfig::cached_hash', "resource::network_config($host_id)";
+
+=head2 postStartCleanup
+
+Stub method to be implemented in services if needed.
+
+=cut
+
+sub postStartCleanup {
+    my ($self,$quick) = @_;
+    my $logger = get_logger();
+    sleep 40;
+    unless ($self->pid) {
+        $logger->error("$self->name died or has failed to start");
+        return $FALSE;
+    }
+    return $TRUE;
+}
 
 sub generateConfig {
     my ($self,$quick) = @_;
@@ -47,11 +71,13 @@ sub generateConfig {
         $tags{'members'} = join(" ", grep( {$_ ne $management_network->tag('ip')} values %{pf::cluster::members_ips($int)}));
     }
 
-    my @monitor_sources = grep {($_->{'monitor'} // '') eq '1'} @authenticationsources;
 
-    foreach my $source  (@monitor_sources) {
+    foreach my $source  (@authentication_sources_monitored) {
         if ($source->{'host'}) {
-            $tags{'members'} .= " $source->{'host'}";
+            my @members = split(",", $source->{'host'});
+            foreach my $member (@members) {
+                $tags{'members'} .= " $member";
+            }
         }
         if ($source->{'server1_address'}) {
             $tags{'members'} .= " $source->{'server1_address'}";
@@ -66,39 +92,65 @@ sub generateConfig {
             $tags{'alerts'} .= <<"EOT";
 template: eduroam1__source_available
 families: *
-      on: source.$type.eduroam1
+      on: statsd_gauge.source.$type.Eduroam1
    every: 10s
     crit: \$gauge != 1
    units: ok/failed
-    info: states if source eduroam1 is available
+    info: Source eduroam1 unavailable
    delay: down 5m multiplier 1.5 max 1h
       to: sysadmin
 
 template: eduroam2_source_available
 families: *
-      on: source.$type.eduroam2
+      on: statsd_gauge.source.$type.Eduroam2
    every: 10s
     crit: \$gauge != 1
    units: ok/failed
-    info: states if source eduroam2 is available
+    info: Source eduroam2 unavailable
    delay: down 5m multiplier 1.5 max 1h
       to: sysadmin
 
 EOT
         } else {
-            $tags{'alerts'} .= <<"EOT";
+            my @number = split(',',$source->{'host'});
+            for my $source_id (@number) {
+              $tags{'alerts'} .= <<"EOT";
 template: $source->{'id'}_source_available
 families: *
-      on: source.$type.$source->{'id'}
+      on: statsd_gauge.source.$type.$source->{'id'}.$source_id
    every: 10s
     crit: \$gauge != 1
    units: ok/failed
-    info: states if source $source->{'id'} is available
+    info: Source $source->{'id'}.$source_id unavailable
    delay: down 5m multiplier 1.5 max 1h
       to: sysadmin
 
 EOT
+            }
         }
+    }
+
+    foreach my $network ( keys %NetworkConfig ) {
+        my $dev = $NetworkConfig{$network}{'interface'}{'int'};
+        next if !defined $dev;
+        next if isdisabled($NetworkConfig{$network}{'dhcpd'});
+        my $net_addr = NetAddr::IP->new($network,$NetworkConfig{$network}{'netmask'});
+        my $cidr = $net_addr->cidr();
+        $tags{'alerts'} .= <<"EOT";
+template: dhcp_missing_leases_$cidr
+families: *
+      on: statsd_gauge.source.packetfence.dhcp_leases.percentused.$cidr
+      os: linux
+   hosts: *
+   units: %
+   every: 1m
+    warn: \$gauge > 80
+    crit: \$gauge > 90
+   delay: down 5m multiplier 1.5 max 1h
+    info: DHCP leases usage $cidr
+      to: sysadmin
+
+EOT
     }
 
     $tags{'httpd_portal_modstatus_port'} = "$Config{'ports'}{'httpd_portal_modstatus'}";
@@ -106,12 +158,17 @@ EOT
         = defined( $management_network->tag('vip') )
         ? $management_network->tag('vip')
         : $management_network->tag('ip');
-    $tags{'db_host'}       = "$Config{'database'}{'host'}";
+    if ($Config{'database'}{'host'} ne '127.0.0.1') {
+        $tags{'db_host'}       = "$Config{'database'}{'host'}";
+    } else {
+        $tags{'db_host'}       = $tags{'management_ip'};
+    }
     $tags{'db_username'}   = "$Config{'database'}{'user'}";
     $tags{'db_password'}   = "$Config{'database'}{'pass'}";
     $tags{'db_database'}   = "$Config{'database'}{'db'}";
 
     $tags{'active_active_ip'} = pf::cluster::management_cluster_ip() || $management_network->tag('vip') || $management_network->tag('ip');
+    $tags{'statsd_listen_port'} = $Config{'advanced'}{'statsd_listen_port'};
 
     parse_template( \%tags, "$conf_dir/monitoring/netdata.conf", "$generated_conf_dir/monitoring/netdata.conf" );
     parse_template( \%tags, "$conf_dir/monitoring/apps_groups.conf", "$generated_conf_dir/monitoring/apps_groups.conf" );
@@ -183,7 +240,7 @@ EOT
     parse_template( \%tags, "$conf_dir/monitoring/python.d/postfix.conf", "$generated_conf_dir/monitoring/python.d/postfix.conf" );
     parse_template( \%tags, "$conf_dir/monitoring/python.d/redis.conf", "$generated_conf_dir/monitoring/python.d/redis.conf" );
     parse_template( \%tags, "$conf_dir/monitoring/python.d/web_log.conf", "$generated_conf_dir/monitoring/python.d/web_log.conf" );
-    parse_template( \%tags, "$conf_dir/monitoring/statsd.d/example.conf", "$generated_conf_dir/monitoring/statsd.d/example.conf" );
+    parse_template( \%tags, "$conf_dir/monitoring/statsd.d/packetfence.conf", "$generated_conf_dir/monitoring/statsd.d/packetfence.conf" );
     parse_template( \%tags, "$conf_dir/monitoring/stream.conf", "$generated_conf_dir/monitoring/stream.conf" );
     return 1;
 }
@@ -195,7 +252,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2018 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 

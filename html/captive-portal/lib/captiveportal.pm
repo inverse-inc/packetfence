@@ -44,6 +44,8 @@ use pf::CHI::Request;
 use CHI::Driver::SubNamespace;
 
 use pf::config qw(%Config);
+use pf::I18N;
+pf::I18N::setup_text_domain();
 
 extends 'Catalyst';
 
@@ -82,13 +84,14 @@ our $VERSION = '0.01';
 
 __PACKAGE__->config(
     name         => 'captiveportal',
+    encoding     => 'UTF-8',
     # Disable deprecated behavior needed by old applications
     disable_component_resolution_regex_fallback => 1,
     'static'                                    => {
         mime_types => { woff => 'font/woff' },
 
         # Include static content from captive portal in order to render previews of
-        # remediation pages (see pfappserver::Controller::Violation)
+        # remediation pages (see pfappserver::Controller::SecurityEvent)
         include_path => [
             \&loadCustomStatic,
             INSTALL_DIR . '/html/captive-portal',
@@ -137,9 +140,9 @@ Return CSP (Content-Security-Policy) headers
 
 sub csp_server_headers {
     my ($c) = @_;
-    
+
     my $captive_portal_network_detection_ip = $Config{'captive_portal'}{'network_detection_ip'};
-    $c->response->header('Content-Security-Policy' => "default-src 'none'; script-src 'self'; connect-src 'self'; img-src 'self' http://$captive_portal_network_detection_ip/; style-src 'self'; font-src 'self';");
+    $c->response->header('Content-Security-Policy' => "default-src 'none'; frame-src https://js.stripe.com; script-src 'self' https://js.stripe.com https://jstest.authorize.net https://js.authorize.net; connect-src 'self'; img-src 'self' http://$captive_portal_network_detection_ip/; style-src 'self'; font-src 'self';");
 }
 
 =head2 user_cache
@@ -275,7 +278,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2018 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 

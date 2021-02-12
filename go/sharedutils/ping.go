@@ -1,3 +1,5 @@
+// +build linux
+
 package sharedutils
 
 import (
@@ -114,8 +116,8 @@ func parseICMPEcho(b []byte) (*icmpEcho, error) {
 	return p, nil
 }
 
-func Ping(address string, timeout int) bool {
-	err := Pinger(address, timeout)
+func Ping(srcIP net.IP, dstIP net.IP, ifname string, timeout int) bool {
+	err := PingerRaw(srcIP, dstIP, ifname, timeout)
 	return err == nil
 }
 
@@ -139,6 +141,7 @@ func Pinger(address string, timeout int) error {
 	if err != nil {
 		return err
 	}
+
 	if _, err = c.Write(wb); err != nil {
 		return err
 	}
@@ -146,6 +149,31 @@ func Pinger(address string, timeout int) error {
 	rb := make([]byte, 20+len(wb))
 	for {
 		if _, err = c.Read(rb); err != nil {
+			return err
+		}
+		rb = ipv4Payload(rb)
+		if m, err = parseICMPMessage(rb); err != nil {
+			return err
+		}
+		switch m.Type {
+		case icmpv4EchoRequest, icmpv6EchoRequest:
+			continue
+		}
+		break
+	}
+	return nil
+}
+
+func PingerRaw(srcIP net.IP, dstIP net.IP, ifname string, timeout int) error {
+	c := Pingraw(srcIP, dstIP, ifname)
+	c.SetDeadline(time.Now().Add(time.Duration(timeout) * time.Second))
+	defer c.Close()
+
+	var m *icmpMessage
+	var err error
+	rb := make([]byte, 1024)
+	for {
+		if _, _, err = c.ReadFrom(rb); err != nil {
 			return err
 		}
 		rb = ipv4Payload(rb)

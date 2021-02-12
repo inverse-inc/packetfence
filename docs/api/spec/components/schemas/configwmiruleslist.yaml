@@ -1,0 +1,11 @@
+ConfigWMIRulesList:
+  allOf:
+  - $ref: '#/components/schemas/Iterable'
+  - properties:
+      items:
+        description: List
+        items:
+          $ref: '#/components/schemas/ConfigWMIRule'
+        type: array
+    type: object
+  description: List

@@ -1,0 +1,72 @@
+// to display images directly on GitHub
+ifdef::env-github[]
+:encoding: UTF-8
+:lang: en
+:doctype: book
+:toc: left
+:imagesdir: ../../images
+endif::[]
+
+////
+
+    This file is part of the PacketFence project.
+
+    See PacketFence_Network_Devices_Configuration_Guide-docinfo.xml for 
+    authors, copyright and license information.
+
+////
+
+//=== FortiGate
+
+==== Configuration of the RSSO Agent
+
+Go to your FortiGate administration webpage in *User & Device -> User -> User Groups -> Create New*.
+
+[options="compact"]
+* *Name*: RSSO_group
+* *Type*: RADIUS Single Sign-On (RSSO)
+* *RADIUS Attribute Value*: RSSO_Student (use the rolename of PacketFence, it's case sensitive)
+
+image::doc-fortigate-SSO_Role.png[scaledwidth="100%",alt="Create the SSO agent in FortiGate"]
+
+You can also see that in the webpage at *User & Device -> Monitor -> Firewall*
+
+==== Configure the endpoint attribute
+
+The default endpoint attribute is the Calling-Station-Id so the MAC address shows up under User Name, we can change that in CLI:
+
+----
+config user radius
+edit RSSO_agent
+set rsso-endpoint-attribute User-Name
+end
+----
+
+==== Activate the Accounting Listening
+
+Go to *System -> Network -> Interfaces*.
+
+Select the interface that will communicate with PacketFence and check 'Listen for RADIUS Accounting Messages' then confirm.
+
+image::doc-fortigate-SSO_accounting.png[scaledwidth="100%",alt="Configure the accounting listening in the FortiGate"]
+
+==== SSO Configuration in PacketFence
+
+Go to *Configuration -> Integration -> Firewall SSO -> Add Firewall -> FortiGate*.
+
+[options="compact"]
+* *Hostname or IP Address*: IP of your firewall
+* *Secret or Key*: secret (radius shared secret)
+* *Port*: 1813
+* *Roles*: add the roles that you want to do SSO
+
+image::doc-fortigate-cfg_sso_pf.png[scaledwidth="100%",alt="Configure the FortiGate SSO in PacketFence"]
+
+==== Verification
+
+If you want to see if it's working, you can log into the firewall over SSH and run these following commands:
+
+----
+di debug enable
+di debug application radiusd -1
+----

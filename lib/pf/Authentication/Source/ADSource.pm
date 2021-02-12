@@ -29,10 +29,10 @@ sub ldap_attributes {
   my ($self) = @_;
   return (
     $self->SUPER::ldap_attributes,
-     { value => "sAMAccountName", type => $Conditions::SUBSTRING },
-     { value => "sAMAccountType", type => $Conditions::SUBSTRING },
-     { value => "userAccountControl", type => $Conditions::SUBSTRING },
-     { value => "memberOf:1.2.840.113556.1.4.1941:", type => $Conditions::SUBSTRING },
+     { value => "sAMAccountName", type => $Conditions::LDAP_ATTRIBUTE },
+     { value => "sAMAccountType", type => $Conditions::LDAP_ATTRIBUTE },
+     { value => "userAccountControl", type => $Conditions::LDAP_ATTRIBUTE },
+     { value => "memberOf:1.2.840.113556.1.4.1941:", type => $Conditions::LDAP_ATTRIBUTE },
     );
 }
 
@@ -72,7 +72,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2018 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 

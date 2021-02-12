@@ -34,6 +34,15 @@ has_field 'server1_address' => (
     },
 );
 
+has_field 'server1_port' => (
+    type            => 'Port',
+    label           => 'Eduroam server 1 port',
+    element_attr    => {
+        placeholder     => pf::Authentication::Source::EduroamSource->meta->get_attribute('server1_port')->default,
+    },
+    default         => pf::Authentication::Source::EduroamSource->meta->get_attribute('server1_port')->default,
+);
+
 has_field 'server2_address' => (
     type        => 'Text',
     label       => 'Server 2 address',
@@ -44,6 +53,15 @@ has_field 'server2_address' => (
         after_element   => \&help,
         help            => 'Eduroam server 2 address',
     },
+);
+
+has_field 'server2_port' => (
+    type            => 'Port',
+    label           => 'Eduroam server 2 port',
+    element_attr    => {
+        placeholder     => pf::Authentication::Source::EduroamSource->meta->get_attribute('server2_port')->default,
+    },
+    default         => pf::Authentication::Source::EduroamSource->meta->get_attribute('server2_port')->default,
 );
 
 has_field 'radius_secret' => (
@@ -59,7 +77,7 @@ has_field 'radius_secret' => (
 );
 
 has_field 'auth_listening_port' => (
-    type            => 'PosInteger',
+    type            => 'Port',
     label           => 'Authentication listening port',
     tags            => {
         after_element   => \&help,
@@ -115,24 +133,6 @@ sub options_realm {
     return @roles;
 }
 
-=head2 getSourceArgs
-
-get the args to build a source
-
-=cut
-
-sub getSourceArgs {
-    my ($self) = @_;
-    my $args = $self->SUPER::getSourceArgs();
-    for my $r (qw(local_realm reject_realm)) {
-        $args->{$r} //= [];
-        if (ref($args->{$r}) ne "ARRAY" ) {
-            $args->{$r} = [$args->{$r}];
-        }
-    }
-    return $args;
-}
-
 
 =head1 AUTHOR
 
@@ -140,7 +140,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2018 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 

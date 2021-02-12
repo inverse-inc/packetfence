@@ -46,7 +46,7 @@ $VAR1 = [
         [% END %]
         [% FOREACH action IN match.actions %]
         <div>
-        - [% match.rule.name %] : [% action.0 %]('[% action.1.join("', '") %]') 
+        - [% match.rule.name %] : [% action.api_method %]('[% action.api_parameters.join("', '") %]')
         </div>
         [% END %]
       [% END %]

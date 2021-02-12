@@ -46,4 +46,11 @@ func TestPoolStructs(t *testing.T) {
 	if config.PfConf.General.Domain != "pfdemo.org" {
 		t.Error("Struct hasn't been refreshed properly")
 	}
+
+	// Add it again and make sure its only there once
+	p.AddStruct(ctx, config)
+
+	if len(p.structs) > 1 {
+		t.Error("Same struct to refresh was added twice instead of only once")
+	}
 }

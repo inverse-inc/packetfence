@@ -12,8 +12,10 @@ Form definition to create or update a scan engine.
 
 use HTML::FormHandler::Moose;
 extends 'pfappserver::Base::Form';
-with 'pfappserver::Base::Form::Role::Help',
-     'pfappserver::Role::Form::RolesAttribute';
+with qw(
+    pfappserver::Base::Form::Role::Help
+    pfappserver::Role::Form::RolesAttribute
+);
 
 use pf::config;
 use pf::file_paths qw($lib_dir);
@@ -69,7 +71,10 @@ has_field 'duration' =>
   (
    type => 'Duration',
    label => 'Duration',
-   default => '20s',
+   default => {
+    interval => 20,
+    unit => 's',
+   },
    tags => { after_element => \&help,
              help => 'Approximate duration of a scan. User being scanned on registration are presented a progress bar for this duration, afterwards the browser refreshes until scan is complete.' },
   );
@@ -95,7 +100,7 @@ has_field 'post_registration' =>
    type => 'Checkbox',
    label => 'Scan after registration',
    tags => { after_element => \&help,
-             help => 'If this option is enabled, the PF system will scan host after on the production vlan.' },
+             help => 'If this option is enabled, the PF system will scan host after on the production vlan. This will not work for devices that are in an inline VLAN.' },
   );
 
 has_field 'oses' =>
@@ -143,7 +148,7 @@ sub options_type {
     foreach my $vendor (sort keys %paths) {
         my @scan = map {{ value => $_, label => $paths{$vendor}->{$_} }} sort keys %{$paths{$vendor}};
         push @modules, { group => $vendor,
-                         options => \@scan };
+                         options => \@scan, value => '' };
     }
 
     return @modules;
@@ -167,7 +172,7 @@ sub options_categories {
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2018 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 

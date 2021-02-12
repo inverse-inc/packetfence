@@ -50,47 +50,14 @@ fi
 set -x
 
 
-if [ -z "$DEBPATH" ]; then
-    export GOPATH=`mktemp -d`
-else
-    export GOPATH=`mktemp -d -p $DEBPATH`
-fi
-
-export GOPATH
-
-export GOBIN="$GOPATH/bin"
-
-# Exit hook to cleanup the tmp GOPATH when exiting
-function cleanup {
-  rm -rf "$GOPATH"
-}
-trap cleanup EXIT
-
-cd "$GOPATH"
-GOPATHPF="$GOPATH/src/github.com/inverse-inc/packetfence"
-mkdir -p $GOPATHPF
-
-
-find $PFSRC -maxdepth 1 -type d ! -path '*/debian' ! -path '*/logs' ! -path '*/var' ! -path '*/docs' ! -path '*/t' ! -path '*/db' ! -path '*/addons' ! -path '*/.tx' -exec cp -a {} "$GOPATHPF/" \;
-
-cd "$GOPATHPF"
-
-cd go
-
-# Install the dependencies
-go get -u github.com/kardianos/govendor
-$GOPATH/bin/govendor sync
+cd "$PFSRC/go"
 
 if build_mode; then
   # Create any binaries here and make sure to move them to the BINDST specified
-  make pfhttpd
-  mv pfhttpd $BINDST/
-  make pfdhcp
-  mv pfdhcp $BINDST/
-  make pfdns
-  mv pfdns $BINDST/
-  make pfstats
-  mv pfstats $BINDST
+  for service in pfhttpd pfdhcp pfdns pfstats pfdetect galera-autofix;do
+      make $service
+      mv $service $BINDST/
+  done
 
 elif test_mode; then
   make test

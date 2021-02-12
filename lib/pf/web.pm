@@ -37,6 +37,8 @@ use Template;
 use URI::Escape::XS qw(uri_escape uri_unescape);
 use Crypt::OpenSSL::X509;
 use List::MoreUtils qw(any);
+use pf::I18N;
+pf::I18N::setup_text_domain();
 
 BEGIN {
     use Exporter ();
@@ -59,8 +61,9 @@ use pf::ip4log;
 use pf::node qw(node_attributes node_modify node_register node_view is_max_reg_nodes_reached);
 use pf::person qw(person_nodes);
 use pf::util;
-use pf::violation qw(violation_count);
+use pf::security_event qw(security_event_count);
 use pf::web::constants;
+use pf::constants::realm;
 use utf8;
 
 =head1 SUBROUTINES
@@ -105,8 +108,8 @@ sub i18n_format {
     my ($msgid, @args) = @_;
 
     my $result = gettext($msgid);
-    utf8::decode($result);
     $result = sprintf($result, @args);
+    utf8::decode($result);
     return $result;
 }
 
@@ -256,7 +259,7 @@ sub web_user_authenticate {
     }
 
     # validate login and password
-    my ($return, $message, $source_id, $extra) = pf::authentication::authenticate( { 'username' => $username, 'password' => $password, 'rule_class' => $Rules::AUTH }, @sources);
+    my ($return, $message, $source_id, $extra) = pf::authentication::authenticate( { 'username' => $username, 'password' => $password, 'rule_class' => $Rules::AUTH, context => $pf::constants::realm::PORTAL_CONTEXT }, @sources);
 
     if (defined($return) && $return == 1) {
         # save login into session
@@ -275,7 +278,7 @@ Minor parts of this file may have been contributed. See CREDITS.
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2018 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 Copyright (C) 2005 Kevin Amorin
 

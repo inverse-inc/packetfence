@@ -1,100 +1,66 @@
 /config/floating_device/{floating_device_id}:
   delete:
-    parameters: []
+    description: Remove an item
+    operationId: api.v1.Config::FloatingDevices.remove
+    parameters:
+    - in: path
+      name: floating_device_id
+      schema:
+        type: string
     responses:
       '204':
         description: Deleted a config item
-    summary: Delete a config item
+  description: Configure floating devices
   get:
-    parameters: []
-    requestBody:
-      content:
-        application/json:
-          schema:
-            properties:
-              id:
-                description: MAC Address
-                type: string
-              ip:
-                description: IP Address
-                type: string
-              pvid:
-                description: VLAN in which PacketFence should put the port
-                type: integer
-              taggedVlan:
-                description: Comma separated list of VLANs. If the port is a multi-vlan,
-                  these are the VLANs that have to be tagged on the port.
-                type: string
-              trunkPort:
-                description: The port must be configured as a muti-vlan port
-                type: string
-            required:
-            - id
-            - pvid
-            type: object
-      required: true
+    description: Get an item
+    operationId: api.v1.Config::FloatingDevices.get
+    parameters:
+    - in: path
+      name: floating_device_id
+      schema:
+        type: string
     responses:
-      '201':
-        $ref: '#/components/responses/Created'
+      '200':
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ConfigFloatingDevice'
+        description: Item
       '400':
         $ref: '#/components/responses/BadRequest'
       '422':
         $ref: '#/components/responses/UnprocessableEntity'
   patch:
-    parameters: []
+    description: Update an item
+    operationId: api.v1.Config::FloatingDevices.update
+    parameters:
+    - in: path
+      name: floating_device_id
+      schema:
+        type: string
     requestBody:
       content:
         application/json:
           schema:
-            properties:
-              ip:
-                description: IP Address
-                type: string
-              pvid:
-                description: VLAN in which PacketFence should put the port
-                type: integer
-              taggedVlan:
-                description: Comma separated list of VLANs. If the port is a multi-vlan,
-                  these are the VLANs that have to be tagged on the port.
-                type: string
-              trunkPort:
-                description: The port must be configured as a muti-vlan port
-                type: string
-            required:
-            - pvid
-            type: object
-      required: true
+            $ref: '#/components/schemas/ConfigFloatingDevice'
     responses:
-      '201':
-        $ref: '#/components/responses/Created'
       '400':
         $ref: '#/components/responses/BadRequest'
       '422':
         $ref: '#/components/responses/UnprocessableEntity'
   put:
-    parameters: []
+    description: Replace an item
+    operationId: api.v1.Config::FloatingDevices.replace
+    parameters:
+    - in: path
+      name: floating_device_id
+      schema:
+        type: string
     requestBody:
       content:
         application/json:
           schema:
-            properties:
-              ip:
-                description: IP Address
-                type: string
-              pvid:
-                description: VLAN in which PacketFence should put the port
-                type: integer
-              taggedVlan:
-                description: Comma separated list of VLANs. If the port is a multi-vlan,
-                  these are the VLANs that have to be tagged on the port.
-                type: string
-              trunkPort:
-                description: The port must be configured as a muti-vlan port
-                type: string
-            required:
-            - pvid
-            type: object
-      required: true
+            $ref: '#/components/schemas/ConfigFloatingDevice'
     responses:
       '201':
         $ref: '#/components/responses/Created'

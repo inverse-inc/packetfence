@@ -1,43 +1,647 @@
-<div id="dashboard">
+[%
+#
+# CSS grid size as defined in scss/_variables.scss
+#
+SET gridSize = 18;
+SET halfGridSize = gridSize div 2;
 
-  <div class="navbar">
-    <div class="navbar-inner">
-      <div class=" container">
-        <div class="nav-collapse collapse navbar-responsive-collapse">
-          <div class="pull-left">
-            <form class="form-horizontal navbar-search input-daterange"
-                  data-date-format="yyyy-mm-dd">
-              <input type="text" class="input-small" name="start"
-                     value="[% c.session.dashboard.start | html %]"
-                     data-date-format="yyyy-mm-dd" />
-              <i class="icon-arrow-right"></i>
-              <input type="text" class="input-small" name="end"
-                     value="[% c.session.dashboard.end | html %]"
-                     data-date-format="yyyy-mm-dd"
-                     date-datestart="[% c.session.dashboard_start | html %]" />
-              <a id="changeDate" class="btn-icon-primary btn-icon" href="#"><i class="icon-refresh"></i></a>
-            </form>
+#
+# Charts color palettes
+# One palette will be associated to each cluster member
+#
+SET palettes = [
+  '#b2182b #d6604d #f4a582 #fddbc7 #f7f7f7 #d1e5f0 #92c5de #4393c3 #2166ac',
+  '#01665e #35978f #80cdc1 #c7eae5 #f5f5f5 #f6e8c3 #dfc27d #bf812d #8c510a',
+  '#762a83 #9970ab #c2a5cf #e7d4e8 #f7f7f7 #d9f0d3 #a6dba0 #5aae61 #1b7837'
+];
+
+#
+# Make sure the cluster is defined on the stash
+#
+IF cluster.keys.size == 0;
+  SET cluster = { $hostname => '127.0.0.1' };
+END;
+
+%]
+
+[% MACRO palette(n) BLOCK; SET i = n MOD palettes.size; GET palettes.$i; END %]
+
+[% MACRO graph(metric, title, options) BLOCK %]
+    [% IF options.width; width = options.width; ELSE; width = gridSize; END %]
+
+    [% IF options.graph_per_host;
+    hosts = cluster;
+    width = width / hosts.size();
+    ELSE;
+    hosts = [ "127.0.0.1" ];
+    END %]
+
+
+    [% FOREACH host IN hosts%]
+
+      <div class="col[% width %]">
+          <div data-netdata="[% metric %]"
+
+          [% IF options.graph_per_host %]
+          data-host="/netdata/[% host.value %]"
+          [% ELSIF !options.nocluster %]
+          data-host="[% FOREACH member IN cluster %]/netdata/[% member.value %][% IF !loop.last() %],[% END %][% END %]"
+          data-friendly-host-names="[% FOREACH member IN cluster %]/netdata/[% member.value %]=[% member.key %],[% END %]"
+          [% ELSE %]
+          data-host="/netdata/127.0.0.1"
+          [% END %]
+
+          [% IF options.graph_per_host %]
+          data-title="[% title %] on [% host.key %]"
+          [% ELSE %]
+          data-title="[% title %]"
+          [% END %]
+
+          data-chart-library="[% options.chart_library ? options.chart_library : "dygraph" %]"
+          data-colors="[% options.colors ? options.colors : palette(0) %]"
+          data-height="[% options.height ? options.height : "200px" %]"
+          data-before="0"
+          data-after="-7200"
+          [% IF options.valuerange %]
+          data-dygraph-valuerange="[% options.valuerange %]"
+          [% END %]
+
+          [% IF options.filter_graph %]
+          data-filter-graph="[% options.filter_graph %]"
+          [% END %]
+          [% IF options.dimension_graph %]
+          data-dimensions="[% options.dimension_graph %]"
+          [% END %]
+
+          data-hide-missing="true"
+          [% options.additional_html_tags.join(" ") | none %]
+          ></div>
+      </div>
+    [% END %]
+[% END %]
+
+<div id="dashboard">
+    <script id="cluster" type="text/json">
+        {
+            [%- FOREACH member IN cluster %]
+            "[% member.key %]": "[% member.value %]"[% ',' UNLESS loop.last %]
+            [%- END %]
+        }
+    </script>
+    <script>
+      // this section has to appear before loading dashboard.js
+
+      // Disable bootstrap
+      var netdataNoBootstrap = true;
+
+      // Select a theme.
+      // uncomment on of the two themes:
+      var netdataTheme = 'default'; // this is white
+      // var netdataTheme = 'slate'; // this is dark
+
+      // Set the default netdata server.
+      // on charts without a 'data-host', this one will be used.
+      // the default is the server that dashboard.js is downloaded from.
+      var netdataServer = '/netdata/127.0.0.1';
+    </script>
+
+    <!--
+      Load dashboard.js
+      to host this HTML file on your web server,
+      you have to load dashboard.js from the netdata server.
+    -->
+    <script type="text/javascript" src="/netdata/127.0.0.1/dashboard.js?v20170724-7"></script>
+
+
+    <script>
+        // Set options for TV operation
+        // This has to be done, after dashboard.js is loaded
+
+        // destroy charts not shown (lowers memory on the browser)
+        NETDATA.options.current.destroy_on_hide = true;
+
+        // set this to false, to always show all dimensions
+        NETDATA.options.current.eliminate_zero_dimensions = true;
+
+        // lower the pressure on this browser
+        NETDATA.options.current.concurrent_refreshes = false;
+
+        // if the tv browser is too slow (a pi?)
+        // set this to false
+        NETDATA.options.current.parallel_refresher = true;
+
+        // always update the charts, even if focus is lost
+        // NETDATA.options.current.stop_updates_when_focus_is_lost = false;
+
+        // Since you may render charts from many servers and any of them may
+        // become offline for some time, the charts will break.
+        // This will reload the page every RELOAD_EVERY minutes
+        var RELOAD_EVERY = 5;
+        var current_tab;
+        setInterval(function(){
+            var tab = $('#dashboard-tabs').find('.active a').attr('href');
+            tab = tab.replace('#', '');
+            if(tab != current_tab) {
+              current_tab = tab;
+              var change_to = '#graph/dashboard?tab=' + tab;
+              if(history.pushState) {
+                history.pushState(null, null, change_to);
+              }
+              else {
+                location.hash = change_to;
+              }
+            }
+        }, 100);
+        setTimeout(function(){
+            location.reload();
+        }, RELOAD_EVERY * 60 * 1000);
+    </script>
+
+    <!-- alarms templates -->
+    <div class="col3 hide" data-alarm="warning">
+        <div class="alert text-center">
+            <div><h6 data-block="hostname"></h6></div>
+            <div><span data-block="label"></span></div>
+            <div><strong data-block="value"></strong></div>
+        </div>
+    </div>
+    <div class="col3 hide" data-alarm="critical">
+        <div class="alert alert-error text-center">
+            <div><h6 data-block="hostname"></h6></div>
+            <div><span data-block="label"></span></div>
+            <div><strong data-block="value"></strong></div>
+        </div>
+    </div>
+    <!-- end of alarms templates -->
+
+    <!-- missing chart template -->
+    <div class="alert hide" data-template="missing-chart">
+        <h4 class="alert-heading">[% l("What's going on?") %]</h4>
+        <p>[% l("There's not enough data to generate this graph. Is PacketFence in production?") %]</p>
+        <p><small class="muted">chart: <span data-block="chart"></span></small></p>
+    </div>
+
+    <div class="row-flex row-flex--center" id="alarms">
+        <!-- alarms -->
+    </div>
+
+    <div class="card">
+        <div class="card-block text-center">
+            <ul class="nav nav-pills" id="dashboard-tabs">
+                <li [% IF tab == "system" %]class="active"[% END %]><a data-toggle="pill" href="#system">[% l('System') %]</a></li>
+                <li [% IF tab == "radius" %]class="active"[% END %]><a data-toggle="pill" href="#radius">RADIUS</a></li>
+                <li [% IF tab == "authentication" %]class="active"[% END %]><a data-toggle="pill" href="#authentication">[% l('Authentication') %]</a></li>
+                [% IF listen_ints.size > 0 %]<li [% IF tab == "dhcp" %]class="active"[% END %]><a data-toggle="pill" href="#dhcp">DHCP</a></li>[% END %]
+                <li [% IF tab == "endpoints" %]class="active"[% END %]><a data-toggle="pill" href="#endpoints">[% l('Endpoints') %]</a></li>
+                <li [% IF tab == "portal" %]class="active"[% END %]><a data-toggle="pill" href="#portal">[% l('Portal') %]</a></li>
+                <li [% IF tab == "queue" %]class="active"[% END %]><a data-toggle="pill" href="#queue">[% l('Queue') %]</a></li>
+                <li [% IF tab == "logs" %]class="active"[% END %]><a data-toggle="pill" href="#logs">[% l('Logs') %]</a></li>
+            </ul>
+        </div>
+    </dIV>
+
+    <div class="tab-content">
+        <div class="tab-pane[% IF tab == "system" %] active[% END %]" id="system">
+            <div class="row-fluid text-center">
+                [% FOREACH member IN cluster %]
+                <embed src="/netdata/[% member.value %]/api/v1/badge.svg?chart=system.uptime&label=[% member.key %]%20-%20uptime&scale=120&refresh=10&value_color=blue" type="image/svg+xml" height="25" />
+                [% END %]
+            </div>
+            <div class="row-flex">
+                <div class="col6 card">
+                    [%
+                    graph(
+                      "packetfence.devices.registered_per_role",
+                      "Registered devices per role",
+                      {
+                        "nocluster" => 1,
+                        "chart_library" => "d3pie",
+                        "colors" => palette(0),
+                        "height" => "250px"
+                        "additional_html_tags" => ['data-d3pie-smallsegmentgrouping-value="0.5"', 'data-d3pie-smallsegmentgrouping-enabled="true"', 'data-decimal-digits="0"'],
+                      }
+                    )
+                    | none %]
+                </div>
+                <div class="col6 card">
+                    [%
+                    graph(
+                      "packetfence.devices.connected_per_connection_type",
+                      "Connected devices per connection type",
+                      {
+                        "nocluster" => 1,
+                        "chart_library" => "d3pie",
+                        "colors" => palette(1),
+                        "height" => "250px"
+                        "additional_html_tags" => ['data-decimal-digits="0"'],
+                      }
+                    )
+                    | none %]
+                </div>
+                <div class="col6 card">
+                    [%
+                    graph(
+                      "packetfence.devices.connected_per_ssid",
+                      "Connected devices per SSID",
+                      {
+                        "nocluster" => 1,
+                        "chart_library" => "d3pie",
+                        "colors" => palette(2),
+                        "height" => "250px"
+                        "additional_html_tags" => ['data-d3pie-smallsegmentgrouping-value="0.5"', 'data-d3pie-smallsegmentgrouping-enabled="true"', 'data-decimal-digits="0"'],
+                      }
+                    )
+                    | none %]
+                </div>
+            </div>
+            <div class="row-fluid">
+                <div class="offset6 span3 card">
+                    <div class="counter_over_chart">
+                        <div id="packetfence_devices_registered"></div>
+                        <div class="counter_chart_title">[% l('Registered Devices') %]</div>
+                    </div>
+                    [%
+                    graph(
+                      "statsd_gauge_source.packetfence.devices.registered",
+                      "Devices currently registered",
+                      {
+                        "nocluster" => 1,
+                        "chart_library" => "dygraph",
+                        "colors" => palette(0),
+                        "height" => "100px"
+                        "additional_html_tags" => [
+                          'data-decimal-digits="0"',
+                          'data-show-value-of-gauge-at="packetfence_devices_registered"',
+                          'data-dygraph-theme="sparkline"',
+                          'data-dygraph-type="area"',
+                          'data-dimensions="gauge"',
+                        ],
+                      }
+                    )
+                    | none %]
+                </div>
+                <div class="span3 card">
+                    <div class="counter_over_chart">
+                        <div id="packetfence_security_events"></div>
+                        <div class="counter_chart_title">[% l('Open Security Events') %]</div>
+                    </div>
+                    [%
+                    graph(
+                      "statsd_gauge_source.packetfence.security_events", 
+                      "Open security events", 
+                      {
+                        "nocluster" => 1,
+                        "chart_library" => "dygraph",
+                        "colors" => palette(1),
+                        "height" => "100px"
+                        "additional_html_tags" => [
+                          'data-decimal-digits="0"', 
+                          'data-show-value-of-gauge-at="packetfence_security_events"', 
+                          'data-dygraph-theme="sparkline"', 
+                          'data-dygraph-type="area"',
+                          'data-dimensions="gauge"',
+                        ],
+                      }
+                    )
+                    | none %]
+                </div>
+            </div>
+            <div class="card">
+              <div class="card-title">
+                <h2>[% l('System') %]</h2>
+              </div>
+              <div class="card-block">
+                <div class="row-flex">
+                  [% graph("system.cpu", "CPU usage", {"dimension_graph" => "user,system", "width" => halfGridSize, "valuerange" => "[0, 100]"}) | none %]
+                  [% graph("system.cpu", "IO Wait/Soft IRQ", {"dimension_graph" => "iowait,softirq", "width" => halfGridSize, "valuerange" => "[0, 100]"}) | none %]
+                  [% graph("system.load", "System Load Average", {"width" => halfGridSize}) | none %]
+                  [% graph("system.io", "Disk I/O", {"width" => halfGridSize}) | none %]
+                  [% graph("disk_space._", "Disk Space Usage for /", {"width" => halfGridSize}) | none %]
+                  [% graph("system.ram", "System RAM", {"width" => halfGridSize}) | none %]
+                  [% graph("system.swap", "System Swap Used", {"dimension_graph" => "used", "width" => halfGridSize}) | none %]
+                  [% graph("system.swapio", "Swap IO", {"width" => halfGridSize}) | none %]
+                </div>
+              </div>
+            </div>
+            <div class="card">
+              <div class="card-title">
+                <h2>[% l('IPv4 Networking') %]</h2>
+              </div>
+              <div class="card-block">
+                <div class="row-flex">
+                  [% graph("system.ipv4", "IPv4 Bandwidth", {"width" => halfGridSize}) | none %]
+                  [% graph("ipv4.sockstat_sockets", "IPv4 Sockets", {"width" => halfGridSize}) | none %]
+                </div>
+              </div>
+            </div>
+
+            <div class="card">
+              <div class="card-title">
+                <h2>[% l('Database') %]</h2>
+              </div>
+              <div class="card-block">
+                <div class="row-flex">
+                  [% graph("mysql_PacketFence_Database.queries", "Database queries", {"nocluster" => 1}) | none %]
+                  [% graph("mysql_PacketFence_Database.handlers", "Database handlers", {"nocluster" => 1}) | none %]
+                  [% graph("mysql_PacketFence_Database.threads", "Database threads", {"graph_per_host" => 1}) | none %]
+                  [% graph("mysql_PacketFence_Database.connections", "Database connections", {"graph_per_host" => 1}) | none %]
+                </div>
+              </div>
+            </div>
+
+        </div>
+
+        <div class="tab-pane[% IF tab == "radius" %] active[% END %]" id="radius">
+            <div class="card">
+              <div class="card-title">
+                <h2>[% l('RADIUS Latency') %]</h2>
+              </div>
+              <div class="card-block">
+                <div class="row-flex">
+                  [% graph("statsd_timer_pf__api__radius_rest_authorize.timing", "Auth Rest", {"filter_graph" => "average"}) | none %]
+                  [% graph("statsd_timer_pf__api__radius_rest_accounting.timing", "Acct Rest", {"filter_graph" => "average"}) | none %]
+                </div>
+              </div>
+            </div>
+
+            <div class="card">
+              <div class="card-title">
+                <h2>[% l('RADIUS Requests') %]</h2>
+              </div>
+              <div class="card-block">
+                [% IF cluster.size > 1 %]
+                <div class="row-flex">
+                  [% graph("freeradius_Freeradius_LoadBalancer.proxy_auth", "Load balancer auth") | none %]
+                  [% graph("freeradius_Freeradius_LoadBalancer.proxy_acct", "Load balancer acct") | none %]
+                </div>
+                [% END %]
+                <div class="row-flex">
+                  [% graph("freeradius_Freeradius_Auth.authentication", "RADIUS auth") | none %]
+                  [% graph("freeradius_Freeradius_Acct.accounting", "RADIUS acct") | none %]
+                </div>
+              </div>
+            </div>
+
+            <div class="card">
+              <div class="card-title">
+                <h2>[% l('NTLM') %]</h2>
+              </div>
+              <div class="card-block">
+                <div class="row-flex">
+                  [% graph("statsd_timer_ntlm_auth.time", "NTLM latency", {"filter_graph" => "average"}) | none %]
+                  [% graph("statsd_counter_ntlm_auth.failures", "NTLM failures", {"filter_graph" => "counter"}) | none %]
+                </div>
+              </div>
+            </div>
+        </div>
+
+        <div class="tab-pane[% IF tab == "authentication" %] active[% END %]" id="authentication">
+            [% IF sources.size > 0 %]
+            <div class="card">
+              <div class="card-title">
+                <h2>[% l('Authentication Sources') %]</h2>
+              </div>
+              <div class="card-block">
+                <div class="row-flex">
+                  [% FOREACH source IN sources %]
+                    [% FOREACH host IN source.host.split(',') %]
+                    [% graph("fping." _ host.replace('\.', '_') _ "_latency", source.description _ "- ping " _ host, {"nocluster" => 1}) | none %]
+                    [% END %]
+                  [% END %]
+                </div>
+              </div>
+            </div>
+            [% END %]
+
+            <div class="card">
+              <div class="card-title">
+                <h2>[% l('Successful & Unsuccessful RADIUS Authentications') %]</h2>
+              </div>
+              <div class="card-block">
+                <div class="row-flex">
+                  [% graph("statsd_gauge_source.packetfence.authentication.success_last_day", "Successful RADIUS authentications in the last day", {"nocluster" => 1, "width" => halfGridSize}) | none %]
+                  [% graph("statsd_gauge_source.packetfence.authentication.failed_last_day", "Failed RADIUS authentications in the last day", {"nocluster" => 1, "width" => halfGridSize}) | none %]
+                </div>
+              </div>
+            </div>
+        </div>
+
+        <div class="tab-pane[% IF tab == "dhcp" %] active[% END %]" id="dhcp">
+            <div class="card">
+              <div class="card-title">
+                <h2>[% l('DHCP used leases') %]</h2>
+              </div>
+              <div class="card-block">
+                <div class="row-flex">
+                    [% graph("packetfence.dhcp.used_leases", "Numbers of ip addresses assigned") | none %]
+                </div>
+              </div>
+            </div>
+            <div class="card">
+              <div class="card-title">
+                <h2>[% l('DHCP percent used leases') %]</h2>
+              </div>
+              <div class="card-block">
+                <div class="row-flex">
+                    [% graph("packetfence.dhcp.percent_used_leases", "Percent of ip addresses used") | none %]
+                </div>
+              </div>
+            </div>
+        </div>
+
+        <div class="tab-pane[% IF tab == "endpoints" %] active[% END %]" id="endpoints">
+          <div class="card">
+            <div class="card-title">
+              <h2>[% l('Registered & Unregistered Devices') %]</h2>
+            </div>
+            <div class="card-block">
+              <div class="row-flex">
+                [% graph("packetfence.devices.registered_unregistered", "Registration status of online devices", {"nocluster" => 1, "width" => halfGridSize}) | none %]
+                [% graph("statsd_gauge_source.packetfence.devices.registered", "Devices currently registered", {"nocluster" => 1, "width" => halfGridSize, "filter_graph" => "gauge"}) | none %]
+              </div>
+            </div>
+          </div>
+          <div class="card">
+            <div class="card-title">
+              <h2>[% l('Registered Devices Per Role') %]</h2>
+            </div>
+            <div class="card-block">
+              <div class="row-flex">
+                [% graph("packetfence.devices.registered_per_role", "Registered devices per role", {"nocluster" => 1}) | none %]
+              </div>
+            </div>
+          </div>
+          <div class="card">
+            <div class="card-title">
+              <h2>[% l('Registered Devices Per Timeframe') %]</h2>
+            </div>
+            <div class="card-block">
+              <div class="row-flex">
+                [% FOREACH scope IN ["hour", "day", "week", "month", "year"] %]
+                  [% width = scope == "year" ? gridSize : halfGridSize %]
+                  [% graph("statsd_gauge_source.packetfence.devices.registered_last_" _ scope, "New registered devices during the past " _ scope, {"nocluster" => 1, "width" => width, "filter_graph" => "gauge"}) | none %]
+                [% END %]
+              </div>
+            </div>
+          </div>
+          <div class="card">
+            <div class="card-title">
+              <h2>[% l('Device Security Events') %]</h2>
+            </div>
+            <div class="card-block">
+              <div class="row-flex">
+                [% graph("statsd_gauge_source.packetfence.security_events", "Currently open security events", {"nocluster" => 1, "filter_graph" => "gauge"}) | none %]
+              </div>
+            </div>
+          </div>
+
+        </div>
+
+        <div class="tab-pane[% IF tab == "portal" %] active[% END %]" id="portal">
+          <div class="card">
+            <div class="card-title">
+              <h2>[% l('Captive Portal Responses') %]</h2>
+            </div>
+            <div class="card-block">
+              <div class="row-flex">
+                [% FOREACH code IN ["1xx", "2xx", "3xx", "4xx", "5xx", "other"] %]
+                  [% graph("web_log_apache_portal_log.response_codes", code _ " responses", {"width" => halfGridSize, "filter_graph" => code}) | none %]
+                [% END %]
+              </div>
+            </div>
+          </div>
+          <div class="card">
+            <div class="card-title">
+              <h2>[% l('Captive Portal Bandwidth') %]</h2>
+            </div>
+            <div class="card-block">
+              <div class="row-flex">
+                [% graph("web_log_apache_portal_log.bandwidth", "Bandwidth used") | none %]
+              </div>
+            </div>
+          </div>
+          <div class="card">
+            <div class="card-title">
+              <h2>[% l('Captive Portal Response Time') %]</h2>
+            </div>
+            <div class="card-block">
+              <div class="row-flex">
+                [% graph("web_log_apache_portal_log.response_time", "Response time", {"filter_graph" => "avg"}) | none %]
+              </div>
+            </div>
           </div>
         </div>
 
-        <ul class="nav pull-right">
-          <li><a href="#graph/dashboard/-1h">[% l('Past Hour') %]</a></li>
-          <li><a href="#graph/dashboard/-3h">[% l('Past 3 Hours') %]</a></li>
-          <li><a href="#graph/dashboard/-12h">[% l('Past 12 Hours') %]</a></li>
-          <li><a href="#graph/dashboard/-1d">[% l('Past Day') %]</a></li>
-          <li><a href="#graph/dashboard/-1w">[% l('Past Week') %]</a></li>
-          <li><a href="#graph/dashboard/-2w">[% l('Past 2 Weeks') %]</a></li>
-        </ul>
-      </div>
+        <div class="tab-pane[% IF tab == "queue" %] active[% END %]" id="queue">
+          <div class="card">
+            <div class="card-title">
+              <h2>[% l('Queue counts') %]</h2>
+            </div>
+            <div class="card-block">
+              <div class="row-flex">
+                [% FOREACH queue IN queue_stats.stats_data.queue_counts %]
+                  [% graph("packetfence.redis.queue_stats_count", queue.name _ " queue count", {"filter_graph" => queue.name, "width" => halfGridSize}) | none %]
+                [% END %]
+              </div>
+            </div>
+          </div>
+          <div class="card">
+            <div class="card-title">
+              <h2>[% l('Queue tasks outstanding counts') %]</h2>
+            </div>
+            <div class="card-block">
+              <div class="row-flex">
+                [% FOREACH task IN queue_stats.stats_data.miss_counters %]
+                  [% graph("packetfence.redis.queue_stats_outstanding", task.name _ " outstanding", {"filter_graph" => task.name.replace(":", "_"), "width" => halfGridSize}) | none %]
+                [% END %]
+              </div>
+            </div>
+          </div>
+          <div class="card">
+            <div class="card-title">
+              <h2>[% l('Queue tasks expired counts') %]</h2>
+            </div>
+            <div class="card-block">
+              <div class="row-flex">
+                [% FOREACH task IN queue_stats.stats_data.miss_counters %]
+                  [% graph("packetfence.redis.queue_stats_expired", task.name _ " expired", {"filter_graph" => task.name.replace(":", "_"), "width" => halfGridSize}) | none %]
+                [% END %]
+              </div>
+            </div>
+          </div>
+        <div class="tab-pane[% IF tab == "logs" %] active[% END %]" id="logs">
+          <div class="card">
+            <div class="card-title">
+              <h2>[% l('packetfence.log') %]</h2>
+            </div>
+              <div class="card-block">
+                <div class="row-flex">
+                    [% graph("packetfence.logs.packetfence_log", "Number of events") | none %]
+                </div>
+              </div>
+          </div>
+          <div class="card">
+            <div class="card-title">
+              <h2>[% l('pfdhcp.log') %]</h2>
+            </div>
+              <div class="card-block">
+                <div class="row-flex">
+                    [% graph("packetfence.logs.pfdhcp_log", "Number of events") | none %]
+                </div>
+              </div>
+          </div>
+          <div class="card">
+            <div class="card-title">
+              <h2>[% l('load_balancer.log') %]</h2>
+            </div>
+              <div class="card-block">
+                <div class="row-flex">
+                    [% graph("packetfence.logs.load_balancer_log", "Number of events") | none %]
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="card">
+            <div class="card-title">
+              <h2>[% l('radius.log') %]</h2>
+            </div>
+              <div class="card-block">
+                <div class="row-flex">
+                    [% graph("packetfence.logs.radius_log", "Number of events") | none %]
+                </div>
+              </div>
+          </div>
+          <div class="card">
+            <div class="card-title">
+              <h2>[% l('mariadb_error.log') %]</h2>
+            </div>
+              <div class="card-block">
+                <div class="row-flex">
+                    [% graph("packetfence.logs.mariadb_error_log", "Number of events") | none %]
+                </div>
+              </div>
+          </div>
+          <div class="card">
+            <div class="card-title">
+              <h2>[% l('pfcron.log') %]</h2>
+            </div>
+              <div class="card-block">
+                <div class="row-flex">
+                    [% graph("packetfence.logs.pfcron_log", "Number of events") | none %]
+                </div>
+              </div>
+          </div>
+          <div class="card">
+            <div class="card-title">
+              <h2>[% l('fingerbank.log') %]</h2>
+            </div>
+              <div class="card-block">
+                <div class="row-flex">
+                    [% graph("packetfence.logs.fingerbank_log", "Number of events") | none %]
+                </div>
+              </div>
+          </div>
+        </div>
     </div>
-  </div>
 
-  <div class="card-block">
-  [% FOREACH graph IN graphs %]
-  <span class="graph graph-[% graph.columns %]c">
-    <h4>[% graph.description %]</h4>
-    <img src="[% graph.url %]" height="[% graph.height %]" width="[% graph.width %]">
-  </span>
-  [%- END %]
-  </div>
 </div>

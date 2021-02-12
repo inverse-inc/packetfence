@@ -27,21 +27,24 @@ use Sys::Hostname;
 use base 'pfconfig::namespaces::config';
 
 sub init {
-    my ($self) = @_;
+    my ($self, $host_id) = @_;
+    $self->{host_id} = $host_id;
     $self->{file} = $domain_config_file;
-    $self->{child_resources} = [ 'resource::domain_dns_servers' ];
+    $self->{child_resources} = [ 'resource::domain_dns_servers', 'resource::NtlmRedisCachedDomains' ];
 }
 
 sub build_child {
     my ($self) = @_;
+    my %reverseLookup;
 
     my %tmp_cfg = %{$self->{cfg}};
 
     # Inflate %h to the host machine name
     # This is done since Samba 4+ doesn't inflate it itself anymore
     while(my ($id, $cfg) = each(%tmp_cfg)){
-        if(lc($cfg->{server_name}) eq "%h") {
-            $cfg->{server_name} = [split(/\./,hostname())]->[0];
+        if(lc($cfg->{server_name}) =~ /%h/) {
+            my $name = [split(/\./,( $self->{host_id} // hostname() ) )]->[0];
+            $cfg->{server_name} =~ s/%h/$name/;
         }
     }
 
@@ -57,7 +60,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2018 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 

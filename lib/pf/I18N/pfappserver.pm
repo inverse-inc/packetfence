@@ -67,6 +67,10 @@ localize using the default handle
 
 sub localize {
     my ($self, $text, $args) = @_;
+    if (ref $text eq 'ARRAY') {
+        my $msg = shift(@$text);
+        return _loc($msg, @$text)
+    }
     if (ref $args eq 'ARRAY') {
         return _loc($text, @$args);
     }
@@ -122,7 +126,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2018 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 

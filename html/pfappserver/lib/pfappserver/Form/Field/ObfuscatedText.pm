@@ -37,12 +37,14 @@ sub element_attributes {
         $attr->{'x-placeholder'} = $attr->{placeholder};
         $attr->{placeholder} =~ s/./\*/g;
     }
+
+    $attr->{autocomplete} = 'off';
     return $attr;
 }
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2018 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 

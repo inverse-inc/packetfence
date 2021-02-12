@@ -89,7 +89,6 @@ sub authorizeMAC {
         if ( !defined($result) ) {
             $logger->error( "Error deauthorizing $deauthVlan $deauthMac on ifIndex $ifIndex: "
                     . $self->{_sessionWrite}->error );
-                return 0;
         }
         else {
             $logger->info("Deauthorizing $deauthVlan $deauthMac on ifIndex $ifIndex");
@@ -388,7 +387,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2018 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 

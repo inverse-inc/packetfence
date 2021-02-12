@@ -31,6 +31,7 @@ use base qw(pf::base::cmd::action_cmd);
 use pf::file_paths qw($bin_dir);
 use pf::log;
 use pf::constants::exit_code qw($EXIT_SUCCESS $EXIT_FAILURE);
+use pf::ip4log;
 
 Readonly my $delimiter => '|';
 Readonly my $PFCMD     => $bin_dir . "/pfcmd";
@@ -98,8 +99,19 @@ sub action_now {
     my ($hostaddr) = $self->action_args;
     $logger->trace("pcmd schedule now called for $hostaddr");
 
+    my $host_mac = pf::ip4log::ip2mac($hostaddr);
+
+    my $profile = pf::Connection::ProfileFactory->instantiate($host_mac);
+    my @scanners = $profile->findScans($host_mac);
+    my $current_scan = pop @scanners;
+
     require pf::scan;
-    pf::scan::run_scan($hostaddr);
+
+    while(defined($current_scan)){
+        $logger->debug("Scheduled Scan -- Current Scan Engine Is -- > $current_scan");
+        pf::scan::run_scan($hostaddr,$host_mac,$current_scan);
+        $current_scan = pop @scanners;
+    }
 
     $logger->trace("leaving pfcmd schedule now $hostaddr");
     return $EXIT_SUCCESS;
@@ -275,7 +287,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2018 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 

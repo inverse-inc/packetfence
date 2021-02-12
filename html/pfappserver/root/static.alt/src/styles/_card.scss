@@ -2,4 +2,17 @@
 
 .card {
     box-shadow: 0 3px 0 0 $card-border-color;
+    &.border-light {
+        border: none;
+        box-shadow: none;
+    }
+    &.card-sm {
+        .card-header, .card-body, .card-footer {
+            padding: $card-spacer-x/2;
+        }
+        .card-header, .card-footer {
+            padding-right: $card-spacer-x/2 + map-get($spacers, 1);
+            padding-left: $card-spacer-x/2 + map-get($spacers, 1);
+        }
+    }
 }
