@@ -138,7 +138,7 @@ import {
   FormGroupNtlmCacheExpiry,
   FormGroupNtlmCacheBatch,
   FormGroupNtlmCacheBatchOneAtATime,
-  FormGroupNtlmCacheOnConnection,
+  FormGroupNtlmCacheOnConnection
 } from './'
 
 const components = {

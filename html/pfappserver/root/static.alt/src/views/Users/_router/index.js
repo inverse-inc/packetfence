@@ -1,15 +1,25 @@
+import store from '@/store'
 import acl from '@/utils/acl'
 import i18n from '@/utils/locale'
-import store from '@/store'
-import FormStore from '@/store/base/form'
-import UsersView from '../'
-import UsersStore from '../_store'
 
+import UsersStoreModule from '../_store'
+
+import UsersView from '../'
 const UsersSearch = () => import(/* webpackChunkName: "Users" */ '../_components/UsersSearch')
-const UsersCreate = () => import(/* webpackChunkName: "Users" */ '../_components/UsersCreate')
+//const UsersCreate = () => import(/* webpackChunkName: "Users" */ '../_components/UsersCreate')
 const UsersPreview = () => import(/* webpackChunkName: "Users" */ '../_components/UsersPreview')
-const UserView = () => import(/* webpackChunkName: "Users" */ '../_components/UserView')
+//const UserView = () => import(/* webpackChunkName: "Users" */ '../_components/UserView')
 const UsersImport = () => import(/* webpackChunkName: "Editor" */ '../_components/UsersImport')
+
+const TheViewCreate = () => import(/* webpackChunkName: "Users" */ '../_components/TheViewCreate')
+const TheViewUpdate = () => import(/* webpackChunkName: "Users" */ '../_components/TheViewUpdate')
+
+export const beforeEnter = (to, from, next = () => {}) => {
+  if (!store.state.$_users) {
+    store.registerModule('$_users', UsersStoreModule)
+  }
+  next()
+}
 
 const route = {
   path: '/users',
@@ -21,19 +31,13 @@ const route = {
     transitionDelay: 300 * 2 // See _transitions.scss => $slide-bottom-duration
   },
   props: { storeName: '$_users' },
-  beforeEnter: (to, from, next) => {
-    if (!store.state.$_users) {
-      // Register store module only once
-      store.registerModule('$_users', UsersStore)
-    }
-    next()
-  },
+  beforeEnter,
   children: [
     {
       path: 'search',
       name: 'userSearch',
       component: UsersSearch,
-      props: (route) => ({ storeName: '$_users', query: route.query.query }),
+      props: (route) => ({ query: route.query.query }),
       meta: {
         can: 'read users',
         isFailRoute: true
@@ -42,14 +46,7 @@ const route = {
     {
       path: 'create',
       name: 'userCreate',
-      component: UsersCreate,
-      props: { formStoreName: 'formUsersCreate' },
-      beforeEnter: (to, from, next) => {
-        if (!store.state.formUsersCreate) { // Register store module only once
-          store.registerModule('formUsersCreate', FormStore)
-        }
-        next()
-      },
+      component: TheViewCreate,
       meta: {
         can: 'create users'
       }
@@ -58,13 +55,6 @@ const route = {
       path: 'import',
       name: 'userImport',
       component: UsersImport,
-      props: () => ({ formStoreName: 'formUserImport' }),
-      beforeEnter: (to, from, next) => {
-        if (!store.state.formUserImport) { // Register store module only once
-          store.registerModule('formUserImport', FormStore)
-        }
-        next()
-      },
       meta: {
         can: 'create users'
       }
@@ -73,7 +63,6 @@ const route = {
       path: 'preview',
       name: 'usersPreview',
       component: UsersPreview,
-      props: { storeName: '$_users' },
       meta: {
         can: 'create users'
       }
@@ -81,21 +70,19 @@ const route = {
     {
       path: '/user/:pid',
       name: 'user',
-      component: UserView,
-      props: (route) => ({ formStoreName: 'formUserView', pid: route.params.pid }),
+      component: TheViewUpdate,
+      props: (route) => ({ pid: route.params.pid }),
+      meta: {
+        can: 'read users'
+      },
       beforeEnter: (to, from, next) => {
-        if (!store.state.formUserView) { // Register store module only once
-          store.registerModule('formUserView', FormStore)
-        }
+        beforeEnter()
         store.dispatch('$_users/getUser', to.params.pid).then(() => {
           next()
         }).catch(() => { // `pid` does not exist
           store.dispatch('notification/danger', { message: i18n.t('User <code>{pid}</code> does not exist or is not available for this tenant.', to.params) })
           next({ name: 'userSearch' })
         })
-      },
-      meta: {
-        can: 'read users'
       }
     }
   ]
