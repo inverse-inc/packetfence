@@ -1,0 +1,10 @@
+name: Check Wlan1 interface status on wireless01
+version: 2
+testcases:
+- name: check_wlan1_int_status_on_wireless01
+  steps:
+  - type: exec
+    script: "sudo ip a s wlan1"
+    assertions:
+      - result.systemout ShouldContainSubstring "state DOWN"
+      - result.statuscode ShouldEqual 0
