@@ -1,0 +1,9 @@
+name: Enable MAC Authentication on dot1x interface on wireless01
+version: 2
+testcases:
+- name: enable_mac_auth_on_wireless01_wlan0
+  steps:
+    - type: ssh
+      host: '{{.wireless01_mgmt_ip}}'
+      user: '{{.ssh_user}}'
+      command: '/src/t/venom/venom-wrapper.sh {{.switch_test_suite_dir}}/common/disable_wlan0_mac_auth_int.yml'
