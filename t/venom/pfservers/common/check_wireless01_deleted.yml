@@ -1,7 +1,7 @@
-name: Check if node01 has been correctly deleted
+name: Check if wireless01 wlan1 has been correctly deleted
 version: 2
 testcases:
-- name: check_node01_deleted
+- name: check_wireless01_wlan1_deleted
   steps:
   - type: http
     method: GET
