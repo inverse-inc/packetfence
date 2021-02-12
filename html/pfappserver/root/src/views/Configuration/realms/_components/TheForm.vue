@@ -67,16 +67,6 @@
           :text="$i18n.t('Write the unlang definition of the virtual server. This will be used if you enabled Enable Virtual Server')"
         />
 
-        <form-group-radius-auth-home-server-pool-fallback namespace="radius_auth_home_server_pool_fallback"
-          :column-label="$i18n.t('Enable Fallback Server')"
-          :text="$i18n.t('If enable then if ALL home_servers are dead this one will be used')"
-        />
-
-        <form-group-radius-auth-fallback-server-options namespace="radius_auth_fallback_server_options"
-          :column-label="$i18n.t('Authentication fallback server options')"
-          :text="$i18n.t('Write the unlang definition of the fallback server. This will be used if you enabled Enable Fallback')"
-        />
-
         <form-group-radius-auth-compute-in-pf namespace="radius_auth_compute_in_pf"
           :column-label="$i18n.t('Authorize from PacketFence')"
           :text="$i18n.t('Should we forward the request to PacketFence to have a dynamic answer or do we use the remote proxy server answered attributes?')"
@@ -100,16 +90,6 @@
         <form-group-radius-acct-virtual-server-options namespace="radius_acct_virtual_server_options"
           :column-label="$i18n.t('Accounting virtual server options')"
           :text="$i18n.t('Write the unlang definition of the virtual server. This will be used if you enabled Enable Virtual Server')"
-        />
-
-        <form-group-radius-acct-home-server-pool-fallback namespace="radius_acct_home_server_pool_fallback"
-          :column-label="$i18n.t('Enable Fallback Server')"
-          :text="$i18n.t('If enable then if ALL home_servers are dead this one will be used')"
-        />
-
-        <form-group-radius-acct-fallback-server-options namespace="radius_acct_fallback_server_options"
-          :column-label="$i18n.t('Accounting fallback server options')"
-          :text="$i18n.t('Write the unlang definition of the fallback server. This will be used if you enabled Enable Fallback')"
         />
 
       </base-form-tab>
@@ -205,15 +185,11 @@ import {
   FormGroupRadiusAuthProxyType,
   FormGroupradiusAuthHomeServerPoolVirtualServer,
   FormGroupRadiusAuthVirtualServerOptions,
-  FormGroupRadiusAuthHomeServerPoolFallback,
-  FormGroupRadiusAuthFallbackServerOptions,
   FormGroupRadiusAuthComputeInPf,
   FormGroupRadiusAcct,
   FormGroupRadiusAcctProxyType,
   FormGroupRadiusAcctHomeServerPoolVirtualServer,
   FormGroupRadiusAcctVirtualServerOptions,
-  FormGroupRadiusAcctHomeServerPoolFallback,
-  FormGroupRadiusAcctFallbackServerOptions,
   FormGroupEduroamOptions,
   FormGroupEduroamRadiusAuth,
   FormGroupEduroamRadiusAuthProxyType,
@@ -243,15 +219,11 @@ const components = {
   FormGroupRadiusAuthProxyType,
   FormGroupradiusAuthHomeServerPoolVirtualServer,
   FormGroupRadiusAuthVirtualServerOptions,
-  FormGroupRadiusAuthHomeServerPoolFallback,
-  FormGroupRadiusAuthFallbackServerOptions,
   FormGroupRadiusAuthComputeInPf,
   FormGroupRadiusAcct,
   FormGroupRadiusAcctProxyType,
   FormGroupRadiusAcctHomeServerPoolVirtualServer,
   FormGroupRadiusAcctVirtualServerOptions,
-  FormGroupRadiusAcctHomeServerPoolFallback,
-  FormGroupRadiusAcctFallbackServerOptions,
   FormGroupEduroamOptions,
   FormGroupEduroamRadiusAuth,
   FormGroupEduroamRadiusAuthProxyType,
