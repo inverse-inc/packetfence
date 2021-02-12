@@ -4,7 +4,7 @@
     :invalid-feedback="inputInvalidFeedback"
     :valid-feedback="inputValidFeedback"
     :text="inputText"
-    :isFocus="isFocus"
+    :isFocus="isFocus || isShown"
     :isLocked="isLocked"
   >
     <b-form-input ref="input"
@@ -21,19 +21,11 @@
       @blur="onBlur"
     />
     <template v-slot:append>
-      <b-button v-if="isLocked"
-        class="input-group-text"
-        :disabled="true"
-        tabIndex="-1"
-      >
-        <icon ref="icon-lock"
-          name="lock"
-        />
-      </b-button>
-      <b-form-datepicker v-else
+      <b-form-datepicker v-if="!isLocked"
         ref="datepickerRef"
         button-only right
         button-variant="light"
+        menu-class="my-2"
         :locale="$i18n.locale"
         :state="inputState"
         :value="inputValue"

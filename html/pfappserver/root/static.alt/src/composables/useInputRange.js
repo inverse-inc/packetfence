@@ -77,7 +77,7 @@ export const useInputRange = (props, { emit, refs }, inputRef = 'input') => {
   ))
 
   const valueStyle = computed(() => ({
-    left: `${percent.value}%`
+    left: `${percent.value || 0}%`
   }))
 
   // methods

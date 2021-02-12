@@ -1,4 +1,5 @@
 import * as yup from 'yup'
+import { parse, format, isValid, compareAsc } from 'date-fns'
 import i18n from '@/utils/locale'
 
 yup.setLocale({ // default validators
@@ -91,6 +92,7 @@ const reEmail = value => /(^$|^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*
 const reIpv4 = value => /^(([0-9]{1,3}.){3,3}[0-9]{1,3})$/i.test(value)
 const reIpv6 = value => /^(([0-9a-fA-F]{1,4}:){7,7}[0-9a-fA-F]{1,4}|([0-9a-fA-F]{1,4}:){1,7}:|([0-9a-fA-F]{1,4}:){1,6}:[0-9a-fA-F]{1,4}|([0-9a-fA-F]{1,4}:){1,5}(:[0-9a-fA-F]{1,4}){1,2}|([0-9a-fA-F]{1,4}:){1,4}(:[0-9a-fA-F]{1,4}){1,3}|([0-9a-fA-F]{1,4}:){1,3}(:[0-9a-fA-F]{1,4}){1,4}|([0-9a-fA-F]{1,4}:){1,2}(:[0-9a-fA-F]{1,4}){1,5}|[0-9a-fA-F]{1,4}:((:[0-9a-fA-F]{1,4}){1,6})|:((:[0-9a-fA-F]{1,4}){1,7}|:)|fe80:(:[0-9a-fA-F]{0,4}){0,4}%[0-9a-zA-Z]{1,}|::(ffff(:0{1,4}){0,1}:){0,1}((25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])\.){3,3}(25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])|([0-9a-fA-F]{1,4}:){1,4}:((25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])\.){3,3}(25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9]))$/i.test(value)
 const reFilename = value => /^[^\\/?%*:|"<>]+$/.test(value)
+const reNumeric = value => /^[0-9]*$/.test(value)
 // eslint-disable-next-line no-useless-escape
 const reStaticRoute = value => /^(?:[0-9]{1,3}\.){3}[0-9]{1,3}\/?(\d+)?\s+?via\s+(?:[0-9]{1,3}\.){3}[0-9]{1,3}\s+?dev\s+[a-z,0-9\.]+$/i.test(value)
 
@@ -156,6 +158,65 @@ yup.addMethod(yup.string, 'isCommonName', function (message) {
     name: 'isCommonName',
     message: message || i18n.t('Invalid character, only letters (A-Z), numbers (0-9), underscores (_), or colons (:).'),
     test: value => ['', null, undefined].includes(value) || reCommonName(value)
+  })
+})
+
+yup.addMethod(yup.string, 'isDateCompare', function (comparison, date = new Date(), dateFormat = 'YYYY-MM-DD HH:mm:ss', message) {
+  return this.test({
+    name: 'isDateCompare',
+    message: i18n.t('Invalid date.'),
+    test: function (value) {
+      if (['', null, undefined].includes(value) || ['', null, undefined].includes(date))
+        return true
+      // handle zero dates (substitute with max)
+      if ([0, '0'].includes(value))
+        value = new Date(8640000000000000)
+      if ([0, '0'].includes(date))
+        date = new Date(8640000000000000)
+      // round date/value using date-fns format
+      const _date = format((date instanceof Date && isValid(date) ? date : parse(date)), dateFormat)
+      const _value = format((value instanceof Date && isValid(value) ? value : parse(value)), dateFormat)
+      const cmp = compareAsc(parse(_value), parse(_date))
+      switch (true) {
+        case ['>', 'gt'].includes(comparison) && !(cmp > 0):
+        case ['>=', 'gte'].includes(comparison) && !(cmp >= 0):
+        case ['<', 'lt'].includes(comparison) && !(cmp < 0):
+        case ['<=', 'lte'].includes(comparison) && !(cmp <= 0):
+        case ['===', 'eq'].includes(comparison) && !(cmp === 0):
+        case ['!==', 'ne'].includes(comparison) && !(cmp !== 0):
+          return this.createError({ message: message || i18n.t('Invalid date, must be {comparison} {date}.', { comparison, date: _date }) })
+          // break
+        default:
+          return true
+      }
+    }
+  })
+})
+
+yup.addMethod(yup.string, 'isDateFormat', function (message, dateFormat = 'YYYY-MM-DD HH:mm:ss') {
+  return this.test({
+    name: 'isDateFormat',
+    message: message || i18n.t('Invalid date, use format "{dateFormat}".', { dateFormat }),
+    test: value => {
+      return (
+        ['', null, undefined].includes(value)
+        || dateFormat.replace(/[a-z]/gi, '0') === value.replace(/[0-9]/g, '0') // '0000-00-00 00:00:00' === '0000-00-00 00:00:00'
+      )
+    }
+  })
+})
+
+yup.addMethod(yup.string, 'isDateFormatOrZero', function (message, dateFormat = 'YYYY-MM-DD HH:mm:ss') {
+  return this.test({
+    name: 'isDateFormatOrZero',
+    message: message || i18n.t('Invalid date, use format "{dateFormat}".', { dateFormat }),
+    test: value => {
+      return (
+        ['', null, undefined].includes(value)
+        || [0, '0'].includes(value)
+        || dateFormat.replace(/[a-z]/gi, '0') === value.replace(/[0-9]/g, '0') // '0000-00-00 00:00:00' === '0000-00-00 00:00:00'
+      )
+    }
   })
 })
 
@@ -299,6 +360,64 @@ yup.addMethod(yup.string, 'isVLAN', function (message) {
     name: 'isVlan',
     message: message || i18n.t('Invalid VLAN.'),
     test: value => ['', null, undefined].includes(value) || (+value === parseFloat(value) && +value >= 1 && +value <= 4096)
+  })
+})
+
+export class MysqlColumn {}
+export class MysqlString extends MysqlColumn {}
+export class MysqlNumber extends MysqlColumn {}
+export class MysqlDatetime extends MysqlColumn {}
+export class MysqlEnum extends MysqlColumn {}
+export class MysqlEmail extends MysqlColumn {}
+export class MysqlMac extends MysqlColumn {}
+
+yup.addMethod(yup.string, 'mysql', function(columnSchema) {
+  return this.test({
+    name: 'database',
+    message: i18n.t('Unknown error.'),
+    test: function (value) {
+      if (['', null, undefined].includes(value))
+        return true
+      const { type, maxLength, min, max,
+        format = 'YYYY-MM-DD HH:mm:ss',
+        ['enum']: _enum = [] // reserved word
+      } = columnSchema
+
+      if ([MysqlString, MysqlDatetime, MysqlEmail].includes(type) && value.length && value.length > maxLength)
+        return this.createError({ message: i18n.t('Maximum {maxLength} characters.', columnSchema) })
+
+      switch (true) {
+        case (type === MysqlDatetime):
+          if (!([0, '0'].includes(value)) && format.replace(/[a-z]/gi, '0') !== value.replace(/[0-9]/g, '0'))
+            return this.createError({ message: i18n.t('Invalid datetime, use format "{format}".', { format }) })
+          break
+
+        case (type === MysqlNumber):
+          if (!reNumeric(value))
+            return this.createError({ message: i18n.t('Must be numeric.') })
+          if (+value < +min)
+            return this.createError({ message: i18n.t('Minimum value of {min}.', columnSchema) })
+          if (+value > +max)
+            return this.createError({ message: i18n.t('Maximum value of {max}.', columnSchema) })
+          break
+
+        case (type === MysqlEnum):
+          if (_enum.length && !_enum.includes(value))
+            return this.createError({ message: i18n.t('Invalid value.') })
+          break
+
+        case (type === MysqlEmail):
+          if (!reEmail(value))
+            return this.createError({ message: i18n.t('Invalid email.') })
+          break
+
+        case (type === MysqlMac):
+          if (value.toLowerCase().replace(/[^0-9a-f]/g, '').length !== 12)
+            return this.createError({ message: i18n.t('Invalid MAC.') })
+          break
+      }
+      return true
+    }
   })
 })
 

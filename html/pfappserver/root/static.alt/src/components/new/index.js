@@ -48,6 +48,7 @@ import BaseInputGroupMultiplier from './BaseInputGroupMultiplier'
 import BaseInputNumber from './BaseInputNumber'
 import BaseInputPassword from './BaseInputPassword'
 import BaseInputRange from './BaseInputRange'
+import BaseInputRangePromise from './BaseInputRangePromise'
 import BaseInputToggle, { props as BaseInputToggleProps } from './BaseInputToggle'
 import BaseInputToggleAdvancedMode from './BaseInputToggleAdvancedMode'
 import BaseInputToggleFalseTrue from './BaseInputToggleFalseTrue'
@@ -102,6 +103,7 @@ export {
   BaseInputNumber,
   BaseInputPassword,
   BaseInputRange,
+  BaseInputRangePromise,
   BaseInputToggle, BaseInputToggleProps,
   BaseInputToggleAdvancedMode,
   BaseInputToggleFalseTrue,
