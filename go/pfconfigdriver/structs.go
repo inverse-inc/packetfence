@@ -178,6 +178,7 @@ type PfConfServices struct {
 	Iptables             string `json:"iptables"`
 	Keepalived           string `json:"keepalived"`
 	Netdata              string `json:"netdata"`
+	NetFlowAddress       string `json:"netflow_address"`
 	Pfacct               string `json:"pfacct"`
 	PfcertManager        string `json:"pfcertmanager"`
 	Pfdhcp               string `json:"pfdhcp"`

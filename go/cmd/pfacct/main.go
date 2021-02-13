@@ -14,7 +14,9 @@ import (
 	"github.com/inverse-inc/packetfence/go/log"
 )
 
-var netFlowAddr = "127.0.0.1"
+const defaultNetFlowAddr = "127.0.0.1"
+
+var cliNetFlowAddr = ""
 
 func main() {
 	flag.Parse()
@@ -63,7 +65,7 @@ func main() {
 }
 
 func init() {
-	flag.StringVar(&netFlowAddr, "netflow-ipaddress", "127.0.0.1", "IP Address netflow processor listens on")
+	flag.StringVar(&cliNetFlowAddr, "netflow-ipaddress", "", "IP Address netflow processor listens on")
 }
 
 func NotifySystemd(msg string) {

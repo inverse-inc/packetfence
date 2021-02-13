@@ -672,6 +672,12 @@ tracking-config=enabled
 # Location of the tracking-config binary.
 tracking-config_binary=/dev/null
 
+#
+# services.netflow_address
+#
+# NetFlow Address
+netflow_address=127.0.0.1
+
 [snmp_traps]
 #
 # snmp_traps.bounce_duration

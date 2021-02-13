@@ -11,6 +11,7 @@ StartLimitInterval=60
 Type=notify
 WatchdogSec=30s
 Environment=LOG_LEVEL=INFO
+ExecStartPre=/usr/local/pf/bin/pfcmd confignetflow
 ExecStart=/usr/local/pf/sbin/pfacct
 Restart=on-failure
 Slice=packetfence.slice

@@ -139,7 +139,7 @@ func (h *PfAcct) NetFlowV5ToBandwidthAccounting(header *netflow5.Header, flows [
 }
 
 func (h *PfAcct) netflowProcessor() (*processor.Processor, error) {
-	addr := netFlowAddr + ":" + h.NetFlowPort
+	addr := h.netFlowAddress() + ":" + h.NetFlowPort
 	conn, err := net.ListenPacket("udp", addr)
 	if err != nil {
 		return nil, err
@@ -151,4 +151,12 @@ func (h *PfAcct) netflowProcessor() (*processor.Processor, error) {
 		Handler: h,
 		Conn:    conn,
 	}, nil
+}
+
+func (h *PfAcct) netFlowAddress() string {
+	if cliNetFlowAddr != "" {
+		return cliNetFlowAddr
+	}
+
+	return h.NetFlowAddress
 }
