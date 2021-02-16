@@ -59,7 +59,7 @@ Now, you should configure the Northbound API of the SmartZone so PacketFence can
 
 In order to receive the information not encrypted in the URL, you will need to connect on the Ruckus SmartZone controller using SSH and do the following command:
 
- `no encrypt-mac-ip`
+ no encrypt-mac-ip
 
 
 ==== PacketFence configuration
@@ -74,8 +74,10 @@ In PacketFence, add a new switch in _Configuration -> Switches_ with the followi
 * *Roles -> registration VLAN*: `-1`
 * *Roles -> Role by Switch Role* can be optionally enabled (see below)
 * *RADIUS -> Secret passphrase*: `useStrongerSecret`
+* *Web Services -> Username*: `usernameForNorthboundAPI`
 * *Web Services -> Password*: `passwordForNorthboundAPI`
 
+The Web Services Username is optional and only needed if using the "Managed Partner Domains" feature of SmartZone with multiple different Northbound API credentials (one per SmartZone domain). Additionally, for troubleshooting purposes, one can define the _Web Services -> Transport_ to HTTP instead of the default HTTPS so as to simplify troubleshooting by capturing the traffic between PacketFence and SmartZone.
 
 ==== Mac Authentication
 
@@ -177,7 +179,7 @@ To create and be able to use the role, we need to perform several steps:
  3 - Reference the User Role in the RADIUS Authentication server
 
  
- The detailed steps are as follow:
+The detailed steps are as follow:
 
 Go to _Services & Profiles -> Access Control_ on the left menu and then click on the _User Traffic_ tab. On this page, optionally select a Domain/Zone, click the "Create" button and give the new UTP name. Define any additional parameters such as Uplink/Downlink rate limits, define any ACLs you might want for that role and also select, if needed, an Application Recognition and Control policy and URL Filtering Control policies.
 
