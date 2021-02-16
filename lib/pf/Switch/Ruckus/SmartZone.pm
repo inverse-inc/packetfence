@@ -118,12 +118,7 @@ sub deauth {
             return;
         }
     }
-    if ($node_info->{last_connection_type} eq $connection_type_to_str{$WEBAUTH_WIRELESS}) {
-        $self->deauthenticateMacWebservices($mac);
-    }
-    else {
-        $self->deauthenticateMacDefault($mac);
-    }
+    $self->deauthenticateMacDefault($mac);
 }
 
 =head2 radiusDisconnect
@@ -278,8 +273,10 @@ sub deauthenticateMacWebservices {
 }
 
 =item returnRadiusAccessAccept
+
 Prepares the RADIUS Access-Accept reponse for the network device.
 Overrides the default implementation to add the dynamic PSK
+
 =cut
 
 sub returnRadiusAccessAccept {
@@ -308,7 +305,9 @@ sub returnRadiusAccessAccept {
 }
 
 =head2 generate_dpsk_attribute_value
+
 Generates the RADIUS attribute value for Ruckus-DPSK given an SSID name and the passphrase
+
 =cut
 
 sub generate_dpsk_attribute_value {
@@ -379,7 +378,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2020 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 
