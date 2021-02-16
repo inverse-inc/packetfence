@@ -161,3 +161,46 @@ In PacketFence, add a new switch in _Configuration -> Switches_ with the followi
 During troubleshooting, you can change the Deauth method and Web Services Transport to HTTP instead of HTTPS can capture the traffic destined to the SmartZone's IP on port 9080 to inspect the WISPr API calls if needed.
 
 For NON-PROXY Auth mode when using MAC-Authenticatin we need to set the "Deauthentication Method" to HTTP or HTTPS since this will force the disconnect message to be sent using the Northbound WISPr API instead of RADIUS Disconnect / CoA. If the _Deauthentication Method_ is not set, then the code will try to use RADIUS by default and fail to disconnect the user.
+
+
+==== Ruckus Roles
+
+[float]
+===== Roles Configuration
+
+Ruckus SmartZone allows you to define roles for RBAC purposes. They can be used to apply per-user rate-limits and ACLs in newer versions of the SmartZone firmware, specifying also advanced options like Application Recognition Policies, URL filtering profiles, (Firwewall profiles)
+
+To create and be able to use the role, we need to perform several steps:
+
+ 1 - Create a _User Traffic Profile_
+ 2 - Create a matching _User Role_
+ 3 - Reference the User Role in the RADIUS Authentication server
+
+ 
+ The detailed steps are as follow:
+
+Go to _Services & Profiles -> Access Control_ on the left menu and then click on the _User Traffic_ tab. On this page, optionally select a Domain/Zone, click the "Create" button and give the new UTP name. Define any additional parameters such as Uplink/Downlink rate limits, define any ACLs you might want for that role and also select, if needed, an Application Recognition and Control policy and URL Filtering Control policies.
+
+image::Ruckus_SZ_Create_UTP.png[scaledwidth="100%",alt="Ruckus SmartZone Create a User Traffic Profile"]
+
+Next, go to _Clients -> Users & Roles_ menu and select the _User Roles_ tab. On this page, optionally select a Domain/Zone, click the "Create" button and give the new User Role a name. This name is purely for identification only and its not the RADIUS attribute. You can choose any meaningful name. You should also select the User Traffic Profile defined in the previous step as well as, optionallu, a Firewall Profile.
+
+image::Ruckus_SZ_Create_User_Role.png[scaledwidth="100%",alt="Ruckus SmartZone Create a User Role"]
+
+Finally, under _Configuration -> Service and Profiles -> Authentication_, select the RADIUS server created previously (Either in Proxy or NON-Proxy mode). Then, under the _User Role Mapping_ section, click on _Create_. 
+
+image::Ruckus_SZ_Radius_Roles_1.png[scaledwidth="100%",alt="Ruckus SmartZone Add User Role Mappings to RADIUS server"]
+
+A new window will open where we can create a "User Traffic Profile Mapping". Under _Group Attribute Value_ enter the string that will be sent from packetfence (Configured under the Switch configuration in the "Role by Switch Role" section). This string must match between PacketFence and SmartZone and is the string sent in the RADIUS reply under the Ruckus-User-Group VSA. Then, under the "User Role", select the previously created User Role. 
+
+image::Ruckus_SZ_Radius_Roles_2.png[scaledwidth="100%",alt="Ruckus SmartZone Add User Role Mappings to RADIUS server"]
+
+Repeat all the steps above for as many different roles as needed. Keep in mind that you can define different roles on SmartZone than those on PacketFence. For example, on SmartZone you might have roles calles "10Mbps", "20Mbps" and so one (related to the specific rate limits assigned to the users) and then in PacketFence, assign the "10Mbps" SmartZone role to the "Students" and "Guests" PacketFence Roles, and the "20Mbps" SZ role to "Faculty" and "IT" PF roles.
+
+[float]
+===== PacketFence Configuration
+
+On the PacketFence side you need to use _role by switch role_ and add the same name as in the _Group Attribute_ you created on the Ruckus side.
+
+So when a device will connect on the SSID, PacketFence will return a VLAN identifier and a RuckusUserGroup attribute and if the role is allowed on the WLAN then the device will be authorized on the WLAN. Additionally, if RBAC is in use, the specific upstream/downstream rate limits, L2/L3 ACLS and Application Recognition Policies will be applied to the specific user, having the possibility of, for instance, giving different user Roles different access speeds.
+In the case that the role is not allowed on the WLAN then the device will not be allowed to connect.
