@@ -3,7 +3,7 @@
     <b-navbar toggleable="md" fixed="top" type="dark" class="navbar-expand-md bg-dark" :class="{ 'alert-danger': warnings.length > 0 }">
       <b-nav-toggle target="navbar"></b-nav-toggle>
       <b-navbar-brand>
-        <img src="/static/img/packetfence.white.small.svg"/>
+        <img src="@/assets/packetfence.white.small.svg"/>
       </b-navbar-brand>
       <b-collapse is-nav id="navbar">
         <b-navbar-nav v-show="isAuthenticated">
