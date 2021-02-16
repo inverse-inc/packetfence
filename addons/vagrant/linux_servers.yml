@@ -1,4 +1,6 @@
 ---
 - import_playbook: linux_servers/rsyslog.yml
 
-- import_playbook: linux_servers/dhcpd.yml  
+- import_playbook: linux_servers/dhcpd.yml
+
+- import_playbook: linux_servers/freeradius.yml

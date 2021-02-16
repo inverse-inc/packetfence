@@ -68,6 +68,10 @@ all:
       hosts:
         linux02: {}
 
+    service_freeradius:
+      hosts:
+        linux02: {}
+
     stable_and_nightly:
       children:
         stable:

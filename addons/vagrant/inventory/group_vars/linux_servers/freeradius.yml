@@ -1,0 +1,13 @@
+freeradius__configuration:
+
+  - name: 'clients.conf'
+    no_log: True
+    options:
+
+      - name: 'packetfence_servers'
+        raw: |
+          client pf {
+              ipaddr = {{ networks[0]['subnet'] }}
+              secret = testing123
+          }
+        state: 'present'
