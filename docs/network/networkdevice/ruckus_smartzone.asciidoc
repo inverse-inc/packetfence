@@ -98,7 +98,7 @@ Create your server using the following information (where 192.168.1.5 is the IP 
 * 'Port': 1812
 * 'Secret': useStrongerSecret
 
-image::ruckus-SZ_RADIUS_PROXY.png[scaledwidth="100%",alt="Ruckus SmartZone Proxy RADIUS Authentication"]
+image::Ruckus_SZ_RADIUS_PROXY.png[scaledwidth="100%",alt="Ruckus SmartZone Proxy RADIUS Authentication"]
 
 Then, in _Service and Profiles -> Accounting_. Then select the "Proxy" tab and then select the zone for which you want to create the AAA server. Create the server using the information below:
 
@@ -114,7 +114,8 @@ You can now create an SSID with OPEN/MAC athentication.
 In the _Wireless LANs_ top level menu , from the System tree hierarchy, select the Zone where you want to create a WLAN and then click _Create_.
 
 Enter the _name_ and _SSID_, then for _Authentication Type_ select "Standard Usage" and for _Method_ select "MAC Address". 
-image::ruckus-SZ_Create_MAC_WLAN.png[scaledwidth="100%",alt="Ruckus SmartZone Create Open WLAN with MAC authentication"]
+
+image::Ruckus_SZ_Create_MAC_WLAN.png[scaledwidth="100%",alt="Ruckus SmartZone Create Open WLAN with MAC authentication"]
 
 The rest of the authentication options can be left "as-is" (The default _MAC Address Format_ of "aabbccddeeff" should work fine)
 
