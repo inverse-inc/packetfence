@@ -47,7 +47,7 @@ Under _Configuration -> WLAN_, click on the *Create New* button.  Enter the prop
 * Select the proper RADIUS server as the authentication server
 * Select the proper RADIUS server as the accounting server
 
-NOTE: The Open SSID does *NOT* support dynamic VLAN assignments (Firmware 9.3.0.0.83)
+NOTE: The Open SSID does *NOT* support dynamic VLAN assignments on older versions of ZoneDirector (Firmware 9.3.0.0.83) but newer versions (Firmware 9.10.0.0.218 or newer) do support it.
 
 .Secure SSID
 * Enter a Name/SSID
@@ -140,6 +140,7 @@ To apply the configuration, restart PacketFence using the following command: ser
 ===== Roles Configuration
 
 Ruckus allows you to define roles. These roles link all users to the internal WLAN and permit access to all WLAN by default. You can still limit access to certain WLAN.
+Additionally, these roles can be used to apply per-user rate-limits and ACLs in newer versions of the Zone Director firmware, specifying also advanced options like Application Recognition Policies, URL filtering profiles, Etc.
 
 To create a new user Role:
 
@@ -150,14 +151,39 @@ To create a new user Role:
     Group Attributes: Fill in this field only if you are creating a user role based on Group attributes extracted from an Active Directory server. Enter the User Group name here. Active Directory/LDAP users with the same group attributes are automatically mapped to this user role.
     Allow All WLANs: You have two options: (1) Allow Access to all WLANs, or (2) Specify WLAN Access. If you select the second option, you must specify the WLANs by clicking the check box next to each one.
 
+The images below show the steps needed for Ruckus Unleashed.
 image::Ruckus_Roles.png[scaledwidth="100%",alt="Ruckus Roles"]
 image::Ruckus_CreateNewRole.png[scaledwidth="100%",alt="Create new role"]
 
+If using ZoneDirector, then the steps are very similar as shown below:
+
+To create a new user Role:
+
+ 1 - Go to _Services & Profiles -> Roles_. The Roles and Policies page appears, displaying a Default role in the Roles table.
+ 2 - Click Create New.
+ 3 - Enter a Name and a short Description for this role.
+ 4 - Choose the options for this role from the following:
+    Group Attributes: Fill in this field only if you are creating a user role based on Group attributes extracted from an Active Directory server. Enter the User Group name here. Active Directory/LDAP users with the same group attributes are automatically mapped to this user role.
+    Allow All WLANs: You have two options: (1) Allow Access to all WLANs, or (2) Specify WLAN Access. If you select the second option, you must specify the WLANs by clicking the check box next to each one. Don't enable the "Guest Pass"  or "Administration" options as these allow users with the given Roles to get administrative access to the ZoneDirector console.
+ 5 - Additionally, you enable the "Role Based Access Control Policy" option which is the most interesting one from packetfence's point of view, since this allows specific PF roles to receive specific ACLs, Different rate limits, thus further enhancing the value of Packetfence.
+ 6 - Specifcally, looking at the RBAC Policy options one can define the following:
+    OS type: Limit access based on operating system/device type.
+    VLAN: Assign a VLAN ID to this role. (This can be overriden directly from packetfence if using the _Role by VLAN ID_ option)
+    Rate Limiting: Limit per-station uplink and downlink speeds.
+    L3/L4/IP address ACL: Apply a Layer 3/Layer 4/IP address ACL to this role.
+    Application Recognition & Control: Apply an application policy to this role.
+    Time Range: Limit the time range during which this role will be allowed to access the WLAN.
+ 7 - Finally, if using the RBAC feature in ZoneDirector, make sure to enable the RBAC functionality for the WLAN created before:
+    To do this, edit the WLAN, expand the Advanced Options, and enable the check box next to Enable Role Based Access Control Policy in the Access Control section.
+
+image::Ruckus_Roles_ZD.png[scaledwidth="100%",alt="Ruckus Roles creation"] 
+image::Ruckus_Roles_RBAC.png[scaledwidth="100%",alt="Ruckus Roles RBAC configuration"]
+image::Ruckus_Roles_ZD_WLAN_RBAC.png[scaledwidth="100%",alt="Ruckus WLAN RBAC settings"]
 
 [float]
 ===== PacketFence Configuration
 
-On the PacketFence side you need to use role by switch role and add the Group Attribute you created on the Ruckus side.
+On the PacketFence side you need to use _role by switch role_ and add the same name as in the _Group Attribute_ you created on the Ruckus side.
 
-So when a device will connect on the SSID, PacketFence will return a VLAN identifier and a RuckusUserGroup attribute and if the role is allowed on the WLAN then the device will be authorized on the WLAN.
+So when a device will connect on the SSID, PacketFence will return a VLAN identifier and a RuckusUserGroup attribute and if the role is allowed on the WLAN then the device will be authorized on the WLAN. Additionally, if RBAC is in use, the specific upstream/downstream rate limits, L2/L3 ACLS and Application Recognition Policies will be applied to the specific user, having the possibility of, for instance, giving different user Roles different access speeds.
 In the case that the role is not allowed on the WLAN then the device will not be allowed to connect.
