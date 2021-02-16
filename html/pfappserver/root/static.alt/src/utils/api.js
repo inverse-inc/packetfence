@@ -243,13 +243,6 @@ apiCall.interceptors.response.use((response) => {
 })
 
 /**
- * Axios instance for previous Web admin
- */
-export const pfappserverCall = axios.create({
-  baseURL: '/admin/'
-})
-
-/**
  * Axios instance to access documentation guides
  */
 export const documentationCall = axios.create({
