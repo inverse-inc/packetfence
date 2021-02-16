@@ -159,3 +159,5 @@ In PacketFence, add a new switch in _Configuration -> Switches_ with the followi
 * *Web Services -> Password*: `passwordForNorthboundAPI`
 
 During troubleshooting, you can change the Deauth method and Web Services Transport to HTTP instead of HTTPS can capture the traffic destined to the SmartZone's IP on port 9080 to inspect the WISPr API calls if needed.
+
+For NON-PROXY Auth mode when using MAC-Authenticatin we need to set the "Deauthentication Method" to HTTP or HTTPS since this will force the disconnect message to be sent using the Northbound WISPr API instead of RADIUS Disconnect / CoA. If the _Deauthentication Method_ is not set, then the code will try to use RADIUS by default and fail to disconnect the user.
