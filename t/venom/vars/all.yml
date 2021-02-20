@@ -14,6 +14,8 @@ smtp_port: '{{.MAILHOG_SMTP_PORT}}'
 mariadb_socket: '{{.MARIADB_SOCKET}}'
 timezone: '{{.TIMEZONE}}'
 pf_log_level: '{{.PF_LOG_LEVEL}}'
+switch_test_suite_dir: /src/t/venom/nodes
+nodes_test_suite_dir: /src/t/venom/nodes
 
 # ssh executor variables
 ssh_user: vagrant
@@ -57,12 +59,11 @@ switch01.dot1x_interface.mac: 44:38:39:00:00:12
 node01_mgmt_ip: 172.17.17.251
 node01_eth1_mac_address: 00:03:00:11:11:01
 node01_eth1_mac_address_url_encoded: 00%3A03%3A00%3A11%3A11%3A01
-nodes_test_suite_dir: /src/t/venom/nodes
 
-
-# wireless variables
+# wireless01 variables
 wireless01_mgmt_ip: 172.17.17.210
-wireless01_test_suite_dir: /src/t/venom/wireless
+wireless01_wlan1_mac_address: 02:00:00:00:01:00
+wireless01_wlan1_mac_address_url_encoded: 02%3A00%3A00%3A00%3A01%3A00
 
 # network detection
 network_detection_url: http://192.95.20.194/common/network-access-detection.gif
@@ -128,6 +129,34 @@ dot1x_eap_peap.profiles.wired.filters.connection_sub_type: MS-EAP-Authentication
 dot1x_eap_peap.profiles.wired.unreg_on_acct_stop: enabled
 
 ################################################################################
+# wireless_dot1x_eap_peap test suite specific variables
+################################################################################
+# Roles
+wireless_dot1x_eap_peap.roles.ad_user.id: user_employee
+wireless_dot1x_eap_peap.roles.ad_user.notes: User employee
+wireless_dot1x_eap_peap.roles.ad_user.vlan_id: 100
+
+wireless_dot1x_eap_peap.roles.ad_machine.id: machine_employee
+wireless_dot1x_eap_peap.roles.ad_machine.notes: Machine Employee
+wireless_dot1x_eap_peap.roles.ad_machine.vlan_id: 100
+
+# Sources
+wireless_dot1x_eap_peap.sources.ad_user.name: dot1x_eap_peap_user_auth
+wireless_dot1x_eap_peap.sources.ad_user.description: '{{.ad_mgmt_ip}} user authentication'
+wireless_dot1x_eap_peap.sources.ad_user.access_duration: '{{.access_duration.default_choice}}'
+
+wireless_dot1x_eap_peap.sources.ad_machine.name: dot1x_eap_peap_machine_auth
+wireless_dot1x_eap_peap.sources.ad_machine.description: '{{.ad_mgmt_ip}} machine authentication'
+wireless_dot1x_eap_peap.sources.ad_machine.access_duration: '{{.access_duration.default_choice}}'
+
+# Connection profiles
+wireless_dot1x_eap_peap.profiles.wireless.id: catch_dot1x_wireless_eap_peap_mschapv2
+wireless_dot1x_eap_peap.profiles.wireless.description: 802.1X wired EAP-PEAP-MSCHAPv2
+wireless_dot1x_eap_peap.profiles.wireless.filters.connection_type: Ethernet-EAP
+wireless_dot1x_eap_peap.profiles.wireless.filters.connection_sub_type: MS-EAP-Authentication
+wireless_dot1x_eap_peap.profiles.wireless.unreg_on_acct_stop: enabled
+
+################################################################################
 ## backup db and restore test suite specific variables
 #################################################################################
 # Create user for db
@@ -147,6 +176,20 @@ wired_mac_auth.profiles.wired.id: catch_wired_mac_authentication
 wired_mac_auth.profiles.wired.description: Wired Mac authentication
 wired_mac_auth.profiles.wired.filters.connection_type: Ethernet-NoEAP
 wired_mac_auth.profiles.wired.unreg_on_acct_stop: disabled
+
+################################################################################
+## wireless_mac_auth test suite specific variables
+#################################################################################
+# Roles
+wireless_mac_auth.roles.headless_device.id: headless_device
+wireless_mac_auth.roles.headless_device.notes: Headless device
+wireless_mac_auth.roles.headless_device.vlan_id: 100
+
+# Connection profiles
+wireless_mac_auth.profiles.wireless.id: catch_wireless_mac_authentication
+wireless_mac_auth.profiles.wireless.description: Wireless Mac authentication
+wireless_mac_auth.profiles.wireless.filters.connection_type: Wireless-802.11-NoEAP
+wireless_mac_auth.profiles.wireless.unreg_on_acct_stop: disabled
 
 ################################################################################
 # configurator test suite specific variables
