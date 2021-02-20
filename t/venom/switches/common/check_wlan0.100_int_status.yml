@@ -1,0 +1,10 @@
+name: Check wlan0.2 interface status on wireless01
+version: 2
+testcases:
+- name: check_wlan0.2_int_status_on_wireless01
+  steps:
+  - type: exec
+    script: "sudo ip a s wlan0.2"
+    assertions:
+      - result.systemout ShouldContainSubstring "qdisc mq master brvlan2 state"
+      - result.statuscode ShouldEqual 0
