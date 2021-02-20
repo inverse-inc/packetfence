@@ -1,0 +1,9 @@
+name: Run wpasupplicant on wireless01
+version: 2
+testcases:
+  - name: run_wpasupplicant
+    steps:
+      - type: ssh
+        host: '{{.wireless01_mgmt_ip}}'
+        user: '{{.ssh_user}}'
+        command: '/src/t/venom/venom-wrapper.sh {{.nodes_test_suite_dir}}/wireless_dot1x_eap_peap/run_wpa_supplicant.yml'
