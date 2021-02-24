@@ -33,6 +33,7 @@ use strict;
 use warnings;
 
 use base ('pf::Switch::Cisco::Catalyst_2960');
+use pf::util qw(clean_mac);
 use pf::log;
 
 sub description { 'Cisco SG300' }
@@ -89,6 +90,25 @@ sub NasPortToIfIndex {
     $logger->debug("Found $NAS_port for ifindex");
 
     return $NAS_port;
+}
+
+=head2 parseRequest
+
+=cut
+
+sub parseRequest {
+    my ( $self, $radius_request ) = @_;
+
+    my $client_mac      = ref($radius_request->{'Calling-Station-Id'}) eq 'ARRAY'
+                           ? clean_mac($radius_request->{'Calling-Station-Id'}[0])
+                           : clean_mac($radius_request->{'Calling-Station-Id'});
+    my $user_name       = $self->parseRequestUsername($radius_request);
+    my $nas_port_type   = ( defined($radius_request->{'NAS-Port-Type'}) ? $radius_request->{'NAS-Port-Type'} : "virtual" );
+    my $port            = $radius_request->{'NAS-Port'};
+    my $eap_type        = ( exists($radius_request->{'EAP-Type'}) ? $radius_request->{'EAP-Type'} : 0 );
+    my $nas_port_id     = ( defined($radius_request->{'NAS-Port-Id'}) ? $radius_request->{'NAS-Port-Id'} : undef );
+
+    return ($nas_port_type, $eap_type, $client_mac, $port, $user_name, $nas_port_id, undef, $nas_port_id);
 }
 
 =head2 returnAuthorizeRead
