@@ -77,7 +77,7 @@ description=Controls the cleanup of the CHI cache database storage.
 # schedule
 # 
 # The schedule of task
-schedule=@every 10s
+schedule=@every 5m
 #
 # batch
 #
