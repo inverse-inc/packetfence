@@ -92,7 +92,7 @@ all:
         dev:
           hosts:
             pfcen7dev:
-              box: inverse-inc/pfcen7dev
+              box: centos/7
               mgmt_ip: 172.17.17.10
               mgmt_netmask: 255.255.255.0
               ansible_host: "{{ mgmt_ip }}"
