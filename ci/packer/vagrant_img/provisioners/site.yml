@@ -1,5 +1,5 @@
 ---
-- import_playbook: playbooks/upgrade_debian_os.yml
+- import_playbook: playbooks/upgrade_os.yml
 
 - import_playbook: playbooks/install_repos.yml
 
