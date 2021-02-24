@@ -50,6 +50,7 @@ pfbox:	clean
 # CentOS 7 builds
 .PHONY: pfcen7dev
 pfcen7dev:
+	VAGRANT_LIBVIRT_VIRT_SYSPREP_OPTIONS="'--run $(CURDIR)/provisioners/shell/sysprep.sh'" \
 	make \
 	BOX_NAME=$@ \
 	ANSIBLE_GROUP=$(DEV_GROUP) \
@@ -59,6 +60,7 @@ pfcen7dev:
 
 .PHONY: pfcen7stable
 pfcen7stable:
+	VAGRANT_LIBVIRT_VIRT_SYSPREP_OPTIONS="'--run $(CURDIR)/provisioners/shell/sysprep.sh'" \
 	make \
 	BOX_NAME=$@ \
 	ANSIBLE_GROUP=$(STABLE_GROUP) \

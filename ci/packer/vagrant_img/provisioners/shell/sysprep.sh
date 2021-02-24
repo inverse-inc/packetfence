@@ -14,11 +14,11 @@ then
     truncate --size=0 /run/machine-id
 fi
 
-# for debian based systems ensure host keys regenerated on boot
+# for debian based systems ensure host keys regenerated on boot +
+# custom fix
 if [ -e /usr/sbin/dpkg-reconfigure ]
 then
     printf "@reboot root command bash -c 'export PATH=$PATH:/usr/sbin ; export DEBIAN_FRONTEND=noninteractive ; export DEBCONF_NONINTERACTIVE_SEEN=true ; /usr/sbin/dpkg-reconfigure openssh-server &>/dev/null ; /bin/systemctl restart ssh.service ; rm --force /etc/cron.d/keys'\n" > /etc/cron.d/keys
+    # Regenerate certificates (workaround when /etc/ssl/certs/ca-certificates.crt is empty after sysprep)
+    /usr/sbin/update-ca-certificates
 fi
-
-# Regenerate certificates (workaround when /etc/ssl/certs/ca-certificates.crt is empty after sysprep)
-/usr/sbin/update-ca-certificates
