@@ -18,6 +18,8 @@ UPGRADED_DB="${DB_PREFIX}_upgraded_$$"
 
 PRISTINE_DB="${DB_PREFIX}_pristine_$$"
 
+LAST_SCHEMA_ARGS='--init-command=SET SESSION innodb_strict_mode=OFF;';
+
 HOST=localhost
 
 MYSQL="mysql -upf_smoke_tester -ppacket -h$HOST"
@@ -55,7 +57,7 @@ done
 
 echo "Applying last schema $LAST_SCHEMA"
 
-$MYSQL $UPGRADED_DB < "$LAST_SCHEMA"
+$MYSQL "$LAST_SCHEMA_ARGS" $UPGRADED_DB < "$LAST_SCHEMA"
 
 echo "Applying upgrade script $UPGRADE_SCRIPT"
 

@@ -136,6 +136,10 @@ Make Default Value for a column
 
 sub make_default_value {
     my ($table, $col) = @_;
+    if ($col->{NULLABLE} && defined $col->{COLUMN_DEF} && $col->{COLUMN_DEF} eq 'NULL') {
+        return "undef";
+    }
+
     my $type = $col->{TYPE_NAME};
     if (exists $DEFAULT_VALUE_MAKERS{$type} ) {
         return $DEFAULT_VALUE_MAKERS{$type}->($table, $col);
@@ -169,11 +173,18 @@ Make String Default Value
 sub make_string_default_value {
     my ($table, $col) = @_;
     if (defined $col->{COLUMN_DEF}) {
-        return "'$col->{COLUMN_DEF}'";
+	my $v = $col->{COLUMN_DEF};
+	if ($v =~ /^'.*'$/) {
+		return "$col->{COLUMN_DEF}";
+	}
+
+	return "'$v'";
     }
+
     unless ($col->{NULLABLE}) {
         return "''";
     }
+
     return "undef";
 }
 
