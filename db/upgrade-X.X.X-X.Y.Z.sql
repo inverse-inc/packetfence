@@ -60,7 +60,7 @@ ALTER TABLE node_category
     MODIFY `category_id` BIGINT(20) NOT NULL AUTO_INCREMENT,
     ADD COLUMN IF NOT EXISTS `include_parent_acls` varchar(255) default NULL,
     ADD COLUMN IF NOT EXISTS `fingerbank_dynamic_access_list` varchar(255) default NULL,
-    ADD COLUMN IF NOT EXISTS `acls` TEXT NOT NULL,
+    ADD COLUMN IF NOT EXISTS `acls` TEXT NOT NULL DEFAULT '',
     ADD COLUMN IF NOT EXISTS `inherit_vlan` varchar(50) default NULL;
 
 \! echo "Altering node"
@@ -158,6 +158,45 @@ CREATE TABLE IF NOT EXISTS `remote_clients` (
   PRIMARY KEY (id),
   UNIQUE KEY remote_clients_private_key (`public_key`)
 ) ENGINE=InnoDB;
+
+\! echo "Altering wrix"
+ALTER TABLE wrix
+MODIFY `Provider_Identifier` varchar(64) NULL DEFAULT NULL,
+MODIFY `Location_Identifier` varchar(64) NULL DEFAULT NULL,
+MODIFY `Service_Provider_Brand` varchar(64) NULL DEFAULT NULL,
+MODIFY `Location_Type` varchar(64) NULL DEFAULT NULL,
+MODIFY `Sub_Location_Type` varchar(64) NULL DEFAULT NULL,
+MODIFY `English_Location_Name` TEXT NULL DEFAULT NULL,
+MODIFY `Location_Address1` varchar(128) NULL DEFAULT NULL,
+MODIFY `Location_Address2` varchar(128) NULL DEFAULT NULL,
+MODIFY `English_Location_City` varchar(64) NULL DEFAULT NULL,
+MODIFY `Location_Zip_Postal_Code` varchar(32) NULL DEFAULT NULL,
+MODIFY `Location_State_Province_Name` varchar(64) NULL DEFAULT NULL,
+MODIFY `Location_Country_Name` varchar(16) NULL DEFAULT NULL,
+MODIFY `Location_Phone_Number` varchar(32) NULL DEFAULT NULL,
+MODIFY `SSID_Open_Auth` varchar(32) NULL DEFAULT NULL,
+MODIFY `SSID_Broadcasted` char(1) NULL DEFAULT NULL,
+MODIFY `WEP_Key` varchar(128) NULL DEFAULT NULL,
+MODIFY `WEP_Key_Entry_Method` varchar(32) NULL DEFAULT NULL,
+MODIFY `WEP_Key_Size` varchar(32) NULL DEFAULT NULL,
+MODIFY `SSID_1X` varchar(32) NULL DEFAULT NULL,
+MODIFY `SSID_1X_Broadcasted` varchar(1) NULL DEFAULT NULL,
+MODIFY `Security_Protocol_1X` varchar(16) NULL DEFAULT NULL,
+MODIFY `Client_Support` varchar(128) NULL DEFAULT NULL,
+MODIFY `Restricted_Access` varchar(1) NULL DEFAULT NULL,
+MODIFY `Location_URL` varchar(128) NULL DEFAULT NULL,
+MODIFY `Coverage_Area` varchar(255) NULL DEFAULT NULL,
+MODIFY `Open_Monday` varchar(32) NULL DEFAULT NULL,
+MODIFY `Open_Tuesday` varchar(32) NULL DEFAULT NULL,
+MODIFY `Open_Wednesday` varchar(32) NULL DEFAULT NULL,
+MODIFY `Open_Thursday` varchar(32) NULL DEFAULT NULL,
+MODIFY `Open_Friday` varchar(32) NULL DEFAULT NULL,
+MODIFY `Open_Saturday` varchar(32) NULL DEFAULT NULL,
+MODIFY `Open_Sunday` varchar(32) NULL DEFAULT NULL,
+MODIFY `Longitude` varchar(32) NULL DEFAULT NULL,
+MODIFY `Latitude` varchar(32) NULL DEFAULT NULL,
+MODIFY `UTC_Timezone` varchar(16) NULL DEFAULT NULL,
+MODIFY `MAC_Address` varchar(32) NULL DEFAULT NULL;
 
 \! echo "Incrementing PacketFence schema version...";
 INSERT IGNORE INTO pf_version (id, version) VALUES (@VERSION_INT, CONCAT_WS('.', @MAJOR_VERSION, @MINOR_VERSION, @SUBMINOR_VERSION));

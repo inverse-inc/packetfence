@@ -59,7 +59,7 @@ Requires: sscep
 Requires: net-snmp >= 5.3.2.2
 Requires: net-snmp-perl
 Requires: perl >= %{perl_version}
-Requires: MariaDB-server >= 10.1, MariaDB-client >= 10.1
+Requires: MariaDB-server = 10.2.37, MariaDB-client = 10.2.37
 Requires: perl(DBD::mysql)
 Requires: perl(Bit::Vector)
 Requires: perl(CGI::Session), perl(CGI::Session::Driver::chi) >= 1.0.3, perl(JSON) >= 2.90, perl(JSON::MaybeXS), perl(JSON::XS) >= 3

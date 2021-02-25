@@ -42,6 +42,10 @@ performance_schema = [% performance_schema %]
 # max_connect_errors
 max_connect_errors = [% max_connect_errors %]
 
+# SQL mode using the value from 10.1
+sql_mode = "NO_ENGINE_SUBSTITUTION,NO_AUTO_CREATE_USER"
+
+
 # Point the following paths to a dedicated disk
 #tmpdir   = /tmp/
 

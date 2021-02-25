@@ -49,6 +49,7 @@ BEGIN {
 
     %DEFAULTS = (
         tenant_id => '1',
+        created_at => 'current_timestamp()',
         ip => '',
         mac => '',
         qname => undef,
@@ -59,6 +60,7 @@ BEGIN {
 
     @INSERTABLE_FIELDS = qw(
         tenant_id
+        created_at
         ip
         mac
         qname
