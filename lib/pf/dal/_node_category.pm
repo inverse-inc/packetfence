@@ -40,6 +40,7 @@ BEGIN {
         include_parent_acls
         fingerbank_dynamic_access_list
         acls
+        inherit_vlan
     );
 
     %DEFAULTS = (
@@ -49,6 +50,7 @@ BEGIN {
         include_parent_acls => undef,
         fingerbank_dynamic_access_list => undef,
         acls => '',
+        inherit_vlan => undef,
     );
 
     @INSERTABLE_FIELDS = qw(
@@ -58,11 +60,12 @@ BEGIN {
         include_parent_acls
         fingerbank_dynamic_access_list
         acls
+        inherit_vlan
     );
 
     %FIELDS_META = (
         category_id => {
-            type => 'INT',
+            type => 'BIGINT',
             is_auto_increment => 1,
             is_primary_key => 1,
             is_nullable => 0,
@@ -103,6 +106,12 @@ BEGIN {
             is_primary_key => 0,
             is_nullable => 0,
         },
+        inherit_vlan => {
+            type => 'VARCHAR',
+            is_auto_increment => 0,
+            is_primary_key => 0,
+            is_nullable => 1,
+        },
     );
 
     @PRIMARY_KEYS = qw(
@@ -117,6 +126,7 @@ BEGIN {
         node_category.include_parent_acls
         node_category.fingerbank_dynamic_access_list
         node_category.acls
+        node_category.inherit_vlan
     );
 
 }

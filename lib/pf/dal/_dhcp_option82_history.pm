@@ -69,7 +69,7 @@ BEGIN {
 
     %FIELDS_META = (
         dhcp_option82_history_id => {
-            type => 'INT',
+            type => 'BIGINT',
             is_auto_increment => 1,
             is_primary_key => 1,
             is_nullable => 0,
