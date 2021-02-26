@@ -48,6 +48,7 @@
                 :readonly="rootPasswordIsValid"
                 :test="onSetRootPassword"
                 :button-label="$i18n.t('Set Password')"
+                :valid-feedback="$i18n.t('MySQL root password set.')"
               />
 
               <!--
