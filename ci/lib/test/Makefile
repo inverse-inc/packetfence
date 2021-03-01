@@ -65,7 +65,7 @@ test-pfdeb9dev-release: get-public
 .PHONY: test-int-pfcen7dev-dev
 test-int-pfcen7dev-dev: get-public
 	make PF_VM_NAME=pfcen7dev \
-	INT_TEST_VM_NAMES='ad switch01 node01' \
+	INT_TEST_VM_NAMES='ad switch01 node01 wireless01' \
 	PERL_UNIT_TESTS=yes \
 	GOLANG_UNIT_TESTS=yes \
 	INTEGRATION_TESTS=yes \
@@ -74,7 +74,7 @@ test-int-pfcen7dev-dev: get-public
 .PHONY: test-int-pfdeb9dev-dev
 test-int-pfdeb9dev-dev: get-public
 	make PF_VM_NAME=pfdeb9dev \
-	INT_TEST_VM_NAMES='ad switch01 node01' \
+	INT_TEST_VM_NAMES='ad switch01 node01 wireless01' \
 	PERL_UNIT_TESTS=no \
 	GOLANG_UNIT_TESTS=yes \
 	INTEGRATION_TESTS=yes \
@@ -85,7 +85,7 @@ test-int-dev: PF_VM_NAME=pfcen7dev
 test-int-dev: PERL_UNIT_TESTS=no
 test-int-dev: GOLANG_UNIT_TESTS=no
 test-int-dev: INTEGRATION_TESTS=yes
-test-int-dev: INT_TEST_VM_NAMES='ad switch01 node01'
+test-int-dev: INT_TEST_VM_NAMES='ad switch01 node01 wireless01'
 test-int-dev: get-public
 	make PF_VM_NAME=$(PF_VM_NAME) \
 	INT_TEST_VM_NAMES="$(INT_TEST_VM_NAMES)" \
