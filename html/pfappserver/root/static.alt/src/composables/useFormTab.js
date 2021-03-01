@@ -7,7 +7,7 @@ export const useFormTab = () => {
   // template refs
   const rootRef = ref(null)
 
-  const _invalidNodes = useQuerySelectorAll(rootRef, '.form-group.is-invalid')
+  const _invalidNodes = useQuerySelectorAll(rootRef, '.form-group.is-invalid, .input-group.is-invalid')
   const _visibleInvalidNodes = computed(() => Array.prototype.slice.call(_invalidNodes.value)
     .filter(el => el.closest('fieldset').style.display !== 'none') // handle v-show <.. style="display: none;">
   )
