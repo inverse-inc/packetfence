@@ -19,22 +19,22 @@ testcases:
           "unit": "m"
         },
         "default_psk_key": null,
-        "description": "{{.wireless_dot1x_eap_peap.profiles.wired.description}}",
+        "description": "{{.wireless_dot1x_eap_peap.profiles.wireless.description}}",
         "dot1x_recompute_role_from_portal": "enabled",
         "dot1x_unset_on_unmatch": "disabled",
         "dpsk": "disabled",
         "filter": [
           {
             "type": "connection_type",
-            "match": "{{.wireless_dot1x_eap_peap.profiles.wired.filters.connection_type}}"
+            "match": "{{.wireless_dot1x_eap_peap.profiles.wireless.filters.connection_type}}"
           },
           {
             "type": "connection_sub_type",
-            "match": "{{.wireless_dot1x_eap_peap.profiles.wired.filters.connection_sub_type}}"
+            "match": "{{.wireless_dot1x_eap_peap.profiles.wireless.filters.connection_sub_type}}"
           }          
         ],
         "filter_match_style": "all",
-        "id": "{{.wireless_dot1x_eap_peap.profiles.wired.id}}",
+        "id": "{{.wireless_dot1x_eap_peap.profiles.wireless.id}}",
         "locale": null,
         "login_attempt_limit": 0,
         "logo": null,
@@ -55,7 +55,7 @@ testcases:
           "{{.wireless_dot1x_eap_peap.sources.ad_user.name}}"
         ],
         "status": "enabled",
-        "unreg_on_acct_stop": "{{.wireless_dot1x_eap_peap.profiles.wired.unreg_on_acct_stop}}",
+        "unreg_on_acct_stop": "{{.wireless_dot1x_eap_peap.profiles.wireless.unreg_on_acct_stop}}",
         "vlan_pool_technique": "username_hash"
       }
     headers:
