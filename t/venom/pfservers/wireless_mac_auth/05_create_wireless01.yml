@@ -1,7 +1,7 @@
 name: Create wireless01 with the mac 02:00:00:00:01:00 and role headless_device
 version: 2
 testcases:
-- name: get_category_id_of_role
+- name: get_category_id_of_role_wireless
   steps:
   - type: http
     method: POST
@@ -47,7 +47,7 @@ testcases:
     ignore_verify_ssl: true
     body: >-
       {
-        "category_id": "{{.get_category_id_of_role.category_id}}",
+        "category_id": "{{.get_category_id_of_role_wireless.category_id}}",
         "mac": "{{.wireless01_wlan1_mac_address}}",
         "notes": "wireless01 wlan1",
         "pid": null,
