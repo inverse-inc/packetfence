@@ -296,7 +296,7 @@ variables:
 
 .test_script:
   variables:
-    INT_TEST_VM_NAMES: ad switch01 node01
+    INT_TEST_VM_NAMES: ad switch01 node01 wireless01
   script:
     - make -e -C ${TESTDIR} test
   after_script:
