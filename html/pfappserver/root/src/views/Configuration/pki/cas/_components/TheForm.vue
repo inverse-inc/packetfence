@@ -55,6 +55,10 @@
       :column-label="$i18n.t('Days')"
       :text="$i18n.t('Number of days the CA will be valid.')"
     />
+    <form-group-ocsp-url namespace="oscp_url"
+      :column-label="$i18n.t('OCSP Url')"
+      :text="$i18n.t('Optional. This is the url of the OCSP server that will be added in the certificate.')"
+    />
     <form-group-cert namespace="cert"
       :column-label="$i18n.t('Certificate')"
       auto-fit
@@ -83,6 +87,7 @@ import {
   FormGroupKeyUsage,
   FormGroupExtendedKeyUsage,
   FormGroupDays,
+  FormGroupOcspUrl,
   FormGroupCert
 } from './'
 
@@ -104,6 +109,7 @@ const components = {
   FormGroupKeyUsage,
   FormGroupExtendedKeyUsage,
   FormGroupDays,
+  FormGroupOcspUrl,
   FormGroupCert
 }
 

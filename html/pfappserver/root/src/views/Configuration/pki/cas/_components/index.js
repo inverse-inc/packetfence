@@ -29,6 +29,7 @@ export {
   BaseFormGroupInput            as FormGroupLocality,
   BaseFormGroupInput            as FormGroupStreetAddress,
   BaseFormGroupInput            as FormGroupPostalCode,
+  BaseFormGroupInput            as FormGroupOcspUrl,
   BaseFormGroupKeyType          as FormGroupKeyType,
   BaseFormGroupKeySize          as FormGroupKeySize,
   BaseFormGroupDigest           as FormGroupDigest,
