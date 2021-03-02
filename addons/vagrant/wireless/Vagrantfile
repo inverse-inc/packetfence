@@ -47,6 +47,23 @@ Vagrant.configure("2") do |config|
                      :netmask => networks[2]['netmask'],
                      :libvirt__dhcp_enabled => false,
                      :libvirt__forward_mode => networks[2]['forward_mode']
+                     
+      # we mount test dir and local repo in VM
+      # override to avoid issue with symlink without referent
+      # see https://github.com/hashicorp/vagrant/issues/5471
+      srv.vm.synced_folder "../../t", "/src/t", type: "rsync", rsync__args: ["--verbose", "--archive", "--delete", "-z"]
+      srv.vm.synced_folder "../../public", "/src/public", type: "rsync", rsync__args: ["--verbose", "--archive", "--delete", "-z"]
+
+      # reset communicator to make /etc/environment variables available for next scripts
+      srv.vm.provision "reset", type: "shell" do |config|
+        config.reset = true
+      end
+
+      # shell provisioner to run configurator
+      srv.vm.provision "run-configurator", type: "shell" do |config|
+        config.inline = "make -C /src/t/venom configurator"
+      end
+
     end
   end
 end
