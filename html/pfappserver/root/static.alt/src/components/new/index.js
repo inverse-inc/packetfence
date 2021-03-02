@@ -1,6 +1,7 @@
 import BaseArray from './BaseArray'
 import BaseButtonConfirm from './BaseButtonConfirm'
 import BaseButtonHelp from './BaseButtonHelp'
+import BaseButtonRefresh from './BaseButtonRefresh'
 import BaseButtonSave from './BaseButtonSave'
 import BaseButtonService from './BaseButtonService'
 import BaseButtonUpload from './BaseButtonUpload'
@@ -52,6 +53,7 @@ import BaseInputRangePromise from './BaseInputRangePromise'
 import BaseInputToggle, { props as BaseInputToggleProps } from './BaseInputToggle'
 import BaseInputToggleAdvancedMode from './BaseInputToggleAdvancedMode'
 import BaseInputToggleFalseTrue from './BaseInputToggleFalseTrue'
+import BaseTableEmpty from './BaseTableEmpty'
 import BaseView from './BaseView'
 
 import { mergeProps, renderHOCWithScopedSlots } from './utils'
@@ -121,12 +123,16 @@ export {
   // buttons
   BaseButtonConfirm,
   BaseButtonHelp,
+  BaseButtonRefresh,
   BaseButtonSave,
   BaseButtonService,
   BaseButtonUpload,
 
   // containers
   BaseContainerLoading,
+  
+  // tables
+  BaseTableEmpty,
 
   // utils
   mergeProps,
