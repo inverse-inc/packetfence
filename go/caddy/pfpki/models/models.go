@@ -68,6 +68,7 @@ type (
 		Cert             string                  `json:"cert,omitempty" gorm:"type:longtext"`
 		IssuerKeyHash    string                  `json:"issuer_key_hash,omitempty" gorm:"UNIQUE_INDEX"`
 		IssuerNameHash   string                  `json:"issuer_name_hash,omitempty" gorm:"UNIQUE_INDEX"`
+		OCSPUrl          string                  `json:"ocsp_url,omitempty"`
 	}
 
 	// Profile struct
@@ -76,6 +77,13 @@ type (
 		DB                    gorm.DB                 `gorm:"-"`
 		Ctx                   context.Context         `gorm:"-"`
 		Name                  string                  `json:"name" gorm:"UNIQUE"`
+		Mail                  string                  `json:"mail,omitempty" gorm:"INDEX:mail"`
+		Organisation          string                  `json:"organisation,omitempty" gorm:"INDEX:organisation"`
+		Country               string                  `json:"country,omitempty"`
+		State                 string                  `json:"state,omitempty"`
+		Locality              string                  `json:"locality,omitempty"`
+		StreetAddress         string                  `json:"street_address,omitempty"`
+		PostalCode            string                  `json:"postal_code,omitempty"`
 		Ca                    CA                      `json:"-"`
 		CaID                  uint                    `json:"ca_id,omitempty,string" gorm:"INDEX:ca_id"`
 		CaName                string                  `json:"ca_name,omitempty" gorm:"INDEX:ca_name"`
@@ -85,6 +93,7 @@ type (
 		Digest                x509.SignatureAlgorithm `json:"digest,omitempty,string"`
 		KeyUsage              *string                 `json:"key_usage,omitempty"`
 		ExtendedKeyUsage      *string                 `json:"extended_key_usage,omitempty"`
+		OCSPUrl               string                  `json:"ocsp_url,omitempty"`
 		P12MailPassword       int                     `json:"p12_mail_password,omitempty,string"`
 		P12MailSubject        string                  `json:"p12_mail_subject,omitempty"`
 		P12MailFrom           string                  `json:"p12_mail_from,omitempty"`
@@ -256,6 +265,7 @@ func (c CA) New() (types.Info, error) {
 		EmailAddresses:        []string{c.Mail},
 		SubjectKeyId:          skid,
 		AuthorityKeyId:        skid,
+		OCSPServer:            []string{c.OCSPUrl},
 	}
 
 	var caBytes []byte
@@ -702,16 +712,40 @@ func (c Cert) New() (types.Info, error) {
 		return Information, err
 	}
 
+	Organization := prof.Organisation
+	if len(c.Organisation) > 0 {
+		Organization = c.Organisation
+	}
+	Country := prof.Country
+	if len(c.Country) > 0 {
+		Country = c.Country
+	}
+	Province := prof.State
+	if len(c.State) > 0 {
+		Province = c.State
+	}
+	Locality := prof.Locality
+	if len(c.Locality) > 0 {
+		Locality = c.Locality
+	}
+	StreetAddress := prof.StreetAddress
+	if len(c.StreetAddress) > 0 {
+		StreetAddress = c.StreetAddress
+	}
+	PostalCode := prof.PostalCode
+	if len(c.PostalCode) > 0 {
+		PostalCode = c.PostalCode
+	}
 	// Prepare certificate
 	cert := &x509.Certificate{
 		SerialNumber: SerialNumber,
 		Subject: pkix.Name{
-			Organization:  []string{c.Organisation},
-			Country:       []string{c.Country},
-			Province:      []string{c.State},
-			Locality:      []string{c.Locality},
-			StreetAddress: []string{c.StreetAddress},
-			PostalCode:    []string{c.PostalCode},
+			Organization:  []string{Organization},
+			Country:       []string{Country},
+			Province:      []string{Province},
+			Locality:      []string{Locality},
+			StreetAddress: []string{StreetAddress},
+			PostalCode:    []string{PostalCode},
 			CommonName:    c.Cn,
 		},
 		NotBefore:      time.Now(),
@@ -720,6 +754,7 @@ func (c Cert) New() (types.Info, error) {
 		KeyUsage:       x509.KeyUsage(certutils.Keyusage(strings.Split(*prof.KeyUsage, "|"))),
 		EmailAddresses: []string{c.Mail},
 		SubjectKeyId:   skid,
+		OCSPServer:     []string{prof.OCSPUrl},
 	}
 
 	// Sign the certificate
