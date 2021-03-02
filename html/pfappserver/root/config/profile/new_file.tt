@@ -1,4 +1,0 @@
-
-<form id="newFileModalForm" class="form-inline" method="POST" action="[% c.uri_for(c.controller('Config::Profile').action_for('new_file'), [ id ], path.split('/') ) %]">
-  <label>File name [% path | html %] <input type="text" name="file_name" /></label>
-</form>

@@ -67,7 +67,6 @@
 /usr/local/pf/conf/httpd.conf.d/httpd.collector.tt
 /usr/local/pf/conf/httpd.conf.d/httpd.portal.tt
 /usr/local/pf/conf/httpd.conf.d/httpd.proxy.tt
-/usr/local/pf/conf/httpd.conf.d/httpd.admin.tt
 /usr/local/pf/conf/httpd.conf.d/log.conf
 /usr/local/pf/conf/radiusd/acct.conf
 /usr/local/pf/conf/radiusd/auth.conf

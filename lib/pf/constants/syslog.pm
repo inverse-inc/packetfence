@@ -35,26 +35,6 @@ our @SyslogInfo = (
         'conditions' => [ '$programname contains "httpd_aaa"' ]
     },
     {
-        'description' => 'httpd.admin Apache access log',
-        'name'       => 'httpd.admin.access',
-        'conditions' => [ '$syslogtag contains "httpd_admin_access"' ]
-    },
-    {
-        'description' => 'httpd.admin Catalyst log',
-        'name'       => 'httpd.admin.catalyst',
-        'conditions' => [ '$syslogtag contains "admin_catalyst"' ]
-    },
-    {
-        'description' => 'httpd.admin Apache error log',
-        'name'       => 'httpd.admin.error',
-        'conditions' => [ '$syslogtag contains "httpd_admin_err"' ]
-    },
-    {
-        'description' => 'httpd.admin general log',
-        'name'       => 'httpd.admin.log',
-        'conditions' => [ '$syslogtag contains "httpd_admin"' ]
-    },
-    {
         'description' => 'httpd.collector Apache error log',
         'name'       => 'httpd.collector.error',
         'conditions' => [ '$syslogtag contains "httpd_collector_err"' ]

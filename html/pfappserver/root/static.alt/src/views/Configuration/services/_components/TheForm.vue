@@ -40,11 +40,6 @@
       :text="$i18n.t(`Should httpd.aaa be started? Keep enabled unless you know what you're doing.`)"
     />
 
-    <form-group-httpd-admin namespace="httpd_admin"
-      :column-label="$i18n.t('httpd.admin')"
-      :text="$i18n.t(`Should httpd.admin be started? Keep enabled unless you know what you're doing.`)"
-    />
-
     <form-group-httpd-collector namespace="httpd_collector"
       :column-label="$i18n.t('httpd.collector')"
       :text="$i18n.t(`Should httpd.collector be started? Keep enabled unless you know what you're doing.`)"

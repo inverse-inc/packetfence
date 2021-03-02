@@ -1,3 +1,0 @@
-<div id='nodeSecurityEvents'>
-[% INCLUDE node/security_events.tt %]
-</div>

@@ -1,10 +1,9 @@
 /**
  * "session" store module
  */
-import qs from 'qs'
 import { types } from '@/store'
 import acl, { setupAcl } from '@/utils/acl'
-import apiCall, { pfappserverCall } from '@/utils/api'
+import apiCall from '@/utils/api'
 import i18n from '@/utils/locale'
 import duration from '@/utils/duration'
 
@@ -17,9 +16,6 @@ const api = {
       apiCall.defaults.headers.common['Authorization'] = `Bearer ${response.data.token}`
       return response
     })
-  },
-  loginOldAdmin: user => {
-    return pfappserverCall.post('login', qs.stringify(user), { 'Content-Type': 'application/x-www-form-urlencoded' })
   },
   setToken: (token) => {
     apiCall.defaults.headers.common['Authorization'] = `Bearer ${token}`
@@ -72,7 +68,6 @@ const initialState = () => {
     username: '',
     expires_at: null,
     expired: false,
-    oldAdminEnabled: false,
     roles: [],
     tenant: null,
     tenant_id_mask: localStorage.getItem(STORAGE_TENANT_ID) || null,
@@ -221,12 +216,6 @@ const actions = {
     commit('LOGIN_REQUEST')
     return api.login(user).then(response => {
       const token = response.data.token
-      // Perform login through pfappserver to obtain an HTTP cookie and therefore gain access to the previous Web admin.
-      api.loginOldAdmin(user).then(() => {
-        commit('OLDADMIN_ENABLED')
-      }).catch(() => {
-        commit('OLDADMIN_DISABLED')
-      })
       return dispatch('update', token).then(() => {
         const hasAccess = ['reports', 'services', 'radius_log', 'dhcp_option_82', 'dns_log', 'admin_api_audit_log', 'nodes', 'users', 'configuration_main'].find(target => {
           return acl.$can('read', target)
@@ -251,8 +240,6 @@ const actions = {
   },
   logout: ({ dispatch }) => {
     return new Promise((resolve) => {
-      // Perform logout through pfappserver to delete the HTTP cookie
-      pfappserverCall.get('logout')
       dispatch('delete')
       resolve()
     })
@@ -456,12 +443,6 @@ const mutations = {
   },
   TENANTS_DELETED: (state) => {
     state.tenants = []
-  },
-  OLDADMIN_ENABLED: (state) => {
-    state.oldAdminEnabled = true
-  },
-  OLDADMIN_DISABLED: (state) => {
-    state.oldAdminEnabled = false
   },
   ROLES_UPDATED: (state, roles) => {
     state.roles = roles

@@ -4,6 +4,7 @@ if [ -f /usr/local/pf/var/run/pfconfig-test.pid ];then
     kill $(cat /usr/local/pf/var/run/pfconfig-test.pid)
     sleep 1
 fi
+perl $TEST_DIR/db/setup_test_db.pl
 
 SCRIPT="$1"
 if [ ! -f "$SCRIPT" ];then

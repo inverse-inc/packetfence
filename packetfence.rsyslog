@@ -63,12 +63,6 @@ if $programname contains "httpd_aaa" then -/usr/local/pf/logs/httpd.aaa.access
 
 if $syslogtag contains "packetfence" then -/usr/local/pf/logs/packetfence.log
 & stop
-if $syslogtag contains "httpd_admin_err" then -/usr/local/pf/logs/httpd.admin.error
-& stop
-if $syslogtag contains "httpd_admin_access" then -/usr/local/pf/logs/httpd.admin.access
-& stop
-if $syslogtag contains "httpd_admin" then -/usr/local/pf/logs/httpd.admin.log
-& stop
 
 if $syslogtag contains "httpd_collector_err" then -/usr/local/pf/logs/httpd.collector.error
 & stop

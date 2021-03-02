@@ -54,7 +54,7 @@ sub certs_map {
             cert_file => $server_cert,
             key_file => $server_key,
             bundle_file => $server_pem,
-            restart_services => ['httpd.admin', 'haproxy-portal', 'haproxy-admin'],
+            restart_services => ['haproxy-portal', 'haproxy-admin'],
         },
         radius => {
             cert_file => $radius_server_cert,

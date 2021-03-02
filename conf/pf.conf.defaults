@@ -455,11 +455,6 @@ iptables=enabled
 # location of the iptables binary. only necessary to change if you are not running the rpmed version.
 iptables_binary=/sbin/iptables
 #
-# services.httpd_admin
-#
-# Should httpd.admin be started?
-httpd_admin=disabled
-#
 # services.httpd_portal
 #
 # Should httpd.portal be started?

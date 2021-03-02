@@ -72,13 +72,6 @@ CHECK PROCESS packetfence-httpd.aaa MATCHING "pf/var/conf/httpd.conf.d/httpd.aaa
     stop program  = "/usr/local/pf/bin/pfcmd service httpd.aaa stop"
     if 3 restarts within 10 cycles then alert
 
-# Deprecated
-#CHECK PROCESS packetfence-httpd.admin MATCHING "pf/var/conf/httpd.conf.d/httpd.admin"
-#    group PacketFence
-#    start program = "/usr/local/pf/bin/pfcmd service httpd.admin restart" with timeout 60 seconds
-#    stop program  = "/usr/local/pf/bin/pfcmd service httpd.admin stop"
-#    if 3 restarts within 10 cycles then alert
-
 CHECK PROCESS packetfence-httpd.portal MATCHING "pf/var/conf/httpd.conf.d/httpd.portal"
     group PacketFence
     start program = "/usr/local/pf/bin/pfcmd service httpd.portal restart" with timeout 60 seconds
