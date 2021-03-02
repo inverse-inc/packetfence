@@ -62,23 +62,13 @@ const setup = (props, context) => {
           })
         })
       })
-<<<<<<< HEAD
       .catch(() => {
         progressFeedback.value = null
       })
       .finally(() => {
         isLoading.value = false
       })
-<<<<<<< HEAD
     })
-=======
->>>>>>> (admin) cleanup code, improve forms
-=======
-    })
-    .catch(() => {
-      isLoading.value = false
-    })
->>>>>>> (admin) async haproxy-admin restart
   }
 
   return {
