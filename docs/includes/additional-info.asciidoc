@@ -11,9 +11,7 @@
 
 ////
 
-
-Additional Information
-----------------------
+== Additional Information
 
 For more information, please consult the mailing archives or post your 
 questions to it. For details, see:

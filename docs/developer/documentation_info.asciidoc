@@ -1,3 +1,21 @@
+// to display images directly on GitHub
+ifdef::env-github[]
+:encoding: UTF-8
+:lang: en
+:doctype: book
+:toc: left
+:imagesdir: ../images
+endif::[]
+
+////
+
+    This file is part of the PacketFence project.
+
+    See PacketFence_Developers_Guide.asciidoc
+    for authors, copyright and license information.
+
+////
+
 //== Documentation
 
 The in-depth or more technical documentation is always as close to the code as possible. Always look at the `POD` doc footnote:[Perl's Plain Old Documentation: http://perldoc.perl.org/perlpod.html]. To do so, the preferred way is using the `perldoc` command as follows:
@@ -413,7 +431,6 @@ Start the `packetfence-iptables` service.
 === Checklist to create a new guide
 
 * [ ] create PacketFence_GUIDENAME.asciidoc based on PacketFence link:PacketFence_Template_Guide.asciidoc[_Template Guide_]
-* [ ] create PacketFence_GUIDENAME-docinfo.xml with only `copyright` tag
 * [ ] update `all` target in Makefile
 * [ ] update packaging (if necessary)
 * [ ] update website listing to add a new guide

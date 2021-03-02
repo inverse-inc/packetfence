@@ -1,10 +1,24 @@
 // to display images directly on GitHub
 ifdef::env-github[]
-:imagesdir: ../images
+:encoding: UTF-8
+:lang: en
+:doctype: book
+:toc: left
+:imagesdir: ../../images
 endif::[]
 
-JSON-RPC interface
-^^^^^^^^^^^^^^^^^^
+////
+
+    This file is part of the PacketFence project.
+
+    See PacketFence_Installation_Guide.asciidoc
+    for authors, copyright and license information.
+
+////
+
+
+==== JSON-RPC interface
+
 The JSONRPC module shipped with PacketFence is meant as a generic firewall SSO module to be used with Linux or BSD firewalls that do not by default ship with a vendor-specific interface to do SSO with.
 
 A compatible server must implement the methods `Start` and `Stop`, both with the identical set of parameters provided below.
@@ -23,8 +37,7 @@ A compatible server must implement the methods `Start` and `Stop`, both with the
 
 A simple JSON-RPC server written in Python that is compatible with this specification and creates ipsets based on the SSO information provided by PacketFence can be found at https://github.com/tribut/ipset-rpcd.
 
-SSO Configuration in PacketFence
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+==== SSO Configuration in PacketFence
 
 Go to *'Configuration' -> 'Integration' -> 'Firewall SSO' -> 'Add Firewall' -> 'JSONRPC'*.
 

@@ -7,6 +7,15 @@ ifdef::env-github[]
 :imagesdir: ../images
 endif::[]
 
+////
+
+    This file is part of the PacketFence project.
+
+    See PacketFence_Clustering_Guide.asciidoc
+    for authors, copyright and license information.
+
+////
+
 //== Layer 3 clusters
 
 PacketFence supports having clusters where servers are located in multiple layer 3 networks which we will also refer as cluster zones.
