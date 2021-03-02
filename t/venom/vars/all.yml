@@ -214,3 +214,57 @@ captive_portal.profiles.locales4: it_IT
 
 # URL
 captive_portal.reg.url: 'https://{{.configurator.interfaces.reg.ip}}/captive-portal'
+
+################################################################################
+# dot1x_eap_tls_pfpki test suite specific variables
+################################################################################
+### Templates
+dot1x_eap_tls_pfpki.templates.radius.name: radius
+dot1x_eap_tls_pfpki.templates.http.name: http
+dot1x_eap_tls_pfpki.templates.user.name: user
+
+### Certs
+dot1x_eap_tls_pfpki.certs.validity: 750
+dot1x_eap_tls_pfpki.certs.key_size: 2048
+dot1x_eap_tls_pfpki.certs.key_type: 1
+dot1x_eap_tls_pfpki.certs.digest: 4
+
+# CA
+dot1x_eap_tls_pfpki.certs.ca.country: CA
+dot1x_eap_tls_pfpki.certs.ca.state: Quebec
+dot1x_eap_tls_pfpki.certs.ca.locality: Montreal
+dot1x_eap_tls_pfpki.certs.ca.street_address: 7000 park avenue
+dot1x_eap_tls_pfpki.certs.ca.postal_code: H3N 1X1
+dot1x_eap_tls_pfpki.certs.ca.organisation: Inverse
+dot1x_eap_tls_pfpki.certs.ca.cn: InverseCA
+dot1x_eap_tls_pfpki.certs.ca.mail: '{{.dot1x_eap_tls_pfpki.certs.ca.cn}}@{{.configurator.domain}}'
+dot1x_eap_tls_pfpki.certs.ca.issuer: "/C={{.dot1x_eap_tls_pfpki.certs.ca.country}}/ST={{.dot1x_eap_tls_pfpki.certs.ca.state}}/L={{.dot1x_eap_tls_pfpki.certs.ca.locality}}/street={{.dot1x_eap_tls_pfpki.certs.ca.street_address}}/postalCode={{.dot1x_eap_tls_pfpki.certs.ca.postal_code}}/O={{.dot1x_eap_tls_pfpki.certs.ca.organisation}}/CN={{.dot1x_eap_tls_pfpki.certs.ca.cn}}"
+
+# RADIUS
+dot1x_eap_tls_pfpki.certs.radius.cn: pf_radius
+dot1x_eap_tls_pfpki.certs.radius.mail: '{{.dot1x_eap_tls_pfpki.certs.radius.cn}}@{{.configurator.domain}}'
+
+# HTTP
+dot1x_eap_tls_pfpki.certs.http.cn: pf_http
+dot1x_eap_tls_pfpki.certs.http.mail: '{{.dot1x_eap_tls_pfpki.certs.http.cn}}@{{.configurator.domain}}'
+
+# User
+dot1x_eap_tls_pfpki.certs.user.cn: usercertificate
+dot1x_eap_tls_pfpki.certs.user.mail: '{{.dot1x_eap_tls_pfpki.certs.user.cn}}@{{.configurator.domain}}'
+
+# Roles
+dot1x_eap_tls_pfpki.roles.dot1x_eap_tls.id: dot1x_eap_tls
+dot1x_eap_tls_pfpki.roles.dot1x_eap_tls.notes: 802.1x role for PacketFence PKI
+dot1x_eap_tls_pfpki.roles.dot1x_eap_tls.vlan_id: 100
+
+# Sources
+dot1x_eap_tls_pfpki.sources.eaptls.name: 'eaptls'
+dot1x_eap_tls_pfpki.sources.eaptls.description: 'EAP-TLS source'
+dot1x_eap_tls_pfpki.sources.eaptls.access_duration: '{{.access_duration.default_choice}}'
+
+# Connection profiles
+dot1x_eap_tls_pfpki.profiles.wired.id: catch_dot1x_wired_eap_tls
+dot1x_eap_tls_pfpki.profiles.wired.description: 802.1X wired EAP-TLS
+dot1x_eap_tls_pfpki.profiles.wired.filters.connection_type: Ethernet-EAP
+dot1x_eap_tls_pfpki.profiles.wired.filters.connection_sub_type: EAP-TLS
+dot1x_eap_tls_pfpki.profiles.wired.unreg_on_acct_stop: enabled
