@@ -1,9 +1,10 @@
 <template>
-  <b-form @submit.prevent="onCreate" ref="rootRef">
+  <b-form @submit.prevent ref="rootRef">
     <base-form
       :form="form"
       :schema="schema"
       :isLoading="isLoading"
+      class="pt-0"
     >
       <form-group-pid-overwrite namespace="pid_overwrite"
         :column-label="$t('Username (PID) overwrite')"
@@ -13,7 +14,7 @@
       <!--- pid w/ domain_name -->
       <form-group-pid v-if="domainName"
         namespace="pid"
-        :column-label="$i18n.t('Username (PID')"
+        :column-label="$i18n.t('Username (PID)')"
         :text="$t('The username to use for login to the captive portal. The tenants domain_name will be appended to the username.')"
       >
         <template v-slot:append>
@@ -24,7 +25,7 @@
       <!-- pid wo/ domain_name -->
       <form-group-pid v-else
         namespace="pid"
-        :column-label="$i18n.t('Username (PID')"
+        :column-label="$i18n.t('Username (PID)')"
         :text="$t('The username to use for login to the captive portal.')"
       />
 
@@ -48,116 +49,88 @@
       />
 
       <form-group-language namespace="language"
-        :column-label="$t('Language')"
-      />
+        :column-label="$t('Language')" />
 
       <form-group-gender namespace="gender"
-        :column-label="$t('Gender')"
-      />
+        :column-label="$t('Gender')" />
 
       <form-group-title namespace="title"
-        :column-label="$t('Title')"
-      />
+        :column-label="$t('Title')" />
 
       <form-group-firstname namespace="firstname"
-        :column-label="$t('Firstname')"
-      />
+        :column-label="$t('Firstname')" />
 
       <form-group-lastname namespace="lastname"
-        :column-label="$t('Lastname')"
-      />
+        :column-label="$t('Lastname')" />
 
       <form-group-nickname namespace="nickname"
-        :column-label="$t('Nickname')"
-      />
+        :column-label="$t('Nickname')" />
 
       <form-group-company namespace="company"
-        :column-label="$t('Company')"
-      />
+        :column-label="$t('Company')" />
 
       <form-group-telephone namespace="telephone"
-        :column-label="$t('Telephone number')"
-      />
+        :column-label="$t('Telephone number')" />
 
       <form-group-cell-phone namespace="cell_phone"
-        :column-label="$t('Cellphone number')"
-      />
+        :column-label="$t('Cellphone number')" />
 
       <form-group-work-phone namespace="work_phone"
-        :column-label="$t('Workphone number')"
-      />
+        :column-label="$t('Workphone number')" />
 
       <form-group-apartment-number namespace="apartment_number"
-        :column-label="$t('Apartment number')"
-      />
+        :column-label="$t('Apartment number')" />
 
       <form-group-building-number namespace="building_number"
-        :column-label="$t('Building Number')"
-      />
+        :column-label="$t('Building Number')" />
 
       <form-group-room-number namespace="room_number"
-        :column-label="$t('Room Number')"
-      />
+        :column-label="$t('Room Number')" />
 
       <form-group-address namespace="address"
-        :column-label="$t('Address')"
-      />
+        :column-label="$t('Address')" />
 
       <form-group-anniversary namespace="anniversary"
-        :column-label="$t('Anniversary')"
-      />
+        :column-label="$t('Anniversary')" />
 
       <form-group-birthday namespace="birthday"
-        :column-label="$t('Birthday')"
-      />
+        :column-label="$t('Birthday')" />
 
       <form-group-psk namespace="psk"
-        :column-label="$t('Psk')"
-      />
+        :column-label="$t('Psk')" />
 
       <form-group-notes namespace="notes"
-        :column-label="$t('Notes')"
-      />
+        :column-label="$t('Notes')" />
 
       <form-group-custom-field-1 namespace="custom_field_1"
-        :column-label="$t('Custom Field 1')"
-      />
+        :column-label="$t('Custom Field 1')" />
 
       <form-group-custom-field-2 namespace="custom_field_2"
-        :column-label="$t('Custom Field 2')"
-      />
+        :column-label="$t('Custom Field 2')" />
 
       <form-group-custom-field-3 namespace="custom_field_3"
-        :column-label="$t('Custom Field 3')"
-      />
+        :column-label="$t('Custom Field 3')" />
 
       <form-group-custom-field-4 namespace="custom_field_4"
-        :column-label="$t('Custom Field 4')"
-      />
+        :column-label="$t('Custom Field 4')"  />
 
       <form-group-custom-field-5 namespace="custom_field_5"
-        :column-label="$t('Custom Field 5')"
-      />
+        :column-label="$t('Custom Field 5')" />
 
       <form-group-custom-field-6 namespace="custom_field_6"
-        :column-label="$t('Custom Field 6')"
-      />
+        :column-label="$t('Custom Field 6')" />
 
       <form-group-custom-field-7 namespace="custom_field_7"
-        :column-label="$t('Custom Field 7')"
-      />
+        :column-label="$t('Custom Field 7')" />
 
       <form-group-custom-field-8 namespace="custom_field_8"
-        :column-label="$t('Custom Field 8')"
-      />
+        :column-label="$t('Custom Field 8')" />
 
       <form-group-custom-field-9 namespace="custom_field_9"
-        :column-label="$t('Custom Field 9')"
-      />
+        :column-label="$t('Custom Field 9')" />
 
       <base-form-group
-        :column-label="$t('Registration Window')"
-      >
+        :column-label="$t('Registration Window')">
         <input-group-valid-from namespace="valid_from"
           class="flex-grow-1" />
         <b-button variant="link" disabled><icon name="long-arrow-alt-right"></icon></b-button>
@@ -166,8 +139,7 @@
       </base-form-group>
 
       <form-group-actions namespace="actions"
-        :column-label="$t('Actions')"
-      />
+        :column-label="$t('Actions')" />
 
       <div class="w-100 border-top m-n3 p-3">
         <base-form-button-bar
@@ -182,6 +154,7 @@
         />
       </div>
     </base-form>
+    <users-preview-modal v-model="showUsersPreviewModal" store-name="$_users"/>
   </b-form>
 </template>
 <script>
@@ -229,7 +202,7 @@ import {
   InputGroupExpiration,
   FormGroupActions
 } from './'
-
+import UsersPreviewModal from './UsersPreviewModal'
 
 const components = {
   BaseForm,
@@ -272,13 +245,13 @@ const components = {
 
   InputGroupValidFrom,
   InputGroupExpiration,
-  FormGroupActions
+  FormGroupActions,
+  UsersPreviewModal
 }
 
-import { computed, provide, ref } from '@vue/composition-api'
+import { computed, ref } from '@vue/composition-api'
 import { useDebouncedWatchHandler } from '@/composables/useDebounce'
-import { pfActions } from '@/globals/pfActions'
-import schemaFn from '../schema'
+import { single as schemaFn } from '../schema'
 
 const defaults = {
   pid_overwrite: 0,
@@ -342,24 +315,6 @@ const setup = (props, context) => {
     return domain_name
   })
 
-  // provide actions to child components
-  const actions = ref([])
-  provide('actions', actions) // for FormGroupActions
-  $store.dispatch('session/getAllowedUserActions').then(allowedActions => {
-    actions.value = allowedActions.map(({action}) => {
-      switch (action) {
-        case 'set_access_duration':
-        case 'set_access_level':
-        case 'set_role':
-        case 'set_unreg_date':
-          return pfActions[`${action}_by_acl_user`] // remap action to user ACL
-          // break
-        default:
-          return pfActions[action] // passthrough
-      }
-    })
-  })
-
   const onClose = () => {
     $router.push({ name: 'users' })
   }
@@ -396,7 +351,6 @@ const setup = (props, context) => {
     onReset,
     showUsersPreviewModal
   }
-
 }
 
 // @vue/component

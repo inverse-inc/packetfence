@@ -53,19 +53,12 @@ export default {
       usersTemplates: []
     }
   },
-  props: {
-    storeName: { // from router
-      type: String,
-      default: null,
-      required: true
-    }
-  },
   computed: {
     isLoading () {
       return this.$store.getters['$_users/isLoading']
     },
     users () {
-      return this.$store.state[this.storeName].createdUsers
+      return this.$store.state['$_users'].createdUsers
     },
     canSend () {
       return this.users.find(user => user.email)

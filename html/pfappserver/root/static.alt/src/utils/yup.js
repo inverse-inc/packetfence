@@ -29,7 +29,7 @@ yup.addMethod(yup.array, 'required', function (message) {
   return this.test({
     name: 'required',
     message: message || i18n.t('${path} required.'),
-    test: value => (value.length > 0)
+    test: value => (value && value.length > 0)
   })
 })
 

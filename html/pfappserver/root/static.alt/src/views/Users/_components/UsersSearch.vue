@@ -12,7 +12,7 @@
       :fields="fields"
       :advanced-mode="advancedMode"
       :condition="condition"
-      :storeName="storeName"
+      storeName="$_users"
       @submit-search="onSearch"
       @reset-search="onReset"
       @import-search="onImport"></pf-search>
@@ -171,11 +171,6 @@ export default {
     scroll100
   },
   props: {
-    storeName: { // from router
-      type: String,
-      default: null,
-      required: true
-    },
     searchableOptions: {
       type: Object,
       default: () => ({
@@ -603,7 +598,7 @@ export default {
     applyBulkSecurityEvent (securityEvent) {
       const pids = this.selectValues.map(item => item.pid)
       if (pids.length > 0) {
-        this.$store.dispatch(`${this.storeName}/bulkApplySecurityEvent`, { vid: securityEvent.vid, items: pids }).then(items => {
+        this.$store.dispatch(`$_users/bulkApplySecurityEvent`, { vid: securityEvent.vid, items: pids }).then(items => {
           let securityEventCount = 0
           items.forEach(item => {
             let index = this.tableValues.findIndex(value => value.pid === item.pid)
@@ -630,7 +625,7 @@ export default {
     applyBulkCloseSecurityEvent () {
       const pids = this.selectValues.map(item => item.pid)
       if (pids.length > 0) {
-        this.$store.dispatch(`${this.storeName}/bulkCloseSecurityEvents`, { items: pids }).then(items => {
+        this.$store.dispatch(`$_users/bulkCloseSecurityEvents`, { items: pids }).then(items => {
           let securityEventCount = 0
           items.forEach(item => {
             let index = this.tableValues.findIndex(value => value.pid === item.pid)
@@ -657,7 +652,7 @@ export default {
     applyBulkRegister () {
       const pids = this.selectValues.map(item => item.pid)
       if (pids.length > 0) {
-        this.$store.dispatch(`${this.storeName}/bulkRegisterNodes`, { items: pids }).then(items => {
+        this.$store.dispatch(`$_users/bulkRegisterNodes`, { items: pids }).then(items => {
           let nodeCount = 0
           items.forEach(item => {
             let index = this.tableValues.findIndex(value => value.pid === item.pid)
@@ -684,7 +679,7 @@ export default {
     applyBulkDeregister () {
       const pids = this.selectValues.map(item => item.pid)
       if (pids.length > 0) {
-        this.$store.dispatch(`${this.storeName}/bulkDeregisterNodes`, { items: pids }).then(items => {
+        this.$store.dispatch(`$_users/bulkDeregisterNodes`, { items: pids }).then(items => {
           let nodeCount = 0
           items.forEach(item => {
             let index = this.tableValues.findIndex(value => value.pid === item.pid)
@@ -711,7 +706,7 @@ export default {
     applyBulkRole (role) {
       const pids = this.selectValues.map(item => item.pid)
       if (pids.length > 0) {
-        this.$store.dispatch(`${this.storeName}/bulkApplyRole`, { category_id: role.category_id, items: pids }).then(items => {
+        this.$store.dispatch(`$_users/bulkApplyRole`, { category_id: role.category_id, items: pids }).then(items => {
           let nodeCount = 0
           items.forEach(item => {
             let index = this.tableValues.findIndex(value => value.pid === item.pid)
@@ -738,7 +733,7 @@ export default {
     applyBulkBypassRole (role) {
       const pids = this.selectValues.map(item => item.pid)
       if (pids.length > 0) {
-        this.$store.dispatch(`${this.storeName}/bulkApplyBypassRole`, { bypass_role_id: role.category_id, items: pids }).then(items => {
+        this.$store.dispatch(`$_users/bulkApplyBypassRole`, { bypass_role_id: role.category_id, items: pids }).then(items => {
           let nodeCount = 0
           items.forEach(item => {
             let index = this.tableValues.findIndex(value => value.pid === item.pid)
@@ -765,7 +760,7 @@ export default {
     applyBulkReevaluateAccess () {
       const pids = this.selectValues.map(item => item.pid)
       if (pids.length > 0) {
-        this.$store.dispatch(`${this.storeName}/bulkReevaluateAccess`, { items: pids }).then(items => {
+        this.$store.dispatch(`$_users/bulkReevaluateAccess`, { items: pids }).then(items => {
           let nodeCount = 0
           items.forEach(item => {
             let index = this.tableValues.findIndex(value => value.pid === item.pid)
@@ -792,7 +787,7 @@ export default {
     applyBulkRefreshFingerbank () {
       const pids = this.selectValues.map(item => item.pid)
       if (pids.length > 0) {
-        this.$store.dispatch(`${this.storeName}/bulkRefreshFingerbank`, { items: pids }).then(items => {
+        this.$store.dispatch(`$_users/bulkRefreshFingerbank`, { items: pids }).then(items => {
           let nodeCount = 0
           items.forEach(item => {
             let index = this.tableValues.findIndex(value => value.pid === item.pid)
@@ -819,7 +814,7 @@ export default {
     applyBulkDelete () {
       const pids = this.selectValues.map(item => item.pid)
       if (pids.length > 0) {
-        this.$store.dispatch(`${this.storeName}/bulkDelete`, { items: pids }).then(items => {
+        this.$store.dispatch(`$_users/bulkDelete`, { items: pids }).then(items => {
           let nodeCount = 0
           items.forEach(item => {
             let index = this.tableValues.findIndex(value => value.pid === item.pid)
