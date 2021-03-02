@@ -36,7 +36,7 @@ testcases:
     assertions:
       - result.statuscode ShouldEqual 200
     vars:
-      category_id:
+      category_id2:
         from: result.bodyjson.items.items0.category_id
 
 - name: create_wireless01
@@ -47,7 +47,7 @@ testcases:
     ignore_verify_ssl: true
     body: >-
       {
-        "category_id": "{{.get_category_id_of_role_wireless.category_id}}",
+        "category_id": "{{.get_category_id_of_role_wireless.category_id2}}",
         "mac": "{{.wireless01_wlan1_mac_address}}",
         "notes": "wireless01 wlan1",
         "pid": null,
