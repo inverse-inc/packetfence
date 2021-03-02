@@ -21,7 +21,7 @@ configurator:
 # if setup is a dependency to test target, putting setup as a dependency to other
 # targets doesn't cause a recall
 .PHONY: test
-test: setup global_config dot1x_eap_peap wired_mac_auth dot1x_eap_tls_pfpki backup_db_and_restore global_teardown
+test: setup global_config dot1x_eap_peap wired_mac_auth backup_db_and_restore global_teardown
 
 .PHONY: setup
 setup:
