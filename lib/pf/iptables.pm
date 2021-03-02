@@ -125,7 +125,7 @@ sub iptables_generate {
         'routed_postrouting_inline' => '','input_inter_vlan_if' => '',
         'domain_postrouting' => '','mangle_postrouting_inline' => '',
         'filter_forward_isol_vlan' => '', 'input_inter_isol_vlan_if' => '',
-        'filter_forward' => '',
+        'filter_forward' => '', 'forward_netflow' => '',
     );
 
     # global substitution variables
@@ -188,6 +188,7 @@ sub iptables_generate {
   );
 
     generate_domain_rules(\$tags{'filter_forward_domain'}, \$tags{'domain_postrouting'});
+    generate_netflow_rules(\$tags{'forward_netflow'});
 
     parse_template( \%tags, "$conf_dir/iptables.conf", "$generated_conf_dir/iptables.conf" );
     $self->iptables_restore("$generated_conf_dir/iptables.conf");
@@ -801,6 +802,27 @@ sub generate_domain_rules {
     my $mgmt_ip = (defined($management_network->tag('vip'))) ? $management_network->tag('vip') : $management_network->tag('ip');
     my $mgmt_int = $management_network->tag('int');
     $$domain_postrouting .= "-A POSTROUTING -s $domain_network -o $mgmt_int -j SNAT --to-source $mgmt_ip \n"
+}
+
+sub generate_netflow_rules {
+    my ($forward_netflow_ref) = @_;
+    if (netflow_enabled()) {
+        $$forward_netflow_ref .= "-I FORWARD -j NETFLOW\n";
+    }
+}
+
+sub netflow_enabled {
+    if (isenabled($Config{advanced}{netflow_on_all_networks})) {
+        return $TRUE;
+    }
+
+    while( my ($network, $data) = each %ConfigNetworks ) {
+        # We skip non-inline networks/interfaces
+        next if ( !pf::config::is_network_type_inline($network) );
+        return $TRUE if isenabled($data->{netflow_accounting_enabled} || 'disabled');
+    }
+
+    return $FALSE;
 }
 
 =back

@@ -169,7 +169,8 @@
 
 ### FORWARD ###
 :FORWARD DROP [0:0]
--I FORWARD -j NETFLOW
+
+%%forward_netflow%%
 
 :forward-internal-vlan-if - [0:0]
 %%filter_forward_vlan%%
