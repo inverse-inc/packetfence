@@ -64,6 +64,8 @@ node01_eth1_mac_address_url_encoded: 00%3A03%3A00%3A11%3A11%3A01
 wireless01_mgmt_ip: 172.17.17.210
 wireless01_wlan1_mac_address: 02:00:00:00:01:00
 wireless01_wlan1_mac_address_url_encoded: 02%3A00%3A00%3A00%3A01%3A00
+wireless01.dot1x_interface.id: eth2
+wireless01.dot1x_interface.mac: 02:00:00:00:00:00
 
 # network detection
 network_detection_url: http://192.95.20.194/common/network-access-detection.gif
@@ -99,6 +101,16 @@ cumulus_switch_group.radiusSecret: testing123
 cumulus_switch.id1: '{{.switch01_mgmt_ip}}'
 cumulus_switch.id2: '{{.switch01.dot1x_interface.mac}}'
 cumulus_switch.description: switch01
+
+# Wireless Switch group
+wireless_switch_group.id: wireless_switch_group
+wireless_switch_group.description: Wireless switch group
+wireless_switch_group.radiusSecret: anHardSharedSecret
+
+# Wireless Switch
+wireless_switch.id1: '{{.wireless01_mgmt_ip}}'
+wireless_switch.id2: '{{.wireless01.dot1x_interface.mac}}'
+wireless_switch.description: wireless01
 
 ################################################################################
 # dot1x_eap_peap test suite specific variables
