@@ -302,8 +302,15 @@ const pfActionSchema = yup.object({
           // break
         case type === 'set_access_level':
         case type === 'set_access_level_by_acl_user':
-          return yup.array().ensure().of(yup.string().nullable()).required(i18n.t('Level(s) required.'))
+          return yup.array()
+            .of(yup.string().nullable())
+            .required(i18n.t('Level(s) required.')) 
           // break
+        case type === 'set_access_durations':
+          return yup.array()
+            .of(yup.string().nullable())
+            .required(i18n.t('Duration(s) required.')) 
+            // break
         default:
           return yup.string().nullable()
             .required(i18n.t('Value required.'))

@@ -22,7 +22,6 @@
   </b-card>
 </template>
 <script>
-
 import TheFormCreateSingle from './TheFormCreateSingle'
 import TheFormCreateMultiple from './TheFormCreateMultiple'
 
@@ -31,10 +30,37 @@ const components = {
   TheFormCreateMultiple
 }
 
+import { provide, ref } from '@vue/composition-api'
+import { pfActions } from '@/globals/pfActions'
+
+const setup = (props, context) => {
+
+  const { root: { $store } = {} } = context
+
+  // provide actions to child components
+  const actions = ref([])
+  provide('actions', actions) // for FormGroupActions
+  $store.dispatch('session/getAllowedUserActions').then(allowedActions => {
+    actions.value = allowedActions.map(({action}) => {
+      switch (action) {
+        case 'set_access_duration':
+        case 'set_access_level':
+        case 'set_role':
+        case 'set_unreg_date':
+          return pfActions[`${action}_by_acl_user`] // remap action to user ACL
+          // break
+        default:
+          return pfActions[action] // passthrough
+      }
+    })
+  })
+}
+
 // @vue/component
 export default {
   name: 'the-view-create',
   inheritAttrs: false,
-  components
+  components,
+  setup
 }
 </script>
