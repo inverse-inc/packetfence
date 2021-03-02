@@ -5,22 +5,7 @@
   tags: upgrade
 
   tasks:
-    - name: update to latest OS version (Debian)
-      apt:
-        name: '*'
-        state: latest
-        update_cache: yes
-      register: upgrade_os_deb_register
-      when: ansible_os_family == 'Debian'
+    - name: include distribution specific tasks
+      include_tasks: "{{ ansible_os_family|lower }}.yml"
 
-    - name: update to latest OS version (EL)
-      yum:
-        name: '*'
-        state: latest
-        update_cache: yes
-      register: upgrade_os_el_register
-      when: ansible_os_family == 'RedHat'
 
-    - name: reboot to have latest Linux kernel packages in place when installing PacketFence
-      reboot:
-      when: (upgrade_os_deb_register is changed or upgrade_os_el_register is changed)
