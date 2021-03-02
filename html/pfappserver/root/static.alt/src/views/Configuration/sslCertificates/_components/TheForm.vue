@@ -109,7 +109,7 @@
               :column-label="$i18n.t('Find intermediate CA certificates automatically')"
             />
 
-            <form-group-intermediate-certificate-authorities v-if="!isFindIntermediateCas"
+            <form-group-intermediate-certification-authorities v-if="!isFindIntermediateCas"
               namespace="intermediate_cas"
               :column-label="$i18n.t('Intermediate CA certificate(s)')"
             />
