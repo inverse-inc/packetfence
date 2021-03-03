@@ -4,7 +4,7 @@ testcases:
 - name: check_wlan0.x_int_status_on_wireless01
   steps:
   - type: exec
-    script: "sudo ip a s wlan0.{{.wireless_dot1x_eap_peap.roles.headless_device.vlan_id}}"
+    script: "sudo ip a s wlan0.{{.wireless_dot1x_eap_peap.roles.ad_machine.vlan_id}}"
     assertions:
       - result.systemout ShouldContainSubstring "qdisc mq master brvlan{{.wireless_dot1x_eap_peap.roles.ad_machine.vlan_id}} state"
       - result.code ShouldEqual 0
