@@ -14,6 +14,9 @@ echo -e "iface lo inet loopback\n\n" >> /etc/network/interfaces
 echo -e "\n\nauto eth0" >> /etc/network/interfaces
 echo -e "iface eth0 inet dhcp\n\n" >> /etc/network/interfaces
 
+# Make DHCP Try Over and Over Again
+echo "retry 1;" >> /etc/dhcp/dhclient.conf
+
 # Other stuff
 ping 8.8.8.8 -c2
 if [ "$?" == "0" ]; then
@@ -21,9 +24,6 @@ if [ "$?" == "0" ]; then
     apt-get update -qy
     apt-get install lldpd ntp ntpdate unzip curl -qy
     echo "configure lldp portidsubtype ifname" > /etc/lldpd.d/port_info.conf
-
-    # to avoid conflict with systemd-networkd
-    apt-get remove isc-dhcp-client -qy
 
 fi
 
