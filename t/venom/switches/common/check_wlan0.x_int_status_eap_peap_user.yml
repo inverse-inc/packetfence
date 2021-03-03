@@ -1,0 +1,16 @@
+name: Check wlan0.x interface status on wireless01
+version: 2
+testcases:
+- name: check_wlan0.x_int_status_on_wireless01_user
+  steps:
+  - type: exec
+    script: "sudo ip a s wlan0.{{.wireless_dot1x_eap_peap.roles.ad_user.vlan_id}}"
+    assertions:
+      - result.systemout ShouldContainSubstring "qdisc mq master brvlan{{.wireless_dot1x_eap_peap.roles.ad_user.vlan_id}} state"
+      - result.code ShouldEqual 0
+
+
+
+
+
+
