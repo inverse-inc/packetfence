@@ -72,12 +72,24 @@
       :column-label="$i18n.t('Device Attributes weight')"
       :text="$i18n.t('Override the weight of the different attributes when matching them against the pristine profiles.')"
     />
+    
+    <base-form-group>
+      <b-alert show variant="info" class="w-100">
+        <p v-t="$i18n.t('Default weights')"/>
+        <table class="table table-responsive table-sm small mb-0 w-100">
+          <tbody class="w-100">
+            <tr v-for="(attribute, index) in weights" :key="index" class="w-100"><th>{{ attribute.defaultWeight }}</th><td class="w-100">{{ attribute.text }}</td></tr>
+          </tbody>
+        </table>        
+      </b-alert>
+    </base-form-group>    
   </base-form>
 </template>
 <script>
 import { computed, provide, reactive, ref, toRefs, watch } from '@vue/composition-api'
 import {
-  BaseForm
+  BaseForm,
+  BaseFormGroup
 } from '@/components/new/'
 import schemaFn from '../schema'
 import {
@@ -99,7 +111,8 @@ import {
 
 const components = {
   BaseForm,
-
+  BaseFormGroup,
+  
   FormGroupBlacklistedIpHostsThreshold,
   FormGroupBlacklistedIpHostsWindow,
   FormGroupBlacklistedPorts,
@@ -140,6 +153,8 @@ export const props = {
   }
 }
 
+import { deviceAttributes } from '../config'
+
 export const setup = (props) => {
 
   const {
@@ -160,9 +175,12 @@ export const setup = (props) => {
   watch(id, () => {
     showUuid.value = null
   })
-
+  
+  const weights = computed(() => Object.values(deviceAttributes))
+  
   return {
-    schema
+    schema,
+    weights
   }
 }
 
