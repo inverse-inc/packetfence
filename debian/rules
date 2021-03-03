@@ -254,7 +254,6 @@ binary-arch: build install
 			/usr/local/fingerbank/lib/fingerbank /usr/local/pf/lib/fingerbank \
 			/usr/local/pf/html/pfappserver/lib/pfappserver /usr/local/pf/lib/pfappserver \
 			/usr/local/pf/html/captive-portal/lib/captiveportal /usr/local/pf/lib/captiveportal \
-			/usr/local/pf/html/pfappserver/root/static.alt/dist /usr/local/pf/html/pfappserver/root/static/alt
 	dh_strip
 	dh_compress
 	# PERMISSIONS
