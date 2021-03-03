@@ -16,12 +16,6 @@ if [ ! -x /usr/bin/repoquery ];then
     exit 1
 fi
 
-if [ ! -x /usr/bin/rpmspec ];then
-    echo "Package rpm-build is not installed to run"
-    echo " yum install rpm-build"
-    exit 1
-fi
-
 YUM="yum --disablerepo=* $PF_REPO $STD_REPOS -y"
 $YUM makecache
 echo installing the packetfence dependencies from the $REPO repo
@@ -30,7 +24,16 @@ REPOQUERY="repoquery --queryformat=%{NAME} --disablerepo=* $PF_REPO $STD_REPOS -
 
 EL_VERSION=$(cat /etc/redhat-release | perl -p -e's/^.*(\d+)\..*$/$1/' )
 
-rpm -q -D"el$EL_VERSION 1" --requires  --specfile $SPEC \
+if [ ! -x /usr/bin/rpmspec ];then
+    echo "Package rpm-build is not installed to run"
+    echo "Using 'yum deplist' as a fallback"
+    $YUM deplist packetfence \
+    | awk '/provider:/ {print $2}' \
+    | sort -u \
+    | xargs $YUM install
+else
+    rpm -q -D"el$EL_VERSION 1" --requires  --specfile $SPEC \
     | grep -v 'fingerbank >' \
     | perl -pi -e's/ +$//' | sort -u \
     | xargs -d '\n' $YUM install
+fi
