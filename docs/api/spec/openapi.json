@@ -1093,6 +1093,10 @@
                         "description" : "Should httpd.aaa be started? Keep enabled unless you know what you're doing.",
                         "type" : "string"
                      },
+                     "httpd_admin" : {
+                        "description" : "Should httpd.admin be started? Keep enabled unless you know what you're doing.",
+                        "type" : "string"
+                     },
                      "httpd_collector" : {
                         "description" : "Should httpd.collector be started? Keep enabled unless you know what you're doing.",
                         "type" : "string"
