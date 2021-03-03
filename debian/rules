@@ -167,12 +167,9 @@ install: build
 	# images
 	make DESTDIR=$(CURDIR)/debian/packetfence-doc images
 
-	install -d -m0755 $(CURDIR)/debian/packetfence-pfappserver-javascript$(PREFIX)/$(NAME)/html/pfappserver/root/static
-	for i in `find * -wholename "*js/pfappserver.*" -o -wholename "*js/reports.*" -o -wholename "*js/auditing.*" -o -wholename "*js/configuration.*" -o -wholename "*js/vendor/bootstrap.min.js*" -o -wholename "*js/vendor/jquery.min.*" -o -wholename "*js/vendor/jquery-ui.min.js*" -o -wholename "*js/vendor/jquery-extra.min.js*" -o -wholename "*js/vendor/raphael.min.js*" -o -wholename "*js/vendor/ace/*.js" -o -wholename "*js/vendor/fitty.min.js*" -o -wholename "*css/styles.css" -o -wholename "*css/styles.css.map" -path 'html/pfappserver/root/static/*' -type f`; do \
-		install -D -m0644 $$i $(CURDIR)/debian/packetfence-pfappserver-javascript$(PREFIX)/$(NAME)/$$i; \
-	done
-	install -d -m0755 $(CURDIR)/debian/packetfence-pfappserver-javascript$(PREFIX)/$(NAME)/html/pfappserver/root/static.alt
-	for i in `find 'html/pfappserver/root/static.alt/dist' -type f`; do \
+	# html_install
+	install -d -m0755 $(CURDIR)/debian/packetfence-pfappserver-javascript$(PREFIX)/$(NAME)/html/pfappserver/root
+	for i in `find 'html/pfappserver/root/dist' -type f`; do \
 		install -D -m0644 $$i $(CURDIR)/debian/packetfence-pfappserver-javascript$(PREFIX)/$(NAME)/$$i; \
 	done
 	#Golang binary
