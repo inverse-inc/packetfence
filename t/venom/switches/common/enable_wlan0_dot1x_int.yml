@@ -6,4 +6,4 @@ testcases:
   - type: exec
     script: "sudo systemctl restart hostapd_secure"
     assertions:
-      - result.statuscode ShouldEqual 0
+      - result.code ShouldEqual 0

@@ -7,4 +7,4 @@ testcases:
     script: "sudo ip a s wlan0.2"
     assertions:
       - result.systemout ShouldContainSubstring "qdisc mq master brvlan2 state"
-      - result.statuscode ShouldEqual 0
+      - result.code ShouldEqual 0

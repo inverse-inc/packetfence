@@ -7,4 +7,4 @@ testcases:
     script: "sudo ip a s wlan0"
     assertions:
       - result.systemout ShouldContainSubstring "state UP"
-      - result.statuscode ShouldEqual 0
+      - result.code ShouldEqual 0

@@ -1,1 +1,9 @@
-../../switches/common/check_wlan0.100_int_status.yml
+name: Check dynamic VLAN assignement for wlan0 on wireless01
+version: 2
+testcases:
+- name: check_dynamic_vlan_on_wlan0_for_wireless01
+  steps:
+    - type: ssh
+      host: '{{.wireless01_mgmt_ip}}'
+      user: '{{.ssh_user}}'
+      command: '/src/t/venom/venom-wrapper.sh {{.switch_test_suite_dir}}/common/check_wlan0.x_int_status_eap_peap.yml'
