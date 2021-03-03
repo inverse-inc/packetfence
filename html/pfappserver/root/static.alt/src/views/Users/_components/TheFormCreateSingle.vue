@@ -141,17 +141,19 @@
       <form-group-actions namespace="actions"
         :column-label="$t('Actions')" />
 
-      <div class="w-100 border-top m-n3 p-3">
-        <base-form-button-bar
-          isNew
-          :isLoading="isLoading"
-          isSaveable
-          :isValid="isValid"
-          :formRef="rootRef"
-          @close="onClose"
-          @reset="onReset"
-          @save="onCreate"
-        />
+      <div class="mt-3">
+        <div class="border-top pt-3">
+          <base-form-button-bar
+            isNew
+            :isLoading="isLoading"
+            isSaveable
+            :isValid="isValid"
+            :formRef="rootRef"
+            @close="onClose"
+            @reset="onReset"
+            @save="onCreate"
+          />
+        </div>
       </div>
     </base-form>
     <users-preview-modal v-model="showUsersPreviewModal" store-name="$_users"/>

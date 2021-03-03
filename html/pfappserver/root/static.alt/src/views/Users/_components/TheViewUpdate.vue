@@ -2,20 +2,15 @@
   <b-card no-body>
     <b-card-header>
       <b-button-close @click="onClose" v-b-tooltip.hover.left.d300 :title="$t('Close [ESC]')"><icon name="times"></icon></b-button-close>
-      <base-button-refresh class="border-right pr-3" :isLoading="isLoading" @refresh="refresh" />
       <h4 class="mb-0" v-html="$t('User {pid}', { pid: $strong(pid) })"></h4>
     </b-card-header>
     <the-form-update :pid="pid" />
   </b-card>
 </template>
 <script>
-import {
-  BaseButtonRefresh
-} from '@/components/new/'
 import TheFormUpdate from './TheFormUpdate'
 
 const components = {
-  BaseButtonRefresh,
   TheFormUpdate
 }
 
@@ -25,7 +20,7 @@ const props = {
   }
 }
 
-import { computed, provide, ref } from '@vue/composition-api'
+import { provide, ref } from '@vue/composition-api'
 import { pfActions } from '@/globals/pfActions'
 
 const setup = (props, context) => {
@@ -50,12 +45,9 @@ const setup = (props, context) => {
     })
   })
   
-  const isLoading = computed(() => $store.getters['$_users/isLoading'])
-  
   const onClose = () => $router.back()
-  
+    
   return {
-    isLoading,
     onClose
   }
 }
