@@ -14,8 +14,9 @@
       :placeholder="inputPlaceholder"
       :tabIndex="inputTabIndex"
       :value="inputValue"
-      :rows="rows"
+      :rows="inputRows"
       :maxRows="maxRows"
+      :autoFit="autoFit"
       @input="onInput"
       @change="onChange"
       @focus="onFocus"
@@ -33,6 +34,7 @@ const components = {
   BaseInputGroup
 }
 
+import { computed, toRefs } from '@vue/composition-api'
 import { useFormGroupProps } from '@/composables/useFormGroup'
 import { useInput, useInputProps } from '@/composables/useInput'
 import { useInputMeta, useInputMetaProps } from '@/composables/useMeta'
@@ -47,6 +49,9 @@ export const props = {
     type: [Number, String],
     default: 3
   },
+  autoFit: {
+    type: Boolean
+  },
   ...useFormGroupProps,
   ...useInputProps,
   ...useInputMetaProps,
@@ -55,6 +60,11 @@ export const props = {
 }
 
 export const setup = (props, context) => {
+  
+  const {
+    rows,
+    autoFit
+  } = toRefs(props)
 
   const metaProps = useInputMeta(props, context)
 
@@ -81,11 +91,20 @@ export const setup = (props, context) => {
     invalidFeedback,
     validFeedback
   } = useInputValidator(metaProps, value)
+  
+  const inputRows = computed(() => {
+    if (autoFit.value) {
+      const r = [...(value.value || '')].filter(c => c === '\n').length + 1
+      return Math.max(rows.value, r)
+    }
+    return rows.value
+  })  
 
   return {
     // useInput
     inputPlaceholder: placeholder,
     inputReadonly: readonly,
+    inputRows,
     inputTabIndex: tabIndex,
     inputText: text,
     inputType: type,
@@ -108,7 +127,7 @@ export const setup = (props, context) => {
 
 // @vue/component
 export default {
-  name: 'base-input-group-multiplier',
+  name: 'base-input-group-textarea',
   inheritAttrs: false,
   components,
   props,

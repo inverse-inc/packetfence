@@ -93,12 +93,12 @@
           <template v-else>
             <form-group-certificate namespace="certificate"
               :column-label="$i18n.t('Certificate')"
-              rows="6" max-rows="6"
+              rows="6" auto-fit
             />
 
             <form-group-private-key namespace="private_key"
               :column-label="$i18n.t('Private Key')"
-              rows="6" max-rows="6"
+              rows="6" auto-fit
             />
 
             <form-group-check-chain namespace="check_chain"

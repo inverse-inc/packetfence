@@ -33,6 +33,9 @@ export const props = {
   tooltip: {
     type: String,
     default: i18n.t('Click or drag-and-drop to upload a file')
+  },
+  autoFit: {
+    type: Boolean
   }
 }
 
