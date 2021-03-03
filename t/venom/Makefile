@@ -81,11 +81,11 @@ wired_mac_auth_no_teardown: setup global_config
 	./venom-wrapper.sh $(PFSERVERS_DIR)/wired_mac_auth
 
 .PHONY: wireless_dot1x_eap_peap_no_teardown
-wireless_dot1x_eap_peap: setup global_config
+wireless_dot1x_eap_peap_no_teardown: setup global_config
 	./venom-wrapper.sh $(PFSERVERS_DIR)/wireless_dot1x_eap_peap
 
 .PHONY: wireless_mac_auth_no_teardown
-wireless_mac_auth: setup global_config
+wireless_mac_auth_no_teardown: setup global_config
 	./venom-wrapper.sh $(PFSERVERS_DIR)/wireless_mac_auth
 
 .PHONY: captive_portal_no_teardown
