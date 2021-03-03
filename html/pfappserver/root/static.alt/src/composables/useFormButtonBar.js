@@ -52,7 +52,7 @@ export const useFormButtonBar = (props, context) => {
   const { emit, listeners } = context
 
   const canClone = computed(() => {
-    return isCloneable.value && isClone.value === false && isNew.value === false && 'clone' in listeners
+    return isCloneable.value && !isClone.value && !isNew.value && 'clone' in listeners
   })
 
   const canClose = computed(() => {
@@ -60,7 +60,7 @@ export const useFormButtonBar = (props, context) => {
   })
 
   const canDelete = computed(() => {
-    return isDeletable.value && isClone.value === false && isNew.value === false && 'remove' in listeners
+    return isDeletable.value && !isClone.value && !isNew.value && 'remove' in listeners
   })
 
   const canSave = computed(() => {

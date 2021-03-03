@@ -74,16 +74,20 @@
           <form-group-notes namespace="notes"
             :column-label="$t('Notes')" />
             
-          <div class="w-100 border-top m-n3 p-3">
-            <base-form-button-bar
-              :isLoading="isLoading"
-              isSaveable
-              :isValid="isValid"
-              :formRef="rootRef"
-              @close="onClose"
-              @reset="onReset"
-              @save="onSave"
-            />
+          <div class="mt-3">
+            <div class="border-top pt-3">
+              <base-form-button-bar
+                :isDeletable="!isDefaultUser"
+                :isLoading="isLoading"
+                isSaveable
+                :isValid="isValid"
+                :formRef="rootRef"
+                @close="onClose"
+                @reset="onReset"
+                @remove="onRemove"
+                @save="onSave"
+              />
+            </div>
           </div>
         </base-form-tab>
         
@@ -100,16 +104,20 @@
           <form-group-actions namespace="actions"
             :column-label="$t('Actions')" />
 
-          <div class="w-100 border-top m-n3 p-3">
-            <base-form-button-bar
-              :isLoading="isLoading"
-              isSaveable
-              :isValid="isValid"
-              :formRef="rootRef"
-              @close="onClose"
-              @reset="onReset"
-              @save="onSave"
-            />
+          <div class="mt-3">
+            <div class="border-top pt-3">
+              <base-form-button-bar
+                :isDeletable="!isDefaultUser"
+                :isLoading="isLoading"
+                isSaveable
+                :isValid="isValid"
+                :formRef="rootRef"
+                @close="onClose"
+                @remove="onRemove"
+                @reset="onReset"
+                @save="onSave"
+              />
+            </div>
           </div>
         </base-form-tab>
         
@@ -141,16 +149,20 @@
           <form-group-custom-field-9 namespace="custom_field_9"
             :column-label="$t('Custom Field 9')" />          
 
-          <div class="w-100 border-top m-n3 p-3">
-            <base-form-button-bar
-              :isLoading="isLoading"
-              isSaveable
-              :isValid="isValid"
-              :formRef="rootRef"
-              @close="onClose"
-              @reset="onReset"
-              @save="onSave"
-            />
+          <div class="mt-3">
+            <div class="border-top pt-3">
+              <base-form-button-bar
+                :isDeletable="!isDefaultUser"
+                :isLoading="isLoading"
+                isSaveable
+                :isValid="isValid"
+                :formRef="rootRef"
+                @close="onClose"
+                @remove="onRemove"
+                @reset="onReset"
+                @save="onSave"
+              />
+            </div>
           </div>
         </base-form-tab>      
         
@@ -165,8 +177,10 @@
             :text="$t('Leave empty to allow unlimited logins.')"
           />
           
-          <div class="w-100 border-top m-n3 p-3">
-            <b-button class="mr-1" variant="outline-primary" :disabled="isLoading" @click="onResetPassword">{{ $t('Reset Password') }}</b-button>
+          <div class="mt-3">
+            <div class="border-top pt-3">
+             <b-button class="mr-1" variant="outline-primary" :disabled="isLoading" @click="onResetPassword">{{ $t('Reset Password') }}</b-button>
+            </div>
           </div>          
         </base-form-tab>        
 
@@ -227,9 +241,11 @@
             </template>
           </b-table>      
           
-          <div class="w-100 border-top m-n3 p-3">
-            <b-button class="mr-1" v-if="!isDefaultUser" variant="outline-primary" :disabled="isLoadingNodes || !hasNodes" @click="onNodesUnassign">{{ $t('Unassign Nodes') }}</b-button>
-          </div>  
+          <div class="mt-3">
+            <div class="border-top pt-3">
+             <b-button class="mr-1" v-if="!isDefaultUser" variant="outline-primary" :disabled="isLoadingNodes || !hasNodes" @click="onNodesUnassign">{{ $t('Unassign Nodes') }}</b-button>
+            </div> 
+          </div> 
         </b-tab>
       
         <b-tab title="Security Events">
@@ -257,8 +273,10 @@
             </template>
           </b-table>
           
-          <div class="w-100 border-top m-n3 p-3">
-            <b-button class="mr-1" variant="outline-primary" :disabled="isLoadingSecurityEvents || !hasOpenSecurityEvents" @click="closeSecurityEvents()">{{ $t('Close all security events') }}</b-button>
+          <div class="mt-3">
+            <div class="border-top pt-3">
+              <b-button class="mr-1" variant="outline-primary" :disabled="isLoadingSecurityEvents || !hasOpenSecurityEvents" @click="closeSecurityEvents()">{{ $t('Close all security events') }}</b-button>
+            </div>
           </div>    
         </b-tab>
       </b-tabs>
@@ -446,7 +464,7 @@ const setup = (props, context) => {
     $store.dispatch('$_users/getUserSecurityEvents', pid.value).then(_securityEvents => {
       securityEvents.value = _securityEvents
     })
-    $store.dispatch('$_users/getUser', pid.value).then(user => {
+    $store.dispatch('$_users/refreshUser', pid.value).then(user => {
       form.value = { ...user }
     })
   }
@@ -457,7 +475,16 @@ const setup = (props, context) => {
   const onReset = onInit
   
   const onSave = () => {
-    console.log('ionSave')
+    $store.dispatch('$_users/updateUser', form.value).then(() => {
+      if (form.value.expiration) // has password
+        $store.dispatch('$_users/updatePassword', Object.assign({ quiet: true }, this.form))
+    })
+  }
+  
+  const onRemove = () => {
+    $store.dispatch('$_users/deleteUser', pid.value).then(() => {
+      $router.push('/users/search')
+    })    
   }
   
   return {
@@ -491,6 +518,7 @@ const setup = (props, context) => {
     
     onResetPassword,
     onClose,
+    onRemove,
     onReset,
     onSave
   }

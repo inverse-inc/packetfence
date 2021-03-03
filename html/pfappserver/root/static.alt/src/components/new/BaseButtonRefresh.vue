@@ -4,7 +4,7 @@
     v-b-tooltip.hover.left.d300 :title="$t('Refresh [Alt + R]')"
     @click="onClick"
   >
-    <icon v-if="interval" name="history" :style="`transform: rotate(${rotate}deg) scaleX(-1)`" :class="{ 'text-primary': actionKey }"></icon>
+    <icon v-if="interval" name="history" :style="`transform: rotate(${rotate}deg) scaleX(-1)`"></icon>
     <icon v-else name="redo" :style="`transform: rotate(${rotate}deg)`" :class="{ 'text-primary': actionKey }"></icon>
   </button>
 </template>
@@ -27,7 +27,7 @@ const setup = (props, context) => {
   const num = ref(0)
   const disabled = ref(false)
   let debouncer
-  let interval
+  const interval = ref(false)
   const timeout = 15000
   
   const rotate = computed(() => num.value * 360)
@@ -35,17 +35,17 @@ const setup = (props, context) => {
   const onClick = event => {
     const { ctrlKey, metaKey } = event
     if (ctrlKey || metaKey) {
-      if (interval) { // clear interval
-        clearInterval(interval)
-        interval = false
+      if (interval.value) { // clear interval
+        clearInterval(interval.value)
+        interval.value = false
       } else { // create interval
-        interval = setInterval(onInterval, timeout)
-        this.refresh(event)
+        interval.value = setInterval(onInterval, timeout)
+        onInterval(event)
       }
     } else {
-      if (interval) { // reset interval
-        clearInterval(interval)
-        interval = setInterval(onInterval, timeout)
+      if (interval.value) { // reset interval
+        clearInterval(interval.value)
+        interval.value = setInterval(onInterval, timeout)
       }
       onInterval(event)
     }
@@ -69,6 +69,7 @@ const setup = (props, context) => {
   
   return {
     disabled,
+    interval,
     rotate,
     onClick
   }
