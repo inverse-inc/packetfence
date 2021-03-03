@@ -10,7 +10,6 @@
     License: GFDL 1.2 or later. http://www.gnu.org/licenses/fdl.html
 
 ////
-
 :release_version: 10.2.0
 :release_month: October
 :encoding: UTF-8
@@ -29,6 +28,5 @@ PacketFence v{release_version}
 :front-cover-image: image:pf-logo.png[fit=none,pdfwidth=50%,position=center]
 :source-highlighter: rouge
 :rouge-style: github
-
 include::docinfo.asciidoc[]
 // vim: set syntax=asciidoc tabstop=2 shiftwidth=2 expandtab:

@@ -14,7 +14,7 @@ ASCIIDOCS := $(notdir $(wildcard docs/PacketFence_*.asciidoc))
 PDFS = $(patsubst %.asciidoc,docs/%.pdf, $(ASCIIDOCS))
 
 clean:
-	rm -f docs/*.html docs/*.pdf
+	rm -f docs/*.html docs/index.js docs/*.pdf
 
 docs/%.pdf: docs/%.asciidoc
 	asciidoctor-pdf \

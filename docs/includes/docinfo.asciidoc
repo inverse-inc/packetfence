@@ -1,4 +1,4 @@
-**Version {release_version} - {release_month} {docyear}**
+Version {release_version} - {release_month} {docyear}
 
 Copyright © {docyear} Inverse inc.
 
