@@ -166,18 +166,18 @@ wireless_dot1x_eap_peap.roles.ad_machine.notes: '{{.eap_peap.roles.ad_machine.no
 wireless_dot1x_eap_peap.roles.ad_machine.vlan_id: '{{.eap_peap.roles.ad_machine.vlan_id}}'
 
 # Sources
-wireless_dot1x_eap_peap.sources.ad_user.name: dot1x_eap_peap_user_auth
+wireless_dot1x_eap_peap.sources.ad_user.name: wireless_dot1x_eap_peap_user_auth
 wireless_dot1x_eap_peap.sources.ad_user.description: '{{.ad_mgmt_ip}} user authentication'
 wireless_dot1x_eap_peap.sources.ad_user.access_duration: '{{.access_duration.default_choice}}'
 
-wireless_dot1x_eap_peap.sources.ad_machine.name: dot1x_eap_peap_machine_auth
+wireless_dot1x_eap_peap.sources.ad_machine.name: wireless_dot1x_eap_peap_machine_auth
 wireless_dot1x_eap_peap.sources.ad_machine.description: '{{.ad_mgmt_ip}} machine authentication'
 wireless_dot1x_eap_peap.sources.ad_machine.access_duration: '{{.access_duration.default_choice}}'
 
 # Connection profiles
 wireless_dot1x_eap_peap.profiles.wireless.id: catch_dot1x_wireless_eap_peap_mschapv2
-wireless_dot1x_eap_peap.profiles.wireless.description: 802.1X wired EAP-PEAP-MSCHAPv2
-wireless_dot1x_eap_peap.profiles.wireless.filters.connection_type: Ethernet-EAP
+wireless_dot1x_eap_peap.profiles.wireless.description: 802.1X wireless EAP-PEAP-MSCHAPv2
+wireless_dot1x_eap_peap.profiles.wireless.filters.connection_type: Wireless-802.11-EAP 
 wireless_dot1x_eap_peap.profiles.wireless.filters.connection_sub_type: MS-EAP-Authentication
 wireless_dot1x_eap_peap.profiles.wireless.unreg_on_acct_stop: enabled
 
