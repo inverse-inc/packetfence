@@ -23,8 +23,6 @@ SRC_HTML_COMMONDIR = $(SRC_HTMLDIR)/common
 SRC_HTML_PARKINGDIR = $(SRC_HTMLDIR)/parking
 SRC_HTML_PFAPPDIR = $(SRC_HTMLDIR)/pfappserver
 SRC_HTML_PFAPPDIR_ROOT = $(SRC_HTMLDIR)/pfappserver/root
-SRC_HTML_PFAPPDIR_STATIC = $(SRC_HTML_PFAPPDIR_ROOT)/static
-SRC_HTML_PFAPPDIR_ALT = $(SRC_HTML_PFAPPDIR_ROOT)/static.alt
 SRC_HTML_PFAPPDIR_LIB = $(SRC_HTML_PFAPPDIR)/lib/pfappserver
 SRC_HTML_PFAPPDIR_I18N = $(SRC_HTML_PFAPPDIR_LIB)/I18N
 
@@ -35,8 +33,6 @@ HTML_COMMONDIR = $(HTMLDIR)/common
 HTML_PARKINGDIR = $(HTMLDIR)/parking
 HTML_PFAPPDIR = $(HTMLDIR)/pfappserver
 HTML_PFAPPDIR_ROOT = $(HTMLDIR)/pfappserver/root
-HTML_PFAPPDIR_STATIC = $(HTML_PFAPPDIR_ROOT)/static
-HTML_PFAPPDIR_ALT = $(HTML_PFAPPDIR_ROOT)/static.alt
 HTML_PFAPPDIR_LIB = $(HTML_PFAPPDIR)/lib/pfappserver
 HTML_PFAPPDIR_I18N = $(HTML_PFAPPDIR_LIB)/I18N
 
@@ -57,25 +53,18 @@ cp_files = $(shell find $(SRC_HTML_CPDIR) \
 	-not -path "$(SRC_HTML_CPDIR)/profile-templates/*" \
 	-not -path "$(SRC_HTML_CPDIR)/t/*")
 
-# pfappserver files without static and static.alt
+# pfappserver files without root
 pfapp_files = $(shell find $(SRC_HTML_PFAPPDIR) \
 	-type f \
 	-not -name "Changes" \
 	-not -path "$(SRC_HTML_PFAPPDIR)/root-custom*" \
 	-not -path "$(SRC_HTML_PFAPPDIR)/t/*" \
-	-not -path "$(SRC_HTML_PFAPPDIR_STATIC)*" \
-	-not -path "$(SRC_HTML_PFAPPDIR_ALT)*")
+	-not -path "$(SRC_HTML_PFAPPDIR_ROOT)*")
 
-pfapp_static_files = $(shell find $(SRC_HTML_PFAPPDIR_STATIC) \
+pfapp_alt_files = $(shell find $(SRC_HTML_PFAPPDIR_ROOT) \
 	-type f \
-	-not -path "$(SRC_HTML_PFAPPDIR_STATIC)/bower_components/*" \
-	-not -path "$(SRC_HTML_PFAPPDIR_STATIC)/node_modules/*")
-
-pfapp_alt_files = $(shell find $(SRC_HTML_PFAPPDIR_ALT) \
-	-type f \
-	-not -path "$(SRC_HTML_PFAPPDIR_ALT)/node_modules/*")
+	-not -path "$(SRC_HTML_PFAPPDIR_ROOT)/node_modules/*")
 
 symlink_files = $(shell find $(SRC_HTML_PFAPPDIR) \
 	-type l \
-	-not -path "$(SRC_HTML_PFAPPDIR_STATIC)/node_modules/*" \
-	-not -path "$(SRC_HTML_PFAPPDIR_ALT)/node_modules/*")
+	-not -path "$(SRC_HTML_PFAPPDIR_ROOT)/node_modules/*")

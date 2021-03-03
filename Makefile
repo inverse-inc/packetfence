@@ -202,12 +202,7 @@ html_install:
 	    install -v -m 0644 $$file -D $(DESTDIR)$(PF_PREFIX)/$$file ; \
 	done
 
-	@echo "install $(SRC_HTML_PFAPPDIR_STATIC) dirs and files"
-	for file in $(pfapp_static_files); do \
-	    install -v -m 0644 $$file -D $(DESTDIR)$(PF_PREFIX)/$$file ; \
-	done
-
-	@echo "install $(SRC_HTML_PFAPPDIR_ALT) dirs and files"
+	@echo "install $(SRC_HTML_PFAPPDIR_ROOT) dirs and files"
 	for file in $(pfapp_alt_files); do \
 	    install -v -m 0644 $$file -D $(DESTDIR)$(PF_PREFIX)/$$file ; \
 	done
