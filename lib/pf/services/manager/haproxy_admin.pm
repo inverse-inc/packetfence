@@ -89,8 +89,8 @@ backend 127.0.0.1-netdata
         option httpclose
         option http_proxy
         option forwardfor
-        errorfile 502 /usr/local/pf/html/pfappserver/root/static.alt/502.json.http
-        errorfile 503 /usr/local/pf/html/pfappserver/root/static.alt/503.json.http
+        errorfile 502 /usr/local/pf/html/pfappserver/root/502.json.http
+        errorfile 503 /usr/local/pf/html/pfappserver/root/503.json.http
         acl paramsquery query -m found
         http-request lua.admin
         http-request set-uri http://127.0.0.1:19999%[var(req.path)]?%[query] if paramsquery
@@ -132,8 +132,8 @@ backend $mgmt_back_ip-api
         option httpclose
         option forwardfor
         http-response set-header X-Frame-Options SAMEORIGIN
-        errorfile 502 /usr/local/pf/html/pfappserver/root/static.alt/502.json.http
-        errorfile 503 /usr/local/pf/html/pfappserver/root/static.alt/503.json.http
+        errorfile 502 /usr/local/pf/html/pfappserver/root/502.json.http
+        errorfile 503 /usr/local/pf/html/pfappserver/root/503.json.http
         server $mgmt_back_ip $mgmt_back_ip:9999 weight 1 maxconn 100 ssl verify none
 EOT
 
@@ -144,14 +144,14 @@ backend api
         balance source
         option httpclose
         option forwardfor
-        errorfile 502 /usr/local/pf/html/pfappserver/root/static.alt/502.json.http
-        errorfile 503 /usr/local/pf/html/pfappserver/root/static.alt/503.json.http
+        errorfile 502 /usr/local/pf/html/pfappserver/root/502.json.http
+        errorfile 503 /usr/local/pf/html/pfappserver/root/503.json.http
 $mgmt_backend_ip_api_config
 
 frontend admin-https-$mgmt_cluster_ip
         bind $mgmt_cluster_ip:1443 ssl no-sslv3 crt /usr/local/pf/conf/ssl/server.pem
-        errorfile 502 /usr/local/pf/html/pfappserver/root/static.alt/502.json.http
-        errorfile 503 /usr/local/pf/html/pfappserver/root/static.alt/503.json.http
+        errorfile 502 /usr/local/pf/html/pfappserver/root/502.json.http
+        errorfile 503 /usr/local/pf/html/pfappserver/root/503.json.http
         capture request header Host len 40
         reqadd X-Forwarded-Proto:\\ https
         http-request lua.change_host
@@ -185,8 +185,8 @@ $tags{'http_admin'} .= <<"EOT";
 
 frontend admin-https-$mgmt_ip
         bind $mgmt_ip:1443 ssl no-sslv3 crt /usr/local/pf/conf/ssl/server.pem
-        errorfile 502 /usr/local/pf/html/pfappserver/root/static.alt/502.json.http
-        errorfile 503 /usr/local/pf/html/pfappserver/root/static.alt/503.json.http
+        errorfile 502 /usr/local/pf/html/pfappserver/root/502.json.http
+        errorfile 503 /usr/local/pf/html/pfappserver/root/503.json.http
         capture request header Host len 40
         reqadd X-Forwarded-Proto:\\ https
         http-request lua.change_host
@@ -243,14 +243,14 @@ backend api
         balance source
         option httpclose
         option forwardfor
-        errorfile 502 /usr/local/pf/html/pfappserver/root/static.alt/502.json.http
-        errorfile 503 /usr/local/pf/html/pfappserver/root/static.alt/503.json.http
+        errorfile 502 /usr/local/pf/html/pfappserver/root/502.json.http
+        errorfile 503 /usr/local/pf/html/pfappserver/root/503.json.http
         server 127.0.0.1 127.0.0.1:9999 weight 1 maxconn 100 check  ssl verify none
 
 frontend admin-https-0.0.0.0
         bind 0.0.0.0:1443 ssl no-sslv3 crt /usr/local/pf/conf/ssl/server.pem
-        errorfile 502 /usr/local/pf/html/pfappserver/root/static.alt/502.json.http
-        errorfile 503 /usr/local/pf/html/pfappserver/root/static.alt/503.json.http
+        errorfile 502 /usr/local/pf/html/pfappserver/root/502.json.http
+        errorfile 503 /usr/local/pf/html/pfappserver/root/503.json.http
         capture request header Host len 40
         reqadd X-Forwarded-Proto:\\ https
         http-request lua.change_host
