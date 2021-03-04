@@ -62,7 +62,7 @@
           :column-label="$i18n.t('Extended key usage')"
           :text="$i18n.t('Optional. One or many of: serverAuth, clientAuth, codeSigning, emailProtection, timeStamping, msCodeInd, msCodeCom, msCTLSign, msSGC, msEFS, nsSGC.')"
         />
-        <form-group-ocsp-url namespace="oscp_url"
+        <form-group-ocsp-url namespace="ocsp_url"
           :column-label="$i18n.t('OCSP Url')"
           :text="$i18n.t('Optional. This is the url of the OCSP server that will be added in the certificate.If empty then the ca one will be used')"
         />
