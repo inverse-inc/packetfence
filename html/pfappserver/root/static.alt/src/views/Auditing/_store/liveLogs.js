@@ -87,7 +87,9 @@ const mutations = {
   },
   LOG_SESSION_STOP: (state, id) => {
     state.status = 'success'
-    store.unregisterModule(['$_live_logs', id])
+    setTimeout(() => { // delay to avoid pulling the rug out from under $router
+      store.unregisterModule(['$_live_logs', id])  
+    }, 300)
   },
   LOG_SESSION_SUCCESS: (state) => {
     state.status = 'success'

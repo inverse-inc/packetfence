@@ -1,7 +1,7 @@
 <template>
-  <b-tabs ref="tabs" v-model="tabIndex" card>
+  <b-tabs v-model="tabIndex" card>
     <b-tab v-for="(tab, index) in tabs" :key="tab.session_id" :title="tab.name" no-body
-      @click="go(index)"
+@zzzclick="go(index)"
     >
       <template v-slot:title>
         <span v-if="index > 0 && isLoading" class="float-right text-secondary ml-2">
@@ -20,16 +20,35 @@
 </template>
 
 <script>
-export default {
-  name: 'live-log-tabs',
-  computed: {
-    isLoading () {
-      return this.$store.getters['$_live_logs/isLoading']
+import { computed, customRef } from '@vue/composition-api'
+import i18n from '@/utils/locale'
+
+const setup = (props, context) => {
+  
+  const { root: { $router, $store } = {} } = context
+  
+  const isLoading = computed(() => $store.getters['$_live_logs/isLoading'])
+  const sessions = computed(() => $store.getters['$_live_logs/sessions'])
+  const tabs = computed(() => ([
+    { 
+      name: i18n.t('Create Session'), 
+      route: { name: 'live_logs' } 
     },
-    tabIndex () {
-      const { params: { id } = {} } = this.$route
+    ...sessions.value.map(session => {
+      const { name, session_id } = session
+      return {
+        session_id,
+        name,
+        route: { name: 'live_log', params: { id: session_id } }
+      }
+    })
+  ]))
+  const tabIndex = customRef((track, trigger) => ({
+    get() {
+      track()
+      const { params: { id } = {} } = $router.currentRoute
       if (id) {
-        let sessionIndex = this.sessions.findIndex(s => {
+        let sessionIndex = sessions.value.findIndex(s => {
           return s.session_id === id
         })
         if (sessionIndex > -1) {
@@ -38,35 +57,33 @@ export default {
       }
       return 0
     },
-    tabs () {
-      return [
-        { name: this.$i18n.t('Create Session'), route: { name: 'live_logs' } },
-        ...this.sessions.map(session => {
-          const { name, session_id } = session
-          return {
-            session_id,
-            name,
-            route: { name: 'live_log', params: { id: session_id } }
-          }
-        })
-      ]
-    },
-    sessions () {
-      return this.$store.getters['$_live_logs/sessions']
+    set(tabIndex) {
+      $router.push(tabs.value[tabIndex].route)
+      trigger()
     }
-  },
-  methods: {
-    go (tabIndex) {
-      this.$router.push(this.tabs[tabIndex].route)
-    },
-    destroy (session_id) {
-      this.$store.dispatch('$_live_logs/destroySession', session_id).then(() => {
-        const { params: { id } = {} } = this.$route
+  }))  
+  
+  const destroy = (session_id) => {
+    $store.dispatch('$_live_logs/destroySession', session_id).then(() => {
+        const { params: { id } = {} } = $router.currentRoute
         if (session_id === id) { // tab is currently selected
-          this.$router.push({ name: 'live_logs' })
+          $router.push({ name: 'live_logs' })
         }
       })
-    }
   }
+  
+  return {
+    isLoading,
+    tabs,
+    tabIndex,
+    destroy
+  }
+}
+
+// @vue/component
+export default {
+  name: 'live-log-tabs',
+  inheritAttrs: false,
+  setup
 }
 </script>

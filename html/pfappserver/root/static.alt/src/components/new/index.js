@@ -50,6 +50,7 @@ import BaseInputPassword from './BaseInputPassword'
 import BaseInputRange from './BaseInputRange'
 import BaseInputToggle, { props as BaseInputToggleProps } from './BaseInputToggle'
 import BaseInputToggleAdvancedMode from './BaseInputToggleAdvancedMode'
+import BaseInputToggleFalseTrue from './BaseInputToggleFalseTrue'
 import BaseView from './BaseView'
 
 import { mergeProps, renderHOCWithScopedSlots } from './utils'
@@ -103,7 +104,8 @@ export {
   BaseInputRange,
   BaseInputToggle, BaseInputToggleProps,
   BaseInputToggleAdvancedMode,
-
+  BaseInputToggleFalseTrue,
+  
   // bootstrap wrappers
   BaseInputGroupDate,
   BaseInputGroupDateTime,
