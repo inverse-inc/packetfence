@@ -77,7 +77,7 @@
               </b-form>
               <b-pagination class="mr-3" align="right" :per-page="pageSizeLimit" :total-rows="totalRows" v-model="currentPage" :disabled="isLoadingReport"
                 @change="onPageChange" />
-              <pf-button-export-to-csv class="mb-3" :filename="`${report.description}.csv`" :disabled="isLoadingReport"
+              <base-button-export-csv class="mb-3" :filename="`${report.description}.csv`" :disabled="isLoadingReport"
                 :columns="visibleColumns" :data="items"
               />
             </b-row>
@@ -111,7 +111,9 @@
 </template>
 <script>
 import { format, subSeconds } from 'date-fns'
-import pfButtonExportToCsv from '@/components/pfButtonExportToCsv'
+import {
+  BaseButtonExportCsv
+} from '@/components/new/'
 import pfEmptyTable from '@/components/pfEmptyTable'
 import pfFormDatetime from '@/components/pfFormDatetime'
 import pfFormToggle from '@/components/pfFormToggle'
@@ -125,7 +127,7 @@ export default {
     pfMixinSearchable
   ],
   components: {
-    pfButtonExportToCsv,
+    BaseButtonExportCsv,
     pfEmptyTable,
     pfFormDatetime,
     pfFormToggle,

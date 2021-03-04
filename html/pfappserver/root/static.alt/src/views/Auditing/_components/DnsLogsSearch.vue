@@ -53,7 +53,7 @@
               </b-form>
               <b-pagination class="mr-3 my-0" align="right" :per-page="pageSizeLimit" :total-rows="totalRows" :last-number="true" v-model="currentPage" :disabled="isLoading"
                 @change="onPageChange" />
-              <pf-button-export-to-csv filename="dnslogs.csv" :disabled="isLoading"
+              <base-button-export-csv filename="dnslogs.csv" :disabled="isLoading"
                 :columns="columns" :data="items"
               />
             </b-row>
@@ -100,10 +100,12 @@
 </template>
 
 <script>
+import {
+  BaseButtonExportCsv
+} from '@/components/new/'
 import api from '../_api'
 import { pfSearchConditionType as conditionType } from '@/globals/pfSearch'
 import { pfFormatters as formatter } from '@/globals/pfFormatters'
-import pfButtonExportToCsv from '@/components/pfButtonExportToCsv'
 import pfMixinSearchable from '@/components/pfMixinSearchable'
 import pfMixinSelectable from '@/components/pfMixinSelectable'
 import pfProgress from '@/components/pfProgress'
@@ -119,7 +121,7 @@ export default {
     pfMixinSearchable
   ],
   components: {
-    pfButtonExportToCsv,
+    BaseButtonExportCsv,
     pfProgress,
     pfEmptyTable,
     pfSearch,

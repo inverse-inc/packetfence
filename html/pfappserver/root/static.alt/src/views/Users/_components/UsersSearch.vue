@@ -105,7 +105,7 @@
               </b-form>
               <b-pagination class="mr-3 my-0" align="right" :per-page="pageSizeLimit" :total-rows="totalRows" :last-number="true" v-model="currentPage" :disabled="isLoading"
                 @change="onPageChange" />
-              <pf-button-export-to-csv filename="users.csv" :disabled="isLoading"
+              <base-button-export-csv filename="users.csv" :disabled="isLoading"
                 :columns="columns" :data="items"
               />
             </b-row>
@@ -146,7 +146,9 @@
 </template>
 
 <script>
-import pfButtonExportToCsv from '@/components/pfButtonExportToCsv'
+import {
+  BaseButtonExportCsv
+} from '@/components/new/'
 import pfProgress from '@/components/pfProgress'
 import pfEmptyTable from '@/components/pfEmptyTable'
 import pfMixinSearchable from '@/components/pfMixinSearchable'
@@ -162,7 +164,7 @@ export default {
     pfMixinSearchable
   ],
   components: {
-    pfButtonExportToCsv,
+    BaseButtonExportCsv,
     pfProgress,
     pfEmptyTable,
     pfFormToggle
