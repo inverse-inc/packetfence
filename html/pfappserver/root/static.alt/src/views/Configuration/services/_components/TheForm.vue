@@ -155,11 +155,6 @@
       :text="$i18n.t('Should pfstats be managed by PacketFence?')"
     />
 
-    <form-group-pfztn namespace="pfztn"
-      :column-label="$i18n.t('pfztn')"
-      :text="$i18n.t(`Should pfztn be started? Keep enabled unless you know what you're doing.`)"
-    />
-
     <form-group-radiusd namespace="radiusd"
       :column-label="$i18n.t('radiusd')"
       :text="$i18n.t('Should radiusd be managed by PacketFence?')"
@@ -254,7 +249,6 @@ import {
   FormGroupPfqueue,
   FormGroupPfsso,
   FormGroupPfstats,
-  FormGroupPfztn,
   FormGroupRadiusd,
   FormGroupRadiusdAcct,
   FormGroupRadiusdAuth,
@@ -302,7 +296,6 @@ const components = {
   FormGroupPfqueue,
   FormGroupPfsso,
   FormGroupPfstats,
-  FormGroupPfztn,
   FormGroupRadiusd,
   FormGroupRadiusdAcct,
   FormGroupRadiusdAuth,
