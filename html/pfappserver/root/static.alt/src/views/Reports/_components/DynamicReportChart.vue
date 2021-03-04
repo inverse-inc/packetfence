@@ -43,8 +43,10 @@
                   </b-button-group>
               </b-form-row>
             </b-popover>
-            <pf-form-datetime v-model="datetimeStart" :max="maxStartDatetime" :prepend-text="$t('Start')" class="mr-3" :disabled="isLoadingReport"></pf-form-datetime>
-            <pf-form-datetime v-model="datetimeEnd" :min="minEndDatetime" :prepend-text="$t('End')" class="mr-3" :disabled="isLoadingReport"></pf-form-datetime>
+            <base-input-group-date-time v-model="datetimeStart" 
+              :placeholder="$i18n.t('Start')" :disabled="isLoadingReport" :max="maxStartDatetime" class="mr-3" />
+            <base-input-group-date-time v-model="datetimeEnd" 
+              :placeholder="$i18n.t('End')" :disabled="isLoadingReport" :min="minEndDatetime" class="mr-3" />
           </b-form>
         </b-col>
       </b-row>
@@ -112,10 +114,10 @@
 <script>
 import { format, subSeconds } from 'date-fns'
 import {
-  BaseButtonExportCsv
+  BaseButtonExportCsv,
+  BaseInputGroupDateTime
 } from '@/components/new/'
 import pfEmptyTable from '@/components/pfEmptyTable'
-import pfFormDatetime from '@/components/pfFormDatetime'
 import pfFormToggle from '@/components/pfFormToggle'
 import pfMixinSearchable from '@/components/pfMixinSearchable'
 import pfSearch from '@/components/pfSearch'
@@ -128,8 +130,8 @@ export default {
   ],
   components: {
     BaseButtonExportCsv,
+    BaseInputGroupDateTime,
     pfEmptyTable,
-    pfFormDatetime,
     pfFormToggle,
     pfSearch
   },
@@ -356,5 +358,4 @@ export default {
   background-color: $input-btn-hover-bg-color;
   color: $input-btn-hover-text-color;
 }
-
 </style>

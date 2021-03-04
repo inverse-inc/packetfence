@@ -30,8 +30,10 @@
                 </b-button-group>
             </b-form-row>
           </b-popover>
-          <pf-form-datetime v-model="localDatetimeStart" :max="maxStartDatetime" :prepend-text="$t('Start')" class="mr-3" :disabled="isLoading"></pf-form-datetime>
-          <pf-form-datetime v-model="localDatetimeEnd" :min="minEndDatetime" :prepend-text="$t('End')" class="mr-3" :disabled="isLoading"></pf-form-datetime>
+          <base-input-group-date-time v-model="localDatetimeStart" 
+            :placeholder="$i18n.t('Start')" :disabled="isLoading" :max="maxStartDatetime" class="mr-3" />
+          <base-input-group-date-time v-model="localDatetimeEnd" 
+            :placeholder="$i18n.t('End')" :disabled="isLoading" :min="minEndDatetime" class="mr-3" />
         </b-form>
       </b-col>
       <b-col cols="auto" class="mr-auto"></b-col>
@@ -53,15 +55,17 @@
 import Plotly from 'plotly.js-basic-dist-min'
 import { format, subSeconds } from 'date-fns'
 import {
+  BaseInputGroupDateTime
+} from '@/components/new/'
+import {
   pfReportChartColorsFull as colorsFull,
   pfReportChartColorsNull as colorsNull
 } from '@/globals/pfReports'
-import pfFormDatetime from '@/components/pfFormDatetime'
 
 export default {
   name: 'pf-report-chart',
   components: {
-    'pf-form-datetime': pfFormDatetime
+    BaseInputGroupDateTime
   },
   props: {
     isLoading: {

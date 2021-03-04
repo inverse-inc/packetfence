@@ -1010,7 +1010,7 @@ export const pfReportCategories = () => [
         name: i18n.t('User Bandwidth'),
         tabs: [
           {
-            name: i18n.t('Day'),
+            name: i18n.t('Hour'),
             path: 'userbandwidth/hour'
           },
           {

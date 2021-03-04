@@ -56,6 +56,8 @@
               :value="inputValueDate"
               class="align-self-center"
               :locale="$i18n.locale"
+              :max="max"
+              :min="min"
               @input="onDate"
               label-help=""
               hide-header
@@ -159,7 +161,7 @@ export const setup = (props, context) => {
       input: { $el: inputEl } = {},
       popover: { $_toolpop: { $children: { 0: { $el: popoverEl } = {} } = {} } = {} } = {}
     } = refs
-    if (!inputEl.contains(target) && !popoverEl.contains(target))
+    if (inputEl && !inputEl.contains(target) && popoverEl && !popoverEl.contains(target))
       isShown.value = false
   }
 
