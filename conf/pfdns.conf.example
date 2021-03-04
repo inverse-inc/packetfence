@@ -46,10 +46,3 @@ https://.:853 {
         prefer_udp
     }
 }
-
-https://.:854 {
-   ztndns
-   forward . /etc/resolv.conf {
-      prefer_udp
-   }
-}

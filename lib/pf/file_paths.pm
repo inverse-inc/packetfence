@@ -47,8 +47,6 @@ our (
     $unified_api_system_pass_file,
     #profiles.conf variables
     $profiles_config_file, $profiles_default_config_file,
-    #remote_profiles.conf variables
-    $remote_profiles_config_file, $remote_profiles_default_config_file,
     #Other configuraton files variables
     $switches_config_file, $switches_default_config_file,
     $template_switches_config_file, $template_switches_default_config_file,
@@ -145,7 +143,6 @@ BEGIN {
         $local_secret_file
         $unified_api_system_pass_file
         $profiles_config_file $profiles_default_config_file
-        $remote_profiles_config_file $remote_profiles_default_config_file
         $switches_config_file $switches_default_config_file
         $template_switches_config_file $template_switches_default_config_file
         $security_events_config_file $security_events_default_config_file
@@ -283,8 +280,6 @@ $template_switches_config_file   = catfile($conf_dir, "template_switches.conf");
 $template_switches_default_config_file   = catfile($conf_dir, "template_switches.conf.defaults");
 $profiles_config_file   = catfile($conf_dir, "profiles.conf");
 $profiles_default_config_file   = catfile($conf_dir, "profiles.conf.defaults");
-$remote_profiles_config_file   = catfile($conf_dir, "remote_profiles.conf");
-$remote_profiles_default_config_file   = catfile($conf_dir, "remote_profiles.conf.defaults");
 $floating_devices_file  = catfile($conf_dir, "floating_network_device.conf");  # TODO: To be deprecated. See $floating_devices_config_file
 $security_events_config_file = catfile($conf_dir, "security_events.conf");
 $security_events_default_config_file = catfile($conf_dir, "security_events.conf.defaults");
@@ -374,7 +369,7 @@ $captiveportal_default_profile_templates_path = catdir ($captiveportal_profile_t
     $pf_config_file, $network_config_file,
     $switches_config_file, $security_events_config_file,
     $authentication_config_file, $floating_devices_config_file,
-    $dhcp_fingerprints_file, $profiles_config_file, $remote_profiles_config_file,
+    $dhcp_fingerprints_file, $profiles_config_file,
     $oui_file, $floating_devices_file,
     $chi_config_file,$allowed_device_oui_file,$allowed_device_types_file,
     $chi_defaults_config_file,
