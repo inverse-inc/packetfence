@@ -244,17 +244,36 @@ func (c CA) New() (types.Info, error) {
 		SerialNumber = big.NewInt(int64(cadb.ID + 1))
 	}
 
+	var Subject pkix.Name
+	Subject.CommonName = c.Cn
+
+	if len(c.Organisation) > 0 {
+		Subject.Organization = []string{c.Organisation}
+	}
+
+	if len(c.Country) > 0 {
+		Subject.Country = []string{c.Country}
+	}
+
+	if len(c.State) > 0 {
+		Subject.Province = []string{c.State}
+	}
+
+	if len(c.Locality) > 0 {
+		Subject.Locality = []string{c.Locality}
+	}
+
+	if len(c.StreetAddress) > 0 {
+		Subject.StreetAddress = []string{c.StreetAddress}
+	}
+
+	if len(c.PostalCode) > 0 {
+		Subject.PostalCode = []string{c.PostalCode}
+	}
+
 	ca := &x509.Certificate{
-		SerialNumber: SerialNumber,
-		Subject: pkix.Name{
-			Organization:  []string{c.Organisation},
-			Country:       []string{c.Country},
-			Province:      []string{c.State},
-			Locality:      []string{c.Locality},
-			StreetAddress: []string{c.StreetAddress},
-			PostalCode:    []string{c.PostalCode},
-			CommonName:    c.Cn,
-		},
+		SerialNumber:          SerialNumber,
+		Subject:               Subject,
 		NotBefore:             time.Now(),
 		NotAfter:              time.Now().AddDate(0, 0, c.Days),
 		IsCA:                  true,
@@ -711,43 +730,61 @@ func (c Cert) New() (types.Info, error) {
 		Information.Error = err.Error()
 		return Information, err
 	}
+	var Subject pkix.Name
+	Subject.CommonName = c.Cn
 
-	Organization := prof.Organisation
-	if len(c.Organisation) > 0 {
-		Organization = c.Organisation
+	if len(prof.Organisation) > 0 {
+		Organization := prof.Organisation
+		if len(c.Organisation) > 0 {
+			Organization = c.Organisation
+		}
+		Subject.Organization = []string{Organization}
 	}
-	Country := prof.Country
-	if len(c.Country) > 0 {
-		Country = c.Country
+
+	if len(prof.Country) > 0 {
+		Country := prof.Country
+		if len(c.Country) > 0 {
+			Country = c.Country
+		}
+		Subject.Country = []string{Country}
 	}
-	Province := prof.State
-	if len(c.State) > 0 {
-		Province = c.State
+
+	if len(prof.State) > 0 {
+		Province := prof.State
+		if len(c.State) > 0 {
+			Province = c.State
+		}
+		Subject.Province = []string{Province}
 	}
-	Locality := prof.Locality
-	if len(c.Locality) > 0 {
-		Locality = c.Locality
+
+	if len(prof.Locality) > 0 {
+		Locality := prof.Locality
+		if len(c.Locality) > 0 {
+			Locality = c.Locality
+		}
+		Subject.Locality = []string{Locality}
 	}
-	StreetAddress := prof.StreetAddress
-	if len(c.StreetAddress) > 0 {
-		StreetAddress = c.StreetAddress
+
+	if len(prof.StreetAddress) > 0 {
+		StreetAddress := prof.StreetAddress
+		if len(c.StreetAddress) > 0 {
+			StreetAddress = c.StreetAddress
+		}
+		Subject.StreetAddress = []string{StreetAddress}
 	}
-	PostalCode := prof.PostalCode
-	if len(c.PostalCode) > 0 {
-		PostalCode = c.PostalCode
+
+	if len(prof.PostalCode) > 0 {
+		PostalCode := prof.PostalCode
+		if len(c.PostalCode) > 0 {
+			PostalCode = c.PostalCode
+		}
+		Subject.PostalCode = []string{PostalCode}
 	}
+
 	// Prepare certificate
 	cert := &x509.Certificate{
-		SerialNumber: SerialNumber,
-		Subject: pkix.Name{
-			Organization:  []string{Organization},
-			Country:       []string{Country},
-			Province:      []string{Province},
-			Locality:      []string{Locality},
-			StreetAddress: []string{StreetAddress},
-			PostalCode:    []string{PostalCode},
-			CommonName:    c.Cn,
-		},
+		SerialNumber:   SerialNumber,
+		Subject:        Subject,
 		NotBefore:      time.Now(),
 		NotAfter:       time.Now().AddDate(0, 0, prof.Validity),
 		ExtKeyUsage:    certutils.Extkeyusage(strings.Split(*prof.ExtendedKeyUsage, "|")),
