@@ -35,7 +35,6 @@ conf/radiusd/eap_profiles.conf
 conf/radiusd/fast.conf
 conf/radiusd/ocsp.conf
 conf/radiusd/tls.conf
-conf/remote_profiles.conf
 conf/pfcron.conf
 conf/certmanager
 bin/pfcmd
