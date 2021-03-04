@@ -102,9 +102,9 @@ sub parseExternalPortalRequest {
 
     # Using a hash to contain external portal parameters
     my %params = ();
-
+    my $locationlog = locationlog_view_open_mac(clean_mac($req->param('mac')));
     %params = (
-        switch_id               => defined($req->param('switchip')) ? $req->param('switchip') : $req->param('apname'),
+        switch_id               => $locationlog->{switch},
         client_mac              => clean_mac($req->param('mac')),
         client_ip               => $req->param('ip'),
         redirect_url            => $req->param('url'),
@@ -200,13 +200,12 @@ sub radiusDisconnect {
 
         # transforming MAC to the expected format 00-11-22-33-CA-FE
         my $mac = lc($mac);
-        my $username = $mac;
-        $username =~ s/://g;
+        my $username = $locationlog->{dot1x_username};
         $mac =~ s/:/-/g;
         my $time = time;
 
         # Standard Attributes
-        my $vsa = [{ 'vendor' => 'HP', 'attribute' => 'HP-Port-Bounce-Host', 'value' => '12' }];
+        my $vsa;
         my $attributes_ref = {
             'User-Name' => $username,
             'Calling-Station-Id' => $mac,
@@ -228,7 +227,7 @@ sub radiusDisconnect {
 
         }
         else {
-            my $vsa = [{ 'vendor' => 'HP', 'attribute' => 'HP-Port-Bounce-Host', 'value' => '12' }];
+            $vsa = [{ 'vendor' => 'HP', 'attribute' => 'HP-Port-Bounce-Host', 'value' => '12' }];
             $response = perform_coa($connection_info, $attributes_ref,$vsa);
         }
     } catch {
