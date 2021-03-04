@@ -52,6 +52,7 @@ use pf::SwitchSupports qw(
     WirelessMacAuth
     ExternalPortal
     WebFormRegistration
+    WiredMacAuth
 );
 # inline capabilities
 sub inlineCapabilities { return ($MAC,$SSID); }
@@ -153,6 +154,28 @@ sub deauthTechniques {
     }
     return $method,$tech{$method};
 }
+
+=head2 wiredeauthTechniques
+
+Return the reference to the deauth technique or the default deauth technique.
+
+=cut
+
+sub wiredeauthTechniques {
+    my ($self, $method, $connection_type) = @_;
+    my $logger = $self->logger;
+    my $default = $SNMP::SSH;
+    my %tech = (
+        $SNMP::SSH    => 'deauthenticateMacSSHDHCP',
+        $SNMP::RADIUS => 'deauthenticateMacRadius',
+    );
+
+    if (!defined($method) || !defined($tech{$method})) {
+        $method = $default;
+    }
+    return $method,$tech{$method};
+}
+
 
 =item deauthenticateMacDefault
 
@@ -356,6 +379,62 @@ sub deauthenticateMacSSH {
     return 1;
 }
 
+
+=item deauthenticateMacSSHDHCP
+
+deauthenticate a MAC address from wireless network
+
+Right now the only way to do it is from the CLI (through SSH).
+
+=cut
+
+sub deauthenticateMacSSHDHCP {
+    my ( $self, ,$ifindex, $mac ) = @_;
+    my $logger = $self->logger;
+
+    if ( !$self->isProductionMode() ) {
+        $logger->info("not in production mode ... we won't deauthenticate $mac");
+        return 1;
+    }
+
+    if ( length($mac) != 17 ) {
+        $logger->error("MAC format is incorrect ($mac). Should be xx:xx:xx:xx:xx:xx");
+        return 1;
+    }
+
+    my $ssh;
+
+    my $send_disconnect_to = $self->{'_ip'};
+    # but if controllerIp is set, we send there
+    if (defined($self->{'_controllerIp'}) && $self->{'_controllerIp'} ne '') {
+        $logger->info("controllerIp is set, we will use controller $self->{_controllerIp} to perform deauth");
+        $send_disconnect_to = $self->{'_controllerIp'};
+    }
+
+    eval {
+        require Net::SSH2;
+        $ssh = Net::SSH2->new();
+        $ssh->connect($send_disconnect_to);
+        $ssh->auth_password($self->{_cliUser},$self->{_cliPwd});
+    };
+
+    if ($@) {
+        $logger->error("Unable to connect to ".$send_disconnect_to." using ".$self->{_cliTransport}.". Failed with $@");
+        return;
+    }
+
+    $mac = uc($mac);
+    my $command = "/ip dhcp-server lease remove [find dynamic and mac-address=$mac]";
+
+    $logger->info("Deauthenticating mac $mac");
+    $logger->warn("sending CLI command '$command'");
+
+    my $chan = $ssh->channel();
+    $chan->exec($command);
+    $ssh->disconnect();
+
+    return 1;
+}
 
 =back
 
