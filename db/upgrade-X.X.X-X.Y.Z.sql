@@ -158,10 +158,22 @@ ALTER TABLE sms_carrier
 
 \! echo "altering pki_profiles"
 ALTER TABLE pki_profiles
-    ADD COLUMN IF NOT EXISTS `scep_enabled` int(11),
-    ADD COLUMN IF NOT EXISTS `scep_challenge_password` varchar(255),
-    ADD COLUMN IF NOT EXISTS `scep_allow_renewal` varchar(255);
+    ADD COLUMN IF NOT EXISTS `mail` varchar(255) DEFAULT NULL AFTER name,
+    ADD COLUMN IF NOT EXISTS `organisation` varchar(255) DEFAULT NULL AFTER mail,
+    ADD COLUMN IF NOT EXISTS `country` varchar(255) DEFAULT NULL AFTER organisation,
+    ADD COLUMN IF NOT EXISTS `state` varchar(255) DEFAULT NULL AFTER country,
+    ADD COLUMN IF NOT EXISTS `locality` varchar(255) DEFAULT NULL AFTER state,
+    ADD COLUMN IF NOT EXISTS `street_address` varchar(255) DEFAULT NULL AFTER locality,
+    ADD COLUMN IF NOT EXISTS `postal_code` varchar(255) DEFAULT NULL AFTER street_address,
+    ADD COLUMN IF NOT EXISTS `ocsp_url` varchar(255) DEFAULT NULL AFTER extended_key_usage,
+    ADD COLUMN IF NOT EXISTS `scep_enabled` int(11) AFTER p12_mail_footer,
+    ADD COLUMN IF NOT EXISTS `scep_challenge_password` varchar(255) AFTER p12_mail_footer,
+    ADD COLUMN IF NOT EXISTS `scep_allow_renewal` varchar(255) AFTER scep_challenge_password;
 
+
+\! echo "altering pki_cas"
+ALTER TABLE pki_cas
+    ADD COLUMN IF NOT EXISTS `ocsp_url` varchar(255) DEFAULT NULL AFTER issuer_name_hash;
 
 \! echo "Incrementing PacketFence schema version...";
 INSERT IGNORE INTO pf_version (id, version, created_at) VALUES (@VERSION_INT, CONCAT_WS('.', @MAJOR_VERSION, @MINOR_VERSION, @SUBMINOR_VERSION), NOW());
