@@ -216,7 +216,7 @@ const sizes = [
   { text: '5000', value: 5000 }
 ]
 
-import { computed, customRef, nextTick, ref, toRefs } from '@vue/composition-api'
+import { computed, customRef, ref, toRefs } from '@vue/composition-api'
 import { useDebouncedWatchHandler } from '@/composables/useDebounce'
 import i18n from '@/utils/locale'
 import yup from '@/utils/yup'
@@ -233,7 +233,7 @@ const setup = (props, context) => {
     id
   } = toRefs(props)
   
-  const { emit, root: { $router, $store } = {} } = context
+  const { root: { $router, $store } = {} } = context
   
   // const form = session
   const formRef = ref(null)  
