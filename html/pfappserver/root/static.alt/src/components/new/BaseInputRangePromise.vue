@@ -51,7 +51,7 @@ export const props = {
   ...useInputValueToggleProps
 }
 
-import { computed, ref, toRefs, watch } from '@vue/composition-api'
+import { ref, toRefs, watch } from '@vue/composition-api'
 
 export const setup = (props, context) => {
 
