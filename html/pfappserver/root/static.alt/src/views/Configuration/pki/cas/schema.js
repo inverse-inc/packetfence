@@ -71,8 +71,8 @@ export default (props) => {
       if (sizes)
         return _schema.in(sizes, i18n.t('Invalid key size. {type} only supports {list}', { type, list: arrToLocale(sizes) }))
       return _schema
-    }),
-    oscp_url: yup.string().max(255, i18n.t('Maximum 255 characters.')),
+    }), 
+    ocsp_url: yup.string().max(255, i18n.t('Maximum 255 characters.')),
     digest: yup.string().required(i18n.t('Digest required.')),
     days: yup.string().required(i18n.t('Days required.')).minAsInt(1, i18n.t('Minimum 1 day(s).')).maxAsInt(825, i18n.t('Maximum 825 day(s).'))
   })
