@@ -327,8 +327,6 @@ done
 %{__make} -C html/common light-dist
 
 # Admin javascript/css
-%{__make} -C html/pfappserver/root/static/ vendor
-%{__make} -C html/pfappserver/root/static/ light-dist
 %{__make} -C html/pfappserver/root/static.alt/ vendor
 %{__make} -C html/pfappserver/root/static.alt/ light-dist
 
