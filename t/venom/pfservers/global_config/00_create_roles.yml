@@ -1,7 +1,7 @@
 name: Create roles
 version: 2
 testcases:
-- name: create_eap_peap_roles
+- name: create_eap_peap_roles_user
   steps:
   - type: http
     method: POST
@@ -19,6 +19,7 @@ testcases:
     assertions:
       - result.statuscode ShouldEqual 201
 
+- name: create_eap_peap_roles_machine
   steps:
   - type: http
     method: POST
