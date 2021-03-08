@@ -88,19 +88,3 @@ On each of the servers you want to discard the data from, you must destroy all t
 You should then see `/var/lib/mysql` be populated again with the data and once MariaDB becomes available again on the server, it means the sync has completed. In case of issues, look in the MariaDB log file (`/usr/local/pf/logs/mariadb_error.log`)
 
 NOTE: If you were performing a full recovery, you should now break the `--force-new-cluster` command and start `packetfence-mariadb` normally. (`systemctl start packetfence-mariadb`)
-
-=== Putting a node in maintenance
-
-When doing maintenance on a node (especially the management node), it is always better to put it in maintenance mode so it doesn't try to join an existing cluster.
-
-In order to activate the maintenance mode on a node:
-
-  # /usr/local/pf/bin/cluster/maintenance --activate
-
-In order to deactivate the maintenance mode on a node:
-
-  # /usr/local/pf/bin/cluster/maintenance --deactivate
-
-In order to see the current maintenance state on a node:
-
-  # /usr/local/pf/bin/cluster/maintenance
