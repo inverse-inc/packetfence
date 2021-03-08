@@ -71,8 +71,8 @@ export const setup = (props, context) => {
     value
   } = toRefs(metaProps)
 
-  const onInput = newValue => {
-    console.log('onInput', newValue)
+  const onInput = () => {
+    // console.log('onInput', newValue)
   }
 
 
