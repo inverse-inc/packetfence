@@ -2,6 +2,7 @@ import BaseArray from './BaseArray'
 import BaseButtonConfirm from './BaseButtonConfirm'
 import BaseButtonExportCsv from './BaseButtonExportCsv'
 import BaseButtonHelp from './BaseButtonHelp'
+import BaseButtonRefresh from './BaseButtonRefresh'
 import BaseButtonSave from './BaseButtonSave'
 import BaseButtonService from './BaseButtonService'
 import BaseButtonUpload from './BaseButtonUpload'
@@ -23,6 +24,7 @@ import BaseFormGroupInputDateTime from './BaseFormGroupInputDateTime'
 import BaseFormGroupInputMultiplier from './BaseFormGroupInputMultiplier'
 import BaseFormGroupInputNumber from './BaseFormGroupInputNumber'
 import BaseFormGroupInputPassword from './BaseFormGroupInputPassword'
+import BaseFormGroupInputPasswordGenerator from './BaseFormGroupInputPasswordGenerator'
 import BaseFormGroupInputPasswordTest, { props as BaseFormGroupInputPasswordTestProps } from './BaseFormGroupInputPasswordTest'
 import BaseFormGroupInputTest, { props as BaseFormGroupInputTestProps } from './BaseFormGroupInputTest'
 import BaseFormGroupTextarea from './BaseFormGroupTextarea'
@@ -43,15 +45,18 @@ import BaseInputChosenOneSearchable, { props as BaseInputChosenOneSearchableProp
 import BaseInputGroup from './BaseInputGroup'
 import BaseInputGroupDate from './BaseInputGroupDate'
 import BaseInputGroupDateTime from './BaseInputGroupDateTime'
+import BaseInputGroupPassword from './BaseInputGroupPassword'
 import BaseInputGroupTextarea from './BaseInputGroupTextarea'
 import BaseInputGroupTextareaUpload, { props as BaseInputGroupTextareaUploadProps } from './BaseInputGroupTextareaUpload'
 import BaseInputGroupMultiplier from './BaseInputGroupMultiplier'
 import BaseInputNumber from './BaseInputNumber'
 import BaseInputPassword from './BaseInputPassword'
 import BaseInputRange from './BaseInputRange'
+import BaseInputRangePromise from './BaseInputRangePromise'
 import BaseInputToggle, { props as BaseInputToggleProps } from './BaseInputToggle'
 import BaseInputToggleAdvancedMode from './BaseInputToggleAdvancedMode'
 import BaseInputToggleFalseTrue from './BaseInputToggleFalseTrue'
+import BaseTableEmpty from './BaseTableEmpty'
 import BaseView from './BaseView'
 
 import { mergeProps, renderHOCWithScopedSlots } from './utils'
@@ -81,6 +86,7 @@ export {
   BaseFormGroupInputMultiplier,
   BaseFormGroupInputNumber,
   BaseFormGroupInputPassword,
+  BaseFormGroupInputPasswordGenerator,
   BaseFormGroupInputPasswordTest, BaseFormGroupInputPasswordTestProps,
   BaseFormGroupInputTest, BaseFormGroupInputTestProps,
   BaseFormGroupTextarea,
@@ -103,6 +109,7 @@ export {
   BaseInputNumber,
   BaseInputPassword,
   BaseInputRange,
+  BaseInputRangePromise,
   BaseInputToggle, BaseInputToggleProps,
   BaseInputToggleAdvancedMode,
   BaseInputToggleFalseTrue,
@@ -110,6 +117,7 @@ export {
   // bootstrap wrappers
   BaseInputGroupDate,
   BaseInputGroupDateTime,
+  BaseInputGroupPassword,
   BaseInputGroupMultiplier,
   BaseInputGroupTextarea,
   BaseInputGroupTextareaUpload, BaseInputGroupTextareaUploadProps,
@@ -121,12 +129,16 @@ export {
   BaseButtonConfirm,
   BaseButtonExportCsv,
   BaseButtonHelp,
+  BaseButtonRefresh,
   BaseButtonSave,
   BaseButtonService,
   BaseButtonUpload,
 
   // containers
   BaseContainerLoading,
+  
+  // tables
+  BaseTableEmpty,
 
   // utils
   mergeProps,

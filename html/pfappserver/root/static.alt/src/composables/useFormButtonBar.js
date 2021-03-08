@@ -52,7 +52,7 @@ export const useFormButtonBar = (props, context) => {
   const { emit, listeners } = context
 
   const canClone = computed(() => {
-    return isCloneable.value && isClone.value === false && isNew.value === false && 'clone' in listeners
+    return isCloneable.value && !isClone.value && !isNew.value && 'clone' in listeners
   })
 
   const canClose = computed(() => {
@@ -60,7 +60,7 @@ export const useFormButtonBar = (props, context) => {
   })
 
   const canDelete = computed(() => {
-    return isDeletable.value && isClone.value === false && isNew.value === false && 'remove' in listeners
+    return isDeletable.value && !isClone.value && !isNew.value && 'remove' in listeners
   })
 
   const canSave = computed(() => {
@@ -72,14 +72,6 @@ export const useFormButtonBar = (props, context) => {
   const onRemove = value => emit('remove', value)
   const onReset = value => emit('reset', value)
   const onSave = value => emit('save', value)
-
-  /*
-           <template v-if="isNew">{{ $t('Create') }}</template>
-        <template v-else-if="actionKey && isClone && canClose">{{ $t('Create & {actionKeyButtonVerb}', { actionKeyButtonVerb }) }}</template>
-        <template v-else-if="isClone">{{ $t('Create') }}</template>
-        <template v-else-if="actionKey">{{ $t('Save & {actionKeyButtonVerb}', { actionKeyButtonVerb }) }}</template>
-        <template v-else>{{ $t('Save') }}</template>
-        */
 
   const saveButtonLabel = computed(() => {
     switch (true) {

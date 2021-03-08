@@ -16,6 +16,12 @@
       <pf-empty-table :isLoading="state.isLoading">{{ $t('No maintenance tasks found') }}</pf-empty-table>
     </template>
     <template v-slot:cell(status)="item">
+
+      <pre>{{ {item} }}</pre>
+      <base-input-range-promise v-model="item.status" />
+
+
+
       <pf-form-range-toggle
         v-model="item.status"
         :values="{ checked: 'enabled', unchecked: 'disabled' }"
@@ -40,6 +46,9 @@ import pfConfigList from '@/components/pfConfigList'
 import pfEmptyTable from '@/components/pfEmptyTable'
 import pfFormRangeToggle from '@/components/pfFormRangeToggle'
 import { config } from '../_config/maintenanceTask'
+import {
+  BaseInputRangePromise
+} from '@/components/new/'
 
 export default {
   name: 'maintenance-tasks-list',
@@ -47,7 +56,8 @@ export default {
     pfButtonService,
     pfConfigList,
     pfEmptyTable,
-    pfFormRangeToggle
+    pfFormRangeToggle,
+    BaseInputRangePromise
   },
   data () {
     return {

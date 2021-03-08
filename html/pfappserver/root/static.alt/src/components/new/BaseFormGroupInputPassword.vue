@@ -18,9 +18,11 @@
       }"
       :disabled="isLocked"
       :placeholder="inputPlaceholder"
+      :readonly="readonly"
       :tabIndex="inputTabIndex"
       :type="inputType"
       :value="inputValue"
+      :autocomplete="namespace || 'password'"
       @input="onInput"
       @change="onChange"
       @focus="onFocus"
@@ -47,7 +49,7 @@ const components = {
   BaseFormGroup
 }
 
-import { computed, ref,  unref } from '@vue/composition-api'
+import { computed, ref, unref } from '@vue/composition-api'
 import { useFormGroupProps } from '@/composables/useFormGroup'
 import { useInput, useInputProps } from '@/composables/useInput'
 import { useInputMeta, useInputMetaProps } from '@/composables/useMeta'
