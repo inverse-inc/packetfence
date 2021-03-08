@@ -34,6 +34,21 @@ Important variables:
 
 In order for the cluster to be considered healthy, all nodes must be listed under `wsrep_incoming_addresses` and `wsrep_local_state_comment` must be `Synced`. Otherwise look in the MariaDB log ([filename]`/usr/local/pf/logs/mariadb_error.log`)
 
+=== Rejoining a node to an existing cluster
+
+When only one node has left cluster, you can apply following commands on that node to rejoin:
+
+[source,bash]
+----
+systemctl stop packetfence-mariadb
+systemctl stop packetfence-galera-autofix
+rm -fr /var/lib/mysql/*
+systemctl start packetfence-mariadb
+systemctl start packetfence-galera-autofix
+----
+
+This action will not cause service disruption on current cluster.
+
 === Recovering when a node is missing
 
 If one of the nodes cannot recover, you can manually reset the cluster state. Note that this procedure is only valid if all the nodes were hard-shutdown at the same time.
