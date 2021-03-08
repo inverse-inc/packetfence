@@ -1,16 +1,11 @@
 import store from '@/store'
 import acl from '@/utils/acl'
 import i18n from '@/utils/locale'
-
 import UsersStoreModule from '../_store'
-
 import UsersView from '../'
 const UsersSearch = () => import(/* webpackChunkName: "Users" */ '../_components/UsersSearch')
-//const UsersCreate = () => import(/* webpackChunkName: "Users" */ '../_components/UsersCreate')
 const UsersPreview = () => import(/* webpackChunkName: "Users" */ '../_components/UsersPreview')
-//const UserView = () => import(/* webpackChunkName: "Users" */ '../_components/UserView')
 const UsersImport = () => import(/* webpackChunkName: "Editor" */ '../_components/UsersImport')
-
 const TheViewCreate = () => import(/* webpackChunkName: "Users" */ '../_components/TheViewCreate')
 const TheViewUpdate = () => import(/* webpackChunkName: "Users" */ '../_components/TheViewUpdate')
 

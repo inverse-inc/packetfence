@@ -477,7 +477,7 @@ const setup = (props, context) => {
   const onSave = () => {
     $store.dispatch('$_users/updateUser', form.value).then(() => {
       if (form.value.expiration) // has password
-        $store.dispatch('$_users/updatePassword', Object.assign({ quiet: true }, this.form))
+        $store.dispatch('$_users/updatePassword', Object.assign({ quiet: true }, form.value))
     })
   }
   

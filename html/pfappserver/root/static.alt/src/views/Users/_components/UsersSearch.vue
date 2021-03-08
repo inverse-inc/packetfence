@@ -12,7 +12,7 @@
       :fields="fields"
       :advanced-mode="advancedMode"
       :condition="condition"
-      storeName="$_users"
+      :store-name="storeName"
       @submit-search="onSearch"
       @reset-search="onReset"
       @import-search="onImport"></pf-search>
@@ -189,6 +189,10 @@ export default {
         },
         defaultRoute: { name: 'users' }
       })
+    },
+    storeName: {
+      type: String,
+      default: '$_users'
     }
   },
   data () {
