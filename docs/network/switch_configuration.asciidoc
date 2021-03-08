@@ -53,6 +53,10 @@ include::networkdevice/alliedTelesis.asciidoc[]
 
 include::networkdevice/amer.asciidoc[]
 
+=== Aruba
+
+include::networkdevice/aruba_switchs.asciidoc[]
+
 === Avaya
 
 include::networkdevice/avaya.asciidoc[]

@@ -1,0 +1,86 @@
+// to display images directly on GitHub
+ifdef::env-github[]
+:encoding: UTF-8
+:lang: en
+:doctype: book
+:toc: left
+:imagesdir: ../../images
+endif::[]
+
+////
+
+    This file is part of the PacketFence project.
+
+    See PacketFence_Network_Devices_Configuration_Guide-docinfo.xml for 
+    authors, copyright and license information.
+
+////
+
+
+//=== Aruba Switch
+
+==== Aruba 2930M Serie
+
+The Aruba 2930M is supported by PacketFence and it supports MAC Authentication, 802.1X, Dynamic ACLS and Web Authentication.
+
+
+===== Global Radius Configuration
+
+  radius-server host 192.168.1.5 key "useStrongerSecret"
+  radius-server host 192.168.1.5 dyn-authorization
+  radius-server host 192.168.1.5 time-window 0
+  ip source-interface radius vlan 1
+  aaa server-group radius "PacketFence" host 10.5.6.100
+  aaa accounting network start-stop radius server-group "PacketFence"
+
+===== MAC Authentication
+
+  aaa authentication mac-based chap-radius server-group "PacketFence"
+  aaa port-access mac-based 1
+  aaa port-access mac-based 1 addr-moves
+  aaa port-access mac-based 1 reauth-period 14400
+
+===== 802.1x
+
+  aaa authentication port-access eap-radius server-group "PacketFence"
+  aaa port-access authenticator 1
+  aaa port-access authenticator 1 tx-period 10
+  aaa port-access authenticator 1 client-limit 2
+  aaa port-access authenticator active 
+
+===== MAC Authentication Bypass
+
+  aaa authentication mac-based chap-radius server-group "PacketFence"
+  aaa authentication port-access eap-radius server-group "PacketFence"
+  aaa port-access 1 auth-order authenticator mac-based
+  aaa port-access mac-based 1
+  aaa port-access mac-based 1 addr-moves
+  aaa port-access mac-based 1 reauth-period 14400
+  aaa port-access authenticator 1
+  aaa port-access authenticator 1 tx-period 10
+  aaa port-access authenticator 1 client-limit 2
+  aaa port-access authenticator active 
+  
+===== Web Authentication
+
+  aaa authentication captive-portal enable
+
+
+On the PacketFence side you will need to fill the "Role by Access List" for the registration role:
+
+  permit in tcp from any to 192.168.1.5 80
+  permit in tcp from any to 192.168.1.5 443
+  deny in tcp from any to any 80 cpy
+  deny in tcp from any to any 443 cpy
+  permit in udp from any to any 53
+  permit in udp from any to any 67
+
+And the "Role by Web Auth URL" for the registration role:
+
+  http://192.168.1.5/Aruba::2930M
+
+
+===== Dynamic ACL
+
+The switch needs to be configure to do MAC Authentication and or 802.1x.
+Then on the PacketFence side in the switch roles, enable "Role by Access List" and fill the appropriate role with the acl you want.
