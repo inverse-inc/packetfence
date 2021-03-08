@@ -1,7 +1,7 @@
 # Copyright (C) Inverse inc.
 [Unit]
 Description=PacketFence HAProxy Load Balancer for connecting to clustered databases
-Before=packetfence-httpd.portal.service packetfence-httpd.admin.service packetfence-api-frontend.service
+Before=packetfence-httpd.portal.service packetfence-api-frontend.service
 Wants=packetfence-config.service 
 
 [Service]

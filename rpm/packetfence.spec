@@ -374,7 +374,6 @@ done
 %{__install} -D -m0644 conf/systemd/packetfence-haproxy-portal.service %{buildroot}%{_unitdir}/packetfence-haproxy-portal.service
 %{__install} -D -m0644 conf/systemd/packetfence-haproxy-db.service %{buildroot}%{_unitdir}/packetfence-haproxy-db.service
 %{__install} -D -m0644 conf/systemd/packetfence-httpd.aaa.service %{buildroot}%{_unitdir}/packetfence-httpd.aaa.service
-%{__install} -D -m0644 conf/systemd/packetfence-httpd.admin.service %{buildroot}%{_unitdir}/packetfence-httpd.admin.service
 %{__install} -D -m0644 conf/systemd/packetfence-httpd.collector.service %{buildroot}%{_unitdir}/packetfence-httpd.collector.service
 %{__install} -D -m0644 conf/systemd/packetfence-httpd.portal.service %{buildroot}%{_unitdir}/packetfence-httpd.portal.service
 %{__install} -D -m0644 conf/systemd/packetfence-httpd.proxy.service %{buildroot}%{_unitdir}/packetfence-httpd.proxy.service
