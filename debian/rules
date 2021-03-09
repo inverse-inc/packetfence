@@ -252,7 +252,7 @@ binary-arch: build install
 			/usr/local/pf/raddb/sites-available/dynamic-clients /usr/local/pf/raddb/sites-enabled/dynamic-clients \
 			/usr/local/pf/raddb/sites-available/status /usr/local/pf/raddb/sites-enabled/status \
 			/usr/local/fingerbank/lib/fingerbank /usr/local/pf/lib/fingerbank \
-			/usr/local/pf/html/captive-portal/lib/captiveportal /usr/local/pf/lib/captiveportal \
+			/usr/local/pf/html/captive-portal/lib/captiveportal /usr/local/pf/lib/captiveportal
 	dh_strip
 	dh_compress
 	# PERMISSIONS
