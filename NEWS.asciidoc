@@ -47,6 +47,7 @@ For a list of compatibility related changes see the <<PacketFence_Upgrade_Guide.
 * FortiGate Role Based Enforcement (#5645)
 * Add support for roles (RBAC) for Ruckus WLAN controllers (#2530)
 * Upgrade to go version 1.15 (#6044)
+* Build ready-to-use Vagrant images for integration tests and send them to Vagrant cloud (#6099)
 
 === Bug Fixes
 
