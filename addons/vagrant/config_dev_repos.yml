@@ -1,4 +1,4 @@
-- hosts: ['nightly', 'dev']
+- hosts: dev
   name: install packetfence development packages
   become: True
 

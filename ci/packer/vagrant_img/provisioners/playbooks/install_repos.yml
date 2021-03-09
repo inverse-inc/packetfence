@@ -1,0 +1,8 @@
+- hosts: pfservers
+  name: install PacketFence repositories
+  become: True
+  gather_facts: True
+  tags: repos
+
+  roles:
+    - role: inverse_inc.gitlab_buildpkg_tools

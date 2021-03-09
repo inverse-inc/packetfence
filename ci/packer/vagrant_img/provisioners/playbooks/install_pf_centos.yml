@@ -1,0 +1,13 @@
+- hosts: stable
+  name: Install PacketFence on CentOS stable machines
+  become: True
+  gather_facts: True
+
+  tasks:
+    - name: Install PacketFence package from the repo
+      yum:
+        name: packetfence
+        enablerepo: '{{ stable_repo_id }}'
+        state: present
+        update_cache: yes
+      when: ansible_os_family == 'RedHat'

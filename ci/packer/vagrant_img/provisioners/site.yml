@@ -1,0 +1,8 @@
+---
+- import_playbook: playbooks/upgrade_os.yml
+
+- import_playbook: playbooks/install_repos.yml
+
+- import_playbook: playbooks/install_pf_centos.yml
+
+- import_playbook: playbooks/install_utils.yml

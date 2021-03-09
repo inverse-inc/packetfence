@@ -1,0 +1,22 @@
+- name: install selinux package on hosts for next task
+  yum:
+    name:
+      - libselinux-python
+  when: ansible_selinux['status'] == 'enabled'
+
+- name: ensure SELinux is disabled
+  selinux:
+    state: disabled
+  register: upgrade_os_el_selinux_disabled_register
+  when: ansible_selinux['status'] == 'enabled'
+
+- name: update to latest OS version (EL)
+  yum:
+    name: '*'
+    state: latest
+    update_cache: yes
+  register: upgrade_os_el_register
+
+- name: reboot to have latest Linux kernel packages in place and SELinux disabled
+  reboot:
+  when: (upgrade_os_el_register is changed or upgrade_os_el_selinux_disabled_register is changed)

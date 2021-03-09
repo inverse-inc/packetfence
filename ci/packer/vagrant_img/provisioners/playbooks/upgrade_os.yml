@@ -1,0 +1,11 @@
+- hosts: pfservers
+  name: upgrade OS to latest version
+  become: True
+  gather_facts: True
+  tags: upgrade
+
+  tasks:
+    - name: include distribution specific tasks
+      include_tasks: "{{ ansible_os_family|lower }}.yml"
+
+

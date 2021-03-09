@@ -5,8 +5,8 @@ include ../../config.mk
 #==============================================================================
 
 .PHONY: all
-all: build_img
+all: build_docker_img
 
-.PHONY: build_img
-build_img:
+.PHONY: build_docker_img
+build_docker_img:
 	GOVERSION=$(GOVERSION) ./packer-wrapper.sh

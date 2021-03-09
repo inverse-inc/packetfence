@@ -1,0 +1,20 @@
+---
+- name: allow ssh on default interface for vagrant management
+  blockinfile:
+    path: "{{ packetfence_install__conf_dir }}/iptables.conf"
+    block: |
+      # allow SSH for vagrant management
+      -A INPUT --in-interface {{ ansible_default_ipv4['interface'] }} --jump ACCEPT
+    marker: "# {mark} ANSIBLE MANAGED BLOCK - vagrant"
+    insertafter: "-A INPUT --in-interface lo --jump ACCEPT"
+
+- name: allow mailhog on management interface
+  blockinfile:
+    path: "{{ packetfence_install__conf_dir }}/iptables.conf"
+    block: |
+      # allow MailHog (SMTP and web interface) on management interface
+      -A input-management-if --protocol tcp --match tcp --dport {{ mailhog__smtp_port }} --jump ACCEPT
+      -A input-management-if --protocol tcp --match tcp --dport {{ mailhog__api_port }} --jump ACCEPT
+    marker: "# {mark} ANSIBLE MANAGED BLOCK - mailhog"
+    # insertafter Syslog rule
+    insertafter: "-A input-management-if --protocol udp --match udp --dport 514 --jump ACCEPT"

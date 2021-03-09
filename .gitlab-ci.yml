@@ -17,7 +17,7 @@ stages:
   - publish
   - test
   - upload
-  - build_zen
+  - build_pf_img
 
 ################################################################################
 # VARIABLES
@@ -30,6 +30,7 @@ variables:
   CILIBDIR: ci/lib
   PACKERDIR: $CIDIR/packer
   ZENDIR: $CIDIR/packer/zen
+  VAGRANT_IMG_DIR: $CIDIR/packer/vagrant_img
   MAINTDIR: $CILIBDIR/maintenance
   TESTDIR: $CILIBDIR/test
   UPLOAD_DIR: $CILIBDIR/upload
@@ -59,7 +60,6 @@ variables:
   only:
     - /^devel$/
     - web
-    - feature/on-the-fly-fingerbank-acls
   except:
     - /^v[[:digit:]]+\.[[:digit:]]+\.[[:digit:]]+$/
     - /^maintenance/[[:digit:]]+\.[[:digit:]]+$/
@@ -119,12 +119,25 @@ variables:
 ########################################    
 # JOBS
 ########################################
-.build_img_job:
+.build_docker_img_job:
   stage: build_img
   script:
-    - make -e -C ${PACKERDIR} build_img
+    - make -e -C ${PACKERDIR} build_docker_img
   tags:
     - shell
+
+.build_vagrant_img_dev_job:
+  stage: build_img
+  variables:
+    RESULT_DIR: /var/local/gitlab-runner/vagrant_img
+    BOX_DESC: ${CI_PIPELINE_URL}
+  script:
+    - make -e -C ${VAGRANT_IMG_DIR} ${BOX_NAME}
+  after_script:
+    - make -e -C ${VAGRANT_IMG_DIR} clean
+  tags:
+    - shell
+    - inverse.ca
 
 .build_job:
   stage: build_pkg
@@ -224,7 +237,7 @@ variables:
     - shell
 
 .build_zen_job:
-  stage: build_zen
+  stage: build_pf_img
   environment:
     name: sourceforge
     url: ${SF_REPO_URL}/${CI_COMMIT_REF_NAME}
@@ -232,6 +245,19 @@ variables:
     - make -e -C ${ZENDIR} clean
     - make -e -C ${ZENDIR} clean_cache
   tags:
+    - shell
+
+.build_vagrant_img_stable_job:
+  stage: build_pf_img
+  variables:
+    RESULT_DIR: /var/local/gitlab-runner/vagrant_img
+    BOX_DESC: ${CI_PIPELINE_URL}
+  script:
+    - make -e -C ${VAGRANT_IMG_DIR} ${BOX_NAME}
+  after_script:
+    - make -e -C ${VAGRANT_IMG_DIR} clean
+  tags:
+    - inverse.ca
     - shell
 
 .rpm_script:
@@ -284,9 +310,10 @@ variables:
 ########################################
 # BUILD_IMG JOBS
 ########################################
-build_img_dev:
+# build_docker_img jobs
+build_docker_img_dev:
   extends:
-    - .build_img_job
+    - .build_docker_img_job
     - .job_devel_only_triggers
   variables:
     DOCKER_TAGS: latest,maintenance-99-9
@@ -295,17 +322,17 @@ build_img_dev:
   # will not run when we click "Run pipeline"
   when: manual
 
-build_img_branches:
+build_docker_img_branches:
   extends:
-    - .build_img_job
+    - .build_docker_img_job
     - .job_branches_only_triggers
   variables:
     DOCKER_TAGS: ${CI_COMMIT_REF_SLUG}
   when: manual
 
-build_img_maintenance:
+build_docker_img_maintenance:
   extends:
-    - .build_img_job
+    - .build_docker_img_job
     - .job_maintenance_triggers
   variables:
     DOCKER_TAGS: ${CI_COMMIT_REF_SLUG}
@@ -313,9 +340,9 @@ build_img_maintenance:
 
 # build a docker image at release
 # used to build release packages and maintenance artifacts for maintenance
-build_img_release:
+build_docker_img_release:
   extends:
-    - .build_img_job
+    - .build_docker_img_job
     - .job_release_triggers
   variables:
     DOCKER_TAGS: ${CI_COMMIT_TAG}
@@ -325,6 +352,23 @@ build_img_release:
     ANSIBLE_DEBIAN_GROUP: stable_debian
     ANSIBLE_RUBYGEMS_GROUP: stable_rubygems
     ACTIVE_BUILDS: 'pfbuild-centos-7,pfbuild-stretch'
+
+# build_vagrant_img jobs
+build_vagrant_img_dev_centos_7:
+  extends:
+    - .build_vagrant_img_dev_job
+    - .job_dev_triggers
+  variables:
+    BOX_NAME: pfcen7dev
+  when: manual
+
+build_vagrant_img_dev_debian_stretch:
+  extends:
+    - .build_vagrant_img_dev_job
+    - .job_dev_triggers
+  variables:
+    BOX_NAME: pfdeb9dev
+  when: manual
 
 ########################################
 #  BUILD_PKG JOBS
@@ -397,7 +441,6 @@ sign_dev_and_release:
     expire_in: 1 day
     paths:
       - result/*
-  # run job on runners tag with inverse.ca AND shell
   tags:
     - shell
   extends:
@@ -433,7 +476,6 @@ pages:
     expire_in: 1 day
     paths:
       - public
-  # run job on runners tag with inverse.ca AND shell
   tags:
     - shell
   extends:
@@ -608,7 +650,7 @@ deploy_maintenance:
     url: ${PUBLIC_REPO_URL}/${CI_ENVIRONMENT_NAME}
 
 ########################################
-# BUILD_ZEN JOBS
+# BUILD_PF_IMG JOBS
 ########################################
 build_zen_devel:
   extends:
@@ -634,4 +676,20 @@ build_zen_release:
     - .job_release_triggers
   script:
     - make -e -C ${ZENDIR} zen-release
+  when: manual
+
+build_vagrant_img_stable_centos_7:
+  extends:
+    - .build_vagrant_img_stable_job
+    - .job_release_triggers
+  variables:
+    BOX_NAME: pfcen7stable
+  when: manual
+
+build_vagrant_img_stable_debian_stretch:
+  extends:
+    - .build_vagrant_img_stable_job
+    - .job_release_triggers
+  variables:
+    BOX_NAME: pfdeb9stable
   when: manual

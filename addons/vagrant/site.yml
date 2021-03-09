@@ -1,7 +1,6 @@
 ---
 # no sub directory for ansible playbooks to find roles under roles/ directory
-
-- import_playbook: upgrade_os.yml
+- import_playbook: upgrade_centos_os.yml
 
 - import_playbook: config_dev_repos.yml
 
