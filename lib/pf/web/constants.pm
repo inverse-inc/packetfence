@@ -103,6 +103,7 @@ Readonly::Scalar our $URL_DEVICE_REG_LOGOUT     => '/device-registration/logout'
 Readonly::Scalar our $EXT_URL_AEROHIVE              => '^/AeroHIVE::AP';
 Readonly::Scalar our $EXT_URL_AEROHIVE_SHORT        => '^/AeroHIVE';
 Readonly::Scalar our $EXT_URL_ARUBA                 => '^/Aruba';
+Readonly::Scalar our $EXT_URL_ARUBA_SWITCH          => '^/Aruba::2930M';
 Readonly::Scalar our $EXT_URL_CISCO_CATALYST_2960   => '^/Cisco::Catalyst_2960';
 Readonly::Scalar our $EXT_URL_CISCO_WLC             => '^/Cisco::WLC';
 Readonly::Scalar our $EXT_URL_CISCO_ASA             => '^/Cisco::ASA';
