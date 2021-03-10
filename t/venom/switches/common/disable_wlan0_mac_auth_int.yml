@@ -6,4 +6,4 @@ testcases:
   - type: exec
     script: "sudo systemctl stop hostapd_open"
     assertions:
-      - result.statuscode ShouldEqual 0
+      - result.code ShouldEqual 0
