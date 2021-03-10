@@ -30,6 +30,7 @@ export {
   BaseFormGroupInput                      as FormGroupName,
   BaseFormGroupInputNumber                as FormGroupValidity,
   BaseFormGroupInput                      as FormGroupMail,
+  BaseFormGroupInput                      as FormGroupOrganisationalUnit,
   BaseFormGroupInput                      as FormGroupOrganisation,
   BaseFormGroupChosenCountry              as FormGroupCountry,
   BaseFormGroupInput                      as FormGroupState,

@@ -23,6 +23,7 @@ export {
   BaseFormGroupInput            as FormGroupIdentifier,
   BaseFormGroupInput            as FormGroupCn,
   BaseFormGroupInput            as FormGroupMail,
+  BaseFormGroupInput            as FormGroupOrganisationalUnit,
   BaseFormGroupInput            as FormGroupOrganisation,
   BaseFormGroupChosenCountry    as FormGroupCountry,
   BaseFormGroupInput            as FormGroupState,

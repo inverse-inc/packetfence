@@ -15,6 +15,9 @@
     <form-group-mail namespace="mail"
       :column-label="$i18n.t('Email')"
     />
+    <form-group-organisational-unit namespace="organisational_unit"
+      :column-label="$i18n.t('Organisational Unit')"
+    />
     <form-group-organisation namespace="organisation"
       :column-label="$i18n.t('Organisation')"
     />
@@ -75,6 +78,7 @@ import {
   FormGroupIdentifier,
   FormGroupCn,
   FormGroupMail,
+  FormGroupOrganisationalUnit,
   FormGroupOrganisation,
   FormGroupCountry,
   FormGroupState,
@@ -97,6 +101,7 @@ const components = {
   FormGroupIdentifier,
   FormGroupCn,
   FormGroupMail,
+  FormGroupOrganisationalUnit,
   FormGroupOrganisation,
   FormGroupCountry,
   FormGroupState,
