@@ -6,16 +6,12 @@
   httpdportalpreview
 }
 
-:8891/static {
-  root /usr/local/pf/html/pfappserver/root/static
-}
-
 :8891/common {
   root /usr/local/pf/html/common
 }
 
-:8891/admin/alt {
-  root /usr/local/pf/html/pfappserver/root/static.alt/dist
+:8891/admin {
+  root /usr/local/pf/html/pfappserver/root/dist
   index index.html
 }
 

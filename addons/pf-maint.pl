@@ -136,9 +136,9 @@ our $BINARIES_DIRECTORY = "/usr/local/pf/sbin";
 
 our $BINARIES_SIGN_KEY_ID = "A0030E2C";
 
-our $ALT_ADMIN_DIRECTORY = "/usr/local/pf/html/pfappserver/root/static.alt/dist";
-our $ALT_ADMIN_PATCH_WD = "/usr/local/pf/html/pfappserver/root/static.alt";
-our $ALT_ADMIN_URL = "https://inverse.ca/downloads/PacketFence/CentOS7/binaries";
+our $WEB_ADMIN_DIRECTORY = "/usr/local/pf/html/pfappserver/root/dist";
+our $WEB_ADMIN_PATCH_WD = "/usr/local/pf/html/pfappserver/root/";
+our $WEB_ADMIN_PATCH_URL = "https://inverse.ca/downloads/PacketFence/CentOS7/binaries";
 
 our $step = 0;
 
@@ -201,14 +201,14 @@ if($BASE_BINARIES_URL) {
     if($NO_ASK) {
         $should_patch = 1;
     }
-    elsif(accept_alt_admin_patching()) {
+    elsif(accept_web_admin_patching()) {
         $should_patch = 1;
     }
 
     if($should_patch) {
         install_binary_sign_key_if_needed();
         print "Downloading and replacing the files........\n";
-        download_and_install_alt_admin();
+        download_and_install_web_admin();
     }
 }
 
@@ -334,7 +334,7 @@ sub print_dot {
     print ".";
 }
 
-sub accept_alt_admin_patching {
+sub accept_web_admin_patching {
     print "." x $TERMINAL_WIDTH . "\n";
     print "Should we patch the Administration interface frontend?\n";
     print "Any custom code in it will be overwritten!!\n";
@@ -360,12 +360,12 @@ sub install_binary_sign_key_if_needed {
     }
 }
 
-sub download_and_install_alt_admin {
+sub download_and_install_web_admin {
     print "Starting patching process.......\n";
-    my $patch_path = "$ALT_ADMIN_DIRECTORY";
-    my $archive_path = "$ALT_ADMIN_PATCH_WD/static.alt.tgz";
+    my $patch_path = "$WEB_ADMIN_DIRECTORY";
+    my $archive_path = "$WEB_ADMIN_PATCH_WD/dist.tgz";
 
-    my $data = get_url("$ALT_ADMIN_URL/maintenance/$PF_RELEASE/static.alt.tgz.sig");
+    my $data = get_url("$WEB_ADMIN_PATCH_URL/maintenance/$PF_RELEASE/dist.tgz.sig");
     write_file("$archive_path-maintenance-encrypted", $data);
     
     my $result = system("gpg --always-trust --batch --yes --output $archive_path-maintenance-decrypted --decrypt $archive_path-maintenance-encrypted");
@@ -376,7 +376,7 @@ sub download_and_install_alt_admin {
     rename("$archive_path-maintenance-decrypted", $archive_path) or die "Cannot rename archive: $!\n";
     unlink("$archive_path-maintenance-encrypted") or warn "Couldn't delete temporary download file, everything will keep working but the stale file will still be there ($!)\n";
 
-    system("tar -C $ALT_ADMIN_PATCH_WD -xf $archive_path");
+    system("tar -C $WEB_ADMIN_PATCH_WD -xf $archive_path");
     die "Failed to extract administration interface archive in $patch_path\n" if($? != 0);
 
     my ($login,$pass,$uid,$gid) = getpwnam('pf')

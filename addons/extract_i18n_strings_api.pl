@@ -103,7 +103,7 @@ Extract localized strings from JavaScript code.
 =cut
 
 sub parse_js {
-    my $dir = APP.'/root/static.alt/src';
+    my $dir = APP.'/root/src';
     my @files = ();
 
     my $js = sub {

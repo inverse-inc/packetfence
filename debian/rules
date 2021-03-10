@@ -154,8 +154,8 @@ install: build
 	install -m0644 $(CURDIR)/html/common/styles.css $(CURDIR)/debian/packetfence-captive-portal-javascript$(PREFIX)/$(NAME)/html/common/
 	install -m0644 $(CURDIR)/html/common/styles.css.map $(CURDIR)/debian/packetfence-captive-portal-javascript$(PREFIX)/$(NAME)/html/common/
 	# Admin javascript/css
-	make -C html/pfappserver/root/static.alt/ vendor
-	make -C html/pfappserver/root/static.alt/ light-dist
+	make -C html/pfappserver/root/ vendor
+	make -C html/pfappserver/root/ light-dist
 
 	# Documentation
 	make html

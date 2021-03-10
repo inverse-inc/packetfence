@@ -34,8 +34,8 @@ docs/%.html: docs/%.asciidoc
 	asciidoctor \
 		-n \
 		-r ./docs/asciidoctor-html.rb \
-		-a stylesdir=../html/pfappserver/root/static.alt/dist/css \
-		-a stylesheet=$(notdir $(wildcard ./html/pfappserver/root/static.alt/dist/css/app*.css)) \
+		-a stylesdir=../html/pfappserver/root/dist/css \
+		-a stylesheet=$(notdir $(wildcard ./html/pfappserver/root/dist/css/app*.css)) \
 		-a release_version=`cat conf/pf-release | cut -d' ' -f 2` \
 		-a release_month=`date +%B` \
 		$<
@@ -197,7 +197,7 @@ html_install:
 	    install -v -m 0644 $$file -D $(DESTDIR)$(PF_PREFIX)/$$file ; \
 	done
 
-	@echo "install $(SRC_HTML_PFAPPDIR) without static and static.alt dir"
+	@echo "install $(SRC_HTML_PFAPPDIR) without root dir"
 	for file in $(pfapp_files); do \
 	    install -v -m 0644 $$file -D $(DESTDIR)$(PF_PREFIX)/$$file ; \
 	done
