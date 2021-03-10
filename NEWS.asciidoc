@@ -29,6 +29,7 @@ For a list of compatibility related changes see the <<PacketFence_Upgrade_Guide.
 
 * Static routes management via admin gui
 * Aruba CX support
+* Aruba 2930M Web Authentication and Dynamic ACL support (#6158)
 
 === Enhancements
 
