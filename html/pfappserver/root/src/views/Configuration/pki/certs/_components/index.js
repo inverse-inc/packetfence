@@ -21,6 +21,8 @@ export {
   BaseFormGroupChosenOneProfile   as FormGroupProfileIdentifier,
   BaseFormGroupInput              as FormGroupCn,
   BaseFormGroupInput              as FormGroupMail,
+  BaseFormGroupInput              as FormGroupDnsNames,
+  BaseFormGroupInput              as FormGroupOrganisationalUnit,
   BaseFormGroupInput              as FormGroupOrganisation,
   BaseFormGroupChosenCountry      as FormGroupCountry,
   BaseFormGroupInput              as FormGroupState,

@@ -22,6 +22,9 @@
           :column-label="$i18n.t('Email')"
           :text="$i18n.t('Email address of the user. The email with the certificate will be sent to this address.')"
         />
+        <form-group-organisational-unit namespace="organisational_unit"
+          :column-label="$i18n.t('Organisational Unit')"
+        />
         <form-group-organisation namespace="organisation"
           :column-label="$i18n.t('Organisation')"
         />
@@ -120,6 +123,7 @@ import {
   FormGroupCaId,
   FormGroupName,
   FormGroupMail,
+  FormGroupOrganisationalUnit,
   FormGroupOrganisation,
   FormGroupCountry,
   FormGroupState,
@@ -151,6 +155,7 @@ const components = {
   FormGroupCaId,
   FormGroupName,
   FormGroupMail,
+  FormGroupOrganisationalUnit,
   FormGroupOrganisation,
   FormGroupCountry,
   FormGroupState,

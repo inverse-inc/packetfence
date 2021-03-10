@@ -48,27 +48,28 @@ type (
 	// CA struct
 	CA struct {
 		gorm.Model
-		DB               gorm.DB                 `gorm:"-"`
-		Ctx              context.Context         `gorm:"-"`
-		Cn               string                  `json:"cn,omitempty" gorm:"UNIQUE"`
-		Mail             string                  `json:"mail,omitempty" gorm:"INDEX:mail"`
-		Organisation     string                  `json:"organisation,omitempty" gorm:"INDEX:organisation"`
-		Country          string                  `json:"country,omitempty"`
-		State            string                  `json:"state,omitempty"`
-		Locality         string                  `json:"locality,omitempty"`
-		StreetAddress    string                  `json:"street_address,omitempty"`
-		PostalCode       string                  `json:"postal_code,omitempty"`
-		KeyType          *types.Type             `json:"key_type,omitempty,string"`
-		KeySize          int                     `json:"key_size,omitempty,string"`
-		Digest           x509.SignatureAlgorithm `json:"digest,omitempty,string"`
-		KeyUsage         *string                 `json:"key_usage,omitempty"`
-		ExtendedKeyUsage *string                 `json:"extended_key_usage,omitempty"`
-		Days             int                     `json:"days,omitempty,string"`
-		Key              string                  `json:"-" gorm:"type:longtext"`
-		Cert             string                  `json:"cert,omitempty" gorm:"type:longtext"`
-		IssuerKeyHash    string                  `json:"issuer_key_hash,omitempty" gorm:"UNIQUE_INDEX"`
-		IssuerNameHash   string                  `json:"issuer_name_hash,omitempty" gorm:"UNIQUE_INDEX"`
-		OCSPUrl          string                  `json:"ocsp_url,omitempty"`
+		DB                 gorm.DB                 `gorm:"-"`
+		Ctx                context.Context         `gorm:"-"`
+		Cn                 string                  `json:"cn,omitempty" gorm:"UNIQUE"`
+		Mail               string                  `json:"mail,omitempty" gorm:"INDEX:mail"`
+		Organisation       string                  `json:"organisation,omitempty" gorm:"INDEX:organisation"`
+		OrganisationalUnit string                  `json:"organisational_unit,omitempty"`
+		Country            string                  `json:"country,omitempty"`
+		State              string                  `json:"state,omitempty"`
+		Locality           string                  `json:"locality,omitempty"`
+		StreetAddress      string                  `json:"street_address,omitempty"`
+		PostalCode         string                  `json:"postal_code,omitempty"`
+		KeyType            *types.Type             `json:"key_type,omitempty,string"`
+		KeySize            int                     `json:"key_size,omitempty,string"`
+		Digest             x509.SignatureAlgorithm `json:"digest,omitempty,string"`
+		KeyUsage           *string                 `json:"key_usage,omitempty"`
+		ExtendedKeyUsage   *string                 `json:"extended_key_usage,omitempty"`
+		Days               int                     `json:"days,omitempty,string"`
+		Key                string                  `json:"-" gorm:"type:longtext"`
+		Cert               string                  `json:"cert,omitempty" gorm:"type:longtext"`
+		IssuerKeyHash      string                  `json:"issuer_key_hash,omitempty" gorm:"UNIQUE_INDEX"`
+		IssuerNameHash     string                  `json:"issuer_name_hash,omitempty" gorm:"UNIQUE_INDEX"`
+		OCSPUrl            string                  `json:"ocsp_url,omitempty"`
 	}
 
 	// Profile struct
@@ -79,6 +80,7 @@ type (
 		Name                  string                  `json:"name" gorm:"UNIQUE"`
 		Mail                  string                  `json:"mail,omitempty" gorm:"INDEX:mail"`
 		Organisation          string                  `json:"organisation,omitempty" gorm:"INDEX:organisation"`
+		OrganisationUnit      string                  `json:"organisational_unit,omitempty"`
 		Country               string                  `json:"country,omitempty"`
 		State                 string                  `json:"state,omitempty"`
 		Locality              string                  `json:"locality,omitempty"`
@@ -107,55 +109,59 @@ type (
 	// Cert struct
 	Cert struct {
 		gorm.Model
-		DB            gorm.DB         `gorm:"-"`
-		Ctx           context.Context `gorm:"-"`
-		Cn            string          `json:"cn,omitempty" gorm:"UNIQUE"`
-		Mail          string          `json:"mail,omitempty" gorm:"INDEX:mail"`
-		Ca            CA              `json:"-"`
-		CaID          uint            `json:"ca_id,omitempty" gorm:"INDEX:ca_id"`
-		CaName        string          `json:"ca_name,omitempty" gorm:"INDEX:ca_name"`
-		StreetAddress string          `json:"street_address,omitempty"`
-		Organisation  string          `json:"organisation,omitempty" gorm:"INDEX:organisation"`
-		Country       string          `json:"country,omitempty"`
-		State         string          `json:"state,omitempty"`
-		Locality      string          `json:"locality,omitempty"`
-		PostalCode    string          `json:"postal_code,omitempty"`
-		Key           string          `json:"-" gorm:"type:longtext"`
-		Cert          string          `json:"cert,omitempty" gorm:"type:longtext"`
-		Profile       Profile         `json:"-"`
-		ProfileID     uint            `json:"profile_id,omitempty,string" gorm:"INDEX:profile_id"`
-		ProfileName   string          `json:"profile_name,omitempty" gorm:"INDEX:profile_name"`
-		ValidUntil    time.Time       `json:"valid_until,omitempty" gorm:"INDEX:valid_until"`
-		Date          time.Time       `json:"date,omitempty" gorm:"default:CURRENT_TIMESTAMP"`
-		SerialNumber  string          `json:"serial_number,omitempty"`
+		DB                 gorm.DB         `gorm:"-"`
+		Ctx                context.Context `gorm:"-"`
+		Cn                 string          `json:"cn,omitempty" gorm:"UNIQUE"`
+		Mail               string          `json:"mail,omitempty" gorm:"INDEX:mail"`
+		Ca                 CA              `json:"-"`
+		CaID               uint            `json:"ca_id,omitempty" gorm:"INDEX:ca_id"`
+		CaName             string          `json:"ca_name,omitempty" gorm:"INDEX:ca_name"`
+		StreetAddress      string          `json:"street_address,omitempty"`
+		Organisation       string          `json:"organisation,omitempty" gorm:"INDEX:organisation"`
+		OrganisationalUnit string          `json:"organisational_unit,omitempty"`
+		Country            string          `json:"country,omitempty"`
+		State              string          `json:"state,omitempty"`
+		Locality           string          `json:"locality,omitempty"`
+		PostalCode         string          `json:"postal_code,omitempty"`
+		Key                string          `json:"-" gorm:"type:longtext"`
+		Cert               string          `json:"cert,omitempty" gorm:"type:longtext"`
+		Profile            Profile         `json:"-"`
+		ProfileID          uint            `json:"profile_id,omitempty,string" gorm:"INDEX:profile_id"`
+		ProfileName        string          `json:"profile_name,omitempty" gorm:"INDEX:profile_name"`
+		ValidUntil         time.Time       `json:"valid_until,omitempty" gorm:"INDEX:valid_until"`
+		Date               time.Time       `json:"date,omitempty" gorm:"default:CURRENT_TIMESTAMP"`
+		SerialNumber       string          `json:"serial_number,omitempty"`
+		DNSNames           string          `json:"dns_names,omitempty"`
 	}
 
 	// RevokedCert struct
 	RevokedCert struct {
 		gorm.Model
-		DB            gorm.DB         `gorm:"-"`
-		Ctx           context.Context `gorm:"-"`
-		Cn            string          `json:"cn,omitempty" gorm:"INDEX:cn"`
-		Mail          string          `json:"mail,omitempty" gorm:"INDEX:mail"`
-		Ca            CA              `json:"-"`
-		CaID          uint            `json:"ca_id,omitempty" gorm:"INDEX:ca_id"`
-		CaName        string          `json:"ca_name,omitempty" gorm:"INDEX:ca_name"`
-		StreetAddress string          `json:"street_address,omitempty"`
-		Organisation  string          `json:"organisation,omitempty" gorm:"INDEX:organisation"`
-		Country       string          `json:"country,omitempty"`
-		State         string          `json:"state,omitempty"`
-		Locality      string          `json:"locality,omitempty"`
-		PostalCode    string          `json:"postal_code,omitempty"`
-		Key           string          `json:"-" gorm:"type:longtext"`
-		Cert          string          `json:"cert,omitempty" gorm:"type:longtext"`
-		Profile       Profile         `json:"-"`
-		ProfileID     uint            `json:"profile_id,omitempty" gorm:"INDEX:profile_id"`
-		ProfileName   string          `json:"profile_name,omitempty" gorm:"INDEX:profile_name"`
-		ValidUntil    time.Time       `json:"valid_until,omitempty" gorm:"INDEX:valid_until"`
-		Date          time.Time       `json:"date,omitempty" gorm:"default:CURRENT_TIMESTAMP"`
-		SerialNumber  string          `json:"serial_number,omitempty"`
-		Revoked       time.Time       `json:"revoked,omitempty" gorm:"INDEX:revoked"`
-		CRLReason     int             `json:"crl_reason,omitempty" gorm:"INDEX:crl_reason"`
+		DB                 gorm.DB         `gorm:"-"`
+		Ctx                context.Context `gorm:"-"`
+		Cn                 string          `json:"cn,omitempty" gorm:"INDEX:cn"`
+		Mail               string          `json:"mail,omitempty" gorm:"INDEX:mail"`
+		Ca                 CA              `json:"-"`
+		CaID               uint            `json:"ca_id,omitempty" gorm:"INDEX:ca_id"`
+		CaName             string          `json:"ca_name,omitempty" gorm:"INDEX:ca_name"`
+		StreetAddress      string          `json:"street_address,omitempty"`
+		Organisation       string          `json:"organisation,omitempty" gorm:"INDEX:organisation"`
+		OrganisationalUnit string          `json:"organisational_unit,omitempty"`
+		Country            string          `json:"country,omitempty"`
+		State              string          `json:"state,omitempty"`
+		Locality           string          `json:"locality,omitempty"`
+		PostalCode         string          `json:"postal_code,omitempty"`
+		Key                string          `json:"-" gorm:"type:longtext"`
+		Cert               string          `json:"cert,omitempty" gorm:"type:longtext"`
+		Profile            Profile         `json:"-"`
+		ProfileID          uint            `json:"profile_id,omitempty" gorm:"INDEX:profile_id"`
+		ProfileName        string          `json:"profile_name,omitempty" gorm:"INDEX:profile_name"`
+		ValidUntil         time.Time       `json:"valid_until,omitempty" gorm:"INDEX:valid_until"`
+		Date               time.Time       `json:"date,omitempty" gorm:"default:CURRENT_TIMESTAMP"`
+		SerialNumber       string          `json:"serial_number,omitempty"`
+		Revoked            time.Time       `json:"revoked,omitempty" gorm:"INDEX:revoked"`
+		CRLReason          int             `json:"crl_reason,omitempty" gorm:"INDEX:crl_reason"`
+		DNSNames           string          `json:"dns_names,omitempty"`
 	}
 )
 
@@ -251,6 +257,10 @@ func (c CA) New() (types.Info, error) {
 		Subject.Organization = []string{c.Organisation}
 	}
 
+	if len(c.OrganisationalUnit) > 0 {
+		Subject.OrganizationalUnit = []string{c.OrganisationalUnit}
+	}
+
 	if len(c.Country) > 0 {
 		Subject.Country = []string{c.Country}
 	}
@@ -284,7 +294,10 @@ func (c CA) New() (types.Info, error) {
 		EmailAddresses:        []string{c.Mail},
 		SubjectKeyId:          skid,
 		AuthorityKeyId:        skid,
-		OCSPServer:            []string{c.OCSPUrl},
+	}
+
+	if len(c.OCSPUrl) > 0 {
+		ca.OCSPServer = []string{c.OCSPUrl}
 	}
 
 	var caBytes []byte
@@ -321,12 +334,12 @@ func (c CA) New() (types.Info, error) {
 
 	h.Write(cacert.RawIssuer)
 
-	if err := c.DB.Create(&CA{Cn: c.Cn, Mail: c.Mail, Organisation: c.Organisation, Country: c.Country, State: c.State, Locality: c.Locality, StreetAddress: c.StreetAddress, PostalCode: c.PostalCode, KeyType: c.KeyType, KeySize: c.KeySize, Digest: c.Digest, KeyUsage: c.KeyUsage, ExtendedKeyUsage: c.ExtendedKeyUsage, Days: c.Days, Key: keyOut.String(), Cert: cert.String(), IssuerKeyHash: hex.EncodeToString(skid), IssuerNameHash: hex.EncodeToString(h.Sum(nil)), OCSPUrl: c.OCSPUrl}).Error; err != nil {
+	if err := c.DB.Create(&CA{Cn: c.Cn, Mail: c.Mail, Organisation: c.Organisation, OrganisationalUnit: c.OrganisationalUnit, Country: c.Country, State: c.State, Locality: c.Locality, StreetAddress: c.StreetAddress, PostalCode: c.PostalCode, KeyType: c.KeyType, KeySize: c.KeySize, Digest: c.Digest, KeyUsage: c.KeyUsage, ExtendedKeyUsage: c.ExtendedKeyUsage, Days: c.Days, Key: keyOut.String(), Cert: cert.String(), IssuerKeyHash: hex.EncodeToString(skid), IssuerNameHash: hex.EncodeToString(h.Sum(nil)), OCSPUrl: c.OCSPUrl}).Error; err != nil {
 		Information.Error = err.Error()
 		return Information, errors.New("A database error occured. See log for details.")
 	}
 
-	c.DB.Select("id, cn, mail, organisation, country, state, locality, street_address, postal_code, key_type, key_size, digest, key_usage, extended_key_usage, days, cert, ocsp_url").Where("cn = ?", c.Cn).First(&newcadb)
+	c.DB.Select("id, cn, mail, organisation, organisational_unit, country, state, locality, street_address, postal_code, key_type, key_size, digest, key_usage, extended_key_usage, days, cert, ocsp_url").Where("cn = ?", c.Cn).First(&newcadb)
 	Information.Entries = newcadb
 
 	return Information, nil
@@ -485,7 +498,7 @@ func (c CA) Put(cn string, crt *x509.Certificate, options ...string) error {
 		c.DB.First(&ca)
 	}
 
-	if err := c.DB.Create(&Cert{Cn: cn, Ca: ca, CaName: ca.Cn, ProfileName: profiledb[0].Name, SerialNumber: crt.SerialNumber.String(), Mail: attributeMap["emailAddress"], StreetAddress: attributeMap["streetAddress"], Organisation: attributeMap["O"], Country: attributeMap["C"], State: attributeMap["ST"], Locality: attributeMap["L"], PostalCode: attributeMap["emailAddress"], Profile: profiledb[0], Key: "", Cert: publicKey.String(), ValidUntil: crt.NotAfter}).Error; err != nil {
+	if err := c.DB.Create(&Cert{Cn: cn, Ca: ca, CaName: ca.Cn, ProfileName: profiledb[0].Name, SerialNumber: crt.SerialNumber.String(), Mail: attributeMap["emailAddress"], StreetAddress: attributeMap["streetAddress"], Organisation: attributeMap["O"], OrganisationalUnit: attributeMap["OU"], Country: attributeMap["C"], State: attributeMap["ST"], Locality: attributeMap["L"], PostalCode: attributeMap["emailAddress"], Profile: profiledb[0], Key: "", Cert: publicKey.String(), ValidUntil: crt.NotAfter}).Error; err != nil {
 		return errors.New("A database error occured. See log for details.")
 	}
 
@@ -594,11 +607,11 @@ func (p Profile) New() (types.Info, error) {
 		return Information, CaDB.Error
 	}
 
-	if err := p.DB.Create(&Profile{Name: p.Name, Ca: *ca, CaID: p.CaID, CaName: ca.Cn, Mail: p.Mail, StreetAddress: p.StreetAddress, Organisation: p.Organisation, Country: p.Country, State: p.State, Locality: p.Locality, PostalCode: p.PostalCode, Validity: p.Validity, KeyType: p.KeyType, KeySize: p.KeySize, Digest: p.Digest, KeyUsage: p.KeyUsage, ExtendedKeyUsage: p.ExtendedKeyUsage, OCSPUrl: p.OCSPUrl, P12MailPassword: p.P12MailPassword, P12MailSubject: p.P12MailSubject, P12MailFrom: p.P12MailFrom, P12MailHeader: p.P12MailHeader, P12MailFooter: p.P12MailFooter, SCEPEnabled: p.SCEPEnabled, SCEPChallengePassword: p.SCEPChallengePassword, SCEPAllowRenewal: p.SCEPAllowRenewal}).Error; err != nil {
+	if err := p.DB.Create(&Profile{Name: p.Name, Ca: *ca, CaID: p.CaID, CaName: ca.Cn, Mail: p.Mail, StreetAddress: p.StreetAddress, Organisation: p.Organisation, OrganisationUnit: p.OrganisationUnit, Country: p.Country, State: p.State, Locality: p.Locality, PostalCode: p.PostalCode, Validity: p.Validity, KeyType: p.KeyType, KeySize: p.KeySize, Digest: p.Digest, KeyUsage: p.KeyUsage, ExtendedKeyUsage: p.ExtendedKeyUsage, OCSPUrl: p.OCSPUrl, P12MailPassword: p.P12MailPassword, P12MailSubject: p.P12MailSubject, P12MailFrom: p.P12MailFrom, P12MailHeader: p.P12MailHeader, P12MailFooter: p.P12MailFooter, SCEPEnabled: p.SCEPEnabled, SCEPChallengePassword: p.SCEPChallengePassword, SCEPAllowRenewal: p.SCEPAllowRenewal}).Error; err != nil {
 		Information.Error = err.Error()
 		return Information, errors.New("A database error occured. See log for details.")
 	}
-	p.DB.Select("id, name, ca_id, ca_name, mail, street_address, organisation, country, state, locality, postal_code, validity, key_type, key_size, digest, key_usage, extended_key_usage, ocsp_url, p12_mail_password, p12_mail_subject, p12_mail_from, p12_mail_header, p12_mail_footer, scep_enabled, scep_challenge_password, scep_allow_renewal").Where("name = ?", p.Name).First(&profiledb)
+	p.DB.Select("id, name, ca_id, ca_name, mail, street_address, organisation, organisational_unit, country, state, locality, postal_code, validity, key_type, key_size, digest, key_usage, extended_key_usage, ocsp_url, p12_mail_password, p12_mail_subject, p12_mail_from, p12_mail_header, p12_mail_footer, scep_enabled, scep_challenge_password, scep_allow_renewal").Where("name = ?", p.Name).First(&profiledb)
 	Information.Entries = profiledb
 
 	return Information, nil
@@ -741,6 +754,14 @@ func (c Cert) New() (types.Info, error) {
 		Subject.Organization = []string{Organization}
 	}
 
+	if len(prof.OrganisationUnit) > 0 {
+		OrganizationalUnit := prof.OrganisationUnit
+		if len(c.OrganisationalUnit) > 0 {
+			OrganizationalUnit = c.OrganisationalUnit
+		}
+		Subject.OrganizationalUnit = []string{OrganizationalUnit}
+	}
+
 	if len(prof.Country) > 0 {
 		Country := prof.Country
 		if len(c.Country) > 0 {
@@ -783,15 +804,28 @@ func (c Cert) New() (types.Info, error) {
 
 	// Prepare certificate
 	cert := &x509.Certificate{
-		SerialNumber:   SerialNumber,
-		Subject:        Subject,
-		NotBefore:      time.Now(),
-		NotAfter:       time.Now().AddDate(0, 0, prof.Validity),
-		ExtKeyUsage:    certutils.Extkeyusage(strings.Split(*prof.ExtendedKeyUsage, "|")),
-		KeyUsage:       x509.KeyUsage(certutils.Keyusage(strings.Split(*prof.KeyUsage, "|"))),
-		EmailAddresses: []string{c.Mail},
-		SubjectKeyId:   skid,
-		OCSPServer:     []string{prof.OCSPUrl},
+		SerialNumber: SerialNumber,
+		Subject:      Subject,
+		NotBefore:    time.Now(),
+		NotAfter:     time.Now().AddDate(0, 0, prof.Validity),
+		ExtKeyUsage:  certutils.Extkeyusage(strings.Split(*prof.ExtendedKeyUsage, "|")),
+		KeyUsage:     x509.KeyUsage(certutils.Keyusage(strings.Split(*prof.KeyUsage, "|"))),
+		SubjectKeyId: skid,
+	}
+
+	if len(prof.OCSPUrl) > 0 {
+		cert.OCSPServer = []string{prof.OCSPUrl}
+	}
+	if len(c.Mail) > 0 {
+		for _, mail := range strings.Split(c.Mail, ",") {
+			cert.EmailAddresses = append(cert.EmailAddresses, mail)
+		}
+	}
+
+	if len(c.DNSNames) > 0 {
+		for _, dns := range strings.Split(c.DNSNames, ",") {
+			cert.DNSNames = append(cert.DNSNames, dns)
+		}
 	}
 
 	// Sign the certificate
@@ -802,11 +836,11 @@ func (c Cert) New() (types.Info, error) {
 	// Public key
 	pem.Encode(certBuff, &pem.Block{Type: "CERTIFICATE", Bytes: certByte})
 
-	if err := c.DB.Create(&Cert{Cn: c.Cn, Ca: ca, CaName: ca.Cn, ProfileName: prof.Name, SerialNumber: SerialNumber.String(), Mail: c.Mail, StreetAddress: c.StreetAddress, Organisation: c.Organisation, Country: c.Country, State: c.State, Locality: c.Locality, PostalCode: c.PostalCode, Profile: prof, Key: keyOut.String(), Cert: certBuff.String(), ValidUntil: cert.NotAfter}).Error; err != nil {
+	if err := c.DB.Create(&Cert{Cn: c.Cn, Ca: ca, CaName: ca.Cn, ProfileName: prof.Name, SerialNumber: SerialNumber.String(), Mail: c.Mail, StreetAddress: c.StreetAddress, Organisation: c.Organisation, OrganisationalUnit: c.OrganisationalUnit, Country: c.Country, State: c.State, Locality: c.Locality, PostalCode: c.PostalCode, Profile: prof, Key: keyOut.String(), Cert: certBuff.String(), ValidUntil: cert.NotAfter}).Error; err != nil {
 		Information.Error = err.Error()
 		return Information, errors.New("A database error occured. See log for details.")
 	}
-	c.DB.Select("id, cn, mail, street_address, organisation, country, state, locality, postal_code, cert, profile_id, profile_name, ca_name, ca_id, valid_until, serial_number").Where("cn = ?", c.Cn).First(&newcertdb)
+	c.DB.Select("id, cn, mail, street_address, organisation, organisational_unit, country, state, locality, postal_code, cert, profile_id, profile_name, ca_name, ca_id, valid_until, serial_number").Where("cn = ?", c.Cn).First(&newcertdb)
 	Information.Entries = newcertdb
 
 	return Information, nil
@@ -984,7 +1018,7 @@ func (c Cert) Revoke(params map[string]string) (types.Info, error) {
 		return Information, errors.New("Reason unsupported")
 	}
 
-	if err := c.DB.Create(&RevokedCert{Cn: cert.Cn, Mail: cert.Mail, Ca: ca, CaID: cert.CaID, CaName: cert.CaName, StreetAddress: cert.StreetAddress, Organisation: cert.Organisation, Country: cert.Country, State: cert.State, Locality: cert.Locality, PostalCode: cert.Locality, Key: cert.Key, Cert: cert.Cert, Profile: profile, ProfileID: cert.ProfileID, ProfileName: cert.ProfileName, ValidUntil: cert.ValidUntil, Date: cert.Date, Revoked: time.Now(), CRLReason: intreason, SerialNumber: cert.SerialNumber}).Error; err != nil {
+	if err := c.DB.Create(&RevokedCert{Cn: cert.Cn, Mail: cert.Mail, Ca: ca, CaID: cert.CaID, CaName: cert.CaName, StreetAddress: cert.StreetAddress, Organisation: cert.Organisation, OrganisationalUnit: cert.OrganisationalUnit, Country: cert.Country, State: cert.State, Locality: cert.Locality, PostalCode: cert.Locality, Key: cert.Key, Cert: cert.Cert, Profile: profile, ProfileID: cert.ProfileID, ProfileName: cert.ProfileName, ValidUntil: cert.ValidUntil, Date: cert.Date, Revoked: time.Now(), CRLReason: intreason, SerialNumber: cert.SerialNumber}).Error; err != nil {
 		Information.Error = err.Error()
 		return Information, err
 	}
