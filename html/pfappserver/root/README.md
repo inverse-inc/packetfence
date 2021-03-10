@@ -29,7 +29,7 @@ Make sure the following services are running:
 * packetfence-api-frontend
 * packetfence-httpd.admin
 
-Since this is a SPA (Single-Page Application), it is currently accessible from `https://<hostname>:1443/admin/alt`.
+Since this is a SPA (Single-Page Application), it is currently accessible from `https://<hostname>:1443/admin`.
 
 ## Vue.js libraries
 

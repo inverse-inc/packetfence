@@ -160,7 +160,7 @@ frontend admin-https-$mgmt_cluster_ip
         http-response set-header X-Frame-Options SAMEORIGIN
         http-request lua.admin
         use_backend %[var(req.action)]
-        http-request redirect location /admin/alt if { lua.redirect 1 }
+        http-request redirect location /admin if { lua.redirect 1 }
 EOT
             if (isenabled($Config{services}{httpd_admin})) {
         $tags{'http_admin'} .= <<"EOT";
@@ -196,7 +196,7 @@ frontend admin-https-$mgmt_ip
         use_backend $mgmt_ip-api if url_api
         http-request lua.admin
         use_backend %[var(req.action)]
-        http-request redirect location /admin/alt if { lua.redirect 1 }
+        http-request redirect location /admin if { lua.redirect 1 }
 EOT
             if (isenabled($Config{services}{httpd_admin})) {
         $tags{'http_admin'} .= <<"EOT";
@@ -259,7 +259,7 @@ frontend admin-https-0.0.0.0
         http-request set-header Host %[var(req.host)] if host_exist
         http-request lua.admin
         use_backend %[var(req.action)]
-        http-request redirect location /admin/alt if { lua.redirect 1 }
+        http-request redirect location /admin if { lua.redirect 1 }
 
 EOT
     }

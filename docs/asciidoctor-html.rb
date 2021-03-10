@@ -9,7 +9,7 @@
 #           -n \
 #           -r /usr/local/pf/docs/html/html.rb \
 #           -a imagesdir=../images \
-#           -a stylesdir=/usr/local/pf/html/pfappserver/root/static.alt/dist/css \
+#           -a stylesdir=/usr/local/pf/html/pfappserver/root/dist/css \
 #           -a stylesheet=app.7e83572f.css \
 #           docs/PacketFence_Installation_Guide.asciidoc
 #

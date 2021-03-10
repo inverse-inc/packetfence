@@ -35,7 +35,7 @@
         <b-col md="9" xl="10">
           <!-- HTML document -->
           <iframe v-show="!isLoading" v-if="path" ref="document" name="documentFrame" frameborder="0" class="pf-documentation-frame"
-            :src="`/static/doc/${path}`"
+            :src="`/doc/${path}`"
             @load="initDocument()"
           ></iframe>
           <b-container class="pf-documentation-frame my-5" v-if="isLoading">
@@ -125,7 +125,7 @@ export default {
       head.appendChild(css)
 
       // rewrite links
-      const re = new RegExp('^/static/doc/')
+      const re = new RegExp('^/doc/')
       const links = [...documentFrame.getElementsByTagName('a')]
       links.forEach((link) => {
         let url = new URL(link.href)
@@ -142,7 +142,7 @@ export default {
               link.classList.add('internal-link') // add class to style document links
               link.target = '_self'
               link.href = 'javascript:void(0);' // disable default link
-              const path = url.pathname.replace('/static/doc/', '')
+              const path = url.pathname.replace('/doc/', '')
               if (path !== this.path) {
                 link.addEventListener('click', (event) => {
                   event.preventDefault()
