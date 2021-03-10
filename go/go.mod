@@ -9,7 +9,6 @@ require (
 	github.com/Azure/go-autorest/autorest/to v0.2.0 // indirect
 	github.com/DataDog/datadog-go v3.5.0+incompatible // indirect
 	github.com/DataDog/zstd v1.4.5 // indirect
-	cloud.google.com/go v0.37.4 // indirect
 	github.com/OneOfOne/xxhash v1.2.7
 	github.com/Sereal/Sereal v0.0.0-20200729022450-08708a3c86f3
 	github.com/aws/aws-sdk-go v1.35.9
@@ -59,7 +58,7 @@ require (
 	github.com/inverse-inc/dhcp4 v0.0.0-20200625173842-2c4d1e50d7ca
 	github.com/inverse-inc/go-ipset v0.0.0-20190925174109-4d5749cc4aa6
 	github.com/inverse-inc/go-radius v0.0.0-20201019132414-82756e2d8d47
-	github.com/inverse-inc/scep v0.0.0-20210120201805-eb98f5654ee4 // indirect
+	github.com/inverse-inc/scep v0.0.0-20210120201805-eb98f5654ee4
 	github.com/jcuga/golongpoll v1.1.0
 	github.com/jimstudt/http-authentication v0.0.0-20140401203705-3eca13d6893a
 	github.com/jinzhu/gorm v1.9.16
