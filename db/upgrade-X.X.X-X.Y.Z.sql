@@ -160,7 +160,8 @@ ALTER TABLE sms_carrier
 ALTER TABLE pki_profiles
     ADD COLUMN IF NOT EXISTS `mail` varchar(255) DEFAULT NULL AFTER name,
     ADD COLUMN IF NOT EXISTS `organisation` varchar(255) DEFAULT NULL AFTER mail,
-    ADD COLUMN IF NOT EXISTS `country` varchar(255) DEFAULT NULL AFTER organisation,
+    ADD COLUMN IF NOT EXISTS `organisational_unit` varchar(255) DEFAULT NULL AFTER organisation,
+    ADD COLUMN IF NOT EXISTS `country` varchar(255) DEFAULT NULL AFTER organisational_unit,
     ADD COLUMN IF NOT EXISTS `state` varchar(255) DEFAULT NULL AFTER country,
     ADD COLUMN IF NOT EXISTS `locality` varchar(255) DEFAULT NULL AFTER state,
     ADD COLUMN IF NOT EXISTS `street_address` varchar(255) DEFAULT NULL AFTER locality,
@@ -173,7 +174,18 @@ ALTER TABLE pki_profiles
 
 \! echo "altering pki_cas"
 ALTER TABLE pki_cas
+    ADD COLUMN IF NOT EXISTS `organisational_unit` varchar(255) DEFAULT NULL AFTER organisation,
     ADD COLUMN IF NOT EXISTS `ocsp_url` varchar(255) DEFAULT NULL AFTER issuer_name_hash;
+
+\! echo "altering pki_cert"
+ALTER TABLE pki_cer
+    ADD COLUMN IF NOT EXISTS `organisational_unit` varchar(255) DEFAULT NULL AFTER organisation,
+    ADD COLUMN IF NOT EXISTS `dns_names` varchar(255) DEFAULT NULL AFTER serial_number;
+
+\! echo "altering pki_revoked_cert"
+ALTER TABLE pki_revoked_cer
+    ADD COLUMN IF NOT EXISTS `organisational_unit` varchar(255) DEFAULT NULL AFTER organisation;
+    ADD COLUMN IF NOT EXISTS `dns_names` varchar(255) DEFAULT NULL AFTER serial_number;
 
 \! echo "Incrementing PacketFence schema version...";
 INSERT IGNORE INTO pf_version (id, version, created_at) VALUES (@VERSION_INT, CONCAT_WS('.', @MAJOR_VERSION, @MINOR_VERSION, @SUBMINOR_VERSION), NOW());
