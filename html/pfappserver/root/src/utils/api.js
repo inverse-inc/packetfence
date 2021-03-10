@@ -246,7 +246,7 @@ apiCall.interceptors.response.use((response) => {
  * Axios instance to access documentation guides
  */
 export const documentationCall = axios.create({
-  baseURL: '/doc/'
+  baseURL: '/static/doc/'
 })
 
 export default apiCall

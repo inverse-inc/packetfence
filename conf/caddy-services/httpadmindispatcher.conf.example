@@ -6,6 +6,10 @@
   httpdportalpreview
 }
 
+:8891/static {
+  root /usr/local/pf/html/pfappserver/root
+}
+
 :8891/common {
   root /usr/local/pf/html/common
 }
