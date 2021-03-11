@@ -342,3 +342,70 @@ export const pfFieldTypeValues = {
       { text: i18n.t('No'), value: 'no' }
     ]
 }
+
+import {
+  BaseInput,
+  BaseInputGroupDate,
+  BaseInputGroupDateTime,
+  BaseInputGroupMultiplier,
+  BaseInputNumber,
+  BaseInputChosenMultiple,
+  BaseInputChosenOne
+} from '@/components/new'
+
+export const useField = (field) => {
+  if (field) {
+    let { props = {}, types = [] } = field
+    for (let t = 0; t < types.length; t++) { // may allow multiple component `types`, use only 1st match
+      let type = types[t]
+      if (type in pfFieldTypeValues) { // may inherit multiple values, combines all possible values
+        props.options = props.options || [] // build :options
+        Promise.resolve(pfFieldTypeValues[type]()).then(options => { // handle Promises
+          const values = props.options.map(option => option.value) // fast map
+          for (let option of options) {
+            if (!values.includes(option.value)) // ignore duplicates
+              props.options.push(option)
+          }
+        })
+      }      
+      switch (pfFieldTypeComponent[type]) {
+        case pfComponentType.SELECTMANY:
+          return { is: BaseInputChosenMultiple, ...props }
+          // break
+
+        case pfComponentType.SELECTONE:
+          return { is: BaseInputChosenOne, ...props }
+          // break
+  
+        case pfComponentType.DATE:
+          return { is: BaseInputGroupDate, ...props }
+          // break
+
+        case pfComponentType.DATETIME:
+          return { is: BaseInputGroupDateTime, ...props }
+          // break
+
+        case pfComponentType.PREFIXMULTIPLIER:
+          return { is: BaseInputGroupMultiplier, ...props }
+          // break
+
+        case pfComponentType.SUBSTRING:
+          return { is: BaseInput, ...props }
+          // break
+
+        case pfComponentType.INTEGER:
+          return { is: BaseInputNumber, ...props }
+          // break
+
+        case pfComponentType.HIDDEN:
+        case pfComponentType.NONE:
+          return undefined
+          // break
+
+        default:
+          // eslint-disable-next-line
+          console.error(`Unhandled pfComponentType '${pfFieldTypeComponent[type]}' for pfFieldType '${type}'`)
+      }
+    }
+  }
+}
