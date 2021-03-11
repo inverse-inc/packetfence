@@ -39,7 +39,7 @@ export const useInputValidator = (props, value, recursive = false) => {
   let localValidFeedback = ref(unref(validFeedback))
 
   // yup | https://github.com/jquense/yup
-  let localValidator = ref(unref(validator))
+  let localValidator = validator
 
   let form = ref(undefined)
   let path = ref(undefined)
