@@ -1,4 +1,4 @@
-import { pfDatabaseSchema as schema } from '@/globals/pfDatabaseSchema'
+import { MysqlDatabase } from '@/globals/mysql'
 import { pfFieldType as fieldType } from '@/globals/pfField'
 import i18n from '@/utils/locale'
 import yup from '@/utils/yup'
@@ -297,8 +297,8 @@ const pfActionSchema = yup.object({
         case type === 'set_bandwidth_balance':
           return yup.string().nullable()
             .required(i18n.t('Value required.'))
-            .maxAsInt(schema.node.bandwidth_balance.max)
-            .minAsInt(schema.node.bandwidth_balance.min)
+            .maxAsInt(MysqlDatabase.node.bandwidth_balance.max)
+            .minAsInt(MysqlDatabase.node.bandwidth_balance.min)
           // break
         case type === 'set_access_level':
         case type === 'set_access_level_by_acl_user':
