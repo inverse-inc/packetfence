@@ -178,14 +178,14 @@ ALTER TABLE pki_cas
     ADD COLUMN IF NOT EXISTS `ocsp_url` varchar(255) DEFAULT NULL AFTER issuer_name_hash;
 
 \! echo "altering pki_cert"
-ALTER TABLE pki_cer
+ALTER TABLE pki_certs
     ADD COLUMN IF NOT EXISTS `organisational_unit` varchar(255) DEFAULT NULL AFTER organisation,
     ADD COLUMN IF NOT EXISTS `dns_names` varchar(255) DEFAULT NULL AFTER serial_number,
     ADD COLUMN IF NOT EXISTS `ip_addresses` varchar(255) DEFAULT NULL AFTER dns_names;
 
-\! echo "altering pki_revoked_cert"
-ALTER TABLE pki_revoked_cer
-    ADD COLUMN IF NOT EXISTS `organisational_unit` varchar(255) DEFAULT NULL AFTER organisation;
+\! echo "altering pki_revoked_certs"
+ALTER TABLE pki_revoked_certs
+    ADD COLUMN IF NOT EXISTS `organisational_unit` varchar(255) DEFAULT NULL AFTER organisation,
     ADD COLUMN IF NOT EXISTS `dns_names` varchar(255) DEFAULT NULL AFTER serial_number,
     ADD COLUMN IF NOT EXISTS `ip_addresses` varchar(255) DEFAULT NULL AFTER dns_names;
 
