@@ -22,6 +22,7 @@ export {
   BaseFormGroupInput              as FormGroupCn,
   BaseFormGroupInput              as FormGroupMail,
   BaseFormGroupInput              as FormGroupDnsNames,
+  BaseFormGroupInput              as FormGroupIpAddresses,
   BaseFormGroupInput              as FormGroupOrganisationalUnit,
   BaseFormGroupInput              as FormGroupOrganisation,
   BaseFormGroupChosenCountry      as FormGroupCountry,

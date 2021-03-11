@@ -25,6 +25,10 @@
       :column-label="$i18n.t('DNS Names')"
       :text="$i18n.t('List of domains separated by a comma.')"
     />
+    <form-group-ip-addresses namespace="ip_addresses"
+      :column-label="$i18n.t('IP Addresses')"
+      :text="$i18n.t('List of IP Addresses separated by a comma.')"
+    />
     <form-group-organisational-unit namespace="organisational_unit"
       :column-label="$i18n.t('Organisational Unit')"
     />
@@ -60,6 +64,7 @@ import {
   FormGroupCn,
   FormGroupMail,
   FormGroupDnsNames,
+  FormGroupIpAddresses,
   FormGroupOrganisationalUnit,
   FormGroupOrganisation,
   FormGroupCountry,
@@ -77,6 +82,7 @@ const components = {
   FormGroupCn,
   FormGroupMail,
   FormGroupDnsNames,
+  FormGroupIpAddresses,
   FormGroupOrganisationalUnit,
   FormGroupOrganisation,
   FormGroupCountry,

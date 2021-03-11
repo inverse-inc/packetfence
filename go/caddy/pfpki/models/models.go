@@ -1,6 +1,7 @@
 package models
 
 import (
+	"net"
 	"time"
 
 	"bytes"
@@ -132,6 +133,7 @@ type (
 		Date               time.Time       `json:"date,omitempty" gorm:"default:CURRENT_TIMESTAMP"`
 		SerialNumber       string          `json:"serial_number,omitempty"`
 		DNSNames           string          `json:"dns_names,omitempty"`
+		IPAddresses        string          `json:"ip_addresses,omitempty"`
 	}
 
 	// RevokedCert struct
@@ -162,6 +164,8 @@ type (
 		DNSNames           string          `json:"dns_names,omitempty"`
 		Revoked            time.Time       `json:"revoked,omitempty" gorm:"INDEX:revoked"`
 		CRLReason          int             `json:"crl_reason,omitempty" gorm:"INDEX:crl_reason"`
+		DNSNames           string          `json:"dns_names,omitempty"`
+		IPAddresses        string          `json:"ip_addresses,omitempty"`
 	}
 )
 
@@ -828,6 +832,12 @@ func (c Cert) New() (types.Info, error) {
 		}
 	}
 
+	if len(c.IPAddresses) > 0 {
+		for _, ip := range strings.Split(c.IPAddresses, ",") {
+			cert.IPAddresses = append(cert.IPAddresses, net.ParseIP(ip))
+		}
+	}
+
 	// Sign the certificate
 	certByte, err := x509.CreateCertificate(rand.Reader, cert, cacert, pub, catls.PrivateKey)
 
@@ -836,11 +846,11 @@ func (c Cert) New() (types.Info, error) {
 	// Public key
 	pem.Encode(certBuff, &pem.Block{Type: "CERTIFICATE", Bytes: certByte})
 
-	if err := c.DB.Create(&Cert{Cn: c.Cn, Ca: ca, CaName: ca.Cn, ProfileName: prof.Name, SerialNumber: SerialNumber.String(), DNSNames: c.DNSNames, Mail: c.Mail, StreetAddress: c.StreetAddress, Organisation: c.Organisation, OrganisationalUnit: c.OrganisationalUnit, Country: c.Country, State: c.State, Locality: c.Locality, PostalCode: c.PostalCode, Profile: prof, Key: keyOut.String(), Cert: certBuff.String(), ValidUntil: cert.NotAfter}).Error; err != nil {
+	if err := c.DB.Create(&Cert{Cn: c.Cn, Ca: ca, CaName: ca.Cn, ProfileName: prof.Name, SerialNumber: SerialNumber.String(), DNSNames: c.DNSNames, IPAddresses: c.IPAddresses, Mail: c.Mail, StreetAddress: c.StreetAddress, Organisation: c.Organisation, OrganisationalUnit: c.OrganisationalUnit, Country: c.Country, State: c.State, Locality: c.Locality, PostalCode: c.PostalCode, Profile: prof, Key: keyOut.String(), Cert: certBuff.String(), ValidUntil: cert.NotAfter}).Error; err != nil {
 		Information.Error = err.Error()
 		return Information, errors.New("A database error occured. See log for details.")
 	}
-	c.DB.Select("id, cn, mail, street_address, organisation, organisational_unit, country, state, locality, postal_code, cert, profile_id, profile_name, ca_name, ca_id, valid_until, serial_number, dns_names").Where("cn = ?", c.Cn).First(&newcertdb)
+	c.DB.Select("id, cn, mail, street_address, organisation, organisational_unit, country, state, locality, postal_code, cert, profile_id, profile_name, ca_name, ca_id, valid_until, serial_number, dns_names, ip_addresses").Where("cn = ?", c.Cn).First(&newcertdb)
 	Information.Entries = newcertdb
 
 	return Information, nil
@@ -1018,7 +1028,7 @@ func (c Cert) Revoke(params map[string]string) (types.Info, error) {
 		return Information, errors.New("Reason unsupported")
 	}
 
-	if err := c.DB.Create(&RevokedCert{Cn: cert.Cn, Mail: cert.Mail, Ca: ca, CaID: cert.CaID, CaName: cert.CaName, StreetAddress: cert.StreetAddress, Organisation: cert.Organisation, OrganisationalUnit: cert.OrganisationalUnit, Country: cert.Country, State: cert.State, Locality: cert.Locality, PostalCode: cert.Locality, Key: cert.Key, Cert: cert.Cert, Profile: profile, ProfileID: cert.ProfileID, ProfileName: cert.ProfileName, ValidUntil: cert.ValidUntil, Date: cert.Date, Revoked: time.Now(), CRLReason: intreason, SerialNumber: cert.SerialNumber, DNSNames: cert.DNSNames}).Error; err != nil {
+	if err := c.DB.Create(&RevokedCert{Cn: cert.Cn, Mail: cert.Mail, Ca: ca, CaID: cert.CaID, CaName: cert.CaName, StreetAddress: cert.StreetAddress, Organisation: cert.Organisation, OrganisationalUnit: cert.OrganisationalUnit, Country: cert.Country, State: cert.State, Locality: cert.Locality, PostalCode: cert.Locality, Key: cert.Key, Cert: cert.Cert, Profile: profile, ProfileID: cert.ProfileID, ProfileName: cert.ProfileName, ValidUntil: cert.ValidUntil, Date: cert.Date, Revoked: time.Now(), CRLReason: intreason, SerialNumber: cert.SerialNumber, DNSNames: cert.DNSNames, IPAddresses: cert.IPAddresses}).Error; err != nil {
 		Information.Error = err.Error()
 		return Information, err
 	}

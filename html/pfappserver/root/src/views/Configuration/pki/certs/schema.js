@@ -48,6 +48,7 @@ export default (props) => {
       .max(255),
 
     dns_names: yup.string().max(255, i18n.t('Maximum 255 characters.')),
+    ip_addresses: yup.string().max(255, i18n.t('Maximum 255 characters.')),
     organisational_unit: yup.string().max(255, i18n.t('Maximum 255 characters.')),
     organisation: yup.string().max(64, i18n.t('Maximum 64 characters.')),
     country: yup.string(),

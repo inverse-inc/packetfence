@@ -180,12 +180,14 @@ ALTER TABLE pki_cas
 \! echo "altering pki_cert"
 ALTER TABLE pki_cer
     ADD COLUMN IF NOT EXISTS `organisational_unit` varchar(255) DEFAULT NULL AFTER organisation,
-    ADD COLUMN IF NOT EXISTS `dns_names` varchar(255) DEFAULT NULL AFTER serial_number;
+    ADD COLUMN IF NOT EXISTS `dns_names` varchar(255) DEFAULT NULL AFTER serial_number,
+    ADD COLUMN IF NOT EXISTS `ip_addresses` varchar(255) DEFAULT NULL AFTER dns_names;
 
 \! echo "altering pki_revoked_cert"
 ALTER TABLE pki_revoked_cer
     ADD COLUMN IF NOT EXISTS `organisational_unit` varchar(255) DEFAULT NULL AFTER organisation;
-    ADD COLUMN IF NOT EXISTS `dns_names` varchar(255) DEFAULT NULL AFTER serial_number;
+    ADD COLUMN IF NOT EXISTS `dns_names` varchar(255) DEFAULT NULL AFTER serial_number,
+    ADD COLUMN IF NOT EXISTS `ip_addresses` varchar(255) DEFAULT NULL AFTER dns_names;
 
 \! echo "Incrementing PacketFence schema version...";
 INSERT IGNORE INTO pf_version (id, version, created_at) VALUES (@VERSION_INT, CONCAT_WS('.', @MAJOR_VERSION, @MINOR_VERSION, @SUBMINOR_VERSION), NOW());
