@@ -19,13 +19,14 @@ Register a node with RADIUS in order to test MAC Authentication on Wireless
 1. Configure MAC authentication and dynamic VLAN on dot1x interface on
    wireless01: launch hostapd_open
 1. Wait some time to let hostapd_open running
-   wireless01: launch wpa_supplicant open
-1. Wait some time to let RADIUS request be sent by switch01 and handled by
-   PacketFence server (`mab_activation_delay` + 20 seconds). wireless01 also needs to handle answer.
+1. Enable WPA supplicant on wireless01
+1. Wait some time to let RADIUS request be sent by wireless01 and handled by
+   PacketFence server. wireless01 also needs to handle answer.
 1. Check RADIUS audit log for wireless01 wlan1
 1. Check VLAN assigned to wireless01 *on* wlan0 this the tag id
 
 ## Teardown steps
+1. Unregister wireless01 (wlan1)
 1. Stop wpa_supplicant then hostapd on wireless01
 1. Delete node by running `pfcron's node_cleanup` task
 1. Check node has been deleted
