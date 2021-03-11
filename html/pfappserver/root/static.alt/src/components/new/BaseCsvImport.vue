@@ -85,18 +85,9 @@
                 </b-col>
               </template>
             </b-row>
-<pre>{{ {importMappingInvalidFeedback, importMappingState} }}</pre>              
-            
             <!-- table body -->
             <b-row class="base-csv-import-table-row" v-for="(_, rowIndex) in previewColumnCount" :key="`row-${rowIndex}`">
               <b-col>
-<!--
-                <b-form-group
-                  :state="($v && 'importMapping' in $v && $v.importMapping.$invalid) ? false : null"
-                  :invalid-feedback="getImportMappingVuelidateFeedback()"
-                  class="my-1 base-csv-import-form-group"
-                >
--->                
                 <b-form-group
                   :state="!reservedMappingInvalidFeedback"
                   :invalid-feedback="reservedMappingInvalidFeedback"
