@@ -15,14 +15,12 @@
             </b-button-close>
             {{ file.name }}
           </template>
-          <pf-csv-import :ref="'import-' + index"
+          <base-csv-import :ref="'import-' + index"
             :file="file"
             :fields="importFields"
-            :events-listen="tabIndex === index"
             :is-loading="isLoading"
             :is-slot-error="invalidForm"
             :import-promise="importPromise"
-            store-name="$_users"
             hover
             striped
           >
@@ -38,7 +36,7 @@
                       <pf-form-datetime
                         :form-store-name="formStoreName" form-namespace="valid_from"
                         :min="(new Date().setHours(0,0,0,0))"
-                        :config="{datetimeFormat: schema.password.valid_from.datetimeFormat}"
+                        :config="{datetimeFormat: MysqlDatabase.password.valid_from.datetimeFormat}"
                       />
                     </b-col>
                     <p class="pt-2"><icon name="long-arrow-alt-right"></icon></p>
@@ -46,7 +44,7 @@
                       <pf-form-datetime
                         :form-store-name="formStoreName" form-namespace="expiration"
                         :min="(new Date().setHours(0,0,0,0))"
-                        :config="{datetimeFormat: schema.password.expiration.datetimeFormat}"
+                        :config="{datetimeFormat: MysqlDatabase.password.expiration.datetimeFormat}"
                       />
                     </b-col>
                   </b-row>
@@ -104,8 +102,7 @@
                 </pf-form-row>
               </div>
             </b-card>
-
-          </pf-csv-import>
+          </base-csv-import>
         </b-tab>
         <template v-slot:tabs-end>
           <pf-form-upload @files="files = $event" @focus="tabIndex = $event" :multiple="true" :cumulative="true" accept="text/*, .csv">{{ $t('Open CSV File') }}</pf-form-upload>
@@ -132,7 +129,10 @@
 </template>
 
 <script>
-import pfCSVImport from '@/components/pfCSVImport'
+//import pfCSVImport from '@/components/pfCSVImport'
+import {
+  BaseCsvImport
+} from '@/components/new/'
 import pfFieldTypeValue from '@/components/pfFieldTypeValue'
 import pfFormDatetime from '@/components/pfFormDatetime'
 import pfFormFields from '@/components/pfFormFields'
@@ -141,19 +141,56 @@ import pfFormRow from '@/components/pfFormRow'
 import pfFormToggle from '@/components/pfFormToggle'
 import pfFormUpload from '@/components/pfFormUpload'
 import UsersPreviewModal from './UsersPreviewModal'
+import { MysqlDatabase } from '@/globals/mysql'
 import { pfActions } from '@/globals/pfActions'
-import { pfDatabaseSchema as schema } from '@/globals/pfDatabaseSchema'
+import i18n from '@/utils/locale'
 import password from '@/utils/password'
 import {
   passwordOptions,
   importFields,
-  importForm, importValidators
+  importForm
 } from '../_config/'
+
+import {
+  conditional
+} from '@/globals/pfValidators'
+import {
+  required
+} from 'vuelidate/lib/validators'
+export const importValidators = (form = {}) => {
+  const {
+    expiration,
+    valid_from
+  } = form
+  return {
+    valid_from: {
+      [i18n.t('Start date required.')]: conditional(!!valid_from && valid_from !== '0000-00-00')
+      /* TODO
+       * https://github.com/inverse-inc/packetfence/issues/5592
+      [i18n.t('Date must be today or later.')]: compareDate('>=', new Date(), 'YYYY-MM-DD'),
+      [i18n.t('Date must be less than or equal to end date.')]: not(and(required, conditional(valid_from), not(compareDate('<=', expiration, 'YYYY-MM-DD'))))
+      */
+    },
+    expiration: {
+      [i18n.t('End date required.')]: conditional(!!expiration && expiration !== '0000-00-00')
+      /* TODO
+       * https://github.com/inverse-inc/packetfence/issues/5592
+      [i18n.t('Date must be today or later.')]: compareDate('>=', new Date(), 'YYYY-MM-DD'),
+      [i18n.t('Date must be less than 2038-01-01.')]: compareDate('<=', new Date('2037-12-31 23:59:59'), 'YYYY-MM-DD'),
+      [i18n.t('Date must be greater than or equal to start date.')]: not(and(required, conditional(expiration), not(compareDate('>=', valid_from, 'YYYY-MM-DD'))))
+      */
+    },
+    actions: {
+      [i18n.t('Action required.')]: required
+    }
+  }
+}
 
 export default {
   name: 'users-import',
   components: {
-    'pf-csv-import': pfCSVImport,
+    BaseCsvImport,
+    
     pfFormDatetime,
     pfFormFields,
     pfFormInput,
@@ -165,15 +202,14 @@ export default {
   props: {
     formStoreName: { // from router
       type: String,
-      default: null,
-      required: true
+      default: null
     }
   },
   data () {
     return {
       importFields, // ../_config/
       passwordOptions, // ../_config/
-      schema, // @/globals/pfDatabaseSchema
+      MysqlDatabase, // @/globals/mysql
       files: [],
       tabIndex: 0,
       actionField: {
