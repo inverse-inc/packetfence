@@ -48,7 +48,7 @@
         :placeholder="$store.state['session'].username"
       />
 
-      <form-group-language namespace="language"
+      <form-group-language namespace="lang"
         :column-label="$t('Language')" />
 
       <form-group-gender namespace="gender"

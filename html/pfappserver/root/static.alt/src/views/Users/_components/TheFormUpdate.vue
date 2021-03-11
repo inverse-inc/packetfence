@@ -20,7 +20,7 @@
           <form-group-sponsor namespace="sponsor"
             :column-label="$t('Sponsor')" />
 
-          <form-group-language namespace="language"
+          <form-group-language namespace="lang"
             :column-label="$t('Language')" />
 
           <form-group-gender namespace="gender"
