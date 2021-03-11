@@ -284,9 +284,6 @@ testcases:
     assertions:
       - result.statuscode ShouldEqual 201
 
-# workaround to make accounting working:
-# NAS-IP-Address is not included in accounting packets before VX 4.0
-# with controllerIP set, no need to create switch by IP
 - name: create_switch_by_mac
   steps:
   - type: http
