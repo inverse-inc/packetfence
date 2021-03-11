@@ -162,10 +162,9 @@ type (
 		Date               time.Time       `json:"date,omitempty" gorm:"default:CURRENT_TIMESTAMP"`
 		SerialNumber       string          `json:"serial_number,omitempty"`
 		DNSNames           string          `json:"dns_names,omitempty"`
+		IPAddresses        string          `json:"ip_addresses,omitempty"`
 		Revoked            time.Time       `json:"revoked,omitempty" gorm:"INDEX:revoked"`
 		CRLReason          int             `json:"crl_reason,omitempty" gorm:"INDEX:crl_reason"`
-		DNSNames           string          `json:"dns_names,omitempty"`
-		IPAddresses        string          `json:"ip_addresses,omitempty"`
 	}
 )
 
