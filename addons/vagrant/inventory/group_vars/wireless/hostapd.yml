@@ -21,6 +21,10 @@ hostapd__configs:
     hostapd__ssid: 'PF-Open'
     hostapd__vlan_file: '/etc/hostapd/hostapd_open.vlan'
     hostapd__dynamic_vlan: 1
+    hostapd__radius_das_port: 3799
+    hostapd__radius_das_client: '{{ packetfence_server_mgmt_ip }}'
+    hostapd__radius_das_require_event_timestamp: 0
+    hostapd__radius_das_require_message_authenticator: 0
 
   - name: secure
     hostapd__acct_server_addr: '{{ packetfence_server_mgmt_ip }}'
@@ -46,3 +50,7 @@ hostapd__configs:
     hostapd__wpa_pairwise: 'CCMP'
     hostapd__vlan_file: '/etc/hostapd/hostapd_secure.vlan'
     hostapd__dynamic_vlan: 1
+    hostapd__radius_das_port: 3799
+    hostapd__radius_das_client: '{{ packetfence_server_mgmt_ip }}'
+    hostapd__radius_das_require_event_timestamp: 0
+    hostapd__radius_das_require_message_authenticator: 0
