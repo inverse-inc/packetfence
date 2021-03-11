@@ -85,7 +85,7 @@ test-int-dev: PF_VM_NAME=pfcen7dev
 test-int-dev: PERL_UNIT_TESTS=no
 test-int-dev: GOLANG_UNIT_TESTS=no
 test-int-dev: INTEGRATION_TESTS=yes
-test-int-dev: INT_TEST_VM_NAMES='ad switch01 node01 wireless01'
+test-int-dev: INT_TEST_VM_NAMES=ad switch01 node01 wireless01
 test-int-dev: get-public
 	make PF_VM_NAME=$(PF_VM_NAME) \
 	INT_TEST_VM_NAMES="$(INT_TEST_VM_NAMES)" \
