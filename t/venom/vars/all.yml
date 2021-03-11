@@ -113,7 +113,7 @@ wireless_switch.id2: '{{.wireless01.dot1x_interface.mac}}'
 wireless_switch.description: wireless01
 
 ################################################################################
-# dot1x_eap_peap test suite specific variables
+# eap_peap test suites specific variables
 ################################################################################
 # AD user
 eap_peap.roles.ad_user.id: user_employee
@@ -189,7 +189,7 @@ backup_db_and_restore.user: adminvenom
 backup_db_and_restore.backup_dir: /root/backup
 
 ################################################################################
-## Roles mac auth test suite specific variables
+## mac auth test suites specific variables
 #################################################################################
 mac_auth.roles.headless_device.id: headless_device
 mac_auth.roles.headless_device.notes: Headless device
