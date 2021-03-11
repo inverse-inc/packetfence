@@ -63,13 +63,12 @@ build_admin_artifacts() {
     log_section "Build web admin artifacts..."    
     SRC_HTML_DIR=html
     SRC_HTML_PFAPPDIR_ROOT=${SRC_HTML_DIR}/pfappserver/root
-    SRC_HTML_PFAPPDIR_ALT=${SRC_HTML_PFAPPDIR_ROOT}/static.alt
 
-    make -C ${SRC_HTML_PFAPPDIR_ALT} vendor
-    make -C ${SRC_HTML_PFAPPDIR_ALT} light-dist
+    make -C ${SRC_HTML_PFAPPDIR_ROOT} vendor
+    make -C ${SRC_HTML_PFAPPDIR_ROOT} light-dist
 
     log_subsection "Move artifacts in ${MAINT_DIR}"
-    tar -v -czf ${MAINT_DIR}/static.alt.tgz -C ${SRC_HTML_PFAPPDIR_ALT} dist
+    tar -v -czf ${MAINT_DIR}/dist.tgz -C ${SRC_HTML_PFAPPDIR_ROOT} dist
 }
 
 # build artifact for each distribution

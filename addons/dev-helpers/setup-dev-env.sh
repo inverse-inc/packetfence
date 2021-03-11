@@ -20,11 +20,8 @@ cp ../pf-pkg/conf/pfconfig.conf conf/
 # to keep iptables rule for vagrant management
 cp ../pf-pkg/conf/iptables.conf conf/
 
-log_section "Build docs"
-make html/pfappserver/root/static/doc
-
 log_section "Build web admin"
-cd /usr/local/pf/html/pfappserver/root/static.alt/
+cd /usr/local/pf/html/pfappserver/root/
 sudo make vendor
 sudo make dev
 

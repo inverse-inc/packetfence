@@ -1,6 +1,6 @@
 #!/bin/bash
 PF_DIR=/usr/local/pf
-JSON_DIR="$PF_DIR/html/pfappserver/root/static"
+JSON_DIR="$PF_DIR/html/pfappserver/root/errors"
 
 for f in $(ls $JSON_DIR/[0-9][0-9][0-9].json);do
     n=$(basename $f .json)

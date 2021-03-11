@@ -8,8 +8,8 @@
   }
 
   errors {
-    502 /usr/local/pf/html/pfappserver/root/static/502.json
-    503 /usr/local/pf/html/pfappserver/root/static/503.json
+    502 /usr/local/pf/html/pfappserver/root/errors/502.json
+    503 /usr/local/pf/html/pfappserver/root/errors/503.json
   }
 
   pfconfigpool {

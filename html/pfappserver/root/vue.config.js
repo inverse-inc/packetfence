@@ -1,7 +1,7 @@
 const { BundleAnalyzerPlugin } = require('webpack-bundle-analyzer')
 
 module.exports = {
-  publicPath: '/admin/alt',
+  publicPath: '/admin',
   outputDir: 'dist',
   indexPath: 'index.html',
   css: {

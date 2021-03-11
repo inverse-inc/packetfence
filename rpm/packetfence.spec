@@ -327,8 +327,8 @@ done
 %{__make} -C html/common light-dist
 
 # Admin javascript/css
-%{__make} -C html/pfappserver/root/static.alt/ vendor
-%{__make} -C html/pfappserver/root/static.alt/ light-dist
+%{__make} -C html/pfappserver/root/ vendor
+%{__make} -C html/pfappserver/root/ light-dist
 
 
 # Build the HTML doc index for pfappserver
@@ -482,9 +482,9 @@ rm -rf %{buildroot}/usr/local/pf/docs/api
 %{__make} DESTDIR=%{buildroot} html_install
 
 # install html in pfappserver for embedded doc
-%{__install} -d -m0755 %{buildroot}/usr/local/pf/html/pfappserver/root/static/doc
+%{__install} -d -m0755 %{buildroot}/usr/local/pf/html/pfappserver/root/doc
 for i in `find docs "(" -name "*.html" -or -name "*.js" ")"  -type f`; do \
-	%{__install} -m0644 $i %{buildroot}/usr/local/pf/html/pfappserver/root/static/doc/; \
+	%{__install} -m0644 $i %{buildroot}/usr/local/pf/html/pfappserver/root/doc/; \
 done
 
 # images
@@ -1167,7 +1167,7 @@ fi
                         /usr/local/pf/html/captive-portal/templates
 # pfappserver dir
                         /usr/local/pf/html/pfappserver
-%doc                    /usr/local/pf/html/pfappserver/root/static/doc/*
+%doc                    /usr/local/pf/html/pfappserver/root/doc/*
 
 # lib dir
                         /usr/local/pf/lib/

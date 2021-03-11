@@ -34,8 +34,8 @@ docs/%.html: docs/%.asciidoc
 	asciidoctor \
 		-n \
 		-r ./docs/asciidoctor-html.rb \
-		-a stylesdir=../html/pfappserver/root/static.alt/dist/css \
-		-a stylesheet=$(notdir $(wildcard ./html/pfappserver/root/static.alt/dist/css/app*.css)) \
+		-a stylesdir=../html/pfappserver/root/dist/css \
+		-a stylesheet=$(notdir $(wildcard ./html/pfappserver/root/dist/css/app*.css)) \
 		-a release_version=`cat conf/pf-release | cut -d' ' -f 2` \
 		-a release_month=`date +%B` \
 		$<
@@ -48,14 +48,14 @@ docs/index.js: $(HTML)
 images:
 	@echo "install images dir and all subdirectories"
 	for subdir in `find docs/images/* -type d -printf "%f\n"` ; do \
-		install -d -m0755 $(DESTDIR)/usr/local/pf/html/pfappserver/root/static/doc/images/$$subdir ; \
+		install -d -m0755 $(DESTDIR)/usr/local/pf/html/pfappserver/root/doc/images/$$subdir ; \
 		for img in `find docs/images/$$subdir -type f`; do \
-			install -m0644 $$img $(DESTDIR)/usr/local/pf/html/pfappserver/root/static/doc/images/$$subdir ; \
+			install -m0644 $$img $(DESTDIR)/usr/local/pf/html/pfappserver/root/doc/images/$$subdir ; \
 		done \
 	done
 	@echo "install only images at depth0 in images/ directory"
 	for img in `find docs/images/* -maxdepth 0 -type f`; do \
-		install -m0644 $$img $(DESTDIR)/usr/local/pf/html/pfappserver/root/static/doc/images/ ; \
+		install -m0644 $$img $(DESTDIR)/usr/local/pf/html/pfappserver/root/doc/images/ ; \
 	done
 
 .PHONY: html
@@ -197,17 +197,12 @@ html_install:
 	    install -v -m 0644 $$file -D $(DESTDIR)$(PF_PREFIX)/$$file ; \
 	done
 
-	@echo "install $(SRC_HTML_PFAPPDIR) without static and static.alt dir"
+	@echo "install $(SRC_HTML_PFAPPDIR) without root dir"
 	for file in $(pfapp_files); do \
 	    install -v -m 0644 $$file -D $(DESTDIR)$(PF_PREFIX)/$$file ; \
 	done
 
-	@echo "install $(SRC_HTML_PFAPPDIR_STATIC) dirs and files"
-	for file in $(pfapp_static_files); do \
-	    install -v -m 0644 $$file -D $(DESTDIR)$(PF_PREFIX)/$$file ; \
-	done
-
-	@echo "install $(SRC_HTML_PFAPPDIR_ALT) dirs and files"
+	@echo "install $(SRC_HTML_PFAPPDIR_ROOT) dirs and files"
 	for file in $(pfapp_alt_files); do \
 	    install -v -m 0644 $$file -D $(DESTDIR)$(PF_PREFIX)/$$file ; \
 	done

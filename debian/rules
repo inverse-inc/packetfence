@@ -120,7 +120,6 @@ install: build
 	#Sudoer
 	install -oroot -groot -d -m0750 $(CURDIR)/debian/packetfence/etc/sudoers.d
 	install -oroot -groot -m0440 $(CURDIR)/debian/packetfence.sudoers $(CURDIR)/debian/packetfence/etc/sudoers.d/packetfence
-	rm -fr $(CURDIR)/debian/packetfence$(PREFIX)/$(NAME)/html/pfappserver/root/static/alt
 	#PacketFence pfcmd suid
 	install -d -m0755 $(CURDIR)/debian/packetfence-pfcmd-suid$(PREFIX)/$(NAME)/bin
 	gcc src/pfcmd.c -o $(CURDIR)/debian/packetfence-pfcmd-suid$(PREFIX)/$(NAME)/bin/pfcmd
@@ -155,25 +154,22 @@ install: build
 	install -m0644 $(CURDIR)/html/common/styles.css $(CURDIR)/debian/packetfence-captive-portal-javascript$(PREFIX)/$(NAME)/html/common/
 	install -m0644 $(CURDIR)/html/common/styles.css.map $(CURDIR)/debian/packetfence-captive-portal-javascript$(PREFIX)/$(NAME)/html/common/
 	# Admin javascript/css
-	make -C html/pfappserver/root/static.alt/ vendor
-	make -C html/pfappserver/root/static.alt/ light-dist
+	make -C html/pfappserver/root/ vendor
+	make -C html/pfappserver/root/ light-dist
 
 	# Documentation
 	make html
 	# install html in pfappserver for embedded doc
-	install -d -m0755 $(CURDIR)/debian/packetfence-doc$(PREFIX)/$(NAME)/html/pfappserver/root/static/doc
+	install -d -m0755 $(CURDIR)/debian/packetfence-doc$(PREFIX)/$(NAME)/html/pfappserver/root/doc
 	for i in `find "docs" "(" -name "*.html" -or -iname "*.js" ")" -type f`; do \
-		install -m0644 $$i $(CURDIR)/debian/packetfence-doc$(PREFIX)/$(NAME)/html/pfappserver/root/static/doc/; \
+		install -m0644 $$i $(CURDIR)/debian/packetfence-doc$(PREFIX)/$(NAME)/html/pfappserver/root/doc/; \
 	done
 	# images
 	make DESTDIR=$(CURDIR)/debian/packetfence-doc images
 
-	install -d -m0755 $(CURDIR)/debian/packetfence-pfappserver-javascript$(PREFIX)/$(NAME)/html/pfappserver/root/static
-	for i in `find * -wholename "*js/pfappserver.*" -o -wholename "*js/reports.*" -o -wholename "*js/auditing.*" -o -wholename "*js/configuration.*" -o -wholename "*js/vendor/bootstrap.min.js*" -o -wholename "*js/vendor/jquery.min.*" -o -wholename "*js/vendor/jquery-ui.min.js*" -o -wholename "*js/vendor/jquery-extra.min.js*" -o -wholename "*js/vendor/raphael.min.js*" -o -wholename "*js/vendor/ace/*.js" -o -wholename "*js/vendor/fitty.min.js*" -o -wholename "*css/styles.css" -o -wholename "*css/styles.css.map" -path 'html/pfappserver/root/static/*' -type f`; do \
-		install -D -m0644 $$i $(CURDIR)/debian/packetfence-pfappserver-javascript$(PREFIX)/$(NAME)/$$i; \
-	done
-	install -d -m0755 $(CURDIR)/debian/packetfence-pfappserver-javascript$(PREFIX)/$(NAME)/html/pfappserver/root/static.alt
-	for i in `find 'html/pfappserver/root/static.alt/dist' -type f`; do \
+	# html_install
+	install -d -m0755 $(CURDIR)/debian/packetfence-pfappserver-javascript$(PREFIX)/$(NAME)/html/pfappserver/root
+	for i in `find 'html/pfappserver/root/dist' -type f`; do \
 		install -D -m0644 $$i $(CURDIR)/debian/packetfence-pfappserver-javascript$(PREFIX)/$(NAME)/$$i; \
 	done
 	#Golang binary
@@ -257,8 +253,7 @@ binary-arch: build install
 			/usr/local/pf/raddb/sites-available/status /usr/local/pf/raddb/sites-enabled/status \
 			/usr/local/fingerbank/lib/fingerbank /usr/local/pf/lib/fingerbank \
 			/usr/local/pf/html/pfappserver/lib/pfappserver /usr/local/pf/lib/pfappserver \
-			/usr/local/pf/html/captive-portal/lib/captiveportal /usr/local/pf/lib/captiveportal \
-			/usr/local/pf/html/pfappserver/root/static.alt/dist /usr/local/pf/html/pfappserver/root/static/alt
+			/usr/local/pf/html/captive-portal/lib/captiveportal /usr/local/pf/lib/captiveportal
 	dh_strip
 	dh_compress
 	# PERMISSIONS

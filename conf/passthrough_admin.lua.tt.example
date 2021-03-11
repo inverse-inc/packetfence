@@ -29,7 +29,7 @@ core.register_action("admin", { "http-req" }, function(txn)
     -- if it's static content
     elseif ( string.match(txn.sf:path(), '^/static') ) then
         txn:set_var("req.action","static")
-    elseif ( string.match(txn.sf:path(), '^/admin/alt') ) then
+    elseif ( string.match(txn.sf:path(), '^/admin') ) then
         txn:set_var("req.action","static")
     elseif ( string.match(txn.sf:path(), '^/common') ) then
         txn:set_var("req.action","static")
