@@ -39,7 +39,7 @@
               />
               <pf-form-prefix-multiplier :column-label="$t('Bandwidth Balance')"
                 :form-store-name="formStoreName" form-namespace="bandwidth_balance"
-                :max="sqlLimits.ubigint.max"
+                :max="MysqlLimits.ubigint.max"
               />
               <pf-form-range-toggle :column-label="$t('Voice Over IP')"
                 :form-store-name="formStoreName" form-namespace="voip"
@@ -354,7 +354,7 @@ import pfFormRangeToggle from '@/components/pfFormRangeToggle'
 import pfFormRow from '@/components/pfFormRow'
 import pfFormSelect from '@/components/pfFormSelect'
 import pfFormTextarea from '@/components/pfFormTextarea'
-import { mysqlLimits as sqlLimits } from '@/globals/mysqlLimits'
+import { MysqlLimits } from '@/globals/mysql'
 import { pfEapType as eapType } from '@/globals/pfEapType'
 import {
   pfSearchConditionType as conditionType,
@@ -402,7 +402,7 @@ export default {
   },
   data () {
     return {
-      sqlLimits, // @/globals/mysqlLimits
+      MysqlLimits, // @/globals/myMysqlLimits
       tabIndex: 0,
       tabTitle: '',
       matchingUsers: [],
