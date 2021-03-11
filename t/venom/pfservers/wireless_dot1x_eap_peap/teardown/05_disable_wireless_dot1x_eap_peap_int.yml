@@ -1,7 +1,7 @@
-name: Enable MAC Authentication on dot1x interface on wireless01
+name: Disable 802.1X on dot1x interface on wireless01
 version: 2
 testcases:
-- name: enable_mac_auth_on_wireless01
+- name: disable_dot1x_on_wireless01
   steps:
     - type: ssh
       host: '{{.wireless01_mgmt_ip}}'

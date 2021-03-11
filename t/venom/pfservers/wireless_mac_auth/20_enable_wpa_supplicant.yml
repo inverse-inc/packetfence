@@ -1,7 +1,7 @@
 name: Enable wpa_supplicant on wireless01
 version: 2
 testcases:
-- name: enable_dynamic_vlan_on_wireless01
+- name: enable_wpa_supplicant_on_wireless01
   steps:
     - type: ssh
       host: '{{.wireless01_mgmt_ip}}'

@@ -1,4 +1,4 @@
-name: Create wireless01 with the mac 02:00:00:00:01:00 and role headless_device
+name: Create wireless01 with the mac 02:00:00:00:01:00 (wlan1 interface) and role headless_device
 version: 2
 testcases:
 - name: get_category_id_of_role_wireless

@@ -16,7 +16,7 @@ hostapd__configs:
     hostapd__interface: 'wlan0'
     hostapd__logger_syslog: 1
     hostapd__macaddr_acl: 2
-    hostapd__nas_identifier: 'HostAP-PF'
+    hostapd__nas_identifier: '{{ ansible_fqdn }}'
     hostapd__own_ip_addr: '{{ hostvars[inventory_hostname]["mgmt_ip"] }}'
     hostapd__ssid: 'PF-Open'
     hostapd__vlan_file: '/etc/hostapd/hostapd_open.vlan'
@@ -38,7 +38,7 @@ hostapd__configs:
     hostapd__interface: 'wlan0'
     hostapd__logger_syslog: 1
     hostapd__macaddr_acl: 2
-    hostapd__nas_identifier: 'HostAP-PF'
+    hostapd__nas_identifier: '{{ ansible_fqdn }}'
     hostapd__own_ip_addr: '{{ hostvars[inventory_hostname]["mgmt_ip"] }}'
     hostapd__ssid: 'PF-Secure'
     hostapd__wpa: 2
