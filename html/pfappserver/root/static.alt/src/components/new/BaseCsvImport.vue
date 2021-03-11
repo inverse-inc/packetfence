@@ -85,6 +85,8 @@
                 </b-col>
               </template>
             </b-row>
+<pre>{{ {importMappingInvalidFeedback, importMappingState} }}</pre>              
+            
             <!-- table body -->
             <b-row class="base-csv-import-table-row" v-for="(_, rowIndex) in previewColumnCount" :key="`row-${rowIndex}`">
               <b-col>
@@ -401,7 +403,7 @@ const props = {
   }  
 }
 
-import { computed, nextTick, ref, set, toRefs, watch } from '@vue/composition-api'
+import { computed, nextTick, reactive, ref, set, toRefs, watch } from '@vue/composition-api'
 import { useQuerySelectorAll } from '@/composables/useDom'
 import bytes from '@/utils/bytes'
 import encoding from '@/utils/encoding'
@@ -502,23 +504,25 @@ const setup = (props, context) => {
         return { ...field, ...{ disabled: field.value && reservedMapping.value.includes(field.value) } } // disable if reserved
       })
   })
-  const importMappingInvalidFeedback = computed(() => {
-    return new Array(perPage.value)
+  const importMappingInvalidFeedback = reactive({})
+  const importMappingState = reactive({})
+  watch([_importMappingSchema, preview], () => {
+    new Array(perPage.value)
       .fill(null)
       .map((_, colIndex) => {
         const { [colIndex]: { data = [] } = {} } = preview.value
+        set(importMappingInvalidFeedback, colIndex, new Array(data.length).fill(null)) // null fill
+        set(importMappingState, colIndex, new Array(data.length).fill(true)) // true fill
         return data.map((value, rowIndex) => {
-          try {
-            _importMappingSchema.value[rowIndex].validateSync(value)
-          } catch (ValidationError) {
-            const { message } = ValidationError
-            return message
-          }
-          return null
+          _importMappingSchema.value[rowIndex].validate(value)
+            .catch((ValidationError) => {
+              const { message } = ValidationError
+              set(importMappingInvalidFeedback[colIndex], rowIndex, message)
+              set(importMappingState[colIndex], rowIndex, false)
+            })
         })
       })
-  })
-  const importMappingState = computed(() => importMappingInvalidFeedback.value.map((row) => row.map((col) => !col)))
+  }, { deep: true, immediate: true })
   const deleteImportMapping = (index) => {
     set(importMapping.value, index, null)
   }
