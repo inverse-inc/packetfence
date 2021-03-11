@@ -1,6 +1,6 @@
 <template>
   <b-form @submit.prevent="doExport()">
-    <b-card no-body>
+    <b-card no-body ref="rootRef">
       <b-card-header>
         <b-row align-v="center">
           <b-col cols="auto">
@@ -68,15 +68,15 @@
             </b-col>
           </b-row>
           <!-- table -->
-          <div class="pf-csv-import-table" :class="{ 'hover': hover, 'striped': striped }">
+          <div class="base-csv-import-table" :class="{ 'hover': hover, 'striped': striped }">
             <!-- table head -->
-            <b-row class="pf-csv-import-table-head">
+            <b-row class="base-csv-import-table-head">
               <b-col class="text-nowrap">
                 {{ $t('Field Mappings') }}
               </b-col>
               <template v-for="(_, colIndex) in new Array(perPage)">
                 <b-col class="text-nowrap" :key="`col-${colIndex}`">
-                  <template v-if="((perPage * page) - perPage + colIndex + 1) <= (linesCount - ((config.header) ? 1 : 0))">
+                  <template v-if="((perPage * page) - perPage + colIndex + 1) <= (linesCount - ((parseConfig.header) ? 1 : 0))">
                     {{ $t('Line') }} #{{ (perPage * page) - perPage + colIndex + 1 }}
                   </template>
                   <template v-else>
@@ -86,15 +86,22 @@
               </template>
             </b-row>
             <!-- table body -->
-            <b-row class="pf-csv-import-table-row" v-for="(_, rowIndex) in previewColumnCount" :key="`row-${rowIndex}`">
+            <b-row class="base-csv-import-table-row" v-for="(_, rowIndex) in previewColumnCount" :key="`row-${rowIndex}`">
               <b-col>
+<!--
                 <b-form-group
                   :state="($v && 'importMapping' in $v && $v.importMapping.$invalid) ? false : null"
                   :invalid-feedback="getImportMappingVuelidateFeedback()"
-                  class="my-1 pf-csv-import-form-group"
+                  class="my-1 base-csv-import-form-group"
+                >
+-->                
+                <b-form-group
+                  :state="!reservedMappingInvalidFeedback"
+                  :invalid-feedback="reservedMappingInvalidFeedback"
+                  class="my-1 base-csv-import-form-group"
                 >
                   <b-input-group>
-                    <template v-slot:append v-if="rowVariant(rowIndex)">
+                    <template v-slot:append v-if="importMapping[rowIndex]">
                       <b-button variant="light" class="text-secondary pb-1" :disabled="isDisabled" @click="deleteImportMapping(rowIndex)">
                         <icon name="times-circle"/>
                       </b-button>
@@ -120,11 +127,11 @@
               </b-col>
               <template v-for="(_, colIndex) in new Array(perPage)">
                 <b-col class="col-overflow-hidden" :class="(importMapping[rowIndex]) ? 'text-black' : 'text-black-50'" :key="`col-${colIndex}`">
-                  <template v-if="getPreviewVuelidateFeedback(colIndex, rowIndex)">
+                  <template v-if="importMappingState[colIndex][rowIndex] === false">
                     <!-- invalid -->
                     <icon name="exclamation-circle" class="text-danger mr-1"/> {{ getPreview(colIndex, rowIndex) }}
-                    <div class="invalid-feedback d-block">
-                      {{ getPreviewVuelidateFeedback(colIndex, rowIndex) }}
+                    <div class="is-invalid invalid-feedback d-block">
+                      {{ importMappingInvalidFeedback[colIndex][rowIndex] }}
                     </div>
                   </template>
                   <template v-else>
@@ -135,7 +142,7 @@
               </template>
             </b-row>
             <!-- table footer -->
-            <b-row class="pf-csv-import-table-row" v-for="(staticMap, index) in staticMapping" :key="index">
+            <b-row class="base-csv-import-table-row" v-for="(staticMap, index) in staticMapping" :key="index">
               <b-col>
                 <b-input-group>
                   <template v-slot:append>
@@ -145,69 +152,15 @@
                 </b-input-group>
               </b-col>
               <b-col>
-
-                <pf-form-chosen v-if="isComponentType([componentType.SELECTMANY, componentType.SELECTONE], staticMap)"
-                  :value="staticMap.value"
-                  label="text"
-                  track-by="value"
-                  :ref="staticMap.key"
-                  :disabled="isDisabled"
-                  :multiple="isComponentType([componentType.SELECTMANY], staticMap)"
-                  :options="getStaticMappingOptions(staticMap)"
-                  @input="staticMap.value = $event"
-                  collapse-object
-                  :state="getStaticMappingState(index)" :invalid-feedback="getStaticMappingInvalidFeedback(index)"
-                ></pf-form-chosen>
-
-                <pf-form-input v-else-if="isComponentType([componentType.SUBSTRING], staticMap)"
+                <component :is="staticMappingComponentIs[index]"
+                  v-bind="staticMappingComponentProps[index]"
                   v-model="staticMap.value"
-                  :ref="staticMap.key"
-                  :disabled="isDisabled"
-                  :state="getStaticMappingState(index)" :invalid-feedback="getStaticMappingInvalidFeedback(index)"
-                ></pf-form-input>
-
-                <pf-form-datetime v-else-if="isComponentType([componentType.DATE], staticMap)"
-                  v-model="staticMap.value"
-                  :ref="staticMap.key"
-                  :config="{format: 'YYYY-MM-DD'}"
-                  :disabled="isDisabled"
-                  :state="getStaticMappingState(index)" :invalid-feedback="getStaticMappingInvalidFeedback(index)"
-                ></pf-form-datetime>
-
-                <pf-form-datetime v-else-if="isComponentType([componentType.DATETIME], staticMap)"
-                  v-model="staticMap.value"
-                  :ref="staticMap.key"
-                  :config="{format: 'YYYY-MM-DD HH:mm:ss'}"
-                  :disabled="isDisabled"
-                  :state="getStaticMappingState(index)" :invalid-feedback="getStaticMappingInvalidFeedback(index)"
-                ></pf-form-datetime>
-
-                <pf-form-prefix-multiplier v-else-if="isComponentType([componentType.PREFIXMULTIPLIER], staticMap)"
-                  v-model="staticMap.value"
-                  :ref="staticMap.key"
-                  :disabled="isDisabled"
-                  :state="getStaticMappingState(index)" :invalid-feedback="getStaticMappingInvalidFeedback(index)"
-                ></pf-form-prefix-multiplier>
-
-                <pf-form-toggle  v-else-if="isComponentType([componentType.TOGGLE], staticMap)"
-                  v-model="staticMap.value"
-                  :ref="staticMap.key"
-                  :disabled="isDisabled"
-                  :values="{checked: 'yes', unchecked: 'no'}"
-                  :state="getStaticMappingState(index)" :invalid-feedback="getStaticMappingInvalidFeedback(index)"
-                >{{ (staticMap.value === 'yes') ? $t('Yes') : $t('No') }}</pf-form-toggle>
-
-                <pf-form-input v-else
-                  v-model="staticMap.value"
-                  :ref="staticMap.key"
-                  :disabled="isDisabled"
-                  :state="getStaticMappingState(index)" :invalid-feedback="getStaticMappingInvalidFeedback(index)"
-                ></pf-form-input>
-
+                  :validator="staticMappingComponentValidator[index]"
+                />
               </b-col>
               <b-col v-for="(_) in new Array(perPage - 1)" :key="_">-</b-col>
             </b-row>
-            <b-row class="pf-csv-import-table-row" v-if="staticMappingOptions.filter(f => f.value && !f.disabled).length > 0">
+            <b-row class="base-csv-import-table-row" v-if="staticMappingOptions.filter(f => f.value && !f.disabled).length > 0">
               <b-col>
                 <b-form-select v-model="staticMappingSelect" :options="staticMappingOptions" :disabled="isDisabled" @change="addStaticMapping()">
                   <template v-slot:first>
@@ -224,19 +177,19 @@
           <slot name="default"/> <!-- extra content from parent component -->
         </div>
       </div>
-      <b-card-footer v-if="previewColumnCount > 0" @mouseenter="$v.$touch()">
-        <b-button variant="primary" class="mr-1" :disabled="isDisabled || isMappingError" @click="importStart(false)">
+      <b-card-footer v-if="previewColumnCount > 0">
+        <b-button variant="primary" class="mr-1" :disabled="isDisabled || !isMappingValid" @click="importStart(false)">
           <icon v-if="isImporting && !importProgress.dryRun" name="circle-notch" spin class="mr-1"></icon>
           <icon v-else name="download" class="mr-1"></icon>
           {{ $t('Import') }}
         </b-button>
-        <b-button variant="outline-primary" class="mr-1" :disabled="isDisabled || isMappingError" @click="importStart(true)">
+        <b-button variant="outline-primary" class="mr-1" :disabled="isDisabled || !isMappingValid" @click="importStart(true)">
           <icon v-if="isImporting && importProgress.dryRun" name="circle-notch" spin class="mr-1"></icon>
           <icon v-else name="long-arrow-alt-down" class="mr-1"></icon>
           {{ $t('Dry Run') }}
         </b-button>
         <b-button variant="link" class="mr-1" :disabled="isDisabled" v-b-modal="`importOptions-${uuid}`">Import Options</b-button>
-        <span v-if="isMappingError" class="ml-2">
+        <span v-if="!isMappingValid" class="ml-2">
           <icon name="exclamation-circle" class="text-danger mr-1"/>
           <span class="invalid-feedback d-inline" v-t="'Fix all errors before importing.'"></span>
         </span>
@@ -244,48 +197,61 @@
     </b-card>
 
     <b-modal :id="`parserOptions-${uuid}`" size="lg" centered :title="$t('Parsing Options')">
-      <pf-form-chosen v-model="config.encoding" :column-label="$t('Encoding')" :disabled="isDisabled"
-      :options="encoding.map(enc => { return { text: enc, value: enc } })"
-      :text="$t('The encoding to use when opening local files.')"/>
-      <pf-form-toggle v-model="config.header" :column-label="$t('Header')" :disabled="isDisabled"
-      :values="{checked: true, unchecked: false}" text="If enabled, the first row of parsed data will be interpreted as field names."
-      >{{ (config.header) ? $t('Yes') : $t('No') }}</pf-form-toggle>
-      <pf-form-input v-model="config.delimiter" :column-label="$t('Delimiter')" placeholder="auto" :disabled="isDisabled"
-      :text="$t('The delimiting character. Leave blank to auto-detect from a list of most common delimiters.')"/>
-      <pf-form-input v-model="config.newline" :column-label="$t('Newline')" placeholder="auto" :disabled="isDisabled"
-      :text="$t('The newline sequence. Leave blank to auto-detect. Must be one of \\r, \\n, or \\r\\n.')"/>
-      <!--
-      <pf-form-toggle v-model="config.skipEmptyLines" :column-label="$t('Skip Empty Lines')" :disabled="isDisabled"
-      :values="{checked: true, unchecked: false}" text="If enabled, lines that are completely empty (those which evaluate to an empty string) will be skipped."
-      >{{ (config.skipEmptyLines) ? $t('Yes') : $t('No') }}</pf-form-toggle>
-      -->
-      <pf-form-input v-model="config.quoteChar" :column-label="$t('Quote Character')" :disabled="isDisabled"
-      :text="$t('The character used to quote fields. The quoting of all fields is not mandatory. Any field which is not quoted will correctly read.')"/>
-      <pf-form-input v-model="config.escapeChar" :column-label="$t('Escape Character')" :disabled="isDisabled"
-      :text="$t('The character used to escape the quote character within a field. If not set, this option will default to the value of quoteChar, meaning that the default escaping of quote character within a quoted field is using the quote character two times.')"/>
-      <!--
-      <pf-form-input v-model="config.comments" :column-label="$t('Comments')" :disabled="isDisabled"
-      :text="$t('A string that indicates a comment (for example, \'#\' or \'//\').')"/>
-      -->
-      <!--
-      <pf-form-input v-model="config.preview" :column-label="$t('Preview')" :disabled="isDisabled"
-      :text="$t('If > 0, only that many rows will be parsed.')"/>
-      -->
+      <base-form-group-chosen-one v-model="parseConfig.encoding" 
+        :column-label="$t('Encoding')" 
+        :disabled="isDisabled"
+        :options="encoding.map(enc => { return { text: enc, value: enc } })"
+        :text="$t('The encoding to use when opening local files.')"
+      />
+      <base-form-group-toggle-false-true v-model="parseConfig.header" 
+        :column-label="$t('Header')" 
+        :disabled="isDisabled"
+        :text="$t('If enabled, the first row of parsed data will be interpreted as field names.')"
+      />
+      <base-form-group-input v-model="parseConfig.delimiter" 
+        :column-label="$t('Delimiter')" 
+        placeholder="auto" 
+        :disabled="isDisabled"
+        :text="$t('The delimiting character. Leave blank to auto-detect from a list of most common delimiters.')"
+      />
+      <base-form-group-input v-model="parseConfig.newline" 
+        :column-label="$t('Newline')" 
+        placeholder="auto" 
+        :disabled="isDisabled"
+        :text="$t('The newline sequence. Leave blank to auto-detect. Must be one of \\r, \\n, or \\r\\n.')"
+      />
+      <base-form-group-input v-model="parseConfig.quoteChar" 
+        :column-label="$t('Quote Character')" 
+        :disabled="isDisabled"
+        :text="$t('The character used to quote fields. The quoting of all fields is not mandatory. Any field which is not quoted will correctly read.')"
+      />
+      <base-form-group-input v-model="parseConfig.escapeChar" 
+        :column-label="$t('Escape Character')" 
+        :disabled="isDisabled"
+        :text="$t('The character used to escape the quote character within a field. If not set, this option will default to the value of quoteChar, meaning that the default escaping of quote character within a quoted field is using the quote character two times.')"
+      />
       <template v-slot:modal-footer>
         <b-button variant="primary" @click="$bvModal.hide(`parserOptions-${uuid}`)">{{ $t('Continue') }}</b-button>
       </template>
     </b-modal>
 
     <b-modal :id="`importOptions-${uuid}`" size="lg" centered :title="$t('Import Options')">
-      <pf-form-toggle v-model="config.ignoreInsertIfNotExists" :column-label="$t('Insert new')" :disabled="isDisabled"
-      :values="{checked: false, unchecked: true}" text="If enabled, items that do not currently exist are created."
-      >{{ (config.ignoreInsertIfNotExists) ? $t('No') : $t('Yes') }}</pf-form-toggle>
-      <pf-form-toggle v-model="config.ignoreUpdateIfExists" :column-label="$t('Update exists')" :disabled="isDisabled"
-      :values="{checked: false, unchecked: true}" text="If enabled, items that currently exist are overwritten."
-      >{{ (config.ignoreUpdateIfExists) ? $t('No') : $t('Yes') }}</pf-form-toggle>
-      <pf-form-chosen v-model="config.chunkSize" :column-label="$t('API chunk size')" :disabled="isDisabled"
-      :options="[10, 50, 100, 500, 1000].map(i => { return { value: i, text: i } })"
-      :text="$t('The number of items imported with each API request. Higher numbers are faster but consume more memory with large files.')"/>
+      <base-form-group-toggle-false-true v-model="importConfig.ignoreInsertIfNotExists" 
+        :column-label="$t('Insert new')" 
+        :disabled="isDisabled"
+        :text="$t('If enabled, items that do not currently exist are created.')"
+      />
+      <base-form-group-toggle-false-true v-model="importConfig.ignoreUpdateIfExists" 
+        :column-label="$t('Update exists')" 
+        :disabled="isDisabled"
+        :text="$t('If enabled, items that currently exist are overwritten.')"
+      />
+      <base-form-group-chosen-one v-model="importConfig.chunkSize" 
+        :column-label="$t('API chunk size')" 
+        :disabled="isDisabled"
+        :options="[10, 50, 100, 500, 1000].map(i => { return { value: i, text: i } })"
+        :text="$t('The number of items imported with each API request. Higher numbers are faster but consume more memory with large files.')"
+      />
       <template v-slot:modal-footer>
         <b-button variant="primary" @click="$bvModal.hide(`importOptions-${uuid}`)">{{ $t('Continue') }}</b-button>
       </template>
@@ -321,7 +287,7 @@
               <b-row class="bg-light" align-v="center">
                 <b-col cols="10">{{ $t('Created') }} <em v-if="importProgress.dryRun">({{ $t('not commited') }})</em></b-col>
                 <b-col cols="2" class="text-right">
-                  <template v-if="importProgress.dryRun || config.ignoreInsertIfNotExists" size="lg">
+                  <template v-if="importProgress.dryRun || importConfig.ignoreInsertIfNotExists" size="lg">
                     {{ importProgress.insertCount }} <icon name="lock" class="ml-1"/>
                   </template>
                   <template v-else>{{ importProgress.insertCount }}</template>
@@ -330,7 +296,7 @@
               <b-row align-v="center">
                 <b-col cols="10">{{ $t('Updated') }} <em v-if="importProgress.dryRun">({{ $t('not commited') }})</em></b-col>
                 <b-col cols="2" class="text-right">
-                  <template v-if="importProgress.dryRun || config.ignoreUpdateIfExists">
+                  <template v-if="importProgress.dryRun || importConfig.ignoreUpdateIfExists">
                     {{ importProgress.updateCount }} <icon name="lock" class="ml-1"/>
                   </template>
                   <template v-else>{{ importProgress.updateCount }}</template>
@@ -378,687 +344,637 @@
           <b-button variant="danger" @click="importCancel()" class="ml-1"><icon name="stop" class="mr-1"></icon> {{ $t('Cancel') }}</b-button>
         </template>
         <template v-else>
-          <b-button v-if="importProgress.dryRun" variant="primary" class="mr-1" :disabled="isDisabled || isMappingError" @click="importStart(false)">
+          <b-button v-if="importProgress.dryRun" variant="primary" class="mr-1" :disabled="isDisabled || !isMappingValid" @click="importStart(false)">
             <icon name="download" class="mr-1"></icon>
             {{ $t('Import') }}
           </b-button>
-          <b-button variant="primary" @click="importClose()" class="ml-1">{{ $t('Close') }}</b-button>
+          <b-button variant="primary" @click="$bvModal.hide(`importProgress-${uuid}`)" class="ml-1">{{ $t('Close') }}</b-button>
         </template>
       </template>
     </b-modal>
-
   </b-form>
 </template>
 
 <script>
 import Papa from 'papaparse'
-import pfFormChosen from '@/components/pfFormChosen'
-import pfFormDatetime from '@/components/pfFormDatetime'
-import pfFormInput from '@/components/pfFormInput'
-import pfFormPrefixMultiplier from '@/components/pfFormPrefixMultiplier'
-import pfFormToggle from '@/components/pfFormToggle'
-
+import BaseFormGroupChosenOne from './BaseFormGroupChosenOne'
+import BaseFormGroupInput from './BaseFormGroupInput'
+import BaseFormGroupToggleFalseTrue from './BaseFormGroupToggleFalseTrue'
 import {
-  pfComponentType as componentType,
-  pfFieldTypeComponent as fieldTypeComponent,
-  pfFieldTypeValues as fieldTypeValues
+  pfFieldTypeValues as fieldTypeValues,
+  useField
 } from '@/globals/pfField'
-import {
-  conditional
-} from '@/globals/pfValidators'
 
+const components = {
+  BaseFormGroupChosenOne,
+  BaseFormGroupInput,
+  BaseFormGroupToggleFalseTrue
+}
+
+const props = {
+  file: {
+    type: Object
+  },
+  fields: {
+    type: Array,
+    default: () => ([])
+  },
+  defaultStaticMapping: {
+    type: Array,
+    default: () => ([])
+  },
+  hover: {
+    type: Boolean
+  },
+  striped: {
+    type: Boolean
+  },
+  isLoading: {
+    type: Boolean
+  },
+  isSlotError: {
+    type: Boolean
+  },
+  importPromise: {
+    type: Function,
+    default: () => {}
+  }  
+}
+
+import { computed, nextTick, ref, set, toRefs, watch } from '@vue/composition-api'
+import { useQuerySelectorAll } from '@/composables/useDom'
 import bytes from '@/utils/bytes'
 import encoding from '@/utils/encoding'
+import i18n from '@/utils/locale'
+import yup from '@/utils/yup'
 
-import {
-  required
-} from 'vuelidate/lib/validators'
+const setup = (props, context) => {
+  
+  const {
+    defaultStaticMapping,
+    file,
+    fields,
+    importPromise,
+    isLoading
+  } = toRefs(props)
+  
+  const { refs, root: { $store } = {} } = context
+  
+  // template ref (for Mutation Observers)
+  const rootRef = ref(null)
+  
+  // Papa parse config
+  const parseConfig = ref({
+    delimiter: '', // auto-detect
+    newline: '', // auto-detect
+    quoteChar: '"',
+    escapeChar: '"',
+    header: false,
+    trimHeaders: true,
+    dynamicTyping: false,
+    preview: '',
+    encoding: 'UTF-8',
+    worker: false,
+    comments: false,
+    step: undefined,
+    complete: undefined,
+    error: undefined,
+    download: false,
+    skipEmptyLines: true,
+    chunk: undefined,
+    fastMode: undefined,
+    beforeFirstChunk: undefined,
+    withCredentials: undefined,
+    transform: undefined
+  })
+  
+  // Import config
+  const importConfig = ref({
+    chunkSize: 100,
+    stopOnFirstError: true,
+    ignoreUpdateIfExists: false,
+    ignoreInsertIfNotExists: false
+  })
+  
+  const uuid = computed(() => {
+    const { name, lastModified } = file.value
+    return `${name}-${lastModified}`    
+  })
+  
+  // associate props.field to avoid iterative lookups
+  const _fieldsAssociated = computed(() => {
+    return fields.value.reduce((fields, field) => {
+      const { value } = field
+      fields[value] = field
+      return fields
+    }, {})
+  })
+  
+   // lines from `file`
+  const lines = ref([])
+  
+  // maximum number of lines from `lines`
+  const linesCount = ref(0)
+   
+   // parsed from `lines`
+  const preview = ref([])
+  
+  // maximum number of columns from `preview`
+  const previewColumnCount = ref(0)
+  
+  // current page number
+  const page = ref(1)
+  
+  // lines per page
+  const perPage = ref(3)
 
-const { validationMixin } = require('vuelidate')
-
-export default {
-  name: 'pf-csv-import',
-  components: {
-    pfFormChosen,
-    pfFormDatetime,
-    pfFormInput,
-    pfFormPrefixMultiplier,
-    pfFormToggle
-  },
-  mixins: [
-    validationMixin
-  ],
-  props: {
-    file: {
-      type: Object,
-      default: null
-    },
-    fields: {
-      type: Array,
-      default: () => { return [] }
-    },
-    defaultStaticMapping: {
-      type: Array,
-      default: () => { return [] }
-    },
-    hover: {
-      type: Boolean,
-      default: false
-    },
-    striped: {
-      type: Boolean,
-      default: false
-    },
-    isLoading: {
-      type: Boolean,
-      default: false
-    },
-    isSlotError: {
-      type: Boolean,
-      default: false
-    },
-    importPromise: {
-      type: Function,
-      default: () => {}
-    }
-  },
-  data () {
-    return {
-      // expose globals
-      bytes, // @/utils/bytes
-      encoding, // @/utils/encoding
-      componentType, // @/globals/pfField
-      context: this,
-      config: {
-        // Papa parse config
-        delimiter: '', // auto-detect
-        newline: '', // auto-detect
-        quoteChar: '"',
-        escapeChar: '"',
-        header: false,
-        trimHeaders: true,
-        dynamicTyping: false,
-        preview: '',
-        encoding: 'UTF-8',
-        worker: false,
-        comments: false,
-        step: undefined,
-        complete: undefined,
-        error: undefined,
-        download: false,
-        skipEmptyLines: true,
-        chunk: undefined,
-        fastMode: undefined,
-        beforeFirstChunk: undefined,
-        withCredentials: undefined,
-        transform: undefined,
-
-        // Import config
-        chunkSize: 100,
-        stopOnFirstError: true,
-        ignoreUpdateIfExists: false,
-        ignoreInsertIfNotExists: false
-      },
-
-      lines: [], // lines from this.file
-      linesCount: 0, // maximum number of lines from this.lines
-      preview: [], // parsed from this.lines
-      previewColumnCount: 0, // maximum number of columns from this.preview
-      page: 1, // current page number
-      perPage: 3, // lines per page
-
-      importMapping: [], // user selection(s) for existing import mappings
-      staticMapping: this.defaultStaticMapping || [], // user selection(s) for existing static mappings
-      staticMappingSelect: null,
-
-      isImporting: false,
-      importProgress: {
-        status: this.$i18n.t('Idle'),
-        insertCount: 0,
-        updateCount: 0,
-        skipCount: 0,
-        errorCount: 0,
-        lastError: false,
-        lastLine: 0,
-        promise: false,
-        dryRun: false,
-        done: false,
-        exit: false
-      }
-    }
-  },
-  computed: {
-    uuid () { // tab scope
-      const { file: { name, lastModified } = {} } = this
-      return `${name}-${lastModified}`
-    },
-    pageMax () {
-      const { perPage, linesCount, config: { header } = {} } = this
-      return Math.ceil((linesCount - ((header) ? 1 : 0)) / perPage)
-    },
-    reservedMapping () {
-      return [ ...this.importMapping.filter(field => field), ...this.staticMapping.map(field => field.key) ]
-    },
-    importMappingOptions () {
-      return this.fields
-        .map(field => {
-          return { ...field, ...{ disabled: field.value && this.reservedMapping.includes(field.value) } } // disable if reserved
-        })
-    },
-    staticMappingOptions () {
-      return this.fields
-        .filter(field => !field.required) // don't include required
-        .map(field => {
-          return { ...field, ...{ disabled: field.value && this.reservedMapping.includes(field.value) } } // disable if reserved
-        })
-    },
-    rowVariant () {
-      return (index) => {
-        const { importMapping: { [index]: key } } = this
-        if (key) {
-          const fieldIndex = this.fields.findIndex(field => field.value === key)
-          return (this.fields[fieldIndex].required) ? 'success' : 'warning'
-        }
-        return null
-      }
-    },
-    isDisabled () {
-      const { isLoading, isImporting } = this
-      return (isLoading || isImporting)
-    },
-    isMappingError () {
-      const {
-        $v: {
-          importMapping: { $invalid: importMappingError = false } = {},
-          staticMapping: { $invalid: staticMappingError = false } = {},
-          preview: { $invalid: previewError = false } = {}
-        } = {},
-        isSlotError = false
-      } = this
-      return importMappingError || staticMappingError || previewError || isSlotError
-    },
-    fieldsAssociated () {
-      return this.fields.reduce((fields, field) => {
-        const { value } = field
-        fields[value] = field
-        return fields
-      }, {})
-    }
-  },
-  methods: {
-    readLines (start, length) {
-      const readLines = async (start, length) => {
-        let lines = []
-        let line
-        for (let l = start; l < start + length; l++) {
-          line = await this.$store.dispatch(`${this.file.storeName}/readLine`, l).then(line => {
-            return line
-          })
-          lines.push(line)
-        }
-        return lines
-      }
-      return readLines(start, length)
-    },
-    loadPreview () {
-      const parseLine = async (line) => {
-        return await new Promise((resolve) => {
-          Papa.parse(line, {
-            ...this.config,
-            ...{
-              header: false, // overload, header is handled locally
-              complete: (result) => {
-                const { data: { 0: data } = {}, errors, meta } = result
-                if (data) {
-                  this.previewColumnCount = Math.max(this.previewColumnCount, data.length)
-                }
-                return resolve({ data, errors, meta })
-              }
-            }
-          })
-        })
-      }
-      const loadPreview = async (lines) => {
-        let preview = []
-        for (let line of lines) {
-          preview.push(await parseLine(line))
-        }
-        return preview
-      }
-      loadPreview(this.lines).then(preview => {
-        this.preview = preview
+  // user selection(s) for import mappings
+  const importMapping = ref([])
+  const _importMappingSchema = computed(() => importMapping.value.map((field) => {
+    const { validator } = _fieldsAssociated.value[field] || {}
+    return (validator)
+      ? validator
+      : yup.string().nullable()
+  }))
+  const importMappingOptions = computed(() => {
+    return fields.value
+      .map(field => {
+        return { ...field, ...{ disabled: field.value && reservedMapping.value.includes(field.value) } } // disable if reserved
       })
-    },
-    loadPage (page = this.page) {
-      const length = this.perPage
-      const offset = ((this.config.header) ? 1 : 0)
-      const start = ((page - 1) * length) + offset
-      this.readLines(start, length + 1).then(lines => { // lookahead (+1 line) for pagination
-        this.lines = lines.filter((line, index) => {
-          if (line !== undefined) { // !EOF
-            this.linesCount = Math.max(this.linesCount, start + index + 1)
-            if (index < length) { // skip lookahead (+1 line)
-              return true
-            }
+  })
+  const importMappingInvalidFeedback = computed(() => {
+    return new Array(perPage.value)
+      .fill(null)
+      .map((_, colIndex) => {
+        const { [colIndex]: { data = [] } = {} } = preview.value
+        return data.map((value, rowIndex) => {
+          try {
+            _importMappingSchema.value[rowIndex].validateSync(value)
+          } catch (ValidationError) {
+            const { message } = ValidationError
+            return message
           }
-          return false
+          return null
         })
       })
-    },
-    resetPage () {
-      this.lines = []
-      this.preview = []
-      this.previewColumnCount = 0
-      this.setPage(1)
-    },
-    setPage (page) {
-      this.page = page
-      this.loadPage(page)
-    },
-    addPageColumn () {
-      const { page, perPage } = this
-      const firstLine = (page * perPage) - perPage
-      this.page = (firstLine + perPage + 1) / (perPage + 1)
-      this.perPage++
-    },
-    deletePageColumn () {
-      const { page, perPage } = this
-      const firstLine = (page * perPage) - perPage
-      this.page = (firstLine + perPage - 1) / (perPage - 1)
-      this.perPage--
-    },
-    addStaticMapping () {
-      const key = this.staticMappingSelect
-      if (this.reservedMapping.includes(key)) return
-      this.staticMapping.push({ key, value: null })
-      this.focusStaticMapping(key)
-      this.staticMappingSelect = null
-    },
-    focusStaticMapping (key) {
-      this.$nextTick(() => {
-        const { $refs: { [key]: { 0: { focus } = {} } = {} } = {} } = this
-        if (focus) {
-          focus()
-        }
+  })
+  const importMappingState = computed(() => importMappingInvalidFeedback.value.map((row) => row.map((col) => !col)))
+  const deleteImportMapping = (index) => {
+    set(importMapping.value, index, null)
+  }
+   
+  // user selection(s) for static mappings
+  const staticMapping = ref(defaultStaticMapping.value)
+  const staticMappingSelect = ref(null)
+  const staticMappingOptions = computed(() => {
+    return fields.value
+      .filter(field => !field.required) // don't include required fields
+      .map(field => {
+        return { ...field, ...{ disabled: field.value && reservedMapping.value.includes(field.value) } } // disable if reserved
       })
-    },
-    deleteStaticMapping (index) {
-      this.staticMapping.splice(index, 1)
-    },
-    deleteImportMapping (index) {
-      this.$set(this.importMapping, index, null)
-    },
-    isComponentType (componentTypes, { key }) {
-      if (key) {
-        const index = this.fields.findIndex(field => field.value === key)
-        if (index >= 0) {
-          const fieldTypeComponents = this.fields[index].types.map(type => fieldTypeComponent[type])
-          for (let t = 0; t < componentTypes.length; t++) {
-            if (fieldTypeComponents.includes(componentTypes[t])) return true
-          }
-        }
+  })
+  const _staticMappingField = computed(() => {
+    return staticMapping.value
+      .map(staticMap => useField(_fieldsAssociated.value[staticMap.key]))
+  })
+  const staticMappingComponentIs = computed(() => _staticMappingField.value.map(({ is }) => is))
+  const staticMappingComponentProps = computed(() => _staticMappingField.value.map(({ is, validator, ...props }) => props))
+  const addStaticMapping = () => {
+    const key = staticMappingSelect.value
+    if (reservedMapping.value.includes(key)) 
+      return
+    staticMapping.value.push({ key, value: null })
+    focusStaticMapping(key)
+    staticMappingSelect.value = null
+  }
+  const staticMappingComponentValidator = computed(() => staticMapping.value
+    .map(staticMap => {
+      const { validator } = _fieldsAssociated.value[staticMap.key]
+      return validator // field validator
+        .concat(yup.string().nullable().required(i18n.t('Value required.'))) // always required
+    })
+  )
+  const deleteStaticMapping = (index) => {
+    staticMapping.value.splice(index, 1)
+  }
+   
+  const reservedMapping = computed(() => {
+    return [ ...importMapping.value.filter(field => field), ...staticMapping.value.map(field => field.key) ]
+  })
+  const reservedMappingInvalidFeedback = computed(() => {
+    const invalidFeedback = []
+    if (importMapping.value.filter(r => r).length === 0)
+      invalidFeedback.push(i18n.t('Map at least 1 column.'))
+    if (fields.value.filter(field => field.required && !importMapping.value.includes(field.value)).length > 0)
+      invalidFeedback.push(i18n.t('Missing required fields.'))
+    return invalidFeedback.join(' ')
+  })
+    
+  const _invalidNodes = useQuerySelectorAll(rootRef, '.is-invalid')
+  const isMappingValid = computed(() => (!_invalidNodes.value || Array.prototype.slice.call(_invalidNodes.value).length === 0))  
+  
+  const isImporting = ref(false)
+
+  const importProgress = ref({
+    status: i18n.t('Idle'),
+    insertCount: 0,
+    updateCount: 0,
+    skipCount: 0,
+    errorCount: 0,
+    lastError: false,
+    lastLine: 0,
+    promise: false,
+    dryRun: false,
+    done: false,
+    exit: false
+  })
+  
+  const pageMax = computed(() => {
+    const { header } = parseConfig.value
+    return Math.ceil((linesCount.value - ((header) ? 1 : 0)) / perPage.value)
+  })
+  
+  const isDisabled = computed(() => isLoading.value || isImporting.value)
+  
+  const readLines = (start, length) => {
+    const _readLines = async (start, length) => {
+      let lines = []
+      let line
+      for (let l = start; l < start + length; l++) {
+        line = await $store.dispatch(`${file.value.storeName}/readLine`, l).then(line => line)
+        lines.push(line)
       }
-      return false
-    },
-    getStaticMappingOptions ({ key }) {
-      let options = []
-      if (key) {
-        const index = this.fields.findIndex(field => field.value === key)
-        if (index >= 0) {
-          const field = this.fields[index]
-          for (const type of field.types) {
-            if (type in fieldTypeValues) {
-              options.push(...fieldTypeValues[type](this))
+      return lines
+    }
+    return _readLines(start, length)
+  }
+  
+  const loadPreview = () => {
+    const _parseLine = async (line) => {
+      return await new Promise((resolve) => {
+        Papa.parse(line, {
+          ...parseConfig.value,
+          ...{
+            header: false, // overload, header is handled locally
+            complete: (result) => {
+              const { data: { 0: data } = {}, errors, meta } = result
+              if (data)
+                previewColumnCount.value = data.length
+              return resolve({ data, errors, meta })
             }
           }
-        }
-      }
-      return options
-    },
-    getStaticMappingState (index) {
-      const { $v: { staticMapping: { [index]: { value: { $invalid = false } = {} } = {} } = {} } = {} } = this
-      return ($invalid) ? false : null
-    },
-    getStaticMappingInvalidFeedback (index, separator = ' ') {
-      const { $v: { staticMapping: { [index]: { value: $v } = {} } = {} } = {} } = this
-      let feedback = []
-      if ('$params' in $v) {
-        for (let validation of Object.keys($v.$params)) {
-          if (!$v[validation]) feedback.push(validation)
-        }
-      }
-      return feedback.join(separator).trim()
-    },
-    getImportMappingVuelidateFeedback () {
-      let feedback = []
-      const { $v: { importMapping: vuelidate = {} } = {} } = this
-      if (vuelidate.$invalid) {
-        Object.keys(vuelidate).forEach((key) => {
-          if (key[0] !== '$' && vuelidate[key] === false) {
-            feedback.push(key)
-          }
         })
+      })
+    }
+    const _loadPreview = async (lines) => {
+      let preview = []
+      for (let line of lines) {
+        preview.push(await _parseLine(line))
       }
-      return feedback.join(' ').trim() || null
-    },
-    getPreview (colIndex, rowIndex) {
-      const { preview: { [colIndex]: { data: { [rowIndex]: preview = null } = {} } = {} } = {} } = this
       return preview
-    },
-    getPreviewVuelidateFeedback (colIndex, rowIndex) {
-      let feedback = []
-      if (this.importMapping[rowIndex]) {
-        const { $v: { preview: { $each: { [colIndex]: { data: { [rowIndex]: vuelidate = {} } = {} } = {} } = {} } = {} } = {} } = this
-        if (vuelidate.$invalid) {
-          Object.keys(vuelidate).forEach((key) => {
-            if (key[0] !== '$' && vuelidate[key] === false) {
-              feedback.push(key)
-            }
-          })
+    }
+    _loadPreview(lines.value).then(_preview => {
+      preview.value = _preview
+    })
+  }
+  
+  const loadPage = (_page) => {
+    page.value = _page || page.value
+    const length = perPage.value
+    const offset = (parseConfig.value.header) ? 1 : 0 // skip header
+    const start = ((page.value - 1) * length) + offset
+    readLines(start, length + 1).then(_lines => { // lookahead (+1 line) for pagination
+      lines.value = _lines.filter((line, index) => {
+        if (line !== undefined) { // !EOF
+          linesCount.value = Math.max(linesCount.value, start + index + 1)
+          if (index < length) // skip lookahead (+1 line)
+            return true
+        }
+        return false
+      })
+    })
+  }
+  
+  const resetPage = () => {
+    lines.value = []
+    preview.value = []
+    previewColumnCount.value = 0
+    setPage(1)
+  }
+  
+  const setPage = (_page) => {
+    page.value = _page
+    loadPage(_page)
+  }
+  
+  const addPageColumn = () => {
+    const firstLine = (page.value * perPage.value) - perPage.value
+    page.value = (firstLine + perPage.value + 1) / (perPage.value + 1)
+    perPage.value++
+  }
+  
+  const deletePageColumn = () => {
+    const firstLine = (page.value * perPage.value) - perPage.value
+    page.value = (firstLine + perPage.value - 1) / (perPage.value - 1)
+    perPage.value--
+  }
+  
+  const focusStaticMapping = (key) => {
+    nextTick(() => {
+      const { [key]: { 0: { focus } = {} } = {} } = refs
+      if (focus)
+        focus()
+    })
+  }
+  
+  const getStaticMappingOptions = ({ key }) => {
+    let options = []
+    if (key) {
+      const index = fields.value.findIndex(field => field.value === key)
+      if (index >= 0) {
+        const field = fields.value[index]
+        for (const type of field.types) {
+          if (type in fieldTypeValues)
+            options.push(...fieldTypeValues[type]())
         }
       }
-      return feedback.join(' ').trim() || null
-    },
-    importStart (dryRun = false) {
-      this.importProgress.dryRun = dryRun
+    }
+    return options
+  }
+  
+  // safe accessor
+  const getPreview = (colIndex, rowIndex) => {
+    const { [colIndex]: { data: { [rowIndex]: _preview = null } = {} } = {} } = preview.value
+    return _preview
+  }
 
-      const staticMapping = this.staticMapping.reduce((staticMapping, { key, value }) => {
-        staticMapping[key] = value
-        return staticMapping
-      }, {})
-
-      const parseLines = async (start, length) => {
-        return new Promise((resolve) => {
-          this.importProgress.status = this.$i18n.t('Reading file')
-          this.readLines(start, length + 1).then(async (lines) => { // lookahead (+1 line) for pagination
+  const importStart = (dryRun = false) => {
+    importProgress.value.dryRun = dryRun
+    const _staticMapping = staticMapping.value.reduce((staticMapping, { key, value }) => {
+      staticMapping[key] = value
+      return staticMapping
+    }, {})
+    const _parseLines = async (start, length) => {
+      return new Promise((resolve) => {
+        importProgress.value.status = i18n.t('Reading file')
+        readLines(start, length + 1)
+          .then(async (lines) => { // lookahead (+1 line) for pagination
             resolve(await Promise.all(
-              lines.filter((line, index) => {
-                if (line !== undefined) { // !EOF
-                  this.linesCount = Math.max(this.linesCount, start + index + 1)
-                  if (index < length) { // skip lookahead (+1 line)
-                    return true
+              lines
+                .filter((line, index) => {
+                  if (line !== undefined) { // !EOF
+                    linesCount.value = Math.max(linesCount.value, start + index + 1)
+                    if (index < length) // skip lookahead (+1 line)
+                      return true
                   }
-                }
-                return false
-              }).map(async (line) => {
-                return new Promise((resolve) => {
-                  this.importProgress.status = this.$i18n.t('Parsing file')
-                  Papa.parse(line, {
-                    ...this.config,
-                    ...{
+                  return false
+                })
+                .map(async (line) => {
+                  return new Promise((resolve) => {
+                    importProgress.value.status = i18n.t('Parsing file')
+                    Papa.parse(line, {
+                      ...parseConfig.value,
                       header: false, // overload, header is handled locally
                       complete: (result) => {
                         const { data: { 0: data } = {}, errors } = result
                         resolve({ data, errors })
                       }
-                    }
+                    })
                   })
                 })
-              })
             ))
           })
-        })
-      }
-
-      const importLines = async (start, length) => {
-        await parseLines(start, length).then(async (lines) => {
-          const items = lines.reduce((items, { data }) => {
-            if (data) {
-              items.push({
-                ...data.reduce((line, value, index) => {
-                  if (this.importMapping[index]) {
-                    const { fieldsAssociated: { [this.importMapping[index]]: { formatter } = {} } = {} } = this
-                    if (formatter) {
-                      line[this.importMapping[index]] = formatter(value)
-                    }
-                    else {
-                      line[this.importMapping[index]] = value
-                    }
-                  }
-                  return line
-                }, {}),
-                ...staticMapping
-              })
-            }
-            return items
-          }, [])
-          const { config: { stopOnFirstError, ignoreUpdateIfExists, ignoreInsertIfNotExists } = {} } = this
-          const payload = {
-            items,
-            stopOnFirstError,
-            ignoreInsertIfNotExists: ignoreInsertIfNotExists || dryRun,
-            ignoreUpdateIfExists: ignoreUpdateIfExists || dryRun
+      })
+    }
+    const _importLines = async (start, length) => {
+      await _parseLines(start, length).then(async (lines) => {
+        const items = lines.reduce((items, { data }) => {
+          if (data) {
+            items.push({
+              ...data.reduce((line, value, index) => {
+                if (importMapping.value[index]) {
+                  const { [importMapping.value[index]]: { formatter } = {} } = _fieldsAssociated.value
+                  if (formatter)
+                    line[importMapping.value[index]] = formatter(value)
+                  else
+                    line[importMapping.value[index]] = value
+                }
+                return line
+              }, {}),
+              ..._staticMapping
+            })
           }
-          this.importProgress.done = items.length < length
-
-          // eslint-disable-next-line no-async-promise-executor
-          await new Promise(async (resolve, reject) => {
-            if (!this.importProgress.exit) this.importProgress.status = this.$i18n.t('Sending data')
-            this.importProgress.promise = { resolve, reject } // stash promise
-            await this.importPromise(payload, dryRun, this.importProgress.done).then((result) => {
-              if (!this.importProgress.exit) this.importProgress.status = this.$i18n.t('Processing response')
+          return items
+        }, [])
+        const { stopOnFirstError, ignoreUpdateIfExists, ignoreInsertIfNotExists } = importConfig.value
+        const payload = {
+          items,
+          stopOnFirstError,
+          ignoreInsertIfNotExists: ignoreInsertIfNotExists || dryRun,
+          ignoreUpdateIfExists: ignoreUpdateIfExists || dryRun
+        }
+        importProgress.value.done = items.length < length
+        // eslint-disable-next-line no-async-promise-executor
+        await new Promise(async (resolve, reject) => {
+          if (!importProgress.value.exit) 
+            importProgress.value.status = i18n.t('Sending data')
+          importProgress.value.promise = { resolve, reject } // stash promise
+          await importPromise.value(payload, dryRun, importProgress.value.done)
+            .then((result) => {
+              if (!importProgress.value.exit) 
+                importProgress.value.status = i18n.t('Processing response')
               if (result.constructor === Array && result.length > 0) {
                 for (const line of result) {
                   const { isNew, item, errors, status } = line
-                  this.importProgress.lastLine++
+                  importProgress.value.lastLine++
                   if (errors) {
-                    this.importProgress.lastError = {
-                      line: this.importProgress.lastLine,
+                    importProgress.value.lastError = {
+                      line: importProgress.value.lastLine,
                       errors: errors.map(error => {
                         const { field: key, message } = error
                         return {
                           key,
-                          field: this.fields.find(field => field.value === key).text,
+                          field: fields.value.find(field => field.value === key).text,
                           message,
                           value: item[key]
                         }
                       })
                     }
-                    this.importProgress.errorCount++
-                    if (stopOnFirstError) {
+                    importProgress.value.errorCount++
+                    if (stopOnFirstError)
                       return // pause processing
-                    }
                   } else {
-                    this.importProgress.lastError = false
-                    if (!dryRun && [404, 409].includes(status)) {
-                      this.importProgress.skipCount++
-                    } else if (isNew) {
-                      this.importProgress.insertCount++
-                    } else {
-                      this.importProgress.updateCount++
-                    }
+                    importProgress.value.lastError = false
+                    if (!dryRun && [404, 409].includes(status))
+                      importProgress.value.skipCount++
+                    else if (isNew)
+                      importProgress.value.insertCount++
+                    else
+                      importProgress.value.updateCount++
                   }
                 }
                 resolve() // continue processing
               }
               reject() // stop processing
-            }).catch((err) => {
-              reject(err) // stop processing
             })
-            this.$bvModal.show(`importProgress-${this.uuid}`) // re-open modal in case parent squashed it
-          })
+            .catch((err) => reject(err)) // stop processing
+// TODO            
+// this.$bvModal.show(`importProgress-${this.uuid}`) // re-open modal in case parent squashed it
         })
-      }
+      })
+    }
 
-      const importStart = async (dryRun) => {
-        const { config: { header, chunkSize: length } = {} } = this
-        this.isImporting = true
-        this.config.stopOnFirstError = true
-        this.$set(this, 'importProgress', { // reset counters
-          status: this.$i18n.t('Initializing'),
-          insertCount: 0,
-          updateCount: 0,
-          skipCount: ((header) ? 1 : 0),
-          errorCount: 0,
-          lastError: false,
-          lastLine: ((header) ? 1 : 0),
-          promise: false,
-          done: false,
-          exit: false,
-          dryRun
-        })
-        this.$bvModal.show(`importProgress-${this.uuid}`)
-        do {
-          await importLines(this.importProgress.lastLine, length).catch(() => {
-            this.importProgress.status = (this.importProgress.exit)
-              ? (dryRun) ? this.$i18n.t('Dry run cancelled') : this.$i18n.t('Import cancelled')
-              : (dryRun) ? this.$i18n.t('Dry run completed') : this.$i18n.t('Import completed')
-            this.importProgress.exit = true
+    const _importStart = async (dryRun) => {
+      const { header } = parseConfig.value
+      const { chunkSize: length } = importConfig.value
+      isImporting.value = true
+      importConfig.value.stopOnFirstError = true
+      importProgress.value = { // reset counters
+        status: i18n.t('Initializing'),
+        insertCount: 0,
+        updateCount: 0,
+        skipCount: (header) ? 1 : 0,
+        errorCount: 0,
+        lastError: false,
+        lastLine: (header) ? 1 : 0,
+        promise: false,
+        done: false,
+        exit: false,
+        dryRun
+      }
+// TODO      
+// this.$bvModal.show(`importProgress-${this.uuid}`)
+      do {
+        await _importLines(importProgress.value.lastLine, length)
+          .catch(() => {
+            importProgress.value.status = (importProgress.value.exit)
+              ? (dryRun) ? i18n.t('Dry run cancelled') : i18n.t('Import cancelled')
+              : (dryRun) ? i18n.t('Dry run completed') : i18n.t('Import completed')
+            importProgress.value.exit = true
           })
-        } while (this.linesCount > this.importProgress.lastLine && !this.importProgress.done && !this.importProgress.exit)
-        this.isImporting = false
-      }
+      } while (linesCount.value > importProgress.value.lastLine && !importProgress.value.done && !importProgress.value.exit)
+      isImporting.value = false
+    }
 
-      importStart(dryRun) // handle w/ asyncronous
-    },
-    importCancel () {
-      this.importProgress.status = this.$i18n.t('Stopping')
-      this.importProgress.exit = true
-      this.importProgress.lastError = false
-      this.importProgress.promise.reject() // stop processing
-    },
-    importClose () {
-      this.$bvModal.hide(`importProgress-${this.uuid}`)
-    },
-    importSkipOne () {
-      this.importProgress.lastError = false
-      this.importProgress.promise.resolve() // continue processing
-    },
-    importSkipAll () {
-      this.config.stopOnFirstError = false
-      this.importProgress.lastError = false
-      this.importProgress.promise.resolve() // continue processing
-    }
-  },
-  validations () {
-    let eachStaticMapping = {}
-    let eachPreviewData = {}
-    let index
-    this.fields.forEach((field) => {
-      if ('validators' in field) {
-        index = this.staticMapping.findIndex(f => f.key === field.value)
-        if (index > -1) {
-          eachStaticMapping[field.value] = {
-            value: {
-              ...{ [this.$i18n.t('Value required.')]: required },
-              ...field.validators
-            }
-          }
-        }
-        index = this.importMapping.findIndex(f => f === field.value)
-        if (index > -1) {
-          eachPreviewData[index] = field.validators
-        }
-      }
-    })
-    return {
-      importMapping: {
-        [this.$i18n.t('Map at least 1 column.')]: conditional(this.importMapping.filter(row => row).length > 0),
-        [this.$i18n.t('Missing required fields.')]: conditional(this.fields.filter(field => field.required && !this.importMapping.includes(field.value)).length === 0)
-      },
-      staticMapping: { ...this.staticMapping.map(m => eachStaticMapping[m.key]) },
-      preview: {
-        required,
-        $each: {
-          data: eachPreviewData
-        }
-      }
-    }
-  },
-  watch: {
-    'config.delimiter': {
-      handler () {
-        this.loadPreview()
-      }
-    },
-    'config.encoding': {
-      handler (a, b) {
-        if (a !== b) {
-          this.$store.dispatch(`${this.file.storeName}/setEncoding`, a || 'utf-8')
-          this.resetPage()
-        }
-      },
-      immediate: true
-    },
-    'config.escapeChar': {
-      handler () {
-        this.loadPreview()
-      }
-    },
-    'config.header': {
-      handler () {
-        this.loadPage()
-      }
-    },
-    'config.newline': {
-      handler (a, b) {
-        if (a !== b) {
-          this.$store.dispatch(`${this.file.storeName}/setNewLine`, a || '\n')
-          this.resetPage()
-        }
-      },
-      immediate: true
-    },
-    'config.quoteChar': {
-      handler () {
-        this.loadPreview()
-      }
-    },
-    file: {
-      handler () {
-        this.setPage(1)
-      },
-      deep: true,
-      immediate: true
-    },
-    lines: {
-      handler () {
-        this.loadPreview()
-      }
-    },
-    perPage: {
-      handler () {
-        this.loadPage()
-      }
-    },
-    previewColumnCount: {
-      handler (a) {
-        this.importMapping = new Array(a)
-          .fill(null)
-          .map((_, index) => (index in this.importMapping) ? this.importMapping[index] : null)
-      }
-    },
-    importMapping: {
-      handler () {
-        this.$nextTick(() => {
-          const { $v: { $anyDirty = false, $touch = () => {} } = {} } = this
-          if ($anyDirty) {
-            $touch()
-          }
-        })
-      },
-      deep: true
-    },
-    staticMapping: {
-      handler () {
-        this.$nextTick(() => {
-          const { $v: { $anyDirty = false, $touch = () => {} } = {} } = this
-          if ($anyDirty) {
-            $touch()
-          }
-        })
-      },
-      deep: true
-    }
+    _importStart(dryRun) // handle w/ asyncronous
   }
+ 
+  const importCancel = () => {
+    importProgress.value.status = i18n.t('Stopping')
+    importProgress.value.exit = true
+    importProgress.value.lastError = false
+    importProgress.value.promise.reject() // stop processing
+  }
+  
+  const importSkipOne = () => {
+    importProgress.value.lastError = false
+    importProgress.value.promise.resolve() // continue processing
+  }
+  
+  const importSkipAll = () => {
+    importConfig.value.stopOnFirstError = false
+    importProgress.value.lastError = false
+    importProgress.value.promise.resolve() // continue processing
+  } 
+  
+  watch([
+    () => parseConfig.value.header,
+    perPage
+  ], () => loadPage(), { immediate: true })
+  
+  watch([
+    () => parseConfig.value.delimiter,
+    () => parseConfig.value.escapeChar,
+    () => parseConfig.value.quoteChar,
+    lines
+  ], () => loadPreview())
+  
+  watch(file, () => setPage(1), { deep: true, immediate: true })
+  
+  watch(() => parseConfig.value.encoding, (a, b) => {
+    if (a !== b) {
+      $store.dispatch(`${file.value.storeName}/setEncoding`, a || 'utf-8')
+      resetPage()
+    }
+  }, { immediate: true })
+  
+  watch(() => parseConfig.value.newline, (a, b) => {
+    if (a !== b) {
+      $store.dispatch(`${file.value.storeName}/setNewLine`, a || '\n')
+      resetPage()
+    }
+  }, { immediate: true })
+
+  watch(previewColumnCount, (a) => {
+    importMapping.value = new Array(a)
+      .fill(null)
+      .map((_, index) => (index in importMapping.value) ? importMapping.value[index] : null)
+  })
+
+  return {
+    bytes,
+    encoding,
+    
+    rootRef,
+    parseConfig,
+    importConfig,
+    uuid,
+    
+    page,
+    perPage,
+    pageMax,
+    isDisabled,
+    linesCount,
+    previewColumnCount,
+    
+    importMapping,
+    importMappingOptions,
+    importMappingInvalidFeedback,
+    importMappingState,
+    deleteImportMapping,
+    staticMapping,
+    staticMappingSelect,
+    staticMappingOptions,
+    staticMappingComponentIs, 
+    staticMappingComponentProps,
+    staticMappingComponentValidator,
+    addStaticMapping,
+    deleteStaticMapping,
+    focusStaticMapping,
+    reservedMapping,
+    reservedMappingInvalidFeedback,
+    isMappingValid,
+  
+    setPage,
+    addPageColumn,
+    deletePageColumn,
+    getStaticMappingOptions,
+    getPreview,
+    
+    isImporting,
+    importProgress,
+    importStart,
+    importCancel,
+    importSkipOne,
+    importSkipAll    
+  }
+}
+
+// @vue/component
+export default {
+  name: 'base-csv-import',
+  inheritAttrs: false,
+  components,
+  props,
+  setup
 }
 </script>
 
 <style lang="scss">
-.pf-csv-import-table {
+.base-csv-import-table {
   color: #495057;
   border-spacing: 2px;
-  .pf-csv-import-table-head {
+  .base-csv-import-table-head {
     border-top: 1px solid #dee2e6;
     border-bottom: 2px solid #dee2e6;
     font-weight: bold;
@@ -1067,12 +983,12 @@ export default {
       vertical-align: bottom;
     }
   }
-  .pf-csv-import-table-row {
+  .base-csv-import-table-row {
     border-top: 1px solid #dee2e6;
     cursor: pointer;
   }
-  .pf-csv-import-table-head,
-  .pf-csv-import-table-row {
+  .base-csv-import-table-head,
+  .base-csv-import-table-row {
     border-color: #dee2e6;
     margin: 0;
     & > .col {
@@ -1091,21 +1007,21 @@ export default {
     }
   }
   &.striped {
-    .pf-csv-import-table-row {
+    .base-csv-import-table-row {
       &:nth-of-type(odd) {
         background-color: rgba(0,0,0,.05);
       }
     }
   }
   &.hover {
-    .pf-csv-import-table-row {
+    .base-csv-import-table-row {
       &:hover {
         background-color: rgba(0,0,0,.075);
         color: #495057;
       }
     }
   }
-  .pf-csv-import-form-group {
+  .base-csv-import-form-group {
     &.is-invalid {
       .input-group {
         border: 1px solid #dc3545;
