@@ -159,7 +159,7 @@ const setup = (props, context) => {
   
   const domainName = computed(() => {
     const { domain_name = null } = $store.getters['session/tenantMask'] || {}
-    return domain_name || 'satkunas'
+    return domain_name
   })
 
   const onClose = () => {

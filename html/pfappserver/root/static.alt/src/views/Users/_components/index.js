@@ -5,7 +5,7 @@ import {
   BaseFormGroupInputNumber,
   BaseFormGroupInputPasswordGenerator,
   BaseFormGroupTextarea,
-  BaseInputGroupDate
+  BaseInputGroupDateTime
 } from '@/components/new/'
 import BaseRuleFormGroupActions from '@/views/Configuration/sources/_components/BaseRuleFormGroupActions'
 import BaseFormGroupGender from './BaseFormGroupGender'
@@ -53,7 +53,7 @@ export {
   BaseFormGroupInputNumber            as FormGroupQuantity,
   BaseFormGroupPasswordOptions        as FormGroupPasswordOptions,
  
-  BaseInputGroupDate                  as InputGroupValidFrom,
-  BaseInputGroupDate                  as InputGroupExpiration,
+  BaseInputGroupDateTime              as InputGroupValidFrom,
+  BaseInputGroupDateTime              as InputGroupExpiration,
   BaseRuleFormGroupActions            as FormGroupActions
 }

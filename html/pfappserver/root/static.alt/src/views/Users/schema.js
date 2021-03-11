@@ -91,7 +91,7 @@ export const multiple = (props, form, domainName) => {
   )
 } 
 
-export const csvImport = (props, form) => {
+export const csv = (props, form) => {
   const {
     expiration,
     valid_from
