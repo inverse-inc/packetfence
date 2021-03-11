@@ -24,9 +24,6 @@ use pf::Authentication::constants;
 use pf::factory::provisioner;
 use pf::factory::condition::profile;
 use pf::Switch::constants;
-use pfappserver::PacketFence::Controller::Graph;
-use pfappserver::Model::Node;
-use pfappserver::Model::Node::Tab::MSE;
 use pfappserver::Form::Config::Wrix;
 use pfappserver::Form::Config::ProfileCommon;
 use pf::config;
@@ -154,38 +151,6 @@ sub parse_tt {
         close(TT);
     }
 
-    my $template = $dir . '/admin/configuration.tt';
-    open(TT, $template);
-    while (defined($line = <TT>)) {
-        chomp $line;
-        if ($line =~ m/\[\% ?list_entry\(\s*'[^']*',\s*'[^']*',\s*'([^']*)'\)( \| none)? ?\%\]/g) {
-            add_string($1, $template);
-        }
-        elsif ($line =~ m/\[\% ?pf_section_entry\(\s*'[^']*',\s*'([^']*)'\)( \| none)? ?\%\]/g) {
-            add_string($1, $template);
-        }
-    }
-    close(TT);
-
-    $template = $dir . '/admin/reports.tt';
-    open(TT, $template);
-    while (defined($line = <TT>)) {
-        chomp $line;
-        if ($line =~ m/\[\% ?list_entry\(\s*'[^']*',\s*'([^']*)'\)( \| none)? ?\%\]/g) {
-            add_string($1, $template);
-        }
-    }
-    close(TT);
-
-    $template = $dir . '/config/source/index.tt';
-    open(TT, $template);
-    while (defined($line = <TT>)) {
-        chomp $line;
-        if ($line =~ m/\[\% ?source_create\(\s*'[^']*',\s*'([^']*)',\s*[^']+\)( \| none)? ?\%\]/g) {
-            add_string($1, $template);
-        }
-    }
-    close(TT);
 }
 
 =head2 parse_mc
@@ -196,7 +161,7 @@ Extract localizable strings from Models and Controllers classes.
 
 sub parse_mc {
     my $base = APP.'/lib/pfappserver/';
-    my @dir = qw(Base PacketFence/Controller Model Form);
+    my @dir = qw(Base Model Form);
     my @modules = ();
 
     my $pm = sub {
@@ -456,19 +421,6 @@ sub extract_modules {
 
     const('pf::pfcmd::report', 'SQL', ['dhcp_fingerprint']);
     const('pf::pfcmd::report', 'report_nodebandwidth', [qw/acctinput acctoutput accttotal callingstationid/]);
-
-    $attributes = pfappserver::Model::Node->availableStatus();
-    const('pfappserver::Model::Node', 'availableStatus', $attributes);
-
-    const('pfappserver::Model::Node::Tab::MSE', 'MSE Tab', \@pfappserver::Model::Node::Tab::MSE::FIELDS);
-
-    const('pfappserver::PacketFence::Controller::Graph', 'graph type', \@pfappserver::PacketFence::Controller::Graph::GRAPHS);
-
-    const('pfappserver::PacketFence::Controller::Graph', 'os fields', [qw/description count/]);
-    const('pfappserver::PacketFence::Controller::Graph', 'connectiontype fields', [qw/connection_type connections/]);
-    const('pfappserver::PacketFence::Controller::Graph', 'ssid fields', [qw/ssid nodes/]);
-    const('pfappserver::PacketFence::Controller::Graph', 'nodebandwidth fields', [qw/callingstationid/]);
-    const('pfappserver::PacketFence::Controller::Graph', 'osclassbandwidth fields', [qw/dhcp_fingerprint/]);
 
     const('pfappserver::Form::Config::Wrix', 'open hours', \@pfappserver::Form::Config::Wrix::HOURS);
 
