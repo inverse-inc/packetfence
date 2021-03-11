@@ -31,22 +31,6 @@ Vagrant.configure("2") do |config|
                      :netmask => details['mgmt_netmask'],
                      :libvirt__dhcp_enabled => false,
                      :libvirt__forward_mode => networks[0]['forward_mode']
-      # link reg_network (vlan 2)
-      srv.vm.network "private_network",
-                     :mac => "44:34:22:11:00:02",
-                     :libvirt__network_name => networks[1]['name'],
-                     :ip => "172.17.2.100",
-                     :netmask => networks[1]['netmask'],
-                     :libvirt__dhcp_enabled => false,
-                     :libvirt__forward_mode => networks[1]['forward_mode']
-      # link iso_network (vlan 3)
-      srv.vm.network "private_network",
-                     :mac => "44:34:22:11:00:03",
-                     :libvirt__network_name => networks[2]['name'],
-                     :ip => "172.17.3.100",
-                     :netmask => networks[2]['netmask'],
-                     :libvirt__dhcp_enabled => false,
-                     :libvirt__forward_mode => networks[2]['forward_mode']
                      
       # we mount test dir and local repo in VM
       # override to avoid issue with symlink without referent
