@@ -22,6 +22,12 @@ export const useInputProps = {
   type: {
     type: String,
     default: 'text'
+  },
+  min: { // <input type="range" min="..."
+    type: String
+  },
+  max: { // <input type="range" max="..."
+    type: String
   }
 }
 

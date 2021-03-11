@@ -14,6 +14,8 @@
       :type="inputType"
       :value="inputValue"
       :autocomplete="(inputType === 'password') ? (namespace || 'password') : ''"
+      :min="min"
+      :max="max"
       @input="onInput"
       @change="onChange"
       @focus="onFocus"

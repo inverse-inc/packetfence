@@ -10,6 +10,7 @@ import {
 import BaseRuleFormGroupActions from '@/views/Configuration/sources/_components/BaseRuleFormGroupActions'
 import BaseFormGroupGender from './BaseFormGroupGender'
 import BaseFormGroupPidOverwrite from './BaseFormGroupPidOverwrite'
+import BaseFormGroupPasswordOptions from './BaseFormGroupPasswordOptions'
 
 export {
   BaseFormButtonBar                   as FormButtonBar,
@@ -50,7 +51,8 @@ export {
 
   BaseFormGroupInput                  as FormGroupPrefix,
   BaseFormGroupInputNumber            as FormGroupQuantity,
-  
+  BaseFormGroupPasswordOptions        as FormGroupPasswordOptions,
+ 
   BaseInputGroupDate                  as InputGroupValidFrom,
   BaseInputGroupDate                  as InputGroupExpiration,
   BaseRuleFormGroupActions            as FormGroupActions
