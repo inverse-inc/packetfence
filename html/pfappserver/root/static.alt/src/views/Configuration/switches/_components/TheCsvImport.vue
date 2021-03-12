@@ -1,7 +1,7 @@
 <template>
   <b-card no-body>
     <b-card-header>
-      <b-button-close @click="close" v-b-tooltip.hover.left.d300 :title="$t('Close')"><icon name="times"></icon></b-button-close>
+      <b-button-close @click="onClose" v-b-tooltip.hover.left.d300 :title="$t('Close')"><icon name="times"></icon></b-button-close>
       <h4 class="mb-0" v-t="'Import Switches'"></h4>
     </b-card-header>
     <div class="card-body p-0">
@@ -11,7 +11,7 @@
           no-body
         >
           <template v-slot:title>
-            <b-button-close class="ml-2" :class="(tabIndex === index) ? 'text-white' : 'text-primary'" @click.stop.prevent="closeFile(index)" v-b-tooltip.hover.left.d300 :title="$t('Close File')">
+            <b-button-close class="ml-2" :class="(tabIndex === index) ? 'text-white' : 'text-primary'" @click.stop.prevent="onCloseFile(index)" v-b-tooltip.hover.left.d300 :title="$t('Close File')">
               <icon name="times" class="align-top ml-1"></icon>
             </b-button-close>
             {{ file.name }}
@@ -19,11 +19,8 @@
           <base-csv-import :ref="'import-' + index"
             :file="file"
             :fields="importFields"
-            :default-static-mapping="defaultStaticMapping"
-            :events-listen="tabIndex === index"
             :is-loading="isLoading"
             :import-promise="importPromise"
-            store-name="$_switches"
             hover
             striped
           />
@@ -56,37 +53,56 @@ import {
   BaseCsvImport
 } from '@/components/new/'
 import pfFormUpload from '@/components/pfFormUpload'
+
+const components = {
+  BaseCsvImport,
+  pfFormUpload
+}
+
+import { ref } from '@vue/composition-api'
 import { importFields } from '../config'
 
-export default {
-  name: 'switches-import',
-  components: {
-    BaseCsvImport,
-    pfFormUpload
-  },
-  data () {
-    return {
-      files: [],
-      tabIndex: 0,
-      defaultStaticMapping: [],
-      importFields, // ../_config/switch
-      isLoading: false
-    }
-  },
-  methods: {
-    abortFile (index) {
-      this.files[index].reader.abort()
-    },
-    closeFile (index) {
-      const file = this.files[index]
-      file.close()
-    },
-    importPromise (payload) {
-      return this.$store.dispatch('$_switches/bulkImport', payload)
-    },
-    close () {
-      this.$router.push({ name: 'switches' })
-    }
+const setup = (props, context) => {
+
+  const { root: { $router, $store } = {} } = context
+  
+  const files = ref([])
+  const tabIndex = ref(0)
+  const isLoading = ref(false)
+
+  const onClose = () => $router.push({ name: 'switches' })
+  
+  const onCloseFile = (index) => {
+    const { [index]: { file } = {} } = files.value
+    file.close()
+    files.value.splice(index, 1)    
   }
+
+  const importPromise = (payload) => {
+    isLoading.value = true
+    return $store.dispatch('$_switches/bulkImport', payload)
+      .finally(() => {
+        isLoading.value = false
+      })
+  }
+  
+  return {
+    importFields,
+
+    files,
+    tabIndex,
+    isLoading,
+    onClose,
+    onCloseFile,
+    importPromise
+  }
+}
+
+// @vue/component
+export default {
+  name: 'the-csv-import',
+  inheritAttrs: false,
+  components,
+  setup
 }
 </script>

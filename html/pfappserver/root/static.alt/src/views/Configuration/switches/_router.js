@@ -28,7 +28,8 @@ export default [
   {
     path: 'switches/import',
     name: 'importSwitch',
-    component: TheCsvImport
+    component: TheCsvImport,
+    beforeEnter
   },
   {
     path: 'switches/new/:switchGroup',
