@@ -30,12 +30,12 @@ export const useQuerySelector = (el, selector) => {
   const result = ref(null)
   useMutationObserver(
     () => {
-      const { value: { $el } = {} } = el
-      return $el || el
+      const { value, value: { $el } = {} } = el || {}
+      return $el || value || el
     },
     () => {
-      const { value: { $el } = {} } = el
-      result.value = ($el || el).querySelector(selector)
+      const { value, value: { $el } = {} } = el || {}
+      result.value = ($el || value || el).querySelector(selector)
     }
   )
   return result
@@ -45,12 +45,12 @@ export const useQuerySelectorAll = (el, selector) => {
   const result = ref(null)
   useMutationObserver(
     () => {
-      const { value: { $el } = {} } = el
-      return $el || el
+      const { value, value: { $el } = {} } = el || {}
+      return $el || value || el
     },
     () => {
-      const { value: { $el } = {} } = el
-      result.value = ($el || el).querySelectorAll(selector)
+      const { value, value: { $el } = {} } = el || {}
+      result.value = ($el || value || el).querySelectorAll(selector)
     }
   )
   return result

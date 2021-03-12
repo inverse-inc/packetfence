@@ -1,35 +1,19 @@
 import i18n from '@/utils/locale'
 import acl from '@/utils/acl'
+import yup from '@/utils/yup'
+
 import {
-  pfActions,
-  pfActionValidators
+  pfActions
 } from '@/globals/pfActions'
 import {
-  pfDatabaseSchema,
-  buildValidatorsFromColumnSchemas,
-  buildValidatorsFromTableSchemas
-} from '@/globals/pfDatabaseSchema'
+  MysqlDatabase,
+  validatorFromColumnSchemas
+} from '@/globals/mysql'
 import { pfFieldType as fieldType } from '@/globals/pfField'
 import { pfFormatters as formatter } from '@/globals/pfFormatters'
-import {
-  and,
-  not,
-  conditional,
-  compareDate,
-  userNotExists,
-  sourceExists,
-  categoryIdNumberExists, // validate category_id/bypass_role_id (Number) exists
-  categoryIdStringExists // validate category_id/bypass_role_id (String) exists
-} from '@/globals/pfValidators'
-import {
-  required,
-  minLength,
-  minValue,
-  maxLength,
-  numeric
-} from 'vuelidate/lib/validators'
-
 import { format } from 'date-fns'
+import { yup as yupRoles } from '@/views/Configuration/roles/schema'
+import { yup as yupSources } from '@/views/Configuration/sources/schema'
 
 export const userActions = [
   pfActions.set_access_duration_by_acl_user,
@@ -103,148 +87,10 @@ export const createForm = {
   }
 }
 
-export const createValidators = (form = {}) => {
-  const {
-    single: {
-      pid_overwrite
-    } = {},
-    multiple: {
-      quantity = 0
-    } = {},
-    common: {
-      actions = [],
-      //valid_from,
-      expiration
-    } = {}
-  } = form
-  const prefixMaxLength = pfDatabaseSchema.person.pid.maxLength - Math.floor(Math.log10(quantity || 1) + 1)
-  return {
-    single: buildValidatorsFromTableSchemas(
-      pfDatabaseSchema.person, // use `person` table schema
-      pfDatabaseSchema.password, // use `password` table schema
-      { sponsor: pfDatabaseSchema.person.sponsor }, // `sponsor` column exists in both `person` and `password` tables, fix: overload
-      {
-        // additional custom validations ...
-        pid: {
-          [i18n.t('Username required.')]: required,
-          [i18n.t('Username exists.')]: not(and(required, userNotExists, conditional(!pid_overwrite)))
-        },
-        password: {
-          [i18n.t('Password required.')]: required,
-          [i18n.t('Password must be at least 6 characters.')]: minLength(6)
-        },
-        email: {
-          [i18n.t('Email required.')]: required
-        }
-      }
-    ),
-    multiple: buildValidatorsFromTableSchemas(
-      pfDatabaseSchema.person, // use `person` table schema
-      pfDatabaseSchema.password, // use `password` table schema
-      { sponsor: pfDatabaseSchema.person.sponsor }, // `sponsor` column exists in both `person` and `password` tables, fix: overload
-      {
-        prefix: {
-          [i18n.t('Username prefix required.')]: required,
-          [i18n.t('Maximum {maxLength} characters.', { maxLength: prefixMaxLength })]: maxLength(prefixMaxLength)
-        },
-        quantity: {
-          [i18n.t('Quantity must be greater than 0.')]: and(required, numeric, minValue(1))
-        }
-      }
-    ),
-    common: {
-      valid_from: {
-        [i18n.t('Date must be today or later.')]: compareDate('>=', new Date(), 'YYYY-MM-DD')
-        /* TODO
-         * https://github.com/inverse-inc/packetfence/issues/5592
-        [i18n.t('Date must be less than or equal to end date.')]: not(and(required, conditional(valid_from), not(compareDate('<=', expiration, 'YYYY-MM-DD'))))
-        */
-      },
-      expiration: {
-        [i18n.t('End date required.')]: conditional(!!expiration && expiration !== '0000-00-00')
-        /* TODO
-         * https://github.com/inverse-inc/packetfence/issues/5592
-        [i18n.t('Date must be today or later.')]: compareDate('>=', new Date(), 'YYYY-MM-DD'),
-        [i18n.t('Date must be less than 2038-01-01.')]: compareDate('<=', new Date('2037-12-31 23:59:59'), 'YYYY-MM-DD'),
-        [i18n.t('Date must be greater than or equal to start date.')]: not(and(required, conditional(expiration), not(compareDate('>=', valid_from, 'YYYY-MM-DD'))))
-        */
-      },
-      actions: pfActionValidators(userActions, actions)
-    }
-  }
-}
-
-export const updateValidators = (form = {}) => {
-  const {
-    actions = [],
-    expiration,
-    valid_from
-  } = form
-  const hasPassword = !!expiration
-  return buildValidatorsFromTableSchemas(
-    pfDatabaseSchema.person, // use `person` table schema
-    // pfDatabaseSchema.password, // use `password` table schema
-    { sponsor: pfDatabaseSchema.person.sponsor }, // `sponsor` column exists in both `person` and `password` tables, fix: overload
-    {
-      valid_from: {
-        [i18n.t('Date must be less than or equal to end date.')]: not(and(required, conditional(valid_from), not(compareDate('<=', expiration, 'YYYY-MM-DD'))))
-      },
-      expiration: {
-        [i18n.t('End date required.')]: conditional(!hasPassword || (!!expiration && expiration !== '0000-00-00'))
-        /* TODO
-         * https://github.com/inverse-inc/packetfence/issues/5592
-        [i18n.t('Date must be less than 2038-01-01.')]: compareDate('<=', new Date('2037-12-31 23:59:59'), 'YYYY-MM-DD'),
-        [i18n.t('Date must be greater than or equal to start date.')]: not(and(required, conditional(expiration), not(compareDate('>=', valid_from, 'YYYY-MM-DD'))))
-        */
-      },
-      email: {
-        [i18n.t('Email address required.')]: required
-      },
-      psk: {
-        [i18n.t('Minimum 8 characters.')]: minLength(8)
-      },
-      actions: pfActionValidators(userActions, actions)
-    }
-  )
-}
-
 export const importForm = {
-  valid_from: format(new Date(), pfDatabaseSchema.password.valid_from.datetimeFormat),
+  valid_from: format(new Date(), MysqlDatabase.password.valid_from.datetimeFormat),
   expiration: null,
   actions: [{ type: 'set_access_level', value: null }]
-}
-
-export const importValidators = (form = {}) => {
-  const {
-    actions = [],
-    expiration,
-    valid_from
-  } = form
-  return {
-    valid_from: {
-      [i18n.t('Start date required.')]: conditional(!!valid_from && valid_from !== '0000-00-00')
-      /* TODO
-       * https://github.com/inverse-inc/packetfence/issues/5592
-      [i18n.t('Date must be today or later.')]: compareDate('>=', new Date(), 'YYYY-MM-DD'),
-      [i18n.t('Date must be less than or equal to end date.')]: not(and(required, conditional(valid_from), not(compareDate('<=', expiration, 'YYYY-MM-DD'))))
-      */
-    },
-    expiration: {
-      [i18n.t('End date required.')]: conditional(!!expiration && expiration !== '0000-00-00')
-      /* TODO
-       * https://github.com/inverse-inc/packetfence/issues/5592
-      [i18n.t('Date must be today or later.')]: compareDate('>=', new Date(), 'YYYY-MM-DD'),
-      [i18n.t('Date must be less than 2038-01-01.')]: compareDate('<=', new Date('2037-12-31 23:59:59'), 'YYYY-MM-DD'),
-      [i18n.t('Date must be greater than or equal to start date.')]: not(and(required, conditional(expiration), not(compareDate('>=', valid_from, 'YYYY-MM-DD'))))
-      */
-    },
-    actions: {
-      ...pfActionValidators(userActions, actions),
-      ...{
-        [i18n.t('Action required.')]: required
-      }
-    }
-  }
 }
 
 export const importFields = [
@@ -253,105 +99,109 @@ export const importFields = [
     text: i18n.t('PID'),
     types: [fieldType.SUBSTRING],
     required: true,
-    validators: buildValidatorsFromColumnSchemas(pfDatabaseSchema.person.pid, { required })
+    validator: yup.string().nullable()
+    .required(i18n.t('PID required.'))
+    .concat(validatorFromColumnSchemas(MysqlDatabase.person.pid))
   },
   {
     value: 'password',
     text: i18n.t('Password'),
     types: [fieldType.SUBSTRING],
     required: false,
-    validators: buildValidatorsFromColumnSchemas(pfDatabaseSchema.password.password)
+    validator: validatorFromColumnSchemas(MysqlDatabase.password.password)
   },
   {
     value: 'title',
     text: i18n.t('Title'),
     types: [fieldType.SUBSTRING],
     required: false,
-    validators: buildValidatorsFromColumnSchemas(pfDatabaseSchema.person.title)
+    validator: validatorFromColumnSchemas(MysqlDatabase.person.title)
   },
   {
     value: 'firstname',
     text: i18n.t('First Name'),
     types: [fieldType.SUBSTRING],
     required: false,
-    validators: buildValidatorsFromColumnSchemas(pfDatabaseSchema.person.firstname)
+    validator: validatorFromColumnSchemas(MysqlDatabase.person.firstname)
   },
   {
     value: 'lastname',
     text: i18n.t('Last Name'),
     types: [fieldType.SUBSTRING],
     required: false,
-    validators: buildValidatorsFromColumnSchemas(pfDatabaseSchema.person.lastname)
+    validator: validatorFromColumnSchemas(MysqlDatabase.person.lastname)
   },
   {
     value: 'nickname',
     text: i18n.t('Nickname'),
     types: [fieldType.SUBSTRING],
     required: false,
-    validators: buildValidatorsFromColumnSchemas(pfDatabaseSchema.person.nickname)
+    validator: validatorFromColumnSchemas(MysqlDatabase.person.nickname)
   },
   {
     value: 'email',
     text: i18n.t('Email'),
     types: [fieldType.SUBSTRING],
     required: false,
-    validators: buildValidatorsFromColumnSchemas(pfDatabaseSchema.person.email)
+    validator: yup.string().nullable()
+      .email(i18n.t('Invalid email.'))
+      .concat(validatorFromColumnSchemas(MysqlDatabase.person.email))
   },
   {
     value: 'sponsor',
     text: i18n.t('Sponsor'),
     types: [fieldType.SUBSTRING],
     required: false,
-    validators: buildValidatorsFromColumnSchemas(pfDatabaseSchema.person.sponsor)
+    validator: validatorFromColumnSchemas(MysqlDatabase.person.sponsor)
   },
   {
     value: 'anniversary',
     text: i18n.t('Anniversary'),
     types: [fieldType.DATE],
     required: false,
-    validators: buildValidatorsFromColumnSchemas(pfDatabaseSchema.person.anniversary)
+    validator: validatorFromColumnSchemas(MysqlDatabase.person.anniversary)
   },
   {
     value: 'birthday',
     text: i18n.t('Birthday'),
     types: [fieldType.DATE],
     required: false,
-    validators: buildValidatorsFromColumnSchemas(pfDatabaseSchema.person.birthday)
+    validator: validatorFromColumnSchemas(MysqlDatabase.person.birthday)
   },
   {
     value: 'address',
     text: i18n.t('Address'),
     types: [fieldType.SUBSTRING],
     required: false,
-    validators: buildValidatorsFromColumnSchemas(pfDatabaseSchema.person.address)
+    validator: validatorFromColumnSchemas(MysqlDatabase.person.address)
   },
   {
     value: 'apartment_number',
     text: i18n.t('Apartment Number'),
     types: [fieldType.SUBSTRING],
     required: false,
-    validators: buildValidatorsFromColumnSchemas(pfDatabaseSchema.person.apartment_number)
+    validator: validatorFromColumnSchemas(MysqlDatabase.person.apartment_number)
   },
   {
     value: 'building_number',
     text: i18n.t('Building Number'),
     types: [fieldType.SUBSTRING],
     required: false,
-    validators: buildValidatorsFromColumnSchemas(pfDatabaseSchema.person.building_number)
+    validator: validatorFromColumnSchemas(MysqlDatabase.person.building_number)
   },
   {
     value: 'room_number',
     text: i18n.t('Room Number'),
     types: [fieldType.SUBSTRING],
     required: false,
-    validators: buildValidatorsFromColumnSchemas(pfDatabaseSchema.person.room_number)
+    validator: validatorFromColumnSchemas(MysqlDatabase.person.room_number)
   },
   {
     value: 'company',
     text: i18n.t('Company'),
     types: [fieldType.SUBSTRING],
     required: false,
-    validators: buildValidatorsFromColumnSchemas(pfDatabaseSchema.person.company)
+    validator: validatorFromColumnSchemas(MysqlDatabase.person.company)
   },
   {
     value: 'gender',
@@ -359,35 +209,35 @@ export const importFields = [
     types: [fieldType.GENDER],
     required: false,
     formatter: formatter.genderFromString,
-    validators: buildValidatorsFromColumnSchemas(pfDatabaseSchema.person.gender)
+    validator: validatorFromColumnSchemas(MysqlDatabase.person.gender)
   },
   {
     value: 'lang',
     text: i18n.t('Language'),
     types: [fieldType.SUBSTRING],
     required: false,
-    validators: buildValidatorsFromColumnSchemas(pfDatabaseSchema.person.lang)
+    validator: validatorFromColumnSchemas(MysqlDatabase.person.lang)
   },
   {
     value: 'notes',
     text: i18n.t('Notes'),
     types: [fieldType.SUBSTRING],
     required: false,
-    validators: buildValidatorsFromColumnSchemas(pfDatabaseSchema.person.notes)
+    validator: validatorFromColumnSchemas(MysqlDatabase.person.notes)
   },
   {
     value: 'portal',
     text: i18n.t('Portal'),
     types: [fieldType.SUBSTRING],
     required: false,
-    validators: buildValidatorsFromColumnSchemas(pfDatabaseSchema.person.portal)
+    validator: validatorFromColumnSchemas(MysqlDatabase.person.portal)
   },
   {
     value: 'psk',
     text: i18n.t('PSK'),
     types: [fieldType.SUBSTRING],
     required: false,
-    validators: buildValidatorsFromColumnSchemas(pfDatabaseSchema.person.psk)
+    validator: validatorFromColumnSchemas(MysqlDatabase.person.psk)
   },
   {
     value: 'category_id',
@@ -395,101 +245,101 @@ export const importFields = [
     types: [fieldType.ROLE_BY_ACL_NODE],
     required: false,
     formatter: formatter.categoryIdFromIntOrString,
-    validators: buildValidatorsFromColumnSchemas({
-      [i18n.t('Role does not exist.')]: categoryIdNumberExists,
-      [i18n.t('Role does not exist.')]: categoryIdStringExists
-    })
+    validator: yupRoles.string().nullable()
+      .roleNameOrCategoryIdentifierExists(i18n.t('Role does not exist.'))
   },
   {
     value: 'source',
     text: i18n.t('Source'),
     types: [fieldType.SOURCE],
     required: false,
-    validators: buildValidatorsFromColumnSchemas(pfDatabaseSchema.person.source, { [i18n.t('Invalid source.')]: sourceExists })
+    validator: yupSources.string().nullable()
+      .sourceIdExists(i18n.t('Source does not exist.'))
+      .concat(validatorFromColumnSchemas(MysqlDatabase.person.source))
   },
   {
     value: 'telephone',
     text: i18n.t('Telephone'),
     types: [fieldType.SUBSTRING],
     required: false,
-    validators: buildValidatorsFromColumnSchemas(pfDatabaseSchema.person.telephone)
+    validator: validatorFromColumnSchemas(MysqlDatabase.person.telephone)
   },
   {
     value: 'cell_phone',
     text: i18n.t('Cellular Phone'),
     types: [fieldType.SUBSTRING],
     required: false,
-    validators: buildValidatorsFromColumnSchemas(pfDatabaseSchema.person.cell_phone)
+    validator: validatorFromColumnSchemas(MysqlDatabase.person.cell_phone)
   },
   {
     value: 'work_phone',
     text: i18n.t('Work Phone'),
     types: [fieldType.SUBSTRING],
     required: false,
-    validators: buildValidatorsFromColumnSchemas(pfDatabaseSchema.person.work_phone)
+    validator: validatorFromColumnSchemas(MysqlDatabase.person.work_phone)
   },
   {
     value: 'custom_field_1',
     text: i18n.t('Custom Field 1'),
     types: [fieldType.SUBSTRING],
     required: false,
-    validators: buildValidatorsFromColumnSchemas(pfDatabaseSchema.person.custom_field_1)
+    validator: validatorFromColumnSchemas(MysqlDatabase.person.custom_field_1)
   },
   {
     value: 'custom_field_2',
     text: i18n.t('Custom Field 2'),
     types: [fieldType.SUBSTRING],
     required: false,
-    validators: buildValidatorsFromColumnSchemas(pfDatabaseSchema.person.custom_field_2)
+    validator: validatorFromColumnSchemas(MysqlDatabase.person.custom_field_2)
   },
   {
     value: 'custom_field_3',
     text: i18n.t('Custom Field 3'),
     types: [fieldType.SUBSTRING],
     required: false,
-    validators: buildValidatorsFromColumnSchemas(pfDatabaseSchema.person.custom_field_3)
+    validator: validatorFromColumnSchemas(MysqlDatabase.person.custom_field_3)
   },
   {
     value: 'custom_field_4',
     text: i18n.t('Custom Field 4'),
     types: [fieldType.SUBSTRING],
     required: false,
-    validators: buildValidatorsFromColumnSchemas(pfDatabaseSchema.person.custom_field_4)
+    validator: validatorFromColumnSchemas(MysqlDatabase.person.custom_field_4)
   },
   {
     value: 'custom_field_5',
     text: i18n.t('Custom Field 5'),
     types: [fieldType.SUBSTRING],
     required: false,
-    validators: buildValidatorsFromColumnSchemas(pfDatabaseSchema.person.custom_field_5)
+    validator: validatorFromColumnSchemas(MysqlDatabase.person.custom_field_5)
   },
   {
     value: 'custom_field_6',
     text: i18n.t('Custom Field 6'),
     types: [fieldType.SUBSTRING],
     required: false,
-    validators: buildValidatorsFromColumnSchemas(pfDatabaseSchema.person.custom_field_6)
+    validator: validatorFromColumnSchemas(MysqlDatabase.person.custom_field_6)
   },
   {
     value: 'custom_field_7',
     text: i18n.t('Custom Field 7'),
     types: [fieldType.SUBSTRING],
     required: false,
-    validators: buildValidatorsFromColumnSchemas(pfDatabaseSchema.person.custom_field_7)
+    validator: validatorFromColumnSchemas(MysqlDatabase.person.custom_field_7)
   },
   {
     value: 'custom_field_8',
     text: i18n.t('Custom Field 8'),
     types: [fieldType.SUBSTRING],
     required: false,
-    validators: buildValidatorsFromColumnSchemas(pfDatabaseSchema.person.custom_field_8)
+    validator: validatorFromColumnSchemas(MysqlDatabase.person.custom_field_8)
   },
   {
     value: 'custom_field_9',
     text: i18n.t('Custom Field 9'),
     types: [fieldType.SUBSTRING],
     required: false,
-    validators: buildValidatorsFromColumnSchemas(pfDatabaseSchema.person.custom_field_9)
+    validator: validatorFromColumnSchemas(MysqlDatabase.person.custom_field_9)
   }
 ]
 

@@ -1,10 +1,10 @@
 import filters from '@/utils/filters'
 import i18n from '@/utils/locale'
 import {
-  pfDatabaseSchema,
+  MysqlDatabase,
   buildValidatorsFromTableSchemas,
   buildValidatorsFromColumnSchemas
-} from '@/globals/pfDatabaseSchema'
+} from '@/globals/mysql'
 import { pfFieldType as fieldType } from '@/globals/pfField'
 import { pfFormatters as formatter } from '@/globals/pfFormatters'
 import {
@@ -29,7 +29,7 @@ export const form = {
 }
 
 export const createValidators = buildValidatorsFromTableSchemas(
-  pfDatabaseSchema.node, // use `node` table schema
+  MysqlDatabase.node, // use `node` table schema
   {
     mac: {
       [i18n.t('MAC address required.')]: required,
@@ -43,7 +43,7 @@ export const createValidators = buildValidatorsFromTableSchemas(
 )
 
 export const updateValidators = buildValidatorsFromTableSchemas(
-  pfDatabaseSchema.node, // use `node` table schema
+  MysqlDatabase.node, // use `node` table schema
   {
     pid: {
       [i18n.t('Username required.')]: required,
@@ -58,14 +58,14 @@ export const importFields = [
     text: i18n.t('MAC Address'),
     types: [fieldType.SUBSTRING],
     required: true,
-    validators: buildValidatorsFromColumnSchemas(pfDatabaseSchema.node.mac, { required })
+    validators: buildValidatorsFromColumnSchemas(MysqlDatabase.node.mac, { required })
   },
   {
     value: 'status',
     text: i18n.t('Status'),
     types: [fieldType.NODE_STATUS],
     required: false,
-    validators: buildValidatorsFromColumnSchemas(pfDatabaseSchema.node.status)
+    validators: buildValidatorsFromColumnSchemas(MysqlDatabase.node.status)
   },
   {
     value: 'autoreg',
@@ -73,14 +73,14 @@ export const importFields = [
     types: [fieldType.YESNO],
     required: false,
     formatter: formatter.yesNoFromString,
-    validators: buildValidatorsFromColumnSchemas(pfDatabaseSchema.node.autoreg)
+    validators: buildValidatorsFromColumnSchemas(MysqlDatabase.node.autoreg)
   },
   {
     value: 'bandwidth_balance',
     text: i18n.t('Bandwidth Balance'),
     types: [fieldType.PREFIXMULTIPLIER],
     required: false,
-    validators: buildValidatorsFromColumnSchemas(pfDatabaseSchema.node.bandwidth_balance)
+    validators: buildValidatorsFromColumnSchemas(MysqlDatabase.node.bandwidth_balance)
   },
   {
     value: 'bypass_role_id',
@@ -98,42 +98,42 @@ export const importFields = [
     text: i18n.t('Bypass VLAN'),
     types: [fieldType.SUBSTRING],
     required: false,
-    validators: buildValidatorsFromColumnSchemas(pfDatabaseSchema.node.bypass_vlan)
+    validators: buildValidatorsFromColumnSchemas(MysqlDatabase.node.bypass_vlan)
   },
   {
     value: 'computername',
     text: i18n.t('Computer Name'),
     types: [fieldType.SUBSTRING],
     required: false,
-    validators: buildValidatorsFromColumnSchemas(pfDatabaseSchema.node.computername)
+    validators: buildValidatorsFromColumnSchemas(MysqlDatabase.node.computername)
   },
   {
     value: 'regdate',
     text: i18n.t('Datetime Registered'),
     types: [fieldType.DATETIME],
     required: false,
-    validators: buildValidatorsFromColumnSchemas(pfDatabaseSchema.node.regdate)
+    validators: buildValidatorsFromColumnSchemas(MysqlDatabase.node.regdate)
   },
   {
     value: 'unregdate',
     text: i18n.t('Datetime Unregistered'),
     types: [fieldType.DATETIME],
     required: false,
-    validators: buildValidatorsFromColumnSchemas(pfDatabaseSchema.node.unregdate)
+    validators: buildValidatorsFromColumnSchemas(MysqlDatabase.node.unregdate)
   },
   {
     value: 'notes',
     text: i18n.t('Notes'),
     types: [fieldType.SUBSTRING],
     required: false,
-    validators: buildValidatorsFromColumnSchemas(pfDatabaseSchema.node.notes)
+    validators: buildValidatorsFromColumnSchemas(MysqlDatabase.node.notes)
   },
   {
     value: 'pid',
     text: i18n.t('Owner'),
     types: [fieldType.SUBSTRING],
     required: false,
-    validators: buildValidatorsFromColumnSchemas(pfDatabaseSchema.node.pid, {
+    validators: buildValidatorsFromColumnSchemas(MysqlDatabase.node.pid, {
       [i18n.t('Owner does not exist.')]: userNotExists
     })
   },
@@ -154,7 +154,7 @@ export const importFields = [
     types: [fieldType.YESNO],
     required: false,
     formatter: formatter.yesNoFromString,
-    validators: buildValidatorsFromColumnSchemas(pfDatabaseSchema.node.voip)
+    validators: buildValidatorsFromColumnSchemas(MysqlDatabase.node.voip)
   }
 ]
 

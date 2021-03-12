@@ -3,6 +3,21 @@ import { pfActionsSchema as schemaActions } from '@/globals/pfActions'
 import i18n from '@/utils/locale'
 import yup from '@/utils/yup'
 
+yup.addMethod(yup.string, 'sourceIdExists', function (message) {
+  return this.test({
+    name: 'sourceIdExists',
+    message: message || i18n.t('Identifier does not exist.'),
+    test: (value) => {
+      if (!value) return true
+      return store.dispatch('config/getSources').then(response => {
+        return response.filter(source => source.id.toLowerCase() === value.toLowerCase()).length > 0
+      }).catch(() => {
+        return true
+      })
+    }
+  })
+})
+
 yup.addMethod(yup.string, 'sourceIdNotExistsExcept', function (exceptId = '', message) {
   return this.test({
     name: 'sourceIdNotExistsExcept',
@@ -123,3 +138,5 @@ export const schema = (props) => {
 }
 
 export default schema
+
+export { yup }

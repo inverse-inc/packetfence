@@ -5,7 +5,7 @@ import UsersStoreModule from '../_store'
 import UsersView from '../'
 const UsersSearch = () => import(/* webpackChunkName: "Users" */ '../_components/UsersSearch')
 const UsersPreview = () => import(/* webpackChunkName: "Users" */ '../_components/UsersPreview')
-const UsersImport = () => import(/* webpackChunkName: "Editor" */ '../_components/UsersImport')
+const TheCsvImport = () => import(/* webpackChunkName: "Editor" */ '../_components/TheCsvImport')
 const TheViewCreate = () => import(/* webpackChunkName: "Users" */ '../_components/TheViewCreate')
 const TheViewUpdate = () => import(/* webpackChunkName: "Users" */ '../_components/TheViewUpdate')
 
@@ -49,7 +49,7 @@ const route = {
     {
       path: 'import',
       name: 'userImport',
-      component: UsersImport,
+      component: TheCsvImport,
       meta: {
         can: 'create users'
       }

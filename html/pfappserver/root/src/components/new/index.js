@@ -7,6 +7,7 @@ import BaseButtonSave from './BaseButtonSave'
 import BaseButtonService from './BaseButtonService'
 import BaseButtonUpload from './BaseButtonUpload'
 import BaseContainerLoading from './BaseContainerLoading'
+import BaseCsvImport from './BaseCsvImport'
 import BaseForm from './BaseForm'
 import BaseFormButtonBar from './BaseFormButtonBar'
 import BaseFormGroup from './BaseFormGroup'
@@ -62,7 +63,8 @@ import BaseView from './BaseView'
 import { mergeProps, renderHOCWithScopedSlots } from './utils'
 
 export {
-  // view
+  // views
+  BaseCsvImport,
   BaseView,
 
   // form

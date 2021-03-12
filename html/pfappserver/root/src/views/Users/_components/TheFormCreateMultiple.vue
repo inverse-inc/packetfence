@@ -21,24 +21,11 @@
         :column-label="$t('Quantity')"
       />
 
-      <base-form-group class="mb-3"
+      <form-group-password-options v-model="passwordOptions"
+        min="6" max="64"
         :column-label="$i18n.t('Password')"
         :text="$i18n.t('Random passwords will be created.')"
-      >
-        <b-row class="w-100 small mb-1" align-v="center">
-          <b-col><b-form-input class="pt-1" v-model="passwordOptions.pwlength" type="range" min="6" max="64"></b-form-input></b-col>
-          <b-col class="pl-0">{{ $t('{count} characters', { count: passwordOptions.pwlength }) }}</b-col>
-        </b-row>
-        <b-row class="small" align-v="center">
-          <b-col><b-form-checkbox v-model="passwordOptions.upper">ABC</b-form-checkbox></b-col>
-          <b-col><b-form-checkbox v-model="passwordOptions.lower">abc</b-form-checkbox></b-col>
-          <b-col><b-form-checkbox v-model="passwordOptions.digits">123</b-form-checkbox></b-col>
-          <b-col><b-form-checkbox v-model="passwordOptions.special">!@#</b-form-checkbox></b-col>
-          <b-col><b-form-checkbox v-model="passwordOptions.brackets">({&lt;</b-form-checkbox></b-col>
-          <b-col><b-form-checkbox v-model="passwordOptions.high">äæ±</b-form-checkbox></b-col>
-          <b-col><b-form-checkbox v-model="passwordOptions.ambiguous">0Oo</b-form-checkbox></b-col>
-        </b-row>
-      </base-form-group>     
+      />
 
       <form-group-login-remaining namespace="login_remaining"
         :column-label="$t('Login remaining')"
@@ -108,6 +95,7 @@ import {
   FormGroupLastname,
   FormGroupCompany,
   FormGroupNotes,
+  FormGroupPasswordOptions,
   
   InputGroupValidFrom,
   InputGroupExpiration,
@@ -128,6 +116,7 @@ const components = {
   FormGroupLastname,
   FormGroupCompany,
   FormGroupNotes,
+  FormGroupPasswordOptions,
 
   InputGroupValidFrom,
   InputGroupExpiration,
@@ -170,7 +159,7 @@ const setup = (props, context) => {
   
   const domainName = computed(() => {
     const { domain_name = null } = $store.getters['session/tenantMask'] || {}
-    return domain_name || 'satkunas'
+    return domain_name
   })
 
   const onClose = () => {

@@ -363,17 +363,18 @@ yup.addMethod(yup.string, 'isVLAN', function (message) {
   })
 })
 
-export class MysqlColumn {}
-export class MysqlString extends MysqlColumn {}
-export class MysqlNumber extends MysqlColumn {}
-export class MysqlDatetime extends MysqlColumn {}
-export class MysqlEnum extends MysqlColumn {}
-export class MysqlEmail extends MysqlColumn {}
-export class MysqlMac extends MysqlColumn {}
+import {
+  MysqlString,
+  MysqlNumber,
+  MysqlDatetime,
+  MysqlEnum,
+  MysqlEmail,
+  MysqlMac
+} from '@/globals/mysql'
 
 yup.addMethod(yup.string, 'mysql', function(columnSchema) {
   return this.test({
-    name: 'database',
+    name: 'mysql',
     message: i18n.t('Unknown error.'),
     test: function (value) {
       if (['', null, undefined].includes(value))
