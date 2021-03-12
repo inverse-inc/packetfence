@@ -57,3 +57,6 @@ already exists
 
 Name of CA, templates and certificates should be uniq. Not possible to revoke
 or remove CA or template.
+
+Currently, we replace built-in certificates by PKI certificates. The teardown
+doesn't put back built-in certificates.
