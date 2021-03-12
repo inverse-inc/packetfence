@@ -104,6 +104,16 @@ yup.addMethod(yup.string, 'in', function (ref, message) {
   })
 })
 
+yup.addMethod(yup.string, 'not', function (cmp, message) {
+  return this.test({
+    name: 'not',
+    message: message || i18n.t('Invalid value'),
+    test: value => {
+      return Promise.resolve((cmp.constructor === Function) ? cmp(value) : cmp)
+    }
+  })
+})
+
 yup.addMethod(yup.string, 'maxAsInt', function (ref, message) {
   return this.test({
     name: 'maxAsInt',

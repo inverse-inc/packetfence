@@ -3,7 +3,7 @@ import yup from '@/utils/yup'
 
 export const schema = () => {
   return yup.object({
-    emailaddr: yup.string().label(i18n.t('Email'))
+    emailaddr: yup.string().nullable().label(i18n.t('Email'))
       .isEmailCsv(),
     fromaddr: yup.string().nullable().email(),
     smtpserver: yup.string().nullable().label(i18n.t('Server')),

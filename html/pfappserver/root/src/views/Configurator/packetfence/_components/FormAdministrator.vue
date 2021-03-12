@@ -1,7 +1,7 @@
 <template>
   <b-card no-body>
     <b-card-header>
-      <h4 class="d-inline mb-0" v-html="$t('Administrator')"/>
+      <h4 class="d-inline mb-0" v-t="'Administrator'"/>
     </b-card-header>
     <b-form>
       <base-form
@@ -17,6 +17,7 @@
 
         <form-group-password namespace="password"
           :column-label="$i18n.t('Password')"
+          :readonly="disabled"
         />
 
         <base-form-group v-if="isPassword"
@@ -44,7 +45,13 @@ const components = {
   FormGroupPassword: BaseFormGroupInputPasswordGenerator
 }
 
-import { computed, ref } from '@vue/composition-api'
+const props = {
+  disabled: {
+    type: Boolean
+  }
+}
+
+import { computed, inject, ref } from '@vue/composition-api'
 import i18n from '@/utils/locale'
 import yup from '@/utils/yup'
 
@@ -57,7 +64,11 @@ export const setup = (props, context) => {
 
   const { root: { $store } = {} } = context
 
-  const form = ref({})
+  const state = inject('state') // Configurator
+  const form = ref({
+    pid: 'admin'
+  })
+
   const schema = computed(() => schemaFn(props))
 
   const userExists = ref(false)
@@ -86,14 +97,15 @@ export const setup = (props, context) => {
 
   const onSave = () => {
     let savePromise = new Promise((resolve, reject) => {
+      const { pid, password } = form.value
       form.value.valid_from = "1970-01-01 00:00:00"
       if (userExists.value) {
-        $store.dispatch('$_users/updatePassword', Object.assign({ quiet: true }, form.value)).then(resolve, reject)
+        $store.dispatch('$_users/updatePassword', Object.assign({ quiet: true }, { pid, password })).then(resolve, reject)
       } else {
         $store.dispatch('$_users/getUser', { pid: 'admin', quiet: true }).then(() => {
           // User exists
           userExists.value = true
-          $store.dispatch('$_users/updatePassword', Object.assign({ quiet: true }, form.value)).then(resolve, reject)
+          $store.dispatch('$_users/updatePassword', Object.assign({ quiet: true }, { pid, password })).then(resolve, reject)
         }).catch(() => {
           // User doesn't exist
           $store.dispatch('$_users/createUser', form.value).then(() => {
@@ -102,16 +114,18 @@ export const setup = (props, context) => {
         })
       }
     })
-    return savePromise.catch(error => {
-      // Only show a notification in case of a failure
-      const { response: { data: { message = '' } = {} } = {} } = error
-      $store.dispatch('notification/danger', {
-        icon: 'exclamation-triangle',
-        url: message,
-        message: i18n.t('An error occured while setting the administrator password.')
+    return savePromise
+      .then(() => state.value.administrator = form.value)
+      .catch(error => {
+        // Only show a notification in case of a failure
+        const { response: { data: { message = '' } = {} } = {} } = error
+        $store.dispatch('notification/danger', {
+          icon: 'exclamation-triangle',
+          url: message,
+          message: i18n.t('An error occured while setting the administrator password.')
+        })
+        throw error
       })
-      throw error
-    })
   }
 
   return {
@@ -130,6 +144,7 @@ export default {
   name: 'form-administrator',
   inheritAttrs: false,
   components,
+  props,
   setup
 }
 </script>
