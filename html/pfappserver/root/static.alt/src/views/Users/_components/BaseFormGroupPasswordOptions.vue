@@ -105,7 +105,6 @@ import { useInput, useInputProps } from '@/composables/useInput'
 import { useInputMeta, useInputMetaProps } from '@/composables/useMeta'
 import { useInputValidator, useInputValidatorProps } from '@/composables/useInputValidator'
 import { useInputValue, useInputValueProps } from '@/composables/useInputValue'
-import i18n from '@/utils/locale'
 
 export const props = {
   ...useFormGroupProps,
