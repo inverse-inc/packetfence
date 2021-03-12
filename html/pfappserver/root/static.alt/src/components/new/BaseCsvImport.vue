@@ -189,7 +189,7 @@
       </b-card-footer>
     </b-card>
 
-    <b-modal ref="modalParserOptions" :id="`parserOptions-${uuid}`" size="lg" centered :title="$t('Parsing Options')">
+    <b-modal ref="modalParserOptions" size="lg" centered :title="$t('Parsing Options')">
       <base-form-group-chosen-one v-model="parseConfig.encoding" 
         :column-label="$t('Encoding')" 
         :disabled="isDisabled"
@@ -228,7 +228,7 @@
       </template>
     </b-modal>
 
-    <b-modal ref="modalImportOptions" :id="`importOptions-${uuid}`" size="lg" centered :title="$t('Import Options')">
+    <b-modal ref="modalImportOptions" size="lg" centered :title="$t('Import Options')">
       <base-form-group-toggle-false-true v-model="importConfig.ignoreInsertIfNotExists" 
         :column-label="$t('Insert new')" 
         :disabled="isDisabled"
@@ -250,7 +250,7 @@
       </template>
     </b-modal>
 
-    <b-modal ref="modalImportProgress" :id="`importProgress-${uuid}`" size="lg" :title="(importProgress.dryRun) ? $t('Dry Run Progress') : $t('Import Progress')"
+    <b-modal ref="modalImportProgress" size="lg" :title="(importProgress.dryRun) ? $t('Dry Run Progress') : $t('Import Progress')"
       centered scrollable
       :hide-header-close="isImporting"
       :no-close-on-backdrop="isImporting"
@@ -446,12 +446,7 @@ const setup = (props, context) => {
     chunkSize: 100,
     stopOnFirstError: true,
     ignoreUpdateIfExists: false,
-    ignoreInsertIfNotExists: false
-  })
-  
-  const uuid = computed(() => {
-    const { name, lastModified } = file.value
-    return `${name}-${lastModified}`    
+    ignoreInsertIfNotExists: true
   })
   
   const modalImportOptions = ref()
@@ -915,7 +910,6 @@ const setup = (props, context) => {
     rootRef,
     parseConfig,
     importConfig,
-    uuid,
     modalImportOptions,
     modalImportProgress,
     modalParserOptions,
