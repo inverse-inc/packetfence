@@ -129,12 +129,12 @@ eap_peap.roles.ad_machine.vlan_id: 100
 ################################################################################
 # Roles
 dot1x_eap_peap.roles.ad_user.id: '{{.eap_peap.roles.ad_user.id}}'
-dot1x_eap_peap.roles.ad_user.notes: '{{eap_peap.roles.ad_user.notes}}'
-dot1x_eap_peap.roles.ad_user.vlan_id: '{{eap_peap.roles.ad_user.vlan_id}}'
+dot1x_eap_peap.roles.ad_user.notes: '{{.eap_peap.roles.ad_user.notes}}'
+dot1x_eap_peap.roles.ad_user.vlan_id: '{{.eap_peap.roles.ad_user.vlan_id}}'
 
-dot1x_eap_peap.roles.ad_machine.id: '{{eap_peap.roles.ad_machine.id}}'
-dot1x_eap_peap.roles.ad_machine.notes: '{{eap_peap.roles.ad_machine.notes}}'
-dot1x_eap_peap.roles.ad_machine.vlan_id: '{{eap_peap.roles.ad_machine.vlan_id}}'
+dot1x_eap_peap.roles.ad_machine.id: '{{.eap_peap.roles.ad_machine.id}}'
+dot1x_eap_peap.roles.ad_machine.notes: '{{.eap_peap.roles.ad_machine.notes}}'
+dot1x_eap_peap.roles.ad_machine.vlan_id: '{{.eap_peap.roles.ad_machine.vlan_id}}'
 
 # Sources
 dot1x_eap_peap.sources.ad_user.name: dot1x_eap_peap_user_auth
