@@ -114,7 +114,6 @@ sub db_execute {
         unless ($sth && $sth->execute(@bind)) {
             my $err = $dbh->err;
             my $errstr = $dbh->errstr;
-	    print STDERR "$errstr\n";
             pf::db::db_handle_error($err);
             $status = mysql_error_to_status_code($err);
             if ($err < 2000) {
