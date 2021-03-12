@@ -33,3 +33,7 @@ Register a node with RADIUS in order to test MAC Authentication on Wireless
 1. Disable `node_cleanup` task
 1. Restart `pfcron` to take change into account
 1. Delete connection profile
+
+## Additional notes
+
+* When `hostapd` is stopped on wireless01, `wlan0.XXX` interfaces are removed.

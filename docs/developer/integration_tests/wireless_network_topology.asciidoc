@@ -1,0 +1,39 @@
+////
+
+    This file is part of the PacketFence project.
+
+    See PacketFence_Developers_Guide.asciidoc
+    for authors, copyright and license information.
+
+////
+
+==== Wireless network topology
+
+.Wireless network topology
+image::integration_tests/wireless_topology.png[scaledwidth="100%",alt="Wireless topology"]
+
+===== Inventory Information
+
+.IPAM table
+|===
+| Virtual machine |Interfaces |MAC address
+
+|wireless01
+|wlan0 (`hostapd` managed interface)
+|02:00:00:00:00:00
+
+|wireless01
+|wlan0.XXX (with XXX VLAN returned by PacketFence in RADIUS reply)
+|02:00:00:00:00:00
+
+|wireless01
+|wlan1 (`wpa_supplicant` interface)
+|02:00:00:00:01:00
+
+|===
+
+On wireless01:
+
+* `wlan0` is the interface which represents an access point (NAS for PacketFence)
+* `wlan1` is the interface which represents a supplicant (node for PacketFence)
+

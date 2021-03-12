@@ -42,3 +42,12 @@ AD server running
 1. Delete connection profile
 1. Delete sources
 1. Restart RADIUS services (common test suite)
+
+## Additional notes
+
+* When `wpa_supplicant` is started on wireless01, PacketFence received a
+  RADIUS MAC auth request from wireless01 before receiving 802.1X request.
+  
+* When `hostapd` is stopped on wireless01, `wlan0.XXX` interfaces are removed.
+
+* `hostapd` send accounting messages to PacketFence server.
