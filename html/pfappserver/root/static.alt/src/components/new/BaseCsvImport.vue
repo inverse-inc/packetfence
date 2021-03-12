@@ -14,7 +14,7 @@
             </b-media>
           </b-col>
           <b-col cols="auto" class="ml-auto">
-            <b-button variant="outline-primary" :disabled="isDisabled" v-b-modal="`parserOptions-${uuid}`">Parsing Options</b-button>
+            <b-button variant="outline-primary" :disabled="isDisabled" @click="modalParserOptions.show()">Parsing Options</b-button>
           </b-col>
         </b-row>
       </b-card-header>
@@ -181,7 +181,7 @@
           <icon v-else name="long-arrow-alt-down" class="mr-1"></icon>
           {{ $t('Dry Run') }}
         </b-button>
-        <b-button variant="link" class="mr-1" :disabled="isDisabled" v-b-modal="`importOptions-${uuid}`">Import Options</b-button>
+        <b-button variant="link" class="mr-1" :disabled="isDisabled" @click="modalImportOptions.show()">Import Options</b-button>
         <span v-if="!isMappingValid" class="ml-2">
           <icon name="exclamation-circle" class="text-danger mr-1"/>
           <span class="invalid-feedback d-inline" v-t="'Fix all errors before importing.'"></span>
@@ -189,7 +189,7 @@
       </b-card-footer>
     </b-card>
 
-    <b-modal :id="`parserOptions-${uuid}`" size="lg" centered :title="$t('Parsing Options')">
+    <b-modal ref="modalParserOptions" :id="`parserOptions-${uuid}`" size="lg" centered :title="$t('Parsing Options')">
       <base-form-group-chosen-one v-model="parseConfig.encoding" 
         :column-label="$t('Encoding')" 
         :disabled="isDisabled"
@@ -224,11 +224,11 @@
         :text="$t('The character used to escape the quote character within a field. If not set, this option will default to the value of quoteChar, meaning that the default escaping of quote character within a quoted field is using the quote character two times.')"
       />
       <template v-slot:modal-footer>
-        <b-button variant="primary" @click="$bvModal.hide(`parserOptions-${uuid}`)">{{ $t('Continue') }}</b-button>
+        <b-button variant="primary" @click="modalParserOptions.hide()">{{ $t('Continue') }}</b-button>
       </template>
     </b-modal>
 
-    <b-modal :id="`importOptions-${uuid}`" size="lg" centered :title="$t('Import Options')">
+    <b-modal ref="modalImportOptions" :id="`importOptions-${uuid}`" size="lg" centered :title="$t('Import Options')">
       <base-form-group-toggle-false-true v-model="importConfig.ignoreInsertIfNotExists" 
         :column-label="$t('Insert new')" 
         :disabled="isDisabled"
@@ -246,11 +246,11 @@
         :text="$t('The number of items imported with each API request. Higher numbers are faster but consume more memory with large files.')"
       />
       <template v-slot:modal-footer>
-        <b-button variant="primary" @click="$bvModal.hide(`importOptions-${uuid}`)">{{ $t('Continue') }}</b-button>
+        <b-button variant="primary" @click="modalImportOptions.hide()">{{ $t('Continue') }}</b-button>
       </template>
     </b-modal>
 
-    <b-modal :id="`importProgress-${uuid}`" size="lg" :title="(importProgress.dryRun) ? $t('Dry Run Progress') : $t('Import Progress')"
+    <b-modal ref="modalImportProgress" :id="`importProgress-${uuid}`" size="lg" :title="(importProgress.dryRun) ? $t('Dry Run Progress') : $t('Import Progress')"
       centered scrollable
       :hide-header-close="isImporting"
       :no-close-on-backdrop="isImporting"
@@ -341,7 +341,7 @@
             <icon name="download" class="mr-1"></icon>
             {{ $t('Import') }}
           </b-button>
-          <b-button variant="primary" @click="$bvModal.hide(`importProgress-${uuid}`)" class="ml-1">{{ $t('Close') }}</b-button>
+          <b-button variant="primary" @click="modalImportProgress.hide()" class="ml-1">{{ $t('Close') }}</b-button>
         </template>
       </template>
     </b-modal>
@@ -453,6 +453,10 @@ const setup = (props, context) => {
     const { name, lastModified } = file.value
     return `${name}-${lastModified}`    
   })
+  
+  const modalImportOptions = ref()
+  const modalImportProgress = ref()
+  const modalParserOptions = ref()
   
   // associate props.field to avoid iterative lookups
   const _fieldsAssociated = computed(() => {
@@ -813,8 +817,7 @@ const setup = (props, context) => {
               reject() // stop processing
             })
             .catch((err) => reject(err)) // stop processing
-// TODO            
-// this.$bvModal.show(`importProgress-${this.uuid}`) // re-open modal in case parent squashed it
+          modalImportProgress.value.show() // re-open modal in case parent squashed it
         })
       })
     }
@@ -837,8 +840,7 @@ const setup = (props, context) => {
         exit: false,
         dryRun
       }
-// TODO      
-// this.$bvModal.show(`importProgress-${this.uuid}`)
+      modalImportProgress.value.show()
       do {
         await _importLines(importProgress.value.lastLine, length)
           .catch(() => {
@@ -914,6 +916,9 @@ const setup = (props, context) => {
     parseConfig,
     importConfig,
     uuid,
+    modalImportOptions,
+    modalImportProgress,
+    modalParserOptions,
     
     page,
     perPage,
