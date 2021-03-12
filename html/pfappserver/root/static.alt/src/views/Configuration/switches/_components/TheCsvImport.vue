@@ -16,7 +16,7 @@
             </b-button-close>
             {{ file.name }}
           </template>
-          <pf-csv-import :ref="'import-' + index"
+          <base-csv-import :ref="'import-' + index"
             :file="file"
             :fields="importFields"
             :default-static-mapping="defaultStaticMapping"
@@ -26,7 +26,7 @@
             store-name="$_switches"
             hover
             striped
-          ></pf-csv-import>
+          />
         </b-tab>
         <template v-slot:tabs-end>
           <pf-form-upload @files="files = $event" @focus="tabIndex = $event" :multiple="true" :cumulative="true" accept="text/*, .csv">{{ $t('Open CSV File') }}</pf-form-upload>
@@ -52,14 +52,16 @@
 </template>
 
 <script>
-import pfCSVImport from '@/components/pfCSVImport'
+import {
+  BaseCsvImport
+} from '@/components/new/'
 import pfFormUpload from '@/components/pfFormUpload'
-import { importFields } from '../_config/switch'
+import { importFields } from '../config'
 
 export default {
   name: 'switches-import',
   components: {
-    'pf-csv-import': pfCSVImport,
+    BaseCsvImport,
     pfFormUpload
   },
   data () {

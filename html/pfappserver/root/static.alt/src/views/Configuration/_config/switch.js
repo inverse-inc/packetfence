@@ -1,5 +1,4 @@
 import i18n from '@/utils/locale'
-import { pfFieldType as fieldType } from '@/globals/pfField'
 import { pfSearchConditionType as conditionType } from '@/globals/pfSearch'
 
 export const columns = [
@@ -113,51 +112,3 @@ export const config = () => {
     }
   }
 }
-
-export const importFields = [
-  {
-    value: 'id',
-    text: i18n.t('Identifier'),
-    types: [fieldType.SUBSTRING],
-    required: true
-  },
-  {
-    value: 'description',
-    text: i18n.t('Description'),
-    types: [fieldType.SUBSTRING],
-    required: true
-  },
-  {
-    value: 'type',
-    text: i18n.t('Type'),
-    types: [fieldType.SUBSTRING],
-    required: false,
-    /*
-    validators: {
-      [i18n.t('Switch type does not exist.')]: switchTypeExists
-    }
-    */
-  },
-  {
-    value: 'mode',
-    text: i18n.t('Mode'),
-    types: [fieldType.SUBSTRING],
-    required: false,
-    /*
-    validators: {
-      [i18n.t('Switch mode does not exist.')]: switchModeExists
-    }
-    */
-  },
-  {
-    value: 'group',
-    text: i18n.t('Switch Group'),
-    types: [fieldType.SUBSTRING],
-    required: false,
-    /*
-    validators: {
-      [i18n.t('Switch group does not exist.')]: switchGroupExists
-    }
-    */
-  }
-]
