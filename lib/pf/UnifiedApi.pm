@@ -405,7 +405,10 @@ sub setup_api_v1_locationlogs_routes {
     $collection_route->register_sub_action({ action => 'search', method => 'POST' });
     $collection_route->register_sub_action({ action => 'ssids', method => 'GET' });
 
-    return ($collection_route, undef);
+    my $resource_route = $root->under("/locationlog/#locationlog_id")->to(controller => $controller, action => "resource")->name("${name}.resource");
+    $resource_route->register_sub_action({path => '', action => 'get', method => 'GET'});
+
+    return ($collection_route, $resource_route);
 }
 
 =head2 setup_api_v1_dhcp_option82s_routes

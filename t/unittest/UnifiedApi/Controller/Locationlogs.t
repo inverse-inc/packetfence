@@ -55,7 +55,7 @@ my %values = (
 my $status = pf::dal::locationlog->create(\%values);
 
 #run tests
-use Test::More tests => 74;
+use Test::More tests => 91;
 use Test::Mojo;
 use Test::NoWarnings;
 my $t = Test::Mojo->new('pf::UnifiedApi');
@@ -92,6 +92,24 @@ $t->post_ok(
   )
   ->status_is(422, "Invalid field in query")
 ;
+
+$t->get_ok("/api/v1/locationlog/$values{mac}" => json => { })
+  ->json_is('/item/mac','00:01:02:03:04:05')
+  ->json_is('/item/switch','0.0.0.1')
+  ->json_is('/item/switch_ip','0.0.0.2')
+  ->json_is('/item/switch_mac','06:07:08:09:0a:0b')
+  ->json_is('/item/port','1234')
+  ->json_is('/item/vlan','99')
+  ->json_is('/item/role','test role')
+  ->json_is('/item/connection_sub_type','test connection_sub_type')
+  ->json_is('/item/connection_type','test connection_type')
+  ->json_is('/item/dot1x_username','test dot1x_username')
+  ->json_is('/item/ssid','test ssid')
+  ->json_is('/item/stripped_user_name','test stripped_user_name')
+  ->json_is('/item/realm','test realm')
+  ->json_is('/item/ifDesc','test ifDesc')
+  ->json_is('/item/start_time','0000-00-00 00:00:01')
+  ->status_is(200);
 
 $t->post_ok(
     '/api/v1/locationlogs/search' => json => {
