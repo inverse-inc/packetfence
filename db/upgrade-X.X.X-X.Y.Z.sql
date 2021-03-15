@@ -57,6 +57,9 @@ ALTER TABLE pf_version
 \! echo "Dropping table userlog"
 DROP TABLE IF EXISTS userlog;
 
+\! echo "Dropping table inline_accounting"
+DROP TABLE IF EXISTS `inline_accounting`;
+
 \! echo "Altering node"
 ALTER TABLE node
     DROP FOREIGN KEY `node_category_key`,

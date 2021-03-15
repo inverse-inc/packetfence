@@ -1048,21 +1048,6 @@ CREATE TABLE savedsearch (
 ) ENGINE=InnoDB;
 
 --
--- Table structure for table
---
-
-CREATE TABLE inline_accounting (
-   outbytes bigint unsigned NOT NULL DEFAULT '0' COMMENT 'orig_raw_pktlen',
-   inbytes bigint unsigned NOT NULL DEFAULT '0' COMMENT 'reply_raw_pktlen',
-  `tenant_id` int NOT NULL DEFAULT 1,
-   ip varchar(16) NOT NULL,
-   firstseen DATETIME NOT NULL,
-   lastmodified DATETIME NOT NULL,
-   status int unsigned NOT NULL default 0,
-   PRIMARY KEY (ip, firstseen)
- ) ENGINE=InnoDB;
-
---
 -- Table structure for wrix
 --
 

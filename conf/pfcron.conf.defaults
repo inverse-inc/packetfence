@@ -133,28 +133,6 @@ description=Task that controls updates of the local Fingerbank data from the clo
 # The schedule of task
 schedule=@every 24h
 
-[inline_accounting_maintenance]
-# 
-# type
-# 
-# Task type
-type=inline_accounting_maintenance
-# 
-# status
-# 
-# If the task is enabled
-status=enabled
-# 
-# description
-# 
-# The description of task
-description=Task that controls the inline accounting maintenance (bandwidth checks).
-# 
-# schedule
-# 
-# The schedule of task
-schedule=@every 1m
-
 [ip4log_cleanup]
 # 
 # type
