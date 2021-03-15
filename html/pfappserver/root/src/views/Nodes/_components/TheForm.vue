@@ -306,7 +306,7 @@ import {
 import pfEmptyTable from '@/components/pfEmptyTable'
 import pfFingerbankScore from '@/components/pfFingerbankScore'
 import pfFormRow from '@/components/pfFormRow'
-import { mysqlLimits as sqlLimits } from '@/globals/mysqlLimits'
+import { MysqlLimits as sqlLimits } from '@/globals/mysql'
 import { pfEapType as eapType } from '@/globals/pfEapType'
 import {
   pfSearchConditionType as conditionType,
