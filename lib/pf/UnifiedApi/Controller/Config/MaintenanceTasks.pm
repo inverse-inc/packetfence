@@ -30,7 +30,6 @@ use pfappserver::Form::Config::Pfcron::certificates_check;
 use pfappserver::Form::Config::Pfcron::cleanup_chi_database_cache;
 use pfappserver::Form::Config::Pfcron::cluster_check;
 use pfappserver::Form::Config::Pfcron::fingerbank_data_update;
-use pfappserver::Form::Config::Pfcron::inline_accounting_maintenance;
 use pfappserver::Form::Config::Pfcron::ip4log_cleanup;
 use pfappserver::Form::Config::Pfcron::ip6log_cleanup;
 use pfappserver::Form::Config::Pfcron::locationlog_cleanup;
@@ -59,7 +58,6 @@ our %TYPES_TO_FORMS = (
       cleanup_chi_database_cache
       cluster_check
       fingerbank_data_update
-      inline_accounting_maintenance
       ip4log_cleanup
       ip6log_cleanup
       locationlog_cleanup

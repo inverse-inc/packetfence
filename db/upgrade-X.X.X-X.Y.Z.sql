@@ -50,6 +50,9 @@ DELIMITER ;
 call ValidateVersion;
 DROP PROCEDURE IF EXISTS ValidateVersion;
 
+\! echo "Dropping table inline_accounting"
+DROP TABLE `inline_accounting`;
+
 \! echo "Altering node"
 ALTER TABLE node
     DROP FOREIGN KEY `node_category_key`,

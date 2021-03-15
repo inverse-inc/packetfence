@@ -39,8 +39,6 @@ pfcmd pfcron <task> [options...]
 
 =item fingerbank_data_update
 
-=item inline_accounting_maintenance
-
 =item ip4log_cleanup
 
 =item ip6log_cleanup
