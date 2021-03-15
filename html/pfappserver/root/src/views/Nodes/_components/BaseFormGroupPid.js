@@ -15,7 +15,7 @@ export const props = {
 }
 
 export default {
-  name: 'form-group-pid',
+  name: 'base-form-group-pid',
   extends: BaseFormGroupChosenOneSearchable,
   props
 }

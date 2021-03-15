@@ -56,7 +56,7 @@ import pfFormUpload from '@/components/pfFormUpload'
 import { importFields } from '../_config/'
 
 export default {
-  name: 'nodes-import',
+  name: 'the-csv-import',
   components: {
     'pf-csv-import': pfCSVImport,
     pfFormUpload

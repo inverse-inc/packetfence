@@ -65,19 +65,12 @@
 </template>
 
 <script>
-import network from '@/utils/network'
-import { computed, ref, watch } from '@vue/composition-api'
 import pfButtonRefresh from '@/components/pfButtonRefresh'
-import { useRouter, useStore } from '../_composables/useCollection'
 import {
   FormButtonBar,
-  FormSecurityEvents,
-  TheForm
+  FormSecurityEvents
 } from './'
-import { useDebouncedWatchHandler } from '@/composables/useDebounce'
-import useEventActionKey from '@/composables/useEventActionKey'
-import useEventEscapeKey from '@/composables/useEventEscapeKey'
-import useEventJail from '@/composables/useEventJail'
+import TheForm from './TheForm'
 
 const components = {
   FormButtonBar,
@@ -91,6 +84,14 @@ const props = {
     type: String
   }
 }
+
+import network from '@/utils/network'
+import { computed, ref, watch } from '@vue/composition-api'
+import { useDebouncedWatchHandler } from '@/composables/useDebounce'
+import useEventActionKey from '@/composables/useEventActionKey'
+import useEventEscapeKey from '@/composables/useEventEscapeKey'
+import useEventJail from '@/composables/useEventJail'
+import { useRouter, useStore } from '../_composables/useCollection'
 
 const setup = (props, context) => {
 
@@ -244,7 +245,7 @@ const setup = (props, context) => {
 
 // @vue/component
 export default {
-  name: 'node-view',
+  name: 'the-view-update',
   inheritAttrs: false,
   components,
   props,

@@ -60,7 +60,7 @@ import {
 import { form, createValidators } from '../_config/'
 
 export default {
-  name: 'nodes-create',
+  name: 'the-view-create',
   components: {
     pfFormAutocomplete,
     pfFormDatetime,
