@@ -49,7 +49,7 @@ captive_portal: setup global_config
 
 .PHONY: dot1x_eap_tls_pfpki
 dot1x_eap_tls_pfpki: setup global_config
-	./venom-wrapper.sh $(PFSERVERS_DIR)/dot1x_eap_peap_tls_pfpki
+	./venom-wrapper.sh $(PFSERVERS_DIR)/dot1x_eap_tls_pfpki
 	./venom-wrapper.sh $(PFSERVERS_DIR)/dot1x_eap_tls_pfpki/teardown
 
 .PHONY: backup_db_and_restore
