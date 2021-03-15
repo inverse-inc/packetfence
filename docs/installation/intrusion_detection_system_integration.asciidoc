@@ -214,13 +214,13 @@ Configuration of a new security event can use the following trigger types:
 
 === Security Onion 2.3.10
 
-Security Onion (SO) software has a new version, 2.3. You can review the documentation at: https://docs.securityonion.net/en/2.3/
+This documentation is based on Security Onion v2.3. You can review its documentation at: https://docs.securityonion.net/en/2.3
 
 All commands are done through the SSH CLI.
 
 ==== Suricata configuration on SO
 
-First we need to modify the suricata configuration to output the alerts into a fast.log file.
+First we need to modify the Suricata configuration to output the alerts into a fast.log file.
 
   sudo vim /opt/so/saltstack/default/salt/suricata/defaults.yaml
 
