@@ -212,6 +212,105 @@ Configuration of a new security event can use the following trigger types:
   Type: suricata_event
   Trigger ID: The rule class of the triggered IDS alert
 
+=== Security Onion 2.3.10
+
+This documentation is based on Security Onion v2.3. You can review its documentation at: https://docs.securityonion.net/en/2.3
+
+All commands are done through the SSH CLI.
+
+==== Suricata configuration on SO
+
+First we need to modify the Suricata configuration to output the alerts into a fast.log file.
+
+  sudo vim /opt/so/saltstack/default/salt/suricata/defaults.yaml
+
+Locate the outputs section and modify the fast options as follow:
+
+    outputs:
+      - fast:
+          enabled: "no"
+          filename: /nsm/fast.log
+          append: "yes"
+      - eve-log:
+          enabled: "yes"
+          filetype: regular
+          filename: /nsm/eve-%Y-%m-%d-%H:%M.json
+          rotate-interval: hour
+          #prefix: "@cee: "
+          #identity: "suricata"
+          #facility: local5
+          #level: Info
+          #redis:
+          #  server: 127.0.0.1
+
+Reload the configuration on all minions with (it will take few minutes to apply):
+
+  sudo salt '*' state.highstate
+
+You can verify the configuration done under:
+
+  sudo vim /opt/so/conf/suricata/suricata.yaml
+
+==== Rsyslog configuration on SO
+
+Now we need to send the alerts from the /nsm/fast.log to PacketFence.
+
+  sudo vim /etc/rsyslog.d/SO.conf
+
+Replace the PACKETFENCE_MGMT_IP with your PacketFence management IP interface.
+
+  $ModLoad imfile
+  $InputFileName /nsm/suricata/fast.log
+  $InputFileTag suricata
+  $InputFileStateFile stat-suricata
+  $InputFileSeverity error
+  $InputFileFacility local3
+  $InputRunFileMonitor
+  local3.* @PACKETFENCE_MGMT_IP:514
+
+Restart Rsyslog:
+
+ sudo systemctl restart rsyslog
+
+==== Configure PacketFence to process the syslog traffic
+
+On the PacketFence server:
+
+Modify rsyslog configuration to allow incoming UDP packets by uncommenting the following two lines in [filename]`/etc/rsyslog.conf`:
+
+  $ModLoad imudp
+  $UDPServerRun 514
+
+Configure [filename]`/etc/rsyslog.d/securityonion_ids.conf` so it contains the following which will redirect Security Onion sguild log entries and stop further processing of current matched message:
+
+  if $programname == 'suricata' then /usr/local/pf/var/securityonion_ids
+  & ~
+
+Make sure the receiving alert pipe (FIFO) exists
+
+  mkfifo /usr/local/pf/var/securityonion_ids
+
+Restart the rsyslog daemon
+
+  service rsyslog restart
+
+At this point, Security Onion should be able to send detected alerts log entries to PacketFence.
+
+A configuration of a new 'syslog parser' as well as some security events are the only remaining steps to make full usage of the Security Onion IDS integration.
+
+Configuration of a new 'syslog parser' should use the followings:
+
+  Type: suricata
+  Alert pipe: the previously created alert pipe (FIFO) which is, in this case, /usr/local/pf/var/securityonion_ids
+
+Configuration of a new security event can use the following trigger types:
+
+  Type: detect
+  Triggers ID: The IDS triggered rule ID
+
+  Type: suricata_event
+  Trigger ID: The rule class of the triggered IDS alert
+
 === ERSPAN
 
 ERSPAN permits to mirror a local port traffic (low bandwidth) to a remote IP, E.G: your Security Onion already deployed box. ERSPAN encapsulates port traffic into ERSPAN then GRE and send that traffic to one/multiple destination(s). ERSPAN is a Cisco technology which is available only on some platforms, including: Catalyst 6500, 7600, Nexus, and ASR 1000.
