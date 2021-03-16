@@ -403,6 +403,7 @@ type RessourseNetworkConf struct {
 	PoolBackend              string    `json:"pool_backend"`
 	Algorithm                string    `json:"algorithm"`
 	NetflowAccountingEnabled string    `json:"netflow_accounting_enabled"`
+	NatDNS                   string    `json:"nat_dns"`
 }
 
 type PfRoles struct {
