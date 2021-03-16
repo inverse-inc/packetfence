@@ -19,4 +19,8 @@
 
 .alert-danger.navbar-dark .navbar-nav .nav-link {
     color: $danger;
+    &.active {
+        border-bottom: 2px solid $danger;
+        margin-bottom: -2px;
+    }
 }
