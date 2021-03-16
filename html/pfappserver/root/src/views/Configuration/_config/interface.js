@@ -225,3 +225,4 @@ export const columns = [
     locked: true
   }
 ]
+

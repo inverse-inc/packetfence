@@ -71,6 +71,9 @@
           {{ $i18n.t(`Since NAT is disabled, PacketFence will adjust iptables to route traffic rather than using NAT. Make sure to add the routes on the system.`) }}
         </div>
       </b-form-group>
+      <form-group-nat-dns namespace="nat_dns"
+        :column-label="$i18n.t('Enable DNS NAT')"
+      />
     </template>
 
     <form-group-split-network v-show="isType('inlinel2')"
@@ -124,6 +127,7 @@ import {
   FormGroupIpv6Address,
   FormGroupIpv6Prefix,
   FormGroupNatEnabled,
+  FormGroupNatDns,
   FormGroupNetflowAccountingEnabled,
   FormGroupNetmask,
   FormGroupRegNetwork,
@@ -145,6 +149,7 @@ const components = {
   FormGroupIpv6Address,
   FormGroupIpv6Prefix,
   FormGroupNatEnabled,
+  FormGroupNatDns,
   FormGroupNetflowAccountingEnabled,
   FormGroupNetmask,
   FormGroupRegNetwork,
