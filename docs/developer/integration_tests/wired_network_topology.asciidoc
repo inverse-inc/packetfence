@@ -1,0 +1,75 @@
+////
+
+    This file is part of the PacketFence project.
+
+    See PacketFence_Developers_Guide.asciidoc
+    for authors, copyright and license information.
+
+////
+
+==== Wired network topology
+
+.Wired network topology
+image::integration_tests/wired_topology.png[scaledwidth="100%",alt="Wired topology"]
+
+===== Initial Provisioning
+
+`switch01` and `node01` are provisioned using Vagrant like this:
+
+* a first boot with basic shell provisioning to configure interfaces remap and networks
+* a second boot that handles interface remap
+* an Ansible provisioning
+
+Provisioning is deliberately minimalist to make the most during integration tests.
+
+===== Inventory Information
+
+.IPAM table
+|===
+| Virtual machine |Interfaces |MAC address
+
+|switch01
+|swp48, bridge, bridge.17, bridge.100
+|Same MAC, automatically generated
+
+|switch01
+|swp1
+|a0:00:00:00:00:01
+
+|switch01
+|swp2
+|44:38:39:00:00:02
+
+|switch01
+|swp3
+|44:38:39:00:00:03
+
+|switch01
+|swp6
+|44:38:39:00:00:06
+
+|switch01
+|swp11
+|44:38:39:00:00:11
+
+|switch01
+|swp12
+|44:38:39:00:00:12
+
+|switch01
+|swp13
+|44:38:39:00:00:13
+
+|node01
+|eth0
+|a0:00:00:00:00:12
+
+|node01
+|eth1
+|00:03:00:11:11:01
+
+|node01
+|eth2
+|00:03:00:11:11:02
+
+|===

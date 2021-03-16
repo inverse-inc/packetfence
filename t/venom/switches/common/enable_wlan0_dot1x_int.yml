@@ -1,0 +1,9 @@
+name: Enable 802.1X only on dot1x interface on wireless01
+version: 2
+testcases:
+- name: enable_dot1x_on_wireless01
+  steps:
+  - type: exec
+    script: "sudo systemctl restart hostapd_secure"
+    assertions:
+      - result.code ShouldEqual 0

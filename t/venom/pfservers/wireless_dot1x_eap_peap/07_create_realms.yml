@@ -1,0 +1,98 @@
+name: Create and configure REALMS
+version: 2
+testcases:
+- name: create_realms
+  steps:
+  - type: http
+    method: POST
+    url: '{{.pfserver_webadmin_url}}/api/v1/config/realms'
+    ignore_verify_ssl: true
+    body: >-
+      {
+        "admin_strip_username": "enabled",
+        "domain": "{{.ad_domain_id}}",
+        "eduroam_options": null,
+        "eduroam_radius_acct": null,
+        "eduroam_radius_acct_proxy_type": "load-balance",
+        "eduroam_radius_auth": null,
+        "eduroam_radius_auth_compute_in_pf": "enabled",
+        "eduroam_radius_auth_proxy_type": "keyed-balance",
+        "id": "{{.ad_domain_upper}}",
+        "ldap_source": null,
+        "options": null,
+        "permit_custom_attributes": "disabled",
+        "portal_strip_username": "enabled",
+        "radius_acct": null,
+        "radius_acct_proxy_type": "load-balance",
+        "radius_auth": null,
+        "radius_auth_compute_in_pf": "enabled",
+        "radius_auth_proxy_type": "keyed-balance",
+        "radius_strip_username": "enabled"
+      }
+    headers:
+      "Authorization": "{{.pfserver_token}}"
+      "Content-Type": "application/json"
+    assertions:
+      - result.statuscode ShouldEqual 201
+
+  - type: http
+    method: POST
+    url: '{{.pfserver_webadmin_url}}/api/v1/config/realms'
+    ignore_verify_ssl: true
+    body: >-
+      {
+        "admin_strip_username": "enabled",
+        "domain": "{{.ad_domain_id}}",
+        "eduroam_options": null,
+        "eduroam_radius_acct": null,
+        "eduroam_radius_acct_proxy_type": "load-balance",
+        "eduroam_radius_auth": null,
+        "eduroam_radius_auth_compute_in_pf": "enabled",
+        "eduroam_radius_auth_proxy_type": "keyed-balance",
+        "id": "{{.ad_dns_domain}}",
+        "ldap_source": null,
+        "options": null,
+        "permit_custom_attributes": "disabled",
+        "portal_strip_username": "enabled",
+        "radius_acct": null,
+        "radius_acct_proxy_type": "load-balance",
+        "radius_auth": null,
+        "radius_auth_compute_in_pf": "enabled",
+        "radius_auth_proxy_type": "keyed-balance",
+        "radius_strip_username": "enabled"
+      }
+    headers:
+      "Authorization": "{{.pfserver_token}}"
+      "Content-Type": "application/json"
+    assertions:
+      - result.statuscode ShouldEqual 201
+
+- name: modify_builtin_realms
+  steps:
+  - type: http
+    method: PATCH
+    url: '{{.pfserver_webadmin_url}}/api/v1/config/realm/DEFAULT'
+    ignore_verify_ssl: true
+    body: >-
+      {
+        "domain": "{{.ad_domain_id}}"
+      }
+    headers:
+      "Authorization": "{{.pfserver_token}}"
+      "Content-Type": "application/json"
+    assertions:
+      - result.statuscode ShouldEqual 200
+
+  - type: http
+    method: PATCH
+    url: '{{.pfserver_webadmin_url}}/api/v1/config/realm/NULL'
+    ignore_verify_ssl: true
+    body: >-
+      {
+        "domain": "{{.ad_domain_id}}"
+      }
+    headers:
+      "Authorization": "{{.pfserver_token}}"
+      "Content-Type": "application/json"
+    assertions:
+      - result.statuscode ShouldEqual 200

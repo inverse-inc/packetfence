@@ -1,7 +1,7 @@
-name: Check Internet access on node01
+name: Check Internet access on node
 version: 2
 testcases:
-- name: check_internet_access_on_node01
+- name: check_internet_access_on_node
   steps:
   - type: http
     method: GET

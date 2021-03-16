@@ -1,0 +1,88 @@
+name: Create and test AD machine source
+version: 2
+testcases:
+- name: create_ad_machine_source
+  steps:
+  - type: http
+    method: POST
+    url: '{{.pfserver_webadmin_url}}/api/v1/config/sources'
+    ignore_verify_ssl: true
+    body: >-
+      {
+        "administration_rules": null,
+        "authentication_rules": [
+          {
+            "id": "catchall",
+            "description": null,
+            "match": "all",
+            "actions": [
+              {
+                "type": "set_role",
+                "value": "{{.wireless_dot1x_eap_peap.roles.ad_machine.id}}"
+              },
+              {
+                "type": "set_access_duration",
+                "value": "{{.wireless_dot1x_eap_peap.sources.ad_machine.access_duration}}"
+              }
+            ],
+            "conditions": []
+          } 
+        ],
+        "basedn": "{{.ad_base_dn}}",
+        "binddn": "{{.ad_domain_admin_user}}@{{.ad_dns_domain}}",
+        "cache_match": "0",
+        "connection_timeout": 1,
+        "description": "{{.wireless_dot1x_eap_peap.sources.ad_machine.description}}",
+        "email_attribute": "mail",
+        "encryption": "starttls",
+        "host": "{{.ad_mgmt_ip}}",
+        "id": "{{.wireless_dot1x_eap_peap.sources.ad_machine.name}}",
+        "monitor": "1",
+        "password": "{{.ad_domain_admin_password}}",
+        "port": "389",
+        "read_timeout": 10,
+        "realms": "",
+        "scope": "sub",
+        "searchattributes": "",
+        "set_access_durations_action": null,
+        "shuffle": "0",
+        "type": "AD",
+        "usernameattribute": "servicePrincipalName",
+        "write_timeout": 5
+      }
+    headers:
+      "Authorization": "{{.pfserver_token}}"
+      "Content-Type": "application/json"
+    assertions:
+      - result.statuscode ShouldEqual 201
+
+- name: test_ad_machine_source
+  steps:
+  - type: http
+    method: POST
+    url: '{{.pfserver_webadmin_url}}/api/v1/config/sources/test'
+    ignore_verify_ssl: true
+    body: >-
+      {
+        "basedn": "{{.ad_base_dn}}",
+        "binddn": "{{.ad_domain_admin_user}}@{{.ad_dns_domain}}",
+        "connection_timeout": 1,
+        "description": "{{.wireless_dot1x_eap_peap.sources.ad_machine.description}}",
+        "encryption": "starttls",
+        "host": "{{.ad_mgmt_ip}}",
+        "id": "{{.wireless_dot1x_eap_peap.sources.ad_machine.name}}",
+        "password": "{{.ad_domain_admin_password}}",
+        "port": "389",
+        "read_timeout": 10,
+        "scope": "sub",
+        "type": "AD",
+        "usernameattribute": "servicePrincipalName",
+        "write_timeout": 5
+      }
+    headers:
+      "Authorization": "{{.pfserver_token}}"
+      "Content-Type": "application/json"
+    assertions:
+      - result.statuscode ShouldEqual 200
+    retry: 3
+    delay: 5

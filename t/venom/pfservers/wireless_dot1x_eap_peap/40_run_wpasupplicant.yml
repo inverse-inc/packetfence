@@ -1,0 +1,9 @@
+name: Enable wpa_supplicant on wireless01
+version: 2
+testcases:
+- name: enable_dynamic_vlan_on_wireless01
+  steps:
+    - type: ssh
+      host: '{{.wireless01_mgmt_ip}}'
+      user: '{{.ssh_user}}'
+      command: '/src/t/venom/venom-wrapper.sh {{.nodes_test_suite_dir}}/wireless_dot1x_eap_peap/run_wpasupplicant.yml'

@@ -1,0 +1,42 @@
+////
+
+    This file is part of the PacketFence project.
+
+    See PacketFence_Developers_Guide.asciidoc
+    for authors, copyright and license information.
+
+////
+
+==== Network subnets and IP addresses
+
+.Subnet table
+|===
+| Network name | Subnet | VLAN ID
+| Management | 172.17.17.0/24 | 17
+| Registration | 172.17.2.0/24 | 2
+| Isolation | 172.17.3.0/24 | 3 
+| Inline | 172.17.6.0/24 | 6 
+| Internet | 192.168.121.0/24 | 100
+|===
+
+Management network is used to provision each virtual machine using Ansible to
+put them in a desired state.
+
+.IP addresses assigned to virtual machines
+|===
+| Virtual machine | Network name | IP address
+| pfcen7dev | Management | 172.17.17.10
+| pfcen7stable | Management | 172.17.17.14
+| pfdeb9dev | Management | 172.17.17.12
+| pfdeb9stable | Management | 172.17.17.16
+| ad | Management | 172.17.17.100
+| linux01 | Management | 172.17.17.101
+| linux02 | Management | 172.17.17.102
+| switch01 | Management | 172.17.17.201
+| wireless01 | Management | 172.17.17.210
+| node01 | Management | 172.17.17.251
+| pf*dev or pf*stable | Registration | 172.17.2.2
+| pf*dev or pf*stable | Isolation    | 172.17.3.2
+|===
+
+NOTE: First IP address (.1) in each subnet is reserved for `libvirt` hypervisor.

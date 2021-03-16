@@ -1,0 +1,42 @@
+name: Check autoregister node
+version: 2
+testcases:
+- name: check_autoregister_node
+  steps:
+  - type: http
+    method: GET
+    url: '{{.pfserver_webadmin_url}}/api/v1/node/{{.wireless01_wlan1_mac_address_url_encoded}}'
+    ignore_verify_ssl: true
+    headers:
+      "Authorization": "{{.pfserver_token}}"
+      "Content-Type": "application/json"
+    assertions:
+      - result.statuscode ShouldEqual 200
+      - result.bodyjson.item.autoreg ShouldEqual yes
+      - result.bodyjson.item.category ShouldEqual "{{.wireless_dot1x_eap_peap.roles.ad_user.id}}"
+      - result.bodyjson.item.pid ShouldEqual "{{.ad_domain_user}}"
+      - result.bodyjson.item.status ShouldEqual reg
+    vars:
+      regdate:
+        from: result.bodyjson.item.regdate
+      unregdate:
+        from: result.bodyjson.item.unregdate
+
+# convert 5m to 5minutes
+# In order to calculate unregdate based on regdate + 5minutes using date command (next testcase)
+- name: convert_access_duration
+  steps:
+  - type: exec
+    script: |
+      perl -I/usr/local/pf/lib -Mpf::config::util \
+      -e 'my @times = get_translatable_time("{{.wireless_dot1x_eap_peap.sources.ad_user.access_duration}}"); print("$times[2]$times[1]");'
+    vars:
+      translatable_time:
+        from: result.systemout
+
+- name: check_unregdate_match_access_duration
+  steps:
+  - type: exec
+    script: "date '+%Y-%m-%d %H:%M:%S' --date='{{.check_autoregister_node.regdate}} {{.convert_access_duration.translatable_time}}'"
+    assertions:
+      - result.systemout ShouldEqual "{{.check_autoregister_node.unregdate}}"

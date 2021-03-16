@@ -1,0 +1,9 @@
+name: Disable 802.1X on dot1x interface on wireless01
+version: 2
+testcases:
+- name: disable_dot1x_on_wireless01
+  steps:
+    - type: ssh
+      host: '{{.wireless01_mgmt_ip}}'
+      user: '{{.ssh_user}}'
+      command: '/src/t/venom/venom-wrapper.sh {{.switch_test_suite_dir}}/common/disable_wlan0_dot1x_int.yml'

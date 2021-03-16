@@ -143,18 +143,19 @@ all:
       - name: 'mgmt'
         subnet: '172.17.17.0/24'
         forward_mode: 'route'
+        netmask: 255.255.255.0
 
       - name: 'registration'
         subnet: '172.17.2.0/24'
         forward_mode: 'route'
+        netmask: 255.255.255.0
 
       - name: 'isolation'
         subnet: '172.17.3.0/24'
         forward_mode: 'route'
+        netmask: 255.255.255.0
 
       - name: 'inline'
         subnet: '172.17.6.0/24'
         forward_mode: 'route'
-
-
-      
+        netmask: 255.255.255.0

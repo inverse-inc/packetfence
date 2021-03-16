@@ -1,0 +1,9 @@
+name: Enable MAC Authentication on wlan0 interface on wireless01
+version: 2
+testcases:
+- name: enable_mac_auth_on_wireless01
+  steps:
+  - type: exec
+    script: "sudo systemctl restart hostapd_open"
+    assertions:
+      - result.code ShouldEqual 0

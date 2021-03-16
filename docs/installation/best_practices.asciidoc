@@ -66,19 +66,22 @@ When using the inline or VLAN enforcement mode in large environments, you may ha
 
 In order to mitigate the problem, you need to tweak kernel settings.  In order to enlarge the ARP cache table on a live system, change the following in sysctl.conf :
 
----
+----
 net.ipv4.neigh.default.gc_thresh1 = 2048
 net.ipv4.neigh.default.gc_thresh2 = 4096
 net.ipv4.neigh.default.gc_thresh3 = 8192
----
+----
 
 Then run the following as root to enable the changes:
 
----
+[source,bash]
+----
 # sysctl -p
----
+----
 
 This means that the layer 2 garbage collection will kick in at 2048 MAC addresses exposed to the server with the most aggressive collection kicking in at 8192. This should be large enough for most but feel free to increase if necessary (at the cost of more kernel memory consumed). Another approach to solve this problem is to do more segmentation of your layer 2 networks.
+
+
 
 === Active Directory fail-over
 

@@ -1,0 +1,10 @@
+name: Run wpasupplicant for Wireless Open
+version: 2
+testcases:
+- name: run_wpasupplicant_wireless_open
+  steps:
+  - type: exec
+    script: "sudo wpa_supplicant -Dnl80211 -iwlan1 -c /etc/wpa_supplicant/wireless_open/wireless_open.conf -B"
+    timeout: 10
+    assertions:
+      - result.systemout ShouldContainSubstring "Successfully initialized wpa_supplicant"
