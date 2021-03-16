@@ -138,6 +138,9 @@ export const useInputMultiselectProps = {
   }
 }
 
+const BOOL_KEY_LOOKUP = true
+const BOOL_QUERY_LOOKUP = false
+
 // support Promise based options,
 //  transform Promise to Vue ref to avoid redundant async handling later
 export const useOptionsPromise = (optionsPromise) => {
@@ -174,7 +177,7 @@ export const useSingleValueLookupOptions = (value, onInput, lookup, options, opt
     const thisCurrentPromise = ++lastCurrentPromise
 
     if (lookup.value.constructor === Function) { // handle lookup Function (manual)
-      Promise.resolve(lookup.value(value.value, true))
+      Promise.resolve(lookup.value(value.value, BOOL_KEY_LOOKUP))
         .then(options => {
           if (thisCurrentPromise === lastCurrentPromise) // ignore slow responses
             currentValueOptions.value = options
@@ -234,7 +237,7 @@ export const useSingleValueLookupOptions = (value, onInput, lookup, options, opt
       searchDebouncer({
         handler: () => {
           const thisSearchPromise = ++lastSearchPromise
-          Promise.resolve(lookup.value(query, false))
+          Promise.resolve(lookup.value(query, BOOL_QUERY_LOOKUP))
           .then(options => {
             if (thisSearchPromise === lastSearchPromise) // ignore slow responses
               searchResultOptions.value = options
