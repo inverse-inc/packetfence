@@ -11,7 +11,7 @@ export const props = {
     default: () => {
       return store.dispatch('session/getAllowedNodeRoles')
         .then(roles => ([
-          { value: null, text: i18n.t('No Role') }, // prepend a null value to roles
+          { value: null, text: i18n.t('No Role') }, // prepend a null (optional) value to roles
           ...roles.map(role => ({ value: role.category_id, text: `${role.name} - ${role.notes}` }))
         ]))
     }
@@ -19,7 +19,7 @@ export const props = {
 }
 
 export default {
-  name: 'base-form-group-roles-with-null',
+  name: 'base-form-group-roles-optional',
   extends: BaseFormGroupChosenOne,
   props
 }
