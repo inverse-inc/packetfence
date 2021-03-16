@@ -1,7 +1,7 @@
 name: Create switches and switch groups
 version: 2
 testcases:
-- name: create_switch_group
+- name: create_cumulus_switch_group
   steps:
   - type: http
     method: POST
@@ -142,32 +142,6 @@ testcases:
     assertions:
       - result.statuscode ShouldEqual 201
 
-
-
-# workaround to make accounting working:
-# NAS-IP-Address is not included in accounting packets before VX 4.0
-# with controllerIP set, no need to create switch by IP
-- name: create_switch_by_mac
-  steps:
-  - type: http
-    method: POST
-    url: '{{.pfserver_webadmin_url}}/api/v1/config/switches'
-    ignore_verify_ssl: true
-    body: >-
-      {
-        "id": "{{.cumulus_switch.id2}}",
-        "group": "{{.cumulus_switch_group.id}}",
-        "description": "{{.cumulus_switch.description}}"
-      }
-    headers:
-      "Authorization": "{{.pfserver_token}}"
-      "Content-Type": "application/json"
-    assertions:
-      - result.statuscode ShouldEqual 201
-
-name: Create Wireless switches and switch group
-version: 2
-testcases:
 - name: create_wireless_switch_group
   steps:
   - type: http
