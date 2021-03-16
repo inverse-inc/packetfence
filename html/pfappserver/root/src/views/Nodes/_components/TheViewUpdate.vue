@@ -6,76 +6,53 @@
       <h4 class="d-inline mb-0">MAC <strong v-text="id"></strong></h4>
     </b-card-header>
     <b-tabs ref="tabsRef" v-model="tabIndex" card>
-      <b-form @submit.prevent="onSave" ref="rootRef">
-        <the-form
-          :form="form"
-          :id="id"
-          :is-loading="isLoading"
-          v-bind="$props"
-        />
-      </b-form>
+      <base-form-tab :title="$i18n.t('Edit')" active>
+        <the-form-update :id="id" />
+      </base-form-tab>
+      <tab-info :id="id" />
+      <tab-fingerbank :id="id" />
+      <tab-timeline :id="id" />
+      <tab-ip4-logs :id="id" />
+      <tab-ip6-logs :id="id" />
+      <tab-location-logs :id="id" />
+      <tab-security-events :id="id" />
+      <!-- TODO
+      <b-tab title="WMI Rules">
+        <template v-slot:title>
+          {{ $t('WMI Rules') }}
+        </template>
+      </b-tab>
+      -->
+      <tab-dhcp-option82-logs :id="id" />
     </b-tabs>
-    <b-card-footer v-if="ifTab(['Edit', 'Location', 'Fingerbank', 'SecurityEvents'])">
-      <form-button-bar class="mr-3"
-        :actionKey="actionKey"
-        :actionKeyButtonVerb="actionKeyButtonVerb"
-        :isLoading="isLoading"
-        isCloneable="false"
-        isSaveable="true"
-        :isDeletable="isDeletable"
-        :isValid="isValid"
-        :formRef="rootRef"
-        @close="onClose"
-        @remove="onRemove"
-        @reset="onReset"
-        @save="onSave"
-      />
-      <template v-if="ifTab(['Edit', 'Location'])">
-        <template v-if="canReevaluateAccess">
-          <b-button class="mr-1" size="sm" variant="outline-secondary" :disabled="isLoading" @click="applyReevaluateAccess">{{ $i18n.t('Reevaluate Access') }}</b-button>
-        </template>
-        <template v-else>
-          <span v-b-tooltip.hover.top.d300 :title="$i18n.t('Node has no locations.')">
-            <b-button class="mr-1" size="sm" variant="outline-secondary" :disabled="true">{{ $i18n.t('Reevaluate Access') }}</b-button>
-          </span>
-        </template>
-      </template>
-      <b-button class="mr-1" size="sm" v-if="ifTab(['Edit', 'Fingerbank'])" variant="outline-secondary" :disabled="isLoading" @click="applyRefreshFingerbank">{{ $i18n.t('Refresh Fingerbank') }}</b-button>
-      <template v-if="ifTab(['Edit', 'Location'])">
-        <template v-if="canRestartSwitchport">
-          <b-button class="mr-1" size="sm" variant="outline-secondary" :disabled="isLoading" @click="applyRestartSwitchport">{{ $i18n.t('Restart Switch Port') }}</b-button>
-        </template>
-        <template v-else>
-          <span v-b-tooltip.hover.top.d300 :title="$i18n.t('Node has no open wired connections.')">
-            <b-button class="mr-1" size="sm" variant="outline-secondary" :disabled="true">{{ $i18n.t('Restart Switch Port') }}</b-button>
-          </span>
-        </template>
-      </template>
-      <template v-if="ifTab(['SecurityEvents']) && securityEventsOptions.length > 0">
-        <div class="d-inline-flex">
-          <form-security-events class="mr-1" size="sm"
-            v-model="triggerSecurityEvent"
-            :options="securityEventsOptions"
-          />
-          <b-button size="sm" variant="outline-secondary" @click="onTriggerSecurityEvent" :disabled="isLoading || !triggerSecurityEvent">{{ $t('Trigger New Security Event') }}</b-button>
-        </div>
-      </template>
-    </b-card-footer>
   </b-card>
 </template>
 
 <script>
+import { BaseFormTab } from '@/components/new/'
+import TheFormUpdate from './TheFormUpdate'
+import TabDhcpOption82Logs from './TabDhcpOption82Logs'
+import TabFingerbank from './TabFingerbank'
+import TabInfo from './TabInfo'
+import TabIp4Logs from './TabIp4Logs'
+import TabIp6Logs from './TabIp6Logs'
+import TabSecurityEvents from './TabSecurityEvents'
+import TabLocationLogs from './TabLocationLogs'
+import TabTimeline from './TabTimeline'
 import pfButtonRefresh from '@/components/pfButtonRefresh'
-import {
-  FormButtonBar,
-  FormSecurityEvents
-} from './'
-import TheForm from './TheForm'
 
 const components = {
-  FormButtonBar,
-  FormSecurityEvents,
-  TheForm,
+  BaseFormTab,
+  TheFormUpdate,
+  TabDhcpOption82Logs,
+  TabFingerbank,
+  TabInfo,
+  TabIp4Logs,
+  TabIp6Logs,
+  TabSecurityEvents,
+  TabLocationLogs,
+  TabTimeline,
+
   pfButtonRefresh
 }
 
@@ -85,161 +62,60 @@ const props = {
   }
 }
 
-import network from '@/utils/network'
-import { computed, ref, watch } from '@vue/composition-api'
-import { useDebouncedWatchHandler } from '@/composables/useDebounce'
-import useEventActionKey from '@/composables/useEventActionKey'
+import { ref, watch } from '@vue/composition-api'
 import useEventEscapeKey from '@/composables/useEventEscapeKey'
-import useEventJail from '@/composables/useEventJail'
 import { useRouter, useStore } from '../_composables/useCollection'
 
 const setup = (props, context) => {
 
-  // template refs
-  const rootRef = ref(null)
-  useEventJail(rootRef)
-
   const tabsRef = ref(null)
   const tabIndex = ref(0)
 
-  // state
-  const form = ref({})
-  const isModified = ref(false)
-  const triggerSecurityEvent = ref(null)
-
-  const isValid = useDebouncedWatchHandler(
-    [form],
-    () => (
-      !rootRef.value ||
-      Array.prototype.slice.call(rootRef.value.querySelectorAll('.is-invalid'))
-        .filter(el => el.closest('fieldset').style.display !== 'none') // handle v-show <.. style="display: none;">
-        .length === 0
-    )
-  )
-
-  const ifTab = (set) => {
-    const { tabs = [] } = tabsRef.value || {}
-    return tabs.length && set.includes(tabs[tabIndex.value].title)
-  }
+  // const searchUsers = () => {
+  //   let body = {
+  //     limit: 10,
+  //     fields: ['pid', 'firstname', 'lastname', 'email'],
+  //     sort: ['pid'],
+  //     query: {
+  //       op: 'and',
+  //       values: [{
+  //         op: 'or',
+  //         values: [
+  //           { field: 'pid', op: 'contains', value: form.pid },
+  //           { field: 'firstname', op: 'contains', value: form.pid },
+  //           { field: 'lastname', op: 'contains', value: form.pid },
+  //           { field: 'email', op: 'contains', value: form.pid }
+  //         ]
+  //       }]
+  //     }
+  //   }
+  //   usersApi.search(body).then((data) => {
+  //     matchingUsers.value = data.items.map(item => item.pid)
+  //   })
+  // }
 
   const {
     isLoading,
-    reloadItem,
-    deleteItem,
-    getItem,
-    updateItem,
-    reevaluateAccess,
-    refreshFingerbank,
-    restartSwitchport,
-    sortedSecurityEvents,
-    applySecurityEvent
-  } = useStore(props, context, form)
+    reloadItem
+  } = useStore(props, context)
 
   const {
-    goToCollection,
-    goToItem,
-  } = useRouter(props, context, form)
-
-  const isDeletable = computed(() => {
-    const { not_deletable: notDeletable = false } = form.value || {}
-    if (notDeletable)
-      return false
-    return true
-  })
-
-  const canReevaluateAccess = computed(() => {
-    return (form && form.value.locations && form.value.locations.length > 0)
-  })
-
-  const canRestartSwitchport = computed(() => {
-    return (form && form.value.locations && form.value.locations.filter(node =>
-      node.end_time === '0000-00-00 00:00:00' && // require zero end_time
-      network.connectionTypeToAttributes(node.connection_type).isWired // require 'Wired'
-    ).length > 0)
-  })
-
-  const securityEventsOptions = computed(() => {
-    return sortedSecurityEvents()
-      .filter(securityEvent => securityEvent.id !== 'defaults')
-      .map(securityEvent => { return { text: securityEvent.desc, value: securityEvent.id } })
-  })
-
-  const init = () => {
-    return new Promise((resolve, reject) => {
-      getItem().then(item => {
-        form.value = item
-        resolve()
-      }).catch(e => {
-        form.value = {}
-        reject(e)
-      })
-    })
-  }
-
-  const save = () => updateItem()
-
-  const onRefresh = () => reloadItem()
+    goToCollection
+  } = useRouter(props, context)
 
   const onClose = () => goToCollection()
 
-  const onRemove = () => deleteItem().then(() => goToCollection())
-
-  const onReset = () => init().then(() => isModified.value = false)
-
-  const actionKey = useEventActionKey(rootRef)
-  const onSave = () => {
-    isModified.value = true
-    const closeAfter = actionKey.value
-    save().then(() => {
-      if (closeAfter) // [CTRL] key pressed
-        goToCollection(true)
-      else
-        goToItem().then(() => init()) // re-init
-    })
-  }
-
-  const applyReevaluateAccess = () => reevaluateAccess()
-
-  const applyRefreshFingerbank = () => refreshFingerbank()
-
-  const applyRestartSwitchport = () => restartSwitchport()
-
-  const onTriggerSecurityEvent = () => applySecurityEvent(triggerSecurityEvent)
-
-  const escapeKey = useEventEscapeKey(rootRef)
+  const onRefresh = () => reloadItem()
+  
+  const escapeKey = useEventEscapeKey()
   watch(escapeKey, () => goToCollection())
 
-  watch(props, () => init(), { deep: true, immediate: true })
-
   return {
-    rootRef,
     tabsRef,
     tabIndex,
-
-    form,
-    isModified,
-    triggerSecurityEvent,
-    // securityEvents,
-    securityEventsOptions,
-
-    ifTab,
-    actionKey,
-    isDeletable,
-    isValid,
     isLoading,
-
-    onRefresh,
     onClose,
-    onRemove,
-    onReset,
-    onSave,
-    canReevaluateAccess,
-    canRestartSwitchport,
-
-    applyReevaluateAccess,
-    applyRefreshFingerbank,
-    applyRestartSwitchport,
-    onTriggerSecurityEvent
+    onRefresh
   }
 }
 

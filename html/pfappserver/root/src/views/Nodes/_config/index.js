@@ -1,12 +1,13 @@
 import filters from '@/utils/filters'
 import i18n from '@/utils/locale'
+import yup from '@/utils/yup'
 import {
   MysqlDatabase,
-  buildValidatorsFromTableSchemas,
-  buildValidatorsFromColumnSchemas
+  validatorFromColumnSchemas
 } from '@/globals/mysql'
 import { pfFieldType as fieldType } from '@/globals/pfField'
 import { pfFormatters as formatter } from '@/globals/pfFormatters'
+/*
 import {
   categoryIdNumberExists, // validate category_id/bypass_role_id (Number) exists
   categoryIdStringExists, // validate category_id/bypass_role_id (String) exists
@@ -18,8 +19,9 @@ import {
 import {
   required
 } from 'vuelidate/lib/validators'
+*/
 
-export const form = {
+export const createForm = {
   mac: null,
   status: 'reg',
   pid: null,
@@ -28,31 +30,8 @@ export const form = {
   notes: null
 }
 
-export const createValidators = buildValidatorsFromTableSchemas(
-  MysqlDatabase.node, // use `node` table schema
-  {
-    mac: {
-      [i18n.t('MAC address required.')]: required,
-      [i18n.t('Invalid MAC address.')]: isMacAddress,
-      [i18n.t('MAC address exists.')]: nodeExists
-    },
-    pid: {
-      [i18n.t('Owner does not exist.')]: userNotExists
-    }
-  }
-)
-
-export const updateValidators = buildValidatorsFromTableSchemas(
-  MysqlDatabase.node, // use `node` table schema
-  {
-    pid: {
-      [i18n.t('Username required.')]: required,
-      [i18n.t('Owner does not exist.')]: userNotExists
-    }
-  }
-)
-
 export const importFields = [
+  /*
   {
     value: 'mac',
     text: i18n.t('MAC Address'),
@@ -156,6 +135,7 @@ export const importFields = [
     formatter: formatter.yesNoFromString,
     validators: buildValidatorsFromColumnSchemas(MysqlDatabase.node.voip)
   }
+  */
 ]
 
 export const ipLogFields = [

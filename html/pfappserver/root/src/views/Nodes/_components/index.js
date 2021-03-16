@@ -1,28 +1,29 @@
 import {
   BaseInputChosenOne,
   BaseFormButtonBar,
-  BaseFormGroupChosenOne,
   BaseFormGroupInput,
   BaseFormGroupInputDateTime,
   BaseFormGroupInputMultiplier,
   BaseFormGroupInputNumber,
   BaseFormGroupTextarea,
-  BaseFormGroupToggleNoYes,
+  BaseFormGroupToggleNoYes
 } from '@/components/new/'
 import BaseFormGroupPid from './BaseFormGroupPid'
+import BaseFormGroupRolesWithNull from './BaseFormGroupRolesWithNull'
+import BaseFormGroupStatus from './BaseFormGroupStatus'
 
 export {
   BaseFormButtonBar             as FormButtonBar,
   BaseInputChosenOne            as FormSecurityEvents,
 
   BaseFormGroupPid              as FormGroupPid,
-  BaseFormGroupChosenOne        as FormGroupStatus,
-  BaseFormGroupChosenOne        as FormGroupRole,
+  BaseFormGroupStatus           as FormGroupStatus,
+  BaseFormGroupRolesWithNull    as FormGroupRole,
   BaseFormGroupInputDateTime    as FormGroupUnregdate,
   BaseFormGroupInputNumber      as FormGroupTimeBalance,
   BaseFormGroupInputMultiplier  as FormGroupBandwidthBalance,
   BaseFormGroupToggleNoYes      as FormGroupVoip,
   BaseFormGroupInput            as FormGroupBypassVlan,
-  BaseFormGroupChosenOne        as FormGroupBypassRole,
+  BaseFormGroupRolesWithNull    as FormGroupBypassRole,
   BaseFormGroupTextarea         as FormGroupNotes
 }

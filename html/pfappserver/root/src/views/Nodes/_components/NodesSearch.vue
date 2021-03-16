@@ -216,8 +216,7 @@ export default {
   props: {
     storeName: { // from router
       type: String,
-      default: null,
-      required: true
+      default: '$_nodes'
     },
     searchableOptions: {
       type: Object,
