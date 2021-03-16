@@ -22,6 +22,7 @@ use pf::dal::admin_api_audit_log;
 use Mojo::JSON qw(encode_json);
 has activity_timeout => 300;
 has 'openapi_generator_class' => undef;
+use Data::UUID;
 
 our $ERROR_400_MSG = "Bad Request. One of the submitted parameters has an invalid format";
 our $ERROR_404_MSG = "Not Found. The requested resource could not be found";
@@ -34,6 +35,8 @@ our %STATUS_TO_MSG = (
     409 => $ERROR_409_MSG,
     422 => $ERROR_422_MSG,
 );
+
+my $GENERATOR = Data::UUID->new;
 
 use Mojo::JSON qw(decode_json);
 use pf::util;
@@ -62,9 +65,10 @@ sub status_to_error_msg {
 }
 
 sub parse_json {
-    my ($self) = @_;
+    my ($self, $body) = @_;
+    $body //= $self->req->body;
     my $json = eval {
-        JSON::MaybeXS::decode_json($self->req->body)
+        JSON::MaybeXS::decode_json($body);
     };
     if ($@) {
         $self->log->error($@);
@@ -203,6 +207,10 @@ sub escape_url_param {
     return $param unless defined $param;
     $param =~ s/%2[fF]|~/\//g;
     return $param;
+}
+
+sub task_id {
+    "ApiTask:" . $GENERATOR->create_str
 }
 
 =head1 AUTHOR

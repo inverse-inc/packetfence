@@ -13,6 +13,7 @@ pf::UnifiedApi::Plugins::RestCrud
 =cut
 
 use Mojo::Base 'Mojolicious::Plugin';
+use List::MoreUtils qw(any);
 use Lingua::EN::Inflexion qw(noun);
 use Mojo::Util qw(decamelize camelize);
 use Clone qw(clone);
@@ -33,6 +34,19 @@ sub register {
     $routes->add_shortcut( register_sub_action => \&register_action);
 }
 
+sub valid_method {
+    my ($method) = @_;
+    if (!defined $method) {
+        die "invalid method given 'undef'";
+    }
+
+    my $methods = ref($method) ? $method : [$method];
+    if (any {!exists $ALLOWED_METHODS{$_} } @$methods) {
+        die "invalid method(s) given " . join(", ", @$methods);
+    }
+
+    return $methods;
+}
 =head2 register_actions
 
 $route->register_actions({
@@ -44,10 +58,6 @@ $route->register_actions({
 
 sub register_actions {
     my ($route, $args) = @_;
-    my $method = $args->{method};
-    if (!defined $method || !exists $ALLOWED_METHODS{$method}) {
-        die "invalid method given ". ($method // "undef" );
-    }
     my %subroutes;
     my $actions = delete $args->{actions};
     for my $action (@{$actions}) {
@@ -89,9 +99,7 @@ If no controller is defined then will use the parent route controller
 sub register_action {
     my ($route, $args) = @_;
     my $method = delete $args->{method};
-    if (!defined $method || !exists $ALLOWED_METHODS{$method}) {
-        die "invalid method given ". ($method // "undef" );
-    }
+    my $methods = valid_method($method);
 
     my $action = $args->{action};
     if (!defined $action) {
@@ -101,7 +109,7 @@ sub register_action {
     my $path = delete $args->{path} // "/$action";
     my $name = delete $args->{name} // $action;
     return
-      $route->any([$method] => $path)
+      $route->any($methods => $path)
             ->to(%$args)
             ->name( $route->name . ".$name" );
 }

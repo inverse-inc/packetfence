@@ -28,6 +28,7 @@ sub get {
            version => pf::version::version_get_current(),
            hostname => $host_id,
            uptime(),
+           db_version => do {my $v = eval { pf::version::version_get_last_db_version() }; $v},
         }
     );
 

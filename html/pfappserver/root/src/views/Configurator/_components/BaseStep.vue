@@ -27,7 +27,8 @@
                   {{ $t('Next Step') }} <icon class="ml-1" name="chevron-right"></icon>
                 </b-button>
               </slot>
-              <div class="d-block invalid-feedback" v-if="invalidFeedback && !isLoading" v-text="invalidFeedback"></div>
+              <small class="d-block valid-feedback text-primary" v-if="isLoading" v-text="progressFeedback"></small>
+              <small class="d-block invalid-feedback" v-else-if="invalidFeedback" v-text="invalidFeedback"></small>           
             </b-col>
           </b-row>
           <slot name="footer"></slot>
@@ -38,9 +39,11 @@
 </template>
 
 <script>
+import { BaseButtonSave } from '@/components/new/'
 import Sidebar from './Sidebar'
 
 const components = {
+  BaseButtonSave,
   Sidebar
 }
 
@@ -62,6 +65,9 @@ const props = {
   invalidFeedback: {
     type: String
   },
+  progressFeedback: {
+    type: String
+  },  
   isLoading: {
     type: Boolean,
     default: false

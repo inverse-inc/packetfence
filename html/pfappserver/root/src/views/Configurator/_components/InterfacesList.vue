@@ -65,18 +65,20 @@
         </template>
       </b-table>
 
-      <b-row v-if="managementTypeCount === 0"
+      <b-row v-if="managementTypeCount === 0 || isDetecting"
         align-v="center" class="is-invalid">
         <b-col cols="6">
           <div class="invalid-feedback d-block">{{ $t('At least one Interface must be of Type "management".') }}</div>
         </b-col>
         <b-col cols="6" class="text-right">
-          <pf-button
-            variant="outline-primary"
-            class="float-right"
-            :disabled="isLoading"
-            @click="detectManagementInterface()">{{ $t('Detect Management Interface') }}</pf-button>
-        </b-col>
+           <base-button-save
+             class="float-right"
+             :isLoading="isDetecting"
+             @click="detectManagementInterface"
+           >
+             {{ $t('Detect Management Interface') }}
+           </base-button-save>          
+         </b-col>
       </b-row>
 
       <hr/>
@@ -107,6 +109,7 @@
 
 <script>
 import {
+  BaseButtonSave,
   BaseForm,
   BaseFormGroupChosenMultiple,
   BaseFormGroupInput
@@ -117,12 +120,56 @@ import pfEmptyTable from '@/components/pfEmptyTable'
 import pfFormChosen from '@/components/pfFormChosen'
 import pfFormInput from '@/components/pfFormInput'
 import pfFormRangeToggle from '@/components/pfFormRangeToggle'
-import {
-  columns as columnsInterface
-} from '../_config/interface'
+import i18n from '@/utils/locale'
 import network from '@/utils/network'
+import {
+  typeFormatter,
+  sortColumns
+} from '@/views/Configuration/_config/interface'
+
+const columnsInterface = [
+  {
+    key: 'is_running',
+    label: i18n.t('Status'),
+    visible: true
+  },
+  {
+    key: 'id',
+    label: i18n.t('Logical Name'),
+    required: true,
+    sortable: true,
+    visible: true,
+    sort: sortColumns.id
+  },
+  {
+    key: 'ipaddress',
+    label: i18n.t('IP Address'),
+    sortable: true,
+    visible: true,
+    sort: sortColumns.ipaddress
+  },
+  {
+    key: 'network',
+    label: i18n.t('Default Network'),
+    sortable: true,
+    visible: true,
+    sort: sortColumns.network
+  },
+  {
+    key: 'type',
+    label: i18n.t('Type'),
+    visible: true,
+    formatter: typeFormatter
+  },
+  {
+    key: 'buttons',
+    label: '',
+    locked: true
+  }
+]
 
 const components = {
+  BaseButtonSave,
   BaseForm,
 
   FormGroupGateway:    BaseFormGroupInput,
@@ -153,7 +200,8 @@ export default {
         hostname: yup.string().nullable().required(this.$i18n.t('Hostname required.')),
         dns_servers: yup.array().ensure().required(this.$i18n.t('DNS server(s) required.')).of(yup.string().nullable())
       }),
-      interfaces: [] // interfaces from store
+      interfaces: [], // interfaces from store
+      isDetecting: false
     }
   },
   computed: {
@@ -199,6 +247,7 @@ export default {
     },
     detectManagementInterface () {
       if (this.managementTypeCount === 0) {
+        this.isDetecting = true
         // No interface is of type management -- force one
         let management_interface = this.interfaces.find(i => {
           return i.network && i.netmask && network.ipv4InSubnet(this.gateway, network.ipv4NetmaskToSubnet(i.network, i.netmask))
@@ -210,7 +259,21 @@ export default {
         }
         if (management_interface) {
           management_interface.type = 'management'
+          this.$store.dispatch('notification/danger', {
+            icon: 'exclamation-triangle',
+            message: this.$i18n.t('Management interface <code>{id}</code> found.', management_interface)
+          })          
           this.$store.dispatch('$_interfaces/updateInterface', management_interface)
+            .finally(() => {
+              this.isDetecting = false
+            })
+        }
+        else {
+          this.$store.dispatch('notification/danger', {
+            icon: 'exclamation-triangle',
+            message: this.$i18n.t('Management interface not found.')
+          })
+          this.isDetecting = false          
         }
       }
     },
