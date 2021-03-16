@@ -163,40 +163,56 @@ export const useSingleValueLookupOptions = (value, onInput, lookup, options, opt
       currentValueOptions.value = []
       return
     }
+
     // avoid (re)lookup when watch is triggered without value change
     //  false-positives occur when parent array pushes/pops siblings
     const { 0: { 0: newValue, 1: newLookup } = {}, 1: { 0: oldValue, 1: oldLookup } = {} } = args
     if (newValue === oldValue && JSON.stringify(newLookup) === JSON.stringify(oldLookup))
       return // These are not the droids you're looking for...
 
-    const { field_name: fieldName, search_path: url, value_name: valueName, base_url: baseURL } = lookup.value
     currentValueLoading.value = true
     const thisCurrentPromise = ++lastCurrentPromise
-    apiCall.request({
-      url,
-      method: 'post',
-      baseURL: (baseURL || baseURL === '') ? baseURL : apiBaseURL,
-      data: {
-        query: { op: 'and', values: [{
-          op: 'or',
-          values: [{ field: valueName, op: 'equals', value: value.value }] }]
-        },
-        fields: [...new Set([fieldName, valueName])],
-        sort: [fieldName],
-        cursor: 0,
-        limit: 1
-      }
-    }).then(response => {
-      if (thisCurrentPromise === lastCurrentPromise) { // ignore slow responses
-        const { data: { items = [] } = {} } = response
-        currentValueOptions.value = items.map(item => {
-          const { [fieldName]: _field, [valueName]: _value } = item // unmap lookup field_name/value_name
-          return { [label.value]: _field, [trackBy.value]: _value } // remap option label/trackBy
+
+    if (lookup.value.constructor === Function) { // handle lookup Function (manual)
+      Promise.resolve(lookup.value(value.value, true))
+        .then(options => {
+          if (thisCurrentPromise === lastCurrentPromise) // ignore slow responses
+            currentValueOptions.value = options
         })
-      }
-    }).finally(() => {
-      currentValueLoading.value = false
-    })
+        .finally(() => {
+          currentValueLoading.value = false
+        })
+    }
+    else { // handle lookup Object (automatic)
+      const { field_name: fieldName, search_path: url, value_name: valueName, base_url: baseURL } = lookup.value
+      apiCall.request({
+        url,
+        method: 'post',
+        baseURL: (baseURL || baseURL === '') ? baseURL : apiBaseURL,
+        data: {
+          query: {
+            op: 'and', values: [{
+              op: 'or',
+              values: [{ field: valueName, op: 'equals', value: value.value }]
+            }]
+          },
+          fields: [...new Set([fieldName, valueName])],
+          sort: [fieldName],
+          cursor: 0,
+          limit: 1
+        }
+      }).then(response => {
+        if (thisCurrentPromise === lastCurrentPromise) { // ignore slow responses
+          const { data: { items = [] } = {} } = response
+          currentValueOptions.value = items.map(item => {
+            const { [fieldName]: _field, [valueName]: _value } = item // unmap lookup field_name/value_name
+            return { [label.value]: _field, [trackBy.value]: _value } // remap option label/trackBy
+          })
+        }
+      }).finally(() => {
+        currentValueLoading.value = false
+      })
+    }
   }, { immediate: true })
 
   const showEmpty = ref(false)
@@ -211,46 +227,64 @@ export const useSingleValueLookupOptions = (value, onInput, lookup, options, opt
       searchResultOptions.value = []
       return
     }
-    const { field_name: fieldName, search_path: url, value_name: valueName, base_url: baseURL } = lookup.value
     searchResultLoading.value = true
     if (!searchDebouncer)
       searchDebouncer = createDebouncer()
-    searchDebouncer({
-      handler: () => {
-        const thisSearchPromise = ++lastSearchPromise
-        // split query by space(s)
-        const values = query
-          .trim() // trim outside whitespace
-          .split(' ') // separate terms by space
-          .filter(q => q) // ignore multiple spaces
-          .map(query => ({ op: 'or', values: [{ field: fieldName, op: 'contains', value: query }] }))
+    if (lookup.value.constructor === Function) { // handle lookup Function (manual)
+      searchDebouncer({
+        handler: () => {
+          const thisSearchPromise = ++lastSearchPromise
+          Promise.resolve(lookup.value(query, false))
+          .then(options => {
+            if (thisSearchPromise === lastSearchPromise) // ignore slow responses
+              searchResultOptions.value = options
+          })
+          .finally(() => {
+            searchResultLoading.value = false
+          })
+        },
+        time: 300
+      })
+    }
+    else { // handle lookup Object (automatic)
+      const { field_name: fieldName, search_path: url, value_name: valueName, base_url: baseURL } = lookup.value
+      searchDebouncer({
+        handler: () => {
+          const thisSearchPromise = ++lastSearchPromise
+          // split query by space(s)
+          const values = query
+            .trim() // trim outside whitespace
+            .split(' ') // separate terms by space
+            .filter(q => q) // ignore multiple spaces
+            .map(query => ({ op: 'or', values: [{ field: fieldName, op: 'contains', value: query }] }))
 
-        apiCall.request({
-          url,
-          method: 'post',
-          baseURL: (baseURL || baseURL === '') ? baseURL : apiBaseURL,
-          data: {
-            query: { op: 'and', values },
-            fields: [...new Set([fieldName, valueName])],
-            sort: [fieldName],
-            cursor: 0,
-            limit: optionsLimit.value - 1
-          }
-        }).then(response => {
-          if (thisSearchPromise === lastSearchPromise) { // ignore late responses from earlier reqs
-            const { data: { items = [] } = {} } = response
-            searchResultOptions.value = items.map(item => {
-              const { [fieldName]: _field, [valueName]: _value } = item // unmap lookup field_name/value_name
-              return { [label.value]: _field, [trackBy.value]: _value } // remap label/trackBy
-            })
-          }
-        }).finally(() => {
-          searchResultLoading.value = false
-          showEmpty.value = true // only show after first search
-        })
-      },
-      time: 300
-    })
+          apiCall.request({
+            url,
+            method: 'post',
+            baseURL: (baseURL || baseURL === '') ? baseURL : apiBaseURL,
+            data: {
+              query: { op: 'and', values },
+              fields: [...new Set([fieldName, valueName])],
+              sort: [fieldName],
+              cursor: 0,
+              limit: optionsLimit.value - 1
+            }
+          }).then(response => {
+            if (thisSearchPromise === lastSearchPromise) { // ignore late responses from earlier reqs
+              const { data: { items = [] } = {} } = response
+              searchResultOptions.value = items.map(item => {
+                const { [fieldName]: _field, [valueName]: _value } = item // unmap lookup field_name/value_name
+                return { [label.value]: _field, [trackBy.value]: _value } // remap label/trackBy
+              })
+            }
+          }).finally(() => {
+            searchResultLoading.value = false
+            showEmpty.value = true // only show after first search
+          })
+        },
+        time: 300
+      })
+    }
   }
 
   const onRemove = () => onInput()

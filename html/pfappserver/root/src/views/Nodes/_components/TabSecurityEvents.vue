@@ -54,7 +54,6 @@ const props = {
 
 import { computed, ref, toRefs } from '@vue/composition-api'
 import acl from '@/utils/acl'
-import i18n from '@/utils/locale'
 
 import { useStore } from '../_composables/useCollection'
 import { securityEventFields } from '../_config/'

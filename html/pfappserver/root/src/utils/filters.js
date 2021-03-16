@@ -3,9 +3,7 @@ import { parse, format, distanceInWordsToNow } from 'date-fns'
 
 const filters = {
   longDateTime (value) {
-    if (!value) {
-      return ''
-    } else if (value === '0000-00-00 00:00:00') {
+    if (!value || value === '0000-00-00 00:00:00') {
       return i18n.t('Never')
     } else {
       let localeObject, localeFormat
@@ -20,9 +18,7 @@ const filters = {
     }
   },
   shortDateTime (value) {
-    if (!value) {
-      return ''
-    } else if (value === '0000-00-00 00:00:00') {
+    if (!value || value === '0000-00-00 00:00:00') {
       return i18n.t('Never')
     } else {
       let localeObject, localeFormat

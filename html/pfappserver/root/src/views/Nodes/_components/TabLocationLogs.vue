@@ -19,7 +19,7 @@
         <pf-empty-table :is-loading="isLoading" text="">{{ $t('No location logs found') }}</pf-empty-table>
       </template>
     </b-table>
-    <div class="mt-3" v-if="canReevaluateAccess || canRestartSwitchport">
+    <div class="mt-3">
       <div class="border-top pt-3">
         <template v-if="canReevaluateAccess">
           <b-button class="mr-1" size="sm" variant="outline-secondary" :disabled="isLoading" @click="reevaluateAccess">{{ $i18n.t('Reevaluate Access') }}</b-button>

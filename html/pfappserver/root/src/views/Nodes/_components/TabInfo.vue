@@ -36,26 +36,25 @@
             <b-badge variant="danger" v-else>{{ $t('Inactive') }}</b-badge>
         </pf-form-row>
         <pf-form-row class="text-nowrap" :column-label="$t('Detect Date')">
-          <abbr :title="node.detect_date | longDateTime"><timeago :datetime="node.detect_date" :auto-update="60" :locale="$i18n.locale"></timeago></abbr>
-          <!-- <span class="ml-1" v-b-tooltip.hover :title="node.detect_date | longDateTime"><icon name="regular/question-circle"></icon></span> -->
+          {{ node.detect_date | longDateTime }} <abbr v-if="node.detect_date && node.detect_date !== '0000-00-00 00:00:00'" :title="node.detect_date | longDateTime">(<timeago :datetime="node.detect_date" :auto-update="60" :locale="$i18n.locale"/>)</abbr>
         </pf-form-row>
         <pf-form-row class="text-nowrap" :column-label="$t('Registration Date')">
-          {{ node.regdate | longDateTime }}
+          {{ node.regdate | longDateTime }} <abbr v-if="node.regdate && node.regdate !== '0000-00-00 00:00:00'" :title="node.regdate | longDateTime">(<timeago :datetime="node.regdate" :auto-update="60" :locale="$i18n.locale"/>)</abbr>
         </pf-form-row>
         <pf-form-row class="text-nowrap" :column-label="$t('Unregistration Date')">
-          {{ node.unregdate | longDateTime }}
+          {{ node.unregdate | longDateTime }} <abbr v-if="node.unregdate && node.unregdate !== '0000-00-00 00:00:00'" :title="node.unregdate | longDateTime">(<timeago :datetime="node.unregdate" :auto-update="60" :locale="$i18n.locale"/>)</abbr>
         </pf-form-row>
         <pf-form-row class="text-nowrap" :column-label="$t('Last ARP')">
-          {{ node.last_arp | longDateTime }}
+          {{ node.last_arp | longDateTime }} <abbr v-if="node.last_arp && node.last_arp !== '0000-00-00 00:00:00'" :title="node.last_arp | longDateTime">(<timeago :datetime="node.last_arp" :auto-update="60" :locale="$i18n.locale"/>)</abbr>
         </pf-form-row>
         <pf-form-row class="text-nowrap" :column-label="$t('Last DHCP')">
-          {{ node.last_dhcp | longDateTime }}
+          {{ node.last_dhcp | longDateTime }} <abbr v-if="node.last_dhcp && node.last_dhcp !== '0000-00-00 00:00:00'" :title="node.last_dhcp | longDateTime">(<timeago :datetime="node.last_dhcp" :auto-update="60" :locale="$i18n.locale"/>)</abbr>
         </pf-form-row>
         <pf-form-row class="text-nowrap" :column-label="$t('Last Seen')">
-          {{ node.last_seen | longDateTime }}
+          {{ node.last_seen | longDateTime }} <abbr v-if="node.last_seen && node.last_seen !== '0000-00-00 00:00:00'" :title="node.last_seen | longDateTime">(<timeago :datetime="node.last_seen" :auto-update="60" :locale="$i18n.locale"/>)</abbr>
         </pf-form-row>
         <pf-form-row class="text-nowrap" :column-label="$t('Last Skip')">
-          {{ node.lastskip | longDateTime }}
+          {{ node.lastskip | longDateTime }} <abbr v-if="node.lastskip && node.lastskip !== '0000-00-00 00:00:00'" :title="node.lastskip | longDateTime">(<timeago :datetime="node.lastskip" :auto-update="60" :locale="$i18n.locale"/>)</abbr>
         </pf-form-row>
         <pf-form-row class="text-nowrap" :column-label="$t('Last Connection Type')">
           {{ node.last_connection_type }} <span v-if="node.last_connection_sub_type">/</span> {{ node.last_connection_sub_type }}

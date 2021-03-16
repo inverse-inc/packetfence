@@ -71,29 +71,6 @@ const setup = (props, context) => {
   const tabsRef = ref(null)
   const tabIndex = ref(0)
 
-  // const searchUsers = () => {
-  //   let body = {
-  //     limit: 10,
-  //     fields: ['pid', 'firstname', 'lastname', 'email'],
-  //     sort: ['pid'],
-  //     query: {
-  //       op: 'and',
-  //       values: [{
-  //         op: 'or',
-  //         values: [
-  //           { field: 'pid', op: 'contains', value: form.pid },
-  //           { field: 'firstname', op: 'contains', value: form.pid },
-  //           { field: 'lastname', op: 'contains', value: form.pid },
-  //           { field: 'email', op: 'contains', value: form.pid }
-  //         ]
-  //       }]
-  //     }
-  //   }
-  //   usersApi.search(body).then((data) => {
-  //     matchingUsers.value = data.items.map(item => item.pid)
-  //   })
-  // }
-
   const {
     isLoading,
     reloadItem
