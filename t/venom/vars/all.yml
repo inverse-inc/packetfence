@@ -383,5 +383,3 @@ pfdhcplistener_multi_tenant.nodes.node11.dhcp_fingerprint: 1,2,3,4
 pfdhcplistener_multi_tenant.nodes.node11.dhcp_vendor: test
 # need to be a network not already attached to PacketFence server
 pfdhcplistener_multi_tenant.nodes.node11.dhcp_server: 10.10.10.1
-
->>>>>>> [Venom] add integration test on pfdhcplistener single-tenant
