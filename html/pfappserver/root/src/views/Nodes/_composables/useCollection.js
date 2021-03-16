@@ -7,7 +7,8 @@ const useRouter = (props, context, form) => {
   const { root: { $router } = {} } = context
   return {
     goToCollection: () => $router.push({ name: 'nodes' }),
-    goToItem: () => $router.push({ name: 'node', params: { mac: form.value.id || id.value } })
+    goToItem: (_id) => $router
+      .push({ name: 'node', params: { mac: form.value.id || (id && id.value) || _id } })
       .catch(e => { if (e.name !== "NavigationDuplicated") throw e }),
   }
 }
@@ -17,11 +18,12 @@ const useStore = (props, context, form) => {
     id
   } = toRefs(props)
   const { root: { $store } = {} } = context
-  return {
+  return { 
     isLoading: computed(() => $store.getters['$_nodes/isLoading']),
     reloadItem: () => $store.dispatch('$_nodes/refreshNode', id.value),
     deleteItem: () => $store.dispatch('$_nodes/deleteNode', id.value),
     getItem: () => $store.dispatch('$_nodes/getNode', id.value),
+    createItem: () => $store.dispatch('$_nodes/createNode', form.value),
     updateItem: () => $store.dispatch('$_nodes/updateNode', form.value),
     reevaluateAccess: () => $store.dispatch('$_nodes/reevaluateAccessNode', id.value),
     refreshFingerbank: () => $store.dispatch('$_nodes/refreshFingerbankNode', id.value),

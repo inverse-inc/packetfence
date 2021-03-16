@@ -25,5 +25,8 @@ export {
   BaseFormGroupToggleNoYes      as FormGroupVoip,
   BaseFormGroupInput            as FormGroupBypassVlan,
   BaseFormGroupRolesWithNull    as FormGroupBypassRole,
-  BaseFormGroupTextarea         as FormGroupNotes
+  BaseFormGroupTextarea         as FormGroupNotes,
+  
+  BaseFormGroupInput            as FormGroupMac,
+  
 }

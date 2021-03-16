@@ -77,7 +77,7 @@ import {
   FormGroupVoip,
   FormGroupBypassVlan,
   FormGroupBypassRole,
-  FormGroupNotes,
+  FormGroupNotes
 } from './'
 
 const components = {
