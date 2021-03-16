@@ -193,7 +193,7 @@ func NodeInformation(ctx context.Context, target net.HardwareAddr) (r NodeInfo) 
 
 // ShuffleDNS return the dns list
 func ShuffleDNS(ConfNet pfconfigdriver.RessourseNetworkConf) (r []byte) {
-	if ConfNet.NatDNS == "0" {
+	if ConfNet.NatDNS == "disabled" {
 		var excluded []string
 		return Shuffle(ConfNet.Dns, excluded)
 	}
