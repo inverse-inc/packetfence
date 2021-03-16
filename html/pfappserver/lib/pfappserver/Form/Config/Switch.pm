@@ -97,6 +97,15 @@ has_field 'useCoA' =>
              help => 'Use CoA when available to deauthenticate the user. When disabled, RADIUS Disconnect will be used instead if it is available.' },
   );
 
+has_field 'deauthOnPrevious' =>
+  (
+   type => 'Toggle',
+   label => 'Deauth On previous switch',
+   default => 'N',
+   tags => { after_element => \&help,
+             help => 'This option parameter will allow you to do the deauth/CoA on the previous switch the device connected.' },
+  );
+
 has_field 'VlanMap' =>
   (
    type => 'Toggle',
@@ -256,7 +265,12 @@ has_field macSearchesSleepInterval  =>
    },
   );
 
-has_field 'SNMPVersion' =>
+has_block definition =>
+  (
+   render_list => [ qw(description type mode group deauthMethod useCoA deauthOnPrevious cliAccess ExternalPortalEnforcement VoIPEnabled VoIPLLDPDetect VoIPCDPDetect VoIPDHCPDetect uplink_dynamic uplink controllerIp disconnectPort coaPort) ],
+  );
+
+  has_field 'SNMPVersion' =>
   (
    type => 'Select',
    label => 'Version',
