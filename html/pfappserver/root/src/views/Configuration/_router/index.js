@@ -62,11 +62,21 @@ import RadiusRoutes from '../radius/_router'
 import DnsRoutes from '../dns/_router'
 import AdminRolesRoutes from '../adminRoles/_router'
 
+import store from '@/store'
+import BasesStoreModule from '../bases/_store'
+export const beforeEnter = (to, from, next = () => { }) => {
+  if (!store.state.$_bases) {
+    store.registerModule('$_bases', BasesStoreModule)
+  }
+  next()
+}
+
 const route = {
   path: '/configuration',
   name: 'configuration',
-  redirect: '/configuration/policies_access_control',
+  redirect: '/configuration/policies_access_control', 
   component: ConfigurationView,
+  beforeEnter,
   meta: {
     can: () => acl.$can('read', 'configuration_main'), // has ACL for 1+ children
     transitionDelay: 300 * 2 // See _transitions.scss => $slide-bottom-duration
