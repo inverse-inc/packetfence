@@ -52,6 +52,8 @@ For a list of compatibility related changes see the <<PacketFence_Upgrade_Guide.
 * Documentation to configure Security Onion 2.3.10
 * Added integration tests for 802.1X wireless and wireless Mac authentication (#6114)
 * Restrict create, update, and delete operations to the default and global tenant users (#6075)
+* Remove pftest mysql tuner (#6130)
+
 === Bug Fixes
 
 * Switch defined by mac address are not processed by pfacct in cluster mode (#5969)
