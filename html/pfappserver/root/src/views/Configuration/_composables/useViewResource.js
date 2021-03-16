@@ -38,11 +38,10 @@ export const useViewResource = (resource, props, context) => {
 
   const {
     isLoading,
-    getOptions,
+    getOptions = () => (new Promise(r => r())),
     getItem,
     updateItem,
   } = useStore(props, context, form)
-
   const isSaveable = computed(() => !!updateItem)
 
   const init = () => {
