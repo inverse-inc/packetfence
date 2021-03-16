@@ -18,6 +18,38 @@ endif::[]
 
 //== Troubleshooting a cluster
 
+=== Checking the MariaDB sync
+
+In order to check the MariaDB sync, you can look at the status of the `wsrep` status values inside MariaDB.
+
+----
+MariaDB> show status like 'wsrep%';
+----
+
+Important variables:
+
+  * `wsrep_cluster_status`: Display whether or not the node is part of a primary view or not. A healthy cluster should always show as primary
+  * `wsrep_incoming_addresses`: The current members of the cluster. All the nodes of your cluster should be listed there.
+  * `wsrep_last_committed`: Sequence number of the most recently committed transaction. You can identify the most advanced node with this value.
+  * `wsrep_local_state_comment`: Current sync state of the cluster. A healthy state is 'Synced'. Refer to the Galera cluster documentation for the meaning of the other values this can have.
+
+In order for the cluster to be considered healthy, all nodes must be listed under `wsrep_incoming_addresses` and `wsrep_local_state_comment` must be `Synced`. Otherwise look in the MariaDB log ([filename]`/usr/local/pf/logs/mariadb_error.log`)
+
+=== Rejoining a node to an existing cluster
+
+When only one node has left cluster, you can apply following commands on that node to rejoin:
+
+[source,bash]
+----
+systemctl stop packetfence-mariadb
+systemctl stop packetfence-galera-autofix
+rm -fr /var/lib/mysql/*
+systemctl start packetfence-mariadb
+systemctl start packetfence-galera-autofix
+----
+
+This action will not cause service disruption on current cluster.
+
 === Recovering when a node is missing
 
 If one of the nodes cannot recover, you can manually reset the cluster state. Note that this procedure is only valid if all the nodes were hard-shutdown at the same time.
@@ -57,19 +89,3 @@ On each of the servers you want to discard the data from, you must destroy all t
 You should then see `/var/lib/mysql` be populated again with the data and once MariaDB becomes available again on the server, it means the sync has completed. In case of issues, look in the MariaDB log file (`/usr/local/pf/logs/mariadb_error.log`)
 
 NOTE: If you were performing a full recovery, you should now break the `--force-new-cluster` command and start `packetfence-mariadb` normally. (`systemctl start packetfence-mariadb`)
-
-=== Putting a node in maintenance
-
-When doing maintenance on a node (especially the management node), it is always better to put it in maintenance mode so it doesn't try to join an existing cluster.
-
-In order to activate the maintenance mode on a node:
-
-  # /usr/local/pf/bin/cluster/maintenance --activate
-
-In order to deactivate the maintenance mode on a node:
-
-  # /usr/local/pf/bin/cluster/maintenance --deactivate
-
-In order to see the current maintenance state on a node:
-
-  # /usr/local/pf/bin/cluster/maintenance

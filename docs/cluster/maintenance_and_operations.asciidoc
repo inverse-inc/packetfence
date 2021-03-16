@@ -18,6 +18,35 @@ endif::[]
 
 //== Maintenance and Operations
 
+=== Putting a node in maintenance
+
+When doing maintenance on a node (especially the management node), it is
+always better to put it in maintenance mode so it doesn't try to join an
+existing cluster.
+
+Once node is in maintenance, you can safely reboot it.
+
+In order to activate the maintenance mode on a node:
+
+[source,bash]
+----
+/usr/local/pf/bin/cluster/maintenance --activate
+----
+
+In order to deactivate the maintenance mode on a node:
+
+[source,bash]
+----
+/usr/local/pf/bin/cluster/maintenance --deactivate
+----
+
+In order to see the current maintenance state on a node:
+
+[source,bash]
+----
+/usr/local/pf/bin/cluster/maintenance
+----
+
 === Shutting down a PacketFence Active/Active cluster of three nodes
 
 As PacketFence cluster works in an active/active way, with statefull redundance, the order to stop the servers is not very important.
