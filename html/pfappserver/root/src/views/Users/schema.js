@@ -29,6 +29,28 @@ yup.addMethod(yup.string, 'pidNotExistsExcept', function (except, message) {
   })
 })
 
+yup.addMethod(yup.string, 'pidExists', function (message) {
+  return this.test({
+    name: 'pidExists',
+    message: message || i18n.t('PID exists.'),
+    test: (value) => !value 
+      || store.dispatch('$_users/exists', value)
+        .then(() => true) // pid exists
+        .catch(() => false) // pid not exists
+  })
+})
+
+yup.addMethod(yup.string, 'pidNotExists', function (message) {
+  return this.test({
+    name: 'pidNotExists',
+    message: message || i18n.t('PID does not exist.'),
+    test: (value) => !value 
+      || store.dispatch('$_users/exists', value)
+        .then(() => false) // pid exists
+        .catch(() => true) // pid not exists
+  })
+})
+
 export const single = (props, form) => {
   const {
     pid
@@ -106,3 +128,5 @@ export const csv = (props, form) => {
       .isDateCompare('>', valid_from, 'YYYY-MM-DD', i18n.t('Date must be greater than start date.'))
   })
 }
+
+export { yup }

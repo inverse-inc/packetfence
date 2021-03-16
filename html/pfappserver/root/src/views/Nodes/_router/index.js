@@ -1,15 +1,21 @@
+import store from '@/store'
 import acl from '@/utils/acl'
 import i18n from '@/utils/locale'
-import store from '@/store'
-import FormStore from '@/store/base/form'
+import NodesStoreModule from '../_store'
+import UsersStoreModule from '../../Users/_store'
 import NodesView from '../'
-import NodesStore from '../_store'
-import UsersStore from '../../Users/_store'
-import NodesSearch from '../_components/NodesSearch'
+const NodesSearch = () => import(/* webpackChunkName: "Nodes" */ '../_components/NodesSearch')
+const TheCsvImport = () => import(/* webpackChunkName: "Editor" */ '../_components/TheCsvImport')
+const TheViewCreate = () => import(/* webpackChunkName: "Nodes" */ '../_components/TheViewCreate')
+const TheViewUpdate = () => import(/* webpackChunkName: "Nodes" */ '../_components/TheViewUpdate')
 
-const NodesCreate = () => import(/* webpackChunkName: "Nodes" */ '../_components/NodesCreate')
-const NodeView = () => import(/* webpackChunkName: "Nodes" */ '../_components/NodeView')
-const NodesImport = () => import(/* webpackChunkName: "Editor" */ '../_components/NodesImport')
+export const beforeEnter = (to, from, next = () => {}) => {
+  if (!store.state.$_nodes)
+    store.registerModule('$_nodes', NodesStoreModule)
+  if (!store.state.$_users)
+    store.registerModule('$_users', UsersStoreModule)
+  next()
+}
 
 const route = {
   path: '/nodes',
@@ -21,23 +27,13 @@ const route = {
     transitionDelay: 300 * 2 // See _transitions.scss => $slide-bottom-duration
   },
   props: { storeName: '$_nodes' },
-  beforeEnter: (to, from, next) => {
-    if (!store.state.$_nodes) {
-      // Register store module only once
-      store.registerModule('$_nodes', NodesStore)
-    }
-    if (!store.state.$_users) {
-      // Register store module only once
-      store.registerModule('$_users', UsersStore)
-    }
-    next()
-  },
+  beforeEnter,
   children: [
     {
       path: 'search',
       name: 'nodeSearch',
       component: NodesSearch,
-      props: (route) => ({ storeName: '$_nodes', query: route.query.query }),
+      props: (route) => ({ query: route.query.query }),
       meta: {
         can: 'read nodes',
         isFailRoute: true
@@ -46,14 +42,7 @@ const route = {
     {
       path: 'create',
       name: 'nodeCreate',
-      component: NodesCreate,
-      props: { formStoreName: 'formNodesCreate' },
-      beforeEnter: (to, from, next) => {
-        if (!store.state.formNodesCreate) { // Register store module only once
-          store.registerModule('formNodesCreate', FormStore)
-        }
-        next()
-      },
+      component: TheViewCreate,
       meta: {
         can: 'create nodes'
       }
@@ -61,7 +50,7 @@ const route = {
     {
       path: 'import',
       name: 'nodeImport',
-      component: NodesImport,
+      component: TheCsvImport,
       meta: {
         can: 'create nodes'
       }
@@ -69,13 +58,10 @@ const route = {
     {
       path: '/node/:mac',
       name: 'node',
-      component: NodeView,
-      props: (route) => ({ formStoreName: 'formNodeView', mac: route.params.mac }),
+      component: TheViewUpdate,
+      props: (route) => ({ id: route.params.mac }),
       beforeEnter: (to, from, next) => {
-        if (!store.state.formNodeView) { // Register store module only once
-          store.registerModule('formNodeView', FormStore)
-        }
-        store.dispatch('$_nodes/getNode', to.params.mac).then(() => {
+        store.dispatch('$_nodes/exists', to.params.mac).then(() => {
           next()
         }).catch(() => { // `mac` does not exist
           store.dispatch('notification/danger', { message: i18n.t('Node <code>{mac}</code> does not exist or is not available for this tenant.', to.params) })

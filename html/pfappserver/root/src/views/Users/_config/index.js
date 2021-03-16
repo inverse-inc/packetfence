@@ -1,7 +1,6 @@
 import i18n from '@/utils/locale'
 import acl from '@/utils/acl'
 import yup from '@/utils/yup'
-
 import {
   pfActions
 } from '@/globals/pfActions'
@@ -100,8 +99,8 @@ export const importFields = [
     types: [fieldType.SUBSTRING],
     required: true,
     validator: yup.string().nullable()
-    .required(i18n.t('PID required.'))
-    .concat(validatorFromColumnSchemas(MysqlDatabase.person.pid))
+      .required(i18n.t('PID required.'))
+      .concat(validatorFromColumnSchemas(MysqlDatabase.person.pid))
   },
   {
     value: 'password',
