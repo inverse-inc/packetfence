@@ -15,8 +15,8 @@
           <b-nav-item v-b-tooltip.hover.bottom.d300 title="Alt + Shift + C" to="/configuration" :active="$route.path.startsWith('/configuration')" v-if="canRoute('/configuration')">{{ $t('Configuration') }}</b-nav-item>
         </b-navbar-nav>
         <b-nav-text class="ml-auto">
-          <b-badge class="mr-1" v-if="debug" :variant="apiOK? 'success' : 'danger'">API</b-badge>
-          <b-badge class="mr-1" v-if="debug" :variant="chartsOK? 'success' : 'danger'">dashboard</b-badge>
+          <b-badge class="mr-1" v-if="debug" :variant="apiOK === true? 'success' : apiOK === false? 'danger' : 'warning'">API</b-badge>
+          <b-badge class="mr-1" v-if="debug" :variant="chartsOK === true? 'success' : chartsOK === false? 'danger' : 'warning'">dashboard</b-badge>
         </b-nav-text>
         <b-navbar-nav v-show="isConfiguratorActive" class="pl-2">
           <b-nav-item-dropdown right no-caret>
