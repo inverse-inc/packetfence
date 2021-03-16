@@ -6,7 +6,6 @@
       :isLoading="isLoading"
       class="pt-0"
     >
-      <!-- TODO: handle complex lookup -->
       <form-group-pid namespace="pid"
         :column-label="$i18n.t('Owner')"
         placeholder="default"

@@ -54,7 +54,7 @@ export const props = {
 }
 
 export default {
-  name: 'base-form-group-pid',
+  name: 'base-form-group-person-searchable',
   extends: BaseFormGroupChosenOneSearchable,
   props
 }

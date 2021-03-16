@@ -8,15 +8,15 @@ import {
   BaseFormGroupTextarea,
   BaseFormGroupToggleNoYes
 } from '@/components/new/'
-import BaseFormGroupPid from './BaseFormGroupPid'
 import BaseFormGroupRolesWithNull from './BaseFormGroupRolesWithNull'
 import BaseFormGroupStatus from './BaseFormGroupStatus'
+import BaseFormGroupPersonSearchable from '@/views/Users/_components/BaseFormGroupPersonSearchable'
 
 export {
   BaseFormButtonBar             as FormButtonBar,
   BaseInputChosenOne            as FormSecurityEvents,
 
-  BaseFormGroupPid              as FormGroupPid,
+  BaseFormGroupPersonSearchable as FormGroupPid,
   BaseFormGroupStatus           as FormGroupStatus,
   BaseFormGroupRolesWithNull    as FormGroupRole,
   BaseFormGroupInputDateTime    as FormGroupUnregdate,
