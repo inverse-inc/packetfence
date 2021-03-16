@@ -3,7 +3,7 @@
     <base-form
       :form="form"
       :schema="schema"
-      :isLoading="isLoading"
+      :is-loading="isLoading"
     >
       <form-group-mac namespace="mac"
         :column-label="$t('MAC')"
@@ -27,11 +27,11 @@
       <div class="mt-3">
         <div class="border-top p-3">
           <base-form-button-bar
-            isNew
-            :isLoading="isLoading"
-            isSaveable
-            :isValid="isValid"
-            :formRef="rootRef"
+            is-new
+            :is-loading="isLoading"
+            is-saveable
+            :is-valid="isValid"
+            :form-ref="rootRef"
             @close="onClose"
             @reset="onReset"
             @save="onCreate"
@@ -127,7 +127,7 @@ const setup = (props, context) => {
 
 // @vue/component
 export default {
-  name: 'the-form-create-single',
+  name: 'the-form-create',
   inheritAttrs: false,
   components,
   setup

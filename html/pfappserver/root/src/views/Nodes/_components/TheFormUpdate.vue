@@ -3,7 +3,7 @@
     <base-form
       :form="form"
       :schema="schema"
-      :isLoading="isLoading"
+      :is-loading="isLoading"
       class="pt-0"
     >
       <form-group-pid namespace="pid"
@@ -43,13 +43,13 @@
       <div class="mt-3">
         <div class="border-top pt-3">
           <form-button-bar class="mr-3"
-            :actionKey="actionKey"
-            :isLoading="isLoading"
-            :isCloneable="false"
-            :isSaveable="true"
-            :isDeletable="isDeletable"
-            :isValid="isValid"
-            :formRef="rootRef"
+            :action-key="actionKey"
+            :is-loading="isLoading"
+            :is-cloneable="false"
+            :is-saveable="true"
+            :is-deletable="isDeletable"
+            :is-valid="isValid"
+            :form-ref="rootRef"
             @close="onClose"
             @remove="onRemove"
             @reset="onReset"

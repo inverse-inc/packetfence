@@ -4,7 +4,7 @@
       {{ $t('Option82') }} <b-badge pill v-if="node && node.dhcpoption82 && node.dhcpoption82.length > 0" variant="light" class="ml-1">{{ node.dhcpoption82.length }}</b-badge>
     </template>
     <b-table v-if="node && node.dhcpoption82"
-      :items="node.dhcpoption82" :fields="dhcpOption82Fields" :sortBy="dhcpOption82SortBy" :sortDesc="dhcpOption82SortDesc" responsive show-empty sort-icon-left striped>
+      :items="node.dhcpoption82" :fields="dhcpOption82Fields" :sort-by="dhcpOption82SortBy" :sort-desc="dhcpOption82SortDesc" responsive show-empty sort-icon-left striped>
       <template v-slot:empty>
         <pf-empty-table :is-loading="isLoading" text="">{{ $t('No DHCP option82 logs found') }}</pf-empty-table>
       </template>

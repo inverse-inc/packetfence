@@ -5,7 +5,7 @@
     </template>
 
     <b-table v-if="node"
-      :items="node.security_events" :fields="securityEventFields" :sortBy="securityEventSortBy" :sortDesc="securityEventSortDesc" responsive show-empty sort-icon-left striped>
+      :items="node.security_events" :fields="securityEventFields" :sort-by="securityEventSortBy" :sort-desc="securityEventSortDesc" responsive show-empty sort-icon-left striped>
       <template v-slot:cell(description)="security_event">
          <router-link v-if="securityEventDescription(security_event.item.security_event_id)" 
           :to="{ path: `/configuration/security_event/${security_event.item.security_event_id}` }">{{ securityEventDescription(security_event.item.security_event_id) }}</router-link>
