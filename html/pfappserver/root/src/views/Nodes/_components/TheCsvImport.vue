@@ -15,17 +15,14 @@
             </b-button-close>
             {{ file.name }}
           </template>
-          <pf-csv-import :ref="'import-' + index"
+          <base-csv-import :ref="'import-' + index"
             :file="file"
             :fields="importFields"
-            :default-static-mapping="defaultStaticMapping"
-            :events-listen="tabIndex === index"
             :is-loading="isLoading"
             :import-promise="importPromise"
-            store-name="$_nodes"
             hover
             striped
-          ></pf-csv-import>
+          />          
         </b-tab>
         <template v-slot:tabs-end>
           <pf-form-upload @files="files = $event" @focus="tabIndex = $event" :multiple="true" :cumulative="true" accept="text/*, .csv">{{ $t('Open CSV File') }}</pf-form-upload>
@@ -51,10 +48,57 @@
 </template>
 
 <script>
-import pfCSVImport from '@/components/pfCSVImport'
+import {
+  BaseCsvImport
+} from '@/components/new/'
 import pfFormUpload from '@/components/pfFormUpload'
+
+const components = {
+  BaseCsvImport,
+ 
+  pfFormUpload
+}
+
+import { ref } from '@vue/composition-api'
 import { importFields } from '../_config/'
 
+const setup = (props, context) => {
+  
+  const { root: { $store } = {} } = context
+
+  const files = ref([])
+  const tabIndex = ref(0)
+
+ 
+  const isLoading = ref(false)
+
+  const importPromise = (payload) => {
+    isLoading.value = true
+    return $store.dispatch('$_nodes/bulkImport', payload)
+    .finally(() => {
+      isLoading.value = false
+    })
+  }
+
+  return {
+    importFields,
+
+    files,
+    tabIndex,
+
+    isLoading,
+    importPromise
+  }    
+}
+
+// @vue/component
+export default {
+  name: 'the-csv-import',
+  inheritAttrs: false,
+  components,
+  setup
+}
+/*
 export default {
   name: 'the-csv-import',
   components: {
@@ -87,4 +131,5 @@ export default {
     this.$store.dispatch('session/getAllowedNodeRoles')
   }
 }
+*/
 </script>

@@ -59,7 +59,3 @@ export const updateSchema = () => {
     })
   )
 }
-
-export const importSchema = () => {
-  return yup.object().shape({})
-}

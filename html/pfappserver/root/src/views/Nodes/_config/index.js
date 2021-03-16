@@ -7,19 +7,8 @@ import {
 } from '@/globals/mysql'
 import { pfFieldType as fieldType } from '@/globals/pfField'
 import { pfFormatters as formatter } from '@/globals/pfFormatters'
-/*
-import {
-  categoryIdNumberExists, // validate category_id/bypass_role_id (Number) exists
-  categoryIdStringExists, // validate category_id/bypass_role_id (String) exists
-  isMacAddress,
-  userNotExists,
-  nodeExists
-} from '@/globals/pfValidators'
-
-import {
-  required
-} from 'vuelidate/lib/validators'
-*/
+import { yup as yupRoles } from '@/views/Configuration/roles/schema'
+import { yup as yupUsers } from '@/views/Users/schema'
 
 export const createForm = {
   mac: null,
@@ -31,20 +20,22 @@ export const createForm = {
 }
 
 export const importFields = [
-  /*
   {
     value: 'mac',
     text: i18n.t('MAC Address'),
     types: [fieldType.SUBSTRING],
     required: true,
-    validators: buildValidatorsFromColumnSchemas(MysqlDatabase.node.mac, { required })
+    validator: yup.string().nullable()
+      .required(i18n.t('MAC required.'))
+      .isMAC(i18n.t('Invalid MAC address.'))
+      .concat(validatorFromColumnSchemas(MysqlDatabase.node.mac))
   },
   {
     value: 'status',
     text: i18n.t('Status'),
     types: [fieldType.NODE_STATUS],
     required: false,
-    validators: buildValidatorsFromColumnSchemas(MysqlDatabase.node.status)
+    validator: validatorFromColumnSchemas(MysqlDatabase.node.status)
   },
   {
     value: 'autoreg',
@@ -52,14 +43,14 @@ export const importFields = [
     types: [fieldType.YESNO],
     required: false,
     formatter: formatter.yesNoFromString,
-    validators: buildValidatorsFromColumnSchemas(MysqlDatabase.node.autoreg)
+    validator: validatorFromColumnSchemas(MysqlDatabase.node.autoreg)
   },
   {
     value: 'bandwidth_balance',
     text: i18n.t('Bandwidth Balance'),
     types: [fieldType.PREFIXMULTIPLIER],
     required: false,
-    validators: buildValidatorsFromColumnSchemas(MysqlDatabase.node.bandwidth_balance)
+    validator: validatorFromColumnSchemas(MysqlDatabase.node.bandwidth_balance)
   },
   {
     value: 'bypass_role_id',
@@ -67,54 +58,52 @@ export const importFields = [
     types: [fieldType.ROLE],
     required: false,
     formatter: formatter.categoryIdFromIntOrString,
-    validators: buildValidatorsFromColumnSchemas({
-      [i18n.t('Role does not exist.')]: categoryIdNumberExists,
-      [i18n.t('Role does not exist')]: categoryIdStringExists
-    })
+    validator: yupRoles.string().nullable()
+      .roleNameOrCategoryIdentifierExists(i18n.t('Role does not exist.'))
   },
   {
     value: 'bypass_vlan',
     text: i18n.t('Bypass VLAN'),
     types: [fieldType.SUBSTRING],
     required: false,
-    validators: buildValidatorsFromColumnSchemas(MysqlDatabase.node.bypass_vlan)
+    validator: validatorFromColumnSchemas(MysqlDatabase.node.bypass_vlan)
   },
   {
     value: 'computername',
     text: i18n.t('Computer Name'),
     types: [fieldType.SUBSTRING],
     required: false,
-    validators: buildValidatorsFromColumnSchemas(MysqlDatabase.node.computername)
+    validator: validatorFromColumnSchemas(MysqlDatabase.node.computername)
   },
   {
     value: 'regdate',
     text: i18n.t('Datetime Registered'),
     types: [fieldType.DATETIME],
     required: false,
-    validators: buildValidatorsFromColumnSchemas(MysqlDatabase.node.regdate)
+    validator: validatorFromColumnSchemas(MysqlDatabase.node.regdate)
   },
   {
     value: 'unregdate',
     text: i18n.t('Datetime Unregistered'),
     types: [fieldType.DATETIME],
     required: false,
-    validators: buildValidatorsFromColumnSchemas(MysqlDatabase.node.unregdate)
+    validator: validatorFromColumnSchemas(MysqlDatabase.node.unregdate)
   },
   {
     value: 'notes',
     text: i18n.t('Notes'),
     types: [fieldType.SUBSTRING],
     required: false,
-    validators: buildValidatorsFromColumnSchemas(MysqlDatabase.node.notes)
+    validator: validatorFromColumnSchemas(MysqlDatabase.node.notes)
   },
   {
     value: 'pid',
     text: i18n.t('Owner'),
     types: [fieldType.SUBSTRING],
     required: false,
-    validators: buildValidatorsFromColumnSchemas(MysqlDatabase.node.pid, {
-      [i18n.t('Owner does not exist.')]: userNotExists
-    })
+    validator: yupUsers.string().nullable()
+      .pidExists(i18n.t('Owner does not exist.'))
+      .concat(validatorFromColumnSchemas(MysqlDatabase.node.pid))
   },
   {
     value: 'category_id',
@@ -122,10 +111,8 @@ export const importFields = [
     types: [fieldType.ROLE_BY_ACL_NODE],
     required: false,
     formatter: formatter.categoryIdFromIntOrString,
-    validators: buildValidatorsFromColumnSchemas({
-      [i18n.t('Role does not exist.')]: categoryIdNumberExists,
-      [i18n.t('Role does not exist.')]: categoryIdStringExists
-    })
+    validator: yupRoles.string().nullable()
+      .roleNameOrCategoryIdentifierExists(i18n.t('Role does not exist.'))
   },
   {
     value: 'voip',
@@ -133,9 +120,8 @@ export const importFields = [
     types: [fieldType.YESNO],
     required: false,
     formatter: formatter.yesNoFromString,
-    validators: buildValidatorsFromColumnSchemas(MysqlDatabase.node.voip)
+    validator: validatorFromColumnSchemas(MysqlDatabase.node.voip)
   }
-  */
 ]
 
 export const ipLogFields = [

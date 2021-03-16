@@ -135,12 +135,6 @@ const setup = (props, context) => {
     return domain_name
   })
     
-  const onCloseFile = (index) => {
-    const { [index]: { file } = {} } = files.value
-    file.close()
-    files.value.splice(index, 1)    
-  }
-  
   const isLoading = ref(false)
   const createdUsers = ref({})
   const showUsersPreviewModal = ref(false)
@@ -223,7 +217,6 @@ const setup = (props, context) => {
     passwordOptions,
     
     domainName,
-    onCloseFile,
     isLoading,
     createdUsers,
     showUsersPreviewModal,
