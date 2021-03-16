@@ -4,7 +4,7 @@ testcases:
   - name: forge_dhcp_request_node11
     steps:
     - type: exec
-      script: "perl {{.pfserver_root_dir}}/addons/stress-tester/dhcp_test --mac={{.pfdhcplistener.nodes.node11.mac}} --ip={{.pfdhcplistener.nodes.node11.first_ip}} --hostname={{.pfdhcplistener.nodes.node11.hostname}} --dhcp-fingerprint={{.pfdhcplistener.nodes.node11.dhcp_fingerprint}} --dhcp-vendor={{.pfdhcplistener.nodes.node11.dhcp_vendor}} --server={{.pfdhcplistener.nodes.node11.dhcp_server}}"
+      script: "perl {{.pfserver_root_dir}}/addons/stress-tester/dhcp_test --mac={{.pfdhcplistener_multi_tenant.nodes.node11.mac}} --ip={{.pfdhcplistener_multi_tenant.nodes.node11.first_ip}} --hostname={{.pfdhcplistener_multi_tenant.nodes.node11.hostname}} --dhcp-fingerprint={{.pfdhcplistener_multi_tenant.nodes.node11.dhcp_fingerprint}} --dhcp-vendor={{.pfdhcplistener_multi_tenant.nodes.node11.dhcp_vendor}} --server={{.pfdhcplistener_multi_tenant.nodes.node11.dhcp_server}}"
 
   # let node be created in DB
   - name: sleep_some_time
@@ -16,26 +16,26 @@ testcases:
     steps:
     - type: http
       method: GET
-      url: '{{.pfserver_webadmin_url}}/api/v1/node/{{.pfdhcplistener.nodes.node11.mac_url_encoded}}'
+      url: '{{.pfserver_webadmin_url}}/api/v1/node/{{.pfdhcplistener_multi_tenant.nodes.node11.mac_url_encoded}}'
       ignore_verify_ssl: true
       headers:
         "Authorization": "{{.pfserver_token}}"
         "Content-Type": "application/json"
       assertions:
       - result.statuscode ShouldEqual 200
-      - result.bodyjson.item.computername ShouldEqual "{{.pfdhcplistener.nodes.node11.hostname}}"
-      - result.bodyjson.item.dhcp_fingerprint ShouldEqual "{{.pfdhcplistener.nodes.node11.dhcp_fingerprint}}"
-      - result.bodyjson.item.dhcp_vendor ShouldEqual "{{.pfdhcplistener.nodes.node11.dhcp_vendor}}"
+      - result.bodyjson.item.computername ShouldEqual "{{.pfdhcplistener_multi_tenant.nodes.node11.hostname}}"
+      - result.bodyjson.item.dhcp_fingerprint ShouldEqual "{{.pfdhcplistener_multi_tenant.nodes.node11.dhcp_fingerprint}}"
+      - result.bodyjson.item.dhcp_vendor ShouldEqual "{{.pfdhcplistener_multi_tenant.nodes.node11.dhcp_vendor}}"
 
   - name: check_node11_ip4log
     steps:
     - type: http
       method: GET
-      url: '{{.pfserver_webadmin_url}}/api/v1/ip4logs/open/{{.pfdhcplistener.nodes.node11.mac_url_encoded}}'
+      url: '{{.pfserver_webadmin_url}}/api/v1/ip4logs/open/{{.pfdhcplistener_multi_tenant.nodes.node11.mac_url_encoded}}'
       ignore_verify_ssl: true
       headers:
         "Authorization": "{{.pfserver_token}}"
         "Content-Type": "application/json"
       assertions:
       - result.statuscode ShouldEqual 200
-      - result.bodyjson.item.ip ShouldEqual "{{.pfdhcplistener.nodes.node11.first_ip}}"
+      - result.bodyjson.item.ip ShouldEqual "{{.pfdhcplistener_multi_tenant.nodes.node11.first_ip}}"

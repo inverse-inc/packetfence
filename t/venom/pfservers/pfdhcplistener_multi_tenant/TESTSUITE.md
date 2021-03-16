@@ -13,6 +13,7 @@ A tenant different than default has been configured
 
 ### Mono-tenant
 1. Create a production network in new tenant
+1. Restart services (iptables, pfdhcp, pfdns)
 1. Create a DHCP request from an unknown node using `dhcp-test` tool
 1. Check node created in DB
 1. Check current ip4log of node created in DB
