@@ -11,9 +11,11 @@
           <h5 class="mb-0" v-t="'Database Root Account'"/>
         </b-card-header>
         <div class="card-body">
-          <base-form-group :column-label="$i18n.t('Username')">root</base-form-group>
+          <base-form-group :column-label="$i18n.t('Username')">
+            <div class="form-control">root</div>
+          </base-form-group>
           <base-form-group :column-label="$i18n.t('Password')">
-            <code>{{ database.root_pass }}</code>
+            <code class="form-control">{{ database.root_pass }}</code>
             <b-button size="sm" variant="outline-primary" class="ml-2 text-nowrap" @click.stop.prevent="onClipboard(database.root_pass)">{{ $t('Copy to Clipboard') }}</b-button>
           </base-form-group>
         </div>
@@ -25,9 +27,11 @@
           <h5 class="mb-0" v-t="'Database User Account'"/>
         </b-card-header>
         <div class="card-body">
-          <base-form-group :column-label="$i18n.t('Username')">{{ database.user }}</base-form-group>
+          <base-form-group :column-label="$i18n.t('Username')">
+            <div class="form-control">{{ database.user }}</div>
+          </base-form-group>
           <base-form-group :column-label="$i18n.t('Password')">
-            <code>{{ database.pass }}</code>
+            <code class="form-control">{{ database.pass }}</code>
             <b-button size="sm" variant="outline-primary" class="ml-2 text-nowrap" @click.stop.prevent="onClipboard(database.pass)">{{ $t('Copy to Clipboard') }}</b-button>
           </base-form-group>
         </div>
@@ -39,9 +43,11 @@
           <h5 class="mb-0" v-t="'Administrator Account'"/>
         </b-card-header>
         <div class="card-body">
-          <base-form-group :column-label="$i18n.t('Username')">{{ administrator.pid }}</base-form-group>
+          <base-form-group :column-label="$i18n.t('Username')">
+            <div class="form-control">{{ administrator.pid }}</div>
+          </base-form-group>
           <base-form-group :column-label="$i18n.t('Password')">
-            <code>{{ administrator.password }}</code>
+            <code class="form-control">{{ administrator.password }}</code>
             <b-button size="sm" variant="outline-primary" class="ml-2 text-nowrap" @click.stop.prevent="onClipboard(administrator.password)">{{ $t('Copy to Clipboard') }}</b-button>
           </base-form-group>
         </div>
