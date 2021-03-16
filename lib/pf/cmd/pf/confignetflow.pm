@@ -24,7 +24,7 @@ use IPC::Open3;
 
 sub _run {
     local $SIG{PIPE} = sub {};
-    my $pid = open3('>&STDIN', '>&STDOUT', my $stderr = gensym,'/usr/sbin/sysctl',"net.netflow.destination=$Config{services}{netflow_address}:$Config{ports}{pfacct_netflow}");
+    my $pid = open3('>&STDIN', '>&STDOUT', my $stderr = gensym,'/sbin/sysctl',"net.netflow.destination=$Config{services}{netflow_address}:$Config{ports}{pfacct_netflow}");
 
     waitpid($pid, 0);
     my $child_exit_status = $? >> 8;
