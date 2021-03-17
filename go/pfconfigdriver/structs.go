@@ -105,7 +105,6 @@ type PfConfPorts struct {
 	PfconfigHashNS       string `val:"ports"`
 	Admin                string `json:"admin"`
 	Soap                 string `json:"soap"`
-	Collector            string `json:"collector"`
 	AAA                  string `json:"aaa"`
 	HttpdPortalModStatus string `json:"httpd_portal_modstatus"`
 	UnifiedAPI           string `json:"unifiedapi"`
@@ -169,7 +168,6 @@ type PfConfServices struct {
 	HaproxyPortal        string `json:"haproxy-portal"`
 	HttpdAAA             string `json:"httpd_aaa"`
 	HttpdAdmin           string `json:"httpd_admin"`
-	HttpdCollector       string `json:"httpd_collector"`
 	HttpdAdminDispatcher string `json:"httpd_admin_dispatcher"`
 	HttpdDispatcher      string `json:"httpd_dispatcher"`
 	HttpdPortal          string `json:"httpd_portal"`

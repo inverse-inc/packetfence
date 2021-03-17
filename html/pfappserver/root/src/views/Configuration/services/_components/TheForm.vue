@@ -40,11 +40,6 @@
       :text="$i18n.t(`Should httpd.aaa be started? Keep enabled unless you know what you're doing.`)"
     />
 
-    <form-group-httpd-collector namespace="httpd_collector"
-      :column-label="$i18n.t('httpd.collector')"
-      :text="$i18n.t(`Should httpd.collector be started? Keep enabled unless you know what you're doing.`)"
-    />
-
     <form-group-httpd-admin-dispatcher namespace="httpd_admin_dispatcher"
       :column-label="$i18n.t('httpd.admin_dispatcher')"
       :text="$i18n.t(`Should httpd.admin_dispatcher be started? Keep enabled unless you know what you're doing.`)"
@@ -237,7 +232,6 @@ import {
   FormGroupHttpdAaa,
   FormGroupHttpdAdmin,
   FormGroupHttpdAdminDispatcher,
-  FormGroupHttpdCollector,
   FormGroupHttpdDispatcher,
   FormGroupHttpdPortal,
   FormGroupHttpdProxy,
@@ -286,7 +280,6 @@ const components = {
   FormGroupHttpdAaa,
   FormGroupHttpdAdmin,
   FormGroupHttpdAdminDispatcher,
-  FormGroupHttpdCollector,
   FormGroupHttpdDispatcher,
   FormGroupHttpdPortal,
   FormGroupHttpdProxy,

@@ -785,27 +785,6 @@
                },
                {
                   "properties" : {
-                     "enabled" : {
-                        "description" : "Enable MSE",
-                        "type" : "string"
-                     },
-                     "pass" : {
-                        "description" : "Password for MSE service",
-                        "type" : "string"
-                     },
-                     "url" : {
-                        "description" : "URL of MSE service",
-                        "type" : "string"
-                     },
-                     "user" : {
-                        "description" : "Username for MSE service",
-                        "type" : "string"
-                     }
-                  },
-                  "type" : "object"
-               },
-               {
-                  "properties" : {
                      "eap_authentication_types" : {
                         "description" : "Supported EAP Authentication Methods",
                         "items" : {

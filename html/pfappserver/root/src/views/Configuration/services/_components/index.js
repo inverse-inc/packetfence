@@ -20,7 +20,6 @@ export {
   BaseFormGroupToggleDisabledEnabled  as FormGroupHttpdAaa,
   BaseFormGroupToggleDisabledEnabled  as FormGroupHttpdAdmin,
   BaseFormGroupToggleDisabledEnabled  as FormGroupHttpdAdminDispatcher,
-  BaseFormGroupToggleDisabledEnabled  as FormGroupHttpdCollector,
   BaseFormGroupToggleDisabledEnabled  as FormGroupHttpdDispatcher,
   BaseFormGroupToggleDisabledEnabled  as FormGroupHttpdPortal,
   BaseFormGroupToggleDisabledEnabled  as FormGroupHttpdProxy,

@@ -22,7 +22,6 @@ Services managed by PacketFence:
   haproxy-portal         | haproxy portal daemon
   httpd.aaa              | Apache AAA webservice
   httpd.admin_dispatcher | Admin GUI dispatcher
-  httpd.collector        | Apache Collector daemon
   httpd.dispatcher       | Captive portal dispatcher
   httpd.portal           | Apache Captive Portal
   httpd.proxy            | Apache Proxy Interception

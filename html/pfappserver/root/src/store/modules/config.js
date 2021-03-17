@@ -55,9 +55,6 @@ const api = {
   getBaseInline () {
     return apiCall({ url: 'config/base/inline', method: 'get' })
   },
-  getBaseMseTab () {
-    return apiCall({ url: 'config/base/mse_tab', method: 'get' })
-  },
   getBaseNetwork () {
     return apiCall({ url: 'config/base/network', method: 'get' })
   },
@@ -268,8 +265,6 @@ const initialState = () => { // set intitial states to `false` (not `[]` or `{}`
     baseGuestsAdminRegistrationStatus: '',
     baseInline: false,
     baseInlineStatus: '',
-    baseMseTab: false,
-    baseMseTabStatus: '',
     baseNetwork: false,
     baseNetworkStatus: '',
     baseNodeImport: false,
@@ -441,9 +436,6 @@ const getters = {
   },
   isLoadingBaseInline: state => {
     return state.baseInlineStatus === types.LOADING
-  },
-  isLoadingBaseMseTab: state => {
-    return state.baseMseTabStatus === types.LOADING
   },
   isLoadingBaseNetwork: state => {
     return state.baseNetworkStatus === types.LOADING
@@ -911,20 +903,6 @@ const actions = {
       })
     } else {
       return Promise.resolve(state.baseInline)
-    }
-  },
-  getBaseMseTab: ({ state, getters, commit }) => {
-    if (getters.isLoadingBaseMseTab) {
-      return Promise.resolve(state.baseMseTab)
-    }
-    if (!state.baseMseTab) {
-      commit('BASE_MSE_TAB_REQUEST')
-      return api.getBaseMseTab().then(response => {
-        commit('BASE_MSE_TAB_UPDATED', response.data.item)
-        return state.baseMseTab
-      })
-    } else {
-      return Promise.resolve(state.baseMseTab)
     }
   },
   getBaseNetwork: ({ state, getters, commit }) => {
@@ -1801,13 +1779,6 @@ const mutations = {
   BASE_INLINE_UPDATED: (state, baseInline) => {
     state.baseInline = baseInline
     state.baseInlineStatus = types.SUCCESS
-  },
-  BASE_MSE_TAB_REQUEST: (state) => {
-    state.baseMseTabStatus = types.LOADING
-  },
-  BASE_MSE_TAB_UPDATED: (state, baseMseTab) => {
-    state.baseMseTab = baseMseTab
-    state.baseMseTabStatus = types.SUCCESS
   },
   BASE_NETWORK_REQUEST: (state) => {
     state.baseNetworkStatus = types.LOADING

@@ -330,66 +330,6 @@ Then you need to enable `_CLI Access Enabled_` setting on switch(s) you want to 
 
 NOTE: Any user that has the 'ALL' administrative role will be able to login into your switches. If you want to provide all PacketFence administrative access to some users without allowing them to login into the switches, then apply the 'ALL_PF_ONLY' administrative role which will contains all the necessary PacketFence roles without the switch login.
 
-
-=== Cisco Mobility Services Engine (MSE)
-
-This section has been created to give a quick start to configure the Cisco MSE with PacketFence. In the first part we will explain how to use the Cisco MSE in order to present a captive portal based on the localization. Then in the second part we will integrate the device localization in the node view.
-
-==== Assumptions
-
-* You have at least one server with PacketFence 6.3 or later.
-* The PacketFence management IP will be 192.168.1.5.
-* An account has been created on the MSE in order to use RESTful API of the MSE. (Read only for localization , write to create notifications)
-* The Cisco MSE IP will be 192.168.1.6.
-
-==== Portal Based on Localization
-
-===== Enable httpd.collector service on PacketFence
-
-This service is mandatory and will receive the mse notifications in json format.
-To enable this service go in _Status -> Services_ and tick services.httpd_collector and leave the default order.
-
-image::httpd_collector.png[scaledwidth="100%",alt="Enable httpd_collector"]
-
-===== Create a Notification
-
-This part can be done directly on the MSE web admin GUI but we include a Perl script in [filename]`/usr/local/pf/addons/mse-subscribe.pl` that will help you to create one using the RESTful API of the MSE.
-
-So let say that you have a username with write permissions on the MSE (mswrite/password) now go in [filename]`/usr/local/pf/addons` then run:
-
- ./mse-subscribe.pl --username=msewrite --password=password --url=http://192.168.1.6:8083 --target-ip=192.168.1.5 --target-port=9292 --url-path=/mse/ --zone=Campus>Building>Level>Zone --notification-name=Zone1
-
-This will create the notification and print out the notifications configured on the MSE.
-So now each time a device will enter or leave the specific zone PacketFence will be notified.
-
-===== Configure a Portal Filter
-
-In _Configuration Policies and Access Control -> Connection Profiles -> Add profile -> Advanced filter_ specify an advanced filter like that:
-
- extended.mse_inout.locationMapHierarchy == "Campus>Building>Level>Zone"
-
-image::Connection_filter.png[scaledwidth="100%",alt="Connection Filter"]
-
-And fill the other configuration needed to configure a connection profile then save it.
-
-That's all, now when a device will hit the captive portal and will be in the specific zone then it will hit this connection profile.
-
-==== MSE Tab
-
-This configuration is really simple, you just have to enable and fill the URL, the username and password in _Configuration -> Integration -> Cisco Mobility Service Engine_.
-So in our example:
-
- URL: http://192.168.1.6:8083
- Username: mseread
- Password: password
-
-image::MSE_Tab.png[scaledwidth="100%",alt="MSE Tab"]
-
-Now go in _Nodes_ and click on a MAC address and you will see that a new tab appears, then if you click on it you will be able to retrieve the map and the localization of the device.
-
-image::TAB.png[scaledwidth="100%",alt="Node TAB"]
-
-
 === Monit
 
 `monit` is a utility for managing and monitoring processes, files, directories and filesystems on a Unix system. Monit conducts automatic maintenance and repair and can execute meaningful causal actions in error situations. E.g. Monit can start a process if it does not run, restart a process if it does not respond and stop a process if it uses too much resources.

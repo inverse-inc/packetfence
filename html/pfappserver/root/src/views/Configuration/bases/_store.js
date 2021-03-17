@@ -466,40 +466,6 @@ const actions = {
       throw err
     })
   },
-  getMseTab: ({ state, commit }) => {
-    if (state.cache['mse_tab']) {
-      return Promise.resolve(state.cache['mse_tab']).then(cache => JSON.parse(JSON.stringify(cache)))
-    }
-    commit('ITEM_REQUEST')
-    return api.base('mse_tab').then(item => {
-      commit('ITEM_REPLACED', item)
-      return JSON.parse(JSON.stringify(item))
-    }).catch((err) => {
-      commit('ITEM_ERROR', err.response)
-      throw err
-    })
-  },
-  optionsMseTab: ({ commit }) => {
-    commit('ITEM_REQUEST')
-    return api.baseOptions('mse_tab').then(response => {
-      commit('ITEM_SUCCESS')
-      return response
-    }).catch((err) => {
-      commit('ITEM_ERROR', err.response)
-      throw err
-    })
-  },
-  updateMseTab: ({ commit }, data) => {
-    commit('ITEM_REQUEST')
-    data.id = 'mse_tab'
-    return api.updateBase(data).then(response => {
-      commit('ITEM_REPLACED', data)
-      return response
-    }).catch(err => {
-      commit('ITEM_ERROR', err.response)
-      throw err
-    })
-  },
   getNetwork: ({ state, commit }) => {
     if (state.cache['network']) {
       return Promise.resolve(state.cache['network']).then(cache => JSON.parse(JSON.stringify(cache)))
