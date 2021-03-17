@@ -7,9 +7,9 @@
     <b-table v-if="node"
       :items="node.security_events" :fields="securityEventFields" :sort-by="securityEventSortBy" :sort-desc="securityEventSortDesc" responsive show-empty sort-icon-left striped>
       <template v-slot:cell(description)="security_event">
-         <router-link v-if="securityEventDescription(security_event.item.security_event_id)" 
+         <router-link v-if="securityEventDescription(security_event.item.security_event_id)"
           :to="{ path: `/configuration/security_event/${security_event.item.security_event_id}` }">{{ securityEventDescription(security_event.item.security_event_id) }}</router-link>
-        <router-link v-else 
+        <router-link v-else
           :to="{ path: '/configuration/security_events' }">{{ $i18n.t('Unknown') }}</router-link>
       </template>
       <template v-slot:cell(status)="security_event">
@@ -26,7 +26,7 @@
     </b-table>
     <div class="mt-3" v-if="securityEventsOptions.length > 0">
       <div class="border-top pt-3">
-        <div class="d-inline-flex">
+        <div class="d-inline-flex col-12 col-md-10 col-lg-8 col-xl-6">
           <form-security-events class="mr-1" size="sm"
             v-model="triggerSecurityEvent"
             :options="securityEventsOptions"
@@ -65,7 +65,7 @@ const setup = (props, context) => {
 
   if (acl.$can('read', 'security_events')) {
     $store.dispatch('config/getSecurityEvents')
-  }  
+  }
 
   const node = computed(() => $store.state.$_nodes.nodes[id.value])
 
@@ -82,7 +82,7 @@ const setup = (props, context) => {
     isLoading,
     sortedSecurityEvents,
     applySecurityEvent
-  } = useStore(props, context)  
+  } = useStore(props, context)
 
   const triggerSecurityEvent = ref(null)
   const securityEventsOptions = computed(() => {
@@ -92,10 +92,10 @@ const setup = (props, context) => {
   })
   const onTriggerSecurityEvent = () => applySecurityEvent(triggerSecurityEvent.value)
 
-  
+
   return {
     securityEventFields,
-    
+
     securityEventSortBy,
     securityEventSortDesc,
     securityEventDescription,
