@@ -24,7 +24,8 @@ const state = () => {
 
 const getters = {
   isWaiting: state => [types.LOADING, types.DELETING].includes(state.itemStatus),
-  isLoading: state => state.itemStatus === types.LOADING
+  isLoading: state => state.itemStatus === types.LOADING,
+  joins: state => state.joins
 }
 
 const actions = {
@@ -58,13 +59,12 @@ const actions = {
     }
   },
   getDomain: ({ state, commit }, id) => {
-    if (state.cache[id]) {
-      return Promise.resolve(state.cache[id]).then(cache => JSON.parse(JSON.stringify(cache)))
-    }
+    if (state.cache[id])
+      return Promise.resolve(state.cache[id])
     commit('ITEM_REQUEST')
     return api.domain(id).then(item => {
       commit('ITEM_REPLACED', item)
-      return JSON.parse(JSON.stringify(item))
+      return state.cache[id]
     }).catch((err) => {
       commit('ITEM_ERROR', err.response)
       throw err
@@ -101,9 +101,8 @@ const actions = {
     })
   },
   testDomain: ({ state, commit }, id) => {
-    if (id in state.joins) {
+    if (id in state.joins)
       return Promise.resolve(state.joins[id])
-    }
     commit('TEST_REQUEST', id)
     return api.testDomain(id).then(response => {
       commit('TEST_SUCCESS', { id, response })
@@ -158,7 +157,7 @@ const mutations = {
   },
   ITEM_REPLACED: (state, data) => {
     state.itemStatus = types.SUCCESS
-    Vue.set(state.cache, data.id, JSON.parse(JSON.stringify(data)))
+    Vue.set(state.cache, data.id, data)
     if (data.id in state.joins) {
       Vue.delete(state.joins, data.id) // clear cache
       store.dispatch('$_domains/testDomain', data.id) // refresh cache

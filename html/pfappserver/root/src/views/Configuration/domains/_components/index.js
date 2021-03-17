@@ -7,12 +7,14 @@ import {
   BaseFormGroupToggle,
   BaseFormGroupToggleDisabledEnabled
 } from '@/components/new/'
+import BaseButtonJoin from './BaseButtonJoin'
 import TheForm from './TheForm'
 import TheView from './TheView'
 
 export {
   BaseViewCollectionItem              as BaseView,
   BaseFormButtonBar                   as FormButtonBar,
+  BaseButtonJoin                      as ButtonJoin,
 
   BaseFormGroupInput                  as FormGroupIdentifier,
   BaseFormGroupInput                  as FormGroupWorkgroup,
