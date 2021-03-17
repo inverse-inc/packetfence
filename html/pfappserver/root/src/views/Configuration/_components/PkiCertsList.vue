@@ -27,13 +27,9 @@
       <template v-slot:cell(buttons)="item">
         <span class="float-right">
           <b-button size="sm" variant="outline-primary" class="mr-1" @click.stop.prevent="clone(item)">{{ $t('Clone') }}</b-button>
-          <pf-button-pki-cert-download size="sm" variant="outline-primary" class="mr-1"
-            :disabled="isLoading" :cert="item" :download="download"
-          />
+          <button-certificate-download :id="item.ID" />
           <b-button v-if="item.mail" size="sm" variant="outline-primary" class="mr-1" @click.stop.prevent="email(item)">{{ $t('Email') }}</b-button>
-          <pf-button-pki-cert-revoke size="sm" variant="outline-danger" class="mr-1"
-            :disabled="isLoading" :cert="item" :revoke="revoke"
-          />
+          <button-certificate-revoke :id="item.ID" />
         </span>
       </template>
     </pf-config-list>
@@ -41,8 +37,10 @@
 </template>
 
 <script>
-import pfButtonPkiCertDownload from '@/components/pfButtonPkiCertDownload'
-import pfButtonPkiCertRevoke from '@/components/pfButtonPkiCertRevoke'
+import {
+  ButtonCertificateDownload,
+  ButtonCertificateRevoke
+} from '@/views/Configuration/pki/certs/_components/'
 import pfButtonService from '@/components/pfButtonService'
 import pfConfigList from '@/components/pfConfigList'
 import pfEmptyTable from '@/components/pfEmptyTable'
@@ -55,8 +53,8 @@ import {
 export default {
   name: 'pki-certs-list',
   components: {
-    pfButtonPkiCertDownload,
-    pfButtonPkiCertRevoke,
+    ButtonCertificateDownload,
+    ButtonCertificateRevoke,
     pfButtonService,
     pfConfigList,
     pfEmptyTable
