@@ -75,8 +75,8 @@ export const useInput = (props, { emit, refs }, inputRef = 'input') => {
   const onBlur = event => {
     if (onBlurTimeout)
       clearTimeout(onBlurTimeout)
+    isFocus.value = false
     onBlurTimeout = setTimeout(() => {
-      isFocus.value = false
       emit('blur', event)
     }, 300)
   }
