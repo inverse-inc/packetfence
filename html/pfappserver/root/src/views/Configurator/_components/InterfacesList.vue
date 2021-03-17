@@ -21,16 +21,9 @@
           <pf-empty-table :isLoading="isLoading">{{ $t('No interfaces found') }}</pf-empty-table>
         </template>
         <template v-slot:cell(is_running)="{ item }">
-          <pf-form-range-toggle
-            v-model="item.is_running"
-            :values="{ checked: true, unchecked: false }"
-            :icons="{ checked: 'check', unchecked: 'times' }"
-            :colors="{ checked: 'var(--success)', unchecked: 'var(--danger)' }"
-            :right-labels="{ checked: $t('up'), unchecked: $t('down') }"
-            :lazy="{ checked: enableInterface(item), unchecked: disableInterface(item) }"
-            :disabled="item.type === 'management'"
-            @click.stop.prevent
-          />
+          <toggle-status :value="item.is_running" 
+          :disabled="item.type === 'management' || isLoading"
+          :item="item" />
         </template>
         <template v-slot:cell(id)="item">
           <span class="text-nowrap mr-2">{{ item.item.name }}</span>
@@ -119,7 +112,7 @@ import pfButtonDelete from '@/components/pfButtonDelete'
 import pfEmptyTable from '@/components/pfEmptyTable'
 import pfFormChosen from '@/components/pfFormChosen'
 import pfFormInput from '@/components/pfFormInput'
-import pfFormRangeToggle from '@/components/pfFormRangeToggle'
+import { ToggleStatus } from '@/views/Configuration/networks/interfaces/_components/'
 import i18n from '@/utils/locale'
 import network from '@/utils/network'
 import {
@@ -180,7 +173,7 @@ const components = {
   pfEmptyTable,
   pfFormChosen,
   pfFormInput,
-  pfFormRangeToggle
+  ToggleStatus
 }
 
 import yup from '@/utils/yup'
@@ -293,7 +286,7 @@ export default {
     },
     onRowClickInterface (item) {
       this.$router.push({ name: 'configurator-interface', params: { id: item.id } })
-    },
+    }, 
     enableInterface (item) {
       return () => { // 'enabled'
         return new Promise((resolve, reject) => {
