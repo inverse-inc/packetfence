@@ -27,7 +27,7 @@ export {
   BaseFormGroupInput                      as FormGroupControllerIp,
   BaseFormGroupChosenOne                  as FormGroupDeauthenticationMethod,
   BaseFormGroupInput                      as FormGroupDescription,
-  BaseFormGroupInput                      as FormGroupDisconnectPort,
+  BaseFormGroupInputNumber                as FormGroupDisconnectPort,
   BaseFormGroupToggleNYDefault            as FormGroupExternalPortalEnforcement,
   BaseFormGroupChosenOne                  as FormGroupGroup,
   BaseFormGroupInput                      as FormGroupIdentifier,
