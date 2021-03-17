@@ -42,8 +42,9 @@ performance_schema = [% performance_schema %]
 # max_connect_errors
 max_connect_errors = [% max_connect_errors %]
 
-# SQL mode using the value from 10.1
+# Settings from 10.1 that are kept for now
 sql_mode = "NO_ENGINE_SUBSTITUTION,NO_AUTO_CREATE_USER"
+log_warnings = 1
 
 
 # Point the following paths to a dedicated disk
