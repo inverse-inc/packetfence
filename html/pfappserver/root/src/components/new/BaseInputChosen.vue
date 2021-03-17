@@ -374,6 +374,7 @@ export default {
     color: inherit;
     outline: 0;
     &:hover {
+      background: $secondary;
       color: lighten($secondary, 15%);
     }
     &:after {
@@ -389,12 +390,12 @@ export default {
     margin: 0px;
     background-color: transparent;
     color: $input-color;
+      // override multiselect's absolute height
+    line-height: inherit;
     white-space: nowrap;
     &::placeholder {
       color: $input-placeholder-color;
     }
-    // override multiselect's absolute height
-    line-height: inherit;
   }
   .multiselect__placeholder {
     padding-top: 0px;
@@ -434,6 +435,7 @@ export default {
           cursor: not-allowed;
         }
         & > .multiselect__option--group {
+          border-top: 1px solid $dropdown-border-color !important;
           background-color: var(--light) !important;
           color: var(--primary) !important;
           font-weight: 800;
@@ -441,7 +443,6 @@ export default {
           font-size: .7875rem;
           line-height: 1.71429;
           */
-          border-top: 1px solid $dropdown-border-color !important;
         }
       }
     }
@@ -505,15 +506,15 @@ export default {
     }
     .multiselect__option,
     .multiselect__option:after {
-      line-height: $input-line-height-sm;
       padding: $input-padding-y-sm $input-padding-x-sm;
+      line-height: $input-line-height-sm;
     }
     .multiselect__select {
       right: $input-padding-x-sm
     }
     .multiselect__single {
-      margin-right: $input-padding-x-sm;
       padding-right: $input-padding-x-sm;
+      margin-right: $input-padding-x-sm;
     }
   }
   &.size-md {
@@ -538,15 +539,15 @@ export default {
     }
     .multiselect__option,
     .multiselect__option:after {
-      line-height: $input-line-height;
       padding: $input-padding-y $input-padding-x;
+      line-height: $input-line-height;
     }
     .multiselect__select {
       right: $input-padding-x
     }
     .multiselect__single {
-      margin-right: $input-padding-x;
       padding-right: $input-padding-x;
+      margin-right: $input-padding-x;
     }
   }
   &.size-lg {
@@ -571,15 +572,15 @@ export default {
     }
     .multiselect__option,
     .multiselect__option:after {
-      line-height: $input-line-height-lg;
       padding: $input-padding-y-lg $input-padding-x-lg;
+      line-height: $input-line-height-lg;
     }
     .multiselect__select {
       right: $input-padding-x-lg
     }
     .multiselect__single {
-      margin-right: $input-padding-x-lg;
       padding-right: $input-padding-x-lg;
+      margin-right: $input-padding-x-lg;
     }
   }
 }
