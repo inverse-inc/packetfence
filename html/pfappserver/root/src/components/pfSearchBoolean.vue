@@ -10,8 +10,8 @@
       </b-input-group>
       <b-form-select class="mr-1" v-model="localModel.values[0].values[0].op" :options="operators(localModel.values[0].values[0])"></b-form-select>
       <b-form-input class="mr-1" type="text" v-model="localModel.values[0].values[0].value" v-if="isFieldType(substringValueType, localModel.values[0].values[0])"></b-form-input>
-      <pf-form-datetime class="mr-1" v-model="localModel.values[0].values[0].value" v-else-if="isFieldType(datetimeValueType, localModel.values[0].values[0])" :config="{useCurrent: true}"></pf-form-datetime>
-      <pf-form-prefix-multiplier class="mr-1" v-model="localModel.values[0].values[0].value" v-else-if="isFieldType(prefixmultipleValueType, localModel.values[0].values[0])"></pf-form-prefix-multiplier>
+      <base-input-group-date-time class="mr-1" v-model="localModel.values[0].values[0].value" v-else-if="isFieldType(datetimeValueType, localModel.values[0].values[0])" :config="{useCurrent: true}"></base-input-group-date-time>
+      <base-input-group-multiplier class="mr-1" v-model="localModel.values[0].values[0].value" v-else-if="isFieldType(prefixmultipleValueType, localModel.values[0].values[0])"></base-input-group-multiplier>
       <b-form-select class="mr-1" v-model.lazy="localModel.values[0].values[0].value" :options="values(localModel.values[0].values[0])" v-else-if="isFieldType(selectValueType, localModel.values[0].values[0])"></b-form-select>
     </b-row>
     <!-- END SIMPLE SEARCH -->
@@ -34,8 +34,8 @@
               </b-input-group>
               <b-form-select class="mr-1" v-model="rule.op" :options="operators(rule)"></b-form-select>
               <b-form-input type="text" class="mr-1" v-model="rule.value" v-if="isFieldType(substringValueType, rule)"></b-form-input>
-              <pf-form-datetime class="mr-1" v-model="rule.value" v-else-if="isFieldType(datetimeValueType, rule)" :config="{useCurrent: true}" :moments="['-1 hours', '-1 days', '-1 weeks', '-1 months', '-1 quarters', '-1 years']"></pf-form-datetime>
-              <pf-form-prefix-multiplier class="mr-1" v-model="rule.value" v-else-if="isFieldType(prefixmultipleValueType, rule)"></pf-form-prefix-multiplier>
+              <base-input-group-date-time class="mr-1" v-model="rule.value" v-else-if="isFieldType(datetimeValueType, rule)" :config="{useCurrent: true}" :moments="['-1 hours', '-1 days', '-1 weeks', '-1 months', '-1 quarters', '-1 years']"></base-input-group-date-time>
+              <base-input-group-multiplier class="mr-1" v-model="rule.value" v-else-if="isFieldType(prefixmultipleValueType, rule)"></base-input-group-multiplier>
               <b-form-select class="mr-1" v-model.lazy="rule.value" :options="values(rule)" v-else-if="isFieldType(selectValueType, rule)"></b-form-select>
               <b-button class="ml-auto mr-1 nodrag" v-if="localModel.values.length > 1 || localModel.values[outerindex].values.length > 1 && drag === false" variant="link" v-b-tooltip.hover.left.d1000 :title="$t('Delete statement')" @click="removeStatement(outerindex, innerindex)"><icon name="trash-alt"></icon></b-button>
             </b-row>
@@ -76,20 +76,22 @@
 <script>
 const draggable = () => import('vuedraggable')
 import {
+  BaseInputGroupDateTime,
+  BaseInputGroupMultiplier
+} from '@/components/new/'
+import {
   pfSearchOperatorsForTypes as operatorsForTypes,
   pfSearchValuesForOperator as valuesForOperator,
   pfConditionOperators as conditionOperators,
   pfSearchConditionValue as conditionValue
 } from '@/globals/pfSearch'
-import pfFormDatetime from '@/components/pfFormDatetime'
-import pfFormPrefixMultiplier from '@/components/pfFormPrefixMultiplier'
 
 export default {
   name: 'pf-search-boolean',
   components: {
     draggable,
-    pfFormDatetime,
-    pfFormPrefixMultiplier
+    BaseInputGroupDateTime,
+    BaseInputGroupMultiplier
   },
   props: {
     model: {
