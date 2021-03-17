@@ -450,6 +450,10 @@ $chosen-option-hover-bg: $dropdown-link-hover-bg;
     }
   }
   &.multiselect--active:not(.multiselect--above) {
+    .multiselect__tags {
+      border-bottom-left-radius: 0 !important;
+      border-bottom-right-radius: 0 !important;
+    }
     .multiselect__content-wrapper {
       border-top-width: 0px;
       border-bottom-width: 1px;
@@ -460,9 +464,15 @@ $chosen-option-hover-bg: $dropdown-link-hover-bg;
     }
   }
   &.multiselect--above {
+    .multiselect__tags {
+      border-top-left-radius: 0 !important;
+      border-top-right-radius: 0 !important;
+    }
     .multiselect__content-wrapper {
       border-top: $dropdown-border-width solid $chosen-border-color;
       border-bottom-width: 0px;
+      border-bottom-left-radius: 0 !important;
+      border-bottom-right-radius: 0 !important;
     }
   }
 

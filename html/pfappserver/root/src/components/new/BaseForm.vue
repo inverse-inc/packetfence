@@ -26,8 +26,8 @@ export default {
   padding-left: 0;
 
   & > .form-group {
-    margin-left: 1rem !important;
     margin-right: 1rem !important;
+    margin-left: 1rem !important;
   }
   & > .tabs > .tab-content > .tab-pane {
     padding-top: 1rem !important;
