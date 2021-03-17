@@ -98,38 +98,4 @@ export default {
   components,
   setup
 }
-/*
-export default {
-  name: 'the-csv-import',
-  components: {
-    'pf-csv-import': pfCSVImport,
-    pfFormUpload
-  },
-  data () {
-    return {
-      files: [],
-      tabIndex: 0,
-      defaultStaticMapping: [{ 'key': 'status', 'value': 'reg' }],
-      importFields, // ../_config/
-      isLoading: false
-    }
-  },
-  methods: {
-    abortFile (index) {
-      this.files[index].reader.abort()
-    },
-    closeFile (index) {
-      const file = this.files[index]
-      file.close()
-      this.files.splice(index, 1)
-    },
-    importPromise (payload) {
-      return this.$store.dispatch('$_nodes/bulkImport', payload)
-    }
-  },
-  created () {
-    this.$store.dispatch('session/getAllowedNodeRoles')
-  }
-}
-*/
 </script>
