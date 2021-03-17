@@ -14,6 +14,7 @@ import {
 import AlertServices from './AlertServices'
 import TheForm from './TheForm'
 import TheView from './TheView'
+import ToggleStatus from './ToggleStatus'
 
 export {
   BaseViewCollectionItem              as BaseView,
@@ -45,5 +46,6 @@ export {
 
   AlertServices,
   TheForm,
-  TheView
+  TheView,
+  ToggleStatus
 }

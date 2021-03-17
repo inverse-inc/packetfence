@@ -16,21 +16,7 @@
       <pf-empty-table :isLoading="state.isLoading">{{ $t('No maintenance tasks found') }}</pf-empty-table>
     </template>
     <template v-slot:cell(status)="item">
-
-      <pre>{{ {item} }}</pre>
-      <base-input-range-promise v-model="item.status" />
-
-
-
-      <pf-form-range-toggle
-        v-model="item.status"
-        :values="{ checked: 'enabled', unchecked: 'disabled' }"
-        :icons="{ checked: 'check', unchecked: 'times' }"
-        :colors="{ checked: 'var(--success)', unchecked: 'var(--danger)' }"
-        :rightLabels="{ checked: $t('Enabled'), unchecked: $t('Disabled') }"
-        :lazy="{ checked: enable(item), unchecked: disable(item) }"
-        @click.stop.prevent
-      />
+      <toggle-status :value="item.status" :item="item" :disabled="isLoading" /> 
     </template>
     <template v-slot:cell(interval)="{ interval }">
       <template v-if="interval"><!-- TODO: Temporary workaround for issue #4902 -->
@@ -44,11 +30,8 @@
 import pfButtonService from '@/components/pfButtonService'
 import pfConfigList from '@/components/pfConfigList'
 import pfEmptyTable from '@/components/pfEmptyTable'
-import pfFormRangeToggle from '@/components/pfFormRangeToggle'
 import { config } from '../_config/maintenanceTask'
-import {
-  BaseInputRangePromise
-} from '@/components/new/'
+import { ToggleStatus } from '@/views/Configuration/maintenanceTasks/_components/'
 
 export default {
   name: 'maintenance-tasks-list',
@@ -56,8 +39,7 @@ export default {
     pfButtonService,
     pfConfigList,
     pfEmptyTable,
-    pfFormRangeToggle,
-    BaseInputRangePromise
+    ToggleStatus 
   },
   data () {
     return {
@@ -67,30 +49,6 @@ export default {
   computed: {
     isLoading () {
       return this.$store.getters['$_maintenance_tasks/isLoading']
-    }
-  },
-  methods: {
-    enable (item) {
-      return () => { // 'enabled'
-        return new Promise((resolve, reject) => {
-          this.$store.dispatch('$_maintenance_tasks/enableMaintenanceTask', item).then(() => {
-            resolve('enabled')
-          }).catch(() => {
-            reject() // reset
-          })
-        })
-      }
-    },
-    disable (item) {
-      return () => { // 'disabled'
-        return new Promise((resolve, reject) => {
-          this.$store.dispatch('$_maintenance_tasks/disableMaintenanceTask', item).then(() => {
-            resolve('disabled')
-          }).catch(() => {
-            reject() // reset
-          })
-        })
-      }
     }
   }
 }

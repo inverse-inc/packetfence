@@ -1,131 +1,44 @@
-<template>
-  <base-input-range
-    class="base-form-group-toggle"
-    step="1"
-    min="0"
-    max="1"
-    :disabled="isLocked"
-    :hints="hints"
-    :size="size"
-    :tabIndex="inputTabIndex"
-    :value="inputValue"
-    :color="inputColor"
-    :icon="inputIcon"
-    :label="inputLabel"
-    @input="onInput"
-    @focus="onFocus"
-    @blur="onBlur"
-  />
-</template>
-<script>
-import { useFormGroupProps } from '@/composables/useFormGroup'
-import { useInput, useInputProps } from '@/composables/useInput'
-import { useInputMeta, useInputMetaProps } from '@/composables/useMeta'
-import { useInputValue, useInputValueProps } from '@/composables/useInputValue'
-import { useInputValueToggle, useInputValueToggleProps } from '@/composables/useInputValueToggle'
-import BaseFormGroup from './BaseFormGroup'
-import BaseInputRange from './BaseInputRange'
-
-const components = {
-  BaseFormGroup,
-  BaseInputRange
-}
+import { toRefs } from '@vue/composition-api'
+import { BaseInputToggle, BaseInputToggleProps } from '@/components/new'
+import i18n from '@/utils/locale'
+import store from '@/store'
 
 export const props = {
+  ...BaseInputToggleProps,
+
+  // overload :options default
   options: {
     type: Array,
     default: () => ([
-      { value: 'disabled', color: 'var(--danger)', tooltip: 'E' },
-      { value: 'enabled', color: 'var(--success)', tooltop: 'D' }
+      {
+        value: 'disabled', label: i18n.t('Disabled'),
+        color: 'var(--danger)', icon: 'times',
+        promise: (value, props) => {
+          const { item } = toRefs(props)
+          return store.dispatch('$_maintenance_tasks/disableMaintenanceTask', item.value)
+        }
+      },
+      {
+        value: 'enabled', label: i18n.t('Enabled'),
+        color: 'var(--success)', icon: 'check',
+        promise: (value, props) => {
+          const { item } = toRefs(props)
+          return store.dispatch('$_maintenance_tasks/enableMaintenanceTask', item.value)
+        }
+      }
     ])
   },
-  size: {
-    type: String,
-    default: 'md',
-    validator: value => ['sm', 'md', 'lg'].includes(value)
+  labelRight: {
+    type: Boolean,
+    default: true
   },
-  ...useFormGroupProps,
-  ...useInputProps,
-  ...useInputMetaProps,
-  ...useInputValueProps,
-  ...useInputValueToggleProps
-}
-
-import { ref, toRefs, watch } from '@vue/composition-api'
-
-export const setup = (props, context) => {
-
-  const metaProps = useInputMeta(props, context)
-
-  const {
-    tabIndex,
-    text,
-    isLocked,
-    onFocus,
-    onBlur
-  } = useInput(metaProps, context)
-
-  const valueProps = useInputValue(metaProps, context)
-
-  const {
-    value
-  } = toRefs(metaProps)
-
-  const onInput = () => {
-    // console.log('onInput', newValue)
-  }
-
-
-  const {
-    //value,
-    //onInput,
-    max,
-    label,
-    color,
-    icon,
-    tooltip
-  } = useInputValueToggle(valueProps, props, context)
-
-  const inputValue = ref(undefined)
-  watch(value, () => { // v-model mutation
-    inputValue.value = value.value
-  }, { immediate: true })
-
-
-  return {
-    // useInput
-    inputTabIndex: tabIndex,
-    inputText: text,
-    isLocked,
-    onFocus,
-    onBlur,
-
-    // useInputValue
-    inputValue,
-    onInput,
-    inputMax: max,
-    inputLabel: label,
-    inputColor: color,
-    inputIcon: icon,
-    inputTooltip: tooltip
-
+  item: {
+    type: Object
   }
 }
 
-// @vue/component
 export default {
-  name: 'base-input-range-promise',
-  inheritAttrs: false,
-  components,
-  props,
-  setup
+  name: 'base-toggle-status',
+  extends: BaseInputToggle,
+  props
 }
-</script>
-<style lang="scss">
-.base-form-group-toggle {
-  /* match height of input element to vertically align w/ form-group label */
-  min-height: $input-height;
-  display: flex;
-  align-items: center;
-}
-</style>

@@ -35,8 +35,16 @@ export const useInputValueToggle = (valueProps, props) => {
       return `${map.value}` === `${rxValue.value}` // compare String(s)
   }))
   const txOnInput = value => {
-    const { 0: { value: defaultValue } = {} , [value]: { value: mappedValue } = {} } = options.value
-    return rxOnInput((mappedValue !== undefined) ? mappedValue : defaultValue)
+    const {
+      0: { value: defaultValue } = {}, // 0th option is default
+      [value]: { value: mappedValue } = {}, // map value (N) w/ Nth option
+      [value]: { promise: mappedPromise } = {} // map promise
+    } = options.value
+    const rxValue = (mappedValue !== undefined) ? mappedValue : defaultValue
+    if (mappedPromise) // handle Promise
+      return mappedPromise(rxValue, props)
+    else // otherwise emit
+      return rxOnInput(rxValue)
   }
 
   // state
