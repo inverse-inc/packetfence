@@ -886,9 +886,13 @@ const actions = {
   },
   createDatabase: ({ commit }, data) => {
     commit('ITEM_REQUEST')
-    return api.createDatabase(data).then(response => {
-      commit('ITEM_SUCCESS')
-      return response
+    return api.createDatabase({ ...data,
+      async: true // use pfqueue polling
+    }).then(({ task_id }) => {
+      return store.dispatch('pfqueue/pollTaskStatus', task_id).then(response => {
+        commit('ITEM_SUCCESS')
+        return response
+      })
     }).catch(err => {
       commit('ITEM_ERROR', err.response)
       throw err
