@@ -2,7 +2,6 @@
   <b-card no-body>
     <b-card-header>
       <b-button-close @click="onClose" v-b-tooltip.hover.left.d300 :title="$t('Close [ESC]')"><icon name="times"/></b-button-close>
-      <pf-button-refresh class="border-right pr-3" :is-loading="isLoading" @refresh="onRefresh"></pf-button-refresh>
       <h4 class="d-inline mb-0">MAC <strong v-text="id"></strong></h4>
     </b-card-header>
     <b-tabs ref="tabsRef" v-model="tabIndex" card>
@@ -39,7 +38,6 @@ import TabIp6Logs from './TabIp6Logs'
 import TabSecurityEvents from './TabSecurityEvents'
 import TabLocationLogs from './TabLocationLogs'
 import TabTimeline from './TabTimeline'
-import pfButtonRefresh from '@/components/pfButtonRefresh'
 
 const components = {
   BaseFormTab,
@@ -51,9 +49,7 @@ const components = {
   TabIp6Logs,
   TabSecurityEvents,
   TabLocationLogs,
-  TabTimeline,
-
-  pfButtonRefresh
+  TabTimeline
 }
 
 const props = {
