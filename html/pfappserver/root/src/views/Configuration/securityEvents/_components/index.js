@@ -15,6 +15,7 @@ import BaseFormGroupTriggers from './BaseFormGroupTriggers'
 import BaseFormGroupTriggersHeader from './BaseFormGroupTriggersHeader'
 import TheForm from './TheForm'
 import TheView from './TheView'
+import ToggleStatus from './ToggleStatus'
 
 export {
   BaseViewCollectionItem      as BaseView,
@@ -34,6 +35,7 @@ export {
   BaseFormGroupToggle         as FormGroupWindowDynamic,
 
   TheForm,
-  TheView
+  TheView,
+  ToggleStatus
 }
 

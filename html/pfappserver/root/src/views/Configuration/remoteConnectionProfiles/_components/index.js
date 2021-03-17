@@ -12,6 +12,7 @@ import BaseFormGroupBasicFilter from './BaseFormGroupBasicFilter'
 import BaseFormGroupCondition from '@/views/Configuration/filterEngines/_components/BaseFormGroupCondition'
 import TheForm from './TheForm'
 import TheView from './TheView'
+import ToggleStatus from './ToggleStatus'
 
 export {
   BaseViewCollectionItem                    as BaseView,
@@ -32,5 +33,6 @@ export {
   BaseFormGroupInput                        as FormGroupStunServer,
 
   TheForm,
-  TheView
+  TheView,
+  ToggleStatus
 }

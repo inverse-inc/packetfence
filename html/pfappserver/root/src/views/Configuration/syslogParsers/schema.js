@@ -44,9 +44,9 @@ export const schema = (props) => {
       .nullable()
       .required(i18n.t('Detector required.'))
       .syslogParserIdExistsExcept((!isNew && !isClone) ? id : undefined, i18n.t('Detector exists.')),
-    path: yup.string().label(i18n.t('Alert pipe')),
+    path: yup.string().nullable().label(i18n.t('Alert pipe')),
     rules: schemaRules.label(i18n.t('Rules')).meta({ invalidFeedback: i18n.t('Rules contain one or more errors.') })
-  })
+  }) 
 }
 
 export default schema

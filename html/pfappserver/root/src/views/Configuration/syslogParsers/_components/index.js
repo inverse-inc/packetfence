@@ -12,6 +12,7 @@ import BaseFormGroupRules from './BaseFormGroupRules'
 import BaseFormGroupTest from './BaseFormGroupTest'
 import TheForm from './TheForm'
 import TheView from './TheView'
+import ToggleStatus from './ToggleStatus'
 
 export {
   BaseViewCollectionItem                    as BaseView,
@@ -26,5 +27,6 @@ export {
   BaseFormGroupTest                         as FormGroupTest,
 
   TheForm,
-  TheView
+  TheView,
+  ToggleStatus
 }

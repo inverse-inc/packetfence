@@ -24,11 +24,12 @@ const state = () => {
 
 const getters = {
   isWaiting: state => [types.LOADING, types.DELETING].includes(state.status),
-  isLoading: state => state.status === types.LOADING
+  isLoading: state => state.status === types.LOADING,
+  cacheFlattened: state => Object.values(state.cache)
 }
 
 const actions = {
-  all: ({ commit }) => {
+  all: ({ commit, getters }) => {
     const params = {
       sort: 'id',
       fields: columnsInterface.map(r => r.key).join(','),
@@ -38,22 +39,21 @@ const actions = {
     return api.interfaces(params).then(response => {
       commit('INTERFACE_SUCCESS')
       commit('INTERFACES_REPLACED', response.items)
-      return response.items
+      response.items.forEach(item => {
+        const { id } = item
+        commit('INTERFACE_REPLACED', { ...item, id })
+      })
+      return getters.cacheFlattened
     }).catch((err) => {
       commit('INTERFACE_ERROR', err.response)
       throw err
     })
   },
-  getInterface: ({ commit }, id) => {
-    /* Fix #5363, always fetch a fresh copy
-    if (state.cache[id]) {
-      return Promise.resolve(state.cache[id]).then(cache => JSON.parse(JSON.stringify(cache)))
-    }
-    */
+  getInterface: ({ state, commit }, id) => {
     commit('INTERFACE_REQUEST')
     return api.interface(id).then(item => {
       commit('INTERFACE_REPLACED', { ...item, id })
-      return JSON.parse(JSON.stringify(item))
+      return state.cache[id]
     }).catch((err) => {
       commit('INTERFACE_ERROR', err.response)
       throw err
@@ -121,7 +121,7 @@ const mutations = {
   },
   INTERFACE_REPLACED: (state, data) => {
     state.status = types.SUCCESS
-    Vue.set(state.cache, data.id, JSON.parse(JSON.stringify(data)))
+    Vue.set(state.cache, data.id, data)
     const i = state.interfaces.findIndex(i => {
       return i.id == data.id
     })
@@ -144,10 +144,14 @@ const mutations = {
   },
   INTERFACE_DOWN: (state, id) => {
     state.status = types.SUCCESS
+    if (!(id in state.cache))
+      Vue.set(state.cache, id, {})
     Vue.set(state.cache[id], 'is_running', false)
   },
   INTERFACE_UP: (state, id) => {
     state.status = types.SUCCESS
+    if (!(id in state.cache))
+      Vue.set(state.cache, id, {})
     Vue.set(state.cache[id], 'is_running', true)
   }
 }

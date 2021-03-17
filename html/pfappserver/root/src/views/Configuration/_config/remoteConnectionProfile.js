@@ -22,6 +22,11 @@ export const columns = [
     visible: true
   },
   {
+    key: 'not_deletable',
+    required: true,
+    visible: false
+  },
+  {
     key: 'not_sortable',
     required: true,
     visible: false

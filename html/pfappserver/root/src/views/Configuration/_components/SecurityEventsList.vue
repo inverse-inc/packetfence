@@ -28,23 +28,9 @@
         </span>
       </template>
       <template v-slot:cell(enabled)="item">
-        <pf-form-range-toggle v-if="item.id === 'defaults'"
-          v-model="item.enabled"
-          :values="{ checked: 'Y', unchecked: 'N' }"
-          :icons="{ checked: 'lock', unchecked: 'lock' }"
-          :colors="{ checked: 'var(--success)', unchecked: 'var(--danger)' }"
-          :right-labels="{ checked: 'ON', unchecked: 'OFF' }"
-          disabled
-        />
-        <pf-form-range-toggle v-else
-          v-model="item.enabled"
-          :values="{ checked: 'Y', unchecked: 'N' }"
-          :icons="{ checked: 'check', unchecked: 'times' }"
-          :colors="{ checked: 'var(--success)', unchecked: 'var(--danger)' }"
-          :right-labels="{ checked: 'ON', unchecked: 'OFF' }"
-          :lazy="{ checked: enable(item), unchecked: disable(item) }"
-          @click.stop.prevent
-        />
+        <toggle-status :value="item.enabled" 
+          :disabled="item.id === 'defaults' || isLoading"
+          :item="item" /> 
       </template>
     </pf-config-list>
   </b-card>
@@ -55,8 +41,8 @@ import pfButtonDelete from '@/components/pfButtonDelete'
 import pfButtonHelp from '@/components/pfButtonHelp'
 import pfConfigList from '@/components/pfConfigList'
 import pfEmptyTable from '@/components/pfEmptyTable'
-import pfFormRangeToggle from '@/components/pfFormRangeToggle'
 import { config } from '../_config/securityEvent'
+import { ToggleStatus } from '@/views/Configuration/securityEvents/_components/'
 
 export default {
   name: 'security-events-list',
@@ -65,7 +51,7 @@ export default {
     pfButtonHelp,
     pfConfigList,
     pfEmptyTable,
-    pfFormRangeToggle
+    ToggleStatus
   },
   data () {
     return {
@@ -87,38 +73,6 @@ export default {
         const { $refs: { pfConfigList: { refreshList = () => {} } = {} } = {} } = this
         refreshList() // soft reload
       })
-    },
-    enable (item) {
-      return () => { // 'enabled'
-        return new Promise((resolve, reject) => {
-          this.$store.dispatch('$_security_events/enableSecurityEvent', { quiet: true, ...item }).then(() => {
-            this.$store.dispatch('notification/info', { message: this.$i18n.t('Security event {desc} enabled.', { desc: this.$strong(item.desc) }) })
-            resolve('Y')
-          }).catch(err => {
-            const { response: { data: { message: errMsg } = {} } = {} } = err
-            let message = this.$i18n.t('Security event {desc} was not enabled', { desc: this.$strong(item.desc) })
-            if (errMsg) message += ` (${errMsg})`
-            this.$store.dispatch('notification/danger', { message })
-            reject() // reset
-          })
-        })
-      }
-    },
-    disable (item) {
-      return () => { // 'disabled'
-        return new Promise((resolve, reject) => {
-          this.$store.dispatch('$_security_events/disableSecurityEvent', { quiet: true, ...item }).then(() => {
-            this.$store.dispatch('notification/info', { message: this.$i18n.t('Security event {desc} disabled.', { desc: this.$strong(item.desc) }) })
-            resolve('N')
-          }).catch(err => {
-            const { response: { data: { message: errMsg } = {} } = {} } = err
-            let message = this.$i18n.t('Security event {desc} was not disabled', { desc: this.$strong(item.desc) })
-            if (errMsg) message += ` (${errMsg})`
-            this.$store.dispatch('notification/danger', { message })
-            reject() // reset
-          })
-        })
-      }
     }
   },
   created () {

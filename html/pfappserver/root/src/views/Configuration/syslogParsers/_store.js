@@ -57,13 +57,12 @@ const actions = {
     })
   },
   getSyslogParser: ({ state, commit }, id) => {
-    if (state.cache[id]) {
-      return Promise.resolve(state.cache[id]).then(cache => JSON.parse(JSON.stringify(cache)))
-    }
+    if (state.cache[id])
+      return state.cache[id]
     commit('ITEM_REQUEST')
     return api.syslogParser(id).then(item => {
       commit('ITEM_REPLACED', item)
-      return JSON.parse(JSON.stringify(item))
+      return state.cache[id]
     }).catch((err) => {
       commit('ITEM_ERROR', err.response)
       throw err
@@ -140,7 +139,7 @@ const mutations = {
   },
   ITEM_REPLACED: (state, data) => {
     state.itemStatus = types.SUCCESS
-    Vue.set(state.cache, data.id, JSON.parse(JSON.stringify(data)))
+    Vue.set(state.cache, data.id, data)
   },
   ITEM_ENABLED: (state, data) => {
     state.itemStatus = types.SUCCESS

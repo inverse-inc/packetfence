@@ -15,6 +15,7 @@ import BaseFormGroupStatus from './BaseFormGroupStatus'
 import BaseFormGroupSwitch from './BaseFormGroupSwitch'
 import TheForm from './TheForm'
 import TheView from './TheView'
+import ToggleStatus from './ToggleStatus'
 
 export {
   BaseFormButtonBar                   as FormButtonBar,
@@ -37,5 +38,6 @@ export {
 
   BaseViewCollectionItem              as BaseView,
   TheForm,
-  TheView
+  TheView,
+  ToggleStatus
 }

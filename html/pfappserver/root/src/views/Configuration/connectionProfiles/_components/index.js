@@ -20,6 +20,7 @@ import ModalFile from './ModalFile'
 import TheFilesList from './TheFilesList'
 import TheForm from './TheForm'
 import TheView from './TheView'
+import ToggleStatus from './ToggleStatus'
 
 export {
   BaseViewCollectionItem              as BaseView,
@@ -66,5 +67,6 @@ export {
   ModalFile,
   TheFilesList,
   TheForm,
-  TheView
+  TheView,
+  ToggleStatus
 }

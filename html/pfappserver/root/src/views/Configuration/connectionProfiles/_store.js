@@ -64,7 +64,7 @@ const actions = {
   },
   getConnectionProfile: ({ state, commit }, id) => {
     if (state.cache[id]) {
-      return Promise.resolve(state.cache[id]).then(cache => JSON.parse(JSON.stringify(cache)))
+      return Promise.resolve(state.cache[id])
     }
     commit('ITEM_REQUEST')
     return api.connectionProfile(id).then(item => {

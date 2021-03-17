@@ -28,23 +28,8 @@
         </span>
       </template>
       <template v-slot:cell(status)="item">
-        <pf-form-range-toggle v-if="item.not_deletable"
-          v-model="item.status"
-          :values="{ checked: 'enabled', unchecked: 'disabled' }"
-          :icons="{ checked: 'lock', unchecked: 'lock' }"
-          :colors="{ checked: 'var(--success)', unchecked: 'var(--danger)' }"
-          :right-labels="{ checked: $t('Enabled'), unchecked: $t('Disabled') }"
-          disabled
-        />
-        <pf-form-range-toggle v-else
-          v-model="item.status"
-          :values="{ checked: 'enabled', unchecked: 'disabled' }"
-          :icons="{ checked: 'check', unchecked: 'times' }"
-          :colors="{ checked: 'var(--success)', unchecked: 'var(--danger)' }"
-          :right-labels="{ checked: $t('Enabled'), unchecked: $t('Disabled') }"
-          :lazy="{ checked: enable(item), unchecked: disable(item) }"
-          @click.stop.prevent
-        />
+         <toggle-status :value="item.status" :disabled="item.not_deletable || isLoading"
+          :item="item" :searchable-store-name="$refs.pfConfigList.searchableStoreName" /> 
       </template>
     </pf-config-list>
   </b-card>
@@ -55,8 +40,8 @@ import pfButtonDelete from '@/components/pfButtonDelete'
 import pfButtonHelp from '@/components/pfButtonHelp'
 import pfConfigList from '@/components/pfConfigList'
 import pfEmptyTable from '@/components/pfEmptyTable'
-import pfFormRangeToggle from '@/components/pfFormRangeToggle'
 import { config } from '../_config/connectionProfile'
+import { ToggleStatus } from '@/views/Configuration/connectionProfiles/_components/'
 
 export default {
   name: 'connection-profiles-list',
@@ -65,7 +50,7 @@ export default {
     pfButtonHelp,
     pfConfigList,
     pfEmptyTable,
-    pfFormRangeToggle
+    ToggleStatus
   },
   data () {
     return {
@@ -94,34 +79,6 @@ export default {
       this.$store.dispatch('$_connection_profiles/sortConnectionProfiles', items.map(item => item.id)).then(() => {
         this.$store.dispatch('notification/info', { message: this.$i18n.t('Connection profiles resorted.') })
       })
-    },
-    enable (item) {
-      return () => { // 'enabled'
-        return new Promise((resolve, reject) => {
-          this.$store.dispatch('$_connection_profiles/enableConnectionProfile', item).then(() => {
-            const searchableStoreName = this.$refs.pfConfigList.searchableStoreName
-            this.$store.dispatch(`${searchableStoreName}/updateItem`, { key: 'id', id: item.id, prop: 'status', data: 'enabled' }).then(() => {
-              resolve('enabled')
-            })
-          }).catch(() => {
-            reject() // reset
-          })
-        })
-      }
-    },
-    disable (item) {
-      return () => { // 'disabled'
-        return new Promise((resolve, reject) => {
-          this.$store.dispatch('$_connection_profiles/disableConnectionProfile', item).then(() => {
-            const searchableStoreName = this.$refs.pfConfigList.searchableStoreName
-            this.$store.dispatch(`${searchableStoreName}/updateItem`, { key: 'id', id: item.id, prop: 'status', data: 'disabled' }).then(() => {
-              resolve('disabled')
-            })
-          }).catch(() => {
-            reject() // reset
-          })
-        })
-      }
     }
   }
 }

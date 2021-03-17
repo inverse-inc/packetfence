@@ -15,7 +15,8 @@ export default [
     path: 'connection_profiles',
     name: 'connection_profiles',
     component: TheList,
-    props: (route) => ({ query: route.query.query })
+    props: (route) => ({ query: route.query.query }),
+    beforeEnter
   },
   {
     path: 'connection_profiles/new',

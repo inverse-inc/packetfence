@@ -30,16 +30,9 @@
             <pf-empty-table :isLoading="isInterfacesLoading">{{ $t('No interfaces found') }}</pf-empty-table>
           </template>
           <template v-slot:cell(is_running)="{ item }">
-            <pf-form-range-toggle
-              v-model="item.is_running"
-              :values="{ checked: true, unchecked: false }"
-              :icons="{ checked: 'check', unchecked: 'times' }"
-              :colors="{ checked: 'var(--success)', unchecked: 'var(--danger)' }"
-              :right-labels="{ checked: $t('up'), unchecked: $t('down') }"
-              :lazy="{ checked: enableInterface(item), unchecked: disableInterface(item) }"
-              :disabled="item.type === 'management'"
-              @click.stop.prevent
-            />
+             <toggle-status :value="item.is_running" 
+              :disabled="item.type === 'management' || isInterfacesLoading"
+              :item="item" />
           </template>
           <template v-slot:cell(id)="item">
             <span class="text-nowrap mr-2">{{ item.item.name }}</span>
@@ -179,7 +172,7 @@ import network from '@/utils/network'
 import pfButtonDelete from '@/components/pfButtonDelete'
 import pfButtonService from '@/components/pfButtonService'
 import pfEmptyTable from '@/components/pfEmptyTable'
-import pfFormRangeToggle from '@/components/pfFormRangeToggle'
+import { ToggleStatus } from '@/views/Configuration/networks/interfaces/_components/'
 import { columns as columnsInterface } from '../_config/interface'
 import { columns as columnsLayer2Network } from '../_config/layer2Network'
 import { columns as columnsRoutedNetwork } from '../_config/routedNetwork'
@@ -190,7 +183,7 @@ export default {
     pfButtonDelete,
     pfButtonService,
     pfEmptyTable,
-    pfFormRangeToggle
+    ToggleStatus
   },
   data () {
     return {
@@ -286,28 +279,6 @@ export default {
         }
       }
       this.highlightedRoute = null
-    },
-    enableInterface (item) {
-      return () => { // 'enabled'
-        return new Promise((resolve, reject) => {
-          this.$store.dispatch(`$_interfaces/upInterface`, item.id).then(() => {
-            resolve(true)
-          }).catch(() => {
-            reject() // resewt
-          })
-        })
-      }
-    },
-    disableInterface (item) {
-      return () => { // 'disabled'
-        return new Promise((resolve, reject) => {
-          this.$store.dispatch(`$_interfaces/downInterface`, item.id).then(() => {
-            resolve(false)
-          }).catch(() => {
-            reject() // reset
-          })
-        })
-      }
     },
     sortCompareInterface (itemA, itemB, key, sortDesc) {
       if (this.fieldsInterface.filter(field => { return field.key === key && field.sort }).length > 0) {

@@ -33,15 +33,8 @@
         </span>
       </template>
       <template v-slot:cell(status)="item">
-        <pf-form-range-toggle
-          v-model="item.status"
-          :values="{ checked: 'enabled', unchecked: 'disabled' }"
-          :icons="{ checked: 'check', unchecked: 'times' }"
-          :colors="{ checked: 'var(--success)', unchecked: 'var(--danger)' }"
-          :right-labels="{ checked: $t('Enabled'), unchecked: $t('Disabled') }"
-          :lazy="{ checked: enable(item), unchecked: disable(item) }"
-          @click.stop.prevent
-        />
+         <toggle-status :value="item.status" :disabled="isLoading"
+          :item="item" :searchable-store-name="$refs.pfConfigList.searchableStoreName" /> 
       </template>
     </pf-config-list>
   </b-card>
@@ -52,8 +45,8 @@ import pfButtonDelete from '@/components/pfButtonDelete'
 import pfButtonService from '@/components/pfButtonService'
 import pfConfigList from '@/components/pfConfigList'
 import pfEmptyTable from '@/components/pfEmptyTable'
-import pfFormRangeToggle from '@/components/pfFormRangeToggle'
 import { config } from '../_config/syslogParser'
+import { ToggleStatus } from '@/views/Configuration/syslogParsers/_components/'
 
 export default {
   name: 'syslog-parsers-list',
@@ -62,7 +55,7 @@ export default {
     pfButtonService,
     pfConfigList,
     pfEmptyTable,
-    pfFormRangeToggle
+    ToggleStatus
   },
   data () {
     return {
@@ -83,32 +76,6 @@ export default {
         const { $refs: { pfConfigList: { refreshList = () => {} } = {} } = {} } = this
         refreshList() // soft reload
       })
-    },
-    enable (item) {
-      return () => { // 'enabled'
-        return new Promise((resolve, reject) => {
-          this.$store.dispatch('$_syslog_parsers/enableSyslogParser', item).then(() => {
-            this.$store.dispatch(`${this.$refs.pfConfigList.searchableStoreName}/updateItem`, { key: 'id', id: item.id, prop: 'status', data: 'enabled' }).then(() => {
-              resolve('enabled')
-            })
-          }).catch(() => {
-            reject() // reset
-          })
-        })
-      }
-    },
-    disable (item) {
-      return () => { // 'disabled'
-        return new Promise((resolve, reject) => {
-          this.$store.dispatch('$_syslog_parsers/disableSyslogParser', item).then(() => {
-            this.$store.dispatch(`${this.$refs.pfConfigList.searchableStoreName}/updateItem`, { key: 'id', id: item.id, prop: 'status', data: 'disabled' }).then(() => {
-              resolve('disabled')
-            })
-          }).catch(() => {
-            reject() // reset
-          })
-        })
-      }
     }
   }
 }

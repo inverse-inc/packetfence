@@ -34,15 +34,8 @@
               <pf-empty-table :isLoading="isLoadingCollection(collection)" :text="$t('Click the button to define a new filter.')">{{ $t('No filters defined') }}</pf-empty-table>
             </template>
             <template v-slot:cell(status)="item">
-              <pf-form-range-toggle
-                v-model="item.status"
-                :values="{ checked: 'enabled', unchecked: 'disabled' }"
-                :icons="{ checked: 'check', unchecked: 'times' }"
-                :colors="{ checked: 'var(--success)', unchecked: 'var(--danger)' }"
-                :rightLabels="{ checked: $t('Enabled'), unchecked: $t('Disabled') }"
-                :lazy="{ checked: enable(collection, item), unchecked: disable(collection, item) }"
-                @click.stop.prevent
-              />
+             <toggle-status :value="item.status" :disabled="isLoadingCollection(collection)"
+              :item="item" :collection="collection" />
             </template>
             <template v-slot:cell(scopes)="item">
               <b-badge v-for="(scope, index) in item.scopes" :key="index" class="mr-1" variant="secondary">{{ scope }}</b-badge>
@@ -63,17 +56,17 @@
 <script>
 import pfButtonDelete from '@/components/pfButtonDelete'
 import pfEmptyTable from '@/components/pfEmptyTable'
-import pfFormRangeToggle from '@/components/pfFormRangeToggle'
 import pfTableSortable from '@/components/pfTableSortable'
 import { columns } from '../_config/filterEngine'
+import { ToggleStatus } from '@/views/Configuration/filterEngines/_components/'
 
 export default {
   name: 'filter-engines-list',
   components: {
     pfButtonDelete,
     pfEmptyTable,
-    pfFormRangeToggle,
-    pfTableSortable
+    pfTableSortable,
+    ToggleStatus
   },
   props: {
     collection: { // from router
@@ -162,36 +155,6 @@ export default {
       const { collection } = _collection
       const { id } = item
       this.$router.push({ name: 'filter_engine', params: { collection, id } })
-    },
-    enable (_collection, item) {
-      const { collection } = _collection
-      const { id } = item
-      return () => { // 'enabled'
-        return new Promise((resolve, reject) => {
-          this.$store.dispatch('$_filter_engines/enableFilterEngine', { collection, id }).then(() => {
-            resolve('enabled')
-            this.$store.dispatch('notification/info', { message: this.$i18n.t('{collection} <code>{id}</code> enabled.', { collection: this.$store.getters['$_filter_engines/collectionToName'](collection), id } ) })
-          }).catch(() => {
-            this.$store.dispatch('notification/danger', { message: this.$i18n.t('{collection} <code>{id}</code> could not be enabled.', { collection: this.$store.getters['$_filter_engines/collectionToName'](collection), id } ) })
-            reject() // reset
-          })
-        })
-      }
-    },
-    disable (_collection, item) {
-      const { collection } = _collection
-      const { id } = item
-      return () => { // 'disabled'
-        return new Promise((resolve, reject) => {
-          this.$store.dispatch('$_filter_engines/disableFilterEngine', { collection, id }).then(() => {
-            resolve('disabled')
-            this.$store.dispatch('notification/info', { message: this.$i18n.t('{collection} <code>{id}</code> disabled.', { collection: this.$store.getters['$_filter_engines/collectionToName'](collection), id } ) })
-          }).catch(() => {
-            this.$store.dispatch('notification/danger', { message: this.$i18n.t('{collection} <code>{id}</code> could not be disabled.', { collection: this.$store.getters['$_filter_engines/collectionToName'](collection), id } ) })
-            reject() // reset
-          })
-        })
-      }
     }
   },
   created () {
