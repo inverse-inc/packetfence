@@ -144,13 +144,52 @@ The Content-Security-Policy HTTP response header tells modern browsers what can 
 If, for some reason the portal is modified with content that needs to be accessed from PacketFence generated web pages, CSP can be deactivated through _Configuration -> System Configuration -> Main Configuration -> Advanced -> CSP Security Headers_.
 
 === `pfacct`: track bandwidth usage
-Starting from v10, `pfacct` daemon is used to track bandwidth usage of nodes using <<_radius_accounting>> or NetFlow traffic (inline networks only). It is enabled by default and replaced `packetfence-radiusd-acct` service. `pfacct` will store data into `bandwidth_accounting` table. Using a security event with a bandwidth limit trigger, you can limit data usage of your nodes. GUI also use `bandwidth_accounting` table informations to display online/offline status of nodes.
-Bandwidth usage reports are available in _Reports_ menu under _Accounting_ section.
 
-==== NetFlow traffic on inline networks
+Starting from v10, `pfacct` daemon is used to track bandwidth usage of nodes
+using <<_radius_accounting>> or NetFlow v5 traffic. It is enabled by default and
+replaced `packetfence-radiusd-acct` service. `pfacct` will store data into
+`bandwidth_accounting` table. Using a security event with a bandwidth limit
+trigger, you can limit data usage of your nodes. GUI also use
+`bandwidth_accounting` table informations to display online/offline status of
+nodes.  Bandwidth usage reports are available in _Reports_ menu under
+_Accounting_ section.
 
-NetFlow traffic can be handle by `pfacct` on inline L2/L3 networks. You need to enable _Netflow Accounting Enabled_ setting when defining an inline network. If you enable _NetFlow on all networks_ in _Configuration -> System configuration -> Advanced_ menu, `pfacct` will collect NetFlow bandwidth usage for all networks (not only inline networks) instead of the ones defined in networks.conf.
+==== NetFlow traffic
 
-If you enable one of these two settings, you would need to restart `iptables` service for it to take effect.
+`pfacct` can get NetFlow traffic from two kind of sources:
 
-In order to not conflict with the `fingerbank-collector` (which listens NetFlow traffic on all interfaces), `pfacct` listens NetFlow traffic on localhost, using `udp/2056` port. It received data using NetFlow kernel module.
+* network devices which send directly NetFlow traffic to PacketFence
+* inline L2/L3 networks (using NetFlow kernel module)
+
+By default, `pfacct` listens NetFlow traffic on localhost, using `udp/2056`
+port to not conflict with the `fingerbank-collector` (which listens NetFlow
+traffic on all interfaces).
+
+`pfacct` must be able to map an IP address to a MAC address (from NetFlow
+traffic) in order to create a record in `bandwidth_accounting` table. It means
+that PacketFence needs to be aware of IP addresses of your nodes (default
+behavior on inline L2/L3 networks).
+
+You need to adjust `pfacct` configuration based on your NetFlow traffic source.
+
+===== NetFlow traffic from network devices
+
+You need to:
+
+* make `pfacct` listens on IP address where you want to receive NetFlow
+  traffic using `netflow_address` setting in _Configuration -> System configuration -> Services_ menu
+* enable _NetFlow on all networks_ in _Configuration -> System configuration -> Advanced_ menu
+
+Then restart `packetfence-iptables` and `packetfence-pfacct` services for it to take effect.
+
+===== NetFlow traffic from inline L2/L3 networks
+
+You need to enable _Netflow Accounting Enabled_ setting when defining an
+inline network.
+
+If you enable _NetFlow on all networks_ in _Configuration -> System
+configuration -> Advanced_ menu, `pfacct` will collect NetFlow bandwidth usage
+for all networks instead of the ones defined in [filename]`/usr/local/pf/conf/networks.conf`.
+
+Then restart `packetfence-iptables` and `packetfence-pfacct` services for it
+to take effect.
