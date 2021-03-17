@@ -1155,7 +1155,7 @@ CREATE TABLE keyed (
 -- Table structure for table 'pf_version'
 --
 
-CREATE TABLE pf_version ( `id` INT NOT NULL PRIMARY KEY, `version` VARCHAR(11) NOT NULL UNIQUE KEY) ENGINE=InnoDB;
+CREATE TABLE pf_version (`id` INT NOT NULL PRIMARY KEY, `version` VARCHAR(11) NOT NULL UNIQUE KEY, created_at DATETIME DEFAULT CURRENT_TIMESTAMP) ENGINE=InnoDB;
 
 --
 -- Table structure for table 'radius_audit_log'
@@ -1838,4 +1838,4 @@ CREATE TABLE `remote_clients` (
 -- Updating to current version
 --
 
-INSERT INTO pf_version (id, version) VALUES (@VERSION_INT, CONCAT_WS('.', @MAJOR_VERSION, @MINOR_VERSION, @SUBMINOR_VERSION));
+INSERT INTO pf_version (id, version, created_at) VALUES (@VERSION_INT, CONCAT_WS('.', @MAJOR_VERSION, @MINOR_VERSION, @SUBMINOR_VERSION), NOW());

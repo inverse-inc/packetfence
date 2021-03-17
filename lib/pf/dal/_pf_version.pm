@@ -35,6 +35,7 @@ BEGIN {
     @FIELD_NAMES = qw(
         id
         version
+        created_at
     );
 
     %DEFAULTS = (
@@ -60,6 +61,12 @@ BEGIN {
             is_primary_key => 0,
             is_nullable => 0,
         },
+        created_at => {
+            type => 'DATETIME',
+            is_auto_increment => 0,
+            is_primary_key => 0,
+            is_nullable => 1,
+        },
     );
 
     @PRIMARY_KEYS = qw(
@@ -69,6 +76,7 @@ BEGIN {
     @COLUMN_NAMES = qw(
         pf_version.id
         pf_version.version
+        pf_version.created_at
     );
 
 }

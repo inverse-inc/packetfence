@@ -50,6 +50,10 @@ DELIMITER ;
 call ValidateVersion;
 DROP PROCEDURE IF EXISTS ValidateVersion;
 
+\! echo "Altering pf_version"
+ALTER TABLE pf_version
+    ADD COLUMN created_at DATETIME DEFAULT CURRENT_TIMESTAMP;
+
 \! echo "Altering node"
 ALTER TABLE node
     DROP FOREIGN KEY `node_category_key`,
@@ -160,6 +164,6 @@ CREATE TABLE IF NOT EXISTS `remote_clients` (
 ) ENGINE=InnoDB;
 
 \! echo "Incrementing PacketFence schema version...";
-INSERT IGNORE INTO pf_version (id, version) VALUES (@VERSION_INT, CONCAT_WS('.', @MAJOR_VERSION, @MINOR_VERSION, @SUBMINOR_VERSION));
+INSERT IGNORE INTO pf_version (id, version, created_at) VALUES (@VERSION_INT, CONCAT_WS('.', @MAJOR_VERSION, @MINOR_VERSION, @SUBMINOR_VERSION), NOW());
 
 \! echo "Upgrade completed successfully.";
