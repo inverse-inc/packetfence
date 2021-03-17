@@ -52,7 +52,7 @@ DROP PROCEDURE IF EXISTS ValidateVersion;
 
 \! echo "Altering pf_version"
 ALTER TABLE pf_version
-    ADD COLUMN created_at DATETIME DEFAULT CURRENT_TIMESTAMP;
+    ADD COLUMN IF NOT EXISTS created_at DATETIME DEFAULT CURRENT_TIMESTAMP;
 
 \! echo "Altering node"
 ALTER TABLE node
