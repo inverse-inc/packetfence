@@ -76,11 +76,8 @@
         </span>
       </template>
       <template v-slot:beforeList>
-        <li class="multiselect__element">
-          <div v-if="!internalSearch"
-            class="col-form-label py-1 px-2 text-dark text-left bg-light border-bottom">{{ $t('Type to search') }}</div>
-          <!-- <div v-else
-            class="col-form-label py-1 px-2 text-dark text-left bg-light border-bottom">{{ $t('Type to filter results') }}</div> -->
+        <li v-if="!internalSearch" class="multiselect__element">
+          <div class="col-form-label py-1 px-2 text-dark text-left bg-light border-bottom">{{ $t('Type to search') }}</div>
         </li>
       </template>
       <template v-slot:noOptions>
