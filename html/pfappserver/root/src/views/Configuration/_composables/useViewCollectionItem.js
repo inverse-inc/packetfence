@@ -99,7 +99,7 @@ export const useViewCollectionItem = (collection, props, context) => {
           const { meta: _meta = {} } = options || {}
           meta.value = _meta
           getItem().then(item => {
-            form.value = item
+            form.value = { ...item } // dereferenced
             resolve()
           }).catch(e => {
             form.value = {}

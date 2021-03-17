@@ -48,7 +48,7 @@ export const useViewCollectionItemFixed = (collection, props, context) => {
   const init = () => {
     return new Promise((resolve, reject) => {
       getItem().then(item => {
-        form.value = item
+        form.value = { ...item } // dereferenced
         resolve()
       }).catch(e => {
         form.value = {}
