@@ -673,7 +673,9 @@ const mutations = {
     state.generalSettings.status = types.SUCCESS
     if (!state.generalSettings.cache)
       Vue.set(state.generalSettings, 'cache', {})
-    Vue.set(state.generalSettings.cache, data.id, JSON.parse(JSON.stringify(data)))
+    for (let id of Object.keys(data)) {
+      Vue.set(state.generalSettings.cache, id, data[id])
+    }
   },
   GENERAL_SETTINGS_ERROR: (state, response) => {
     state.generalSettings.status = types.ERROR
