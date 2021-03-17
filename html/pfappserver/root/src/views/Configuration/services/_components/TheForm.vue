@@ -90,6 +90,11 @@
       :text="$i18n.t(`Should pfacct be started? Keep enabled unless you know what you're doing.`)"
     />
 
+    <form-group-netflow-address namespace="netflow_address"
+      :column-label="$i18n.t('netflow_address')"
+      :text="$i18n.t(`The network address to listen to listen on. Do not change unless you know what you're doing.`)"
+    />
+
     <form-group-pfcertmanager namespace="pfcertmanager"
       :column-label="$i18n.t('pfcertmanager')"
       :text="$i18n.t(`Should pfcertmanager be started? Keep enabled unless you know what you're doing.`)"
@@ -240,6 +245,7 @@ import {
   FormGroupIptables,
   FormGroupKeepalived,
   FormGroupNetdata,
+  FormGroupNetflowAddress,
   FormGroupPfacct,
   FormGroupPfcertmanager,
   FormGroupPfcron,
@@ -288,6 +294,7 @@ const components = {
   FormGroupIptables,
   FormGroupKeepalived,
   FormGroupNetdata,
+  FormGroupNetflowAddress,
   FormGroupPfacct,
   FormGroupPfcertmanager,
   FormGroupPfcron,

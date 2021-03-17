@@ -1,6 +1,7 @@
 import { BaseViewResource } from '../../_components/new/'
 import {
   BaseFormButtonBar,
+  BaseFormGroupInput,
   BaseFormGroupInputNumber,
   BaseFormGroupToggleDisabledEnabled
 } from '@/components/new/'
@@ -26,6 +27,7 @@ export {
   BaseFormGroupToggleDisabledEnabled  as FormGroupHttpdWebservices,
   BaseFormGroupToggleDisabledEnabled  as FormGroupIptables,
   BaseFormGroupToggleDisabledEnabled  as FormGroupKeepalived,
+  BaseFormGroupInput                  as FormGroupNetflowAddress,
   BaseFormGroupToggleDisabledEnabled  as FormGroupNetdata,
   BaseFormGroupToggleDisabledEnabled  as FormGroupPfacct,
   BaseFormGroupToggleDisabledEnabled  as FormGroupPfcertmanager,

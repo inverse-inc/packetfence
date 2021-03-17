@@ -39,6 +39,7 @@ type PfAcct struct {
 	Db                 *sql.DB
 	AllowedNetworks    []net.IPNet
 	NetFlowPort        string
+	NetFlowAddress     string
 	Management         pfconfigdriver.ManagementNetwork
 	AAAClient          *jsonrpc2.Client
 	LoggerCtx          context.Context
@@ -131,6 +132,16 @@ func (pfAcct *PfAcct) SetupConfig(ctx context.Context) {
 	pfAcct.TimeDuration = time.Duration(keyConfAdvanced.AccountingTimebucketSize) * time.Second
 	if pfAcct.TimeDuration == 0 {
 		pfAcct.TimeDuration = DefaultTimeDuration
+	}
+
+	keyPfConfServices := pfconfigdriver.PfConfServices{}
+	keyPfConfServices.PfconfigNS = "config::Pf"
+	keyPfConfServices.PfconfigHostnameOverlay = "yes"
+	pfconfigdriver.FetchDecodeSocket(ctx, &keyPfConfServices)
+	if keyPfConfServices.NetFlowAddress != "" {
+		pfAcct.NetFlowAddress = keyPfConfServices.NetFlowAddress
+	} else {
+		pfAcct.NetFlowAddress = defaultNetFlowAddr
 	}
 
 	pfAcct.StatsdOption = statsd.Address("localhost:" + keyConfAdvanced.StatsdListenPort)
