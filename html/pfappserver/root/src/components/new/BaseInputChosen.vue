@@ -119,6 +119,7 @@
 <script>
 import { computed, nextTick, onBeforeUnmount, onMounted, ref, toRefs, unref } from '@vue/composition-api'
 import Multiselect from 'vue-multiselect'
+import 'vue-multiselect/dist/vue-multiselect.min.css'
 
 const components = {
   Multiselect
