@@ -79,8 +79,8 @@
         <li class="multiselect__element">
           <div v-if="!internalSearch"
             class="col-form-label py-1 px-2 text-dark text-left bg-light border-bottom">{{ $t('Type to search') }}</div>
-          <div v-else
-            class="col-form-label py-1 px-2 text-dark text-left bg-light border-bottom">{{ $t('Type to filter results') }}</div>
+          <!-- <div v-else
+            class="col-form-label py-1 px-2 text-dark text-left bg-light border-bottom">{{ $t('Type to filter results') }}</div> -->
         </li>
       </template>
       <template v-slot:noOptions>
@@ -89,7 +89,7 @@
           <strong>{{ $t('No options') }}</strong>
           <b-form-text class="font-weight-light">{{ $t('List is empty.') }}</b-form-text>
         </b-media>
-        <b-media class="text-secondary" md="auto" v-else>
+        <b-media class="text-secondary" md="auto" v-else-if="isFocus">
           <template v-slot:aside><icon name="search" scale="1.5" class="mt-2 ml-2"></icon></template>
           <strong>{{ $t('Search') }}</strong>
           <b-form-text class="font-weight-light">{{ $t('Type to search results.') }}</b-form-text>
@@ -297,6 +297,11 @@ export default {
 }
 </script>
 <style lang="scss">
+
+$chosen-border-color: $input-focus-border-color;
+$chosen-option-hover-color: $dropdown-link-hover-color;
+$chosen-option-hover-bg: $dropdown-link-hover-bg;
+
 .base-input-chosen-container {
   flex: 1 1 auto;
 }
@@ -390,7 +395,7 @@ export default {
     margin: 0px;
     background-color: transparent;
     color: $input-color;
-      // override multiselect's absolute height
+    // override multiselect's absolute height
     line-height: inherit;
     white-space: nowrap;
     &::placeholder {
@@ -411,7 +416,7 @@ export default {
   }
   .multiselect__content-wrapper {
     z-index: $zindex-popover;
-    border: $dropdown-border-width solid $dropdown-border-color;
+    border: $dropdown-border-width solid $chosen-border-color;
     @include border-radius($dropdown-border-radius);
     @include box-shadow($dropdown-box-shadow);
     .col-form-label {
@@ -420,13 +425,8 @@ export default {
     & > .multiselect__content {
       & > .multiselect__element {
         & > .multiselect__option--highlight {
-          background-color: var(--primary);
-          color: $dropdown-link-active-color;
-          &:after,
-          &:hover {
-            background-color: var(--primary);
-            color: var(--white) !important;
-          }
+          background-color: $chosen-option-hover-bg;
+          color: $chosen-option-hover-color;
         }
         & > .multiselect__option--disabled {
           background-color: var(--white) !important;
@@ -435,19 +435,20 @@ export default {
           cursor: not-allowed;
         }
         & > .multiselect__option--group {
-          border-top: 1px solid $dropdown-border-color !important;
+          border-top: $dropdown-border-width solid $chosen-border-color !important;
           background-color: var(--light) !important;
           color: var(--primary) !important;
           font-weight: 800;
-          /*
-          font-size: .7875rem;
-          line-height: 1.71429;
-          */
+        }
+        & > .multiselect__option--selected {
+          background: $component-active-bg;
+          color: $component-active-color;
+          font-weight: inherit;
         }
       }
     }
   }
-  .multiselect--active:not(.multiselect--above) {
+  &.multiselect--active:not(.multiselect--above) {
     .multiselect__content-wrapper {
       border-top-width: 0px;
       border-bottom-width: 1px;
@@ -457,11 +458,10 @@ export default {
       border-bottom-right-radius: $border-radius !important;
     }
   }
-  .multiselect--above {
+  &.multiselect--above {
     .multiselect__content-wrapper {
+      border-top: $dropdown-border-width solid $chosen-border-color;
       border-bottom-width: 0px;
-      border-bottom-left-radius: 0 !important;
-      border-bottom-right-radius: 0 !important;
     }
   }
 
