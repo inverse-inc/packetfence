@@ -41,6 +41,12 @@ sub members {
     return $self->render( json => { items => \@items } );
 }
 
+sub form_parameters {
+    [
+        inactive => [ qw(always_trigger) ],
+    ];
+}
+
 =head2 fields_to_mask
 
 fields_to_mask
