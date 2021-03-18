@@ -144,11 +144,13 @@ export const useViewCollectionItem = (collection, props, context) => {
   const onSave = () => {
     isModified.value = true
     const closeAfter = actionKey.value
-    save().then(() => {
+    save().then(response => {
       if (closeAfter) // [CTRL] key pressed
         goToCollection(true)
-      else
+      else {
+        form.value = { ...form.value, ...response } // merge form w/ newly inserted IDs
         goToItem().then(() => init()) // re-init
+      }
     })
   }
 
