@@ -162,7 +162,7 @@ export const useSingleValueLookupOptions = (value, onInput, lookup, options, opt
   let lastCurrentPromise = 0 // only use latest of 1+ promises
 
   watch([value, lookup], (...args) => {
-    if (!value.value || !value.value.trim() || !lookup.value) {
+    if (!value.value || !lookup.value) {
       currentValueOptions.value = []
       return
     }
