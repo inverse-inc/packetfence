@@ -32,7 +32,7 @@ export const schema = (props) => {
     proto: yup.string().nullable().label(i18n.t('Protocol')),
     host: yup.string().nullable().label(i18n.t('Host')),
     port: yup.string().nullable().label(i18n.t('Port')),
-    logs: yup.string().nullable().label(i18n.t('Logs'))
+    logs: yup.array().ensure().label(i18n.t('Logs'))
   })
 }
 
