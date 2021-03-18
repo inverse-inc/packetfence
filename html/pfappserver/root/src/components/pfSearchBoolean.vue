@@ -264,15 +264,4 @@ export default {
 .sortable-drag .nodrag {
   display: none;
 }
-/**
- * The element pfFormDatetime uses a form-group block
- * that causes a line-break.
- */
-.form-inline .form-control {
-  width:auto;
-}
-.form-inline .form-group {
-  display: inline-block;
-  vertical-align: middle;
-}
 </style>

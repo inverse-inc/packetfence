@@ -110,8 +110,6 @@ import {
 import pfButton from '@/components/pfButton'
 import pfButtonDelete from '@/components/pfButtonDelete'
 import pfEmptyTable from '@/components/pfEmptyTable'
-import pfFormChosen from '@/components/pfFormChosen'
-import pfFormInput from '@/components/pfFormInput'
 import { ToggleStatus } from '@/views/Configuration/networks/interfaces/_components/'
 import i18n from '@/utils/locale'
 import network from '@/utils/network'
@@ -171,8 +169,6 @@ const components = {
   pfButton,
   pfButtonDelete,
   pfEmptyTable,
-  pfFormChosen,
-  pfFormInput,
   ToggleStatus
 }
 

@@ -6,7 +6,7 @@
     </b-card-header>
     <b-card-body>
       <div class="pb-5 d-print-none">
-        <pf-form-input :column-label="$t('Subject')"
+        <base-form-group-input :column-label="$t('Subject')"
           v-model="emailSubject"
           :text="$t('The subject used for email messages.')"/>
         <hr/>
@@ -35,13 +35,13 @@
 </template>
 
 <script>
-import pfFormInput from '@/components/pfFormInput'
+import { BaseFormGroupInput } from '@/components/new/'
 import pfFormRow from '@/components/pfFormRow'
 
 export default {
   name: 'users-preview',
   components: {
-    pfFormInput,
+    BaseFormGroupInput,
     pfFormRow
   },
   data () {

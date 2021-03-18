@@ -75,7 +75,7 @@
       <template v-slot:modal-footer>
         <b-row class="w-100">
           <b-col cols="auto" class="mr-auto pl-0">
-            <pf-form-select size="sm" class="d-inline"
+            <b-form-select size="sm" class="d-inline"
               v-model="reassignRole"
               :options="reassignableRoles"
             />
@@ -96,7 +96,6 @@ import pfButtonDelete from '@/components/pfButtonDelete'
 import pfButtonHelp from '@/components/pfButtonHelp'
 import pfConfigList from '@/components/pfConfigList'
 import pfEmptyTable from '@/components/pfEmptyTable'
-import pfFormSelect from '@/components/pfFormSelect'
 import { config, reasons } from '../_config/role'
 
 export default {
@@ -105,8 +104,7 @@ export default {
     pfButtonDelete,
     pfButtonHelp,
     pfConfigList,
-    pfEmptyTable,
-    pfFormSelect
+    pfEmptyTable
   },
   props: {
     parentId: {
