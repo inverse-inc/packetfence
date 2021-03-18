@@ -27,9 +27,9 @@ const schemaAction = yup.object({
 const schemaActions = yup.array().ensure().unique(i18n.t('Duplicate action.')).of(schemaAction)
 
 const schemaAnswer = yup.object({
-  prefix: yup.string().required(i18n.t('Prefix required.')),
-  type: yup.string().required(i18n.t('Type required.')),
-  value: yup.string().required(i18n.t('Value required'))
+  prefix: yup.string().nullable().required(i18n.t('Prefix required.')),
+  type: yup.string().nullable().required(i18n.t('Type required.')),
+  value: yup.string().nullable().required(i18n.t('Value required'))
 })
 
 const schemaAnswers = yup.array().ensure().unique(i18n.t('Duplicate answer.')).of(schemaAnswer)

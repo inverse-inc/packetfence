@@ -62,6 +62,11 @@
       :column-label="$i18n.t('Answers')"
     />
 
+    <form-group-answer v-if="fields.includes('answer')"
+      namespace="answer"
+      :column-label="$i18n.t('Answer')"
+    />
+
     <form-group-role v-if="fields.includes('role')"
       namespace="role"
       :column-label="$i18n.t('Role')"
@@ -86,11 +91,6 @@
     <form-group-radius-status v-if="fields.includes('radius_status')"
       namespace="radius_status"
       :column-label="$i18n.t('RADIUS Status')"
-    />
-
-    <form-group-answer v-if="fields.includes('answer')"
-      namespace="answer"
-      :column-label="$i18n.t('Answer')"
     />
 
   </base-form>
