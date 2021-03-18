@@ -51,9 +51,9 @@ export const useInputRange = (props, { emit, refs }, inputRef = 'input') => {
 
   const rootStyle = computed(() => ({
     '--range-length': +max.value - +min.value + 1,
-    ...((disabled.value)
-      ? '--range-background-color: var(--light)'
-      : ((color.value)
+    ...((color.value)
+      ? { '--range-background-color': color.value }
+      : ((disabled.value)
         ? { '--range-background-color': color.value }
         : {}
       )

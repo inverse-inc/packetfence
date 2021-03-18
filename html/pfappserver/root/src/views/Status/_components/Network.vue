@@ -1,7 +1,7 @@
 <template>
   <b-card no-body ref="networkGraphContainer">
     <b-card-header>
-      <div class="float-right"><pf-form-toggle v-model="advancedMode">{{ $t('Advanced') }}</pf-form-toggle></div>
+      <div class="float-right"><base-input-toggle-advanced-mode v-model="advancedMode" label-left /></div>
       <h4 class="mb-0" v-t="'Network'"></h4>
     </b-card-header>
     <div class="card-body">
@@ -75,7 +75,8 @@
           <b-col cols="auto" class="px-0">
             <b-input-group class="mb-0 mx-3" size="sm">
               <b-input-group-prepend is-text>
-                <pf-form-range-toggle class="inline mt-n2" v-model="liveMode" :disabled="isLoading || !liveModeAllowed"></pf-form-range-toggle>
+                <base-input-toggle-false-true v-model="liveMode" 
+                  :disabled="isLoading || !liveModeAllowed" class="inline mt-n2" />
               </b-input-group-prepend>
               <b-dropdown variant="light" size="sm" :text="$t('Live View')" :disabled="isLoading || !liveModeAllowed">
                 <b-dropdown-item v-for="timeout in liveModeIntervalMsOptions" :key="timeout"
@@ -141,8 +142,10 @@
 </template>
 
 <script>
-import pfFormRangeToggle from '@/components/pfFormRangeToggle'
-import pfFormToggle from '@/components/pfFormToggle'
+import {
+  BaseInputToggleAdvancedMode,
+  BaseInputToggleFalseTrue
+} from '@/components/new/'
 import pfNetworkGraph from '@/components/pfNetworkGraph'
 import pfSearchBoolean from '@/components/pfSearchBoolean'
 import { pfSearchConditionType as conditionType } from '@/globals/pfSearch'
@@ -161,8 +164,8 @@ const api = {
 export default {
   name: 'network',
   components: {
-    pfFormRangeToggle,
-    pfFormToggle,
+    BaseInputToggleAdvancedMode,
+    BaseInputToggleFalseTrue,
     pfNetworkGraph,
     pfSearchBoolean
   },

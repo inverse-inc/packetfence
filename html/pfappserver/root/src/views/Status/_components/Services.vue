@@ -22,26 +22,14 @@
             <pf-empty-table :isLoading="isLoading">{{ $t('No Services found') }}</pf-empty-table>
           </template>
           <template v-slot:cell(enabled)="service">
-            <pf-form-range-toggle
-              v-model="service.item.enabled"
-              :values="{ checked: true, unchecked: false }"
-              :icons="{ checked: 'lock', unchecked: 'lock' }"
-              :right-labels="{ checked: $t('Enabled'), unchecked: $t('Disabled') }"
-              :disabled="true"
-              @input="toggleEnabled(service.item, $event)"
-              @click.stop.prevent
-            />
+            <toggle-service-enabled :value="service.item.enabled" 
+              :name="service.item.name" 
+              :disabled="true" /> 
           </template>
           <template v-slot:cell(alive)="service">
-            <pf-form-range-toggle
-              v-model="service.item.alive"
-              :values="{ checked: true, unchecked: false }"
-              :icons="{ checked: 'lock', unchecked: 'lock' }"
-              :colors="{ checked: 'var(--success)', unchecked: 'var(--danger)' }"
-              :right-labels="{ checked: $t('Running'), unchecked: $t('Stopped') }"
-              :disabled="true"
-              @click.stop.prevent
-            />
+            <toggle-service-alive :value="service.item.alive" 
+              :name="service.item.name" 
+              :disabled="true" />             
           </template>
           <template v-slot:cell(pid)="service">
             <icon v-if="![200, 'error'].includes(service.item.status)" name="circle-notch" spin></icon>
@@ -92,28 +80,14 @@
             {{ service.item.name }}
           </template>
           <template v-slot:cell(enabled)="service">
-            <pf-form-range-toggle
-              v-model="service.item.enabled"
-              :values="{ checked: true, unchecked: false }"
-              :icons="{ checked: 'check', unchecked: 'times' }"
-              :right-labels="{ checked: $t('Enabled'), unchecked: $t('Disabled') }"
-              :disabled="![200, 'error'].includes(service.item.status) || !('enabled' in service.item)"
-              @input="toggleEnabled(service.item, $event)"
-              @click.stop.prevent
-            />
+            <toggle-service-enabled :value="service.item.enabled" 
+              :name="service.item.name" 
+              :disabled="![200, 'error'].includes(service.item.status) || !('enabled' in service.item)" /> 
           </template>
           <template v-slot:cell(alive)="service" class="text-nowrap">
-            <pf-form-range-toggle
-              v-model="service.item.alive"
-              :values="{ checked: true, unchecked: false }"
-              :icons="{ checked: 'check', unchecked: 'times' }"
-              :colors="{ checked: 'var(--success)', unchecked: 'var(--danger)' }"
-              :right-labels="{ checked: $t('Running'), unchecked: $t('Stopped') }"
-              :disabled="![200, 'error'].includes(service.item.status) || !('alive' in service.item)"
-              class="d-inline"
-              @input="toggleRunning(service.item, $event)"
-              @click.stop.prevent
-            />
+            <toggle-service-alive :value="service.item.alive" 
+              :name="service.item.name" 
+              :disabled="![200, 'error'].includes(service.item.status)" /> 
           </template>
           <template v-slot:cell(pid)="service">
             <icon v-if="![200, 'error'].includes(service.item.status)" name="circle-notch" spin></icon>
@@ -127,13 +101,15 @@
 
 <script>
 import pfEmptyTable from '@/components/pfEmptyTable'
-import pfFormRangeToggle from '@/components/pfFormRangeToggle'
+import ToggleServiceAlive from './ToggleServiceAlive'
+import ToggleServiceEnabled from './ToggleServiceEnabled'
 
 export default {
   name: 'services',
   components: {
     pfEmptyTable,
-    pfFormRangeToggle
+    ToggleServiceAlive,
+    ToggleServiceEnabled
   },
   props: {
     storeName: { // from router
@@ -200,34 +176,6 @@ export default {
     }
   },
   methods: {
-    toggleEnabled (service, event) {
-      switch (event) {
-        case false:
-          this.$store.dispatch(`${this.storeName}/disableService`, service.name).then(() => {
-            this.$store.dispatch('notification/info', { message: this.$i18n.t('Service <code>{service}</code> disabled.', { service: service.name }) })
-          })
-          break
-        case true:
-          this.$store.dispatch(`${this.storeName}/enableService`, service.name).then(() => {
-            this.$store.dispatch('notification/info', { message: this.$i18n.t('Service <code>{service}</code> enabled.', { service: service.name }) })
-          })
-          break
-      }
-    },
-    toggleRunning (service, event) {
-      switch (event) {
-        case false:
-          this.$store.dispatch(`${this.storeName}/stopService`, service.name).then(() => {
-            this.$store.dispatch('notification/info', { message: this.$i18n.t('Service <code>{service}</code> stopped.', { service: service.name }) })
-          })
-          break
-        case true:
-          this.$store.dispatch(`${this.storeName}/startService`, service.name).then(() => {
-            this.$store.dispatch('notification/info', { message: this.$i18n.t('Service <code>{service}</code> started.', { service: service.name }) })
-          })
-          break
-      }
-    },
     stopAllServices () {
       this.$store.dispatch('notification/info', { message: this.$i18n.t('Stopping all services.') })
       this.$store.dispatch(`${this.storeName}/stopAllServices`).then(() => {
