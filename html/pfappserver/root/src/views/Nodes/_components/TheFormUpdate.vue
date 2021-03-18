@@ -192,7 +192,6 @@ const {
     rootRef,
     form,
     schema,
-    isModified,
     actionKey,
     isDeletable,
     isValid,
