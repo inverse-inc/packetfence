@@ -62,7 +62,7 @@ sub description { 'Ruckus Wireless Controllers' }
 
 use pf::SwitchSupports qw(
     WirelessDot1x
-    -WirelessMacAuth
+    WirelessMacAuth
     ExternalPortal
     RoleBasedEnforcement
 );

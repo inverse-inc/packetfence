@@ -40,6 +40,7 @@ use pf::util::radius qw(perform_disconnect);
 use pf::log;
 use pf::util::wpa;
 use Crypt::PBKDF2;
+use Data::Dumper;
 
 sub description { 'Ruckus SmartZone Wireless Controllers' }
 use pf::SwitchSupports qw(
@@ -88,10 +89,13 @@ sub deauthTechniques {
     my ($self, $method, $connection_type) = @_;
     my $logger = $self->logger;
     my $default = $SNMP::RADIUS;
+    # If an explicit supported deauth method is chosen, use it (HTTP/HTTPS). Needed for non-proxy RADIUS scenarios
+    # where auth is via radius but COA/disconnect is via webservices.
     my %tech = (
         $SNMP::RADIUS => 'deauth',
+        $SNMP::HTTP  => 'deauthenticateMacWebservices',
+        $SNMP::HTTPS => 'deauthenticateMacWebservices'
     );
-
     if (!defined($method) || !defined($tech{$method})) {
         $method = $default;
     }
@@ -106,6 +110,7 @@ Deauthenticate a client using HTTP or RADIUS depending on the connection type
 
 sub deauth {
     my ($self, $mac) = @_;
+    my $logger = $self->logger;
     my $node_info = node_view($mac);
     if (isenabled($self->{_ExternalPortalEnforcement})) {
         if($node_info->{last_connection_type} eq $connection_type_to_str{$WEBAUTH_WIRELESS} || $node_info->{last_connection_type} eq $connection_type_to_str{$WIRELESS_MAC_AUTH}) {
@@ -115,7 +120,6 @@ sub deauth {
     }
     $self->deauthenticateMacDefault($mac);
 }
-
 
 =head2 radiusDisconnect
 
@@ -204,39 +208,61 @@ sub deauthenticateMacWebservices {
     my $logger = $self->logger;
     my $controllerIp = $self->{_controllerIp} || $self->{_ip};
     my $webservicesPassword = $self->{_wsPwd};
+    
     my $ucmac = uc $mac;
     my $ip = pf::ip4log::mac2ip($mac);
     my $node_info = node_view($mac);
     my $payload;
-    if($node_info->{status} eq "unreg" || security_event_count_reevaluate_access($mac)) {
-        $payload = encode_json({
-         "Vendor"=> "ruckus",
-         "RequestPassword"=> $webservicesPassword,
-         "APIVersion"=> "1.0",
-         "RequestCategory"=> "UserOnlineControl",
-         "RequestType"=> "Logout",
-         "UE-IP"=> $ip,
-         "UE-MAC"=> $ucmac
-        });
+
+    my %baseCommand=(
+        "Vendor"=> "ruckus",
+        "RequestPassword"=> $webservicesPassword,
+        "APIVersion"=> "1.0",
+        "RequestCategory"=> "UserOnlineControl",
+        "UE-IP"=> $ip,
+        "UE-MAC"=> $ucmac
+    );
+
+    # If a webservice username is defined, add the key/value to the hash so that it appears on the json.
+    # Otherwise, the "RequestUserName" field should not exist at all.
+    # RequestUserName is used in "managed Service Provider" domains in SmartZone HighScale
+    # See here: https://docs.commscope.com/bundle/sz-510-hotspot-wispr-guide-sz300vsz/page/GUID-160E59E5-5816-4618-B0D4-091FAA9AD49C.html#
+
+    if (defined($self->{'_wsUser'}) && $self->{'_wsUser'} ne ''){
+        $baseCommand{"RequestUserName"}=$self->{'_wsUser'};
     }
-    else {
-        $payload = encode_json({
-         "Vendor"=> "ruckus",
-         "RequestPassword"=> $webservicesPassword,
-         "APIVersion"=> "1.0",
-         "RequestCategory"=> "UserOnlineControl",
-         "RequestType"=> "Login",
-         "UE-IP"=> $ip,
-         "UE-MAC"=> $ucmac,
-         "UE-Proxy"=> "0",
-         "UE-Username"=> $ucmac,
-         "UE-Password"=> $ucmac
-        });
+
+    if ( $node_info->{last_connection_type} eq $connection_type_to_str{$WIRELESS_MAC_AUTH} ){
+        # For Ruckus smartzone, if using non-proxy RADIUS (MAC auth), the CoA/disconnect is via web services.
+        # We need to invoke the "Disconnect" method every time we want the user to change status. For mac-auth, "Login" or "Logout" will not trigger a vlan change / reconnection
+        # So basically, the user needs to configure the deauth method as http/https to force it to use "deauthenticateMacWebservices"
+        # and once here, we check if the connection was WIRELESS_MAC_AUTH and trigger the logout webservice call
+        # "Disconnect" also forces the ap to disociate the client which is what we want for unreg/role revaluation.
+        $baseCommand{"RequestType"}="Disconnect";
+    } elsif( $node_info->{status} eq "unreg" || security_event_count_reevaluate_access($mac) ){
+        $baseCommand{"RequestType"}="Logout";
+    } else {
+        $baseCommand{"RequestType"}="Login";
+        $baseCommand{"UE-Proxy"}="0";
+        $baseCommand{"UE-Username"}=$ucmac;
+        $baseCommand{"UE-Password"}=$ucmac;
     }
+    $logger->debug(Dumper(\%baseCommand));
+    $payload = encode_json(\%baseCommand);
+
     my $ua = LWP::UserAgent->new;
     $ua->timeout(10);
     $ua->ssl_opts(verify_hostname => 0);
-    my $res = $ua->post("https://$controllerIp:9443/portalintf", Content => $payload, "Content-Type" => "application/json");
+    my $transport = lc($self->{_wsTransport});
+    
+    # Ruckus smartzone supports webservices calls on port 9443 if using https or 9080 if http. Thus we chose accordingly
+    # http allows for easier troubleshooting by doing a tcpdump and looking at the request / response on the wire.
+    my $wsPort = "9443";
+    if($transport eq "http") {
+        $wsPort = "9080"
+    }
+    my $base_url = "$transport://$controllerIp:$wsPort"; 
+    my $res = $ua->post("$base_url/portalintf", Content => $payload, "Content-Type" => "application/json");
     if($res->is_success) {
         $logger->info("Contacted Ruckus to perform deauthentication");
         $logger->debug("Got the following response: ".$res->decoded_content);
@@ -249,7 +275,6 @@ sub deauthenticateMacWebservices {
 =item returnRadiusAccessAccept
 
 Prepares the RADIUS Access-Accept reponse for the network device.
-
 Overrides the default implementation to add the dynamic PSK
 
 =cut
