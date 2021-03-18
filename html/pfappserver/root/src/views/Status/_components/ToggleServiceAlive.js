@@ -39,7 +39,7 @@ export const props = {
     default: true
   },
   name: {
-    type: Object
+    type: String
   }
 }
 
