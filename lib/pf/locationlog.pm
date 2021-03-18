@@ -52,6 +52,7 @@ BEGIN {
         locationlog_get_session
         locationlog_last_entry_mac
         locationlog_last_entry_non_inline_mac
+        locationlog_last_entry_previous_switch
 
         locationlog_unique_ssids
     );
@@ -618,6 +619,23 @@ sub _locationlog_last {
         -order_by => { -desc => 'start_time' },
         -limit => 1,
     });
+}
+
+=item locationlog_last_entry_previous_switch
+
+Return the last locationlog entry for a mac on a previous switch.
+
+=cut
+
+sub locationlog_last_entry_previous_switch {
+    my ($mac, $switch) = @_;
+    $mac = clean_mac($mac);
+    my %where = (
+        mac             => $mac,
+        switch => { "!=" => $switch->{_id} },
+    );
+    my $columns = pf::dal::locationlog->table_field_names;
+    return _locationlog_last(\%where, $columns);
 }
 
 =back
