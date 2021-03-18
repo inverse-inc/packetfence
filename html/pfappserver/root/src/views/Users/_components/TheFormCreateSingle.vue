@@ -254,44 +254,7 @@ const components = {
 import { computed, ref } from '@vue/composition-api'
 import { useDebouncedWatchHandler } from '@/composables/useDebounce'
 import { single as schemaFn } from '../schema'
-
-const defaults = {
-  pid_overwrite: 0,
-  pid: '',
-  email: '',
-  sponsor: '',
-  password: '',
-  login_remaining: null,
-  gender: '',
-  title: '',
-  firstname: '',
-  lastname: '',
-  nickname: '',
-  company: '',
-  telephone: '',
-  cell_phone: '',
-  work_phone: '',
-  address: '',
-  apartment_number: '',
-  building_number: '',
-  room_number: '',
-  anniversary: '',
-  birthday: '',
-  psk: '',
-  notes: '',
-  custom_field_1: '',
-  custom_field_2: '',
-  custom_field_3: '',
-  custom_field_4: '',
-  custom_field_5: '',
-  custom_field_6: '',
-  custom_field_7: '',
-  custom_field_8: '',
-  custom_field_9: '',
-  actions: [
-    { type: 'set_access_level' }
-  ]
-}
+import { createSingleForm as defaults } from '../_config/'
 
 const setup = (props, context) => {
 

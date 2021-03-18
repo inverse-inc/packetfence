@@ -129,14 +129,10 @@ import { useDebouncedWatchHandler } from '@/composables/useDebounce'
 import { multiple as schemaFn } from '../schema'
 import i18n from '@/utils/locale'
 import password from '@/utils/password'
-import { passwordOptions as _passwordOptions } from '../_config/'
-
-const defaults = {
-  pid_overwrite: 1,
-  actions: [
-    { type: 'set_access_level' }
-  ]
-}
+import { 
+  createMultipleForm as defaults,
+  passwordOptions as _passwordOptions
+} from '../_config/'
 
 const setup = (props, context) => {
 

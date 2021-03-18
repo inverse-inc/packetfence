@@ -34,62 +34,62 @@ export const passwordOptions = {
   ambiguous: false
 }
 
-export const createForm = {
-  single: {
-    pid_overwrite: 0,
-    pid: '',
-    email: '',
-    sponsor: '',
-    password: '',
-    login_remaining: null,
-    gender: '',
-    title: '',
-    firstname: '',
-    lastname: '',
-    nickname: '',
-    company: '',
-    telephone: '',
-    cell_phone: '',
-    work_phone: '',
-    address: '',
-    apartment_number: '',
-    building_number: '',
-    room_number: '',
-    anniversary: '',
-    birthday: '',
-    psk: '',
-    notes: '',
-    custom_field_1: '',
-    custom_field_2: '',
-    custom_field_3: '',
-    custom_field_4: '',
-    custom_field_5: '',
-    custom_field_6: '',
-    custom_field_7: '',
-    custom_field_8: '',
-    custom_field_9: ''
-  },
-  multiple: {
-    pid_overwrite: 0,
-    prefix: '',
-    quantity: '',
-    login_remaining: null,
-    firstname: '',
-    lastname: '',
-    company: '',
-    notes: ''
-  },
-  common: {
-    valid_from: format(new Date(), 'YYYY-MM-DD'),
-    expiration: null,
-    actions: [{ 'type': 'set_access_level', 'value': null }]
-  }
+const commonForm = {
+  valid_from: format(new Date(), 'YYYY-MM-DD HH:mm:ss'),
+  expiration: null,
+  actions: [{ 'type': 'set_access_level' }]
+}
+
+export const createSingleForm = {
+  ...commonForm,
+  pid_overwrite: 0,
+  pid: '',
+  email: '',
+  sponsor: '',
+  password: '',
+  login_remaining: null,
+  gender: '',
+  title: '',
+  firstname: '',
+  lastname: '',
+  nickname: '',
+  company: '',
+  telephone: '',
+  cell_phone: '',
+  work_phone: '',
+  address: '',
+  apartment_number: '',
+  building_number: '',
+  room_number: '',
+  anniversary: '',
+  birthday: '',
+  psk: '',
+  notes: '',
+  custom_field_1: '',
+  custom_field_2: '',
+  custom_field_3: '',
+  custom_field_4: '',
+  custom_field_5: '',
+  custom_field_6: '',
+  custom_field_7: '',
+  custom_field_8: '',
+  custom_field_9: ''
+}
+
+export const multipleForm = {
+  ...commonForm,
+  pid_overwrite: 1,
+  prefix: '',
+  quantity: '',
+  login_remaining: null,
+  firstname: '',
+  lastname: '',
+  company: '',
+  notes: ''
 }
 
 export const importForm = {
-  valid_from: format(new Date(), MysqlDatabase.password.valid_from.datetimeFormat),
-  expiration: null,
-  actions: [{ type: 'set_access_level', value: null }]
+  ...commonForm
 }
 
 export const importFields = [
