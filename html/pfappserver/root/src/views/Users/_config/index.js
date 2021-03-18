@@ -76,7 +76,7 @@ export const createSingleForm = {
   custom_field_9: ''
 }
 
-export const multipleForm = {
+export const createMultipleForm = {
   ...commonForm,
   pid_overwrite: 1,
   prefix: '',
