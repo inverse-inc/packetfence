@@ -91,6 +91,13 @@ my %direction_field = (
     TOT => 'total_bytes',
 );
 
+my %mac_grouping_dates = (
+    daily   => 'CURDATE()',
+    weekly  => 'DATE_SUB(CURDATE(), INTERVAL WEEKDAY(CURDATE()) DAY)',
+    monthly => 'DATE_ADD(CURDATE(),INTERVAL -DAY(CURDATE())+1 DAY)',
+    yearly  => 'DATE_ADD(CURDATE(),INTERVAL -DAYOFYEAR(CURDATE())+1 DAY)',
+);
+
 =head1 SUBROUTINES
 
 =over
@@ -193,6 +200,7 @@ SQL
     }
     my $field = $direction_field{$direction};
     my $date = $grouping_dates{$interval};
+    my $date2 = $mac_grouping_dates{$interval};
     my $sql2 = <<"SQL";
 SELECT
     tenant_id,
@@ -205,15 +213,15 @@ SELECT
             mac,
             SUM($field) AS $field 
         FROM bandwidth_accounting
-        WHERE node_id BETWEEN ? AND ? GROUP BY node_id, $date 
-        UNION ALL SELECT 
+        WHERE DATE(time_bucket) >= $date2 and node_id BETWEEN ? AND ? GROUP BY node_id, $date
+        UNION ALL SELECT
             $date AS time_bucket,
             node_id,
             tenant_id,
             mac,
-            SUM($field) AS $field 
+            SUM($field) AS $field
         FROM bandwidth_accounting_history
-        WHERE node_id BETWEEN ? AND ? GROUP BY node_id, $date 
+        WHERE DATE(time_bucket) >= $date2 and node_id BETWEEN ? AND ? GROUP BY node_id, $date
         ) AS X GROUP BY node_id, time_bucket HAVING SUM($field) >= ?;
 SQL
 
@@ -613,13 +621,6 @@ SQL
 
     return;
 }
-
-my %mac_grouping_dates = (
-    daily   => 'CURDATE()',
-    weekly  => 'DATE_SUB(CURDATE(), INTERVAL WEEKDAY(CURDATE()) DAY)',
-    monthly => 'DATE_ADD(CURDATE(),INTERVAL -DAY(CURDATE())+1 DAY)',
-    yearly  => 'DATE_ADD(CURDATE(),INTERVAL -DAYOFYEAR(CURDATE())+1 DAY)',
-);
 
 sub node_accounting_bw {
     my ($mac, $interval) = @_;
