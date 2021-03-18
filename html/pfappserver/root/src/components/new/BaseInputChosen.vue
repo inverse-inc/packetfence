@@ -460,7 +460,7 @@ $chosen-option-hover-bg: $dropdown-link-hover-bg;
       border-bottom-right-radius: $border-radius !important;
     }
   }
-  &.multiselect--above {
+  &.multiselect--active.multiselect--above {
     .multiselect__tags {
       border-top-left-radius: 0 !important;
       border-top-right-radius: 0 !important;
@@ -605,7 +605,8 @@ $chosen-option-hover-bg: $dropdown-link-hover-bg;
 }
 .input-group.is-invalid > .base-input-chosen,
 .base-input-chosen.is-invalid {
-  .multiselect__tags {
+  .multiselect__tags,
+  .multiselect__content-wrapper {
     border-color: $form-feedback-invalid-color;
   }
   .multiselect__select:before {
