@@ -11,8 +11,8 @@ endif::[]
 
     This file is part of the PacketFence project.
 
-    See PacketFence_Network_Devices_Configuration_Guide-docinfo.xml for 
-    authors, copyright and license information.
+    See PacketFence_Network_Devices_Configuration_Guide.asciidoc
+    for authors, copyright and license information.
 
 ////
 
@@ -164,10 +164,14 @@ To create a new user Role:
  2 - Click Create New.
  3 - Enter a Name and a short Description for this role.
  4 - Choose the options for this role from the following:
-    Group Attributes: Fill in this field only if you are creating a user role based on Group attributes extracted from an Active Directory server. Enter the User Group name here. Active Directory/LDAP users with the same group attributes are automatically mapped to this user role.
-    Allow All WLANs: You have two options: (1) Allow Access to all WLANs, or (2) Specify WLAN Access. If you select the second option, you must specify the WLANs by clicking the check box next to each one. Don't enable the "Guest Pass"  or "Administration" options as these allow users with the given Roles to get administrative access to the ZoneDirector console.
- 5 - Additionally, you enable the "Role Based Access Control Policy" option which is the most interesting one from packetfence's point of view, since this allows specific PF roles to receive specific ACLs, Different rate limits, thus further enhancing the value of Packetfence.
- 6 - Specifcally, looking at the RBAC Policy options one can define the following:
+    Group Attributes: Fill in this field only if you are creating a user role based on Group attributes extracted from an Active Directory server.
+    Enter the User Group name here. Active Directory/LDAP users with the same group attributes are automatically mapped to this user role.
+    Allow All WLANs: You have two options: (1) Allow Access to all WLANs, or (2) Specify WLAN Access. If you select the second option, you
+    must specify the WLANs by clicking the check box next to each one. Don't enable the "Guest Pass"  or "Administration" options as these
+    allow users with the given Roles to get administrative access to the ZoneDirector console.
+ 5 - Additionally, you can enable the "Role Based Access Control Policy" option which is the most interesting one from packetfence's point of view,
+    since this allows specific PF roles to receive specific ACLs, Different rate limits, thus further enhancing the value of Packetfence.
+ 6 - Looking at the RBAC Policy options one can define the following:
     OS type: Limit access based on operating system/device type.
     VLAN: Assign a VLAN ID to this role. (This can be overriden directly from packetfence if using the _Role by VLAN ID_ option)
     Rate Limiting: Limit per-station uplink and downlink speeds.
@@ -186,5 +190,7 @@ image::Ruckus_Roles_ZD_WLAN_RBAC.png[scaledwidth="100%",alt="Ruckus WLAN RBAC se
 
 On the PacketFence side you need to use _role by switch role_ and add the same name as in the _Group Attribute_ you created on the Ruckus side.
 
-So when a device will connect on the SSID, PacketFence will return a VLAN identifier and a RuckusUserGroup attribute and if the role is allowed on the WLAN then the device will be authorized on the WLAN. Additionally, if RBAC is in use, the specific upstream/downstream rate limits, L2/L3 ACLS and Application Recognition Policies will be applied to the specific user, having the possibility of, for instance, giving different user Roles different access speeds.
-In the case that the role is not allowed on the WLAN then the device will not be allowed to connect.
+When a device connects to the SSID, PacketFence will return a VLAN identifier and a RuckusUserGroup attribute and if the role is allowed
+on the WLAN then the device will be authorized on the WLAN. Additionally, if RBAC is in use, the specific upstream/downstream rate limits, L2/L3 ACLS
+and Application Recognition Policies will be applied to the specific user, having the possibility of, for instance, giving different user Roles
+different access speeds. In case that the role is not allowed on the WLAN then the device will not be allowed to connect.
