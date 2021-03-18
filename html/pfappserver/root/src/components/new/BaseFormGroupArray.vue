@@ -187,7 +187,7 @@ export default {
 </script>
 <style lang="scss">
 .base-form-group-array {
-  & > .form-row > [role="group"] > .input-group {
+  & > .form-row > div > .input-group {
     border: 1px solid transparent;
     @include border-radius($border-radius);
     @include transition($custom-forms-transition);

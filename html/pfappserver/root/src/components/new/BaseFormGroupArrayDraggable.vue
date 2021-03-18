@@ -243,8 +243,8 @@ export default {
   .base-input-range {
     background-color: $white !important;
     .handle {
-      color: $white !important;
       background-color: $primary !important;
+      color: $white !important;
     }
 
   }
@@ -256,7 +256,7 @@ export default {
   .draggable-on:hover > .draggable-index {
     display: none;
   }
-  & > .form-row > [role="group"] > .input-group {
+  & > .form-row > div > .input-group {
     border: 1px solid transparent;
     @include border-radius($border-radius);
     @include transition($custom-forms-transition);
