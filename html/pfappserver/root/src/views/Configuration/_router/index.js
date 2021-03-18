@@ -23,7 +23,6 @@ import WmiRulesRoutes from '../wmiRules/_router'
 /* Integration */
 const IntegrationSection = () => import(/* webpackChunkName: "Configuration" */ '../_components/IntegrationSection')
 import FirewallsRoutes from '../firewalls/_router'
-import CiscoMobilityServicesEngineRoutes from '../ciscoMobilityServicesEngine/_router'
 import WebServicesRoutes from '../webServices/_router'
 import SwitchTemplatesRoutes from '../switchTemplates/_router'
 import SyslogParsersRoutes from '../syslogParsers/_router'
@@ -120,7 +119,6 @@ const route = {
       component: IntegrationSection
     },
     ...FirewallsRoutes,
-    ...CiscoMobilityServicesEngineRoutes,
     ...WebServicesRoutes,
     ...SwitchTemplatesRoutes,
     ...SyslogParsersRoutes,
