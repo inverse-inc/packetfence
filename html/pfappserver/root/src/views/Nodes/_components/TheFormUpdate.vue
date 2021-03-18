@@ -67,7 +67,7 @@ import {
   BaseFormGroupInput
 } from '@/components/new/'
 import {
-  FormButtonBar, 
+  FormButtonBar,
   FormGroupPid,
   FormGroupStatus,
   FormGroupRole,
@@ -115,13 +115,12 @@ const setup = (props, context) => {
 
   // template refs
   const rootRef = ref(null)
-  useEventJail(rootRef)  
+  useEventJail(rootRef)
 
   // state
   const form = ref({})
   const schema = computed(() => schemaFn(props, form.value))
-  const isModified = ref(false)
-  
+
   const isValid = useDebouncedWatchHandler(
     [form],
     () => (
@@ -130,7 +129,7 @@ const setup = (props, context) => {
         .filter(el => el.closest('fieldset').style.display !== 'none') // handle v-show <.. style="display: none;">
         .length === 0
     )
-  )  
+  )
 
 const {
     isLoading,
@@ -151,7 +150,7 @@ const {
       return false
     return true
   })
-  
+
   const init = () => {
     return new Promise((resolve, reject) => {
       getItem().then(item => {
@@ -172,11 +171,10 @@ const {
 
   const onRemove = () => deleteItem().then(() => goToCollection())
 
-  const onReset = () => init().then(() => isModified.value = false)
+  const onReset = () => init()
 
   const actionKey = useEventActionKey(rootRef)
   const onSave = () => {
-    isModified.value = true
     const closeAfter = actionKey.value
     save().then(() => {
       if (closeAfter) // [CTRL] key pressed
@@ -184,8 +182,8 @@ const {
       else
         goToItem().then(() => init()) // re-init
     })
-  } 
-  
+  }
+
   watch(props, () => init(), { deep: true, immediate: true })
 
   return {
