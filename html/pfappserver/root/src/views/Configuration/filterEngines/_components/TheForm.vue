@@ -88,6 +88,11 @@
       :column-label="$i18n.t('RADIUS Status')"
     />
 
+    <form-group-answer v-if="fields.includes('answer')"
+      namespace="answer"
+      :column-label="$i18n.t('Answer')"
+    />
+
   </base-form>
 </template>
 <script>
@@ -96,6 +101,7 @@ import {
 } from '@/components/new/'
 import {
   FormGroupActions,
+  FormGroupAnswer,
   FormGroupAnswers,
   FormGroupCondition,
   FormGroupDescription,
@@ -114,6 +120,7 @@ import {
 const components = {
   BaseForm,
   FormGroupActions,
+  FormGroupAnswer,
   FormGroupAnswers,
   FormGroupCondition,
   FormGroupDescription,

@@ -21,6 +21,7 @@ export {
   BaseFormButtonBar                   as FormButtonBar,
 
   BaseFormGroupActions                as FormGroupActions,
+  BaseFormGroupInput                  as FormGroupAnswer,
   BaseFormGroupAnswers                as FormGroupAnswers,
   BaseFormGroupCondition              as FormGroupCondition,
   BaseFormGroupInput                  as FormGroupDescription,
