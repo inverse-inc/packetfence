@@ -84,7 +84,7 @@ const props = {
   },
   acl: {
     type: String,
-    default: 'SERVICES_XXX_READ'
+    default: 'SERVICES_READ'
   }
 }
 
@@ -137,7 +137,7 @@ const setup = (props, context) => {
   const tooltip = computed(() => {
     switch (true) {
       case !isAllowed.value:
-        return i18n.t('No permission, admin role SERVICES_READ required.')
+        return i18n.t('No permission, admin role {acl} required.', { acl: _acl.value })
         //break
 
       default:
