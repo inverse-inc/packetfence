@@ -47,7 +47,7 @@ const components = {
 
 const props = {
   id : {
-    type: String
+    type: [String, Number]
   },
   isClone: {
     type: Boolean
