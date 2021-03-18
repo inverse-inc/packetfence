@@ -1,11 +1,11 @@
 <template>
   <div class="base-flex-wrap" align-v="center">
 
-    <base-input-chosen-one ref="prefixComponentRef"
+    <base-input-chosen-one ref="prefixComponentRef" v-if="hasPrefixes"
       :namespace="`${namespace}.prefix`"
     />
 
-    <base-input-chosen-one-searchable ref="typeComponentRef" v-if="prefixValue"
+    <component :is="typeComponent" ref="typeComponentRef"
       :namespace="`${namespace}.type`"
     />
 
@@ -30,8 +30,8 @@ const components = {
   BaseInputChosenOneSearchable
 }
 
-import { computed, inject, nextTick, ref, unref, watch } from '@vue/composition-api'
-import { useInputMeta, useInputMetaProps } from '@/composables/useMeta'
+import { computed, inject, nextTick, ref, toRefs, unref, watch } from '@vue/composition-api'
+import { useInputMeta, useInputMetaProps, useNamespaceMetaAllowed, useNamespaceMetaAllowedLookup } from '@/composables/useMeta'
 import { useInputValue, useInputValueProps } from '@/composables/useInputValue'
 
 const props = {
@@ -41,10 +41,18 @@ const props = {
 
 const setup = (props, context) => {
 
+  const {
+    namespace
+  } = toRefs(props)
+
   // inject radiusAttributes from ancestor
   const radiusAttributes = inject('radiusAttributes', ref({}))
 
   const metaProps = useInputMeta(props, context)
+
+  const hasPrefixes = computed(() => useNamespaceMetaAllowed(`${namespace.value}.prefix`).length > 0)
+
+  const hasTypeLookup = computed(() => useNamespaceMetaAllowedLookup(`${namespace.value}.type`))
 
   const {
     value: inputValue,
@@ -53,6 +61,10 @@ const setup = (props, context) => {
 
   const prefixComponentRef = ref(null)
   const typeComponentRef = ref(null)
+  const typeComponent = computed(() => ((hasTypeLookup.value)
+    ? BaseInputChosenOneSearchable // if meta type lookup, use searchable
+    : BaseInputChosenOne
+  ))
   const valueComponentRef = ref(null)
 
   const prefix = computed(() => {
@@ -122,8 +134,11 @@ const setup = (props, context) => {
   return {
     prefixComponentRef,
     prefixValue: prefix,
+    hasPrefixes,
+    hasTypeLookup,
 
     typeComponentRef,
+    typeComponent,
     typeValue: type,
 
     valueComponentRef,
