@@ -54,10 +54,10 @@ export const useInputMeta = (props) => {
 
     // allowed_lookup
     if (metaAllowedLookup)
-      set(localProps, 'lookup', {
-        base_url: '', // default: clear baseURL during lookup to force absolute paths
-        ...metaAllowedLookup
-      })
+      set(localProps, 'lookup', ((metaAllowedLookup && !('base_url' in metaAllowedLookup))
+        ? { base_url: '', ...metaAllowedLookup } // default: clear baseURL during lookup to force absolute paths
+        : metaAllowedLookup
+      ))
 
     // placeholder
     if (metaPlaceholder)
@@ -113,8 +113,10 @@ export const useNamespaceMetaAllowed = (namespace, _meta) => {
 
 export const useNamespaceMetaAllowedLookup = (namespace, _meta) => {
   const namespaceMeta = useNamespaceMeta(namespace, _meta)
-  const { allowed_lookup = {} } = namespaceMeta.value || {}
-  return { base_url: '', ...allowed_lookup }
+  const { allowed_lookup } = namespaceMeta.value || {}
+  return (allowed_lookup && !('base_url' in allowed_lookup))
+    ? { base_url: '', ...allowed_lookup } // default { base_url: '', ... }
+    : allowed_lookup
 }
 
 export const useNamespaceMetaAllowedLookupFn = (namespace, fn, _meta) => (fn(useNamespaceMetaAllowedLookup(namespace, _meta)))
