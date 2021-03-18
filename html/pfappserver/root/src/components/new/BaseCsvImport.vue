@@ -229,12 +229,12 @@
     </b-modal>
 
     <b-modal ref="modalImportOptions" size="lg" centered :title="$t('Import Options')">
-      <base-form-group-toggle-false-true v-model="importConfig.ignoreInsertIfNotExists" 
+      <base-form-group-toggle-false-true v-model="importConfig.insertNew" 
         :column-label="$t('Insert new')" 
         :disabled="isDisabled"
         :text="$t('If enabled, items that do not currently exist are created.')"
       />
-      <base-form-group-toggle-false-true v-model="importConfig.ignoreUpdateIfExists" 
+      <base-form-group-toggle-false-true v-model="importConfig.updateExisting" 
         :column-label="$t('Update exists')" 
         :disabled="isDisabled"
         :text="$t('If enabled, items that currently exist are overwritten.')"
@@ -280,7 +280,7 @@
               <b-row class="bg-light" align-v="center">
                 <b-col cols="10">{{ $t('Created') }} <em v-if="importProgress.dryRun">({{ $t('not commited') }})</em></b-col>
                 <b-col cols="2" class="text-right">
-                  <template v-if="importProgress.dryRun || importConfig.ignoreInsertIfNotExists" size="lg">
+                  <template v-if="importProgress.dryRun || importConfig.insertNew" size="lg">
                     {{ importProgress.insertCount }} <icon name="lock" class="ml-1"/>
                   </template>
                   <template v-else>{{ importProgress.insertCount }}</template>
@@ -289,7 +289,7 @@
               <b-row align-v="center">
                 <b-col cols="10">{{ $t('Updated') }} <em v-if="importProgress.dryRun">({{ $t('not commited') }})</em></b-col>
                 <b-col cols="2" class="text-right">
-                  <template v-if="importProgress.dryRun || importConfig.ignoreUpdateIfExists">
+                  <template v-if="importProgress.dryRun || importConfig.updateExisting">
                     {{ importProgress.updateCount }} <icon name="lock" class="ml-1"/>
                   </template>
                   <template v-else>{{ importProgress.updateCount }}</template>
@@ -445,8 +445,8 @@ const setup = (props, context) => {
   const importConfig = ref({
     chunkSize: 100,
     stopOnFirstError: true,
-    ignoreUpdateIfExists: false,
-    ignoreInsertIfNotExists: true
+    updateExisting: false,
+    insertNew: true
   })
   
   const modalImportOptions = ref()
@@ -760,12 +760,12 @@ const setup = (props, context) => {
           }
           return items
         }, [])
-        const { stopOnFirstError, ignoreUpdateIfExists, ignoreInsertIfNotExists } = importConfig.value
+        const { stopOnFirstError, updateExisting, insertNew } = importConfig.value
         const payload = {
           items,
           stopOnFirstError,
-          ignoreInsertIfNotExists: ignoreInsertIfNotExists || dryRun,
-          ignoreUpdateIfExists: ignoreUpdateIfExists || dryRun
+          ignoreInsertIfNotExists: !insertNew || dryRun,
+          ignoreUpdateIfExists: !updateExisting || dryRun
         }
         importProgress.value.done = items.length < length
         // eslint-disable-next-line no-async-promise-executor
