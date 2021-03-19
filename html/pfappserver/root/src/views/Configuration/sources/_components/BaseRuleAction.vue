@@ -147,8 +147,8 @@ const setup = (props, context) => {
     () => {
       valueProps.value = {}
       if (action.value) {
-        const { props = {}, types = [] } = action.value
-        valueProps.value = props
+        const { props = {}, types = [], options = [] } = action.value
+        valueProps.value = { ...props, options }
         for (let t = 0; t < types.length; t++) {
           let type = types[t]
           if (type in fieldTypeValues) {
@@ -156,15 +156,16 @@ const setup = (props, context) => {
             Promise.resolve(fieldTypeValues[type]()).then(options => {
               const values = valueProps.value.options.map(option => option.value)
               for (let option of options) {
-                if (!values.includes(option.value))
+                if (!values.includes(option.value)) {
                   valueProps.value.options.push(option)
+                }
               }
             })
           }
         }
       }
     },
-    { immediate: true }
+    { immediate: true, deep: true }
   )
 
   const doFocus = () => {

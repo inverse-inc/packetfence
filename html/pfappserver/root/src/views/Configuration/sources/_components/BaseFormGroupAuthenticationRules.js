@@ -8,7 +8,7 @@ const setup = () => {
 
   const actions = computed(() => authenticationRuleActionsFromSourceType(sourceType.value).map(type => {
     const { value: namespace } = type
-    const options = useNamespaceMetaAllowed(`${namespace}_action`).value
+    const options = useNamespaceMetaAllowed(`${namespace}_action`)
     return { ...type, options }
   }))
   provide('actions', actions)
