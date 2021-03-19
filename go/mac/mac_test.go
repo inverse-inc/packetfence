@@ -39,6 +39,8 @@ func TestStringify(t *testing.T) {
 		nodeId                      uint64
 	}{
 		{nil, "1122.3344.5566", "11:22:33:44:55:66", "17.34.51.68.85.102", 0x0001112233445566},
+		{nil, "1122:3344:5566", "11:22:33:44:55:66", "17.34.51.68.85.102", 0x0001112233445566},
+		{nil, "1122-3344-5566", "11:22:33:44:55:66", "17.34.51.68.85.102", 0x0001112233445566},
 		{nil, "a00000000009", "a0:00:00:00:00:09", "160.0.0.0.0.9", 0x0001a00000000009},
 		{nil, "1122.3344.5566:Bob SSID", "11:22:33:44:55:66", "17.34.51.68.85.102", 0x0001112233445566},
 		{nil, "1122-3344-5566:Bob SSID", "11:22:33:44:55:66", "17.34.51.68.85.102", 0x0001112233445566},
@@ -47,6 +49,7 @@ func TestStringify(t *testing.T) {
 		{nil, "11:22:33:44:55:66", "11:22:33:44:55:66", "17.34.51.68.85.102", 0x0001112233445566},
 		{nil, "11:22:33:44:55:66:Bob SSID", "11:22:33:44:55:66", "17.34.51.68.85.102", 0x0001112233445566},
 		{nil, "11-22-33-44-55-66", "11:22:33:44:55:66", "17.34.51.68.85.102", 0x0001112233445566},
+		{nil, "f8-b1-56-8a-e1-ec", "f8:b1:56:8a:e1:ec", "248.177.86.138.225.236", 0x0001f8b1568ae1ec},
 		{nil, "11-22-33-44-55-66:Bob SSID", "11:22:33:44:55:66", "17.34.51.68.85.102", 0x0001112233445566},
 		{nil, "AA:BB:CC:DD:EE:FF", "aa:bb:cc:dd:ee:ff", "170.187.204.221.238.255", 0x0001aabbccddeeff},
 		{nil, "FF:EE:DD:CC:BB:AA", "ff:ee:dd:cc:bb:aa", "255.238.221.204.187.170", 0x0001ffeeddccbbaa},
@@ -59,20 +62,20 @@ func TestStringify(t *testing.T) {
 	for i, test := range newFromStringTests {
 		mac, err := NewFromString(test.fromStr)
 		if err != test.err {
-            var expectedStr, gotStr string
-            if test.err != nil {
-                expectedStr = test.err.Error()
-            } else {
-                expectedStr = "nil"
-            }
+			var expectedStr, gotStr string
+			if test.err != nil {
+				expectedStr = test.err.Error()
+			} else {
+				expectedStr = "nil"
+			}
 
-            if err != nil {
-                gotStr = err.Error()
-            } else {
-                gotStr = "nil"
-            }
+			if err != nil {
+				gotStr = err.Error()
+			} else {
+				gotStr = "nil"
+			}
 
-            t.Errorf("Test %d) Error is not valid expected '%s', got '%s'.", i, expectedStr, gotStr)
+			t.Errorf("Test %d) Error is not valid expected '%s', got '%s'.", i, expectedStr, gotStr)
 		}
 
 		if mac.String() != test.macStr {

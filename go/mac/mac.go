@@ -99,6 +99,10 @@ func hextob(h []byte) (byte, bool) {
 	return (a << 4) | b, true
 }
 
+func isSep(c byte) bool {
+	return c == ':' || c == '-' || c == '.'
+}
+
 func (mac *Mac) InitFromString(s string) error {
 	m := Mac{}
 	length := len(s)
@@ -107,7 +111,7 @@ func (mac *Mac) InitFromString(s string) error {
 	}
 
 	switch {
-	case length >= 17 && (s[2] == ':' || s[2] == '-' || s[2] == '.'):
+	case length >= 17 && isSep(s[2]):
 		// xx:xx:xx:xx:xx:xx, xx-xx-xx-xx-xx-xx, xx.xx.xx.xx.xx.xx
 		for i, x := 0, 0; i < 17; i += 3 {
 			var ok bool
@@ -116,7 +120,7 @@ func (mac *Mac) InitFromString(s string) error {
 			}
 			x++
 		}
-	case length >= 15 && s[3] == '.':
+	case length >= 15 && isSep(s[3]):
 		// 012.345.678.9ab
 		// xxx.xxx.xxx.xxx
 		var temp [2]byte
@@ -134,7 +138,7 @@ func (mac *Mac) InitFromString(s string) error {
 			}
 			x += 3
 		}
-	case length >= 14 && (s[4] == '.' || s[4] == '-'):
+	case length >= 14 && isSep(s[4]):
 		// 0123.4567.89ab
 		// xxxx.xxxx.xxxx
 		for i, x := 0, 0; i < 14; i += 5 {
