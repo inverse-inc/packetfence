@@ -13,9 +13,9 @@ const useItemTitle = (props) => {
   return computed(() => {
     switch (true) {
       case !isNew.value && !isClone.value:
-        return i18n.t('Fast Profile: <code>{id}</code>', { id: id.value })
+        return i18n.t('Fast Profile <code>{id}</code>', { id: id.value })
       case isClone.value:
-        return i18n.t('Clone Fast Profile: <code>{id}</code>', { id: id.value })
+        return i18n.t('Clone Fast Profile <code>{id}</code>', { id: id.value })
       default:
         return i18n.t('New Fast Profile')
     }

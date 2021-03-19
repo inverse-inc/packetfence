@@ -8,7 +8,7 @@ const useItemTitle = (props) => {
   const {
     id
   } = toRefs(props)
-  return computed(() => i18n.t('Maintenance Task: <code>{id}</code>', { id: id.value }))
+  return computed(() => i18n.t('Maintenance Task <code>{id}</code>', { id: id.value }))
 }
 
 const useRouter = (props, context, form) => {

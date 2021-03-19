@@ -19,9 +19,9 @@ const useItemTitle = (props) => {
   return computed(() => {
     switch (true) {
       case !isNew.value && !isClone.value:
-        return i18n.t('Fingerbank Device: <code>{id}</code>', { id: id.value })
+        return i18n.t('Fingerbank Device <code>{id}</code>', { id: id.value })
       case isClone.value:
-        return i18n.t('Clone Fingerbank Device: <code>{id}</code>', { id: id.value })
+        return i18n.t('Clone Fingerbank Device <code>{id}</code>', { id: id.value })
       default:
         return i18n.t('New Fingerbank Device')
     }

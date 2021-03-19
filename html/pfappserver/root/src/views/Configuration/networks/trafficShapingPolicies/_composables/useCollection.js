@@ -19,7 +19,7 @@ const useItemTitle = (props) => {
   return computed(() => {
     switch (true) {
       case !isNew.value:
-        return i18n.t('Traffic Shaping Policy: <code>{id}</code>', { role: id.value })
+        return i18n.t('Traffic Shaping Policy <code>{id}</code>', { role: id.value })
       default:
         return i18n.t('New Traffic Shaping Policy')
     }

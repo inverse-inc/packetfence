@@ -27,9 +27,9 @@ const useItemTitle = (props) => {
   return computed(() => {
     switch (true) {
       case !isNew.value && !isClone.value:
-        return i18n.t('Firewall SSO: <code>{id}</code>', { id: id.value })
+        return i18n.t('Firewall SSO <code>{id}</code>', { id: id.value })
       case isClone.value:
-        return i18n.t('Clone Firewall SSO: <code>{id}</code>', { id: id.value })
+        return i18n.t('Clone Firewall SSO <code>{id}</code>', { id: id.value })
       default:
         return i18n.t('New Firewall SSO')
     }

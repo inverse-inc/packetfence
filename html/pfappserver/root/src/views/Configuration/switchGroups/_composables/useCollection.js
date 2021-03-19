@@ -28,9 +28,9 @@ const useItemTitle = (props) => {
   return computed(() => {
     switch (true) {
       case !isNew.value && !isClone.value:
-        return i18n.t('Switch Group: <code>{id}</code>', { id: id.value })
+        return i18n.t('Switch Group <code>{id}</code>', { id: id.value })
       case isClone.value:
-        return i18n.t('Clone Switch Group: <code>{id}</code>', { id: id.value })
+        return i18n.t('Clone Switch Group <code>{id}</code>', { id: id.value })
       default:
         return i18n.t('New Switch Group')
     }

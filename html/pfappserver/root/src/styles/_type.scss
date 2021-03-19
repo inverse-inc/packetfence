@@ -1,5 +1,14 @@
 @import "../../node_modules/bootstrap/scss/type";
 
+h4, .h4 {
+    code {
+        color: inherit;
+        font-family: inherit;
+        font-size: inherit;
+        font-weight: $headings-font-weight * 2;
+    }
+}
+
 h6, .h6 {
     color: rgba(0, 0, 0, 0.65);
     font-size: $font-size-sm;

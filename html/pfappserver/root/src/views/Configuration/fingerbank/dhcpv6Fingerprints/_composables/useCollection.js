@@ -19,9 +19,9 @@ const useItemTitle = (props) => {
   return computed(() => {
     switch (true) {
       case !isNew.value && !isClone.value:
-        return i18n.t('Fingerbank DHCPv6 Fingerprint: <code>{id}</code>', { id: id.value })
+        return i18n.t('Fingerbank DHCPv6 Fingerprint <code>{id}</code>', { id: id.value })
       case isClone.value:
-        return i18n.t('Clone Fingerbank DHCPv6 Fingerprint: <code>{id}</code>', { id: id.value })
+        return i18n.t('Clone Fingerbank DHCPv6 Fingerprint <code>{id}</code>', { id: id.value })
       default:
         return i18n.t('New Fingerbank DHCPv6 Fingerprint')
     }

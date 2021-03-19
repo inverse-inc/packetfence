@@ -25,11 +25,11 @@ const useItemTitle = (props, context, form) => {
     const { master = false } = form.value || {}
     switch (true) {
       case !isNew.value && !isClone.value:
-        return i18n.t('Interface: <code>{id}</code>', { id: ((master) ? master : id.value) })
+        return i18n.t('Interface <code>{id}</code>', { id: ((master) ? master : id.value) })
       case isClone.value:
-        return i18n.t('Clone Interface: <code>{id}</code>', { id: ((master) ? master : id.value) })
+        return i18n.t('Clone Interface <code>{id}</code>', { id: ((master) ? master : id.value) })
       default:
-        return i18n.t('New Interface VLAN: <code>{id}</code>', { id: ((master) ? master : id.value) })
+        return i18n.t('New Interface VLAN <code>{id}</code>', { id: ((master) ? master : id.value) })
     }
   })
 }
