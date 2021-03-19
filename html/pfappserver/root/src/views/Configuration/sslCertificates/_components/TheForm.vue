@@ -51,7 +51,7 @@
         />
         <template v-else>
           <b-container v-for="(ca, index) in certificationAuthorityLocale" :key="index"
-            class="mb-3" fluid>
+            class="mb-3" :class="{ 'border-top': index }" fluid>
             <b-row align-v="center" v-for="(value, key) in ca" :key="key">
               <b-col sm="3" class="col-form-label">{{ key }}</b-col>
               <b-col sm="9">{{ value }}</b-col>

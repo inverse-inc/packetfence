@@ -58,12 +58,14 @@ const useForm = (form, props, context) => {
 
   // translate keys in certificate
   const certificationAuthorityLocale = computed(() => {
-    const { info: { ca = {} } = {} } = form.value
-    return Object.keys(ca).reduce((stack, key) => {
-      return (key in strings)
-        ? { ...stack, [i18n.t(strings[key])]: form.value.info.ca[key] }
-        : { ...stack, [key]: form.value.info.ca[key] }
-    }, {})
+    const { info: { ca = [] } = {} } = form.value
+    return ca.map((_ca, _i) => {
+      return Object.keys(_ca).reduce((stack, key) => {
+        return (key in strings)
+          ? { ...stack, [i18n.t(strings[key])]: form.value.info.ca[_i][key] }
+          : { ...stack, [key]: form.value.info.ca[_i][key] }
+      }, {})      
+    })
   })
 
   const isShowEdit = ref(false)
