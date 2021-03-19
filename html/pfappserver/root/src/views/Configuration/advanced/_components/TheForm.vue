@@ -96,7 +96,7 @@
     />
 
     <form-group-locationlog-close-on-accounting-stop namespace="locationlog_close_on_accounting_stop"
-      :column-label="$i18n.t('Close locationlog on accounting sto')"
+      :column-label="$i18n.t('Close locationlog on accounting stop')"
       :text="$i18n.t('Close the locationlog for a node on accounting stop.')"
     />
 
