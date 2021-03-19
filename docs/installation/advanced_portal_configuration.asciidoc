@@ -306,7 +306,7 @@ Once that is configured, make sure you have the right Root portal module on the 
 ==== Exploring the collected data
 
 All the data that is collected in the example survey will be stored in a table
-named `survey_survey1`. You can create 'Dynamic Reports' on your survey tables
+named `survey_survey1`. You can create _Dynamic Reports_ on your survey tables
 via `/usr/local/pf/conf/report.conf`. Here is an example for the survey
 created above:
 
