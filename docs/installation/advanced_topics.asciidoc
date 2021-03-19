@@ -89,12 +89,12 @@ View of the opened security events:
   # The table to search from
   base_table=security_event
   # The columns to select
-  columns=security_event.vid as "Security event ID", security_event.mac as "MAC Address", class.description as "Security event description", node.computername as "Hostname", node.pid as "Username", node.notes as "Notes", locationlog.switch_ip as "Last switch IP", security_event.start_date as "Opened on"
+  columns=security_event.security_event_id as "Security event ID", security_event.mac as "MAC Address", class.description as "Security event description", node.computername as "Hostname", node.pid as "Username", node.notes as "Notes", locationlog.switch_ip as "Last switch IP", security_event.start_date as "Opened on"
   # Left join node, locationlog on the MAC address and class on the security event ID
   joins=<<EOT
   =>{security_event.mac=node.mac} node|node
   =>{security_event.mac=locationlog.mac} locationlog|locationlog
-  =>{security_event.vid=class.vid} class|class
+  =>{security_event.security_event_id=class.security_event_id} class|class
   EOT
   date_field=start_date
   # filter on open locationlog entries or null locationlog entries via the end_date field
@@ -105,11 +105,11 @@ View of the opened security events:
   # The Username field represents a user
   person_fields=Username
 
-In the example above, you can see that the security_event table is 'left joined' to the class, node and locationlog tables. Using that strategy we make sure all the security events are listed even on deleted nodes. Then, base conditions are added to filter out outdated locationlog entries as well as include devices without locationlog entries. Removing those conditions would lead to duplicate entries being shown since the report would reflect all the historical locationlog entries.
+In the example above, you can see that the security_event table is _left joined_ to the class, node and locationlog tables. Using that strategy we make sure all the security events are listed even on deleted nodes. Then, base conditions are added to filter out outdated locationlog entries as well as include devices without locationlog entries. Removing those conditions would lead to duplicate entries being shown since the report would reflect all the historical locationlog entries.
 
 === Admin Access
 
-You can manage which access you give to PacketFence administrators. To do that go through _Configuration -> System Configuration -> Admin Access_. Then go to your source which authenticate administrator and create an 'administration' rule and assign the wanted Admin role. This functionality allows you to have a granular control on which section of the admin interface is available to whom.
+You can manage which access you give to PacketFence administrators. To do that go through _Configuration -> System Configuration -> Admin Access_. Then go to your source which authenticate administrator and create an _administration_ rule and assign the wanted Admin role. This functionality allows you to have a granular control on which section of the admin interface is available to whom.
 
 ==== Built-in roles
 
