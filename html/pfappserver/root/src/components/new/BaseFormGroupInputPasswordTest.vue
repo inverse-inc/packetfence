@@ -118,7 +118,7 @@ export const setup = (props, context) => {
 
 
   const isTesting = ref(false)
-  const canTest = computed(() => !unref(isLocked) && !unref(isTesting) && unref(value) && unref(state) !== false)
+  const canTest = computed(() => !unref(isLocked) && !unref(isTesting) && unref(value))
   let testState = ref(null)
   let testInvalidFeedback = ref(undefined)
   let testValidFeedback = ref(undefined)
