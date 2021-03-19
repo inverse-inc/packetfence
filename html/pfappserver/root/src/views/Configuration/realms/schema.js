@@ -8,7 +8,7 @@ yup.addMethod(yup.string, 'realmIdentifierNotExistsExcept', function (exceptName
     message: message || i18n.t('Realm exists.'),
     test: (value) => {
       if (!value || value.toLowerCase() === exceptName.toLowerCase()) return true
-      return store.dispatch('config/getRealms').then(response => {
+      return store.dispatch('config/getRealms', store.getters['session/tenantIdMask']).then(response => {
         return response.filter(role => role.id.toLowerCase() === value.toLowerCase()).length === 0
       }).catch(() => {
         return true
