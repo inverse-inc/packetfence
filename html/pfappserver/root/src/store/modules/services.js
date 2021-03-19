@@ -2,6 +2,7 @@
 * "services" store module
 */
 import Vue from 'vue'
+import store from '@/store'
 import apiCall from '@/utils/api'
 
 const api = {
@@ -45,6 +46,9 @@ const api = {
         throw new Error(`Could not restart ${body.id}`)
       }
     })
+  },
+  restartServiceAsync: id => {
+    return apiCall.postQuiet(`service/${id}/restart`, { async: true })
   },
   startService: name => {
     return apiCall.post(`service/${name}/start`).then(response => {
@@ -165,6 +169,16 @@ const actions = {
       const { response } = err
       commit('SERVICE_ERROR', { id, response })
       throw err
+    })
+  },
+  restartServiceAsync: ({ state, commit }, id) => {
+    commit('SERVICE_RESTARTING', id)
+    return api.restartServiceAsync(id).then(response => {
+      const { data: { task_id } = {} } = response
+      return store.dispatch('pfqueue/pollTaskStatus', task_id).then(response => {
+        commit('SERVICE_RESTARTED', { id, response })
+        return state.cache[id]
+      })
     })
   },
   startService: ({ state, commit }, id) => {
