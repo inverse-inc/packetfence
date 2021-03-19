@@ -65,6 +65,8 @@ export const ipv4Sort = (a, b) => {
 }
 
 export const ipv4InSubnet = (ip, subnet) => {
+  if (!ip || !subnet)
+    return false
   const _ip = ip.split('.').map(i => parseInt(i))
   const _subnet = subnet.replace(/(\.0)+$/, '').split('.').map(s => parseInt(s))
   return _ip.reduce((result, d, index) => {
