@@ -43,9 +43,9 @@
                   </b-button-group>
               </b-form-row>
             </b-popover>
-            <base-input-group-date-time v-model="datetimeStart" 
+            <base-input-group-date-time v-model="datetimeStart"
               :placeholder="$i18n.t('Start')" :disabled="isLoadingReport" :max="maxStartDatetime" class="mr-3" />
-            <base-input-group-date-time v-model="datetimeEnd" 
+            <base-input-group-date-time v-model="datetimeEnd"
               :placeholder="$i18n.t('End')" :disabled="isLoadingReport" :min="minEndDatetime" class="mr-3" />
           </b-form>
         </b-col>
@@ -102,7 +102,7 @@
           <pf-empty-table :isLoading="isLoadingReport">{{ $t('No report data found') }}</pf-empty-table>
         </template>
         <template v-for="nodeField in nodeFields" v-slot:[`cell(${nodeField})`]="{ value }">
-          <router-link :key="nodeField" :to="{ name: 'node', params: { mac: value } }">{{ value }}</router-link>
+          <router-link :key="nodeField" :to="{ name: 'node', params: { mac: value } }"><mac>{{ value }}</mac></router-link>
         </template>
         <template v-for="personField in personFields" v-slot:[`cell(${personField})`]="{ value }">
           <router-link :key="personField" :to="{ name: 'user', params: { pid: value } }">{{ value }}</router-link>
