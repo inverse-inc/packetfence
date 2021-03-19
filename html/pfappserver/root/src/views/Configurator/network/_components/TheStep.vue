@@ -44,7 +44,7 @@ const setup = (props, context) => {
   const onSave = nextRoute => {
     progressFeedback.value = i18n.t('Updating system configuration')
     isLoading.value = true
-    routerViewRef.value.save().then(() => {
+    routerViewRef.value.onSave().then(() => {
       progressFeedback.value = i18n.t('Loading next step')
       $router.push(nextRoute)
     }).catch(() => {

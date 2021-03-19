@@ -2,7 +2,7 @@ import store from '@/store'
 import InterfacesStoreModule from '@/views/Configuration/networks/interfaces/_store'
 
 const TheStep = () => import(/* webpackChunkName: "Configurator" */ './_components/TheStep')
-const TheList = () => import(/* webpackChunkName: "Configurator" */ '../_components/InterfacesList')
+const TheList = () => import(/* webpackChunkName: "Configurator" */ './_components/TheList')
 const TheView = () => import(/* webpackChunkName: "Configurator" */ '@/views/Configuration/networks/interfaces/_components/TheView')
 
 export const beforeEnter = (to, from, next = () => {}) => {
