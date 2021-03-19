@@ -227,8 +227,9 @@ export const setup = (props, context) => {
   const { root: { $store } = {} } = context
 
   const state = inject('state') // Configurator
-  const form = ref({ db: '', user: '', pass: '', root_pass: '' })
-
+  // form defaults from state.database
+  const { database = {} } = state.value
+  const form = ref({ db: '', user: '', pass: '', root_pass: '', ...database }) // form defaults
   const schema = computed(() => {
     return yup.object({
       db: yup.string().nullable()
@@ -250,7 +251,8 @@ export const setup = (props, context) => {
   $store.dispatch('services/startSystemService', { id: 'packetfence-mariadb', quiet: true }).then(() => {
     // Fetch configuration
     $store.dispatch('$_bases/getDatabase').then(_form => {
-      form.value = _form
+      const { pass, ...database } = _form // strip pass
+      form.value = { ...form.value, ...database } // overload form except pass
       initialValidation()
     })
   })

@@ -65,16 +65,15 @@ export const setup = (props, context) => {
   const { root: { $store } = {} } = context
 
   const state = inject('state') // Configurator
-  const form = ref({
-    pid: 'admin'
-  })
+  const { administrator = {} } = state.value
+  const form = ref({ pid: 'admin', ...administrator }) // form defaults
 
   const schema = computed(() => schemaFn(props))
 
   const userExists = ref(false)
   $store.dispatch('$_users/getUser', { pid: 'admin', quiet: true }).then(_form => {
     userExists.value = true
-    form.value = _form
+    form.value = { ...form.value, ..._form }
   }).catch(() => {
     // User doesn't exist or database is not accessible
     form.value.pid = 'admin'
