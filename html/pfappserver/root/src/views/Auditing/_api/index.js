@@ -116,7 +116,7 @@ export default {
     })
   },
   getLogTailSession: id => {
-    return apiCall.get(`logs/tail/${id}`, { performance: false }).then(response => {
+    return apiCall.getQuiet(`logs/tail/${id}`, { performance: false }).then(response => {
       return response.data
     })
   },

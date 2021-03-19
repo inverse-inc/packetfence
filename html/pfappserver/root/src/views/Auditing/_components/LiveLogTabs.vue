@@ -59,6 +59,7 @@ const setup = (props, context) => {
     },
     set(tabIndex) {
       $router.push(tabs.value[tabIndex].route)
+        .catch(() => {}) // suppress Error, NavigationError
       trigger()
     }
   }))  
