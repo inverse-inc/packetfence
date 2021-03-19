@@ -61,7 +61,7 @@ export default {
       position: absolute;
       top: 0;
       right: 0;
-      transform: translate(+50%, -50%);
+      transform: translate(+25%, -25%);
       &[data-num-invalid="0"] {
         display: none;
       }
