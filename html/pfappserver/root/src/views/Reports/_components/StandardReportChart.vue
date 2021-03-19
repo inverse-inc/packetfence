@@ -165,7 +165,8 @@ export default {
       apiCall.get(this.apiEndpoint, {}).then(response => {
         const len = response.data.items.length - 1
         this.items = response.data.items.map((item, index) => {
-          return (index === len)
+          console.debug(item)
+          return (this.report.chart && index === len)
             ? { ...item, ...{ _rowVariant: 'primary' } } // highlight totals
             : item
         })
