@@ -139,13 +139,26 @@
           </div>
         </template>
         <template v-slot:cell(status)="item">
-          <b-badge pill variant="success" v-if="item.value === 'reg'">{{ $t('registered') }}</b-badge>
-          <b-badge pill variant="light" v-else>{{ $t('unregistered') }}</b-badge>
+          <span v-b-tooltip.left.d300 :title="$t('registered')" v-if="item.value === 'reg'">
+            <icon name="check-circle"/>
+          </span>
+          <span v-b-tooltip.left.d300 :title="$t('unregistered')" v-else-if="item.value === 'unreg'">
+            <icon name="regular/times-circle"/>
+          </span>
+          <span v-b-tooltip.left.d300 :title="$t('pending')" v-else>
+            <icon name="regular/dot-circle"/>
+          </span>
         </template>
         <template v-slot:cell(online)="item">
-          <b-badge pill variant="success" v-if="item.value === 'on'">{{ $t('on') }}</b-badge>
-          <b-badge pill variant="danger" v-else-if="item.value === 'off'">{{ $t('off') }}</b-badge>
-          <b-badge pill variant="info" v-else>{{ $t('unknown') }}</b-badge>
+          <span v-b-tooltip.right.d300 :title="$t('on')" v-if="item.value === 'on'">
+            <icon name="circle" class="text-success"/>
+          </span>
+          <span v-b-tooltip.right.d300 :title="$t('off')" v-else-if="item.value === 'off'">
+            <icon name="circle" class="text-danger"/>
+          </span>
+          <span v-b-tooltip.right.d300 :title="$t('unknown')" v-else>
+            <icon name="question-circle" class="text-warning"/>
+          </span>
         </template>
         <template v-slot:cell(mac)="item">
           <mac v-text="item.value"></mac>
@@ -501,7 +514,7 @@ export default {
         },
         {
           key: 'online',
-          label: 'Online/Offline', // i18n defer
+          label: 'Online', // i18n defer
           sortable: true,
           visible: true
         },
