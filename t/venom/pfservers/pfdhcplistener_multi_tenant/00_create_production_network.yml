@@ -1,21 +1,6 @@
 name: Create production network
 version: 2
-testcases:
-- name: get_tenant_id
-  steps:
-    - type: http
-      method: GET
-      url: '{{.pfserver_webadmin_url}}/api/v1/tenants'
-      ignore_verify_ssl: true
-      headers:
-        "Authorization": "{{.pfserver_token}}"
-        "Content-Type": "application/json"
-      assertions:
-      - result.statuscode ShouldEqual 200
-      vars:
-        tenant_id:
-          from: result.bodyjson.items.items2.id
-  
+testcases:  
 - name: create_production_network_in_tenant
   steps:
     - type: http
@@ -24,13 +9,14 @@ testcases:
       ignore_verify_ssl: true
       body: >-
         {
-          "netmask": "255.255.255.0",
-          "tenant_id": "{{.get_tenant_id.tenant_id}}",
-          "type": "other",
-          "id": "172.20.20.0"
+          "netmask": "{{.pfdhcplistener_multi_tenant.production_network.netmask}}",
+          "tenant_id": "{{.global_config_multi_tenant.tenant.id}}",
+          "type": "{{.pfdhcplistener_multi_tenant.production_network.type}}",
+          "id": "{{.pfdhcplistener_multi_tenant.production_network.subnet}}"
         }
       headers:
         "Authorization": "{{.pfserver_token}}"
         "Content-Type": "application/json"
+        "X-PacketFence-Tenant-Id": "{{.global_config_multi_tenant.global_tenant.id}}"        
       assertions:
       - result.statuscode ShouldEqual 201

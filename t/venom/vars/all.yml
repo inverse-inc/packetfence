@@ -115,7 +115,11 @@ wireless_switch.description: wireless01
 ################################################################################
 # global_config_multi_tenant test suite specific variables
 ################################################################################
+# global tenant
+global_config_multi_tenant.global_tenant.id: 0
+
 global_config_multi_tenant.tenant.name: example
+global_config_multi_tenant.tenant.id: 2
 global_config_multi_tenant.tenant.domain_name: '{{.configurator.domain}}'
 global_config_multi_tenant.tenant.portal_domain_name: '{{.configurator.hostname}}.{{.configurator.domain}}'
 
@@ -372,8 +376,11 @@ pfdhcplistener_single_tenant.nodes.node10.dhcp_server: 10.10.10.1
 ################################################################################
 # pfdhcplistener_multi_tenant test suite specific variables
 ################################################################################
+pfdhcplistener_multi_tenant.production_network.subnet: 172.20.20.0
+pfdhcplistener_multi_tenant.production_network.netmask: 255.255.255.0
+pfdhcplistener_multi_tenant.production_network.type: other
 # node11
-pfdhcplistener_multi_tenant.nodes.node11.mac: 33:33:33:33:33:23
+pfdhcplistener_multi_tenant.nodes.node11.mac: 33:33:33:33:33:33
 pfdhcplistener_multi_tenant.nodes.node11.mac_url_encoded: 33%3A33%3A33%3A33%3A33%3A33
 pfdhcplistener_multi_tenant.nodes.node11.first_ip: 172.20.20.192
 pfdhcplistener_multi_tenant.nodes.node11.second_ip: 172.20.20.193

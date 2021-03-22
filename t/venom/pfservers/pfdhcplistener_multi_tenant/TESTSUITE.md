@@ -7,13 +7,14 @@
 - TODO: install dhcp-test script on PF server (currently missing)
 
 ## Global config steps
-A tenant different than default has been configured
+A tenant different than default has been configured (see
+global_config_multi_tenant scenario)
 
 ## Scenario steps
 
 ### Mono-tenant
 1. Create a production network in new tenant
-1. Restart services (iptables, pfdhcp, pfdns)
+1. Restart services (iptables, pfdhcp, pfdns, pfdhcplistener)
 1. Create a DHCP request from an unknown node using `dhcp-test` tool
 1. Check node created in DB
 1. Check current ip4log of node created in DB
@@ -23,3 +24,10 @@ A tenant different than default has been configured
 
 ## Teardown steps
 1. Remove node from DB
+1. Remove production network
+
+
+## Additional notes
+
+- `dhcp-test` send a DHCP REQUEST and ACK on interface where default route is
+  defined. Source IP address in these two messages is interface IP address.
