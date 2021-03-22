@@ -1,43 +1,44 @@
-package pf::ConfigStore::L2Network;
+package pfappserver::Form::Field::Tenant;
 
 =head1 NAME
 
-pf::ConfigStore::L2Network
+pfappserver::Form::Field::Tenant -
 
 =head1 DESCRIPTION
 
-ConfigStore for L2 networks in networks.conf
+pfappserver::Form::Field::Tenant
 
 =cut
 
-use Moo;
-use namespace::autoclean;
-use pf::constants::config;
+use strict;
+use warnings;
+use HTML::FormHandler::Moose;
+extends 'HTML::FormHandler::Field::Select';
+use pf::dal::tenant;
+use pf::constants qw($DEFAULT_TENANT_ID);
+has 'no_global' => (
+    is => 'rw',
+    default => 0,
+);
 
-extends 'pf::ConfigStore::Network';
-with 'pf::ConfigStore::Filtered';
+has '+default' => (
+    default => $DEFAULT_TENANT_ID,
+);
 
-=head1 METHODS
-
-=cut
-
-=head2 filterSection
-
-Filter the sections of this ConfigStore
-
-=cut
-
-sub filterSection {
-    my ($self, $section) = @_;
-    my $cachedConfig = $self->cachedConfig;
-    return !$cachedConfig->exists($section, "next_hop") && $cachedConfig->val($section, 'type') ne $pf::constants::config::NET_TYPE_OTHER;
+sub build_options {
+    my $self = shift;
+    my @tenants = map { (!$self->no_global || $_->{id} != 0) ? ( { value => $_->{id}, label => $_->{name} }) : () } @{pf::dal::tenant->search->all};
+    return \@tenants;
 }
 
-__PACKAGE__->meta->make_immutable unless $ENV{"PF_SKIP_MAKE_IMMUTABLE"};
+
+=head1 AUTHOR
+
+Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2021 Inverse inc.
+Copyright (C) 2005-2020 Inverse inc.
 
 =head1 LICENSE
 

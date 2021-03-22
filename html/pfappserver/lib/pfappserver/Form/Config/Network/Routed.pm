@@ -50,13 +50,14 @@ has_field 'type' =>
         { value => $pf::config::NET_TYPE_VLAN_REG, label => 'Registration'},
         { value => $pf::config::NET_TYPE_DNS_ENFORCEMENT, label => 'DNS Enforcement'},
         { value => $pf::config::NET_TYPE_INLINE_L3, label => 'Inline Layer 3'},
+        { value => $pf::config::NET_TYPE_OTHER, label => 'Unmanaged'},
    ]
   );
 has_field 'next_hop' =>
   (
    type => 'IPAddress',
    label => 'Router IP',
-   required => 1,
+   required_when => { type => sub { $_[0] ne $pf::config::NET_TYPE_OTHER } },
    messages => { required => 'Please specify the router IP address.' },
    tags => { after_element => \&help,
              help => 'IP address of the router to reach this network' },
@@ -143,13 +144,16 @@ sub validate {
             }
         }
     }
-    my $interface = $interface_model->interfaceForDestination($self->value->{next_hop});
-    unless ($interface) {
-        $self->field('next_hop')->add_error("The router IP has no gateway on a network interface.");
-    }
-    elsif ( $self->value->{type} eq $pf::config::NET_TYPE_INLINE_L3 ) {
-        if ( $interface_model->getEnforcement($interface) ne $pf::config::NET_TYPE_INLINE_L2 ) {
-             $self->field('next_hop')->add_error("Inline Layer 3 network can only be defined behind a Inline Layer 2 network.");
+    my $type = $self->value->{type};
+    if ($type ne $pf::config::NET_TYPE_OTHER) {
+        my $interface = $interface_model->interfaceForDestination($self->value->{next_hop});
+        unless ($interface) {
+            $self->field('next_hop')->add_error("The router IP has no gateway on a network interface.");
+        }
+        elsif ( $type eq $pf::config::NET_TYPE_INLINE_L3 ) {
+            if ( $interface_model->getEnforcement($interface) ne $pf::config::NET_TYPE_INLINE_L2 ) {
+                 $self->field('next_hop')->add_error("Inline Layer 3 network can only be defined behind a Inline Layer 2 network.");
+            }
         }
     }
 }

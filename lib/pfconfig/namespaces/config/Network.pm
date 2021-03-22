@@ -27,6 +27,22 @@ use List::MoreUtils qw(any);
 
 use base 'pfconfig::namespaces::config';
 
+my %lookupNetworkType = (
+    (
+        map { $_ => $_ }
+        $pf::constants::config::NET_TYPE_DNS_ENFORCEMENT,
+        $pf::constants::config::NET_TYPE_VLAN_REG,
+        $pf::constants::config::NET_TYPE_VLAN_ISOL,
+        $pf::constants::config::NET_TYPE_OTHER,
+    ),
+    (
+        map { $_ => $pf::constants::config::NET_TYPE_INLINE}
+        keys %pf::constants::config::NET_INLINE_TYPES,
+    ),
+    registration => $pf::constants::config::NET_TYPE_VLAN_REG,
+    isolation    => $pf::constants::config::NET_TYPE_VLAN_ISOL,
+);
+
 sub init {
     my ($self, $host_id) = @_;
     $self->{cluster_name} = ($host_id ? $self->{cache}->get_cache("resource::clusters_hostname_map")->{$host_id} : undef) // "DEFAULT";
@@ -34,7 +50,8 @@ sub init {
     $self->{file}            = $network_config_file;
     $self->{child_resources} = [
         'interfaces',
-        'resource::network_config'
+        'resource::network_config',
+        'resource::network_lookup',
     ];
     
     $self->{cluster_config}  = $self->{cluster_name} ? $self->{cache}->get_cache("config::Cluster(".$self->{cluster_name}.")") : {};
@@ -149,48 +166,17 @@ sub is_network_type_inline {
     }
 }
 
+
 sub get_network_type {
     my ($type) = @_;
-
     if ( !defined($type) ) {
-
         # not defined
         return;
     }
-    elsif ( $type =~ /^$pf::constants::config::NET_TYPE_VLAN_REG$/i ) {
 
-        # vlan-registration
-        return $pf::constants::config::NET_TYPE_VLAN_REG;
-
-    }
-    elsif ( $type =~ /^$pf::constants::config::NET_TYPE_VLAN_ISOL$/i ) {
-
-        # vlan-isolation
-        return $pf::constants::config::NET_TYPE_VLAN_ISOL;
-
-    }
-    elsif ( $type =~ /^$pf::constants::config::NET_TYPE_DNS_ENFORCEMENT$/i ) {
-
-        # dns-enforcement
-        return $pf::constants::config::NET_TYPE_DNS_ENFORCEMENT;
-
-    }
-    elsif ( is_type_inline($type) ) {
-
-        # inline
-        return $pf::constants::config::NET_TYPE_INLINE;
-
-    }
-    elsif ( $type =~ /^registration$/i ) {
-
-        # deprecated registration
-        return $pf::constants::config::NET_TYPE_VLAN_REG;
-
-    }
-    elsif ( $type =~ /^isolation$/i ) {
-
-        # deprecated isolation
-        return $pf::constants::config::NET_TYPE_VLAN_ISOL;
+    my $lc_type = lc($type);
+    if (exists $lookupNetworkType{$lc_type}) {
+        return $lookupNetworkType{$lc_type};
     }
 
     return;

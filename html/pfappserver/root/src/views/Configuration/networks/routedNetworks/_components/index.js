@@ -37,6 +37,7 @@ export {
   BaseFormGroupInput                        as FormGroupNextHop,
   BaseFormGroupChosenOne                    as FormGroupPoolBackend,
   BaseFormGroupInput                        as FormGroupPortalFqdn,
+  BaseFormGroupChosenOne                    as FormGroupTenantIdentifier,
   BaseFormGroupChosenOne                    as FormGroupType,
 
   BaseViewCollectionItem                    as BaseView,

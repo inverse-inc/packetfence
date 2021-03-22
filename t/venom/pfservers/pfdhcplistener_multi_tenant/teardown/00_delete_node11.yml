@@ -1,0 +1,15 @@
+name: Delete node11
+version: 2
+testcases:
+- name: delete_node11
+  steps:
+  - type: http
+    method: DELETE
+    url: '{{.pfserver_webadmin_url}}/api/v1/node/{{.pfdhcplistener.nodes.node11.mac_url_encoded}}'
+    ignore_verify_ssl: true
+    headers:
+      "Authorization": "{{.pfserver_token}}"
+      "Content-Type": "application/json"
+    assertions:
+      - result.statuscode ShouldEqual 200
+      - result.bodyjson.message ShouldEqual "Deleted {{.pfdhcplistener.nodes.node11.mac}} successfully"
