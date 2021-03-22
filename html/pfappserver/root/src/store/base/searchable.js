@@ -27,9 +27,8 @@ class SearchableApi {
     if (params.fields) {
       params.fields = params.fields.join(',')
     }
-    const query = Object.keys(params).map(key => `${key}=${encodeURIComponent(params[key].toString())}`).join('&')
-    return apiCall.get(`${this.url}?${query}`, { headers: this.headers }).then(response => {
-      return response.data
+    return apiCall.get(this.url, { headers: this.headers, params }).then(response => {
+        return response.data
     })
   }
   search (body) {
