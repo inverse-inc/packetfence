@@ -585,11 +585,6 @@ sub security_event_trigger {
     return (0) if ( !$tid );
     $type = lc($type);
 
-    if (whitelisted_mac($mac)) {
-        $logger->info("security_event not added, $mac is whitelisted! trigger ${type}::${tid}");
-        return 0;
-    }
-
     if (!valid_mac($mac)) {
         $logger->info("security_event not added, MAC $mac is invalid! trigger ${type}::${tid}");
         return 0;

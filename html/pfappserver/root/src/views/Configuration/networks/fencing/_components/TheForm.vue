@@ -10,11 +10,6 @@
       :text="$i18n.t(`How many seconds the webservice should wait before deassociating or reassigning VLAN. If we don't wait, the device may switch VLAN before it has a chance to load the redirection page.`)"
     />
 
-    <form-group-whitelist namespace="whitelist"
-      :column-label="$i18n.t('Whitelist')"
-      :text="$i18n.t('Comma-separated list of MAC addresses that are immune to isolation. In inline Level 2 enforcement, the firewall is opened for them as if they were registered. This feature will probably be reworked in the future.')"
-    />
-
     <form-group-range namespace="range"
       :column-label="$i18n.t('Addresses ranges')"
       :text="$i18n.t('Address ranges/CIDR blocks that PacketFence will monitor/detect/trap on. Gateway, network, and broadcast addresses are ignored. Comma-separated entries should be of the form\na.b.c.0/24\na.b.c.0-255\na.b.c.0-a.b.c.255\na.b.c.d')"
@@ -73,7 +68,6 @@ import {
 } from '@/components/new/'
 import {
   FormGroupWaitForRedirect,
-  FormGroupWhitelist,
   FormGroupRange,
   FormGroupPassthrough,
   FormGroupPassthroughs,
@@ -88,7 +82,6 @@ const components = {
   BaseForm,
 
   FormGroupWaitForRedirect,
-  FormGroupWhitelist,
   FormGroupRange,
   FormGroupPassthrough,
   FormGroupPassthroughs,

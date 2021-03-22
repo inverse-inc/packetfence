@@ -207,14 +207,6 @@ sub generate_mangle_rules {
         }
     }
 
-    # mark whitelisted users
-    # TODO whitelist concept on it's way to the graveyard
-    foreach my $mac ( split( /\s*,\s*/, $Config{'fencing'}{'whitelist'} ) ) {
-        $mangle_rules .=
-          "-A $FW_PREROUTING_INT_INLINE --match mac --mac-source $mac --jump MARK --set-mark 0x$IPTABLES_MARK_REG\n"
-            ;
-    }
-
     if (@ops) {
         my $cmd = "LANG=C sudo ipset restore 2>&1";
         open(IPSET, "| $cmd") || die "$cmd failed: $!\n";
