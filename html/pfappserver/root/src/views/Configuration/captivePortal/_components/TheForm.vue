@@ -86,7 +86,7 @@
     />
 
     <form-group-rate-limiting namespace="rate_limiting"
-      :column-label="$i18n.t('Rate limitin')"
+      :column-label="$i18n.t('Rate limiting')"
       :text="$i18n.t('Temporarily deny access to a user that performs too many requests on the captive portal on invalid URLs. Requires to restart haproxy-portal in order to apply the change.')"
     />
 
