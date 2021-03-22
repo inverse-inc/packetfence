@@ -125,7 +125,6 @@ type PfConfFencing struct {
 	Range                 string   `json:"range"`
 	InterceptionProxyPort string   `json:"interception_proxy_port"`
 	Registration          string   `json:"registration"`
-	Whitelist             string   `json:"whitelist"`
 	ProxyPassthroughs     []string `json:"proxy_passthroughs"`
 	Passthroughs          []string `json:"passthroughs"`
 	WaitForRedirect       string   `json:"wait_for_redirect"`

@@ -63,7 +63,7 @@ BEGIN {
   our ( @ISA, @EXPORT );
   @ISA = qw(Exporter);
   @EXPORT = qw(
-    whitelisted_mac ip2interface ip2device
+    ip2interface ip2device
     pfmailer send_email get_all_internal_ips
     get_internal_nets get_routed_isolation_nets
     get_routed_registration_nets get_inline_nets
@@ -99,22 +99,6 @@ sub trappable_mac {
     } else {
         return (1);
     }
-}
-
-sub whitelisted_mac {
-    my ($mac) = @_;
-    my $logger = get_logger();
-    return (0) if ( !valid_mac($mac) );
-    $mac = clean_mac($mac);
-    foreach
-        my $whitelist ( split( /\s*,\s*/, $Config{'fencing'}{'whitelist'} ) )
-    {
-        if ( $mac eq clean_mac($whitelist) ) {
-            $logger->info("$mac is whitelisted, skipping");
-            return (1);
-        }
-    }
-    return (0);
 }
 
 sub ip2interface {

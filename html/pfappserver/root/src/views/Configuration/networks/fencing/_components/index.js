@@ -12,7 +12,6 @@ export {
   BaseFormButtonBar                   as FormButtonBar,
 
   BaseFormGroupInput                  as FormGroupWaitForRedirect,
-  BaseFormGroupTextarea               as FormGroupWhitelist,
   BaseFormGroupTextarea               as FormGroupRange,
   BaseFormGroupToggleDisabledEnabled  as FormGroupPassthrough,
   BaseFormGroupTextarea               as FormGroupPassthroughs,

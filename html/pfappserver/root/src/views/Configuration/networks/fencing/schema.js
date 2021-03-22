@@ -3,7 +3,6 @@ import yup from '@/utils/yup'
 
 export const schema = () => yup.object({
   wait_for_redirect: yup.string().nullable().label(i18n.t('Wait')),
-  whitelist: yup.string().nullable().label(i18n.t('Whitelist')),
   range: yup.string().nullable().label(i18n.t('Range')),
   passthroughs: yup.string().nullable().label(i18n.t('Domains')),
   proxy_passthroughs: yup.string().nullable().label(i18n.t('Domains')),
