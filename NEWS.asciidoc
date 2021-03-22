@@ -54,6 +54,7 @@ For a list of compatibility related changes see the <<PacketFence_Upgrade_Guide.
 * Restrict create, update, and delete operations to the default and global tenant users (#6075)
 * Remove pftest mysql tuner (#6130)
 * Allow netflow address to be configured (#6139)
+* Deprecated fencing whitelist
 
 === Bug Fixes
 
