@@ -49,7 +49,7 @@ Readonly our %ATTRIBUTES_MAP => (
 );
 
 has '+type' => (default => 'LDAP');
-has 'host' => (isa => 'Maybe[Str]', is => 'rw', default => '');
+has 'host' => (isa => 'ArrayRef[Str]', is => 'rw', default => sub { [] });
 has 'port' => (isa => 'Maybe[Int]', is => 'rw', default => 389);
 has 'connection_timeout' => ( isa => 'Num', is => 'rw', default => $DEFAULT_LDAP_CONNECTION_TIMEOUT );
 has 'write_timeout' => (isa => 'Num', is => 'rw', default => $DEFAULT_LDAP_WRITE_TIMEOUT);
@@ -224,7 +224,7 @@ sub _connect {
   my $connection;
   my $logger = Log::Log4perl::get_logger(__PACKAGE__);
   my ($LDAPServer, $LDAPServerPort);
-  my @LDAPServers = split(/\s*,\s*/, $self->{'host'});
+  my @LDAPServers = @{$self->{'host'} // []};
   
   # Lookup the server hostnames to IPs so they can be shuffled better and to improve the failure detection
   @LDAPServers = map { valid_ip($_) ? $_ : @{resolve($_)} } @LDAPServers;

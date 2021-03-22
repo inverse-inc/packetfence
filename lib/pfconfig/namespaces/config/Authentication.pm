@@ -178,7 +178,7 @@ sub cleanup_after_read {
         pf::Authentication::utils::inflatePersonMappings($data);
     }
 
-    $self->expand_list( $data, qw(realms local_realm reject_realm searchattributes sources) );
+    $self->expand_list( $data, qw(realms local_realm reject_realm searchattributes sources), (defined $type && ($type eq 'LDAP' || $type eq 'AD')) ? ('host') : () );
 }
 
 =head1 AUTHOR

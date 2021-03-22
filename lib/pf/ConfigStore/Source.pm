@@ -37,8 +37,8 @@ _fields_expanded
 our %TYPE_TO_EXPANDED_FIELDS = (
     SMS => [qw(sms_carriers)],
     Eduroam => [qw(local_realm reject_realm)],
-    AD => [qw(searchattributes)],
-    LDAP => [qw(searchattributes)],
+    AD => [qw(searchattributes host)],
+    LDAP => [qw(searchattributes host)],
     SponsorEmail => [qw(sources)],
 );
 

@@ -21,9 +21,13 @@ use pf::config qw(%Config);
 
 our $META = pf::Authentication::Source::LDAPSource->meta;
 
+has_field 'host' => (
+    type => 'Repeatable',
+    required => 1,
+);
 
 # Form fields
-has_field 'host' =>
+has_field 'host.contains' =>
   (
    type => 'Text',
    label => 'Host',

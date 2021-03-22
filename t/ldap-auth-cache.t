@@ -1,3 +1,4 @@
+#!/usr/bin/perl
 
 =head1 NAME
 
@@ -11,7 +12,6 @@ ldap-auth
 
 =cut
 
-#!/usr/bin/perl
 package SHM;
 use IPC::SysV qw(IPC_PRIVATE S_IRUSR S_IWUSR);
 use IPC::SharedMem;
