@@ -27,11 +27,11 @@ In order to configure mac authentication on the Bluesocket, you must have access
 
 First, you must configure a RadiusWebAuthServer in External Authentication and enable "Enable Radius MAC Authentication" and add Authentications rules.
 
-This Authentication Rules needs to match the PacketFence role you define to the Bluesocket role you defined.
+This Authentication Rules needs to match with the PacketFence role you define.
 
 image::bluesocket-radiuswebserver.png[scaledwidth="100%",alt="Bluesocket radius web server"]
 
-Next you have to create an SSID in Wireless -> SSIDs and important, check for "Enable Captive Portal Authentication".
+Next, you need to create an SSID in Wireless -> SSIDs and important, check for "Enable Captive Portal Authentication".
 
 image::bluesocket-openssid.png[scaledwidth="100%",alt="Bluesocket open ssid"]
 
@@ -49,7 +49,7 @@ First, you must configure a Radius1XAuthServer in External Authentication.
 
 image::bluesocket-radius8021x.png[scaledwidth="100%",alt="Bluesocket radius 802.1x"]
 
-Next you have to create a new SSID with AUthentication WPA+WPA2 and select the radius server you previously created as the "RADIUS 802.1x Authentication Server"
+Next you need to create a new SSID with AUthentication WPA+WPA2 and select the radius server you previously created as the "RADIUS 802.1x Authentication Server"
 
 image::bluesocket-securessid.png[scaledwidth="100%",alt="Bluesocket secure ssid"]
 
