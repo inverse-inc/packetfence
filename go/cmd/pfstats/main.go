@@ -136,7 +136,7 @@ type ldaptype struct{}
 
 func (s ldaptype) Test(source interface{}, ctx context.Context) {
 	t := StatsdClient.NewTiming()
-	sources := strings.Split(source.(pfconfigdriver.AuthenticationSourceLdap).Host, ",")
+	sources := source.(pfconfigdriver.AuthenticationSourceLdap).Host
 	for num, src := range sources {
 		var l *ldap.Conn
 		var err error
