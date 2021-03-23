@@ -281,11 +281,6 @@ sub radiusDisconnect {
 
 Overloading L<pf::Switch>'s implementation because Mikrotik have his own radius attributes.
 
-Don't forget to fill /usr/share/freeradius/dictionary.mikrotik with the following attributes:
-
-ATTRIBUTE       Mikrotik-Wireless-VLANID                26      integer
-ATTRIBUTE       Mikrotik-Wireless-VLANID-Type           27      integer
-
 =cut
 
 sub returnRadiusAccessAccept {
