@@ -67,25 +67,25 @@ You will be able to attribute one PSK per user to use on every device they want.
 
 Create the SSID
 
-image::meraki-dpsk-ssid-config-1.jpeg[scaledwidth="100%",alt="DPSK SSID configuration"] 
+image::meraki-dpsk-ssid-config-1.jpg[scaledwidth="100%",alt="DPSK SSID configuration"] 
 
-image::meraki-dpsk-ssid-config-2.jpeg[scaledwidth="100%",alt="DPSK SSID configuration"] 
+image::meraki-dpsk-ssid-config-2.jpg[scaledwidth="100%",alt="DPSK SSID configuration"] 
 
 Provioner configuration
 
 Go to Configuration > Advanced Access Configuration > Provisioner > New provisioner > DPSK
 
-image::meraki-dpsk-provioner.jpeg[scaledwidth="100%",alt="DPSK provisioner configuration"]
+image::meraki-dpsk-provioner.jpg[scaledwidth="100%",alt="DPSK provisioner configuration"]
 
 Connection profile configuration
 
 Go to Configuration > Policies and Access Control > Standard Connection Profiles > New Connection Profile
 
-image::meraki-dpsk-connection-profile-1.jpeg[scaledwidth="100%",alt="Connection Profile configuration"] 
+image::meraki-dpsk-connection-profile-1.jpg[scaledwidth="100%",alt="Connection Profile configuration"] 
 
-image::meraki-dpsk-connection-profile-2.jpeg[scaledwidth="100%",alt="Connection Profile configuration"]
+image::meraki-dpsk-connection-profile-2.jpg[scaledwidth="100%",alt="Connection Profile configuration"]
 
-image::meraki-dpsk-connection-profile-3.jpeg[scaledwidth="100%",alt="Connection Profile configuration"]
+image::meraki-dpsk-connection-profile-3.jpg[scaledwidth="100%",alt="Connection Profile configuration"]
 
 ===== Switch MS220-8
 
