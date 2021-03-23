@@ -36,15 +36,9 @@
       <template v-slot:prepend v-if="$slots.prepend">
         <slot name="prepend"></slot>
       </template>
-      <template v-slot:append>
+      <template v-slot:append v-if="$slots.append || isLocked">
         <template v-if="!isLocked">
           <slot name="append"></slot>
-          <b-button :disabled="!canTest" tabindex="-1" variant="light" class="py-0"
-            @click="doTest"
-          >
-            <span v-show="!isTesting">{{ buttonLabel || $t('Test') }}</span>
-            <icon v-show="isTesting" name="circle-notch" spin></icon>
-          </b-button>
         </template>
         <b-button v-else
           class="input-group-text"
@@ -57,6 +51,14 @@
         </b-button>
       </template>
     </b-input-group>
+    <template v-if="!isLocked">
+      <b-button :disabled="!canTest" tabindex="-1" variant="outline-primary" size="sm" class="my-1 col-6 col-sm-4 col-md-3 col-lg-2 col-xl-1"
+        @click="doTest"
+      >
+        <span v-show="!isTesting">{{ buttonLabel || $t('Test') }}</span>
+        <icon v-show="isTesting" name="circle-notch" spin></icon>
+      </b-button>
+    </template>
     <template v-slot:description v-if="inputText">
       <div v-html="inputText"/>
     </template>
