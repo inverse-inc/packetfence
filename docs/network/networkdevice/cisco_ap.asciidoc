@@ -286,23 +286,23 @@ image::dpsk_provisioner.png[scaledwidth="100%",alt="Provisioner IPKS"]
 
 ===== General RADIUS Configuration
 
-Go to Configuration -> Security -> AAA -> Servers / Groups -> Servers, Click add
+Go to Configuration -> Security -> AAA -> Servers / Groups -> Servers, click add
 
 image::wlc-9800-radius_server.jpg[scaledwidth="100%",alt="Create AAA Radius Server"]
 
-Click Server Groups, Click add
+Click Server Groups, click add
 
 image::wlc-9800-aaa-pf-group.jpg[scaledwidth="100%",alt="Create AAA Radius Server Group"]
 
-Go to Configuration -> Security -> AAA -> AAA Method List -> Authentication, Click add
+Go to Configuration -> Security -> AAA -> AAA Method List -> Authentication, click add
 
 image::wlc-9800-aaa-method-list-authentication.jpg[scaledwidth="100%",alt="AAA Authentication"]
 
-Go to Configuration -> Security -> AAA -> AAA Method List -> Authorization, Click add
+Go to Configuration -> Security -> AAA -> AAA Method List -> Authorization, click add
 
 image::wlc-9800-aaa-method-list-authorization.jpg[scaledwidth="100%",alt="AAA Authorization"]
 
-Go to Configuration -> Security -> AAA -> AAA Method List -> Accounting, Click add
+Go to Configuration -> Security -> AAA -> AAA Method List -> Accounting, click add
 
 image::wlc-9800-aaa-method-list-accounting.jpg[scaledwidth="100%",alt="AAA Accouting"]
 
@@ -310,7 +310,7 @@ image::wlc-9800-aaa-method-list-accounting.jpg[scaledwidth="100%",alt="AAA Accou
 
 ====== PF-Open SSID
 
-Go to Configuration -> Tags & Profiles -> WLANs, Click add
+Go to Configuration -> Tags & Profiles -> WLANs, click add
 
 image::wlc-9800-wlan-pf-open-general.jpg[scaledwidth="100%",alt="Add PF-Open WLAN"]
 
@@ -320,7 +320,7 @@ image::wlc-9800-wlan-pf-open-security-aaa.jpg[scaledwidth="100%",alt="Add PF-Ope
 
 Create Policy Profiles PF-Open
 
-Go to Configuration -> Tags & Profiles -> Policy, Click add
+Go to Configuration -> Tags & Profiles -> Policy, click add
 
 image::wlc-9800-policy-pf-open-general.jpg[scaledwidth="100%",alt="Add PF-Open Policy Profile"]
 
@@ -328,7 +328,7 @@ image::wlc-9800-policy-pf-open-access-pol.jpg[scaledwidth="100%",alt="Add PF-Ope
 
 image::wlc-9800-policy-pf-open-advanced.jpg[scaledwidth="100%",alt="Add PF-Open Policy Profile"]
 
-Go to Configuration -> Tags & Profiles -> Tags, under Policy Click add
+Go to Configuration -> Tags & Profiles -> Tags, under Policy click add
 
 image::wlc-9800-tag-pf-open.jpg[scaledwidth="100%",alt="Add PF-Open Policy Tag"]
 
@@ -342,7 +342,7 @@ image::wlc-9800-ap-policy.jpg[scaledwidth="100%",alt="Add PF Enabled Policy on t
 
 ====== PF-Secure SSID
 
-Go to Configuration -> Tags & Profiles -> WLANs, Click add
+Go to Configuration -> Tags & Profiles -> WLANs, click add
 
 image::wlc-9800-wlan-pf-secure-general.jpg[scaledwidth="100%",alt="Add PF-Secure WLAN"]
 
@@ -354,7 +354,7 @@ image::wlc-9800-wlan-pf-secure-security-aaa.jpg[scaledwidth="100%",alt="Add PF-S
 
 Create Policy Profiles PF-Secure
 
-Go to Configuration -> Tags & Profiles -> Policy, Click add
+Go to Configuration -> Tags & Profiles -> Policy, click add
 
 image::wlc-9800-policy-pf-secure-general.jpg[scaledwidth="100%",alt="Add PF-Secure Policy Profile"]
 
@@ -362,7 +362,7 @@ image::wlc-9800-policy-pf-secure-access-pol.jpg[scaledwidth="100%",alt="Add PF-S
 
 image::wlc-9800-policy-pf-secure-advanced.jpg[scaledwidth="100%",alt="Add PF-Secure Policy Profile"]
 
-Go to Configuration -> Tags & Profiles -> Tags, under Policy Click add
+Go to Configuration -> Tags & Profiles -> Tags, under Policy click add
 
 image::wlc-9800-tag-pf-secure.jpg[scaledwidth="100%",alt="Add PF-Secure Policy Tag"]
 
@@ -378,7 +378,7 @@ image::wlc-9800-ap-policy.jpg[scaledwidth="100%",alt="Add PF Enabled Policy on t
 
 Create Redirect ACL for Guest Web authentication:
 
-Go to Configuration -> Security -> ACL, Click add
+Go to Configuration -> Security -> ACL, click add
 
 ----
 Use ACL Name: Pre-Auth-For-WebRedirect
@@ -387,7 +387,7 @@ For ACL Type, select IPv4 Extended
 
 image::wlc-9800-acl-pre-auth-for-webredirect.jpg[scaledwidth="100%",alt="Pre-Auth-For-WebRedirect Access List"]
 
-Go to Configuration -> Security -> ACL, Click add
+Go to Configuration -> Security -> ACL, click add
 
 ----
 Use ACL Name: Authorize_any
@@ -398,7 +398,7 @@ image::wlc-9800-acl-authorize_any.jpg[scaledwidth="100%",alt="Authorize_any Acce
 
 PF-WebAuth SSID creation
 
-Go to Configuration -> Tags & Profiles -> WLANs, Click add
+Go to Configuration -> Tags & Profiles -> WLANs, click add
 
 image::wlc-9800-wlan-pf-webauth-general.jpg[scaledwidth="100%",alt="Add PF-WebAuth WLAN"]
 
@@ -408,7 +408,7 @@ image::wlc-9800-wlan-pf-webauth-security-aaa.jpg[scaledwidth="100%",alt="Add PF-
 
 Create Policy Profiles PF-WebAuth
 
-Go to Configuration -> Tags & Profiles -> Policy, Click add
+Go to Configuration -> Tags & Profiles -> Policy, click add
 
 image::wlc-9800-policy-pf-webauth-general.jpg[scaledwidth="100%",alt="Add PF-WebAuth Policy Profile"]
 
@@ -416,7 +416,7 @@ image::wlc-9800-policy-pf-webauth-access-pol.jpg[scaledwidth="100%",alt="Add PF-
 
 image::wlc-9800-policy-pf-webAuth-advanced.jpg[scaledwidth="100%",alt="Add PF-WebAuth Policy Profile"]
 
-Go to Configuration -> Tags & Profiles -> Tags, under Policy Click add
+Go to Configuration -> Tags & Profiles -> Tags, under Policy click add
 
 image::wlc-9800-tag-pf-webauth.jpg[scaledwidth="100%",alt="Add PF-Secure Policy Tag"]
 
