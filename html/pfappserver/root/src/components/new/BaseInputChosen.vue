@@ -607,7 +607,7 @@ $chosen-option-hover-bg: $dropdown-link-hover-bg;
 .base-input-chosen.is-invalid {
   .multiselect__tags,
   .multiselect__content-wrapper {
-    border-color: $form-feedback-invalid-color;
+    border-color: $form-feedback-invalid-color !important;
   }
   .multiselect__select:before {
     color: $form-feedback-invalid-color;

@@ -90,10 +90,10 @@
         </template>
         <template v-slot:beforeList>
           <li class="multiselect__element" v-if="!internalSearch || multiple">
-            <span class="float-right" v-if="multiple && internalSearch">
-              <b-button variant="link" size="sm" class="ml-0 pl-0 text-secondary" @click="onSelectAll">{{ $t('Select All') }}</b-button>
-              <b-button variant="link" size="sm" class="ml-0 pl-0 text-secondary" @click="onSelectNone">{{ $t('Select None') }}</b-button>
-            </span>
+            <div class="text-right" v-if="multiple && internalSearch">
+              <b-button variant="link" size="sm" @click="onSelectAll">{{ $t('Select All') }}</b-button>
+              <b-button variant="link" size="sm" @click="onSelectNone">{{ $t('Select None') }}</b-button>
+            </div>
             <div v-if="!internalSearch"
               class="mr-auto col-form-label py-1 px-2 text-dark text-left bg-light border-bottom">{{ $t('Type to search') }}</div>
           </li>
