@@ -1,0 +1,64 @@
+// to display images directly on GitHub
+ifdef::env-github[]
+:encoding: UTF-8
+:lang: en
+:doctype: book
+:toc: left
+:imagesdir: ../../images
+endif::[]
+
+////
+
+    This file is part of the PacketFence project.
+
+    See PacketFence_Network_Devices_Configuration_Guide.asciidoc
+    for authors, copyright and license information.
+
+////
+
+
+//=== Bluesocket
+
+==== MAC Authentication
+
+===== Bluesocket side
+
+In order to configure mac authentication on the Bluesocket, you must have access to the controller.
+
+First, you must configure a RadiusWebAuthServer in External Authentication and enable "Enable Radius MAC Authentication" and add Authentications rules.
+
+This Authentication Rules needs to match the PacketFence role you define to the Bluesocket role you defined.
+
+image::bluesocket-radiuswebserver.png[scaledwidth="100%",alt="Bluesocket radius web server"]
+
+Next you have to create an SSID in Wireless -> SSIDs and important, check for "Enable Captive Portal Authentication".
+
+image::bluesocket-openssid.png[scaledwidth="100%",alt="Bluesocket open ssid"]
+
+===== PacketFence side
+
+You have to define the ip address of the Blusocket controller in PacketFence.
+
+Since the vlan assignation is made by role, you need to enable role by switch role and define the role you previously created in the Bluesocket "Authentications rules".
+
+For the deauthentication you need to select HTTPS and fill the Web Services section with the username and password to connect to the Bluesocket API.
+
+==== 802.1x
+
+First, you must configure a Radius1XAuthServer in External Authentication.
+
+image::bluesocket-radius8021x.png[scaledwidth="100%",alt="Bluesocket radius 802.1x"]
+
+Next you have to create a new SSID with AUthentication WPA+WPA2 and select the radius server you previously created as the "RADIUS 802.1x Authentication Server"
+
+image::bluesocket-securessid.png[scaledwidth="100%",alt="Bluesocket secure ssid"]
+
+===== PacketFence side
+
+You have to define the ip address of the Bluesocket controller in PacketFence.
+
+Since the vlan assignation is made by role, you need to enable role by switch role and define the role you that exist in the Bluesocket.
+
+For the deauthentication you need to select HTTPS and fill the Web Services section with the username and password to connect to the Bluesocket API.
+
+
