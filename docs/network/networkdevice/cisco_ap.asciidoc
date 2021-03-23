@@ -284,25 +284,25 @@ image::dpsk_provisioner.png[scaledwidth="100%",alt="Provisioner IPKS"]
 
 ==== Wireless LAN Controller (WLC) 9800
 
-===== General RADIUS config
+===== General RADIUS Configuration
 
-Go to Configuration > Security > AAA > Servers / Groups > Servers, Click Add
+Go to Configuration -> Security -> AAA -> Servers / Groups -> Servers, Click Add
 
 image::wlc-9800-radius_server.jpg[scaledwidth="100%",alt="Create AAA Radius Server"]
 
-Click Server Groups, Click Add
+Click Server Groups, Click add
 
 image::wlc-9800-aaa-pf-group.jpg[scaledwidth="100%",alt="Create AAA Radius Server Group"]
 
-Go to Configuration > Security > AAA > AAA Method List > Authentication, Click Add
+Go to Configuration -> Security -> AAA -> AAA Method List -> Authentication, Click Add
 
 image::wlc-9800-aaa-method-list-authentication.jpg[scaledwidth="100%",alt="AAA Authentication"]
 
-Go to Configuration > Security > AAA > AAA Method List > Authorization, Click Add
+Go to Configuration -> Security -> AAA -> AAA Method List -> Authorization, Click Add
 
 image::wlc-9800-aaa-method-list-authorization.jpg[scaledwidth="100%",alt="AAA Authorization"]
 
-Go to Configuration > Security > AAA > AAA Method List > Accounting, Click Add
+Go to Configuration -> Security -> AAA -> AAA Method List -> Accounting, Click Add
 
 image::wlc-9800-aaa-method-list-accounting.jpg[scaledwidth="100%",alt="AAA Accouting"]
 
@@ -310,7 +310,7 @@ image::wlc-9800-aaa-method-list-accounting.jpg[scaledwidth="100%",alt="AAA Accou
 
 ====== PF-Open SSID
 
-Go to Configuration > Tags & Profiles > WLANs, Click Add
+Go to Configuration -> Tags & Profiles -> WLANs, Click Add
 
 image::wlc-9800-wlan-pf-open-general.jpg[scaledwidth="100%",alt="Add PF-Open WLAN"]
 
@@ -320,7 +320,7 @@ image::wlc-9800-wlan-pf-open-security-aaa.jpg[scaledwidth="100%",alt="Add PF-Ope
 
 Create Policy Profiles PF-Open
 
-Go to Configuration > Tags & Profiles > Policy, Click Add
+Go to Configuration -> Tags & Profiles -> Policy, Click Add
 
 image::wlc-9800-policy-pf-open-general.jpg[scaledwidth="100%",alt="Add PF-Open Policy Profile"]
 
@@ -328,21 +328,21 @@ image::wlc-9800-policy-pf-open-access-pol.jpg[scaledwidth="100%",alt="Add PF-Ope
 
 image::wlc-9800-policy-pf-open-advanced.jpg[scaledwidth="100%",alt="Add PF-Open Policy Profile"]
 
-Go to Configuration > Tags & Profiles > Tags, under Policy Click Add
+Go to Configuration -> Tags & Profiles -> Tags, under Policy Click Add
 
 image::wlc-9800-tag-pf-open.jpg[scaledwidth="100%",alt="Add PF-Open Policy Tag"]
 
-Go to Configuration > Wireless > Access Points
+Go to Configuration -> Wireless -> Access Points
 
 Click on the AP Name or MAC address
 
-Under General > Tags, Select 'PF Enabled'
+Under General -> Tags, Select 'PF Enabled'
 
 image::wlc-9800-ap-policy.jpg[scaledwidth="100%",alt="Add PF Enabled Policy on the AP"]
 
 ====== PF-Secure SSID
 
-Go to Configuration > Tags & Profiles > WLANs, Click Add
+Go to Configuration -> Tags & Profiles -> WLANs, Click Add
 
 image::wlc-9800-wlan-pf-secure-general.jpg[scaledwidth="100%",alt="Add PF-Secure WLAN"]
 
@@ -354,7 +354,7 @@ image::wlc-9800-wlan-pf-secure-security-aaa.jpg[scaledwidth="100%",alt="Add PF-S
 
 Create Policy Profiles PF-Secure
 
-Go to Configuration > Tags & Profiles > Policy, Click Add
+Go to Configuration -> Tags & Profiles -> Policy, Click Add
 
 image::wlc-9800-policy-pf-secure-general.jpg[scaledwidth="100%",alt="Add PF-Secure Policy Profile"]
 
@@ -362,15 +362,15 @@ image::wlc-9800-policy-pf-secure-access-pol.jpg[scaledwidth="100%",alt="Add PF-S
 
 image::wlc-9800-policy-pf-secure-advanced.jpg[scaledwidth="100%",alt="Add PF-Secure Policy Profile"]
 
-Go to Configuration > Tags & Profiles > Tags, under Policy Click Add
+Go to Configuration -> Tags & Profiles -> Tags, under Policy Click Add
 
 image::wlc-9800-tag-pf-secure.jpg[scaledwidth="100%",alt="Add PF-Secure Policy Tag"]
 
-Go to Configuration > Wireless > Access Points
+Go to Configuration -> Wireless -> Access Points
 
 Click on the AP Name or MAC address
 
-Under General > Tags, Select 'PF Enabled'
+Under General -> Tags, Select 'PF Enabled'
 
 image::wlc-9800-ap-policy.jpg[scaledwidth="100%",alt="Add PF Enabled Policy on the AP"]
 
@@ -378,7 +378,7 @@ image::wlc-9800-ap-policy.jpg[scaledwidth="100%",alt="Add PF Enabled Policy on t
 
 Create Redirect ACL for Guest Web authentication:
 
-Go to Configuration > Security > ACL, Click Add
+Go to Configuration -> Security -> ACL, Click Add
 
 ----
 Use ACL Name: Pre-Auth-For-WebRedirect
@@ -387,7 +387,7 @@ For ACL Type, select IPv4 Extended
 
 image::wlc-9800-acl-pre-auth-for-webredirect.jpg[scaledwidth="100%",alt="Pre-Auth-For-WebRedirect Access List"]
 
-Go to Configuration > Security > ACL, Click Add
+Go to Configuration -> Security -> ACL, Click Add
 
 ----
 Use ACL Name: Authorize_any
@@ -398,7 +398,7 @@ image::wlc-9800-acl-authorize_any.jpg[scaledwidth="100%",alt="Authorize_any Acce
 
 PF-WebAuth SSID creation
 
-Go to Configuration > Tags & Profiles > WLANs, Click Add
+Go to Configuration -> Tags & Profiles -> WLANs, Click Add
 
 image::wlc-9800-wlan-pf-webauth-general.jpg[scaledwidth="100%",alt="Add PF-WebAuth WLAN"]
 
@@ -408,7 +408,7 @@ image::wlc-9800-wlan-pf-webauth-security-aaa.jpg[scaledwidth="100%",alt="Add PF-
 
 Create Policy Profiles PF-WebAuth
 
-Go to Configuration > Tags & Profiles > Policy, Click Add
+Go to Configuration -> Tags & Profiles -> Policy, Click Add
 
 image::wlc-9800-policy-pf-webauth-general.jpg[scaledwidth="100%",alt="Add PF-WebAuth Policy Profile"]
 
@@ -416,15 +416,15 @@ image::wlc-9800-policy-pf-webauth-access-pol.jpg[scaledwidth="100%",alt="Add PF-
 
 image::wlc-9800-policy-pf-webAuth-advanced.jpg[scaledwidth="100%",alt="Add PF-WebAuth Policy Profile"]
 
-Go to Configuration > Tags & Profiles > Tags, under Policy Click Add
+Go to Configuration -> Tags & Profiles -> Tags, under Policy Click Add
 
 image::wlc-9800-tag-pf-webauth.jpg[scaledwidth="100%",alt="Add PF-Secure Policy Tag"]
 
-Go to Configuration > Wireless > Access Points
+Go to Configuration -> Wireless -> Access Points
 
 Click on the AP Name or MAC address
 
-Under General > Tags, Select 'PF Enabled'
+Under General -> Tags, Select 'PF Enabled'
 
 image::wlc-9800-ap-policy.jpg[scaledwidth="100%",alt="Add PF Enabled Policy on the AP"]
 
@@ -432,7 +432,7 @@ image::wlc-9800-ap-policy.jpg[scaledwidth="100%",alt="Add PF Enabled Policy on t
 
 Now you will to create a new switch in PacketFence
 
-Go to Configuration > Policies and Access Control > Switches > New Switch > default
+Go to Configuration -> Policies and Access Control -> Switches -> New Switch -> default
 
 image::wlc-9800-pf-switch-definition.jpg[scaledwidth="100%",alt="PF Switch configuration"]
 
