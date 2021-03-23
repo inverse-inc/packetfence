@@ -432,7 +432,7 @@ image::wlc-9800-ap-policy.jpg[scaledwidth="100%",alt="Add PF Enabled Policy on t
 
 Now you will to create a new switch in PacketFence
 
-Got to Configuration > Policies and Access Control > Switches > New Switch > default
+Go to Configuration > Policies and Access Control > Switches > New Switch > default
 
 image::wlc-9800-pf-switch-definition.jpg[scaledwidth="100%",alt="PF Switch configuration"]
 
