@@ -270,7 +270,7 @@ sub get {
                 $result->{"$interface"}->{'dns'} = $network->{dns};
                 $result->{"$interface"}->{'dhcpd_enabled'} = $network->{dhcpd};
                 $result->{"$interface"}->{'nat_enabled'} = $network->{nat_enabled};
-		$result->{"$interface"}->{'nat_dns'} = $network->{nat_dns};
+                $result->{"$interface"}->{'nat_dns'} = $network->{nat_dns};
                 $result->{"$interface"}->{'split_network'} = $network->{split_network};
                 $result->{"$interface"}->{'coa'} = $network->{coa};
                 $result->{"$interface"}->{'netflow_accounting_enabled'} = $network->{netflow_accounting_enabled};
