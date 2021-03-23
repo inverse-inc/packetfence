@@ -254,7 +254,7 @@ sub subscribe_customer {
     my ($code, $data);
     ($code, $data) = $self->_send_form($self->curl, "v1/customers", $object);
 
-    my $subscriptions = $self->_get_json($self->curl, "v1/subscriptions?customer=".$data->{id});
+    my $subscriptions = $self->_get_json($self->curl, "v1/subscriptions?customer=".uri_escape($data->{id}));
     if($subscriptions->{data}->[0]->{status} ne "active") {
         my $msg = "The subscription is not active after payment(".$subscriptions->{data}->[0]->{status}."). Card payment didn't go through.";
         $logger->error($msg);
