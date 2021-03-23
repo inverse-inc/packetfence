@@ -203,16 +203,13 @@ sub returnRadiusAccessAccept {
     }
     if ($args->{profile}->dpskEnabled()) {
         if (defined($args->{owner}->{psk})) {
-            $radius_reply_ref = {
-                %$radius_reply_ref,
-                'Tunnel-Password' => $args->{owner}->{psk},
-            };
+            $radius_reply_ref{ 'Tunnel-Password'} = $args->{owner}->{psk};
         } else {
-            $radius_reply_ref = {
-                %$radius_reply_ref,
-                'Tunnel-Password' => $args->{profile}->{_default_psk_key},
-            };
+            $radius_reply_ref{ 'Tunnel-Password'} = $args->{profile}->{_default_psk_key};
         }
+        #Remove av pairs coming from WLC
+        @av_pairs = grep ! /psk=/, @av_pairs;
+        @av_pairs = grep ! /psk-mode=ascii/, @av_pairs;
     }
     $radius_reply_ref->{'Cisco-AVPair'} = \@av_pairs;
     my $filter = pf::access_filter::radius->new;
