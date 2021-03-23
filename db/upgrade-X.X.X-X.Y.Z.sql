@@ -177,7 +177,7 @@ ALTER TABLE pki_cas
     ADD COLUMN IF NOT EXISTS `organisational_unit` varchar(255) DEFAULT NULL AFTER organisation,
     ADD COLUMN IF NOT EXISTS `ocsp_url` varchar(255) DEFAULT NULL AFTER issuer_name_hash;
 
-\! echo "altering pki_cert"
+\! echo "altering pki_certs"
 ALTER TABLE pki_certs
     ADD COLUMN IF NOT EXISTS `organisational_unit` varchar(255) DEFAULT NULL AFTER organisation,
     ADD COLUMN IF NOT EXISTS `dns_names` varchar(255) DEFAULT NULL AFTER serial_number,

@@ -290,7 +290,6 @@ func LoadKey(data []byte, password []byte) (*rsa.PrivateKey, error) {
 	return x509.ParsePKCS1PrivateKey(b)
 }
 
-// load an encrypted private key from disk
 func LoadCert(data []byte) (*x509.Certificate, error) {
 	pemBlock, _ := pem.Decode(data)
 	if pemBlock == nil {

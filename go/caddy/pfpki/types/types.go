@@ -41,7 +41,7 @@ type (
 		Field   string `json:"field"`
 		Message string `json:"message"`
 	}
-	// Error struct
+	// Errors struct
 	Errors struct {
 		Errors  []Error `json:"errors"`
 		Message string  `json:"message"`
