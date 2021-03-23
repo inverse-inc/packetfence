@@ -3,37 +3,22 @@
 <form action="/billing/[% billing.id %]/verify" method="POST" id="payment-form">
   <div class="payment-errors o-media o-media--error u-padding u-margin hide">
     <div class="o-media__img">[% flashIcon(level='error') %]</div>
-    <p class="o-media__body"></p>
+    <p id="card-errors" class="o-media__body"></p>
   </div>
 
   <div class="o-layout o-layout--center u-margin-top">
     <div class="o-layout__item u-1/1 u-2/3@tablet u-3/5@desktop">
 
       <div class="input-container">
-        <label for="name">Name</label>
-        <input id="name" type="text" size="20" data-stripe="name" />
+        <label for="number">Credit card</label>
       </div>
 
-      <div class="input-container">
-        <label for="number">Card Number</label>
-        <input id="number" type="text" size="20" data-stripe="number"/>
-      </div>
-
-      <div class="input-container">
-        <label for="cvc">CVC</label>
-        <input id="cvc" type="text" size="4" data-stripe="cvc"/>
-      </div>
-
-      <div class="input-container">
-        <label>Expiration (MM/YYYY)</label>
-        <input class="u-1/4" type="number" min="1" max="12" placeholder="MM" data-stripe="exp-month"/>
-        /
-        <input class="u-1/2" type="number" placeholder="YYYY" data-stripe="exp-year"/>
+      <div id="card-element">
       </div>
 
       <div class="u-padding-vertical">
         <button type="submit" name="submit-btn" class="c-btn c-btn--primary u-1/1">
-          [% i18n("Continue") %]
+          [% i18n("Pay") %]
         </button>
       </div>
     </div>
@@ -41,7 +26,7 @@
 
 </form>
 
-<script type="text/javascript" src="https://js.stripe.com/v2/"></script>
+<script type="text/javascript" src="https://js.stripe.com/v3/"></script>
 <script id="variables" type="text/json">
   {
     "publishable_key": "[% billing.publishable_key %]"
