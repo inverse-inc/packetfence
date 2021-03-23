@@ -59,6 +59,34 @@ In the configuration of PacketFence, use "Role by VLAN ID" and fill your VLANs m
 
 image::meraki-vlan-pf.png[scaledwidth="100%",alt="PacketFence role configuration"]
 
+==== Dynamic PSK (Pre-Shared Key)
+
+This section will cover how to configure the Meraki WiFI controller to use with Dynamic PSK with PacketFence.
+
+You will be able to attribute one PSK per user to use on every device they want. There is a common key to connect to a given PSK secured SSID to register and you will have an option to provision your device with that configuration on Windows, Apple and Android devices.
+
+Create the SSID
+
+image::meraki-dpsk-ssid-config-1.jpg[scaledwidth="100%",alt="DPSK SSID configuration"] 
+
+image::meraki-dpsk-ssid-config-2.jpg[scaledwidth="100%",alt="DPSK SSID configuration"] 
+
+Provioner configuration
+
+Go to Configuration > Advanced Access Configuration > Provisioner > New provisioner > DPSK
+
+image::meraki-dpsk-provioner.jpg[scaledwidth="100%",alt="DPSK provisioner configuration"]
+
+Connection profile configuration
+
+Go to Configuration > Policies and Access Control > Standard Connection Profiles > New Connection Profile
+
+image::meraki-dpsk-connection-profile-1.jpg[scaledwidth="100%",alt="Connection Profile configuration"] 
+
+image::meraki-dpsk-connection-profile-2.jpg[scaledwidth="100%",alt="Connection Profile configuration"]
+
+image::meraki-dpsk-connection-profile-3.jpg[scaledwidth="100%",alt="Connection Profile configuration"]
+
 ===== Switch MS220-8
 
 NOTE: You should already have one port setup as Uplink, using a mode trunk, with at least your Registration and Production VLAN allowed on it.
