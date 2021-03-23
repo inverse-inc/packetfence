@@ -1528,6 +1528,7 @@ sub firewallsso_accounting : Public {
         my $firewallsso_method = "Stop";
         my $timeout = '3600'; #Default to 1 hour
         my $client = pf::client::getClient();
+        my $username = $RAD_REQUEST{'User-Name'} // undef;
 
         if ($node->{status} eq $pf::node::STATUS_REGISTERED) {
             $firewallsso_method = "Update";
@@ -1546,7 +1547,7 @@ sub firewallsso_accounting : Public {
         $firewallsso_method = ($RAD_REQUEST{'Acct-Status-Type'} == $ACCOUNTING::STOP) ? "Stop" : "Update";
 
         $logger->warn("Firewall SSO Notify");
-        $client->notify( 'firewallsso', (method => $firewallsso_method, mac => $mac, ip => $ip, timeout => $timeout) );
+        $client->notify( 'firewallsso', (method => $firewallsso_method, mac => $mac, ip => $ip, timeout => $timeout, username => $username) );
     }
 }
 

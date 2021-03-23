@@ -52,8 +52,12 @@ sub do_sso {
     my $node = pf::node::node_attributes($mac);
 
     $logger->info("Sending a firewall SSO '$postdata{method}' request for MAC '$mac' and IP '$postdata{ip}'");
-
-    my $username = $node->{pid};
+    my $username;
+    if (exists($postdata{username}) && !pf::util::valid_mac($postdata{username})) {
+        $username = $postdata{username};
+    } else {
+        $username = $node->{pid};
+    }
     my ($stripped_username, $realm) = pf::util::strip_username($username);
 
     pf::api::unifiedapiclient->management_client->call("POST", "/api/v1/firewall_sso/".lc($postdata{method}), {
