@@ -217,6 +217,7 @@ BEGIN {
         access_duration
         $BANDWIDTH_DIRECTION_RE $BANDWIDTH_UNITS_RE
         is_vlan_enforcement_enabled is_inline_enforcement_enabled is_dns_enforcement_enabled is_type_inline
+        netflow_enabled
         $LOG4PERL_RELOAD_TIMER
         @Profile_Filters %Profiles_Config
         %ConfigFirewallSSO
@@ -871,6 +872,20 @@ sub load_configdata_into_db {
 
     require pf::Survey;
     pf::Survey::reload_from_config( \%pf::config::ConfigSurvey );
+}
+
+sub netflow_enabled {
+    if (isenabled($Config{advanced}{netflow_on_all_networks})) {
+        return $TRUE;
+    }
+
+    while( my ($network, $data) = each %ConfigNetworks ) {
+        # We skip non-inline networks/interfaces
+        next if ( !pf::config::is_network_type_inline($network) );
+        return $TRUE if isenabled($data->{netflow_accounting_enabled} || 'disabled');
+    }
+
+    return $FALSE;
 }
 
 =back

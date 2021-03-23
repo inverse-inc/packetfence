@@ -55,6 +55,7 @@ use pf::config qw(
     @radius_ints
     @dhcp_ints
     @dns_ints
+    netflow_enabled
 );
 use pf::file_paths qw($generated_conf_dir $conf_dir);
 use pf::util;
@@ -809,20 +810,6 @@ sub generate_netflow_rules {
     if (netflow_enabled()) {
         $$forward_netflow_ref .= "-I FORWARD -j NETFLOW\n";
     }
-}
-
-sub netflow_enabled {
-    if (isenabled($Config{advanced}{netflow_on_all_networks})) {
-        return $TRUE;
-    }
-
-    while( my ($network, $data) = each %ConfigNetworks ) {
-        # We skip non-inline networks/interfaces
-        next if ( !pf::config::is_network_type_inline($network) );
-        return $TRUE if isenabled($data->{netflow_accounting_enabled} || 'disabled');
-    }
-
-    return $FALSE;
 }
 
 =back
