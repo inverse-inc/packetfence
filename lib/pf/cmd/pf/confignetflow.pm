@@ -17,17 +17,41 @@ Configures the netflow kernel module
 use strict;
 use warnings;
 use base qw(pf::cmd);
-use pf::config qw(%Config);
+use pf::config qw(%Config netflow_enabled);
+use pf::util;
 use pf::log;
 use Symbol 'gensym';
 use IPC::Open3;
+our $IPT_NETFLOW_VERSION;
+our $os = pf::util::os_detection();
+if ($os eq 'rhel') {
+    $IPT_NETFLOW_VERSION = qx{ rpm -q ipt-netflow --queryformat "%{VERSION}-%{RELEASE}"};
+    chomp($IPT_NETFLOW_VERSION);
+    if ($IPT_NETFLOW_VERSION =~ /^(.*)$/) {
+        $IPT_NETFLOW_VERSION = $1;
+    }
+} elsif ($os eq 'debian') {
+    $IPT_NETFLOW_VERSION = qx{dpkg-query -W -f \\\${Version} iptables-netflow-dkms};
+    chomp($IPT_NETFLOW_VERSION);
+    if ($IPT_NETFLOW_VERSION =~ /^(.*)-\d$/) {
+        $IPT_NETFLOW_VERSION = $1;
+    }
+}
 
 sub _run {
-    local $SIG{PIPE} = sub {};
-    my $pid = open3('>&STDIN', '>&STDOUT', my $stderr = gensym,'/sbin/sysctl',"net.netflow.destination=$Config{services}{netflow_address}:$Config{ports}{pfacct_netflow}");
+    if (!netflow_enabled()) {
+        return 0;
+    }
 
+    my $stderr = gensym;
+    my ($pid, $child_exit_status);;
+
+    system("/usr/sbin/dkms", "-q", "install", "-m", "ipt-netflow", "-v", $IPT_NETFLOW_VERSION);
+    system("/sbin/modprobe", "ipt_NETFLOW");
+    local $SIG{PIPE} = sub {};
+    $pid = open3('>&STDIN', '>&STDOUT', $stderr = gensym,'/sbin/sysctl',"net.netflow.destination=$Config{services}{netflow_address}:$Config{ports}{pfacct_netflow}");
     waitpid($pid, 0);
-    my $child_exit_status = $? >> 8;
+    $child_exit_status = $? >> 8;
     if ($child_exit_status) {
         my $error = <$stderr>;
         $error .= "kernel module ipt_NETFLOW is not configured or loaded";
