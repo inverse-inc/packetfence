@@ -76,6 +76,8 @@ For a list of compatibility related changes see the <<PacketFence_Upgrade_Guide.
 * pfacct stores 00:00:00:00:00:00 MAC in DB when Calling-Station-ID is XXXX-XXXX-XXXX (#6109)
 * Update the location log when the Called-Station-Id changes (#6045)
 * Only enable NetFlow in iptables if NetFlow is enabled (#6080)
+* Firewall SSO: take username from accounting data if available in place of database (#6148)
+
 
 == Version 10.2.0 released on 2020-10-07
 
