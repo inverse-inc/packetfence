@@ -679,7 +679,6 @@ var directives = []string{
 	//PACKETFENCE
 	"api-aaa",
 	"api",
-	"wgorchestrator",
 
 	//PACKETFENCE
 	// These that takes precedence over proxying
