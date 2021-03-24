@@ -42,6 +42,16 @@
       :column-label="$i18n.t('Inherit VLAN')"
       :text="$i18n.t('Inherit VLAN from parent if none is found')"
     />
+
+    <form-group-inherit-role namespace="inherit_role"
+      :column-label="$i18n.t('Inherit Role')"
+      :text="$i18n.t('Inherit Role from parent if none is found')"
+    />
+
+    <form-group-inherit-web-auth namespace="inherit_web_auth"
+      :column-label="$i18n.t('Inherit Web Auth')"
+      :text="$i18n.t('Inherit Web Auth URL from parent if none is found')"
+    />
   </base-form>
 </template>
 <script>
@@ -58,7 +68,9 @@ import {
   FormGroupIncludeParentAcls,
   FormGroupFingerbankDynamicAccessList,
   FormGroupAcls,
-  FormGroupInheritVlan
+  FormGroupInheritVlan,
+  FormGroupInheritRole,
+  FormGroupInheritWebAuth
 } from './'
 
 const components = {
@@ -71,7 +83,9 @@ const components = {
   FormGroupIncludeParentAcls,
   FormGroupFingerbankDynamicAccessList,
   FormGroupAcls,
-  FormGroupInheritVlan
+  FormGroupInheritVlan,
+  FormGroupInheritRole,
+  FormGroupInheritWebAuth
 }
 
 export const props = {

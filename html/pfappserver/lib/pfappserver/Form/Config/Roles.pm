@@ -88,6 +88,22 @@ has_field 'inherit_vlan' => (
     default => 'disabled',
 );
 
+has_field 'inherit_role' => (
+    type => 'Toggle',
+    label => 'Inherit Role',
+    checkbox_value => 'enabled',
+    unchecked_value => 'disabled',
+    default => 'disabled',
+);
+
+has_field 'inherit_web_auth' => (
+    type => 'Toggle',
+    label => 'Inherit Web Auth',
+    checkbox_value => 'enabled',
+    unchecked_value => 'disabled',
+    default => 'disabled',
+);
+
 =head2 validate
 
 Make sure none of the reserved names is used.

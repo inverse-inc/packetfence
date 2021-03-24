@@ -586,8 +586,17 @@ sub getRoleByName {
     my ($self, $roleName) = @_;
     my $logger = $self->logger;
 
-    # skip if not defined or empty
-    return if (!defined($self->{'_roles'}) || !%{$self->{'_roles'}});
+
+    if (!defined($self->{'_roles'}) || !defined($self->{'_roles'}{$roleName})) {
+        my $parent = _parentRoleForRole($roleName);
+        if (defined $parent && length($parent)) {
+            return $self->getRoleByName($parent);
+        }
+        # VLAN name doesn't exist
+        $pf::StatsD::statsd->increment(called() . ".error" );
+        $logger->warn("No parameter ${vlanName}Role found in conf/switches.conf for the switch " . $self->{_id});
+        return undef;
+    }
 
     # return if found
     return $self->{'_roles'}->{$roleName} if (defined($self->{'_roles'}->{$roleName}));
@@ -595,6 +604,20 @@ sub getRoleByName {
     # otherwise log and return undef
     $logger->trace("(".$self->{_id}.") No parameter ${roleName}Role found in conf/switches.conf");
     return;
+}
+
+sub _parentRoleForRole {
+    my ($name) = @_;
+    if (!exists $ConfigRoles{$name}) {
+        return undef;
+    }
+
+    my $role = $ConfigRoles{$name};
+    if (isdisabled($role->{inherit_role} // 'disabled')) {
+        return undef;
+    }
+
+    return $role->{parent_id};
 }
 
 =item getVlanByName - get the VLAN number of a given name in switches.conf
@@ -687,8 +710,16 @@ sub getUrlByName {
     my ($self, $roleName) = @_;
     my $logger = $self->logger;
 
-    # skip if not defined or empty
-    return if (!defined($self->{'_urls'}) || !%{$self->{'_urls'}});
+    if (!defined($self->{'_urls'}) || !defined($self->{'_urls'}{$roleName})) {
+        my $parent = _parentRoleForWebAuth($roleName);
+        if (defined $parent && length($parent)) {
+            return $self->getUrlByName($parent);
+        }
+        # VLAN name doesn't exist
+        $pf::StatsD::statsd->increment(called() . ".error" );
+        $logger->warn("No parameter ${roleName}Url found in conf/switches.conf for the switch " . $self->{_id});
+        return undef;
+    }
 
     # return if found
     return $self->{'_urls'}->{$roleName} if (defined($self->{'_urls'}->{$roleName}));
@@ -696,6 +727,20 @@ sub getUrlByName {
     # otherwise log and return undef
     $logger->trace("(".$self->{_id}.") No parameter ${roleName}Url found in conf/switches.conf");
     return;
+}
+
+sub _parentRoleForWebAuth {
+    my ($name) = @_;
+    if (!exists $ConfigRoles{$name}) {
+        return undef;
+    }
+
+    my $role = $ConfigRoles{$name};
+    if (isdisabled($role->{inherit_web_auth} // 'disabled')) {
+        return undef;
+    }
+
+    return $role->{parent_id};
 }
 
 =item setVlanByName - set the ifIndex VLAN to the VLAN identified by given name in switches.conf

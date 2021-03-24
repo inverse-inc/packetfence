@@ -114,6 +114,8 @@ CREATE TABLE `node_category` (
   `fingerbank_dynamic_access_list` varchar(255) default NULL,
   `acls` TEXT NOT NULL,
   `inherit_vlan` varchar(50) default NULL,
+  `inherit_role` varchar(50) default NULL,
+  `inherit_web_auth` varchar(50) default NULL,
   PRIMARY KEY (`category_id`),
   UNIQUE KEY node_category_name (`name`)
 ) ENGINE=InnoDB;

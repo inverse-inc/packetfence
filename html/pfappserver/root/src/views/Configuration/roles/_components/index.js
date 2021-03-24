@@ -20,6 +20,8 @@ export {
   BaseFormGroupToggleDisabledEnabled  as FormGroupFingerbankDynamicAccessList,
   BaseFormGroupTextarea               as FormGroupAcls,
   BaseFormGroupToggleDisabledEnabled  as FormGroupInheritVlan,
+  BaseFormGroupToggleDisabledEnabled  as FormGroupInheritRole,
+  BaseFormGroupToggleDisabledEnabled  as FormGroupInheritWebAuth,
 
   BaseViewCollectionItem              as BaseView,
   TheForm,

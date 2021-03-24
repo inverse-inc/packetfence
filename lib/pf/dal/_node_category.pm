@@ -41,6 +41,8 @@ BEGIN {
         fingerbank_dynamic_access_list
         acls
         inherit_vlan
+        inherit_role
+        inherit_web_auth
     );
 
     %DEFAULTS = (
@@ -51,6 +53,8 @@ BEGIN {
         fingerbank_dynamic_access_list => undef,
         acls => '',
         inherit_vlan => undef,
+        inherit_role => undef,
+        inherit_web_auth => undef,
     );
 
     @INSERTABLE_FIELDS = qw(
@@ -61,6 +65,8 @@ BEGIN {
         fingerbank_dynamic_access_list
         acls
         inherit_vlan
+        inherit_role
+        inherit_web_auth
     );
 
     %FIELDS_META = (
@@ -112,6 +118,18 @@ BEGIN {
             is_primary_key => 0,
             is_nullable => 1,
         },
+        inherit_role => {
+            type => 'VARCHAR',
+            is_auto_increment => 0,
+            is_primary_key => 0,
+            is_nullable => 1,
+        },
+        inherit_web_auth => {
+            type => 'VARCHAR',
+            is_auto_increment => 0,
+            is_primary_key => 0,
+            is_nullable => 1,
+        },
     );
 
     @PRIMARY_KEYS = qw(
@@ -127,6 +145,8 @@ BEGIN {
         node_category.fingerbank_dynamic_access_list
         node_category.acls
         node_category.inherit_vlan
+        node_category.inherit_role
+        node_category.inherit_web_auth
     );
 
 }
