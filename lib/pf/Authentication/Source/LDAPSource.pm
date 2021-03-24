@@ -26,6 +26,7 @@ use pf::StatsD::Timer;
 use pf::util::statsd qw(called);
 
 use Moose;
+use pf::Moose::Types;
 extends 'pf::Authentication::Source';
 with qw(pf::Authentication::InternalRole);
 
@@ -49,7 +50,7 @@ Readonly our %ATTRIBUTES_MAP => (
 );
 
 has '+type' => (default => 'LDAP');
-has 'host' => (isa => 'ArrayRef[Str]', is => 'rw', default => sub { [] });
+has 'host' => (isa => 'ArrayOfStr', is => 'rw', default => sub { [] }, coerce => 1);
 has 'port' => (isa => 'Maybe[Int]', is => 'rw', default => 389);
 has 'connection_timeout' => ( isa => 'Num', is => 'rw', default => $DEFAULT_LDAP_CONNECTION_TIMEOUT );
 has 'write_timeout' => (isa => 'Num', is => 'rw', default => $DEFAULT_LDAP_WRITE_TIMEOUT);

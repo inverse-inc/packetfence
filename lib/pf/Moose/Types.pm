@@ -30,6 +30,10 @@ subtype 'PfInterval', as 'Int';
 
 coerce 'PfInterval', from 'Str', via { return normalize_time($_) };
 
+subtype 'ArrayOfStr', as 'ArrayRef[Str]';
+
+coerce 'ArrayOfStr', from 'Str', via { [ split(/\s*,\s*/, $_) ] };
+
 no Moose::Util::TypeConstraints;
 
 =head1 AUTHOR
