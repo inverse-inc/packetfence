@@ -845,7 +845,7 @@ func (c Cert) New() (types.Info, error) {
 	// Public key
 	pem.Encode(certBuff, &pem.Block{Type: "CERTIFICATE", Bytes: certByte})
 
-	if err := c.DB.Create(&Cert{Cn: c.Cn, Ca: ca, CaName: ca.Cn, ProfileName: prof.Name, SerialNumber: SerialNumber.String(), DNSNames: c.DNSNames, IPAddresses: c.IPAddresses, Mail: c.Mail, StreetAddress: c.StreetAddress, Organisation: c.Organisation, OrganisationalUnit: c.OrganisationalUnit, Country: c.Country, State: c.State, Locality: c.Locality, PostalCode: c.PostalCode, Profile: prof, Key: keyOut.String(), Cert: certBuff.String(), ValidUntil: cert.NotAfter}).Error; err != nil {
+	if err := c.DB.Create(&Cert{Cn: c.Cn, Ca: ca, CaName: ca.Cn, ProfileName: prof.Name, SerialNumber: SerialNumber.String(), DNSNames: c.DNSNames, IPAddresses: c.IPAddresses, Mail: c.Mail, StreetAddress: Subject.StreetAddress[0], Organisation: Subject.Organization[0], OrganisationalUnit: Subject.OrganizationalUnit[0], Country: Subject.Country[0], State: Subject.Province[0], Locality: Subject.Locality[0], PostalCode: Subject.PostalCode[0], Profile: prof, Key: keyOut.String(), Cert: certBuff.String(), ValidUntil: cert.NotAfter}).Error; err != nil {
 		Information.Error = err.Error()
 		return Information, errors.New("A database error occured. See log for details.")
 	}
