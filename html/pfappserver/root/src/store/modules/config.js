@@ -338,6 +338,8 @@ const initialState = () => { // set intitial states to `false` (not `[]` or `{}`
     radiusTlssStatus: '',
     realms: {},
     realmsStatus: '',
+    remoteConnectionProfiles: false,
+    remoteConnectionProfilesStatus: '',
     roles: false,
     rolesStatus: '',
     routedNetworks: false,
@@ -547,6 +549,9 @@ const getters = {
   },
   isLoadingRealms: state => {
     return state.realmsStatus === types.LOADING
+  },
+  isLoadingRemoteConnectionProfiles: state => {
+    return state.remoteConnectionProfilesStatus === types.LOADING
   },
   isLoadingRoles: state => {
     return state.rolesStatus === types.LOADING
@@ -1416,6 +1421,20 @@ const actions = {
       return Promise.resolve(state.realms[tenantId])
     }
   },
+  getRemoteConnectionProfiles: ({ state, getters, commit }) => {
+    if (getters.isLoadingRemoteConnectionProfiles) {
+      return Promise.resolve(state.remoteConnectionProfiles)
+    }
+    if (!state.remoteConnectionProfiles) {
+      commit('REMOTE_CONNECTION_PROFILES_REQUEST')
+      return api.getRemoteConnectionProfiles().then(response => {
+        commit('REMOTE_CONNECTION_PROFILES_UPDATED', response.data.items)
+        return state.remoteConnectionProfiles
+      })
+    } else {
+      return Promise.resolve(state.remoteConnectionProfiles)
+    }
+  },
   getRoles: ({ state, getters, commit }) => {
     if (getters.isLoadingRoles) {
       return Promise.resolve(state.roles)
@@ -2044,6 +2063,13 @@ const mutations = {
   REALMS_UPDATED: (state, { tenantId, items }) => {
     Vue.set(state.realms, tenantId, items)
     state.realmsStatus = types.SUCCESS
+  },
+  REMOTE_CONNECTION_PROFILES_REQUEST: (state) => {
+    state.remoteConnectionProfilesStatus = types.LOADING
+  },
+  REMOTE_CONNECTION_PROFILES_UPDATED: (state, remoteConnectionProfiles) => {
+    state.remoteConnectionProfiles = remoteConnectionProfiles
+    state.remoteConnectionProfilesStatus = types.SUCCESS
   },
   ROLES_REQUEST: (state) => {
     state.rolesStatus = types.LOADING

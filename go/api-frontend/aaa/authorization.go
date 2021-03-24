@@ -97,6 +97,8 @@ var pathAdminRolesMap = []adminRoleMapping{
 	adminRoleMapping{prefix: apiPrefix + "/nodes", role: "NODES"},
 	adminRoleMapping{prefix: apiPrefix + "/node_categories", role: "NODES"},
 	adminRoleMapping{prefix: apiPrefix + "/node_category/", role: "NODES"},
+	adminRoleMapping{prefix: apiPrefix + "/remote_client/", role: "REMOTE_CLIENTS"},
+	adminRoleMapping{prefix: apiPrefix + "/remote_clients", role: "REMOTE_CLIENTS"},
 	adminRoleMapping{prefix: apiPrefix + "/security_event/", role: "SECURITY_EVENTS"},
 	adminRoleMapping{prefix: apiPrefix + "/security_events", role: "SECURITY_EVENTS"},
 	adminRoleMapping{prefix: apiPrefix + "/user/", role: "USERS"},

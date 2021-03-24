@@ -43,6 +43,7 @@ export {
   BaseFormGroupToggleDisabledEnabled  as FormGroupPfqueue,
   BaseFormGroupToggleDisabledEnabled  as FormGroupPfsso,
   BaseFormGroupToggleDisabledEnabled  as FormGroupPfstats,
+  BaseFormGroupToggleDisabledEnabled  as FormGroupPfztn,
   BaseFormGroupToggleDisabledEnabled  as FormGroupRadiusd,
   BaseFormGroupToggleDisabledEnabled  as FormGroupRadiusdAcct,
   BaseFormGroupToggleDisabledEnabled  as FormGroupRadiusdAuth,

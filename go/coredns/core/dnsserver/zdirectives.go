@@ -40,6 +40,7 @@ var Directives = []string{
 	"template",
 	"transfer",
 	"pfdns",
+	"ztndns",
 	"hosts",
 	"route53",
 	"azure",

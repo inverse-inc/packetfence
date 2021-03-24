@@ -410,6 +410,7 @@ done
 %{__install} -D -m0644 conf/systemd/packetfence-netdata.service %{buildroot}%{_unitdir}/packetfence-netdata.service
 %{__install} -D -m0644 conf/systemd/packetfence-pfstats.service %{buildroot}%{_unitdir}/packetfence-pfstats.service
 %{__install} -D -m0644 conf/systemd/packetfence-pfpki.service %{buildroot}%{_unitdir}/packetfence-pfpki.service
+%{__install} -D -m0644 conf/systemd/packetfence-pfztn.service %{buildroot}%{_unitdir}/packetfence-pfztn.service
 # systemd path
 %{__install} -D -m0644 conf/systemd/packetfence-tracking-config.path %{buildroot}%{_unitdir}/packetfence-tracking-config.path
 # systemd modules
@@ -1081,6 +1082,8 @@ fi
 %config                 /usr/local/pf/conf/profiles.conf.defaults
 %config(noreplace)      /usr/local/pf/conf/pfcron.conf
 %config                 /usr/local/pf/conf/pfcron.conf.defaults
+%config(noreplace)      /usr/local/pf/conf/remote_profiles.conf
+%config                 /usr/local/pf/conf/remote_profiles.conf.defaults
 %config(noreplace)      /usr/local/pf/conf/roles.conf
 %config                 /usr/local/pf/conf/roles.conf.defaults
 %config(noreplace)      /usr/local/pf/conf/snmptrapd.conf

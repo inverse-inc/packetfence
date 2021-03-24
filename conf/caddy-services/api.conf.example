@@ -2,14 +2,20 @@
 0.0.0.0:9999 {
   tls /usr/local/pf/conf/ssl/server.crt /usr/local/pf/conf/ssl/server.key
 
-  log / stdout "api-frontend-access {remote} - {user} [{when}] \"{method} {uri} {proto}\" {status} {size} \"{>Referer}\" \"{>User-Agent}\""
+  log / stdout "api-frontend-access {remote} - {user} [{when}] \"{method} {uri} {proto}\" {status} {size} \"{>Referer}\" \"{>User-Agent}\"" {
+    except /api/v1/remote_clients/events
+    except /api/v1/remote_clients/my_events
+  }
 
   errors {
     502 /usr/local/pf/html/pfappserver/root/errors/502.json
     503 /usr/local/pf/html/pfappserver/root/errors/503.json
   }
 
-  pfconfigpool
+  pfconfigpool {
+    dont_rlock /api/v1/remote_clients/events
+    dont_rlock /api/v1/remote_clients/my_events
+  }
 
   logger {
     level INFO
@@ -53,6 +59,11 @@
     transparent
   }
   
+  # pfztn API access
+  proxy /api/v1/remote_clients/ 127.0.0.1:22226 {
+    transparent
+  }
+  
   # Everything else goes to the Perl API
   proxy /api/v1/ 127.0.0.1:22224 {
     transparent
@@ -61,6 +72,11 @@
 
   # doh forward
   proxy /dns-query http://127.0.0.1:853 {
+      transparent
+  }
+
+  # doh peers forward
+  proxy /dns-ztn-query http://127.0.0.1:854 {
       transparent
   }
 

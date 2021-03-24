@@ -176,3 +176,9 @@ func (c *Client) SetPrivateMode(priv, pub, serverPub [32]byte) {
 type ServerTimestamp struct {
 	Timestamp int64 `json:"timestamp"`
 }
+
+func (c *Client) GetServerTimestamp(ctx context.Context) (int64, error) {
+	st := ServerTimestamp{}
+	err := c.APIClient.Call(ctx, "GET", "/api/v1/remote_clients/server_time", &st)
+	return st.Timestamp, err
+}

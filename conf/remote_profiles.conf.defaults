@@ -1,0 +1,15 @@
+[default]
+description=Default remote connection profile
+status=enabled
+basic_filter_type=
+basic_filter_value=
+advanced_filter=
+scanners=
+allow_communication_same_role=enabled
+allow_communication_to_roles=
+resolve_hostnames_of_peers=enabled
+additional_domains_to_resolve=
+gateway=disabled
+routes=
+stun_server=stun.l.google.com:19302
+internal_domain_to_resolve=ztn

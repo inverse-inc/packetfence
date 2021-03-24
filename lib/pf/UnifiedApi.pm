@@ -292,6 +292,7 @@ sub setup_api_v1_config_routes {
     $self->setup_api_v1_config_billing_tiers_routes($root);
     $self->setup_api_v1_config_certificates_routes($root);
     $self->setup_api_v1_config_connection_profiles_routes($root);
+    $self->setup_api_v1_config_remote_connection_profiles_routes($root);
     $self->setup_api_v1_config_self_services_routes($root);
     $self->setup_api_v1_config_domains_routes($root);
     $self->setup_api_v1_config_filters_routes($root);
@@ -1442,6 +1443,27 @@ sub setup_api_v1_config_connection_profiles_files_routes {
     my $preview_route = $root->get("/preview/*file_name")->to("$controller#preview_file")->name("api.v1.Config.ConnectionProfiles.resource.preview");
 
     return ;
+}
+
+=head2 setup_api_v1_config_remote_connection_profiles_routes
+
+setup_api_v1_config_remote_connection_profiles_routes
+
+=cut
+
+sub setup_api_v1_config_remote_connection_profiles_routes {
+    my ($self, $root) = @_;
+    my $controller = "Config::RemoteConnectionProfiles";
+    my ($collection_route, $resource_route) =
+      $self->setup_api_v1_std_config_routes(
+        $root,
+        $controller,
+        "/remote_connection_profiles",
+        "/remote_connection_profile/#remote_connection_profile_id",
+        "api.v1.Config.RemoteConnectionProfiles"
+    );
+
+    return ($collection_route, $resource_route);
 }
 
 =head2 setup_api_v1_config_switches_routes
