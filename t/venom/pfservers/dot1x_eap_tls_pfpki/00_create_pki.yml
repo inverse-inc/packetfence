@@ -11,18 +11,20 @@ testcases:
       {
         "cn": "{{.dot1x_eap_tls_pfpki.certs.ca.cn}}",
         "mail": "{{.dot1x_eap_tls_pfpki.certs.ca.mail}}",
-        "organisation": "{{.dot1x_eap_tls_pfpki.certs.ca.organisation}}",
-        "country": "{{.dot1x_eap_tls_pfpki.certs.ca.country}}",
-        "state": "{{.dot1x_eap_tls_pfpki.certs.ca.state}}",
-        "locality": "{{.dot1x_eap_tls_pfpki.certs.ca.locality}}",
-        "street_address": "{{.dot1x_eap_tls_pfpki.certs.ca.street_address}}",
-        "postal_code": "{{.dot1x_eap_tls_pfpki.certs.ca.postal_code}}",
+        "organisational_unit": "{{.dot1x_eap_tls_pfpki.certs.organisational_unit}}",
+        "organisation": "{{.dot1x_eap_tls_pfpki.certs.organisation}}",
+        "country": "{{.dot1x_eap_tls_pfpki.certs.country}}",
+        "state": "{{.dot1x_eap_tls_pfpki.certs.state}}",
+        "locality": "{{.dot1x_eap_tls_pfpki.certs.locality}}",
+        "street_address": "{{.dot1x_eap_tls_pfpki.certs.street_address}}",
+        "postal_code": "{{.dot1x_eap_tls_pfpki.certs.postal_code}}",
         "key_type": "{{.dot1x_eap_tls_pfpki.certs.key_type}}",
         "digest": "{{.dot1x_eap_tls_pfpki.certs.digest}}",
         "key_usage": "",
         "extended_key_usage": "",
         "days": "{{.dot1x_eap_tls_pfpki.certs.validity}}",
-        "key_size": "{{.dot1x_eap_tls_pfpki.certs.key_size}}"
+        "key_size": "{{.dot1x_eap_tls_pfpki.certs.key_size}}",
+        "ocsp_url": "{{.dot1x_eap_tls_pfpki.certs.ocsp_url}}"
       }
     headers:
       "Authorization": "{{.pfserver_token}}"
@@ -49,7 +51,15 @@ testcases:
         "digest": "{{.dot1x_eap_tls_pfpki.certs.digest}}",
         "key_usage": "1",
         "extended_key_usage": "1|2",
-        "key_size": "{{.dot1x_eap_tls_pfpki.certs.key_size}}"
+        "key_size": "{{.dot1x_eap_tls_pfpki.certs.key_size}}",
+        "organisational_unit": "{{.dot1x_eap_tls_pfpki.certs.organisational_unit}}",
+        "organisation": "{{.dot1x_eap_tls_pfpki.certs.organisation}}",
+        "country": "{{.dot1x_eap_tls_pfpki.certs.country}}",
+        "state": "{{.dot1x_eap_tls_pfpki.certs.state}}",
+        "locality": "{{.dot1x_eap_tls_pfpki.certs.locality}}",
+        "street_address": "{{.dot1x_eap_tls_pfpki.certs.street_address}}",
+        "postal_code": "{{.dot1x_eap_tls_pfpki.certs.postal_code}}",
+        "ocsp_url": "{{.dot1x_eap_tls_pfpki.certs.ocsp_url}}"
       }
     headers:
       "Authorization": "{{.pfserver_token}}"
@@ -148,7 +158,15 @@ testcases:
         "digest": "{{.dot1x_eap_tls_pfpki.certs.digest}}",
         "key_usage": "1",
         "extended_key_usage": "1|2",
-        "key_size": "{{.dot1x_eap_tls_pfpki.certs.key_size}}"
+        "key_size": "{{.dot1x_eap_tls_pfpki.certs.key_size}}",
+        "organisational_unit": "{{.dot1x_eap_tls_pfpki.certs.organisational_unit}}",
+        "organisation": "{{.dot1x_eap_tls_pfpki.certs.organisation}}",
+        "country": "{{.dot1x_eap_tls_pfpki.certs.country}}",
+        "state": "{{.dot1x_eap_tls_pfpki.certs.state}}",
+        "locality": "{{.dot1x_eap_tls_pfpki.certs.locality}}",
+        "street_address": "{{.dot1x_eap_tls_pfpki.certs.street_address}}",
+        "postal_code": "{{.dot1x_eap_tls_pfpki.certs.postal_code}}",
+        "ocsp_url": "{{.dot1x_eap_tls_pfpki.certs.ocsp_url}}"
       }
     headers:
       "Authorization": "{{.pfserver_token}}"
@@ -250,7 +268,15 @@ testcases:
         "digest": "{{.dot1x_eap_tls_pfpki.certs.digest}}",
         "key_usage": "1",
         "extended_key_usage": "1|2",
-        "key_size": "{{.dot1x_eap_tls_pfpki.certs.key_size}}"
+        "key_size": "{{.dot1x_eap_tls_pfpki.certs.key_size}}",
+        "organisational_unit": "{{.dot1x_eap_tls_pfpki.certs.organisational_unit}}",
+        "organisation": "{{.dot1x_eap_tls_pfpki.certs.organisation}}",
+        "country": "{{.dot1x_eap_tls_pfpki.certs.country}}",
+        "state": "{{.dot1x_eap_tls_pfpki.certs.state}}",
+        "locality": "{{.dot1x_eap_tls_pfpki.certs.locality}}",
+        "street_address": "{{.dot1x_eap_tls_pfpki.certs.street_address}}",
+        "postal_code": "{{.dot1x_eap_tls_pfpki.certs.postal_code}}",
+        "ocsp_url": "{{.dot1x_eap_tls_pfpki.certs.ocsp_url}}"
       }
     headers:
       "Authorization": "{{.pfserver_token}}"
