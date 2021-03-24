@@ -157,6 +157,24 @@
             </div>
           </b-card>
 
+          <b-card v-show="supports(['AccessListBasedEnforcement'])"
+            class="mb-3 pb-0" no-body
+          >
+            <b-card-header>
+              <h4 class="mb-0" v-t="'Role mapping by Access List'"></h4>
+            </b-card-header>
+            <div class="card-body pb-0">
+              <form-group-toggle-access-list-map namespace="AccessListMap"
+                :column-label="$i18n.t('Role by Access List')"
+              />
+
+              <form-group-role-map-access-list v-for="role in roles" :key="`${role}AccessList`" :namespace="`${role}AccessList`"
+                v-show="isAccessListMap"
+                :column-label="role"
+              />
+            </div>
+          </b-card>
+
           <b-card v-show="supports(['ExternalPortal'])"
             class="mb-3 pb-0" no-body
           >
@@ -347,6 +365,7 @@ import {
   FormGroupMacSearchesSleepInterval,
   FormGroupMode,
   FormGroupRadiusSecret,
+  FormGroupRoleMapAccessList,
   FormGroupRoleMapRole,
   FormGroupRoleMapUrl,
   FormGroupRoleMapVlan,
@@ -372,6 +391,7 @@ import {
   FormGroupSnmpVersion,
   FormGroupSnmpVersionTrap,
   FormGroupTenantIdentifier,
+  FormGroupToggleAccessListMap,
   FormGroupToggleRoleMap,
   FormGroupToggleUrlMap,
   FormGroupToggleVlanMap,
@@ -411,6 +431,7 @@ const components = {
   FormGroupMacSearchesSleepInterval,
   FormGroupMode,
   FormGroupRadiusSecret,
+  FormGroupRoleMapAccessList,
   FormGroupRoleMapRole,
   FormGroupRoleMapUrl,
   FormGroupRoleMapVlan,
@@ -436,6 +457,7 @@ const components = {
   FormGroupSnmpVersion,
   FormGroupSnmpVersionTrap,
   FormGroupTenantIdentifier,
+  FormGroupToggleAccessListMap,
   FormGroupToggleRoleMap,
   FormGroupToggleUrlMap,
   FormGroupToggleVlanMap,
