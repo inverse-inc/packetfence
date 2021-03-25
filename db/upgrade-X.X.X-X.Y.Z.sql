@@ -169,7 +169,7 @@ ALTER TABLE pki_profiles
     ADD COLUMN IF NOT EXISTS `ocsp_url` varchar(255) DEFAULT NULL AFTER extended_key_usage,
     ADD COLUMN IF NOT EXISTS `scep_enabled` int(11) AFTER p12_mail_footer,
     ADD COLUMN IF NOT EXISTS `scep_challenge_password` varchar(255) AFTER p12_mail_footer,
-    ADD COLUMN IF NOT EXISTS `scep_allow_renewal` varchar(255) AFTER scep_challenge_password;
+    ADD COLUMN IF NOT EXISTS `scep_days_before_renewal` varchar(255) AFTER scep_challenge_password;
 
 
 \! echo "altering pki_cas"

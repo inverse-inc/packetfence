@@ -53,7 +53,7 @@ BEGIN {
         p12_mail_footer
         scep_enabled
         scep_challenge_password
-        scep_allow_renewal
+        scep_days_before_renewal
     );
 
     %DEFAULTS = (
@@ -76,7 +76,7 @@ BEGIN {
         p12_mail_footer => undef,
         scep_enabled => undef,
         scep_challenge_password => undef,
-        scep_allow_renewal => undef,
+        scep_days_before_renewal => undef,
     );
 
     @INSERTABLE_FIELDS = qw(
@@ -99,7 +99,7 @@ BEGIN {
         p12_mail_footer
         scep_enabled
         scep_challenge_password
-        scep_allow_renewal
+        scep_days_before_renewal
     );
 
     %FIELDS_META = (
@@ -223,7 +223,7 @@ BEGIN {
             is_primary_key => 0,
             is_nullable => 1,
         },
-        scep_allow_renewal => {
+        scep_days_before_renewal => {
             type => 'VARCHAR',
             is_auto_increment => 0,
             is_primary_key => 0,
@@ -257,7 +257,7 @@ BEGIN {
         pki_profiles.p12_mail_footer
         pki_profiles.scep_enabled
         pki_profiles.scep_challenge_password
-        pki_profiles.scep_allow_renewal
+        pki_profiles.scep_days_before_renewal
     );
 
 }

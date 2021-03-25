@@ -1514,7 +1514,7 @@ CREATE TABLE `pki_profiles` (
   `p12_mail_footer` varchar(255) DEFAULT NULL,
   `scep_enabled` int(11) DEFAULT NULL,
   `scep_challenge_password` varchar(255) DEFAULT NULL,
-  `scep_allow_renewal` varchar(255) DEFAULT NULL,
+  `scep_days_before_renewal` varchar(255) DEFAULT NULL,
   UNIQUE KEY `name` (`name`),
   KEY `idx_profiles_deleted_at` (`deleted_at`),
   KEY `ca_id` (`ca_id`),

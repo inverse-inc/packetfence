@@ -39,7 +39,7 @@ func ScepHandler(pfpki *types.Handler, w http.ResponseWriter, r *http.Request) {
 		svcOptions := []scepserver.ServiceOption{
 			scepserver.Profile(vars["id"]),
 			scepserver.ClientValidity(profile[0].Validity),
-			scepserver.AllowRenewal(profile[0].SCEPAllowRenewal),
+			scepserver.AllowRenewal(profile[0].SCEPDaysBeforeRenewal),
 			scepserver.ChallengePassword(profile[0].SCEPChallengePassword),
 		}
 		svc, err = scepserver.NewService(o, svcOptions...)

@@ -103,8 +103,8 @@
           :column-label="$i18n.t('SCEP challenge password')"
           :text="$i18n.t('SCEP challenge password.')"
         />
-        <form-group-scep-allow-renewal namespace="scep_allow_renewal"
-          :column-label="$i18n.t('SCEP allow renewal')"
+        <form-group-scep-days-before-renewal namespace="scep_days_before_renewal"
+          :column-label="$i18n.t('SCEP days before renewal')"
           :text="$i18n.t('Number of days before SCEP authorize renewal')"
         />
       </base-form-tab>
@@ -144,7 +144,7 @@ import {
   FormGroupP12MailFooter,
   FormGroupScepEnabled,
   FormGroupScepChallengePassword,
-  FormGroupScepAllowRenewal
+  FormGroupScepDaysBeforeRenewal
 } from './'
 
 const components = {
@@ -176,7 +176,7 @@ const components = {
   FormGroupP12MailFooter,
   FormGroupScepEnabled,
   FormGroupScepChallengePassword,
-  FormGroupScepAllowRenewal
+  FormGroupScepDaysBeforeRenewal
 }
 
 export const props = {

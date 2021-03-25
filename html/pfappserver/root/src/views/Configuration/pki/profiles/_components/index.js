@@ -50,7 +50,7 @@ export {
   BaseFormGroupTextarea                   as FormGroupP12MailFooter,
   BaseFormGroupToggleZeroOneStringAsOffOn as FormGroupScepEnabled,
   BaseFormGroupInput                      as FormGroupScepChallengePassword,
-  BaseFormGroupInputNumber                as FormGroupScepAllowRenewal,
+  BaseFormGroupInputNumber                as FormGroupScepDaysBeforeRenewal,
 
   TheForm,
   TheView
