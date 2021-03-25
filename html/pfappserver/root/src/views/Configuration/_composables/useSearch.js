@@ -27,6 +27,18 @@ export const useString = (searchString, _columns) => {
   }
 }
 
+export const useCondition = (searchCondition) => {
+  return {
+    op: 'and',
+    values: searchCondition.map(and => {
+      return {
+        op: 'or',
+        values: and.values
+      }
+    })
+  }
+}
+
 export const useSearch = (api, options) => {
 
   const config = {
@@ -98,9 +110,12 @@ export const useSearch = (api, options) => {
   }
 
   const doSearchString = (string) => {
-    return doSearchQuery(useString(string, columns.value))
+    return doSearch(useString(string, columns.value))
   }
-  const doSearchQuery = (query) => {
+  const doSearchCondition = (condition)=> {
+    return doSearch(useCondition(condition, columns.value))
+  }
+  const doSearch = (query) => {
     const fields = useFields(columns.value)
     const _body = {
       fields,
@@ -137,7 +152,7 @@ export const useSearch = (api, options) => {
 
   const _reSearch = () => {
     if (lastQuery.value) // last query good
-      doSearchQuery(lastQuery.value) // re-perform search w/ last query
+      doSearch(lastQuery.value) // re-perform search w/ last query
     else  
       doReset()
   }
@@ -167,7 +182,8 @@ export const useSearch = (api, options) => {
     totalRows,
     doReset,
     doSearchString,
-    doSearchQuery,
+    doSearchCondition,
+    doSearch,
     isLoading,
     items,
 
