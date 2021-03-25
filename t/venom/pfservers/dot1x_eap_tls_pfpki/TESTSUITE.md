@@ -8,23 +8,22 @@ N/A
 
 ## Scenario steps
 1. Create Root CA
-1. Create user certificate template
 1. Create RADIUS server certificate template
 1. Create Web server certificate template
+1. Create user certificate template
 1. Generate RADIUS server certificate to be used by RADIUS services
 1. Generate Web server certificate to be used by web admin and captive portal
 1. Generate user certificate to be used by node01 with EAP-TLS
 1. Install Root CA + RADIUS server certificates (public certificate and
    private key) on PacketFence
-1. Configure OCSP
-1. Restart radiusd services (common test suites)
+1. Configure OCSP to check certificate revocation against pfpki
+1. Restart radiusd services
 1. Install Root CA + Web server certificates (public certificate and private key) on PacketFence
 1. Restart web services (only haproxy-portal and haproxy-admin)
-1. Create EAPTLS source with conditions (Server-common-name) on user certificate that assign
-   dot1x_eap_tls 
+1. Create EAPTLS source with conditions on user certificate that assign
+   dot1x_eap_tls
 1. Create connection profile with auto-registration, unreg_on_accounting_stop,
-   EAPTLS source and specific
-   filter
+   EAPTLS source and specific filter
 1. Perform Checkup (common test suite)
 
 TODO:
