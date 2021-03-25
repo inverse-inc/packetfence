@@ -80,7 +80,9 @@ testcases:
       {
         "profile_id": "{{.create_pf_radius_cert_template.profile_id}}",
         "cn": "{{.dot1x_eap_tls_pfpki.certs.radius.cn}}",
-        "mail": "{{.dot1x_eap_tls_pfpki.certs.radius.mail}}"
+        "mail": "{{.dot1x_eap_tls_pfpki.certs.radius.mail}}",
+        "dns_names": "{{.dot1x_eap_tls_pfpki.certs.radius.dns_names}}",
+        "ip_addresses": "{{.dot1x_eap_tls_pfpki.certs.radius.ip_addresses}}"
       }
     headers:
       "Authorization": "{{.pfserver_token}}"
@@ -187,7 +189,9 @@ testcases:
       {
         "profile_id": "{{.create_pf_http_cert_template.profile_id}}",
         "cn": "{{.dot1x_eap_tls_pfpki.certs.http.cn}}",
-        "mail": "{{.dot1x_eap_tls_pfpki.certs.http.mail}}"
+        "mail": "{{.dot1x_eap_tls_pfpki.certs.http.mail}}",
+        "dns_names": "{{.dot1x_eap_tls_pfpki.certs.http.dns_names}}",
+        "ip_addresses": "{{.dot1x_eap_tls_pfpki.certs.http.ip_addresses}}"
       }
     headers:
       "Authorization": "{{.pfserver_token}}"

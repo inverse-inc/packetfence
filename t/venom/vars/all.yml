@@ -325,10 +325,14 @@ dot1x_eap_tls_pfpki.certs.ca.issuer: "/C={{.dot1x_eap_tls_pfpki.certs.country}}/
 # RADIUS
 dot1x_eap_tls_pfpki.certs.radius.cn: '{{.dot1x_eap_tls_pfpki.templates.radius.name}}_cert'
 dot1x_eap_tls_pfpki.certs.radius.mail: '{{.dot1x_eap_tls_pfpki.certs.radius.cn}}@{{.configurator.domain}}'
+dot1x_eap_tls_pfpki.certs.radius.dns_names: '{{.configurator.hostname}}.{{.configurator.domain}}'
+dot1x_eap_tls_pfpki.certs.radius.ip_addresses: '{{.configurator.interfaces.mgmt.ip}}'
 
 # HTTP
 dot1x_eap_tls_pfpki.certs.http.cn: '{{.dot1x_eap_tls_pfpki.templates.http.name}}_cert'
 dot1x_eap_tls_pfpki.certs.http.mail: '{{.dot1x_eap_tls_pfpki.certs.http.cn}}@{{.configurator.domain}}'
+dot1x_eap_tls_pfpki.certs.http.dns_names: '{{.configurator.hostname}}.{{.configurator.domain}},packetfence.example.lan'
+dot1x_eap_tls_pfpki.certs.http.ip_addresses: '{{.configurator.interfaces.mgmt.ip}},66.70.255.147,{{.configurator.interfaces.reg.ip}},{{.configurator.interfaces.iso.ip}}'
 
 # User
 dot1x_eap_tls_pfpki.certs.user.cn: '{{.dot1x_eap_tls_pfpki.templates.user.name}}_cert'
