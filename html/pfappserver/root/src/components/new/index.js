@@ -57,6 +57,11 @@ import BaseInputRange from './BaseInputRange'
 import BaseInputToggle, { props as BaseInputToggleProps } from './BaseInputToggle'
 import BaseInputToggleAdvancedMode from './BaseInputToggleAdvancedMode'
 import BaseInputToggleFalseTrue from './BaseInputToggleFalseTrue'
+import BaseSearchInputBasic from './BaseSearchInputBasic'
+import BaseSearchInputAdvanced from './BaseSearchInputAdvanced'
+import BaseSearchInputColumns from './BaseSearchInputColumns'
+import BaseSearchInputLimit from './BaseSearchInputLimit'
+import BaseSearchInputPage from './BaseSearchInputPage'
 import BaseTableEmpty from './BaseTableEmpty'
 import BaseView from './BaseView'
 
@@ -139,6 +144,13 @@ export {
   // containers
   BaseContainerLoading,
   
+  // search
+  BaseSearchInputBasic,
+  BaseSearchInputAdvanced,
+  BaseSearchInputColumns,
+  BaseSearchInputLimit,
+  BaseSearchInputPage,
+
   // tables
   BaseTableEmpty,
 
