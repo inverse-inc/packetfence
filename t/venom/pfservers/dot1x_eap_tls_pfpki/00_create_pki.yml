@@ -276,7 +276,10 @@ testcases:
         "locality": "{{.dot1x_eap_tls_pfpki.certs.locality}}",
         "street_address": "{{.dot1x_eap_tls_pfpki.certs.street_address}}",
         "postal_code": "{{.dot1x_eap_tls_pfpki.certs.postal_code}}",
-        "ocsp_url": "{{.dot1x_eap_tls_pfpki.certs.ocsp_url}}"
+        "ocsp_url": "{{.dot1x_eap_tls_pfpki.certs.ocsp_url}}",
+        "scep_enabled": "{{.dot1x_eap_tls_pfpki.certs.user.scep_enabled}}",
+        "scep_challenge_password": "{{.dot1x_eap_tls_pfpki.certs.user.scep_challenge_password}}",
+        "scep_days_before_renewal": "{{.dot1x_eap_tls_pfpki.certs.user.scep_days_before_renewal}}"
       }
     headers:
       "Authorization": "{{.pfserver_token}}"
