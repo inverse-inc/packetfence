@@ -15,8 +15,7 @@
 [% IF server_ip.length %]
 bind-address=[% server_ip %]
 [% ELSE %]
-skip-networking
-bind-address=
+bind-address=127.0.0.2
 [% END %]
 port    = 3306
 socket    = /var/lib/mysql/mysql.sock

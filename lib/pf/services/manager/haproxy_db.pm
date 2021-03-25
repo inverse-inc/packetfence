@@ -67,7 +67,7 @@ sub generateConfig {
     $tags{'management_ip'}
         = defined( $management_network->tag('vip') )
         ? $management_network->tag('vip')
-        : $management_network->tag('ip');
+        : ( defined($management_network->tag('ip')) ? $management_network->tag('ip') : "127.0.0.2" );
 
     my $i = 0;
     my @mysql_backend;
