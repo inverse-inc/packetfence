@@ -1406,7 +1406,7 @@ mysql -u root -p pf -v < /usr/local/pf/db/upgrade-10.1.0-10.2.0.sql
 [source,bash]
 ----
     cd /usr/local/pf/
-    ./addons/upgrade/to-11.0-provisioners-windows_agent_download_uri.pl
+    ./addons/upgrade/to-10.3-provisioners-windows_agent_download_uri.pl
 ----
     
 == Migrate switch ACLs to roles.
@@ -1422,7 +1422,7 @@ Follow the instructions from the script.
 [source,bash]
 ----
     cd /usr/local/pf/
-    ./addons/upgrade/to-11.0-roles-acls.pl
+    ./addons/upgrade/to-10.3-roles-acls.pl
 ----
 
 == LDAP port per server has been deprecated
