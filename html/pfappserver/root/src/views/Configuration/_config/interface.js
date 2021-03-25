@@ -165,12 +165,6 @@ export const columns = [
     sort: sortColumns.id
   },
   {
-    key: 'description',
-    label: 'Description', // i18n defer
-    required: false,
-    visible: true,
-  },
-  {
     key: 'ipaddress',
     label: 'IPv4 Address', // i18n defer
     sortable: true,
