@@ -36,7 +36,7 @@
           <span v-b-tooltip.hover.top.d300 :title="$i18n.t('Node has no open wired connections.')">
             <b-button class="mr-1" size="sm" variant="outline-secondary" :disabled="true">{{ $i18n.t('Restart Switch Port') }}</b-button>
           </span>
-        </template>    
+        </template>
       </div>
     </div>
   </b-tab>
@@ -78,15 +78,11 @@ const setup = (props, context) => {
 
   const {
     isLoading,
+    canReevaluateAccess,
     reevaluateAccess,
     restartSwitchport
-  } = useStore(props, context)  
+  } = useStore(props, context)
 
-  const canReevaluateAccess = computed(() => {
-    const { locations = [] } = node.value || {}
-    return locations.length > 0
-  })
-  
   const canRestartSwitchport = computed(() => {
     const { locations = [] } = node.value || {}
     return locations
@@ -96,10 +92,10 @@ const setup = (props, context) => {
       )
       .length > 0
   })
-  
+
   return {
     locationLogFields,
-    
+
     locationSortBy,
     locationSortDesc,
     connectionSubType,

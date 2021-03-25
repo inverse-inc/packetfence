@@ -42,7 +42,7 @@
 
       <div class="mt-3">
         <div class="border-top pt-3">
-          <form-button-bar class="mr-3"
+          <form-button-bar
             :action-key="actionKey"
             :is-loading="isLoading"
             :is-cloneable="false"
@@ -54,7 +54,16 @@
             @remove="onRemove"
             @reset="onReset"
             @save="onSave"
-          />
+          >
+            <template v-if="canReevaluateAccess">
+              <b-button class="mr-1" size="sm" variant="outline-secondary" :disabled="isLoading" @click="reevaluateAccess">{{ $i18n.t('Reevaluate Access') }}</b-button>
+            </template>
+            <template v-else>
+              <span v-b-tooltip.hover.top.d300 :title="$i18n.t('Node has no locations.')">
+                <b-button class="mr-1" size="sm" variant="outline-secondary" :disabled="true">{{ $i18n.t('Reevaluate Access') }}</b-button>
+              </span>
+            </template>
+          </form-button-bar>
         </div>
       </div>
     </base-form>
@@ -133,10 +142,12 @@ const setup = (props, context) => {
 
 const {
     isLoading,
+    canReevaluateAccess,
     reloadItem,
     deleteItem,
     getItem,
-    updateItem
+    updateItem,
+    reevaluateAccess
   } = useStore(props, context, form)
 
   const {
@@ -196,12 +207,14 @@ const {
     isDeletable,
     isValid,
     isLoading,
+    canReevaluateAccess,
 
     onRefresh,
     onClose,
     onRemove,
     onReset,
-    onSave
+    onSave,
+    reevaluateAccess
   }
 }
 

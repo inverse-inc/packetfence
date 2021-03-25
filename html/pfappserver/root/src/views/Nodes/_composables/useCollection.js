@@ -18,8 +18,13 @@ const useStore = (props, context, form) => {
     id
   } = toRefs(props)
   const { root: { $store } = {} } = context
-  return { 
+  const node = computed(() => $store.state.$_nodes.nodes[id.value])
+  return {
     isLoading: computed(() => $store.getters['$_nodes/isLoading']),
+    canReevaluateAccess: computed(() => {
+      const { locations = [] } = node.value || {}
+      return locations.length > 0
+    }),
     reloadItem: () => $store.dispatch('$_nodes/refreshNode', id.value),
     deleteItem: () => $store.dispatch('$_nodes/deleteNode', id.value),
     getItem: () => $store.dispatch('$_nodes/getNode', id.value),
