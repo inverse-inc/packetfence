@@ -59,7 +59,8 @@ my @whitelist = (
     'identifyConnectionType', 'logger', 'returnRoleAttributes', 'cachedSNMPRequest', 'getRelayAgentInfoOptRemoteIdSub', 'TO_JSON',
     'normalizeTrap', 'findTrapNormalizer', '_findTrapNormalizer', 'linkDownTrapNormalizer', 'linkUpTrapNormalizer', 'dot11DeauthenticateTrapNormalizer', 
     'findTrapVarWithBase', 'getIfIndexFromTrap', 'findTrapOID', 'getMacFromTrapVariablesForOIDBase', 'extractMacFromVariable', 
-    'handleTrap', 'getExclusiveLock', 'getExclusiveLockForScope', 'cache_distributed', 'setCurrentTenant', 'cachedSNMPTable', 'parseRequestUsername', 'getCiscoAvPairAttribute', 'supportsVPN', 'vpnAttributes', 'parseVPNRequest', 'canDoCliAccess', 'fingerbank_dynamic_acl', '_parentRoleForVlan',
+    'handleTrap', 'getExclusiveLock', 'getExclusiveLockForScope', 'cache_distributed', 'setCurrentTenant', 'cachedSNMPTable', 'parseRequestUsername', 'getCiscoAvPairAttribute', 'supportsVPN', 'vpnAttributes', 'parseVPNRequest', 'canDoCliAccess', 'fingerbank_dynamic_acl',
+    '_parentRoleForVlan','_parentRoleForWebAuthUrl','_parentRoleForRole',
     'find_user_by_psk',
 );
 

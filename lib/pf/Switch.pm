@@ -594,7 +594,7 @@ sub getRoleByName {
         }
         # VLAN name doesn't exist
         $pf::StatsD::statsd->increment(called() . ".error" );
-        $logger->warn("No parameter ${vlanName}Role found in conf/switches.conf for the switch " . $self->{_id});
+        $logger->warn("No parameter ${roleName}Role found in conf/switches.conf for the switch " . $self->{_id});
         return undef;
     }
 
@@ -680,7 +680,10 @@ sub getAccessListByName {
     my ($self, $access_list_name, $mac) = @_;
     my $logger = $self->logger;
 
-    return $self->{'_access_lists'}->{$access_list_name} if (defined($self->{'_access_lists'}->{$access_list_name}));
+    if (defined($self->{'_access_lists'}->{$access_list_name})) {
+        $logger->debug("Using ACL from the switch entry instead of the one defined in the role");
+        return $self->{'_access_lists'}->{$access_list_name};
+    }
 
     return if !exists $ConfigRoles{$access_list_name};
     my $role = $ConfigRoles{$access_list_name};
@@ -711,7 +714,7 @@ sub getUrlByName {
     my $logger = $self->logger;
 
     if (!defined($self->{'_urls'}) || !defined($self->{'_urls'}{$roleName})) {
-        my $parent = _parentRoleForWebAuth($roleName);
+        my $parent = _parentRoleForWebAuthUrl($roleName);
         if (defined $parent && length($parent)) {
             return $self->getUrlByName($parent);
         }
@@ -729,14 +732,14 @@ sub getUrlByName {
     return;
 }
 
-sub _parentRoleForWebAuth {
+sub _parentRoleForWebAuthUrl {
     my ($name) = @_;
     if (!exists $ConfigRoles{$name}) {
         return undef;
     }
 
     my $role = $ConfigRoles{$name};
-    if (isdisabled($role->{inherit_web_auth} // 'disabled')) {
+    if (isdisabled($role->{inherit_web_auth_url} // 'disabled')) {
         return undef;
     }
 

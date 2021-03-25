@@ -96,9 +96,9 @@ has_field 'inherit_role' => (
     default => 'disabled',
 );
 
-has_field 'inherit_web_auth' => (
+has_field 'inherit_web_auth_url' => (
     type => 'Toggle',
-    label => 'Inherit Web Auth',
+    label => 'Inherit Web Auth URL',
     checkbox_value => 'enabled',
     unchecked_value => 'disabled',
     default => 'disabled',

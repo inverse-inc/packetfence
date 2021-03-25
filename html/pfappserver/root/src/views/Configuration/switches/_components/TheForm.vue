@@ -166,6 +166,7 @@
             <div class="card-body pb-0">
               <form-group-toggle-access-list-map namespace="AccessListMap"
                 :column-label="$i18n.t('Role by Access List')"
+                :text="$i18n.t('Defining an ACL will supersede the one defined directly in the role configuration.')"
               />
 
               <form-group-role-map-access-list v-for="role in roles" :key="`${role}AccessList`" :namespace="`${role}AccessList`"

@@ -42,7 +42,7 @@ BEGIN {
         acls
         inherit_vlan
         inherit_role
-        inherit_web_auth
+        inherit_web_auth_url
     );
 
     %DEFAULTS = (
@@ -54,7 +54,7 @@ BEGIN {
         acls => '',
         inherit_vlan => undef,
         inherit_role => undef,
-        inherit_web_auth => undef,
+        inherit_web_auth_url => undef,
     );
 
     @INSERTABLE_FIELDS = qw(
@@ -66,7 +66,7 @@ BEGIN {
         acls
         inherit_vlan
         inherit_role
-        inherit_web_auth
+        inherit_web_auth_url
     );
 
     %FIELDS_META = (
@@ -124,7 +124,7 @@ BEGIN {
             is_primary_key => 0,
             is_nullable => 1,
         },
-        inherit_web_auth => {
+        inherit_web_auth_url => {
             type => 'VARCHAR',
             is_auto_increment => 0,
             is_primary_key => 0,
@@ -146,7 +146,7 @@ BEGIN {
         node_category.acls
         node_category.inherit_vlan
         node_category.inherit_role
-        node_category.inherit_web_auth
+        node_category.inherit_web_auth_url
     );
 
 }

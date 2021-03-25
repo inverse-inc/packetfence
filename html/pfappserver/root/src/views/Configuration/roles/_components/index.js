@@ -21,7 +21,7 @@ export {
   BaseFormGroupTextarea               as FormGroupAcls,
   BaseFormGroupToggleDisabledEnabled  as FormGroupInheritVlan,
   BaseFormGroupToggleDisabledEnabled  as FormGroupInheritRole,
-  BaseFormGroupToggleDisabledEnabled  as FormGroupInheritWebAuth,
+  BaseFormGroupToggleDisabledEnabled  as FormGroupInheritWebAuthUrl,
 
   BaseViewCollectionItem              as BaseView,
   TheForm,

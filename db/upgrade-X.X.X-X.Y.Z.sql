@@ -67,7 +67,7 @@ ALTER TABLE node_category
     ADD COLUMN IF NOT EXISTS `acls` TEXT NOT NULL,
     ADD COLUMN IF NOT EXISTS `inherit_vlan` varchar(50) default NULL,
     ADD COLUMN IF NOT EXISTS `inherit_role` varchar(50) default NULL,
-    ADD COLUMN IF NOT EXISTS `inherit_web_auth` varchar(50) default NULL;
+    ADD COLUMN IF NOT EXISTS `inherit_web_auth_url` varchar(50) default NULL;
 
 \! echo "Altering node"
 ALTER TABLE node
