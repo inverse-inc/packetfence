@@ -13,6 +13,7 @@ Vagrant.configure("2") do |config|
     config.vm.define server, autostart: false do |srv|
 
       srv.vm.box = details['box']
+      srv.vm.box_version = details['box_version']
       srv.vm.hostname = server
 
       srv.vm.provider "libvirt" do |v|
