@@ -132,7 +132,7 @@ Example:
  type=management,portal
  mask=255.255.255.0
 
-To apply the configuration, restart PacketFence using the following command: service packetfence restart
+To apply the configuration, restart PacketFence using the following command: `service packetfence restart`
 
 ==== Ruckus Roles
 
@@ -169,11 +169,11 @@ To create a new user Role:
     Allow All WLANs: You have two options: (1) Allow Access to all WLANs, or (2) Specify WLAN Access. If you select the second option, you
     must specify the WLANs by clicking the check box next to each one. Don't enable the "Guest Pass"  or "Administration" options as these
     allow users with the given Roles to get administrative access to the ZoneDirector console.
- 5 - Additionally, you can enable the "Role Based Access Control Policy" option which is the most interesting one from packetfence's point of view,
+ 5 - Additionally, you can enable the "Role Based Access Control Policy" option which is the most interesting one from PacketFence's point of view,
     since this allows specific PF roles to receive specific ACLs, Different rate limits, thus further enhancing the value of Packetfence.
  6 - Looking at the RBAC Policy options one can define the following:
     OS type: Limit access based on operating system/device type.
-    VLAN: Assign a VLAN ID to this role. (This can be overriden directly from packetfence if using the _Role by VLAN ID_ option)
+    VLAN: Assign a VLAN ID to this role. (This can be overriden directly from PacketFence if using the _Role by VLAN ID_ option)
     Rate Limiting: Limit per-station uplink and downlink speeds.
     L3/L4/IP address ACL: Apply a Layer 3/Layer 4/IP address ACL to this role.
     Application Recognition & Control: Apply an application policy to this role.
