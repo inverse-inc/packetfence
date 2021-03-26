@@ -61,6 +61,8 @@ For a list of compatibility related changes see the <<PacketFence_Upgrade_Guide.
 * Added Cisco WLC 9800 configuration documentation
 * Inheritance on parent role on Role and Web Auth
 * Enhance CLI login on SG300 switches
+* Enable/disable the natting traffic for inline networks
+
 
 === Bug Fixes
 
