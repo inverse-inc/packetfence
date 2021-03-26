@@ -143,6 +143,7 @@ case "$1" in
         systemctl disable packetfence-iptables
         systemctl enable packetfence-haproxy-admin
         systemctl enable packetfence-tracking-config.path
+        systemctl enable packetfence-haproxy-db
         systemctl daemon-reload
         systemctl isolate packetfence-base.target
 
@@ -154,6 +155,7 @@ case "$1" in
         /usr/local/pf/bin/pfcmd configreload
         /usr/local/pf/bin/pfcmd fixpermissions
         echo "Starting PacketFence Administration GUI..."
+        /bin/systemctl start packetfence-haproxy-db
         /bin/systemctl start packetfence-httpd.admin_dispatcher
         /bin/systemctl start packetfence-haproxy-admin
         systemctl enable packetfence-iptables

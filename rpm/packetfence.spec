@@ -702,8 +702,10 @@ rm -rf /usr/local/pf/var/cache/
 /bin/systemctl enable packetfence-haproxy-admin
 /bin/systemctl enable packetfence-iptables
 /bin/systemctl enable packetfence-tracking-config.path
+/bin/systemctl enable packetfence-haproxy-db
 /usr/local/pf/bin/pfcmd configreload
 echo "Starting PacketFence Administration GUI..."
+/bin/systemctl restart packetfence-haproxy-admin
 /bin/systemctl restart packetfence-httpd.admin_dispatcher
 /bin/systemctl restart packetfence-haproxy-admin
 
