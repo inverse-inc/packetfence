@@ -59,6 +59,7 @@ For a list of compatibility related changes see the <<PacketFence_Upgrade_Guide.
 * Description field for L2 and routed networks (#5829)
 * Updated Stripe integration to use Stripe Elements (API v3) (#6121)
 * Added Cisco WLC 9800 configuration documentation
+* Inheritance on parent role on Role and Web Auth
 
 === Bug Fixes
 
