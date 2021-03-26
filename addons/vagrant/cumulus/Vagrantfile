@@ -97,9 +97,9 @@ Vagrant.configure("2") do |config|
   config.vm.define "switch01" do |device|
 
     device.vm.hostname = "switch01"
-    
-    device.vm.box = "CumulusCommunity/cumulus-vx"
-    device.vm.box_version = "3.7.12"
+
+    device.vm.box = inventory['all']['children']['cumulus']['hosts']['switch01']['box']
+    device.vm.box_version = inventory['all']['children']['cumulus']['hosts']['switch01']['box_version']
 
     device.vm.provider :libvirt do |v|
       v.memory = 768
@@ -248,7 +248,8 @@ vagrant_interface_rule
     
     device.vm.hostname = "node01" 
     
-    device.vm.box = "debian/buster64"
+    device.vm.box = inventory['all']['children']['nodes']['hosts']['node01']['box']
+    device.vm.box_version = inventory['all']['children']['nodes']['hosts']['node01']['box_version']
 
     device.vm.provider :libvirt do |v|
       v.nic_model_type = 'e1000' 
