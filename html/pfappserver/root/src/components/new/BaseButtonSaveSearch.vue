@@ -1,6 +1,6 @@
 <template>
   <b-button-group>
-    <b-button type="submit" variant="primary" @click="onSearch">{{ $t('Search') }}</b-button>
+    <b-button variant="primary" @click="onSearch">{{ $t('Search') }}</b-button>
     <b-dropdown variant="primary" right>
       <template v-if="canSave">
         <b-dropdown-header>{{ $t('Saved Searches') }}</b-dropdown-header>
@@ -163,8 +163,7 @@ const setup = (props, context) => {
   const onLoad = (search) => {
     const { route, route: { query: { query } = {} } = {} } = search
     emit('input', JSON.parse(query))
-    $router.push(route)
-      .catch(e => { if (e.name !== "NavigationDuplicated") throw e })
+    emit('search')
   }
 
   return {

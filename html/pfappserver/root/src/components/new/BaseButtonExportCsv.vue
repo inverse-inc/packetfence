@@ -1,6 +1,6 @@
 <template>
-  <b-button type="button" size="sm" :disabled="disabled || data.length === 0" :variant="variant" @click="onDownload">
-    <icon name="file-export" class="mr-1"></icon>
+  <b-button type="button" :size="size" :disabled="disabled || data.length === 0" :variant="variant" @click="onDownload">
+    <icon name="file-export" class="mr-2"></icon>
     <template >
       <slot>{{ $t('Export to CSV') }}</slot>
     </template>
@@ -26,6 +26,10 @@ const props = {
   filename: {
     type: String,
     default: 'export.csv'
+  },
+  size: {
+    type: String,
+    default: 'sm'
   }
 }
 

@@ -1,6 +1,6 @@
 <template>
   <b-form inline class="mb-0">
-    <b-form-select class="mb-3 mr-3" size="sm" 
+    <b-form-select class="mb-3 mr-3" :size="size" 
       :options="limits" 
       :disabled="disabled"
       :value="value" @input="onInput"
@@ -17,6 +17,10 @@ const props = {
   },
   limits: {
     type: Array
+  },
+  size: {
+    type: String,
+    default: 'sm'
   }
 }
 
