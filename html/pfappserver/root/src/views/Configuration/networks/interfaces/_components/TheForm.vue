@@ -72,7 +72,8 @@
         </div>
       </b-form-group>
       <form-group-nat-dns namespace="nat_dns"
-        :column-label="$i18n.t('Use pfdns to proxy the request to the DNS server defined above when the device is registered.')"
+        :column-label="$i18n.t('Proxy DNS')"
+        :text="$i18n.t('Use pfdns to proxy the request to the DNS server defined above when the device is registered.')"
       />
     </template>
 
