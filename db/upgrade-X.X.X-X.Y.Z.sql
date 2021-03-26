@@ -54,6 +54,9 @@ DROP PROCEDURE IF EXISTS ValidateVersion;
 ALTER TABLE pf_version
     ADD COLUMN IF NOT EXISTS created_at DATETIME DEFAULT CURRENT_TIMESTAMP;
 
+\! echo "Dropping table userlog"
+DROP TABLE IF EXISTS userlog;
+
 \! echo "Altering node"
 ALTER TABLE node
     DROP FOREIGN KEY `node_category_key`,

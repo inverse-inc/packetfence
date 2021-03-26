@@ -461,17 +461,6 @@ BEGIN
 END /
 DELIMITER ;
 
-CREATE TABLE `userlog` (
-  `tenant_id` int NOT NULL DEFAULT 1,
-  `mac` varchar(17) NOT NULL default '',
-  `pid` varchar(255) default NULL,
-  `start_time` datetime NOT NULL default '0000-00-00 00:00:00',
-  `end_time` datetime default NULL,
-  PRIMARY KEY (`tenant_id`, `mac`,`start_time`),
-  KEY `pid` (`pid`),
-  CONSTRAINT `userlog_ibfk_1` FOREIGN KEY (`tenant_id`, `mac`) REFERENCES `node` (`tenant_id`, `mac`) ON DELETE CASCADE
-) ENGINE=InnoDB;
-
 --
 -- Table structure for table `password`
 --
