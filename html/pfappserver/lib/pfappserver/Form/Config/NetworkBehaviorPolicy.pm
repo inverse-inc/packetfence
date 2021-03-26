@@ -39,6 +39,7 @@ has_field 'devices_included' =>
    element_class => ['chzn-deselect'],
    element_attr => {'data-placeholder' => 'Click to add a device'},
    fingerbank_model => "fingerbank::Model::Device",
+   no_options => 1,
   );
 
 has_field 'devices_excluded' =>
@@ -48,6 +49,7 @@ has_field 'devices_excluded' =>
    element_class => ['chzn-deselect'],
    element_attr => {'data-placeholder' => 'Click to add a device'},
    fingerbank_model => "fingerbank::Model::Device",
+   no_options => 1,
   );
 
 has_field 'watch_blacklisted_ips' => (
