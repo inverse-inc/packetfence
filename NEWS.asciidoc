@@ -57,7 +57,8 @@ For a list of compatibility related changes see the <<PacketFence_Upgrade_Guide.
 * Allow netflow address to be configured (#6139)
 * Deprecated fencing whitelist
 * Description field for L2 and routed networks (#5829)
-* Updated Stripe integration to use Stripe Elements (API v3) (#6121) 
+* Updated Stripe integration to use Stripe Elements (API v3) (#6121)
+* Added Cisco WLC 9800 configuration documentation
 
 === Bug Fixes
 
