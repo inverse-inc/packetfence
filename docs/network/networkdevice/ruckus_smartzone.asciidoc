@@ -19,11 +19,37 @@ endif::[]
 
 //=== Ruckus SmartZone
 
+Ruckus SmartZone is extremely flexible and allows for very different deployment scenarios, with the controller
+being an "on-premise" appliance managing a single tenant as well as a cloud-hosted solution where multiple tenants
+can share a single SmartZone instance by using its "managed partner domains" capabilities (For SmartZone-Highscale).
+As such, when it comes to AAA capabilities, the RADIUS connection between Ruckus and PacketFence supports two
+modes of operation: PROXY mode and non-PROXY mode. 
+
+In Proxy Mode, all RADIUS connections are done between SmartZone and PacketFence. In this mode, the RADIUS interface
+supports the use of _Disconnect_ and _CoA_ messages sent from PacketFence (the RADIUS server) to SmartZone (The RADIUS client).
+If proxy mode is used, it is highly recommended to have SmartZone deployed locally in the LAN together with PacketFence as
+otherwise, it might be needed to open specific ports (RADIUS COA/Disconnect ports) for PacketFence to be able to reach
+SmartZone if SmartZone is in a cloud scenario. Additionally, this would also mandate PacketFence to be hosted behind a
+static public IP, which is not always the case for certain business ISPs, as this IP would need to be configured in
+SmartZone as the target RADIUS IP.
+
+In non-PROXY mode, though, the AP can send the RADIUS Access Request directly to PacketFence. This allows for SmartZone to
+be hosted in a public cloud. In this case, though, only an immediate response to the Access Request message can be
+issued by PacketFence and accepted by the AP. As clients can be roaming betwen APs, RADIUS CoA or Disconnect messages
+are not supported since the client might no longer be connected to the targetted AP. In this case, PacketFence must
+rely insted in the WISPr web services to trigger a disconnection / VLAN move after authentication.
+
+In short, if you're hosting a SmartZone appliance (physical or virtual) inside your LAN and PacketFence and SmartZone
+can talk directly without extraneous port-maps, use the PROXY mode for RADIUS as its much simpler. But if using a shared
+or external SmartZone server while keeping PacketFence local to your LAN, then you'll probably have to opt for the NON-PROXY mode.
+
 ==== Webauth
 
 ==== SmartZone configuration
 
-First, you will need to define your RADIUS server in _Configuration -> Service and Profiles -> Authentication_.
+First, you will need to define your RADIUS server in _Configuration -> Service and Profiles -> Authentication_. 
+In newer versions (at least Firmware 3.6) make sure to select the proper RADIUS model (proxy or non-proxy according
+to your deployment details as described above)
 
 Create your server using the following information (where 192.168.1.5 is the IP address of your PacketFence management interface):
 
@@ -47,9 +73,15 @@ Next, you will need to configure your WLAN to use the Hotspot authentication and
 
 image::ruckus-smartzone-webauth-ssid.png[scaledwidth="100%",alt="Ruckus SmartZone SSID"]
 
-Now, you should configure the Northbound API of the SmartZone so PacketFence can communicate with it. In order to do so, go in _Configuration -> System -> Northbound Portal Interface_ and set the 'Password' and save it. Keep the password closeby as it will be required for the PacketFence configuration. In this example, it will be `passwordForNorthboundAPI`.
+Now, you should configure the Northbound API of the SmartZone so PacketFence can communicate with it. In order to do so, go in 
+_Configuration -> System -> Northbound Portal Interface_ (Can be called "WISPr Northbound Interfaces"  in newer versions of SmartZone)
+and set the 'Password' and save it. Keep the password closeby as it will be required for the PacketFence configuration. In this
+example, it will be `passwordForNorthboundAPI`. In case you're using a SmartZone High-scale, you can define a northbound
+username/password for each Managed Domain so that each of your customers can have their own credentials. In this case, define
+both a username and password and keep both closeby.
 
-In order to receive the information not encrypted in the URL, you will need to connect on the Ruckus SmartZone controller using SSH and do the following command:
+In order to receive the information not encrypted in the URL, you will need to connect on the 
+Ruckus SmartZone controller using SSH and do the following command:
 
  no encrypt-mac-ip
 
@@ -61,8 +93,179 @@ In PacketFence, add a new switch in _Configuration -> Switches_ with the followi
 * *Definition -> External Portal Enforcement* should be enabled
 * *Definition -> Type*: `Ruckus SmartZone Wireless Controller`
 * *Definition -> Mode*: `production`
+* *Definition -> Controller IP Address*: `IP address of SmartZone controller`
 * *Roles -> Role by VLAN ID* should be enabled
 * *Roles -> registration VLAN*: `-1`
-* *Roles -> Role by Switch Role* should be disabled
+* *Roles -> Role by Switch Role* can be optionally enabled (see below)
 * *RADIUS -> Secret passphrase*: `useStrongerSecret`
+* *Web Services -> Username*: `usernameForNorthboundAPI`
 * *Web Services -> Password*: `passwordForNorthboundAPI`
+
+The Web Services Username is optional and only needed if using the "Managed Partner Domains" feature of SmartZone
+with multiple different Northbound API credentials (one per SmartZone domain). Additionally, for troubleshooting 
+purposes, one can define the _Web Services -> Transport_ to HTTP instead of the default HTTPS so as to simplify
+troubleshooting by capturing the traffic between PacketFence and SmartZone.
+
+==== Mac Authentication
+
+For MAC authentication you have two options. Using SmartZone as a _proxy RADIUS server_ (where all RADIUS requests
+are sent between the SmartZone controller and PacketFence directly) and _non-radius RADIUS_ where the APs send RADIUS
+messages directly to PacketFence. This non-proxy scenario is useful when both the APs and PacketFence are "inside the
+LAN" but the SmartZone controller is in the WAN (for example, hosted in a commercial cloud provider). In this case, 
+direct communication between SmartZone and PacketFence might not be possible as the WAN IP for PacketFence might be dynamic.
+
+
+==== PROXY mode
+
+==== SmartZone configuration
+
+First, you will need to define your RADIUS server in _Service and Profiles -> Authentication_. Then select the 
+"Proxy (SZ Authenticator)" tab and then select the zone for which you want to create the AAA server.
+
+Create your server using the following information (where 192.168.1.5 is the IP address of your PacketFence management interface):
+
+* 'Name' : PacketFence-Auth
+* 'Service Protocol': RADIUS
+* 'IP Address:' 192.168.1.5
+* 'Port': 1812
+* 'Secret': useStrongerSecret
+
+image::Ruckus_SZ_RADIUS_PROXY.png[scaledwidth="100%",alt="Ruckus SmartZone Proxy RADIUS Authentication"]
+
+Then, in _Service and Profiles -> Accounting_. Then select the "Proxy" tab and then select the zone for which you 
+want to create the AAA server. Create the server using the information below:
+
+* 'Name' : PacketFence-Acct
+* 'IP Address:' 192.168.1.5
+* 'Port': 1813
+* 'Secret': useStrongerSecret
+
+Give both authentication and accounting services an easily identifiable name such as "PacketFence-Auth" and
+"Packerfence-Acct". This names are purely for identification purposes only.
+
+You can now create an SSID with OPEN/MAC athentication. 
+
+In the _Wireless LANs_ top level menu , from the System tree hierarchy, select the Zone where you want to create a WLAN and then click _Create_.
+
+Enter the _name_ and _SSID_, then for _Authentication Type_ select "Standard Usage" and for _Method_ select "MAC Address". 
+
+image::Ruckus_SZ_Create_MAC_WLAN.png[scaledwidth="100%",alt="Ruckus SmartZone Create Open WLAN with MAC authentication"]
+
+The rest of the authentication options can be left "as-is" (The default _MAC Address Format_ of "aabbccddeeff" should work fine)
+
+For the _Authentication & Accounting Service_ enable the "Use controller as proxy" checkbox for both 
+Authentication and Accounting and select the previously created Authentication and Accounting profiles.
+(PacketFence-Auth and PacketFence-Acct respectively if you used the names suggested above)
+
+Finally in the _Advanced Options_ section, under _Access VLAN_ section, make sure to enable the
+_Enable Dynamic VLAN (AAA Override)_ checkbox is enabled so that the client receives a VLAN assigned by PacketFence.
+
+==== PacketFence configuration
+
+In PacketFence, add a new switch in _Configuration -> Switches_ with the following configuration:
+
+* *Definition -> External Portal Enforcement* should NOT be enabled
+* *Definition -> Type*: `Ruckus SmartZone Wireless Controller`
+* *Definition -> Mode*: `production`
+* *Definition -> Use CoA*: Can be enabled
+* *Definition -> Controller IP Address*: IP address of SmartZone controller
+* *Definition -> CoA Port*: `3799`
+* *Roles -> Role by VLAN ID* should be enabled
+* *Roles -> registration VLAN*: Your registration VLAN ID
+* *Roles -> isolation VLAN*: Your isolation VLAN ID
+* *Roles -> Role by Switch Role* can be optionally enabled (see below)
+* *RADIUS -> Secret passphrase*: `useStrongerSecret`
+
+==== Non-PROXY mode
+
+For non-proxy MAC authentication, repeat the same configuration as for PROXY mode but create the 
+Authentication and Accounting servers under the "Non-Proxy (AP Authenticator)" menu. Additionally, 
+configure the "WISPr northbound credentials" as for the Webauth section. Only the username / password 
+is required, no other configuration is needed (portals, etc)
+
+==== PacketFence configuration
+
+In PacketFence, add a new switch in _Configuration -> Switches_ with the following configuration:
+
+* *Definition -> External Portal Enforcement* should NOT be enabled
+* *Definition -> Type*: `Ruckus SmartZone Wireless Controller`
+* *Definition -> Mode*: `production`
+* *Definition -> Deauthentication Method*: `HTTPS`
+* *Definition -> Controller IP Address*: IP address of SmartZone controller
+* *Roles -> Role by VLAN ID* should be enabled
+* *Roles -> registration VLAN*: Your registration VLAN ID
+* *Roles -> isolation VLAN*: Your isolation VLAN ID
+* *Roles -> Role by Switch Role* can be optionally enabled (see below)
+* *RADIUS -> Secret passphrase*: `useStrongerSecret`
+* *Web Services -> Transport*: `HTTPS`
+* *Web Services -> Username*: `usernameForNorthboundAPI`
+* *Web Services -> Password*: `passwordForNorthboundAPI`
+
+During troubleshooting, you can change the Deauth method and Web Services Transport to HTTP instead of HTTPS
+can capture the traffic destined to the SmartZone's IP on port 9080 to inspect the WISPr API calls if needed.
+
+For NON-PROXY Auth mode when using MAC-Authenticatin we need to set the "Deauthentication Method" to HTTP 
+or HTTPS since this will force the disconnect message to be sent using the Northbound WISPr API instead of
+RADIUS Disconnect / CoA. If the _Deauthentication Method_ is not set, then the code will try to use RADIUS
+by default and fail to disconnect the user.
+
+
+==== Ruckus Roles
+
+[float]
+===== Roles Configuration
+
+Ruckus SmartZone allows you to define roles for RBAC purposes. They can be used to apply per-user rate-limits
+and ACLs in newer versions of the SmartZone firmware, specifying also advanced options like Application Recognition
+Policies, URL filtering profiles, (Firwewall profiles)
+
+To create and be able to use the role, we need to perform several steps:
+
+ 1 - Create a _User Traffic Profile_
+ 2 - Create a matching _User Role_
+ 3 - Reference the User Role in the RADIUS Authentication server
+
+ 
+The detailed steps are as follow:
+
+Go to _Services & Profiles -> Access Control_ on the left menu and then click on the _User Traffic_ tab. On
+this page, optionally select a Domain/Zone, click the "Create" button and give the new UTP name. Define any 
+additional parameters such as Uplink/Downlink rate limits, define any ACLs you might want for that role and
+also select, if needed, an Application Recognition and Control policy and URL Filtering Control policies.
+
+image::Ruckus_SZ_Create_UTP.png[scaledwidth="100%",alt="Ruckus SmartZone Create a User Traffic Profile"]
+
+Next, go to _Clients -> Users & Roles_ menu and select the _User Roles_ tab. On this page, optionally select
+a Domain/Zone, click the "Create" button and give the new User Role a name. This name is purely for identification
+only and its not the RADIUS attribute. You can choose any meaningful name. You should also select the
+User Traffic Profile defined in the previous step as well as, optionallu, a Firewall Profile.
+
+image::Ruckus_SZ_Create_User_Role.png[scaledwidth="100%",alt="Ruckus SmartZone Create a User Role"]
+
+Finally, under _Configuration -> Service and Profiles -> Authentication_, select the RADIUS server created 
+previously (Either in Proxy or NON-Proxy mode). Then, under the _User Role Mapping_ section, click on _Create_. 
+
+image::Ruckus_SZ_Radius_Roles_1.png[scaledwidth="100%",alt="Ruckus SmartZone Add User Role Mappings to RADIUS server"]
+
+A new window will open where we can create a "User Traffic Profile Mapping". Under _Group Attribute Value_ enter
+the string that will be sent from PacketFence (Configured under the Switch configuration in the
+"Role by Switch Role" section). This string must match between PacketFence and SmartZone and is the string sent
+in the RADIUS reply under the Ruckus-User-Group VSA. Then, under the "User Role", select the previously created User Role. 
+
+image::Ruckus_SZ_Radius_Roles_2.png[scaledwidth="100%",alt="Ruckus SmartZone Add User Role Mappings to RADIUS server"]
+
+Repeat all the steps above for as many different roles as needed. Keep in mind that you can define different roles
+on SmartZone than those on PacketFence. For example, on SmartZone you might have roles calles "10Mbps", "20Mbps"
+and so one (related to the specific rate limits assigned to the users) and then in PacketFence, assign the "10Mbps"
+SmartZone role to the "Students" and "Guests" PacketFence Roles, and the "20Mbps" SZ role to "Faculty" and "IT" PF roles.
+
+[float]
+===== PacketFence Configuration
+
+On the PacketFence side you need to use _role by switch role_ and add the same name as in the _Group Attribute_ you created on the Ruckus side.
+
+So when a device connects to the SSID, PacketFence will return a VLAN identifier and a RuckusUserGroup attribute
+and the device will be authorized on the WLAN on the specific VLAN. Additionally, if RBAC is in
+use, the specific upstream/downstream rate limits, L2/L3 ACLS and Application Recognition Policies will be applied
+to the specific user, having the possibility of, for instance, giving different user Roles different access speeds.
+
