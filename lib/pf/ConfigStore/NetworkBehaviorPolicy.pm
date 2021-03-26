@@ -62,6 +62,8 @@ sub commitPfconfig {
     pf::fingerbank::sync_nba_conf();
 }
 
+__PACKAGE__->meta->make_immutable unless $ENV{"PF_SKIP_MAKE_IMMUTABLE"};
+
 =head1 AUTHOR
 
 Inverse inc. <info@inverse.ca>
