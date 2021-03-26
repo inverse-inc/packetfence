@@ -2,7 +2,7 @@
 
 =head1 NAME
 
-to-10.2-pfdetect-conf -
+to-10.3-network-conf.pl
 
 =head1 DESCRIPTION
 
