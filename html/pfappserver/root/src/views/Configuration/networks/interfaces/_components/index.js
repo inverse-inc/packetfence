@@ -25,6 +25,7 @@ export {
   BaseFormGroupInput                  as FormGroupIpv6Address,
   BaseFormGroupInputNumber            as FormGroupIpv6Prefix,
   BaseFormGroupToggleDisabledEnabled  as FormGroupNatEnabled,
+  BaseFormGroupToggleDisabledEnabled  as FormGroupNatDns,
   BaseFormGroupToggleDisabledEnabled  as FormGroupNetflowAccountingEnabled,
   BaseFormGroupInput                  as FormGroupNetmask,
   BaseFormGroupInput                  as FormGroupRegNetwork,

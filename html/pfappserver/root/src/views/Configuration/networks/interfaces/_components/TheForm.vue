@@ -71,6 +71,10 @@
           {{ $i18n.t(`Since NAT is disabled, PacketFence will adjust iptables to route traffic rather than using NAT. Make sure to add the routes on the system.`) }}
         </div>
       </b-form-group>
+      <form-group-nat-dns namespace="nat_dns"
+        :column-label="$i18n.t('Proxy DNS')"
+        :text="$i18n.t('Use pfdns to proxy the request to the DNS server defined above when the device is registered.')"
+      />
     </template>
 
     <form-group-split-network v-show="isType('inlinel2')"
@@ -124,6 +128,7 @@ import {
   FormGroupIpv6Address,
   FormGroupIpv6Prefix,
   FormGroupNatEnabled,
+  FormGroupNatDns,
   FormGroupNetflowAccountingEnabled,
   FormGroupNetmask,
   FormGroupRegNetwork,
@@ -145,6 +150,7 @@ const components = {
   FormGroupIpv6Address,
   FormGroupIpv6Prefix,
   FormGroupNatEnabled,
+  FormGroupNatDns,
   FormGroupNetflowAccountingEnabled,
   FormGroupNetmask,
   FormGroupRegNetwork,

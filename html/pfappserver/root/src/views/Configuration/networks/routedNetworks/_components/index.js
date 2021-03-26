@@ -31,6 +31,7 @@ export {
   BaseFormGroupTextarea                     as FormGroupIpAssigned,
   BaseFormGroupTextarea                     as FormGroupIpReserved,
   BaseFormGroupToggleZeroOneIntegerAsOffOn  as FormGroupNatEnabled,
+  BaseFormGroupToggleZeroOneIntegerAsOffOn  as FormGroupNatDns,
   BaseFormGroupToggleDisabledEnabled        as FormGroupNetflowAccountingEnabled,
   BaseFormGroupInput                        as FormGroupNetmask,
   BaseFormGroupInput                        as FormGroupNextHop,

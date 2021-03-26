@@ -30,6 +30,11 @@
           :column-label="$i18n.t('Enable NAT')"
         />
 
+        <form-group-nat-dns v-show="isType('inlinel3')"
+          namespace="nat_dns"
+          :column-label="$i18n.t('Enable DNS NAT')"
+        />
+
         <form-group-fake-mac-enabled v-show="isType('inlinel3')"
           namespace="fake_mac_enabled"
           :column-label="$i18n.t('Fake MAC Address')"
@@ -155,6 +160,7 @@ import {
   FormGroupIpAssigned,
   FormGroupIpReserved,
   FormGroupNatEnabled,
+  FormGroupNatDns,
   FormGroupNetflowAccountingEnabled,
   FormGroupNetmask,
   FormGroupNextHop,
@@ -182,6 +188,7 @@ const components = {
   FormGroupIpAssigned,
   FormGroupIpReserved,
   FormGroupNatEnabled,
+  FormGroupNatDns,
   FormGroupNetflowAccountingEnabled,
   FormGroupNetmask,
   FormGroupNextHop,

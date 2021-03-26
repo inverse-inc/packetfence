@@ -58,6 +58,7 @@ sub build {
             $interface{'mask'} = $interface->mask();
             $interface{'int'} = $interface->tag("int");
             $interface{'cidr'} = $interface->desc();
+            $ConfigNetwork{$network}{'nat_dns'} = $self->{networks}{$network}{'nat_dns'} // "enabled";
             if ( defined($self->{networks}{$network}{'next_hop'})) {
                 my $ip = new NetAddr::IP::Lite clean_ip($self->{networks}{$network}{'next_hop'});
                 if ($net_addr->contains($ip)) {
