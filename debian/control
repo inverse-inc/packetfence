@@ -29,8 +29,8 @@ Breaks: libdata-alias-perl
 Depends: ${misc:Depends}, vlan,
  packetfence-ntlm-wrapper (>= ${source:Version}), packetfence-doc (>= ${source:Version}), packetfence-golang-daemon (>= ${source:Version}),
  openssl,
- mariadb-server (= 10.2.37),
- mariadb-client (= 10.2.37),
+ mariadb-server (= 10.2.37+maria~stretch),
+ mariadb-client (= 10.2.37+maria~stretch),
  snmp, snmptrapfmt, snmptrapd, snmp-mibs-downloader, conntrack, rsyslog,
 # apache related
  apache2, apache2-utils,
