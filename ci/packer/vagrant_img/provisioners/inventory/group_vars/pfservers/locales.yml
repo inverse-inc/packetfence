@@ -1,0 +1,13 @@
+---
+# based on locales currently supported in PacketFence
+locales__group_list:
+  - es_ES.UTF-8
+  - fr_FR.UTF-8
+  - fr_CA.UTF-8
+  - de_DE.UTF-8
+  - he_IL.UTF-8
+  - it_IT.UTF-8
+  - nb_NO.UTF-8
+  - nl_NL.UTF-8
+  - pl_PL.UTF-8
+  - pt_BR.UTF-8
