@@ -110,7 +110,7 @@
           <icon v-bind="item._icon" />       
           {{ item.id }} 
         </template>
-        <template v-slot:cell(buttons)="item">
+        <template v-slot:cell(buttons)="{ item }">
           <span class="float-right text-nowrap text-right">
             <base-button-confirm v-if="!item.not_deletable"
               size="sm" variant="outline-danger" class="my-1 mr-1" reverse
@@ -123,6 +123,38 @@
           </span>
         </template>        
       </b-table>
+      <b-modal v-model="showDeleteErrorsModal" size="lg"
+        centered lazy scrollable
+        :no-close-on-backdrop="isLoading"
+        :no-close-on-esc="isLoading"
+      >
+        <template v-slot:modal-title>
+          {{ $t('Delete Role') }} <b-badge variant="secondary">{{ deleteId }}</b-badge>
+        </template>
+        <b-media no-body class="alert alert-danger">
+          <icon name="exclamation-triangle" scale="2" v-slot:aside></icon>
+          <div class="mx-2">{{ $t('The role could not be deleted. Either manually handle the following errors and try again, or re-reassign the resources to another existing role.') }}</div>
+        </b-media>
+        <h5>{{ $t('Role is still in use for:') }}</h5>
+        <b-row v-for="error in deleteErrors" :key="error.reason">
+          <b-col cols="auto" class="mr-auto">{{ reasons[error.reason] }}</b-col>
+          <b-col cols="auto">{{ error.reason }}</b-col>
+        </b-row>
+        <template v-slot:modal-footer>
+          <b-row class="w-100">
+            <b-col cols="auto" class="mr-auto pl-0">
+              <b-form-select size="sm" class="d-inline"
+                v-model="reassignRole"
+                :options="reassignableRoles"
+              />
+              <b-button size="sm" class="ml-1" variant="outline-primary"  @click="reAssign()" :disabled="isLoading">{{ $i18n.t('Reassign Role') }}</b-button>
+            </b-col>
+            <b-col cols="auto" class="pr-0">
+              <b-button variant="secondary"  @click="showDeleteErrorsModal = false" :disabled="isLoading">{{ $i18n.t('Fix Manually') }}</b-button>
+            </b-col>
+          </b-row>
+        </template>
+      </b-modal>
     </div>
   </b-card>
 </template>
@@ -162,6 +194,7 @@ const components = {
 
 import { computed, onMounted, ref } from '@vue/composition-api'
 import { useSearch, useRouter } from '@/views/Configuration/roles/_composables/useCollection'
+import { reasons } from '../config'
 
 const defaultCondition = () => ([{ values: [{ field: 'id', op: 'contains', value: null }] }])
 
@@ -177,6 +210,7 @@ const setup = (props, context) => {
     doReset,
     doSearchString,
     doSearchCondition,
+    reSearch,
     items,
     sortBy,
     sortDesc
@@ -368,21 +402,35 @@ const setup = (props, context) => {
     $router.push({ name: 'cloneRole', params: { id } })
   }
 
+  const deleteId = ref(null)
+  const deleteErrors = ref(null)
+  const showDeleteErrorsModal = ref(false)
   const onRemove = id => {
-    console.log('onRemove', {id})
-    /*
-    this.$store.dispatch('$_roles/deleteRole', item.id).then(() => {
-      const { $refs: { pfConfigList: { refreshList = () => {} } = {} } = {} } = this
-      refreshList() // soft reload
-    }).catch(error => {
-      const { response: { data: { errors = [] } = {} } = {} } = error
-      if (errors.length) {
-      this.deleteId = item.id
-        this.deleteErrors = errors
-        this.showDeleteErrorsModal = true
-      }
-    })
-    */
+    $store.dispatch('$_roles/deleteRole', id)
+      .then(() => reSearch())
+      .catch(error => {
+        const { response: { data: { errors = [] } = {} } = {} } = error
+        if (errors.length) {
+          deleteId.value = id
+          deleteErrors.value = errors
+          showDeleteErrorsModal.value = true
+        }
+      })
+  }
+
+  const reassignRole = ref('default')
+  const reassignableRoles = computed(() => {
+    return items.value
+      .filter(role => role.id !== deleteId.value)
+      .map(role => ({ text: role.id, value: role.id }))
+  })
+  const reAssign = () => {
+    $store.dispatch('$_roles/reassignRole', { from: deleteId.value, to: reassignRole.value })
+      .then(() => {
+        showDeleteErrorsModal.value = false
+        // cascade delete
+        onRemove(deleteId.value)
+      })
   }
 
   const _trafficShapingPolicies = ref([])
@@ -410,8 +458,15 @@ const setup = (props, context) => {
     itemsTree,
     onClone,
     onRemove,
-    isInline,
+    deleteId,
+    deleteErrors,
+    showDeleteErrorsModal,    
+    reassignRole,
+    reassignableRoles,
+    reasons,
+    reAssign,
     trafficShapingRoute,
+    isInline,
     ...search
   }
 }

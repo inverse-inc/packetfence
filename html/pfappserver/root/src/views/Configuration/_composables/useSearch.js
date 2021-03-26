@@ -156,7 +156,7 @@ export const useSearch = (api, options) => {
       })
   }
 
-  const _reSearch = () => {
+  const reSearch = () => {
     if (lastQuery.value) // last query good
       doSearch(lastQuery.value) // re-perform search w/ last query
     else  
@@ -166,14 +166,14 @@ export const useSearch = (api, options) => {
   // when limit is mutated
   watch(limit, () => {
     page.value = 1
-    _reSearch()
+    reSearch()
   })
 
   // when page, sortBy or sortDesc is mutated (shallow)
-  watch([page, sortBy, sortDesc], () => _reSearch())
+  watch([page, sortBy, sortDesc], () => reSearch())
 
   // when columns are mutated (deep)
-  watch(columns, () => _reSearch(), { deep: true })
+  watch(columns, () => reSearch(), { deep: true })
 
   return {
     columns,
@@ -190,6 +190,7 @@ export const useSearch = (api, options) => {
     doSearchString,
     doSearchCondition,
     doSearch,
+    reSearch,
     isLoading,
     items,
 
