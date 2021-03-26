@@ -33,6 +33,7 @@ export default (props) => {
       .nullable()
       .required(i18n.t('Network required.'))
       .roleNameNotExistsExcept((!isNew && !isClone) ? id : undefined, i18n.t('Network exists.')),
+    description: yup.string().nullable(),
     algorithm: yup.string().nullable(),
     dhcpd: yup.string().nullable(),
     dhcp_start: yup.string().when('dhcpd', () => (dhcpd === 'enabled') // reactive

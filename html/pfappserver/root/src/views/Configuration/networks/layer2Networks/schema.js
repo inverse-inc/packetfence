@@ -28,7 +28,8 @@ export const schema = (props) => {
     id: yup.string()
       .nullable()
       .required(i18n.t('Network required.'))
-      .layer2NetworkIdNotExistsExcept((!isNew && !isClone) ? id : undefined, i18n.t('Netowrk exists.')),
+      .layer2NetworkIdNotExistsExcept((!isNew && !isClone) ? id : undefined, i18n.t('Network exists.')),
+    description: yup.string().nullable().label(i18n.t('Description')),
     algorithm: yup.string().nullable().label(i18n.t('Algorithm')),
     pool_backend: yup.string().nullable().label(i18n.t('DHCP Pool Backend Type')),
     dhcp_start: yup.string().nullable().label('IP')

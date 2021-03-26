@@ -28,6 +28,12 @@ export const columns = [
     formatter: routedNetworkListFormatter
   },
   {
+    key: 'description',
+    label: 'Description', // i18n defer
+    sortable: true,
+    visible: true
+  },
+  {
     key: 'next_hop',
     label: 'Next Hop', // i18n defer
     sortable: true,

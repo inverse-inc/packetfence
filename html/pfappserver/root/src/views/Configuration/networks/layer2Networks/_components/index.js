@@ -17,6 +17,7 @@ export {
   BaseFormButtonBar                   as FormButtonBar,
 
   BaseFormGroupChosenOne              as FormGroupAlgorithm,
+  BaseFormGroupInput                  as FormGroupDescription,
   BaseFormGroupInputNumber            as FormGroupDhcpDefaultLeaseTime,
   BaseFormGroupInputNumber            as FormGroupDhcpMaxLeaseTime,
   BaseFormGroupInput                  as FormGroupDhcpEnd,

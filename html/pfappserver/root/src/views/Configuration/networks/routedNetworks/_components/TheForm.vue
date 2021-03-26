@@ -16,6 +16,10 @@
           :column-label="$i18n.t('Netmask')"
         />
 
+        <form-group-description namespace="description"
+          :column-label="$i18n.t('Description')"
+        />
+
         <form-group-type namespace="type"
           :column-label="$i18n.t('Type')"
           :options="routedNetworkOptions"
@@ -138,6 +142,7 @@ import schemaFn from '../schema'
 import {
   FormGroupAlgorithm,
   FormGroupCoa,
+  FormGroupDescription,
   FormGroupDhcpd,
   FormGroupDhcpDefaultLeaseTime,
   FormGroupDhcpEnd,
@@ -164,6 +169,7 @@ const components = {
 
   FormGroupAlgorithm,
   FormGroupCoa,
+  FormGroupDescription,
   FormGroupDhcpd,
   FormGroupDhcpDefaultLeaseTime,
   FormGroupDhcpEnd,
