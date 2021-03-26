@@ -64,10 +64,14 @@ sub generateConfig {
          $tags{'os_path'} = '/usr/share/haproxy/';
     }
     
-    $tags{'management_ip'}
-        = defined( $management_network->tag('vip') )
-        ? $management_network->tag('vip')
-        : ( defined($management_network->tag('ip')) ? $management_network->tag('ip') : "127.0.0.2" );
+    if ($management_network ne '') {
+        $tags{'management_ip'}
+            = defined( $management_network->tag('vip') )
+            ? $management_network->tag('vip')
+            : $management_network->tag('ip');
+    } else {
+        $tags{'management_ip'} = '127.0.0.2';
+    }
 
     my $i = 0;
     my @mysql_backend;
