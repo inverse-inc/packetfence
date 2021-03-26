@@ -31,6 +31,7 @@ For a list of compatibility related changes see the <<PacketFence_Upgrade_Guide.
 * Aruba CX support
 * Aruba 2930M Web Authentication and Dynamic ACL support (#6158)
 * Meraki DPSK support
+* Support for Ruckus Smartzone MAC authentication in non-proxy modes (#6201)
 
 === Enhancements
 
@@ -63,6 +64,7 @@ For a list of compatibility related changes see the <<PacketFence_Upgrade_Guide.
 * Enhance CLI login on SG300 switches
 * Enable/disable the natting traffic for inline networks
 * Remove unused table userlog (#6170)
+* Clarifications on Ruckus Role-by-Role capabilities. (#6201)
 
 === Bug Fixes
 
