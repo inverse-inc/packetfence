@@ -33,14 +33,14 @@ const actions = {
       fields: ['id'].join(','),
       limit: 1000
     }
-    return api.roles(params).then(response => {
+    return api.list(params).then(response => {
       return response.items
     })
   },
   options: ({ commit }, id) => {
     commit('ITEM_REQUEST')
     if (id) {
-      return api.roleOptions(id).then(response => {
+      return api.itemOptions(id).then(response => {
         commit('ITEM_SUCCESS')
         return response
       }).catch((err) => {
@@ -48,7 +48,7 @@ const actions = {
         throw err
       })
     } else {
-      return api.rolesOptions().then(response => {
+      return api.listOptions().then(response => {
         commit('ITEM_SUCCESS')
         return response
       }).catch((err) => {
@@ -62,7 +62,7 @@ const actions = {
       return Promise.resolve(state.cache[id]).then(cache => JSON.parse(JSON.stringify(cache)))
     }
     commit('ITEM_REQUEST')
-    return api.role(id).then(item => {
+    return api.item(id).then(item => {
       commit('ITEM_REPLACED', item)
       return JSON.parse(JSON.stringify(item))
     }).catch((err) => {
@@ -72,7 +72,7 @@ const actions = {
   },
   createRole: ({ commit }, data) => {
     commit('ITEM_REQUEST')
-    return api.createRole(data).then(response => {
+    return api.create(data).then(response => {
       commit('ITEM_REPLACED', data)
       commit('config/ROLES_UPDATED', false, { root: true })
       return response
@@ -83,7 +83,7 @@ const actions = {
   },
   updateRole: ({ commit }, data) => {
     commit('ITEM_REQUEST')
-    return api.updateRole(data).then(response => {
+    return api.update(data).then(response => {
       commit('ITEM_REPLACED', data)
       commit('config/ROLES_UPDATED', false, { root: true })
       return response
@@ -94,7 +94,7 @@ const actions = {
   },
   deleteRole: ({ commit }, data) => {
     commit('ITEM_REQUEST', types.DELETING)
-    return api.deleteRole(data).then(response => {
+    return api.delete(data).then(response => {
       commit('ITEM_DESTROYED', data)
       commit('config/ROLES_UPDATED', false, { root: true })
       return response
@@ -105,7 +105,7 @@ const actions = {
   },
   reassignRole: ({ commit }, data) => {
     commit('ITEM_REQUEST', types.REASSIGNING)
-    return api.reassignRole(data).then(response => {
+    return api.reassign(data).then(response => {
       commit('ITEM_DESTROYED', data.from)
       commit('config/ROLES_UPDATED', false, { root: true })
       return response

@@ -7,7 +7,7 @@
     </template>
     <template v-for="column in columns">
       <template v-if="column.label">
-        <b-dropdown-item v-if="column.locked"
+        <b-dropdown-item v-if="column.locked || column.required"
           :key="column.key" disabled>
           <icon class="position-absolute mt-1" name="thumbtack"></icon>
           <span class="ml-4">{{ $t(column.label) }}</span>

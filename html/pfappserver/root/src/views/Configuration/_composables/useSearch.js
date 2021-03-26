@@ -96,17 +96,23 @@ export const useSearch = (api, options) => {
     }
     isLoading.value = true
     api.list(params)
-    .then(_response => {
-      const response = config.responseInterceptor(_response)
-      const { items: _items = [], total_count } = response
-      items.value = _items
-      totalRows.value = total_count
-      lastQuery.value = null
-      return response
-    })
-    .finally(() => {
-      isLoading.value = false
-    })    
+      .then(_response => {
+        const response = config.responseInterceptor(_response)
+        const { items: _items = [], total_count } = response
+        items.value = _items
+        totalRows.value = total_count
+        lastQuery.value = null
+        return response
+      })
+      .catch(() => {
+        items.value = []
+        page.value = 1
+        totalRows.value = 0
+        lastQuery.value = null
+      })
+      .finally(() => {
+        isLoading.value = false
+      })    
   }
 
   const doSearchString = (string) => {

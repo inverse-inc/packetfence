@@ -2,7 +2,7 @@ import store from '@/store'
 import RolesStoreModule from './_store'
 import TrafficShapingPoliciesStoreModule from '../networks/trafficShapingPolicies/_store'
 
-const TheList = () => import(/* webpackChunkName: "Configuration" */ '../_components/RolesList')
+const TheList = () => import(/* webpackChunkName: "Configuration" */ './_components/TheList')
 const TheView = () => import(/* webpackChunkName: "Configuration" */ './_components/TheView')
 
 export const beforeEnter = (to, from, next = () => {}) => {

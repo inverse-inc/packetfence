@@ -91,29 +91,9 @@
   </div>
 </template>
 <script>
+import pfIcon from '@/globals/pfIcon'
 import NavigationIcon from 'vue-awesome/components/Icon'
-NavigationIcon.register({
-  pass: {
-    width: 100,
-    height: 100,
-    d: 'M 47.5 0 H 52.5 V 100 H 47.5 L 47.5 0'
-  },
-  node: {
-    width: 100,
-    height: 100,
-    d: 'M 47.5 0 H 52.5 V 47.5 H 100 V 52.5 H 52.5 V 100 H 47.5 L 47.5 0'
-  },
-  last: {
-    width: 100,
-    height: 100,
-    d: 'M 47.5 0 H 52.5 V 47.5 H 100 V 52.5 H 47.5 L 47.5 0'
-  },
-  skip: {
-    width: 100,
-    height: 100,
-    d: ''
-  }
-})
+NavigationIcon.register(pfIcon)
 
 import {
   BaseButtonConfirm,
@@ -216,7 +196,7 @@ const setup = (props, context) => {
     const reduceEntries = (entries, path = '', _icons = []) => {
       return entries.reduce((reduced, entry, e) => {
         const last = (e === entries.length - 1)
-        const icons = [ ..._icons, (last) ? 'last' : 'node' ]
+        const icons = [ ..._icons, (last) ? 'tree-last' : 'tree-node' ]
         const { entries: childEntries = [], ...rest } = entry || {}
         const { type, name } = rest || {}
         const fullPath = `${path}/${name}`
@@ -224,7 +204,7 @@ const setup = (props, context) => {
           case 'dir':
             if (expandPaths.value.includes(fullPath)) {
               reduced.push({ ...rest, path, expand: true, icons })
-              reduced.push(...reduceEntries(childEntries, fullPath, [ ..._icons, (last) ? 'skip' : 'pass' ]))
+              reduced.push(...reduceEntries(childEntries, fullPath, [ ..._icons, (last) ? 'tree-skip' : 'tree-pass' ]))
             }
             else
               reduced.push({ ...rest, path, expand: false, icons })

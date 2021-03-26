@@ -22,14 +22,14 @@ const useItemTitle = (props) => {
   })
 }
 
-const useRouter = (props, context, form) => {
+export const useRouter = (props, context, form) => {
   const {
     id
   } = toRefs(props)
   const { root: { $router } = {} } = context
   return {
     goToCollection: () => $router.push({ name: 'roles' }),
-    goToItem: () => $router.push({ name: 'role', params: { id: form.value.id || id.value } })
+    goToItem: (_id) => $router.push({ name: 'role', params: { id: _id || form.value.id || id.value } })
       .catch(e => { if (e.name !== "NavigationDuplicated") throw e }),
     goToClone: () => $router.push({ name: 'cloneRole', params: { id: id.value } }),
   }
@@ -57,9 +57,28 @@ const useStore = (props, context, form) => {
   }
 }
 
+import {
+  useSearch as useConfigurationSearch
+} from '@/views/Configuration/_composables/useSearch'
+import api from '../_api'
+import {
+  columns,
+  fields
+} from '../config'
+export const useSearch = (props, context, options) => {
+  return useConfigurationSearch(api, { 
+    name: 'roles', // localStorage prefix
+    columns,
+    fields,
+    sortBy: 'id',
+    ...options,
+  })
+}
+
 export default {
   useItemDefaults,
   useItemTitle,
   useRouter,
   useStore,
+  useSearch
 }

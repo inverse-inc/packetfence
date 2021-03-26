@@ -1,0 +1,461 @@
+<template>
+  <b-card no-body>
+    <b-card-header>
+      <div class="float-right">
+        <base-input-toggle-advanced-mode
+          v-model="advancedMode"
+          :disabled="isLoading"
+          label-left
+        />
+      </div>
+      <h4 class="mb-0">
+        {{ $t('Roles') }}
+        <pf-button-help class="ml-1" url="PacketFence_Installation_Guide.html#_introduction_to_role_based_access_control" />
+      </h4>
+    </b-card-header>    
+    <div class="card-body">
+      <transition name="fade" mode="out-in">
+        <div v-if="advancedMode">
+          <b-form @submit.prevent="onSearchAdvanced" @reset.prevent="onSearchReset">
+            <base-search-input-advanced 
+              v-model="conditionAdvanced"
+              :disabled="isLoading"
+              :fields="fields"
+              @reset="onSearchReset"
+              @search="onSearchAdvanced"
+            />
+            <b-container fluid class="text-right mt-3 px-0">
+              <b-button class="mr-1" type="reset" variant="secondary" :disabled="isLoading">{{ $t('Clear') }}</b-button>
+              <base-button-save-search namespace="roles" v-model="conditionAdvanced"
+              :disabled="isLoading"
+                @search="onSearchAdvanced"
+              />
+            </b-container>
+          </b-form>
+        </div>
+        <base-search-input-basic v-else
+          v-model="conditionBasic"
+          :disabled="isLoading"
+          :placeholder="$t('Search by name or description')"
+          @reset="onSearchReset"
+          @search="onSearchBasic"
+        />
+      </transition>
+    </div>
+    <div class="card-body pt-0">
+      <b-row>
+        <b-col cols="auto" class="mr-auto mb-3">
+          <b-button variant="outline-primary" :to="{ name: 'newRole' }">{{ $t('New Role') }}</b-button>
+        </b-col>
+      </b-row>
+      <b-row align-h="end" align-v="center">
+        <b-col>
+          <base-search-input-columns 
+            v-model="columns"
+            :disabled="isLoading"
+          />
+        </b-col>
+        <b-col cols="auto">
+          <b-container fluid>
+            <b-row align-v="center">
+              <base-search-input-limit 
+                v-model="limit"
+                size="md"
+                :limits="limits"
+                :disabled="isLoading"
+              />
+              <base-search-input-page 
+                v-model="page"
+                :limit="limit"
+                :totalRows="totalRows"
+                :disabled="isLoading"
+              />
+              <base-button-export-csv 
+                class="mb-3" size="md"
+                :filename="`${$route.path.slice(1).replace('/', '-')}.csv`" 
+                :disabled="isLoading"
+                :columns="columns" :data="itemsTree"
+              />
+            </b-row>
+          </b-container>
+        </b-col>
+      </b-row>
+      <b-table
+        class="the-tree-list"
+        :busy="isLoading"
+        :hover="itemsTree.length > 0"
+        :items="itemsTree"
+        :fields="visibleColumns"
+        :sort-by="sortBy"
+        :sort-desc="sortDesc"
+        @sort-changed="onSortChanged"
+        @row-clicked="onRowClicked"
+        show-empty
+        small
+        borderless
+        responsive
+        no-local-sorting
+        sort-icon-left
+        fixed
+        striped
+      >
+        <template v-slot:empty>
+          <slot name="emptySearch" v-bind="{ isLoading }">
+              <pf-empty-table :isLoading="isLoading">{{ $t('No results found') }}</pf-empty-table>
+          </slot>
+        </template>
+        <template v-slot:cell(id)="{ item }">
+          <navigation-icon v-for="(icon, i) in item._tree" :key="i"
+            v-bind="icon" /> 
+          <icon v-bind="item._icon" />       
+          {{ item.id }} 
+        </template>
+        <template v-slot:cell(buttons)="item">
+          <span class="float-right text-nowrap text-right">
+            <base-button-confirm v-if="!item.not_deletable"
+              size="sm" variant="outline-danger" class="my-1 mr-1" reverse
+              :disabled="isLoading"
+              :confirm="$t('Delete Role?')"
+              @click="onRemove(item.id)"
+            >{{ $t('Delete') }}</base-button-confirm>
+            <b-button size="sm" variant="outline-primary" class="mr-1" @click.stop.prevent="onClone(item.id)">{{ $t('Clone') }}</b-button>
+            <b-button v-if="isInline" size="sm" variant="outline-primary" class="mr-1" :to="trafficShapingRoute(item.id)">{{ $t('Traffic Shaping') }}</b-button>
+          </span>
+        </template>        
+      </b-table>
+    </div>
+  </b-card>
+</template>
+<script>
+import pfIcon from '@/globals/pfIcon'
+import NavigationIcon from 'vue-awesome/components/Icon'
+NavigationIcon.register(pfIcon)
+
+import {
+  BaseButtonConfirm,
+  BaseButtonExportCsv,
+  BaseButtonSaveSearch,
+  BaseInputToggleAdvancedMode,
+  BaseSearchInputBasic,
+  BaseSearchInputAdvanced,
+  BaseSearchInputColumns,
+  BaseSearchInputLimit,
+  BaseSearchInputPage,
+} from '@/components/new/'
+import pfButtonHelp from '@/components/pfButtonHelp'
+import pfEmptyTable from '@/components/pfEmptyTable'
+
+const components = {
+  BaseButtonConfirm,
+  BaseButtonExportCsv,
+  BaseButtonSaveSearch,
+  BaseInputToggleAdvancedMode,
+  BaseSearchInputBasic,
+  BaseSearchInputAdvanced,
+  BaseSearchInputColumns,
+  BaseSearchInputLimit,
+  BaseSearchInputPage,
+  NavigationIcon,
+  pfButtonHelp,
+  pfEmptyTable
+}
+
+import { computed, onMounted, ref } from '@vue/composition-api'
+import { useSearch, useRouter } from '@/views/Configuration/roles/_composables/useCollection'
+
+const defaultCondition = () => ([{ values: [{ field: 'id', op: 'contains', value: null }] }])
+
+const setup = (props, context) => {
+
+  const { root: { $router, $store } = {} } = context
+
+  const advancedMode = ref(false)
+  const conditionBasic = ref(null)
+  const conditionAdvanced = ref(defaultCondition()) // default
+  const search = useSearch(props, context)
+  const {
+    doReset,
+    doSearchString,
+    doSearchCondition,
+    items,
+    sortBy,
+    sortDesc
+  } = search
+
+  const _sortFn =(a, b) => {
+    const { [sortBy.value]: aBy } = a 
+    const { [sortBy.value]: bBy } = b
+    return aBy.toString().localeCompare(bBy.toString()) * ((sortDesc.value) ? -1 : 1)
+  }  
+
+  const _flattenFamilies = (_families) => {
+    return _families.reduce((families, family) => {
+      let { _children } = family
+      if (_children) {
+        const children = _flattenFamilies(_children)
+          .sort(_sortFn)
+        if (children.length > 0)
+          children[children.length - 1]._last = true // mark _last
+        return [ ...families, family, ...children ]
+      }
+      return [ ...families, family ]
+    }, [])
+  }
+
+  const itemsTree = computed(() => {
+    const _items = items.value
+
+    // build associative array for lookups
+    const associative = _items.reduce((items, item) => {
+      const { id } = item
+      const _item = { 
+        ...item, 
+        _children: [], // post-processed
+        _match: true // found in search
+      }
+      return { ...items, [id]: _item }
+    }, {})
+
+    // an item only seen as `parent_id` or `children`, not `id`
+    const GHOST = {
+      _children: [], // post-processed
+      _match: false, // not found in search
+      _rowVariant: 'row-disabled' // CSSable
+    }
+
+    // track depth for later processing
+    let maxDepth = 0
+
+    // helper: calculate inherent tree depth(s)
+    const _getDepth = (id) => {
+      let depth = 0 // not exists
+      if (id in associative) { // exists
+        const { parent_id, children } = associative[id]
+        if (parent_id && parent_id in associative)
+          depth = _getDepth(parent_id) + 1
+        else if (parent_id) {
+          associative[parent_id] = { 
+            id: parent_id, 
+            _depth: 0, 
+            ...GHOST
+          } // push ghost parent
+          depth = 1
+        }
+        else
+          depth = 0 // root
+        // opportunistic ghost children handling
+        if (children) {
+          children.forEach(child => {
+            if (!(child in associative)) {
+              associative[child] = {
+                id: child,
+                parent_id: id,
+                children: [],
+                _depth: depth + 1,
+                ...GHOST
+              } // push ghost child
+              maxDepth = Math.max(maxDepth, depth + 1) // post-process hint
+            }
+          })
+        }
+      }
+      return depth
+    }
+
+    // append inherent depth to all items
+    Object.values(associative).forEach(item => {
+      const { id } = item
+      const depth = _getDepth(id)
+      maxDepth = Math.max(maxDepth, depth)
+      associative[id]._depth = depth
+    })
+
+    // reorganize by family, associate children
+    for(let m = maxDepth; m > 0; m--) {
+      Object.values(associative)
+        .filter(({ _depth }) => _depth === m)
+        .forEach(item => {
+          const { parent_id } = item
+          associative[parent_id]._children.push(item)
+        })
+    }
+
+    // organize families
+    const families = Object.values(associative)
+      .filter(({ _depth }) => _depth === 0) // truncate 
+      .sort(_sortFn) // sort root families
+
+    // flatten families
+    const flattened = _flattenFamilies(families)
+
+    // decorate items
+    const decorated = flattened      
+      .map(item => {
+        const { children = [], _depth, _last } = item || {}
+        const _tree = [
+          ...(
+            new Array(_depth).fill(null)
+              .map(() => ({
+                name: 'tree-pass', class: 'nav-icon'
+              }))
+          ),
+          ...((_last)
+            ? [{ name: 'tree-last', class: 'nav-icon' }]
+            : [{ name: 'tree-node', class: 'nav-icon' }]
+          )
+        ]
+        const _icon = ((children && children.length)
+          ? { name: 'user-plus', class: 'ml-1 text-black' }
+          : { name: 'user', class: 'text-black-50' }
+        )
+        return { ...item, _tree, _icon }
+      })
+
+    return decorated
+  })
+
+  onMounted(() => {
+    const { currentRoute: { query: { query } = {} } = {} } = $router
+    if (query) {
+      conditionAdvanced.value = JSON.parse(query)
+      advancedMode.value = true
+      doSearchCondition(conditionAdvanced.value)
+    }
+    else
+      doReset()
+  })
+
+  const _setQueryParam = query => {
+    const { currentRoute } = $router
+    $router.replace({ ...currentRoute, query: { query } })
+      .catch(e => { if (e.name !== "NavigationDuplicated") throw e })
+  }
+  const _clearQueryParam = () => _setQueryParam()
+
+  const onSearchBasic = () => {
+    if (conditionBasic.value) {
+      doSearchString(conditionBasic.value)
+      _clearQueryParam()
+    }
+    else
+      doReset()
+  }
+
+  const onSearchAdvanced = () => {
+    if (conditionAdvanced.value) {
+      doSearchCondition(conditionAdvanced.value)
+      _setQueryParam(JSON.stringify(conditionAdvanced.value))
+    }
+    else
+      doReset()
+  }
+
+  const onSearchReset = () => {
+    conditionBasic.value = null
+    conditionAdvanced.value = defaultCondition() // dereference
+    _clearQueryParam()
+    doReset()
+  }
+
+  const onRowClicked = item => {
+    const {
+      goToItem
+    } = useRouter(props, context)
+    goToItem(item.id)
+  }
+
+  const onClone = id => {
+    $router.push({ name: 'cloneRole', params: { id } })
+  }
+
+  const onRemove = id => {
+    console.log('onRemove', {id})
+    /*
+    this.$store.dispatch('$_roles/deleteRole', item.id).then(() => {
+      const { $refs: { pfConfigList: { refreshList = () => {} } = {} } = {} } = this
+      refreshList() // soft reload
+    }).catch(error => {
+      const { response: { data: { errors = [] } = {} } = {} } = error
+      if (errors.length) {
+      this.deleteId = item.id
+        this.deleteErrors = errors
+        this.showDeleteErrorsModal = true
+      }
+    })
+    */
+  }
+
+  const _trafficShapingPolicies = ref([])
+  $store.dispatch('$_traffic_shaping_policies/all')
+    .then(response => {
+      _trafficShapingPolicies.value = response.map(policy => policy.id)
+    })
+
+  const trafficShapingRoute = id => {
+    return (_trafficShapingPolicies.value.includes(id))
+      ? { name: 'traffic_shaping', params: { id } } // exists
+      : { name: 'newTrafficShaping', params: { role: id } } // not exists
+  }
+
+  const isInline = computed(() => $store.getters['system/isInline'])
+
+  return {
+    advancedMode,
+    conditionBasic,
+    onSearchBasic,
+    conditionAdvanced,
+    onSearchAdvanced,
+    onSearchReset,
+    onRowClicked,
+    itemsTree,
+    onClone,
+    onRemove,
+    isInline,
+    trafficShapingRoute,
+    ...search
+  }
+}
+
+// @vue/component
+export default {
+  name: 'the-list',
+  inheritAttrs: false,
+  components,
+  setup
+}
+</script>
+
+<style lang="scss">
+.the-tree-list {
+  thead[role="rowgroup"] {
+    border-bottom: 1px solid #dee2e6 !important;
+  }
+  tr[role="row"],
+  tr[role="row"] > th[role="columnheader"] {
+    cursor: pointer;
+    outline-width: 0;
+    td[role="cell"] {
+      padding: 0 0.3rem;
+      text-wrap: nowrap;
+      div[variant="link"] {
+        line-height: 1em;
+      }
+    }
+    td[aria-colindex="1"] {
+      svg.fa-icon:not(.nav-icon) {
+        margin: 0.25rem 0;
+        min-width: 36px;
+        height: auto;
+        max-height: 18px;
+      }
+      svg.nav-icon {
+        color: $gray-500;
+        height: 36px;
+      }
+    }
+  }
+  .table-row-disabled {
+    opacity: 0.6;
+  }
+}
+</style>
