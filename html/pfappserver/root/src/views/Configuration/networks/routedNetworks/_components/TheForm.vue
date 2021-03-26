@@ -12,12 +12,12 @@
           :disabled="!isNew && !isClone"
         />
 
-        <form-group-description namespace="description"
-          :column-label="$i18n.t('Description')"
-        />
-
         <form-group-netmask namespace="netmask"
           :column-label="$i18n.t('Netmask')"
+        />
+
+        <form-group-description namespace="description"
+          :column-label="$i18n.t('Description')"
         />
 
         <form-group-type namespace="type"
