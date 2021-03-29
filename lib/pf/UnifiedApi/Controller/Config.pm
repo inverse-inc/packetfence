@@ -918,6 +918,10 @@ sub field_placeholder {
     my ($self, $field, $defaults) = @_;
     my $name = $field->name;
     my $value;
+    if ($field->type_attr eq 'password') {
+        return '**************';
+    }
+
     if ($defaults) {
         $value = $defaults->{$name};
     }
