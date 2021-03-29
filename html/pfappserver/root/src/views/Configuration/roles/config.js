@@ -62,7 +62,7 @@ export const fields = [
 export const reasons = {
   ADMIN_ROLES_IN_USE: i18n.t('Admin Roles'),
   BILLING_TIERS_IN_USE: i18n.t('Billing Tiers'),
-  FIREWALL_SSO_IN_USE: i18n.t('Firewall SSO.'),
+  FIREWALL_SSO_IN_USE: i18n.t('Firewall SSO'),
   NODE_BYPASS_ROLE_ID_IN_USE: i18n.t('Node Bypass Role'),
   NODE_CATEGORY_ID_IN_USE: i18n.t('Node Category'),
   PASSWORD_CATEGORY_IN_USE: i18n.t('Password Category'),
