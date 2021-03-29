@@ -70,7 +70,7 @@
               <base-search-input-page 
                 v-model="page"
                 :limit="limit"
-                :totalRows="totalRows"
+                :total-rows="totalRows"
                 :disabled="isLoading"
               />
               <base-button-export-csv 
@@ -108,7 +108,7 @@
           </slot>
         </template>
         <template v-slot:cell(id)="{ item }">
-          <navigation-icon v-for="(icon, i) in item._tree" :key="i"
+          <icon v-for="(icon, i) in item._tree" :key="i"
             v-bind="icon" /> 
           <b-link v-if="item.children"
             :class="(collapsedRoles.includes(item.id)) ? 'text-danger' : 'text-secondary'"
@@ -169,10 +169,6 @@
   </b-card>
 </template>
 <script>
-import pfIcon from '@/globals/pfIcon'
-import NavigationIcon from 'vue-awesome/components/Icon'
-NavigationIcon.register(pfIcon)
-
 import {
   BaseButtonConfirm,
   BaseButtonExportCsv,
@@ -197,7 +193,6 @@ const components = {
   BaseSearchInputColumns,
   BaseSearchInputLimit,
   BaseSearchInputPage,
-  NavigationIcon,
   pfButtonHelp,
   pfEmptyTable
 }

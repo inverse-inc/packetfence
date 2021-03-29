@@ -11,7 +11,7 @@
           variant="link"
           :disabled="false"
         >
-          <navigation-icon v-for="(name, n) in item.icons" :key="n"
+          <icon v-for="(name, n) in item.icons" :key="n"
             :name="name" class="nav-icon"/>
 
           <icon v-if="item.expand"
@@ -22,7 +22,7 @@
         <div v-else
           variant="link"
         >
-          <navigation-icon v-for="(name, n) in item.icons" :key="n"
+          <icon v-for="(name, n) in item.icons" :key="n"
             :name="name" class="nav-icon"/>
 
           <icon name="file" v-if="!item.not_revertible || !item.not_deletable"/>
@@ -91,10 +91,6 @@
   </div>
 </template>
 <script>
-import pfIcon from '@/globals/pfIcon'
-import NavigationIcon from 'vue-awesome/components/Icon'
-NavigationIcon.register(pfIcon)
-
 import {
   BaseButtonConfirm,
 } from '@/components/new/'
@@ -105,7 +101,6 @@ import {
 
 const components = {
   BaseButtonConfirm,
-  NavigationIcon,
   ModalDirectory,
   ModalFile
 }

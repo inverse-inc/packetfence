@@ -131,6 +131,9 @@ import 'vue-awesome/icons/user-secret'
 import 'vue-awesome/icons/wifi'
 import 'vue-awesome/icons/window-maximize'
 
+import pfIcons from '@/globals/pfIcons'
+Icon.register(pfIcons)
+
 import './directives/focus'
 
 import store from './store'
