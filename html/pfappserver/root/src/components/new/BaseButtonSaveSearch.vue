@@ -1,7 +1,8 @@
 <template>
   <b-button-group>
-    <b-button variant="primary" @click="onSearch">{{ $t('Search') }}</b-button>
-    <b-dropdown variant="primary" right>
+    <b-button variant="primary" @click="onSearch" :disabled="disabled">{{ $t('Search') }}</b-button>
+    <b-dropdown :disabled="disabled"
+      variant="primary" right>
       <template v-if="canSave">
         <b-dropdown-header>{{ $t('Saved Searches') }}</b-dropdown-header>
         <b-dropdown-item @click="showSaveSearchModal=true">
@@ -56,11 +57,14 @@
 
 <script>
 const props = {
-  namespace: {
+  saveSearchNamespace: {
     type: String
   },
   value: {
     type: [String, Array, Object]
+  },
+  disabled: {
+    type: Boolean
   }
 }
 
@@ -70,7 +74,7 @@ import i18n from '@/utils/locale'
 const setup = (props, context) => {
 
   const {
-    namespace,
+    saveSearchNamespace,
     value
   } = toRefs(props)
 
@@ -83,9 +87,9 @@ const setup = (props, context) => {
     jsonValue.value = JSON.stringify(value.value)
   }, { deep: true, immediate: true })
 
-  onMounted(() => $store.dispatch('saveSearch/get', namespace.value))
-  const canSave = computed(() => namespace.value)
-  const saved = computed(() => $store.getters['saveSearch/cache'][namespace.value] || [])
+  onMounted(() => $store.dispatch('saveSearch/get', saveSearchNamespace.value))
+  const canSave = computed(() => saveSearchNamespace.value)
+  const saved = computed(() => $store.getters['saveSearch/cache'][saveSearchNamespace.value] || [])
 
   const showExportJsonModal = ref(false)
   const showImportJsonModal = ref(false)
@@ -139,7 +143,7 @@ const setup = (props, context) => {
   const onSave = () => {
     const { currentRoute: { path, params } = {} } = $router
     $store.dispatch('saveSearch/set', {
-      namespace: namespace.value,
+      namespace: saveSearchNamespace.value,
       search: {
         name: saveSearchString.value,
         route: {
@@ -157,11 +161,11 @@ const setup = (props, context) => {
   }
 
   const onDelete = (search) => {
-    $store.dispatch('saveSearch/remove', { namespace: namespace.value, search: { name: search.name } })
+    $store.dispatch('saveSearch/remove', { namespace: saveSearchNamespace.value, search: { name: search.name } })
   }
 
   const onLoad = (search) => {
-    const { route, route: { query: { query } = {} } = {} } = search
+    const { route: { query: { query } = {} } = {} } = search
     emit('input', JSON.parse(query))
     emit('search')
   }

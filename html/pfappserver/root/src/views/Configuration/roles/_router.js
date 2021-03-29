@@ -22,13 +22,6 @@ export default [
     beforeEnter
   },
   {
-    path: 'roles/:parentId',
-    name: 'rolesByParentId',
-    component: TheList,
-    props: (route) => ({ parentId: route.params.parentId, query: route.query.query }),
-    beforeEnter
-  },
-  {
     path: 'roles/new',
     name: 'newRole',
     component: TheView,

@@ -51,6 +51,11 @@ export const fields = [
     value: 'notes',
     text: i18n.t('Description'),
     types: [conditionType.SUBSTRING]
+  },
+  {
+    value: 'parent_id',
+    text: i18n.t('Parent Role'),
+    types: [conditionType.ROLE]
   }
 ]
 

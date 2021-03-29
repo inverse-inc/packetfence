@@ -26,14 +26,17 @@
             />
             <b-container fluid class="text-right mt-3 px-0">
               <b-button class="mr-1" type="reset" variant="secondary" :disabled="isLoading">{{ $t('Clear') }}</b-button>
-              <base-button-save-search namespace="roles" v-model="conditionAdvanced"
-              :disabled="isLoading"
+              <base-button-save-search 
+                save-search-namespace="roles-advanced" 
+                v-model="conditionAdvanced"
+                :disabled="isLoading"
                 @search="onSearchAdvanced"
               />
             </b-container>
           </b-form>
         </div>
         <base-search-input-basic v-else
+          save-search-namespace="roles-basic"
           v-model="conditionBasic"
           :disabled="isLoading"
           :placeholder="$t('Search by name or description')"
@@ -101,13 +104,20 @@
       >
         <template v-slot:empty>
           <slot name="emptySearch" v-bind="{ isLoading }">
-              <pf-empty-table :isLoading="isLoading">{{ $t('No results found') }}</pf-empty-table>
+              <pf-empty-table :is-loading="isLoading">{{ $t('No results found') }}</pf-empty-table>
           </slot>
         </template>
         <template v-slot:cell(id)="{ item }">
           <navigation-icon v-for="(icon, i) in item._tree" :key="i"
             v-bind="icon" /> 
-          <icon v-bind="item._icon" />       
+          <b-link v-if="item.children"
+            :class="(collapsedRoles.includes(item.id)) ? 'text-danger' : 'text-secondary'"
+             @click.stop="onToggleRole(item.id)"
+          >
+            <icon v-bind="item._icon" />       
+          </b-link>
+          <icon v-else
+            v-bind="item._icon" />       
           {{ item.id }} 
         </template>
         <template v-slot:cell(buttons)="{ item }">
@@ -196,7 +206,7 @@ import { computed, onMounted, ref } from '@vue/composition-api'
 import { useSearch, useRouter } from '@/views/Configuration/roles/_composables/useCollection'
 import { reasons } from '../config'
 
-const defaultCondition = () => ([{ values: [{ field: 'id', op: 'contains', value: null }] }])
+const defaultCondition = () => ([{ values: [{ field: 'parent_id', op: 'equals', value: null }] }])
 
 const setup = (props, context) => {
 
@@ -216,23 +226,48 @@ const setup = (props, context) => {
     sortDesc
   } = search
 
+  const collapsedRoles = ref([])
+  const _clearExpandedRoles = () => { collapsedRoles.value = [] }
+  const _expandRole = id => {
+    collapsedRoles.value = collapsedRoles.value.filter(expanded => expanded !== id)
+  }
+  const _collapseRole = id => {
+    if (!collapsedRoles.value.includes(id))
+      collapsedRoles.value = [ ...collapsedRoles.value, id ]
+  }
+  const onToggleRole = id => {
+    if (collapsedRoles.value.includes(id))
+      _expandRole(id)
+    else
+      _collapseRole(id)
+  }
+
   const _sortFn =(a, b) => {
-    const { [sortBy.value]: aBy } = a 
-    const { [sortBy.value]: bBy } = b
-    return aBy.toString().localeCompare(bBy.toString()) * ((sortDesc.value) ? -1 : 1)
+    const sortMod = ((sortDesc.value) ? -1 : 1)
+    const { [sortBy.value]: sortByA, id: idA, parent_id: parentIdA } = a 
+    const { [sortBy.value]: sortByB, id: idB, parent_id: parentIdB } = b
+    if (parentIdA === parentIdB)
+      return sortByA.toString().localeCompare(sortByB.toString()) * sortMod
+    else {
+      if (parentIdA === idB)
+        return 1 // always show before
+      else if (parentIdB === idA)
+        return -1 // always show after
+    }
+    return 0 // use natural
   }  
 
   const _flattenFamilies = (_families) => {
     return _families.reduce((families, family) => {
-      let { _children } = family
+      let { _children, ..._family } = family
       if (_children) {
         const children = _flattenFamilies(_children)
           .sort(_sortFn)
         if (children.length > 0)
           children[children.length - 1]._last = true // mark _last
-        return [ ...families, family, ...children ]
+        return [ ...families, _family, ...children ]
       }
-      return [ ...families, family ]
+      return [ ...families, _family ]
     }, [])
   }
 
@@ -270,7 +305,8 @@ const setup = (props, context) => {
           depth = _getDepth(parent_id) + 1
         else if (parent_id) {
           associative[parent_id] = { 
-            id: parent_id, 
+            id: parent_id,
+            children: [id], 
             _depth: 0, 
             ...GHOST
           } // push ghost parent
@@ -311,7 +347,8 @@ const setup = (props, context) => {
         .filter(({ _depth }) => _depth === m)
         .forEach(item => {
           const { parent_id } = item
-          associative[parent_id]._children.push(item)
+          if (!collapsedRoles.value.includes(parent_id)) // ignore collapsed parent
+            associative[parent_id]._children.push(item)
         })
     }
 
@@ -327,34 +364,47 @@ const setup = (props, context) => {
     const decorated = flattened      
       .map(item => {
         const { children = [], _depth, _last } = item || {}
-        const _tree = [
-          ...(
-            new Array(_depth).fill(null)
-              .map(() => ({
-                name: 'tree-pass', class: 'nav-icon'
-              }))
-          ),
-          ...((_last)
-            ? [{ name: 'tree-last', class: 'nav-icon' }]
-            : [{ name: 'tree-node', class: 'nav-icon' }]
+        let _tree = [{ name: 'tree-skip', class: 'nav-icon' }]
+        if (_depth > 0) {
+          _tree.push(
+            ...(
+              new Array(_depth - 1).fill(null)
+                .map(() => ({
+                  name: 'tree-pass', class: 'nav-icon'
+                }))
+            ),
+            ...((_last)
+              ? [{ name: 'tree-last', class: 'nav-icon' }]
+              : [{ name: 'tree-node', class: 'nav-icon' }]
+            )
           )
-        ]
+        }
         const _icon = ((children && children.length)
           ? { name: 'user-plus', class: 'ml-1 text-black' }
           : { name: 'user', class: 'text-black-50' }
         )
         return { ...item, _tree, _icon }
       })
-
     return decorated
   })
 
   onMounted(() => {
     const { currentRoute: { query: { query } = {} } = {} } = $router
-    if (query) {
-      conditionAdvanced.value = JSON.parse(query)
-      advancedMode.value = true
-      doSearchCondition(conditionAdvanced.value)
+    if (query) { 
+      const parsedQuery = JSON.parse(query)
+      switch(parsedQuery.constructor) {
+        case Array: // advanced search
+          conditionAdvanced.value = parsedQuery
+          advancedMode.value = true
+          doSearchCondition(conditionAdvanced.value)
+          break
+        case String: // basic search
+        default:
+          conditionBasic.value = parsedQuery
+          advancedMode.value = false
+          doSearchString(conditionBasic.value)
+          break
+      }
     }
     else
       doReset()
@@ -368,15 +418,17 @@ const setup = (props, context) => {
   const _clearQueryParam = () => _setQueryParam()
 
   const onSearchBasic = () => {
+    _clearExpandedRoles()
     if (conditionBasic.value) {
       doSearchString(conditionBasic.value)
-      _clearQueryParam()
+      _setQueryParam(JSON.stringify(conditionBasic.value))
     }
     else
       doReset()
   }
 
   const onSearchAdvanced = () => {
+    _clearExpandedRoles()
     if (conditionAdvanced.value) {
       doSearchCondition(conditionAdvanced.value)
       _setQueryParam(JSON.stringify(conditionAdvanced.value))
@@ -389,6 +441,7 @@ const setup = (props, context) => {
     conditionBasic.value = null
     conditionAdvanced.value = defaultCondition() // dereference
     _clearQueryParam()
+    _clearExpandedRoles()
     doReset()
   }
 
@@ -451,6 +504,8 @@ const setup = (props, context) => {
   return {
     advancedMode,
     conditionBasic,
+    collapsedRoles,
+    onToggleRole,
     onSearchBasic,
     conditionAdvanced,
     onSearchAdvanced,
