@@ -511,7 +511,7 @@ test_pkg_release_centos_7:
     - .test_script
     - .job_release_triggers
 
-test_pkg_nigthly_centos_7:
+test_pkg_nightly_centos_7:
   variables:
     PERL_UNIT_TESTS: 'yes'
     GOLANG_UNIT_TESTS: 'yes'
