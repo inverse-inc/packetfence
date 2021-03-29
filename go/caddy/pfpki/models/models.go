@@ -216,6 +216,7 @@ type (
 
 var successDBConnect = false
 
+// NewCAModel create a CAModel
 func NewCAModel(pfpki *types.Handler) *CA {
 	CA := &CA{}
 
@@ -225,6 +226,7 @@ func NewCAModel(pfpki *types.Handler) *CA {
 	return CA
 }
 
+// New create a new CA
 func (c CA) New() (types.Info, error) {
 
 	Information := types.Info{}
@@ -348,6 +350,7 @@ func (c CA) New() (types.Info, error) {
 	return Information, nil
 }
 
+// GetByID retreive the CA by id
 func (c CA) GetByID(params map[string]string) (types.Info, error) {
 	Information := types.Info{}
 	var cadb []CA
@@ -360,6 +363,7 @@ func (c CA) GetByID(params map[string]string) (types.Info, error) {
 	return Information, nil
 }
 
+// Fix calculate the IssuerKeyHash and IssuerNameHash
 func (c CA) Fix() (types.Info, error) {
 	Information := types.Info{}
 	var cadb []CA
@@ -401,6 +405,7 @@ func (c CA) Fix() (types.Info, error) {
 	return Information, nil
 }
 
+// Paginated return the CA list paginated
 func (c CA) Paginated(vars sql.Vars) (types.Info, error) {
 	Information := types.Info{}
 	var count int
@@ -422,6 +427,7 @@ func (c CA) Paginated(vars sql.Vars) (types.Info, error) {
 	return Information, nil
 }
 
+// Search for the CA
 func (c CA) Search(vars sql.Vars) (types.Info, error) {
 	Information := types.Info{}
 	sql, err := vars.Sql(c)
@@ -443,6 +449,7 @@ func (c CA) Search(vars sql.Vars) (types.Info, error) {
 	return Information, nil
 }
 
+// FindSCEPProfile search the SCEP Profile by the profile name
 func (c CA) FindSCEPProfile(options []string) ([]Profile, error) {
 	var profiledb []Profile
 	if len(options) >= 1 {
@@ -460,6 +467,7 @@ func (c CA) FindSCEPProfile(options []string) ([]Profile, error) {
 
 }
 
+// CA return the CA public key based on the profile name
 func (c CA) CA(pass []byte, options ...string) ([]*x509.Certificate, *rsa.PrivateKey, error) {
 	var profiledb []Profile
 
@@ -481,6 +489,7 @@ func (c CA) CA(pass []byte, options ...string) ([]*x509.Certificate, *rsa.Privat
 	return []*x509.Certificate{cacert}, key, err
 }
 
+// Put create the public key in the DB (SCEP)
 func (c CA) Put(cn string, crt *x509.Certificate, options ...string) error {
 
 	attributeMap := certutils.GetDNFromCert(crt.Subject)
@@ -508,6 +517,7 @@ func (c CA) Put(cn string, crt *x509.Certificate, options ...string) error {
 	return nil
 }
 
+// Serial return the serial number
 func (c CA) Serial(options ...string) (*big.Int, error) {
 
 	profiledb, err := c.FindSCEPProfile(options)
