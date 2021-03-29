@@ -102,6 +102,11 @@ include::networkdevice/aruba.asciidoc[]
 
 include::networkdevice/belair_networks_ericsson.asciidoc
 
+=== Bluesocket
+
+include::networkdevice/bluesocket.asciidoc
+
+
 === Brocade
 
 ==== RF Switches
