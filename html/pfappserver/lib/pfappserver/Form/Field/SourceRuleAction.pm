@@ -14,6 +14,7 @@ use pfappserver::Form::Field::DynamicList;
 use pf::Authentication::Action;
 use HTML::FormHandler::Moose;
 use pf::Authentication::constants;
+use pf::config qw(%ConfigRoles);
 
 extends 'HTML::FormHandler::Field::Compound';
 has '+widget_wrapper' => (default => 'Bootstrap');
@@ -92,6 +93,19 @@ sub deflate {
         return @{$value}{type}."=".$list;
     }
     return join("=", @{$value}{qw(type value)});
+}
+
+
+sub validate {
+    my ($self) = @_;
+    my $value = $self->value;
+    my $type = $value->{type};
+    if ($type eq 'set_role') {
+        my $role = $value->{value};
+        if (defined $role && !exists $ConfigRoles{$role}) {
+            $self->field('value')->add_error("$role does not exists");
+        }
+    }
 }
 
 =head1 COPYRIGHT
