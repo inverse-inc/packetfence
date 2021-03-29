@@ -254,7 +254,8 @@ const setup = (props, context) => {
     const GHOST = {
       _children: [], // post-processed
       _match: false, // not found in search
-      _rowVariant: 'row-disabled' // CSSable
+      _rowVariant: 'row-disabled', // CSSable
+      not_deletable: true // defer uncertainty
     }
 
     // track depth for later processing

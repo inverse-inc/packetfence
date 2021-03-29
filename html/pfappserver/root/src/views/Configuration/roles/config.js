@@ -34,6 +34,10 @@ export const columns = [
   {
     key: 'parent_id',
     required: true
+  },
+  {
+    key: 'not_deletable',
+    required: true
   }
 ]
 
