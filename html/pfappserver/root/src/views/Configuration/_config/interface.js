@@ -35,6 +35,10 @@ export const typeFormatter = (value) => {
 export const sortColumns = { // maintain hierarchical ordering (master => vlans)
   id: (itemA, itemB, sortDesc) => {
     const sortMod = (sortDesc) ? -1 : 1
+    if (!itemA)
+      return -1 * sortMod
+    if (!itemB)
+      return 1 * sortMod
     switch (true) {
       case (!!itemA.vlan && !itemB.vlan && itemA.master === itemB.id): // B is master of A
         return 1 * sortMod
