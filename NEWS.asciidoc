@@ -32,6 +32,7 @@ For a list of compatibility related changes see the <<PacketFence_Upgrade_Guide.
 * Aruba 2930M Web Authentication and Dynamic ACL support (#6158)
 * Meraki DPSK support
 * Support for Ruckus Smartzone MAC authentication in non-proxy modes (#6201)
+* Bluesocket support (PR #5878)
 
 === Enhancements
 
