@@ -86,7 +86,7 @@ all:
           hosts:
             pfcen7dev:
               box: centos/7
-              box_version: 2004.01
+              box_version: '2004.01'
               mgmt_ip: 172.17.17.10
               mgmt_netmask: 255.255.255.0
               ansible_host: "{{ mgmt_ip }}"
@@ -94,7 +94,7 @@ all:
               memory: 6144
             pfcen8dev:
               box: centos/8
-              box_version: 1905.1
+              box_version: '1905.1'
               mgmt_ip: 172.17.17.11
               mgmt_netmask: 255.255.255.0
               ansible_host: "{{ mgmt_ip }}"
@@ -121,7 +121,7 @@ all:
           hosts:
             pfcen7stable:
               box: centos/7
-              box_version: 2004.01
+              box_version: '2004.01'
               mgmt_ip: 172.17.17.14
               mgmt_netmask: 255.255.255.0
               ansible_host: "{{ mgmt_ip }}"
@@ -129,7 +129,7 @@ all:
               memory: 6144
             pfcen8stable:
               box: centos/8
-              box_version: 1905.1
+              box_version: '1905.1'
               mgmt_ip: 172.17.17.15
               mgmt_netmask: 255.255.255.0
               ansible_host: "{{ mgmt_ip }}"
