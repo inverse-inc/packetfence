@@ -59,6 +59,8 @@ export const fields = [
   }
 ]
 
+// backend reports 1+ reason(s) for delete failure.
+//  map friendly reasons
 export const reasons = {
   ADMIN_ROLES_IN_USE: i18n.t('Admin Roles'),
   BILLING_TIERS_IN_USE: i18n.t('Billing Tiers'),
