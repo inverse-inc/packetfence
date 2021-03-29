@@ -22,7 +22,7 @@ BEGIN {
     use setup_test_config;
 }
 
-use Test::More tests => 5;
+use Test::More tests => 11;
 
 #This test will running last
 use Test::NoWarnings;
@@ -78,6 +78,10 @@ $t->post_ok(
 )
 ->status_is(201);
 
+$t->get_ok( "/api/v1/config/source/$id")
+->status_is(200)
+->json_is("/item/host", ['127.0.0.1']);
+
 $t->post_ok(
     '/api/v1/config/sources' => json => {
         %args,
@@ -86,6 +90,11 @@ $t->post_ok(
     }
 )
 ->status_is(201);
+
+
+$t->get_ok( "/api/v1/config/source/id_2_$$")
+->status_is(200)
+->json_is("/item/host", ['127.0.0.1']);
 
 =head1 AUTHOR
 

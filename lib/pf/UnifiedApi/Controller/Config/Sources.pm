@@ -104,6 +104,19 @@ sub type_lookup {
     return \%TYPES_TO_FORMS;
 }
 
+sub validate_item {
+    my ($self, $item) = @_;
+    my $type = $item->{type};
+    if (defined $type && ($type eq 'LDAP' || $type eq 'AD')) {
+        my $val = $item->{host};
+        if (defined $val && !ref($val)) {
+            $item->{host} = [split(/\s*,\s*/, $val)];
+        }
+    }
+
+    return $self->SUPER::validate_item($item);
+}
+
 =head2 test
 
 test a source configuration
