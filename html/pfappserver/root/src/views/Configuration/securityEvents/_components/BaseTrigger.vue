@@ -259,7 +259,7 @@ const setup = (props, context) => {
   })
 
   const eventDescription = computed(() => {
-    var { event: { typeValue: { type, value } = {}, fingerbank_network_behavior_policy = '' } = {} } = inputValue.value || {}
+    var { event: { typeValue: { type, value, fingerbank_network_behavior_policy = '' } = {} } = {} } = inputValue.value || {}
     let description
     if (type && value) {
       description = `${triggerFields[type].text}: ${value}`

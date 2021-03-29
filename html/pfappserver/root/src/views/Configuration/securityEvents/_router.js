@@ -1,6 +1,7 @@
 import store from '@/store'
 import SecurityEventsStoreModule from './_store'
 import ConnectionProfilesStoreModule from '../connectionProfiles/_store'
+import NetworkBehaviorPoliciesStoreModule from '../networkBehaviorPolicy/_store'
 
 const TheList = () => import(/* webpackChunkName: "Configuration" */ '../_components/SecurityEventsList')
 const TheView = () => import(/* webpackChunkName: "Configuration" */ './_components/TheView')
@@ -10,6 +11,8 @@ export const beforeEnter = (to, from, next = () => {}) => {
     store.registerModule('$_security_events', SecurityEventsStoreModule)
   if (!store.state.$_connection_profiles)
     store.registerModule('$_connection_profiles', ConnectionProfilesStoreModule)
+  if (!store.state.$_network_behavior_policies)
+    store.registerModule('$_network_behavior_policies', NetworkBehaviorPoliciesStoreModule)
   next()
 }
 

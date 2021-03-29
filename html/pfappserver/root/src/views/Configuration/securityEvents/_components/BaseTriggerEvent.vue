@@ -1,16 +1,22 @@
 <template>
-  <div class="base-trigger-event base-flex-wrap" align-v="center">
-
-    <base-input-chosen-one ref="typeComponentRef"
-    :namespace="`${namespace}.type`"
-      :options="typeOptions"
-    />
-
-    <component :is="valueComponent" ref="valueComponentRef"
-      :namespace="`${namespace}.value`"
-      :options="valueOptions"
-    />
-
+  <div>
+    <div class="base-trigger-event base-flex-wrap" align-v="center">
+      <base-input-chosen-one ref="typeComponentRef"
+        :namespace="`${namespace}.type`"
+        :options="typeOptions"
+      />
+      <component :is="valueComponent" ref="valueComponentRef"
+        :namespace="`${namespace}.value`"
+        :options="valueOptions"
+      />
+    </div>
+    <template v-if="hasFingerbankNetworkBehaviorPolicy">
+      <small>{{ $i18n.t('Fingerbank Network Behaviour Policy') }}</small>
+      <base-input-chosen-one
+        :namespace="`${namespace}.fingerbank_network_behavior_policy`"
+        :options="fingerbankNetworkBehaviorPolicies"
+      />
+    </template>
   </div>
 </template>
 <script>
@@ -34,7 +40,8 @@ import {
 } from '@/globals/pfField'
 import {
   triggerCategories,
-  triggerFields
+  triggerFields,
+  fingerbankNetworkBehaviorPolicyTypes
 } from '../config'
 
 const props = {
@@ -50,6 +57,8 @@ const setup = (props, context) => {
     value: inputValue,
     onChange
   } = useInputValue(metaProps, context)
+
+  const { root: { $store } = {} } = context
 
   const typeComponentRef = ref(null)
   const valueComponentRef = ref(null)
@@ -75,6 +84,7 @@ const setup = (props, context) => {
   const valueOptions = ref([])
   watch(type, () => {
     valueOptions.value = useNamespaceMetaAllowed(`triggers.0.${type.value}`, meta)
+      .sort((a, b) => a.text.localeCompare(b.text))
   }, { immediate: true })
 
   const typeOptions = Object.keys(triggerFields)
@@ -114,12 +124,32 @@ const setup = (props, context) => {
     }
   })
 
+  const fingerbankNetworkBehaviorPolicies = computed(() => {
+    return $store.dispatch('$_network_behavior_policies/all')
+      .then(policies => {
+        return policies.map(policy => ({ text: policy.description, value: policy.id }))
+      })
+  })
+  const hasFingerbankNetworkBehaviorPolicy = computed(() => {
+    const { type, value } = inputValue.value || {}
+    return type === 'internal' 
+      && fingerbankNetworkBehaviorPolicyTypes.includes(value)
+  })
+  watch(hasFingerbankNetworkBehaviorPolicy, () => { // when policy requirement changes
+    if (!hasFingerbankNetworkBehaviorPolicy.value) { // and policy is no longer required
+      const { type, value } = inputValue.value || {}  
+      onChange({ type, value }) // clear policy
+    }
+  })
+
   return {
     typeComponentRef,
     typeOptions,
     valueComponent,
     valueComponentRef,
-    valueOptions
+    valueOptions,
+    fingerbankNetworkBehaviorPolicies,
+    hasFingerbankNetworkBehaviorPolicy
   }
 }
 

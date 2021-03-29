@@ -181,10 +181,10 @@ export const decomposeTriggers = (triggers) => {
             let match = /(fingerbank_diff_score_too_low|fingerbank_blacklisted_ips_threshold_too_high|fingerbank_blacklisted_ports)_(.+)/.exec(value)
             if (match) {
               decomposed[category].typeValue.value = match[1]
-              decomposed[category].fingerbank_network_behavior_policy = match[2]
+              decomposed[category].typeValue.fingerbank_network_behavior_policy = match[2]
             }
             else
-              decomposed[category].fingerbank_network_behavior_policy = 'all'
+              decomposed[category].typeValue.fingerbank_network_behavior_policy = 'all'
           }
         }
         else
@@ -224,8 +224,8 @@ export const recomposeTriggers = (triggers = []) => {
         }
         else if (category === triggerCategories.EVENT) {
           // Append network behavior policy name
-          const { [category]: { typeValue: { type, value } = {}, fingerbank_network_behavior_policy } = {} } = trigger
-          if (type === 'internal' && fingerbank_network_behavior_policy !== 'all' && ['fingerbank_diff_score_too_low', 'fingerbank_blacklisted_ips_threshold_too_high', 'fingerbank_blacklisted_ports'].includes(value))
+          const { [category]: { typeValue: { type, value, fingerbank_network_behavior_policy } = {} } = {} } = trigger
+          if (type === 'internal' && fingerbank_network_behavior_policy !== 'all' && fingerbankNetworkBehaviorPolicyTypes.includes(value))
             trigger[category].typeValue.value += `_${fingerbank_network_behavior_policy}`
         }
         const { [category]: { typeValue: { type, value } = {} } = {} } = trigger
@@ -236,3 +236,9 @@ export const recomposeTriggers = (triggers = []) => {
     return recomposed
   })
 }
+
+export const fingerbankNetworkBehaviorPolicyTypes = [
+  'fingerbank_diff_score_too_low', 
+  'fingerbank_blacklisted_ips_threshold_too_high', 
+  'fingerbank_blacklisted_ports'
+]

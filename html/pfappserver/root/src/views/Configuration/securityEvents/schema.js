@@ -1,6 +1,7 @@
 import store from '@/store'
 import i18n from '@/utils/locale'
 import yup from '@/utils/yup'
+import { fingerbankNetworkBehaviorPolicyTypes } from './config'
 
 yup.addMethod(yup.string, 'securityEventIdNotExistsExcept', function (exceptId = '', message) {
   return this.test({
@@ -54,6 +55,17 @@ const schemaTriggerEvent = yup.object({
         is: value => !value,
         then: yup.string().nullable(),
         otherwise: yup.string().nullable().required(i18n.t('Value required.'))
+      }),
+    fingerbank_network_behavior_policy: yup.string()
+      .when('type', {
+        is: value => value === 'internal',
+        then: yup.string()
+          .when('value', {
+            is: value => fingerbankNetworkBehaviorPolicyTypes.includes(value),
+            then: yup.string().nullable().required(i18n.t('Policy required.')),
+            otherwise: yup.string().nullable()
+          }),
+        otherwise: yup.string().nullable()
       })
   })
 })
@@ -89,7 +101,9 @@ export const schema = (props) => {
       .securityEventIdNotExistsExcept((!isNew && !isClone) ? id : undefined, i18n.t('Identifier exists.')),
 
     triggers: schemaTriggers.meta({ invalidFeedback: i18n.t('Triggers contains one or more errors.') }),
-    desc: yup.string().nullable().label(i18n.t('Description')),
+    desc: yup.string().nullable()
+      .required(i18n.t('Description required.'))
+      .label(i18n.t('Description')),
     priority: yup.string().nullable().label(i18n.t('Priority')),
     whitelisted_roles: schemaWhiteListedRoles
   })
