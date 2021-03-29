@@ -26,7 +26,7 @@ BEGIN {
     use setup_test_config;
 }
 
-use Test::More tests => 15;
+use Test::More tests => 17;
 use Test::Mojo;
 use Utils;
 use pf::ConfigStore::Source;
@@ -67,6 +67,38 @@ $items = $t->tx->res->json->{items};
 my @new_names = map { $_->{id} } @$items;
 
 is_deeply(\@new_names, \@names, "Resorting");
+
+$t->post_ok(
+    $collection_base_url => json => {
+        "administration_rules" => [],
+        "authentication_rules" => [
+            {
+                "actions" => [
+                    {
+                        "type"  => "set_access_duration",
+                        "value" => "12h"
+                    },
+                    {
+                        "type"  => "set_role",
+                        "value" => "ROLE_NOT_CREATED"
+                    }
+                ],
+                "conditions"  => [],
+                "description" => "asas",
+                "id"          => "catchall",
+                "match"       => "all",
+                "status"      => "enabled"
+            }
+        ],
+        "description"                 => "authorization_catchall",
+        "host"                        => "",
+        "id"                          => "ROLE_NOT_CREATED_$$",
+        "realms"                      => [],
+        "set_access_durations_action" => [],
+        "type"                        => "Authorization"
+    }
+)
+->status_is(422);
 
 =head1 AUTHOR
 
