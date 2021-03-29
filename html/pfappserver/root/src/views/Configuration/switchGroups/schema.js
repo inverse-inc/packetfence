@@ -31,7 +31,10 @@ export const schema = (props) => {
       .nullable()
       .required(i18n.t('Identifier required.'))
       .switchGroupIdNotExistsExcept((!isNew && !isClone) ? id : undefined, i18n.t('Identifier exists.')),
-    description: yup.string().nullable().label(i18n.t('Description')),
+    description: yup.string()
+      .nullable()
+      .required(i18n.t('Description required.'))
+      .label(i18n.t('Description')),
     inlineTrigger: schemaInlineTriggers.meta({ invalidFeedback: i18n.t('Inline conditions contains one or more errors.') }),
     type: yup.string().nullable().label(i18n.t('Type')),
     mode: yup.string().nullable().label(i18n.t('Mode')),
