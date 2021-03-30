@@ -200,7 +200,7 @@ const components = {
 }
 
 import { computed, onMounted, ref } from '@vue/composition-api'
-import { useSearch, useRouter } from '@/views/Configuration/roles/_composables/useCollection'
+import { useSearch, useRouter } from '../_composables/useCollection'
 import { reasons } from '../config'
 
 const defaultCondition = () => ([{ values: [{ field: 'parent_id', op: 'equals', value: null }] }])
