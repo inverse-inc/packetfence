@@ -371,7 +371,7 @@ Do (and make sure it completes without any errors):
 
 [source,bash]
 ----
- /usr/local/pf/bin/cluster/sync --from=192.168.1.5 --api-user=packet --api-password=fence
+ /usr/local/pf/bin/cluster/sync --from=192.168.1.5 --api-user=packet --api-password=anotherMoreSecurePassword
 ----
 
 NOTE: Space before last command is on purpose to avoid record of password in shell history
@@ -380,7 +380,7 @@ Where :
 
 * '192.168.1.5' is the management IP of the *first server* node
 * 'packet' is the webservices username you have configured on the *first server* node during <<_packetfence_configuration_modification_first_server_only>>
-* 'fence' is the webservices password you have configured on the *first server* node during <<_packetfence_configuration_modification_first_server_only>>
+* 'anotherMoreSecurePassword' is the webservices password you have configured on the *first server* node during <<_packetfence_configuration_modification_first_server_only>>
 
 Then, reload the configuration and start the webservices on second and third servers:
 
