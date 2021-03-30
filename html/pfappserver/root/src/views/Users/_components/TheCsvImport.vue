@@ -215,7 +215,7 @@ const setup = (props, context) => {
     MysqlDatabase,
 
     files,
-    onCloseFile
+    onCloseFile,
     tabIndex,
     form,
     schema,
