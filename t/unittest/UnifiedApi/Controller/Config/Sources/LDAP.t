@@ -22,7 +22,7 @@ BEGIN {
     use setup_test_config;
 }
 
-use Test::More tests => 11;
+use Test::More tests => 16;
 
 #This test will running last
 use Test::NoWarnings;
@@ -82,19 +82,32 @@ $t->get_ok( "/api/v1/config/source/$id")
 ->status_is(200)
 ->json_is("/item/host", ['127.0.0.1']);
 
+my $id2 = "id_2_$$";
+
 $t->post_ok(
     '/api/v1/config/sources' => json => {
         %args,
         host               => '127.0.0.1',
-        id                 => "id_2_$$",
+        id                 => $id2,
     }
 )
 ->status_is(201);
 
-
-$t->get_ok( "/api/v1/config/source/id_2_$$")
+$t->get_ok( "/api/v1/config/source/$id2")
 ->status_is(200)
 ->json_is("/item/host", ['127.0.0.1']);
+
+$t->patch_ok(
+    "/api/v1/config/source/$id2" => json => {
+        host               => ['127.0.0.2'],
+    }
+)
+->status_is(200);
+
+$t->get_ok( "/api/v1/config/source/$id2")
+->status_is(200)
+->json_is("/item/host", ['127.0.0.2']);
+
 
 =head1 AUTHOR
 
