@@ -105,9 +105,8 @@ export const useViewCollectionItem = (collection, props, context) => {
             form.value = {}
             reject(e)
           })
-        }).catch(e => { // meta may not be available, fail silently
+        }).catch(() => { // meta may not be available, fail silently
           meta.value = {}
-          console.error(e) 
           getItem().then(item => {
             form.value = { ...item } // dereferenced
             resolve()
@@ -122,11 +121,9 @@ export const useViewCollectionItem = (collection, props, context) => {
           form.value = useItemDefaults(_meta, props, context)
           meta.value = _meta
           resolve()
-        }).catch(e => {
+        }).catch(() => {
           form.value = {}
           meta.value = {}
-          // reject(e)
-          console.error(e)
           resolve() // meta may not be available, fail silently
         })
       }
