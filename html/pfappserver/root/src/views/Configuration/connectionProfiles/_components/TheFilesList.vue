@@ -188,10 +188,12 @@ const setup = (props, context) => {
   watch([sortBy, sortDesc], () => _getFiles(), { immediate: true })
 
   watch([entries, expandPaths], () => {
-    const reduceEntries = (entries, path = '', _icons = []) => {
+    const reduceEntries = (entries, depth = 0, path = '', _icons = []) => {
       return entries.reduce((reduced, entry, e) => {
         const last = (e === entries.length - 1)
-        const icons = [ ..._icons, (last) ? 'tree-last' : 'tree-node' ]
+        let icons = _icons
+        if (depth > 0)
+          icons = [ ..._icons, (last) ? 'tree-last' : 'tree-node' ]
         const { entries: childEntries = [], ...rest } = entry || {}
         const { type, name } = rest || {}
         const fullPath = `${path}/${name}`
@@ -199,7 +201,10 @@ const setup = (props, context) => {
           case 'dir':
             if (expandPaths.value.includes(fullPath)) {
               reduced.push({ ...rest, path, expand: true, icons })
-              reduced.push(...reduceEntries(childEntries, fullPath, [ ..._icons, (last) ? 'tree-skip' : 'tree-pass' ]))
+              if (depth > 0)
+                reduced.push(...reduceEntries(childEntries, depth + 1, fullPath, [ ..._icons, (last) ? 'tree-skip' : 'tree-pass' ]))
+              else
+                reduced.push(...reduceEntries(childEntries, depth + 1, fullPath, _icons))
             }
             else
               reduced.push({ ...rest, path, expand: false, icons })
