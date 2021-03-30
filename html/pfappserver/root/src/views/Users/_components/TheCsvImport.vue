@@ -10,7 +10,7 @@
           no-body
         >
           <template v-slot:title>
-            <b-button-close class="ml-2" :class="(tabIndex === index) ? 'text-white' : 'text-primary'" @click.stop.prevent="closeFile(index)" v-b-tooltip.hover.left.d300 :title="$t('Close File')">
+            <b-button-close class="ml-2" :class="(tabIndex === index) ? 'text-white' : 'text-primary'" @click.stop.prevent="onCloseFile(index)" v-b-tooltip.hover.left.d300 :title="$t('Close File')">
               <icon name="times" class="align-top ml-1"></icon>
             </b-button-close>
             {{ file.name }}
@@ -125,6 +125,10 @@ const setup = (props, context) => {
   const { root: { $store } = {} } = context
   
   const files = ref([])
+  const onCloseFile = index => {
+    files.value = [ ...files.value.slice(0, index), ...files.value.slice(index + 1, files.value.length) ]
+  }
+
   const form = ref({ ...defaults }) // dereferenced
   const schema = computed(() => schemaFn(props, form.value))
   const passwordOptions = ref(_passwordOptions)
@@ -211,11 +215,12 @@ const setup = (props, context) => {
     MysqlDatabase,
 
     files,
+    onCloseFile
     tabIndex,
     form,
     schema,
     passwordOptions,
-    
+  
     domainName,
     isLoading,
     createdUsers,
