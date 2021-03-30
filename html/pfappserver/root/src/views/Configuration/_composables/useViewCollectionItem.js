@@ -105,10 +105,16 @@ export const useViewCollectionItem = (collection, props, context) => {
             form.value = {}
             reject(e)
           })
-        }).catch(e => {
-          form.value = {}
+        }).catch(e => { // meta may not be available, fail silently
           meta.value = {}
-          reject(e)
+          console.error(e) 
+          getItem().then(item => {
+            form.value = { ...item } // dereferenced
+            resolve()
+          }).catch(e => {
+            form.value = {}
+            reject(e)
+          })
         })
       } else { // new
         getOptions().then(options => {
@@ -119,7 +125,9 @@ export const useViewCollectionItem = (collection, props, context) => {
         }).catch(e => {
           form.value = {}
           meta.value = {}
-          reject(e)
+          // reject(e)
+          console.error(e)
+          resolve() // meta may not be available, fail silently
         })
       }
     })
