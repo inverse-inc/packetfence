@@ -169,7 +169,8 @@ export default {
             },
             { name: this.$i18n.t('DNS Configuration'), path: '/configuration/dns' },
             { name: this.$i18n.t('Admin Access'), path: '/configuration/admin_roles' },
-            { name: this.$i18n.t('SSL Certificates'), path: '/configuration/certificates' }
+            { name: this.$i18n.t('SSL Certificates'), path: '/configuration/certificates' },
+            { name: this.$i18n.t('Tenants'), path: '/configuration/tenants' }
           ]
         }
       ]

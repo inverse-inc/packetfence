@@ -59,6 +59,7 @@ import ActiveActiveRoutes from '../activeActive/_router'
 import RadiusRoutes from '../radius/_router'
 import DnsRoutes from '../dns/_router'
 import AdminRolesRoutes from '../adminRoles/_router'
+import TenantsRoutes from '../tenants/_router'
 
 import store from '@/store'
 import BasesStoreModule from '../bases/_store'
@@ -168,7 +169,8 @@ const route = {
     ...RadiusRoutes,
     ...DnsRoutes,
     ...AdminRolesRoutes,
-    ...SslCertificatesRoutes
+    ...SslCertificatesRoutes,
+    ...TenantsRoutes
   ]
 }
 
