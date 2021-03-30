@@ -22,7 +22,7 @@ BEGIN {
     use setup_test_config;
 }
 
-use Test::More tests => 17;
+use Test::More tests => 19;
 
 #This test will running last
 use Test::NoWarnings;
@@ -498,7 +498,75 @@ CONF
                 }
             )
         },
-        "Build simple condition filter with nested key"
+        "Build alway true",
+    );
+}
+
+{
+
+    my $conf = <<'CONF';
+[Bozo]
+status=enabled
+scopes=returnRadiusAccessAccept
+condition=mac == "cc:c0:79:f6:6c:aa" && time_period(time, "wd {Mon Tue Wed Thu Fri} hr {8am-2pm}")
+CONF
+
+    my ( $error, $engine ) = build_from_conf( $builder, $conf );
+    is( $error, undef, "No Error Found" );
+    is_deeply(
+        $engine,
+        {
+        'returnRadiusAccessAccept' => bless(
+            {
+                'filters' => [
+                    bless(
+                        {
+                            'answer' => {
+                                'params'  => [],
+                                'scopes'  => [ 'returnRadiusAccessAccept' ],
+                                'actions' => [],
+                                'status'  => 'enabled',
+                                '_rule'   => 'Bozo',
+                                'answers' => [],
+                                'condition' =>
+'mac == "cc:c0:79:f6:6c:aa" && time_period(time, "wd {Mon Tue Wed Thu Fri} hr {8am-2pm}")'
+                            },
+                            'condition' => bless(
+                                {
+                                    'conditions' => [
+                                        bless(
+                                            {
+                                                'condition' => bless(
+                                                    {
+                                                        'value' =>
+                                                          'cc:c0:79:f6:6c:aa'
+                                                    },
+                                                    'pf::condition::equals'
+                                                ),
+                                                'key' => 'mac'
+                                            },
+                                            'pf::condition::key'
+                                        ),
+                                        bless(
+                                                    {
+                                                        'value' =>
+'wd {Mon Tue Wed Thu Fri} hr {8am-2pm}'
+                                                    },
+                                                    'pf::condition::time_period'
+                                        ),
+                                    ]
+                                },
+                                'pf::condition::all'
+                            )
+                        },
+                        'pf::filter'
+                    )
+                ]
+            },
+            'pf::filter_engine'
+          )
+        },
+        "Build condition with pf::condition::time_period"
     );
 }
 

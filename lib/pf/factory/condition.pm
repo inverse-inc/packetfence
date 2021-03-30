@@ -62,6 +62,10 @@ our %FUNC_OPS = (
     'true'                   => 'pf::condition::true',
 );
 
+our %NO_KEY = (
+    'time_period' => 1,
+);
+
 =head2 buildCondition
 
 build a condition
@@ -110,7 +114,13 @@ sub buildCondition {
 
             my ($key, $val) = @$params;
             my $sub_condition = $FUNC_OPS{$func}->new(value => $val);
-            my $condition = build_parent_condition($sub_condition, $key);
+            my $condition;
+            if (exists $NO_KEY{$func}) {
+                $condition = $sub_condition;
+            } else {
+                $condition = build_parent_condition($sub_condition, $key);
+            }
+
             return $wrap_in_not ? pf::condition::not->new({condition => $condition}) : $condition;
         }
 
