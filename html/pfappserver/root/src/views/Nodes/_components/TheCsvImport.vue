@@ -4,13 +4,13 @@
       <h4 class="mb-0" v-t="'Import Nodes'"></h4>
     </b-card-header>
     <div class="card-body p-0">
-      <b-tabs ref="tabs" v-model="tabIndex" card pills>
+      <b-tabs ref="tabs" v-model="tabIndex" card pills :key="files.length">
         <b-tab v-for="(file, index) in files" :key="file.name + file.lastModified"
           :title="file.name" :title-link-class="(tabIndex === index) ? ['bg-primary', 'text-light'] : ['bg-light', 'text-primary']"
           no-body
         >
           <template v-slot:title>
-            <b-button-close class="ml-2" :class="(tabIndex === index) ? 'text-white' : 'text-primary'" @click.stop.prevent="closeFile(index)" v-b-tooltip.hover.left.d300 :title="$t('Close File')">
+            <b-button-close class="ml-2" :class="(tabIndex === index) ? 'text-white' : 'text-primary'" @click.stop.prevent="onCloseFile(index)" v-b-tooltip.hover.left.d300 :title="$t('Close File')">
               <icon name="times" class="align-top ml-1"></icon>
             </b-button-close>
             {{ file.name }}
@@ -67,9 +67,11 @@ const setup = (props, context) => {
   const { root: { $store } = {} } = context
 
   const files = ref([])
+  const onCloseFile = index => {
+    files.value = [ ...files.value.slice(0, index), ...files.value.slice(index + 1, files.value.length) ]
+  }
+  
   const tabIndex = ref(0)
-
- 
   const isLoading = ref(false)
 
   const importPromise = (payload) => {
@@ -84,8 +86,8 @@ const setup = (props, context) => {
     importFields,
 
     files,
+    onCloseFile,
     tabIndex,
-
     isLoading,
     importPromise
   }    
