@@ -4,7 +4,7 @@ export const certificates = [
 ]
 
 export const certificateServices = {
-  http: ['haproxy-portal', 'httpd.admin', 'haproxy-admin'],
+  http: ['haproxy-portal', 'haproxy-admin'],
   radius: ['radiusd-auth']
 }
 
