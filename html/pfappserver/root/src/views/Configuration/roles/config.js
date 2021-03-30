@@ -4,6 +4,7 @@ import { pfSearchConditionType as conditionType } from '@/globals/pfSearch'
 export const columns = [
   {
     key: 'id',
+    class: 'text-nowrap',
     label: i18n.t('Name'),
     required: true,
     sortable: true,

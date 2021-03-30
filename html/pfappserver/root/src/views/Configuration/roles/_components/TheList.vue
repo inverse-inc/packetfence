@@ -359,7 +359,7 @@ const setup = (props, context) => {
     const decorated = flattened      
       .map(item => {
         const { children = [], _depth, _last } = item || {}
-        let _tree = [{ name: 'tree-skip', class: 'nav-icon' }]
+        let _tree = []
         if (_depth > 0) {
           _tree.push(
             ...(
