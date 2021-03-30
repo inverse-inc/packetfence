@@ -4,6 +4,7 @@ import BaseButtonExportCsv from './BaseButtonExportCsv'
 import BaseButtonHelp from './BaseButtonHelp'
 import BaseButtonRefresh from './BaseButtonRefresh'
 import BaseButtonSave from './BaseButtonSave'
+import BaseButtonSaveSearch from './BaseButtonSaveSearch'
 import BaseButtonService from './BaseButtonService'
 import BaseButtonUpload from './BaseButtonUpload'
 import BaseContainerLoading from './BaseContainerLoading'
@@ -57,6 +58,11 @@ import BaseInputRange from './BaseInputRange'
 import BaseInputToggle, { props as BaseInputToggleProps } from './BaseInputToggle'
 import BaseInputToggleAdvancedMode from './BaseInputToggleAdvancedMode'
 import BaseInputToggleFalseTrue from './BaseInputToggleFalseTrue'
+import BaseSearchInputBasic from './BaseSearchInputBasic'
+import BaseSearchInputAdvanced from './BaseSearchInputAdvanced'
+import BaseSearchInputColumns from './BaseSearchInputColumns'
+import BaseSearchInputLimit from './BaseSearchInputLimit'
+import BaseSearchInputPage from './BaseSearchInputPage'
 import BaseTableEmpty from './BaseTableEmpty'
 import BaseView from './BaseView'
 
@@ -133,12 +139,20 @@ export {
   BaseButtonHelp,
   BaseButtonRefresh,
   BaseButtonSave,
+  BaseButtonSaveSearch,
   BaseButtonService,
   BaseButtonUpload,
 
   // containers
   BaseContainerLoading,
   
+  // search
+  BaseSearchInputBasic,
+  BaseSearchInputAdvanced,
+  BaseSearchInputColumns,
+  BaseSearchInputLimit,
+  BaseSearchInputPage,
+
   // tables
   BaseTableEmpty,
 

@@ -1,40 +1,45 @@
 import apiCall from '@/utils/api'
 
 export default {
-  roles: params => {
+  list: params => {
     return apiCall.get('config/roles', { params }).then(response => {
       return response.data
     })
   },
-  rolesOptions: () => {
+  listOptions: () => {
     return apiCall.options('config/roles').then(response => {
       return response.data
     })
   },
-  role: id => {
+  item: id => {
     return apiCall.get(['config', 'role', id]).then(response => {
       return response.data.item
     })
   },
-  roleOptions: id => {
+  itemOptions: id => {
     return apiCall.options(['config', 'role', id]).then(response => {
       return response.data
     })
   },
-  createRole: data => {
+  create: data => {
     return apiCall.post('config/roles', data).then(response => {
       return response.data
     })
   },
-  updateRole: data => {
+  update: data => {
     return apiCall.patch(['config', 'role', data.id], data).then(response => {
       return response.data
     })
   },
-  deleteRole: id => {
+  delete: id => {
     return apiCall.delete(['config', 'role', id])
   },
-  reassignRole: data => {
+  reassign: data => {
     return apiCall.patch(['config', 'role', data.from, 'reassign'], { id: data.to })
+  },
+  search: data => {
+    return apiCall.post('config/roles/search', data).then(response => {
+      return response.data
+    })
   }
 }
