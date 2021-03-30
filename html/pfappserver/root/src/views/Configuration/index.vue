@@ -42,8 +42,7 @@ export default {
             },
             { name: this.$i18n.t('Connection Profiles'),
               items: [
-                { name: this.$i18n.t('Standard Connection Profiles'), path: '/configuration/connection_profiles' },
-                { name: this.$i18n.t('Remote Connection Profiles'), path: '/configuration/remote_connection_profiles' }
+                { name: this.$i18n.t('Standard Connection Profiles'), path: '/configuration/connection_profiles' }
               ]
             }
           ]
