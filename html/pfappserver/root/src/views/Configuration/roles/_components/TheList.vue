@@ -142,8 +142,9 @@
           {{ $t('Delete Role') }} <b-badge variant="secondary">{{ deleteId }}</b-badge>
         </template>
         <b-media no-body class="alert alert-danger">
-          <icon v-slot:aside
-            name="exclamation-triangle" scale="2"/>
+          <template v-slot:aside>
+            <icon name="exclamation-triangle" scale="2"/>
+          </template>
           <div class="mx-2">{{ $t('The role could not be deleted. Either manually handle the following errors and try again, or re-reassign the resources to another existing role.') }}</div>
         </b-media>
         <h5>{{ $t('Role is still in use for:') }}</h5>
