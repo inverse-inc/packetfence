@@ -4,18 +4,26 @@
 import Vue from 'vue'
 import apiCall from '@/utils/api'
 
-const pollTaskStatus = (id, errorCount = 0) => {
+const retries = {} // global retry counter
+
+const pollTaskStatus = (id) => {
   return apiCall.getQuiet(`pfqueue/task/${id}/status/poll`).then(response => {
+    if (id in retries)
+      delete retries[id]
     return response.data
   }).catch(error => {
     if (error.response) // The request was made and a response with a status code was received
       throw(error)
     else if (error.request) { // the request was made but no response was received (no connection)
-      if (errorCount >= 10) // give up after N retries
+      if (!(id in retries))
+        retries[id] = 0
+      else
+        retries[id]++
+      if (retries[id] > 10) // give up after N retries
         throw(error)
       return new Promise((resolve, reject) => {
         setTimeout(() => { // debounce retries
-          pollTaskStatus(id, ++errorCount)
+          pollTaskStatus(id)
             .then(resolve)
             .catch(reject)
         }, 1000)
