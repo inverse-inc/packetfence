@@ -241,6 +241,8 @@ export const setup = (props, context) => {
   const doFocus = () => nextTick(() => context.refs.inputRef.$el.focus())
   const doBlur = () => nextTick(() => context.refs.inputRef.$el.blur())
 
+  const onTag = newValue => onInput(newValue)
+
   return {
     inputRef,
 
@@ -277,7 +279,7 @@ export const setup = (props, context) => {
     showEmpty: true, // always show
 
     onRemove: () => {},
-    onTag: () => {},
+    onTag,
     onSearch: () => {},
     isLoading: false,
     doFocus,
