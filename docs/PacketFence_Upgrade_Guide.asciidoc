@@ -1494,12 +1494,10 @@ You can now upgrade the PacketFence version:
 
 [source,bash]
 ----
-bin/pfcmd generatemariadbconfig
-
 yum update --enablerepo=packetfence
 ----
 
-=== Performing an upgrade on a cluster
+=== Performing MariaDB cluster upgrade
 
 
 CAUTION: Performing a live upgrade on a PacketFence cluster is not a straightforward operation and should be done meticulously.
@@ -1538,7 +1536,7 @@ Next, you can upgrade your operating system on node C.
 
 ==== Migrating service on node C
 
-Node C should currently be running the latest version of PacketFence while A and B should still be running the older version and still be offering service. The database is also still being synced to node C via the `packetfence-mariadb` service.
+The database is still being synced to node C via the `packetfence-mariadb` service.
 
 NOTE: The steps below will cause a temporary loss of service.
 
@@ -1571,7 +1569,6 @@ Then, we should tell C to ignore A and B in their cluster configuration. In orde
 /usr/local/pf/bin/cluster/node node-A-hostname disable
 /usr/local/pf/bin/cluster/node node-B-hostname disable
 ----
-
 
 Now stop `packetfence-mariadb` and `packetfence-galera-autofix` on node C:
 
@@ -1644,7 +1641,7 @@ Next, stop all application services on node A and B:
 * See <<PacketFence_Upgrade_Guide.asciidoc#_stop_all_packetfence_services,Stop all
 PacketFence services section>>
 * Stop database:
-+
+
 [source,bash]
 ----
 systemctl stop packetfence-mariadb
@@ -1652,11 +1649,9 @@ systemctl stop packetfence-mariadb
 
 ==== Validate migration
 
-
 You should now have full service on node C and should validate that all functionnalities are working as expected. Once you continue past this point, there will be no way to migrate back to nodes A and B in case of issues other than to use the snapshots taken prior to the upgrade.
 
 ===== If all goes wrong
-
 
 If your migration to node C goes wrong, you can fail back to nodes A and B by stopping all services on node C and starting them on nodes A and B
 
@@ -1677,7 +1672,6 @@ systemctl start packetfence-mariadb
 Once you are feeling confident to try your failover to node C again, you can do the exact opposite of the commands above to try your upgrade again.
 
 ===== If all goes well
-
 
 If you are happy about the state of your upgrade, you can continue on the steps below in order to complete the upgrade of the two remaining nodes.
 
@@ -1700,7 +1694,7 @@ Then remove MariaDB and install the new version
 ----
 rpm -e --nodeps MariaDB-client MariaDB-common MariaDB-server MariaDB-shared
 
-yum install --enablerepo=oacketfence MariaDB-server MariaDB-backup
+yum install --enablerepo=packetfence MariaDB-server MariaDB-backup
 
 sed -i "s/xtrabackup/mariabackup/g" sed -i /usr/local/pf/conf/mariadb/mariadb.conf.tt
 ----
@@ -1868,7 +1862,6 @@ In order to do so:
 ----
 systemctl restart packetfence-galera-autofix
 ----
-
 
 === Database schema
 
