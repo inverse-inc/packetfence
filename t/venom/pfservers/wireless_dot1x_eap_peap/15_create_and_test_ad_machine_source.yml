@@ -35,7 +35,9 @@ testcases:
         "description": "{{.wireless_dot1x_eap_peap.sources.ad_machine.description}}",
         "email_attribute": "mail",
         "encryption": "starttls",
-        "host": "{{.ad_mgmt_ip}}",
+        "host": [
+          "{{.ad_mgmt_ip}}"
+        ],
         "id": "{{.wireless_dot1x_eap_peap.sources.ad_machine.name}}",
         "monitor": "1",
         "password": "{{.ad_domain_admin_password}}",
@@ -69,7 +71,9 @@ testcases:
         "connection_timeout": 1,
         "description": "{{.wireless_dot1x_eap_peap.sources.ad_machine.description}}",
         "encryption": "starttls",
-        "host": "{{.ad_mgmt_ip}}",
+        "host": [
+          "{{.ad_mgmt_ip}}"
+        ],
         "id": "{{.wireless_dot1x_eap_peap.sources.ad_machine.name}}",
         "password": "{{.ad_domain_admin_password}}",
         "port": "389",
