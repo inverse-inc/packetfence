@@ -125,10 +125,12 @@
       <b-card-footer>
         <alert-services :show="isModified" :disabled="isLoading" :services="services" />
         <base-form-button-bar
-          :isLoading="isLoading"
-          :isSaveable="true"
-          :isValid="isValid"
-          :formRef="rootRef"
+          :action-key="actionKey"
+          :action-key-button-verb="$i18n.t('View')"
+          :is-loading="isLoading"
+          :is-saveable="true"
+          :is-valid="isValid"
+          :form-ref="rootRef"
           @close="doHideEdit"
           @reset="onReset"
           @save="onSave"
@@ -206,6 +208,7 @@ const setup = (props, context) => {
   } = useViewCollectionItemFixed(collection, props, context)
 
   const {
+    actionKey,
     schema,
     certificateLocale,
     certificationAuthorityLocale,
@@ -240,6 +243,7 @@ const setup = (props, context) => {
     onSave,
 
     // useForm
+    actionKey,
     schema,
     certificateLocale,
     certificationAuthorityLocale,
