@@ -15,7 +15,7 @@
       <base-form-tab :title="$i18n.t('Definition')" active>
 
         <form-group-identifier namespace="id"
-          :column-label="$i18n.t('IP Address/MAC Address/Range (CIDR)')"
+          :column-label="$i18n.t('Identifier')"
         />
 
         <form-group-identifier namespace="description"
@@ -33,10 +33,6 @@
 
         <form-group-mode namespace="mode"
           :column-label="$i18n.t('Mode')"
-        />
-
-        <form-group-group namespace="group"
-          :column-label="$i18n.t('Switch Group')"
         />
 
         <form-group-deauthentication-method namespace="deauthMethod"
