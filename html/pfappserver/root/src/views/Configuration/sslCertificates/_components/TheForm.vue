@@ -96,6 +96,11 @@
               rows="6" auto-fit
             />
 
+            <form-group-ca namespace="ca"
+              :column-label="$i18n.t('Certification Authority certificate(s)')"
+              rows="6" auto-fit
+            />
+
             <form-group-private-key namespace="private_key"
               :column-label="$i18n.t('Private Key')"
               rows="6" auto-fit
@@ -151,6 +156,7 @@ import {
 } from '@/components/new/'
 import {
   AlertServices,
+  FormGroupCa,
   FormGroupCertificate,
   FormGroupCheckChain,
   FormGroupIntermediateCertificationAuthorities,
@@ -165,6 +171,7 @@ const components = {
   BaseContainerLoading,
   BaseForm,
   BaseFormButtonBar,
+  FormGroupCa,
   FormGroupCertificate,
   FormGroupCheckChain,
   FormGroupFindIntermediateCas,

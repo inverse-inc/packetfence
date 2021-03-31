@@ -22,6 +22,7 @@ export {
 
   BaseFormGroupToggleFalseTrue                    as FormGroupLetsEncrypt,
   BaseFormGroupLetsEncryptCommonName              as FormGroupLetsEncryptCommonName,
+  BaseFormGroupCertificate                        as FormGroupCa,
   BaseFormGroupCertificate                        as FormGroupCertificate,
   BaseFormGroupPrivateKey                         as FormGroupPrivateKey,
   BaseFormGroupToggleDisabledEnabled              as FormGroupCheckChain,
