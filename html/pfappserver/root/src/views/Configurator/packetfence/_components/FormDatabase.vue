@@ -117,7 +117,8 @@
                 :isLoading="isCreatingDatabase"
                 :disabled="!rootPasswordIsValid"
                 :variant="(databaseCreationError) ? 'outline-danger' : 'outline-primary'"
-                @click="onCreateDatabase">{{ $t('Create') }}</base-button-save>
+                @click="onCreateDatabase"
+                type="button">{{ $t('Create') }}</base-button-save>
 
               <div v-if="databaseCreationError"
                 class="d-block invalid-feedback py-2">{{ databaseCreationError }}</div>
@@ -153,7 +154,8 @@
                 :disabled="!canCreateUser"
                 :isLoading="isCreatingUser"
                 :variant="(userCreationError) ? 'outline-danger' : 'outline-primary'"
-                @click="onCreateUser">{{ $t('Create') }}</base-button-save>
+                @click="onCreateUser"
+                type="button">{{ $t('Create') }}</base-button-save>
 
               <div v-if="userCreationError"
                 class="d-block invalid-feedback py-2">{{ userCreationError }}</div>

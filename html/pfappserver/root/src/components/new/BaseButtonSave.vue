@@ -1,6 +1,6 @@
 <template>
   <b-button ref="buttonComponentRef"
-    type="submit"
+    :type="type"
     :disabled="disabled || isLoading"
     :style="{ minWidth: buttonWidth }"
     :variant="variant"
@@ -25,6 +25,10 @@ const props = {
   variant: {
     type: String,
     default: 'primary'
+  },
+  type: {
+    type: String,
+    default: 'submit'
   }
 }
 
