@@ -1450,30 +1450,53 @@ In order to upgrade the MariaDB version you need to execute the following steps 
 
 === Standalone MariaDB upgrade
 
+In order to be able to work on the server, we first need to stop all the
+PacketFence application services on it, see
+<<PacketFence_Upgrade_Guide.asciidoc#_stop_all_packetfence_services,Stop all
+PacketFence services section>>.
+
+Now stop `packetfence-mariadb`:
+
 [source,bash]
 ----
-bin/pfcmd service pf stop
-
 systemctl stop packetfence-mariadb
+----
 
+Now proceed with the MariaDB upgrade
+
+[source,bash]
+----
 rpm -e --nodeps MariaDB-client MariaDB-common MariaDB-server MariaDB-shared
+yum install --enablerepo=packetfence MariaDB-server MariaDB-backup
+----
 
-yum install --enablerepo=mariadb MariaDB-server MariaDB-backup
+At this moment you have the newest version of MariaDB installed on your system.
+Next step is to upgrade the database.
 
+[source,bash]
+----
 systemctl unmask mariadb
 systemctl start mariadb
 
 mysql_upgrade -u root -p
 ----
 
-If the error "Recovering after a crash using tc.log" appear during the mysql_upgrade command then delete the file tc.log in /var/lib/mysql/
+NOTE: If the following error appear "Recovering after a crash using tc.log" then delete the file /var/lib/mysql/tc.log
 
 [source,bash]
 ----
 systemctl stop mariadb
 systemctl mask mariadb
+----
 
+At this step you have now the MariaDB 10.2 databse ready.
+You can now upgrade the PacketFence version:
+
+[source,bash]
+----
 bin/pfcmd generatemariadbconfig
+
+yum update --enablerepo=packetfence
 ----
 
 === Performing an upgrade on a cluster
@@ -1554,7 +1577,7 @@ Now stop `packetfence-mariadb` and `packetfence-galera-autofix` on node C:
 
 [source,bash]
 ----
-systemctl restart packetfence-mariadb
+systemctl stop packetfence-mariadb
 systemctl stop packetfence-galera-autofix
 ----
 
@@ -1563,7 +1586,7 @@ Now proceed with the MariaDB upgrade
 [source,bash]
 ----
 rpm -e --nodeps MariaDB-client MariaDB-common MariaDB-server MariaDB-shared
-yum install --enablerepo=mariadb MariaDB-server MariaDB-backup
+yum install --enablerepo=packetfence MariaDB-server MariaDB-backup
 ----
 
 At this moment you have the newest version of MariaDB installed on your system.
@@ -1677,14 +1700,12 @@ Then remove MariaDB and install the new version
 ----
 rpm -e --nodeps MariaDB-client MariaDB-common MariaDB-server MariaDB-shared
 
-yum install --enablerepo=mariadb MariaDB-server MariaDB-backup
+yum install --enablerepo=oacketfence MariaDB-server MariaDB-backup
 
 sed -i "s/xtrabackup/mariabackup/g" sed -i /usr/local/pf/conf/mariadb/mariadb.conf.tt
 ----
 
-
 ==== Reintegrating nodes A and B
-
 
 ===== Optional step: Cleaning up data on node C
 
