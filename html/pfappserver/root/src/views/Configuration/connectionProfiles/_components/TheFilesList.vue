@@ -334,6 +334,8 @@ export default {
 }
 </script>
 <style lang="scss">
+$table-cell-height: 2.5 * $spacer !default;
+
 .the-files-list {
   thead[role="rowgroup"] {
     border-bottom: 1px solid #dee2e6 !important;
@@ -343,6 +345,7 @@ export default {
     cursor: pointer;
     outline-width: 0;
     td[role="cell"] {
+      height: $table-cell-height;
       padding: 0 0.3rem;
       word-wrap: nowrap;
       div[variant="link"] {
@@ -351,13 +354,13 @@ export default {
     }
     td[aria-colindex="1"] {
       svg.fa-icon:not(.nav-icon) {
-        min-width: 36px;
+        min-width: $table-cell-height;
         height: auto;
-        max-height: 18px;
+        max-height: $table-cell-height/2;
         margin: 0.25rem 0;
       }
       svg.nav-icon {
-        height: 36px;
+        height: $table-cell-height;
         color: $gray-500;
       }
     }
