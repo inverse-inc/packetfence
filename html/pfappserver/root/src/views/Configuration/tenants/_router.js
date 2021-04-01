@@ -22,14 +22,14 @@ export default [
     path: 'tenants/new',
     name: 'newTenant',
     component: TheView,
-    props: (route) => ({ isNew: true }),
+    props: () => ({ isNew: true }),
     beforeEnter
   },
   {
     path: 'tenant/:id',
     name: 'tenant',
     component: TheView,
-    props: (route) => ({      id: route.params.id }),
+    props: (route) => ({ id: route.params.id }),
     beforeEnter: (to, from, next) => {
       beforeEnter()
       store.dispatch('$_tenants/getTenant', to.params.id).then(() => {
