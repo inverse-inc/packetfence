@@ -34,7 +34,7 @@
           @end="sort(internalSources, $event)"
         >
           <template v-slot:empty>
-            <pf-empty-table :isLoading="isLoading" :text="$t('Click the button to define a new source.')">{{ $t('No internal sources defined') }}</pf-empty-table>
+            <pf-empty-table :is-loading="isLoading" :text="$t('Click the button to define a new source.')">{{ $t('No internal sources defined') }}</pf-empty-table>
           </template>
           <template v-slot:cell(buttons)="item">
             <span class="float-right text-nowrap">
@@ -74,7 +74,7 @@
           @end="sort(externalSources, $event)"
         >
           <template v-slot:empty>
-            <pf-empty-table :isLoading="isLoading" :text="$t('Click the button to define a new source.')">{{ $t('No external sources defined') }}</pf-empty-table>
+            <pf-empty-table :is-loading="isLoading" :text="$t('Click the button to define a new source.')">{{ $t('No external sources defined') }}</pf-empty-table>
           </template>
           <template v-slot:cell(buttons)="item">
             <span class="float-right text-nowrap">
@@ -101,7 +101,7 @@
           @end="sort(exclusiveSources, $event)"
         >
           <template v-slot:empty>
-            <pf-empty-table :isLoading="isLoading" :text="$t('Click the button to define a new source.')">{{ $t('No exclusive source defined') }}</pf-empty-table>
+            <pf-empty-table :is-loading="isLoading" :text="$t('Click the button to define a new source.')">{{ $t('No exclusive source defined') }}</pf-empty-table>
           </template>
           <template v-slot:cell(buttons)="item">
             <span class="float-right text-nowrap">
@@ -129,7 +129,7 @@
           @end="sort(billingSources, $event)"
         >
           <template v-slot:empty>
-            <pf-empty-table :isLoading="isLoading" :text="$t('Click the button to define a new source.')">{{ $t('No billing sources defined') }}</pf-empty-table>
+            <pf-empty-table :is-loading="isLoading" :text="$t('Click the button to define a new source.')">{{ $t('No billing sources defined') }}</pf-empty-table>
           </template>
           <template v-slot:cell(buttons)="item">
             <span class="float-right text-nowrap">

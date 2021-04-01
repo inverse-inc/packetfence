@@ -138,7 +138,7 @@
           -->
         </template>
         <template v-slot:empty>
-          <pf-empty-table :isLoading="isLoading">{{ $t('No user found') }}</pf-empty-table>
+          <pf-empty-table :is-loading="isLoading">{{ $t('No user found') }}</pf-empty-table>
         </template>
       </b-table>
     </div>

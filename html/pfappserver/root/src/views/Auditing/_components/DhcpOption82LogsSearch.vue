@@ -57,7 +57,7 @@
         @sort-changed="onSortingChanged" @row-clicked="onRowClick"
         show-empty hover no-local-sorting sort-icon-left striped>
         <template v-slot:empty>
-          <pf-empty-table :isLoading="isLoading">{{ $t('No logs found') }}</pf-empty-table>
+          <pf-empty-table :is-loading="isLoading">{{ $t('No logs found') }}</pf-empty-table>
         </template>
         <template v-slot:cell(mac)="data">
           <router-link :to="{ path: `/node/${data.value}` }"><mac v-text="data.value"></mac></router-link>

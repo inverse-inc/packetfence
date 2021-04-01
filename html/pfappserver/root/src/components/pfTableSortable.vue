@@ -15,7 +15,7 @@
     >
       <b-col cols="12" md="auto">
         <slot name="empty" :is-loading="isLoading">
-          <pf-empty-table :isLoading="isLoading">{{ $t('No results found') }}</pf-empty-table>
+          <pf-empty-table :is-loading="isLoading">{{ $t('No results found') }}</pf-empty-table>
         </slot>
       </b-col>
     </b-row>

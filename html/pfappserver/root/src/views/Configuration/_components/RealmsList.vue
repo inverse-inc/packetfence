@@ -23,7 +23,7 @@
         @row-clicked="onRowClick(tenant, $event)"
       >
         <template v-slot:empty>
-          <pf-empty-table :isLoading="isLoading" :text="$t('Click the button to create a new Realm for this Tenant.')">{{ $t('No realms found for this tenant') }}</pf-empty-table>
+          <pf-empty-table :is-loading="isLoading" :text="$t('Click the button to create a new Realm for this Tenant.')">{{ $t('No realms found for this tenant') }}</pf-empty-table>
         </template>
         <template v-slot:cell(radius_auth)="{ radius_auth: value }">
           <span v-if="value.length === 0">&nbsp;<!-- hide empty --></span>

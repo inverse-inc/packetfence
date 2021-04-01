@@ -12,7 +12,7 @@
       <b-button variant="outline-primary" :to="{ name: 'importSwitch' }">{{ $t('Import from CSV') }}</b-button>
     </template>
     <template v-slot:emptySearch="state">
-      <pf-empty-table :isLoading="state.isLoading">{{ $t('No switches found') }}</pf-empty-table>
+      <pf-empty-table :is-loading="state.isLoading">{{ $t('No switches found') }}</pf-empty-table>
     </template>
     <template v-slot:cell(type)="item">
       <template v-if="switchTemplates.includes(item.type)">

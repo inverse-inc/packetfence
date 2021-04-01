@@ -16,7 +16,7 @@
         <pf-button-service service="pfpki" class="ml-1" restart start stop :disabled="isLoading" @start="init" @restart="init"></pf-button-service>
       </template>
       <template v-slot:emptySearch="state">
-        <pf-empty-table :isLoading="state.isLoading">{{ $t('No certificates found') }}</pf-empty-table>
+        <pf-empty-table :is-loading="state.isLoading">{{ $t('No certificates found') }}</pf-empty-table>
       </template>
       <template v-slot:cell(ca_name)="item">
         <router-link :to="{ name: 'pkiCa', params: { id: item.ca_id } }">{{ item.ca_name }}</router-link>

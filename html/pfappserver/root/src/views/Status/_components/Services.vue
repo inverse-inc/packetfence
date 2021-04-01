@@ -19,7 +19,7 @@
           striped
         >
           <template v-slot:empty>
-            <pf-empty-table :isLoading="isLoading">{{ $t('No Services found') }}</pf-empty-table>
+            <pf-empty-table :is-loading="isLoading">{{ $t('No Services found') }}</pf-empty-table>
           </template>
           <template v-slot:cell(enabled)="service">
             <toggle-service-enabled :value="service.item.enabled" 
@@ -70,7 +70,7 @@
           striped
         >
           <template v-slot:empty>
-            <pf-empty-table :isLoading="isLoading">{{ $t('No Services found') }}</pf-empty-table>
+            <pf-empty-table :is-loading="isLoading">{{ $t('No Services found') }}</pf-empty-table>
           </template>
           <template v-slot:cell(name)="service" class="align-items-center">
             <icon v-if="!service.item.alive && service.item.managed"

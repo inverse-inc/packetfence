@@ -91,7 +91,7 @@
         @sort-changed="onSortingChanged"
         show-empty responsive hover no-local-sorting no-provider-sorting sort-icon-left striped>
         <template v-slot:empty>
-          <pf-empty-table :isLoading="true"></pf-empty-table>
+          <pf-empty-table :is-loading="true"></pf-empty-table>
         </template>
       </b-table>
       <b-table v-else
@@ -99,7 +99,7 @@
         @sort-changed="onSortingChanged"
         show-empty responsive hover no-local-sorting no-provider-sorting sort-icon-left striped>
         <template v-slot:empty>
-          <pf-empty-table :isLoading="isLoadingReport">{{ $t('No report data found') }}</pf-empty-table>
+          <pf-empty-table :is-loading="isLoadingReport">{{ $t('No report data found') }}</pf-empty-table>
         </template>
         <template v-for="nodeField in nodeFields" v-slot:[`cell(${nodeField})`]="{ value }">
           <router-link :key="nodeField" :to="{ name: 'node', params: { mac: value } }"><mac>{{ value }}</mac></router-link>

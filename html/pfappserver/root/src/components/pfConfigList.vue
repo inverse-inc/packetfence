@@ -65,7 +65,7 @@
       >
         <template v-slot:empty>
           <slot name="emptySearch" v-bind="{ isLoading }">
-            <pf-empty-table :isLoading="isLoading">{{ $t('No results found') }}</pf-empty-table>
+            <pf-empty-table :is-loading="isLoading">{{ $t('No results found') }}</pf-empty-table>
           </slot>
         </template>
         <!-- Proxy all possible column slots ([field]) into pf-table-sortable slots -->
@@ -90,7 +90,7 @@
       >
         <template v-slot:empty>
           <slot name="emptySearch" v-bind="{ isLoading }">
-              <pf-empty-table :isLoading="isLoading">{{ $t('No results found') }}</pf-empty-table>
+              <pf-empty-table :is-loading="isLoading">{{ $t('No results found') }}</pf-empty-table>
           </slot>
         </template>
         <!-- Proxy all possible column slots ([field], HEAD_[field], FOOT_[field]) into b-table slots -->

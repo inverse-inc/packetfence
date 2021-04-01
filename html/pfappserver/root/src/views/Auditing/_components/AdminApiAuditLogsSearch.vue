@@ -64,7 +64,7 @@
         show-empty hover no-local-sorting sort-icon-left striped
       >
         <template v-slot:empty>
-          <pf-empty-table :isLoading="isLoading" :text="$t('Please refine your search.')">{{ $t('No logs found') }}</pf-empty-table>
+          <pf-empty-table :is-loading="isLoading" :text="$t('Please refine your search.')">{{ $t('No logs found') }}</pf-empty-table>
         </template>
       </b-table>
     </div>

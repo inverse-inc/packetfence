@@ -13,7 +13,7 @@
         <pf-button-service service="pfpki" class="ml-1" restart start stop :disabled="isLoading"></pf-button-service>
       </template>
       <template v-slot:emptySearch="state">
-        <pf-empty-table :isLoading="state.isLoading">{{ $t('No certificate authorities found') }}</pf-empty-table>
+        <pf-empty-table :is-loading="state.isLoading">{{ $t('No certificate authorities found') }}</pf-empty-table>
       </template>
       <template v-slot:cell(buttons)="item">
         <span class="float-right">

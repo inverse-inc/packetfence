@@ -17,7 +17,7 @@
           striped
         >
           <template v-slot:empty>
-            <pf-empty-table :isLoading="isLoading" text="">{{ $t('No Services found') }}</pf-empty-table>
+            <pf-empty-table :is-loading="isLoading" text="">{{ $t('No Services found') }}</pf-empty-table>
           </template>
           <template v-for="server in servers" v-slot:[head(server)]="data">
             <span :key="server.host">

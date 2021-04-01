@@ -92,7 +92,7 @@
           <div v-html="value"></div>
         </template>
         <template v-slot:empty>
-          <pf-empty-table :isLoading="isLoading" :text="$t('DNS Audit Logs not found or setting is disabled in configuration. You can enable this setting in Configuration → System Configuration → DNS Configuration.')">{{ $t('No logs found') }}</pf-empty-table>
+          <pf-empty-table :is-loading="isLoading" :text="$t('DNS Audit Logs not found or setting is disabled in configuration. You can enable this setting in Configuration → System Configuration → DNS Configuration.')">{{ $t('No logs found') }}</pf-empty-table>
         </template>
       </b-table>
     </div>

@@ -24,7 +24,7 @@
         <b-button variant="outline-primary" :to="{ name: 'newFingerbankDhcpFingerprint', params: { localScope: 'local' } }">{{ $t('New DHCP Fingerprint') }}</b-button>
       </template>
       <template v-slot:emptySearch="state">
-        <pf-empty-table :isLoading="state.isLoading">{{ $t('No {localScope} DHCP fingerprints found', { localScope: ((localScope !== 'all') ? localScope : '') }) }}</pf-empty-table>
+        <pf-empty-table :is-loading="state.isLoading">{{ $t('No {localScope} DHCP fingerprints found', { localScope: ((localScope !== 'all') ? localScope : '') }) }}</pf-empty-table>
       </template>
       <template v-slot:cell(buttons)="item">
         <span class="float-right text-nowrap">

@@ -21,7 +21,7 @@
         </b-dropdown>
       </template>
       <template v-slot:emptySearch="state">
-        <pf-empty-table :isLoading="state.isLoading">{{ $t('No Provisioners found') }}</pf-empty-table>
+        <pf-empty-table :is-loading="state.isLoading">{{ $t('No Provisioners found') }}</pf-empty-table>
       </template>
       <template v-slot:cell(buttons)="item">
         <span class="float-right text-nowrap">

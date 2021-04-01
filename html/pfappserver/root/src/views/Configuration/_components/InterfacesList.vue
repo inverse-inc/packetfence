@@ -27,7 +27,7 @@
           sort-icon-left
         >
           <template v-slot:empty>
-            <pf-empty-table :isLoading="isInterfacesLoading">{{ $t('No interfaces found') }}</pf-empty-table>
+            <pf-empty-table :is-loading="isInterfacesLoading">{{ $t('No interfaces found') }}</pf-empty-table>
           </template>
           <template v-slot:cell(is_running)="{ item }">
              <toggle-status :value="item.is_running" 
@@ -99,7 +99,7 @@
           sort-icon-left
         >
           <template v-slot:empty>
-            <pf-empty-table :isLoading="isLayer2NetworksLoading">{{ $t('No layer2 networks found') }}</pf-empty-table>
+            <pf-empty-table :is-loading="isLayer2NetworksLoading">{{ $t('No layer2 networks found') }}</pf-empty-table>
           </template>
           <template v-slot:cell(dhcpd)="item">
             <icon name="circle" :class="{ 'text-success': item.item.dhcpd === 'enabled', 'text-danger': item.item.dhcpd === 'disabled' }"></icon>
@@ -147,7 +147,7 @@
           sort-icon-left
         >
           <template v-slot:empty>
-            <pf-empty-table :isLoading="isRoutedNetworksLoading">{{ $t('No routed networks found') }}</pf-empty-table>
+            <pf-empty-table :is-loading="isRoutedNetworksLoading">{{ $t('No routed networks found') }}</pf-empty-table>
           </template>
           <template v-slot:cell(dhcpd)="item">
             <icon name="circle" :class="{ 'text-success': item.item.dhcpd === 'enabled', 'text-danger': item.item.dhcpd === 'disabled' }"></icon>

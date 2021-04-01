@@ -31,7 +31,7 @@
             @end="sort(collection, $event)"
           >
             <template v-slot:empty>
-              <pf-empty-table :isLoading="isLoadingCollection(collection)" :text="$t('Click the button to define a new filter.')">{{ $t('No filters defined') }}</pf-empty-table>
+              <pf-empty-table :is-loading="isLoadingCollection(collection)" :text="$t('Click the button to define a new filter.')">{{ $t('No filters defined') }}</pf-empty-table>
             </template>
             <template v-slot:cell(status)="item">
              <toggle-status :value="item.status" :disabled="isLoadingCollection(collection)"

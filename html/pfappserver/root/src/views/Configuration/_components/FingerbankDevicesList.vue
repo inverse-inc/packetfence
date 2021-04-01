@@ -36,7 +36,7 @@
         <b-button variant="outline-primary" :to="{ name: 'newFingerbankDevice', params: { localScope: 'local' } }">{{ $t('New Device') }}</b-button>
       </template>
       <template v-slot:emptySearch="state">
-        <pf-empty-table :isLoading="state.isLoading">{{ $t('No devices found') }}</pf-empty-table>
+        <pf-empty-table :is-loading="state.isLoading">{{ $t('No devices found') }}</pf-empty-table>
       </template>
       <template v-slot:cell(id)="item">
         <b-button size="sm" variant="outline-primary" class="mr-1" @click.stop.prevent="setParentId(item.id)">

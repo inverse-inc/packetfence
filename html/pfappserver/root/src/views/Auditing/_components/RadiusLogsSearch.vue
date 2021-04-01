@@ -57,7 +57,7 @@
         @sort-changed="onSortingChanged" @row-clicked="onRowClick"
         show-empty hover no-local-sorting sort-icon-left striped>
         <template v-slot:empty>
-          <pf-empty-table :isLoading="isLoading">{{ $t('No logs found') }}</pf-empty-table>
+          <pf-empty-table :is-loading="isLoading">{{ $t('No logs found') }}</pf-empty-table>
         </template>
         <template v-slot:cell(auth_status)="log">
           <b-badge pill :variant="(['Accept', 'CoA-ACK', 'Disconnect-ACK'].includes(log.item.auth_status)) ? 'success' : 'danger'" class="ml-1">{{ log.item.auth_status }}</b-badge>

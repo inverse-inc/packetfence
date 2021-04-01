@@ -13,7 +13,7 @@
         <b-button variant="outline-primary" :to="{ name: 'newSyslogForwarder', params: { syslogForwarderType: 'server' } }">{{ $t('New Syslog Entry') }}</b-button>
       </template>
       <template v-slot:emptySearch="state">
-        <pf-empty-table :isLoading="state.isLoading">{{ $t('No syslog entries found') }}</pf-empty-table>
+        <pf-empty-table :is-loading="state.isLoading">{{ $t('No syslog entries found') }}</pf-empty-table>
       </template>
       <template v-slot:cell(buttons)="item">
         <span class="float-right text-nowrap">

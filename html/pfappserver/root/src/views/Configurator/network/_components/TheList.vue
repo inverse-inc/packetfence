@@ -18,7 +18,7 @@
         sort-icon-left
       >
         <template v-slot:empty>
-          <pf-empty-table :isLoading="isLoading">{{ $t('No interfaces found') }}</pf-empty-table>
+          <pf-empty-table :is-loading="isLoading">{{ $t('No interfaces found') }}</pf-empty-table>
         </template>
         <template v-slot:cell(is_running)="{ item }">
           <toggle-status :value="item.is_running" 
@@ -66,7 +66,7 @@
         <b-col cols="6" class="text-right">
            <base-button-save
              class="float-right"
-             :isLoading="isDetecting"
+             :is-loading="isDetecting"
              @click="detectManagementInterface"
            >
              {{ $t('Detect Management Interface') }}
@@ -79,7 +79,7 @@
       <base-form
         :form="form"
         :schema="schema"
-        :isLoading="isLoading"
+        :is-loading="isLoading"
       >
         <form-group-gateway namespace="gateway"
           :column-label="$i18n.t('Default Gateway')"

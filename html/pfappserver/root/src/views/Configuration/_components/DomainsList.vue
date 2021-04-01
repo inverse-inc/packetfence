@@ -14,7 +14,7 @@
         <b-button variant="outline-primary" :to="{ name: 'newDomain' }">{{ $t('New Domain') }}</b-button>
       </template>
       <template v-slot:emptySearch="state">
-          <pf-empty-table :isLoading="state.isLoading">{{ $t('No domains found') }}</pf-empty-table>
+          <pf-empty-table :is-loading="state.isLoading">{{ $t('No domains found') }}</pf-empty-table>
       </template>
       <template v-slot:cell(ntlm_cache)="item">
         <icon name="circle" :class="{ 'text-success': item.ntlm_cache === 'enabled', 'text-danger': item.ntlm_cache !== 'enabled' }"
