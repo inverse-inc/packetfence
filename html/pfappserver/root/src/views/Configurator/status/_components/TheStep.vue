@@ -48,7 +48,7 @@ const setup = (props, context) => {
       return $store.dispatch('services/updateSystemd', 'pf').then(() => {
         progressFeedback.value = i18n.t('Starting PacketFence')
         return $store.dispatch('services/restartServiceAsync', 'haproxy-admin').then(() => {
-          return $store.dispatch('services/startService', 'pf').then(() => {
+          return $store.dispatch('services/startServiceAsync', 'pf').then(() => {
             progressFeedback.value = i18n.t('Disabling Configurator')
             return advancedPromise.then(data => {
               data.configurator = 'disabled'

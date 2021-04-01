@@ -60,6 +60,9 @@ const api = {
       }
     })
   },
+  startServiceAsync: id => {
+    return apiCall.postQuiet(`service/${id}/start`, { async: true })
+  },
   stopService: name => {
     return apiCall.post(`service/${name}/stop`).then(response => {
       const { data: { stop } } = response
@@ -190,6 +193,16 @@ const actions = {
       const { response } = err
       commit('SERVICE_ERROR', { id, response })
       throw err
+    })
+  },
+  startServiceAsync: ({ state, commit }, id) => {
+    commit('SERVICE_STARTING', id)
+    return api.startServiceAsync(id).then(response => {
+      const { data: { task_id } = {} } = response
+      return store.dispatch('pfqueue/pollTaskStatus', task_id).then(response => {
+        commit('SERVICE_STARTED', { id, response })
+        return state.cache[id]
+      })
     })
   },
   stopService: ({ state, commit }, id) => {
