@@ -339,7 +339,7 @@ dot1x_eap_tls_pfpki.certs.user.cn: '{{.dot1x_eap_tls_pfpki.templates.user.name}}
 dot1x_eap_tls_pfpki.certs.user.mail: '{{.configurator.email}}'
 dot1x_eap_tls_pfpki.certs.user.scep_enabled: 1
 dot1x_eap_tls_pfpki.certs.user.scep_challenge_password: secret
-dot1x_eap_tls_pfpki.certs.user.scep_days_before_renewal: 1
+dot1x_eap_tls_pfpki.certs.user.scep_days_before_renewal: 7
 
 # OCSP config
 dot1x_eap_tls_pfpki.ocsp.id: ocsp_from_cert
