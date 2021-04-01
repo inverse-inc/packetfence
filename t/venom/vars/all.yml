@@ -305,8 +305,6 @@ dot1x_eap_tls_pfpki.certs.digest: 4
 dot1x_eap_tls_pfpki.certs.country: CA
 dot1x_eap_tls_pfpki.certs.state: Quebec
 dot1x_eap_tls_pfpki.certs.locality: Montreal
-dot1x_eap_tls_pfpki.certs.street_address: 7000 park avenue
-dot1x_eap_tls_pfpki.certs.postal_code: H3N 1X1
 dot1x_eap_tls_pfpki.certs.organisation: Inverse
 dot1x_eap_tls_pfpki.certs.organisational_unit: PacketFence
 dot1x_eap_tls_pfpki.certs.ocsp_url: 'https://127.0.0.1:22225/api/v1/pki/ocsp'
@@ -315,7 +313,7 @@ dot1x_eap_tls_pfpki.certs.ocsp_url: 'https://127.0.0.1:22225/api/v1/pki/ocsp'
 dot1x_eap_tls_pfpki.certs.ca.cn: InverseCA
 dot1x_eap_tls_pfpki.certs.ca.mail: '{{.configurator.email}}'
 
-dot1x_eap_tls_pfpki.certs.ca.issuer: "/C={{.dot1x_eap_tls_pfpki.certs.country}}/ST={{.dot1x_eap_tls_pfpki.certs.state}}/L={{.dot1x_eap_tls_pfpki.certs.locality}}/street={{.dot1x_eap_tls_pfpki.certs.street_address}}/postalCode={{.dot1x_eap_tls_pfpki.certs.postal_code}}/O={{.dot1x_eap_tls_pfpki.certs.organisation}}/OU={{.dot1x_eap_tls_pfpki.certs.organisational_unit}}/CN={{.dot1x_eap_tls_pfpki.certs.ca.cn}}"
+dot1x_eap_tls_pfpki.certs.ca.issuer: "/C={{.dot1x_eap_tls_pfpki.certs.country}}/ST={{.dot1x_eap_tls_pfpki.certs.state}}/L={{.dot1x_eap_tls_pfpki.certs.locality}}/O={{.dot1x_eap_tls_pfpki.certs.organisation}}/OU={{.dot1x_eap_tls_pfpki.certs.organisational_unit}}/CN={{.dot1x_eap_tls_pfpki.certs.ca.cn}}"
 
 ### Templates
 dot1x_eap_tls_pfpki.templates.radius.name: '{{.dot1x_eap_tls_pfpki.certs.ca.cn}}_radius'

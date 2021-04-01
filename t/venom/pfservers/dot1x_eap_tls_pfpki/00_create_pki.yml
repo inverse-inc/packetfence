@@ -16,8 +16,6 @@ testcases:
         "country": "{{.dot1x_eap_tls_pfpki.certs.country}}",
         "state": "{{.dot1x_eap_tls_pfpki.certs.state}}",
         "locality": "{{.dot1x_eap_tls_pfpki.certs.locality}}",
-        "street_address": "{{.dot1x_eap_tls_pfpki.certs.street_address}}",
-        "postal_code": "{{.dot1x_eap_tls_pfpki.certs.postal_code}}",
         "key_type": "{{.dot1x_eap_tls_pfpki.certs.key_type}}",
         "digest": "{{.dot1x_eap_tls_pfpki.certs.digest}}",
         "key_usage": "",
@@ -57,8 +55,6 @@ testcases:
         "country": "{{.dot1x_eap_tls_pfpki.certs.country}}",
         "state": "{{.dot1x_eap_tls_pfpki.certs.state}}",
         "locality": "{{.dot1x_eap_tls_pfpki.certs.locality}}",
-        "street_address": "{{.dot1x_eap_tls_pfpki.certs.street_address}}",
-        "postal_code": "{{.dot1x_eap_tls_pfpki.certs.postal_code}}",
         "ocsp_url": "{{.dot1x_eap_tls_pfpki.certs.ocsp_url}}"
       }
     headers:
@@ -166,8 +162,6 @@ testcases:
         "country": "{{.dot1x_eap_tls_pfpki.certs.country}}",
         "state": "{{.dot1x_eap_tls_pfpki.certs.state}}",
         "locality": "{{.dot1x_eap_tls_pfpki.certs.locality}}",
-        "street_address": "{{.dot1x_eap_tls_pfpki.certs.street_address}}",
-        "postal_code": "{{.dot1x_eap_tls_pfpki.certs.postal_code}}",
         "ocsp_url": "{{.dot1x_eap_tls_pfpki.certs.ocsp_url}}"
       }
     headers:
@@ -278,8 +272,6 @@ testcases:
         "country": "{{.dot1x_eap_tls_pfpki.certs.country}}",
         "state": "{{.dot1x_eap_tls_pfpki.certs.state}}",
         "locality": "{{.dot1x_eap_tls_pfpki.certs.locality}}",
-        "street_address": "{{.dot1x_eap_tls_pfpki.certs.street_address}}",
-        "postal_code": "{{.dot1x_eap_tls_pfpki.certs.postal_code}}",
         "ocsp_url": "{{.dot1x_eap_tls_pfpki.certs.ocsp_url}}",
         "scep_enabled": "{{.dot1x_eap_tls_pfpki.certs.user.scep_enabled}}",
         "scep_challenge_password": "{{.dot1x_eap_tls_pfpki.certs.user.scep_challenge_password}}",
