@@ -297,12 +297,7 @@ captive_portal.reg.url: 'https://{{.configurator.interfaces.reg.ip}}/captive-por
 ################################################################################
 # dot1x_eap_tls_pfpki test suite specific variables
 ################################################################################
-### Templates
-dot1x_eap_tls_pfpki.templates.radius.name: radius
-dot1x_eap_tls_pfpki.templates.http.name: http
-dot1x_eap_tls_pfpki.templates.user.name: user
-
-### Certs
+### General settings for certs
 dot1x_eap_tls_pfpki.certs.validity: 750
 dot1x_eap_tls_pfpki.certs.key_size: 2048
 dot1x_eap_tls_pfpki.certs.key_type: 1
@@ -321,6 +316,11 @@ dot1x_eap_tls_pfpki.certs.ca.cn: InverseCA
 dot1x_eap_tls_pfpki.certs.ca.mail: '{{.configurator.email}}'
 
 dot1x_eap_tls_pfpki.certs.ca.issuer: "/C={{.dot1x_eap_tls_pfpki.certs.country}}/ST={{.dot1x_eap_tls_pfpki.certs.state}}/L={{.dot1x_eap_tls_pfpki.certs.locality}}/street={{.dot1x_eap_tls_pfpki.certs.street_address}}/postalCode={{.dot1x_eap_tls_pfpki.certs.postal_code}}/O={{.dot1x_eap_tls_pfpki.certs.organisation}}/OU={{.dot1x_eap_tls_pfpki.certs.organisational_unit}}/CN={{.dot1x_eap_tls_pfpki.certs.ca.cn}}"
+
+### Templates
+dot1x_eap_tls_pfpki.templates.radius.name: '{{.dot1x_eap_tls_pfpki.certs.ca.cn}}_radius'
+dot1x_eap_tls_pfpki.templates.http.name: '{{.dot1x_eap_tls_pfpki.certs.ca.cn}}_http'
+dot1x_eap_tls_pfpki.templates.user.name: '{{.dot1x_eap_tls_pfpki.certs.ca.cn}}_user'
 
 # RADIUS cert
 dot1x_eap_tls_pfpki.certs.radius.cn: '{{.dot1x_eap_tls_pfpki.templates.radius.name}}_cert'
