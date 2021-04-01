@@ -759,56 +759,63 @@ func (c Cert) New() (types.Info, error) {
 	var Subject pkix.Name
 	Subject.CommonName = c.Cn
 
+	Organization := ""
 	if len(prof.Organisation) > 0 {
-		Organization := prof.Organisation
+		Organization = prof.Organisation
 		if len(c.Organisation) > 0 {
 			Organization = c.Organisation
 		}
 		Subject.Organization = []string{Organization}
 	}
 
+	OrganizationalUnit := ""
 	if len(prof.OrganisationalUnit) > 0 {
-		OrganizationalUnit := prof.OrganisationalUnit
+		OrganizationalUnit = prof.OrganisationalUnit
 		if len(c.OrganisationalUnit) > 0 {
 			OrganizationalUnit = c.OrganisationalUnit
 		}
 		Subject.OrganizationalUnit = []string{OrganizationalUnit}
 	}
 
+	Country := ""
 	if len(prof.Country) > 0 {
-		Country := prof.Country
+		Country = prof.Country
 		if len(c.Country) > 0 {
 			Country = c.Country
 		}
 		Subject.Country = []string{Country}
 	}
 
+	Province := ""
 	if len(prof.State) > 0 {
-		Province := prof.State
+		Province = prof.State
 		if len(c.State) > 0 {
 			Province = c.State
 		}
 		Subject.Province = []string{Province}
 	}
 
+	Locality := ""
 	if len(prof.Locality) > 0 {
-		Locality := prof.Locality
+		Locality = prof.Locality
 		if len(c.Locality) > 0 {
 			Locality = c.Locality
 		}
 		Subject.Locality = []string{Locality}
 	}
 
+	StreetAddress := ""
 	if len(prof.StreetAddress) > 0 {
-		StreetAddress := prof.StreetAddress
+		StreetAddress = prof.StreetAddress
 		if len(c.StreetAddress) > 0 {
 			StreetAddress = c.StreetAddress
 		}
 		Subject.StreetAddress = []string{StreetAddress}
 	}
 
+	PostalCode := ""
 	if len(prof.PostalCode) > 0 {
-		PostalCode := prof.PostalCode
+		PostalCode = prof.PostalCode
 		if len(c.PostalCode) > 0 {
 			PostalCode = c.PostalCode
 		}
@@ -855,7 +862,7 @@ func (c Cert) New() (types.Info, error) {
 	// Public key
 	pem.Encode(certBuff, &pem.Block{Type: "CERTIFICATE", Bytes: certByte})
 
-	if err := c.DB.Create(&Cert{Cn: c.Cn, Ca: ca, CaName: ca.Cn, ProfileName: prof.Name, SerialNumber: SerialNumber.String(), DNSNames: c.DNSNames, IPAddresses: c.IPAddresses, Mail: c.Mail, StreetAddress: Subject.StreetAddress[0], Organisation: Subject.Organization[0], OrganisationalUnit: Subject.OrganizationalUnit[0], Country: Subject.Country[0], State: Subject.Province[0], Locality: Subject.Locality[0], PostalCode: Subject.PostalCode[0], Profile: prof, Key: keyOut.String(), Cert: certBuff.String(), ValidUntil: cert.NotAfter}).Error; err != nil {
+	if err := c.DB.Create(&Cert{Cn: c.Cn, Ca: ca, CaName: ca.Cn, ProfileName: prof.Name, SerialNumber: SerialNumber.String(), DNSNames: c.DNSNames, IPAddresses: c.IPAddresses, Mail: c.Mail, StreetAddress: StreetAddress, Organisation: Organization, OrganisationalUnit: OrganizationalUnit, Country: Country, State: Province, Locality: Locality, PostalCode: PostalCode, Profile: prof, Key: keyOut.String(), Cert: certBuff.String(), ValidUntil: cert.NotAfter}).Error; err != nil {
 		Information.Error = err.Error()
 		return Information, errors.New("A database error occured. See log for details.")
 	}
