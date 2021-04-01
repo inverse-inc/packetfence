@@ -18,7 +18,10 @@ const useItemDefaults = (meta, props) => {
   const {
     ca_id
   } = toRefs(props)
-  return { ca_id: ca_id.value }
+  return {
+    ca_id: ca_id.value,
+    scep_days_before_renewal: '0'
+  }
 }
 
 const useItemTitle = (props) => {
