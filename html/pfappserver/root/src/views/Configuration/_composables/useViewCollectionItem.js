@@ -154,7 +154,7 @@ export const useViewCollectionItem = (collection, props, context) => {
         goToCollection(true)
       else {
         form.value = { ...form.value, ...response } // merge form w/ newly inserted IDs
-        goToItem().then(() => init()) // re-init
+        goToItem(form.value).then(() => init()) // re-init
       }
     })
   }

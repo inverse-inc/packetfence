@@ -285,7 +285,7 @@ const setup = (props, context) => {
     const {
       goToItem
     } = useRouter(props, context)
-    goToItem(item.id)
+    goToItem(item)
   }
 
   const onClone = id => {

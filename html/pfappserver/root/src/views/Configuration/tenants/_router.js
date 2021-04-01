@@ -29,7 +29,7 @@ export default [
     path: 'tenant/:id',
     name: 'tenant',
     component: TheView,
-    props: (route) => ({ id: route.params.id }),
+    props: (route) => ({ id: String(route.params.id).toString() }),
     beforeEnter: (to, from, next) => {
       beforeEnter()
       store.dispatch('$_tenants/getTenant', to.params.id).then(() => {
@@ -41,7 +41,7 @@ export default [
     path: 'tenant/:id/clone',
     name: 'cloneTenant',
     component: TheView,
-    props: (route) => ({ id: route.params.id, isClone: true }),
+    props: (route) => ({ id: String(route.params.id).toString(), isClone: true }),
     beforeEnter: (to, from, next) => {
       beforeEnter()
       store.dispatch('$_tenants/getTenant', to.params.id).then(() => {

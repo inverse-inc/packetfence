@@ -84,7 +84,6 @@
         </b-col>
       </b-row>
       <b-table
-        class="the-tree-list"
         :busy="isLoading"
         :hover="items.length > 0"
         :items="items"
@@ -230,7 +229,7 @@ const setup = (props, context) => {
     const {
       goToItem
     } = useRouter(props, context)
-    goToItem(item.id)
+    goToItem(item)
   }
 
   const onClone = id => {
@@ -267,38 +266,3 @@ export default {
   setup
 }
 </script>
-
-<style lang="scss">
-.the-tree-list {
-  thead[role="rowgroup"] {
-    border-bottom: 1px solid #dee2e6 !important;
-  }
-  tr[role="row"],
-  tr[role="row"] > th[role="columnheader"] {
-    cursor: pointer;
-    outline-width: 0;
-    td[role="cell"] {
-      padding: 0 0.3rem;
-      text-wrap: nowrap;
-      div[variant="link"] {
-        line-height: 1em;
-      }
-    }
-    td[aria-colindex="1"] {
-      svg.fa-icon:not(.nav-icon) {
-        margin: 0.25rem 0;
-        min-width: 36px;
-        height: auto;
-        max-height: 18px;
-      }
-      svg.nav-icon {
-        color: $gray-500;
-        height: 36px;
-      }
-    }
-  }
-  .table-row-disabled {
-    opacity: 0.6;
-  }
-}
-</style>

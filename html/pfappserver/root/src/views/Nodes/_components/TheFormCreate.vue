@@ -106,7 +106,7 @@ const setup = (props, context) => {
     if (!isValid.value)
       return
     createItem()
-      .then(({ id }) => goToItem(id))
+      .then(item => goToItem(item))
   }
 
   const onReset = () => {

@@ -42,7 +42,8 @@ const useRouter = (props, context, form) => {
   const { root: { $router } = {} } = context
   return {
     goToCollection: () => $router.push({ name: 'pkiCerts' }),
-    goToItem: () => $router.push({ name: 'pkiCert', params: { id: form.value.ID || id.value } })
+    goToItem: (item = form.value || {}) => $router
+      .push({ name: 'pkiCert', params: { id: item.ID } })
       .catch(e => { if (e.name !== "NavigationDuplicated") throw e }),
     goToClone: () => $router.push({ name: 'clonePkiCert', params: { id: id.value } }),
   }

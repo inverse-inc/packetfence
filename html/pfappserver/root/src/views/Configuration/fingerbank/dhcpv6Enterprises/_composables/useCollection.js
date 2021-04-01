@@ -38,7 +38,8 @@ const useRouter = (props, context, form) => {
   const { root: { $router } = {} } = context
   return {
     goToCollection: () => $router.push({ name: 'fingerbankDhcpv6Enterprises' }),
-    goToItem: () => $router.push({ name: 'fingerbankDhcpv6Enterprise', params: { id: form.value.id || id.value, scope: scope.value } })
+    goToItem: (item = form.value || {}) => $router
+      .push({ name: 'fingerbankDhcpv6Enterprise', params: { id: item.id, scope: scope.value } })
       .catch(e => { if (e.name !== "NavigationDuplicated") throw e }),
     goToClone: () => $router.push({ name: 'cloneFingerbankDhcpv6Enterprise', params: { id: form.value.id || id.value, scope: 'local' } }),
   }

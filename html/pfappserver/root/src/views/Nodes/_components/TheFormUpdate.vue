@@ -187,11 +187,13 @@ const {
   const actionKey = useEventActionKey(rootRef)
   const onSave = () => {
     const closeAfter = actionKey.value
-    save().then(() => {
+    save().then(response => {
       if (closeAfter) // [CTRL] key pressed
         goToCollection(true)
-      else
-        goToItem().then(() => init()) // re-init
+      else {
+        form.value = { ...form.value, ...response } // merge form w/ newly inserted IDs
+        goToItem(form.value).then(() => init()) // re-init
+      }
     })
   }
 

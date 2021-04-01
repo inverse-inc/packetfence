@@ -31,7 +31,8 @@ const useRouter = (props, context, form) => {
   const { root: { $router } = {} } = context
   return {
     goToCollection: () => $router.push({ name: 'network_behavior_policies' }),
-    goToItem: () => $router.push({ name: 'network_behavior_policy', params: { id: form.value.id || id.value } })
+    goToItem: (item = form.value || {}) => $router
+      .push({ name: 'network_behavior_policy', params: { id: item.id } })
       .catch(e => { if (e.name !== "NavigationDuplicated") throw e }),
     goToClone: () => $router.push({ name: 'cloneNetworkBehaviorPolicy', params: { id: id.value } }),
   }
