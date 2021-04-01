@@ -1696,7 +1696,7 @@ rpm -e --nodeps MariaDB-client MariaDB-common MariaDB-server MariaDB-shared
 
 yum install --enablerepo=packetfence MariaDB-server MariaDB-backup
 
-sed -i "s/xtrabackup/mariabackup/g" sed -i /usr/local/pf/conf/mariadb/mariadb.conf.tt
+sed -i "s/xtrabackup/mariabackup/g" /usr/local/pf/conf/mariadb/mariadb.conf.tt
 ----
 
 ==== Reintegrating nodes A and B
@@ -1753,6 +1753,16 @@ Next, enable node C on nodes A and B by executing the following command on the t
 ----
 
 Now, stop `packetfence-mariadb` on node C, regenerate the MariaDB configuration and start it as a new master:
+
+NOTE: Before starting this step, be sure that the galera_replication_username has grant permission PROCESS
+
+[source,bash]
+----
+mysql -uroot -p
+select * from information_schema.user_privileges where PRIVILEGE_TYPE="PROCESS";
+# If it's not the case
+GRANT PROCESS ON *.* TO '`galera_replication_username`'@localhost;
+----
 
 [source,bash]
 ----
