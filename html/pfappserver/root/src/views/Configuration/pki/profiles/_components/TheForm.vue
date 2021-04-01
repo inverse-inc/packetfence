@@ -18,6 +18,33 @@
           :column-label="$i18n.t('Name')"
           :text="$i18n.t('Profile Name.')"
         />
+        <form-group-mail namespace="mail"
+          :column-label="$i18n.t('Email')"
+          :text="$i18n.t('Email address of the user. The email with the certificate will be sent to this address.')"
+        />
+        <form-group-organisational-unit namespace="organisational_unit"
+          :column-label="$i18n.t('Organisational Unit')"
+        />
+        <form-group-organisation namespace="organisation"
+          :column-label="$i18n.t('Organisation')"
+        />
+        <form-group-country namespace="country"
+          :column-label="$i18n.t('Country')"
+        />
+        <form-group-state namespace="state"
+          :column-label="$i18n.t('State or Province')"
+        />
+        <form-group-locality namespace="locality"
+          :column-label="$i18n.t('Locality')"
+        />
+        <form-group-street-address namespace="street_address"
+          :column-label="$i18n.t('Street Address')"
+        />
+        <!-- temporarily hidden
+        <form-group-postal-code namespace="postal_code"
+          :column-label="$i18n.t('Postal Code')"
+        />
+        -->
         <form-group-validity namespace="validity"
           :column-label="$i18n.t('Validity')"
           :text="$i18n.t('Number of days the certificate will be valid.')"
@@ -39,6 +66,10 @@
         <form-group-extended-key-usage namespace="extended_key_usage"
           :column-label="$i18n.t('Extended key usage')"
           :text="$i18n.t('Optional. One or many of: serverAuth, clientAuth, codeSigning, emailProtection, timeStamping, msCodeInd, msCodeCom, msCTLSign, msSGC, msEFS, nsSGC.')"
+        />
+        <form-group-ocsp-url namespace="ocsp_url"
+          :column-label="$i18n.t('OCSP URL')"
+          :text="$i18n.t('Optional. This is the URL of the OCSP server that will be added in the certificate. If empty then the ca one will be used')"
         />
       </base-form-tab>
       <base-form-tab :title="$i18n.t('PKCS 12')">
@@ -65,6 +96,20 @@
           auto-fit
         />
       </base-form-tab>
+      <base-form-tab :title="$i18n.t('SCEP')">
+        <form-group-scep-enabled namespace="scep_enabled"
+          :column-label="$i18n.t('Enable SCEP')"
+          :text="$i18n.t('Enable SCEP for this template.')"
+        />
+        <form-group-scep-challenge-password namespace="scep_challenge_password"
+          :column-label="$i18n.t('SCEP challenge password')"
+          :text="$i18n.t('SCEP challenge password.')"
+        />
+        <form-group-scep-days-before-renewal namespace="scep_days_before_renewal"
+          :column-label="$i18n.t('SCEP days before renewal')"
+          :text="$i18n.t('Number of days before SCEP authorize renewal')"
+        />
+      </base-form-tab>
     </b-tabs>
   </base-form>
 </template>
@@ -79,17 +124,29 @@ import {
   FormGroupIdentifier,
   FormGroupCaId,
   FormGroupName,
+  FormGroupMail,
+  FormGroupOrganisationalUnit,
+  FormGroupOrganisation,
+  FormGroupCountry,
+  FormGroupState,
+  FormGroupLocality,
+  FormGroupStreetAddress,
+  // FormGroupPostalCode,
   FormGroupValidity,
   FormGroupKeyType,
   FormGroupKeySize,
   FormGroupDigest,
   FormGroupKeyUsage,
   FormGroupExtendedKeyUsage,
+  FormGroupOcspUrl,
   FormGroupP12MailPassword,
   FormGroupP12MailSubject,
   FormGroupP12MailFrom,
   FormGroupP12MailHeader,
-  FormGroupP12MailFooter
+  FormGroupP12MailFooter,
+  FormGroupScepEnabled,
+  FormGroupScepChallengePassword,
+  FormGroupScepDaysBeforeRenewal
 } from './'
 
 const components = {
@@ -99,17 +156,29 @@ const components = {
   FormGroupIdentifier,
   FormGroupCaId,
   FormGroupName,
+  FormGroupMail,
+  FormGroupOrganisationalUnit,
+  FormGroupOrganisation,
+  FormGroupCountry,
+  FormGroupState,
+  FormGroupLocality,
+  FormGroupStreetAddress,
+  // FormGroupPostalCode,
   FormGroupValidity,
   FormGroupKeyType,
   FormGroupKeySize,
   FormGroupDigest,
   FormGroupKeyUsage,
   FormGroupExtendedKeyUsage,
+  FormGroupOcspUrl,
   FormGroupP12MailPassword,
   FormGroupP12MailSubject,
   FormGroupP12MailFrom,
   FormGroupP12MailHeader,
-  FormGroupP12MailFooter
+  FormGroupP12MailFooter,
+  FormGroupScepEnabled,
+  FormGroupScepChallengePassword,
+  FormGroupScepDaysBeforeRenewal
 }
 
 export const props = {

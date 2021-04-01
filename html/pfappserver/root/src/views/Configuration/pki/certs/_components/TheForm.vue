@@ -21,6 +21,17 @@
       :column-label="$i18n.t('Email')"
       :text="$i18n.t('Email address of the user. The email with the certificate will be sent to this address.')"
     />
+    <form-group-dns-names namespace="dns_names"
+      :column-label="$i18n.t('DNS Names')"
+      :text="$i18n.t('List of domains separated by a comma.')"
+    />
+    <form-group-ip-addresses namespace="ip_addresses"
+      :column-label="$i18n.t('IP Addresses')"
+      :text="$i18n.t('List of IP Addresses separated by a comma.')"
+    />
+    <form-group-organisational-unit namespace="organisational_unit"
+      :column-label="$i18n.t('Organisational Unit')"
+    />
     <form-group-organisation namespace="organisation"
       :column-label="$i18n.t('Organisation')"
     />
@@ -36,9 +47,11 @@
     <form-group-street-address namespace="street_address"
       :column-label="$i18n.t('Street Address')"
     />
+    <!-- temporarily hidden
     <form-group-postal-code namespace="postal_code"
       :column-label="$i18n.t('Postal Code')"
     />
+    -->
   </base-form>
 </template>
 <script>
@@ -52,12 +65,15 @@ import {
   FormGroupProfileIdentifier,
   FormGroupCn,
   FormGroupMail,
+  FormGroupDnsNames,
+  FormGroupIpAddresses,
+  FormGroupOrganisationalUnit,
   FormGroupOrganisation,
   FormGroupCountry,
   FormGroupState,
   FormGroupLocality,
   FormGroupStreetAddress,
-  FormGroupPostalCode
+  // FormGroupPostalCode
 } from './'
 
 const components = {
@@ -67,12 +83,15 @@ const components = {
   FormGroupProfileIdentifier,
   FormGroupCn,
   FormGroupMail,
+  FormGroupDnsNames,
+  FormGroupIpAddresses,
+  FormGroupOrganisationalUnit,
   FormGroupOrganisation,
   FormGroupCountry,
   FormGroupState,
   FormGroupLocality,
   FormGroupStreetAddress,
-  FormGroupPostalCode
+  // FormGroupPostalCode
 }
 
 export const props = {

@@ -20,6 +20,17 @@
       :column-label="$i18n.t('Email')"
       :text="$i18n.t('Email address of the user. The email with the certificate will be sent to this address.')"
     />
+    <form-group-dns-names namespace="dns_names"
+      :column-label="$i18n.t('DNS Names')"
+      :text="$i18n.t('List of domains separated by a comma.')"
+    />
+    <form-group-ip-addresses namespace="ip_addresses"
+      :column-label="$i18n.t('IP Addresses')"
+      :text="$i18n.t('List of IP Addresses separated by a comma.')"
+    />
+    <form-group-organisational-unit namespace="organisational_unit"
+      :column-label="$i18n.t('Organisational Unit')"
+    />
     <form-group-organisation namespace="organisation"
       :column-label="$i18n.t('Organisation')"
     />
@@ -55,6 +66,9 @@ import {
   FormGroupProfileIdentifier,
   FormGroupCn,
   FormGroupMail,
+  FormGroupDnsNames,
+  FormGroupIpAddresses,
+  FormGroupOrganisationalUnit,
   FormGroupOrganisation,
   FormGroupCountry,
   FormGroupState,
@@ -72,6 +86,9 @@ const components = {
   FormGroupProfileIdentifier,
   FormGroupCn,
   FormGroupMail,
+  FormGroupDnsNames,
+  FormGroupIpAddresses,
+  FormGroupOrganisationalUnit,
   FormGroupOrganisation,
   FormGroupCountry,
   FormGroupState,

@@ -297,39 +297,56 @@ captive_portal.reg.url: 'https://{{.configurator.interfaces.reg.ip}}/captive-por
 ################################################################################
 # dot1x_eap_tls_pfpki test suite specific variables
 ################################################################################
-### Templates
-dot1x_eap_tls_pfpki.templates.radius.name: radius
-dot1x_eap_tls_pfpki.templates.http.name: http
-dot1x_eap_tls_pfpki.templates.user.name: user
-
-### Certs
+### General settings for certs
 dot1x_eap_tls_pfpki.certs.validity: 750
 dot1x_eap_tls_pfpki.certs.key_size: 2048
 dot1x_eap_tls_pfpki.certs.key_type: 1
 dot1x_eap_tls_pfpki.certs.digest: 4
+dot1x_eap_tls_pfpki.certs.country: CA
+dot1x_eap_tls_pfpki.certs.state: Quebec
+dot1x_eap_tls_pfpki.certs.locality: Montreal
+dot1x_eap_tls_pfpki.certs.organisation: Inverse
+dot1x_eap_tls_pfpki.certs.organisational_unit: PacketFence
+dot1x_eap_tls_pfpki.certs.ocsp_url: 'https://127.0.0.1:22225/api/v1/pki/ocsp'
 
 # CA
-dot1x_eap_tls_pfpki.certs.ca.country: CA
-dot1x_eap_tls_pfpki.certs.ca.state: Quebec
-dot1x_eap_tls_pfpki.certs.ca.locality: Montreal
-dot1x_eap_tls_pfpki.certs.ca.street_address: 7000 park avenue
-dot1x_eap_tls_pfpki.certs.ca.postal_code: H3N 1X1
-dot1x_eap_tls_pfpki.certs.ca.organisation: Inverse
 dot1x_eap_tls_pfpki.certs.ca.cn: InverseCA
-dot1x_eap_tls_pfpki.certs.ca.mail: '{{.dot1x_eap_tls_pfpki.certs.ca.cn}}@{{.configurator.domain}}'
-dot1x_eap_tls_pfpki.certs.ca.issuer: "/C={{.dot1x_eap_tls_pfpki.certs.ca.country}}/ST={{.dot1x_eap_tls_pfpki.certs.ca.state}}/L={{.dot1x_eap_tls_pfpki.certs.ca.locality}}/street={{.dot1x_eap_tls_pfpki.certs.ca.street_address}}/postalCode={{.dot1x_eap_tls_pfpki.certs.ca.postal_code}}/O={{.dot1x_eap_tls_pfpki.certs.ca.organisation}}/CN={{.dot1x_eap_tls_pfpki.certs.ca.cn}}"
+dot1x_eap_tls_pfpki.certs.ca.mail: '{{.configurator.email}}'
 
-# RADIUS
-dot1x_eap_tls_pfpki.certs.radius.cn: pf_radius
-dot1x_eap_tls_pfpki.certs.radius.mail: '{{.dot1x_eap_tls_pfpki.certs.radius.cn}}@{{.configurator.domain}}'
+dot1x_eap_tls_pfpki.certs.ca.issuer: "/C={{.dot1x_eap_tls_pfpki.certs.country}}/ST={{.dot1x_eap_tls_pfpki.certs.state}}/L={{.dot1x_eap_tls_pfpki.certs.locality}}/O={{.dot1x_eap_tls_pfpki.certs.organisation}}/OU={{.dot1x_eap_tls_pfpki.certs.organisational_unit}}/CN={{.dot1x_eap_tls_pfpki.certs.ca.cn}}"
 
-# HTTP
-dot1x_eap_tls_pfpki.certs.http.cn: pf_http
-dot1x_eap_tls_pfpki.certs.http.mail: '{{.dot1x_eap_tls_pfpki.certs.http.cn}}@{{.configurator.domain}}'
+### Templates
+dot1x_eap_tls_pfpki.templates.radius.name: '{{.dot1x_eap_tls_pfpki.certs.ca.cn}}_radius'
+dot1x_eap_tls_pfpki.templates.http.name: '{{.dot1x_eap_tls_pfpki.certs.ca.cn}}_http'
+dot1x_eap_tls_pfpki.templates.user.name: '{{.dot1x_eap_tls_pfpki.certs.ca.cn}}_user'
 
-# User
-dot1x_eap_tls_pfpki.certs.user.cn: usercertificate
-dot1x_eap_tls_pfpki.certs.user.mail: '{{.dot1x_eap_tls_pfpki.certs.user.cn}}@{{.configurator.domain}}'
+# RADIUS cert
+dot1x_eap_tls_pfpki.certs.radius.cn: '{{.dot1x_eap_tls_pfpki.templates.radius.name}}_cert'
+dot1x_eap_tls_pfpki.certs.radius.mail: '{{.configurator.email}}'
+dot1x_eap_tls_pfpki.certs.radius.dns_names: '{{.configurator.hostname}}.{{.configurator.domain}}'
+dot1x_eap_tls_pfpki.certs.radius.ip_addresses: '{{.configurator.interfaces.mgmt.ip}}'
+
+# HTTP cert
+dot1x_eap_tls_pfpki.certs.http.cn: '{{.dot1x_eap_tls_pfpki.templates.http.name}}_cert'
+dot1x_eap_tls_pfpki.certs.http.mail: '{{.configurator.email}}'
+dot1x_eap_tls_pfpki.certs.http.dns_names: '{{.configurator.hostname}}.{{.configurator.domain}},packetfence.example.lan'
+dot1x_eap_tls_pfpki.certs.http.ip_addresses: '{{.configurator.interfaces.mgmt.ip}},66.70.255.147,{{.configurator.interfaces.reg.ip}},{{.configurator.interfaces.iso.ip}}'
+
+# User cert
+dot1x_eap_tls_pfpki.certs.user.cn: '{{.dot1x_eap_tls_pfpki.templates.user.name}}_cert'
+dot1x_eap_tls_pfpki.certs.user.mail: '{{.configurator.email}}'
+dot1x_eap_tls_pfpki.certs.user.scep_enabled: 1
+dot1x_eap_tls_pfpki.certs.user.scep_challenge_password: secret
+dot1x_eap_tls_pfpki.certs.user.scep_days_before_renewal: 7
+
+# OCSP config
+dot1x_eap_tls_pfpki.ocsp.id: ocsp_from_cert
+dot1x_eap_tls_pfpki.ocsp.enable: yes
+dot1x_eap_tls_pfpki.ocsp.url: ""
+dot1x_eap_tls_pfpki.ocsp.override_cert_url: no
+dot1x_eap_tls_pfpki.ocsp.softfail: no
+dot1x_eap_tls_pfpki.ocsp.timeout: 0
+dot1x_eap_tls_pfpki.ocsp.use_nonce: yes
 
 # Roles
 dot1x_eap_tls_pfpki.roles.dot1x_eap_tls.id: dot1x_eap_tls

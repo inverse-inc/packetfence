@@ -15,6 +15,9 @@
     <form-group-mail namespace="mail"
       :column-label="$i18n.t('Email')"
     />
+    <form-group-organisational-unit namespace="organisational_unit"
+      :column-label="$i18n.t('Organisational Unit')"
+    />
     <form-group-organisation namespace="organisation"
       :column-label="$i18n.t('Organisation')"
     />
@@ -30,9 +33,11 @@
     <form-group-street-address namespace="street_address"
       :column-label="$i18n.t('Street Address')"
     />
+    <!-- temporarily hidden
     <form-group-postal-code namespace="postal_code"
       :column-label="$i18n.t('Postal Code')"
     />
+    -->
     <form-group-key-type namespace="key_type"
       :column-label="$i18n.t('Key type')"
     />
@@ -55,6 +60,10 @@
       :column-label="$i18n.t('Days')"
       :text="$i18n.t('Number of days the CA will be valid.')"
     />
+    <form-group-ocsp-url namespace="ocsp_url"
+      :column-label="$i18n.t('OCSP Url')"
+      :text="$i18n.t('Optional. This is the url of the OCSP server that will be added in the certificate.')"
+    />
     <form-group-cert namespace="cert"
       :column-label="$i18n.t('Certificate')"
       auto-fit
@@ -71,18 +80,20 @@ import {
   FormGroupIdentifier,
   FormGroupCn,
   FormGroupMail,
+  FormGroupOrganisationalUnit,
   FormGroupOrganisation,
   FormGroupCountry,
   FormGroupState,
   FormGroupLocality,
   FormGroupStreetAddress,
-  FormGroupPostalCode,
+  // FormGroupPostalCode,
   FormGroupKeyType,
   FormGroupKeySize,
   FormGroupDigest,
   FormGroupKeyUsage,
   FormGroupExtendedKeyUsage,
   FormGroupDays,
+  FormGroupOcspUrl,
   FormGroupCert
 } from './'
 
@@ -92,18 +103,20 @@ const components = {
   FormGroupIdentifier,
   FormGroupCn,
   FormGroupMail,
+  FormGroupOrganisationalUnit,
   FormGroupOrganisation,
   FormGroupCountry,
   FormGroupState,
   FormGroupLocality,
   FormGroupStreetAddress,
-  FormGroupPostalCode,
+  // FormGroupPostalCode,
   FormGroupKeyType,
   FormGroupKeySize,
   FormGroupDigest,
   FormGroupKeyUsage,
   FormGroupExtendedKeyUsage,
   FormGroupDays,
+  FormGroupOcspUrl,
   FormGroupCert
 }
 

@@ -49,7 +49,7 @@ Depends: ${misc:Depends}, vlan,
  iproute,
  ipset,
  sudo,
- sscep,
+ sscep (>= 0.9),
  patch,
  git,
 # process management

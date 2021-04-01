@@ -51,11 +51,12 @@ export default (props) => {
       .max(255),
 
     organisation: yup.string().required(i18n.t('Organisation required.')).max(64, i18n.t('Maximum 64 characters.')),
+    organisational_unit: yup.string().max(255, i18n.t('Maximum 255 characters.')),
     country: yup.string().required(i18n.t('Country required.')),
     state: yup.string().required(i18n.t('State required.')).max(255),
     locality: yup.string().required(i18n.t('Locality required.')).max(255),
-    street_address: yup.string().required(i18n.t('Street address required.')).max(255),
-    postal_code: yup.string().required(i18n.t('Postal code required.')).max(255),
+    street_address: yup.string().max(255),
+    postal_code: yup.string().max(255),
     key_type: yup.string().required(i18n.t('Key type required.')),
     key_size: yup.string().when('key_type', () => {
       // array to friendly csv, eg: [a, b] => 'a or b', [a, b, c] => 'a, b or c'
@@ -71,7 +72,8 @@ export default (props) => {
       if (sizes)
         return _schema.in(sizes, i18n.t('Invalid key size. {type} only supports {list}', { type, list: arrToLocale(sizes) }))
       return _schema
-    }),
+    }), 
+    ocsp_url: yup.string().max(255, i18n.t('Maximum 255 characters.')),
     digest: yup.string().required(i18n.t('Digest required.')),
     days: yup.string().required(i18n.t('Days required.')).minAsInt(1, i18n.t('Minimum 1 day(s).')).maxAsInt(825, i18n.t('Maximum 825 day(s).'))
   })
