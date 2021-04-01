@@ -32,6 +32,7 @@
       :disabled="isLoading"
       @click="onRemove"
     >{{ $t(' Delete' ) }}</base-button-confirm>
+    <span class="mr-3"><!-- spacer --></span>
     <slot/>
   </div>
 </template>
