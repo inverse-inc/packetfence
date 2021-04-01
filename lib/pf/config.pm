@@ -762,6 +762,8 @@ sub get_network_type {
         # deprecated isolation
         $logger->warn("networks.conf network type isolation is deprecated use vlan-isolation instead");
         return $NET_TYPE_VLAN_ISOL;
+    } elsif ($type =~ /^other$/) {
+        return $NET_TYPE_OTHER;
     }
 
     $logger->warn("Unknown network type for network $network");
