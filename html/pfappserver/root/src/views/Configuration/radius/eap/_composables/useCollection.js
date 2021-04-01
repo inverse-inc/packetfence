@@ -29,7 +29,8 @@ const useRouter = (props, context, form) => {
   const { root: { $router } = {} } = context
   return {
     goToCollection: () => $router.push({ name: 'radiusEaps' }),
-    goToItem: () => $router.push({ name: 'radiusEap', params: { id: form.value.id || id.value } })
+    goToItem: (item = form.value || {}) => $router
+      .push({ name: 'radiusEap', params: { id: item.id } })
       .catch(e => { if (e.name !== "NavigationDuplicated") throw e }),
     goToClone: () => $router.push({ name: 'cloneRadiusEap', params: { id: id.value } }),
   }

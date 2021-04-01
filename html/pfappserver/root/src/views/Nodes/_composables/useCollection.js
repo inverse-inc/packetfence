@@ -1,14 +1,11 @@
 import { computed, toRefs } from '@vue/composition-api'
 
 const useRouter = (props, context, form) => {
-  const {
-    id
-  } = toRefs(props)
   const { root: { $router } = {} } = context
   return {
     goToCollection: () => $router.push({ name: 'nodes' }),
-    goToItem: (_id) => $router
-      .push({ name: 'node', params: { mac: form.value.id || (id && id.value) || _id } })
+    goToItem: (item = form.value || {}) => $router
+      .push({ name: 'node', params: { mac: item.id } })
       .catch(e => { if (e.name !== "NavigationDuplicated") throw e }),
   }
 }

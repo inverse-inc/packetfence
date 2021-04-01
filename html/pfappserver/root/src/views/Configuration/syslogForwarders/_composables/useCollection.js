@@ -50,7 +50,8 @@ const useRouter = (props, context, form) => {
   const { root: { $router } = {} } = context
   return {
     goToCollection: () => $router.push({ name: 'syslogForwarders' }),
-    goToItem: () => $router.push({ name: 'syslogForwarder', params: { id: form.value.id || id.value } })
+    goToItem: (item = form.value || {}) => $router
+      .push({ name: 'syslogForwarder', params: { id: item.id } })
       .catch(e => { if (e.name !== "NavigationDuplicated") throw e }),
     goToClone: () => $router.push({ name: 'cloneSyslogForwarder', params: { id: id.value } }),
   }

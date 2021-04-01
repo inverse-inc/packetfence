@@ -11,7 +11,7 @@ yup.addMethod(yup.string, 'tenantNameNotExistsExceptIdentifier', function (excep
       return store.dispatch('config/getTenants').then(response => {
         return response.filter(tenant =>
           tenant.name.toLowerCase() === value.toLowerCase()
-          && tenant.id !== exceptId
+          && tenant.id.toString() !== exceptId.toString()
         ).length === 0
       }).catch(() => {
         return true
