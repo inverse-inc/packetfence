@@ -48,13 +48,15 @@ const (
 )
 
 func Extkeyusage(ExtendedKeyUsage []string) []x509.ExtKeyUsage {
+
 	// Set up extra key uses for certificate
 	extKeyUsage := make([]x509.ExtKeyUsage, 0)
 	for _, use := range ExtendedKeyUsage {
-		v, _ := strconv.Atoi(use)
-		extKeyUsage = append(extKeyUsage, x509.ExtKeyUsage(v))
+		if use != "" {
+			v, _ := strconv.Atoi(use)
+			extKeyUsage = append(extKeyUsage, x509.ExtKeyUsage(v))
+		}
 	}
-
 	return extKeyUsage
 }
 

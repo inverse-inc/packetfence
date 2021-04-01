@@ -467,7 +467,7 @@ func (c CA) FindSCEPProfile(options []string) ([]Profile, error) {
 
 }
 
-// CA return the CA public key based on the profile name
+// CA return the CA public key based on the profile name (SCEP)
 func (c CA) CA(pass []byte, options ...string) ([]*x509.Certificate, *rsa.PrivateKey, error) {
 	var profiledb []Profile
 
