@@ -47,9 +47,11 @@
     <form-group-street-address namespace="street_address"
       :column-label="$i18n.t('Street Address')"
     />
+    <!-- temporarily hidden
     <form-group-postal-code namespace="postal_code"
       :column-label="$i18n.t('Postal Code')"
     />
+    -->
   </base-form>
 </template>
 <script>
@@ -71,7 +73,7 @@ import {
   FormGroupState,
   FormGroupLocality,
   FormGroupStreetAddress,
-  FormGroupPostalCode
+  // FormGroupPostalCode
 } from './'
 
 const components = {
@@ -89,7 +91,7 @@ const components = {
   FormGroupState,
   FormGroupLocality,
   FormGroupStreetAddress,
-  FormGroupPostalCode
+  // FormGroupPostalCode
 }
 
 export const props = {

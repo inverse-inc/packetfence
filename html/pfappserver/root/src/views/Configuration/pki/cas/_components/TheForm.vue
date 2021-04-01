@@ -33,9 +33,11 @@
     <form-group-street-address namespace="street_address"
       :column-label="$i18n.t('Street Address')"
     />
+    <!-- temporarily hidden
     <form-group-postal-code namespace="postal_code"
       :column-label="$i18n.t('Postal Code')"
     />
+    -->
     <form-group-key-type namespace="key_type"
       :column-label="$i18n.t('Key type')"
     />
@@ -84,7 +86,7 @@ import {
   FormGroupState,
   FormGroupLocality,
   FormGroupStreetAddress,
-  FormGroupPostalCode,
+  // FormGroupPostalCode,
   FormGroupKeyType,
   FormGroupKeySize,
   FormGroupDigest,
@@ -107,7 +109,7 @@ const components = {
   FormGroupState,
   FormGroupLocality,
   FormGroupStreetAddress,
-  FormGroupPostalCode,
+  // FormGroupPostalCode,
   FormGroupKeyType,
   FormGroupKeySize,
   FormGroupDigest,

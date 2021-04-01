@@ -40,9 +40,11 @@
         <form-group-street-address namespace="street_address"
           :column-label="$i18n.t('Street Address')"
         />
+        <!-- temporarily hidden
         <form-group-postal-code namespace="postal_code"
           :column-label="$i18n.t('Postal Code')"
         />
+        -->
         <form-group-validity namespace="validity"
           :column-label="$i18n.t('Validity')"
           :text="$i18n.t('Number of days the certificate will be valid.')"
@@ -129,7 +131,7 @@ import {
   FormGroupState,
   FormGroupLocality,
   FormGroupStreetAddress,
-  FormGroupPostalCode,
+  // FormGroupPostalCode,
   FormGroupValidity,
   FormGroupKeyType,
   FormGroupKeySize,
@@ -161,7 +163,7 @@ const components = {
   FormGroupState,
   FormGroupLocality,
   FormGroupStreetAddress,
-  FormGroupPostalCode,
+  // FormGroupPostalCode,
   FormGroupValidity,
   FormGroupKeyType,
   FormGroupKeySize,
