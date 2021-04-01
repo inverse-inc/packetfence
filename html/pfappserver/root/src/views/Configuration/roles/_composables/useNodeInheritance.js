@@ -3,6 +3,7 @@ import { computed, ref } from '@vue/composition-api'
 export const useNodeInheritance = (items, sortBy, sortDesc) => {
 
   const collapsedNodes = ref([])
+  const clearExpandedNodes = () => { collapsedNodes.value = [] }
   const _expandNode = id => {
     collapsedNodes.value = collapsedNodes.value.filter(expanded => expanded !== id)
   }
@@ -165,6 +166,7 @@ export const useNodeInheritance = (items, sortBy, sortDesc) => {
 
   return {
     collapsedNodes,
+    clearExpandedNodes,
     onToggleNode,
     itemsTree
   }

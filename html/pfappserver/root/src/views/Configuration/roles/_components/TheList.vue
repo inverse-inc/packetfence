@@ -254,7 +254,7 @@ const setup = (props, context) => {
   const _clearQueryParam = () => _setQueryParam()
 
   const onSearchBasic = () => {
-    _clearExpandedRoles()
+    clearExpandedNodes()
     if (conditionBasic.value) {
       doSearchString(conditionBasic.value)
       _setQueryParam(JSON.stringify(conditionBasic.value))
@@ -264,7 +264,7 @@ const setup = (props, context) => {
   }
 
   const onSearchAdvanced = () => {
-    _clearExpandedRoles()
+    clearExpandedNodes()
     if (conditionAdvanced.value) {
       doSearchCondition(conditionAdvanced.value)
       _setQueryParam(JSON.stringify(conditionAdvanced.value))
@@ -277,7 +277,7 @@ const setup = (props, context) => {
     conditionBasic.value = null
     conditionAdvanced.value = defaultCondition() // dereference
     _clearQueryParam()
-    _clearExpandedRoles()
+    clearExpandedNodes()
     doReset()
   }
 
@@ -339,6 +339,7 @@ const setup = (props, context) => {
 
   const {
     collapsedNodes,
+    clearExpandedNodes,
     onToggleNode,
     itemsTree,
   } = useNodeInheritance(items, sortBy, sortDesc)
@@ -364,6 +365,7 @@ const setup = (props, context) => {
     isInline,
 
     collapsedNodes,
+    clearExpandedNodes,
     onToggleNode,
     itemsTree,
 
