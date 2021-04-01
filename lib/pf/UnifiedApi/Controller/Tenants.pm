@@ -51,17 +51,10 @@ sub can_create {
     return $self->SUPER::can_create;
 }
 
-sub do_get {
-    my ($self, $data) = @_;
-    my ($status, $item) = $self->dal->find($data);
-    if (is_error($status)) {
-        $item = undef;
-    } else {
-        $item = $item->to_hash();
-        $item->{not_deletable} = $self->not_deletable($item);
-    }
-
-    return ($status, $item);
+sub cleanup_item {
+    my ($self, $item) = @_;
+    $item->{not_deletable} = $self->not_deletable($item);
+    return $item;
 }
 
 sub not_deletable {
