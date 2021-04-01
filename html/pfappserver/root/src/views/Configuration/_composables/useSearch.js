@@ -112,7 +112,7 @@ export const useSearch = (api, options) => {
       })
       .finally(() => {
         isLoading.value = false
-      })    
+      })
   }
 
   const doSearchString = (string) => {
@@ -157,9 +157,16 @@ export const useSearch = (api, options) => {
   }
 
   const reSearch = () => {
+    const visibleSortBy = columns.value.find(c => c.key == sortBy.value && c.visible)
+    if (!visibleSortBy) {
+      onSortChanged({
+        sortBy: columns.value.find(c => c.required)['key'],
+        sortDesc: false
+      })
+    }
     if (lastQuery.value) // last query good
       doSearch(lastQuery.value) // re-perform search w/ last query
-    else  
+    else
       doReset()
   }
 
