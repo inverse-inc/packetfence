@@ -12,12 +12,12 @@
         {{ $t('Roles') }}
         <pf-button-help class="ml-1" url="PacketFence_Installation_Guide.html#_introduction_to_role_based_access_control" />
       </h4>
-    </b-card-header>    
+    </b-card-header>
     <div class="card-body">
       <transition name="fade" mode="out-in">
         <div v-if="advancedMode">
           <b-form @submit.prevent="onSearchAdvanced" @reset.prevent="onSearchReset">
-            <base-search-input-advanced 
+            <base-search-input-advanced
               v-model="conditionAdvanced"
               :disabled="isLoading"
               :fields="fields"
@@ -26,8 +26,8 @@
             />
             <b-container fluid class="text-right mt-3 px-0">
               <b-button class="mr-1" type="reset" variant="secondary" :disabled="isLoading">{{ $t('Clear') }}</b-button>
-              <base-button-save-search 
-                save-search-namespace="roles-advanced" 
+              <base-button-save-search
+                save-search-namespace="roles-advanced"
                 v-model="conditionAdvanced"
                 :disabled="isLoading"
                 @search="onSearchAdvanced"
@@ -53,7 +53,7 @@
       </b-row>
       <b-row align-h="end" align-v="center">
         <b-col>
-          <base-search-input-columns 
+          <base-search-input-columns
             v-model="columns"
             :disabled="isLoading"
           />
@@ -61,21 +61,21 @@
         <b-col cols="auto">
           <b-container fluid>
             <b-row align-v="center">
-              <base-search-input-limit 
+              <base-search-input-limit
                 v-model="limit"
                 size="md"
                 :limits="limits"
                 :disabled="isLoading"
               />
-              <base-search-input-page 
+              <base-search-input-page
                 v-model="page"
                 :limit="limit"
                 :total-rows="totalRows"
                 :disabled="isLoading"
               />
-              <base-button-export-csv 
+              <base-button-export-csv
                 class="mb-3" size="md"
-                :filename="`${$route.path.slice(1).replace('/', '-')}.csv`" 
+                :filename="`${$route.path.slice(1).replace('/', '-')}.csv`"
                 :disabled="isLoading"
                 :columns="columns" :data="itemsTree"
               />
@@ -109,16 +109,16 @@
         </template>
         <template v-slot:cell(id)="{ item }">
           <icon v-for="(icon, i) in item._tree" :key="i"
-            v-bind="icon" /> 
+            v-bind="icon" />
           <b-link v-if="item.children"
             :class="(collapsedNodes.includes(item.id)) ? 'text-danger' : 'text-secondary'"
              @click.stop="onToggleNode(item.id)"
           >
-            <icon v-bind="item._icon" />       
+            <icon v-bind="item._icon" />
           </b-link>
           <icon v-else
-            v-bind="item._icon" />       
-          {{ item.id }} 
+            v-bind="item._icon" />
+          {{ item.id }}
         </template>
         <template v-slot:cell(buttons)="{ item }">
           <span class="float-right text-nowrap text-right">
@@ -131,7 +131,7 @@
             <b-button size="sm" variant="outline-primary" class="mr-1" @click.stop.prevent="onClone(item.id)">{{ $t('Clone') }}</b-button>
             <b-button v-if="isInline" size="sm" variant="outline-primary" class="mr-1" :to="trafficShapingRoute(item.id)">{{ $t('Traffic Shaping') }}</b-button>
           </span>
-        </template>        
+        </template>
       </b-table>
       <b-modal v-model="showDeleteErrorsModal" size="lg"
         centered lazy scrollable
@@ -226,7 +226,7 @@ const setup = (props, context) => {
 
   onMounted(() => {
     const { currentRoute: { query: { query } = {} } = {} } = $router
-    if (query) { 
+    if (query) {
       const parsedQuery = JSON.parse(query)
       switch(parsedQuery.constructor) {
         case Array: // advanced search
@@ -356,7 +356,7 @@ const setup = (props, context) => {
     onRemove,
     deleteId,
     deleteErrors,
-    showDeleteErrorsModal,    
+    showDeleteErrorsModal,
     reassignRole,
     reassignableRoles,
     reasons,
@@ -393,21 +393,21 @@ export default {
     outline-width: 0;
     td[role="cell"] {
       padding: 0 0.3rem;
-      text-wrap: nowrap;
+      word-wrap: nowrap;
       div[variant="link"] {
         line-height: 1em;
       }
     }
     td[aria-colindex="1"] {
       svg.fa-icon:not(.nav-icon) {
-        margin: 0.25rem 0;
         min-width: 36px;
         height: auto;
         max-height: 18px;
+        margin: 0.25rem 0;
       }
       svg.nav-icon {
-        color: $gray-500;
         height: 36px;
+        color: $gray-500;
       }
     }
   }

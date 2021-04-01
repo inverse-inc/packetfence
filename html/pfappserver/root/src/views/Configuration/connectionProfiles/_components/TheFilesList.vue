@@ -344,21 +344,21 @@ export default {
     outline-width: 0;
     td[role="cell"] {
       padding: 0 0.3rem;
-      text-wrap: nowrap;
+      word-wrap: nowrap;
       div[variant="link"] {
         line-height: 1em;
       }
     }
     td[aria-colindex="1"] {
       svg.fa-icon:not(.nav-icon) {
-        margin: 0.25rem 0;
         min-width: 36px;
         height: auto;
         max-height: 18px;
+        margin: 0.25rem 0;
       }
       svg.nav-icon {
-        color: $gray-500;
         height: 36px;
+        color: $gray-500;
       }
     }
   }
