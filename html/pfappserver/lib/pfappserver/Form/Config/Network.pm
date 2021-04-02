@@ -132,6 +132,13 @@ has_field 'netflow_accounting_enabled' =>
    label => 'Enable Net Flow Accounting'
    );
 
+has_field 'tenant_id' =>
+  (
+   type => 'Tenant',
+   label => 'Tenant for network',
+   required => 1,
+   );
+
 =head2 validate
 
 Make sure the ending DHCP IP address is after the starting DHCP IP address.
@@ -177,4 +184,5 @@ USA.
 =cut
 
 __PACKAGE__->meta->make_immutable unless $ENV{"PF_SKIP_MAKE_IMMUTABLE"};
+
 1;

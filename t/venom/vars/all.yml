@@ -23,6 +23,7 @@ ssh_user: vagrant
 # pfserver variables
 pfserver_webadmin_url: 'https://{{.pfserver_mgmt_ip}}:1443'
 pfserver_default_admin_user: admin
+pfserver_default_system_user: system
 pfserver_admin_password: secret
 pfserver_root_dir: /usr/local/pf
 pfserver_conf_dir: '{{.pfserver_root_dir}}/conf'
@@ -112,6 +113,17 @@ wireless_switch.id2: '{{.wireless01.dot1x_interface.mac}}'
 wireless_switch.description: wireless01
 
 ################################################################################
+# global_config_multi_tenant test suite specific variables
+################################################################################
+# global tenant
+global_config_multi_tenant.global_tenant.id: 0
+
+global_config_multi_tenant.tenant.name: example
+global_config_multi_tenant.tenant.id: 2
+global_config_multi_tenant.tenant.domain_name: '{{.configurator.domain}}'
+global_config_multi_tenant.tenant.portal_domain_name: '{{.configurator.hostname}}.{{.configurator.domain}}'
+
+################################################################################
 # eap_peap test suites specific variables
 ################################################################################
 # AD user
@@ -122,7 +134,6 @@ eap_peap.roles.ad_user.vlan_id: 100
 eap_peap.roles.ad_machine.id: machine_employee
 eap_peap.roles.ad_machine.notes: Machine Employee
 eap_peap.roles.ad_machine.vlan_id: 100
-
 
 ################################################################################
 # dot1x_eap_peap test suite specific variables
@@ -364,3 +375,34 @@ dot1x_eap_tls_pfpki.profiles.wired.description: 802.1X wired EAP-TLS
 dot1x_eap_tls_pfpki.profiles.wired.filters.connection_type: Ethernet-EAP
 dot1x_eap_tls_pfpki.profiles.wired.filters.connection_sub_type: EAP-TLS
 dot1x_eap_tls_pfpki.profiles.wired.unreg_on_acct_stop: enabled
+
+################################################################################
+# pfdhcplistener_single_tenant test suite specific variables
+################################################################################
+# node10
+pfdhcplistener_single_tenant.nodes.node10.mac: 22:22:22:22:22:22
+pfdhcplistener_single_tenant.nodes.node10.mac_url_encoded: 22%3A22%3A22%3A22%3A22%3A22
+pfdhcplistener_single_tenant.nodes.node10.first_ip: 172.20.20.192
+pfdhcplistener_single_tenant.nodes.node10.second_ip: 172.20.20.193
+pfdhcplistener_single_tenant.nodes.node10.hostname: node10
+pfdhcplistener_single_tenant.nodes.node10.dhcp_fingerprint: 1,2,3,4
+pfdhcplistener_single_tenant.nodes.node10.dhcp_vendor: test
+# need to be a network not already attached to PacketFence server
+pfdhcplistener_single_tenant.nodes.node10.dhcp_server: 10.10.10.1
+
+################################################################################
+# pfdhcplistener_multi_tenant test suite specific variables
+################################################################################
+pfdhcplistener_multi_tenant.production_network.subnet: 172.21.2.0
+pfdhcplistener_multi_tenant.production_network.netmask: 255.255.255.0
+pfdhcplistener_multi_tenant.production_network.type: other
+# node11
+pfdhcplistener_multi_tenant.nodes.node11.mac: 33:33:33:33:33:33
+pfdhcplistener_multi_tenant.nodes.node11.mac_url_encoded: 33%3A33%3A33%3A33%3A33%3A33
+pfdhcplistener_multi_tenant.nodes.node11.first_ip: 172.21.2.192
+pfdhcplistener_multi_tenant.nodes.node11.second_ip: 172.21.2.193
+pfdhcplistener_multi_tenant.nodes.node11.hostname: node11
+pfdhcplistener_multi_tenant.nodes.node11.dhcp_fingerprint: 1,2,3,4
+pfdhcplistener_multi_tenant.nodes.node11.dhcp_vendor: test
+# need to be a network not already attached to PacketFence server
+pfdhcplistener_multi_tenant.nodes.node11.dhcp_server: 10.10.10.1

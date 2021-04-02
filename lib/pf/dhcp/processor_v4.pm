@@ -42,6 +42,7 @@ use pf::util;
 use pf::config::util;
 use pf::services::util;
 use pf::util::dhcp;
+use List::Util qw(first);
 use List::MoreUtils qw(any);
 use pf::api::jsonrpcclient;
 use NetAddr::IP;
@@ -57,6 +58,9 @@ use pf::cluster;
 use pf::dhcp_option82 qw(dhcp_option82_insert_or_update);
 use pf::security_event;
 use pf::constants::parking qw($PARKING_SECURITY_EVENT_ID);
+use pfconfig::cached_array;
+
+tie our @NetworkLookup, 'pfconfig::cached_array', 'resource::network_lookup';
 
 has 'src_mac' => ('is' => 'ro');
 has 'dest_mac' => ('is' => 'ro');
@@ -189,6 +193,45 @@ sub _get_redis_client {
 }
 
 
+sub setTenant {
+    my ($self) = @_;
+    my $tenant_id;
+    my $dhcp = $self->{dhcp};
+    my $giaddr = $dhcp->{'giaddr'};
+    if ($giaddr ne '0.0.0.0') {
+        $tenant_id = findTenantForNetwork($giaddr);
+    }
+
+    if (!defined $tenant_id) {
+        $tenant_id = findTenantForNetwork($self->{interface_ip});
+    }
+
+    $tenant_id //= $DEFAULT_TENANT_ID;
+    pf::config::tenant::set_tenant($tenant_id);
+}
+
+sub findTenantForNetwork {
+    my ($ip) = @_;
+    my $network = lookupNetwork(\@NetworkLookup, $ip);
+    if (defined $network) {
+        return $network->{tenant_id};
+    }
+
+    return undef;
+}
+
+sub lookupNetwork {
+    my ($networkLookup, $ipAddr) = @_;
+    my $ip = NetAddr::IP->new($ipAddr);
+    #Find the network that the ip is i the range
+
+   if (my $networkData = first { $ip->within($_->[0]) } @$networkLookup) {
+       return $networkData->[1];
+   }
+
+    return undef;
+}
+
 =head2 process_packet
 
 Process a packet
@@ -202,6 +245,7 @@ sub process_packet {
         $logger->trace("The database is in readonly mode skipping processing the database");
         return;
     }
+    $self->setTenant();
 
     my $dhcp = $self->{dhcp};
 

@@ -1,0 +1,13 @@
+name: Create tenant
+version: 2
+testcases:
+- name: create_tenant
+  steps:
+    - type: exec
+      script: "{{.pfserver_pfcmd}} tenant add {{.global_config_multi_tenant.tenant.name}} {{.global_config_multi_tenant.tenant.domain_name}} {{.global_config_multi_tenant.tenant.portal_domain_name}}"
+
+    - type: exec
+      script: "systemctl restart packetfence-config"
+
+    - type: exec
+      script: "{{.pfserver_pfcmd}} service pf restart"

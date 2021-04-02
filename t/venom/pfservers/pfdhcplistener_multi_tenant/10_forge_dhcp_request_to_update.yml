@@ -1,0 +1,60 @@
+name: Forge DHCP request to update node11
+version: 2
+testcases:
+  - name: get_node11_attributes
+    steps:
+    - type: http
+      method: GET
+      url: '{{.pfserver_webadmin_url}}/api/v1/node/{{.pfdhcplistener_multi_tenant.nodes.node11.mac_url_encoded}}'
+      ignore_verify_ssl: true
+      headers:
+        "Authorization": "{{.pfserver_token}}"
+        "Content-Type": "application/json"
+        "X-PacketFence-Tenant-Id": "{{.global_config_multi_tenant.tenant.id}}"        
+      assertions:
+      - result.statuscode ShouldEqual 200
+      vars:
+        last_dhcp:
+          from: result.bodyjson.item.last_dhcp
+        last_seen:
+          from: result.bodyjson.item.last_seen
+        
+  - name: forge_dhcp_request_node11
+    steps:
+    - type: exec
+      script: "perl {{.pfserver_root_dir}}/addons/stress-tester/dhcp_test --mac={{.pfdhcplistener_multi_tenant.nodes.node11.mac}} --ip={{.pfdhcplistener_multi_tenant.nodes.node11.second_ip}} --hostname={{.pfdhcplistener_multi_tenant.nodes.node11.hostname}} --dhcp-fingerprint={{.pfdhcplistener_multi_tenant.nodes.node11.dhcp_fingerprint}} --dhcp-vendor={{.pfdhcplistener_multi_tenant.nodes.node11.dhcp_vendor}} --server={{.pfdhcplistener_multi_tenant.nodes.node11.dhcp_server}}"
+
+  # let node be **updated** in DB
+  - name: sleep_some_time
+    steps:
+    - type: exec
+      script: sleep 5
+  
+  - name: check_node11_updated_fields
+    steps:
+    - type: http
+      method: GET
+      url: '{{.pfserver_webadmin_url}}/api/v1/node/{{.pfdhcplistener_multi_tenant.nodes.node11.mac_url_encoded}}'
+      ignore_verify_ssl: true
+      headers:
+        "Authorization": "{{.pfserver_token}}"
+        "Content-Type": "application/json"
+        "X-PacketFence-Tenant-Id": "{{.global_config_multi_tenant.tenant.id}}"        
+      assertions:
+      - result.statuscode ShouldEqual 200
+      - result.bodyjson.item.last_dhcp ShouldNotEqual "{{.get_node11_attributes.last_dhcp}}"
+      - result.bodyjson.item.last_seen ShouldNotEqual "{{.get_node11_attributes.last_seen}}"
+
+  - name: check_node11_new_locationlog
+    steps:
+    - type: http
+      method: GET
+      url: '{{.pfserver_webadmin_url}}/api/v1/ip4logs/open/{{.pfdhcplistener_multi_tenant.nodes.node11.mac_url_encoded}}'
+      ignore_verify_ssl: true
+      headers:
+        "Authorization": "{{.pfserver_token}}"
+        "Content-Type": "application/json"
+        "X-PacketFence-Tenant-Id": "{{.global_config_multi_tenant.tenant.id}}"        
+      assertions:
+      - result.statuscode ShouldEqual 200
+      - result.bodyjson.item.ip ShouldEqual "{{.pfdhcplistener_multi_tenant.nodes.node11.second_ip}}"

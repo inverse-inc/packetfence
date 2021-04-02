@@ -1,0 +1,22 @@
+name: Create production network
+version: 2
+testcases:  
+- name: create_production_network_in_tenant
+  steps:
+    - type: http
+      method: POST
+      url: '{{.pfserver_webadmin_url}}/api/v1/config/routed_networks'
+      ignore_verify_ssl: true
+      body: >-
+        {
+          "netmask": "{{.pfdhcplistener_multi_tenant.production_network.netmask}}",
+          "tenant_id": "{{.global_config_multi_tenant.tenant.id}}",
+          "type": "{{.pfdhcplistener_multi_tenant.production_network.type}}",
+          "id": "{{.pfdhcplistener_multi_tenant.production_network.subnet}}"
+        }
+      headers:
+        "Authorization": "{{.pfserver_token}}"
+        "Content-Type": "application/json"
+        "X-PacketFence-Tenant-Id": "{{.global_config_multi_tenant.global_tenant.id}}"        
+      assertions:
+      - result.statuscode ShouldEqual 201
