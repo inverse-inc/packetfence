@@ -376,14 +376,14 @@ pfdhcplistener_single_tenant.nodes.node10.dhcp_server: 10.10.10.1
 ################################################################################
 # pfdhcplistener_multi_tenant test suite specific variables
 ################################################################################
-pfdhcplistener_multi_tenant.production_network.subnet: 172.20.20.0
+pfdhcplistener_multi_tenant.production_network.subnet: 172.21.2.0
 pfdhcplistener_multi_tenant.production_network.netmask: 255.255.255.0
 pfdhcplistener_multi_tenant.production_network.type: other
 # node11
 pfdhcplistener_multi_tenant.nodes.node11.mac: 33:33:33:33:33:33
 pfdhcplistener_multi_tenant.nodes.node11.mac_url_encoded: 33%3A33%3A33%3A33%3A33%3A33
-pfdhcplistener_multi_tenant.nodes.node11.first_ip: 172.20.20.192
-pfdhcplistener_multi_tenant.nodes.node11.second_ip: 172.20.20.193
+pfdhcplistener_multi_tenant.nodes.node11.first_ip: 172.21.2.192
+pfdhcplistener_multi_tenant.nodes.node11.second_ip: 172.21.2.193
 pfdhcplistener_multi_tenant.nodes.node11.hostname: node11
 pfdhcplistener_multi_tenant.nodes.node11.dhcp_fingerprint: 1,2,3,4
 pfdhcplistener_multi_tenant.nodes.node11.dhcp_vendor: test
