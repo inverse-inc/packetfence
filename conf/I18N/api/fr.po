@@ -15711,7 +15711,6 @@ msgid "Task that controls the execution of delayed security_event."
 msgstr "Tâche qui contrôle l'exécution de security_event retardé."
 
 #: conf/pfcron.conf.defaults[acct_maintenance]/description
-#: conf/pfcron.conf.defaults[inline_accounting_maintenance]/description
 msgid ""
 "Task that controls the inline accounting maintenance (bandwidth checks)."
 msgstr ""
