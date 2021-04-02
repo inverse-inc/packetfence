@@ -23,7 +23,7 @@ export const useNodeInheritance = (items, sortBy, sortDesc) => {
     const { [sortBy.value]: sortByA, id: idA, parent_id: parentIdA } = a 
     const { [sortBy.value]: sortByB, id: idB, parent_id: parentIdB } = b
     if (parentIdA === parentIdB)
-      return sortByA.toString().localeCompare(sortByB.toString()) * sortMod
+      return (sortByA || '').toString().localeCompare((sortByB || '').toString()) * sortMod
     else {
       if (parentIdA === idB)
         return 1 // always show before
