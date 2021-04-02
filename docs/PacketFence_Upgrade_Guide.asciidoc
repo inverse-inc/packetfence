@@ -1429,6 +1429,13 @@ Follow the instructions from the script.
 
 The ability to define a specific port per host in the list of the LDAP servers of a single authentication source has been deprecated. If you have such entries, adjust them accordingly. If you have been using the same LDAP port for all the hosts in an authentication source, then this will not apply to you.
 
+== Removal of `inline_accounting` table
+
+`inline_accounting` table will be removed by upgrade of database schema because it has been replaced by `bandwidth_accounting` table since v10.
+
+You are only concern by this item if you extract data from `inline_accounting` table before v10 for external usage.
+
+
 === Database schema
 
 Changes have been made to the database schema. You will need to update it accordingly.

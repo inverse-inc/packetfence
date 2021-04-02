@@ -69,6 +69,7 @@ For a list of compatibility related changes see the <<PacketFence_Upgrade_Guide.
 * Clarifications on Ruckus Role-by-Role capabilities. (#6201)
 * DNS/IP attributes in pfpki certificates (#6213)
 * Additional template attributes in certificate profile (#6213)
+* Remove unused table inline_accounting (#6171)
 
 === Bug Fixes
 
