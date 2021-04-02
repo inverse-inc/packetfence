@@ -12,8 +12,7 @@ const useFields = (columns) => {
     .map(column => column.key)
 }
 
-export const useString = (searchString, _columns) => {
-  const columns = useColumns(_columns)
+export const useString = (searchString, columns) => {
   return {
     op: 'and',
     values: [{
@@ -54,6 +53,8 @@ export const useSearch = (api, options) => {
     errorInterceptor: (error) => { throw (error) },
     useColumns,
     useFields,
+    useString,
+    useCondition,
 
     // overload
     ...options,
@@ -84,7 +85,7 @@ export const useSearch = (api, options) => {
   const totalRows = ref(0)
 
   const doReset = () => {
-    const fields = useFields(columns.value).join(',')
+    const fields = config.useFields(columns.value).join(',')
     const params = {
       fields,
       sort: ((sortDesc.value)
@@ -116,13 +117,17 @@ export const useSearch = (api, options) => {
   }
 
   const doSearchString = (string) => {
-    return doSearch(useString(string, columns.value))
+    const _columns = config.useColumns(columns.value)
+    const query = config.useString(string, _columns)
+    return doSearch(query)
   }
-  const doSearchCondition = (condition)=> {
-    return doSearch(useCondition(condition, columns.value))
+  const doSearchCondition = (condition) => {
+    const _columns = config.useColumns(columns.value)
+    const query = config.useCondition(condition, _columns)
+    return doSearch(query)
   }
   const doSearch = (query) => {
-    const fields = useFields(columns.value)
+    const fields = config.useFields(columns.value)
     const _body = {
       fields,
       query,
@@ -199,9 +204,7 @@ export const useSearch = (api, options) => {
     doSearch,
     reSearch,
     isLoading,
-    items,
-
-    useString
+    items
   }
 }
 
