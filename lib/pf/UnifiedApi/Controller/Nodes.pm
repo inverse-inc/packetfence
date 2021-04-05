@@ -1170,6 +1170,10 @@ sub make_create_data {
 sub update_data {
     my ($self) = @_;
     my $data = $self->SUPER::update_data();
+    if (defined $data->{unregdate} && $data->{unregdate} eq '') {
+        $data->{unregdate} = '0000-00-00 00:00:00';
+    }
+
     $self->ensure_person_exists($data);
     return $data;
 }
