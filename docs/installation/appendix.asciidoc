@@ -38,9 +38,9 @@ The node view option shows all information contained in the node database table 
   52:54:00:12:35:02|1|2008-10-23 17:32:16||||unreg||||2008-10-23 21:12:21|||||
 
 [appendix]
-=== Restoring a Percona XtraBackup or or MariaDB Backup dump
+=== Restoring a Percona XtraBackup or Mariabackup dump
 
-If you enabled Percona XtraBackup or MariaDB Backup for your nightly backup, you can use the following instructions to restore it. In this example we will be restoring `/root/backup/packetfence-db-dump-innobackup-2016-12-20_00h31.xbstream.gz`
+If you enabled Percona XtraBackup or Mariabackup for your nightly backup, you can use the following instructions to restore it. In this example we will be restoring `/root/backup/packetfence-db-dump-innobackup-2016-12-20_00h31.xbstream.gz`
 
 First, create a restore directory, move the backup to it and gunzip the backup:
 
@@ -78,7 +78,7 @@ Next, apply the innodb log (for XtraBackup):
 
   # innobackupex --apply-log ./
 
-Next, apply the innodb log (for MariaDB-backup):
+Next, apply the innodb log (for Mariabackup):
 
   # mariabackup --apply-log ./
 
@@ -97,7 +97,7 @@ For XtraBackup:
   # service packetfence-mariadb start
 
 
-For MariaDB-backup:
+For Mariabackup:
 
   # service packetfence-mariadb stop
   # mv /var/lib/mysql /var/lib/mysql.bak

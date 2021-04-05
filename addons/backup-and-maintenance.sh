@@ -110,9 +110,9 @@ should_backup(){
 }
 
 backup_db(){
-    # Check to see if MariaDB-Backup is installed
+    # Check to see if Mariabackup is installed
     if hash mariabackup 2>/dev/null; then
-        echo -e "MariaDB-Backup is available. Will proceed using it for DB backup to avoid locking tables and easier recovery process. \n"
+        echo -e "Mariabackup is available. Will proceed using it for DB backup to avoid locking tables and easier recovery process. \n"
         MARIADB_BACKUP_INSTALLED=1
     fi
 
@@ -140,7 +140,7 @@ backup_db(){
             if [ $MARIADB_LOCAL_CLUSTER -eq 1 ]; then
                 mariabackup --defaults-file=/usr/local/pf/var/conf/mariadb.conf --user=$REP_USER --password=$REP_PWD  --no-timestamp --stream=xbstream --tmpdir=$INNO_TMP --backup 2>> /usr/local/pf/logs/innobackup.log | gzip - > $BACKUP_DIRECTORY/$BACKUP_DB_FILENAME-innobackup-`date +%F_%Hh%M`.xbstream.gz
             elif [ $MARIADB_REMOTE_CLUSTER -eq 1 ]; then
-                echo "mariabackup can't backup remote databases, uninstall MariaDB-backup and retry"
+                echo "mariabackup can't backup remote databases, uninstall Mariabackup and retry"
             else
                 mariabackup --defaults-file=/usr/local/pf/var/conf/mariadb.conf --user=$REP_USER --password=$REP_PWD  --no-timestamp --stream=xbstream --tmpdir=$INNO_TMP --backup 2>> /usr/local/pf/logs/innobackup.log | gzip - > $BACKUP_DIRECTORY/$BACKUP_DB_FILENAME-innobackup-`date +%F_%Hh%M`.xbstream.gz
             fi
