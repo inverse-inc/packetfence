@@ -763,7 +763,7 @@ network_detection_retry_delay = 2s
 # How long to display the progress bar during trap release. Default value is 
 # based on VLAN enforcement techniques. Inline enforcement only users could
 # lower the value.
-network_redirect_delay = 20s
+network_redirect_delay = 90s
 #
 # captive_portal.image_path
 #
