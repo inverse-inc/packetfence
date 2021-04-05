@@ -34,7 +34,7 @@
       :column-label="$i18n.t('API Token Path')"
     />
 
-    <form-group-access-scope namespace="access_scope"
+    <form-group-scope namespace="scope"
       :column-label="$i18n.t('Scope')"
       :text="$i18n.t('The permissions the application requests.')"
     />
@@ -95,7 +95,6 @@
 <script>
 import { BaseForm } from '@/components/new/'
 import {
-  FormGroupAccessScope,
   FormGroupAccessTokenPath,
   FormGroupAuthenticationRules,
   FormGroupAuthorizePath,
@@ -113,13 +112,13 @@ import {
   FormGroupProtectedResourceUrl,
   FormGroupRedirectUrl,
   FormGroupSite,
+  FormGroupScope,
   FormGroupUsernameAttribute,
 } from './'
 
 const components = {
   BaseForm,
 
-  FormGroupAccessScope,
   FormGroupAccessTokenPath,
   FormGroupAuthenticationRules,
   FormGroupAuthorizePath,
@@ -137,6 +136,7 @@ const components = {
   FormGroupProtectedResourceUrl,
   FormGroupRedirectUrl,
   FormGroupSite,
+  FormGroupScope,
   FormGroupUsernameAttribute,
 
 }
