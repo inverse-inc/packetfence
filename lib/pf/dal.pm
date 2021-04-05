@@ -133,6 +133,7 @@ sub db_execute {
             $logger->warn("database query failed with: $errstr (errno: $err), will try again");
             next;
         }
+        my $mysql_info = $dbh->{mysql_info};
         my $warnings = $sth->{mysql_warning_count};
         if ($warnings) {
             my $warnings = $dbh->selectall_arrayref('SHOW WARNINGS');
@@ -140,11 +141,11 @@ sub db_execute {
                 $logger->warn(join(": ", @$w));
             }
         }
-        return $STATUS::OK, $sth;
+        return $STATUS::OK, $sth, $mysql_info;
     } continue {
         $attempts--;
     }
-    return $status, undef;
+    return $status, undef, undef;
 }
 
 sub mysql_error_to_status_code {
@@ -335,18 +336,20 @@ update items
 
 sub update_items {
     my ($proto, @args) = @_;
-    my ($status, $sth) = $proto->do_update(
+    my ($status, $sth, $info) = $proto->do_update(
         -table => $proto->table,
         @args,
     );
     return $status, undef if is_error($status);
     my $rows = $sth->rows;
-    $sth->finish;
-    my $info = $sth->{Database}{mysql_info};
     if ($info && $info =~ /^.*: (\d+).*: (\d+).*: (\d+)/) {
+        $proto->logger->trace("Info : $info");
         my ($matched, $row, $warning) = ($1, $2, $3);
+        $sth->finish;
         return $STATUS::OK, $matched;
     }
+
+    $sth->finish;
 
     return $STATUS::OK, $rows;
 }
