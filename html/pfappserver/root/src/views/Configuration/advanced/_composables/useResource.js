@@ -8,9 +8,14 @@ const useStore = (props, context, form) => {
   return {
     isLoading: computed(() => $store.getters['$_bases/isLoading']),
     getOptions: () => $store.dispatch('$_bases/optionsAdvanced'),
-    getItem: () => $store.dispatch('$_bases/getAdvanced'),
+    getItem: () => $store.dispatch('$_bases/getAdvanced')
+      .then(response => {
+        const { openid_attributes = '' } = response || {}
+        return { ...response, openid_attributes: openid_attributes.split(',') }
+      }),
     updateItem: () => {
-      return $store.dispatch('$_bases/updateAdvanced', form.value)
+      const { openid_attributes = [] } = form.value || {}
+      return $store.dispatch('$_bases/updateAdvanced', { ...form.value, openid_attributes: openid_attributes.join(',') })
     }
   }
 }

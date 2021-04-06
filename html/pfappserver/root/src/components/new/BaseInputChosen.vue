@@ -424,7 +424,8 @@ $chosen-option-hover-bg: $dropdown-link-hover-bg;
     }
     & > .multiselect__content {
       & > .multiselect__element {
-        & > .multiselect__option--highlight {
+        & > .multiselect__option--highlight,
+        & > .multiselect__option--highlight::after {
           background-color: $chosen-option-hover-bg;
           color: $chosen-option-hover-color;
         }

@@ -11,6 +11,7 @@ import {
   BaseFormGroupIntervalUnit
 } from '@/views/Configuration/_components/new/'
 import AlertServices from './AlertServices'
+import BaseFormGroupOpenidAttributes from './BaseFormGroupOpenidAttributes'
 import TheForm from './TheForm'
 import TheView from './TheView'
 
@@ -30,7 +31,7 @@ export {
   BaseFormGroupToggleDisabledEnabled  as FormGroupLocationlogCloseOnAccountingStop,
   BaseFormGroupToggleDisabledEnabled  as FormGroupMultihost,
   BaseFormGroupToggleDisabledEnabled  as FormGroupNetflowOnAllNetworks,
-  BaseFormGroupInput                  as FormGroupOpenidAttributes,
+  BaseFormGroupOpenidAttributes       as FormGroupOpenidAttributes,
   BaseFormGroupInputNumber            as FormGroupPffilterProcesses,
   BaseFormGroupInputNumber            as FormGroupPfperlApiProcesses,
   BaseFormGroupInputNumber            as FormGroupPfperlApiTimeout,
