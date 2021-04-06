@@ -27,7 +27,7 @@ BEGIN {
 }
 
 use pf::ConfigStore::Pf;
-use Test::More tests => 7;
+use Test::More tests => 23;
 use Test::Mojo;
 use Utils;
 
@@ -49,6 +49,28 @@ $t->post_ok($collection_base_url => json => {})
 
 $t->post_ok($collection_base_url, {'Content-Type' => 'application/json'} => '{')
   ->status_is(400);
+
+$t->options_ok("$base_url/advanced" => json => {})
+  ->status_is(200)
+  ->json_is('/meta/openid_attributes/type', "array");
+
+$t->get_ok("$base_url/advanced")
+  ->status_is(200)
+  ->json_is('/item/openid_attributes', []);
+
+$t->patch_ok("$base_url/advanced" => json => { openid_attributes => ['bob'] })
+  ->status_is(200);
+
+$t->get_ok("$base_url/advanced")
+  ->status_is(200)
+  ->json_is('/item/openid_attributes', ['bob']);
+
+$t->patch_ok("$base_url/advanced" => json => { openid_attributes => 'bobby' })
+  ->status_is(200);
+
+$t->get_ok("$base_url/advanced")
+  ->status_is(200)
+  ->json_is('/item/openid_attributes', ['bobby']);
 
 =head1 AUTHOR
 

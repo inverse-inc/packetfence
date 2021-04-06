@@ -32,7 +32,10 @@ use pf::I18N::pfappserver;
 use pf::error qw(is_error);
 use pf::ConfigStore::Pf;
 use pf::ConfigStore::Network;
-use pf::config qw(%Config);
+use pf::config qw(
+    %Config
+    %Doc_Config
+);
 use Data::UUID;
 
 my $GENERATOR = Data::UUID->new;
@@ -48,6 +51,25 @@ sub _update_domain_networks_conf {
         }
         $netcs->commit();
     }
+}
+
+sub validate_item {
+    my ($self, $item) = @_;
+    my $id = $item->{id};
+    while ( my ($key, $val) = each %$item) {
+        my $doc_section = "$id.$key";
+        unless (exists $Doc_Config{$doc_section} && defined $val  ) {
+            next;
+        }
+        my $doc = $Doc_Config{$doc_section};
+        if ($doc->{type} eq 'array') {
+            if (!ref $val) {
+                $item->{$key} = [$val];
+            }
+        }
+    }
+
+    return $self->SUPER::validate_item($item);
 }
 
 sub replace {

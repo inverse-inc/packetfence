@@ -147,6 +147,14 @@ sub field_list {
                         }];
                 last;
             };
+            $type eq 'array' && do {
+                $field->{type} = 'Repeatable';
+                $field->{contains} = {
+                    type => 'Text',
+                    id   => "$name.contains",
+                };
+                last;
+            };
             $type eq 'multi' && do {
                 $field->{type} = 'Select';
                 $field->{multiple} = 1;
@@ -261,7 +269,11 @@ sub field_list {
         if (my $validate_method = $self->validator_for_field($doc_section_name)) {
             $field->{validate_method} = $validate_method;
         }
+        my $contains = delete $field->{contains};
         push(@$list, $name => $field);
+        if (defined $contains) {
+            push(@$list, "$name.contains" => $contains);
+        }
     }
     return $list;
 }

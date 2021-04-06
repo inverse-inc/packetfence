@@ -109,6 +109,14 @@ sub cleanupAfterRead {
             else {
                 $data->{$key} = undef;
             }
+         } elsif ( $type eq 'array' ) {
+            my $value = $data->{$key};
+            if ($value ne $defaults->{$key}) {
+                $data->{$key} = [split( /\s*,\s*/, $value)];
+            }
+            else {
+                $data->{$key} = [];
+            }
         } elsif ($type eq 'text_with_editable_default') {
             my $value = $data->{$key};
             $data->{$key} = $defaults->{$key} unless $value;
