@@ -1,5 +1,6 @@
 import { computed, ref, toRefs } from '@vue/composition-api'
 import i18n from '@/utils/locale'
+import schemaFn from '../schema'
 
 export const useForm = (props, context) => {
   const {
@@ -8,6 +9,8 @@ export const useForm = (props, context) => {
   } = toRefs(props)
 
   const { root: { $store } = {} } = context
+
+  const schema = computed(() => schemaFn(props, form))
 
   const members = computed(() => form.value.members || [])
 
@@ -76,6 +79,7 @@ export const useForm = (props, context) => {
   )
 
   return {
+    schema,
     members,
     memberFields,
     memberSortBy,

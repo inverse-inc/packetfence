@@ -36,8 +36,12 @@ export const schema = (props) => {
       .required(i18n.t('Description required.'))
       .label(i18n.t('Description')),
     inlineTrigger: schemaInlineTriggers.meta({ invalidFeedback: i18n.t('Inline conditions contains one or more errors.') }),
-    type: yup.string().nullable().label(i18n.t('Type')),
-    mode: yup.string().nullable().label(i18n.t('Mode')),
+    type: (id === 'default')
+      ? yup.string().nullable().label(i18n.t('Type')).required(i18n.t('Type required.'))
+      : yup.string().nullable().label(i18n.t('Type')),
+    mode: (id === 'default')
+      ? yup.string().nullable().label(i18n.t('Mode')).required(i18n.t('Mode required.'))
+      : yup.string().nullable().label(i18n.t('Mode')),
     group: yup.string().nullable().label(i18n.t('Group')),
     deauthMethod: yup.string().nullable().label(i18n.t('Method')),
     SNMPVersion: yup.string().nullable().label(i18n.t('Version')),
