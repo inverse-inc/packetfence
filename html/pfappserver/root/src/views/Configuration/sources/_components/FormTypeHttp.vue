@@ -26,6 +26,16 @@
       :column-label="$i18n.t('API password (basic auth)')"
     />
 
+    <form-group-authentication-url namespace="authentication_url"
+      :column-label="$i18n.t('Authentication URL')"
+      :text="$i18n.t('Note : The URL is always prefixed by a slash (/).')"
+    />
+
+    <form-group-authorization-url namespace="authorization_url"
+      :column-label="$i18n.t('Authorization URL')"
+      :text="$i18n.t('Note: The URL is always prefixed by a slash (/).')"
+    />
+
     <form-group-realms namespace="realms"
       :column-label="$i18n.t('Associated Realms')"
       :text="$i18n.t('Realms that will be associated with this source.')"
@@ -37,6 +47,8 @@ import { BaseForm } from '@/components/new/'
 import {
   FormGroupApiUsername,
   FormGroupApiPassword,
+  FormGroupAuthenticationUrl,
+  FormGroupAuthorizationUrl,
   FormGroupDescription,
   FormGroupIdentifier,
   FormGroupProtocolHostPort,
@@ -48,6 +60,8 @@ const components = {
 
   FormGroupApiUsername,
   FormGroupApiPassword,
+  FormGroupAuthenticationUrl,
+  FormGroupAuthorizationUrl,
   FormGroupDescription,
   FormGroupIdentifier,
   FormGroupProtocolHostPort,

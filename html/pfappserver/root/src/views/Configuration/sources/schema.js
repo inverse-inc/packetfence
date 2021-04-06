@@ -80,6 +80,8 @@ export const schema = (props) => {
       .sourceIdNotExistsExcept((!isNew && !isClone) ? id : undefined, i18n.t('Name exists.')),
     administration_rules: schemaRules,
     authentication_rules: schemaRules,
+    authentication_url: yup.string().nullable().required(i18n.t('URL required.')),
+    authorization_url: yup.string().nullable().required(i18n.t('URL required.')),
     access_scope: yup.string().label(i18n.t('Scope')),
     access_token_param: yup.string().label(i18n.t('Parameter')),
     access_token_path: yup.string().label(i18n.t('Path')),
