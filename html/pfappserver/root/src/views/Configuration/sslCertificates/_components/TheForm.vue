@@ -17,7 +17,7 @@
         <b-container fluid v-else>
           <b-row align-v="center" v-if="isLetsEncrypt">
             <b-col sm="3" class="col-form-label"><icon name="check"/></b-col>
-            <b-col sm="9">{{ $t(`Use Let's Encrypt`)} }}</b-col>
+            <b-col sm="9">{{ $t(`Use Let's Encrypt`) }}</b-col>
           </b-row>
           <b-row align-v="center" v-if="isCertKeyMatch">
             <b-col sm="3" class="col-form-label"><icon class="text-success" name="circle"/></b-col>
