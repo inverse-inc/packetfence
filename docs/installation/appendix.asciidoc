@@ -80,7 +80,7 @@ Next, apply the innodb log (for XtraBackup):
 
 Next, apply the innodb log (for Mariabackup):
 
-  # mariabackup --apply-log ./
+  # mariabackup --prepare --apply-log --target-dir=/root/backup/restore/
 
 
 We will now stop MariaDB, move the existing data directory and replace it by the data that was extracted:
