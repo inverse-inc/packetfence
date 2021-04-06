@@ -56,7 +56,12 @@ export const setup = (props, context) => {
     onInput(filteredValues)
   }
 
-  const onTag = newValue => onInput([ ...value.value, newValue ])
+  const onTag = newValue => {
+    if (value.value)
+      onInput([...value.value, newValue])
+    else
+      onInput([newValue])
+  }
 
   return {
     // wrappers

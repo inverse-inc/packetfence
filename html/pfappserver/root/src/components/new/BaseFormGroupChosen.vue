@@ -91,8 +91,10 @@
         <template v-slot:beforeList>
           <li class="multiselect__element" v-if="!internalSearch || multiple">
             <div class="text-right" v-if="multiple && internalSearch">
-              <b-button variant="link" size="sm" @click="onSelectAll">{{ $t('Select All') }}</b-button>
-              <b-button variant="link" size="sm" @click="onSelectNone">{{ $t('Select None') }}</b-button>
+              <b-button v-if="canSelectAll"
+                variant="link" size="sm" @click="onSelectAll">{{ $t('Select All') }}</b-button>
+              <b-button v-if="canSelectNone"
+                variant="link" size="sm" @click="onSelectNone">{{ $t('Select None') }}</b-button>
             </div>
             <div v-if="!internalSearch"
               class="mr-auto col-form-label py-1 px-2 text-dark text-left bg-light border-bottom">{{ $t('Type to search') }}</div>
@@ -102,7 +104,10 @@
           <b-media class="text-secondary" md="auto" v-if="showEmpty">
             <template v-slot:aside><icon name="search" scale="1.5" class="mt-2 ml-2"></icon></template>
             <strong>{{ $t('No options') }}</strong>
-            <b-form-text class="font-weight-light">{{ $t('List is empty.') }}</b-form-text>
+            <b-form-text v-if="taggable"
+              class="font-weight-light">{{ $t('Enter a new value.') }}</b-form-text>
+            <b-form-text v-else
+              class="font-weight-light">{{ $t('List is empty.') }}</b-form-text>
           </b-media>
           <b-media class="text-secondary" md="auto" v-else>
             <template v-slot:aside><icon name="search" scale="1.5" class="mt-2 ml-2"></icon></template>
@@ -284,6 +289,7 @@ export const setup = (props, context) => {
   const doFocus = () => nextTick(() => context.refs.inputRef.$el.focus())
   const doBlur = () => nextTick(() => context.refs.inputRef.$el.blur())
 
+  const canSelectAll = computed(() => options.value.length > 0)
   const onSelectAll = () => {
     let _options = options.value
     if (inputGroupLabel.value) { // grouped options
@@ -297,6 +303,7 @@ export const setup = (props, context) => {
       return trackedValue
     }))
   }
+  const canSelectNone = computed(() => !!value.value)
   const onSelectNone = () => onRemove()
 
 
@@ -314,6 +321,8 @@ export const setup = (props, context) => {
     isFocus,
     isLocked,
     isReadonly: readonly,
+    canSelectAll,
+    canSelectNone,
     onFocus,
     onBlur,
     onSelectAll,
