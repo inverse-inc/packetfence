@@ -71,6 +71,7 @@ For a list of compatibility related changes see the <<PacketFence_Upgrade_Guide.
 * Additional template attributes in certificate profile (#6213)
 * Remove unused table inline_accounting (#6171)
 * The pfdhcplistener is tenant aware (#6204)
+* Upgrade to MariaDB 10.2.37 (#6149)
 
 === Bug Fixes
 
