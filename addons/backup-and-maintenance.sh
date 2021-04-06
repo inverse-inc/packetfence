@@ -26,7 +26,7 @@ BACKUP_DB_FILENAME='packetfence-db-dump'
 BACKUP_PF_FILENAME='packetfence-files-dump'
 ARCHIVE_DIRECTORY=$BACKUP_DIRECTORY
 ARCHIVE_DB_FILENAME='packetfence-archive'
-PERCONA_XTRABACKUP_INSTALLED=0
+MARIADB_BACKUP_INSTALLED=0
 BACKUPRC=1
 
 # For replication
@@ -53,7 +53,7 @@ fi
 PF_USED_SPACE=`du -s $PF_DIRECTORY --exclude=logs --exclude=var | awk '{ print $1 }'`
 BACKUPS_AVAILABLE_SPACE=`df --output=avail $BACKUP_DIRECTORY | awk 'NR == 2 { print $1  }'`
 
-if ((  $BACKUPS_AVAILABLE_SPACE > (( $PF_USED_SPACE / 2 )) )); then 
+if ((  $BACKUPS_AVAILABLE_SPACE > (( $PF_USED_SPACE / 2 )) )); then
     # Backup complete PacketFence installation except logs
     current_tgz=$BACKUP_DIRECTORY/$BACKUP_PF_FILENAME-`date +%F_%Hh%M`.tgz
     if [ ! -f $BACKUP_DIRECTORY$BACKUP_PF_FILENAME ]; then
@@ -110,15 +110,15 @@ should_backup(){
 }
 
 backup_db(){
-    # Check to see if Percona XtraBackup is installed
-    if hash innobackupex 2>/dev/null; then
-        echo -e "Percona XtraBackup is available. Will proceed using it for DB backup to avoid locking tables and easier recovery process. \n"
-        PERCONA_XTRABACKUP_INSTALLED=1
+    # Check to see if Mariabackup is installed
+    if hash mariabackup 2>/dev/null; then
+        echo -e "Mariabackup is available. Will proceed using it for DB backup to avoid locking tables and easier recovery process. \n"
+        MARIADB_BACKUP_INSTALLED=1
     fi
 
     BACKUPS_AVAILABLE_SPACE=`df --output=avail $BACKUP_DIRECTORY | awk 'NR == 2 { print $1  }'`
     MYSQL_USED_SPACE=`du -s /var/lib/mysql | awk '{ print $1 }'`
-    if (( $BACKUPS_AVAILABLE_SPACE > (( $MYSQL_USED_SPACE /2 )) )); then 
+    if (( $BACKUPS_AVAILABLE_SPACE > (( $MYSQL_USED_SPACE /2 )) )); then
         if [ $MARIADB_LOCAL_CLUSTER -eq 1 ]; then
              echo "Temporarily stopping Galera cluster sync for DB backup"
              mysql -u$REP_USER -p$REP_PWD -e 'set global wsrep_desync=ON;' || die "mysql command failed"
@@ -132,23 +132,23 @@ backup_db(){
 
         /usr/local/pf/bin/pfcmd pfcron bandwidth_maintenance_session
 
-        if [ $PERCONA_XTRABACKUP_INSTALLED -eq 1 ]; then
+        if [ $MARIADB_BACKUP_INSTALLED -eq 1 ]; then
             find $BACKUP_DIRECTORY -name "$BACKUP_DB_FILENAME-innobackup-*.xbstream.gz" -mtime +$NB_DAYS_TO_KEEP_DB -delete
             echo "----- Backup started on `date +%F_%Hh%M` -----" >> /usr/local/pf/logs/innobackup.log
             INNO_TMP="/tmp/pf-innobackups"
             mkdir -p $INNO_TMP
             if [ $MARIADB_LOCAL_CLUSTER -eq 1 ]; then
-                innobackupex --defaults-file=/usr/local/pf/var/conf/mariadb.conf --user=$REP_USER --password=$REP_PWD  --no-timestamp --stream=xbstream --tmpdir=$INNO_TMP $INNO_TMP 2>> /usr/local/pf/logs/innobackup.log | gzip - > $BACKUP_DIRECTORY/$BACKUP_DB_FILENAME-innobackup-`date +%F_%Hh%M`.xbstream.gz
+                mariabackup --defaults-file=/usr/local/pf/var/conf/mariadb.conf --user=$REP_USER --password=$REP_PWD  --no-timestamp --stream=xbstream --tmpdir=$INNO_TMP --backup 2>> /usr/local/pf/logs/innobackup.log | gzip - > $BACKUP_DIRECTORY/$BACKUP_DB_FILENAME-innobackup-`date +%F_%Hh%M`.xbstream.gz
             elif [ $MARIADB_REMOTE_CLUSTER -eq 1 ]; then
-                echo "innobackupex can't backup remote databases, uninstall Percona XtraBackup and retry"
+                echo "mariabackup can't backup remote databases, uninstall Mariabackup and retry"
             else
-                innobackupex --defaults-file=/usr/local/pf/var/conf/mariadb.conf --user=$DB_USER --password=$DB_PWD --no-timestamp --stream=xbstream --tmpdir=$INNO_TMP $INNO_TMP 2>> /usr/local/pf/logs/innobackup.log | gzip - > $BACKUP_DIRECTORY/$BACKUP_DB_FILENAME-innobackup-`date +%F_%Hh%M`.xbstream.gz
+                mariabackup --defaults-file=/usr/local/pf/var/conf/mariadb.conf --user=$REP_USER --password=$REP_PWD  --no-timestamp --stream=xbstream --tmpdir=$INNO_TMP --backup 2>> /usr/local/pf/logs/innobackup.log | gzip - > $BACKUP_DIRECTORY/$BACKUP_DB_FILENAME-innobackup-`date +%F_%Hh%M`.xbstream.gz
             fi
             tail -1 /usr/local/pf/logs/innobackup.log | grep 'completed OK!'
             BACKUPRC=$?
             if (( $BACKUPRC > 0 )); then 
-                echo "innobackupex was not successful." >&2
-                echo "innobackupex was not successful." > /usr/local/pf/var/backup_db.status
+                echo "mariabackup was not successful." >&2
+                echo "mariabackup was not successful." > /usr/local/pf/var/backup_db.status
             else
                 touch /usr/local/pf/var/run/last_backup
                 echo "OK" > /usr/local/pf/var/backup_db.status

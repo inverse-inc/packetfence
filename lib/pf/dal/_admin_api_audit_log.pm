@@ -50,7 +50,7 @@ BEGIN {
 
     %DEFAULTS = (
         tenant_id => '1',
-        created_at => 'CURRENT_TIMESTAMP(6)',
+        created_at => 'current_timestamp(6)',
         user_name => undef,
         action => undef,
         object_id => undef,

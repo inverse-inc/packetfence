@@ -47,6 +47,7 @@ BEGIN {
 
     %DEFAULTS = (
         mac => '',
+        created_at => 'current_timestamp()',
         option82_switch => undef,
         switch_id => undef,
         port => '',
@@ -58,6 +59,7 @@ BEGIN {
 
     @INSERTABLE_FIELDS = qw(
         mac
+        created_at
         option82_switch
         switch_id
         port

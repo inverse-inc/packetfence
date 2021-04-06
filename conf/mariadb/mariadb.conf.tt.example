@@ -42,6 +42,11 @@ performance_schema = [% performance_schema %]
 # max_connect_errors
 max_connect_errors = [% max_connect_errors %]
 
+# Settings from 10.1 that are kept for now
+sql_mode = "NO_ENGINE_SUBSTITUTION,NO_AUTO_CREATE_USER"
+log_warnings = 1
+
+
 # Point the following paths to a dedicated disk
 #tmpdir   = /tmp/
 
@@ -171,7 +176,7 @@ wsrep_cluster_address="gcomm://[% servers_ip.join(',') %]"
 wsrep_node_name=[% hostname %]
 wsrep_node_address="[% server_ip %]"
 wsrep_on=ON 
-wsrep_sst_method = xtrabackup
+wsrep_sst_method = mariabackup
 wsrep_sst_auth = "[% replication_user %]:[% replication_password %]"
 # Uncomment the line below so that the database goes into read_only mode when its not a primary view or there is only 1 member left in your cluster
 # This was known to cause issues with rapid cluster state changes, see #2593 for details

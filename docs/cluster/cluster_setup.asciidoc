@@ -66,33 +66,21 @@ NOTE: In this example, the database stack uses the native PacketFence https://ma
 
 CAUTION: Galera cluster is only supported in 3 nodes cluster and more (with an odd number of servers).
 
-First, you will need to install, *on each servers*, Percona Xtrabackup for the synchronization to work correctly.
+First, you will need to install, *on each servers*, Mariabackup for the synchronization to work correctly.
 
 .On RHEL / CentOS 7
 [source,bash]
 ----
-yum install https://repo.percona.com/yum/percona-release-latest.noarch.rpm
-yum install percona-xtrabackup socat --enablerepo=percona-release-x86_64
+yum install MariaDB-backup socat --enablerepo=packetfence
 ----
 
 .On Debian
 [source,bash]
 ----
 apt-get install lsb-release wget gnupg2
-wget https://repo.percona.com/apt/percona-release_latest.generic_all.deb
-dpkg -i percona-release_latest.generic_all.deb
 apt-get update
-apt-get -y install percona-xtrabackup
+apt-get -y install mariadb-backup
 ----
-
-Then disable Percona repositories, so that installing software from that repository requires explicit action:
-
-[source,bash]
-----
-percona-release disable all
-----
-
-The `prel` repository remains enabled. This repository stores the `percona-release` packages and is always enabled for `percona-release` to operate.
 
 For the next steps, you want to make sure that you didn't configure anything
 in [filename]`/usr/local/pf/conf/cluster.conf`. If you already did, comment all the

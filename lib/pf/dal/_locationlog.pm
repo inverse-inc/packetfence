@@ -95,6 +95,7 @@ BEGIN {
         start_time
         end_time
         switch_ip
+        switch_ip_int
         switch_mac
         stripped_user_name
         realm

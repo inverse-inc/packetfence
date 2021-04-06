@@ -190,7 +190,7 @@ BEGIN {
             is_nullable => 1,
         },
         English_Location_Name => {
-            type => 'VARCHAR',
+            type => 'TEXT',
             is_auto_increment => 0,
             is_primary_key => 0,
             is_nullable => 1,
@@ -244,7 +244,7 @@ BEGIN {
             is_nullable => 1,
         },
         SSID_Broadcasted => {
-            type => 'VARCHAR',
+            type => 'CHAR',
             is_auto_increment => 0,
             is_primary_key => 0,
             is_nullable => 1,
