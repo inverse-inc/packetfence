@@ -53,7 +53,7 @@ fi
 PF_USED_SPACE=`du -s $PF_DIRECTORY --exclude=logs --exclude=var | awk '{ print $1 }'`
 BACKUPS_AVAILABLE_SPACE=`df --output=avail $BACKUP_DIRECTORY | awk 'NR == 2 { print $1  }'`
 
-if (  $BACKUPS_AVAILABLE_SPACE > (( $PF_USED_SPACE / 2 )) ); then
+if ((  $BACKUPS_AVAILABLE_SPACE > (( $PF_USED_SPACE / 2 )) )); then
     # Backup complete PacketFence installation except logs
     current_tgz=$BACKUP_DIRECTORY/$BACKUP_PF_FILENAME-`date +%F_%Hh%M`.tgz
     if [ ! -f $BACKUP_DIRECTORY$BACKUP_PF_FILENAME ]; then
@@ -118,7 +118,7 @@ backup_db(){
 
     BACKUPS_AVAILABLE_SPACE=`df --output=avail $BACKUP_DIRECTORY | awk 'NR == 2 { print $1  }'`
     MYSQL_USED_SPACE=`du -s /var/lib/mysql | awk '{ print $1 }'`
-    if ( $BACKUPS_AVAILABLE_SPACE > (( $MYSQL_USED_SPACE /2 )) ); then
+    if (( $BACKUPS_AVAILABLE_SPACE > (( $MYSQL_USED_SPACE /2 )) )); then
         if [ $MARIADB_LOCAL_CLUSTER -eq 1 ]; then
              echo "Temporarily stopping Galera cluster sync for DB backup"
              mysql -u$REP_USER -p$REP_PWD -e 'set global wsrep_desync=ON;' || die "mysql command failed"
