@@ -106,6 +106,12 @@ sub type_lookup {
 
 sub validate_item {
     my ($self, $item) = @_;
+    $self->_update_item($item);
+    return $self->SUPER::validate_item($item);
+}
+
+sub _update_item {
+    my ($self, $item) = @_;
     my $type = $item->{type};
     if (defined $type && ($type eq 'LDAP' || $type eq 'AD')) {
         my $val = $item->{host};
@@ -113,8 +119,6 @@ sub validate_item {
             $item->{host} = [split(/\s*,\s*/, $val)];
         }
     }
-
-    return $self->SUPER::validate_item($item);
 }
 
 =head2 test
@@ -130,6 +134,7 @@ sub test {
         return $self->render_error(400, "Bad Request : $error");
     }
 
+    $self->_update_item($new_data);
     my ($status, $form) = $self->form($new_data);
     if ( is_error($status)) {
         return $self->render_error($status, "Cannot determine the valid type");
