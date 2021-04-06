@@ -15,7 +15,7 @@
       <template v-slot:cell(status)="security_event">
         <b-badge pill variant="success" v-if="security_event.item.status === 'open'">{{ $t('open') }}</b-badge>
         <b-badge pill variant="danger" v-else-if="security_event.item.status === 'closed'">{{ $t('closed') }}</b-badge>
-        <b-badge pill variant="secondary" v-else>{{ $t('unknown') }}</b-badge>
+        <b-badge pill variant="warning" v-else>{{ $t('delayed') }}</b-badge>
       </template>
       <template v-slot:cell(buttons)="security_event">
         <b-button v-if="security_event.item.status === 'open'" size="sm" variant="outline-secondary" @click="onRelease(security_event.item.id)">{{ $t('Release') }}</b-button>
