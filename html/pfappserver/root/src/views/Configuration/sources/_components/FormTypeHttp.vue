@@ -30,23 +30,13 @@
       :column-label="$i18n.t('Associated Realms')"
       :text="$i18n.t('Realms that will be associated with this source.')"
     />
-
-    <form-group-authentication-rules namespace="authentication_rules"
-      :column-label="$i18n.t('Authentication Rules')"
-    />
-
-    <form-group-administration-rules namespace="administration_rules"
-      :column-label="$i18n.t('Administration Rules')"
-    />
   </base-form>
 </template>
 <script>
 import { BaseForm } from '@/components/new/'
 import {
-  FormGroupAdministrationRules,
   FormGroupApiUsername,
   FormGroupApiPassword,
-  FormGroupAuthenticationRules,
   FormGroupDescription,
   FormGroupIdentifier,
   FormGroupProtocolHostPort,
@@ -56,10 +46,8 @@ import {
 const components = {
   BaseForm,
 
-  FormGroupAdministrationRules,
   FormGroupApiUsername,
   FormGroupApiPassword,
-  FormGroupAuthenticationRules,
   FormGroupDescription,
   FormGroupIdentifier,
   FormGroupProtocolHostPort,
