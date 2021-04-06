@@ -14,7 +14,7 @@ image::integration_tests/wired_topology.png[scaledwidth="100%",alt="Wired topolo
 
 ===== Initial Provisioning
 
-`switch01` and `node01` are provisioned using Vagrant like this:
+`switch01`, `node01` and `node02` are provisioned using Vagrant like this:
 
 * a first boot with basic shell provisioning to configure interfaces remap and networks
 * a second boot that handles interface remap
@@ -29,7 +29,7 @@ Provisioning is deliberately minimalist to make the most during integration test
 | Virtual machine |Interfaces |MAC address
 
 |switch01
-|swp48, bridge, bridge.17, bridge.100
+|swp48, bridge, bridge.6, bridge.17, bridge.18, bridge.100
 |Same MAC, automatically generated
 
 |switch01
@@ -60,6 +60,14 @@ Provisioning is deliberately minimalist to make the most during integration test
 |swp13
 |44:38:39:00:00:13
 
+|switch01
+|swp14
+|44:38:39:00:00:14
+
+|switch01
+|swp15
+|44:38:39:00:00:15
+
 |node01
 |eth0
 |a0:00:00:00:00:12
@@ -71,5 +79,13 @@ Provisioning is deliberately minimalist to make the most during integration test
 |node01
 |eth2
 |00:03:00:11:11:02
+
+|node02
+|eth0
+|a0:00:00:00:00:22
+
+|node02
+|eth1
+|00:03:00:11:12:01
 
 |===
