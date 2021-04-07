@@ -36,7 +36,7 @@ Readonly::Scalar our $MAGENTA_COLOR => 'magenta';
 Readonly::Scalar our $ZERO_DATE => '0000-00-00 00:00:00';
 Readonly::Scalar our $SPACE => q{ };
 Readonly::Scalar our $SPACE_NUMBERS => 4;
-Readonly::Scalar our $DIR_MODE => 02770;
+Readonly::Scalar our $DIR_MODE => 02775;
 Readonly::Scalar our $PFCMD_MODE => 06755;
 Readonly::Scalar our $FAKE_MAC => "de:fa:ce:db:ab:e0";
 
