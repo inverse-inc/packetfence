@@ -340,7 +340,7 @@ vagrant_interface_rule
 
     # Run the Config specified in the Node Attributes
     device.vm.provision :shell , privileged: false, :inline => 'echo "$(whoami)" > /tmp/normal_user'
-    device.vm.provision "config_node", type: "shell", path: "./helper_scripts/config_node.sh"
+    device.vm.provision "config_node", type: "shell", path: "./helper_scripts/config_node01.sh"
 
 
     # Install Rules for the interface re-map
@@ -348,24 +348,23 @@ vagrant_interface_rule
 if [ -d "/etc/udev/rules.d/70-persistent-net.rules" ]; then
     rm -rfv /etc/udev/rules.d/70-persistent-net.rules &> /dev/null
 fi
-rm -rfv /etc/udev/rules.d/70-persistent-net.rules &> /dev/null
 delete_udev_directory
 
-device.vm.provision :shell , :inline => <<-udev_rule
+    device.vm.provision :shell , :inline => <<-udev_rule
 echo "  INFO: Adding UDEV Rule: a0:00:00:00:00:12 --> eth0"
 echo 'ACTION=="add", SUBSYSTEM=="net", ATTR{address}=="a0:00:00:00:00:12", NAME="eth0", SUBSYSTEMS=="pci"' >> /etc/udev/rules.d/70-persistent-net.rules
 udev_rule
-     device.vm.provision :shell , :inline => <<-udev_rule
+    device.vm.provision :shell , :inline => <<-udev_rule
 echo "  INFO: Adding UDEV Rule: 00:03:00:11:11:01 --> eth1"
 echo 'ACTION=="add", SUBSYSTEM=="net", ATTR{address}=="00:03:00:11:11:01", NAME="eth1", SUBSYSTEMS=="pci"' >> /etc/udev/rules.d/70-persistent-net.rules
 udev_rule
-     device.vm.provision :shell , :inline => <<-udev_rule
+    device.vm.provision :shell , :inline => <<-udev_rule
 echo "  INFO: Adding UDEV Rule: 00:03:00:11:11:02 --> eth2"
 echo 'ACTION=="add", SUBSYSTEM=="net", ATTR{address}=="00:03:00:11:11:02", NAME="eth2", SUBSYSTEMS=="pci"' >> /etc/udev/rules.d/70-persistent-net.rules
 udev_rule
 
      # fake to avoid eth0 being used by vagrant
-     device.vm.provision :shell , :inline => <<-vagrant_interface_rule
+    device.vm.provision :shell , :inline => <<-vagrant_interface_rule
 echo "  INFO: Adding UDEV Rule: Vagrant interface = vagrant"
 echo 'ACTION=="add", SUBSYSTEM=="net", ATTR{ifindex}=="2", NAME="vagrant", SUBSYSTEMS=="pci"' >> /etc/udev/rules.d/70-persistent-net.rules
 echo "#### UDEV Rules (/etc/udev/rules.d/70-persistent-net.rules) ####"
@@ -458,20 +457,19 @@ vagrant_interface_rule
 if [ -d "/etc/udev/rules.d/70-persistent-net.rules" ]; then
     rm -rfv /etc/udev/rules.d/70-persistent-net.rules &> /dev/null
 fi
-rm -rfv /etc/udev/rules.d/70-persistent-net.rules &> /dev/null
 delete_udev_directory
 
-device.vm.provision :shell , :inline => <<-udev_rule
+    device.vm.provision :shell , :inline => <<-udev_rule
 echo "  INFO: Adding UDEV Rule: a0:00:00:00:00:22 --> eth0"
 echo 'ACTION=="add", SUBSYSTEM=="net", ATTR{address}=="a0:00:00:00:00:22", NAME="eth0", SUBSYSTEMS=="pci"' >> /etc/udev/rules.d/70-persistent-net.rules
 udev_rule
-     device.vm.provision :shell , :inline => <<-udev_rule
+    device.vm.provision :shell , :inline => <<-udev_rule
 echo "  INFO: Adding UDEV Rule: 00:03:00:11:12:02 --> eth1"
 echo 'ACTION=="add", SUBSYSTEM=="net", ATTR{address}=="00:03:00:11:12:01", NAME="eth1", SUBSYSTEMS=="pci"' >> /etc/udev/rules.d/70-persistent-net.rules
 udev_rule
 
      # fake to avoid eth0 being used by vagrant
-     device.vm.provision :shell , :inline => <<-vagrant_interface_rule
+    device.vm.provision :shell , :inline => <<-vagrant_interface_rule
 echo "  INFO: Adding UDEV Rule: Vagrant interface = vagrant"
 echo 'ACTION=="add", SUBSYSTEM=="net", ATTR{ifindex}=="2", NAME="vagrant", SUBSYSTEMS=="pci"' >> /etc/udev/rules.d/70-persistent-net.rules
 echo "#### UDEV Rules (/etc/udev/rules.d/70-persistent-net.rules) ####"

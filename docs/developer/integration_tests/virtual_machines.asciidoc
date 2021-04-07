@@ -57,8 +57,8 @@ scenarios.
 
 `node02` is identical to `node01` but is only used to test inline L3 features of PacketFence.
 
-Machine have an Internet access only during its first boot to emulate a
-node connected to a switch controlled by PacketFence. After the reboot, machine are only
+These machines have an Internet access only during its first boot to emulate a
+node connected to a switch controlled by PacketFence. After the reboot, machines are only
 reachable using management network: `vagrant ssh node01` will not work.
 
 All interfaces of `node01` and `node02` are up after initial provisionning. We rely on

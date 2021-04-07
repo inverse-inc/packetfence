@@ -21,7 +21,6 @@ echo "retry 1;" >> /etc/dhcp/dhclient.conf
 ping 8.8.8.8 -c2
 if [ "$?" == "0" ]; then
     apt-get update -qy && apt-get install gnupg -qy
-    apt-get update -qy
     apt-get install lldpd ntp ntpdate unzip curl -qy
     echo "configure lldp portidsubtype ifname" > /etc/lldpd.d/port_info.conf
 
