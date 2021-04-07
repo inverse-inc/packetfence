@@ -67,6 +67,7 @@ our @BASE_FIELDS = qw(
   ifIndex
   mac
   connection_type
+  connection_sub_type
   username
   ssid
   vlan

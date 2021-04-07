@@ -17,6 +17,7 @@ use HTML::FormHandler::Moose;
 use pf::constants::role qw(@ROLES);
 use pf::constants::config qw(%connection_type);
 use pf::nodecategory;
+use pf::constants::eap_type qw(%RADIUS_EAP_TYPE_2_VALUES);
 extends 'pfappserver::Base::Form';
 with qw(
     pfappserver::Base::Form::Role::Help
@@ -92,7 +93,14 @@ our %ADDITIONAL_FIELD_OPTIONS = (
         },
     },
     'node_info.last_connection_type' => \%connection_type_field_options,
-    'connection_type'                => \%connection_type_field_options
+    'connection_type'                => \%connection_type_field_options,
+    'connection_sub_type'            => {
+        siblings => {
+            value => {
+                allowed_values => [ map { { text => $_, value => $_  } } keys %RADIUS_EAP_TYPE_2_VALUES  ],
+            }
+        },
+    }
 );
 
 sub option_scopes {
