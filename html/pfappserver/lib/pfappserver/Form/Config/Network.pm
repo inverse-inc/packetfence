@@ -18,6 +18,11 @@ with 'pfappserver::Base::Form::Role::Help';
 
 has 'network' => ( is => 'ro' );
 
+has_field 'netmask' => (
+    type => 'IPAddress',
+    label => 'Netmask',
+);
+
 has_field 'type' =>
   (
    type => 'Hidden',

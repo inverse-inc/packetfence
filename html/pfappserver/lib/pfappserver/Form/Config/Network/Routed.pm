@@ -32,10 +32,8 @@ has_field 'gateway' =>
    required_when => { 'dhcpd' => sub { $_[0] eq 'enabled' } },
    messages => { required => 'Please specify the gateway.' },
   );
-has_field 'netmask' =>
+has_field '+netmask' =>
   (
-   type => 'IPAddress',
-   label => 'Netmask',
    required => 1,
    messages => { required => 'Please specify the netmask.' },
   );
