@@ -113,7 +113,9 @@ Should the service fail to start, make sure you look into the MariaDB error logs
 
 For the restore procedure, we make the following assumptions:
 
+- you have at least one backup
 - database `pf` removed (but user `pf` still presents in DB)
+- all PacketFence services have been stopped
 - `/usr/local/pf` removed
 
 Procedure:
