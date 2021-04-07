@@ -176,6 +176,13 @@ export const columns = [
     sort: sortColumns.ipaddress
   },
   {
+    key: 'netmask',
+    label: 'Netmask', // i18n defer
+    sortable: true,
+    visible: true,
+    sort: sortColumns.netmask
+  },
+  {
     key: 'ipv6_address',
     label: 'IPv6 Address', // i18n defer
     sortable: true,
@@ -186,13 +193,6 @@ export const columns = [
     label: 'IPv6 Prefix', // i18n defer
     sortable: true,
     visible: true
-  },
-  {
-    key: 'netmask',
-    label: 'Netmask', // i18n defer
-    sortable: true,
-    visible: true,
-    sort: sortColumns.netmask
   },
   {
     key: 'network',
