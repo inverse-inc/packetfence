@@ -1617,7 +1617,7 @@ yum update --enablerepo=packetfence
 
 ===== Maintenance patches
 
-include::../common/maintenance_patches.asciidoc[]
+include::common/maintenance_patches.asciidoc[]
 
 
 The commands above will make sure that nodes A and B will not be forwarding requests to C even if it is alive. Same goes for C which won't be sending traffic to A and B. This means A and B will continue to have the same database informations while C will start to diverge from it when it goes live. We'll make sure to reconcile this data afterwards.
@@ -1812,7 +1812,7 @@ yum update --enablerepo=packetfence
 
 ===== Maintenance patches (on nodes A and B)
 
-include::../common/maintenance_patches.asciidoc[]
+include::common/maintenance_patches.asciidoc[]
 
 ===== Configuration synchronisation
 
