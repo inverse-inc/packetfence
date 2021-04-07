@@ -1401,14 +1401,14 @@ mysql -u root -p pf -v < /usr/local/pf/db/upgrade-10.1.0-10.2.0.sql
 
 == Upgrading from a version prior to X.Y.Z
 
-== Rename win_agent_download_uri -> windows_agent_download_uri
+=== Rename win_agent_download_uri -> windows_agent_download_uri
 
 [source,bash]
 ----
 /usr/local/pf/addons/upgrade/to-10.3-provisioners-windows_agent_download_uri.pl
 ----
     
-== Migrate switch ACLs to roles.
+=== Migrate switch ACLs to roles.
 
 In version 11 ACLs are now configured in the roles.
 This script will guide you through the process of migrating your ACLs from the switches to roles.
@@ -1423,17 +1423,17 @@ Follow the instructions from the script.
 /usr/local/pf/addons/upgrade/to-10.3-roles-acls.pl
 ----
 
-== LDAP port per server has been deprecated
+=== LDAP port per server has been deprecated
 
 The ability to define a specific port per host in the list of the LDAP servers of a single authentication source has been deprecated. If you have such entries, adjust them accordingly. If you have been using the same LDAP port for all the hosts in an authentication source, then this will not apply to you.
 
-== Removal of `inline_accounting` table
+=== Removal of `inline_accounting` table
 
 `inline_accounting` table will be removed by upgrade of database schema because it has been replaced by `bandwidth_accounting` table since v10.
 
 You are only concern by this item if you extract data from `inline_accounting` table before v10 for external usage.
 
-== `pfdhcplistener` is now tenant aware
+=== `pfdhcplistener` is now tenant aware
 
 To add the default `tenant_id` (1) to all network configurations run:
 
@@ -1443,12 +1443,12 @@ To add the default `tenant_id` (1) to all network configurations run:
 ----
 
 
-== Mariadb Upgrade to 10.2
+=== Mariadb Upgrade to 10.2
 
 PacketFence now depends of the MariaDB version 10.2.
 In order to upgrade the MariaDB version you need to execute the following steps before upgrading PacketFence.
 
-=== Standalone MariaDB upgrade
+==== Standalone MariaDB upgrade
 
 In order to be able to work on the server, we first need to stop all the
 PacketFence application services on it, see
@@ -1497,21 +1497,21 @@ You can now upgrade the PacketFence version:
 yum update --enablerepo=packetfence
 ----
 
-=== Performing MariaDB cluster upgrade
+==== Performing MariaDB cluster upgrade
 
 
 CAUTION: Performing a live upgrade on a PacketFence cluster is not a straightforward operation and should be done meticulously.
 
 In this procedure, the 3 nodes will be named A, B and C and they are in this order in [filename]`cluster.conf`. When we referenced their hostnames, we speak about hostnames in [filename]`cluster.conf`.
 
-==== Backups
+===== Backups
 
 First, ensure you have taken backups of your data. We highly encourage you to perform snapshots of all the virtual machines prior to the upgrade. You should also take a backup of the database and the `/usr/local/pf` directory using:
 
 * <<PacketFence_Upgrade_Guide.asciidoc#_database_backup,Database backup instructions>>
 * <<PacketFence_Upgrade_Guide.asciidoc#_packetfence_configurations_and_codebase_backup,PacketFence configurations and codebase backup instructions>>
 
-==== Disabling the auto-correction of configuration
+===== Disabling the auto-correction of configuration
 
 
 The PacketFence clustering stack has a mechanism that allows configuration conflicts to be handled accross the servers. This will come in conflict with your upgrade, so you should disable it.
@@ -1525,7 +1525,7 @@ Once this is done, restart `pfcron` on all nodes using:
 /usr/local/pf/bin/pfcmd service pfcron restart
 ----
 
-==== Upgrading node C
+===== Upgrading node C
 
 In order to be able to work on node C, we first need to stop all the
 PacketFence application services on it, see
@@ -1534,13 +1534,13 @@ PacketFence services section>>.
 
 Next, you can upgrade your operating system on node C.
 
-==== Migrating service on node C
+===== Migrating service on node C
 
 The database is still being synced to node C via the `packetfence-mariadb` service.
 
 NOTE: The steps below will cause a temporary loss of service.
 
-===== Detach node C from the cluster
+====== Detach node C from the cluster
 
 First, we need to tell A and B to ignore C in their cluster configuration. In order to do so, execute the following command **on A and B** while changing `node-C-hostname` with the actual hostname of node C:
 
@@ -1615,26 +1615,26 @@ bin/pfcmd generatemariadbconfig
 yum update --enablerepo=packetfence
 ----
 
-===== Maintenance patches
+====== Maintenance patches
 
 include::common/maintenance_patches.asciidoc[]
 
 
 The commands above will make sure that nodes A and B will not be forwarding requests to C even if it is alive. Same goes for C which won't be sending traffic to A and B. This means A and B will continue to have the same database informations while C will start to diverge from it when it goes live. We'll make sure to reconcile this data afterwards.
 
-===== Complete upgrade of node C
+====== Complete upgrade of node C
 
 From that moment node C is in standalone for its database. We can proceed to update the database schema so it matches the one of the latest version.
 In order to do so, upgrade the database schema using the instructions provided in <<PacketFence_Upgrade_Guide.asciidoc#,Upgrade guide>>.
 
-===== Start service on node C
+====== Start service on node C
 
 Now, start the application service on node C using the instructions provided
 in
 <<PacketFence_Upgrade_Guide.asciidoc#_restart_all_packetfence_services,Restart
 all PacketFence services section>>.
 
-===== Stop services on nodes A and B
+====== Stop services on nodes A and B
 
 Next, stop all application services on node A and B:
 
@@ -1647,11 +1647,11 @@ PacketFence services section>>
 systemctl stop packetfence-mariadb
 ----
 
-==== Validate migration
+===== Validate migration
 
 You should now have full service on node C and should validate that all functionnalities are working as expected. Once you continue past this point, there will be no way to migrate back to nodes A and B in case of issues other than to use the snapshots taken prior to the upgrade.
 
-===== If all goes wrong
+====== If all goes wrong
 
 If your migration to node C goes wrong, you can fail back to nodes A and B by stopping all services on node C and starting them on nodes A and B
 
@@ -1671,15 +1671,15 @@ systemctl start packetfence-mariadb
 
 Once you are feeling confident to try your failover to node C again, you can do the exact opposite of the commands above to try your upgrade again.
 
-===== If all goes well
+====== If all goes well
 
 If you are happy about the state of your upgrade, you can continue on the steps below in order to complete the upgrade of the two remaining nodes.
 
-==== Upgrading nodes A and B
+===== Upgrading nodes A and B
 
 Next, you can upgrade your operating system on nodes A and B.
 
-==== Upgrading MariaDB on nodes A and B
+===== Upgrading MariaDB on nodes A and B
 
 First, stop the galera-autofix service on nodes A and B
 
@@ -1699,9 +1699,9 @@ yum install --enablerepo=packetfence MariaDB-server MariaDB-backup
 sed -i "s/xtrabackup/mariabackup/g" /usr/local/pf/conf/mariadb/mariadb.conf.tt
 ----
 
-==== Reintegrating nodes A and B
+===== Reintegrating nodes A and B
 
-===== Optional step: Cleaning up data on node C
+====== Optional step: Cleaning up data on node C
 
 
 When you will re-establish a cluster using node C in the steps below, your environment will be set in read-only mode for the duration of the database sync (which needs to be done from scratch).
@@ -1725,7 +1725,7 @@ mysql -u root -p pf
 MariaDB> truncate TABLE_NAME;
 ----
 
-===== Preliminary steps
+====== Preliminary steps
 
 First, stop the galera-autofix service on all the nodes of your cluster
 
@@ -1734,7 +1734,7 @@ First, stop the galera-autofix service on all the nodes of your cluster
 systemctl stop packetfence-galera-autofix
 ----
 
-===== Elect node C as database master
+====== Elect node C as database master
 
 
 In order for node C to be able to elect itself as database master, we must tell it there are other members in its cluster by re-enabling nodes A and B
@@ -1782,7 +1782,7 @@ mysql -u root -p pf -h localhost
 If its not, make sure you check the MariaDB log
 ([filename]`/usr/local/pf/logs/mariadb_error.log`)
 
-===== Sync nodes A and B
+====== Sync nodes A and B
 
 On each of the servers you want to discard the data from, stop `packetfence-mariadb`, you must destroy all the data in `/var/lib/mysql` and start `packetfence-mariadb` so it resyncs its data from scratch.
 
@@ -1801,7 +1801,7 @@ command line), then you can break the cluster election command you have
 running on node C and start node C normally (using `systemctl start
 packetfence-mariadb`).
 
-===== Upgrade PacketFence on nodes A and B
+====== Upgrade PacketFence on nodes A and B
 
 On each os the servers you can procees with the PacketFence upgrade
 
@@ -1810,11 +1810,11 @@ On each os the servers you can procees with the PacketFence upgrade
 yum update --enablerepo=packetfence
 ----
 
-===== Maintenance patches (on nodes A and B)
+====== Maintenance patches (on nodes A and B)
 
 include::common/maintenance_patches.asciidoc[]
 
-===== Configuration synchronisation
+====== Configuration synchronisation
 
 You do not need to follow the upgrade procedure when upgrading these nodes. You should instead do a sync from node C on nodes A and B:
 
@@ -1830,7 +1830,7 @@ Where:
 * `_packet_` is the webservices username (_Configuration->Webservices_)
 * `_fence_` is the webservices password (_Configuration->Webservices_)
 
-===== Start nodes A and B
+====== Start nodes A and B
 
 
 You can now safely start PacketFence on nodes A and B using the instructions
@@ -1838,7 +1838,7 @@ provided in
 <<PacketFence_Upgrade_Guide.asciidoc#_restart_all_packetfence_services,Restart
 all PacketFence services section>>.
 
-==== Restart node C
+===== Restart node C
 
 Now, you should restart PacketFence on node C using the instructions provided
 in
@@ -1847,7 +1847,7 @@ all PacketFence services section>>.  So it becomes aware of its peers again.
 
 You should now have full service on all 3 nodes using the latest version of PacketFence.
 
-===== Reactivate the configuration conflict handling
+====== Reactivate the configuration conflict handling
 
 
 Now that your cluster is back to a healthy state, you should reactivate the configuration conflict resolution.
@@ -1861,7 +1861,7 @@ Once this is done, restart `pfcron` on all nodes using:
 /usr/local/pf/bin/pfcmd service pfcron restart
 ----
 
-===== Restart the galera-autofix service
+====== Restart the galera-autofix service
 
 
 You now need to restart the galera-autofix service so that its aware that all the members of the cluster are online again.
