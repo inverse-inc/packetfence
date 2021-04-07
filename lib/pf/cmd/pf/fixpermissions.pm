@@ -166,7 +166,7 @@ sub _fingerbank {
 
 sub wanted {
     return if $File::Find::name eq $log_dir;
-    my $perm = -d $File::Find::name ? 02775 : 0664;
+    my $perm = -d $File::Find::name ? 02770 : 0664;
     chmod $perm, untaint_chain($File::Find::name);
 }
 
