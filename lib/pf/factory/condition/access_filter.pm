@@ -103,7 +103,12 @@ my %VALUE_FILTERS = (
 );
 
 sub normalize_connection_sub_type {
-    return $RADIUS_EAP_TYPE_2_VALUES{$_[0]};
+    my ($v) = @_;
+    if (exists $RADIUS_EAP_TYPE_2_VALUES{$v}) {
+        return $RADIUS_EAP_TYPE_2_VALUES{$v};
+    }
+
+    return $v;
 }
 
 sub normalize_eap_type {
