@@ -173,12 +173,12 @@ Make String Default Value
 sub make_string_default_value {
     my ($table, $col) = @_;
     if (defined $col->{COLUMN_DEF}) {
-	my $v = $col->{COLUMN_DEF};
-	if ($v =~ /^'.*'$/) {
-		return "$col->{COLUMN_DEF}";
-	}
+        my $v = $col->{COLUMN_DEF};
+        if ($v =~ /^'.*'$/) {
+            return "$col->{COLUMN_DEF}";
+        }
 
-	return "'$v'";
+        return "'$v'";
     }
 
     unless ($col->{NULLABLE}) {
