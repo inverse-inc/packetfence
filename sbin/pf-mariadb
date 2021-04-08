@@ -221,13 +221,12 @@ Startup procedure when service was cleanly shutdown
 =cut
 
 sub startup_clean_shutdown {
+    my $safe_to_bootstrap = `cat /var/lib/mysql/grastate.dat | grep 'safe_to_bootstrap: 1'`;
     if(db_available()) {
         $logger->info("There is a peer with an alive DB. Will attempt to connect to the cluster");
         fork_launch_mysql("db-peer-available");
     }
-    elsif(ping_quorum()) {
-        $logger->info("There is an alive quorum but no db available on any server");
-        my $safe_to_bootstrap = `cat /var/lib/mysql/grastate.dat | grep 'safe_to_bootstrap: 1'`;
+    elsif($safe_to_bootstrap || ping_quorum()) {
         if($safe_to_bootstrap) {
             $logger->info("This node is safe to bootstrap from. Starting in bootstrap mode.");
             bootstrap_new_cluster();
