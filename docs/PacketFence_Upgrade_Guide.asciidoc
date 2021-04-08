@@ -1163,29 +1163,52 @@ systemctl stop packetfence-galera-autofix
 
 Now proceed with the MariaDB upgrade
 
+.RHEL / CentOS based systems *only*
 [source,bash]
 ----
 rpm -e --nodeps MariaDB-client MariaDB-common MariaDB-server MariaDB-shared
 yum install --enablerepo=packetfence MariaDB-server MariaDB-backup
 ----
 
+.Debian based systems
+[source,bash]
+----
+dpkg -r --force-depends mariadb-server mariadb-client-10.1 mariadb-client-core-10.1 mariadb-common mariadb-server-10.1 mariadb-server-core-10.1 libmariadbclient18
+apt update
+apt install mariadb-server-10.2 mariadb-common mariadb-client-10.2 mariadb-client-core-10.2 mariadb-server-core-10.2 libmariadb3 libmariadbclient18 mariadb-server mariadb-backup-10.2
+----
+
 At this moment you have the newest version of MariaDB installed on your system.
 Next step is to upgrade the database.
 
+.RHEL / CentOS based systems *only*
 [source,bash]
 ----
 systemctl unmask mariadb
 systemctl start mariadb
+----
 
+[source,bash]
+----
 mysql_upgrade -u root -p
 ----
 
 NOTE: If the following error appear "Recovering after a crash using tc.log" then delete the file /var/lib/mysql/tc.log
 
+.RHEL / CentOS based systems *only*
 [source,bash]
 ----
 systemctl stop mariadb
 systemctl mask mariadb
+----
+
+
+.Debian based systems
+[source,bash]
+----
+systemctl stop mysql
+pkill -u mysql
+systemctl mask mysql
 ----
 
 At this step you have now the MariaDB 10.2 databse ready.
@@ -1194,8 +1217,18 @@ You can now upgrade the PacketFence version:
 [source,bash]
 ----
 bin/pfcmd generatemariadbconfig
+----
 
+.RHEL / CentOS based systems
+[source,bash]
+----
 yum update --enablerepo=packetfence
+----
+
+.Debian based systems
+[source,bash]
+----
+apt upgrade
 ----
 
 ====== Maintenance patches
@@ -1273,12 +1306,24 @@ systemctl stop packetfence-galera-autofix
 
 Then remove MariaDB and install the new version
 
+.RHEL / CentOS based systems
 [source,bash]
 ----
 rpm -e --nodeps MariaDB-client MariaDB-common MariaDB-server MariaDB-shared
 
 yum install --enablerepo=packetfence MariaDB-server MariaDB-backup
+----
 
+.Debian based systems
+[source,bash]
+----
+dpkg -r --force-depends mariadb-server mariadb-client-10.1 mariadb-client-core-10.1 mariadb-common mariadb-server-10.1 mariadb-server-core-10.1 libmariadbclient18
+apt update
+apt install mariadb-server-10.2 mariadb-common mariadb-client-10.2 mariadb-client-core-10.2 mariadb-server-core-10.2 libmariadb3 libmariadbclient18 mariadb-server mariadb-backup-10.2
+----
+
+[source,bash]
+----
 sed -i "s/xtrabackup/mariabackup/g" /usr/local/pf/conf/mariadb/mariadb.conf.tt
 ----
 
@@ -1388,9 +1433,16 @@ packetfence-mariadb`).
 
 On each os the servers you can procees with the PacketFence upgrade
 
+.RHEL / CentOS based systems
 [source,bash]
 ----
 yum update --enablerepo=packetfence
+----
+
+.Debian based systems
+[source,bash]
+----
+apt upgrade
 ----
 
 ====== Maintenance patches (on nodes A and B)
