@@ -302,6 +302,7 @@ sub clean_wsrep_recovery {
 
 sub bootstrap_new_cluster {
     `sed -i.bak "s/safe_to_bootstrap: 0/safe_to_bootstrap: 1/g" /var/lib/mysql/grastate.dat`;
+    `rm -f /var/lib/mysql/gvwstate.dat`;
     launch_mysql($FALSE, "--wsrep-recover");
     fork_launch_mysql("create-new-cluster", "--wsrep-new-cluster");
 }

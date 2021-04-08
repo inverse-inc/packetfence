@@ -252,7 +252,7 @@ func bootAndRejoinCluster(ctx context.Context, node *Node) {
 			if time.Now().After(waitUntil) {
 				log.LoggerWContext(ctx).Error(fmt.Sprintf("Waited too long for %s to offer DB service.", node.IP.String()))
 				// Start it again so the service stays active
-				mariadb.Start(ctx)
+				go mariadb.Start(ctx)
 				return
 			}
 
