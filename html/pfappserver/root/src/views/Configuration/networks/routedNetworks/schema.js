@@ -63,7 +63,7 @@ export default (props) => {
     ip_reserved: yup.string().nullable(),
     ip_assigned: yup.string().nullable(),
     netmask: yup.string().nullable().required(i18n.t('Netmask required.')).isIpv4(),
-    next_hop: yup.string().nullable().required(i18n.t('Router IP required. ')).isIpv4(),
+    next_hop: yup.string().nullable().required(i18n.t('Router IP required.')).isIpv4(),
     pool_backend: yup.string().when('dhcpd', () => (dhcpd === 'enabled') // reactive
       ? yup.string().nullable().required(i18n.t('Type required.'))
       : yup.string().nullable()
