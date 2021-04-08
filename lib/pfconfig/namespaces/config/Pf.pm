@@ -135,16 +135,22 @@ sub build_child {
     # We're looking for the merged_list configurations and we merge the default value with
     # the user defined value
     while( my( $key, $value ) = each %Doc_Config ){
-        if(defined($value->{type}) && $value->{type} eq "merged_list"){
+        my $type = $value->{type} // "text";
+        if ($type eq "merged_list"){
             my ($category, $attribute) = split /\./, $key;
             my $additionnal = $Config{$category}{$attribute} || '';
             $Config{$category}{$attribute} = [ split( /\s*,\s*/, $Default_Config{$category}{$attribute} // ''), split( /\s*,\s*/, $additionnal ) ];
             $Config{$category}{$attribute} = [ uniq @{$Config{$category}{$attribute}} ];
         }
 
-        if(defined($value->{type}) && $value->{type} eq "fingerbank_device_transition") {
-            my @transitions;
+        if ($type eq "array"){
             my ($category, $attribute) = split /\./, $key;
+            $Config{$category}{$attribute} = [ split( /\s*,\s*/, $Default_Config{$category}{$attribute} // '') ];
+        }
+
+        if($type eq "fingerbank_device_transition") {
+            my ($category, $attribute) = split /\./, $key;
+            my @transitions;
             my $data = $Config{$category}{$attribute} || '';
             my @pairs = split(/\s*,\s*/, $data);
             foreach my $pair (@pairs) {
