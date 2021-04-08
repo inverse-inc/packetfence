@@ -2,8 +2,10 @@
   <b-alert :show="isModified" variant="warning" fade>
     <h4 class="alert-heading" v-t="'Warning'"/>
     <p>
-      <span v-html="$t('Adding or modifying a network requires a restart of the iptables, pfdhcp and pfdns services for the changes to take place.')"></span>
+      <span v-html="$t('Adding or modifying a network requires a restart of the keepalived, iptables, pfdhcp and pfdns services for the changes to take place.')"></span>
     </p>
+    <base-button-service service="keepalived" restart start stop
+      :disabled="isLoading" class="mr-1" size="sm"/>
     <base-button-service service="iptables" restart start stop
       :disabled="isLoading" class="mr-1" size="sm"/>
     <base-button-service service="pfdhcp" restart start stop

@@ -22,17 +22,23 @@ export const columns = [
     required: true
   },
   {
-    key: 'type',
-    label: 'Type', // i18n defer
+    key: 'netmask',
+    label: 'Netmask', // i18n defer
     sortable: true,
-    visible: true,
-    formatter: routedNetworkListFormatter
+    visible: true
   },
   {
     key: 'description',
     label: 'Description', // i18n defer
     sortable: true,
     visible: true
+  },
+  {
+    key: 'type',
+    label: 'Type', // i18n defer
+    sortable: true,
+    visible: true,
+    formatter: routedNetworkListFormatter
   },
   {
     key: 'next_hop',
