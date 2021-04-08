@@ -1015,38 +1015,70 @@ systemctl stop packetfence-mariadb
 
 Now proceed with the MariaDB upgrade
 
+.RHEL / CentOS based systems
 [source,bash]
 ----
 rpm -e --nodeps MariaDB-client MariaDB-common MariaDB-server MariaDB-shared
 yum install --enablerepo=packetfence MariaDB-server MariaDB-backup
 ----
 
-At this moment you have the newest version of MariaDB installed on your system.
-Next step is to upgrade the database.
+.Debian based systems
+[source,bash]
+----
+dpkg -r --force-depends mariadb-server mariadb-client-10.1 mariadb-client-core-10.1 \
+mariadb-common mariadb-server-10.1 mariadb-server-core-10.1 libmariadbclient18
+apt install mariadb-server mariadb-client-10.2 mariadb-client-core-10.2 \
+mariadb-common mariadb-server-10.2 mariadb-server-core-10.2 libmariadbclient18 libmariadb3
+----
 
+NOTE: On Debian, ignore prompts related to change of `root` password during package upgrade.
+
+At this moment you have the newest version of MariaDB installed on your system.
+Ensure MariaDB is running:
+
+.RHEL / CentOS based systems *only*
 [source,bash]
 ----
 systemctl unmask mariadb
 systemctl start mariadb
+----
 
+You can check you are running MariaDB 10.2 version with following command:
+
+[source,bash]
+----
+mysql -u root -p -e "show variables where Variable_name='version';"
+----
+
+Next step is to upgrade your databases:
+[source,bash]
+----
 mysql_upgrade -u root -p
 ----
 
-NOTE: If the following error appear "Recovering after a crash using tc.log" then delete the file /var/lib/mysql/tc.log
+NOTE: If the following error appears "Recovering after a crash using tc.log" then delete the file [filename]`/var/lib/mysql/tc.log`
 
+After databases have been upgraded, you can disable default MariaDB service:
+
+.RHEL / CentOS based systems
 [source,bash]
 ----
 systemctl stop mariadb
 systemctl mask mariadb
 ----
 
-At this step you have now the MariaDB 10.2 databse ready.
-You can now upgrade the PacketFence version:
-
+.Debian based systems
 [source,bash]
 ----
-yum update --enablerepo=packetfence
+systemctl stop mysql
+pkill -u mysql
+systemctl mask mysql
 ----
+
+`packetfence-mariadb` service will be started later by upgrade of packetfence package(s).
+
+At this step you have now the MariaDB 10.2 database ready.
+You can now upgrade the PacketFence version by following instructions in <<_packages_upgrades,Packages upgrades>> section.
 
 ==== Performing MariaDB cluster upgrade
 
@@ -1437,7 +1469,7 @@ The ability to define a specific port per host in the list of the LDAP servers o
 
 === Removal of `inline_accounting` table
 
-`inline_accounting` table will be removed by upgrade of database schema because it has been replaced by `bandwidth_accounting` table since v10.
+`inline_accounting` table will be removed by upgrade of database schema (see below) because it has been replaced by `bandwidth_accounting` table since v10.
 
 You are only concern by this item if you extract data from `inline_accounting` table before v10 for external usage.
 
