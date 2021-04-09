@@ -60,9 +60,11 @@ const props = {
 
 import { ref, watch } from '@vue/composition-api'
 import useEventEscapeKey from '@/composables/useEventEscapeKey'
-import { useRouter, useStore } from '../_composables/useCollection'
+import { useStore } from '../_composables/useCollection'
 
 const setup = (props, context) => {
+
+  const { root: { $router } = {} } = context
 
   const tabsRef = ref(null)
   const tabIndex = ref(0)
@@ -72,16 +74,12 @@ const setup = (props, context) => {
     reloadItem
   } = useStore(props, context)
 
-  const {
-    goToCollection
-  } = useRouter(props, context)
-
-  const onClose = () => goToCollection()
+  const onClose = () => $router.back()
 
   const onRefresh = () => reloadItem()
-  
+
   const escapeKey = useEventEscapeKey()
-  watch(escapeKey, () => goToCollection())
+  watch(escapeKey, () => onClose())
 
   return {
     tabsRef,
