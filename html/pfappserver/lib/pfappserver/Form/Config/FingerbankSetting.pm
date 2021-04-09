@@ -27,9 +27,9 @@ my %FIELD_VALIDATORS = (
     'upstream.api_key' => sub {
       my (undef, $field) = @_;
       my $key = $field->value;
-      my ($result, undef) = fingerbank::API->new_from_config->test_key($key);
+      my ($result, $msg) = fingerbank::API->new_from_config->test_key($key);
       if(is_error($result)) {
-        $field->add_error("Invalid API key provided");
+        $field->add_error($msg);
       }
     },
 );
