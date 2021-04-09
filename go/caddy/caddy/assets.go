@@ -17,7 +17,6 @@ package caddy
 import (
 	"os"
 	"path/filepath"
-	"runtime"
 )
 
 // AssetsPath returns the path to the folder
@@ -32,17 +31,7 @@ func AssetsPath() string {
 	return filepath.Join(userHomeDir(), ".caddy")
 }
 
-// userHomeDir returns the user's home directory according to
-// environment variables.
-//
-// Credit: http://stackoverflow.com/a/7922977/1048862
 func userHomeDir() string {
-	if runtime.GOOS == "windows" {
-		home := os.Getenv("HOMEDRIVE") + os.Getenv("HOMEPATH")
-		if home == "" {
-			home = os.Getenv("USERPROFILE")
-		}
-		return home
-	}
-	return os.Getenv("HOME")
+	home, _ := os.UserHomeDir()
+	return home
 }
