@@ -199,6 +199,7 @@ sub record_coa {
     $radius_audit_log{'auth_status'} = $return{'Code'} || '';
     $radius_audit_log{'radius_request'} = $request."=22=2C".$request_vsa;
     $radius_audit_log{'radius_reply'} = $response;
+    $radius_audit_log{'created_at'} = \'NOW()';
     pf::radius_audit_log::radius_audit_log_add(%radius_audit_log);
 }
 
