@@ -16,10 +16,17 @@ use strict;
 use warnings;
 use Mojo::Base 'pf::UnifiedApi::Controller::Crud';
 use pf::dal::node_category;
+use pf::nodecategory;
 
 has dal => 'pf::dal::node_category';
 has url_param_name => 'node_category_id';
 has primary_key => 'category_id';
+
+
+sub cleanup_item {
+    my ($self, $item) = @_;
+    return pf::nodecategory::_cleanup($item);
+}
 
 =head1 AUTHOR
 
