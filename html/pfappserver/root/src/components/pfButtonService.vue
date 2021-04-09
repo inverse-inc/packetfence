@@ -11,19 +11,19 @@
     </template>
     <b-dropdown-form v-if="!hideDetails">
       <b-row class="row-nowrap">
-        <b-col>{{ $t('Alive') }}</b-col>
         <b-col cols="auto">
           <b-badge v-if="status.alive && status.pid" pill variant="success">{{ status.pid }}</b-badge>
           <icon v-else class="text-danger" name="circle"></icon>
         </b-col>
+        <b-col class="pl-0">{{ $t('Alive') }}</b-col>
       </b-row>
       <b-row class="row-nowrap">
-        <b-col>{{ $t('Enabled') }}</b-col>
         <b-col cols="auto"><icon :class="(status.enabled) ? 'text-success' : 'text-danger'" name="circle"></icon></b-col>
+        <b-col class="pl-0">{{ $t('Enabled') }}</b-col>
       </b-row>
       <b-row class="row-nowrap">
-        <b-col>{{ $t('Managed') }}</b-col>
         <b-col cols="auto"><icon :class="(status.managed) ? 'text-success' : 'text-danger'" name="circle"></icon></b-col>
+        <b-col class="pl-0">{{ $t('Managed') }}</b-col>
       </b-row>
     </b-dropdown-form>
     <b-dropdown-divider v-if="!isLoading && !hideDetails"></b-dropdown-divider>
