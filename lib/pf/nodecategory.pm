@@ -209,8 +209,8 @@ sub nodecategory_view_by_name {
 sub _cleanup {
     my ($i) = @_;
     if (defined $i) {
-        $i->{category_id} += 0;
-        $i->{max_nodes_per_pid} += 0;
+        $i->{category_id} .= "";
+        $i->{max_nodes_per_pid} .= "";
     }
 
     return $i;
