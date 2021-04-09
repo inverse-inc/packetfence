@@ -15,6 +15,7 @@ import BaseFormGroupDeviceAttributesDiffThresholdOverrides from './BaseFormGroup
 import BaseFormGroupDevices from './BaseFormGroupDevices'
 import TheForm from './TheForm'
 import TheView from './TheView'
+import ToggleStatus from './ToggleStatus'
 
 export {
   BaseViewCollectionItem                              as BaseView,
@@ -37,7 +38,8 @@ export {
 
   AlertServices,
   TheForm,
-  TheView
+  TheView,
+  ToggleStatus
 }
 
 

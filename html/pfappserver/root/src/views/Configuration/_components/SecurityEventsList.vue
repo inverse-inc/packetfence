@@ -28,9 +28,9 @@
         </span>
       </template>
       <template v-slot:cell(enabled)="item">
-        <toggle-status :value="item.enabled" 
+        <toggle-status :value="item.enabled"
           :disabled="item.id === 'defaults' || isLoading"
-          :item="item" /> 
+          :item="item" />
       </template>
     </pf-config-list>
   </b-card>

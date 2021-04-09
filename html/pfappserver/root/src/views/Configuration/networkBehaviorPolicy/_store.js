@@ -97,6 +97,32 @@ const actions = {
       throw err
     })
   },
+  enableNetworkBehaviorPolicy: ({ commit }, data) => {
+    commit('ITEM_REQUEST')
+    const { id, quiet = false } = data
+    const _data = { id, status: 'enabled', quiet }
+    return api.updateNetworkBehaviorPolicy(_data).then(response => {
+      commit('ITEM_ENABLED', _data)
+      commit('$_config_network_behavior_policies_searchable/ITEM_UPDATED', { key: 'id', id, prop: 'status', data: 'enabled' }, { root: true })
+      return response
+    }).catch(err => {
+      commit('ITEM_ERROR', err.response)
+      throw err
+    })
+  },
+  disableNetworkBehaviorPolicy: ({ commit }, data) => {
+    commit('ITEM_REQUEST')
+    const { id, quiet = false } = data
+    const _data = { id, status: 'disabled', quiet }
+    return api.updateNetworkBehaviorPolicy(_data).then(response => {
+      commit('ITEM_DISABLED', _data)
+      commit('$_config_network_behavior_policies_searchable/ITEM_UPDATED', { key: 'id', id, prop: 'status', data: 'disabled' }, { root: true })
+      return response
+    }).catch(err => {
+      commit('ITEM_ERROR', err.response)
+      throw err
+    })
+  },
   deleteNetworkBehaviorPolicy: ({ commit }, data) => {
     commit('ITEM_REQUEST', types.DELETING)
     return api.deleteNetworkBehaviorPolicy(data).then(response => {
@@ -117,6 +143,14 @@ const mutations = {
   ITEM_REPLACED: (state, data) => {
     state.itemStatus = types.SUCCESS
     Vue.set(state.cache, data.id, JSON.parse(JSON.stringify(data)))
+  },
+  ITEM_ENABLED: (state, data) => {
+    state.itemStatus = types.SUCCESS
+    Vue.set(state.cache, data.id, { ...state.cache[data.id], ...data })
+  },
+  ITEM_DISABLED: (state, data) => {
+    state.itemStatus = types.SUCCESS
+    Vue.set(state.cache, data.id, { ...state.cache[data.id], ...data })
   },
   ITEM_DESTROYED: (state, id) => {
     state.itemStatus = types.SUCCESS

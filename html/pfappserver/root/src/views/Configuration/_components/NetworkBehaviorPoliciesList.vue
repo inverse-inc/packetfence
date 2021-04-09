@@ -10,7 +10,7 @@
             {{ $t('Network Behavior Policy') }}
           </h4>
         </b-card-header>
-        
+
         <b-card-header v-if="!canUseNbaEndpoints">
           <template>
           <div class="alert alert-warning">{{ $t(`Your Fingerbank account currently doesn't have access to the network behavior analysis API endpoints. Get in touch with info@inverse.ca for a quote. Without these API endpoints, you will not be able to use the anomaly detection feature.`) }}</div>
@@ -29,6 +29,11 @@
           <b-button size="sm" variant="outline-primary" class="mr-1" @click.stop.prevent="clone(item)">{{ $t('Clone') }}</b-button>
         </span>
       </template>
+      <template v-slot:cell(status)="item">
+        <toggle-status :value="item.status"
+          :disabled="isLoading"
+          :item="item" />
+      </template>
     </pf-config-list>
   </b-card>
 </template>
@@ -38,13 +43,15 @@ import pfButtonDelete from '@/components/pfButtonDelete'
 import pfConfigList from '@/components/pfConfigList'
 import pfEmptyTable from '@/components/pfEmptyTable'
 import { config } from '../_config/networkBehaviorPolicy'
+import { ToggleStatus } from '@/views/Configuration/networkBehaviorPolicy/_components/'
 
 export default {
   name: 'network-behavior-policies-list',
   components: {
     pfButtonDelete,
     pfConfigList,
-    pfEmptyTable
+    pfEmptyTable,
+    ToggleStatus
   },
   data () {
     return {

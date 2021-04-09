@@ -16,6 +16,7 @@
       }"
       :index="inputValue"
       :style="rootStyle"
+      @click.stop
     >
       <div style="pointer-events: none;">
         <div v-for="(hintStyle, index) in hintStyles" :key="index" class="hint" :style="hintStyle" />

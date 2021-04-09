@@ -3,6 +3,13 @@ import { pfSearchConditionType as conditionType } from '@/globals/pfSearch'
 
 export const columns = [
   {
+    key: 'status',
+    label: 'Status', // i18n defer
+    required: true,
+    sortable: true,
+    visible: true
+  },
+  {
     key: 'id',
     label: 'Identifier', // i18n defer
     required: true,
