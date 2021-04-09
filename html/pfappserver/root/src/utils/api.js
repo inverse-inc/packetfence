@@ -164,7 +164,7 @@ apiCall.interceptors.response.use((response) => {
   /* Intercept successful API call */
   const { config = {}, data = {} } = response
   if (data.message && !data.quiet) {
-    store.dispatch('notification/info', { message: data.message, url: config.url })
+    store.dispatch('notification/info', { message: data.message, url: decodeURIComponent(config.url) })
   }
   store.commit('session/API_OK')
   store.commit('session/FORM_OK')
@@ -207,7 +207,7 @@ apiCall.interceptors.response.use((response) => {
             let msg = `${err['field']}: ${err['message']}`
             // eslint-disable-next-line
             console.warn(msg)
-            store.dispatch('notification/danger', { icon, url: config.url, message: msg })
+            store.dispatch('notification/danger', { icon, url: decodeURIComponent(config.url), message: msg })
           })
         }
         // eslint-disable-next-line
@@ -223,9 +223,9 @@ apiCall.interceptors.response.use((response) => {
         }
       }
       if (typeof error.response.data === 'string') {
-        store.dispatch('notification/danger', { icon, url: config.url, message: error.message })
+        store.dispatch('notification/danger', { icon, url: decodeURIComponent(config.url), message: error.message })
       } else if (error.response.data.message && !error.response.data.quiet) {
-        store.dispatch('notification/danger', { icon, url: config.url, message: error.response.data.message })
+        store.dispatch('notification/danger', { icon, url: decodeURIComponent(config.url), message: error.response.data.message })
       }
     }
   } else if (error.request) {
@@ -236,7 +236,7 @@ apiCall.interceptors.response.use((response) => {
     }
     if (!quiet) {
       store.commit('session/API_ERROR')
-      store.dispatch('notification/danger', { url: config.url, message: 'API server seems down' })
+      store.dispatch('notification/danger', { url: decodeURIComponent(config.url), message: 'API server seems down' })
     }
   }
   return Promise.reject(error)
