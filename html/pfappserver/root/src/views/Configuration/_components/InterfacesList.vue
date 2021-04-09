@@ -30,7 +30,7 @@
             <pf-empty-table :is-loading="isInterfacesLoading">{{ $t('No interfaces found') }}</pf-empty-table>
           </template>
           <template v-slot:cell(is_running)="{ item }">
-             <toggle-status :value="item.is_running" 
+             <toggle-status :value="item.is_running"
               :disabled="item.type === 'management' || isInterfacesLoading"
               :item="item" />
           </template>
@@ -128,6 +128,7 @@
             <b-button variant="outline-primary" class="mr-1" :to="{ name: 'newRoutedNetwork' }">{{ $t('New Routed Network') }}</b-button>
           </b-col>
           <b-col cols="auto">
+            <pf-button-service service="keepalived" class="mr-1" restart start stop></pf-button-service>
             <pf-button-service service="iptables" class="mr-1" restart start stop></pf-button-service>
             <pf-button-service service="pfdhcp" class="mr-1" restart start stop></pf-button-service>
             <pf-button-service service="pfdns" class="mr-1" restart start stop></pf-button-service>
