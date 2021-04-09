@@ -172,7 +172,12 @@ sub nodecategory_view_all {
     if (is_error($status)) {
         return;
     }
-    return @{$iter->all() // []};
+    my $all = $iter->all() // [];
+    for my $a (@$all) {
+        $a->{category_id} += 0;
+    }
+
+    return @{$all};
 }
 
 =item nodecategory_view - view a node category, returns an hashref
