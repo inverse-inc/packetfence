@@ -48,7 +48,7 @@ if ($?) {
     die "Unable to flush privileges";
 }
 
-my $position_file = '/var/lib/mysql/xtrabackup_binlog_info';
+my $position_file = '/root/backup/restore/xtrabackup_binlog_info';
 
 open(my $fh, '<:encoding(UTF-8)', $position_file)
   or die "Could not open file '$position_file' your backup does not contain the binary log position file.";

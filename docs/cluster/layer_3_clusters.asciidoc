@@ -461,7 +461,7 @@ Then you need to be sure that the root user exist in the remote database and hav
 
 Alternatively, to start the slave manually refer to the following:
 
-Edit the file /var/lib/mysql/xtrabackup_binlog_info and note the file name and the position:
+Edit the file /root/backup/restore/xtrabackup_binlog_info and note the file name and the position:
 
  mariadb-bin.000014      7473
 
