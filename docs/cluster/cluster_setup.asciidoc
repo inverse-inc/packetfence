@@ -316,7 +316,7 @@ Then, restart PacketFence to apply all your changes:
 ===== Expected state on first server
 
 If no error is found in the previous configuration, the previous restart of
-packetfence should have started: `keepalived` and `radiusd-loadbalancer` along
+PacketFence should have started: `keepalived` and `radiusd-loadbalancer` along
 with the other services. If you have set up a mail server on your first
 server, you should have receive a mail from `keepalived` to inform you that
 your first server got Virtual IP (VIP) adresses.

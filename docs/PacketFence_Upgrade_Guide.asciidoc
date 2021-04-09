@@ -106,6 +106,10 @@ required to be done *BEFORE* the packages upgrades.
 
 Please refer to the <<PacketFence_Clustering_Guide.asciidoc#,PacketFence Clustering Guide>>, more specifically the <<PacketFence_Clustering_Guide.asciidoc#_performing_an_upgrade_on_a_cluster,Performing an upgrade on a cluster>> section.
 
+===== Cluster upgrade before 10.3
+
+If you run a version prior to 10.3, cluster upgrade for this version is specific. You need to follow steps described in <<_mariadb_upgrade_to_10_2,MariaDB upgrade to 10.2>> section.
+
 === Stop all PacketFence services
 
 It is recommended that you stop the currently running PacketFence services before proceeding any further.
@@ -991,7 +995,7 @@ mysql -u root -p pf -v < /usr/local/pf/db/upgrade-10.1.0-10.2.0.sql
 
 == Upgrading from a version prior to X.Y.Z
 
-=== Mariadb Upgrade to 10.2
+=== MariaDB Upgrade to 10.2
 
 NOTE: This step needs to be done *before* packages upgrade.
 
@@ -1026,9 +1030,11 @@ yum install --enablerepo=packetfence MariaDB-server MariaDB-backup
 [source,bash]
 ----
 dpkg -r --force-depends mariadb-server mariadb-client-10.1 mariadb-client-core-10.1 \
-mariadb-common mariadb-server-10.1 mariadb-server-core-10.1 libmariadbclient18
+mariadb-common mariadb-server-10.1 mariadb-server-core-10.1 libmariadbclient18 mysql-common
+apt update
 apt install mariadb-server mariadb-client-10.2 mariadb-client-core-10.2 \
-mariadb-common mariadb-server-10.2 mariadb-server-core-10.2 libmariadbclient18 libmariadb3
+mariadb-common mariadb-server-10.2 mariadb-server-core-10.2 libmariadbclient18 libmariadb3 \
+mysql-common
 ----
 
 NOTE: On Debian, ignore prompts related to change of `root` password during package upgrade.
@@ -1080,7 +1086,7 @@ systemctl mask mysql
 At this step you have now the MariaDB 10.2 database ready.
 You can now upgrade the PacketFence version by following instructions in <<_packages_upgrades,Packages upgrades>> section.
 
-==== Performing MariaDB cluster upgrade
+==== Cluster MariaDB upgrade
 
 
 CAUTION: Performing a live upgrade on a PacketFence cluster is not a straightforward operation and should be done meticulously.
@@ -1108,18 +1114,17 @@ Once this is done, restart `pfcron` on all nodes using:
 /usr/local/pf/bin/pfcmd service pfcron restart
 ----
 
-===== Upgrading node C
-
-In order to be able to work on node C, we first need to stop all the
-PacketFence application services on it, see
-<<PacketFence_Upgrade_Guide.asciidoc#_stop_all_packetfence_services,Stop all
-PacketFence services section>>.
-
-Next, you can upgrade your operating system on node C.
-
 ===== Migrating service on node C
 
-The database is still being synced to node C via the `packetfence-mariadb` service.
+In order to be able to work on node C, we first need to stop all the
+PacketFence application services on it:
+
+[source,bash]
+----
+/usr/local/pf/bin/pfcmd service pf stop
+----
+
+`packetfence-config` needs to stay up to disable node A and B in configuration.
 
 NOTE: The steps below will cause a temporary loss of service.
 
@@ -1144,7 +1149,6 @@ Once this is done proceed to restart the following services on nodes A and B **o
 /usr/local/pf/bin/pfcmd service keepalived restart
 ----
 
-
 Then, we should tell C to ignore A and B in their cluster configuration. In order to do so, execute the following commands on node C while changing `node-A-hostname` and `node-B-hostname` by the hostname of nodes A and B respectively.
 
 [source,bash]
@@ -1152,6 +1156,14 @@ Then, we should tell C to ignore A and B in their cluster configuration. In orde
 /usr/local/pf/bin/cluster/node node-A-hostname disable
 /usr/local/pf/bin/cluster/node node-B-hostname disable
 ----
+
+The commands above will make sure that nodes A and B will not be forwarding
+requests to C even if it is alive. Same goes for C which won't be sending
+traffic to A and B. This means A and B will continue to have the same database
+informations while C will start to diverge from it when it goes live. We'll
+make sure to reconcile this data afterwards.
+
+====== MariaDB upgrade on node C
 
 Now stop `packetfence-mariadb` and `packetfence-galera-autofix` on node C:
 
@@ -1173,13 +1185,18 @@ yum install --enablerepo=packetfence MariaDB-server MariaDB-backup
 .Debian based systems
 [source,bash]
 ----
-dpkg -r --force-depends mariadb-server mariadb-client-10.1 mariadb-client-core-10.1 mariadb-common mariadb-server-10.1 mariadb-server-core-10.1 libmariadbclient18
+dpkg -r --force-depends mariadb-server mariadb-client-10.1 mariadb-client-core-10.1 \
+mariadb-common mariadb-server-10.1 mariadb-server-core-10.1 libmariadbclient18 \
+mysql-common
 apt update
-apt install mariadb-server-10.2 mariadb-common mariadb-client-10.2 mariadb-client-core-10.2 mariadb-server-core-10.2 libmariadb3 libmariadbclient18 mariadb-server mariadb-backup-10.2
+apt install mariadb-server-10.2 mariadb-common mariadb-client-10.2 \
+mariadb-client-core-10.2 mariadb-server-core-10.2 libmariadb3 \
+libmariadbclient18 mariadb-server mariadb-backup-10.2 mysql-common
 ----
 
-At this moment you have the newest version of MariaDB installed on your system.
-Next step is to upgrade the database.
+NOTE: On Debian, ignore prompts related to change of `root` password during package upgrade.
+
+At this moment you have the newest version of MariaDB installed on your system. Ensure MariaDB is running:
 
 .RHEL / CentOS based systems *only*
 [source,bash]
@@ -1188,6 +1205,14 @@ systemctl unmask mariadb
 systemctl start mariadb
 ----
 
+You can check you are running MariaDB 10.2 version with following command:
+
+[source,bash]
+----
+mysql -u root -p -e "show variables where Variable_name='version';"
+----
+
+Next step is to upgrade your databases:
 [source,bash]
 ----
 mysql_upgrade -u root -p
@@ -1195,13 +1220,14 @@ mysql_upgrade -u root -p
 
 NOTE: If the following error appear "Recovering after a crash using tc.log" then delete the file /var/lib/mysql/tc.log
 
+After databases have been upgraded, you can disable default MariaDB service:
+
 .RHEL / CentOS based systems *only*
 [source,bash]
 ----
 systemctl stop mariadb
 systemctl mask mariadb
 ----
-
 
 .Debian based systems
 [source,bash]
@@ -1211,37 +1237,29 @@ pkill -u mysql
 systemctl mask mysql
 ----
 
-At this step you have now the MariaDB 10.2 databse ready.
-You can now upgrade the PacketFence version:
+At this step you have now the MariaDB 10.2 database ready.
+In order to start MariaDB as standalone on node C, you need to regenerate MariaDB config
+(`packetfence-mariadb` service will be started later by upgrade of packetfence package(s))
 
 [source,bash]
 ----
-bin/pfcmd generatemariadbconfig
+/usr/local/pf/bin/pfcmd generatemariadbconfig
 ----
 
-.RHEL / CentOS based systems
-[source,bash]
-----
-yum update --enablerepo=packetfence
-----
+====== Upgrading node C
 
-.Debian based systems
-[source,bash]
-----
-apt upgrade
-----
+Next, you can upgrade your operating system and/or PacketFence on node C by
+following instructions of
+<<PacketFence_Upgrade_Guide.asciidoc#_packages_upgrades,Packages upgrades
+section>>.
 
-====== Maintenance patches
+====== Maintenance patches (on node C)
 
-include::common/maintenance_patches.asciidoc[]
+include::common/maintenance_patches.asciidoc[][]
 
+====== Configuration migration and database schema updates (on node C)
 
-The commands above will make sure that nodes A and B will not be forwarding requests to C even if it is alive. Same goes for C which won't be sending traffic to A and B. This means A and B will continue to have the same database informations while C will start to diverge from it when it goes live. We'll make sure to reconcile this data afterwards.
-
-====== Complete upgrade of node C
-
-From that moment node C is in standalone for its database. We can proceed to update the database schema so it matches the one of the latest version.
-In order to do so, upgrade the database schema using the instructions provided in <<PacketFence_Upgrade_Guide.asciidoc#,Upgrade guide>>.
+Now, make sure you follow the directives in the <<PacketFence_Upgrade_Guide.asciidoc#,upgrade guide>> as you would on a standalone server **including** the database schema updates.
 
 ====== Start service on node C
 
@@ -1291,41 +1309,59 @@ Once you are feeling confident to try your failover to node C again, you can do 
 
 If you are happy about the state of your upgrade, you can continue on the steps below in order to complete the upgrade of the two remaining nodes.
 
-===== Upgrading nodes A and B
+===== MariaDB upgrade on nodes A and B
 
-Next, you can upgrade your operating system on nodes A and B.
-
-===== Upgrading MariaDB on nodes A and B
-
-First, stop the galera-autofix service on nodes A and B
+First, stop the `galera-autofix` service on nodes A and B
 
 [source,bash]
 ----
 systemctl stop packetfence-galera-autofix
 ----
 
-Then remove MariaDB and install the new version
+Now proceed with the MariaDB upgrade:
 
 .RHEL / CentOS based systems
 [source,bash]
 ----
 rpm -e --nodeps MariaDB-client MariaDB-common MariaDB-server MariaDB-shared
-
 yum install --enablerepo=packetfence MariaDB-server MariaDB-backup
 ----
 
 .Debian based systems
 [source,bash]
 ----
-dpkg -r --force-depends mariadb-server mariadb-client-10.1 mariadb-client-core-10.1 mariadb-common mariadb-server-10.1 mariadb-server-core-10.1 libmariadbclient18
+dpkg -r --force-depends mariadb-server mariadb-client-10.1 mariadb-client-core-10.1 \
+mariadb-common mariadb-server-10.1 mariadb-server-core-10.1 libmariadbclient18 \
+mysql-common
 apt update
-apt install mariadb-server-10.2 mariadb-common mariadb-client-10.2 mariadb-client-core-10.2 mariadb-server-core-10.2 libmariadb3 libmariadbclient18 mariadb-server mariadb-backup-10.2
+apt install mariadb-server-10.2 mariadb-common mariadb-client-10.2 \
+mariadb-client-core-10.2 mariadb-server-core-10.2 libmariadb3 \
+libmariadbclient18 mariadb-server mariadb-backup-10.2 mysql-common
 ----
+
+NOTE: On Debian, ignore prompts related to change of `root` password during package upgrade.
+
+To let nodes A and B rejoin cluster **before** upgrading PacketFence packages,
+you need to update MariaDB configuration:
 
 [source,bash]
 ----
 sed -i "s/xtrabackup/mariabackup/g" /usr/local/pf/conf/mariadb/mariadb.conf.tt
 ----
+
+At this moment you have the newest version of MariaDB installed on nodes A and B.
+
+On Debian based systems **only**, you need to stop default `mysql` service:
+
+.Debian based systems **only**
+[source,bash]
+----
+systemctl stop mysql
+pkill -u mysql
+systemctl mask mysql
+----
+
+At this step you have now the MariaDB 10.2 database ready.
 
 ===== Reintegrating nodes A and B
 
@@ -1355,7 +1391,7 @@ MariaDB> truncate TABLE_NAME;
 
 ====== Preliminary steps
 
-First, stop the galera-autofix service on all the nodes of your cluster
+First, ensure the `galera-autofix` service is stopped on all the nodes of your cluster:
 
 [source,bash]
 ----
@@ -1377,6 +1413,7 @@ Next, enable node C on nodes A and B by executing the following command on the t
 
 [source,bash]
 ----
+systemctl start packetfence-config
 /usr/local/pf/bin/cluster/node node-C-hostname enable
 ----
 
@@ -1386,7 +1423,7 @@ NOTE: Before starting this step, be sure that the galera_replication_username ha
 
 [source,bash]
 ----
-mysql -uroot -p
+mysql -u root -p
 select * from information_schema.user_privileges where PRIVILEGE_TYPE="PROCESS";
 # If it's not the case
 GRANT PROCESS ON *.* TO '`galera_replication_username`'@localhost;
@@ -1429,21 +1466,14 @@ command line), then you can break the cluster election command you have
 running on node C and start node C normally (using `systemctl start
 packetfence-mariadb`).
 
-====== Upgrade PacketFence on nodes A and B
+====== Upgrading nodes A and B
 
-On each os the servers you can procees with the PacketFence upgrade
+Next, you can upgrade your operating system and/or PacketFence on nodes A and B by
+following instructions of
+<<PacketFence_Upgrade_Guide.asciidoc#_packages_upgrades,Packages upgrades
+section>>.
 
-.RHEL / CentOS based systems
-[source,bash]
-----
-yum update --enablerepo=packetfence
-----
-
-.Debian based systems
-[source,bash]
-----
-apt upgrade
-----
+WARNING: You only need to merge changes of new configuration files that will not be synced by `/usr/local/pf/bin/cluster/sync` command described below.
 
 ====== Maintenance patches (on nodes A and B)
 
@@ -1467,6 +1497,14 @@ Where:
 
 ====== Start nodes A and B
 
+Before starting PacketFence services on nodes A and B, `packetfence-mariadb`
+need to be restarted again to take into account changes introduced by packages
+upgrades:
+
+[source,bash]
+----
+systemctl restart packetfence-mariadb
+----
 
 You can now safely start PacketFence on nodes A and B using the instructions
 provided in
@@ -1484,7 +1522,6 @@ You should now have full service on all 3 nodes using the latest version of Pack
 
 ====== Reactivate the configuration conflict handling
 
-
 Now that your cluster is back to a healthy state, you should reactivate the configuration conflict resolution.
 
 In order to do, so go in _Configuration->System Configuration->Maintenance_ and re-enable the _Cluster Check_ task.
@@ -1497,7 +1534,6 @@ Once this is done, restart `pfcron` on all nodes using:
 ----
 
 ====== Restart the galera-autofix service
-
 
 You now need to restart the galera-autofix service so that its aware that all the members of the cluster are online again.
 
