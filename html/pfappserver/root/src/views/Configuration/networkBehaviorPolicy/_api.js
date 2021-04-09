@@ -27,7 +27,8 @@ export default {
     })
   },
   updateNetworkBehaviorPolicy: data => {
-    return apiCall.patch(['config', 'network_behavior_policy', data.id], data).then(response => {
+    const patch = data.quiet ? 'patchQuiet' : 'patch'
+    return apiCall[patch](['config', 'network_behavior_policy', data.id], data).then(response => {
       return response.data
     })
   },
