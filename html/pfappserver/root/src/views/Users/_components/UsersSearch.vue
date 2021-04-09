@@ -1,6 +1,5 @@
 <template>
   <b-card ref="container" no-body>
-    <pf-progress :active="isLoading"></pf-progress>
     <b-card-header>
       <div class="float-right"><pf-form-toggle v-model="advancedMode">{{ $t('Advanced') }}</pf-form-toggle></div>
       <h4 class="mb-0" v-t="'Search Users'"></h4>
@@ -149,7 +148,6 @@
 import {
   BaseButtonExportCsv
 } from '@/components/new/'
-import pfProgress from '@/components/pfProgress'
 import pfEmptyTable from '@/components/pfEmptyTable'
 import pfMixinSearchable from '@/components/pfMixinSearchable'
 import pfMixinSelectable from '@/components/pfMixinSelectable'
@@ -165,7 +163,6 @@ export default {
   ],
   components: {
     BaseButtonExportCsv,
-    pfProgress,
     pfEmptyTable,
     pfFormToggle
   },

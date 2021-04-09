@@ -1,6 +1,5 @@
 <template>
   <b-card ref="container" no-body>
-    <pf-progress :active="isLoading"></pf-progress>
     <b-card-header>
       <div class="float-right"><pf-form-toggle v-model="advancedMode">{{ $t('Advanced') }}</pf-form-toggle></div>
       <h4 class="mb-0" v-t="'Search Nodes'"></h4>
@@ -202,7 +201,6 @@ import pfMixinSearchable from '@/components/pfMixinSearchable'
 import pfMixinSelectable from '@/components/pfMixinSelectable'
 import pfFingerbankScore from '@/components/pfFingerbankScore'
 import pfFormToggle from '@/components/pfFormToggle'
-import pfProgress from '@/components/pfProgress'
 import scroll100 from '@/directives/scroll-100'
 import { pfFormatters as formatter } from '@/globals/pfFormatters'
 import { pfSearchConditionType as conditionType } from '@/globals/pfSearch'
@@ -217,7 +215,6 @@ export default {
   ],
   components: {
     BaseButtonExportCsv,
-    pfProgress,
     pfButtonDelete,
     pfEmptyTable,
     pfFingerbankScore,

@@ -1,6 +1,5 @@
 <template>
   <b-card ref="container" no-body>
-    <pf-progress :active="isLoading"></pf-progress>
     <b-card-header>
       <div class="float-right"><pf-form-toggle v-model="advancedMode">{{ $t('Advanced') }}</pf-form-toggle></div>
       <h4 class="mb-0" v-t="'Search RADIUS Audit Logs'"></h4>
@@ -85,7 +84,6 @@ import {
 import { pfSearchConditionType as conditionType } from '@/globals/pfSearch'
 import { pfFormatters as formatter } from '@/globals/pfFormatters'
 import pfMixinSearchable from '@/components/pfMixinSearchable'
-import pfProgress from '@/components/pfProgress'
 import pfEmptyTable from '@/components/pfEmptyTable'
 import pfSearch from '@/components/pfSearch'
 import pfFormToggle from '@/components/pfFormToggle'
@@ -98,7 +96,6 @@ export default {
   ],
   components: {
     BaseButtonExportCsv,
-    pfProgress,
     pfEmptyTable,
     pfSearch,
     pfFormToggle
