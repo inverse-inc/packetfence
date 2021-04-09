@@ -1,0 +1,3 @@
+---
+tinyproxy__allow:
+  - "{{ networks[0]['subnet'] }}"

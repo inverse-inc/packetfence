@@ -80,6 +80,10 @@ all:
       hosts:
         linux02: {}
 
+    service_tinyproxy:
+      hosts:
+        linux02: {}
+
     pfservers:
       children:
         dev:

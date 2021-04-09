@@ -1,6 +1,12 @@
 ---
 - import_playbook: linux_servers/rsyslog.yml
+  tags: rsyslog
 
 - import_playbook: linux_servers/dhcpd.yml
+  tags: dhcpd
 
 - import_playbook: linux_servers/freeradius.yml
+  tags: freeradius
+
+- import_playbook: linux_servers/tinyproxy.yml
+  tags: proxy
