@@ -172,12 +172,8 @@ sub nodecategory_view_all {
     if (is_error($status)) {
         return;
     }
-    my $all = $iter->all() // [];
-    for my $a (@$all) {
-        $a->{category_id} += 0;
-    }
 
-    return @{$all};
+    return map { _cleanup($_)  } @{$iter->all() // []};
 }
 
 =item nodecategory_view - view a node category, returns an hashref
@@ -190,7 +186,7 @@ sub nodecategory_view {
     if (is_error($status)) {
         return (0);
     }
-    return ($obj->to_hash());
+    return (_cleanup($obj->to_hash()));
 }
 
 =item nodecategory_view_by_name - view a node category by name. Returns an hashref
@@ -207,7 +203,17 @@ sub nodecategory_view_by_name {
     if (is_error($status)) {
         return (0);
     }
-    return ($iter->next(undef));
+    return (_cleanup($iter->next(undef)));
+}
+
+sub _cleanup {
+    my ($i) = @_;
+    if (defined $i) {
+        $i->{category_id} += 0;
+        $i->{max_nodes_per_pid} += 0;
+    }
+
+    return $i;
 }
 
 =item nodecategory_view_by_names - view a list of node categories by name. Returns an array of nodecategories
@@ -227,7 +233,7 @@ sub nodecategory_view_by_names {
         return ();
     }
 
-    return @{$iter->all() // []};
+    return map { _cleanup($_) } @{$iter->all() // []};
 }
 
 =item nodecategory_add - add a node category
@@ -248,6 +254,7 @@ sub nodecategory_add {
         max_nodes_per_pid => $data{'max_nodes_per_pid'},
         notes => $data{'notes'},
     });
+
     return;
 }
 
