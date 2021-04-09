@@ -429,12 +429,12 @@ Then the following command to import the backup:
  cd /root/backup/restore
  cp ../packetfence-db-dump-innobackup-YYYY-MM-DD_HHhss.xbstream.gz .
  gunzip packetfence-db-dump-innobackup-YYYY-MM-DD_HHhss.xbstream.gz
- xbstream -x < packetfence-db-dump-innobackup-YYYY-MM-DD_HHhss.xbstream
+ mbstream -x < packetfence-db-dump-innobackup-YYYY-MM-DD_HHhss.xbstream
  mv packetfence-db-dump-innobackup-YYYY-MM-DD_HHhss.xbstream ../
- innobackupex --apply-log ./
+ mariabackup --prepare --apply-log --target-dir=./
  systemctl stop packetfence-mariadb
  rm -fr /var/lib/mysql/*
- mv * /var/lib/mysql
+ mariabackup --innobackupex --defaults-file=/usr/local/pf/var/conf/mariadb.conf      --move-back --force-non-empty-directories ./
  chown -R mysql: /var/lib/mysql
  systemctl start packetfence-mariadb
 
