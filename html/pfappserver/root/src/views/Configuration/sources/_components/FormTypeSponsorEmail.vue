@@ -24,6 +24,21 @@
       :text="$i18n.t('Accept self-registration with email address from the local domain.')"
     />
 
+    <form-group-banned-domains namespace="banned_domains"
+      :column-label="$i18n.t('Comma-separated list of Banned Domains')"
+      :text="$i18n.t('A comma-separated list of domains that are banned for email registration. Wildcards are accepted (*pfdemo.org). Banned domains are checked before allowed domains.')"
+    />
+
+    <form-group-allowed-domains namespace="allowed_domains"
+      :column-label="$i18n.t('Comma-separated list of Allowed Domains')"
+      :text="$i18n.t('A comma-separated list of domains that are allowed for email registration. Wildcards are accepted (*pfdemo.org). Allowed domains are checked after banned domains.')"
+    />
+
+    <form-group-email-activation-timeout namespace="email_activation_timeout"
+      :column-label="$i18n.t('Email Activation Timeout')"
+      :text="$i18n.t('This is the delay given to a guest who registered by email confirmation to log into his email and click the activation link.')"
+    />
+
     <form-group-activation-domain namespace="activation_domain"
       :column-label="$i18n.t('Host in activation link')"
       :text="$i18n.t('Set this value if you want to change the hostname in the validation link. Changing this requires to restart haproxy to be fully effective.')"
@@ -83,10 +98,13 @@
 import { BaseForm } from '@/components/new/'
 import {
   FormGroupActivationDomain,
+  FormGroupAllowedDomains,
   FormGroupAllowLocaldomain,
   FormGroupAuthenticationRules,
+  FormGroupBannedDomains,
   FormGroupCreateLocalAccount,
   FormGroupDescription,
+  FormGroupEmailActivationTimeout,
   FormGroupHashPasswords,
   FormGroupIdentifier,
   FormGroupLang,
@@ -103,10 +121,13 @@ const components = {
   BaseForm,
 
   FormGroupActivationDomain,
+  FormGroupAllowedDomains,
   FormGroupAllowLocaldomain,
   FormGroupAuthenticationRules,
+  FormGroupBannedDomains,
   FormGroupCreateLocalAccount,
   FormGroupDescription,
+  FormGroupEmailActivationTimeout,
   FormGroupHashPasswords,
   FormGroupIdentifier,
   FormGroupLang,
