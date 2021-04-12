@@ -19,11 +19,6 @@
       :text="$i18n.t('Sources that will be associated with this source (For the Sponsor).\nOnly sources able to find an email address can be selected.')"
     />
 
-    <form-group-allow-localdomain namespace="allow_localdomain"
-      :column-label="$i18n.t('Allow Local Domain')"
-      :text="$i18n.t('Accept self-registration with email address from the local domain.')"
-    />
-
     <form-group-banned-domains namespace="banned_domains"
       :column-label="$i18n.t('Comma-separated list of Banned Domains')"
       :text="$i18n.t('A comma-separated list of domains that are banned for email registration. Wildcards are accepted (*pfdemo.org). Banned domains are checked before allowed domains.')"
@@ -37,6 +32,11 @@
     <form-group-email-activation-timeout namespace="email_activation_timeout"
       :column-label="$i18n.t('Email Activation Timeout')"
       :text="$i18n.t('This is the delay given to a guest who registered by email confirmation to log into his email and click the activation link.')"
+    />
+
+    <form-group-allow-localdomain namespace="allow_localdomain"
+      :column-label="$i18n.t('Allow Local Domain')"
+      :text="$i18n.t('Accept self-registration with email address from the local domain.')"
     />
 
     <form-group-activation-domain namespace="activation_domain"
