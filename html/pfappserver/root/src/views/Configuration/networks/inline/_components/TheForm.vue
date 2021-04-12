@@ -5,21 +5,6 @@
     :schema="schema"
     :isLoading="isLoading"
   >
-    <form-group-accounting namespace="accounting"
-      :column-label="$i18n.t('Accounting')"
-      :text="$i18n.t('Should we handle accouting data for inline clients? This controls inline accouting tasks in pfcron.')"
-    />
-
-    <form-group-layer3-accounting-session-timeout namespace="layer3_accounting_session_timeout"
-      :column-label="$i18n.t('Accounting session timeout')"
-      :text="$i18n.t(`Accounting sessions created by pfbandwidthd that haven't been updated for more than this amount of seconds will be considered inactive. This should be higher than the interval at which pfcron runs Defaults to 300 - 5 minutes.`)"
-    />
-
-    <form-group-layer3-accounting-sync-interval namespace="layer3_accounting_sync_interval"
-      :column-label="$i18n.t('Accounting sync interval')"
-      :text="$i18n.t('Interval at which pfbandwidthd should dump collected information into the database. This should be lower than the interval at which pfcron runs. Defaults to 41 seconds.')"
-    />
-
     <form-group-ports-redirect namespace="ports_redirect"
       :column-label="$i18n.t('Ports redirect')"
       :text="$i18n.t(`Ports to intercept and redirect for trapped and unregistered systems. Defaults to 80/tcp (HTTP), 443/tcp (HTTPS). Redirecting 443/tcp (SSL) will work, although users might get certificate errors if you didn't install a valid certificate or if you don't use DNS (although IP-based certificates supposedly exist). Redirecting 53/udp (DNS) seems to have issues and is also not recommended.`)"
@@ -43,9 +28,6 @@ import {
 } from '@/components/new/'
 import schemaFn from '../schema'
 import {
-  FormGroupAccounting,
-  FormGroupLayer3AccountingSessionTimeout,
-  FormGroupLayer3AccountingSyncInterval,
   FormGroupPortsRedirect,
   FormGroupShouldReauthOnVlanChange,
   FormGroupInterfaceSnat
@@ -54,9 +36,6 @@ import {
 const components = {
   BaseForm,
 
-  FormGroupAccounting,
-  FormGroupLayer3AccountingSessionTimeout,
-  FormGroupLayer3AccountingSyncInterval,
   FormGroupPortsRedirect,
   FormGroupShouldReauthOnVlanChange,
   FormGroupInterfaceSnat
