@@ -42,7 +42,7 @@ sub available_attributes {
 
   my $super_attributes = $self->SUPER::available_attributes;
   my @attributes = @{$Config{advanced}{openid_attributes} // []};
-  my @radius_attributes = map { { value => $_, type => $Conditions::SUBSTRING } } @attributes;
+  my @radius_attributes = map { { value => $_, type => $Conditions::SUBSTRING, label => "OpenID::$_" } } @attributes;
   return [@$super_attributes, @radius_attributes];
 }
 =head2 dynamic_routing_module

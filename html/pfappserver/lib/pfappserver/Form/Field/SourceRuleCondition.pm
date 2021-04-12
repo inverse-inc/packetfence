@@ -69,7 +69,7 @@ sub options_attributes {
     my $self = shift;
 
     my $form = $self->form;
-    my @attributes = map {{label => $_->{value}, value => $_->{value}, attributes => {'data-type' => $_->{type}}}}
+    my @attributes = map {{label => ($_->{label} // $_->{value}), value => $_->{value}, attributes => {'data-type' => $_->{type}}}}
       @{$form->get_source->available_attributes // []};
 
     return @attributes;
