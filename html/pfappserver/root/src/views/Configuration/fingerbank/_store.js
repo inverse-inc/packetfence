@@ -82,6 +82,8 @@ const state = () => {
 }
 
 const getters = {
+  accountInfo: state => state.accountInfo.cache,
+
   isAccountInfoWaiting: state => [types.LOADING, types.DELETING].includes(state.accountInfo.status),
   isAccountInfoLoading: state => state.accountInfo.status === types.LOADING,
 
@@ -124,7 +126,7 @@ const getters = {
 const actions = {
   getAccountInfo: ({ state, commit }) => {
     if (state.accountInfo.cache) {
-      return Promise.resolve(state.accountInfo.cache).then(cache => JSON.parse(JSON.stringify(cache)))
+      return Promise.resolve(state.accountInfo.cache)
     }
     commit('ACCOUNT_INFO_REQUEST')
     return api.fingerbankAccountInfo().then(info => {
@@ -137,7 +139,7 @@ const actions = {
   },
   getCanUseNbaEndpoints: ({ state, commit }) => {
     if (state.canUseNbaEndpoints.cache) {
-      return Promise.resolve(state.canUseNbaEndpoints.cache).then(cache => JSON.parse(JSON.stringify(cache)))
+      return Promise.resolve(state.canUseNbaEndpoints.cache)
     }
     commit('CAN_USE_NBA_ENDPOINTS_REQUEST')
     return api.fingerbankCanUseNbaEndpoints().then(info => {
@@ -150,7 +152,7 @@ const actions = {
   },
   getGeneralSettings: ({ state, commit }) => {
     if (state.generalSettings.cache) {
-      return Promise.resolve(state.generalSettings.cache).then(cache => JSON.parse(JSON.stringify(cache)))
+      return Promise.resolve(state.generalSettings.cache)
     }
     commit('GENERAL_SETTINGS_REQUEST')
     const params = {
@@ -185,7 +187,7 @@ const actions = {
       throw err
     })
   },
-  setGeneralSettings: ({ commit }, data) => {
+  setGeneralSettings: ({ commit, dispatch }, data) => {
     commit('GENERAL_SETTINGS_REQUEST')
     let promises = []
     Object.keys(data).forEach(id => {
@@ -198,6 +200,9 @@ const actions = {
     }).catch(err => {
       commit('GENERAL_SETTINGS_ERROR', err.response)
       throw err
+    }).finally(() => {
+      commit('ACCOUNT_INFO_RESET')
+      dispatch('getAccountInfo')
     })
   },
   combinations: () => {
@@ -211,7 +216,7 @@ const actions = {
   },
   getCombination: ({ state, commit }, id) => {
     if (state.combinations.cache[id]) {
-      return Promise.resolve(state.combinations.cache[id]).then(cache => JSON.parse(JSON.stringify(cache)))
+      return Promise.resolve(state.combinations.cache[id])
     }
     commit('COMBINATION_REQUEST')
     return api.fingerbankCombination(id).then(item => {
@@ -264,7 +269,7 @@ const actions = {
   },
   getDevice: ({ state, commit }, id) => {
     if (state.devices.cache[id]) {
-      return Promise.resolve(state.devices.cache[id]).then(cache => JSON.parse(JSON.stringify(cache)))
+      return Promise.resolve(state.devices.cache[id])
     }
     commit('DEVICE_REQUEST')
     return api.fingerbankDevice(id).then(item => {
@@ -317,7 +322,7 @@ const actions = {
   },
   getDhcpFingerprint: ({ state, commit }, id) => {
     if (state.dhcpFingerprints.cache[id]) {
-      return Promise.resolve(state.dhcpFingerprints.cache[id]).then(cache => JSON.parse(JSON.stringify(cache)))
+      return Promise.resolve(state.dhcpFingerprints.cache[id])
     }
     commit('DHCP_FINGERPRINT_REQUEST')
     return api.fingerbankDhcpFingerprint(id).then(item => {
@@ -370,7 +375,7 @@ const actions = {
   },
   getDhcpVendor: ({ state, commit }, id) => {
     if (state.dhcpVendors.cache[id]) {
-      return Promise.resolve(state.dhcpVendors.cache[id]).then(cache => JSON.parse(JSON.stringify(cache)))
+      return Promise.resolve(state.dhcpVendors.cache[id])
     }
     commit('DHCP_VENDOR_REQUEST')
     return api.fingerbankDhcpVendor(id).then(item => {
@@ -423,7 +428,7 @@ const actions = {
   },
   getDhcpv6Fingerprint: ({ state, commit }, id) => {
     if (state.dhcpv6Fingerprints.cache[id]) {
-      return Promise.resolve(state.dhcpv6Fingerprints.cache[id]).then(cache => JSON.parse(JSON.stringify(cache)))
+      return Promise.resolve(state.dhcpv6Fingerprints.cache[id])
     }
     commit('DHCPV6_FINGERPRINT_REQUEST')
     return api.fingerbankDhcpv6Fingerprint(id).then(item => {
@@ -476,7 +481,7 @@ const actions = {
   },
   getDhcpv6Enterprise: ({ state, commit }, id) => {
     if (state.dhcpv6Enterprises.cache[id]) {
-      return Promise.resolve(state.dhcpv6Enterprises.cache[id]).then(cache => JSON.parse(JSON.stringify(cache)))
+      return Promise.resolve(state.dhcpv6Enterprises.cache[id])
     }
     commit('DHCPV6_ENTERPRISE_REQUEST')
     return api.fingerbankDhcpv6Enterprise(id).then(item => {
@@ -529,7 +534,7 @@ const actions = {
   },
   getMacVendor: ({ state, commit }, id) => {
     if (state.macVendors.cache[id]) {
-      return Promise.resolve(state.macVendors.cache[id]).then(cache => JSON.parse(JSON.stringify(cache)))
+      return Promise.resolve(state.macVendors.cache[id])
     }
     commit('MAC_VENDOR_REQUEST')
     return api.fingerbankMacVendor(id).then(item => {
@@ -582,7 +587,7 @@ const actions = {
   },
   getUserAgent: ({ state, commit }, id) => {
     if (state.userAgents.cache[id]) {
-      return Promise.resolve(state.userAgents.cache[id]).then(cache => JSON.parse(JSON.stringify(cache)))
+      return Promise.resolve(state.userAgents.cache[id])
     }
     commit('USER_AGENT_REQUEST')
     return api.fingerbankUserAgent(id).then(item => {
@@ -643,7 +648,10 @@ const mutations = {
   },
   ACCOUNT_INFO_REPLACED: (state, data) => {
     state.accountInfo.status = types.SUCCESS
-    Vue.set(state.accountInfo, 'cache', JSON.parse(JSON.stringify(data)))
+    Vue.set(state.accountInfo, 'cache', data)
+  },
+  ACCOUNT_INFO_RESET: (state) => {
+    Vue.set(state.accountInfo, 'cache', false)
   },
   ACCOUNT_INFO_ERROR: (state, response) => {
     state.accountInfo.status = types.ERROR
@@ -657,7 +665,7 @@ const mutations = {
   },
   CAN_USE_NBA_ENDPOINTS_REPLACED: (state, data) => {
     state.canUseNbaEndpoints.status = types.SUCCESS
-    Vue.set(state.canUseNbaEndpoints, 'cache', JSON.parse(JSON.stringify(data)))
+    Vue.set(state.canUseNbaEndpoints, 'cache', data)
   },
   CAN_USE_NBA_ENDPOINTS_ERROR: (state, response) => {
     state.canUseNbaEndpoints.status = types.ERROR
@@ -692,7 +700,7 @@ const mutations = {
   },
   COMBINATION_REPLACED: (state, data) => {
     state.combinations.status = types.SUCCESS
-    Vue.set(state.combinations.cache, data.id, JSON.parse(JSON.stringify(data)))
+    Vue.set(state.combinations.cache, data.id, data)
   },
   COMBINATION_DESTROYED: (state, id) => {
     state.combinations.status = types.SUCCESS
@@ -713,7 +721,7 @@ const mutations = {
   },
   DEVICE_REPLACED: (state, data) => {
     state.devices.status = types.SUCCESS
-    Vue.set(state.devices.cache, data.id, JSON.parse(JSON.stringify(data)))
+    Vue.set(state.devices.cache, data.id, data)
   },
   DEVICE_DESTROYED: (state, id) => {
     state.devices.status = types.SUCCESS
@@ -731,7 +739,7 @@ const mutations = {
   },
   DHCP_FINGERPRINT_REPLACED: (state, data) => {
     state.dhcpFingerprints.status = types.SUCCESS
-    Vue.set(state.dhcpFingerprints.cache, data.id, JSON.parse(JSON.stringify(data)))
+    Vue.set(state.dhcpFingerprints.cache, data.id, data)
   },
   DHCP_FINGERPRINT_DESTROYED: (state, id) => {
     state.dhcpFingerprints.status = types.SUCCESS
@@ -749,7 +757,7 @@ const mutations = {
   },
   DHCP_VENDOR_REPLACED: (state, data) => {
     state.dhcpFingerprints.status = types.SUCCESS
-    Vue.set(state.dhcpVendors.cache, data.id, JSON.parse(JSON.stringify(data)))
+    Vue.set(state.dhcpVendors.cache, data.id, data)
   },
   DHCP_VENDOR_DESTROYED: (state, id) => {
     state.dhcpFingerprints.status = types.SUCCESS
@@ -767,7 +775,7 @@ const mutations = {
   },
   DHCPV6_FINGERPRINT_REPLACED: (state, data) => {
     state.dhcpv6Fingerprints.status = types.SUCCESS
-    Vue.set(state.dhcpv6Fingerprints.cache, data.id, JSON.parse(JSON.stringify(data)))
+    Vue.set(state.dhcpv6Fingerprints.cache, data.id, data)
   },
   DHCPV6_FINGERPRINT_DESTROYED: (state, id) => {
     state.dhcpv6Fingerprints.status = types.SUCCESS
@@ -785,7 +793,7 @@ const mutations = {
   },
   DHCPV6_ENTERPRISE_REPLACED: (state, data) => {
     state.dhcpv6Enterprises.status = types.SUCCESS
-    Vue.set(state.dhcpv6Enterprises.cache, data.id, JSON.parse(JSON.stringify(data)))
+    Vue.set(state.dhcpv6Enterprises.cache, data.id, data)
   },
   DHCPV6_ENTERPRISE_DESTROYED: (state, id) => {
     state.dhcpv6Enterprises.status = types.SUCCESS
@@ -803,7 +811,7 @@ const mutations = {
   },
   MAC_VENDOR_REPLACED: (state, data) => {
     state.macVendors.status = types.SUCCESS
-    Vue.set(state.macVendors.cache, data.id, JSON.parse(JSON.stringify(data)))
+    Vue.set(state.macVendors.cache, data.id, data)
   },
   MAC_VENDOR_DESTROYED: (state, id) => {
     state.macVendors.status = types.SUCCESS
@@ -821,7 +829,7 @@ const mutations = {
   },
   USER_AGENT_REPLACED: (state, data) => {
     state.userAgents.status = types.SUCCESS
-    Vue.set(state.userAgents.cache, data.id, JSON.parse(JSON.stringify(data)))
+    Vue.set(state.userAgents.cache, data.id, data)
   },
   USER_AGENT_DESTROYED: (state, id) => {
     state.userAgents.status = types.SUCCESS

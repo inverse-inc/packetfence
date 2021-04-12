@@ -146,7 +146,7 @@
   </base-form>
 </template>
 <script>
-import { computed, onMounted, ref } from '@vue/composition-api'
+import { computed, onMounted } from '@vue/composition-api'
 import {
   BaseForm
 } from '@/components/new/'
@@ -218,10 +218,9 @@ export const setup = (props, context) => {
 
   const schema = computed(() => schemaFn(props))
 
-  const accountInfo = ref({})
-  onMounted(() => $store.dispatch('$_fingerbank/getAccountInfo').then(info => { // load account info
-    accountInfo.value = info
-  }))
+  onMounted(() => $store.dispatch('$_fingerbank/getAccountInfo'))
+
+  const accountInfo = computed(() => $store.getters['$_fingerbank/accountInfo'])
 
   const urlSSO = computed(() => {
     if (accountInfo.value) {
