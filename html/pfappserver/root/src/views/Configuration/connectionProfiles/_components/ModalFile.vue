@@ -249,6 +249,7 @@ const setup = (props, context) => {
   const onEditorInit = (instance) => {
     // Load ACE editor extensions
     require('brace/ext/language_tools')
+    require('brace/ext/searchbox')
     require('brace/mode/html')
     require('brace/theme/cobalt')
     editor.value = instance
