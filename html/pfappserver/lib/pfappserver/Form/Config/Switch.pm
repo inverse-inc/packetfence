@@ -63,7 +63,6 @@ has_field 'type' =>
    type => 'Select',
    label => 'Type',
    element_class => ['chzn-deselect'],
-   required_when => { 'id' => sub { $_[0] eq 'default' } },
    messages => { required => 'Please select the type of the switch.' },
   );
 
@@ -80,7 +79,6 @@ has_field 'mode' =>
   (
    type => 'Select',
    label => 'Mode',
-   required_when => { 'id' => sub { $_[0] eq 'default' } },
    element_class => ['chzn-deselect'],
   );
 has_field 'deauthMethod' =>
