@@ -145,7 +145,7 @@ sub build_child {
 
         if ($type eq "array"){
             my ($category, $attribute) = split /\./, $key;
-            $Config{$category}{$attribute} = [ split( /\s*,\s*/, $Default_Config{$category}{$attribute} // '') ];
+            $Config{$category}{$attribute} = [ split( /\s*,\s*/, $Config{$category}{$attribute} // '') ];
         }
 
         if($type eq "fingerbank_device_transition") {
