@@ -5,7 +5,8 @@
       'mb-0': !columnLabel,
     }"
     :state="state"
-    :labelCols="labelCols"
+    :label-class="labelClass"
+    :label-cols="labelCols"
     :label="columnLabel"
   >
     <template v-slot:invalid-feedback v-if="invalidFeedback">

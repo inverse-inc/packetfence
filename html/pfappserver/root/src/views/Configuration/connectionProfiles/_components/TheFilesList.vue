@@ -1,5 +1,14 @@
 <template>
   <div>
+    <input-toggle
+      v-model="hideDefaultFiles"
+      :options="[
+        { value: false, label: $i18n.t('Show all files') },
+        { value: true, label: $i18n.t('Show modified files only'), color: 'var(--primary)' }
+      ]"
+      label-class="d-none"
+      label-right
+    />
     <b-table :items="tableItems" :fields="tableFields" :sort-by="sortBy" :sort-desc="sortDesc"
       class="the-files-list"
       small hover striped show-empty no-local-sorting no-select-on-click borderless
@@ -93,6 +102,7 @@
 <script>
 import {
   BaseButtonConfirm,
+  BaseFormGroupToggle
 } from '@/components/new/'
 import {
   ModalDirectory,
@@ -101,6 +111,7 @@ import {
 
 const components = {
   BaseButtonConfirm,
+  InputToggle: BaseFormGroupToggle,
   ModalDirectory,
   ModalFile
 }
@@ -187,36 +198,71 @@ const setup = (props, context) => {
 
   watch([sortBy, sortDesc], () => _getFiles(), { immediate: true })
 
-  watch([entries, expandPaths], () => {
-    const reduceEntries = (entries, depth = 0, path = '', _icons = []) => {
-      return entries.reduce((reduced, entry, e) => {
-        const last = (e === entries.length - 1)
-        let icons = _icons
-        if (depth > 0)
-          icons = [ ..._icons, (last) ? 'tree-last' : 'tree-node' ]
-        const { entries: childEntries = [], ...rest } = entry || {}
-        const { type, name } = rest || {}
-        const fullPath = `${path}/${name}`
-        switch(type) {
-          case 'dir':
-            if (expandPaths.value.includes(fullPath)) {
-              reduced.push({ ...rest, path, expand: true, icons })
-              if (depth > 0)
-                reduced.push(...reduceEntries(childEntries, depth + 1, fullPath, [ ..._icons, (last) ? 'tree-skip' : 'tree-pass' ]))
-              else
-                reduced.push(...reduceEntries(childEntries, depth + 1, fullPath, _icons))
-            }
-            else
-              reduced.push({ ...rest, path, expand: false, icons })
-            break
-          case 'file':
-            reduced.push({ ...rest, path, icons })
-            break
-        }
-        return reduced
-      }, [])
+  const hideDefaultFiles = ref(false)
+  watch([entries, expandPaths, hideDefaultFiles], () => {
+    if (hideDefaultFiles.value) {
+      // Only show modified files and automatically expand all applicable directories
+      const visibleFilter = e => (e.type == 'dir' || e.not_revertible === false || e.not_deletable === false);
+      const reduceEntries = (entries, depth = 0, path = '', _icons = []) => {
+        return entries.reduce((reduced, entry, e) => {
+          const last = (e === entries.length - 1)
+          let icons = _icons
+          if (depth > 0)
+            icons = [ ..._icons, (last) ? 'tree-last' : 'tree-node' ]
+          let { entries: childEntries = [], ...rest } = entry || {}
+          const { type, name } = rest || {}
+          const fullPath = `${path}/${name}`
+          switch(type) {
+            case 'dir':
+              childEntries = childEntries.filter(visibleFilter)
+              if (childEntries.length) {
+                reduced.push({ ...rest, path, expand: true, icons })
+                if (depth > 0)
+                  reduced.push(...reduceEntries(childEntries, depth + 1, fullPath, [ ..._icons, (last) ? 'tree-skip' : 'tree-pass' ]))
+                else
+                  reduced.push(...reduceEntries(childEntries, depth + 1, fullPath, _icons))
+              }
+              break
+            case 'file':
+              reduced.push({ ...rest, path, icons })
+              break
+          }
+          return reduced
+        }, [])
+      }
+      tableItems.value = reduceEntries(entries.value.filter(visibleFilter))
     }
-    tableItems.value = reduceEntries(entries.value)
+    else {
+      const reduceEntries = (entries, depth = 0, path = '', _icons = []) => {
+        return entries.reduce((reduced, entry, e) => {
+          const last = (e === entries.length - 1)
+          let icons = _icons
+          if (depth > 0)
+            icons = [ ..._icons, (last) ? 'tree-last' : 'tree-node' ]
+          const { entries: childEntries = [], ...rest } = entry || {}
+          const { type, name } = rest || {}
+          const fullPath = `${path}/${name}`
+          switch(type) {
+            case 'dir':
+              if (expandPaths.value.includes(fullPath)) {
+                reduced.push({ ...rest, path, expand: true, icons })
+                if (depth > 0)
+                  reduced.push(...reduceEntries(childEntries, depth + 1, fullPath, [ ..._icons, (last) ? 'tree-skip' : 'tree-pass' ]))
+                else
+                  reduced.push(...reduceEntries(childEntries, depth + 1, fullPath, _icons))
+              }
+              else
+                reduced.push({ ...rest, path, expand: false, icons })
+              break
+            case 'file':
+              reduced.push({ ...rest, path, icons })
+              break
+          }
+          return reduced
+        }, [])
+      }
+      tableItems.value = reduceEntries(entries.value)
+    }
   }, { deep: true })
 
   const onSortChanged = (params) => {
@@ -320,7 +366,8 @@ const setup = (props, context) => {
     onDeleteFile,
     onToggleFile,
 
-    lastPath
+    lastPath,
+    hideDefaultFiles
   }
 }
 

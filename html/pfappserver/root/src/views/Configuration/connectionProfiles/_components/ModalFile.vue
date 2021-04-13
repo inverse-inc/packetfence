@@ -31,6 +31,7 @@
               { value: false, label: $i18n.t('Hide line numbers') },
               { value: true, label: $i18n.t('Show line numbers'), color: 'var(--primary)' }
             ]"
+            label-class="d-none"
             label-right
           />
         </b-col>

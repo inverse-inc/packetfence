@@ -1,5 +1,6 @@
 <template>
   <base-form-group
+    :label-class="labelClass"
     :label-cols="labelCols"
     :column-label="columnLabel"
     :text="text"
@@ -138,9 +139,9 @@ export default {
 </script>
 <style lang="scss">
 .base-form-group-toggle {
-  /* match height of input element to vertically align w/ form-group label */
-  min-height: $input-height;
   display: flex;
   align-items: center;
+  /* match height of input element to vertically align w/ form-group label */
+  min-height: $input-height;
 }
 </style>
