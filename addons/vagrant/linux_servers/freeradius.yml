@@ -10,3 +10,4 @@
 
   roles:
     - role: freeradius
+    - role: resources

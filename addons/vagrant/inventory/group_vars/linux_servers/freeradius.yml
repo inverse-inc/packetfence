@@ -1,3 +1,6 @@
+# Directory where test configuration files are stored
+config_dir: '/srv/eapol-test'
+
 freeradius__configuration:
 
   - name: 'clients.conf'
@@ -11,3 +14,96 @@ freeradius__configuration:
               secret = testing123
           }
         state: 'present'
+
+
+  - name: 'mods-config/files/authorize'
+    comment: |
+      This sets the same password for any user that tries to authenticate, do
+      not use in production environment
+    raw: |
+      bob Cleartext-Password := 'hello'
+          Reply-Message := "Hello, %{User-Name}"
+    state: 'present'
+    no_log: True
+
+  - name: 'mods-available/eap'
+    raw: |
+      eap {
+        # The initial EAP type requested.  Change this to peap if you're
+        # using peap, or tls if you're using EAP-TLS.
+        default_eap_type = tls
+
+        # The maximum time an EAP-Session can continue for
+        timer_expire = 60
+
+        # The maximum number of ongoing EAP sessions
+        max_sessions = ${max_requests}
+
+        tls-config tls-common {
+          # The public certificate that your server will present
+          certificate_file = /etc/ssl/certs/ssl-cert-snakeoil.pem
+
+          # The private key for the public certificate
+          private_key_file = /etc/ssl/private/ssl-cert-snakeoil.key
+
+          # The password to decrypt 'private_key_file'
+          private_key_password = whatever
+
+          # The certificate of the authority that issued 'certificate_file'
+          ca_file = /etc/ssl/certs/ca-certificates.crt
+
+          # If your AP drops packets towards the client, try reducing this.
+          fragment_size = 1024
+          }
+
+        tls {
+          tls = tls-common
+        }
+      }
+    state: 'present'
+
+# Configuration for the 'debops.resources' Ansible role
+resources__host_files:
+
+  - content: |
+      #!/bin/bash
+
+      # Install eapol_test for testing RADIUS EAP connections
+
+      sudo apt-get update
+      sudo apt-get -yq install git build-essential \
+                               libssl-dev devscripts \
+                               pkg-config libnl-3-dev \
+                               libnl-genl-3-dev
+
+      git clone --depth 1 --no-single-branch https://github.com/FreeRADIUS/freeradius-server.git
+
+      cd freeradius-server/scripts/ci/
+
+      ./eapol_test-build.sh
+
+      sudo cp ./eapol_test/eapol_test /usr/local/bin/
+    dest: '/usr/local/bin/install-eapol_test'
+    mode: '0755'
+
+  - content: |
+      network={
+          key_mgmt=WPA-EAP
+          eap=TLS
+          anonymous_identity="anonymous@example.org"
+
+          # Uncomment to validate the server's certificate by checking
+          # it was signed by this CA.
+          #ca_cert="/etc/freeradius/3.0/certs/ca.pem"
+
+          # supplicant's public cert
+          client_cert="/etc/freeradius/3.0/certs/client.pem"
+
+          # supplicant's private key
+          private_key="/etc/freeradius/3.0/certs/client.key"
+
+          # password to decrypt private key
+          private_key_passwd="whatever"
+      }
+    dest: '{{ config_dir }}/tls.conf'
+    mode: '0644'
