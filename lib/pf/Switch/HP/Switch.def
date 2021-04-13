@@ -10,5 +10,5 @@ acceptRole=
 coa=
 snmpDisconnect=enabled
 disconnect=
-description=Standard HP Switch
+description=Standard HP Switch (template based)
 reject=Reply-Message = This node is not allowed to use this service

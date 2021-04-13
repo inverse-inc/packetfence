@@ -1,7 +1,7 @@
 # Do not edit.
 # Any changes will be lost on upgrade.
 
-description=Standard Switch
+description=Standard Switch (template based)
 radiusDisconnect=disconnect
 acceptVlan = <<EOT
 Tunnel-Medium-Type  = 6
