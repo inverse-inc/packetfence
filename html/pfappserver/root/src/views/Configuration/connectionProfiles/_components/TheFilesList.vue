@@ -202,7 +202,7 @@ const setup = (props, context) => {
   watch([entries, expandPaths, hideDefaultFiles], () => {
     if (hideDefaultFiles.value) {
       // Only show modified files and automatically expand all applicable directories
-      const visibleFilter = e => (e.type == 'dir' || e.not_revertible === false || e.not_deletable === false);
+      const visibleFilter = e => (e.type == 'dir' || e.not_revertible === false || e.not_deletable === false)
       const reduceEntries = (entries, depth = 0, path = '', _icons = []) => {
         return entries.reduce((reduced, entry, e) => {
           const last = (e === entries.length - 1)
@@ -216,11 +216,15 @@ const setup = (props, context) => {
             case 'dir':
               childEntries = childEntries.filter(visibleFilter)
               if (childEntries.length) {
-                reduced.push({ ...rest, path, expand: true, icons })
+                let dirEntries
                 if (depth > 0)
-                  reduced.push(...reduceEntries(childEntries, depth + 1, fullPath, [ ..._icons, (last) ? 'tree-skip' : 'tree-pass' ]))
+                  dirEntries = reduceEntries(childEntries, depth + 1, fullPath, [ ..._icons, (last) ? 'tree-skip' : 'tree-pass' ])
                 else
-                  reduced.push(...reduceEntries(childEntries, depth + 1, fullPath, _icons))
+                  dirEntries = reduceEntries(childEntries, depth + 1, fullPath, _icons)
+                if (dirEntries.length) {
+                  reduced.push({ ...rest, path, expand: true, icons })
+                  reduced.push(...dirEntries);
+                }
               }
               break
             case 'file':
