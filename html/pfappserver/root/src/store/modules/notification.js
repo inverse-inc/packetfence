@@ -98,6 +98,12 @@ const mutations = {
   NOTIFICATION_UNMARK_NEW: (state, notification) => {
     notification.new = false
   },
+  NOTIFICATION_UNMARK_UNREAD: (state, notification) => {
+    notification.unread = false
+  },
+  NOTIFICATION_DISMISS: (state, notification) => {
+    notification.new = notification.unread = false
+  },
   $RESET: (state) => {
     const newState = initialState()
     for (const key of Object.keys(newState)) { // preserve reactivity

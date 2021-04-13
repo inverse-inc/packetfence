@@ -104,11 +104,11 @@ export default {
     markAsRead () {
       this.visible = false
       this.notifications.forEach((notification) => {
-        notification.unread = false
+        this.$store.commit('notification/NOTIFICATION_UNMARK_UNREAD', notification)
       })
     },
     dismiss (notification) {
-      notification.new = notification.unread = false
+      this.$store.commit('notification/NOTIFICATION_DISMISS', notification)
     },
     clear () {
       this.$store.commit('notification/$RESET')
