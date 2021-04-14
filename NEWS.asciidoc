@@ -31,7 +31,7 @@ For a list of compatibility related changes see the <<PacketFence_Upgrade_Guide.
 * Aruba CX support
 * Aruba 2930M Web Authentication and Dynamic ACL support (#6158)
 * Meraki DPSK support
-* Support for Ruckus Smartzone MAC authentication in non-proxy modes (#6201)
+* Support for Ruckus SmartZone MAC authentication in non-proxy modes (#6201)
 * Bluesocket support (#5878)
 * Support for SCEP in `pfpki` (#6213)
 
@@ -42,7 +42,7 @@ For a list of compatibility related changes see the <<PacketFence_Upgrade_Guide.
 * pfacct and radiusd-acct can now both be enabled together (radiusd-acct proxies to pfacct)
 * Added CoA support to Aerohive module
 * Added role based enforcement (Filter-Id) support to Extreme module
-* Use Called-Station-SSID attribute as the SSID when possible.
+* Use Called-Station-SSID attribute as the SSID when possible
 * Added CLI login support to Huawei switch template
 * Added detectionBypass in DNS resolver (#6028)
 * Improve support of Android Agent for EAP-TLS and EAP-PEAP
@@ -54,10 +54,10 @@ For a list of compatibility related changes see the <<PacketFence_Upgrade_Guide.
 * Upgrade to go version 1.15 (#6044)
 * Build ready-to-use Vagrant images for integration tests and send them to Vagrant cloud (#6099)
 * Documentation to configure Security Onion 2.3.10
-* Added integration tests for 802.1X wireless and wireless Mac authentication (#6114)
+* Added integration tests for 802.1X wireless and wireless MAC authentication (#6114)
 * Restrict create, update, and delete operations to the default and global tenant users (#6075)
-* Remove pftest mysql tuner (#6130)
-* Allow netflow address to be configured (#6139)
+* Remove pftest MySQL tuner (#6130)
+* Allow Netflow address to be configured (#6139)
 * Deprecated fencing whitelist
 * Description field for L2 and routed networks (#5829)
 * Updated Stripe integration to use Stripe Elements (API v3) (#6121)
@@ -66,16 +66,16 @@ For a list of compatibility related changes see the <<PacketFence_Upgrade_Guide.
 * Enhance CLI login on SG300 switches
 * Enable/disable the natting traffic for inline networks
 * Remove unused table userlog (#6170)
-* Clarifications on Ruckus Role-by-Role capabilities. (#6201)
+* Clarifications on Ruckus Role-by-Role capabilities (#6201)
 * DNS/IP attributes in pfpki certificates (#6213)
 * Additional template attributes in certificate profile (#6213)
 * Remove unused table inline_accounting (#6171)
-* The pfdhcplistener is tenant aware (#6204)
+* Make pfdhcplistener tenant aware (#6204)
 * Upgrade to MariaDB 10.2.37 (#6149)
 
 === Bug Fixes
 
-* Switch defined by mac address are not processed by pfacct in cluster mode (#5969)
+* Switch defined by MAC address are not processed by pfacct in cluster mode (#5969)
 * Restart switchport return TRUE if MAC address is not found in locationlog for bouncePortCoA (#6013)
 * Switch template: CLI authorize attributes ignored (#6009)
 * ubiquiti_ap_mac_to_ip task doesn't update expires_at column in chi_cache table (#6004)
