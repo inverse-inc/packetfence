@@ -180,6 +180,10 @@ sub perform_dynauth {
     }
 }
 
+sub format_name_value {
+    return "$_[0] =3D =22$_[1]=22"
+}
+
 =item record_coa
 
 record CoA in the radius audit log
@@ -188,9 +192,9 @@ record CoA in the radius audit log
 
 sub record_coa {
     my ($connection_info, $radius_code, $attributes, $vsa, %return) = @_;
-    my $request = join(' =22=2C ', map { $_." =3D ".($attributes->{$_} // '') } keys %{$attributes});
-    my $request_vsa = join(' =22=2C ', map { $_->{'attribute'}." =3D ".$_->{'value'} } @{$vsa});
-    my $response = join(' =22=2C ', map { $_." =3D ".$return{$_} } keys %return);
+    my $request = join(' =2C ', map { format_name_value($_, $attributes->{$_} // '') } keys %{$attributes});
+    my $request_vsa = join(' =22 ', map { format_name_value($_->{'attribute'}, $_->{'value'}) } @{$vsa});
+    my $response = join(' =22 ', map { format_name_value($_, $return{$_}) } keys %return);
     my $mac;
     my %radius_audit_log;
     if (exists($attributes->{'Calling-Station-Id'}) ) {
