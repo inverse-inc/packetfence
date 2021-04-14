@@ -993,7 +993,7 @@ To upgrade the database schema, run the following command:
 mysql -u root -p pf -v < /usr/local/pf/db/upgrade-10.1.0-10.2.0.sql
 ----
 
-== Upgrading from a version prior to X.Y.Z
+== Upgrading from a version prior to 10.3.0
 
 === MariaDB Upgrade to 10.2
 
@@ -1577,13 +1577,13 @@ To add the default `tenant_id` (1) to all network configurations run:
 === Database schema
 
 Changes have been made to the database schema. You will need to update it accordingly.
-An SQL upgrade script has been provided to upgrade the database from the X.X.X schema to X.Y.Z.
+An SQL upgrade script has been provided to upgrade the database from the 10.2.0 schema to 10.3.0.
 
 To upgrade the database schema, run the following command:
 
 [source,bash]
 ----
-mysql -u root -p pf -v < /usr/local/pf/db/upgrade-X.X.X-X.Y.Z.sql
+mysql -u root -p pf -v < /usr/local/pf/db/upgrade-10.2.0-10.3.0.sql
 ----
 
 === Restart of `packetfence-mariadb` service (standalone installations **only**)
