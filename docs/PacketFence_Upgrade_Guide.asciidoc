@@ -1081,7 +1081,7 @@ pkill -u mysql
 systemctl mask mysql
 ----
 
-`packetfence-mariadb` service will be started later by upgrade of packetfence package(s).
+`packetfence-mariadb` service will be started later by upgrade of PacketFence package(s).
 
 At this step you have now the MariaDB 10.2 database ready.
 You can now upgrade the PacketFence version by following instructions in <<_packages_upgrades,Packages upgrades>> section.
@@ -1580,6 +1580,15 @@ To upgrade the database schema, run the following command:
 [source,bash]
 ----
 mysql -u root -p pf -v < /usr/local/pf/db/upgrade-X.X.X-X.Y.Z.sql
+----
+
+=== Restart of `packetfence-mariadb` service (standalone installations **only**)
+
+To be sure you are running latest MariaDB configuration provided by PacketFence packages, you need to restart `packetfence-mariadb`:
+
+[source,bash]
+----
+systemctl restart packetfence-mariadb
 ----
 
 == Archived upgrade notes
