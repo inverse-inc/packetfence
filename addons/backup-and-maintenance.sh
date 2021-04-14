@@ -26,7 +26,7 @@ BACKUP_DB_FILENAME='packetfence-db-dump'
 BACKUP_PF_FILENAME='packetfence-files-dump'
 ARCHIVE_DIRECTORY=$BACKUP_DIRECTORY
 ARCHIVE_DB_FILENAME='packetfence-archive'
-MARIADB_BACKUP_INSTALLED=0
+MARIABACKUP_INSTALLED=0
 BACKUPRC=1
 
 # For replication
@@ -113,7 +113,7 @@ backup_db(){
     # Check to see if Mariabackup is installed
     if hash mariabackup 2>/dev/null; then
         echo -e "Mariabackup is available. Will proceed using it for DB backup to avoid locking tables and easier recovery process. \n"
-        MARIADB_BACKUP_INSTALLED=1
+        MARIABACKUP_INSTALLED=1
     fi
 
     BACKUPS_AVAILABLE_SPACE=`df --output=avail $BACKUP_DIRECTORY | awk 'NR == 2 { print $1  }'`
@@ -132,7 +132,7 @@ backup_db(){
 
         /usr/local/pf/bin/pfcmd pfcron bandwidth_maintenance_session
 
-        if [ $MARIADB_BACKUP_INSTALLED -eq 1 ]; then
+        if [ $MARIABACKUP_INSTALLED -eq 1 ]; then
             find $BACKUP_DIRECTORY -name "$BACKUP_DB_FILENAME-innobackup-*.xbstream.gz" -mtime +$NB_DAYS_TO_KEEP_DB -delete
             echo "----- Backup started on `date +%F_%Hh%M` -----" >> /usr/local/pf/logs/innobackup.log
             INNO_TMP="/tmp/pf-innobackups"
