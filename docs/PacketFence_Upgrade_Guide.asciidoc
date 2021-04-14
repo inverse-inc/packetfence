@@ -1023,7 +1023,7 @@ Now proceed with the MariaDB upgrade
 [source,bash]
 ----
 rpm -e --nodeps MariaDB-client MariaDB-common MariaDB-server MariaDB-shared
-yum install --enablerepo=packetfence MariaDB-server MariaDB-backup
+yum install --enablerepo=packetfence MariaDB-server
 ----
 
 .Debian based systems
