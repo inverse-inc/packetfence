@@ -1037,6 +1037,10 @@ mariadb-common mariadb-server-10.2 mariadb-server-core-10.2 libmariadbclient18 l
 mysql-common
 ----
 
+NOTE: If you manually installed Percona XtraBackup to take your backups, you
+need to install `MariaDB-backup` (rpm) and `mariadb-backup-10.2` (deb) as a
+replacement.
+
 NOTE: On Debian, ignore prompts related to change of `root` password during package upgrade.
 
 At this moment you have the newest version of MariaDB installed on your system.
