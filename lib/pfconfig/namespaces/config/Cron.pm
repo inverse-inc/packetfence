@@ -47,6 +47,23 @@ our %INT = (
     rotate_batch => 1,
 );
 
+my %golangUnits = (
+    "s" => 1,
+    "m" => 60,
+    "h" => 3600,
+);
+
+sub golangDurationToSeconds {
+    my ($d) = @_;
+    my $i;
+    while ($d =~ /([0-9\.-]+)([a-zA-Z])/g) {
+        next if !exists $golangUnits{$2};
+        $i += $1 * $golangUnits{$2};
+    }
+
+    return $i;
+}
+
 sub build_child {
     my ($self) = @_;
     my $tmp_cfg = clone($self->{cfg});
@@ -58,6 +75,14 @@ sub build_child {
             }
         }
 
+        if ($task_data->{type} eq 'acct_maintenance') {
+            my $schedule = $task_data->{schedule};
+            my $interval = 60;
+            if ($schedule =~ /^\@every (.*)$/) {
+                $interval = golangDurationToSeconds($1);
+            }
+            $task_data->{interval} = $interval;
+        }
     }
 
     return $tmp_cfg;
