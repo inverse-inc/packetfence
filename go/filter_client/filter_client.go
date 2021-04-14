@@ -83,6 +83,11 @@ func (c *Client) FilterRadius(scope string, data interface{}) (interface{}, erro
 	return c.AccessFilter("filter_radius", scope, data)
 }
 
+// Sends a filter_remote_profile message to the pffilter service
+func (c *Client) FilterRemoteProfile(scope string, data interface{}) (interface{}, error) {
+	return c.AccessFilter("filter_remote_profile", scope, data)
+}
+
 // Send a request to the pffilter service
 func (c *Client) SendRequest(method string, params interface{}, conn net.Conn) (interface{}, error) {
 	request := Request{Method: method, Params: params}

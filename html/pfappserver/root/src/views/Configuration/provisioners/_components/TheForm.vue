@@ -32,6 +32,7 @@ import FormTypeJamf from './FormTypeJamf'
 import FormTypeMobileconfig from './FormTypeMobileconfig'
 import FormTypeMobileiron from './FormTypeMobileiron'
 import FormTypeOpswat from './FormTypeOpswat'
+import FormTypePacketfenceZtn from './FormTypePacketfenceZtn'
 import FormTypeSentinelone from './FormTypeSentinelone'
 import FormTypeSepm from './FormTypeSepm'
 import FormTypeServicenow from './FormTypeServicenow'
@@ -53,6 +54,7 @@ const components = {
   FormTypeMobileconfig,
   FormTypeMobileiron,
   FormTypeOpswat,
+  FormTypePacketfenceZtn,
   FormTypeSentinelone,
   FormTypeSepm,
   FormTypeServicenow,
@@ -81,6 +83,7 @@ export const setup = (props) => {
       case 'mobileconfig':                return FormTypeMobileconfig //break
       case 'mobileiron':                  return FormTypeMobileiron //break
       case 'opswat':                      return FormTypeOpswat //break
+      case 'packetfence_ztn':             return FormTypePacketfenceZtn //break
       case 'sentinelone':                 return FormTypeSentinelone //break
       case 'sepm':                        return FormTypeSepm //break
       case 'servicenow':                  return FormTypeServicenow //break

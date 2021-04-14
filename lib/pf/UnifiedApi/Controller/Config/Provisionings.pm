@@ -41,26 +41,28 @@ use pfappserver::Form::Config::Provisioning::sepm;
 use pfappserver::Form::Config::Provisioning::servicenow;
 use pfappserver::Form::Config::Provisioning::symantec;
 use pfappserver::Form::Config::Provisioning::windows;
+use pfappserver::Form::Config::Provisioning::packetfence_ztn;
 
 our %TYPES_TO_FORMS = (
     map { $_ => "pfappserver::Form::Config::Provisioning::$_" } qw(
       accept
-      airwatch
       android
       deny
       dpsk
       google_workspace_chromebook
       ibm
-      intune
       jamf
       mobileconfig
       mobileiron
       opswat
       sentinelone
       sepm
-      servicenow
       symantec
       windows
+      intune
+      servicenow
+      airwatch
+      packetfence_ztn
     )
 );
 

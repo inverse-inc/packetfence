@@ -11,3 +11,7 @@ allowed_access_levels=User Manager
 [Security Event Manager]
 description=Security Events managements
 actions=SECURITY_EVENTS_READ,SECURITY_EVENTS_CREATE,SECURITY_EVENTS_UPDATE,SECURITY_EVENTS_DELETE,USERS_READ,NODES_READ
+
+[Zero Trust Access]
+description=Access to the Zero Trust API endpoints
+actions=REMOTE_CLIENTS_READ,REMOTE_CLIENTS_CREATE,REMOTE_CLIENTS_UPDATE,REMOTE_CLIENTS_DELETE

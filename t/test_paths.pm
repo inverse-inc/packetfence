@@ -40,6 +40,7 @@ BEGIN {
     $pf::file_paths::admin_roles_config_file = catfile($test_dir,'data/admin_roles.conf');
     $pf::file_paths::chi_config_file = catfile($test_dir,'data/chi.conf');
     $pf::file_paths::profiles_config_file = catfile($test_dir,'data/profiles.conf');
+    $pf::file_paths::remote_profiles_config_file = catfile($test_dir,'data/remote_profiles.conf');
     $pf::file_paths::authentication_config_file = catfile($test_dir,'data/authentication.conf');
     $pf::file_paths::log_config_file = catfile($test_dir,'log.conf');
     $pf::file_paths::vlan_filters_config_file = catfile($test_dir,'data/vlan_filters.conf');

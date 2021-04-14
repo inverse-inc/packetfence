@@ -48,6 +48,7 @@ use pf::access_filter::dhcp;
 use pf::access_filter::dns;
 use pf::access_filter::vlan;
 use Linux::Systemd::Daemon 'sd_ready';
+use pf::access_filter::remote_profile;
 
 our %DISPATCH = (
     filter_profile => \&filter_profile,
@@ -55,9 +56,11 @@ our %DISPATCH = (
     filter_dns => \&filter_dns,
     filter_dhcp => \&filter_dhcp,
     filter_vlan => \&filter_vlan,
+    filter_remote_profile => \&filter_remote_profile,
 );
 
 tie our $PROFILE_FILTER_ENGINE , 'pfconfig::cached_scalar' => 'FilterEngine::Profile';
+tie our $REMOTE_PROFILE_FILTER_ENGINE , 'pfconfig::cached_scalar' => 'FilterEngine::RemoteProfile';
 my $RADIUS_FILTER = pf::access_filter::radius->new;
 my $DHCP_FILTER = pf::access_filter::dhcp->new;
 my $DNS_FILTER = pf::access_filter::dns->new;
@@ -504,6 +507,17 @@ filter_vlan
 sub filter_vlan {
     my (@params) = @_;
     return $VLAN_FILTER->filter(@params);
+}
+
+=head2 filter_remote_profile
+
+filter_remote_profile
+
+=cut
+
+sub filter_remote_profile {
+    my (@params) = @_;
+    return $REMOTE_PROFILE_FILTER_ENGINE->filter(@params);
 }
 
 =head1 AUTHOR

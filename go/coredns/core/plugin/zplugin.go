@@ -38,6 +38,7 @@ import (
 	_ "github.com/inverse-inc/packetfence/go/coredns/plugin/metrics"
 	_ "github.com/inverse-inc/packetfence/go/coredns/plugin/nsid"
 	_ "github.com/inverse-inc/packetfence/go/coredns/plugin/pfdns"
+	_ "github.com/inverse-inc/packetfence/go/coredns/plugin/ztndns"
 	_ "github.com/inverse-inc/packetfence/go/coredns/plugin/pprof"
 	_ "github.com/inverse-inc/packetfence/go/coredns/plugin/ready"
 	_ "github.com/inverse-inc/packetfence/go/coredns/plugin/reload"

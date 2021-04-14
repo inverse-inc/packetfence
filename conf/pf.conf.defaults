@@ -356,6 +356,10 @@ masterslave=OFF
 other_members=
 
 [services]
+# services.pfztn
+#
+# Should pfztn be managed by PacketFence?
+pfztn=enabled
 # services.pfipset
 #
 # Should pfipset be managed by PacketFence?

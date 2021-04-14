@@ -1,0 +1,16 @@
+# Copyright (C) Inverse inc.
+[Unit]
+Description=PacketFence ZTN Daemon
+Wants=packetfence-keepalived.service packetfence-base.target packetfence-config.service packetfence-iptables.service
+After=packetfence-keepalived.service packetfence-base.target packetfence-config.service packetfence-iptables.service
+
+[Service]
+StartLimitBurst=3
+StartLimitInterval=60
+Type=notify
+ExecStart=/usr/local/pf/sbin/pfhttpd -conf /usr/local/pf/conf/caddy-services/pfztn.conf -log-name=pfztn
+Restart=on-failure
+Slice=packetfence.slice
+
+[Install]
+WantedBy=packetfence.target
