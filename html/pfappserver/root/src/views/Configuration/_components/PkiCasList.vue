@@ -9,7 +9,7 @@
         </b-card-header>
       </template>
       <template v-slot:buttonAdd>
-        <b-button variant="outline-primary" :to="{ name: 'newPkiCa' }">{{ $t('New Certificate Authority') }}</b-button>
+        <b-button variant="outline-primary" :to="{ name: 'newPkiCa' }" :disabled="!isPfpkiAlive">{{ $t('New Certificate Authority') }}</b-button>
         <pf-button-service service="pfpki" class="ml-1" restart start stop :disabled="isLoading"></pf-button-service>
       </template>
       <template v-slot:emptySearch="state">
@@ -49,6 +49,10 @@ export default {
   computed: {
     isLoading () {
       return this.$store.getters['$_pkis/isLoading']
+    },
+    isPfpkiAlive () {
+      const { $store: { state: { services: { cache: { pfpki = {} } = {} } = {} } = {} } = {} } = this
+      return pfpki.alive
     }
   },
   methods: {
