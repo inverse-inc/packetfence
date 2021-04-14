@@ -34,7 +34,7 @@
         </div>
       </b-tab>
       <template v-slot:tabs-end>
-        <b-button class="ml-3 mb-1" variant="outline-primary" :to="{ name: 'newPortalModule', params: { moduleType: 'Root' } }">{{ $t('New Root Module') }}</b-button>
+        <b-button class="nav-item ml-3 mb-1" variant="outline-primary" :to="{ name: 'newPortalModule', params: { moduleType: 'Root' } }">{{ $t('New Root Module') }}</b-button>
       </template>
       <!-- Loading progress indicator -->
       <b-container class="my-5" v-if="isLoading && !items.length">
@@ -57,7 +57,7 @@
           </draggable>
         </b-tab>
         <template v-slot:tabs-end>
-          <b-dropdown :text="$t('New Module')" class="text-nowrap pr-3 ml-3 mb-1" size="sm" variant="outline-primary" :boundary="$refs.container">
+          <b-dropdown :text="$t('New Module')" class="nav-item text-nowrap pr-3 ml-3 mb-1" size="sm" variant="outline-primary" :boundary="$refs.container">
             <template v-for="(group, groupIndex) in moduleTypes">
               <b-dropdown-header class="text-secondary px-2" v-t="group.name" :key="`${group.name}-${groupIndex}`"></b-dropdown-header>
               <b-dropdown-item v-for="(moduleType, moduleIndex) in group.types" :key="`${moduleType.name}-${moduleIndex}`" :to="{ name: 'newPortalModule', params: { moduleType: moduleType.type } }">
