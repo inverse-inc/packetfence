@@ -145,12 +145,6 @@ Device:            tps   Blk_read/s   Blk_wrtn/s   Blk_read   Blk_wrtn
 cciss/c0d0        4.80         0.00        48.00          0        240
 ----
 
-==== MariaDB Optimization Tool
-
-We recommend that you run the http://mysqltuner.com/[MySQL Tuner] on your database setup after a couple of weeks to help you identify MariaDB configuration improvement. The tool is bundled with PacketFence and can be run from the command-line:
-
-  # /usr/local/pf/bin/pftest mysql
-
 ==== Avoid "Too many connections" problems
 
 In a wireless context, there tends to be a lot of connections made to the database by our `freeradius` module. The default MariaDB value tend to be low (100) so we encourage you to increase that value to at least 300. See http://dev.mysql.com/doc/refman/5.0/en/too-many-connections.html for details.
@@ -163,25 +157,25 @@ In a wireless context, there tend to be a lot of connections made to the databas
 
 This will grind PacketFence to a halt so you want to avoid that at all cost. One way to do so is to increase the number of maximum connections (see above), to periodically flush hosts or to allow more connection errors. See http://dev.mysql.com/doc/refman/5.0/en/blocked-host.html for details.
 
-==== Using Percona XtraBackup
+==== Using MariaDB-backup
 
 When dealing with a large database, the database backup and maintenance script (`/usr/local/pf/addons/backup-and-maintenance.sh`) which uses mysqldump may create a long lock on your database which may cause service to hang.
 
-This is fixed easily by using Percona XtraBackup which can complete a full database backup without locking your tables.
+This is fixed easily by using MariaDB-backup which can complete a full database backup without locking your tables.
 
 The installation instructions below are made for CentOS 7 but adjusting them to Debian should only be a matter of installing the proper packages for your MariaDB version.
 
-First install the Percona repository:
+.RHEL / CentOS based systems
+[source,bash]
+----
+  # yum install MariaDB-backup --enablerepo=packetfence
+----
 
-  # yum install http://www.percona.com/downloads/percona-release/redhat/0.1-3/percona-release-0.1-3.noarch.rpm
-
-Make sure to disable the newly installed repository not to interfere with future updates:
-
-  # sed -i -e 's/^enabled\ \=.*/enabled = 0/g' /etc/yum.repos.d/percona-release.repo
-
-Next, install Percona XtraBackup by manually specifying the Percona repository:
-
-  # yum install percona-xtrabackup --enablerepo=percona-release-`uname -m`
+.Debian based systems
+[source,bash]
+----
+  # apt install mariadb-backup-10.2
+----
 
 Once this is done, grant the proper rights to the `pf` user (or the one you configured in pf.conf):
 
@@ -193,9 +187,9 @@ Next, run the maintenance script [filename]`/usr/local/pf/addons/backup-and-main
 
   innobackupex: completed OK!
 
-If the backup fails, check [filename]`/usr/local/pf/logs/innobackup.log` for details and refer to the Percona XtraBackup documentation for troubleshooting.
+If the backup fails, check [filename]`/usr/local/pf/logs/innobackup.log` for details and refer to the MariaDB-backup documentation for troubleshooting.
 
-NOTE: In the event that you want to stop using Percona XtraBackups for your MariaDB backups, simply uninstall it and the database script will fallback to mysqldump.
+NOTE: In the event that you want to stop using MariaDB-backup for your MariaDB backups, simply uninstall it and the database script will fallback to mysqldump.
 
 === Captive Portal Optimizations
 
