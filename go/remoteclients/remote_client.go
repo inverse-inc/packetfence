@@ -35,6 +35,7 @@ type RemoteClient struct {
 	TenantId  uint      `json:"tenant_id"`
 	PublicKey string    `json:"public_key"`
 	MAC       string    `json:"mac"`
+	Profile   string    `json:"profile"`
 
 	node *common.NodeInfo
 }
@@ -57,6 +58,7 @@ func GetOrCreateRemoteClient(ctx context.Context, db *gorm.DB, publicKey string,
 
 	db.Where("public_key = ?", publicKey).First(&rc)
 	rc.MAC = info.MAC
+	rc.Profile = rc.ConnectionProfile(ctx, db).PfconfigHashNS
 	if rc.PublicKey != publicKey {
 		rc.PublicKey = publicKey
 		log.LoggerWContext(ctx).Info("Client " + rc.PublicKey + " has just been created. Publishing its presence.")
