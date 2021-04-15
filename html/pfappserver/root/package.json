@@ -23,7 +23,7 @@
     "plotly.js-basic-dist-min": "^1.58.2",
     "promised-debounce": "^0.4.2",
     "typeface-b612-mono": "1.1.13",
-    "uuid": "^3.4.0",
+    "uuid": "^8.3.0",
     "vue": "2.6.12",
     "vue-awesome": "^3.5.4",
     "vue-browser-acl": "^0.15.2",

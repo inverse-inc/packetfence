@@ -127,7 +127,7 @@ const components = {
 }
 
 import { computed, inject, reactive, ref, set, toRefs } from '@vue/composition-api'
-import uuidv4 from 'uuid/v4'
+import { v4 as uuidv4 } from 'uuid'
 import { useInputProps } from '@/composables/useInput'
 import { useInputMeta, useInputMetaProps, useNamespaceMetaAllowedLookupFn } from '@/composables/useMeta'
 import { useInputValidator, useInputValidatorProps } from '@/composables/useInputValidator'

@@ -1,5 +1,5 @@
 import { computed, inject, provide, ref, toRefs, watch } from '@vue/composition-api'
-import uuidv4 from 'uuid/v4'
+import { v4 as uuidv4 } from 'uuid'
 
 export const useDraggable = (context, getValueFn, setValueFn) => {
 
