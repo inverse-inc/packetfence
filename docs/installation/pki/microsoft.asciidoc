@@ -226,7 +226,7 @@ Restart radiusd to regenerate the new configuration files and enable EAP-TLS usi
 
 ===== PacketFence PKI Provider Configuration
 
-Using the PKI requires configuring the PKI providers section in the PacketFence GUI under `Configuration->Users->PKI Providers`. The provider configuration defines how PacketFence connects to the MSPKI and what information will be sent.
+Using the PKI requires configuring the PKI providers section in the PacketFence GUI under _Configuration->Advanced Access Configuration->PKI Providers_. The provider configuration defines how PacketFence connects to the MSPKI and what information will be sent.
 
 Add a new PKI provider and select SCEP.
 
@@ -250,7 +250,7 @@ If you select 'Username', a certificate will be generated using his login name o
 
 Provisioners allow devices to automatically configure themselves to connect to the proper SSID (if applicable), use the proper authentication method (e.g. EAP-TLS) and trust the CA certificate and any certificate signed by it.
 
-Provisioners are configured in the PacketFence administration GUI under `Configuration->Users->Provisioners`.
+Provisioners are configured in the PacketFence administration GUI under _Configuration->Advanced Access Configuration->Provisioners_.
 
 Add a new provisioner for each of the classes of devices to be supported amongst Android, Apple Devices and Windows.
 Fill out the form, choosing a different Provisioning Id per provisioner.
@@ -296,7 +296,7 @@ zxcvbnmqwertyuiop78
 
 Provisioners have to be enabled on the Connection Profiles configuration in the PacketFence GUI.
 
-Under `Configuration->Main->Connection Profiles`, select each of the provisioners created above which should be active for the profile.
+Under _Configuration->Policies and Access control->Connection Profiles_, select each of the provisioners created above which should be active for the profile.
 If no connection profile is defined, configure the "default" profile to use the provisioners created.
 
 ===== Passthroughs Required for Android
