@@ -73,11 +73,18 @@ sub generateConfig {
 
 
     foreach my $source  (@authentication_sources_monitored) {
-        if ($source->{'host'}) {
-            my @members = split(",", $source->{'host'});
-            foreach my $member (@members) {
-                $tags{'members'} .= " $member";
+        my $host = $source->{'host'};
+        my @hosts;
+        if ($host) {
+            if (ref($host) eq 'ARRAY') {
+                @hosts = @$host;
+            } else {
+                @hosts = split(",", $host);
             }
+
+        }
+        foreach my $member (@hosts) {
+            $tags{'members'} .= " $member";
         }
         if ($source->{'server1_address'}) {
             $tags{'members'} .= " $source->{'server1_address'}";
@@ -112,8 +119,7 @@ families: *
 
 EOT
         } else {
-            my @number = split(',',$source->{'host'});
-            for my $source_id (@number) {
+            for my $source_id (@hosts) {
               $tags{'alerts'} .= <<"EOT";
 template: $source->{'id'}_source_available
 families: *

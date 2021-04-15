@@ -751,7 +751,7 @@ EOT
         }
         $ldap_config = $TRUE;
         my $server_list;
-        my @ldap_server = split(',',$ConfigAuthenticationLdap{$ldap}->{host});
+        my @ldap_server = @{$ConfigAuthenticationLdap{$ldap}->{host}};
         foreach my $ldap_server (@ldap_server) {
             $server_list .= "    server          = $ldap_server\n";
         }
