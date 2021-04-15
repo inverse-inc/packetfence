@@ -153,7 +153,7 @@ const setup = (props, context) => {
     if (type && type in fieldTypeValues) {
       const options = fieldTypeValues[type]()
       if (0 in options && 'group' in options[0]) // grouped
-        return { groupLabel: 'group', groupValues: 'items', options }
+        return { groupSelect: true, groupLabel: 'group', groupValues: 'items', options }
       else // non-grouped
         return { options }
     }
