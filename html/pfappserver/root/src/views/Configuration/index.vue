@@ -30,7 +30,7 @@ const setup = () => {
           items: [
             { name: i18n.t('Active Directory Domains'), path: '/configuration/domains' },
             { name: i18n.t('Realms'), path: '/configuration/realms' }
-          ]
+         ]
         },
         { name: i18n.t('Authentication Sources'), path: '/configuration/sources' },
         { name: i18n.t('Network Devices'),
@@ -41,7 +41,8 @@ const setup = () => {
         },
         { name: i18n.t('Connection Profiles'),
           items: [
-            { name: i18n.t('Standard Connection Profiles'), path: '/configuration/connection_profiles' }
+            { name: i18n.t('Standard Connection Profiles'), path: '/configuration/connection_profiles' },
+            { name: i18n.t('Remote Connection Profiles'), path: '/configuration/remote_connection_profiles' }
           ]
         }
       ]
