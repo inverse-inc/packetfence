@@ -367,7 +367,7 @@ export const useField = (field) => {
               props.options.push(option)
           }
         })
-      }      
+      }
       switch (pfFieldTypeComponent[type]) {
         case pfComponentType.SELECTMANY:
           return { is: BaseInputChosenMultiple, ...props }
@@ -376,7 +376,7 @@ export const useField = (field) => {
         case pfComponentType.SELECTONE:
           return { is: BaseInputChosenOne, ...props }
           // break
-  
+
         case pfComponentType.DATE:
           return { is: BaseInputGroupDate, ...props }
           // break
