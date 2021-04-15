@@ -131,24 +131,6 @@ sub authorize {
     }
 
     $switch->setCurrentTenant($radius_request);
-
-    my $args = {
-        switch => $switch,
-        switch_mac => $switch_mac,
-        switch_ip => $switch_ip,
-        source_ip => $source_ip,
-        stripped_user_name => $stripped_user_name,
-        realm => $realm,
-        radius_request => $radius_request,
-    };
-
-    my $filter = pf::access_filter::radius->new;
-    my $rule = $filter->test('preProcess', $args);
-    if ($rule) {
-        my ($reply, $status) = $filter->handleAnswerInRule({%$rule, merge_answer => 'enabled' }, $args, $radius_request);
-        %$radius_request = %$reply;
-    }
-
     my ($nas_port_type, $eap_type, $mac, $port, $user_name, $nas_port_id, $session_id, $ifDesc) = $switch->parseRequest($radius_request);
 
     if (!$mac) {
@@ -175,7 +157,13 @@ sub authorize {
         $port = $switch->getIfIndexByNasPortId($nas_port_id) || $self->_translateNasPortToIfIndex($connection_type, $switch, $port);
     }
 
-    $args = {
+    my $args = {
+        switch => $switch,
+        switch_mac => $switch_mac,
+        switch_ip => $switch_ip,
+        source_ip => $source_ip,
+        stripped_user_name => $stripped_user_name,
+        realm => $realm,
         nas_port_type => $nas_port_type,
         eap_type => $eap_type // '',
         mac => $mac,
@@ -240,13 +228,21 @@ sub authorize {
     $args->{'ssid'} = $ssid;
     $args->{'node_info'} = $node_obj;
     $args->{'fingerbank_info'} = pf::node::fingerbank_info($mac, $node_obj);
+    my $filter = pf::access_filter::radius->new;
+    my $rule = $filter->test('preProcess', $args);
+    if ($rule) {
+        my ($reply, $status) = $filter->handleAnswerInRule({%$rule, merge_answer => 'enabled' }, $args, $radius_request);
+        %$radius_request = %$reply;
+        $args->{'user_name'} = $switch->parseRequestUsername($radius_request);
+        $args->{'username'} = $args->{'user_name'};
+    }
     my $result = $role_obj->filterVlan('IsPhone',$args);
     # determine if we need to perform automatic registration
     # either the switch detects that this is a phone or we take the result from the vlan filters
     if (defined($result)) {
         $args->{'isPhone'} = $result;
     } elsif ($port) {
-       $args->{'isPhone'} =$switch->isPhoneAtIfIndex($mac, $port);
+        $args->{'isPhone'} =$switch->isPhoneAtIfIndex($mac, $port);
     } else {
         $args->{'isPhone'} = $FALSE;
     }
