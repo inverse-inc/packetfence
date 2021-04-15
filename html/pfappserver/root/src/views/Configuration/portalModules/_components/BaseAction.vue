@@ -19,7 +19,6 @@ import {
   BaseInputGroupMultiplier,
   BaseInputNumber,
   BaseInputPassword,
-  BaseInputRange,
   BaseInputChosenMultiple,
   BaseInputChosenOne
 } from '@/components/new'
@@ -30,7 +29,6 @@ const components = {
   BaseInputGroupMultiplier,
   BaseInputNumber,
   BaseInputPassword,
-  BaseInputRange,
   BaseInputChosenMultiple,
   BaseInputChosenOne
 }
