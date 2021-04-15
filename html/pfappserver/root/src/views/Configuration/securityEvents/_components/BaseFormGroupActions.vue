@@ -92,14 +92,14 @@
         </b-col>
         <b-collapse :visible="email_recipient" class="col-sm-9 mt-3">
 
-          <form-group-email-recipient-message namespace="email_recipient_message"
-            :column-label="$t('Additional message')"
-          />
           <form-group-recipient-email namespace="recipient_email"
             :column-label="$t('Email address')"
           />
-          <form-group-recipient-message namespace="recipient_template_email"
-            :column-label="$t('Template to use for the email')"
+          <form-group-recipient-message namespace="email_recipient_message"
+            :column-label="$t('Additional message')"
+          />
+          <form-group-recipient-template-message namespace="recipient_template_email"
+            :column-label="$t('Template to use')"
           />
 
         </b-collapse>
@@ -153,9 +153,9 @@ import {
   BaseFormGroupChosenOne    as FormGroupTargetCategory,
   BaseFormGroupChosenOne    as FormGroupTemplate,
   BaseFormGroupTextarea     as FormGroupUserMailMessage,
-  BaseFormGroupTextarea     as FormGroupEmailRecipientMessage,
   BaseFormGroupInput        as FormGroupRecipientEmail,
-  BaseFormGroupInput        as FormGroupRecipientTemplateEmail,
+  BaseFormGroupTextarea     as FormGroupRecipientMessage,
+  BaseFormGroupInput        as FormGroupRecipientTemplateMessage,
   BaseFormGroupChosenOne    as FormGroupVClose,
   BaseFormGroupChosenOne    as FormGroupVlan,
 } from '@/components/new'
@@ -179,9 +179,9 @@ const components = {
   FormGroupTemplate,
   FormGroupUserMailMessage,
   FormGroupVClose,
-  FormGroupEmailRecipientMessage,
   FormGroupRecipientEmail,
-  FormGroupRecipientTemplateEmail,
+  FormGroupRecipientMessage,
+  FormGroupRecipientTemplateMessage,
   FormGroupVlan,
 
   InputToggleAutoreg:        BaseInputToggleAutoreg,
