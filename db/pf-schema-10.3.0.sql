@@ -1824,6 +1824,7 @@ CREATE TABLE `remote_clients` (
   tenant_id int NOT NULL DEFAULT 1,
   public_key varchar(255) NOT NULL,
   mac varchar(17) NOT NULL,
+  profile varchar(255) NOT NULL,
   created_at datetime NOT NULL,
   updated_at datetime NOT NULL,
   UNIQUE KEY remote_clients_private_key (`public_key`)
