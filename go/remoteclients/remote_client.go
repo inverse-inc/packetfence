@@ -24,6 +24,13 @@ var wgNetworkNetmask = 10
 func ChangeStartingIP(ip net.IP, newNetmask int) {
 	wgNetworkStartingIP = sharedutils.IP2Int(ip)
 	wgNetworkNetmask = newNetmask
+
+}
+
+func WGNetworkIPNet() *net.IPNet {
+	_, ipnet, err := net.ParseCIDR(fmt.Sprintf("%s/%d", sharedutils.Int2IP(wgNetworkStartingIP), wgNetworkNetmask))
+	sharedutils.CheckError(err)
+	return ipnet
 }
 
 var PublishNewClientsTo *golongpoll.LongpollManager

@@ -5,6 +5,8 @@ import (
 	"encoding/binary"
 	"encoding/json"
 	"errors"
+	"fmt"
+	"net"
 	"net/http"
 	"regexp"
 	"strconv"
@@ -227,6 +229,101 @@ func (h *WgorchestratorHandler) handleGetPrivEvents(c *gin.Context) {
 	} else {
 		renderError(c, http.StatusInternalServerError, errors.New("Unable to find events manager in context"))
 	}
+}
+
+func (h *WgorchestratorHandler) handleGetAllowedIPCommunication(c *gin.Context) {
+	var err error
+
+	db := dbFromContext(c)
+
+	srcIP := net.ParseIP(c.Query("src_ip"))
+	dstIP := net.ParseIP(c.Query("dst_ip"))
+	var srcRC, dstRC *remoteclients.RemoteClient
+	var srcNode, dstNode *common.NodeInfo
+
+	if srcIP == nil {
+		renderError(c, http.StatusBadRequest, errors.New("src_ip is missing or malformed"))
+		return
+	}
+	if dstIP == nil {
+		renderError(c, http.StatusBadRequest, errors.New("dst_ip is missing or malformed"))
+		return
+	}
+
+	if srcRC, srcNode, err = h.ip2endpoint(c, srcIP); err != nil {
+		renderError(c, http.StatusNotFound, fmt.Errorf("src_ip: %s", err))
+		return
+	}
+	if dstRC, dstNode, err = h.ip2endpoint(c, dstIP); err != nil {
+		renderError(c, http.StatusNotFound, fmt.Errorf("dst_ip: %s", err))
+		return
+	}
+
+	if srcRC == nil && dstRC == nil {
+		renderError(c, http.StatusUnprocessableEntity, errors.New("neither the src_ip nor the dst_ip comes from the ZT network"))
+		return
+	}
+
+	if srcRC != nil && dstRC != nil {
+		renderError(c, http.StatusUnprocessableEntity, errors.New("this API call currently doesn't support checks between two clients from the ZT network"))
+		return
+	}
+
+	var res = struct {
+		Permit bool   `json:"permit"`
+		Reason string `json:"reason"`
+	}{}
+	if srcNode.Status != "reg" || dstNode.Status != "reg" {
+		res.Permit = false
+		res.Reason = "One of the nodes is not registered"
+		c.JSON(http.StatusOK, res)
+	} else if srcNode.Category == "" || dstNode.Category == "" {
+		res.Permit = false
+		res.Reason = "One of the nodes doesn't have a valid role"
+		c.JSON(http.StatusOK, res)
+	} else {
+		var allowedRoles []string
+		var targetRoleCheck string
+		if srcRC != nil {
+			allowedRoles = srcRC.AllowedRoles(c, db)
+			targetRoleCheck = dstNode.Category
+		} else if dstRC != nil {
+			allowedRoles = dstRC.AllowedRoles(c, db)
+			targetRoleCheck = srcNode.Category
+		}
+
+		for _, role := range allowedRoles {
+			if role == targetRoleCheck {
+				res.Permit = true
+				c.JSON(http.StatusOK, res)
+				return
+			}
+		}
+
+		res.Permit = false
+		res.Reason = "RBAC failed. The ZT client doesn't have the permission to talk to this device."
+		c.JSON(http.StatusOK, res)
+	}
+}
+
+func (h *WgorchestratorHandler) ip2endpoint(c *gin.Context, ip net.IP) (*remoteclients.RemoteClient, *common.NodeInfo, error) {
+	if remoteclients.WGNetworkIPNet().Contains(ip) {
+		// find the remote client by its IP
+		id := sharedutils.IP2Int(ip) - sharedutils.IP2Int(remoteclients.WGNetworkIPNet().IP) - 1
+		db := dbFromContext(c)
+		rc := remoteclients.RemoteClient{}
+		db.Find(&rc, id)
+		if rc.ID == 0 {
+			return nil, nil, errors.New("Unable to find remote client in the database")
+		}
+		return &rc, rc.GetNode(c), nil
+	} else if mac, err := common.IP2MAC(c, ip); mac != "0" && err == nil {
+		node, err := common.FetchNodeInfo(c, mac)
+		return nil, &node, err
+	} else {
+		return nil, nil, fmt.Errorf("Unable to find client by IP %s", ip)
+	}
+
 }
 
 func (h *WgorchestratorHandler) getRoleForUsername(c *gin.Context, username string) (int, string, string, error) {

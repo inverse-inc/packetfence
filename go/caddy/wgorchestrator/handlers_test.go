@@ -181,3 +181,79 @@ func TestHandleGetPrivEvents(t *testing.T) {
 		ContainsKey("message")
 
 }
+
+func TestHandleGetAllowedIPCommunication(t *testing.T) {
+	ctx := context.Background()
+
+	// Delete existing clients + add a another client
+	gormdb, err := gorm.Open("mysql", db.ReturnURIFromConfig(context.Background()))
+	sharedutils.CheckError(err)
+	gormdb.DB().Query("delete from node")
+	gormdb.DB().Query("delete from remote_clients")
+	gormdb.DB().Query("delete from ip4log")
+	gormdb.DB().Query("insert into node(mac, category_id) VALUES('aa:bb:cc:00:00:01', 1)")
+
+	gormdb.DB().Query("insert into node(mac, category_id) VALUES('aa:bb:cc:00:00:02', 1)")
+
+	gormdb.DB().Query("insert into node(mac, category_id) VALUES('aa:bb:cc:00:00:03', NULL)")
+	gormdb.DB().Query("insert into ip4log(mac,ip) VALUES('aa:bb:cc:00:00:03', '192.168.0.3')")
+
+	gormdb.DB().Query("insert into node(mac, category_id) VALUES('aa:bb:cc:00:00:04', 1)")
+	gormdb.DB().Query("insert into ip4log(mac,ip) VALUES('aa:bb:cc:00:00:04', '192.168.0.4')")
+
+	gormdb.DB().Query("insert into node(mac, category_id) VALUES('aa:bb:cc:00:00:05', 2)")
+	gormdb.DB().Query("insert into ip4log(mac,ip) VALUES('aa:bb:cc:00:00:05', '192.168.0.5')")
+
+	gormdb.DB().Query("update node set status='reg'")
+
+	rc, err := remoteclients.GetOrCreateRemoteClient(ctx, gormdb, "aa:bb:cc:00:00:01", common.NodeInfo{Node: common.Node{MAC: "aa:bb:cc:00:00:01", CategoryID: "1"}})
+	sharedutils.CheckError(err)
+
+	e := httpexpect.New(t, testServer.URL)
+	// Test missing a parameter
+	e.GET("/api/v1/remote_clients/allowed_ip_communication").
+		WithQuery("src_ip", "192.168.0.3").
+		Expect().
+		Status(http.StatusBadRequest)
+
+	// Test both clients outside of ZT network
+	e.GET("/api/v1/remote_clients/allowed_ip_communication").
+		WithQuery("src_ip", "192.168.0.3").
+		WithQuery("dst_ip", "192.168.0.4").
+		Expect().
+		Status(http.StatusUnprocessableEntity)
+
+	// Test known ZT client that accesses an unknown IP
+	e.GET("/api/v1/remote_clients/allowed_ip_communication").
+		WithQuery("src_ip", rc.IPAddress().String()).
+		WithQuery("dst_ip", "192.168.0.2").
+		Expect().
+		Status(http.StatusNotFound)
+
+	// Test known ZT client that shouldn't have access to other client (missing role)
+	e.GET("/api/v1/remote_clients/allowed_ip_communication").
+		WithQuery("src_ip", rc.IPAddress().String()).
+		WithQuery("dst_ip", "192.168.0.3").
+		Expect().
+		Status(http.StatusOK).
+		JSON().Object().
+		ValueEqual("permit", false)
+
+	// Test known ZT client that should have access to other client
+	e.GET("/api/v1/remote_clients/allowed_ip_communication").
+		WithQuery("src_ip", rc.IPAddress().String()).
+		WithQuery("dst_ip", "192.168.0.4").
+		Expect().
+		Status(http.StatusOK).
+		JSON().Object().
+		ValueEqual("permit", true)
+
+	// Test known ZT client that shouldn't have access to other client (different role)
+	e.GET("/api/v1/remote_clients/allowed_ip_communication").
+		WithQuery("src_ip", rc.IPAddress().String()).
+		WithQuery("dst_ip", "192.168.0.5").
+		Expect().
+		Status(http.StatusOK).
+		JSON().Object().
+		ValueEqual("permit", false)
+}
