@@ -18,6 +18,8 @@ use Moo;
 use pf::constants;
 use URI::Escape::XS qw(uri_escape uri_unescape);
 use pf::api::unifiedapiclient;
+use pf::dal::key_value_storage;
+use pf::error qw(is_success is_error);
 
 extends 'pf::pki_provider';
 
@@ -73,7 +75,17 @@ sub get_bundle {
         $logger->warn("Certificate already exist");
     }
 
-    $return = pf::api::unifiedapiclient->default_client->call("GET", "/api/v1/pki/cert/$cn/download/$certpwd");
+    my %data;
+    $data{id} = "/pki/$cn";
+    $data{value} = $return->{serial};
+
+    my ($status, $obj) =pf::dal::key_value_storage->find_or_create({
+        %data,
+        id => "/pki/$cn"
+    });
+
+
+    $return = pf::api::unifiedapiclient->default_client->call("GET", "/api/v1/pki/cert/$profile/$cn/download/$certpwd");
 
     return $return;
 }
@@ -87,9 +99,28 @@ Revoke the certificate for a user
 sub revoke {
     my ($self, $cn) = @_;
     my $logger = get_logger();
+    my %options = (
+        -where => {
+            id => "/pki/$cn",
+        }
+    );
 
-    my $return = pf::api::unifiedapiclient->default_client->call("DELETE", "/api/v1/pki/cert/$cn/1");
-    
+    my ($status, $iter) = pf::dal::key_value_storage->search(%options);
+    if (is_success($status)) {
+        my $key_value = $iter->next(undef);
+        if ($key_value) {
+            my $return = pf::api::unifiedapiclient->default_client->call("DELETE", "/api/v1/pki/cert/$key_value->{value}/$cn/1");
+        } else {
+            $logger->error("Not able to revoke $cn , unknown serial");
+        }
+    } else {
+        $logger->error("Unable to revoke user certificate $cn");
+    }
+
+    my ($status, $count) = pf::dal::key_value_storage->remove_items(%options);
+    if (is_error($status)) {
+        $logger->error("Unable to delete the key value '$cn'");
+    }
 }
 
 =head1 AUTHOR

@@ -27,6 +27,7 @@ type (
 		NextCursor  int         `json:"nextCursor"`
 		PrevCursor  int         `json:"prevCursor"`
 		TotalCount  int         `json:"total_count"`
+		Serial      string      `json:"serial"`
 	}
 
 	// Create interface

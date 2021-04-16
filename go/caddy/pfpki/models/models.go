@@ -168,6 +168,8 @@ type (
 	}
 )
 
+const dbError = "A database error occured. See log for details."
+
 // Digest Values:
 // 0 UnknownSignatureAlgorithm
 // 1 MD2WithRSA
@@ -341,7 +343,7 @@ func (c CA) New() (types.Info, error) {
 
 	if err := c.DB.Create(&CA{Cn: c.Cn, Mail: c.Mail, Organisation: c.Organisation, OrganisationalUnit: c.OrganisationalUnit, Country: c.Country, State: c.State, Locality: c.Locality, StreetAddress: c.StreetAddress, PostalCode: c.PostalCode, KeyType: c.KeyType, KeySize: c.KeySize, Digest: c.Digest, KeyUsage: c.KeyUsage, ExtendedKeyUsage: c.ExtendedKeyUsage, Days: c.Days, Key: keyOut.String(), Cert: cert.String(), IssuerKeyHash: hex.EncodeToString(skid), IssuerNameHash: hex.EncodeToString(h.Sum(nil)), OCSPUrl: c.OCSPUrl}).Error; err != nil {
 		Information.Error = err.Error()
-		return Information, errors.New("A database error occured. See log for details.")
+		return Information, errors.New(dbError)
 	}
 
 	c.DB.Select("id, cn, mail, organisation, organisational_unit, country, state, locality, street_address, postal_code, key_type, key_size, digest, key_usage, extended_key_usage, days, cert, ocsp_url").Where("cn = ?", c.Cn).First(&newcadb)
@@ -417,7 +419,7 @@ func (c CA) Paginated(vars sql.Vars) (types.Info, error) {
 		sql, err := vars.Sql(c)
 		if err != nil {
 			Information.Error = err.Error()
-			return Information, errors.New("A database error occured. See log for details.")
+			return Information, errors.New(dbError)
 		}
 		var cadb []CA
 		c.DB.Select(sql.Select).Order(sql.Order).Offset(sql.Offset).Limit(sql.Limit).Find(&cadb)
@@ -433,7 +435,7 @@ func (c CA) Search(vars sql.Vars) (types.Info, error) {
 	sql, err := vars.Sql(c)
 	if err != nil {
 		Information.Error = err.Error()
-		return Information, errors.New("A database error occured. See log for details.")
+		return Information, errors.New(dbError)
 	}
 	var count int
 	c.DB.Model(&CA{}).Where(sql.Where.Query, sql.Where.Values...).Count(&count)
@@ -454,7 +456,7 @@ func (c CA) FindSCEPProfile(options []string) ([]Profile, error) {
 	var profiledb []Profile
 	if len(options) >= 1 {
 		if err := c.DB.Select("id, name, ca_id, ca_name, validity, key_type, key_size, digest, key_usage, extended_key_usage, p12_mail_password, p12_mail_subject, p12_mail_from, p12_mail_header, p12_mail_footer, scep_enabled, scep_challenge_password, scep_days_before_renewal").Where("`name` = ?", options[0]).First(&profiledb).Error; err != nil {
-			return profiledb, errors.New("A database error occured. See log for details.")
+			return profiledb, errors.New(dbError)
 		}
 		if len(profiledb) == 0 {
 			return profiledb, errors.New("Unknow profile.")
@@ -511,7 +513,7 @@ func (c CA) Put(cn string, crt *x509.Certificate, options ...string) error {
 	}
 
 	if err := c.DB.Create(&Cert{Cn: cn, Ca: ca, CaName: ca.Cn, ProfileName: profiledb[0].Name, SerialNumber: crt.SerialNumber.String(), Mail: attributeMap["emailAddress"], StreetAddress: attributeMap["streetAddress"], Organisation: attributeMap["O"], OrganisationalUnit: attributeMap["OU"], Country: attributeMap["C"], State: attributeMap["ST"], Locality: attributeMap["L"], PostalCode: attributeMap["emailAddress"], Profile: profiledb[0], Key: "", Cert: publicKey.String(), ValidUntil: crt.NotAfter}).Error; err != nil {
-		return errors.New("A database error occured. See log for details.")
+		return errors.New(dbError)
 	}
 
 	return nil
@@ -622,7 +624,7 @@ func (p Profile) New() (types.Info, error) {
 
 	if err := p.DB.Create(&Profile{Name: p.Name, Ca: *ca, CaID: p.CaID, CaName: ca.Cn, Mail: p.Mail, StreetAddress: p.StreetAddress, Organisation: p.Organisation, OrganisationalUnit: p.OrganisationalUnit, Country: p.Country, State: p.State, Locality: p.Locality, PostalCode: p.PostalCode, Validity: p.Validity, KeyType: p.KeyType, KeySize: p.KeySize, Digest: p.Digest, KeyUsage: p.KeyUsage, ExtendedKeyUsage: p.ExtendedKeyUsage, OCSPUrl: p.OCSPUrl, P12MailPassword: p.P12MailPassword, P12MailSubject: p.P12MailSubject, P12MailFrom: p.P12MailFrom, P12MailHeader: p.P12MailHeader, P12MailFooter: p.P12MailFooter, SCEPEnabled: p.SCEPEnabled, SCEPChallengePassword: p.SCEPChallengePassword, SCEPDaysBeforeRenewal: p.SCEPDaysBeforeRenewal}).Error; err != nil {
 		Information.Error = err.Error()
-		return Information, errors.New("A database error occured. See log for details.")
+		return Information, errors.New(dbError)
 	}
 	p.DB.Select("id, name, ca_id, ca_name, mail, street_address, organisation, organisational_unit, country, state, locality, postal_code, validity, key_type, key_size, digest, key_usage, extended_key_usage, ocsp_url, p12_mail_password, p12_mail_subject, p12_mail_from, p12_mail_header, p12_mail_footer, scep_enabled, scep_challenge_password, scep_days_before_renewal").Where("name = ?", p.Name).First(&profiledb)
 	Information.Entries = profiledb
@@ -635,7 +637,7 @@ func (p Profile) Update() (types.Info, error) {
 	Information := types.Info{}
 	if err := p.DB.Model(&Profile{}).Updates(&Profile{P12MailPassword: p.P12MailPassword, P12MailSubject: p.P12MailSubject, P12MailFrom: p.P12MailFrom, P12MailHeader: p.P12MailHeader, P12MailFooter: p.P12MailFooter, SCEPEnabled: p.SCEPEnabled, SCEPChallengePassword: p.SCEPChallengePassword, SCEPDaysBeforeRenewal: p.SCEPDaysBeforeRenewal}).Error; err != nil {
 		Information.Error = err.Error()
-		return Information, errors.New("A database error occured. See log for details.")
+		return Information, errors.New(dbError)
 	}
 	p.DB.Select("id, name, ca_id, ca_name, validity, key_type, key_size, digest, key_usage, extended_key_usage, ocsp_url, p12_mail_password, p12_mail_subject, p12_mail_from, p12_mail_header, p12_mail_footer, scep_enabled, scep_challenge_password, scep_days_before_renewal").Where("name = ?", p.Name).First(&profiledb)
 	Information.Entries = profiledb
@@ -666,7 +668,7 @@ func (p Profile) Paginated(vars sql.Vars) (types.Info, error) {
 		sql, err := vars.Sql(p)
 		if err != nil {
 			Information.Error = err.Error()
-			return Information, errors.New("A database error occured. See log for details.")
+			return Information, errors.New(dbError)
 		}
 		var profiledb []Profile
 		p.DB.Select(sql.Select).Order(sql.Order).Offset(sql.Offset).Limit(sql.Limit).Find(&profiledb)
@@ -681,7 +683,7 @@ func (p Profile) Search(vars sql.Vars) (types.Info, error) {
 	sql, err := vars.Sql(p)
 	if err != nil {
 		Information.Error = err.Error()
-		return Information, errors.New("A database error occured. See log for details.")
+		return Information, errors.New(dbError)
 	}
 	var count int
 	p.DB.Model(&Profile{}).Where(sql.Where.Query, sql.Where.Values...).Count(&count)
@@ -713,14 +715,14 @@ func (c Cert) New() (types.Info, error) {
 	var prof Profile
 	if profDB := c.DB.First(&prof, c.ProfileID); profDB.Error != nil {
 		Information.Error = profDB.Error.Error()
-		return Information, errors.New("A database error occured. See log for details.")
+		return Information, errors.New(dbError)
 	}
 
 	// Find the CA
 	var ca CA
 	if CaDB := c.DB.First(&ca, prof.CaID).Find(&ca); CaDB.Error != nil {
 		Information.Error = CaDB.Error.Error()
-		return Information, errors.New("A database error occured. See log for details.")
+		return Information, errors.New(dbError)
 	}
 	// Load the certificates from the database
 	catls, err := tls.X509KeyPair([]byte(ca.Cert), []byte(ca.Key))
@@ -738,7 +740,7 @@ func (c Cert) New() (types.Info, error) {
 	var newcertdb []Cert
 	var SerialNumber *big.Int
 
-	if CertDB := c.DB.Last(&certdb).Related(&ca); CertDB.Error != nil {
+	if CertDB := c.DB.Last(&certdb); CertDB.Error != nil {
 		SerialNumber = big.NewInt(1)
 	} else {
 		SerialNumber = big.NewInt(int64(certdb.ID + 1))
@@ -864,11 +866,11 @@ func (c Cert) New() (types.Info, error) {
 
 	if err := c.DB.Create(&Cert{Cn: c.Cn, Ca: ca, CaName: ca.Cn, ProfileName: prof.Name, SerialNumber: SerialNumber.String(), DNSNames: c.DNSNames, IPAddresses: c.IPAddresses, Mail: c.Mail, StreetAddress: StreetAddress, Organisation: Organization, OrganisationalUnit: OrganizationalUnit, Country: Country, State: Province, Locality: Locality, PostalCode: PostalCode, Profile: prof, Key: keyOut.String(), Cert: certBuff.String(), ValidUntil: cert.NotAfter}).Error; err != nil {
 		Information.Error = err.Error()
-		return Information, errors.New("A database error occured. See log for details.")
+		return Information, errors.New(dbError)
 	}
-	c.DB.Select("id, cn, mail, street_address, organisation, organisational_unit, country, state, locality, postal_code, cert, profile_id, profile_name, ca_name, ca_id, valid_until, serial_number, dns_names, ip_addresses").Where("cn = ?", c.Cn).First(&newcertdb)
+	c.DB.Select("id, cn, mail, street_address, organisation, organisational_unit, country, state, locality, postal_code, cert, profile_id, profile_name, ca_name, ca_id, valid_until, serial_number, dns_names, ip_addresses").Where("cn = ? AND ProfileName = ?", c.Cn, prof.Name).First(&newcertdb)
 	Information.Entries = newcertdb
-
+	Information.Serial = SerialNumber.String()
 	return Information, nil
 }
 
@@ -899,7 +901,7 @@ func (c Cert) Paginated(vars sql.Vars) (types.Info, error) {
 		sql, err := vars.Sql(c)
 		if err != nil {
 			Information.Error = err.Error()
-			return Information, errors.New("A database error occured. See log for details.")
+			return Information, errors.New(dbError)
 		}
 		var certdb []Cert
 		c.DB.Select(sql.Select).Order(sql.Order).Offset(sql.Offset).Limit(sql.Limit).Find(&certdb)
@@ -914,7 +916,7 @@ func (c Cert) Search(vars sql.Vars) (types.Info, error) {
 	sql, err := vars.Sql(c)
 	if err != nil {
 		Information.Error = err.Error()
-		return Information, errors.New("A database error occured. See log for details.")
+		return Information, errors.New(dbError)
 	}
 	var count int
 	c.DB.Model(&Cert{}).Where(sql.Where.Query, sql.Where.Values...).Count(&count)
@@ -934,16 +936,31 @@ func (c Cert) Download(params map[string]string) (types.Info, error) {
 	Information := types.Info{}
 	// Find the Cert
 	var cert Cert
-	if val, ok := params["cn"]; ok {
-		if CertDB := c.DB.Where("Cn = ?", val).Find(&cert); CertDB.Error != nil {
-			Information.Error = CertDB.Error.Error()
-			return Information, errors.New("A database error occured. See log for details.")
+	if profile, ok := params["profile"]; ok {
+		if val, ok := params["cn"]; ok {
+			if CertDB := c.DB.Where("Cn = ? AND profile_id = ?", val, profile).Find(&cert); CertDB.Error != nil {
+				Information.Error = CertDB.Error.Error()
+				return Information, errors.New(dbError)
+			}
 		}
-	}
-	if val, ok := params["id"]; ok {
-		if CertDB := c.DB.First(&cert, val); CertDB.Error != nil {
-			Information.Error = CertDB.Error.Error()
-			return Information, errors.New("A database error occured. See log for details.")
+		if val, ok := params["id"]; ok {
+			if CertDB := c.DB.Where("Id = ? AND profile_id = ?", val, profile).Find(&cert); CertDB.Error != nil {
+				Information.Error = CertDB.Error.Error()
+				return Information, errors.New(dbError)
+			}
+		}
+	} else {
+		if val, ok := params["cn"]; ok {
+			if CertDB := c.DB.Where("Cn = ?", val).Find(&cert); CertDB.Error != nil {
+				Information.Error = CertDB.Error.Error()
+				return Information, errors.New(dbError)
+			}
+		}
+		if val, ok := params["id"]; ok {
+			if CertDB := c.DB.First(&cert, val); CertDB.Error != nil {
+				Information.Error = CertDB.Error.Error()
+				return Information, errors.New(dbError)
+			}
 		}
 	}
 
@@ -951,7 +968,7 @@ func (c Cert) Download(params map[string]string) (types.Info, error) {
 	var ca CA
 	if CaDB := c.DB.Model(&cert).Related(&ca); CaDB.Error != nil {
 		Information.Error = CaDB.Error.Error()
-		return Information, errors.New("A database error occured. See log for details.")
+		return Information, errors.New(dbError)
 	}
 
 	// Load the certificates from the database
@@ -965,7 +982,7 @@ func (c Cert) Download(params map[string]string) (types.Info, error) {
 	var prof Profile
 	if profDB := c.DB.Where("Name = ?", cert.ProfileName).Find(&prof); profDB.Error != nil {
 		Information.Error = profDB.Error.Error()
-		return Information, errors.New("A database error occured. See log for details.")
+		return Information, errors.New(dbError)
 	}
 
 	certificate, err := x509.ParseCertificate(certtls.Certificate[0])
@@ -1016,12 +1033,34 @@ func (c Cert) Revoke(params map[string]string) (types.Info, error) {
 	// Find the Cert
 	var cert Cert
 
-	id := params["id"]
 	reason := params["reason"]
 
-	if CertDB := c.DB.Where("id = ?", id).Find(&cert); CertDB.Error != nil {
-		Information.Error = CertDB.Error.Error()
-		return Information, CertDB.Error
+	if serial, ok := params["serial"]; ok {
+		if id, ok := params["id"]; ok {
+			if CertDB := c.DB.Where("id = ? AND serial_number = ?", id, serial).Find(&cert); CertDB.Error != nil {
+				Information.Error = CertDB.Error.Error()
+				return Information, CertDB.Error
+			}
+		}
+		if cn, ok := params["cn"]; ok {
+			if CertDB := c.DB.Where("cn = ? AND serial_number = ?", cn, serial).Find(&cert); CertDB.Error != nil {
+				Information.Error = CertDB.Error.Error()
+				return Information, CertDB.Error
+			}
+		}
+	} else {
+		if id, ok := params["id"]; ok {
+			if CertDB := c.DB.Where("id = ?", id).Find(&cert); CertDB.Error != nil {
+				Information.Error = CertDB.Error.Error()
+				return Information, CertDB.Error
+			}
+		}
+		if cn, ok := params["cn"]; ok {
+			if CertDB := c.DB.Where("cn = ?", cn).Find(&cert); CertDB.Error != nil {
+				Information.Error = CertDB.Error.Error()
+				return Information, CertDB.Error
+			}
+		}
 	}
 
 	// Find the CA
