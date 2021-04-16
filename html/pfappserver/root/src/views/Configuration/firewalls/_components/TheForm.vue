@@ -20,6 +20,7 @@
 import { BaseContainerLoading } from '@/components/new/'
 import FormTypeBarracudaNg from './FormTypeBarracudaNg'
 import FormTypeCheckpoint from './FormTypeCheckpoint'
+import FormTypeContentKeeper from './FormTypeContentKeeper'
 import FormTypeCiscoIsePic from './FormTypeCiscoIsePic'
 import FormTypeFamilyZone from './FormTypeFamilyZone'
 import FormTypeFortiGate from './FormTypeFortiGate'
@@ -37,6 +38,7 @@ const components = {
   FormTypeBarracudaNg,
   FormTypeCheckpoint,
   FormTypeCiscoIsePic,
+  FormTypeContentKeeper,
   FormTypeFamilyZone,
   FormTypeFortiGate,
   FormTypeIboss,
@@ -70,6 +72,8 @@ export const setup = (props) => {
         return FormTypeBarracudaNg // break
       case 'Checkpoint':
         return FormTypeCheckpoint // break
+      case 'ContentKeeper':
+        return FormTypeContentKeeper // break
       case 'CiscoIsePic':
         return FormTypeCiscoIsePic // break
       case 'FamilyZone':
