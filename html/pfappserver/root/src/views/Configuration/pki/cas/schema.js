@@ -42,7 +42,7 @@ export default (props) => {
       .required(i18n.t('Common name required.'))
       .max(64, i18n.t('Maximum 64 characters.'))
       .pkiCaCnNotExistsExcept((!isNew && !isClone) ? id : undefined, i18n.t('Common name exists.'))
-      .isCommonName(i18n.t('Invalid Common name.')),
+      .isCommonNameOrFQDN(i18n.t('Invalid common name.')),
 
     mail: yup.string()
       .nullable()
@@ -72,7 +72,7 @@ export default (props) => {
       if (sizes)
         return _schema.in(sizes, i18n.t('Invalid key size. {type} only supports {list}', { type, list: arrToLocale(sizes) }))
       return _schema
-    }), 
+    }),
     ocsp_url: yup.string().max(255, i18n.t('Maximum 255 characters.')),
     digest: yup.string().required(i18n.t('Digest required.')),
     days: yup.string().required(i18n.t('Days required.')).minAsInt(1, i18n.t('Minimum 1 day(s).')).maxAsInt(825, i18n.t('Maximum 825 day(s).'))
