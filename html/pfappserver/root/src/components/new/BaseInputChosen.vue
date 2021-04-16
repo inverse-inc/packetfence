@@ -219,7 +219,7 @@ export const setup = (props, context) => {
   const inputGroupValues = computed(() => {
     const { 0: { group } = {} } = options.value
     if (group)
-      return 'items'
+      return 'options'
     return groupValues.value
   })
 

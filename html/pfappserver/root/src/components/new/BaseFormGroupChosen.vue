@@ -253,7 +253,7 @@ export const setup = (props, context) => {
     // inspect options first item for group(ing)
     const { 0: { group } = {} } = options.value
     if (group)
-      return 'items'
+      return 'options'
   })
 
   const singleLabel = useOptionsValue(options, trackBy, label, value, isFocus)

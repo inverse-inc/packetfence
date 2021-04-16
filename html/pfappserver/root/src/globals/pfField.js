@@ -153,7 +153,7 @@ export const pfFieldTypeValues = {
     [
       {
         group: i18n.t('Types'),
-        items: [
+        options: [
           { value: 'Ethernet-EAP', text: 'Ethernet-EAP' },
           { value: 'Ethernet-NoEAP', text: 'Ethernet-NoEAP' },
           { value: 'Ethernet-Web-Auth', text: 'Ethernet-Web-Auth' },
@@ -166,7 +166,7 @@ export const pfFieldTypeValues = {
       },
       {
         group: i18n.t('Groups'),
-        items: [
+        options: [
           { value: 'EAP', text: 'EAP' },
           { value: 'Ethernet', text: 'Ethernet' },
           { value: 'Web-Auth', text: 'Web-Auth' },
