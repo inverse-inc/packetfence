@@ -58,11 +58,16 @@ func setup(c *caddy.Controller) error {
 }
 
 // Build the PfssoHandler which will initialize the cache and instantiate the router along with its routes
-func buildPfssoHandler(ctx context.Context) (PfssoHandler, error) {
+func buildPfssoHandler(ctx context.Context) (*PfssoHandler, error) {
 
-	pfsso := PfssoHandler{}
+	pfsso := &PfssoHandler{}
 
 	pfsso.updateCache = cache.New(1*time.Hour, 30*time.Second)
+
+	// Declare all pfconfig resources that will be necessary
+	pfsso.firewalls = firewallsso.NewFirewallsContainer(ctx)
+	pfconfigdriver.PfconfigPool.AddRefreshable(ctx, pfsso.firewalls)
+	pfconfigdriver.PfconfigPool.AddStruct(ctx, &pfconfigdriver.Config.Interfaces.ManagementNetwork)
 
 	router := httprouter.New()
 	router.POST("/api/v1/firewall_sso/update", pfsso.handleUpdate)
@@ -70,11 +75,6 @@ func buildPfssoHandler(ctx context.Context) (PfssoHandler, error) {
 	router.POST("/api/v1/firewall_sso/stop", pfsso.handleStop)
 
 	pfsso.router = router
-
-	// Declare all pfconfig resources that will be necessary
-	pfsso.firewalls = firewallsso.NewFirewallsContainer(ctx)
-	pfconfigdriver.PfconfigPool.AddRefreshable(ctx, pfsso.firewalls)
-	pfconfigdriver.PfconfigPool.AddStruct(ctx, &pfconfigdriver.Config.Interfaces.ManagementNetwork)
 
 	return pfsso, nil
 }
