@@ -140,6 +140,17 @@ sub iptables_generate {
     # per interface-type pointers to pre-defined chains
     ($tags{'filter_if_src_to_chain'},$tags{'filter_forward'}) = $self->generate_filter_if_src_to_chain();
 
+    $tags{'netdata'} = "-A input-management-if --protocol tcp --match tcp -s 127.0.0.1 --dport 19999 --jump ACCEPT\n";
+
+    if ($cluster_enabled) {
+        push my @mgmt_backend, map { $_->{management_ip} } pf::cluster::config_enabled_servers();
+
+        foreach my $mgmt_back (uniq(@mgmt_backend)) {
+            $tags{'netdata'} .= "-A input-management-if --protocol tcp --match tcp -s $mgmt_back --dport 19999 --jump ACCEPT\n";
+        }
+    }
+    $tags{'netdata'} .= "-A input-management-if --protocol tcp --match tcp --dport 19999 --jump DROP\n";
+
     # eduroam RADIUS virtual-server
     if ( @{pf::authentication::getAuthenticationSourcesByType('Eduroam')} ) {
         my @eduroam_authentication_source = @{pf::authentication::getAuthenticationSourcesByType('Eduroam')};
