@@ -108,6 +108,7 @@ func (h *WgorchestratorHandler) handleGetProfile(c *gin.Context) {
 		IsGateway:               rc.IsGateway(c, db),
 		STUNServer:              rc.STUNServer(c, db),
 		InternalDomainToResolve: rc.InternalDomainToResolve(c, db),
+		RBACIPFiltering:         rc.RBACIPFiltering(c, db),
 	}
 
 	c.JSON(http.StatusOK, profile)

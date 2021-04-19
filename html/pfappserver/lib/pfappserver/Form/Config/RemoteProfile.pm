@@ -109,6 +109,13 @@ has_field 'gateway' =>
     unchecked_value => 'disabled',
   );
 
+has_field 'rbac_ip_filtering' =>
+  (
+    type => 'Toggle',
+    checkbox_value => 'enabled',
+    unchecked_value => 'disabled',
+  );
+
 has_field 'routes' =>
   (
    type => 'TextArea',

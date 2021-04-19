@@ -193,6 +193,11 @@ func (rc *RemoteClient) IsGateway(ctx context.Context, db *gorm.DB) bool {
 	return sharedutils.IsEnabled(profile.Gateway)
 }
 
+func (rc *RemoteClient) RBACIPFiltering(ctx context.Context, db *gorm.DB) bool {
+	profile := rc.ConnectionProfile(ctx, db)
+	return sharedutils.IsEnabled(profile.RBACIPFiltering)
+}
+
 func (rc *RemoteClient) Routes(ctx context.Context, db *gorm.DB) []string {
 	return rc.ConnectionProfile(ctx, db).Routes
 }

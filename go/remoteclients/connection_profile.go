@@ -104,6 +104,7 @@ type RemoteConnectionProfile struct {
 	Gateway                    string   `json:"gateway"`
 	STUNServer                 string   `json:"stun_server"`
 	InternalDomainToResolve    string   `json:"internal_domain_to_resolve"`
+	RBACIPFiltering            string   `json:"rbac_ip_filtering"`
 }
 
 type FilterInfo struct {

@@ -31,4 +31,5 @@ type Peer struct {
 	Hostname                string   `json:"hostname"`
 	STUNServer              string   `json:"stun_server"`
 	InternalDomainToResolve string   `json:"internal_domain_to_resolve"`
+	RBACIPFiltering         bool     `json:"rbac_ip_filtering"`
 }

@@ -29,6 +29,7 @@ export {
   BaseFormGroupInput                        as FormGroupInternalDomainToResolve,
   BaseFormGroupTextarea                     as FormGroupAdditionalDomainsToResolve,
   BaseFormGroupToggleDisabledEnabledDefault as FormGroupGateway,
+  BaseFormGroupToggleDisabledEnabledDefault as FormGroupRbacIpFiltering,
   BaseFormGroupTextarea                     as FormGroupRoutes,
   BaseFormGroupInput                        as FormGroupStunServer,
 

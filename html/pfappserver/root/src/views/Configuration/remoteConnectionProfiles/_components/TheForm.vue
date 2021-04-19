@@ -57,6 +57,11 @@
       :text="$i18n.t('Whether or not the wireguard clients matching this profile should run in SDP gateway mode')"
     />
 
+    <form-group-rbac-ip-filtering namespace="rbac_ip_filtering"
+      :column-label="$i18n.t('RBAC IP filtering')"
+      :text="$i18n.t('Whether or not the wireguard clients should perform role based access control while routing packets to nodes outside of the Zero Trust network. This is targetted for usage when the gateway mode is enabled.')"
+    />
+
     <form-group-routes namespace="routes"
       :column-label="$i18n.t('Routes')"
       :text="$i18n.t(`List of routes to push to the clients matching this profile. Format should be 'CIDR via GATEWAY'. Example: 10.0.0.0/8 via 192.168.69.5`)"
@@ -83,6 +88,7 @@ import {
   FormGroupInternalDomainToResolve,
   FormGroupAdditionalDomainsToResolve,
   FormGroupGateway,
+  FormGroupRbacIpFiltering,
   FormGroupRoutes,
   FormGroupStunServer
 } from './'
@@ -101,6 +107,7 @@ const components = {
   FormGroupInternalDomainToResolve,
   FormGroupAdditionalDomainsToResolve,
   FormGroupGateway,
+  FormGroupRbacIpFiltering,
   FormGroupRoutes,
   FormGroupStunServer
 }
