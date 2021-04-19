@@ -24,6 +24,7 @@ use IO::Interface::Simple;
 use pf::log;
 use Readonly;
 use NetAddr::IP;
+use List::MoreUtils qw(uniq);
 use pf::constants;
 use pf::config::cluster;
 
