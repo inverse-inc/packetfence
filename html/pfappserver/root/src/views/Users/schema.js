@@ -57,8 +57,13 @@ export const single = (props, form) => {
   } = props
 
   const {
-    pid_overwrite
+    pid_overwrite,
+    has_password
   } = form || {}
+
+  const expirationSchema = (has_password) // w/ `password`
+    ? yup.string().nullable().required(i18n.t('Date required.'))
+    : yup.string().nullable()
 
   return yup.object().shape(mysqlDatabaseSchema).concat(
     yup.object().shape({
@@ -76,7 +81,7 @@ export const single = (props, form) => {
       anniversary: yup.string().nullable().isDateFormat(),
       birthday: yup.string().nullable().isDateFormat(),
       valid_from: yup.string().nullable(),
-      expiration: yup.string().nullable().required(i18n.t('Date required.'))
+      expiration: expirationSchema
     })
   )
 }
