@@ -5,7 +5,7 @@
       :schema="schema"
       :isLoading="isLoading"
       class="pt-0"
-    >    
+    >
       <b-tabs v-model="tabIndex" card>
 
         <base-form-tab :title="$i18n.t('Profile')">
@@ -13,7 +13,7 @@
             :column-label="$i18n.t('Username (PID)')"
             :text="$t('The username to use for login to the captive portal.')"
           />
-          
+
           <form-group-email namespace="email"
             :column-label="$t('Email')" />
 
@@ -25,7 +25,7 @@
 
           <form-group-gender namespace="gender"
             :column-label="$t('Gender')" />
-          
+
           <form-group-title namespace="title"
             :column-label="$t('Title')" />
 
@@ -73,7 +73,7 @@
 
           <form-group-notes namespace="notes"
             :column-label="$t('Notes')" />
-            
+
           <div class="mt-3">
             <div class="border-top pt-3">
               <base-form-button-bar
@@ -90,7 +90,7 @@
             </div>
           </div>
         </base-form-tab>
-        
+
         <base-form-tab :title="$i18n.t('Actions')">
           <base-form-group
             :column-label="$t('Registration Window')">
@@ -100,7 +100,7 @@
             <input-group-expiration namespace="expiration"
               class="flex-grow-1" />
           </base-form-group>
-          
+
           <form-group-actions namespace="actions"
             :column-label="$t('Actions')" />
 
@@ -120,7 +120,7 @@
             </div>
           </div>
         </base-form-tab>
-        
+
         <base-form-tab :title="$i18n.t('Custom Fields')">
           <form-group-custom-field-1 namespace="custom_field_1"
             :column-label="$t('Custom Field 1')" />
@@ -147,7 +147,7 @@
             :column-label="$t('Custom Field 8')" />
 
           <form-group-custom-field-9 namespace="custom_field_9"
-            :column-label="$t('Custom Field 9')" />          
+            :column-label="$t('Custom Field 9')" />
 
           <div class="mt-3">
             <div class="border-top pt-3">
@@ -164,9 +164,9 @@
               />
             </div>
           </div>
-        </base-form-tab>      
-        
-        <base-form-tab :title="$i18n.t('Password')" v-if="isExpiration">
+        </base-form-tab>
+
+        <base-form-tab :title="$i18n.t('Password')" v-if="hasPassword">
           <form-group-password namespace="password"
             :column-label="$t('Password')"
             :text="$t('Leave empty to keep current password.')"
@@ -176,19 +176,19 @@
             :column-label="$t('Login remaining')"
             :text="$t('Leave empty to allow unlimited logins.')"
           />
-          
+
           <div class="mt-3">
             <div class="border-top pt-3">
              <b-button class="mr-1" variant="outline-primary" :disabled="isLoading" @click="onResetPassword">{{ $t('Reset Password') }}</b-button>
             </div>
-          </div>          
-        </base-form-tab>        
+          </div>
+        </base-form-tab>
 
         <b-tab title="Devices">
           <template v-slot:title>
             {{ $t('Devices') }} <b-badge pill v-if="hasNodes" variant="light" class="ml-1">{{ nodes.length }}</b-badge>
           </template>
-          
+
           <b-row align-h="between" align-v="center">
             <b-col cols="auto" class="mr-auto">
               <b-dropdown size="sm" class="mb-2" variant="link" :disabled="isLoadingNodes" no-caret>
@@ -211,7 +211,7 @@
             </b-col>
           </b-row>
 
-          <b-table :items="nodes" :fields="visibleNodeFields" :sortBy="nodeSortBy" :sortDesc="nodeSortDesc" 
+          <b-table :items="nodes" :fields="visibleNodeFields" :sortBy="nodeSortBy" :sortDesc="nodeSortDesc"
             class="pb-3" show-empty responsive sort-icon-left striped>
             <template v-slot:cell(status)="node">
               <b-badge pill variant="success" v-if="node.item.status === 'reg'">{{ $t('registered') }}</b-badge>
@@ -239,21 +239,21 @@
                 })
               } }">{{ $t('View All') }}</b-button>
             </template>
-          </b-table>      
-          
+          </b-table>
+
           <div class="mt-3">
             <div class="border-top pt-3">
              <b-button class="mr-1" v-if="!isDefaultUser" variant="outline-primary" :disabled="isLoadingNodes || !hasNodes" @click="onNodesUnassign">{{ $t('Unassign Nodes') }}</b-button>
-            </div> 
-          </div> 
+            </div>
+          </div>
         </b-tab>
-      
+
         <b-tab title="Security Events">
           <template v-slot:title>
             {{ $t('Security Events') }} <b-badge pill v-if="securityEvents && securityEvents.length > 0" variant="light" class="ml-1">{{ securityEvents.length }}</b-badge>
-          </template>      
-          
-          <b-table :items="securityEvents" :fields="securityEventFields" :sortBy="securityEventSortBy" :sortDesc="securityEventSortDesc" 
+          </template>
+
+          <b-table :items="securityEvents" :fields="securityEventFields" :sortBy="securityEventSortBy" :sortDesc="securityEventSortDesc"
             class="pb-3" show-empty responsive sort-icon-left striped>
             <template v-slot:cell(status)="securityEvent">
               <b-badge pill variant="success" v-if="securityEvent.item.status === 'open'">{{ $t('open') }}</b-badge>
@@ -272,15 +272,15 @@
               <base-table-empty :isLoading="isLoadingSecurityEvents" text="">{{ $t('No security events found') }}</base-table-empty>
             </template>
           </b-table>
-          
+
           <div class="mt-3">
             <div class="border-top pt-3">
               <b-button class="mr-1" variant="outline-primary" :disabled="isLoadingSecurityEvents || !hasOpenSecurityEvents" @click="closeSecurityEvents()">{{ $t('Close all security events') }}</b-button>
             </div>
-          </div>    
+          </div>
         </b-tab>
       </b-tabs>
-    </base-form> 
+    </base-form>
   </b-form>
 </template>
 <script>
@@ -336,7 +336,7 @@ const components = {
   BaseFormGroup,
   BaseFormTab,
   BaseTableEmpty,
-  
+
   FormGroupPid,
   FormGroupEmail,
   FormGroupSponsor,
@@ -358,7 +358,7 @@ const components = {
   FormGroupBirthday,
   FormGroupPsk,
   FormGroupNotes,
-  
+
   FormGroupPassword,
   FormGroupLoginRemaining,
 
@@ -379,7 +379,7 @@ const components = {
 
 const props = {
   pid: {
-    type: String    
+    type: String
   }
 }
 
@@ -392,11 +392,11 @@ import {
 import { single as schemaFn } from '../schema'
 
 const setup = (props, context) => {
-  
+
   const {
-    pid    
+    pid
   } = toRefs(props)
-  
+
   const { root: { $router, $store } = {} } = context
 
   const rootRef = ref(null)
@@ -404,10 +404,10 @@ const setup = (props, context) => {
   const schema = computed(() => schemaFn(props, form.value))
   const tabIndex = ref(0)
   const isDefaultUser = computed(() => {
-    const { pid } = form.value 
+    const { pid } = form.value
     return pid === 'default'
   })
-  const isExpiration = computed(() => !!form.value.expiration)
+  const hasPassword = computed(() => !!form.value.has_password)
   const isLoading = computed(() => $store.getters['$_users/isLoading'])
   const isValid = useDebouncedWatchHandler(
     [form],
@@ -418,7 +418,7 @@ const setup = (props, context) => {
         .length === 0
     )
   )
-  
+
   const nodes = ref([])
   const hasNodes = computed(() => Array.isArray(nodes.value) && nodes.value.length > 0)
   const isLoadingNodes = computed(() => $store.getters['$_users/isLoadingNodes'])
@@ -431,7 +431,7 @@ const setup = (props, context) => {
   }
   const visibleNodeFields = computed(() => nodeFields.value.filter(field => field.visible || field.locked))
   const onNodesUnassign = () => $store.dispatch('$_users/unassignUserNodes', pid.value)
-  
+
   const securityEvents = ref([])
   const hasOpenSecurityEvents = computed(() => Array.isArray(securityEvents.value) && securityEvents.value.findIndex(securityEvent => securityEvent.status === 'open') > -1)
   const isLoadingSecurityEvents = computed(() => $store.getters['$_users/isLoadingSecurityEvents'])
@@ -444,7 +444,7 @@ const setup = (props, context) => {
   const onSecurityEventCloseAll = () => {
     // TODO
   }
-  
+
   const onResetPassword = () => {
     const { password, login_remaining } = form.value
     const { id: tenant_id } = $store.state.session.tenant
@@ -456,7 +456,7 @@ const setup = (props, context) => {
     }
     return $store.dispatch('$_users/updatePassword', data)
   }
-  
+
   const onInit = () => {
     $store.dispatch('$_users/getUserNodes', pid.value).then(_nodes => {
       nodes.value = _nodes
@@ -469,34 +469,34 @@ const setup = (props, context) => {
     })
   }
   onInit()
-  
+
   const onClose = () => $router.back()
-  
+
   const onReset = onInit
-  
+
   const onSave = () => {
     $store.dispatch('$_users/updateUser', form.value).then(() => {
       if (form.value.expiration) // has password
         $store.dispatch('$_users/updatePassword', Object.assign({ quiet: true }, form.value))
     })
   }
-  
+
   const onRemove = () => {
     $store.dispatch('$_users/deleteUser', pid.value).then(() => {
       $router.push('/users/search')
-    })    
+    })
   }
-  
+
   return {
     rootRef,
     form,
     schema,
     tabIndex,
     isDefaultUser,
-    isExpiration,
+    hasPassword,
     isLoading,
     isValid,
-    
+
     nodes,
     hasNodes,
     isLoadingNodes,
@@ -506,7 +506,7 @@ const setup = (props, context) => {
     onNodeFieldToggle,
     visibleNodeFields,
     onNodesUnassign,
-    
+
     securityEvents,
     hasOpenSecurityEvents,
     isLoadingSecurityEvents,
@@ -515,7 +515,7 @@ const setup = (props, context) => {
     securityEventSortDesc,
     onSecurityEventClose,
     onSecurityEventCloseAll,
-    
+
     onResetPassword,
     onClose,
     onRemove,
