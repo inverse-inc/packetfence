@@ -282,6 +282,14 @@ func (h *WgorchestratorHandler) handleGetAllowedIPCommunication(c *gin.Context) 
 		res.Permit = false
 		res.Reason = "One of the nodes doesn't have a valid role"
 		c.JSON(http.StatusOK, res)
+	} else if secEventSrc, _ := common.NodeHasOpenedSecurityEvent(c, db.DB(), srcNode.MAC); secEventSrc {
+		res.Permit = false
+		res.Reason = "src_ip has an opened security event"
+		c.JSON(http.StatusOK, res)
+	} else if secEventDst, _ := common.NodeHasOpenedSecurityEvent(c, db.DB(), dstNode.MAC); secEventDst {
+		res.Permit = false
+		res.Reason = "dst_ip has an opened security event"
+		c.JSON(http.StatusOK, res)
 	} else {
 		var allowedRoles []string
 		var targetRoleCheck string

@@ -2,6 +2,7 @@ package common
 
 import (
 	"context"
+	"database/sql"
 	"encoding/json"
 
 	"github.com/inverse-inc/go-utils/log"
@@ -95,4 +96,16 @@ func (n *Node) Upsert(ctx context.Context) error {
 	}
 
 	return err
+}
+
+func NodeHasOpenedSecurityEvent(ctx context.Context, db *sql.DB, mac string) (bool, error) {
+	row := db.QueryRowContext(ctx, `select count(1) as opened_security_events from security_event where mac=? and status="open";`, mac)
+	var count int
+	err := row.Scan(&count)
+	if err != nil {
+		log.LoggerWContext(ctx).Error("Unable to check if node " + mac + " has an opened security event:" + err.Error())
+		return false, err
+	} else {
+		return count > 0, nil
+	}
 }
