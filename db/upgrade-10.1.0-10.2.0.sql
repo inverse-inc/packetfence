@@ -220,9 +220,8 @@ CREATE TABLE IF NOT EXISTS `radreply` (
 
 \! echo "Adding default radreply row";
 INSERT INTO `radreply` (`tenant_id`, `username`, `attribute`, `value`, `op`)
-SELECT '1', '00:00:00:00:00:00','User-Name','*', '=*'
-WHERE NOT EXISTS (SELECT * FROM `radreply`
-      WHERE `tenant_id`='1' AND `username`='00:00:00:00:00:00' AND `attribute`='User-Name' AND `value`='*' AND `op`='=*' LIMIT 1);
+    SELECT * FROM (SELECT '1', '00:00:00:00:00:00','User-Name', '*', '=*') as x
+     WHERE NOT EXISTS ( SELECT 1 FROM `radreply` WHERE `tenant_id`='1' AND `username`='00:00:00:00:00:00' AND `attribute`='User-Name' AND `value`='*' AND `op`='=*');
 
 \! echo "Adding integer column to locationlog switch_ip"
 ALTER table `locationlog` ADD COLUMN IF NOT EXISTS `switch_ip_int` INT UNSIGNED AS (INET_ATON(`switch_ip`)) PERSISTENT AFTER `switch_ip`,
