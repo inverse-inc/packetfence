@@ -202,7 +202,7 @@ sub authorize {
     my $options = {};
 
     # Handling machine auth detection
-    $self->_machine_auth_detection($username,\$node_obj,\$options);
+    $self->_machine_auth_detection($user_name,\$node_obj,\$options);
 
     if (defined($session_id)) {
         $node_obj->sessionid($session_id);
@@ -231,7 +231,7 @@ sub authorize {
         %$radius_request = %$reply;
         $args->{'user_name'} = $switch->parseRequestUsername($radius_request);
         $args->{'username'} = $args->{'user_name'};
-        $self->_machine_auth_detection($username,\$node_obj,\$options);
+        $self->_machine_auth_detection($user_name,\$node_obj,\$options);
     }
     my $result = $role_obj->filterVlan('IsPhone',$args);
     # determine if we need to perform automatic registration
@@ -1180,8 +1180,8 @@ sub _machine_auth_detection {
     my $logger = get_logger;
     if ( defined($user_name) && $user_name =~ /^host\// ) {
         $logger->info("is doing machine auth with account '$user_name'.");
-        $node_obj->machine_account($user_name);
-        $options->{'machine_account'} = $user_name;
+        $$node_obj->machine_account($user_name);
+        $$options->{'machine_account'} = $user_name;
     }
 }
 
