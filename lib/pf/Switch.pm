@@ -2994,7 +2994,7 @@ sub parseRequestUsername {
     foreach my $attribute (@{$Config{radius_configuration}{username_attributes}}) {
         if(exists($radius_request->{$attribute})) {
             my $user_name = $radius_request->{$attribute};
-            get_logger->debug("Extracting username '$user_name' from RADIUS attribute $attribute");
+            get_logger->info("Extracting username '$user_name' from RADIUS attribute $attribute");
             return $user_name;
         }
     }
