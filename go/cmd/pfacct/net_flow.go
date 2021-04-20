@@ -7,8 +7,8 @@ import (
 	"time"
 
 	"github.com/inverse-inc/go-utils/log"
-	"github.com/inverse-inc/packetfence/go/netflow5"
-	"github.com/inverse-inc/packetfence/go/netflow5/processor"
+	"github.com/inverse-inc/go-utils/netflow5"
+	"github.com/inverse-inc/go-utils/netflow5/processor"
 )
 
 const (

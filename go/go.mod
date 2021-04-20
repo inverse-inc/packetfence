@@ -34,7 +34,7 @@ require (
 	github.com/go-kit/kit v0.10.0
 	github.com/go-redis/redis v0.0.0-20190325112110-a679e614427a
 	github.com/go-sql-driver/mysql v1.5.0
-	github.com/go-test/deep v1.0.5
+	github.com/go-test/deep v1.0.7
 	github.com/goji/httpauth v0.0.0-20160601135302-2da839ab0f4d
 	github.com/golang/protobuf v1.4.3
 	github.com/golang/snappy v0.0.1 // indirect
@@ -58,7 +58,7 @@ require (
 	github.com/inverse-inc/go-ipset v0.0.0-20190925174109-4d5749cc4aa6
 	github.com/inverse-inc/go-radius v0.0.0-20201019132414-82756e2d8d47
 	github.com/inverse-inc/scep v0.0.0-20210513203155-0afeb79ee054
-	github.com/inverse-inc/go-utils v0.0.0-20210420012216-d70aaa957d5a
+	github.com/inverse-inc/go-utils v0.0.0-20210420024101-48a17e73abae
 	github.com/jcuga/golongpoll v1.1.0
 	github.com/jimstudt/http-authentication v0.0.0-20140401203705-3eca13d6893a
 	github.com/jinzhu/gorm v1.9.16
