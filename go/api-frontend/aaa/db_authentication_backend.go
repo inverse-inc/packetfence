@@ -10,9 +10,9 @@ import (
 	"golang.org/x/crypto/bcrypt"
 
 	_ "github.com/go-sql-driver/mysql"
-	"github.com/inverse-inc/packetfence/go/log"
+	"github.com/inverse-inc/go-utils/log"
+	"github.com/inverse-inc/go-utils/sharedutils"
 	"github.com/inverse-inc/packetfence/go/pfconfigdriver"
-	"github.com/inverse-inc/packetfence/go/sharedutils"
 )
 
 type DbAuthenticationBackend struct {

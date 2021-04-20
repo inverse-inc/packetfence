@@ -14,10 +14,10 @@ import (
 	"github.com/gdey/jsonpath"
 	_ "github.com/go-sql-driver/mysql"
 
+	"github.com/inverse-inc/go-utils/log"
+	util "github.com/inverse-inc/go-utils/sharedutils"
 	"github.com/inverse-inc/packetfence/go/interval"
-	"github.com/inverse-inc/packetfence/go/log"
 	"github.com/inverse-inc/packetfence/go/pfconfigdriver"
-	util "github.com/inverse-inc/packetfence/go/sharedutils"
 	"github.com/inverse-inc/packetfence/go/unifiedapiclient"
 )
 

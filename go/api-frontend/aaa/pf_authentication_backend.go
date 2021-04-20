@@ -11,8 +11,8 @@ import (
 	"strings"
 	"time"
 
+	"github.com/inverse-inc/go-utils/sharedutils"
 	"github.com/inverse-inc/packetfence/go/pfconfigdriver"
-	"github.com/inverse-inc/packetfence/go/sharedutils"
 )
 
 type PfAuthenticationBackend struct {

@@ -20,11 +20,11 @@ import (
 	"github.com/inverse-inc/go-radius/rfc2865"
 	"github.com/inverse-inc/go-radius/rfc2866"
 	"github.com/inverse-inc/go-radius/rfc2869"
+	"github.com/inverse-inc/go-utils/log"
+	"github.com/inverse-inc/go-utils/mac"
+	"github.com/inverse-inc/go-utils/sharedutils"
 	"github.com/inverse-inc/packetfence/go/db"
-	"github.com/inverse-inc/packetfence/go/log"
-	"github.com/inverse-inc/packetfence/go/mac"
 	"github.com/inverse-inc/packetfence/go/pfconfigdriver"
-	"github.com/inverse-inc/packetfence/go/sharedutils"
 )
 
 const TRIGGER_TYPE_ACCOUNTING = "accounting"

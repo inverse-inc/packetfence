@@ -4,8 +4,8 @@ import (
 	"context"
 	"os"
 
+	"github.com/inverse-inc/go-utils/log"
 	"github.com/inverse-inc/packetfence/go/jsonrpc2"
-	"github.com/inverse-inc/packetfence/go/log"
 	"github.com/inverse-inc/packetfence/go/pfconfigdriver"
 )
 

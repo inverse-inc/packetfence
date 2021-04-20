@@ -11,7 +11,7 @@ import (
 	"time"
 
 	"github.com/coreos/go-systemd/daemon"
-	"github.com/inverse-inc/packetfence/go/log"
+	"github.com/inverse-inc/go-utils/log"
 )
 
 const defaultNetFlowAddr = "127.0.0.1"

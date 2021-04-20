@@ -1,7 +1,7 @@
 package main
 
 import (
-	"github.com/inverse-inc/packetfence/go/mac"
+	"github.com/inverse-inc/go-utils/mac"
 	"testing"
 	"time"
 )

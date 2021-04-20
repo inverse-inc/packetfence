@@ -21,10 +21,10 @@ import (
 	"github.com/coreos/go-systemd/daemon"
 	"github.com/hpcloud/tail"
 	radius "github.com/inverse-inc/go-radius"
+	"github.com/inverse-inc/go-utils/log"
+	"github.com/inverse-inc/go-utils/sharedutils"
 	"github.com/inverse-inc/packetfence/go/db"
-	"github.com/inverse-inc/packetfence/go/log"
 	"github.com/inverse-inc/packetfence/go/pfconfigdriver"
-	"github.com/inverse-inc/packetfence/go/sharedutils"
 	statsd "gopkg.in/alexcesaro/statsd.v2"
 	ldap "gopkg.in/ldap.v2"
 )

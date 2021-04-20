@@ -8,11 +8,11 @@ import (
 	"time"
 
 	"github.com/gin-gonic/gin"
+	"github.com/inverse-inc/go-utils/log"
+	"github.com/inverse-inc/go-utils/sharedutils"
 	"github.com/inverse-inc/packetfence/go/caddy/caddy"
 	"github.com/inverse-inc/packetfence/go/caddy/caddy/caddyhttp/httpserver"
-	"github.com/inverse-inc/packetfence/go/log"
 	"github.com/inverse-inc/packetfence/go/panichandler"
-	"github.com/inverse-inc/packetfence/go/sharedutils"
 	"github.com/jcuga/golongpoll"
 )
 

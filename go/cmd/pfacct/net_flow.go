@@ -6,7 +6,7 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/inverse-inc/packetfence/go/log"
+	"github.com/inverse-inc/go-utils/log"
 	"github.com/inverse-inc/packetfence/go/netflow5"
 	"github.com/inverse-inc/packetfence/go/netflow5/processor"
 )

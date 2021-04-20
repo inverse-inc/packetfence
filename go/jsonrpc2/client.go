@@ -6,7 +6,7 @@ import (
 	"crypto/tls"
 	"encoding/json"
 	"fmt"
-	"github.com/inverse-inc/packetfence/go/log"
+	"github.com/inverse-inc/go-utils/log"
 	"github.com/inverse-inc/packetfence/go/pfconfigdriver"
 	"io/ioutil"
 	"net"

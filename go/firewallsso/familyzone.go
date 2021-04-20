@@ -8,7 +8,7 @@ import (
 	"strings"
 
 	"github.com/google/uuid"
-	"github.com/inverse-inc/packetfence/go/log"
+	"github.com/inverse-inc/go-utils/log"
 )
 
 // FamilyZone struct

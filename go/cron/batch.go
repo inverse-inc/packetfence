@@ -3,7 +3,7 @@ package maint
 import (
 	"context"
 	"database/sql"
-	"github.com/inverse-inc/packetfence/go/log"
+	"github.com/inverse-inc/go-utils/log"
 	"time"
 )
 

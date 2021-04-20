@@ -2,7 +2,7 @@ package panichandler
 
 import (
 	"context"
-	"github.com/inverse-inc/packetfence/go/sharedutils"
+	"github.com/inverse-inc/go-utils/sharedutils"
 	"io/ioutil"
 	"net/http"
 	"net/http/httptest"
