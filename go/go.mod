@@ -58,6 +58,7 @@ require (
 	github.com/inverse-inc/go-ipset v0.0.0-20190925174109-4d5749cc4aa6
 	github.com/inverse-inc/go-radius v0.0.0-20201019132414-82756e2d8d47
 	github.com/inverse-inc/scep v0.0.0-20210513203155-0afeb79ee054
+	github.com/inverse-inc/go-utils v0.0.0-20210420012216-d70aaa957d5a
 	github.com/jcuga/golongpoll v1.1.0
 	github.com/jimstudt/http-authentication v0.0.0-20140401203705-3eca13d6893a
 	github.com/jinzhu/gorm v1.9.16
@@ -65,9 +66,8 @@ require (
 	github.com/julsemaan/certmagic v0.6.3-0.20191015203349-067e102ae4ff
 	github.com/klauspost/cpuid v1.2.1
 	github.com/knq/pemutil v0.0.0-20181215144041-fb6fad722528
-	github.com/kr/pretty v0.2.0
+	github.com/kr/pretty v0.2.1
 	github.com/lucas-clemente/quic-go v0.10.2
-	github.com/mattn/go-colorable v0.1.4 // indirect
 	github.com/matttproud/golang_protobuf_extensions v1.0.1
 	github.com/mdlayher/ethernet v0.0.0-20170707213343-e72cf8343052
 	github.com/mdlayher/raw v0.0.0-20171214195253-9df8b4265df2
@@ -93,9 +93,10 @@ require (
 	go.etcd.io/etcd v0.5.0-alpha.5.0.20200306183522-221f0cc107cb
 	go.uber.org/zap v1.14.1 // indirect
 	golang.org/x/crypto v0.0.0-20201002170205-7f63de1d35b0
-	golang.org/x/net v0.0.0-20200707034311-ab3426394381
-	golang.org/x/sys v0.0.0-20201015000850-e3ed0017c211
-	golang.org/x/text v0.3.3
+	golang.org/x/net v0.0.0-20210415231046-e915ea6b2b7d
+	golang.org/x/sys v0.0.0-20210330210617-4fbd30eecc44
+	golang.org/x/text v0.3.6
+	golang.org/x/time v0.0.0-20191024005414-555d28b269f0 // indirect
 	google.golang.org/api v0.29.0
 	google.golang.org/grpc v1.29.1
 	gopkg.in/DataDog/dd-trace-go.v1 v1.27.1
