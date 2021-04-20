@@ -244,6 +244,7 @@ variables:
   after_script:
     - make -e -C ${ZENDIR} clean
     - make -e -C ${ZENDIR} clean_cache
+  dependencies: []
   tags:
     - shell
 
@@ -256,6 +257,7 @@ variables:
     - make -e -C ${VAGRANT_IMG_DIR} ${BOX_NAME}
   after_script:
     - make -e -C ${VAGRANT_IMG_DIR} clean
+  dependencies: []
   tags:
     - inverse.ca
     - shell
