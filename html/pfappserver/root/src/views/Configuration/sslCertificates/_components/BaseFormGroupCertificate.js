@@ -7,7 +7,7 @@ export const props = {
   // overload :accept default
   accept: {
     type: String,
-    default: 'application/x-x509-ca-cert, text/*'
+    default: 'application/x-x509-ca-cert, application/vnd.apple.keynote, text/*'
   },
 
   // overload :tooltip default
