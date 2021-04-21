@@ -10,14 +10,14 @@
       </div>
       <h4 class="mb-0">
         {{ $t('Tenants') }}
-        <pf-button-help class="ml-1" url="PacketFence_Installation_Guide.html#tenants" />
+        <pf-button-help class="ml-1" url="PacketFence_Installation_Guide.html#_tenants" />
       </h4>
-    </b-card-header>    
+    </b-card-header>
     <div class="card-body">
       <transition name="fade" mode="out-in">
         <div v-if="advancedMode">
           <b-form @submit.prevent="onSearchAdvanced" @reset.prevent="onSearchReset">
-            <base-search-input-advanced 
+            <base-search-input-advanced
               v-model="conditionAdvanced"
               :disabled="isLoading"
               :fields="fields"
@@ -26,8 +26,8 @@
             />
             <b-container fluid class="text-right mt-3 px-0">
               <b-button class="mr-1" type="reset" variant="secondary" :disabled="isLoading">{{ $t('Clear') }}</b-button>
-              <base-button-save-search 
-                save-search-namespace="tenants-advanced" 
+              <base-button-save-search
+                save-search-namespace="tenants-advanced"
                 v-model="conditionAdvanced"
                 :disabled="isLoading"
                 @search="onSearchAdvanced"
@@ -53,7 +53,7 @@
       </b-row>
       <b-row align-h="end" align-v="center">
         <b-col>
-          <base-search-input-columns 
+          <base-search-input-columns
             v-model="columns"
             :disabled="isLoading"
           />
@@ -61,21 +61,21 @@
         <b-col cols="auto">
           <b-container fluid>
             <b-row align-v="center">
-              <base-search-input-limit 
+              <base-search-input-limit
                 v-model="limit"
                 size="md"
                 :limits="limits"
                 :disabled="isLoading"
               />
-              <base-search-input-page 
+              <base-search-input-page
                 v-model="page"
                 :limit="limit"
                 :total-rows="totalRows"
                 :disabled="isLoading"
               />
-              <base-button-export-csv 
+              <base-button-export-csv
                 class="mb-3" size="md"
-                :filename="`${$route.path.slice(1).replace('/', '-')}.csv`" 
+                :filename="`${$route.path.slice(1).replace('/', '-')}.csv`"
                 :disabled="isLoading"
                 :columns="columns" :data="items"
               />
@@ -114,7 +114,7 @@
             >{{ $t('Delete') }}</base-button-confirm>
             <b-button size="sm" variant="outline-primary" class="mr-1" @click.stop.prevent="onClone(item.id)">{{ $t('Clone') }}</b-button>
           </span>
-        </template>        
+        </template>
       </b-table>
     </div>
   </b-card>
@@ -165,15 +165,12 @@ const setup = (props, context) => {
     doReset,
     doSearchString,
     doSearchCondition,
-    reSearch,
-    items,
-    sortBy,
-    sortDesc
+    reSearch
   } = search
 
   onMounted(() => {
     const { currentRoute: { query: { query } = {} } = {} } = $router
-    if (query) { 
+    if (query) {
       const parsedQuery = JSON.parse(query)
       switch(parsedQuery.constructor) {
         case Array: // advanced search
@@ -249,9 +246,6 @@ const setup = (props, context) => {
     onSearchAdvanced,
     onSearchReset,
     onRowClicked,
-    items,
-    sortBy,
-    sortDesc,
     onClone,
     onRemove,
     ...search

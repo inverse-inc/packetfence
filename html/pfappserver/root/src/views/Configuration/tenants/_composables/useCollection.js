@@ -4,18 +4,20 @@ import {
   defaultsFromMeta as useItemDefaults
 } from '../../_config/'
 
-const useItemTitle = (props) => {
+const useItemTitle = (props, context) => {
   const {
     id,
     isClone,
     isNew
   } = toRefs(props)
+  const { root: { $store } = {} } = context
+  const { [id.value]: { name } = {} } = $store.getters['$_tenants/all'] // use store, not form
   return computed(() => {
     switch (true) {
       case !isNew.value && !isClone.value:
-        return i18n.t('Tenant <code>{id}</code>', { id: id.value })
+        return i18n.t('Tenant <code>{name}</code>', { name })
       case isClone.value:
-        return i18n.t('Clone Tenant <code>{id}</code>', { id: id.value })
+        return i18n.t('Clone Tenant <code>{name}</code>', { name })
       default:
         return i18n.t('New Tenant')
     }
@@ -47,7 +49,8 @@ const useStore = (props, context, form) => {
     getOptions: () => $store.dispatch('$_tenants/options'),
     createItem: () => $store.dispatch('$_tenants/createTenant', form.value),
     deleteItem: () => $store.dispatch('$_tenants/deleteTenant', id.value),
-    getItem: () => $store.dispatch('$_tenants/getTenant', id.value).then(item => {
+    getItem: () => $store.dispatch('$_tenants/getTenant', id.value).then(_item => {
+      let item = { ..._item } // dereference
       if (isClone.value) {
         item.name = `${item.name}-${i18n.t('copy')}`
         item.not_deletable = false
@@ -67,7 +70,7 @@ import {
   fields
 } from '../config'
 export const useSearch = (props, context, options) => {
-  return useConfigurationSearch(api, { 
+  return useConfigurationSearch(api, {
     name: 'tenants', // localStorage prefix
     columns,
     fields,
