@@ -15,13 +15,11 @@ const useItemTitle = (props) => {
 }
 
 const useRouter = (props, context, form) => {
-  const {
-    id
-  } = toRefs(props)
   const { root: { $router } = {} } = context
   return {
     goToCollection: () => $router.push({ name: 'pkiRevokedCerts' }),
-    goToItem: () => $router.push({ name: 'pkiRevokedCert', params: { id: form.value.ID || id.value } })
+    goToItem: (item = form.value || {}) => $router
+      .push({ name: 'pkiRevokedCert', params: { id: item.ID } })
   }
 }
 

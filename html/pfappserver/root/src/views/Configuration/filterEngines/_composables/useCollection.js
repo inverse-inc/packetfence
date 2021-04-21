@@ -39,13 +39,13 @@ const useItemTitleBadge = (props, context) => {
 
 const useRouter = (props, context, form) => {
   const {
-    id,
     collection
   } = toRefs(props)
   const { root: { $router } = {} } = context
   return {
     goToCollection: () => $router.push({ name: 'filterEnginesCollection', params: { collection: collection.value } }),
-    goToItem: () => $router.push({ name: 'filter_engine', params: { collection: collection.value, id: form.value.id || id.value } })
+    goToItem: (item = form.value || {}) => $router
+      .push({ name: 'filter_engine', params: { collection: collection.value, id: item.id } })
       .catch(e => { if (e.name !== "NavigationDuplicated") throw e }),
     goToClone: () => $router.push({ name: 'cloneFilterEngine', params: { collection: collection.value } }),
   }

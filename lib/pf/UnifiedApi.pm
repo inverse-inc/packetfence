@@ -385,6 +385,7 @@ sub setup_api_v1_tenants_routes {
         "/tenant/#tenant_id",
     );
 
+    $collection_route->register_sub_action({path => '', action => 'options', method => 'OPTIONS'});
     return ($collection_route, $resource_route);
 }
 

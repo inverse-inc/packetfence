@@ -511,6 +511,66 @@ sub build_search_info {
     };
 }
 
+sub options {
+    my ($self) = @_;
+    my $meta = $self->options_meta();
+    return $self->render(json => { meta => $meta });
+}
+
+sub options_meta {
+    my ($self) = @_;
+    my $dal = $self->dal;
+    my $names = $dal->table_field_names;
+    return {
+        (map { $_ => $self->field_meta($dal, $_) } @{$names // [] }),
+    };
+}
+
+sub field_meta {
+    my ($self, $dal, $field) = @_;
+    return {
+        type => $self->field_type($dal, $field),
+        placeholder => $self->field_placeholder($dal, $field),
+        default => $self->field_default($dal, $field),
+        required => $self->field_required($dal, $field),
+    }
+}
+
+our %SQL_TO_TYPE = (
+    ( map { $_ => 'integer' } qw(INT BIGINT TINYINT SMALLINT) ),
+    ( map { $_ => 'integer' } qw(INT BIGINT TINYINT SMALLINT) ),
+);
+
+sub field_type {
+    my ($self, $dal, $field) = @_;
+    my $dal_meta = $dal->get_meta;
+    if (!exists $dal_meta->{$field}) {
+        return "string";
+    }
+
+    my $m = $dal_meta->{$field};
+    if (exists $SQL_TO_TYPE{$m->{type}}) {
+        return $SQL_TO_TYPE{$m->{type}};
+    }
+
+    return "string";
+}
+
+sub field_placeholder {
+    return undef;
+}
+
+sub field_default {
+    return undef;
+}
+
+sub field_required {
+    my ($self, $dal, $field) = @_;
+    my $dal_meta = $dal->get_meta;
+    my $m = $dal_meta->{$field};
+    return ($dal->is_nullable($field) || $m->{is_auto_increment}) ? $self->json_false : $self->json_true;
+}
+
 =head1 AUTHOR
 
 Inverse inc. <info@inverse.ca>

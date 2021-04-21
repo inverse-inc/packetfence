@@ -18,6 +18,7 @@ use Mojo::Base 'pf::UnifiedApi::Controller::Crud';
 use pf::dal::tenant;
 use pf::config::tenant;
 use pf::constants qw($DEFAULT_TENANT_ID);
+use pf::error qw(is_error);
 
 has dal => 'pf::dal::tenant';
 has url_param_name => 'tenant_id';
@@ -48,6 +49,21 @@ sub can_create {
     }
 
     return $self->SUPER::can_create;
+}
+
+sub cleanup_item {
+    my ($self, $item) = @_;
+    $item->{not_deletable} = $self->not_deletable($item);
+    return $item;
+}
+
+sub not_deletable {
+    my ($self, $item) = @_;
+    if ($item->{id} <= $DEFAULT_TENANT_ID) {
+        return $self->json_true;
+    }
+
+    return $self->is_readonly ? $self->json_true : $self->json_false;
 }
 
 sub is_readonly {

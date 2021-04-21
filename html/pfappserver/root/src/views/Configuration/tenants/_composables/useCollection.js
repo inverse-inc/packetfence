@@ -4,20 +4,22 @@ import {
   defaultsFromMeta as useItemDefaults
 } from '../../_config/'
 
-const useItemTitle = (props) => {
+const useItemTitle = (props, context) => {
   const {
     id,
     isClone,
     isNew
   } = toRefs(props)
+  const { root: { $store } = {} } = context
+  const { [id.value]: { name } = {} } = $store.getters['$_tenants/all'] // use store, not form
   return computed(() => {
     switch (true) {
       case !isNew.value && !isClone.value:
-        return i18n.t('Role <code>{id}</code>', { id: id.value })
+        return i18n.t('Tenant <code>{name}</code>', { name })
       case isClone.value:
-        return i18n.t('Clone Role <code>{id}</code>', { id: id.value })
+        return i18n.t('Clone Tenant <code>{name}</code>', { name })
       default:
-        return i18n.t('New Role')
+        return i18n.t('New Tenant')
     }
   })
 }
@@ -28,11 +30,11 @@ export const useRouter = (props, context, form) => {
   } = toRefs(props)
   const { root: { $router } = {} } = context
   return {
-    goToCollection: () => $router.push({ name: 'roles' }),
+    goToCollection: () => $router.push({ name: 'tenants' }),
     goToItem: (item = form.value || {}) => $router
-      .push({ name: 'role', params: { id: item.id } })
+      .push({ name: 'tenant', params: { id: item.id } })
       .catch(e => { if (e.name !== "NavigationDuplicated") throw e }),
-    goToClone: () => $router.push({ name: 'cloneRole', params: { id: id.value } }),
+    goToClone: () => $router.push({ name: 'cloneTenant', params: { id: id.value } }),
   }
 }
 
@@ -43,18 +45,19 @@ const useStore = (props, context, form) => {
   } = toRefs(props)
   const { root: { $store } = {} } = context
   return {
-    isLoading: computed(() => $store.getters['$_roles/isLoading']),
-    getOptions: () => $store.dispatch('$_roles/options'),
-    createItem: () => $store.dispatch('$_roles/createRole', form.value),
-    deleteItem: () => $store.dispatch('$_roles/deleteRole', id.value),
-    getItem: () => $store.dispatch('$_roles/getRole', id.value).then(item => {
+    isLoading: computed(() => $store.getters['$_tenants/isLoading']),
+    getOptions: () => $store.dispatch('$_tenants/options'),
+    createItem: () => $store.dispatch('$_tenants/createTenant', form.value),
+    deleteItem: () => $store.dispatch('$_tenants/deleteTenant', id.value),
+    getItem: () => $store.dispatch('$_tenants/getTenant', id.value).then(_item => {
+      let item = { ..._item } // dereference
       if (isClone.value) {
-        item.id = `${item.id}-${i18n.t('copy')}`
+        item.name = `${item.name}-${i18n.t('copy')}`
         item.not_deletable = false
       }
       return item
     }),
-    updateItem: () => $store.dispatch('$_roles/updateRole', form.value),
+    updateItem: () => $store.dispatch('$_tenants/updateTenant', form.value),
   }
 }
 
@@ -67,8 +70,8 @@ import {
   fields
 } from '../config'
 export const useSearch = (props, context, options) => {
-  return useConfigurationSearch(api, { 
-    name: 'roles', // localStorage prefix
+  return useConfigurationSearch(api, {
+    name: 'tenants', // localStorage prefix
     columns,
     fields,
     sortBy: 'id',

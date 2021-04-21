@@ -41,8 +41,8 @@ export const useViewCollectionItem = (collection, props, context) => {
   // state
   const form = ref({})
   const meta = ref({})
-  const title = useItemTitle(props, context, form)
-  const titleBadge = useItemTitleBadge(props, context, form)
+  const title = computed(() => useItemTitle(props, context, form))
+  const titleBadge = computed(() => useItemTitleBadge(props, context, form))
   const isModified = ref(false)
 
   // unhandled custom props
@@ -154,7 +154,7 @@ export const useViewCollectionItem = (collection, props, context) => {
         goToCollection(true)
       else {
         form.value = { ...form.value, ...response } // merge form w/ newly inserted IDs
-        goToItem().then(() => init()) // re-init
+        goToItem(form.value).then(() => init()) // re-init
       }
     })
   }
