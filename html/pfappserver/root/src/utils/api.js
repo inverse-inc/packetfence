@@ -77,6 +77,21 @@ Object.assign(apiCall, {
       }]
     })
   },
+  optionsQuiet (url) {
+    return this.request({
+      method: 'options',
+      url: _encodeURL(url),
+      transformResponse: [data => {
+        let jsonData
+        try {
+          jsonData = JSON.parse(data)
+        } catch (e) {
+          jsonData = {}
+        }
+        return Object.assign({ quiet: true }, jsonData)
+      }]
+    })
+  },
   patchQuiet (url, data) {
     return this.request({
       method: 'patch',

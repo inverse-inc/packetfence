@@ -7,7 +7,7 @@ export default {
     })
   },
   listOptions: () => {
-    return apiCall.options('tenants').then(response => {
+    return apiCall.optionsQuiet('tenants').then(response => {
       return response.data
     })
   },
@@ -17,7 +17,7 @@ export default {
     })
   },
   itemOptions: id => {
-    return apiCall.options(['tenant', id]).then(response => {
+    return apiCall.optionsQuiet(['tenant', id]).then(response => {
       return response.data
     })
   },
@@ -33,9 +33,6 @@ export default {
   },
   delete: id => {
     return apiCall.delete(['tenant', id])
-  },
-  reassign: data => {
-    return apiCall.patch(['tenant', data.from, 'reassign'], { id: data.to })
   },
   search: data => {
     return apiCall.post('tenants/search', data).then(response => {

@@ -41,8 +41,8 @@ export const useViewCollectionItem = (collection, props, context) => {
   // state
   const form = ref({})
   const meta = ref({})
-  const title = useItemTitle(props, context, form)
-  const titleBadge = useItemTitleBadge(props, context, form)
+  const title = computed(() => useItemTitle(props, context, form))
+  const titleBadge = computed(() => useItemTitleBadge(props, context, form))
   const isModified = ref(false)
 
   // unhandled custom props
