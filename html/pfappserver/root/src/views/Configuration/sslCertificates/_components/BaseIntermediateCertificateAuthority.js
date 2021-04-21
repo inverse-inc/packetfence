@@ -7,7 +7,7 @@ export const props = {
   // overload :accept default
   accept: {
     type: String,
-    default: 'application/x-x509-ca-cert, text/*'
+    default: 'application/x-x509-ca-cert, application/vnd.apple.keynote, text/*'
   },
 
   // overload :tooltip default
@@ -15,7 +15,7 @@ export const props = {
     type: String,
     default: i18n.t('Click or drag-and-drop to upload a certificate')
   },
-  
+
   // auto-fit textarea contents
   autoFit: {
     type: Boolean,
