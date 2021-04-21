@@ -77,11 +77,31 @@ sub cleanupAfterRead {
 
     # Config::Inifiles expands the access lists into an array
     # We put it back as a string so it works in the admin UI
-    foreach my $attr (keys %$switch){
-        if (ends_with($attr, "AccessList") && ref($switch->{$attr}) eq 'ARRAY') {
-            $switch->{$attr} = join "\n", @{$switch->{$attr}};
+    while (my ($attr, $val) = each %$switch) {
+        if ($attr =~ /(.*)(AccessList|Vlan|Url|Role)$/) {
+            my $type = $2;
+            my $role = $1;
+            if ($type eq 'AccessList' && ref($val) eq 'ARRAY') {
+                $switch->{$attr} = join("\n", @$val);
+            }
+            my $key;
+
+            if ($type eq 'Role') {
+                $type = 'ControllerRole';
+                $key = 'controller_role';
+            } else {
+                $key = lc($type);
+            }
+
+            push @{$switch->{"${type}Mapping"}}, { $key => $val, role => $role  };
         }
     }
+
+    for my $k (qw(AccessListMapping VlanMapping UrlMapping ControllerRoleMapping))  {
+        next if !exists $switch->{$k};
+        $switch->{$k} = [sort { $a->{role} cmp $b->{role} } @{$switch->{$k}}]
+    }
+
 
 }
 

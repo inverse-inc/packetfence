@@ -22,7 +22,7 @@ BEGIN {
     use setup_test_config;
 }
 
-use Test::More tests => 10;
+use Test::More tests => 11;
 use Utils;
 use pf::ConfigStore::Switch;
 my ($fh, $filename) = Utils::tempfileForConfigStore("pf::ConfigStore::Switch");
@@ -105,6 +105,48 @@ is($new->{voiceVlan}, $oldVoiceVlan, "delete inherited values");
     my $cs = pf::ConfigStore::Switch->new;
     my $data = $cs->read('172.16.8.21');
     is($data->{registrationVlan}, 3);
+}
+
+{
+    my $cs = pf::ConfigStore::Switch->new;
+    my $data = $cs->read('10.0.0.6');
+    is_deeply(
+        $data->{ControllerRoleMapping},
+        [
+            {
+                'role'            => 'admin',
+                'controller_role' => 'full-access'
+            },
+            {
+                'role'            => 'guest',
+                'controller_role' => 'restricted'
+            },
+            {
+                'role'            => 'inline',
+                'controller_role' => 'inline'
+            },
+            {
+                'role'            => 'isolation',
+                'controller_role' => ''
+            },
+            {
+                'role'            => 'macDetection',
+                'controller_role' => ''
+            },
+            {
+                'role'            => 'normal',
+                'controller_role' => ''
+            },
+            {
+                'role'            => 'registration',
+                'controller_role' => ''
+            },
+            {
+                'role'            => 'voice',
+                'controller_role' => 'voice'
+            }
+        ]
+    );
 }
 
 =head1 AUTHOR
