@@ -36,6 +36,7 @@
             </template>
             <b-dropdown-item-button v-if="$i18n.locale == 'en'" @click="setLanguage('fr')">Français</b-dropdown-item-button>
             <b-dropdown-item-button v-else @click="setLanguage('en')">English</b-dropdown-item-button>
+            <b-dropdown-item to="/preferences">{{ $t('Preferences') }}</b-dropdown-item>
             <b-dropdown-divider></b-dropdown-divider>
             <b-dropdown-item to="/logout">{{ $t('Log out') }}</b-dropdown-item>
           </b-nav-item-dropdown>
