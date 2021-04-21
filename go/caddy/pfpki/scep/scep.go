@@ -4,13 +4,14 @@ import (
 	"net/http"
 	"os"
 
+	scepdepot "github.com/fdurand/scep/depot"
+	scepserver "github.com/fdurand/scep/server"
 	kitlog "github.com/go-kit/kit/log"
 	kitloglevel "github.com/go-kit/kit/log/level"
 	"github.com/gorilla/mux"
 	"github.com/inverse-inc/packetfence/go/caddy/pfpki/models"
 	"github.com/inverse-inc/packetfence/go/caddy/pfpki/types"
 	"github.com/inverse-inc/packetfence/go/log"
-	scepserver "github.com/inverse-inc/scep/server"
 )
 
 func ScepHandler(pfpki *types.Handler, w http.ResponseWriter, r *http.Request) {
@@ -34,21 +35,55 @@ func ScepHandler(pfpki *types.Handler, w http.ResponseWriter, r *http.Request) {
 	o := models.NewCAModel(pfpki)
 	profileName := vars["id"]
 	profile, err := o.FindSCEPProfile([]string{profileName})
+
+	if err != nil {
+		log.LoggerWContext(*pfpki.Ctx).Info("Unable to find the profile")
+	}
+
 	var svc scepserver.Service // scep service
 	{
-		svcOptions := []scepserver.ServiceOption{
-			scepserver.Profile(vars["id"]),
-			scepserver.ClientValidity(profile[0].Validity),
-			scepserver.AllowRenewal(profile[0].SCEPDaysBeforeRenewal),
-			scepserver.ChallengePassword(profile[0].SCEPChallengePassword),
-		}
-		svc, err = scepserver.NewService(o, svcOptions...)
+		crts, key, err := o.CA(nil)
 		if err != nil {
-			log.LoggerWContext(*pfpki.Ctx).Info("err ", err)
-			panic("Unable to create new service: " + err.Error())
+			lginfo.Log("err", err)
+			os.Exit(1)
+		}
+		if len(crts) < 1 {
+			lginfo.Log("err", "missing CA certificate")
+			os.Exit(1)
+		}
+		var signer scepserver.CSRSigner = scepdepot.NewSigner(
+			o,
+			scepdepot.WithAllowRenewalDays(profile[0].SCEPDaysBeforeRenewal),
+			scepdepot.WithValidityDays(profile[0].Validity),
+			// Todo Support CA password
+			// scepdepot.WithCAPass(*flCAPass),
+		)
+		signer = scepserver.ChallengeMiddleware(profile[0].SCEPChallengePassword, signer)
+		// Load the Intune/MDM csr Verifier
+		// signer = csrverifier.Middleware(csrVerifier, signer)
+		svc, err = scepserver.NewService(crts[0], key, signer, scepserver.WithLogger(logger))
+		if err != nil {
+			lginfo.Log("err", err)
+			os.Exit(1)
 		}
 		svc = scepserver.NewLoggingService(kitlog.With(lginfo, "component", "scep_service"), svc)
 	}
+
+	// var svc scepserver.Service // scep service
+	// {
+	// 	svcOptions := []scepserver.ServiceOption{
+	// 		scepserver.Profile(vars["id"]),
+	// 		scepserver.ClientValidity(profile[0].Validity),
+	// 		scepserver.AllowRenewal(profile[0].SCEPDaysBeforeRenewal),
+	// 		scepserver.ChallengePassword(profile[0].SCEPChallengePassword),
+	// 	}
+	// 	svc, err = scepserver.NewService(o, svcOptions...)
+	// 	if err != nil {
+	// 		log.LoggerWContext(*pfpki.Ctx).Info("err ", err)
+	// 		panic("Unable to create new service: " + err.Error())
+	// 	}
+	// 	svc = scepserver.NewLoggingService(kitlog.With(lginfo, "component", "scep_service"), svc)
+	// }
 
 	var h http.Handler // http handler
 	{
