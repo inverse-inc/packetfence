@@ -37,7 +37,7 @@ In order for the cluster to be considered healthy, all nodes must be listed unde
 
 === Automatic clustering resolution issue: galera-autofix service
 
-Since v10, the `galera-autofix` service will try to resolve automatically issues on Galera clusters.
+Since v10, the <<_the_galera_autofix_service,`galera-autofix`>> service will try to resolve automatically issues on Galera clusters.
 
 On a cluster which has an issue, once all nodes are back online, you should wait:
 
@@ -63,16 +63,32 @@ systemctl start packetfence-galera-autofix
 
 This action will not cause service disruption on current cluster.
 
-After all nodes have joined back cluster, you can verify <<_checking_the_mariadb_sync,MariaDB sync>>.
+After all nodes have joined back cluster, you should verify <<_checking_the_mariadb_sync,MariaDB sync>>.
+
+WARNING: After stopping `packetfence-mariadb` service, be sure there is no more `mysql` process running.
 
 === No more database service
 
 When there is no more database service in your cluster, you need to do a full recovery.
 
-You must stop the node you wish to keep the data from and start it with the
-`--force-new-cluster` option. You can identify which node has the most recent
-data by looking at value of `seqno` in `/var/lib/grastate.dat`. Then apply
-following commands on that node:
+You must identify the node you wish to keep the data from and start it with the
+`--force-new-cluster` option.
+
+Node which has the most recent data will have a highest `seqno` value in
+[filename]`/var/lib/mysql/grastate.dat`.
+
+If the `seqno` value is equals to `-1`, you need to start MariaDB manually with
+`--wsrep-recover` to update `seqno` value:
+
+[source,bash]
+----
+systemctl stop packetfence-galera-autofix
+systemctl stop packetfence-mariadb
+mysqld_safe --defaults-file=/usr/local/pf/var/conf/mariadb.conf --wsrep-recover
+----
+
+Once you have identified the node which has the most recent data, run
+following commands on it:
 
 [source,bash]
 ----
@@ -81,9 +97,11 @@ systemctl stop packetfence-galera-autofix
 /usr/local/pf/sbin/pf-mariadb --force-new-cluster
 ----
 
+WARNING: After stopping `packetfence-mariadb` service, be sure there is no more `mysql` process running.
+
 ==== On each of the discarded servers
 
-First, stop `packetfence-mariadb` and `packetfence-galera-autofix` on *all*
+First, stop `packetfence-mariadb` and `packetfence-galera-autofix` on all
 the servers you want to discard data from.
 
 [source,bash]
@@ -106,6 +124,8 @@ You should then see `/var/lib/mysql` be populated again with the data and once
 MariaDB becomes available again on the server, it means the sync has
 completed. In case of issues, look in the MariaDB log file
 (`/usr/local/pf/logs/mariadb_error.log`)
+
+WARNING: After stopping `packetfence-mariadb` service, be sure there is no more `mysql` process running.
 
 ==== On node started with --force-new-cluster
 
