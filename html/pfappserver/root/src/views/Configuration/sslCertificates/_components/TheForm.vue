@@ -7,7 +7,7 @@
     <template v-if="!isShowEdit">
       <b-card no-body class="m-3">
         <b-card-header>
-          <h5 class="mb-0 d-inline">{{ title }} {{ $t('Certificate') }}</h5>
+          <h5 class="mb-0 d-inline">{{ title.value }} {{ $t('Certificate') }}</h5>
           <b-button v-t="'Generate Signing Request (CSR)'" class="float-right" size="sm" variant="outline-secondary" @click="doShowCsr"/>
         </b-card-header>
         <base-container-loading v-if="isLoading"
@@ -43,7 +43,7 @@
       </b-card>
       <b-card no-body class="m-3" v-if="isCertificationAuthority">
         <b-card-header>
-          <h4 class="mb-0">{{ title }} {{ $t('Certification Authority Certificates') }}</h4>
+          <h4 class="mb-0">{{ title.value }} {{ $t('Certification Authority Certificates') }}</h4>
         </b-card-header>
         <base-container-loading v-if="isLoading"
           :title="$i18n.t('Loading Certification Authority Certificates')"
