@@ -415,7 +415,7 @@ systemctl restart packetfence-galera-autofix
 ==== Maximum connections reached
 
 In the event that one of the 3 servers reaches the maximum amount of
-connections (defaults to 1000), this will dead-lock the Galera cluster
+connections (defaults to 1000), this will deadlock the Galera cluster
 synchronization. In order to resolve this, you should first increase
 `database_advanced.max_connections`, then stop `packetfence-mariadb` on all 3
 servers, and follow the steps in the section <<_no_more_database_service>>

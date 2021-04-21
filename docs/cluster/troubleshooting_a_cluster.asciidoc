@@ -35,7 +35,7 @@ Important variables:
 
 In order for the cluster to be considered healthy, all nodes must be listed under `wsrep_incoming_addresses` and `wsrep_local_state_comment` must be `Synced`. Otherwise look in the MariaDB log ([filename]`/usr/local/pf/logs/mariadb_error.log`)
 
-=== Automatic clustering resolution issue: galera-autofix service
+=== Automatic clustering resolution service: galera-autofix
 
 Since v10, the <<_the_galera_autofix_service,`galera-autofix`>> service will try to resolve automatically issues on Galera clusters.
 
@@ -44,9 +44,9 @@ On a cluster which has an issue, once all nodes are back online, you should wait
 * around 10 minutes when at least one of the nodes of the cluster is able to offer database service
 * around 20 minutes when there is no database service available
 
-If your cluster still have issue after that time, you can try to solve it manually by looking at sections below.
+If your cluster still has issues after that time, you can try to resolve the issue by looking at sections below.
 
-=== Cluster offer database service without all nodes
+=== Cluster offers database service without all nodes
 
 When at least one of the nodes of the cluster is able to offer database
 service, you can apply the following commands on a broken node to rejoin it to
@@ -65,20 +65,20 @@ This action will not cause service disruption on current cluster.
 
 After all nodes have joined back cluster, you should verify <<_checking_the_mariadb_sync,MariaDB sync>>.
 
-WARNING: After stopping `packetfence-mariadb` service, be sure there is no more `mysql` process running.
+WARNING: After stopping the `packetfence-mariadb` service, be sure there is no more `mysql` process running.
 
-=== No more database service
+=== None of the nodes is offering database service
 
 When there is no more database service in your cluster, you need to do a full recovery.
 
 You must identify the node you wish to keep the data from and start it with the
 `--force-new-cluster` option.
 
-Node which has the most recent data will have a highest `seqno` value in
+Find the node which has the highest `seqno` value in
 [filename]`/var/lib/mysql/grastate.dat`.
 
-If the `seqno` value is equals to `-1`, you need to start MariaDB manually with
-`--wsrep-recover` to update `seqno` value:
+If the `seqno` value is `-1`, you need to start MariaDB manually with
+`--wsrep-recover` to update the `seqno` value using the commands below:
 
 [source,bash]
 ----
@@ -97,7 +97,7 @@ systemctl stop packetfence-galera-autofix
 /usr/local/pf/sbin/pf-mariadb --force-new-cluster
 ----
 
-WARNING: After stopping `packetfence-mariadb` service, be sure there is no more `mysql` process running.
+WARNING: After stopping the `packetfence-mariadb` service, be sure there is no more `mysql` process running.
 
 ==== On each of the discarded servers
 
@@ -125,9 +125,9 @@ MariaDB becomes available again on the server, it means the sync has
 completed. In case of issues, look in the MariaDB log file
 (`/usr/local/pf/logs/mariadb_error.log`)
 
-WARNING: After stopping `packetfence-mariadb` service, be sure there is no more `mysql` process running.
+WARNING: After stopping the `packetfence-mariadb` service, be sure there is no more `mysql` process running.
 
-==== On node started with --force-new-cluster
+==== On the node started with --force-new-cluster
 
 If you were performing a full recovery, you should now break the
 `--force-new-cluster` command and start `packetfence-mariadb`
