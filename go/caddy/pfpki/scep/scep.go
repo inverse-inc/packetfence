@@ -55,6 +55,7 @@ func ScepHandler(pfpki *types.Handler, w http.ResponseWriter, r *http.Request) {
 			o,
 			scepdepot.WithAllowRenewalDays(profile[0].SCEPDaysBeforeRenewal),
 			scepdepot.WithValidityDays(profile[0].Validity),
+			scepdepot.WithProfile(vars["id"]),
 			// Todo Support CA password
 			// scepdepot.WithCAPass(*flCAPass),
 		)
@@ -68,22 +69,6 @@ func ScepHandler(pfpki *types.Handler, w http.ResponseWriter, r *http.Request) {
 		}
 		svc = scepserver.NewLoggingService(kitlog.With(lginfo, "component", "scep_service"), svc)
 	}
-
-	// var svc scepserver.Service // scep service
-	// {
-	// 	svcOptions := []scepserver.ServiceOption{
-	// 		scepserver.Profile(vars["id"]),
-	// 		scepserver.ClientValidity(profile[0].Validity),
-	// 		scepserver.AllowRenewal(profile[0].SCEPDaysBeforeRenewal),
-	// 		scepserver.ChallengePassword(profile[0].SCEPChallengePassword),
-	// 	}
-	// 	svc, err = scepserver.NewService(o, svcOptions...)
-	// 	if err != nil {
-	// 		log.LoggerWContext(*pfpki.Ctx).Info("err ", err)
-	// 		panic("Unable to create new service: " + err.Error())
-	// 	}
-	// 	svc = scepserver.NewLoggingService(kitlog.With(lginfo, "component", "scep_service"), svc)
-	// }
 
 	var h http.Handler // http handler
 	{
