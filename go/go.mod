@@ -26,7 +26,7 @@ require (
 	github.com/fatih/structs v1.1.0 // indirect
 	github.com/fdurand/arp v0.0.0-20180807174648-27b38d3af1be
 	github.com/fdurand/go-cache v0.0.0-20180104143916-cf0198ac7d92
-	github.com/fdurand/scep v1.0.1-0.20210421200108-86b2beaf184c
+	github.com/fdurand/scep v1.0.1-0.20210422124002-a9289b7a34d9
 	github.com/flynn/go-shlex v0.0.0-20150515145356-3f9db97f8568
 	github.com/gavv/httpexpect/v2 v2.1.0
 	github.com/gdey/jsonpath v0.0.0-20151203210429-124c978a1ffc
@@ -97,6 +97,7 @@ require (
 	github.com/xiang90/probing v0.0.0-20190116061207-43a291ad63a2 // indirect
 	go.etcd.io/bbolt v1.3.3 // indirect
 	go.etcd.io/etcd v0.5.0-alpha.5.0.20200306183522-221f0cc107cb
+	go.mozilla.org/pkcs7 v0.0.0-20200128120323-432b2356ecb1 // indirect
 	go.uber.org/zap v1.14.1 // indirect
 	golang.org/x/crypto v0.0.0-20201002170205-7f63de1d35b0
 	golang.org/x/net v0.0.0-20200707034311-ab3426394381

@@ -191,6 +191,8 @@ github.com/fdurand/scep v1.0.1-0.20210421194509-2144b4c88ca6 h1:ezgb6nc85zkBhYJN
 github.com/fdurand/scep v1.0.1-0.20210421194509-2144b4c88ca6/go.mod h1:/mHt7kuAXMsrj+i6A1swI/JBKA+YzLi+IyqeHMzlPRI=
 github.com/fdurand/scep v1.0.1-0.20210421200108-86b2beaf184c h1:Z2JU+osC2Tft+7r4PP3fDvQyvDY82QxiL4cr/iGWYPo=
 github.com/fdurand/scep v1.0.1-0.20210421200108-86b2beaf184c/go.mod h1:/mHt7kuAXMsrj+i6A1swI/JBKA+YzLi+IyqeHMzlPRI=
+github.com/fdurand/scep v1.0.1-0.20210422124002-a9289b7a34d9 h1:uXMCCHz+I4Tpxd9xoQB66VL3J1D+L36OkM7lPzOAics=
+github.com/fdurand/scep v1.0.1-0.20210422124002-a9289b7a34d9/go.mod h1:VGRLKW/SLtg0SUgzj0U8lVl5OtePbneZL3zivNTLu+o=
 github.com/flynn/go-shlex v0.0.0-20150515145356-3f9db97f8568 h1:BHsljHzVlRcyQhjrss6TZTdY2VfCqZPbv5k3iBFa2ZQ=
 github.com/flynn/go-shlex v0.0.0-20150515145356-3f9db97f8568/go.mod h1:xEzjJPgXI435gkrCt3MPfRiAkVrwSbHsst4LCFVfpJc=
 github.com/form3tech-oss/jwt-go v3.2.2+incompatible h1:TcekIExNqud5crz4xD2pavyTgWiPvpYe4Xau31I0PRk=
@@ -391,6 +393,7 @@ github.com/inverse-inc/go-radius v0.0.0-20201019132414-82756e2d8d47 h1:m/Vxa+Nm8
 github.com/inverse-inc/go-radius v0.0.0-20201019132414-82756e2d8d47/go.mod h1:IQmy9DslBZ9lU4/y/MphJ9oY//4r9A9wQwqOjjLmBso=
 github.com/inverse-inc/pkcs7 v0.0.0-20210120195334-f839fdbb1f84 h1:sJgbRoJF6KxD0D1B1oATx8mS0nNdaujtcOv9wUKb0Sw=
 github.com/inverse-inc/pkcs7 v0.0.0-20210120195334-f839fdbb1f84/go.mod h1:adBgAyadl5D9Mz9rhkQyzZpwcUK9eXdKslXH4oImbB0=
+github.com/inverse-inc/pkcs7 v0.0.0-20210314004602-f33daade6c53/go.mod h1:adBgAyadl5D9Mz9rhkQyzZpwcUK9eXdKslXH4oImbB0=
 github.com/inverse-inc/scep v0.0.0-20210120201805-eb98f5654ee4 h1:j+LN8qB0DqC74l9MHq1ysjyiN7kfbHIF3UNjjbVAlvw=
 github.com/inverse-inc/scep v0.0.0-20210120201805-eb98f5654ee4/go.mod h1:bcHlFB5I8JqSU5Lqt+NatfA9y64T2fFt05QSFOEFJGI=
 github.com/jcuga/golongpoll v1.1.0 h1:2CWYEd5sH23aOxzMZ9xw5yjiZC8XdNG5wa70+KBkJrQ=
