@@ -105,207 +105,218 @@ import pfFormLogin from '@/components/pfFormLogin'
 import pfNotificationCenter from '@/components/pfNotificationCenter'
 import pfProgressApi from '@/components/pfProgressApi'
 
+const components = {
+  IconCounter,
+  pfDocumentation,
+  pfFormLogin,
+  pfNotificationCenter,
+  pfProgressApi
+}
+
+import { computed, ref, watch } from '@vue/composition-api'
+import useEvent from '@/composables/useEvent'
+import i18n from '@/utils/locale'
+
+const setup = (props, context) => {
+
+  const { root: { $can, $router, $store } = {} } = context
+
+  const debug = process.env.VUE_APP_DEBUG
+
+  const documentationViewerClass = ref(null)
+  const showDocumentationViewer = computed(() => $store.getters['documentation/showViewer'])
+  watch(showDocumentationViewer, (a) => {
+    if (a) // shown
+      documentationViewerClass.value = 'pf-documentation-enter'
+    else {
+      documentationViewerClass.value = 'pf-documentation-leave'
+      setTimeout(() => {
+        documentationViewerClass.value = null
+      }, 300) // match the animation duration defined in pfDocumentation.vue
+    }
+  })
+  const toggleDocumentationViewer = () => {
+    $store.dispatch('documentation/toggleViewer')
+  }
+
+  const isAuthenticated = computed(() => $store.getters['session/isAuthenticated'])
+  const isConfiguratorActive = computed(() => $store.state.session.configuratorActive)
+  const isPerfomingCheckup = computed(() => $store.getters['config/isLoadingCheckup'])
+  const isFixingPermissions = computed(() => $store.getters['config/isLoadingFixPermissions'])
+  const isProcessing = computed(() => ((isPerfomingCheckup.value || isFixingPermissions.value) ? 1 : 0 ))
+  const warnings = computed(() => {
+    let warnings = []
+    if ($store.getters['system/readonlyMode']) {
+      warnings.push({
+        icon: 'lock',
+        message: i18n.t('The database is in readonly mode. Not all functionality is available.')
+      })
+    }
+    if ($store.getters['session/configuratorEnabled']) {
+      warnings.push({
+        icon: 'door-open',
+        message: i18n.t('The configurator is enabled. You should disable it if your PacketFence configuration is completed.'),
+        to: '/configuration/advanced',
+        toLabel: i18n.t('Go to configuration')
+      })
+    }
+    return warnings
+  })
+
+  const tenants = computed(() => $store.state.session.tenants)
+  const tenant = computed(() => $store.state.session.tenant)
+  const tenant_id_mask = computed(() => $store.getters['session/tenantIdMask'])
+  const tenant_mask_name = computed(() => {
+    const tenant = tenants.value.find(tenant => {
+      return +tenant.id === +tenant_id_mask.value
+    })
+    const { name } = tenant || {}
+    return name || i18n.t('Unknown')
+  })
+  const setTenantIdMask = (tenant_id) => {
+    if (tenant_id === tenant_id_mask.value)
+      $store.dispatch('session/setTenantIdMask', tenant.value.id) // reset to default
+    else
+      $store.dispatch('session/setTenantIdMask', tenant_id)
+    $router.push('/reset') // reset
+  }
+
+  const apiOK = computed(() => $store.state.session.api)
+  const chartsOK = computed(() => $store.state.session.charts)
+  const hostname = computed(() => $store.getters['system/hostname'])
+  const username = computed(() => $store.state.session.username)
+  const version = computed(() => $store.getters['system/version'])
+
+  // show nav links conditionally,
+  //  instead of using redundant "v-can"
+  //  we utilize the routes meta can instead.
+  const canRoute = (path) => {
+    const { options: { routes } = {} } = $router
+    let route = routes.find(route => route.path === path)
+    if (route) {
+      const { meta: { can = () => false } = {} } = route
+      if (can.constructor === Function)
+        return can()
+      const [ verb, action ] = can.spit(' ')
+      return $can(verb, action)
+    }
+    return false
+  }
+
+  const checkup = () => {
+    $store.dispatch('config/checkup').then(items => {
+      items.forEach(item => {
+        let level
+        switch (item.severity) {
+          case 'WARNING':
+            level = 'warning'
+            break
+          case 'FATAL':
+            level = 'danger'
+            break
+          default:
+            level = 'info'
+        }
+        $store.dispatch(`notification/${level}`, item.message)
+      })
+    })
+  }
+
+  const fixPermissions = () => {
+    $store.dispatch('config/fixPermissions').then(data => {
+      $store.dispatch('notification/info', data.message)
+    })
+  }
+
+  const setLanguage = (lang) => {
+    $store.dispatch('session/setLanguage', { lang })
+  }
+
+  let language = window.navigator.language.split(/-/)[0]
+  if (!['en', 'fr'].includes(language))
+    language = 'en'
+  setLanguage(language)
+
+  useEvent('keydown', e => {
+    const { altKey = false, shiftKey = false, keyCode = false } = e
+    if (altKey && shiftKey) {
+      switch (true) {
+        case keyCode === 65 && canRoute('/auditing'): // A
+          e.preventDefault()
+          $router.push('/auditing')
+            .catch(e => { if (e.name !== "NavigationDuplicated") throw e })
+          break
+        case keyCode === 67 && canRoute('/configuration'): // C
+          e.preventDefault()
+          $router.push('/configuration')
+            .catch(e => { if (e.name !== "NavigationDuplicated") throw e })
+          break
+        case keyCode === 72: // H
+          e.preventDefault()
+          $store.dispatch('documentation/toggleViewer')
+            .catch(e => { if (e.name !== "NavigationDuplicated") throw e })
+          break
+        case keyCode === 78 && canRoute('/nodes'): // N
+          e.preventDefault()
+          $router.push('/nodes')
+            .catch(e => { if (e.name !== "NavigationDuplicated") throw e })
+          break
+        case keyCode === 82 && canRoute('/reports'): // R
+          e.preventDefault()
+          $router.push('/reports')
+            .catch(e => { if (e.name !== "NavigationDuplicated") throw e })
+          break
+        case keyCode === 83 && canRoute('/status'): // S
+          e.preventDefault()
+          $router.push('/status')
+            .catch(e => { if (e.name !== "NavigationDuplicated") throw e })
+          break
+        case keyCode === 85 && canRoute('/users'): // U
+          e.preventDefault()
+          $router.push('/users')
+            .catch(e => { if (e.name !== "NavigationDuplicated") throw e })
+          break
+        default:
+          break
+      }
+    }
+  })
+
+  return {
+    debug,
+    isAuthenticated,
+    isConfiguratorActive,
+    isPerfomingCheckup,
+    isFixingPermissions,
+    isProcessing,
+    warnings,
+    canRoute,
+    checkup,
+    fixPermissions,
+    apiOK,
+    chartsOK,
+    hostname,
+    username,
+    version,
+
+    // documentation
+    documentationViewerClass,
+    showDocumentationViewer,
+    toggleDocumentationViewer,
+
+    // tenant
+    tenant,
+    tenant_mask_name,
+    setTenantIdMask,
+  }
+}
+
+// @vue/component
 export default {
   name: 'app',
-  components: {
-    IconCounter,
-    pfDocumentation,
-    pfFormLogin,
-    pfNotificationCenter,
-    pfProgressApi
-  },
-  data () {
-    return {
-      debug: process.env.VUE_APP_DEBUG,
-      documentationViewerClass: null
-    }
-  },
-  computed: {
-    isAuthenticated () {
-      return this.$store.getters['session/isAuthenticated']
-    },
-    isConfiguratorActive () {
-      return this.$store.state.session.configuratorActive
-    },
-    isPerfomingCheckup () {
-      return this.$store.getters['config/isLoadingCheckup']
-    },
-    isFixingPermissions () {
-      return this.$store.getters['config/isLoadingFixPermissions']
-    },
-    isProcessing () {
-      return (this.isPerfomingCheckup || this.isFixingPermissions) ? 1 : 0
-    },
-    warnings () {
-      const warnings = []
-      if (this.$store.getters['system/readonlyMode']) {
-        warnings.push({
-          icon: 'lock',
-          message: this.$i18n.t('The database is in readonly mode. Not all functionality is available.')
-        })
-      }
-      if (this.$store.getters['session/configuratorEnabled']) {
-        warnings.push({
-          icon: 'door-open',
-          message: this.$i18n.t('The configurator is enabled. You should disable it if your PacketFence configuration is completed.'),
-          to: '/configuration/advanced',
-          toLabel: this.$i18n.t('Go to configuration')
-        })
-      }
-      return warnings
-    },
-    username () {
-      return this.$store.state.session.username
-    },
-    tenant () {
-      return this.$store.state.session.tenant
-    },
-    tenant_id_mask () {
-      return this.$store.getters['session/tenantIdMask']
-    },
-    tenant_mask_name () {
-      const tenant = this.tenants.find(tenant => {
-        return +tenant.id === +this.tenant_id_mask
-      })
-      const { name } = tenant || {}
-      return name || this.$i18n.t('Unknown')
-    },
-    tenants () {
-      return this.$store.state.session.tenants
-    },
-    apiOK () {
-      return this.$store.state.session.api
-    },
-    chartsOK () {
-      return this.$store.state.session.charts
-    },
-    altShiftAKey () {
-      return this.$store.getters['events/altShiftAKey']
-    },
-    altShiftCKey () {
-      return this.$store.getters['events/altShiftCKey']
-    },
-    altShiftHKey () {
-      return this.$store.getters['events/altShiftHKey']
-    },
-    altShiftNKey () {
-      return this.$store.getters['events/altShiftNKey']
-    },
-    altShiftRKey () {
-      return this.$store.getters['events/altShiftRKey']
-    },
-    altShiftSKey () {
-      return this.$store.getters['events/altShiftSKey']
-    },
-    altShiftUKey () {
-      return this.$store.getters['events/altShiftUKey']
-    },
-    version () {
-      return this.$store.getters['system/version']
-    },
-    hostname () {
-      return this.$store.getters['system/hostname']
-    },
-    showDocumentationViewer () {
-      return this.$store.getters['documentation/showViewer']
-    }
-  },
-  methods: {
-    // show nav links conditionally,
-    //  instead of using redundant "v-can"
-    //  we utilize the routes meta can instead.
-    canRoute (path) {
-      const { options: { routes } = {} } = this.$router
-      let route = routes.find(route => route.path === path)
-      if (route) {
-        const { meta: { can = () => false } = {} } = route
-        if (can.constructor === Function) {
-          return can()
-        }
-        const [ verb, action ] = can.spit(' ')
-        return this.$can(verb, action)
-      }
-      return false
-    },
-    checkup () {
-      this.$store.dispatch('config/checkup').then(items => {
-        items.forEach(item => {
-          let level
-          switch (item.severity) {
-            case 'WARNING':
-              level = 'warning'
-              break
-            case 'FATAL':
-              level = 'danger'
-              break
-            default:
-              level = 'info'
-          }
-          this.$store.dispatch(`notification/${level}`, item.message)
-        })
-      })
-    },
-    fixPermissions () {
-      this.$store.dispatch('config/fixPermissions').then(data => {
-        this.$store.dispatch('notification/info', data.message)
-      })
-    },
-    setLanguage (lang) {
-      this.$store.dispatch('session/setLanguage', { lang })
-    },
-    toggleDocumentationViewer () {
-      this.$store.dispatch('documentation/toggleViewer')
-    },
-    setTenantIdMask (tenant_id) {
-      if (tenant_id === this.tenant_id_mask) {
-        this.$store.dispatch('session/setTenantIdMask', this.tenant.id) // reset to default
-      }
-      else {
-        this.$store.dispatch('session/setTenantIdMask', tenant_id)
-      }
-      this.$router.push('/reset') // reset
-    }
-  },
-  created () {
-    let lang = window.navigator.language.split(/-/)[0]
-    if (!['en', 'fr'].includes(lang)) {
-      lang = 'en'
-    }
-    this.$store.dispatch('session/setLanguage', { lang })
-  },
-  watch: {
-    altShiftAKey (pressed) {
-      if (pressed) this.$router.push('/auditing')
-    },
-    altShiftCKey (pressed) {
-      if (pressed) this.$router.push('/configuration')
-    },
-    altShiftHKey (pressed) {
-      if (pressed) this.$store.dispatch('documentation/toggleViewer')
-    },
-    altShiftNKey (pressed) {
-      if (pressed) this.$router.push('/nodes')
-    },
-    altShiftRKey (pressed) {
-      if (pressed) this.$router.push('/reports')
-    },
-    altShiftSKey (pressed) {
-      if (pressed) this.$router.push('/status')
-    },
-    altShiftUKey (pressed) {
-      if (pressed) this.$router.push('/users')
-    },
-    showDocumentationViewer: function (a) {
-      if (a) { // shown
-        this.documentationViewerClass = 'pf-documentation-enter'
-      } else {
-        this.documentationViewerClass = 'pf-documentation-leave'
-        setTimeout(() => {
-          this.documentationViewerClass = null
-        }, 300) // match the animation duration defined in pfDocumentation.vue
-      }
-    }
-  }
+  inheritAttrs: false,
+  components,
+  setup
 }
 </script>
 
