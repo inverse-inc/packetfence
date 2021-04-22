@@ -189,6 +189,8 @@ github.com/fdurand/scep v1.0.1-0.20210421193524-59d507333e6f h1:mLtRVv/KDLNFxD1Y
 github.com/fdurand/scep v1.0.1-0.20210421193524-59d507333e6f/go.mod h1:/mHt7kuAXMsrj+i6A1swI/JBKA+YzLi+IyqeHMzlPRI=
 github.com/fdurand/scep v1.0.1-0.20210421194509-2144b4c88ca6 h1:ezgb6nc85zkBhYJN3DML/2Zkrb1EY4aPlV77wgBoS7o=
 github.com/fdurand/scep v1.0.1-0.20210421194509-2144b4c88ca6/go.mod h1:/mHt7kuAXMsrj+i6A1swI/JBKA+YzLi+IyqeHMzlPRI=
+github.com/fdurand/scep v1.0.1-0.20210421200108-86b2beaf184c h1:Z2JU+osC2Tft+7r4PP3fDvQyvDY82QxiL4cr/iGWYPo=
+github.com/fdurand/scep v1.0.1-0.20210421200108-86b2beaf184c/go.mod h1:/mHt7kuAXMsrj+i6A1swI/JBKA+YzLi+IyqeHMzlPRI=
 github.com/flynn/go-shlex v0.0.0-20150515145356-3f9db97f8568 h1:BHsljHzVlRcyQhjrss6TZTdY2VfCqZPbv5k3iBFa2ZQ=
 github.com/flynn/go-shlex v0.0.0-20150515145356-3f9db97f8568/go.mod h1:xEzjJPgXI435gkrCt3MPfRiAkVrwSbHsst4LCFVfpJc=
 github.com/form3tech-oss/jwt-go v3.2.2+incompatible h1:TcekIExNqud5crz4xD2pavyTgWiPvpYe4Xau31I0PRk=
