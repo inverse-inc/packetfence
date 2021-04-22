@@ -32,7 +32,7 @@ sub init {
 
     my $defaults = pf::IniFiles->new( -file => $roles_default_config_file );
     $self->{added_params}->{'-import'} = $defaults;
-    $self->{child_resources} = [ 'resource::RolesReverseLookup'];
+    $self->{child_resources} = [ 'resource::RolesReverseLookup', 'resource::roles_children' ];
 }
 
 sub build_child {
