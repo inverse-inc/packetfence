@@ -56,6 +56,7 @@ all:
           box_version: 10.20210228.1
           mgmt_ip: 172.17.17.101
           mgmt_netmask: 255.255.255.0
+          other_ip: 172.17.31.101
           ansible_host:  "{{ mgmt_ip }}"
           cpus: 1
           memory: 512
@@ -64,6 +65,7 @@ all:
           box_version: 10.20210228.1
           mgmt_ip: 172.17.17.102
           mgmt_netmask: 255.255.255.0
+          other_ip: 172.17.31.102
           ansible_host:  "{{ mgmt_ip }}"
           cpus: 1
           memory: 512          
@@ -177,5 +179,10 @@ all:
 
       - name: 'inline'
         subnet: '172.17.6.0/24'
+        forward_mode: 'route'
+        netmask: 255.255.255.0
+
+      - name: 'test'
+        subnet: '172.17.31.0/24'
         forward_mode: 'route'
         netmask: 255.255.255.0

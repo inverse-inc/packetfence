@@ -27,6 +27,12 @@ Vagrant.configure("2") do |config|
                      :netmask => details['mgmt_netmask'],
                      :libvirt__dhcp_enabled => false,
                      :libvirt__forward_mode => networks[0]['forward_mode']
+      srv.vm.network "private_network",
+                     :libvirt__network_name => networks[4]['name'],
+                     :ip => details['other_ip'],
+                     :netmask => details['mgmt_netmask'],
+                     :libvirt__dhcp_enabled => false,
+                     :libvirt__forward_mode => networks[4]['forward_mode']
 
       srv.vm.provider "libvirt" do |v|
         v.cpus = details['cpus']
