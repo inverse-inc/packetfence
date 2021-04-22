@@ -202,7 +202,6 @@ Vagrant.configure("2") do |config|
 if [ -d "/etc/udev/rules.d/70-persistent-net.rules" ]; then
     rm -rfv /etc/udev/rules.d/70-persistent-net.rules &> /dev/null
 fi
-rm -rfv /etc/udev/rules.d/70-persistent-net.rules &> /dev/null
 delete_udev_directory
 
 device.vm.provision :shell , :inline => <<-udev_rule
