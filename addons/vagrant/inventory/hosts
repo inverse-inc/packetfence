@@ -57,6 +57,7 @@ all:
           mgmt_ip: 172.17.17.101
           mgmt_netmask: 255.255.255.0
           other_ip: 172.17.31.101
+          other_ip2: 172.17.32.101          
           ansible_host:  "{{ mgmt_ip }}"
           cpus: 1
           memory: 512
@@ -66,6 +67,7 @@ all:
           mgmt_ip: 172.17.17.102
           mgmt_netmask: 255.255.255.0
           other_ip: 172.17.31.102
+          other_ip2: 172.17.32.102          
           ansible_host:  "{{ mgmt_ip }}"
           cpus: 1
           memory: 512          
@@ -185,4 +187,9 @@ all:
       - name: 'test'
         subnet: '172.17.31.0/24'
         forward_mode: 'route'
+        netmask: 255.255.255.0
+
+      - name: 'test2'
+        subnet: '172.17.32.0/24'
+        forward_mode: 'nat'
         netmask: 255.255.255.0
