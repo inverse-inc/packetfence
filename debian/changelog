@@ -1,3 +1,9 @@
+packetfence (10.3.9-1) unstable; urgency=low
+
+  * Version 10.3.9
+
+ -- Inverse <info@inverse.ca>  Wed, 14 Apr 2020 11:17:00 +0100
+
 packetfence (10.3.0-1) unstable; urgency=low
 
   * Version 10.3.0
