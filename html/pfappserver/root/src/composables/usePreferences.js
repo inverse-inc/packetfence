@@ -72,7 +72,6 @@ const api = {
 export const usePreference = (id, defaultValue) => {
 
   const preference = ref(defaultValue)
-  let debouncer
 
   api.getPreference(id)
     .then(response => {
@@ -83,20 +82,23 @@ export const usePreference = (id, defaultValue) => {
     .catch(() => {
       preference.value = defaultValue
     })
-
-  watch(preference, () => {
-    if (!debouncer)
-      debouncer = createDebouncer()
-    debouncer({
-      handler: () => {
-        if (!preference.value)
-          api.removePreference(id)
-        else
-          api.setPreference(id, preference.value)
-      },
-      time: 1000
+    .finally(() => {
+      // watch after initial mutation
+      let debouncer
+      watch(preference, () => {
+        if (!debouncer)
+          debouncer = createDebouncer()
+        debouncer({
+          handler: () => {
+            if (!preference.value)
+              api.removePreference(id)
+            else
+              api.setPreference(id, preference.value)
+          },
+          time: 1000
+        })
+      }, { deep: true })
     })
-  }, { deep: true })
 
   return preference
 }
