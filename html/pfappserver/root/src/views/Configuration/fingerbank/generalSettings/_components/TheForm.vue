@@ -95,7 +95,7 @@
 
     <form-group-collector-arp-lookup namespace="collector.arp_lookup"
       :column-label="$i18n.t('ARP lookups by the collector')"
-      :text="$i18n.t(`Whether or not the collector should perform ARP lookups for devices it doesn't have DHCP information.`)"
+      :text="$i18n.t('Whether or not the collector should perform ARP lookups for devices it doesn't have DHCP information. Use only on small deployments.')"
     />
 
     <form-group-collector-network-behavior-analysis namespace="collector.network_behavior_analysis"
