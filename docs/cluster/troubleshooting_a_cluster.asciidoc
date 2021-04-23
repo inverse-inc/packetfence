@@ -35,9 +35,22 @@ Important variables:
 
 In order for the cluster to be considered healthy, all nodes must be listed under `wsrep_incoming_addresses` and `wsrep_local_state_comment` must be `Synced`. Otherwise look in the MariaDB log ([filename]`/usr/local/pf/logs/mariadb_error.log`)
 
-=== Rejoining a node to an existing cluster
+=== Automatic clustering resolution service: galera-autofix
 
-When only one node has left cluster, you can apply following commands on that node to rejoin:
+Since v10, the <<_the_galera_autofix_service,`galera-autofix`>> service will try to resolve automatically issues on Galera clusters.
+
+On a cluster which has an issue, once all nodes are back online, you should wait:
+
+* around 10 minutes when at least one of the nodes of the cluster is able to offer database service
+* around 20 minutes when there is no database service available
+
+If your cluster still has issues after that time, you can try to resolve the issue by looking at sections below.
+
+=== Cluster offers database service without all nodes
+
+When at least one of the nodes of the cluster is able to offer database
+service, you can apply the following commands on a broken node to rejoin it to
+the cluster:
 
 [source,bash]
 ----
@@ -50,42 +63,89 @@ systemctl start packetfence-galera-autofix
 
 This action will not cause service disruption on current cluster.
 
-=== Recovering when a node is missing
+After all nodes have joined back cluster, you should verify <<_checking_the_mariadb_sync,MariaDB sync>>.
 
-If one of the nodes cannot recover, you can manually reset the cluster state. Note that this procedure is only valid if all the nodes were hard-shutdown at the same time.
+WARNING: After stopping the `packetfence-mariadb` service, be sure there is no more `mysql` process running.
 
-First, stop `packetfence-mariadb` on all servers:
+=== None of the nodes is offering database service
 
-  # systemctl stop packetfence-mariadb
+When there is no more database service in your cluster, you need to do a full recovery.
 
-Then remove `/var/lib/mysql/gvwstate.dat` on all the servers that are still alive.
+You must identify the node you wish to keep the data from and start it with the
+`--force-new-cluster` option.
 
-Next, see the section 'Recovering from a split brain' to start up a new cluster.
+Find the node which has the highest `seqno` value in
+[filename]`/var/lib/mysql/grastate.dat`.
 
-=== Recovering from a split brain
+If the `seqno` value is `-1`, you need to start MariaDB manually with
+`--wsrep-recover` to update the `seqno` value using the commands below:
 
-If you leave the cluster in auto-recovery mode without electing a master manually, the structure of the cluster is made so that a split-brain can never occur since a server will fallback in read-only if it can't join a primary view (quorum).
+[source,bash]
+----
+systemctl stop packetfence-galera-autofix
+systemctl stop packetfence-mariadb
+mysqld_safe --defaults-file=/usr/local/pf/var/conf/mariadb.conf --wsrep-recover
+----
 
-Should you decide to elect a new master and cause a split-brain for crash recovery purpose, you will have to wipe the data on all the servers that are part of one side of the split brain. This should be done once all the servers have re-gained communication.
+Once you have identified the node which has the most recent data, run
+following commands on it:
 
-=== Full recovery
+[source,bash]
+----
+systemctl stop packetfence-mariadb
+systemctl stop packetfence-galera-autofix
+/usr/local/pf/sbin/pf-mariadb --force-new-cluster
+----
 
-If you want to perform a full recovery which can be necessary after experiencing an issue with Galera cluster, you must stop the node you wish to keep the data from and start it with the `--force-new-cluster` option. If this is not the case, you can continue onto the next step
-
-  # systemctl stop packetfence-mariadb
-  # /usr/local/pf/sbin/pf-mariadb --force-new-cluster
+WARNING: After stopping the `packetfence-mariadb` service, be sure there is no more `mysql` process running.
 
 ==== On each of the discarded servers
 
-First, stop packetfence-mariadb on *all* the servers you want to discard data from.
+First, stop `packetfence-mariadb` and `packetfence-galera-autofix` on all
+the servers you want to discard data from.
 
-  systemctl stop packetfence-mariadb
+[source,bash]
+----
+systemctl stop packetfence-mariadb
+systemctl stop packetfence-galera-autofix
+----
 
-On each of the servers you want to discard the data from, you must destroy all the data in `/var/lib/mysql` and start `packetfence-mariadb` so it resyncs its data from scratch.
+On each of the servers you want to discard the data from, you must destroy all
+the data in `/var/lib/mysql` and start `packetfence-mariadb` so it resyncs its
+data from scratch.
 
-  rm -fr /var/lib/mysql/*
-  systemctl start packetfence-mariadb
+[source,bash]
+----
+rm -fr /var/lib/mysql/*
+systemctl start packetfence-mariadb
+----
 
-You should then see `/var/lib/mysql` be populated again with the data and once MariaDB becomes available again on the server, it means the sync has completed. In case of issues, look in the MariaDB log file (`/usr/local/pf/logs/mariadb_error.log`)
+You should then see `/var/lib/mysql` be populated again with the data and once
+MariaDB becomes available again on the server, it means the sync has
+completed. In case of issues, look in the MariaDB log file
+(`/usr/local/pf/logs/mariadb_error.log`)
 
-NOTE: If you were performing a full recovery, you should now break the `--force-new-cluster` command and start `packetfence-mariadb` normally. (`systemctl start packetfence-mariadb`)
+WARNING: After stopping the `packetfence-mariadb` service, be sure there is no more `mysql` process running.
+
+==== On the node started with --force-new-cluster
+
+If you were performing a full recovery, you should now break the
+`--force-new-cluster` command and start `packetfence-mariadb`
+normally using:
+
+[source,bash]
+----
+systemctl start packetfence-mariadb
+----
+
+==== On all servers
+
+When your database offers service again, you can restart
+`packetfence-galera-autofix` service using:
+
+[source,bash]
+----
+systemctl start packetfence-galera-autofix
+----
+
+Be sure to verify <<_checking_the_mariadb_sync,MariaDB sync>>.

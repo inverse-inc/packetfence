@@ -18,13 +18,21 @@ endif::[]
 
 //== Maintenance and Operations
 
-=== Putting a node in maintenance
+=== Putting nodes in maintenance
 
-When doing maintenance on a node (especially the management node), it is
-always better to put it in maintenance mode so it doesn't try to join an
-existing cluster.
+When doing maintenance on a cluster, it is always preferred to set the targeted
+nodes in a maintenance mode so they don't try to join an existing
+cluster. You can achieve this using two methods.
 
-Once node is in maintenance, you can safely reboot it.
+IMPORTANT: In a three nodes cluster, you can offer service with at least one node.
+
+==== Using a clean shutdown
+
+If you stop the `packetfence-mariadb` service properly on a node or if you
+shutdown your node properly, the cluster will detect this shutdown and continue to
+operate.
+
+==== Using --maintenance flag
 
 In order to activate the maintenance mode on a node:
 
