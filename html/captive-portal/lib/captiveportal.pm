@@ -54,11 +54,16 @@ around 'handle_request' => sub {
     my @res;
     # Request timeout handling
     eval {
-        local $SIG{ALRM} = sub { die "Timeout reached" };
+        local $SIG{ALRM} = sub {
+            my ($pkg, $file, $line) = caller(0);
+            (undef, undef, undef, my $func) = caller(2);
+            die "Timeout reached at package:$pkg, file:$file, line:$line func:$func";
+        };
         alarm $Config{captive_portal}{request_timeout};
         @res = $self->$orig(@args);
         alarm 0;
     };
+    alarm 0;
     die $@ if($@);
     
     return @res;
