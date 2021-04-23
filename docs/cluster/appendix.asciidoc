@@ -96,8 +96,15 @@ The PacketFence clustering stack has a mechanism that allows configuration confl
 
 In order to do, so go in _Configuration->System Configuration->Maintenance_ and disable the _Cluster Check_ task.
 
-Once this is done, restart `pfcron` on all nodes using:
+Once this is done, restart `pfmon` or `pfcron` on all nodes using:
 
+.For PF versions prior to 10.2
+[source,bash]
+----
+/usr/local/pf/bin/pfcmd service pfmon restart
+----
+
+.For PF versions 10.2 and later
 [source,bash]
 ----
 /usr/local/pf/bin/pfcmd service pfcron restart
