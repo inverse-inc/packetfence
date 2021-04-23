@@ -77,6 +77,8 @@ func computeMultipleTenants() bool {
 const ALLOW_ANY = "*"
 
 var pathAdminRolesMap = []adminRoleMapping{
+	adminRoleMapping{prefix: "/dns-ztn-query", role: "REMOTE_CLIENTS"},
+
 	adminRoleMapping{prefix: apiPrefix + "/current_user", role: ALLOW_ANY},
 	adminRoleMapping{prefix: apiPrefix + "/radius_attributes", role: ALLOW_ANY},
 
