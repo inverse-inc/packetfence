@@ -20,8 +20,7 @@ const components = {
   TabPermissions
 }
 
-import { customRef, ref, toRefs } from '@vue/composition-api'
-import i18n from '@/utils/locale'
+import { customRef, toRefs } from '@vue/composition-api'
 
 const props = {
   tab: {
