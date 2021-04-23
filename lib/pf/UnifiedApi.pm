@@ -297,6 +297,7 @@ sub setup_api_v1_config_routes {
     $self->setup_api_v1_config_filters_routes($root);
     $self->setup_api_v1_config_filter_engines_routes($root);
     $self->setup_api_v1_config_fingerbank_settings_routes($root);
+    $self->setup_api_v1_config_clouds_routes($root);
     $self->setup_api_v1_config_firewalls_routes($root);
     $self->setup_api_v1_config_floating_devices_routes($root);
     $self->setup_api_v1_config_maintenance_tasks_routes($root);
@@ -1376,6 +1377,26 @@ sub setup_api_v1_config_routed_networks_routes {
         "/routed_networks",
         "/routed_network/#network_id",
         "api.v1.Config.RoutedNetworks"
+    );
+
+    return ($collection_route, $resource_route);
+}
+
+=head2 setup_api_v1_config_clouds_routes
+
+setup_api_v1_config_clouds_routes
+
+=cut
+
+sub setup_api_v1_config_clouds_routes {
+    my ($self, $root) = @_;
+    my ($collection_route, $resource_route) =
+      $self->setup_api_v1_std_config_routes(
+        $root,
+        "Config::Clouds",
+        "/clouds",
+        "/cloud/#cloud_id",
+        "api.v1.Config.Clouds"
     );
 
     return ($collection_route, $resource_route);
