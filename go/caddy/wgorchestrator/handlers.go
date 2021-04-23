@@ -265,15 +265,18 @@ func (h *WgorchestratorHandler) handleGetAllowedIPCommunication(c *gin.Context) 
 		return
 	}
 
-	if srcRC != nil && dstRC != nil {
-		renderError(c, http.StatusUnprocessableEntity, errors.New("this API call currently doesn't support checks between two clients from the ZT network"))
-		return
-	}
-
 	var res = struct {
 		Permit bool   `json:"permit"`
 		Reason string `json:"reason"`
 	}{}
+
+	if srcRC != nil && dstRC != nil {
+		res.Permit = true
+		res.Reason = "This API call implicitly allows communication between 2 members of the ZT network"
+		c.JSON(http.StatusOK, res)
+		return
+	}
+
 	if srcNode.Status != "reg" || dstNode.Status != "reg" {
 		res.Permit = false
 		res.Reason = "One of the nodes is not registered"
