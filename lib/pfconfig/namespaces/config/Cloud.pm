@@ -24,7 +24,7 @@ use base 'pfconfig::namespaces::config';
 
 sub init {
     my ($self) = @_;
-    $self->{file} = $firewall_sso_config_file;
+    $self->{file} = $cloud_config_file;
 }
 
 sub build_child {
