@@ -11,7 +11,7 @@
     />
 
     <form-group-galera-autofix namespace="galera-autofix"
-      :column-label="$i18n.t('galara-autofix')"
+      :column-label="$i18n.t('galera-autofix')"
       :text="$i18n.t('Should galera-autofix be managed by PacketFence?')"
     />
 
