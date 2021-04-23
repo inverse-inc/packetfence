@@ -20,6 +20,7 @@ import SecurityEventsRoutes from '../securityEvents/_router'
 
 /* Integration */
 const IntegrationSection = () => import(/* webpackChunkName: "Configuration" */ '../_components/IntegrationSection')
+import CloudsRoutes from '../clouds/_router'
 import FirewallsRoutes from '../firewalls/_router'
 import WebServicesRoutes from '../webServices/_router'
 import SwitchTemplatesRoutes from '../switchTemplates/_router'
@@ -115,6 +116,7 @@ const route = {
       path: 'integration',
       component: IntegrationSection
     },
+    ...CloudsRoutes,
     ...FirewallsRoutes,
     ...WebServicesRoutes,
     ...SwitchTemplatesRoutes,

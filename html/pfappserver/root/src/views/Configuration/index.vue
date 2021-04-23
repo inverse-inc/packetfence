@@ -78,6 +78,7 @@ export default {
           icon: 'puzzle-piece',
           collapsable: true,
           items: [
+            { name: this.$i18n.t('Cloud Services'), path: '/configuration/clouds' },
             { name: this.$i18n.t('Firewall SSO'), path: '/configuration/firewalls' },
             { name: this.$i18n.t('Web Services'), path: '/configuration/webservices' },
             { name: this.$i18n.t('Switch Templates'), path: '/configuration/switch_templates' },

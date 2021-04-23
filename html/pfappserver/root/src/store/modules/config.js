@@ -106,6 +106,9 @@ const api = {
   getFilterEngines (collection) {
     return apiCall({ url: encodeURL(['config', 'filter_engines', collection]), method: 'get' })
   },
+  getClouds () {
+    return apiCall({ url: 'config/clouds', method: 'get' })
+  },
   getFirewalls () {
     return apiCall({ url: 'config/firewalls', method: 'get' })
   },
