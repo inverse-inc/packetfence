@@ -20,10 +20,13 @@
     </b-card>
     <b-card no-body>
       <b-card-header>
-        <h4 class="mb-0">{{ $t('Change Password') }}</h4>
+        <h4>{{ $t('Change Password') }}</h4>
+        <p class="mb-0">{{ $t('Local users only.') }}</p>
       </b-card-header>
       <b-card-body class="p-3">
-        <b-form @submit.prevent ref="rootRef">
+        <!-- local user -->
+        <b-form v-if="isLocalUser"
+          @submit.prevent ref="rootRef">
           <base-form
             :form="form"
             :schema="schema"
@@ -37,8 +40,21 @@
               :column-label="$t('Re-enter new password')" />
           </base-form>
         </b-form>
+        <!-- external user -->
+        <b-container class="my-5" v-else>
+          <b-row class="justify-content-md-center text-secondary">
+            <b-col cols="12" md="auto">
+              <icon v-if="isLoading" name="circle-notch" scale="1.5" spin></icon>
+              <b-media v-else>
+                <template v-slot:aside><icon name="user-lock" scale="2"></icon></template>
+                <h4>{{ $t('User is not local') }}</h4>
+                <p class="font-weight-light">{{ $t('The password can not be changed for external users.') }}</p>
+              </b-media>
+            </b-col>
+          </b-row>
+        </b-container>
       </b-card-body>
-      <b-card-footer>
+      <b-card-footer v-if="isLocalUser">
         <b-button @click="changePassword"
           :disabled="isLoading || !isValid"
           variant="primary"
@@ -90,7 +106,6 @@ const setup = (props, context) => {
   const { root: { $store } = {} } = context
 
   const settings = usePreference('settings', { language: null })
-
   const rootRef = ref(null)
   const form = ref(defaults())
 
@@ -104,7 +119,6 @@ const setup = (props, context) => {
       .required(i18n.t('Confirm new password.'))
       .passwordsMatch(form.value.new_password)
   }))
-  const isLoading = ref(false)
   const isValid = useDebouncedWatchHandler(
     [form],
     () => (
@@ -114,6 +128,14 @@ const setup = (props, context) => {
         .length === 0
     )
   )
+
+  const isLoading = ref(true)
+  const isLocalUser = ref(false)
+  $store.dispatch('$_users/getUser', { pid: $store.state.session.username, quiet: true }).then(response => {
+    const { has_password } = response || {}
+    isLocalUser.value = !!has_password
+    isLoading.value = false
+  })
 
   const changePassword = () => {
     isLoading.value = true
@@ -139,6 +161,7 @@ const setup = (props, context) => {
   return {
     // settings
     settings,
+    isLocalUser,
 
     // password
     rootRef,
