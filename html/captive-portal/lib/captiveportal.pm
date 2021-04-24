@@ -60,8 +60,11 @@ around 'handle_request' => sub {
             die "Timeout reached at package:$pkg, file:$file, line:$line func:$func";
         };
         alarm $Config{captive_portal}{request_timeout};
-        @res = $self->$orig(@args);
+        eval {
+            @res = $self->$orig(@args);
+        };
         alarm 0;
+        die $@ if($@);
     };
     alarm 0;
     die $@ if($@);
