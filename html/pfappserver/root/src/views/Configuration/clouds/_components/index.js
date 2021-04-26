@@ -15,20 +15,10 @@ export {
   BaseViewCollectionItem              as BaseView,
   BaseFormButtonBar                   as FormButtonBar,
 
-  BaseFormGroupInputNumber            as FormGroupCacheTimeout,
-  BaseFormGroupToggleDisabledEnabled  as FormGroupCacheUpdates,
-  BaseFormGroupChosenMultiple         as FormGroupCategories,
-  BaseFormGroupInput                  as FormGroupDefaultRealm,
-  BaseFormGroupInput                  as FormGroupDeviceIdentifier,
   BaseFormGroupInput                  as FormGroupIdentifier,
-  BaseFormGroupInput                  as FormGroupNacName,
-  BaseFormGroupInput                  as FormGroupNetworks,
-  BaseFormGroupInputPassword          as FormGroupPassword,
-  BaseFormGroupInputNumber            as FormGroupPort,
-  BaseFormGroupChosenOne              as FormGroupTransport,
-  BaseFormGroupInput                  as FormGroupUsername,
-  BaseFormGroupInput                  as FormGroupUsernameFormat,
-  BaseFormGroupInput                  as FormGroupVsys,
+  BaseFormGroupInput                  as FormGroupTenantId,
+  BaseFormGroupInput                  as FormGroupClientId,
+  BaseFormGroupInputPassword          as FormGroupClientSecret,
 
   TheForm,
   TheView

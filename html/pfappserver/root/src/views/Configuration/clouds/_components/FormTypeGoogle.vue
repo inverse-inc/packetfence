@@ -6,21 +6,23 @@
     :isLoading="isLoading"
   >
     <form-group-identifier namespace="id"
-      :column-label="$i18n.t('Hostname or IP Address')"
+      :column-label="$i18n.t('Name')"
       :disabled="!isNew && !isClone"
     />
 
-    <form-group-username namespace="username"
-      :column-label="$i18n.t('Username')"
+    <form-group-tenant-id namespace="tenant-id"
+      :column-label="$i18n.t('The tenant ID of the intune service')"
+      :text="$i18n.t('Define the tenant ID defined in the Azure admin portal.')"
     />
 
-    <form-group-password namespace="password"
-      :column-label="$i18n.t('Secret or Key')"
+    <form-group-client-id namespace="client-id"
+      :column-label="$i18n.t('The client ID of the intune service')"
+      :text="$i18n.t('Define the client ID defined in the Azure admin portal.')"
     />
 
-    <form-group-port namespace="port"
-      :column-label="$i18n.t('Port of the service')"
-      :text="$i18n.t('If you use an alternative port, please specify.')"
+    <form-group-client-secret namespace="client-secret"
+      :column-label="$i18n.t('The client secret of the intune service')"
+      :text="$i18n.t('Define the client secret defined in the Azure admin portal.')"
     />
 
   </base-form>
@@ -29,25 +31,25 @@
 import { BaseForm } from '@/components/new/'
 import {
   FormGroupIdentifier,
-  FormGroupPassword,
-  FormGroupPort,
-  FormGroupUsername,
+  FormGroupTenantId,
+  FormClientId,
+  FormClientSecret,
 } from './'
 
 const components = {
   BaseForm,
 
   FormGroupIdentifier,
-  FormGroupPassword,
-  FormGroupPort,
-  FormGroupUsername,
+  FormGroupTenantId,
+  FormClientId,
+  FormClientSecret,
 }
 
 import { useForm as setup, useFormProps as props } from '../_composables/useForm'
 
 // @vue/component
 export default {
-  name: 'form-type-google',
+  name: 'form-type-intune',
   inheritAttrs: false,
   components,
   props,
