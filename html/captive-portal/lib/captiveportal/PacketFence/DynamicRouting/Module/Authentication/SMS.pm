@@ -79,6 +79,9 @@ sub execute_child {
     elsif($self->app->request->method eq "POST"){
         $self->validate_info();
     }
+    elsif ($self->app->request->param("resend")) {
+        $self->resend();
+    }
     else {
         $self->prompt_fields();
     }
@@ -101,6 +104,17 @@ sub no_pin {
         pf::activation::invalidate_codes_for_mac($self->current_mac, $SMS_ACTIVATION);
     }
     $self->redirect_root();
+}
+
+=head2 resend
+
+resend
+
+=cut
+
+sub resend {
+    my ($self) = @_;
+    return;
 }
 
 =head2 carriers
