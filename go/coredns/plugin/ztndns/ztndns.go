@@ -82,17 +82,26 @@ func (ztn *ztndns) ServeDNS(ctx context.Context, w dns.ResponseWriter, r *dns.Ms
 	a.Compress = true
 	a.Authoritative = true
 	var rr dns.RR
-
-	for i := 0; i < len(ztn.HostIP); i++ {
-		if ztn.HostIP[i].ComputerName.MatchString(state.QName()) {
-			rr = new(dns.A)
-			rr.(*dns.A).Hdr = dns.RR_Header{Name: state.QName(), Rrtype: dns.TypeA, Class: state.QClass(), Ttl: 60}
-			rr.(*dns.A).A = ztn.HostIP[i].Ip
-			a.Answer = []dns.RR{rr}
-			state.SizeAndDo(a)
-			w.WriteMsg(a)
-			return 0, nil
+	if state.Type() != "AAAA" {
+		for i := 0; i < len(ztn.HostIP); i++ {
+			if ztn.HostIP[i].ComputerName.MatchString(state.QName()) {
+				rr = new(dns.A)
+				rr.(*dns.A).Hdr = dns.RR_Header{Name: state.QName(), Rrtype: dns.TypeA, Class: state.QClass(), Ttl: 60}
+				rr.(*dns.A).A = ztn.HostIP[i].Ip
+				a.Answer = []dns.RR{rr}
+				state.SizeAndDo(a)
+				w.WriteMsg(a)
+				return 0, nil
+			}
 		}
+	}
+	// Bypass ipv6
+	if state.Type() == "AAAA" {
+		m := new(dns.Msg)
+		m.SetRcode(r, dns.RcodeNameError)
+		// m.Ns = []dns.RR{soa(state.QName())}
+		w.WriteMsg(m)
+		return 0, nil
 	}
 
 	return ztn.Next.ServeDNS(ctx, w, r)
