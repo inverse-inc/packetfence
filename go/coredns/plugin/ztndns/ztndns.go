@@ -99,7 +99,6 @@ func (ztn *ztndns) ServeDNS(ctx context.Context, w dns.ResponseWriter, r *dns.Ms
 	if state.Type() == "AAAA" {
 		m := new(dns.Msg)
 		m.SetRcode(r, dns.RcodeNameError)
-		// m.Ns = []dns.RR{soa(state.QName())}
 		w.WriteMsg(m)
 		return 0, nil
 	}
