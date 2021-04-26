@@ -27,11 +27,11 @@ const useItemTitle = (props) => {
   return computed(() => {
     switch (true) {
       case !isNew.value && !isClone.value:
-        return i18n.t('Cloud SSO <code>{id}</code>', { id: id.value })
+        return i18n.t('Cloud Service <code>{id}</code>', { id: id.value })
       case isClone.value:
-        return i18n.t('Clone Cloud SSO <code>{id}</code>', { id: id.value })
+        return i18n.t('Clone Cloud Service <code>{id}</code>', { id: id.value })
       default:
-        return i18n.t('New Cloud SSO')
+        return i18n.t('New Cloud Service')
     }
   })
 }
