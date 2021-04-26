@@ -25,24 +25,11 @@ use pf::constants::cloud;
 has_field 'id' =>
   (
    type => 'Text',
-   label => 'Hostname or IP Address',
+   label => 'Name',
    required => 1,
-   messages => { required => 'Please specify the hostname of the Cloud Service' },
+   messages => { required => 'Please specify the name of the Cloud Service' },
   );
-has_field 'password' =>
-  (
-   type => 'ObfuscatedText',
-   label => 'Secret or Key',
-   required => 1,
-   messages => { required => 'You must specify the password or the key' },
-  );
-has_field 'port' =>
-  (
-   type => 'Port',
-   label => 'Port of the service',
-   tags => { after_element => \&help,
-             help => 'If you use an alternative port, please specify' },
-  );
+
 has_field 'type' =>
   (
    type => 'Select',
@@ -52,7 +39,7 @@ has_field 'type' =>
 
 has_block 'definition' =>
   (
-   render_list => [ qw(id type password port) ],
+   render_list => [ qw(id) ],
   );
 
 =head2 options_type

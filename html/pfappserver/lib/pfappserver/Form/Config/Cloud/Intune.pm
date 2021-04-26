@@ -18,31 +18,40 @@ use pf::config;
 use pf::util;
 use File::Find qw(find);
 
-has_field 'username' =>
+has_field 'tenant-id' =>
   (
    type => 'Text',
-   label => 'Username',
+   label => 'Tenant ID',
    required => 1,
-   messages => { required => 'Please specify the username for the Intune Service' },
+   messages => { required => 'Please specify the Tenant ID for the Intune Service' },
   );
 
-has_field 'port' =>
+has_field 'client-id' =>
   (
-   type => 'Port',
-   label => 'Port of the service',
-   tags => { after_element => \&help,
-             help => 'If you use an alternative port, please specify' },
-   default => 443,
+   type => 'Text',
+   label => 'Client ID',
+   required => 1,
+   messages => { required => 'Please specify the Client ID for the Intune Service' },
   );
+
+has_field 'client-secret' =>
+  (
+   type => 'ObfuscatedText',
+   label => 'Tenant ID',
+   required => 1,
+   messages => { required => 'Please specify the Tenant ID for the Intune Service' },
+  );
+
+
 has_field 'type' =>
   (
    type => 'Hidden',
-   default => 'Azure',
+   default => 'Intune',
   );
 
 has_block definition =>
   (
-   render_list => [ qw(id type username password port) ],
+   render_list => [ qw(id tenant-id client-id client-secret) ],
   );
 
 =over
