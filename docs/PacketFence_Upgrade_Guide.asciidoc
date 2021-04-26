@@ -1106,23 +1106,36 @@ First, ensure you have taken backups of your data. We highly encourage you to pe
 
 ===== Disabling the auto-correction of configuration
 
-
 The PacketFence clustering stack has a mechanism that allows configuration conflicts to be handled accross the servers. This will come in conflict with your upgrade, so you should disable it.
 
-In order to do, so go in _Configuration->System Configuration->Maintenance_ and disable the _Cluster Check_ task.
+In order to do so, go in _Configuration->System Configuration->Maintenance_ and disable the _Cluster Check_ task.
 
 Once this is done, restart `pfmon` or `pfcron` on all nodes using:
 
-.For PF versions prior to 10.2
+.For PacketFence versions prior to 10.2
 [source,bash]
 ----
 /usr/local/pf/bin/pfcmd service pfmon restart
 ----
 
-.For PF versions 10.2 and later
+.For PacketFence version 10.2 and later
 [source,bash]
 ----
 /usr/local/pf/bin/pfcmd service pfcron restart
+----
+
+===== Disabling galera-autofix (for PacketFence version 10.0 and later)
+
+You should disable the `galera-autofix` service in the configuration to disable the automated resolution of cluster issues during the upgrade.
+
+In order to do so, go in _Configuration->System Configuration->Services_ and disable the `galera-autofix` service.
+
+Once this is done, stop `galera-autofix` service on *all* nodes using:
+
+[source,bash]
+----
+/usr/local/pf/bin/pfcmd service galera-autofix updatesystemd
+/usr/local/pf/bin/pfcmd service galera-autofix stop
 ----
 
 ===== Migrating service on node C
@@ -1176,12 +1189,11 @@ make sure to reconcile this data afterwards.
 
 ====== MariaDB upgrade on node C
 
-Now stop `packetfence-mariadb` and `packetfence-galera-autofix` on node C:
+Now stop `packetfence-mariadb` on node C:
 
 [source,bash]
 ----
 systemctl stop packetfence-mariadb
-systemctl stop packetfence-galera-autofix
 ----
 
 Now proceed with the MariaDB upgrade
@@ -1322,13 +1334,6 @@ If you are happy about the state of your upgrade, you can continue on the steps 
 
 ===== MariaDB upgrade on nodes A and B
 
-First, stop the `galera-autofix` service on nodes A and B
-
-[source,bash]
-----
-systemctl stop packetfence-galera-autofix
-----
-
 Now proceed with the MariaDB upgrade:
 
 .RHEL / CentOS based systems
@@ -1398,15 +1403,6 @@ In order to truncate a table:
 ----
 mysql -u root -p pf
 MariaDB> truncate TABLE_NAME;
-----
-
-====== Preliminary steps
-
-First, ensure the `galera-autofix` service is stopped on all the nodes of your cluster:
-
-[source,bash]
-----
-systemctl stop packetfence-galera-autofix
 ----
 
 ====== Elect node C as database master
@@ -1531,7 +1527,7 @@ all PacketFence services section>>.  So it becomes aware of its peers again.
 
 You should now have full service on all 3 nodes using the latest version of PacketFence.
 
-====== Reactivate the configuration conflict handling
+===== Reactivate the configuration conflict handling
 
 Now that your cluster is back to a healthy state, you should reactivate the configuration conflict resolution.
 
@@ -1544,15 +1540,18 @@ Once this is done, restart `pfcron` on all nodes using:
 /usr/local/pf/bin/pfcmd service pfcron restart
 ----
 
-====== Restart the galera-autofix service
+===== Reactivate galera-autofix
 
-You now need to restart the galera-autofix service so that its aware that all the members of the cluster are online again.
+You now need to reactivate and restart the `galera-autofix` service so that it's aware that all the members of the cluster are online again.
 
-In order to do so:
+In order to do so, go in _Configuration->System Configuration->Services_ and re-enable the `galera-autofix` service.
+
+Once this is done, restart `galera-autofix` service on *all* nodes using:
 
 [source,bash]
 ----
-systemctl restart packetfence-galera-autofix
+/usr/local/pf/bin/pfcmd service galera-autofix updatesystemd
+/usr/local/pf/bin/pfcmd service galera-autofix restart
 ----
 
 === Rename win_agent_download_uri -> windows_agent_download_uri
@@ -1638,4 +1637,3 @@ include::includes/additional-info.asciidoc[]
 include::includes/commercial-support.asciidoc[]
 
 include::includes/license.asciidoc[]
-
