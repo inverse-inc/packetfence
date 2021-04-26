@@ -79,7 +79,7 @@ yum install MariaDB-backup socat --enablerepo=packetfence
 ----
 apt-get install lsb-release wget gnupg2
 apt-get update
-apt-get -y install mariadb-backup
+apt-get -y install mariadb-backup-10.2
 ----
 
 For the next steps, you want to make sure that you didn't configure anything
