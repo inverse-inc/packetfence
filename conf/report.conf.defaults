@@ -57,8 +57,8 @@ description=Sponsor Registration
 # The table to search from
 base_table=activation
 # The columns to select
-columns=activation.pid as "Owner", activation.mac "MAC Address",  activation.expiration as "Registration expiration", activation.status as "Status", activation.portal as "Connection profile"
-searches=string:Owner:activation.pid,string:MAC Address:activation.mac,string:Status:activation.status,string:Connection Profile:activation.portal
+columns=activation.pid as "Owner", activation.contact_info as "Sponsor", activation.mac "MAC Address",  activation.expiration as "Registration expiration", activation.status as "Status", activation.portal as "Connection profile",
+searches=string:Owner:activation.pid,string:Sponsor:activation.contact_info,string:MAC Address:activation.mac,string:Status:activation.status,string:Connection Profile:activation.portal
 date_field=expiration
 # Display only the sponsor registration
 base_conditions=activation.type:=:sponsor
