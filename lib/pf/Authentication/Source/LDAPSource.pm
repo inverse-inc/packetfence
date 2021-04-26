@@ -228,7 +228,7 @@ sub _connect {
   my @LDAPServers = @{$self->{'host'} // []};
   
   # Lookup the server hostnames to IPs so they can be shuffled better and to improve the failure detection
-  @LDAPServers = map { valid_ip($_) ? $_ : @{resolve($_)} } @LDAPServers;
+  @LDAPServers = map { valid_ip($_) ? $_ : @{resolve($_) // []} } @LDAPServers;
 
   if ($self->shuffle) {
       @LDAPServers = List::Util::shuffle @LDAPServers;
