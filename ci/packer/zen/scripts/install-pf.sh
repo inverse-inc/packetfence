@@ -33,6 +33,6 @@ cat <<EOT >> /usr/local/pf/db/pf-schema.sql
 -- Insert the demo user for testing
 --
 
-INSERT INTO password (pid, password, valid_from, expiration, access_duration, access_level, category) VALUES ('demouser', 'demouser', NOW(), '2038-01-01', '1D', NULL, 1);
+INSERT INTO password (pid, password, valid_from, expiration, access_duration, access_level, category) VALUES ('demouser', 'demouser', '1970-01-01', '2038-01-01', '1D', NULL, 1);
 
 EOT
