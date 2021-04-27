@@ -4,7 +4,7 @@ import { pfSearchConditionType as conditionType } from '@/globals/pfSearch'
 export const columns = [
   {
     key: 'id',
-    label: 'Hostname or IP', // i18n defer
+    label: 'Name', // i18n defer
     required: true,
     sortable: true,
     visible: true
@@ -12,12 +12,6 @@ export const columns = [
   {
     key: 'type',
     label: 'Cloud Type', // i18n defer
-    sortable: true,
-    visible: true
-  },
-  {
-    key: 'port',
-    label: 'Port', // i18n defer
     sortable: true,
     visible: true
   },
@@ -39,11 +33,6 @@ export const fields = [
     text: i18n.t('Type'),
     types: [conditionType.SUBSTRING]
   },
-  {
-    value: 'port',
-    text: i18n.t('Port'),
-    types: [conditionType.SUBSTRING]
-  }
 ]
 
 export const config = () => {
@@ -53,7 +42,7 @@ export const config = () => {
     rowClickRoute (item) {
       return { name: 'cloud', params: { id: item.id } }
     },
-    searchPlaceholder: i18n.t('Search by hostname, ip, port or cloud type'),
+    searchPlaceholder: i18n.t('Search by name or cloud type'),
     searchableOptions: {
       searchApiEndpoint: 'config/clouds',
       defaultSortKeys: ['id'],
@@ -63,7 +52,6 @@ export const config = () => {
           op: 'or',
           values: [
             { field: 'id', op: 'contains', value: null },
-            { field: 'port', op: 'contains', value: null },
             { field: 'type', op: 'contains', value: null }
           ]
         }]
@@ -77,7 +65,6 @@ export const config = () => {
           op: 'or',
           values: [
             { field: 'id', op: 'contains', value: quickCondition },
-            { field: 'port', op: 'contains', value: quickCondition },
             { field: 'type', op: 'contains', value: quickCondition }
           ]
         }]

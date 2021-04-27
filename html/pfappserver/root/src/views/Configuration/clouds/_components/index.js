@@ -1,4 +1,5 @@
 import { BaseViewCollectionItem } from '../../_components/new/'
+import BaseFormGroupChosenOneCloud from './BaseFormGroupChosenOneCloud'
 import {
   BaseFormButtonBar,
   BaseFormGroupInput,
@@ -8,6 +9,7 @@ import TheForm from './TheForm'
 import TheView from './TheView'
 
 export {
+  BaseFormGroupChosenOneCloud,
   BaseViewCollectionItem              as BaseView,
   BaseFormButtonBar                   as FormButtonBar,
 

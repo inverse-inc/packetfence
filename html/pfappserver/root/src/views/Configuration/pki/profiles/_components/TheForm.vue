@@ -114,6 +114,16 @@
           :text="$i18n.t('Number of days before SCEP authorize renewal')"
         />
       </base-form-tab>
+      <base-form-tab :title="$i18n.t('Cloud')">
+        <form-group-cloud-enabled namespace="cloud_enabled"
+          :column-label="$i18n.t('Enable Cloud Integration')"
+          :text="$i18n.t('Enable Cloud integration for this template.')"
+        />
+        <form-group-cloud-service namespace="cloud_service"
+          :column-label="$i18n.t('Cloud Service')"
+          :text="$i18n.t('Cloud Service to integrate.')"
+        />
+      </base-form-tab>
     </b-tabs>
   </base-form>
 </template>
@@ -150,7 +160,9 @@ import {
   FormGroupP12MailFooter,
   FormGroupScepEnabled,
   FormGroupScepChallengePassword,
-  FormGroupScepDaysBeforeRenewal
+  FormGroupScepDaysBeforeRenewal,
+  FormGroupCloudEnabled,
+  FormGroupCloudService
 } from './'
 
 const components = {
@@ -182,7 +194,9 @@ const components = {
   FormGroupP12MailFooter,
   FormGroupScepEnabled,
   FormGroupScepChallengePassword,
-  FormGroupScepDaysBeforeRenewal
+  FormGroupScepDaysBeforeRenewal,
+  FormGroupCloudEnabled,
+  FormGroupCloudService
 }
 
 export const props = {
