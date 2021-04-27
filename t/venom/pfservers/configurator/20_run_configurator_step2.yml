@@ -197,8 +197,7 @@ testcases:
     body: >-
       {
         "password": "{{.configurator.admin.password}}",
-        "pid": "admin",
-        "valid_from": "{{.configurator.admin.valid_from}}"
+        "pid": "admin"
       }
     headers:
       "Content-Type": "application/json"
