@@ -410,8 +410,14 @@ sub commit {
     return $TRUE;
 }
 
+sub cleanupItemForValidate {
+    my ($self, $item) = @_;
+    return $item;
+}
+
 sub validate_item {
     my ($self, $item) = @_;
+    $item = $self->cleanupItemForValidate($item);
     my ($status, $form) = $self->form($item);
     if (is_error($status)) {
         return $status, { message => $form };
