@@ -1,12 +1,8 @@
 import { BaseViewCollectionItem } from '../../_components/new/'
 import {
   BaseFormButtonBar,
-  BaseFormGroupChosenMultiple,
-  BaseFormGroupChosenOne,
   BaseFormGroupInput,
-  BaseFormGroupInputNumber,
   BaseFormGroupInputPassword,
-  BaseFormGroupToggleDisabledEnabled
 } from '@/components/new/'
 import TheForm from './TheForm'
 import TheView from './TheView'

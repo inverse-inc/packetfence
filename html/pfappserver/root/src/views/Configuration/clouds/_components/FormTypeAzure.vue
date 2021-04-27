@@ -10,17 +10,17 @@
       :disabled="!isNew && !isClone"
     />
 
-    <form-group-tenant-id namespace="tenant-id"
+    <form-group-tenant-id namespace="tenant_id"
       :column-label="$i18n.t('The tenant ID of the intune service')"
       :text="$i18n.t('Define the tenant ID defined in the Azure admin portal.')"
     />
 
-    <form-group-client-id namespace="client-id"
+    <form-group-client-id namespace="client_id"
       :column-label="$i18n.t('The client ID of the intune service')"
       :text="$i18n.t('Define the client ID defined in the Azure admin portal.')"
     />
 
-    <form-group-client-secret namespace="client-secret"
+    <form-group-client-secret namespace="client_secret"
       :column-label="$i18n.t('The client secret of the intune service')"
       :text="$i18n.t('Define the client secret defined in the Azure admin portal.')"
     />
@@ -32,8 +32,8 @@ import { BaseForm } from '@/components/new/'
 import {
   FormGroupIdentifier,
   FormGroupTenantId,
-  FormClientId,
-  FormClientSecret,
+  FormGroupClientId,
+  FormGroupClientSecret,
 } from './'
 
 const components = {
@@ -41,8 +41,8 @@ const components = {
 
   FormGroupIdentifier,
   FormGroupTenantId,
-  FormClientId,
-  FormClientSecret,
+  FormGroupClientId,
+  FormGroupClientSecret,
 }
 
 import { useForm as setup, useFormProps as props } from '../_composables/useForm'

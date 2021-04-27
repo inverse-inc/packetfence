@@ -18,7 +18,7 @@ use pf::config;
 use pf::util;
 use File::Find qw(find);
 
-has_field 'tenant-id' =>
+has_field 'tenant_id' =>
   (
    type => 'Text',
    label => 'Tenant ID',
@@ -26,7 +26,7 @@ has_field 'tenant-id' =>
    messages => { required => 'Please specify the Tenant ID for the Google Service' },
   );
 
-has_field 'client-id' =>
+has_field 'client_id' =>
   (
    type => 'Text',
    label => 'Client ID',
@@ -34,10 +34,10 @@ has_field 'client-id' =>
    messages => { required => 'Please specify the Client ID for the Google Service' },
   );
 
-has_field 'client-secret' =>
+has_field 'client_secret' =>
   (
    type => 'ObfuscatedText',
-   label => 'Tenant ID',
+   label => 'Client Secret',
    required => 1,
    messages => { required => 'Please specify the Tenant ID for the Google Service' },
   );
@@ -51,7 +51,7 @@ has_field 'type' =>
 
 has_block definition =>
   (
-   render_list => [ qw(id tenant-id client-id client-secret) ],
+   render_list => [ qw(id tenant_id client_id client_secret) ],
   );
 
 =over

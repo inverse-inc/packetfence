@@ -29,7 +29,7 @@ const actions = {
   all: () => {
     const params = {
       sort: 'id',
-      fields: ['id', 'port'].join(',')
+      fields: ['id'].join(',')
     }
     return api.clouds(params).then(response => {
       return response.items

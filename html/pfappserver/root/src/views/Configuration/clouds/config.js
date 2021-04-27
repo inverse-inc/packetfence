@@ -1,9 +1,9 @@
 import i18n from '@/utils/locale'
 
 export const types = {
-  BarracudaNG:      i18n.t('Azure'),
-  Checkpoint:       i18n.t('Google'),
-  CiscoIsePic:      i18n.t('Intune'),
+  Azure:      i18n.t('Azure'),
+  Google:     i18n.t('Google'),
+  Intune:     i18n.t('Intune'),
 }
 
 export const typeOptions = Object.keys(types)
