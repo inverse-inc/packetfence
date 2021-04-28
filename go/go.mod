@@ -5,6 +5,7 @@ go 1.16
 require (
 	github.com/Azure/azure-sdk-for-go v40.6.0+incompatible
 	github.com/Azure/go-autorest/autorest v0.11.10
+	github.com/Azure/go-autorest/autorest/adal v0.9.5
 	github.com/Azure/go-autorest/autorest/azure/auth v0.5.3
 	github.com/Azure/go-autorest/autorest/to v0.2.0 // indirect
 	github.com/DataDog/datadog-go v3.5.0+incompatible // indirect
