@@ -90,7 +90,7 @@ sub build_child {
         my %roles;
         foreach my $key ( grep {/(Vlan|Role|AccessList|Url)$/} keys %{$switch} ) {
             next unless my $value = $switch->{$key};
-            if ( my ( $type_key, $type ) = ( $key =~ /^(.+)(DynamicAccessListFingerbank|Vlan|Role|AccessList|Url)$/ ) ) {
+            if ( my ( $type_key, $type ) = ( $key =~ /^(.+)(Vlan|Role|AccessList|Url)$/ ) ) {
                 $merged{$type}{$type_key} = $value;
                 $roles{$type_key} = undef;
             }
@@ -103,7 +103,6 @@ sub build_child {
         $switch->{roles}        = $merged{Role};
         $switch->{vlans}        = $merged{Vlan};
         $switch->{access_lists} = $merged{AccessList};
-        $switch->{fingerbank_dynamic_access_list} = $merged{DynamicAccessListFingerbank};
         $switch->{urls}         = $merged{Url};
         $switch->{VoIPEnabled}  = (
             $switch->{VoIPEnabled} =~ /^\s*(y|yes|true|enabled|1)\s*$/i
