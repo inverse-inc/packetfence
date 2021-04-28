@@ -89,6 +89,11 @@ sub cleanupItemForUpdate {
     return;
 }
 
+
+sub defaultSearchInfo {
+    raw => 1
+}
+
 =head2 fields_to_mask
 
 fields_to_mask
