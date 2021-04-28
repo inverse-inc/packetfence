@@ -18,7 +18,8 @@
         </base-form-group>
       </b-card-body>
     </b-card>
-    <b-card no-body>
+
+    <b-card no-body class="mb-3">
       <b-card-header>
         <h4>{{ $t('Change Password') }}</h4>
         <p class="mb-0">{{ $t('Local users only.') }}</p>
@@ -61,26 +62,113 @@
         >{{ $t('Change Password') }}</b-button>
       </b-card-footer>
     </b-card>
+
+    <b-card no-body>
+      <b-card-header>
+        <h4>{{ $t('Preferences') }}</h4>
+        <b-button variant="outline-primary" @click="showPreferencesImport = true">{{ $t('Import') }}</b-button>
+      </b-card-header>
+      <b-card-body class="p-3">
+        <b-table ref="preferencesTableRef"
+          :items="preferences"
+          :fields="preferencesFields"
+          hover striped selectable class="mb-0"
+          @row-selected="onPreferencesSelected"
+        >
+          <template #head(selected)>
+            <span @click="onPreferencesToggled">
+              <template v-if="preferencesSelected.length > 0">
+                <icon name="check-square" class="bg-white text-success" scale="1.125"/>
+              </template>
+              <template v-else>
+                <icon name="square" class="border border-1 border-gray bg-white text-light" scale="1.125" />
+              </template>
+            </span>
+          </template>
+          <template #cell(selected)="{ rowSelected }">
+            <template v-if="rowSelected">
+              <icon name="check-square" class="bg-white text-success" scale="1.125" />
+            </template>
+            <template v-else>
+              <icon name="square" class="border border-1 border-gray bg-white text-light" scale="1.125" />
+            </template>
+          </template>
+          <template #custom-foot>
+            <tr>
+              <td colspan="100%">
+                <b-button
+                  variant="outline-primary" class="mr-1"
+                  :disabled="preferencesSelected.length === 0"
+                  @click="onPreferencesSelectedExport"
+                >{{ $t('Export Selected') }}</b-button>
+                <base-button-confirm
+                  variant="outline-danger" class="mr-1"
+                  :disabled="preferencesSelected.length === 0"
+                  :confirm="$t('Delete selected preferences?')"
+                  @click="onPreferencesSelectedDelete"
+                >{{ $t('Delete Selected') }}</base-button-confirm>
+              </td>
+            </tr>
+          </template>
+        </b-table>
+      </b-card-body>
+    </b-card>
+    <b-modal v-model="showPreferencesExport" @hide="showPreferencesExport = false"
+      size="lg" titleTag="div" centered>
+      <template v-slot:modal-title>
+        <h4 class="mb-0" v-html="$t('Export Preferences')"></h4>
+      </template>
+      <base-input-group-textarea
+        v-model="preferencesExport"
+        readOnly rows="10"
+      />
+      <template v-slot:modal-footer>
+        <b-button variant="secondary" class="mr-1" @click="showPreferencesExport = false">{{ $t('Close') }}</b-button>
+        <b-button variant="primary" class="mr-1" @click="doPreferencesExport">{{ $t('Copy to Clipboard') }}</b-button>
+      </template>
+    </b-modal>
+    <b-modal v-model="showPreferencesImport" @hide="showPreferencesImport = false"
+      size="lg" title-tag="div" centered>
+      <template v-slot:modal-title>
+        <h4 v-html="$t('Import Preferences')"></h4>
+        <p class="mb-0">{{ $t('Existing preferences with the same identifier will be overwritten.') }}</p>
+      </template>
+      <base-input-group-textarea
+        v-model="preferencesImport"
+        rows="10"
+      />
+      <b-alert :show="!!preferencesImportError"
+        class="mb-0 mt-3" variant="warning" fade>{{ preferencesImportError }}</b-alert>
+      <template v-slot:modal-footer>
+        <b-button variant="secondary" class="mr-1" @click="showPreferencesImport = false">{{ $t('Cancel') }}</b-button>
+        <b-button variant="primary" class="mr-1"
+          :disabled="!preferencesImport" @click="doPreferencesImport">{{ $t('Import') }}</b-button>
+      </template>
+    </b-modal>
   </b-tab>
 </template>
 <script>
 import {
+  BaseButtonConfirm,
   BaseForm,
   BaseFormGroup,
   BaseFormGroupInputPassword,
-  BaseFormGroupInputPasswordGenerator
+  BaseFormGroupInputPasswordGenerator,
+  BaseInputGroupTextarea
 } from '@/components/new/'
 
 const components = {
+  BaseButtonConfirm,
   BaseForm,
   BaseFormGroup,
   BaseFormGroupInputPassword,
-  BaseFormGroupInputPasswordGenerator
+  BaseFormGroupInputPasswordGenerator,
+  BaseInputGroupTextarea
 }
 
-import { computed, ref } from '@vue/composition-api'
+import { computed, ref, watch } from '@vue/composition-api'
 import { useDebouncedWatchHandler } from '@/composables/useDebounce'
-import { usePreference } from '@/composables/usePreferences'
+import { usePreference, usePreferences, api as preferencesApi } from '@/composables/usePreferences'
 import i18n from '@/utils/locale'
 import yup from '@/utils/yup'
 import usersApi from '@/views/Users/_api'
@@ -103,9 +191,14 @@ const defaults = () => ({
 
 const setup = (props, context) => {
 
-  const { root: { $store } = {} } = context
+  const { refs, root: { $store } = {} } = context
 
-  const settings = usePreference('settings', { language: null })
+  let settings = ref({})
+  const _getSettings = () => {
+    settings = usePreference('settings', { language: null })
+  }
+  _getSettings()
+
   const rootRef = ref(null)
   const form = ref(defaults())
 
@@ -158,6 +251,112 @@ const setup = (props, context) => {
       })
   }
 
+  const preferences = usePreferences()
+  const preferencesFields = [
+    {
+      label: '', // selected
+      key: 'selected',
+      thStyle: 'width: 40px;'
+    },
+    {
+      label: i18n.t('Identifier'),
+      key: 'id',
+      sortable: true
+    },
+    {
+      label: i18n.t('Created'),
+      key: 'value.meta.created_at',
+      formatter: value => ((new Date(value)).toISOString()),
+      sortable: true
+    },
+    {
+      label: i18n.t('Updated'),
+      key: 'value.meta.updated_at',
+      formatter: value => ((new Date(value)).toISOString()),
+      sortable: true
+    },
+    {
+      label: i18n.t('Version'),
+      key: 'value.meta.version',
+      sortable: true
+    }
+  ]
+  const preferencesSelected = ref([])
+  const onPreferencesSelected = value => {
+    preferencesSelected.value = value.map(({id}) => id)
+  }
+  const onPreferencesToggled = () => {
+    const { preferencesTableRef } = refs
+    if (preferencesSelected.value.length === 0) // select all
+      preferencesTableRef.selectAllRows()
+    else // select none
+      preferencesTableRef.clearSelected()
+  }
+  const onPreferencesSelectedDelete = () => {
+    let promises = []
+    preferencesSelected.value.forEach(id => {
+      const { remove } = preferences.value.find(preference => preference.id === id)
+      promises.push(remove().then(() => {
+        preferences.value = preferences.value.filter(preference => preference.id !== id)
+      }))
+    })
+    Promise.all(promises)
+      .then(() => $store.dispatch('notification/info', { message: i18n.t('Preferences deleted.') }))
+  }
+  const preferencesExport = ref([])
+  const showPreferencesExport = ref(false)
+  const onPreferencesSelectedExport = () => {
+    const xport = preferencesSelected.value.map(id => {
+      const index = preferences.value.findIndex(preference => preference.id === id)
+      const { [index]: { value: { data } = {} } = {} } = preferences.value
+      return { id, data }
+    })
+    preferencesExport.value = JSON.stringify(xport)
+    showPreferencesExport.value = true
+  }
+  const doPreferencesExport = () => {
+    showPreferencesExport.value = false
+    try {
+      navigator.clipboard.writeText(preferencesExport.value).then(() => {
+        $store.dispatch('notification/info', { message: i18n.t('Preferences exported to clipboard.') })
+      }).catch(() => {
+        $store.dispatch('notification/danger', { message: i18n.t('Could not export preferences to clipboard.') })
+      })
+    } catch (e) {
+      $store.dispatch('notification/danger', { message: i18n.t('Clipboard not supported.') })
+    }
+  }
+  const preferencesImport = ref(null)
+  const preferencesImportError = ref(null)
+  const showPreferencesImport = ref(false)
+  const doPreferencesImport = () => {
+    preferencesImportError.value = null
+    let promises = []
+    try {
+      const parsed = JSON.parse(preferencesImport.value)
+      parsed.forEach(preference => {
+        const { id, data } = preference
+        promises.push(preferencesApi.setPreference(id, data))
+      })
+      Promise.all(promises)
+        .then(() => {
+          preferencesImport.value = null
+          showPreferencesImport.value = false
+          $store.dispatch('notification/info', { message: i18n.t('Preferences imported.') })
+          const newPreferences = usePreferences()
+          let unwatch
+          unwatch = watch(newPreferences, () => {
+            preferences.value = newPreferences.value
+            unwatch()
+          }, { deep: true })
+        })
+    }
+    catch (e) {
+      preferencesImportError.value = i18n.t('Import is invalid or malformed JSON.')
+    }
+  }
+
+
   return {
     // settings
     settings,
@@ -169,7 +368,25 @@ const setup = (props, context) => {
     schema,
     isLoading,
     isValid,
-    changePassword
+    changePassword,
+
+    // preferences
+    preferences,
+    preferencesFields,
+    preferencesSelected,
+    onPreferencesSelected,
+    onPreferencesToggled,
+    onPreferencesSelectedDelete,
+    onPreferencesSelectedExport,
+
+    preferencesExport,
+    showPreferencesExport,
+    doPreferencesExport,
+
+    preferencesImport,
+    preferencesImportError,
+    showPreferencesImport,
+    doPreferencesImport
   }
 }
 
