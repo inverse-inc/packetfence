@@ -113,8 +113,6 @@
           :column-label="$i18n.t('SCEP days before renewal')"
           :text="$i18n.t('Number of days before SCEP authorize renewal')"
         />
-      </base-form-tab>
-      <base-form-tab :title="$i18n.t('Cloud')">
         <form-group-cloud-enabled namespace="cloud_enabled"
           :column-label="$i18n.t('Enable Cloud Integration')"
           :text="$i18n.t('Enable Cloud integration for this template.')"
