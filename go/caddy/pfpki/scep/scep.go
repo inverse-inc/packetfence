@@ -4,6 +4,7 @@ import (
 	"net/http"
 	"os"
 
+	"github.com/fdurand/scep/csrverifier"
 	scepdepot "github.com/fdurand/scep/depot"
 	scepserver "github.com/fdurand/scep/server"
 	kitlog "github.com/go-kit/kit/log"
@@ -61,7 +62,7 @@ func ScepHandler(pfpki *types.Handler, w http.ResponseWriter, r *http.Request) {
 		)
 		signer = scepserver.ChallengeMiddleware(profile[0].SCEPChallengePassword, signer)
 		// Load the Intune/MDM csr Verifier
-		// signer = csrverifier.Middleware(csrVerifier, signer)
+		signer = csrverifier.Middleware(o, signer)
 		svc, err = scepserver.NewService(crts[0], key, signer, scepserver.WithLogger(logger))
 		if err != nil {
 			lginfo.Log("err", err)

@@ -393,6 +393,7 @@ github.com/inverse-inc/go-radius v0.0.0-20201019132414-82756e2d8d47 h1:m/Vxa+Nm8
 github.com/inverse-inc/go-radius v0.0.0-20201019132414-82756e2d8d47/go.mod h1:IQmy9DslBZ9lU4/y/MphJ9oY//4r9A9wQwqOjjLmBso=
 github.com/inverse-inc/pkcs7 v0.0.0-20210120195334-f839fdbb1f84 h1:sJgbRoJF6KxD0D1B1oATx8mS0nNdaujtcOv9wUKb0Sw=
 github.com/inverse-inc/pkcs7 v0.0.0-20210120195334-f839fdbb1f84/go.mod h1:adBgAyadl5D9Mz9rhkQyzZpwcUK9eXdKslXH4oImbB0=
+github.com/inverse-inc/pkcs7 v0.0.0-20210314004602-f33daade6c53 h1:qppWRCR9/EBn4M0B9rDqk9cOk5k4TcpWklUB7TrzBcs=
 github.com/inverse-inc/pkcs7 v0.0.0-20210314004602-f33daade6c53/go.mod h1:adBgAyadl5D9Mz9rhkQyzZpwcUK9eXdKslXH4oImbB0=
 github.com/inverse-inc/scep v0.0.0-20210120201805-eb98f5654ee4 h1:j+LN8qB0DqC74l9MHq1ysjyiN7kfbHIF3UNjjbVAlvw=
 github.com/inverse-inc/scep v0.0.0-20210120201805-eb98f5654ee4/go.mod h1:bcHlFB5I8JqSU5Lqt+NatfA9y64T2fFt05QSFOEFJGI=

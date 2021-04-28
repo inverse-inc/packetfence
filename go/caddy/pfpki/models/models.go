@@ -574,6 +574,11 @@ func (c CA) HasCN(cn string, allowTime int, cert *x509.Certificate, revokeOldCer
 	return true, nil
 }
 
+// SCEP Verify
+func (c CA) Verify(data []byte) (bool, error) {
+	return true, nil
+}
+
 func NewProfileModel(pfpki *types.Handler) *Profile {
 	Profile := &Profile{}
 
