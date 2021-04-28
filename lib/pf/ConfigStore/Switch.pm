@@ -32,6 +32,20 @@ sub default_section { 'default' }
 
 sub pfconfigNamespace {'config::Switch'}
 
+our %MappingKey = (
+    AccessListMapping => 'accesslist',
+    VlanMapping => 'vlan',
+    UrlMapping => 'url',
+    ControllerRoleMapping => 'controller_role',
+);
+
+our %MappingKey2 = (
+    AccessListMapping => 'AccessList',
+    VlanMapping => 'Vlan',
+    UrlMapping => 'Url',
+    ControllerRoleMapping => 'Role',
+);
+
 =head2 Methods
 
 =over
@@ -75,6 +89,11 @@ sub cleanupAfterRead {
           [ map { _splitInlineTrigger($_) } @{ $switch->{inlineTrigger} } ];
     }
 
+    _expandMapping($switch);
+}
+
+sub _expandMapping {
+    my ($switch) = @_;
     # Config::Inifiles expands the access lists into an array
     # We put it back as a string so it works in the admin UI
     while (my ($attr, $val) = each %$switch) {
@@ -84,8 +103,8 @@ sub cleanupAfterRead {
             if ($type eq 'AccessList' && ref($val) eq 'ARRAY') {
                 $switch->{$attr} = join("\n", @$val);
             }
-            my $key;
 
+            my $key;
             if ($type eq 'Role') {
                 $type = 'ControllerRole';
                 $key = 'controller_role';
@@ -93,15 +112,14 @@ sub cleanupAfterRead {
                 $key = lc($type);
             }
 
-            push @{$switch->{"${type}Mapping"}}, { $key => $val, role => $role  };
+            push @{$switch->{"${type}Mapping"}}, { role => $role, $key => $val };
         }
     }
 
     for my $k (qw(AccessListMapping VlanMapping UrlMapping ControllerRoleMapping))  {
         next if !exists $switch->{$k};
-        $switch->{$k} = [sort { $a->{role} cmp $b->{role} } @{$switch->{$k}}]
+        $switch->{$k} = [sort { $a->{role} cmp $b->{role} } @{$switch->{$k} // []}]
     }
-
 
 }
 
@@ -121,6 +139,24 @@ sub cleanupBeforeCommit {
     my ( $self, $id, $switch ) = @_;
     $self->_normalizeUplink($switch);
     $self->_normalizeInlineTrigger($switch);
+    _flattenRoleMappings($switch);
+    _deleteRoleMappings($switch);
+}
+
+sub _flattenRoleMappings {
+    my ( $switch ) = @_;
+    for my $namespace (qw(AccessListMapping VlanMapping UrlMapping ControllerRoleMapping))  {
+        my $list = $switch->{$namespace} // [];
+        for my $mapping (@$list) {
+            my $role = $mapping->{role};
+            $switch->{"${role}$MappingKey2{$namespace}"} = $mapping->{$MappingKey{$namespace}};
+        }
+    }
+}
+
+sub _deleteRoleMappings {
+    my ( $switch ) = @_;
+    delete @{$switch}{qw(AccessListMapping VlanMapping UrlMapping ControllerRoleMapping)};
 }
 
 =head2 _normalizeUplink
@@ -261,4 +297,3 @@ USA.
 =cut
 
 1;
-
