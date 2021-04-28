@@ -84,6 +84,7 @@ sub build_search_info {
     }
 
     my %search_info = (
+        $self->defaultSearchInfo(),
         configStore => $self->config_store,
         (
             map {
@@ -175,6 +176,8 @@ sub remove_fields {
     }
 }
 
+sub defaultSearchInfo {}
+
 =head2 build_list_search_info
 
 build_list_search_info
@@ -185,6 +188,7 @@ sub build_list_search_info {
     my ($self) = @_;
     my $params = $self->req->query_params->to_hash;
     my %search_info = (
+        $self->defaultSearchInfo(),
         configStore => $self->config_store,
         cursor => 0,
         limit => 25,
@@ -204,7 +208,9 @@ sub build_list_search_info {
         ),
         (
             map {
-                $_ => isenabled($params->{$_})
+                $params->{$_}
+                ? ($_ => isenabled($params->{$_}))
+                : ()
             } qw(raw)
         )
     );
