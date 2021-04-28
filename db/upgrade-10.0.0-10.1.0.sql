@@ -58,6 +58,11 @@ SET STATEMENT sql_mode='NO_AUTO_VALUE_ON_ZERO' FOR
 \! echo "PIDs should be unique in the password table"
 CREATE UNIQUE INDEX IF NOT EXISTS `pid_password_unique` ON password(pid);
 
+\! echo "altering pki_profiles"
+ALTER TABLE pki_profiles
+    ADD COLUMN IF NOT EXISTS `cloud_enabled` int(11) AFTER scep_days_before_renewal,
+    ADD COLUMN IF NOT EXISTS `cloud_service` varchar(255) AFTER cloud_enabled;
+
 \! echo "Incrementing PacketFence schema version...";
 INSERT IGNORE INTO pf_version (id, version) VALUES (@VERSION_INT, CONCAT_WS('.', @MAJOR_VERSION, @MINOR_VERSION, @SUBMINOR_VERSION));
 
