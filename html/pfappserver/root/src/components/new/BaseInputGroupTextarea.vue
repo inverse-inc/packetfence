@@ -60,7 +60,7 @@ export const props = {
 }
 
 export const setup = (props, context) => {
-  
+
   const {
     rows,
     autoFit
@@ -91,14 +91,14 @@ export const setup = (props, context) => {
     invalidFeedback,
     validFeedback
   } = useInputValidator(metaProps, value)
-  
+
   const inputRows = computed(() => {
     if (autoFit.value) {
       const r = [...(value.value || '')].filter(c => c === '\n').length + 1
       return Math.max(rows.value, r)
     }
     return rows.value
-  })  
+  })
 
   return {
     // useInput

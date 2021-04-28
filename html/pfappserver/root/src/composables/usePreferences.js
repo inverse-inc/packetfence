@@ -5,7 +5,7 @@ import apiCall from '@/utils/api'
 
 export const IDENTIFIER_PREFIX = 'pfappserver::' // transparently prefix all identifiers - avoid key collisions
 
-const api = {
+export const api = {
   allPreferences: () => {
     return apiCall.getQuiet('preferences').then(response => {
       return response.data.items
@@ -67,6 +67,32 @@ const api = {
       return response
     })
   }
+}
+
+export const usePreferences = () => {
+
+  const preferences = ref(undefined)
+
+  api.allPreferences()
+    .then(response => {
+      preferences.value = response.map(preference => {
+        const { id, value } = preference || {}
+        const _id = id.substr(IDENTIFIER_PREFIX.length) // strip IDENTIFIER_PREFIX
+        const get = () => api.getPreference(_id)
+        const set = data => api.setPreference(_id, data)
+        const remove = () => api.removePreference(_id)
+        return {
+          id: _id,
+          value: JSON.parse(value), // parse
+          get, set, remove // methods
+        }
+      })
+    })
+    .catch(() => {
+      preferences.value = []
+    })
+
+  return preferences
 }
 
 export const usePreference = (id, defaultValue) => {
