@@ -12,7 +12,7 @@ export const props = {
       if (!store.state.$_clouds)
         store.registerModule('$_clouds', StoreModule)
       return store.dispatch('$_clouds/all').then(clouds => {
-        return clouds.map(cloud => ({ text: `${cloud.id} - ${cloud.id}`, value: cloud.id }))
+        return clouds.map(cloud => ({ text: `${cloud.id}`, value: cloud.id }))
       })
     }
   }
