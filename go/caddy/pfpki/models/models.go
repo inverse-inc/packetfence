@@ -30,6 +30,7 @@ import (
 	"io/ioutil"
 
 	"github.com/inverse-inc/packetfence/go/caddy/pfpki/certutils"
+	"github.com/inverse-inc/packetfence/go/caddy/pfpki/cloud"
 	"github.com/inverse-inc/packetfence/go/caddy/pfpki/sql"
 	"github.com/inverse-inc/packetfence/go/caddy/pfpki/types"
 	"github.com/jinzhu/gorm"
@@ -49,28 +50,29 @@ type (
 	// CA struct
 	CA struct {
 		gorm.Model
-		DB                 gorm.DB                 `gorm:"-"`
-		Ctx                context.Context         `gorm:"-"`
-		Cn                 string                  `json:"cn,omitempty" gorm:"UNIQUE"`
-		Mail               string                  `json:"mail,omitempty" gorm:"INDEX:mail"`
-		Organisation       string                  `json:"organisation,omitempty" gorm:"INDEX:organisation"`
-		OrganisationalUnit string                  `json:"organisational_unit,omitempty"`
-		Country            string                  `json:"country,omitempty"`
-		State              string                  `json:"state,omitempty"`
-		Locality           string                  `json:"locality,omitempty"`
-		StreetAddress      string                  `json:"street_address,omitempty"`
-		PostalCode         string                  `json:"postal_code,omitempty"`
-		KeyType            *types.Type             `json:"key_type,omitempty,string"`
-		KeySize            int                     `json:"key_size,omitempty,string"`
-		Digest             x509.SignatureAlgorithm `json:"digest,omitempty,string"`
-		KeyUsage           *string                 `json:"key_usage,omitempty"`
-		ExtendedKeyUsage   *string                 `json:"extended_key_usage,omitempty"`
-		Days               int                     `json:"days,omitempty,string"`
-		Key                string                  `json:"-" gorm:"type:longtext"`
-		Cert               string                  `json:"cert,omitempty" gorm:"type:longtext"`
-		IssuerKeyHash      string                  `json:"issuer_key_hash,omitempty" gorm:"UNIQUE_INDEX"`
-		IssuerNameHash     string                  `json:"issuer_name_hash,omitempty" gorm:"UNIQUE_INDEX"`
-		OCSPUrl            string                  `json:"ocsp_url,omitempty"`
+		DB                   gorm.DB                 `gorm:"-"`
+		Ctx                  context.Context         `gorm:"-"`
+		Cn                   string                  `json:"cn,omitempty" gorm:"UNIQUE"`
+		Mail                 string                  `json:"mail,omitempty" gorm:"INDEX:mail"`
+		Organisation         string                  `json:"organisation,omitempty" gorm:"INDEX:organisation"`
+		OrganisationalUnit   string                  `json:"organisational_unit,omitempty"`
+		Country              string                  `json:"country,omitempty"`
+		State                string                  `json:"state,omitempty"`
+		Locality             string                  `json:"locality,omitempty"`
+		StreetAddress        string                  `json:"street_address,omitempty"`
+		PostalCode           string                  `json:"postal_code,omitempty"`
+		KeyType              *types.Type             `json:"key_type,omitempty,string"`
+		KeySize              int                     `json:"key_size,omitempty,string"`
+		Digest               x509.SignatureAlgorithm `json:"digest,omitempty,string"`
+		KeyUsage             *string                 `json:"key_usage,omitempty"`
+		ExtendedKeyUsage     *string                 `json:"extended_key_usage,omitempty"`
+		Days                 int                     `json:"days,omitempty,string"`
+		Key                  string                  `json:"-" gorm:"type:longtext"`
+		Cert                 string                  `json:"cert,omitempty" gorm:"type:longtext"`
+		IssuerKeyHash        string                  `json:"issuer_key_hash,omitempty" gorm:"UNIQUE_INDEX"`
+		IssuerNameHash       string                  `json:"issuer_name_hash,omitempty" gorm:"UNIQUE_INDEX"`
+		OCSPUrl              string                  `json:"ocsp_url,omitempty"`
+		SCEPAssociateProfile string                  `gorm:"-"`
 	}
 
 	// Profile struct
@@ -452,7 +454,7 @@ func (c CA) Search(vars sql.Vars) (types.Info, error) {
 }
 
 // FindSCEPProfile search the SCEP Profile by the profile name
-func (c CA) FindSCEPProfile(options []string) ([]Profile, error) {
+func (c *CA) FindSCEPProfile(options []string) ([]Profile, error) {
 	var profiledb []Profile
 	if len(options) >= 1 {
 		if err := c.DB.Select("id, name, ca_id, ca_name, validity, key_type, key_size, digest, key_usage, extended_key_usage, p12_mail_password, p12_mail_subject, p12_mail_from, p12_mail_header, p12_mail_footer, scep_enabled, scep_challenge_password, scep_days_before_renewal, cloud_enabled, cloud_service").Where("`name` = ?", options[0]).First(&profiledb).Error; err != nil {
@@ -465,6 +467,8 @@ func (c CA) FindSCEPProfile(options []string) ([]Profile, error) {
 	} else {
 		c.DB.Select("id, name, ca_id, ca_name, validity, key_type, key_size, digest, key_usage, extended_key_usage, p12_mail_password, p12_mail_subject, p12_mail_from, p12_mail_header, p12_mail_footer, scep_enabled, scep_challenge_password, scep_days_before_renewal, cloud_enabled, cloud_service").Where("`scep_enabled` = ?", "1").First(&profiledb)
 	}
+	c.SCEPAssociateProfile = profiledb[0].Name
+
 	return profiledb, nil
 
 }
@@ -578,7 +582,25 @@ func (c CA) HasCN(cn string, allowTime int, cert *x509.Certificate, revokeOldCer
 
 // SCEP Verify
 func (c CA) Verify(data []byte) (bool, error) {
+	prof, _ := c.GetProfileByName(c.SCEPAssociateProfile)
+
+	if prof.CloudEnabled == 1 {
+		vcloud, err := cloud.Create(c.Ctx, "intune", prof.CloudService)
+		// spew.Dump(cloudy)
+		if err != nil {
+			spew.Dump(err.Error())
+		}
+		vcloud.ValidateRequest(c.Ctx, data)
+
+	}
 	return true, nil
+}
+
+func (c CA) GetProfileByName(name string) (*Profile, error) {
+	var profiledb []Profile
+	c.DB.Select("id, name, ca_id, ca_name, mail, street_address, organisation, organisational_unit, country, state, locality, postal_code, validity, key_type, key_size, digest, key_usage, extended_key_usage, ocsp_url, p12_mail_password, p12_mail_subject, p12_mail_from, p12_mail_header, p12_mail_footer, scep_enabled, scep_challenge_password, scep_days_before_renewal, cloud_enabled, cloud_service").Where("name = ?", name).First(&profiledb)
+
+	return &profiledb[0], nil
 }
 
 func NewProfileModel(pfpki *types.Handler) *Profile {

@@ -1,6 +1,7 @@
 package cloud
 
 import (
+	"bytes"
 	"context"
 	"crypto/tls"
 	"encoding/json"
@@ -19,7 +20,7 @@ import (
 // Info struct
 type RequestInfo struct {
 	TransactionId      string `json:"transactionId"`
-	CertificateRequest string `json:"certificateRequest"`
+	CertificateRequest []byte `json:"certificateRequest"`
 	CallerInfo         string `json:"callerInfo"`
 }
 
@@ -53,12 +54,14 @@ type APIEndPoint struct {
 
 // Memory struct
 type Intune struct {
-	CloudName    string
-	AccessToken  string
-	TenantID     string
-	ClientSecret string
-	ClientID     string
-	Endpoint     *APIEndPoint
+	CloudName     string
+	AccessToken   string
+	TenantID      string
+	ClientSecret  string
+	ClientID      string
+	Endpoint      *APIEndPoint
+	TransactionID string
+	Client        *http.Client
 }
 
 const activeDirectoryEndpoint = "https://login.microsoftonline.com/"
@@ -90,32 +93,44 @@ func (cl *Intune) NewCloud(ctx context.Context, name string) {
 	var cloud pfconfigdriver.Cloud
 	pfconfigdriver.FetchDecodeSocket(ctx, &cloud)
 
-	for _, vi := range cloud.Element {
-		for key, val := range vi.(map[string]interface{}) {
-			if key == name {
-				cl.ClientID = val.(map[string]interface{})["ClientID"].(string)
-				cl.TenantID = val.(map[string]interface{})["TenantID"].(string)
-				cl.ClientSecret = val.(map[string]interface{})["ClientSecret"].(string)
-			}
+	for cname, vi := range cloud.Element {
+		if cname == name {
+			cl.ClientID = vi.(map[string]interface{})["client_id"].(string)
+			cl.TenantID = vi.(map[string]interface{})["tenant_id"].(string)
+			cl.ClientSecret = vi.(map[string]interface{})["client_secret"].(string)
 		}
 	}
 
 	oauthConfig, err := adal.NewOAuthConfig(activeDirectoryEndpoint, cl.TenantID)
 
-	spt, err := adal.NewServicePrincipalToken(*oauthConfig, cl.ClientID, cl.ClientSecret, graphResourceUrl)
+	// Intune token
+
+	spt, err := adal.NewServicePrincipalToken(*oauthConfig, cl.ClientID, cl.ClientSecret, intuneResourceUrl)
 
 	err = spt.Refresh()
 
 	var token adal.Token
+
 	if err == nil {
 		token = spt.Token()
-		cl.AccessToken = token.AccessToken
+		cl.AccessToken = "Bearer " + token.AccessToken
 	}
 
-	var bearer = "Bearer " + cl.AccessToken
-
 	id, err := uuid.NewUUID()
-	request := &Request{}
+	cl.TransactionID = id.String()
+
+	spew.Dump(cl)
+
+	spt, err = adal.NewServicePrincipalToken(*oauthConfig, cl.ClientID, cl.ClientSecret, graphResourceUrl)
+
+	err = spt.Refresh()
+
+	var Bearer string
+
+	if err == nil {
+		token = spt.Token()
+		Bearer = "Bearer " + token.AccessToken
+	}
 
 	graphRequest := graphResourceUrl + cl.TenantID + "/servicePrincipalsByAppId/" + intuneAppId + "/serviceEndpoints?api-version=" + graphApiVersion
 
@@ -128,10 +143,12 @@ func (cl *Intune) NewCloud(ctx context.Context, name string) {
 			InsecureSkipVerify:       true,
 			MinVersion:               tls.VersionTLS11,
 			MaxVersion:               tls.VersionTLS11,
+			Renegotiation:            tls.RenegotiateOnceAsClient,
 		},
 	}
 
 	client := &http.Client{Transport: tr}
+	cl.Client = client
 
 	req, err := http.NewRequest("GET", graphRequest, nil)
 	if err != nil {
@@ -139,10 +156,10 @@ func (cl *Intune) NewCloud(ctx context.Context, name string) {
 		os.Exit(1)
 	}
 
-	req.Header.Set("Authorization", bearer)
+	req.Header.Set("Authorization", Bearer)
 	req.Header.Set("api-version", "1.0")
 	req.Header.Set("client-request-id", id.String())
-	resp, err := client.Do(req)
+	resp, err := cl.Client.Do(req)
 
 	var Data interface{}
 
@@ -174,35 +191,37 @@ func (cl *Intune) NewCloud(ctx context.Context, name string) {
 		}
 	}
 	cl.Endpoint = apiEndpoint
-
 	spew.Dump(apiEndpoint)
+}
+
+func (cl *Intune) ValidateRequest(ctx context.Context, data []byte) {
+
+	request := &Request{}
 
 	// Prepare the request
-	request.Request.TransactionId = id.String()
+	request.Request.TransactionId = cl.TransactionID
 	// Base 64 encoded PKCS10 packet
-	request.Request.CertificateRequest = "aabbccddeeff"
-	request.Request.CallerInfo = "bob"
+	request.Request.CertificateRequest = data
+	request.Request.CallerInfo = PROVIDER_NAME_AND_VERSION_NAME
 
 	slcB, _ := json.Marshal(request)
 	fmt.Println(string(slcB))
 
+	req, err := http.NewRequest("POST", cl.Endpoint.Uri+"/"+VALIDATION_URL, bytes.NewBuffer(slcB))
 	if err != nil {
+		log.Print(err)
+		os.Exit(1)
 	}
+	req.Header.Set("Content-Type", "application/json")
+	req.Header.Set("accept", "application/json")
+	req.Header.Set("authorization", cl.AccessToken)
+	req.Header.Set("api-version", "1.0")
+	req.Header.Set("client-request-id", cl.TransactionID)
+	req.Header.Set("api-version", serviceVersion)
+	resp, err := cl.Client.Do(req)
 
-	// client := &http.Client{Transport: tr}
-
-	// req, err := http.NewRequest("POST", ressource, nil)
-	// if err != nil {
-	//  log.Print(err)
-	//  os.Exit(1)
-	// }
-	// req.Header.Set("accept", "application/json")
-	// req.Header.Set("authorization", bearer)
-	// req.Header.Set("api-version", "1.0")
-	// req.Header.Set("client-request-id", id.String())
-	// _, err = client.Do(req)
-
-	// spew.Dump(err)
-	// // spew.Dump(resp)
+	spew.Dump(req)
+	spew.Dump(err)
+	spew.Dump(resp)
 
 }
