@@ -28,14 +28,16 @@ my $t = Test::Mojo->new('pf::UnifiedApi');
 
 #This test will running last
 use Test::NoWarnings;
+my $true = bless( do { \( my $o = 1 ) }, 'JSON::PP::Boolean' );
+my $false = bless( do { \( my $o = 0 ) }, 'JSON::PP::Boolean' );
 
 $t->get_ok('/api/v1/tenant/1')
   ->status_is(200)
-  ->json_is('/item/not_deletable' => 1) ;
+  ->json_is('/item/not_deletable' => $true) ;
 
 $t->get_ok('/api/v1/tenant/0')
   ->status_is(200)
-  ->json_is('/item/not_deletable' => 1) ;
+  ->json_is('/item/not_deletable' => $true) ;
 
 my $tenant_name = "test_tenant_$$";
 
@@ -45,14 +47,14 @@ $t->post_ok('/api/v1/tenants' => json => { name => $tenant_name })
 my $location = $t->tx->res->headers->location;
 $t->get_ok($location)
   ->status_is(200)
-  ->json_is('/item/not_deletable' => 0);
+  ->json_is('/item/not_deletable' => $false);
 
 my $tenant = $t->tx->res->json->{item};
 my $tenant_id = $tenant->{id};
 
 $t->get_ok($location => {'X-PacketFence-Tenant-Id' => $tenant_id})
   ->status_is(200)
-  ->json_is('/item/not_deletable', 1);
+  ->json_is('/item/not_deletable', $true);
 
 =head1 AUTHOR
 
