@@ -318,6 +318,7 @@ const setup = (props, context) => {
     toggleDocumentationViewer,
 
     // tenant
+    tenants,
     tenant,
     tenant_mask_name,
     setTenantIdMask,
