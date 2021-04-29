@@ -234,7 +234,7 @@ sub authorize {
             $logger->info("Username has been changed from '$user_name' to ".$args->{'user_name'});
 	}
         $args->{'username'} = $args->{'user_name'};
-        $self->_machine_auth_detection($args->{'$user_name'},\$node_obj,\$options);
+        $self->_machine_auth_detection($args->{'user_name'},\$node_obj,\$options);
     }
     my $result = $role_obj->filterVlan('IsPhone',$args);
     # determine if we need to perform automatic registration
