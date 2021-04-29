@@ -3,13 +3,13 @@
     :form="form"
     :schema="schema"
     :isLoading="isLoading"
-    :isReadonly="!isNew && !isClone"
   >
     <b-tabs>
       <base-form-tab :title="$i18n.t('General')" active>
         <form-group-identifier v-if="!isNew && !isClone"
           namespace="ID"
           :column-label="$i18n.t('Identifier')"
+          :disabled="!isNew && !isClone"
         />
         <form-group-ca-id namespace="ca_id"
           :column-label="$i18n.t('Certificate Authority')"
