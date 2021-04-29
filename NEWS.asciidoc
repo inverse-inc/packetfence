@@ -29,6 +29,8 @@ For a list of compatibility related changes see the <<PacketFence_Upgrade_Guide.
 
 === Enhancements
 
+* Rewrite the username of the request from radius `preProcess` filter (#6293)
+
 === Bug Fixes
 
 * Configurator sets valid_from field to current time in place of 1970-01-01 00:00:00
