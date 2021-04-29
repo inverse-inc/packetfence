@@ -224,11 +224,15 @@ const setup = (props, context) => {
 
   const isLoading = ref(true)
   const isLocalUser = ref(false)
-  $store.dispatch('$_users/getUser', { pid: $store.state.session.username, quiet: true }).then(response => {
-    const { has_password } = response || {}
-    isLocalUser.value = !!has_password
-    isLoading.value = false
-  })
+  $store.dispatch('$_users/getUser', { pid: $store.state.session.username, quiet: true })
+    .then(response => {
+      const { has_password } = response || {}
+      isLocalUser.value = !!has_password
+
+    })
+    .finally(() => {
+      isLoading.value = false
+    })
 
   const changePassword = () => {
     isLoading.value = true
