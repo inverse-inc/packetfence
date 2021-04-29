@@ -31,7 +31,7 @@
           <base-form
             :form="form"
             :schema="schema"
-            :isLoading="isLoading"
+            :is-loading="isLoading"
           >
             <base-form-group-input-password namespace="current_password"
               :column-label="$t('Current password')" />
