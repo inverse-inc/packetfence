@@ -16,6 +16,8 @@ use strict;
 use warnings;
 
 use Mojo::Base qw(pf::UnifiedApi::Controller::Config);
+use Role::Tiny::With;
+with 'pf::UnifiedApi::Controller::Config::SwitchRole';
 
 has 'config_store_class' => 'pf::ConfigStore::Switch';
 has 'form_class' => 'pfappserver::Form::Config::Switch';
@@ -72,35 +74,6 @@ sub standardPlaceholder {
 
     return $self->_cleanup_placeholder($self->cleanup_item($values));
 }
-
-sub form_parameters {
-    [
-        inactive => [ qw(always_trigger) ],
-    ];
-}
-
-sub cleanupItemForUpdate {
-    my ($self, $old_item, $new_data, $data) = @_;
-    my %new_item;
-    while ( my ($k, $v) = each %$data ) {
-        $new_item{$k} = defined $v ? $new_data->{$k} : undef ;
-    }
-    %$new_data = %new_item;
-    return;
-}
-
-
-sub defaultSearchInfo {
-    raw => 1
-}
-
-=head2 fields_to_mask
-
-fields_to_mask
-
-=cut
-
-sub fields_to_mask { qw(radiusSecret cliPwd wsPwd) }
 
 =head1 AUTHOR
 

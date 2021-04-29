@@ -18,6 +18,8 @@ use strict;
 use warnings;
 
 use Mojo::Base qw(pf::UnifiedApi::Controller::Config);
+use Role::Tiny::With;
+with 'pf::UnifiedApi::Controller::Config::SwitchRole';
 
 has 'config_store_class' => 'pf::ConfigStore::SwitchGroup';
 has 'form_class' => 'pfappserver::Form::Config::SwitchGroup';

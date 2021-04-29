@@ -309,10 +309,16 @@ sub resource {
     return 1;
 }
 
+sub cleanupItemForGet {
+    my ($self, $item) = @_;
+    return $item;
+}
+
 sub get {
     my ($self) = @_;
     my $item = $self->item;
     if ($item) {
+        $item = $self->cleanupItemForGet($item);
         return $self->render(json => {item => $item}, status => 200);
     }
     return $self->render_error(500, "Unknown error getting item");;
@@ -370,6 +376,11 @@ sub is_sortable {
     return ((defined($cs->default_section) && $id eq $default_section) || $cs->is_section_in_import($section)) ? $self->json_true : $self->json_false;
 }
 
+sub cleanupItemForCreate {
+    my ($self, $item) = @_;
+    return $item;
+}
+
 sub create {
     my ($self) = @_;
     my ($error, $item) = $self->get_json;
@@ -388,6 +399,7 @@ sub create {
         return $self->render_error(409, "An attempt to add a duplicate entry was stopped. Entry already exists and should be modified instead of created");
     }
 
+    $item = $self->cleanupItemForCreate($item);
     (my $status, $item) = $self->validate_item($item);
     if (is_error($status)) {
         return $self->render(status => $status, json => $item);
@@ -493,6 +505,15 @@ sub remove {
     return $self->render(json => {message => "Deleted $id successfully"}, status => 200);
 }
 
+sub mergeUpdate {
+    my ($self, $patch, $old_item) = @_;
+    my $new_item = {%$old_item, %$patch};
+    my $id = $self->id;
+    $new_item->{id} = $id;
+    delete $new_item->{not_deletable};
+    return $new_item;
+}
+
 sub update {
     my ($self) = @_;
     my ($error, $data) = $self->get_json;
@@ -500,10 +521,7 @@ sub update {
         return $self->render_error(400, "Bad Request : $error");
     }
     my $old_item = $self->item;
-    my $new_item = {%$old_item, %$data};
-    my $id = $self->id;
-    $new_item->{id} = $id;
-    delete $new_item->{not_deletable};
+    my $new_item = $self->mergeUpdate($data, $self->item);
     my ($status, $new_data) = $self->validate_item($new_item);
     if (is_error($status)) {
         return $self->render(status => $status, json => $new_data);
@@ -512,7 +530,7 @@ sub update {
     delete $new_data->{id};
     my $cs = $self->config_store;
     $self->cleanupItemForUpdate($old_item, $new_data, $data);
-    $cs->update($id, $new_data);
+    $cs->update($self->id, $new_data);
     return unless($self->commit($cs));
     $self->render(status => 200, json => { message => "Settings updated"});
 }

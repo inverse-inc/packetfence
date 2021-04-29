@@ -22,7 +22,7 @@ BEGIN {
     use setup_test_config;
 }
 
-use Test::More tests => 13;
+use Test::More tests => 14;
 use Utils;
 use pf::ConfigStore::Switch;
 my ($fh, $filename) = Utils::tempfileForConfigStore("pf::ConfigStore::Switch");
@@ -146,6 +146,94 @@ is($new->{voiceVlan}, $oldVoiceVlan, "delete inherited values");
                 'controller_role' => 'voice'
             }
         ]
+    );
+}
+
+{
+    my $data = {
+        ControllerRoleMapping => [
+            {
+                'role'            => 'admin',
+                'controller_role' => 'full-access'
+            },
+            {
+                'role'            => 'guest',
+                'controller_role' => 'restricted'
+            },
+            {
+                'role'            => 'inline',
+                'controller_role' => 'inline'
+            },
+            {
+                'role'            => 'isolation',
+                'controller_role' => ''
+            },
+            {
+                'role'            => 'macDetection',
+                'controller_role' => ''
+            },
+            {
+                'role'            => 'normal',
+                'controller_role' => ''
+            },
+            {
+                'role'            => 'registration',
+                'controller_role' => ''
+            },
+            {
+                'role'            => 'voice',
+                'controller_role' => 'voice'
+            }
+        ]
+    };
+
+    pf::ConfigStore::Switch::_flattenRoleMappings($data);
+    is_deeply(
+        $data,
+        {
+            ControllerRoleMapping => [
+                {
+                    'role'            => 'admin',
+                    'controller_role' => 'full-access'
+                },
+                {
+                    'role'            => 'guest',
+                    'controller_role' => 'restricted'
+                },
+                {
+                    'role'            => 'inline',
+                    'controller_role' => 'inline'
+                },
+                {
+                    'role'            => 'isolation',
+                    'controller_role' => ''
+                },
+                {
+                    'role'            => 'macDetection',
+                    'controller_role' => ''
+                },
+                {
+                    'role'            => 'normal',
+                    'controller_role' => ''
+                },
+                {
+                    'role'            => 'registration',
+                    'controller_role' => ''
+                },
+                {
+                    'role'            => 'voice',
+                    'controller_role' => 'voice'
+                }
+            ],
+            adminRole => 'full-access',
+            voiceRole => 'voice',
+            registrationRole => '',
+            normalRole => '',
+            macDetectionRole => '',
+            inlineRole => 'inline',
+            guestRole => 'restricted',
+            isolationRole => '',
+        },
     );
 }
 
