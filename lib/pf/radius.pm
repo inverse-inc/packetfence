@@ -230,8 +230,11 @@ sub authorize {
         my ($reply, $status) = $filter->handleAnswerInRule({%$rule, merge_answer => 'enabled' }, $args, $radius_request);
         %$radius_request = %$reply;
         $args->{'user_name'} = $switch->parseRequestUsername($radius_request);
+        if ($user_name ne $args->{'user_name'}) {
+            $logger->info("Username has been changed from '$user_name' to ".$args->{'user_name'});
+	}
         $args->{'username'} = $args->{'user_name'};
-        $self->_machine_auth_detection($user_name,\$node_obj,\$options);
+        $self->_machine_auth_detection($args->{'$user_name'},\$node_obj,\$options);
     }
     my $result = $role_obj->filterVlan('IsPhone',$args);
     # determine if we need to perform automatic registration
