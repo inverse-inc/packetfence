@@ -29,7 +29,9 @@ const useStore = (props, context, form) => {
       const {
         id
       } = toRefs(props)
-      const { certificate, certificate: { lets_encrypt } = {} } = form.value
+      const { certificate, certificate: { intermediate_cas = [], lets_encrypt } = {} } = form.value
+      if (intermediate_cas.length === 0) // omit intermediate_cas when empty []
+        certificate.intermediate_cas = undefined
       let creationPromise
       if (lets_encrypt)
         creationPromise = $store.dispatch('$_certificates/createLetsEncryptCertificate', certificate)
