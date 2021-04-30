@@ -133,7 +133,7 @@
           :form-ref="rootRef"
           @close="doHideEdit"
           @reset="onReset"
-          @save="onSave"
+          @save="onSaveWrapper"
         />
       </b-card-footer>
     </template>
@@ -229,6 +229,15 @@ const setup = (props, context) => {
     isFindIntermediateCas
   } = useForm(form, props, context)
 
+  const onSaveWrapper = () => {
+    const closeAfter = actionKey.value
+    onSave()
+      .then(() => {
+        if (closeAfter)
+          doHideEdit()
+      })
+  }
+
   return {
     // useViewCollectionItemFixed
     rootRef,
@@ -240,7 +249,6 @@ const setup = (props, context) => {
     isValid,
     isLoading,
     onReset,
-    onSave,
 
     // useForm
     actionKey,
@@ -259,6 +267,9 @@ const setup = (props, context) => {
     isChainValid,
     isLetsEncrypt,
     isFindIntermediateCas,
+
+    // custom
+    onSaveWrapper
   }
 }
 

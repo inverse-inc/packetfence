@@ -5,7 +5,6 @@
       <icon scale=".5" :class="isChainValid ? 'text-success' : 'text-danger'" name="circle" class="fa-overlap mr-1" ></icon>
       {{ id.toUpperCase() }}
     </template>
-
     <b-form @submit.prevent="doSave" ref="rootRef">
       <the-form
         :form="form"
@@ -13,25 +12,6 @@
         :id="id"
       />
     </b-form>
-
-    <!-- buttons
-       <template v-slot:footer>
-      <form-button-bar
-        :actionKey="actionKey"
-        :isNew="isNew"
-        :isClone="isClone"
-        :isLoading="isLoading"
-        :isDeletable="isDeletable"
-        :isValid="isValid"
-        :formRef="rootRef"
-        @clone="doClone"
-        @remove="doRemove"
-        @reset="doReset"
-        @save="doSave"
-      />
-    </template>
-    -->
-
   </b-tab>
 </template>
 <script>
