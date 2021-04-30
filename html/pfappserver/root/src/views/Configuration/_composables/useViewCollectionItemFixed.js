@@ -1,4 +1,4 @@
-import { computed, ref, watch } from '@vue/composition-api'
+import { ref, watch } from '@vue/composition-api'
 import { useDebouncedWatchHandler } from '@/composables/useDebounce'
 import useEventJail from '@/composables/useEventJail'
 
@@ -21,7 +21,7 @@ export const useViewCollectionItemFixed = (collection, props, context) => {
 
   // state
   const form = ref({})
-  const title = computed(() => useItemTitle(props, context, form))
+  const title = useItemTitle(props, context, form)
   const isModified = ref(false)
 
   // unhandled custom props
