@@ -20,7 +20,7 @@ endif::[]
 
 === NTLM Authentication Caching
 
-NOTE: This section assumes that you already have an Active Directory domain configuration both in _Configuration -> Policies and Access Control -> Domains -> Active Directory Domains_ and _Configuration -> Policies and Access Control -> Sources_. If you don't, you need to first configure those. Refer to the appropriate sections of this guide for details on how to configure those two components.
+NOTE: This section assumes that you already have an Active Directory domain configuration both in _Configuration -> Policies and Access Control -> Domains -> Active Directory Domains_ and _Configuration -> Policies and Access Control -> Authentication Sources_. If you don't, you need to first configure those. Refer to the appropriate sections of this guide for details on how to configure those two components.
 
 CAUTION: The cache requires minimally Windows Server 2008. Older versions will not work.
 
@@ -32,9 +32,12 @@ NOTE: The NTLM cache doesn't cache clear text passwords, it caches the NT hash o
 
 ==== PacketFence Configuration
 
-First of all, you will need to enable the NTLM caching globally by enabling 'NTLM Redis cache' in _Configuration -> System Configuration -> Radius Configuration_. You then need to restart radiusd.
+First of all, you will need to enable the NTLM caching globally by enabling 'NTLM Redis cache' in _Configuration -> System Configuration -> Radius -> General_. You then need to restart `radiusd-auth` service.
 
-Once that is done, you need to configure PacketFence to start caching the credentials. In order to do so, go in _Configuration -> Policies and Access Control -> Domains -> Active Directory Domains_ and select the domain you want to cache the credentials for.
+Once that is done, you need to configure PacketFence to start caching the
+credentials. In order to do so, go in _Configuration -> Policies and Access
+Control -> Domains -> Active Directory Domains_ and select the domain you want
+to cache the credentials for.
 
 Next, go in the *NTLM cache* tab and:
 
