@@ -43,6 +43,7 @@ sub make_radius_attribute {
         return;
     }
 
+    $n =~ s/^request://;
     my $attr = {
         name => $n,
     };
