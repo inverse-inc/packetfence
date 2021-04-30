@@ -61,7 +61,7 @@ export const useViewCollectionItemFixed = (collection, props, context) => {
 
   const onSave = () => {
     isModified.value = true
-    updateItem()
+    return updateItem()
   }
 
   watch(props, () => init(), { deep: true, immediate: true })
