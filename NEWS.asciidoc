@@ -27,6 +27,8 @@ For a list of compatibility related changes see the <<PacketFence_Upgrade_Guide.
 
 === New Features
 
+* Venom inline l3 (PR#6266)
+
 === Enhancements
 
 * Rewrite the username of the request from radius `preProcess` filter (#6293)
