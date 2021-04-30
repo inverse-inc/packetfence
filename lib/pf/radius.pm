@@ -232,7 +232,7 @@ sub authorize {
         $args->{'user_name'} = $switch->parseRequestUsername($radius_request);
         if ($user_name ne $args->{'user_name'}) {
             $logger->info("Username has been changed from '$user_name' to ".$args->{'user_name'});
-	}
+    }
         $args->{'username'} = $args->{'user_name'};
         $self->_machine_auth_detection($args->{'user_name'},\$node_obj,\$options);
     }
