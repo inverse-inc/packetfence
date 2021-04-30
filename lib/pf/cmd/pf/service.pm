@@ -382,7 +382,6 @@ sub _restartService {
     }
 
     my $count = 0;
-    postPfStartService(\@managers) if $service eq 'pf';
 
     my ($noCheckupManagers,$checkupManagers) = part { $_->shouldCheckup } @managers;
 
@@ -391,6 +390,9 @@ sub _restartService {
             _doRestart($manager);
         }
     }
+
+    #Reload pfconfig after haproxy-db is started
+    postPfStartService(\@managers) if $service eq 'pf';
     # Just before the checkup we make sure that the configuration is correct in the cluster if applicable
 
     if($cluster_enabled && $service eq 'pf') {
