@@ -51,9 +51,73 @@ call ValidateVersion;
 
 DROP PROCEDURE IF EXISTS ValidateVersion;
 
---
--- UPGRADE STATEMENTS GO HERE
---
+\! echo "Altering admin_api_audit_log"
+ALTER TABLE admin_api_audit_log
+    CHANGE COLUMN `created_at` `created_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP;
+
+\! echo "Altering dhcp_option82_history"
+ALTER TABLE dhcp_option82_history
+    CHANGE COLUMN `created_at` `created_at` datetime NOT NULL;
+
+\! echo "Altering dns_audit_log"
+ALTER TABLE dns_audit_log
+    CHANGE COLUMN `created_at` `created_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP;
+
+\! echo "Altering pki_cas"
+ALTER TABLE pki_cas
+    CHANGE COLUMN `created_at` `created_at` datetime DEFAULT NULL,
+    CHANGE COLUMN `updated_at` `updated_at` datetime DEFAULT NULL,
+    CHANGE COLUMN `deleted_at` `deleted_at` datetime DEFAULT NULL;
+
+\! echo "Altering pki_certs"
+ALTER TABLE pki_certs
+    CHANGE COLUMN `created_at` `created_at` datetime DEFAULT NULL,
+    CHANGE COLUMN `updated_at` `updated_at` datetime DEFAULT NULL,
+    CHANGE COLUMN `deleted_at` `deleted_at` datetime DEFAULT NULL,
+    CHANGE COLUMN `valid_until` `valid_until` datetime DEFAULT NULL,
+    CHANGE COLUMN `date` `date` datetime DEFAULT CURRENT_TIMESTAMP;
+
+\! echo "Altering pki_profiles"
+ALTER TABLE pki_profiles
+    CHANGE COLUMN `created_at` `created_at` datetime DEFAULT NULL,
+    CHANGE COLUMN `updated_at` `updated_at` datetime DEFAULT NULL,
+    CHANGE COLUMN `deleted_at` `deleted_at` datetime DEFAULT NULL;
+
+\! echo "Altering pki_revoked_certs"
+ALTER TABLE pki_revoked_certs
+    CHANGE COLUMN `created_at` `created_at` datetime DEFAULT NULL,
+    CHANGE COLUMN `updated_at` `updated_at` datetime DEFAULT NULL,
+    CHANGE COLUMN `deleted_at` `deleted_at` datetime DEFAULT NULL,
+    CHANGE COLUMN `valid_until` `valid_until` datetime DEFAULT NULL,
+    CHANGE COLUMN `date` `date` datetime DEFAULT CURRENT_TIMESTAMP,
+    CHANGE COLUMN `revoked` `revoked` datetime DEFAULT NULL;
+
+\! echo "Altering radacct_log"
+ALTER TABLE radacct_log
+    MODIFY `id` BIGINT NOT NULL AUTO_INCREMENT;
+
+\! echo "Altering radius_audit_log"
+ALTER TABLE radius_audit_log
+    CHANGE COLUMN `created_at` `created_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP;
+
+\! echo "Altering sms_carrier"
+ALTER TABLE sms_carrier
+   CHANGE COLUMN `modified` `modified` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP  COMMENT 'date this record was modified';
+
+\! echo "Altering table billing"
+ALTER TABLE billing
+    CHANGE COLUMN `update_date` `update_date` datetime NOT NULL DEFAULT '0000-00-00 00:00:00' ON UPDATE CURRENT_TIMESTAMP;
+
+\! echo "Altering table dhcp_option82"
+ALTER TABLE dhcp_option82
+    CHANGE COLUMN `created_at` `created_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP;
+
+\! echo "Altering table scan"
+ALTER TABLE scan
+   CHANGE COLUMN `update_date` `update_date` datetime NOT NULL DEFAULT '0000-00-00 00:00:00' ON UPDATE CURRENT_TIMESTAMP;
+
+\! echo "Incrementing PacketFence schema version...";
+INSERT IGNORE INTO pf_version (id, version, created_at) VALUES (@VERSION_INT, CONCAT_WS('.', @MAJOR_VERSION, @MINOR_VERSION), NOW());
 
 \! echo "Incrementing PacketFence schema version...";
 INSERT IGNORE INTO pf_version (id, version, created_at) VALUES (@VERSION_INT, CONCAT_WS('.', @MAJOR_VERSION, @MINOR_VERSION), NOW());
