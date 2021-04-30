@@ -17,8 +17,8 @@ const useStore = (props, context, form) => {
   const getItem = () => $store.dispatch('$_certificates/getCertificate', id.value).then(_certificate => {
     const { status, ...certificate } = _certificate // strip out `status` from response
     return $store.dispatch('$_certificates/getCertificateInfo', id.value).then(_info => {
-      const { status, ...info } = { ..._info, common_name: '', check_chain: 'enabled' } // strip out `status` from response
-      return { certificate, info }
+      const { status, ...info } = { ..._info, common_name: '' } // strip out `status` from response
+      return { certificate: { ...certificate, check_chain: 'enabled' }, info }
     })
   })
 

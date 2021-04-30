@@ -96,7 +96,8 @@
               rows="6" auto-fit
             />
 
-            <form-group-ca namespace="ca"
+            <form-group-ca v-if="id === 'radius'"
+              namespace="ca"
               :column-label="$i18n.t('Certification Authority certificate(s)')"
               rows="6" auto-fit
             />
