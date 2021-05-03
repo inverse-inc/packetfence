@@ -59,6 +59,16 @@
           </b-container>
         </template>
       </b-card>
+      <b-card no-body class="m-3" v-for="(intermediate_ca, index) in form.info.intermediate_cas" :key="intermediate_ca.serial">
+        <b-card-header>
+          <h4 class="mb-0 d-inline">{{ title.value }} {{ $t('Intermediate') }}</h4>
+          <b-badge variant="secondary" class="ml-1">{{ index + 1 }}</b-badge>
+        </b-card-header>
+        <b-row align-v="center" v-for="(value, key) in intermediate_ca" :key="key">
+          <b-col sm="3" class="col-form-label">{{ key }}</b-col>
+          <b-col sm="9">{{ value }}</b-col>
+        </b-row>
+      </b-card>
       <b-card-footer>
         <b-button v-t="'Edit'" @click="doShowEdit"/>
       </b-card-footer>
