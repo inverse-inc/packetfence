@@ -49,7 +49,6 @@
 /usr/local/pf/conf/traffic_shaping.conf
 /usr/local/pf/conf/ui.conf
 /usr/local/pf/conf/vlan_filters.conf
-/usr/local/pf/conf/wmi.conf
 /usr/local/pf/conf/locale/de/LC_MESSAGES/packetfence.po
 /usr/local/pf/conf/locale/en/LC_MESSAGES/packetfence.po
 /usr/local/pf/conf/locale/es/LC_MESSAGES/packetfence.po

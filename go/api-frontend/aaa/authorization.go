@@ -176,8 +176,6 @@ var pathAdminRolesMap = []adminRoleMapping{
 	adminRoleMapping{prefix: configApiPrefix + "/syslog_parsers", role: "PFDETECT"},
 	adminRoleMapping{prefix: configApiPrefix + "/traffic_shaping_policies", role: "TRAFFIC_SHAPING"},
 	adminRoleMapping{prefix: configApiPrefix + "/traffic_shaping_policy/", role: "TRAFFIC_SHAPING"},
-	adminRoleMapping{prefix: configApiPrefix + "/wmi_rule/", role: "WMI"},
-	adminRoleMapping{prefix: configApiPrefix + "/wmi_rules", role: "WMI"},
 }
 
 var allTenantsPaths = []string{

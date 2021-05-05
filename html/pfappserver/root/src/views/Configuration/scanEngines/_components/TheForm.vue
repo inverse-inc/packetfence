@@ -22,7 +22,6 @@ import FormTypeNessus from './FormTypeNessus'
 import FormTypeNessus6 from './FormTypeNessus6'
 import FormTypeOpenvas from './FormTypeOpenvas'
 import FormTypeRapid7 from './FormTypeRapid7'
-import FormTypeWmi from './FormTypeWmi'
 
 const components = {
   BaseContainerLoading,
@@ -30,8 +29,7 @@ const components = {
   FormTypeNessus,
   FormTypeNessus6,
   FormTypeOpenvas,
-  FormTypeRapid7,
-  FormTypeWmi,
+  FormTypeRapid7
 }
 
 import { computed, toRefs } from '@vue/composition-api'
@@ -50,7 +48,6 @@ export const setup = (props) => {
       case 'nessus6': return FormTypeNessus6 // break
       case 'openvas': return FormTypeOpenvas // break
       case 'rapid7':  return FormTypeRapid7 // break
-      case 'wmi':     return FormTypeWmi // break
       default:        return undefined
     }
   })

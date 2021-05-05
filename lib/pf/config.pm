@@ -143,8 +143,6 @@ our (
     %ConfigDomain,
 #scan.conf
     %ConfigScan,
-#wmi.conf
-    %ConfigWmi,
 
     %ConfigPKI_Provider,
 #pfdetect.conf
@@ -230,7 +228,6 @@ BEGIN {
         %ConfigDomain
         $default_pid
         %ConfigScan
-        %ConfigWmi
         %ConfigPKI_Provider
         %ConfigDetect
         %ConfigBillingTiers
@@ -296,8 +293,6 @@ tie @ConfigOrderedRealm, 'pfconfig::cached_array', 'config::OrderedRealm', tenan
 tie %ConfigProvisioning, 'pfconfig::cached_hash', 'config::Provisioning';
 
 tie %ConfigScan, 'pfconfig::cached_hash', 'config::Scan';
-
-tie %ConfigWmi, 'pfconfig::cached_hash', 'config::Wmi';
 
 tie %ConfigPKI_Provider, 'pfconfig::cached_hash', 'config::PKI_Provider';
 

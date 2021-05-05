@@ -1107,7 +1107,7 @@ sub close_security_event :Public :AllowedAsAction(mac, $mac, security_event_id ,
 =head2 dynamic_register_node
 
 Register a node based on mac username
-Per example fetch the current user connected on a device through a WMI scan and register it.
+Per example fetch the current user connected on a device through a scan and register it.
 
 =cut
 

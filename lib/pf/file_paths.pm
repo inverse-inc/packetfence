@@ -79,7 +79,6 @@ our (
     $ssl_configuration_file,
     $domain_config_file,
     $scan_config_file,
-    $wmi_config_file,
     $pki_provider_config_file,
     $suricata_categories_file,
     $nexpose_categories_file,
@@ -176,7 +175,6 @@ BEGIN {
         $ssl_configuration_file
         $domain_config_file
         $scan_config_file
-        $wmi_config_file
         $pki_provider_config_file
         $suricata_categories_file
         $nexpose_categories_file
@@ -315,7 +313,6 @@ $radius_ca_cert = catfile($install_dir, "raddb/certs/ca.pem");
 $ssl_configuration_file = catfile($generated_conf_dir, "ssl-certificates.conf");
 $domain_config_file = catfile($conf_dir,"domain.conf");
 $scan_config_file = catfile($conf_dir,"scan.conf");
-$wmi_config_file = catfile($conf_dir,"wmi.conf");
 $radius_filters_config_file = catfile($conf_dir,"radius_filters.conf");
 $radius_filters_config_default_file = catfile($conf_dir,"radius_filters.conf.defaults");
 $billing_tiers_config_file = catfile($conf_dir,"billing_tiers.conf");
@@ -377,7 +374,7 @@ $captiveportal_default_profile_templates_path = catdir ($captiveportal_profile_t
     $self_service_config_file,
     $admin_roles_config_file,$wrix_config_file,$apache_filters_config_file, $apache_filters_config_default_file,
     $vlan_filters_config_file,$vlan_filters_config_default_file,$firewall_sso_config_file,$scan_config_file,
-    $wmi_config_file,$pfdetect_config_file,$pfqueue_config_file,
+    $pfdetect_config_file,$pfqueue_config_file,
     $pki_provider_config_file,
     $radius_filters_config_file, $radius_filters_config_default_file,
     $dhcp_filters_config_file,

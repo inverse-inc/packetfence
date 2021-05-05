@@ -255,8 +255,6 @@ Requires: perl(Linux::Distribution)
 Requires: perl(Pod::Markdown)
 # configuration-wizard
 Requires: vconfig
-# wmi
-Requires: wmi, perl(Net::WMIClient)
 # SAML
 Requires: lasso-perl 
 # Captive Portal Dynamic Routing
@@ -266,7 +264,6 @@ Requires: perl(DateTime::TimeZone)
 
 Requires: samba-winbind-clients, samba-winbind
 Requires: libdrm >= 2.4.74
-Requires: python2-impacket
 Requires: netdata < 1.11.0., fping, MySQL-python
 #OpenVAS
 Requires: openvas-cli
@@ -1088,8 +1085,6 @@ fi
 %config                 /usr/local/pf/conf/syslog.conf.defaults
 %config(noreplace)      /usr/local/pf/conf/security_events.conf
 %config                 /usr/local/pf/conf/security_events.conf.defaults
-%config(noreplace)      /usr/local/pf/conf/wmi.conf
-                        /usr/local/pf/conf/wmi.conf.example
 %config(noreplace)      /usr/local/pf/conf/report.conf
                         /usr/local/pf/conf/report.conf.defaults
                         /usr/local/pf/conf/report.conf.example

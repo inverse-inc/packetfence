@@ -36,7 +36,6 @@ use pf::error qw(is_error is_success);
 use pf::ip4log;
 use pf::scan::nessus;
 use pf::scan::openvas;
-use pf::scan::wmi;
 use pf::util;
 use pf::security_event qw(security_event_close security_event_exist_open security_event_trigger security_event_modify);
 use pf::Connection::ProfileFactory;

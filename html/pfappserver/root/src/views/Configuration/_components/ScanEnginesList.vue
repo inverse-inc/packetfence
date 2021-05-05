@@ -18,7 +18,6 @@
           <b-dropdown-item :to="{ name: 'newScanEngine', params: { scanType: 'nessus6' } }">Nessus 6</b-dropdown-item>
           <b-dropdown-item :to="{ name: 'newScanEngine', params: { scanType: 'openvas' } }">OpenVAS</b-dropdown-item>
           <b-dropdown-item :to="{ name: 'newScanEngine', params: { scanType: 'rapid7' } }">Rapid7</b-dropdown-item>
-          <b-dropdown-item :to="{ name: 'newScanEngine', params: { scanType: 'wmi' } }">WMI</b-dropdown-item>
         </b-dropdown>
       </template>
       <template v-slot:emptySearch="state">

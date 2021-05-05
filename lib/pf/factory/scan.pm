@@ -20,8 +20,7 @@ use Module::Pluggable
   search_path => 'pf::scan',
   sub_name    => 'modules',
   require     => 1,
-  inner       => 0,
-  except      => qr/^pf::scan::wmi::(.*)$/;
+  inner       => 0;
 use List::MoreUtils qw(any);
 use pf::scan;
 use pf::config qw(
