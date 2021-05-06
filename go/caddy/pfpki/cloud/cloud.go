@@ -7,7 +7,9 @@ import (
 
 type Cloud interface {
 	NewCloud(ctx context.Context, name string)
-	ValidateRequest(ctx context.Context, data []byte)
+	ValidateRequest(ctx context.Context, data []byte) error
+	SuccessReply(ctx context.Context, data []byte, message string) error
+	FailureReply(ctx context.Context, data []byte, message string) error
 }
 
 // Creater function

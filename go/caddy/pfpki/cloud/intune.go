@@ -5,6 +5,7 @@ import (
 	"context"
 	"crypto/tls"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io/ioutil"
 	"log"
@@ -29,15 +30,19 @@ type Request struct {
 }
 
 type Notification struct {
-	Notification NotificationInfo `json:"request"`
+	Notification NotificationInfo `json:"notification"`
 }
 
 type NotificationInfo struct {
-	TransactionId      string `json:"transactionId"`
-	CertificateRequest string `json:"certificateRequest"`
-	HResultstring      string `json:"hResult"`
-	ErrorDescription   string `json:"errorDescription"`
-	CallerInfo         string `json:"callerInfo"`
+	TransactionId                string `json:"transactionId"`
+	CertificateRequest           []byte `json:"certificateRequest"`
+	CertificateThumbprint        string `json:"certificateThumbprint"`
+	CertificateSerialNumber      string `json:"certificateSerialNumber"`
+	CertificateExpirationDateUtc string `json:"certificateExpirationDateUtc"`
+	IssuingCertificateAuthority  string `json:"issuingCertificateAuthority"`
+	HResult                      int64  `json:"hResult"`
+	ErrorDescription             string `json:"errorDescription"`
+	CallerInfo                   string `json:"callerInfo"`
 }
 
 type APIEndPoint struct {
@@ -194,7 +199,7 @@ func (cl *Intune) NewCloud(ctx context.Context, name string) {
 	spew.Dump(apiEndpoint)
 }
 
-func (cl *Intune) ValidateRequest(ctx context.Context, data []byte) {
+func (cl *Intune) ValidateRequest(ctx context.Context, data []byte) error {
 
 	request := &Request{}
 
@@ -219,9 +224,77 @@ func (cl *Intune) ValidateRequest(ctx context.Context, data []byte) {
 	req.Header.Set("client-request-id", cl.TransactionID)
 	req.Header.Set("api-version", serviceVersion)
 	resp, err := cl.Client.Do(req)
+	defer resp.Body.Close()
+	if resp.StatusCode != 200 {
+		return errors.New("Unable to verify the scep request on intune")
+	}
+	return nil
+}
 
-	spew.Dump(req)
-	spew.Dump(err)
-	spew.Dump(resp)
+func (cl *Intune) SuccessReply(ctx context.Context, data []byte, message string) error {
+	request := &Notification{}
 
+	// Prepare the request
+	request.Notification.TransactionId = cl.TransactionID
+	// Base 64 encoded PKCS10 packet
+	request.Notification.CertificateRequest = data
+	request.Notification.CallerInfo = PROVIDER_NAME_AND_VERSION_NAME
+	request.Notification.CertificateThumbprint = "1234"
+	request.Notification.CertificateExpirationDateUtc = "1234"
+	request.Notification.CertificateSerialNumber = "1234"
+	request.Notification.IssuingCertificateAuthority = "bob"
+
+	slcB, _ := json.Marshal(request)
+	fmt.Println(string(slcB))
+
+	req, err := http.NewRequest("POST", cl.Endpoint.Uri+"/"+NOTIFY_SUCCESS_URL, bytes.NewBuffer(slcB))
+	if err != nil {
+		log.Print(err)
+		os.Exit(1)
+	}
+	req.Header.Set("Content-Type", "application/json")
+	req.Header.Set("accept", "application/json")
+	req.Header.Set("authorization", cl.AccessToken)
+	req.Header.Set("api-version", "1.0")
+	req.Header.Set("client-request-id", cl.TransactionID)
+	req.Header.Set("api-version", serviceVersion)
+	resp, err := cl.Client.Do(req)
+	defer resp.Body.Close()
+	if resp.StatusCode != 200 {
+		return errors.New("Unable to verify the scep request on intune")
+	}
+	return nil
+}
+
+func (cl *Intune) FailureReply(ctx context.Context, data []byte, message string) error {
+	request := &Notification{}
+
+	// Prepare the request
+	request.Notification.TransactionId = cl.TransactionID
+	// Base 64 encoded PKCS10 packet
+	request.Notification.CertificateRequest = data
+	request.Notification.CallerInfo = PROVIDER_NAME_AND_VERSION_NAME
+	request.Notification.HResult = 1234
+	request.Notification.ErrorDescription = "Great Error"
+
+	slcB, _ := json.Marshal(request)
+	fmt.Println(string(slcB))
+
+	req, err := http.NewRequest("POST", cl.Endpoint.Uri+"/"+NOTIFY_FAILURE_URL, bytes.NewBuffer(slcB))
+	if err != nil {
+		log.Print(err)
+		os.Exit(1)
+	}
+	req.Header.Set("Content-Type", "application/json")
+	req.Header.Set("accept", "application/json")
+	req.Header.Set("authorization", cl.AccessToken)
+	req.Header.Set("api-version", "1.0")
+	req.Header.Set("client-request-id", cl.TransactionID)
+	req.Header.Set("api-version", serviceVersion)
+	resp, err := cl.Client.Do(req)
+	defer resp.Body.Close()
+	if resp.StatusCode != 200 {
+		return errors.New("Unable to verify the scep request on intune")
+	}
+	return nil
 }

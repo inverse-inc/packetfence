@@ -21,6 +21,7 @@ import (
 	"strings"
 
 	"github.com/davecgh/go-spew/spew"
+	"github.com/fdurand/scep/scep"
 	"github.com/knq/pemutil"
 
 	"context"
@@ -475,6 +476,7 @@ func (c *CA) FindSCEPProfile(options []string) ([]Profile, error) {
 
 // CA return the CA public key based on the profile name (SCEP)
 func (c CA) CA(pass []byte, options ...string) ([]*x509.Certificate, *rsa.PrivateKey, error) {
+
 	var profiledb []Profile
 
 	profiledb, err := c.FindSCEPProfile(options)
@@ -581,17 +583,20 @@ func (c CA) HasCN(cn string, allowTime int, cert *x509.Certificate, revokeOldCer
 }
 
 // SCEP Verify
-func (c CA) Verify(data []byte) (bool, error) {
+func (c CA) Verify(m *scep.CSRReqMessage) (bool, error) {
 	prof, _ := c.GetProfileByName(c.SCEPAssociateProfile)
 
 	if prof.CloudEnabled == 1 {
 		vcloud, err := cloud.Create(c.Ctx, "intune", prof.CloudService)
-		// spew.Dump(cloudy)
 		if err != nil {
-			spew.Dump(err.Error())
+			return false, err
 		}
-		vcloud.ValidateRequest(c.Ctx, data)
-
+		err = vcloud.ValidateRequest(c.Ctx, m.CSR.Raw)
+		if err != nil {
+			return false, err
+		}
+		vcloud.SuccessReply(c.Ctx, m.CSR.Raw, "Siwuper !")
+		return true, nil
 	}
 	return true, nil
 }

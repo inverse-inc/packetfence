@@ -10,6 +10,7 @@ import (
 	kitlog "github.com/go-kit/kit/log"
 	kitloglevel "github.com/go-kit/kit/log/level"
 	"github.com/gorilla/mux"
+	"github.com/inverse-inc/packetfence/go/caddy/pfpki/cloud"
 	"github.com/inverse-inc/packetfence/go/caddy/pfpki/models"
 	"github.com/inverse-inc/packetfence/go/caddy/pfpki/types"
 	"github.com/inverse-inc/packetfence/go/log"
@@ -52,17 +53,32 @@ func ScepHandler(pfpki *types.Handler, w http.ResponseWriter, r *http.Request) {
 			lginfo.Log("err", "missing CA certificate")
 			os.Exit(1)
 		}
+
+		prof, _ := o.FindSCEPProfile([]string{vars["id"]})
+		var vcloud cloud.Cloud
+		if prof[0].CloudEnabled == 1 {
+			vcloud, err = cloud.Create(*pfpki.Ctx, "intune", prof[0].CloudService)
+			if err != nil {
+				lginfo.Log("err", "Enable to create CLoud service")
+				os.Exit(1)
+			}
+		}
 		var signer scepserver.CSRSigner = scepdepot.NewSigner(
 			o,
 			scepdepot.WithAllowRenewalDays(profile[0].SCEPDaysBeforeRenewal),
 			scepdepot.WithValidityDays(profile[0].Validity),
 			scepdepot.WithProfile(vars["id"]),
+			scepdepot.WithCloud(vcloud),
+			scepdepot.WithAttributes(ProfileAttributes(profile[0])),
 			// Todo Support CA password
 			// scepdepot.WithCAPass(*flCAPass),
 		)
-		signer = scepserver.ChallengeMiddleware(profile[0].SCEPChallengePassword, signer)
+		if prof[0].CloudEnabled != 1 {
+			signer = scepserver.ChallengeMiddleware(profile[0].SCEPChallengePassword, signer)
+		}
 		// Load the Intune/MDM csr Verifier
 		signer = csrverifier.Middleware(o, signer)
+
 		svc, err = scepserver.NewService(crts[0], key, signer, scepserver.WithLogger(logger))
 		if err != nil {
 			lginfo.Log("err", err)
@@ -81,4 +97,62 @@ func ScepHandler(pfpki *types.Handler, w http.ResponseWriter, r *http.Request) {
 
 	h.ServeHTTP(w, r)
 
+}
+
+func ProfileAttributes(prof models.Profile) map[string]string {
+	var attributes map[string]string
+
+	attributes["Organization"] = ""
+	if len(prof.Organisation) > 0 {
+		attributes["Organization"] = prof.Organisation
+	}
+
+	attributes["OrganizationalUnit"] = ""
+	if len(prof.OrganisationalUnit) > 0 {
+		attributes["OrganizationalUnit"] = prof.OrganisationalUnit
+	}
+
+	attributes["Country"] = ""
+	if len(prof.Country) > 0 {
+		attributes["Country"] = prof.Country
+	}
+
+	attributes["State"] = ""
+	if len(prof.State) > 0 {
+		attributes["State"] = prof.State
+	}
+
+	attributes["Locality"] = ""
+	if len(prof.Locality) > 0 {
+		attributes["Locality"] = prof.Locality
+	}
+
+	attributes["StreetAddress"] = ""
+	if len(prof.StreetAddress) > 0 {
+		attributes["StreetAddress"] = prof.StreetAddress
+	}
+
+	attributes["PostalCode"] = ""
+	if len(prof.PostalCode) > 0 {
+		attributes["PostalCode"] = prof.PostalCode
+	}
+
+	if len(*prof.ExtendedKeyUsage) > 0 {
+		attributes["ExtendedKeyUsage"] = *prof.ExtendedKeyUsage
+	}
+	if len(*prof.KeyUsage) > 0 {
+		attributes["KeyUsage"] = *prof.KeyUsage
+	}
+
+	attributes["OCSPUrl"] = ""
+	if len(prof.OCSPUrl) > 0 {
+		attributes["OCSPUrl"] = prof.OCSPUrl
+	}
+
+	attributes["Mail"] = ""
+	if len(prof.Mail) > 0 {
+		attributes["Mail"] = prof.Mail
+	}
+
+	return attributes
 }
