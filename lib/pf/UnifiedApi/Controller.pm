@@ -144,6 +144,7 @@ sub make_audit_record {
     my $method = $req->method;
     my $path = $req->url->path;
     my $request = $self->make_audit_record_request();
+    my $object_id = $self->can("id") ? $self->id : undef;
 
     my $current_user = $stash->{current_user};
     return {
@@ -153,7 +154,7 @@ sub make_audit_record {
         status => $status,
         action => $self->match->endpoint->name,
         url => $path,
-        object_id => $self->id,
+        object_id => $object_id,
     }
 }
 
