@@ -158,6 +158,8 @@ github.com/fdurand/pkcs7 v0.0.0-20210506123158-4334f94dbc4b h1:VxDtlFwjR7uVgxNVY
 github.com/fdurand/pkcs7 v0.0.0-20210506123158-4334f94dbc4b/go.mod h1:rE1r2nTFkcPJymxScEHWRJAdD9Ofo2OyybMyS9b96aE=
 github.com/fdurand/scep v1.0.1-0.20210506190004-8417052b4399 h1:PH3/uab5j/mfiZzQyx8yyZvEfQwJHxGE9EJtvUclrQw=
 github.com/fdurand/scep v1.0.1-0.20210506190004-8417052b4399/go.mod h1:ajxeJjc5Ju30du1pMgiXdin2i1BNstGicvTWlKO2dQw=
+github.com/fdurand/scep v1.0.1-0.20210506190853-bb9ea17e3cc8 h1:C/h2vn1RoHtI811w4nP6IqlDaQb6M80jGU+RsOtzNso=
+github.com/fdurand/scep v1.0.1-0.20210506190853-bb9ea17e3cc8/go.mod h1:ajxeJjc5Ju30du1pMgiXdin2i1BNstGicvTWlKO2dQw=
 github.com/flynn/go-shlex v0.0.0-20150515145356-3f9db97f8568 h1:BHsljHzVlRcyQhjrss6TZTdY2VfCqZPbv5k3iBFa2ZQ=
 github.com/flynn/go-shlex v0.0.0-20150515145356-3f9db97f8568/go.mod h1:xEzjJPgXI435gkrCt3MPfRiAkVrwSbHsst4LCFVfpJc=
 github.com/form3tech-oss/jwt-go v3.2.2+incompatible h1:TcekIExNqud5crz4xD2pavyTgWiPvpYe4Xau31I0PRk=
