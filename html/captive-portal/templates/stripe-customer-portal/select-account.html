@@ -1,20 +1,25 @@
 <div class="c-card u-padding u-padding@tablet u-padding-top-none">
-  <h1>Stripe accounts for [% pid %]</h1>
+  <h1>[% i18n_format("Stripe accounts for %s", pid) %]</h1>
 
-  <p>Please select the account you would like to manage</p>
+  <p>[% i18n("Please select the account you would like to manage") %]</p>
 
   <table>
     <thead>
-      <th>Created on</th>
-      <th>Status</th>
-      <th>Subscribed on device</th>
+      <th>[% i18n("Created on") %]</th>
+      <th>[% i18n("Status") %]</th>
+      <th>[% i18n("Subscribed on device") %]</th>
       <th></th>
     </thead>
     <tbody>
     [% FOREACH info IN accounts %]
     <tr>
       <td>[% info.created_at %]</td>
-      <td>[% IF info.active %]Has an active subscription[% ELSE %]No active subscription[% END %]
+      <td>
+        [% IF info.active %]
+        [% i18n("Has an active subscription") %]
+        [% ELSE %]
+        [% i18n("No active subscription") %]
+        [% END %]
       <td>
         [% IF info.node AND info.node.computername %]
         [% info.node.computername %] ([% info.node.mac %])
@@ -22,9 +27,11 @@
         [% info.account.metadata.mac_address %]
         [% END %]
       </td>
-      <td><a href="/stripe-customer-portal/manage/[% info.account.id %]">Manage</a>
+      <td><a href="/stripe-customer-portal/manage/[% info.account.id %]">[% i18n("Manage") %]</a>
     </tr>
     [% END %]
     </tbody>
   </table>
 </div>
+
+[% INCLUDE status/menu.html %]
