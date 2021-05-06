@@ -77,7 +77,7 @@ sub manage : Local : Args(1) {
         $self->showError($c, "Trying to manage a customer ID that doesn't belong to this account.");
         $c->detach();
     }
-    my $url = $c->stash->{source}->setupStripeCustomerPortal($cus_id, "https://pf-julien.eaa.inverse.ca/stripe-customer-portal");
+    my $url = $c->stash->{source}->setupStripeCustomerPortal($cus_id, $c->request->base."stripe-customer-portal");
     if($url) {
         $c->response->redirect($url);
     }
