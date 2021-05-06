@@ -71,7 +71,6 @@ sub index : Path : Args(0) {
 sub manage : Local : Args(1) {
     my ($self, $c, $cus_id) = @_;
     my $accounts = $c->stash->{'source'}->get_customers_by_email($c->stash->{"pid"});
-    use Data::Dumper ; use pf::log ; get_logger->info($cus_id, Dumper($accounts));
     my $customer = firstval { $_->{id} eq $cus_id} @$accounts;
     if(!$customer) {
         $self->showError($c, "Trying to manage a customer ID that doesn't belong to this account.");
