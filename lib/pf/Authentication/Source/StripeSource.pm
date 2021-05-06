@@ -321,11 +321,16 @@ sub send_mail_for_event {
 
 sub get_customer_by_email {
     my ($self, $email) = @_;
+    return $self->get_customers_by_email($email)->[0];
+}
+
+sub get_customers_by_email {
+    my ($self, $email) = @_;
     my $curl = $self->curl;
     my $path = "/v1/customers?email=".uri_escape($email)."&expand[]=data.subscriptions";
     $self->_set_url($curl, $path);
     my $res = $self->_do_request($curl);
-    return $res->{data}->[0];
+    return $res->{data};
 }
 
 sub get_customer {
@@ -404,6 +409,17 @@ sub additionalConfirmationInfo {
     }
     else {
         return ();
+    }
+}
+
+sub setupStripeCustomerPortal {
+    my ($self, $cus_id, $return_url) = @_;
+    my ($code, $data) = $self->_send_form($self->curl, "v1/billing_portal/sessions", {customer => $cus_id, return_url => $return_url});
+    if(is_success($code)) {
+        return $data->{url};
+    } else {
+        use Data::Dumper ; get_logger->error("Failed to setup Stripe Customer Portal session. Code $code. Response: ", Dumper($data));
+        return undef;       
     }
 }
 

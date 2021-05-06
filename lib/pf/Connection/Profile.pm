@@ -698,6 +698,11 @@ sub TO_JSON {
     return {%{$_[0]}};
 }
 
+sub stripeCustomerPortalEnabled {
+    #TODO: change that to configuration pulled from the self service policy
+    return 1;
+}
+
 =back
 
 =head1 AUTHOR

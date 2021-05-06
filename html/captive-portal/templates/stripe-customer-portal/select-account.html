@@ -1,0 +1,27 @@
+<h1>Hello [% pid %]</h1>
+
+<p>Please select the account you would like to manage</p>
+
+<table>
+  <thead>
+    <th>Created on</th>
+    <th>Status</th>
+    <th>Subscribed on device</th>
+  </thead>
+  <tbody>
+  [% FOREACH info IN accounts %]
+  <tr>
+    <td>[% info.created_at %]</td>
+    <td>[% IF info.active %]Has an active subscription[% ELSE %]No active subscription[% END %]
+    <td>
+      [% IF info.node AND info.node.computername %]
+      [% info.node.computername %] ([% info.node.mac %])
+      [% ELSE %]
+      [% info.account.metadata.mac_address %]
+      [% END %]
+    </td>
+    <td><a href="/stripe-customer-portal/manage/[% info.account.id %]">Manage</a>
+  </tr>
+  [% END %]
+  </tbody>
+</table>

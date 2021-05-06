@@ -168,6 +168,11 @@
       [% i18n("Change my password") %]
     </a>
     [% END %]
+    [% IF stripeCustomerPortalEnabled %]
+    <a href="/stripe-customer-portal" class="c-btn c-btn--secondary c-btn--ghost u-1/1 u-margin-top-small">
+      [% i18n("Access Stripe Customer Portal") %]
+    </a>
+    [% END %]
     <a href="/status/logout" class="c-btn c-btn--tertiary u-1/1 u-margin-top-small">
       [% i18n("Logout") %]
     </a>

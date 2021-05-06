@@ -30,6 +30,7 @@ sub auto :Private {
     my ( $self, $c ) = @_;
     $c->session->{release_bypass} = $TRUE;
     $c->stash->{isDeviceRegEnable} = $c->forward(DeviceRegistration => "isDeviceRegEnabled");
+    $c->stash->{stripeCustomerPortalEnabled} = $c->profile->stripeCustomerPortalEnabled;
     $c->forward('setupCurrentNodeInfo');
     return 1;
 }
