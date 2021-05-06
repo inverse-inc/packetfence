@@ -101,6 +101,7 @@ func ScepHandler(pfpki *types.Handler, w http.ResponseWriter, r *http.Request) {
 
 func ProfileAttributes(prof models.Profile) map[string]string {
 	var attributes map[string]string
+	attributes = make(map[string]string)
 
 	attributes["Organization"] = ""
 	if len(prof.Organisation) > 0 {
