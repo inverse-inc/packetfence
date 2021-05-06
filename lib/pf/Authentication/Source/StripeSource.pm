@@ -56,6 +56,8 @@ has 'style' => (is => 'rw', default => 'charge');
 
 has 'domains' => (is => 'rw', default => '*.stripe.com');
 
+has 'customer_portal' => (is => 'rw', default => 'disabled');
+
 =head2 url
 
   The url to the rpc message to

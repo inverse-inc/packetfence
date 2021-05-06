@@ -61,6 +61,7 @@ export {
   BaseFormGroupInputNumber                  as FormGroupConnectionTimeout,
   BaseFormGroupToggleNoYes                  as FormGroupCreateLocalAccount,
   BaseFormGroupChosenOne                    as FormGroupCurrency,
+  BaseFormGroupToggle                       as FormGroupCustomerPortal,
   BaseFormGroupInputNumber                  as FormGroupDeadDuration,
   BaseFormGroupInput                        as FormGroupDescription,
   BaseFormGroupInput                        as FormGroupDirectBaseUrl,

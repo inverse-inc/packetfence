@@ -37,11 +37,11 @@ sub auto : Private {
     $c->stash->{pid} = $pid;
 
     if(!$c->profile->stripeCustomerPortalEnabled) {
-        $self->showError($c, "Stripe Customer Portal is not enabled on this connection profile");
+        $self->showError($c, "Stripe Customer Portal is not enabled on the Stripe sources of this connection profile");
         $c->detach();
     }
 
-    my $source = $c->profile->getSourceByType("Stripe");
+    my $source = $c->profile->stripeCustomerPortalSource();
     $c->stash->{source} = $source;
     if(!$source) {
         $self->showError($c, "Unable to find a Stripe source in this connection profile");
