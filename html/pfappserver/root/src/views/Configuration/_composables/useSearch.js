@@ -1,4 +1,5 @@
-import { computed, ref, watch } from '@vue/composition-api'
+import { computed, onMounted, ref, watch } from '@vue/composition-api'
+import { useRouterQueryParam } from '@/composables/useRouter'
 import i18n from '@/utils/locale'
 
 const useColumns = (columns) => {
@@ -29,25 +30,29 @@ export const useString = (searchString, columns) => {
 export const useCondition = (searchCondition) => {
   return {
     op: 'and',
-    values: searchCondition.map(and => {
+    values: searchCondition.map(or => {
       return {
         op: 'or',
-        values: and.values
+        values: or.values
       }
     })
   }
 }
 
-export const useSearch = (api, options) => {
-
+export const useSearch = (props, context, options) => {
   const config = {
     // defaults
+    api: {
+      list: (new Promise(r => r())),
+      search: (new Promise(r => r()))
+    },
     columns: [],
     fields: [],
     sortBy: 'id',
     sortDesc: false,
     limit: 25,
     limits: [25, 50, 100, 200, 500, 1000],
+    defaultCondition: () => ([{ values: [] }]),
     requestInterceptor: (request) => request,
     responseInterceptor: (response) => response,
     errorInterceptor: (error) => { throw (error) },
@@ -96,7 +101,7 @@ export const useSearch = (api, options) => {
       cursor: ((page.value * limit.value) - limit.value)
     }
     isLoading.value = true
-    api.list(params)
+    config.api.list(params)
       .then(_response => {
         const response = config.responseInterceptor(_response)
         const { items: _items = [], total_count } = response
@@ -140,7 +145,7 @@ export const useSearch = (api, options) => {
     }
     const body = config.requestInterceptor(_body)
     isLoading.value = true
-    api.search(body)
+    config.api.search(body)
       .then(_response => {
         const response = config.responseInterceptor(_response)
         const { items: _items = [], total_count } = response
@@ -187,6 +192,58 @@ export const useSearch = (api, options) => {
   // when columns are mutated (deep)
   watch(columns, () => reSearch(), { deep: true })
 
+  // ref(router ?query=...)
+  const routerQueryParam = useRouterQueryParam(context, 'query')
+
+  const advancedMode = ref(false)
+  const conditionBasic = ref(null)
+  const conditionAdvanced = ref(config.defaultCondition()) // default
+
+  onMounted(() => {
+    if (routerQueryParam.value) {
+      switch(routerQueryParam.value.constructor) {
+        case Array: // advanced search
+          conditionAdvanced.value = routerQueryParam.value
+          advancedMode.value = true
+          doSearchCondition(conditionAdvanced.value)
+          break
+        case String: // basic search
+        default:
+          conditionBasic.value = routerQueryParam.value
+          advancedMode.value = false
+          doSearchString(conditionBasic.value)
+          break
+      }
+    }
+    else
+      doReset()
+  })
+
+  const onSearchBasic = () => {
+    if (conditionBasic.value) {
+      doSearchString(conditionBasic.value)
+      routerQueryParam.value = conditionBasic.value
+    }
+    else
+      doReset()
+  }
+
+  const onSearchAdvanced = () => {
+    if (conditionAdvanced.value) {
+      doSearchCondition(conditionAdvanced.value)
+      routerQueryParam.value = conditionAdvanced.value
+    }
+    else
+      doReset()
+  }
+
+  const onSearchReset = () => {
+    conditionBasic.value = null
+    conditionAdvanced.value = config.defaultCondition() // dereference
+    routerQueryParam.value = undefined
+    doReset()
+  }
+
   return {
     columns,
     visibleColumns,
@@ -204,7 +261,14 @@ export const useSearch = (api, options) => {
     doSearch,
     reSearch,
     isLoading,
-    items
+    items,
+
+    advancedMode,
+    conditionBasic,
+    conditionAdvanced,
+    onSearchBasic,
+    onSearchAdvanced,
+    onSearchReset
   }
 }
 

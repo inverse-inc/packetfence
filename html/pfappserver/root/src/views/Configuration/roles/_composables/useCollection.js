@@ -58,23 +58,21 @@ const useStore = (props, context, form) => {
   }
 }
 
-import {
-  useSearch as useConfigurationSearch
-} from '@/views/Configuration/_composables/useSearch'
+import { useSearch as useConfigurationSearch } from '@/views/Configuration/_composables/useSearch'
 import api from '../_api'
 import {
   columns,
   fields
 } from '../config'
-export const useSearch = (props, context, options) => {
-  return useConfigurationSearch(api, { 
-    name: 'roles', // localStorage prefix
-    columns,
-    fields,
-    sortBy: 'id',
-    ...options,
-  })
-}
+export const useSearch = (props, context, options) => useConfigurationSearch(props, context, {
+  id: 'roles',
+  api,
+  columns,
+  fields,
+  sortBy: 'id',
+  defaultCondition: () => ([{ values: [{ field: 'parent_id', op: 'equals', value: null }] }]),
+  ...options,
+})
 
 export default {
   useItemDefaults,

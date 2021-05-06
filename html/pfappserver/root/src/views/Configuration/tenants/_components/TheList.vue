@@ -148,79 +148,16 @@ const components = {
   pfEmptyTable
 }
 
-import { onMounted, ref } from '@vue/composition-api'
 import { useSearch, useRouter } from '../_composables/useCollection'
-
-const defaultCondition = () => ([{ values: [{ field: 'name', op: 'contains', value: null }] }])
 
 const setup = (props, context) => {
 
   const { root: { $router, $store } = {} } = context
 
-  const advancedMode = ref(false)
-  const conditionBasic = ref(null)
-  const conditionAdvanced = ref(defaultCondition()) // default
   const search = useSearch(props, context)
   const {
-    doReset,
-    doSearchString,
-    doSearchCondition,
     reSearch
   } = search
-
-  onMounted(() => {
-    const { currentRoute: { query: { query } = {} } = {} } = $router
-    if (query) {
-      const parsedQuery = JSON.parse(query)
-      switch(parsedQuery.constructor) {
-        case Array: // advanced search
-          conditionAdvanced.value = parsedQuery
-          advancedMode.value = true
-          doSearchCondition(conditionAdvanced.value)
-          break
-        case String: // basic search
-        default:
-          conditionBasic.value = parsedQuery
-          advancedMode.value = false
-          doSearchString(conditionBasic.value)
-          break
-      }
-    }
-    else
-      doReset()
-  })
-
-  const _setQueryParam = query => {
-    const { currentRoute } = $router
-    $router.replace({ ...currentRoute, query: { query } })
-      .catch(e => { if (e.name !== "NavigationDuplicated") throw e })
-  }
-  const _clearQueryParam = () => _setQueryParam()
-
-  const onSearchBasic = () => {
-    if (conditionBasic.value) {
-      doSearchString(conditionBasic.value)
-      _setQueryParam(JSON.stringify(conditionBasic.value))
-    }
-    else
-      doReset()
-  }
-
-  const onSearchAdvanced = () => {
-    if (conditionAdvanced.value) {
-      doSearchCondition(conditionAdvanced.value)
-      _setQueryParam(JSON.stringify(conditionAdvanced.value))
-    }
-    else
-      doReset()
-  }
-
-  const onSearchReset = () => {
-    conditionBasic.value = null
-    conditionAdvanced.value = defaultCondition() // dereference
-    _clearQueryParam()
-    doReset()
-  }
 
   const onRowClicked = item => {
     const {
@@ -239,12 +176,6 @@ const setup = (props, context) => {
   }
 
   return {
-    advancedMode,
-    conditionBasic,
-    onSearchBasic,
-    conditionAdvanced,
-    onSearchAdvanced,
-    onSearchReset,
     onRowClicked,
     onClone,
     onRemove,

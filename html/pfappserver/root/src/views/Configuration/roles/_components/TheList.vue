@@ -199,86 +199,39 @@ const components = {
   pfEmptyTable
 }
 
-import { computed, onMounted, ref } from '@vue/composition-api'
+import { computed, ref } from '@vue/composition-api'
 import { useSearch, useRouter } from '../_composables/useCollection'
 import { useNodeInheritance } from '../_composables/useNodeInheritance'
 import { reasons } from '../config'
-
-const defaultCondition = () => ([{ values: [{ field: 'parent_id', op: 'equals', value: null }] }])
 
 const setup = (props, context) => {
 
   const { root: { $router, $store } = {} } = context
 
-  const advancedMode = ref(false)
-  const conditionBasic = ref(null)
-  const conditionAdvanced = ref(defaultCondition()) // default
   const search = useSearch(props, context)
   const {
-    doReset,
-    doSearchString,
-    doSearchCondition,
     reSearch,
     items,
     sortBy,
-    sortDesc
+    sortDesc,
+    onSearchBasic: _onSearchBasic,
+    onSearchAdvanced: _onSearchAdvanced,
+    onSearchReset: _onSearchReset
   } = search
-
-  onMounted(() => {
-    const { currentRoute: { query: { query } = {} } = {} } = $router
-    if (query) {
-      const parsedQuery = JSON.parse(query)
-      switch(parsedQuery.constructor) {
-        case Array: // advanced search
-          conditionAdvanced.value = parsedQuery
-          advancedMode.value = true
-          doSearchCondition(conditionAdvanced.value)
-          break
-        case String: // basic search
-        default:
-          conditionBasic.value = parsedQuery
-          advancedMode.value = false
-          doSearchString(conditionBasic.value)
-          break
-      }
-    }
-    else
-      doReset()
-  })
-
-  const _setQueryParam = query => {
-    const { currentRoute } = $router
-    $router.replace({ ...currentRoute, query: { query } })
-      .catch(e => { if (e.name !== "NavigationDuplicated") throw e })
-  }
-  const _clearQueryParam = () => _setQueryParam()
 
   const onSearchBasic = () => {
     clearExpandedNodes()
-    if (conditionBasic.value) {
-      doSearchString(conditionBasic.value)
-      _setQueryParam(JSON.stringify(conditionBasic.value))
-    }
-    else
-      doReset()
+    return _onSearchBasic()
   }
 
   const onSearchAdvanced = () => {
     clearExpandedNodes()
-    if (conditionAdvanced.value) {
-      doSearchCondition(conditionAdvanced.value)
-      _setQueryParam(JSON.stringify(conditionAdvanced.value))
-    }
-    else
-      doReset()
+    return _onSearchAdvanced()
   }
 
   const onSearchReset = () => {
-    conditionBasic.value = null
-    conditionAdvanced.value = defaultCondition() // dereference
-    _clearQueryParam()
     clearExpandedNodes()
-    doReset()
+    return _onSearchReset()
   }
 
   const onRowClicked = item => {
@@ -345,10 +298,7 @@ const setup = (props, context) => {
   } = useNodeInheritance(items, sortBy, sortDesc)
 
   return {
-    advancedMode,
-    conditionBasic,
     onSearchBasic,
-    conditionAdvanced,
     onSearchAdvanced,
     onSearchReset,
     onRowClicked,
