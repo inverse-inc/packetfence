@@ -37,6 +37,7 @@ use pfappserver::Form::Config::Source::Email;
 use pfappserver::Form::Config::Source::Facebook;
 use pfappserver::Form::Config::Source::Github;
 use pfappserver::Form::Config::Source::Google;
+use pfappserver::Form::Config::Source::GSuiteLDAP;
 use pfappserver::Form::Config::Source::Htpasswd;
 use pfappserver::Form::Config::Source::HTTP;
 use pfappserver::Form::Config::Source::Instagram;
