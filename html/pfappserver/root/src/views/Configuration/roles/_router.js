@@ -5,6 +5,16 @@ import TrafficShapingPoliciesStoreModule from '../networks/trafficShapingPolicie
 const TheList = () => import(/* webpackChunkName: "Configuration" */ './_components/TheList')
 const TheView = () => import(/* webpackChunkName: "Configuration" */ './_components/TheView')
 
+export const useRouter = $router => {
+  return {
+    goToCollection: () => $router.push({ name: 'roles' }),
+    goToItem: params => $router
+      .push({ name: 'role', params })
+      .catch(e => { if (e.name !== "NavigationDuplicated") throw e }),
+    goToClone: params => $router.push({ name: 'cloneRole', params })
+  }
+}
+
 export const beforeEnter = (to, from, next = () => {}) => {
   if (!store.state.$_roles)
     store.registerModule('$_roles', RolesStoreModule)

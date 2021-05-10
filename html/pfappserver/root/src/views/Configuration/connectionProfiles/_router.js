@@ -1,6 +1,16 @@
 import store from '@/store'
 import StoreModule from './_store'
 
+export const useRouter = $router => {
+  return {
+    goToCollection: () => $router.push({ name: 'connection_profiles' }),
+    goToItem: params => $router
+      .push({ name: 'connection_profile', params })
+      .catch(e => { if (e.name !== "NavigationDuplicated") throw e }),
+    goToClone: params => $router.push({ name: 'cloneConnectionProfile', params }),
+  }
+}
+
 const TheList = () => import(/* webpackChunkName: "Configuration" */ '../_components/ConnectionProfilesList')
 const TheView = () => import(/* webpackChunkName: "Configuration" */ './_components/TheView')
 

@@ -1,6 +1,16 @@
 import store from '@/store'
 import StoreModule from './_store'
 
+export const useRouter = $router => {
+  return {
+    goToCollection: () => $router.push({ name: 'billing_tiers' }),
+    goToItem: params => $router
+      .push({ name: 'billing_tier', params })
+      .catch(e => { if (e.name !== "NavigationDuplicated") throw e }),
+    goToClone: params => $router.push({ name: 'cloneBillingTier', params }),
+  }
+}
+
 const TheList = () => import(/* webpackChunkName: "Configuration" */ '../_components/BillingTiersList')
 const TheView = () => import(/* webpackChunkName: "Configuration" */ './_components/TheView')
 

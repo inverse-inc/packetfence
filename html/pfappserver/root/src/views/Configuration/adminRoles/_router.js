@@ -1,7 +1,17 @@
 import store from '@/store'
 import StoreModule from './_store'
 
-const TheList = () => import(/* webpackChunkName: "Configuration" */ '../_components/AdminRolesList')
+export const useRouter = $router => {
+  return {
+    goToCollection: () => $router.push({ name: 'admin_roles' }),
+    goToItem: params => $router
+      .push({ name: 'admin_role', params })
+      .catch(e => { if (e.name !== "NavigationDuplicated") throw e }),
+    goToClone: params => $router.push({ name: 'cloneAdminRole', params }),
+  }
+}
+
+const TheList = () => import(/* webpackChunkName: "Configuration" */ './_components/TheList')
 const TheView = () => import(/* webpackChunkName: "Configuration" */ './_components/TheView')
 
 export const beforeEnter = (to, from, next = () => {}) => {

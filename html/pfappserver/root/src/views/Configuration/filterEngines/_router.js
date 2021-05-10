@@ -1,6 +1,16 @@
 import store from '@/store'
 import StoreModule from './_store'
 
+export const useRouter = $router => {
+  return {
+    goToCollection: params => $router.push({ name: 'filterEnginesCollection', params }),
+    goToItem: params => $router
+      .push({ name: 'filter_engine', params })
+      .catch(e => { if (e.name !== "NavigationDuplicated") throw e }),
+    goToClone: params => $router.push({ name: 'cloneFilterEngine', params }),
+  }
+}
+
 const TheList = () => import(/* webpackChunkName: "Configuration" */ '../_components/FilterEnginesList')
 const TheView = () => import(/* webpackChunkName: "Configuration" */ './_components/TheView')
 

@@ -4,6 +4,16 @@ import StoreModule from './_store'
 const TheList = () => import(/* webpackChunkName: "Configuration" */ '../_components/AuthenticationSourcesList')
 const TheView = () => import(/* webpackChunkName: "Configuration" */ './_components/TheView')
 
+export const useRouter = $router => {
+  return {
+    goToCollection: () => $router.push({ name: 'sources' }),
+    goToItem: params => $router
+      .push({ name: 'source', params })
+      .catch(e => { if (e.name !== "NavigationDuplicated") throw e }),
+    goToClone: params => $router.push({ name: 'cloneAuthenticationSource', params }),
+  }
+}
+
 export const beforeEnter = (to, from, next = () => {}) => {
   if (!store.state.$_sources)
     store.registerModule('$_sources', StoreModule)

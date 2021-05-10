@@ -1,14 +1,14 @@
 import { computed, toRefs } from '@vue/composition-api'
 import i18n from '@/utils/locale'
 
-const useItemTitle = (props) => {
+export const useItemTitle = (props) => {
   const {
     id
   } = toRefs(props)
   return computed(() => id.value.toUpperCase())
 }
 
-const useStore = (props, context, form) => {
+export const useStore = (props, context, form) => {
   const {
     id
   } = toRefs(props)
@@ -45,9 +45,4 @@ const useStore = (props, context, form) => {
       )
     }
   }
-}
-
-export default {
-  useItemTitle,
-  useStore,
 }

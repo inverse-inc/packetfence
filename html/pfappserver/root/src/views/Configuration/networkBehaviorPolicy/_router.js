@@ -5,6 +5,16 @@ import NetworkBehaviorPolicyStoreModule from './_store'
 const TheList = () => import(/* webpackChunkName: "Configuration" */ '../_components/NetworkBehaviorPoliciesList')
 const TheView = () => import(/* webpackChunkName: "Configuration" */ './_components/TheView')
 
+export const useRouter = $router => {
+  return {
+    goToCollection: () => $router.push({ name: 'network_behavior_policies' }),
+    goToItem: $params => $router
+      .push({ name: 'network_behavior_policy', params })
+      .catch(e => { if (e.name !== "NavigationDuplicated") throw e }),
+    goToClone: params => $router.push({ name: 'cloneNetworkBehaviorPolicy', params }),
+  }
+}
+
 export const beforeEnter = (to, from, next = () => {}) => {
   if (!store.state.$_fingerbank)
     store.registerModule('$_fingerbank', FingerbankStoreModule)

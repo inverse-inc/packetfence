@@ -7,23 +7,16 @@ export const useItemProps = {
   }
 }
 
-const useItemTitle = (props) => {
+export const useItemTitle = (props) => {
   const {
     id
   } = toRefs(props)
   return computed(() => i18n.t('Revoked Certificate <code>{id}</code>', { id: id.value }))
 }
 
-const useRouter = (props, context, form) => {
-  const { root: { $router } = {} } = context
-  return {
-    goToCollection: () => $router.push({ name: 'pkiRevokedCerts' }),
-    goToItem: (item = form.value || {}) => $router
-      .push({ name: 'pkiRevokedCert', params: { id: item.ID } })
-  }
-}
+export { useRouter } from '../_router'
 
-const useStore = (props, context) => {
+export const useStore = (props, context) => {
   const {
     id
   } = toRefs(props)
@@ -33,10 +26,4 @@ const useStore = (props, context) => {
     getItem: () => $store.dispatch('$_pkis/getRevokedCert', id.value)
       .catch(e => { if (e.name !== "NavigationDuplicated") throw e })
   }
-}
-
-export default {
-  useItemTitle,
-  useRouter,
-  useStore,
 }

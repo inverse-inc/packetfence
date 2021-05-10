@@ -4,6 +4,15 @@ import StoreModule from './_store'
 const TheTabs = () => import(/* webpackChunkName: "Configuration" */ '../_components/MainTabs')
 const TheView = () => import(/* webpackChunkName: "Configuration" */ './_components/TheView')
 
+export const useRouter = $router => {
+  return {
+    goToCollection: () => $router.push({ name: 'maintenance_tasks' }),
+    goToItem: params => $router
+      .push({ name: 'maintenance_task', params })
+      .catch(e => { if (e.name !== "NavigationDuplicated") throw e })
+  }
+}
+
 export const beforeEnter = (to, from, next = () => {}) => {
   if (!store.state.$_maintenance_tasks)
     store.registerModule('$_maintenance_tasks', StoreModule)

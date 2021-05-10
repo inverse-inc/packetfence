@@ -2,6 +2,21 @@ import store from '@/store'
 import DomainsStoreModule from './_store'
 import RealmsStoreModule from '../realms/_store'
 
+export const useRouter = $router => {
+  return {
+    goToCollection: (params, props, autoJoinDomain) => {
+      if (autoJoinDomain)
+        $router.push({ name: 'domains', params: { autoJoinDomain: params } })
+      else
+        $router.push({ name: 'domains' })
+    },
+    goToItem: params => $router
+      .push({ name: 'domain', params })
+      .catch(e => { if (e.name !== "NavigationDuplicated") throw e }),
+    goToClone: params => $router.push({ name: 'cloneDomain', params }),
+  }
+}
+
 export const TheTabs = () => import(/* webpackChunkName: "Configuration" */ '../_components/DomainsTabs')
 const TheView = () => import(/* webpackChunkName: "Configuration" */ './_components/TheView')
 

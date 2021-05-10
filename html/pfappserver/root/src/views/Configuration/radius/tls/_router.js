@@ -4,6 +4,16 @@ import RadiusTlsStoreModule from './_store'
 const TheTabs = () => import(/* webpackChunkName: "Configuration" */ '../../_components/RadiusTabs')
 const TheView = () => import(/* webpackChunkName: "Configuration" */ './_components/TheView')
 
+export const useRouter = $router => {
+  return {
+    goToCollection: () => $router.push({ name: 'radiusTlss' }),
+    goToItem: params => $router
+      .push({ name: 'radiusTls', params })
+      .catch(e => { if (e.name !== "NavigationDuplicated") throw e }),
+    goToClone: params => $router.push({ name: 'cloneRadiusTls', params }),
+  }
+}
+
 export const beforeEnter = (to, from, next = () => {}) => {
   if (!store.state.$_radius_tls)
     store.registerModule('$_radius_tls', RadiusTlsStoreModule)

@@ -1,6 +1,5 @@
 import { computed, toRefs } from '@vue/composition-api'
 import i18n from '@/utils/locale'
-import { defaultsFromMeta as useItemDefaults } from '../../_config/'
 
 export const useItemProps = {
   collection: {
@@ -11,7 +10,7 @@ export const useItemProps = {
   },
 }
 
-const useItemTitle = (props) => {
+export const useItemTitle = (props) => {
   const {
     id,
     isClone,
@@ -29,7 +28,7 @@ const useItemTitle = (props) => {
   })
 }
 
-const useItemTitleBadge = (props, context) => {
+export const useItemTitleBadge = (props, context) => {
   const {
     collection
   } = toRefs(props)
@@ -37,21 +36,9 @@ const useItemTitleBadge = (props, context) => {
   return computed(() => $store.getters['$_filter_engines/collectionToName'](collection.value))
 }
 
-const useRouter = (props, context, form) => {
-  const {
-    collection
-  } = toRefs(props)
-  const { root: { $router } = {} } = context
-  return {
-    goToCollection: () => $router.push({ name: 'filterEnginesCollection', params: { collection: collection.value } }),
-    goToItem: (item = form.value || {}) => $router
-      .push({ name: 'filter_engine', params: { collection: collection.value, id: item.id } })
-      .catch(e => { if (e.name !== "NavigationDuplicated") throw e }),
-    goToClone: () => $router.push({ name: 'cloneFilterEngine', params: { collection: collection.value } }),
-  }
-}
+export { useRouter } from '../_router'
 
-const useStore = (props, context, form) => {
+export const useStore = (props, context, form) => {
   const {
     collection,
     id,
@@ -73,13 +60,4 @@ const useStore = (props, context, form) => {
     }),
     updateItem: () => $store.dispatch('$_filter_engines/updateFilterEngine', { collection: collection.value, id: id.value, data: form.value }),
   }
-}
-
-export default {
-  useItemDefaults,
-  useItemProps,
-  useItemTitle,
-  useItemTitleBadge,
-  useRouter,
-  useStore,
 }

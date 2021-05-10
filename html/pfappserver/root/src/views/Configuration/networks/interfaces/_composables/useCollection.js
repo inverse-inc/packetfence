@@ -8,14 +8,14 @@ export const useItemProps = {
   }
 }
 
-const useItemDefaults = (_, props) => {
+export const useItemDefaults = (_, props) => {
   const {
     id
   } = toRefs(props)
   return { id: id.value, type: 'none' }
 }
 
-const useItemTitle = (props, context, form) => {
+export const useItemTitle = (props, context, form) => {
   const {
     id,
     isClone,
@@ -34,7 +34,7 @@ const useItemTitle = (props, context, form) => {
   })
 }
 
-const useItemTitleBadge = (props, context, form) => {
+export const useItemTitleBadge = (props, context, form) => {
   const {
     id
   } = toRefs(props)
@@ -48,26 +48,9 @@ const useItemTitleBadge = (props, context, form) => {
   })
 }
 
-const useRouter = (props, context, form) => {
-  const {
-    id,
-    prefixRouteName
-  } = toRefs(props)
-  const { root: { $router } = {} } = context
-  return {
-    goToCollection: () => $router.push({ name: `${prefixRouteName.value}interfaces` }),
-    goToItem: () => {
-      let { id = id.value, vlan } = form.value
-      if (id.indexOf('.') === -1 && vlan) // if `id` omits `vlan` and `vlan` is defined
-        id += `.${vlan}` // append `vlan` to `id`
-      return $router.push({ name: `${prefixRouteName.value}interface`, params: { id } })
-        .catch(e => { if (e.name !== "NavigationDuplicated") throw e })
-    },
-    goToClone: () => $router.push({ name: `${prefixRouteName.value}cloneInterface`, params: { id: id.value } }),
-  }
-}
+export { useRouter } from '../_router'
 
-const useStore = (props, context, form) => {
+export const useStore = (props, context, form) => {
   const {
     id,
     isClone
@@ -86,12 +69,4 @@ const useStore = (props, context, form) => {
     }),
     updateItem: () => $store.dispatch('$_interfaces/updateInterface', form.value),
   }
-}
-
-export default {
-  useItemDefaults,
-  useItemTitle,
-  useItemTitleBadge,
-  useRouter,
-  useStore,
 }

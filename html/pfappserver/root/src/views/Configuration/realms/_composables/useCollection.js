@@ -1,10 +1,7 @@
 import { computed, toRefs } from '@vue/composition-api'
 import i18n from '@/utils/locale'
-import {
-  defaultsFromMeta as useItemDefaults
-} from '../../_config/'
 
-const useItemTitle = (props) => {
+export const useItemTitle = (props) => {
   const {
     id,
     isClone,
@@ -22,7 +19,7 @@ const useItemTitle = (props) => {
   })
 }
 
-const useItemTitleBadge = (props, context) => {
+export const useItemTitleBadge = (props, context) => {
   const {
     tenantId
   } = toRefs(props)
@@ -31,22 +28,9 @@ const useItemTitleBadge = (props, context) => {
   return tenantName
 }
 
-const useRouter = (props, context, form) => {
-  const {
-    id,
-    tenantId
-  } = toRefs(props)
-  const { root: { $router } = {} } = context
-  return {
-    goToCollection: () => $router.push({ name: 'realms', params: { tenantId: tenantId.value } }),
-    goToItem: (item = form.value || {}) => $router
-      .push({ name: 'realm', params: { id: item.id, tenantId: tenantId.value } })
-      .catch(e => { if (e.name !== "NavigationDuplicated") throw e }),
-    goToClone: () => $router.push({ name: 'cloneRealm', params: { id: id.value, tenantId: tenantId.value } }),
-  }
-}
+export { useRouter } from '../_router'
 
-const useStore = (props, context, form) => {
+export const useStore = (props, context, form) => {
   const {
     id,
     tenantId,
@@ -67,12 +51,4 @@ const useStore = (props, context, form) => {
     }),
     updateItem: () => $store.dispatch('$_realms/updateRealm', { item: form.value, tenantId: tenantId.value }),
   }
-}
-
-export default {
-  useItemDefaults,
-  useItemTitle,
-  useItemTitleBadge,
-  useRouter,
-  useStore,
 }

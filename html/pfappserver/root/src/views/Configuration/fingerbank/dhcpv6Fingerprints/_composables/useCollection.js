@@ -10,7 +10,7 @@ export const useItemProps = {
   }
 }
 
-const useItemTitle = (props) => {
+export const useItemTitle = (props) => {
   const {
     id,
     isClone,
@@ -30,22 +30,9 @@ const useItemTitle = (props) => {
 
 export const useItemTitleBadge = props => props.scope
 
-const useRouter = (props, context, form) => {
-  const {
-    id,
-    scope
-  } = toRefs(props)
-  const { root: { $router } = {} } = context
-  return {
-    goToCollection: () => $router.push({ name: 'fingerbankDhcpv6Fingerprints' }),
-    goToItem: (item = form.value || {}) => $router
-      .push({ name: 'fingerbankDhcpv6Fingerprint', params: { id: item.id, scope: scope.value } })
-      .catch(e => { if (e.name !== "NavigationDuplicated") throw e }),
-    goToClone: () => $router.push({ name: 'cloneFingerbankDhcpv6Fingerprint', params: { id: form.value.id || id.value, scope: 'local' } }),
-  }
-}
+export { useRouter } from '../_router'
 
-const useStore = (props, context, form) => {
+export const useStore = (props, context, form) => {
   const {
     id
   } = toRefs(props)
@@ -57,12 +44,4 @@ const useStore = (props, context, form) => {
     getItem: () => $store.dispatch('$_fingerbank/getDhcpv6Fingerprint', id.value),
     updateItem: () => $store.dispatch('$_fingerbank/updateDhcpv6Fingerprint', form.value),
   }
-}
-
-export default {
-  useItemProps,
-  useItemTitle,
-  useItemTitleBadge,
-  useRouter,
-  useStore,
 }

@@ -5,9 +5,9 @@ import {
   serializeDuration
 } from '../config'
 
-const useTitle = () => i18n.t('Access Duration')
+export const useTitle = () => i18n.t('Access Duration')
 
-const useStore = (props, context, form) => {
+export const useStore = (props, context, form) => {
   const { root: { $store } = {} } = context
   return {
     isLoading: computed(() => $store.getters['$_bases/isLoading']),
@@ -25,9 +25,4 @@ const useStore = (props, context, form) => {
       })
     }
   }
-}
-
-export default {
-  useTitle,
-  useStore,
 }

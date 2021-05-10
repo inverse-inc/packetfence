@@ -11,7 +11,7 @@ export const useItemProps = {
   }
 }
 
-const useItemTitle = (props) => {
+export const useItemTitle = (props) => {
   const {
     id,
     isClone,
@@ -29,21 +29,9 @@ const useItemTitle = (props) => {
   })
 }
 
-const useRouter = (props, context, form) => {
-  const {
-    id
-  } = toRefs(props)
-  const { root: { $router } = {} } = context
-  return {
-    goToCollection: () => $router.push({ name: 'pkiCas' }),
-    goToItem: (item = form.value || {}) => $router
-      .push({ name: 'pkiCa', params: { id: item.ID } })
-      .catch(e => { if (e.name !== "NavigationDuplicated") throw e }),
-    goToClone: () => $router.push({ name: 'clonePkiCa', params: { id: id.value } }),
-  }
-}
+export { useRouter } from '../_router'
 
-const useStore = (props, context, form) => {
+export const useStore = (props, context, form) => {
   const {
     id
   } = toRefs(props)
@@ -53,10 +41,4 @@ const useStore = (props, context, form) => {
     createItem: () => $store.dispatch('$_pkis/createCa', recomposeCa(form.value)),
     getItem: () => $store.dispatch('$_pkis/getCa', id.value).then(item => decomposeCa(item))
   }
-}
-
-export default {
-  useItemTitle,
-  useRouter,
-  useStore,
 }

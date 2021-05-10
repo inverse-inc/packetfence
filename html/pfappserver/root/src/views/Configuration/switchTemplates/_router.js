@@ -4,6 +4,16 @@ import StoreModule from './_store'
 const TheList = () => import(/* webpackChunkName: "Configuration" */ '../_components/SwitchTemplatesList')
 const TheView = () => import(/* webpackChunkName: "Configuration" */ './_components/TheView')
 
+export const useRouter = $router => {
+  return {
+    goToCollection: () => $router.push({ name: 'switchTemplates' }),
+    goToItem: params => $router
+      .push({ name: 'switchTemplate', params })
+      .catch(e => { if (e.name !== "NavigationDuplicated") throw e }),
+    goToClone: params => $router.push({ name: 'cloneSwitchTemplate', params }),
+  }
+}
+
 export const beforeEnter = (to, from, next = () => {}) => {
   if (!store.state.$_switch_templates)
     store.registerModule('$_switch_templates', StoreModule)

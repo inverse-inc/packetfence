@@ -4,6 +4,16 @@ import StoreModule from './_store'
 const TheList = () => import(/* webpackChunkName: "Configuration" */ '../_components/PortalModulesList')
 const TheView = () => import(/* webpackChunkName: "Configuration" */ './_components/TheView')
 
+export const useRouter = $router => {
+  return {
+    goToCollection: () => $router.push({ name: 'portal_modules' }),
+    goToItem: params => $router
+      .push({ name: 'portal_module', params })
+      .catch(e => { if (e.name !== "NavigationDuplicated") throw e }),
+    goToClone: params => $router.push({ name: 'clonePortalModule', params }),
+  }
+}
+
 export const beforeEnter = (to, from, next = () => {}) => {
   if (!store.state.$_portalmodules)
     store.registerModule('$_portalmodules', StoreModule)

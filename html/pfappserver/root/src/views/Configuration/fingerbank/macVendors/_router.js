@@ -1,6 +1,20 @@
+import { toRefs } from '@vue/composition-api'
 import store from '@/store'
 import { TheTabs } from '../_components/'
 const TheView = () => import(/* webpackChunkName: "Fingerbank" */ './_components/TheView')
+
+export const useRouter = $router => {
+  return {
+    goToCollection: () => $router.push({ name: 'fingerbankMacVendors' }),
+    goToItem: (params, props) => {
+      const { scope } = toRefs(props)
+      $router
+        .push({ name: 'fingerbankMacVendor', params: { ...params, scope: scope.value } })
+        .catch(e => { if (e.name !== "NavigationDuplicated") throw e })
+    },
+    goToClone: params => $router.push({ name: 'cloneFingerbankMacVendor', params: { ...params, scope: 'local' } })
+  }
+}
 
 export default [
   {

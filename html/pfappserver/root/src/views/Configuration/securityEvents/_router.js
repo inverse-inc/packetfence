@@ -6,6 +6,16 @@ import NetworkBehaviorPoliciesStoreModule from '../networkBehaviorPolicy/_store'
 const TheList = () => import(/* webpackChunkName: "Configuration" */ '../_components/SecurityEventsList')
 const TheView = () => import(/* webpackChunkName: "Configuration" */ './_components/TheView')
 
+export const useRouter = $router => {
+  return {
+    goToCollection: () => $router.push({ name: 'security_events' }),
+    goToItem: params => $router
+      .push({ name: 'security_event', params })
+      .catch(e => { if (e.name !== "NavigationDuplicated") throw e }),
+    goToClone: params => $router.push({ name: 'cloneSecurityEvent', params }),
+  }
+}
+
 export const beforeEnter = (to, from, next = () => {}) => {
   if (!store.state.$_security_events)
     store.registerModule('$_security_events', SecurityEventsStoreModule)

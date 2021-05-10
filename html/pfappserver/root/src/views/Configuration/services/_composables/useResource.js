@@ -1,9 +1,9 @@
 import { computed } from '@vue/composition-api'
 import i18n from '@/utils/locale'
 
-const useTitle = () => i18n.t('Services')
+export const useTitle = () => i18n.t('Services')
 
-const useStore = (props, context, form) => {
+export const useStore = (props, context, form) => {
   const { root: { $store } = {} } = context
   return {
     isLoading: computed(() => $store.getters['$_bases/isLoading']),
@@ -13,9 +13,4 @@ const useStore = (props, context, form) => {
       return $store.dispatch('$_bases/updateServices', form.value)
     }
   }
-}
-
-export default {
-  useTitle,
-  useStore,
 }

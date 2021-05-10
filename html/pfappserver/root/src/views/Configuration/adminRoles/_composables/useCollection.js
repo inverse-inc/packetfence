@@ -1,10 +1,7 @@
 import { computed, toRefs } from '@vue/composition-api'
 import i18n from '@/utils/locale'
-import {
-  defaultsFromMeta as useItemDefaults
-} from '../../_config/'
 
-const useItemTitle = (props) => {
+export const useItemTitle = (props) => {
   const {
     id,
     isClone,
@@ -22,21 +19,9 @@ const useItemTitle = (props) => {
   })
 }
 
-const useRouter = (props, context, form) => {
-  const {
-    id
-  } = toRefs(props)
-  const { root: { $router } = {} } = context
-  return {
-    goToCollection: () => $router.push({ name: 'admin_roles' }),
-    goToItem: (item = form.value || {}) => $router
-      .push({ name: 'admin_role', params: { id: item.id } })
-      .catch(e => { if (e.name !== "NavigationDuplicated") throw e }),
-    goToClone: () => $router.push({ name: 'cloneAdminRole', params: { id: id.value } }),
-  }
-}
+export { useRouter } from '../_router'
 
-const useStore = (props, context, form) => {
+export const useStore = (props, context, form) => {
   const {
     id,
     isClone
@@ -58,9 +43,21 @@ const useStore = (props, context, form) => {
   }
 }
 
-export default {
-  useItemDefaults,
-  useItemTitle,
-  useRouter,
-  useStore,
-}
+import { useSearch as useConfigurationSearch } from '@/views/Configuration/_composables/useSearch'
+import api from '../_api'
+import {
+  columns,
+  fields
+} from '../config'
+export const useSearch = (props, context, options) => useConfigurationSearch(props, context, {
+  id: 'adminRoles',
+  api,
+  columns,
+  fields,
+  sortBy: 'id',
+  defaultCondition: () => ([{ values: [
+    { field: 'id', op: 'contains', value: null },
+    { field: 'description', op: 'contains', value: null }
+  ] }]),
+  ...options,
+})

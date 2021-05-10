@@ -1,6 +1,16 @@
 import store from '@/store'
 import { TheTabs } from '../_components/'
 
+export const useRouter = $router => {
+  return {
+    goToCollection: () => $router.push({ name: 'fingerbankCombinations' }),
+    goToItem: params => $router
+      .push({ name: 'fingerbankCombination', params })
+      .catch(e => { if (e.name !== "NavigationDuplicated") throw e }),
+    goToClone: params => $router.push({ name: 'cloneFingerbankCombination', params }),
+  }
+}
+
 const TheView = () => import(/* webpackChunkName: "Fingerbank" */ './_components/TheView')
 
 export default [

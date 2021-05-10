@@ -10,11 +10,11 @@ const components = {
 }
 
 import { useViewCollectionItem, useViewCollectionItemProps } from '../../_composables/useViewCollectionItem'
-import collection, { useItemProps } from '../_composables/useCollection'
+import * as collection from '../_composables/useCollection'
 
 const props = {
   ...useViewCollectionItemProps,
-  ...useItemProps
+  ...collection.useItemProps
 }
 
 const setup = (props, context) => useViewCollectionItem(collection, props, context)

@@ -1,6 +1,5 @@
 import { computed, toRefs } from '@vue/composition-api'
 import i18n from '@/utils/locale'
-import { defaultsFromMeta } from '../../_config/'
 
 export const useItemProps = {
   id: {
@@ -11,14 +10,15 @@ export const useItemProps = {
   }
 }
 
-const useItemDefaults = (meta, props) => {
+import { useDefaultsFromMeta } from '@/composables/useMeta'
+export const useItemDefaults = (meta, props) => {
   const {
     syslogParserType
   } = toRefs(props)
-  return { ...defaultsFromMeta(meta), type: syslogParserType.value }
+  return { ...useDefaultsFromMeta(meta), type: syslogParserType.value }
 }
 
-const useItemTitle = (props) => {
+export const useItemTitle = (props) => {
   const {
     id,
     isClone,
@@ -36,28 +36,16 @@ const useItemTitle = (props) => {
   })
 }
 
-const useItemTitleBadge = (props, context, form) => {
+export const useItemTitleBadge = (props, context, form) => {
   const {
     syslogParserType
   } = toRefs(props)
   return computed(() => (syslogParserType.value || form.value.type))
 }
 
-const useRouter = (props, context, form) => {
-  const {
-    id
-  } = toRefs(props)
-  const { root: { $router } = {} } = context
-  return {
-    goToCollection: () => $router.push({ name: 'syslogParsers' }),
-    goToItem: (item = form.value || {}) => $router
-      .push({ name: 'syslogParser', params: { id: item.id } })
-      .catch(e => { if (e.name !== "NavigationDuplicated") throw e }),
-    goToClone: () => $router.push({ name: 'cloneSyslogParser', params: { id: id.value } }),
-  }
-}
+export { useRouter } from '../_router'
 
-const useStore = (props, context, form) => {
+export const useStore = (props, context, form) => {
   const {
     id,
     isClone,
@@ -84,13 +72,4 @@ const useStore = (props, context, form) => {
     }),
     updateItem: () => $store.dispatch('$_syslog_parsers/updateSyslogParser', form.value),
   }
-}
-
-export default {
-  useItemDefaults,
-  useItemProps,
-  useItemTitle,
-  useItemTitleBadge,
-  useRouter,
-  useStore,
 }

@@ -3,6 +3,7 @@ import { useDebouncedWatchHandler } from '@/composables/useDebounce'
 import useEventActionKey from '@/composables/useEventActionKey'
 import useEventEscapeKey from '@/composables/useEventEscapeKey'
 import useEventJail from '@/composables/useEventJail'
+import { useDefaultsFromMeta } from '@/composables/useMeta'
 
 export const useViewCollectionItemProps = {
   id: {
@@ -22,7 +23,7 @@ export const useViewCollectionItemProps = {
 export const useViewCollectionItem = (collection, props, context) => {
 
   const {
-    useItemDefaults = () => ({}), // {}
+    useItemDefaults = useDefaultsFromMeta, // {}
     useItemTitle = () => {},
     useItemTitleBadge = () => {},
     useRouter = () => {},
@@ -73,11 +74,12 @@ export const useViewCollectionItem = (collection, props, context) => {
     return !!updateItem
   })
 
+  const { root: { $router } = {} } = context
   const {
     goToCollection,
     goToItem,
     goToClone,
-  } = useRouter(props, context, form)
+  } = useRouter($router)
 
   const isCloneable = computed(() => !!goToClone)
 
@@ -137,11 +139,11 @@ export const useViewCollectionItem = (collection, props, context) => {
       return updateItem()
   }
 
-  const onClose = () => goToCollection()
+  const onClose = () => goToCollection(form.value, props, false)
 
-  const onClone = () => goToClone()
+  const onClone = () => goToClone(form.value, props)
 
-  const onRemove = () => deleteItem().then(() => goToCollection())
+  const onRemove = () => deleteItem().then(() => goToCollection(form.value, props, false))
 
   const onReset = () => init().then(() => isModified.value = false)
 
@@ -151,16 +153,16 @@ export const useViewCollectionItem = (collection, props, context) => {
     const closeAfter = actionKey.value
     save().then(response => {
       if (closeAfter) // [CTRL] key pressed
-        goToCollection(true)
+        goToCollection(form.value, props, true)
       else {
         form.value = { ...form.value, ...response } // merge form w/ newly inserted IDs
-        goToItem(form.value).then(() => init()) // re-init
+        goToItem(form.value, props).then(() => init()) // re-init
       }
     })
   }
 
   const escapeKey = useEventEscapeKey(rootRef)
-  watch(escapeKey, () => goToCollection())
+  watch(escapeKey, () => goToCollection(form.value, props, false))
 
   watch(props, () => init(), { deep: true, immediate: true })
 

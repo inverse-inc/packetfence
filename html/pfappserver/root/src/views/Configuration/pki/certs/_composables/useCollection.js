@@ -10,14 +10,14 @@ export const useItemProps = {
   }
 }
 
-const useItemDefaults = (meta, props) => {
+export const useItemDefaults = (meta, props) => {
   const {
     profile_id
   } = toRefs(props)
   return { profile_id: profile_id.value }
 }
 
-const useItemTitle = (props) => {
+export const useItemTitle = (props) => {
   const {
     id,
     isClone,
@@ -35,21 +35,9 @@ const useItemTitle = (props) => {
   })
 }
 
-const useRouter = (props, context, form) => {
-  const {
-    id
-  } = toRefs(props)
-  const { root: { $router } = {} } = context
-  return {
-    goToCollection: () => $router.push({ name: 'pkiCerts' }),
-    goToItem: (item = form.value || {}) => $router
-      .push({ name: 'pkiCert', params: { id: item.ID } })
-      .catch(e => { if (e.name !== "NavigationDuplicated") throw e }),
-    goToClone: () => $router.push({ name: 'clonePkiCert', params: { id: id.value } }),
-  }
-}
+export { useRouter } from '../_router'
 
-const useStore = (props, context, form) => {
+export const useStore = (props, context, form) => {
   const {
     id,
     profile_id
@@ -60,11 +48,4 @@ const useStore = (props, context, form) => {
     createItem: () => $store.dispatch('$_pkis/createCert', { ...form.value, profile_id: profile_id.value }),
     getItem: () => $store.dispatch('$_pkis/getCert', id.value)
   }
-}
-
-export default {
-  useItemDefaults,
-  useItemTitle,
-  useRouter,
-  useStore,
 }

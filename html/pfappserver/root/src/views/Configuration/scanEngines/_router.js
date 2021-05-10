@@ -4,6 +4,16 @@ import StoreModule from './_store'
 export const TheTabs = () => import(/* webpackChunkName: "Configuration" */ '../_components/ScansTabs')
 const TheView = () => import(/* webpackChunkName: "Configuration" */ './_components/TheView')
 
+export const useRouter = $router => {
+  return {
+    goToCollection: () => $router.push({ name: 'scanEngines' }),
+    goToItem: params => $router
+      .push({ name: 'scanEngine', params })
+      .catch(e => { if (e.name !== "NavigationDuplicated") throw e }),
+    goToClone: params => $router.push({ name: 'cloneScanEngine', params }),
+  }
+}
+
 export const beforeEnter = (to, from, next = () => {}) => {
   if (!store.state.$_scans)
     store.registerModule('$_scans', StoreModule)

@@ -1,10 +1,7 @@
 import { computed, toRefs } from '@vue/composition-api'
 import i18n from '@/utils/locale'
-import {
-  defaultsFromMeta as useItemDefaults
-} from '../../_config/'
 
-const useItemTitle = (props, context) => {
+export const useItemTitle = (props, context) => {
   const {
     id,
     isClone,
@@ -24,21 +21,9 @@ const useItemTitle = (props, context) => {
   })
 }
 
-export const useRouter = (props, context, form) => {
-  const {
-    id
-  } = toRefs(props)
-  const { root: { $router } = {} } = context
-  return {
-    goToCollection: () => $router.push({ name: 'tenants' }),
-    goToItem: (item = form.value || {}) => $router
-      .push({ name: 'tenant', params: { id: item.id } })
-      .catch(e => { if (e.name !== "NavigationDuplicated") throw e }),
-    goToClone: () => $router.push({ name: 'cloneTenant', params: { id: id.value } }),
-  }
-}
+export { useRouter } from '../_router'
 
-const useStore = (props, context, form) => {
+export const useStore = (props, context, form) => {
   const {
     id,
     isClone
@@ -76,12 +61,3 @@ export const useSearch = (props, context, options) => useConfigurationSearch(pro
   defaultCondition: () => ([{ values: [{ field: 'name', op: 'contains', value: null }] }]),
   ...options,
 })
-
-
-export default {
-  useItemDefaults,
-  useItemTitle,
-  useRouter,
-  useStore,
-  useSearch
-}

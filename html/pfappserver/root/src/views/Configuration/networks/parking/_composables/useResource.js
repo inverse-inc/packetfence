@@ -1,11 +1,11 @@
 import { computed } from '@vue/composition-api'
 import i18n from '@/utils/locale'
 
-const useTitle = () => i18n.t('Parking')
+export const useTitle = () => i18n.t('Parking')
 
-const useTitleHelp = () => 'PacketFence_Installation_Guide.html#_parked_devices'
+export const useTitleHelp = () => 'PacketFence_Installation_Guide.html#_parked_devices'
 
-const useStore = (props, context, form) => {
+export const useStore = (props, context, form) => {
   const { root: { $store } = {} } = context
   return {
     isLoading: computed(() => $store.getters['$_bases/isLoading']),
@@ -15,10 +15,4 @@ const useStore = (props, context, form) => {
       return $store.dispatch('$_bases/updateParking', form.value)
     }
   }
-}
-
-export default {
-  useTitle,
-  useTitleHelp,
-  useStore,
 }

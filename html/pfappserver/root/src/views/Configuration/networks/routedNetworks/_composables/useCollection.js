@@ -1,10 +1,7 @@
 import { computed, toRefs } from '@vue/composition-api'
 import i18n from '@/utils/locale'
-import {
-  defaultsFromMeta as useItemDefaults
-} from '../../../_config/'
 
-const useItemTitle = (props) => {
+export const useItemTitle = (props) => {
   const {
     id,
     isClone,
@@ -22,21 +19,9 @@ const useItemTitle = (props) => {
   })
 }
 
-const useRouter = (props, context, form) => {
-  const {
-    id
-  } = toRefs(props)
-  const { root: { $router } = {} } = context
-  return {
-    goToCollection: () => $router.push({ name: 'interfaces' }),
-    goToItem: (item = form.value || {}) => $router
-      .push({ name: 'routed_network', params: { id: item.id } })
-      .catch(e => { if (e.name !== "NavigationDuplicated") throw e }),
-    goToClone: () => $router.push({ name: 'cloneRoutedNetwork', params: { id: id.value } }),
-  }
-}
+export { useRouter } from '../_router'
 
-const useStore = (props, context, form) => {
+export const useStore = (props, context, form) => {
   const {
     id
   } = toRefs(props)
@@ -49,11 +34,4 @@ const useStore = (props, context, form) => {
     getItem: () => $store.dispatch('$_routed_networks/getRoutedNetwork', id.value),
     updateItem: () => $store.dispatch('$_routed_networks/updateRoutedNetwork', form.value),
   }
-}
-
-export default {
-  useItemDefaults,
-  useItemTitle,
-  useRouter,
-  useStore,
 }

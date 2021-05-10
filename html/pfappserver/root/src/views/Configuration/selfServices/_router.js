@@ -4,6 +4,16 @@ import StoreModule from './_store'
 const TheList = () => import(/* webpackChunkName: "Configuration" */ '../_components/SelfServicesList')
 const TheView = () => import(/* webpackChunkName: "Configuration" */ './_components/TheView')
 
+export const useRouter = $router => {
+  return {
+    goToCollection: () => $router.push({ name: 'self_services' }),
+    goToItem: params => $router
+      .push({ name: 'self_service', params })
+      .catch(e => { if (e.name !== "NavigationDuplicated") throw e }),
+    goToClone: params => $router.push({ name: 'cloneSelfService', params })
+  }
+}
+
 export const beforeEnter = (to, from, next = () => {}) => {
   if (!store.state.$_self_services)
     store.registerModule('$_self_services', StoreModule)

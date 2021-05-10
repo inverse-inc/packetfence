@@ -12,7 +12,7 @@ const components = {
 
 import { useViewCollectionItem, useViewCollectionItemProps as props } from '../../_composables/useViewCollectionItem'
 
-import collection from '../_composables/useCollection'
+import * as collection from '../_composables/useCollection'
 const setup = (props, context) => useViewCollectionItem(collection, props, context)
 
 // @vue/component

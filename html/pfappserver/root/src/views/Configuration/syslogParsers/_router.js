@@ -4,6 +4,16 @@ import StoreModule from './_store'
 const TheList = () => import(/* webpackChunkName: "Configuration" */ '../_components/SyslogParsersList')
 const TheView = () => import(/* webpackChunkName: "Configuration" */ './_components/TheView')
 
+export const useRouter = $router => {
+ return {
+    goToCollection: () => $router.push({ name: 'syslogParsers' }),
+    goToItem: params => $router
+      .push({ name: 'syslogParser', params })
+      .catch(e => { if (e.name !== "NavigationDuplicated") throw e }),
+    goToClone: params => $router.push({ name: 'cloneSyslogParser', params }),
+  }
+}
+
 export const beforeEnter = (to, from, next = () => {}) => {
   if (!store.state.$_syslog_parsers)
     store.registerModule('$_syslog_parsers', StoreModule)

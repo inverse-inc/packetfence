@@ -1,8 +1,5 @@
 import { computed, toRefs } from '@vue/composition-api'
 import i18n from '@/utils/locale'
-import {
-  defaultsFromMeta
-} from '../../_config/'
 
 export const useItemProps = {
   id: {
@@ -13,14 +10,15 @@ export const useItemProps = {
   }
 }
 
-const useItemDefaults = (meta, props) => {
+import { useDefaultsFromMeta } from '@/composables/useMeta'
+export const useItemDefaults = (meta, props) => {
   const {
     scanType
   } = toRefs(props)
-  return { ...defaultsFromMeta(meta), type: scanType.value }
+  return { ...useDefaultsFromMeta(meta), type: scanType.value }
 }
 
-const useItemTitle = (props) => {
+export const useItemTitle = (props) => {
   const {
     id,
     isClone,
@@ -38,7 +36,7 @@ const useItemTitle = (props) => {
   })
 }
 
-const useItemTitleBadge = (props, context, form) => {
+export const useItemTitleBadge = (props, context, form) => {
   const {
     scanType
   } = toRefs(props)
@@ -48,21 +46,9 @@ const useItemTitleBadge = (props, context, form) => {
   })
 }
 
-const useRouter = (props, context, form) => {
-  const {
-    id
-  } = toRefs(props)
-  const { root: { $router } = {} } = context
-  return {
-    goToCollection: () => $router.push({ name: 'scanEngines' }),
-    goToItem: (item = form.value || {}) => $router
-      .push({ name: 'scanEngine', params: { id: item.id } })
-      .catch(e => { if (e.name !== "NavigationDuplicated") throw e }),
-    goToClone: () => $router.push({ name: 'cloneScanEngine', params: { id: id.value } }),
-  }
-}
+export { useRouter } from '../_router'
 
-const useStore = (props, context, form) => {
+export const useStore = (props, context, form) => {
   const {
     id,
     isClone,
@@ -89,13 +75,4 @@ const useStore = (props, context, form) => {
     }),
     updateItem: () => $store.dispatch('$_scans/updateScanEngine', form.value),
   }
-}
-
-export default {
-  useItemProps,
-  useItemDefaults,
-  useItemTitle,
-  useItemTitleBadge,
-  useRouter,
-  useStore,
 }

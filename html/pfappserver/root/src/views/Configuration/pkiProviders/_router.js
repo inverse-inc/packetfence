@@ -5,6 +5,16 @@ import PkisStoreModule from '../pki/_store'
 const TheList = () => import(/* webpackChunkName: "Configuration" */ '../_components/PkiProvidersList')
 const TheView = () => import(/* webpackChunkName: "Configuration" */ './_components/TheView')
 
+export const useRouter = $router => {
+  return {
+    goToCollection: () => $router.push({ name: 'pki_providers' }),
+    goToItem: params => $router
+      .push({ name: 'pki_provider', params })
+      .catch(e => { if (e.name !== "NavigationDuplicated") throw e }),
+    goToClone: params => $router.push({ name: 'clonePkiProvider', params }),
+  }
+}
+
 export const beforeEnter = (to, from, next = () => {}) => {
   if (!store.state.$_pki_providers)
     store.registerModule('$_pki_providers', PkiProvidersStoreModule)

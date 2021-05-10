@@ -37,7 +37,7 @@
             @save="onCreate"
           />
         </div>
-      </div>            
+      </div>
     </base-form>
   </b-form>
 </template>
@@ -79,7 +79,7 @@ const setup = (props, context) => {
   const rootRef = ref(null)
   const form = ref({ ...defaults }) // dereferenced
   const schema = computed(() => schemaFn(props, form.value))
-  
+
   const isValid = useDebouncedWatchHandler(
     [form],
     () => (
@@ -95,12 +95,13 @@ const setup = (props, context) => {
     createItem
   } = useStore(props, context, form)
 
+  const { root: { $router } = {} } = context
   const {
     goToCollection,
     goToItem,
-  } = useRouter(props, context, form)
+  } = useRouter($router)
 
-  const onClose = () => goToCollection()
+  const onClose = () => goToCollection(false)
 
   const onCreate = () => {
     if (!isValid.value)

@@ -1,7 +1,6 @@
 import { computed, toRefs } from '@vue/composition-api'
 import i18n from '@/utils/locale'
 import { provisioningTypes } from '../config'
-import { defaultsFromMeta } from '../../_config/'
 
 export const useItemProps = {
   id: {
@@ -12,14 +11,15 @@ export const useItemProps = {
   }
 }
 
-const useItemDefaults = (meta, props) => {
+import { useDefaultsFromMeta } from '@/composables/useMeta'
+export const useItemDefaults = (meta, props) => {
   const {
     provisioningType
   } = toRefs(props)
-  return { ...defaultsFromMeta(meta), type: provisioningType.value }
+  return { ...useDefaultsFromMeta(meta), type: provisioningType.value }
 }
 
-const useItemTitle = (props) => {
+export const useItemTitle = (props) => {
   const {
     id,
     isClone,
@@ -37,28 +37,16 @@ const useItemTitle = (props) => {
   })
 }
 
-const useItemTitleBadge = (props, context, form) => {
+export const useItemTitleBadge = (props, context, form) => {
   const {
     provisioningType
   } = toRefs(props)
   return computed(() => provisioningTypes[provisioningType.value || form.value.type])
 }
 
-const useRouter = (props, context, form) => {
-  const {
-    id
-  } = toRefs(props)
-  const { root: { $router } = {} } = context
-  return {
-    goToCollection: () => $router.push({ name: 'provisionings' }),
-    goToItem: (item = form.value || {}) => $router
-      .push({ name: 'provisioning', params: { id: item.id } })
-      .catch(e => { if (e.name !== "NavigationDuplicated") throw e }),
-    goToClone: () => $router.push({ name: 'cloneProvisioning', params: { id: id.value } }),
-  }
-}
+export { useRouter } from '../_router'
 
-const useStore = (props, context, form) => {
+export const useStore = (props, context, form) => {
   const {
     id,
     isClone,
@@ -85,13 +73,4 @@ const useStore = (props, context, form) => {
     }),
     updateItem: () => $store.dispatch('$_provisionings/updateProvisioning', form.value),
   }
-}
-
-export default {
-  useItemDefaults,
-  useItemProps,
-  useItemTitle,
-  useItemTitleBadge,
-  useRouter,
-  useStore,
 }

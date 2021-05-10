@@ -14,7 +14,7 @@ export const useItemProps = {
   }
 }
 
-const useItemDefaults = (meta, props) => {
+export const useItemDefaults = (meta, props) => {
   const {
     ca_id
   } = toRefs(props)
@@ -24,7 +24,7 @@ const useItemDefaults = (meta, props) => {
   }
 }
 
-const useItemTitle = (props) => {
+export const useItemTitle = (props) => {
   const {
     id,
     isClone,
@@ -42,21 +42,9 @@ const useItemTitle = (props) => {
   })
 }
 
-const useRouter = (props, context, form) => {
-  const {
-    id
-  } = toRefs(props)
-  const { root: { $router } = {} } = context
-  return {
-    goToCollection: () => $router.push({ name: 'pkiProfiles' }),
-    goToItem: (item = form.value || {}) => $router
-      .push({ name: 'pkiProfile', params: { id: item.ID } })
-      .catch(e => { if (e.name !== "NavigationDuplicated") throw e }),
-    goToClone: () => $router.push({ name: 'clonePkiProfile', params: { id: id.value } }),
-  }
-}
+export { useRouter } from '../_router'
 
-const useStore = (props, context, form) => {
+export const useStore = (props, context, form) => {
   const {
     id
   } = toRefs(props)
@@ -66,11 +54,4 @@ const useStore = (props, context, form) => {
     createItem: () => $store.dispatch('$_pkis/createProfile', recomposeProfile(form.value)),
     getItem: () => $store.dispatch('$_pkis/getProfile', id.value).then(item => decomposeProfile(item))
   }
-}
-
-export default {
-  useItemDefaults,
-  useItemTitle,
-  useRouter,
-  useStore,
 }

@@ -1,7 +1,6 @@
- 
+
 import { computed, toRefs } from '@vue/composition-api'
 import i18n from '@/utils/locale'
-import { defaultsFromMeta } from '../../_config/'
 
 export const useItemProps = {
   id: {
@@ -12,14 +11,15 @@ export const useItemProps = {
   }
 }
 
-const useItemDefaults = (meta, props) => {
+import { useDefaultsFromMeta } from '@/composables/useMeta'
+export const useItemDefaults = (meta, props) => {
   const {
     switchGroup
   } = toRefs(props)
-  return { ...defaultsFromMeta(meta), group: switchGroup.value }
+  return { ...useDefaultsFromMeta(meta), group: switchGroup.value }
 }
 
-const useItemTitle = (props) => {
+export const useItemTitle = (props) => {
   const {
     id,
     isClone,
@@ -37,21 +37,9 @@ const useItemTitle = (props) => {
   })
 }
 
-const useRouter = (props, context, form) => {
-  const {
-    id
-  } = toRefs(props)
-  const { root: { $router } = {} } = context
-  return {
-    goToCollection: () => $router.push({ name: 'switch_groups' }),
-    goToItem: (item = form.value || {}) => $router
-      .push({ name: 'switch_group', params: { id: item.id } })
-      .catch(e => { if (e.name !== "NavigationDuplicated") throw e }),
-    goToClone: () => $router.push({ name: 'cloneSwitchGroup', params: { id: id.value } }),
-  }
-}
+export { useRouter } from '../_router'
 
-const useStore = (props, context, form) => {
+export const useStore = (props, context, form) => {
   const {
     isNew,
     id
@@ -70,11 +58,4 @@ const useStore = (props, context, form) => {
     getItem: () => $store.dispatch('$_switch_groups/getSwitchGroup', id.value),
     updateItem: () => $store.dispatch('$_switch_groups/updateSwitchGroup', form.value),
   }
-}
-
-export default {
-  useItemDefaults,
-  useItemTitle,
-  useRouter,
-  useStore,
 }

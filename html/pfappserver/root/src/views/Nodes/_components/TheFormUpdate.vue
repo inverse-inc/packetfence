@@ -150,10 +150,11 @@ const {
     reevaluateAccess
   } = useStore(props, context, form)
 
+  const { root: { $router } = {} } = context
   const {
     goToCollection,
     goToItem,
-  } = useRouter(props, context, form)
+  } = useRouter($router)
 
   const isDeletable = computed(() => {
     const { not_deletable: notDeletable = false } = form.value || {}
@@ -178,9 +179,9 @@ const {
 
   const onRefresh = () => reloadItem()
 
-  const onClose = () => goToCollection()
+  const onClose = () => goToCollection(false)
 
-  const onRemove = () => deleteItem().then(() => goToCollection())
+  const onRemove = () => deleteItem().then(() => goToCollection(false))
 
   const onReset = () => init()
 

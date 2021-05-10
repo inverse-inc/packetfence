@@ -1,6 +1,28 @@
+import { toRefs } from '@vue/composition-api'
 import store from '@/store'
 const TheTabs = () => import(/* webpackChunkName: "Configuration" */ '../../_components/NetworksTabs')
 const TheView = () => import(/* webpackChunkName: "Configuration" */ './_components/TheView')
+
+export const useRouter = $router => {
+  return {
+    goToCollection: (params, props) => {
+      const { prefixRouteName } = toRefs(props)
+      return $router.push({ name: `${prefixRouteName.value}interfaces` })
+    },
+    goToItem: (params, props) => {
+      const { prefixRouteName } = toRefs(props)
+      let { id, vlan } = params
+      if (id.indexOf('.') === -1 && vlan) // if `id` omits `vlan` and `vlan` is defined
+        id += `.${vlan}` // append `vlan` to `id`
+      return $router.push({ name: `${prefixRouteName.value}interface`, params: { id } })
+        .catch(e => { if (e.name !== "NavigationDuplicated") throw e })
+    },
+    goToClone: (params, props) => {
+      const { prefixRouteName } = toRefs(props)
+      return $router.push({ name: `${prefixRouteName.value}cloneInterface`, params })
+    }
+  }
+}
 
 export default [
   {

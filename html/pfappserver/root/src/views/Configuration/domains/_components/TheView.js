@@ -22,7 +22,7 @@ const props = {
   }
 }
 
-import collection from '../_composables/useCollection'
+import * as collection from '../_composables/useCollection'
 
 const setup = (props, context) => useViewCollectionItem(collection, props, context)
 
