@@ -58,6 +58,7 @@ func ScepHandler(pfpki *types.Handler, w http.ResponseWriter, r *http.Request) {
 		var vcloud cloud.Cloud
 		if prof[0].CloudEnabled == 1 {
 			vcloud, err = cloud.Create(*pfpki.Ctx, "intune", prof[0].CloudService)
+			o.Cloud = vcloud
 			if err != nil {
 				lginfo.Log("err", "Enable to create CLoud service")
 				os.Exit(1)
@@ -68,7 +69,6 @@ func ScepHandler(pfpki *types.Handler, w http.ResponseWriter, r *http.Request) {
 			scepdepot.WithAllowRenewalDays(profile[0].SCEPDaysBeforeRenewal),
 			scepdepot.WithValidityDays(profile[0].Validity),
 			scepdepot.WithProfile(vars["id"]),
-			scepdepot.WithCloud(vcloud),
 			scepdepot.WithAttributes(ProfileAttributes(profile[0])),
 			// Todo Support CA password
 			// scepdepot.WithCAPass(*flCAPass),

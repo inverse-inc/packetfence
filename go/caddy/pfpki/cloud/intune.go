@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"context"
 	"crypto/tls"
+	"crypto/x509"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -15,6 +16,7 @@ import (
 	"github.com/Azure/go-autorest/autorest/adal"
 	"github.com/davecgh/go-spew/spew"
 	"github.com/google/uuid"
+	"github.com/inverse-inc/packetfence/go/caddy/pfpki/certutils"
 	"github.com/inverse-inc/packetfence/go/pfconfigdriver"
 )
 
@@ -231,7 +233,7 @@ func (cl *Intune) ValidateRequest(ctx context.Context, data []byte) error {
 	return nil
 }
 
-func (cl *Intune) SuccessReply(ctx context.Context, data []byte, message string) error {
+func (cl *Intune) SuccessReply(ctx context.Context, cert *x509.Certificate, data []byte, message string) error {
 	request := &Notification{}
 
 	// Prepare the request
@@ -239,10 +241,10 @@ func (cl *Intune) SuccessReply(ctx context.Context, data []byte, message string)
 	// Base 64 encoded PKCS10 packet
 	request.Notification.CertificateRequest = data
 	request.Notification.CallerInfo = PROVIDER_NAME_AND_VERSION_NAME
-	request.Notification.CertificateThumbprint = "1234"
-	request.Notification.CertificateExpirationDateUtc = "1234"
-	request.Notification.CertificateSerialNumber = "1234"
-	request.Notification.IssuingCertificateAuthority = "bob"
+	request.Notification.CertificateThumbprint = certutils.ThumbprintSHA1(cert)
+	request.Notification.CertificateExpirationDateUtc = cert.NotAfter.String()
+	request.Notification.CertificateSerialNumber = cert.Issuer.SerialNumber
+	request.Notification.IssuingCertificateAuthority = cert.Issuer.CommonName
 
 	slcB, _ := json.Marshal(request)
 	fmt.Println(string(slcB))
@@ -266,7 +268,7 @@ func (cl *Intune) SuccessReply(ctx context.Context, data []byte, message string)
 	return nil
 }
 
-func (cl *Intune) FailureReply(ctx context.Context, data []byte, message string) error {
+func (cl *Intune) FailureReply(ctx context.Context, cert *x509.Certificate, data []byte, message string) error {
 	request := &Notification{}
 
 	// Prepare the request
@@ -275,7 +277,7 @@ func (cl *Intune) FailureReply(ctx context.Context, data []byte, message string)
 	request.Notification.CertificateRequest = data
 	request.Notification.CallerInfo = PROVIDER_NAME_AND_VERSION_NAME
 	request.Notification.HResult = 1234
-	request.Notification.ErrorDescription = "Great Error"
+	request.Notification.ErrorDescription = message
 
 	slcB, _ := json.Marshal(request)
 	fmt.Println(string(slcB))

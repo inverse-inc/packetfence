@@ -74,6 +74,7 @@ type (
 		IssuerNameHash       string                  `json:"issuer_name_hash,omitempty" gorm:"UNIQUE_INDEX"`
 		OCSPUrl              string                  `json:"ocsp_url,omitempty"`
 		SCEPAssociateProfile string                  `gorm:"-"`
+		Cloud                cloud.Cloud             `gorm:"-"`
 	}
 
 	// Profile struct
@@ -556,9 +557,13 @@ func (c CA) Serial(options ...string) (*big.Int, error) {
 func (c CA) HasCN(cn string, allowTime int, cert *x509.Certificate, revokeOldCertificate bool, options ...string) (bool, error) {
 
 	var certif Cert
+	var CertDB *gorm.DB
+	if CertDB = c.DB.Where("Cn = ?", cn).Find(&certif); CertDB.Error != nil {
+		return false, errors.New("Database error")
+	}
 
-	if CertDB := c.DB.Where("Cn = ?", cn).Find(&certif); CertDB.Error != nil {
-		return false, nil
+	if CertDB.RowsAffected == 0 {
+		return true, nil
 	}
 
 	certif.DB = c.DB
@@ -577,9 +582,10 @@ func (c CA) HasCN(cn string, allowTime int, cert *x509.Certificate, revokeOldCer
 			params["id"] = strconv.Itoa(int(certif.ID))
 			params["reason"] = strconv.Itoa(ocsp.Superseded)
 			certif.Revoke(params)
+			return true, nil
 		}
 	}
-	return true, nil
+	return false, errors.New("Certificate with this CN already exist")
 }
 
 // SCEP Verify
@@ -595,10 +601,19 @@ func (c CA) Verify(m *scep.CSRReqMessage) (bool, error) {
 		if err != nil {
 			return false, err
 		}
-		vcloud.SuccessReply(c.Ctx, m.CSR.Raw, "Siwuper !")
+		c.Cloud = vcloud
+		// vcloud.SuccessReply(c.Ctx, m.CSR.Raw, "Siwuper !")
 		return true, nil
 	}
 	return true, nil
+}
+
+func (c CA) FailureNotify(cert *x509.Certificate, m *scep.CSRReqMessage, message string) {
+	c.Cloud.FailureReply(c.Ctx, m.CSR.Raw, message)
+}
+
+func (c CA) SuccessNotify(message string) {
+	c.Cloud.SuccessReply(c.Ctx, m.CSR.Raw, message)
 }
 
 func (c CA) GetProfileByName(name string) (*Profile, error) {

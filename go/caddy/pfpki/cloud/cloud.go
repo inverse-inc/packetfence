@@ -2,14 +2,15 @@ package cloud
 
 import (
 	"context"
+	"crypto/x509"
 	"fmt"
 )
 
 type Cloud interface {
 	NewCloud(ctx context.Context, name string)
 	ValidateRequest(ctx context.Context, data []byte) error
-	SuccessReply(ctx context.Context, data []byte, message string) error
-	FailureReply(ctx context.Context, data []byte, message string) error
+	SuccessReply(ctx context.Context, cert *x509.Certificate, data []byte, message string) error
+	FailureReply(ctx context.Context, cert *x509.Certificate, data []byte, message string) error
 }
 
 // Creater function
