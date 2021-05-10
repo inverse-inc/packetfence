@@ -222,6 +222,8 @@ sub options_field_names {
       last_vlan
       mac
       machine_account
+      network
+      node_role
       notes
       pid
       port
@@ -232,8 +234,10 @@ sub options_field_names {
       status
       stripped_user_name
       switch
+      switch_group
       switch_mac
       tenant_id
+      time
       time_balance
       unregdate
       uri
