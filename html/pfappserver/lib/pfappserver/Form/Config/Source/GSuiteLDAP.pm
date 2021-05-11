@@ -15,6 +15,11 @@ use warnings;
 use HTML::FormHandler::Moose;
 extends 'pfappserver::Form::Config::Source::LDAP';
 
+has_field client_certificate => (
+    type => 'TextArea',
+    required => 1,
+);
+
 =head1 AUTHOR
 
 Inverse inc. <info@inverse.ca>
