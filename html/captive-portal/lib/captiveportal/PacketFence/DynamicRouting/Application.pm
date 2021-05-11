@@ -143,7 +143,7 @@ sub process_fingerbank {
     }
 
     my $attributes = pf::fingerbank::endpoint_attributes($self->current_mac);
-    if($attributes->{most_accurate_user_agent} ne $self->current_user_agent) {
+    if (($attributes->{most_accurate_user_agent} // '') ne $self->current_user_agent) {
         pf::fingerbank::update_collector_endpoint_data($self->current_mac, {
             most_accurate_user_agent => $self->current_user_agent,
             user_agents => {$self->current_user_agent => $TRUE},
