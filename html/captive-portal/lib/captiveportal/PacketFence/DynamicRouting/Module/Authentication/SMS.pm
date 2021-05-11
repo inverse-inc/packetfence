@@ -114,6 +114,49 @@ resend
 
 sub resend {
     my ($self) = @_;
+    if ( $self->app->reached_retry_limit( 'sms_retries', $self->app->profile->{_sms_pin_retry_limit})) {
+        $self->app->flash->{error} = $GUEST::ERRORS{$GUEST::ERROR_MAX_RETRIES};
+        $self->prompt_pin();
+        return;
+    }
+
+    my $mac = $self->current_mac;
+    my $activation_record = pf::activation::find_unverified_by_mac( $mac, $SMS_ACTIVATION );
+    unless ($activation_record) {
+        $self->app->flash->{error} = $GUEST::ERRORS{$GUEST::ERROR_EXPIRED_PIN};
+        $self->prompt_fields();
+        return;
+    }
+
+    pf::activation::invalidate_codes_for_mac($mac, $SMS_ACTIVATION);
+    my $source = $self->source;
+    my $pid = $activation_record->{pid};
+    my $portal = $self->app->profile->getName;
+
+    my %args = (
+        mac         => $mac,
+        pid         => $pid,
+        pending     => $activation_record->{contact_info},
+        type        => "sms",
+        portal      => $portal,
+        provider_id => $activation_record->{provider_id},
+        timeout     => normalize_time($source->{sms_activation_timeout}),
+        source      => $self->source,
+        message     => $self->app->i18n($source->message),
+        style       => 'digits',
+        code_length => $source->pin_code_length,
+    );
+    my ( $status, $message ) = pf::activation::sms_activation_create_send( %args );
+    unless ( $status ) {
+        $self->app->flash->{error} = $message;
+        $self->prompt_fields();
+        return;
+    };
+
+    pf::auth_log::record_guest_attempt($source->id, $mac, $pid, $portal);
+
+    $self->prompt_pin();
+
     return;
 }
 
