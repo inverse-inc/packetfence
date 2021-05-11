@@ -7,7 +7,6 @@ import (
 	"crypto/x509"
 	"encoding/json"
 	"errors"
-	"fmt"
 	"io/ioutil"
 	"log"
 	"net/http"
@@ -36,15 +35,15 @@ type Notification struct {
 }
 
 type NotificationInfo struct {
-	TransactionId                string `json:"transactionId"`
-	CertificateRequest           []byte `json:"certificateRequest"`
-	CertificateThumbprint        string `json:"certificateThumbprint"`
-	CertificateSerialNumber      string `json:"certificateSerialNumber"`
-	CertificateExpirationDateUtc string `json:"certificateExpirationDateUtc"`
-	IssuingCertificateAuthority  string `json:"issuingCertificateAuthority"`
-	HResult                      int64  `json:"hResult"`
-	ErrorDescription             string `json:"errorDescription"`
-	CallerInfo                   string `json:"callerInfo"`
+	TransactionId                string `json:"transactionId,omitempty"`
+	CertificateRequest           []byte `json:"certificateRequest,omitempty"`
+	CertificateThumbprint        string `json:"certificateThumbprint,omitempty"`
+	CertificateSerialNumber      string `json:"certificateSerialNumber,omitempty"`
+	CertificateExpirationDateUtc string `json:"certificateExpirationDateUtc,omitempty"`
+	IssuingCertificateAuthority  string `json:"issuingCertificateAuthority,omitempty"`
+	HResult                      int64  `json:"hResult,omitempty"`
+	ErrorDescription             string `json:"errorDescription,omitempty"`
+	CallerInfo                   string `json:"callerInfo,omitempty"`
 }
 
 type APIEndPoint struct {
@@ -198,7 +197,6 @@ func (cl *Intune) NewCloud(ctx context.Context, name string) {
 		}
 	}
 	cl.Endpoint = apiEndpoint
-	spew.Dump(apiEndpoint)
 }
 
 func (cl *Intune) ValidateRequest(ctx context.Context, data []byte) error {
@@ -212,7 +210,6 @@ func (cl *Intune) ValidateRequest(ctx context.Context, data []byte) error {
 	request.Request.CallerInfo = PROVIDER_NAME_AND_VERSION_NAME
 
 	slcB, _ := json.Marshal(request)
-	fmt.Println(string(slcB))
 
 	req, err := http.NewRequest("POST", cl.Endpoint.Uri+"/"+VALIDATION_URL, bytes.NewBuffer(slcB))
 	if err != nil {
@@ -226,6 +223,9 @@ func (cl *Intune) ValidateRequest(ctx context.Context, data []byte) error {
 	req.Header.Set("client-request-id", cl.TransactionID)
 	req.Header.Set("api-version", serviceVersion)
 	resp, err := cl.Client.Do(req)
+	if err != nil {
+		return err
+	}
 	defer resp.Body.Close()
 	if resp.StatusCode != 200 {
 		return errors.New("Unable to verify the scep request on intune")
@@ -242,12 +242,11 @@ func (cl *Intune) SuccessReply(ctx context.Context, cert *x509.Certificate, data
 	request.Notification.CertificateRequest = data
 	request.Notification.CallerInfo = PROVIDER_NAME_AND_VERSION_NAME
 	request.Notification.CertificateThumbprint = certutils.ThumbprintSHA1(cert)
-	request.Notification.CertificateExpirationDateUtc = cert.NotAfter.String()
-	request.Notification.CertificateSerialNumber = cert.Issuer.SerialNumber
+	request.Notification.CertificateExpirationDateUtc = cert.NotAfter.Format("2006-01-02T15:04:05-0700")
+	request.Notification.CertificateSerialNumber = cert.SerialNumber.String()
 	request.Notification.IssuingCertificateAuthority = cert.Issuer.CommonName
 
 	slcB, _ := json.Marshal(request)
-	fmt.Println(string(slcB))
 
 	req, err := http.NewRequest("POST", cl.Endpoint.Uri+"/"+NOTIFY_SUCCESS_URL, bytes.NewBuffer(slcB))
 	if err != nil {
@@ -261,7 +260,13 @@ func (cl *Intune) SuccessReply(ctx context.Context, cert *x509.Certificate, data
 	req.Header.Set("client-request-id", cl.TransactionID)
 	req.Header.Set("api-version", serviceVersion)
 	resp, err := cl.Client.Do(req)
+	if err != nil {
+		return err
+	}
 	defer resp.Body.Close()
+
+	body, err := ioutil.ReadAll(resp.Body)
+	spew.Dump(body)
 	if resp.StatusCode != 200 {
 		return errors.New("Unable to verify the scep request on intune")
 	}
@@ -280,7 +285,6 @@ func (cl *Intune) FailureReply(ctx context.Context, cert *x509.Certificate, data
 	request.Notification.ErrorDescription = message
 
 	slcB, _ := json.Marshal(request)
-	fmt.Println(string(slcB))
 
 	req, err := http.NewRequest("POST", cl.Endpoint.Uri+"/"+NOTIFY_FAILURE_URL, bytes.NewBuffer(slcB))
 	if err != nil {
@@ -294,7 +298,13 @@ func (cl *Intune) FailureReply(ctx context.Context, cert *x509.Certificate, data
 	req.Header.Set("client-request-id", cl.TransactionID)
 	req.Header.Set("api-version", serviceVersion)
 	resp, err := cl.Client.Do(req)
+	if err != nil {
+		return err
+	}
 	defer resp.Body.Close()
+	body, err := ioutil.ReadAll(resp.Body)
+	spew.Dump(body)
+
 	if resp.StatusCode != 200 {
 		return errors.New("Unable to verify the scep request on intune")
 	}

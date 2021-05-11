@@ -103,37 +103,30 @@ func ProfileAttributes(prof models.Profile) map[string]string {
 	var attributes map[string]string
 	attributes = make(map[string]string)
 
-	attributes["Organization"] = ""
 	if len(prof.Organisation) > 0 {
 		attributes["Organization"] = prof.Organisation
 	}
 
-	attributes["OrganizationalUnit"] = ""
 	if len(prof.OrganisationalUnit) > 0 {
 		attributes["OrganizationalUnit"] = prof.OrganisationalUnit
 	}
 
-	attributes["Country"] = ""
 	if len(prof.Country) > 0 {
 		attributes["Country"] = prof.Country
 	}
 
-	attributes["State"] = ""
 	if len(prof.State) > 0 {
 		attributes["State"] = prof.State
 	}
 
-	attributes["Locality"] = ""
 	if len(prof.Locality) > 0 {
 		attributes["Locality"] = prof.Locality
 	}
 
-	attributes["StreetAddress"] = ""
 	if len(prof.StreetAddress) > 0 {
 		attributes["StreetAddress"] = prof.StreetAddress
 	}
 
-	attributes["PostalCode"] = ""
 	if len(prof.PostalCode) > 0 {
 		attributes["PostalCode"] = prof.PostalCode
 	}
@@ -145,12 +138,10 @@ func ProfileAttributes(prof models.Profile) map[string]string {
 		attributes["KeyUsage"] = *prof.KeyUsage
 	}
 
-	attributes["OCSPUrl"] = ""
 	if len(prof.OCSPUrl) > 0 {
 		attributes["OCSPUrl"] = prof.OCSPUrl
 	}
 
-	attributes["Mail"] = ""
 	if len(prof.Mail) > 0 {
 		attributes["Mail"] = prof.Mail
 	}

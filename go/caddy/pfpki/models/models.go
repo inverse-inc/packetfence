@@ -559,7 +559,8 @@ func (c CA) HasCN(cn string, allowTime int, cert *x509.Certificate, revokeOldCer
 	var certif Cert
 	var CertDB *gorm.DB
 	if CertDB = c.DB.Where("Cn = ?", cn).Find(&certif); CertDB.Error != nil {
-		return false, errors.New("Database error")
+		// There is no certificate with this CN in the DB
+		return true, nil
 	}
 
 	if CertDB.RowsAffected == 0 {
@@ -609,11 +610,11 @@ func (c CA) Verify(m *scep.CSRReqMessage) (bool, error) {
 }
 
 func (c CA) FailureNotify(cert *x509.Certificate, m *scep.CSRReqMessage, message string) {
-	c.Cloud.FailureReply(c.Ctx, m.CSR.Raw, message)
+	c.Cloud.FailureReply(c.Ctx, cert, m.CSR.Raw, message)
 }
 
-func (c CA) SuccessNotify(message string) {
-	c.Cloud.SuccessReply(c.Ctx, m.CSR.Raw, message)
+func (c CA) SuccessNotify(cert *x509.Certificate, m *scep.CSRReqMessage, message string) {
+	c.Cloud.SuccessReply(c.Ctx, cert, m.CSR.Raw, message)
 }
 
 func (c CA) GetProfileByName(name string) (*Profile, error) {
