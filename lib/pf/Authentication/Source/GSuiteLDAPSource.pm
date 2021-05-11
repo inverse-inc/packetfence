@@ -17,6 +17,7 @@ use Moose;
 extends 'pf::Authentication::Source::LDAPSource';
 
 has '+type' => ( default => 'GSuiteLDAP' );
+has 'client_certificate' => ( required => 1, default => 'GSuiteLDAP' );
 
 =head2 ldap_attributes
 
