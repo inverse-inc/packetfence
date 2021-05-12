@@ -3,7 +3,7 @@
 --
 
 ALTER TABLE class
-  ADD `window` varchar(255) default 0 AFTER grace_period
+  ADD `window` varchar(255) NOT NULL default 0 AFTER grace_period
 ;
 
 --

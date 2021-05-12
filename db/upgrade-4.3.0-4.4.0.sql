@@ -9,3 +9,4 @@ CREATE TABLE iplog_history (
   end_time datetime default "0000-00-00 00:00:00"
 ) ENGINE=InnoDB;
 
+DROP TABLE IF EXISTS switchlocation;

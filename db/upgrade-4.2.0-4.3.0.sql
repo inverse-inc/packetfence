@@ -19,7 +19,7 @@ CREATE TABLE activation (
   `expiration` datetime NOT NULL,
   `status` varchar(60) default NULL,
   `type` varchar(60) NOT NULL,
-  `portal` varchar(255) NOT NULL DEFAULT 'default',
+  `portal` varchar(255) default NULL,
   PRIMARY KEY (code_id),
   KEY `mac` (mac),
   KEY `identifier` (pid, mac),
@@ -34,8 +34,8 @@ INSERT INTO activation ( mac, contact_info, carrier_id, activation_code, expirat
 
 -- Drop old tables
 
--- DROP TABLE email_activation;
--- DROP TABLE sms_activation;
+DROP TABLE IF EXISTS email_activation;
+DROP TABLE IF EXISTS sms_activation;
 
 --
 -- Drop saved simple searches on nodes since their structure has changed

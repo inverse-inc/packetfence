@@ -307,3 +307,5 @@ END
 /
 DELIMITER ;
 
+DROP TABLE IF EXISTS radius_nas_fr2;
+DROP TABLE IF EXISTS radacct_fr2;
