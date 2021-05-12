@@ -116,7 +116,7 @@ Add a dhcp_option82 entry
 
 sub dhcp_option82_insert_or_update {
     my %data = @_;
-    my $item = pf::dal::dhcp_option82->new(\%data);
+    my $item = pf::dal::dhcp_option82->new({created_at => \'DEFAULT', %data});
     my $status = $item->save();
     return (is_success($status));
 }
