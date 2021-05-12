@@ -13,12 +13,25 @@ pfappserver::Form::Config::Source::GSuiteLDAP
 use strict;
 use warnings;
 use HTML::FormHandler::Moose;
+use pf::Authentication::Source::GSuiteLDAPSource;
 extends 'pfappserver::Form::Config::Source::LDAP';
+our $META = pf::Authentication::Source::GSuiteLDAPSource->meta;
+
 
 has_field client_certificate => (
     type => 'TextArea',
     required => 1,
 );
+#
+# Form fields
+has_field '+host.contains' => ( default => default_value('host') );
+has_field '+port' => ( default => default_value('port') );
+has_field '+encryption' => ( default => default_value('encryption') );
+
+sub default_value {
+    my ($name) = @_;
+    return $META->get_attribute($name)->default,
+}
 
 =head1 AUTHOR
 

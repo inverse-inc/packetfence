@@ -17,7 +17,10 @@ use Moose;
 extends 'pf::Authentication::Source::LDAPSource';
 
 has '+type' => ( default => 'GSuiteLDAP' );
-has 'client_certificate' => ( required => 1, default => 'GSuiteLDAP' );
+has 'client_certificate' => ( required => 1, default => 'GSuiteLDAP' , is => 'rw');
+has '+host' => ( default => sub { ["ldap.google.com"] });
+has '+port' => (default => 636);
+has '+encryption' => ('default' => 'ssl');
 
 =head2 ldap_attributes
 
