@@ -125,6 +125,7 @@ Create the connection for connecting to LDAP
 sub compute_connection {
     my ($class, $server, $args, $credentials) = @_;
     my $encryption = delete $args->{encryption};
+    my $start_tls_options = delete $args->{start_tls_options} // {};
     my $logger = get_logger();
     my $ldap;
     if ( $encryption eq SSL ) {
@@ -138,7 +139,7 @@ sub compute_connection {
     }
     $logger->trace(sub {"Connected to $server:$args->{port} using encryption $encryption"});
     if ($encryption eq TLS) {
-        my $msg = $ldap->start_tls;
+        my $msg = $ldap->start_tls(%$start_tls_options);
         if ($msg->is_error) {
             $logger->error("Error starting tls for $server:$args->{port}");
             log_error_msg($msg);
