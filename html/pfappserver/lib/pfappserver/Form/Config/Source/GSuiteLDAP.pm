@@ -24,13 +24,34 @@ has_field client_certificate => (
 );
 #
 # Form fields
-has_field '+host.contains' => ( default => default_value('host') );
+has_field 'host' => (
+    num_when_empty => 1,
+    type => 'Repeatable',
+    required => 1,
+);
+
+has_field 'host.contains' => (
+    type => 'Text',
+    required => 1,
+    default => default_value('host')->[0],
+);
 has_field '+port' => ( default => default_value('port') );
-has_field '+encryption' => ( default => default_value('encryption') );
+has_field '+encryption' => (
+    default => default_value('encryption'),
+    options => [
+        { value => 'ssl',      label => 'SSL' },
+        { value => 'starttls', label => 'Start TLS' },
+    ],
+);
 
 sub default_value {
     my ($name) = @_;
-    return $META->get_attribute($name)->default,
+    my $val = $META->get_attribute($name)->default;
+    if (ref($val) eq 'CODE') {
+        return $val->();
+    }
+
+    return $val
 }
 
 =head1 AUTHOR
