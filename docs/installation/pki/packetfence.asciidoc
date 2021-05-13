@@ -60,6 +60,78 @@ Key usage serverAuth: If you want to install your certificate on a server.
 
 image::packetfence-pki-template_password_email.png[scaledwidth="100%",alt="Template configuration"]
 
+===== SCEP
+
+You can choose to enable SCEP on this template.
+
+image::packetfence-pki-scep.png[scaledwidth="100%",alt="SCEP configuration"]
+
+====== SCEP Test
+
+Let's do a scep request by hand.
+Directly from the PacketFence server do that:
+
+Create a private key and a csr file:
+
+ openssl req -newkey rsa:2048 -keyout PRIVATEKEY.key -out MYCSR.csr
+
+ Generating a 2048 bit RSA private key
+ .........................................................................................................................................................................+++
+ .........................+++
+ writing new private key to 'PRIVATEKEY.key'
+ Enter PEM pass phrase:
+ Verifying - Enter PEM pass phrase:
+ -----
+ You are about to be asked to enter information that will be incorporated
+ into your certificate request.
+ What you are about to enter is what is called a Distinguished Name or a DN.
+ There are quite a few fields but you can leave some blank
+ For some fields there will be a default value,
+ If you enter '.', the field will be left blank.
+ -----
+ Country Name (2 letter code) [XX]:CA
+ State or Province Name (full name) []:QC
+ Locality Name (eg, city) [Default City]:Montreal
+ Organization Name (eg, company) [Default Company Ltd]:Acme
+ Organizational Unit Name (eg, section) []:IT
+ Common Name (eg, your name or your server's hostname) []:acme.com
+ Email Address []:admin@acme.com
+
+ Please enter the following 'extra' attributes
+ to be sent with your certificate request
+ A challenge password []:password
+ An optional company name []:
+
+Get the CA certificate:
+
+ sscep getca  -u http://ip_address/scep/template_name -c ./ca-prefix -i MyPKI -v -d
+
+ sscep: starting sscep, version 0.6.1
+ sscep: new transaction
+ sscep: transaction id: SSCEP transactionId
+ sscep: hostname: ip_address
+ sscep: directory: scep/template_name
+ sscep: port: 80
+ sscep: SCEP_OPERATION_GETCA
+ sscep: requesting CA certificate
+ sscep: scep msg: GET /scep/template_name?operation=GetCACert&message=MyPKI HTTP/1.0
+
+ sscep: server returned status code 200
+ sscep: MIME header: application/x-x509-ca-cert
+ sscep: valid response from server
+ sscep: MD5 fingerprint: 22:DE:09:17:8B:5F:94:1E:EB:0D:9C:12:EF:05:F0:C5
+ sscep: CA certificate written as ./ca-prefix
+
+Remove the private key passphrase:
+
+ openssl rsa -in PRIVATEKEY.key -out private.key
+ Enter pass phrase for PRIVATEKEY.key:
+ writing RSA key
+
+Send the CSR and retreive the certificate:
+
+ scep enroll -c ./ca-prefix  -k ./private.key -r ./MYCSR.csr -u http://ip_address/scep/template_name -S sha1 -l ./cert.crt
+
 ==== Certificate creation
 
 image::packetfence-pki-certificate_menu.png[scaledwidth="100%",alt="Certificate creation"]
@@ -108,11 +180,11 @@ You can hand out certificates when you use intune enrolment.
 
 First you need to create an application on Azure that allow PacketFence to connect to the Intune API.
 
-To do that first you have to go in Azure portal and App registration then click "New registration"
+To do that first you have to go in Azure portal and App registration then click *New registration*
 
 image::Intune-1-App-Registration.png[scaledwidth="100%",alt="App-Registration"]
 
-Next set a Name and in "Supported account types" select "Accounts in this organizational directory only" then click "Register"
+Next set a Name and in "Supported account types" select "Accounts in this organizational directory only" then click *Register*
 
 image::Intune-2-Register-Application.png[scaledwidth="100%",alt="Register-Application"]
 
@@ -134,6 +206,43 @@ Next you have to add API permissions, click on "API permissions" -> "Add a Permi
 
 image::Intune-7-API-Permissions.png[scaledwidth="100%",alt="API-Permissions"]
 
-Last step is to "Grant admin", just click on "Grant admin consent for ..." and click "Yes"
+Last step is to "Grant admin", just click on "Grant admin consent for ..." and click *Yes*
 
 image::Intune-8-Grant-Admin.png[scaledwidth="100%",alt="Grant-Admin"]
+
+===== PacketFence configuration
+
+====== Intune definition
+
+First of all you have to define the configuration parameters to reach the Intune API.
+To do that go in Configuration -> Integration -> Cloud Services -> New Cloud -> Microsoft Intune
+
+Next fill the field with the values taken from the Azure portal ("Application (Client) ID" , "Directory (tenant) ID" and "Client secrets") and *Create*.
+
+image::Intune-9-PacketFence-Intune.png[scaledwidth="100%",alt="PacketFence-Intune"]
+
+====== SCEP configuration
+
+Now let's configure the PKI template to enable SCEP on it. (go to the previous section on how to configure a template in the PKI)
+
+Go in Configuration -> Integration -> PKI -> Templates and edit the one you created previously.
+
+You can see that there is a SCEP section. Enable SCEP and check Enable Cloud Integration and select the Cloud Service you created previously. (In the case the SCEP challenge password is not mandatory).
+
+image::Intune-10-PacketFence-SCEP.png[scaledwidth="100%",alt="PacketFence-SCEP"]
+
+Starting from now the scep server will be available on each ip where the portal is running (you need to enable the portal on the management interface if you want to be able to do SCEP on this interface).
+
+The URL of the SCEP server will be available on http://ip_addresse/scep/template_name (https too) where template_name is the name of your template in the PKI.
+
+
+
+===== Intune configuration
+
+For this section you can follow the instruction on the Microsoft web site:
+
+ https://docs.microsoft.com/en-us/mem/intune/protect/certificates-profile-scep
+
+From the PacketFence server you will need to extract the PKI Ca certificate associated to the template and put it in Intune as a "trusted certificate"
+
+Then set the SCEP URL to http://ip_addresse/scep/template_name or https://ip_addresse/scep/template_name
