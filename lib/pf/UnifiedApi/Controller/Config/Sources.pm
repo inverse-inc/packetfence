@@ -76,6 +76,7 @@ our %TYPES_TO_FORMS = (
       Facebook
       Github
       Google
+      GSuiteLDAP
       Htpasswd
       HTTP
       Instagram
