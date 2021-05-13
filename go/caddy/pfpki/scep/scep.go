@@ -4,9 +4,9 @@ import (
 	"net/http"
 	"os"
 
-	"github.com/fdurand/scep/csrverifier"
-	scepdepot "github.com/fdurand/scep/depot"
-	scepserver "github.com/fdurand/scep/server"
+	"github.com/inverse-inc/scep/csrverifier"
+	scepdepot "github.com/inverse-inc/scep/depot"
+	scepserver "github.com/inverse-inc/scep/server"
 	kitlog "github.com/go-kit/kit/log"
 	kitloglevel "github.com/go-kit/kit/log/level"
 	"github.com/gorilla/mux"

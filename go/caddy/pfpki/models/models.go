@@ -20,7 +20,7 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/fdurand/scep/scep"
+	"github.com/inverse-inc/scep/scep"
 	"github.com/knq/pemutil"
 
 	"context"
