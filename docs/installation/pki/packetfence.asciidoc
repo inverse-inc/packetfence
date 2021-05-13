@@ -98,3 +98,42 @@ image::packetfence-pki-pki-provider_menu.png[scaledwidth="100%",alt="PKI Provide
 ===== Create a certificate per user or per device mac address, this example will cover one certificate per device:
 
 image::packetfence-pki-pki-provider_creation.png[scaledwidth="100%",alt="PKI Provider"]
+
+
+==== Intune Integration
+
+===== Azure configuration
+
+You can hand out certificates when you use intune enrolment.
+
+First you need to create an application on Azure that allow PacketFence to connect to the Intune API.
+
+To do that first you have to go in Azure portal and App registration then click "New registration"
+
+image::Intune-1-App-Registration.png[scaledwidth="100%",alt="App-Registration"]
+
+Next set a Name and in "Supported account types" select "Accounts in this organizational directory only" then click "Register"
+
+image::Intune-2-Register-Application.png[scaledwidth="100%",alt="Register-Application"]
+
+On the next page you have to copy the "Application (Client) ID" and the "Directory (tenant) ID", thoses will be needed to configure PacketFence.
+
+image::Intune-3-App-Detail.png[scaledwidth="100%",alt="Application-Detail"]
+
+Then you need to generate a "Client secrets", to do that click on "Add a certificate or secret" 
+
+image::Intune-4-App-Certificates-Secrets.png[scaledwidth="100%",alt="App-Certificates-Secrets"]
+
+image::Intune-5-Add-Client-Secret.png[scaledwidth="100%",alt="Add-Client-Secret"]
+
+Copy the "Value" of the secret, this is the only time you should be able to see it.
+
+image::Intune-6-Copy-Client-Secret.png[scaledwidth="100%",alt="Copy-Client-Secret"]
+
+Next you have to add API permissions, click on "API permissions" -> "Add a Permissions" and search for Intune and select "scep_challenge_provider".
+
+image::Intune-7-API-Permissions.png[scaledwidth="100%",alt="API-Permissions"]
+
+Last step is to "Grant admin", just click on "Grant admin consent for ..." and click "Yes"
+
+image::Intune-8-Grant-Admin.png[scaledwidth="100%",alt="Grant-Admin"]

@@ -13,7 +13,6 @@ import (
 	"os"
 
 	"github.com/Azure/go-autorest/autorest/adal"
-	"github.com/davecgh/go-spew/spew"
 	"github.com/google/uuid"
 	"github.com/inverse-inc/packetfence/go/caddy/pfpki/certutils"
 	"github.com/inverse-inc/packetfence/go/pfconfigdriver"
@@ -78,7 +77,7 @@ const VALIDATION_URL = "ScepActions/validateRequest"
 const NOTIFY_SUCCESS_URL = "ScepActions/successNotification"
 const NOTIFY_FAILURE_URL = "ScepActions/failureNotification"
 const SERVICE_VERSION_PROP_NAME = VALIDATION_SERVICE_NAME + "Version"
-const PROVIDER_NAME_AND_VERSION_NAME = "PacketFence 10.3"
+const PROVIDER_NAME_AND_VERSION_NAME = "PacketFence"
 
 const intuneAppId = "0000000a-0000-0000-c000-000000000000"
 const intuneResourceUrl = "https://api.manage.microsoft.com/"
@@ -124,8 +123,6 @@ func (cl *Intune) NewCloud(ctx context.Context, name string) {
 
 	id, err := uuid.NewUUID()
 	cl.TransactionID = id.String()
-
-	spew.Dump(cl)
 
 	spt, err = adal.NewServicePrincipalToken(*oauthConfig, cl.ClientID, cl.ClientSecret, graphResourceUrl)
 
@@ -185,7 +182,6 @@ func (cl *Intune) NewCloud(ctx context.Context, name string) {
 							apiEndpoint.ObjectId = n.(map[string]interface{})["objectId"].(string)
 							apiEndpoint.ResourceId = n.(map[string]interface{})["resourceId"].(string)
 							apiEndpoint.ObjectType = n.(map[string]interface{})["objectType"].(string)
-							// apiEndpoint.DeletionTimestamp = n.(map[string]interface{})["deletionTimestamp"].(interface{})
 							apiEndpoint.Capability = n.(map[string]interface{})["capability"].(string)
 							apiEndpoint.ServiceId = n.(map[string]interface{})["serviceId"].(string)
 							apiEndpoint.ServiceName = n.(map[string]interface{})["serviceName"].(string)
@@ -265,8 +261,8 @@ func (cl *Intune) SuccessReply(ctx context.Context, cert *x509.Certificate, data
 	}
 	defer resp.Body.Close()
 
-	body, err := ioutil.ReadAll(resp.Body)
-	spew.Dump(body)
+	_, err = ioutil.ReadAll(resp.Body)
+
 	if resp.StatusCode != 200 {
 		return errors.New("Unable to verify the scep request on intune")
 	}
@@ -302,8 +298,7 @@ func (cl *Intune) FailureReply(ctx context.Context, cert *x509.Certificate, data
 		return err
 	}
 	defer resp.Body.Close()
-	body, err := ioutil.ReadAll(resp.Body)
-	spew.Dump(body)
+	_, err = ioutil.ReadAll(resp.Body)
 
 	if resp.StatusCode != 200 {
 		return errors.New("Unable to verify the scep request on intune")
