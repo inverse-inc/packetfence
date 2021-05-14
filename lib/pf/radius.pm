@@ -430,56 +430,6 @@ sub accounting {
             $self->_handleAccountingFloatingDevices($switch, $mac, $port);
         }
 
-        # On accounting stop/update, check the usage duration of the node
-        if ($mac && $user_name) {
-            my $session_time = int ($radius_request->{'Acct-Session-Time'} // 0);
-            my $output_octets = int ($radius_request->{'Acct-Output-Octets'} // 0);
-            my $input_octets = int ($radius_request->{'Acct-Input-Octets'} // 0);
-            if ($session_time > 0 || $input_octets > 0 || $output_octets > 0) {
-                my $node_attributes = node_attributes($mac);
-                my $apiclient = pf::client::getClient;
-                if (defined $node_attributes->{'time_balance'} && $session_time > 0) {
-                    my $time_balance = $node_attributes->{'time_balance'} - $session_time;
-                    $time_balance = 0 if ($time_balance < 0);
-                    # Only update the node table on a Stop
-                    if ($isStop && node_modify($mac, ('time_balance' => $time_balance))) {
-                        $logger->info("Session stopped: duration was $session_time secs ($time_balance secs left)");
-                    }
-                    elsif ($isUpdate) {
-                        $logger->info("Session status: duration is $session_time secs ($time_balance secs left)");
-                    }
-                    if ($time_balance == 0) {
-                        # Trigger security_event
-                        my %security_event_data = (
-                            'mac'   => $mac,
-                            'tid'   => $ACCOUNTING_POLICY_TIME,
-                            'type'  => $TRIGGER_TYPE_ACCOUNTING ,
-                        );
-                        $apiclient->notify('trigger_security_event', %security_event_data );
-                    }
-                }
-                if (defined $node_attributes->{'bandwidth_balance'} && (  $input_octets > 0 || $output_octets > 0)) {
-                    my $total_octets = $output_octets + $input_octets;
-                    my $bandwidth_balance = $node_attributes->{'bandwidth_balance'} - $total_octets;
-                    $bandwidth_balance = 0 if ($bandwidth_balance < 0);
-                    if ($isStop && node_modify($mac, ('bandwidth_balance' => $bandwidth_balance))) {
-                        $logger->info("Session stopped: data was $total_octets octets ($bandwidth_balance octets left)");
-                    }
-                    elsif ($isUpdate) {
-                        $logger->info("Session status: data is $total_octets octets ($bandwidth_balance octets left)");
-                    }
-                    if ($bandwidth_balance == 0) {
-                        # Trigger security_event
-                        my %security_event_data = (
-                            'mac'   => $mac,
-                            'tid'   => $ACCOUNTING_POLICY_BANDWIDTH,
-                            'type'  => $TRIGGER_TYPE_ACCOUNTING ,
-                        );
-                        $apiclient->notify('trigger_security_event', %security_event_data );
-                    }
-                }
-            }
-        }
     }
 
     if(isenabled($Config{radius_configuration}{filter_in_packetfence_accounting})){
