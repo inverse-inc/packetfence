@@ -1,9 +1,10 @@
 <template>
-  <b-dropdown size="sm" variant="link" no-caret
+  <b-dropdown size="sm" variant="link" no-caret right lazy
     @hidden="onCommit"
   >
     <template v-slot:button-content>
-      <icon name="columns" v-b-tooltip.hover.top.d300.window :title="$t('Visible Columns')"></icon>
+      <icon name="columns"
+        v-b-tooltip.hover.top.d300.window :title="$t('Visible Columns')"></icon>
     </template>
     <template v-for="column in columns">
       <template v-if="column.label">
@@ -13,7 +14,7 @@
           <span class="ml-4">{{ $t(column.label) }}</span>
         </b-dropdown-item>
         <a v-else
-          href="javascript:void(0)" class="dropdown-item" 
+          href="javascript:void(0)" class="dropdown-item"
           :disabled="disabled || column.locked" :key="column.key"
           @click.stop="onToggle(column)"
         >
@@ -40,7 +41,7 @@ const setup = (props, context) => {
   const {
     value
   } = toRefs(props)
-  
+
   const { emit } = context
 
   const columns = ref(value.value.reduce((columns, column) => {

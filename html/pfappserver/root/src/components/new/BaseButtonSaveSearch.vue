@@ -134,7 +134,7 @@ const setup = (props, context) => {
   const keyUpSaveSearchInput = event => {
     switch (event.keyCode) {
       case 13: // [ENTER] submits
-        if (saveSearchString.value.length > 0) 
+        if (saveSearchString.value.length > 0)
           onSave()
         break
     }

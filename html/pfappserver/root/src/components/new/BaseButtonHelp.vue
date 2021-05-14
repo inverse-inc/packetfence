@@ -1,7 +1,7 @@
 <template>
   <span @click="onClick" class="align-items-center">
     <icon name="regular/question-circle" scale="1.25"
-      class="base-button-help text-secondary"
+      class="base-button-help"
       :title="$i18n.t('Click to view {documentName}', { documentName })" v-b-tooltip.hover.top.d300
     ></icon>
   </span>

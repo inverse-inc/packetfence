@@ -58,6 +58,7 @@ import BaseInputRange from './BaseInputRange'
 import BaseInputToggle, { props as BaseInputToggleProps } from './BaseInputToggle'
 import BaseInputToggleAdvancedMode from './BaseInputToggleAdvancedMode'
 import BaseInputToggleFalseTrue from './BaseInputToggleFalseTrue'
+import BaseSearch from './BaseSearch'
 import BaseSearchInputBasic from './BaseSearchInputBasic'
 import BaseSearchInputAdvanced from './BaseSearchInputAdvanced'
 import BaseSearchInputColumns from './BaseSearchInputColumns'
@@ -120,7 +121,7 @@ export {
   BaseInputToggle, BaseInputToggleProps,
   BaseInputToggleAdvancedMode,
   BaseInputToggleFalseTrue,
-  
+
   // bootstrap wrappers
   BaseInputGroupDate,
   BaseInputGroupDateTime,
@@ -145,8 +146,9 @@ export {
 
   // containers
   BaseContainerLoading,
-  
+
   // search
+  BaseSearch,
   BaseSearchInputBasic,
   BaseSearchInputAdvanced,
   BaseSearchInputColumns,

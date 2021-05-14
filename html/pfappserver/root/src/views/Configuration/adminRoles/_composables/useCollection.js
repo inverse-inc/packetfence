@@ -1,4 +1,5 @@
 import { computed, toRefs } from '@vue/composition-api'
+import { pfSearchConditionType as conditionType } from '@/globals/pfSearch'
 import i18n from '@/utils/locale'
 
 export const useItemTitle = (props) => {
@@ -43,21 +44,55 @@ export const useStore = (props, context, form) => {
   }
 }
 
-import { useSearch as useConfigurationSearch } from '@/views/Configuration/_composables/useSearch'
+import useSearchFactory from '@/views/Configuration/_store/search'
 import api from '../_api'
-import {
-  columns,
-  fields
-} from '../config'
-export const useSearch = (props, context, options) => useConfigurationSearch(props, context, {
-  id: 'adminRoles',
+export const useSearch = useSearchFactory('$_admin_roles_search', {
   api,
-  columns,
-  fields,
+  columns: [
+    {
+      key: 'id',
+      label: 'Role Name', // i18n defer
+      required: true,
+      sortable: true,
+      visible: true,
+      searchable: true
+    },
+    {
+      key: 'description',
+      label: 'Description', // i18n defer
+      sortable: true,
+      visible: true,
+      searchable: true
+    },
+    {
+      key: 'buttons',
+      label: '',
+      class: 'text-right p-0',
+      locked: true
+    }
+  ],
+  fields: [
+    {
+      value: 'id',
+      text: i18n.t('Role Name'),
+      types: [conditionType.SUBSTRING]
+    },
+    {
+      value: 'description',
+      text: i18n.t('Description'),
+      types: [conditionType.SUBSTRING]
+    }
+  ],
   sortBy: 'id',
-  defaultCondition: () => ([{ values: [
-    { field: 'id', op: 'contains', value: null },
-    { field: 'description', op: 'contains', value: null }
-  ] }]),
-  ...options,
+  defaultCondition: () => ([{
+    values: [
+      { field: 'id', op: 'contains', value: null },
+      { field: 'description', op: 'contains', value: null }
+    ]
+  }]),
+  responseInterceptor: response => { // strip NONE, ALL, ALL_PF_ONLY from results items
+    let { items = [], ...rest } = response
+    items = items.filter(({ id }) => !['NONE', 'ALL', 'ALL_PF_ONLY'].includes(id))
+    return { items, ...rest }
+  }
 })

@@ -10,7 +10,7 @@
       <base-button-save-search v-if="saveSearchNamespace"
         :value="value" @input="onInput" class="ml-1"
         :disabled="disabled"
-        :save-search-namespace="saveSearchNamespace" 
+        :save-search-namespace="saveSearchNamespace"
         @search="onSearch"
       />
       <!-- normal button -->
@@ -56,11 +56,13 @@ const setup = (props, context) => {
   const onInput = value => emit('input', value)
   const onReset = () => emit('reset', true)
   const onSearch = () => emit('search', value.value)
+  const onMode = () => emit('mode', true)
 
-  return { 
+  return {
     onInput,
     onReset,
-    onSearch 
+    onSearch,
+    onMode
   }
 }
 

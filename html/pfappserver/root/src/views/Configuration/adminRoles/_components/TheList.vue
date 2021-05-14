@@ -1,69 +1,120 @@
 <template>
   <b-card no-body>
-    <pf-config-list
-      ref="pfConfigList"
-      :config="config"
-    >
-      <template v-slot:pageHeader>
-        <b-card-header>
-          <h4 class="mb-3">
-            {{ $t('Admin Roles') }}
-            <pf-button-help class="ml-1" url="PacketFence_Installation_Guide.html#_admin_access" />
-          </h4>
-          <p class="mb-0" v-t="'Define roles with specific access rights to the Web administration interface. Roles are assigned to users depending on their authentication source.'"></p>
-        </b-card-header>
-      </template>
-      <template v-slot:buttonAdd>
+    <b-card-header>
+      <h4 class="d-flex align-items-center mb-3">
+        {{ $t('Admin Roles') }}
+        <base-button-help class="text-black-50 ml-1" url="PacketFence_Installation_Guide.html#_admin_access" />
+      </h4>
+      <p class="mb-0" v-t="'Define roles with specific access rights to the Web administration interface. Roles are assigned to users depending on their authentication source.'"></p>
+    </b-card-header>
+    <div class="card-body">
+      <base-search :use-search="useSearch">
         <b-button variant="outline-primary" :to="{ name: 'newAdminRole' }">{{ $t('New Admin Role') }}</b-button>
-      </template>
-      <template v-slot:emptySearch="state">
-        <pf-empty-table :is-loading="state.isLoading">{{ $t('No admin roles found') }}</pf-empty-table>
-      </template>
-      <template v-slot:cell(buttons)="item">
-        <span class="float-right text-nowrap">
-          <pf-button-delete size="sm" v-if="!item.not_deletable" variant="outline-danger" class="mr-1" :disabled="isLoading" :confirm="$t('Delete Admin Role?')" @on-delete="remove(item)" reverse/>
-          <b-button size="sm" variant="outline-primary" class="mr-1" @click.stop.prevent="clone(item)">{{ $t('Clone') }}</b-button>
-        </span>
-      </template>
-    </pf-config-list>
+      </base-search>
+      <b-table
+        :busy="isLoading"
+        :hover="items.length > 0"
+        :items="items"
+        :fields="visibleColumns"
+        :sort-by="sortBy"
+        :sort-desc="sortDesc"
+        @sort-changed="setSort"
+        @row-clicked="goToItem"
+        show-empty
+
+        no-local-sorting
+        sort-icon-left
+        fixed
+        striped
+      >
+        <template v-slot:empty>
+          <slot name="emptySearch" v-bind="{ isLoading }">
+              <pf-empty-table :is-loading="isLoading">{{ $t('No results found') }}</pf-empty-table>
+          </slot>
+        </template>
+        <template v-slot:head(buttons)>
+          <base-search-input-columns
+            v-model="columns"
+            :disabled="isLoading"
+          />
+        </template>
+        <template v-slot:cell(buttons)="{ item }">
+          <span class="float-right text-nowrap text-right">
+            <base-button-confirm v-if="!item.not_deletable"
+              size="sm" variant="outline-danger" class="my-1 mr-1" reverse
+              :disabled="isLoading"
+              :confirm="$t('Delete Role?')"
+              @click="onRemove(item.id)"
+            >{{ $t('Delete') }}</base-button-confirm>
+            <b-button
+              size="sm" variant="outline-primary" class="mr-1"
+              @click.stop.prevent="goToClone(item)"
+            >{{ $t('Clone') }}</b-button>
+          </span>
+        </template>
+      </b-table>
+    </div>
   </b-card>
 </template>
-
 <script>
-import pfButtonDelete from '@/components/pfButtonDelete'
-import pfButtonHelp from '@/components/pfButtonHelp'
-import pfConfigList from '@/components/pfConfigList'
+import {
+  BaseButtonConfirm,
+  BaseButtonHelp,
+  BaseSearch,
+  BaseSearchInputColumns
+} from '@/components/new/'
 import pfEmptyTable from '@/components/pfEmptyTable'
-import { config } from '../_config/adminRole'
 
-export default {
-  name: 'admin-roles-list',
-  components: {
-    pfButtonDelete,
-    pfButtonHelp,
-    pfConfigList,
-    pfEmptyTable
-  },
-  data () {
-    return {
-      config: config(this) // ../_config/adminRole
-    }
-  },
-  computed: {
-    isLoading () {
-      return this.$store.getters['$_admin_roles/isLoading']
-    }
-  },
-  methods: {
-    clone (item) {
-      this.$router.push({ name: 'cloneAdminRole', params: { id: item.id } })
-    },
-    remove (item) {
-      this.$store.dispatch('$_admin_roles/deleteAdminRole', item.id).then(() => {
-        const { $refs: { pfConfigList: { refreshList = () => {} } = {} } = {} } = this
-        refreshList() // soft reload
+const components = {
+  BaseButtonConfirm,
+  BaseButtonHelp,
+  BaseSearch,
+  BaseSearchInputColumns,
+  pfEmptyTable
+}
+
+import { computed, ref, toRefs } from '@vue/composition-api'
+import { useSearch, useRouter } from '../_composables/useCollection'
+
+const setup = (props, context) => {
+
+  const search = useSearch()
+  const {
+    $id: storeId,
+    reSearch
+  } = search
+
+console.log('1', {storeId, search})
+
+  const { root: { $router, $store } = {} } = context
+
+  const {
+    goToItem,
+    goToClone
+  } = useRouter($router)
+
+  const onRemove = id => {
+    $store.dispatch('$_admin_roles/deleteAdminRole', id)
+      .then(() => {
+        reSearch()
       })
-    }
   }
+
+  return {
+    useSearch,
+    goToItem,
+    goToClone,
+    onRemove,
+
+    ...toRefs(search)
+  }
+}
+
+// @vue/component
+export default {
+  name: 'the-list',
+  inheritAttrs: false,
+  components,
+  setup
 }
 </script>
