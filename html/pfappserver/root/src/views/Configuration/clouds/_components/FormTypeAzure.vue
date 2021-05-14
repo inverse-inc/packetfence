@@ -10,20 +10,23 @@
       :disabled="!isNew && !isClone"
     />
 
+<!--
     <form-group-tenant-id namespace="tenant_id"
-      :column-label="$i18n.t('The tenant ID of the intune service')"
+      :column-label="$i18n.t('The tenant ID of the Azure service')"
       :text="$i18n.t('Define the tenant ID defined in the Azure admin portal.')"
     />
 
     <form-group-client-id namespace="client_id"
-      :column-label="$i18n.t('The client ID of the intune service')"
+      :column-label="$i18n.t('The client ID of the Azure service')"
       :text="$i18n.t('Define the client ID defined in the Azure admin portal.')"
     />
 
     <form-group-client-secret namespace="client_secret"
-      :column-label="$i18n.t('The client secret of the intune service')"
+      :column-label="$i18n.t('The client secret of the Azure service')"
       :text="$i18n.t('Define the client secret defined in the Azure admin portal.')"
     />
+
+-->
 
   </base-form>
 </template>

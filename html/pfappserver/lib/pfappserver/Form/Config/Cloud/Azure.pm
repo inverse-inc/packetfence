@@ -14,46 +14,6 @@ use HTML::FormHandler::Moose;
 extends 'pfappserver::Form::Config::Cloud';
 with 'pfappserver::Base::Form::Role::Help';
 
-use pf::config;
-use pf::util;
-use File::Find qw(find);
-
-has_field 'tenant_id' =>
-  (
-   type => 'Text',
-   label => 'Tenant ID',
-   required => 1,
-   messages => { required => 'Please specify the Tenant ID for the Azure Service' },
-  );
-
-has_field 'client_id' =>
-  (
-   type => 'Text',
-   label => 'Client ID',
-   required => 1,
-   messages => { required => 'Please specify the Client ID for the Azure Service' },
-  );
-
-has_field 'client_secret' =>
-  (
-   type => 'ObfuscatedText',
-   label => 'Client Secret',
-   required => 1,
-   messages => { required => 'Please specify the Tenant ID for the Azure Service' },
-  );
-
-
-has_field 'type' =>
-  (
-   type => 'Hidden',
-   default => 'Azure',
-  );
-
-has_block definition =>
-  (
-   render_list => [ qw(id tenant_id client_id client_secret) ],
-  );
-
 =over
 
 =back
