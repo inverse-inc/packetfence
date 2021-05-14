@@ -224,20 +224,15 @@ sub _connect {
   my $timer = pf::StatsD::Timer->new({ 'stat' => "${timer_stat_prefix}", level => 7});
   my $connection;
   my $logger = Log::Log4perl::get_logger(__PACKAGE__);
-  my ($LDAPServer, $LDAPServerPort);
-  my @LDAPServers = @{$self->{'host'} // []};
-  
+  my $LDAPServer;
   # Lookup the server hostnames to IPs so they can be shuffled better and to improve the failure detection
-  @LDAPServers = map { valid_ip($_) ? $_ : @{resolve($_) // []} } @LDAPServers;
-
+  my @LDAPServers = map { valid_ip($_) ? $_ : @{resolve($_) // []} } @{$self->{'host'} // []};
   if ($self->shuffle) {
       @LDAPServers = List::Util::shuffle @LDAPServers;
   }
-  my @credentials;
-  if ($self->{'binddn'} && $self->{'password'}) {
-    @credentials = ($self->{'binddn'}, password => $self->{'password'})
-  }
 
+  my $LDAPServerPort =  $self->{'port'} ;
+  my %LDAPArgs = $self->_LDAPArgs();
   my $try_connect = sub {
       my $honor_dead = shift;
       TRYSERVER:
@@ -254,12 +249,7 @@ sub _connect {
 
         $connection = pf::LDAP->new(
             $LDAPServer,
-            port       => $LDAPServerPort,
-            timeout    => $self->{'connection_timeout'},
-            write_timeout  => $self->{'write_timeout'},
-            read_timeout  => $self->{'read_timeout'},
-            encryption => $self->{encryption},
-            credentials => \@credentials,
+            %LDAPArgs,
         );
 
         if (! defined($connection)) {
@@ -299,6 +289,22 @@ sub _connect {
   }
 }
 
+sub _LDAPArgs {
+    my ($self) = @_;
+    my @credentials;
+    if ( $self->{'binddn'} && $self->{'password'} ) {
+        @credentials = ( $self->{'binddn'}, password => $self->{'password'} );
+    }
+
+    return (
+        credentials   => \@credentials,
+        port          => $self->{'port'},
+        timeout       => $self->{'connection_timeout'},
+        write_timeout => $self->{'write_timeout'},
+        read_timeout  => $self->{'read_timeout'},
+        encryption    => $self->{encryption},
+    );
+}
 
 =head2 cache
 
