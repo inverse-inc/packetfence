@@ -223,6 +223,47 @@ has_field 'append_to_searchattributes' => (
     },
 );
 
+has_field verify => (
+    type => 'Select',
+    label => 'SSL verify mode',
+    default => 'none',
+    options => [
+        map { { value => $_, label => $_ }  } qw(none optional require)
+    ],
+);
+
+has_field client_cert => (
+    type => 'Path',
+    label => 'Client Certificate',
+    file_type => 'file',
+);
+
+has_field client_key => (
+    type => 'Path',
+    label => 'Client Key',
+    file_type => 'file',
+);
+
+has_field ca_file => (
+    type => 'Path',
+    label => 'CA File',
+    file_type => 'file',
+);
+
+has_field ca_path => (
+    type => 'Path',
+    label => 'CA Directory',
+    file_type => 'dir',
+);
+
+has '+dependency' => (
+    default => sub {
+        [
+            [ 'client_cert', 'client_key' ]
+        ];
+    },
+);
+
 =head2 options_attributes
 
 retrive the realms
