@@ -114,7 +114,7 @@ BEGIN {
 
 }
 
-use Test::More tests => 9 + 2 * ( scalar @CACHEABLE_RULES + scalar @NON_CACHEABLE_RULES);
+use Test::More tests => 19 + 2 * ( scalar @CACHEABLE_RULES + scalar @NON_CACHEABLE_RULES);
 
 #This test will running last
 use Test::NoWarnings;
@@ -183,6 +183,108 @@ ok(!$source->is_rule_cacheable(undef), "undef is always uncacheable");
         "Use the advanced filter"
     );
 }
+
+{
+    my $source_id = 'LDAPADVANCED';
+    my $source = getAuthenticationSource($source_id);
+    ok($source, "Got source id $source_id");
+    my %args = $source->_LDAPArgs();
+
+    is_deeply(
+        \%args,
+        {
+          'read_timeout' => 10,
+          'write_timeout' => 5,
+          'timeout' => '5',
+          'encryption' => 'none',
+          'port' => '33389',
+          'credentials' => [],
+        }
+    )
+}
+
+{
+    my $source_id = 'SSL_ARGS';
+    my $source = getAuthenticationSource($source_id);
+    ok($source, "Got source id $source_id");
+    my %args = $source->_LDAPArgs();
+    is_deeply(
+        \%args,
+        {
+          'read_timeout' => 10,
+          'write_timeout' => 5,
+          'timeout' => '5',
+          'encryption' => 'ssl',
+          'port' => '33389',
+          'credentials' => [],
+          'verify' => 'none',
+          'clientcert' => '/usr/local/pf/t/server.crt',
+          'clientkey' => '/usr/local/pf/t/server.key',
+        }
+    )
+}
+
+{
+    my $source_id = 'SSL_ARGS2';
+    my $source = getAuthenticationSource($source_id);
+    ok($source, "Got source id $source_id");
+    my %args = $source->_LDAPArgs();
+
+    is_deeply(
+        \%args,
+        {
+          'read_timeout' => 10,
+          'write_timeout' => 5,
+          'timeout' => '5',
+          'encryption' => 'ssl',
+          'port' => '33389',
+          'credentials' => [],
+        }
+    )
+}
+
+{
+    my $source_id = 'TLS_ARGS';
+    my $source    = getAuthenticationSource($source_id);
+    ok( $source, "Got source id $source_id" );
+    my %args = $source->_LDAPArgs();
+    is_deeply(
+        \%args,
+        {
+            'read_timeout'      => 10,
+            'write_timeout'     => 5,
+            'timeout'           => '5',
+            'encryption'        => 'starttls',
+            'port'              => '33389',
+            'credentials'       => [],
+            'start_tls_options' => {
+                'verify'     => 'none',
+                'clientcert' => '/usr/local/pf/t/server.crt',
+                'clientkey'  => '/usr/local/pf/t/server.key',
+            }
+        }
+      )
+}
+
+{
+    my $source_id = 'TLS_ARGS2';
+    my $source    = getAuthenticationSource($source_id);
+    ok( $source, "Got source id $source_id" );
+    my %args = $source->_LDAPArgs();
+    is_deeply(
+        \%args,
+        {
+            'read_timeout'      => 10,
+            'write_timeout'     => 5,
+            'timeout'           => '5',
+            'encryption'        => 'starttls',
+            'port'              => '33389',
+            'credentials'       => [],
+            'start_tls_options' => { }
+        }
+      )
+}
+
 
 =head1 AUTHOR
 
