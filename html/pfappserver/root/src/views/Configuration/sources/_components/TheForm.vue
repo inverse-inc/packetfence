@@ -117,6 +117,7 @@ export const setup = (props) => {
       case 'Facebook':      return FormTypeFacebook //break
       case 'Github':        return FormTypeGithub //break
       case 'Google':        return FormTypeGoogle //break
+      case 'GoogleWorkspaceLDAP':    return FormTypeLdap //break
       case 'Htpasswd':      return FormTypeHtpasswd //break
       case 'HTTP':          return FormTypeHttp //break
       case 'Instagram':     return FormTypeInstagram //break

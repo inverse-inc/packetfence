@@ -1,8 +1,8 @@
-package pf::Authentication::Source::GSuiteLDAPSource;
+package pf::Authentication::Source::GoogleWorkspaceLDAPSource;
 
 =head1 NAME
 
-pf::Authentication::Source::GSuiteLDAPSource
+pf::Authentication::Source::GoogleWorkspaceLDAPSource
 
 =head1 DESCRIPTION
 
@@ -16,8 +16,8 @@ use pf::constants;
 use Moose;
 extends 'pf::Authentication::Source::LDAPSource';
 
-has '+type' => ( default => 'GSuiteLDAP' );
-has 'client_certificate' => ( required => 1, default => 'GSuiteLDAP' , is => 'rw');
+has '+type' => ( default => 'GoogleWorkspaceLDAP' );
+has 'client_certificate' => ( required => 1, default => 'GoogleWorkspaceLDAP' , is => 'rw');
 has '+host' => ( default => sub { ["ldap.google.com"] });
 has '+port' => (default => 636);
 has '+encryption' => ('default' => 'ssl');
