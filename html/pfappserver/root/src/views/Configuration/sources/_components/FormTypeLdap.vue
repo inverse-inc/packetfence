@@ -95,6 +95,27 @@
       :text="$i18n.t('Realms that will be associated with this source.')"
     />
 
+    <form-group-verify namespace="verify"
+      :column-label="$i18n.t('Verify')"
+      :text="$i18n.t('SSL Verify.')"
+    />
+
+    <form-group-client-cert namespace="client_cert"
+      :column-label="$i18n.t('Client Certificate')"
+    />
+
+    <form-group-client-key namespace="client_key"
+      :column-label="$i18n.t('Client Key')"
+    />
+
+    <form-group-ca-path namespace="ca_path"
+      :column-label="$i18n.t('CA Directory')"
+    />
+
+    <form-group-ca-file namespace="ca_file"
+      :column-label="$i18n.t('CA File')"
+    />
+
     <form-group-authentication-rules namespace="authentication_rules"
       :column-label="$i18n.t('Authentication Rules')"
     />
@@ -112,6 +133,10 @@ import {
   FormGroupBaseDn,
   FormGroupBindDn,
   FormGroupCacheMatch,
+  FormGroupCaFile,
+  FormGroupCaPath,
+  FormGroupClientCert,
+  FormGroupClientKey,
   FormGroupConnectionTimeout,
   FormGroupDeadDuration,
   FormGroupDescription,
@@ -127,6 +152,7 @@ import {
   FormGroupSearchAttributesAppend,
   FormGroupShuffle,
   FormGroupUsernameAttribute,
+  FormGroupVerify,
   FormGroupWriteTimeout,
 } from './'
 
@@ -138,6 +164,10 @@ const components = {
   FormGroupBaseDn,
   FormGroupBindDn,
   FormGroupCacheMatch,
+  FormGroupCaFile,
+  FormGroupCaPath,
+  FormGroupClientCert,
+  FormGroupClientKey,
   FormGroupConnectionTimeout,
   FormGroupDeadDuration,
   FormGroupDescription,
@@ -153,6 +183,7 @@ const components = {
   FormGroupSearchAttributesAppend,
   FormGroupShuffle,
   FormGroupUsernameAttribute,
+  FormGroupVerify,
   FormGroupWriteTimeout,
 }
 
