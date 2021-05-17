@@ -32,6 +32,7 @@ For a list of compatibility related changes see the <<PacketFence_Upgrade_Guide.
 === Enhancements
 
 * Rewrite the username of the request from radius `preProcess` filter (#6293)
+* Upgrade to golang 1.16.3 (#6343)
 
 === Bug Fixes
 
