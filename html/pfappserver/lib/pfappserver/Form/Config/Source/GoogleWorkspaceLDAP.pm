@@ -1,21 +1,21 @@
-package pfappserver::Form::Config::Source::GSuiteLDAP;
+package pfappserver::Form::Config::Source::GoogleWorkspaceLDAP;
 
 =head1 NAME
 
-pfappserver::Form::Config::Source::GSuiteLDAP -
+pfappserver::Form::Config::Source::GoogleWorkspaceLDAP -
 
 =head1 DESCRIPTION
 
-pfappserver::Form::Config::Source::GSuiteLDAP
+pfappserver::Form::Config::Source::GoogleWorkspaceLDAP
 
 =cut
 
 use strict;
 use warnings;
 use HTML::FormHandler::Moose;
-use pf::Authentication::Source::GSuiteLDAPSource;
+use pf::Authentication::Source::GoogleWorkspaceLDAPSource;
 extends 'pfappserver::Form::Config::Source::LDAP';
-our $META = pf::Authentication::Source::GSuiteLDAPSource->meta;
+our $META = pf::Authentication::Source::GoogleWorkspaceLDAPSource->meta;
 
 
 has_field client_certificate => (
