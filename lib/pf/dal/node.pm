@@ -179,7 +179,7 @@ update_last_seen
 
 sub update_last_seen {
     my ($self) = @_;
-    $self->last_seen(\['NOW()']);
+    $self->last_seen($self->now());
     return ;
 }
 
