@@ -35,6 +35,7 @@ has_field 'host.contains' => (
     required => 1,
     default => default_value('host')->[0],
 );
+
 has_field '+port' => ( default => default_value('port') );
 has_field '+encryption' => (
     default => default_value('encryption'),
@@ -42,6 +43,14 @@ has_field '+encryption' => (
         { value => 'ssl',      label => 'SSL' },
         { value => 'starttls', label => 'Start TLS' },
     ],
+);
+
+has_field '+client_cert' => (
+    required => 1,
+);
+
+has_field '+client_key' => (
+    required => 1,
 );
 
 sub default_value {
