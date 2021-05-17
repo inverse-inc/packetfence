@@ -16,6 +16,8 @@ extends 'HTML::FormHandler::Field::Text';
 use pf::util;
 use namespace::autoclean;
 
+has file_type => ( is => 'rw', isa => 'Maybe[Str]' );
+
 # If the field value matches one of the values defined in "accept", the field will pass validation.
 # Otherwise, the field value must be a valid IPv4 address.
 
@@ -37,6 +39,19 @@ apply
     {
      check => sub {
          my ( $value, $field ) = @_;
+         my $ft = $field->file_type;
+         unless (defined $ft) {
+             return -e $value;
+         }
+
+         if ($ft eq 'file') {
+             return -f $value;
+         }
+
+         if ($ft eq 'dir') {
+             return -d $value;
+         }
+
          return -e $value;
      },
      message => sub {
