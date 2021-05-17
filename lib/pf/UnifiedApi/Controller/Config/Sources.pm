@@ -37,7 +37,7 @@ use pfappserver::Form::Config::Source::Email;
 use pfappserver::Form::Config::Source::Facebook;
 use pfappserver::Form::Config::Source::Github;
 use pfappserver::Form::Config::Source::Google;
-use pfappserver::Form::Config::Source::GSuiteLDAP;
+use pfappserver::Form::Config::Source::GoogleWorkspaceLDAP;
 use pfappserver::Form::Config::Source::Htpasswd;
 use pfappserver::Form::Config::Source::HTTP;
 use pfappserver::Form::Config::Source::Instagram;
@@ -76,7 +76,7 @@ our %TYPES_TO_FORMS = (
       Facebook
       Github
       Google
-      GSuiteLDAP
+      GoogleWorkspaceLDAP
       Htpasswd
       HTTP
       Instagram
@@ -255,6 +255,25 @@ sub options_with_no_type {
     my @new_types = grep { $_->{value} ne 'SQL' } @$types;
     $output->{meta}{type}{allowed} = \@new_types;
     return $output;
+}
+
+=head2 field_default
+
+Get the default value of a field
+
+=cut
+
+sub field_default {
+    my ($self, $field, $inheritedValues, $type) = @_;
+    if ($type ne 'array') {
+        return $self->SUPER::field_default($field, $inheritedValues, $type);
+    }
+
+    if ($field->form->isa("pfappserver::Form::Config::Source::GoogleWorkspaceLDAP") && $field->name eq 'host') {
+        return ['ldap.google.com'];
+    }
+
+    return [];
 }
 
 =head2 fields_to_mask
