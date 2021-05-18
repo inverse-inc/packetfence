@@ -70,6 +70,9 @@ sub execute_child {
     if ($self->app->request->param("no-pin")) {
         $self->no_pin();
     }
+    elsif ($self->app->request->param("resend")) {
+        $self->resend();
+    }
     elsif ($self->app->request->method eq "POST" && $self->app->request->path eq "activate/sms" && defined($self->app->request->param("pin"))){
         $self->validation();
     }
@@ -78,9 +81,6 @@ sub execute_child {
     }
     elsif($self->app->request->method eq "POST"){
         $self->validate_info();
-    }
-    elsif ($self->app->request->param("resend")) {
-        $self->resend();
     }
     else {
         $self->prompt_fields();
@@ -139,7 +139,7 @@ sub resend {
         pending     => $activation_record->{contact_info},
         type        => "sms",
         portal      => $portal,
-        provider_id => $activation_record->{provider_id},
+        provider_id => $activation_record->{carrier_id},
         timeout     => normalize_time($source->{sms_activation_timeout}),
         source      => $self->source,
         message     => $self->app->i18n($source->message),
