@@ -122,6 +122,7 @@ our (
     $eap_config_file, $eap_default_config_file,
     $fast_config_file, $fast_default_config_file,
     $cron_config_file, $cron_default_config_file,
+    $mfa_config_file,
 );
 
 BEGIN {
@@ -219,6 +220,7 @@ BEGIN {
         $eap_config_file $eap_default_config_file
         $fast_config_file $fast_default_config_file
         $cron_config_file $cron_default_config_file
+        $mfa_config_file
     );
 }
 
@@ -356,6 +358,8 @@ $captiveportal_templates_path = catdir ($install_dir,"html/captive-portal/templa
 $captiveportal_profile_templates_path = catdir ($install_dir,"html/captive-portal/profile-templates");
 $captiveportal_default_profile_templates_path = catdir ($captiveportal_profile_templates_path,"default");
 
+$mfa_config_file = catdir($conf_dir,"mfa.conf");
+
 @log_files = map {catfile($log_dir, $_)}
   qw(
   httpd.admin.access httpd.admin.catalyst httpd.admin.error httpd.admin.log
@@ -395,6 +399,7 @@ $captiveportal_default_profile_templates_path = catdir ($captiveportal_profile_t
     $template_switches_config_file,
     $ssl_config_file,
     $cron_config_file,
+    $mfa_config_file,
 );
 
 $pffilter_socket_path = catfile($var_dir, "run/pffilter.sock");
