@@ -125,7 +125,7 @@ const route = {
     ...SyslogForwardersRoutes,
     ...WrixRoutes,
     ...PkiRoutes,
-    ..MfasRoutes,
+    ...MfasRoutes,
 
     /**
      *  Advanced Access Configuration
