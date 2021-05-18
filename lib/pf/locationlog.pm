@@ -484,7 +484,7 @@ sub _is_locationlog_accurate {
     my $conn_typeChanged = ($locationlog_mac->{connection_type} ne connection_type_to_str($connection_type));
     my $userChanged = ($locationlog_mac->{'dot1x_username'} ne $user_name);
     my $ssidChanged = ($locationlog_mac->{'ssid'} ne $ssid);
-    my $switchMacChanged = ($locationlog_mac->{'switch_mac'} ne $switch_mac);
+    my $switchMacChanged = ($locationlog_mac->{'switch_mac'} ne ($switch_mac // ''));
 
     my $roleChanged = '0';
     my $old_role = $locationlog_mac->{'role'};
