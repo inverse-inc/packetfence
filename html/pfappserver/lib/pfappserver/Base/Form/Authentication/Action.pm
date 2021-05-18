@@ -21,7 +21,7 @@ with qw(
 
 use HTTP::Status qw(:constants is_success);
 use List::MoreUtils qw(uniq);
-use pf::config qw(%Config);
+use pf::config qw(%Config %ConfigMfa);
 use pf::web::util;
 use pf::Authentication::constants;
 use pf::Authentication::Action;
@@ -121,6 +121,13 @@ our %ACTION_FIELD_OPTIONS = (
         wrapper        => 0,
         element_class => ['chzn-deselect'],
         options_method => \&options_set_role_from_source,
+    },
+    $Actions::TRIGGER_MFA => {
+        type           => 'Select',
+        do_label       => 0,
+        wrapper        => 0,
+        element_class => ['chzn-deselect'],
+        options_method => \&options_trigger_mfa,
     },
 );
 
@@ -281,6 +288,19 @@ sub options_set_role_from_source {
     return map { $_ => $_} @{$Config{advanced}->{ldap_attributes}};
 }
 
+
+=head2 options_trigger_mfa
+
+retrieve mfa config
+
+=cut
+
+sub options_trigger_mfa {
+    my ($self) = @_;
+
+    return map { $_ => $_} keys %ConfigMfa;
+
+}
 
 =head2 validate
 
