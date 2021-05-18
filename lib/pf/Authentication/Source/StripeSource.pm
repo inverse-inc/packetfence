@@ -252,7 +252,16 @@ sub subscribe_customer {
     }
 
     my ($code, $data);
-    ($code, $data) = $self->_send_form($self->curl, "v1/customers", $object);
+    if(my $cus = $self->get_customer_by_email($session->{email})) {
+        use Data::Dumper ; use pf::log ; get_logger->info(Dumper($cus));
+        if($cus->{subscriptions} && $cus->{subscriptions}->{data}->[0]) {
+            $self->cancel_subscription($cus->{subscriptions}->{data}->[0]->{id});
+        }
+        ($code, $data) = $self->_send_form($self->curl, "v1/customers/".$cus->{id}, $object);
+    }
+    else {
+        ($code, $data) = $self->_send_form($self->curl, "v1/customers", $object);
+    }
 
     my $subscriptions = $self->_get_json($self->curl, "v1/subscriptions?customer=".uri_escape($data->{id}));
     if($subscriptions->{data}->[0]->{status} ne "active") {
