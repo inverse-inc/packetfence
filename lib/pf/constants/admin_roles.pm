@@ -217,6 +217,10 @@ our @ADMIN_ACTIONS = qw(
     SYSLOG_READ
     SYSLOG_UPDATE
 
+    MFA_CREATE
+    MFA_DELETE
+    MFA_READ
+    MFA_UPDATE
 );
 
 # Actions not allowed in readonly mode

@@ -182,6 +182,8 @@ our (
     %ConfigEAP,
 # EDIR sources
     %ConfigAuthenticationEdir,
+# MFA
+    %ConfigMfa,
 );
 
 BEGIN {
@@ -250,6 +252,7 @@ BEGIN {
         %ConfigAuthenticationEduroam
         %ConfigEAP
         %ConfigAuthenticationEdir
+        %ConfigMfa
     );
 }
 
@@ -337,6 +340,8 @@ tie %ConfigAuthenticationEduroam, 'pfconfig::cached_hash', 'resource::authentica
 tie %ConfigEAP, 'pfconfig::cached_hash', 'resource::eap_config';
 
 tie %ConfigAuthenticationEdir, 'pfconfig::cached_hash', 'resource::authentication_sources_edir';
+
+tie %ConfigMfa, 'pfconfig::cached_hash', 'config::Mfa';
 
 $thread = 0;
 
