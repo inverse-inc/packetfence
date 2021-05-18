@@ -106,11 +106,11 @@ sub handleAnswerInRule {
 sub addAnswer {
     my ($self, $rule, $radius_reply, $a, $args) = @_;
     my $name = $a->{name};
-    my $value = $a->{tmpl}->pre_process($args, \%FUNCS);
+    my $value = join('', $a->{tmpl}->pre_process($args, \%FUNCS));
     $self->updateAnswerNameValue($name, $value, $radius_reply);
     my @values = split(';', $value);
     if (exists($radius_reply->{$name})) {
-        if (reftype($radius_reply->{$name}) eq 'ARRAY') {
+        if ((reftype($radius_reply->{$name}) // '') eq 'ARRAY') {
             push @{$radius_reply->{$name}}, @values;
         } else {
             $radius_reply->{$name} = [$radius_reply->{$name}, @values];
