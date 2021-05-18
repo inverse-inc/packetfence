@@ -9,7 +9,6 @@ import TheForm from './TheForm'
 import TheView from './TheView'
 
 export {
-  BaseFormGroupChosenOneCloud,
   BaseViewCollectionItem              as BaseView,
   BaseFormButtonBar                   as FormButtonBar,
 

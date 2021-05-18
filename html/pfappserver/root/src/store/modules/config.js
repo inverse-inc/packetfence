@@ -2009,7 +2009,7 @@ const mutations = {
   MFAS_REQUEST: (state) => {
     state.mfasStatus = types.LOADING
   },
-  MFAS_UPDATED: (state, clouds) => {
+  MFAS_UPDATED: (state, mfas) => {
     state.mfas = mfas
     state.mfasStatus = types.SUCCESS
   },

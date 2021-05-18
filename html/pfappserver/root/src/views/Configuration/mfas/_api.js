@@ -1,7 +1,7 @@
 import apiCall from '@/utils/api'
 
 export default {
-  clouds: params => {
+  mfas: params => {
     return apiCall.get('config/mfas', { params }).then(response => {
       return response.data
     })
