@@ -11,7 +11,7 @@
     />
 
     <base-container-loading v-else
-      :title="$i18n.t('Unhandled cloud type')"
+      :title="$i18n.t('Unhandled mfa type')"
       icon="question-circle"
     />
   </b-container>

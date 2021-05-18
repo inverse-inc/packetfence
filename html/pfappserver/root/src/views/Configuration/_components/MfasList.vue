@@ -31,7 +31,7 @@
 import pfButtonDelete from '@/components/pfButtonDelete'
 import pfConfigList from '@/components/pfConfigList'
 import pfEmptyTable from '@/components/pfEmptyTable'
-import { config } from '../_config/cloud'
+import { config } from '../_config/mfa'
 
 export default {
   name: 'mfas-list',
@@ -55,7 +55,7 @@ export default {
       this.$router.push({ name: 'cloneMfa', params: { id: item.id } })
     },
     remove (item) {
-      this.$store.dispatch('$_clouds/deleteMfa', item.id).then(() => {
+      this.$store.dispatch('$_mfas/deleteMfa', item.id).then(() => {
         const { $refs: { pfConfigList: { refreshList = () => {} } = {} } = {} } = this
         refreshList() // soft reload
       })

@@ -1,4 +1,4 @@
-i/**
+/**
 * "$_mfas" store module
 */
 import Vue from 'vue'
