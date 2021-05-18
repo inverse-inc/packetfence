@@ -96,7 +96,8 @@ export default {
                 { name: this.$i18n.t('Certificates'), path: '/configuration/pki/certs' },
                 { name: this.$i18n.t('Revoked Certificates'), path: '/configuration/pki/revokedcerts' }
               ]
-            }
+            },
+            { name: this.$i18n.t('MultiFactor Authentication'), path: '/configuration/mfas' }
           ]
         },
         {

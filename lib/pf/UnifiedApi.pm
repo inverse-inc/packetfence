@@ -323,6 +323,7 @@ sub setup_api_v1_config_routes {
     $self->setup_api_v1_config_system_routes($root);
     $self->setup_api_v1_config_traffic_shaping_policies_routes($root);
     $self->setup_api_v1_config_wmi_rules_routes($root);
+    $self->setup_api_v1_config_mfas_routes($root);
     return;
 }
 
@@ -2061,6 +2062,24 @@ sub setup_api_v1_config_wmi_rules_routes {
         "/wmi_rules",
         "/wmi_rule/#wmi_rule_id",
         "api.v1.Config.WMIRules"
+    );
+
+    return ($collection_route, $resource_route);
+}
+
+=head2 setup_api_v1_config_mfas_routes
+setup_api_v1_config_mfas_routes
+=cut
+
+sub setup_api_v1_config_mfas_routes {
+    my ($self, $root) = @_;
+    my ($collection_route, $resource_route) =
+      $self->setup_api_v1_std_config_routes(
+        $root,
+        "Config::Mfas",
+        "/mfas",
+        "/mfa/#mfa_id",
+        "api.v1.Config.Mfas"
     );
 
     return ($collection_route, $resource_route);

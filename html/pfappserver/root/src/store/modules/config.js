@@ -124,6 +124,9 @@ const api = {
   getMaintenanceTasks () {
     return apiCall({ url: 'config/maintenance_tasks', method: 'get' })
   },
+  getMfas () {
+    return apiCall({ url: 'config/mfas', method: 'get' })
+  },
   getPkiCas () {
     return apiCall({ url: 'pki/cas', method: 'get', params: { limit: 1000 } })
   },
@@ -312,6 +315,8 @@ const initialState = () => { // set intitial states to `false` (not `[]` or `{}`
     layer2NetworksStatus: '',
     maintenanceTasks: false,
     maintenanceTasksStatus: '',
+    mfas: false,
+    mfasStatus: '',
     networkBehaviorPolicies: false,
     networkBehaviorPoliciesStatus: '',
     pkiCas: false,
@@ -508,6 +513,9 @@ const getters = {
   },
   isLoadingMaintenanceTasks: state => {
     return state.maintenanceTasksStatus === types.LOADING
+  },
+  isLoadingMfas: state => {
+    return state.mfasStatus === types.LOADING
   },
   isLoadingNetworkBehaviorPolicies: state => {
     return state.networkBehaviorPoliciesStatus === types.LOADING
@@ -1214,6 +1222,20 @@ const actions = {
       })
     } else {
       return Promise.resolve(state.maintenanceTasks)
+    }
+  },
+  getMfas: ({ state, getters, commit }) => {
+    if (getters.isLoadingMfas) {
+      return Promise.resolve(state.mfas)
+    }
+    if (!state.mfas) {
+      commit('MFAS_REQUEST')
+      return api.mfas().then(response => {
+        commit('MFAS_UPDATED', response.data.items)
+        return state.mfas
+      })
+    } else {
+      return Promise.resolve(state.mfas)
     }
   },
   getNetworkBehaviorPolicies: ({ state, getters, commit }) => {
@@ -1941,6 +1963,13 @@ const mutations = {
   MAINTENANCE_TASKS_UPDATED: (state, maintenanceTasks) => {
     state.maintenanceTasks = maintenanceTasks
     state.maintenanceTasksStatus = types.SUCCESS
+  },
+  MFAS_REQUEST: (state) => {
+    state.mfasStatus = types.LOADING
+  },
+  MFAS_UPDATED: (state, clouds) => {
+    state.mfas = mfas
+    state.mfasStatus = types.SUCCESS
   },
   NETWORK_BEHAVIOR_POLICIES_REQUEST: (state) => {
     state.networkBehaviorPoliciesStatus = types.LOADING

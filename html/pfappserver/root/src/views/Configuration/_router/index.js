@@ -28,6 +28,7 @@ import SyslogParsersRoutes from '../syslogParsers/_router'
 import SyslogForwardersRoutes from '../syslogForwarders/_router'
 import WrixRoutes from '../wrix/_router'
 import PkiRoutes from '../pki/_router'
+import MfasRoutes from '../mfas/_router'
 
 /* Advanced Access Configuration */
 const AdvancedAccessConfigurationSection = () => import(/* webpackChunkName: "Configuration" */ '../_components/AdvancedAccessConfigurationSection')
@@ -124,6 +125,7 @@ const route = {
     ...SyslogForwardersRoutes,
     ...WrixRoutes,
     ...PkiRoutes,
+    ..MfasRoutes,
 
     /**
      *  Advanced Access Configuration
