@@ -81,19 +81,37 @@ BEGIN {
 }
 
 use pf::access_filter::radius;
-use Test::More tests => 1 + (scalar @tests * 1);
-
-#This test will running last
+use Test::More tests => 2 + (scalar @tests * 1);
 use Test::NoWarnings;
-my $filter = pf::access_filter::radius->new;
 
+{
+    my $filter = pf::access_filter::radius->new;
+    my $i = 1;
+    for my $test (@tests) {
+        my %reply;
+        $filter->updateAnswerNameValue($test->{name}, $test->{value}, \%reply);
+        is_deeply( \%reply, $test->{expected_reply}, "Test $i" );
+        $i++;
+    }
+}
 
-my $i  = 1;
-for my $test (@tests) {
-    my %reply;
-    $filter->updateAnswerNameValue($test->{name}, $test->{value}, \%reply);
-    is_deeply(\%reply, $test->{expected_reply}, "Test $i");
-    $i++;
+{
+    my $filter = pf::access_filter::radius->new;
+    $pf::access_filter::radius::LOOKUP{session_id} = sub { "bob" };
+    my $args = {mac => "00:99:88:77:66:55"};
+    my $rule = $filter->test('TestScope', $args);
+    my ($reply, $status) = $filter->handleAnswerInRule($rule,$args,{});
+    is_deeply(
+        $reply,
+        {
+            'Reply-Message'      => 'Request processed by PacketFence',
+            'reply:Cisco-AVPair' => [
+                'url-redirect-acl=Pre-Auth',
+                'url-redirect=http://1.2.3.4/Cisco::WLC/sidbob'
+            ]
+        },
+        "Test filter"
+    );
 }
 
 =head1 AUTHOR
