@@ -111,6 +111,11 @@ export const pfActions = {
     text: i18n.t('Time balance'),
     types: [fieldType.TIME_BALANCE]
   },
+  trigger_mfa: {
+    value: 'trigger_mfa',
+    text: i18n.t('Trigger MFA'),
+    types: [fieldType.SELECTONE]
+  },
   set_unreg_date: {
     value: 'set_unreg_date',
     text: i18n.t('Unregistration date'),

@@ -219,6 +219,7 @@ sub form_parameters {
               set_tenant_id_action
               set_time_balance_action
               set_unreg_date_action
+              set_mfa_action
               substring_operator
               substring_value
               time_operator
