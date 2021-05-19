@@ -825,6 +825,7 @@ sub switch_access {
     $options->{'radius_request'}           = $args->{'radius_request'};
 
     my @sources = @{pf::authentication::getInternalAuthenticationSources()};
+    my ( $return, $message, $source_id, $extra );
 
     if ($connection->isVPN()) {
         ($nas_port_type, $eap_type, $mac, $port, $user_name, $nas_port_id, $session_id, $ifDesc) = $switch->parseVPNRequest($radius_request);
@@ -894,11 +895,18 @@ sub switch_access {
         }
     }
     else {
-            my $profile = pf::Connection::ProfileFactory->instantiate($FAKE_MAC,$options);
-            $args->{'profile'} = $profile;
-            @sources = $profile->getFilteredAuthenticationSources($args->{'stripped_user_name'}, $args->{'realm'});
+        my $profile = pf::Connection::ProfileFactory->instantiate($FAKE_MAC,$options);
+        $args->{'profile'} = $profile;
+        @sources = $profile->getFilteredAuthenticationSources($args->{'stripped_user_name'}, $args->{'realm'});
+        my $merged = { %$options, %$args };
+        $merged->{'rule_class'} = $Rules::AUTH;
+        $merged->{'context'} = $pf::constants::realm::RADIUS_CONTEXT;
+        my $attributes;
+        my $matched = pf::authentication::match2([@sources], $merged, undef, \$attributes);
+
+        my $values = $matched->{values};
+        $args->{'user_role'} = $values->{$Actions::SET_ROLE};
     }
-    my ( $return, $message, $source_id, $extra );
     $source_id = \@sources;
     if (!defined($args->{'radius_request'}{'MS-CHAP-Challenge'}) && ( !exists($radius_request->{"EAP-Type"}) || ( exists($radius_request->{"EAP-Type"}) && $radius_request->{"EAP-Type"} != $EAP_TLS && $radius_request->{"EAP-Type"} != $MS_EAP_AUTHENTICATION ) ) ) {
         ( $return, $message, $source_id, $extra ) = pf::authentication::authenticate( {
