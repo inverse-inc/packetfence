@@ -1,25 +1,33 @@
-package pf::constants::mfa;
-
+package pf::mfa;
 =head1 NAME
 
-pf::constants::mfa - constants for mfa objects
+pf::mfa add documentation
 
 =cut
 
 =head1 DESCRIPTION
 
-pf::constants::mfa
+pf::mfa
 
 =cut
 
 use strict;
 use warnings;
-use base qw(Exporter);
-use Readonly;
+use Moo;
+use pf::log;
+use pf::constants;
 
-Readonly::Scalar our $MFA_TYPES => [
-    "akamai",
-];
+has id => (is => 'rw', required => 1);
+
+=head2 module_description
+
+Returns the module description
+
+Parent returns empty so that the factory use the own child module name if not defined in child module
+
+=cut
+
+sub module_description { '' }
 
 =head1 AUTHOR
 
@@ -31,7 +39,7 @@ Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 
-This program is free software; you can redistribute it and::or
+This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
 as published by the Free Software Foundation; either version 2
 of the License, or (at your option) any later version.
@@ -49,5 +57,3 @@ USA.
 =cut
 
 1;
-
-

@@ -851,8 +851,8 @@ sub switch_access {
             if (defined($session_id)) {
                 $node_obj->sessionid($session_id);
             }
-
             $args->{'node_info'} = $node_obj;
+            $args->{'node_info'}->{'last_seen'} = pf::util::mysql_date();
             $args->{'fingerbank_info'} = pf::node::fingerbank_info($mac, $node_obj);
             $options->{'fingerbank_info'} = $args->{'fingerbank_info'};
 
@@ -860,9 +860,31 @@ sub switch_access {
             $args->{'profile'} = $profile;
             @sources = $profile->getFilteredAuthenticationSources($args->{'stripped_user_name'}, $args->{'realm'});
 
+            $args->{'autoreg'} = 0;
+            # should we auto-register? let's ask the VLAN object
+            my ( %info, $status, $status_msg, $do_auto_reg);
+            $do_auto_reg = $role_obj->shouldAutoRegister($args);
+            if ($do_auto_reg) {
+                $args->{'autoreg'} = 1;
+                my ($attributes, $action , %autoreg_node_defaults) = $role_obj->getNodeInfoForAutoReg($args);
+                $args->{'action'} = $action;
+                $args = { %$args, %$attributes } if (ref($attributes) eq 'HASH');
+                $node_obj->merge(\%autoreg_node_defaults);
+                $logger->debug("[$mac] auto-registering node");
+                # automatic registration
+                $info{autoreg} = 1;
+                ($status, $status_msg) = pf::registration::setup_node_for_registration($node_obj, \%info, $action);
+                if (is_error($status)) {
+                    $logger->error("auto-registration of node failed $status_msg");
+                    $do_auto_reg = 0;
+                    $node_obj->{status} = "unreg";
+                    return [ $RADIUS::RLM_MODULE_USERLOCK, ('Reply-Message' => $status_msg) ];
+                }
+            }
+
             my $role = $role_obj->fetchRoleForNode($args);
             $args->{'user_role'} = $role->{role};
-            my $status = $node_obj->save;
+            $status = $node_obj->save;
             if (is_error($status)) {
                 $logger->error("Cannot save $mac error ($status)");
             }
@@ -892,6 +914,24 @@ sub switch_access {
         }
     }
     if ($connection->isVPN()) {
+        my $merged = { %$options, %$args };
+        $merged->{'rule_class'} = $Rules::AUTH;
+        $merged->{'context'} = $pf::constants::realm::RADIUS_CONTEXT;
+        my $attributes;
+
+        my $matched = pf::authentication::match2($source_id, $merged, $extra, \$attributes);
+
+        # CHECK MFA
+        my $value = $matched->{values}{$Actions::TRIGGER_MFA} if $matched;
+
+        if ($value) {
+            my $mfa = pf::factory::mfa->new($value);
+            my $result = $mfa->check_user($radius_request->{'User-Name'});
+            if ($result == $FALSE) {
+                return [ $RADIUS::RLM_MODULE_FAIL, ('Reply-Message' => "VPN Access Denied") ];
+            }
+        }
+
         return $switch->returnAuthorizeVPN($args);
     } else {
         my $merged = { %$options, %$args };
