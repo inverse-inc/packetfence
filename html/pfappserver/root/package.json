@@ -28,7 +28,7 @@
     "vue-awesome": "^3.5.4",
     "vue-browser-acl": "^0.15.2",
     "vue-flatpickr-component": "8.1.6",
-    "vue-i18n": "^8.24.0",
+    "vue-i18n": "^8.24.4",
     "vue-multiselect": "2.1.6",
     "vue-router": "3.5.1",
     "vue-scrollto": "2.20.0",
