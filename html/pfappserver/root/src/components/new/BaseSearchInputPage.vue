@@ -1,5 +1,5 @@
 <template>
-  <b-pagination class="mb-0" align="right"
+  <b-pagination class="mb-0" align="right" :key="totalRows"
     :per-page="limit"
     :total-rows="totalRows"
     :value="value"

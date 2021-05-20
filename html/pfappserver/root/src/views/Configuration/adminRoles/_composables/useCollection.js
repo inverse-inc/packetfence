@@ -44,11 +44,16 @@ export const useStore = (props, context, form) => {
   }
 }
 
-import useSearchFactory from '@/views/Configuration/_store/search'
+import makeSearch from '@/views/Configuration/_store/factory/search'
 import api from '../_api'
-export const useSearch = useSearchFactory('$_admin_roles_search', {
+export const useSearch = makeSearch('adminRoles', {
   api,
   columns: [
+    {
+      key: 'selected',
+      thStyle: 'width: 40px;', tdClass: 'p-0',
+      locked: true
+    },
     {
       key: 'id',
       label: 'Role Name', // i18n defer
@@ -66,7 +71,6 @@ export const useSearch = useSearchFactory('$_admin_roles_search', {
     },
     {
       key: 'buttons',
-      label: '',
       class: 'text-right p-0',
       locked: true
     }
@@ -90,9 +94,21 @@ export const useSearch = useSearchFactory('$_admin_roles_search', {
       { field: 'description', op: 'contains', value: null }
     ]
   }]),
+  requestInterceptor: request => {
+      // append query in request to omit NONE, ALL, ALL_PF_ONLY from request
+      request.query.values = [
+      ...request.query.values,
+      { op: 'or', values: [ { field: 'id', op: 'not_equals', value: 'NONE' } ] },
+      { op: 'or', values: [ { field: 'id', op: 'not_equals', value: 'ALL' } ] },
+      { op: 'or', values: [ { field: 'id', op: 'not_equals', value: 'ALL_PF_ONLY' } ] }
+    ]
+    return request
+  },
+  /*
   responseInterceptor: response => { // strip NONE, ALL, ALL_PF_ONLY from results items
     let { items = [], ...rest } = response
     items = items.filter(({ id }) => !['NONE', 'ALL', 'ALL_PF_ONLY'].includes(id))
     return { items, ...rest }
   }
+  */
 })

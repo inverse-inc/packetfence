@@ -162,7 +162,7 @@ const setup = (props, context) => {
   const onRowClicked = item => {
     const {
       goToItem
-    } = useRouter(props, context)
+    } = useRouter($router)
     goToItem(item)
   }
 

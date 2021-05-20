@@ -11,9 +11,9 @@ export const useRouterQueryParam = ($router, param = 'query') => {
         return undefined
     },
     set(newValue) {
-      const { currentRoute } = $router
+      const { currentRoute, currentRoute: { query } = {} } = $router
       const value = JSON.stringify(newValue)
-      $router.replace({ ...currentRoute, query: { [param]: value } })
+      $router.replace({ ...currentRoute, query: { ...query, [param]: value } })
         .catch(e => { if (e.name !== "NavigationDuplicated") throw e })
         .finally(() => trigger())
     }

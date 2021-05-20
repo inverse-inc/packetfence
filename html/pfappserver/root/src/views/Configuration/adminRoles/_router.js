@@ -11,7 +11,7 @@ export const useRouter = $router => {
   }
 }
 
-const TheList = () => import(/* webpackChunkName: "Configuration" */ './_components/TheList')
+const TheSearch = () => import(/* webpackChunkName: "Configuration" */ './_components/TheSearch')
 const TheView = () => import(/* webpackChunkName: "Configuration" */ './_components/TheView')
 
 export const beforeEnter = (to, from, next = () => {}) => {
@@ -24,7 +24,7 @@ export default [
   {
     path: 'admin_roles',
     name: 'admin_roles',
-    component: TheList,
+    component: TheSearch,
     props: (route) => ({ query: route.query.query }),
     beforeEnter
   },

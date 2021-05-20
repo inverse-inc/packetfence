@@ -11,7 +11,7 @@
             @search="onSearchAdvanced"
           />
           <b-container fluid class="text-right mt-3 px-0">
-            <b-button class="ml-1" type="reset" variant="secondary" :disabled="isLoading">{{ $t('Clear') }}</b-button>
+            <b-button class="ml-1" type="reset" variant="secondary" :disabled="isLoading">{{ $t('Reset') }}</b-button>
             <base-button-save-search
               save-search-namespace="tenants-advanced"
               class="ml-1"
@@ -31,7 +31,7 @@
           save-search-namespace="tenants-basic"
           v-model="conditionBasic"
           :disabled="isLoading"
-          :placeholder="$t('Search by name or description')"
+          :placeholder="placeholderBasic"
           @reset="onSearchReset"
           @search="onSearchBasic"
         />
@@ -41,41 +41,30 @@
         </b-button>
       </div>
     </transition>
-    <b-row align-h="end" align-v="center">
+    <b-row align-h="end">
       <b-col cols="auto" class="mr-auto my-3">
         <slot />
       </b-col>
-      <b-col cols="auto" class="my-3">
-        <b-container fluid>
-          <b-row align-v="center">
-            <base-search-input-limit
-              v-model="limit"
-              size="md"
-              :limits="limits"
-              :disabled="isLoading"
-            />
-            <base-search-input-page
-              v-model="page"
-              class="ml-3"
-              :limit="limit"
-              :total-rows="totalRows"
-              :disabled="isLoading"
-            />
-            <base-button-export-csv
-              size="md" class="ml-3"
-              :filename="`${$route.path.slice(1).replace('/', '-')}.csv`"
-              :disabled="isLoading"
-              :columns="columns" :data="items"
-            />
-          </b-row>
-        </b-container>
+      <b-col cols="auto" class="my-3 align-self-end d-flex">
+        <base-search-input-limit
+          :value="limit" @input="setLimit"
+          size="md"
+          :limits="limits"
+          :disabled="isLoading"
+        />
+        <base-search-input-page
+          :value="page" @input="setPage"
+          class="ml-3"
+          :limit="limit"
+          :total-rows="totalRows"
+          :disabled="isLoading"
+        />
       </b-col>
     </b-row>
   </div>
 </template>
 <script>
 import BaseButtonConfirm from './BaseButtonConfirm'
-import BaseButtonExportCsv from './BaseButtonExportCsv'
 import BaseButtonSaveSearch from './BaseButtonSaveSearch'
 import BaseInputToggleAdvancedMode from './BaseInputToggleAdvancedMode'
 import BaseSearchInputBasic from './BaseSearchInputBasic'
@@ -85,7 +74,6 @@ import BaseSearchInputPage from './BaseSearchInputPage'
 
 const components = {
   BaseButtonConfirm,
-  BaseButtonExportCsv,
   BaseButtonSaveSearch,
   BaseInputToggleAdvancedMode,
   BaseSearchInputBasic,
@@ -100,56 +88,85 @@ const props = {
   }
 }
 
-import { onMounted, ref, toRefs } from '@vue/composition-api'
-import { useRouterQueryParam } from '@/composables/useRouter'
+import { onMounted, ref, toRefs, watch } from '@vue/composition-api'
+import { toKebabCase } from '@/utils/strings'
+import { usePreference } from '@/views/Configuration/_store/preferences'
 
-const setup = (props, context) => {
+const setup = (props) => {
 
   const {
     useSearch
-  } = toRefs(props)
-
-  const search = useSearch.value()
+  } = props
+  const search = useSearch()
 
   const {
+    uuid,
+    setUp,
+    setPage,
     defaultCondition,
     doSearchCondition,
     doSearchString,
     doReset
   } = search
 
-  // ref(router ?query=...)
-  const { root: { $router } = {} } = context
-  const routerQueryParam = useRouterQueryParam($router, 'query')
+  const {
+    columns,
+    page,
+    limit,
+    sortBy,
+    sortDesc
+  } = toRefs(search)
+
+  const saveSearch = usePreference(`search::${toKebabCase(uuid)}`)
+
+  watch([columns, page, limit, sortBy, sortDesc], () => {
+    Promise.resolve(saveSearch.value).then(_saveSearch => {
+      saveSearch.value = {
+        ..._saveSearch,
+        columns: columns.value.filter(c => c.visible).map(c => c.key),
+        page: page.value,
+        limit: limit.value,
+        sortBy: sortBy.value,
+        sortDesc: sortDesc.value
+      }
+    })
+  })
 
   const advancedMode = ref(false)
   const conditionBasic = ref(null)
   const conditionAdvanced = ref(defaultCondition()) // default
 
   onMounted(() => {
-    if (routerQueryParam.value) {
-      switch(routerQueryParam.value.constructor) {
-        case Array: // advanced search
-          conditionAdvanced.value = routerQueryParam.value
+    Promise.resolve(saveSearch.value).then(value => {
+      if (value) {
+        const {
+          conditionAdvanced: _conditionAdvanced,
+          conditionBasic: _conditionBasic
+        } = value
+        setUp(value)
+        if (_conditionAdvanced) {
+          conditionAdvanced.value = _conditionAdvanced
           advancedMode.value = true
           doSearchCondition(conditionAdvanced.value)
-          break
-        case String: // basic search
-        default:
-          conditionBasic.value = routerQueryParam.value
+        }
+        else {
+          conditionBasic.value = _conditionBasic || ''
           advancedMode.value = false
           doSearchString(conditionBasic.value)
-          break
+        }
       }
-    }
-    else
-      doReset()
+      else
+        doReset()
+    })
   })
 
   const onSearchBasic = () => {
     if (conditionBasic.value) {
       doSearchString(conditionBasic.value)
-      routerQueryParam.value = conditionBasic.value
+      Promise.resolve(saveSearch.value).then(_saveSearch => {
+        const { conditionAdvanced, ...rest } = _saveSearch || {}
+        saveSearch.value = { ...rest, conditionBasic: conditionBasic.value }
+      })
     }
     else
       doReset()
@@ -158,7 +175,10 @@ const setup = (props, context) => {
   const onSearchAdvanced = () => {
     if (conditionAdvanced.value) {
       doSearchCondition(conditionAdvanced.value)
-      routerQueryParam.value = conditionAdvanced.value
+      Promise.resolve(saveSearch.value).then(_saveSearch => {
+        const { conditionBasic, ...rest } = _saveSearch || {}
+        saveSearch.value = { ...rest, conditionAdvanced: conditionAdvanced.value }
+      })
     }
     else
       doReset()
@@ -167,7 +187,11 @@ const setup = (props, context) => {
   const onSearchReset = () => {
     conditionBasic.value = null
     conditionAdvanced.value = defaultCondition()
-    routerQueryParam.value = undefined
+    setPage(1)
+    Promise.resolve(saveSearch.value).then(_saveSearch => {
+      const { conditionAdvanced, conditionBasic, ...rest } = _saveSearch || {}
+      saveSearch.value = rest
+    })
     doReset()
   }
 
@@ -179,7 +203,8 @@ const setup = (props, context) => {
     onSearchAdvanced,
     onSearchReset,
 
-    ...toRefs(search)
+    ...toRefs(search),
+    columns
   }
 }
 

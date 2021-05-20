@@ -1,5 +1,5 @@
 <template>
-  <b-dropdown size="sm" variant="link" no-caret right lazy
+  <b-dropdown size="sm" variant="link" no-caret right
     @hidden="onCommit"
   >
     <template v-slot:button-content>
@@ -35,7 +35,7 @@ const props = {
   }
 }
 
-import { ref, toRefs } from '@vue/composition-api'
+import { ref, toRefs, watch } from '@vue/composition-api'
 
 const setup = (props, context) => {
   const {
@@ -44,20 +44,26 @@ const setup = (props, context) => {
 
   const { emit } = context
 
-  const columns = ref(value.value.reduce((columns, column) => {
-    return [ ...columns, { ...column } ]
-  }, [])) // dereference
+  const columns = ref([])
+  watch(value, () => {
+    columns.value = JSON.parse(JSON.stringify(value.value)) // dereference
+  }, { deep: true, immediate: true })
+  let flag = false
 
   // only emit when dropdown is closed (debounce)
   const onCommit = () => {
-    emit('input', [...(new Set(columns.value))]) // dereference
+    if (flag)
+      emit('input', JSON.parse(JSON.stringify(columns.value))) // dereference
+    flag = false
   }
 
   const onToggle = column => {
     const _columns = columns.value
       .map(_column => {
-        if (_column.key === column.key)
-          _column.visible = !_column.visible
+        if (_column.key === column.key) {
+            _column.visible = !_column.visible
+            flag = true
+        }
         return _column
       })
     columns.value = _columns

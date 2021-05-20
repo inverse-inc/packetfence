@@ -8,7 +8,7 @@ const TheView = () => import(/* webpackChunkName: "Configuration" */ './_compone
 export const useRouter = $router => {
   return {
     goToCollection: () => $router.push({ name: 'network_behavior_policies' }),
-    goToItem: $params => $router
+    goToItem: params => $router
       .push({ name: 'network_behavior_policy', params })
       .catch(e => { if (e.name !== "NavigationDuplicated") throw e }),
     goToClone: params => $router.push({ name: 'cloneNetworkBehaviorPolicy', params }),
