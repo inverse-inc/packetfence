@@ -21,6 +21,7 @@ export const ADMIN_ROLES_ACTIONS = [
   'set_time_balance',
   'set_unreg_date',
   'trigger_mfa',
+  'trigger_portal_mfa',
   'update',
   'write',
   'master'
