@@ -78,7 +78,8 @@ export const authenticationRuleActionsFromSourceType = (sourceType) => ([
     pfActions.set_time_balance,
     pfActions.set_bandwidth_balance,
     pfActions.set_role_from_source,
-    pfActions.trigger_mfa
+    pfActions.trigger_mfa,
+    pfActions.trigger_portal_mfa
   ],
   ...((['AD', 'AzureAD', 'LDAP', 'GoogleWorkspaceLDAP'].includes(sourceType))
     ? [pfActions.set_role_on_not_found]

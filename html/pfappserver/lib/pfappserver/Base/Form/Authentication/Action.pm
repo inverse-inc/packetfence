@@ -129,6 +129,13 @@ our %ACTION_FIELD_OPTIONS = (
         element_class => ['chzn-deselect'],
         options_method => \&options_trigger_mfa,
     },
+    $Actions::TRIGGER_PORTAL_MFA => {
+        type           => 'Select',
+        do_label       => 0,
+        wrapper        => 0,
+        element_class => ['chzn-deselect'],
+        options_method => \&options_trigger_mfa,
+    },
 );
 
 =head2 field_list

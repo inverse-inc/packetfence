@@ -116,6 +116,11 @@ export const pfActions = {
     text: i18n.t('Trigger MFA'),
     types: [fieldType.SELECTONE]
   },
+  trigger_portal_mfa: {
+    value: 'trigger_portal_mfa',
+    text: i18n.t('Trigger Portal MFA'),
+    types: [fieldType.SELECTONE]
+  },
   set_unreg_date: {
     value: 'set_unreg_date',
     text: 'Unregistration date', // i18n defer
