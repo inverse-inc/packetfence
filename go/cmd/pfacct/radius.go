@@ -552,7 +552,7 @@ func (rs *RadiusStatements) Setup(db *sql.DB) {
 	}
 
 	rs.softNodeTimeBalanceUpdate, err = db.Prepare(`
-        UPDATE node set time_balance = 0 WHERE tenant_id = ? AND mac = ? AND time_balance - ? <= 0;
+        UPDATE node set time_balance = 0 WHERE tenant_id = ? AND mac = ? AND time_balance - ? <= 0 AND (status == "reg" || DATE_SUB(NOW(), INTERVAL 5 MINUTE) > regdate);
     `)
 
 	if err != nil {
@@ -560,7 +560,7 @@ func (rs *RadiusStatements) Setup(db *sql.DB) {
 	}
 
 	rs.softNodeBandwidthBalanceUpdate, err = db.Prepare(`
-        UPDATE node set bandwidth_balance = 0 WHERE tenant_id = ? AND mac = ? AND bandwidth_balance - ? <= 0;
+        UPDATE node set bandwidth_balance = 0 WHERE tenant_id = ? AND mac = ? AND bandwidth_balance - ? <= 0 AND (status == "reg" || DATE_SUB(NOW(), INTERVAL 5 MINUTE) > regdate );
     `)
 
 	if err != nil {
