@@ -210,7 +210,7 @@ sub radiusDisconnect {
             'User-Name' => $username,
             'Calling-Station-Id' => $mac,
             'NAS-IP-Address' => $send_disconnect_to,
-            'NAS-Port-Id' => $locationlog->{port},
+            'NAS-Port' => $locationlog->{port},
 
         };
         # merging additional attributes provided by caller to the standard attributes
