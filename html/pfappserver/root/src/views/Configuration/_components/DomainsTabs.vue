@@ -5,7 +5,7 @@
         </b-card-header>
         <b-tabs ref="tabs" v-model="tabIndex" card>
             <b-tab :title="$t('Active Directory Domains')" @click="changeTab('domains')" no-body>
-                <domains-list :autoJoinDomain="autoJoinDomain" />
+                <domains-search :autoJoinDomain="autoJoinDomain" />
             </b-tab>
             <b-tab :title="$t('Realms')" @click="changeTab('realms')" no-body>
                 <realms-list />
@@ -15,13 +15,13 @@
 </template>
 
 <script>
-import DomainsList from './DomainsList'
+import DomainsSearch from '../domains/_components/TheSearch'
 import RealmsList from './RealmsList'
 
 export default {
   name: 'domains-tabs',
   components: {
-    DomainsList,
+    DomainsSearch,
     RealmsList
   },
   props: {

@@ -14,6 +14,7 @@ export const useRouter = $router => {
       .push({ name: 'domain', params })
       .catch(e => { if (e.name !== "NavigationDuplicated") throw e }),
     goToClone: params => $router.push({ name: 'cloneDomain', params }),
+    goToNew: () => $router.push({ name: 'newDomain' })
   }
 }
 
@@ -33,7 +34,7 @@ export default [
     path: 'domains',
     name: 'domains',
     component: TheTabs,
-    props: (route) => ({ tab: 'domains', autoJoinDomain: route.params.autoJoinDomain, query: route.query.query }),
+    props: (route) => ({ tab: 'domains', autoJoinDomain: route.params.autoJoinDomain }),
     beforeEnter
   },
   {

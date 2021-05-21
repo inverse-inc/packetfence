@@ -1,58 +1,63 @@
 import apiCall from '@/utils/api'
 
 export default {
-  domains: params => {
+  list: params => {
     return apiCall.get('config/domains', { params }).then(response => {
       return response.data
     })
   },
-  domainsOptions: () => {
+  listOptions: () => {
     return apiCall.options('config/domains').then(response => {
       return response.data
     })
   },
-  domain: id => {
+  item: id => {
     return apiCall.get(['config', 'domain', id]).then(response => {
       return response.data.item
     })
   },
-  domainOptions: id => {
+  itemOptions: id => {
     return apiCall.options(['config', 'domain', id]).then(response => {
       return response.data
     })
   },
-  createDomain: data => {
+  create: data => {
     return apiCall.post('config/domains', data).then(response => {
       return response.data
     })
   },
-  updateDomain: data => {
+  update: data => {
     return apiCall.patch(['config', 'domain', data.id], data).then(response => {
       return response.data
     })
   },
-  deleteDomain: id => {
+  delete: id => {
     return apiCall.delete(['config', 'domain', id])
   },
-  testDomain: id => {
+  test: id => {
     return apiCall.getQuiet(['config', 'domain', id, 'test_join']).then(response => {
       return response.data
     }).catch(err => {
       throw err
     })
   },
-  joinDomain: data => {
+  join: data => {
     return apiCall.post(['config', 'domain', data.id, 'join'], data).then(response => {
       return response.data
     })
   },
-  rejoinDomain: data => {
+  rejoin: data => {
     return apiCall.post(['config', 'domain', data.id, 'rejoin'], data).then(response => {
       return response.data
     })
   },
-  unjoinDomain: data => {
+  unjoin: data => {
     return apiCall.post(['config', 'domain', data.id, 'unjoin'], data).then(response => {
+      return response.data
+    })
+  },
+  search: data => {
+    return apiCall.post('config/domains/search', data).then(response => {
       return response.data
     })
   }

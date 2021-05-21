@@ -5,6 +5,10 @@
     :schema="schema"
     :isLoading="isLoading"
   >
+    <base-button-join v-if="!isNew && !isClone"
+      :id="id"
+      size="sm" variant="outline-primary" class="mx-3 mb-3" toggle-class="text-wrap"
+    />
     <b-tabs>
       <base-form-tab :title="$i18n.t('Settings')" active>
 
@@ -119,6 +123,7 @@ import {
   BaseForm,
   BaseFormTab
 } from '@/components/new/'
+import BaseButtonJoin from './BaseButtonJoin'
 import schemaFn from '../schema'
 import {
   FormGroupIdentifier,
@@ -142,6 +147,7 @@ import {
 } from './'
 
 const components = {
+  BaseButtonJoin,
   BaseForm,
   BaseFormTab,
 

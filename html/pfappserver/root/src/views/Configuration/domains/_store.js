@@ -34,14 +34,14 @@ const actions = {
       sort: 'id',
       fields: ['id', 'workgroup', 'ntlm_cache'].join(',')
     }
-    return api.domains(params).then(response => {
+    return api.list(params).then(response => {
       return response.items
     })
   },
   options: ({ commit }, id) => {
     commit('ITEM_REQUEST')
     if (id) {
-      return api.domainOptions(id).then(response => {
+      return api.itemOptions(id).then(response => {
         commit('ITEM_SUCCESS')
         return response
       }).catch((err) => {
@@ -49,7 +49,7 @@ const actions = {
         throw err
       })
     } else {
-      return api.domainsOptions().then(response => {
+      return api.listOptions().then(response => {
         commit('ITEM_SUCCESS')
         return response
       }).catch((err) => {
@@ -62,7 +62,7 @@ const actions = {
     if (state.cache[id])
       return Promise.resolve(state.cache[id])
     commit('ITEM_REQUEST')
-    return api.domain(id).then(item => {
+    return api.item(id).then(item => {
       commit('ITEM_REPLACED', item)
       return state.cache[id]
     }).catch((err) => {
@@ -72,7 +72,7 @@ const actions = {
   },
   createDomain: ({ commit }, data) => {
     commit('ITEM_REQUEST')
-    return api.createDomain(data).then(response => {
+    return api.create(data).then(response => {
       commit('ITEM_REPLACED', data)
       return response
     }).catch(err => {
@@ -82,7 +82,7 @@ const actions = {
   },
   updateDomain: ({ commit }, data) => {
     commit('ITEM_REQUEST')
-    return api.updateDomain(data).then(response => {
+    return api.update(data).then(response => {
       commit('ITEM_REPLACED', data)
       return response
     }).catch(err => {
@@ -92,7 +92,7 @@ const actions = {
   },
   deleteDomain: ({ commit }, data) => {
     commit('ITEM_REQUEST', types.DELETING)
-    return api.deleteDomain(data).then(response => {
+    return api.delete(data).then(response => {
       commit('ITEM_DESTROYED', data)
       return response
     }).catch(err => {
@@ -104,7 +104,7 @@ const actions = {
     if (id in state.joins)
       return Promise.resolve(state.joins[id])
     commit('TEST_REQUEST', id)
-    return api.testDomain(id).then(response => {
+    return api.test(id).then(response => {
       commit('TEST_SUCCESS', { id, response })
       return state.joins[id]
     }).catch(error => {
@@ -114,7 +114,7 @@ const actions = {
   },
   joinDomain: ({ state, commit }, data) => {
     commit('JOIN_REQUEST', data.id)
-    return api.joinDomain(data).then(response => {
+    return api.join(data).then(response => {
       return store.dispatch('pfqueue/pollTaskStatus', response.task_id).then(response => {
         commit('JOIN_SUCCESS', { id: data.id, response })
         return state.joins[data.id]
@@ -126,7 +126,7 @@ const actions = {
   },
   rejoinDomain: ({ state, commit }, data) => {
     commit('JOIN_REQUEST', data.id)
-    return api.rejoinDomain(data).then(response => {
+    return api.rejoin(data).then(response => {
       return store.dispatch('pfqueue/pollTaskStatus', response.task_id).then(response => {
         commit('JOIN_SUCCESS', { id: data.id, response })
         return state.joins[data.id]
@@ -138,7 +138,7 @@ const actions = {
   },
   unjoinDomain: ({ state, commit }, data) => {
     commit('UNJOIN_REQUEST', data.id)
-    return api.unjoinDomain(data).then(response => {
+    return api.unjoin(data).then(response => {
       return store.dispatch('pfqueue/pollTaskStatus', response.task_id).then(response => {
         commit('UNJOIN_SUCCESS', { id: data.id, response })
         return state.joins[data.id]
