@@ -31,6 +31,7 @@ configure_and_check() {
     VAGRANT_DOTFILE_PATH="${VAGRANT_DOTFILE_PATH:-${VAGRANT_DIR}/.vagrant}"
     VAGRANT_UP_OPTS=${VAGRANT_UP_OPTS:-'--no-destroy-on-error --no-parallel'}
     CI_COMMIT_TAG=${CI_COMMIT_TAG:-}
+    PF_RELEASE_REV=${PF_RELEASE_REV:-}
     PF_VM_NAME=${PF_VM_NAME:-}
     INT_TEST_VM_NAMES=${INT_TEST_VM_NAMES:-}
 
@@ -51,7 +52,7 @@ configure_and_check() {
     fi
     
     declare -p VAGRANT_DIR VAGRANT_ANSIBLE_VERBOSE VAGRANT_DOTFILE_PATH
-    declare -p CI_COMMIT_TAG
+    declare -p CI_COMMIT_TAG PF_RELEASE_REV
     declare -p PF_VM_NAME INT_TEST_VM_NAMES
 }
 

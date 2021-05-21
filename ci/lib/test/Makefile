@@ -4,6 +4,9 @@ include ../../../config.mk
 # Specific variables
 #==============================================================================
 SHELL=/bin/bash
+PF_RELEASE_PATH=$(shell readlink -e ../../../conf/pf-release)
+PF_RELEASE_REV=$(shell perl -ne 'print $$1 if (m/.*?(\d+\.\d+)./)' $(PF_RELEASE_PATH))
+
 
 #==============================================================================
 # Targets
@@ -19,7 +22,7 @@ all: test-pfcen7dev-dev test-pfdeb9dev-dev test-pfcen7dev-release test-pfdeb9dev
 ### Targets used in pipeline
 .PHONY: test
 test: clean
-	./vagrant-wrapper.sh run
+	PF_RELEASE_REV=$(PF_RELEASE_REV) ./vagrant-wrapper.sh run
 
 .PHONY: halt
 halt:
