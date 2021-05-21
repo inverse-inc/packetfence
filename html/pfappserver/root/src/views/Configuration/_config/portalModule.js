@@ -103,7 +103,8 @@ export const moduleTypes = () => {
         { type: 'SelectRole', name: i18n.t('Select Role') },
         { type: 'SSL_Inspection', name: i18n.t('SSL Inspection') },
         { type: 'Survey', name: i18n.t('Survey') },
-        { type: 'URL', name: i18n.t('URL') }
+        { type: 'URL', name: i18n.t('URL') },
+        { type: 'Mfa', name: i18n.t('MFA') }
       ]
     }
   ]
