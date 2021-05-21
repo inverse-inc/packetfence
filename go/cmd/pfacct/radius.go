@@ -521,9 +521,15 @@ type RadiusStatements struct {
 	closeSession                   *sql.Stmt
 }
 
-func (rs *RadiusStatements) Setup(db *sql.DB) {
+func setupStmt(db *sql.DB, stmt **sql.Stmt, sql string) {
 	var err error
-	rs.switchLookup, err = db.Prepare(`
+	if *stmt, err = db.Prepare(sql); err != nil {
+		panic(err)
+	}
+}
+
+func (rs *RadiusStatements) Setup(db *sql.DB) {
+	setupStmt(db, &rs.switchLookup, `
         SELECT nasname, secret, tenant_id, unique_session_attributes FROM radius_nas WHERE nasname = ?
         UNION
           SELECT nasname, secret, tenant_id, unique_session_attributes FROM radius_nas WHERE nasname = ?
@@ -533,95 +539,52 @@ func (rs *RadiusStatements) Setup(db *sql.DB) {
             WHERE INET_ATON(?) BETWEEN start_ip AND end_ip
             ORDER BY range_length LIMIT 1
         ) LIMIT 1;
-    `)
+	`)
 
-	if err != nil {
-		panic(err)
-	}
-
-	rs.insertBandwidthAccounting, err = db.Prepare(`
+	setupStmt(db, &rs.insertBandwidthAccounting, `
         INSERT INTO bandwidth_accounting (node_id, tenant_id, mac, unique_session_id, time_bucket, in_bytes, out_bytes, source_type)
             SELECT ? as node_id, ? AS tenant_id, ? AS mac, ? AS unique_session_id, ? AS time_bucket, in_bytes, out_bytes, "radius" FROM (
                 SELECT GREATEST(? - IFNULL(SUM(in_bytes), 0), 0) AS in_bytes, GREATEST(? - IFNULL(SUM(out_bytes), 0), 0) AS out_bytes FROM bandwidth_accounting WHERE node_id = ? AND unique_session_id = ? AND time_bucket != ?
             ) AS y
         ON DUPLICATE KEY UPDATE in_bytes = VALUES(in_bytes), out_bytes = VALUES(out_bytes), last_updated = NOW();
-    `)
+	`)
 
-	if err != nil {
-		panic(err)
-	}
-
-	rs.softNodeTimeBalanceUpdate, err = db.Prepare(`
+	setupStmt(db, &rs.softNodeTimeBalanceUpdate, `
         UPDATE node set time_balance = 0 WHERE tenant_id = ? AND mac = ? AND time_balance - ? <= 0 AND (status = "reg" || DATE_SUB(NOW(), INTERVAL 5 MINUTE) > regdate);
-    `)
+	`)
 
-	if err != nil {
-		panic(err)
-	}
-
-	rs.softNodeBandwidthBalanceUpdate, err = db.Prepare(`
+	setupStmt(db, &rs.softNodeBandwidthBalanceUpdate, `
         UPDATE node set bandwidth_balance = 0 WHERE tenant_id = ? AND mac = ? AND bandwidth_balance - ? <= 0 AND (status = "reg" || DATE_SUB(NOW(), INTERVAL 5 MINUTE) > regdate );
-    `)
+	`)
 
-	if err != nil {
-		panic(err)
-	}
-
-	rs.nodeTimeBalanceSubtract, err = db.Prepare(`
+	setupStmt(db, &rs.nodeTimeBalanceSubtract, `
         UPDATE node set time_balance = GREATEST(time_balance - ?, 0) WHERE tenant_id = ? AND mac = ? AND time_balance IS NOT NULL AND (status = "reg" || DATE_SUB(NOW(), INTERVAL 5 MINUTE) > regdate );
-    `)
+	`)
 
-	if err != nil {
-		panic(err)
-	}
-
-	rs.nodeBandwidthBalanceSubtract, err = db.Prepare(`
+	setupStmt(db, &rs.nodeBandwidthBalanceSubtract, `
         UPDATE node set bandwidth_balance = GREATEST(bandwidth_balance - ?, 0) WHERE tenant_id = ? AND mac = ? AND bandwidth_balance IS NOT NULL AND (status = "reg" || DATE_SUB(NOW(), INTERVAL 5 MINUTE) > regdate );
-    `)
+	`)
 
-	if err != nil {
-		panic(err)
-	}
-
-	rs.nodeTimeBalance, err = db.Prepare(`
+	setupStmt(db, &rs.nodeTimeBalance, `
         SELECT time_balance FROM node WHERE tenant_id = ? AND mac = ? AND time_balance IS NOT NULL;
-    `)
+	`)
 
-	if err != nil {
-		panic(err)
-	}
-
-	rs.nodeBandwidthBalance, err = db.Prepare(`
+	setupStmt(db, &rs.nodeBandwidthBalance, `
         SELECT bandwidth_balance FROM node WHERE tenant_id = ? AND mac = ? AND bandwidth_balance IS NOT NULL;
-    `)
+	`)
 
-	if err != nil {
-		panic(err)
-	}
-
-	rs.isNodeTimeBalanceZero, err = db.Prepare(`
+	setupStmt(db, &rs.isNodeTimeBalanceZero, `
         SELECT 1 FROM node WHERE tenant_id = ? AND mac = ? AND time_balance = 0;
-    `)
+	`)
 
-	if err != nil {
-		panic(err)
-	}
-
-	rs.isNodeBandwidthBalanceZero, err = db.Prepare(`
+	setupStmt(db, &rs.isNodeBandwidthBalanceZero, `
         SELECT 1 FROM node WHERE tenant_id = ? AND mac = ? AND bandwidth_balance = 0;
-    `)
+	`)
 
-	if err != nil {
-		panic(err)
-	}
-
-	rs.closeSession, err = db.Prepare(`
+	setupStmt(db, &rs.closeSession, `
         UPDATE bandwidth_accounting SET last_updated = '0000-00-00 00:00:00' WHERE node_id = ? AND unique_session_id = ?;
-    `)
+	`)
 
-	if err != nil {
-		panic(err)
-	}
 }
 
 func (rs *RadiusStatements) CloseSession(node_id, unique_session_id uint64) (int64, error) {
