@@ -1,14 +1,14 @@
-package pf::mfa::akamai;
+package pf::mfa::Akamai;
 
 =head1 NAME
 
-pf::mfa::akamai
+pf::mfa::Akamai
 
 =cut
 
 =head1 DESCRIPTION
 
-pf::mfa::akamai
+pf::mfa::Akamai
 
 =cut
 
@@ -81,6 +81,7 @@ sub check_user {
     my ($devices, $error) = $self->_get_curl("/api/v1/verify/check_user?username=$username");
 
     if ($error == 1) {
+        $log->error("Not able to retrieve the devices list");
         return;
     }
 
