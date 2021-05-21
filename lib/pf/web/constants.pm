@@ -88,6 +88,7 @@ Readonly::Scalar our $URL_SWITCH                => '/switchto/(.+)';
 Readonly::Scalar our $URL_RECORD_DESTINATION    => '/record_destination_url';
 Readonly::Scalar our $URL_CHALLENGE             => '/challenge';
 Readonly::Scalar our $URL_NETWORK_LOGOFF        => '/networklogoff';
+Readonly::Scalar our $URL_MFA                   => '/mfa';
 
 # guest related
 Readonly::Scalar our $URL_SIGNUP                => '/signup';

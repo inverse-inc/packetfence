@@ -81,7 +81,7 @@ sub check_user {
     my ($devices, $error) = $self->_get_curl("/api/v1/verify/check_user?username=$username");
 
     if ($error == 1) {
-        $log->error("Not able to retrieve the devices list");
+        $logger->error("Not able to fetch the devices");
         return;
     }
 
@@ -106,6 +106,55 @@ sub check_user {
         return $FALSE;
     }
 }
+
+=head2 devices_list
+
+Get the devices list of the user
+
+=cut
+
+sub devices_list {
+
+    my ($self, $username) = @_;
+    my $logger = get_logger();
+
+    my ($devices, $error) = $self->_get_curl("/api/v1/verify/check_user?username=$username");
+
+    if ($error == 1) {
+        $logger->error("Not able to fetch the devices");
+        return undef;
+    }
+    return $devices->{result}->{devices};
+}
+
+=head2 push_method
+
+Push on the device
+
+=cut
+
+sub push_method {
+    my ($self, $device, $username) = @_;
+    my $post_fields = encode_json({device => $device, method => "push", username => $username});
+
+    my ($auth, $error) = $self->_post_curl("/api/v1/verify/start_auth", $post_fields);
+    if ($error) {
+        return
+    }
+
+    my $i = 0;
+    while(1) {
+        my ($answer, $error) = $self->_get_curl("/api/v1/verify/check_auth?tx=".$auth->{'result'}->{'tx'});
+        if ($answer->{'result'} eq 'allow') {
+            return $TRUE;
+        }
+        sleep(5);
+        last if ($i++ == 6);
+    }
+    return $FALSE;
+}
+
+
 
 sub decode_response {
     my ($self, $code, $response_body) = @_;
