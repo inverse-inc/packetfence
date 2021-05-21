@@ -42,6 +42,7 @@ import FormTypeShowLocalAccount from './FormTypeShowLocalAccount'
 import FormTypeSslInspection from './FormTypeSslInspection'
 import FormTypeSurvey from './FormTypeSurvey'
 import FormTypeUrl from './FormTypeUrl'
+import FormTypeMfa from './FormTypeMfa'
 
 const components = {
   BaseContainerLoading,
@@ -67,7 +68,8 @@ const components = {
   FormTypeShowLocalAccount,
   FormTypeSslInspection,
   FormTypeSurvey,
-  FormTypeUrl
+  FormTypeUrl,
+  FormTypeMfa,
 }
 
 export const setup = (props) => {
@@ -152,6 +154,9 @@ export const setup = (props) => {
 
       case 'URL':
         return FormTypeUrl // break
+
+      case 'Mfa':
+        return FormTypeMfa // break
 
       default:
         return undefined
