@@ -134,6 +134,14 @@ all:
               ansible_host: "{{ mgmt_ip }}"
               cpus: 2
               memory: 6144
+            deb9dev:
+              box: debian/stretch64
+              box_version: 9.12.0
+              mgmt_ip: 172.17.17.15
+              mgmt_netmask: 255.255.255.0
+              ansible_host: "{{ mgmt_ip }}"
+              cpus: 2
+              memory: 6144
 
         stable:
           hosts:
