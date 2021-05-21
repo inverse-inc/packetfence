@@ -9,7 +9,7 @@ yup.addMethod(yup.string, 'mfaIdExistsExcept', function (exceptId = '', message)
     test: (value) => {
       if (!value || value.toLowerCase() === exceptId.toLowerCase()) return true
       return store.dispatch('config/getMfas').then(response => {
-        return response.filter(cloud => mfa.id.toLowerCase() === value.toLowerCase()).length === 0
+        return response.filter(mfa => mfa.id.toLowerCase() === value.toLowerCase()).length === 0
       }).catch(() => {
         return true
       })
