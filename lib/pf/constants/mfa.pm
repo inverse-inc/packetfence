@@ -18,7 +18,7 @@ use base qw(Exporter);
 use Readonly;
 
 Readonly::Scalar our $MFA_TYPES => [
-    "akamai",
+    "Akamai",
 ];
 
 =head1 AUTHOR
