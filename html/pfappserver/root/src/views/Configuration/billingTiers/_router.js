@@ -8,10 +8,11 @@ export const useRouter = $router => {
       .push({ name: 'billing_tier', params })
       .catch(e => { if (e.name !== "NavigationDuplicated") throw e }),
     goToClone: params => $router.push({ name: 'cloneBillingTier', params }),
+    goToNew: () => $router.push({ name: 'newBillingTier' }),
   }
 }
 
-const TheList = () => import(/* webpackChunkName: "Configuration" */ '../_components/BillingTiersList')
+const TheSearch = () => import(/* webpackChunkName: "Configuration" */ './_components/TheSearch')
 const TheView = () => import(/* webpackChunkName: "Configuration" */ './_components/TheView')
 
 export const beforeEnter = (to, from, next = () => {}) => {
@@ -24,8 +25,7 @@ export default [
   {
     path: 'billing_tiers',
     name: 'billing_tiers',
-    component: TheList,
-    props: (route) => ({ query: route.query.query })
+    component: TheSearch
   },
   {
     path: 'billing_tiers/new',

@@ -2,14 +2,13 @@
   <b-card no-body>
     <b-card-header>
       <h4 class="d-flex align-items-center mb-3">
-        {{ $t('Admin Roles') }}
-        <base-button-help class="text-black-50 ml-1" url="PacketFence_Installation_Guide.html#_admin_access" />
+        {{ $t('Billing Tiers') }}
+        <base-button-help class="text-black-50 ml-1" url="PacketFence_Installation_Guide.html#_billing_engine" />
       </h4>
-      <p class="mb-0" v-t="'Define roles with specific access rights to the Web administration interface. Roles are assigned to users depending on their authentication source.'"></p>
     </b-card-header>
     <div class="card-body">
       <base-search :use-search="useSearch">
-        <b-button variant="outline-primary" @click="goToNew">{{ $t('New Admin Role') }}</b-button>
+        <b-button variant="outline-primary" @click="goToNew">{{ $t('New Billing Tier') }}</b-button>
       </base-search>
       <b-table ref="tableRef"
         :busy="isLoading"
@@ -66,7 +65,7 @@
             <base-button-confirm v-if="!item.not_deletable"
               size="sm" variant="outline-danger" class="my-1 mr-1" reverse
               :disabled="isLoading"
-              :confirm="$t('Delete Admin Role?')"
+              :confirm="$t('Delete Billing Tier?')"
               @click="onRemove(item.id)"
             >{{ $t('Delete') }}</base-button-confirm>
             <b-button
@@ -139,7 +138,7 @@ const setup = (props, context) => {
   }
 
   const onRemove = id => {
-    $store.dispatch('$_admin_roles/deleteAdminRole', id)
+    $store.dispatch('$_billing_tiers/deleteBillingTier', id)
       .then(() => {
         reSearch()
       })

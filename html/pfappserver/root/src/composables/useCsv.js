@@ -4,7 +4,9 @@ export const useTableColumnsItems = (columns, items) => {
       ? { ...formatters, [column.key]: column.formatter }
       : formatters
   }, {})
-  const header = columns.map(column => column.key)
+  const header = columns
+    .filter(column => !column.locked) // omit `selected` and `buttons`
+    .map(column => column.key)
   let keyMap = {} // build map to sort data same as header
   Object.keys(items[0]).forEach(key => {
     const idx = header.findIndex(column => column === key)

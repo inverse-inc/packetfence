@@ -56,18 +56,18 @@ export const useSearch = makeSearch('adminRoles', {
     },
     {
       key: 'id',
-      label: 'Role Name', // i18n defer
+      label: 'Identifier', // i18n defer
       required: true,
+      searchable: true,
       sortable: true,
-      visible: true,
-      searchable: true
+      visible: true
     },
     {
       key: 'description',
       label: 'Description', // i18n defer
       sortable: true,
-      visible: true,
-      searchable: true
+      searchable: true,
+      visible: true
     },
     {
       key: 'buttons',

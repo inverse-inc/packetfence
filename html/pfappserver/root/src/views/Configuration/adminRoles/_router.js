@@ -26,7 +26,6 @@ export default [
     path: 'admin_roles',
     name: 'admin_roles',
     component: TheSearch,
-    props: (route) => ({ query: route.query.query }),
     beforeEnter
   },
   {
