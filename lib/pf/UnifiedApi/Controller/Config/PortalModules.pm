@@ -57,6 +57,7 @@ use pfappserver::Form::Config::PortalModule::Survey;
 use pfappserver::Form::Config::PortalModule::URL;
 use pfappserver::Form::Config::PortalModule::ShowLocalAccount;
 use pfappserver::Form::Config::PortalModule::SSL_Inspection;
+use pfappserver::Form::Config::PortalModule::Mfa;
 
 our %TYPES_TO_FORMS = (
     map { $_ => "pfappserver::Form::Config::PortalModule::$_" } qw(
@@ -92,6 +93,7 @@ our %TYPES_TO_FORMS = (
         URL
         ShowLocalAccount
         SSL_Inspection
+        Mfa
     )
 );
 
