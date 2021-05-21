@@ -51,7 +51,7 @@ Dynamically extract the descriptions from the various MFA modules.
 sub options_type {
     my $self = shift;
 
-    return map{$_ => $_} $pf::constants::cloud::MFA_TYPES;
+    return map{$_ => $_} $pf::constants::mfa::MFA_TYPES;
 }
 
 =over

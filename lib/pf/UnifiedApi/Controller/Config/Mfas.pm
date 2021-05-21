@@ -19,7 +19,7 @@ use Mojo::Base qw(pf::UnifiedApi::Controller::Config::Subtype);
 
 has 'config_store_class' => 'pf::ConfigStore::Mfa';
 has 'form_class' => 'pfappserver::Form::Config::Mfa';
-has 'primary_key' => 'cloud_id';
+has 'primary_key' => 'mfa_id';
 
 use pf::ConfigStore::Mfa;
 use pfappserver::Form::Config::Mfa;
