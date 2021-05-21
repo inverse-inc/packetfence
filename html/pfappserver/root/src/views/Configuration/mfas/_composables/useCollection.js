@@ -53,7 +53,7 @@ const useRouter = (props, context, form) => {
     goToItem: (item = form.value || {}) => $router
       .push({ name: 'mfa', params: { id: item.id } })
       .catch(e => { if (e.name !== "NavigationDuplicated") throw e }),
-    goToClone: () => $router.push({ name: 'mfaCloud', params: { id: id.value } }),
+    goToClone: () => $router.push({ name: 'cloneMfa', params: { id: id.value } }),
   }
 }
 
