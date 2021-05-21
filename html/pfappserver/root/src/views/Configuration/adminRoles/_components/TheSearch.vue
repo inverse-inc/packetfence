@@ -9,7 +9,7 @@
     </b-card-header>
     <div class="card-body">
       <base-search :use-search="useSearch">
-        <b-button variant="outline-primary" :to="{ name: 'newAdminRole' }">{{ $t('New Admin Role') }}</b-button>
+        <b-button variant="outline-primary" @click="goToNew">{{ $t('New Admin Role') }}</b-button>
       </base-search>
       <b-table ref="tableRef"
         :busy="isLoading"
@@ -106,6 +106,7 @@ const components = {
 }
 
 import { ref, toRefs } from '@vue/composition-api'
+import { useBootstrapTableSelected } from '@/composables/useBootstrap'
 import { useTableColumnsItems } from '@/composables/useCsv'
 import { useDownload } from '@/composables/useDownload'
 import { useSearch, useRouter } from '../_composables/useCollection'
@@ -121,12 +122,21 @@ const setup = (props, context) => {
     visibleColumns
   } = toRefs(search)
 
-  const { refs, root: { $router, $store } = {} } = context
+  const { root: { $router, $store } = {} } = context
 
+  const router = useRouter($router)
+
+  const tableRef = ref(null)
+  const selected = useBootstrapTableSelected(tableRef, items)
   const {
-    goToItem,
-    goToClone
-  } = useRouter($router)
+    selectedItems
+  } = toRefs(selected)
+
+  const onBulkExport = () => {
+    const csv = useTableColumnsItems(visibleColumns.value, selectedItems.value)
+    const filename = `${$router.currentRoute.path.slice(1).replace('/', '-')}-${(new Date()).toISOString()}.csv`
+    useDownload(filename, csv, 'text/csv')
+  }
 
   const onRemove = id => {
     $store.dispatch('$_admin_roles/deleteAdminRole', id)
@@ -135,48 +145,13 @@ const setup = (props, context) => {
       })
   }
 
-  const selected = ref([])
-  const onRowSelected = value => {
-    selected.value = value.map(({id}) => id)
-  }
-  const onAllSelected = () => {
-    const { tableRef } = refs
-    if (selected.value.length === 0) // select all
-      tableRef.selectAllRows()
-    else // select none
-      tableRef.clearSelected()
-  }
-  const onItemSelected = index => {
-    const { tableRef } = refs
-    const { [index]: { id } = {} } = items.value
-    if (selected.value.includes(id))
-      tableRef.unselectRow(index)
-    else
-      tableRef.selectRow(index)
-  }
-
-  const onBulkExport = () => {
-    const _items = selected.value.map(id => {
-      return items.value.find(item => item.id === id)
-    })
-    const csv = useTableColumnsItems(visibleColumns.value, _items)
-    const filename = `${$router.currentRoute.path.slice(1).replace('/', '-')}-${(new Date()).toISOString()}.csv`
-    useDownload(filename, csv, 'text/csv')
-  }
-
   return {
     useSearch,
-    goToItem,
-    goToClone,
+    tableRef,
     onRemove,
-
-    selected,
-    onRowSelected,
-    onAllSelected,
-    onItemSelected,
-
     onBulkExport,
-
+    ...router,
+    ...selected,
     ...toRefs(search)
   }
 }

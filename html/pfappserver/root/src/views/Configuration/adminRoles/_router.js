@@ -8,6 +8,7 @@ export const useRouter = $router => {
       .push({ name: 'admin_role', params })
       .catch(e => { if (e.name !== "NavigationDuplicated") throw e }),
     goToClone: params => $router.push({ name: 'cloneAdminRole', params }),
+    goToNew: () => $router.push({ name: 'newAdminRole' })
   }
 }
 
