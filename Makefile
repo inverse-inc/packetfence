@@ -212,7 +212,20 @@ html_install:
 	    cp -v --no-dereference $$link $(DESTDIR)$(PF_PREFIX)/$$link ; \
 	done
 
-.PHONY: conf/git_commit_id
-conf/git_commit_id:
-	echo $$CI_COMMIT_SHA > $@
+.PHONY: rpm/.rpmmacros
+rpm/.rpmmacros:
+	echo "%systemddir /usr/lib/systemd" > $(SRC_RPMDIR)/.rpmmacros
+	echo "%pf_release $(PF_RELEASE_REV)" >> $(SRC_RPMDIR)/.rpmmacros
+
+.PHONY: build_rpm
+build_rpm: rpm/.rpmmacros
+	cp $(SRC_RPMDIR)/.rpmmacros $(HOME)
+	ci-build-pkg $(SRC_RPMDIR)
+
+.PHONY: build_deb
+build_deb:
+	$(SRC_CIDIR)/debian/convert-to-native-package.sh
+	cp $(SRC_CIDIR)/debian/.devscripts $(HOME)
+	QUILT_PATCHES=$(SRC_DEBDIR)/patches quilt push
+	ci-build-pkg $(SRC_DEBDIR)
 

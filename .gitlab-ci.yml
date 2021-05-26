@@ -34,8 +34,6 @@ variables:
   MAINTDIR: $CILIBDIR/maintenance
   TESTDIR: $CILIBDIR/test
   UPLOAD_DIR: $CILIBDIR/upload
-  RPM_DIR: rpm
-  DEB_DIR: debian
   PUBLIC_REPO_URL: http://packetfence.org/downloads/PacketFence
   SF_REPO_URL: https://sourceforge.net/projects/packetfence/files/PacketFence%20ZEN
   # env variables
@@ -259,21 +257,11 @@ variables:
 
 .rpm_script:
   script:
-    # temp
-    - echo "%git_commit $CI_COMMIT_SHA" >> ${RPM_DIR}/.rpmmacros
-    - cp ${RPM_DIR}/.rpmmacros ${HOME}
-    - ci-build-pkg ${RPM_DIR}
+    - make -e build_rpm
 
 .deb_script:
   script:
-    - ./${CIDIR}/debian/convert-to-native-package.sh
-    - cp ${CIDIR}/debian/.devscripts ${HOME}
-    # temp
-    - make conf/git_commit_id
-    - quilt push
-    - ci-build-pkg ${DEB_DIR}
-  variables:
-    QUILT_PATCHES: ${DEB_DIR}/patches
+    - make -e build_deb
 
 .maintenance_build_script:
   script:

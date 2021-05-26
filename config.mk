@@ -22,6 +22,12 @@ SBINDIR = $(PF_PREFIX)/sbin
 GOVERSION = go1.16.4
 PF_BINARIES = pfhttpd pfdhcp pfdns pfstats pfdetect galera-autofix pfacct pfcertmanager pfcron
 
+# source dirs
+SRC_ROOT_DIR = $(CURDIR)
+SRC_RPMDIR = $(SRC_ROOT_DIR)/rpm
+SRC_DEBDIR = $(SRC_ROOT_DIR)/debian
+SRC_CIDIR = $(SRC_ROOT_DIR)/ci
+
 # SRC HTML dirs
 SRC_HTMLDIR = html
 SRC_HTML_CPDIR = $(SRC_HTMLDIR)/captive-portal

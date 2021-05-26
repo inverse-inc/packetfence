@@ -23,14 +23,7 @@ for the PacketFence RPM repository.
 ## PacketFence RPM Repository for RHEL/Centos
 [packetfence]
 name=PacketFence Repository
-baseurl=http://inverse.ca/downloads/PacketFence/RHEL\$releasever/\$basearch
-gpgkey=file:///etc/pki/rpm-gpg/RPM-GPG-KEY-PACKETFENCE-CENTOS
-gpgcheck=1
-enabled=0
-
-[packetfence-devel]
-name=PacketFence Devel Repository
-baseurl=http://inverse.ca/downloads/PacketFence/RHEL\$releasever/devel/\$basearch
+baseurl=http://inverse.ca/downloads/PacketFence/RHEL\$releasever/%{pf_release}/\$basearch
 gpgkey=file:///etc/pki/rpm-gpg/RPM-GPG-KEY-PACKETFENCE-CENTOS
 gpgcheck=1
 enabled=0
