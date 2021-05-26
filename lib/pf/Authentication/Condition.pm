@@ -36,6 +36,17 @@ sub description {
 
 sub matches {
     my ($self, $attr, $v, $params) = @_;
+    
+
+    if(ref($v) eq "ARRAY") {
+        for my $v2 (@$v) {
+            if($self->matches($attr, $v2, $params)) {
+                return 1;
+            }
+        }
+        return 0;
+    }
+    
 
     if (defined $v) {
 
