@@ -29,7 +29,7 @@ export default {
     tabIndex: {
       get () {
         return [
-          'scan_engines',
+          'scan_engines'
         ].indexOf(this.tab)
       },
       set () {
