@@ -16,7 +16,7 @@ get_pf_release
 RESULT_DIR=${RESULT_DIR:-result}
 
 DEPLOY_USER=${DEPLOY_USER:-reposync}
-DEPLOY_HOST=${DEPLOY_HOST:-inverse.ca}
+DEPLOY_HOST=${DEPLOY_HOST:-web.inverse.ca}
 DEPLOY_UPDATE=${DEPLOY_UPDATE:-"hostname -f"}
 
 #REPO_BASE_DIR=${REPO_BASE_DIR:-/var/www/repos/PacketFence}
@@ -90,12 +90,12 @@ maint_deploy() {
         || die "scp failed"
 }
 
-packetfence_release_centos7_deploy() {
-    src_dir="$RPM_RESULT_DIR/7"
-    dst_repo="$PUBLIC_REPO_BASE_DIR/RHEL7"
+packetfence_release_el8_deploy() {
+    src_dir="$RPM_RESULT_DIR/8"
+    dst_repo="$PUBLIC_REPO_BASE_DIR/RHEL8"
     dst_dir="$DEPLOY_USER@$DEPLOY_HOST:$dst_repo"
-    pf_release_rpm_file=$(basename $(ls $RPM_RESULT_DIR/7/packetfence-release*))
-    pkg_dest_name=${PKG_DEST_NAME:-"packetfence-release-7.${CI_COMMIT_REF_SLUG}.noarch.rpm"}
+    pf_release_rpm_file=$(basename $(ls $src_dir/packetfence-release*))
+    pkg_dest_name=${PKG_DEST_NAME:-"packetfence-release-el8.${CI_COMMIT_REF_SLUG}.noarch.rpm"}
     declare -p src_dir dst_dir pf_release_rpm_file pkg_dest_name
 
     echo "scp: ${src_dir}/${pf_release_rpm_file} -> ${dst_dir}/${pkg_dest_name}"
@@ -114,6 +114,6 @@ case $1 in
     rpm) rpm_deploy ;;
     deb) deb_deploy ;;
     maintenance) maint_deploy ;;
-    packetfence-release) packetfence_release_centos7_deploy ;;
+    packetfence-release) packetfence_release_el8_deploy ;;
     *)   die "Wrong argument"
 esac
