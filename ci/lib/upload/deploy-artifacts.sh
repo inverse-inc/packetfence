@@ -29,8 +29,8 @@ RPM_DEPLOY_DIR=${RPM_DEPLOY_DIR:-"${PF_RELEASE}/x86_64"}
 RPM_RESULT_DIR=${RPM_RESULT_DIR:-"${RESULT_DIR}/centos"}
 
 # Deb
-DEB_UPLOAD_DIR=${DEB_UPLOAD_DIR:-/root/debian/UploadQueue}
-DEB_DEPLOY_DIR=${DEB_DEPLOY_DIR:-debian-devel}
+DEB_UPLOAD_DIR=${DEB_UPLOAD_DIR:-"${HOME}/debian/UploadQueue"}
+DEB_DEPLOY_DIR=${DEB_DEPLOY_DIR:-foo}
 DEB_RESULT_DIR=${DEB_RESULT_DIR:-"${RESULT_DIR}/debian"}
 
 # Maintenance
@@ -54,10 +54,10 @@ rpm_deploy() {
         scp $src_dir/*.rpm $dst_dir/RPMS \
             || die "scp failed"
 
-        # dst_cmd="$DEPLOY_USER@$DEPLOY_HOST $DEPLOY_UPDATE"
-        # echo "running following command: $dst_cmd"
-        # ssh $dst_cmd \
-        #     || die "update failed"
+        dst_cmd="$DEPLOY_USER@$DEPLOY_HOST $DEPLOY_UPDATE"
+        echo "running following command: $dst_cmd"
+        ssh $dst_cmd \
+            || die "update failed"
     done
 }
 

@@ -195,14 +195,11 @@ variables:
   dependencies:
     - sign_dev_and_release
   variables:
-    DEPLOY_USER: root
-    DEB_DEPLOY_DIR: ${CI_ENVIRONMENT_NAME}
-    DEPLOY_UPDATE: "/builds/bin/ci-repo-deploy deb ${CI_ENVIRONMENT_NAME}"
+    DEPLOY_USER: reposync
+    # DEPLOY_UPDATE: "FIXME"
   script:
     - ./${UPLOAD_DIR}/deploy-artifacts.sh deb
-  # run job on runners tag with inverse AND shell
   tags:
-    - inverse
     - shell
 
 .deploy_rpm_job:
@@ -212,7 +209,7 @@ variables:
   variables:
     DEPLOY_USER: reposync
     DEPLOY_SRPMS: "no"
-    DEPLOY_UPDATE: "FIXME"
+    # DEPLOY_UPDATE: "FIXME"
   script:
     - ./${UPLOAD_DIR}/deploy-artifacts.sh rpm
   tags:
@@ -619,24 +616,27 @@ deploy_deb_devel:
     - .deploy_deb_job
     - .job_devel_only_triggers
   environment:
-    name: debian-devel
-    url: ${PUBLIC_REPO_URL}/${CI_ENVIRONMENT_NAME}
+    name: devel
+  variables:
+    DEB_DEPLOY_DIR: debian
 
 deploy_deb_branches:
   extends:
     - .deploy_deb_job
     - .job_branches_only_triggers
   environment:
-    name: debian-branches
-    url: ${PUBLIC_REPO_URL}/${CI_ENVIRONMENT_NAME}
+    name: branches
+  variables:
+    DEB_DEPLOY_DIR: debian-branches
 
 deploy_deb_release:
   extends:
     - .deploy_deb_job
     - .job_release_triggers
   environment:
-    name: debian-lastrelease
-    url: ${PUBLIC_REPO_URL}/${CI_ENVIRONMENT_NAME}
+    name: release
+  variables:
+    DEB_DEPLOY_DIR: debian
 
 # we deploy artifacts for all distributions in one shot
 deploy_maintenance:
