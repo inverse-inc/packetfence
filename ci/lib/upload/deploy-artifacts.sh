@@ -1,14 +1,16 @@
 #!/bin/bash
 set -o nounset -o pipefail -o errexit
 
-die() {
-    echo "$(basename $0): $@" >&2 ; exit 1
-}
+# full path to dir of current script
+SCRIPT_DIR=$(readlink -e $(dirname ${BASH_SOURCE[0]}))
 
-log_section() {
-   printf '=%.0s' {1..72} ; printf "\n"
-   printf "=\t%s\n" "" "$@" ""
-}
+# full path to root of PF sources
+PF_SRC_DIR=$(echo ${SCRIPT_DIR} | grep -oP '.*?(?=\/ci\/)')
+
+# path to all functions
+FUNCTIONS_FILE=${PF_SRC_DIR}/ci/lib/common/functions.sh
+
+source ${FUNCTIONS_FILE}
 
 RESULT_DIR=${RESULT_DIR:-result}
 
@@ -33,7 +35,7 @@ MAINT_DEPLOY_DIR=${MAINT_DEPLOY_DIR:-tmp}
 rpm_deploy() {
     for release_name in $(ls $RPM_RESULT_DIR); do
         src_dir="$RPM_RESULT_DIR/${release_name}"
-        dst_repo="$RPM_BASE_DIR/$RPM_DEPLOY_DIR"
+        dst_repo="$PUBLIC_REPO_BASE_DIR/$RPM_DEPLOY_DIR"
         dst_dir="$DEPLOY_USER@$DEPLOY_HOST:$dst_repo"
         declare -p src_dir dst_dir
 
@@ -99,6 +101,10 @@ packetfence_release_centos7_deploy() {
 
 log_section "Display artifacts"
 tree ${RESULT_DIR}
+
+log_section "Get PacketFence minor release"
+PF_RELEASE=$(get_pf_release)
+echo "${PF_RELEASE}"
 
 log_section "Deploy $1 artifacts"
 case $1 in

@@ -5,6 +5,7 @@
 # PF versions
 #
 PF_RELEASE_PATH=$(shell readlink -e $(PWD)/conf/pf-release)
+# PF_RELEASE_REV=X.Y
 PF_RELEASE_REV=$(shell perl -ne 'print $$1 if (m/.*?(\d+\.\d+)./)' $(PF_RELEASE_PATH))
 
 #
