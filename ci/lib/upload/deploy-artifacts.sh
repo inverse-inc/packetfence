@@ -11,31 +11,35 @@ PF_SRC_DIR=$(echo ${SCRIPT_DIR} | grep -oP '.*?(?=\/ci\/)')
 FUNCTIONS_FILE=${PF_SRC_DIR}/ci/lib/common/functions.sh
 
 source ${FUNCTIONS_FILE}
+get_pf_release
 
 RESULT_DIR=${RESULT_DIR:-result}
 
 DEPLOY_USER=${DEPLOY_USER:-reposync}
-DEPLOY_HOST=${DEPLOY_HOST:-pfbuilder.inverse}
+DEPLOY_HOST=${DEPLOY_HOST:-inverse.ca}
 DEPLOY_UPDATE=${DEPLOY_UPDATE:-"hostname -f"}
 
-REPO_BASE_DIR=${REPO_BASE_DIR:-/var/www/repos/PacketFence}
+#REPO_BASE_DIR=${REPO_BASE_DIR:-/var/www/repos/PacketFence}
 PUBLIC_REPO_BASE_DIR=${PUBLIC_REPO_BASE_DIR:-/var/www/inverse.ca/downloads/PacketFence}
 
+# RPM
 DEPLOY_SRPMS=${DEPLOY_SRPMS:-no}
-RPM_BASE_DIR=${RPM_BASE_DIR:-"${REPO_BASE_DIR}/RHEL7"}
-RPM_DEPLOY_DIR=${RPM_DEPLOY_DIR:-devel/x86_64}
+RPM_BASE_DIR=${RPM_BASE_DIR:-"${PUBLIC_REPO_BASE_DIR}"}
+RPM_DEPLOY_DIR=${RPM_DEPLOY_DIR:-"${PF_RELEASE}/x86_64"}
 RPM_RESULT_DIR=${RPM_RESULT_DIR:-"${RESULT_DIR}/centos"}
 
+# Deb
 DEB_UPLOAD_DIR=${DEB_UPLOAD_DIR:-/root/debian/UploadQueue}
 DEB_DEPLOY_DIR=${DEB_DEPLOY_DIR:-debian-devel}
 DEB_RESULT_DIR=${DEB_RESULT_DIR:-"${RESULT_DIR}/debian"}
 
+# Maintenance
 MAINT_DEPLOY_DIR=${MAINT_DEPLOY_DIR:-tmp}
 
 rpm_deploy() {
     for release_name in $(ls $RPM_RESULT_DIR); do
         src_dir="$RPM_RESULT_DIR/${release_name}"
-        dst_repo="$PUBLIC_REPO_BASE_DIR/$RPM_DEPLOY_DIR"
+        dst_repo="$RPM_BASE_DIR/RHEL$release_name/$RPM_DEPLOY_DIR"
         dst_dir="$DEPLOY_USER@$DEPLOY_HOST:$dst_repo"
         declare -p src_dir dst_dir
 
@@ -50,10 +54,10 @@ rpm_deploy() {
         scp $src_dir/*.rpm $dst_dir/RPMS \
             || die "scp failed"
 
-        dst_cmd="$DEPLOY_USER@$DEPLOY_HOST $DEPLOY_UPDATE"
-        echo "running following command: $dst_cmd"
-        ssh $dst_cmd \
-            || die "update failed"
+        # dst_cmd="$DEPLOY_USER@$DEPLOY_HOST $DEPLOY_UPDATE"
+        # echo "running following command: $dst_cmd"
+        # ssh $dst_cmd \
+        #     || die "update failed"
     done
 }
 
@@ -102,8 +106,7 @@ packetfence_release_centos7_deploy() {
 log_section "Display artifacts"
 tree ${RESULT_DIR}
 
-log_section "Get PacketFence minor release"
-PF_RELEASE=$(get_pf_release)
+log_section "Display PacketFence minor release"
 echo "${PF_RELEASE}"
 
 log_section "Deploy $1 artifacts"
