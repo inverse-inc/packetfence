@@ -39,9 +39,15 @@ MAINT_DEPLOY_DIR=${MAINT_DEPLOY_DIR:-tmp}
 rpm_deploy() {
     for release_name in $(ls $RPM_RESULT_DIR); do
         src_dir="$RPM_RESULT_DIR/${release_name}"
-        dst_repo="$RPM_BASE_DIR/RHEL$release_name/$RPM_DEPLOY_DIR"
+        dst_repo="$RPM_BASE_DIR/RHEL$release_name/$RPM_DEPLOY_DIR/RPMS"
         dst_dir="$DEPLOY_USER@$DEPLOY_HOST:$dst_repo"
         declare -p src_dir dst_dir
+
+        # dest repo need to exist
+        mkdir_cmd="$DEPLOY_USER@$DEPLOY_HOST mkdir -p $dst_repo"
+        echo "running following command: $mkdir_cmd"
+        ssh $mkdir_cmd \
+            || die "remote mkdir failed"
 
         if [ "$DEPLOY_SRPMS" == "no" ]; then
             echo "Removing SRPMS according to '$DEPLOY_SRPMS' value"
@@ -50,10 +56,12 @@ rpm_deploy() {
             echo "Keeping SRPMS according to '$DEPLOY_SRPMS' value"
         fi
 
-        echo "copy: $src_dir/*.rpm -> $dst_dir/RPMS"
-        scp $src_dir/*.rpm $dst_dir/RPMS \
+        # copy rpm files
+        echo "copy: $src_dir/*.rpm -> $dst_dir"
+        scp $src_dir/*.rpm $dst_dir \
             || die "scp failed"
 
+        # update repository
         dst_cmd="$DEPLOY_USER@$DEPLOY_HOST $DEPLOY_UPDATE"
         echo "running following command: $dst_cmd"
         ssh $dst_cmd \
