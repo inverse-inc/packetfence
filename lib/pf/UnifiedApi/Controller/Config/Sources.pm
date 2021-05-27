@@ -27,8 +27,10 @@ use pfappserver::Form::Config::Source;
 use pfappserver::Form::Config::Source::AdminProxy;
 use pfappserver::Form::Config::Source::AD;
 use pfappserver::Form::Config::Source::AuthorizeNet;
+use pfappserver::Form::Config::Source::AzureAD;
 use pfappserver::Form::Config::Source::Blackhole;
 use pfappserver::Form::Config::Source::Authorization;
+use pfappserver::Form::Config::Source::AzureAD;
 use pfappserver::Form::Config::Source::Clickatell;
 use pfappserver::Form::Config::Source::EAPTLS;
 use pfappserver::Form::Config::Source::Eduroam;
@@ -66,6 +68,7 @@ our %TYPES_TO_FORMS = (
       AD
       Authorization
       AuthorizeNet
+      AzureAD
       Blackhole
       Clickatell
       EAPTLS

@@ -23,6 +23,7 @@ import { BaseContainerLoading } from '@/components/new/'
 import FormTypeAdminProxy from './FormTypeAdminProxy'
 import FormTypeAuthorization from './FormTypeAuthorization'
 import FormTypeAuthorizeNet from './FormTypeAuthorizeNet'
+import FormTypeAzureAD from './FormTypeAzureAD'
 import FormTypeBlackhole from './FormTypeBlackhole'
 import FormTypeClickatell from './FormTypeClickatell'
 import FormTypeEapTls from './FormTypeEapTls'
@@ -60,6 +61,7 @@ const components = {
   FormTypeAdminProxy,
   FormTypeAuthorization,
   FormTypeAuthorizeNet,
+  FormTypeAzureAD,
   FormTypeBlackhole,
   FormTypeClickatell,
   FormTypeEapTls,
@@ -105,6 +107,7 @@ export const setup = (props) => {
       case 'AdminProxy':    return FormTypeAdminProxy //break
       case 'Authorization': return FormTypeAuthorization //break
       case 'AuthorizeNet':  return FormTypeAuthorizeNet //break
+      case 'AzureAD':       return FormTypeAzureAD // break
       case 'Blackhole':     return FormTypeBlackhole //break
       case 'Clickatell':    return FormTypeClickatell //break
       case 'EAPTLS':        return FormTypeEapTls //break
