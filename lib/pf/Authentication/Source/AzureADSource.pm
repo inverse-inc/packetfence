@@ -24,9 +24,9 @@ has '+class' => (default => 'internal');
 has 'client_id' => (isa => 'Str', is => 'rw', required => 1);
 has 'client_secret' => (isa => 'Str', is => 'rw', required => 1);
 has 'tenant_id' => (isa => "Str", is => "rw", required => 1);
-has 'token_url' => (isa => 'Str', is => 'rw', default => sub{"https://login.microsoftonline.com/%TENANT_ID/oauth2/v2.0/token"});
-has 'user_groups_url' => (isa => 'Str', is => 'rw', default => sub{"https://graph.microsoft.com/v1.0/users/%USERNAME/memberOf"});
-has 'timeout' => (isa => 'Int', is => 'rw', default => sub{10});
+has 'token_url' => (isa => 'Str', is => 'rw', default => "https://login.microsoftonline.com/%TENANT_ID/oauth2/v2.0/token");
+has 'user_groups_url' => (isa => 'Str', is => 'rw', default => "https://graph.microsoft.com/v1.0/users/%USERNAME/memberOf");
+has 'timeout' => (isa => 'Int', is => 'rw', default => 10);
 
 my $GET_ADMIN_TOKEN_KEY = "get_admin_token";
 
