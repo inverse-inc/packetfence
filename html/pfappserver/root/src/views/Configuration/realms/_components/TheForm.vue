@@ -138,6 +138,11 @@
           :text="$i18n.t('The LDAP Server to use for EAP TTLS PAP authorization and authentication.')"
         />
 
+        <form-group-azuread-source-ttls-pap namespace="azuread_source_ttls_pap"
+          :column-label="$i18n.t('Azure AD Source for TTLS PAP')"
+          :text="$i18n.t('The Azure AD to use for EAP TTLS PAP authentication.')"
+        />
+
       </base-form-tab>
     </b-tabs>
   </base-form>
@@ -172,6 +177,7 @@ import {
   FormGroupRadiusStripUsername,
   FormGroupPermitCustomAttributes,
   FormGroupLdapSource,
+  FormGroupAzureadSourceTtlsPap,
   FormGroupLdapSourceTtlsPap
 } from './'
 
@@ -201,6 +207,7 @@ const components = {
   FormGroupRadiusStripUsername,
   FormGroupPermitCustomAttributes,
   FormGroupLdapSource,
+  FormGroupAzureadSourceTtlsPap,
   FormGroupLdapSourceTtlsPap
 }
 
