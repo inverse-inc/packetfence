@@ -50,3 +50,5 @@ $INCLUDE    /usr/local/pf/raddb/dictionary.ruckus
 #ATTRIBUTE	My-Local-IPAddr		3001	ipaddr
 #ATTRIBUTE	My-Local-Integer	3002	integer
 ATTRIBUTE       AD-Samaccountname       3003    string
+
+$INCLUDE /opt/freeradius-oauth2-perl/dictionary

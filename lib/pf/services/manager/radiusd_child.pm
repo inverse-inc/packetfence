@@ -313,6 +313,8 @@ EOT
 
     generate_ldap_choice(\$tags{'authorize_ldap_choice'}, \$tags{'authentication_ldap_auth_type'}, \$tags{'edir_configuration'});
 
+    $tags{'oauth2_if_enabled'} = (any { $_->{azuread_source_ttls_pap} } values(%ConfigRealm)) ? "oauth2" : "#oauth2 is not in use by any realm";
+
     $tt->process("$conf_dir/radiusd/packetfence-tunnel", \%tags, "$install_dir/raddb/sites-enabled/packetfence-tunnel") or die $tt->error();
 
     %tags = ();
@@ -845,6 +847,19 @@ sub generate_radiusd_proxy {
 realm $real_realm {
 $options
 EOT
+        if ($pf::config::ConfigRealm{$realm}->{azuread_source_ttls_pap}) {
+            my $source = getAuthenticationSource($pf::config::ConfigRealm{$realm}->{azuread_source_ttls_pap});
+            my $client_id = $source->client_id;
+            my $client_secret = $source->client_secret;
+            $tags{'config'} .= <<"EOT";
+oauth2 {
+    discovery = "https://login.microsoftonline.com/%{Realm}/v2.0"
+    client_id = "$client_id"
+    client_secret = "$client_secret"
+    cache_password = yes
+}
+EOT
+        }
         if ($pf::config::ConfigRealm{$realm}->{'radius_auth'} ) {
             $tags{'config'} .= <<"EOT";
 auth_pool = auth_pool_$realm
