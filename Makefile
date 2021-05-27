@@ -215,7 +215,7 @@ html_install:
 .PHONY: rpm/.rpmmacros
 rpm/.rpmmacros:
 	echo "%systemddir /usr/lib/systemd" > $(SRC_RPMDIR)/.rpmmacros
-	echo "%pf_release $(PF_RELEASE_REV)" >> $(SRC_RPMDIR)/.rpmmacros
+	echo "%pf_minor_release $(PF_MINOR_RELEASE)" >> $(SRC_RPMDIR)/.rpmmacros
 
 .PHONY: build_rpm
 build_rpm: rpm/.rpmmacros

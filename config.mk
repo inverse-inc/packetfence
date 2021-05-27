@@ -2,19 +2,17 @@
 # PacketFence application
 #==============================================================================
 #
-# PF versions
-#
-PF_RELEASE_PATH=$(shell readlink -e $(PWD)/conf/pf-release)
-# PF_RELEASE_REV=X.Y
-PF_RELEASE_REV=$(shell perl -ne 'print $$1 if (m/.*?(\d+\.\d+)./)' $(PF_RELEASE_PATH))
-
-#
 # Base directories
 #
 PREFIX = /usr/local
 PF_PREFIX = $(PREFIX)/pf
 BINDIR = $(PF_PREFIX)/bin
 SBINDIR = $(PF_PREFIX)/sbin
+# source dirs
+SRC_ROOT_DIR = $(CURDIR)
+SRC_RPMDIR = $(SRC_ROOT_DIR)/rpm
+SRC_DEBDIR = $(SRC_ROOT_DIR)/debian
+SRC_CIDIR = $(SRC_ROOT_DIR)/ci
 
 #
 # Golang
@@ -22,11 +20,11 @@ SBINDIR = $(PF_PREFIX)/sbin
 GOVERSION = go1.16.4
 PF_BINARIES = pfhttpd pfdhcp pfdns pfstats pfdetect galera-autofix pfacct pfcertmanager pfcron
 
-# source dirs
-SRC_ROOT_DIR = $(CURDIR)
-SRC_RPMDIR = $(SRC_ROOT_DIR)/rpm
-SRC_DEBDIR = $(SRC_ROOT_DIR)/debian
-SRC_CIDIR = $(SRC_ROOT_DIR)/ci
+#
+# PF version
+#
+PF_RELEASE_PATH=$(shell readlink -e $(SRC_ROOT_DIR)/conf/pf-release)
+PF_MINOR_RELEASE=$(shell perl -ne 'print $$1 if (m/.*?(\d+\.\d+)./)' $(PF_RELEASE_PATH))
 
 # SRC HTML dirs
 SRC_HTMLDIR = html

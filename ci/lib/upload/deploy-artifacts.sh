@@ -25,7 +25,7 @@ PUBLIC_REPO_BASE_DIR=${PUBLIC_REPO_BASE_DIR:-/var/www/inverse.ca/downloads/Packe
 # RPM
 DEPLOY_SRPMS=${DEPLOY_SRPMS:-no}
 RPM_BASE_DIR=${RPM_BASE_DIR:-"${PUBLIC_REPO_BASE_DIR}"}
-RPM_DEPLOY_DIR=${RPM_DEPLOY_DIR:-"${PF_RELEASE}/x86_64"}
+RPM_DEPLOY_DIR=${RPM_DEPLOY_DIR:-"${PF_MINOR_RELEASE}/x86_64"}
 RPM_RESULT_DIR=${RPM_RESULT_DIR:-"${RESULT_DIR}/centos"}
 
 # Deb
@@ -115,7 +115,7 @@ log_section "Display artifacts"
 tree ${RESULT_DIR}
 
 log_section "Display PacketFence minor release"
-echo "${PF_RELEASE}"
+echo "${PF_MINOR_RELEASE}"
 
 log_section "Deploy $1 artifacts"
 case $1 in

@@ -18,5 +18,5 @@ log_section() {
 
 get_pf_release() {
     PF_RELEASE_PATH=$(readlink -e ${PF_SRC_DIR}/conf/pf-release)
-    PF_RELEASE=$(perl -ne 'print $1 if (m/.*?(\d+\.\d+)./)' ${PF_RELEASE_PATH})
+    PF_MINOR_RELEASE=$(perl -ne 'print $1 if (m/.*?(\d+\.\d+)./)' ${PF_RELEASE_PATH})
 }

@@ -1,4 +1,7 @@
 ---
+# get current PacketFence minor release (X.Y)
+pf_minor_release: '{{ lookup("env", "PF_MINOR_RELEASE") | default("99.9", true) }}'
+
 # Check if CI_COMMIT_TAG is defined (only when making a release) to disable devel repositories
 # that contain install dependencies
 release_status: '{{ True if lookup("env", "CI_COMMIT_TAG")

@@ -19,7 +19,7 @@ all: test-pfcen7dev-dev test-pfdeb9dev-dev test-pfcen7dev-release test-pfdeb9dev
 ### Targets used in pipeline
 .PHONY: test
 test: clean
-	PF_RELEASE_REV=$(PF_RELEASE_REV) ./vagrant-wrapper.sh run
+	PF_MINOR_RELEASE=$(PF_MINOR_RELEASE) ./vagrant-wrapper.sh run
 
 .PHONY: halt
 halt:

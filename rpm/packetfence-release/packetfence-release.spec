@@ -1,5 +1,5 @@
 Name:       packetfence-release
-Version:    2.1.0
+Version:    2.2.0
 Release:    1%{?dist}
 BuildArch:  noarch
 Summary:    PacketFence release file and RPM repository configuration
@@ -23,7 +23,7 @@ for the PacketFence RPM repository.
 ## PacketFence RPM Repository for RHEL/Centos
 [packetfence]
 name=PacketFence Repository
-baseurl=http://inverse.ca/downloads/PacketFence/RHEL\$releasever/%{pf_release}/\$basearch
+baseurl=http://inverse.ca/downloads/PacketFence/RHEL\$releasever/%{pf_minor_release}/\$basearch
 gpgkey=file:///etc/pki/rpm-gpg/RPM-GPG-KEY-PACKETFENCE-CENTOS
 gpgcheck=1
 enabled=0
@@ -101,6 +101,9 @@ cp /etc/pki/rpm-gpg/RPM-GPG-KEY-PACKETFENCE-CENTOS %{buildroot}%{_sysconfdir}/pk
 
 
 %changelog
+* Mon May 31 2021 Nicolas Quiniou-Briand <nquiniou@akamai.com> - 2.2.0-1
+- Manage one repository per version to simplify maintenance and release process
+
 * Wed Apr 15 2020 Nicolas Quiniou-Briand <nqb@inverse.ca> - 2.1.0-1
 - Add packetfence-branches and packetfence-gitlab repositories
 
