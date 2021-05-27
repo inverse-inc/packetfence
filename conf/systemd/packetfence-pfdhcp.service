@@ -10,6 +10,7 @@ StartLimitBurst=3
 StartLimitInterval=60
 Type=notify
 WatchdogSec=30s
+Environment=LOG_LEVEL=INFO
 EnvironmentFile=-/usr/local/pf/conf/pfdhcp.conf
 ExecStart=/usr/local/pf/sbin/pfdhcp
 Restart=on-failure

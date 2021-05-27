@@ -10,6 +10,7 @@ After=packetfence-base.target packetfence-config.service packetfence-iptables.se
 StartLimitBurst=3
 StartLimitInterval=10
 Type=notify
+Environment=LOG_LEVEL=INFO
 ExecStartPre=/bin/rm -fr /usr/local/pf/var/run/collectd-unixsock
 ExecStart=/usr/local/pf/sbin/pfstats
 Restart=on-failure

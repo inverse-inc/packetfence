@@ -9,6 +9,7 @@ Before=packetfence-httpd.portal.service
 StartLimitBurst=3
 StartLimitInterval=60
 Type=notify
+Environment=LOG_LEVEL=INFO
 ExecStartPre=/bin/perl -I/usr/local/pf/lib '-Mpf::services::manager::pfdns' -e 'pf::services::manager::pfdns->new()->generateConfig()'
 ExecStart=/usr/local/pf/sbin/pfdns -conf=/usr/local/pf/var/conf/pfdns.conf
 Restart=on-failure
