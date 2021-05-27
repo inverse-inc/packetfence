@@ -133,7 +133,7 @@ Requires: sudo
 #Requires: perl(Net::Interface)
 #Requires: perl(Net::Netmask)
 # pfcron, pfdhcplistener
-Requires: perl(Net::Pcap) >= 0.16
+#Requires: perl(Net::Pcap) >= 0.16
 # pfdhcplistener
 Requires: perl(NetPacket) >= 1.2.0
 #Requires: perl(Module::Metadata)
@@ -159,6 +159,10 @@ Requires: perl(SOAP::Lite) >= 1.0
 #Requires: perl(WWW::Curl)
 Requires: perl(Data::MessagePack)
 Requires: perl(Data::MessagePack::Stream)
+#Requires: perl(SOAP::Lite) >= 1.0
+#Requires: perl(WWW::Curl)
+#Requires: perl(Data::MessagePack)
+#Requires: perl(Data::MessagePack::Stream)
 #Requires: perl(POSIX::2008)
 # Template::Toolkit - captive portal template system
 #Requires: perl(Template)
@@ -242,6 +246,7 @@ Requires: perl(Data::MessagePack::Stream)
 #Requires: perl(Linux::Inotify2)
 #Requires: perl(File::Touch)
 Requires: perl(POSIX::AtFork)
+#Requires: perl(POSIX::AtFork)
 #Requires: perl(Hash::Merge)
 #Requires: perl(IO::Socket::INET6)
 #Requires: perl(IO::Socket::SSL) >= 2.049
