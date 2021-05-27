@@ -1,1 +1,21 @@
-/opt/freeradius-oauth2-perl/module
+# rlm_rest is really lacking (see README.rlm_rest.md) so we use rlm_perl
+
+perl oauth2_perl {
+	filename = /opt/freeradius-oauth2-perl/main.pm
+
+	config {
+		#ttl = 30	# default 30s (>10s as cloud is slow) - 33% fuzzing is applied
+		#debug = yes	# default no
+	}
+}
+
+cache oauth2_cache {
+	key = "%{User-Name}"
+
+	ttl = 864000	# 10 days
+
+	update {
+		&request:OAuth2-Password-Last-Modified := &control:OAuth2-Password-Last-Modified
+		&control:Password-With-Header := &control:Password-With-Header
+	}
+}
