@@ -195,7 +195,6 @@ variables:
   variables:
     DEPLOY_USER: reposync
     DEPLOY_HOST: web.inverse.ca
-    # DEPLOY_UPDATE: "FIXME"
   script:
     - ./${UPLOAD_DIR}/deploy-artifacts.sh deb
   tags:
@@ -209,7 +208,6 @@ variables:
     DEPLOY_USER: reposync
     DEPLOY_HOST: web.inverse.ca
     DEPLOY_SRPMS: "no"
-    # DEPLOY_UPDATE: "FIXME"
   script:
     - ./${UPLOAD_DIR}/deploy-artifacts.sh rpm
   tags:
@@ -623,7 +621,7 @@ deploy_deb_release:
     - .deploy_deb_job
     - .job_release_triggers
   environment:
-    name: release
+    name: stable
   variables:
     DEB_DEPLOY_DIR: debian
 

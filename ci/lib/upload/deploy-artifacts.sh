@@ -17,9 +17,7 @@ RESULT_DIR=${RESULT_DIR:-result}
 
 DEPLOY_USER=${DEPLOY_USER:-reposync}
 DEPLOY_HOST=${DEPLOY_HOST:-web.inverse.ca}
-DEPLOY_UPDATE=${DEPLOY_UPDATE:-"hostname -f"}
 
-#REPO_BASE_DIR=${REPO_BASE_DIR:-/var/www/repos/PacketFence}
 PUBLIC_REPO_BASE_DIR=${PUBLIC_REPO_BASE_DIR:-/var/www/inverse.ca/downloads/PacketFence}
 
 # RPM
@@ -30,21 +28,27 @@ RPM_RESULT_DIR=${RPM_RESULT_DIR:-"${RESULT_DIR}/centos"}
 
 # Deb
 DEB_UPLOAD_DIR=${DEB_UPLOAD_DIR:-"${HOME}/debian/UploadQueue"}
+DEB_BASE_DIR=${DEB_BASE_DIR:-"${PUBLIC_REPO_BASE_DIR}"}
 DEB_DEPLOY_DIR=${DEB_DEPLOY_DIR:-foo}
 DEB_RESULT_DIR=${DEB_RESULT_DIR:-"${RESULT_DIR}/debian"}
 
 # Maintenance
 MAINT_DEPLOY_DIR=${MAINT_DEPLOY_DIR:-tmp}
 
+# CI
+# automatically set up by CI based on environment
+CI_ENV_NAME=${CI_ENVIRONMENT_NAME:-environment}
+
 rpm_deploy() {
     for release_name in $(ls $RPM_RESULT_DIR); do
         src_dir="$RPM_RESULT_DIR/${release_name}"
         dst_repo="$RPM_BASE_DIR/RHEL$release_name/$RPM_DEPLOY_DIR/RPMS"
         dst_dir="$DEPLOY_USER@$DEPLOY_HOST:$dst_repo"
+        deploy_cmd="/usr/local/bin/ci-repo-deploy rpm $dst_repo $CI_ENV_NAME"
         declare -p src_dir dst_dir
 
-        # dest repo need to exist
-        mkdir_cmd="$DEPLOY_USER@$DEPLOY_HOST mkdir -p $dst_repo"
+        # dest repo need to exist + conf directories
+        mkdir_cmd="$DEPLOY_USER@$DEPLOY_HOST mkdir -p $dst_repo/conf"
         echo "running following command: $mkdir_cmd"
         ssh $mkdir_cmd \
             || die "remote mkdir failed"
@@ -62,7 +66,7 @@ rpm_deploy() {
             || die "scp failed"
 
         # update repository
-        dst_cmd="$DEPLOY_USER@$DEPLOY_HOST $DEPLOY_UPDATE"
+        dst_cmd="$DEPLOY_USER@$DEPLOY_HOST $deploy_cmd"
         echo "running following command: $dst_cmd"
         ssh $dst_cmd \
             || die "update failed"
@@ -72,14 +76,23 @@ rpm_deploy() {
 deb_deploy() {
     for release_name in $(ls $DEB_RESULT_DIR); do
         src_dir="$DEB_RESULT_DIR/${release_name}"
+        dst_repo="$DEB_BASE_DIR/$DEB_DEPLOY_DIR/$PF_MINOR_RELEASE"
         dst_dir="$DEPLOY_USER@$DEPLOY_HOST:$DEB_UPLOAD_DIR"
         changes_file=$(basename $(ls $DEB_RESULT_DIR/${release_name}/*.changes | tail -1))
         declare -p src_dir dst_dir changes_file
+
+        # dest repo need to exist
+        mkdir_cmd="$DEPLOY_USER@$DEPLOY_HOST mkdir -p $dst_repo"
+        echo "running following command: $mkdir_cmd"
+        ssh $mkdir_cmd \
+            || die "remote mkdir failed"
+
         echo "copy: $src_dir/* -> $dst_dir"
         scp $src_dir/* $dst_dir/ \
             || die "scp failed"
-        
-        dst_cmd="$DEPLOY_USER@$DEPLOY_HOST $DEPLOY_UPDATE"
+
+        deploy_cmd="/usr/local/bin/ci-repo-deploy deb $dst_repo $CI_ENV_NAME"
+        dst_cmd="$DEPLOY_USER@$DEPLOY_HOST $deploy_cmd"
         extra_args="${release_name} ${changes_file}"
         echo "running following command: $dst_cmd $extra_args"
         ssh $dst_cmd $extra_args \
@@ -98,6 +111,7 @@ maint_deploy() {
         || die "scp failed"
 }
 
+# no deploy command because it's just a file
 packetfence_release_el8_deploy() {
     src_dir="$RPM_RESULT_DIR/8"
     dst_repo="$PUBLIC_REPO_BASE_DIR/RHEL8"
