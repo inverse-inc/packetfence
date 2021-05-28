@@ -12,7 +12,7 @@ index 54b2113be5..c96aaba72c 100644
    quorum 1
    delay 15
 diff --git a/conf/mariadb/mariadb.conf.tt.example b/conf/mariadb/mariadb.conf.tt.example
-index 0c2ed73a1c..587eeab61c 100644
+index 591715aef3..7fc8654caf 100644
 --- a/conf/mariadb/mariadb.conf.tt.example
 +++ b/conf/mariadb/mariadb.conf.tt.example
 @@ -19,7 +19,7 @@ skip-networking
@@ -38,10 +38,10 @@ index d3a3cd9b63..fe284fcaa2 100644
          # Netdata is not designed to be exposed to potentially hostile networks
          # See https://github.com/firehol/netdata/issues/164
 diff --git a/conf/pf.conf.defaults b/conf/pf.conf.defaults
-index 1bc6ef3177..39dbb58a8e 100644
+index d1c03b2cf0..6bd56838ad 100644
 --- a/conf/pf.conf.defaults
 +++ b/conf/pf.conf.defaults
-@@ -424,7 +424,7 @@ radiusd=enabled
+@@ -429,7 +429,7 @@ radiusd=enabled
  # services.radiusd_binary
  # 
  # Location of the named binary. Only necessary to change if you are not running the RPMed version.
@@ -80,7 +80,7 @@ index 1bc6ef3177..39dbb58a8e 100644
  #
  # Should pfdns be managed by PacketFence?
 diff --git a/conf/systemd/packetfence-haproxy-admin.service b/conf/systemd/packetfence-haproxy-admin.service
-index 102b0cfb37..aa1c524696 100644
+index 925ad6c239..52f76432e6 100644
 --- a/conf/systemd/packetfence-haproxy-admin.service
 +++ b/conf/systemd/packetfence-haproxy-admin.service
 @@ -8,7 +8,7 @@ After=packetfence-base.target packetfence-config.service packetfence-pfperl-api.
@@ -93,7 +93,7 @@ index 102b0cfb37..aa1c524696 100644
  ExecReload=/bin/kill -USR2 $MAINPID
  Restart=on-failure
 diff --git a/conf/systemd/packetfence-haproxy-db.service b/conf/systemd/packetfence-haproxy-db.service
-index 8030226485..9ae8c07bb3 100644
+index aac3d9ceae..8e5f665c2a 100644
 --- a/conf/systemd/packetfence-haproxy-db.service
 +++ b/conf/systemd/packetfence-haproxy-db.service
 @@ -8,7 +8,7 @@ Wants=packetfence-config.service
@@ -106,10 +106,10 @@ index 8030226485..9ae8c07bb3 100644
  ExecReload=/bin/kill -USR2 $MAINPID
  Restart=on-failure
 diff --git a/conf/systemd/packetfence-haproxy-portal.service b/conf/systemd/packetfence-haproxy-portal.service
-index 3dee5d6b5a..ae85fd0181 100644
+index 625544b8b5..8c4f2a71b1 100644
 --- a/conf/systemd/packetfence-haproxy-portal.service
 +++ b/conf/systemd/packetfence-haproxy-portal.service
-@@ -8,7 +8,7 @@ Wants=packetfence-config.service
+@@ -7,7 +7,7 @@ Wants=packetfence-config.service
  Type=notify
  StartLimitBurst=3
  StartLimitInterval=10
@@ -258,13 +258,13 @@ index 217f17e622..b38b62f12c 100644
  Restart=on-failure
  Slice=packetfence.slice
 diff --git a/conf/systemd/packetfence-pfdns.service b/conf/systemd/packetfence-pfdns.service
-index 01cdb94532..9165db4c33 100644
+index 3a27545753..30765b0af6 100644
 --- a/conf/systemd/packetfence-pfdns.service
 +++ b/conf/systemd/packetfence-pfdns.service
-@@ -9,7 +9,7 @@ Before=packetfence-httpd.portal.service
- StartLimitBurst=3
+@@ -10,7 +10,7 @@ StartLimitBurst=3
  StartLimitInterval=60
  Type=notify
+ Environment=LOG_LEVEL=INFO
 -ExecStartPre=/bin/perl -I/usr/local/pf/lib '-Mpf::services::manager::pfdns' -e 'pf::services::manager::pfdns->new()->generateConfig()'
 +ExecStartPre=/usr/bin/perl -I/usr/local/pf/lib '-Mpf::services::manager::pfdns' -e 'pf::services::manager::pfdns->new()->generateConfig()'
  ExecStart=/usr/local/pf/sbin/pfdns -conf=/usr/local/pf/var/conf/pfdns.conf
