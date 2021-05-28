@@ -13,13 +13,16 @@ PacketFence supports integrating with the Azure Active Directory for authenticat
   1. Name: PacketFence
   1. Supported account types: Accounts in this organizational directory only - (Single tenant)
   1. Redirect URI must be left blank
- 1. Note down the 'Client ID' and 'Tenant ID' for later usage
+  1. Save the app
+1. Note down the 'Application (client) ID' and 'Directory (tenant) ID' for later usage
  1. In your application, go in 'Certificates & secrets' and select 'New client secret'
+  1. Description: PacketFence
   1. Make sure you note down its expiry date so you can renew it before its expiration. Failure to do so will prevent authentication from working on PacketFence
- 1. Note down the 'Client secret' for later usage
- 1. In your application, go to 'API permissions'
+  1. Save the secret
+ 1. Note down the 'Value' of your client secret for later usage
+ 1. Still in your application, go to 'API permissions'
   1. Click on 'Add a permission'
-    1. Go to the 'Microsoft APIs'
+    1. Go to the 'Microsoft APIs' tab
     1. Select 'Microsoft Graph'
     1. Select 'Application permissions'
     1. Add the permission `Directory.Read.All`
@@ -30,7 +33,7 @@ PacketFence supports integrating with the Azure Active Directory for authenticat
 
 Currently, PacketFence requires that multi-factor authentication be disabled for the PacketFence app. If you use Azure AD premium, you can create a rule to exclude this only for the PacketFence application. If you don't use Azure AD premium, this must be disabled for all your users.
 
-==== Disabling it using Azure AD premium
+==== Disabling MFA using Azure AD premium
 
  1. Open the "Azure Active Directory" in your Azure portal
  1. Go in 'Manage->Properties'
