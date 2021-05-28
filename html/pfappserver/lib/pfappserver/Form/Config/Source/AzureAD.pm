@@ -25,18 +25,21 @@ has_field 'client_id' =>
   (
    type => 'Text',
    required => 1,
+   default => '',
   );
 
 has_field 'client_secret' =>
   (
    type => 'Text',
    required => 1,
+   default => '',
   );
 
 has_field 'tenant_id' =>
   (
    type => 'Text',
    required => 1,
+   default => '',
   );
 
 has_field 'timeout' =>
