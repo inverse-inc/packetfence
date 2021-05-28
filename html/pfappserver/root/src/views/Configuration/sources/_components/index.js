@@ -129,6 +129,7 @@ export {
   BaseFormGroupChosenMultiple               as FormGroupSources,
   BaseFormGroupInput                        as FormGroupSponsorshipBcc,
   BaseFormGroupChosenOne                    as FormGroupStyle,
+  BaseFormGroupInput                        as FormGroupTenantIdentifier,
   BaseFormGroupInput                        as FormGroupTerminalGroupIdentifier,
   BaseFormGroupInput                        as FormGroupTerminalIdentifier,
   BaseFormGroupToggle                       as FormGroupTestMode,

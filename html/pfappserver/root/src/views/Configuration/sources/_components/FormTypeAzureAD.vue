@@ -15,14 +15,14 @@
     />
 
     <form-group-client-identifier namespace="client_id"
-      :column-label="$i18n.t('App ID')"
+      :column-label="$i18n.t('Client ID')"
     />
 
     <form-group-client-secret namespace="client_secret"
-      :column-label="$i18n.t('App Secret')"
+      :column-label="$i18n.t('Client Secret')"
     />
 
-    <form-group-tenant-id namespace="tenant_id"
+    <form-group-tenant-identifier namespace="tenant_id"
       :column-label="$i18n.t('Tenant ID')"
     />
 
