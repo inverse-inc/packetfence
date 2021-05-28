@@ -73,6 +73,10 @@ You can perform 802.1x authentication of users using Azure AD but this will only
  1. Under 'Configuration->Policies and Access Control->Realms', create a new realm
   1. Realm: enter the realm of your Azure AD users. Example, if the usernames have the following format `bob@inverseinc.onmicrosoft.com`, then your realm is `inverseinc.onmicrosoft.com`
   1. Go in the 'Stripping' tab of the realm and select your Azure AD source under 'Azure AD Source for TTLS PAP'
+  1. Still in the 'Stripping' tab, disable (uncheck), the following settings:
+   1. Strip on the portal
+   1. Strip on the admin
+   1. Strip in RADIUS authorization
   1. Save the realm
  1. Restart radiusd using `/usr/local/pf/bin/pfcmd service radiusd restart`
  1. All the users matching this realm will now authenticate against Azure AD. Make sure you also have a connection profile with auto-registration enabled and the Azure AD source in it so that your users are correclty authorized when connecting.
