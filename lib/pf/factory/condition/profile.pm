@@ -109,6 +109,12 @@ sub instantiate {
         elsif ($type eq 'advanced') {
             return $class->instantiate_advanced($data->{value});
         }
+        elsif ($type eq 'switch_group') {
+            return  pf::condition::switch_group->new({
+                key => 'last_switch',
+                condition => pf::condition::equals->new(value => $data->{value}),
+            });
+        }
         else {
             my $subclass = $class->getModuleName($type);
             $condition = $subclass->new($data);
