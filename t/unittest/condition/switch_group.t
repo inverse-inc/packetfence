@@ -1,48 +1,50 @@
-package pf::condition::switch_group;
+#!/usr/bin/perl
 
 =head1 NAME
 
-pf::condition::switch_group - check if a iswitch is inside a switch group
-
-=cut
+swith_group
 
 =head1 DESCRIPTION
 
-pf::condition::switch_group
+unit test for swith_group
 
 =cut
 
 use strict;
 use warnings;
-use Moose;
-use pf::constants qw($TRUE $FALSE);
-extends qw(pf::condition::key);
-use Scalar::Util qw(reftype);
-use pf::log;
+#
+use lib '/usr/local/pf/lib';
 
-our $logger = get_logger();
+BEGIN {
+    #include test libs
+    use lib qw(/usr/local/pf/t);
+    #Module for overriding configuration paths
+    use setup_test_config;
+}
 
-=head1 METHODS
 
-=head2 match
+use Test::More tests => 3;
+#This test will running last
+use Test::NoWarnings;
+use pf::condition::switch_group;
+use pf::condition::equals;
 
-match the last ip to see if it is in defined network
+{
+    my $condition = pf::condition::switch_group->new({
+        key => 'last_switch',
+        condition => pf::condition::equals->new(value => 'zammits-stuff'),
+    });
 
-=cut
+    ok($condition->match({ last_switch => '172.16.8.21'}));
+}
 
-sub match {
-    my ($self, $arg, $args) = @_;
-    if (!(defined($args))) {
-        $args = $arg
-    }
-    return $FALSE unless defined $arg && reftype ($arg) eq 'HASH';
-    my $key = $self->key;
-    return $FALSE unless exists $arg->{$key};
-    require pf::SwitchFactory;
-    my $last_switch = $arg->{$key};
-    my $switch = pf::SwitchFactory->instantiate($last_switch);
-    return $FALSE if(!defined($switch) || !$switch);
-    return $self->condition->match($switch->{_group}, $args);
+{
+    my $condition = pf::condition::switch_group->new({
+        key => 'last_switch',
+        condition => pf::condition::not_equals->new(value => 'zammits-stuff2'),
+    });
+
+    ok($condition->match({ last_switch => '172.16.8.21'}));
 }
 
 =head1 AUTHOR
@@ -73,3 +75,4 @@ USA.
 =cut
 
 1;
+
