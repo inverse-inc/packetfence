@@ -825,6 +825,7 @@ sub switch_access {
     $options->{'radius_request'}           = $args->{'radius_request'};
 
     my @sources = @{pf::authentication::getInternalAuthenticationSources()};
+    my ( $return, $message, $source_id, $extra );
 
     if ($connection->isVPN()) {
         ($nas_port_type, $eap_type, $mac, $port, $user_name, $nas_port_id, $session_id, $ifDesc) = $switch->parseVPNRequest($radius_request);
@@ -851,8 +852,8 @@ sub switch_access {
             if (defined($session_id)) {
                 $node_obj->sessionid($session_id);
             }
-
             $args->{'node_info'} = $node_obj;
+            $args->{'node_info'}->{'last_seen'} = pf::util::mysql_date();
             $args->{'fingerbank_info'} = pf::node::fingerbank_info($mac, $node_obj);
             $options->{'fingerbank_info'} = $args->{'fingerbank_info'};
 
@@ -860,9 +861,31 @@ sub switch_access {
             $args->{'profile'} = $profile;
             @sources = $profile->getFilteredAuthenticationSources($args->{'stripped_user_name'}, $args->{'realm'});
 
+            $args->{'autoreg'} = 0;
+            # should we auto-register? let's ask the VLAN object
+            my ( %info, $status, $status_msg, $do_auto_reg);
+            $do_auto_reg = $role_obj->shouldAutoRegister($args);
+            if ($do_auto_reg) {
+                $args->{'autoreg'} = 1;
+                my ($attributes, $action , %autoreg_node_defaults) = $role_obj->getNodeInfoForAutoReg($args);
+                $args->{'action'} = $action;
+                $args = { %$args, %$attributes } if (ref($attributes) eq 'HASH');
+                $node_obj->merge(\%autoreg_node_defaults);
+                $logger->debug("[$mac] auto-registering node");
+                # automatic registration
+                $info{autoreg} = 1;
+                ($status, $status_msg) = pf::registration::setup_node_for_registration($node_obj, \%info, $action);
+                if (is_error($status)) {
+                    $logger->error("auto-registration of node failed $status_msg");
+                    $do_auto_reg = 0;
+                    $node_obj->{status} = "unreg";
+                    return [ $RADIUS::RLM_MODULE_USERLOCK, ('Reply-Message' => $status_msg) ];
+                }
+            }
+
             my $role = $role_obj->fetchRoleForNode($args);
             $args->{'user_role'} = $role->{role};
-            my $status = $node_obj->save;
+            $status = $node_obj->save;
             if (is_error($status)) {
                 $logger->error("Cannot save $mac error ($status)");
             }
@@ -872,11 +895,18 @@ sub switch_access {
         }
     }
     else {
-            my $profile = pf::Connection::ProfileFactory->instantiate($FAKE_MAC,$options);
-            $args->{'profile'} = $profile;
-            @sources = $profile->getFilteredAuthenticationSources($args->{'stripped_user_name'}, $args->{'realm'});
+        my $profile = pf::Connection::ProfileFactory->instantiate($FAKE_MAC,$options);
+        $args->{'profile'} = $profile;
+        @sources = $profile->getFilteredAuthenticationSources($args->{'stripped_user_name'}, $args->{'realm'});
+        my $merged = { %$options, %$args };
+        $merged->{'rule_class'} = $Rules::AUTH;
+        $merged->{'context'} = $pf::constants::realm::RADIUS_CONTEXT;
+        my $attributes;
+        my $matched = pf::authentication::match2([@sources], $merged, undef, \$attributes);
+
+        my $values = $matched->{values};
+        $args->{'user_role'} = $values->{$Actions::SET_ROLE};
     }
-    my ( $return, $message, $source_id, $extra );
     $source_id = \@sources;
     if (!defined($args->{'radius_request'}{'MS-CHAP-Challenge'}) || (defined($radius_request->{"EAP-Type"}) && $radius_request->{"EAP-Type"} != $EAP_TLS && $radius_request->{"EAP-Type"} != $MS_EAP_AUTHENTICATION)) {
         ( $return, $message, $source_id, $extra ) = pf::authentication::authenticate( {
