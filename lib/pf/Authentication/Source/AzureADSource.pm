@@ -177,6 +177,7 @@ sub handle_failed_admin_call {
 
 sub get_memberOf {
     #TODO: support getting this from radius_request.OAuth2-Group if its there
+    #TODO: make this cacheable
     
     my ($self, $username) = @_;
     my $logger = get_logger;
