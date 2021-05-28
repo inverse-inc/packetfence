@@ -27,7 +27,7 @@ RPM_DEPLOY_DIR=${RPM_DEPLOY_DIR:-"${PF_MINOR_RELEASE}/x86_64"}
 RPM_RESULT_DIR=${RPM_RESULT_DIR:-"${RESULT_DIR}/centos"}
 
 # Deb
-DEB_UPLOAD_DIR=${DEB_UPLOAD_DIR:-"${HOME}/debian/UploadQueue"}
+DEB_UPLOAD_DIR=${DEB_UPLOAD_DIR:-"/home/$DEPLOY_USER/debian/UploadQueue"}
 DEB_BASE_DIR=${DEB_BASE_DIR:-"${PUBLIC_REPO_BASE_DIR}"}
 DEB_DEPLOY_DIR=${DEB_DEPLOY_DIR:-foo}
 DEB_RESULT_DIR=${DEB_RESULT_DIR:-"${RESULT_DIR}/debian"}
@@ -42,13 +42,15 @@ CI_ENV_NAME=${CI_ENVIRONMENT_NAME:-environment}
 rpm_deploy() {
     for release_name in $(ls $RPM_RESULT_DIR); do
         src_dir="$RPM_RESULT_DIR/${release_name}"
-        dst_repo="$RPM_BASE_DIR/RHEL$release_name/$RPM_DEPLOY_DIR/RPMS"
-        dst_dir="$DEPLOY_USER@$DEPLOY_HOST:$dst_repo"
-        deploy_cmd="/usr/local/bin/ci-repo-deploy rpm $dst_repo $CI_ENV_NAME"
+        base_repo="$RPM_BASE_DIR/RHEL$release_name/$RPM_DEPLOY_DIR"
+        rpm_dir="$base_repo/RPMS"
+        dst_dir="$DEPLOY_USER@$DEPLOY_HOST:$rpm_dir"
+        deploy_cmd="/usr/local/bin/ci-repo-deploy rpm $base_repo $CI_ENV_NAME"
         declare -p src_dir dst_dir
 
-        # dest repo need to exist + conf directories
-        mkdir_cmd="$DEPLOY_USER@$DEPLOY_HOST mkdir -p $dst_repo/conf"
+        # dest repo + subdirectories RPMS need to exist
+        # repodata dir will be created by createrepo command
+        mkdir_cmd="$DEPLOY_USER@$DEPLOY_HOST mkdir -p $rpm_dir"
         echo "running following command: $mkdir_cmd"
         ssh $mkdir_cmd \
             || die "remote mkdir failed"
@@ -81,8 +83,8 @@ deb_deploy() {
         changes_file=$(basename $(ls $DEB_RESULT_DIR/${release_name}/*.changes | tail -1))
         declare -p src_dir dst_dir changes_file
 
-        # dest repo need to exist
-        mkdir_cmd="$DEPLOY_USER@$DEPLOY_HOST mkdir -p $dst_repo"
+        # dest repo need to exist + conf directory
+        mkdir_cmd="$DEPLOY_USER@$DEPLOY_HOST mkdir -p $dst_repo/conf"
         echo "running following command: $mkdir_cmd"
         ssh $mkdir_cmd \
             || die "remote mkdir failed"
