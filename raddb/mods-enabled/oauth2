@@ -1,7 +1,7 @@
 # rlm_rest is really lacking (see README.rlm_rest.md) so we use rlm_perl
 
 perl oauth2_perl {
-	filename = /opt/freeradius-oauth2-perl/main.pm
+	filename = /usr/local/pf/raddb/mods-config/perl/oauth2.pm
 
 	config {
 		#ttl = 30	# default 30s (>10s as cloud is slow) - 33% fuzzing is applied
