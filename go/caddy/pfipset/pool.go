@@ -1,7 +1,7 @@
 package pfipset
 
 import (
-	ipset "github.com/rouzier/go-ipset/v2"
+	ipset "github.com/inverse-inc/go-ipset/v2"
 	"github.com/ti-mo/netfilter"
 	"runtime"
 	"sync"

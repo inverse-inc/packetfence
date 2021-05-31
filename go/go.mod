@@ -53,6 +53,7 @@ require (
 	github.com/inconshreveable/log15 v0.0.0-20171019012758-0decfc6c20d9
 	github.com/infobloxopen/go-trees v0.0.0-20190313150506-2af4e13f9062
 	github.com/inverse-inc/dhcp4 v0.0.0-20200625173842-2c4d1e50d7ca
+	github.com/inverse-inc/go-ipset/v2 v2.2.4
 	github.com/inverse-inc/go-radius v0.0.0-20201019132414-82756e2d8d47
 	github.com/inverse-inc/go-utils v0.0.0-20210420024101-48a17e73abae
 	github.com/inverse-inc/scep v0.0.0-20210513203155-0afeb79ee054
@@ -82,7 +83,6 @@ require (
 	github.com/prometheus/client_model v0.2.0
 	github.com/prometheus/common v0.14.0
 	github.com/robfig/cron/v3 v3.0.1
-	github.com/rouzier/go-ipset/v2 v2.2.3
 	github.com/russross/blackfriday v1.5.2
 	github.com/simon/go-netadv v0.0.0-20170602081515-fe67988531c7
 	github.com/sparrc/go-ping v0.0.0-20190613174326-4e5b6552494c

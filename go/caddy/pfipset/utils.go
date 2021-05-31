@@ -16,7 +16,7 @@ import (
 	"github.com/inverse-inc/go-utils/sharedutils"
 	"github.com/inverse-inc/packetfence/go/pfconfigdriver"
 	"github.com/inverse-inc/packetfence/go/unifiedapiclient"
-	ipset "github.com/rouzier/go-ipset/v2"
+	ipset "github.com/inverse-inc/go-ipset/v2"
 )
 
 var body io.Reader

@@ -13,7 +13,7 @@ import (
 	"github.com/gorilla/mux"
 	"github.com/inverse-inc/go-utils/log"
 	"github.com/inverse-inc/go-utils/sharedutils"
-	ipset "github.com/rouzier/go-ipset/v2"
+	ipset "github.com/inverse-inc/go-ipset/v2"
 )
 
 type Info struct {
