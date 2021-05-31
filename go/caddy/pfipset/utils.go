@@ -1,6 +1,7 @@
 package pfipset
 
 import (
+	"bytes"
 	"context"
 	"crypto/tls"
 	"database/sql"
@@ -9,19 +10,20 @@ import (
 	"net"
 	"net/http"
 	"regexp"
+	"strconv"
 
-	ipset "github.com/inverse-inc/go-ipset"
 	"github.com/inverse-inc/go-utils/log"
 	"github.com/inverse-inc/go-utils/sharedutils"
 	"github.com/inverse-inc/packetfence/go/pfconfigdriver"
 	"github.com/inverse-inc/packetfence/go/unifiedapiclient"
+	ipset "github.com/rouzier/go-ipset/v2"
 )
 
 var body io.Reader
 
 type pfIPSET struct {
 	Network map[*net.IPNet]string
-	ListALL []ipset.IPSet
+	ListALL []ipset.SetPolicy
 	jobs    chan job
 }
 
@@ -92,21 +94,16 @@ func updateClusterRequest(ctx context.Context, origReq *http.Request) {
 	}
 }
 
-func (IPSET *pfIPSET) mac2ip(ctx context.Context, Mac string, Set ipset.IPSet) []string {
-	r := "(?i)((?:[0-9]{1,3}.){3}(?:[0-9]{1,3}))," + Mac
+func (IPSET *pfIPSET) mac2ip(ctx context.Context, Mac mac.Mac, Set *ipset.SetPolicy) []*ipset.Entry {
 
-	rgx := regexp.MustCompile(r)
-
-	var Ips []string
-	for _, u := range Set.Members {
-
-		if rgx.Match([]byte(u.Elem)) {
-			result := rgx.FindStringSubmatch(u.Elem)
-
-			Ips = append(Ips, result[1])
+	entries := []*ipset.Entry{}
+	for _, u := range Set.Entries {
+		if bytes.Compare([]byte(u.Ether.Get()), []byte(Mac[:])) == 0 {
+			entries = append(entries, u)
 		}
 	}
-	return Ips
+
+	return entries
 }
 
 func post(ctx context.Context, url string, body io.Reader) error {
@@ -120,11 +117,17 @@ func post(ctx context.Context, url string, body io.Reader) error {
 	return err
 }
 
+func listAll() ([]ipset.SetPolicy, error) {
+	conn := getConn()
+	defer putConn(conn)
+	return conn.ListAll()
+}
+
 // initIPSet fetch the database to remove already assigned ip addresses
 func (IPSET *pfIPSET) initIPSet(ctx context.Context, db *sql.DB) {
 	logger := log.LoggerWContext(ctx)
 
-	IPSET.ListALL, _ = ipset.ListAll()
+	IPSET.ListALL, _ = listAll()
 	rows, err := db.Query("select distinct n.mac, i.ip, n.category_id as node_id from node as n left join locationlog as l on n.mac=l.mac left join ip4log as i on n.mac=i.mac where l.connection_type = \"inline\" and n.status=\"reg\" and n.mac=i.mac and i.end_time > NOW() and l.tenant_id=\"1\"")
 	if err != nil {
 		// Log here
@@ -144,15 +147,17 @@ func (IPSET *pfIPSET) initIPSet(ctx context.Context, db *sql.DB) {
 			logger.Error(err.Error())
 			return
 		}
+		mac, _ := mac.NewFromString(Mac)
 		for k, v := range IPSET.Network {
-			if k.Contains(net.ParseIP(IpStr)) {
+			ip := net.ParseIP(IpStr)
+			if k.Contains(ip) {
 				if v == "inlinel2" {
-					IPSET.IPSEThandleLayer2(ctx, IpStr, Mac, k.IP.String(), "Reg", NodeId)
-					IPSET.IPSEThandleMarkIpL2(ctx, IpStr, k.IP.String(), NodeId)
+					IPSET.IPSEThandleLayer2(ctx, ip, mac, k.IP.String(), "Reg", NodeId)
+					IPSET.IPSEThandleMarkIpL2(ctx, ip, k.IP.String(), NodeId)
 				}
 				if v == "inlinel3" {
-					IPSET.IPSEThandleLayer3(ctx, IpStr, k.IP.String(), "Reg", NodeId)
-					IPSET.IPSEThandleMarkIpL3(ctx, IpStr, k.IP.String(), NodeId)
+					IPSET.IPSEThandleLayer3(ctx, ip, k.IP.String(), "Reg", NodeId)
+					IPSET.IPSEThandleMarkIpL3(ctx, ip, k.IP.String(), NodeId)
 				}
 				break
 			}
@@ -162,7 +167,7 @@ func (IPSET *pfIPSET) initIPSet(ctx context.Context, db *sql.DB) {
 
 // detectType of each network
 func (IPSET *pfIPSET) detectType(ctx context.Context) error {
-	IPSET.ListALL, _ = ipset.ListAll()
+	IPSET.ListALL, _ = listAll()
 	var NetIndex net.IPNet
 	IPSET.Network = make(map[*net.IPNet]string)
 
@@ -214,12 +219,13 @@ func (IPSET *pfIPSET) detectType(ctx context.Context) error {
 	return nil
 }
 
-func validateMac(mac string) (string, bool) {
-	re := regexp.MustCompile("(?i)(?:[0-9A-Fa-f]{2}:){5}[0-9A-Fa-f]{2}")
-	if re.Match([]byte(mac)) {
-		return mac, true
+func validateMac(macStr string) (mac.Mac, bool) {
+	mac, err := mac.NewFromString(macStr)
+	if err != nil {
+		return mac, false
 	}
-	return "", false
+
+	return mac, true
 }
 
 func validateType(_type string) (string, bool) {
@@ -238,10 +244,20 @@ func validateRoleId(roleid string) (string, bool) {
 	return "", false
 }
 
-func validatePort(port string) (string, bool) {
-	re := regexp.MustCompile("(?:udp|tcp):[0-9]+")
-	if re.Match([]byte(port)) {
-		return port, true
+func validatePort(portSpec string) (uint16, byte, bool) {
+	re := regexp.MustCompile("(udp|tcp):([0-9])+")
+	matches := re.FindStringSubmatch(portSpec)
+	if matches == nil {
+		return 0, 0, false
 	}
-	return "", false
+	var proto byte
+	switch matches[1] {
+	case "tcp":
+		proto = 6
+	case "udp":
+		proto = 17
+	}
+
+	port, _ := strconv.ParseUint(matches[2], 10, 16)
+	return uint16(port), proto, true
 }

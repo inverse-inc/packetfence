@@ -11,9 +11,9 @@ import (
 	"os/exec"
 
 	"github.com/gorilla/mux"
-	ipset "github.com/inverse-inc/go-ipset"
 	"github.com/inverse-inc/go-utils/log"
 	"github.com/inverse-inc/go-utils/sharedutils"
+	ipset "github.com/rouzier/go-ipset/v2"
 )
 
 type Info struct {
@@ -52,7 +52,7 @@ func handleAddIp(res http.ResponseWriter, req *http.Request) {
 	}
 	setName := mux.Vars(req)["set_name"]
 
-	IPSET.jobs <- job{"Add", setName, Ip.String()}
+	IPSET.jobs <- job{"Add", setName, ipset.NewEntry(ipset.EntryIP(Ip))}
 	var result = map[string][]*Info{
 		"result": {
 			&Info{Ip: Ip.String(), Status: "ACK"},
@@ -88,7 +88,7 @@ func handleRemoveIp(res http.ResponseWriter, req *http.Request) {
 	}
 	setName := mux.Vars(req)["set_name"]
 
-	IPSET.jobs <- job{"Del", setName, Ip.String()}
+	IPSET.jobs <- job{"Del", setName, ipset.NewEntry(ipset.EntryIP(Ip))}
 	var result = map[string][]*Info{
 		"result": {
 			&Info{Ip: Ip.String(), Status: "ACK"},
@@ -122,13 +122,23 @@ func handlePassthrough(res http.ResponseWriter, req *http.Request) {
 		handleError(res, http.StatusBadRequest)
 		return
 	}
-	Port, valid_port := validatePort(o.Port)
+
+	Port, proto, valid_port := validatePort(o.Port)
 	if !valid_port {
 		handleError(res, http.StatusBadRequest)
 		return
 	}
 
-	IPSET.jobs <- job{"Add", "pfsession_passthrough", Ip.String() + "," + Port}
+	IPSET.jobs <- job{
+		"Add",
+		"pfsession_passthrough",
+		ipset.NewEntry(
+			ipset.EntryIP(net.ParseIP("2.1.3.4")),
+			ipset.EntryPort(Port),
+			ipset.EntryProto(proto),
+		),
+	}
+
 	var result = map[string][]*Info{
 		"result": {
 			&Info{Ip: Ip.String(), Status: "ACK"},
@@ -167,13 +177,22 @@ func handleIsolationPassthrough(res http.ResponseWriter, req *http.Request) {
 		handleError(res, http.StatusBadRequest)
 		return
 	}
-	Port, valid_port := validatePort(o.Port)
+
+	Port, proto, valid_port := validatePort(o.Port)
 	if !valid_port {
 		handleError(res, http.StatusBadRequest)
 		return
 	}
 
-	IPSET.jobs <- job{"Add", "pfsession_isol_passthrough", Ip.String() + "," + Port}
+	IPSET.jobs <- job{
+		"Add",
+		"pfsession_passthrough",
+		ipset.NewEntry(
+			ipset.EntryIP(net.ParseIP("2.1.3.4")),
+			ipset.EntryPort(Port),
+			ipset.EntryProto(proto),
+		),
+	}
 	var result = map[string][]*Info{
 		"result": {
 			&Info{Ip: Ip.String(), Status: "ACK"},
@@ -229,11 +248,11 @@ func handleLayer2(res http.ResponseWriter, req *http.Request) {
 	}
 
 	// Update locally
-	IPSET.IPSEThandleLayer2(req.Context(), Ip.String(), Mac, Network.String(), Type, RoleId)
+	IPSET.IPSEThandleLayer2(req.Context(), Ip, Mac, Network.String(), Type, RoleId)
 
 	var result = map[string][]*Info{
 		"result": {
-			&Info{Mac: Mac, Status: "ACK"},
+			&Info{Mac: Mac.String(), Status: "ACK"},
 		},
 	}
 
@@ -244,33 +263,46 @@ func handleLayer2(res http.ResponseWriter, req *http.Request) {
 	}
 }
 
-func (IPSET *pfIPSET) IPSEThandleLayer2(ctx context.Context, Ip string, Mac string, Network string, Type string, RoleId string) {
-	logger := log.LoggerWContext(ctx)
+func ipsetTest(name string, options ...ipset.EntryOption) error {
+	conn := getConn()
+	defer putConn(conn)
+	return conn.Test(name, options...)
+}
 
+func (IPSET *pfIPSET) IPSEThandleLayer2(ctx context.Context, Ip net.IP, Mac mac.Mac, Network string, Type string, RoleId string) {
+	logger := log.LoggerWContext(ctx)
 	for _, v := range IPSET.ListALL {
+		name := v.Name.Get()
 		// Delete all entries with the new ip address
-		if v.Type == "hash:ip,port" {
+		if v.TypeName.Get() == "hash:ip,port" {
 			continue
 		}
-		r := ipset.Test(v.Name, Ip)
+		r := ipsetTest(name, ipset.EntryIP(Ip))
 		if r == nil {
-			IPSET.jobs <- job{"Del", v.Name, Ip}
-			logger.Info("Removed " + Ip + " from " + v.Name + " Mac: " + Mac)
+			IPSET.jobs <- job{"Del", name, ipset.NewEntry(ipset.EntryIP(Ip))}
+			logger.Info("Removed " + Ip.String() + " from " + name + " Mac: " + Mac.String())
 		}
 		// Delete all entries with old ip addresses
-		Ips := IPSET.mac2ip(ctx, Mac, v)
-		for _, i := range Ips {
-			IPSET.jobs <- job{"Del", v.Name, i}
-			logger.Info("Removed old ip " + i + " from " + v.Name + " Mac: " + Mac)
+		entries := IPSET.mac2ip(ctx, Mac, &v)
+		for _, e := range entries {
+			IPSET.jobs <- job{"Del", name, e}
+			logger.Info("Removed old ip " + e.IP.Get().String() + " from " + name + " Mac: " + Mac.String())
 		}
 	}
 	// Add to the new ipset session
-	IPSET.jobs <- job{"Add", "pfsession_" + Type + "_" + Network, Ip + "," + Mac}
-	logger.Info("Added " + Ip + " " + Mac + " to pfsession_" + Type + "_" + Network)
+	IPSET.jobs <- job{
+		"Add",
+		"pfsession_" + Type + "_" + Network,
+		ipset.NewEntry(
+			ipset.EntryIP(Ip),
+			ipset.EntryEther(net.HardwareAddr(Mac[:])),
+		),
+	}
+	logger.Info("Added " + Ip.String() + " " + Mac.String() + " to pfsession_" + Type + "_" + Network)
 	if Type == "Reg" {
 		// Add to the ip ipset session
-		IPSET.jobs <- job{"Add", "PF-iL2_ID" + RoleId + "_" + Network, Ip}
-		logger.Info("Added " + Ip + " to PF-iL2_ID" + RoleId + "_" + Network + " Mac: " + Mac)
+		IPSET.jobs <- job{"Add", "PF-iL2_ID" + RoleId + "_" + Network, ipset.NewEntry(ipset.EntryIP(Ip))}
+		logger.Info("Added " + Ip.String() + " to PF-iL2_ID" + RoleId + "_" + Network + " Mac: " + Mac.String())
 	}
 }
 
@@ -307,7 +339,7 @@ func handleMarkIpL2(res http.ResponseWriter, req *http.Request) {
 	}
 
 	// Update locally
-	IPSET.IPSEThandleMarkIpL2(ctx, Ip.String(), Network.String(), RoleId)
+	IPSET.IPSEThandleMarkIpL2(ctx, Ip, Network.String(), RoleId)
 
 	var result = map[string][]*Info{
 		"result": {
@@ -322,8 +354,8 @@ func handleMarkIpL2(res http.ResponseWriter, req *http.Request) {
 	}
 }
 
-func (IPSET *pfIPSET) IPSEThandleMarkIpL2(ctx context.Context, Ip string, Network string, RoleId string) {
-	IPSET.jobs <- job{"Add", "PF-iL2_ID" + RoleId + "_" + Network, Ip}
+func (IPSET *pfIPSET) IPSEThandleMarkIpL2(ctx context.Context, Ip net.IP, Network string, RoleId string) {
+	IPSET.jobs <- job{"Add", "PF-iL2_ID" + RoleId + "_" + Network, ipset.NewEntry(ipset.EntryIP(Ip))}
 }
 
 func handleMarkIpL3(res http.ResponseWriter, req *http.Request) {
@@ -359,7 +391,7 @@ func handleMarkIpL3(res http.ResponseWriter, req *http.Request) {
 	}
 
 	// Update locally
-	IPSET.IPSEThandleMarkIpL3(ctx, Ip.String(), Network.String(), RoleId)
+	IPSET.IPSEThandleMarkIpL3(ctx, Ip, Network.String(), RoleId)
 
 	var result = map[string][]*Info{
 		"result": {
@@ -374,8 +406,8 @@ func handleMarkIpL3(res http.ResponseWriter, req *http.Request) {
 	}
 }
 
-func (IPSET *pfIPSET) IPSEThandleMarkIpL3(ctx context.Context, Ip string, Network string, RoleId string) {
-	IPSET.jobs <- job{"Add", "PF-iL3_ID" + RoleId + "_" + Network, Ip}
+func (IPSET *pfIPSET) IPSEThandleMarkIpL3(ctx context.Context, Ip net.IP, Network string, RoleId string) {
+	IPSET.jobs <- job{"Add", "PF-iL3_ID" + RoleId + "_" + Network, ipset.NewEntry(ipset.EntryIP(Ip))}
 }
 
 func handleLayer3(res http.ResponseWriter, req *http.Request) {
@@ -416,7 +448,7 @@ func handleLayer3(res http.ResponseWriter, req *http.Request) {
 	}
 
 	// Update locally
-	IPSET.IPSEThandleLayer3(ctx, Ip.String(), Network.String(), Type, RoleId)
+	IPSET.IPSEThandleLayer3(ctx, Ip, Network.String(), Type, RoleId)
 
 	var result = map[string][]*Info{
 		"result": {
@@ -431,27 +463,28 @@ func handleLayer3(res http.ResponseWriter, req *http.Request) {
 	}
 }
 
-func (IPSET *pfIPSET) IPSEThandleLayer3(ctx context.Context, Ip string, Network string, Type string, RoleId string) {
+func (IPSET *pfIPSET) IPSEThandleLayer3(ctx context.Context, Ip net.IP, Network string, Type string, RoleId string) {
 	logger := log.LoggerWContext(ctx)
 
 	// Delete all entries with the new ip address
 	for _, v := range IPSET.ListALL {
-		if v.Type == "hash:ip,port" {
+		if v.TypeName.Get() == "hash:ip,port" {
 			continue
 		}
-		r := ipset.Test(v.Name, Ip)
+		name := v.Name.Get()
+		r := ipsetTest(name, ipset.EntryIP(Ip))
 		if r == nil {
-			IPSET.jobs <- job{"Del", v.Name, Ip}
-			logger.Info("Removed " + Ip + " from " + v.Name)
+			IPSET.jobs <- job{"Del", name, ipset.NewEntry(ipset.EntryIP(Ip))}
+			logger.Info("Removed " + Ip.String() + " from " + name)
 		}
 	}
 	// Add to the new ipset session
-	IPSET.jobs <- job{"Add", "pfsession_" + Type + "_" + Network, Ip}
-	logger.Info("Added " + Ip + " to pfsession_" + Type + "_" + Network)
+	IPSET.jobs <- job{"Add", "pfsession_" + Type + "_" + Network, ipset.NewEntry(ipset.EntryIP(Ip))}
+	logger.Info("Added " + Ip.String() + " to pfsession_" + Type + "_" + Network)
 	if Type == "Reg" {
 		// Add to the ip ipset session
-		IPSET.jobs <- job{"Add", "PF-iL3_ID" + RoleId + "_" + Network, Ip}
-		logger.Info("Added " + Ip + " to PF-iL3_ID" + RoleId + "_" + Network)
+		IPSET.jobs <- job{"Add", "PF-iL3_ID" + RoleId + "_" + Network, ipset.NewEntry(ipset.EntryIP(Ip))}
+		logger.Info("Added " + Ip.String() + " to PF-iL3_ID" + RoleId + "_" + Network)
 	}
 }
 
@@ -477,16 +510,18 @@ func (IPSET *pfIPSET) handleUnmarkMac(res http.ResponseWriter, req *http.Request
 	}
 
 	for _, v := range IPSET.ListALL {
-		Ips := IPSET.mac2ip(req.Context(), Mac, v)
+		Ips := IPSET.mac2ip(req.Context(), Mac, &v)
+		name := v.Name.Get()
 		for _, i := range Ips {
-			IPSET.jobs <- job{"Del", v.Name, i}
-			IPSET.DeleteConnectionBySrcIp(i)
-			logger.Info(fmt.Sprintf("Removed %s from %s", i, v.Name))
+			IPSET.jobs <- job{"Del", name, i}
+			ip := i.IP.Get()
+			IPSET.DeleteConnectionBySrcIp(ip.String())
+			logger.Info(fmt.Sprintf("Removed %s from %s", ip.String(), name))
 		}
 	}
 	var result = map[string][]*Info{
 		"result": {
-			&Info{Mac: Mac, Status: "ACK"},
+			&Info{Mac: Mac.String(), Status: "ACK"},
 		},
 	}
 
@@ -518,15 +553,17 @@ func (IPSET *pfIPSET) handleUnmarkIp(res http.ResponseWriter, req *http.Request)
 		return
 	}
 
+	entry := ipset.NewEntry(ipset.EntryIP(Ip))
 	for _, v := range IPSET.ListALL {
-		if v.Type == "hash:ip,port" {
+		if v.TypeName.Get() == "hash:ip,port" {
 			continue
 		}
-		r := ipset.Test(v.Name, Ip.String())
+		name := v.Name.Get()
+		r := ipsetTest(name, ipset.EntryIP(Ip))
 		if r == nil {
-			IPSET.jobs <- job{"Del", v.Name, Ip.String()}
+			IPSET.jobs <- job{"Del", name, entry}
 			IPSET.DeleteConnectionBySrcIp(Ip.String())
-			logger.Info(fmt.Sprintf("Removed %s from %s", Ip, v.Name))
+			logger.Info(fmt.Sprintf("Removed %s from %s", Ip, name))
 		}
 	}
 	var result = map[string][]*Info{
