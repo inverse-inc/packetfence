@@ -24,7 +24,7 @@ Source0:    %{name}-%{version}.tar
 BuildRoot:  %{_tmppath}/%{name}-root
 Vendor:     PacketFence, http://www.packetfence.org
 
-BuildRequires: gettext, httpd, ipset-devel, pkgconfig, jq
+BuildRequires: gettext, httpd, pkgconfig, jq
 %if 0%{?rhel} == 8
 BuildRequires: libmnl-devel,
 %endif
