@@ -52,7 +52,7 @@ Requires: httpd, mod_ssl
 Requires: mod_perl, mod_proxy_html
 requires: libapreq2
 Requires: redis
-Requires: freeradius >= 3.0.21, freeradius-mysql, freeradius-perl, freeradius-ldap, freeradius-utils, freeradius-redis, freeradius-rest
+Requires: freeradius >= 3.0.22, freeradius-mysql, freeradius-perl, freeradius-ldap, freeradius-utils, freeradius-redis, freeradius-rest
 Requires: freeradius-radsniff
 Requires: fuse
 Requires: make
@@ -61,7 +61,7 @@ Requires: sscep
 Requires: net-snmp >= 5.3.2.2
 Requires: net-snmp-perl
 Requires: perl >= %{perl_version}
-Requires: MariaDB-server = 10.2.37, MariaDB-client = 10.2.37
+Requires: MariaDB-server = 10.5.10, MariaDB-client = 10.5.10
 #Requires: perl(DBD::mysql)
 #Requires: perl(Bit::Vector)
 #Requires: perl(CGI::Session), perl(CGI::Session::Driver::chi) >= 1.0.3, perl(JSON) >= 2.90, perl(JSON::MaybeXS), perl(JSON::XS) >= 3
@@ -98,8 +98,8 @@ Requires: MariaDB-server = 10.2.37, MariaDB-client = 10.2.37
 # Perl core modules but still explicitly defined just in case distro's core perl get stripped
 #Requires: perl(Time::HiRes)
 # Required for inline mode.
-Requires: ipset = 6.38, ipset-symlink
-Requires: ipt-netflow >= 2.4, dkms-ipt-netflow >= 2.4
+#Requires: ipset = 6.38, ipset-symlink
+#Requires: ipt-netflow >= 2.4, dkms-ipt-netflow >= 2.4
 Requires: sudo
 #Requires: perl(File::Which), perl(NetAddr::IP)
 #Requires: perl(Net::LDAP)
