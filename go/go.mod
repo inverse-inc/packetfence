@@ -83,7 +83,6 @@ require (
 	github.com/prometheus/client_model v0.2.0
 	github.com/prometheus/common v0.14.0
 	github.com/robfig/cron/v3 v3.0.1
-	github.com/rouzier/go-ipset/v2 v2.2.3
 	github.com/russross/blackfriday v1.5.2
 	github.com/simon/go-netadv v0.0.0-20170602081515-fe67988531c7
 	github.com/sparrc/go-ping v0.0.0-20190613174326-4e5b6552494c
