@@ -762,63 +762,77 @@ func (c Cert) New() (types.Info, error) {
 	Organization := ""
 	if len(prof.Organisation) > 0 {
 		Organization = prof.Organisation
-		if len(c.Organisation) > 0 {
-			Organization = c.Organisation
-		}
+	}
+	if len(c.Organisation) > 0 {
+		Organization = c.Organisation
+	}
+	if len(Organization) > 0 {
 		Subject.Organization = []string{Organization}
 	}
 
 	OrganizationalUnit := ""
 	if len(prof.OrganisationalUnit) > 0 {
 		OrganizationalUnit = prof.OrganisationalUnit
-		if len(c.OrganisationalUnit) > 0 {
-			OrganizationalUnit = c.OrganisationalUnit
-		}
+	}
+	if len(c.OrganisationalUnit) > 0 {
+		OrganizationalUnit = c.OrganisationalUnit
+	}
+	if len(OrganizationalUnit) > 0 {
 		Subject.OrganizationalUnit = []string{OrganizationalUnit}
 	}
 
 	Country := ""
 	if len(prof.Country) > 0 {
 		Country = prof.Country
-		if len(c.Country) > 0 {
-			Country = c.Country
-		}
+	}
+	if len(c.Country) > 0 {
+		Country = c.Country
+	}
+	if len(Country) > 0 {
 		Subject.Country = []string{Country}
 	}
 
 	Province := ""
 	if len(prof.State) > 0 {
 		Province = prof.State
-		if len(c.State) > 0 {
-			Province = c.State
-		}
+	}
+	if len(c.State) > 0 {
+		Province = c.State
+	}
+	if len(Province) > 0 {
 		Subject.Province = []string{Province}
 	}
 
 	Locality := ""
 	if len(prof.Locality) > 0 {
 		Locality = prof.Locality
-		if len(c.Locality) > 0 {
-			Locality = c.Locality
-		}
+	}
+	if len(c.Locality) > 0 {
+		Locality = c.Locality
+	}
+	if len(Locality) > 0 {
 		Subject.Locality = []string{Locality}
 	}
 
 	StreetAddress := ""
 	if len(prof.StreetAddress) > 0 {
 		StreetAddress = prof.StreetAddress
-		if len(c.StreetAddress) > 0 {
-			StreetAddress = c.StreetAddress
-		}
+	}
+	if len(c.StreetAddress) > 0 {
+		StreetAddress = c.StreetAddress
+	}
+	if len(StreetAddress) > 0 {
 		Subject.StreetAddress = []string{StreetAddress}
 	}
 
 	PostalCode := ""
 	if len(prof.PostalCode) > 0 {
 		PostalCode = prof.PostalCode
-		if len(c.PostalCode) > 0 {
-			PostalCode = c.PostalCode
-		}
+	}
+	if len(c.PostalCode) > 0 {
+		PostalCode = c.PostalCode
+	}
+	if len(PostalCode) > 0 {
 		Subject.PostalCode = []string{PostalCode}
 	}
 
