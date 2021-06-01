@@ -53,6 +53,11 @@
       :column-label="$i18n.t('Default realm')"
       :text="$i18n.t('The default realm to be used while formatting the username when no realm can be extracted from the username.')"
     />
+
+    <form-group-tenant-id namespace="tenant_id"
+      :column-label="$i18n.t('Tenant ID')"
+      :text="$i18n.t('Tenant ID.')"
+    />
   </base-form>
 </template>
 <script>
@@ -67,6 +72,7 @@ import {
   FormGroupNetworks,
   FormGroupPassword,
   FormGroupPort,
+  FormGroupTenantId,
   FormGroupUsernameFormat
 } from './'
 
@@ -82,6 +88,7 @@ const components = {
   FormGroupNetworks,
   FormGroupPassword,
   FormGroupPort,
+  FormGroupTenantId,
   FormGroupUsernameFormat
 }
 
