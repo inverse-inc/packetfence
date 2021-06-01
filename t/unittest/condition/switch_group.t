@@ -2,11 +2,11 @@
 
 =head1 NAME
 
-swith_group
+switch_group.t
 
 =head1 DESCRIPTION
 
-unit test for swith_group
+unit test for pf::condition::switch_group
 
 =cut
 
