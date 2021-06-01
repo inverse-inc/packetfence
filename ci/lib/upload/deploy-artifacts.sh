@@ -114,17 +114,19 @@ maint_deploy() {
 }
 
 # no deploy command because it's just a file
-packetfence_release_el8_deploy() {
-    src_dir="$RPM_RESULT_DIR/8"
-    dst_repo="$PUBLIC_REPO_BASE_DIR/RHEL8"
-    dst_dir="$DEPLOY_USER@$DEPLOY_HOST:$dst_repo"
-    pf_release_rpm_file=$(basename $(ls $src_dir/packetfence-release*))
-    pkg_dest_name=${PKG_DEST_NAME:-"packetfence-release-el8.${CI_COMMIT_REF_SLUG}.noarch.rpm"}
-    declare -p src_dir dst_dir pf_release_rpm_file pkg_dest_name
+packetfence_release_deploy() {
+    for release_name in $(ls $RPM_RESULT_DIR); do
+        src_dir="$RPM_RESULT_DIR/${release_name}"
+        dst_repo="$PUBLIC_REPO_BASE_DIR/RHEL$release_name"
+        dst_dir="$DEPLOY_USER@$DEPLOY_HOST:$dst_repo"
+        pf_release_rpm_file=$(basename $(ls $src_dir/packetfence-release*))
+        pkg_dest_name=${PKG_DEST_NAME:-"packetfence-release-el${release_name}.${CI_ENV_NAME}.noarch.rpm"}
+        declare -p src_dir dst_dir pf_release_rpm_file pkg_dest_name
 
-    echo "scp: ${src_dir}/${pf_release_rpm_file} -> ${dst_dir}/${pkg_dest_name}"
-    scp "${src_dir}/${pf_release_rpm_file}" "${dst_dir}/${pkg_dest_name}" \
-        || die "scp failed"
+        echo "scp: ${src_dir}/${pf_release_rpm_file} -> ${dst_dir}/${pkg_dest_name}"
+        scp "${src_dir}/${pf_release_rpm_file}" "${dst_dir}/${pkg_dest_name}" \
+            || die "scp failed"
+    done
 }
 
 log_section "Display artifacts"
@@ -138,6 +140,6 @@ case $1 in
     rpm) rpm_deploy ;;
     deb) deb_deploy ;;
     maintenance) maint_deploy ;;
-    packetfence-release) packetfence_release_el8_deploy ;;
+    packetfence-release) packetfence_release_deploy ;;
     *)   die "Wrong argument"
 esac
