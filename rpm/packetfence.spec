@@ -53,7 +53,7 @@ Requires: mod_perl, mod_proxy_html
 requires: libapreq2
 Requires: redis
 Requires: freeradius >= 3.0.22, freeradius-mysql, freeradius-perl, freeradius-ldap, freeradius-utils, freeradius-redis, freeradius-rest
-Requires: freeradius-radsniff
+#Requires: freeradius-radsniff
 Requires: fuse
 Requires: make
 Requires: net-tools
@@ -258,7 +258,7 @@ Requires: samba >= 4
 # configuration-wizard
 Requires: vconfig
 # SAML
-Requires: lasso-perl 
+Requires: perl-lasso
 # Captive Portal Dynamic Routing
 #Requires: perl(Graph)
 #Timezone
