@@ -1,4 +1,7 @@
 ---
+# get current PacketFence minor release (X.Y)
+pf_minor_release: '{{ lookup("env", "PF_MINOR_RELEASE") | default("99.9", true) }}'
+
 # hack to get id of mgmt interface based
 # on IP assigned by vagrant (in inventory/hosts file)
 mgmt_interface_id: "{{ ansible_facts | dict2items | selectattr('value.ipv4', 'defined') | selectattr('value.ipv4.address', 'equalto', mgmt_ip) | first }}"
@@ -8,3 +11,16 @@ packetfence_install__mgmt_interface:
   ip: "{{ mgmt_ip }}"
   mask: "{{ mgmt_netmask }}"
   type: management,portal
+
+# only for dependencies, packetfence package is installed using local repo
+packetfence_install__centos:
+  repos:
+    - packetfence
+
+# only for dependencies, packetfence packages are installed using local repo
+packetfence_install__deb:
+  repos:
+    - "debian/{{ pf_minor_release }}"
+
+# we used Venom to pass through configurator
+packetfence_install__configurator_status: 'enabled'
