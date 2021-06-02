@@ -94,7 +94,7 @@ export const useSearch = makeSearch('fingerbankDhcpv6Fingerprints', {
     {
       value: 'id',
       text: i18n.t('Identifier'),
-      types: [conditionType.SUBSTRING]
+      types: [conditionType.INTEGER]
     },
     {
       value: 'value',

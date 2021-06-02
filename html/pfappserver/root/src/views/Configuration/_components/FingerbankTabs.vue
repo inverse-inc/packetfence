@@ -7,7 +7,7 @@
         {{ $t('Update Fingerbank Database') }}
       </b-button>
     </b-card-header>
-    <b-tabs ref="tabs" v-model="tabIndex" card>
+    <b-tabs ref="tabs" v-model="tabIndex" card lazy>
       <b-tab :title="$t('General Settings')" @click="changeTab('general_settings')">
         <fingerbank-general-setting-view />
       </b-tab>

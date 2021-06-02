@@ -100,12 +100,12 @@ export const useSearch = makeSearch('fingerbankCombinations', {
     {
       value: 'id',
       text: i18n.t('Identifier'),
-      types: [conditionType.SUBSTRING]
+      types: [conditionType.INTEGER]
     },
     {
       value: 'device_id',
       text: i18n.t('Device'),
-      types: [conditionType.SUBSTRING]
+      types: [conditionType.INTEGER]
     }
   ],
   sortBy: 'id',

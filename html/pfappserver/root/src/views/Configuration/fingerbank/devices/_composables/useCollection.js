@@ -101,7 +101,7 @@ export const useSearch = makeSearch('fingerbankDevices', {
     {
       value: 'id',
       text: i18n.t('Identifier'),
-      types: [conditionType.SUBSTRING]
+      types: [conditionType.INTEGER]
     },
     {
       value: 'name',
@@ -111,7 +111,7 @@ export const useSearch = makeSearch('fingerbankDevices', {
     {
       value: 'parent_id',
       text: i18n.t('Parent'),
-      types: [conditionType.SUBSTRING]
+      types: [conditionType.INTEGER]
     }
   ],
   sortBy: 'id',

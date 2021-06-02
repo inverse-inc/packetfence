@@ -2,13 +2,13 @@
   <b-container fluid class="px-1">
     <b-row class="bg-white rc align-items-center m-0 p-1 isdrag">
       <b-input-group class="mr-1">
-        <b-input-group-prepend v-if="icon || hasParents || hasSiblings" 
+        <b-input-group-prepend v-if="icon || hasParents || hasSiblings"
           class="p-0"
           is-text>
           <icon  v-if="icon"
             :name="icon" />
-          <span v-if="hasParents || hasSiblings" 
-            class="draghandle" 
+          <span v-if="hasParents || hasSiblings"
+            class="draghandle"
             v-b-tooltip.hover.right.d300 :title="$t('Click & drag statement to reorder')">
             <icon name="th" />
           </span>
@@ -20,9 +20,9 @@
           v-model="value.value"
         />
         <b-input-group-append v-if="hasParents || (hasSiblings && !isDrag)">
-          <b-button 
-            class="ml-auto nodrag" variant="link" 
-            v-b-tooltip.hover.left.d300 :title="$t('Delete statement')" 
+          <b-button
+            class="ml-auto nodrag" variant="link"
+            v-b-tooltip.hover.left.d300 :title="$t('Delete statement')"
             @click="onDeleteRule">
             <icon name="trash-alt" />
           </b-button>
@@ -43,7 +43,7 @@
         </b-container>
       </b-col>
     </b-row>
-  </b-container>  
+  </b-container>
 </template>
 
 <script>
@@ -51,7 +51,8 @@ import {
   BaseInput,
   BaseInputChosenOne,
   BaseInputGroupDateTime,
-  BaseInputGroupMultiplier
+  BaseInputGroupMultiplier,
+  BaseInputNumber
 } from '@/components/new/'
 
 const props = {
@@ -137,6 +138,9 @@ const setup = (props, context) => {
               case pfSearchConditionValue.PREFIXMULTIPLE:
                 return BaseInputGroupMultiplier
                 // break
+              case pfSearchConditionValue.INTEGER:
+                return BaseInputNumber
+                // break
               case pfSearchConditionValue.TEXT:
               default:
                 return BaseInput
@@ -144,7 +148,7 @@ const setup = (props, context) => {
             }
           }
         }
-      }      
+      }
     }
     return undefined
   })

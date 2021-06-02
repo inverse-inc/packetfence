@@ -101,7 +101,7 @@ export const useSearch = makeSearch('fingerbankMacVendors', {
     {
       value: 'id',
       text: i18n.t('Identifier'),
-      types: [conditionType.SUBSTRING]
+      types: [conditionType.INTEGER]
     },
     {
       value: 'mac',
@@ -117,7 +117,7 @@ export const useSearch = makeSearch('fingerbankMacVendors', {
   sortBy: 'id',
   defaultCondition: () => ({ op: 'and', values: [
     { op: 'or', values: [
-      { field: 'id', op: 'contains', value: null }
+      { field: 'id', op: 'equals', value: null }
     ] }
   ] })
 })

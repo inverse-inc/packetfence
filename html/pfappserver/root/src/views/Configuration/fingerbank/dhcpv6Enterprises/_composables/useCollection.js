@@ -102,7 +102,7 @@ export const useSearch = makeSearch('fingerbankDhcpv6Enterprises', {
     {
       value: 'id',
       text: i18n.t('Identifier'),
-      types: [conditionType.SUBSTRING]
+      types: [conditionType.INTEGER]
     },
     {
       value: 'value',
