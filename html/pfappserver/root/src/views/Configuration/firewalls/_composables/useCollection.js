@@ -73,3 +73,69 @@ export const useStore = (props, context, form) => {
     updateItem: () => $store.dispatch('$_firewalls/updateFirewall', form.value),
   }
 }
+
+import { pfSearchConditionType as conditionType } from '@/globals/pfSearch'
+import makeSearch from '@/views/Configuration/_store/factory/search'
+import api from '../_api'
+export const useSearch = makeSearch('firewalls', {
+  api,
+  columns: [
+    {
+      key: 'selected',
+      thStyle: 'width: 40px;', tdClass: 'p-0',
+      locked: true
+    },
+    {
+      key: 'id',
+      label: 'Hostname or IP', // i18n defer
+      required: true,
+      searchable: true,
+      sortable: true,
+      visible: true
+    },
+    {
+      key: 'type',
+      label: 'Firewall Type', // i18n defer
+      searchable: true,
+      sortable: true,
+      visible: true
+    },
+    {
+      key: 'port',
+      label: 'Port', // i18n defer
+      searchable: true,
+      sortable: true,
+      visible: true
+    },
+    {
+      key: 'buttons',
+      class: 'text-right p-0',
+      locked: true
+    }
+  ],
+  fields: [
+    {
+      value: 'id',
+      text: i18n.t('Hostname or IP'),
+      types: [conditionType.SUBSTRING]
+    },
+    {
+      value: 'type',
+      text: i18n.t('Firewall Type'),
+      types: [conditionType.SUBSTRING]
+    },
+    {
+      value: 'port',
+      text: i18n.t('Port'),
+      types: [conditionType.SUBSTRING]
+    }
+  ],
+  sortBy: 'id',
+  defaultCondition: () => ({ op: 'and', values: [
+    { op: 'or', values: [
+      { field: 'id', op: 'contains', value: null },
+      { field: 'port', op: 'contains', value: null },
+      { field: 'type', op: 'contains', value: null }
+    ] }
+  ] })
+})

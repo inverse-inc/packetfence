@@ -31,13 +31,13 @@ const actions = {
       sort: 'id',
       fields: ['id', 'port'].join(',')
     }
-    return api.firewalls(params).then(response => {
+    return api.list(params).then(response => {
       return response.items
     })
   },
   optionsById: ({ commit }, id) => {
     commit('ITEM_REQUEST')
-    return api.firewallOptions(id).then(response => {
+    return api.itemOptions(id).then(response => {
       commit('ITEM_SUCCESS')
       return response
     }).catch((err) => {
@@ -47,7 +47,7 @@ const actions = {
   },
   optionsByFirewallType: ({ commit }, firewallType) => {
     commit('ITEM_REQUEST')
-    return api.firewallsOptions(firewallType).then(response => {
+    return api.listOptions(firewallType).then(response => {
       commit('ITEM_SUCCESS')
       return response
     }).catch((err) => {
@@ -60,7 +60,7 @@ const actions = {
       return Promise.resolve(state.cache[id]).then(cache => JSON.parse(JSON.stringify(cache)))
     }
     commit('ITEM_REQUEST')
-    return api.firewall(id).then(item => {
+    return api.item(id).then(item => {
       commit('ITEM_REPLACED', item)
       return JSON.parse(JSON.stringify(item))
     }).catch((err) => {
@@ -70,7 +70,7 @@ const actions = {
   },
   createFirewall: ({ commit }, data) => {
     commit('ITEM_REQUEST')
-    return api.createFirewall(data).then(response => {
+    return api.create(data).then(response => {
       commit('ITEM_REPLACED', data)
       return response
     }).catch(err => {
@@ -80,7 +80,7 @@ const actions = {
   },
   updateFirewall: ({ commit }, data) => {
     commit('ITEM_REQUEST')
-    return api.updateFirewall(data).then(response => {
+    return api.update(data).then(response => {
       commit('ITEM_REPLACED', data)
       return response
     }).catch(err => {
@@ -90,18 +90,8 @@ const actions = {
   },
   deleteFirewall: ({ commit }, data) => {
     commit('ITEM_REQUEST', types.DELETING)
-    return api.deleteFirewall(data).then(response => {
+    return api.delete(data).then(response => {
       commit('ITEM_DESTROYED', data)
-      return response
-    }).catch(err => {
-      commit('ITEM_ERROR', err.response)
-      throw err
-    })
-  },
-  testFirewall: ({ commit }, data) => {
-    commit('ITEM_REQUEST')
-    return api.testFirewall(data).then(response => {
-      commit('ITEM_SUCCESS')
       return response
     }).catch(err => {
       commit('ITEM_ERROR', err.response)
