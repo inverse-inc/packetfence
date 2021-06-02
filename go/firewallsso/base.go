@@ -299,6 +299,11 @@ func ExecuteStop(ctx context.Context, fw FirewallSSOInt, info map[string]string)
 		return false, nil
 	}
 
+	if !fw.MatchesTenant(ctx, info) {
+		log.LoggerWContext(ctx).Debug(fmt.Sprintf("Not sending SSO for tenant %s since it doesn't match the tenant", info["tenant_id"]))
+		return false, nil
+	}
+
 	// We change the username with the way it is expected given the format of this firewall
 	info["username"] = fw.FormatUsername(ctx, info)
 
