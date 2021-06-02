@@ -32,7 +32,7 @@ include::../../../addons/vagrant/inventory/group_vars/winservers/domain_setup.ym
 .PacketFence domain account:
 [source,yaml]
 ----
-include::../../../addons/vagrant/inventory/group_vars/winservers/domain_account.yml[]
+include::../../../addons/vagrant/inventory/group_vars/winservers/init_directory.yml[]
 ----
 
 ===== Switch01

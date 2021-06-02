@@ -1,0 +1,23 @@
+- name: Initialize LDAP directory
+  hosts: ad
+  gather_facts: no
+
+  tasks:
+  # groups are created by default in Users OU
+  - name: Create groups
+    win_domain_group:
+      name: '{{ item }}'
+      scope: global
+      state: present
+    loop: '{{ packetfence_domain_groups}}'
+
+  - name: Create a packetfence domain account member of several groups
+    win_domain_user:
+      name: '{{ packetfence_domain_account }}'
+      upn: '{{ packetfence_domain_account }}@{{ domain_setup__domain_name }}'
+      description: 'packetfence Domain Users Account'
+      password: '{{ packetfence_domain_password }}'
+      password_never_expires: yes
+      email: '{{ packetfence_domain_email }}'
+      groups: '{{ packetfence_domain_default_groups + packetfence_domain_groups }}'
+      state: present

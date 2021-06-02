@@ -4,3 +4,9 @@ packetfence_domain_email: 'packetfence@{{ domain_setup__domain_name }}'
 
 # be careful with password restrictions
 packetfence_domain_password: 'P@ck3tF3nc3pass'
+
+packetfence_domain_default_groups:
+  - Domain Users
+packetfence_domain_groups:
+  - sponsor
+  - IT
