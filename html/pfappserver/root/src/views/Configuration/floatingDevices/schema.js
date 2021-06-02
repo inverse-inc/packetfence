@@ -28,6 +28,7 @@ export default (props) => {
     id: yup.string()
       .nullable()
       .required(i18n.t('MAC Address required.'))
+      .isMAC(i18n.t('Invalid MAC address.'))
       .floatingDeviceIdentifierNotExistsExcept((!isNew && !isClone) ? id : undefined, i18n.t('MAC Address exists.')),
     ip: yup.string().nullable().label('IP'),
     pvid: yup.string().nullable().label('VLAN'),
