@@ -65,14 +65,13 @@ export const useSearch = makeSearch('domains', {
     {
       key: 'ntlm_cache',
       label: 'NTLM Cache', // i18n defer
-      searchable: true,
       sortable: true,
       visible: true
     },
     {
       key: 'joined',
       label: 'Domain Join', // i18n defer
-      locked: true
+      visible: true
     },
     {
       key: 'buttons',
@@ -93,10 +92,10 @@ export const useSearch = makeSearch('domains', {
     }
   ],
   sortBy: 'id',
-  defaultCondition: () => ([{
-    values: [
+  defaultCondition: () => ({ op: 'and', values: [
+    { op: 'or', values: [
       { field: 'id', op: 'contains', value: null },
       { field: 'workgroup', op: 'contains', value: null }
-    ]
-  }])
+    ] }
+  ] })
 })

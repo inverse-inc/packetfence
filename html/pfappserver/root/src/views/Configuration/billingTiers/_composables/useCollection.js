@@ -100,11 +100,11 @@ export const useSearch = makeSearch('billingTiers', {
     }
   ],
   sortBy: 'id',
-  defaultCondition: () => ([{
-    values: [
+  defaultCondition: () => ({ op: 'and', values: [
+    { op: 'or', values: [
       { field: 'id', op: 'contains', value: null },
       { field: 'name', op: 'contains', value: null },
       { field: 'description', op: 'contains', value: null }
-    ]
-  }])
+    ] }
+  ] })
 })

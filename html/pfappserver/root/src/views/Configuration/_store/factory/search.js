@@ -1,4 +1,5 @@
 import { defineStore } from 'pinia'
+import { createDebouncer } from 'promised-debounce'
 import i18n from '@/utils/locale'
 import { toKebabCase } from '@/utils/strings'
 
@@ -24,18 +25,6 @@ export const useString = (searchString, columns) => {
         value: searchString.trim()
       }))
     }]
-  }
-}
-
-export const useCondition = (searchCondition) => {
-  return {
-    op: 'and',
-    values: searchCondition.map(or => {
-      return {
-        op: 'or',
-        values: or.values
-      }
-    })
   }
 }
 
@@ -65,7 +54,7 @@ const factory = (uuid, options = {}) => {
         useColumns,
         useFields,
         useString,
-        useCondition,
+        useCondition: (condition) => condition,
 
         // overload defaults
         ...options,
@@ -74,7 +63,11 @@ const factory = (uuid, options = {}) => {
         isLoading: false,
         lastQuery: null,
         items: [],
-        totalRows: 0
+        totalRows: 0,
+
+        // api debouncer
+        $debouncer: createDebouncer(),
+        $debouncerMs: 100, // 100ms
       }
     },
     getters: {
@@ -138,22 +131,31 @@ const factory = (uuid, options = {}) => {
           limit: this.limit,
           cursor: ((this.page * this.limit) - this.limit)
         }
-        this.api.list(params)
-          .then(_response => {
-            const response = this.responseInterceptor(_response)
-            const { items = [], total_count } = response
-            this.items = items
-            this.totalRows = total_count
-            this.lastQuery = null
+        if ('list' in this.api) { // has api.list
+          this.$debouncer({
+            handler: () => {
+              this.api.list(params)
+                .then(_response => {
+                  const response = this.responseInterceptor(_response)
+                  const { items = [], total_count } = response
+                  this.items = items
+                  this.totalRows = total_count
+                  this.lastQuery = null
+                })
+                .catch(() => {
+                  this.items = []
+                  this.totalRows = 0
+                  this.lastQuery = null
+                })
+                .finally(() => {
+                  this.isLoading = false
+                })
+            },
+            time: this.$debouncerMs
           })
-          .catch(() => {
-            this.items = []
-            this.totalRows = 0
-            this.lastQuery = null
-          })
-          .finally(() => {
-            this.isLoading = false
-          })
+        }
+        else // no api.list
+          this.doSearchCondition(this.defaultCondition())
       },
       doSearchString(string) {
         const columns = this.useColumns(this.columns)
@@ -179,22 +181,27 @@ const factory = (uuid, options = {}) => {
           cursor: ((this.page * this.limit) - this.limit)
         }
         const body = this.requestInterceptor(_body)
-        this.api.search(body)
-          .then(_response => {
-            const response = this.responseInterceptor(_response)
-            const { items = [], total_count } = response
-            this.items = items
-            this.totalRows = total_count
-            this.lastQuery = query
-          })
-          .catch(() => {
-            this.items = []
-            this.totalRows = 0
-            this.lastQuery = null
-          })
-          .finally(() => {
-            this.isLoading = false
-          })
+        this.$debouncer({
+          handler: () => {
+            this.api.search(body)
+              .then(_response => {
+                const response = this.responseInterceptor(_response)
+                const { items = [], total_count } = response
+                this.items = items
+                this.totalRows = total_count
+                this.lastQuery = query
+              })
+              .catch(() => {
+                this.items = []
+                this.totalRows = 0
+                this.lastQuery = null
+              })
+              .finally(() => {
+                this.isLoading = false
+              })
+          },
+          time: this.$debouncerMs
+        })
       },
       reSearch() {
         const visibleSortBy = this.columns.find(c => c.visible && c.key == this.sortBy)

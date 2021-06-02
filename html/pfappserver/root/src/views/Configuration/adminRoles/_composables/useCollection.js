@@ -88,12 +88,12 @@ export const useSearch = makeSearch('adminRoles', {
     }
   ],
   sortBy: 'id',
-  defaultCondition: () => ([{
-    values: [
+  defaultCondition: () => ({ op: 'and', values: [
+    { op: 'or', values: [
       { field: 'id', op: 'contains', value: null },
       { field: 'description', op: 'contains', value: null }
-    ]
-  }]),
+    ] }
+  ] }),
   requestInterceptor: request => {
       // append query in request to omit NONE, ALL, ALL_PF_ONLY from request
       request.query.values = [

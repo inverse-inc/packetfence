@@ -134,7 +134,7 @@ const setup = (props) => {
 
   const advancedMode = ref(false)
   const conditionBasic = ref(null)
-  const conditionAdvanced = ref(defaultCondition()) // default
+  const conditionAdvanced = ref(defaultCondition().values) // default
 
   onMounted(() => {
     Promise.resolve(saveSearch.value).then(value => {
@@ -186,7 +186,7 @@ const setup = (props) => {
 
   const onSearchReset = () => {
     conditionBasic.value = null
-    conditionAdvanced.value = defaultCondition()
+    conditionAdvanced.value = defaultCondition().values
     setPage(1)
     Promise.resolve(saveSearch.value).then(_saveSearch => {
       const { conditionAdvanced, conditionBasic, ...rest } = _saveSearch || {}

@@ -1,32 +1,38 @@
 import apiCall from '@/utils/api'
 
 export default {
-  fingerbankDhcpVendors: params => {
+  list: params => {
     return apiCall.get(['fingerbank', 'all', 'dhcp_vendors'], { params }).then(response => {
       return response.data
     })
   },
-  fingerbankSearchDhcpVendors: body => {
-    return apiCall.post('fingerbank/all/dhcp_vendors/search', body).then(response => {
-      return response.data
-    })
+  search: body => {
+    const { scope, ...rest } = body
+    if (scope)
+      return apiCall.post(`fingerbank/${scope}/dhcp_vendors/search`, rest).then(response => {
+        return response.data
+      })
+    else
+      return apiCall.post('fingerbank/all/dhcp_vendors/search', body).then(response => {
+        return response.data
+      })
   },
-  fingerbankDhcpVendor: id => {
+  item: id => {
     return apiCall.get(['fingerbank', 'all', 'dhcp_vendor', id]).then(response => {
       return response.data.item
     })
   },
-  fingerbankCreateDhcpVendor: data => {
+  create: data => {
     return apiCall.post('fingerbank/local/dhcp_vendors', data).then(response => {
       return response.data
     })
   },
-  fingerbankUpdateDhcpVendor: data => {
+  update: data => {
     return apiCall.patch(['fingerbank', 'local', 'dhcp_vendor', data.id], data).then(response => {
       return response.data
     })
   },
-  fingerbankDeleteDhcpVendor: id => {
+  delete: id => {
     return apiCall.delete(['fingerbank', 'local', 'dhcp_vendor', id])
   }
 }

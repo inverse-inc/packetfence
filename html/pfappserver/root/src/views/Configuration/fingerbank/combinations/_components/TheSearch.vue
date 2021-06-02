@@ -2,13 +2,12 @@
   <b-card no-body>
     <b-card-header>
       <h4 class="d-flex align-items-center">
-        {{ $t('Active Directory Domains') }}
-        <base-button-help class="text-black-50 ml-1" url="PacketFence_Installation_Guide.html#_microsoft_active_directory_ad" />
+        {{ $t('Combinations') }}
       </h4>
     </b-card-header>
     <div class="card-body">
       <base-search :use-search="useSearch">
-        <b-button variant="outline-primary" @click="goToNew">{{ $t('New Domain') }}</b-button>
+        <b-button variant="outline-primary" @click="goToNew">{{ $t('New Combination') }}</b-button>
       </base-search>
       <b-table ref="tableRef"
         :busy="isLoading"
@@ -53,15 +52,8 @@
             </template>
           </span>
         </template>
-        <template #cell(ntlm_cache)="{ item }">
-          <icon name="circle" :class="{ 'text-success': item.ntlm_cache === 'enabled', 'text-danger': item.ntlm_cache !== 'enabled' }"
-            v-b-tooltip.hover.left.d300 :title="$t(item.ntlm_cache)"></icon>
-        </template>
-        <template #cell(joined)="{ item }">
-          <base-button-join
-            :id="item.id"
-            size="sm" variant="outline-light" toggle-class="text-wrap text-dark"
-            :auto-join="autoJoinDomain && autoJoinDomain.id === item.id" />
+        <template #cell(score)="item">
+          <pf-fingerbank-score :score="item.score"></pf-fingerbank-score>
         </template>
         <template #head(buttons)>
           <base-search-input-columns
@@ -75,7 +67,7 @@
             <base-button-confirm v-if="!item.not_deletable"
               size="sm" variant="outline-danger" class="my-1 mr-1" reverse
               :disabled="isLoading"
-              :confirm="$t('Delete Domain?')"
+              :confirm="$t('Delete Combination?')"
               @click="onRemove(item.id)"
             >{{ $t('Delete') }}</base-button-confirm>
             <b-button
@@ -100,27 +92,18 @@
 <script>
 import {
   BaseButtonConfirm,
-  BaseButtonHelp,
   BaseSearch,
   BaseSearchInputColumns
 } from '@/components/new/'
-import BaseButtonJoin from './BaseButtonJoin'
 import pfEmptyTable from '@/components/pfEmptyTable'
+import pfFingerbankScore from '@/components/pfFingerbankScore'
 
 const components = {
   BaseButtonConfirm,
-  BaseButtonHelp,
-  BaseButtonJoin,
   BaseSearch,
   BaseSearchInputColumns,
-  pfEmptyTable
-}
-
-const props = {
-  autoJoinDomain: { // from DomainView, through router
-    type: Object,
-    default: null
-  }
+  pfEmptyTable,
+  pfFingerbankScore
 }
 
 import { ref, toRefs } from '@vue/composition-api'
@@ -131,8 +114,6 @@ import { useSearch, useRouter } from '../_composables/useCollection'
 
 const setup = (props, context) => {
 
-  const { root: { $router, $store } = {} } = context
-
   const search = useSearch()
   const {
     reSearch
@@ -142,13 +123,15 @@ const setup = (props, context) => {
     visibleColumns
   } = toRefs(search)
 
+  const { root: { $router, $store } = {} } = context
+
   const router = useRouter($router)
 
   const tableRef = ref(null)
   const selected = useBootstrapTableSelected(tableRef, items)
   const {
     selectedItems
-  } = toRefs(selected)
+  } = selected
 
   const onBulkExport = () => {
     const filename = `${$router.currentRoute.path.slice(1).replace('/', '-')}-${(new Date()).toISOString()}.csv`
@@ -157,7 +140,7 @@ const setup = (props, context) => {
   }
 
   const onRemove = id => {
-    $store.dispatch('$_admin_roles/deleteDomain', id)
+    $store.dispatch('$_fingerbank/deleteCombination', id)
       .then(() => {
         reSearch()
       })
@@ -178,7 +161,6 @@ const setup = (props, context) => {
 export default {
   name: 'the-search',
   inheritAttrs: false,
-  props,
   components,
   setup
 }

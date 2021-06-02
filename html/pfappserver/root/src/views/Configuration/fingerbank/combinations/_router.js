@@ -8,6 +8,7 @@ export const useRouter = $router => {
       .push({ name: 'fingerbankCombination', params })
       .catch(e => { if (e.name !== "NavigationDuplicated") throw e }),
     goToClone: params => $router.push({ name: 'cloneFingerbankCombination', params }),
+    goToNew: () => $router.push({ name: 'newFingerbankCombination' })
   }
 }
 

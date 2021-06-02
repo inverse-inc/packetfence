@@ -6,13 +6,11 @@ const TheView = () => import(/* webpackChunkName: "Fingerbank" */ './_components
 export const useRouter = $router => {
   return {
     goToCollection: () => $router.push({ name: 'fingerbankMacVendors' }),
-    goToItem: (params, props) => {
-      const { scope } = toRefs(props)
-      $router
-        .push({ name: 'fingerbankMacVendor', params: { ...params, scope: scope.value } })
-        .catch(e => { if (e.name !== "NavigationDuplicated") throw e })
-    },
-    goToClone: params => $router.push({ name: 'cloneFingerbankMacVendor', params: { ...params, scope: 'local' } })
+    goToItem: params => $router
+      .push({ name: 'fingerbankMacVendor', params })
+      .catch(e => { if (e.name !== "NavigationDuplicated") throw e }),
+    goToClone: params => $router.push({ name: 'cloneFingerbankMacVendor', params }),
+    goToNew: params => $router.push({ name: 'newFingerbankMacVendor', params })
   }
 }
 
@@ -21,7 +19,13 @@ export default [
     path: 'fingerbank/mac_vendors',
     name: 'fingerbankMacVendors',
     component: TheTabs,
-    props: (route) => ({ tab: 'mac_vendors', query: route.query.query })
+    props: () => ({ tab: 'mac_vendors', scope: 'all' })
+  },
+  {
+    path: 'fingerbank/:scope/mac_vendors',
+    name: 'fingerbankMacVendorsByScope',
+    component: TheTabs,
+    props: (route) => ({ tab: 'mac_vendors', scope: route.params.scope })
   },
   {
     path: 'fingerbank/:scope/mac_vendors/new',

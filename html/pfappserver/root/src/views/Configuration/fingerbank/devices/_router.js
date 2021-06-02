@@ -1,16 +1,13 @@
-import { toRefs } from '@vue/composition-api'
 import store from '@/store'
 
 export const useRouter = $router => {
   return {
     goToCollection: () => $router.push({ name: 'fingerbankDevices' }),
-    goToItem: (params, props) => {
-      const { scope } = toRefs(props)
-      $router
-        .push({ name: 'fingerbankDevice', params: { ...params, scope: scope.value } })
-        .catch(e => { if (e.name !== "NavigationDuplicated") throw e })
-    },
-    goToClone: params => $router.push({ name: 'cloneFingerbankDevice', params: { ...params, scope: 'local' } })
+    goToItem: params => $router
+      .push({ name: 'fingerbankDevice', params })
+      .catch(e => { if (e.name !== "NavigationDuplicated") throw e }),
+    goToClone: params => $router.push({ name: 'cloneFingerbankDevice', params }),
+    goToNew: params => $router.push({ name: 'newFingerbankDevice', params })
   }
 }
 
@@ -22,13 +19,19 @@ export default [
     path: 'fingerbank/devices',
     name: 'fingerbankDevices',
     component: TheTabs,
-    props: (route) => ({ tab: 'devices', query: route.query.query })
+    props: () => ({ tab: 'devices', scope: 'all', parentId: undefined })
+  },
+  {
+    path: 'fingerbank/:scope/devices',
+    name: 'fingerbankDevicesByScope',
+    component: TheTabs,
+    props: (route) => ({ tab: 'devices', scope: route.params.scope, parentId: undefined })
   },
   {
     path: 'fingerbank/devices/:parentId',
     name: 'fingerbankDevicesByParentId',
     component: TheTabs,
-    props: (route) => ({ parentId: route.params.parentId, tab: 'devices', query: route.query.query })
+    props: (route) => ({ tab: 'devices', scope: 'all', parentId: route.params.parentId })
   },
   {
     path: 'fingerbank/:scope/devices/new',
