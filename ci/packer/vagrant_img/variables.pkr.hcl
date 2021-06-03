@@ -16,6 +16,11 @@ variable pfserver_name {
   type = string
 }
 
+variable pf_version {
+  type = string
+}
+
+
 variable ansible_pfservers_group {
   type = string
   default = "pfservers"
