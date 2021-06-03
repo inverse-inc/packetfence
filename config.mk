@@ -23,10 +23,14 @@ GOVERSION = go1.16.4
 PF_BINARIES = pfhttpd pfdhcp pfdns pfstats pfdetect galera-autofix pfacct pfcertmanager pfcron
 
 #
-# PF version
+# PF versions
 #
 PF_RELEASE_PATH=$(shell readlink -e $(SRC_ROOT_DIR)/conf/pf-release)
+
+# X.Y
 PF_MINOR_RELEASE=$(shell perl -ne 'print $$1 if (m/.*?(\d+\.\d+)./)' $(PF_RELEASE_PATH))
+# X.Y.Z
+PF_PATCH_RELEASE=$(shell perl -ne 'print $$1 if (m/.*?(\d+\.\d+\.\d+)/)' $(PF_RELEASE_PATH))
 
 # SRC HTML dirs
 SRC_HTMLDIR = html

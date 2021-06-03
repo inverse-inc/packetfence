@@ -120,7 +120,7 @@ packetfence_release_deploy() {
         dst_repo="$PUBLIC_REPO_BASE_DIR/RHEL$release_name"
         dst_dir="$DEPLOY_USER@$DEPLOY_HOST:$dst_repo"
         pf_release_rpm_file=$(basename $(ls $src_dir/packetfence-release*))
-        pkg_dest_name=${PKG_DEST_NAME:-"packetfence-release-el${release_name}.${CI_ENV_NAME}.noarch.rpm"}
+        pkg_dest_name=${PKG_DEST_NAME:-"packetfence-release-el${release_name}.${PF_MINOR_RELEASE}.noarch.rpm"}
         declare -p src_dir dst_dir pf_release_rpm_file pkg_dest_name
 
         echo "scp: ${src_dir}/${pf_release_rpm_file} -> ${dst_dir}/${pkg_dest_name}"

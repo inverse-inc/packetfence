@@ -5,10 +5,15 @@ roles:
 
 collections:
   - name: inverse_inc.packetfence
+    version: 1.1.1-1
   - name: debops.debops
   - name: inverse_inc.windows
   - name: inverse_inc.cumulus
   - name: inverse_inc.utils
   - name: inverse_inc.wireless
 
-
+# to test locally with Vagrant (due to --force option)
+# Ansible will create an export, not a symlink to git repository
+  # - name: file:///home/nqb/git/ansible-packetfence/.git
+  #   type: git
+  #   version: feature/my-branch

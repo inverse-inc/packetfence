@@ -562,6 +562,8 @@ deploy_rpm_packetfence-release_devel:
     - .job_devel_only_triggers
   environment:
     name: devel
+  variables:
+    PKG_DEST_NAME: packetfence-release-el7.${CI_ENVIRONMENT_NAME}.noarch.rpm
 
 deploy_rpm_branches:
   extends:
@@ -578,6 +580,8 @@ deploy_rpm_packetfence-release_branches:
     - .job_branches_only_triggers
   environment:
     name: branches
+  variables:
+    PKG_DEST_NAME: packetfence-release-el7.${CI_ENVIRONMENT_NAME}.noarch.rpm
 
 deploy_rpm_release:
   extends:

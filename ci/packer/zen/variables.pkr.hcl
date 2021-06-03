@@ -20,6 +20,10 @@ variable pf_package {
   type = string
 }
 
-variable pf_branch {
+variable pf_release_pkg {
+  type = string
+}
+
+variable pf_version {
   type = string
 }

@@ -18,9 +18,10 @@ build {
     execute_command = "echo 'vagrant' | {{.Vars}} sudo -S -E bash '{{.Path}}'"
     script = "scripts/install-pf.sh"
     environment_vars = [
+      "PFVERSION=${var.pf_version}",
       "PFREPO=${var.pf_repo}",
       "PFPACKAGE=${var.pf_package}",
-      "PFBRANCH=${var.pf_branch}"
+      "PFRELEASE_PKG=${var.pf_release_pkg}"
     ]
   }
 }
