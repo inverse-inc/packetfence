@@ -8,10 +8,12 @@ export const useRouter = $router => {
       .push({ name: 'connection_profile', params })
       .catch(e => { if (e.name !== "NavigationDuplicated") throw e }),
     goToClone: params => $router.push({ name: 'cloneConnectionProfile', params }),
+    goToNew: () => $router.push({ name: 'newConnectionProfile' }),
+    goToPreview: params => window.open(`/portal_preview/captive-portal?PORTAL=${params.id}`, '_blank')
   }
 }
 
-const TheList = () => import(/* webpackChunkName: "Configuration" */ '../_components/ConnectionProfilesList')
+const TheSearch = () => import(/* webpackChunkName: "Configuration" */ './_components/TheSearch')
 const TheView = () => import(/* webpackChunkName: "Configuration" */ './_components/TheView')
 
 export const beforeEnter = (to, from, next = () => {}) => {
@@ -24,8 +26,7 @@ export default [
   {
     path: 'connection_profiles',
     name: 'connection_profiles',
-    component: TheList,
-    props: (route) => ({ query: route.query.query }),
+    component: TheSearch,
     beforeEnter
   },
   {

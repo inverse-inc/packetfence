@@ -54,7 +54,7 @@ const factory = (uuid, options = {}) => {
         useColumns,
         useFields,
         useString,
-        useCondition: (condition) => condition,
+        useCondition: values => ({ op: 'and', values }),
 
         // overload defaults
         ...options,
@@ -124,9 +124,12 @@ const factory = (uuid, options = {}) => {
         const fields = this.useFields(this.columns).join(',')
         const params = {
           fields,
-          sort: ((this.sortDesc)
-            ? `${this.sortBy} DESC`
-            : `${this.sortBy}`
+          sort: ((this.sortBy)
+            ? ((this.sortDesc)
+              ? `${this.sortBy} DESC`
+              : `${this.sortBy}`
+            )
+            : null // use natural sort
           ),
           limit: this.limit,
           cursor: ((this.page * this.limit) - this.limit)
@@ -173,9 +176,12 @@ const factory = (uuid, options = {}) => {
         const _body = {
           fields,
           query,
-          sort: ((this.sortDesc)
-            ? [`${this.sortBy} DESC`]
-            : [`${this.sortBy}`]
+          sort: ((this.sortBy)
+            ? ((this.sortDesc)
+              ? [`${this.sortBy} DESC`]
+              : [`${this.sortBy}`]
+            )
+            : null // use natural sort
           ),
           limit: this.limit,
           cursor: ((this.page * this.limit) - this.limit)
@@ -206,8 +212,11 @@ const factory = (uuid, options = {}) => {
       reSearch() {
         const visibleSortBy = this.columns.find(c => c.visible && c.key == this.sortBy)
         if (!visibleSortBy) {
-          this.sortBy = this.columns.find(c => c.required)['key']
-          this.sortDesc = false
+          const sortable = this.columns.find(c => c.required && c.sortable)
+          if (sortable) {
+            this.sortBy = sortable['key']
+            this.sortDesc = false
+          }
         }
         if (this.lastQuery) // last query good
           this.doSearch(this.lastQuery) // re-perform search w/ last query

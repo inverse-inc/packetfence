@@ -44,7 +44,7 @@ export const useStore = (props, context, form) => {
 import { pfSearchConditionType as conditionType } from '@/globals/pfSearch'
 import makeSearch from '@/views/Configuration/_store/factory/search'
 import api from '../_api'
-export const useSearch = makeSearch('firewalls', {
+export const useSearch = makeSearch('floatingDevices', {
   api,
   columns: [
     {

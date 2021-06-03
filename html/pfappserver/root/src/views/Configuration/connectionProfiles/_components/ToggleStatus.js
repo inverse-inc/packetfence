@@ -13,25 +13,19 @@ export const props = {
       {
         value: 'disabled', label: i18n.t('Disabled'),
         color: 'var(--danger)', icon: 'times',
-        promise: (value, props) => {
-          const { item, searchableStoreName } = toRefs(props)
+        promise: (value, props, context) => {
+          const { item } = toRefs(props)
           return store.dispatch('$_connection_profiles/disableConnectionProfile', item.value)
-            .then(() => {
-              // update searcahble store
-              store.dispatch(`${searchableStoreName.value}/updateItem`, { key: 'id', id: item.value.id, prop: 'status', data: 'disabled' })
-            })
+            .then(() => context.emit('input', value))
         }
       },
       {
         value: 'enabled', label: i18n.t('Enabled'),
         color: 'var(--success)', icon: 'check',
-        promise: (value, props) => {
-          const { item, searchableStoreName } = toRefs(props)
+        promise: (value, props, context) => {
+          const { item } = toRefs(props)
           return store.dispatch('$_connection_profiles/enableConnectionProfile', item.value)
-            .then(() => {
-              // update searcahble store
-              store.dispatch(`${searchableStoreName.value}/updateItem`, { key: 'id', id: item.value.id, prop: 'status', data: 'enabled' })
-            })
+            .then(() => context.emit('input', value))
       }
       }
     ])
@@ -42,9 +36,6 @@ export const props = {
   },
   item: {
     type: Object
-  },
-  searchableStoreName: {
-    type: String
   }
 }
 
