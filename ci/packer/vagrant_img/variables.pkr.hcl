@@ -25,11 +25,6 @@ variable ansible_group {
   type = string
 }
 
-# Shell provisioning
-variable centos_repo {
-  type = string
-}
-
 variable spec_file_path {
   type = string
   default = "/tmp/packetfence.spec"

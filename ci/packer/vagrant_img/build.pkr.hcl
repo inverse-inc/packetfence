@@ -29,8 +29,7 @@ build {
     execute_command = "echo 'vagrant' | {{.Vars}} sudo -S -E bash '{{.Path}}'"
     script = "${var.pfroot_dir}/addons/dev-helpers/centos-chroot/install-packages-from-spec.sh"
     environment_vars = [
-      "SPEC=${var.spec_file_path}",
-      "REPO=${var.centos_repo}"
+      "SPEC=${var.spec_file_path}"
     ]
   }
 

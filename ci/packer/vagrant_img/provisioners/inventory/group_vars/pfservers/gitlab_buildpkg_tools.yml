@@ -1,0 +1,28 @@
+# get current PacketFence minor release (X.Y)
+pf_minor_release: '{{ lookup("env", "PKR_var_pf_version") | default("99.9", true) }}'
+
+# disabled adding PPA key and repo in the pipeline
+gitlab_buildpkg_tools__ppa_enabled: False
+
+# RPM
+gitlab_buildpkg_tools__rpm_keys:
+  - 'https://inverse.ca/downloads/GPG_PUBLIC_KEY'
+
+gitlab_buildpkg_tools__rpm_deps_repos:
+  - name: packetfence
+    baseurl: 'http://inverse.ca/downloads/PacketFence/RHEL$releasever/{{ pf_minor_release }}/$basearch'
+
+# disable packetfence repo (to avoid conflict with CentOS repos when installing packages)
+gitlab_buildpkg_tools__rpm_enabled_repos:
+  - name: 'packetfence.repo'
+    id: 'packetfence'
+    enabled: 0
+
+# Debian
+gitlab_buildpkg_tools__deb_keys:
+  - 'https://inverse.ca/downloads/GPG_PUBLIC_KEY'
+
+gitlab_buildpkg_tools__deb_deps_repos:
+  - name: packetfence
+    baseurl: 'http://inverse.ca/downloads/PacketFence/debian/{{ pf_minor_release }} {{ ansible_distribution_release }} {{ ansible_distribution_release }}'
+

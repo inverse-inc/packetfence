@@ -6,7 +6,7 @@
 
 PFDIR=${PFDIR:-/usr/local/pf}
 SPEC=${SPEC:-"$PFDIR/rpm/packetfence.spec"}
-REPO=${REPO:-packetfence-devel}
+REPO=${REPO:-packetfence}
 PF_REPO="--enablerepo=$REPO"
 STD_REPOS="--enablerepo=base --enablerepo=updates --enablerepo=extras"
 
