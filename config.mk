@@ -9,7 +9,9 @@ PF_PREFIX = $(PREFIX)/pf
 BINDIR = $(PF_PREFIX)/bin
 SBINDIR = $(PF_PREFIX)/sbin
 # source dirs
-SRC_ROOT_DIR = $(CURDIR)
+# hack to get directory of config.mk from any Makefile in source tree
+# even if make is called with -C
+SRC_ROOT_DIR = $(realpath $(dir $(abspath $(lastword $(MAKEFILE_LIST)))))
 SRC_RPMDIR = $(SRC_ROOT_DIR)/rpm
 SRC_DEBDIR = $(SRC_ROOT_DIR)/debian
 SRC_CIDIR = $(SRC_ROOT_DIR)/ci
