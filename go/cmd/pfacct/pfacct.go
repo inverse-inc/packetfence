@@ -45,6 +45,7 @@ type PfAcct struct {
 	LoggerCtx          context.Context
 	Dispatcher         *Dispatcher
 	SwitchInfoCache    *cache.Cache
+	NodeSessionCache   *cache.Cache
 	StatsdAddress      string
 	StatsdOption       statsd.Option
 	StatsdClient       *statsd.Client
@@ -80,6 +81,7 @@ func NewPfAcct() *PfAcct {
 
 	pfAcct := &PfAcct{Db: Database, TimeDuration: DefaultTimeDuration}
 	pfAcct.SwitchInfoCache = cache.New(5*time.Minute, 10*time.Minute)
+	pfAcct.NodeSessionCache = cache.New(cache.NoExpiration, cache.NoExpiration)
 	pfAcct.LoggerCtx = ctx
 	pfAcct.RadiusStatements.Setup(pfAcct.Db)
 
