@@ -109,6 +109,12 @@ sub instantiate {
         elsif ($type eq 'advanced') {
             return $class->instantiate_advanced($data->{value});
         }
+        elsif ($type eq 'switch_group') {
+            return  pf::condition::switch_group->new({
+                key => 'last_switch',
+                condition => pf::condition::equals->new(value => $data->{value}),
+            });
+        }
         else {
             my $subclass = $class->getModuleName($type);
             $condition = $subclass->new($data);
@@ -210,9 +216,12 @@ sub build_conditions {
             })
         });
     }
-
+    my $top_level_condition = "pf::condition::key";
+    if ($first eq 'switch_group') {
+        $top_level_condition = 'pf::condition::switch_group';
+    }
     $first = format_root_key($first);
-    return _build_parent_condition($sub_condition, $first, @keys);
+    return _build_parent_condition($top_level_condition, $sub_condition, $first, @keys);
 }
 
 sub format_root_key {
@@ -225,14 +234,14 @@ sub format_root_key {
 }
 
 sub _build_parent_condition {
-    my ($child, $key, @parents) = @_;
+    my ($top_level_condition, $child, $key, @parents) = @_;
     if (@parents == 0) {
-        return pf::condition::key->new({
+        return $top_level_condition->new({
             key       => $key,
             condition => $child,
         });
     }
-    return pf::condition::key->new({
+    return $top_level_condition->new({
         key       => $key,
         condition => _build_parent_condition($child, @parents),
     });
