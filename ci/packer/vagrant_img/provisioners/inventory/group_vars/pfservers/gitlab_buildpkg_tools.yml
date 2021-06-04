@@ -1,5 +1,5 @@
 # get current PacketFence minor release (X.Y)
-pf_minor_release: '{{ lookup("env", "PKR_var_pf_version") | default("99.9", true) }}'
+pf_minor_release: '{{ lookup("env", "PF_MINOR_RELEASE") | default("99.9", true) }}'
 
 # disabled adding PPA key and repo in the pipeline
 gitlab_buildpkg_tools__ppa_enabled: False

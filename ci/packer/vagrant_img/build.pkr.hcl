@@ -12,6 +12,9 @@ build {
       "${var.ansible_pfservers_group}",
       "${var.ansible_group}",
     ]
+    ansible_env_vars = [
+      "PF_MINOR_RELEASE=${var.pf_version}"
+    ]
     inventory_directory = "${var.provisioner_dir}/inventory"
     galaxy_file = "${var.provisioner_dir}/requirements.yml"
     galaxy_force_install = true
@@ -64,6 +67,9 @@ build {
     groups = [
       "${var.ansible_pfservers_group}",
       "${var.ansible_group}",
+    ]
+    ansible_env_vars = [
+      "PF_MINOR_RELEASE=${var.pf_version}"
     ]
     inventory_directory = "${var.provisioner_dir}/inventory"
     galaxy_file = "${var.provisioner_dir}/requirements.yml"
