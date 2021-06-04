@@ -518,6 +518,7 @@ type RadiusStatements struct {
 	nodeBandwidthBalanceSubtract   *sql.Stmt
 	nodeBandwidthBalance           *sql.Stmt
 	isNodeBandwidthBalanceZero     *sql.Stmt
+	isUnreg                        *sql.Stmt
 	closeSession                   *sql.Stmt
 }
 
@@ -561,6 +562,10 @@ func (rs *RadiusStatements) Setup(db *sql.DB) {
         UPDATE node set time_balance = GREATEST(CAST(time_balance AS SIGNED) - ?, 0) WHERE tenant_id = ? AND mac = ? AND time_balance IS NOT NULL AND (status = "reg" || DATE_SUB(NOW(), INTERVAL 5 MINUTE) > regdate );
 	`)
 
+	setupStmt(db, &rs.isUnreg, `
+        SELECT 1 FROM node WHERE tenant_id = ? AND mac = ? AND status = 'unreg'
+	`)
+
 	setupStmt(db, &rs.nodeBandwidthBalanceSubtract, `
         UPDATE node set bandwidth_balance = GREATEST(CAST(bandwidth_balance AS SIGNED) - ?, 0) WHERE tenant_id = ? AND mac = ? AND bandwidth_balance IS NOT NULL AND (status = "reg" || DATE_SUB(NOW(), INTERVAL 5 MINUTE) > regdate );
 	`)
@@ -585,6 +590,12 @@ func (rs *RadiusStatements) Setup(db *sql.DB) {
         UPDATE bandwidth_accounting SET last_updated = '0000-00-00 00:00:00' WHERE node_id = ? AND unique_session_id = ?;
 	`)
 
+}
+
+func (rs *RadiusStatements) IsUnreg(mac string, tenant int) (bool, error) {
+	found := 0
+	err := rs.isUnreg.QueryRow(tenant, mac).Scan(&found)
+	return found == 1, err
 }
 
 func (rs *RadiusStatements) CloseSession(node_id, unique_session_id uint64) (int64, error) {
