@@ -18,7 +18,7 @@ use pfappserver::Form::Field::ProfileFilter;
 extends 'pfappserver::Base::Form';
 with 'pfappserver::Form::Config::ProfileCommon';
 
-use pf::config;
+use pf::config qw(%Config);
 use pf::condition_parser;
 use List::MoreUtils qw(uniq);
 
