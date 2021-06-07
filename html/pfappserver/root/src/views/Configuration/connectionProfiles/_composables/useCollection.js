@@ -53,11 +53,12 @@ const useStore = (props, context, form) => {
     createItem: () => $store.dispatch('$_connection_profiles/createConnectionProfile', form.value),
     deleteItem: () => $store.dispatch('$_connection_profiles/deleteConnectionProfile', id.value),
     getItem: () => $store.dispatch('$_connection_profiles/getConnectionProfile', id.value).then(item => {
+      const _item = JSON.parse(JSON.stringify(item))
       if (isClone.value) {
-        item.id = `${item.id}-${i18n.t('copy')}`
-        item.not_deletable = false
+        _item.id = `${item.id}-${i18n.t('copy')}`
+        _item.not_deletable = false
       }
-      return item
+      return _item
     }),
     updateItem: () => $store.dispatch('$_connection_profiles/updateConnectionProfile', form.value)
   }
