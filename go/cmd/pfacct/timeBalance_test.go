@@ -10,6 +10,7 @@ func TestMacSesssion(t *testing.T) {
 	if pfAcct == nil {
 		t.Fatalf("New pfAcct")
 	}
+	sessionId := uint64(2)
 
 	mac, err := mac.NewFromString("99:77:55:44:33:22")
 	if err != nil {
@@ -24,18 +25,20 @@ func TestMacSesssion(t *testing.T) {
 		t.Fatalf(err.Error())
 	}
 
-	si := &SwitchInfo{TenantId: 1}
-	ns := pfAcct.GetNodeSession(si, mac.String())
+	pfAcct.setNodeSessionCache(sessionId, &nodeSession{timeBalance: 100, bandwidthBalance: 100})
+	ns := pfAcct.getNodeSessionFromCache(sessionId)
 
 	if ns == nil {
-		t.Fatalf("Cannot get node session for mac '%s'", mac)
+		t.Fatalf("Cannot get node session for mac '%s'", mac.String())
 	}
+
+	ns = pfAcct.getNodeSessionFromCache(sessionId)
 
 	if ns.timeBalance != 100 || ns.bandwidthBalance != 100 {
 		t.Fatalf("Invalid node session for mac '%s'", mac)
 	}
 
-	ns = pfAcct.getNodeSessionFromCache(si.TenantId, mac.String())
+	ns = pfAcct.getNodeSessionFromCache(sessionId)
 
 	if ns.timeBalance != 100 || ns.bandwidthBalance != 100 {
 		t.Fatalf("Invalid node session for mac '%s'", mac)
@@ -46,11 +49,5 @@ func TestMacSesssion(t *testing.T) {
 	} else if !updated {
 		t.Fatalf("SoftNodeTimeBalanceUpdate failed for '%s'", mac)
 	}
-
-	/*
-		if _, err := pfAcct.Db.Exec("UPDATE node SET status = 'reg' WHERE tenant_id = ? AND mac = ?", 1, mac); err != nil {
-			t.Fatalf(err.Error())
-		}
-	*/
 
 }

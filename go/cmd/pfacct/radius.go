@@ -151,11 +151,11 @@ func (h *PfAcct) handleAccountingRequest(rr radiusRequest) {
 	}
 
 	h.sendRadiusAccounting(r, switchInfo)
-	h.handleTimeBalance(r, switchInfo)
+	h.handleTimeBalance(r, switchInfo, unique_session_id)
 	h.handleBandwidthBalance(r, switchInfo, in_bytes+out_bytes)
 }
 
-func (h *PfAcct) handleTimeBalance(r *radius.Request, switchInfo *SwitchInfo) {
+func (h *PfAcct) handleTimeBalance(r *radius.Request, switchInfo *SwitchInfo, unique_session uint64) {
 	timebalance := int64(rfc2866.AcctSessionTime_Get(r.Packet))
 	if timebalance == 0 {
 		return
@@ -165,12 +165,27 @@ func (h *PfAcct) handleTimeBalance(r *radius.Request, switchInfo *SwitchInfo) {
 	callingStation := rfc2865.CallingStationID_GetString(r.Packet)
 	mac, _ := mac.NewFromString(callingStation)
 	status := rfc2866.AcctStatusType_Get(r.Packet)
+	isUnreg, _ := h.IsUnreg(mac.String(), switchInfo.TenantId)
+	ns := h.getNodeSessionFromCache(unique_session)
 	if status == rfc2866.AcctStatusType_Value_Stop {
+        defer h.deleteNodeSessionFromCache(unique_session)
+		if isUnreg {
+			return
+		}
+
+		if ns != nil {
+			timebalance -= ns.timeBalance
+			if timebalance < 0 {
+				timebalance = 0
+			}
+		}
+
 		ok, err := h.NodeTimeBalanceSubtract(switchInfo.TenantId, mac, timebalance)
 		if err != nil {
 			logError(ctx, "NodeTimeBalanceSubtract: "+err.Error())
 			return
 		}
+
 		if ok {
 			if ok, err = h.IsNodeTimeBalanceZero(switchInfo.TenantId, mac); ok {
 				if err := h.AAAClient.Notify(ctx, "trigger_security_event", []interface{}{"type", TRIGGER_TYPE_ACCOUNTING, "mac", mac.String(), "tid", ACCOUNTING_POLICY_TIME}, switchInfo.TenantId); err != nil {
@@ -179,14 +194,36 @@ func (h *PfAcct) handleTimeBalance(r *radius.Request, switchInfo *SwitchInfo) {
 			}
 		}
 	} else {
-		ok, err := h.SoftNodeTimeBalanceUpdate(switchInfo.TenantId, mac, timebalance)
-		if err != nil {
-			logError(ctx, "SoftNodeTimeBalanceUpdate: "+err.Error())
+		if isUnreg {
+			if ns == nil {
+				h.setNodeSessionCache(unique_session, &nodeSession{timeBalance: -1})
+			} else {
+				ns.timeBalance = -1
+			}
 			return
 		}
-		if ok {
-			if err := h.AAAClient.Notify(ctx, "trigger_security_event", []interface{}{"type", TRIGGER_TYPE_ACCOUNTING, "mac", mac.String(), "tid", ACCOUNTING_POLICY_TIME}, switchInfo.TenantId); err != nil {
-				logError(ctx, "Notify trigger_security_event: "+err.Error())
+
+		if ns != nil {
+			if ns.timeBalance == -1 {
+				ns.timeBalance = timebalance
+			} else {
+				timebalance -= ns.timeBalance
+				if timebalance < 0 {
+					timebalance = 0
+				}
+			}
+		}
+
+		if timebalance > 0 {
+			ok, err := h.SoftNodeTimeBalanceUpdate(switchInfo.TenantId, mac, timebalance)
+			if err != nil {
+				logError(ctx, "SoftNodeTimeBalanceUpdate: "+err.Error())
+				return
+			}
+			if ok {
+				if err := h.AAAClient.Notify(ctx, "trigger_security_event", []interface{}{"type", TRIGGER_TYPE_ACCOUNTING, "mac", mac.String(), "tid", ACCOUNTING_POLICY_TIME}, switchInfo.TenantId); err != nil {
+					logError(ctx, "Notify trigger_security_event: "+err.Error())
+				}
 			}
 		}
 	}
@@ -695,6 +732,14 @@ func (h *PfAcct) SwitchLookup(mac, ip string) (*SwitchInfo, error) {
 
 	h.SwitchInfoCache.Set(key, switchInfo, cache.DefaultExpiration)
 	return switchInfo, nil
+}
+
+func (h *PfAcct) updateTimeBalance(isUnreg bool, status rfc2866.AcctStatusType, timebalance int64, unique_session uint64) int64 {
+	ns := h.getNodeSessionFromCache(unique_session)
+	if ns == nil {
+	}
+
+	return timebalance
 }
 
 func (rs *RadiusStatements) InsertBandwidthAccounting(node_id uint64, tenant_id int, mac string, unique_session uint64, bucket time.Time, in_bytes int64, out_bytes int64) error {
