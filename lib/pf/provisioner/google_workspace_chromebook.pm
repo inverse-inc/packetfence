@@ -24,6 +24,18 @@ sub _set_to_chromebook {
     [$fingerbank::Constant::PARENT_IDS{CHROMEBOOK}]
 }
 
+sub process_devices {
+    my ($self, $devices);
+    for my $device (@$devices) {
+        $self->process_device($device);
+    }
+}
+
+sub process_device {
+    my ($self, $device) = @_;
+    my $status = $device->{status};
+}
+
 =head1 AUTHOR
 
 Inverse inc. <info@inverse.ca>
