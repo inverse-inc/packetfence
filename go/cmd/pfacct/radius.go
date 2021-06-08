@@ -550,19 +550,19 @@ func (rs *RadiusStatements) Setup(db *sql.DB) {
 	`)
 
 	setupStmt(db, &rs.softNodeTimeBalanceUpdate, `
-        UPDATE node set time_balance = 0 WHERE tenant_id = ? AND mac = ? AND time_balance - ? <= 0 AND (status = "reg" || DATE_SUB(NOW(), INTERVAL 5 MINUTE) > regdate);
+        UPDATE node set time_balance = 0 WHERE tenant_id = ? AND mac = ? AND time_balance <= ? AND (status = "reg" || DATE_SUB(NOW(), INTERVAL 5 MINUTE) > regdate);
 	`)
 
 	setupStmt(db, &rs.softNodeBandwidthBalanceUpdate, `
-        UPDATE node set bandwidth_balance = 0 WHERE tenant_id = ? AND mac = ? AND bandwidth_balance - ? <= 0 AND (status = "reg" || DATE_SUB(NOW(), INTERVAL 5 MINUTE) > regdate );
+        UPDATE node set bandwidth_balance = 0 WHERE tenant_id = ? AND mac = ? AND bandwidth_balance <= ? AND (status = "reg" || DATE_SUB(NOW(), INTERVAL 5 MINUTE) > regdate );
 	`)
 
 	setupStmt(db, &rs.nodeTimeBalanceSubtract, `
-        UPDATE node set time_balance = GREATEST(time_balance - ?, 0) WHERE tenant_id = ? AND mac = ? AND time_balance IS NOT NULL AND (status = "reg" || DATE_SUB(NOW(), INTERVAL 5 MINUTE) > regdate );
+        UPDATE node set time_balance = GREATEST(CAST(time_balance AS SIGNED) - ?, 0) WHERE tenant_id = ? AND mac = ? AND time_balance IS NOT NULL AND (status = "reg" || DATE_SUB(NOW(), INTERVAL 5 MINUTE) > regdate );
 	`)
 
 	setupStmt(db, &rs.nodeBandwidthBalanceSubtract, `
-        UPDATE node set bandwidth_balance = GREATEST(bandwidth_balance - ?, 0) WHERE tenant_id = ? AND mac = ? AND bandwidth_balance IS NOT NULL AND (status = "reg" || DATE_SUB(NOW(), INTERVAL 5 MINUTE) > regdate );
+        UPDATE node set bandwidth_balance = GREATEST(CAST(bandwidth_balance AS SIGNED) - ?, 0) WHERE tenant_id = ? AND mac = ? AND bandwidth_balance IS NOT NULL AND (status = "reg" || DATE_SUB(NOW(), INTERVAL 5 MINUTE) > regdate );
 	`)
 
 	setupStmt(db, &rs.nodeTimeBalance, `
