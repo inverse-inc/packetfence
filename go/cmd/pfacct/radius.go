@@ -533,7 +533,7 @@ func (rs *RadiusStatements) Setup(db *sql.DB) {
 	}
 
 	rs.softNodeTimeBalanceUpdate, err = db.Prepare(`
-        UPDATE node set time_balance = 0 WHERE tenant_id = ? AND mac = ? AND time_balance - ? <= 0;
+        UPDATE node set time_balance = 0 WHERE tenant_id = ? AND mac = ? AND time_balance <= ?;
     `)
 
 	if err != nil {
@@ -541,7 +541,7 @@ func (rs *RadiusStatements) Setup(db *sql.DB) {
 	}
 
 	rs.softNodeBandwidthBalanceUpdate, err = db.Prepare(`
-        UPDATE node set bandwidth_balance = 0 WHERE tenant_id = ? AND mac = ? AND bandwidth_balance - ? <= 0;
+        UPDATE node set bandwidth_balance = 0 WHERE tenant_id = ? AND mac = ? AND bandwidth_balance <= ?;
     `)
 
 	if err != nil {
@@ -549,7 +549,7 @@ func (rs *RadiusStatements) Setup(db *sql.DB) {
 	}
 
 	rs.nodeTimeBalanceSubtract, err = db.Prepare(`
-        UPDATE node set time_balance = GREATEST(time_balance - ?, 0) WHERE tenant_id = ? AND mac = ? AND time_balance IS NOT NULL;
+        UPDATE node set time_balance = GREATEST(CAST(time_balance AS SIGNED) - ?, 0) WHERE tenant_id = ? AND mac = ? AND time_balance IS NOT NULL;
     `)
 
 	if err != nil {
@@ -557,7 +557,7 @@ func (rs *RadiusStatements) Setup(db *sql.DB) {
 	}
 
 	rs.nodeBandwidthBalanceSubtract, err = db.Prepare(`
-        UPDATE node set bandwidth_balance = GREATEST(bandwidth_balance - ?, 0) WHERE tenant_id = ? AND mac = ? AND bandwidth_balance IS NOT NULL;
+        UPDATE node set bandwidth_balance = GREATEST(CAST(bandwidth_balance AS SIGNED) - ?, 0) WHERE tenant_id = ? AND mac = ? AND bandwidth_balance IS NOT NULL;
     `)
 
 	if err != nil {
