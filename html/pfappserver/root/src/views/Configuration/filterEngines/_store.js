@@ -3,7 +3,7 @@
 */
 import Vue from 'vue'
 import store from '@/store'
-import api from './_api'
+import api, { apiFactory } from './_api'
 
 const types = {
   LOADING: 'loading',
@@ -41,7 +41,7 @@ const actions = {
       return Promise.resolve(state.cache).then(collection => Object.values(collection))
     }
     commit('COLLECTIONS_REQUEST')
-    return api.filterEnginesCollections().then(response => {
+    return api.collections().then(response => {
       commit('COLLECTIONS_REPLACED', response.items)
       return Object.values(state.cache)
     }).catch(err => {
@@ -55,7 +55,7 @@ const actions = {
     }
     return dispatch('getCollections').then(() => {
       commit('COLLECTION_REQUEST')
-      return api.filterEnginesCollection(collection).then(response => {
+      return apiFactory({ collection }).list().then(response => {
         const { items } = response
         commit('COLLECTION_REPLACED', { collection, items })
         return state.cache[collection]
@@ -65,14 +65,14 @@ const actions = {
       })
     })
   },
-  sortCollection: ({ commit, dispatch }, { collection, data }) => {
+  sortItems: ({ commit, dispatch }, { collection, items }) => {
     return dispatch('getCollection', collection).then(() => {
       const params = {
-        items: data,
+        items,
         quiet: true
       }
       commit('COLLECTION_REQUEST', types.LOADING)
-      return api.sortFilterEngines({ collection, params }).then(response => {
+      return apiFactory({ collection }).sort(params).then(response => {
         commit('COLLECTION_RESORTED', { collection, params })
         return response
       }).catch(err => {
@@ -88,7 +88,7 @@ const actions = {
     return dispatch('getCollection', collection).then(() => {
       commit('ITEM_REQUEST')
       const { [collection]: { resource } = {} } = state.cache
-      return api.filterEngine({ resource, id }).then(item => {
+      return apiFactory({ resource }).item(id).then(item => {
         commit('ITEM_REPLACED', { collection, id, item })
         return state.cache[collection].items.find(item => item.id === id)
       }).catch(err => {
@@ -102,7 +102,7 @@ const actions = {
       if (id) {
         commit('ITEM_REQUEST')
         const { [collection]: { resource } = {} } = state.cache
-        return api.filterEngineOptions({ resource, id }).then(response => {
+        return apiFactory({ resource }).itemOptions(id).then(response => {
           commit('ITEM_SUCCESS')
           return response
         }).catch(err => {
@@ -111,7 +111,7 @@ const actions = {
         })
       } else {
         commit('ITEM_REQUEST')
-        return api.filterEnginesOptions(collection).then(response => {
+        return apiFactory({ collection }).listOptions().then(response => {
           commit('ITEM_SUCCESS')
           return response
         }).catch(err => {
@@ -124,7 +124,7 @@ const actions = {
   createFilterEngine: ({ commit, dispatch }, { collection, data }) => {
     return dispatch('getCollection', collection).then(() => {
       commit('ITEM_REQUEST')
-      return api.createFilterEngine({ collection, data }).then(response => {
+      return apiFactory({ collection }).create(data).then(response => {
         const { id } = data
         commit('ITEM_CREATED', { collection, id, item: data })
         store.commit('config/FILTER_ENGINES_DELETED') // purge config cache
@@ -139,7 +139,7 @@ const actions = {
     return dispatch('getCollection', collection).then(() => {
       commit('ITEM_REQUEST')
       const { [collection]: { resource } = {} } = state.cache
-      return api.updateFilterEngine({ resource, id, data }).then(() => {
+      return apiFactory({ resource }).update({ id, ...data }).then(() => {
         commit('ITEM_REPLACED', { collection, id, item: data })
         store.commit('config/FILTER_ENGINES_DELETED') // purge config cache
         return state.cache[collection].items.find(item => item.id === id)
@@ -153,7 +153,7 @@ const actions = {
     return dispatch('getCollection', collection).then(() => {
       commit('ITEM_REQUEST')
       const { [collection]: { resource } = {} } = state.cache
-      return api.deleteFilterEngine({ resource, id }).then(response => {
+      return apiFactory({ resource }).delete(id).then(response => {
         commit('ITEM_DESTROYED', { collection, id })
         store.commit('config/FILTER_ENGINES_DELETED') // purge config cache
         return response
@@ -168,7 +168,7 @@ const actions = {
       commit('ITEM_REQUEST')
       const { [collection]: { resource } = {} } = state.cache
       const data = { id, status: 'enabled', quiet: true }
-      return api.updateFilterEngine({ resource, id, data }).then(response => {
+      return apiFactory({ resource }).update(data).then(response => {
         commit('ITEM_ENABLED', { collection, id })
         return response
       }).catch(err => {
@@ -182,7 +182,7 @@ const actions = {
       commit('ITEM_REQUEST')
       const { [collection]: { resource } = {} } = state.cache
       const data = { id, status: 'disabled', quiet: true }
-      return api.updateFilterEngine({ resource, id, data }).then(response => {
+      return apiFactory({ resource }).update(data).then(response => {
         commit('ITEM_DISABLED', { collection, id })
         return response
       }).catch(err => {

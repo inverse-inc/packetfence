@@ -8,10 +8,11 @@ export const useRouter = $router => {
       .push({ name: 'filter_engine', params })
       .catch(e => { if (e.name !== "NavigationDuplicated") throw e }),
     goToClone: params => $router.push({ name: 'cloneFilterEngine', params }),
+    goToNew: params => $router.push({ name: 'newFilterEngine', params })
   }
 }
 
-const TheList = () => import(/* webpackChunkName: "Configuration" */ '../_components/FilterEnginesList')
+const TheTabs = () => import(/* webpackChunkName: "Configuration" */ './_components/TheTabs')
 const TheView = () => import(/* webpackChunkName: "Configuration" */ './_components/TheView')
 
 export const beforeEnter = (to, from, next = () => {}) => {
@@ -25,15 +26,14 @@ export default [
   {
     path: 'filter_engines',
     name: 'filter_engines',
-    component: TheList,
-    props: (route) => ({ query: route.query.query }),
+    component: TheTabs,
     beforeEnter
   },
   {
     path: 'filter_engines/:collection',
     name: 'filterEnginesCollection',
-    component: TheList,
-    props: (route) => ({ collection: route.params.collection, query: route.query.query }),
+    component: TheTabs,
+    props: (route) => ({ collection: route.params.collection }),
     beforeEnter
   },
   {
