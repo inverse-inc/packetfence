@@ -27,28 +27,15 @@ testcases:
     assertions:
       - result.statuscode ShouldEqual 200
 
-# switch interface to static state
+### switch interface to static state
+# ifdown/ifup scripts are different between EL and Debian
 - name: bounce_dhcp_listener_int
   steps:
-  - type: http
-    method: POST
-    url: '{{.pfserver_webadmin_url}}/api/v1/configurator/config/interface/{{.get_name_of_dhcp_listener_int.dhcp_listener_interface}}/down'
-    ignore_verify_ssl: true
-    headers:
-      "Content-Type": "application/json"
-    assertions:
-      - result.statuscode ShouldEqual 200
-      - result.bodyjson.message ShouldEqual "Interface {{.get_name_of_dhcp_listener_int.dhcp_listener_interface}} disabled"
+  - type: exec
+    script: "ifdown {{.get_name_of_dhcp_listener_int.dhcp_listener_interface}}"
 
-  - type: http
-    method: POST
-    url: '{{.pfserver_webadmin_url}}/api/v1/configurator/config/interface/{{.get_name_of_dhcp_listener_int.dhcp_listener_interface}}/up'
-    ignore_verify_ssl: true
-    headers:
-      "Content-Type": "application/json"
-    assertions:
-      - result.statuscode ShouldEqual 200
-      - result.bodyjson.message ShouldEqual "Interface {{.get_name_of_dhcp_listener_int.dhcp_listener_interface}} enabled"
+  - type: exec
+    script: "ifup {{.get_name_of_dhcp_listener_int.dhcp_listener_interface}}"
 
 # start dhclient without any action on /etc/resolv.conf
 - name: start_dhclient_on_dhcp_listener_int

@@ -25,7 +25,7 @@ Vagrant will not be able to reach anymore PacketFence server because it rely
 on DHCP lease assigned to VM.
 As a workaround, we start `dhclient` as a daemon only for this interface with
 a specific config to **not** override `/etc/resolv.conf`: PacketFence server
-will have two IP addresses one static and another one dynamic.
+can have two IP addresses one static and another one dynamic.
 
 ### Step 1
 1. Configure second interface as management with portal daemon (to test other
