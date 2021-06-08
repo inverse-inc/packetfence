@@ -20,6 +20,8 @@ gitlab_buildpkg_tools__rpm_ppa:
   - name: 'packetfence-local'
     baseurl: '{{ gitlab_buildpkg_tools__ppa_url_rpm + "/$releasever/$basearch" }}'
     gpgkey: '{{ gitlab_buildpkg_tools__ppa_url + "/GPG_PUBLIC_KEY" }}'
+    # always prefered this repo to install packetfence pkg
+    priority: 1
 
 # we only install repos at this step
 gitlab_buildpkg_tools__deb_pkgs: []
