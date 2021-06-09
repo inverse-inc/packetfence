@@ -131,7 +131,7 @@ const setup = (props, context) => {
     collection
   } = toRefs(props)
 
-  const { root: { $router, $store } = {} } = context
+  const { root: { $router } = {} } = context
 
   const search = useSearch()
   const {
@@ -165,16 +165,15 @@ const setup = (props, context) => {
     useDownload(filename, csv, 'text/csv')
   }
 
-  const onRemove = id => {
-    $store.dispatch('$_admin_roles/deleteAdminRole', id)
-      .then(() => {
-        reSearch()
-      })
-  }
-
   const {
+    deleteItem,
     sortItems
   } = useStore(props, context)
+
+  const onRemove = id => {
+    deleteItem({ ...collection.value, id })
+      .then(() => reSearch())
+  }
 
   const onSorted = _items => {
     items.value = _items
@@ -185,12 +184,12 @@ const setup = (props, context) => {
   return {
     useSearch,
     tableRef,
-    onRemove,
-    onBulkExport,
     ...router,
     ...selected,
     ...toRefs(search),
     goToPreview,
+    onBulkExport,
+    onRemove,
     onSorted
   }
 }

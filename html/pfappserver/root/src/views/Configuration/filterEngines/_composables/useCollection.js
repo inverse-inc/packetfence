@@ -49,7 +49,7 @@ export const useStore = (props, context, form) => {
     isLoading: computed(() => $store.getters['$_filter_engines/isLoading']),
     getOptions: () => $store.dispatch('$_filter_engines/options', { collection: collection.value, id: id.value }),
     createItem: () => $store.dispatch('$_filter_engines/createFilterEngine', { collection: collection.value, data: form.value }),
-    deleteItem: () => $store.dispatch('$_filter_engines/deleteFilterEngine', { collection: collection.value, id: id.value }),
+    deleteItem: params => $store.dispatch('$_filter_engines/deleteFilterEngine', params),
     getItem: () => $store.dispatch('$_filter_engines/getFilterEngine', { collection: collection.value, id: id.value }).then(item => {
       item = JSON.parse(JSON.stringify(item)) // dereference
       if (isClone.value) {
