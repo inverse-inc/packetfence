@@ -102,6 +102,7 @@ func TestStop(t *testing.T) {
 					Cidr: "192.168.0.0/24",
 				},
 			},
+			TenantID: 1,
 		},
 	}
 	mockfw.init(ctx)
@@ -114,7 +115,7 @@ func TestStop(t *testing.T) {
 	}
 
 	// invalid role, valid IP, so should do it because role doesn't matter in stop
-	result, _ = ExecuteStop(ctx, mockfw, map[string]string{"ip": "172.20.0.1", "role": "no-sso-on-that", "mac": "00:11:22:33:44:55", "username": "lzammit", "status": "reg"})
+	result, _ = ExecuteStop(ctx, mockfw, map[string]string{"ip": "172.20.0.1", "role": "no-sso-on-that", "mac": "00:11:22:33:44:55", "username": "lzammit", "status": "reg", "tenant_id": "1"})
 
 	if !result {
 		t.Error("SSO failed with invalid parameters")
