@@ -31,7 +31,7 @@ const actions = {
       return Promise.resolve(state.cache[id]).then(cache => JSON.parse(JSON.stringify(cache)))
     }
     commit('ITEM_REQUEST')
-    return api.maintenanceTask(id).then(item => {
+    return api.item(id).then(item => {
       commit('ITEM_REPLACED', item)
       return JSON.parse(JSON.stringify(item))
     }).catch((err) => {
@@ -42,7 +42,7 @@ const actions = {
   options: ({ commit }, id) => {
     commit('ITEM_REQUEST')
     if (id) {
-      return api.maintenanceTaskOptions(id).then(response => {
+      return api.itemOptions(id).then(response => {
         commit('ITEM_SUCCESS')
         return response
       }).catch((err) => {
@@ -50,7 +50,7 @@ const actions = {
         throw err
       })
     } else {
-      return api.maintenanceTasksOptions().then(response => {
+      return api.listOptions().then(response => {
         commit('ITEM_SUCCESS')
         return response
       }).catch((err) => {
@@ -61,7 +61,7 @@ const actions = {
   },
   createMaintenanceTask: ({ commit }, data) => {
     commit('ITEM_REQUEST')
-    return api.createMaintenanceTask(data).then(response => {
+    return api.create(data).then(response => {
       commit('ITEM_REPLACED', data)
       return response
     }).catch(err => {
@@ -71,7 +71,7 @@ const actions = {
   },
   updateMaintenanceTask: ({ commit }, data) => {
     commit('ITEM_REQUEST')
-    return api.updateMaintenanceTask(data).then(response => {
+    return api.update(data).then(response => {
       commit('ITEM_REPLACED', data)
       return response
     }).catch(err => {
@@ -81,7 +81,7 @@ const actions = {
   },
   deleteMaintenanceTask: ({ commit }, data) => {
     commit('ITEM_REQUEST', types.DELETING)
-    return api.deleteMaintenanceTask(data).then(response => {
+    return api.delete(data).then(response => {
       commit('ITEM_DESTROYED', data)
       return response
     }).catch(err => {
@@ -91,8 +91,8 @@ const actions = {
   },
   enableMaintenanceTask: ({ commit }, data) => {
     commit('ITEM_REQUEST')
-    const _data = { id: data.id, status: 'enabled' }
-    return api.updateMaintenanceTask(_data).then(response => {
+    const _data = { id: data.id, status: 'enabled', quiet: true }
+    return api.update(_data).then(response => {
       commit('ITEM_ENABLED', _data)
       commit('$_config_maintenance_tasks_searchable/ITEM_UPDATED', { key: 'id', id: data.id, prop: 'status', data: 'enabled' }, { root: true })
       return response
@@ -103,8 +103,8 @@ const actions = {
   },
   disableMaintenanceTask: ({ commit }, data) => {
     commit('ITEM_REQUEST')
-    const _data = { id: data.id, status: 'disabled' }
-    return api.updateMaintenanceTask(_data).then(response => {
+    const _data = { id: data.id, status: 'disabled', quiet: true }
+    return api.update(_data).then(response => {
       commit('ITEM_DISABLED', _data)
       commit('$_config_maintenance_tasks_searchable/ITEM_UPDATED', { key: 'id', id: data.id, prop: 'status', data: 'disabled' }, { root: true })
       return response

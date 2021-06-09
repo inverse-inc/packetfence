@@ -13,7 +13,7 @@
           <b-container fluid class="text-right mt-3 px-0">
             <b-button class="ml-1" type="reset" variant="secondary" :disabled="isLoading">{{ $t('Reset') }}</b-button>
             <base-button-save-search
-              :save-search-namespace="`${uuid}-advanced`"
+              :save-search-namespace="`${uuid}Advanced`"
               class="ml-1"
               v-model="conditionAdvanced"
               :disabled="isLoading"
@@ -28,7 +28,7 @@
       </div>
       <div class="d-flex" v-else>
         <base-search-input-basic class="flex-grow-1"
-          :save-search-namespace="`${uuid}-basic`"
+          :save-search-namespace="`${uuid}Basic`"
           v-model="conditionBasic"
           :disabled="isLoading"
           :placeholder="placeholderBasic"
@@ -89,7 +89,6 @@ const props = {
 }
 
 import { onMounted, ref, toRefs, watch } from '@vue/composition-api'
-import { toKebabCase } from '@/utils/strings'
 import { usePreference } from '@/views/Configuration/_store/preferences'
 
 const setup = (props) => {
@@ -117,7 +116,7 @@ const setup = (props) => {
     sortDesc
   } = toRefs(search)
 
-  const saveSearch = usePreference(`search::${toKebabCase(uuid)}`)
+  const saveSearch = usePreference(`search::${uuid}`)
 
   watch([columns, page, limit, sortBy, sortDesc], () => {
     Promise.resolve(saveSearch.value).then(_saveSearch => {

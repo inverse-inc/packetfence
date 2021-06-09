@@ -24,7 +24,7 @@ export default [
     path: 'maintenance_tasks',
     name: 'maintenance_tasks',
     component: TheTabs,
-    props: (route) => ({ tab: 'maintenance_tasks', query: route.query.query }),
+    props: () => ({ tab: 'maintenance_tasks' }),
     beforeEnter
   },
   {
