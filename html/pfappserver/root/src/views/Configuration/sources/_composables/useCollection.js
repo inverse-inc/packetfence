@@ -71,5 +71,84 @@ export const useStore = (props, context, form) => {
       return item
     }),
     updateItem: () => $store.dispatch('$_sources/updateAuthenticationSource', form.value),
+    sortItems: params => $store.dispatch('$_sources/sortAuthenticationSources', params)
   }
 }
+
+import { pfSearchConditionType as conditionType } from '@/globals/pfSearch'
+import makeSearch from '@/views/Configuration/_store/factory/search'
+import api from '../_api'
+export const useSearch = makeSearch('sources', {
+  api,
+  sortBy: null, // use natural order (sortable)
+  columns: [ // output uses natural order (w/ sortable drag-drop), ensure NO columns are 'sortable: true'
+    {
+      key: 'selected',
+      thStyle: 'width: 40px;', tdClass: 'p-0',
+      locked: true
+    },
+    {
+      key: 'id',
+      label: 'Name', // i18n defer
+      required: true,
+      searchable: true,
+      visible: true
+    },
+    {
+      key: 'description',
+      label: 'Description', // i18n defer
+      searchable: true,
+      visible: true
+    },
+    {
+      key: 'type',
+      label: 'Type', // i18n defer
+      searchable: true,
+      visible: true
+    },
+    {
+      key: 'buttons',
+      class: 'text-right p-0',
+      locked: true
+    },
+    {
+      key: 'class',
+      required: true,
+      visible: false
+    },
+    {
+      key: 'not_deletable',
+      required: true,
+      visible: false
+    },
+    {
+      key: 'not_sortable',
+      required: true,
+      visible: false
+    },
+  ],
+  fields: [
+    {
+      value: 'id',
+      text: i18n.t('Name'),
+      types: [conditionType.SUBSTRING]
+    },
+    {
+      value: 'description',
+      text: i18n.t('Description'),
+      types: [conditionType.SUBSTRING]
+    },
+    {
+      value: 'type',
+      text: i18n.t('Type'),
+      types: [conditionType.SUBSTRING]
+    }
+  ],
+  defaultCondition: () => ({ op: 'and', values: [
+    { op: 'or', values: [
+      { field: 'id', op: 'contains', value: null },
+      { field: 'description', op: 'contains', value: null },
+      { field: 'type', op: 'contains', value: null }
+    ] }
+  ] })
+})

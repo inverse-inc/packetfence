@@ -34,7 +34,7 @@ const actions = {
       limit: 1000
     }
     commit('ITEM_REQUEST')
-    return api.authenticationSources(params).then(response => {
+    return api.list(params).then(response => {
       commit('ITEM_SUCCESS')
       return response.items
     }).catch((err) => {
@@ -44,7 +44,7 @@ const actions = {
   },
   optionsById: ({ commit }, id) => {
     commit('ITEM_REQUEST')
-    return api.authenticationSourceOptions(id).then(response => {
+    return api.itemOptions(id).then(response => {
       commit('ITEM_SUCCESS')
       return response
     }).catch((err) => {
@@ -54,7 +54,7 @@ const actions = {
   },
   optionsBySourceType: ({ commit }, sourceType) => {
     commit('ITEM_REQUEST')
-    return api.authenticationSourcesOptions(sourceType).then(response => {
+    return api.listOptions(sourceType).then(response => {
       commit('ITEM_SUCCESS')
       return response
     }).catch((err) => {
@@ -69,7 +69,7 @@ const actions = {
       type: type,
       limit: 1000
     }
-    return api.authenticationSources(params).then(response => {
+    return api.list(params).then(response => {
       return response.items
     })
   },
@@ -78,7 +78,7 @@ const actions = {
       return Promise.resolve(state.cache[id]).then(cache => JSON.parse(JSON.stringify(cache)))
     }
     commit('ITEM_REQUEST')
-    return api.authenticationSource(id).then(item => {
+    return api.item(id).then(item => {
       commit('ITEM_REPLACED', item)
       return JSON.parse(JSON.stringify(item))
     }).catch((err) => {
@@ -91,7 +91,7 @@ const actions = {
       return Promise.resolve(state.saml_metadata[id]).then(saml_metadata => saml_metadata)
     }
     commit('ITEM_REQUEST')
-    return api.authenticationSourceSAMLMetaData(id).then(xml => {
+    return api.saml(id).then(xml => {
       commit('SAML_METADATA_REPLACED', { id, xml })
       return xml
     }).catch((err) => {
@@ -114,7 +114,7 @@ const actions = {
       })
     }
     commit('ITEM_REQUEST')
-    return api.createAuthenticationSource(data).then(response => {
+    return api.create(data).then(response => {
       commit('ITEM_REPLACED', data)
       return response
     }).catch(err => {
@@ -137,7 +137,7 @@ const actions = {
       })
     }
     commit('ITEM_REQUEST')
-    return api.updateAuthenticationSource(data).then(response => {
+    return api.update(data).then(response => {
       commit('ITEM_REPLACED', data)
       return response
     }).catch(err => {
@@ -147,7 +147,7 @@ const actions = {
   },
   deleteAuthenticationSource: ({ commit }, data) => {
     commit('ITEM_REQUEST', types.DELETING)
-    return api.deleteAuthenticationSource(data).then(response => {
+    return api.delete(data).then(response => {
       commit('ITEM_DESTROYED', data)
       return response
     }).catch(err => {
@@ -160,7 +160,7 @@ const actions = {
       items: data
     }
     commit('ITEM_REQUEST', types.LOADING)
-    return api.sortAuthenticationSources(params).then(response => {
+    return api.sort(params).then(response => {
       commit('ITEM_SUCCESS')
       return response
     }).catch(err => {
@@ -170,7 +170,7 @@ const actions = {
   },
   testAuthenticationSource: ({ commit }, data) => {
     commit('ITEM_REQUEST')
-    return api.testAuthenticationSource(data).then(response => {
+    return api.test(data).then(response => {
       commit('ITEM_SUCCESS')
       return response
     }).catch(err => {
