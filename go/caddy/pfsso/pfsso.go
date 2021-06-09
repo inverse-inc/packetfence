@@ -97,7 +97,7 @@ func (h PfssoHandler) parseSsoRequest(ctx context.Context, r *http.Request) (map
 	if tenant_id == "" {
 		tenant_id = defaultTenantID
 	} else if _, err := strconv.ParseInt(tenant_id, 10, 32); err != nil {
-		log.LoggerWContext(ctx).Warn(fmt.Sprintf("Can't parse X-PacketFence-Tenant-Id '%s' into an int (%s). Will not specify timeout for request.", tenant_id, err))
+		log.LoggerWContext(ctx).Warn(fmt.Sprintf("Can't parse X-PacketFence-Tenant-Id '%s' into an int (%s).", tenant_id, err))
 		tenant_id = defaultTenantID
 	}
 

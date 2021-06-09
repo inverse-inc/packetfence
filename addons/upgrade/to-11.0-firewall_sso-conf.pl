@@ -2,11 +2,11 @@
 
 =head1 NAME
 
-to-10.2-pfdetect-conf -
+to-11.0-firewall_sso-conf.pl
 
 =head1 DESCRIPTION
 
-Add the new field tenant_id to the detect parsers
+Add the new field tenant_id to Firewall SSO config
 
 =cut
 
