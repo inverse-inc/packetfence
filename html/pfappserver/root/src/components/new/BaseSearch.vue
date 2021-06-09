@@ -13,7 +13,7 @@
           <b-container fluid class="text-right mt-3 px-0">
             <b-button class="ml-1" type="reset" variant="secondary" :disabled="isLoading">{{ $t('Reset') }}</b-button>
             <base-button-save-search
-              save-search-namespace="tenants-advanced"
+              :save-search-namespace="`${uuid}-advanced`"
               class="ml-1"
               v-model="conditionAdvanced"
               :disabled="isLoading"
@@ -28,7 +28,7 @@
       </div>
       <div class="d-flex" v-else>
         <base-search-input-basic class="flex-grow-1"
-          save-search-namespace="tenants-basic"
+          :save-search-namespace="`${uuid}-basic`"
           v-model="conditionBasic"
           :disabled="isLoading"
           :placeholder="placeholderBasic"
@@ -196,6 +196,7 @@ const setup = (props) => {
   }
 
   return {
+    uuid,
     advancedMode,
     conditionBasic,
     conditionAdvanced,
