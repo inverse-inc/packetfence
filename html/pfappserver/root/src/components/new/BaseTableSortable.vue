@@ -10,7 +10,7 @@
   >
     <b-thead>
       <b-th aria-colindex="1" class="text-center" style="width: 40px;"
-        v-b-tooltip.hover.top.d300 :title="$t('Drag and drop rows to reorder.')"
+        v-b-tooltip.hover.top.d300 :title="$t('Drag and drop items to reorder.')"
       ><icon name="sort" /></b-th>
       <b-th v-for="(field, fIndex) in fields" :key="field.key"
         :aria-colindex="fIndex + 2" :class="field.class" :style="field.thStyle">
@@ -18,7 +18,7 @@
       </b-th>
     </b-thead>
     <!-- <b-tbody> --><draggable v-model="dragItems"
-      group="table" tag="tbody" handle=".drag-handle"
+      tag="tbody" handle=".drag-handle"
       :class="{[`cursor-grabbing`]: dragging === true}"
       :move="dragMove"
       @start="dragging = true"
@@ -48,7 +48,16 @@
             'drag-handle': !item.not_sortable
           }"
           @click.stop.prevent
-        ><icon :name="(item.not_sortable) ? 'lock' : 'th'" /></b-td>
+        >
+          <span v-if="item.not_sortable || items.length <= 1"
+            v-b-tooltip.hover.top.d300 :title="$t('This item can not be reordered.')">
+            <icon name="lock" />
+          </span>
+          <span v-else
+            v-b-tooltip.hover.top.d300 :title="$t('Drag and drop item to reorder.')">
+            <icon name="th" />
+          </span>
+        </b-td>
         <b-td v-for="(field, fIndex) in fields" :key="`${field.key}-${iIndex}`"
           :aria-colindex="fIndex + 2" :class="field.tdClass || field.class">
           <slot :name="`cell(${field.key})`" v-bind="{
