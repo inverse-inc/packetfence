@@ -23,7 +23,7 @@ export default [
     path: 'pki/revokedcerts',
     name: 'pkiRevokedCerts',
     component: TheTabs,
-    props: (route) => ({ tab: 'pkiRevokedCerts', query: route.query.query }),
+    props: () => ({ tab: 'pkiRevokedCerts' }),
     beforeEnter
   },
   {

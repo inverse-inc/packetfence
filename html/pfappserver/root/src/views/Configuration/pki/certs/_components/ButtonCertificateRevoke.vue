@@ -1,6 +1,6 @@
 <template>
   <b-button-group v-if="!isClone && !isNew">
-    <b-button size="sm" variant="outline-danger" :disabled="isLoading" @click="onShowModal">{{ $t('Revoke') }}</b-button>
+    <b-button size="sm" variant="outline-danger" :disabled="isLoading" @click.stop.prevent="onShowModal">{{ $t('Revoke') }}</b-button>
     <b-modal v-model="isShowModal"
       size="lg" centered cancel-disabled>
       <template v-slot:modal-title>
@@ -69,7 +69,7 @@ const setup = (props, context) => {
     id
   } = toRefs(props)
 
-  const { root: { $store } = {} } = context
+  const { emit, root: { $store } = {} } = context
 
   if (!$store.state.$_pkis)
     $store.registerModule('$_pkis', StoreModule)
@@ -88,6 +88,7 @@ const setup = (props, context) => {
       const { cn } = cert
       $store.dispatch('$_pkis/revokeCert', { id: id.value, reason }).then(() => {
         $store.dispatch('notification/info', { message: i18n.t('Certificate <code>{cn}</code> revoked.', { cn }) })
+        emit('change')
       }).catch(e => {
         $store.dispatch('notification/danger', { message: i18n.t('Could not revoke certificate <code>{cn}</code>.<br/>Reason: ', { cn }) + e })
       }).finally(() => {

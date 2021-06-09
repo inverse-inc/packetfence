@@ -1,19 +1,18 @@
 import apiCall from '@/utils/api'
 
 export default {
-  pkiCas: () => {
-    return apiCall.get('pki/cas').then(response => {
+  list: params => {
+    return apiCall.get('pki/cas', { params }).then(response => {
       const { data: { items = [] } = {} } = response
       return { items }
     })
   },
-  pkiCa: id => {
-    return apiCall.get(['pki', 'ca', id]).then(response => {
-      const { data: { items: { 0: item = {} } = {} } = {} } = response
-      return item
+  search: params => {
+    return apiCall.post('pki/cas/search', params).then(response => {
+      return response.data
     })
   },
-  createPkiCa: data => {
+  create: data => {
     return apiCall.post('pki/cas', data).then(response => {
       const { data: { error } = {} } = response
       if (error) {
@@ -22,6 +21,12 @@ export default {
         const { data: { items: { 0: item = {} } = {} } = {} } = response
         return item
       }
+    })
+  },
+  item: id => {
+    return apiCall.get(['pki', 'ca', id]).then(response => {
+      const { data: { items: { 0: item = {} } = {} } = {} } = response
+      return item
     })
   }
 }

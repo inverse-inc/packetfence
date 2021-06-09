@@ -17,6 +17,7 @@ export const useRouter = $router => {
       .push({ name: 'pkiProfile', params: { ...params, id: params.ID } })
       .catch(e => { if (e.name !== "NavigationDuplicated") throw e }),
     goToClone: params => $router.push({ name: 'clonePkiProfile', params }),
+    goToNew: params => $router.push({ name: 'newPkiProfile', params })
   }
 }
 
@@ -25,7 +26,7 @@ export default [
     path: 'pki/profiles',
     name: 'pkiProfiles',
     component: TheTabs,
-    props: (route) => ({ tab: 'pkiProfiles', query: route.query.query }),
+    props: () => ({ tab: 'pkiProfiles' }),
     beforeEnter
   },
   {
