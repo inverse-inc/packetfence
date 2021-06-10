@@ -734,7 +734,7 @@ sub generate_radiusd_ldap {
             }
         }
         next unless $active;
-	my $searchattributes = '';
+        my $searchattributes = '';
         my $edir_options;
         if ($ConfigAuthenticationLdap{$ldap}->{type} eq 'EDIR') {
             $edir_options .= << "EOT";
