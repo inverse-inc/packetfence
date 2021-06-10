@@ -65,9 +65,6 @@
         <template #cell(profile_name)="{ item }">
           <router-link :to="{ name: 'pkiProfile', params: { id: item.profile_id } }">{{ item.profile_name }}</router-link>
         </template>
-        <template #cell(crl_reason)="{ item }">
-          {{ revokeReasons.find(reason => ~~reason.value === ~~item.crl_reason).text }}
-        </template>
       </b-table>
       <b-container fluid v-if="selected.length"
         class="mt-3 p-0">
@@ -103,7 +100,6 @@ import { useBootstrapTableSelected } from '@/composables/useBootstrap'
 import { useTableColumnsItems } from '@/composables/useCsv'
 import { useDownload } from '@/composables/useDownload'
 import { useSearch, useRouter } from '../_composables/useCollection'
-import { revokeReasons } from '../../config'
 
 const setup = (props, context) => {
 
@@ -118,7 +114,7 @@ const setup = (props, context) => {
   const router = useRouter($router)
 
   const tableRef = ref(null)
-  const selected = useBootstrapTableSelected(tableRef, items)
+  const selected = useBootstrapTableSelected(tableRef, items, 'ID')
   const {
     selectedItems
   } = selected
@@ -133,7 +129,6 @@ const setup = (props, context) => {
     useSearch,
     tableRef,
     onBulkExport,
-    revokeReasons,
     ...router,
     ...selected,
     ...toRefs(search)

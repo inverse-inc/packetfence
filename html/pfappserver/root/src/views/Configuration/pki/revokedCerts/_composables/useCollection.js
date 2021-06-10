@@ -31,6 +31,7 @@ export const useStore = (props, context) => {
 import { pfSearchConditionType as conditionType } from '@/globals/pfSearch'
 import makeSearch from '@/views/Configuration/_store/factory/search'
 import api from '../_api'
+import { revokeReasons } from '../../config'
 export const useSearch = makeSearch('pkiRevokedCerts', {
   api,
   columns: [
@@ -93,11 +94,15 @@ export const useSearch = makeSearch('pkiRevokedCerts', {
       key: 'crl_reason',
       label: 'Reason', // i18n defer
       sortable: true,
-      visible: true
+      visible: true,
+      formatter: value => {
+        const reason = revokeReasons.find(reason => reason.value === value.toString())
+        return reason.text || ''
+      }
     },
     {
       key: 'buttons',
-      class: 'text-right p-0',
+      thStyle: 'width: 40px;', class: 'text-right p-0',
       locked: true
     }
   ],

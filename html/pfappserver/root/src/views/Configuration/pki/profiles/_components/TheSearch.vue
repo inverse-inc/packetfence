@@ -139,7 +139,7 @@ const setup = (props, context) => {
   const router = useRouter($router)
 
   const tableRef = ref(null)
-  const selected = useBootstrapTableSelected(tableRef, items)
+  const selected = useBootstrapTableSelected(tableRef, items, 'ID')
   const {
     selectedItems
   } = selected

@@ -64,14 +64,14 @@
           />
         </template>
         <template #cell(buttons)="{ item }">
-          <span class="float-right text-nowrap text-right">
+          <span class="float-right text-right">
             <b-button
-              size="sm" variant="outline-primary" class="mr-1"
+              size="sm" variant="outline-primary" class="my-1 mr-1"
               @click.stop.prevent="goToClone({ id: item.ID, ...item })"
             >{{ $t('Clone') }}</b-button>
-            <button-certificate-download :id="item.ID" class="mr-1" />
-            <button-certificate-email :id="item.ID" class="mr-1" />
-            <button-certificate-revoke :id="item.ID" class="mr-1" @change="reSearch" />
+            <button-certificate-download :id="item.ID" class="my-1 mr-1" />
+            <button-certificate-email :id="item.ID" class="my-1 mr-1" />
+            <button-certificate-revoke :id="item.ID" class="my-1 mr-1" @change="reSearch" />
           </span>
         </template>
         <template #cell(ca_name)="{ item }">
@@ -153,7 +153,7 @@ const setup = (props, context) => {
   const router = useRouter($router)
 
   const tableRef = ref(null)
-  const selected = useBootstrapTableSelected(tableRef, items)
+  const selected = useBootstrapTableSelected(tableRef, items, 'ID')
   const {
     selectedItems
   } = selected
