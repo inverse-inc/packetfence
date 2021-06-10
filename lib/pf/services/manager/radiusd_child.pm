@@ -727,7 +727,14 @@ sub generate_radiusd_ldap {
     $tags{'install_dir'} = $install_dir;
     my $ldap_config = $FALSE;
     foreach my $ldap (keys %ConfigAuthenticationLdap) {
-        my $searchattributes = '';
+        my $active = $FALSE;
+        foreach my $realm ( @pf::config::ConfigOrderedRealm ) {
+            if (defined($pf::config::ConfigRealm{$realm}->{ldap_source}) && ($pf::config::ConfigRealm{$realm}->{ldap_source} eq $ldap) ) {
+                $active = $TRUE;
+            }
+        }
+        next unless $active;
+	my $searchattributes = '';
         my $edir_options;
         if ($ConfigAuthenticationLdap{$ldap}->{type} eq 'EDIR') {
             $edir_options .= << "EOT";
