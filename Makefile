@@ -224,7 +224,6 @@ build_rpm: rpm/.rpmmacros
 
 .PHONY: build_deb
 build_deb:
-	$(SRC_CIDIR)/debian/convert-to-native-package.sh
 	cp $(SRC_CIDIR)/debian/.devscripts $(HOME)
 	QUILT_PATCHES=$(SRC_DEBDIR)/patches quilt push
 	ci-build-pkg $(SRC_DEBDIR)

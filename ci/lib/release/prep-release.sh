@@ -56,7 +56,7 @@ update_deb_changelog() {
             --distribution "unstable" \
             -t "Version ${PF_NEW_PATCH_RELEASE}"
     ) || die "dch failed"
-    head $DEB_CHLOG
+    head -n3 $DEB_CHLOG
 }
 
 update_rpm_changelog() {
