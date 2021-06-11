@@ -15,7 +15,8 @@ get_pf_release
 
 RPM_SPEC=${PF_SRC_DIR}/rpm/packetfence.spec
 RPM_SOURCE=${PF_SRC_DIR}/rpm/source
-DEB_CHLOG=${PF_SRC_DIR}/debian/changelog
+DEB_DIR=${PF_SRC_DIR}/debian
+DEB_CHLOG=${DEB_DIR}/changelog
 
 configure_and_check() {
     log_subsection "Get current PacketFence version"    
@@ -48,6 +49,14 @@ update_changelog() {
 
 update_deb_changelog() {
     log_subsection "Debian Changelog"
+    (
+        cd $DEB_DIR
+        dch --controlmaint \
+            --newversion "${PF_NEW_PATCH_RELEASE}" \
+            --distribution "unstable" \
+            -t "Version ${PF_NEW_PATCH_RELEASE}"
+    ) || die "dch failed"
+    head $DEB_CHLOG
 }
 
 update_rpm_changelog() {
