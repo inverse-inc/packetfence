@@ -1,34 +1,36 @@
 <template>
   <b-container fluid class="px-1">
-    <b-row class="bg-white rc align-items-center m-0 p-1 isdrag">
-      <b-input-group class="mr-1">
-        <b-input-group-prepend v-if="icon || hasParents || hasSiblings"
-          class="p-0"
-          is-text>
-          <icon  v-if="icon"
-            :name="icon" />
-          <span v-if="hasParents || hasSiblings"
-            class="draghandle"
-            v-b-tooltip.hover.right.d300 :title="$t('Click & drag statement to reorder')">
-            <icon name="th" />
-          </span>
-        </b-input-group-prepend>
-        <b-form-select v-model="value.field" :disabled="disabled" :options="fieldOptions" />
-        <b-form-select class="mr-1" v-model="value.op" :disabled="disabled" :options="operatorOptions" />
-        <component :is="valueComponentIs"
-          v-bind="valueComponentProps"
-          v-model="value.value"
-        />
-        <b-input-group-append v-if="hasParents || (hasSiblings && !isDrag)">
-          <b-button
-            class="ml-auto nodrag" variant="link"
-            v-b-tooltip.hover.left.d300 :disabled="disabled" :title="$t('Delete statement')"
-            @click="onDeleteRule">
-            <icon name="trash-alt" />
-          </b-button>
-        </b-input-group-append>
-      </b-input-group>
-    </b-row>
+    <b-form @submit.prevent="$emit('search')">
+      <b-row class="bg-white rc align-items-center m-0 p-1 isdrag">
+        <b-input-group class="mr-1">
+          <b-input-group-prepend v-if="icon || hasParents || hasSiblings"
+            class="p-0"
+            is-text>
+            <icon  v-if="icon"
+              :name="icon" />
+            <span v-if="hasParents || hasSiblings"
+              class="draghandle"
+              v-b-tooltip.hover.right.d300 :title="$t('Click & drag statement to reorder')">
+              <icon name="th" />
+            </span>
+          </b-input-group-prepend>
+          <b-form-select v-model="value.field" :disabled="disabled" :options="fieldOptions" />
+          <b-form-select class="mr-1" v-model="value.op" :disabled="disabled" :options="operatorOptions" />
+          <component :is="valueComponentIs"
+            v-bind="valueComponentProps"
+            v-model="value.value"
+          />
+          <b-input-group-append v-if="hasParents || (hasSiblings && !isDrag)">
+            <b-button
+              class="ml-auto nodrag" variant="link"
+              v-b-tooltip.hover.left.d300 :disabled="disabled" :title="$t('Delete statement')"
+              @click="onDeleteRule">
+              <icon name="trash-alt" />
+            </b-button>
+          </b-input-group-append>
+        </b-input-group>
+      </b-row>
+    </b-form>
     <b-row class="mx-auto isdrag">
       <b-col cols="1"></b-col>
       <b-col cols="1" class="py-0 bg-white" style="min-width:60px;">
@@ -166,9 +168,9 @@ const setup = (props, context) => {
       const options = pfSearchValuesForOperator(types, value.value.op, $store) || []
       if (options.length && options.findIndex(v => v.value === value.value.value) < 0)
         value.value.value = options[0].value // select the first valid option
-      return { disabled, options }
+      return { disabled: disabled.value, options }
     }
-    return { disabled }
+    return { disabled: disabled.value }
   })
 
   const onAddRule = () => emit('add')

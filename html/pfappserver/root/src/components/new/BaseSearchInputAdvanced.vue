@@ -18,6 +18,7 @@
             :is-last-child="iIndex === value[oIndex].values.length - 1"
             @add="onAddInnerRule(oIndex)"
             @delete="onDeleteRule(oIndex, iIndex)"
+            @search="$emit('search', $event)"
           />
         </draggable>
       </b-container>

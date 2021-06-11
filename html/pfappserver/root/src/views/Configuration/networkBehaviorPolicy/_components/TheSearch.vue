@@ -1,27 +1,34 @@
 <template>
   <b-card no-body>
     <b-card-header>
-      <h4 class="mb-0">
-        {{ collection.name }}
-      </h4>
+      <h4 class="mb-0">{{ $t('Network Behaviour Policies') }}</h4>
     </b-card-header>
     <div class="card-body">
+      <div v-if="!canUseNbaEndpoints"
+        class="alert alert-warning"
+      >{{ $t(`Your Fingerbank account currently doesn't have access to the network behavior analysis API endpoints. Get in touch with info@inverse.ca for a quote. Without these API endpoints, you will not be able to use the anomaly detection feature.`) }}</div>
+
       <base-search :use-search="useSearch">
-        <b-button variant="outline-primary" @click="goToNew({ collection: collection.collection })">{{ $t('New Filter') }}</b-button>
+        <b-button variant="outline-primary" @click="goToNew">{{ $t('New Network Behaviour Policy') }}</b-button>
       </base-search>
-      <base-table-sortable ref="tableRef"
+      <b-table ref="tableRef"
         :busy="isLoading"
         :hover="items.length > 0"
         :items="items"
         :fields="visibleColumns"
+        :sort-by="sortBy"
+        :sort-desc="sortDesc"
         class="mb-0"
         show-empty
+        no-local-sorting
+        no-sort-reset
+        sort-icon-left
         fixed
         striped
         selectable
         @row-clicked="goToItem"
         @row-selected="onRowSelected"
-        @items-sorted="onSorted"
+        @sort-changed="setSort"
       >
         <template v-slot:empty>
           <slot name="emptySearch" v-bind="{ isLoading }">
@@ -59,9 +66,6 @@
           <toggle-status :value="item.status" :disabled="isLoading"
             :item="item" :collection="collection" @input="item.status = $event" />
         </template>
-        <template #cell(scopes)="{ item }">
-          <b-badge v-for="(scope, index) in item.scopes" :key="index" class="mr-1" variant="secondary">{{ scope }}</b-badge>
-        </template>
         <template #cell(buttons)="{ item }">
           <span class="float-right text-nowrap text-right"
             @click.stop.prevent
@@ -69,7 +73,7 @@
             <base-button-confirm v-if="!item.not_deletable"
               size="sm" variant="outline-danger" class="my-1 mr-1" reverse
               :disabled="isLoading"
-              :confirm="$t('Delete Filter?')"
+              :confirm="$t('Delete Policy?')"
               @click="onRemove(item.id)"
             >{{ $t('Delete') }}</base-button-confirm>
             <b-button
@@ -78,7 +82,7 @@
             >{{ $t('Clone') }}</b-button>
           </span>
         </template>
-      </base-table-sortable>
+      </b-table>
       <b-container fluid v-if="selected.length"
         class="mt-3 p-0">
         <b-dropdown variant="outline-primary" toggle-class="text-decoration-none">
@@ -96,8 +100,7 @@ import {
   BaseButtonConfirm,
   BaseButtonHelp,
   BaseSearch,
-  BaseSearchInputColumns,
-  BaseTableSortable
+  BaseSearchInputColumns
 } from '@/components/new/'
 import pfEmptyTable from '@/components/pfEmptyTable'
 import ToggleStatus from './ToggleStatus'
@@ -107,7 +110,6 @@ const components = {
   BaseButtonHelp,
   BaseSearch,
   BaseSearchInputColumns,
-  BaseTableSortable,
   pfEmptyTable,
   ToggleStatus
 }
@@ -118,11 +120,10 @@ const props = {
   }
 }
 
-import { ref, toRefs, watch } from '@vue/composition-api'
+import { ref, toRefs } from '@vue/composition-api'
 import { useBootstrapTableSelected } from '@/composables/useBootstrap'
 import { useTableColumnsItems } from '@/composables/useCsv'
 import { useDownload } from '@/composables/useDownload'
-import { apiFactory } from '../_api'
 import { useSearch, useStore, useRouter } from '../_composables/useCollection'
 
 const setup = (props, context) => {
@@ -131,7 +132,12 @@ const setup = (props, context) => {
     collection
   } = toRefs(props)
 
-  const { root: { $router } = {} } = context
+  const { root: { $store, $router } = {} } = context
+
+  const canUseNbaEndpoints = ref(false)
+  $store.dispatch('$_fingerbank/getCanUseNbaEndpoints').then(info => {
+    canUseNbaEndpoints.value = info["result"]
+  })
 
   const search = useSearch()
   const {
@@ -147,12 +153,6 @@ const setup = (props, context) => {
     goToPreview
   } = router
 
-  watch(() => collection.value.collection, () => {
-    search.api = apiFactory(collection.value)
-    items.value = []
-    reSearch()
-  }, { immediate: true })
-
   const tableRef = ref(null)
   const selected = useBootstrapTableSelected(tableRef, items)
   const {
@@ -166,8 +166,7 @@ const setup = (props, context) => {
   }
 
   const {
-    deleteItem,
-    sortItems
+    deleteItem
   } = useStore(props, context)
 
   const onRemove = id => {
@@ -175,13 +174,8 @@ const setup = (props, context) => {
       .then(() => reSearch())
   }
 
-  const onSorted = _items => {
-    items.value = _items
-    sortItems({ ...collection.value, items: items.value.map(item => item.id) })
-      .then(() => reSearch())
-  }
-
   return {
+    canUseNbaEndpoints,
     useSearch,
     tableRef,
     ...router,
@@ -189,8 +183,7 @@ const setup = (props, context) => {
     ...toRefs(search),
     goToPreview,
     onBulkExport,
-    onRemove,
-    onSorted
+    onRemove
   }
 }
 
@@ -203,3 +196,93 @@ export default {
   setup
 }
 </script>
+
+
+<!--
+<template>
+  <b-card no-body>
+    <pf-config-list
+      ref="pfConfigList"
+      :config="config"
+    >
+      <template v-slot:pageHeader>
+        <b-card-header>
+          <h4 class="mb-0">
+            {{ $t('Network Behavior Policy') }}
+          </h4>
+        </b-card-header>
+        <b-card-header v-if="!canUseNbaEndpoints">
+          <template>
+          <div class="alert alert-warning">{{ $t(`Your Fingerbank account currently doesn't have access to the network behavior analysis API endpoints. Get in touch with info@inverse.ca for a quote. Without these API endpoints, you will not be able to use the anomaly detection feature.`) }}</div>
+          </template>
+        </b-card-header>
+      </template>
+      <template v-slot:buttonAdd>
+        <b-button variant="outline-primary" :to="{ name: 'newNetworkBehaviorPolicy' }">{{ $t('New Network Behavior Policy') }}</b-button>
+      </template>
+      <template v-slot:emptySearch="state">
+        <pf-empty-table :is-loading="state.isLoading">{{ $t('No Network Behavior Policies found') }}</pf-empty-table>
+      </template>
+      <template v-slot:cell(buttons)="item">
+        <span class="float-right text-nowrap">
+          <pf-button-delete size="sm" v-if="!item.not_deletable" variant="outline-danger" class="mr-1" :disabled="isLoading" :confirm="$t('Delete Network Behavior Policy?')" @on-delete="remove(item)" reverse/>
+          <b-button size="sm" variant="outline-primary" class="mr-1" @click.stop.prevent="clone(item)">{{ $t('Clone') }}</b-button>
+        </span>
+      </template>
+      <template v-slot:cell(status)="item">
+        <toggle-status :value="item.status"
+          :disabled="isLoading"
+          :item="item" />
+      </template>
+    </pf-config-list>
+  </b-card>
+</template>
+
+<script>
+import pfButtonDelete from '@/components/pfButtonDelete'
+import pfConfigList from '@/components/pfConfigList'
+import pfEmptyTable from '@/components/pfEmptyTable'
+import { config } from '../_config/networkBehaviorPolicy'
+import { ToggleStatus } from '@/views/Configuration/networkBehaviorPolicy/_components/'
+
+export default {
+  name: 'network-behavior-policies-list',
+  components: {
+    pfButtonDelete,
+    pfConfigList,
+    pfEmptyTable,
+    ToggleStatus
+  },
+  data () {
+    return {
+      config: config(this),
+      canUseNbaEndpoints: false,
+    }
+  },
+  computed: {
+    isLoading () {
+      return this.$store.getters['$_network_behavior_policies/isLoading']
+    }
+  },
+  methods: {
+    clone (item) {
+      this.$router.push({ name: 'cloneNetworkBehaviorPolicy', params: { id: item.id } })
+    },
+    remove (item) {
+      this.$store.dispatch('$_network_behavior_policies/deleteNetworkBehaviorPolicy', item.id).then(() => {
+        const { $refs: { pfConfigList: { refreshList = () => {} } = {} } = {} } = this
+        refreshList() // soft reload
+      })
+    },
+    init () {
+      this.$store.dispatch('$_fingerbank/getCanUseNbaEndpoints').then(info => {
+        this.canUseNbaEndpoints = info["result"]
+      })
+    }
+  },
+  created () {
+    this.init()
+  }
+}
+</script>
+-->

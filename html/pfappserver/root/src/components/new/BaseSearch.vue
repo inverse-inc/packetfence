@@ -7,7 +7,6 @@
             v-model="conditionAdvanced"
             :disabled="disabled || isLoading"
             :fields="fields"
-            @reset="onSearchReset"
             @search="onSearchAdvanced"
           />
           <b-container fluid class="text-right mt-3 px-0">

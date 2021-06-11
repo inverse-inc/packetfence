@@ -34,7 +34,7 @@ const actions = {
     }
     if (!state.policiesPromise) {
       commit('ITEM_REQUEST')
-      state.policiesPromise = api.networkBehaviorPolicies(params).then(response => {
+      state.policiesPromise = api.list(params).then(response => {
         commit('ITEM_SUCCESS')
         return response.items
       }).catch((err) => {
@@ -47,7 +47,7 @@ const actions = {
   options: ({ commit }, id) => {
     commit('ITEM_REQUEST')
     if (id) {
-      return api.networkBehaviorPoliciesOptions(id).then(response => {
+      return api.itemOptions(id).then(response => {
         commit('ITEM_SUCCESS')
         return response
       }).catch((err) => {
@@ -55,7 +55,7 @@ const actions = {
         throw err
       })
     } else {
-      return api.networkBehaviorPoliciesOptions().then(response => {
+      return api.listOptions().then(response => {
         commit('ITEM_SUCCESS')
         return response
       }).catch((err) => {
@@ -69,7 +69,7 @@ const actions = {
       return Promise.resolve(state.cache[id]).then(cache => JSON.parse(JSON.stringify(cache)))
     }
     commit('ITEM_REQUEST')
-    return api.networkBehaviorPolicy(id).then(item => {
+    return api.item(id).then(item => {
       commit('ITEM_REPLACED', item)
       return JSON.parse(JSON.stringify(item))
     }).catch((err) => {
@@ -79,7 +79,7 @@ const actions = {
   },
   createNetworkBehaviorPolicy: ({ commit }, data) => {
     commit('ITEM_REQUEST')
-    return api.createNetworkBehaviorPolicy(data).then(response => {
+    return api.create(data).then(response => {
       commit('ITEM_REPLACED', data)
       return response
     }).catch(err => {
@@ -89,7 +89,7 @@ const actions = {
   },
   updateNetworkBehaviorPolicy: ({ commit }, data) => {
     commit('ITEM_REQUEST')
-    return api.updateNetworkBehaviorPolicy(data).then(response => {
+    return api.update(data).then(response => {
       commit('ITEM_REPLACED', data)
       return response
     }).catch(err => {
@@ -101,7 +101,7 @@ const actions = {
     commit('ITEM_REQUEST')
     const { id, quiet = false } = data
     const _data = { id, status: 'enabled', quiet }
-    return api.updateNetworkBehaviorPolicy(_data).then(response => {
+    return api.update(_data).then(response => {
       commit('ITEM_ENABLED', _data)
       commit('$_config_network_behavior_policies_searchable/ITEM_UPDATED', { key: 'id', id, prop: 'status', data: 'enabled' }, { root: true })
       return response
@@ -114,7 +114,7 @@ const actions = {
     commit('ITEM_REQUEST')
     const { id, quiet = false } = data
     const _data = { id, status: 'disabled', quiet }
-    return api.updateNetworkBehaviorPolicy(_data).then(response => {
+    return api.update(_data).then(response => {
       commit('ITEM_DISABLED', _data)
       commit('$_config_network_behavior_policies_searchable/ITEM_UPDATED', { key: 'id', id, prop: 'status', data: 'disabled' }, { root: true })
       return response
@@ -125,7 +125,7 @@ const actions = {
   },
   deleteNetworkBehaviorPolicy: ({ commit }, data) => {
     commit('ITEM_REQUEST', types.DELETING)
-    return api.deleteNetworkBehaviorPolicy(data).then(response => {
+    return api.delete(data).then(response => {
       commit('ITEM_DESTROYED', data)
       return response
     }).catch(err => {
