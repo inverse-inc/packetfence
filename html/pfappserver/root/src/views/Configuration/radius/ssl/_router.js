@@ -11,6 +11,7 @@ export const useRouter = $router => {
       .push({ name: 'radiusSsl', params })
       .catch(e => { if (e.name !== "NavigationDuplicated") throw e }),
     goToClone: params => $router.push({ name: 'cloneRadiusSsl', params }),
+    goToNew: params => $router.push({ name: 'newRadiusFast', params })
   }
 }
 
@@ -25,7 +26,7 @@ export default [
     path: 'radius/ssl',
     name: 'radiusSsls',
     component: TheTabs,
-    props: (route) => ({ tab: 'radiusSsls', query: route.query.query }),
+    props: () => ({ tab: 'radiusSsls' }),
     beforeEnter
   },
   {

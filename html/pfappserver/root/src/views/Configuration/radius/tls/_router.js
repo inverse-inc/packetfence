@@ -11,6 +11,7 @@ export const useRouter = $router => {
       .push({ name: 'radiusTls', params })
       .catch(e => { if (e.name !== "NavigationDuplicated") throw e }),
     goToClone: params => $router.push({ name: 'cloneRadiusTls', params }),
+    goToNew: params => $router.push({ name: 'newRadiusTls', params })
   }
 }
 
@@ -25,7 +26,7 @@ export default [
     path: 'radius/tls',
     name: 'radiusTlss',
     component: TheTabs,
-    props: (route) => ({ tab: 'radiusTlss', query: route.query.query }),
+    props: () => ({ tab: 'radiusTlss' }),
     beforeEnter
   },
   {

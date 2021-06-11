@@ -11,6 +11,7 @@ export const useRouter = $router => {
       .push({ name: 'radiusEap', params })
       .catch(e => { if (e.name !== "NavigationDuplicated") throw e }),
     goToClone: params => $router.push({ name: 'cloneRadiusEap', params }),
+    goToNew: params => $router.push({ name: 'newRadiusEap', params })
   }
 }
 
@@ -25,7 +26,7 @@ export default [
     path: 'radius/eap',
     name: 'radiusEaps',
     component: TheTabs,
-    props: (route) => ({ tab: 'radiusEaps', query: route.query.query }),
+    props: () => ({ tab: 'radiusEaps' }),
     beforeEnter
   },
   {

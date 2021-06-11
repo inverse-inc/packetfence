@@ -42,3 +42,63 @@ export const useStore = (props, context, form) => {
     updateItem: () => $store.dispatch('$_radius_tls/updateRadiusTls', form.value),
   }
 }
+
+import { pfSearchConditionType as conditionType } from '@/globals/pfSearch'
+import makeSearch from '@/views/Configuration/_store/factory/search'
+import api from '../_api'
+export const useSearch = makeSearch('radiusTls', {
+  api,
+  columns: [
+    {
+      key: 'selected',
+      thStyle: 'width: 40px;', tdClass: 'p-0',
+      locked: true
+    },
+    {
+      key: 'id',
+      label: 'Name', // i18n defer
+      required: true,
+      searchable: true,
+      sortable: true,
+      visible: true
+    },
+    {
+      key: 'certificate_profile',
+      label: 'Certificate Profile', // i18n defer
+      searchable: true,
+      sortable: true,
+      visible: true
+    },
+    {
+      key: 'ocsp',
+      label: 'OCSP Profile', // i18n defer
+      searchable: true,
+      sortable: true,
+      visible: true
+    },
+    {
+      key: 'buttons',
+      class: 'text-right p-0',
+      locked: true
+    },
+    {
+      key: 'not_deletable',
+      required: true,
+      visible: false
+    }
+  ],
+  fields: [
+    {
+      value: 'id',
+      text: i18n.t('Name'),
+      types: [conditionType.SUBSTRING]
+    }
+  ],
+  sortBy: 'id',
+  defaultCondition: () => ({ op: 'and', values: [
+    { op: 'or', values: [
+      { field: 'id', op: 'contains', value: null }
+    ] }
+  ] })
+})
+
