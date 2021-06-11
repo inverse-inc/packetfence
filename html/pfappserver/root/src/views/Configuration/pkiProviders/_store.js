@@ -31,13 +31,13 @@ const actions = {
       sort: 'id',
       fields: ['id', 'description', 'class'].join(',')
     }
-    return api.pkiProviders(params).then(response => {
+    return api.list(params).then(response => {
       return response.items
     })
   },
   optionsById: ({ commit }, id) => {
     commit('ITEM_REQUEST')
-    return api.pkiProviderOptions(id).then(response => {
+    return api.itemOptions(id).then(response => {
       commit('ITEM_SUCCESS')
       return response
     }).catch((err) => {
@@ -47,7 +47,7 @@ const actions = {
   },
   optionsByProviderType: ({ commit }, providerType) => {
     commit('ITEM_REQUEST')
-    return api.pkiProvidersOptions(providerType).then(response => {
+    return api.listOptions(providerType).then(response => {
       commit('ITEM_SUCCESS')
       return response
     }).catch((err) => {
@@ -61,7 +61,7 @@ const actions = {
       fields: ['id', 'description', 'class'].join(','),
       type: type
     }
-    return api.pkiProviders(params).then(response => {
+    return api.list(params).then(response => {
       return response.items
     })
   },
@@ -70,7 +70,7 @@ const actions = {
       return Promise.resolve(state.cache[id]).then(cache => JSON.parse(JSON.stringify(cache)))
     }
     commit('ITEM_REQUEST')
-    return api.pkiProvider(id).then(item => {
+    return api.item(id).then(item => {
       commit('ITEM_REPLACED', item)
       return JSON.parse(JSON.stringify(item))
     }).catch((err) => {
@@ -80,7 +80,7 @@ const actions = {
   },
   createPkiProvider: ({ commit }, data) => {
     commit('ITEM_REQUEST')
-    return api.createPkiProvider(data).then(response => {
+    return api.create(data).then(response => {
       commit('ITEM_REPLACED', data)
       return response
     }).catch(err => {
@@ -90,7 +90,7 @@ const actions = {
   },
   updatePkiProvider: ({ commit }, data) => {
     commit('ITEM_REQUEST')
-    return api.updatePkiProvider(data).then(response => {
+    return api.update(data).then(response => {
       commit('ITEM_REPLACED', data)
       return response
     }).catch(err => {
@@ -100,7 +100,7 @@ const actions = {
   },
   deletePkiProvider: ({ commit }, data) => {
     commit('ITEM_REQUEST', types.DELETING)
-    return api.deletePkiProvider(data).then(response => {
+    return api.delete(data).then(response => {
       commit('ITEM_DESTROYED', data)
       return response
     }).catch(err => {

@@ -2,7 +2,7 @@ import store from '@/store'
 import PkiProvidersStoreModule from './_store'
 import PkisStoreModule from '../pki/_store'
 
-const TheList = () => import(/* webpackChunkName: "Configuration" */ '../_components/PkiProvidersList')
+const TheSearch = () => import(/* webpackChunkName: "Configuration" */ './_components/TheSearch')
 const TheView = () => import(/* webpackChunkName: "Configuration" */ './_components/TheView')
 
 export const useRouter = $router => {
@@ -12,6 +12,7 @@ export const useRouter = $router => {
       .push({ name: 'pki_provider', params })
       .catch(e => { if (e.name !== "NavigationDuplicated") throw e }),
     goToClone: params => $router.push({ name: 'clonePkiProvider', params }),
+    goToNew: params => $router.push({ name: 'newPkiProvider', params })
   }
 }
 
@@ -27,8 +28,7 @@ export default [
   {
     path: 'pki_providers',
     name: 'pki_providers',
-    component: TheList,
-    props: (route) => ({ query: route.query.query }),
+    component: TheSearch,
     beforeEnter
   },
   {
