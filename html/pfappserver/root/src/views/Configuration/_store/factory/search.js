@@ -140,8 +140,8 @@ const factory = (uuid, options = {}) => {
               this.api.list(params)
                 .then(_response => {
                   const response = this.responseInterceptor(_response)
-                  const { items = [], total_count } = response
-                  this.items = items
+                  const { items, total_count } = response
+                  this.items = items || []
                   this.totalRows = total_count
                   this.lastQuery = null
                 })
@@ -192,8 +192,8 @@ const factory = (uuid, options = {}) => {
             this.api.search(body)
               .then(_response => {
                 const response = this.responseInterceptor(_response)
-                const { items = [], total_count } = response
-                this.items = items
+                const { items, total_count } = response
+                this.items = items || []
                 this.totalRows = total_count
                 this.lastQuery = query
               })
