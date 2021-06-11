@@ -52,7 +52,7 @@ Requires: httpd, mod_ssl
 Requires: mod_perl, mod_proxy_html
 requires: libapreq2
 Requires: redis
-Requires: freeradius >= 3.0.22, freeradius-mysql, freeradius-perl, freeradius-ldap, freeradius-utils, freeradius-redis, freeradius-rest
+Requires: freeradius >= 3.0.23, freeradius-mysql, freeradius-perl, freeradius-ldap, freeradius-utils, freeradius-redis, freeradius-rest
 #Requires: freeradius-radsniff
 Requires: fuse
 Requires: make
@@ -266,7 +266,7 @@ Requires: perl-lasso
 
 Requires: samba-winbind-clients, samba-winbind
 Requires: libdrm >= 2.4.74
-Requires: python2-impacket
+Requires: python3-impacket
 Requires: netdata < 1.11.0., fping, MySQL-python
 #OpenVAS
 Requires: openvas-cli
