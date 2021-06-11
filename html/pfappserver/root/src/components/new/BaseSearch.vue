@@ -148,16 +148,15 @@ const setup = (props) => {
         if (_conditionAdvanced) {
           conditionAdvanced.value = _conditionAdvanced
           advancedMode.value = true
-          doSearchCondition(conditionAdvanced.value)
+          return doSearchCondition(conditionAdvanced.value)
         }
-        else {
-          conditionBasic.value = _conditionBasic || ''
+        if (_conditionBasic) {
+          conditionBasic.value = _conditionBasic
           advancedMode.value = false
-          doSearchString(conditionBasic.value)
+          return doSearchString(conditionBasic.value)
         }
       }
-      else
-        doReset()
+      doReset()
     })
   })
 
