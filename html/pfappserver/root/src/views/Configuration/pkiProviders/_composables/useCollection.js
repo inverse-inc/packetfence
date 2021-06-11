@@ -1,5 +1,6 @@
 import { computed, toRefs } from '@vue/composition-api'
 import i18n from '@/utils/locale'
+import { pkiProvidersTypes } from '../config'
 
 export const useItemProps = {
   id: {
@@ -40,7 +41,7 @@ export const useItemTitleBadge = (props, context, form) => {
   const {
     providerType
   } = toRefs(props)
-  return computed(() => (providerType.value || form.value.type))
+  return computed(() => pkiProvidersTypes[providerType.value || form.value.type])
 }
 
 export { useRouter } from '../_router'
@@ -77,7 +78,6 @@ export const useStore = (props, context, form) => {
 import { pfSearchConditionType as conditionType } from '@/globals/pfSearch'
 import makeSearch from '@/views/Configuration/_store/factory/search'
 import api from '../_api'
-import { types } from '../config'
 export const useSearch = makeSearch('pkiProviders', {
   api,
   columns: [
@@ -100,7 +100,7 @@ export const useSearch = makeSearch('pkiProviders', {
       searchable: true,
       sortable: true,
       visible: true,
-      formatter: value => types[value]
+      formatter: value => pkiProvidersTypes[value]
     },
     {
       key: 'buttons',
