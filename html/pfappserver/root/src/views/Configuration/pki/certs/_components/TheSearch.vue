@@ -4,7 +4,7 @@
       <h4 class="mb-0">{{ $t('Certificates') }}</h4>
     </b-card-header>
     <div class="card-body">
-      <base-search :use-search="useSearch">
+      <base-search :use-search="useSearch" :disabled="!isServiceAlive">
         <b-dropdown :text="$t('New Certificate')" variant="outline-primary" :disabled="!isServiceAlive || profiles.length === 0">
           <b-dropdown-header>{{ $t('Choose Certificate Authority - Template') }}</b-dropdown-header>
           <b-dropdown-item v-for="profile in profilesSorted" :key="profile.ID" :to="{ name: 'newPkiCert', params: { profile_id: profile.ID } }">{{ profile.ca_name }} - {{ profile.name }}</b-dropdown-item>
@@ -14,7 +14,7 @@
           class="ml-1" />
       </base-search>
       <b-table ref="tableRef"
-        :busy="isLoading"
+        :busy="isLoading || !isServiceAlive"
         :hover="items.length > 0"
         :items="items"
         :fields="visibleColumns"
@@ -25,6 +25,7 @@
         class="mb-0"
         show-empty
         no-local-sorting
+        no-sort-reset
         sort-icon-left
         fixed
         striped
@@ -33,7 +34,13 @@
       >
         <template v-slot:empty>
           <slot name="emptySearch" v-bind="{ isLoading }">
-              <pf-empty-table :is-loading="isLoading">{{ $t('No results found') }}</pf-empty-table>
+            <base-table-empty v-if="isServiceAlive"
+              :is-loading="isLoading"
+            >{{ $i18n.t('No results found') }}</base-table-empty>
+            <base-table-empty v-else
+              :is-loading="isLoading"
+              :text="$t('Start the pfpki service.')"
+            >{{ $i18n.t('Service not running') }}</base-table-empty>
           </slot>
         </template>
         <template #head(selected)>
@@ -58,7 +65,7 @@
         </template>
         <template #head(buttons)>
           <base-search-input-columns
-            :disabled="isLoading"
+            :disabled="!isServiceAlive || isLoading"
             :value="columns"
             @input="setColumns"
           />
@@ -67,18 +74,19 @@
           <span class="float-right text-right">
             <b-button
               size="sm" variant="outline-primary" class="my-1 mr-1"
+              :disabled="!isServiceAlive"
               @click.stop.prevent="goToClone({ id: item.ID, ...item })"
             >{{ $t('Clone') }}</b-button>
-            <button-certificate-download :id="item.ID" class="my-1 mr-1" />
-            <button-certificate-email :id="item.ID" class="my-1 mr-1" />
-            <button-certificate-revoke :id="item.ID" class="my-1 mr-1" @change="reSearch" />
+            <button-certificate-download :disabled="!isServiceAlive" :id="item.ID" class="my-1 mr-1" />
+            <button-certificate-email :disabled="!isServiceAlive" :id="item.ID" class="my-1 mr-1" />
+            <button-certificate-revoke :disabled="!isServiceAlive" :id="item.ID" class="my-1 mr-1" @change="reSearch" />
           </span>
         </template>
         <template #cell(ca_name)="{ item }">
-          <router-link :to="{ name: 'pkiCa', params: { id: item.ca_id } }">{{ item.ca_name }}</router-link>
+          <router-link :is="(isServiceAlive) ? 'router-link' : 'span'" :to="{ name: 'pkiCa', params: { id: item.ca_id } }">{{ item.ca_name }}</router-link>
         </template>
         <template #cell(profile_name)="{ item }">
-          <router-link :to="{ name: 'pkiProfile', params: { id: item.profile_id } }">{{ item.profile_name }}</router-link>
+          <router-link :is="(isServiceAlive) ? 'router-link' : 'span'" :to="{ name: 'pkiProfile', params: { id: item.profile_id } }">{{ item.profile_name }}</router-link>
         </template>
       </b-table>
       <b-container fluid v-if="selected.length"
@@ -98,27 +106,27 @@ import {
   BaseButtonConfirm,
   BaseButtonService,
   BaseSearch,
-  BaseSearchInputColumns
+  BaseSearchInputColumns,
+  BaseTableEmpty
 } from '@/components/new/'
 import {
   ButtonCertificateDownload,
   ButtonCertificateEmail,
   ButtonCertificateRevoke
 } from './'
-import pfEmptyTable from '@/components/pfEmptyTable'
 
 const components = {
   BaseButtonConfirm,
   BaseButtonService,
   BaseSearch,
   BaseSearchInputColumns,
+  BaseTableEmpty,
   ButtonCertificateDownload,
   ButtonCertificateEmail,
-  ButtonCertificateRevoke,
-  pfEmptyTable
+  ButtonCertificateRevoke
 }
 
-import { computed, ref, toRefs } from '@vue/composition-api'
+import { computed, ref, toRefs, watch } from '@vue/composition-api'
 import { useBootstrapTableSelected } from '@/composables/useBootstrap'
 import { useTableColumnsItems } from '@/composables/useCsv'
 import { useDownload } from '@/composables/useDownload'
@@ -127,6 +135,9 @@ import { useSearch, useRouter } from '../_composables/useCollection'
 const setup = (props, context) => {
 
   const search = useSearch()
+  const {
+    reSearch
+  } = search
   const {
     items,
     visibleColumns
@@ -137,6 +148,10 @@ const setup = (props, context) => {
   const isServiceAlive = computed(() => {
     const { state: { services: { cache: { pfpki: { alive } = {} } = {} } = {} } = {} } = $store
     return alive
+  })
+  watch(isServiceAlive, () => {
+    if (isServiceAlive.value)
+      reSearch()
   })
 
   $store.dispatch('$_pkis/allProfiles')

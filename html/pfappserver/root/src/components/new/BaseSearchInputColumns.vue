@@ -1,5 +1,6 @@
 <template>
   <b-dropdown size="sm" variant="link" no-caret right
+    :disabled="disabled"
     @hidden="onCommit"
   >
     <template v-slot:button-content>
@@ -15,7 +16,7 @@
         </b-dropdown-item>
         <a v-else
           href="javascript:void(0)" class="dropdown-item"
-          :disabled="disabled || column.locked" :key="column.key"
+          :key="column.key"
           @click.stop="onToggle(column)"
         >
           <icon class="position-absolute mt-1" name="check" v-show="column.visible"></icon>

@@ -2,13 +2,13 @@ import apiCall from '@/utils/api'
 
 export default {
   list: params => {
-    return apiCall.get('pki/revokedcerts', { params }).then(response => {
+    return apiCall.getQuiet('pki/revokedcerts', { params }).then(response => {
       const { data: { items = [] } = {} } = response
       return { items }
     })
   },
   search: params => {
-    return apiCall.post('pki/revokedcerts/search', params).then(response => {
+    return apiCall.postQuiet('pki/revokedcerts/search', params).then(response => {
       return response.data
     })
   },

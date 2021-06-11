@@ -4,13 +4,13 @@
       <h4 class="mb-0">{{ $t('Revoked Certificates') }}</h4>
     </b-card-header>
     <div class="card-body">
-      <base-search :use-search="useSearch">
+      <base-search :use-search="useSearch" :disabled="!isServiceAlive">
         <base-button-service
           service="pfpki" restart start stop
           class="ml-1" />
       </base-search>
       <b-table ref="tableRef"
-        :busy="isLoading"
+        :busy="isLoading || !isServiceAlive"
         :hover="items.length > 0"
         :items="items"
         :fields="visibleColumns"
@@ -29,7 +29,13 @@
       >
         <template v-slot:empty>
           <slot name="emptySearch" v-bind="{ isLoading }">
-              <pf-empty-table :is-loading="isLoading">{{ $t('No results found') }}</pf-empty-table>
+            <base-table-empty v-if="isServiceAlive"
+              :is-loading="isLoading"
+            >{{ $i18n.t('No results found') }}</base-table-empty>
+            <base-table-empty v-else
+              :is-loading="isLoading"
+              :text="$t('Start the pfpki service.')"
+            >{{ $i18n.t('Service not running') }}</base-table-empty>
           </slot>
         </template>
         <template #head(selected)>
@@ -54,16 +60,16 @@
         </template>
         <template #head(buttons)>
           <base-search-input-columns
-            :disabled="isLoading"
+            :disabled="!isServiceAlive || isLoading"
             :value="columns"
             @input="setColumns"
           />
         </template>
         <template #cell(ca_name)="{ item }">
-          <router-link :to="{ name: 'pkiCa', params: { id: item.ca_id } }">{{ item.ca_name }}</router-link>
+          <router-link :is="(isServiceAlive) ? 'router-link' : 'span'" :to="{ name: 'pkiCa', params: { id: item.ca_id } }">{{ item.ca_name }}</router-link>
         </template>
         <template #cell(profile_name)="{ item }">
-          <router-link :to="{ name: 'pkiProfile', params: { id: item.profile_id } }">{{ item.profile_name }}</router-link>
+          <router-link :is="(isServiceAlive) ? 'router-link' : 'span'" :to="{ name: 'pkiProfile', params: { id: item.profile_id } }">{{ item.profile_name }}</router-link>
         </template>
       </b-table>
       <b-container fluid v-if="selected.length"
@@ -83,19 +89,19 @@ import {
   BaseButtonConfirm,
   BaseButtonService,
   BaseSearch,
-  BaseSearchInputColumns
+  BaseSearchInputColumns,
+  BaseTableEmpty
 } from '@/components/new/'
-import pfEmptyTable from '@/components/pfEmptyTable'
 
 const components = {
   BaseButtonConfirm,
   BaseButtonService,
   BaseSearch,
   BaseSearchInputColumns,
-  pfEmptyTable
+  BaseTableEmpty
 }
 
-import { ref, toRefs } from '@vue/composition-api'
+import { computed, ref, toRefs, watch } from '@vue/composition-api'
 import { useBootstrapTableSelected } from '@/composables/useBootstrap'
 import { useTableColumnsItems } from '@/composables/useCsv'
 import { useDownload } from '@/composables/useDownload'
@@ -105,11 +111,23 @@ const setup = (props, context) => {
 
   const search = useSearch()
   const {
+    reSearch
+  } = search
+  const {
     items,
     visibleColumns
   } = toRefs(search)
 
-  const { root: { $router } = {} } = context
+  const { root: { $store, $router } = {} } = context
+
+  const isServiceAlive = computed(() => {
+    const { state: { services: { cache: { pfpki: { alive } = {} } = {} } = {} } = {} } = $store
+    return alive
+  })
+  watch(isServiceAlive, () => {
+    if (isServiceAlive.value)
+      reSearch()
+  })
 
   const router = useRouter($router)
 
@@ -127,6 +145,7 @@ const setup = (props, context) => {
 
   return {
     useSearch,
+    isServiceAlive,
     tableRef,
     onBulkExport,
     ...router,

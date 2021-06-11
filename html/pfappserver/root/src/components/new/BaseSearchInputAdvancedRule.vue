@@ -13,8 +13,8 @@
             <icon name="th" />
           </span>
         </b-input-group-prepend>
-        <b-form-select v-model="value.field" :options="fieldOptions" />
-        <b-form-select class="mr-1" v-model="value.op" :options="operatorOptions" />
+        <b-form-select v-model="value.field" :disabled="disabled" :options="fieldOptions" />
+        <b-form-select class="mr-1" v-model="value.op" :disabled="disabled" :options="operatorOptions" />
         <component :is="valueComponentIs"
           v-bind="valueComponentProps"
           v-model="value.value"
@@ -22,7 +22,7 @@
         <b-input-group-append v-if="hasParents || (hasSiblings && !isDrag)">
           <b-button
             class="ml-auto nodrag" variant="link"
-            v-b-tooltip.hover.left.d300 :title="$t('Delete statement')"
+            v-b-tooltip.hover.left.d300 :disabled="disabled" :title="$t('Delete statement')"
             @click="onDeleteRule">
             <icon name="trash-alt" />
           </b-button>
@@ -39,7 +39,10 @@
       class="mx-auto nodrag">
       <b-col cols="12" class="bg-white rc">
         <b-container class="mx-0 px-1 py-1">
-          <a href="javascript:void(0)" class="text-nowrap" @click="onAddRule">{{ $t('Add "or" statement') }}</a>
+          <span v-if="disabled"
+            class="text-nowrap">{{ $t('Add "or" statement') }}</span>
+          <a v-else
+            href="javascript:void(0)" class="text-nowrap" @click="onAddRule">{{ $t('Add "or" statement') }}</a>
         </b-container>
       </b-col>
     </b-row>
@@ -73,6 +76,9 @@ const props = {
   },
   fields: {
     type: Array
+  },
+  disabled: {
+    type: Boolean
   }
 }
 
@@ -87,6 +93,7 @@ import i18n from '@/utils/locale'
 
 const setup = (props, context) => {
   const {
+    disabled,
     fields,
     value
   } = toRefs(props)
@@ -159,9 +166,9 @@ const setup = (props, context) => {
       const options = pfSearchValuesForOperator(types, value.value.op, $store) || []
       if (options.length && options.findIndex(v => v.value === value.value.value) < 0)
         value.value.value = options[0].value // select the first valid option
-      return { options }
+      return { disabled, options }
     }
-    return {}
+    return { disabled }
   })
 
   const onAddRule = () => emit('add')

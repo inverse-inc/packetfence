@@ -5,18 +5,18 @@
         <b-form @submit.prevent="onSearchAdvanced" @reset.prevent="onSearchReset">
           <base-search-input-advanced
             v-model="conditionAdvanced"
-            :disabled="isLoading"
+            :disabled="disabled || isLoading"
             :fields="fields"
             @reset="onSearchReset"
             @search="onSearchAdvanced"
           />
           <b-container fluid class="text-right mt-3 px-0">
-            <b-button class="ml-1" type="reset" variant="secondary" :disabled="isLoading">{{ $t('Reset') }}</b-button>
+            <b-button class="ml-1" type="reset" variant="secondary" :disabled="disabled || isLoading">{{ $t('Reset') }}</b-button>
             <base-button-save-search
               :save-search-namespace="`${uuid}Advanced`"
               class="ml-1"
               v-model="conditionAdvanced"
-              :disabled="isLoading"
+              :disabled="disabled || isLoading"
               @search="onSearchAdvanced"
             />
             <b-button class="ml-1" variant="outline-primary" @click="advancedMode = false"
@@ -30,7 +30,7 @@
         <base-search-input-basic class="flex-grow-1"
           :save-search-namespace="`${uuid}Basic`"
           v-model="conditionBasic"
-          :disabled="isLoading"
+          :disabled="disabled || isLoading"
           :placeholder="placeholderBasic"
           @reset="onSearchReset"
           @search="onSearchBasic"
@@ -50,14 +50,14 @@
           :value="limit" @input="setLimit"
           size="md"
           :limits="limits"
-          :disabled="isLoading"
+          :disabled="disabled || isLoading"
         />
         <base-search-input-page
           :value="page" @input="setPage"
           class="ml-3"
           :limit="limit"
           :total-rows="totalRows"
-          :disabled="isLoading"
+          :disabled="disabled || isLoading"
         />
       </b-col>
     </b-row>
@@ -85,6 +85,9 @@ const components = {
 const props = {
   useSearch: {
     type: Function
+  },
+  disabled: {
+    type: Boolean
   }
 }
 

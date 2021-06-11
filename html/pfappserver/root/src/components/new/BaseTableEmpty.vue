@@ -32,14 +32,14 @@ import i18n from '@/utils/locale'
 
 const setup = (props) => {
   const {
-    text        
+    text
   } = toRefs(props)
-  
-  const subText = computed(() => ((text.value !== null)
+
+  const subText = computed(() => ((text.value)
     ? text.value
     : i18n.t('Please refine your search.')
   ))
-  
+
   return {
     subText
   }

@@ -5,11 +5,12 @@
     >
       <b-container fluid class="rc px-0 py-1 bg-secondary">
         <draggable v-model="value[oIndex].values"
-          group="or" handle=".draghandle" filter=".nodrag" dragClass="sortable-drag" 
-          @start="onDragStart" @end="onDragEnd"
+          group="or" handle=".draghandle" filter=".nodrag" dragClass="sortable-drag"
+          @start="onDragStart" @end="onDragEnd" :move="onMove"
         >
           <base-search-input-advanced-rule v-for="(i, iIndex) in value[oIndex].values" :key="iIndex"
             v-model="value[oIndex].values[iIndex]"
+            :disabled="disabled"
             :fields="fields"
             :is-drag="isDrag"
             :has-parents="value.length > 1"
@@ -30,7 +31,10 @@
     <b-row class="mx-auto">
       <b-col cols="12" class="bg-secondary rc">
         <b-container class="mx-0 px-1 py-1">
-          <a href="javascript:void(0)" class="text-nowrap text-white" @click="onAddOuterRule">{{ $t('Add "and" statement') }}</a>
+          <span v-if="disabled"
+            class="text-nowrap text-white">{{ $t('Add "and" statement') }}</span>
+          <a v-else
+            href="javascript:void(0)" class="text-nowrap text-white" @click="onAddOuterRule">{{ $t('Add "and" statement') }}</a>
         </b-container>
       </b-col>
     </b-row>
@@ -63,7 +67,8 @@ const setup = (props, context) => {
 
   const {
     fields,
-    value
+    value,
+    disabled
   } = toRefs(props)
 
   const { emit } = context
@@ -79,6 +84,10 @@ const setup = (props, context) => {
         value.value.splice(i, 1)
     }
   }
+  const onMove = () => {
+    if (disabled.value)
+      return false
+  }
 
   const onAddInnerRule = (oIndex) => {
     let field = fields.value[0].value
@@ -89,7 +98,7 @@ const setup = (props, context) => {
       field = value.value[oIndex].values[lIndex].field
       op = value.value[oIndex].values[lIndex].op
     }
-    value.value[oIndex].values.push({ field, op, value: null })    
+    value.value[oIndex].values.push({ field, op, value: null })
   }
 
   const onAddOuterRule = () => {
@@ -109,10 +118,11 @@ const setup = (props, context) => {
       value.value[oIndex].values.splice(iIndex, 1)
   }
 
-  return { 
+  return {
     isDrag,
     onDragStart,
     onDragEnd,
+    onMove,
     onAddInnerRule,
     onAddOuterRule,
     onDeleteRule
