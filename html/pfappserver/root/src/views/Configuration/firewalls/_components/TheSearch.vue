@@ -131,7 +131,7 @@ const setup = (props, context) => {
   const selected = useBootstrapTableSelected(tableRef, items)
   const {
     selectedItems
-  } = toRefs(selected)
+  } = selected
 
   const onBulkExport = () => {
     const filename = `${$router.currentRoute.path.slice(1).replace('/', '-')}-${(new Date()).toISOString()}.csv`
