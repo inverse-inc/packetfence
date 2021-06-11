@@ -16,7 +16,12 @@ log_section() {
    printf "=\t%s\n" "" "$@" ""
 }
 
+log_subsection() {
+   printf "=\t%s\n" "" "$@" ""
+}
+
 get_pf_release() {
     PF_RELEASE_PATH=$(readlink -e ${PF_SRC_DIR}/conf/pf-release)
     PF_MINOR_RELEASE=$(perl -ne 'print $1 if (m/.*?(\d+\.\d+)./)' ${PF_RELEASE_PATH})
+    PF_PATCH_RELEASE=$(perl -ne 'print $1 if (m/.*?(\d+\.\d+\.\d+)/)' ${PF_RELEASE_PATH})
 }

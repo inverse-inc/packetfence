@@ -229,3 +229,6 @@ build_deb:
 	QUILT_PATCHES=$(SRC_DEBDIR)/patches quilt push
 	ci-build-pkg $(SRC_DEBDIR)
 
+.PHONY: patch_release
+patch_release:
+	$(SRC_CIDIR)/lib/release/prep-release.sh
