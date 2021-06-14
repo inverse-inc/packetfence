@@ -33,6 +33,7 @@ For a list of compatibility related changes see the <<PacketFence_Upgrade_Guide.
 
 * Rewrite the username of the request from radius `preProcess` filter (#6293)
 * Upgrade to golang 1.16.3 (#6343)
+* pfpki: configure OCSP to listen on specific interfaces (#5825)
 
 === Bug Fixes
 
