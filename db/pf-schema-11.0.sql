@@ -1,16 +1,15 @@
 --
--- Setting the major/minor/sub-minor version of the DB
+-- Setting the major/minor version of the DB
 --
 
-SET @MAJOR_VERSION = 10;
-SET @MINOR_VERSION = 3;
-SET @SUBMINOR_VERSION = 0;
+SET @MAJOR_VERSION = 11;
+SET @MINOR_VERSION = 0;
 
 --
 -- The VERSION_INT to ensure proper ordering of the version in queries
 --
 
-SET @VERSION_INT = @MAJOR_VERSION << 16 | @MINOR_VERSION << 8 | @SUBMINOR_VERSION;
+SET @VERSION_INT = @MAJOR_VERSION << 16 | @MINOR_VERSION << 8;
 
 --
 -- Table structure for table `tenant`
@@ -1819,4 +1818,4 @@ DELIMITER ;
 -- Updating to current version
 --
 
-INSERT INTO pf_version (id, version, created_at) VALUES (@VERSION_INT, CONCAT_WS('.', @MAJOR_VERSION, @MINOR_VERSION, @SUBMINOR_VERSION), NOW());
+INSERT INTO pf_version (id, version, created_at) VALUES (@VERSION_INT, CONCAT_WS('.', @MAJOR_VERSION, @MINOR_VERSION), NOW());

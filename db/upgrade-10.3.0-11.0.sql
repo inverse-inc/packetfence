@@ -1,5 +1,5 @@
 --
--- PacketFence SQL schema upgrade from X.X.X to X.Y.Z
+-- PacketFence SQL schema upgrade from 10.3.0 to 11.0
 --
 
 
@@ -7,10 +7,8 @@
 -- Setting the major/minor/sub-minor version of the DB
 --
 
-SET @MAJOR_VERSION = 10;
-SET @MINOR_VERSION = 3;
-SET @SUBMINOR_VERSION = 9;
-
+SET @MAJOR_VERSION = 11;
+SET @MINOR_VERSION = 0;
 
 
 SET @PREV_MAJOR_VERSION = 10;
@@ -22,7 +20,7 @@ SET @PREV_SUBMINOR_VERSION = 0;
 -- The VERSION_INT to ensure proper ordering of the version in queries
 --
 
-SET @VERSION_INT = @MAJOR_VERSION << 16 | @MINOR_VERSION << 8 | @SUBMINOR_VERSION;
+SET @VERSION_INT = @MAJOR_VERSION << 16 | @MINOR_VERSION << 8;
 
 SET @PREV_VERSION_INT = @PREV_MAJOR_VERSION << 16 | @PREV_MINOR_VERSION << 8 | @PREV_SUBMINOR_VERSION;
 
@@ -53,6 +51,6 @@ DROP PROCEDURE IF EXISTS ValidateVersion;
 
 
 \! echo "Incrementing PacketFence schema version...";
-INSERT IGNORE INTO pf_version (id, version) VALUES (@VERSION_INT, CONCAT_WS('.', @MAJOR_VERSION, @MINOR_VERSION, @SUBMINOR_VERSION));
+INSERT IGNORE INTO pf_version (id, version) VALUES (@VERSION_INT, CONCAT_WS('.', @MAJOR_VERSION, @MINOR_VERSION));
 
 \! echo "Upgrade completed successfully.";
