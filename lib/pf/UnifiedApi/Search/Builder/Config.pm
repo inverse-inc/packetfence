@@ -234,9 +234,13 @@ query_to_condition
 
 sub query_to_condition {
     my ($self, $search, $query) = @_;
+    if (ref($query) ne 'HASH') {
+        die "query is an invalid type\n";
+    }
+
     my $op = lc($query->{op});
     if (!exists $OP_TO_CONDITION{$op}) {
-        die "$op is an invalid op";
+        die "$op is an invalid op\n";
     }
 
     my $is_logical = exists $LOGICAL_OPS{$op};
@@ -246,14 +250,18 @@ sub query_to_condition {
         $condition = $OP_TO_CONDITION{$op};
     } else {
         if (!exists $NULL_VAL_OP_TO_CONDITION{$op}) {
-            die "Cannot have a null value with op '$op'";
+            die "Cannot have a null value with op '$op'\n";
         }
 
         $condition = $NULL_VAL_OP_TO_CONDITION{$op};
     }
 
     if ($is_logical) {
-        my @conditions = map { $self->query_to_condition($search, $_) } @{$query->{values}};
+        my $values = $query->{values};
+        if (ref($values) ne 'ARRAY') {
+            die "Op '$op' values must be an array\n";
+        }
+        my @conditions = map { $self->query_to_condition($search, $_) } @$values;
         if (@conditions == 1) {
             return $conditions[0];
         }

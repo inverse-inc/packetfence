@@ -24,7 +24,8 @@ BEGIN {
     use setup_test_config;
 }
 
-use Test::More tests => 16;
+use Test::More tests => 18;
+use Test::Exception;
 
 #This test will running last
 use Test::NoWarnings;
@@ -44,6 +45,39 @@ my $sb = pf::UnifiedApi::Search::Builder::Config->new();
             }
         );
     isa_ok($condition, "pf::condition::false");
+}
+
+{
+    dies_ok {
+        my $condition = $sb->make_condition(
+            {
+                query => [{
+                    op    => 'contains',
+                    field => 'parent',
+                    value => undef,
+                }]
+            }
+        )} "Query cannot be an array"
+
+    ;
+}
+
+{
+    throws_ok {
+        my $condition = $sb->make_condition(
+            {
+                query => {
+                    op => 'and',
+                    values => {
+                        op    => 'contains',
+                        field => 'parent',
+                        value => undef,
+                    }
+                }
+            }
+        )} qr/must be an array/, "Queries of type 'and' the values must be an array"
+
+    ;
 }
 
 {
