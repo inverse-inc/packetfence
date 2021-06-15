@@ -40,12 +40,12 @@ export default (props) => {
       .required(i18n.t('Common name required.'))
       .max(64, i18n.t('Maximum 64 characters.'))
       .pkiCertCnNotExistsExcept((!isNew && !isClone) ? cn : undefined, i18n.t('Common name exists.'))
-      .isCommonNameOrFQDN(i18n.t('Invalid Common name.')),
+      .isCommonNameOrFQDNOrMAC(i18n.t('Invalid Common name.')),
 
     mail: yup.string()
       .nullable()
       .email(i18n.t('Invalid email address.'))
-      .max(255),
+      .max(255, i18n.t('Maximum 255 characters.')),
 
     dns_names: yup.string().max(255, i18n.t('Maximum 255 characters.')),
     ip_addresses: yup.string().max(255, i18n.t('Maximum 255 characters.')),
