@@ -2,7 +2,21 @@
 * "$_maintenance_tasks" store module
 */
 import Vue from 'vue'
+import { computed } from '@vue/composition-api'
 import api from './_api'
+
+export const useStore = $store => {
+  return {
+    isLoading: computed(() => $store.getters['$_maintenance_tasks/isLoading']),
+    getList: () => $store.dispatch('$_maintenance_tasks/all'),
+    getListOptions: () => $store.dispatch('$_maintenance_tasks/options'),
+    createItem: params => $store.dispatch('$_maintenance_tasks/createMaintenanceTask', params),
+    getItem: params => $store.dispatch('$_maintenance_tasks/getMaintenanceTask', params.id),
+    getItemOptions: params => $store.dispatch('$_maintenance_tasks/options', params.id),
+    updateItem: params => $store.dispatch('$_maintenance_tasks/updateMaintenanceTask', params),
+    deleteItem: params => $store.dispatch('$_maintenance_tasks/deleteMaintenanceTask', params.id),
+  }
+}
 
 const types = {
   LOADING: 'loading',

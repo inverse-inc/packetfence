@@ -2,7 +2,26 @@
 * "$_sources" store module
 */
 import Vue from 'vue'
+import { computed } from '@vue/composition-api'
 import api from './_api'
+
+export const useStore = $store => {
+  return {
+    isLoading: computed(() => $store.getters['$_sources/isLoading']),
+    getList: () => $store.dispatch('$_sources/all'),
+    getListOptions: params => $store.dispatch('$_sources/optionsBySourceType', params),
+    createItem: params => $store.dispatch('$_sources/createAuthenticationSource', params),
+    sortItems: params => $store.dispatch('$_sources/sortAuthenticationSources', params.items),
+    getItem: params => $store.dispatch('$_sources/getAuthenticationSource', params.id).then(item => {
+      return (params.isClone)
+        ? { ...item, id: `${item.id}-copy`, not_deletable: false }
+        : item
+    }),
+    getItemOptions: params => $store.dispatch('$_sources/optionsById', params.id),
+    updateItem: params => $store.dispatch('$_sources/updateAuthenticationSource', params),
+    deleteItem: params => $store.dispatch('$_sources/deleteAuthenticationSource', params.id),
+  }
+}
 
 const types = {
   LOADING: 'loading',

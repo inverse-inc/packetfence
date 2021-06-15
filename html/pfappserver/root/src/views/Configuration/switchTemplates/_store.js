@@ -2,7 +2,25 @@
 * "$_switch_templates" store module
 */
 import Vue from 'vue'
+import { computed } from '@vue/composition-api'
 import api from './_api'
+
+export const useStore = $store => {
+  return {
+    isLoading: computed(() => $store.getters['$_switch_templates/isLoading']),
+    getList: () => $store.dispatch('$_switch_templates/all'),
+    getListOptions: () => $store.dispatch('$_switch_templates/options'),
+    createItem: params => $store.dispatch('$_switch_templates/createSwitchTemplate', params),
+    getItem: params => $store.dispatch('$_switch_templates/getSwitchTemplate', params.id).then(item => {
+      return (params.isClone)
+        ? { ...item, id: `${item.id}-copy`, not_deletable: false }
+        : item
+    }),
+    getItemOptions: params => $store.dispatch('$_switch_templates/options', params.id),
+    updateItem: params => $store.dispatch('$_switch_templates/updateSwitchTemplate', params),
+    deleteItem: params => $store.dispatch('$_switch_templates/deleteSwitchTemplate', params.id),
+  }
+}
 
 const types = {
   LOADING: 'loading',

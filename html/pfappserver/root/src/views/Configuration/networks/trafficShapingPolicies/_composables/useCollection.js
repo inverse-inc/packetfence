@@ -33,17 +33,4 @@ export const useItemTitleBadge = (props) => {
 
 export { useRouter } from '../_router'
 
-export const useStore = (props, context, form) => {
-  const {
-    id
-  } = toRefs(props)
-  const { root: { $store } = {} } = context
-  return {
-    isLoading: computed(() => $store.getters['$_traffic_shaping_policies/isLoading']),
-    getOptions: () => $store.dispatch('$_traffic_shaping_policies/options'),
-    createItem: () => $store.dispatch('$_traffic_shaping_policies/createTrafficShapingPolicy', form.value),
-    deleteItem: () => $store.dispatch('$_traffic_shaping_policies/deleteTrafficShapingPolicy', id.value),
-    getItem: () => $store.dispatch('$_traffic_shaping_policies/getTrafficShapingPolicy', id.value),
-    updateItem: () => $store.dispatch('$_traffic_shaping_policies/updateTrafficShapingPolicy', form.value),
-  }
-}
+export { useStore } from '../_store'

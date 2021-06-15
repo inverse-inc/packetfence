@@ -1,6 +1,16 @@
 import Vue from 'vue'
+import { computed } from '@vue/composition-api'
 import store from '@/store'
 import api from './_api'
+
+export const useStore = $store => {
+  return {
+    isLoading: computed(() => $store.getters['$_pkis/isCertLoading']),
+    getList: () => $store.dispatch('$_pkis/allCerts'),
+    createItem: params => $store.dispatch('$_pkis/createCert', params),
+    getItem: params => $store.dispatch('$_pkis/getCert', params.id)
+  }
+}
 
 const types = {
   LOADING: 'loading',

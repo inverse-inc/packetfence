@@ -50,23 +50,4 @@ export const useItemTitleBadge = (props, context, form) => {
 
 export { useRouter } from '../_router'
 
-export const useStore = (props, context, form) => {
-  const {
-    id,
-    isClone
-  } = toRefs(props)
-  const { root: { $store } = {} } = context
-  return {
-    isLoading: computed(() => $store.getters['$_interfaces/isLoading']),
-    createItem: () => $store.dispatch('$_interfaces/createInterface', form.value),
-    deleteItem: () => $store.dispatch('$_interfaces/deleteInterface', id.value),
-    getItem: () => $store.dispatch('$_interfaces/getInterface', id.value).then(item => {
-      if (isClone.value) {
-        item.id = item.master
-        item.not_deletable = false
-      }
-      return item
-    }),
-    updateItem: () => $store.dispatch('$_interfaces/updateInterface', form.value),
-  }
-}
+export { useStore } from '../_store'

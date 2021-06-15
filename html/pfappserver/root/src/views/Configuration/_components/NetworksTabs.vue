@@ -3,7 +3,7 @@
     <b-card-header>
       <h4 class="mb-0" v-t="'Networks'"></h4>
     </b-card-header>
-    <b-tabs ref="tabs" v-model="tabIndex" card>
+    <b-tabs ref="tabs" v-model="tabIndex" card lazy>
       <b-tab :title="$t('Network Settings')" @click="changeTab('network')">
         <network-view />
       </b-tab>

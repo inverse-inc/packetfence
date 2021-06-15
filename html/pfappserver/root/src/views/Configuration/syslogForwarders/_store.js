@@ -2,7 +2,25 @@
 * "$_syslog_forwarders" store module
 */
 import Vue from 'vue'
+import { computed } from '@vue/composition-api'
 import api from './_api'
+
+export const useStore = $store => {
+  return {
+    isLoading: computed(() => $store.getters['$_syslog_forwarders/isLoading']),
+    getList: () => $store.dispatch('$_syslog_forwarders/all'),
+    getListOptions: params => $store.dispatch('$_syslog_forwarders/optionsBySyslogForwarderType', params.syslogForwarderType),
+    createItem: params => $store.dispatch('$_syslog_forwarders/createSyslogForwarder', params),
+    getItem: params => $store.dispatch('$_syslog_forwarders/getSyslogForwarder', params.id).then(item => {
+      return (params.isClone)
+        ? { ...item, id: `${item.id}-copy`, not_deletable: false }
+        : item
+    }),
+    getItemOptions: params => $store.dispatch('$_syslog_forwarders/optionsById', params.id),
+    updateItem: params => $store.dispatch('$_syslog_forwarders/updateSyslogForwarder', params),
+    deleteItem: params => $store.dispatch('$_syslog_forwarders/deleteSyslogForwarder', params.id),
+  }
+}
 
 const types = {
   LOADING: 'loading',

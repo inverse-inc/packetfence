@@ -16,17 +16,7 @@ export const useItemTitle = (props) => {
 
 export { useRouter } from '../_router'
 
-export const useStore = (props, context) => {
-  const {
-    id
-  } = toRefs(props)
-  const { root: { $store } = {} } = context
-  return {
-    isLoading: computed(() => $store.getters['$_pkis/isLoading']),
-    getItem: () => $store.dispatch('$_pkis/getRevokedCert', id.value)
-      .catch(e => { if (e.name !== "NavigationDuplicated") throw e })
-  }
-}
+export { useStore } from '../_store'
 
 import { pfSearchConditionType as conditionType } from '@/globals/pfSearch'
 import makeSearch from '@/views/Configuration/_store/factory/search'

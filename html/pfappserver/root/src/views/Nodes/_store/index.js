@@ -2,9 +2,26 @@
 * "$_nodes" store module
 */
 import Vue from 'vue'
+import { computed } from '@vue/composition-api'
 import api from '../_api'
 import store from '@/store'
 import i18n from '@/utils/locale'
+
+export const useStore = $store => {
+  return {
+    isLoading: computed(() => $store.getters['$_nodes/isLoading']),
+    sortedSecurityEvents: computed(() => $store.getters['config/sortedSecurityEvents']),
+    reloadItem: params => $store.dispatch('$_nodes/refreshNode', params.id),
+    deleteItem: params => $store.dispatch('$_nodes/deleteNode', params.id),
+    getItem: params => $store.dispatch('$_nodes/getNode', params.id),
+    createItem: params => $store.dispatch('$_nodes/createNode', params),
+    updateItem: params => $store.dispatch('$_nodes/updateNode', params),
+    reevaluateAccess: params => $store.dispatch('$_nodes/reevaluateAccessNode', params.id),
+    refreshFingerbank: params => $store.dispatch('$_nodes/refreshFingerbankNode', params.id),
+    restartSwitchport: params => $store.dispatch('$_nodes/restartSwitchportNode', params.id),
+    applySecurityEvent: params => $store.dispatch('$_nodes/applySecurityEventNode', params)
+  }
+}
 
 // Default values
 const state = () => {

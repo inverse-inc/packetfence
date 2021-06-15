@@ -45,31 +45,4 @@ export const useItemTitleBadge = (props, context, form) => {
 
 export { useRouter } from '../_router'
 
-export const useStore = (props, context, form) => {
-  const {
-    id,
-    isClone,
-    isNew,
-    syslogParserType
-  } = toRefs(props)
-  const { root: { $store } = {} } = context
-  return {
-    isLoading: computed(() => $store.getters['$_syslog_parsers/isLoading']),
-    getOptions: () => {
-      if (isNew.value)
-        return $store.dispatch('$_syslog_parsers/optionsBySyslogParserType', syslogParserType.value)
-      else
-        return $store.dispatch('$_syslog_parsers/optionsById', id.value)
-    },
-    createItem: () => $store.dispatch('$_syslog_parsers/createSyslogParser', form.value),
-    deleteItem: () => $store.dispatch('$_syslog_parsers/deleteSyslogParser', id.value),
-    getItem: () => $store.dispatch('$_syslog_parsers/getSyslogParser', id.value).then(item => {
-      if (isClone.value) {
-        item.id = `${item.id}-${i18n.t('copy')}`
-        item.not_deletable = false
-      }
-      return item
-    }),
-    updateItem: () => $store.dispatch('$_syslog_parsers/updateSyslogParser', form.value),
-  }
-}
+export { useStore } from '../_store'

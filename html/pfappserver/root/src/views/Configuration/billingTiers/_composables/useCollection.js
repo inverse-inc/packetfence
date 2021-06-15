@@ -22,27 +22,7 @@ export const useItemTitle = (props) => {
 
 export { useRouter } from '../_router'
 
-export const useStore = (props, context, form) => {
-  const {
-    id,
-    isClone
-  } = toRefs(props)
-  const { root: { $store } = {} } = context
-  return {
-    isLoading: computed(() => $store.getters['$_billing_tiers/isLoading']),
-    getOptions: () => $store.dispatch('$_billing_tiers/options', id.value),
-    createItem: () => $store.dispatch('$_billing_tiers/createBillingTier', form.value),
-    deleteItem: () => $store.dispatch('$_billing_tiers/deleteBillingTier', id.value),
-    getItem: () => $store.dispatch('$_billing_tiers/getBillingTier', id.value).then(item => {
-      if (isClone.value) {
-        item.id = `${item.id}-${i18n.t('copy')}`
-        item.not_deletable = false
-      }
-      return item
-    }),
-    updateItem: () => $store.dispatch('$_billing_tiers/updateBillingTier', form.value)
-  }
-}
+export { useStore } from '../_store'
 
 import makeSearch from '@/views/Configuration/_store/factory/search'
 import api from '../_api'

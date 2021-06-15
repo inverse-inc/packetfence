@@ -23,28 +23,7 @@ export const useItemTitle = (props, context) => {
 
 export { useRouter } from '../_router'
 
-export const useStore = (props, context, form) => {
-  const {
-    id,
-    isClone
-  } = toRefs(props)
-  const { root: { $store } = {} } = context
-  return {
-    isLoading: computed(() => $store.getters['$_tenants/isLoading']),
-    getOptions: () => $store.dispatch('$_tenants/options'),
-    createItem: () => $store.dispatch('$_tenants/createTenant', form.value),
-    deleteItem: () => $store.dispatch('$_tenants/deleteTenant', id.value),
-    getItem: () => $store.dispatch('$_tenants/getTenant', id.value).then(_item => {
-      let item = { ..._item } // dereference
-      if (isClone.value) {
-        item.name = `${item.name}-${i18n.t('copy')}`
-        item.not_deletable = false
-      }
-      return item
-    }),
-    updateItem: () => $store.dispatch('$_tenants/updateTenant', form.value),
-  }
-}
+export { useStore } from '../_store'
 
 import { useSearch as useConfigurationSearch } from '@/views/Configuration/_composables/useSearch'
 import api from '../_api'

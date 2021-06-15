@@ -21,27 +21,7 @@ export const useItemTitle = (props) => {
 
 export { useRouter } from '../_router'
 
-export const useStore = (props, context, form) => {
-  const {
-    id,
-    isClone
-  } = toRefs(props)
-  const { root: { $store } = {} } = context
-  return {
-    isLoading: computed(() => $store.getters['$_radius_ssl/isLoading']),
-    getOptions: () => $store.dispatch('$_radius_ssl/options'),
-    createItem: () => $store.dispatch('$_radius_ssl/createRadiusSsl', form.value),
-    deleteItem: () => $store.dispatch('$_radius_ssl/deleteRadiusSsl', id.value),
-    getItem: () => $store.dispatch('$_radius_ssl/getRadiusSsl', id.value).then(item => {
-      if (isClone.value) {
-        item.id = `${item.id}-${i18n.t('copy')}`
-        item.not_deletable = false
-      }
-      return item
-    }),
-    updateItem: () => $store.dispatch('$_radius_ssl/updateRadiusSsl', form.value),
-  }
-}
+export { useStore } from '../_store'
 
 import { pfSearchConditionType as conditionType } from '@/globals/pfSearch'
 import makeSearch from '@/views/Configuration/_store/factory/search'

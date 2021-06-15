@@ -70,6 +70,7 @@ const components = {
 
 import { computed, ref } from '@vue/composition-api'
 import { useDebouncedWatchHandler } from '@/composables/useDebounce'
+import { usePropsWrapper } from '@/composables/useProps'
 import { useRouter, useStore } from '../_composables/useCollection'
 import { createForm as defaults } from '../_config'
 import { createSchema as schemaFn } from '../schema'
@@ -90,12 +91,15 @@ const setup = (props, context) => {
     )
   )
 
+  const { root: { $router, $store } = {} } = context
+
+  // merge props w/ params in useStore methods
+  const _useStore = $store => usePropsWrapper(useStore($store), props)
   const {
     isLoading,
     createItem
-  } = useStore(props, context, form)
+  } = _useStore($store)
 
-  const { root: { $router } = {} } = context
   const {
     goToCollection,
     goToItem,

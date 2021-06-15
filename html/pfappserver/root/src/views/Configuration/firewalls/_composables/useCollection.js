@@ -45,34 +45,7 @@ export const useItemTitleBadge = (props, context, form) => {
 
 export { useRouter } from '../_router'
 
-export const useStore = (props, context, form) => {
-  const {
-    id,
-    isClone,
-    isNew,
-    firewallType
-  } = toRefs(props)
-  const { root: { $store } = {} } = context
-  return {
-    isLoading: computed(() => $store.getters['$_firewalls/isLoading']),
-    getOptions: () => {
-      if (isNew.value)
-        return $store.dispatch('$_firewalls/optionsByFirewallType', firewallType.value)
-      else
-        return $store.dispatch('$_firewalls/optionsById', id.value)
-    },
-    createItem: () => $store.dispatch('$_firewalls/createFirewall', form.value),
-    deleteItem: () => $store.dispatch('$_firewalls/deleteFirewall', id.value),
-    getItem: () => $store.dispatch('$_firewalls/getFirewall', id.value).then(item => {
-      if (isClone.value) {
-        item.id = `${item.id}-${i18n.t('copy')}`
-        item.not_deletable = false
-      }
-      return item
-    }),
-    updateItem: () => $store.dispatch('$_firewalls/updateFirewall', form.value),
-  }
-}
+export { useStore } from '../_store'
 
 import { pfSearchConditionType as conditionType } from '@/globals/pfSearch'
 import makeSearch from '@/views/Configuration/_store/factory/search'

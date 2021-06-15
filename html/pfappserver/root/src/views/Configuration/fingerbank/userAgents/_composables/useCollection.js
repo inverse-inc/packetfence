@@ -32,19 +32,7 @@ export const useItemTitleBadge = props => props.scope
 
 export { useRouter } from '../_router'
 
-export const useStore = (props, context, form) => {
-  const {
-    id
-  } = toRefs(props)
-  const { root: { $store } = {} } = context
-  return {
-    isLoading: computed(() => $store.getters['$_fingerbank/isUserAgentsLoading']),
-    createItem: () => $store.dispatch('$_fingerbank/createUserAgent', form.value),
-    deleteItem: () => $store.dispatch('$_fingerbank/deleteUserAgent', id.value),
-    getItem: () => $store.dispatch('$_fingerbank/getUserAgent', id.value),
-    updateItem: () => $store.dispatch('$_fingerbank/updateUserAgent', form.value),
-  }
-}
+export { useStore } from '../_store'
 
 import { pfSearchConditionType as conditionType } from '@/globals/pfSearch'
 import makeSearch from '@/views/Configuration/_store/factory/search'

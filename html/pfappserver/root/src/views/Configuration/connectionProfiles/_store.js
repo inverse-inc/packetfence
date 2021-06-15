@@ -2,7 +2,26 @@
 * "$_connection_profiles" store module
 */
 import Vue from 'vue'
+import { computed } from '@vue/composition-api'
 import api from './_api'
+
+export const useStore = $store => {
+  return {
+    isLoading: computed(() => $store.getters['$_connection_profiles/isLoading']),
+    getList: () => $store.dispatch('$_connection_profiles/all'),
+    getListOptions: () => $store.dispatch('$_connection_profiles/options'),
+    createItem: params => $store.dispatch('$_connection_profiles/createConnectionProfile', params),
+    sortItems: params => $store.dispatch('$_connection_profiles/sortConnectionProfiles', params.items),
+    getItem: params => $store.dispatch('$_connection_profiles/getConnectionProfile', params.id).then(item => {
+      return (params.isClone)
+        ? { ...item, id: `${item.id}-copy`, not_deletable: false }
+        : item
+    }),
+    getItemOptions: params => $store.dispatch('$_connection_profiles/options', params.id),
+    updateItem: params => $store.dispatch('$_connection_profiles/updateConnectionProfile', params),
+    deleteItem: params => $store.dispatch('$_connection_profiles/deleteConnectionProfile', params.id),
+  }
+}
 
 const types = {
   LOADING: 'loading',

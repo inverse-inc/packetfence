@@ -64,7 +64,7 @@
         </template>
         <template #cell(status)="{ item }">
           <toggle-status :value="item.status" :disabled="isLoading"
-            :item="item" :collection="collection" @input="item.status = $event" />
+            :item="item" @input="item.status = $event" />
         </template>
         <template #cell(buttons)="{ item }">
           <span class="float-right text-nowrap text-right"
@@ -114,12 +114,6 @@ const components = {
   ToggleStatus
 }
 
-const props = {
-  collection: {
-    type: Object
-  }
-}
-
 import { ref, toRefs } from '@vue/composition-api'
 import { useBootstrapTableSelected } from '@/composables/useBootstrap'
 import { useTableColumnsItems } from '@/composables/useCsv'
@@ -127,10 +121,6 @@ import { useDownload } from '@/composables/useDownload'
 import { useSearch, useStore, useRouter } from '../_composables/useCollection'
 
 const setup = (props, context) => {
-
-  const {
-    collection
-  } = toRefs(props)
 
   const { root: { $store, $router } = {} } = context
 
@@ -167,10 +157,10 @@ const setup = (props, context) => {
 
   const {
     deleteItem
-  } = useStore(props, context)
+  } = useStore($store)
 
   const onRemove = id => {
-    deleteItem({ ...collection.value, id })
+    deleteItem({ id })
       .then(() => reSearch())
   }
 
@@ -192,7 +182,6 @@ export default {
   name: 'the-search',
   inheritAttrs: false,
   components,
-  props,
   setup
 }
 </script>

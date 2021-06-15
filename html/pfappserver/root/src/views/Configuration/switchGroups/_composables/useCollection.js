@@ -39,23 +39,4 @@ export const useItemTitle = (props) => {
 
 export { useRouter } from '../_router'
 
-export const useStore = (props, context, form) => {
-  const {
-    isNew,
-    id
-  } = toRefs(props)
-  const { root: { $store } = {} } = context
-  return {
-    isLoading: computed(() => $store.getters['$_switch_groups/isLoading']),
-    getOptions: () => {
-      if (isNew.value)
-        return $store.dispatch('$_switch_groups/options')
-      else
-        return $store.dispatch('$_switch_groups/options', id.value)
-    },
-    createItem: () => $store.dispatch('$_switch_groups/createSwitchGroup', form.value),
-    deleteItem: () => $store.dispatch('$_switch_groups/deleteSwitchGroup', id.value),
-    getItem: () => $store.dispatch('$_switch_groups/getSwitchGroup', id.value),
-    updateItem: () => $store.dispatch('$_switch_groups/updateSwitchGroup', form.value),
-  }
-}
+export { useStore } from '../_store'

@@ -11,6 +11,7 @@ const components = {
 }
 
 import { computed, toRefs } from '@vue/composition-api'
+import { usePropsWrapper } from '@/composables/useProps'
 import { useViewCollectionItem, useViewCollectionItemProps } from '../../_composables/useViewCollectionItem'
 import * as collection from '../_composables/useCollection'
 
@@ -20,15 +21,18 @@ const props = {
 }
 
 const setup = (props, context) => {
+  const _collection = { ...collection } // unfurl Module
+  // merge props w/ params in collection.useStore methods
+  _collection.useStore = $store => usePropsWrapper(collection.useStore($store), props)
+
+  const viewCollectionItem = useViewCollectionItem(_collection, props, context)
+  const {
+    form
+  } = viewCollectionItem
 
   const {
     switchGroup
   } = toRefs(props)
-
-  const viewCollectionItem = useViewCollectionItem(collection, props, context)
-  const {
-    form
-  } = viewCollectionItem
 
   const titleBadge = computed(() => switchGroup.value || form.value.group)
 

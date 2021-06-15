@@ -2,7 +2,25 @@
 * "$_radius_tls" store module
 */
 import Vue from 'vue'
+import { computed } from '@vue/composition-api'
 import api from './_api'
+
+export const useStore = $store => {
+  return {
+    isLoading: computed(() => $store.getters['$_radius_tls/isLoading']),
+    getList: () => $store.dispatch('$_radius_tls/all'),
+    getListOptions: () => $store.dispatch('$_radius_tls/options'),
+    createItem: params => $store.dispatch('$_radius_tls/createRadiusTls', params),
+    getItem: params => $store.dispatch('$_radius_tls/getRadiusTls', params.id).then(item => {
+      return (params.isClone)
+        ? { ...item, id: `${item.id}-copy`, not_deletable: false }
+        : item
+    }),
+    getItemOptions: params => $store.dispatch('$_radius_tls/options', params.id),
+    updateItem: params => $store.dispatch('$_radius_tls/updateRadiusTls', params),
+    deleteItem: params => $store.dispatch('$_radius_tls/deleteRadiusTls', params.id),
+  }
+}
 
 const types = {
   LOADING: 'loading',

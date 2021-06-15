@@ -37,18 +37,7 @@ export const useItemTitle = (props) => {
 
 export { useRouter } from '../_router'
 
-export const useStore = (props, context, form) => {
-  const {
-    id,
-    profile_id
-  } = toRefs(props)
-  const { root: { $store } = {} } = context
-  return {
-    isLoading: computed(() => $store.getters['$_pkis/isLoading']),
-    createItem: () => $store.dispatch('$_pkis/createCert', { ...form.value, profile_id: profile_id.value }),
-    getItem: () => $store.dispatch('$_pkis/getCert', id.value)
-  }
-}
+export { useStore } from '../_store'
 
 import { pfSearchConditionType as conditionType } from '@/globals/pfSearch'
 import makeSearch from '@/views/Configuration/_store/factory/search'

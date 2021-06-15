@@ -38,30 +38,7 @@ export const useItemTitleBadge = (props, context) => {
 
 export { useRouter } from '../_router'
 
-export const useStore = (props, context, form) => {
-  const {
-    collection,
-    id,
-    isClone
-  } = toRefs(props)
-  const { root: { $store } = {} } = context
-  return {
-    isLoading: computed(() => $store.getters['$_filter_engines/isLoading']),
-    getOptions: () => $store.dispatch('$_filter_engines/options', { collection: collection.value, id: id.value }),
-    createItem: () => $store.dispatch('$_filter_engines/createFilterEngine', { collection: collection.value, data: form.value }),
-    deleteItem: params => $store.dispatch('$_filter_engines/deleteFilterEngine', params),
-    getItem: () => $store.dispatch('$_filter_engines/getFilterEngine', { collection: collection.value, id: id.value }).then(item => {
-      item = JSON.parse(JSON.stringify(item)) // dereference
-      if (isClone.value) {
-        item.id = `${item.id}-${i18n.t('copy')}`
-        item.not_deletable = false
-      }
-      return item
-    }),
-    updateItem: () => $store.dispatch('$_filter_engines/updateFilterEngine', { collection: collection.value, id: id.value, data: form.value }),
-    sortItems: params => $store.dispatch('$_filter_engines/sortItems', params),
-  }
-}
+export { useStore } from '../_store'
 
 import { pfSearchConditionType as conditionType } from '@/globals/pfSearch'
 import makeSearch from '@/views/Configuration/_store/factory/search'

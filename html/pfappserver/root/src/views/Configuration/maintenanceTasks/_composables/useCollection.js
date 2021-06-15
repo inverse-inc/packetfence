@@ -10,19 +10,7 @@ export const useItemTitle = (props) => {
 
 export { useRouter } from '../_router'
 
-export const useStore = (props, context, form) => {
-  const {
-    id
-  } = toRefs(props)
-  const { root: { $store } = {} } = context
-  return {
-    isLoading: computed(() => $store.getters['$_maintenance_tasks/isLoading']),
-    getOptions: () => $store.dispatch('$_maintenance_tasks/options', id.value),
-    createItem: () => $store.dispatch('$_maintenance_tasks/createMaintenanceTask', form.value),
-    getItem: () => $store.dispatch('$_maintenance_tasks/getMaintenanceTask', id.value),
-    updateItem: () => $store.dispatch('$_maintenance_tasks/updateMaintenanceTask', form.value),
-  }
-}
+export { useStore } from '../_store'
 
 import { pfSearchConditionType as conditionType } from '@/globals/pfSearch'
 import makeSearch from '@/views/Configuration/_store/factory/search'

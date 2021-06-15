@@ -32,19 +32,7 @@ export const useItemTitleBadge = props => props.scope
 
 export { useRouter } from '../_router'
 
-export const useStore = (props, context, form) => {
-  const {
-    id
-  } = toRefs(props)
-  const { root: { $store } = {} } = context
-  return {
-    isLoading: computed(() => $store.getters['$_fingerbank/isDhcpv6FingerprintsLoading']),
-    createItem: () => $store.dispatch('$_fingerbank/createDhcpv6Fingerprint', form.value),
-    deleteItem: () => $store.dispatch('$_fingerbank/deleteDhcpv6Fingerprint', id.value),
-    getItem: () => $store.dispatch('$_fingerbank/getDhcpv6Fingerprint', id.value),
-    updateItem: () => $store.dispatch('$_fingerbank/updateDhcpv6Fingerprint', form.value),
-  }
-}
+export { useStore } from '../_store'
 
 import { pfSearchConditionType as conditionType } from '@/globals/pfSearch'
 import makeSearch from '@/views/Configuration/_store/factory/search'

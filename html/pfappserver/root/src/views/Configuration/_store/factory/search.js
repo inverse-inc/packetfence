@@ -54,7 +54,7 @@ const factory = (uuid, options = {}) => {
         useColumns,
         useFields,
         useString,
-        useCondition: values => ({ op: 'and', values }),
+        useCondition: condition => condition,
 
         // overload defaults
         ...options,

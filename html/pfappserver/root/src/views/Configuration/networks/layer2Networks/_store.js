@@ -2,8 +2,20 @@
 * "$_layer2_networks" store module
 */
 import Vue from 'vue'
+import { computed } from '@vue/composition-api'
 import api from './_api'
 import { columns as columnsLayer2Network } from '../../_config/layer2Network'
+
+export const useStore = $store => {
+  return {
+    isLoading: computed(() => $store.getters['$_layer2_networks/isLoading']),
+    getList: () => $store.dispatch('$_layer2_networks/all'),
+    getListOptions: () => $store.dispatch('$_layer2_networks/options'),
+    getItem: params => $store.dispatch('$_layer2_networks/getLayer2Network', params.id),
+    getItemOptions: params => $store.dispatch('$_layer2_networks/options', params.id),
+    updateItem: params => $store.dispatch('$_layer2_networks/updateLayer2Network', params),
+  }
+}
 
 const types = {
   LOADING: 'loading',

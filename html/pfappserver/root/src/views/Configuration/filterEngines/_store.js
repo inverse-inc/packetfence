@@ -2,8 +2,36 @@
 * "$_filter_engines" store module
 */
 import Vue from 'vue'
+import { computed } from '@vue/composition-api'
 import store from '@/store'
 import api, { apiFactory } from './_api'
+
+export const useStore = $store => {
+  return {
+    isLoading: computed(() => $store.getters['$_filter_engines/isLoading']),
+    getList: () => $store.dispatch('$_filter_engines/all'),
+    getListOptions: _params => {
+      const { id, ...params } = _params // strip `id`
+      return $store.dispatch('$_filter_engines/options', params)
+    },
+    createItem: params => {
+      const { collection, ...data } = params
+      return $store.dispatch('$_filter_engines/createFilterEngine', { collection, data })
+    },
+    sortItems: params => $store.dispatch('$_filter_engines/sortItems', params),
+    getItem: params => $store.dispatch('$_filter_engines/getFilterEngine', params).then(item => {
+      return (params.isClone)
+        ? { ...item, id: `${item.id}-copy`, not_deletable: false }
+        : item
+    }),
+    getItemOptions: params => $store.dispatch('$_filter_engines/options', params),
+    updateItem: params => {
+      const { collection, ...data } = params
+      return $store.dispatch('$_filter_engines/updateFilterEngine', { collection, data })
+    },
+    deleteItem: params => $store.dispatch('$_filter_engines/deleteFilterEngine', params),
+  }
+}
 
 const types = {
   LOADING: 'loading',

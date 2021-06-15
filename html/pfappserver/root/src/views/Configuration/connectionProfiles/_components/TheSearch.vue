@@ -150,20 +150,19 @@ const setup = (props, context) => {
     useDownload(filename, csv, 'text/csv')
   }
 
-  const onRemove = id => {
-    $store.dispatch('$_admin_roles/deleteAdminRole', id)
-      .then(() => {
-        reSearch()
-      })
-  }
-
   const {
+    deleteItem,
     sortItems
-  } = useStore(props, context)
+  } = useStore($store)
+
+  const onRemove = id => {
+    deleteItem({ id })
+      .then(() => reSearch())
+  }
 
   const onSorted = _items => {
     items.value = _items
-    sortItems(items.value.map(item => item.id))
+    sortItems({ items: items.value.map(item => item.id) })
       .then(() => reSearch())
   }
 

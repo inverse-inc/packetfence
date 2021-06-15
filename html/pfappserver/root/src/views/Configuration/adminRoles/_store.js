@@ -2,7 +2,25 @@
 * "$_admin_roles" store module
 */
 import Vue from 'vue'
+import { computed } from '@vue/composition-api'
 import api from './_api'
+
+export const useStore = $store => {
+  return {
+    isLoading: computed(() => $store.getters['$_admin_roles/isLoading']),
+    getList: () => $store.dispatch('$_admin_roles/all'),
+    getListOptions: () => $store.dispatch('$_admin_roles/options'),
+    createItem: params => $store.dispatch('$_admin_roles/createAdminRole', params),
+    getItem: params => $store.dispatch('$_admin_roles/getAdminRole', params.id).then(item => {
+      return (params.isClone)
+        ? { ...item, id: `${item.id}-copy`, not_deletable: false }
+        : item
+    }),
+    getItemOptions: params => $store.dispatch('$_admin_roles/options', params.id),
+    updateItem: params => $store.dispatch('$_admin_roles/updateAdminRole', params),
+    deleteItem: params => $store.dispatch('$_admin_roles/deleteAdminRole', params.id),
+  }
+}
 
 const types = {
   LOADING: 'loading',
@@ -88,10 +106,10 @@ const actions = {
       throw err
     })
   },
-  deleteAdminRole: ({ commit }, data) => {
+  deleteAdminRole: ({ commit }, id) => {
     commit('ITEM_REQUEST', types.DELETING)
-    return api.delete(data).then(response => {
-      commit('ITEM_DESTROYED', data)
+    return api.delete(id).then(response => {
+      commit('ITEM_DESTROYED', id)
       return response
     }).catch(err => {
       commit('ITEM_ERROR', err.response)

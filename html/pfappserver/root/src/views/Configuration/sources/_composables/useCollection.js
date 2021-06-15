@@ -45,35 +45,7 @@ export const useItemTitleBadge = (props, context, form) => {
 
 export { useRouter } from '../_router'
 
-export const useStore = (props, context, form) => {
-  const {
-    id,
-    isClone,
-    isNew,
-    sourceType
-  } = toRefs(props)
-  const { root: { $store } = {} } = context
-  return {
-    isLoading: computed(() => $store.getters['$_sources/isLoading']),
-    getOptions: () => {
-      if (isNew.value)
-        return $store.dispatch('$_sources/optionsBySourceType', sourceType.value)
-      else
-        return $store.dispatch('$_sources/optionsById', id.value)
-    },
-    createItem: () => $store.dispatch('$_sources/createAuthenticationSource', form.value),
-    deleteItem: () => $store.dispatch('$_sources/deleteAuthenticationSource', id.value),
-    getItem: () => $store.dispatch('$_sources/getAuthenticationSource', id.value).then(item => {
-      if (isClone.value) {
-        item.id = `${item.id}-${i18n.t('copy')}`
-        item.not_deletable = false
-      }
-      return item
-    }),
-    updateItem: () => $store.dispatch('$_sources/updateAuthenticationSource', form.value),
-    sortItems: params => $store.dispatch('$_sources/sortAuthenticationSources', params)
-  }
-}
+export { useStore } from '../_store'
 
 import { pfSearchConditionType as conditionType } from '@/globals/pfSearch'
 import makeSearch from '@/views/Configuration/_store/factory/search'

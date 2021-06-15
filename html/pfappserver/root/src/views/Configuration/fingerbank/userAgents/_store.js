@@ -1,5 +1,16 @@
 import Vue from 'vue'
+import { computed } from '@vue/composition-api'
 import api from './_api'
+
+export const useStore = $store => {
+  return {
+    isLoading: computed(() => $store.getters['$_fingerbank/isUserAgentsLoading']),
+    createItem: params => $store.dispatch('$_fingerbank/createUserAgent', params),
+    getItem: params => $store.dispatch('$_fingerbank/getUserAgent', params.id),
+    updateItem: params => $store.dispatch('$_fingerbank/updateUserAgent', params),
+    deleteItem: params => $store.dispatch('$_fingerbank/deleteUserAgent', params.id),
+  }
+}
 
 const types = {
   LOADING: 'loading',

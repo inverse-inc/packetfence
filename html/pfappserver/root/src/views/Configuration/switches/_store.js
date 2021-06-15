@@ -2,7 +2,21 @@
 * "$_switches" store module
 */
 import Vue from 'vue'
+import { computed } from '@vue/composition-api'
 import api from './_api'
+
+export const useStore = $store => {
+  return {
+    isLoading: computed(() => $store.getters['$_switches/isLoading']),
+    getList: () => $store.dispatch('$_switches/all'),
+    getListOptions: params => $store.dispatch('$_switches/optionsBySwitchGroup', params.switchGroup),
+    createItem: params => $store.dispatch('$_switches/createSwitch', params),
+    getItem: params => $store.dispatch('$_switches/getSwitch', params.id),
+    getItemOptions: params => $store.dispatch('$_switches/optionsById', params.id),
+    updateItem: params => $store.dispatch('$_switches/updateSwitch', params),
+    deleteItem: params => $store.dispatch('$_switches/deleteSwitch', params.id),
+  }
+}
 
 const types = {
   LOADING: 'loading',

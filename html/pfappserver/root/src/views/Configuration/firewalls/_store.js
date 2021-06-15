@@ -2,7 +2,25 @@
 * "$_firewalls" store module
 */
 import Vue from 'vue'
+import { computed } from '@vue/composition-api'
 import api from './_api'
+
+export const useStore = $store => {
+  return {
+    isLoading: computed(() => $store.getters['$_firewalls/isLoading']),
+    getList: () => $store.dispatch('$_firewalls/all'),
+    getListOptions: params => $store.dispatch('$_firewalls/optionsByFirewallType', params.firewallType),
+    createItem: params => $store.dispatch('$_firewalls/createFirewall', params),
+    getItem: params => $store.dispatch('$_firewalls/getFirewall', params.id).then(item => {
+      return (params.isClone)
+        ? { ...item, id: `${item.id}-copy`, not_deletable: false }
+        : item
+    }),
+    getItemOptions: params => $store.dispatch('$_firewalls/optionsById', params.id),
+    updateItem: params => $store.dispatch('$_firewalls/updateFirewall', params),
+    deleteItem: params => $store.dispatch('$_firewalls/deleteFirewall', params.id),
+  }
+}
 
 const types = {
   LOADING: 'loading',

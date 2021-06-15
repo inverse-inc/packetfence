@@ -1,5 +1,16 @@
 import Vue from 'vue'
+import { computed } from '@vue/composition-api'
 import api from './_api'
+
+export const useStore = $store => {
+  return {
+    isLoading: computed(() => $store.getters['$_fingerbank/isDhcpv6EnterprisesLoading']),
+    createItem: params => $store.dispatch('$_fingerbank/createDhcpv6Enterprise', params),
+    getItem: params => $store.dispatch('$_fingerbank/getDhcpv6Enterprise', params.id),
+    updateItem: params => $store.dispatch('$_fingerbank/updateDhcpv6Enterprise', params),
+    deleteItem: params => $store.dispatch('$_fingerbank/deleteDhcpv6Enterprise', params.id),
+  }
+}
 
 const types = {
   LOADING: 'loading',

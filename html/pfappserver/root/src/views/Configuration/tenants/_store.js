@@ -2,7 +2,25 @@
 * "$_tenants" store module
 */
 import Vue from 'vue'
+import { computed } from '@vue/composition-api'
 import api from './_api'
+
+export const useStore = $store => {
+  return {
+    isLoading: computed(() => $store.getters['$_tenants/isLoading']),
+    getList: () => $store.dispatch('$_tenants/all'),
+    getListOptions: () => $store.dispatch('$_tenants/options'),
+    createItem: params => $store.dispatch('$_tenants/createTenant', params),
+    getItem: params => $store.dispatch('$_tenants/getTenant', params.id).then(item => {
+      return (params.isClone)
+        ? { ...item, id: `${item.id}-copy`, not_deletable: false }
+        : item
+    }),
+    getItemOptions: params => $store.dispatch('$_tenants/options', params.id),
+    updateItem: params => $store.dispatch('$_tenants/updateTenant', params),
+    deleteItem: params => $store.dispatch('$_tenants/deleteTenant', params.id),
+  }
+}
 
 const types = {
   LOADING: 'loading',

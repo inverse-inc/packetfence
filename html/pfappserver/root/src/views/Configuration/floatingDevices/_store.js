@@ -2,7 +2,25 @@
 * "$_floatingdevices" store module
 */
 import Vue from 'vue'
+import { computed } from '@vue/composition-api'
 import api from './_api'
+
+export const useStore = $store => {
+  return {
+    isLoading: computed(() => $store.getters['$_floatingdevices/isLoading']),
+    getList: () => $store.dispatch('$_floatingdevices/all'),
+    getListOptions: () => $store.dispatch('$_floatingdevices/options'),
+    createItem: params => $store.dispatch('$_floatingdevices/createFloatingDevice', params),
+    getItem: params => $store.dispatch('$_floatingdevices/getFloatingDevice', params.id).then(item => {
+      return (params.isClone)
+        ? { ...item, not_deletable: false }
+        : item
+    }),
+    getItemOptions: params => $store.dispatch('$_floatingdevices/options', params.id),
+    updateItem: params => $store.dispatch('$_floatingdevices/updateFloatingDevice', params),
+    deleteItem: params => $store.dispatch('$_floatingdevices/deleteFloatingDevice', params.id),
+  }
+}
 
 const types = {
   LOADING: 'loading',

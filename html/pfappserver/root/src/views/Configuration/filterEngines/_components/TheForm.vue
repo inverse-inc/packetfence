@@ -9,6 +9,7 @@
     <form-group-identifier namespace="id"
       :column-label="$i18n.t('Name')"
       :text="$i18n.t('Specify a unique name for your filter.')"
+      :disabled="!isNew && !isClone"
     />
 
     <form-group-description v-if="fields.includes('description')"

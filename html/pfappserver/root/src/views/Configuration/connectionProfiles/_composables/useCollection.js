@@ -27,29 +27,7 @@ export const useItemTitle = (props) => {
 
 export { useRouter } from '../_router'
 
-export const useStore = (props, context, form) => {
-  const {
-    id,
-    isClone
-  } = toRefs(props)
-  const { root: { $store } = {} } = context
-  return {
-    isLoading: computed(() => $store.getters['$_connection_profiles/isLoading']),
-    getOptions: () => $store.dispatch('$_connection_profiles/options', id.value),
-    createItem: () => $store.dispatch('$_connection_profiles/createConnectionProfile', form.value),
-    deleteItem: () => $store.dispatch('$_connection_profiles/deleteConnectionProfile', id.value),
-    getItem: () => $store.dispatch('$_connection_profiles/getConnectionProfile', id.value).then(item => {
-      const _item = JSON.parse(JSON.stringify(item))
-      if (isClone.value) {
-        _item.id = `${item.id}-${i18n.t('copy')}`
-        _item.not_deletable = false
-      }
-      return _item
-    }),
-    updateItem: () => $store.dispatch('$_connection_profiles/updateConnectionProfile', form.value),
-    sortItems: params => $store.dispatch('$_connection_profiles/sortConnectionProfiles', params)
-  }
-}
+export { useStore } from '../_store'
 
 import { pfSearchConditionType as conditionType } from '@/globals/pfSearch'
 import makeSearch from '@/views/Configuration/_store/factory/search'

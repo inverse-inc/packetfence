@@ -1,9 +1,5 @@
 import { computed, toRefs } from '@vue/composition-api'
 import i18n from '@/utils/locale'
-import {
-  decomposeProfile,
-  recomposeProfile
-} from '../config'
 
 export const useItemProps = {
   id: {
@@ -44,17 +40,7 @@ export const useItemTitle = (props) => {
 
 export { useRouter } from '../_router'
 
-export const useStore = (props, context, form) => {
-  const {
-    id
-  } = toRefs(props)
-  const { root: { $store } = {} } = context
-  return {
-    isLoading: computed(() => $store.getters['$_pkis/isLoading']),
-    createItem: () => $store.dispatch('$_pkis/createProfile', recomposeProfile(form.value)),
-    getItem: () => $store.dispatch('$_pkis/getProfile', id.value).then(item => decomposeProfile(item))
-  }
-}
+export { useStore } from '../_store'
 
 import { pfSearchConditionType as conditionType } from '@/globals/pfSearch'
 import makeSearch from '@/views/Configuration/_store/factory/search'

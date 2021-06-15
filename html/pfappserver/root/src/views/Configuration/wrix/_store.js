@@ -2,7 +2,23 @@
 * "$_wrix_locations" store module
 */
 import Vue from 'vue'
+import { computed } from '@vue/composition-api'
 import api from './_api'
+
+export const useStore = $store => {
+  return {
+    isLoading: computed(() => $store.getters['$_wrix_locations/isLoading']),
+    getList: () => $store.dispatch('$_wrix_locations/all'),
+    createItem: params => $store.dispatch('$_wrix_locations/createWrixLocation', params),
+    getItem: params => $store.dispatch('$_wrix_locations/getWrixLocation', params.id).then(item => {
+      return (params.isClone)
+        ? { ...item, id: `${item.id}-copy`, not_deletable: false }
+        : item
+    }),
+    updateItem: params => $store.dispatch('$_wrix_locations/updateWrixLocation', params),
+    deleteItem: params => $store.dispatch('$_wrix_locations/deleteWrixLocation', params.id),
+  }
+}
 
 const types = {
   LOADING: 'loading',

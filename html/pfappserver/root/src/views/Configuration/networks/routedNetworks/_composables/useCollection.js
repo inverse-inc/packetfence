@@ -21,17 +21,4 @@ export const useItemTitle = (props) => {
 
 export { useRouter } from '../_router'
 
-export const useStore = (props, context, form) => {
-  const {
-    id
-  } = toRefs(props)
-  const { root: { $store } = {} } = context
-  return {
-    isLoading: computed(() => $store.getters['$_routed_networks/isLoading']),
-    getOptions: () => $store.dispatch('$_routed_networks/options'),
-    createItem: () => $store.dispatch('$_routed_networks/createRoutedNetwork', form.value),
-    deleteItem: () => $store.dispatch('$_routed_networks/deleteRoutedNetwork', id.value),
-    getItem: () => $store.dispatch('$_routed_networks/getRoutedNetwork', id.value),
-    updateItem: () => $store.dispatch('$_routed_networks/updateRoutedNetwork', form.value),
-  }
-}
+export { useStore } from '../_store'

@@ -22,20 +22,7 @@ export const useItemTitle = (props) => {
 
 export { useRouter } from '../_router'
 
-export const useStore = (props, context, form) => {
-  const {
-    id
-  } = toRefs(props)
-  const { root: { $store } = {} } = context
-  return {
-    isLoading: computed(() => $store.getters['$_domains/isLoading']),
-    getOptions: () => $store.dispatch('$_domains/options'),
-    createItem: () => $store.dispatch('$_domains/createDomain', form.value),
-    deleteItem: () => $store.dispatch('$_domains/deleteDomain', id.value),
-    getItem: () => $store.dispatch('$_domains/getDomain', id.value),
-    updateItem: () => $store.dispatch('$_domains/updateDomain', form.value),
-  }
-}
+export { useStore } from '../_store'
 
 import makeSearch from '@/views/Configuration/_store/factory/search'
 import api from '../_api'

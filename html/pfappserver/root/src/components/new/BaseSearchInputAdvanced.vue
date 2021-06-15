@@ -1,21 +1,21 @@
 <template>
   <b-container fluid class="base-search-input-advanced px-0">
-    <b-container fluid v-for="(o, oIndex) in value" :key="oIndex"
+    <b-container fluid v-for="(o, oIndex) in value.values" :key="oIndex"
       class="px-0"
     >
       <b-container fluid class="rc px-0 py-1 bg-secondary">
-        <draggable v-model="value[oIndex].values"
+        <draggable v-model="value.values[oIndex].values"
           group="or" handle=".draghandle" filter=".nodrag" dragClass="sortable-drag"
           @start="onDragStart" @end="onDragEnd" :move="onMove"
         >
-          <base-search-input-advanced-rule v-for="(i, iIndex) in value[oIndex].values" :key="iIndex"
-            v-model="value[oIndex].values[iIndex]"
+          <base-search-input-advanced-rule v-for="(i, iIndex) in value.values[oIndex].values" :key="iIndex"
+            v-model="value.values[oIndex].values[iIndex]"
             :disabled="disabled"
             :fields="fields"
             :is-drag="isDrag"
-            :has-parents="value.length > 1"
-            :has-siblings="value[oIndex].values.length > 1"
-            :is-last-child="iIndex === value[oIndex].values.length - 1"
+            :has-parents="value.values.length > 1"
+            :has-siblings="value.values[oIndex].values.length > 1"
+            :is-last-child="iIndex === value.values[oIndex].values.length - 1"
             @add="onAddInnerRule(oIndex)"
             @delete="onDeleteRule(oIndex, iIndex)"
             @search="$emit('search', $event)"
@@ -52,7 +52,7 @@ const components = {
 
 const props = {
   value: {
-    type: Array
+    type: Object
   },
   fields: {
     type: Array
@@ -80,9 +80,9 @@ const setup = (props, context) => {
   }
   const onDragEnd = () => {
     isDrag.value = false
-    for (let i = value.value.length - 1; i >= 0; i--) {
-      if (value.value[i].values.length === 0)
-        value.value.splice(i, 1)
+    for (let i = value.value.values.length - 1; i >= 0; i--) {
+      if (value.value.values[i].values.length === 0)
+        value.value.values.splice(i, 1)
     }
   }
   const onMove = () => {
@@ -94,29 +94,29 @@ const setup = (props, context) => {
     let field = fields.value[0].value
     let op = null
     // clone previous sibling `field` and `op` (if exists)
-    if (value.value[oIndex].values.length > 0) {
-      const lIndex = value.value[oIndex].values.length - 1
-      field = value.value[oIndex].values[lIndex].field
-      op = value.value[oIndex].values[lIndex].op
+    if (value.value.values[oIndex].values.length > 0) {
+      const lIndex = value.value.values[oIndex].values.length - 1
+      field = value.value.values[oIndex].values[lIndex].field
+      op = value.value.values[oIndex].values[lIndex].op
     }
-    value.value[oIndex].values.push({ field, op, value: null })
+    value.value.values[oIndex].values.push({ field, op, value: null })
   }
 
   const onAddOuterRule = () => {
     const rule = { values: [{ field: fields.value[0].value, op: null, value: null }] }
-    if (value.value && value.value.constructor === Array)
-      emit('input', [...value.value, rule])
+    if (value.value.values && value.value.values.constructor === Array)
+      emit('input', [...value.value.values, rule])
     else
       emit('input', [rule])
   }
 
   const onDeleteRule = (oIndex, iIndex) => {
-    if (value.value[oIndex].values.length === 1) {
-      if (value.value.length > 1)
-        value.value.splice(oIndex, 1)
+    if (value.value.values[oIndex].values.length === 1) {
+      if (value.value.values.length > 1)
+        value.value.values.splice(oIndex, 1)
     }
     else
-      value.value[oIndex].values.splice(iIndex, 1)
+      value.value.values[oIndex].values.splice(iIndex, 1)
   }
 
   return {

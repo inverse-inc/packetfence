@@ -2,7 +2,25 @@
 * "$_self_services" store module
 */
 import Vue from 'vue'
+import { computed } from '@vue/composition-api'
 import api from './_api'
+
+export const useStore = $store => {
+  return {
+    isLoading: computed(() => $store.getters['$_self_services/isLoading']),
+    getList: () => $store.dispatch('$_self_services/all'),
+    getListOptions: () => $store.dispatch('$_self_services/options'),
+    createItem: params => $store.dispatch('$_self_services/createSelfService', params),
+    getItem: params => $store.dispatch('$_self_services/getSelfService', params.id).then(item => {
+      return (params.isClone)
+        ? { ...item, id: `${item.id}-copy`, not_deletable: false }
+        : item
+    }),
+    getItemOptions: params => $store.dispatch('$_self_services/options', params.id),
+    updateItem: params => $store.dispatch('$_self_services/updateSelfService', params),
+    deleteItem: params => $store.dispatch('$_self_services/deleteSelfService', params.id),
+  }
+}
 
 const types = {
   LOADING: 'loading',

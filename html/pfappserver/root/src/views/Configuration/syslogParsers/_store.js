@@ -2,7 +2,25 @@
 * "$_syslog_parsers" store module
 */
 import Vue from 'vue'
+import { computed } from '@vue/composition-api'
 import api from './_api'
+
+export const useStore = $store => {
+  return {
+    isLoading: computed(() => $store.getters['$_syslog_parsers/isLoading']),
+    getList: () => $store.dispatch('$_syslog_parsers/all'),
+    getListOptions: params => $store.dispatch('$_syslog_parsers/optionsBySyslogParserType', params.SyslogParserType),
+    createItem: params => $store.dispatch('$_syslog_parsers/createSyslogParser', params),
+    getItem: params => $store.dispatch('$_syslog_parsers/getSyslogParser', params.id).then(item => {
+      return (params.isClone)
+        ? { ...item, id: `${item.id}-copy`, not_deletable: false }
+        : item
+    }),
+    getItemOptions: params => $store.dispatch('$_syslog_parsers/optionsById', params.id),
+    updateItem: params => $store.dispatch('$_syslog_parsers/updateSyslogParser', params),
+    deleteItem: params => $store.dispatch('$_syslog_parsers/deleteSyslogParser', params.id),
+  }
+}
 
 const types = {
   LOADING: 'loading',

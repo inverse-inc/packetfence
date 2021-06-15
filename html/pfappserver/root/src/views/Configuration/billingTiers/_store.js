@@ -2,7 +2,25 @@
 * "$_billing_tiers" store module
 */
 import Vue from 'vue'
+import { computed } from '@vue/composition-api'
 import api from './_api'
+
+export const useStore = $store => {
+  return {
+    isLoading: computed(() => $store.getters['$_billing_tiers/isLoading']),
+    getList: () => $store.dispatch('$_billing_tiers/all'),
+    getListOptions: () => $store.dispatch('$_billing_tiers/options'),
+    createItem: params => $store.dispatch('$_billing_tiers/createBillingTier', params),
+    getItem: params => $store.dispatch('$_billing_tiers/getBillingTier', params.id).then(item => {
+      return (params.isClone)
+        ? { ...item, id: `${item.id}-copy`, not_deletable: false }
+        : item
+    }),
+    getItemOptions: params => $store.dispatch('$_billing_tiers/options', params.id),
+    updateItem: params => $store.dispatch('$_billing_tiers/updateBillingTier', params),
+    deleteItem: params => $store.dispatch('$_billing_tiers/deleteBillingTier', params.id),
+  }
+}
 
 const types = {
   LOADING: 'loading',

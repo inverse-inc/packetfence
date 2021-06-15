@@ -10,7 +10,7 @@
       fixed
       striped
       selectable
-      @row-clicked="goToItem"
+      @row-clicked="goToItem({ ...$event, tenantId })"
       @row-selected="onRowSelected"
       @items-sorted="onSorted"
     >
@@ -46,6 +46,26 @@
           </template>
         </span>
       </template>
+      <template #cell(radius_auth)="{ item: { radius_auth: value } }">
+        <span v-if="value.length === 0">&nbsp;</span>
+        <b-badge v-else v-for="(item, index) in value" :key="index" class="ml-2" variant="secondary">{{ item }}</b-badge>
+      </template>
+      <template #cell(radius_acct)="{ item: { radius_acct: value } }">
+        <span v-if="value.length === 0">&nbsp;</span>
+        <b-badge v-else v-for="(item, index) in value" :key="index" class="ml-2" variant="secondary">{{ item }}</b-badge>
+      </template>
+      <template #cell(portal_strip_username)="{ item: { portal_strip_username: value } }">
+        <icon name="circle" :class="{ 'text-success': value === 'enabled', 'text-danger': value === 'disabled' }"
+          v-b-tooltip.hover.left.d300 :title="$t(value)"></icon>
+      </template>
+      <template #cell(admin_strip_username)="{ item: { admin_strip_username: value } }">
+        <icon name="circle" :class="{ 'text-success': value === 'enabled', 'text-danger': value === 'disabled' }"
+          v-b-tooltip.hover.left.d300 :title="$t(value)"></icon>
+      </template>
+      <template #cell(radius_strip_username)="{ item: { radius_strip_username: value } }">
+        <icon name="circle" :class="{ 'text-success': value === 'enabled', 'text-danger': value === 'disabled' }"
+          v-b-tooltip.hover.left.d300 :title="$t(value)"></icon>
+      </template>
       <template #cell(buttons)="{ item }">
         <span class="float-right text-nowrap text-right"
           @click.stop.prevent
@@ -58,7 +78,7 @@
           >{{ $t('Delete') }}</base-button-confirm>
           <b-button
             size="sm" variant="outline-primary" class="mr-1"
-            @click.stop.prevent="goToClone(item)"
+            @click.stop.prevent="goToClone({ ...item, tenantId })"
           >{{ $t('Clone') }}</b-button>
         </span>
       </template>
@@ -103,6 +123,9 @@ const props = {
   },
   visibleColumns: {
     type: Array
+  },
+  tenantId: {
+    type: [Number, String]
   }
 }
 import { ref, toRefs } from '@vue/composition-api'
@@ -144,8 +167,9 @@ const setup = (props, context) => {
       .then(() => emit('reSearch'))
   }
 
-  const onSorted = items => {
-    sortItems({ items: items.map(item => item.id) })
+  const onSorted = _items => {
+    items.value = _items
+    sortItems({ items: items.value.map(item => item.id) })
       .then(() => emit('reSearch'))
   }
 

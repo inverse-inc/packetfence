@@ -25,6 +25,7 @@ const props = {
 }
 
 import { computed, ref, toRefs } from '@vue/composition-api'
+import { usePropsWrapper } from '@/composables/useProps'
 import { useStore } from '../_composables/useCollection'
 import { ipLogFields } from '../_config/'
 
@@ -38,13 +39,15 @@ const setup = (props, context) => {
   const iplogSortBy = ref('end_time')
   const iplogSortDesc =  ref(false)
 
+  // merge props w/ params in useStore methods
+  const _useStore = $store => usePropsWrapper(useStore($store), props)
   const {
     isLoading
-  } = useStore(props, context)  
+  } = _useStore($store)
 
   return {
     ipLogFields,
-    
+
     iplogSortBy,
     iplogSortDesc,
     isLoading,

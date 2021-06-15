@@ -53,8 +53,8 @@ const props = {
 }
 
 import { computed, ref, toRefs } from '@vue/composition-api'
+import { usePropsWrapper } from '@/composables/useProps'
 import acl from '@/utils/acl'
-
 import { useStore } from '../_composables/useCollection'
 import { securityEventFields } from '../_config/'
 
@@ -78,19 +78,21 @@ const setup = (props, context) => {
   }
   const onRelease = (security_event_id) => $store.dispatch('$_nodes/clearSecurityEventNode', { security_event_id, mac: id.value })
 
+  // merge props w/ params in useStore methods
+  const _useStore = $store => usePropsWrapper(useStore($store), props)
   const {
     isLoading,
     sortedSecurityEvents,
     applySecurityEvent
-  } = useStore(props, context)
+  } = _useStore($store)
 
   const triggerSecurityEvent = ref(null)
   const securityEventsOptions = computed(() => {
-    return sortedSecurityEvents()
+    return sortedSecurityEvents.value
       .filter(securityEvent => securityEvent.id !== 'defaults')
       .map(securityEvent => { return { text: securityEvent.desc, value: securityEvent.id } })
   })
-  const onTriggerSecurityEvent = () => applySecurityEvent(triggerSecurityEvent.value)
+  const onTriggerSecurityEvent = () => applySecurityEvent({ security_event_id: triggerSecurityEvent.value })
 
 
   return {

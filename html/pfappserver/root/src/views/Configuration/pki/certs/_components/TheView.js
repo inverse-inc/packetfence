@@ -12,6 +12,7 @@ const components = {
   TheForm
 }
 
+import { usePropsWrapper } from '@/composables/useProps'
 import { renderHOCWithScopedSlots } from '@/components/new/'
 import { useViewCollectionItem, useViewCollectionItemProps } from '../../../_composables/useViewCollectionItem'
 import * as collection from '../_composables/useCollection'
@@ -22,7 +23,11 @@ const props = {
 }
 
 const setup = (props, context) => {
-  const viewCollectionItem = useViewCollectionItem(collection, props, context)
+  const _collection = { ...collection } // unfurl Module
+  // merge props w/ params in collection.useStore methods
+  _collection.useStore = $store => usePropsWrapper(collection.useStore($store), props)
+
+  const viewCollectionItem = useViewCollectionItem(_collection, props, context)
   return {
     ...viewCollectionItem,
     scopedSlotProps: props

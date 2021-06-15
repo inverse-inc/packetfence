@@ -55,6 +55,7 @@ const props = {
 }
 
 import { computed, ref, toRefs } from '@vue/composition-api'
+import { usePropsWrapper } from '@/composables/useProps'
 import { pfEapType as eapType } from '@/globals/pfEapType'
 import network from '@/utils/network'
 import { useStore } from '../_composables/useCollection'
@@ -76,12 +77,18 @@ const setup = (props, context) => {
     }
   }
 
+  // merge props w/ params in useStore methods
+  const _useStore = $store => usePropsWrapper(useStore($store), props)
   const {
     isLoading,
-    canReevaluateAccess,
     reevaluateAccess,
     restartSwitchport
-  } = useStore(props, context)
+  } = _useStore($store)
+
+  const canReevaluateAccess = computed(() => {
+    const { locations = [] } = $store.state.$_nodes.nodes[id.value] || {}
+    return locations.length > 0
+  })
 
   const canRestartSwitchport = computed(() => {
     const { locations = [] } = node.value || {}

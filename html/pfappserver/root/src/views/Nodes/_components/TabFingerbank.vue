@@ -68,6 +68,7 @@ const props = {
 }
 
 import { computed, toRefs } from '@vue/composition-api'
+import { usePropsWrapper } from '@/composables/useProps'
 import { useStore } from '../_composables/useCollection'
 
 const setup = (props, context) => {
@@ -77,10 +78,12 @@ const setup = (props, context) => {
 
   const node = computed(() => $store.state.$_nodes.nodes[id.value])
 
+  // merge props w/ params in useStore methods
+  const _useStore = $store => usePropsWrapper(useStore($store), props)
   const {
     isLoading,
     refreshFingerbank
-  } = useStore(props, context)
+  } = _useStore($store)
 
   return {
     node,

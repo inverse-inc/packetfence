@@ -13,15 +13,4 @@ export const useItemTitle = (props) => {
 
 export { useRouter } from '../_router'
 
-export const useStore = (props, context, form) => {
-  const {
-    id
-  } = toRefs(props)
-  const { root: { $store } = {} } = context
-  return {
-    isLoading: computed(() => $store.getters['$_layer2_networks/isLoading']),
-    getOptions: () => $store.dispatch('$_layer2_networks/options'),
-    getItem: () => $store.dispatch('$_layer2_networks/getLayer2Network', id.value),
-    updateItem: () => $store.dispatch('$_layer2_networks/updateLayer2Network', form.value),
-  }
-}
+export { useStore } from '../_store'

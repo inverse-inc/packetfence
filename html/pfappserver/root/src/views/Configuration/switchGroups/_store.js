@@ -2,7 +2,21 @@
 * "$_switch_groups" store module
 */
 import Vue from 'vue'
+import { computed } from '@vue/composition-api'
 import api from './_api'
+
+export const useStore = $store => {
+  return {
+    isLoading: computed(() => $store.getters['$_switch_groups/isLoading']),
+    getList: () => $store.dispatch('$_switch_groups/all'),
+    getListOptions: () => $store.dispatch('$_switch_groups/options'),
+    createItem: params => $store.dispatch('$_switch_groups/createSwitchGroup', params),
+    getItem: params => $store.dispatch('$_switch_groups/getSwitchGroup', params.id),
+    getItemOptions: params => $store.dispatch('$_switch_groups/options', params.id),
+    updateItem: params => $store.dispatch('$_switch_groups/updateSwitchGroup', params),
+    deleteItem: params => $store.dispatch('$_switch_groups/deleteSwitchGroup', params.id),
+  }
+}
 
 const types = {
   LOADING: 'loading',

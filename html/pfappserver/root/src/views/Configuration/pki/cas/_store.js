@@ -1,6 +1,21 @@
 import Vue from 'vue'
+import { computed } from '@vue/composition-api'
 import store from '@/store'
 import api from './_api'
+import {
+  decomposeCa,
+  recomposeCa
+} from './config'
+
+export const useStore = $store => {
+  return {
+    isLoading: computed(() => $store.getters['$_pkis/isCaLoading']),
+    getList: () => $store.dispatch('$_pkis/allCas'),
+    createItem: params => $store.dispatch('$_pkis/createCa', recomposeCa(params)),
+    getItem: params => $store.dispatch('$_pkis/getCa', params.id)
+      .then(item => decomposeCa(item)),
+  }
+}
 
 const types = {
   LOADING: 'loading',

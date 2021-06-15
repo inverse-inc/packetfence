@@ -1,7 +1,7 @@
 <template>
   <b-card no-body>
     <b-card-header>
-      <h4 class="d-flex align-items-center">
+      <h4 class="d-flex align-items-center mb-0">
         {{ $t('Active Directory Domains') }}
         <base-button-help class="text-black-50 ml-1" url="PacketFence_Installation_Guide.html#_microsoft_active_directory_ad" />
       </h4>

@@ -1,5 +1,16 @@
 import Vue from 'vue'
+import { computed } from '@vue/composition-api'
 import api from './_api'
+
+export const useStore = $store => {
+  return {
+    isLoading: computed(() => $store.getters['$_fingerbank/isDhcpVendorsLoading']),
+    createItem: params => $store.dispatch('$_fingerbank/createDhcpVendor', params),
+    getItem: params => $store.dispatch('$_fingerbank/getDhcpVendor', params.id),
+    updateItem: params => $store.dispatch('$_fingerbank/updateDhcpVendor', params),
+    deleteItem: params => $store.dispatch('$_fingerbank/deleteDhcpVendor', params.id),
+  }
+}
 
 const types = {
   LOADING: 'loading',

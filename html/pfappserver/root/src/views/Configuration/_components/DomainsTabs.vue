@@ -3,12 +3,12 @@
         <b-card-header>
             <h4 class="mb-0" v-t="'Domains'"></h4>
         </b-card-header>
-        <b-tabs ref="tabs" v-model="tabIndex" card>
+        <b-tabs ref="tabs" v-model="tabIndex" card lazy>
             <b-tab :title="$t('Active Directory Domains')" @click="changeTab('domains')" no-body>
                 <domains-search :autoJoinDomain="autoJoinDomain" />
             </b-tab>
             <b-tab :title="$t('Realms')" @click="changeTab('realms')" no-body>
-                <realms-list />
+                <realms-search />
             </b-tab>
         </b-tabs>
     </b-card>
@@ -16,13 +16,13 @@
 
 <script>
 import DomainsSearch from '../domains/_components/TheSearch'
-import RealmsList from './RealmsList'
+import RealmsSearch from '../realms/_components/TheSearch'
 
 export default {
   name: 'domains-tabs',
   components: {
     DomainsSearch,
-    RealmsList
+    RealmsSearch
   },
   props: {
     tab: {

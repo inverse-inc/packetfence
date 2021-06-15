@@ -1,5 +1,16 @@
 import Vue from 'vue'
+import { computed } from '@vue/composition-api'
 import api from './_api'
+
+export const useStore = $store => {
+  return {
+    isLoading: computed(() => $store.getters['$_fingerbank/isDhcpFingerprintsLoading']),
+    createItem: params => $store.dispatch('$_fingerbank/createDhcpFingerprint', params),
+    getItem: params => $store.dispatch('$_fingerbank/getDhcpFingerprint', params.id),
+    updateItem: params => $store.dispatch('$_fingerbank/updateDhcpFingerprint', params),
+    deleteItem: params => $store.dispatch('$_fingerbank/deleteDhcpFingerprint', params.id),
+  }
+}
 
 const types = {
   LOADING: 'loading',

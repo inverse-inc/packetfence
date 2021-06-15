@@ -2,7 +2,25 @@
 * "$_radius_fast" store module
 */
 import Vue from 'vue'
+import { computed } from '@vue/composition-api'
 import api from './_api'
+
+export const useStore = $store => {
+  return {
+    isLoading: computed(() => $store.getters['$_radius_fast/isLoading']),
+    getList: () => $store.dispatch('$_radius_fast/all'),
+    getListOptions: () => $store.dispatch('$_radius_fast/options'),
+    createItem: params => $store.dispatch('$_radius_fast/createRadiusFast', params),
+    getItem: params => $store.dispatch('$_radius_fast/getRadiusFast', params.id).then(item => {
+      return (params.isClone)
+        ? { ...item, id: `${item.id}-copy`, not_deletable: false }
+        : item
+    }),
+    getItemOptions: params => $store.dispatch('$_radius_fast/options', params.id),
+    updateItem: params => $store.dispatch('$_radius_fast/updateRadiusFast', params),
+    deleteItem: params => $store.dispatch('$_radius_fast/deleteRadiusFast', params.id),
+  }
+}
 
 const types = {
   LOADING: 'loading',

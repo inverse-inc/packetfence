@@ -22,27 +22,7 @@ export const useItemTitle = (props) => {
 
 export { useRouter } from '../_router'
 
-export const useStore = (props, context, form) => {
-  const {
-    id,
-    isClone
-  } = toRefs(props)
-  const { root: { $store } = {} } = context
-  return {
-    isLoading: computed(() => $store.getters['$_admin_roles/isLoading']),
-    getOptions: () => $store.dispatch('$_admin_roles/options'),
-    createItem: () => $store.dispatch('$_admin_roles/createAdminRole', form.value),
-    deleteItem: () => $store.dispatch('$_admin_roles/deleteAdminRole', id.value),
-    getItem: () => $store.dispatch('$_admin_roles/getAdminRole', id.value).then(item => {
-      if (isClone.value) {
-        item.id = `${item.id}-${i18n.t('copy')}`
-        item.not_deletable = false
-      }
-      return item
-    }),
-    updateItem: () => $store.dispatch('$_admin_roles/updateAdminRole', form.value),
-  }
-}
+export { useStore } from '../_store'
 
 import makeSearch from '@/views/Configuration/_store/factory/search'
 import api from '../_api'
@@ -90,25 +70,20 @@ export const useSearch = makeSearch('adminRoles', {
   sortBy: 'id',
   defaultCondition: () => ({ op: 'and', values: [
     { op: 'or', values: [
-      { field: 'id', op: 'contains', value: null },
-      { field: 'description', op: 'contains', value: null }
+      { field: 'id', op: 'not_equals', value: null }
     ] }
-  ] }),
+  ]
+  }),
+/*
   requestInterceptor: request => {
-      // append query in request to omit NONE, ALL, ALL_PF_ONLY from request
-      request.query.values = [
+    // append query in request to omit NONE, ALL, ALL_PF_ONLY from request
+    request.query.values = [
       ...request.query.values,
       { op: 'or', values: [ { field: 'id', op: 'not_equals', value: 'NONE' } ] },
       { op: 'or', values: [ { field: 'id', op: 'not_equals', value: 'ALL' } ] },
       { op: 'or', values: [ { field: 'id', op: 'not_equals', value: 'ALL_PF_ONLY' } ] }
     ]
     return request
-  },
-  /*
-  responseInterceptor: response => { // strip NONE, ALL, ALL_PF_ONLY from results items
-    let { items = [], ...rest } = response
-    items = items.filter(({ id }) => !['NONE', 'ALL', 'ALL_PF_ONLY'].includes(id))
-    return { items, ...rest }
   }
-  */
+*/
 })

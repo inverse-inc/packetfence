@@ -1,27 +1,22 @@
-import { toRefs } from '@vue/composition-api'
 import store from '@/store'
 import DomainsStoreModule from '../domains/_store'
 import RealmsStoreModule from './_store'
+import TenantsStoreModule from '../tenants/_store'
 
 export const TheTabs = () => import(/* webpackChunkName: "Configuration" */ '../_components/DomainsTabs')
 const TheView = () => import(/* webpackChunkName: "Configuration" */ './_components/TheView')
 
 export const useRouter = $router => {
   return {
-    goToCollection: (params, props) => {
-      const { tenantId } = toRefs(props)
-      return $router.push({ name: 'realms', params: { tenantId: tenantId.value } })
+    goToCollection: params => $router.push({ name: 'realms', params }),
+    goToItem: params => $router
+      .push({ name: 'realm', params })
+      .catch(e => { if (e.name !== "NavigationDuplicated") throw e }),
+    goToClone: params => {
+console.log('goToClone', JSON.stringify({ params }, null, 2))
+      $router.push({ name: 'cloneRealm', params })
     },
-    goToItem: (params, props) => {
-      const { tenantId } = toRefs(props)
-      return $router
-        .push({ name: 'realm', params: { ...params, tenantId: tenantId.value } })
-        .catch(e => { if (e.name !== "NavigationDuplicated") throw e })
-    },
-    goToClone: (params, props) => {
-      const { tenantId } = toRefs(props)
-      return $router.push({ name: 'cloneRealm', params: { ...params, tenantId: tenantId.value } })
-    }
+    goToNew: params => $router.push({ name: 'newRealm', params })
   }
 }
 
@@ -30,6 +25,8 @@ export const beforeEnter = (to, from, next = () => {}) => {
     store.registerModule('$_domains', DomainsStoreModule)
   if (!store.state.$_realms)
     store.registerModule('$_realms', RealmsStoreModule)
+  if (!store.state.$_tenants)
+    store.registerModule('$_tenants', TenantsStoreModule)
   next()
 }
 
@@ -38,7 +35,7 @@ export default [
     path: 'realms',
     name: 'realms',
     component: TheTabs,
-    props: (route) => ({ tab: 'realms', query: route.query.query }),
+    props: () => ({ tab: 'realms' }),
     beforeEnter
   },
   {

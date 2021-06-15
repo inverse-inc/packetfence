@@ -112,15 +112,20 @@ const props = {
   }
 }
 
-import { computed, ref, watch } from '@vue/composition-api'
+import { computed, ref, toRefs, watch } from '@vue/composition-api'
 import { useDebouncedWatchHandler } from '@/composables/useDebounce'
 import useEventActionKey from '@/composables/useEventActionKey'
 import useEventJail from '@/composables/useEventJail'
+import { usePropsWrapper } from '@/composables/useProps'
 import { MysqlLimits } from '@/globals/mysql'
 import { updateSchema as schemaFn } from '../schema'
 import { useRouter, useStore } from '../_composables/useCollection'
 
 const setup = (props, context) => {
+
+  const {
+    id
+  } = toRefs(props)
 
   // template refs
   const rootRef = ref(null)
@@ -140,17 +145,24 @@ const setup = (props, context) => {
     )
   )
 
-const {
+  const { root: { $router, $store } = {} } = context
+
+  // merge props w/ params in useStore methods
+  const _useStore = $store => usePropsWrapper(useStore($store), props)
+  const {
     isLoading,
-    canReevaluateAccess,
     reloadItem,
     deleteItem,
     getItem,
     updateItem,
     reevaluateAccess
-  } = useStore(props, context, form)
+  } = _useStore($store)
 
-  const { root: { $router } = {} } = context
+  const canReevaluateAccess = computed(() => {
+    const { locations = [] } = $store.state.$_nodes.nodes[id.value] || {}
+    return locations.length > 0
+  })
+
   const {
     goToCollection,
     goToItem,
@@ -175,13 +187,13 @@ const {
     })
   }
 
-  const save = () => updateItem()
+  const save = () => updateItem(form.value)
 
   const onRefresh = () => reloadItem()
 
-  const onClose = () => goToCollection(false)
+  const onClose = () => goToCollection()
 
-  const onRemove = () => deleteItem().then(() => goToCollection(false))
+  const onRemove = () => deleteItem().then(() => goToCollection())
 
   const onReset = () => init()
 
@@ -190,7 +202,7 @@ const {
     const closeAfter = actionKey.value
     save().then(response => {
       if (closeAfter) // [CTRL] key pressed
-        goToCollection(true)
+        goToCollection({ actionKey: true })
       else {
         form.value = { ...form.value, ...response } // merge form w/ newly inserted IDs
         goToItem(form.value).then(() => init()) // re-init

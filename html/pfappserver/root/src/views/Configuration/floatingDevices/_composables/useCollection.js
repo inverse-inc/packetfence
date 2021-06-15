@@ -21,25 +21,7 @@ export const useItemTitle = (props) => {
 
 export { useRouter } from '../_router'
 
-export const useStore = (props, context, form) => {
-  const {
-    id,
-    isClone
-  } = toRefs(props)
-  const { root: { $store } = {} } = context
-  return {
-    isLoading: computed(() => $store.getters['$_floatingdevices/isLoading']),
-    getOptions: () => $store.dispatch('$_floatingdevices/options', id.value),
-    createItem: () => $store.dispatch('$_floatingdevices/createFloatingDevice', form.value),
-    deleteItem: () => $store.dispatch('$_floatingdevices/deleteFloatingDevice', id.value),
-    getItem: () => $store.dispatch('$_floatingdevices/getFloatingDevice', id.value).then(item => {
-      if (isClone.value)
-        item.not_deletable = false
-      return item
-    }),
-    updateItem: () => $store.dispatch('$_floatingdevices/updateFloatingDevice', form.value)
-  }
-}
+export { useStore } from '../_store'
 
 import { pfSearchConditionType as conditionType } from '@/globals/pfSearch'
 import makeSearch from '@/views/Configuration/_store/factory/search'

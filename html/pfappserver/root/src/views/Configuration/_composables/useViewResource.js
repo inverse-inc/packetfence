@@ -12,6 +12,8 @@ export const useViewResource = (resource, props, context) => {
     useStore,
   } = resource
 
+  const { root: { $store } = {} } = context
+
   // template refs
   const rootRef = ref(null)
   useEventJail(rootRef)
@@ -38,15 +40,15 @@ export const useViewResource = (resource, props, context) => {
 
   const {
     isLoading,
-    getOptions = () => (new Promise(r => r())),
+    getItemOptions = () => (new Promise(r => r())),
     getItem,
     updateItem,
-  } = useStore(props, context, form)
+  } = useStore($store)
   const isSaveable = computed(() => !!updateItem)
 
   const init = () => {
     return new Promise((resolve, reject) => {
-      getOptions().then(options => {
+      getItemOptions().then(options => {
         const { meta: _meta = {} } = options || {}
         meta.value = _meta
         getItem().then(item => {

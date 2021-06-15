@@ -2,7 +2,25 @@
 * "$_provisionings" store module
 */
 import Vue from 'vue'
+import { computed } from '@vue/composition-api'
 import api from './_api'
+
+export const useStore = $store => {
+  return {
+    isLoading: computed(() => $store.getters['$_provisionings/isLoading']),
+    getList: () => $store.dispatch('$_provisionings/all'),
+    getListOptions: params => $store.dispatch('$_provisionings/optionsByProvisioningType', params.moduleType),
+    createItem: params => $store.dispatch('$_provisionings/createProvisioning', params),
+    getItem: params => $store.dispatch('$_provisionings/getProvisioning', params.id).then(item => {
+      return (params.isClone)
+        ? { ...item, id: `${item.id}-copy`, not_deletable: false }
+        : item
+    }),
+    getItemOptions: params => $store.dispatch('$_provisionings/optionsById', params.id),
+    updateItem: params => $store.dispatch('$_provisionings/updateProvisioning', params),
+    deleteItem: params => $store.dispatch('$_provisionings/deleteProvisioning', params.id),
+  }
+}
 
 const types = {
   LOADING: 'loading',

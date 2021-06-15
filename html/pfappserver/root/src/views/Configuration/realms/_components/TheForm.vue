@@ -209,7 +209,7 @@ export const props = {
     type: String
   },
   tenantId: {
-    type: String
+    type: [Number, String]
   },
   form: {
     type: Object

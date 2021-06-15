@@ -24,27 +24,7 @@ export const useItemTitle = (props) => {
 
 export { useRouter } from '../_router'
 
-export const useStore = (props, context, form) => {
-  const {
-    id,
-    isClone
-  } = toRefs(props)
-  const { root: { $store } = {} } = context
-  return {
-    isLoading: computed(() => $store.getters['$_network_behavior_policies/isLoading']),
-    getOptions: () => $store.dispatch('$_network_behavior_policies/options'),
-    createItem: () => $store.dispatch('$_network_behavior_policies/createNetworkBehaviorPolicy', form.value),
-    deleteItem: () => $store.dispatch('$_network_behavior_policies/deleteNetworkBehaviorPolicy', id.value),
-    getItem: () => $store.dispatch('$_network_behavior_policies/getNetworkBehaviorPolicy', id.value).then(item => {
-      if (isClone.value) {
-        item.id = `${item.id}-${i18n.t('copy')}`
-        item.not_deletable = false
-      }
-      return item
-    }),
-    updateItem: () => $store.dispatch('$_network_behavior_policies/updateNetworkBehaviorPolicy', form.value),
-  }
-}
+export { useStore } from '../_store'
 
 import { pfSearchConditionType as conditionType } from '@/globals/pfSearch'
 import makeSearch from '@/views/Configuration/_store/factory/search'

@@ -131,7 +131,7 @@ const setup = (props, context) => {
     collection
   } = toRefs(props)
 
-  const { root: { $router } = {} } = context
+  const { root: { $store, $router } = {} } = context
 
   const search = useSearch()
   const {
@@ -168,7 +168,7 @@ const setup = (props, context) => {
   const {
     deleteItem,
     sortItems
-  } = useStore(props, context)
+  } = useStore($store)
 
   const onRemove = id => {
     deleteItem({ ...collection.value, id })

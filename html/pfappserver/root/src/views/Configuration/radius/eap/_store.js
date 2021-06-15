@@ -2,7 +2,25 @@
 * "$_radius_eap" store module
 */
 import Vue from 'vue'
+import { computed } from '@vue/composition-api'
 import api from './_api'
+
+export const useStore = $store => {
+  return {
+    isLoading: computed(() => $store.getters['$_radius_eap/isLoading']),
+    getList: () => $store.dispatch('$_radius_eap/all'),
+    getListOptions: () => $store.dispatch('$_radius_eap/options'),
+    createItem: params => $store.dispatch('$_radius_eap/createRadiusEap', params),
+    getItem: params => $store.dispatch('$_radius_eap/getRadiusEap', params.id).then(item => {
+      return (params.isClone)
+        ? { ...item, id: `${item.id}-copy`, not_deletable: false }
+        : item
+    }),
+    getItemOptions: params => $store.dispatch('$_radius_eap/options', params.id),
+    updateItem: params => $store.dispatch('$_radius_eap/updateRadiusEap', params),
+    deleteItem: params => $store.dispatch('$_radius_eap/deleteRadiusEap', params.id),
+  }
+}
 
 const types = {
   LOADING: 'loading',

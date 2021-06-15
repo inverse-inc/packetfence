@@ -21,24 +21,4 @@ export const useItemTitle = (props) => {
 
 export { useRouter } from '../_router'
 
-export const useStore = (props, context, form) => {
-  const {
-    id,
-    isClone
-  } = toRefs(props)
-  const { root: { $store } = {} } = context
-  return {
-    isLoading: computed(() => $store.getters['$_switch_templates/isLoading']),
-    getOptions: () => $store.dispatch('$_switch_templates/options'),
-    createItem: () => $store.dispatch('$_switch_templates/createSwitchTemplate', form.value),
-    deleteItem: () => $store.dispatch('$_switch_templates/deleteSwitchTemplate', id.value),
-    getItem: () => $store.dispatch('$_switch_templates/getSwitchTemplate', id.value).then(item => {
-      if (isClone.value) {
-        item.id = `${item.id}_${i18n.t('copy')}`
-        item.not_deletable = false
-      }
-      return item
-    }),
-    updateItem: () => $store.dispatch('$_switch_templates/updateSwitchTemplate', form.value),
-  }
-}
+export { useStore } from '../_store'

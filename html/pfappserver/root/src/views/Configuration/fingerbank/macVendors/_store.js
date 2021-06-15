@@ -1,5 +1,16 @@
 import Vue from 'vue'
+import { computed } from '@vue/composition-api'
 import api from './_api'
+
+export const useStore = $store => {
+  return {
+    isLoading: computed(() => $store.getters['$_fingerbank/isMacVendorsLoading']),
+    createItem: params => $store.dispatch('$_fingerbank/createMacVendor', params),
+    getItem: params => $store.dispatch('$_fingerbank/getMacVendor', params.id),
+    updateItem: params => $store.dispatch('$_fingerbank/updateMacVendor', params),
+    deleteItem: params => $store.dispatch('$_fingerbank/deleteMacVendor', params.id),
+  }
+}
 
 const types = {
   LOADING: 'loading',

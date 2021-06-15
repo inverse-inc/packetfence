@@ -2,11 +2,29 @@
 * "$_security_events" store module
 */
 import Vue from 'vue'
+import { computed } from '@vue/composition-api'
 import api from './_api'
 import {
   decomposeTriggers,
   recomposeTriggers
 } from '../securityEvents/config'
+
+export const useStore = $store => {
+  return {
+    isLoading: computed(() => $store.getters['$_security_events/isLoading']),
+    getList: () => $store.dispatch('$_security_events/all'),
+    getListOptions: () => $store.dispatch('$_security_events/options'),
+    createItem: params => $store.dispatch('$_security_events/createSecurityEvent', params),
+    getItem: params => $store.dispatch('$_security_events/getSecurityEvent', params.id).then(item => {
+      return (params.isClone)
+        ? { ...item, id: `${item.id}-copy`, not_deletable: false }
+        : item
+    }),
+    getItemOptions: params => $store.dispatch('$_security_events/options', params.id),
+    updateItem: params => $store.dispatch('$_security_events/updateSecurityEvent', params),
+    deleteItem: params => $store.dispatch('$_security_events/deleteSecurityEvent', params.id),
+  }
+}
 
 const types = {
   LOADING: 'loading',

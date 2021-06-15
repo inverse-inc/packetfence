@@ -2,8 +2,26 @@
 * "$_domains" store module
 */
 import Vue from 'vue'
+import { computed } from '@vue/composition-api'
 import store from '@/store' // required for 'pfqueue'
 import api from './_api'
+
+export const useStore = $store => {
+  return {
+    isLoading: computed(() => $store.getters['$_domains/isLoading']),
+    getList: () => $store.dispatch('$_domains/all'),
+    getListOptions: () => $store.dispatch('$_domains/options'),
+    createItem: params => $store.dispatch('$_domains/createDomain', params),
+    getItem: params => $store.dispatch('$_domains/getDomain', params.id).then(item => {
+      return (params.isClone)
+        ? { ...item, id: `${item.id}copy`, not_deletable: false }
+        : item
+    }),
+    getItemOptions: params => $store.dispatch('$_domains/options', params.id),
+    updateItem: params => $store.dispatch('$_domains/updateDomain', params),
+    deleteItem: params => $store.dispatch('$_domains/deleteDomain', params.id),
+  }
+}
 
 const types = {
   LOADING: 'loading',

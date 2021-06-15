@@ -15,6 +15,8 @@ export const useViewCollectionItemFixed = (collection, props, context) => {
     useStore,
   } = collection
 
+  const { root: { $store } = {} } = context
+
   // template refs
   const rootRef = ref(null)
   useEventJail(rootRef)
@@ -43,7 +45,7 @@ export const useViewCollectionItemFixed = (collection, props, context) => {
     isLoading,
     getItem,
     updateItem,
-  } = useStore(props, context, form)
+  } = useStore($store)
 
   const init = () => {
     return new Promise((resolve, reject) => {

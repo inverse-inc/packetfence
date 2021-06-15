@@ -21,23 +21,4 @@ export const useItemTitle = (props) => {
 
 export { useRouter } from '../_router'
 
-export const useStore = (props, context, form) => {
-  const {
-    id,
-    isClone
-  } = toRefs(props)
-  const { root: { $store } = {} } = context
-  return {
-    isLoading: computed(() => $store.getters['$_wrix_locations/isLoading']),
-    createItem: () => $store.dispatch('$_wrix_locations/createWrixLocation', form.value),
-    deleteItem: () => $store.dispatch('$_wrix_locations/deleteWrixLocation', id.value),
-    getItem: () => $store.dispatch('$_wrix_locations/getWrixLocation', id.value).then(item => {
-      if (isClone.value) {
-        item.id = `${item.id}-${i18n.t('copy')}`
-        item.not_deletable = false
-      }
-      return item
-    }),
-    updateItem: () => $store.dispatch('$_wrix_locations/updateWrixLocation', form.value),
-  }
-}
+export { useStore } from '../_store'

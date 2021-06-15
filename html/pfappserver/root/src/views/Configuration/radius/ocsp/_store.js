@@ -2,7 +2,25 @@
 * "$_radius_ocsp" store module
 */
 import Vue from 'vue'
+import { computed } from '@vue/composition-api'
 import api from './_api'
+
+export const useStore = $store => {
+  return {
+    isLoading: computed(() => $store.getters['$_radius_ocsp/isLoading']),
+    getList: () => $store.dispatch('$_radius_ocsp/all'),
+    getListOptions: () => $store.dispatch('$_radius_ocsp/options'),
+    createItem: params => $store.dispatch('$_radius_ocsp/createRadiusOcsp', params),
+    getItem: params => $store.dispatch('$_radius_ocsp/getRadiusOcsp', params.id).then(item => {
+      return (params.isClone)
+        ? { ...item, id: `${item.id}-copy`, not_deletable: false }
+        : item
+    }),
+    getItemOptions: params => $store.dispatch('$_radius_ocsp/options', params.id),
+    updateItem: params => $store.dispatch('$_radius_ocsp/updateRadiusOcsp', params),
+    deleteItem: params => $store.dispatch('$_radius_ocsp/deleteRadiusOcsp', params.id),
+  }
+}
 
 const types = {
   LOADING: 'loading',
