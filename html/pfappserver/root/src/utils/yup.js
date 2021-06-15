@@ -181,6 +181,14 @@ yup.addMethod(yup.string, 'isCommonNameOrFQDN', function (message) {
   })
 })
 
+yup.addMethod(yup.string, 'isCommonNameOrFQDNOrMAC', function (message) {
+  return this.test({
+    name: 'isCommonNameOrFQDNOrMAC',
+    message: message || i18n.t('Invalid common name.'),
+    test: (value) => (isCommonName(value) || isFQDN(value) || value.toLowerCase().replace(/[^0-9a-f]/g, '').length === 12)
+  })
+})
+
 yup.addMethod(yup.string, 'isDateCompare', function (comparison, date = new Date(), dateFormat = 'YYYY-MM-DD HH:mm:ss', message) {
   return this.test({
     name: 'isDateCompare',
