@@ -49,13 +49,13 @@ const actions = {
       sort: 'id',
       fields: ['id'].join(',')
     }
-    return api.switchTemplates(params).then(response => {
+    return api.list(params).then(response => {
       return response.items
     })
   },
   options: ({ commit }) => {
     commit('ITEM_REQUEST')
-    return api.switchTemplatesOptions().then(response => {
+    return api.listOptions().then(response => {
       commit('ITEM_SUCCESS')
       return response
     }).catch((err) => {
@@ -68,7 +68,7 @@ const actions = {
       return Promise.resolve(state.cache[id]).then(cache => JSON.parse(JSON.stringify(cache)))
     }
     commit('ITEM_REQUEST')
-    return api.switchTemplate(id).then(item => {
+    return api.item(id).then(item => {
       commit('ITEM_REPLACED', item)
       return JSON.parse(JSON.stringify(item))
     }).catch((err) => {
@@ -78,7 +78,7 @@ const actions = {
   },
   createSwitchTemplate: ({ commit }, data) => {
     commit('ITEM_REQUEST')
-    return api.createSwitchTemplate(data).then(response => {
+    return api.create(data).then(response => {
       commit('ITEM_REPLACED', data)
       return response
     }).catch(err => {
@@ -88,7 +88,7 @@ const actions = {
   },
   updateSwitchTemplate: ({ commit }, data) => {
     commit('ITEM_REQUEST')
-    return api.updateSwitchTemplate(data).then(response => {
+    return api.update(data).then(response => {
       commit('ITEM_REPLACED', data)
       return response
     }).catch(err => {
@@ -98,7 +98,7 @@ const actions = {
   },
   deleteSwitchTemplate: ({ commit }, data) => {
     commit('ITEM_REQUEST', types.DELETING)
-    return api.deleteSwitchTemplate(data).then(response => {
+    return api.delete(data).then(response => {
       commit('ITEM_DESTROYED', data)
       return response
     }).catch(err => {
