@@ -7,7 +7,7 @@
       <b-tab :title="$t('Scan Engines')" @click="changeTab('scan_engines')">
         <scan-engines-search />
       </b-tab>
-    </b-tabs>
+   </b-tabs>
   </b-card>
 </template>
 
