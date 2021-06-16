@@ -69,7 +69,7 @@
             <base-button-confirm v-if="!item.not_deletable"
               size="sm" variant="outline-danger" class="my-1 mr-1" reverse
               :disabled="isLoading"
-              :confirm="$t('Delete Scan EngineO?')"
+              :confirm="$t('Delete Scan Engine?')"
               @click="onRemove(item.id)"
             >{{ $t('Delete') }}</base-button-confirm>
             <b-button

@@ -11,6 +11,17 @@ export default {
       return response.data
     })
   },
+  search: data => {
+    return apiCall.post('config/firewalls/search', data).then(response => {
+      return response.data
+    })
+  },
+  create: data => {
+    return apiCall.post('config/firewalls', data).then(response => {
+      return response.data
+    })
+  },
+
   item: id => {
     return apiCall.get(['config', 'firewall', id]).then(response => {
       return response.data.item
@@ -21,11 +32,6 @@ export default {
       return response.data
     })
   },
-  create: data => {
-    return apiCall.post('config/firewalls', data).then(response => {
-      return response.data
-    })
-  },
   update: data => {
     return apiCall.patch(['config', 'firewall', data.id], data).then(response => {
       return response.data
@@ -33,10 +39,5 @@ export default {
   },
   delete: id => {
     return apiCall.delete(['config', 'firewall', id])
-  },
-  search: data => {
-    return apiCall.post('config/firewalls/search', data).then(response => {
-      return response.data
-    })
   }
 }
