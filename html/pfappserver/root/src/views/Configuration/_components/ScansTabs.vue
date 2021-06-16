@@ -3,21 +3,21 @@
     <b-card-header>
       <h4 class="mb-0" v-t="'Scans'"></h4>
     </b-card-header>
-    <b-tabs ref="tabs" v-model="tabIndex" card>
+    <b-tabs ref="tabs" v-model="tabIndex" card lazy>
       <b-tab :title="$t('Scan Engines')" @click="changeTab('scan_engines')">
-        <scan-engines-list />
+        <scan-engines-search />
       </b-tab>
     </b-tabs>
   </b-card>
 </template>
 
 <script>
-import ScanEnginesList from './ScanEnginesList'
+import ScanEnginesSearch from '../scanEngines/_components/TheSearch'
 
 export default {
   name: 'scan-tabs',
   components: {
-    ScanEnginesList
+    ScanEnginesSearch
   },
   props: {
     tab: {
