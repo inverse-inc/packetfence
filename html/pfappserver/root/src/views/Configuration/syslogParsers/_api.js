@@ -1,42 +1,49 @@
 import apiCall from '@/utils/api'
 
 export default {
-  syslogParsers: params => {
+  list: params => {
     return apiCall.get('config/syslog_parsers', { params }).then(response => {
       return response.data
     })
   },
-  syslogParsersOptions: syslogParserType => {
+  listOptions: syslogParserType => {
     return apiCall.options(['config', 'syslog_parsers'], { params: { type: syslogParserType } }).then(response => {
       return response.data
     })
   },
-  syslogParser: id => {
-    return apiCall.get(['config', 'syslog_parser', id]).then(response => {
-      return response.data.item
-    })
-  },
-  syslogParserOptions: id => {
-    return apiCall.options(['config', 'syslog_parser', id]).then(response => {
+  search: data => {
+    return apiCall.post('config/syslog_parsers/search', data).then(response => {
       return response.data
     })
   },
-  createSyslogParser: data => {
+  create: data => {
     return apiCall.post('config/syslog_parsers', data).then(response => {
       return response.data
     })
   },
-  updateSyslogParser: data => {
-    return apiCall.patch(['config', 'syslog_parser', data.id], data).then(response => {
-      return response.data
-    })
-  },
-  deleteSyslogParser: id => {
-    return apiCall.delete(['config', 'syslog_parser', id])
-  },
-  dryRunSyslogParser: data => {
+  dryRunItem: data => {
     return apiCall.post('config/syslog_parsers/dry_run', data).then(response => {
       return response.data
     })
+  },
+
+  item: id => {
+    return apiCall.get(['config', 'syslog_parser', id]).then(response => {
+      return response.data.item
+    })
+  },
+  itemOptions: id => {
+    return apiCall.options(['config', 'syslog_parser', id]).then(response => {
+      return response.data
+    })
+  },
+  update: data => {
+    const patch = data.quiet ? 'patchQuiet' : 'patch'
+    return apiCall[patch](['config', 'syslog_parser', data.id], data).then(response => {
+      return response.data
+    })
+  },
+  delete: id => {
+    return apiCall.delete(['config', 'syslog_parser', id])
   }
 }

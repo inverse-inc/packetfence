@@ -1,7 +1,7 @@
 import store from '@/store'
 import StoreModule from './_store'
 
-const TheList = () => import(/* webpackChunkName: "Configuration" */ '../_components/SyslogParsersList')
+const TheSearch = () => import(/* webpackChunkName: "Configuration" */ './_components/TheSearch')
 const TheView = () => import(/* webpackChunkName: "Configuration" */ './_components/TheView')
 
 export const useRouter = $router => {
@@ -11,6 +11,7 @@ export const useRouter = $router => {
       .push({ name: 'syslogParser', params })
       .catch(e => { if (e.name !== "NavigationDuplicated") throw e }),
     goToClone: params => $router.push({ name: 'cloneSyslogParser', params }),
+    goToNew: params => $router.push({ name: 'newSyslogParser', params })
   }
 }
 
@@ -24,7 +25,7 @@ export default [
   {
     path: 'pfdetect',
     name: 'syslogParsers',
-    component: TheList,
+    component: TheSearch,
     beforeEnter
   },
   {

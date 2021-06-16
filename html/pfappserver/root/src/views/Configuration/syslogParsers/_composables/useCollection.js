@@ -46,3 +46,66 @@ export const useItemTitleBadge = (props, context, form) => {
 export { useRouter } from '../_router'
 
 export { useStore } from '../_store'
+
+import { pfSearchConditionType as conditionType } from '@/globals/pfSearch'
+import makeSearch from '@/views/Configuration/_store/factory/search'
+import api from '../_api'
+export const useSearch = makeSearch('syslogParsers', {
+  api,
+  columns: [
+    {
+      key: 'selected',
+      thStyle: 'width: 40px;', tdClass: 'p-0',
+      locked: true
+    },
+    {
+      key: 'status',
+      label: 'Status', // i18n defer
+      sortable: true,
+      visible: true
+    },
+    {
+      key: 'id',
+      label: 'Detector', // i18n defer
+      required: true,
+      searchable: true,
+      sortable: true,
+      visible: true
+    },
+    {
+      key: 'type',
+      label: 'Type', // i18n defer
+      searchable: true,
+      sortable: true,
+      visible: true
+    },
+    {
+      key: 'buttons',
+      class: 'text-right p-0',
+      locked: true
+    },
+    {
+      key: 'not_deletable',
+      required: true,
+      visible: false
+    }
+  ],
+  fields: [
+    {
+      value: 'id',
+      text: i18n.t('Detector'),
+      types: [conditionType.SUBSTRING]
+    },
+    {
+      value: 'type',
+      text: i18n.t('Type'),
+      types: [conditionType.SUBSTRING]
+    }
+  ],
+  sortBy: 'id',
+  defaultCondition: () => ({ op: 'and', values: [
+    { op: 'or', values: [
+      { field: 'id', op: 'not_equals', value: null }
+    ] }
+  ] })
+})

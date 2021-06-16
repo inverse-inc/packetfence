@@ -1,7 +1,22 @@
 import { pfFieldType } from '@/globals/pfField'
 import i18n from '@/utils/locale'
 
-export const regexRuleActions = {
+export const types = {
+  dhcp:           i18n.t('DHCP'),
+  fortianalyser:  i18n.t('FortiAnalyzer'),
+  nexpose:        i18n.t('Nexpose'),
+  regex:          i18n.t('Regex'),
+  security_onion: i18n.t('Security Onion'),
+  snort:          i18n.t('Snort'),
+  suricata:       i18n.t('Suricata'),
+  suricata_md5:   i18n.t('Suricata MD5')
+}
+
+export const typeOptions = Object.keys(types)
+  .sort((a, b) => types[a].localeCompare(types[b]))
+  .map(key => ({ value: key, text: types[key] }))
+
+  export const regexRuleActions = {
   add_person: {
     value: 'add_person',
     text: i18n.t('Create new user account'),
