@@ -6,9 +6,9 @@
         <pf-button-help class="ml-1" url="PacketFence_Installation_Guide.html#_network_devices_definition_switches_conf" />
       </h4>
     </b-card-header>
-    <b-tabs ref="tabs" v-model="tabIndex" card>
+    <b-tabs ref="tabs" v-model="tabIndex" card lazy>
       <b-tab :title="$t('Switches')" @click="changeTab('switches')" no-body>
-        <switches-list storeName="$_switches" />
+        <switches-search storeName="$_switches" />
       </b-tab>
       <b-tab :title="$t('Switch Groups')" @click="changeTab('switch_groups')" no-body>
         <switch-groups-list storeName="$_switch_groups" />
@@ -19,14 +19,14 @@
 
 <script>
 import pfButtonHelp from '@/components/pfButtonHelp'
-import SwitchesList from './SwitchesList'
+import SwitchesSearch from '../switches/_components/TheSearch'
 import SwitchGroupsList from './SwitchGroupsList'
 
 export default {
   name: 'network-device-tabs',
   components: {
     pfButtonHelp,
-    SwitchesList,
+    SwitchesSearch,
     SwitchGroupsList
   },
   props: {

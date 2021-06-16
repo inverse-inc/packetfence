@@ -45,13 +45,13 @@ const actions = {
       sort: 'id',
       fields: ['id', 'description', 'class'].join(',')
     }
-    return api.switches(params).then(response => {
+    return api.list(params).then(response => {
       return response.items
     })
   },
   optionsById: ({ commit }, id) => {
     commit('ITEM_REQUEST')
-    return api.switchOptions(id).then(response => {
+    return api.itemOptions(id).then(response => {
       commit('ITEM_SUCCESS')
       return response
     }).catch((err) => {
@@ -61,7 +61,7 @@ const actions = {
   },
   optionsBySwitchGroup: ({ commit }, switchGroup) => {
     commit('ITEM_REQUEST')
-    return api.switchesOptions(switchGroup).then(response => {
+    return api.listOptions(switchGroup).then(response => {
       commit('ITEM_SUCCESS')
       return response
     }).catch((err) => {
@@ -74,7 +74,7 @@ const actions = {
       return Promise.resolve(state.cache[id]).then(cache => JSON.parse(JSON.stringify(cache)))
     }
     commit('ITEM_REQUEST')
-    return api.switche(id).then(item => {
+    return api.item(id).then(item => {
       commit('ITEM_REPLACED', item)
       return JSON.parse(JSON.stringify(state.cache[id]))
     }).catch((err) => {
@@ -84,7 +84,7 @@ const actions = {
   },
   createSwitch: ({ commit }, data) => {
     commit('ITEM_REQUEST')
-    return api.createSwitch(data).then(response => {
+    return api.create(data).then(response => {
       commit('ITEM_REPLACED', data)
       return response
     }).catch(err => {
@@ -94,7 +94,7 @@ const actions = {
   },
   updateSwitch: ({ commit }, data) => {
     commit('ITEM_REQUEST')
-    return api.updateSwitch(data).then(response => {
+    return api.update(data).then(response => {
       commit('ITEM_REPLACED', data)
       return response
     }).catch(err => {
@@ -104,7 +104,7 @@ const actions = {
   },
   deleteSwitch: ({ commit }, data) => {
     commit('ITEM_REQUEST', types.DELETING)
-    return api.deleteSwitch(data).then(response => {
+    return api.delete(data).then(response => {
       commit('ITEM_DESTROYED', data)
       return response
     }).catch(err => {
@@ -114,7 +114,7 @@ const actions = {
   },
   invalidateSwitchCache: ({ commit }, data) => {
     commit('ITEM_REQUEST')
-    return api.invalidateSwitchCache(data).then(response => {
+    return api.invalidateCache(data).then(response => {
       commit('ITEM_SUCCESS')
       return response
     }).catch(err => {
@@ -124,7 +124,7 @@ const actions = {
   },
   bulkImport: ({ commit }, data) => {
     commit('ITEM_REQUEST')
-    return api.switchesBulkImport(data).then(response => {
+    return api.bulkImport(data).then(response => {
       commit('ITEM_BULK_SUCCESS', response)
       return response
     }).catch(err => {

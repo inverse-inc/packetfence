@@ -14,6 +14,7 @@ export const useRouter = $router => {
       .push({ name: 'switch', params })
       .catch(e => { if (e.name !== "NavigationDuplicated") throw e }),
     goToClone: params => $router.push({ name: 'cloneSwitch', params }),
+    goToNew: params => $router.push({ name: 'newSwitch', params })
   }
 }
 
