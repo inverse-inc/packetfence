@@ -47,7 +47,7 @@ const actions = {
       sort: 'id',
       fields: ['id', 'type'].join(',')
     }
-    return api.wrixLocations(params).then(response => {
+    return api.list(params).then(response => {
       return response.items
     })
   },
@@ -56,7 +56,7 @@ const actions = {
       return Promise.resolve(state.cache[id]).then(cache => JSON.parse(JSON.stringify(cache)))
     }
     commit('ITEM_REQUEST')
-    return api.wrixLocation(id).then(item => {
+    return api.item(id).then(item => {
       commit('ITEM_REPLACED', item)
       return JSON.parse(JSON.stringify(item))
     }).catch((err) => {
@@ -66,7 +66,7 @@ const actions = {
   },
   createWrixLocation: ({ commit }, data) => {
     commit('ITEM_REQUEST')
-    return api.createWrixLocation(data).then(response => {
+    return api.create(data).then(response => {
       commit('ITEM_REPLACED', data)
       return response
     }).catch(err => {
@@ -76,7 +76,7 @@ const actions = {
   },
   updateWrixLocation: ({ commit }, data) => {
     commit('ITEM_REQUEST')
-    return api.updateWrixLocation(data).then(response => {
+    return api.update(data).then(response => {
       commit('ITEM_REPLACED', data)
       return response
     }).catch(err => {
@@ -86,7 +86,7 @@ const actions = {
   },
   deleteWrixLocation: ({ commit }, data) => {
     commit('ITEM_REQUEST', types.DELETING)
-    return api.deleteWrixLocation(data).then(response => {
+    return api.delete(data).then(response => {
       commit('ITEM_DESTROYED', data)
       return response
     }).catch(err => {

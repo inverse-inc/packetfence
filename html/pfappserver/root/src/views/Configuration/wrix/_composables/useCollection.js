@@ -22,3 +22,79 @@ export const useItemTitle = (props) => {
 export { useRouter } from '../_router'
 
 export { useStore } from '../_store'
+
+import { pfSearchConditionType as conditionType } from '@/globals/pfSearch'
+import makeSearch from '@/views/Configuration/_store/factory/search'
+import api from '../_api'
+export const useSearch = makeSearch('wrixLocations', {
+  api,
+  columns: [
+    {
+      key: 'selected',
+      thStyle: 'width: 40px;', tdClass: 'p-0',
+      locked: true
+    },
+    {
+      key: 'id',
+      label: 'WRIX Identifier', // i18n defer
+      searchable: true,
+      required: true,
+      sortable: true,
+      visible: true
+    },
+    {
+      key: 'Provider_Identifier',
+      label: 'Provider Identifier', // i18n defer
+      searchable: true,
+      sortable: true,
+      visible: true
+    },
+    {
+      key: 'Location_Identifier',
+      label: 'Location Identifier', // i18n defer
+      searchable: true,
+      sortable: true,
+      visible: true
+    },
+    {
+      key: 'Service_Provider_Brand',
+      label: 'Service Provider Brand', // i18n defer
+      searchable: true,
+      sortable: true,
+      visible: true
+    },
+    {
+      key: 'buttons',
+      class: 'text-right p-0',
+      locked: true
+    }
+  ],
+  fields: [
+    {
+      value: 'id',
+      text: i18n.t('WRIX Identifier'),
+      types: [conditionType.SUBSTRING]
+    },
+    {
+      value: 'Provider_Identifier',
+      text: i18n.t('Provider Identifier'),
+      types: [conditionType.SUBSTRING]
+    },
+    {
+      value: 'Location_Identifier',
+      text: i18n.t('Location Identifier'),
+      types: [conditionType.SUBSTRING]
+    },
+    {
+      value: 'Service_Provider_Brand',
+      text: i18n.t('Service Provider Brand'),
+      types: [conditionType.SUBSTRING]
+    }
+  ],
+  sortBy: 'id',
+  defaultCondition: () => ({ op: 'and', values: [
+    { op: 'or', values: [
+      { field: 'id', op: 'not_equals', value: null }
+    ] }
+  ] })
+})
