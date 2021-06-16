@@ -1,7 +1,7 @@
 import store from '@/store'
 import StoreModule from './_store'
 
-const TheList = () => import(/* webpackChunkName: "Configuration" */ '../_components/SelfServicesList')
+const TheSearch = () => import(/* webpackChunkName: "Configuration" */ './_components/TheSearch')
 const TheView = () => import(/* webpackChunkName: "Configuration" */ './_components/TheView')
 
 export const useRouter = $router => {
@@ -10,7 +10,8 @@ export const useRouter = $router => {
     goToItem: params => $router
       .push({ name: 'self_service', params })
       .catch(e => { if (e.name !== "NavigationDuplicated") throw e }),
-    goToClone: params => $router.push({ name: 'cloneSelfService', params })
+    goToClone: params => $router.push({ name: 'cloneSelfService', params }),
+    goToNew: params => $router.push({ name: 'newSelfService', params })
   }
 }
 
@@ -24,7 +25,7 @@ export default [
   {
     path: 'self_services',
     name: 'self_services',
-    component: TheList,
+    component: TheSearch,
     beforeEnter
   },
   {
