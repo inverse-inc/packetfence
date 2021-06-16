@@ -17,9 +17,6 @@ const props = {
 
   id: {
     type: String
-  },
-  tenantId: {
-    type: String
   }
 }
 
