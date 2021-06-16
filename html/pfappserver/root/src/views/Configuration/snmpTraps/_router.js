@@ -15,7 +15,6 @@ export default [
     path: 'snmp_traps',
     name: 'snmp_traps',
     component: TheView,
-    props: (route) => ({ query: route.query.query }),
     beforeEnter
   }
 ]

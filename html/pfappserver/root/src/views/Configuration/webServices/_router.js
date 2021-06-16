@@ -15,7 +15,6 @@ export default [
     path: 'webservices',
     name: 'webservices',
     component: TheView,
-    props: (route) => ({ query: route.query.query }),
     beforeEnter
   }
 ]

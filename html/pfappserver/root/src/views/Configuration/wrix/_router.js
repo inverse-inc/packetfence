@@ -25,7 +25,6 @@ export default [
     path: 'wrix',
     name: 'wrixLocations',
     component: TheList,
-    props: (route) => ({ query: route.query.query }),
     beforeEnter
   },
   {

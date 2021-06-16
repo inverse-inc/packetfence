@@ -29,7 +29,7 @@ export default [
     path: 'scans/scan_engines',
     name: 'scanEngines',
     component: TheTabs,
-    props: (route) => ({ tab: 'scan_engines', query: route.query.query }),
+    props: () => ({ tab: 'scan_engines' }),
     beforeEnter
   },
   {

@@ -15,7 +15,7 @@ export default [
     path: 'advanced',
     name: 'advanced',
     component: TheTabs,
-    props: (route) => ({ tab: 'advanced', query: route.query.query }),
+    props: () => ({ tab: 'advanced' }),
     beforeEnter
   }
 ]

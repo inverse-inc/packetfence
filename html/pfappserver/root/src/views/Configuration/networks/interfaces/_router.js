@@ -29,7 +29,7 @@ export default [
     path: 'interfaces',
     name: 'interfaces',
     component: TheTabs,
-    props: (route) => ({ tab: 'interfaces', query: route.query.query })
+    props: () => ({ tab: 'interfaces' })
   },
   {
     path: 'interface/:id',

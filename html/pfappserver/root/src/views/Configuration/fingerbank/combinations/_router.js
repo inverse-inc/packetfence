@@ -19,7 +19,7 @@ export default [
     path: 'fingerbank/combinations',
     name: 'fingerbankCombinations',
     component: TheTabs,
-    props: (route) => ({ tab: 'combinations', query: route.query.query })
+    props: () => ({ tab: 'combinations' })
   },
   {
     path: 'fingerbank/local/combinations/new',

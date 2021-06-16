@@ -15,7 +15,6 @@ export default [
     path: 'dns',
     name: 'dns',
     component: TheView,
-    props: (route) => ({ query: route.query.query }),
     beforeEnter
   }
 ]

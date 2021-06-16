@@ -31,7 +31,6 @@ export default [
     path: 'security_events',
     name: 'security_events',
     component: TheList,
-    props: (route) => ({ query: route.query.query }),
     beforeEnter
   },
   {

@@ -32,7 +32,7 @@ export default [
     path: 'switches',
     name: 'switches',
     component: TheTabs,
-    props: (route) => ({ tab: 'switches', query: route.query.query }),
+    props: () => ({ tab: 'switches' }),
     beforeEnter
   },
   {

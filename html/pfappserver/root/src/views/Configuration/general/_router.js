@@ -15,7 +15,7 @@ export default [
     path: 'general',
     name: 'general',
     component: TheTabs,
-    props: (route) => ({ tab: 'general', query: route.query.query }),
+    props: () => ({ tab: 'general' }),
     beforeEnter
   }
 ]

@@ -25,7 +25,6 @@ export default [
     path: 'self_services',
     name: 'self_services',
     component: TheList,
-    props: (route) => ({ query: route.query.query }),
     beforeEnter
   },
   {

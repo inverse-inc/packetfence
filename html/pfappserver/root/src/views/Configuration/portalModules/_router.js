@@ -25,7 +25,6 @@ export default [
     path: 'portal_modules',
     name: 'portal_modules',
     component: TheList,
-    props: (route) => ({ query: route.query.query }),
     beforeEnter
   },
   {

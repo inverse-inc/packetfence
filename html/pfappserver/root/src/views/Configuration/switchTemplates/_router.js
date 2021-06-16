@@ -25,7 +25,6 @@ export default [
     path: 'switch_templates',
     name: 'switchTemplates',
     component: TheList,
-    props: (route) => ({ query: route.query.query }),
     beforeEnter
   },
   {

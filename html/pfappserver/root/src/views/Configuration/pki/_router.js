@@ -18,7 +18,7 @@ export default [
     path: 'pki',
     name: 'pki',
     component: TheTabs,
-    props: (route) => ({ tab: 'pkiCas', query: route.query.query }),
+    props: () => ({ tab: 'pkiCas' }),
     beforeEnter
   },
   ...CasRoutes,

@@ -28,7 +28,6 @@ export default [
     path: 'roles',
     name: 'roles',
     component: TheList,
-    props: (route) => ({ query: route.query.query }),
     beforeEnter
   },
   {

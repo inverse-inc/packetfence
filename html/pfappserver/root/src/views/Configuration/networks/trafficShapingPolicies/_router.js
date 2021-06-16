@@ -16,7 +16,7 @@ export default [
     path: 'traffic_shapings',
     name: 'traffic_shapings',
     component: TheTabs,
-    props: (route) => ({ tab: 'traffic_shapings', query: route.query.query })
+    props: () => ({ tab: 'traffic_shapings' })
   },
   {
     path: 'traffic_shaping/new/:role',

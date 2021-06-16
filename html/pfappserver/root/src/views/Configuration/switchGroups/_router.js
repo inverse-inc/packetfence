@@ -31,7 +31,7 @@ export default [
     path: 'switch_groups',
     name: 'switch_groups',
     component: TheTabs,
-    props: (route) => ({ tab: 'switch_groups', query: route.query.query }),
+    props: () => ({ tab: 'switch_groups' }),
     beforeEnter
   },
   {

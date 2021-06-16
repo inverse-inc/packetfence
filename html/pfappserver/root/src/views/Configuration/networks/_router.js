@@ -18,31 +18,31 @@ const routes = [
     path: 'networks',
     name: 'networks',
     component: TheTabs,
-    props: (route) => ({ tab: 'network', query: route.query.query })
+    props: () => ({ tab: 'network' })
   },
   {
     path: 'network',
     name: 'network',
     component: TheTabs,
-    props: (route) => ({ tab: 'network', query: route.query.query })
+    props: () => ({ tab: 'network' })
   },
   {
     path: 'inline',
     name: 'inline',
     component: TheTabs,
-    props: (route) => ({ tab: 'inline', query: route.query.query })
+    props: () => ({ tab: 'inline' })
   },
   {
     path: 'fencing',
     name: 'fencing',
     component: TheTabs,
-    props: (route) => ({ tab: 'fencing', query: route.query.query })
+    props: () => ({ tab: 'fencing' })
   },
   {
     path: 'parking',
     name: 'parking',
     component: TheTabs,
-    props: (route) => ({ tab: 'parking', query: route.query.query })
+    props: () => ({ tab: 'parking' })
   },
 
   ...InterfacesRoutes,

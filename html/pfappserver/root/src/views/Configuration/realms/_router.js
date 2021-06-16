@@ -12,10 +12,7 @@ export const useRouter = $router => {
     goToItem: params => $router
       .push({ name: 'realm', params })
       .catch(e => { if (e.name !== "NavigationDuplicated") throw e }),
-    goToClone: params => {
-console.log('goToClone', JSON.stringify({ params }, null, 2))
-      $router.push({ name: 'cloneRealm', params })
-    },
+    goToClone: params => $router.push({ name: 'cloneRealm', params }),
     goToNew: params => $router.push({ name: 'newRealm', params })
   }
 }

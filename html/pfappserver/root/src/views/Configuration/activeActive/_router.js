@@ -15,7 +15,6 @@ export default [
     path: 'active_active',
     name: 'active_active',
     component: TheView,
-    props: (route) => ({ query: route.query.query }),
     beforeEnter
   }
 ]

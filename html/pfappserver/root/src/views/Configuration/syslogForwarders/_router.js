@@ -25,7 +25,6 @@ export default [
     path: 'syslog',
     name: 'syslogForwarders',
     component: TheList,
-    props: (route) => ({ query: route.query.query }),
     beforeEnter
   },
   {

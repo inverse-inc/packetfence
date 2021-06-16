@@ -25,7 +25,6 @@ export default [
     path: 'tenants',
     name: 'tenants',
     component: TheList,
-    props: (route) => ({ query: route.query.query }),
     beforeEnter
   },
   {
