@@ -21,7 +21,7 @@
           <pf-empty-table :is-loading="isLoading">{{ $t('No interfaces found') }}</pf-empty-table>
         </template>
         <template v-slot:cell(is_running)="{ item }">
-          <toggle-status :value="item.is_running" 
+          <toggle-status :value="item.is_running"
           :disabled="item.type === 'management' || isLoading"
           :item="item" />
         </template>
@@ -47,7 +47,12 @@
           <span v-if="item.vlan"
             class="float-right text-nowrap"
           >
-            <pf-button-delete size="sm" variant="outline-danger" class="mr-1" :disabled="isLoading" :confirm="$t('Delete VLAN?')" @on-delete="removeInterface(item)" reverse/>
+            <base-button-confirm
+              size="sm" variant="outline-danger" class="my-1 mr-1" reverse
+              :disabled="isLoading"
+              :confirm="$t('Delete VLAN?')"
+              @click="removeInterface(item)"
+            >{{ $t('Delete') }}</base-button-confirm>
             <b-button size="sm" variant="outline-primary" class="mr-1" :disabled="isLoading" @click.stop.prevent="cloneInterface(item)">{{ $t('Clone') }}</b-button>
           </span>
           <span v-else
@@ -70,7 +75,7 @@
              @click="detectManagementInterface"
            >
              {{ $t('Detect Management Interface') }}
-           </base-button-save>          
+           </base-button-save>
          </b-col>
       </b-row>
 
@@ -102,17 +107,18 @@
 
 <script>
 import {
+  BaseButtonConfirm,
   BaseButtonSave,
   BaseForm,
   BaseFormGroupChosenMultiple,
   BaseFormGroupInput
 } from '@/components/new/'
 import pfButton from '@/components/pfButton'
-import pfButtonDelete from '@/components/pfButtonDelete'
 import pfEmptyTable from '@/components/pfEmptyTable'
 import { ToggleStatus } from '@/views/Configuration/networks/interfaces/_components/'
 
 const components = {
+  BaseButtonConfirm,
   BaseButtonSave,
   BaseForm,
 
@@ -120,7 +126,6 @@ const components = {
   FormGroupHostname:   BaseFormGroupInput,
   FormGroupDnsServers: BaseFormGroupChosenMultiple,
   pfButton,
-  pfButtonDelete,
   pfEmptyTable,
   ToggleStatus
 }
@@ -211,7 +216,7 @@ const { root: { $router, $store } = {} } = context
 
   const isDetecting = ref(false)
   const isLoading = computed(() => $store.getters['$_interfaces/isLoading'])
-  
+
   const hostname = computed(() => $store.state.system.hostname)
 
   $store.dispatch(`$_interfaces/all`)
@@ -223,7 +228,7 @@ const { root: { $router, $store } = {} } = context
     })
   )
 
-  const rebootAlert = computed(() => ((isLoading.value || form.value.hostname === hostname.value) 
+  const rebootAlert = computed(() => ((isLoading.value || form.value.hostname === hostname.value)
     ? null
     : `<span class="text-warning">${i18n.t('Please reboot the server at the end of the configuration wizard to apply changes.')}</span>`
   ))
@@ -247,7 +252,7 @@ const { root: { $router, $store } = {} } = context
         $store.dispatch('notification/danger', {
           icon: 'exclamation-triangle',
           message: i18n.t('Management interface <code>{id}</code> found.', management_interface)
-        })          
+        })
         $store.dispatch('$_interfaces/updateInterface', management_interface)
           .finally(() => {
             isDetecting.value = false
@@ -258,7 +263,7 @@ const { root: { $router, $store } = {} } = context
           icon: 'exclamation-triangle',
           message: i18n.t('Management interface not found.')
         })
-        isDetecting.value = false          
+        isDetecting.value = false
       }
     }
   }

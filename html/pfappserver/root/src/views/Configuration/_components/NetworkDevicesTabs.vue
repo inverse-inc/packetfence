@@ -3,7 +3,7 @@
     <b-card-header>
       <h4 class="mb-0">
         {{ $t('Network Devices') }}
-        <pf-button-help class="ml-1" url="PacketFence_Installation_Guide.html#_network_devices_definition_switches_conf" />
+        <base-button-help class="text-black-50 ml-1" url="PacketFence_Installation_Guide.html#_network_devices_definition_switches_conf" />
       </h4>
     </b-card-header>
     <b-tabs ref="tabs" v-model="tabIndex" card lazy>
@@ -18,14 +18,16 @@
 </template>
 
 <script>
-import pfButtonHelp from '@/components/pfButtonHelp'
+import {
+  BaseButtonHelp
+} from '@/components/new/'
 import SwitchesSearch from '../switches/_components/TheSearch'
 import SwitchGroupsSearch from '../switchGroups/_components/TheSearch'
 
 export default {
   name: 'network-device-tabs',
   components: {
-    pfButtonHelp,
+    BaseButtonHelp,
     SwitchesSearch,
     SwitchGroupsSearch
   },

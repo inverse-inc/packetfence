@@ -170,7 +170,12 @@
         </template>
         <template v-slot:cell(buttons)="item">
           <span class="float-right text-nowrap text-right">
-            <pf-button-delete size="sm" variant="outline-danger" class="mr-1" :disabled="isLoading" :confirm="$t('Delete Node?')" @on-delete="remove(item.item)" reverse/>
+            <base-button-confirm
+              size="sm" variant="outline-danger" class="my-1 mr-1" reverse
+              :disabled="isLoading"
+              :confirm="$t('Delete Node?')"
+              @click="remove(item.item)"
+            >{{ $t('Delete') }}</base-button-confirm>
           </span>
         </template>
         <template v-slot:empty>
@@ -193,9 +198,9 @@
 
 <script>
 import {
+  BaseButtonConfirm,
   BaseButtonExportCsv
 } from '@/components/new/'
-import pfButtonDelete from '@/components/pfButtonDelete'
 import pfEmptyTable from '@/components/pfEmptyTable'
 import pfMixinSearchable from '@/components/pfMixinSearchable'
 import pfMixinSelectable from '@/components/pfMixinSelectable'
@@ -214,8 +219,8 @@ export default {
     pfMixinSearchable
   ],
   components: {
+    BaseButtonConfirm,
     BaseButtonExportCsv,
-    pfButtonDelete,
     pfEmptyTable,
     pfFingerbankScore,
     pfFormToggle

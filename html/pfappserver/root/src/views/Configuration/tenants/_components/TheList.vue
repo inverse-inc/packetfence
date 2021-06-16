@@ -10,7 +10,7 @@
       </div>
       <h4 class="mb-0">
         {{ $t('Tenants') }}
-        <pf-button-help class="ml-1" url="PacketFence_Installation_Guide.html#_tenants" />
+        <base-button-help class="text-black-50 ml-1" url="PacketFence_Installation_Guide.html#_tenants" />
       </h4>
     </b-card-header>
     <div class="card-body">
@@ -123,6 +123,7 @@
 import {
   BaseButtonConfirm,
   BaseButtonExportCsv,
+  BaseButtonHelp,
   BaseButtonSaveSearch,
   BaseInputToggleAdvancedMode,
   BaseSearchInputBasic,
@@ -131,12 +132,12 @@ import {
   BaseSearchInputLimit,
   BaseSearchInputPage,
 } from '@/components/new/'
-import pfButtonHelp from '@/components/pfButtonHelp'
 import pfEmptyTable from '@/components/pfEmptyTable'
 
 const components = {
   BaseButtonConfirm,
   BaseButtonExportCsv,
+  BaseButtonHelp,
   BaseButtonSaveSearch,
   BaseInputToggleAdvancedMode,
   BaseSearchInputBasic,
@@ -144,7 +145,6 @@ const components = {
   BaseSearchInputColumns,
   BaseSearchInputLimit,
   BaseSearchInputPage,
-  pfButtonHelp,
   pfEmptyTable
 }
 
