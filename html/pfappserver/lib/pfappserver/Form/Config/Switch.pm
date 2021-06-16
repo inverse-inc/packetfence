@@ -691,7 +691,7 @@ sub options_groups {
     push @couples, ('' => 'None');
     my $cs = pf::ConfigStore::SwitchGroup->new;
     my @groups = @{$cs->readAll("id")};
-    push @couples, map { $_->{id} => $_->{description} } @groups;
+    push @couples, map { $_->{id} => "$_->{id} - ($_->{description})" } @groups;
 
     return @couples;
 }
