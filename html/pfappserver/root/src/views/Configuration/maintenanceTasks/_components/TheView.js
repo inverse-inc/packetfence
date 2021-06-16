@@ -12,16 +12,12 @@ const components = {
 
 import { computed } from '@vue/composition-api'
 import { renderHOCWithScopedSlots } from '@/components/new/'
-import { usePropsWrapper } from '@/composables/useProps'
 import { useViewCollectionItem, useViewCollectionItemProps as props } from '../../_composables/useViewCollectionItem'
 import * as collection from '../_composables/useCollection'
 
 const setup = (props, context) => {
-  const _collection = { ...collection } // unfurl Module
-  // merge props w/ params in collection.useStore methods
-  _collection.useStore = $store => usePropsWrapper(collection.useStore($store), props)
 
-  const viewCollectionItem = useViewCollectionItem(_collection, props, context)
+  const viewCollectionItem = useViewCollectionItem(collection, props, context)
   const {
     isLoading,
     isModified

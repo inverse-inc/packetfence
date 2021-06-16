@@ -10,17 +10,21 @@ const components = {
   TheForm
 }
 
-import { usePropsWrapper } from '@/composables/useProps'
-import { useViewCollectionItem, useViewCollectionItemProps as props } from '../../_composables/useViewCollectionItem'
-import * as collection from '../_composables/useCollection'
+import { useViewCollectionItem, useViewCollectionItemProps } from '../../_composables/useViewCollectionItem'
 
-const setup = (props, context) => {
-  const _collection = { ...collection } // unfurl Module
-  // merge props w/ params in collection.useStore methods
-  _collection.useStore = $store => usePropsWrapper(collection.useStore($store), props)
+const props = {
+  ...useViewCollectionItemProps,
 
-  return useViewCollectionItem(_collection, props, context)
+  id: {
+    type: String
+  },
+  tenantId: {
+    type: String
+  }
 }
+
+import * as collection from '../_composables/useCollection'
+const setup = (props, context) => useViewCollectionItem(collection, props, context)
 
 // @vue/component
 export default {

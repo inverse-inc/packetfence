@@ -3,14 +3,11 @@ import i18n from '@/utils/locale'
 
 export const useTitle = () => i18n.t('General Configuration')
 
-export const useStore = (props, context, form) => {
-  const { root: { $store } = {} } = context
+export const useStore = $store => {
   return {
     isLoading: computed(() => $store.getters['$_bases/isLoading']),
-    getOptions: () => $store.dispatch('$_bases/optionsRadiusConfiguration'),
     getItem: () => $store.dispatch('$_bases/getRadiusConfiguration'),
-    updateItem: () => {
-      return $store.dispatch('$_bases/updateRadiusConfiguration', form.value)
-    }
+    getItemOptions: () => $store.dispatch('$_bases/optionsRadiusConfiguration'),
+    updateItem: params => $store.dispatch('$_bases/updateRadiusConfiguration', params)
   }
 }

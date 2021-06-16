@@ -1,6 +1,7 @@
 import { computed, ref, watch } from '@vue/composition-api'
 import { useDebouncedWatchHandler } from '@/composables/useDebounce'
 import useEventJail from '@/composables/useEventJail'
+import { usePropsWrapper } from '@/composables/useProps'
 
 export const useViewResourceProps = {}
 
@@ -9,8 +10,11 @@ export const useViewResource = (resource, props, context) => {
   const {
     useTitle,
     useTitleHelp = () => {},
-    useStore,
+    useStore: _useStore = () => {},
   } = resource
+
+  // merge props w/ params in useStore methods
+  const useStore = $store => usePropsWrapper(_useStore($store), props)
 
   const { root: { $store } = {} } = context
 
@@ -66,7 +70,7 @@ export const useViewResource = (resource, props, context) => {
     })
   }
 
-  const save = () => updateItem()
+  const save = () => updateItem(form.value)
 
   const onReset = () => init().then(() => isModified.value = false)
 

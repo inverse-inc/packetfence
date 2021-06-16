@@ -7,18 +7,18 @@ import api from './_api'
 
 export const useStore = $store => {
   return {
-    isLoading: computed(() => $store.getters['$_wmi_rules/isLoading']),
-    getList: () => $store.dispatch('$_wmi_rules/all'),
-    getListOptions: () => $store.dispatch('$_wmi_rules/options'),
-    createItem: params => $store.dispatch('$_wmi_rules/createWmiRule', params),
-    getItem: params => $store.dispatch('$_wmi_rules/getWmiRule', params.id).then(item => {
+    isLoading: computed(() => $store.getters['$_pki_providers/isLoading']),
+    getList: () => $store.dispatch('$_pki_providers/all'),
+    getListOptions: params => $store.dispatch('$_pki_providers/optionsByProviderType', params.providerType),
+    createItem: params => $store.dispatch('$_pki_providers/createPkiProvider', params),
+    getItem: params => $store.dispatch('$_pki_providers/getPkiProvider', params.id).then(item => {
       return (params.isClone)
         ? { ...item, id: `${item.id}-copy`, not_deletable: false }
         : item
     }),
-    getItemOptions: params => $store.dispatch('$_wmi_rules/options', params.id),
-    updateItem: params => $store.dispatch('$_wmi_rules/updateWmiRule', params),
-    deleteItem: params => $store.dispatch('$_wmi_rules/deleteWmiRule', params.id),
+    getItemOptions: params => $store.dispatch('$_pki_providers/optionsById', params.id),
+    updateItem: params => $store.dispatch('$_pki_providers/updatePkiProvider', params),
+    deleteItem: params => $store.dispatch('$_pki_providers/deletePkiProvider', params.id)
   }
 }
 

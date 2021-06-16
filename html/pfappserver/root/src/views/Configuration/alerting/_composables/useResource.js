@@ -3,14 +3,11 @@ import i18n from '@/utils/locale'
 
 export const useTitle = () => i18n.t('Alerting')
 
-export const useStore = (props, context, form) => {
-  const { root: { $store } = {} } = context
+export const useStore = $store => {
   return {
     isLoading: computed(() => $store.getters['$_bases/isLoading']),
-    getOptions: () => $store.dispatch('$_bases/optionsAlerting'),
     getItem: () => $store.dispatch('$_bases/getAlerting'),
-    updateItem: () => {
-      return $store.dispatch('$_bases/updateAlerting', form.value)
-    }
+    getItemOptions: () => $store.dispatch('$_bases/optionsAlerting'),
+    updateItem: params => $store.dispatch('$_bases/updateAlerting', params)
   }
 }

@@ -1,6 +1,7 @@
 import { ref, watch } from '@vue/composition-api'
 import { useDebouncedWatchHandler } from '@/composables/useDebounce'
 import useEventJail from '@/composables/useEventJail'
+import { usePropsWrapper } from '@/composables/useProps'
 
 export const useViewCollectionItemFixedProps = {
   id: {
@@ -12,8 +13,11 @@ export const useViewCollectionItemFixed = (collection, props, context) => {
 
   const {
     useItemTitle,
-    useStore,
+    useStore: _useStore = () => {},
   } = collection
+
+  // merge props w/ params in useStore methods
+  const useStore = $store => usePropsWrapper(_useStore($store), props)
 
   const { root: { $store } = {} } = context
 
@@ -63,7 +67,7 @@ export const useViewCollectionItemFixed = (collection, props, context) => {
 
   const onSave = () => {
     isModified.value = true
-    return updateItem()
+    return updateItem(form.value)
   }
 
   watch(props, () => init(), { deep: true, immediate: true })

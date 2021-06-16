@@ -4,6 +4,7 @@ import useEventActionKey from '@/composables/useEventActionKey'
 import useEventEscapeKey from '@/composables/useEventEscapeKey'
 import useEventJail from '@/composables/useEventJail'
 import { useDefaultsFromMeta } from '@/composables/useMeta'
+import { usePropsWrapper } from '@/composables/useProps'
 
 export const useViewCollectionItemProps = {
   id: {
@@ -26,9 +27,15 @@ export const useViewCollectionItem = (collection, props, context) => {
     useItemDefaults = useDefaultsFromMeta, // {}
     useItemTitle = () => {},
     useItemTitleBadge = () => {},
-    useRouter = () => {},
-    useStore = () => {},
+    useRouter: _useRouter = () => {},
+    useStore: _useStore = () => {},
   } = collection
+
+  // merge props w/ params in useRouter method
+  const useRouter = $router => usePropsWrapper(_useRouter($router), props)
+
+  // merge props w/ params in useStore methods
+  const useStore = $store => usePropsWrapper(_useStore($store), props)
 
   const {
     isClone,

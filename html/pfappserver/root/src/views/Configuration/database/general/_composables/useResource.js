@@ -3,14 +3,11 @@ import i18n from '@/utils/locale'
 
 export const useTitle = () => i18n.t('Database General')
 
-export const useStore = (props, context, form) => {
-  const { root: { $store } = {} } = context
+export const useStore = $store => {
   return {
     isLoading: computed(() => $store.getters['$_bases/isLoading']),
-    getOptions: () => $store.dispatch('$_bases/optionsDatabase'),
     getItem: () => $store.dispatch('$_bases/getDatabase'),
-    updateItem: () => {
-      return $store.dispatch('$_bases/updateDatabase', form.value)
-    }
+    getItemOptions: () => $store.dispatch('$_bases/optionsDatabase'),
+    updateItem: params => $store.dispatch('$_bases/updateDatabase', params)
   }
 }

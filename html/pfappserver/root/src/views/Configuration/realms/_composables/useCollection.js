@@ -32,31 +32,6 @@ export { useRouter } from '../_router'
 
 export { useStore } from '../_store'
 
-/*
-export const useStore = (props, context, form) => {
-  const {
-    id,
-    tenantId,
-    isClone
-  } = toRefs(props)
-  const { root: { $store } = {} } = context
-  return {
-    isLoading: computed(() => $store.getters['$_realms/isLoading']),
-    getOptions: () => $store.dispatch('$_realms/options', { id: id.value, tenantId: tenantId.value }),
-    createItem: () => $store.dispatch('$_realms/createRealm', { item: form.value, tenantId: tenantId.value }),
-    deleteItem: () => $store.dispatch('$_realms/deleteRealm', { id: id.value, tenantId: tenantId.value }),
-    getItem: () => $store.dispatch('$_realms/getRealm', { id: id.value, tenantId: tenantId.value }).then(item => {
-      if (isClone.value) {
-        item.id = `${item.id}-${i18n.t('copy')}`
-        item.not_deletable = false
-      }
-      return item
-    }),
-    updateItem: () => $store.dispatch('$_realms/updateRealm', { item: form.value, tenantId: tenantId.value }),
-  }
-}
-*/
-
 import { pfSearchConditionType as conditionType } from '@/globals/pfSearch'
 import makeSearch from '@/views/Configuration/_store/factory/search'
 import api from '../_api'
