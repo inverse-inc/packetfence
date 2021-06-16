@@ -7,7 +7,8 @@ export const useRouter = $router => {
     goToCollection: () => $router.push({ name: 'traffic_shapings' }),
     goToItem: params => $router
       .push({ name: 'traffic_shaping', params })
-      .catch(e => { if (e.name !== "NavigationDuplicated") throw e })
+      .catch(e => { if (e.name !== "NavigationDuplicated") throw e }),
+    goToNew: () => $router.push({ name: 'newTrafficShaping' })
   }
 }
 

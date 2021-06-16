@@ -14,7 +14,7 @@
         <inline-view />
       </b-tab>
       <b-tab :title="$t('Inline Traffic Shaping')" @click="changeTab('traffic_shapings')">
-        <traffic-shapings-list />
+        <traffic-shaping-policies-search />
       </b-tab>
       <b-tab :title="$t('Fencing')" @click="changeTab('fencing')">
         <fencing-view />
@@ -30,7 +30,7 @@
 import NetworkView from '../networks/network/_components/TheView'
 import InterfacesList from './InterfacesList'
 import InlineView from '../networks/inline/_components/TheView'
-import TrafficShapingsList from './TrafficShapingsList'
+import TrafficShapingPoliciesSearch from '../networks/trafficShapingPolicies/_components/TheSearch'
 import FencingView from '../networks/fencing/_components/TheView'
 import ParkingView from '../networks/parking/_components/TheView'
 
@@ -40,7 +40,7 @@ export default {
     NetworkView,
     InterfacesList,
     InlineView,
-    TrafficShapingsList,
+    TrafficShapingPoliciesSearch,
     FencingView,
     ParkingView
   },

@@ -47,7 +47,6 @@ export { useRouter } from '../_router'
 
 export { useStore } from '../_store'
 
-
 import { pfSearchConditionType as conditionType } from '@/globals/pfSearch'
 import makeSearch from '@/views/Configuration/_store/factory/search'
 import api from '../_api'
