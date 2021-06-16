@@ -46,14 +46,14 @@ const actions = {
       fields: ['id', 'description'].join(','),
       limit: 1000
     }
-    return api.switchGroups(params).then(response => {
+    return api.list(params).then(response => {
       return response.items
     })
   },
   options: ({ commit }, id) => {
     commit('ITEM_REQUEST')
     if (id) {
-      return api.switchGroupOptions(id).then(response => {
+      return api.itemOptions(id).then(response => {
         commit('ITEM_SUCCESS')
         return response
       }).catch((err) => {
@@ -61,7 +61,7 @@ const actions = {
         throw err
       })
     } else {
-      return api.switchGroupsOptions().then(response => {
+      return api.listOptions().then(response => {
         commit('ITEM_SUCCESS')
         return response
       }).catch((err) => {
@@ -75,9 +75,9 @@ const actions = {
       return Promise.resolve(state.cache[id]).then(cache => JSON.parse(JSON.stringify(cache)))
     }
     commit('ITEM_REQUEST')
-    return api.switchGroup(id).then(item => {
+    return api.item(id).then(item => {
       commit('ITEM_REPLACED', item)
-      api.switchGroupMembers(id).then(members => { // Fetch members
+      api.itemMembers(id).then(members => { // Fetch members
         commit('ITEM_UPDATED', { id, prop: 'members', data: members })
       })
       return JSON.parse(JSON.stringify(state.cache[id]))
@@ -88,7 +88,7 @@ const actions = {
   },
   getSwitchGroupMembers: ({ state, commit }, id) => {
     commit('ITEM_REQUEST')
-    return api.switchGroupMembers(id).then(members => {
+    return api.itemMembers(id).then(members => {
       commit('ITEM_UPDATED', { id, prop: 'members', data: members })
       return state.cache[id].members
     }).catch(err => {
@@ -98,7 +98,7 @@ const actions = {
   },
   createSwitchGroup: ({ commit }, data) => {
     commit('ITEM_REQUEST')
-    return api.createSwitchGroup(data).then(response => {
+    return api.create(data).then(response => {
       commit('ITEM_REPLACED', data)
       return response
     }).catch(err => {
@@ -108,7 +108,7 @@ const actions = {
   },
   updateSwitchGroup: ({ commit }, data) => {
     commit('ITEM_REQUEST')
-    return api.updateSwitchGroup(data).then(response => {
+    return api.update(data).then(response => {
       commit('ITEM_REPLACED', data)
       return response
     }).catch(err => {
@@ -118,7 +118,7 @@ const actions = {
   },
   deleteSwitchGroup: ({ commit }, data) => {
     commit('ITEM_REQUEST', types.DELETING)
-    return api.deleteSwitchGroup(data).then(response => {
+    return api.delete(data).then(response => {
       commit('ITEM_DESTROYED', data)
       return response
     }).catch(err => {

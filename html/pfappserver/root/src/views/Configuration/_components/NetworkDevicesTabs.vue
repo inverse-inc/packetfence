@@ -8,10 +8,10 @@
     </b-card-header>
     <b-tabs ref="tabs" v-model="tabIndex" card lazy>
       <b-tab :title="$t('Switches')" @click="changeTab('switches')" no-body>
-        <switches-search storeName="$_switches" />
+        <switches-search />
       </b-tab>
       <b-tab :title="$t('Switch Groups')" @click="changeTab('switch_groups')" no-body>
-        <switch-groups-list storeName="$_switch_groups" />
+        <switch-groups-search />
       </b-tab>
     </b-tabs>
   </b-card>
@@ -20,14 +20,14 @@
 <script>
 import pfButtonHelp from '@/components/pfButtonHelp'
 import SwitchesSearch from '../switches/_components/TheSearch'
-import SwitchGroupsList from './SwitchGroupsList'
+import SwitchGroupsSearch from '../switchGroups/_components/TheSearch'
 
 export default {
   name: 'network-device-tabs',
   components: {
     pfButtonHelp,
     SwitchesSearch,
-    SwitchGroupsList
+    SwitchGroupsSearch
   },
   props: {
     tab: {
