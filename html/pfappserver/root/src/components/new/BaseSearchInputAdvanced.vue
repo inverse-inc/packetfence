@@ -105,9 +105,9 @@ const setup = (props, context) => {
   const onAddOuterRule = () => {
     const rule = { values: [{ field: fields.value[0].value, op: null, value: null }] }
     if (value.value.values && value.value.values.constructor === Array)
-      emit('input', [...value.value.values, rule])
+      emit('input', { op: 'and', values: [...value.value.values, rule] })
     else
-      emit('input', [rule])
+      emit('input', { op: 'and', values: [rule] })
   }
 
   const onDeleteRule = (oIndex, iIndex) => {
