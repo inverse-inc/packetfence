@@ -12,7 +12,7 @@
         <b-form-row class="justify-content-end">
           <b-button variant="link" @click="minimize = !minimize"><icon :name="minimize ? 'expand' : 'compress'"></icon></b-button>
           <base-button-confirm
-            variant="outline-danger" class="my-1 mr-1" reverse
+            variant="outline-danger" class="mr-1" reverse
             :disabled="isLoading"
             :confirm="$t('Delete Module?')"
             @click="remove(rootModule.id)"
