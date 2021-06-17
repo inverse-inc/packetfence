@@ -29,7 +29,7 @@
       >
         <template v-slot:empty>
           <slot name="emptySearch" v-bind="{ isLoading }">
-              <pf-empty-table :is-loading="isLoading">{{ $t('No results found') }}</pf-empty-table>
+            <base-table-empty :is-loading="isLoading">{{ $t('No results found') }}</base-table-empty>
           </slot>
         </template>
         <template #head(selected)>
@@ -93,16 +93,16 @@
 import {
   BaseButtonConfirm,
   BaseSearch,
-  BaseSearchInputColumns
+  BaseSearchInputColumns,
+  BaseTableEmpty
 } from '@/components/new/'
-import pfEmptyTable from '@/components/pfEmptyTable'
 import pfFingerbankScore from '@/components/pfFingerbankScore'
 
 const components = {
   BaseButtonConfirm,
   BaseSearch,
   BaseSearchInputColumns,
-  pfEmptyTable,
+  BaseTableEmpty,
   pfFingerbankScore
 }
 

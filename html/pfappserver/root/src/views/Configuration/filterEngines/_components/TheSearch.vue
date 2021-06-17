@@ -25,7 +25,7 @@
       >
         <template v-slot:empty>
           <slot name="emptySearch" v-bind="{ isLoading }">
-              <pf-empty-table :is-loading="isLoading">{{ $t('No results found') }}</pf-empty-table>
+            <base-table-empty :is-loading="isLoading">{{ $t('No results found') }}</base-table-empty>
           </slot>
         </template>
         <template #head(selected)>
@@ -97,9 +97,9 @@ import {
   BaseButtonHelp,
   BaseSearch,
   BaseSearchInputColumns,
+  BaseTableEmpty,
   BaseTableSortable
 } from '@/components/new/'
-import pfEmptyTable from '@/components/pfEmptyTable'
 import ToggleStatus from './ToggleStatus'
 
 const components = {
@@ -107,8 +107,8 @@ const components = {
   BaseButtonHelp,
   BaseSearch,
   BaseSearchInputColumns,
+  BaseTableEmpty,
   BaseTableSortable,
-  pfEmptyTable,
   ToggleStatus
 }
 

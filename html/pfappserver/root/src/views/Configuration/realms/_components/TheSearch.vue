@@ -39,7 +39,6 @@ import {
   BaseSearchInputColumns,
   BaseTableSortable
 } from '@/components/new/'
-import pfEmptyTable from '@/components/pfEmptyTable'
 import TheTable from './TheTable'
 
 const components = {
@@ -49,7 +48,6 @@ const components = {
   BaseSearch,
   BaseSearchInputColumns,
   BaseTableSortable,
-  pfEmptyTable,
   TheTable
 }
 

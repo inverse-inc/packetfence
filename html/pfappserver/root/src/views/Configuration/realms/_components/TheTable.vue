@@ -16,7 +16,7 @@
     >
       <template v-slot:empty>
         <slot name="emptySearch" v-bind="{ isLoading }">
-            <pf-empty-table :is-loading="isLoading">{{ $t('No results found') }}</pf-empty-table>
+          <base-table-empty :is-loading="isLoading">{{ $t('No results found') }}</base-table-empty>
         </slot>
       </template>
       <template #head(selected)>
@@ -99,16 +99,16 @@ import {
   BaseButtonConfirm,
   BaseButtonHelp,
   BaseSearchInputColumns,
+  BaseTableEmpty,
   BaseTableSortable
 } from '@/components/new/'
-import pfEmptyTable from '@/components/pfEmptyTable'
 
 const components = {
   BaseButtonConfirm,
   BaseButtonHelp,
   BaseSearchInputColumns,
-  BaseTableSortable,
-  pfEmptyTable
+  BaseTableEmpty,
+  BaseTableSortable
 }
 
 const props = {
