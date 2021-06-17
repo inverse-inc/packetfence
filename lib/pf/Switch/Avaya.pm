@@ -643,6 +643,47 @@ sub radiusDisconnect {
     return;
 }
 
+=item returnAuthorizeRead
+
+Return radius attributes to allow read access. Returns Service-Type = 7 (NAS-Prompt-User)
+
+=cut
+
+sub returnAuthorizeRead {
+    my ($self, $args) = @_;
+    my $logger = $self->logger;
+    my $radius_reply_ref;
+    my $status;
+    $radius_reply_ref->{'Service-Type'} = '7';
+    $radius_reply_ref->{'Reply-Message'} = "Switch read access granted by PacketFence";
+    $logger->info("User $args->{'user_name'} logged in $args->{'switch'}{'_id'} with read access");
+    my $filter = pf::access_filter::radius->new;
+    my $rule = $filter->test('returnAuthorizeRead', $args);
+    ($radius_reply_ref, $status) = $filter->handleAnswerInRule($rule,$args,$radius_reply_ref);
+    return [$status, %$radius_reply_ref];
+}
+
+=item returnAuthorizeWrite
+
+Return radius attributes to allow write access. Returns Service-Type = 6 (Administrative-User)
+
+=cut
+
+sub returnAuthorizeWrite {
+    my ($self, $args) = @_;
+    my $logger = $self->logger;
+    my $radius_reply_ref;
+    my $status;
+    $radius_reply_ref->{'Service-Type'} = '6';
+    $radius_reply_ref->{'Reply-Message'} = "Switch enable access granted by PacketFence";
+    $logger->info("User $args->{'user_name'} logged in $args->{'switch'}{'_id'} with write access");
+    my $filter = pf::access_filter::radius->new;
+    my $rule = $filter->test('returnAuthorizeWrite', $args);
+    ($radius_reply_ref, $status) = $filter->handleAnswerInRule($rule,$args,$radius_reply_ref);
+    return [$status, %$radius_reply_ref];
+}
+
+
 =head1 AUTHOR
 
 Inverse inc. <info@inverse.ca>
