@@ -70,6 +70,11 @@ export const useSearch = makeSearch('tenants', {
       key: 'buttons',
       class: 'text-right p-0',
       locked: true
+    },
+    {
+      key: 'not_deletable',
+      required: true,
+      visible: false
     }
   ],
   fields: [

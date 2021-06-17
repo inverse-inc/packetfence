@@ -85,21 +85,18 @@ export const useSearch = makeSearch('realms', {
     {
       key: 'portal_strip_username',
       label: 'Strip Portal', // i18n defer
-      searchable: true,
       sortable: true,
       visible: true
     },
     {
       key: 'admin_strip_username',
       label: 'Strip Admin', // i18n defer
-      searchable: true,
       sortable: true,
       visible: true
     },
     {
       key: 'radius_strip_username',
       label: 'Strip RADIUS', // i18n defer
-      searchable: true,
       sortable: true,
       visible: true
     },
