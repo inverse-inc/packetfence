@@ -2,7 +2,7 @@ import store from '@/store'
 import RolesStoreModule from './_store'
 import TrafficShapingPoliciesStoreModule from '../networks/trafficShapingPolicies/_store'
 
-const TheList = () => import(/* webpackChunkName: "Configuration" */ './_components/TheList')
+const TheSearch = () => import(/* webpackChunkName: "Configuration" */ './_components/TheSearch')
 const TheView = () => import(/* webpackChunkName: "Configuration" */ './_components/TheView')
 
 export const useRouter = $router => {
@@ -11,7 +11,8 @@ export const useRouter = $router => {
     goToItem: params => $router
       .push({ name: 'role', params })
       .catch(e => { if (e.name !== "NavigationDuplicated") throw e }),
-    goToClone: params => $router.push({ name: 'cloneRole', params })
+    goToClone: params => $router.push({ name: 'cloneRole', params }),
+    goToNew: () => $router.push({ name: 'newRole' })
   }
 }
 
@@ -27,7 +28,7 @@ export default [
   {
     path: 'roles',
     name: 'roles',
-    component: TheList,
+    component: TheSearch,
     beforeEnter
   },
   {
