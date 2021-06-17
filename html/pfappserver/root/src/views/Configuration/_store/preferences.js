@@ -1,6 +1,5 @@
-import { customRef, ref, watch } from '@vue/composition-api'
+import { customRef } from '@vue/composition-api'
 import { defineStore } from 'pinia'
-import { createDebouncer } from 'promised-debounce'
 import store from '@/store' // required for 'system/version'
 import apiCall from '@/utils/api'
 
@@ -94,13 +93,13 @@ export const useStore = defineStore({
       if (JSON.stringify(value) === JSON.stringify(this.cache[id]))
         return Promise.resolve(this.cache[id])
       if (value === undefined) {
-        return api.removePreference(id).then(item => {
+        return api.removePreference(id).then(() => {
           this.cache[id] = undefined
           return this.cache[id]
         })
       }
       else {
-        return api.setPreference(id, value).then(item => {
+        return api.setPreference(id, value).then(() => {
           this.cache[id] = value
           return this.cache[id]
         })

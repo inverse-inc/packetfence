@@ -1,4 +1,3 @@
-import { toRefs } from '@vue/composition-api'
 import store from '@/store'
 import { TheTabs } from '../_components/'
 const TheView = () => import(/* webpackChunkName: "Fingerbank" */ './_components/TheView')

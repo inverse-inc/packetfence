@@ -1,5 +1,4 @@
 import { computed, toRefs } from '@vue/composition-api'
-import i18n from '@/utils/locale'
 
 export const useItemTitle = (props) => {
   const {

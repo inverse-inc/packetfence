@@ -16,7 +16,7 @@ export default defineStore({
   },
 
   actions: {
-    getCollection: (state) => {
+    getCollection: () => {
 
     }
   }
