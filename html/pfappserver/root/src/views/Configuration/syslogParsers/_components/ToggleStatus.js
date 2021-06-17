@@ -54,9 +54,6 @@ export const props = {
   },
   item: {
     type: Object
-  },
-  searchableStoreName: {
-    type: String
   }
 }
 

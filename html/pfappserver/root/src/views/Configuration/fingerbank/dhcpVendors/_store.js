@@ -79,10 +79,10 @@ export const actions = {
       throw err
     })
   },
-  deleteDhcpVendor: ({ commit }, data) => {
+  deleteDhcpVendor: ({ commit }, id) => {
     commit('DHCP_VENDOR_REQUEST', types.DELETING)
-    return api.delete(data).then(response => {
-      commit('DHCP_VENDOR_DESTROYED', data)
+    return api.delete(id).then(response => {
+      commit('DHCP_VENDOR_DESTROYED', id)
       return response
     }).catch(err => {
       commit('DHCP_VENDOR_ERROR', err.response)

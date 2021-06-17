@@ -79,10 +79,10 @@ export const actions = {
       throw err
     })
   },
-  deleteDhcpv6Enterprise: ({ commit }, data) => {
+  deleteDhcpv6Enterprise: ({ commit }, id) => {
     commit('DHCPV6_ENTERPRISE_REQUEST', types.DELETING)
-    return api.delete(data).then(response => {
-      commit('DHCPV6_ENTERPRISE_DESTROYED', data)
+    return api.delete(id).then(response => {
+      commit('DHCPV6_ENTERPRISE_DESTROYED', id)
       return response
     }).catch(err => {
       commit('DHCPV6_ENTERPRISE_ERROR', err.response)

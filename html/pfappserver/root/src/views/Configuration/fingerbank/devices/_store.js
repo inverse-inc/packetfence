@@ -79,10 +79,10 @@ export const actions = {
       throw err
     })
   },
-  deleteDevice: ({ commit }, data) => {
+  deleteDevice: ({ commit }, id) => {
     commit('DEVICE_REQUEST', types.DELETING)
-    return api.delete(data).then(response => {
-      commit('DEVICE_DESTROYED', data)
+    return api.delete(id).then(response => {
+      commit('DEVICE_DESTROYED', id)
       return response
     }).catch(err => {
       commit('DEVICE_ERROR', err.response)

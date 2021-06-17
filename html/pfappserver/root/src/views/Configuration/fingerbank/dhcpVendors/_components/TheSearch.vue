@@ -119,7 +119,7 @@ import { ref, toRefs, watch } from '@vue/composition-api'
 import { useBootstrapTableSelected } from '@/composables/useBootstrap'
 import { useTableColumnsItems } from '@/composables/useCsv'
 import { useDownload } from '@/composables/useDownload'
-import { useSearch, useRouter } from '../_composables/useCollection'
+import { useSearch, useStore, useRouter } from '../_composables/useCollection'
 
 const setup = (props, context) => {
 
@@ -128,6 +128,11 @@ const setup = (props, context) => {
   } = toRefs(props)
 
   const { root: { $router, $store } = {} } = context
+
+  const {
+    deleteItem
+  } = useStore($store)
+
   const router = useRouter($router)
   const {
     goToClone,
@@ -157,10 +162,8 @@ const setup = (props, context) => {
   }
 
   const onRemove = id => {
-    $store.dispatch('$_admin_roles/deleteAdminRole', id)
-      .then(() => {
-        reSearch()
-      })
+    deleteItem({ id })
+      .then(() => reSearch())
   }
 
   const onCloneClicked = item => goToClone({ scope: 'local', id: item.id })

@@ -79,10 +79,10 @@ export const actions = {
       throw err
     })
   },
-  deleteDhcpv6Fingerprint: ({ commit }, data) => {
+  deleteDhcpv6Fingerprint: ({ commit }, id) => {
     commit('DHCPV6_FINGERPRINT_REQUEST', types.DELETING)
-    return api.delete(data).then(response => {
-      commit('DHCPV6_FINGERPRINT_DESTROYED', data)
+    return api.delete(id).then(response => {
+      commit('DHCPV6_FINGERPRINT_DESTROYED', id)
       return response
     }).catch(err => {
       commit('DHCPV6_FINGERPRINT_ERROR', err.response)

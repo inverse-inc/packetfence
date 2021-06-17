@@ -128,10 +128,10 @@ const actions = {
       throw err
     })
   },
-  deleteSyslogParser: ({ commit }, data) => {
+  deleteSyslogParser: ({ commit }, id) => {
     commit('ITEM_REQUEST', types.DELETING)
-    return api.delete(data).then(response => {
-      commit('ITEM_DESTROYED', data)
+    return api.delete(id).then(response => {
+      commit('ITEM_DESTROYED', id)
       return response
     }).catch(err => {
       commit('ITEM_ERROR', err.response)

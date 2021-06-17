@@ -79,10 +79,10 @@ export const actions = {
       throw err
     })
   },
-  deleteUserAgent: ({ commit }, data) => {
+  deleteUserAgent: ({ commit }, id) => {
     commit('USER_AGENT_REQUEST', types.DELETING)
-    return api.delete(data).then(response => {
-      commit('USER_AGENT_DESTROYED', data)
+    return api.delete(id).then(response => {
+      commit('USER_AGENT_DESTROYED', id)
       return response
     }).catch(err => {
       commit('USER_AGENT_ERROR', err.response)

@@ -123,7 +123,7 @@ import { ref, toRefs } from '@vue/composition-api'
 import { useBootstrapTableSelected } from '@/composables/useBootstrap'
 import { useTableColumnsItems } from '@/composables/useCsv'
 import { useDownload } from '@/composables/useDownload'
-import { useSearch, useRouter } from '../_composables/useCollection'
+import { useSearch, useStore, useRouter } from '../_composables/useCollection'
 import { typeOptions } from '../config'
 
 const setup = (props, context) => {
@@ -138,6 +138,11 @@ const setup = (props, context) => {
   } = toRefs(search)
 
   const { root: { $router, $store } = {} } = context
+
+  const {
+    deleteItem
+  } = useStore($store)
+
 
   const router = useRouter($router)
 
@@ -154,10 +159,8 @@ const setup = (props, context) => {
   }
 
   const onRemove = id => {
-    $store.dispatch('$_admin_roles/deleteAdminRole', id)
-      .then(() => {
-        reSearch()
-      })
+    deleteItem({ id })
+      .then(() => reSearch())
   }
 
   return {

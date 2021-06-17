@@ -79,10 +79,10 @@ export const actions = {
       throw err
     })
   },
-  deleteMacVendor: ({ commit }, data) => {
+  deleteMacVendor: ({ commit }, id) => {
     commit('MAC_VENDOR_REQUEST', types.DELETING)
-    return api.delete(data).then(response => {
-      commit('MAC_VENDOR_DESTROYED', data)
+    return api.delete(id).then(response => {
+      commit('MAC_VENDOR_DESTROYED', id)
       return response
     }).catch(err => {
       commit('MAC_VENDOR_ERROR', err.response)

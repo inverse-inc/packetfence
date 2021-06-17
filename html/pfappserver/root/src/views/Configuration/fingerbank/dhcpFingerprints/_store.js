@@ -79,10 +79,10 @@ export const actions = {
       throw err
     })
   },
-  deleteDhcpFingerprint: ({ commit }, data) => {
+  deleteDhcpFingerprint: ({ commit }, id) => {
     commit('DHCP_FINGERPRINT_REQUEST', types.DELETING)
-    return api.delete(data).then(response => {
-      commit('DHCP_FINGERPRINT_DESTROYED', data)
+    return api.delete(id).then(response => {
+      commit('DHCP_FINGERPRINT_DESTROYED', id)
       return response
     }).catch(err => {
       commit('DHCP_FINGERPRINT_ERROR', err.response)
