@@ -664,7 +664,7 @@ const getters = {
   switchGroupsList: state => {
     if (!state.switchGroups) return []
     return state.switchGroups.map((item) => {
-      return { value: item.id, text: item.description }
+      return { value: item.id, text: item.id + " - (" + item.description + ")" }
     })
   },
   switchesList: state => {
