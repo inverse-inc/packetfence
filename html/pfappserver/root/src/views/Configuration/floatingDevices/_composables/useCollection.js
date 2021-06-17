@@ -91,11 +91,5 @@ export const useSearch = makeSearch('floatingDevices', {
       types: [conditionType.SUBSTRING]
     }
   ],
-  sortBy: 'id',
-  defaultCondition: () => ({ op: 'and', values: [
-    { op: 'or', values: [
-      { field: 'id', op: 'contains', value: null },
-      { field: 'ip', op: 'contains', value: null }
-    ] }
-  ] })
+  sortBy: 'id'
 })

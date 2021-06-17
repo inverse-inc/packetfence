@@ -102,10 +102,5 @@ export const useSearch = makeSearch('fingerbankMacVendors', {
       types: [conditionType.SUBSTRING]
     }
   ],
-  sortBy: 'id',
-  defaultCondition: () => ({ op: 'and', values: [
-    { op: 'or', values: [
-      { field: 'id', op: 'equals', value: null }
-    ] }
-  ] })
+  sortBy: 'id'
 })

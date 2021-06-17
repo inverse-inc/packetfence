@@ -98,10 +98,5 @@ export const useSearch = makeSearch('fingerbankDhcpv6Enterprises', {
       types: [conditionType.SUBSTRING]
     }
   ],
-  sortBy: 'id',
-  defaultCondition: () => ({ op: 'and', values: [
-    { op: 'or', values: [
-      { field: 'id', op: 'contains', value: null }
-    ] }
-  ] })
+  sortBy: 'id'
 })

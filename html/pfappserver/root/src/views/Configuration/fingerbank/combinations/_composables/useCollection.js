@@ -96,11 +96,5 @@ export const useSearch = makeSearch('fingerbankCombinations', {
       types: [conditionType.INTEGER]
     }
   ],
-  sortBy: 'id',
-  defaultCondition: () => ({ op: 'and', values: [
-    { op: 'or', values: [
-      { field: 'id', op: 'contains', value: null },
-      { field: 'device_id', op: 'contains', value: null }
-    ] }
-  ] })
+  sortBy: 'id'
 })

@@ -115,12 +115,5 @@ export const useSearch = makeSearch('sources', {
       text: i18n.t('Type'),
       types: [conditionType.SUBSTRING]
     }
-  ],
-  defaultCondition: () => ({ op: 'and', values: [
-    { op: 'or', values: [
-      { field: 'id', op: 'contains', value: null },
-      { field: 'description', op: 'contains', value: null },
-      { field: 'type', op: 'contains', value: null }
-    ] }
-  ] })
+  ]
 })

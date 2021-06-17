@@ -76,11 +76,5 @@ export const useSearch = makeSearch('networkBehaviourPolicies', {
       types: [conditionType.SUBSTRING]
     },
   ],
-  sortBy: 'id',
-  defaultCondition: () => ({ op: 'and', values: [
-    { op: 'or', values: [
-      { field: 'id', op: 'contains', value: null },
-      { field: 'description', op: 'contains', value: null }
-    ] }
-  ] })
+  sortBy: 'id'
 })

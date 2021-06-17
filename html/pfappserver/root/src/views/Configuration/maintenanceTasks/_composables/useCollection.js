@@ -70,12 +70,5 @@ export const useSearch = makeSearch('maintenanceTasks', {
       text: i18n.t('Schedule'),
       types: [conditionType.SUBSTRING]
     }
-  ],
-  defaultCondition: () => ({ op: 'and', values: [
-    { op: 'or', values: [
-      { field: 'id', op: 'contains', value: null },
-      { field: 'description', op: 'contains', value: null },
-      { field: 'schedule', op: 'contains', value: null }
-    ] }
-  ] })
+  ]
 })

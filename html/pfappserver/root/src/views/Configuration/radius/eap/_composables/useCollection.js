@@ -95,10 +95,5 @@ export const useSearch = makeSearch('radiusEap', {
       types: [conditionType.SUBSTRING]
     }
   ],
-  sortBy: 'id',
-  defaultCondition: () => ({ op: 'and', values: [
-    { op: 'or', values: [
-      { field: 'id', op: 'contains', value: null }
-    ] }
-  ] })
+  sortBy: 'id'
 })

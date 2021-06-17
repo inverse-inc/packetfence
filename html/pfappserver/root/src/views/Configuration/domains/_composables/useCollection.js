@@ -78,11 +78,5 @@ export const useSearch = makeSearch('domains', {
       types: [conditionType.SUBSTRING]
     }
   ],
-  sortBy: 'id',
-  defaultCondition: () => ({ op: 'and', values: [
-    { op: 'or', values: [
-      { field: 'id', op: 'contains', value: null },
-      { field: 'workgroup', op: 'contains', value: null }
-    ] }
-  ] })
+  sortBy: 'id'
 })

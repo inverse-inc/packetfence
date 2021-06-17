@@ -110,11 +110,5 @@ export const useSearch = makeSearch('filterEngines', {
       text: i18n.t('Description'),
       types: [conditionType.SUBSTRING]
     }
-  ],
-  defaultCondition: () => ({ op: 'and', values: [
-    { op: 'or', values: [
-      { field: 'id', op: 'contains', value: null },
-      { field: 'description', op: 'contains', value: null }
-    ] }
-  ] })
+  ]
 })

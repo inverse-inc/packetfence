@@ -67,23 +67,5 @@ export const useSearch = makeSearch('adminRoles', {
       types: [conditionType.SUBSTRING]
     }
   ],
-  sortBy: 'id',
-  defaultCondition: () => ({ op: 'and', values: [
-    { op: 'or', values: [
-      { field: 'id', op: 'not_equals', value: null }
-    ] }
-  ]
-  }),
-/*
-  requestInterceptor: request => {
-    // append query in request to omit NONE, ALL, ALL_PF_ONLY from request
-    request.query.values = [
-      ...request.query.values,
-      { op: 'or', values: [ { field: 'id', op: 'not_equals', value: 'NONE' } ] },
-      { op: 'or', values: [ { field: 'id', op: 'not_equals', value: 'ALL' } ] },
-      { op: 'or', values: [ { field: 'id', op: 'not_equals', value: 'ALL_PF_ONLY' } ] }
-    ]
-    return request
-  }
-*/
+  sortBy: 'id'
 })

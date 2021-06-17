@@ -43,11 +43,15 @@ const factory = (uuid, options = {}) => {
         columns: [],
         fields: [],
         page: 1,
-        sortBy: 'id',
+        sortBy: null, // use natural order
         sortDesc: false,
         limit: 25,
         limits: [10, 25, 50, 100, 200, 500, 1000],
-        defaultCondition: () => ([{ values: [] }]),
+        defaultCondition: () => ({ op: 'and', values: [
+          { op: 'or', values: [
+            { field: 'id', op: 'not_equals', value: null }
+          ] }
+        ] }),
         requestInterceptor: (request) => request,
         responseInterceptor: (response) => response,
         errorInterceptor: (error) => { throw (error) },

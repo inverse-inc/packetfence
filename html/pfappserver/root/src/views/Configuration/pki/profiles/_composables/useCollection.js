@@ -104,9 +104,7 @@ export const useSearch = makeSearch('pkiProfiles', {
   sortBy: 'id',
   defaultCondition: () => ({ op: 'and', values: [
     { op: 'or', values: [
-      { field: 'ID', op: 'contains', value: null },
-      { field: 'ca_name', op: 'contains', value: null },
-      { field: 'name', op: 'contains', value: null }
+      { field: 'ID', op: 'not_equals', value: null }
     ] }
   ] })
 })

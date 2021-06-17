@@ -91,10 +91,5 @@ export const useSearch = makeSearch('wrixLocations', {
       types: [conditionType.SUBSTRING]
     }
   ],
-  sortBy: 'id',
-  defaultCondition: () => ({ op: 'and', values: [
-    { op: 'or', values: [
-      { field: 'id', op: 'not_equals', value: null }
-    ] }
-  ] })
+  sortBy: 'id'
 })

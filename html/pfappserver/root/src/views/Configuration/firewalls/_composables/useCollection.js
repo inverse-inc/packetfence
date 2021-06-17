@@ -103,12 +103,5 @@ export const useSearch = makeSearch('firewalls', {
       types: [conditionType.SUBSTRING]
     }
   ],
-  sortBy: 'id',
-  defaultCondition: () => ({ op: 'and', values: [
-    { op: 'or', values: [
-      { field: 'id', op: 'contains', value: null },
-      { field: 'port', op: 'contains', value: null },
-      { field: 'type', op: 'contains', value: null }
-    ] }
-  ] })
+  sortBy: 'id'
 })
