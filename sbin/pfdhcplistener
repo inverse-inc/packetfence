@@ -22,7 +22,7 @@ use Net::Pcap 0.16;
 use Pod::Usage;
 use POSIX qw(:signal_h pause :sys_wait_h SIG_BLOCK SIG_UNBLOCK);
 use Fcntl qw(:flock);
-use Systemd::Daemon qw{ -soft };
+use Linux::Systemd::Daemon 'sd_ready';
 
 BEGIN {
     # log4perl init
@@ -79,6 +79,8 @@ $SIG{CHLD} = \&child_sighandler;
 $SIG{ALRM} = \&alarm_sighandler;
 
 $SIG{PIPE} = 'IGNORE';
+
+sd_ready;
 
 my %args;
 getopts( 'dh', \%args );
@@ -137,7 +139,7 @@ my $net_addr;
 
 # start dhcp monitor
 if ( isenabled( $Config{'network'}{'dhcpdetector'} ) ) {
-    Systemd::Daemon::notify( READY => 1, STATUS => "Ready", unset => 1 );
+    Linux::Systemd::Daemon::sd_notify( READY => 1, STATUS => "Ready", unset => 1 );
     start();
     cleanup();
 }
@@ -145,7 +147,7 @@ if ( isenabled( $Config{'network'}{'dhcpdetector'} ) ) {
 END {
     if (!$args{h} && $HAS_LOCK) {
         unless ($IS_CHILD) {
-            Systemd::Daemon::notify( STOPPING => 1 );
+            Linux::Systemd::Daemon::sd_notify( STOPPING => 1 );
             deletepid();
             $logger->info("stopping pfdhcplistener");
         }

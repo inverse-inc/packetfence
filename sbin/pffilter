@@ -23,7 +23,7 @@ use File::Basename qw(basename);
 use POSIX qw(:signal_h pause :sys_wait_h SIG_BLOCK SIG_UNBLOCK);
 use Pod::Usage;
 use Fcntl qw(:flock);
-use Systemd::Daemon qw{ -soft };
+use Linux::Systemd::Daemon 'sd_ready';
 
 #pf::log must always be initilized first
 BEGIN {
@@ -87,6 +87,8 @@ my %args = (
     'n' => "pffilter",
 );
 
+sd_ready;
+
 getopts('dhvs:n:', \%args);
 
 pod2usage(-verbose => 1) if ($args{h});
@@ -128,7 +130,7 @@ cleanup();
 END {
     if (!$args{h} && $HAS_LOCK) {
         unless ($IS_CHILD) {
-            Systemd::Daemon::notify( STOPPING => 1 );
+            Linux::Systemd::Daemon::sd_notify( STOPPING => 1 );
             deletepid();
             $logger->info("stopping pffilter");
         }
@@ -147,7 +149,7 @@ start
 
 sub start {
     registertasks();
-    Systemd::Daemon::notify( READY => 1, STATUS => "Ready", unset => 1 );
+    Linux::Systemd::Daemon::sd_notify( READY => 1, STATUS => "Ready", unset => 1 );
     runtasks();
     waitforit();
 }

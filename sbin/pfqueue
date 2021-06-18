@@ -24,7 +24,7 @@ use Pod::Usage;
 use Fcntl qw(:flock);
 use Scalar::Util qw(blessed);
 use Time::HiRes qw(usleep);
-use Systemd::Daemon qw{ -soft };
+use Linux::Systemd::Daemon 'sd_ready';
 
 #pf::log must always be initilized first
 BEGIN {
@@ -76,6 +76,8 @@ $SIG{CHLD} = \&child_sighandler;
 
 $SIG{PIPE} = 'IGNORE';
 
+sd_ready;
+
 my %args;
 getopts('dhvr', \%args);
 
@@ -105,13 +107,13 @@ Log::Log4perl::MDC->put( 'tid', $$ );
 pf::SwitchFactory->preloadConfiguredModules();
 
 register_tasks();
-Systemd::Daemon::notify( READY => 1, STATUS => "Ready", unset => 1 );
+Linux::Systemd::Daemon::sd_notify( READY => 1, STATUS => "Ready", unset => 1 );
 wait_for_it();
 cleanup();
 
 END {
     if (!$args{h} && $HAS_LOCK && !$IS_CHILD) {
-        Systemd::Daemon::notify( STOPPING => 1 );
+        Linux::Systemd::Daemon::sd_notify( STOPPING => 1 );
         deletepid();
         $logger->info("stopping pfqueue");
     }
