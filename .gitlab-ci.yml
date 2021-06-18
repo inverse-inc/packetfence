@@ -144,18 +144,6 @@ variables:
   tags:
     - docker-inverse
 
-.maintenance_sign_job:
-  stage: sign
-  artifacts:
-    expire_in: 1 day
-    paths:
-      - result/*
-  dependencies:
-    - build_maintenance_centos_7
-    - build_maintenance_debian_stretch
-  tags:
-    - shell
-
 .test_job:
   stage: test
   dependencies:
@@ -247,10 +235,6 @@ variables:
 .deb_script:
   script:
     - make -e build_deb
-
-.maintenance_sign_script:
-  script:
-    - ./${MAINTDIR}/build_and_sign_maintenance_artifacts.sh sign
 
 .test_centos_7_vars:
   variables:
@@ -411,9 +395,21 @@ sign_dev_and_release:
 
 sign_maintenance:
   # GPG_USER_ID see GitLab variable
+  # only use when executor is docker
+  image: buildpkg/debian:buster
+  stage: sign
+  script:
+    - ci-sign-pkg
+  dependencies:
+    - build_pkg_maintenance_centos_7
+    - build_pkg_maintenance_debian_stretch
+  artifacts:
+    expire_in: 1 day
+    paths:
+      - result/*
+  tags:
+    - shell
   extends:
-    - .maintenance_sign_job
-    - .maintenance_sign_script
     - .job_maintenance_triggers
 
 ########################################
