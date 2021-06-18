@@ -12,7 +12,6 @@ before_script:
 stages:
   - build_img
   - build_pkg
-  - build_maintenance
   - sign
   - publish
   - test
@@ -146,15 +145,6 @@ variables:
   tags:
     - docker-inverse
 
-.maintenance_build_job:
-  stage: build_maintenance
-  artifacts:
-    expire_in: 1 day
-    paths:
-      - result/*
-  tags:
-    - docker
-
 .maintenance_sign_job:
   stage: sign
   artifacts:
@@ -258,10 +248,6 @@ variables:
 .deb_script:
   script:
     - make -e build_deb
-
-.maintenance_build_script:
-  script:
-    - ./${MAINTDIR}/build_and_sign_maintenance_artifacts.sh build
 
 .maintenance_sign_script:
   script:
@@ -385,23 +371,20 @@ build_pkg_release_debian_stretch:
     - .job_release_triggers
     - .deb_script
 
-########################################
-# BUILD_MAINTENANCE JOBS
-########################################
 # CI_COMMIT_REF_SLUG contains maintenance-X-Y
-build_maintenance_centos_7:
+build_pkg_maintenance_centos_7:
   image: ${PFBUILD_CENTOS_7_IMG}:${CI_COMMIT_REF_SLUG}
   extends:
-    - .maintenance_build_job
-    - .maintenance_build_script
+    - .build_job
     - .job_maintenance_triggers
+    - .rpm_script
 
-build_maintenance_debian_stretch:
+build_pkg_maintenance_debian_stretch:
   image: ${PFBUILD_DEB_STRETCH_IMG}:${CI_COMMIT_REF_SLUG}
   extends:
-    - .maintenance_build_job
-    - .maintenance_build_script
+    - .build_job
     - .job_maintenance_triggers
+    - .deb_script
 
 ########################################
 # SIGN JOBS
