@@ -82,19 +82,10 @@ variables:
   except:
     - /^maintenance/[[:digit:]]+\.[[:digit:]]+$/
 
-# triggers for maintenance jobs
-.job_maintenance_triggers:
-  # run jobs on maintenance branches (push, schedules and web)
-  # allow on all maintenance branches with a .gitlab-ci.yml (starting from 8.0)
-  only:
-    - /^maintenance/[[:digit:]]+\.[[:digit:]]+$/
-
-
-# triggers for nightly jobs (using schedule feature)
 .job_nightly_triggers:
-  # run only jobs scheduled in GitLab UI
-  only:
-    - schedules
+  # run only **scheduled** jobs on devel branch
+  rules:
+    - if: '$CI_PIPELINE_SOURCE == "schedule" && $CI_COMMIT_REF_NAME == "devel"'
 
 .job_devel_only_triggers:
   # run only jobs on "devel" branch (push, schedules and web)
@@ -152,17 +143,12 @@ variables:
     - inverse.ca
     - shell
 
-.maintenance_deploy_job:
-  stage: upload
+.test_maintenance_job:
+  stage: test
   dependencies:
-    - sign_maintenance
-  variables:
-    DEPLOY_USER: reposync
-    DEPLOY_HOST: web.inverse.ca
-    MAINT_DEPLOY_DIR: ${CI_ENVIRONMENT_NAME}
-  script:
-    - ./${UPLOAD_DIR}/deploy-artifacts.sh maintenance
+    - pages_maintenance
   tags:
+    - inverse.ca
     - shell
     
 .deploy_deb_job:
@@ -177,10 +163,35 @@ variables:
   tags:
     - shell
 
+.deploy_deb_maintenance_job:
+  stage: upload
+  dependencies:
+    - sign_maintenance
+  variables:
+    DEPLOY_USER: reposync
+    DEPLOY_HOST: web.inverse.ca
+  script:
+    - ./${UPLOAD_DIR}/deploy-artifacts.sh deb
+  tags:
+    - shell
+
 .deploy_rpm_job:
   stage: upload
   dependencies:
     - sign_dev_and_release
+  variables:
+    DEPLOY_USER: reposync
+    DEPLOY_HOST: web.inverse.ca
+    DEPLOY_SRPMS: "no"
+  script:
+    - ./${UPLOAD_DIR}/deploy-artifacts.sh rpm
+  tags:
+    - shell
+
+.deploy_rpm_maintenance_job:
+  stage: upload
+  dependencies:
+    - sign_maintenance
   variables:
     DEPLOY_USER: reposync
     DEPLOY_HOST: web.inverse.ca
@@ -283,13 +294,20 @@ build_docker_img_branches:
 build_docker_img_maintenance:
   extends:
     - .build_docker_img_job
-    - .job_maintenance_triggers
   variables:
     DOCKER_TAGS: ${CI_COMMIT_REF_SLUG}
-  when: manual
+  rules:
+    # run only on maintenance jobs (schedules and web)
+    # workaround, see https://forum.gitlab.com/t/specify-when-at-job-level-with-a-job-that-has-rules/47698
+    - if: '$CI_PIPELINE_SOURCE == "web" && $CI_COMMIT_REF_NAME =~ /^maintenance/'
+      when: manual
+      allow_failure: true
+    - if: '$CI_PIPELINE_SOURCE == "schedule" && $CI_COMMIT_REF_NAME =~ /^maintenance/'
+      when: manual
+      allow_failure: true
 
 # build a docker image at release
-# used to build release packages and maintenance artifacts for maintenance
+# used to build release and maintenance packages
 build_docker_img_release:
   extends:
     - .build_docker_img_job
@@ -359,15 +377,21 @@ build_pkg_maintenance_centos_7:
   image: ${PFBUILD_CENTOS_7_IMG}:${CI_COMMIT_REF_SLUG}
   extends:
     - .build_job
-    - .job_maintenance_triggers
     - .rpm_script
+  rules:
+    # run only on maintenance jobs (schedules and web)
+    - if: '$CI_PIPELINE_SOURCE == "web" && $CI_COMMIT_REF_NAME =~ /^maintenance/'
+    - if: '$CI_PIPELINE_SOURCE == "schedule" && $CI_COMMIT_REF_NAME =~ /^maintenance/'
 
 build_pkg_maintenance_debian_stretch:
   image: ${PFBUILD_DEB_STRETCH_IMG}:${CI_COMMIT_REF_SLUG}
   extends:
     - .build_job
-    - .job_maintenance_triggers
     - .deb_script
+  rules:
+    # run only on maintenance jobs (schedules and web)
+    - if: '$CI_PIPELINE_SOURCE == "web" && $CI_COMMIT_REF_NAME =~ /^maintenance/'
+    - if: '$CI_PIPELINE_SOURCE == "schedule" && $CI_COMMIT_REF_NAME =~ /^maintenance/'
 
 ########################################
 # SIGN JOBS
@@ -409,8 +433,10 @@ sign_maintenance:
       - result/*
   tags:
     - shell
-  extends:
-    - .job_maintenance_triggers
+  rules:
+    # run only on maintenance jobs (schedules and web)
+    - if: '$CI_PIPELINE_SOURCE == "web" && $CI_COMMIT_REF_NAME =~ /^maintenance/'
+    - if: '$CI_PIPELINE_SOURCE == "schedule" && $CI_COMMIT_REF_NAME =~ /^maintenance/'
 
 ########################################
 # PUBLISH JOBS
@@ -439,6 +465,33 @@ pages:
     - shell
   extends:
     - .job_dev_and_release_triggers
+
+pages_maintenance:
+  # only use when executor is docker
+  image: buildpkg/debian:buster
+  stage: publish
+  variables:
+    PAGES_DIR: public
+    PAGES_HOST: gitlab.io
+  environment:
+    name: PPA
+    url: http://${CI_PROJECT_NAMESPACE}.${PAGES_HOST}/${CI_PROJECT_NAME}
+  script:
+    - ci-pages-ppa
+    - ci-pages-home
+    - ci-pages-tree
+  dependencies:
+    - sign_maintenance
+  artifacts:
+    expire_in: 1 day
+    paths:
+      - public
+  tags:
+    - shell
+  rules:
+    # run only on maintenance jobs (schedules and web)
+    - if: '$CI_PIPELINE_SOURCE == "web" && $CI_COMMIT_REF_NAME =~ /^maintenance/'
+    - if: '$CI_PIPELINE_SOURCE == "schedule" && $CI_COMMIT_REF_NAME =~ /^maintenance/'
 
 ########################################
 # TEST JOBS
@@ -482,6 +535,21 @@ test_pkg_nightly_centos_7:
     - .test_script
     - .job_nightly_triggers
 
+test_pkg_maintenance_centos_7:
+  variables:
+    PERL_UNIT_TESTS: 'yes'
+    GOLANG_UNIT_TESTS: 'yes'
+    INTEGRATION_TESTS: 'yes'
+    VAGRANT_DOTFILE_PATH: /var/local/gitlab-runner/vagrant/vagrant-centos-7-${CI_COMMIT_REF_SLUG}
+  extends:
+    - .test_maintenance_job
+    - .test_centos_7_vars
+    - .test_script
+  rules:
+    # run only on maintenance jobs (schedules and web)
+    - if: '$CI_PIPELINE_SOURCE == "web" && $CI_COMMIT_REF_NAME =~ /^maintenance/'
+    - if: '$CI_PIPELINE_SOURCE == "schedule" && $CI_COMMIT_REF_NAME =~ /^maintenance/'
+
 test_pkg_devel_debian_stretch:
   variables:
     PERL_UNIT_TESTS: 'no'
@@ -520,7 +588,22 @@ test_pkg_nightly_debian_stretch:
     - .test_debian_9_vars
     - .test_script
     - .job_nightly_triggers
-    
+
+test_pkg_maintenance_debian_stretch:
+  variables:
+    PERL_UNIT_TESTS: 'no'
+    GOLANG_UNIT_TESTS: 'yes'
+    INTEGRATION_TESTS: 'yes'
+    VAGRANT_DOTFILE_PATH: /var/local/gitlab-runner/vagrant/vagrant-debian-stretch-${CI_COMMIT_REF_SLUG}
+  extends:
+    - .test_maintenance_job
+    - .test_debian_9_vars
+    - .test_script
+  rules:
+    # run only on maintenance jobs (schedules and web)
+    - if: '$CI_PIPELINE_SOURCE == "web" && $CI_COMMIT_REF_NAME =~ /^maintenance/'
+    - if: '$CI_PIPELINE_SOURCE == "schedule" && $CI_COMMIT_REF_NAME =~ /^maintenance/'
+
 ########################################
 # UPLOAD JOBS
 ########################################
@@ -578,6 +661,16 @@ deploy_rpm_packetfence-release_release:
   environment:
     name: stable
 
+deploy_rpm_maintenance:
+  extends:
+    - .deploy_rpm_maintenance_job
+  rules:
+    # run only on maintenance jobs (schedules and web)
+    - if: '$CI_PIPELINE_SOURCE == "web" && $CI_COMMIT_REF_NAME =~ /^maintenance/'
+    - if: '$CI_PIPELINE_SOURCE == "schedule" && $CI_COMMIT_REF_NAME =~ /^maintenance/'
+  environment:
+    name: maintenance
+
 deploy_deb_devel:
   extends:
     - .deploy_deb_job
@@ -605,14 +698,15 @@ deploy_deb_release:
   variables:
     DEB_DEPLOY_DIR: debian
 
-# we deploy artifacts for all distributions in one shot
-deploy_maintenance:
+deploy_deb_maintenance:
   extends:
-    - .maintenance_deploy_job
-    - .job_maintenance_triggers
+    - .deploy_deb_maintenance_job
+  rules:
+    # run only on maintenance jobs (schedules and web)
+    - if: '$CI_PIPELINE_SOURCE == "web" && $CI_COMMIT_REF_NAME =~ /^maintenance/'
+    - if: '$CI_PIPELINE_SOURCE == "schedule" && $CI_COMMIT_REF_NAME =~ /^maintenance/'
   environment:
     name: maintenance
-    url: ${PUBLIC_REPO_URL}/${CI_ENVIRONMENT_NAME}
 
 ########################################
 # BUILD_PF_IMG JOBS
