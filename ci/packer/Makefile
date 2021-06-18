@@ -9,4 +9,4 @@ all: build_docker_img
 
 .PHONY: build_docker_img
 build_docker_img:
-	GOVERSION=$(GOVERSION) ./packer-wrapper.sh
+	GOVERSION=$(GOVERSION) PF_MINOR_RELEASE=$(PF_MINOR_RELEASE) ./packer-wrapper.sh

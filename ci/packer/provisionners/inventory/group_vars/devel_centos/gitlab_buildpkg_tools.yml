@@ -4,8 +4,8 @@ gitlab_buildpkg_tools__rpm_keys:
   - 'https://rpm.nodesource.com/pub/el/NODESOURCE-GPG-SIGNING-KEY-EL'
 
 gitlab_buildpkg_tools__rpm_deps_repos:
-  - name: packetfence-devel
-    baseurl: 'http://inverse.ca/downloads/PacketFence/centos/$releasever/devel/$basearch'
+  - name: packetfence
+    baseurl: 'http://inverse.ca/downloads/PacketFence/RHEL$releasever/{{ pf_minor_release }}/$basearch'
   - name: nodejs
     baseurl: 'https://rpm.nodesource.com/pub_12.x/el/$releasever/$basearch'
 

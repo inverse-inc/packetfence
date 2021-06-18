@@ -19,6 +19,7 @@
         "ansible_debian_group": "{{env `ANSIBLE_DEBIAN_GROUP`}}",
         "ansible_rubygems_group": "{{env `ANSIBLE_RUBYGEMS_GROUP`}}",
         "go_version": "{{env `GOVERSION`}}",
+        "pf_minor_release": "{{ env `PF_MINOR_RELEASE` }}",
         "docker_tags": "{{env `DOCKER_TAGS`}}",
         "docker_user": "{{env `REGISTRY_USER`}}",
         "docker_password": "{{env `REGISTRY_PASSWORD`}}",
@@ -76,6 +77,7 @@
             "galaxy_force_install": true,
             "inventory_directory": "{{user `prov_dir`}}/inventory",
             "extra_arguments": ["--extra-vars", "{{user `ansible_extra_vars`}}"],
+            "ansible_env_vars": ["PF_MINOR_RELEASE={{ user `pf_minor_release`}}"],
             "groups": ["{{user `ansible_centos_group`}}","{{user `ansible_centos7_group`}}"],
             "only": ["{{user `builder_prefix`}}-centos-7"]
         },
@@ -88,6 +90,7 @@
             "collections_path": "{{user `ansible_collections_path`}}",
             "inventory_directory": "{{user `prov_dir`}}/inventory",
             "extra_arguments": ["--extra-vars", "{{user `ansible_extra_vars`}}"],
+            "ansible_env_vars": ["PF_MINOR_RELEASE={{ user `pf_minor_release`}}"],
             "groups": ["{{user `ansible_centos_group`}}","{{user `ansible_centos8_group`}}"],
             "only": ["{{user `builder_prefix`}}-centos-8"]
         },
@@ -100,6 +103,7 @@
             "collections_path": "{{user `ansible_collections_path`}}",
             "inventory_directory": "{{user `prov_dir`}}/inventory",
             "extra_arguments": ["--extra-vars", "{{user `ansible_extra_vars`}}"],
+            "ansible_env_vars": ["PF_MINOR_RELEASE={{ user `pf_minor_release`}}"],
             "groups": ["{{user `ansible_debian_group`}}"],
             "only": ["{{user `builder_prefix`}}-stretch",
                      "{{user `builder_prefix`}}-buster"
