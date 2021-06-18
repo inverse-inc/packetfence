@@ -49,13 +49,10 @@ update_changelog() {
 
 update_deb_changelog() {
     log_subsection "Debian Changelog"
-    (
-        cd $DEB_DIR
-        dch --controlmaint \
-            --newversion "${PF_NEW_PATCH_RELEASE}" \
-            --distribution "unstable" \
-            -t "Version ${PF_NEW_PATCH_RELEASE}"
-    ) || die "dch failed"
+    dch --controlmaint \
+        --newversion "${PF_NEW_PATCH_RELEASE}" \
+        --distribution "unstable" \
+        -t "Version ${PF_NEW_PATCH_RELEASE}" || die "dch failed"
     head -n3 $DEB_CHLOG
 }
 
