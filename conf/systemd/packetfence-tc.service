@@ -9,8 +9,8 @@ StartLimitBurst=3
 StartLimitInterval=10
 Type=oneshot
 RemainAfterExit=yes
-ExecStart=/bin/perl -I/usr/local/pf/lib -Mpf::db -Mpf::services::manager::tc -e 'my $db ; while(!$db) { eval { $db = db_connect() } ; sleep 1 } ; pf::services::manager::tc->new()->_start()'
-ExecStop=/bin/perl -I/usr/local/pf/lib '-Mpf::services::manager::tc' -e 'pf::services::manager::tc->new()->_stop()'
+ExecStart=/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5 -Mpf::db -Mpf::services::manager::tc -e 'my $db ; while(!$db) { eval { $db = db_connect() } ; sleep 1 } ; pf::services::manager::tc->new()->_start()'
+ExecStop=/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5 '-Mpf::services::manager::tc' -e 'pf::services::manager::tc->new()->_stop()'
 Slice=packetfence.slice
 
 [Install]

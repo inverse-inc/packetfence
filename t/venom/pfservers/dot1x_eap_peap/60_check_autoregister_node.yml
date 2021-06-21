@@ -28,7 +28,7 @@ testcases:
   steps:
   - type: exec
     script: |
-      perl -I/usr/local/pf/lib -Mpf::config::util \
+      perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5 -Mpf::config::util \
       -e 'my @times = get_translatable_time("{{.dot1x_eap_peap.sources.ad_user.access_duration}}"); print("$times[2]$times[1]");'
     vars:
       translatable_time:
