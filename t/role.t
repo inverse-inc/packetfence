@@ -13,7 +13,7 @@ use strict;
 use warnings;
 use diagnostics;
 
-use lib '/usr/local/pf/lib';
+use lib qw(/usr/local/pf/lib /usr/local/pf/lib_perl/lib/perl5);
 
 use Test::More tests => 18;
 use Test::MockModule;

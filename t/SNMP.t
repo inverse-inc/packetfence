@@ -7,7 +7,7 @@ use diagnostics;
 use Test::More tests => 34;
 use Test::NoWarnings;
 
-use lib '/usr/local/pf/lib';
+use lib qw(/usr/local/pf/lib /usr/local/pf/lib_perl/lib/perl5);
 
 use File::Basename qw(basename);
 Log::Log4perl->init("./log.conf");

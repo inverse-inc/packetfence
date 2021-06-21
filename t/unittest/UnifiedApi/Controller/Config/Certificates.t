@@ -15,7 +15,7 @@ unit test for Certificates
 use strict;
 use warnings;
 #
-use lib '/usr/local/pf/lib';
+use lib qw(/usr/local/pf/lib /usr/local/pf/lib_perl/lib/perl5);
 use File::Slurp qw(read_file);
 use File::Copy;
 use File::Temp;

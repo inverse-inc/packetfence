@@ -15,7 +15,7 @@ unit test for SecurityEvents
 use strict;
 use warnings;
 use DateTime;
-use lib '/usr/local/pf/lib';
+use lib qw(/usr/local/pf/lib /usr/local/pf/lib_perl/lib/perl5);
 use pf::dal::security_event;
 use pf::security_event;
 

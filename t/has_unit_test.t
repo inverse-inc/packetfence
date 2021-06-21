@@ -27,7 +27,7 @@ use warnings;
 use diagnostics;
 use File::Spec::Functions;
 # pf core libs
-use lib '/usr/local/pf/lib';
+use lib qw(/usr/local/pf/lib /usr/local/pf/lib_perl/lib/perl5);
 use Test::More;
 
 for my $module ( pf->modules ) {

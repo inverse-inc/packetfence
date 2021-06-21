@@ -14,7 +14,7 @@ use Test::More tests => 13;
 use Test::MockModule;
 use Test::MockObject::Extends;
 
-use lib '/usr/local/pf/lib';
+use lib qw(/usr/local/pf/lib /usr/local/pf/lib_perl/lib/perl5);
 BEGIN {
     use lib qw(/usr/local/pf/t);
     use setup_test_config;

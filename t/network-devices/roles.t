@@ -15,7 +15,7 @@ use warnings;
 
 use UNIVERSAL::require;
 
-use lib '/usr/local/pf/lib';
+use lib qw(/usr/local/pf/lib /usr/local/pf/lib_perl/lib/perl5);
 use Test::More;
 use Test::NoWarnings;
 

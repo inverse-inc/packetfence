@@ -13,7 +13,7 @@ unit test for access_filter
 use strict;
 use warnings;
 #
-use lib '/usr/local/pf/lib';
+use lib qw(/usr/local/pf/lib /usr/local/pf/lib_perl/lib/perl5);
 use pf::constants::eap_type qw(%RADIUS_EAP_TYPE_2_VALUES %RADIUS_EAP_VALUES_2_TYPE);
 BEGIN {
     #include test libs

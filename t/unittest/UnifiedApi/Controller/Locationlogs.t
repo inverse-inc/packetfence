@@ -15,7 +15,7 @@ unit test for Locationlog
 use strict;
 use warnings;
 #
-use lib '/usr/local/pf/lib';
+use lib qw(/usr/local/pf/lib /usr/local/pf/lib_perl/lib/perl5);
 use pf::dal::locationlog;
 use pf::dal::locationlog_history;
 

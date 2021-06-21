@@ -15,7 +15,7 @@ test script for parsing dhcpv6 packets
 
 use strict;
 use warnings;
-use lib qw(/usr/local/pf/lib);
+use lib qw(/usr/local/pf/lib /usr/local/pf/lib_perl/lib/perl5);
 use pf::util::dhcpv6;
 use Net::Pcap qw(pcap_open_offline pcap_loop);
 use Data::Dumper;

@@ -15,7 +15,7 @@ unit test for RadiusAuditLogs
 use strict;
 use warnings;
 #
-use lib '/usr/local/pf/lib';
+use lib qw(/usr/local/pf/lib /usr/local/pf/lib_perl/lib/perl5);
 use pf::dal::radius_audit_log;
 
 BEGIN {

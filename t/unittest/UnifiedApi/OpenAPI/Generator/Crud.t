@@ -15,7 +15,7 @@ unit test for PathGenerator
 use strict;
 use warnings;
 #
-use lib '/usr/local/pf/lib';
+use lib qw(/usr/local/pf/lib /usr/local/pf/lib_perl/lib/perl5);
 use pf::UnifiedApi::OpenAPI::Generator::Crud;
 use pf::UnifiedApi::Controller::DhcpOption82s;
 use pf::UnifiedApi;

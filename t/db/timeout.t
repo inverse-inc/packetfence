@@ -19,7 +19,7 @@ Example:
 
 use strict;
 use warnings;
-use lib '/usr/local/pf/lib';
+use lib qw(/usr/local/pf/lib /usr/local/pf/lib_perl/lib/perl5);
 
 BEGIN {
     #include test libs

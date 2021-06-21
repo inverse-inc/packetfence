@@ -13,7 +13,7 @@ unit test for Template
 use strict;
 use warnings;
 #
-use lib '/usr/local/pf/lib';
+use lib qw(/usr/local/pf/lib /usr/local/pf/lib_perl/lib/perl5);
 use pf::util::template_switch;
 use pf::config::builder::template_switches;
 use pf::Switch::Template;

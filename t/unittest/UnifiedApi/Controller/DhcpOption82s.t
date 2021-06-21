@@ -15,7 +15,7 @@ unit test for Dhcpoption82s
 use strict;
 use warnings;
 use DateTime::Format::Strptime;
-use lib '/usr/local/pf/lib';
+use lib qw(/usr/local/pf/lib /usr/local/pf/lib_perl/lib/perl5);
 use pf::dal::dhcp_option82;
 
 BEGIN {

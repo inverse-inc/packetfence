@@ -13,7 +13,7 @@ unit test for BulkImport
 use strict;
 use warnings;
 #
-use lib '/usr/local/pf/lib';
+use lib qw(/usr/local/pf/lib /usr/local/pf/lib_perl/lib/perl5);
 
 use File::Temp;
 my ($fh, $filename) = File::Temp::tempfile( UNLINK => 1 );

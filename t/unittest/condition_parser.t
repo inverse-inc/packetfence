@@ -15,7 +15,7 @@ unit test for condition_parser
 use strict;
 use warnings;
 #
-use lib '/usr/local/pf/lib';
+use lib qw(/usr/local/pf/lib /usr/local/pf/lib_perl/lib/perl5);
 our (@VALID_STRING_TESTS, @INVALID_STRINGS, @VALID_IDS, $TEST_COUNT, @OBJECT_TO_STR_TESTS);
 
 BEGIN {

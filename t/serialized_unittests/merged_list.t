@@ -15,7 +15,7 @@ merged_list
 use strict;
 use warnings;
 # pf core libs
-use lib '/usr/local/pf/lib';
+use lib qw(/usr/local/pf/lib /usr/local/pf/lib_perl/lib/perl5);
 
 my ($fh, $filename);
 
