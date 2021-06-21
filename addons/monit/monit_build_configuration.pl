@@ -9,7 +9,7 @@ use Template;
 use List::MoreUtils qw(any);
 
 BEGIN {
-    use lib "/usr/local/pf/lib";
+    use lib qw(/usr/local/pf/lib /usr/local/pf/lib_perl/lib/perl5);
 }
 
 
