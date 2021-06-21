@@ -14,7 +14,7 @@ pfsnmptrapd
 
 use strict;
 use warnings;
-use lib qw(/usr/local/pf/lib);
+use lib qw(/usr/local/pf/lib /usr/local/pf/lib_perl/lib/perl5);
 use NetSNMP::TrapReceiver;
 use pf::pfqueue::producer::redis;
 #      "receivedfrom" : "UDP: [192.168.57.101]:36745->[192.168.57.101]",
