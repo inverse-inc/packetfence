@@ -34,7 +34,7 @@ use Try::Tiny;
 
 BEGIN {
     use constant INSTALL_DIR => '/usr/local/pf';
-    use lib INSTALL_DIR . "/lib";
+    use lib (INSTALL_DIR . "/lib", INSTALL_DIR . "/lib/lib_perl/lib/perl5");
     use pf::log service => 'httpd.portal', reinit => 1;
 }
 
