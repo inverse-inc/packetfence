@@ -52,7 +52,7 @@ Requires: httpd, mod_ssl
 Requires: mod_perl, mod_proxy_html
 requires: libapreq2
 Requires: redis
-Requires: freeradius >= 3.0.23, freeradius-mysql, freeradius-perl, freeradius-ldap, freeradius-utils, freeradius-redis, freeradius-rest
+Requires: freeradius >= 3.0.23, freeradius-mysql >= 3.0.23, freeradius-perl >= 3.0.23, freeradius-ldap >= 3.0.23, freeradius-utils >= 3.0.23, freeradius-redis >= 3.0.23, freeradius-rest >= 3.0.23
 #Requires: freeradius-radsniff
 Requires: fuse
 Requires: make
