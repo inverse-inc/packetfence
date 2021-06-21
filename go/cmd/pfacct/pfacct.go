@@ -22,8 +22,6 @@ import (
 
 const DefaultTimeDuration = 5 * time.Minute
 
-var successDBConnect = false
-
 type radiusRequest struct {
 	w          radius.ResponseWriter
 	r          *radius.Request
@@ -62,20 +60,14 @@ func NewPfAcct() *PfAcct {
 
 	Database, err := db.DbFromConfig(ctx)
 	for err != nil {
-		if err != nil {
-			time.Sleep(time.Duration(5) * time.Second)
-		}
-
+		time.Sleep(time.Duration(5) * time.Second)
 		Database, err = db.DbFromConfig(ctx)
 	}
 
-	for !successDBConnect {
+	err = Database.Ping()
+	for err != nil {
+		time.Sleep(time.Duration(5) * time.Second)
 		err = Database.Ping()
-		if err != nil {
-			time.Sleep(time.Duration(5) * time.Second)
-		} else {
-			successDBConnect = true
-		}
 	}
 
 	pfAcct := &PfAcct{Db: Database, TimeDuration: DefaultTimeDuration}
@@ -87,6 +79,7 @@ func NewPfAcct() *PfAcct {
 	pfAcct.radiusRequests = makeRadiusRequests(pfAcct, 5, 10)
 	pfAcct.AAAClient = jsonrpc2.NewAAAClientFromConfig(ctx)
 	//pfAcct.Dispatcher = NewDispatcher(16, 128)
+	pfAcct.runPing()
 	return pfAcct
 }
 
@@ -179,6 +172,27 @@ func (pfAcct *PfAcct) NewTiming() *Timing {
 	}
 
 	return &Timing{timing: pfAcct.StatsdClient.NewTiming()}
+}
+
+func (pfAcct *PfAcct) DbPing() error {
+	if pfAcct.Db == nil {
+		return nil
+	}
+
+	return pfAcct.Db.Ping()
+}
+
+func (pfAcct *PfAcct) runPing() {
+	go func(pfAcct *PfAcct) {
+		for {
+			time.Sleep(60 * time.Second)
+			if err := pfAcct.DbPing(); err != nil {
+				logError(pfAcct.LoggerCtx, "Unable to ping DB: "+err.Error())
+			} else {
+				logDebug(pfAcct.LoggerCtx, "Pinged DB")
+			}
+		}
+	}(pfAcct)
 }
 
 func isProxied(pfAcct *PfAcct) bool {
