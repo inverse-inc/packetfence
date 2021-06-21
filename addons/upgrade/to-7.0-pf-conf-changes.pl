@@ -16,7 +16,7 @@ Rename the appropriate sections/parameters and warn on the deprecated ones
 use strict;
 use warnings;
 
-use lib '/usr/local/pf/lib';
+use lib qw(/usr/local/pf/lib /usr/local/pf/lib_perl/lib/perl5);
 
 use pf::file_paths qw($pf_config_file);
 use pf::IniFiles;

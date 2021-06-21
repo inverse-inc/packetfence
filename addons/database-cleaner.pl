@@ -33,7 +33,7 @@ This module allows to perform a database cleanup that aims to not lock the table
 use strict;
 use warnings;
 
-use lib '/usr/local/pf/lib';
+use lib qw(/usr/local/pf/lib /usr/local/pf/lib_perl/lib/perl5);
 BEGIN {
   use Log::Log4perl qw(get_logger);
   my $log_conf = q(

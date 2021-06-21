@@ -14,7 +14,7 @@ Add default required fields for SQL Twilio and SMS sources
 
 use strict;
 use warnings;
-use lib qw(/usr/local/pf/lib);
+use lib qw(/usr/local/pf/lib /usr/local/pf/lib_perl/lib/perl5);
 use pf::IniFiles;
 use Module::Load;
 use pf::util;

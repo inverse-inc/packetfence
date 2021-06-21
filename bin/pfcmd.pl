@@ -13,7 +13,7 @@ driver script for pfcmd
 
 use strict;
 use warnings;
-use lib qw(/usr/local/pf/lib);
+use lib qw(/usr/local/pf/lib /usr/local/pf/lib_perl/lib/perl5);
 
 # force UID/EUID to root to allow socket binds, etc
 # required for non-root (and GUI) service restarts to work

@@ -16,7 +16,7 @@ files.
 
 use Config::IniFiles;
 use File::Find;
-use lib qw(/usr/local/pf/lib);
+use lib qw(/usr/local/pf/lib /usr/local/pf/lib_perl/lib/perl5);
 
 use constant {
     APP => 'html/pfappserver',

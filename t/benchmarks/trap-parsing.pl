@@ -15,7 +15,7 @@ use diagnostics;
 
 use Benchmark qw(cmpthese timethese);
 
-use lib '/usr/local/pf/lib';
+use lib qw(/usr/local/pf/lib /usr/local/pf/lib_perl/lib/perl5);
 
 use pf::util;
 use pf::Switch::constants;

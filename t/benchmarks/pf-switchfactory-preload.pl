@@ -17,7 +17,7 @@ use warnings;
 use Benchmark qw(timethese);
 use Module::Load;
 
-use lib qw(/usr/local/pf/lib);
+use lib qw(/usr/local/pf/lib /usr/local/pf/lib_perl/lib/perl5);
 
 BEGIN {
     use File::Spec::Functions qw(catfile catdir rel2abs);

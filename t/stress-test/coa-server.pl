@@ -22,7 +22,7 @@ use Fcntl;
 use Net::Radius::Dictionary;
 use Net::Radius::Packet;
 use Net::UDP;
-use lib qw(/usr/local/pf/lib);
+use lib qw(/usr/local/pf/lib /usr/local/pf/lib_perl/lib/perl5);
 use pf::util::radius_dictionary ($RADIUS_DICTIONARY);
 
 my $secret = "qwerty";  # Shared secret on the term server. This seems to be ignored actually.

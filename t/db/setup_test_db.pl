@@ -14,7 +14,7 @@ setup_test_db
 
 use strict;
 use warnings;
-use lib qw(/usr/local/pf/lib);
+use lib qw(/usr/local/pf/lib /usr/local/pf/lib_perl/lib/perl5);
 BEGIN {
     use lib '/usr/local/pf/t';
     use setup_test_config;

@@ -14,7 +14,7 @@ Since the stripping of the username is now based on the realm, this walks the us
 
 use strict;
 use warnings;
-use lib qw(/usr/local/pf/lib);
+use lib qw(/usr/local/pf/lib /usr/local/pf/lib_perl/lib/perl5);
 use pf::IniFiles;
 use pf::file_paths qw($authentication_config_file $realm_config_file);
 use pf::authentication;

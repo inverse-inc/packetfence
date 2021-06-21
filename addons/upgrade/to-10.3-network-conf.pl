@@ -12,7 +12,7 @@ Add the new field tenant_id to networks.conf
 
 use strict;
 use warnings;
-use lib qw(/usr/local/pf/lib);
+use lib qw(/usr/local/pf/lib /usr/local/pf/lib_perl/lib/perl5);
 use pf::IniFiles;
 use pf::file_paths qw(
     $network_config_file

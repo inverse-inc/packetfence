@@ -12,7 +12,7 @@ to-9.1-add-domain-conf
 
 use strict;
 use warnings;
-use lib qw(/usr/local/pf/lib);
+use lib qw(/usr/local/pf/lib /usr/local/pf/lib_perl/lib/perl5);
 use pf::IniFiles;
 use pf::file_paths qw($domain_config_file);
 use pf::util;

@@ -14,7 +14,7 @@ Move vlan_pool_technique parameter in profiles.conf
 
 use strict;
 use warnings;
-use lib qw(/usr/local/pf/lib);
+use lib qw(/usr/local/pf/lib /usr/local/pf/lib_perl/lib/perl5);
 use pf::IniFiles;
 use pf::file_paths qw($pf_config_file $pf_default_file $profiles_config_file $profiles_default_config_file);
 use pf::util;
