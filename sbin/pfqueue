@@ -24,7 +24,6 @@ use Pod::Usage;
 use Fcntl qw(:flock);
 use Scalar::Util qw(blessed);
 use Time::HiRes qw(usleep);
-use Linux::Systemd::Daemon 'sd_ready';
 
 #pf::log must always be initilized first
 BEGIN {
@@ -53,7 +52,7 @@ use threads;
 use pf::factory::task;
 use pf::services::manager::pfdetect;
 use pf::services::manager::snmptrapd;
-
+use Linux::Systemd::Daemon 'sd_ready';
 
 
 # initialization

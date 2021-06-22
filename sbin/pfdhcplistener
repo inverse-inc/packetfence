@@ -22,7 +22,6 @@ use Net::Pcap 0.16;
 use Pod::Usage;
 use POSIX qw(:signal_h pause :sys_wait_h SIG_BLOCK SIG_UNBLOCK);
 use Fcntl qw(:flock);
-use Linux::Systemd::Daemon 'sd_ready';
 
 BEGIN {
     # log4perl init
@@ -59,6 +58,7 @@ use NetPacket::UDP;
 use pf::CHI::Request;
 use pf::api::queue_cluster;
 use pf::cluster;
+use Linux::Systemd::Daemon 'sd_ready';
 
 # initialization
 # --------------

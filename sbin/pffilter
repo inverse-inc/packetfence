@@ -23,7 +23,6 @@ use File::Basename qw(basename);
 use POSIX qw(:signal_h pause :sys_wait_h SIG_BLOCK SIG_UNBLOCK);
 use Pod::Usage;
 use Fcntl qw(:flock);
-use Linux::Systemd::Daemon 'sd_ready';
 
 #pf::log must always be initilized first
 BEGIN {
@@ -48,6 +47,7 @@ use pf::access_filter::radius;
 use pf::access_filter::dhcp;
 use pf::access_filter::dns;
 use pf::access_filter::vlan;
+use Linux::Systemd::Daemon 'sd_ready';
 
 our %DISPATCH = (
     filter_profile => \&filter_profile,
