@@ -41,7 +41,7 @@ zen-release:
 	make \
 	PKR_VAR_pf_repo=packetfence \
 	PKR_VAR_pf_package=packetfence \
-	PKR_VAR_pf_release_pkg=packetfence-release-el7.$(PF_MINOR_RELEASE).noarch.rpm \
+	PKR_VAR_pf_release_pkg=packetfence-release-$(PF_MINOR_RELEASE)-el7.noarch.rpm \
 	zen
 
 .PHONY: zen-devel
@@ -49,7 +49,7 @@ zen-devel:
 	make \
 	PKR_VAR_pf_repo=packetfence \
 	PKR_VAR_pf_package=packetfence \
-	PKR_VAR_pf_release_pkg=packetfence-release-el7.devel.noarch.rpm \
+	PKR_VAR_pf_release_pkg=packetfence-release-devel-el7.noarch.rpm \
 	zen \
 
 #==============================================================================
