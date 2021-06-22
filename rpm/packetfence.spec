@@ -50,7 +50,7 @@ Requires: procps
 Requires: libpcap, libxml2, zlib, zlib-devel, glibc-common,
 Requires: httpd, mod_ssl
 Requires: mod_perl, mod_proxy_html
-requires: libapreq2
+requires: libapreq2, perl-libapreq2
 Requires: redis
 Requires: freeradius >= 3.0.23, freeradius-mysql >= 3.0.23, freeradius-perl >= 3.0.23, freeradius-ldap >= 3.0.23, freeradius-utils >= 3.0.23, freeradius-redis >= 3.0.23, freeradius-rest >= 3.0.23
 #Requires: freeradius-radsniff
