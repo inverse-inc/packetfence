@@ -245,6 +245,7 @@ index 583806b8e1..52b9ff7973 100644
  StartLimitInterval=60
  Type=notify
  Environment=LOG_LEVEL=INFO
+-ExecStartPre=/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5 '-Mpf::services::manager::pfdns' -e 'pf::services::manager::pfdns->new()->generateConfig()'
 +ExecStartPre=/usr/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5 '-Mpf::services::manager::pfdns' -e 'pf::services::manager::pfdns->new()->generateConfig()'
  ExecStart=/usr/local/pf/sbin/pfdns -conf=/usr/local/pf/var/conf/pfdns.conf
  Restart=on-failure
