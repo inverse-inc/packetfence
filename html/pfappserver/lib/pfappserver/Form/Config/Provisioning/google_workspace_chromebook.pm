@@ -1,4 +1,4 @@
-package pfappserver::Form::Config::Provisioning::chromebook;
+package pfappserver::Form::Config::Provisioning::google_workspace_chromebook;
 
 =head1 NAME
 
@@ -9,7 +9,60 @@ pfappserver::Form::Config::Provisioning - Web form for a switch
 =cut
 
 use HTML::FormHandler::Moose;
-extends 'pfappserver::Form::Config::Provisioning::mobileconfig';
+extends 'pfappserver::Form::Config::Provisioning';
+use pf::provisioner::google_workspace_chromebook;
+our $META = pf::provisioner::google_workspace_chromebook->meta;
+
+has_field host => (
+    type => 'Text',
+    default_method => \&default_field_method,
+);
+
+has_field port => (
+    type => 'Text',
+    default_method => \&default_field_method,
+);
+
+has_field protocol => (
+    type => 'Text',
+    default_method => \&default_field_method,
+);
+
+has_field service_account => (
+    type => 'JSON',
+    required => 1,
+);
+
+has_field customerId => (
+    type => 'Text',
+    default_method => \&default_field_method,
+);
+
+has_field user => (
+    type => 'Text',
+    required => 1,
+);
+
+has_field expires_in => (
+    type => 'Integer',
+    default_method => \&default_field_method,
+);
+
+has_field expires_jitter => (
+    type => 'Integer',
+    default_method => \&default_field_method,
+);
+
+sub default_field_method {
+    my ($field) = @_;
+    my $name = $field->name;
+    my $attribute = $META->get_attribute($name)->default;
+    if (ref($attribute) eq 'CODE') {
+        return $attribute->();
+    }
+
+    return $attribute;
+}
 
 =head1 COPYRIGHT
 
@@ -35,4 +88,5 @@ USA.
 =cut
 
 __PACKAGE__->meta->make_immutable unless $ENV{"PF_SKIP_MAKE_IMMUTABLE"};
+
 1;
