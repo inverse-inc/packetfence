@@ -25,40 +25,42 @@ has 'primary_key' => 'provisioning_id';
 use pf::ConfigStore::Provisioning;
 use pfappserver::Form::Config::Provisioning;
 use pfappserver::Form::Config::Provisioning::accept;
+use pfappserver::Form::Config::Provisioning::airwatch;
 use pfappserver::Form::Config::Provisioning::android;
 use pfappserver::Form::Config::Provisioning::deny;
 use pfappserver::Form::Config::Provisioning::dpsk;
+use pfappserver::Form::Config::Provisioning::google_workspace_chromebook;
 use pfappserver::Form::Config::Provisioning::ibm;
+use pfappserver::Form::Config::Provisioning::intune;
 use pfappserver::Form::Config::Provisioning::jamf;
 use pfappserver::Form::Config::Provisioning::mobileconfig;
 use pfappserver::Form::Config::Provisioning::mobileiron;
 use pfappserver::Form::Config::Provisioning::opswat;
 use pfappserver::Form::Config::Provisioning::sentinelone;
 use pfappserver::Form::Config::Provisioning::sepm;
+use pfappserver::Form::Config::Provisioning::servicenow;
 use pfappserver::Form::Config::Provisioning::symantec;
 use pfappserver::Form::Config::Provisioning::windows;
-use pfappserver::Form::Config::Provisioning::intune;
-use pfappserver::Form::Config::Provisioning::servicenow;
-use pfappserver::Form::Config::Provisioning::airwatch;
 
 our %TYPES_TO_FORMS = (
     map { $_ => "pfappserver::Form::Config::Provisioning::$_" } qw(
       accept
+      airwatch
       android
       deny
       dpsk
+      google_workspace_chromebook
       ibm
+      intune
       jamf
       mobileconfig
       mobileiron
       opswat
       sentinelone
       sepm
+      servicenow
       symantec
       windows
-      intune
-      servicenow
-      airwatch
     )
 );
 
