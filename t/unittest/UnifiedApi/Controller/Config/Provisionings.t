@@ -39,6 +39,20 @@ my $t = Test::Mojo->new('pf::UnifiedApi');
 
 my $collection_base_url = '/api/v1/config/provisionings';
 
+$t->post_ok($collection_base_url => json => {
+    type => 'google_workspace_chromebook',
+    service_account => '{',
+    id => "id_google_workspace_chromebook_$$",
+    user => 'test@test.test',
+})->status_is(422);
+
+$t->post_ok($collection_base_url => json => {
+    type => 'google_workspace_chromebook',
+    service_account => '{}',
+    id => "id_google_workspace_chromebook_$$",
+    user => 'test@test.test',
+})->status_is(201);
+
 my $base_url = '/api/v1/config/provisioning';
 
 $t->get_ok($collection_base_url)
