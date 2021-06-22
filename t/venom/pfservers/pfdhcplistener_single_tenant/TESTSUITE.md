@@ -2,7 +2,7 @@
 
 ## Requirements
 - Configurator test passed with portal on management interface.
-- TODO: install perl-Net-DHCP (packetfence-devel) and libnet-dhcp-perl
+- TODO: install perl-Net-DHCP (packetfence repo) and libnet-dhcp-perl
   packages
 - TODO: install dhcp-test script on PF server (currently missing)
 

@@ -1,7 +1,7 @@
 #!/bin/bash
 
 #This is will attempt to install all the packages
-#from the spec file using just packetfence-devel repo
+#from the spec file using just packetfence repo
 #
 
 PFDIR=${PFDIR:-/usr/local/pf}

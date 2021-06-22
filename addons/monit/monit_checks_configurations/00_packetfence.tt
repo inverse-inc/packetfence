@@ -1,17 +1,3 @@
-# PacketFence system checks
-
-
-# - Alert every day at 6AM
-# - Do not use Monit alerting since calling external 'mail' command
-CHECK PROGRAM patch WITH PATH /usr/local/pf/addons/pf-maint.pl -t
-    group PacketFence
-    every "0 6 * * *"
-    [% FOREACH email IN EMAILS %]
-        noalert [% email %]
-        if status != 0 then exec "[% MAIL_BIN %] -s '[% SUBJECT_IDENTIFIER %] - PacketFence maintenance patch available' [% email %]"
-    [% END %]
-
-
 # PacketFence services checks
 
 CHECK PROCESS packetfence-config MATCHING "pfconfig"
