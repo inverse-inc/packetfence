@@ -49,23 +49,21 @@ update_changelog() {
 
 update_deb_changelog() {
     log_subsection "Debian Changelog"
-    dch --controlmaint \
-        --newversion "${PF_NEW_PATCH_RELEASE}" \
-        --distribution "unstable" \
-        -t "Version ${PF_NEW_PATCH_RELEASE}" || die "dch failed"
+    local date=$(date -R)
+    sed -i -e "1 i\packetfence (${PF_NEW_PATCH_RELEASE}) unstable; urgency=low\n\n  * Version ${PF_NEW_PATCH_RELEASE}\n\n -- Inverse <info@inverse.ca>  ${date}\n" \
+        ${DEB_CHLOG} || die "sed failed"
     head -n3 $DEB_CHLOG
 }
 
 update_rpm_changelog() {
     log_subsection "RPM Changelog"
-    # to be sure date use only en_US abbreviated locale names
-    # export LC_TIME=en_US
-    local date=$(date '+%a %b %d %Y')
+    # to be sure date use English days and months
+    local date=$(LC_ALL='C.UTF-8' date '+%a %b %d %Y')
     local author="Inverse <info@inverse.ca>"
     local pkg_release="${PF_NEW_PATCH_RELEASE}-1"
     # insert content **after** match
-    sed -i -e "/%changelog/a * $date $author - $pkg_release\n- New release ${PF_NEW_PATCH_RELEASE}" \
-        ${RPM_SPEC}
+    sed -i -e "/%changelog/a * $date $author - $pkg_release\n- New release ${PF_NEW_PATCH_RELEASE}\n" \
+        ${RPM_SPEC} || die "sed failed"
     grep -A2 "%changelog" ${RPM_SPEC}
 }
 
