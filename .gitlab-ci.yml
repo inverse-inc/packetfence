@@ -150,7 +150,7 @@ variables:
   tags:
     - inverse.ca
     - shell
-    
+
 .deploy_deb_job:
   stage: upload
   dependencies:

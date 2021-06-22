@@ -1,2 +1,2 @@
 ---
-packetfence_install__centos_release_rpm: 'http://packetfence.org/downloads/PacketFence/RHEL7/packetfence-release-el7.stable.noarch.rpm'
+packetfence_install__centos_release_rpm: 'http://packetfence.org/downloads/PacketFence/RHEL7/packetfence-release-{{ pf_minor_release }}-el7.noarch.rpm'

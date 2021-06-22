@@ -1,6 +1,6 @@
 ---
 # Add branches repository
-packetfence_install__centos_release_rpm: 'http://packetfence.org/downloads/PacketFence/RHEL7/packetfence-release-el7.branches.noarch.rpm'
+packetfence_install__centos_release_rpm: 'http://packetfence.org/downloads/PacketFence/RHEL7/packetfence-release-branches-el7.noarch.rpm'
 packetfence_install__centos:
   repos:
     - packetfence-branches
