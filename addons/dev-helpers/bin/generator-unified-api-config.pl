@@ -37,7 +37,6 @@ my %SKIPABLE_CLASSES = (
     'pf::ConfigStore::RadiusFilters'        => 1,
     'pf::ConfigStore::SwitchFilters'        => 1,
     'pf::ConfigStore::VlanFilters'          => 1,
-    'pf::ConfigStore::WMI'                  => 1,
     'pf::ConfigStore::Profile'              => 1,
     'pf::ConfigStore::Role::ValidGenericID' => 1,
 );

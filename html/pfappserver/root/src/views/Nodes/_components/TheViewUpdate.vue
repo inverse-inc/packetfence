@@ -15,13 +15,6 @@
       <tab-ip6-logs :id="id" />
       <tab-location-logs :id="id" />
       <tab-security-events :id="id" />
-      <!-- TODO
-      <b-tab title="WMI Rules">
-        <template v-slot:title>
-          {{ $t('WMI Rules') }}
-        </template>
-      </b-tab>
-      -->
       <tab-dhcp-option82-logs :id="id" />
     </b-tabs>
   </b-card>

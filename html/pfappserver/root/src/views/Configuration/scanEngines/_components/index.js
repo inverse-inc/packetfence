@@ -13,7 +13,6 @@ import {
   BaseFormGroupOses,
   BaseFormGroupToggleZeroOneIntegerAsOffOn
 } from '@/views/Configuration/_components/new/'
-import BaseFormGroupWmiRules from './BaseFormGroupWmiRules'
 import TheForm from './TheForm'
 import TheView from './TheView'
 
@@ -42,7 +41,6 @@ export {
   BaseFormGroupChosenOne                    as FormGroupTemplateIdentifier,
   BaseFormGroupInput                        as FormGroupUsername,
   BaseFormGroupToggleDisabledEnabled        as FormGroupVerifyHostname,
-  BaseFormGroupWmiRules                     as FormGroupWmiRules,
 
   TheForm,
   TheView

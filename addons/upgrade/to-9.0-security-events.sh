@@ -12,7 +12,7 @@ echo "Renaming violation_maintenance task in pfmon"
 sed -i$SED_BAK_SUFFIX 's/violation_maintenance/security_event_maintenance/g' /usr/local/pf/conf/pfmon.conf
 
 echo "Renaming violations related data in filter engines files (VLAN and RADIUS filters along with WMI rules)"
-for F in /usr/local/pf/conf/radius_filters.conf /usr/local/pf/conf/vlan_filters.conf /usr/local/pf/conf/wmi.conf; do
+for F in /usr/local/pf/conf/radius_filters.conf /usr/local/pf/conf/vlan_filters.conf; do
   sed -i$SED_BAK_SUFFIX 's/^filter\s*=\s*violation/filter = security_event/g' $F
   sed -i$SED_BAK_SUFFIX 's/trigger_violation/trigger_security_event/g' $F
   sed -i$SED_BAK_SUFFIX 's/ViolationRole/IsolationRole/g' $F

@@ -17,7 +17,6 @@ import FingerbankRoutes from '../fingerbank/_router'
 import NetworkBehaviorPoliciesRoutes from '../networkBehaviorPolicy/_router'
 import ScanEnginesRoutes from '../scanEngines/_router'
 import SecurityEventsRoutes from '../securityEvents/_router'
-import WmiRulesRoutes from '../wmiRules/_router'
 
 /* Integration */
 const IntegrationSection = () => import(/* webpackChunkName: "Configuration" */ '../_components/IntegrationSection')
@@ -108,7 +107,6 @@ const route = {
     ...NetworkBehaviorPoliciesRoutes,
     ...ScanEnginesRoutes,
     ...SecurityEventsRoutes,
-    ...WmiRulesRoutes,
 
     /**
      * Integration

@@ -7,22 +7,17 @@
       <b-tab :title="$t('Scan Engines')" @click="changeTab('scan_engines')">
         <scan-engines-list />
       </b-tab>
-      <b-tab :title="$t('WMI Rules')" @click="changeTab('wmi_rules')">
-        <wmi-rules-list />
-      </b-tab>
     </b-tabs>
   </b-card>
 </template>
 
 <script>
 import ScanEnginesList from './ScanEnginesList'
-import WmiRulesList from './WmiRulesList'
 
 export default {
   name: 'scan-tabs',
   components: {
-    ScanEnginesList,
-    WmiRulesList
+    ScanEnginesList
   },
   props: {
     tab: {
@@ -34,8 +29,7 @@ export default {
     tabIndex: {
       get () {
         return [
-          'scan_engines',
-          'wmi_rules'
+          'scan_engines'
         ].indexOf(this.tab)
       },
       set () {

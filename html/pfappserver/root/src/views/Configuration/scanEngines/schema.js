@@ -25,10 +25,6 @@ const schemaOs = yup.string().nullable().label('OS')
 
 const schemaOses = yup.array().ensure().of(schemaOs)
 
-const schemaWmiRule = yup.string().label(i18n.t('WMI Rule')).required(i18n.t('WMI Rule required.'))
-
-const schemaWmiRules = yup.array().ensure().unique(i18n.t('Duplicate rule.')).of(schemaWmiRule)
-
 export default (props) => {
   const {
     id,
@@ -54,7 +50,6 @@ export default (props) => {
     scannername: yup.string().nullable().label(i18n.t('Name')),
     site_id: yup.string().nullable().label(i18n.t('Site')),
     template_id: yup.string().nullable().label(i18n.t('Template')),
-    username: yup.string().nullable().label(i18n.t('Username')),
-    wmi_rules: schemaWmiRules.label(i18n.t('WMI Rules'))
+    username: yup.string().nullable().label(i18n.t('Username'))
   })
 }

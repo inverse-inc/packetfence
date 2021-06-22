@@ -2,11 +2,11 @@
 
 =head1 NAME
 
-wmi_action
+template_switches
 
 =head1 DESCRIPTION
 
-unit test for wmi_action
+unit test for template_switches
 
 =cut
 
