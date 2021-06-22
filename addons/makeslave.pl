@@ -5,7 +5,7 @@ use Config::IniFiles;
 BEGIN {
     # log4perl init
     use constant INSTALL_DIR => '/usr/local/pf';
-    use lib (INSTALL_DIR . "/lib", INSTALL_DIR . "/lib/lib_perl/lib/perl5");
+    use lib (INSTALL_DIR . "/lib", INSTALL_DIR . "/lib_perl/lib/perl5");
 }
 
 use pf::file_paths qw($pf_config_file);

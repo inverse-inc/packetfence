@@ -127,7 +127,7 @@ PerlSetEnv PERL_RLIMIT_AS 1024
 PerlChildInitHandler Apache2::Resource
 
 PerlSwitches -I[% install_dir %]/lib
-PerlSwitches -I[% install_dir %]/lib/lib_perl/lib/perl5
+PerlSwitches -I[% install_dir %]/lib_perl/lib/perl5
 # mod_perl handlers are virtually assigned to /perl/
 # The TransHandler handles the 'captive-portal' core piece redirecting to the
 # portal if the URL is not otherwised allowed by passthrough or part of the

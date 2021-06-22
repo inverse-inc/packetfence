@@ -14,7 +14,7 @@ Made for keepalived so the pf services can be adjusted depending of the running 
 
 =cut
 
-use lib (INSTALL_DIR . "/lib", INSTALL_DIR . "/lib/lib_perl/lib/perl5");
+use lib (INSTALL_DIR . "/lib", INSTALL_DIR . "/lib_perl/lib/perl5");
 
 use pf::log;
 use Net::Interface;

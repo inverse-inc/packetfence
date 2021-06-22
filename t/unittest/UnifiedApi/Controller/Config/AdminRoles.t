@@ -17,7 +17,7 @@ use warnings;
 #
 use lib qw(
     /usr/local/pf/lib
-    /usr/local/pf/lib/lib_perl/lib/perl5
+    /usr/local/pf/lib_perl/lib/perl5
 );
 
 BEGIN {
