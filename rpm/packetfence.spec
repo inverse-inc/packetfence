@@ -155,7 +155,7 @@ Requires: sudo
 #Requires: perl(Readonly), perl(Readonly::XS)
 #Requires: perl(Regexp::Common)
 #Requires: rrdtool, perl-rrdtool
-#Requires: perl(SOAP::Lite) >= 1.0
+Requires: perl(SOAP::Lite) >= 1.0
 #Requires: perl(WWW::Curl)
 #Requires: perl(Data::MessagePack)
 #Requires: perl(Data::MessagePack::Stream)
