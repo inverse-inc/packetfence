@@ -24,7 +24,7 @@
     "promised-debounce": "^0.4.2",
     "typeface-b612-mono": "1.1.13",
     "uuid": "^8.3.0",
-    "vue": "2.6.12",
+    "vue": "2.6.13",
     "vue-awesome": "^3.5.4",
     "vue-browser-acl": "^0.15.2",
     "vue-flatpickr-component": "8.1.6",
