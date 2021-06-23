@@ -32,7 +32,7 @@ BEGIN {
     );
 }
 
-use Test::More tests => 12 + (scalar @activeImportedDevices) * 2 + (scalar @nonActiveImportedDevices);
+use Test::More tests => 13 + (scalar @activeImportedDevices) * 2 + (scalar @nonActiveImportedDevices);
 
 #This test will running last
 use IPC::Open3;
@@ -91,7 +91,10 @@ is(
 );
 
 my $authorizedMac = '00:22:44:66:88:aa';
-is($p->authorize($authorizedMac), $TRUE, "authorize");
+is($p->authorize($authorizedMac), $TRUE, "authorize mac $authorizedMac");
+
+my $unAuthorizedMac = '00:22:44:66:88:ab';
+is($p->authorize($unAuthorizedMac), $FALSE, "unauthorize mac $unAuthorizedMac");
 
 is_deeply(
     $p->make_payload('https://www.googleapis.com/auth/admin.directory.device.chromeos.readonly'),
