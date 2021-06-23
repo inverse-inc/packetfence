@@ -336,8 +336,6 @@ done
 %{__make} bin/pfcmd
 # build ntlm_auth_wrapper
 %{__make} bin/ntlm_auth_wrapper
-# Define git_commit_id
-echo %{git_commit} > conf/git_commit_id
 
 # build golang binaries
 %{__make} -C go all
