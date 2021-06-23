@@ -113,7 +113,7 @@ security_event_force_close($disabled_mac, $se);
 $p->cache->clear;
 is(
     $p->syncQuery,
-    "sync:1969-01-02..",
+    "sync:0000-01-02..",
     "Initial sync query"
 );
 
