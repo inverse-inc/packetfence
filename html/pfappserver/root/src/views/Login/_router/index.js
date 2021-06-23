@@ -1,4 +1,5 @@
-import { reset as resetStore } from '@/store'
+import { reset as resetVuexStore } from '@/store'
+import { useStore as usePreferencesStore } from '@/views/Configuration/_store/preferences'
 import LoginView from '../'
 
 const route = {
@@ -7,7 +8,8 @@ const route = {
   name: 'login',
   component: LoginView,
   beforeEnter: (to, from, next) => {
-    resetStore()
+    usePreferencesStore().reset()
+    resetVuexStore()
     next()
   }
 }

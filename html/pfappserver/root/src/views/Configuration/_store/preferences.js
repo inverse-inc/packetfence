@@ -104,6 +104,9 @@ export const useStore = defineStore({
           return this.cache[id]
         })
       }
+    },
+    reset() {
+      this.cache = {}
     }
   }
 })
