@@ -26,6 +26,7 @@ has 'client_secret' => (isa => 'Str', is => 'rw', required => 1);
 has 'tenant_id' => (isa => "Str", is => "rw", required => 1);
 has 'token_url' => (isa => 'Str', is => 'rw', default => "https://login.microsoftonline.com/%TENANT_ID/oauth2/v2.0/token");
 has 'user_groups_url' => (isa => 'Str', is => 'rw', default => "https://graph.microsoft.com/v1.0/users/%USERNAME/memberOf");
+has 'user_groups_cache' => (isa => 'Int', is => "rw", default => 0);
 has 'timeout' => (isa => 'Int', is => 'rw', default => 10);
 
 my $GET_ADMIN_TOKEN_KEY = "get_admin_token";
@@ -199,9 +200,19 @@ sub get_memberOf {
     }
 }
 
+sub get_cached_memberOf {
+    my ($self, $username) = @_;
+    if($self->user_groups_cache) {
+        return $self->cache->compute($self->id."-memberOf-$username", {expires_in => $self->user_groups_cache}, sub {$self->get_memberOf($username)});
+    } 
+    else {
+        return $self->get_memberOf($username);
+    }
+}
+
 sub match_in_subclass {
     my ($self, $params, $rule, $own_conditions, $matching_conditions) = @_;
-    $params->{memberOf} = [ $self->get_memberOf($params->{username}) ];
+    $params->{memberOf} = [ $self->get_cached_memberOf($params->{username}) ];
     my $match = $rule->match;
     # If match any we just want the first
     my @conditions;

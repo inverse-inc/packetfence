@@ -36,6 +36,11 @@
       :text="$i18n.t('Realms that will be associated with this source.')"
     />
 
+    <form-group-user-groups-cache namespace="user_groups_cache"
+      :column-label="$i18n.t('User Groups Cache')"
+      :text="$i18n.t('How much time in seconds should the groups of the user be cached. A value of 0 disables the cache.')"
+    />
+
     <form-group-authentication-rules namespace="authentication_rules"
       :column-label="$i18n.t('Authentication Rules')"
     />
@@ -57,6 +62,7 @@ import {
   FormGroupTenantIdentifier,
   FormGroupTimeout,
   FormGroupRealms,
+  FormGroupUserGroupsCache,
 } from './'
 
 const components = {
@@ -71,6 +77,7 @@ const components = {
   FormGroupTenantIdentifier,
   FormGroupTimeout,
   FormGroupRealms,
+  FormGroupUserGroupsCache,
 }
 
 import { useForm as setup, useFormProps as props } from '../_composables/useForm'

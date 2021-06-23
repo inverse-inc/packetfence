@@ -42,6 +42,15 @@ has_field 'tenant_id' =>
    default => '',
   );
 
+has_field 'user_groups_cache' =>
+  (
+    type         => 'PosInteger',
+    element_attr => {
+        'placeholder' => $META->get_attribute('user_groups_cache')->default
+    },
+    default => $META->get_attribute('user_groups_cache')->default,
+  );
+
 has_field 'timeout' =>
   (
     type         => 'PosInteger',
