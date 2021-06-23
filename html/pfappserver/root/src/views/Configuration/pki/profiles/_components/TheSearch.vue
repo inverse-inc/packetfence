@@ -93,7 +93,7 @@
           <template #button-content>
             {{ $t('{num} selected', { num: selected.length }) }}
           </template>
-          <b-dropdown-item @click="onBulkExport">Export to CSV</b-dropdown-item>
+          <b-dropdown-item @click="onBulkExport">{{ $t('Export to CSV') }}</b-dropdown-item>
         </b-dropdown>
       </b-container>
     </div>
