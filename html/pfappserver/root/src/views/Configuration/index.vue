@@ -68,11 +68,7 @@ export default {
               ]
             },
             { name: this.$i18n.t('Network Anomaly Detection'), path: '/configuration/fingerbank/network_behavior_policies' },
-            { name: this.$i18n.t('Scans'),
-              items: [
-                { name: this.$i18n.t('Scan Engines'), path: '/configuration/scans/scan_engines' },
-              ]
-            },
+            { name: this.$i18n.t('Scan Engines'), path: '/configuration/scan_engines' },
             { name: this.$i18n.t('Security Events'), path: '/configuration/security_events' }
           ]
         },
