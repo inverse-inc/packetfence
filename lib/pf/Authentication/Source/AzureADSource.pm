@@ -201,8 +201,14 @@ sub get_memberOf {
 }
 
 sub get_cached_memberOf {
-    my ($self, $username) = @_;
-    if($self->user_groups_cache) {
+    my ($self, $username, $params) = @_;
+    my @radius_groups = map { $_ =~ /^radius_request\.OAuth2-Group:[0-9]+/ ? $params->{$_} : () } keys %$params;
+
+    if(scalar(@radius_groups) > 0) {
+        get_logger->debug("Found groups for $username in RADIUS parameters: ".join(",", @radius_groups));
+        return @radius_groups;
+    }
+    elsif($self->user_groups_cache) {
         return $self->cache->compute($self->id."-memberOf-$username", {expires_in => $self->user_groups_cache}, sub {$self->get_memberOf($username)});
     } 
     else {
@@ -212,7 +218,7 @@ sub get_cached_memberOf {
 
 sub match_in_subclass {
     my ($self, $params, $rule, $own_conditions, $matching_conditions) = @_;
-    $params->{memberOf} = [ $self->get_cached_memberOf($params->{username}) ];
+    $params->{memberOf} = [ $self->get_cached_memberOf($params->{username}, $params) ];
     my $match = $rule->match;
     # If match any we just want the first
     my @conditions;
