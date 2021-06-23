@@ -219,6 +219,9 @@ func ShuffleGateway(ConfNet pfconfigdriver.RessourseNetworkConf) (r []byte) {
 		if ConfNet.Type == "inlinel2" && ConfNet.NatEnabled == "disabled" {
 			return []byte(net.ParseIP(ConfNet.Gateway).To4())
 		}
+		if ConfNet.Gatewayvip != "" {
+			return []byte(net.ParseIP(ConfNet.Gatewayvip).To4())
+		}
 
 		excluded := DetectDisabledServer(ConfNet.ClusterIPs, ConfNet.Interface.InterfaceName)
 		return Shuffle(ConfNet.ClusterIPs, excluded)

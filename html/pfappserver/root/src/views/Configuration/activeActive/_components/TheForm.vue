@@ -25,6 +25,11 @@
       :text="$i18n.t('Set the name server option in DHCP replies to point only to the VIP in cluster mode rather than to all servers in the cluster.')"
     />
 
+    <form-group-gateway-on-vip-only namespace="gateway_on_vip_only"
+      :column-label="$i18n.t('Gateway on VIP only')"
+      :text="$i18n.t('Set the gateway option in DHCP replies to point only to the VIP in cluster mode rather than to all servers in the cluster.')"
+    />
+
     <form-group-centralized-deauth namespace="centralized_deauth"
       :column-label="$i18n.t('Centralized access reevaluation')"
       :text="$i18n.t('Centralize the deauthentication to the management node of the cluster.')"
@@ -67,6 +72,7 @@ import {
   FormGroupCentralizedDeauth,
   FormGroupConflictResolutionThreshold,
   FormGroupDnsOnVipOnly,
+  FormGroupGatewayOnVipOnly,
   FormGroupGaleraReplication,
   FormGroupGaleraReplicationUsername,
   FormGroupGaleraReplicationPassword,
@@ -82,6 +88,7 @@ const components = {
   FormGroupCentralizedDeauth,
   FormGroupConflictResolutionThreshold,
   FormGroupDnsOnVipOnly,
+  FormGroupGatewayOnVipOnly,
   FormGroupGaleraReplication,
   FormGroupGaleraReplicationUsername,
   FormGroupGaleraReplicationPassword,
