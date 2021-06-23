@@ -1,43 +1,74 @@
 import { computed, toRefs } from '@vue/composition-api'
 import i18n from '@/utils/locale'
-import {
-  defaultsFromMeta as useItemDefaults
-} from '../../_config/'
 
-const useItemTitle = (props) => {
+export const useItemTitle = (props) => {
   const {
     id
   } = toRefs(props)
   return computed(() => i18n.t('Maintenance Task <code>{id}</code>', { id: id.value }))
 }
 
-const useRouter = (props, context, form) => {
-  const { root: { $router } = {} } = context
-  return {
-    goToCollection: () => $router.push({ name: 'maintenance_tasks' }),
-    goToItem: (item = form.value || {}) => $router
-      .push({ name: 'maintenance_task', params: { id: item.id } })
-      .catch(e => { if (e.name !== "NavigationDuplicated") throw e })
-  }
-}
+export { useRouter } from '../_router'
 
-const useStore = (props, context, form) => {
-  const {
-    id
-  } = toRefs(props)
-  const { root: { $store } = {} } = context
-  return {
-    isLoading: computed(() => $store.getters['$_maintenance_tasks/isLoading']),
-    getOptions: () => $store.dispatch('$_maintenance_tasks/options', id.value),
-    createItem: () => $store.dispatch('$_maintenance_tasks/createMaintenanceTask', form.value),
-    getItem: () => $store.dispatch('$_maintenance_tasks/getMaintenanceTask', id.value),
-    updateItem: () => $store.dispatch('$_maintenance_tasks/updateMaintenanceTask', form.value),
-  }
-}
+export { useStore } from '../_store'
 
-export default {
-  useItemDefaults,
-  useItemTitle,
-  useRouter,
-  useStore,
-}
+import { pfSearchConditionType as conditionType } from '@/globals/pfSearch'
+import makeSearch from '@/views/Configuration/_store/factory/search'
+import api from '../_api'
+export const useSearch = makeSearch('maintenanceTasks', {
+  api,
+  sortBy: null, // use natural order (sortable)
+  columns: [ // output uses natural order (w/ sortable drag-drop), ensure NO columns are 'sortable: true'
+    {
+      key: 'selected',
+      thStyle: 'width: 40px;', tdClass: 'text-center',
+      locked: true
+    },
+    {
+      key: 'status',
+      label: 'Status', // i18n defer
+      visible: true
+    },
+    {
+      key: 'id',
+      label: 'Name', // i18n defer
+      required: true,
+      searchable: true,
+      visible: true
+    },
+    {
+      key: 'description',
+      label: 'Description', // i18n defer
+      searchable: true,
+      visible: true
+    },
+    {
+      key: 'schedule',
+      label: 'Schedule', // i18n defer
+      searchable: true,
+      visible: true
+    },
+    {
+      key: 'buttons',
+      class: 'text-right p-0',
+      locked: true
+    },
+  ],
+  fields: [
+    {
+      value: 'id',
+      text: i18n.t('Name'),
+      types: [conditionType.SUBSTRING]
+    },
+    {
+      value: 'description',
+      text: i18n.t('Description'),
+      types: [conditionType.SUBSTRING]
+    },
+    {
+      value: 'schedule',
+      text: i18n.t('Schedule'),
+      types: [conditionType.SUBSTRING]
+    }
+  ]
+})

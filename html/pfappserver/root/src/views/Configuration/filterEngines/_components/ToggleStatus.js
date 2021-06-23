@@ -13,15 +13,18 @@ export const props = {
       {
         value: 'disabled', label: i18n.t('Disabled'),
         color: 'var(--danger)', icon: 'times',
-        promise: (value, props) => {
+        promise: (value, props, context) => {
           const { item, collection: _collection } = toRefs(props)
           const { id } = item.value
           const { collection } = _collection.value
           return store.dispatch('$_filter_engines/disableFilterEngine', { collection, id })
-            .then(() => store.dispatch(
-              'notification/info',
-              { message: i18n.t('{collection} <code>{id}</code> disabled.', { collection: store.getters['$_filter_engines/collectionToName'](collection), id }) }
-            ))
+            .then(() => {
+              context.emit('input', 'disabled')
+              store.dispatch(
+                'notification/info',
+                { message: i18n.t('{collection} <code>{id}</code> disabled.', { collection: store.getters['$_filter_engines/collectionToName'](collection), id }) }
+              )
+            })
             .catch(() => store.dispatch(
               'notification/danger',
               { message: i18n.t('{collection} <code>{id}</code> could not be disabled.', { collection: store.getters['$_filter_engines/collectionToName'](collection), id }) }
@@ -31,15 +34,18 @@ export const props = {
       {
         value: 'enabled', label: i18n.t('Enabled'),
         color: 'var(--success)', icon: 'check',
-        promise: (value, props) => {
+        promise: (value, props, context) => {
           const { item, collection: _collection } = toRefs(props)
           const { id } = item.value
           const { collection } = _collection.value
           return store.dispatch('$_filter_engines/enableFilterEngine', { collection, id })
-            .then(() => store.dispatch(
-              'notification/info',
-              { message: i18n.t('{collection} <code>{id}</code> enabled.', { collection: store.getters['$_filter_engines/collectionToName'](collection), id }) }
-            ))
+            .then(() => {
+              context.emit('input', 'enabled')
+              store.dispatch(
+                'notification/info',
+                { message: i18n.t('{collection} <code>{id}</code> enabled.', { collection: store.getters['$_filter_engines/collectionToName'](collection), id }) }
+              )
+            })
             .catch(() => store.dispatch(
               'notification/danger',
               { message: i18n.t('{collection} <code>{id}</code> could not be enabled.', { collection: store.getters['$_filter_engines/collectionToName'](collection), id }) }

@@ -4,6 +4,17 @@ import RadiusEapStoreModule from './_store'
 const TheTabs = () => import(/* webpackChunkName: "Configuration" */ '../../_components/RadiusTabs')
 const TheView = () => import(/* webpackChunkName: "Configuration" */ './_components/TheView')
 
+export const useRouter = $router => {
+  return {
+    goToCollection: () => $router.push({ name: 'radiusEaps' }),
+    goToItem: params => $router
+      .push({ name: 'radiusEap', params })
+      .catch(e => { if (e.name !== "NavigationDuplicated") throw e }),
+    goToClone: params => $router.push({ name: 'cloneRadiusEap', params }),
+    goToNew: () => $router.push({ name: 'newRadiusEap' })
+  }
+}
+
 export const beforeEnter = (to, from, next = () => {}) => {
   if (!store.state.$_radius_eap)
     store.registerModule('$_radius_eap', RadiusEapStoreModule)
@@ -15,7 +26,7 @@ export default [
     path: 'radius/eap',
     name: 'radiusEaps',
     component: TheTabs,
-    props: (route) => ({ tab: 'radiusEaps', query: route.query.query }),
+    props: () => ({ tab: 'radiusEaps' }),
     beforeEnter
   },
   {

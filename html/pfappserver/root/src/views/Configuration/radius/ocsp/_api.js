@@ -1,37 +1,42 @@
 import apiCall from '@/utils/api'
 
 export default {
-  radiusOcsps: params => {
+  list: params => {
     return apiCall.get('config/radiusd/ocsp_profiles', { params }).then(response => {
       return response.data
     })
   },
-  radiusOcspsOptions: () => {
+  listOptions: () => {
     return apiCall.options('config/radiusd/ocsp_profiles').then(response => {
       return response.data
     })
   },
-  radiusOcsp: id => {
-    return apiCall.get(['config', 'radiusd', 'ocsp_profile', id]).then(response => {
-      return response.data.item
-    })
-  },
-  radiusOcspOptions: id => {
-    return apiCall.options(['config', 'radiusd', 'ocsp_profile', id]).then(response => {
+  search: data => {
+    return apiCall.post('config/radiusd/ocsp_profiles/search', data).then(response => {
       return response.data
     })
   },
-  createRadiusOcsp: data => {
+  create: data => {
     return apiCall.post('config/radiusd/ocsp_profiles', data).then(response => {
       return response.data
     })
   },
-  updateRadiusOcsp: data => {
+  item: id => {
+    return apiCall.get(['config', 'radiusd', 'ocsp_profile', id]).then(response => {
+      return response.data.item
+    })
+  },
+  itemOptions: id => {
+    return apiCall.options(['config', 'radiusd', 'ocsp_profile', id]).then(response => {
+      return response.data
+    })
+  },
+  update: data => {
     return apiCall.patch(['config', 'radiusd', 'ocsp_profile', data.id], data).then(response => {
       return response.data
     })
   },
-  deleteRadiusOcsp: id => {
+  delete: id => {
     return apiCall.delete(['config', 'radiusd', 'ocsp_profile', id])
   }
 }

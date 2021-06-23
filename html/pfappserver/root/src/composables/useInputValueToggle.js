@@ -16,7 +16,7 @@ export const useInputValueToggleProps = {
   }
 }
 
-export const useInputValueToggle = (valueProps, props) => {
+export const useInputValueToggle = (valueProps, props, context) => {
 
   const {
     value: rxValue,
@@ -42,7 +42,7 @@ export const useInputValueToggle = (valueProps, props) => {
     } = options.value
     const rxValue = (mappedValue !== undefined) ? mappedValue : defaultValue
     if (mappedPromise) // handle Promise
-      return mappedPromise(rxValue, props)
+      return mappedPromise(rxValue, props, context)
     else // otherwise emit
       return rxOnInput(rxValue)
   }

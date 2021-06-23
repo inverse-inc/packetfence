@@ -1,10 +1,7 @@
 import { computed, toRefs } from '@vue/composition-api'
 import i18n from '@/utils/locale'
-import {
-  defaultsFromMeta as useItemDefaults
-} from '../../../_config/'
 
-const useItemTitle = (props) => {
+export const useItemTitle = (props) => {
   const {
     id,
     isClone,
@@ -22,38 +19,65 @@ const useItemTitle = (props) => {
   })
 }
 
-const useRouter = (props, context, form) => {
-  const {
-    id
-  } = toRefs(props)
-  const { root: { $router } = {} } = context
-  return {
-    goToCollection: () => $router.push({ name: 'interfaces' }),
-    goToItem: (item = form.value || {}) => $router
-      .push({ name: 'routed_network', params: { id: item.id } })
-      .catch(e => { if (e.name !== "NavigationDuplicated") throw e }),
-    goToClone: () => $router.push({ name: 'cloneRoutedNetwork', params: { id: id.value } }),
-  }
-}
+export { useRouter } from '../_router'
 
-const useStore = (props, context, form) => {
-  const {
-    id
-  } = toRefs(props)
-  const { root: { $store } = {} } = context
-  return {
-    isLoading: computed(() => $store.getters['$_routed_networks/isLoading']),
-    getOptions: () => $store.dispatch('$_routed_networks/options'),
-    createItem: () => $store.dispatch('$_routed_networks/createRoutedNetwork', form.value),
-    deleteItem: () => $store.dispatch('$_routed_networks/deleteRoutedNetwork', id.value),
-    getItem: () => $store.dispatch('$_routed_networks/getRoutedNetwork', id.value),
-    updateItem: () => $store.dispatch('$_routed_networks/updateRoutedNetwork', form.value),
-  }
-}
+export { useStore } from '../_store'
 
-export default {
-  useItemDefaults,
-  useItemTitle,
-  useRouter,
-  useStore,
-}
+import { pfSearchConditionType as conditionType } from '@/globals/pfSearch'
+import makeSearch from '@/views/Configuration/_store/factory/search'
+import api from '../_api'
+export const useSearch = makeSearch('wmiRules', {
+  api,
+  columns: [
+    {
+      key: 'selected',
+      thStyle: 'width: 40px;', tdClass: 'text-center',
+      locked: true
+    },
+    {
+      key: 'id',
+      label: 'WMI Rule', // i18n defer
+      searchable: true,
+      required: true,
+      sortable: true,
+      visible: true
+    },
+    {
+      key: 'namespace',
+      label: 'Namespace', // i18n defer
+      searchable: true,
+      sortable: true,
+      visible: true
+    },
+    {
+      key: 'on_tab',
+      label: 'On Node Tab', // i18n defer
+      sortable: true,
+      visible: true
+    },
+
+    {
+      key: 'buttons',
+      class: 'text-right p-0',
+      locked: true
+    },
+    {
+      key: 'not_deletable',
+      required: true,
+      visible: false
+    }
+  ],
+  fields: [
+    {
+      value: 'id',
+      text: i18n.t('WMI Rule'),
+      types: [conditionType.SUBSTRING]
+    },
+    {
+      value: 'namespace',
+      text: i18n.t('Namespace'),
+      types: [conditionType.SUBSTRING]
+    }
+  ],
+  sortBy: 'id'
+})

@@ -1,8 +1,19 @@
 import store from '@/store'
 import StoreModule from './_store'
 
-const TheList = () => import(/* webpackChunkName: "Configuration" */ '../_components/FloatingDevicesList')
+const TheSearch = () => import(/* webpackChunkName: "Configuration" */ './_components/TheSearch')
 const TheView = () => import(/* webpackChunkName: "Configuration" */ './_components/TheView')
+
+export const useRouter = $router => {
+  return {
+    goToCollection: () => $router.push({ name: 'floating_devices' }),
+    goToItem: params => $router
+      .push({ name: 'floating_device', params })
+      .catch(e => { if (e.name !== "NavigationDuplicated") throw e }),
+    goToClone: params => $router.push({ name: 'cloneFloatingDevice', params }),
+    goToNew: () => $router.push({ name: 'newFloatingDevice' }),
+  }
+}
 
 export const beforeEnter = (to, from, next = () => {}) => {
   if (!store.state.$_floatingdevices)
@@ -14,8 +25,7 @@ export default [
   {
     path: 'floating_devices',
     name: 'floating_devices',
-    component: TheList,
-    props: (route) => ({ query: route.query.query }),
+    component: TheSearch,
     beforeEnter
   },
   {

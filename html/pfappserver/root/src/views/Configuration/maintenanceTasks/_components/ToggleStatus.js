@@ -13,17 +13,40 @@ export const props = {
       {
         value: 'disabled', label: i18n.t('Disabled'),
         color: 'var(--danger)', icon: 'times',
-        promise: (value, props) => {
+        promise: (value, props, context) => {
           const { item } = toRefs(props)
           return store.dispatch('$_maintenance_tasks/disableMaintenanceTask', item.value)
+            .then(() => {
+              context.emit('input', 'disabled')
+              store.dispatch(
+                'notification/info',
+                { message: i18n.t('Maintenance Task <code>{id}</code> disabled.', item.value) }
+              )
+            })
+            .catch(() => store.dispatch(
+              'notification/danger',
+              { message: i18n.t('Maintenance Task <code>{id}</code> could not be disabled.', item.value) }
+            ))
         }
       },
       {
         value: 'enabled', label: i18n.t('Enabled'),
         color: 'var(--success)', icon: 'check',
-        promise: (value, props) => {
+        promise: (value, props, context) => {
           const { item } = toRefs(props)
           return store.dispatch('$_maintenance_tasks/enableMaintenanceTask', item.value)
+            .then(() => {
+              context.emit('input', 'enabled')
+              store.dispatch(
+                'notification/info',
+                { message: i18n.t('Maintenance Task <code>{id}</code> enabled.', item.value) }
+              )
+            })
+            .catch(() => store.dispatch(
+              'notification/danger',
+              { message: i18n.t('Maintenance Task <code>{id}</code> could not be enabled.', item.value) }
+            ))
+
         }
       }
     ])

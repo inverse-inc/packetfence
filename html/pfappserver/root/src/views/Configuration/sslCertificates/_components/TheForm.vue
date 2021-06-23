@@ -197,7 +197,7 @@ const components = {
 }
 import { useForm, useFormProps } from '../_composables/useForm'
 import { useViewCollectionItemFixed, useViewCollectionItemFixedProps } from '../../_composables/useViewCollectionItemFixed'
-import collection from '../_composables/useCollection'
+import * as collection from '../_composables/useCollection'
 
 const props = {
   ...useFormProps,

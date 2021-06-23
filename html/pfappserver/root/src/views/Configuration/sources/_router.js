@@ -1,8 +1,19 @@
 import store from '@/store'
 import StoreModule from './_store'
 
-const TheList = () => import(/* webpackChunkName: "Configuration" */ '../_components/AuthenticationSourcesList')
+const TheSearch = () => import(/* webpackChunkName: "Configuration" */ './_components/TheSearch')
 const TheView = () => import(/* webpackChunkName: "Configuration" */ './_components/TheView')
+
+export const useRouter = $router => {
+  return {
+    goToCollection: () => $router.push({ name: 'sources' }),
+    goToItem: params => $router
+      .push({ name: 'source', params })
+      .catch(e => { if (e.name !== "NavigationDuplicated") throw e }),
+    goToClone: params => $router.push({ name: 'cloneAuthenticationSource', params }),
+    goToNew: params => $router.push({ name: 'newAuthenticationSource', params }),
+  }
+}
 
 export const beforeEnter = (to, from, next = () => {}) => {
   if (!store.state.$_sources)
@@ -14,8 +25,7 @@ export default [
   {
     path: 'sources',
     name: 'sources',
-    component: TheList,
-    props: (route) => ({ query: route.query.query }),
+    component: TheSearch,
     beforeEnter
   },
   {

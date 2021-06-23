@@ -6,6 +6,17 @@ import SwitchGroupsStoreModule from './_store'
 const TheTabs = () => import(/* webpackChunkName: "Configuration" */ '../_components/NetworkDevicesTabs')
 const TheView = () => import(/* webpackChunkName: "Configuration" */ './_components/TheView')
 
+export const useRouter = $router => {
+  return {
+    goToCollection: () => $router.push({ name: 'switch_groups' }),
+    goToItem: params => $router
+      .push({ name: 'switch_group', params })
+      .catch(e => { if (e.name !== "NavigationDuplicated") throw e }),
+    goToClone: params => $router.push({ name: 'cloneSwitchGroup', params }),
+    goToNew: params => $router.push({ name: 'newSwitchGroup', params })
+  }
+}
+
 export const beforeEnter = (to, from, next = () => {}) => {
   if (!store.state.$_roles)
     store.registerModule('$_roles', RolesStoreModule)
@@ -21,7 +32,7 @@ export default [
     path: 'switch_groups',
     name: 'switch_groups',
     component: TheTabs,
-    props: (route) => ({ tab: 'switch_groups', query: route.query.query }),
+    props: () => ({ tab: 'switch_groups' }),
     beforeEnter
   },
   {

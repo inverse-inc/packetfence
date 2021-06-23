@@ -1,4 +1,16 @@
 import store from '@/store'
+
+export const useRouter = $router => {
+  return {
+    goToCollection: () => $router.push({ name: 'fingerbankDhcpVendors' }),
+    goToItem: params => $router
+      .push({ name: 'fingerbankDhcpVendor', params })
+      .catch(e => { if (e.name !== "NavigationDuplicated") throw e }),
+    goToClone: params => $router.push({ name: 'cloneFingerbankDhcpVendor', params }),
+    goToNew: params => $router.push({ name: 'newFingerbankDhcpVendor', params })
+  }
+}
+
 import { TheTabs } from '../_components/'
 const TheView = () => import(/* webpackChunkName: "Fingerbank" */ './_components/TheView')
 
@@ -7,7 +19,13 @@ export default [
     path: 'fingerbank/dhcp_vendors',
     name: 'fingerbankDhcpVendors',
     component: TheTabs,
-    props: (route) => ({ tab: 'dhcp_vendors', query: route.query.query })
+    props: () => ({ tab: 'dhcp_vendors', scope: 'all' })
+  },
+  {
+    path: 'fingerbank/:scope/dhcp_vendors',
+    name: 'fingerbankDhcpVendorsByScope',
+    component: TheTabs,
+    props: (route) => ({ tab: 'dhcp_vendors', scope: route.params.scope })
   },
   {
     path: 'fingerbank/:scope/dhcp_vendors/new',

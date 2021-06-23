@@ -2,7 +2,26 @@
 * "$_syslog_forwarders" store module
 */
 import Vue from 'vue'
+import { computed } from '@vue/composition-api'
+import i18n from '@/utils/locale'
 import api from './_api'
+
+export const useStore = $store => {
+  return {
+    isLoading: computed(() => $store.getters['$_syslog_forwarders/isLoading']),
+    getList: () => $store.dispatch('$_syslog_forwarders/all'),
+    getListOptions: params => $store.dispatch('$_syslog_forwarders/optionsBySyslogForwarderType', params.syslogForwarderType),
+    createItem: params => $store.dispatch('$_syslog_forwarders/createSyslogForwarder', params),
+    getItem: params => $store.dispatch('$_syslog_forwarders/getSyslogForwarder', params.id).then(item => {
+      return (params.isClone)
+        ? { ...item, id: `${item.id}-${i18n.t('copy')}`, not_deletable: false }
+        : item
+    }),
+    getItemOptions: params => $store.dispatch('$_syslog_forwarders/optionsById', params.id),
+    updateItem: params => $store.dispatch('$_syslog_forwarders/updateSyslogForwarder', params),
+    deleteItem: params => $store.dispatch('$_syslog_forwarders/deleteSyslogForwarder', params.id),
+  }
+}
 
 const types = {
   LOADING: 'loading',
@@ -31,13 +50,13 @@ const actions = {
       sort: 'id',
       fields: ['id', 'type'].join(',')
     }
-    return api.syslogForwarders(params).then(response => {
+    return api.list(params).then(response => {
       return response.items
     })
   },
   optionsById: ({ commit }, id) => {
     commit('ITEM_REQUEST')
-    return api.syslogForwarderOptions(id).then(response => {
+    return api.itemOptions(id).then(response => {
       commit('ITEM_SUCCESS')
       return response
     }).catch((err) => {
@@ -47,7 +66,7 @@ const actions = {
   },
   optionsBySyslogForwarderType: ({ commit }, syslogForwarderType) => {
     commit('ITEM_REQUEST')
-    return api.syslogForwardersOptions(syslogForwarderType).then(response => {
+    return api.listOptions(syslogForwarderType).then(response => {
       commit('ITEM_SUCCESS')
       return response
     }).catch((err) => {
@@ -60,7 +79,7 @@ const actions = {
       return Promise.resolve(state.cache[id]).then(cache => JSON.parse(JSON.stringify(cache)))
     }
     commit('ITEM_REQUEST')
-    return api.syslogForwarder(id).then(item => {
+    return api.item(id).then(item => {
       commit('ITEM_REPLACED', item)
       return JSON.parse(JSON.stringify(item))
     }).catch((err) => {
@@ -70,7 +89,7 @@ const actions = {
   },
   createSyslogForwarder: ({ commit }, data) => {
     commit('ITEM_REQUEST')
-    return api.createSyslogForwarder(data).then(response => {
+    return api.create(data).then(response => {
       commit('ITEM_REPLACED', data)
       return response
     }).catch(err => {
@@ -80,7 +99,7 @@ const actions = {
   },
   updateSyslogForwarder: ({ commit }, data) => {
     commit('ITEM_REQUEST')
-    return api.updateSyslogForwarder(data).then(response => {
+    return api.update(data).then(response => {
       commit('ITEM_REPLACED', data)
       return response
     }).catch(err => {
@@ -88,10 +107,10 @@ const actions = {
       throw err
     })
   },
-  deleteSyslogForwarder: ({ commit }, data) => {
+  deleteSyslogForwarder: ({ commit }, id) => {
     commit('ITEM_REQUEST', types.DELETING)
-    return api.deleteSyslogForwarder(data).then(response => {
-      commit('ITEM_DESTROYED', data)
+    return api.delete(id).then(response => {
+      commit('ITEM_DESTROYED', id)
       return response
     }).catch(err => {
       commit('ITEM_ERROR', err.response)

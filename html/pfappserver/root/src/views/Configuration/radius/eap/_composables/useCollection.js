@@ -1,10 +1,7 @@
 import { computed, toRefs } from '@vue/composition-api'
 import i18n from '@/utils/locale'
-import {
-  defaultsFromMeta as useItemDefaults
-} from '../../../_config/'
 
-const useItemTitle = (props) => {
+export const useItemTitle = (props) => {
   const {
     id,
     isClone,
@@ -22,50 +19,81 @@ const useItemTitle = (props) => {
   })
 }
 
-const useRouter = (props, context, form) => {
-  const {
-    id
-  } = toRefs(props)
-  const { root: { $router } = {} } = context
-  return {
-    goToCollection: () => $router.push({ name: 'radiusEaps' }),
-    goToItem: (item = form.value || {}) => $router
-      .push({ name: 'radiusEap', params: { id: item.id } })
-      .catch(e => { if (e.name !== "NavigationDuplicated") throw e }),
-    goToClone: () => $router.push({ name: 'cloneRadiusEap', params: { id: id.value } }),
-  }
-}
+export { useRouter } from '../_router'
 
-const useStore = (props, context, form) => {
-  const {
-    id,
-    isClone
-  } = toRefs(props)
-  const { root: { $store } = {} } = context
-  return {
-    isLoading: computed(() => $store.getters['$_radius_eap/isLoading']),
-    getOptions: () => $store.dispatch('$_radius_eap/options'),
-    createItem: () => $store.dispatch('$_radius_eap/createRadiusEap', form.value),
-    deleteItem: () => $store.dispatch('$_radius_eap/deleteRadiusEap', id.value),
-    getItem: () => $store.dispatch('$_radius_eap/getRadiusEap', id.value).then(item => {
-      if (isClone.value) {
-        item.id = `${item.id}-${i18n.t('copy')}`
-        item.not_deletable = false
-      }
-      return item
-    }),
-    ...((id.value === 'default' && !isClone.value)
-      ? {} // don't update id: default
-      : {
-        updateItem: () => $store.dispatch('$_radius_eap/updateRadiusEap', form.value)
-      }
-    )
-  }
-}
+export { useStore } from '../_store'
 
-export default {
-  useItemDefaults,
-  useItemTitle,
-  useRouter,
-  useStore,
-}
+import { pfSearchConditionType as conditionType } from '@/globals/pfSearch'
+import makeSearch from '@/views/Configuration/_store/factory/search'
+import api from '../_api'
+export const useSearch = makeSearch('radiusEap', {
+  api,
+  columns: [
+    {
+      key: 'selected',
+      thStyle: 'width: 40px;', tdClass: 'text-center',
+      locked: true
+    },
+    {
+      key: 'id',
+      label: 'Name', // i18n defer
+      required: true,
+      searchable: true,
+      sortable: true,
+      visible: true
+    },
+    {
+      key: 'default_eap_type',
+      label: 'Default EAP', // i18n defer
+      searchable: true,
+      sortable: true,
+      visible: true
+    },
+    {
+      key: 'tls_tlsprofile',
+      label: 'TLS Profile', // i18n defer
+      searchable: true,
+      sortable: true,
+      visible: true
+    },
+    {
+      key: 'ttls_tlsprofile',
+      label: 'TTLS Profile', // i18n defer
+      searchable: true,
+      sortable: true,
+      visible: true
+    },
+    {
+      key: 'peap_tlsprofile',
+      label: 'PEAP Profile', // i18n defer
+      searchable: true,
+      sortable: true,
+      visible: true
+    },
+    {
+      key: 'fast_config',
+      label: 'Fast Profile', // i18n defer
+      searchable: true,
+      sortable: true,
+      visible: true
+    },
+    {
+      key: 'buttons',
+      class: 'text-right p-0',
+      locked: true
+    },
+    {
+      key: 'not_deletable',
+      required: true,
+      visible: false
+    }
+  ],
+  fields: [
+    {
+      value: 'id',
+      text: i18n.t('Name'),
+      types: [conditionType.SUBSTRING]
+    }
+  ],
+  sortBy: 'id'
+})

@@ -1,37 +1,42 @@
 import apiCall from '@/utils/api'
 
 export default {
-  floatingDevices: params => {
+  list: params => {
     return apiCall.get('config/floating_devices', { params }).then(response => {
       return response.data
     })
   },
-  floatingDevicesOptions: () => {
+  listOptions: () => {
     return apiCall.options('config/floating_devices').then(response => {
       return response.data
     })
   },
-  floatingDevice: id => {
+  item: id => {
     return apiCall.get(['config', 'floating_device', id]).then(response => {
       return response.data.item
     })
   },
-  floatingDeviceOptions: id => {
+  itemOptions: id => {
     return apiCall.options(['config', 'floating_device', id]).then(response => {
       return response.data
     })
   },
-  createFloatingDevice: data => {
+  create: data => {
     return apiCall.post('config/floating_devices', data).then(response => {
       return response.data
     })
   },
-  updateFloatingDevice: data => {
+  update: data => {
     return apiCall.patch(['config', 'floating_device', data.id], data).then(response => {
       return response.data
     })
   },
-  deleteFloatingDevice: id => {
+  delete: id => {
     return apiCall.delete(['config', 'floating_device', id])
+  },
+  search: data => {
+    return apiCall.post('config/floating_devices/search', data).then(response => {
+      return response.data
+    })
   }
 }

@@ -2,11 +2,30 @@
 * "$_security_events" store module
 */
 import Vue from 'vue'
+import { computed } from '@vue/composition-api'
+import i18n from '@/utils/locale'
 import api from './_api'
 import {
   decomposeTriggers,
   recomposeTriggers
 } from '../securityEvents/config'
+
+export const useStore = $store => {
+  return {
+    isLoading: computed(() => $store.getters['$_security_events/isLoading']),
+    getList: () => $store.dispatch('$_security_events/all'),
+    getListOptions: () => $store.dispatch('$_security_events/options'),
+    createItem: params => $store.dispatch('$_security_events/createSecurityEvent', params),
+    getItem: params => $store.dispatch('$_security_events/getSecurityEvent', params.id).then(item => {
+      return (params.isClone)
+        ? { ...item, id: `${item.id}-${i18n.t('copy')}`, not_deletable: false }
+        : item
+    }),
+    getItemOptions: params => $store.dispatch('$_security_events/options', params.id),
+    updateItem: params => $store.dispatch('$_security_events/updateSecurityEvent', params),
+    deleteItem: params => $store.dispatch('$_security_events/deleteSecurityEvent', params.id),
+  }
+}
 
 const types = {
   LOADING: 'loading',
@@ -35,14 +54,14 @@ const actions = {
       sort: 'id',
       fields: ['id'].join(',')
     }
-    return api.securityEvents(params).then(response => {
+    return api.list(params).then(response => {
       return response.items
     })
   },
   options: ({ commit }, id) => {
     commit('ITEM_REQUEST')
     if (id) {
-      return api.securityEventOptions(id).then(response => {
+      return api.itemOptions(id).then(response => {
         commit('ITEM_SUCCESS')
         return response
       }).catch((err) => {
@@ -50,7 +69,7 @@ const actions = {
         throw err
       })
     } else {
-      return api.securityEventsOptions().then(response => {
+      return api.listOptions().then(response => {
         commit('ITEM_SUCCESS')
         return response
       }).catch((err) => {
@@ -64,7 +83,7 @@ const actions = {
       return Promise.resolve(state.cache[id]).then(cache => JSON.parse(JSON.stringify(cache)))
     }
     commit('ITEM_REQUEST')
-    return api.securityEvent(id).then(item => {
+    return api.item(id).then(item => {
       commit('ITEM_REPLACED', item)
       return JSON.parse(JSON.stringify(item))
     }).catch((err) => {
@@ -78,7 +97,7 @@ const actions = {
       data = JSON.parse(JSON.stringify(data)) // dereference
       data.triggers = recomposeTriggers(data.triggers)
     }
-    return api.createSecurityEvent(data).then(response => {
+    return api.create(data).then(response => {
       commit('ITEM_REPLACED', data)
       return response
     }).catch(err => {
@@ -92,7 +111,7 @@ const actions = {
       data = JSON.parse(JSON.stringify(data)) // dereference
       data.triggers = recomposeTriggers(data.triggers)
     }
-    return api.updateSecurityEvent(data).then(response => {
+    return api.update(data).then(response => {
       commit('ITEM_REPLACED', data)
       return response
     }).catch(err => {
@@ -104,7 +123,7 @@ const actions = {
     commit('ITEM_REQUEST')
     const { id, quiet = false } = data
     const _data = { id, enabled: 'Y', quiet }
-    return api.updateSecurityEvent(_data).then(response => {
+    return api.update(_data).then(response => {
       commit('ITEM_ENABLED', _data)
       commit('$_config_security_events_searchable/ITEM_UPDATED', { key: 'id', id, prop: 'enabled', data: 'Y' }, { root: true })
       return response
@@ -117,7 +136,7 @@ const actions = {
     commit('ITEM_REQUEST')
     const { id, quiet = false } = data
     const _data = { id, enabled: 'N', quiet }
-    return api.updateSecurityEvent(_data).then(response => {
+    return api.update(_data).then(response => {
       commit('ITEM_DISABLED', _data)
       commit('$_config_security_events_searchable/ITEM_UPDATED', { key: 'id', id, prop: 'enabled', data: 'N' }, { root: true })
       return response
@@ -128,7 +147,7 @@ const actions = {
   },
   deleteSecurityEvent: ({ commit }, data) => {
     commit('ITEM_REQUEST', types.DELETING)
-    return api.deleteSecurityEvent(data).then(response => {
+    return api.delete(data).then(response => {
       commit('ITEM_DESTROYED', data)
       return response
     }).catch(err => {

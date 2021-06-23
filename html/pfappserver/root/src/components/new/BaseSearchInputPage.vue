@@ -1,10 +1,10 @@
 <template>
-  <b-pagination class="mr-3" align="right" 
-    :per-page="limit" 
-    :total-rows="totalRows" 
+  <b-pagination class="mb-0" align="right" :key="totalRows"
+    :per-page="limit"
+    :total-rows="totalRows"
     :value="value"
     :disabled="disabled"
-    @change="onInput" 
+    @change="onInput"
   />
 </template>
 <script>

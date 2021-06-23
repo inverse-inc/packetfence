@@ -2,7 +2,21 @@
 * "$_traffic_shaping_policies" store module
 */
 import Vue from 'vue'
+import { computed } from '@vue/composition-api'
 import api from './_api'
+
+export const useStore = $store => {
+  return {
+    isLoading: computed(() => $store.getters['$_traffic_shaping_policies/isLoading']),
+    getList: () => $store.dispatch('$_traffic_shaping_policies/all'),
+    getListOptions: () => $store.dispatch('$_traffic_shaping_policies/options'),
+    createItem: params => $store.dispatch('$_traffic_shaping_policies/createTrafficShapingPolicy', params),
+    getItem: params => $store.dispatch('$_traffic_shaping_policies/getTrafficShapingPolicy', params.id),
+    getItemOptions: params => $store.dispatch('$_traffic_shaping_policies/options', params.id),
+    updateItem: params => $store.dispatch('$_traffic_shaping_policies/updateTrafficShapingPolicy', params),
+    deleteItem: params => $store.dispatch('$_traffic_shaping_policies/deleteTrafficShapingPolicy', params.id)
+  }
+}
 
 const types = {
   LOADING: 'loading',
@@ -31,14 +45,14 @@ const actions = {
       sort: 'id',
       fields: ['id', 'description'].join(',')
     }
-    return api.trafficShapingPolicies(params).then(response => {
+    return api.list(params).then(response => {
       return response.items
     })
   },
   options: ({ commit }, id) => {
     commit('ITEM_REQUEST')
     if (id) {
-      return api.trafficShapingPolicyOptions(id).then(response => {
+      return api.itemOptions(id).then(response => {
         commit('ITEM_SUCCESS')
         return response
       }).catch((err) => {
@@ -46,7 +60,7 @@ const actions = {
         throw err
       })
     } else {
-      return api.trafficShapingPoliciesOptions().then(response => {
+      return api.listOptions().then(response => {
         commit('ITEM_SUCCESS')
         return response
       }).catch((err) => {
@@ -60,7 +74,7 @@ const actions = {
       return Promise.resolve(state.cache[id]).then(cache => JSON.parse(JSON.stringify(cache)))
     }
     commit('ITEM_REQUEST')
-    return api.trafficShapingPolicy(id).then(item => {
+    return api.item(id).then(item => {
       commit('ITEM_REPLACED', item)
       return JSON.parse(JSON.stringify(item))
     }).catch((err) => {
@@ -70,7 +84,7 @@ const actions = {
   },
   createTrafficShapingPolicy: ({ commit }, data) => {
     commit('ITEM_REQUEST')
-    return api.createTrafficShapingPolicy(data).then(response => {
+    return api.create(data).then(response => {
       commit('ITEM_REPLACED', data)
       return response
     }).catch(err => {
@@ -80,7 +94,7 @@ const actions = {
   },
   updateTrafficShapingPolicy: ({ commit }, data) => {
     commit('ITEM_REQUEST')
-    return api.updateTrafficShapingPolicy(data).then(response => {
+    return api.update(data).then(response => {
       commit('ITEM_REPLACED', data)
       return response
     }).catch(err => {
@@ -88,10 +102,10 @@ const actions = {
       throw err
     })
   },
-  deleteTrafficShapingPolicy: ({ commit }, data) => {
+  deleteTrafficShapingPolicy: ({ commit }, id) => {
     commit('ITEM_REQUEST', types.DELETING)
-    return api.deleteTrafficShapingPolicy(data).then(response => {
-      commit('ITEM_DESTROYED', data)
+    return api.delete(id).then(response => {
+      commit('ITEM_DESTROYED', id)
       return response
     }).catch(err => {
       commit('ITEM_ERROR', err.response)

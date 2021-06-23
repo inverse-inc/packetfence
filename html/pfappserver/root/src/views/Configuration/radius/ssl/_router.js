@@ -4,6 +4,17 @@ import RadiusSslStoreModule from './_store'
 const TheTabs = () => import(/* webpackChunkName: "Configuration" */ '../../_components/RadiusTabs')
 const TheView = () => import(/* webpackChunkName: "Configuration" */ './_components/TheView')
 
+export const useRouter = $router => {
+  return {
+    goToCollection: () => $router.push({ name: 'radiusSsls' }),
+    goToItem: params => $router
+      .push({ name: 'radiusSsl', params })
+      .catch(e => { if (e.name !== "NavigationDuplicated") throw e }),
+    goToClone: params => $router.push({ name: 'cloneRadiusSsl', params }),
+    goToNew: params => $router.push({ name: 'newRadiusFast', params })
+  }
+}
+
 export const beforeEnter = (to, from, next = () => {}) => {
   if (!store.state.$_radius_ssl)
     store.registerModule('$_radius_ssl', RadiusSslStoreModule)
@@ -15,7 +26,7 @@ export default [
     path: 'radius/ssl',
     name: 'radiusSsls',
     component: TheTabs,
-    props: (route) => ({ tab: 'radiusSsls', query: route.query.query }),
+    props: () => ({ tab: 'radiusSsls' }),
     beforeEnter
   },
   {

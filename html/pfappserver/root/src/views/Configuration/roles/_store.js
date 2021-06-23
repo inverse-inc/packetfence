@@ -2,7 +2,26 @@
 * "$_roles" store module
 */
 import Vue from 'vue'
+import { computed } from '@vue/composition-api'
+import i18n from '@/utils/locale'
 import api from './_api'
+
+export const useStore = $store => {
+  return {
+    isLoading: computed(() => $store.getters['$_roles/isLoading']),
+    getList: () => $store.dispatch('$_roles/all'),
+    getListOptions: () => $store.dispatch('$_roles/options'),
+    createItem: params => $store.dispatch('$_roles/createRole', params),
+    getItem: params => $store.dispatch('$_roles/getRole', params.id).then(item => {
+      return (params.isClone)
+        ? { ...item, id: `${item.id}-${i18n.t('copy')}`, not_deletable: false }
+        : item
+    }),
+    getItemOptions: params => $store.dispatch('$_roles/options', params.id),
+    updateItem: params => $store.dispatch('$_roles/updateRole', params),
+    deleteItem: params => $store.dispatch('$_roles/deleteRole', params.id),
+  }
+}
 
 const types = {
   LOADING: 'loading',

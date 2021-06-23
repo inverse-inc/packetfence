@@ -1,4 +1,16 @@
 import store from '@/store'
+
+export const useRouter = $router => {
+  return {
+    goToCollection: () => $router.push({ name: 'fingerbankDhcpFingerprints' }),
+    goToItem: params => $router
+      .push({ name: 'fingerbankDhcpFingerprint', params })
+      .catch(e => { if (e.name !== "NavigationDuplicated") throw e }),
+    goToClone: params => $router.push({ name: 'cloneFingerbankDhcpFingerprint', params }),
+    goToNew: params => $router.push({ name: 'newFingerbankDhcpFingerprint', params })
+  }
+}
+
 import { TheTabs } from '../_components/'
 const TheView = () => import(/* webpackChunkName: "Fingerbank" */ './_components/TheView')
 
@@ -7,7 +19,13 @@ export default [
     path: 'fingerbank/dhcp_fingerprints',
     name: 'fingerbankDhcpFingerprints',
     component: TheTabs,
-    props: (route) => ({ tab: 'dhcp_fingerprints', query: route.query.query })
+    props: () => ({ tab: 'dhcp_fingerprints', scope: 'all' })
+  },
+  {
+    path: 'fingerbank/:scope/dhcp_fingerprints',
+    name: 'fingerbankDhcpFingerprintsByScope',
+    component: TheTabs,
+    props: (route) => ({ tab: 'dhcp_fingerprints', scope: route.params.scope })
   },
   {
     path: 'fingerbank/:scope/dhcp_fingerprints/new',

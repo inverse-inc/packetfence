@@ -3,7 +3,7 @@
     <b-card-header>
       <h4 class="mb-0">
         {{ $t('Portal Modules') }}
-        <pf-button-help class="ml-1" url="PacketFence_Installation_Guide.html#_portal_modules" />
+        <base-button-help class="text-black-50 ml-1" url="PacketFence_Installation_Guide.html#_portal_modules" />
       </h4>
     </b-card-header>
     <!-- Visual representation of portal modules -->
@@ -11,9 +11,16 @@
       <b-tab v-for="rootModule in rootModules" :key="rootModule.id" :title="rootModule.description">
         <b-form-row class="justify-content-end">
           <b-button variant="link" @click="minimize = !minimize"><icon :name="minimize ? 'expand' : 'compress'"></icon></b-button>
-          <pf-button-delete class="mr-1" :disabled="isLoading" :confirm="$t('Delete Module?')" @on-delete="remove(rootModule.id)" reverse/>
+          <base-button-confirm
+            variant="outline-danger" class="mr-1" reverse
+            :disabled="isLoading"
+            :confirm="$t('Delete Module?')"
+            @click="remove(rootModule.id)"
+          >{{ $t('Delete') }}</base-button-confirm>
           <b-form @submit.prevent="save(rootModule)">
-            <pf-button-save :isLoading="isLoading" v-t="'Save'"></pf-button-save>
+            <base-button-save type="submit" :isLoading="isLoading">
+              {{ $t('Save') }}
+            </base-button-save>
           </b-form>
         </b-form-row>
         <div class="position-relative">
@@ -73,12 +80,14 @@
 </template>
 
 <script>
+import {
+  BaseButtonConfirm,
+  BaseButtonHelp,
+  BaseButtonSave
+} from '@/components/new/'
 import pfMixinSearchable from '@/components/pfMixinSearchable'
 const draggable = () => import('vuedraggable')
 import PortalModule from './PortalModule'
-import pfButtonHelp from '@/components/pfButtonHelp'
-import pfButtonSave from '@/components/pfButtonSave'
-import pfButtonDelete from '@/components/pfButtonDelete'
 import scroll100 from '@/directives/scroll-100'
 import {
   columns,
@@ -95,9 +104,9 @@ export default {
   components: {
     draggable,
     PortalModule,
-    pfButtonHelp,
-    pfButtonSave,
-    pfButtonDelete
+    BaseButtonConfirm,
+    BaseButtonHelp,
+    BaseButtonSave
   },
   directives: {
     scroll100

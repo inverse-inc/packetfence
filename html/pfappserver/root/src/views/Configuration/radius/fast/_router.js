@@ -4,6 +4,17 @@ import RadiusFastStoreModule from './_store'
 const TheTabs = () => import(/* webpackChunkName: "Configuration" */ '../../_components/RadiusTabs')
 const TheView = () => import(/* webpackChunkName: "Configuration" */ './_components/TheView')
 
+export const useRouter = $router => {
+  return {
+    goToCollection: () => $router.push({ name: 'radiusFasts' }),
+    goToItem: params => $router
+      .push({ name: 'radiusFast', params })
+      .catch(e => { if (e.name !== "NavigationDuplicated") throw e }),
+    goToClone: params => $router.push({ name: 'cloneRadiusFast', params }),
+    goToNew: params => $router.push({ name: 'newRadiusFast', params })
+  }
+}
+
 export const beforeEnter = (to, from, next = () => {}) => {
   if (!store.state.$_radius_fast)
     store.registerModule('$_radius_fast', RadiusFastStoreModule)
@@ -15,7 +26,7 @@ export default [
     path: 'radius/fast',
     name: 'radiusFasts',
     component: TheTabs,
-    props: (route) => ({ tab: 'radiusFasts', query: route.query.query }),
+    props: () => ({ tab: 'radiusFasts' }),
     beforeEnter
   },
   {

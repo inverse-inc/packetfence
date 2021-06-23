@@ -1,6 +1,5 @@
 import { computed, toRefs } from '@vue/composition-api'
 import i18n from '@/utils/locale'
-import { defaultsFromMeta } from '../../_config/'
 
 export const useItemProps = {
   id: {
@@ -11,14 +10,15 @@ export const useItemProps = {
   }
 }
 
-const useItemDefaults = (meta, props) => {
+import { useDefaultsFromMeta } from '@/composables/useMeta'
+export const useItemDefaults = (meta, props) => {
   const {
     sourceType
   } = toRefs(props)
-  return { ...defaultsFromMeta(meta), type: sourceType.value }
+  return { ...useDefaultsFromMeta(meta), type: sourceType.value }
 }
 
-const useItemTitle = (props) => {
+export const useItemTitle = (props) => {
   const {
     id,
     isClone,
@@ -36,61 +36,84 @@ const useItemTitle = (props) => {
   })
 }
 
-const useItemTitleBadge = (props, context, form) => {
+export const useItemTitleBadge = (props, context, form) => {
   const {
     sourceType
   } = toRefs(props)
   return computed(() => (sourceType.value || form.value.type))
 }
 
-const useRouter = (props, context, form) => {
-  const {
-    id
-  } = toRefs(props)
-  const { root: { $router } = {} } = context
-  return {
-    goToCollection: () => $router.push({ name: 'sources' }),
-    goToItem: (item = form.value || {}) => $router
-      .push({ name: 'source', params: { id: item.id } })
-      .catch(e => { if (e.name !== "NavigationDuplicated") throw e }),
-    goToClone: () => $router.push({ name: 'cloneAuthenticationSource', params: { id: id.value } }),
-  }
-}
+export { useRouter } from '../_router'
 
-const useStore = (props, context, form) => {
-  const {
-    id,
-    isClone,
-    isNew,
-    sourceType
-  } = toRefs(props)
-  const { root: { $store } = {} } = context
-  return {
-    isLoading: computed(() => $store.getters['$_sources/isLoading']),
-    getOptions: () => {
-      if (isNew.value)
-        return $store.dispatch('$_sources/optionsBySourceType', sourceType.value)
-      else
-        return $store.dispatch('$_sources/optionsById', id.value)
+export { useStore } from '../_store'
+
+import { pfSearchConditionType as conditionType } from '@/globals/pfSearch'
+import makeSearch from '@/views/Configuration/_store/factory/search'
+import api from '../_api'
+export const useSearch = makeSearch('sources', {
+  api,
+  sortBy: null, // use natural order (sortable)
+  columns: [ // output uses natural order (w/ sortable drag-drop), ensure NO columns are 'sortable: true'
+    {
+      key: 'selected',
+      thStyle: 'width: 40px;', tdClass: 'text-center',
+      locked: true
     },
-    createItem: () => $store.dispatch('$_sources/createAuthenticationSource', form.value),
-    deleteItem: () => $store.dispatch('$_sources/deleteAuthenticationSource', id.value),
-    getItem: () => $store.dispatch('$_sources/getAuthenticationSource', id.value).then(item => {
-      if (isClone.value) {
-        item.id = `${item.id}-${i18n.t('copy')}`
-        item.not_deletable = false
-      }
-      return item
-    }),
-    updateItem: () => $store.dispatch('$_sources/updateAuthenticationSource', form.value),
-  }
-}
-
-export default {
-  useItemDefaults,
-  useItemProps,
-  useItemTitle,
-  useItemTitleBadge,
-  useRouter,
-  useStore,
-}
+    {
+      key: 'id',
+      label: 'Name', // i18n defer
+      required: true,
+      searchable: true,
+      visible: true
+    },
+    {
+      key: 'description',
+      label: 'Description', // i18n defer
+      searchable: true,
+      visible: true
+    },
+    {
+      key: 'type',
+      label: 'Type', // i18n defer
+      searchable: true,
+      visible: true
+    },
+    {
+      key: 'buttons',
+      class: 'text-right p-0',
+      locked: true
+    },
+    {
+      key: 'class',
+      required: true,
+      visible: false
+    },
+    {
+      key: 'not_deletable',
+      required: true,
+      visible: false
+    },
+    {
+      key: 'not_sortable',
+      required: true,
+      visible: false
+    },
+  ],
+  fields: [
+    {
+      value: 'id',
+      text: i18n.t('Name'),
+      types: [conditionType.SUBSTRING]
+    },
+    {
+      value: 'description',
+      text: i18n.t('Description'),
+      types: [conditionType.SUBSTRING]
+    },
+    {
+      value: 'type',
+      text: i18n.t('Type'),
+      types: [conditionType.SUBSTRING]
+    }
+  ]
+})

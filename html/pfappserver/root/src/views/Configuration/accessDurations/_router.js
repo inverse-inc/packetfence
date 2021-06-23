@@ -15,7 +15,6 @@ export default [
     path: 'access_duration',
     name: 'access_duration',
     component: TheView,
-    props: (route) => ({ query: route.query.query }),
     beforeEnter
   }
 ]

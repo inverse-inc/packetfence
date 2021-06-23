@@ -13,15 +13,16 @@ export const props = {
       {
         value: 'disabled', label: i18n.t('Disabled'),
         color: 'var(--danger)', icon: 'times',
-        promise: (value, props) => {
+        promise: (value, props, context) => {
           const { item } = toRefs(props)
           return store.dispatch('$_network_behavior_policies/disableNetworkBehaviorPolicy', { quiet: true, ...item.value })
             .then(() => {
-              store.dispatch('notification/info', { message: i18n.t('Network behavior policy <strong>{id}</strong> disabled.', item.value) })
+              context.emit('input', 'disabled')
+              store.dispatch('notification/info', { message: i18n.t('Network behavior policy <code>{id}</code> disabled.', item.value) })
             })
             .catch(err => {
               const { response: { data: { message: errMsg } = {} } = {} } = err
-              let message = i18n.t('Network behavior policy <strong>{id}</strong> was not disabled', item.value)
+              let message = i18n.t('Network behavior policy <code>{id}</code> could not be disabled.', item.value)
               if (errMsg) message += ` (${errMsg})`
               store.dispatch('notification/danger', { message })
             })
@@ -30,15 +31,16 @@ export const props = {
       {
         value: 'enabled', label: i18n.t('Enabled'),
         color: 'var(--success)', icon: 'check',
-        promise: (value, props) => {
+        promise: (value, props, context) => {
           const { item } = toRefs(props)
           return store.dispatch('$_network_behavior_policies/enableNetworkBehaviorPolicy', { quiet: true, ...item.value })
             .then(() => {
-              store.dispatch('notification/info', { message: i18n.t('Network behavior policy <strong>{id}</strong> enabled.', item.value) })
+              context.emit('input', 'enabled')
+              store.dispatch('notification/info', { message: i18n.t('Network behavior policy <code>{id}</code> enabled.', item.value) })
             })
             .catch(err => {
               const { response: { data: { message: errMsg } = {} } = {} } = err
-              let message = i18n.t('Network behavior policy <strong>{id}</strong> was not enabled', item.value)
+              let message = i18n.t('Network behavior policy <code>{id}</code> could not be enabled.', item.value)
               if (errMsg) message += ` (${errMsg})`
               store.dispatch('notification/danger', { message })
             })

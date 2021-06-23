@@ -2,7 +2,26 @@
 * "$_scans" store module
 */
 import Vue from 'vue'
+import { computed } from '@vue/composition-api'
+import i18n from '@/utils/locale'
 import api from './_api'
+
+export const useStore = $store => {
+  return {
+    isLoading: computed(() => $store.getters['$_scans/isLoading']),
+    getList: () => $store.dispatch('$_scans/all'),
+    getListOptions: params => $store.dispatch('$_scans/optionsByScanType', params.scanType),
+    createItem: params => $store.dispatch('$_scans/createScanEngine', params),
+    getItem: params => $store.dispatch('$_scans/getScanEngine', params.id).then(item => {
+      return (params.isClone)
+        ? { ...item, id: `${item.id}-${i18n.t('copy')}`, not_deletable: false }
+        : item
+    }),
+    getItemOptions: params => $store.dispatch('$_scans/optionsById', params.id),
+    updateItem: params => $store.dispatch('$_scans/updateScanEngine', params),
+    deleteItem: params => $store.dispatch('$_scans/deleteScanEngine', params.id),
+  }
+}
 
 const types = {
   LOADING: 'loading',
@@ -28,7 +47,7 @@ const getters = {
 const actions = {
   optionsById: ({ commit }, id) => {
     commit('ITEM_REQUEST')
-    return api.scanEngineOptions(id).then(response => {
+    return api.itemOptions(id).then(response => {
       commit('ITEM_SUCCESS')
       return response
     }).catch((err) => {
@@ -38,7 +57,7 @@ const actions = {
   },
   optionsByScanType: ({ commit }, scanType) => {
     commit('ITEM_REQUEST')
-    return api.scanEnginesOptions(scanType).then(response => {
+    return api.listOptions(scanType).then(response => {
       commit('ITEM_SUCCESS')
       return response
     }).catch((err) => {
@@ -51,7 +70,7 @@ const actions = {
       return Promise.resolve(state.cache[id]).then(cache => JSON.parse(JSON.stringify(cache)))
     }
     commit('ITEM_REQUEST')
-    return api.scanEngine(id).then(item => {
+    return api.item(id).then(item => {
       commit('ITEM_REPLACED', item)
       return JSON.parse(JSON.stringify(item))
     }).catch((err) => {
@@ -61,7 +80,7 @@ const actions = {
   },
   createScanEngine: ({ commit }, data) => {
     commit('ITEM_REQUEST')
-    return api.createScanEngine(data).then(response => {
+    return api.create(data).then(response => {
       commit('ITEM_REPLACED', data)
       return response
     }).catch(err => {
@@ -71,7 +90,7 @@ const actions = {
   },
   updateScanEngine: ({ commit }, data) => {
     commit('ITEM_REQUEST')
-    return api.updateScanEngine(data).then(response => {
+    return api.update(data).then(response => {
       commit('ITEM_REPLACED', data)
       return response
     }).catch(err => {
@@ -79,20 +98,10 @@ const actions = {
       throw err
     })
   },
-  deleteScanEngine: ({ commit }, data) => {
+  deleteScanEngine: ({ commit }, id) => {
     commit('ITEM_REQUEST', types.DELETING)
-    return api.deleteScanEngine(data).then(response => {
-      commit('ITEM_DESTROYED', data)
-      return response
-    }).catch(err => {
-      commit('ITEM_ERROR', err.response)
-      throw err
-    })
-  },
-  testScanEngine: ({ commit }, data) => {
-    commit('ITEM_REQUEST')
-    return api.testScanEngine(data).then(response => {
-      commit('ITEM_SUCCESS')
+    return api.delete(id).then(response => {
+      commit('ITEM_DESTROYED', id)
       return response
     }).catch(err => {
       commit('ITEM_ERROR', err.response)

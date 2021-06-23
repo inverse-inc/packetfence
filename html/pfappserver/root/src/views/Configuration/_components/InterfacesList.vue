@@ -52,7 +52,12 @@
             <span v-if="item.item.vlan"
               class="float-right text-nowrap"
             >
-              <pf-button-delete size="sm" variant="outline-danger" class="mr-1" :disabled="isInterfacesLoading" :confirm="$t('Delete VLAN?')" @on-delete="removeInterface(item.item)" reverse/>
+              <base-button-confirm
+                size="sm" variant="outline-danger" class="my-1 mr-1" reverse
+                :disabled="isInterfacesLoading"
+                :confirm="$t('Delete VLAN?')"
+                @click="removeInterface(item.item)"
+              >{{ $t('Delete') }}</base-button-confirm>
               <b-button size="sm" variant="outline-primary" class="mr-1" :disabled="isInterfacesLoading" @click.stop.prevent="cloneInterface(item.item)">{{ $t('Clone') }}</b-button>
             </span>
             <span v-else
@@ -80,9 +85,9 @@
         <b-row align-h="end" align-v="start" class="mb-3">
           <b-col cols="auto" class="mr-auto"></b-col>
           <b-col cols="auto">
-            <pf-button-service service="iptables" class="mr-1" restart start stop></pf-button-service>
-            <pf-button-service service="pfdhcp" class="mr-1" restart start stop></pf-button-service>
-            <pf-button-service service="pfdns" class="mr-1" restart start stop></pf-button-service>
+            <base-button-service service="iptables" restart start stop class="mr-1" />
+            <base-button-service service="pfdhcp" restart start stop class="mr-1" />
+            <base-button-service service="pfdns" restart start stop class="mr-1" />
           </b-col>
         </b-row>
         <b-table class="table-clickable"
@@ -128,10 +133,10 @@
             <b-button variant="outline-primary" class="mr-1" :to="{ name: 'newRoutedNetwork' }">{{ $t('New Routed Network') }}</b-button>
           </b-col>
           <b-col cols="auto">
-            <pf-button-service service="keepalived" class="mr-1" restart start stop></pf-button-service>
-            <pf-button-service service="iptables" class="mr-1" restart start stop></pf-button-service>
-            <pf-button-service service="pfdhcp" class="mr-1" restart start stop></pf-button-service>
-            <pf-button-service service="pfdns" class="mr-1" restart start stop></pf-button-service>
+            <base-button-service service="keepalived" restart start stop class="mr-1" />
+            <base-button-service service="iptables" restart start stop class="mr-1" />
+            <base-button-service service="pfdhcp" restart start stop class="mr-1" />
+            <base-button-service service="pfdns" restart start stop class="mr-1" />
           </b-col>
         </b-row>
         <b-table class="table-clickable"
@@ -158,7 +163,12 @@
           </template>
           <template v-slot:cell(buttons)="item">
             <span class="float-right text-nowrap">
-              <pf-button-delete size="sm" variant="outline-danger" class="mr-1" :disabled="isRoutedNetworksLoading" :confirm="$t('Delete Routed Network?')" @on-delete="removeRoutedNetwork(item.item)" reverse/>
+              <base-button-confirm
+                size="sm" variant="outline-danger" class="my-1 mr-1" reverse
+                :disabled="isRoutedNetworksLoading"
+                :confirm="$t('Delete Routed Network?')"
+                @click="removeRoutedNetwork(item.item)"
+              >{{ $t('Delete') }}</base-button-confirm>
               <b-button size="sm" variant="outline-primary" class="mr-1" :disabled="isRoutedNetworksLoading" @click.stop.prevent="cloneRoutedNetwork(item.item)">{{ $t('Clone') }}</b-button>
             </span>
           </template>
@@ -169,9 +179,11 @@
 </template>
 
 <script>
+import {
+  BaseButtonConfirm,
+  BaseButtonService
+} from '@/components/new/'
 import network from '@/utils/network'
-import pfButtonDelete from '@/components/pfButtonDelete'
-import pfButtonService from '@/components/pfButtonService'
 import pfEmptyTable from '@/components/pfEmptyTable'
 import { ToggleStatus } from '@/views/Configuration/networks/interfaces/_components/'
 import { columns as columnsInterface } from '../_config/interface'
@@ -181,8 +193,8 @@ import { columns as columnsRoutedNetwork } from '../_config/routedNetwork'
 export default {
   name: 'interfaces-list',
   components: {
-    pfButtonDelete,
-    pfButtonService,
+    BaseButtonConfirm,
+    BaseButtonService,
     pfEmptyTable,
     ToggleStatus
   },

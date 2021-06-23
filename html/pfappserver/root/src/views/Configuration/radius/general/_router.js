@@ -14,7 +14,7 @@ export default [
     path: 'radius',
     name: 'radiusGeneral',
     component: TheTabs,
-    props: (route) => ({ tab: 'radiusGeneral', query: route.query.query }),
+    props: () => ({ tab: 'radiusGeneral' }),
     beforeEnter
   }
 ]

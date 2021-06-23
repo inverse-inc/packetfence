@@ -1,6 +1,6 @@
 <template>
   <b-button v-if="!isClone && !isNew"
-    size="sm" variant="outline-primary" :disabled="isLoading" @click="onEmail">{{ $t('Email') }}</b-button>
+    size="sm" variant="outline-primary" :disabled="disabled || isLoading" @click.stop.prevent="onEmail">{{ $t('Email') }}</b-button>
 </template>
 <script>
 import {
@@ -15,12 +15,15 @@ const components = {
 
 const props = {
   id : {
-    type: String
+    type: [String, Number]
   },
   isClone: {
     type: Boolean
   },
   isNew: {
+    type: Boolean
+  },
+  disabled: {
     type: Boolean
   }
 }

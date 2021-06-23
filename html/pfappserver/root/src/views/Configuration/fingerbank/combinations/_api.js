@@ -1,27 +1,27 @@
 import apiCall from '@/utils/api'
 
 export default {
-  fingerbankCombinations: params => {
+  list: params => {
     return apiCall.get(['fingerbank', 'local', 'combinations'], { params }).then(response => {
       return response.data
     })
   },
-  fingerbankSearchCombinations: body => {
+  search: body => {
     return apiCall.post('fingerbank/local/combinations/search', body).then(response => {
       return response.data
     })
   },
-  fingerbankCombination: id => {
+  item: id => {
     return apiCall.get(['fingerbank', 'local', 'combination', id]).then(response => {
       return response.data.item
     })
   },
-  fingerbankCreateCombination: data => {
+  create: data => {
     return apiCall.post('fingerbank/local/combinations', data).then(response => {
       return response.data
     })
   },
-  fingerbankUpdateCombination: data => {
+  update: data => {
     Object.keys(data).forEach(key => {
       if (/^not_/.test(key)) { // remove fields starting with 'not_'
         delete data[key]
@@ -31,7 +31,7 @@ export default {
       return response.data
     })
   },
-  fingerbankDeleteCombination: id => {
+  delete: id => {
     return apiCall.delete(['fingerbank', 'local', 'combination', id])
   }
 }

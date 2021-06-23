@@ -1,27 +1,33 @@
 import apiCall from '@/utils/api'
 
 export default {
-  wrixLocations: params => {
+  list: params => {
     return apiCall.get('wrix_locations', { params }).then(response => {
       return response.data
     })
   },
-  wrixLocation: id => {
-    return apiCall.get(['wrix_location', id]).then(response => {
-      return response.data.item
+  search: data => {
+    return apiCall.post('wrix_locations/search', data).then(response => {
+      return response.data
     })
   },
-  createWrixLocation: data => {
+  create: data => {
     return apiCall.post('wrix_locations', data).then(response => {
       return response.data
     })
   },
-  updateWrixLocation: data => {
+
+  item: id => {
+    return apiCall.get(['wrix_location', id]).then(response => {
+      return response.data.item
+    })
+  },
+  update: data => {
     return apiCall.patch(['wrix_location', data.id], data).then(response => {
       return response.data
     })
   },
-  deleteWrixLocation: id => {
+  delete: id => {
     return apiCall.delete(['wrix_location', id])
   }
 }

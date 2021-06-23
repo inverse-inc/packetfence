@@ -38,7 +38,8 @@ export const pfSearchConditionValue = {
   TEXT:                    'text',
   SELECT:                  'select',
   DATETIME:                'datetime',
-  PREFIXMULTIPLE:          'prefixmultiple'
+  PREFIXMULTIPLE:          'prefixmultiple',
+  NUMBER:                  'integer'
 }
 
 /**
@@ -61,12 +62,12 @@ pfConditionOperators[pfSearchConditionType.DATETIME] = {
   'less_than_equals':      pfSearchConditionValue.DATETIME
 }
 pfConditionOperators[pfSearchConditionType.INTEGER] = {
-  'equals':                pfSearchConditionValue.TEXT,
-  'not_equals':            pfSearchConditionValue.TEXT,
-  'greater_than':          pfSearchConditionValue.TEXT,
-  'less_than':             pfSearchConditionValue.TEXT,
-  'greater_than_equals':   pfSearchConditionValue.TEXT,
-  'less_than_equals':      pfSearchConditionValue.TEXT
+  'equals':                pfSearchConditionValue.INTEGER,
+  'not_equals':            pfSearchConditionValue.INTEGER,
+  'greater_than':          pfSearchConditionValue.INTEGER,
+  'less_than':             pfSearchConditionValue.INTEGER,
+  'greater_than_equals':   pfSearchConditionValue.INTEGER,
+  'less_than_equals':      pfSearchConditionValue.INTEGER
 }
 pfConditionOperators[pfSearchConditionType.PREFIXMULTIPLE] = {
   'equals':                pfSearchConditionValue.PREFIXMULTIPLE,

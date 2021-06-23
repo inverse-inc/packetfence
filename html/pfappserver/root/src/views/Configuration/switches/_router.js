@@ -7,6 +7,17 @@ const TheTabs = () => import(/* webpackChunkName: "Configuration" */ '../_compon
 const TheCsvImport = () => import(/* webpackChunkName: "Import" */ './_components/TheCsvImport')
 const TheView = () => import(/* webpackChunkName: "Configuration" */ './_components/TheView')
 
+export const useRouter = $router => {
+  return {
+    goToCollection: () => $router.push({ name: 'switches' }),
+    goToItem: params => $router
+      .push({ name: 'switch', params })
+      .catch(e => { if (e.name !== "NavigationDuplicated") throw e }),
+    goToClone: params => $router.push({ name: 'cloneSwitch', params }),
+    goToNew: params => $router.push({ name: 'newSwitch', params })
+  }
+}
+
 export const beforeEnter = (to, from, next = () => {}) => {
   if (!store.state.$_roles)
     store.registerModule('$_roles', RolesStoreModule)
@@ -22,7 +33,7 @@ export default [
     path: 'switches',
     name: 'switches',
     component: TheTabs,
-    props: (route) => ({ tab: 'switches', query: route.query.query }),
+    props: () => ({ tab: 'switches' }),
     beforeEnter
   },
   {

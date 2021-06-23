@@ -1,10 +1,7 @@
 import { computed, toRefs } from '@vue/composition-api'
 import i18n from '@/utils/locale'
-import {
-  defaultsFromMeta as useItemDefaults
-} from '../../_config/'
 
-const useItemTitle = (props) => {
+export const useItemTitle = (props) => {
   const {
     id,
     isClone,
@@ -22,64 +19,74 @@ const useItemTitle = (props) => {
   })
 }
 
-export const useRouter = (props, context, form) => {
-  const {
-    id
-  } = toRefs(props)
-  const { root: { $router } = {} } = context
-  return {
-    goToCollection: () => $router.push({ name: 'roles' }),
-    goToItem: (item = form.value || {}) => $router
-      .push({ name: 'role', params: { id: item.id } })
-      .catch(e => { if (e.name !== "NavigationDuplicated") throw e }),
-    goToClone: () => $router.push({ name: 'cloneRole', params: { id: id.value } }),
-  }
-}
+export { useRouter } from '../_router'
 
-const useStore = (props, context, form) => {
-  const {
-    id,
-    isClone
-  } = toRefs(props)
-  const { root: { $store } = {} } = context
-  return {
-    isLoading: computed(() => $store.getters['$_roles/isLoading']),
-    getOptions: () => $store.dispatch('$_roles/options'),
-    createItem: () => $store.dispatch('$_roles/createRole', form.value),
-    deleteItem: () => $store.dispatch('$_roles/deleteRole', id.value),
-    getItem: () => $store.dispatch('$_roles/getRole', id.value).then(item => {
-      if (isClone.value) {
-        item.id = `${item.id}-${i18n.t('copy')}`
-        item.not_deletable = false
-      }
-      return item
-    }),
-    updateItem: () => $store.dispatch('$_roles/updateRole', form.value),
-  }
-}
+export { useStore } from '../_store'
 
-import {
-  useSearch as useConfigurationSearch
-} from '@/views/Configuration/_composables/useSearch'
+import { pfSearchConditionType as conditionType } from '@/globals/pfSearch'
+import makeSearch from '@/views/Configuration/_store/factory/search'
 import api from '../_api'
-import {
-  columns,
-  fields
-} from '../config'
-export const useSearch = (props, context, options) => {
-  return useConfigurationSearch(api, { 
-    name: 'roles', // localStorage prefix
-    columns,
-    fields,
-    sortBy: 'id',
-    ...options,
-  })
-}
-
-export default {
-  useItemDefaults,
-  useItemTitle,
-  useRouter,
-  useStore,
-  useSearch
-}
+export const useSearch = makeSearch('roles', {
+  api,
+  columns: [
+    {
+      key: 'selected',
+      thStyle: 'text-align: center; width: 40px;', tdClass: 'text-center',
+      locked: true
+    },
+    {
+      key: 'id',
+      class: 'text-nowrap',
+      label: 'Identifier', // i18n defer
+      required: true,
+      searchable: true,
+      sortable: true,
+      visible: true
+    },
+    {
+      key: 'notes',
+      label: 'Description', // i18n defer
+      searchable: true,
+      sortable: true,
+      visible: true
+    },
+    {
+      key: 'max_nodes_per_pid',
+      label: 'Max nodes per user', // i18n defer
+      searchable: true,
+      sortable: true,
+      visible: true
+    },
+    {
+      key: 'buttons',
+      class: 'text-right p-0',
+      locked: true
+    },
+    {
+      key: 'children',
+      required: true
+    },
+    {
+      key: 'parent_id',
+      required: true
+    }
+  ],
+  fields: [
+    {
+      value: 'id',
+      text: i18n.t('Name'),
+      types: [conditionType.SUBSTRING]
+    },
+    {
+      value: 'notes',
+      text: i18n.t('Description'),
+      types: [conditionType.SUBSTRING]
+    },
+    {
+      value: 'parent_id',
+      text: i18n.t('Parent Role'),
+      types: [conditionType.ROLE]
+    }
+  ],
+  sortBy: 'id'
+})

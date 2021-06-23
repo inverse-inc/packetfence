@@ -1,7 +1,7 @@
 <template>
-  <b-form inline class="mb-0">
-    <b-form-select class="mb-3 mr-3" :size="size" 
-      :options="limits" 
+  <b-form inline>
+    <b-form-select :size="size"
+      :options="limits"
       :disabled="disabled"
       :value="value" @input="onInput"
     />

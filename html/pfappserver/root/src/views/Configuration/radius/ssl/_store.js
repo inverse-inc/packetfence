@@ -2,7 +2,26 @@
 * "$_radius_ssl" store module
 */
 import Vue from 'vue'
+import { computed } from '@vue/composition-api'
+import i18n from '@/utils/locale'
 import api from './_api'
+
+export const useStore = $store => {
+  return {
+    isLoading: computed(() => $store.getters['$_radius_ssl/isLoading']),
+    getList: () => $store.dispatch('$_radius_ssl/all'),
+    getListOptions: () => $store.dispatch('$_radius_ssl/options'),
+    createItem: params => $store.dispatch('$_radius_ssl/createRadiusSsl', params),
+    getItem: params => $store.dispatch('$_radius_ssl/getRadiusSsl', params.id).then(item => {
+      return (params.isClone)
+        ? { ...item, id: `${item.id}-${i18n.t('copy')}`, not_deletable: false }
+        : item
+    }),
+    getItemOptions: params => $store.dispatch('$_radius_ssl/options', params.id),
+    updateItem: params => $store.dispatch('$_radius_ssl/updateRadiusSsl', params),
+    deleteItem: params => $store.dispatch('$_radius_ssl/deleteRadiusSsl', params.id),
+  }
+}
 
 const types = {
   LOADING: 'loading',
@@ -29,14 +48,14 @@ const actions = {
       sort: 'id',
       fields: ['id'].join(',')
     }
-    return api.radiusSsls(params).then(response => {
+    return api.list(params).then(response => {
       return response.items
     })
   },
   options: ({ commit }, id) => {
     commit('ITEM_REQUEST')
     if (id) {
-      return api.radiusSslOptions(id).then(response => {
+      return api.itemOptions(id).then(response => {
         commit('ITEM_SUCCESS')
         return response
       }).catch((err) => {
@@ -44,7 +63,7 @@ const actions = {
         throw err
       })
     } else {
-      return api.radiusSslsOptions().then(response => {
+      return api.listOptions().then(response => {
         commit('ITEM_SUCCESS')
         return response
       }).catch((err) => {
@@ -58,7 +77,7 @@ const actions = {
       return Promise.resolve(state.cache[id]).then(cache => JSON.parse(JSON.stringify(cache)))
     }
     commit('ITEM_REQUEST')
-    return api.radiusSsl(id).then(item => {
+    return api.item(id).then(item => {
       commit('ITEM_REPLACED', item)
       return JSON.parse(JSON.stringify(item))
     }).catch((err) => {
@@ -68,7 +87,7 @@ const actions = {
   },
   createRadiusSsl: ({ commit }, data) => {
     commit('ITEM_REQUEST')
-    return api.createRadiusSsl(data).then(response => {
+    return api.create(data).then(response => {
       commit('ITEM_REPLACED', data)
       return response
     }).catch(err => {
@@ -78,7 +97,7 @@ const actions = {
   },
   updateRadiusSsl: ({ commit }, data) => {
     commit('ITEM_REQUEST')
-    return api.updateRadiusSsl(data).then(response => {
+    return api.update(data).then(response => {
       commit('ITEM_REPLACED', data)
       return response
     }).catch(err => {
@@ -86,10 +105,10 @@ const actions = {
       throw err
     })
   },
-  deleteRadiusSsl: ({ commit }, data) => {
+  deleteRadiusSsl: ({ commit }, id) => {
     commit('ITEM_REQUEST', types.DELETING)
-    return api.deleteRadiusSsl(data).then(response => {
-      commit('ITEM_DESTROYED', data)
+    return api.delete(id).then(response => {
+      commit('ITEM_DESTROYED', id)
       return response
     }).catch(err => {
       commit('ITEM_ERROR', err.response)

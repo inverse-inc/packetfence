@@ -15,7 +15,6 @@ export default [
     path: 'captive_portal',
     name: 'captive_portal',
     component: TheView,
-    props: (route) => ({ query: route.query.query }),
     beforeEnter
   }
 ]

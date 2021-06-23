@@ -1,6 +1,5 @@
 import { computed, toRefs } from '@vue/composition-api'
 import i18n from '@/utils/locale'
-import { defaultsFromMeta as useItemDefaults } from '../../_config/'
 
 export const useItemProps = {
   collection: {
@@ -11,7 +10,7 @@ export const useItemProps = {
   },
 }
 
-const useItemTitle = (props) => {
+export const useItemTitle = (props) => {
   const {
     id,
     isClone,
@@ -29,7 +28,7 @@ const useItemTitle = (props) => {
   })
 }
 
-const useItemTitleBadge = (props, context) => {
+export const useItemTitleBadge = (props, context) => {
   const {
     collection
   } = toRefs(props)
@@ -37,49 +36,79 @@ const useItemTitleBadge = (props, context) => {
   return computed(() => $store.getters['$_filter_engines/collectionToName'](collection.value))
 }
 
-const useRouter = (props, context, form) => {
-  const {
-    collection
-  } = toRefs(props)
-  const { root: { $router } = {} } = context
-  return {
-    goToCollection: () => $router.push({ name: 'filterEnginesCollection', params: { collection: collection.value } }),
-    goToItem: (item = form.value || {}) => $router
-      .push({ name: 'filter_engine', params: { collection: collection.value, id: item.id } })
-      .catch(e => { if (e.name !== "NavigationDuplicated") throw e }),
-    goToClone: () => $router.push({ name: 'cloneFilterEngine', params: { collection: collection.value } }),
-  }
-}
+export { useRouter } from '../_router'
 
-const useStore = (props, context, form) => {
-  const {
-    collection,
-    id,
-    isClone
-  } = toRefs(props)
-  const { root: { $store } = {} } = context
-  return {
-    isLoading: computed(() => $store.getters['$_filter_engines/isLoading']),
-    getOptions: () => $store.dispatch('$_filter_engines/options', { collection: collection.value, id: id.value }),
-    createItem: () => $store.dispatch('$_filter_engines/createFilterEngine', { collection: collection.value, data: form.value }),
-    deleteItem: () => $store.dispatch('$_filter_engines/deleteFilterEngine', { collection: collection.value, id: id.value }),
-    getItem: () => $store.dispatch('$_filter_engines/getFilterEngine', { collection: collection.value, id: id.value }).then(item => {
-      item = JSON.parse(JSON.stringify(item)) // dereference
-      if (isClone.value) {
-        item.id = `${item.id}-${i18n.t('copy')}`
-        item.not_deletable = false
+export { useStore } from '../_store'
+
+import { pfSearchConditionType as conditionType } from '@/globals/pfSearch'
+import makeSearch from '@/views/Configuration/_store/factory/search'
+import api from '../_api'
+export const useSearch = makeSearch('filterEngines', {
+  api,
+  sortBy: null, // use natural order (sortable)
+  columns: [ // output uses natural order (w/ sortable drag-drop), ensure NO columns are 'sortable: true'
+    {
+      key: 'selected',
+      thStyle: 'width: 40px;', tdClass: 'text-center',
+      locked: true
+    },
+    {
+      key: 'status',
+      label: 'Status', // i18n defer
+      visible: true
+    },
+    {
+      key: 'id',
+      label: 'Name', // i18n defer
+      required: true,
+      searchable: true,
+      visible: true
+    },
+    {
+      key: 'description',
+      label: 'Description', // i18n defer
+      searchable: true,
+      visible: true
+    },
+    {
+      key: 'scopes',
+      label: 'Scopes', // i18n defer
+      visible: true,
+      /*
+      formatter: (value) => {
+        if (value && value.constructor === Array && value.length > 0) {
+          return value
+        }
+        return null // otherwise '[]' is displayed in cell
       }
-      return item
-    }),
-    updateItem: () => $store.dispatch('$_filter_engines/updateFilterEngine', { collection: collection.value, id: id.value, data: form.value }),
-  }
-}
-
-export default {
-  useItemDefaults,
-  useItemProps,
-  useItemTitle,
-  useItemTitleBadge,
-  useRouter,
-  useStore,
-}
+      */
+    },
+    {
+      key: 'buttons',
+      class: 'text-right p-0',
+      locked: true
+    },
+    {
+      key: 'not_deletable',
+      required: true,
+      visible: false
+    },
+    {
+      key: 'not_sortable',
+      required: true,
+      visible: false
+    },
+  ],
+  fields: [
+    {
+      value: 'id',
+      text: i18n.t('Name'),
+      types: [conditionType.SUBSTRING]
+    },
+    {
+      value: 'description',
+      text: i18n.t('Description'),
+      types: [conditionType.SUBSTRING]
+    }
+  ]
+})

@@ -3,8 +3,19 @@ import SecurityEventsStoreModule from './_store'
 import ConnectionProfilesStoreModule from '../connectionProfiles/_store'
 import NetworkBehaviorPoliciesStoreModule from '../networkBehaviorPolicy/_store'
 
-const TheList = () => import(/* webpackChunkName: "Configuration" */ '../_components/SecurityEventsList')
+const TheSearch = () => import(/* webpackChunkName: "Configuration" */ './_components/TheSearch')
 const TheView = () => import(/* webpackChunkName: "Configuration" */ './_components/TheView')
+
+export const useRouter = $router => {
+  return {
+    goToCollection: () => $router.push({ name: 'security_events' }),
+    goToItem: params => $router
+      .push({ name: 'security_event', params })
+      .catch(e => { if (e.name !== "NavigationDuplicated") throw e }),
+    goToClone: params => $router.push({ name: 'cloneSecurityEvent', params }),
+    goToNew: params => $router.push({ name: 'newSecurityEvent', params })
+  }
+}
 
 export const beforeEnter = (to, from, next = () => {}) => {
   if (!store.state.$_security_events)
@@ -20,8 +31,7 @@ export default [
   {
     path: 'security_events',
     name: 'security_events',
-    component: TheList,
-    props: (route) => ({ query: route.query.query }),
+    component: TheSearch,
     beforeEnter
   },
   {

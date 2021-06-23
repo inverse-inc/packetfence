@@ -7,7 +7,7 @@
         {{ $t('Update Fingerbank Database') }}
       </b-button>
     </b-card-header>
-    <b-tabs ref="tabs" v-model="tabIndex" card>
+    <b-tabs ref="tabs" v-model="tabIndex" card lazy>
       <b-tab :title="$t('General Settings')" @click="changeTab('general_settings')">
         <fingerbank-general-setting-view />
       </b-tab>
@@ -15,28 +15,28 @@
         <fingerbank-device-change-detection-view />
       </b-tab>
       <b-tab :title="$t('Combinations')" @click="changeTab('combinations')">
-        <fingerbank-combinations-list />
+        <fingerbank-combinations-search />
       </b-tab>
       <b-tab :title="$t('Devices')" @click="changeTab('devices')">
-        <fingerbank-devices-list :parentId="parentId"/>
+        <fingerbank-devices-search :parentId="parentId" :scope="scope" />
       </b-tab>
       <b-tab :title="$t('DHCP Fingerprints')" @click="changeTab('dhcp_fingerprints')">
-        <fingerbank-dhcp-fingerprints-list />
+        <fingerbank-dhcp-fingerprints-search :scope="scope" />
       </b-tab>
       <b-tab :title="$t('DHCP Vendors')" @click="changeTab('dhcp_vendors')">
-        <fingerbank-dhcp-vendors-list />
+        <fingerbank-dhcp-vendors-search :scope="scope" />
       </b-tab>
       <b-tab :title="$t('DHCPv6 Fingerprints')" @click="changeTab('dhcpv6_fingerprints')">
-        <fingerbank-dhcpv6-fingerprints-list />
+        <fingerbank-dhcpv6-fingerprints-search :scope="scope" />
       </b-tab>
       <b-tab :title="$t('DHCPv6 Enterprises')" @click="changeTab('dhcpv6_enterprises')">
-        <fingerbank-dhcpv6-enterprises-list />
+        <fingerbank-dhcpv6-enterprises-search :scope="scope" />
       </b-tab>
       <b-tab :title="$t('MAC Vendors')" @click="changeTab('mac_vendors')">
-        <fingerbank-mac-vendors-list />
+        <fingerbank-mac-vendors-search :scope="scope" />
       </b-tab>
       <b-tab :title="$t('User Agents')" @click="changeTab('user_agents')">
-        <fingerbank-user-agents-list />
+        <fingerbank-user-agents-search :scope="scope" />
       </b-tab>
     </b-tabs>
   </b-card>
@@ -45,28 +45,28 @@
 <script>
 import FingerbankGeneralSettingView from '../fingerbank/generalSettings/_components/TheView'
 import FingerbankDeviceChangeDetectionView from '../fingerbank/deviceChangeDetection/_components/TheView'
-import FingerbankCombinationsList from './FingerbankCombinationsList'
-import FingerbankDevicesList from './FingerbankDevicesList'
-import FingerbankDhcpFingerprintsList from './FingerbankDhcpFingerprintsList'
-import FingerbankDhcpVendorsList from './FingerbankDhcpVendorsList'
-import FingerbankDhcpv6FingerprintsList from './FingerbankDhcpv6FingerprintsList'
-import FingerbankDhcpv6EnterprisesList from './FingerbankDhcpv6EnterprisesList'
-import FingerbankMacVendorsList from './FingerbankMacVendorsList'
-import FingerbankUserAgentsList from './FingerbankUserAgentsList'
+import FingerbankCombinationsSearch from '../fingerbank/combinations/_components/TheSearch'
+import FingerbankDevicesSearch from '../fingerbank/devices/_components/TheSearch'
+import FingerbankDhcpFingerprintsSearch from '../fingerbank/dhcpFingerprints/_components/TheSearch'
+import FingerbankDhcpVendorsSearch from '../fingerbank/dhcpVendors/_components/TheSearch'
+import FingerbankDhcpv6FingerprintsSearch from '../fingerbank/dhcpv6Fingerprints/_components/TheSearch'
+import FingerbankDhcpv6EnterprisesSearch from '../fingerbank/dhcpv6Enterprises/_components/TheSearch'
+import FingerbankMacVendorsSearch from '../fingerbank/macVendors/_components/TheSearch'
+import FingerbankUserAgentsSearch from '../fingerbank/userAgents/_components/TheSearch'
 
 export default {
   name: 'fingerbank-tabs',
   components: {
     FingerbankGeneralSettingView,
     FingerbankDeviceChangeDetectionView,
-    FingerbankCombinationsList,
-    FingerbankDevicesList,
-    FingerbankDhcpFingerprintsList,
-    FingerbankDhcpVendorsList,
-    FingerbankDhcpv6FingerprintsList,
-    FingerbankDhcpv6EnterprisesList,
-    FingerbankMacVendorsList,
-    FingerbankUserAgentsList
+    FingerbankCombinationsSearch,
+    FingerbankDevicesSearch,
+    FingerbankDhcpFingerprintsSearch,
+    FingerbankDhcpVendorsSearch,
+    FingerbankDhcpv6FingerprintsSearch,
+    FingerbankDhcpv6EnterprisesSearch,
+    FingerbankMacVendorsSearch,
+    FingerbankUserAgentsSearch
   },
   props: {
     tab: {
@@ -76,6 +76,10 @@ export default {
     parentId: {
       type: String,
       default: null
+    },
+    scope: {
+      type: String,
+      default: 'all'
     }
   },
   computed: {
@@ -104,7 +108,20 @@ export default {
   },
   methods: {
     changeTab (path) {
-      this.$router.push(`/configuration/fingerbank/${path}`)
+      switch (path) {
+        case 'devices':
+        case 'dhcp_fingerprints':
+        case 'dhcp_vendors':
+        case 'dhcpv6_fingerprints':
+        case 'dhcpv6_enterprises':
+        case 'mac_vendors':
+        case 'user_agents':
+          this.$router.push(`/configuration/fingerbank/${this.scope}/${path}`)
+          break
+        default:
+          this.$router.push(`/configuration/fingerbank/${path}`)
+          break
+      }
     },
     updateDatabase () {
       this.$store.dispatch('$_fingerbank/updateDatabase')

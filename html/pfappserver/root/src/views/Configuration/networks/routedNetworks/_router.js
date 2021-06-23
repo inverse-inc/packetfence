@@ -1,6 +1,16 @@
 import store from '@/store'
 const TheView = () => import(/* webpackChunkName: "Configuration" */ './_components/TheView')
 
+export const useRouter = $router => {
+  return {
+    goToCollection: () => $router.push({ name: 'interfaces' }),
+    goToItem: params => $router
+      .push({ name: 'routed_network', params })
+      .catch(e => { if (e.name !== "NavigationDuplicated") throw e }),
+    goToClone: params => $router.push({ name: 'cloneRoutedNetwork', params }),
+  }
+}
+
 export default [
   {
     path: 'interfaces/routed_networks/new',

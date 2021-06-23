@@ -2,7 +2,39 @@
 * "$_certificates" store module
 */
 import Vue from 'vue'
+import { computed } from '@vue/composition-api'
+import i18n from '@/utils/locale'
 import api from './_api'
+
+export const useStore = $store => {
+  const getItem = params => $store.dispatch('$_certificates/getCertificate', params.id).then(_certificate => {
+    const { status, ...certificate } = _certificate // strip out `status` from response
+    return $store.dispatch('$_certificates/getCertificateInfo', params.id).then(_info => {
+      const { status, ...info } = { ..._info, common_name: '' } // strip out `status` from response
+      return { certificate: { ...certificate, check_chain: 'enabled' }, info }
+    })
+  })
+  return {
+    isLoading: computed(() => $store.getters['$_certificates/isLoading']),
+    getItem,
+    updateItem: params => {
+      const { certificate, certificate: { intermediate_cas = [], lets_encrypt } = {} } = params
+      if (intermediate_cas.length === 0) // omit intermediate_cas when empty []
+        certificate.intermediate_cas = undefined
+      let creationPromise
+      if (lets_encrypt)
+        creationPromise = $store.dispatch('$_certificates/createLetsEncryptCertificate', certificate)
+      else
+        creationPromise = $store.dispatch('$_certificates/createCertificate', certificate)
+      return creationPromise.then(() => {
+        $store.dispatch('notification/info', { message: i18n.t('{certificate} certificate saved', { certificate: params.id.toUpperCase() }) })
+        // getItem().then(item => form.value = item)
+      }).finally(() =>
+        window.scrollTo(0, 0)
+      )
+    }
+  }
+}
 
 const types = {
   LOADING: 'loading',

@@ -3,7 +3,8 @@
       <b-alert variant="danger" :show="chartsError" fade>
         <h4 class="alert-heading" v-t="'Error'"></h4>
         <p>{{ $t('The charts of the dasboard are currently not available.') }}</p>
-        <pf-button-service service="netdata" class="mr-1" v-can:read="'services'" restart start></pf-button-service>
+        <base-button-service v-can:read="'services'"
+          service="netdata" restart start stop class="mr-1" />
       </b-alert>
       <b-tabs nav-class="nav-fill">
         <b-tab v-for="(section, sectionIndex) in sections" :title="section.name" :key="`${section.name}-${sectionIndex}`">
@@ -62,14 +63,16 @@
 <script>
 import Badge from './Badge'
 import Chart, { modes, libs, palettes } from './Chart'
-import pfButtonService from '@/components/pfButtonService'
+import {
+  BaseButtonService
+} from '@/components/new/'
 
 export default {
   name: 'dashboard',
   components: {
     Badge,
     Chart,
-    pfButtonService
+    BaseButtonService
   },
   props: {
     storeName: { // from router

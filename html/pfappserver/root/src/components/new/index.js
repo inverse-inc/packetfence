@@ -58,12 +58,14 @@ import BaseInputRange from './BaseInputRange'
 import BaseInputToggle, { props as BaseInputToggleProps } from './BaseInputToggle'
 import BaseInputToggleAdvancedMode from './BaseInputToggleAdvancedMode'
 import BaseInputToggleFalseTrue from './BaseInputToggleFalseTrue'
+import BaseSearch from './BaseSearch'
 import BaseSearchInputBasic from './BaseSearchInputBasic'
 import BaseSearchInputAdvanced from './BaseSearchInputAdvanced'
 import BaseSearchInputColumns from './BaseSearchInputColumns'
 import BaseSearchInputLimit from './BaseSearchInputLimit'
 import BaseSearchInputPage from './BaseSearchInputPage'
 import BaseTableEmpty from './BaseTableEmpty'
+import BaseTableSortable from './BaseTableSortable'
 import BaseView from './BaseView'
 
 import { mergeProps, renderHOCWithScopedSlots } from './utils'
@@ -120,7 +122,7 @@ export {
   BaseInputToggle, BaseInputToggleProps,
   BaseInputToggleAdvancedMode,
   BaseInputToggleFalseTrue,
-  
+
   // bootstrap wrappers
   BaseInputGroupDate,
   BaseInputGroupDateTime,
@@ -145,8 +147,9 @@ export {
 
   // containers
   BaseContainerLoading,
-  
+
   // search
+  BaseSearch,
   BaseSearchInputBasic,
   BaseSearchInputAdvanced,
   BaseSearchInputColumns,
@@ -155,6 +158,7 @@ export {
 
   // tables
   BaseTableEmpty,
+  BaseTableSortable,
 
   // utils
   mergeProps,

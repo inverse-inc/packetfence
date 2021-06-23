@@ -13,15 +13,16 @@ export const props = {
       {
         value: 'N', label: i18n.t('Disabled'),
         color: 'var(--danger)', icon: 'times',
-        promise: (value, props) => {
+        promise: (value, props, context) => {
           const { item } = toRefs(props)
           return store.dispatch('$_security_events/disableSecurityEvent', { quiet: true, ...item.value })
             .then(() => {
-              store.dispatch('notification/info', { message: i18n.t('Security event <strong>{desc}</strong> disabled.', item.value) })
+              store.dispatch('notification/info', { message: i18n.t('Security event <code>{desc}</code> disabled.', item.value) })
+              context.emit('input', 'N')
             })
             .catch(err => {
               const { response: { data: { message: errMsg } = {} } = {} } = err
-              let message = i18n.t('Security event <strong>{desc}</strong> was not disabled', item.value)
+              let message = i18n.t('Security event <code>{desc}</code> was not disabled.', item.value)
               if (errMsg) message += ` (${errMsg})`
               store.dispatch('notification/danger', { message })
             })
@@ -30,15 +31,16 @@ export const props = {
       {
         value: 'Y', label: i18n.t('Enabled'),
         color: 'var(--success)', icon: 'check',
-        promise: (value, props) => {
+        promise: (value, props, context) => {
           const { item } = toRefs(props)
           return store.dispatch('$_security_events/enableSecurityEvent', { quiet: true, ...item.value })
             .then(() => {
-              store.dispatch('notification/info', { message: i18n.t('Security event <strong>{desc}</strong> enabled.', item.value) })
+              store.dispatch('notification/info', { message: i18n.t('Security event <code>{desc}</code> enabled.', item.value) })
+              context.emit('input', 'Y')
             })
             .catch(err => {
               const { response: { data: { message: errMsg } = {} } = {} } = err
-              let message = i18n.t('Security event <strong>{desc}</strong> was not enabled', item.value)
+              let message = i18n.t('Security event <code>{desc}</code> was not enabled.', item.value)
               if (errMsg) message += ` (${errMsg})`
               store.dispatch('notification/danger', { message })
             })

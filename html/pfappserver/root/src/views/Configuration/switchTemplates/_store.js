@@ -2,7 +2,26 @@
 * "$_switch_templates" store module
 */
 import Vue from 'vue'
+import { computed } from '@vue/composition-api'
+import i18n from '@/utils/locale'
 import api from './_api'
+
+export const useStore = $store => {
+  return {
+    isLoading: computed(() => $store.getters['$_switch_templates/isLoading']),
+    getList: () => $store.dispatch('$_switch_templates/all'),
+    getListOptions: () => $store.dispatch('$_switch_templates/options'),
+    createItem: params => $store.dispatch('$_switch_templates/createSwitchTemplate', params),
+    getItem: params => $store.dispatch('$_switch_templates/getSwitchTemplate', params.id).then(item => {
+      return (params.isClone)
+        ? { ...item, id: `${item.id}-${i18n.t('copy')}`, not_deletable: false }
+        : item
+    }),
+    getItemOptions: params => $store.dispatch('$_switch_templates/options', params.id),
+    updateItem: params => $store.dispatch('$_switch_templates/updateSwitchTemplate', params),
+    deleteItem: params => $store.dispatch('$_switch_templates/deleteSwitchTemplate', params.id),
+  }
+}
 
 const types = {
   LOADING: 'loading',
@@ -31,13 +50,13 @@ const actions = {
       sort: 'id',
       fields: ['id'].join(',')
     }
-    return api.switchTemplates(params).then(response => {
+    return api.list(params).then(response => {
       return response.items
     })
   },
   options: ({ commit }) => {
     commit('ITEM_REQUEST')
-    return api.switchTemplatesOptions().then(response => {
+    return api.listOptions().then(response => {
       commit('ITEM_SUCCESS')
       return response
     }).catch((err) => {
@@ -50,7 +69,7 @@ const actions = {
       return Promise.resolve(state.cache[id]).then(cache => JSON.parse(JSON.stringify(cache)))
     }
     commit('ITEM_REQUEST')
-    return api.switchTemplate(id).then(item => {
+    return api.item(id).then(item => {
       commit('ITEM_REPLACED', item)
       return JSON.parse(JSON.stringify(item))
     }).catch((err) => {
@@ -60,7 +79,7 @@ const actions = {
   },
   createSwitchTemplate: ({ commit }, data) => {
     commit('ITEM_REQUEST')
-    return api.createSwitchTemplate(data).then(response => {
+    return api.create(data).then(response => {
       commit('ITEM_REPLACED', data)
       return response
     }).catch(err => {
@@ -70,7 +89,7 @@ const actions = {
   },
   updateSwitchTemplate: ({ commit }, data) => {
     commit('ITEM_REQUEST')
-    return api.updateSwitchTemplate(data).then(response => {
+    return api.update(data).then(response => {
       commit('ITEM_REPLACED', data)
       return response
     }).catch(err => {
@@ -78,10 +97,10 @@ const actions = {
       throw err
     })
   },
-  deleteSwitchTemplate: ({ commit }, data) => {
+  deleteSwitchTemplate: ({ commit }, id) => {
     commit('ITEM_REQUEST', types.DELETING)
-    return api.deleteSwitchTemplate(data).then(response => {
-      commit('ITEM_DESTROYED', data)
+    return api.delete(id).then(response => {
+      commit('ITEM_DESTROYED', id)
       return response
     }).catch(err => {
       commit('ITEM_ERROR', err.response)

@@ -9,6 +9,15 @@ const TheCsvImport = () => import(/* webpackChunkName: "Editor" */ '../_componen
 const TheViewCreate = () => import(/* webpackChunkName: "Nodes" */ '../_components/TheViewCreate')
 const TheViewUpdate = () => import(/* webpackChunkName: "Nodes" */ '../_components/TheViewUpdate')
 
+export const useRouter = $router => {
+  return {
+    goToCollection: () => $router.push({ name: 'nodes' }),
+    goToItem: params => $router
+      .push({ name: 'node', params })
+      .catch(e => { if (e.name !== "NavigationDuplicated") throw e }),
+  }
+}
+
 export const beforeEnter = (to, from, next = () => {}) => {
   if (!store.state.$_nodes)
     store.registerModule('$_nodes', NodesStoreModule)

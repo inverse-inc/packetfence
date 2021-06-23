@@ -1,37 +1,43 @@
 import apiCall from '@/utils/api'
 
 export default {
-  selfServices: params => {
+  list: params => {
     return apiCall.get('config/self_services', { params }).then(response => {
       return response.data
     })
   },
-  selfServicesOptions: () => {
+  listOptions: () => {
     return apiCall.options('config/self_services').then(response => {
       return response.data
     })
   },
-  selfService: id => {
-    return apiCall.get(['config', 'self_service', id]).then(response => {
-      return response.data.item
-    })
-  },
-  selfServiceOptions: id => {
-    return apiCall.options(['config', 'self_service', id]).then(response => {
+  search: data => {
+    return apiCall.post('config/self_services/search', data).then(response => {
       return response.data
     })
   },
-  createSelfService: data => {
+  create: data => {
     return apiCall.post('config/self_services', data).then(response => {
       return response.data
     })
   },
-  updateSelfService: data => {
+
+  item: id => {
+    return apiCall.get(['config', 'self_service', id]).then(response => {
+      return response.data.item
+    })
+  },
+  itemOptions: id => {
+    return apiCall.options(['config', 'self_service', id]).then(response => {
+      return response.data
+    })
+  },
+  update: data => {
     return apiCall.patch(['config', 'self_service', data.id], data).then(response => {
       return response.data
     })
   },
-  deleteSelfService: id => {
+  delete: id => {
     return apiCall.delete(['config', 'self_service', id])
   }
 }

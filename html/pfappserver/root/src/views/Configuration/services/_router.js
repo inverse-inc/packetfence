@@ -15,7 +15,7 @@ export default [
     path: 'services',
     name: 'services',
     component: TheTabs,
-    props: (route) => ({ tab: 'services', query: route.query.query }),
+    props: () => ({ tab: 'services' }),
     beforeEnter
   }
 ]

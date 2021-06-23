@@ -2,8 +2,24 @@
 * "$_interfaces" store module
 */
 import Vue from 'vue'
+import { computed } from '@vue/composition-api'
 import api from './_api'
 import { columns as columnsInterface } from '../../_config/interface'
+
+export const useStore = $store => {
+  return {
+    isLoading: computed(() => $store.getters['$_interfaces/isLoading']),
+    getList: () => $store.dispatch('$_interfaces/all'),
+    createItem: params => $store.dispatch('$_interfaces/createInterface', params),
+    getItem: params => $store.dispatch('$_interfaces/getInterface', params.id).then(item => {
+      return (params.isClone)
+        ? { ...item, id: item.master, not_deletable: false }
+        : item
+    }),
+    updateItem: params => $store.dispatch('$_interfaces/updateInterface', params),
+    deleteItem: params => $store.dispatch('$_interfaces/deleteInterface', params.id),
+  }
+}
 
 const types = {
   LOADING: 'loading',

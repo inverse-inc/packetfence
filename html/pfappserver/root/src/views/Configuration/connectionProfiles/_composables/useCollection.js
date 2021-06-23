@@ -1,8 +1,5 @@
 import { computed, toRefs } from '@vue/composition-api'
 import i18n from '@/utils/locale'
-import {
-  defaultsFromMeta as useItemDefaults
-} from '../../_config/'
 
 export const useItemProps = {
   id: {
@@ -10,7 +7,7 @@ export const useItemProps = {
   }
 }
 
-const useItemTitle = (props) => {
+export const useItemTitle = (props) => {
   const {
     id,
     isClone,
@@ -28,46 +25,66 @@ const useItemTitle = (props) => {
   })
 }
 
-const useRouter = (props, context, form) => {
-  const {
-    id
-  } = toRefs(props)
-  const { root: { $router } = {} } = context
-  return {
-    goToCollection: () => $router.push({ name: 'connection_profiles' }),
-    goToItem: (item = form.value || {}) => $router
-      .push({ name: 'connection_profile', params: { id: item.id } })
-      .catch(e => { if (e.name !== "NavigationDuplicated") throw e }),
-    goToClone: () => $router.push({ name: 'cloneConnectionProfile', params: { id: id.value } }),
-  }
-}
+export { useRouter } from '../_router'
 
-const useStore = (props, context, form) => {
-  const {
-    id,
-    isClone
-  } = toRefs(props)
-  const { root: { $store } = {} } = context
-  return {
-    isLoading: computed(() => $store.getters['$_connection_profiles/isLoading']),
-    getOptions: () => $store.dispatch('$_connection_profiles/options', id.value),
-    createItem: () => $store.dispatch('$_connection_profiles/createConnectionProfile', form.value),
-    deleteItem: () => $store.dispatch('$_connection_profiles/deleteConnectionProfile', id.value),
-    getItem: () => $store.dispatch('$_connection_profiles/getConnectionProfile', id.value).then(item => {
-      const _item = JSON.parse(JSON.stringify(item))
-      if (isClone.value) {
-        _item.id = `${item.id}-${i18n.t('copy')}`
-        _item.not_deletable = false
-      }
-      return _item
-    }),
-    updateItem: () => $store.dispatch('$_connection_profiles/updateConnectionProfile', form.value)
-  }
-}
+export { useStore } from '../_store'
 
-export default {
-  useItemDefaults,
-  useItemTitle,
-  useRouter,
-  useStore,
-}
+import { pfSearchConditionType as conditionType } from '@/globals/pfSearch'
+import makeSearch from '@/views/Configuration/_store/factory/search'
+import api from '../_api'
+export const useSearch = makeSearch('connectionProfiles', {
+  api,
+  sortBy: null, // use natural order (sortable)
+  columns: [ // output uses natural order (w/ sortable drag-drop), ensure NO columns are 'sortable: true'
+    {
+      key: 'selected',
+      thStyle: 'width: 40px;', tdClass: 'text-center',
+      locked: true
+    },
+    {
+      key: 'status',
+      label: 'Status', // i18n defer
+      visible: true
+    },
+    {
+      key: 'id',
+      label: 'MAC', // i18n defer
+      required: true,
+      searchable: true,
+      visible: true
+    },
+    {
+      key: 'description',
+      label: 'Description', // i18n defer
+      searchable: true,
+      visible: true
+    },
+    {
+      key: 'buttons',
+      class: 'text-right p-0',
+      locked: true
+    },
+    {
+      key: 'not_deletable',
+      required: true,
+      visible: false
+    },
+    {
+      key: 'not_sortable',
+      required: true,
+      visible: false
+    },
+  ],
+  fields: [
+    {
+      value: 'id',
+      text: i18n.t('Identifier'),
+      types: [conditionType.SUBSTRING]
+    },
+    {
+      value: 'description',
+      text: i18n.t('Description'),
+      types: [conditionType.SUBSTRING]
+    }
+  ]
+})

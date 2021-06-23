@@ -1,8 +1,19 @@
 import store from '@/store'
 import StoreModule from './_store'
 
-const TheList = () => import(/* webpackChunkName: "Configuration" */ '../_components/WrixLocationsList')
+const TheSearch = () => import(/* webpackChunkName: "Configuration" */ './_components/TheSearch')
 const TheView = () => import(/* webpackChunkName: "Configuration" */ './_components/TheView')
+
+export const useRouter = $router => {
+  return {
+    goToCollection: () => $router.push({ name: 'wrixLocations' }),
+    goToItem: params => $router
+      .push({ name: 'wrixLocation', params })
+      .catch(e => { if (e.name !== "NavigationDuplicated") throw e }),
+    goToClone: params => $router.push({ name: 'cloneWrixLocation', params }),
+    goToNew: () => $router.push({ name: 'newWrixLocation' })
+  }
+}
 
 export const beforeEnter = (to, from, next = () => {}) => {
   if (!store.state.$_wrix_locations)
@@ -14,8 +25,7 @@ export default [
   {
     path: 'wrix',
     name: 'wrixLocations',
-    component: TheList,
-    props: (route) => ({ query: route.query.query }),
+    component: TheSearch,
     beforeEnter
   },
   {

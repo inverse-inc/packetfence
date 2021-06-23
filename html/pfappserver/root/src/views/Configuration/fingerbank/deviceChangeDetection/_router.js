@@ -15,7 +15,7 @@ export default [
     path: 'fingerbank/device_change_detection',
     name: 'fingerbankDeviceChangeDetection',
     component: TheTabs,
-    props: (route) => ({ tab: 'device_change_detection', query: route.query.query }),
+    props: () => ({ tab: 'device_change_detection' }),
     beforeEnter
   }
 ]

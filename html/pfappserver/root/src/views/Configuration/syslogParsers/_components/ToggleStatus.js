@@ -13,26 +13,38 @@ export const props = {
       {
         value: 'disabled', label: i18n.t('Disabled'),
         color: 'var(--danger)', icon: 'times',
-        promise: (value, props) => {
-          const { item, searchableStoreName } = toRefs(props)
+        promise: (value, props, context) => {
+          const { item } = toRefs(props)
           return store.dispatch('$_syslog_parsers/disableSyslogParser', item.value)
             .then(() => {
-              // update searcahble store
-              store.dispatch(`${searchableStoreName.value}/updateItem`, { key: 'id', id: item.value.id, prop: 'status', data: 'disabled' })
+              store.dispatch('notification/info', { message: i18n.t('Syslog Parser <code>{id}</code> disabled.', item.value) })
+              context.emit('input', 'disabled')
+            })
+            .catch(err => {
+              const { response: { data: { message: errMsg } = {} } = {} } = err
+              let message = i18n.t('Syslog Parser <code>{id}</code> was not disabled.', item.value)
+              if (errMsg) message += ` (${errMsg})`
+              store.dispatch('notification/danger', { message })
             })
         }
       },
       {
         value: 'enabled', label: i18n.t('Enabled'),
         color: 'var(--success)', icon: 'check',
-        promise: (value, props) => {
-          const { item, searchableStoreName } = toRefs(props)
+        promise: (value, props, context) => {
+          const { item } = toRefs(props)
           return store.dispatch('$_syslog_parsers/enableSyslogParser', item.value)
             .then(() => {
-              // update searcahble store
-              store.dispatch(`${searchableStoreName.value}/updateItem`, { key: 'id', id: item.value.id, prop: 'status', data: 'enabled' })
+              store.dispatch('notification/info', { message: i18n.t('Syslog Parser <code>{id}</code> enabled.', item.value) })
+              context.emit('input', 'enabled')
             })
-        }
+            .catch(err => {
+              const { response: { data: { message: errMsg } = {} } = {} } = err
+              let message = i18n.t('Syslog Parser <code>{id}</code> was not enabled.', item.value)
+              if (errMsg) message += ` (${errMsg})`
+              store.dispatch('notification/danger', { message })
+            })
+      }
       }
     ])
   },
@@ -42,9 +54,6 @@ export const props = {
   },
   item: {
     type: Object
-  },
-  searchableStoreName: {
-    type: String
   }
 }
 

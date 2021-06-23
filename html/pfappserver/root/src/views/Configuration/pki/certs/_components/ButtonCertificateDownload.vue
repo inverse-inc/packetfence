@@ -1,6 +1,6 @@
 <template>
   <b-button-group v-if="!isClone && !isNew">
-    <b-button size="sm" variant="outline-primary" :disabled="isLoading" @click="onShowModal">{{ $t('Download') }}</b-button>
+    <b-button size="sm" variant="outline-primary" :disabled="disabled || isLoading" @click="onShowModal">{{ $t('Download') }}</b-button>
     <b-modal v-model="isShowModal"
       size="lg" centered cancel-disabled>
       <template v-slot:modal-title>
@@ -53,6 +53,9 @@ const props = {
     type: Boolean
   },
   isNew: {
+    type: Boolean
+  },
+  disabled: {
     type: Boolean
   }
 }

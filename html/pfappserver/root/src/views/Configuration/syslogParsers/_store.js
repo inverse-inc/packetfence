@@ -2,7 +2,26 @@
 * "$_syslog_parsers" store module
 */
 import Vue from 'vue'
+import { computed } from '@vue/composition-api'
+import i18n from '@/utils/locale'
 import api from './_api'
+
+export const useStore = $store => {
+  return {
+    isLoading: computed(() => $store.getters['$_syslog_parsers/isLoading']),
+    getList: () => $store.dispatch('$_syslog_parsers/all'),
+    getListOptions: params => $store.dispatch('$_syslog_parsers/optionsBySyslogParserType', params.SyslogParserType),
+    createItem: params => $store.dispatch('$_syslog_parsers/createSyslogParser', params),
+    getItem: params => $store.dispatch('$_syslog_parsers/getSyslogParser', params.id).then(item => {
+      return (params.isClone)
+        ? { ...item, id: `${item.id}-${i18n.t('copy')}`, not_deletable: false }
+        : item
+    }),
+    getItemOptions: params => $store.dispatch('$_syslog_parsers/optionsById', params.id),
+    updateItem: params => $store.dispatch('$_syslog_parsers/updateSyslogParser', params),
+    deleteItem: params => $store.dispatch('$_syslog_parsers/deleteSyslogParser', params.id),
+  }
+}
 
 const types = {
   LOADING: 'loading',
@@ -32,13 +51,13 @@ const actions = {
       sort: 'id',
       fields: ['id', 'path', 'status', 'type'].join(',')
     }
-    return api.syslogParsers(params).then(response => {
+    return api.list(params).then(response => {
       return response.items
     })
   },
   optionsById: ({ commit }, id) => {
     commit('ITEM_REQUEST')
-    return api.syslogParserOptions(id).then(response => {
+    return api.itemOptions(id).then(response => {
       commit('ITEM_SUCCESS')
       return response
     }).catch((err) => {
@@ -48,7 +67,7 @@ const actions = {
   },
   optionsBySyslogParserType: ({ commit }, syslogParserType) => {
     commit('ITEM_REQUEST')
-    return api.syslogParsersOptions(syslogParserType).then(response => {
+    return api.listOptions(syslogParserType).then(response => {
       commit('ITEM_SUCCESS')
       return response
     }).catch((err) => {
@@ -60,7 +79,7 @@ const actions = {
     if (state.cache[id])
       return state.cache[id]
     commit('ITEM_REQUEST')
-    return api.syslogParser(id).then(item => {
+    return api.item(id).then(item => {
       commit('ITEM_REPLACED', item)
       return state.cache[id]
     }).catch((err) => {
@@ -70,7 +89,7 @@ const actions = {
   },
   createSyslogParser: ({ commit }, data) => {
     commit('ITEM_REQUEST')
-    return api.createSyslogParser(data).then(response => {
+    return api.create(data).then(response => {
       commit('ITEM_REPLACED', data)
       return response
     }).catch(err => {
@@ -80,7 +99,7 @@ const actions = {
   },
   updateSyslogParser: ({ commit }, data) => {
     commit('ITEM_REQUEST')
-    return api.updateSyslogParser(data).then(response => {
+    return api.update(data).then(response => {
       commit('ITEM_REPLACED', data)
       return response
     }).catch(err => {
@@ -90,8 +109,8 @@ const actions = {
   },
   enableSyslogParser: ({ commit }, data) => {
     commit('ITEM_REQUEST')
-    const _data = { id: data.id, status: 'enabled' }
-    return api.updateSyslogParser(_data).then(response => {
+    const _data = { id: data.id, status: 'enabled', quiet: true }
+    return api.update(_data).then(response => {
       commit('ITEM_ENABLED', data)
       return response
     }).catch(err => {
@@ -101,8 +120,8 @@ const actions = {
   },
   disableSyslogParser: ({ commit }, data) => {
     commit('ITEM_REQUEST')
-    const _data = { id: data.id, status: 'disabled' }
-    return api.updateSyslogParser(_data).then(response => {
+    const _data = { id: data.id, status: 'disabled', quiet: true }
+    return api.update(_data).then(response => {
       commit('ITEM_DISABLED', data)
       return response
     }).catch(err => {
@@ -110,10 +129,10 @@ const actions = {
       throw err
     })
   },
-  deleteSyslogParser: ({ commit }, data) => {
+  deleteSyslogParser: ({ commit }, id) => {
     commit('ITEM_REQUEST', types.DELETING)
-    return api.deleteSyslogParser(data).then(response => {
-      commit('ITEM_DESTROYED', data)
+    return api.delete(id).then(response => {
+      commit('ITEM_DESTROYED', id)
       return response
     }).catch(err => {
       commit('ITEM_ERROR', err.response)
@@ -122,7 +141,7 @@ const actions = {
   },
   dryRunSyslogParser: ({ commit }, data) => {
     commit('ITEM_REQUEST', types.DRYRUN)
-    return api.dryRunSyslogParser(data).then(response => {
+    return api.dryRunItem(data).then(response => {
       commit('ITEM_SUCCESS')
       return response
     }).catch(err => {

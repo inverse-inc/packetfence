@@ -4,6 +4,17 @@ import RadiusOcspStoreModule from './_store'
 const TheTabs = () => import(/* webpackChunkName: "Configuration" */ '../../_components/RadiusTabs')
 const TheView = () => import(/* webpackChunkName: "Configuration" */ './_components/TheView')
 
+export const useRouter = $router => {
+  return {
+    goToCollection: () => $router.push({ name: 'radiusOcsps' }),
+    goToItem: params => $router
+      .push({ name: 'radiusOcsp', params })
+      .catch(e => { if (e.name !== "NavigationDuplicated") throw e }),
+    goToClone: params => $router.push({ name: 'cloneRadiusOcsp', params }),
+    goToNew: params => $router.push({ name: 'newRadiusOcsp', params })
+  }
+}
+
 export const beforeEnter = (to, from, next = () => {}) => {
   if (!store.state.$_radius_ocsp)
     store.registerModule('$_radius_ocsp', RadiusOcspStoreModule)
@@ -15,7 +26,7 @@ export default [
     path: 'radius/ocsp',
     name: 'radiusOcsps',
     component: TheTabs,
-    props: (route) => ({ tab: 'radiusOcsps', query: route.query.query }),
+    props: () => ({ tab: 'radiusOcsps' }),
     beforeEnter
   },
   {

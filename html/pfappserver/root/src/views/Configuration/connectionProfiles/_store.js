@@ -2,7 +2,27 @@
 * "$_connection_profiles" store module
 */
 import Vue from 'vue'
+import { computed } from '@vue/composition-api'
+import i18n from '@/utils/locale'
 import api from './_api'
+
+export const useStore = $store => {
+  return {
+    isLoading: computed(() => $store.getters['$_connection_profiles/isLoading']),
+    getList: () => $store.dispatch('$_connection_profiles/all'),
+    getListOptions: () => $store.dispatch('$_connection_profiles/options'),
+    createItem: params => $store.dispatch('$_connection_profiles/createConnectionProfile', params),
+    sortItems: params => $store.dispatch('$_connection_profiles/sortConnectionProfiles', params.items),
+    getItem: params => $store.dispatch('$_connection_profiles/getConnectionProfile', params.id).then(item => {
+      return (params.isClone)
+        ? { ...item, id: `${item.id}-${i18n.t('copy')}`, not_deletable: false }
+        : item
+    }),
+    getItemOptions: params => $store.dispatch('$_connection_profiles/options', params.id),
+    updateItem: params => $store.dispatch('$_connection_profiles/updateConnectionProfile', params),
+    deleteItem: params => $store.dispatch('$_connection_profiles/deleteConnectionProfile', params.id),
+  }
+}
 
 const types = {
   LOADING: 'loading',
@@ -38,14 +58,14 @@ const actions = {
       sort: 'id',
       fields: ['id'].join(',')
     }
-    return api.connectionProfiles(params).then(response => {
+    return api.list(params).then(response => {
       return response.items
     })
   },
   options: ({ commit }, id) => {
     commit('ITEM_REQUEST')
     if (id) {
-      return api.connectionProfileOptions(id).then(response => {
+      return api.itemOptions(id).then(response => {
         commit('ITEM_SUCCESS')
         return response
       }).catch((err) => {
@@ -53,7 +73,7 @@ const actions = {
         throw err
       })
     } else {
-      return api.connectionProfilesOptions().then(response => {
+      return api.listOptions().then(response => {
         commit('ITEM_SUCCESS')
         return response
       }).catch((err) => {
@@ -67,7 +87,7 @@ const actions = {
       return Promise.resolve(state.cache[id])
     }
     commit('ITEM_REQUEST')
-    return api.connectionProfile(id).then(item => {
+    return api.item(id).then(item => {
       commit('ITEM_REPLACED', item)
       return state.cache[id]
     }).catch((err) => {
@@ -77,7 +97,7 @@ const actions = {
   },
   createConnectionProfile: ({ commit }, data) => {
     commit('ITEM_REQUEST')
-    return api.createConnectionProfile(data).then(response => {
+    return api.create(data).then(response => {
       commit('ITEM_REPLACED', data)
       return response
     }).catch(err => {
@@ -87,7 +107,7 @@ const actions = {
   },
   updateConnectionProfile: ({ commit }, data) => {
     commit('ITEM_REQUEST')
-    return api.updateConnectionProfile(data).then(response => {
+    return api.update(data).then(response => {
       commit('ITEM_REPLACED', data)
       return response
     }).catch(err => {
@@ -97,7 +117,7 @@ const actions = {
   },
   deleteConnectionProfile: ({ commit }, data) => {
     commit('ITEM_REQUEST', types.DELETING)
-    return api.deleteConnectionProfile(data).then(response => {
+    return api.delete(data).then(response => {
       commit('ITEM_DESTROYED', data)
       return response
     }).catch(err => {
@@ -110,7 +130,7 @@ const actions = {
       items: data
     }
     commit('ITEM_REQUEST', types.LOADING)
-    return api.sortConnectionProfiles(params).then(response => {
+    return api.sort(params).then(response => {
       commit('ITEM_SUCCESS')
       return response
     }).catch(err => {
@@ -121,7 +141,7 @@ const actions = {
   enableConnectionProfile: ({ commit }, data) => {
     commit('ITEM_REQUEST')
     const _data = { id: data.id, status: 'enabled' }
-    return api.updateConnectionProfile(_data).then(response => {
+    return api.update(_data).then(response => {
       commit('ITEM_ENABLED', data)
       return response
     }).catch(err => {
@@ -132,7 +152,7 @@ const actions = {
   disableConnectionProfile: ({ commit }, data) => {
     commit('ITEM_REQUEST')
     const _data = { id: data.id, status: 'disabled' }
-    return api.updateConnectionProfile(_data).then(response => {
+    return api.update(_data).then(response => {
       commit('ITEM_DISABLED', data)
       return response
     }).catch(err => {
@@ -148,7 +168,7 @@ const actions = {
       fields: ['name', 'size', 'entries', 'type', 'not_deletable', 'not_revertible'].join(',')
     }
     commit('FILE_REQUEST')
-    return api.connectionProfileFiles(params).then(response => {
+    return api.files(params).then(response => {
       const _walk = (item, path) => {
         Object.assign(item, { path })
         if ('entries' in item) {
@@ -162,7 +182,7 @@ const actions = {
   },
   getFile: ({ state, commit, dispatch }, params) => {
     commit('FILE_REQUEST')
-    return api.connectionProfileFile(params).then(content => {
+    return api.file(params).then(content => {
       // Retrieve metadata ..
       let filePromise
       if (state.files.cache[params.id]) {
@@ -192,7 +212,7 @@ const actions = {
   },
   createFile: ({ commit }, data) => {
     commit('FILE_REQUEST')
-    return api.createConnectionProfileFile(data).then(response => {
+    return api.createFile(data).then(response => {
       commit('FILE_SUCCESS', data)
       return response
     }).catch(err => {
@@ -202,7 +222,7 @@ const actions = {
   },
   updateFile: ({ commit }, data) => {
     commit('FILE_REQUEST')
-    return api.updateConnectionProfileFile(data).then(response => {
+    return api.updateFile(data).then(response => {
       commit('FILE_SUCCESS', data)
       return response
     }).catch(err => {
@@ -212,7 +232,7 @@ const actions = {
   },
   deleteFile: ({ commit, dispatch }, params) => {
     commit('FILE_REQUEST', types.DELETING)
-    return api.deleteConnectionProfileFile(params).then(() => {
+    return api.deleteFile(params).then(() => {
       commit('FILE_DESTROYED')
       return dispatch('files', { id: params.id })
     }).catch(err => {

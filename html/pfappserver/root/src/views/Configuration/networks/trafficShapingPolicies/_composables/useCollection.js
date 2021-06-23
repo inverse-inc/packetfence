@@ -1,17 +1,15 @@
 import { computed, toRefs } from '@vue/composition-api'
 import i18n from '@/utils/locale'
-import {
-  defaultsFromMeta
-} from '../../../_config/'
 
-const useItemDefaults = (meta, props) => {
+import { useDefaultsFromMeta } from '@/composables/useMeta'
+export const useItemDefaults = (meta, props) => {
   const {
     role
   } = toRefs(props)
-  return { ...defaultsFromMeta(meta), id: role.value }
+  return { ...useDefaultsFromMeta(meta), id: role.value }
 }
 
-const useItemTitle = (props) => {
+export const useItemTitle = (props) => {
   const {
     id,
     isNew
@@ -19,49 +17,77 @@ const useItemTitle = (props) => {
   return computed(() => {
     switch (true) {
       case !isNew.value:
-        return i18n.t('Traffic Shaping Policy <code>{id}</code>', { role: id.value })
+        return i18n.t('Traffic Shaping Policy <code>{id}</code>', { id: id.value })
       default:
         return i18n.t('New Traffic Shaping Policy')
     }
   })
 }
 
-const useItemTitleBadge = (props) => {
-  const {
-    role
-  } = toRefs(props)
-  return role
-}
+export { useRouter } from '../_router'
 
-const useRouter = (props, context, form) => {
-  const { root: { $router } = {} } = context
-  return {
-    goToCollection: () => $router.push({ name: 'traffic_shapings' }),
-    goToItem: (item = form.value || {}) => $router
-      .push({ name: 'traffic_shaping', params: { id: item.id } })
-      .catch(e => { if (e.name !== "NavigationDuplicated") throw e })
-  }
-}
+export { useStore } from '../_store'
 
-const useStore = (props, context, form) => {
-  const {
-    id
-  } = toRefs(props)
-  const { root: { $store } = {} } = context
-  return {
-    isLoading: computed(() => $store.getters['$_traffic_shaping_policies/isLoading']),
-    getOptions: () => $store.dispatch('$_traffic_shaping_policies/options'),
-    createItem: () => $store.dispatch('$_traffic_shaping_policies/createTrafficShapingPolicy', form.value),
-    deleteItem: () => $store.dispatch('$_traffic_shaping_policies/deleteTrafficShapingPolicy', id.value),
-    getItem: () => $store.dispatch('$_traffic_shaping_policies/getTrafficShapingPolicy', id.value),
-    updateItem: () => $store.dispatch('$_traffic_shaping_policies/updateTrafficShapingPolicy', form.value),
-  }
-}
-
-export default {
-  useItemDefaults,
-  useItemTitle,
-  useItemTitleBadge,
-  useRouter,
-  useStore,
-}
+import { pfSearchConditionType as conditionType } from '@/globals/pfSearch'
+import makeSearch from '@/views/Configuration/_store/factory/search'
+import api from '../_api'
+export const useSearch = makeSearch('trafficShapingPolicies', {
+  api,
+  columns: [
+    {
+      key: 'selected',
+      thStyle: 'width: 40px;', tdClass: 'text-center',
+      locked: true
+    },
+    {
+      key: 'id',
+      label: 'Role', // i18n defer
+      required: true,
+      searchable: true,
+      sortable: true,
+      visible: true
+    },
+    {
+      key: 'upload',
+      label: 'Upload', // i18n defer
+      searchable: true,
+      sortable: true,
+      visible: true
+    },
+    {
+      key: 'download',
+      label: 'Download', // i18n defer
+      searchable: true,
+      sortable: true,
+      visible: true
+    },
+    {
+      key: 'buttons',
+      class: 'text-right p-0',
+      locked: true
+    },
+    {
+      key: 'not_deletable',
+      required: true,
+      visible: false
+    }
+  ],
+  fields: [
+    {
+      value: 'id',
+      text: i18n.t('Role'),
+      types: [conditionType.SUBSTRING]
+    },
+    {
+      value: 'upload',
+      text: i18n.t('Upload'),
+      types: [conditionType.SUBSTRING]
+    },
+    {
+      value: 'download',
+      text: i18n.t('Download'),
+      types: [conditionType.SUBSTRING]
+    }
+  ],
+  sortBy: 'id'
+})

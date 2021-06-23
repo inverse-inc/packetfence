@@ -1,10 +1,7 @@
 import { computed, toRefs } from '@vue/composition-api'
 import i18n from '@/utils/locale'
-import {
-  defaultsFromMeta as useItemDefaults
-} from '../../../_config/'
 
-const useItemTitle = (props) => {
+export const useItemTitle = (props) => {
   const {
     id,
     isClone,
@@ -22,45 +19,61 @@ const useItemTitle = (props) => {
   })
 }
 
-const useRouter = (props, context, form) => {
-  const {
-    id
-  } = toRefs(props)
-  const { root: { $router } = {} } = context
-  return {
-    goToCollection: () => $router.push({ name: 'radiusTlss' }),
-    goToItem: (item = form.value || {}) => $router
-      .push({ name: 'radiusTls', params: { id: item.id } })
-      .catch(e => { if (e.name !== "NavigationDuplicated") throw e }),
-    goToClone: () => $router.push({ name: 'cloneRadiusTls', params: { id: id.value } }),
-  }
-}
+export { useRouter } from '../_router'
 
-const useStore = (props, context, form) => {
-  const {
-    id,
-    isClone
-  } = toRefs(props)
-  const { root: { $store } = {} } = context
-  return {
-    isLoading: computed(() => $store.getters['$_radius_tls/isLoading']),
-    getOptions: () => $store.dispatch('$_radius_tls/options'),
-    createItem: () => $store.dispatch('$_radius_tls/createRadiusTls', form.value),
-    deleteItem: () => $store.dispatch('$_radius_tls/deleteRadiusTls', id.value),
-    getItem: () => $store.dispatch('$_radius_tls/getRadiusTls', id.value).then(item => {
-      if (isClone.value) {
-        item.id = `${item.id}-${i18n.t('copy')}`
-        item.not_deletable = false
-      }
-      return item
-    }),
-    updateItem: () => $store.dispatch('$_radius_tls/updateRadiusTls', form.value),
-  }
-}
+export { useStore } from '../_store'
 
-export default {
-  useItemDefaults,
-  useItemTitle,
-  useRouter,
-  useStore,
-}
+import { pfSearchConditionType as conditionType } from '@/globals/pfSearch'
+import makeSearch from '@/views/Configuration/_store/factory/search'
+import api from '../_api'
+export const useSearch = makeSearch('radiusTls', {
+  api,
+  columns: [
+    {
+      key: 'selected',
+      thStyle: 'width: 40px;', tdClass: 'text-center',
+      locked: true
+    },
+    {
+      key: 'id',
+      label: 'Name', // i18n defer
+      required: true,
+      searchable: true,
+      sortable: true,
+      visible: true
+    },
+    {
+      key: 'certificate_profile',
+      label: 'Certificate Profile', // i18n defer
+      searchable: true,
+      sortable: true,
+      visible: true
+    },
+    {
+      key: 'ocsp',
+      label: 'OCSP Profile', // i18n defer
+      searchable: true,
+      sortable: true,
+      visible: true
+    },
+    {
+      key: 'buttons',
+      class: 'text-right p-0',
+      locked: true
+    },
+    {
+      key: 'not_deletable',
+      required: true,
+      visible: false
+    }
+  ],
+  fields: [
+    {
+      value: 'id',
+      text: i18n.t('Name'),
+      types: [conditionType.SUBSTRING]
+    }
+  ],
+  sortBy: 'id'
+})
+

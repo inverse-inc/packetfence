@@ -53,19 +53,22 @@ const props = {
 
 import { ref, watch } from '@vue/composition-api'
 import useEventEscapeKey from '@/composables/useEventEscapeKey'
+import { usePropsWrapper } from '@/composables/useProps'
 import { useStore } from '../_composables/useCollection'
 
 const setup = (props, context) => {
 
-  const { root: { $router } = {} } = context
+  const { root: { $router, $store } = {} } = context
 
   const tabsRef = ref(null)
   const tabIndex = ref(0)
 
+  // merge props w/ params in useStore methods
+  const _useStore = $store => usePropsWrapper(useStore($store), props)
   const {
     isLoading,
     reloadItem
-  } = useStore(props, context)
+  } = _useStore($store)
 
   const onClose = () => $router.back()
 

@@ -13,7 +13,7 @@ const components = {
 import { computed } from '@vue/composition-api'
 import { renderHOCWithScopedSlots } from '@/components/new/'
 import { useViewResource, useViewResourceProps as props } from '../../_composables/useViewResource'
-import resource from '../_composables/useResource'
+import * as resource from '../_composables/useResource'
 
 const setup = (props, context) => {
 

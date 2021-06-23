@@ -1,11 +1,32 @@
 <template>
-  <b-button-group>
-    <b-button v-if="canJoin" :size="size" variant="outline-warning" class="mr-1" @click.stop.prevent="showJoin">{{ $t('Join') }}</b-button>
-    <b-button v-if="canRejoin" :size="size" variant="outline-warning" class="mr-1" @click.stop.prevent="showJoin">{{ $t('Rejoin') }}</b-button>
-    <b-button v-if="canUnjoin" :size="size" variant="outline-warning" class="mr-1" @click.stop.prevent="showUnjoin">{{ $t('Unjoin') }}</b-button>
-
+  <b-dropdown v-bind="$attrs">
+    <template #button-content>
+      <template v-if="join.status === null">
+        <icon name="circle-notch" class="mr-1" spin></icon> {{ $t('Joining...') }}
+      </template>
+      <template v-else-if="join.status === true">
+        <icon name="circle" class="text-success mr-1"
+          v-b-tooltip.hover.left.d300 :title="$t('Join success')"></icon> {{ $t('Join success') }}
+      </template>
+      <template v-else-if="join.status === false">
+        <icon name="circle" class="text-danger mr-1"
+          v-b-tooltip.hover.left.d300 :title="$t('Join failed')"></icon> {{ $t('Join failed') }}
+      </template>
+    </template>
+    <b-dropdown-text v-if="join.message"
+      class="px-3" :class="{
+        'text-danger': join.status === false,
+        'text-success': join.status === true
+      }" v-t="join.message" />
+    <b-dropdown-divider v-if="join.message" />
+    <b-dropdown-item v-if="canJoin"
+      @click="showJoin">{{ $t('Join') }}</b-dropdown-item>
+    <b-dropdown-item v-if="canRejoin"
+      @click="showJoin">{{ $t('Rejoin') }}</b-dropdown-item>
+    <b-dropdown-item v-if="canUnjoin"
+      @click="showUnjoin">{{ $t('Unjoin') }}</b-dropdown-item>
     <b-modal v-model="showJoinModal"
-      size="lg" centered id="joinModal">
+      size="lg" lazy centered id="joinModal">
       <template v-slot:modal-title>
         <h4 class="mb-0" v-html="$t('Join {id} domain', { id })"></h4>
         <b-form-text v-t="'Please enter administrative credentials to connect to the domain.'" class="mb-0"></b-form-text>
@@ -24,7 +45,7 @@
               :column-label="$t('Password')"
             />
           </base-form>
-        </b-form>        
+        </b-form>
       </b-form-group>
       <template v-slot:modal-footer>
         <b-button variant="secondary" class="mr-1" @click="showJoinModal=false">{{ $t('Cancel') }}</b-button>
@@ -33,7 +54,7 @@
     </b-modal>
 
     <b-modal v-model="showUnjoinModal"
-      size="lg" centered id="unjoinModal">
+      size="lg" lazy centered id="unjoinModal">
       <template v-slot:modal-title>
         <h4 class="mb-0" v-html="$t('Unjoin {id} domain', { id })"></h4>
         <b-form-text v-t="'Please enter administrative credentials to disconnect from the domain.'" class="mb-0"></b-form-text>
@@ -52,7 +73,7 @@
               :column-label="$t('Password')"
             />
           </base-form>
-        </b-form>        
+        </b-form>
       </b-form-group>
       <template v-slot:modal-footer>
         <b-button variant="secondary" class="mr-1" @click="showUnjoinModal=false">{{ $t('Cancel') }}</b-button>
@@ -60,8 +81,8 @@
       </template>
     </b-modal>
 
-    <b-modal v-model="showWaitModal" 
-      size="lg" centered id="waitModal"
+    <b-modal v-model="showWaitModal"
+      size="lg" lazy centered id="waitModal"
       hide-header-close no-close-on-backdrop no-close-on-esc>
       <template v-slot:modal-title>
         <h4 class="mb-0" v-html="$t('Joining {id} domain', { id })"></h4>
@@ -83,7 +104,7 @@
       </template>
     </b-modal>
 
-    <b-modal v-model="showResultModal" size="lg" centered id="resultModal"
+    <b-modal v-model="showResultModal" size="lg" lazy centered id="resultModal"
       hide-header-close no-close-on-backdrop no-close-on-esc>
       <template v-slot:modal-title>
         <h4 class="mb-0" v-html="$t('Join {id} domain', { id })"></h4>
@@ -109,8 +130,8 @@
         <b-button v-if="join.status !== true"
           variant="primary" @click="showJoinModal = true">{{ $t('Try again') }}</b-button>
       </template>
-    </b-modal>    
-  </b-button-group>
+    </b-modal>
+  </b-dropdown>
 </template>
 <script>
 import {
@@ -131,11 +152,12 @@ export const props = {
   },
   size: {
     type: String
+  },
+  autoJoin: {
+    type: Boolean
   }
 }
 
-import { computed, ref, toRefs, watch } from '@vue/composition-api'
-import { useDebouncedWatchHandler } from '@/composables/useDebounce'
 import i18n from '@/utils/locale'
 import yup from '@/utils/yup'
 
@@ -151,24 +173,27 @@ const defaults = {
   password: null
 }
 
+import { computed, ref, toRefs, watch } from '@vue/composition-api'
+import { useDebouncedWatchHandler } from '@/composables/useDebounce'
+
 export const setup = (props, context) => {
 
-  const { id } = toRefs(props)
+  const { id, autoJoin } = toRefs(props)
   const { root: { $store } = {} } = context
 
   const form = ref({})
   const schema = computed(() => schemaFn(props))
 
   const domain = ref({})
-  const join = ref({})
-  watch(id, () => { 
+  const join = ref({ status: null })
+  watch(id, () => {
     form.value = { ...defaults }
     $store.dispatch('$_domains/getDomain', id.value)
       .then((response) => domain.value = response)
     $store.dispatch('$_domains/testDomain', id.value)
       .then((response) => join.value = response)
   }, { immediate: true })
-    
+
   const isLoading = computed(() => $store.getters['$_domains/isLoading'])
 
   const showWaitModal = ref(false)
@@ -183,6 +208,8 @@ export const setup = (props, context) => {
   const showJoin = () => {
     showJoinModal.value = true
   }
+  if (autoJoin.value)
+    showJoin()
   const isJoinValid = useDebouncedWatchHandler([form, showJoinModal], () => {
     const { $el } = joinFormRef.value || {}
     return (!$el || $el.querySelectorAll('.is-invalid').length === 0)
@@ -199,7 +226,7 @@ export const setup = (props, context) => {
     promise.finally(() => {
       showWaitModal.value = false
       showResultModal.value = true
-    })    
+    })
   }
 
   const canRejoin = computed(() => {
@@ -229,7 +256,7 @@ export const setup = (props, context) => {
       .finally(() => {
         showWaitModal.value = false
         showResultModal.value = true
-      })    
+      })
   }
 
   const doTryAgain = () => {
@@ -256,7 +283,7 @@ export const setup = (props, context) => {
     doJoin,
 
     canRejoin,
- 
+
     canUnjoin,
     unjoinFormRef,
     showUnjoin,

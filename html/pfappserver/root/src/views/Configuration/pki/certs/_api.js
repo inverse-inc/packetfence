@@ -1,19 +1,18 @@
 import apiCall from '@/utils/api'
 
 export default {
-  pkiCerts: () => {
-    return apiCall.get('pki/certs').then(response => {
+  list: params => {
+    return apiCall.getQuiet('pki/certs', { params }).then(response => {
       const { data: { items = [] } = {} } = response
       return { items }
     })
   },
-  pkiCert: id => {
-    return apiCall.get(['pki', 'cert', id]).then(response => {
-      const { data: { items: { 0: item = {} } = {} } = {} } = response
-      return item
+  search: params => {
+    return apiCall.postQuiet('pki/certs/search', params).then(response => {
+      return response.data
     })
   },
-  createPkiCert: data => {
+  create: data => {
     return apiCall.post('pki/certs', data).then(response => {
       const { data: { error } = {} } = response
       if (error) {
@@ -24,7 +23,7 @@ export default {
       }
     })
   },
-  downloadPkiCert: data => {
+  download: data => {
     const { id, password } = data
     return apiCall.getArrayBuffer(['pki', 'cert', id, 'download', password]).then(response => {
       const { data, data: { error } = {} } = response
@@ -35,7 +34,13 @@ export default {
       }
     })
   },
-  emailPkiCert: id => {
+  item: id => {
+    return apiCall.get(['pki', 'cert', id]).then(response => {
+      const { data: { items: { 0: item = {} } = {} } = {} } = response
+      return item
+    })
+  },
+  email: id => {
     return apiCall.get(['pki', 'cert', id, 'email']).then(response => {
       const { data: { error } = {} } = response
       if (error) {
@@ -46,7 +51,7 @@ export default {
       }
     })
   },
-  revokePkiCert: data => {
+  revoke: data => {
     return apiCall.delete(['pki', 'cert', data.id, data.reason]).then(response => {
       const { data: { error } = {} } = response
       if (error) {

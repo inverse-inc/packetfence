@@ -1,19 +1,13 @@
 import { computed } from '@vue/composition-api'
 import i18n from '@/utils/locale'
 
-const useTitle = () => i18n.t('General Settings')
+export const useTitle = () => i18n.t('General Settings')
 
-const useStore = (props, context, form) => {
-  const { root: { $store } = {} } = context
+export const useStore = $store => {
   return {
     isLoading: computed(() => $store.getters['$_fingerbank/isGeneralSettingsLoading']),
-    getOptions: () => $store.dispatch('$_fingerbank/optionsGeneralSettings'),
     getItem: () => $store.dispatch('$_fingerbank/getGeneralSettings'),
-    updateItem: () => $store.dispatch('$_fingerbank/setGeneralSettings', form.value)
+    getItemOptions: () => $store.dispatch('$_fingerbank/optionsGeneralSettings'),
+    updateItem: params => $store.dispatch('$_fingerbank/setGeneralSettings', params)
   }
-}
-
-export default {
-  useTitle,
-  useStore,
 }

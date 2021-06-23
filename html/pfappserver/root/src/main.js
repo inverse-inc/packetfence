@@ -97,6 +97,8 @@ import 'vue-awesome/icons/retweet'
 import 'vue-awesome/icons/ruler-combined'
 import 'vue-awesome/icons/save'
 import 'vue-awesome/icons/search'
+import 'vue-awesome/icons/search-minus'
+import 'vue-awesome/icons/search-plus'
 import 'vue-awesome/icons/server'
 import 'vue-awesome/icons/shield-alt'
 import 'vue-awesome/icons/sign-in-alt'
@@ -140,6 +142,7 @@ Icon.register(pfIcons)
 
 import './directives/focus'
 
+import { createPinia, PiniaPlugin } from 'pinia'
 import store from './store'
 import router from './router'
 import filters from './utils/filters'
@@ -168,6 +171,8 @@ Vue.component('icon', Icon)
 Vue.use(BootstrapVue)
 Vue.use(CompositionApi)
 Vue.use(pfTemplatePlugin)
+Vue.use(PiniaPlugin)
+const pinia = createPinia()
 
 // Register global filters
 for (const filter of Object.keys(filters)) {
@@ -179,6 +184,7 @@ const app = new Vue({
   router,
   store,
   i18n,
+  pinia,
 
   mounted () {
     store.dispatch('events/bind')

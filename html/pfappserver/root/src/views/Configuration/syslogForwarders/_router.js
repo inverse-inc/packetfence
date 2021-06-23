@@ -1,8 +1,19 @@
 import store from '@/store'
 import StoreModule from './_store'
 
-const TheList = () => import(/* webpackChunkName: "Configuration" */ '../_components/SyslogForwardersList')
+const TheSearch = () => import(/* webpackChunkName: "Configuration" */ './_components/TheSearch')
 const TheView = () => import(/* webpackChunkName: "Configuration" */ './_components/TheView')
+
+export const useRouter = $router => {
+  return {
+    goToCollection: () => $router.push({ name: 'syslogForwarders' }),
+    goToItem: params => $router
+      .push({ name: 'syslogForwarder', params })
+      .catch(e => { if (e.name !== "NavigationDuplicated") throw e }),
+    goToClone: params => $router.push({ name: 'cloneSyslogForwarder', params }),
+    goToNew: params => $router.push({ name: 'newSyslogForwarder', params })
+  }
+}
 
 export const beforeEnter = (to, from, next = () => {}) => {
   if (!store.state.$_syslog_forwarders)
@@ -14,8 +25,7 @@ export default [
   {
     path: 'syslog',
     name: 'syslogForwarders',
-    component: TheList,
-    props: (route) => ({ query: route.query.query }),
+    component: TheSearch,
     beforeEnter
   },
   {

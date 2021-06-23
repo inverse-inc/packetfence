@@ -1,10 +1,8 @@
 import { computed, toRefs } from '@vue/composition-api'
+import { pfSearchConditionType as conditionType } from '@/globals/pfSearch'
 import i18n from '@/utils/locale'
-import {
-  defaultsFromMeta as useItemDefaults
-} from '../../_config/'
 
-const useItemTitle = (props) => {
+export const useItemTitle = (props) => {
   const {
     id,
     isClone,
@@ -22,45 +20,64 @@ const useItemTitle = (props) => {
   })
 }
 
-const useRouter = (props, context, form) => {
-  const {
-    id
-  } = toRefs(props)
-  const { root: { $router } = {} } = context
-  return {
-    goToCollection: () => $router.push({ name: 'billing_tiers' }),
-    goToItem: (item = form.value || {}) => $router
-      .push({ name: 'billing_tier', params: { id: item.id } })
-      .catch(e => { if (e.name !== "NavigationDuplicated") throw e }),
-    goToClone: () => $router.push({ name: 'cloneBillingTier', params: { id: id.value } }),
-  }
-}
+export { useRouter } from '../_router'
 
-const useStore = (props, context, form) => {
-  const {
-    id,
-    isClone
-  } = toRefs(props)
-  const { root: { $store } = {} } = context
-  return {
-    isLoading: computed(() => $store.getters['$_billing_tiers/isLoading']),
-    getOptions: () => $store.dispatch('$_billing_tiers/options', id.value),
-    createItem: () => $store.dispatch('$_billing_tiers/createBillingTier', form.value),
-    deleteItem: () => $store.dispatch('$_billing_tiers/deleteBillingTier', id.value),
-    getItem: () => $store.dispatch('$_billing_tiers/getBillingTier', id.value).then(item => {
-      if (isClone.value) {
-        item.id = `${item.id}-${i18n.t('copy')}`
-        item.not_deletable = false
-      }
-      return item
-    }),
-    updateItem: () => $store.dispatch('$_billing_tiers/updateBillingTier', form.value)
-  }
-}
+export { useStore } from '../_store'
 
-export default {
-  useItemDefaults,
-  useItemTitle,
-  useRouter,
-  useStore,
-}
+import makeSearch from '@/views/Configuration/_store/factory/search'
+import api from '../_api'
+export const useSearch = makeSearch('billingTiers', {
+  api,
+  columns: [
+    {
+      key: 'selected',
+      thStyle: 'width: 40px;', tdClass: 'text-center',
+      locked: true
+    },
+    {
+      key: 'id',
+      label: 'Identifier', // i18n defer
+      required: true,
+      sortable: true,
+      visible: true,
+      searchable: true
+    },
+    {
+      key: 'name',
+      label: 'Name', // i18n defer
+      sortable: true,
+      visible: true,
+      searchable: true
+    },
+    {
+      key: 'description',
+      label: 'Description', // i18n defer
+      sortable: true,
+      visible: true,
+      searchable: true
+    },
+    {
+      key: 'buttons',
+      class: 'text-right p-0',
+      locked: true
+    }
+  ],
+  fields: [
+    {
+      value: 'id',
+      text: i18n.t('Identifier'),
+      types: [conditionType.SUBSTRING]
+    },
+    {
+      value: 'description',
+      text: i18n.t('Description'),
+      types: [conditionType.SUBSTRING]
+    },
+    {
+      value: 'name',
+      text: i18n.t('Name'),
+      types: [conditionType.SUBSTRING]
+    }
+  ],
+  sortBy: 'id'
+})

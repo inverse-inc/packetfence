@@ -1,10 +1,7 @@
 import { computed, toRefs } from '@vue/composition-api'
 import i18n from '@/utils/locale'
-import {
-  defaultsFromMeta as useItemDefaults
-} from '../../_config/'
 
-const useItemTitle = (props, context) => {
+export const useItemTitle = (props, context) => {
   const {
     id,
     isClone,
@@ -24,65 +21,83 @@ const useItemTitle = (props, context) => {
   })
 }
 
-export const useRouter = (props, context, form) => {
-  const {
-    id
-  } = toRefs(props)
-  const { root: { $router } = {} } = context
-  return {
-    goToCollection: () => $router.push({ name: 'tenants' }),
-    goToItem: (item = form.value || {}) => $router
-      .push({ name: 'tenant', params: { id: item.id } })
-      .catch(e => { if (e.name !== "NavigationDuplicated") throw e }),
-    goToClone: () => $router.push({ name: 'cloneTenant', params: { id: id.value } }),
-  }
-}
+export { useRouter } from '../_router'
 
-const useStore = (props, context, form) => {
-  const {
-    id,
-    isClone
-  } = toRefs(props)
-  const { root: { $store } = {} } = context
-  return {
-    isLoading: computed(() => $store.getters['$_tenants/isLoading']),
-    getOptions: () => $store.dispatch('$_tenants/options'),
-    createItem: () => $store.dispatch('$_tenants/createTenant', form.value),
-    deleteItem: () => $store.dispatch('$_tenants/deleteTenant', id.value),
-    getItem: () => $store.dispatch('$_tenants/getTenant', id.value).then(_item => {
-      let item = { ..._item } // dereference
-      if (isClone.value) {
-        item.name = `${item.name}-${i18n.t('copy')}`
-        item.not_deletable = false
-      }
-      return item
-    }),
-    updateItem: () => $store.dispatch('$_tenants/updateTenant', form.value),
-  }
-}
+export { useStore } from '../_store'
 
-import {
-  useSearch as useConfigurationSearch
-} from '@/views/Configuration/_composables/useSearch'
+import { pfSearchConditionType as conditionType } from '@/globals/pfSearch'
+import makeSearch from '@/views/Configuration/_store/factory/search'
 import api from '../_api'
-import {
-  columns,
-  fields
-} from '../config'
-export const useSearch = (props, context, options) => {
-  return useConfigurationSearch(api, {
-    name: 'tenants', // localStorage prefix
-    columns,
-    fields,
-    sortBy: 'id',
-    ...options,
-  })
-}
-
-export default {
-  useItemDefaults,
-  useItemTitle,
-  useRouter,
-  useStore,
-  useSearch
-}
+export const useSearch = makeSearch('tenants', {
+  api,
+  columns: [
+    {
+      key: 'selected',
+      thStyle: 'width: 40px;', tdClass: 'text-center',
+      locked: true
+    },
+    {
+      key: 'id',
+      class: 'text-nowrap',
+      label: 'Identifier', // i18n defer
+      required: true,
+      searchable: true,
+      sortable: true,
+      visible: true
+    },
+    {
+      key: 'name',
+      label: 'Name', // i18n defer
+      sortable: true,
+      visible: true,
+      searchable: true
+    },
+    {
+      key: 'domain_name',
+      label: 'Domain Name', // i18n defer
+      sortable: true,
+      visible: true,
+      searchable: true
+    },
+    {
+      key: 'portal_domain_name',
+      label: 'Portal Domain Name', // i18n defer
+      sortable: true,
+      visible: true,
+      searchable: true
+    },
+    {
+      key: 'buttons',
+      class: 'text-right p-0',
+      locked: true
+    },
+    {
+      key: 'not_deletable',
+      required: true,
+      visible: false
+    }
+  ],
+  fields: [
+    {
+      value: 'id',
+      text: i18n.t('Identifier'),
+      types: [conditionType.SUBSTRING]
+    },
+    {
+      value: 'name',
+      text: i18n.t('Name'),
+      types: [conditionType.SUBSTRING]
+    },
+    {
+      value: 'domain_name',
+      text: i18n.t('Domain name'),
+      types: [conditionType.SUBSTRING]
+    },
+    {
+      value: 'portal_domain_name',
+      text: i18n.t('Portal domain name'),
+      types: [conditionType.SUBSTRING]
+    }
+  ],
+  sortBy: 'id'
+})

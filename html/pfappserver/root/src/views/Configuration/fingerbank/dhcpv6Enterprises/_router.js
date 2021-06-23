@@ -2,12 +2,29 @@ import store from '@/store'
 import { TheTabs } from '../_components/'
 const TheView = () => import(/* webpackChunkName: "Fingerbank" */ './_components/TheView')
 
+export const useRouter = $router => {
+  return {
+    goToCollection: () => $router.push({ name: 'fingerbankDhcpv6Enterprises' }),
+    goToItem: params => $router
+      .push({ name: 'fingerbankDhcpv6Enterprise', params })
+      .catch(e => { if (e.name !== "NavigationDuplicated") throw e }),
+    goToClone: params => $router.push({ name: 'cloneFingerbankDhcpv6Enterprise', params }),
+    goToNew: params => $router.push({ name: 'newFingerbankDhcpv6Enterprise', params })
+  }
+}
+
 export default [
   {
     path: 'fingerbank/dhcpv6_enterprises',
     name: 'fingerbankDhcpv6Enterprises',
     component: TheTabs,
-    props: (route) => ({ tab: 'dhcpv6_enterprises', query: route.query.query })
+    props: () => ({ tab: 'dhcpv6_enterprises', scope: 'all' })
+  },
+  {
+    path: 'fingerbank/:scope/dhcpv6_enterprises',
+    name: 'fingerbankDhcpv6EnterprisesByScope',
+    component: TheTabs,
+    props: (route) => ({ tab: 'dhcpv6_enterprises', scope: route.params.scope })
   },
   {
     path: 'fingerbank/:scope/dhcpv6_enterprises/new',

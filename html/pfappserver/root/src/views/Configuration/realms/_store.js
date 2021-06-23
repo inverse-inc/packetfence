@@ -2,7 +2,30 @@
 * "$_realms" store module
 */
 import Vue from 'vue'
-import api from './_api'
+import { computed } from '@vue/composition-api'
+import i18n from '@/utils/locale'
+import { apiFactory } from './_api'
+
+export const useStore = $store => {
+  return {
+    isLoading: computed(() => $store.getters['$_realms/isLoading']),
+    getList: params => $store.dispatch('$_realms/allByTenant', params),
+    getListOptions: params => {
+      const { id, ..._params } = params // strip `id`
+      return $store.dispatch('$_realms/options', _params)
+    },
+    createItem: params => $store.dispatch('$_realms/createRealm', params),
+    sortItems: params => $store.dispatch('$_realms/sortRealms', params),
+    getItem: params => $store.dispatch('$_realms/getRealm', params).then(item => {
+      return (params.isClone)
+        ? { ...item, id: `${item.id}-${i18n.t('copy')}`, not_deletable: false }
+        : item
+    }),
+    getItemOptions: params => $store.dispatch('$_realms/options', params),
+    updateItem: params => $store.dispatch('$_realms/updateRealm', params),
+    deleteItem: params => $store.dispatch('$_realms/deleteRealm', params),
+  }
+}
 
 const types = {
   LOADING: 'loading',
@@ -34,7 +57,7 @@ const actions = {
       const params = {
         fields: ['id']
       }
-      api.realms(tenantId, params).then(response => {
+      apiFactory(tenantId).list(params).then(response => {
         commit('TENANT_SUCCESS', { tenantId, items: response.items })
       }).catch(err => {
         commit('TENANT_ERROR', err.response)
@@ -48,7 +71,7 @@ const actions = {
       items
     }
     commit('TENANT_REQUEST', tenantId)
-    return api.sortRealms(tenantId, params).then(response => {
+    return apiFactory(tenantId).sortItems(params).then(response => {
       commit('TENANT_RESORTED', { tenantId, items })
       return response
     }).catch(err => {
@@ -59,7 +82,7 @@ const actions = {
   options: ({ commit }, { tenantId, id }) => {
     commit('ITEM_REQUEST')
     if (id) {
-      return api.realmOptions(tenantId, id).then(response => {
+      return apiFactory(tenantId).itemOptions(id).then(response => {
         commit('ITEM_SUCCESS')
         return response
       }).catch(err => {
@@ -67,7 +90,7 @@ const actions = {
         throw err
       })
     } else {
-      return api.realmsOptions().then(response => {
+      return apiFactory(tenantId).listOptions().then(response => {
         commit('ITEM_SUCCESS')
         return response
       }).catch(err => {
@@ -81,7 +104,7 @@ const actions = {
       return state.cache[tenantId][id]
     }
     commit('ITEM_REQUEST')
-    return api.realm(tenantId, id).then(item => {
+    return apiFactory(tenantId).item(id).then(item => {
       commit('ITEM_REPLACED', { tenantId, item })
       return item
     }).catch(err => {
@@ -91,7 +114,7 @@ const actions = {
   },
   createRealm: ({ commit }, { tenantId, item }) => {
     commit('ITEM_REQUEST')
-    return api.createRealm(tenantId, item).then(response => {
+    return apiFactory(tenantId).create(item).then(response => {
       commit('ITEM_REPLACED', { tenantId, item })
       return response
     }).catch(err => {
@@ -101,7 +124,7 @@ const actions = {
   },
   updateRealm: ({ commit }, { tenantId, item }) => {
     commit('ITEM_REQUEST')
-    return api.updateRealm(tenantId, item).then(response => {
+    return apiFactory(tenantId).update(item).then(response => {
       commit('ITEM_REPLACED', { tenantId, item })
       return response
     }).catch(err => {
@@ -111,7 +134,7 @@ const actions = {
   },
   deleteRealm: ({ commit }, { tenantId, id }) => {
     commit('ITEM_REQUEST', types.DELETING)
-    return api.deleteRealm(tenantId, id).then(response => {
+    return apiFactory(tenantId).delete(id).then(response => {
       commit('ITEM_DESTROYED', { tenantId, id })
       return response
     }).catch(err => {

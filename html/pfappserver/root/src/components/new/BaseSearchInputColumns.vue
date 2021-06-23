@@ -1,9 +1,11 @@
 <template>
-  <b-dropdown size="sm" variant="link" no-caret
+  <b-dropdown size="sm" variant="link" no-caret right
+    :disabled="disabled"
     @hidden="onCommit"
   >
     <template v-slot:button-content>
-      <icon name="columns" v-b-tooltip.hover.top.d300.window :title="$t('Visible Columns')"></icon>
+      <icon name="columns"
+        v-b-tooltip.hover.top.d300.window :title="$t('Visible Columns')"></icon>
     </template>
     <template v-for="column in columns">
       <template v-if="column.label">
@@ -13,8 +15,8 @@
           <span class="ml-4">{{ $t(column.label) }}</span>
         </b-dropdown-item>
         <a v-else
-          href="javascript:void(0)" class="dropdown-item" 
-          :disabled="disabled || column.locked" :key="column.key"
+          href="javascript:void(0)" class="dropdown-item"
+          :key="column.key"
           @click.stop="onToggle(column)"
         >
           <icon class="position-absolute mt-1" name="check" v-show="column.visible"></icon>
@@ -34,29 +36,35 @@ const props = {
   }
 }
 
-import { ref, toRefs } from '@vue/composition-api'
+import { ref, toRefs, watch } from '@vue/composition-api'
 
 const setup = (props, context) => {
   const {
     value
   } = toRefs(props)
-  
+
   const { emit } = context
 
-  const columns = ref(value.value.reduce((columns, column) => {
-    return [ ...columns, { ...column } ]
-  }, [])) // dereference
+  const columns = ref([])
+  watch(value, () => {
+    columns.value = JSON.parse(JSON.stringify(value.value)) // dereference
+  }, { deep: true, immediate: true })
+  let flag = false
 
   // only emit when dropdown is closed (debounce)
   const onCommit = () => {
-    emit('input', [...(new Set(columns.value))]) // dereference
+    if (flag)
+      emit('input', JSON.parse(JSON.stringify(columns.value))) // dereference
+    flag = false
   }
 
   const onToggle = column => {
     const _columns = columns.value
       .map(_column => {
-        if (_column.key === column.key)
-          _column.visible = !_column.visible
+        if (_column.key === column.key) {
+            _column.visible = !_column.visible
+            flag = true
+        }
         return _column
       })
     columns.value = _columns

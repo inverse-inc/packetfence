@@ -1,9 +1,5 @@
 import { computed, toRefs } from '@vue/composition-api'
 import i18n from '@/utils/locale'
-import {
-  decomposeCa,
-  recomposeCa
-} from '../config'
 
 export const useItemProps = {
   id: {
@@ -11,7 +7,7 @@ export const useItemProps = {
   }
 }
 
-const useItemTitle = (props) => {
+export const useItemTitle = (props) => {
   const {
     id,
     isClone,
@@ -29,34 +25,82 @@ const useItemTitle = (props) => {
   })
 }
 
-const useRouter = (props, context, form) => {
-  const {
-    id
-  } = toRefs(props)
-  const { root: { $router } = {} } = context
-  return {
-    goToCollection: () => $router.push({ name: 'pkiCas' }),
-    goToItem: (item = form.value || {}) => $router
-      .push({ name: 'pkiCa', params: { id: item.ID } })
-      .catch(e => { if (e.name !== "NavigationDuplicated") throw e }),
-    goToClone: () => $router.push({ name: 'clonePkiCa', params: { id: id.value } }),
-  }
-}
+export { useRouter } from '../_router'
 
-const useStore = (props, context, form) => {
-  const {
-    id
-  } = toRefs(props)
-  const { root: { $store } = {} } = context
-  return {
-    isLoading: computed(() => $store.getters['$_pkis/isLoading']),
-    createItem: () => $store.dispatch('$_pkis/createCa', recomposeCa(form.value)),
-    getItem: () => $store.dispatch('$_pkis/getCa', id.value).then(item => decomposeCa(item))
-  }
-}
+export { useStore } from '../_store'
 
-export default {
-  useItemTitle,
-  useRouter,
-  useStore,
-}
+import { pfSearchConditionType as conditionType } from '@/globals/pfSearch'
+import makeSearch from '@/views/Configuration/_store/factory/search'
+import api from '../_api'
+export const useSearch = makeSearch('pkiCas', {
+  api,
+  columns: [
+    {
+      key: 'selected',
+      thStyle: 'width: 40px;', tdClass: 'text-center',
+      locked: true
+    },
+    {
+      key: 'ID',
+      label: 'Identifier', // i18n defer
+      required: true,
+      searchable: true,
+      sortable: true,
+      visible: true
+    },
+    {
+      key: 'cn',
+      label: 'Common Name', // i18n defer
+      searchable: true,
+      sortable: true,
+      visible: true
+    },
+    {
+      key: 'mail',
+      label: 'Email', // i18n defer
+      searchable: true,
+      sortable: true,
+      visible: true
+    },
+    {
+      key: 'organisation',
+      label: 'Organisation', // i18n defer
+      searchable: true,
+      sortable: true,
+      visible: true
+    },
+    {
+      key: 'buttons',
+      class: 'text-right p-0',
+      locked: true
+    }
+  ],
+  fields: [
+    {
+      value: 'ID',
+      text: i18n.t('Identifier'),
+      types: [conditionType.SUBSTRING]
+    },
+    {
+      value: 'cn',
+      text: i18n.t('Common Name'),
+      types: [conditionType.SUBSTRING]
+    },
+    {
+      value: 'mail',
+      text: i18n.t('Email'),
+      types: [conditionType.SUBSTRING]
+    },
+    {
+      value: 'organisation',
+      text: i18n.t('Organisation'),
+      types: [conditionType.SUBSTRING]
+    }
+  ],
+  sortBy: 'id',
+  defaultCondition: () => ({ op: 'and', values: [
+    { op: 'or', values: [
+      { field: 'ID', op: 'not_equals', value: null }
+    ] }
+  ] })
+})

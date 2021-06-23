@@ -3,6 +3,8 @@ import { useDebouncedWatchHandler } from '@/composables/useDebounce'
 import useEventActionKey from '@/composables/useEventActionKey'
 import useEventEscapeKey from '@/composables/useEventEscapeKey'
 import useEventJail from '@/composables/useEventJail'
+import { useDefaultsFromMeta } from '@/composables/useMeta'
+import { usePropsWrapper } from '@/composables/useProps'
 
 export const useViewCollectionItemProps = {
   id: {
@@ -22,12 +24,18 @@ export const useViewCollectionItemProps = {
 export const useViewCollectionItem = (collection, props, context) => {
 
   const {
-    useItemDefaults = () => ({}), // {}
+    useItemDefaults = useDefaultsFromMeta, // {}
     useItemTitle = () => {},
     useItemTitleBadge = () => {},
-    useRouter = () => {},
-    useStore = () => {},
+    useRouter: _useRouter = () => {},
+    useStore: _useStore = () => {},
   } = collection
+
+  // merge props w/ params in useRouter method
+  const useRouter = $router => usePropsWrapper(_useRouter($router), props)
+
+  // merge props w/ params in useStore methods
+  const useStore = $store => usePropsWrapper(_useStore($store), props)
 
   const {
     isClone,
@@ -58,26 +66,29 @@ export const useViewCollectionItem = (collection, props, context) => {
     )
   )
 
+  const { root: { $router, $store } = {} } = context
+
+  const {
+    goToCollection,
+    goToItem,
+    goToClone,
+  } = useRouter($router)
+
   const {
     isLoading,
-    getOptions = () => (new Promise(r => r())),
+    getListOptions = () => (new Promise(r => r())),
     createItem,
-    deleteItem,
     getItem,
+    getItemOptions = () => (new Promise(r => r())),
+    deleteItem,
     updateItem,
-  } = useStore(props, context, form)
+  } = useStore($store)
 
   const isSaveable = computed(() => {
     if (isNew.value || isClone.value)
       return !!createItem
     return !!updateItem
   })
-
-  const {
-    goToCollection,
-    goToItem,
-    goToClone,
-  } = useRouter(props, context, form)
 
   const isCloneable = computed(() => !!goToClone)
 
@@ -95,7 +106,7 @@ export const useViewCollectionItem = (collection, props, context) => {
   const init = () => {
     return new Promise((resolve, reject) => {
       if (!isNew.value) { // existing
-        getOptions().then(options => {
+        getItemOptions().then(options => {
           const { meta: _meta = {} } = options || {}
           meta.value = _meta
           getItem().then(item => {
@@ -116,7 +127,7 @@ export const useViewCollectionItem = (collection, props, context) => {
           })
         })
       } else { // new
-        getOptions().then(options => {
+        getListOptions().then(options => {
           const { meta: _meta = {} } = options || {}
           form.value = useItemDefaults(_meta, props, context)
           meta.value = _meta
@@ -132,9 +143,9 @@ export const useViewCollectionItem = (collection, props, context) => {
 
   const save = () => {
     if (isClone.value || isNew.value)
-      return createItem()
+      return createItem(form.value)
     else
-      return updateItem()
+      return updateItem(form.value)
   }
 
   const onClose = () => goToCollection()
@@ -151,7 +162,7 @@ export const useViewCollectionItem = (collection, props, context) => {
     const closeAfter = actionKey.value
     save().then(response => {
       if (closeAfter) // [CTRL] key pressed
-        goToCollection(true)
+        goToCollection({ actionKey: true })
       else {
         form.value = { ...form.value, ...response } // merge form w/ newly inserted IDs
         goToItem(form.value).then(() => init()) // re-init

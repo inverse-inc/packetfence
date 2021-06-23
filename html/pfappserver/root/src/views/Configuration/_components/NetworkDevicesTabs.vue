@@ -3,31 +3,33 @@
     <b-card-header>
       <h4 class="mb-0">
         {{ $t('Network Devices') }}
-        <pf-button-help class="ml-1" url="PacketFence_Installation_Guide.html#_network_devices_definition_switches_conf" />
+        <base-button-help class="text-black-50 ml-1" url="PacketFence_Installation_Guide.html#_network_devices_definition_switches_conf" />
       </h4>
     </b-card-header>
-    <b-tabs ref="tabs" v-model="tabIndex" card>
+    <b-tabs ref="tabs" v-model="tabIndex" card lazy>
       <b-tab :title="$t('Switches')" @click="changeTab('switches')" no-body>
-        <switches-list storeName="$_switches" />
+        <switches-search />
       </b-tab>
       <b-tab :title="$t('Switch Groups')" @click="changeTab('switch_groups')" no-body>
-        <switch-groups-list storeName="$_switch_groups" />
+        <switch-groups-search />
       </b-tab>
     </b-tabs>
   </b-card>
 </template>
 
 <script>
-import pfButtonHelp from '@/components/pfButtonHelp'
-import SwitchesList from './SwitchesList'
-import SwitchGroupsList from './SwitchGroupsList'
+import {
+  BaseButtonHelp
+} from '@/components/new/'
+import SwitchesSearch from '../switches/_components/TheSearch'
+import SwitchGroupsSearch from '../switchGroups/_components/TheSearch'
 
 export default {
   name: 'network-device-tabs',
   components: {
-    pfButtonHelp,
-    SwitchesList,
-    SwitchGroupsList
+    BaseButtonHelp,
+    SwitchesSearch,
+    SwitchGroupsSearch
   },
   props: {
     tab: {

@@ -1,24 +1,15 @@
 import { computed } from '@vue/composition-api'
 import i18n from '@/utils/locale'
 
-const useTitle = () => i18n.t('SNMP')
+export const useTitle = () => i18n.t('SNMP')
 
-const useTitleHelp = () => 'PacketFence_Installation_Guide.html#_snmp_traps_limit'
+export const useTitleHelp = () => 'PacketFence_Installation_Guide.html#_snmp_traps_limit'
 
-const useStore = (props, context, form) => {
-  const { root: { $store } = {} } = context
+export const useStore = $store => {
   return {
     isLoading: computed(() => $store.getters['$_bases/isLoading']),
-    getOptions: () => $store.dispatch('$_bases/optionsSNMPTraps'),
     getItem: () => $store.dispatch('$_bases/getSNMPTraps'),
-    updateItem: () => {
-      return $store.dispatch('$_bases/updateSNMPTraps', form.value)
-    }
+    getItemOptions: () => $store.dispatch('$_bases/optionsSNMPTraps'),
+    updateItem: params => $store.dispatch('$_bases/updateSNMPTraps', params)
   }
-}
-
-export default {
-  useTitle,
-  useTitleHelp,
-  useStore,
 }

@@ -1,6 +1,7 @@
 import { computed, ref, watch } from '@vue/composition-api'
 import { useDebouncedWatchHandler } from '@/composables/useDebounce'
 import useEventJail from '@/composables/useEventJail'
+import { usePropsWrapper } from '@/composables/useProps'
 
 export const useViewResourceProps = {}
 
@@ -9,8 +10,13 @@ export const useViewResource = (resource, props, context) => {
   const {
     useTitle,
     useTitleHelp = () => {},
-    useStore,
+    useStore: _useStore = () => {},
   } = resource
+
+  // merge props w/ params in useStore methods
+  const useStore = $store => usePropsWrapper(_useStore($store), props)
+
+  const { root: { $store } = {} } = context
 
   // template refs
   const rootRef = ref(null)
@@ -38,15 +44,15 @@ export const useViewResource = (resource, props, context) => {
 
   const {
     isLoading,
-    getOptions = () => (new Promise(r => r())),
+    getItemOptions = () => (new Promise(r => r())),
     getItem,
     updateItem,
-  } = useStore(props, context, form)
+  } = useStore($store)
   const isSaveable = computed(() => !!updateItem)
 
   const init = () => {
     return new Promise((resolve, reject) => {
-      getOptions().then(options => {
+      getItemOptions().then(options => {
         const { meta: _meta = {} } = options || {}
         meta.value = _meta
         getItem().then(item => {
@@ -64,7 +70,7 @@ export const useViewResource = (resource, props, context) => {
     })
   }
 
-  const save = () => updateItem()
+  const save = () => updateItem(form.value)
 
   const onReset = () => init().then(() => isModified.value = false)
 

@@ -10,7 +10,7 @@ export const useItemProps = {
   }
 }
 
-const useItemTitle = (props) => {
+export const useItemTitle = (props) => {
   const {
     id,
     isClone,
@@ -30,39 +30,65 @@ const useItemTitle = (props) => {
 
 export const useItemTitleBadge = props => props.scope
 
-const useRouter = (props, context, form) => {
-  const {
-    id,
-    scope
-  } = toRefs(props)
-  const { root: { $router } = {} } = context
-  return {
-    goToCollection: () => $router.push({ name: 'fingerbankDhcpv6Fingerprints' }),
-    goToItem: (item = form.value || {}) => $router
-      .push({ name: 'fingerbankDhcpv6Fingerprint', params: { id: item.id, scope: scope.value } })
-      .catch(e => { if (e.name !== "NavigationDuplicated") throw e }),
-    goToClone: () => $router.push({ name: 'cloneFingerbankDhcpv6Fingerprint', params: { id: form.value.id || id.value, scope: 'local' } }),
-  }
-}
+export { useRouter } from '../_router'
 
-const useStore = (props, context, form) => {
-  const {
-    id
-  } = toRefs(props)
-  const { root: { $store } = {} } = context
-  return {
-    isLoading: computed(() => $store.getters['$_fingerbank/isDhcpv6FingerprintsLoading']),
-    createItem: () => $store.dispatch('$_fingerbank/createDhcpv6Fingerprint', form.value),
-    deleteItem: () => $store.dispatch('$_fingerbank/deleteDhcpv6Fingerprint', id.value),
-    getItem: () => $store.dispatch('$_fingerbank/getDhcpv6Fingerprint', id.value),
-    updateItem: () => $store.dispatch('$_fingerbank/updateDhcpv6Fingerprint', form.value),
-  }
-}
+export { useStore } from '../_store'
 
-export default {
-  useItemProps,
-  useItemTitle,
-  useItemTitleBadge,
-  useRouter,
-  useStore,
-}
+import { pfSearchConditionType as conditionType } from '@/globals/pfSearch'
+import makeSearch from '@/views/Configuration/_store/factory/search'
+import api from '../_api'
+export const useSearch = makeSearch('fingerbankDhcpv6Fingerprints', {
+  api,
+  columns: [
+    {
+      key: 'selected',
+      thStyle: 'width: 40px;', tdClass: 'text-center',
+      locked: true
+    },
+    {
+      key: 'id',
+      label: 'Identifier', // i18n defer
+      required: true,
+      searchable: true,
+      sortable: true,
+      visible: true
+    },
+    {
+      key: 'value',
+      label: 'DHCPv6 Fingerprint', // i18n defer
+      searchable: true,
+      sortable: true,
+      visible: true
+    },
+    {
+      key: 'created_at',
+      label: 'Created', // i18n defer
+      sortable: true,
+      visible: true
+    },
+    {
+      key: 'updated_at',
+      label: 'Updated', // i18n defer
+      sortable: true,
+      visible: true
+    },
+    {
+      key: 'buttons',
+      class: 'text-right p-0',
+      locked: true
+    }
+  ],
+  fields: [
+    {
+      value: 'id',
+      text: i18n.t('Identifier'),
+      types: [conditionType.INTEGER]
+    },
+    {
+      value: 'value',
+      text: i18n.t('DHCPv6 Fingerprint'),
+      types: [conditionType.SUBSTRING]
+    }
+  ],
+  sortBy: 'id'
+})

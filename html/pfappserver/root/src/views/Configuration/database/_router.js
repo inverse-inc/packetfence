@@ -15,14 +15,14 @@ export default [
     path: 'database_general',
     name: 'database_general',
     component: TheTabs,
-    props: (route) => ({ tab: 'database_general', query: route.query.query }),
+    props: () => ({ tab: 'database_general' }),
     beforeEnter
   },
   {
     path: 'database_advanced',
     name: 'database_advanced',
     component: TheTabs,
-    props: (route) => ({ tab: 'database_advanced', query: route.query.query }),
+    props: () => ({ tab: 'database_advanced' }),
     beforeEnter
   }
 ]

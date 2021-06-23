@@ -1,21 +1,13 @@
 import { computed } from '@vue/composition-api'
 import i18n from '@/utils/locale'
 
-const useTitle = () => i18n.t('Web Services')
+export const useTitle = () => i18n.t('Web Services')
 
-const useStore = (props, context, form) => {
-  const { root: { $store } = {} } = context
+export const useStore = $store => {
   return {
     isLoading: computed(() => $store.getters['$_bases/isLoading']),
-    getOptions: () => $store.dispatch('$_bases/optionsWebServices'),
     getItem: () => $store.dispatch('$_bases/getWebServices'),
-    updateItem: () => {
-      return $store.dispatch('$_bases/updateWebServices', form.value)
-    }
+    getItemOptions: () => $store.dispatch('$_bases/optionsWebServices'),
+    updateItem: params => $store.dispatch('$_bases/updateWebServices', params)
   }
-}
-
-export default {
-  useTitle,
-  useStore,
 }

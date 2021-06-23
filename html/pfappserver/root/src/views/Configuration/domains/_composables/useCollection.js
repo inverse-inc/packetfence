@@ -1,10 +1,8 @@
 import { computed, toRefs } from '@vue/composition-api'
+import { pfSearchConditionType as conditionType } from '@/globals/pfSearch'
 import i18n from '@/utils/locale'
-import {
-  defaultsFromMeta as useItemDefaults
-} from '../../_config/'
 
-const useItemTitle = (props) => {
+export const useItemTitle = (props) => {
   const {
     id,
     isClone,
@@ -22,43 +20,63 @@ const useItemTitle = (props) => {
   })
 }
 
-const useRouter = (props, context, form) => {
-  const {
-    id
-  } = toRefs(props)
-  const { root: { $router } = {} } = context
-  return {
-    goToCollection: (autoJoinDomain) => {
-      if (autoJoinDomain)
-        $router.push({ name: 'domains', params: { autoJoinDomain: form.value } })
-      else
-        $router.push({ name: 'domains' })
+export { useRouter } from '../_router'
+
+export { useStore } from '../_store'
+
+import makeSearch from '@/views/Configuration/_store/factory/search'
+import api from '../_api'
+export const useSearch = makeSearch('domains', {
+  api,
+  columns: [
+    {
+      key: 'selected',
+      thStyle: 'width: 40px;', tdClass: 'text-center',
+      locked: true
     },
-    goToItem: (item = form.value || {}) => $router
-      .push({ name: 'domain', params: { id: item.id } })
-      .catch(e => { if (e.name !== "NavigationDuplicated") throw e }),
-    goToClone: () => $router.push({ name: 'cloneDomain', params: { id: id.value } }),
-  }
-}
-
-const useStore = (props, context, form) => {
-  const {
-    id
-  } = toRefs(props)
-  const { root: { $store } = {} } = context
-  return {
-    isLoading: computed(() => $store.getters['$_domains/isLoading']),
-    getOptions: () => $store.dispatch('$_domains/options'),
-    createItem: () => $store.dispatch('$_domains/createDomain', form.value),
-    deleteItem: () => $store.dispatch('$_domains/deleteDomain', id.value),
-    getItem: () => $store.dispatch('$_domains/getDomain', id.value),
-    updateItem: () => $store.dispatch('$_domains/updateDomain', form.value),
-  }
-}
-
-export default {
-  useItemDefaults,
-  useItemTitle,
-  useRouter,
-  useStore,
-}
+    {
+      key: 'id',
+      label: 'Identifier', // i18n defer
+      required: true,
+      searchable: true,
+      sortable: true,
+      visible: true
+    },
+    {
+      key: 'workgroup',
+      label: 'Workgroup', // i18n defer
+      searchable: true,
+      sortable: true,
+      visible: true
+    },
+    {
+      key: 'ntlm_cache',
+      label: 'NTLM Cache', // i18n defer
+      sortable: true,
+      visible: true
+    },
+    {
+      key: 'joined',
+      label: 'Domain Join', // i18n defer
+      visible: true
+    },
+    {
+      key: 'buttons',
+      class: 'text-right p-0',
+      locked: true
+    }
+  ],
+  fields: [
+    {
+      value: 'id',
+      text: i18n.t('Identifier'),
+      types: [conditionType.SUBSTRING]
+    },
+    {
+      value: 'workgroup',
+      text: i18n.t('Workgroup'),
+      types: [conditionType.SUBSTRING]
+    }
+  ],
+  sortBy: 'id'
+})

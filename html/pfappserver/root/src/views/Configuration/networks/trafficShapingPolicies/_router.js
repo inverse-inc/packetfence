@@ -2,12 +2,22 @@ import store from '@/store'
 const TheTabs = () => import(/* webpackChunkName: "Configuration" */ '../../_components/NetworksTabs')
 const TheView = () => import(/* webpackChunkName: "Configuration" */ './_components/TheView')
 
+export const useRouter = $router => {
+  return {
+    goToCollection: () => $router.push({ name: 'traffic_shapings' }),
+    goToItem: params => $router
+      .push({ name: 'traffic_shaping', params })
+      .catch(e => { if (e.name !== "NavigationDuplicated") throw e }),
+    goToNew: () => $router.push({ name: 'newTrafficShaping' })
+  }
+}
+
 export default [
   {
     path: 'traffic_shapings',
     name: 'traffic_shapings',
     component: TheTabs,
-    props: (route) => ({ tab: 'traffic_shapings', query: route.query.query })
+    props: () => ({ tab: 'traffic_shapings' })
   },
   {
     path: 'traffic_shaping/new/:role',

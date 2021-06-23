@@ -26,7 +26,9 @@
                 </template>
                 <template v-else>
                   <b-link variant="outline-secondary" @click="logout" v-if="modal">{{ $t('Use a different username') }}</b-link>
-                  <pf-button-save type="submit" class="ml-2" variant="primary" :isLoading="isLoading" :disabled="!validForm">{{ $t('Login') }}</pf-button-save>
+                  <base-button-save type="submit" :isLoading="isLoading" :disabled="!validForm" variant="primary">
+                    {{ $t('Login') }}
+                  </base-button-save>
                 </template>
             </template>
         </component>
@@ -34,14 +36,16 @@
 </template>
 
 <script>
-import pfButtonSave from '@/components/pfButtonSave'
+import {
+  BaseButtonSave
+} from '@/components/new/'
 
 const EXPIRATION_DELAY = 60 * 1000 // in miliseconds
 
 export default {
   name: 'pf-form-login',
   components: {
-    pfButtonSave
+    BaseButtonSave
   },
   data () {
     return {
