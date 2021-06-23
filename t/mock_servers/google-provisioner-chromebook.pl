@@ -77,6 +77,8 @@ USA.
 __DATA__
 @@ GET/admin/directory/v1/customer/my_customer/devices/chromeos.json+query=0022446688aa.ep
 
+%# Test authorize pass
+
 {
   "kind": "admin#directory#chromeosdevices",
   "etag": "\"swLRVvvLuHfCKiJORq8j43HfhSe9XvfGVMcLgfvLY0Y/i5vFr_y-WXYwvilWIWe8rL9FSzk\"",
@@ -88,7 +90,24 @@ __DATA__
   ]
 }
 
+@@ GET/admin/directory/v1/customer/my_customer/devices/chromeos.json+query=0022446688ab.ep
+
+%# Test authorize fail
+
+{
+  "kind": "admin#directory#chromeosdevices",
+  "etag": "\"swLRVvvLuHfCKiJORq8j43HfhSe9XvfGVMcLgfvLY0Y/i5vFr_y-WXYwvilWIWe8rL9FSzk\"",
+  "chromeosdevices": [
+    {
+      "status": "DISABLED",
+      "macAddress": "0022446688ab"
+    }
+  ]
+}
+
 @@ GET/admin/directory/v1/customer/my_customer/devices/chromeos.json.ep
+
+%# Test polling for devices
 
 {
   "kind": "admin#directory#chromeosdevices",
@@ -104,6 +123,8 @@ __DATA__
 
 @@ GET/admin/directory/v1/customer/my_customer/devices/chromeos.json+pageToken=123.ep
 
+%# Test polling for devices
+
 {
   "kind": "admin#directory#chromeosdevices",
   "etag": "\"swLRVvvLuHfCKiJORq8j43HfhSe9XvfGVMcLgfvLY0Y/i5vFr_y-WXYwvilWIWe8rL9FSzk\"",
@@ -116,6 +137,8 @@ __DATA__
 }
 
 @@ GET/admin/directory/v1/customer/my_customer/devices/chromeos.json+query=sync%3A1969-01-01...ep
+
+%# Test importing devices
 
 {
   "kind": "admin#directory#chromeosdevices",
@@ -137,6 +160,8 @@ __DATA__
 
 @@ GET/admin/directory/v1/customer/my_customer/devices/chromeos.json+pageToken=124.ep
 
+%# Test importing devices
+
 {
   "kind": "admin#directory#chromeosdevices",
   "etag": "\"swLRVvvLuHfCKiJORq8j43HfhSe9XvfGVMcLgfvLY0Y/i5vFr_y-WXYwvilWIWe8rL9FSzk\"",
@@ -153,6 +178,7 @@ __DATA__
 }
 
 @@ POST/token.json.ep
+%# Test caching of the access_token
 
 {
   "access_token": "<%= $main::ACCESS_TOKEN++ %>",
