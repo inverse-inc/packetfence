@@ -115,6 +115,43 @@ __DATA__
   ]
 }
 
+@@ GET/admin/directory/v1/customer/my_customer/devices/chromeos.json+query=sync%3A1969-01-01...ep
+
+{
+  "kind": "admin#directory#chromeosdevices",
+  "etag": "\"swLRVvvLuHfCKiJORq8j43HfhSe9XvfGVMcLgfvLY0Y/i5vFr_y-WXYwvilWIWe8rL9FSzk\"",
+  "chromeosdevices": [
+    {
+      "status": "ACTIVE",
+      "macAddress": "0022446688ac",
+      "lastSync" : ""
+    },
+    {
+      "status": "ACTIVE",
+      "macAddress": "0022446688ad",
+      "lastSync" : ""
+    }
+  ],
+  "nextPageToken": "124"
+}
+
+@@ GET/admin/directory/v1/customer/my_customer/devices/chromeos.json+pageToken=124.ep
+
+{
+  "kind": "admin#directory#chromeosdevices",
+  "etag": "\"swLRVvvLuHfCKiJORq8j43HfhSe9XvfGVMcLgfvLY0Y/i5vFr_y-WXYwvilWIWe8rL9FSzk\"",
+  "chromeosdevices": [
+    {
+      "status": "ACTIVE",
+      "macAddress": "0022446688ae"
+    },
+    {
+      "status": "DISABLED",
+      "macAddress": "0022446688af"
+    }
+  ]
+}
+
 @@ POST/token.json.ep
 
 {
