@@ -33,7 +33,7 @@ has_field service_account => (
     required => 1,
 );
 
-has_field customerId => (
+has_field customer_id => (
     type => 'Text',
     default_method => \&default_field_method,
 );
