@@ -5,7 +5,7 @@ pf::cmd::pf::import add documentation
 
 =head1 SYNOPSIS
 
-pfcmd import <format> <filename>
+pfcmd import <format> <options>
 
 Bulk import into the database. File input must be a of CSV format. Default
 pid, category and voip status assigned to the imported nodes can be modified
@@ -13,6 +13,7 @@ in pf.conf.
 
 Supported format:
 - nodes
+- google_chromebook_provisioner
 
 pfcmd import nodes /path/to/file.csv [columns=<columns>] [default-role=<role>] [default-unregdate=<unregdate>] [default-voip=<yes|no>] [delimiter=<comma|semicolon|colon|tab>] [default-owner=<owner>]
 
@@ -35,6 +36,8 @@ Where:
  - [delimiter=<delimiter>] is the delimiter to use when splitting values
     Valid values are: "comma", "semicolon", "colon" or "tab"
     When none is specified, it defaults to "comma"
+
+pfcmd import google_chromebook_provisioner id
 
 
 =head1 DESCRIPTION
