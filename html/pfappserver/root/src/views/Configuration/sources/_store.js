@@ -3,6 +3,7 @@
 */
 import Vue from 'vue'
 import { computed } from '@vue/composition-api'
+import i18n from '@/utils/locale'
 import api from './_api'
 
 export const useStore = $store => {
@@ -14,7 +15,7 @@ export const useStore = $store => {
     sortItems: params => $store.dispatch('$_sources/sortAuthenticationSources', params.items),
     getItem: params => $store.dispatch('$_sources/getAuthenticationSource', params.id).then(item => {
       return (params.isClone)
-        ? { ...item, id: `${item.id}-copy`, not_deletable: false }
+        ? { ...item, id: `${item.id}-${i18n.t('copy')}`, not_deletable: false }
         : item
     }),
     getItemOptions: params => $store.dispatch('$_sources/optionsById', params.id),

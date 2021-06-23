@@ -3,6 +3,7 @@
 */
 import Vue from 'vue'
 import { computed } from '@vue/composition-api'
+import i18n from '@/utils/locale'
 import api from './_api'
 import {
   decomposeTriggers,
@@ -17,7 +18,7 @@ export const useStore = $store => {
     createItem: params => $store.dispatch('$_security_events/createSecurityEvent', params),
     getItem: params => $store.dispatch('$_security_events/getSecurityEvent', params.id).then(item => {
       return (params.isClone)
-        ? { ...item, id: `${item.id}-copy`, not_deletable: false }
+        ? { ...item, id: `${item.id}-${i18n.t('copy')}`, not_deletable: false }
         : item
     }),
     getItemOptions: params => $store.dispatch('$_security_events/options', params.id),

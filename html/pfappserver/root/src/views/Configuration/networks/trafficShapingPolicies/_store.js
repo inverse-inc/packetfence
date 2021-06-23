@@ -3,6 +3,7 @@
 */
 import Vue from 'vue'
 import { computed } from '@vue/composition-api'
+import i18n from '@/utils/locale'
 import api from './_api'
 
 export const useStore = $store => {
@@ -14,7 +15,7 @@ export const useStore = $store => {
     getItem: params => $store.dispatch('$_traffic_shaping_policies/getTrafficShapingPolicy', params.id),
     getItemOptions: params => $store.dispatch('$_traffic_shaping_policies/options', params.id),
     updateItem: params => $store.dispatch('$_traffic_shaping_policies/updateTrafficShapingPolicy', params),
-    deleteItem: params => $store.dispatch('$_traffic_shaping_policies/deleteTrafficShapingPolicy', params.id),
+    deleteItem: params => $store.dispatch('$_traffic_shaping_policies/deleteTrafficShapingPolicy', params.id)
   }
 }
 

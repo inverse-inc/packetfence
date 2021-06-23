@@ -3,6 +3,7 @@
 */
 import Vue from 'vue'
 import { computed } from '@vue/composition-api'
+import i18n from '@/utils/locale'
 import api from './_api'
 
 export const useStore = $store => {
@@ -13,7 +14,7 @@ export const useStore = $store => {
     createItem: params => $store.dispatch('$_scans/createScanEngine', params),
     getItem: params => $store.dispatch('$_scans/getScanEngine', params.id).then(item => {
       return (params.isClone)
-        ? { ...item, id: `${item.id}-copy`, not_deletable: false }
+        ? { ...item, id: `${item.id}-${i18n.t('copy')}`, not_deletable: false }
         : item
     }),
     getItemOptions: params => $store.dispatch('$_scans/optionsById', params.id),
