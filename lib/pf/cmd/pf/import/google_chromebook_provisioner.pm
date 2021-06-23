@@ -4,6 +4,10 @@ package pf::cmd::pf::import::google_chromebook_provisioner;
 
 pf::cmd::pf::import::google_chromebook_provisioner -
 
+=head1 SYNOPSIS
+
+pfcmd import google_chromebook_provisioner provisioner_id
+
 =head1 DESCRIPTION
 
 pf::cmd::pf::import::google_chromebook_provisioner
@@ -35,6 +39,11 @@ sub parseArgs {
     my $p = pf::factory::provisioner->new($id);
     if (!defined $p) {
         print STDERR "No provisioner ($id) defined\n";
+        return $FALSE;
+    }
+
+    if (!$p->isa("pf::provisioner::google_chromebook_provisioner")) {
+        print STDERR " provisioner ($id) is not a pf::provisioner::google_chromebook_provisioner\n";
         return $FALSE;
     }
 
