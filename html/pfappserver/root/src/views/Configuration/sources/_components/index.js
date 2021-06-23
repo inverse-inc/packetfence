@@ -136,6 +136,7 @@ export {
   BaseFormGroupInput                        as FormGroupTimeout,
   BaseFormGroupInput                        as FormGroupTransactionKey,
   BaseFormGroupInput                        as FormGroupTwilioPhoneNumber,
+  BaseFormGroupInputNumber                  as FormGroupUserGroupsCache,
   BaseFormGroupInput                        as FormGroupUserHeader,
   BaseFormGroupChosenOne                    as FormGroupUsernameAttribute,
   BaseFormGroupToggleNoYes                  as FormGroupValidateSponsor,
