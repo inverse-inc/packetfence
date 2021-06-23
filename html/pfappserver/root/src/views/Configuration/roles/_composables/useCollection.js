@@ -31,7 +31,7 @@ export const useSearch = makeSearch('roles', {
   columns: [
     {
       key: 'selected',
-      thStyle: 'text-align: center; width: 40px;', tdClass: 'p-0',
+      thStyle: 'text-align: center; width: 40px;', tdClass: 'text-center',
       locked: true
     },
     {

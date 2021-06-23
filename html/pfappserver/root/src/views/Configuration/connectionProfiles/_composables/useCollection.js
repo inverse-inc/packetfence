@@ -38,7 +38,7 @@ export const useSearch = makeSearch('connectionProfiles', {
   columns: [ // output uses natural order (w/ sortable drag-drop), ensure NO columns are 'sortable: true'
     {
       key: 'selected',
-      thStyle: 'width: 40px;', tdClass: 'p-0',
+      thStyle: 'width: 40px;', tdClass: 'text-center',
       locked: true
     },
     {

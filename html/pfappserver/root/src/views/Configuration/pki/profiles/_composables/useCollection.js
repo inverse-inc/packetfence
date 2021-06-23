@@ -50,7 +50,7 @@ export const useSearch = makeSearch('pkiProfiles', {
   columns: [
     {
       key: 'selected',
-      thStyle: 'width: 40px;', tdClass: 'p-0',
+      thStyle: 'width: 40px;', tdClass: 'text-center',
       locked: true
     },
     {

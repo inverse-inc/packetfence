@@ -46,7 +46,7 @@
           />
         </template>
         <template #cell(selected)="{ index, rowSelected }">
-          <span @click.stop="onItemSelected(index)" style="padding: 12px;">
+          <span @click.stop="onItemSelected(index)">
             <template v-if="rowSelected">
               <icon name="check-square" class="bg-white text-success" scale="1.125" />
             </template>
