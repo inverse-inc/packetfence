@@ -16,7 +16,6 @@ use lib qw(/usr/local/pf/lib);
 use Mojolicious::Lite;
 use URI::Escape qw(uri_escape);
 
-
 our $ACCESS_TOKEN = 123;
 
 any '/*path' => sub {
@@ -105,7 +104,7 @@ __DATA__
   ]
 }
 
-@@ GET/admin/directory/v1/customer/my_customer/devices/chromeos.json.ep
+@@ GET/admin/directory/v1/customer/my_customer/devices/chromeos.json+query=sync%3A0000-01-02...ep
 
 %# Test polling for devices
 
@@ -115,7 +114,8 @@ __DATA__
   "chromeosdevices": [
     {
       "status": "ACTIVE",
-      "macAddress": "0022446688aa"
+      "macAddress": "0022446688aa",
+      "lastSync": "2021-06-02T15:09:11.657Z"
     }
   ],
   "nextPageToken": "123"
@@ -131,12 +131,18 @@ __DATA__
   "chromeosdevices": [
     {
       "status": "DISABLED",
-      "macAddress": "0022446688ab"
+      "macAddress": "0022446688ab",
+      "lastSync": "2021-06-02T15:09:12.657Z"
+    },
+    {
+      "status": "DISABLED",
+      "macAddress": "0022446688cb",
+      "lastSync": "2021-06-02T15:09:13.657Z"
     }
   ]
 }
 
-@@ GET/admin/directory/v1/customer/my_customer/devices/chromeos.json+query=sync%3A1969-01-01...ep
+@@ GET/admin/directory/v1/customer/my_customer/devices/chromeos.json+query=sync%3A0000-01-01...ep
 
 %# Test importing devices
 
