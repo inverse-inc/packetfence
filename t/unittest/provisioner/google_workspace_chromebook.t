@@ -32,7 +32,7 @@ BEGIN {
     );
 }
 
-use Test::More tests => 13 + (scalar @activeImportedDevices) * 2 + (scalar @nonActiveImportedDevices);
+use Test::More tests => 15 + (scalar @activeImportedDevices) * 2 + (scalar @nonActiveImportedDevices);
 
 #This test will running last
 use IPC::Open3;
@@ -46,12 +46,10 @@ use pf::node;
 use pf::defer;
 use pf::factory::provisioner;
 use Symbol 'gensym';
+
 my $child_err = gensym;
-
-
 my $date = "2021-06-02T15:09:11.657Z";
 is(pf::provisioner::google_workspace_chromebook::syncDateToQuery($date), "sync:2021-06-02T15:09:11..", "Formating sync date to a query");
-
 my $p = pf::factory::provisioner->new('google_workspace_chromebook');
 my $baseUri = $p->baseUri;
 isa_ok($p, 'pf::provisioner::google_workspace_chromebook');
@@ -112,15 +110,26 @@ is_deeply(
 my $disabled_mac = "00:22:44:66:88:ab";
 my $se = $p->{non_compliance_security_event};
 security_event_force_close($disabled_mac, $se);
+$p->cache->clear;
+is(
+    $p->syncQuery,
+    "sync:1969-01-02..",
+    "Initial sync query"
+);
+
 $p->pollAndEnforce(2323);
 ok(security_event_exist_open($disabled_mac, $se), "Security event $se triggered for $disabled_mac");
-
 for my $mac (@activeImportedDevices, @nonActiveImportedDevices) {
     node_delete($mac);
 }
 
-$p->importDevices();
+is(
+    $p->syncQuery,
+    "sync:2021-06-02T15:09:13..",
+    "After Sync query"
+);
 
+$p->importDevices();
 for my $mac (@activeImportedDevices) {
     ok(node_exist($mac), "$mac imported");
     my $node = node_view($mac);
