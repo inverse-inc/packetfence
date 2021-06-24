@@ -14,7 +14,6 @@
         "ansible_collections_path": "{{user `prov_dir`}}",
         "ansible_extra_vars": "{{env `ANSIBLE_EXTRA_VARS`}}",
         "ansible_centos_group": "{{env `ANSIBLE_CENTOS_GROUP`}}",
-        "ansible_centos7_group": "{{env `ANSIBLE_CENTOS7_GROUP`}}",
         "ansible_centos8_group": "{{env `ANSIBLE_CENTOS8_GROUP`}}",
         "ansible_debian_group": "{{env `ANSIBLE_DEBIAN_GROUP`}}",
         "ansible_rubygems_group": "{{env `ANSIBLE_RUBYGEMS_GROUP`}}",
@@ -26,16 +25,6 @@
         "docker_registry": "{{env `REGISTRY`}}"
     },
     "builders": [
-        {
-            "name": "{{user `builder_prefix`}}-centos-7",
-            "type": "docker",
-            "image": "{{user `buildpkg_user`}}/centos:7",
-            "run_command": ["-d", "-i", "-t", "--", "{{.Image}}"],
-            "commit": true,
-            "changes": [
-                "ENV PATH /usr/local/go/bin:$PATH"
-            ]
-        },
         {
             "name": "{{user `builder_prefix`}}-centos-8",
             "type": "docker",
@@ -68,19 +57,6 @@
         }
     ],
     "provisioners": [
-        {
-            "type": "ansible",
-            "playbook_file": "{{user `prov_dir`}}/site.yml",
-            "galaxy_file": "{{user `prov_dir`}}/requirements.yml",
-            "roles_path": "{{user `ansible_roles_path`}}",
-            "collections_path": "{{user `ansible_collections_path`}}",
-            "galaxy_force_install": true,
-            "inventory_directory": "{{user `prov_dir`}}/inventory",
-            "extra_arguments": ["--extra-vars", "{{user `ansible_extra_vars`}}"],
-            "ansible_env_vars": ["PF_MINOR_RELEASE={{ user `pf_minor_release`}}"],
-            "groups": ["{{user `ansible_centos_group`}}","{{user `ansible_centos7_group`}}"],
-            "only": ["{{user `builder_prefix`}}-centos-7"]
-        },
         {
             "type": "ansible",
             "playbook_file": "{{user `prov_dir`}}/site.yml",
@@ -118,8 +94,7 @@
             "type": "file",
             "source": "{{user `pf_root`}}/rpm",
             "destination": "{{user `tmp_dir`}}",
-            "only": ["{{user `builder_prefix`}}-centos-7",
-                     "{{user `builder_prefix`}}-centos-8"
+            "only": ["{{user `builder_prefix`}}-centos-8"
                     ]
         },
         {
@@ -152,14 +127,6 @@
         {
             "type": "shell",
             "inline": ["rm -rf {{user `tmp_dir`}}/rpm",
-                       "yum clean all",
-                       "rm -rf {{user `yum_cache_dir`}}/*"
-                      ],
-            "only": ["{{user `builder_prefix`}}-centos-7"]
-        },
-        {
-            "type": "shell",
-            "inline": ["rm -rf {{user `tmp_dir`}}/rpm",
                        "dnf clean all",
                        "rm -rf {{user `dnf_cache_dir`}}/*"
                       ],
@@ -177,24 +144,6 @@
 
     ],
     "post-processors": [
-        [
-            {
-                "type": "docker-tag",
-                "name": "set-tag",
-                "only": ["{{user `builder_prefix`}}-centos-7"],
-                "repository": "{{user `docker_user`}}/{{user `builder_prefix`}}-centos-7",
-                "tags": "{{user `docker_tags`}}"
-            },
-            {
-                "type": "docker-push",
-                "name": "push-tag",
-                "only": ["{{user `builder_prefix`}}-centos-7"],
-                "login": true,
-                "login_username": "{{user `docker_user`}}",
-                "login_password": "{{user `docker_password`}}",
-                "login_server": "{{user `docker_registry`}}"
-            }
-        ],
         [
             {
                 "type": "docker-tag",

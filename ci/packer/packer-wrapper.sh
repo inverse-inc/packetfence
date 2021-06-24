@@ -8,19 +8,19 @@ configure_and_check() {
     REGISTRY_USER=${REGISTRY_USER:-inverseinc}
     ANSIBLE_FORCE_COLOR=${ANSIBLE_FORCE_COLOR:-1}
     ANSIBLE_CENTOS_GROUP=${ANSIBLE_CENTOS_GROUP:-devel_centos}
-    ANSIBLE_CENTOS7_GROUP=${ANSIBLE_CENTOS7_GROUP:-devel_centos7}
     ANSIBLE_CENTOS8_GROUP=${ANSIBLE_CENTOS8_GROUP:-devel_centos8}
     ANSIBLE_DEBIAN_GROUP=${ANSIBLE_DEBIAN_GROUP:-devel_debian}
     ANSIBLE_RUBYGEMS_GROUP=${ANSIBLE_RUBYGEMS_GROUP:-devel_rubygems}
-    ACTIVE_BUILDS=${ACTIVE_BUILDS:-'pfbuild-centos-7,pfbuild-stretch'}
+    ON_ERROR=${ON_ERROR:-cleanup}
+    ACTIVE_BUILDS=${ACTIVE_BUILDS:-'pfbuild-centos-8,pfbuild-stretch'}
     PARALLEL=${PARALLEL:-2}
     PACKER_TEMPLATE=${PACKER_TEMPLATE:-pfbuild.json}
 
     declare -p GOVERSION PF_MINOR_RELEASE
     declare -p REGISTRY REGISTRY_USER 
-    declare -p ANSIBLE_FORCE_COLOR ANSIBLE_CENTOS_GROUP ANSIBLE_CENTOS7_GROUP
+    declare -p ANSIBLE_FORCE_COLOR ANSIBLE_CENTOS_GROUP
     declare -p ANSIBLE_CENTOS8_GROUP ANSIBLE_DEBIAN_GROUP ANSIBLE_RUBYGEMS_GROUP
-    declare -p PACKER_TEMPLATE
+    declare -p ON_ERROR PACKER_TEMPLATE
     
     # Docker tags
     DOCKER_TAGS=${DOCKER_TAGS:-}
@@ -54,7 +54,7 @@ generate_maintenance_tag() {
 run_packer() {
     local pkr_template=${1}
     packer validate ${pkr_template}
-    local pkr_command="packer build -only=${ACTIVE_BUILDS} -parallel-builds=${PARALLEL} ${pkr_template}"
+    local pkr_command="packer build -on-error=${ON_ERROR} -only=${ACTIVE_BUILDS} -parallel-builds=${PARALLEL} ${pkr_template}"
     echo "${pkr_command}"
     ${pkr_command}
 }

@@ -3,3 +3,9 @@ gitlab_buildpkg_tools__rpm_enabled_repos:
   - name: 'CentOS-PowerTools.repo'
     id: 'PowerTools'
     enabled: 1
+
+# override defaults because:
+# - dnf supports natively priority
+# - we don't set up priority for repository during provisioning
+gitlab_buildpkg_tools__rpm_deps_pkgs:
+  - gnupg2

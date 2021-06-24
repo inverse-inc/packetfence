@@ -25,9 +25,6 @@ BuildRoot:  %{_tmppath}/%{name}-root
 Vendor:     PacketFence, http://www.packetfence.org
 
 BuildRequires: gettext, httpd, pkgconfig, jq
-%if 0%{?rhel} == 8
-BuildRequires: libmnl-devel,
-%endif
 BuildRequires: ruby, rubygems
 BuildRequires: nodejs >= 12.0
 BuildRequires: gcc
