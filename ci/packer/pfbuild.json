@@ -36,19 +36,9 @@
             ]
         },
         {
-            "name": "{{user `builder_prefix`}}-stretch",
+            "name": "{{user `builder_prefix`}}-bullseye",
             "type": "docker",
-            "image": "{{user `buildpkg_user`}}/debian:stretch",
-            "run_command": ["-d", "-i", "-t", "--", "{{.Image}}"],
-            "commit": true,
-            "changes": [
-                "ENV PATH /usr/local/go/bin:$PATH"
-            ]
-        },
-        {
-            "name": "{{user `builder_prefix`}}-buster",
-            "type": "docker",
-            "image": "{{user `buildpkg_user`}}/debian:buster",
+            "image": "{{user `buildpkg_user`}}/debian:bullseye",
             "run_command": ["-d", "-i", "-t", "--", "{{.Image}}"],
             "commit": true,
             "changes": [
@@ -81,9 +71,7 @@
             "extra_arguments": ["--extra-vars", "{{user `ansible_extra_vars`}}"],
             "ansible_env_vars": ["PF_MINOR_RELEASE={{ user `pf_minor_release`}}"],
             "groups": ["{{user `ansible_debian_group`}}"],
-            "only": ["{{user `builder_prefix`}}-stretch",
-                     "{{user `builder_prefix`}}-buster"
-                    ]
+            "only": ["{{user `builder_prefix`}}-bullseye"]
         },
         {
             "type": "shell",
@@ -101,9 +89,7 @@
             "type": "file",
             "source": "{{user `pf_root`}}/debian",
             "destination": "{{user `tmp_dir`}}",
-            "only": ["{{user `builder_prefix`}}-stretch",
-                     "{{user `builder_prefix`}}-buster"
-                    ]
+            "only": ["{{user `builder_prefix`}}-bullseye"]
         },
         {
             "type": "shell",
@@ -137,9 +123,7 @@
             "inline": ["rm -rf {{user `tmp_dir`}}/debian",
                        "apt-get clean"
                       ],
-            "only": ["{{user `builder_prefix`}}-stretch",
-                     "{{user `builder_prefix`}}-buster"
-                    ]
+            "only": ["{{user `builder_prefix`}}-bullseye"]
         }
 
     ],
@@ -166,32 +150,14 @@
             {
                 "type": "docker-tag",
                 "name": "set-tag",
-                "only": ["{{user `builder_prefix`}}-stretch"],
-                "repository": "{{user `docker_user`}}/{{user `builder_prefix`}}-debian-stretch",
+                "only": ["{{user `builder_prefix`}}-bullseye"],
+                "repository": "{{user `docker_user`}}/{{user `builder_prefix`}}-debian-bullseye",
                 "tags": "{{user `docker_tags`}}"
             },
             {
                 "type": "docker-push",
                 "name": "push-tag",
-                "only": ["{{user `builder_prefix`}}-stretch"],
-                "login": true,
-                "login_username": "{{user `docker_user`}}",
-                "login_password": "{{user `docker_password`}}",
-                "login_server": "{{user `docker_registry`}}"
-            }
-        ],
-        [
-            {
-                "type": "docker-tag",
-                "name": "set-tag",
-                "only": ["{{user `builder_prefix`}}-buster"],
-                "repository": "{{user `docker_user`}}/{{user `builder_prefix`}}-debian-buster",
-                "tags": "{{user `docker_tags`}}"
-            },
-            {
-                "type": "docker-push",
-                "name": "push-tag",
-                "only": ["{{user `builder_prefix`}}-buster"],
+                "only": ["{{user `builder_prefix`}}-bullseye"],
                 "login": true,
                 "login_username": "{{user `docker_user`}}",
                 "login_password": "{{user `docker_password`}}",

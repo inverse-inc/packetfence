@@ -23,7 +23,7 @@ stages:
 ################################################################################
 variables:
   PFBUILD_CENTOS_7_IMG: inverseinc/pfbuild-centos-7
-  PFBUILD_DEB_STRETCH_IMG: inverseinc/pfbuild-debian-stretch
+  PFBUILD_DEB_STRETCH_IMG: inverseinc/pfbuild-debian-bullseye
   PFBUILD_DEFAULT_DEV_TAG: latest
   CIDIR: ci
   CILIBDIR: ci/lib
@@ -318,7 +318,7 @@ build_docker_img_release:
     ANSIBLE_CENTOS8_GROUP: stable_centos8
     ANSIBLE_DEBIAN_GROUP: common_debian
     ANSIBLE_RUBYGEMS_GROUP: stable_rubygems
-    ACTIVE_BUILDS: 'pfbuild-centos-8,pfbuild-stretch'
+    ACTIVE_BUILDS: 'pfbuild-centos-8,pfbuild-bullseye'
 
 # build_vagrant_img jobs
 build_vagrant_img_dev_centos_7:
