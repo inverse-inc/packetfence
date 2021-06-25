@@ -133,9 +133,9 @@ Requires: sudo
 #Requires: perl(Net::Interface)
 #Requires: perl(Net::Netmask)
 # pfcron, pfdhcplistener
-#Requires: perl(Net::Pcap) >= 0.16
+Requires: perl(Net::Pcap) >= 0.16
 # pfdhcplistener
-#Requires: perl(NetPacket) >= 1.2.0
+Requires: perl(NetPacket) >= 1.2.0
 #Requires: perl(Module::Metadata)
 # systemd sd_notify support
 #Requires: perl(Systemd::Daemon)
