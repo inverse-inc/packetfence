@@ -182,7 +182,7 @@ func (pf *pfdns) ServeDNS(ctx context.Context, w dns.ResponseWriter, r *dns.Msg)
 					switch ansb := ans.(type) {
 					case *dns.A:
 						for _, valeur := range v {
-							if err := pf.SetPassthrough(ctx, "passthrough", ansb.A.String(), valeur, true); err != nil {
+							if err := pf.SetPassthrough(ctx, "passthrough", ansb.A.String(), valeur, false); err != nil {
 								log.LoggerWContext(ctx).Error(fmt.Sprintf("Not able to contact localhost for setPassthrough %s", err))
 							}
 						}
