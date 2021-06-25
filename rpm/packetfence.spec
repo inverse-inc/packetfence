@@ -157,8 +157,8 @@ Requires: perl(NetPacket) >= 1.2.0
 #Requires: rrdtool, perl-rrdtool
 Requires: perl(SOAP::Lite) >= 1.0
 #Requires: perl(WWW::Curl)
-#Requires: perl(Data::MessagePack)
-#Requires: perl(Data::MessagePack::Stream)
+Requires: perl(Data::MessagePack)
+Requires: perl(Data::MessagePack::Stream)
 #Requires: perl(POSIX::2008)
 # Template::Toolkit - captive portal template system
 #Requires: perl(Template)
@@ -241,7 +241,7 @@ Requires: perl(SOAP::Lite) >= 1.0
 #Requires: perl(Linux::FD)
 #Requires: perl(Linux::Inotify2)
 #Requires: perl(File::Touch)
-#Requires: perl(POSIX::AtFork)
+Requires: perl(POSIX::AtFork)
 #Requires: perl(Hash::Merge)
 #Requires: perl(IO::Socket::INET6)
 #Requires: perl(IO::Socket::SSL) >= 2.049
