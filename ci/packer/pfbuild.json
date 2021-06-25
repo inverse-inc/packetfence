@@ -93,6 +93,10 @@
         },
         {
             "type": "shell",
+            "script": "{{user `pf_root`}}/addons/dev-helpers/install-cpan-modules.sh"
+        },
+        {
+            "type": "shell",
             "inline": ["ci-build-pkg {{user `tmp_dir`}}"],
             "environment_vars": ["CI_BUILDPKG_DEP_ONLY=yes",
                                  "CI_COMMIT_REF_NAME=fakebranch"
