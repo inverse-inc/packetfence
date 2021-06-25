@@ -15,12 +15,12 @@ use warnings;
 use Moo;
 extends 'pf::provisioner';
 use JSON::MaybeXS qw( decode_json );
-use pf::constants;
+use pf::constants qw($default_pid $TRUE $FALSE);
 use List::MoreUtils qw(any);
 use URI::Escape qw(uri_escape);
 use pf::util qw(clean_mac);
 use pf::log;
-use pf::node qw(node_add);
+use pf::node qw(node_register);
 use pf::security_event;
 use fingerbank::Constant;
 use WWW::Curl::Easy;
@@ -220,7 +220,7 @@ sub _import_device {
         next if !exists $device->{$f};
         my $mac = $device->{$f};
         next if !defined $mac;
-        node_add($mac, category => $role );
+        node_register($mac, $default_pid , category => $role );
     }
 }
 
