@@ -2,7 +2,7 @@
 # only for el8, see https://developers.redhat.com/blog/2018/11/14/python-in-rhel-8/
 - import_playbook: playbooks/python3.yml
 
-- hosts: ['devel_centos', 'devel_debian', 'stable_centos', 'stable_debian']
+- hosts: ['common_centos', 'common_debian']
   name: Install upstream repos and packages needed to install build requires and to build packages
   become: True
 

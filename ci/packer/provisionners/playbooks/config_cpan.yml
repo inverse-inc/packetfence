@@ -1,4 +1,4 @@
-- hosts: ['devel_centos', 'devel_debian', 'stable_centos', 'stable_debian']
+- hosts: ['common_centos', 'common_debian']
   name: Pre-configure CPAN
   become: True
 
