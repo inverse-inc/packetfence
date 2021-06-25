@@ -12,6 +12,7 @@
 ////
 // no need to provide defaults values
 // :release_version: 10.3.0
+// :release_minor: 10.3
 // :release_month: April
 :encoding: UTF-8
 :lang: en

@@ -140,9 +140,10 @@ NOTE: Make sure you are actually running the latest kernel prior to installing t
 
 In order to use the PacketFence repository:
 
-[source,bash]
+// subs=attributes allow to substitute {release_minor} in code block
+[source,bash,subs="attributes"]
 ----
-yum localinstall http://packetfence.org/downloads/PacketFence/RHEL7/packetfence-release-7.stable.noarch.rpm
+yum localinstall http://packetfence.org/downloads/PacketFence/RHEL7/packetfence-release-{release_minor}-el7.noarch.rpm
 ----
 
 Once the repository is defined, you can install PacketFence with all its dependencies, and the required external services (database server, DHCP server, RADIUS server) using:
@@ -156,9 +157,10 @@ yum install --enablerepo=packetfence packetfence
 
 In order to use the repository, create a file named [filename]`/etc/apt/sources.list.d/packetfence.list`:
 
-[source,bash]
+// subs=attributes allow to substitute {release_minor} in code block
+[source,bash,subs="attributes"]
 ----
-echo 'deb http://inverse.ca/downloads/PacketFence/debian stretch stretch' > \
+echo 'deb http://inverse.ca/downloads/PacketFence/debian/{release_minor} stretch stretch' > \
 /etc/apt/sources.list.d/packetfence.list
 ----
 

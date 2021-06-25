@@ -20,7 +20,8 @@ docs/%.pdf: docs/%.asciidoc
 	asciidoctor-pdf \
 		-a pdf-theme=docs/asciidoctor-pdf-theme.yml \
 		-a pdf-fontsdir=docs/fonts \
-		-a release_version=`cat conf/pf-release | cut -d' ' -f 2` \
+		-a release_version=$(PF_PATCH_RELEASE) \
+		-a release_minor=$(PF_MINOR_RELEASE) \
 		-a release_month=`date +%B` \
 		$<
 
@@ -36,7 +37,8 @@ docs/%.html: docs/%.asciidoc
 		-r ./docs/asciidoctor-html.rb \
 		-a stylesdir=../html/pfappserver/root/dist/css \
 		-a stylesheet=$(notdir $(wildcard ./html/pfappserver/root/dist/css/app*.css)) \
-		-a release_version=`cat conf/pf-release | cut -d' ' -f 2` \
+		-a release_version=$(PF_PATCH_RELEASE) \
+		-a release_minor=$(PF_MINOR_RELEASE) \
 		-a release_month=`date +%B` \
 		$<
 
