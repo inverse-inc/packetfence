@@ -48,6 +48,12 @@ Clean up switch data
 sub cleanupAfterRead {
     my ($self, $id, $data) = @_;
     $self->expand_list($data, $self->_fields_expanded);
+    if ($data->{type} eq 'google_workspace_chromebook') {
+        my $service_account = $data->{service_account};
+        if (ref($service_account) eq 'ARRAY') {
+            $data->{service_account} = join("\n", @{$service_account}) 
+        }
+    }
 }
 
 =head2 cleanupBeforeCommit

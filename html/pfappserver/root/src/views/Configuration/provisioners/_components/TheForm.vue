@@ -23,6 +23,7 @@ import { BaseContainerLoading } from '@/components/new/'
 import FormTypeAccept from './FormTypeAccept'
 import FormTypeAirwatch from './FormTypeAirwatch'
 import FormTypeAndroid from './FormTypeAndroid'
+import FormTypeGoogleWorkspaceChromebook from './FormTypeGoogleWorkspaceChromebook'
 import FormTypeDeny from './FormTypeDeny'
 import FormTypeDpsk from './FormTypeDpsk'
 import FormTypeIbm from './FormTypeIbm'
@@ -43,6 +44,7 @@ const components = {
   FormTypeAccept,
   FormTypeAirwatch,
   FormTypeAndroid,
+  FormTypeGoogleWorkspaceChromebook,
   FormTypeDeny,
   FormTypeDpsk,
   FormTypeIbm,
@@ -72,6 +74,7 @@ export const setup = (props) => {
       case 'android':         return FormTypeAndroid //break
       case 'deny':            return FormTypeDeny //break
       case 'dpsk':            return FormTypeDpsk //break
+      case 'google_workspace_chromebook': return FormTypeGoogleWorkspaceChromebook //break
       case 'ibm':             return FormTypeIbm //break
       case 'intune':          return FormTypeIntune //break
       case 'jamf':            return FormTypeJamf //break
