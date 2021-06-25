@@ -702,6 +702,8 @@ echo "Starting PacketFence Administration GUI..."
 /bin/systemctl restart packetfence-httpd.admin_dispatcher
 /bin/systemctl restart packetfence-haproxy-admin
 
+# Empty root password in order to allow other user to connect as root.
+/usr/bin/mysql -uroot -e "set password for 'root'@'localhost' = password('');"
 
 echo Installation complete
 echo "  * Please fire up your Web browser and go to https://@ip_packetfence:1443 to complete your PacketFence configuration."
