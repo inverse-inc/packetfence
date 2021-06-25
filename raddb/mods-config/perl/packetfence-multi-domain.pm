@@ -24,6 +24,7 @@ use warnings;
 
 use lib '/usr/local/pf/lib/';
 use lib '/usr/local/pf/raddb/mods-config/perl/';
+use lib '/usr/local/pf/lib_perl/lib/perl5';
 
 use pf::log (service => 'rlm_perl');
 use pf::radius::constants;

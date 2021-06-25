@@ -35,6 +35,7 @@ use warnings;
 
 
 use lib '/usr/local/pf/lib/';
+use lib '/usr/local/pf/lib_perl/lib/perl5';
 
 #use pf::config; # TODO: See note1
 use pf::log (service => 'rlm_perl');
