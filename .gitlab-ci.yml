@@ -314,7 +314,7 @@ build_docker_img_release:
     - .job_release_triggers
   variables:
     DOCKER_TAGS: ${CI_COMMIT_TAG}
-    ANSIBLE_CENTOS_GROUP: stable_centos
+    ANSIBLE_CENTOS_GROUP: common_centos
     ANSIBLE_CENTOS8_GROUP: stable_centos8
     ANSIBLE_DEBIAN_GROUP: stable_debian
     ANSIBLE_RUBYGEMS_GROUP: stable_rubygems

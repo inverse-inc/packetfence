@@ -1,5 +1,0 @@
----
-gitlab_buildpkg_tools__rpm_enabled_repos:
-  - name: 'CentOS-PowerTools.repo'
-    id: 'PowerTools'
-    enabled: 1
