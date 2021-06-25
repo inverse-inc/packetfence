@@ -36,7 +36,6 @@ use pf::config qw(
 use pf::constants qw($TRUE $FALSE);
 use pf::util;
 use pf::web::constants;
-use pf::web::filter;
 use pf::web::util;
 use pf::proxypassthrough::constants;
 use pf::Portal::Session;
@@ -84,13 +83,6 @@ sub _handler {
     my $url = $r->construct_url;
 
     $logger->debug("hitting handler with URI '$uri' (URL: $url)");
-
-    # Apache filtering
-    # Filters out requests based on different filters to avoid further/unnecessary processing
-    # ie.: Only process valid browsers user agent requests
-    my $filter = new pf::web::filter;
-    my $result = $filter->test($r);
-    return $result if $result;
 
     # Captive-portal static resources
     # We don't want to continue in dispatcher in this case and we simply serve it

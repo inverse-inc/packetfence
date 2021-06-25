@@ -66,7 +66,6 @@ our (
     $pfdetect_config_file,
     $pfqueue_config_file, $pfqueue_default_config_file,
     $allowed_device_oui_file, $allowed_device_types_file,
-    $apache_filters_config_file, $apache_filters_config_default_file,
     $cache_control_file,
     $config_version_file,
     $log_conf_dir,
@@ -165,7 +164,6 @@ BEGIN {
         $pfdetect_config_file
         $pfqueue_config_file $pfqueue_default_config_file
         $allowed_device_oui_file $allowed_device_types_file
-        $apache_filters_config_file $apache_filters_config_default_file
         $cache_control_file
         $config_version_file
         $log_conf_dir
@@ -297,8 +295,6 @@ $floating_devices_config_file = catfile($conf_dir, "floating_network_device.conf
 $wrix_config_file = catfile($conf_dir, "wrix.conf");
 $allowed_device_oui_file   = catfile($conf_dir,"allowed_device_oui.txt");
 $allowed_device_types_file = catfile($conf_dir,"allowed_device_types.txt");
-$apache_filters_config_file = catfile($conf_dir, "apache_filters.conf");
-$apache_filters_config_default_file = catfile($conf_dir, "apache_filters.conf.defaults");
 $vlan_filters_config_file = catfile($conf_dir, "vlan_filters.conf");
 $vlan_filters_config_default_file = catfile($conf_dir, "vlan_filters.conf.defaults");
 $cloud_config_file = catfile($conf_dir,"cloud.conf");
@@ -381,7 +377,7 @@ $captiveportal_default_profile_templates_path = catdir ($captiveportal_profile_t
     $chi_defaults_config_file,
     $ui_config_file,$provisioning_config_file,$oauth_ip_file,$log_config_file,
     $self_service_config_file,
-    $admin_roles_config_file,$wrix_config_file,$apache_filters_config_file, $apache_filters_config_default_file,
+    $admin_roles_config_file,$wrix_config_file,
     $vlan_filters_config_file,$vlan_filters_config_default_file,$cloud_config_file,$firewall_sso_config_file,$scan_config_file,
     $pfdetect_config_file,$pfqueue_config_file,
     $pki_provider_config_file,
