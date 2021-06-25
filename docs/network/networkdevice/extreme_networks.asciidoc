@@ -64,6 +64,13 @@ Global config settings with Voice over IP (VoIP):
 
 where `<portlist>` are ports you want to secure. It can be an individual port or a port-range with a dash.
 
+===== CoA configuration
+
+Starting from version EXOS 22.1 CoA is supported.
+
+  configure radius dynamic-authorization 1 server 192.168.1.5 client-ip 10.0.0.8 vr VR-Default shared-secret useStrongerSecret
+  enable radius dynamic-authorization
+
 ===== MAC Authentication
 
 SNMP configuration
@@ -113,8 +120,17 @@ Netlogin (802.1X)
   enable netlogin ports 1-48 dot1x 
   configure netlogin ports 1-48 mode port-based-vlans
   configure netlogin ports 1-48 no-restart
+  configure netlogin mac ports 1-48 timers reauth-period 86400 reauthentication on
+  configure netlogin dot1x ports 1-48 timers server-timeout 10 reauth-period 84600
 
-NOTE: You can mix the MAC Authentication and 802.1X on the same switchport. If the device fails 802.1X authentication, it will fallback to the MAC Authentication.
+
+==== MAC Authentication + 802.1x
+
+You can mix the MAC Authentication and 802.1X on the same switchport. If the device fails 802.1X authentication, it will fallback to the MAC Authentication.
+Configure the MAC Authentication and 802.1x like the section above and add this extra command:
+
+  enable netlogin ports 1-48 dot1x mac
+
 
 ===== Policy based access
 
