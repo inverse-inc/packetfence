@@ -9,7 +9,18 @@ gitlab_buildpkg_tools__deb_deps_repos:
   - name: nodejs
     baseurl: 'https://deb.nodesource.com/node_12.x {{ ansible_distribution_release }} main'
 
-# we only add repos, packages install will occur
+# packages install will occur
 # during build depencies install from SPEC files
-gitlab_buildpkg_tools__deb_pkgs: '{{ lookup("env", "DEB_PACKAGES_NAME") if lookup("env", "DEB_PACKAGES_NAME")
-                                     else [] }}'
+gitlab_buildpkg_tools__deb_pkgs:
+  # dependencies to pull CPAN modules for packetfence-perl package
+  - 'make'
+  - 'build-essential'
+  - 'libssl-dev'
+  - 'zlib1g-dev'
+  - 'libmariadb-dev-compat'
+  - 'libmariadb-dev'
+  - 'libssh2-1-dev'
+  - 'libexpat1-dev'
+  - 'pkg-config'
+  - 'libkrb5-dev'
+  - 'libsystemd-dev'
