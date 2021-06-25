@@ -52,7 +52,6 @@ use pf::config::util;
 use pf::services;
 use pf::authentication;
 use NetAddr::IP;
-use pf::web::filter;
 use pfconfig::manager;
 use pfconfig::namespaces::config::Pf;
 use pfconfig::namespaces::resource::clusters_hostname_map;
@@ -167,7 +166,6 @@ sub sanity_check {
     switches();
     connection_profiles();
     guests();
-    apache_filter_rules();
     db_check_version();
     valid_certs();
     portal_modules();
@@ -1032,33 +1030,6 @@ sub connection_profiles {
     }
 }
 
-=item apache_filter_rules
-
-Make sure that the minimum parameters have been defined in apache filter rules
-
-=cut
-
-sub apache_filter_rules {
-    my %ConfigApacheFilters = %pf::web::filter::ConfigApacheFilters;
-    foreach my $rule  ( sort keys  %ConfigApacheFilters ) {
-        if ($rule =~ /^\w+:(.*)$/) {
-            add_problem ( $WARN, "Missing action attribute in $rule apache filter rule")
-                if (!defined($ConfigApacheFilters{$rule}->{'action'}));
-            add_problem ( $WARN, "Missing redirect_url attribute in $rule apache filter rule")
-                if (!defined($ConfigApacheFilters{$rule}->{'redirect_url'}));
-        } else {
-            add_problem ( $WARN, "Missing filter attribute in $rule apache filter rule")
-                if (!defined($ConfigApacheFilters{$rule}->{'filter'}));
-            add_problem ( $WARN, "Missing method attribute in $rule apache filter rule")
-                if (!defined($ConfigApacheFilters{$rule}->{'method'}));
-            add_problem ( $WARN, "Missing value attribute in $rule apache filter rule")
-                if (!defined($ConfigApacheFilters{$rule}->{'value'}));
-            add_problem ( $WARN, "Missing operator attribute in $rule apache filter rule")
-                if (!defined($ConfigApacheFilters{$rule}->{'operator'}));
-        }
-    }
-}
-
 =item db_check_version
 
 Make sure the database schema matches the current version of PacketFence
@@ -1286,7 +1257,6 @@ Validate Access Filters
 sub validate_access_filters {
     my $builder = pf::config::builder::filter_engine->new();
     while (my ($f, $cs) = each %pf::constants::filters::CONFIGSTORE_MAP) {
-        next if $f eq 'apache-filters';
        my $ini = $cs->configIniFile();
        my ($errors, undef) = $builder->build($ini);
        if ($errors) {

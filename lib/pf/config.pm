@@ -842,7 +842,6 @@ Reload the config
 
 sub configreload {
     my ($force) = @_;
-    require pf::web::filter;
     require pf::CHI;
     my $chi = pf::CHI->new(namespace => 'configfiles');
     $chi->clear;
