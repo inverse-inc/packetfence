@@ -7,7 +7,8 @@ import {
   BaseFormGroupInputNumber,
   BaseFormGroupInputPassword,
   BaseFormGroupTextareaUpload,
-  BaseFormGroupToggleDisabledEnabled
+  BaseFormGroupToggleDisabledEnabled,
+  BaseFormGroupTextarea
 } from '@/components/new/'
 import {
   BaseFormGroupOses,
@@ -51,6 +52,8 @@ export {
   BaseFormGroupToggleDisabledEnabled        as FormGroupDpskUseLocalPassword,
   BaseFormGroupChosenOne                    as FormGroupEapType,
   BaseFormGroupToggleDisabledEnabled        as FormGroupEnforce,
+  BaseFormGroupInputNumber                  as FormGroupExpiresIn,
+  BaseFormGroupInputNumber                  as FormGroupExpiresJitter,
   BaseFormGroupInput                        as FormGroupHost,
   BaseFormGroupInput                        as FormGroupIdentifier,
   BaseFormGroupInput                        as FormGroupIosAgentDownloadUri,
@@ -73,6 +76,7 @@ export {
   BaseFormGroupChosenOne                    as FormGroupRoleToApply,
   BaseFormGroupChosenOne                    as FormGroupSecurityType,
   BaseFormGroupInput                        as FormGroupServerCertificatePath,
+  BaseFormGroupTextareaUpload               as FormGroupServiceAccount,
   BaseFormGroupInput                        as FormGroupSsid,
   BaseFormGroupToggleDisabledEnabled        as FormGroupSyncPid,
   BaseFormGroupInput                        as FormGroupTableForAgent,
@@ -80,6 +84,7 @@ export {
   BaseFormGroupInput                        as FormGroupTenantCode,
   BaseFormGroupInput                        as FormGroupTenantIdentifier,
   BaseFormGroupInput                        as FormGroupUsername,
+  BaseFormGroupInput                        as FormGroupUser,
   BaseFormGroupInput                        as FormGroupWindowsAgentDownloadUri,
   BaseFormGroupInput                        as FormGroupWindowsPhoneDownloadUri,
 
