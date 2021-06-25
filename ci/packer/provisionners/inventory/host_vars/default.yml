@@ -7,3 +7,4 @@ gitlab_buildpkg_tools__ppa_enabled: False
 
 # get current PacketFence minor release (X.Y)
 pf_minor_release: '{{ lookup("env", "PF_MINOR_RELEASE") | default("99.9", true) }}'
+

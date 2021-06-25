@@ -13,4 +13,11 @@ gitlab_buildpkg_tools__rpm_deps_repos:
 # during build depencies install from SPEC files
 gitlab_buildpkg_tools__rpm_pkgs:
   - 'epel-release'
-
+  # dependencies to pull CPAN modules for packetfence-perl RPM
+  - 'perl-CPAN'  
+  - 'openssl-devel'
+  - 'krb5-libs'
+  - 'mariadb-devel'
+  - 'libssh2-devel'
+  - 'systemd-devel'
+  - '@Development tools'
