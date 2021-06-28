@@ -19,7 +19,7 @@ collections:
   - name: inverse_inc.utils
   - name: inverse_inc.wireless
 
-# to test locally with Vagrant (due to --force option)
+# For collections, to test locally with Vagrant (due to --force option)
 # Ansible will create an export, not a symlink to git repository
   # - name: file:///home/nqb/git/ansible-packetfence/.git
   #   type: git
