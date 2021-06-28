@@ -610,12 +610,13 @@ sub ldap_filter_for_conditions {
       foreach my $condition (@{$conditions}) {
           my $str;
           my $operator = $condition->{'operator'};
-          my $value = escape_filter_value($condition->{'value'});
           my $attribute = $condition->{'attribute'};
           if ($attribute eq "basedn") {
-              $basedn = $attribute;
+              $basedn = $condition->{'value'};
               next;
           }
+
+          my $value = escape_filter_value($condition->{'value'});
           if ($operator eq $Conditions::EQUALS) {
               $str = "${attribute}=${value}";
           } elsif ($operator eq $Conditions::NOT_EQUALS) {
