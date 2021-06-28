@@ -38,7 +38,7 @@ has app => (is => 'ro', required => 1, isa => 'captiveportal::DynamicRouting::Ap
 
 has parent => (is => 'ro', required => 1, isa => 'captiveportal::DynamicRouting::Module');
 
-has username => (is => 'rw', builder => '_build_username', lazy => 1);
+has username => (is => 'rw', builder => '_build_username', lazy => 1, trigger => \&_username_set);
 
 has renderer => (is => 'rw');
 
@@ -99,24 +99,17 @@ sub _build_username {
     return $self->app->session->{username} // $default_pid;
 }
 
-=head2 after username
-
-Set the username in the session and in the new_node_info after setting it
-
-=cut
-
-after 'username' => sub {
-    my ($self) = @_;
-
-    if(defined($self->{username})){
-        get_logger->info("User ".$self->{username}." has authenticated on the portal.");
-        $self->new_node_info->{pid} = $self->{username};
-        $self->app->session->{username} = $self->{username};
-        if(!person_exist($self->{username})){
-            person_add($self->{username});
+sub _username_set {
+    my ($self, $username, $old_username) = @_;
+    if (defined $username && (!defined $old_username || $username ne $old_username)) {
+        get_logger->info("User $username has authenticated on the portal.");
+        $self->new_node_info->{pid} = $username;
+        $self->app->session->{username} = $username;
+        if (!person_exist($username)) {
+            person_add($username);
         }
     }
-};
+}
 
 =head2 _build_session
 
