@@ -5,7 +5,7 @@
         "builder_prefix": "pfbuild",
         "buildpkg_user": "buildpkg",
         "pf_root": "../..",
-        "prov_dir": "provisionners_pfbuild",
+        "prov_dir": "provisionners",
         "files_dir": "files",
         "tmp_dir": "/tmp",
         "yum_cache_dir": "/var/cache/yum",
@@ -90,6 +90,10 @@
             "source": "{{user `pf_root`}}/debian",
             "destination": "{{user `tmp_dir`}}",
             "only": ["{{user `builder_prefix`}}-bullseye"]
+        },
+        {
+            "type": "shell",
+            "script": "{{user `pf_root`}}/addons/dev-helpers/install-cpan-modules.sh"
         },
         {
             "type": "shell",
