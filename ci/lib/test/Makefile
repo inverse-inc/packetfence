@@ -29,6 +29,10 @@ halt:
 clean:
 	./vagrant-wrapper.sh teardown
 
+.PHONY: delete
+delete:
+	./vagrant-wrapper.sh delete
+
 .PHONY: get-public
 get-public:
 	./get_public_from_gitlab.sh

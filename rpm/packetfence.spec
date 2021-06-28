@@ -13,7 +13,7 @@
 #==============================================================================
 Name:       packetfence
 Version:    11.0.0
-Release:    1%{?dist}
+Release:    2%{?dist}
 Summary:    PacketFence network registration / worm mitigation system
 Packager:   Inverse inc. <support@inverse.ca>
 Group:      System Environment/Daemons
@@ -1248,6 +1248,9 @@ fi
 # Changelog
 #==============================================================================
 %changelog
+* Mon Jun 28 2021 Inverse <info@inverse.ca> - 11.0.0-2
+- Build Source using Makefile in place of git archive
+
 * Fri Jun 11 2021 Inverse <info@inverse.ca> - 11.0.0-1
 - Prepare new PacketFence release
 

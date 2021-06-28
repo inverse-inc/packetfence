@@ -14,7 +14,6 @@ source ${FUNCTIONS_FILE}
 get_pf_release
 
 RPM_SPEC=${PF_SRC_DIR}/rpm/packetfence.spec
-RPM_SOURCE=${PF_SRC_DIR}/rpm/source
 DEB_DIR=${PF_SRC_DIR}/debian
 DEB_CHLOG=${DEB_DIR}/changelog
 
@@ -32,10 +31,6 @@ update_pf_version() {
     log_subsection "${PF_RELEASE_PATH}"
     sed -i -e "s/^PacketFence .*/PacketFence ${new_release}/" "${PF_RELEASE_PATH}"
     head -n1 ${PF_RELEASE_PATH}
-
-    log_subsection "${RPM_SOURCE}"
-    sed -i -e "s/${cur_release}/${new_release}/" "${RPM_SOURCE}"
-    head -n2 ${RPM_SOURCE}
 
     log_subsection "${RPM_SPEC}"
     sed -i -e "s/^\(Version:[^0-9]*\).*/\1${new_release}/" "${RPM_SPEC}"

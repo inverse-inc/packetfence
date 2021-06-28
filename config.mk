@@ -15,6 +15,9 @@ SRC_ROOT_DIR = $(realpath $(dir $(abspath $(lastword $(MAKEFILE_LIST)))))
 SRC_RPMDIR = $(SRC_ROOT_DIR)/rpm
 SRC_DEBDIR = $(SRC_ROOT_DIR)/debian
 SRC_CIDIR = $(SRC_ROOT_DIR)/ci
+SRC_CI_TESTDIR = $(SRC_CIDIR)/lib/test
+SRC_GODIR = $(SRC_ROOT_DIR)/go
+SRC_TESTDIR= $(SRC_ROOT_DIR)/t
 
 #
 # Golang
@@ -84,3 +87,14 @@ pfapp_alt_files = $(shell find $(SRC_HTML_PFAPPDIR_ROOT) \
 symlink_files = $(shell find $(SRC_HTML_PFAPPDIR) \
 	-type l \
 	-not -path "$(SRC_HTML_PFAPPDIR_ROOT)/node_modules/*")
+
+# all directories and files necessary to build PacketFence package
+# $(SRC_ROOT_DIR)/* to exclude SRC_ROOT_DIR himself
+files_to_include = $(shell find $(SRC_ROOT_DIR)/* \
+	-maxdepth 0 \
+	-not -path "$(SRC_CIDIR)" \
+	-not -path "$(SRC_DEBDIR)" \
+	-not -path "$(SRC_ROOT_DIR)/packetfence-$(PF_PATCH_RELEASE)" \
+	-not -path "$(SRC_ROOT_DIR)/public" \
+	-not -path "$(SRC_RPMDIR)" \
+	-not -path "$(SRC_TESTDIR)" )

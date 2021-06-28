@@ -24,3 +24,5 @@ dist:
 light-dist:
 	npm run build
 
+clean:
+	rm -rf ./node_modules

@@ -146,6 +146,7 @@ configure_and_check
 case $1 in
     run) run ;;
     halt) halt ${PF_VM_NAME} ${INT_TEST_VM_NAMES} ;;
+    delete) delete_ansible_files ;;
     teardown) teardown ;;
     *)   die "Wrong argument"
 esac

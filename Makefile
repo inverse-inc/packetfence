@@ -224,9 +224,10 @@ rpm/.rpmmacros:
 	echo "%pf_minor_release $(PF_MINOR_RELEASE)" >> $(SRC_RPMDIR)/.rpmmacros
 
 .PHONY: build_rpm
-build_rpm: conf/git_commit_id rpm/.rpmmacros
+build_rpm: conf/git_commit_id rpm/.rpmmacros dist
 	cp $(SRC_RPMDIR)/.rpmmacros $(HOME)
-	ci-build-pkg $(SRC_RPMDIR)
+	ci-build-pkg $(SRC_RPMDIR)/packetfence-release.spec
+	ci-build-pkg $(SRC_RPMDIR)/packetfence.spec
 
 .PHONY: build_deb
 build_deb: conf/git_commit_id
@@ -237,3 +238,30 @@ build_deb: conf/git_commit_id
 .PHONY: patch_release
 patch_release:
 	$(SRC_CIDIR)/lib/release/prep-release.sh
+
+.PHONY: distclean
+distclean: go_clean vagrant_clean npm_clean clean
+	rm -rf packetfence-$(PF_PATCH_RELEASE).tar
+
+.PHONY: go_clean
+go_clean:
+	$(MAKE) -C $(SRC_GODIR) clean
+
+# to remove Ansible files from addons/vagrant/
+.PHONY: vagrant_clean
+vagrant_clean:
+	$(MAKE) -C $(SRC_CI_TESTDIR) delete
+
+.PHONY: npm_clean
+npm_clean:
+	$(MAKE) -C $(SRC_HTML_COMMONDIR) clean
+	$(MAKE) -C $(SRC_HTML_PFAPPDIR_ROOT) clean
+
+.PHONY: dist
+dist: distclean
+	mkdir -p packetfence-$(PF_PATCH_RELEASE)
+	# preserve, recursive and symlinks
+	cp -pRH $(files_to_include) packetfence-$(PF_PATCH_RELEASE)
+	tar c --exclude-from=$(SRC_ROOT_DIR)/dist_ignore \
+	-f packetfence-$(PF_PATCH_RELEASE).tar packetfence-$(PF_PATCH_RELEASE)
+	rm -rf packetfence-$(PF_PATCH_RELEASE)
