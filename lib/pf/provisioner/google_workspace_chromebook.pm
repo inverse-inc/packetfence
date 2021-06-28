@@ -291,9 +291,10 @@ sub process_device {
         if (!exists $device->{$f}) {
             next;
         }
-
-        my $mac = clean_mac($device->{$f});
+        my $device_mac = $device->{$f};
+        my $mac = clean_mac($device_mac);
         unless ($mac) {
+            $logger->error("Mac given for $f ('$device_mac') is an invalid mac address");
             next;
         }
 
