@@ -43,7 +43,7 @@
       :text="$i18n.t('If your Identity Provider uses a self-signed certificate, put the path to its certificate here instead.')"
     />
 
-    <form-group-username-attribute namespace="username_attribute"
+    <form-group-username-attribute2 namespace="username_attribute"
       :column-label="$i18n.t('Username Attribute')"
       :text="$i18n.t('Main reference attribute that contain the username.')"
     />
@@ -67,7 +67,7 @@ import {
   FormGroupServiceProviderEntityIdentifier,
   FormGroupServiceProviderCertPath,
   FormGroupServiceProviderKeyPath,
-  FormGroupUsernameAttribute,
+  FormGroupUsernameAttribute2
 } from './'
 
 const components = {
@@ -83,7 +83,7 @@ const components = {
   FormGroupServiceProviderEntityIdentifier,
   FormGroupServiceProviderCertPath,
   FormGroupServiceProviderKeyPath,
-  FormGroupUsernameAttribute,
+  FormGroupUsernameAttribute2,
 }
 
 import { useForm as setup, useFormProps as props } from '../_composables/useForm'
