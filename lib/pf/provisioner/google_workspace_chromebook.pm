@@ -30,6 +30,8 @@ use CHI;
 use Date::Parse qw(strptime);
 our $CHI_CACHE = CHI->new(driver => 'RawMemory', datastore => {});
 
+our $ACTIVE_STATUS = 'ACTIVE';
+
 my $SCOPE = 'https://www.googleapis.com/auth/admin.directory.device.chromeos.readonly';
 
 =head2 host
@@ -135,7 +137,7 @@ sub authorize {
         return $err;
     }
 
-    if ($device->{status} eq 'ACTIVE') {
+    if ($device->{status} eq $ACTIVE_STATUS) {
         return $TRUE;
     }
 
@@ -214,7 +216,7 @@ sub _import_devices {
 
 sub _import_device {
     my ($self, $device) = @_;
-    return if $device->{status} ne 'ACTIVE';
+    return if $device->{status} ne $ACTIVE_STATUS;
     my $role = $self->role_to_apply;
     for my $f (qw(macAddress ethernetMacAddress ethernetMacAddress0)) {
         next if !exists $device->{$f};
@@ -297,7 +299,7 @@ sub process_device {
 
         $logger->debug("processing $mac");
         my $status = $device->{status};
-        if ($status eq 'ACTIVE') {
+        if ($status eq $ACTIVE_STATUS) {
             next;
         }
 
