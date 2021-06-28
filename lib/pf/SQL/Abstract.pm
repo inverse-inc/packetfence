@@ -14,6 +14,10 @@ pf::SQL::Abstract
 
 use strict;
 use warnings;
+BEGIN {
+    $ENV{SQL_ABSTRACT_MORE_EXTENDS} = 'Classic';
+}
+
 use SQL::Abstract::Plugin::InsertMulti;
 use parent qw(SQL::Abstract::More);
 use MRO::Compat;
