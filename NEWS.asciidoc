@@ -36,6 +36,7 @@ For a list of compatibility related changes see the <<PacketFence_Upgrade_Guide.
 * pfpki: configure OCSP to listen on specific interfaces (#5825)
 * Get maintenance patches through package manager (#6378)
 * Adjust Intune integration to support pagination of the managed devices (#6135)
+* Add an option to force the vip as the default gateway on layer2 registration network (#6406)
 
 === Bug Fixes
 
