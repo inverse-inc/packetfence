@@ -15,11 +15,6 @@ gitlab_buildpkg_tools__rpm_deps_repos:
   - name: nodejs
     baseurl: 'https://rpm.nodesource.com/pub_12.x/el/$releasever/$basearch'
 
-# gitlab_buildpkg_tools__rpm_enabled_repos:
-#   - name: 'CentOS-Linux-PowerTools.repo'
-#     id: 'powertools'
-#     enabled: 1
-
 # packages install will occur
 # during build dependencies install from SPEC files
 gitlab_buildpkg_tools__rpm_pkgs:
