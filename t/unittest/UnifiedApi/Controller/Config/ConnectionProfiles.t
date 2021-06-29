@@ -72,7 +72,7 @@ $t->get_ok("$base_url/default")
 $t->post_ok($collection_base_url => json => {})
   ->status_is(422);
 
-$t->post_ok($collection_base_url => json => {id => 'default'})
+$t->post_ok($collection_base_url => json => {id => 'default',  filter => [ {type => 'ssid', match => 'bob'}], root_module => 'default_policy', redirecturl => 'redirecturl', logo => 'logo' })
   ->status_is(409);
 
 $t->post_ok($collection_base_url, {'Content-Type' => 'application/json'} => '{')
