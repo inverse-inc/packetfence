@@ -18,11 +18,6 @@ pffilter [options]
 
 use warnings;
 use strict;
-use Getopt::Std;
-use File::Basename qw(basename);
-use POSIX qw(:signal_h pause :sys_wait_h SIG_BLOCK SIG_UNBLOCK);
-use Pod::Usage;
-use Fcntl qw(:flock);
 
 #pf::log must always be initilized first
 BEGIN {
@@ -32,6 +27,11 @@ BEGIN {
     use pf::log(service => 'pffilter');
 }
 
+use Getopt::Std;
+use File::Basename qw(basename);
+use POSIX qw(:signal_h pause :sys_wait_h SIG_BLOCK SIG_UNBLOCK);
+use Pod::Usage;
+use Fcntl qw(:flock);
 use Errno qw(EINTR EAGAIN);
 use IO::Socket::UNIX qw( SOCK_STREAM SOMAXCONN );
 use JSON::MaybeXS;

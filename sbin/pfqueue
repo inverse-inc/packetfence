@@ -17,14 +17,6 @@ pfqueue [options]
 
 use warnings;
 use strict;
-use Getopt::Std;
-use File::Basename qw(basename);
-use POSIX qw(:signal_h pause :sys_wait_h);
-use Pod::Usage;
-use Fcntl qw(:flock);
-use Scalar::Util qw(blessed);
-use Time::HiRes qw(usleep);
-
 #pf::log must always be initilized first
 BEGIN {
     # log4perl init
@@ -32,6 +24,14 @@ BEGIN {
     use lib (INSTALL_DIR . "/lib", INSTALL_DIR . "/lib_perl/lib/perl5");
     use pf::log(service => 'pfqueue');
 }
+
+use Getopt::Std;
+use File::Basename qw(basename);
+use POSIX qw(:signal_h pause :sys_wait_h);
+use Pod::Usage;
+use Fcntl qw(:flock);
+use Scalar::Util qw(blessed);
+use Time::HiRes qw(usleep);
 
 use pf::file_paths qw($var_dir);;
 use pf::util;
