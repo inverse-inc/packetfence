@@ -53,6 +53,11 @@ apply
         transform => sub {
             my ($val) = @_;
             return clean_mac( $val ) if !valid_ip($val) && valid_mac($val);
+            my $ip = NetAddr::IP->new($val);
+            if ($ip->num == 1) {
+                return $ip->addr;
+            }
+
             return $val;
         }
     }
