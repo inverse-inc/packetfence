@@ -404,6 +404,7 @@ type RessourseNetworkConf struct {
 	Algorithm                string    `json:"algorithm"`
 	NetflowAccountingEnabled string    `json:"netflow_accounting_enabled"`
 	NatDNS                   string    `json:"nat_dns"`
+	ForceGatewayVIP          string    `json:"force_gateway_vip"`
 }
 
 type PfRoles struct {

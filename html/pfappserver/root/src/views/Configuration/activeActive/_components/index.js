@@ -18,6 +18,7 @@ export {
   BaseFormGroupToggleDisabledEnabled  as FormGroupCentralizedDeauth,
   BaseFormGroupIntervalUnit           as FormGroupConflictResolutionThreshold,
   BaseFormGroupToggleDisabledEnabled  as FormGroupDnsOnVipOnly,
+  BaseFormGroupToggleDisabledEnabled  as FormGroupGatewayOnVipOnly,
   BaseFormGroupToggleDisabledEnabled  as FormGroupGaleraReplication,
   BaseFormGroupInput                  as FormGroupGaleraReplicationUsername,
   BaseFormGroupInputPassword          as FormGroupGaleraReplicationPassword,
