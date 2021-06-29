@@ -373,7 +373,7 @@ sub create {
 
     my $id = $item->{id};
     my $cs = $self->config_store;
-    if (!defined $id) {
+    if (!defined $id || length($id) == 0) {
         $self->render_error(422, "Unable to validate", [{ message => "id field is required", field => 'id'}]);
         return 0;
     }
@@ -387,7 +387,11 @@ sub create {
         return $self->render(status => $status, json => $item);
     }
 
-    delete $item->{id};
+    $id = delete $item->{id};
+    if ($cs->hasId($id)) {
+        return $self->render_error(409, "An attempt to add a duplicate entry was stopped. Entry already exists and should be modified instead of created");
+    }
+
     $cs->create($id, $item);
     return unless($self->commit($cs));
     $self->stash( $self->primary_key => $id );
