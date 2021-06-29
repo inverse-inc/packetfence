@@ -1,69 +1,77 @@
 <template>
-  <b-form @submit.prevent="save()">
+  <b-form @submit.prevent ref="rootRef">
     <b-card no-body>
       <b-card-header>
         <b-button-close @click="close" v-b-tooltip.hover.left.d300 :title="$t('Close [ESC]')"><icon name="times"></icon></b-button-close>
         <h4 class="mb-0">{{ $t('DHCP Option 82 Log Entry')}} <strong v-text="id"></strong></h4>
       </b-card-header>
-      <pf-form-row :column-label="$t('MAC Address')">{{ item.mac }}</pf-form-row>
-      <pf-form-row :column-label="$t('Circuit ID String')">{{ item.circuit_id_string }}</pf-form-row>
-      <pf-form-row :column-label="$t('Host')">{{ item.host }}</pf-form-row>
-      <pf-form-row :column-label="$t('Module')">{{ item.module }}</pf-form-row>
-      <pf-form-row :column-label="$t('DHCP Option 82 Switch')">{{ item.option82_switch }}</pf-form-row>
-      <pf-form-row :column-label="$t('Port')">{{ item.port }}</pf-form-row>
-      <pf-form-row :column-label="$t('Switch ID')">{{ item.switch_id }}</pf-form-row>
-      <pf-form-row :column-label="$t('DHCP Option 82 VLAN')">{{ item.vlan }}</pf-form-row>
-      <pf-form-row :column-label="$t('Created At')">{{ item.created_at }}</pf-form-row>
+      <base-form-group :column-label="$t('Created At')">{{ item.created_at }}</base-form-group>
+      <base-form-group :column-label="$t('MAC Address')">{{ item.mac }}</base-form-group>
+      <base-form-group :column-label="$t('Circuit ID String')">{{ item.circuit_id_string }}</base-form-group>
+      <base-form-group :column-label="$t('Host')">{{ item.host }}</base-form-group>
+      <base-form-group :column-label="$t('Module')">{{ item.module }}</base-form-group>
+      <base-form-group :column-label="$t('DHCP Option 82 Switch')">{{ item.option82_switch }}</base-form-group>
+      <base-form-group :column-label="$t('Port')">{{ item.port }}</base-form-group>
+      <base-form-group :column-label="$t('Switch ID')">{{ item.switch_id }}</base-form-group>
+      <base-form-group :column-label="$t('DHCP Option 82 VLAN')">{{ item.vlan }}</base-form-group>
     </b-card>
   </b-form>
 </template>
 
 <script>
-import pfFormRow from '@/components/pfFormRow'
+import {
+  BaseFormGroup
+} from '@/components/new/'
+
+const components = {
+  BaseFormGroup
+}
+
+const props = {
+  mac: {
+    type: String
+  }
+}
+
+import { ref , toRefs, watch } from '@vue/composition-api'
+import useEventEscapeKey from '@/composables/useEventEscapeKey'
+import useEventJail from '@/composables/useEventJail'
+import { useRouter } from '../_router'
+
+const setup = (props, context) => {
+
+  const {
+    mac
+  } = toRefs(props)
+
+  const { root: { $router, $store } = {} } = context
+
+  const {
+    goToCollection
+  } = useRouter($router)
+
+  // template refs
+  const rootRef = ref(null)
+  useEventJail(rootRef)
+  const escapeKey = useEventEscapeKey(rootRef)
+  watch(escapeKey, () => goToCollection())
+
+  const item = ref({})
+  $store.dispatch(`$_dhcpoption82_logs/getItem`, mac.value).then(_item => {
+    item.value = _item
+  })
+
+  return {
+    rootRef,
+    item,
+    goToCollection
+  }
+}
 
 export default {
-  name: 'dhcp-option82-log-view',
-  components: {
-    pfFormRow
-  },
-  props: {
-    mac: String // from router
-  },
-  data () {
-    return {
-      item: {},
-      tabIndex: 0,
-      tabTitle: ''
-    }
-  },
-  computed: {
-    isLoading () {
-      return this.$store.getters[`$_dhcpoption82_logs/isLoading`]
-    },
-    escapeKey () {
-      return this.$store.getters['events/escapeKey']
-    }
-  },
-  methods: {
-    init () {
-      this.$store.dispatch(`$_dhcpoption82_logs/getItem`, this.mac).then(item => {
-        this.item = item
-      })
-    },
-    ifTab (set) {
-      return this.$refs.tabs && set.includes(this.$refs.tabs.tabs[this.tabIndex].title)
-    },
-    close () {
-      this.$router.push({ name: 'dhcpoption82s' })
-    }
-  },
-  created () {
-    this.init()
-  },
-  watch: {
-    escapeKey (pressed) {
-      if (pressed) this.close()
-    }
-  }
+  name: 'the-view',
+  components,
+  props,
+  setup
 }
 </script>

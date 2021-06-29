@@ -1,70 +1,82 @@
 <template>
-  <b-form @submit.prevent="save()">
+  <b-form @submit.prevent ref="rootRef">
     <b-card no-body>
       <b-card-header>
-        <b-button-close @click="close" v-b-tooltip.hover.left.d300 :title="$t('Close [ESC]')"><icon name="times"></icon></b-button-close>
+        <b-button-close @click="goToCollection" v-b-tooltip.hover.left.d300 :title="$t('Close [ESC]')"><icon name="times"></icon></b-button-close>
         <h4 class="mb-0">{{ $t('Admin API Audit Log Entry')}} <strong v-text="id"></strong></h4>
       </b-card-header>
-      <pf-form-row :column-label="$t('User Name')">{{ item.user_name }}</pf-form-row>
-      <pf-form-row :column-label="$t('Action')">{{ item.action }}</pf-form-row>
-      <pf-form-row :column-label="$t('Object ID')">{{ item.object_id }}</pf-form-row>
-      <pf-form-row :column-label="$t('URL')">{{ item.url }}</pf-form-row>
-      <pf-form-row :column-label="$t('Method')">{{ item.method }}</pf-form-row>
-      <pf-form-row :column-label="$t('Status Code')">{{ item.status }}</pf-form-row>
-      <pf-form-row :column-label="$t('Request')" align-v="start"><div class="text-pre my-2">{{ formatJSON(item.request) }}</div></pf-form-row>
+      <base-form-group :column-label="$t('Created At')">{{ item.created_at }}</base-form-group>
+      <base-form-group :column-label="$t('User Name')">{{ item.user_name }}</base-form-group>
+      <base-form-group :column-label="$t('Action')">{{ item.action }}</base-form-group>
+      <base-form-group :column-label="$t('Object ID')">{{ item.object_id }}</base-form-group>
+      <base-form-group :column-label="$t('URL')">{{ item.url }}</base-form-group>
+      <base-form-group :column-label="$t('Method')">{{ item.method }}</base-form-group>
+      <base-form-group :column-label="$t('Status Code')">{{ item.status }}</base-form-group>
+      <base-form-group :column-label="$t('Request')"><div class="text-pre">{{ item.request }}</div></base-form-group>
     </b-card>
   </b-form>
 </template>
 
 <script>
-import pfFormRow from '@/components/pfFormRow'
+import {
+  BaseFormGroup
+} from '@/components/new/'
+
+const components = {
+  BaseFormGroup
+}
+
+const props = {
+  id: {
+    type: String
+  }
+}
+
+import { ref , toRefs, watch } from '@vue/composition-api'
+import useEventEscapeKey from '@/composables/useEventEscapeKey'
+import useEventJail from '@/composables/useEventJail'
+import { useRouter } from '../_router'
+
+const formatJSON = string => {
+  if (string)
+    return JSON.stringify(JSON.parse(string), undefined, 2)
+}
+
+const setup = (props, context) => {
+
+  const {
+    id
+  } = toRefs(props)
+
+  const { root: { $router, $store } = {} } = context
+
+  const {
+    goToCollection
+  } = useRouter($router)
+
+  // template refs
+  const rootRef = ref(null)
+  useEventJail(rootRef)
+  const escapeKey = useEventEscapeKey(rootRef)
+  watch(escapeKey, () => goToCollection())
+
+  const item = ref({})
+  $store.dispatch(`$_admin_api_audit_logs/getItem`, id.value).then(_item => {
+    const { request = '', ...rest } = _item
+    item.value = { request: formatJSON(request), ...rest }
+  })
+
+  return {
+    rootRef,
+    item,
+    goToCollection
+  }
+}
 
 export default {
-  name: 'AdminApiAuditLogView',
-  components: {
-    pfFormRow
-  },
-  props: {
-    id: String // from router
-  },
-  data () {
-    return {
-      item: {},
-      tabIndex: 0,
-      tabTitle: ''
-    }
-  },
-  computed: {
-    isLoading () {
-      return this.$store.getters[`$_admin_api_audit_logs/isLoading`]
-    },
-    escapeKey () {
-      return this.$store.getters['events/escapeKey']
-    }
-  },
-  methods: {
-    init () {
-      this.$store.dispatch(`$_admin_api_audit_logs/getItem`, this.id).then(item => {
-        this.item = item
-      })
-    },
-    ifTab (set) {
-      return this.$refs.tabs && set.includes(this.$refs.tabs.tabs[this.tabIndex].title)
-    },
-    close () {
-      this.$router.push({ name: 'admin_api_audit_logs' })
-    },
-    formatJSON (string) {
-      if (string) return JSON.stringify(JSON.parse(string), undefined, 2)
-    }
-  },
-  created () {
-    this.init()
-  },
-  watch: {
-    escapeKey (pressed) {
-      if (pressed) this.close()
-    }
-  }
+  name: 'the-view',
+  components,
+  props,
+  setup
 }
 </script>

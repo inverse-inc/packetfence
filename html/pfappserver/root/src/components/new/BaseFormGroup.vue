@@ -1,9 +1,6 @@
 <template>
   <b-form-group ref="form-group"
     class="base-form-group"
-    :class="{
-      'mb-0': !columnLabel,
-    }"
     :state="state"
     :label-class="labelClass"
     :label-cols="labelCols"
@@ -87,6 +84,16 @@ export default {
   props
 }
 </script>
+<style lang="scss" scoped>
+.base-form-group {
+  margin-bottom: 0;
+  .input-group {
+    padding-top: calc(0.375rem + 1px);
+    padding-bottom: calc(0.375rem + 1px);
+    margin-bottom: 0;
+  }
+}
+</style>
 <style lang="scss">
 .base-form-group {
   .input-group {

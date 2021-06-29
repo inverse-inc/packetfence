@@ -204,7 +204,12 @@ const factory = (uuid, options = {}) => {
                 const response = this.responseInterceptor(_response)
                 const { items, total_count } = response
                 this.items = items || []
-                this.totalRows = total_count
+                if (total_count) // endpoint returned a total count
+                  this.totalRows = total_count
+                else if (items.length === this.limit) // +1 to guarantee next
+                  this.totalRows = (this.page * this.limit) + 1
+                else
+                  this.totalRows = (this.page * this.limit) - this.limit + items.length
                 this.lastQuery = query
               })
               .catch(() => {
