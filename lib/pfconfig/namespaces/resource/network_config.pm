@@ -77,7 +77,7 @@ sub build {
                         $ConfigNetwork{$network}{'dns_vip'} = $self->{cluster_resource}->{cfg}->{CLUSTER}->{'interface '. $interface{'int'}}->{ip} || $interface{'ip'};
                     }
                     if(isenabled($self->{config_pf}->{active_active}->{gateway_on_vip_only})) {
-                        $ConfigNetwork{$network}{'gateway_vip'} = $self->{cluster_resource}->{cfg}->{CLUSTER}->{'interface '. $interface{'int'}}->{ip} || $interface{'ip'};
+                        $ConfigNetwork{$network}{'force_gateway_vip'} = $self->{cluster_resource}->{cfg}->{CLUSTER}->{'interface '. $interface{'int'}}->{ip} || $interface{'ip'};
                     }
                     $ConfigNetwork{$network}{'vip'} = $self->{cluster_resource}->{cfg}->{CLUSTER}->{'interface '. $interface{'int'}}->{ip} || $interface{'ip'};
                     $ConfigNetwork{$network}{'interface'} = \%interface;
