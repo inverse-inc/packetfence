@@ -27,11 +27,6 @@ export default {
     pfFormRow
   },
   props: {
-    storeName: { // from router
-      type: String,
-      default: null,
-      required: true
-    },
     mac: String // from router
   },
   data () {
@@ -43,7 +38,7 @@ export default {
   },
   computed: {
     isLoading () {
-      return this.$store.getters[`${this.storeName}/isLoading`]
+      return this.$store.getters[`$_dhcpoption82_logs/isLoading`]
     },
     escapeKey () {
       return this.$store.getters['events/escapeKey']
@@ -51,7 +46,7 @@ export default {
   },
   methods: {
     init () {
-      this.$store.dispatch(`${this.storeName}/getItem`, this.mac).then(item => {
+      this.$store.dispatch(`$_dhcpoption82_logs/getItem`, this.mac).then(item => {
         this.item = item
       })
     },

@@ -2,7 +2,7 @@
 * "$_radius_logs" store module
 */
 import Vue from 'vue'
-import api from '../_api'
+import api from './_api'
 
 const STORAGE_SEARCH_LIMIT_KEY = 'radiuslogs-search-limit'
 const STORAGE_VISIBLE_COLUMNS_KEY = 'radiuslogs-visible-columns'

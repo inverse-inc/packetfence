@@ -82,11 +82,6 @@ export default {
     pfFormRow
   },
   props: {
-    storeName: { // from router
-      type: String,
-      default: null,
-      required: true
-    },
     id: String // from router
   },
   data () {
@@ -98,7 +93,7 @@ export default {
   },
   computed: {
     isLoading () {
-      return this.$store.getters[`${this.storeName}/isLoading`]
+      return this.$store.getters[`$_radius_logs/isLoading`]
     },
     escapeKey () {
       return this.$store.getters['events/escapeKey']
@@ -106,7 +101,7 @@ export default {
   },
   methods: {
     init () {
-      this.$store.dispatch(`${this.storeName}/getItem`, this.id).then(item => {
+      this.$store.dispatch(`$_radius_logs/getItem`, this.id).then(item => {
         this.item = item
       })
     },

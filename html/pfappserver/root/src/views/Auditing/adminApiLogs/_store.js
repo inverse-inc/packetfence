@@ -2,7 +2,7 @@
 * "$_admin_api_audit_logs" store module
 */
 import Vue from 'vue'
-import api from '../_api'
+import api from './_api'
 
 const STORAGE_SEARCH_LIMIT_KEY = 'admin_api_audit_logs-search-limit'
 const STORAGE_VISIBLE_COLUMNS_KEY = 'admin_api_audit_logs-visible-columns'
