@@ -43,6 +43,11 @@
       :text="$i18n.t('Comma-separated list of domains that will be resolve with the correct IP addresses.')"
     />
 
+    <form-group-customer-portal namespace="customer_portal"
+      :column-label="$i18n.t('Customer portal')"
+      :text="$i18n.t('Whether or not the Stripe Customer Portal should be enabled for this source.')"
+    />
+
     <form-group-create-local-account namespace="create_local_account"
       :column-label="$i18n.t('Create Local Account')"
       :text="$i18n.t('Create a local account on the PacketFence system based on the username provided.')"
@@ -72,6 +77,7 @@
 <script>
 import { BaseForm } from '@/components/new/'
 import {
+  FormGroupCustomerPortal,
   FormGroupCreateLocalAccount,
   FormGroupCurrency,
   FormGroupDescription,
@@ -91,6 +97,7 @@ import {
 const components = {
   BaseForm,
 
+  FormGroupCustomerPortal,
   FormGroupCreateLocalAccount,
   FormGroupCurrency,
   FormGroupDescription,

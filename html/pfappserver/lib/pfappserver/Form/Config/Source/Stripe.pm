@@ -56,6 +56,14 @@ has_field 'domains' =>
              help => 'Comma separated list of domains that will be resolve with the correct IP addresses.' },
   );
 
+has_field customer_portal => (
+    type => 'Checkbox',
+    checkbox_value => 'enabled',
+    unchecked_value => 'disabled',
+    default => pf::Authentication::Source::StripeSource->meta->get_attribute('customer_portal')->default,
+);
+
+
 =head2 currencies
 
 The list of currencies for Stripe

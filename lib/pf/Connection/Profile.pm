@@ -19,7 +19,7 @@ use warnings;
 
 use POSIX;
 use List::Util qw(first);
-use List::MoreUtils qw(all none any uniq);
+use List::MoreUtils qw(all none any uniq firstval);
 use pf::constants qw($TRUE $FALSE);
 use pf::constants::config qw($SELFREG_MODE_NULL $SELFREG_MODE_KICKBOX);
 use pf::constants::Connection::Profile qw($DEFAULT_ROOT_MODULE);
@@ -696,6 +696,16 @@ sub autoRegister {
 
 sub TO_JSON {
     return {%{$_[0]}};
+}
+
+sub stripeCustomerPortalEnabled {
+    my ($self) = @_;
+    return defined($self->stripeCustomerPortalSource());
+}
+
+sub stripeCustomerPortalSource {
+    my ($self) = @_;
+    return firstval { ($_->type eq "Stripe" && isenabled($_->customer_portal)) } $self->getSourcesAsObjects();
 }
 
 =back
