@@ -88,7 +88,7 @@ symlink_files = $(shell find $(SRC_HTML_PFAPPDIR) \
 	-type l \
 	-not -path "$(SRC_HTML_PFAPPDIR_ROOT)/node_modules/*")
 
-# all directories and files necessary to build PacketFence package
+# all directories and files to include in PacketFence package
 # $(SRC_ROOT_DIR)/* to exclude SRC_ROOT_DIR himself
 files_to_include = $(shell find $(SRC_ROOT_DIR)/* \
 	-maxdepth 0 \
