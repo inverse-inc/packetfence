@@ -93,6 +93,7 @@ sub rangeValidator {
          $rangesep$
          )/x;
     return 1 if ($range =~ m/$validation/g);
+    return 1 if ($range =~ m/^\d+$/g);
     return 0;
 }
 
