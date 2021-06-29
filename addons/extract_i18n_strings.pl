@@ -13,8 +13,8 @@ can be localized.
 
 =cut
 
-use File::Find;
 use lib qw(/usr/local/pf/lib /usr/local/pf/lib_perl/lib/perl5);
+use File::Find;
 use pf::action;
 use pf::admin_roles;
 use pf::api;

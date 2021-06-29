@@ -1,6 +1,5 @@
 #!/usr/bin/perl
 
-use Config::IniFiles;
 
 BEGIN {
     # log4perl init
@@ -8,6 +7,7 @@ BEGIN {
     use lib (INSTALL_DIR . "/lib", INSTALL_DIR . "/lib_perl/lib/perl5");
 }
 
+use Config::IniFiles;
 use pf::file_paths qw($pf_config_file);
 
 my %ini;

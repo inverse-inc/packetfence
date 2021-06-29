@@ -32,10 +32,11 @@ dhcp_dumper.pl [options]
 use strict;
 use warnings;
 
+use FindBin;
+use lib ($FindBin::Bin . "/../lib", $FindBin::Bin . "../lib_perl/lib/perl5");
 use Config::IniFiles;
 use Data::Dumper;
 use File::Basename qw(basename);
-use FindBin;
 use Getopt::Std;
 use Log::Log4perl qw(:easy);
 use Net::Pcap 0.16;
@@ -43,7 +44,6 @@ use Pod::Usage;
 use POSIX;
 use Try::Tiny;
 
-use lib $FindBin::Bin . "/../lib";
 
 use pf::util;
 use pf::util::dhcp;
