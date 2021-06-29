@@ -77,7 +77,7 @@ simplify creation of a new Docker images based on environment variables.
 .Example usage of Makefile
 [source,bash]
 ----
-GOVERSION=go1.9.3 DOCKER_TAGS=$GOVERSION ACTIVE_BUILDS=pfbuild-stretch \
+GOVERSION=go1.16.4 ACTIVE_BUILDS=pfbuild-bullseye PF_MINOR_RELEASE=11.0 \
 make -e -C ci/packer
 ----
 
