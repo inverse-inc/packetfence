@@ -3,7 +3,7 @@
     "min_packer_version": "1.5.0",
     "variables": {
         "builder_prefix": "pfbuild",
-        "buildpkg_user": "buildpkg",
+        "buildpkg_user": "registry.gitlab.com/orange-opensource/gitlab-buildpkg",
         "pf_root": "../..",
         "prov_dir": "provisionners_pfbuild",
         "files_dir": "files",
@@ -13,6 +13,7 @@
         "ansible_roles_path": "{{user `prov_dir`}}/roles",
         "ansible_collections_path": "{{user `prov_dir`}}",
         "ansible_extra_vars": "{{env `ANSIBLE_EXTRA_VARS`}}",
+        "ansible_user": "root",
         "ansible_centos_group": "{{env `ANSIBLE_CENTOS_GROUP`}}",
         "ansible_centos8_group": "{{env `ANSIBLE_CENTOS8_GROUP`}}",
         "ansible_debian_group": "{{env `ANSIBLE_DEBIAN_GROUP`}}",
@@ -58,6 +59,7 @@
             "extra_arguments": ["--extra-vars", "{{user `ansible_extra_vars`}}"],
             "ansible_env_vars": ["PF_MINOR_RELEASE={{ user `pf_minor_release`}}"],
             "groups": ["{{user `ansible_centos_group`}}","{{user `ansible_centos8_group`}}"],
+            "user": "{{user `ansible_user`}}",
             "only": ["{{user `builder_prefix`}}-centos-8"]
         },
         {
@@ -71,6 +73,7 @@
             "extra_arguments": ["--extra-vars", "{{user `ansible_extra_vars`}}"],
             "ansible_env_vars": ["PF_MINOR_RELEASE={{ user `pf_minor_release`}}"],
             "groups": ["{{user `ansible_debian_group`}}"],
+            "user": "{{user `ansible_user`}}",
             "only": ["{{user `builder_prefix`}}-bullseye"]
         },
         {
@@ -108,6 +111,7 @@
             "playbook_file": "{{user `prov_dir`}}/site.yml",
             "inventory_directory": "{{user `prov_dir`}}/inventory",
             "extra_arguments": ["--extra-vars", "{{user `ansible_extra_vars`}}"],
+            "user": "{{user `ansible_user`}}",
             "groups": ["{{user `ansible_rubygems_group`}}"]
         },
         {
