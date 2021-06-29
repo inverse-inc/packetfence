@@ -23,14 +23,10 @@ has 'primary_key' => 'cloud_id';
 
 use pf::ConfigStore::Cloud;
 use pfappserver::Form::Config::Cloud;
-use pfappserver::Form::Config::Cloud::Azure;
-use pfappserver::Form::Config::Cloud::Google;
 use pfappserver::Form::Config::Cloud::Intune;
 
 our %TYPES_TO_FORMS = (
     map { $_ => "pfappserver::Form::Config::Cloud::$_" } qw(
-      Azure
-      Google
       Intune
     )
 );

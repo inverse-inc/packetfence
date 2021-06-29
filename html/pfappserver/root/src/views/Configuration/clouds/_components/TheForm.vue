@@ -18,15 +18,11 @@
 </template>
 <script>
 import { BaseContainerLoading } from '@/components/new/'
-import FormTypeAzure from './FormTypeAzure'
-import FormTypeGoogle from './FormTypeGoogle'
 import FormTypeIntune from './FormTypeIntune'
 
 const components = {
   BaseContainerLoading,
 
-  FormTypeAzure,
-  FormTypeGoogle,
   FormTypeIntune,
 }
 
@@ -48,10 +44,6 @@ export const setup = (props) => {
   const formType = computed(() => {
     const { type } = unref(form)
     switch(type) {
-      case 'Azure':
-        return FormTypeAzure // break
-      case 'Google':
-        return FormTypeGoogle // break
       case 'Intune':
         return FormTypeIntune // break
       default:

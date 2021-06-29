@@ -11,9 +11,6 @@
       </template>
       <template v-slot:buttonAdd>
         <b-dropdown :text="$t('New Cloud')" variant="outline-primary">
-<!--          <b-dropdown-item :to="{ name: 'newCloud', params: { cloudType: 'Azure' } }">Microsoft Azure</b-dropdown-item>
-          <b-dropdown-item :to="{ name: 'newCloud', params: { cloudType: 'Google' } }">Google Cloud</b-dropdown-item>
--->
           <b-dropdown-item :to="{ name: 'newCloud', params: { cloudType: 'Intune' } }">Microsoft Intune</b-dropdown-item>
         </b-dropdown>
       </template>

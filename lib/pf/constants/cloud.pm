@@ -18,8 +18,6 @@ use base qw(Exporter);
 use Readonly;
 
 Readonly::Scalar our $CLOUD_TYPES => [
-    "Azure",
-    "Google",
     "Intune",
 ];
 

@@ -1,8 +1,6 @@
 import i18n from '@/utils/locale'
 
 export const types = {
-  Azure:      i18n.t('Azure'),
-  Google:     i18n.t('Google'),
   Intune:     i18n.t('Intune'),
 }
 
