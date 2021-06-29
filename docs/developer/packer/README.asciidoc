@@ -22,8 +22,7 @@ To build PacketFence, we use link:http://packer.io[Packer] to create link:https:
 
 === Anatomy of Packer template
 
-PacketFence rely on link:https://hub.docker.com/u/buildpkg[buildpkg Docker
-images] to run GitLab pipeline with
+PacketFence rely on link:https://gitlab.com/Orange-OpenSource/gitlab-buildpkg/[gitlab-buildpkg images] to run GitLab pipeline with
 link:https://gitlab.com/Orange-OpenSource/gitlab-buildpkg-tools[gitlab-buildpkg-tools]. Packer
 template ([filename]`pfbuild.json`) use these images as base to build
 inverseinc Docker images.
@@ -37,8 +36,7 @@ like:
 * install and configure upstream softwares necessary to build PacketFence if we can't use packages
 
 We use Ansible and shell scripts to cover these steps. It's possible because Python is already
-installed in link:https://hub.docker.com/u/buildpkg[buildpkg Docker
-images].
+installed in link:https://gitlab.com/Orange-OpenSource/gitlab-buildpkg/[gitlab-buildpkg images].
 
 ==== Build dependencies in packages specs
 
