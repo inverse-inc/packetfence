@@ -21,10 +21,11 @@ We need access to the ConfigDomain hash so either we should go though the the Co
 use strict;
 use warnings;
 
-
-use lib '/usr/local/pf/lib/';
-use lib '/usr/local/pf/raddb/mods-config/perl/';
-use lib '/usr/local/pf/lib_perl/lib/perl5';
+use lib qw(
+    /usr/local/pf/lib/
+    /usr/local/pf/lib_perl/lib/perl5
+    /usr/local/pf/raddb/mods-config/perl/
+);
 
 use pf::log (service => 'rlm_perl');
 use pf::radius::constants;
