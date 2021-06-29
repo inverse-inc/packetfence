@@ -43,6 +43,7 @@ For a list of compatibility related changes see the <<PacketFence_Upgrade_Guide.
 * Configurator sets valid_from field to current time in place of 1970-01-01 00:00:00
 * Support switch_group in advanced filters (#6379)
 * Authentication rule condition basedn matching does not work (Authentication rule condition basedn matching does not work #6402)
+* Filter netdata incoming connection (#6303)
 
 == Version 10.3.0 released on 2020-04-14
 
