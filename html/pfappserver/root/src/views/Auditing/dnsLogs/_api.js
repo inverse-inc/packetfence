@@ -4,14 +4,6 @@ import apiCall from '@/utils/api'
 
 export default {
   list: params => {
-    if (params.sort) {
-      params.sort = params.sort.join(',')
-    } else {
-      params.sort = 'created_at'
-    }
-    if (params.fields) {
-      params.fields = params.fields.join(',')
-    }
     return apiCall.get('dns_audit_logs', { params }).then(response => {
       return response.data
     })

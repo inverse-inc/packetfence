@@ -1,6 +1,15 @@
 import store from '@/store'
 import StoreModule from './_store'
 
+export const useRouter = $router => {
+  return {
+    goToCollection: () => $router.push({ name: 'dhcpoption82s' }),
+    goToItem: params => $router
+      .push({ name: 'dhcpoption82', params })
+      .catch(e => { if (e.name !== "NavigationDuplicated") throw e })
+  }
+}
+
 const TheSearch = () => import(/* webpackChunkName: "Auditing" */ './_components/TheSearch')
 const TheView = () => import(/* webpackChunkName: "Auditing" */ './_components/TheView')
 

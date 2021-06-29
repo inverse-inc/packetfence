@@ -110,6 +110,7 @@ const factory = (uuid, options = {}) => {
       setLimit(limit) {
         if (+limit !== this.limit) {
           this.limit = +limit
+          this.page = 1
           this.reSearch()
         }
       },
@@ -144,9 +145,14 @@ const factory = (uuid, options = {}) => {
               this.api.list(params)
                 .then(_response => {
                   const response = this.responseInterceptor(_response)
-                  const { items, total_count } = response
+                  const { items = [], total_count } = response
                   this.items = items || []
-                  this.totalRows = total_count
+                  if (total_count) // endpoint returned a total count
+                    this.totalRows = total_count
+                  else if (items.length === this.limit) // +1 to guarantee next
+                    this.totalRows = (this.page * this.limit) + 1
+                  else
+                    this.totalRows = (this.page * this.limit) - this.limit + items.length
                   this.lastQuery = null
                 })
                 .catch(() => {

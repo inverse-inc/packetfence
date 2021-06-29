@@ -2,6 +2,15 @@ import i18n from '@/utils/locale'
 import store from '@/store'
 import StoreModule from './_store'
 
+export const useRouter = $router => {
+  return {
+    goToCollection: () => $router.push({ name: 'admin_api_audit_logs' }),
+    goToItem: params => $router
+      .push({ name: 'admin_api_audit_log', params })
+      .catch(e => { if (e.name !== "NavigationDuplicated") throw e })
+  }
+}
+
 const TheSearch = () => import(/* webpackChunkName: "Auditing" */ './_components/TheSearch')
 const TheView = () => import(/* webpackChunkName: "Auditing" */ './_components/TheView')
 
