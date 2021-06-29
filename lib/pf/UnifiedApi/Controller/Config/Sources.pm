@@ -30,7 +30,6 @@ use pfappserver::Form::Config::Source::AuthorizeNet;
 use pfappserver::Form::Config::Source::AzureAD;
 use pfappserver::Form::Config::Source::Blackhole;
 use pfappserver::Form::Config::Source::Authorization;
-use pfappserver::Form::Config::Source::AzureAD;
 use pfappserver::Form::Config::Source::Clickatell;
 use pfappserver::Form::Config::Source::EAPTLS;
 use pfappserver::Form::Config::Source::Eduroam;
