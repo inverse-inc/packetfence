@@ -3,6 +3,7 @@
 use strict;
 use warnings;
 
+use lib qw(/usr/local/pf/lib /usr/local/pf/lib_perl/lib/perl5);
 use Config::IniFiles;
 use Getopt::Long;
 use POSIX qw(:signal_h);

@@ -11,6 +11,7 @@ Usage :
 
 use warnings;
 use strict;
+use lib qw(/usr/local/pf/lib /usr/local/pf/lib_perl/lib/perl5);
 use IO::Socket::INET;
 use Net::DHCP::Packet;
 use Net::DHCP::Constants;

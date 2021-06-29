@@ -7,6 +7,7 @@ BEGIN {
     use lib (INSTALL_DIR . "/lib", INSTALL_DIR . "/lib_perl/lib/perl5");
 }
 
+use lib qw(/usr/local/pf/lib /usr/local/pf/lib_perl/lib/perl5);
 use Config::IniFiles;
 use pf::file_paths qw($pf_config_file);
 
