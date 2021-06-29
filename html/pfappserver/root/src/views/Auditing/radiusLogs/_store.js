@@ -60,7 +60,7 @@ const actions = {
       fields: state.searchFields,
       sort
     }
-    let apiPromise = state.searchQuery ? api.searchRadiusLogs(Object.assign(body, { query: state.searchQuery })) : api.allRadiusLogs(body)
+    let apiPromise = state.searchQuery ? api.search(Object.assign(body, { query: state.searchQuery })) : api.list(body)
     if (state.searchStatus !== 'loading') {
       return new Promise((resolve, reject) => {
         commit('SEARCH_REQUEST')
@@ -79,7 +79,7 @@ const actions = {
       return Promise.resolve(state.cache[id])
     }
     commit('ITEM_REQUEST')
-    return api.getRadiusLog(id).then(data => {
+    return api.getItem(id).then(data => {
       commit('ITEM_REPLACED', data)
       return state.cache[id]
     }).catch(err => {

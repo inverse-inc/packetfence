@@ -60,7 +60,7 @@ const actions = {
       fields: state.searchFields,
       sort
     }
-    let apiPromise = state.searchQuery ? api.searchDhcpOption82Logs(Object.assign(body, { query: state.searchQuery })) : api.allDhcpOption82Logs(body)
+    let apiPromise = state.searchQuery ? api.search(Object.assign(body, { query: state.searchQuery })) : api.list(body)
     if (state.searchStatus !== 'loading') {
       return new Promise((resolve, reject) => {
         commit('SEARCH_REQUEST')
@@ -79,7 +79,7 @@ const actions = {
       return Promise.resolve(state.cache[mac])
     }
     commit('ITEM_REQUEST')
-    return api.getDhcpOption82Log(mac).then(data => {
+    return api.getItem(mac).then(data => {
       commit('ITEM_REPLACED', data)
       return state.cache[mac]
     }).catch(err => {
