@@ -137,6 +137,7 @@ export {
   BaseFormGroupInput                        as FormGroupTwilioPhoneNumber,
   BaseFormGroupInput                        as FormGroupUserHeader,
   BaseFormGroupChosenOne                    as FormGroupUsernameAttribute,
+  BaseFormGroupInput                        as FormGroupUsernameAttributeString,
   BaseFormGroupToggleNoYes                  as FormGroupValidateSponsor,
   BaseFormGroupInputNumber                  as FormGroupWriteTimeout,
 
