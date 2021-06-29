@@ -20,7 +20,8 @@ docs/%.pdf: docs/%.asciidoc
 	asciidoctor-pdf \
 		-a pdf-theme=docs/asciidoctor-pdf-theme.yml \
 		-a pdf-fontsdir=docs/fonts \
-		-a release_version=`cat conf/pf-release | cut -d' ' -f 2` \
+		-a release_version=$(PF_PATCH_RELEASE) \
+		-a release_minor=$(PF_MINOR_RELEASE) \
 		-a release_month=`date +%B` \
 		$<
 
@@ -36,7 +37,8 @@ docs/%.html: docs/%.asciidoc
 		-r ./docs/asciidoctor-html.rb \
 		-a stylesdir=../html/pfappserver/root/dist/css \
 		-a stylesheet=$(notdir $(wildcard ./html/pfappserver/root/dist/css/app*.css)) \
-		-a release_version=`cat conf/pf-release | cut -d' ' -f 2` \
+		-a release_version=$(PF_PATCH_RELEASE) \
+		-a release_minor=$(PF_MINOR_RELEASE) \
 		-a release_month=`date +%B` \
 		$<
 
@@ -214,5 +216,52 @@ html_install:
 
 .PHONY: conf/git_commit_id
 conf/git_commit_id:
-	echo $$CI_COMMIT_SHA > $@
+	git rev-parse HEAD > $@
 
+.PHONY: rpm/.rpmmacros
+rpm/.rpmmacros:
+	echo "%systemddir /usr/lib/systemd" > $(SRC_RPMDIR)/.rpmmacros
+	echo "%pf_minor_release $(PF_MINOR_RELEASE)" >> $(SRC_RPMDIR)/.rpmmacros
+
+.PHONY: build_rpm
+build_rpm: conf/git_commit_id rpm/.rpmmacros dist
+	cp $(SRC_RPMDIR)/.rpmmacros $(HOME)
+	ci-build-pkg $(SRC_RPMDIR)/packetfence-release.spec
+	ci-build-pkg $(SRC_RPMDIR)/packetfence.spec
+
+.PHONY: build_deb
+build_deb: conf/git_commit_id
+	cp $(SRC_CIDIR)/debian/.devscripts $(HOME)
+	QUILT_PATCHES=$(SRC_DEBDIR)/patches quilt push
+	ci-build-pkg $(SRC_DEBDIR)
+
+.PHONY: patch_release
+patch_release:
+	$(SRC_CIDIR)/lib/release/prep-release.sh
+
+.PHONY: distclean
+distclean: go_clean vagrant_clean npm_clean clean
+	rm -rf packetfence-$(PF_PATCH_RELEASE).tar
+
+.PHONY: go_clean
+go_clean:
+	$(MAKE) -C $(SRC_GODIR) clean
+
+# to remove Ansible files from addons/vagrant/
+.PHONY: vagrant_clean
+vagrant_clean:
+	$(MAKE) -C $(SRC_CI_TESTDIR) delete
+
+.PHONY: npm_clean
+npm_clean:
+	$(MAKE) -C $(SRC_HTML_COMMONDIR) clean
+	$(MAKE) -C $(SRC_HTML_PFAPPDIR_ROOT) clean
+
+.PHONY: dist
+dist: distclean
+	mkdir -p packetfence-$(PF_PATCH_RELEASE)
+	# preserve, recursive and symlinks
+	cp -pRH $(files_to_include) packetfence-$(PF_PATCH_RELEASE)
+	tar c --exclude-from=$(SRC_ROOT_DIR)/dist_ignore \
+	-f packetfence-$(PF_PATCH_RELEASE).tar packetfence-$(PF_PATCH_RELEASE)
+	rm -rf packetfence-$(PF_PATCH_RELEASE)

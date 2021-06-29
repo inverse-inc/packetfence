@@ -1,0 +1,6 @@
+dist_ignore
+*.gitignore
+*.gitattributes
+*.git
+ChangeLog.old
+

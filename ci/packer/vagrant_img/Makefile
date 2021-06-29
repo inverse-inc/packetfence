@@ -1,3 +1,4 @@
+include ../../../config.mk
 #==============================================================================
 # Specific variables
 #==============================================================================
@@ -13,7 +14,7 @@ BOX_DESC='local-test'
 # be unique at each build (see https://github.com/hashicorp/packer/issues/9492)
 # generate: X.Y.UTC_DATE
 # $$1 is to avoid make interpretation
-BOX_VERSION=$(shell perl -ne 'print $$1 if (m/.*?(\d+\.\d+)./)' ../../../conf/pf-release | echo "`cat -`.`date -u +%Y%m%d%H%M%S`")
+BOX_VERSION=$(shell echo $(PF_MINOR_RELEASE) | echo "`cat -`.`date -u +%Y%m%d%H%M%S`")
 VAGRANT_LIBVIRT_VIRT_SYSPREP_OPTIONS=""
 VAGRANT_LIBVIRT_VIRT_SYSPREP_OPERATIONS="defaults,-ssh-userdir"
 PACKER_LOG=1
@@ -27,9 +28,9 @@ pfbox:	clean
 	PKR_VAR_output_dir="$(RESULT_DIR)/$(BOX_NAME)" \
 	PKR_VAR_ansible_group=$(ANSIBLE_GROUP) \
 	PKR_VAR_pfserver_name=$(BOX_NAME) \
-	PKR_VAR_centos_repo=$(CENTOS_REPO) \
 	PKR_VAR_box_version=$(BOX_VERSION) \
 	PKR_VAR_box_description="$(BOX_DESC)" \
+	PKR_VAR_pf_version=$(PF_MINOR_RELEASE) \
 	PACKER_LOG=$(PACKER_LOG) \
 	PACKER_LOG_PATH=$(PACKER_LOG_PATH) \
 	packer validate -only="$(BUILD_NAME)" .
@@ -39,9 +40,9 @@ pfbox:	clean
 	PKR_VAR_output_dir="$(RESULT_DIR)/$(BOX_NAME)" \
 	PKR_VAR_ansible_group=$(ANSIBLE_GROUP) \
 	PKR_VAR_pfserver_name=$(BOX_NAME) \
-	PKR_VAR_centos_repo=$(CENTOS_REPO) \
 	PKR_VAR_box_version=$(BOX_VERSION) \
 	PKR_VAR_box_description="$(BOX_DESC)" \
+	PKR_VAR_pf_version=$(PF_MINOR_RELEASE) \
 	ANSIBLE_FORCE_COLOR=$(ANSIBLE_FORCE_COLOR) \
 	PACKER_LOG=$(PACKER_LOG) \
 	PACKER_LOG_PATH=$(PACKER_LOG_PATH) \
@@ -54,7 +55,6 @@ pfcen7dev:
 	make \
 	BOX_NAME=$@ \
 	ANSIBLE_GROUP=$(DEV_GROUP) \
-	CENTOS_REPO=packetfence-devel \
 	BUILD_NAME="$(DEV_GROUP).vagrant.centos-7" \
 	pfbox
 
@@ -99,4 +99,4 @@ clean_all:
 # Local tests
 #==============================================================================
 # dev: VAGRANT_CLOUD_TOKEN=token make -e pf*dev
-# stable: BOX_VERSION=11.0.0 VAGRANT_CLOUD_TOKEN=token make -e pf*stable
+# stable: VAGRANT_CLOUD_TOKEN=token make -e pf*stable

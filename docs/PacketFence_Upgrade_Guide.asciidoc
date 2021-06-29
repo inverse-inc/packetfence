@@ -83,7 +83,6 @@ A PacketFence upgrade consists of following steps:
 . stop all PacketFence services (see <<_stop_all_packetfence_services,Stop all PacketFence services>> section)
 . preliminary step(s) to run before packages upgrades (see sections for your upgrade path)
 . packages upgrades (see <<_packages_upgrades,Package upgrades>> section)
-. maintenance patches (see <<_maintenance_patches,Maintenance patches>> section)
 . configuration migration(s) (see sections for your upgrade path)
 . database schema upgrade(s) (see sections for your upgrade path)
 . restart all PacketFence services (see <<_restart_all_packetfence_services,Restart all PacketFence services>> section)
@@ -242,13 +241,6 @@ find out which configuration files have changed by running following command:
 ----
 find /usr/local/pf -name "*.dpkg-dist"
 ----
-
-=== Maintenance patches
-
-include::common/maintenance_patches.asciidoc[]
-
-WARNING: After you completed all <<_packages_upgrades,package upgrades instructions>>
-(including <<_new_versions_of_configuration_files,merge of new configuration files>>),
 
 === Restart all PacketFence services
 
@@ -1614,18 +1606,18 @@ To be sure you are running latest MariaDB configuration provided by PacketFence 
 systemctl restart packetfence-mariadb
 ----
 
-== Upgrading from a version prior to X.Y.Z
+== Upgrading from a version prior to 11.0.0
 
 === Database schema
 
 Changes have been made to the database schema. You will need to update it accordingly.
-An SQL upgrade script has been provided to upgrade the database from the X.X.X schema to X.Y.Z.
+An SQL upgrade script has been provided to upgrade the database from the 10.3 schema to 11.0.
 
 To upgrade the database schema, run the following command:
 
 [source,bash]
 ----
-mysql -u root -p pf -v < /usr/local/pf/db/upgrade-X.X.X-X.Y.Z.sql
+mysql -u root -p pf -v < /usr/local/pf/db/upgrade-10.3.0-11.0.sql
 ----
 
 == Archived upgrade notes

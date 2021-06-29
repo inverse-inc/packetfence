@@ -7,7 +7,7 @@
     - name: Install PacketFence package from the repo
       yum:
         name: packetfence
-        enablerepo: '{{ stable_repo_id }}'
+        enablerepo: packetfence
         state: present
         update_cache: yes
       when: ansible_os_family == 'RedHat'

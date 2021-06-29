@@ -23,3 +23,6 @@ dist:
 
 light-dist:
 	grunt --stack dist
+
+clean:
+	rm -rf ./node_modules

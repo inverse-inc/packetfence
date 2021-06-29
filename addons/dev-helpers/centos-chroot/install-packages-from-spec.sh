@@ -1,12 +1,12 @@
 #!/bin/bash
 
 #This is will attempt to install all the packages
-#from the spec file using just packetfence-devel repo
+#from the spec file using just packetfence repo
 #
 
 PFDIR=${PFDIR:-/usr/local/pf}
 SPEC=${SPEC:-"$PFDIR/rpm/packetfence.spec"}
-REPO=${REPO:-packetfence-devel}
+REPO=${REPO:-packetfence}
 PF_REPO="--enablerepo=$REPO"
 STD_REPOS="--enablerepo=base --enablerepo=updates --enablerepo=extras"
 

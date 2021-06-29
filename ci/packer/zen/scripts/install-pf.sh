@@ -6,14 +6,14 @@ set -o nounset -o pipefail -o errexit
 echo "nameserver 8.8.8.8" > /etc/resolv.conf
 
 # Install the PacketFence repos
-yum localinstall http://packetfence.org/downloads/PacketFence/RHEL7/packetfence-release-7.${PFBRANCH}.noarch.rpm -y
+yum localinstall http://packetfence.org/downloads/PacketFence/RHEL7/${PFRELEASE_PKG} -y
 
 # Utils installation
 yum install ntp e2fsprogs cloud-utils-growpart -y
 
 # PacketFence installation
 yum install perl -y
-echo "Installing $PFPACKAGE from repo $PFREPO"
+echo "Installing $PFPACKAGE from repo $PFREPO ($PFVERSION)"
 yum install --enablerepo=$PFREPO $PFPACKAGE -y
 
 # Setting the hostname

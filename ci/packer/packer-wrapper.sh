@@ -3,6 +3,7 @@ set -o nounset -o pipefail -o errexit
 
 configure_and_check() {
     GOVERSION=${GOVERSION:-}
+    PF_MINOR_RELEASE=${PF_MINOR_RELEASE:-}
     REGISTRY=${REGISTRY:-docker.io}
     REGISTRY_USER=${REGISTRY_USER:-inverseinc}
     ANSIBLE_FORCE_COLOR=${ANSIBLE_FORCE_COLOR:-1}
@@ -15,7 +16,7 @@ configure_and_check() {
     PARALLEL=${PARALLEL:-2}
     PACKER_TEMPLATE=${PACKER_TEMPLATE:-pfbuild.json}
 
-    declare -p GOVERSION
+    declare -p GOVERSION PF_MINOR_RELEASE
     declare -p REGISTRY REGISTRY_USER 
     declare -p ANSIBLE_FORCE_COLOR ANSIBLE_CENTOS_GROUP ANSIBLE_CENTOS7_GROUP
     declare -p ANSIBLE_CENTOS8_GROUP ANSIBLE_DEBIAN_GROUP ANSIBLE_RUBYGEMS_GROUP
@@ -34,7 +35,7 @@ configure_and_check() {
         echo "Not a release, no need to generate additionnal maintenance tag"
     fi
     declare -p CI_COMMIT_TAG DOCKER_TAGS
-    export GOVERSION
+    export GOVERSION PF_MINOR_RELEASE
     export CI_COMMIT_TAG DOCKER_TAGS
     export REGISTRY REGISTRY_USER
     export ANSIBLE_FORCE_COLOR ANSIBLE_CENTOS_GROUP ANSIBLE_CENTOS7_GROUP

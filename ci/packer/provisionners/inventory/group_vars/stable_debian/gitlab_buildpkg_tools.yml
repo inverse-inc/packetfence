@@ -5,7 +5,7 @@ gitlab_buildpkg_tools__deb_keys:
 
 gitlab_buildpkg_tools__deb_deps_repos:
   - name: packetfence
-    baseurl: 'http://inverse.ca/downloads/PacketFence/debian {{ ansible_distribution_release }} {{ ansible_distribution_release }}'
+    baseurl: 'http://inverse.ca/downloads/PacketFence/debian/{{ pf_minor_release }} {{ ansible_distribution_release }} {{ ansible_distribution_release }}'
   - name: nodejs
     baseurl: 'https://deb.nodesource.com/node_12.x {{ ansible_distribution_release }} main'
 

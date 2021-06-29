@@ -1,7 +1,6 @@
 #==============================================================================
 # PacketFence application
 #==============================================================================
-
 #
 # Base directories
 #
@@ -9,12 +8,32 @@ PREFIX = /usr/local
 PF_PREFIX = $(PREFIX)/pf
 BINDIR = $(PF_PREFIX)/bin
 SBINDIR = $(PF_PREFIX)/sbin
+# source dirs
+# hack to get directory of config.mk from any Makefile in source tree
+# even if make is called with -C
+SRC_ROOT_DIR = $(realpath $(dir $(abspath $(lastword $(MAKEFILE_LIST)))))
+SRC_RPMDIR = $(SRC_ROOT_DIR)/rpm
+SRC_DEBDIR = $(SRC_ROOT_DIR)/debian
+SRC_CIDIR = $(SRC_ROOT_DIR)/ci
+SRC_CI_TESTDIR = $(SRC_CIDIR)/lib/test
+SRC_GODIR = $(SRC_ROOT_DIR)/go
+SRC_TESTDIR= $(SRC_ROOT_DIR)/t
 
 #
 # Golang
 #
 GOVERSION = go1.16.4
 PF_BINARIES = pfhttpd pfdhcp pfdns pfstats pfdetect galera-autofix pfacct pfcertmanager pfcron
+
+#
+# PF versions
+#
+PF_RELEASE_PATH=$(shell readlink -e $(SRC_ROOT_DIR)/conf/pf-release)
+
+# X.Y
+PF_MINOR_RELEASE=$(shell perl -ne 'print $$1 if (m/.*?(\d+\.\d+)./)' $(PF_RELEASE_PATH))
+# X.Y.Z
+PF_PATCH_RELEASE=$(shell perl -ne 'print $$1 if (m/.*?(\d+\.\d+\.\d+)/)' $(PF_RELEASE_PATH))
 
 # SRC HTML dirs
 SRC_HTMLDIR = html
@@ -68,3 +87,14 @@ pfapp_alt_files = $(shell find $(SRC_HTML_PFAPPDIR_ROOT) \
 symlink_files = $(shell find $(SRC_HTML_PFAPPDIR) \
 	-type l \
 	-not -path "$(SRC_HTML_PFAPPDIR_ROOT)/node_modules/*")
+
+# all directories and files necessary to build PacketFence package
+# $(SRC_ROOT_DIR)/* to exclude SRC_ROOT_DIR himself
+files_to_include = $(shell find $(SRC_ROOT_DIR)/* \
+	-maxdepth 0 \
+	-not -path "$(SRC_CIDIR)" \
+	-not -path "$(SRC_DEBDIR)" \
+	-not -path "$(SRC_ROOT_DIR)/packetfence-$(PF_PATCH_RELEASE)" \
+	-not -path "$(SRC_ROOT_DIR)/public" \
+	-not -path "$(SRC_RPMDIR)" \
+	-not -path "$(SRC_TESTDIR)" )

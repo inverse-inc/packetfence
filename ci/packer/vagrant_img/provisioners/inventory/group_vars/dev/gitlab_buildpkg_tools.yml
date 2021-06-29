@@ -1,33 +1,8 @@
 ---
-# disabled adding PPA key and repo in the pipeline
-gitlab_buildpkg_tools__ppa_enabled: False
-
-# RPM
-gitlab_buildpkg_tools__rpm_keys:
-  - 'https://inverse.ca/downloads/GPG_PUBLIC_KEY'
-
-gitlab_buildpkg_tools__rpm_deps_repos:
-  - name: packetfence-devel
-    baseurl: 'http://inverse.ca/downloads/PacketFence/centos/$releasever/devel/$basearch'
-
-# disable packetfence-devel repo (to avoid conflict with CentOS repos when installing packages)
-gitlab_buildpkg_tools__rpm_enabled_repos:
-  - name: 'packetfence-devel.repo'
-    id: 'packetfence-devel'
-    enabled: 0
-
+### EL
 # pre-requisites to run shell provisioner after
 gitlab_buildpkg_tools__rpm_pkgs:
   - yum-utils
 
-# Debian
-gitlab_buildpkg_tools__deb_keys:
-  - 'https://inverse.ca/downloads/GPG_PUBLIC_KEY'
-
-gitlab_buildpkg_tools__deb_deps_repos:
-  - name: packetfence-devel
-    baseurl: 'http://inverse.ca/downloads/PacketFence/debian-devel {{ ansible_distribution_release }} {{ ansible_distribution_release }}'
-  - name: packetfence
-    baseurl: 'http://inverse.ca/downloads/PacketFence/debian {{ ansible_distribution_release }} {{ ansible_distribution_release }}'
-
+### Debian
 gitlab_buildpkg_tools__deb_pkgs: []
