@@ -487,6 +487,25 @@ Where :
 
 NOTE: If they aren't already enabled, you will need to enable passthroughs so that users can reach the domains of this provider. Refer to the `Passthroughs` section of this document for details.
 
+====== Stripe customer portal
+
+PacketFence supports integrating with the Stripe customer portal and will handle subscription cancelations by default using webhooks. Additional hooks can be supported by extending `lib/pf/billing/custom_hook.pm`.
+
+In order to enable the customer portal in Stripe, go in _Settings -> Product settings -> Billing -> Customer portal_. Next, enable the options you want for the customer portal.
+
+PacketFence supports the following options:
+
+ * Allow customers to view their invoice history
+ * Allow customers to update their billing information
+ * Allow customers to update their payment method
+ * Allow customers to cancel subscriptions
+
+Optionally, once this is configured, you need to make sure your captive portal is accessible publicly for Stripe to send it webhooks if you want to support subscription cancellations. Once its accessible publicly, configure a webhook to receive the event `customer.subscription.deleted` on `https://PF_DOMAIN_NAME/hook/billing/STRIPE_SOURCE_ID`. Replace `STRIPE_SOURCE_ID` by the identifier (name) of your Stripe source in your PacketFence configuration.
+
+Next, in PacketFence, go in your Stripe source (_Configuration -> Policies and Access Control -> Authentication Sources_) and enable the option `Customer portal` in your Stripe source.
+
+Now when your users will visit the status page (https://PF_DOMAIN_NAME/status), they will have the option to manage their subscriptions and visit the Stripe customer portal.
+
 ===== Authorize.net
 
 *Creating an account*
