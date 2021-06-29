@@ -2,7 +2,7 @@ Source: packetfence
 Section: net
 Priority: optional
 Maintainer: Inverse inc. <support@inverse.ca>
-Build-Depends: debhelper (>= 7.0.50~), gettext, libparse-recdescent-perl, gcc, lsb-release, dh-systemd, libfile-fcntllock-perl, git, pkg-config, nodejs (>= 12.0), jq,
+Build-Depends: debhelper (>= 7.0.50~), gettext, libparse-recdescent-perl, gcc, lsb-release, libfile-fcntllock-perl, git, pkg-config, nodejs (>= 12.0), jq,
  ruby, rubygems,
  quilt, libmariadbd-dev (>= 10.1)
 Standards-Version: 3.8.4
