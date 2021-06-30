@@ -22,8 +22,8 @@ stages:
 # VARIABLES
 ################################################################################
 variables:
-  PFBUILD_CENTOS_7_IMG: inverseinc/pfbuild-centos-7
-  PFBUILD_DEB_STRETCH_IMG: inverseinc/pfbuild-debian-bullseye
+  PFBUILD_CENTOS_8_IMG: inverseinc/pfbuild-centos-8
+  PFBUILD_DEB_BULLSEYE_IMG: inverseinc/pfbuild-debian-bullseye
   PFBUILD_DEFAULT_DEV_TAG: latest
   CIDIR: ci
   CILIBDIR: ci/lib
@@ -247,7 +247,7 @@ variables:
   script:
     - make -e build_deb
 
-.test_centos_7_vars:
+.test_centos_8_vars:
   variables:
     PF_VM_NAME: pfcen7dev
 
@@ -321,7 +321,7 @@ build_docker_img_release:
     ACTIVE_BUILDS: 'pfbuild-centos-8,pfbuild-bullseye'
 
 # build_vagrant_img jobs
-build_vagrant_img_dev_centos_7:
+build_vagrant_img_dev_centos_8:
   extends:
     - .build_vagrant_img_dev_job
     - .job_dev_triggers
@@ -329,7 +329,7 @@ build_vagrant_img_dev_centos_7:
     BOX_NAME: pfcen7dev
   when: manual
 
-build_vagrant_img_dev_debian_stretch:
+build_vagrant_img_dev_debian_bullseye:
   extends:
     - .build_vagrant_img_dev_job
     - .job_dev_triggers
@@ -341,15 +341,19 @@ build_vagrant_img_dev_debian_stretch:
 #  BUILD_PKG JOBS
 ########################################
 # build_pkg jobs for development
-build_pkg_dev_centos_7:
-  image: ${PFBUILD_CENTOS_7_IMG}:${PFBUILD_DEFAULT_DEV_TAG}
+build_pkg_dev_centos_8:
+  # temp
+  # image: ${PFBUILD_CENTOS_8_IMG}:${PFBUILD_DEFAULT_DEV_TAG}
+  image: ${PFBUILD_CENTOS_8_IMG}:feature-rhel8
   extends:
     - .build_job
     - .job_dev_triggers
     - .rpm_script
 
-build_pkg_dev_debian_stretch:
-  image: ${PFBUILD_DEB_STRETCH_IMG}:${PFBUILD_DEFAULT_DEV_TAG}
+build_pkg_dev_debian_bullseye:
+  # temp
+  # image: ${PFBUILD_DEB_BULLSEYE_IMG}:${PFBUILD_DEFAULT_DEV_TAG}
+  image: ${PFBUILD_DEB_BULLSEYE_IMG}:feature-rhel8
   extends:
     - .build_job
     - .job_dev_triggers
@@ -357,23 +361,23 @@ build_pkg_dev_debian_stretch:
 
 # build_pkg jobs for release
 # CI_COMMIT_TAG contains vX.Y.X
-build_pkg_release_centos_7:
-  image: ${PFBUILD_CENTOS_7_IMG}:${CI_COMMIT_TAG}
+build_pkg_release_centos_8:
+  image: ${PFBUILD_CENTOS_8_IMG}:${CI_COMMIT_TAG}
   extends:
     - .build_job
     - .job_release_triggers
     - .rpm_script
 
-build_pkg_release_debian_stretch:
-  image: ${PFBUILD_DEB_STRETCH_IMG}:${CI_COMMIT_TAG}
+build_pkg_release_debian_bullseye:
+  image: ${PFBUILD_DEB_BULLSEYE_IMG}:${CI_COMMIT_TAG}
   extends:
     - .build_job
     - .job_release_triggers
     - .deb_script
 
 # CI_COMMIT_REF_SLUG contains maintenance-X-Y
-build_pkg_maintenance_centos_7:
-  image: ${PFBUILD_CENTOS_7_IMG}:${CI_COMMIT_REF_SLUG}
+build_pkg_maintenance_centos_8:
+  image: ${PFBUILD_CENTOS_8_IMG}:${CI_COMMIT_REF_SLUG}
   extends:
     - .build_job
     - .rpm_script
@@ -382,8 +386,8 @@ build_pkg_maintenance_centos_7:
     - if: '$CI_PIPELINE_SOURCE == "web" && $CI_COMMIT_REF_NAME =~ /^maintenance/'
     - if: '$CI_PIPELINE_SOURCE == "schedule" && $CI_COMMIT_REF_NAME =~ /^maintenance/'
 
-build_pkg_maintenance_debian_stretch:
-  image: ${PFBUILD_DEB_STRETCH_IMG}:${CI_COMMIT_REF_SLUG}
+build_pkg_maintenance_debian_bullseye:
+  image: ${PFBUILD_DEB_BULLSEYE_IMG}:${CI_COMMIT_REF_SLUG}
   extends:
     - .build_job
     - .deb_script
@@ -403,10 +407,10 @@ sign_dev_and_release:
   script:
     - ci-sign-pkg
   dependencies:
-    - build_pkg_dev_centos_7
-    - build_pkg_dev_debian_stretch
-    - build_pkg_release_centos_7
-    - build_pkg_release_debian_stretch
+    - build_pkg_dev_centos_8
+    - build_pkg_dev_debian_bullseye
+    - build_pkg_release_centos_8
+    - build_pkg_release_debian_bullseye
   artifacts:
     expire_in: 1 day
     paths:
@@ -424,8 +428,8 @@ sign_maintenance:
   script:
     - ci-sign-pkg
   dependencies:
-    - build_pkg_maintenance_centos_7
-    - build_pkg_maintenance_debian_stretch
+    - build_pkg_maintenance_centos_8
+    - build_pkg_maintenance_debian_bullseye
   artifacts:
     expire_in: 1 day
     paths:
@@ -495,7 +499,7 @@ pages_maintenance:
 ########################################
 # TEST JOBS
 ########################################
-test_pkg_devel_centos_7:
+test_pkg_devel_centos_8:
   variables:
     PERL_UNIT_TESTS: 'yes'
     GOLANG_UNIT_TESTS: 'yes'
@@ -503,12 +507,12 @@ test_pkg_devel_centos_7:
     VAGRANT_DOTFILE_PATH: /var/local/gitlab-runner/vagrant/vagrant-centos-7-dev
   extends:
     - .test_job
-    - .test_centos_7_vars
+    - .test_centos_8_vars
     - .test_script
     - .job_dev_triggers
   when: manual
 
-test_pkg_release_centos_7:
+test_pkg_release_centos_8:
   variables:
     PERL_UNIT_TESTS: 'no'
     GOLANG_UNIT_TESTS: 'no'
@@ -518,11 +522,11 @@ test_pkg_release_centos_7:
     VAGRANT_DOTFILE_PATH: /var/local/gitlab-runner/vagrant/vagrant-centos-7-${CI_COMMIT_TAG}
   extends:
     - .test_job
-    - .test_centos_7_vars
+    - .test_centos_8_vars
     - .test_script
     - .job_release_triggers
 
-test_pkg_nightly_centos_7:
+test_pkg_nightly_centos_8:
   variables:
     PERL_UNIT_TESTS: 'yes'
     GOLANG_UNIT_TESTS: 'yes'
@@ -530,11 +534,11 @@ test_pkg_nightly_centos_7:
     VAGRANT_DOTFILE_PATH: /var/local/gitlab-runner/vagrant/vagrant-centos-7-dev
   extends:
     - .test_job
-    - .test_centos_7_vars
+    - .test_centos_8_vars
     - .test_script
     - .job_nightly_triggers
 
-test_pkg_maintenance_centos_7:
+test_pkg_maintenance_centos_8:
   variables:
     PERL_UNIT_TESTS: 'yes'
     GOLANG_UNIT_TESTS: 'yes'
@@ -542,19 +546,19 @@ test_pkg_maintenance_centos_7:
     VAGRANT_DOTFILE_PATH: /var/local/gitlab-runner/vagrant/vagrant-centos-7-${CI_COMMIT_REF_SLUG}
   extends:
     - .test_maintenance_job
-    - .test_centos_7_vars
+    - .test_centos_8_vars
     - .test_script
   rules:
     # run only on maintenance jobs (schedules and web)
     - if: '$CI_PIPELINE_SOURCE == "web" && $CI_COMMIT_REF_NAME =~ /^maintenance/'
     - if: '$CI_PIPELINE_SOURCE == "schedule" && $CI_COMMIT_REF_NAME =~ /^maintenance/'
 
-test_pkg_devel_debian_stretch:
+test_pkg_devel_debian_bullseye:
   variables:
     PERL_UNIT_TESTS: 'no'
     GOLANG_UNIT_TESTS: 'yes'
     INTEGRATION_TESTS: 'no'
-    VAGRANT_DOTFILE_PATH: /var/local/gitlab-runner/vagrant/vagrant-debian-stretch-dev
+    VAGRANT_DOTFILE_PATH: /var/local/gitlab-runner/vagrant/vagrant-debian-bullseye-dev
   extends:
     - .test_job
     - .test_debian_9_vars
@@ -562,38 +566,38 @@ test_pkg_devel_debian_stretch:
     - .job_dev_triggers
   when: manual
 
-test_pkg_release_debian_stretch:
+test_pkg_release_debian_bullseye:
   variables:
     PERL_UNIT_TESTS: 'no'
     GOLANG_UNIT_TESTS: 'no'
     INTEGRATION_TESTS: 'no'
     # provision VM and run configurator test
     RUN_TESTS: 'yes'
-    VAGRANT_DOTFILE_PATH: /var/local/gitlab-runner/vagrant/vagrant-debian-stretch-${CI_COMMIT_TAG}
+    VAGRANT_DOTFILE_PATH: /var/local/gitlab-runner/vagrant/vagrant-debian-bullseye-${CI_COMMIT_TAG}
   extends:
     - .test_job
     - .test_debian_9_vars
     - .test_script
     - .job_release_triggers
 
-test_pkg_nightly_debian_stretch:
+test_pkg_nightly_debian_bullseye:
   variables:
     PERL_UNIT_TESTS: 'no'
     GOLANG_UNIT_TESTS: 'yes'
     INTEGRATION_TESTS: 'yes'
-    VAGRANT_DOTFILE_PATH: /var/local/gitlab-runner/vagrant/vagrant-debian-stretch-dev
+    VAGRANT_DOTFILE_PATH: /var/local/gitlab-runner/vagrant/vagrant-debian-bullseye-dev
   extends:
     - .test_job
     - .test_debian_9_vars
     - .test_script
     - .job_nightly_triggers
 
-test_pkg_maintenance_debian_stretch:
+test_pkg_maintenance_debian_bullseye:
   variables:
     PERL_UNIT_TESTS: 'no'
     GOLANG_UNIT_TESTS: 'yes'
     INTEGRATION_TESTS: 'yes'
-    VAGRANT_DOTFILE_PATH: /var/local/gitlab-runner/vagrant/vagrant-debian-stretch-${CI_COMMIT_REF_SLUG}
+    VAGRANT_DOTFILE_PATH: /var/local/gitlab-runner/vagrant/vagrant-debian-bullseye-${CI_COMMIT_REF_SLUG}
   extends:
     - .test_maintenance_job
     - .test_debian_9_vars
@@ -736,7 +740,7 @@ build_zen_release:
     - make -e -C ${ZENDIR} zen-release
   when: manual
 
-build_vagrant_img_stable_centos_7:
+build_vagrant_img_stable_centos_8:
   extends:
     - .build_vagrant_img_stable_job
     - .job_release_triggers
@@ -744,7 +748,7 @@ build_vagrant_img_stable_centos_7:
     BOX_NAME: pfcen7stable
   when: manual
 
-build_vagrant_img_stable_debian_stretch:
+build_vagrant_img_stable_debian_bullseye:
   extends:
     - .build_vagrant_img_stable_job
     - .job_release_triggers
