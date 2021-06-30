@@ -157,7 +157,7 @@ Requires: perl(SOAP::Lite) >= 1.0
 Requires: perl(Data::MessagePack)
 Requires: perl(Data::MessagePack::Stream)
 #Requires: perl(SOAP::Lite) >= 1.0
-#Requires: perl(WWW::Curl)
+Requires: perl(WWW::Curl)
 #Requires: perl(Data::MessagePack)
 #Requires: perl(Data::MessagePack::Stream)
 Requires: perl(POSIX::2008)
