@@ -1113,10 +1113,6 @@ components:
             description: Set the name server option in DHCP replies to point only
               to the VIP in cluster mode rather than to all servers in the cluster.
             type: string
-          gateway_on_vip_only:
-            description: Set the gateway option in DHCP replies to point only
-              to the VIP in cluster mode rather than to all servers in the cluster.
-            type: string
           galera_replication:
             description: Whether or not to activate galera cluster when using a cluster
             type: string
@@ -1127,6 +1123,10 @@ components:
           galera_replication_username:
             description: Defines the replication username to be used for the MariaDB
               Galera cluster replication
+            type: string
+          gateway_on_vip_only:
+            description: Set the gateway option in DHCP replies to point only to the
+              VIP in cluster mode rather than to all servers in the cluster.
             type: string
           password:
             description: Shared KEY for VRRP protocol (must be the same on all members).
