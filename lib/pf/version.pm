@@ -27,7 +27,8 @@ my $logger = get_logger();
 
 =head2 version_check_db
 
-Checks the version of database schema
+Checks the version of database schema matches the current PacketFence
+**minor** version (X.Y)
 
 =cut
 
@@ -36,7 +37,7 @@ sub version_check_db {
     $current_pf_minor_version =~ s/(\.\d+).*$/$1/; # Keeping only the major/minor part (i.e: X.Y.Z -> X.Y)
     my ($status, $iterator) = pf::dal::pf_version->search(
         -where => {
-            version => {'LIKE' => "${current_pf_minor_version}.%" },
+            version => $current_pf_minor_version
         }
     );
 
@@ -55,7 +56,7 @@ sub version_check_db {
 
 =head2 version_get_last_db_version_sql
 
-Get the last schema version in the datbase
+Get the last schema version in the database
 
 =cut
 
@@ -110,6 +111,23 @@ sub version_get_current {
 
     my $version = $release;
     $version =~ s/^PacketFence //;
+    return $version ;
+}
+
+=head2 version_get_minor
+
+Get the current minor version of PacketFence
+
+i.e: X.Y
+
+=cut
+
+sub version_get_minor {
+    my $release = version_get_release();
+    return undef unless $release;
+
+    my $version = $release;
+    $version =~ s/^PacketFence (\d+\.\d+)\.\d+/$1/;
     return $version ;
 }
 
