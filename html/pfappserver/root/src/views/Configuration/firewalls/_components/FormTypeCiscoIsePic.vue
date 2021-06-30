@@ -10,6 +10,11 @@
       :disabled="!isNew && !isClone"
     />
 
+    <form-group-tenant-id namespace="tenant_id"
+      :column-label="$i18n.t('Tenant ID')"
+      :text="$i18n.t('Leave empty for the default tenant.')"
+    />
+
     <form-group-port namespace="port"
       :column-label="$i18n.t('Port of the service')"
       :text="$i18n.t('If you use an alternative port, please specify.')"
@@ -56,6 +61,7 @@ import {
   FormGroupIdentifier,
   FormGroupNetworks,
   FormGroupPort,
+  FormGroupTenantId,
   FormGroupUsernameFormat
 } from './'
 
@@ -69,6 +75,7 @@ const components = {
   FormGroupIdentifier,
   FormGroupNetworks,
   FormGroupPort,
+  FormGroupTenantId,
   FormGroupUsernameFormat
 }
 

@@ -65,7 +65,9 @@ func TestValidateInfo(t *testing.T) {
 func TestParseSsoRequest(t *testing.T) {
 	// Valid payload with timeout
 	b := bytes.NewBuffer([]byte(`{"ip":"1.2.3.4", "mac": "00:11:22:33:44:55", "username":"lzammit", "role": "default", "timeout":"86400"}`))
-	info, timeout, err := pfsso.parseSsoRequest(ctx, b)
+	r, _ := http.NewRequest("POST", "/", b)
+	r.Header.Add("X-PacketFence-Tenant-Id", "1")
+	info, timeout, err := pfsso.parseSsoRequest(ctx, r)
 
 	if err != nil {
 		t.Errorf("Valid payload yielded error: %s", err)
@@ -80,18 +82,21 @@ func TestParseSsoRequest(t *testing.T) {
 		t.Errorf("Expected timeout %d but got %d", expected, timeout)
 	}
 
-	infoExpected := map[string]string{"ip": "1.2.3.4", "mac": "00:11:22:33:44:55", "username": "lzammit", "role": "default", "timeout": "86400"}
+	infoExpected := map[string]string{"ip": "1.2.3.4", "mac": "00:11:22:33:44:55", "username": "lzammit", "role": "default", "timeout": "86400", "tenant_id": "1"}
 	for k, expectedV := range infoExpected {
 		if v, ok := info[k]; ok {
 			if v != expectedV {
 				t.Errorf("Expected %s for key %s but got %s instead", expectedV, k, v)
 			}
+		} else {
+			t.Errorf("Expected %s for key %s but does not exists", expectedV, k)
 		}
 	}
 
 	//Valid payload without a timeout
 	b = bytes.NewBuffer([]byte(`{"ip":"1.2.3.4", "mac": "00:11:22:33:44:55", "username":"lzammit", "role": "default"}`))
-	info, timeout, err = pfsso.parseSsoRequest(ctx, b)
+	r, _ = http.NewRequest("POST", "/", b)
+	info, timeout, err = pfsso.parseSsoRequest(ctx, r)
 
 	if err != nil {
 		t.Errorf("Valid payload yielded error: %s", err)
@@ -108,7 +113,8 @@ func TestParseSsoRequest(t *testing.T) {
 
 	//Invalid JSON payload
 	b = bytes.NewBuffer([]byte(`{"ip":"1.2.3.4", "mac": "00:11:22:33:44:55", "username":"lzammit", "role": "default"`))
-	info, timeout, err = pfsso.parseSsoRequest(ctx, b)
+	r, _ = http.NewRequest("POST", "/", b)
+	info, timeout, err = pfsso.parseSsoRequest(ctx, r)
 
 	if err == nil {
 		t.Error("Invalid payload didn't give an error")
@@ -125,7 +131,8 @@ func TestParseSsoRequest(t *testing.T) {
 
 	//Missing field in request
 	b = bytes.NewBuffer([]byte(`{"ip":"1.2.3.4", "mac": "00:11:22:33:44:55", "username":"lzammit"}`))
-	info, timeout, err = pfsso.parseSsoRequest(ctx, b)
+	r, _ = http.NewRequest("POST", "/", b)
+	info, timeout, err = pfsso.parseSsoRequest(ctx, r)
 
 	if err == nil {
 		t.Error("Invalid payload didn't give an error")

@@ -111,6 +111,14 @@ has_field 'default_realm' =>
              help => 'The default realm to be used while formatting the username when no realm can be extracted from the username.' },
   );
 
+has_field 'tenant_id' =>
+  (
+   type => 'Tenant',
+   label => 'Tenant ID',
+   no_global => 1,
+   element_class => ['chzn-deselect'],
+  );
+
 has_block 'definition' =>
   (
    render_list => [ qw(id type password port categories networks cache_updates cache_timeout username_format default_realm) ],

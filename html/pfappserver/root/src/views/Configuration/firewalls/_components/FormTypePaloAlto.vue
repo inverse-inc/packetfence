@@ -10,6 +10,11 @@
       :disabled="!isNew && !isClone"
     />
 
+    <form-group-tenant-id namespace="tenant_id"
+      :column-label="$i18n.t('Tenant ID')"
+      :text="$i18n.t('Leave empty for the default tenant.')"
+    />
+
     <form-group-vsys namespace="vsys"
       :column-label="$i18n.t('Vsys')"
       :text="$i18n.t('Please define the Virtual System number. This only has an effect when used with the HTTP transport.')"
@@ -71,6 +76,7 @@ import {
   FormGroupNetworks,
   FormGroupPassword,
   FormGroupPort,
+  FormGroupTenantId,
   FormGroupTransport,
   FormGroupUsernameFormat,
   FormGroupVsys
@@ -87,6 +93,7 @@ const components = {
   FormGroupNetworks,
   FormGroupPassword,
   FormGroupPort,
+  FormGroupTenantId,
   FormGroupTransport,
   FormGroupUsernameFormat,
   FormGroupVsys

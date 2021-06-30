@@ -11,6 +11,11 @@
       :disabled="!isNew && !isClone"
     />
 
+    <form-group-tenant-id namespace="tenant_id"
+      :column-label="$i18n.t('Tenant ID')"
+      :text="$i18n.t('Leave empty for the default tenant.')"
+    />
+
     <form-group-username namespace="username"
       :column-label="$i18n.t('Username')"
     />
@@ -66,6 +71,7 @@ import {
   FormGroupIdentifier,
   FormGroupNetworks,
   FormGroupPassword,
+  FormGroupTenantId,
   FormGroupUsername,
   FormGroupUsernameFormat
 } from './'
@@ -81,6 +87,7 @@ const components = {
   FormGroupIdentifier,
   FormGroupNetworks,
   FormGroupPassword,
+  FormGroupTenantId,
   FormGroupUsername,
   FormGroupUsernameFormat
 }

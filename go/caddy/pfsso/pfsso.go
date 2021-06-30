@@ -5,7 +5,6 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"io"
 	"net/http"
 	"strconv"
 	"strings"
@@ -79,12 +78,14 @@ func buildPfssoHandler(ctx context.Context) (*PfssoHandler, error) {
 	return pfsso, nil
 }
 
+const defaultTenantID = "1"
+
 // Parse the body of a pfsso request to extract a map[string]string of all the attributes that were sent
 // Return an error if the JSON payload cannot be decoded properly
 // Will also validate that the necessary fields are there in the payload and return an error if some are missing
-func (h PfssoHandler) parseSsoRequest(ctx context.Context, body io.Reader) (map[string]string, int, error) {
+func (h PfssoHandler) parseSsoRequest(ctx context.Context, r *http.Request) (map[string]string, int, error) {
 	var info map[string]string
-	err := json.NewDecoder(body).Decode(&info)
+	err := json.NewDecoder(r.Body).Decode(&info)
 
 	if err != nil {
 		msg := fmt.Sprintf("Error while decoding payload: %s", err)
@@ -92,6 +93,15 @@ func (h PfssoHandler) parseSsoRequest(ctx context.Context, body io.Reader) (map[
 		return nil, 0, errors.New(msg)
 	}
 
+	tenant_id := r.Header.Get("X-PacketFence-Tenant-Id")
+	if tenant_id == "" {
+		tenant_id = defaultTenantID
+	} else if _, err := strconv.ParseInt(tenant_id, 10, 32); err != nil {
+		log.LoggerWContext(ctx).Warn(fmt.Sprintf("Can't parse X-PacketFence-Tenant-Id '%s' into an int (%s).", tenant_id, err))
+		tenant_id = defaultTenantID
+	}
+
+	info["tenant_id"] = tenant_id
 	timeout, err := strconv.ParseInt(info["timeout"], 10, 32)
 	if err != nil {
 		log.LoggerWContext(ctx).Warn(fmt.Sprintf("Can't parse timeout '%s' into an int (%s). Will not specify timeout for request.", info["timeout"], err))
@@ -155,7 +165,7 @@ func (h PfssoHandler) handleUpdate(w http.ResponseWriter, r *http.Request, p htt
 	ctx := r.Context()
 	defer statsd.NewStatsDTiming(ctx).Send("PfssoHandler.handleUpdate")
 
-	info, timeout, err := h.parseSsoRequest(ctx, r.Body)
+	info, timeout, err := h.parseSsoRequest(ctx, r)
 	if err != nil {
 		http.Error(w, fmt.Sprint(err), http.StatusBadRequest)
 		return
@@ -223,7 +233,7 @@ func (h PfssoHandler) handleStart(w http.ResponseWriter, r *http.Request, p http
 	ctx := r.Context()
 	defer statsd.NewStatsDTiming(ctx).Send("PfssoHandler.handleStart")
 
-	info, timeout, err := h.parseSsoRequest(ctx, r.Body)
+	info, timeout, err := h.parseSsoRequest(ctx, r)
 	if err != nil {
 		http.Error(w, fmt.Sprint(err), http.StatusBadRequest)
 		return
@@ -247,7 +257,7 @@ func (h PfssoHandler) handleStop(w http.ResponseWriter, r *http.Request, p httpr
 	ctx := r.Context()
 	defer statsd.NewStatsDTiming(ctx).Send("PfssoHandler.handleStop")
 
-	info, _, err := h.parseSsoRequest(ctx, r.Body)
+	info, _, err := h.parseSsoRequest(ctx, r)
 	if err != nil {
 		http.Error(w, fmt.Sprint(err), http.StatusBadRequest)
 		return
