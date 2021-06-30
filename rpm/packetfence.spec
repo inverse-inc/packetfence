@@ -127,7 +127,7 @@ Requires: sudo
 #Requires: perl(Net::SSH2) >= 0.63
 #Requires: perl(Net::OAuth2) >= 0.65
 # Required by configurator script, pf::config
-#Requires: perl(Net::Interface)
+Requires: perl(Net::Interface)
 #Requires: perl(Net::Netmask)
 # pfcron, pfdhcplistener
 #Requires: perl(Net::Pcap) >= 0.16
@@ -160,7 +160,7 @@ Requires: perl(Data::MessagePack::Stream)
 #Requires: perl(WWW::Curl)
 #Requires: perl(Data::MessagePack)
 #Requires: perl(Data::MessagePack::Stream)
-#Requires: perl(POSIX::2008)
+Requires: perl(POSIX::2008)
 # Template::Toolkit - captive portal template system
 #Requires: perl(Template)
 #Requires: perl(Template::AutoFilter)
