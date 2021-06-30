@@ -17,6 +17,8 @@ import (
 	"github.com/inverse-inc/packetfence/go/sharedutils"
 )
 
+const defaultTenantID = "1"
+
 var usernameFormatRegexps = map[string]*regexp.Regexp{
 	"stripped_username": regexp.MustCompile(`\$username`),
 	"realm":             regexp.MustCompile(`\$realm`),
@@ -221,7 +223,7 @@ func (fw *FirewallSSO) MatchesNetwork(ctx context.Context, info map[string]strin
 func (fw *FirewallSSO) MatchesTenant(ctx context.Context, info map[string]string) bool {
 	tenant_id, found := info["tenant_id"]
 	if !found {
-		tenant_id = "1"
+		tenant_id = defaultTenantID
 	}
 
 	return tenant_id == strconv.Itoa(fw.TenantID)
