@@ -161,6 +161,7 @@ Requires: perl(WWW::Curl)
 #Requires: perl(Data::MessagePack)
 #Requires: perl(Data::MessagePack::Stream)
 Requires: perl(POSIX::2008)
+Requires: perl(HTTP::Date)
 # Template::Toolkit - captive portal template system
 #Requires: perl(Template)
 #Requires: perl(Template::AutoFilter)
