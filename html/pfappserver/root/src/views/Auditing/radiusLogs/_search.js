@@ -3,7 +3,7 @@ import { pfFormatters as formatter } from '@/globals/pfFormatters'
 import makeSearch from '@/store/factory/search'
 import api from './_api'
 
-export const useSearch = makeSearch('adminApiLogs', {
+export const useSearch = makeSearch('radiusLogs', {
   api,
   columns: [
     {

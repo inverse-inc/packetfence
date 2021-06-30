@@ -79,7 +79,7 @@ const actions = {
       return Promise.resolve(state.cache[mac])
     }
     commit('ITEM_REQUEST')
-    return api.getItem(mac).then(data => {
+    return api.item(mac).then(data => {
       commit('ITEM_REPLACED', data)
       return state.cache[mac]
     }).catch(err => {

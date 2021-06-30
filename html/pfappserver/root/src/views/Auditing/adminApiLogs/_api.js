@@ -11,7 +11,7 @@ export default {
       return response.data
     })
   },
-  getItem: id => {
+  item: id => {
     return apiCall.getQuiet(`admin_api_audit_log/${id}`).then(response => {
       return response.data.item
     })

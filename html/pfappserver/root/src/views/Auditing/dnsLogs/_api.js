@@ -13,7 +13,7 @@ export default {
       return response.data
     })
   },
-  getItem: id => {
+  item: id => {
     return apiCall.get(`dns_audit_log/${id}`).then(response => {
       return response.data.item
     })

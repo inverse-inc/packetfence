@@ -11,7 +11,7 @@ export default {
       return response.data
     })
   },
-  getItem: mac => {
+  item: mac => {
     return apiCall.get(['dhcp_option82', mac]).then(response => {
       return response.data.item
     })
