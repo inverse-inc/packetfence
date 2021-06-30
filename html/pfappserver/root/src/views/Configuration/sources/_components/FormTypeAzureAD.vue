@@ -84,7 +84,7 @@ import { useForm as setup, useFormProps as props } from '../_composables/useForm
 
 // @vue/component
 export default {
-  name: 'form-type-edir',
+  name: 'form-type-azure-ad',
   inheritAttrs: false,
   components,
   props,
