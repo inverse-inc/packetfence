@@ -1,9 +1,9 @@
 <template>
   <b-card no-body>
     <b-card-header>
-      <h4 v-t="'Live Logs'"></h4>
+      <h4 v-t="'Live Logs'" />
     </b-card-header>
-    <live-log-tabs />
+    <the-tabs />
     <b-card-body>
       <b-row>
         <b-col sm="3">
@@ -15,7 +15,7 @@
                   <base-form
                     :form="session"
                     :schema="schema"
-                    :isLoading="isLoading || isRunning">              
+                    :isLoading="isLoading || isRunning">
                     <small class="ml-1">{{ $i18n.t('Log Files') }}</small>
                     <base-input-chosen-multiple v-if="session && 'files' in session"
                       namespace="files"
@@ -28,30 +28,30 @@
                     <base-input-toggle-false-true v-if="session && 'filter_is_regexp' in session"
                       namespace="filter_is_regexp" />
                   </base-form>
-                </b-form>                
+                </b-form>
                 <b-button-group class="mt-3 btn-block">
                   <b-button v-if="isRunning && !isPaused"
                     variant="primary" class="mb-1" size="sm" @click="onPauseSession">
-                    <icon name="pause" class="mx-1"></icon>
+                    <icon name="pause" class="mx-1" />
                     {{ $i18n.t('Pause') }}
                   </b-button>
                   <b-button v-if="isRunning && isPaused"
                     variant="primary" class="mb-1" size="sm" @click="onUnpauseSession">
-                    <icon name="play" class="mx-1"></icon>
+                    <icon name="play" class="mx-1" />
                     {{ $i18n.t('Unpause') }}
                   </b-button>
                   <b-button v-if="isRunning"
                     :disabled="isStopping"
                     variant="danger" class="float-right mb-1" size="sm" @click="onStopSession">
-                    <icon v-if="isStopping" name="circle-notch" class="mr-2" spin></icon>
-                    <icon v-else name="stop" class="mx-1"></icon>
+                    <icon v-if="isStopping" name="circle-notch" class="mr-2" spin />
+                    <icon v-else name="stop" class="mx-1" />
                     {{ $i18n.t('Stop') }}
                   </b-button>
                   <b-button v-if="!isRunning"
                     :disabled="isStarting || !isValid"
                     variant="success" class="float-right mb-1" size="sm" @click="onStartSession">
-                    <icon v-if="isStarting" name="circle-notch" class="mr-2" spin></icon>
-                    <icon v-else name="play" class="mx-1"></icon>
+                    <icon v-if="isStarting" name="circle-notch" class="mr-2" spin />
+                    <icon v-else name="play" class="mx-1" />
                     {{ $i18n.t('Reset') }}
                   </b-button>
                 </b-button-group>
@@ -93,12 +93,12 @@
             <b-col cols="auto" class="mr-auto d-inline">
               <b-button v-if="isRunning && !isPaused"
                 variant="primary" class="ml-3" size="sm" @click="onPauseSession">
-                <icon name="pause" class="mx-1"></icon>
+                <icon name="pause" class="mx-1" />
                 {{ $i18n.t('Pause') }}
               </b-button>
               <b-button v-if="isRunning && isPaused"
                 variant="primary" class="ml-3" size="sm" @click="onUnpauseSession">
-                <icon name="play" class="mx-1"></icon>
+                <icon name="play" class="mx-1" />
                 {{ $i18n.t('Unpause') }}
               </b-button>
               <b-button-group class="mx-1 ml-3" size="sm" :disabled="!events || !events.length">
@@ -130,7 +130,8 @@
                 :options="[
                   { value: 'color', label: $i18n.t('Color'), color: 'var(--primary)' },
                   { value: 'raw', label: $i18n.t('Raw'), color: 'var(--secondary)' }
-                ]" />
+                ]"
+                :labelRight="true" />
               </small>
             </b-col>
             <b-col cols="auto text-right">
@@ -188,8 +189,7 @@ import {
   BaseInputToggle,
   BaseInputToggleFalseTrue
 } from '@/components/new/'
-import LiveLogTabs from './LiveLogTabs'
-
+import TheTabs from './TheTabs'
 
 const components = {
   BaseForm,
@@ -198,7 +198,7 @@ const components = {
   BaseInputChosenOne,
   BaseInputToggle,
   BaseInputToggleFalseTrue,
-  LiveLogTabs
+  TheTabs
 }
 
 const props = {
@@ -228,18 +228,18 @@ const schema = yup.object({
 })
 
 const setup = (props, context) => {
-  
+
   const {
     id
   } = toRefs(props)
-  
+
   const { root: { $router, $store } = {} } = context
-  
+
   // const form = session
-  const formRef = ref(null)  
+  const formRef = ref(null)
   const files = ref([])
   const isStarting = ref(false)
-  
+
   const session = customRef((track, trigger) => ({
     get() {
       track()
@@ -250,7 +250,7 @@ const setup = (props, context) => {
         .finally(() => trigger())
     }
   }))
-  
+
   const options = customRef((track, trigger) => ({
     get() {
       track()
@@ -261,16 +261,16 @@ const setup = (props, context) => {
         .finally(() => trigger())
     }
   }))
-  
+
   const events = computed(() => (options.value.order === 'reverse')
     ? $store.getters[`$_live_logs/${id.value}/eventsFiltered`].slice().reverse()
     : $store.getters[`$_live_logs/${id.value}/eventsFiltered`]
   )
-  
+
   const scopes = computed(() => $store.getters[`$_live_logs/${id.value}/scopes`])
-  
+
   const lines = computed(() => $store.getters[`$_live_logs/${id.value}/lines`])
-  
+
   const size = customRef((track, trigger) => ({
     get() {
       track()
@@ -281,12 +281,12 @@ const setup = (props, context) => {
         .finally(() => trigger())
     }
   }))
-  
+
   const isLoading = computed(() => $store.getters[`$_live_logs/${id.value}/isLoading`])
   const isStopping = computed(() => $store.getters[`$_live_logs/${id.value}/isStopping`])
   const isRunning = computed(() => $store.getters[`$_live_logs/${id.value}/isRunning`])
   const isPaused = computed(() => $store.getters[`$_live_logs/${id.value}/isPaused`])
-  const isValid = useDebouncedWatchHandler([session], () => (!formRef.value || formRef.value.querySelectorAll('.is-invalid').length === 0))  
+  const isValid = useDebouncedWatchHandler([session], () => (!formRef.value || formRef.value.querySelectorAll('.is-invalid').length === 0))
 
   const onToggleFilter = (scope, key) => $store.dispatch(`$_live_logs/${id.value}/toggleFilter`, { scope, key })
   const onStopSession = () => $store.dispatch(`$_live_logs/${id.value}/stopSession`)
@@ -297,8 +297,8 @@ const setup = (props, context) => {
       const { session_id } = response
       if (session_id) {
         $store.dispatch(`$_live_logs/${session_id}/setSize`, size.value)
-        $store.dispatch('$_live_logs/destroySession', id.value)        
-        $router.push({ name: 'live_log', params: { id: session_id } })          
+        $store.dispatch('$_live_logs/destroySession', id.value)
+        $router.push({ name: 'live_log', params: { id: session_id } })
       }
     }).finally(() => {
       isStarting.value = false
@@ -348,8 +348,8 @@ const setup = (props, context) => {
           return a.value.localeCompare(b.value)
         })
     }
-  })    
-  
+  })
+
   return {
     formRef,
     schema,
@@ -368,7 +368,7 @@ const setup = (props, context) => {
     isRunning,
     isPaused,
     isValid,
-    
+
     onToggleFilter,
     onStopSession,
     onStartSession,
@@ -382,7 +382,7 @@ const setup = (props, context) => {
 
 // @vue/component
 export default {
-  name: 'live-log-view',
+  name: 'the-view',
   inheritAttrs: false,
   components,
   props,

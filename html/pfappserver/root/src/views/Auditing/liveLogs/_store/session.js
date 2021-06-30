@@ -102,7 +102,7 @@ const actions = {
   },
   stopSession: ({ state, commit }) => {
     commit('LOG_SESSION_STOPPING')
-    return api.deleteLogTailSession(state.session.session_id).then(response => {
+    return api.delete(state.session.session_id).then(response => {
       commit('LOG_SESSION_STOPPED')
       return response
     }).catch(err => {
@@ -113,7 +113,7 @@ const actions = {
   getSession: ({ state, commit, dispatch }) => {
     if (state.running) {
       commit('LOG_SESSION_REQUEST')
-      return api.getLogTailSession(state.session.session_id).then(response => {
+      return api.item(state.session.session_id).then(response => {
         commit('LOG_SESSION_RESPONSE', response)
         if (!state.paused) {
           commit('LOG_SESSION_QUEUE', dispatch) // queue the next request
@@ -141,7 +141,7 @@ const actions = {
   touchSession: ({ state, commit }) => {
     if (state.paused) {
       commit('LOG_SESSION_REQUEST')
-      return api.touchLogTailSession(state.session.session_id).then(response => {
+      return api.touch(state.session.session_id).then(response => {
         commit('LOG_SESSION_SUCCESS')
         return response
       }).catch(err => {

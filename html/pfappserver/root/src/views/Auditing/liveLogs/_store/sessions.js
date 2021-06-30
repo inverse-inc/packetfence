@@ -3,7 +3,7 @@
 */
 import store from '@/store'
 import api from '../_api'
-import LiveLogStore from './liveLog'
+import SessionStore from './session'
 import i18n from '@/utils/locale'
 
 // Default values
@@ -29,7 +29,7 @@ const getters = {
 const actions = {
   optionsSession: ({ commit }) => {
     commit('LOG_SESSION_REQUEST')
-    return api.optionsLogTailSession().then(response => {
+    return api.options().then(response => {
       commit('LOG_SESSION_SUCCESS')
       return response
     }).catch(err => {
@@ -39,7 +39,7 @@ const actions = {
   },
   createSession: ({ commit }, form) => {
     commit('LOG_SESSION_REQUEST')
-    return api.createLogTailSession(form).then(response => {
+    return api.create(form).then(response => {
       commit('LOG_SESSION_START', { form, response })
       return response
     }).catch(err => {
@@ -53,7 +53,7 @@ const actions = {
     }
     else {
       commit('LOG_SESSION_REQUEST')
-      return api.deleteLogTailSession(id).then(response => {
+      return api.delete(id).then(response => {
         commit('LOG_SESSION_STOP', id)
         return response
       }).catch(err => {
@@ -81,14 +81,14 @@ const mutations = {
         }
         return name
       }
-      store.registerModule(['$_live_logs', session_id], LiveLogStore)
+      store.registerModule(['$_live_logs', session_id], SessionStore)
       store.dispatch(`$_live_logs/${session_id}/setSession`, { ...form, session_id, name: nameFromFiles(form.files) })
     }
   },
   LOG_SESSION_STOP: (state, id) => {
     state.status = 'success'
     setTimeout(() => { // delay to avoid pulling the rug out from under $router
-      store.unregisterModule(['$_live_logs', id])  
+      store.unregisterModule(['$_live_logs', id])
     }, 300)
   },
   LOG_SESSION_SUCCESS: (state) => {
