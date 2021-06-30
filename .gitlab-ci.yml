@@ -627,7 +627,7 @@ deploy_rpm_packetfence-release_devel:
   environment:
     name: pf-devel
   variables:
-    PKG_DEST_NAME: packetfence-release-${CI_ENVIRONMENT_NAME}-el7.noarch.rpm
+    PKG_DEST_NAME: packetfence-release-${CI_ENVIRONMENT_NAME}.el8.noarch.rpm
 
 deploy_rpm_branches:
   extends:
@@ -645,7 +645,7 @@ deploy_rpm_packetfence-release_branches:
   environment:
     name: pf-branches
   variables:
-    PKG_DEST_NAME: packetfence-release-${CI_ENVIRONMENT_NAME}-el7.noarch.rpm
+    PKG_DEST_NAME: packetfence-release-${CI_ENVIRONMENT_NAME}.el8.noarch.rpm
 
 deploy_rpm_release:
   extends:
