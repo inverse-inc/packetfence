@@ -1,12 +1,12 @@
 <template>
-        <b-row>
-            <pf-sidebar v-model="sections"></pf-sidebar>
-            <b-col cols="12" md="9" xl="10" class="py-3">
-                <transition name="slide-bottom">
-                    <router-view></router-view>
-                </transition>
-            </b-col>
-        </b-row>
+  <b-row>
+    <pf-sidebar v-model="sections"></pf-sidebar>
+    <b-col cols="12" md="9" xl="10" class="py-3">
+      <transition name="slide-bottom">
+        <router-view></router-view>
+      </transition>
+    </b-col>
+  </b-row>
 </template>
 
 <script>
