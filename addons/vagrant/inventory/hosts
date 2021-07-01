@@ -112,7 +112,7 @@ all:
               memory: 6144
             pfdeb9dev:
               box: inverse-inc/pfdeb9dev
-              box_version: 10.3.20210506130431
+              box_version: 11.0.20210701051105
               mgmt_ip: 172.17.17.12
               mgmt_netmask: 255.255.255.0
               ansible_host: "{{ mgmt_ip }}"
