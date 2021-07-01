@@ -1608,6 +1608,16 @@ systemctl restart packetfence-mariadb
 
 == Upgrading from a version prior to X.Y.Z
 
+
+=== Firewall SSO is now tenant aware
+
+To add the default `tenant_id` (1) to all Firewall SSO configurations run:
+
+[source,bash]
+----
+/usr/local/pf/addons/upgrade/to-11.0-firewall_sso-conf.pl
+----
+
 === Database schema
 
 Changes have been made to the database schema. You will need to update it accordingly.
