@@ -38,6 +38,7 @@ For a list of compatibility related changes see the <<PacketFence_Upgrade_Guide.
 * Adjust Intune integration to support pagination of the managed devices (#6135)
 * Add an option to force the vip as the default gateway on layer2 registration network (#6406)
 * Firewall SSO is tenant aware. (#6384)
+* Added conditions on owner informations in the RADIUS filters (#6324)
 
 === Bug Fixes
 
