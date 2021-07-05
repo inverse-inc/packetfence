@@ -1,0 +1,191 @@
+package pf::Authentication::Source::ZTCoreSource;
+
+=head1 NAME
+
+pf::Authentication::Source::ZTCoreSource
+
+=head1 DESCRIPTION
+
+Model for a ZTCore source
+
+=cut
+
+use pf::Authentication::constants;
+use pf::constants;
+use pf::config;
+use pf::util;
+
+use Moose;
+extends 'pf::Authentication::Source';
+
+has '+type' => ( default => 'ZTCore' );
+has 'auth_base_url' => ( is => 'rw', required => 1, isa => 'Str', default => 'https://networkaccess.ztdemo.net' );
+has 'assertion_url' => ( is => 'rw', required => 1, isa => 'Str', default => 'https://pf.example.com/ztcore/assertion');
+
+=head2 dynamic_routing_module
+
+Which module to use for DynamicRouting
+
+=cut
+
+sub dynamic_routing_module { 'Authentication::ZTCore' }
+
+=head2 has_authentication_rules
+
+This source does not have any authentication rules
+
+=cut
+
+sub has_authentication_rules { $FALSE }
+
+=head2 authenticate
+
+Override parent method as ZTCore cannot be used directly for authentication
+
+=cut
+
+sub authenticate {
+    my $msg = "Can't authenticate against a ZTCore source..."; 
+    get_logger->info($msg);
+    return ($FALSE, $msg);
+} 
+
+=head2 match
+
+=cut
+
+sub match {
+    my ($self, $params) = @_;
+    my $result = $params->{ztcore_result};
+    my @actions = ();
+
+    my $access_duration = $result->{'access_duration'};
+    if (defined $access_duration) {
+        push @actions, pf::Authentication::Action->new({
+            type    => $Actions::SET_ACCESS_DURATION,
+            value   => $access_duration,
+            class   => pf::Authentication::Action->getRuleClassForAction($Actions::SET_ACCESS_DURATION),
+        });
+    }
+
+    my $access_level = $result->{'access_level'};
+    if (defined $access_level ) {
+        push @actions, pf::Authentication::Action->new({
+            type    => $Actions::SET_ACCESS_LEVEL,
+            value   => $access_level,
+            class   => pf::Authentication::Action->getRuleClassForAction($Actions::SET_ACCESS_LEVEL),
+        });
+    }
+
+    my $sponsor = $result->{'sponsor'};
+    if ($sponsor == 1) {
+        push @actions, pf::Authentication::Action->new({
+            type    => $Actions::MARK_AS_SPONSOR,
+            value   => 1,
+            class   => pf::Authentication::Action->getRuleClassForAction($Actions::MARK_AS_SPONSOR),
+        });
+    }
+
+    my $unregdate = $result->{'unregdate'};
+    if (defined $unregdate) {
+        push @actions, pf::Authentication::Action->new({
+            type    => $Actions::SET_UNREG_DATE,
+            value   => $unregdate,
+            class   => pf::Authentication::Action->getRuleClassForAction($Actions::SET_UNREG_DATE),
+        });
+    }
+
+    my $category = $result->{'category'};
+    if (defined $category) {
+        push @actions, pf::Authentication::Action->new({
+            type    => $Actions::SET_ROLE,
+            value   => $category,
+            class   => pf::Authentication::Action->getRuleClassForAction($Actions::SET_ROLE),
+        });
+    }
+
+    my $time_balance = $result->{'time_balance'};
+    if (defined $time_balance) {
+        push @actions, pf::Authentication::Action->new({type => $Actions::SET_TIME_BALANCE, value => $time_balance});
+    }
+
+    my $bandwidth_balance = $result->{'bandwidth_balance'};
+    if (defined $bandwidth_balance) {
+        push @actions, pf::Authentication::Action->new({type => $Actions::SET_BANDWIDTH_BALANCE, value => $bandwidth_balance});
+
+    }
+
+    push @actions, pf::Authentication::Action->new({type => $Actions::SET_TENANT_ID, value => $result->{tenant_id}});
+
+    return pf::Authentication::Rule->new(
+        id => "default",
+        class => $params->{rule_class},
+        actions => \@actions,
+    );
+}
+
+=head2 sso_url
+
+Generate the Single-Sign-On URL that points to the Identity Provider
+
+=cut
+
+sub sso_url {
+    my ($self) = @_;
+    
+    my $url = $self->auth_base_url;
+    my $sid = generate_session_id();
+    my $assertion_url = $self->assertion_url;
+    $url .= "?session_id=$sid&assertion_url=$assertion_url";
+
+    return $url;
+}
+
+=head2 handle_response
+
+Handle the response from the Identity Provider and extract the username out of the assertion
+
+=cut
+
+sub handle_response {
+    my ($self, $response) = @_;
+    
+    my $result = decode_json($response);
+
+    return ($result, "Success");
+}
+
+=head1 AUTHOR
+
+Inverse inc. <info@inverse.ca>
+
+=head1 COPYRIGHT
+
+Copyright (C) 2005-2021 Inverse inc.
+
+=head1 LICENSE
+
+This program is free software; you can redistribute it and/or
+modify it under the terms of the GNU General Public License
+as published by the Free Software Foundation; either version 2
+of the License, or (at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program; if not, write to the Free Software
+Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301,
+USA.
+
+=cut
+
+__PACKAGE__->meta->make_immutable unless $ENV{"PF_SKIP_MAKE_IMMUTABLE"};
+1;
+
+# vim: set shiftwidth=4:
+# vim: set expandtab:
+# vim: set backspace=indent,eol,start:
+
