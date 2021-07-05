@@ -72,7 +72,6 @@ Redirect the user to the ZTCore IDP
 
 sub redirect {
     my ($self) = @_;
-    use pf::log ; get_logger->error("HITTING REDIRECT");
     if(!$self->with_aup || $self->request_fields->{aup}){
         pf::auth_log::record_oauth_attempt($self->source->id, $self->current_mac, $self->app->profile->name);
         $self->app->redirect($self->source->sso_url);
