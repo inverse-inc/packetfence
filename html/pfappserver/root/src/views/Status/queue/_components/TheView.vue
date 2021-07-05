@@ -18,7 +18,7 @@
           striped
         >
           <template v-slot:empty>
-            <pf-empty-table :is-loading="isLoading" text="">{{ $t('No stats found') }}</pf-empty-table>
+            <base-table-empty :is-loading="isLoading" text="">{{ $t('No stats found') }}</base-table-empty>
           </template>
         </b-table>
       </div>
@@ -42,7 +42,7 @@
           striped
         >
           <template v-slot:empty>
-            <pf-empty-table :is-loading="isLoading" text="">{{ $t('No stats found') }}</pf-empty-table>
+            <base-table-empty :is-loading="isLoading" text="">{{ $t('No stats found') }}</base-table-empty>
           </template>
         </b-table>
       </div>
@@ -66,7 +66,7 @@
           striped
         >
           <template v-slot:empty>
-            <pf-empty-table :is-loading="isLoading" text="">{{ $t('No stats found') }}</pf-empty-table>
+            <base-table-empty :is-loading="isLoading" text="">{{ $t('No stats found') }}</base-table-empty>
           </template>
         </b-table>
       </div>
@@ -75,107 +75,124 @@
 </template>
 
 <script>
-import pfEmptyTable from '@/components/pfEmptyTable'
+import {
+  BaseTableEmpty
+} from '@/components/new/'
 
-export default {
-  name: 'queue',
-  components: {
-    pfEmptyTable
-  },
-  props: {
-    storeName: { // from router
-      type: String,
-      default: null,
-      required: true
+const components = {
+  BaseTableEmpty
+}
+
+import { computed, onBeforeUnmount, onMounted, ref } from '@vue/composition-api'
+import i18n from '@/utils/locale'
+
+const setup = (props, context) => {
+
+  const { root: { $store } = {} } = context
+
+  const fieldsBasic = computed(() => ([
+    {
+      key: 'queue',
+      label: i18n.t('Queue'),
+      sortable: true,
+      visible: true
+    },
+    {
+      key: 'count',
+      label: i18n.t('Count'),
+      sortable: true,
+      visible: true
     }
-  },
-  computed: {
-    queueCounts () {
-      let counts = []
-      this.$store.getters[`${this.storeName}/stats`].forEach(stat => {
-        counts.push({ queue: stat.queue, count: stat.stats.count })
-      })
-      return counts
+  ]))
+  const fieldsExtended = computed(() => ([
+    {
+      key: 'queue',
+      label: i18n.t('Queue'),
+      sortable: true,
+      visible: true
     },
-    queueCountsOutstanding () {
-      return this.$store.getters[`${this.storeName}/stats`].reduce((stats, stat) => {
-        const { stats: { outstanding = null } = {} } = stat
-        if (outstanding) {
-          outstanding.forEach(outstanding => {
-            stats.push({ queue: stat.queue, name: outstanding.name, count: outstanding.count })
-          })
-        }
-        return stats
-      }, [])
+    {
+      key: 'name',
+      label: i18n.t('Task type'),
+      sortable: true,
+      visible: true
     },
-    queueCountsExpired () {
-      return this.$store.getters[`${this.storeName}/stats`].reduce((stats, stat) => {
-        const { stats: { expired = null } = {} } = stat
-        if (expired) {
-          expired.forEach(expired => {
-            stats.push({ queue: stat.queue, name: expired.name, count: expired.count })
-          })
-        }
-        return stats
-      }, [])
-    },
-    stats () {
-      return this.$store.getters[`${this.storeName}/stats`] || []
-    },
-    isLoading () {
-      return this.$store.getters[`${this.storeName}/isLoading`]
+    {
+      key: 'count',
+      label: i18n.t('Count'),
+      sortable: true,
+      visible: true
     }
-  },
-  data () {
-    return {
-      sortBy: 'queue',
-      sortDesc: false,
-      fieldsBasic: [
-        {
-          key: 'queue',
-          label: this.$i18n.t('Queue'),
-          sortable: true,
-          visible: true
-        },
-        {
-          key: 'count',
-          label: this.$i18n.t('Count'),
-          sortable: true,
-          visible: true
-        }
-      ],
-      fieldsExtended: [
-        {
-          key: 'queue',
-          label: this.$i18n.t('Queue'),
-          sortable: true,
-          visible: true
-        },
-        {
-          key: 'name',
-          label: this.$i18n.t('Task type'),
-          sortable: true,
-          visible: true
-        },
-        {
-          key: 'count',
-          label: this.$i18n.t('Count'),
-          sortable: true,
-          visible: true
-        }
-      ],
-      statsInterval: false,
-      statsIntervalTimeout: 15000
-    }
-  },
-  created () {
-    this.$store.dispatch(`${this.storeName}/getStats`)
-    this.statsInterval = setInterval(() => {
-      this.$store.dispatch(`${this.storeName}/getStats`)
-    }, this.statsIntervalTimeout)
-  },
-  beforeUnmount () {
-    if (this.statsInterval) clearInterval(this.statsInterval)
+  ]))
+
+  const isLoading = computed(() => $store.getters[`pfqueue/isLoading`])
+
+  const queueCounts = computed(() => {
+    let counts = []
+    $store.getters['pfqueue/stats'].forEach(stat => {
+      counts.push({ queue: stat.queue, count: stat.stats.count })
+    })
+    return counts
+  })
+
+  const queueCountsExpired = computed(() => {
+    return $store.getters['pfqueue/stats'].reduce((stats, stat) => {
+      const { stats: { expired = null } = {} } = stat
+      if (expired) {
+        expired.forEach(expired => {
+          stats.push({ queue: stat.queue, name: expired.name, count: expired.count })
+        })
+      }
+      return stats
+    }, [])
+  })
+
+  const queueCountsOutstanding = computed(() => {
+    return $store.getters['pfqueue/stats'].reduce((stats, stat) => {
+      const { stats: { outstanding = null } = {} } = stat
+      if (outstanding) {
+        outstanding.forEach(outstanding => {
+          stats.push({ queue: stat.queue, name: outstanding.name, count: outstanding.count })
+        })
+      }
+      return stats
+    }, [])
+  })
+
+  const sortBy = ref('queue')
+  const sortDesc = ref(false)
+
+  let statsInterval = false
+  const statsIntervalTimeout = (15 * 1E3) // 15s
+
+  onMounted(() => {
+    $store.dispatch(`pfqueue/getStats`)
+    statsInterval = setInterval(() => {
+      $store.dispatch(`pfqueue/getStats`)
+    }, statsIntervalTimeout)
+  })
+
+  onBeforeUnmount(() => {
+    if (statsInterval)
+      clearInterval(statsInterval)
+  })
+
+  return {
+    fieldsBasic,
+    fieldsExtended,
+    isLoading,
+    queueCounts,
+    queueCountsExpired,
+    queueCountsOutstanding,
+    sortBy,
+    sortDesc
   }
+}
+
+// @vue/component
+export default {
+  name: 'the-view',
+  components,
+  setup
 }
 </script>
