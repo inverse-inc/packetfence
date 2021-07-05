@@ -304,7 +304,7 @@ Under certain circumstances, for example to show an AUP after a successful 802.1
 
 As a security precaution, this option will only reuse 802.1X credentials if there is an authentication source matching the provided realm. This means, if users use 802.1X credentials with a domain part (username@domain, domain\username), the domain part needs to be configured as a realm under the RADIUS section and an authentication source needs to be configured for that realm. If users do not use 802.1X credentials with a domain part, only the NULL realm will be match IF an authentication source is configured for it.
 
-=== Filter Engine Macro ===
+=== Filter Engine Macro
 
 In each filter engines you have the possibility to use some macro in the text field:
 
@@ -318,7 +318,7 @@ In each filter engines you have the possibility to use some macro in the text fi
     replace
     BuildFromMatch
 
-==== uc ====
+==== uc
 
 This macro return the upper case of a string
 
@@ -330,7 +330,7 @@ will assign to PacketFence-UserName the upper case value of Calling-Station-Id.
 
  Calling-Station-Id = "00:10:7f:38:89:9d" -> PacketFence-UserName = "00:10:7F:38:89:9D"
 
-==== lc ====
+==== lc
 
 This macro return the lower case of a string
 
@@ -342,7 +342,7 @@ will assign to PacketFence-UserName the lower case value of User-Name.
 
  User-Name = "ZAMMIT" -> PacketFence-UserName = "zammit"
 
-==== join ====
+==== join
 
 This macro return the join of a string
 
@@ -354,7 +354,7 @@ will assign to PacketFence-UserName a join of the separator and the values.
 
  User-Name = "bobey" -> PacketFence-UserName = "bobey:Super"
 
-==== substr ====
+==== substr
 
 This macro will return a substring
 
@@ -364,7 +364,7 @@ will assign to PacketFence-UserName the substring
 
  User-Name = "ZammitLudovic" -> PacketFence-UserName = "Zammit"
 
-==== macToEUI48 ====
+==== macToEUI48
 
 This macro will return the EUI48 format of a MAC address
 
@@ -374,7 +374,7 @@ will assign to PacketFence-UserName the EUI48 MAC address
 
  Calling-Station-Id = "00:10:7f:38:89:9d" -> PacketFence-UserName = "00-10-7F-38-89-9D"
 
-==== random_from_range ====
+==== random_from_range
 
 This macro will return a random number from a range
 
@@ -384,7 +384,7 @@ will assign a random number between 10620 and 12600 to Session-Timeout
 
  Session-Timeout = 11343
 
-==== log ====
+==== log
 
 This macro will log a message in the packetfence.log file
 
@@ -394,7 +394,7 @@ will log the value of the RADIUS request attribute User-Name and logged
 
  User-Name = "zammit" -> "Zammit logged"
 
-==== replace ====
+==== replace
 
 This macro will replace a string by another one
 
@@ -404,7 +404,7 @@ will replace the letter z by the letter r in the string
 
  User-Name = "zabbit" -> PacketFence-UserName = "rabbit"
 
-==== BuildFromMatch ====
+==== BuildFromMatch
 
 This macro will apply a regular expression on the attribute value to be able to build another value
 
