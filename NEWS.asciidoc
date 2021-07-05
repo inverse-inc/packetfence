@@ -39,6 +39,7 @@ For a list of compatibility related changes see the <<PacketFence_Upgrade_Guide.
 * Add an option to force the vip as the default gateway on layer2 registration network (#6406)
 * Firewall SSO is tenant aware. (#6384)
 * Added conditions on owner informations in the RADIUS filters (#6324)
+* CLI Access Enabled for Avaya Switches (#6398)
 
 === Bug Fixes
 
@@ -46,6 +47,7 @@ For a list of compatibility related changes see the <<PacketFence_Upgrade_Guide.
 * Support switch_group in advanced filters (#6379)
 * Authentication rule condition basedn matching does not work (Authentication rule condition basedn matching does not work #6402)
 * Filter netdata incoming connection (#6303)
+* CLI Switch Access for Avaya ERS Switches (#6399)
 
 == Version 10.3.0 released on 2020-04-14
 
