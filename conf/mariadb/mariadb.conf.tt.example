@@ -45,6 +45,7 @@ max_connect_errors = [% max_connect_errors %]
 # Settings from 10.1 that are kept for now
 sql_mode = "NO_ENGINE_SUBSTITUTION,NO_AUTO_CREATE_USER"
 log_warnings = 1
+init_file=/usr/local/pf/var/conf/mariadb.sql
 
 
 # Point the following paths to a dedicated disk
