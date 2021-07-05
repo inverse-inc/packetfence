@@ -4,7 +4,7 @@ set -o nounset -o pipefail
 REPO_URL=https://gitlab.com/inverse-inc/packetfence/-/jobs/artifacts/devel/download?job=pages
 ZIP_FILE=$(mktemp --suff=".zip")
 
-# get git root path directory
+# get path to script directory
 SCRIPT_DIR=$(readlink -e $(dirname ${BASH_SOURCE[0]}))
 
 # remove ci/lib/test from SCRIPT_DIR
