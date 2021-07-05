@@ -1,0 +1,14 @@
+<!-- [% source.type %] -->
+<form action="/ztcore/redirect" method="GET">
+
+  <div class="c-card u-padding u-padding-top-none">
+    [% form.get_field('aup').render | none %]
+  </div>
+      
+  <script src="/common/aup-autosubmit.js"></script>
+
+  <button id="button" type="submit" name="submit" class="c-btn c-btn--primary u-1/1 c-card--hidden">
+      [% i18n('Login') %]
+  </button>
+
+</form>

@@ -14,6 +14,8 @@ use pf::Authentication::constants;
 use pf::constants;
 use pf::config;
 use pf::util;
+use MIME::Base64 qw(decode_base64);
+use JSON::MaybeXS qw(decode_json);
 
 use Moose;
 extends 'pf::Authentication::Source';
@@ -56,8 +58,12 @@ sub authenticate {
 
 sub match {
     my ($self, $params) = @_;
-    my $result = $params->{ztcore_result};
+    my $result = $params->{ztcore_response};
     my @actions = ();
+
+    if(!$result) {
+        return undef;
+    }
 
     my $access_duration = $result->{'access_duration'};
     if (defined $access_duration) {
@@ -95,11 +101,11 @@ sub match {
         });
     }
 
-    my $category = $result->{'category'};
-    if (defined $category) {
+    my $role = $result->{'role'};
+    if (defined $role) {
         push @actions, pf::Authentication::Action->new({
             type    => $Actions::SET_ROLE,
-            value   => $category,
+            value   => $role,
             class   => pf::Authentication::Action->getRuleClassForAction($Actions::SET_ROLE),
         });
     }
@@ -115,7 +121,10 @@ sub match {
 
     }
 
-    push @actions, pf::Authentication::Action->new({type => $Actions::SET_TENANT_ID, value => $result->{tenant_id}});
+    my $tenant_id = $result->{'tenant_id'};
+    if (defined $tenant_id) {
+        push @actions, pf::Authentication::Action->new({type => $Actions::SET_TENANT_ID, value => $tenant_id});
+    }
 
     return pf::Authentication::Rule->new(
         id => "default",
@@ -150,7 +159,10 @@ Handle the response from the Identity Provider and extract the username out of t
 sub handle_response {
     my ($self, $response) = @_;
     
-    my $result = decode_json($response);
+    my $result = decode_base64($response);
+    $result = decode_json($result);
+
+    use Data::Dumper ; use pf::log ; get_logger->info(Dumper($result));
 
     return ($result, "Success");
 }
