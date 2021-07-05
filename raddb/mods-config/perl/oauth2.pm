@@ -1,3 +1,11 @@
+=head1 COPYRIGHT
+
+Copyright Alexander Clouter (https://github.com/jimdigriz)
+
+Licence: https://github.com/jimdigriz/freeradius-oauth2-perl/blob/master/LICENSE
+
+=cut
+
 use strict;
 use warnings;
 
