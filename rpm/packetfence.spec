@@ -469,7 +469,6 @@ cp -r COPYING %{buildroot}/usr/local/pf/
 cp -r db %{buildroot}/usr/local/pf/
 cp -r docs %{buildroot}/usr/local/pf/
 rm -rf %{buildroot}/usr/local/pf/docs/fonts
-rm -rf %{buildroot}/usr/local/pf/docs/images
 rm -rf %{buildroot}/usr/local/pf/docs/api
 
 # install Golang binaries
@@ -479,15 +478,6 @@ rm -rf %{buildroot}/usr/local/pf/docs/api
 
 # install html directory
 %{__make} DESTDIR=%{buildroot} html_install
-
-# install html in pfappserver for embedded doc
-%{__install} -d -m0755 %{buildroot}/usr/local/pf/html/pfappserver/root/doc
-for i in `find docs "(" -name "*.html" -or -name "*.js" ")"  -type f`; do \
-	%{__install} -m0644 $i %{buildroot}/usr/local/pf/html/pfappserver/root/doc/; \
-done
-
-# images
-%{__make} DESTDIR=%{buildroot} images
 
 cp -r lib %{buildroot}/usr/local/pf/
 cp -r go %{buildroot}/usr/local/pf/
