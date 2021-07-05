@@ -356,7 +356,7 @@ will assign to PacketFence-UserName a join of the separator and the values.
 
 ==== substr ====
 
-This macro will return an substring
+This macro will return a substring
 
  PacketFence-UserName = ${substr($radius_request.User-Name,0, 5)}
 
@@ -366,11 +366,11 @@ will assign to PacketFence-UserName the substring
 
 ==== macToEUI48 ====
 
-This macro will return the EUI48 format of a mac address
+This macro will return the EUI48 format of a MAC address
 
  PacketFence-UserName = ${macToEUI48($radius_request.Calling-Station-Id)}
 
-will assign to PacketFence-UserName the EUI48 mac address
+will assign to PacketFence-UserName the EUI48 MAC address
 
  Calling-Station-Id = "00:10:7f:38:89:9d" -> PacketFence-UserName = "00-10-7F-38-89-9D"
 
@@ -380,7 +380,7 @@ This macro will return a random number from a range
 
  Session-Timeout  = ${random_from_range("10620..12600")}
 
-will assign a number between 10620 and 12600 to Session-Timeout
+will assign a random number between 10620 and 12600 to Session-Timeout
 
  Session-Timeout = 11343
 
@@ -390,7 +390,7 @@ This macro will log a message in the packetfence.log file
 
  PacketFence-UserName = ${log($radius_request.User-Name." logged")}
 
-will log the value of the radius request attribute User-Name and logged
+will log the value of the RADIUS request attribute User-Name and logged
 
  User-Name = "zammit" -> "Zammit logged"
 
@@ -406,13 +406,13 @@ will replace the letter z by the letter r in the string
 
 ==== BuildFromMatch ====
 
-This macro will apply a regex on the attribute value to be able able to build anither value
+This macro will apply a regular expression on the attribute value to be able to build another value
 
   TLS-Stripped-UserName = ${BuildFromMatch($radius_request.TLS-Client-Cert-Common-Name,"^[^@]+","$0")}
 
 will extract the value before the @ sign and assign this value
 
- TLS-Client-Cert-Common-Name = "zammit@packetfence.org" -> TLS-Stripped-UserName = zammit
+ TLS-Client-Cert-Common-Name = "zammit@packetfence.org" -> TLS-Stripped-UserName = "zammit"
 
 === VLAN Filter Definition
 
