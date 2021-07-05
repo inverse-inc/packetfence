@@ -59,6 +59,7 @@ use pfappserver::Form::Config::Source::Twilio;
 use pfappserver::Form::Config::Source::Twitter;
 use pfappserver::Form::Config::Source::WindowsLive;
 use pfappserver::Form::Config::Source::Potd;
+use pfappserver::Form::Config::Source::ZTCore;
 
 our %TYPES_TO_FORMS = (
     map { $_ => "pfappserver::Form::Config::Source::$_" } qw(
@@ -97,6 +98,7 @@ our %TYPES_TO_FORMS = (
       Twilio
       Twitter
       WindowsLive
+      ZTCore
       )
 );
 

@@ -53,6 +53,7 @@ import FormTypeStripe from './FormTypeStripe'
 import FormTypeTwilio from './FormTypeTwilio'
 import FormTypeTwitter from './FormTypeTwitter'
 import FormTypeWindowsLive from './FormTypeWindowsLive'
+import FormTypeZtcore from './FormTypeZtcore'
 
 const components = {
   BaseContainerLoading,
@@ -90,6 +91,7 @@ const components = {
   FormTypeTwilio,
   FormTypeTwitter,
   FormTypeWindowsLive,
+  FormTypeZtcore,
 }
 
 export const setup = (props) => {
@@ -135,6 +137,7 @@ export const setup = (props) => {
       case 'Twilio':        return FormTypeTwilio //break
       case 'Twitter':       return FormTypeTwitter //break
       case 'WindowsLive':   return FormTypeWindowsLive //break
+      case 'ZTCore':        return FormTypeZtcore //break
       default:              return undefined
     }
   })

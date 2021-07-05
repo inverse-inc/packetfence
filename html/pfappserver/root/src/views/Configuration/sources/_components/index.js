@@ -41,6 +41,8 @@ export {
   BaseFormGroupInputPassword                as FormGroupApiPassword,
   BaseFormGroupInput                        as FormGroupApiUsername,
   BaseFormGroupInput                        as FormGroupApiLoginIdentifier,
+  BaseFormGroupInput                        as FormGroupAssertionUrl,
+  BaseFormGroupInput                        as FormGroupAuthBaseUrl,
   BaseFormGroupInput                        as FormGroupAuthenticateRealm,
   BaseFormGroupAuthenticationRules          as FormGroupAuthenticationRules,
   BaseFormGroupInput                        as FormGroupAuthenticationUrl,

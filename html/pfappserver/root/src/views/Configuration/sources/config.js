@@ -13,6 +13,7 @@ export const internalTypes = {
   Potd:           i18n.t('Password Of The Day'),
   RADIUS:         'RADIUS',
   SAML:           'SAML',
+  ZTCore:         'ZTCore',
 }
 
 export const externalTypes = {
