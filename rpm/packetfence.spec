@@ -60,6 +60,8 @@ Requires: net-snmp-perl
 Requires: perl >= %{perl_version}
 Requires: MariaDB-server = 10.5.10, MariaDB-client = 10.5.10
 Requires: perl(DBD::mysql)
+Requires: perl(Sub::Exporter)
+Requires: perl(Net::SSLeay)
 #Requires: perl(Bit::Vector)
 #Requires: perl(CGI::Session), perl(CGI::Session::Driver::chi) >= 1.0.3, perl(JSON) >= 2.90, perl(JSON::MaybeXS), perl(JSON::XS) >= 3
 #Requires: perl-Switch, perl-Locale-Codes
