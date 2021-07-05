@@ -40,6 +40,7 @@ use pf::config qw(
 use pf::locationlog;
 use Try::Tiny;
 use JSON::MaybeXS;
+use pf::config::cluster;
 
 # The port to reach the Unifi controller API
 our $UNIFI_API_PORT = "8443";
@@ -257,7 +258,6 @@ sub _deauthenticateMacWithHTTP {
 
     my $json_data = decode_json($response->decoded_content());
 
-    $args->{ap_mac} = $self->{_id};
     foreach my $entry (@{$json_data->{'data'}}) {
         $response = $ua->get("$base_url/api/s/$entry->{'name'}/stat/sta/$mac");
         if ($response->is_success) {
@@ -269,19 +269,30 @@ sub _deauthenticateMacWithHTTP {
         }
     }
 
-    if ($found) {
-        $response = $ua->post("$base_url/api/s/$site_opts{'name'}/cmd/stamgr", Content => encode_json($args));
-        if ($response->is_success) {
-            $logger->info("Deauth on site: $site_opts{'desc'}");
-        }
-    } else {
-        foreach my $entry (@{$json_data->{'data'}}) {
-            $response = $ua->post("$base_url/api/s/$entry->{'name'}/cmd/stamgr", Content => encode_json($args));
-            if ($response->is_success) {
-                $logger->info("Deauth on site: $entry->{'desc'}");
+    tie my %SwitchConfig, 'pfconfig::cached_hash', "config::Switch($host_id)";
+    my $count = 0;
+    foreach my $switch_id (keys(%SwitchConfig)) {
+        my $switch = $SwitchConfig{$switch_id};
+        # If the other switch is a MAC based entry and an Ubiquiti AP and is part of the same AP group, then we'll send the deauth
+        if(valid_mac($switch_id) && $switch->{type} eq $self->{_type} && $switch->{group} eq $self->{_group}) {
+            $count++;
+            $args->{ap_mac} = $switch_id;
+            if ($found) {
+                $response = $ua->post("$base_url/api/s/$site_opts{'name'}/cmd/stamgr", Content => encode_json($args));
+                if ($response->is_success) {
+                    $logger->trace("Deauth on site: $site_opts{'desc'} for $switch_id");
+                }
+            } else {
+                foreach my $entry (@{$json_data->{'data'}}) {
+                    $response = $ua->post("$base_url/api/s/$entry->{'name'}/cmd/stamgr", Content => encode_json($args));
+                    if ($response->is_success) {
+                        $logger->trace("Deauth on site: $entry->{'desc'} for $switch_id");
+                    }
+                }
             }
         }
     }
+    $logger->info("Deauth on $count access points");
 
     unless($response->is_success) {
         $logger->error("Can't send request on the Unifi controller: ".$response->status_line);
