@@ -23,7 +23,7 @@ my $PF_DIR = '/usr/local/pf';
 our %OPTIONS = (
     dbpass => 'packet',
     dbuser => 'pf_smoke_tester',
-    schema => "$PF_DIR/db/pf-schema-X.Y.Z.sql",
+    schema => "$PF_DIR/db/pf-schema-X.Y.sql",
 );
 
 GetOptions(\%OPTIONS, 'dbpass=s', 'dbuser=s', 'schema=s');

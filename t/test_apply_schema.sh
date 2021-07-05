@@ -26,10 +26,10 @@ MYSQL="mysql -upf_smoke_tester -ppacket -h$HOST"
 
 MYSQLDUMP="mysqldump -upf_smoke_tester -h$HOST --no-data -a --skip-comments --routines -ppacket"
 
-CURRENT_SCHEMA="$PF_DIR/db/pf-schema-X.Y.Z.sql"
+CURRENT_SCHEMA="$PF_DIR/db/pf-schema-X.Y.sql"
 
 if [ -e "$CURRENT_SCHEMA" ]; then
-    UPGRADE_SCRIPT="$PF_DIR/db/upgrade-X.X.X-X.Y.Z.sql"
+    UPGRADE_SCRIPT="$PF_DIR/db/upgrade-X.X-X.Y.sql"
     LAST_SCHEMA=$(ls $PF_DIR/db/pf-schema-[0-9]*sql | sort --version-sort -r | head -1)
 else
     CURRENT_SCHEMA="$PF_DIR/db/pf-schema.sql"

@@ -38,8 +38,8 @@ use Test::More tests => 2;                      # last test to print
 use Test::NoWarnings;
 
 my $DB_NAME = 'PF_SCHEMA_TEST';
-my $test_schema = "$install_dir/db/pf-schema-X.Y.Z.sql";
-my $upgrade_schema = "$install_dir/db/upgrade-X.X.X-X.Y.Z.sql";
+my $test_schema = "$install_dir/db/pf-schema-X.Y.sql";
+my $upgrade_schema = "$install_dir/db/upgrade-X.X-X.Y.sql";
 
 SKIP: {
     skip ('No db pass set',1) unless exists $ENV{PF_TEST_DB_PASS};

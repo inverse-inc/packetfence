@@ -144,7 +144,7 @@ translation:
 .PHONY: mysql-schema
 
 mysql-schema:
-	ln -f -s /usr/local/pf/db/pf-schema-X.Y.Z.sql /usr/local/pf/db/pf-schema.sql;
+	ln -f -s /usr/local/pf/db/pf-schema-X.Y.sql /usr/local/pf/db/pf-schema.sql;
 
 .PHONY: chown_pf
 
