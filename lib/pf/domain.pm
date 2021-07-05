@@ -112,7 +112,7 @@ sub join_domain {
 
     $info //= $ConfigDomain{$domain};
     my $createcomputer = $info->{ou} ne "Computers" ? "createcomputer=$info->{ou}" : "";
-    (my $status, $output) = run("/usr/bin/sudo /sbin/ip netns exec $domain /usr/sbin/chroot $chroot_path net ads join -s /etc/samba/$domain.conf $createcomputer -U '".escape_bind_user_string($info->{bind_dn}.'%'.$info->{bind_pass})."' 2>&1");
+    (my $status, $output) = run("/usr/bin/sudo /sbin/ip netns exec $domain /usr/sbin/chroot $chroot_path net ads join --no-dns-updates -s /etc/samba/$domain.conf $createcomputer -U '".escape_bind_user_string($info->{bind_dn}.'%'.$info->{bind_pass})."' 2>&1");
     chomp($output);
     $logger->info("domain join : $output");
 
