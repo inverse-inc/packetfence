@@ -43,6 +43,7 @@ For a list of compatibility related changes see the <<PacketFence_Upgrade_Guide.
 * Authorize a MAC address on all APs of the switch group when using the Unifi module (#6134)
 * Macro documentation for filter engine (#6392)
 * Expose the source directory of documentation from Caddy (#6315)
+* Audit successful admin login in the admin audit log. (#6345)
 
 === Bug Fixes
 
