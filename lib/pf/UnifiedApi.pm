@@ -1932,9 +1932,9 @@ setup_api_v1_authentication_routes
 
 sub setup_api_v1_authentication_routes {
     my ($self, $root) = @_;
-    my $route = $root->any("/authentication")->name("api.v1.Authentication");
-    $route->any(['POST'] => "/admin_authentication")->to("Authentication#adminAuthentication")->name("api.v1.Authentication.admin_authentication");
-    $route->any(['POST'] => "/role_authentication")->to("Authentication#roleAuthentication")->name("api.v1.Authentication.role_authentication");
+    my $route = $root->any("/authentication")->to(controller => "Authentication")->name("api.v1.Authentication");
+    $route->register_sub_action({action => 'adminAuthentication', path => '/admin_authentication', method => 'POST', auditable => 1});
+    $route->register_sub_action({action => 'roleAuthentication', path => '/role_authentication', method => 'POST', auditable => 1});
     return ;
 }
 
