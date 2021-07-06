@@ -12,7 +12,7 @@ export default {
     })
   },
   search: data => {
-    return apiCall.post('config/billing_tiers/search', data).then(response => {
+    return apiCall.post('config/clouds/search', data).then(response => {
       return response.data
     })
   },
