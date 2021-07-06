@@ -1,5 +1,6 @@
 <template>
   <base-form-group
+    class="form-group base-form-group-toggle"
     :label-class="labelClass"
     :label-cols="labelCols"
     :column-label="columnLabel"
@@ -9,7 +10,7 @@
     :valid-feedback="inputValidFeedback"
   >
     <base-input-range
-      class="base-form-group-toggle"
+      class="base-input-range-toggle"
       step="1"
       min="0"
       :max="inputMax"
@@ -139,9 +140,12 @@ export default {
 </script>
 <style lang="scss">
 .base-form-group-toggle {
+  .input-group {
+    padding-bottom: 0px !important;
+  }
+}
+.base-input-range-toggle {
   display: flex;
-  align-items: center;
-  /* match height of input element to vertically align w/ form-group label */
-  min-height: $input-height;
+  align-items: top;
 }
 </style>

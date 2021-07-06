@@ -43,7 +43,7 @@
       />
     </div>
     <div v-if="labelRight !== false" v-t="label" @click.stop.prevent="onIncrement"
-      class="base-input-range-label col-form-label text-nowrap ml-2" :class="{
+      class="base-input-range-label text-nowrap ml-2" :class="{
         'is-disabled': isLocked
       }"  />
   </div>
@@ -169,6 +169,14 @@ export default {
 }
 
 .base-input-range-label {
+/*
+padding-top: calc(0.375rem + 1px);
+padding-bottom: calc(0.375rem + 1px);
+
+*/
+line-height: 1.71429;
+  font-size: 0.7875rem;
+  font-weight: 500;
   user-select: none;
   &:not(.is-disabled) {
     cursor: pointer;

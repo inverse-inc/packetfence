@@ -86,7 +86,6 @@ export default {
 </script>
 <style lang="scss" scoped>
 .base-form-group {
-  margin-bottom: 0;
   .input-group {
     padding-top: calc(0.375rem + 1px);
     padding-bottom: calc(0.375rem + 1px);
