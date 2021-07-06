@@ -75,7 +75,7 @@
           <b-col cols="auto" class="px-0">
             <b-input-group class="mb-0 mx-3" size="sm">
               <b-input-group-prepend is-text>
-                <base-input-toggle-false-true v-model="liveMode" 
+                <base-input-toggle-false-true v-model="liveMode"
                   :disabled="isLoading || !liveModeAllowed" class="inline mt-n2" />
               </b-input-group-prepend>
               <b-dropdown variant="light" size="sm" :text="$t('Live View')" :disabled="isLoading || !liveModeAllowed">
@@ -124,7 +124,7 @@
           </b-col>
         </b-row>
 
-        <pf-network-graph ref="networkGraph"
+        <the-graph ref="networkGraph"
           class="mt-3"
           :dimensions="dimensions"
           :nodes="nodes"
@@ -146,7 +146,7 @@ import {
   BaseInputToggleAdvancedMode,
   BaseInputToggleFalseTrue
 } from '@/components/new/'
-import pfNetworkGraph from '@/components/pfNetworkGraph'
+import TheGraph from './TheGraph'
 import pfSearchBoolean from '@/components/pfSearchBoolean'
 import { pfSearchConditionType as conditionType } from '@/globals/pfSearch'
 import apiCall from '@/utils/api'
@@ -162,11 +162,11 @@ const api = {
 }
 
 export default {
-  name: 'network',
+  name: 'the-view',
   components: {
     BaseInputToggleAdvancedMode,
     BaseInputToggleFalseTrue,
-    pfNetworkGraph,
+    TheGraph,
     pfSearchBoolean
   },
   props: {

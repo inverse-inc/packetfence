@@ -1,5 +1,5 @@
 <template>
-  <b-card no-body class="pf-network-graph-tooltip-switch-group">
+  <b-card no-body class="tooltip-switch-group">
     <b-card-header>
       <h5 class="mb-0 text-nowrap">{{ $t('Switch Group') }}</h5>
       <p class="mb-0"><mac>{{ id }}</mac></p>
@@ -34,7 +34,7 @@
 import apiCall from '@/utils/api'
 
 export default {
-  name: 'pf-network-graph-tooltip-switch-group',
+  name: 'tooltip-switch-group',
   props: {
     id: {
       type: String

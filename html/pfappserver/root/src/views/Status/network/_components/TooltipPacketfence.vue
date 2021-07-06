@@ -9,7 +9,7 @@
 
 <script>
 export default {
-  name: 'pf-network-graph-tooltip-packetfence',
+  name: 'tooltip-packetfence',
   computed: {
     version () {
       return this.$store.getters['system/version']

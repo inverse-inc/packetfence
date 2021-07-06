@@ -191,21 +191,21 @@
       <div class="tt-container">
         <div class="tt-contents">
           <!-- NODE -->
-          <pf-network-graph-tooltip-node v-if="['node'].includes(tooltip.node.type)"
+          <tooltip-node v-if="['node'].includes(tooltip.node.type)"
             :id="tooltip.node.id"
           />
           <!-- SWITCH -->
-          <pf-network-graph-tooltip-switch v-else-if="['switch', 'unknown'].includes(tooltip.node.type)"
+          <tooltip-switch v-else-if="['switch', 'unknown'].includes(tooltip.node.type)"
             :id="tooltip.node.id"
             :properties="tooltip.node.properties"
           />
           <!-- SWITCH GROUP -->
-          <pf-network-graph-tooltip-switch-group v-else-if="['switch-group'].includes(tooltip.node.type)"
+          <tooltip-switch-group v-else-if="['switch-group'].includes(tooltip.node.type)"
             :id="tooltip.node.id"
             :properties="tooltip.node.properties"
           />
           <!-- PACKETFENCE -->
-          <pf-network-graph-tooltip-packetfence v-else-if="['packetfence'].includes(tooltip.node.type)"/>
+          <tooltip-packetfence v-else-if="['packetfence'].includes(tooltip.node.type)"/>
         </div>
       </div>
     </div>
@@ -251,10 +251,10 @@
 </template>
 
 <script>
-import pfNetworkGraphTooltipNode from '@/components/pfNetworkGraphTooltipNode'
-import pfNetworkGraphTooltipSwitch from '@/components/pfNetworkGraphTooltipSwitch'
-import pfNetworkGraphTooltipSwitchGroup from '@/components/pfNetworkGraphTooltipSwitchGroup'
-import pfNetworkGraphTooltipPacketfence from '@/components/pfNetworkGraphTooltipPacketfence'
+import TooltipNode from './TooltipNode'
+import TooltipPacketfence from './TooltipPacketfence'
+import TooltipSwitch from './TooltipSwitch'
+import TooltipSwitchGroup from './TooltipSwitchGroup'
 
 require('typeface-b612-mono') // custom pixel font
 
@@ -306,12 +306,12 @@ const cleanNodeProperties = (node = {}) => {
 }
 
 export default {
-  name: 'pf-network-graph',
+  name: 'the-graph',
   components: {
-    pfNetworkGraphTooltipNode,
-    pfNetworkGraphTooltipSwitch,
-    pfNetworkGraphTooltipSwitchGroup,
-    pfNetworkGraphTooltipPacketfence
+    TooltipNode,
+    TooltipPacketfence,
+    TooltipSwitch,
+    TooltipSwitchGroup
   },
   props: {
     dimensions: { // svg dimensions
