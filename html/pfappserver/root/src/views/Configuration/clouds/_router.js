@@ -1,7 +1,18 @@
 import store from '@/store'
 import StoreModule from './_store'
 
-const TheList = () => import(/* webpackChunkName: "Configuration" */ '../_components/CloudsList')
+export const useRouter = $router => {
+  return {
+    goToCollection: () => $router.push({ name: 'clouds' }),
+    goToItem: params => $router
+      .push({ name: 'cloud', params })
+      .catch(e => { if (e.name !== "NavigationDuplicated") throw e }),
+    goToClone: params => $router.push({ name: 'cloneCloud', params }),
+    goToNew: params => $router.push({ name: 'newCloud', params }),
+  }
+}
+
+const TheSearch = () => import(/* webpackChunkName: "Configuration" */ './_components/TheSearch')
 const TheView = () => import(/* webpackChunkName: "Configuration" */ './_components/TheView')
 
 export const beforeEnter = (to, from, next = () => {}) => {
@@ -15,8 +26,7 @@ export default [
   {
     path: 'clouds',
     name: 'clouds',
-    component: TheList,
-    props: (route) => ({ query: route.query.query }),
+    component: TheSearch,
     beforeEnter
   },
   {

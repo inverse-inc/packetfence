@@ -1,6 +1,5 @@
 import { computed, toRefs } from '@vue/composition-api'
 import i18n from '@/utils/locale'
-import { defaultsFromMeta } from '../../_config/'
 
 export const useItemProps = {
   id: {
@@ -11,14 +10,15 @@ export const useItemProps = {
   }
 }
 
-const useItemDefaults = (meta, props) => {
+import { useDefaultsFromMeta } from '@/composables/useMeta'
+export const useItemDefaults = (meta, props) => {
   const {
     cloudType
   } = toRefs(props)
-  return { ...defaultsFromMeta(meta), type: cloudType.value }
+  return { ...useDefaultsFromMeta(meta), type: cloudType.value }
 }
 
-const useItemTitle = (props) => {
+export const useItemTitle = (props) => {
   const {
     id,
     isClone,
@@ -36,61 +36,60 @@ const useItemTitle = (props) => {
   })
 }
 
-const useItemTitleBadge = (props, context, form) => {
+export const useItemTitleBadge = (props, context, form) => {
   const {
     cloudType
   } = toRefs(props)
   return computed(() => (cloudType.value || form.value.type))
 }
 
-const useRouter = (props, context, form) => {
-  const {
-    id
-  } = toRefs(props)
-  const { root: { $router } = {} } = context
-  return {
-    goToCollection: () => $router.push({ name: 'clouds' }),
-    goToItem: (item = form.value || {}) => $router
-      .push({ name: 'cloud', params: { id: item.id } })
-      .catch(e => { if (e.name !== "NavigationDuplicated") throw e }),
-    goToClone: () => $router.push({ name: 'cloneCloud', params: { id: id.value } }),
-  }
-}
+export { useRouter } from '../_router'
 
-const useStore = (props, context, form) => {
-  const {
-    id,
-    isClone,
-    isNew,
-    cloudType
-  } = toRefs(props)
-  const { root: { $store } = {} } = context
-  return {
-    isLoading: computed(() => $store.getters['$_clouds/isLoading']),
-    getOptions: () => {
-      if (isNew.value)
-        return $store.dispatch('$_clouds/optionsByCloudType', cloudType.value)
-      else
-        return $store.dispatch('$_clouds/optionsById', id.value)
+export { useStore } from '../_store'
+
+import { pfSearchConditionType as conditionType } from '@/globals/pfSearch'
+import makeSearch from '@/views/Configuration/_store/factory/search'
+import api from '../_api'
+export const useSearch = makeSearch('clouds', {
+  api,
+  columns: [
+    {
+      key: 'selected',
+      thStyle: 'width: 40px;', tdClass: 'text-center',
+      locked: true
     },
-    createItem: () => $store.dispatch('$_clouds/createCloud', form.value),
-    deleteItem: () => $store.dispatch('$_clouds/deleteCloud', id.value),
-    getItem: () => $store.dispatch('$_clouds/getCloud', id.value).then(item => {
-      if (isClone.value) {
-        item.id = `${item.id}-${i18n.t('copy')}`
-        item.not_deletable = false
-      }
-      return item
-    }),
-    updateItem: () => $store.dispatch('$_clouds/updateCloud', form.value),
-  }
-}
-
-export default {
-  useItemDefaults,
-  useItemProps,
-  useItemTitle,
-  useItemTitleBadge,
-  useRouter,
-  useStore,
-}
+    {
+      key: 'id',
+      label: 'Name', // i18n defer
+      required: true,
+      searchable: true,
+      sortable: true,
+      visible: true
+    },
+    {
+      key: 'type',
+      label: 'Cloud Type', // i18n defer
+      searchable: true,
+      sortable: true,
+      visible: true
+    },
+    {
+      key: 'buttons',
+      class: 'text-right p-0',
+      locked: true
+    }
+  ],
+  fields: [
+    {
+      value: 'id',
+      text: i18n.t('Name'),
+      types: [conditionType.SUBSTRING]
+    },
+    {
+      value: 'type',
+      text: i18n.t('Cloud Type'),
+      types: [conditionType.SUBSTRING]
+    }
+  ],
+  sortBy: 'id'
+})

@@ -2,7 +2,26 @@
 * "$_clouds" store module
 */
 import Vue from 'vue'
+import { computed } from '@vue/composition-api'
+import i18n from '@/utils/locale'
 import api from './_api'
+
+export const useStore = $store => {
+  return {
+    isLoading: computed(() => $store.getters['$_clouds/isLoading']),
+    getList: () => $store.dispatch('$_clouds/all'),
+    getListOptions: params => $store.dispatch('$_clouds/optionsByCloudType', params),
+    createItem: params => $store.dispatch('$_clouds/createCloud', params),
+    getItem: params => $store.dispatch('$_clouds/getCloud', params.id).then(item => {
+      return (params.isClone)
+        ? { ...item, id: `${item.id}-${i18n.t('copy')}`, not_deletable: false }
+        : item
+    }),
+    getItemOptions: params => $store.dispatch('$_clouds/optionsById', params.id),
+    updateItem: params => $store.dispatch('$_clouds/updateCloud', params),
+    deleteItem: params => $store.dispatch('$_clouds/deleteCloud', params.id),
+  }
+}
 
 const types = {
   LOADING: 'loading',
@@ -31,13 +50,13 @@ const actions = {
       sort: 'id',
       fields: ['id'].join(',')
     }
-    return api.clouds(params).then(response => {
+    return api.list(params).then(response => {
       return response.items
     })
   },
   optionsById: ({ commit }, id) => {
     commit('ITEM_REQUEST')
-    return api.cloudOptions(id).then(response => {
+    return api.itemOptions(id).then(response => {
       commit('ITEM_SUCCESS')
       return response
     }).catch((err) => {
@@ -47,7 +66,7 @@ const actions = {
   },
   optionsByCloudType: ({ commit }, cloudType) => {
     commit('ITEM_REQUEST')
-    return api.cloudsOptions(cloudType).then(response => {
+    return api.listOptions(cloudType).then(response => {
       commit('ITEM_SUCCESS')
       return response
     }).catch((err) => {
@@ -60,7 +79,7 @@ const actions = {
       return Promise.resolve(state.cache[id]).then(cache => JSON.parse(JSON.stringify(cache)))
     }
     commit('ITEM_REQUEST')
-    return api.cloud(id).then(item => {
+    return api.item(id).then(item => {
       commit('ITEM_REPLACED', item)
       return JSON.parse(JSON.stringify(item))
     }).catch((err) => {
@@ -70,7 +89,7 @@ const actions = {
   },
   createCloud: ({ commit }, data) => {
     commit('ITEM_REQUEST')
-    return api.createCloud(data).then(response => {
+    return api.create(data).then(response => {
       commit('ITEM_REPLACED', data)
       return response
     }).catch(err => {
@@ -80,7 +99,7 @@ const actions = {
   },
   updateCloud: ({ commit }, data) => {
     commit('ITEM_REQUEST')
-    return api.updateCloud(data).then(response => {
+    return api.update(data).then(response => {
       commit('ITEM_REPLACED', data)
       return response
     }).catch(err => {
@@ -90,18 +109,8 @@ const actions = {
   },
   deleteCloud: ({ commit }, data) => {
     commit('ITEM_REQUEST', types.DELETING)
-    return api.deleteCloud(data).then(response => {
+    return api.delete(data).then(response => {
       commit('ITEM_DESTROYED', data)
-      return response
-    }).catch(err => {
-      commit('ITEM_ERROR', err.response)
-      throw err
-    })
-  },
-  testCloud: ({ commit }, data) => {
-    commit('ITEM_REQUEST')
-    return api.testCloud(data).then(response => {
-      commit('ITEM_SUCCESS')
       return response
     }).catch(err => {
       commit('ITEM_ERROR', err.response)
