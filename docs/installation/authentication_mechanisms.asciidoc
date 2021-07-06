@@ -619,6 +619,8 @@ PacketFence allows users to extend their access before it has ended. In order to
 
 PacketFence also supports calling an external HTTP API as an authentication source. The external API needs to implement an authentication action and an authorization action.
 
+include::installation/azuread.asciidoc[]
+
 ==== Authentication
 
 This should provide the information about whether or not the username/password combination is valid
