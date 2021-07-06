@@ -12,6 +12,13 @@ export const useSearch = makeSearch('dnsLogs', {
       locked: true
     },
     {
+      key: 'id',
+      label: 'Log ID', // i18n defer
+      searchable: true,
+      required: true,
+      sortable: true
+    },
+    {
       key: 'created_at',
       label: 'Created At', // i18n defer
       searchable: true,
@@ -19,13 +26,6 @@ export const useSearch = makeSearch('dnsLogs', {
       visible: true,
       class: 'text-nowrap',
       formatter: formatter.datetimeIgnoreZero
-    },
-    {
-      key: 'id',
-      label: 'ID', // i18n defer
-      searchable: true,
-      required: true,
-      sortable: true
     },
     {
       key: 'ip',
@@ -75,6 +75,11 @@ export const useSearch = makeSearch('dnsLogs', {
   ],
   fields: [
     {
+      value: 'id',
+      text: 'Log ID', // i18n defer
+      types: [conditionType.INTEGER]
+    },
+    {
       value: 'created_at',
       text: 'Created', // i18n defer
       types: [conditionType.DATETIME]
@@ -111,5 +116,11 @@ export const useSearch = makeSearch('dnsLogs', {
     }
   ],
   sortBy: 'created_at',
-  sortDesc: true
+  sortDesc: true,
+  defaultCondition: () => ({
+    op: 'and', values: [
+    { op: 'or', values: [
+      { field: 'id', op: 'equals', value: null }
+    ] }
+  ] })
 })

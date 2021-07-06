@@ -12,6 +12,14 @@ export const useSearch = makeSearch('radiusLogs', {
       locked: true
     },
     {
+      key: 'id',
+      label: 'Log ID', // i18n defer
+      required: true,
+      searchable: true,
+      sortable: true,
+      visible: true
+    },
+    {
       key: 'created_at',
       label: 'Created At', // i18n defer
       searchable: true,
@@ -19,14 +27,6 @@ export const useSearch = makeSearch('radiusLogs', {
       visible: true,
       class: 'text-nowrap',
       formatter: formatter.datetimeIgnoreZero
-    },
-    {
-      key: 'id',
-      label: 'ID', // i18n defer
-      required: true,
-      searchable: true,
-      sortable: true,
-      visible: true
     },
     {
       key: 'auth_status',
@@ -264,6 +264,11 @@ export const useSearch = makeSearch('radiusLogs', {
   ],
   fields: [
     {
+      value: 'id',
+      text: 'Log ID', // i18n defer
+      types: [conditionType.INTEGER]
+    },
+    {
       value: 'auth_status',
       text: 'Auth Status', // i18n defer
       types: [conditionType.SUBSTRING]
@@ -465,5 +470,11 @@ export const useSearch = makeSearch('radiusLogs', {
     }
   ],
   sortBy: 'created_at',
-  sortDesc: true
+  sortDesc: true,
+  defaultCondition: () => ({
+    op: 'and', values: [
+    { op: 'or', values: [
+      { field: 'id', op: 'equals', value: null }
+    ] }
+  ] })
 })

@@ -75,6 +75,11 @@ export const useSearch = makeSearch('adminApiLogs', {
   ],
   fields: [
     {
+      value: 'id',
+      text: 'Log ID', // i18n defer
+      types: [conditionType.INTEGER]
+    },
+    {
       value: 'created_at',
       text: 'Created', // i18n defer
       types: [conditionType.DATETIME]
@@ -111,5 +116,11 @@ export const useSearch = makeSearch('adminApiLogs', {
     }
   ],
   sortBy: 'created_at',
-  sortDesc: true
+  sortDesc: true,
+  defaultCondition: () => ({
+    op: 'and', values: [
+    { op: 'or', values: [
+      { field: 'id', op: 'equals', value: null }
+    ] }
+  ] })
 })

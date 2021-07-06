@@ -12,6 +12,14 @@ export const useSearch = makeSearch('dhcpOption82Logs', {
       locked: true
     },
     {
+      key: 'mac',
+      label: 'MAC Address', // i18n defer
+      required: true,
+      searchable: true,
+      sortable: true,
+      visible: true
+    },
+    {
       key: 'created_at',
       label: 'Created At', // i18n defer
       searchable: true,
@@ -19,14 +27,6 @@ export const useSearch = makeSearch('dhcpOption82Logs', {
       visible: true,
       class: 'text-nowrap',
       formatter: formatter.datetimeIgnoreZero
-    },
-    {
-      key: 'mac',
-      label: 'MAC Address', // i18n defer
-      required: true,
-      searchable: true,
-      sortable: true,
-      visible: true
     },
     {
       key: 'circuit_id_string',
@@ -84,14 +84,14 @@ export const useSearch = makeSearch('dhcpOption82Logs', {
   ],
   fields: [
     {
-      value: 'created_at',
-      text: 'Created', // i18n defer
-      types: [conditionType.DATETIME]
-    },
-    {
       value: 'mac',
       text: 'MAC Address', // i18n defer
       types: [conditionType.SUBSTRING]
+    },
+    {
+      value: 'created_at',
+      text: 'Created', // i18n defer
+      types: [conditionType.DATETIME]
     },
     {
       value: 'circuit_id_string',
@@ -130,5 +130,11 @@ export const useSearch = makeSearch('dhcpOption82Logs', {
     }
   ],
   sortBy: 'created_at',
-  sortDesc: true
+  sortDesc: true,
+  defaultCondition: () => ({
+    op: 'and', values: [
+    { op: 'or', values: [
+      { field: 'mac', op: 'equals', value: null }
+    ] }
+  ] })
 })
