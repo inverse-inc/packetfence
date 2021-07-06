@@ -6,6 +6,10 @@ Licence: https://github.com/jimdigriz/freeradius-oauth2-perl/blob/master/LICENSE
 
 =cut
 
+use lib qw(
+  /usr/local/pf/lib_perl/lib/perl5
+);
+
 use strict;
 use warnings;
 
