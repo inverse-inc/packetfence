@@ -57,3 +57,7 @@ machine password timeout = 0
 #   cli_negprot: SMB signing is mandatory and the server doesn't support it.
 #   failed negprot: NT_STATUS_ACCESS_DENIED
 client ipc signing = auto
+
+# Prevent DDNS updates
+allow dns updates = disabled
+
