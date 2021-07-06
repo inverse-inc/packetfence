@@ -612,7 +612,7 @@ deploy_rpm_devel:
     - .deploy_rpm_job
     - .job_devel_only_triggers
   environment:
-    name: devel
+    name: pf-devel
 
 # we deploy packetfence-release RPM with
 # a fixed name *outside* a RPM repo
@@ -622,7 +622,7 @@ deploy_rpm_packetfence-release_devel:
     - .deploy_rpm_packetfence-release_job
     - .job_devel_only_triggers
   environment:
-    name: devel
+    name: pf-devel
   variables:
     PKG_DEST_NAME: packetfence-release-${CI_ENVIRONMENT_NAME}-el7.noarch.rpm
 
@@ -631,7 +631,7 @@ deploy_rpm_branches:
     - .deploy_rpm_job
     - .job_branches_only_triggers
   environment:
-    name: branches
+    name: pf-branches
   variables:
     RPM_DEPLOY_DIR: branches/x86_64
 
@@ -640,7 +640,7 @@ deploy_rpm_packetfence-release_branches:
     - .deploy_rpm_packetfence-release_job
     - .job_branches_only_triggers
   environment:
-    name: branches
+    name: pf-branches
   variables:
     PKG_DEST_NAME: packetfence-release-${CI_ENVIRONMENT_NAME}-el7.noarch.rpm
 
@@ -649,7 +649,7 @@ deploy_rpm_release:
     - .deploy_rpm_job
     - .job_release_triggers
   environment:
-    name: stable
+    name: pf-stable
 
 # we deploy packetfence-release RPM with
 # a fixed name *outside* a RPM repo
@@ -659,7 +659,7 @@ deploy_rpm_packetfence-release_release:
     - .deploy_rpm_packetfence-release_job
     - .job_release_triggers
   environment:
-    name: stable
+    name: pf-stable
 
 deploy_rpm_maintenance:
   extends:
@@ -676,7 +676,7 @@ deploy_deb_devel:
     - .deploy_deb_job
     - .job_devel_only_triggers
   environment:
-    name: devel
+    name: pf-devel
   variables:
     DEB_DEPLOY_DIR: debian
 
@@ -685,7 +685,7 @@ deploy_deb_branches:
     - .deploy_deb_job
     - .job_branches_only_triggers
   environment:
-    name: branches
+    name: pf-branches
   variables:
     DEB_DEPLOY_DIR: debian-branches
 
@@ -694,7 +694,7 @@ deploy_deb_release:
     - .deploy_deb_job
     - .job_release_triggers
   environment:
-    name: stable
+    name: pf-stable
   variables:
     DEB_DEPLOY_DIR: debian
 
