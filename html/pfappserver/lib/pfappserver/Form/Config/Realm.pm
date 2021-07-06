@@ -14,7 +14,7 @@ use HTML::FormHandler::Moose;
 extends 'pfappserver::Base::Form';
 with 'pfappserver::Base::Form::Role::Help';
 
-use pf::config qw(%ConfigAuthenticationLdap %ConfigEAP);
+use pf::config qw(%ConfigAuthenticationAzureAD %ConfigAuthenticationLdap %ConfigEAP);
 use pf::authentication;
 use pf::util;
 use pf::ConfigStore::Domain;
@@ -296,6 +296,13 @@ has_field 'ldap_source_ttls_pap' =>
              help => 'The LDAP Server to use for EAP TTLS PAP authentication and authorization' },
   );
 
+has_field 'azuread_source_ttls_pap' =>
+  (
+   type => 'Select',
+   multiple => 0,
+   options_method => \&options_azuread,
+  );
+
 has_field 'edir_source' =>
   (
    type => 'Select',
@@ -334,6 +341,17 @@ sub options_ldap {
     my @ldap = map { $_ => $_ } keys %ConfigAuthenticationLdap;
     unshift @ldap, ("" => "");
     return @ldap;
+}
+
+=head2 options_azuread
+
+=cut
+
+sub options_azuread {
+    my $self = shift;
+    my @sources = map { $_ => $_ } keys %ConfigAuthenticationAzureAD;
+    unshift @sources, ("" => "");
+    return @sources;
 }
 
 =head2 options_radius

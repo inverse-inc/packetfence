@@ -4,6 +4,7 @@ import { pfActions } from '@/globals/pfActions'
 export const internalTypes = {
   AD:             i18n.t('Active Directory'),
   Authorization:  i18n.t('Authorization'),
+  AzureAD:        i18n.t('AzureAD'),
   EAPTLS:         'EAPTLS',
   EDIR:           'Edirectory',
   Htpasswd:       'Htpasswd',
@@ -52,7 +53,7 @@ export const administrationRuleActionsFromSourceType = (sourceType) => ([
     pfActions.set_access_level,
     pfActions.set_tenant_id
   ],
-  ...((['AD', 'LDAP', 'EDIR'].includes(sourceType))
+  ...((['AD', 'AzureAD', 'LDAP', 'EDIR'].includes(sourceType))
     ? [
         pfActions.set_access_durations,
         pfActions.mark_as_sponsor
@@ -70,7 +71,7 @@ export const authenticationRuleActionsFromSourceType = (sourceType) => ([
     pfActions.set_bandwidth_balance,
     pfActions.set_role_from_source
   ],
-  ...((['AD', 'LDAP'].includes(sourceType))
+  ...((['AD', 'AzureAD', 'LDAP'].includes(sourceType))
     ? [pfActions.set_role_on_not_found]
     : []
   )

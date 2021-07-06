@@ -1,0 +1,81 @@
+
+=== Azure AD integration
+
+PacketFence supports integrating with the Azure Active Directory for authenticating users on the captive portal, the admin interface and for 802.1X users using EAP-TTLS PAP. If your only goal is to authenticate users on the captive portal, using the OpenID implementation of Azure AD may be better suited. This section is aimed at providing username/password authentication through Azure AD.
+
+==== Creating the PacketFence app
+
+ 1. Open the 'Azure Active Directory' in your Azure portal
+ 1. Go in 'Manage->App registrations->New registration'
+ 1. Settings for the app
+  1. Name: PacketFence
+  1. Supported account types: Accounts in this organizational directory only - (Single tenant)
+  1. Redirect URI must be left blank
+  1. Save the app
+1. Note down the 'Application (client) ID' and 'Directory (tenant) ID' for later usage
+ 1. In your application, go in 'Certificates & secrets' and select 'New client secret'
+  1. Description: PacketFence
+  1. Make sure you note down its expiry date so you can renew it before its expiration. Failure to do so will prevent authentication from working on PacketFence
+  1. Save the secret
+ 1. Note down the 'Value' of your client secret for later usage
+ 1. Still in your application, go to 'API permissions'
+  1. Click on 'Add a permission'
+    1. Go to the 'Microsoft APIs' tab
+    1. Select 'Microsoft Graph'
+    1. Select 'Application permissions'
+    1. Add the permission `Directory.Read.All`
+  1. Make sure `User.Read` is already there as a delegated permission
+  1. Click on 'Grant admin consent'
+
+==== Disabling MFA
+
+Currently, PacketFence requires that multi-factor authentication be disabled for the PacketFence app. If you use Azure AD premium, you can create a rule to exclude this only for the PacketFence application. If you don't use Azure AD premium, this must be disabled for all your users.
+
+===== Disabling MFA using Azure AD premium
+
+ 1. Open the "Azure Active Directory" in your Azure portal
+ 1. Go in 'Manage->Properties'
+  1. Click 'Manage Security defaults'
+  1. Disable the toggle 'Enable Security defaults' and save
+ 1. Next, go in 'Manage->Security->Conditional Access'
+  1. Click 'New policy' and enter the following settings:
+    1. Name: 2FA policy
+    1. Under 'Users and groups', select 'All users'
+    1. Under 'Cloud apps or actions', go in the 'Exclude' section and select the 'PacketFence' app you created earlier in the 'Select excluded cloud apps'
+    1. Under 'Grant', select 'Grant access' and check 'Require multi-factor authentication' and any other settings your organization requires.
+    1. At the bottom, make sure 'Enable policy' is set to 'On' and save your policy
+
+===== Disabling MFA without Azure AD premium
+
+WARNING: This will disable common recommended settings from Microsoft. Using Azure AD premium is the correct way to perform this. This option is only suggested for testing or when its impossible to have access to Azure AD premium.
+
+ 1. Open the "Azure Active Directory" in your Azure portal
+ 1. Under 'Manage', open 'Properties'
+  1. Click 'Manage Security defaults'
+  1. Disable the toggle 'Enable Security defaults' and save
+
+==== Configuring PacketFence
+
+ 1. Under 'Configuration->Policies and Access Control->Authentication Sources', create a new 'Azure Active Directory' internal source
+  1. Client ID: the 'Client ID' that was displayed while configuring the 'PacketFence' app inside Azure
+  1. Client Secret: the secret you created inside the 'PacketFence' app in Azure AD
+  1. Tenant ID: the 'Tenant ID' that was displayed while configuring the 'PacketFence' app inside Azure
+  1. Add any authentication or administration rules and then save the source
+
+With this configuration, you can now use this source in your connection profiles to authenticate and authorize users on the captive portal and use it with EAP-TLS to authorize users (getting the role and access duration) as long as your EAP-TLS certificates use the distinguished name of the Azure AD users as their common name. Additionally, you can use this source for authenticating users in the admin interface and for VPN access.
+
+===== Using Azure AD in 802.1X
+
+You can perform 802.1X authentication of users using Azure AD but this will only work with supplicants configured to perform EAP-TTLS PAP which provides the RADIUS server with the plain-text password of the user. Support for this type of authentication is not as broad as EAP-PEAP MSCHAPv2 in the 802.1X supplicants but unfortunately Azure AD doesn't support MSCHAP authentication. Refer to the documentation of your operating system on how to configure EAP-TTLS PAP. This section will only focus on enabling EAP-TTLS PAP for your Azure AD users in PacketFence.
+
+ 1. Under 'Configuration->Policies and Access Control->Realms', create a new realm
+  1. Realm: enter the realm of your Azure AD users. Example, if the usernames have the following format `bob@inverseinc.onmicrosoft.com`, then your realm is `inverseinc.onmicrosoft.com`
+  1. Go in the 'Stripping' tab of the realm and select your Azure AD source under 'Azure AD Source for TTLS PAP'
+  1. Still in the 'Stripping' tab, disable (uncheck), the following settings:
+   1. Strip on the portal
+   1. Strip on the admin
+   1. Strip in RADIUS authorization
+  1. Save the realm
+ 1. Restart radiusd using `/usr/local/pf/bin/pfcmd service radiusd restart`
+ 1. All the users matching this realm will now authenticate against Azure AD. Make sure you also have a connection profile with auto-registration enabled and the Azure AD source in it so that your users are correclty authorized when connecting.
+

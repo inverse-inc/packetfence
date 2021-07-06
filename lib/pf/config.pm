@@ -171,6 +171,8 @@ our (
     %ConfigRoles,
 #self_service.conf
     %ConfigSelfService,
+#AzureAD authentication sources
+    %ConfigAuthenticationAzureAD,
 #ldap authentication sources
     %ConfigAuthenticationLdap,
 # Radius sources
@@ -244,6 +246,7 @@ BEGIN {
         %ConfigSurvey
         %ConfigRoles
         %ConfigSelfService
+        %ConfigAuthenticationAzureAD
         %ConfigAuthenticationLdap
         %ConfigAuthenticationRadius
         %ConfigAuthenticationEduroam
@@ -324,6 +327,8 @@ tie %ConfigSurvey, 'pfconfig::cached_hash', 'config::Survey';
 tie %ConfigRoles, 'pfconfig::cached_hash', 'config::Roles';
 
 tie %ConfigSelfService, 'pfconfig::cached_hash', 'config::SelfService';
+
+tie %ConfigAuthenticationAzureAD, 'pfconfig::cached_hash', 'resource::authentication_sources_azuread';
 
 tie %ConfigAuthenticationLdap, 'pfconfig::cached_hash', 'resource::authentication_sources_ldap';
 

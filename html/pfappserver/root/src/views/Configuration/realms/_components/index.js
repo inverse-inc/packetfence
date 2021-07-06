@@ -36,6 +36,7 @@ export {
   BaseFormGroupToggleDisabledEnabled  as FormGroupRadiusStripUsername,
   BaseFormGroupToggleDisabledEnabled  as FormGroupPermitCustomAttributes,
   BaseFormGroupChosenOne              as FormGroupLdapSource,
+  BaseFormGroupChosenOne              as FormGroupAzureadSourceTtlsPap,
   BaseFormGroupChosenOne              as FormGroupLdapSourceTtlsPap,
 
   TheForm,
