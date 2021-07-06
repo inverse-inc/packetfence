@@ -50,14 +50,14 @@ docs/index.js: $(HTML)
 images:
 	@echo "install images dir and all subdirectories"
 	for subdir in `find docs/images/* -type d -printf "%f\n"` ; do \
-		install -d -m0755 $(DESTDIR)/usr/local/pf/html/pfappserver/root/doc/images/$$subdir ; \
+		install -d -m0755 $(DESTDIR)/usr/local/pf/docs/images/$$subdir ; \
 		for img in `find docs/images/$$subdir -type f`; do \
-			install -m0644 $$img $(DESTDIR)/usr/local/pf/html/pfappserver/root/doc/images/$$subdir ; \
+			install -m0644 $$img $(DESTDIR)/usr/local/pf/docs/images/$$subdir ; \
 		done \
 	done
 	@echo "install only images at depth0 in images/ directory"
 	for img in `find docs/images/* -maxdepth 0 -type f`; do \
-		install -m0644 $$img $(DESTDIR)/usr/local/pf/html/pfappserver/root/doc/images/ ; \
+		install -m0644 $$img $(DESTDIR)/usr/local/pf/docs/images/ ; \
 	done
 
 .PHONY: html
