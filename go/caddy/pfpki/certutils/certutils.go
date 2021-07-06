@@ -14,6 +14,7 @@ import (
 	"encoding/asn1"
 	"encoding/pem"
 	"errors"
+	"fmt"
 	"io"
 	"io/ioutil"
 	"math/big"
@@ -355,4 +356,13 @@ func GetDNFromCert(namespace pkix.Name) map[string]string {
 		}
 	}
 	return attributeMap
+}
+
+func ThumbprintSHA1(cert *x509.Certificate) string {
+	sum := sha1.Sum(cert.Raw)
+	hex := make([]string, len(sum))
+	for i, b := range sum {
+		hex[i] = fmt.Sprintf("%02X", b)
+	}
+	return strings.Join(hex, ":")
 }

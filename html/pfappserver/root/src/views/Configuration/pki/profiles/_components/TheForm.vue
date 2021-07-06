@@ -13,10 +13,12 @@
         />
         <form-group-ca-id namespace="ca_id"
           :column-label="$i18n.t('Certificate Authority')"
+          :disabled="!isNew && !isClone"
         />
         <form-group-name namespace="name"
           :column-label="$i18n.t('Name')"
           :text="$i18n.t('Profile Name.')"
+          :disabled="!isNew && !isClone"
         />
         <form-group-mail namespace="mail"
           :column-label="$i18n.t('Email')"
@@ -51,6 +53,7 @@
         />
         <form-group-key-type namespace="key_type"
           :column-label="$i18n.t('Key type')"
+          :disabled="!isNew && !isClone"
         />
         <form-group-key-size namespace="key_size"
           :column-label="$i18n.t('Key size')"
@@ -58,6 +61,7 @@
         />
         <form-group-digest namespace="digest"
           :column-label="$i18n.t('Digest')"
+          :disabled="!isNew && !isClone"
         />
         <form-group-key-usage namespace="key_usage"
           :column-label="$i18n.t('Key usage')"
@@ -109,6 +113,14 @@
           :column-label="$i18n.t('SCEP days before renewal')"
           :text="$i18n.t('Number of days before SCEP authorize renewal')"
         />
+        <form-group-cloud-enabled namespace="cloud_enabled"
+          :column-label="$i18n.t('Enable Cloud Integration')"
+          :text="$i18n.t('Enable Cloud integration for this template.')"
+        />
+        <form-group-cloud-service namespace="cloud_service"
+          :column-label="$i18n.t('Cloud Service')"
+          :text="$i18n.t('Cloud Service to integrate.')"
+        />
       </base-form-tab>
     </b-tabs>
   </base-form>
@@ -146,7 +158,9 @@ import {
   FormGroupP12MailFooter,
   FormGroupScepEnabled,
   FormGroupScepChallengePassword,
-  FormGroupScepDaysBeforeRenewal
+  FormGroupScepDaysBeforeRenewal,
+  FormGroupCloudEnabled,
+  FormGroupCloudService
 } from './'
 
 const components = {
@@ -178,7 +192,9 @@ const components = {
   FormGroupP12MailFooter,
   FormGroupScepEnabled,
   FormGroupScepChallengePassword,
-  FormGroupScepDaysBeforeRenewal
+  FormGroupScepDaysBeforeRenewal,
+  FormGroupCloudEnabled,
+  FormGroupCloudService
 }
 
 export const props = {

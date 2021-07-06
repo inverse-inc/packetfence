@@ -828,6 +828,8 @@ fi
                         /usr/local/pf/conf/self_service.conf.example
 %config(noreplace)      /usr/local/pf/conf/network_behavior_policies.conf
                         /usr/local/pf/conf/network_behavior_policies.conf.example
+%config(noreplace)      /usr/local/pf/conf/cloud.conf
+                        /usr/local/pf/conf/cloud.conf.example
 %config                 /usr/local/pf/conf/dhcp_fingerprints.conf
 %config(noreplace)      /usr/local/pf/conf/dhcp_filters.conf
                         /usr/local/pf/conf/dhcp_filters.conf.example

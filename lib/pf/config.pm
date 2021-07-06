@@ -126,6 +126,8 @@ our (
     %Doc_Config,
 #floating_network_device.conf variables
     %ConfigFloatingDevices,
+#cloud.conf variables
+    %ConfigCloud,
 #firewall_sso.conf variables
     %ConfigFirewallSSO,
 #profiles.conf variables
@@ -218,6 +220,7 @@ BEGIN {
         netflow_enabled
         $LOG4PERL_RELOAD_TIMER
         @Profile_Filters %Profiles_Config
+        %ConfigCloud
         %ConfigFirewallSSO
         $OS
         $DISTRIB $DIST_VERSION
@@ -283,6 +286,8 @@ tie @Profile_Filters, 'pfconfig::cached_array', 'resource::Profile_Filters';
 
 tie %ConfigAuthentication, 'pfconfig::cached_hash', 'resource::authentication_config_hash';
 tie %ConfigFloatingDevices, 'pfconfig::cached_hash', 'config::FloatingDevices';
+
+tie %ConfigCloud, 'pfconfig::cached_hash', 'config::Cloud';
 
 tie %ConfigFirewallSSO, 'pfconfig::cached_hash', 'config::Firewall_SSO';
 

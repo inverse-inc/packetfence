@@ -5,6 +5,7 @@ go 1.16
 require (
 	github.com/Azure/azure-sdk-for-go v40.6.0+incompatible
 	github.com/Azure/go-autorest/autorest v0.11.10
+	github.com/Azure/go-autorest/autorest/adal v0.9.5
 	github.com/Azure/go-autorest/autorest/azure/auth v0.5.3
 	github.com/Azure/go-autorest/autorest/to v0.2.0 // indirect
 	github.com/DataDog/datadog-go v3.5.0+incompatible // indirect
@@ -58,7 +59,7 @@ require (
 	github.com/inverse-inc/dhcp4 v0.0.0-20200625173842-2c4d1e50d7ca
 	github.com/inverse-inc/go-ipset v0.0.0-20190925174109-4d5749cc4aa6
 	github.com/inverse-inc/go-radius v0.0.0-20201019132414-82756e2d8d47
-	github.com/inverse-inc/scep v0.0.0-20210120201805-eb98f5654ee4
+	github.com/inverse-inc/scep v0.0.0-20210513203155-0afeb79ee054
 	github.com/jcuga/golongpoll v1.1.0
 	github.com/jimstudt/http-authentication v0.0.0-20140401203705-3eca13d6893a
 	github.com/jinzhu/gorm v1.9.16
@@ -96,6 +97,7 @@ require (
 	github.com/xiang90/probing v0.0.0-20190116061207-43a291ad63a2 // indirect
 	go.etcd.io/bbolt v1.3.3 // indirect
 	go.etcd.io/etcd v0.5.0-alpha.5.0.20200306183522-221f0cc107cb
+	go.mozilla.org/pkcs7 v0.0.0-20200128120323-432b2356ecb1 // indirect
 	go.uber.org/zap v1.14.1 // indirect
 	golang.org/x/crypto v0.0.0-20201002170205-7f63de1d35b0
 	golang.org/x/net v0.0.0-20200707034311-ab3426394381

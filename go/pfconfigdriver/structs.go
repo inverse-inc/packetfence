@@ -761,3 +761,11 @@ type NtlmRedisCachedDomains struct {
 	PfconfigDecodeInElement string `val:"yes"`
 	Element                 []string
 }
+
+type Cloud struct {
+	StructConfig
+	PfconfigMethod          string `val:"element"`
+	PfconfigNS              string `val:"config::Cloud"`
+	PfconfigDecodeInElement string `val:"yes"`
+	Element                 map[string]interface{}
+}

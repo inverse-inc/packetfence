@@ -97,6 +97,9 @@ const api = {
   getCheckup () {
     return apiCall({ url: 'config/checkup', method: 'get' })
   },
+  getClouds () {
+    return apiCall({ url: 'config/clouds', method: 'get' })
+  },
   getConnectionProfiles () {
     return apiCall({ url: 'config/connection_profiles', method: 'get' })
   },
@@ -292,6 +295,8 @@ const initialState = () => { // set intitial states to `false` (not `[]` or `{}`
     billingTiers: false,
     billingTiersStatus: '',
     checkupStatus: '',
+    clouds: false,
+    cloudsStatus: '',
     connectionProfiles: false,
     connectionProfilesStatus: '',
     domains: false,
@@ -473,6 +478,9 @@ const getters = {
   },
   isLoadingCheckup: state => {
     return state.checkupStatus === types.LOADING
+  },
+  isLoadingClouds: state => {
+    return state.cloudsStatus === types.LOADING
   },
   isLoadingConnectionProfiles: state => {
     return state.connectionProfilesStatus === types.LOADING
@@ -1080,6 +1088,20 @@ const actions = {
       })
     } else {
       return Promise.resolve(state.billingTiers)
+    }
+  },
+  getClouds: ({ state, getters, commit }) => {
+    if (getters.isLoadingClouds) {
+      return Promise.resolve(state.clouds)
+    }
+    if (!state.clouds) {
+      commit('CLOUDS_REQUEST')
+      return api.clouds().then(response => {
+        commit('CLOUDS_UPDATED', response.data.items)
+        return state.clouds
+      })
+    } else {
+      return Promise.resolve(state.clouds)
     }
   },
   getConnectionProfiles: ({ state, getters, commit }) => {
@@ -1854,6 +1876,13 @@ const mutations = {
   },
   CHECKUP_UPDATED: (state, status) => {
     state.checkupStatus = status
+  },
+  CLOUDS_REQUEST: (state) => {
+    state.cloudsStatus = types.LOADING
+  },
+  CLOUDS_UPDATED: (state, clouds) => {
+    state.clouds = clouds
+    state.cloudsStatus = types.SUCCESS
   },
   CONNECTION_PROFILES_REQUEST: (state) => {
     state.connectionProfilesStatus = types.LOADING

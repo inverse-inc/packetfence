@@ -17,7 +17,9 @@ import {
   BaseFormGroupKeyUsage,
   BaseFormGroupExtendedKeyUsage,
 } from '../../_components/'
-
+import {
+  BaseFormGroupChosenOneCloud,
+} from '@/views/Configuration/clouds/_components/'
 import TheForm from './TheForm'
 import TheView from './TheView'
 
@@ -51,7 +53,8 @@ export {
   BaseFormGroupToggleZeroOneStringAsOffOn as FormGroupScepEnabled,
   BaseFormGroupInput                      as FormGroupScepChallengePassword,
   BaseFormGroupInputNumber                as FormGroupScepDaysBeforeRenewal,
-
+  BaseFormGroupToggleZeroOneStringAsOffOn as FormGroupCloudEnabled,
+  BaseFormGroupChosenOneCloud             as FormGroupCloudService,
   TheForm,
   TheView
 }
