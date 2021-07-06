@@ -2,7 +2,7 @@
   <b-form @submit.prevent ref="rootRef">
     <b-card no-body>
       <b-card-header>
-        <b-button-close @click="close" v-b-tooltip.hover.left.d300 :title="$t('Close [ESC]')"><icon name="times"></icon></b-button-close>
+        <b-button-close @click="goToCollection" v-b-tooltip.hover.left.d300 :title="$t('Close [ESC]')"><icon name="times"></icon></b-button-close>
         <h4 class="mb-0">{{ $t('DNS Log Entry')}} <strong v-text="id"></strong></h4>
       </b-card-header>
       <base-form-group :column-label="$t('Created At')">{{ item.created_at }}</base-form-group>
