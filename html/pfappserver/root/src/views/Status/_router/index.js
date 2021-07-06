@@ -5,9 +5,9 @@ import StatusStore from '../_store'
 
 import DashboardRoutes from '../dashboard/_router'
 import QueueRoutes from '../queue/_router'
+import NetworkRoutes from '../network/_router'
 import ServicesRoutes from '../services/_router'
 
-import Network from '../_components/Network'
 import ClusterServices from '../_components/ClusterServices'
 
 const route = {
@@ -32,17 +32,8 @@ const route = {
   children: [
     ...DashboardRoutes,
     ...QueueRoutes,
+    ...NetworkRoutes,
     ...ServicesRoutes,
-    {
-      path: 'network',
-      name: 'statusNetwork',
-      component: Network,
-      props: (route) => ({ query: route.query.query }),
-      meta: {
-        can: 'read nodes',
-        isFailRoute: true
-      }
-    },
     {
       path: 'cluster/services',
       name: 'statusCluster',

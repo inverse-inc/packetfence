@@ -1,5 +1,5 @@
 <template>
-  <b-card no-body class="pf-network-graph-tooltip-switch">
+  <b-card no-body class="tooltip-switch">
     <b-card-header>
       <h5 class="mb-0 text-nowrap">{{ $t('Switch') }}</h5>
       <p class="mb-0"><mac>{{ id }}</mac></p>
@@ -34,7 +34,7 @@
 import apiCall from '@/utils/api'
 
 export default {
-  name: 'pf-network-graph-tooltip-switch',
+  name: 'tooltip-switch',
   props: {
     id: {
       type: String
@@ -91,7 +91,7 @@ export default {
   to   { overflow-y: initial; max-height: 500px; }
 }
 
-.pf-network-graph-tooltip-switch {
+.tooltip-switch {
   .container {
     animation: expandheight 300ms;
     overflow-x: initial;

@@ -1,5 +1,5 @@
 <template>
-  <b-card no-body class="pf-network-graph-tooltip-node">
+  <b-card no-body class="tooltip-node">
     <b-card-header>
       <h5 class="mb-0 text-nowrap">{{ $t('Node') }}</h5>
       <p class="mb-0"><mac>{{ id }}</mac></p>
@@ -64,7 +64,7 @@
 import apiCall from '@/utils/api'
 
 export default {
-  name: 'pf-network-graph-tooltip-node',
+  name: 'tooltip-node',
   props: {
     id: {
       type: String
@@ -108,7 +108,7 @@ export default {
   to   { overflow-y: initial; max-height: 500px; }
 }
 
-.pf-network-graph-tooltip-node {
+.tooltip-node {
   .container {
     animation: expandheight 300ms;
     overflow-x: initial;

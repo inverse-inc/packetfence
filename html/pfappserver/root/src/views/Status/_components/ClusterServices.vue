@@ -1,70 +1,75 @@
 <template>
-    <b-card no-body>
-      <b-card-header>
-        <h4 class="mb-0" v-t="'Cluster Services'"></h4>
-      </b-card-header>
-      <div class="card-body">
-        <b-table
-          :fields="fields"
-          :items="items"
-          :sort-by="sortBy"
-          :sort-desc="sortDesc"
-          :hover="services.length > 0"
-          show-empty
-          responsive
-          fixed
-          sort-icon-left
-          striped
-        >
-          <template v-slot:empty>
-            <pf-empty-table :is-loading="isLoading" text="">{{ $t('No Services found') }}</pf-empty-table>
-          </template>
-          <template v-for="server in servers" v-slot:[head(server)]="data">
-            <span :key="server.host">
-              {{ data.label }}
-              <b-button v-if="!isApiServer(server)" size="sm" variant="outline-success" class="ml-1" @click.stop.prevent="setApiServer(server)">{{ $t('Start Redirect') }} <icon class="ml-1" name="directions"></icon></b-button>
-              <b-button v-else size="sm" variant="outline-danger" class="ml-1" @click.stop.prevent="setApiServer()">{{ $t('Cancel Redirect') }} <icon class="ml-1" name="times"></icon></b-button>
-            </span>
-          </template>
-          <template v-for="server in servers" v-slot:[cell(server)]="{ item: { [server]: status } }">
-            <div class="container-status small" v-if="status" :key="server">
-              <b-row class="row-nowrap">
-                  <b-col>{{ $t('Alive') }}</b-col>
-                  <b-col cols="auto">
-                    <b-badge v-if="status.alive && status.pid" pill variant="success">{{ status.pid }}</b-badge>
-                    <icon v-else class="text-danger" name="circle"></icon>
-                  </b-col>
-              </b-row>
-              <b-row class="row-nowrap">
-                  <b-col>{{ $t('Enabled') }}</b-col>
-                  <b-col cols="auto"><icon :class="(status.enabled) ? 'text-success' : 'text-danger'" name="circle"></icon></b-col>
-              </b-row>
-              <b-row class="row-nowrap">
-                  <b-col>{{ $t('Managed') }}</b-col>
-                  <b-col cols="auto"><icon :class="(status.managed) ? 'text-success' : 'text-danger'" name="circle"></icon></b-col>
-              </b-row>
-            </div>
-          </template>
-        </b-table>
-      </div>
-    </b-card>
+  <b-card no-body>
+    <b-card-header>
+      <h4 class="mb-0" v-t="'Cluster Services'"></h4>
+    </b-card-header>
+    <div class="card-body">
+      <b-table
+        :fields="fields"
+        :items="items"
+        :sort-by="sortBy"
+        :sort-desc="sortDesc"
+        :hover="services.length > 0"
+        show-empty
+        responsive
+        fixed
+        sort-icon-left
+        striped
+      >
+        <template v-slot:empty>
+          <pf-empty-table :is-loading="isLoading" text="">{{ $t('No Services found') }}</pf-empty-table>
+        </template>
+        <template v-for="server in servers" v-slot:[head(server)]="data">
+          <span :key="server.host">
+            {{ data.label }}
+            <b-button v-if="!isApiServer(server)" size="sm" variant="outline-success" class="ml-1" @click.stop.prevent="setApiServer(server)">{{ $t('Start Redirect') }} <icon class="ml-1" name="directions" /></b-button>
+            <b-button v-else size="sm" variant="outline-danger" class="ml-1" @click.stop.prevent="setApiServer()">{{ $t('Cancel Redirect') }} <icon class="ml-1" name="times" /></b-button>
+          </span>
+        </template>
+        <template v-for="server in servers" v-slot:[cell(server)]="{ item: { [server]: status } }">
+          <div class="container-status small" v-if="status" :key="server">
+            <b-row class="row-nowrap">
+                <b-col>{{ $t('Alive') }}</b-col>
+                <b-col cols="auto">
+                  <b-badge v-if="status.alive && status.pid" pill variant="success">{{ status.pid }}</b-badge>
+                  <icon v-else class="text-danger" name="circle" />
+                </b-col>
+            </b-row>
+            <b-row class="row-nowrap">
+                <b-col>{{ $t('Enabled') }}</b-col>
+                <b-col cols="auto"><icon :class="(status.enabled) ? 'text-success' : 'text-danger'" name="circle" /></b-col>
+            </b-row>
+            <b-row class="row-nowrap">
+                <b-col>{{ $t('Managed') }}</b-col>
+                <b-col cols="auto"><icon :class="(status.managed) ? 'text-success' : 'text-danger'" name="circle" /></b-col>
+            </b-row>
+          </div>
+        </template>
+      </b-table>
+    </div>
+  </b-card>
 </template>
 
 <script>
 import pfEmptyTable from '@/components/pfEmptyTable'
 
+const components = {
+  pfEmptyTable
+}
+
+const props = {
+  storeName: { // from router
+    type: String,
+    default: null,
+    required: true
+  }
+}
+
+// @vue/component
 export default {
   name: 'cluster-services',
-  components: {
-    pfEmptyTable
-  },
-  props: {
-    storeName: { // from router
-      type: String,
-      default: null,
-      required: true
-    }
-  },
+  components,
+  props,
   computed: {
     isLoading () {
       return this.$store.getters[`${this.storeName}/isClusterServicesLoading`]
