@@ -76,7 +76,7 @@ const factory = (uuid, options = {}) => {
     },
     getters: {
       visibleColumns: state => state.columns
-        .filter(column => (column.required || column.locked || column.visible))
+        .filter(column => (column.locked || column.visible))
         .map(column => ({ ...column, label: i18n.t(column.label) })), // transliterate label
       placeholderBasic: state => {
         const [last, ...csv] = state.columns

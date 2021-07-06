@@ -16,7 +16,8 @@ export const useSearch = makeSearch('dnsLogs', {
       label: 'Log ID', // i18n defer
       searchable: true,
       required: true,
-      sortable: true
+      sortable: true,
+      visible: true
     },
     {
       key: 'created_at',
