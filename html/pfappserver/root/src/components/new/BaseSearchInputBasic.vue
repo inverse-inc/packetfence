@@ -4,7 +4,8 @@
       <div class="input-group-prepend">
         <div class="input-group-text"><icon name="search"></icon></div>
       </div>
-      <b-form-input :value="value" @input="onInput" type="text" :disabled="disabled" :placeholder="placeholder"></b-form-input>
+      <b-form-input :value="value" @input="onInput" type="text" :disabled="disabled" :placeholder="placeholder"
+        :title="title" v-b-tooltip.hover.left.d300 />
       <b-button class="ml-1" type="reset" variant="secondary" :disabled="disabled">{{ $t('Clear') }}</b-button>
       <!-- saved search button -->
       <base-button-save-search v-if="saveSearchNamespace"
@@ -35,6 +36,9 @@ const props = {
   placeholder: {
     type: String,
     default: i18n.t('Enter search criteria')
+  },
+  title: {
+    type: String
   },
   disabled: {
     type: Boolean

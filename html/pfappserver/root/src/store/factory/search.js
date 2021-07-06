@@ -83,6 +83,20 @@ const factory = (uuid, options = {}) => {
           .filter(column => column.searchable)
           .map(column => i18n.t(column.label))
           .reverse()
+        if (csv.length >= 4) { // 4+ fields
+          const limit = 3 // max num fields listed
+          return i18n.t('Search criteria for "{csv}" and {num} more.', { csv: csv.reverse().slice(0, limit).join('", "'), num: [ ...csv, last ].length - limit })
+        } else if (csv.length) { // 2+ fields
+          return i18n.t('Search criteria for "{csv}" or "{last}".', { csv: csv.reverse().join('", "'), last })
+        } else { // only 1 field
+          return i18n.t('Search criteria for "{only}".', { only: last })
+        }
+      },
+      titleBasic: state => {
+        const [last, ...csv] = state.columns
+          .filter(column => column.searchable)
+          .map(column => i18n.t(column.label))
+          .reverse()
         if (csv.length) {
           return i18n.t('Search criteria for "{csv}" or "{last}"', { csv: csv.reverse().join('", "'), last })
         } else {
