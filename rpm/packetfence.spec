@@ -436,6 +436,7 @@ done
 %{__install} -d %{buildroot}/usr/local/pf/var/control
 %{__install} -d %{buildroot}/etc/sudoers.d
 %{__install} -d %{buildroot}/etc/cron.d
+%{__install} -d %{buildroot}/usr/local/pf/docs
 touch %{buildroot}/usr/local/pf/var/cache_control
 cp Makefile %{buildroot}/usr/local/pf/
 cp config.mk %{buildroot}/usr/local/pf/
@@ -463,9 +464,9 @@ mv packetfence.cron.d %{buildroot}/etc/cron.d/packetfence
 cp -r ChangeLog %{buildroot}/usr/local/pf/
 cp -r COPYING %{buildroot}/usr/local/pf/
 cp -r db %{buildroot}/usr/local/pf/
-cp -r docs %{buildroot}/usr/local/pf/
-rm -rf %{buildroot}/usr/local/pf/docs/fonts
-rm -rf %{buildroot}/usr/local/pf/docs/api
+cp -r docs/images %{buildroot}/usr/local/pf/docs/
+cp docs/*.html %{buildroot}/usr/local/pf/docs/
+cp docs/*.js %{buildroot}/usr/local/pf/docs/
 
 # install Golang binaries
 %{__make} -C go DESTDIR=%{buildroot} copy
@@ -1086,9 +1087,10 @@ fi
 %doc                    /usr/local/pf/COPYING
 %dir                    /usr/local/pf/db
                         /usr/local/pf/db/*
-%dir                    /usr/local/pf/docs
-%doc                    /usr/local/pf/docs/*
-%exclude                /usr/local/pf/docs/README.asciidoc
+# only mark all files under docs/ as documentation
+%docdir                 /usr/local/pf/docs
+# add all files and directories under docs in package
+/usr/local/pf/docs
 
 ### html dir
 # %%dir will add only html dir, not subdirectories or files
@@ -1150,7 +1152,6 @@ fi
                         /usr/local/pf/html/captive-portal/templates
 # pfappserver dir
                         /usr/local/pf/html/pfappserver
-%doc                    /usr/local/pf/html/pfappserver/root/doc/*
 
 # lib dir
                         /usr/local/pf/lib/
