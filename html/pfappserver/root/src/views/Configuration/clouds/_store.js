@@ -10,7 +10,7 @@ export const useStore = $store => {
   return {
     isLoading: computed(() => $store.getters['$_clouds/isLoading']),
     getList: () => $store.dispatch('$_clouds/all'),
-    getListOptions: params => $store.dispatch('$_clouds/optionsByCloudType', params),
+    getListOptions: params => $store.dispatch('$_clouds/optionsByCloudType', params.cloudType),
     createItem: params => $store.dispatch('$_clouds/createCloud', params),
     getItem: params => $store.dispatch('$_clouds/getCloud', params.id).then(item => {
       return (params.isClone)

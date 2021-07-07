@@ -10,7 +10,7 @@ export const useStore = $store => {
   return {
     isLoading: computed(() => $store.getters['$_sources/isLoading']),
     getList: () => $store.dispatch('$_sources/all'),
-    getListOptions: params => $store.dispatch('$_sources/optionsBySourceType', params),
+    getListOptions: params => $store.dispatch('$_sources/optionsBySourceType', params.sourceType),
     createItem: params => $store.dispatch('$_sources/createAuthenticationSource', params),
     sortItems: params => $store.dispatch('$_sources/sortAuthenticationSources', params.items),
     getItem: params => $store.dispatch('$_sources/getAuthenticationSource', params.id).then(item => {
@@ -63,6 +63,7 @@ const actions = {
     })
   },
   optionsById: ({ commit }, id) => {
+console.log('optionsById', {id})
     commit('ITEM_REQUEST')
     return api.itemOptions(id).then(response => {
       commit('ITEM_SUCCESS')
@@ -73,6 +74,7 @@ const actions = {
     })
   },
   optionsBySourceType: ({ commit }, sourceType) => {
+
     commit('ITEM_REQUEST')
     return api.listOptions(sourceType).then(response => {
       commit('ITEM_SUCCESS')
