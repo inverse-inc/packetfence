@@ -30,7 +30,7 @@
           :save-search-namespace="`${uuid}Basic`"
           v-model="conditionBasic"
           :disabled="disabled || isLoading"
-          :placeholder="placeholderBasic"
+          :title="titleBasic"
           @reset="onSearchReset"
           @search="onSearchBasic"
         />

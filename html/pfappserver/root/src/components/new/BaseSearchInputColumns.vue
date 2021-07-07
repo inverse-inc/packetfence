@@ -1,5 +1,5 @@
 <template>
-  <b-dropdown size="sm" variant="link" no-caret right
+  <b-dropdown size="sm" variant="link" no-caret no-flip right lazy
     :disabled="disabled"
     @hidden="onCommit"
   >

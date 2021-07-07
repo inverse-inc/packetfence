@@ -1,10 +1,11 @@
 <template>
-  <b-form @submit.prevent="onSearch" @reset.prevent="onReset">
+  <b-form @submit.prevent="onSearch" @reset.prevent="onReset" id="form">
     <div class="input-group">
       <div class="input-group-prepend">
         <div class="input-group-text"><icon name="search"></icon></div>
       </div>
-      <b-form-input :value="value" @input="onInput" type="text" :disabled="disabled" :placeholder="placeholder"></b-form-input>
+      <b-form-input :value="value" @input="onInput" id="container" type="text" :disabled="disabled" :placeholder="placeholder"
+        :title="title" v-b-tooltip:form.v-primary.focus.top.d300="{ customClass: 'tooltip-grow' }" />
       <b-button class="ml-1" type="reset" variant="secondary" :disabled="disabled">{{ $t('Clear') }}</b-button>
       <!-- saved search button -->
       <base-button-save-search v-if="saveSearchNamespace"
@@ -35,6 +36,9 @@ const props = {
   placeholder: {
     type: String,
     default: i18n.t('Enter search criteria')
+  },
+  title: {
+    type: String
   },
   disabled: {
     type: Boolean
@@ -75,3 +79,10 @@ export default {
   setup
 }
 </script>
+<style lang="scss">
+.tooltip-grow {
+  .tooltip-inner {
+    max-width: 100vh;
+  }
+}
+</style>
