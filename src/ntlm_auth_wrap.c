@@ -75,7 +75,6 @@ struct arguments {
     char *binary;
     char *host;
     char *port;
-    char *args[];       // Arguments to ntlm_auth itself
 };
 
 /* Parse a single option. */
