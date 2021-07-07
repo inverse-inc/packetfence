@@ -63,7 +63,6 @@ const actions = {
     })
   },
   optionsById: ({ commit }, id) => {
-console.log('optionsById', {id})
     commit('ITEM_REQUEST')
     return api.itemOptions(id).then(response => {
       commit('ITEM_SUCCESS')
