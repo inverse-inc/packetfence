@@ -169,14 +169,9 @@ export default {
 }
 
 .base-input-range-label {
-/*
-padding-top: calc(0.375rem + 1px);
-padding-bottom: calc(0.375rem + 1px);
-
-*/
-line-height: 1.71429;
-  font-size: 0.7875rem;
+  font-size: $font-size-sm;
   font-weight: 500;
+  line-height: $font-size-base / $font-size-sm * $line-height-base;
   user-select: none;
   &:not(.is-disabled) {
     cursor: pointer;
