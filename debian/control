@@ -28,8 +28,8 @@ Breaks: libdata-alias-perl
 Depends: ${misc:Depends}, vlan,
  packetfence-ntlm-wrapper (>= ${source:Version}), packetfence-doc (>= ${source:Version}), packetfence-golang-daemon (>= ${source:Version}),
  openssl,
- mariadb-server (= 10.2.37+maria~stretch),
- mariadb-client (= 10.2.37+maria~stretch),
+ mariadb-server (>= 10.5.10),
+ mariadb-client (>= 10.5.10),
  snmp, snmptrapfmt, snmptrapd, snmp-mibs-downloader, conntrack, rsyslog,
 # apache related
  apache2, apache2-utils,
@@ -37,7 +37,7 @@ Depends: ${misc:Depends}, vlan,
  libapache2-request-perl, libtie-dxhash-perl, libapache-session-perl,
  libapache-ssllookup-perl, libapache2-mod-systemd,
 # freeradius
- freeradius (>= 3.0.21), freeradius-ldap,
+ freeradius (>= 3.0.23), freeradius-ldap,
  freeradius-mysql, freeradius-utils, freeradius-rest, freeradius-redis,
 # systemd sd_notify support
  libsystemd-daemon-perl,
