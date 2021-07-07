@@ -17,11 +17,6 @@ use pf::Authentication::Source::GoogleWorkspaceLDAPSource;
 extends 'pfappserver::Form::Config::Source::LDAP';
 our $META = pf::Authentication::Source::GoogleWorkspaceLDAPSource->meta;
 
-
-has_field client_certificate => (
-    type => 'TextArea',
-    required => 1,
-);
 #
 # Form fields
 has_field 'host' => (
