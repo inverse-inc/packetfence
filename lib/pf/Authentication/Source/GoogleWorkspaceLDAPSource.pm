@@ -22,20 +22,6 @@ has '+host' => ( default => sub { ["ldap.google.com"] });
 has '+port' => (default => 636);
 has '+encryption' => ('default' => 'ssl');
 
-=head2 ldap_attributes
-
-Add ldap search attributes for Active Directory
-memberOf:1.2.840.113556.1.4.1941: attribute is for nested group, see https://msdn.microsoft.com/en-us/library/aa746475%28v=vs.85%29.aspx
-
-=cut
-
-sub ldap_attributes {
-  my ($self) = @_;
-  return (
-    $self->SUPER::ldap_attributes,
-    );
-}
-
 =head1 AUTHOR
 
 Inverse inc. <info@inverse.ca>
