@@ -1,5 +1,53 @@
 import { pfActions } from '@/globals/pfActions'
 
+export const internalTypes = {
+  AD:                  i18n.t('Active Directory'),
+  Authorization:       i18n.t('Authorization'),
+  AzureAD:             i18n.t('AzureAD'),
+  EAPTLS:              'EAPTLS',
+  EDIR:                'Edirectory',
+  Htpasswd:            'Htpasswd',
+  GoogleWorkspaceLDAP: 'Google Workspace LDAP',
+  HTTP:                'HTTP',
+  Kerberos:            'Kerberos',
+  LDAP:                'LDAP',
+  Potd:                i18n.t('Password Of The Day'),
+  RADIUS:              'RADIUS',
+  SAML:                'SAML',
+}
+
+export const externalTypes = {
+  Clickatell:     'Clickatell',
+  Email:          i18n.t('Email'),
+  Facebook:       'Facebook',
+  Github:         'Github',
+  Google:         'Google',
+  Instagram:      'Instagram',
+  Kickbox:        'Kickbox',
+  LinkedIn:       'LinkedIn',
+  Null:           i18n.t('Null'),
+  OpenID:         'OpenID',
+  Pinterest:      'Pinterest',
+  SMS:            'SMS',
+  SponsorEmail:   i18n.t('Sponsor'),
+  Twilio:         'Twilio',
+  Twitter:        'Twitter',
+  WindowsLive:    'WindowsLive',
+}
+
+export const exclusiveTypes = {
+  AdminProxy:     i18n.t('AdminProxy'),
+  Blackhole:      'Blackhole',
+  Eduroam:        'Eduroam',
+}
+
+export const billingTypes = {
+  AuthorizeNet:   'AuthorizeNet',
+  Mirapay:        'Mirapay',
+  Paypal:         'Paypal',
+  Stripe:         'Stripe',
+}
+
 export const administrationRuleActionsFromSourceType = (sourceType) => ([
   ...[
     pfActions.set_access_level,
