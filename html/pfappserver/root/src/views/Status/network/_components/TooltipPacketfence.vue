@@ -8,12 +8,22 @@
 </template>
 
 <script>
+import { computed } from '@vue/composition-api'
+
+const setup = (props, context) => {
+
+  const { root: { $store } = {} } = context
+
+  const version = computed(() => $store.getters['system/version'])
+
+  return {
+    version
+  }
+}
+
+// @vue/component
 export default {
   name: 'tooltip-packetfence',
-  computed: {
-    version () {
-      return this.$store.getters['system/version']
-    }
-  }
+  setup
 }
 </script>

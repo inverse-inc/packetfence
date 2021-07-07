@@ -2,7 +2,7 @@ import store from '@/store'
 import acl from '@/utils/acl'
 import StoreModule from '../_store/'
 
-const TheView = () => import(/* webpackChunkName: "Configuration" */ './_components/TheView')
+const TheView = () => import(/* webpackChunkName: "Status" */ './_components/TheView')
 
 export const beforeEnter = (to, from, next = () => {}) => {
   if (!store.state.$_status)
