@@ -54,6 +54,7 @@ For a list of compatibility related changes see the <<PacketFence_Upgrade_Guide.
 * Authentication rule condition basedn matching does not work (Authentication rule condition basedn matching does not work #6402)
 * Filter netdata incoming connection (#6303)
 * CLI Switch Access for Avaya ERS Switches (#6399)
+* Avoid duplicate log entries "User <username> has authenticated on the portal"
 
 == Version 10.3.0 released on 2020-04-14
 
