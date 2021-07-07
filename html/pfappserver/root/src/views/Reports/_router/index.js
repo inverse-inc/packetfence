@@ -25,14 +25,10 @@ const route = {
   },
   children: [
     {
-      path: 'standard/chart/:path([a-zA-Z0-9-_/]+)/:start_datetime?/:end_datetime?',
+      path: 'standard/chart/:path([a-zA-Z0-9-_/]+)/',
       name: 'standardReportChart',
       component: StandardReportChart,
-      props: (route) => ({
-        path: route.params.path,
-        start_datetime: route.params.start_datetime,
-        end_datetime: route.params.end_datetime
-      }),
+      props: (route) => ({ path: route.params.path }),
       meta: {
         can: 'read reports'
       }
