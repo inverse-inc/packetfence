@@ -2,7 +2,7 @@
   <b-container fluid class="px-1">
     <b-form @submit.prevent="$emit('search')">
       <b-row class="bg-white rc align-items-center m-0 p-1 isdrag">
-        <b-input-group class="mr-1">
+        <b-input-group>
           <b-input-group-prepend v-if="icon || hasParents || hasSiblings"
             class="p-0"
             is-text>
@@ -14,11 +14,12 @@
               <icon name="th" />
             </span>
           </b-input-group-prepend>
-          <b-form-select v-model="value.field" :disabled="disabled" :options="fieldOptions" />
+          <b-form-select class="mr-1" v-model="value.field" :disabled="disabled" :options="fieldOptions" />
           <b-form-select class="mr-1" v-model="value.op" :disabled="disabled" :options="operatorOptions" />
           <component :is="valueComponentIs"
             v-bind="valueComponentProps"
             v-model="value.value"
+            class="mr-1"
           />
           <b-input-group-append v-if="hasParents || (hasSiblings && !isDrag)">
             <b-button
