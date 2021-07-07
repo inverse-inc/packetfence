@@ -17,7 +17,6 @@ use Moose;
 extends 'pf::Authentication::Source::LDAPSource';
 
 has '+type' => ( default => 'GoogleWorkspaceLDAP' );
-has 'client_certificate' => ( required => 1, default => 'GoogleWorkspaceLDAP' , is => 'rw');
 has '+host' => ( default => sub { ["ldap.google.com"] });
 has '+port' => (default => 636);
 has '+encryption' => ('default' => 'ssl');
