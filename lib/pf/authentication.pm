@@ -33,6 +33,7 @@ use Module::Pluggable
   'sub_name'    => 'sources',
   'require'     => 1,
   'inner'       => 0,
+  'except'      => qr/::(Billing|OAuth)Source$/,
   ;
 
 use Clone qw(clone);
