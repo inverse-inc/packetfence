@@ -679,5 +679,5 @@ Here is a brief description of the fields :
 * *Authentication URL* : URL relative to the host to call when doing the authentication of a user. Note that it is automatically prefixed by a slash.
 * *Authorization URL* : URL relative to the host to call when doing the authorization of a user. Note that it is automatically prefixed by a slash.
 
-include::installation/azuread.asciidoc[]
+include::azuread.asciidoc[]
 
