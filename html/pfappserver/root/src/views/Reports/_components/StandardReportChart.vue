@@ -4,7 +4,7 @@
       <h4 class="mb-0">{{ $t('Standard Report') }} / {{ $t(report.category) }} / {{ $t(report.name) }}</h4>
     </b-card-header>
 
-    <b-tabs ref="tabs" v-model="tabIndex" card>
+    <b-tabs ref="tabs" v-model="tabIndex" card lazy>
       <b-tab v-for="tab in tabs" :key="tab.name" :title="tab.name" no-body>
         <template v-slot:title>
           {{ $t(tab.name) }}
@@ -23,7 +23,7 @@
       @start="onChangeDatetimeStart"
       @end="onChangeDatetimeEnd"
       class="mt-3"
-    ></pf-report-chart>
+    />
 
     <div class="card-body">
       <b-table :items="items" :fields="visibleColumns" :sort-by="sortBy" :sort-desc="sortDesc" :sort-compare="sortCompare"
@@ -84,9 +84,7 @@ export default {
     pfReportChart
   },
   props: {
-    path: String, // from router
-    start_datetime: String, // from router
-    end_datetime: String // from router
+    path: String // from router
   },
   data () {
     return {
@@ -97,8 +95,6 @@ export default {
       isLoading: false,
       sortBy: undefined,
       sortDesc: false,
-      apiEndpoint: '',
-      tabIndex: 0,
       datetimeStart: '',
       datetimeEnd: ''
     }
@@ -137,10 +133,44 @@ export default {
      * search array and return single report matching path.
      */
     report () {
-      return reportCategories().map(category => category.reports.map(report => Object.assign({ category: category.name }, report))).reduce((l, n) => l.concat(n), []).filter(report => report.tabs.map(tab => tab.path).includes(this.path))[0]
+      return reportCategories()
+        .map(category => category.reports.map(report => Object.assign({ category: category.name }, report)))
+        .reduce((l, n) => l.concat(n), [])
+        .filter(report => report.tabs.map(tab => tab.path).includes(this.path))[0]
     },
     totalRows () {
       return this.items.length
+    },
+    apiEndpoint () {
+      const report = reportCategories()
+        .map(category => category.reports)
+        .reduce((l, n) => l.concat(n), [])
+        .filter(report => report.tabs.map(tab => tab.path).includes(this.path))[0]
+      const { tabs: { [this.tabIndex]: { range = false } = {} } = [] } = report
+      if (range) {
+        const rpath = this.getApiEndpointRangePath(range)
+        if (rpath)
+          return `reports/${this.path}${rpath}`
+      }
+      return `reports/${this.path}`
+    },
+    tabIndex: {
+      get: function() {
+        const { tabs = [] } = this.getReportByPath(this.path) || {}
+        const tabIndex = tabs.findIndex(tab => tab.path === this.path)
+        return Math.max(0, tabIndex)
+      },
+      set: function(tabIndex) {
+        const { tabs = [] } = this.getReportByPath(this.path) || {}
+        const { [tabIndex]: { path } = {} } = tabs
+        if (path && decodeURIComponent(path) !== this.path) {
+          const { params: { path: paramsPath } = {}, path: fullPath } = this.$route
+          const basePath = fullPath.replace(paramsPath, '')
+          const newPath = `${basePath}${path}`
+          this.$router.replace(newPath)
+          this.items = []
+        }
+      }
     }
   },
   methods: {
@@ -193,92 +223,31 @@ export default {
     },
     onChangeDatetimeStart (datetime) {
       this.datetimeStart = datetime
-      const rpath = this.getApiEndpointRangePath(this.range)
-      if (rpath) {
-        this.apiEndpoint = `reports/${this.path}${rpath}`
-      }
     },
     onChangeDatetimeEnd (datetime) {
       this.datetimeEnd = datetime
-      const rpath = this.getApiEndpointRangePath(this.range)
-      if (rpath) {
-        this.apiEndpoint = `reports/${this.path}${rpath}`
-      }
     },
     getApiEndpointRangePath (range) {
       const { datetimeStart, datetimeEnd } = this
-      if (range && datetimeStart && datetimeEnd) {
-        return `/${datetimeStart}/${datetimeEnd}`
-      }
-      return false
+      if (range && (datetimeStart || datetimeEnd))
+        return `/${datetimeStart || '1970-01-01 00:00:00'}/${datetimeEnd || '2038-01-01 00:00:00'}`
     },
     onSortingChanged () {
       // noop
     }
   },
-  beforeRouteUpdate (to, from, next) {
-    // trigger on every page-leave and only within same route '/reports'
-    if (
-      this.getReportCategoryByPath(from.params.path).name !== this.getReportCategoryByPath(to.params.path).name
-      ||
-      this.getReportByPath(to.params.path).name !== this.getReportByPath(from.params.path).name
-    ) {
-      this.tabIndex = 0
-    }
-    const report = reportCategories().map(category => category.reports).reduce((l, n) => l.concat(n), []).filter(report => report.tabs.map(tab => tab.path).includes(to.params.path))[0]
-    const { tabs: { [this.tabIndex]: { range = false } = {} } = {} } = report
-    if (range) {
-      const rpath = this.getApiEndpointRangePath(range)
-      if (rpath) {
-        this.apiEndpoint = `reports/${to.params.path}${rpath}`
-      }
-    } else {
-      this.apiEndpoint = `reports/${to.params.path}`
-    }
-    next()
-  },
-  beforeRouteEnter (to, from, next) {
-    // triggered only once on page-load to this route '/reports'
-    next(vm => {
-      vm.tabIndex = Math.max(0, vm.report.tabs.findIndex(tab => tab.path === to.params.path))
-      const range = vm.report.tabs[vm.tabIndex].range
-      if (range) {
-        const rpath = vm.getApiEndpointRangePath(range)
-        if (rpath) {
-          vm.apiEndpoint = `reports/${to.params.path}${rpath}`
-        }
-      } else {
-        vm.apiEndpoint = `reports/${to.params.path}`
-      }
-    })
-  },
   watch: {
-    apiEndpoint (a, b) {
-      if (a && a !== b) {
-        this.apiCall()
-      }
-    },
-    tabIndex (a, b) {
-      a = Math.max(0, a)
-      if (a !== b) {
-        this.items = []
-        /**
-         * mandatory `replace`,
-         * `push` confuses beforeRouteEnter, beforeRouteUpdate w/ history.go(-1)
-         */
-        const newPath = `/reports/standard/chart/${this.report.tabs[a].path}`
-        if (newPath !== this.$route.path) {
-          this.$router.replace(newPath)
-        }
-      }
+    apiEndpoint: {
+      handler (a, b) {
+        if (a && a !== b)
+          this.apiCall()
+      },
+      immediate: true
     }
   },
   created () {
     if (this.$can('read', 'nodes'))
       this.$store.dispatch('config/getRoles')
-    // if range defined in route, prepopulate datetime fields
-    this.datetimeStart = (this.start_datetime) ? this.start_datetime : ''
-    this.datetimeEnd = (this.end_datetime) ? this.end_datetime : ''
   }
 }
 </script>

@@ -30,10 +30,13 @@
                 </b-button-group>
             </b-form-row>
           </b-popover>
-          <base-input-group-date-time v-model="localDatetimeStart" 
-            :placeholder="$i18n.t('Start')" :disabled="isLoading" :max="maxStartDatetime" class="mr-3" />
-          <base-input-group-date-time v-model="localDatetimeEnd" 
-            :placeholder="$i18n.t('End')" :disabled="isLoading" :min="minEndDatetime" class="mr-3" />
+          <base-input-group-date-time v-model="localDatetimeStart"
+            :placeholder="$i18n.t('Start')" :disabled="isLoading" :max="maxStartDatetime" class="mr-1" />
+          <base-input-group-date-time v-model="localDatetimeEnd"
+            :placeholder="$i18n.t('End')" :disabled="isLoading" :min="minEndDatetime" />
+          <b-btn variant="link" :disabled="isLoading || (!localDatetimeStart && !localDatetimeEnd)" @click="clearRange">
+            <icon name="trash-alt"></icon>
+          </b-btn>
         </b-form>
       </b-col>
       <b-col cols="auto" class="mr-auto"></b-col>
@@ -162,6 +165,10 @@ export default {
       this.showPeriod = false
       this.$emit('end', format(new Date(), 'YYYY-MM-DD HH:mm:ss'))
       this.$emit('start', format(subSeconds(new Date(), period), 'YYYY-MM-DD HH:mm:ss'))
+    },
+    clearRange () {
+      this.localDatetimeStart = null
+      this.localDatetimeEnd = null
     }
   },
   watch: {
@@ -189,9 +196,10 @@ export default {
     },
     localDatetimeStart (a, b) {
       if (a !== b) {
-        if (a.replace(/[0-9]/g, '0') === '0000-00-00 00:00:00') {
+        if (!a || a.replace(/[0-9]/g, '0') === '0000-00-00 00:00:00') {
+          if (a)
+            this.minEndDatetime = a
           this.$emit('start', a)
-          this.minEndDatetime = a
         }
       }
     },
@@ -203,9 +211,10 @@ export default {
     },
     localDatetimeEnd (a, b) {
       if (a !== b) {
-        if (a.replace(/[0-9]/g, '0') === '0000-00-00 00:00:00') {
+        if (!a || a.replace(/[0-9]/g, '0') === '0000-00-00 00:00:00') {
+          if (a)
+            this.maxStartDatetime = a
           this.$emit('end', a)
-          this.maxStartDatetime = a
         }
       }
     }
