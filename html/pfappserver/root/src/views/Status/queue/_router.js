@@ -1,4 +1,4 @@
-const TheView = () => import(/* webpackChunkName: "Configuration" */ './_components/TheView')
+const TheView = () => import(/* webpackChunkName: "Status" */ './_components/TheView')
 
 export default [
   {

@@ -31,57 +31,64 @@
 </template>
 
 <script>
+const props = {
+  id: {
+    type: String
+  },
+  properties: {
+    type: Object,
+    default: () => ({})
+  }
+}
+
+import { ref, toRefs, watch } from '@vue/composition-api'
 import apiCall from '@/utils/api'
 
+const setup = props => {
+
+  const {
+    id,
+    properties
+  } = toRefs(props)
+
+  const switche = ref(false)
+  const isLoading = ref(false)
+  const isError = ref(false)
+
+  watch([id, properties], () => {
+    if (id.value !== 'unknown') {
+      this.isLoading = true
+      apiCall.getQuiet(`config/switch/${id.value}`)
+        .then(response => {
+          switche.value = response.data.item
+        })
+        .catch(err => {
+          if (Object.keys(properties.value).length > 0)
+            switche.value = properties.value // inherit properties from node
+          else
+            isError.value = err
+        })
+        .finally(() => {
+          isLoading.value = false
+        })
+    } else {
+      // id 'unknown'
+      switche.value = properties.value // inherit properties from node
+    }
+  }, { immediate: true })
+
+  return {
+    switche,
+    isLoading,
+    isError
+  }
+}
+
+// @vue/component
 export default {
   name: 'tooltip-switch',
-  props: {
-    id: {
-      type: String
-    },
-    properties: {
-      type: Object,
-      default: () => { return {} }
-    }
-  },
-  data () {
-    return {
-      switche: false,
-      isLoading: false,
-      isError: false
-    }
-  },
-  methods: {
-    init () {
-      if (this.id !== 'unknown') {
-        this.isLoading = true
-        apiCall.getQuiet(`config/switch/${this.id}`).then(response => {
-          this.switche = response.data.item
-          this.isLoading = false
-        }).catch(err => {
-          if (Object.keys(this.properties).length > 0) {
-            this.switche = this.properties // inherit properties from node
-          } else {
-            this.isError = err
-          }
-          this.isLoading = false
-        })
-      } else {
-        // id 'unknown'
-        this.switche = this.properties // inherit properties from node
-      }
-    }
-  },
-  mounted () {
-    this.init()
-  },
-  watch: {
-    id: {
-      handler: function () {
-        this.init()
-      }
-    }
-  }
+  props,
+  setup
 }
 </script>
 
