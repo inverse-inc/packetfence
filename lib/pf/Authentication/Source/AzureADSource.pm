@@ -127,12 +127,12 @@ sub authenticate {
     my $ua = $self->get_ua;
 
     my $r = $ua->post($self->build_token_url, [
-    	client_id => $self->client_id,
-    	client_secret => $self->client_secret,
-    	scope => 'openid email',
-    	grant_type => 'password',
-    	username => $username,
-    	password => $password,
+        client_id => $self->client_id,
+        client_secret => $self->client_secret,
+        scope => 'openid email',
+        grant_type => 'password',
+        username => $username,
+        password => $password,
     ]);
     if ($r->is_success) {
         return ($TRUE, $AUTH_SUCCESS_MSG);
