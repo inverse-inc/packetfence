@@ -171,12 +171,12 @@ const factory = (uuid, options = {}) => {
           this.doSearchCondition(this.defaultCondition())
       },
       doSearchString(string) {
-        const columns = this.useColumns(this.columns)
+        const columns = this.useColumns(this.columns, this.fields)
         const query = this.useString(string, columns)
         return this.doSearch(query)
       },
       doSearchCondition(condition) {
-        const columns = this.useColumns(this.columns)
+        const columns = this.useColumns(this.columns, this.fields)
         const query = this.useCondition(condition, columns)
         return this.doSearch(query)
       },

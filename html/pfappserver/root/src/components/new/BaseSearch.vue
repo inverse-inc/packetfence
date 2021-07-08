@@ -93,7 +93,7 @@ const props = {
 import { onMounted, ref, toRefs, watch } from '@vue/composition-api'
 import { usePreference } from '@/views/Configuration/_store/preferences'
 
-const setup = (props) => {
+const setup = (props, context) => {
 
   const {
     useSearch
@@ -117,6 +117,8 @@ const setup = (props) => {
     sortBy,
     sortDesc
   } = toRefs(search)
+
+  const { emit } = context
 
   const saveSearch = usePreference(`search::${uuid}`)
 
@@ -170,6 +172,7 @@ const setup = (props) => {
     }
     else
       doReset()
+    emit('basic', conditionBasic.value)
   }
 
   const onSearchAdvanced = () => {
@@ -182,6 +185,7 @@ const setup = (props) => {
     }
     else
       doReset()
+    emit('advanced', conditionAdvanced.value)
   }
 
   const onSearchReset = () => {
@@ -193,6 +197,7 @@ const setup = (props) => {
       saveSearch.value = rest
     })
     doReset()
+    emit('reset')
   }
 
   return {

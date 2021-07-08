@@ -132,8 +132,6 @@ export default {
 }
 </script><style lang="scss">
 .base-input-toggle {
-  /* match height of input element to vertically align w/ form-group label */
-  min-height: $input-height;
   display: flex;
   align-items: center;
   justify-content: inherit;
