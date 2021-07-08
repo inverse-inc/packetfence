@@ -16,9 +16,10 @@ use strict;
 use warnings;
 BEGIN {
     $ENV{SQL_ABSTRACT_MORE_EXTENDS} = 'Classic';
+    use SQL::Abstract::Classic;
+    use SQL::Abstract::Plugin::InsertMulti;
 }
 
-use SQL::Abstract::Plugin::InsertMulti;
 use parent qw(SQL::Abstract::More);
 use MRO::Compat;
 use mro 'c3'; # implements next::method
@@ -32,6 +33,13 @@ BEGIN {
     *puke = \&SQL::Abstract::puke;
     *belch = \&SQL::Abstract::belch;
     *_called_with_named_args = \&SQL::Abstract::More::_called_with_named_args;
+}
+
+{
+	no strict 'refs';
+	for my $f (qw(insert_multi update_multi _insert_multi _insert_multi_HASHREF _insert_multi_ARRAYREF _insert_multi_values _insert_multi_process_args)) {
+		*{$f} = \&{"SQL::Abstract::Plugin::InsertMulti::$f"};
+	}
 }
 
 #----------------------------------------------------------------------
