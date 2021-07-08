@@ -44,7 +44,7 @@ Depends: ${misc:Depends}, vlan,
 # binary
  make, binutils,
  samba,
- python-impacket,
+ python3-impacket,
  krb5-user,
  iproute,
  ipset,
