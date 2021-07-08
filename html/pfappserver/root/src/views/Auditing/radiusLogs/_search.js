@@ -157,8 +157,7 @@ export const useSearch = makeSearch('radiusLogs', {
       key: 'uuid',
       label: 'Unique ID', // i18n defer
       searchable: true,
-      sortable: true,
-      visible: true
+      sortable: true
     },
     {
       key: 'switch_id',
@@ -236,7 +235,8 @@ export const useSearch = makeSearch('radiusLogs', {
       key: 'ssid',
       label: 'SSID', // i18n defer
       searchable: true,
-      sortable: true
+      sortable: true,
+      visible: true
     },
     {
       key: 'request_time',
