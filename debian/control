@@ -46,7 +46,7 @@ Depends: ${misc:Depends}, vlan,
  samba,
  python3-impacket,
  krb5-user,
- iproute,
+ iproute2,
  ipset,
  sudo,
  sscep (>= 0.9),
@@ -136,7 +136,7 @@ Depends: ${misc:Depends}, vlan,
 # cluster
  haproxy (>= 1.8), keepalived (>= 2.0), arping,
 # monitoring
- fping, python-mysqldb,
+ fping, python3-mysqldb,
 # EAP TLS
  libcrypt-smime-perl, libnumber-range-perl,
 # Captive Portal Dynamic Routing
@@ -146,7 +146,7 @@ Depends: ${misc:Depends}, vlan,
 # for packaging
  lsb-release,
 # nthash cache
- libscalar-list-utils-perl (>= 1.41-1),libfile-fcntllock-perl,libjson-xs-perl,libmoo-perl,libnet-dns-perl,python-twisted-bin,python-twisted-core,libconfig-inifiles-perl,
+ libscalar-list-utils-perl (>= 1.41-1),libfile-fcntllock-perl,libjson-xs-perl,libmoo-perl,libnet-dns-perl,python3-twisted-bin,python3-twisted-core,libconfig-inifiles-perl,
 # fuse
  fuse,
 # Distribution specific
