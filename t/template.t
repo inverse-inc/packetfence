@@ -14,7 +14,6 @@ unit test for template
 
 use strict;
 use warnings;
-use Template::Parser;
 #
 use lib qw(/usr/local/pf/lib /usr/local/pf/lib_perl/lib/perl5);
 
@@ -26,6 +25,7 @@ BEGIN {
 use File::Find;
 
 use Test::More;
+use Template::Parser;
 
 #This test will running last
 use Test::NoWarnings;
