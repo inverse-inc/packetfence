@@ -45,14 +45,14 @@ if echo "$db_dump" | grep '\.sql$' >/dev/null; then
   #TODO /tmp/grants.sql should be included in the export
   import_mysqldump /tmp/grants.sql $db_dump usr/local/pf/conf/pf.conf
 elif echo "$db_dump" | grep '\.xbstream$' >/dev/null; then
-  echo "The database uses innobackup/mariabackup"
+  echo "The database uses innobackup/mariabackup which this script doesn't yet support"
+  exit 1
 fi
 
 db_name=`get_db_name usr/local/pf/conf/pf.conf`
-
 upgrade_database $db_name
 
+# Done with everything, time to cleanup!
 cd -
-
 rm -fr $extract_dir
 
