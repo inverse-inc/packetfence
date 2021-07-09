@@ -1,0 +1,79 @@
+// to display images directly on GitHub
+ifdef::env-github[]
+:encoding: UTF-8
+:lang: en
+:doctype: book
+:toc: left
+:imagesdir: ../../images
+endif::[]
+
+////
+
+    This file is part of the PacketFence project.
+
+    See PacketFence_Installation_Guide.asciidoc
+    for authors, copyright and license information.
+
+////
+
+
+=== Creating a service account JSON config
+
+In order to communicate with the Google API you must configure a service account, and download JSON security keys, and create a user to impersonate with the proper permissions.
+
+These instructions have been adapted from https://developers.google.com/identity/protocols/oauth2/service-account.
+
+* Open the Service accounts page https://console.developers.google.com/iam-admin/serviceaccounts.
+* If prompted, select a project, or create a new one.
+* Click add Create service account.
+* Under Service account details, type a name, ID, and description for the service account, then click Create.
+* Click on the newly created service account.
+* Click on SHOW DOMAIN-WIDE DELEGATION
+   * Select Enable Google Workspace Domain-wide Delegation
+   * Save
+* Copy the Client ID provided
+* Click on Keys > Add Key > Create New Key > Key Type JSON > Create.
+   * Note where the JSON file is stored.
+
+==== Delegating domain-wide authority to the service account
+
+* Go to https://admin.google.com/ click on the Main Menu > Security > API Controls.
+* Scroll down to the Domain wide delegation pane, select Manage Domain Wide Delegation.
+* Click Add new.
+* In the Client ID field, enter the newly created service account's Client ID.
+* In the OAuth scopes (comma-delimited) field, enter the the scope https://www.googleapis.com/auth/admin.directory.device.chromeos.readonly
+* Click Authorize.
+
+==== Create Role
+
+* Go to https://admin.google.com/ click on the Main Menu > Account > Admin roles.
+* Click 'Create new role'
+* Enter Name and Description click 'CONTINUE'
+* Assign the Role Services > Chrome OS > Settings > Manage Devices, then click 'CONTINUE'
+* Click 'CREATE ROLE'
+
+==== Create a user if needed.
+* Go to https://admin.google.com/ click on the Main Menu > Directory > Users.
+* Click 'Create new user'
+* Enter First Name, Last Name and Primary email. then click 'ADD NEW USER'.
+
+==== Assign Role to a user.
+
+* Go to https://admin.google.com/ click on the Main Menu > Directory > Users.
+* Select user for service account
+* Click 'Admin roles and privileges'
+* Assign the Role previously created.
+
+=== Configure PacketFence
+
+===== Create a new provisioner
+
+Login in the PacketFence administration interface, then go to 'Configuration' > 'Advanced Access Configuration' > 'Provisioners' > 'New provisioner' > 'Google Workspace Chromebook'.
+
+image::google-workspace-chromebook-config.png[scaledwidth="100%",alt="Google Workspace Chromebook portal configuration"]
+
+Now configure this new provisioner with the information you got above.
+
+* The Provisioning ID is the friendly name of the provisioner.
+* User for service account to impersonate.
+* The JSON security keys for Service Account created.
