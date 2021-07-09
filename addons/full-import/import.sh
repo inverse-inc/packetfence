@@ -47,6 +47,9 @@ if echo "$db_dump" | grep '\.sql$' >/dev/null; then
 elif echo "$db_dump" | grep '\.xbstream$' >/dev/null; then
   echo "The database uses innobackup/mariabackup which this script doesn't yet support"
   exit 1
+else
+  echo "Unable to detect format of the database dump"
+  exit 1
 fi
 
 db_name=`get_db_name usr/local/pf/conf/pf.conf`
