@@ -1,5 +1,5 @@
 - hosts: pfservers
-  name: upgrade CentOS OS to latest version
+  name: upgrade EL OS to latest version
   become: True
   gather_facts: True
   tags: upgrade
