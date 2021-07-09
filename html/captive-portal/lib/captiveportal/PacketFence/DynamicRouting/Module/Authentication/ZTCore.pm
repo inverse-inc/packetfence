@@ -91,7 +91,7 @@ Handle the assertion that comes back from the IDP
 sub assertion {
     my ($self) = @_;
 
-    my ($result, $msg) = $self->source->handle_response($self->app->hashed_params()->{"ZTCoreResponse"});
+    my ($result, $msg) = $self->source->handle_response($self->app->hashed_params());
 
     # We strip the username if required
     (my $username, undef) = pf::config::util::strip_username_if_needed($result->{uid}, $pf::constants::realm::PORTAL_CONTEXT);

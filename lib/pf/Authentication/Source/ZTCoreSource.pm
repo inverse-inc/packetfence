@@ -156,10 +156,18 @@ Handle the response from the Identity Provider and extract the username out of t
 =cut
 
 sub handle_response {
-    my ($self, $response) = @_;
+    my ($self, $params) = @_;
 
-    my $result = decode_base64($response);
-    $result = decode_json($result);
+    my $iv = decode_base64($params->{ZTCoreResponseIV});
+    my $ciphertext = decode_base64($params->{ZTCoreResponseCIPHERTEXT});
+    
+    use Crypt::Mode::CBC;
+    my $m = Crypt::Mode::CBC->new('AES');
+    my $assertion = $m->decrypt($ciphertext, pack("H*", "f2ca1bb6c7e907d06dafe4687e579fce76b37e4e93b7605022da52e6ccc26fd2"), $iv);
+
+    my $result = decode_json($assertion);
+    # TEMP HACK: ZTCore returns the user role with a lower case which doesn't match our default value. This will need to be fixed on the ZTCore policy side
+    $result->{role} = $result->{role} eq "user" ? "User" : $result->{role};
 
     return ($result, "Success");
 }
