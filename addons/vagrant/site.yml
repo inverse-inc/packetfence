@@ -1,12 +1,16 @@
 ---
 # no sub directory for ansible playbooks to find roles under roles/ directory
+- import_playbook: env_vars.yml
+
+- import_playbook: utils/psonoci.yml
+
+- import_playbook: register_rhel_subscription.yml
+
 - import_playbook: upgrade_centos_os.yml
 
 - import_playbook: config_dev_repos.yml
 
 - import_playbook: install_pf.yml
-    
-- import_playbook: env_vars.yml
   
 - import_playbook: go_env.yml
   when: lookup("env", "GOLANG_UNIT_TESTS") == 'yes'
@@ -20,6 +24,7 @@
 - import_playbook: nodes_post_prov.yml
   
 - import_playbook: wireless.yml
-  
+
 - import_playbook: utils.yml
 
+- import_playbook: unregister_rhel_subscription.yml

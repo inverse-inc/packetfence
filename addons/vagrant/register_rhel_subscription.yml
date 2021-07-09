@@ -1,0 +1,28 @@
+- hosts: pfservers
+  name: Register RHEL subscription
+  become: True
+  gather_facts: True
+  tags: register
+
+  tasks:
+    - name: Get RHEL username using psonoci
+      ansible.builtin.command:
+        cmd: 'psonoci secret get {{ rhel_sub_psono_secret_id }} username'
+      register: reg_rhel_sub_register_username
+      when: rhel_sub_psono_secret_id
+      no_log: True
+
+    - name: Get RHEL password using psonoci
+      ansible.builtin.command:
+        cmd: 'psonoci secret get {{ rhel_sub_psono_secret_id }} password'
+      register: reg_rhel_sub_register_password
+      when: rhel_sub_psono_secret_id
+      no_log: True
+      
+    - name: Register RHEL subscription
+      community.general.redhat_subscription:
+        state: present
+        username: '{{ reg_rhel_sub_register_username.stdout | d(rhel_subscription_user) }}'
+        password: '{{ reg_rhel_sub_register_password.stdout | d(rhel_subscription_password) }}'
+        auto_attach: true
+      when: ansible_os_family == 'RedHat'
