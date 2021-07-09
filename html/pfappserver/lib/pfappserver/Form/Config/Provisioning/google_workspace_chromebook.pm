@@ -33,23 +33,13 @@ has_field service_account => (
     required => 1,
 );
 
-has_field customer_id => (
-    type => 'Text',
-    default_method => \&default_field_method,
-);
-
 has_field user => (
     type => 'Text',
     required => 1,
 );
 
-has_field expires_in => (
-    type => 'Integer',
-    default_method => \&default_field_method,
-);
-
-has_field expires_jitter => (
-    type => 'Integer',
+has_field customer_id => (
+    type => 'Text',
     default_method => \&default_field_method,
 );
 
