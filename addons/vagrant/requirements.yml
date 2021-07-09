@@ -13,6 +13,11 @@ roles:
 collections:
   - name: inverse_inc.packetfence
     version: 1.2.0-1
+
+  - name: https://github.com/inverse-inc/ansible-packetfence.git
+    type: git
+    verrsion: feature/rhel8
+    
   - name: debops.debops
   - name: inverse_inc.windows
   - name: inverse_inc.cumulus
@@ -24,3 +29,4 @@ collections:
   # - name: file:///home/nqb/git/ansible-packetfence/.git
   #   type: git
   #   version: feature/my-branch
+
