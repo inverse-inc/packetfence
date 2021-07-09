@@ -143,9 +143,8 @@ sub sso_url {
     my ($self) = @_;
     
     my $url = $self->auth_base_url;
-    my $sid = generate_session_id();
     my $assertion_url = $self->assertion_url;
-    $url .= "?session_id=$sid&assertion_url=$assertion_url";
+    $url .= "?url=$assertion_url";
 
     return $url;
 }
@@ -158,11 +157,9 @@ Handle the response from the Identity Provider and extract the username out of t
 
 sub handle_response {
     my ($self, $response) = @_;
-    
+
     my $result = decode_base64($response);
     $result = decode_json($result);
-
-    use Data::Dumper ; use pf::log ; get_logger->info(Dumper($result));
 
     return ($result, "Success");
 }
