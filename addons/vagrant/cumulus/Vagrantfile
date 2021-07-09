@@ -284,9 +284,6 @@ vagrant_interface_rule
     #   see note here: https://github.com/pradels/vagrant-libvirt#synced-folders
     device.vm.synced_folder ".", "/vagrant", disabled: true
 
-    # to run Venom tests
-    device.vm.synced_folder "../../t", "/src/t", type: "rsync", rsync__args: ["--verbose", "--archive", "--delete", "-z"]
-
     # NETWORK INTERFACES
       # link for eth0 --> switch01:swp11 (vlan17)
       device.vm.network "private_network",
@@ -401,9 +398,6 @@ vagrant_interface_rule
     end
     #   see note here: https://github.com/pradels/vagrant-libvirt#synced-folders
     device.vm.synced_folder ".", "/vagrant", disabled: true
-
-    # to run Venom tests
-    device.vm.synced_folder "../../t", "/src/t", type: "rsync", rsync__args: ["--verbose", "--archive", "--delete", "-z"]
 
     # NETWORK INTERFACES
       # link for eth0 --> switch01:swp14 (vlan17)

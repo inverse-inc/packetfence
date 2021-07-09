@@ -33,22 +33,17 @@ clean:
 delete:
 	./vagrant-wrapper.sh delete
 
-.PHONY: get-public
-get-public:
-	./get_public_from_gitlab.sh
-
-
 ### Targets used for local tests
 # test
 .PHONY: test-pfcen7dev-dev
-test-pfcen7dev-dev: get-public
+test-pfcen7dev-dev:
 	make PF_VM_NAME=pfcen7dev \
 	PERL_UNIT_TESTS=yes \
 	GOLANG_UNIT_TESTS=yes \
 	test
 
 .PHONY: test-pfdeb9dev-dev
-test-pfdeb9dev-dev: get-public
+test-pfdeb9dev-dev:
 	make PF_VM_NAME=pfdeb9dev \
 	PERL_UNIT_TESTS=no \
 	GOLANG_UNIT_TESTS=yes \
@@ -61,13 +56,13 @@ test-pfcen7dev-release: get-public
 	test
 
 .PHONY: test-pfdeb9dev-release
-test-pfdeb9dev-release: get-public
+test-pfdeb9dev-release:
 	make PF_VM_NAME=pfdeb9dev \
 	CI_COMMIT_TAG=vX.Y.Z \
 	test
 
 .PHONY: test-int-pfcen7dev-dev
-test-int-pfcen7dev-dev: get-public
+test-int-pfcen7dev-dev:
 	make PF_VM_NAME=pfcen7dev \
 	INT_TEST_VM_NAMES='ad switch01 node01 wireless01' \
 	PERL_UNIT_TESTS=yes \
@@ -76,7 +71,7 @@ test-int-pfcen7dev-dev: get-public
 	test
 
 .PHONY: test-int-pfdeb9dev-dev
-test-int-pfdeb9dev-dev: get-public
+test-int-pfdeb9dev-dev:
 	make PF_VM_NAME=pfdeb9dev \
 	INT_TEST_VM_NAMES='ad switch01 node01 wireless01' \
 	PERL_UNIT_TESTS=no \
@@ -90,7 +85,7 @@ test-int-dev: PERL_UNIT_TESTS=no
 test-int-dev: GOLANG_UNIT_TESTS=no
 test-int-dev: INTEGRATION_TESTS=yes
 test-int-dev: INT_TEST_VM_NAMES=ad switch01 node01 wireless01
-test-int-dev: get-public
+test-int-dev:
 	make PF_VM_NAME=$(PF_VM_NAME) \
 	INT_TEST_VM_NAMES="$(INT_TEST_VM_NAMES)" \
 	PERL_UNIT_TESTS=$(PERL_UNIT_TESTS) \
