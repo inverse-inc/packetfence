@@ -39,25 +39,15 @@
       :text="$i18n.t('Nodes with the selected roles will be affected.')"
     />
 
-        <form-group-oses namespace="oses"
-          :column-label="$i18n.t('OS')"
-          :text="$i18n.t('Nodes with the selected OS will be affected.')"
-        />
+    <form-group-oses namespace="oses"
+      :column-label="$i18n.t('OS')"
+      :text="$i18n.t('Nodes with the selected OS will be affected.')"
+    />
 
    <form-group-non-compliance-security-event namespace="non_compliance_security_event"
      :column-label="$i18n.t('Non compliance security event')"
      :text="$i18n.t('Which security event should be raised when non compliance is detected.')"
    />
-
-    <form-group-expires-in namespace="expires_in"
-      :column-label="$i18n.t('Token Expires In')"
-      :text="$i18n.t('The amount of seconds of the suggested expiration time.')"
-    />
-
-    <form-group-expires-in namespace="expires_jitter"
-      :column-label="$i18n.t('Token Expires Jitter')"
-      :text="$i18n.t('The token expiration jitter.')"
-    />
 
     <form-group-user namespace="user"
       :column-label="$i18n.t('User')"
