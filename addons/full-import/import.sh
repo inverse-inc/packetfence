@@ -2,6 +2,7 @@
 
 source /usr/local/pf/addons/full-import/helpers.functions
 source /usr/local/pf/addons/full-import/database.functions
+source /usr/local/pf/addons/full-import/configuration.functions
 
 dump_path="$1"
 
@@ -54,6 +55,10 @@ fi
 
 db_name=`get_db_name usr/local/pf/conf/pf.conf`
 upgrade_database $db_name
+
+restore_config_files `pwd`
+
+handle_network_change
 
 # Done with everything, time to cleanup!
 cd -

@@ -1,0 +1,64 @@
+#!/bin/bash
+
+function config_files() {
+  perl -I/usr/local/pf/lib_perl5/lib -I/usr/local/pf/lib -Mpf::file_paths -e 'print join("\n", @pf::file_paths::stored_config_files) . "\n"'
+}
+
+function restore_config_files() {
+  echo "Restoring configuration files"
+  dump_dir="$1"
+  files=`config_files`
+  for f in $files; do
+    echo "Restoring $f"
+    cp -a "$dump_dir$f" $f
+    chown pf: $f
+  done
+}
+
+function list_pf_interfaces() {
+  perl -MConfig::IniFiles -I/usr/local/pf/lib_perl/lib/perl5/ -e "print join(\"\n\", Config::IniFiles->new( -file => '/usr/local/pf/conf/pf.conf')->GroupMembers('interface')) . \"\n\"" | sed 's/^interface //g'
+}
+
+function get_os_ip_address() {
+  ip a show dev $1 | egrep -o 'inet [0-9]+\.[0-9]+\.[0-9]+\.[0-9]+' | sed 's/^inet //g'
+}
+
+function get_pf_ip_address() {
+  perl -MConfig::IniFiles -I/usr/local/pf/lib_perl/lib/perl5/ -e "print Config::IniFiles->new( -file => '/usr/local/pf/conf/pf.conf')->val('interface $1', 'ip')" 
+}
+
+function rewrite_pf_ip_address() {
+  perl -MConfig::IniFiles -I/usr/local/pf/lib_perl/lib/perl5/ -e "\$c = Config::IniFiles->new( -file => '/usr/local/pf/conf/pf.conf') ; \$c->setval('interface $1', 'ip', '$2') ; \$c->RewriteConfig"
+}
+
+function handle_interface_exists() {
+  interface="$1"
+  os_ip=`get_os_ip_address $interface`
+  pf_ip=`get_pf_ip_address $interface`
+  if [ "$os_ip" == "$pf_ip" ]; then
+    echo "IP address on $interface is the same on the operating system as it is in pf.conf. Nothing to do for this one!"
+  else
+    if prompt "IP address on interface $interface differs from the one in pf.conf. If you wish to use $pf_ip as the IP address on this server, you need to change the IP before running this script or after. Do you want to adjust pf.conf to use $os_ip?"; then
+      echo "Rewritting IP address for $interface to $os_ip in pf.conf"
+      rewrite_pf_ip_address $interface $os_ip
+      check_code $?
+    else
+      echo "Leaving $interface untouched in pf.conf"
+    fi
+  fi
+}
+
+function handle_network_change() {
+  echo "Checking interfaces in pf.conf for any necessary network configuration changes"
+  for interface in `list_pf_interfaces`; do
+    echo "Found interface $interface in pf.conf"
+    if ip a show dev $interface > /dev/null; then
+      handle_interface_exists $interface
+      check_code $?
+    else
+      echo "Cannot find interface $interface on the system. Please select a new interface to replace it from the list below:"
+      ip a show | sed -r 's/^([0-9])/Option \1/'
+      # TODO
+    fi
+  done
+}

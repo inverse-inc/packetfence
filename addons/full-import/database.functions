@@ -1,5 +1,9 @@
 #!/bin/bash
 
+function test_db_connection_no_creds() {
+  mysql -e 'select 1' > /dev/null
+}
+
 function get_db_name() {
   pf_conf="$1"
   db_name=`perl -MConfig::IniFiles -I/usr/local/pf/lib_perl/lib/perl5/ -e "print Config::IniFiles->new( -file => '$pf_conf')->val("database", "db")"`
@@ -22,7 +26,7 @@ function import_mysqldump() {
 
   mariadb_args=""
   # we need a grant dump generated via: mysql ${MYSQL_CONN} --skip-column-names -A -e"SELECT CONCAT('SHOW GRANTS FOR ''',user,'''@''',host,''';') FROM mysql.user WHERE user<>''" | mysql ${MYSQL_CONN} --skip-column-names -A | sed 's/$/;/g' > grants.sql
-  if ! mysql -e 'select 1'; then
+  if ! test_db_connection_no_creds; then
     echo -n "Please enter the root password for MariaDB:"
     read -s mariadb_root_pass
     mariadb_args="$mariadb_args -p$mariadb_root_pass"
@@ -50,7 +54,7 @@ function upgrade_path() {
 }
 
 function upgrade_database() {
-  if ! mysql -e 'select 1'; then
+  if ! test_db_connection_no_creds; then
     echo -n "Please enter the root password for MariaDB:"
     read -s mariadb_root_pass
     mariadb_args="$mariadb_args -p$mariadb_root_pass"

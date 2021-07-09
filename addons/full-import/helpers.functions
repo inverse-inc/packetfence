@@ -11,3 +11,17 @@ function check_code() {
   fi
 }
 
+function prompt() {
+  msg="$1"
+  answer=""
+  while [ "$answer" != "y" ] && [ "$answer" != "n" ]; do
+    echo -n "$msg (y/n): "
+    read answer
+  done
+  
+  if [ "$answer" == "y" ]; then
+    return 0
+  else
+    return 1
+  fi
+}
