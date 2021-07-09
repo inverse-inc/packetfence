@@ -26,10 +26,10 @@ put them in a desired state.
 .IP addresses assigned to virtual machines
 |===
 | Virtual machine | Network name | IP address
-| pfcen7dev | Management | 172.17.17.10
-| pfcen7stable | Management | 172.17.17.14
-| pfdeb9dev | Management | 172.17.17.12
-| pfdeb9stable | Management | 172.17.17.16
+| pfel8dev | Management | 172.17.17.10
+| pfel8stable | Management | 172.17.17.14
+| pfdeb11dev | Management | 172.17.17.12
+| pfdeb11stable | Management | 172.17.17.16
 | ad | Management | 172.17.17.100
 | linux01 | Management | 172.17.17.101
 | linux02 | Management | 172.17.17.102

@@ -94,26 +94,10 @@ all:
       children:
         dev:
           hosts:
-            pfcen7dev:
-              box: centos/7
-              box_version: '2004.01'
+            pfel8dev:
+              box: generic/rhel8
+              box_version: '3.2.24'
               mgmt_ip: 172.17.17.10
-              mgmt_netmask: 255.255.255.0
-              ansible_host: "{{ mgmt_ip }}"
-              cpus: 2
-              memory: 6144
-            pfcen8dev:
-              box: centos/8
-              box_version: '1905.1'
-              mgmt_ip: 172.17.17.11
-              mgmt_netmask: 255.255.255.0
-              ansible_host: "{{ mgmt_ip }}"
-              cpus: 2
-              memory: 6144
-            pfdeb9dev:
-              box: inverse-inc/pfdeb9dev
-              box_version: 11.0.20210701051105
-              mgmt_ip: 172.17.17.12
               mgmt_netmask: 255.255.255.0
               ansible_host: "{{ mgmt_ip }}"
               cpus: 2
@@ -121,23 +105,23 @@ all:
             pfdeb11dev:
               box: debian/bullseye64
               box_version: 11.20210409.1
-              mgmt_ip: 172.17.17.13
+              mgmt_ip: 172.17.17.12
               mgmt_netmask: 255.255.255.0
               ansible_host: "{{ mgmt_ip }}"
               cpus: 2
               memory: 6144
-            pfrhel8dev:
+            el8dev:
               box: generic/rhel8
               box_version: '3.2.24'
-              mgmt_ip: 172.17.17.14
+              mgmt_ip: 172.17.17.11
               mgmt_netmask: 255.255.255.0
               ansible_host: "{{ mgmt_ip }}"
               cpus: 2
               memory: 6144
-            deb9dev:
-              box: debian/stretch64
-              box_version: 9.12.0
-              mgmt_ip: 172.17.17.15
+            deb11dev:
+              box: debian/bullseye64
+              box_version: 11.20210409.1
+              mgmt_ip: 172.17.17.13
               mgmt_netmask: 255.255.255.0
               ansible_host: "{{ mgmt_ip }}"
               cpus: 2
@@ -145,34 +129,18 @@ all:
 
         stable:
           hosts:
-            pfcen7stable:
-              box: centos/7
-              box_version: '2004.01'
+            pfel8stable:
+              box: generic/rhel8
+              box_version: '3.2.24'
               mgmt_ip: 172.17.17.14
               mgmt_netmask: 255.255.255.0
               ansible_host: "{{ mgmt_ip }}"
               cpus: 2
-              memory: 6144
-            pfcen8stable:
-              box: centos/8
-              box_version: '1905.1'
-              mgmt_ip: 172.17.17.15
-              mgmt_netmask: 255.255.255.0
-              ansible_host: "{{ mgmt_ip }}"
-              cpus: 2
-              memory: 6144
-            pfdeb9stable:
-              box: inverse-inc/pfdeb9stable
-              box_version: 10.3.20210414165339
-              mgmt_ip: 172.17.17.16
-              mgmt_netmask: 255.255.255.0
-              ansible_host: "{{ mgmt_ip }}"
-              cpus: 2
               memory: 8192
-            pfdeb10stable:
-              box: debian/buster64
-              box_version: 10.20210228.1
-              mgmt_ip: 172.17.17.17
+            pfdeb11stable:
+              box: debian/bullseye64
+              box_version: 11.20210409.1
+              mgmt_ip: 172.17.17.16
               mgmt_netmask: 255.255.255.0
               ansible_host: "{{ mgmt_ip }}"
               cpus: 2
