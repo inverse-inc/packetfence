@@ -1,7 +1,7 @@
 - name: install selinux package on hosts for next task
   yum:
     name:
-      - libselinux-python
+      - python3-libselinux
   when: ansible_selinux['status'] == 'enabled'
 
 - name: ensure SELinux is disabled

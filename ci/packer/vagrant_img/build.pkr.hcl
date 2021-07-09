@@ -1,8 +1,8 @@
 build {
   name = "dev"
   sources = [
-    "source.vagrant.centos-7",
-    "source.vagrant.debian-9"
+    "source.vagrant.el-8",
+    "source.vagrant.debian-11"
   ]
 
   provisioner "ansible" {
@@ -22,13 +22,13 @@ build {
   }
 
   provisioner "file" {
-    only = ["vagrant.centos-7"]
+    only = ["vagrant.el-8"]
     source = "${var.pfroot_dir}/rpm/packetfence.spec"
     destination = "${var.spec_file_path}"
   }
   
   provisioner "shell" {
-    only = ["vagrant.centos-7"]
+    only = ["vagrant.el-8"]
     execute_command = "echo 'vagrant' | {{.Vars}} sudo -S -E bash '{{.Path}}'"
     script = "${var.pfroot_dir}/addons/dev-helpers/centos-chroot/install-packages-from-spec.sh"
     environment_vars = [
@@ -37,7 +37,7 @@ build {
   }
 
   provisioner "shell" {
-    only = ["vagrant.debian-9"]
+    only = ["vagrant.debian-11"]
     execute_command = "echo 'vagrant' | {{.Vars}} sudo -S -E bash '{{.Path}}'"
     script = "${var.pfroot_dir}/addons/dev-helpers/debian/install-pf-dependencies.sh"
   }
@@ -57,8 +57,8 @@ build {
 build {
   name = "stable"
   sources = [
-    "source.vagrant.centos-7",
-    "source.vagrant.debian-9"
+    "source.vagrant.el-8",
+    "source.vagrant.debian-11"
   ]
 
   provisioner "ansible" {

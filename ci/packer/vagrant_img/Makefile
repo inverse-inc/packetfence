@@ -49,41 +49,41 @@ pfbox:	clean
 	packer build -only="$(BUILD_NAME)" .
 
 # CentOS 7 builds
-.PHONY: pfcen7dev
-pfcen7dev:
+.PHONY: pfel8dev
+pfel8dev:
 	VAGRANT_LIBVIRT_VIRT_SYSPREP_OPTIONS="'--run $(CURDIR)/provisioners/shell/sysprep.sh'" \
 	make \
 	BOX_NAME=$@ \
 	ANSIBLE_GROUP=$(DEV_GROUP) \
-	BUILD_NAME="$(DEV_GROUP).vagrant.centos-7" \
+	BUILD_NAME="$(DEV_GROUP).vagrant.el-8" \
 	pfbox
 
-.PHONY: pfcen7stable
-pfcen7stable:
+.PHONY: pfel8stable
+pfel8stable:
 	VAGRANT_LIBVIRT_VIRT_SYSPREP_OPTIONS="'--run $(CURDIR)/provisioners/shell/sysprep.sh'" \
 	make \
 	BOX_NAME=$@ \
 	ANSIBLE_GROUP=$(STABLE_GROUP) \
-	BUILD_NAME="$(STABLE_GROUP).vagrant.centos-7" \
+	BUILD_NAME="$(STABLE_GROUP).vagrant.el-8" \
 	pfbox
 
 # Debian 9 builds
-.PHONY: pfdeb9dev
-pfdeb9dev:
+.PHONY: pfdeb11dev
+pfdeb11dev:
 	VAGRANT_LIBVIRT_VIRT_SYSPREP_OPTIONS="'--run $(CURDIR)/provisioners/shell/sysprep.sh'" \
 	make -e \
 	BOX_NAME=$@ \
 	ANSIBLE_GROUP=$(DEV_GROUP) \
-	BUILD_NAME="$(DEV_GROUP).vagrant.debian-9" \
+	BUILD_NAME="$(DEV_GROUP).vagrant.debian-11" \
 	pfbox
 
-.PHONY: pfdeb9stable
-pfdeb9stable:
+.PHONY: pfdeb11stable
+pfdeb11stable:
 	VAGRANT_LIBVIRT_VIRT_SYSPREP_OPTIONS="'--run $(CURDIR)/provisioners/shell/sysprep.sh'" \
 	make -e \
 	BOX_NAME=$@ \
 	ANSIBLE_GROUP=$(STABLE_GROUP) \
-	BUILD_NAME="$(STABLE_GROUP).vagrant.debian-9" \
+	BUILD_NAME="$(STABLE_GROUP).vagrant.debian-11" \
 	pfbox
 
 # Cleanup
