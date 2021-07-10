@@ -116,6 +116,18 @@ variables:
     - if: '$CI_PIPELINE_SOURCE == "web"'
     - if: '$CI_PIPELINE_SOURCE == "schedule"'
 
+# run ppa job only when:
+# - on a tag (push, schedules, web)
+# - on all branches (web and schedules) with variable TESTS sets to yes
+# - on devel branch (push) if CI_COMMIT_MESSAGE contains "tests=yes".
+# Web pipelines launch on devel branch will be catched by previous rules
+.test_rules:
+  rules:
+    - if: '$CI_COMMIT_TAG'
+    - if: '$CI_PIPELINE_SOURCE == "web" && $TESTS == "yes"'
+    - if: '$CI_PIPELINE_SOURCE == "schedule" && $TESTS == "yes"'
+    - if: '$CI_COMMIT_REF_NAME == "devel" && $CI_COMMIT_MESSAGE =~ /tests=yes/'
+
 ########################################    
 # JOBS
 ########################################
@@ -449,8 +461,8 @@ publish_ppa_dev_release_branches_and_maintenance:
   dependencies:
     - sign_dev_release_branches_and_maintenance
   extends:
-    - .dev_release_branches_and_maintenance_rules
     - .publish_job
+    - .test_rules
 
 ########################################
 # TEST JOBS
