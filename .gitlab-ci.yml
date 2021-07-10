@@ -291,7 +291,7 @@ variables:
   variables:
     PF_VM_NAME: pfcen7dev
 
-.test_debian_9_vars:
+.test_debian_bullseye_vars:
   variables:
     PF_VM_NAME: pfdeb9dev
 
@@ -478,7 +478,6 @@ test_pkg_devel_centos_8:
     - .test_centos_8_vars
     - .test_script
     - .job_dev_triggers
-  when: manual
 
 test_pkg_release_centos_8:
   variables:
@@ -526,10 +525,9 @@ test_pkg_devel_debian_bullseye:
     VAGRANT_DOTFILE_PATH: /var/local/gitlab-runner/vagrant/vagrant-debian-bullseye-dev
   extends:
     - .test_job
-    - .test_debian_9_vars
+    - .test_debian_bullseye_vars
     - .test_script
     - .job_dev_triggers
-  when: manual
 
 test_pkg_release_debian_bullseye:
   variables:
@@ -541,7 +539,7 @@ test_pkg_release_debian_bullseye:
     VAGRANT_DOTFILE_PATH: /var/local/gitlab-runner/vagrant/vagrant-debian-bullseye-${CI_COMMIT_TAG}
   extends:
     - .test_job
-    - .test_debian_9_vars
+    - .test_debian_bullseye_vars
     - .test_script
     - .job_release_triggers
 
@@ -553,7 +551,7 @@ test_pkg_nightly_debian_bullseye:
     VAGRANT_DOTFILE_PATH: /var/local/gitlab-runner/vagrant/vagrant-debian-bullseye-dev
   extends:
     - .test_job
-    - .test_debian_9_vars
+    - .test_debian_bullseye_vars
     - .test_script
     - .job_nightly_triggers
 
@@ -565,7 +563,7 @@ test_pkg_maintenance_debian_bullseye:
     VAGRANT_DOTFILE_PATH: /var/local/gitlab-runner/vagrant/vagrant-debian-bullseye-${CI_COMMIT_REF_SLUG}
   extends:
     - .test_maintenance_job
-    - .test_debian_9_vars
+    - .test_debian_bullseye_vars
     - .test_script
     - .maintenance_rules
 
