@@ -135,6 +135,23 @@ variables:
   tags:
     - docker-inverse
 
+.publish_job:
+  stage: publish
+  environment:
+    name: PPA
+    url: http://inverse.ca/downloads/PacketFence/gitlab/${CI_PIPELINE_ID}
+  script:
+    - ci-pages-ppa
+    - ci-pages-home
+    - ci-pages-tree
+    - ./${UPLOAD_DIR}/deploy-artifacts.sh ppa
+  variables:
+    DEPLOY_USER: reposync
+    DEPLOY_HOST: web.inverse.ca
+    GITLAB_DEPLOY_DIR: ${CI_PIPELINE_ID}
+  tags:
+    - shell
+
 .test_job:
   stage: test
   dependencies: []
@@ -441,38 +458,19 @@ sign_maintenance:
 publish_ppa_dev_and_release:
   # only use when executor is docker
   image: buildpkg/debian:buster
-  stage: publish
-  environment:
-    name: PPA
-    url: http://inverse.ca/downloads/PacketFence/gitlab/${CI_PIPELINE_ID}
-  script:
-    - ci-pages-ppa
-    - ci-pages-home
-    - ci-pages-tree
-    - ./${UPLOAD_DIR}/deploy-artifacts.sh ppa
   dependencies:
     - sign_dev_and_release
-  tags:
-    - shell
   extends:
     - .job_dev_and_release_triggers
+    - .publish_job
 
 publish_ppa_maintenance:
   # only use when executor is docker
   image: buildpkg/debian:buster
-  stage: publish
-  environment:
-    name: PPA
-    url: http://inverse.ca/downloads/PacketFence/gitlab/${CI_PIPELINE_ID}
-  script:
-    - ci-pages-ppa
-    - ci-pages-home
-    - ci-pages-tree
-    - ./${UPLOAD_DIR}/deploy-artifacts.sh ppa
   dependencies:
     - sign_maintenance
-  tags:
-    - shell
+  extends:
+    - .publish_job
   rules:
     # run only on maintenance jobs (schedules and web)
     - if: '$CI_PIPELINE_SOURCE == "web" && $CI_COMMIT_REF_NAME =~ /^maintenance/'
