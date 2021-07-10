@@ -137,16 +137,14 @@ variables:
 
 .test_job:
   stage: test
-  dependencies:
-    - pages
+  dependencies: []
   tags:
     - inverse.ca
     - shell
 
 .test_maintenance_job:
   stage: test
-  dependencies:
-    - pages_maintenance
+  dependencies: []
   tags:
     - inverse.ca
     - shell
@@ -440,51 +438,39 @@ sign_maintenance:
 ########################################
 # PUBLISH JOBS
 ########################################
-pages:
+publish_ppa_dev_and_release:
   # only use when executor is docker
   image: buildpkg/debian:buster
   stage: publish
-  variables:
-    PAGES_DIR: public
-    PAGES_HOST: gitlab.io
   environment:
     name: PPA
-    url: http://${CI_PROJECT_NAMESPACE}.${PAGES_HOST}/${CI_PROJECT_NAME}
+    url: http://inverse.ca/downloads/PacketFence/gitlab/${CI_PIPELINE_ID}
   script:
     - ci-pages-ppa
     - ci-pages-home
     - ci-pages-tree
+    - ./${UPLOAD_DIR}/deploy-artifacts.sh ppa
   dependencies:
     - sign_dev_and_release
-  artifacts:
-    expire_in: 1 day
-    paths:
-      - public
   tags:
     - shell
   extends:
     - .job_dev_and_release_triggers
 
-pages_maintenance:
+publish_ppa_maintenance:
   # only use when executor is docker
   image: buildpkg/debian:buster
   stage: publish
-  variables:
-    PAGES_DIR: public
-    PAGES_HOST: gitlab.io
   environment:
     name: PPA
-    url: http://${CI_PROJECT_NAMESPACE}.${PAGES_HOST}/${CI_PROJECT_NAME}
+    url: http://inverse.ca/downloads/PacketFence/gitlab/${CI_PIPELINE_ID}
   script:
     - ci-pages-ppa
     - ci-pages-home
     - ci-pages-tree
+    - ./${UPLOAD_DIR}/deploy-artifacts.sh ppa
   dependencies:
     - sign_maintenance
-  artifacts:
-    expire_in: 1 day
-    paths:
-      - public
   tags:
     - shell
   rules:
