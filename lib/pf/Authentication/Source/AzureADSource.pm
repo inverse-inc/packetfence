@@ -15,7 +15,6 @@ use pf::constants qw($TRUE $FALSE);
 use pf::Authentication::constants;
 use pf::constants::authentication::messages;
 use JSON::MaybeXS qw(decode_json encode_json);
-use JSON::PP qw();
 extends 'pf::Authentication::Source';
 with qw(pf::Authentication::InternalRole);
 
