@@ -1,4 +1,5 @@
 package pf::cmd::pf::generatemariadbconfig;
+
 =head1 NAME
 
 pf::cmd::pf::generatemariadbconfig
@@ -22,7 +23,7 @@ use base qw(pf::cmd);
 
 use Template;
 use pf::version;
-use List::MoreUtils qw(uniq);
+use List::MoreUtils qw(uniq any);
 use pf::file_paths qw(
     $conf_dir
     $install_dir
@@ -37,6 +38,13 @@ use pf::config qw(
     $management_network
     $DISTRIB
 );
+use pf::constants::eventLogger;
+
+use pf::dal::admin_api_audit_log;
+use pf::dal::auth_log;
+use pf::dal::dhcp_option82;
+use pf::dal::dns_audit_log;
+use pf::dal::radius_audit_log;
 
 tie our %EventLoggers, 'pfconfig::cached_hash', 'config::EventLoggers';
 
@@ -126,8 +134,47 @@ sub _run {
     chmod 0744, $db_check_path;
     pf_chown($db_check_path);
     update_udf_config($mariadb_pf_udf_file, \%EventLoggers);
+    update_init_file($tt, "$conf_dir/mariadb/mariadb.sql.tt", "$install_dir/var/conf/mariadb.sql", make_init_file_vars());
 
     return $EXIT_SUCCESS; 
+}
+
+
+sub make_init_file_vars {
+    my $dbConfig = $Config{database};
+    my $namespaces = make_namespaces_var();
+    return {
+        db => $dbConfig->{db},
+        namespaces => $namespaces,
+        pf_logger  => any { defined $_->{trigger} } @$namespaces
+    };
+}
+
+sub make_namespaces_var {
+    return [ map { make_namespace($_) } @pf::constants::eventLogger::Namespaces],
+}
+
+sub make_namespace {
+    my ($n) = @_;
+    return {
+        name => $_,
+        trigger => make_trigger($_),
+    }
+}
+
+sub make_trigger {
+    my ($n) = @_;
+    if (exists $EventLoggers{$n}) {
+        return "pf::dal::$n"->event_log_trigger();
+    }
+
+    return undef;
+}
+
+sub update_init_file {
+    my ($tt, $template, $outfile, $vars) = @_;
+    use Data::Dumper;print Dumper($vars);
+    $tt->process($template, $vars, $outfile) or die $tt->error();
 }
 
 sub update_udf_config {
