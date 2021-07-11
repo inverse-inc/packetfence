@@ -391,7 +391,9 @@ sub highlight_error {
         return  $msg . "$MARKER " . $HIGH_LIGHT x ($string_length - 2) . "\n";
     }
     my $pre_hilight = $HIGH_LIGHT x ($postion - 1)  . " ";
-    my $post_hilight = " " . $HIGH_LIGHT x ( $string_length - length($pre_hilight) - 2);
+    my $post_repeat =  $string_length - length($pre_hilight) - 2;
+    $post_repeat = 0 if $post_repeat < 0;
+    my $post_hilight = " " . $HIGH_LIGHT x $post_repeat;
     return "${msg}${pre_hilight}${MARKER}${post_hilight}\n";
 }
 
