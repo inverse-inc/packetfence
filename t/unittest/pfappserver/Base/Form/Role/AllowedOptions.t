@@ -15,8 +15,6 @@ unit test for AllowedOptions
 use strict;
 use warnings;
 #
-use lib qw(/usr/local/pf/lib /usr/local/pf/lib_perl/lib/perl5);
-
 BEGIN {
     #include test libs
     use lib qw(/usr/local/pf/t);
@@ -34,6 +32,7 @@ BEGIN {
 }
 
 use Test::More tests => 3;
+
 
 #This test will running last
 use Test::NoWarnings;

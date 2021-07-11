@@ -12,8 +12,14 @@ unit test for Source
 
 use strict;
 use warnings;
+
+BEGIN {
+    #include test libs
+    use lib qw(/usr/local/pf/t);
+    #Module for overriding configuration paths
+    use setup_test_config;
+}
 #
-use lib qw(/usr/local/pf/lib /usr/local/pf/lib_perl/lib/perl5);
 {
     package pf::Authentication::Source::RoleLookupSource;
     use Moose;
@@ -29,13 +35,6 @@ use lib qw(/usr/local/pf/lib /usr/local/pf/lib_perl/lib/perl5);
     package pf::Authentication::Source::DummySource;
     use Moose;
     extends 'pf::Authentication::Source';
-}
-
-BEGIN {
-    #include test libs
-    use lib qw(/usr/local/pf/t);
-    #Module for overriding configuration paths
-    use setup_test_config;
 }
 
 use Test::More tests => 5;

@@ -14,9 +14,6 @@ unit test for SMSCarriers
 
 use strict;
 use warnings;
-use DateTime::Format::Strptime;
-use lib qw(/usr/local/pf/lib /usr/local/pf/lib_perl/lib/perl5);
-use pf::dal::sms_carrier;
 
 BEGIN {
     #include test libs
@@ -24,6 +21,9 @@ BEGIN {
     #Module for overriding configuration paths
     use setup_test_config;
 }
+
+use DateTime::Format::Strptime;
+use pf::dal::sms_carrier;
 #run tests
 use Test::More tests => 6;
 use Test::Mojo;

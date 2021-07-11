@@ -12,7 +12,6 @@ pf::Portal... subsystem integration testing
 use strict;
 use warnings;
 
-use lib qw(/usr/local/pf/lib /usr/local/pf/lib_perl/lib/perl5);
 BEGIN {
     use lib qw(/usr/local/pf/t);
     use setup_test_config;

@@ -14,16 +14,14 @@ use strict;
 use warnings;
 use diagnostics;
 
-use UNIVERSAL::require;
-
-use lib qw(/usr/local/pf/lib /usr/local/pf/lib_perl/lib/perl5);
-use Test::More;
-use Test::NoWarnings;
-
 BEGIN {
     use lib qw(/usr/local/pf/t);
     use setup_test_config;
 }
+
+use UNIVERSAL::require;
+use Test::More;
+use Test::NoWarnings;
 use TestUtils;
 
 my @wired_devices;

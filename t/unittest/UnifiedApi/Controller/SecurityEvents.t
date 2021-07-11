@@ -14,17 +14,16 @@ unit test for SecurityEvents
 
 use strict;
 use warnings;
-use DateTime;
-use lib qw(/usr/local/pf/lib /usr/local/pf/lib_perl/lib/perl5);
-use pf::dal::security_event;
-use pf::security_event;
-
 BEGIN {
     #include test libs
     use lib qw(/usr/local/pf/t);
     #Module for overriding configuration paths
     use setup_test_config;
 }
+
+use DateTime;
+use pf::dal::security_event;
+use pf::security_event;
 
 use Test::More tests => 25;
 use Test::Mojo;

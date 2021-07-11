@@ -15,16 +15,16 @@ unit test for Locationlog
 use strict;
 use warnings;
 #
-use lib qw(/usr/local/pf/lib /usr/local/pf/lib_perl/lib/perl5);
-use pf::dal::locationlog;
-use pf::dal::locationlog_history;
-
 BEGIN {
     #include test libs
     use lib qw(/usr/local/pf/t);
     #Module for overriding configuration paths
     use setup_test_config;
 }
+
+use pf::dal::locationlog;
+use pf::dal::locationlog_history;
+
 
 #truncate the locationlog table
 pf::dal::locationlog->remove_items();

@@ -4,20 +4,18 @@ use strict;
 use warnings;
 
 #use Test::More 'no_plan';
-use Test::More tests => 15;
 my $FALSE = 0;
 my $TRUE = 1;
-
-use lib qw(/usr/local/pf/lib /usr/local/pf/lib_perl/lib/perl5);
 
 BEGIN {
     use lib qw(/usr/local/pf/t);
     use setup_test_config;
-    use_ok('pf::password') or die;
-    use pf::password;
-    use pf::person;
-    use Utils;
 }
+
+use Test::More tests => 15;
+use pf::person;
+use Utils;
+use_ok('pf::password') or die;
 can_ok('pf::password', qw(  bcrypt ) ) or die;
 
 like( pf::password::bcrypt( "helloworld"), qr/^\{bcrypt\}\$2[ay]\$\d\d\$/, "bcrypt hash has the correct prefix");

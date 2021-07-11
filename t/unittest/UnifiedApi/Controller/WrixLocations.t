@@ -14,9 +14,6 @@ unit test for WritxLocations
 
 use strict;
 use warnings;
-use DateTime::Format::Strptime;
-use lib qw(/usr/local/pf/lib /usr/local/pf/lib_perl/lib/perl5);
-use pf::dal::wrix;
 
 BEGIN {
     #include test libs
@@ -24,6 +21,8 @@ BEGIN {
     #Module for overriding configuration paths
     use setup_test_config;
 }
+use DateTime::Format::Strptime;
+use pf::dal::wrix;
 #run tests
 use Test::More tests => 89;
 use Test::Mojo;

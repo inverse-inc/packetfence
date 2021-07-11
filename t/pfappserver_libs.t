@@ -6,12 +6,6 @@ use diagnostics;
 
 
 # pf core libs
-use lib qw(
-    /usr/local/pf/lib
-    /usr/local/pf/lib_perl/lib/perl5
-    /usr/local/pf/html/pfappserver/lib
-    /usr/local/pf/html/captive-portal/lib
-);
 
 BEGIN {
     use lib qw(/usr/local/pf/t);

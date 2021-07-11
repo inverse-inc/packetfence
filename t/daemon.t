@@ -13,13 +13,13 @@ daemon
 
 use strict;
 use warnings;
-use Time::HiRes qw(sleep);
-use lib qw(/usr/local/pf/lib /usr/local/pf/lib_perl/lib/perl5);
+
 BEGIN {
     use lib qw(/usr/local/pf/t);
     use setup_test_config;
 }
 
+use Time::HiRes qw(sleep);
 use Test::More tests => 14;                      # last test to print
 
 use Test::NoWarnings;

@@ -15,9 +15,6 @@ Tests for pf::condition::all
 use strict;
 use warnings;
 
-use lib qw(/usr/local/pf/lib /usr/local/pf/lib_perl/lib/perl5);
-use Test::More tests => 9;
-
 BEGIN {
     #include test libs
     use lib qw(/usr/local/pf/t);
@@ -26,6 +23,7 @@ BEGIN {
 }
 
 
+use Test::More tests => 9;
 #This test will running last
 use Test::NoWarnings;
 use pf::condition::multi_all;

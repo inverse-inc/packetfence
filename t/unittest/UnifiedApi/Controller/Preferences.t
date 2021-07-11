@@ -14,17 +14,16 @@ unit test for Iplogs
 
 use strict;
 use warnings;
-use DateTime;
-use DateTime::Format::Strptime;
-use lib qw(/usr/local/pf/lib /usr/local/pf/lib_perl/lib/perl5);
-use pf::dal::user_preference;
-
 BEGIN {
     #include test libs
     use lib qw(/usr/local/pf/t);
     #Module for overriding configuration paths
     use setup_test_config;
 }
+
+use DateTime;
+use DateTime::Format::Strptime;
+use pf::dal::user_preference;
 
 use Test::More tests => 57;
 use Test::Mojo;

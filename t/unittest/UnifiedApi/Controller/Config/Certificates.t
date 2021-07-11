@@ -15,14 +15,17 @@ unit test for Certificates
 use strict;
 use warnings;
 #
-use lib qw(/usr/local/pf/lib /usr/local/pf/lib_perl/lib/perl5);
+
+BEGIN {
+    #include test libs
+    use lib qw(/usr/local/pf/t);
+    #Module for overriding configuration paths
+    use setup_test_config;
+}
+
 use File::Slurp qw(read_file);
 use File::Copy;
 use File::Temp;
-use pf::file_paths qw(
-    $server_cert
-    $server_key
-);
 
 my @TEMP_FILES;
 
@@ -35,16 +38,18 @@ sub use_temp_file {
 }
 
 BEGIN {
-    #include test libs
-    use lib qw(/usr/local/pf/t);
-    #Module for overriding configuration paths
-    use setup_test_config;
     use_temp_file(\$pf::file_paths::server_cert);
     use_temp_file(\$pf::file_paths::server_key);
     use_temp_file(\$pf::file_paths::radius_server_cert);
     use_temp_file(\$pf::file_paths::radius_server_key);
     use_temp_file(\$pf::file_paths::radius_ca_cert);
 }
+
+use pf::file_paths qw(
+    $server_cert
+    $server_key
+);
+
 use pf::ConfigStore::Pf;
 use Utils;
 my ($fh, $filename) = Utils::tempfileForConfigStore("pf::ConfigStore::Pf");

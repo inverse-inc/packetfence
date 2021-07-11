@@ -12,8 +12,6 @@ unit test for Dal-Options
 
 use strict;
 use warnings;
-#
-use lib qw(/usr/local/pf/lib /usr/local/pf/lib_perl/lib/perl5);
 
 BEGIN {
     #include test libs

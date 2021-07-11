@@ -14,9 +14,6 @@ unit test for Iplogs
 
 use strict;
 use warnings;
-use DateTime;
-use DateTime::Format::Strptime;
-use lib qw(/usr/local/pf/lib /usr/local/pf/lib_perl/lib/perl5);
 
 BEGIN {
     #include test libs
@@ -25,6 +22,8 @@ BEGIN {
     use setup_test_config;
 }
 
+use DateTime;
+use DateTime::Format::Strptime;
 use Test::More tests => 11;
 use Test::Mojo;
 use Test::NoWarnings;

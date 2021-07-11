@@ -15,20 +15,18 @@ Test for the pf::Portal::Profile
 use strict;
 use warnings;
 
-use lib qw(/usr/local/pf/lib /usr/local/pf/lib_perl/lib/perl5);
-
-use Test::More tests => 12;
-use Test::Exception;
-
 BEGIN {
     #include test libs
     use lib qw(/usr/local/pf/t);
     #Module for overriding configuration paths
     use setup_test_config;
-    use_ok("pf::Connection::ProfileFactory");
 }
 
+use Test::More tests => 12;
+use Test::Exception;
 use JSON::MaybeXS;
+use_ok("pf::Connection::ProfileFactory");
+
 our $JSON = JSON->new->convert_blessed(1);
 
 my $profile = pf::Connection::ProfileFactory->instantiate("00:00:00:00:00:00", {});

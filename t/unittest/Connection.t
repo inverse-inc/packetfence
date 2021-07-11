@@ -13,16 +13,15 @@ tests for pf::Connection class
 
 use strict;
 use warnings;
-
-use Test::More tests => 9;                      # last test to print
-
-use Test::NoWarnings;
 use diagnostics;
-use lib qw(/usr/local/pf/lib /usr/local/pf/lib_perl/lib/perl5);
 BEGIN {
     use lib '/usr/local/pf/t';
     use setup_test_config;
 }
+
+use Test::More tests => 9;                      # last test to print
+
+use Test::NoWarnings;
 
 use pf::config qw(
     $WIRELESS_802_1X

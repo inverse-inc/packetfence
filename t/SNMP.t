@@ -3,19 +3,19 @@
 use strict;
 use warnings;
 use diagnostics;
+BEGIN {
+	use lib qw(/usr/local/pf/t);
+	use setup_test_config;
+}
 
 use Test::More tests => 34;
 use Test::NoWarnings;
-
-use lib qw(/usr/local/pf/lib /usr/local/pf/lib_perl/lib/perl5);
 
 use File::Basename qw(basename);
 Log::Log4perl->init("./log.conf");
 my $logger = Log::Log4perl->get_logger( basename($0) );
 Log::Log4perl::MDC->put( 'proc', basename($0) );
 Log::Log4perl::MDC->put( 'tid',  0 );
-BEGIN { use lib qw(/usr/local/pf/t); }
-BEGIN { use setup_test_config; }
 
 use pf::SwitchFactory;
 

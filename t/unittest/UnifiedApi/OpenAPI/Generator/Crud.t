@@ -15,10 +15,6 @@ unit test for PathGenerator
 use strict;
 use warnings;
 #
-use lib qw(/usr/local/pf/lib /usr/local/pf/lib_perl/lib/perl5);
-use pf::UnifiedApi::OpenAPI::Generator::Crud;
-use pf::UnifiedApi::Controller::DhcpOption82s;
-use pf::UnifiedApi;
 
 BEGIN {
     #include test libs
@@ -26,6 +22,10 @@ BEGIN {
     #Module for overriding configuration paths
     use setup_test_config;
 }
+
+use pf::UnifiedApi::OpenAPI::Generator::Crud;
+use pf::UnifiedApi::Controller::DhcpOption82s;
+use pf::UnifiedApi;
 
 use Test::More tests => 8;
 #This test will running last

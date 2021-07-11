@@ -13,10 +13,6 @@ unit test for pf::condition::switch_group
 use strict;
 use warnings;
 #
-use lib qw(
-    /usr/local/pf/lib
-    /usr/local/pf/lib/lib_perl/lib/perl5
-);
 
 BEGIN {
     #include test libs
@@ -24,7 +20,6 @@ BEGIN {
     #Module for overriding configuration paths
     use setup_test_config;
 }
-
 
 use Test::More tests => 3;
 #This test will running last

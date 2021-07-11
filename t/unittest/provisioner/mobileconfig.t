@@ -15,7 +15,6 @@ provisioner
 use strict;
 use warnings;
 # pf core libs
-use lib qw(/usr/local/pf/lib /usr/local/pf/lib_perl/lib/perl5);
 
 BEGIN {
     use lib qw(/usr/local/pf/t);

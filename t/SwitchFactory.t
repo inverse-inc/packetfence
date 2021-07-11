@@ -4,17 +4,15 @@ use strict;
 use warnings;
 use diagnostics;
 
-use lib qw(/usr/local/pf/lib /usr/local/pf/lib_perl/lib/perl5);
-use Test::More tests => 62;
-use Test::NoWarnings;
-
 BEGIN {
     use lib qw(/usr/local/pf/t);
     use setup_test_config;
-    use_ok('pf::SwitchFactory');
 }
 
 
+use Test::More tests => 62;
+use Test::NoWarnings;
+use_ok('pf::SwitchFactory');
 
 my $switch = pf::SwitchFactory->instantiate('192.168.0.1');
 

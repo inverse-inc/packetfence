@@ -6,8 +6,6 @@ use diagnostics;
 
 
 # pf core libs
-use lib qw(/usr/local/pf/lib /usr/local/pf/lib_perl/lib/perl5);
-
 our $jobs;
 
 BEGIN {

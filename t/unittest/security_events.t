@@ -14,10 +14,6 @@ example pf test script
 use strict;
 use warnings;
 #
-use lib qw(/usr/local/pf/lib /usr/local/pf/lib_perl/lib/perl5);
-
-use Test::More tests => 28;
-
 BEGIN {
     #include test libs
     use lib qw(/usr/local/pf/t);
@@ -25,6 +21,7 @@ BEGIN {
     use setup_test_config;
 }
 
+use Test::More tests => 28;
 use_ok('pf::security_event');
 
 # Will be able to match a security_event with multiple triggers by only passing the trigger info

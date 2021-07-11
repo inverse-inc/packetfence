@@ -37,7 +37,7 @@ use JSON::MaybeXS;
 use pfconfig::manager;
 use Data::Dumper;
 use Time::HiRes;
-use List::MoreUtils qw(first_index);
+use List::MoreUtils qw(first_index any);
 use File::Basename qw(basename);
 use Getopt::Std;
 use POSIX qw(:signal_h);
@@ -291,7 +291,7 @@ sub get_key_exists {
     my @keys = keys(%{$elem});
 
     my $key = $query->{search};
-    if($key ~~ @keys){
+    if (any { $key eq $_ } @keys) {
         send_output({result => 1}, $socket);
     }
     else {

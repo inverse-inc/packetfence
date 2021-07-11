@@ -15,14 +15,10 @@ merged_list
 use strict;
 use warnings;
 # pf core libs
-use lib qw(/usr/local/pf/lib /usr/local/pf/lib_perl/lib/perl5);
-
 my ($fh, $filename);
 
 BEGIN {
     use lib qw(/usr/local/pf/t);
-    use File::Spec::Functions qw(catfile catdir rel2abs);
-    use File::Basename qw(dirname);
     use test_paths_serial;
     use setup_test_config;
     use File::Temp;

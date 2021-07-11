@@ -13,14 +13,13 @@ unit test for EmailSource
 use strict;
 use warnings;
 #
-use lib qw(/usr/local/pf/lib /usr/local/pf/lib_perl/lib/perl5);
-
 BEGIN {
     #include test libs
     use lib qw(/usr/local/pf/t);
     #Module for overriding configuration paths
     use setup_test_config;
 }
+
 use pf::config qw(%Config);
 
 my $local_email1 = "j\@$Config{general}{domain}";

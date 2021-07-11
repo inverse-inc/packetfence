@@ -15,14 +15,13 @@ unit test for ConnectionProfiles
 use strict;
 use warnings;
 #
-use lib qw(/usr/local/pf/lib /usr/local/pf/lib_perl/lib/perl5);
 our $dir;
 BEGIN {
     #include test libs
     use lib qw(/usr/local/pf/t);
-    use File::Temp qw(tempdir);
     #Module for overriding configuration paths
     use setup_test_config;
+    use File::Temp qw(tempdir);
     $dir = tempdir( CLEANUP => 1 );
     $pf::file_paths::captiveportal_profile_templates_path = $dir;
 }

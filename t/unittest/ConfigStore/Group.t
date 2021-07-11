@@ -13,15 +13,20 @@ Group
 
 use strict;
 use warnings;
+BEGIN {
+    use lib qw(
+        /usr/local/pf/t
+        /usr/local/pf/lib
+        /usr/local/pf/lib
+    );
+    use setup_test_config;
+}
+
 use File::Temp;
 
 use Test::More tests => 15;
 
 use Test::NoWarnings;
-BEGIN {
-    use lib qw(/usr/local/pf/t /usr/local/pf/lib);
-    use setup_test_config;
-}
 use pf::ConfigStore;
 use pf::ConfigStore::Group;
 

@@ -13,17 +13,18 @@ autentication
 
 use strict;
 use warnings;
+use diagnostics;
+
+BEGIN {
+	use lib qw(/usr/local/pf/t);
+	use setup_test_config;
+}
+
 use Date::Parse;
 
 use Test::More tests => 58;                      # last test to print
 
 use Test::NoWarnings;
-use diagnostics;
-use lib qw(/usr/local/pf/lib /usr/local/pf/lib_perl/lib/perl5);
-BEGIN {
-    use lib '/usr/local/pf/t';
-    use setup_test_config;
-}
 
 use pf::constants;
 use pf::constants::realm;

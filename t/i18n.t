@@ -13,12 +13,13 @@ use strict;
 use warnings;
 use diagnostics;
 
-use File::Find;
-use Test::More;
 BEGIN {
     use lib qw(/usr/local/pf/t);
     use setup_test_config;
 }
+
+use File::Find;
+use Test::More;
 
 my @translations;
 

@@ -14,13 +14,12 @@ use strict;
 use warnings;
 use diagnostics;
 
-use Test::More tests => 10;
-
-use lib qw(/usr/local/pf/lib /usr/local/pf/lib_perl/lib/perl5);
 BEGIN {
     use lib qw(/usr/local/pf/t);
     use setup_test_config;
 }
+
+use Test::More tests => 10;
 use English qw( -no_match_vars );
 use File::Basename qw(basename);
 use Log::Log4perl;

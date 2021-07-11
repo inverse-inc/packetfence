@@ -14,13 +14,6 @@ unit test for Iplogs
 
 use strict;
 use warnings;
-use DateTime;
-use DateTime::Format::Strptime;
-use lib qw(/usr/local/pf/lib /usr/local/pf/lib_perl/lib/perl5);
-use pf::ip4log;
-use pf::dal::ip4log;
-use pf::dal::ip4log_history;
-use pf::dal::ip4log_archive;
 
 BEGIN {
     #include test libs
@@ -28,6 +21,13 @@ BEGIN {
     #Module for overriding configuration paths
     use setup_test_config;
 }
+
+use DateTime;
+use DateTime::Format::Strptime;
+use pf::ip4log;
+use pf::dal::ip4log;
+use pf::dal::ip4log_history;
+use pf::dal::ip4log_archive;
 
 use Test::More tests => 34;
 use Test::Mojo;

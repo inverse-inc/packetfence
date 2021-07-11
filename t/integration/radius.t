@@ -13,7 +13,10 @@ use strict;
 use warnings;
 use diagnostics;
 
-use lib qw(/usr/local/pf/lib /usr/local/pf/lib_perl/lib/perl5);
+BEGIN {
+    use lib qw(/usr/local/pf/t);
+    use setup_test_config;
+}
 
 use Test::More tests => 9;
 use Test::NoWarnings;
@@ -22,10 +25,6 @@ Log::Log4perl->init("log.conf");
 my $logger = Log::Log4perl->get_logger( "integration/radius.t" );
 Log::Log4perl::MDC->put( 'proc', "integration/radius.t" );
 Log::Log4perl::MDC->put( 'tid',  0 );
-BEGIN {
-    use lib qw(/usr/local/pf/t);
-    use setup_test_config;
-}
 
 use pf::config;
 use pf::radius::constants;

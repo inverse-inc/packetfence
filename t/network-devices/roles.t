@@ -13,16 +13,15 @@ Test for network devices modules that support roles
 use strict;
 use warnings;
 
-use UNIVERSAL::require;
-
-use lib qw(/usr/local/pf/lib /usr/local/pf/lib_perl/lib/perl5);
-use Test::More;
-use Test::NoWarnings;
 
 BEGIN {
     use lib qw(/usr/local/pf/t);
     use setup_test_config;
 }
+use Test::More;
+use Test::NoWarnings;
+
+use UNIVERSAL::require;
 use TestUtils;
 
 my @supports_roles;

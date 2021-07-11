@@ -18,7 +18,6 @@ data in the normal configuration directory
 BEGIN {
     # log4perl init
     use constant INSTALL_DIR => '/usr/local/pf';
-    use lib (INSTALL_DIR . "/lib", INSTALL_DIR . "/lib_perl/lib/perl5");
     use lib INSTALL_DIR . "/t";
     use setup_test_config;
 }

@@ -125,7 +125,6 @@ close($reader);
 sleep(1);
 
 BEGIN {
-    use lib qw(/usr/local/pf/lib /usr/local/pf/lib_perl/lib/perl5);
     use lib qw(/usr/local/pf/t);
     use setup_test_config;
 }

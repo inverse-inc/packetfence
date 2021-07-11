@@ -15,16 +15,16 @@ Tests for pf::condition::all
 use strict;
 use warnings;
 
-use lib qw(/usr/local/pf/lib /usr/local/pf/lib_perl/lib/perl5);
-use Test::More tests => 4;
-
 BEGIN {
-    use_ok("pf::filter_engine");
     #include test libs
     use lib qw(/usr/local/pf/t);
     #Module for overriding configuration paths
     use setup_test_config;
 }
+
+use Test::More tests => 4;
+
+use_ok("pf::filter_engine");
 
 
 #This test will running last

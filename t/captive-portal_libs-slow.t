@@ -6,12 +6,10 @@ use diagnostics;
 
 
 # pf core libs
-use lib qw(
-    /usr/local/pf/lib
-    /usr/local/pf/lib_perl/lib/perl5
-    /usr/local/pf/html/pfappserver/lib
-    /usr/local/pf/html/captive-portal/lib
-);
+BEGIN {
+    use lib qw(/usr/local/pf/t);
+    use setup_test_config;
+}
 
 our $jobs;
 
@@ -25,11 +23,6 @@ use Test::More;
 use Test::ParallelSubtest max_parallel => $jobs;
 use Test::NoWarnings;
 
-
-BEGIN {
-    use lib qw(/usr/local/pf/t);
-    use setup_test_config;
-}
 
 our %exclude;
 @exclude{qw(pfappserver)} = ();

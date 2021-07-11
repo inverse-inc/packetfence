@@ -36,10 +36,10 @@ BEGIN {
 }
 
 {
-	no strict 'refs';
-	for my $f (qw(insert_multi update_multi _insert_multi _insert_multi_HASHREF _insert_multi_ARRAYREF _insert_multi_values _insert_multi_process_args)) {
-		*{$f} = \&{"SQL::Abstract::Plugin::InsertMulti::$f"};
-	}
+    no strict 'refs';
+    for my $f (qw(insert_multi update_multi _insert_multi _insert_multi_HASHREF _insert_multi_ARRAYREF _insert_multi_values _insert_multi_process_args)) {
+        *{$f} = \&{"SQL::Abstract::Plugin::InsertMulti::$f"};
+    }
 }
 
 #----------------------------------------------------------------------

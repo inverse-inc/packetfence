@@ -13,8 +13,6 @@ unit test for mini_template
 use strict;
 use warnings;
 #
-use lib qw(/usr/local/pf/lib /usr/local/pf/lib_perl/lib/perl5);
-
 our (@VALID_TEMPLATES, @INVALID_TEMPLATES, @TEMPLATE_OUTPUT);
 BEGIN {
     #include test libs

@@ -15,8 +15,6 @@ unit test for import
 use strict;
 use warnings;
 #
-use lib qw(/usr/local/pf/lib /usr/local/pf/lib_perl/lib/perl5);
-
 BEGIN {
     #include test libs
     use lib qw(/usr/local/pf/t);
@@ -35,7 +33,7 @@ my $fh = File::Temp->new;
 
 my $name = $fh->filename;
 
-system("perl -T -I/usr/local/pf/t  -Msetup_test_config /usr/local/pf/bin/pfcmd.pl import nodes $name");
+system("perl -T -I/usr/local/pf/t -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5 -Msetup_test_config /usr/local/pf/bin/pfcmd.pl import nodes $name");
 
 is($?, 0, "Succeeded running with an empty file");
 
@@ -45,7 +43,7 @@ for my $o (0..255) {
 
 $fh->flush;
 
-system("perl -T -I/usr/local/pf/t -Msetup_test_config /usr/local/pf/bin/pfcmd.pl import nodes $name columns=mac,pid");
+system("perl -T -I/usr/local/pf/t -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5 -Msetup_test_config /usr/local/pf/bin/pfcmd.pl import nodes $name columns=mac,pid");
 
 is($?, 0, "Succeeded importing 00:11:55:22:33:00 - 00:11:55:22:33:ff with the default user");
 

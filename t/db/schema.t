@@ -19,18 +19,16 @@ Example:
 
 use strict;
 use warnings;
-use lib qw(/usr/local/pf/lib /usr/local/pf/lib_perl/lib/perl5);
+BEGIN {
+    use lib qw(/usr/local/pf/t);
+    use setup_test_config;
+}
+
 use DBI;
 use FindBin qw($Bin);
 use File::Slurp qw(read_file);
 use pf::file_paths qw($install_dir);
 
-BEGIN {
-    #include test libs
-    use lib qw(/usr/local/pf/t);
-    #Module for overriding configuration paths
-    use setup_test_config;
-}
 
 
 use Test::More tests => 2;                      # last test to print

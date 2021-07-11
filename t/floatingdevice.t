@@ -4,6 +4,12 @@ use strict;
 use warnings;
 use diagnostics;
 
+BEGIN {
+    use lib qw(/usr/local/pf/t);
+    use setup_test_config;
+}
+
+use pf::Switch;
 use File::Basename qw(basename);
 Log::Log4perl->init("log.conf");
 my $logger = Log::Log4perl->get_logger( basename($0) );
@@ -14,14 +20,8 @@ use Test::More tests => 13;
 use Test::MockModule;
 use Test::MockObject::Extends;
 
-use lib qw(/usr/local/pf/lib /usr/local/pf/lib_perl/lib/perl5);
-BEGIN {
-    use lib qw(/usr/local/pf/t);
-    use setup_test_config;
-    use pf::Switch;
-    use_ok('pf::floatingdevice');
-    use_ok('pf::floatingdevice::custom');
-}
+use_ok('pf::floatingdevice');
+use_ok('pf::floatingdevice::custom');
 
 use pf::constants;
 use pf::config;

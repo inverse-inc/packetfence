@@ -14,12 +14,12 @@ use strict;
 use warnings;
 use diagnostics;
 
-use Test::More tests => 1;
-use lib qw(/usr/local/pf/lib /usr/local/pf/lib_perl/lib/perl5);
 BEGIN {
     use lib qw(/usr/local/pf/t);
     use setup_test_config;
 }
+
+use Test::More tests => 1;
 BEGIN { use_ok('pf::person') }
 
 # TODO really? That's it?

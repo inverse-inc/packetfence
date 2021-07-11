@@ -14,18 +14,18 @@ use strict;
 use warnings;
 use diagnostics;
 
+BEGIN {
+    use lib qw(/usr/local/pf/t);
+    use setup_test_config;
+}
+
 use UNIVERSAL::require;
 
-use lib qw(/usr/local/pf/lib /usr/local/pf/lib_perl/lib/perl5);
 use Test::More;
 use Test::NoWarnings;
 use Test::MockModule;
 use Test::MockObject::Extends;
 
-BEGIN {
-    use lib qw(/usr/local/pf/t);
-    use setup_test_config;
-}
 use TestUtils;
 
 my @wireless_devices;

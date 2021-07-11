@@ -15,18 +15,17 @@ unit test for Nodes
 use strict;
 use warnings;
 #
-use lib qw(/usr/local/pf/lib /usr/local/pf/lib_perl/lib/perl5);
-use Date::Parse;
-use pf::dal::node;
-use pf::dal::locationlog;
 
 BEGIN {
     #include test libs
     use lib qw(/usr/local/pf/t);
     #Module for overriding configuration paths
     use setup_test_config;
-
 }
+
+use Date::Parse;
+use pf::dal::node;
+use pf::dal::locationlog;
 
 #insert known data
 #run tests
