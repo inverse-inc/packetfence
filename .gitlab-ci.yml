@@ -32,6 +32,7 @@ variables:
   VAGRANT_IMG_DIR: $CIDIR/packer/vagrant_img
   TESTDIR: $CILIBDIR/test
   UPLOAD_DIR: $CILIBDIR/upload
+  SF_REPO_URL: https://sourceforge.net/projects/packetfence/files/PacketFence%20ZEN
   # env variables
   ANSIBLE_FORCE_COLOR: 1
   ANSIBLE_STDOUT_CALLBACK: yaml
@@ -43,68 +44,42 @@ variables:
 ################################################################################
 
 ########################################
-# TRIGGERS
+# RULES
 ########################################
-# triggers for dev jobs (devel and other development branches)
-.job_dev_triggers:
-  # run jobs on "devel" branch (push, schedules and web)
-  # run jobs on any branches/tags via "Run pipeline", except:
-  # - vX.Y.Z tag
-  # - maintenance/X.Y branches
-  only:
-    - /^devel$/
-    - web
-  except:
-    - /^v[[:digit:]]+\.[[:digit:]]+\.[[:digit:]]+$/
-    - /^maintenance/[[:digit:]]+\.[[:digit:]]+$/
+# run jobs on release tag (vX.Y.Z) (push and web)
+# no schedule on tag
+.release_only_rules:
+  rules:
+    - if: '$CI_COMMIT_TAG'
 
-# triggers for release jobs
-.job_release_triggers:
-  # run jobs on release tag (vX.Y.Z) (push and web)
-  # no schedule on tag
-  # exclude branches to avoid trigger when a branch is called vX.Y.X
-  only:
-    - /^v[[:digit:]]+\.[[:digit:]]+\.[[:digit:]]+$/
-  except:
-    - branches
-
-# common triggers for jobs use for release and dev
-# run jobs on "devel" branch *or* vX.Y.Z tag (push, schedules and web)
-# run jobs on any branches/tags via "Run pipeline", except:
-# - maintenance/X.Y branches
-.dev_and_release_rules:
+# run only jobs on "devel" branch (push, schedules and web)
+.devel_only_rules:
   rules:
     - if: '$CI_COMMIT_REF_NAME == "devel"'
-    - if: '$CI_COMMIT_TAG'
-    - if: '$CI_PIPELINE_SOURCE == "web" && $CI_COMMIT_REF_NAME =~ /^maintenance/[[:digit:]]+\.[[:digit:]]+$/'
+
+# run jobs on any branches only via "Run pipeline", except:
+# - devel branch
+# - maintenance/X.Y branches
+# don't run on tag
+.branches_only_rules:
+  rules:
+   - if: '$CI_COMMIT_REF_NAME != "devel" && $CI_COMMIT_REF_NAME !~ /^maintenance\/[[:digit:]]+\.[[:digit:]]+$/ && $CI_COMMIT_TAG == null && $CI_PIPELINE_SOURCE == "web"'
+
+# run jobs on "devel" branch (push, schedules and web)
+# run jobs on any branches except maintenance/X.Y branches
+# don't run on tag
+# we used same kind of rules below but we add variable checks to add jobs to pipeline
+.dev_and_branches_rules:
+  rules:
+    - if: '$CI_COMMIT_REF_NAME == "devel"'
+    - if: '$CI_COMMIT_REF_NAME !~ /^maintenance\/[[:digit:]]+\.[[:digit:]]+$/ && $CI_COMMIT_TAG == null && $CI_PIPELINE_SOURCE == "web"'
 
 # run only on maintenance jobs (schedules and web, not on push)
 .maintenance_rules:
   rules:
-    - if: '$CI_PIPELINE_SOURCE == "web" && $CI_COMMIT_REF_NAME =~ /^maintenance/'
-    - if: '$CI_PIPELINE_SOURCE == "schedule" && $CI_COMMIT_REF_NAME =~ /^maintenance/'
+    - if: '$CI_PIPELINE_SOURCE == "web" && $CI_COMMIT_REF_NAME =~ /^maintenance\/[[:digit:]]+\.[[:digit:]]+$/'
+    - if: '$CI_PIPELINE_SOURCE == "schedule" && $CI_COMMIT_REF_NAME =~ /^maintenance\/[[:digit:]]+\.[[:digit:]]+$/'
 
-.job_nightly_triggers:
-  # run only **scheduled** jobs on devel branch
-  rules:
-    - if: '$CI_PIPELINE_SOURCE == "schedule" && $CI_COMMIT_REF_NAME == "devel"'
-
-.job_devel_only_triggers:
-  # run only jobs on "devel" branch (push, schedules and web)
-  only:
-    - /^devel$/
-
-.job_branches_only_triggers:
-  # run jobs on any branches only via "Run pipeline", except:
-  # - devel branch
-  # - vX.Y.Z tag
-  # - maintenance/X.Y branches
-  only:
-    - web
-  except:
-    - /^devel$/
-    - /^v[[:digit:]]+\.[[:digit:]]+\.[[:digit:]]+$/
-    - /^maintenance/[[:digit:]]+\.[[:digit:]]+$/
 
 # run jobs on "devel" branch *or* vX.Y.Z tag (push, schedules and web)
 # run jobs on any branches/tags via "Run pipeline"
@@ -116,7 +91,7 @@ variables:
     - if: '$CI_PIPELINE_SOURCE == "web"'
     - if: '$CI_PIPELINE_SOURCE == "schedule"'
 
-# run ppa job only when:
+# run jobs only when:
 # - on a tag (push, schedules, web)
 # - on all branches (web and schedules) with variable TESTS sets to yes
 # - on devel branch (push) if CI_COMMIT_MESSAGE contains "tests=yes".
@@ -129,7 +104,7 @@ variables:
     - if: '$CI_COMMIT_REF_NAME == "devel" && $CI_COMMIT_MESSAGE =~ /tests=yes/'
 
 ########################################    
-# JOBS
+# JOBS TEMPLATES
 ########################################
 .build_docker_img_job:
   stage: build_img
@@ -178,13 +153,6 @@ variables:
     - shell
 
 .test_job:
-  stage: test
-  dependencies: []
-  tags:
-    - inverse.ca
-    - shell
-
-.test_maintenance_job:
   stage: test
   dependencies: []
   tags:
@@ -287,13 +255,13 @@ variables:
   script:
     - make -e build_deb
 
-.test_centos_8_vars:
+.test_el_8_vars:
   variables:
-    PF_VM_NAME: pfcen7dev
+    PF_VM_NAME: pfel8dev
 
 .test_debian_bullseye_vars:
   variables:
-    PF_VM_NAME: pfdeb9dev
+    PF_VM_NAME: pfdeb11dev
 
 .test_script:
   variables:
@@ -315,43 +283,28 @@ variables:
 build_docker_img_dev:
   extends:
     - .build_docker_img_job
-    - .job_devel_only_triggers
   variables:
     DOCKER_TAGS: latest,maintenance-99-9
-  # job need to be explicitly started
-  # will not block other stages/jobs
-  # will not run when we click "Run pipeline"
-  when: manual
-
-build_docker_img_branches:
-  extends:
-    - .build_docker_img_job
-    - .job_branches_only_triggers
-  variables:
-    DOCKER_TAGS: ${CI_COMMIT_REF_SLUG}
-  when: manual
-
-build_docker_img_maintenance:
-  extends:
-    - .build_docker_img_job
-  variables:
-    DOCKER_TAGS: ${CI_COMMIT_REF_SLUG}
+  # only run this job on devel branch with at least one build_docker variable defined
   rules:
-    # run only on maintenance jobs (schedules and web)
-    # workaround, see https://forum.gitlab.com/t/specify-when-at-job-level-with-a-job-that-has-rules/47698
-    - if: '$CI_PIPELINE_SOURCE == "web" && $CI_COMMIT_REF_NAME =~ /^maintenance/'
-      when: manual
-      allow_failure: true
-    - if: '$CI_PIPELINE_SOURCE == "schedule" && $CI_COMMIT_REF_NAME =~ /^maintenance/'
-      when: manual
-      allow_failure: true
+    - if: '$CI_COMMIT_REF_NAME == "devel" && ($BUILD_DOCKER == "yes" || $CI_COMMIT_MESSAGE =~ /build_docker=yes/)'
+
+build_docker_img_branches_and_maintenance:
+  extends:
+    - .build_docker_img_job
+  variables:
+    DOCKER_TAGS: ${CI_COMMIT_REF_SLUG}
+  # only run this job on branch different from devel (all branches, maintenance/X.Y branches included) with at least one build_docker variable defined
+  rules:
+    - if: '$CI_COMMIT_REF_NAME != "devel" && $CI_COMMIT_TAG == null && $CI_PIPELINE_SOURCE == "web" && ( $BUILD_DOCKER == "yes" || $CI_COMMIT_MESSAGE =~ /build_docker=yes/ )'
+    - if: '$CI_COMMIT_REF_NAME != "devel" && $CI_COMMIT_TAG == null && $CI_PIPELINE_SOURCE == "schedule" && ( $BUILD_DOCKER == "yes" || $CI_COMMIT_MESSAGE =~ /build_docker=yes/ )'
 
 # build a docker image at release
 # used to build release and maintenance packages
 build_docker_img_release:
   extends:
     - .build_docker_img_job
-    - .job_release_triggers
+    - .release_only_rules
   variables:
     DOCKER_TAGS: ${CI_COMMIT_TAG}
     ANSIBLE_CENTOS_GROUP: common_centos
@@ -361,21 +314,23 @@ build_docker_img_release:
     ACTIVE_BUILDS: 'pfbuild-centos-8,pfbuild-bullseye'
 
 # build_vagrant_img jobs
-build_vagrant_img_dev_centos_8:
+build_vagrant_img_dev_el_8:
   extends:
     - .build_vagrant_img_dev_job
-    - .job_dev_triggers
   variables:
-    BOX_NAME: pfcen7dev
-  when: manual
+    BOX_NAME: pfel8dev
+  rules:
+    - if: '$CI_COMMIT_REF_NAME == "devel" && ( $BUILD_VAGRANT == "yes" || $CI_COMMIT_MESSAGE =~ /build_vagrant=yes/ )'
+    - if: '$CI_COMMIT_REF_NAME !~ /^maintenance\/[[:digit:]]+\.[[:digit:]]+$/ && $CI_COMMIT_TAG == null && $CI_PIPELINE_SOURCE == "web" && ( $BUILD_VAGRANT == "yes" || $CI_COMMIT_MESSAGE =~ /build_vagrant=yes/ )'
 
 build_vagrant_img_dev_debian_bullseye:
   extends:
     - .build_vagrant_img_dev_job
-    - .job_dev_triggers
   variables:
-    BOX_NAME: pfdeb9dev
-  when: manual
+    BOX_NAME: pfdeb11dev
+  rules:
+    - if: '$CI_COMMIT_REF_NAME == "devel" && ( $BUILD_VAGRANT == "yes" || $CI_COMMIT_MESSAGE =~ /build_vagrant=yes/ )'
+    - if: '$CI_COMMIT_REF_NAME !~ /^maintenance\/[[:digit:]]+\.[[:digit:]]+$/ && $CI_COMMIT_TAG == null && $CI_PIPELINE_SOURCE == "web" && ( $BUILD_VAGRANT == "yes" || $CI_COMMIT_MESSAGE =~ /build_vagrant=yes/ )'
 
 ########################################
 #  BUILD_PKG JOBS
@@ -385,15 +340,15 @@ build_pkg_dev_centos_8:
   image: ${PFBUILD_CENTOS_8_IMG}:${PFBUILD_DEFAULT_DEV_TAG}
   extends:
     - .build_job
-    - .job_dev_triggers
     - .rpm_script
+    - .dev_and_branches_rules
 
 build_pkg_dev_debian_bullseye:
   image: ${PFBUILD_DEB_BULLSEYE_IMG}:${PFBUILD_DEFAULT_DEV_TAG}
   extends:
     - .build_job
-    - .job_dev_triggers
     - .deb_script
+    - .dev_and_branches_rules
 
 # build_pkg jobs for release
 # CI_COMMIT_TAG contains vX.Y.X
@@ -401,15 +356,15 @@ build_pkg_release_centos_8:
   image: ${PFBUILD_CENTOS_8_IMG}:${CI_COMMIT_TAG}
   extends:
     - .build_job
-    - .job_release_triggers
     - .rpm_script
+    - .release_only_rules
 
 build_pkg_release_debian_bullseye:
   image: ${PFBUILD_DEB_BULLSEYE_IMG}:${CI_COMMIT_TAG}
   extends:
     - .build_job
-    - .job_release_triggers
     - .deb_script
+    - .release_only_rules
 
 # CI_COMMIT_REF_SLUG contains maintenance-X-Y
 build_pkg_maintenance_centos_8:
@@ -467,67 +422,48 @@ publish_ppa_dev_release_branches_and_maintenance:
 ########################################
 # TEST JOBS
 ########################################
-test_pkg_devel_centos_8:
+test_pkg_devel_el_8:
   variables:
     PERL_UNIT_TESTS: 'yes'
     GOLANG_UNIT_TESTS: 'yes'
     INTEGRATION_TESTS: 'no'
-    VAGRANT_DOTFILE_PATH: /var/local/gitlab-runner/vagrant/vagrant-centos-7-dev
+    VAGRANT_DOTFILE_PATH: /var/local/gitlab-runner/vagrant/vagrant-el-8-${CI_COMMIT_REF_SLUG}
   extends:
     - .test_job
-    - .test_centos_8_vars
+    - .test_el_8_vars
     - .test_script
-    - .job_dev_triggers
-
-test_pkg_release_centos_8:
-  variables:
-    PERL_UNIT_TESTS: 'no'
-    GOLANG_UNIT_TESTS: 'no'
-    INTEGRATION_TESTS: 'no'
-    # provision VM and run configurator test
-    RUN_TESTS: 'yes'
-    VAGRANT_DOTFILE_PATH: /var/local/gitlab-runner/vagrant/vagrant-centos-7-${CI_COMMIT_TAG}
-  extends:
-    - .test_job
-    - .test_centos_8_vars
-    - .test_script
-    - .job_release_triggers
-
-test_pkg_nightly_centos_8:
-  variables:
-    PERL_UNIT_TESTS: 'yes'
-    GOLANG_UNIT_TESTS: 'yes'
-    INTEGRATION_TESTS: 'yes'
-    VAGRANT_DOTFILE_PATH: /var/local/gitlab-runner/vagrant/vagrant-centos-7-dev
-  extends:
-    - .test_job
-    - .test_centos_8_vars
-    - .test_script
-    - .job_nightly_triggers
-
-test_pkg_maintenance_centos_8:
-  variables:
-    PERL_UNIT_TESTS: 'yes'
-    GOLANG_UNIT_TESTS: 'yes'
-    INTEGRATION_TESTS: 'yes'
-    VAGRANT_DOTFILE_PATH: /var/local/gitlab-runner/vagrant/vagrant-centos-7-${CI_COMMIT_REF_SLUG}
-  extends:
-    - .test_maintenance_job
-    - .test_centos_8_vars
-    - .test_script
-    - .maintenance_rules
+  rules:
+    - if: '$CI_COMMIT_REF_NAME == "devel" && ( $TESTS == "yes" || $CI_COMMIT_MESSAGE =~ /tests=yes/ )'
+    - if: '$CI_COMMIT_REF_NAME !~ /^maintenance\/[[:digit:]]+\.[[:digit:]]+$/ && $CI_COMMIT_TAG == null && $CI_PIPELINE_SOURCE == "web" && ( $TESTS == "yes" || $CI_COMMIT_MESSAGE =~ /tests=yes/ )'
 
 test_pkg_devel_debian_bullseye:
   variables:
     PERL_UNIT_TESTS: 'no'
     GOLANG_UNIT_TESTS: 'yes'
     INTEGRATION_TESTS: 'no'
-    VAGRANT_DOTFILE_PATH: /var/local/gitlab-runner/vagrant/vagrant-debian-bullseye-dev
+    VAGRANT_DOTFILE_PATH: /var/local/gitlab-runner/vagrant/vagrant-debian-bullseye-${CI_COMMIT_REF_SLUG}
   extends:
     - .test_job
     - .test_debian_bullseye_vars
     - .test_script
-    - .job_dev_triggers
+  rules:
+    - if: '$CI_COMMIT_REF_NAME == "devel" && ( $TESTS == "yes" || $CI_COMMIT_MESSAGE =~ /tests=yes/ )'
+    - if: '$CI_COMMIT_REF_NAME !~ /^maintenance\/[[:digit:]]+\.[[:digit:]]+$/ && $CI_COMMIT_TAG == null && $CI_PIPELINE_SOURCE == "web" && ( $TESTS == "yes" || $CI_COMMIT_MESSAGE =~ /tests=yes/ )'
+
+test_pkg_release_el_8:
+  variables:
+    PERL_UNIT_TESTS: 'no'
+    GOLANG_UNIT_TESTS: 'no'
+    INTEGRATION_TESTS: 'no'
+    # provision VM and run configurator test
+    RUN_TESTS: 'yes'
+    VAGRANT_DOTFILE_PATH: /var/local/gitlab-runner/vagrant/vagrant-el-8-${CI_COMMIT_TAG}
+  extends:
+    - .test_job
+    - .test_el_8_vars
+    - .test_script
+  rules:
+    - if: '$CI_COMMIT_TAG'
 
 test_pkg_release_debian_bullseye:
   variables:
@@ -541,31 +477,34 @@ test_pkg_release_debian_bullseye:
     - .test_job
     - .test_debian_bullseye_vars
     - .test_script
-    - .job_release_triggers
+  rules:
+    - if: '$CI_COMMIT_TAG'
+
+test_pkg_nightly_el_8:
+  variables:
+    PERL_UNIT_TESTS: 'yes'
+    GOLANG_UNIT_TESTS: 'yes'
+    INTEGRATION_TESTS: 'yes'
+    VAGRANT_DOTFILE_PATH: /var/local/gitlab-runner/vagrant/vagrant-el-8-${CI_COMMIT_REF_SLUG}
+  extends:
+    - .test_job
+    - .test_el_8_vars
+    - .test_script
+  rules:
+    - if: '$CI_PIPELINE_SOURCE == "schedule" && $TESTS == "yes"'
 
 test_pkg_nightly_debian_bullseye:
   variables:
     PERL_UNIT_TESTS: 'no'
     GOLANG_UNIT_TESTS: 'yes'
     INTEGRATION_TESTS: 'yes'
-    VAGRANT_DOTFILE_PATH: /var/local/gitlab-runner/vagrant/vagrant-debian-bullseye-dev
+    VAGRANT_DOTFILE_PATH: /var/local/gitlab-runner/vagrant/vagrant-debian-bullseye-${CI_COMMIT_REF_SLUG}
   extends:
     - .test_job
     - .test_debian_bullseye_vars
     - .test_script
-    - .job_nightly_triggers
-
-test_pkg_maintenance_debian_bullseye:
-  variables:
-    PERL_UNIT_TESTS: 'no'
-    GOLANG_UNIT_TESTS: 'yes'
-    INTEGRATION_TESTS: 'yes'
-    VAGRANT_DOTFILE_PATH: /var/local/gitlab-runner/vagrant/vagrant-debian-bullseye-${CI_COMMIT_REF_SLUG}
-  extends:
-    - .test_maintenance_job
-    - .test_debian_bullseye_vars
-    - .test_script
-    - .maintenance_rules
+  rules:
+    - if: '$CI_PIPELINE_SOURCE == "schedule" && $TESTS == "yes"'
 
 ########################################
 # UPLOAD JOBS
@@ -573,7 +512,7 @@ test_pkg_maintenance_debian_bullseye:
 deploy_rpm_devel:
   extends:
     - .deploy_rpm_job
-    - .job_devel_only_triggers
+    - .devel_only_rules
   environment:
     name: pf-devel
 
@@ -583,7 +522,7 @@ deploy_rpm_devel:
 deploy_rpm_packetfence-release_devel:
   extends:
     - .deploy_rpm_packetfence-release_job
-    - .job_devel_only_triggers
+    - .devel_only_rules
   environment:
     name: pf-devel
   variables:
@@ -592,7 +531,7 @@ deploy_rpm_packetfence-release_devel:
 deploy_rpm_branches:
   extends:
     - .deploy_rpm_job
-    - .job_branches_only_triggers
+    - .branches_only_rules
   environment:
     name: pf-branches
   variables:
@@ -601,7 +540,7 @@ deploy_rpm_branches:
 deploy_rpm_packetfence-release_branches:
   extends:
     - .deploy_rpm_packetfence-release_job
-    - .job_branches_only_triggers
+    - .branches_only_rules
   environment:
     name: pf-branches
   variables:
@@ -610,7 +549,7 @@ deploy_rpm_packetfence-release_branches:
 deploy_rpm_release:
   extends:
     - .deploy_rpm_job
-    - .job_release_triggers
+    - .release_only_rules
   environment:
     name: pf-stable
 
@@ -620,7 +559,7 @@ deploy_rpm_release:
 deploy_rpm_packetfence-release_release:
   extends:
     - .deploy_rpm_packetfence-release_job
-    - .job_release_triggers
+    - .release_only_rules
   environment:
     name: pf-stable
 
@@ -634,7 +573,7 @@ deploy_rpm_maintenance:
 deploy_deb_devel:
   extends:
     - .deploy_deb_job
-    - .job_devel_only_triggers
+    - .devel_only_rules
   environment:
     name: pf-devel
   variables:
@@ -643,7 +582,7 @@ deploy_deb_devel:
 deploy_deb_branches:
   extends:
     - .deploy_deb_job
-    - .job_branches_only_triggers
+    - .branches_only_rules
   environment:
     name: pf-branches
   variables:
@@ -652,7 +591,7 @@ deploy_deb_branches:
 deploy_deb_release:
   extends:
     - .deploy_deb_job
-    - .job_release_triggers
+    - .release_only_rules
   environment:
     name: pf-stable
   variables:
@@ -671,41 +610,41 @@ deploy_deb_maintenance:
 build_zen_devel:
   extends:
     - .build_zen_job
-    - .job_devel_only_triggers
   script:
     - make -e -C ${ZENDIR} zen-devel
-  when: manual
-
-build_zen_devel_nightly:
-  extends:
-    - .build_zen_job
-  script:
-    - make -e -C ${ZENDIR} zen-devel
-  # only run this job during a schedule pipeline, on devel branch with RUN_BUILD_ZEN set to yes
-  # RUN_BUILD_ZEN is a variable defined in GitLab UI (on scheduled job)
   rules:
-    - if: '$CI_PIPELINE_SOURCE == "schedule" && $CI_COMMIT_REF_NAME == "devel" && $RUN_BUILD_ZEN == "yes"'
+    - if: '$CI_COMMIT_REF_NAME == "devel" && ( $BUILD_ZEN == "yes" || $CI_COMMIT_MESSAGE =~ /build_zen=yes/ )'
 
 build_zen_release:
   extends:
     - .build_zen_job
-    - .job_release_triggers
   script:
     - make -e -C ${ZENDIR} zen-release
-  when: manual
+  # workaround for https://forum.gitlab.com/t/specify-when-at-job-level-with-a-job-that-has-rules/4769
+  rules:
+    - if: '$CI_COMMIT_TAG'
+      when: manual
+      allow_failure: true
 
-build_vagrant_img_stable_centos_8:
+build_vagrant_img_stable_el_8:
   extends:
     - .build_vagrant_img_stable_job
-    - .job_release_triggers
   variables:
     BOX_NAME: pfcen7stable
-  when: manual
+  # workaround for https://forum.gitlab.com/t/specify-when-at-job-level-with-a-job-that-has-rules/4769
+  rules:
+    - if: '$CI_COMMIT_TAG'
+      when: manual
+      allow_failure: true
 
 build_vagrant_img_stable_debian_bullseye:
   extends:
     - .build_vagrant_img_stable_job
-    - .job_release_triggers
   variables:
     BOX_NAME: pfdeb9stable
-  when: manual
+  # workaround for https://forum.gitlab.com/t/specify-when-at-job-level-with-a-job-that-has-rules/4769
+  rules:
+    - if: '$CI_COMMIT_TAG'
+      when: manual
+      allow_failure: true
+

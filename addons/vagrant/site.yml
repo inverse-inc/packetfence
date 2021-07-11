@@ -6,7 +6,7 @@
 
 - import_playbook: register_rhel_subscription.yml
 
-- import_playbook: upgrade_centos_os.yml
+- import_playbook: upgrade_el_os.yml
 
 - import_playbook: config_dev_repos.yml
 
