@@ -81,21 +81,21 @@ $networkdevice_object->deauthenticateMacDefault("aa:bb:cc:dd:ee:ff");
 # installing a custom die handler to issue a warning on a different die than "No answer from 127.0.0.1 on port 3799"
 # the warning will be trapped by the Test::NoWarnings;
 # there's probably a cleaner way to do this but I can't seem to find it right now
-my $die_handler = $SIG{__DIE__};
-local $SIG{__DIE__} = sub {
-    my $str = join("\n", @_);
-    warn(@_) if ($str !~ /No answer from 127\.0\.0\.1 on port 3799/m);
-};
-$networkdevice_object = pf::Switch::Aruba->new({
-    'mode' => 'production',
-    'radiusSecret' => 'fake',
-    'ip' => '127.0.0.1',
-    'id' => '127.0.0.1',
-});
-# bogusly calling methods trying to generate warnings
-$networkdevice_object->deauthenticateMacDefault("aa:bb:cc:dd:ee:ff");
-# putting back old die handler
-$SIG{__DIE__} = $die_handler;
+{
+    local $SIG{__DIE__} = sub {
+        my $str = join("\n", @_);
+        warn(@_) if ($str !~ /No answer from 127\.0\.0\.1 on port 3799/m && $str !~ /Couldn't create UDP connection/);
+    };
+    $networkdevice_object = pf::Switch::Aruba->new({
+        'mode' => 'production',
+        'radiusSecret' => 'fake',
+        'ip' => '127.0.0.1',
+        'id' => '127.0.0.1',
+    });
+    # bogusly calling methods trying to generate warnings
+    $networkdevice_object->deauthenticateMacDefault("aa:bb:cc:dd:ee:ff");
+}
+
 
 =head1 AUTHOR
 
