@@ -1,0 +1,10 @@
+- hosts: pfservers
+  name: Unregister RHEL subscription
+  become: True
+  gather_facts: True
+  tags: register
+
+  tasks:
+    - name: Include tasks to unregister RHEL systems
+      include_tasks: tasks/unregister_rhel_subscription_tasks.yml
+      when: ansible_os_family == 'RedHat'

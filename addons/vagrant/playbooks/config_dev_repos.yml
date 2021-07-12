@@ -7,6 +7,16 @@
     - debops.roles02
     - debops.roles03
 
+
+  pre_tasks:
+    - name: debug1
+      debug:
+        msg: "codename: {{ ansible_lsb['codename'] }}"
+
+    - name: debug2
+      debug:
+        msg: "distribution: {{ ansible_distribution_release }}"
+
   roles:
     - role: inverse_inc.gitlab_buildpkg_tools
       tags: ci

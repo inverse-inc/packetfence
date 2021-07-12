@@ -1,0 +1,10 @@
+- hosts: pfservers
+  name: Register RHEL subscription
+  become: True
+  gather_facts: True
+  tags: register
+
+  tasks:
+    - name: Include tasks to register RHEL systems
+      include_tasks: tasks/register_rhel_subscription_tasks.yml
+      when: ansible_os_family == 'RedHat'

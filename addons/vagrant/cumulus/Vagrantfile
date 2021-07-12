@@ -327,7 +327,7 @@ vagrant_interface_rule
       ansible.groups = {
         "nodes" => ["node01"]
       }
-      ansible.playbook = "nodes_pre_prov.yml"
+      ansible.playbook = "playbooks/nodes_pre_prov.yml"
       ansible.config_file = "ansible.cfg"
       ansible.galaxy_role_file = "requirements.yml"
       # only for debug
@@ -433,7 +433,7 @@ vagrant_interface_rule
       ansible.groups = {
         "nodes" => ["node02"]
       }
-      ansible.playbook = "nodes_pre_prov.yml"
+      ansible.playbook = "playbooks/nodes_pre_prov.yml"
       ansible.config_file = "ansible.cfg"
       ansible.galaxy_role_file = "requirements.yml"
       # only for debug
