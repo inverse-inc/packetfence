@@ -21,7 +21,8 @@ BEGIN {
     use setup_test_config;
 }
 
-use Test::More tests => 28;
+use Test::More tests => 27;
+use Test2::Tools::Compare qw(bag item end);
 use_ok('pf::security_event');
 
 # Will be able to match a security_event with multiple triggers by only passing the trigger info
@@ -42,8 +43,13 @@ is($security_events[0], "1100009");
 # Will be able to match multiple security_events on the same trigger
 @security_events = $pf::security_event::SECURITY_EVENT_FILTER_ENGINE->match_all({last_detect_id => 1});
 is(@security_events, 2);
-is($security_events[0], "1100009");
-is($security_events[1], "1100008");
+Test2::Tools::Compare::is(
+    \@security_events,
+    bag {
+        item '1100009';
+        item '1100008';
+    },
+);
 
 # Will be able to match multiple security_events on the different triggers
 @security_events = $pf::security_event::SECURITY_EVENT_FILTER_ENGINE->match_all({last_detect_id => 2, device_id => 3});
