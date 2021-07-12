@@ -119,7 +119,7 @@ sub parse_tt {
         while (defined($line = <TT>)) {
             chomp $line;
             while ($line =~ m/i18n(_format)?\(['"](.+?(?!\\))['"](,.*)?\)/g) {
-                add_string($2, $template) unless ($2 =~ m/\${/);
+                add_string($2, $template) unless ($2 =~ m/\$\{/);
             }
         }
         close(TT);
