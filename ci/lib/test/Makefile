@@ -4,7 +4,7 @@ include ../../../config.mk
 # Specific variables
 #==============================================================================
 SHELL=/bin/bash
-
+CI_PIPELINE_ID=123456789
 #==============================================================================
 # Targets
 #==============================================================================
@@ -19,7 +19,7 @@ all: test-pfcen7dev-dev test-pfdeb9dev-dev test-pfcen7dev-release test-pfdeb9dev
 ### Targets used in pipeline
 .PHONY: test
 test: clean
-	PF_MINOR_RELEASE=$(PF_MINOR_RELEASE) ./vagrant-wrapper.sh run
+	CI_PIPELINE_ID=$(CI_PIPELINE_ID) PF_MINOR_RELEASE=$(PF_MINOR_RELEASE) ./vagrant-wrapper.sh run
 
 .PHONY: halt
 halt:
