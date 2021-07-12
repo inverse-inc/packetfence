@@ -46,7 +46,7 @@ variables:
 ########################################
 # RULES
 ########################################
-# run jobs on release tag (vX.Y.Z) (push and web)
+# run only jobs on release tag (vX.Y.Z) (push and web)
 # no schedule on tag
 .release_only_rules:
   rules:
@@ -90,17 +90,57 @@ variables:
     - if: '$CI_PIPELINE_SOURCE == "web"'
     - if: '$CI_PIPELINE_SOURCE == "schedule"'
 
+# only run this job on devel branch with build_img_docker variable defined or build_img_docker in commit message
+.build_img_docker_devel_rules:
+  rules:
+    - if: '$CI_COMMIT_REF_NAME == "devel" && ($BUILD_IMG_DOCKER == "yes" || $CI_COMMIT_MESSAGE =~ /build_img_docker=yes/)'
+
+# only run this job on branch different from devel (all branches, maintenance/X.Y branches included) with build_img_docker variable defined or build_img_docker in commit message
+.build_img_docker_branches_and_maintenance_rules:
+  rules:
+    - if: '$CI_COMMIT_REF_NAME != "devel" && $CI_COMMIT_TAG == null && $CI_PIPELINE_SOURCE == "web" && ( $BUILD_IMG_DOCKER == "yes" || $CI_COMMIT_MESSAGE =~ /build_img_docker=yes/ )'
+    - if: '$CI_COMMIT_REF_NAME != "devel" && $CI_COMMIT_TAG == null && $CI_PIPELINE_SOURCE == "schedule" && ( $BUILD_IMG_DOCKER == "yes" || $CI_COMMIT_MESSAGE =~ /build_img_docker=yes/ )'
+
+# run jobs only when:
+# - on devel branch (push,web,schedules) if variable BUILD_IMG_VAGRANT sets to yes or if CI_COMMIT_MESSAGE contains "build_img_vagrant=yes".
+# - on all branches, except maintenance/X.Y (web) if variable BUILD_IMG_VAGRANT sets to yes or if CI_COMMIT_MESSAGE contains "build_img_vagrant=yes".
+# don't run on tag
+.build_img_vagrant_devel_and_branches_rules:
+  rules:
+    - if: '$CI_COMMIT_REF_NAME == "devel" && ( $BUILD_IMG_VAGRANT == "yes" || $CI_COMMIT_MESSAGE =~ /build_img_vagrant=yes/ )'
+    - if: '$CI_COMMIT_REF_NAME !~ /^maintenance\/[[:digit:]]+\.[[:digit:]]+$/ && $CI_COMMIT_TAG == null && $CI_PIPELINE_SOURCE == "web" && ( $BUILD_IMG_VAGRANT == "yes" || $CI_COMMIT_MESSAGE =~ /build_img_vagrant=yes/ )'
+
 # run jobs only when:
 # - on a tag (push, schedules, web)
-# - on all branches (web and schedules) with variable TESTS sets to yes
-# - on devel branch (push) if CI_COMMIT_MESSAGE contains "tests=yes".
+# - on all branches (web and schedules) if variable TEST sets to yes or if CI_COMMIT_MESSAGE contains "test=yes".
+# - on devel branch (push) if variable TEST sets to yes or if CI_COMMIT_MESSAGE contains "test=yes".
 # Web pipelines launch on devel branch will be catched by previous rules
 .test_rules:
   rules:
     - if: '$CI_COMMIT_TAG'
-    - if: '$CI_PIPELINE_SOURCE == "web" && $TESTS == "yes"'
-    - if: '$CI_PIPELINE_SOURCE == "schedule" && $TESTS == "yes"'
-    - if: '$CI_COMMIT_REF_NAME == "devel" && $CI_COMMIT_MESSAGE =~ /tests=yes/'
+    - if: '$CI_PIPELINE_SOURCE == "web" && ( $TEST == "yes" || $CI_COMMIT_MESSAGE =~ /test=yes/ )'
+    - if: '$CI_PIPELINE_SOURCE == "schedule" && ( $TEST == "yes" || $CI_COMMIT_MESSAGE =~ /test=yes/ )'
+    - if: '$CI_COMMIT_REF_NAME == "devel" && ( $TEST == "yes" || $CI_COMMIT_MESSAGE =~ /test=yes/ )'
+
+# run jobs only when:
+# - on devel branch (push,web,schedules) if variable TEST sets to yes or if CI_COMMIT_MESSAGE contains "test=yes".
+# - on all branches, except maintenance/X.Y (web) if variable TEST sets to yes or if CI_COMMIT_MESSAGE contains "test=yes".
+# don't run on tag
+.test_devel_and_branches_rules:
+  rules:
+    - if: '$CI_COMMIT_REF_NAME == "devel" && ( $TEST == "yes" || $CI_COMMIT_MESSAGE =~ /test=yes/ )'
+    - if: '$CI_COMMIT_REF_NAME !~ /^maintenance\/[[:digit:]]+\.[[:digit:]]+$/ && $CI_COMMIT_TAG == null && $CI_PIPELINE_SOURCE == "web" && ( $TEST == "yes" || $CI_COMMIT_MESSAGE =~ /test=yes/ )'
+
+# run this job on all branches (schedule) with test variable defined or test=yes in commit message
+.test_nightly_rules:
+  rules:
+    - if: '$CI_PIPELINE_SOURCE == "schedule" && ( $TEST == "yes" || $CI_COMMIT_MESSAGE =~ /test=yes/ )'
+
+# run this job on devel branch with build_pf_img_zen variable defined or build_pf_img_zen=yes in commit message
+# ZEN build is not configured to run on branches
+.build_pf_img_zen_devel_rules:
+  rules:
+    - if: '$CI_COMMIT_REF_NAME == "devel" && ( $BUILD_PF_IMG_ZEN == "yes" || $CI_COMMIT_MESSAGE =~ /build_pf_img_zen=yes/ )'
 
 ########################################    
 # JOBS
@@ -284,21 +324,16 @@ variables:
 build_img_docker_devel:
   extends:
     - .build_img_docker_job
+    - .build_img_docker_devel_rules
   variables:
     DOCKER_TAGS: latest,maintenance-99-9
-  # only run this job on devel branch with at least one build_img_docker variable defined
-  rules:
-    - if: '$CI_COMMIT_REF_NAME == "devel" && ($BUILD_IMG_DOCKER == "yes" || $CI_COMMIT_MESSAGE =~ /build_img_docker=yes/)'
 
 build_img_docker_branches_and_maintenance:
   extends:
     - .build_img_docker_job
+    - .build_img_docker_branches_and_maintenance_rules
   variables:
     DOCKER_TAGS: ${CI_COMMIT_REF_SLUG}
-  # only run this job on branch different from devel (all branches, maintenance/X.Y branches included) with at least one build_img_docker variable defined
-  rules:
-    - if: '$CI_COMMIT_REF_NAME != "devel" && $CI_COMMIT_TAG == null && $CI_PIPELINE_SOURCE == "web" && ( $BUILD_IMG_DOCKER == "yes" || $CI_COMMIT_MESSAGE =~ /build_img_docker=yes/ )'
-    - if: '$CI_COMMIT_REF_NAME != "devel" && $CI_COMMIT_TAG == null && $CI_PIPELINE_SOURCE == "schedule" && ( $BUILD_IMG_DOCKER == "yes" || $CI_COMMIT_MESSAGE =~ /build_img_docker=yes/ )'
 
 # build a docker image at release
 # used to build release and maintenance packages
@@ -318,20 +353,16 @@ build_img_docker_release:
 build_img_vagrant_devel_and_branches_el_8:
   extends:
     - .build_img_vagrant_devel_and_branches_job
+    - .build_img_vagrant_devel_and_branches_rules
   variables:
     BOX_NAME: pfel8dev
-  rules:
-    - if: '$CI_COMMIT_REF_NAME == "devel" && ( $BUILD_IMG_VAGRANT == "yes" || $CI_COMMIT_MESSAGE =~ /build_img_vagrant=yes/ )'
-    - if: '$CI_COMMIT_REF_NAME !~ /^maintenance\/[[:digit:]]+\.[[:digit:]]+$/ && $CI_COMMIT_TAG == null && $CI_PIPELINE_SOURCE == "web" && ( $BUILD_IMG_VAGRANT == "yes" || $CI_COMMIT_MESSAGE =~ /build_img_vagrant=yes/ )'
 
 build_img_vagrant_devel_and_branches_debian_bullseye:
   extends:
     - .build_img_vagrant_devel_and_branches_job
+    - .build_img_vagrant_devel_and_branches_rules
   variables:
     BOX_NAME: pfdeb11dev
-  rules:
-    - if: '$CI_COMMIT_REF_NAME == "devel" && ( $BUILD_IMG_VAGRANT == "yes" || $CI_COMMIT_MESSAGE =~ /build_img_vagrant=yes/ )'
-    - if: '$CI_COMMIT_REF_NAME !~ /^maintenance\/[[:digit:]]+\.[[:digit:]]+$/ && $CI_COMMIT_TAG == null && $CI_PIPELINE_SOURCE == "web" && ( $BUILD_IMG_VAGRANT == "yes" || $CI_COMMIT_MESSAGE =~ /build_img_vagrant=yes/ )'
 
 ########################################
 #  BUILD_PKG JOBS
@@ -433,9 +464,7 @@ test_devel_and_branches_el_8:
     - .test_job
     - .test_el_8_vars
     - .test_script_job
-  rules:
-    - if: '$CI_COMMIT_REF_NAME == "devel" && ( $TESTS == "yes" || $CI_COMMIT_MESSAGE =~ /tests=yes/ )'
-    - if: '$CI_COMMIT_REF_NAME !~ /^maintenance\/[[:digit:]]+\.[[:digit:]]+$/ && $CI_COMMIT_TAG == null && $CI_PIPELINE_SOURCE == "web" && ( $TESTS == "yes" || $CI_COMMIT_MESSAGE =~ /tests=yes/ )'
+    - .test_devel_and_branches_rules
 
 test_devel_and_branches_debian_bullseye:
   variables:
@@ -447,9 +476,7 @@ test_devel_and_branches_debian_bullseye:
     - .test_job
     - .test_debian_bullseye_vars
     - .test_script_job
-  rules:
-    - if: '$CI_COMMIT_REF_NAME == "devel" && ( $TESTS == "yes" || $CI_COMMIT_MESSAGE =~ /tests=yes/ )'
-    - if: '$CI_COMMIT_REF_NAME !~ /^maintenance\/[[:digit:]]+\.[[:digit:]]+$/ && $CI_COMMIT_TAG == null && $CI_PIPELINE_SOURCE == "web" && ( $TESTS == "yes" || $CI_COMMIT_MESSAGE =~ /tests=yes/ )'
+    - .test_devel_and_branches_rules
 
 test_release_el_8:
   variables:
@@ -463,8 +490,7 @@ test_release_el_8:
     - .test_job
     - .test_el_8_vars
     - .test_script_job
-  rules:
-    - if: '$CI_COMMIT_TAG'
+    - .release_only_rules
 
 test_release_debian_bullseye:
   variables:
@@ -478,8 +504,7 @@ test_release_debian_bullseye:
     - .test_job
     - .test_debian_bullseye_vars
     - .test_script_job
-  rules:
-    - if: '$CI_COMMIT_TAG'
+    - .release_only_rules
 
 # used on devel and maintenance branches
 test_nightly_el_8:
@@ -492,8 +517,7 @@ test_nightly_el_8:
     - .test_job
     - .test_el_8_vars
     - .test_script_job
-  rules:
-    - if: '$CI_PIPELINE_SOURCE == "schedule" && $TESTS == "yes"'
+    - .test_nightly_rules
 
 # used on devel and maintenance branches
 test_nightly_debian_bullseye:
@@ -506,8 +530,7 @@ test_nightly_debian_bullseye:
     - .test_job
     - .test_debian_bullseye_vars
     - .test_script_job
-  rules:
-    - if: '$CI_PIPELINE_SOURCE == "schedule" && $TESTS == "yes"'
+    - .test_nightly_rules
 
 ########################################
 # DEPLOY JOBS
@@ -616,10 +639,9 @@ deploy_maintenance_deb:
 build_pf_img_zen_devel:
   extends:
     - .build_pf_img_zen_job
+    - .build_pf_img_zen_devel_rules
   script:
     - make -e -C ${ZENDIR} zen-devel
-  rules:
-    - if: '$CI_COMMIT_REF_NAME == "devel" && ( $BUILD_PF_IMG_ZEN == "yes" || $CI_COMMIT_MESSAGE =~ /build_pf_img_zen=yes/ )'
 
 build_pf_img_zen_release:
   extends:
