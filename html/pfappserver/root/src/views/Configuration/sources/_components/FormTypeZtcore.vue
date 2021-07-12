@@ -24,6 +24,11 @@
       :text="$i18n.t('The URL where ZTCore should send its assertion. Change pf.example.com with the domain name of your captive-portal')"
     />
 
+    <form-group-shared-secret namespace="shared_secret"
+      :column-label="$i18n.t('Shared secret')"
+      :text="$i18n.t('The shared secret between ZTCore and PacketFence')"
+    />
+
   </base-form>
 </template>
 <script>
@@ -33,6 +38,7 @@ import {
   FormGroupAssertionUrl,
   FormGroupDescription,
   FormGroupIdentifier,
+  FormGroupSharedSecret,
 } from './'
 
 const components = {
@@ -42,6 +48,7 @@ const components = {
   FormGroupAssertionUrl,
   FormGroupDescription,
   FormGroupIdentifier,
+  FormGroupSharedSecret,
 }
 
 import { useForm as setup, useFormProps as props } from '../_composables/useForm'

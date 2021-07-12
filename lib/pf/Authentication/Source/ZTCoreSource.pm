@@ -10,6 +10,7 @@ Model for a ZTCore source
 
 =cut
 
+use Crypt::Mode::CBC;
 use pf::Authentication::constants;
 use pf::constants;
 use pf::config;
@@ -23,6 +24,7 @@ extends 'pf::Authentication::Source';
 has '+type' => ( default => 'ZTCore' );
 has 'auth_base_url' => ( is => 'rw', required => 1, isa => 'Str', default => 'https://networkaccess.ztdemo.net' );
 has 'assertion_url' => ( is => 'rw', required => 1, isa => 'Str', default => 'https://pf.example.com/ztcore/assertion');
+has 'shared_secret' => ( is => 'rw', required => 1, isa => 'Str');
 
 =head2 dynamic_routing_module
 
@@ -161,9 +163,8 @@ sub handle_response {
     my $iv = decode_base64($params->{ZTCoreResponseIV});
     my $ciphertext = decode_base64($params->{ZTCoreResponseCIPHERTEXT});
     
-    use Crypt::Mode::CBC;
     my $m = Crypt::Mode::CBC->new('AES');
-    my $assertion = $m->decrypt($ciphertext, pack("H*", "f2ca1bb6c7e907d06dafe4687e579fce76b37e4e93b7605022da52e6ccc26fd2"), $iv);
+    my $assertion = $m->decrypt($ciphertext, pack("H*", $self->shared_secret), $iv);
 
     my $result = decode_json($assertion);
     # TEMP HACK: ZTCore returns the user role with a lower case which doesn't match our default value. This will need to be fixed on the ZTCore policy side

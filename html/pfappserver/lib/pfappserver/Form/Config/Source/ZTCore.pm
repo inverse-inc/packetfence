@@ -38,6 +38,12 @@ has_field 'assertion_url' =>
   );
 
 
+has_field 'shared_secret' =>
+  (
+   required => 1,
+  );
+
+
 =head1 COPYRIGHT
 
 Copyright (C) 2005-2021 Inverse inc.
