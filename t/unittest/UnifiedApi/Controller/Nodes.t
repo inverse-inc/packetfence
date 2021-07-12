@@ -103,7 +103,7 @@ $t->post_ok('/api/v1/nodes/search' => json => { fields => [qw(mac security_event
 
 $t->post_ok('/api/v1/nodes/search' => json => { fields => [qw(mac)], with_total_count => \1 })
   ->status_is(200)
-  ->json_has('total_count');
+  ->json_has('/total_count');
 
 sub test_mac {
     my ($mac, $real_mac) = @_;
