@@ -22,12 +22,14 @@ all:
           # IP used by helper_scripts and Ansible, not Vagrant
           mgmt_ip: 172.17.17.251
           ansible_host: "{{ mgmt_ip }}"
+          ansible_python_interpreter: '/usr/bin/python3'
         node02:
           box: debian/buster64
           box_version: 10.20210228.1
           # IP used by helper_scripts and Ansible, not Vagrant
           mgmt_ip: 172.17.17.252
           ansible_host: "{{ mgmt_ip }}"
+          ansible_python_interpreter: '/usr/bin/python3'
 
     winservers:
       hosts:
@@ -48,6 +50,7 @@ all:
           mgmt_ip: 172.17.17.210
           mgmt_netmask: 255.255.255.0
           ansible_host: "{{ mgmt_ip }}"
+          ansible_python_interpreter: '/usr/bin/python3'
           cpus: 1
           memory: 1024
 
@@ -63,6 +66,7 @@ all:
           mgmt_ip: 172.17.17.101
           mgmt_netmask: 255.255.255.0
           ansible_host:  "{{ mgmt_ip }}"
+          ansible_python_interpreter: '/usr/bin/python3'
           cpus: 1
           memory: 512
         linux02:
@@ -71,6 +75,7 @@ all:
           mgmt_ip: 172.17.17.102
           mgmt_netmask: 255.255.255.0
           ansible_host:  "{{ mgmt_ip }}"
+          ansible_python_interpreter: '/usr/bin/python3'
           cpus: 1
           memory: 512          
 
@@ -108,6 +113,7 @@ all:
               mgmt_ip: 172.17.17.12
               mgmt_netmask: 255.255.255.0
               ansible_host: "{{ mgmt_ip }}"
+              ansible_python_interpreter: '/usr/bin/python3'
               cpus: 2
               memory: 6144
             el8dev:
@@ -124,6 +130,7 @@ all:
               mgmt_ip: 172.17.17.13
               mgmt_netmask: 255.255.255.0
               ansible_host: "{{ mgmt_ip }}"
+              ansible_python_interpreter: '/usr/bin/python3'
               cpus: 2
               memory: 6144
 
@@ -143,6 +150,7 @@ all:
               mgmt_ip: 172.17.17.16
               mgmt_netmask: 255.255.255.0
               ansible_host: "{{ mgmt_ip }}"
+              ansible_python_interpreter: '/usr/bin/python3'
               cpus: 2
               memory: 8192
 
