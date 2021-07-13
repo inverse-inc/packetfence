@@ -158,13 +158,11 @@ case "$1" in
         /bin/systemctl start packetfence-haproxy-admin
         systemctl enable packetfence-iptables
         /usr/local/pf/bin/pfcmd service pf updatesystemd
-        # On new stretch install this should work but not on upgrade
-        if [ ${DIST} = "stretch" ]; then
-            set +e
-            /usr/bin/mysql -uroot -e "update mysql.user set plugin='' where User='root'"
-            /usr/bin/mysql -uroot -e "flush privileges"
-            set -e
-	fi
+        set +e
+        /usr/bin/mysql -uroot -e "update mysql.user set plugin='' where User='root'"
+        /usr/bin/mysql -uroot -e "set password for 'root'@'localhost' = password('')"
+        /usr/bin/mysql -uroot -e "flush privileges"
+        set -e
         echo Installation complete
         echo "* Please fire up your Web browser and go to https://@ip_packetfence:1443 to complete your PacketFence configuration."
         echo "* Please stop your iptables service if you don't have access to configurator."
