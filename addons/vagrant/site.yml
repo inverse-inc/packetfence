@@ -8,6 +8,8 @@
 
 - import_playbook: playbooks/upgrade_el_os.yml
 
+- import_playbook: playbooks/upgrade_deb_os.yml
+
 - import_playbook: playbooks/config_dev_repos.yml
 
 - import_playbook: playbooks/install_pf.yml
