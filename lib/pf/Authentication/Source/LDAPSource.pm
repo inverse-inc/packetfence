@@ -42,7 +42,6 @@ our %sslargs_mapping = (
     client_cert => 'clientcert',
     client_key  => 'clientkey',
     ca_file     => 'cafile',
-    ca_path     => 'capath',
 );
 
 Readonly our %ATTRIBUTES_MAP => (
@@ -80,7 +79,6 @@ has 'dead_duration' => ( isa => 'Num', is => 'rw', default => $DEFAULT_LDAP_DEAD
 has 'client_cert' => ( isa => 'Str', is => 'rw');
 has 'client_key' => ( isa => 'Str', is => 'rw');
 has 'ca_file' => (isa => 'Str', is => 'rw');
-has 'ca_path' => (isa => 'Str', is => 'rw');
 has 'verify' => ( isa => 'Str', is => 'rw');
 
 our $logger = get_logger();

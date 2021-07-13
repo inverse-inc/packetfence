@@ -108,10 +108,6 @@
       :column-label="$i18n.t('Client Key')"
     />
 
-    <form-group-ca-path namespace="ca_path"
-      :column-label="$i18n.t('CA Directory')"
-    />
-
     <form-group-ca-file namespace="ca_file"
       :column-label="$i18n.t('CA File')"
     />
