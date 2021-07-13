@@ -7,15 +7,17 @@
     - debops.roles02
     - debops.roles03
 
-
+  # workaround for https://github.com/ansible/ansible/issues/70304
+  # to have ansible_distribution correct for bullseye
   pre_tasks:
-    - name: debug1
-      debug:
-        msg: "codename: {{ ansible_lsb['codename'] }}"
+    - name: Force cache update to get correct Ansible distribution release
+      apt:
+        update_cache: yes
+      when: ansible_os_family == 'Debian'
 
-    - name: debug2
-      debug:
-        msg: "distribution: {{ ansible_distribution_release }}"
+    - name: Refresh Ansible facts after cache update
+      setup:
+      when: ansible_os_family == 'Debian'
 
   roles:
     - role: inverse_inc.gitlab_buildpkg_tools
