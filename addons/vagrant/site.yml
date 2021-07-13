@@ -1,6 +1,7 @@
 ---
 # no sub directory for ansible playbooks to find roles under roles/ directory
 - import_playbook: playbooks/env_vars.yml
+  tags: env
 
 - import_playbook: playbooks/utils/psonoci.yml
 
@@ -28,5 +29,6 @@
 - import_playbook: playbooks/wireless.yml
 
 - import_playbook: playbooks/utils.yml
+  tags: utils
 
 - import_playbook: playbooks/unregister_rhel_subscription.yml
