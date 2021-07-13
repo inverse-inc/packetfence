@@ -250,12 +250,6 @@ has_field ca_file => (
     file_type => 'file',
 );
 
-has_field ca_path => (
-    type => 'Path',
-    label => 'CA Directory',
-    file_type => 'dir',
-);
-
 has '+dependency' => (
     default => sub {
         [
