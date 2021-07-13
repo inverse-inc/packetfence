@@ -8,6 +8,7 @@ PREFIX = /usr/local
 PF_PREFIX = $(PREFIX)/pf
 BINDIR = $(PF_PREFIX)/bin
 SBINDIR = $(PF_PREFIX)/sbin
+TESTDIR = $(PF_PREFIX)/t
 # source dirs
 # hack to get directory of config.mk from any Makefile in source tree
 # even if make is called with -C
@@ -18,6 +19,7 @@ SRC_CIDIR = $(SRC_ROOT_DIR)/ci
 SRC_CI_TESTDIR = $(SRC_CIDIR)/lib/test
 SRC_GODIR = $(SRC_ROOT_DIR)/go
 SRC_TESTDIR= $(SRC_ROOT_DIR)/t
+SRC_RELATIVE_TESTDIR = t
 
 #
 # Golang
@@ -88,7 +90,7 @@ symlink_files = $(shell find $(SRC_HTML_PFAPPDIR) \
 	-type l \
 	-not -path "$(SRC_HTML_PFAPPDIR_ROOT)/node_modules/*")
 
-# all directories and files to include in PacketFence package
+# all directories and files to include in packetfence package
 # $(SRC_ROOT_DIR)/* to exclude SRC_ROOT_DIR himself
 files_to_include = $(shell find $(SRC_ROOT_DIR)/* \
 	-maxdepth 0 \
@@ -98,3 +100,8 @@ files_to_include = $(shell find $(SRC_ROOT_DIR)/* \
 	-not -path "$(SRC_ROOT_DIR)/public" \
 	-not -path "$(SRC_RPMDIR)" \
 	-not -path "$(SRC_TESTDIR)" )
+
+# all directories and files to include in packetfence-test package
+# $(SRC_ROOT_DIR)/* to exclude SRC_ROOT_DIR himself
+pf_test_files_to_include = $(shell find $(SRC_TESTDIR) \
+	-maxdepth 0)
