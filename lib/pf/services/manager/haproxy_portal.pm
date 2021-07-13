@@ -122,7 +122,7 @@ EOT
 EOT
             }
             $tags{'http'} .= <<"EOT";
-        reqadd X-Forwarded-Proto:\\ http
+        http-request add-header X-Forwarded-Proto http
         use_backend %[var(req.action)]
         default_backend $cluster_ip-backend
         $bind_process
@@ -146,7 +146,7 @@ EOT
 EOT
             }
             $tags{'http'} .= <<"EOT";
-        reqadd X-Forwarded-Proto:\\ https
+        http-request add-header X-Forwarded-Proto https
         use_backend %[var(req.action)]
         default_backend $cluster_ip-backend
         $bind_process
@@ -191,7 +191,7 @@ frontend portal-http-$cluster_ipv6
         acl unflag_abuser src_clr_gpc0 --
         http-request allow if action unflag_abuser
         http-request deny if { src_get_gpc0 gt 0 }
-        reqadd X-Forwarded-Proto:\\ http
+        http-request add-header X-Forwarded-Proto http
         use_backend %[var(req.action)]
         default_backend $cluster_ip-backend
         $bind_process
@@ -209,7 +209,7 @@ frontend portal-https-$cluster_ipv6
         acl unflag_abuser src_clr_gpc0 --
         http-request allow if action unflag_abuser
         http-request deny if { src_get_gpc0 gt 0 }
-        reqadd X-Forwarded-Proto:\\ https
+        http-request add-header X-Forwarded-Proto https
         use_backend %[var(req.action)]
         default_backend $cluster_ip-backend
         $bind_process
@@ -246,7 +246,7 @@ EOT
 EOT
             }
             $tags{'http'} .= <<"EOT";
-        reqadd X-Forwarded-Proto:\\ http
+        http-request add-header X-Forwarded-Proto http
         use_backend %[var(req.action)]
         default_backend $ip_cluster-backend
         $bind_process
@@ -270,7 +270,7 @@ EOT
 EOT
             }
             $tags{'http'} .= <<"EOT";
-        reqadd X-Forwarded-Proto:\\ https
+        http-request add-header X-Forwarded-Proto https
         use_backend %[var(req.action)]
         default_backend $ip_cluster-backend
         $bind_process
