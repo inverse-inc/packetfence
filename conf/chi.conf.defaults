@@ -34,6 +34,13 @@ expires_in=24h
 # Amount of time from the current time to expire an entry
 expires_in=24h
 
+[namespace provisioning_distributed]
+#
+# namespace provisioning_distributed.storage
+#
+# The storage to use for the namespace
+storage=distributed
+
 [namespace accounting]
 #
 # namespace accounting.storage

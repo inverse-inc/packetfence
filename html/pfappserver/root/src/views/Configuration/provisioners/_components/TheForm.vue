@@ -23,6 +23,7 @@ import { BaseContainerLoading } from '@/components/new/'
 import FormTypeAccept from './FormTypeAccept'
 import FormTypeAirwatch from './FormTypeAirwatch'
 import FormTypeAndroid from './FormTypeAndroid'
+import FormTypeGoogleWorkspaceChromebook from './FormTypeGoogleWorkspaceChromebook'
 import FormTypeDeny from './FormTypeDeny'
 import FormTypeDpsk from './FormTypeDpsk'
 import FormTypeIbm from './FormTypeIbm'
@@ -43,6 +44,7 @@ const components = {
   FormTypeAccept,
   FormTypeAirwatch,
   FormTypeAndroid,
+  FormTypeGoogleWorkspaceChromebook,
   FormTypeDeny,
   FormTypeDpsk,
   FormTypeIbm,
@@ -67,23 +69,24 @@ export const setup = (props) => {
   const formType = computed(() => {
     const { type } = unref(form)
     switch(unref(type)) {
-      case 'accept':          return FormTypeAccept // break
-      case 'airwatch':        return FormTypeAirwatch //break
-      case 'android':         return FormTypeAndroid //break
-      case 'deny':            return FormTypeDeny //break
-      case 'dpsk':            return FormTypeDpsk //break
-      case 'ibm':             return FormTypeIbm //break
-      case 'intune':          return FormTypeIntune //break
-      case 'jamf':            return FormTypeJamf //break
-      case 'mobileconfig':    return FormTypeMobileconfig //break
-      case 'mobileiron':      return FormTypeMobileiron //break
-      case 'opswat':          return FormTypeOpswat //break
-      case 'sentinelone':     return FormTypeSentinelone //break
-      case 'sepm':            return FormTypeSepm //break
-      case 'servicenow':      return FormTypeServicenow //break
-      case 'symantec':        return FormTypeSymantec //break
-      case 'windows':         return FormTypeWindows // break
-      default:                return undefined
+      case 'accept':                      return FormTypeAccept // break
+      case 'airwatch':                    return FormTypeAirwatch //break
+      case 'android':                     return FormTypeAndroid //break
+      case 'deny':                        return FormTypeDeny //break
+      case 'dpsk':                        return FormTypeDpsk //break
+      case 'google_workspace_chromebook': return FormTypeGoogleWorkspaceChromebook //break
+      case 'ibm':                         return FormTypeIbm //break
+      case 'intune':                      return FormTypeIntune //break
+      case 'jamf':                        return FormTypeJamf //break
+      case 'mobileconfig':                return FormTypeMobileconfig //break
+      case 'mobileiron':                  return FormTypeMobileiron //break
+      case 'opswat':                      return FormTypeOpswat //break
+      case 'sentinelone':                 return FormTypeSentinelone //break
+      case 'sepm':                        return FormTypeSepm //break
+      case 'servicenow':                  return FormTypeServicenow //break
+      case 'symantec':                    return FormTypeSymantec //break
+      case 'windows':                     return FormTypeWindows // break
+      default:                            return undefined
     }
   })
 

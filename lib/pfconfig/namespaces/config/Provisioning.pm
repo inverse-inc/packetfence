@@ -20,6 +20,7 @@ use warnings;
 use pfconfig::namespaces::config;
 use pf::file_paths qw($provisioning_config_file);
 use List::MoreUtils qw(uniq);
+use JSON::MaybeXS qw(decode_json);
 
 use base 'pfconfig::namespaces::config';
 
@@ -63,6 +64,13 @@ sub build_child {
 sub cleanup_after_read {
     my ( $self, $id, $data ) = @_;
     $self->expand_list( $data, qw(category oses) );
+    if ($data->{type} eq 'google_workspace_chromebook') {
+        for my $k (qw(service_account)) {
+            if (exists $data->{$k}) {
+                $data->{$k} = decode_json($data->{$k});
+            }
+        }
+    }
 }
 
 =head1 AUTHOR

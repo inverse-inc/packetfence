@@ -30,12 +30,21 @@ sub factory_for { 'pf::provisioner' }
 sub new {
     my ($class,$name) = @_;
     my $object;
+    if (!exists $ConfigProvisioning{$name}) {
+        return undef;
+    }
+
     my $data = $ConfigProvisioning{$name};
+    if (!defined $data) {
+        return undef;
+    }
+
     $data->{id} = $name;
     if ($data) {
         my $subclass = $class->getModuleName($name,$data);
         $object = $subclass->new($data);
     }
+
     return $object;
 }
 
