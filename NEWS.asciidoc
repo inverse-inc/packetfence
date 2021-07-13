@@ -30,6 +30,7 @@ For a list of compatibility related changes see the <<PacketFence_Upgrade_Guide.
 * Venom inline l3 (PR#6266)
 * Microsoft Intune SCEP support (#6360)
 * Added support for Azure AD authentication (#6380)
+* New Provisioner Google Workspace Chromebook
 
 === Enhancements
 
