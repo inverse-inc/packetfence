@@ -8,12 +8,15 @@
     <div class="card-body">
       <base-search :use-search="useSearch" @basic="onTouch" @advanced="onTouch" @reset="onTouch">
         <b-form inline>
-          <b-input-group class="mb-0 mr-3">
+          <b-input-group class="mr-3">
             <b-input-group-prepend is-text>
               <base-input-toggle-false-true v-model="live.enabled"
                 :disabled="isLoading || !live.allowed" :label-right="false" class="inline" />
             </b-input-group-prepend>
             <b-dropdown variant="light" :text="$t('Live View')" :disabled="isLoading || !live.allowed">
+              <b-dropdown-item
+                :active="!live.enabled"
+                @click="live.enabled = false">{{ $t('Disable') }}</b-dropdown-item>
               <b-dropdown-item v-for="timeout in live.options" :key="timeout"
                 :active="live.enabled === true && live.timeout === timeout"
                 @click="live.enabled = true; live.timeout = timeout"
@@ -55,8 +58,8 @@
         :links="links"
         :options="options"
         :palettes="palettes"
-        :disabled="isLoading"
-        :is-loading="isLoading"
+        :disabled="!live.enabled && isLoading"
+        :is-loading="!live.enabled && isLoading"
         @layouts="layouts = $event"
       />
     </div>
@@ -104,11 +107,11 @@ const setup = (props, context) => {
   })
 
   const dimensions = ref({
-    height: 0,
-    width: 0,
+    height: 100,
+    width: 100,
     fit: 'min'
   })
-  const layouts = ref([]) // available layouts
+  const layouts = ref(['radial', 'tree']) // available layouts
   const palettes = ref({
     autoreg: { yes: 'green', no: 'red' },
     online: { on: 'green', off: 'red', unknown: 'yellow' },
@@ -186,6 +189,16 @@ const setup = (props, context) => {
       }
     }, { immediate: true })
 
+    watch([ // after search is mutated w/ user_preference (saved search)
+      () => search.sortBy,
+      () => search.sortDesc
+    ], ([sortBy, sortDesc]) => {
+      if (sortBy !== options.value.sort)
+        options.value.sort = sortBy
+      if ((sortDesc) ? 'DESC' : 'ASC' !== options.value.order)
+        options.value.order = (sortDesc) ? 'DESC' : 'ASC'
+    })
+
     watch([
       () => options.value.sort,
       () => options.value.order
@@ -210,11 +223,8 @@ const setup = (props, context) => {
     ], () => {
       if (live.value.interval)
         clearInterval(live.value.interval)
-      if (live.value.enabled) {
-        live.value.interval = setInterval(() => {
-          reSearch()
-        }, live.value.timeout)
-      }
+      if (live.value.enabled)
+        live.value.interval = setInterval(reSearch, live.value.timeout)
     })
 
     window.addEventListener('resize', setDimensions)

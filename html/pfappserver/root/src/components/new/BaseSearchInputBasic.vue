@@ -5,7 +5,7 @@
         <div class="input-group-text"><icon name="search"></icon></div>
       </div>
       <b-form-input :value="value" @input="onInput" id="container" type="text" :disabled="disabled" :placeholder="placeholder"
-        :title="title" v-b-tooltip:form.v-primary.focus.top.d300="{ customClass: 'tooltip-grow' }" />
+        :title="title" v-b-tooltip:form.v-primary.hover.top.d300="{ customClass: 'tooltip-grow' }" />
       <b-button class="ml-1" type="reset" variant="secondary" :disabled="disabled">{{ $t('Clear') }}</b-button>
       <!-- saved search button -->
       <base-button-save-search v-if="saveSearchNamespace"

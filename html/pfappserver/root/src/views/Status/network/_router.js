@@ -1,4 +1,3 @@
-//const TheView = () => import(/* webpackChunkName: "Status" */ './_components/TheView')
 const TheSearch = () => import(/* webpackChunkName: "Status" */ './_components/TheSearch')
 
 export default [

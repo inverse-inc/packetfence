@@ -1,4 +1,4 @@
-import { modes, libraries, palettes } from '../_components/Chart'
+import { modes, libraries } from '../_components/Chart'
 
 export default [
   {

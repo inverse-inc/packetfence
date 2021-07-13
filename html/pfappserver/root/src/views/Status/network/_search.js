@@ -2,6 +2,9 @@ import { pfSearchConditionType as conditionType } from '@/globals/pfSearch'
 import makeSearch from '@/store/factory/search'
 import api from './_api'
 
+export const sortBy = 'last_seen'
+export const sortDesc = false
+
 export const useSearch = makeSearch('statusNetwork', {
   api,
   columns: Object.entries({
@@ -258,8 +261,8 @@ export const useSearch = makeSearch('statusNetwork', {
       icon: 'balance-scale'
     }
   ],
-  sortBy: 'last_seen',
-  sortDesc: true,
+  sortBy,
+  sortDesc,
   defaultCondition: () => ({
     op: 'and', values: [
     { op: 'or', values: [

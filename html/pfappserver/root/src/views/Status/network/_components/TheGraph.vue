@@ -92,87 +92,89 @@
 
       <!-- nodes -->
       <template v-for="(node, i) in localNodes">
+        <template v-if="i in coords">
 
-        <!-- packetfence -->
-        <use v-if="node.type === 'packetfence'" :key="`use-packetfence-${node.id}`"
-          xlink:href="#packetfence"
-          width="32" height="32"
-          :id="`node-${node.id}`"
-          :x="coords[i].x - (32 / 2)"
-          :y="coords[i].y - (32 / 2)"
-          fill="#000000"
-          @mouseover="mouseOverNode(node, $event)"
-          :class="[ 'packetfence', { 'highlight': node.highlight } ]"
-        />
-
-        <!-- switch-group -->
-        <template v-if="node.type === 'switch-group'">
-          <use
-            xlink:href="#switch-group"
+          <!-- packetfence -->
+          <use v-if="node.type === 'packetfence'" :key="`use-packetfence-${node.id}`"
+            xlink:href="#packetfence"
             width="32" height="32"
             :id="`node-${node.id}`"
             :x="coords[i].x - (32 / 2)"
             :y="coords[i].y - (32 / 2)"
+            fill="#000000"
             @mouseover="mouseOverNode(node, $event)"
-            :class="[ 'switch-group', 'pointer', { 'highlight': node.highlight } ]"
-            :key="`use-switch-group-${node.id}`"
+            :class="[ 'packetfence', { 'highlight': node.highlight } ]"
           />
-          <text class="switchText" v-show="!node.highlight"
-            :x="coords[i].x" :y="coords[i].y"
-            dy="3" dx="16"
-            :key="`use-switch-group-text-${node.id}`"
-          >↦{{ node.id }}</text>
-        </template>
 
-        <!-- switch -->
-        <template v-if="node.type === 'switch'">
-          <use
-            xlink:href="#switch"
-            width="32" height="32"
+          <!-- switch-group -->
+          <template v-if="node.type === 'switch-group'">
+            <use
+              xlink:href="#switch-group"
+              width="32" height="32"
+              :id="`node-${node.id}`"
+              :x="coords[i].x - (32 / 2)"
+              :y="coords[i].y - (32 / 2)"
+              @mouseover="mouseOverNode(node, $event)"
+              :class="[ 'switch-group', 'pointer', { 'highlight': node.highlight } ]"
+              :key="`use-switch-group-${node.id}`"
+            />
+            <text class="switchText" v-show="!node.highlight"
+              :x="coords[i].x" :y="coords[i].y"
+              dy="3" dx="16"
+              :key="`use-switch-group-text-${node.id}`"
+            >↦{{ node.id }}</text>
+          </template>
+
+          <!-- switch -->
+          <template v-if="node.type === 'switch'">
+            <use
+              xlink:href="#switch"
+              width="32" height="32"
+              :id="`node-${node.id}`"
+              :x="coords[i].x - (32 / 2)"
+              :y="coords[i].y - (32 / 2)"
+              @mouseover="mouseOverNode(node, $event)"
+              :class="[ 'switch', 'pointer', { 'highlight': node.highlight } ]"
+              :key="`use-switch-${node.id}`"
+            />
+            <text class="switchText" v-show="!node.highlight"
+              :x="coords[i].x" :y="coords[i].y"
+              dy="3" dx="16"
+              :key="`use-switch-text-${node.id}`"
+            >↦{{ node.id }}</text>
+          </template>
+
+          <!-- unknown -->
+          <template v-if="node.type === 'unknown'">
+            <use
+              xlink:href="#unknown"
+              width="32" height="32"
+              :id="`node-${node.id}`"
+              :x="coords[i].x - (32 / 2)"
+              :y="coords[i].y - (32 / 2)"
+              @mouseover="mouseOverNode(node, $event)"
+              :class="[ 'unknown', { 'highlight': node.highlight } ]"
+              :key="`use-unknown-${node.id}`"
+            />
+            <text class="switchText" v-show="!node.highlight"
+              :x="coords[i].x" :y="coords[i].y"
+              dy="3" dx="16"
+              :key="`use-unknown-text-${node.id}`"
+            >↦{{ node.id }}</text>
+          </template>
+
+          <!-- node -->
+          <use v-if="node.type === 'node'" :key="node.id"
+            xlink:href="#node"
+            width="16" height="16"
             :id="`node-${node.id}`"
-            :x="coords[i].x - (32 / 2)"
-            :y="coords[i].y - (32 / 2)"
+            :x="coords[i].x - (16 / 2)"
+            :y="coords[i].y - (16 / 2)"
             @mouseover="mouseOverNode(node, $event)"
-            :class="[ 'switch', 'pointer', { 'highlight': node.highlight } ]"
-            :key="`use-switch-${node.id}`"
+            :class="[ 'node', 'pointer', color(node), { 'highlight': node.highlight } ]"
           />
-          <text class="switchText" v-show="!node.highlight"
-            :x="coords[i].x" :y="coords[i].y"
-            dy="3" dx="16"
-            :key="`use-switch-text-${node.id}`"
-          >↦{{ node.id }}</text>
+
         </template>
-
-        <!-- unknown -->
-        <template v-if="node.type === 'unknown'">
-          <use
-            xlink:href="#unknown"
-            width="32" height="32"
-            :id="`node-${node.id}`"
-            :x="coords[i].x - (32 / 2)"
-            :y="coords[i].y - (32 / 2)"
-            @mouseover="mouseOverNode(node, $event)"
-            :class="[ 'unknown', { 'highlight': node.highlight } ]"
-            :key="`use-unknown-${node.id}`"
-          />
-          <text class="switchText" v-show="!node.highlight"
-            :x="coords[i].x" :y="coords[i].y"
-            dy="3" dx="16"
-            :key="`use-unknown-text-${node.id}`"
-          >↦{{ node.id }}</text>
-        </template>
-
-        <!-- node -->
-        <use v-if="node.type === 'node'" :key="node.id"
-          xlink:href="#node"
-          width="16" height="16"
-          :id="`node-${node.id}`"
-          :x="coords[i].x - (16 / 2)"
-          :y="coords[i].y - (16 / 2)"
-          @mouseover="mouseOverNode(node, $event)"
-          :class="[ 'node', 'pointer', color(node), { 'highlight': node.highlight } ]"
-        />
-
       </template>
 
       <!-- mini map -->
@@ -211,7 +213,7 @@
     </div>
 
     <!-- legend -->
-    <div v-if="!lastX && !lastY" :class="[ 'legend', config.legendPosition ]" :style="{ padding: `${this.config.padding}px` }">
+    <div v-if="!lastX && !lastY" :class="[ 'legend', config.legendPosition ]" :style="{ padding: `${config.padding}px` }">
       <ul class="mb-0">
         <li v-for="legend in legends" :key="`legend-${legend.color}`" :class="legend.color">{{ legend.text }} <span v-if="legend.count > 0">({{ legend.count }})</span></li>
       </ul>
@@ -256,1065 +258,560 @@ import TooltipPacketfence from './TooltipPacketfence'
 import TooltipSwitch from './TooltipSwitch'
 import TooltipSwitchGroup from './TooltipSwitchGroup'
 
+const components = {
+  TooltipNode,
+  TooltipPacketfence,
+  TooltipSwitch,
+  TooltipSwitchGroup
+}
+
 require('typeface-b612-mono') // custom pixel font
 
-// import multiple `d3-*` micro-libraries into same namespace,
-//  this has a smaller footprint than using full standalone `d3` library.
-const d3 = {
-  ...require('d3-force')
+const defaults = { // default options
+  layout: 'radial',
+  palette: 'status',
+  legendPosition: 'bottom-right',
+  miniMapHeight: undefined,
+  miniMapWidth: undefined,
+  miniMapPosition: 'bottom-left',
+  minZoom: 0,
+  maxZoom: 4,
+  mouseWheelZoom: true,
+  padding: 25,
+  sort: 'last_seen',
+  order: 'DESC' // 'ASC' or 'DESC'
 }
 
-const getAngleFromCoords = (x1, y1, x2, y2) => {
-  const dx = x2 - x1
-  const dy = y2 - y1
-  let theta = Math.atan2(dy, dx)
-  theta *= 180 / Math.PI // radians to degrees
-  return (360 + theta) % 360
-}
-
-const getCoordFromCoordAngle = (x1, y1, angle, length) => {
-  const rads = angle * (Math.PI / 180) // degrees to radians
-  return {
-    x: x1 + (length * Math.cos(rads)),
-    y: y1 + (length * Math.sin(rads))
+const props = {
+  dimensions: { // svg dimensions
+    type: Object,
+    required: true
+  },
+  options: {
+    type: Object
+  },
+  nodes: {
+    type: Array,
+    required: true
+  },
+  links: {
+    type: Array,
+    required: true
+  },
+  disabled: {
+    type: Boolean
+  },
+  isLoading: {
+    type: Boolean
+  },
+  palettes: {
+    type: Object
   }
 }
 
-const explodeProperties = (properties = {}) => {
-  let explodedProperties = {}
-  Object.keys(properties).forEach(key => {
-    if (key.includes('.')) { // handle dot-notation keys ('.')
-      const [ first, ...remainder ] = key.split('.')
-      if (!(first in explodedProperties)) {
-        explodedProperties[first] = {}
+import { computed, nextTick, ref, toRefs, watch } from '@vue/composition-api'
+// import d3 from '@/utils/d3'
+import { useViewBox, useMiniMap } from '../_composables/useSvg'
+import useSimulation from '../_composables/useSimulation'
+import useTooltips from '../_composables/useTooltips'
+
+const setup = props => {
+
+  const {
+    options,
+    dimensions,
+    nodes,
+    links,
+    palettes
+  } = toRefs(props)
+  const config = computed(() => ({ ...defaults, ...options.value }))
+
+  const localNodes = ref([])
+  const localLinks = ref([])
+
+  const {
+    simulation,
+    bounds,
+    coords,
+    init,
+    start,
+    stop,
+    force
+  } = useSimulation(props, config, localNodes, localLinks)
+
+  // initialize simulation
+  init()
+
+  // watch `dimensions` prop and rebuild simulation forces on resize
+  watch(dimensions, () => {
+    const { width = 0, height = 0 } = dimensions.value
+    // adjust fixed nodes x, y
+    localNodes.value.forEach((node, index) => {
+      if ('fx' in node && 'fy' in node) {
+        localNodes.value[index].fx = width / 2
+        localNodes.value[index].fy = height / 2
       }
-      explodedProperties[first] = {
-        ...explodedProperties[first],
-        ...explodeProperties({ [remainder.join('.')]: properties[key] })
-      }
-    } else {
-      explodedProperties[key] = properties[key]
-    }
+    })
+    nextTick(() => {
+      force()
+      start()
+    })
+  }, { deep: true, imediate: true })
+
+  const {
+    zoom,
+    scale,
+    centerX,
+    centerY,
+    lastX,
+    lastY,
+    viewBox,
+    viewBoxString,
+    setCenter,
+    mouseDownSvg,
+    mouseMoveSvg,
+    mouseUpSvg,
+    mouseWheelSvg
+  } = useViewBox(config, dimensions)
+
+  const {
+    miniMapLatch,
+    showMiniMap,
+    innerMiniMapProps,
+    outerMiniMapProps,
+    mouseDownMiniMap,
+    mouseMoveMiniMap
+  } = useMiniMap(props, config, viewBox, scale, setCenter)
+
+  const {
+    coordBounded,
+    localTooltips,
+    tooltips,
+    tooltipAnchorAttrs
+  } = useTooltips(props, config, bounds, viewBox, nodes)
+
+  const highlightedLinks = computed(() => {
+    return localLinks.value.filter(link => { link.highlight })
   })
-  return explodedProperties
+
+  const legends = computed(() => {
+    if (Object.keys(palettes.value).includes(config.value.palette)) {
+      const palette = palettes.value[config.value.palette]
+      return Object.keys(palette).map(key => {
+        return {
+          color: palette[key],
+          text: `${config.value.palette}: ${key}`,
+          count: localNodes.value.filter(node => node.properties[config.value.palette] === key).length
+        }
+      })
+    }
+    return []
+  })
+
+  const _linkCoords = link => {
+    const { source: { index: sourceIndex = null } = {}, target: { index: targetIndex = null } = {} } = link
+    const {
+      [sourceIndex]: { x: x1 = 0, y: y1 = 0 } = {},
+      [targetIndex]: { x: x2 = 0, y: y2 = 0 } = {}
+    } = coords.value
+    return {
+      x1: (isNaN(x1)) ? 0 : x1,
+      y1: (isNaN(y1)) ? 0 : y1,
+      x2: (isNaN(x2)) ? 0 : x2,
+      y2: (isNaN(y2)) ? 0 : y2
+    }
+  }
+
+  const linkId = link => {
+    let { source = {}, target = {} } = link
+    if (source.constructor === Object && 'id' in source)
+      source = source.id
+    if (target.constructor === Object && 'id' in target)
+      target = target.id
+    return `link-${source}-${target}`
+  }
+
+  const linkPathAttrs = link => {
+    const { x1 = 0, y1 = 0, x2 = 0, y2 = 0 } = _linkCoords(link)
+    return {
+      id: linkId(link),
+      d: `M${x1} ${y1} L${x2} ${y2} Z`
+    }
+  }
+
+  const linkSourceAttrs = link => {
+    const {
+      source: { id: sourceId = null, type: sourceType } = {},
+      target: { id: targetId = null } = {}
+    } = link
+    const startOffset = (sourceType === 'node') ? 8 : 16
+    return {
+      href: `#link-${sourceId}-${targetId}`,
+      startOffset
+    }
+  }
+
+  const linkSourceText = link => {
+    const { source: { id = null } = {} } = link
+    return id
+  }
+
+  const linkTargetAttrs = link => {
+    const {
+      source: { id: sourceId = null } = {},
+      target: { id: targetId = null, type: targetType } = {}
+    } = link
+    const { x1 = 0, y1 = 0, x2 = 0, y2 = 0 } = _linkCoords(link)
+    const x = x2 - x1
+    const y = y2 - y1
+    const l = Math.sqrt((x * x) + (y * y))
+    const startOffset = l + (targetType === 'node') ? 8 : 16
+    return {
+      href: `#link-${sourceId}-${targetId}`,
+      startOffset
+    }
+  }
+
+  const linkTargetText = link => {
+    const { target: { id = null } = {} } = link
+    return id
+  }
+
+  let highlight = false // mouseOver @ node
+  let highlightNodeId = false // last highlighted node
+
+  const _unhighlightNodes = () => {
+    localNodes.value = localNodes.value.map(node => ({ ...node, highlight: false, tooltip: false }))
+  }
+
+  const _unhighlightLinks = () => {
+    localLinks.value = localLinks.value.map(link => ({ ...link, highlight: false }))
+  }
+
+  const _highlightNodeById = id => {
+    _unhighlightNodes()
+    _unhighlightLinks()
+    // highlight all target nodes linked to this source node
+    localLinks.value.forEach((link, index)=> {
+      if (link.source.id === id) {
+        localLinks.value[index].highlight = true // highlight link
+        localLinks.value[index].target.highlight = true // highlight target node
+      }
+    })
+    var sourceIndex = localNodes.value.findIndex(node => node.id === id)
+    while (sourceIndex > -1) { // travel to center of tree [ (target|source) -> (target|source) -> ... ]
+      localNodes.value[sourceIndex].highlight = true  // highlight node
+      localNodes.value[sourceIndex].tooltip = true // show node tooltip
+      const { id: sourceId } = localNodes.value[sourceIndex]
+      localLinks.value.forEach((link, index) => {
+        const { target: { id: targetId } = {} } = link
+        if (targetId === sourceId)
+          localLinks.value[index].highlight = true
+      })
+      sourceIndex = localNodes.value.findIndex(node => node.id === sourceId) // recurse source
+    }
+  }
+
+  const mouseOverNode = node => {
+/*
+    const { width, height } = dimensions.value
+    stop() // pause animation
+    _highlightNodeById(node.id) // highlight node
+    highlight = (node.type === 'node') ? color(node) : 'none'
+    // tooltips
+    if (highlightNodeId !== node.id) {
+      highlightNodeId = node.id
+      const highlightedNodes = localNodes.value.filter(node => node.tooltip)
+      localTooltips.value = [
+        ...highlightedNodes.map(node => {
+          const { id, type, properties } = node
+          const { x, y } = coordBounded(node)
+          return JSON.parse(JSON.stringify({ id, type, properties, x, y }))
+        }),
+        ...highlightedNodes.map(node => {
+          const { id } = node
+          const { x: fx, y: fy } = coordBounded(node)
+          return JSON.parse(JSON.stringify({ id: `${id}-fixed`, fx, fy }))
+        })
+      ]
+      // link force from tooltip to node (self)
+      let selfLinks = []
+      highlightedNodes.map(node => {
+        const { id } = node
+        selfLinks.push({ source: id, target: `${id}-fixed` })
+      })
+      // link force from tooltip to other nodes
+      let nodeLinks = []
+      highlightedNodes.map(node => {
+        const { id } = node
+        highlightedNodes.map(other => {
+          const { id: otherId } = other
+          if (otherId !== id) {
+            if (nodeLinks.filter(link =>
+              ([link.source, link.target].includes(id) && [link.source, link.target].includes(`${otherId}-fixed`))
+            ).length === 0) {
+              nodeLinks.push({ source: id, target: `${otherId}-fixed` })
+            }
+          }
+        })
+      })
+      // link force from tooltip to other tooltips
+      let tooltipLinks = []
+      highlightedNodes.map(node => {
+        const { id } = node
+        highlightedNodes.map(other => {
+          const { id: otherId } = other
+          if (otherId !== id) {
+            if (tooltipLinks.filter(link =>
+              ([link.source, link.target].includes(id) && [link.source, link.target].includes(otherId))
+            ).length === 0) {
+              tooltipLinks.push({ source: otherId, target: id })
+            }
+          }
+        })
+      })
+      d3.forceSimulation(localTooltips.value)
+        .alphaDecay(1 - Math.pow(0.001, 1 / 50)) // default: 1 - Math.pow(0.001, 1 / 300)
+        .velocityDecay(0.8) // default: 0.4
+        .force('x', d3.forceX() // force: tooltip w/ center x
+          .x(centerX.value)
+          .strength(0.5)
+        )
+        .force('y', d3.forceY() // force: tooltip w/ center y
+          .y(centerY.value)
+          .strength(0.5)
+        )
+        .force('selfLinks', d3.forceLink(selfLinks) // force: tooltip w/ node
+          .id((d) => d.id)
+          .distance(Math.min(width, height) / 8)
+          .strength(0.5)
+          .iterations(4)
+        )
+        .force('nodeLinks', d3.forceLink(nodeLinks) // force: tooltip w/ other nodes
+          .id((d) => d.id)
+          .distance(Math.min(width, height) / 2)
+          .strength(0.5)
+          .iterations(2)
+        )
+        .force('tooltipLinks', d3.forceLink(tooltipLinks) // force: tooltip w/ other tooltips
+          .id((d) => d.id)
+          .distance(Math.min(width, height) / 2)
+          .strength(0.5)
+          .iterations(8)
+        )
+        .restart()
+    }
+*/
+  }
+
+  const mouseOutNode = () => {
+/*
+    start() // unpause animation
+    _unhighlightNodes()
+    _unhighlightLinks()
+    highlight = false
+    highlightNodeId = false
+    localTooltips.value = []
+*/
+  }
+
+  const color = node => {
+    if (Object.keys(palettes.value).includes(config.value.palette) && config.value.palette in node.properties) {
+      const value = node.properties[config.value.palette]
+      if (Object.keys(palettes.value[config.value.palette]).includes(value)) {
+        return palettes.value[config.value.palette][value]
+      }
+    }
+    return 'black'
+  }
+
+  const _explodeProperties = (properties = {}) => {
+    let explodedProperties = {}
+    Object.keys(properties).forEach(key => {
+      if (key.includes('.')) { // handle dot-notation keys ('.')
+        const [ first, ...remainder ] = key.split('.')
+        if (!(first in explodedProperties)) {
+          explodedProperties[first] = {}
+        }
+        explodedProperties[first] = {
+          ...explodedProperties[first],
+          ..._explodeProperties({ [remainder.join('.')]: properties[key] })
+        }
+      }
+      else {
+        explodedProperties[key] = properties[key]
+      }
+    })
+    return explodedProperties
+  }
+
+  const _cleanNodeProperties = node => {
+    const { id, type, properties = {} } = node || {}
+    return { id, type, properties: _explodeProperties(properties) }
+  }
+
+  // watch `node` prop and rebuild private `localNodes` data on change
+  watch(nodes, (a, b) => {
+console.log('watch nodes', {a,b})
+    stop() // stop simulation
+    // build lookup maps to determine insert/update/delete
+    const $a = a.reduce((map, node, index) => { // build id => index object map
+      map[node.id] = index; return map
+    }, {})
+    const $b = b.reduce((map, node, index) => { // build id => index object map
+      map[node.id] = index; return map
+    }, {})
+    const $u = [...a, ...b].reduce((map, node) => { // build unique node.id array
+      if (!map.includes(node.id))
+        map.push(node.id)
+      return map
+    }, [])
+    let $d = [] // deferred delete indexes
+    const { width, height } = dimensions.value
+    $u.forEach(id => {
+      let aIndex = $a[id]
+      let lIndex = localNodes.value.findIndex(node => node.id === id)
+      switch (true) {
+        case (id in $a && id in $b): // update
+console.log('UPDATE', lIndex)
+          localNodes.value[lIndex] = { ...localNodes.value[lIndex], ..._cleanNodeProperties(a[aIndex]) }
+          break
+        case !(id in $b): // insert
+console.log('INSERT', lIndex)
+          if (a[aIndex].type === 'packetfence') {
+            // always center packetfence node
+            localNodes.value[localNodes.value.length] = {
+              fx: width / 2,
+              fy: height / 2,
+              ..._cleanNodeProperties(a[aIndex])
+            }
+          }
+          else {
+            localNodes.value[localNodes.value.length] = {
+              x: width / 2,
+              y: height / 2,
+              ..._cleanNodeProperties(a[aIndex])
+            }
+          }
+          break
+        default: // delete
+console.log('DELETE', lIndex)
+          // defer unsorted deletion during loop, avoid subsequent index mismatches
+          $d.push(lIndex)
+      }
+    })
+    $d.sort((a, b) => b - a).forEach(index => { // reverse sort, delete bottom-up
+      localNodes.value.splice(index, 1)
+    })
+    simulation.value.nodes(localNodes.value) // push nodes to simulation
+
+    nextTick(() => {
+      force() // reset forces
+      start() // start simulation
+    })
+  }, { deep: true, immediate: true })
+
+  // watch `link` prop and rebuild private `localLinks` data on change
+  watch (links, a => {
+console.log('watch links', a)
+//    stop() // stop simulation
+    localNodes.value.forEach((node, index) => {
+      localNodes.value[index].num = 0
+      localNodes.value[index].depth = 0
+      localNodes.value[index].targets = []
+    })
+    let _links = []
+    a.forEach(link => {
+      const { source: sourceId = {}, target: targetId = {} } = link
+      const sourceIndex = localNodes.value.findIndex(node => node.id === sourceId)
+      const targetIndex = localNodes.value.findIndex(node => node.id === targetId)
+      if (sourceIndex > -1 && targetIndex > -1) {
+        _links.push({ source: localNodes.value[sourceIndex], target: localNodes.value[targetIndex] })
+        // set reference from source (parent) to target (child)
+        localNodes.value[sourceIndex].targets[localNodes.value[sourceIndex].targets.length] = localNodes.value[targetIndex]
+        // set reference from target (child) to source (parent)
+        localNodes.value[targetIndex].source = localNodes.value[sourceIndex]
+        // set reference from target (child) to source (parent)
+        let source = localNodes.value[sourceIndex]
+        do {
+          source.num++
+        } while ('source' in source && (source = source.source))
+      }
+    })
+    localNodes.value
+      .filter(node => node.type === 'node')
+      .map(node => { // set `depth` counter
+        let source = node
+        let depth = 0
+        do {
+          depth = Math.max(source.depth, depth)
+          source.depth = depth
+        } while ('source' in source && (source = source.source) && (++depth))
+      })
+    localLinks.value = _links
+  }, { deep: true, immediate: true })
+
+  return {
+    config,
+    localNodes,
+    localLinks,
+
+    simulation,
+    bounds,
+    coords,
+    start,
+    stop,
+    force,
+
+    zoom,
+    scale,
+    centerX,
+    centerY,
+    lastX,
+    lastY,
+    viewBox,
+    viewBoxString,
+    setCenter,
+    mouseDownSvg,
+    mouseMoveSvg,
+    mouseUpSvg,
+    mouseWheelSvg,
+
+    miniMapLatch,
+    showMiniMap,
+    innerMiniMapProps,
+    outerMiniMapProps,
+    mouseDownMiniMap,
+    mouseMoveMiniMap,
+
+    coordBounded,
+    localTooltips,
+    tooltips,
+    tooltipAnchorAttrs,
+
+    highlightedLinks,
+    legends,
+    linkId,
+    linkPathAttrs,
+    linkSourceAttrs,
+    linkSourceText,
+    linkTargetAttrs,
+    linkTargetText,
+    highlight,
+    highlightNodeId,
+mouseOverNode, //TODO: move
+mouseOutNode, //TODO: move
+    color,
+  }
 }
 
-const cleanNodeProperties = (node = {}) => {
-  const { id, type, properties = {} } = node
-  const props = { id, type, properties: explodeProperties(properties) }
-  return props
-}
-
+// @vue/component
 export default {
   name: 'the-graph',
-  components: {
-    TooltipNode,
-    TooltipPacketfence,
-    TooltipSwitch,
-    TooltipSwitchGroup
-  },
-  props: {
-    dimensions: { // svg dimensions
-      type: Object,
-      default: () => {
-        const { $refs: { svgContainer: { offsetWidth: width = 0, offsetHeight: height = 0 } = {} } = {} } = this
-        return { height, width }
-      },
-      required: true
-    },
-    options: {
-      type: Object,
-      default: () => { return {
-        layout: 'radial',
-        palette: 'status',
-        legendPosition: 'bottom-right',
-        miniMapHeight: undefined,
-        miniMapWidth: undefined,
-        miniMapPosition: 'bottom-left',
-        minZoom: 0,
-        maxZoom: 4,
-        mouseWheelZoom: true,
-        padding: 25,
-        sort: 'last_seen',
-        order: 'ASC' // 'ASC' or 'DESC'
-      }
-    }
-    },
-    nodes: {
-      type: Array,
-      default: () => { return [] },
-      required: true
-    },
-    links: {
-      type: Array,
-      default: () => { return [] },
-      required: true
-    },
-    disabled: {
-      type: Boolean,
-      default: false
-    },
-    isLoading: {
-      type: Boolean,
-      default: false
-    },
-    palettes: {
-      type: Object,
-      default: () => { return {} }
-    }
-  },
-  data () {
-    return {
-      simulation: null, // d3-force simulation
-      localNodes: [], // private d3 nodes
-      localLinks: [], // private d3 links
-      localTooltips: [], // private d3 tooltips
-      lastX: null, // last mouseDown x
-      lastY: null, // last mouseDown y
-      zoom: 0, // user zoom level, bound by minZoom and maxZoom
-      centerX: 0, // viewBox center x
-      centerY: 0, // viewBox center y
-      miniMapLatch: false, // mouseDown @ miniMap
-      highlight: false, // mouseOver @ node
-      highlightNodeId: false, // last highlighted node
-      defaults: { // default options
-        layout: 'radial',
-        palette: 'status',
-        legendPosition: 'bottom-right',
-        miniMapHeight: undefined,
-        miniMapWidth: undefined,
-        miniMapPosition: 'bottom-left',
-        minZoom: 0,
-        maxZoom: 4,
-        mouseWheelZoom: true,
-        padding: 25,
-        sort: 'last_seen',
-        order: 'ASC' // 'ASC' or 'DESC'
-      },
-      layouts: ['radial', 'tree']
-    }
-  },
-  computed: {
-    config () {
-      return { ...this.defaults, ...this.options }
-    },
-    scale () {
-      return Math.pow(2, this.zoom)
-    },
-    bounds () {
-      return {
-        minX: Math.min(this.dimensions.width, ...this.localNodes.map(n => n.x)),
-        maxX: Math.max(0, ...this.localNodes.map(n => n.x)),
-        minY: Math.min(this.dimensions.height, ...this.localNodes.map(n => n.y)),
-        maxY: Math.max(0, ...this.localNodes.map(n => n.y))
-      }
-    },
-    coords () {
-      const {
-        bounds: { minX = 0, maxX = 0, minY = 0, maxY = 0 } = {},
-        dimensions: { height = 0, width = 0 } = {}
-      } = this
-      if ((minX | maxX | minY | maxY) !== 0) { // not all zero's
-        const xMult = (width - (2 * this.config.padding)) / (maxX - minX)
-        const yMult = (height - (2 * this.config.padding)) / (maxY - minY)
-        return this.localNodes.map(node => {
-          const x = this.config.padding + (node.x - minX) * xMult
-          const y = this.config.padding + (node.y - minY) * yMult
-          return {
-            x: isNaN(x) ? 0 : x,
-            y: isNaN(y) ? 0 : y
-          }
-        })
-      }
-      return this.localNodes.map(() => { // all zero's
-        return { x: 0, y: 0 }
-      })
-    },
-    viewBox () {
-      let { dimensions: { height, width } = {}, centerX, centerY, scale } = this
-      if (!centerX && width) { // initialize center (x)
-        centerX = width / 2
-        this.$set(this, 'centerX', centerX)
-      }
-      if (!centerY && height) { // initialize center (y)
-        centerY = height / 2
-        this.$set(this, 'centerY', centerY)
-      }
-      const widthScaled = width / scale
-      const heightScaled = height / scale
-      return {
-        minX: centerX - (widthScaled / 2),
-        minY: centerY - (heightScaled / 2),
-        width: widthScaled,
-        height: heightScaled
-      }
-    },
-    viewBoxString () {
-      const { viewBox: { minX = 0, minY = 0, width = 0, height = 0 } = {} } = this
-      return `${minX} ${minY} ${width} ${height}`
-    },
-    showMiniMap () {
-      return (~~this.config.miniMapHeight > 0 || ~~this.config.miniMapWidth > 0) && ~~this.config.maxZoom > ~~this.config.minZoom && this.zoom > 0
-    },
-    innerMiniMapProps () {
-      const {
-        outerMiniMapProps: { x = 0, y = 0, width: outerMiniMapWidth, height: outerMiniMapHeight } = {},
-        viewBox: { minX = 0, minY = 0, width: viewBoxWidth = 0, height: viewBoxHeight = 0 } = {},
-        scale
-      } = this
-      return {
-        x: x + ((minX * outerMiniMapWidth) / (viewBoxWidth * scale)),
-        y: y + ((minY * outerMiniMapHeight) / (viewBoxHeight * scale)),
-        width: outerMiniMapWidth / scale,
-        height: outerMiniMapHeight / scale,
-        'stroke-width': `${1 / scale}px`
-      }
-    },
-    outerMiniMapProps () {
-      const { viewBox: { minX = 0, minY = 0, width: viewBoxWidth = 0, height: viewBoxHeight = 0 } = {}, scale } = this
-      const aspectRatio = viewBoxWidth / viewBoxHeight
-      let miniMapHeight = 0
-      let miniMapWidth = 0
-      switch (true) {
-        case ~~this.config.miniMapHeight > 0 && ~~this.config.miniMapWidth > 0:
-          miniMapHeight = this.config.miniMapHeight / scale
-          miniMapWidth = this.config.miniMapWidth / scale
-          break
-        case ~~this.config.miniMapHeight > 0:
-          miniMapHeight = this.config.miniMapHeight / scale
-          miniMapWidth = (this.config.miniMapHeight * aspectRatio) / scale
-          break
-        case ~~this.config.miniMapWidth > 0:
-          miniMapWidth = this.config.miniMapWidth / scale
-          miniMapHeight = this.config.miniMapWidth / (scale * aspectRatio)
-          break
-      }
-      let miniMapX = 0
-      let miniMapY = 0
-      switch (this.config.miniMapPosition) {
-        case 'top-right':
-          miniMapX = minX + viewBoxWidth - miniMapWidth
-          miniMapY = minY
-          break
-        case 'bottom-right':
-          miniMapX = minX + viewBoxWidth - miniMapWidth
-          miniMapY = minY + viewBoxHeight - miniMapHeight
-          break
-        case 'bottom-left':
-          miniMapX = minX
-          miniMapY = minY + viewBoxHeight - miniMapHeight
-          break
-        case 'top-left':
-        default:
-          miniMapX = minX
-          miniMapY = minY
-      }
-      return {
-        x: miniMapX,
-        y: miniMapY,
-        width: miniMapWidth,
-        height: miniMapHeight,
-        'stroke-width': `${1 / scale}px`,
-        'stroke-dasharray': 2 / scale
-      }
-    },
-    tooltips () {
-      return this.localTooltips.filter(tooltip => !('fx' in tooltip || 'fy' in tooltip)).map(tooltipBounded => {
-        const node = this.localNodes.find(node => node.id === tooltipBounded.id)
-        const nodeBounded = this.coordBounded(node)
-        const angle = getAngleFromCoords(nodeBounded.x, nodeBounded.y, tooltipBounded.x, tooltipBounded.y)
-        return {
-          node,
-          line: {
-            angle,
-            x1: nodeBounded.x,
-            y1: nodeBounded.y,
-            x2: tooltipBounded.x,
-            y2: tooltipBounded.y
-          }
-        }
-      })
-    },
-    highlightedLinks () {
-      return this.localLinks.filter(link => { link.highlight })
-    },
-    legends () {
-      if (Object.keys(this.palettes).includes(this.config.palette)) {
-        const palette = this.palettes[this.config.palette]
-        return Object.keys(palette).map(key => {
-          return { color: palette[key], text: `${this.config.palette}: ${key}`, count: this.localNodes.filter(node => node.properties[this.config.palette] === key).length }
-        })
-      }
-      return []
-    },
-    sortedNodes () {
-      const getMinMaxPropertyFromSwitch = (switche) => {
-        return this.localLinks.filter(node => node.source.id === switche.id).reduce((limits, link) => {
-          let { min = undefined, max = undefined } = limits
-          const { target: { type } = {} } = link
-          if (type !== 'node') {
-            const { min: sMin, max: sMax } = getMinMaxPropertyFromSwitch(link.target) // recurse
-            min = ([undefined, null].includes(min)) ? sMin : ((min.localeCompare(sMin) === 1) ? sMin : min)
-            max = ([undefined, null].includes(max)) ? sMax : ((max.localeCompare(sMax) === -1) ? sMax : max)
-          } else {
-            const { target: { properties: { [this.config.sort]: prop } = {} } = {} } = link
-            min = ([undefined, null].includes(min)) ? prop : ((min.localeCompare(prop) === 1) ? prop : min)
-            max = ([undefined, null].includes(max)) ? prop : ((max.localeCompare(prop) === -1) ? prop : max)
-          }
-          return { min, max }
-        }, { min: undefined, max: undefined })
-      }
-      const order = (this.config.order === 'ASC') ? 1 : -1 // order multiplier
-      return Array.prototype.slice.call(this.localNodes).sort((a, b) => { // dereference w/ sort
-        const { id: idA, type: typeA, properties: { [this.config.sort]: propA } = {} } = a
-        const { id: idB, type: typeB, properties: { [this.config.sort]: propB } = {} } = b
-        if (typeA === 'node' && typeB === 'node') {
-          switch (true) {
-            case propA === propB:
-              return idA.localeCompare(idB)
-              // break
-            case !propA && propB:
-              return 1 * order
-              // break
-            case propA && !propB:
-              return -1 * order
-              // break
-            default:
-              return idA.localeCompare(idB)
-          }
-        } else if (typeA === 'node') {
-          return 1 * order // switch (non-node) first
-        } else if (typeB === 'node') {
-          return -1 * order // switch (non-node) first
-        } else {
-          const { min: minA = null, max: maxA = null } = getMinMaxPropertyFromSwitch(a)
-          const { min: minB = null, max: maxB = null } = getMinMaxPropertyFromSwitch(b)
-          switch (order) {
-            case -1: // ascending
-              return (minA === minB) ? idA.localeCompare(idB) : String(minA).localeCompare(minB)
-              // break
-            case 1: // descending
-              return (minA === minB) ? idA.localeCompare(idB) : String(maxA).localeCompare(maxB)
-              // break
-          }
-        }
-      })
-    },
-    forceCollideRadius () {
-      return (node) => {
-        const { type } = node
-        switch (type) {
-          case 'packetfence':
-          case 'switch-group':
-          case 'switch':
-          case 'unknown':
-            return 32 / 2
-          case 'node':
-            return 16 / 2
-        }
-      }
-    },
-    forceRadialRadius () {
-      return (node) => {
-        const { type, depth } = node
-        const { depth: totalDepth } = this.localNodes.find(n => n.type === 'packetfence')
-        switch (type) {
-          case 'packetfence':
-            return 0
-          case 'switch-group':
-          case 'switch':
-          case 'unknown':
-            return Math.min(this.dimensions.height, this.dimensions.width) * ((totalDepth - depth) / totalDepth) / 2
-          case 'node':
-            return Math.min(this.dimensions.height, this.dimensions.width) / 2
-        }
-      }
-    },
-    forceRadialStrength () {
-      return (node) => {
-        const { type } = node
-        switch (type) {
-          case 'packetfence':
-            return 0
-          case 'switch-group':
-          case 'switch':
-          case 'unknown':
-            return 1
-          case 'node':
-            return 0.2
-        }
-      }
-    },
-    forceXY () {
-      const { depth: totalDepth, num: totalNum } = this.localNodes.find(n => n.type === 'packetfence')
-      return (node) => {
-        const { id, type, depth, num } = node
-        let shift
-        switch (this.config.layout) {
-          case 'radial': {
-            /**
-            * 'radial' force - rendered outside-in
-            *  - node(s) on outer ring - evenly distributed
-            *  - switch(es) on middle ring - using average angle of its target nodes
-            *  - switch-group(s) on inner ring - using average angle of its target switches
-            *  - packetfence - centered
-            **/
-            shift = 270 // start upward (12 o-clock)
-            let offset
-            let angle
-            let distance
-            switch (type) {
-              case 'node': {
-                offset = this.sortedNodes.filter(n => n.id === id).reduce((offset, node) => {
-                  let { id, source = {}, source: { targets: siblings = null } = {} } = node
-                  do {
-                    if (siblings) {
-                      for (let t = 0; t < siblings.length; t++) {
-                        if (siblings[t].id === id) break
-                        offset += siblings[t].num || 1
-                      }
-                    }
-                  } while ('source' in source && ({ id, source, source: { targets: siblings = null } = {} } = source))
-                  return offset
-                }, 0)
-                angle = ((360 / totalNum * offset) + shift) % 360
-                distance = Math.min(this.dimensions.height, this.dimensions.width) / 2
-                return getCoordFromCoordAngle(this.dimensions.width / 2, this.dimensions.height / 2, angle, distance)
-                // break
-              }
-              case 'switch-group':
-              case 'switch':
-              case 'unknown': {
-                offset = this.sortedNodes.filter(n => n.id === id).reduce((offset, node) => {
-                  let { id, source = {}, source: { targets: siblings = null } = {} } = node
-                  do {
-                    if (siblings) {
-                      for (let t = 0; t < siblings.length; t++) {
-                        if (siblings[t].id === id) break
-                        offset += siblings[t].num
-                      }
-                    }
-                  } while ('source' in source && ({ id, source, source: { targets: siblings = null } = {} } = source))
-                  return offset
-                }, 0) + ((num - 1) / 2)
-                angle = ((360 / totalNum * offset) + shift) % 360
-                distance = Math.min(this.dimensions.height, this.dimensions.width) * ((totalDepth - depth) / totalDepth) / 2
-                return getCoordFromCoordAngle(this.dimensions.width / 2, this.dimensions.height / 2, angle, distance)
-                // break
-              }
-              case 'packetfence': {
-                const x = this.dimensions.width / 2
-                const y = this.dimensions.height / 2
-                return { x, y }
-                // break
-              }
-            }
-            break
-          }
-          case 'tree': {
-            /**
-            * 'tree' force - rendered inside-out
-            *  - packetfence - centered
-            *  - switch-group(s) on inner ring - evenly distributed around source (packetfence)
-            *  - switch(es) on middle ring - evenly distributed around source (switch-group)
-            *  - node(s) on outer ring - evenly distributed around source (switch)
-            **/
-            shift = 270 // start upward (12 o-clock)
-            switch (type) {
-              case 'packetfence': {
-                const x = this.dimensions.width / 2
-                const y = this.dimensions.height / 2
-                return { x, y }
-                // break
-              }
-              case 'switch-group':
-              case 'switch':
-              case 'unknown':
-              case 'node': {
-                const getDistanceByDepth = (depth = 0) => {
-                  let distance = Math.min(this.dimensions.width, this.dimensions.height) / 6
-                  for (let n = 0; n < depth; n++) {
-                    distance /= 0.5
-                  }
-                  return distance
-                }
-                const getNodeCoordAngle = (localNode) => {
-                  const sortedNode = this.sortedNodes.find(n => n.id === localNode.id)
-                  if (!('source' in sortedNode)) { // packetfence node
-                    const angle = shift
-                    const x = this.dimensions.width / 2
-                    const y = this.dimensions.height / 2
-                    return { angle, x, y }
-                  } else { // everything else
-                    const { angle: sourceAngle, x: sourceX, y: sourceY } = getNodeCoordAngle(sortedNode.source)
-                    const siblings = sortedNode.source.targets.length
-                    let offset = sortedNode.source.targets.findIndex(target => target.id === localNode.id)
-                    if (sortedNode.source.id !== 'packetfence' && siblings % 2 === 0) { // even # of siblings
-                      offset += 0.5
-                    }
-                    const angle = ((360 / siblings * offset) + sourceAngle) % 360
-                    const distance = getDistanceByDepth(sortedNode.depth)
-                    const { x, y } = getCoordFromCoordAngle(sourceX, sourceY, angle, distance)
-                    return { angle, x, y }
-                  }
-                }
-                return getNodeCoordAngle(node)
-                // break
-              }
-            }
-            break
-          }
-        }
-      }
-    },
-    forceX () {
-      return (node) => {
-        return this.forceXY(node).x
-      }
-    },
-    forceY () {
-      return (node) => {
-        return this.forceXY(node).y
-      }
-    }
-  },
-  methods: {
-    init () {
-      this.simulation = d3.forceSimulation(this.localNodes)
-      this.force()
-    },
-    start () {
-      if (this.simulation) {
-        this.$nextTick(() => {
-          this.simulation.restart()
-        })
-      }
-    },
-    stop () {
-      if (this.simulation) {
-        this.simulation.stop()
-      }
-    },
-    force () {
-      /* `collide` force - prevents nodes from overlapping */
-      this.simulation.force('collide', d3.forceCollide()
-        .radius(this.forceCollideRadius)
-        .strength(0.25)
-        .iterations(8)
-      )
-      this.simulation.force('x', d3.forceX()
-        .x(this.forceX)
-        .strength(0.25)
-      )
-      this.simulation.force('y', d3.forceY()
-        .y(this.forceY)
-        .strength(0.25)
-      )
-
-      switch (this.config.layout) {
-        case 'radial':
-          this.simulation.velocityDecay(0.4) // default: 0.4
-          /* `radial` force - orient on circle of specified radius centered at x, y */
-          /*
-          this.simulation.force('radial', d3.forceRadial()
-            .radius(this.forceRadialRadius)
-            .strength(this.forceRadialStrength)
-            .x(this.dimensions.width / 2)
-            .y(this.dimensions.height / 2)
-          )
-          */
-          break
-
-        case 'tree':
-          this.simulation.velocityDecay(0.5) // default: 0.4
-          break
-
-        default:
-          throw new Error(`Unhandled layout ${this.config.layout}`)
-      }
-      this.simulation.alpha(1)
-    },
-    linkCoords (link) {
-      const { source: { index: sourceIndex = null } = {}, target: { index: targetIndex = null } = {} } = link
-      const {
-        coords: {
-          [sourceIndex]: { x: x1 = 0, y: y1 = 0 } = {},
-          [targetIndex]: { x: x2 = 0, y: y2 = 0 } = {}
-        } = {}
-      } = this
-      return {
-        x1: (isNaN(x1)) ? 0 : x1,
-        y1: (isNaN(y1)) ? 0 : y1,
-        x2: (isNaN(x2)) ? 0 : x2,
-        y2: (isNaN(y2)) ? 0 : y2
-      }
-    },
-    linkId (link) {
-      let { source = {}, target = {} } = link
-      if (source.constructor === Object && 'id' in source) {
-        source = source.id
-      }
-      if (target.constructor === Object && 'id' in target) {
-        target = target.id
-      }
-      return `link-${source}-${target}`
-    },
-    linkPathAttrs (link) {
-      const { x1 = 0, y1 = 0, x2 = 0, y2 = 0 } = this.linkCoords(link)
-      return {
-        id: this.linkId(link),
-        d: `M${x1} ${y1} L${x2} ${y2} Z`
-      }
-    },
-    linkSourceAttrs (link) {
-      const {
-        source: { id: sourceId = null, type: sourceType } = {},
-        target: { id: targetId = null } = {}
-      } = link
-      const sourceMargin = (sourceType === 'node') ? 8 : 16
-      return {
-        href: `#link-${sourceId}-${targetId}`,
-        startOffset: sourceMargin
-      }
-    },
-    linkSourceText (link) {
-      const { source: { id = null } = {} } = link
-      return id
-    },
-    linkTargetAttrs (link) {
-      const {
-        source: { id: sourceId = null } = {},
-        target: { id: targetId = null, type: targetType } = {}
-      } = link
-      const { x1 = 0, y1 = 0, x2 = 0, y2 = 0 } = this.linkCoords(link)
-      const x = x2 - x1
-      const y = y2 - y1
-      const l = Math.sqrt((x * x) + (y * y))
-      const targetMargin = (targetType === 'node') ? 8 : 16
-      return {
-        href: `#link-${sourceId}-${targetId}`,
-        startOffset: l + targetMargin
-      }
-    },
-    linkTargetText (link) {
-      const { target: { id = null } = {} } = link
-      return id
-    },
-    setCenter (x, y) {
-      const { dimensions: { height, width } = {}, scale } = this
-      // restrict min/max x bounds
-      const minX = width / scale / 2
-      const maxX = width - minX
-      this.centerX = Math.min(Math.max(x, minX), maxX)
-      // restrict min/max y bounds
-      const minY = height / scale / 2
-      const maxY = height - minY
-      this.centerY = Math.min(Math.max(y, minY), maxY)
-    },
-    mouseDownSvg (event) {
-      const { viewBox: { minX, minY } = {}, scale } = this
-      // get mouse delta and offset from top/left corner of current viewBox
-      const { offsetX, offsetY } = event
-      // calculate mouse offset from 0,0
-      this.lastX = (offsetX / scale) + minX
-      this.lastY = (offsetY / scale) + minY
-    },
-    mouseMoveSvg (event) {
-      if (this.lastX && this.lastY) {
-        const { viewBox: { minX, minY } = {}, scale } = this
-        // get mouse delta and offset from top/left corner of current viewBox
-        const { offsetX, offsetY } = event
-        this.$nextTick(() => { // smoothen animation
-          const x = this.centerX + (this.lastX - ((offsetX / scale) + minX))
-          const y = this.centerY + (this.lastY - ((offsetY / scale) + minY))
-          this.setCenter(x, y)
-        })
-      }
-    },
-    mouseUpSvg () {
-      this.lastX = null
-      this.lastY = null
-    },
-    mouseWheelSvg (event) {
-      if (this.config.mouseWheelZoom) {
-        event.preventDefault() // don't scroll
-        const { viewBox: { minX, minY } = {}, centerX, centerY, scale } = this
-        // get mouse delta and offset from top/left corner of current viewBox
-        const { deltaY = 0, offsetX, offsetY } = event
-        // calculate mouse offset from 0,0
-        const [ svgX, svgY ] = [ (offsetX / scale) + minX, (offsetY / scale) + minY ]
-        // calculate mouse offset from center of current viewBox
-        const [deltaCenterX, deltaCenterY] = [svgX - centerX, svgY - centerY]
-        // handle zoom-in (-deltaY) and zoom-out (+deltaY)
-        //  automatically match center of mouse pointer, so the
-        //  x,y coord remains pinned at the mouse pointer after zoom.
-        if (deltaY < 0) { // zoom in
-          this.zoom = Math.min(++this.zoom, this.config.maxZoom)
-        } else if (deltaY > 0) { // zoom out
-          this.zoom = Math.max(--this.zoom, this.config.minZoom)
-        }
-        const factor = this.scale / scale
-        // calculate new center x,y at the current mouse position
-        const x = svgX - (deltaCenterX / factor)
-        const y = svgY - (deltaCenterY / factor)
-        this.setCenter(x, y)
-      }
-    },
-    mouseOverNode (node) {
-      this.stop() // pause animation
-      this.highlightNodeById(node.id) // highlight node
-      this.highlight = (node.type === 'node') ? this.color(node) : 'none'
-      // tooltips
-      if (this.highlightNodeId !== node.id) {
-        this.highlightNodeId = node.id
-        const { centerX, centerY, dimensions: { width, height } } = this
-        const highlightedNodes = this.localNodes.filter(node => node.tooltip)
-        this.$set(this, 'localTooltips', [
-          ...highlightedNodes.map(node => {
-            const { id, type, properties } = node
-            const { x, y } = this.coordBounded(node)
-            return JSON.parse(JSON.stringify({ id, type, properties, x, y }))
-          }),
-          ...highlightedNodes.map(node => {
-            const { id } = node
-            const { x: fx, y: fy } = this.coordBounded(node)
-            return JSON.parse(JSON.stringify({ id: `${id}-fixed`, fx, fy }))
-          })
-        ])
-        // link force from tooltip to node (self)
-        let selfLinks = []
-        highlightedNodes.map(node => {
-          const { id } = node
-          selfLinks.push({ source: id, target: `${id}-fixed` })
-        })
-        // link force from tooltip to other nodes
-        let nodeLinks = []
-        highlightedNodes.map(node => {
-          const { id } = node
-          highlightedNodes.map(other => {
-            const { id: otherId } = other
-            if (otherId !== id) {
-              if (nodeLinks.filter(link =>
-                ([link.source, link.target].includes(id) && [link.source, link.target].includes(`${otherId}-fixed`))
-              ).length === 0) {
-                nodeLinks.push({ source: id, target: `${otherId}-fixed` })
-              }
-            }
-          })
-        })
-        // link force from tooltip to other tooltips
-        let tooltipLinks = []
-        highlightedNodes.map(node => {
-          const { id } = node
-          highlightedNodes.map(other => {
-            const { id: otherId } = other
-            if (otherId !== id) {
-              if (tooltipLinks.filter(link =>
-                ([link.source, link.target].includes(id) && [link.source, link.target].includes(otherId))
-              ).length === 0) {
-                tooltipLinks.push({ source: otherId, target: id })
-              }
-            }
-          })
-        })
-        this.tooltipSimulation = d3.forceSimulation(this.localTooltips)
-          .alphaDecay(1 - Math.pow(0.001, 1 / 50)) // default: 1 - Math.pow(0.001, 1 / 300)
-          .velocityDecay(0.8) // default: 0.4
-          .force('x', d3.forceX() // force: tooltip w/ center x
-            .x(centerX)
-            .strength(0.5)
-          )
-          .force('y', d3.forceY() // force: tooltip w/ center y
-            .y(centerY)
-            .strength(0.5)
-          )
-          .force('selfLinks', d3.forceLink(selfLinks) // force: tooltip w/ node
-            .id((d) => d.id)
-            .distance(Math.min(width, height) / 8)
-            .strength(0.5)
-            .iterations(4)
-          )
-          .force('nodeLinks', d3.forceLink(nodeLinks) // force: tooltip w/ other nodes
-            .id((d) => d.id)
-            .distance(Math.min(width, height) / 2)
-            .strength(0.5)
-            .iterations(2)
-          )
-          .force('tooltipLinks', d3.forceLink(tooltipLinks) // force: tooltip w/ other tooltips
-            .id((d) => d.id)
-            .distance(Math.min(width, height) / 2)
-            .strength(0.5)
-            .iterations(8)
-          )
-          .restart()
-      }
-    },
-    mouseOutNode () {
-      this.start() // unpause animation
-      this.highlightNodeById(null) // unhighlight node
-      this.highlight = false
-      this.localTooltips = []
-      this.highlightNodeId = false
-    },
-    mouseDownNode () {
-      // TODO
-    },
-    highlightNodeById (id) {
-      this.unhighlightNodes()
-      this.unhighlightLinks()
-      // highlight all target nodes linked to this source node
-      this.localLinks.filter(link => link.source.id === id).forEach(link => {
-        this.$set(link, 'highlight', true) // highlight link
-        this.$set(link.target, 'highlight', true) // highlight target node
-      })
-      var source = this.localNodes.find(node => node.id === id)
-      while (source !== undefined) { // travel to center of tree [ (target|source) -> (target|source) -> ... ]
-        this.$set(source, 'highlight', true) // highlight node
-        this.$set(source, 'tooltip', true) // show node tooltip
-        const { id: sourceId } = source
-        this.localLinks.filter(link => {
-          const { target: { id: targetId } = {} } = link
-          return targetId === sourceId
-        }).map(link => {
-          this.$set(link, 'highlight', true)
-        })
-        // eslint-disable-next-line no-redeclare
-        var { source = undefined } = source // recurse source
-      }
-    },
-    unhighlightNodes () {
-      this.localNodes.forEach((node, index) => {
-        if (node.highlight) {
-          this.$set(this.localNodes[index], 'highlight', false)
-        }
-        if (node.tooltip) {
-          this.$set(this.localNodes[index], 'tooltip', false)
-        }
-      })
-    },
-    unhighlightLinks () {
-      this.localLinks.forEach((link, index) => {
-        if (link.highlight) {
-          this.$set(this.localLinks[index], 'highlight', false)
-        }
-      })
-    },
-    mouseDownMiniMap (event) {
-      const {
-        dimensions: { height: svgHeight, width: svgWidth },
-        outerMiniMapProps: { width: outerMiniMapWidth, height: outerMiniMapHeight },
-        viewBox: { width: viewBoxWidth, height: viewBoxHeight },
-        scale
-      } = this
-      const { offsetX, offsetY } = event
-      let mouseX = 0
-      let mouseY = 0
-      switch (this.config.miniMapPosition) {
-        case 'top-right':
-          mouseX = (outerMiniMapWidth * scale) - (svgWidth - offsetX)
-          mouseY = offsetY
-          break
-        case 'bottom-right':
-          mouseX = (outerMiniMapWidth * scale) - (svgWidth - offsetX)
-          mouseY = (outerMiniMapHeight * scale) - (svgHeight - offsetY)
-          break
-        case 'bottom-left':
-          mouseX = offsetX
-          mouseY = (outerMiniMapHeight * scale) - (svgHeight - offsetY)
-          break
-        case 'top-left':
-        default:
-          mouseX = offsetX
-          mouseY = offsetY
-      }
-      const x = viewBoxWidth * (mouseX / outerMiniMapWidth)
-      const y = viewBoxHeight * (mouseY / outerMiniMapHeight)
-      this.setCenter(x, y)
-      this.miniMapLatch = true // latch miniMapLatch
-    },
-    mouseMoveMiniMap (event) {
-      if (!(event.which)) {
-        this.miniMapLatch = false
-      }
-      if (this.miniMapLatch) {
-        this.mouseDownMiniMap(event)
-      }
-    },
-    tooltipAnchorAttrs (tooltip) {
-      let { line: { x2: x, y2: y } = {} } = tooltip
-      let style = [] // set styles
-      const {
-        dimensions: { height: dHeight, width: dWidth } = {},
-        viewBox: { minX, minY, width: vWidth, height: vHeight } = {}
-      } = this
-      // scale coords to absolute offset from outer container (x: 0, y: 0)
-      let absoluteX = (x - minX) / vWidth * dWidth
-      let absoluteY = (y - minY) / vHeight * dHeight
-      style.push(`top: ${absoluteY}px`, `left: ${absoluteX}px`)
-      style = `${style.join('; ')};` // collapse
-      return { style }
-    },
-    coordBounded (coord) {
-      const { x = 0, y = 0 } = coord
-      const {
-        bounds: { minX = 0, maxX = 0, minY = 0, maxY = 0 } = {},
-        dimensions: { height = 0, width = 0 } = {}
-      } = this
-      if ((minX | maxX | minY | maxY) !== 0) { // not all zero's
-        const xMult = (width - (2 * this.config.padding)) / (maxX - minX)
-        const yMult = (height - (2 * this.config.padding)) / (maxY - minY)
-        return {
-          x: this.config.padding + (x - minX) * xMult,
-          y: this.config.padding + (y - minY) * yMult
-        }
-      }
-      return { x: 0, y: 0 }
-    },
-    color (node) {
-      if (Object.keys(this.palettes).includes(this.config.palette) && this.config.palette in node.properties) {
-        const value = node.properties[this.config.palette]
-        if (Object.keys(this.palettes[this.config.palette]).includes(value)) {
-          return this.palettes[this.config.palette][value]
-        }
-      }
-      return 'black'
-    }
-  },
-  mounted () {
-    this.$emit('layouts', this.layouts)
-  },
-  created () {
-    this.init()
-  },
-  watch: {
-    /* watch `dimensions` prop and rebuild simulation forces on resize */
-    dimensions: {
-      handler: function () {
-        // limit centerX, centerY within viewBox (fixes out-of-bounds after resize)
-        const { dimensions: { width = 0, height = 0 }, scale } = this
-        const minCenterX = width / (scale * 2)
-        const maxCenterX = width - (width / (scale * 2))
-        const minCenterY = height / (scale * 2)
-        const maxCenterY = height - (height / (scale * 2))
-        this.$set(this, 'centerX', Math.max(Math.min(this.centerX, maxCenterX), minCenterX))
-        this.$set(this, 'centerY', Math.max(Math.min(this.centerY, maxCenterY), minCenterY))
-        // adjust fixed nodes x, y
-        this.localNodes.forEach((node, index) => {
-          if ('fx' in node && 'fy' in node) {
-            this.localNodes[index].fx = width / 2
-            this.localNodes[index].fy = height / 2
-          }
-        })
-        this.force()
-        this.start()
-      },
-      deep: true
-    },
-    /* watch `node` prop and rebuild private `localNodes` data on change */
-    nodes: {
-      handler: function (a, b) {
-        // build lookup maps to determine insert/update/delete
-        const $a = a.reduce((map, node, index) => { // build id => index object map
-          map[node.id] = index; return map
-        }, {})
-        const $b = b.reduce((map, node, index) => { // build id => index object map
-          map[node.id] = index; return map
-        }, {})
-        const $u = [...a, ...b].reduce((map, node) => { // build unique node.id array
-          if (!map.includes(node.id)) {
-            map.push(node.id)
-          }
-          return map
-        }, [])
-        let $d = [] // deferred delete indexes
-        this.stop() // stop simulation
-        $u.forEach(id => {
-          let aIndex = $a[id]
-          let lIndex = this.localNodes.findIndex(node => node.id === id)
-          switch (true) {
-            case (id in $a && id in $b): // update
-              this.$set(this.localNodes, lIndex, {
-                ...this.localNodes[lIndex],
-                ...cleanNodeProperties(a[aIndex])
-              })
-              break
-            case !(id in $b): // insert
-              if (a[aIndex].type === 'packetfence') {
-                // always center packetfence node
-                this.$set(this.localNodes, this.localNodes.length, {
-                  ...{ fx: this.dimensions.width / 2, fy: this.dimensions.height / 2 }, // fx = fixed x, y
-                  ...cleanNodeProperties(a[aIndex])
-                })
-              } else {
-                this.$set(this.localNodes, this.localNodes.length, {
-                  ...{ x: this.dimensions.width / 2, y: this.dimensions.height / 2 },
-                  ...cleanNodeProperties(a[aIndex])
-                })
-              }
-              break
-            default: // delete
-              // defer unsorted deletion during loop, avoid subsequent index mismatches
-              $d.push(lIndex)
-          }
-        })
-        $d.sort((a, b) => b - a).forEach(index => { // reverse sort, delete bottom-up
-          this.$delete(this.localNodes, index)
-        })
-        this.simulation.nodes(this.localNodes) // push nodes to simulation
-        this.start() // start simulation
-        this.force() // reset forces
-      }
-    },
-    /* watch `link` prop and rebuild private `localLinks` data on change */
-    links: {
-      handler: function (a) {
-        this.localNodes.map((node, index) => {
-          this.$set(this.localNodes[index], 'num', 0) // reset `num` counter
-          this.$set(this.localNodes[index], 'depth', 0) // reset `depth` counter
-          this.$set(this.localNodes[index], 'targets', []) // reset `targets`
-        })
-        let links = []
-        a.forEach((link) => {
-          const { source: sourceId = {}, target: targetId = {} } = link
-          const sourceIndex = this.localNodes.findIndex(node => node.id === sourceId)
-          const targetIndex = this.localNodes.findIndex(node => node.id === targetId)
-          if (sourceIndex > -1 && targetIndex > -1) {
-            links.push({ source: this.localNodes[sourceIndex], target: this.localNodes[targetIndex] })
-            // set reference from source (parent) to target (child)
-            this.$set(this.localNodes[sourceIndex].targets, this.localNodes[sourceIndex].targets.length, this.localNodes[targetIndex])
-            // set reference from target (child) to source (parent)
-            this.$set(this.localNodes[targetIndex], 'source', this.localNodes[sourceIndex])
-            // set reference from target (child) to source (parent)
-            let source = this.localNodes[sourceIndex]
-            do {
-              source.num++
-            } while ('source' in source && (source = source.source))
-          }
-        })
-        this.localNodes.filter(node => node.type === 'node').map((node) => { // set `depth` counter
-          let source = node
-          let depth = 0
-          do {
-            depth = Math.max(source.depth, depth)
-            source.depth = depth
-          } while ('source' in source && (source = source.source) && (++depth))
-        })
-        this.stop() // stop simulation
-        this.$set(this, 'localLinks', links)
-        this.start() // start simulation
-        this.force() // reset forces
-      }
-    },
-    'config.layout': {
-      handler: function (a, b) {
-        if (this.simulation && a !== b) {
-          this.stop()
-          this.init()
-          this.start()
-        }
-      }
-    }
-  }
+  inheritAttrs: false,
+  components,
+  props,
+  setup
 }
 </script>
 
