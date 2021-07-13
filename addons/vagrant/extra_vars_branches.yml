@@ -1,6 +1,6 @@
 ---
 # Add branches repository
-packetfence_install__centos_release_rpm: 'http://packetfence.org/downloads/PacketFence/RHEL7/packetfence-release-branches-el7.noarch.rpm'
+packetfence_install__centos_release_rpm: 'http://packetfence.org/downloads/PacketFence/RHEL8/packetfence-release-branches.el8.noarch.rpm'
 packetfence_install__centos:
   repos:
     - packetfence-branches
@@ -9,11 +9,4 @@ packetfence_install__deb:
   repos:
     - 'debian/{{ pf_minor_release }}'
     - 'debian-branches/{{ pf_minor_release }}'
-
-# Replace by *exact* name of your package
-# i.e. CENTOS_PKG_NAMES='packetfence-9.3.9-20200124160156.113848061.0007.fix~5075.el7'
-packetfence_install__centos_packages: '{{ lookup("env", "CENTOS_PKG_NAMES") }}'
-
-# i.e. DEB_PKG_NAMES='packetfence=9.3.9+20200415061223+136088176+0009+fix~pipeline~issues+stretch1'
-packetfence_install__deb_packages: '[ {{ lookup("env", "DEB_PKG_NAMES") }} ]'
 
