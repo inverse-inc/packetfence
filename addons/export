@@ -1,6 +1,10 @@
 #!/bin/perl
 package main;
 
+use lib qw(
+    /usr/local/pf/lib
+    /usr/local/pf/lib_perl/lib/perl5
+);
 use strict;
 use File::Find ();
 use File::Temp qw/ tempfile tempdir /;
