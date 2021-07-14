@@ -55,12 +55,17 @@ fi
 
 db_name=`get_db_name usr/local/pf/conf/pf.conf`
 upgrade_database $db_name
+check_code $?
 
 restore_config_files `pwd`
+check_code $?
 
 handle_network_change
+check_code $?
+
+echo "Completed import of the database and the configuration!"
 
 # Done with everything, time to cleanup!
-cd -
+cd - > /dev/null
 rm -fr $extract_dir
 
