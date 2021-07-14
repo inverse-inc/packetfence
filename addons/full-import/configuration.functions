@@ -20,7 +20,7 @@ function list_pf_interfaces() {
 }
 
 function get_os_ip_address() {
-  ip a show dev $1 | egrep -o 'inet [0-9]+\.[0-9]+\.[0-9]+\.[0-9]+' | sed 's/^inet //g'
+  ip a show dev $1 | egrep -o 'inet [0-9]+\.[0-9]+\.[0-9]+\.[0-9]+' | head -1 | sed 's/^inet //g'
 }
 
 function get_pf_ip_address() {
@@ -29,6 +29,10 @@ function get_pf_ip_address() {
 
 function rewrite_pf_ip_address() {
   perl -MConfig::IniFiles -I/usr/local/pf/lib_perl/lib/perl5/ -e "\$c = Config::IniFiles->new( -file => '/usr/local/pf/conf/pf.conf') ; \$c->setval('interface $1', 'ip', '$2') ; \$c->RewriteConfig"
+}
+
+function rename_interface() {
+  perl -MConfig::IniFiles -I/usr/local/pf/lib_perl/lib/perl5/ -e "\$c = Config::IniFiles->new( -file => '/usr/local/pf/conf/pf.conf') ; \$c->RenameSection('interface $1', 'interface $2') ; \$c->RewriteConfig"
 }
 
 function delete_interface() {
@@ -45,6 +49,7 @@ function handle_interface_exists() {
     if prompt "IP address on interface $interface differs from the one in pf.conf. If you wish to use $pf_ip as the IP address on this server, you need to change the IP before running this script or after. Do you want to adjust pf.conf to use $os_ip?"; then
       echo "Rewritting IP address for $interface to $os_ip in pf.conf"
       rewrite_pf_ip_address $interface $os_ip
+      #TODO: handle netmask
       check_code $?
     else
       echo "Leaving $interface untouched in pf.conf"
@@ -62,14 +67,16 @@ function handle_network_change() {
     else
       stop_it=""
       while [ -z "$stop_it" ]; do
-        echo "Cannot find interface $interface on the system. Please select a new interface to replace it from the list below or press enter to delete the interface from pf.conf:"
+        echo "Cannot find interface $interface on the system."
         ip a show | sed -r 's/^([0-9])/Option \1/'
+        echo -n Please select a new interface to replace it from the list above or press enter to delete the interface from pf.conf:
         read new_int_choice
         if ! [ -z "$new_int_choice" ]; then
           new_int_name=`ip a show | egrep -o '^'$new_int_choice': .+?:' | sed -r 's/^[0-9]+: //g' | sed 's/:$//g'`
           if [ -z "$new_int_name" ] || ! ip a show dev $new_int_name > /dev/null; then
             echo "ERROR: Invalid interface choice!"
           else
+            rename_interface $interface $new_int_name
             handle_interface_exists $new_int_name
             stop_it="yes"
           fi
