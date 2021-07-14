@@ -36,6 +36,7 @@ on a WPA2-PSK SSID where the password is disclosed as part of the SSID. Although
 would still be encrypted with a dynamically generated key.
 
 First we create the SSIDs and virtual AP for the second SSID:
+
   /interface wireless security-profiles
     add authentication-types=wpa2-eap disable-pmkid=yes interim-update=15m management-protection=allowed mode=dynamic-keys name=radius-eap \
       radius-eap-accounting=yes supplicant-identity=""
@@ -52,10 +53,11 @@ First we create the SSIDs and virtual AP for the second SSID:
       vlan-mode=use-tag wireless-protocol=802.11 wps-mode=disabled
     add disabled=no master-interface="wlan2 - 5 GHz - ACME WiFi" multicast-helper=full name="wlan2 - 5 GHz - ACME Guest" \
       security-profile=radius-mac ssid="ACME Guest (pw: internet)" station-roaming=enabled vlan-id=3999 vlan-mode=use-tag wps-mode=disabled
-
+  
   PS: VLAN 3999 is purposefully bogus, to ensure no access without VLAN assignment in the RADIUS response.
 
 Next we create a VLAN filtering bridge:
+
   /interface bridge
     add name=bridge vlan-filtering=yes
   /interface bridge port
@@ -69,6 +71,7 @@ Next we create a VLAN filtering bridge:
     add bridge=bridge tagged="bridge,wlan1 - 2.4 GHz - ACME WiFi,wlan2 - 5 GHz - ACME WiFi,wlan1 - 2.4 GHz - ACME Guest,wlan2 - 5 GHz - ACME Guest" vlan-ids=667
 
 Next we create the VLANs and assign IPs:
+
   /interface vlan
     add comment="Guest WiFi:" interface=bridge name=vlan52 vlan-id=52
     add comment="PacketFence - Registration:" interface=bridge name=vlan666 vlan-id=666
@@ -78,10 +81,11 @@ Next we create the VLANs and assign IPs:
     add address=10.239.239.1/24 interface=vlan52
     add address=192.168.10.225/28 interface=vlan666
     add address=192.168.10.241/28 interface=vlan667
-
+  
   PS: 172.16.20.1 is essentially assigned to VLAN 1 (untagged)
 
 Last settings on the MikroTik defines PacketFence as the RADIUS server and filters traffic on Guest, Registration and Isolation networks:
+
   /radius
     add address=172.16.5.17 comment=packetfence: secret=useStrongerSecret service=wireless src-address=172.16.20.1 timeout=1s
   /radius incoming
@@ -102,6 +106,7 @@ Last settings on the MikroTik defines PacketFence as the RADIUS server and filte
       172.31.31.1 is PacketFence's routed registration network IP and 172.31.31.129 is the routed Isolation IP.
 
 PacketFence switch configuration:
+
   /usr/local/pf/conf/switches.conf
     [default]
     guestVlan=52
@@ -132,10 +137,12 @@ The configuration requires a VLAN filtering bridge with Spanning Tree Protocol e
 enabled, so you can follow similar steps as above for wireless 802.1X.
 
 Set the PacketFence RADIUS server to be used for dot1x:
+
   /radius
     add address=172.16.5.17 comment=packetfence: secret=useStrongerSecret service=dot1x src-address=172.16.20.1 timeout=1s
 
 Add the ethernet ports to the bridge:
+
   /interface bridge port
     add bridge=bridge interface=ether2
     add bridge=bridge interface=ether3
@@ -145,6 +152,7 @@ Add the ethernet ports to the bridge:
   PS: We use ether1 as our uplink, so we exclude it from the bridge.
 
 Lastly we enable 802.1X for those interfaces, with MAB fallback:
+
   /interface dot1x server
     add auth-types=dot1x,mac-auth interface=ether2 interim-update=15m
     add auth-types=dot1x,mac-auth interface=ether3 interim-update=15m
