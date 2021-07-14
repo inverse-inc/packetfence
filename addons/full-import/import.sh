@@ -72,7 +72,24 @@ handle_network_change
 check_code $?
 
 main_splitter
-echo "Completed import of the database and the configuration!"
+upgrade_configuration
+check_code $?
+
+main_splitter
+echo "Finalizing import"
+
+sub_splitter
+echo "Restarting packetfence-config"
+systemctl restart packetfence-config
+
+sub_splitter
+echo "Reloading configuration"
+/usr/local/pf/bin/pfcmd configreload hard
+
+#TODO: import FreeRADIUS and conf/ssl/ certificates
+
+main_splitter
+echo "Completed import of the database and the configuration! Complete any necessary adjustments and restart PacketFence"
 
 # Done with everything, time to cleanup!
 cd - > /dev/null

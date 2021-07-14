@@ -43,12 +43,13 @@ function import_mysqldump() {
   echo "Importing $dump_file into $db_name"
   mysql ${mariadb_args} $db_name < $dump_file
 	check_code $?
+  
 }
 
-function upgrade_path() {
+function db_upgrade_scripts() {
   current_version="$1"
   current_version=`echo $current_version | sed 's/\./\\./g'`
-  db_scripts=`ls /usr/local/pf/db/upgrade-* | egrep '^/usr/local/pf/db/upgrade-[0-9]+\.[0-9]+\.[0-9]+-[0-9]+\.[0-9]+\.[0-9]+\.sql' | sort --version-sort | sed -ne '/'$current_version'/{:a' -e 'n;p;ba' -e '}'`
+  db_scripts=`ls /usr/local/pf/db/upgrade-* | egrep '^/usr/local/pf/db/upgrade-[0-9]+\.[0-9]+(\.[0-9]+)?-[0-9]+\.[0-9]+(\.[0-9]+)?\.sql' | sort --version-sort | sed -ne '/'$current_version'/{:a' -e 'n;p;ba' -e '}'`
   if [ -f /usr/local/pf/db/upgrade-X.X-X.Y.sql ]; then
     db_scripts="$db_scripts /usr/local/pf/db/upgrade-X.X-X.Y.sql"
   fi
@@ -65,7 +66,7 @@ function upgrade_database() {
   db_name="$1"
   db_version=`mysql -e "select version from $db_name.pf_version;" | egrep -o '^[0-9]+\.[0-9]+'`  
   echo "Database $db_name runs version $db_version"
-  scripts=`upgrade_path $db_version`
+  scripts=`db_upgrade_scripts $db_version`
   echo "Found upgrade path: $scripts"
   for script in $scripts; do
     sub_splitter
@@ -74,4 +75,8 @@ function upgrade_database() {
     check_code $?
   done
   
+  sub_splitter
+  echo "Deleting content of keyed table"
+  mysql ${mariadb_args} $db_name -e 'truncate keyed'
+  check_code $?
 }
