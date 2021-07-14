@@ -311,6 +311,7 @@ const props = {
 
 import { computed, nextTick, ref, toRefs, watch } from '@vue/composition-api'
 import { useViewBox, useMiniMap } from '../_composables/useSvg'
+import useColor from '../_composables/useColor'
 import useSimulation from '../_composables/useSimulation'
 import useTooltips from '../_composables/useTooltips'
 
@@ -383,15 +384,20 @@ const setup = props => {
   } = useMiniMap(props, config, viewBox, scale, setCenter)
 
   const {
+    color
+  } = useColor(props, config)
+
+  const {
     coordBounded,
     localTooltips,
     tooltips,
-    tooltipAnchorAttrs
-  } = useTooltips(props, config, bounds, viewBox, nodes)
-
-  const highlightedLinks = computed(() => {
-    return localLinks.value.filter(link => { link.highlight })
-  })
+    tooltipAnchorAttrs,
+    highlight,
+    highlightNodeId,
+    highlightedLinks,
+    mouseOverNode,
+    mouseOutNode
+  } = useTooltips(props, config, bounds, viewBox, localNodes, localLinks)
 
   const legends = computed(() => {
     if (Object.keys(palettes.value).includes(config.value.palette)) {
@@ -474,154 +480,6 @@ const setup = props => {
   const linkTargetText = link => {
     const { target: { id = null } = {} } = link
     return id
-  }
-
-  let highlight = false // mouseOver @ node
-  let highlightNodeId = false // last highlighted node
-
-  const _unhighlightNodes = () => {
-    localNodes.value = localNodes.value.map(node => ({ ...node, highlight: false, tooltip: false }))
-  }
-
-  const _unhighlightLinks = () => {
-    localLinks.value = localLinks.value.map(link => ({ ...link, highlight: false }))
-  }
-
-  const _highlightNodeById = id => {
-    _unhighlightNodes()
-    _unhighlightLinks()
-    // highlight all target nodes linked to this source node
-    localLinks.value.forEach((link, index)=> {
-      if (link.source.id === id) {
-        localLinks.value[index].highlight = true // highlight link
-        localLinks.value[index].target.highlight = true // highlight target node
-      }
-    })
-    var sourceIndex = localNodes.value.findIndex(node => node.id === id)
-    while (sourceIndex > -1) { // travel to center of tree [ (target|source) -> (target|source) -> ... ]
-      localNodes.value[sourceIndex].highlight = true  // highlight node
-      localNodes.value[sourceIndex].tooltip = true // show node tooltip
-      const { id: sourceId } = localNodes.value[sourceIndex]
-      localLinks.value.forEach((link, index) => {
-        const { target: { id: targetId } = {} } = link
-        if (targetId === sourceId)
-          localLinks.value[index].highlight = true
-      })
-      sourceIndex = localNodes.value.findIndex(node => node.id === sourceId) // recurse source
-    }
-  }
-
-  const mouseOverNode = node => {
-/*
-    const { width, height } = dimensions.value
-    stop() // pause animation
-    _highlightNodeById(node.id) // highlight node
-    highlight = (node.type === 'node') ? color(node) : 'none'
-    // tooltips
-    if (highlightNodeId !== node.id) {
-      highlightNodeId = node.id
-      const highlightedNodes = localNodes.value.filter(node => node.tooltip)
-      localTooltips.value = [
-        ...highlightedNodes.map(node => {
-          const { id, type, properties } = node
-          const { x, y } = coordBounded(node)
-          return JSON.parse(JSON.stringify({ id, type, properties, x, y }))
-        }),
-        ...highlightedNodes.map(node => {
-          const { id } = node
-          const { x: fx, y: fy } = coordBounded(node)
-          return JSON.parse(JSON.stringify({ id: `${id}-fixed`, fx, fy }))
-        })
-      ]
-      // link force from tooltip to node (self)
-      let selfLinks = []
-      highlightedNodes.map(node => {
-        const { id } = node
-        selfLinks.push({ source: id, target: `${id}-fixed` })
-      })
-      // link force from tooltip to other nodes
-      let nodeLinks = []
-      highlightedNodes.map(node => {
-        const { id } = node
-        highlightedNodes.map(other => {
-          const { id: otherId } = other
-          if (otherId !== id) {
-            if (nodeLinks.filter(link =>
-              ([link.source, link.target].includes(id) && [link.source, link.target].includes(`${otherId}-fixed`))
-            ).length === 0) {
-              nodeLinks.push({ source: id, target: `${otherId}-fixed` })
-            }
-          }
-        })
-      })
-      // link force from tooltip to other tooltips
-      let tooltipLinks = []
-      highlightedNodes.map(node => {
-        const { id } = node
-        highlightedNodes.map(other => {
-          const { id: otherId } = other
-          if (otherId !== id) {
-            if (tooltipLinks.filter(link =>
-              ([link.source, link.target].includes(id) && [link.source, link.target].includes(otherId))
-            ).length === 0) {
-              tooltipLinks.push({ source: otherId, target: id })
-            }
-          }
-        })
-      })
-      d3.forceSimulation(localTooltips.value)
-        .alphaDecay(1 - Math.pow(0.001, 1 / 50)) // default: 1 - Math.pow(0.001, 1 / 300)
-        .velocityDecay(0.8) // default: 0.4
-        .force('x', d3.forceX() // force: tooltip w/ center x
-          .x(centerX.value)
-          .strength(0.5)
-        )
-        .force('y', d3.forceY() // force: tooltip w/ center y
-          .y(centerY.value)
-          .strength(0.5)
-        )
-        .force('selfLinks', d3.forceLink(selfLinks) // force: tooltip w/ node
-          .id((d) => d.id)
-          .distance(Math.min(width, height) / 8)
-          .strength(0.5)
-          .iterations(4)
-        )
-        .force('nodeLinks', d3.forceLink(nodeLinks) // force: tooltip w/ other nodes
-          .id((d) => d.id)
-          .distance(Math.min(width, height) / 2)
-          .strength(0.5)
-          .iterations(2)
-        )
-        .force('tooltipLinks', d3.forceLink(tooltipLinks) // force: tooltip w/ other tooltips
-          .id((d) => d.id)
-          .distance(Math.min(width, height) / 2)
-          .strength(0.5)
-          .iterations(8)
-        )
-        .restart()
-    }
-*/
-  }
-
-  const mouseOutNode = () => {
-/*
-    start() // unpause animation
-    _unhighlightNodes()
-    _unhighlightLinks()
-    highlight = false
-    highlightNodeId = false
-    localTooltips.value = []
-*/
-  }
-
-  const color = node => {
-    if (Object.keys(palettes.value).includes(config.value.palette) && config.value.palette in node.properties) {
-      const value = node.properties[config.value.palette]
-      if (Object.keys(palettes.value[config.value.palette]).includes(value)) {
-        return palettes.value[config.value.palette][value]
-      }
-    }
-    return 'black'
   }
 
   const _explodeProperties = (properties = {}) => {
@@ -776,10 +634,16 @@ const setup = props => {
     mouseDownMiniMap,
     mouseMoveMiniMap,
 
+    color,
+
     coordBounded,
     localTooltips,
     tooltips,
     tooltipAnchorAttrs,
+    highlight,
+    highlightNodeId,
+mouseOverNode, //TODO: move
+mouseOutNode, //TODO: move
 
     highlightedLinks,
     legends,
@@ -789,11 +653,6 @@ const setup = props => {
     linkSourceText,
     linkTargetAttrs,
     linkTargetText,
-    highlight,
-    highlightNodeId,
-mouseOverNode, //TODO: move
-mouseOutNode, //TODO: move
-    color,
   }
 }
 

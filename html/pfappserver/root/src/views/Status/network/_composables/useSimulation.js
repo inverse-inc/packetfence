@@ -88,8 +88,8 @@ export default (props, config, nodes, links) => {
         /* `radial` force - orient on circle of specified radius centered at x, y */
         /*
         simulation.value.force('radial', d3.forceRadial()
-          .radius(this.forceRadialRadius)
-          .strength(this.forceRadialStrength)
+          .radius(_forceRadialRadius)
+          .strength(_forceRadialStrength)
           .x(dimensions.value.width / 2)
           .y(dimensions.value.height / 2)
         )
@@ -190,6 +190,7 @@ export default (props, config, nodes, links) => {
     }
   }
 
+  /*
   const _forceRadialRadius = () => {
     return node => {
       const { type, depth } = node
@@ -222,6 +223,7 @@ export default (props, config, nodes, links) => {
       }
     }
   }
+  */
 
   const _forceXY = () => {
     const { depth: totalDepth, num: totalNum } = nodes.value.find(n => n.type === 'packetfence')

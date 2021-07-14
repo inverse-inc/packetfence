@@ -1,6 +1,6 @@
 <template>
   <b-card no-body>
-    <b-card-header>
+    <b-card-header class="p-2">
       <h5 class="mb-0">PacketFence</h5>
       <p class="mb-0"><mac>{{ version }}</mac></p>
     </b-card-header>

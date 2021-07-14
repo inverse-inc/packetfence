@@ -1,10 +1,10 @@
 <template>
   <b-card no-body class="tooltip-switch-group">
-    <b-card-header>
+    <b-card-header class="p-2">
       <h5 class="mb-0 text-nowrap">{{ $t('Switch Group') }}</h5>
       <p class="mb-0"><mac>{{ id }}</mac></p>
     </b-card-header>
-    <div class="card-body" v-if="isLoading || !isError">
+    <div class="card-body p-2" v-if="isLoading || !isError">
       <b-container class="my-3 px-0" v-if="isLoading">
         <b-row class="justify-content-md-center text-secondary">
           <b-col cols="12" md="auto" class="w-100 text-center">

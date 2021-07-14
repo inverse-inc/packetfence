@@ -1,10 +1,10 @@
 <template>
   <b-card no-body class="tooltip-switch">
-    <b-card-header>
+    <b-card-header class="p-2">
       <h5 class="mb-0 text-nowrap">{{ $t('Switch') }}</h5>
       <p class="mb-0"><mac>{{ id }}</mac></p>
     </b-card-header>
-    <div class="card-body" v-if="isLoading || (!isError && Object.keys(switche).length > 0)">
+    <div class="card-body p-2" v-if="isLoading || (!isError && Object.keys(switche).length > 0)">
       <b-container class="my-3 px-0" v-if="isLoading">
         <b-row class="justify-content-md-center text-secondary">
           <b-col cols="12" md="auto" class="w-100 text-center">
@@ -57,7 +57,7 @@ const setup = props => {
 
   watch([id, properties], () => {
     if (id.value !== 'unknown') {
-      this.isLoading = true
+      isLoading.value = true
       apiCall.getQuiet(`config/switch/${id.value}`)
         .then(response => {
           switche.value = response.data.item
