@@ -225,9 +225,11 @@ const factory = (uuid, options = {}) => {
         })
       },
       reSearch() {
-        const visibleSortBy = this.columns.find(c => c.visible && c.key == this.sortBy)
+        const visibleSortBy = (this.columns || [])
+          .find(c => c.visible && c.key == this.sortBy)
         if (!visibleSortBy) {
-          const sortable = this.columns.find(c => c.required && c.sortable)
+          const sortable = (this.columns || [])
+            .find(c => c.required && c.sortable)
           if (sortable) {
             this.sortBy = sortable['key']
             this.sortDesc = false

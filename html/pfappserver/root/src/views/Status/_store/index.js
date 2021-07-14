@@ -505,7 +505,7 @@ const mutations = {
     state.clusterPromise = null
   },
   CLUSTER_SERVICES_REQUEST: (state) => {
-    state.clusterServicesStatus = types.LOADING
+    state.clusterStatus = types.LOADING
   },
   CLUSTER_SERVICES_UPDATED: (state, server) => {
     if (server) {
@@ -527,7 +527,7 @@ const mutations = {
     }
   },
   CLUSTER_SERVICES_ERROR: (state) => {
-    state.clusterStatus = types.ERROR
+    state.clusterServicesStatus = types.ERROR
   }
 }
 

@@ -3,12 +3,11 @@ import store from '@/store'
 import StatusView from '../'
 import StatusStore from '../_store'
 
+import ClusterRoutes from '../cluster/_router'
 import DashboardRoutes from '../dashboard/_router'
 import QueueRoutes from '../queue/_router'
 import NetworkRoutes from '../network/_router'
 import ServicesRoutes from '../services/_router'
-
-import ClusterServices from '../_components/ClusterServices'
 
 const route = {
   path: '/status',
@@ -24,25 +23,14 @@ const route = {
       // Register store module only once
       store.registerModule('$_status', StatusStore)
     }
-    if (acl.$can('read', 'system'))
-      store.dispatch('$_status/getCluster').finally(() => next())
-    else
-      next()
+    next()
   },
   children: [
+    ...ClusterRoutes,
     ...DashboardRoutes,
     ...QueueRoutes,
     ...NetworkRoutes,
     ...ServicesRoutes,
-    {
-      path: 'cluster/services',
-      name: 'statusCluster',
-      component: ClusterServices,
-      props: { storeName: '$_status' },
-      meta: {
-        can: 'read services'
-      }
-    }
   ]
 }
 
