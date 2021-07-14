@@ -31,6 +31,10 @@ function rewrite_pf_ip_address() {
   perl -MConfig::IniFiles -I/usr/local/pf/lib_perl/lib/perl5/ -e "\$c = Config::IniFiles->new( -file => '/usr/local/pf/conf/pf.conf') ; \$c->setval('interface $1', 'ip', '$2') ; \$c->RewriteConfig"
 }
 
+function delete_interface() {
+  perl -MConfig::IniFiles -I/usr/local/pf/lib_perl/lib/perl5/ -e "\$c = Config::IniFiles->new( -file => '/usr/local/pf/conf/pf.conf') ; \$c->DeleteSection('interface $1') ; \$c->RewriteConfig"
+}
+
 function handle_interface_exists() {
   interface="$1"
   os_ip=`get_os_ip_address $interface`
@@ -58,7 +62,7 @@ function handle_network_change() {
     else
       stop_it=""
       while [ -z "$stop_it" ]; do
-        echo "Cannot find interface $interface on the system. Please select a new interface to replace it from the list below or press enter to skip this:"
+        echo "Cannot find interface $interface on the system. Please select a new interface to replace it from the list below or press enter to delete the interface from pf.conf:"
         ip a show | sed -r 's/^([0-9])/Option \1/'
         read new_int_choice
         if ! [ -z "$new_int_choice" ]; then
@@ -70,7 +74,10 @@ function handle_network_change() {
             stop_it="yes"
           fi
         else
-          stop_it="yes"
+          if prompt "Are you sure you want to delete interface $interface"; then
+            delete_interface $interface
+            stop_it="yes"
+          fi
         fi
       done
     fi
