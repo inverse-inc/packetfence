@@ -151,7 +151,6 @@ Add the ethernet ports to the bridge:
     add bridge=bridge interface=ether3
     add bridge=bridge interface=ether4
     add bridge=bridge interface=ether5
-
   PS: We use ether1 as our uplink, so we exclude it from the bridge.
 
 Lastly we enable 802.1X for those interfaces, with MAB fallback:
