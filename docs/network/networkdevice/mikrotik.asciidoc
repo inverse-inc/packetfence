@@ -19,12 +19,18 @@ endif::[]
   
 //=== Mikrotik
 
-PacketFence supports MikroTik RouterOS to provide wireless 802.1X (WPA2-Enterprise or MAC based authentication) as well as wired 802.1X (EAPoL (Extensible 
-Authentication Protocol over LAN)). MikroTik has supported wireless 802.1X RADIUS disconnect but this is not available for EAPoL wired 802.1X.
-This configuration has been tested on a variety of MikroTik devices, currently v6.48.3, which is a free upgrade. Tested devices include RB433AH, hAP ac,
-hAP ac lite, RB1100, RB3011 and various CCR devices. RADIUS disconnect (/radius incoming set accept=yes) has been functional for 2+ years so default
-de-auth method has been changed to RADIUS instead of SSH.
-EAPOL (802.1x) wired authentication has been available since v6.46 (Dec 2019) with MAB fallback being stable in v6.48.3.
+PacketFence supports MikroTik's RouterOS to provide wireless 802.1X (WPA2-Enterprise and MAC based authentication) as well as wired 802.1X (EAPoL (Extensible 
+Authentication Protocol over LAN)).
+
+MikroTik have supported wireless 802.1X RADIUS disconnect for 2+ years, but this is not available for wired 802.1X (dot1x).
+
+This configuration has been tested on a variety of MikroTik devices, including RB433AH, hAP ac, hAP ac lite, RB1100, RB3011 and various CCR devices. MikroTik
+provide free software updates (/system package update install  and then /sys routerboard upgrade  after booting new RouterOS).
+
+Default MikroTik de-auth method has been changed to RADIUS, instead of SSH. Change 'my $default = $SNMP::RADIUS;' back to 'my $default = $SNMP::SSH;' if you 
+want to continue using SSH as the de-authentication method.
+
+EAPoL (802.1x) wired authentication has been available since v6.46 (Dec 2019) with MAB fallback being stable in v6.48.3.
 
 PS: Don't forget to use the pf account to ssh on the Access Point, to receive the ssh key, if you switch back to using SSH.
 
@@ -53,7 +59,6 @@ First we create the SSIDs and virtual AP for the second SSID:
       vlan-mode=use-tag wireless-protocol=802.11 wps-mode=disabled
     add disabled=no master-interface="wlan2 - 5 GHz - ACME WiFi" multicast-helper=full name="wlan2 - 5 GHz - ACME Guest" \
       security-profile=radius-mac ssid="ACME Guest (pw: internet)" station-roaming=enabled vlan-id=3999 vlan-mode=use-tag wps-mode=disabled
-  
   PS: VLAN 3999 is purposefully bogus, to ensure no access without VLAN assignment in the RADIUS response.
 
 Next we create a VLAN filtering bridge:
@@ -81,7 +86,6 @@ Next we create the VLANs and assign IPs:
     add address=10.239.239.1/24 interface=vlan52
     add address=192.168.10.225/28 interface=vlan666
     add address=192.168.10.241/28 interface=vlan667
-  
   PS: 172.16.20.1 is essentially assigned to VLAN 1 (untagged)
 
 Last settings on the MikroTik defines PacketFence as the RADIUS server and filters traffic on Guest, Registration and Isolation networks:
@@ -101,7 +105,6 @@ Last settings on the MikroTik defines PacketFence as the RADIUS server and filte
     add action=reject chain=forward comment="Limit WiFi - Guest:" dst-address=!41.1.1.1 dst-address-list=local in-interface=vlan52
     add action=reject chain=forward comment="Limit PacketFence - Registration:" dst-address=!172.31.31.1 in-interface=vlan666
     add action=reject chain=forward comment="Limit PacketFence - Isolation:" dst-address=!172.31.31.129 in-interface=vlan667
-
   PS: Use 'src-address' to originate requests from an IP other than the one associated with the interface that routes towards PacketFence.
       172.31.31.1 is PacketFence's routed registration network IP and 172.31.31.129 is the routed Isolation IP.
 
@@ -113,14 +116,14 @@ PacketFence switch configuration:
     registrationVlan=666
     isolationVlan=667
     always_trigger=1
-    
+    _
     [group MikroTik]
     description=Default MikroTik Settings
     deauthMethod=RADIUS
     type=Mikrotik
     uplink_dynamic=0
     useCoA=N
-
+    _
     [100.127.255.10]
     description=ACME - Home Office - Bar
     group=MikroTik
