@@ -11,15 +11,6 @@ export default (props, config, nodes, links) => {
 
   const bounds = computed(() => {
     const { width, height } = dimensions.value
-    /* limit w/ best fit
-    const f = nodes.value //.filter(n => !([n.x, n.y].includes(null)))
-    return {
-      minX: Math.min(width, ...f.map(n => n.x)),
-      maxX: Math.max(0, ...f.map(n => n.x)),
-      minY: Math.min(height, ...f.map(n => n.y)),
-      maxY: Math.max(0, ...f.map(n => n.y))
-    }
-    */
     return {
       minX: 0,
       maxX: width,
@@ -28,35 +19,14 @@ export default (props, config, nodes, links) => {
     }
   })
 
-  const coords = computed(() => {
-    const { minX = 0, maxX = 0, minY = 0, maxY = 0 } = bounds.value
-    const { height = 0, width = 0 } = dimensions.value
-    const { padding } = config.value
-    if ((minX | maxX | minY | maxY) !== 0) { // not all zero's
-      const xMult = (width - (2 * padding)) / (maxX - minX)
-      const yMult = (height - (2 * padding)) / (maxY - minY)
-      return nodes.value.map(node => {
-        const x = padding + (node.x - minX) * xMult
-        const y = padding + (node.y - minY) * yMult
-        return {
-          x: isNaN(x) ? 0 : x,
-          y: isNaN(y) ? 0 : y
-        }
-      })
-    }
-    return nodes.value.map(() => { // all zero's
-      return { x: 0, y: 0 }
-    })
-  })
-
   const init = () => {
-console.log('init')
-    simulation.value = d3.forceSimulation(nodes.value)
+    simulation.value = d3
+      .forceSimulation(nodes.value)
+      .on('tick', tick)
     force()
   }
 
   const start = () => {
-console.log('start')
     if (simulation.value) {
       nextTick(() => {
         simulation.value.restart()
@@ -65,13 +35,38 @@ console.log('start')
   }
 
   const stop = () => {
-console.log('stop')
     if (simulation.value)
       simulation.value.stop()
   }
 
+  const coords = ref([])
+
+  let tickDebouncer = false
+  const tick = () => {
+    if (!tickDebouncer) {
+      tickDebouncer = setTimeout(() => {
+        tickDebouncer = false
+        const { minX = 0, maxX = 0, minY = 0, maxY = 0 } = bounds.value
+        const { height = 0, width = 0 } = dimensions.value
+        if ((minX | maxX | minY | maxY) !== 0) { // not all zero's
+          const xMult = (width - (2 * config.value.padding)) / (maxX - minX)
+          const yMult = (height - (2 * config.value.padding)) / (maxY - minY)
+          coords.value = nodes.value.map(node => {
+            const x = config.value.padding + (node.x - minX) * xMult
+            const y = config.value.padding + (node.y - minY) * yMult
+            return {
+              x: isNaN(x) ? 0 : x,
+              y: isNaN(y) ? 0 : y
+            }
+          })
+        }
+        else
+          coords.value = nodes.value.map(() => ({ x: 0, y: 0 })) // all zero's
+      }, 100)
+    }
+  }
+
   const force = () => {
-console.log('force')
     /* `collide` force - prevents nodes from overlapping */
     simulation.value.force('collide', d3.forceCollide()
       .radius(_forceCollideRadius)

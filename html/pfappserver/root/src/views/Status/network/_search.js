@@ -261,6 +261,8 @@ export const useSearch = makeSearch('statusNetwork', {
       icon: 'balance-scale'
     }
   ],
+  limit: 100,
+  limits: [10, 25, 50, 100, 250],
   sortBy,
   sortDesc,
   defaultCondition: () => ({

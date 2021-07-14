@@ -1,0 +1,412 @@
+:root { /* defaults */
+  --color-black: var(--dark);
+  --color-blue: var(--blue);
+  --color-red: var(--red);
+  --color-yellow: var(--yellow);
+  --color-green: var(--green);
+
+  /* default highlight color */
+  --highlight-color: var(--color-black);
+}
+
+@keyframes fadein {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+.svgContainer {
+  position: relative;
+  .packetfence,
+  .switch-group,
+  .switch,
+  .node,
+  .unknown,
+  .link {
+    transition: opacity 300ms ease, fill 300ms ease, stroke 300ms ease;
+    &.pointer {
+      cursor: pointer;
+    }
+  }
+
+  &.highlight {
+    .packetfence,
+    .switch-group,
+    .switch,
+    .node,
+    .unknown,
+    .link,
+    .switchText {
+      opacity: 0.25;
+      &.highlight {
+        opacity: 1.0;
+      }
+    }
+  }
+
+  &.highlight-blue {
+    --highlight-color: rgba(66, 133, 244, 1);
+  }
+  &.highlight-red {
+    --highlight-color: rgba(219, 68, 55, 1);
+  }
+  &.highlight-yellow {
+    --highlight-color: rgba(244, 160, 0, 1);
+  }
+  &.highlight-green {
+    --highlight-color: rgba(15, 157, 88, 1);
+  }
+
+  .tt-anchor {
+    position: absolute;
+    width: 0px;
+    height: 0px;
+    animation: fadein 300ms;
+    & > .tt-container {
+      position: relative;
+      & > .tt-contents {
+        position: absolute;
+        background: rgba(255, 255, 255, 1);
+        background-clip: padding-box;
+        border-color: var(--highlight-color);
+        border-radius: 4px;
+        border-style: solid;
+        border-width: 2px;
+        box-shadow: 5px 5px 15px rgba(0, 0, 0, 0.125);
+        transform: translate(-50%, -50%);
+        z-index: 4;
+        min-width: 175px;
+      }
+    }
+  }
+
+  .tt-link {
+    stroke: var(--highlight-color);
+    /*stroke-linecap: round;*/
+  }
+
+  .legend {
+    position: absolute;
+    background: rgba(255, 255, 255, 0.5);
+    font-family: -apple-system,BlinkMacSystemFont,Segoe UI,Roboto,Helvetica Neue,Arial,Noto Sans,sans-serif,Apple Color Emoji,Segoe UI Emoji,Segoe UI Symbol,Noto Color Emoji;
+    font-size: .9rem;
+    font-weight: 400;
+    line-height: 24px;
+    &.top-right {
+      top: 0px;
+      right: 0px;
+    }
+    &.bottom-right {
+      right: 0px;
+      bottom: 0px;
+    }
+    &.bottom-left {
+      bottom: 0px;
+      left: 0px;
+    }
+    &.top-left {
+      top: 0px;
+      left: 0px;
+    }
+    & > ul {
+      & > li {
+        list-style-type: none;
+        position: relative;
+        &.blue::before {
+          color: var(--color-blue);
+        }
+        &.red::before {
+          color: var(--color-red);
+        }
+        &.yellow::before {
+          color: var(--color-yellow);
+        }
+        &.green::before {
+          color: var(--color-green);
+        }
+        &::before {
+          content: '\2022';
+          position: absolute;
+          left: -0.575em;
+          font-size: 48px;
+          line-height: 24px;
+        }
+      }
+    }
+  }
+
+  text {
+    font-family: "B612 Mono", "Courier New", Courier, "Lucida Sans Typewriter", "Lucida Typewriter", monospace;
+    font-size: 12px;
+    fill: var(--highlight-color);
+    stroke: rgba(255, 255, 255, 1);
+    stroke-alignment: outer;
+    stroke-width: 0.125;
+    transform-origin: center center;
+  }
+
+  .svgDrag {
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+  }
+
+  .svgDraw {
+    &.zoom-0 {
+      .packetfence,
+      .switch-group,
+      .switch,
+      .node,
+      .unknown,
+      .link {
+        stroke-width: 2;
+        &.highlight {
+          stroke-width: 4;
+        }
+      }
+      .tt-link {
+        stroke-width: 4;
+        stroke-dasharray: 4 4;
+      }
+    }
+    &.zoom-1 {
+      .packetfence,
+      .switch-group,
+      .switch,
+      .node,
+      .unknown,
+      .link {
+        stroke-width: 1;
+        &.highlight {
+          stroke-width: 2;
+        }
+      }
+      .tt-link {
+        stroke-width: 2;
+        stroke-dasharray: 2 2;
+      }
+    }
+    &.zoom-2 {
+      .packetfence,
+      .switch-group,
+      .switch,
+      .node,
+      .unknown,
+      .link {
+        stroke-width: 0.5;
+        &.highlight {
+          stroke-width: 1;
+        }
+      }
+      .tt-link {
+        stroke-width: 1;
+        stroke-dasharray: 1 1;
+      }
+    }
+    &.zoom-3 {
+      .packetfence,
+      .switch-group,
+      .switch,
+      .node,
+      .unknown,
+      .link {
+        stroke-width: 0.25;
+        &.highlight {
+          stroke-width: 0.5;
+        }
+      }
+      .tt-link {
+        stroke-width: 0.5;
+        stroke-dasharray: 0.5 0.5;
+      }
+    }
+    &.zoom-4 {
+      .packetfence,
+      .switch-group,
+      .switch,
+      .node,
+      .unknown,
+      .link {
+        stroke-width: 0.125;
+        &.highlight {
+          stroke-width: 0.25;
+        }
+      }
+      .tt-link {
+        stroke-width: 0.25;
+        stroke-dasharray: 0.25 0.25;
+      }
+    }
+    &.zoom-5 {
+      .packetfence,
+      .switch-group,
+      .switch,
+      .node,
+      .unknown,
+      .link {
+        stroke-width: 0.0625;
+        &.highlight {
+          stroke-width: 0.125;
+        }
+      }
+      .tt-link {
+        stroke-width: 0.125;
+        stroke-dasharray: 0.125 0.125;
+      }
+    }
+    &.zoom-6 {
+      .packetfence,
+      .switch-group,
+      .switch,
+      .node,
+      .unknown,
+      .link {
+        stroke-width: 0.03125;
+        &.highlight {
+          stroke-width: 0.0625;
+        }
+      }
+      .tt-link {
+        stroke-width: 0.0625;
+        stroke-dasharray: 0.0625 0.0625;
+      }
+    }
+    &.zoom-7 {
+      .packetfence,
+      .switch-group,
+      .switch,
+      .node,
+      .unknown,
+      .link {
+        stroke-width: 0.015625;
+        &.highlight {
+          stroke-width: 0.03125;
+        }
+      }
+      .tt-link {
+        stroke-width: 0.03125;
+        stroke-dasharray: 0.03125 0.03125;
+      }
+    }
+    &.zoom-8 {
+      .packetfence,
+      .switch-group,
+      .switch,
+      .node,
+      .unknown,
+      .link {
+        stroke-width: 0.0078125;
+        &.highlight {
+          stroke-width: 0.015625;
+        }
+      }
+      .tt-link {
+        stroke-width: 0.015625;
+        stroke-dasharray: 0.015625 0.015625;
+      }
+    }
+  }
+
+  .bg {
+    fill: var(--bg-fill);
+    stroke: var(--bg-stroke);
+  }
+  .fg {
+    fill: var(--fg-fill);
+    stroke: var(--fg-stroke);
+  }
+  .icon {
+    fill: var(--icon-fill);
+  }
+
+  .outerMiniMap {
+    fill: rgba(0, 123, 255, 0.125);
+    stroke: rgba(0, 0, 0, 0.5);
+  }
+  .innerMiniMap {
+    fill: rgba(0, 123, 255, 1);
+    stroke: rgba(0, 0, 0, 0.5);
+  }
+
+  .packetfence {
+    --bg-fill: rgba(255, 255, 255, 1);
+    --bg-stroke: rgba(128, 128, 128, 1);
+    --fg-fill: rgba(0, 0, 0, 1);
+    --icon-fill: rgba(255, 255, 255, 1);
+    &.highlight {
+      --bg-stroke: var(--highlight-color);
+      --fg-fill: var(--highlight-color);
+    }
+  }
+
+  .switch-group {
+    --bg-fill: rgba(128, 128, 128, 1);
+    --bg-stroke: rgba(255, 0, 0, 1);
+    --fg-fill: rgba(255, 255, 255, 1);
+    &.highlight {
+      --bg-fill: rgba(255, 255, 255, 1);
+      --bg-stroke: var(--highlight-color);
+      --fg-fill: var(--highlight-color);
+    }
+  }
+
+  .switch {
+    --bg-fill: rgba(255, 255, 255, 1);
+    --bg-stroke: rgba(128, 128, 128, 1);
+    --fg-fill: rgba(128, 128, 128, 1);
+    &.highlight {
+      --bg-fill: var(--highlight-color);
+      --bg-stroke: var(--highlight-color);
+      --fg-fill: rgba(255, 255, 255, 1);
+    }
+  }
+
+  .node,
+  .unknown {
+    fill: rgba(192, 192, 192, 1);
+    stroke: rgba(128, 128, 128, 1);
+    &.blue {
+      fill: var(--color-blue);
+    }
+    &.red {
+      fill: var(--color-red);
+    }
+    &.yellow {
+      fill: var(--color-yellow);
+    }
+    &.green {
+      fill: var(--color-green);
+    }
+    &.highlight {
+      fill: var(--highlight-color);
+      stroke: var(--highlight-color);
+    }
+  }
+
+  .link {
+    stroke: rgba(192, 192, 192, 1);
+    &.highlight {
+      stroke: var(--highlight-color);
+    }
+  }
+
+  .emptyContainer,
+  .loadingContainer {
+    position: absolute;
+    top: 0px;
+    left: 0px;
+    width: 100%;
+    height: 100%;
+    background: rgba(255, 255, 255, 0.5);
+    & > * {
+      position: relative;
+      top: 50%;
+      transform: translateY(-50%);
+    }
+  }
+
+  .switchText {
+    fill: #000000 !important;
+  }
+}
