@@ -29,7 +29,7 @@ EAPOL (802.1x) wired authentication has been available since v6.46 (Dec 2019) wi
 PS: Don't forget to use the pf account to ssh on the Access Point, to receive the ssh key, if you switch back to using SSH.
 
 [float]
-==== WPA2-EAP (WPA2 Enterprise) 802.1X SSID with MAC base authentication on WPA2-PSK SSID
+==== WPA2-EAP (WPA2 Enterprise) 802.1X SSID with MAC based authentication on WPA2-PSK SSID
 
 In this example the 2.4 and 5 GHz radios are configured to provide wireless 802.1X with a virtual AP being added to provide mac based authentication
 on a WPA2-PSK SSID where the password is disclosed as part of the SSID. Although the Pre-Shared Key (PSK) is published each wireless client's connection
@@ -120,6 +120,36 @@ PacketFence switch configuration:
     description=ACME - Home Office - Bar
     group=MikroTik
     radiusSecret=useStrongerSecret
+
+
+
+==== Wired 802.1X with MAB (mac authentication bypass)
+
+MikroTik calls this dot1x and is documented in more detail here:
+  https://help.mikrotik.com/docs/display/ROS/Dot1X
+
+The configuration requires a VLAN filtering bridge with Spanning Tree Protocol enabled. New bridges by default have RSTP (Rapid Spanning Tree Protocol) 
+enabled, so you can follow similar steps as above for wireless 802.1X.
+
+Set the PacketFence RADIUS server to be used for dot1x:
+  /radius
+    add address=172.16.5.17 comment=packetfence: secret=useStrongerSecret service=dot1x src-address=172.16.20.1 timeout=1s
+
+Add the ethernet ports to the bridge:
+  /interface bridge port
+    add bridge=bridge interface=ether2
+    add bridge=bridge interface=ether3
+    add bridge=bridge interface=ether4
+    add bridge=bridge interface=ether5
+
+  PS: We use ether1 as our uplink, so we exclude it from the bridge.
+
+Lastly we enable 802.1X for those interfaces, with MAB fallback:
+  /interface dot1x server
+    add auth-types=dot1x,mac-auth interface=ether2 interim-update=15m
+    add auth-types=dot1x,mac-auth interface=ether3 interim-update=15m
+    add auth-types=dot1x,mac-auth interface=ether4 interim-update=15m
+    add auth-types=dot1x,mac-auth interface=ether5 interim-update=15m
 
 
 
