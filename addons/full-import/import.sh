@@ -20,6 +20,8 @@ check_code $?
 cd $extract_dir/
 check_code $?
 
+main_splitter
+
 echo "Extracting archive..."
 tar -xf export.tgz
 check_code $?
@@ -27,12 +29,15 @@ check_code $?
 echo "Found the following content in the archive:"
 ls -l
 
+main_splitter
 files_dump=`ls packetfence-files-*`
 echo "Found files dump '$files_dump'"
 
 echo "Extracting files dump"
 tar -xf $files_dump
 check_code $?
+
+main_splitter
 
 db_dump=`ls packetfence-db-dump-*`
 echo "Found compressed database dump '$db_dump'"
@@ -53,16 +58,20 @@ else
   exit 1
 fi
 
+main_splitter
 db_name=`get_db_name usr/local/pf/conf/pf.conf`
 upgrade_database $db_name
 check_code $?
 
+main_splitter
 restore_config_files `pwd`
 check_code $?
 
+main_splitter
 handle_network_change
 check_code $?
 
+main_splitter
 echo "Completed import of the database and the configuration!"
 
 # Done with everything, time to cleanup!
