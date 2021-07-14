@@ -228,11 +228,11 @@ backend $mgmt_cluster_ip-portal
         option http_proxy
         option forwardfor
         acl paramsquery query -m found
-        http-request set-header Host $portal_preview_ip
         http-request lua.admin
         http-request add-header X-Forwarded-For-Packetfence 127.0.0.1
         http-request set-uri http://127.0.0.1:8890%[var(req.path)]?%[query] if paramsquery
         http-request set-uri http://127.0.0.1:8890%[var(req.path)] unless paramsquery
+        http-request set-header Host $portal_preview_ip
 
 EOT
     } else {
