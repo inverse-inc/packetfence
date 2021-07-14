@@ -56,9 +56,23 @@ function handle_network_change() {
       handle_interface_exists $interface
       check_code $?
     else
-      echo "Cannot find interface $interface on the system. Please select a new interface to replace it from the list below:"
-      ip a show | sed -r 's/^([0-9])/Option \1/'
-      # TODO
+      stop_it=""
+      while [ -z "$stop_it" ]; do
+        echo "Cannot find interface $interface on the system. Please select a new interface to replace it from the list below or press enter to skip this:"
+        ip a show | sed -r 's/^([0-9])/Option \1/'
+        read new_int_choice
+        if ! [ -z "$new_int_choice" ]; then
+          new_int_name=`ip a show | egrep -o '^'$new_int_choice': .+?:' | sed -r 's/^[0-9]+: //g' | sed 's/:$//g'`
+          if [ -z "$new_int_name" ] || ! ip a show dev $new_int_name > /dev/null; then
+            echo "ERROR: Invalid interface choice!"
+          else
+            handle_interface_exists $new_int_name
+            stop_it="yes"
+          fi
+        else
+          stop_it="yes"
+        fi
+      done
     fi
   done
 }
