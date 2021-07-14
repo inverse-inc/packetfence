@@ -102,14 +102,17 @@
 
     <form-group-client-cert namespace="client_cert"
       :column-label="$i18n.t('Client Certificate')"
+      :text="$i18n.t('Path to the client certificate if a client certificate is required.')"
     />
 
     <form-group-client-key namespace="client_key"
       :column-label="$i18n.t('Client Key')"
+      :text="$i18n.t('Path to the client key if a client certificate is required.')"
     />
 
     <form-group-ca-file namespace="ca_file"
       :column-label="$i18n.t('CA File')"
+      :text="$i18n.t('Path to file with additional Certificate Authorities')
     />
 
     <form-group-authentication-rules namespace="authentication_rules"
