@@ -81,12 +81,17 @@ echo "Finalizing import"
 sub_splitter
 echo "Restarting packetfence-config"
 systemctl restart packetfence-config
+check_code $?
 
 sub_splitter
 echo "Reloading configuration"
 /usr/local/pf/bin/pfcmd configreload hard
+check_code $?
 
-#TODO: import FreeRADIUS and conf/ssl/ certificates
+main_splitter
+echo "Restoring certificates"
+restore_certificates
+check_code $?
 
 main_splitter
 echo "Completed import of the database and the configuration! Complete any necessary adjustments and restart PacketFence"
