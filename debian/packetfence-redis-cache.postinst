@@ -29,7 +29,7 @@ case "$1" in
         if [ ${DIST} = "wheezy" ] || [ ${DIST} = "precise" ]; then
             update-rc.d packetfence-redis-cache defaults 60 || exit 0
         fi
-        if [ ${DIST} = "jessie" ] || [ ${DIST} = "stretch" ]; then
+        if [ ${DIST} = "jessie" ] || [ ${DIST} = "stretch" ] || [ ${DIST} = "bullseye" ]; then
             systemctl enable packetfence-redis-cache
         fi
 	set +e
@@ -44,7 +44,7 @@ case "$1" in
 			fi
 		fi
             fi
-            if [ ${DIST} = "jessie" ] || [ ${DIST} = "stretch" ]; then
+            if [ ${DIST} = "jessie" ] || [ ${DIST} = "stretch" ] || [ ${DIST} = "bullseye" ]; then
                 systemctl disable $service
             fi
 	done

@@ -23,7 +23,7 @@ case "$1" in
     configure)
 	chown pf.pf /usr/local/pf/conf/pfconfig.conf
 	/sbin/ldconfig
-        if [ ${DIST} = "jessie" ] || [ ${DIST} = "stretch" ]; then
+        if [ ${DIST} = "jessie" ] || [ ${DIST} = "stretch" ] || [ ${DIST} = "bullseye" ]; then
 	    systemctl enable packetfence-config
         fi
         if [ ${DIST} = "wheezy" ] || [ ${DIST} = "precise" ]; then
