@@ -379,6 +379,7 @@ sub normal_sighandler {
         kill(SIGTERM, $QUORUM_MGMT_SERVER_PID) if($QUORUM_MGMT_SERVER_PID);
         kill(SIGTERM, $QUORUM_CLIENT_SERVER_PID) if($QUORUM_CLIENT_SERVER_PID);
         `pkill mysqld`;
+        `pkill mariadbd`;
         deletepid();
         $logger->debug( "pfmariadb caught SIG" . $_[0] . " - terminating" );
     }
