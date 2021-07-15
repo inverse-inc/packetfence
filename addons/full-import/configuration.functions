@@ -37,14 +37,17 @@ function get_pf_ip_address() {
 function rewrite_pf_ip_address() {
   perl -MConfig::IniFiles -I/usr/local/pf/lib_perl/lib/perl5/ -e "\$c = Config::IniFiles->new( -file => '/usr/local/pf/conf/pf.conf') ; \$c->setval('interface $1', 'ip', '$2') ; \$c->RewriteConfig"
   perl -MConfig::IniFiles -I/usr/local/pf/lib_perl/lib/perl5/ -e "\$c = Config::IniFiles->new( -file => '/usr/local/pf/conf/pf.conf') ; \$c->setval('interface $1', 'mask', '$3') ; \$c->RewriteConfig"
+  echo "Changed IP settings of $1 to $2/$3 in pf.conf"
 }
 
 function rename_interface() {
   perl -MConfig::IniFiles -I/usr/local/pf/lib_perl/lib/perl5/ -e "\$c = Config::IniFiles->new( -file => '/usr/local/pf/conf/pf.conf') ; \$c->RenameSection('interface $1', 'interface $2') ; \$c->RewriteConfig"
+  echo "Renamed $1 to $2 in pf.conf"
 }
 
 function delete_interface() {
   perl -MConfig::IniFiles -I/usr/local/pf/lib_perl/lib/perl5/ -e "\$c = Config::IniFiles->new( -file => '/usr/local/pf/conf/pf.conf') ; \$c->DeleteSection('interface $1') ; \$c->RewriteConfig"
+  echo "Deleted interface $1 in pf.conf"
 }
 
 function get_pf_interface_type() {
@@ -64,8 +67,10 @@ function handle_interface_exists() {
       echo "Rewritting IP address for $interface to $os_ip with netmask $os_netmask in pf.conf"
       rewrite_pf_ip_address $interface $os_ip $os_netmask
       check_code $?
+    elif prompt "Do you wish to delete $interface from pf.conf?"; then
+      delete_interface $interface
     else
-      echo "Leaving $interface untouched in pf.conf"
+      echo "Leaving $interface untouched in pf.conf. Make sure you adjust the IP on the operating system and in pf.conf after the import."
     fi
   fi
 }
