@@ -70,7 +70,7 @@ const setup = (props, context) => {
   const sortDesc = ref(false)
 
   $store.dispatch('$_status/getClusterServices')
-  const isLoading = computed(() => $store.getters[`$_status/isClusterServicesLoading`])
+  const isLoading = computed(() => $store.getters[`$_status/isLoading`] || $store.getters[`$_status/isServicesLoading`] || $store.getters[`$_status/isClusterServicesLoading`])
   const servers = computed(() => $store.state.$_status.clusterServices.map(server => server.host))
   const cluster = computed(() => $store.state.$_status.cluster)
 
