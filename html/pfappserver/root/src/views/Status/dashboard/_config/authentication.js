@@ -6,7 +6,7 @@ export default [
     name: 'Authentication', // i18n defer
     groups: [
       {
-        name: 'Authentication Sources', // i18n defer, requires sources
+        name: 'Authentication Sources', // i18n defer
         items: () => {
           const { state: { config: { sources = [] } = {} } = {} } = store
           return [].concat.apply([], sources.filter(source => source.monitor && source.host).map(source => {
