@@ -115,9 +115,6 @@ function db_upgrade_scripts() {
   current_version="$1"
   current_version=`echo $current_version | sed 's/\./\\./g'`
   db_scripts=`ls /usr/local/pf/db/upgrade-* | egrep '^/usr/local/pf/db/upgrade-[0-9]+\.[0-9]+(\.[0-9]+)?-[0-9]+\.[0-9]+(\.[0-9]+)?\.sql' | sort --version-sort | sed -ne '/'$current_version'/{:a' -e 'n;p;ba' -e '}'`
-  if [ -f /usr/local/pf/db/upgrade-X.X-X.Y.sql ]; then
-    db_scripts="$db_scripts /usr/local/pf/db/upgrade-X.X-X.Y.sql"
-  fi
   echo $db_scripts
 }
 
@@ -129,8 +126,12 @@ function upgrade_database() {
   fi
 
   db_name="$1"
-  db_version=`mysql -e "select version from $db_name.pf_version;" | egrep -o '^[0-9]+\.[0-9]+'`  
+  db_version=`mysql -p $mariadb_args $db_name -e "select version from pf_version order by id desc limit 1;" | egrep -o '^[0-9]+\.[0-9]+'`  
   echo "Database $db_name runs version $db_version"
+  if [ -z "$db_version" ]; then
+    echo "Unable to find DB version"
+    exit 1
+  fi
   scripts=`db_upgrade_scripts $db_version`
   echo "Found upgrade path: $scripts"
   for script in $scripts; do
