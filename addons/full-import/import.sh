@@ -49,7 +49,7 @@ echo "Uncompressed database dump '$db_dump'"
 if echo "$db_dump" | grep '\.sql$' >/dev/null; then
   echo "The database dump uses mysqldump"
   #TODO /tmp/grants.sql should be included in the export
-  import_mysqldump /tmp/grants.sql $db_dump usr/local/pf/conf/pf.conf
+  import_mysqldump grants.sql $db_dump usr/local/pf/conf/pf.conf
 elif echo "$db_dump" | grep '\.xbstream$' >/dev/null; then
   echo "The database uses mariabackup"
   import_mariabackup $db_dump

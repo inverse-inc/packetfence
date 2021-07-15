@@ -29,21 +29,25 @@ function import_mysqldump() {
   if ! test_db_connection_no_creds; then
     echo -n "Please enter the root password for MariaDB:"
     read -s mariadb_root_pass
+    echo
     mariadb_args="$mariadb_args -p$mariadb_root_pass"
   fi
 
   db_name=`get_db_name $pf_conf`
 
   sub_splitter
-  echo "Importing grants"
-  mysql ${mariadb_args} < $grants_file
-	check_code $?
-
-  sub_splitter
+  echo "Recreating database $db_name"
+  mysql ${mariadb_args} -e "drop database if exists $db_name; create database $db_name"
+  check_code $?
   echo "Importing $dump_file into $db_name"
   mysql ${mariadb_args} $db_name < $dump_file
 	check_code $?
   
+  sub_splitter
+  echo "Importing grants"
+  mysql ${mariadb_args} < $grants_file
+	check_code $?
+
 }
 
 function import_mariabackup() {
@@ -122,6 +126,7 @@ function upgrade_database() {
   if ! test_db_connection_no_creds; then
     echo -n "Please enter the root password for MariaDB:"
     read -s mariadb_root_pass
+    echo
     mariadb_args="$mariadb_args -p$mariadb_root_pass"
   fi
 
