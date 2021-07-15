@@ -605,7 +605,15 @@ const setup = props => {
     config,
     localNodes,
     localLinks,
+    legends,
+    linkId,
+    linkPathAttrs,
+    linkSourceAttrs,
+    linkSourceText,
+    linkTargetAttrs,
+    linkTargetText,
 
+    // useSimulation
     simulation,
     bounds,
     coords,
@@ -613,6 +621,7 @@ const setup = props => {
     stop,
     force,
 
+    // useViewBox
     zoom,
     scale,
     centerX,
@@ -627,6 +636,7 @@ const setup = props => {
     mouseUpSvg,
     mouseWheelSvg,
 
+    // useMiniMap
     miniMapLatch,
     showMiniMap,
     innerMiniMapProps,
@@ -634,25 +644,19 @@ const setup = props => {
     mouseDownMiniMap,
     mouseMoveMiniMap,
 
+    // useColor
     color,
 
+    // useTooltips
     coordBounded,
     localTooltips,
     tooltips,
     tooltipAnchorAttrs,
     highlight,
     highlightNodeId,
-mouseOverNode, //TODO: move
-mouseOutNode, //TODO: move
-
     highlightedLinks,
-    legends,
-    linkId,
-    linkPathAttrs,
-    linkSourceAttrs,
-    linkSourceText,
-    linkTargetAttrs,
-    linkTargetText,
+    mouseOverNode,
+    mouseOutNode,
   }
 }
 
