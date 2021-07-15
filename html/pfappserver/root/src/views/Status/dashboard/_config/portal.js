@@ -8,7 +8,7 @@ export default [
         name: 'Captive Portal Responses', // i18n defer
         items: ['1xx', '2xx', '3xx', '4xx', '5xx', 'other'].map(http_code => {
           return {
-            title: `${http_code} responses`, // i18n defer
+            title: http_code + ' responses', // i18n defer
             metric: 'web_log_apache_portal_log.response_codes',
             mode: modes.COMBINED,
             library: libraries.DYGRAPH,
