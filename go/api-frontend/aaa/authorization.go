@@ -131,6 +131,8 @@ var pathAdminRolesMap = []adminRoleMapping{
 	adminRoleMapping{prefix: configApiPrefix + "/cluster_status", role: "SERVICES"},
 	adminRoleMapping{prefix: configApiPrefix + "/connection_profile/", role: "CONNECTION_PROFILES"},
 	adminRoleMapping{prefix: configApiPrefix + "/connection_profiles", role: "CONNECTION_PROFILES"},
+	adminRoleMapping{prefix: configApiPrefix + "/event_logger/", role: "EVENT_LOGGERS"},
+	adminRoleMapping{prefix: configApiPrefix + "/event_loggers", role: "EVENT_LOGGERS"},
 	adminRoleMapping{prefix: configApiPrefix + "/self_service/", role: "SELF_SERVICE"},
 	adminRoleMapping{prefix: configApiPrefix + "/self_services", role: "SELF_SERVICE"},
 	adminRoleMapping{prefix: configApiPrefix + "/domain/", role: "DOMAIN"},
