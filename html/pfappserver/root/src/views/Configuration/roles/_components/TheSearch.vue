@@ -81,17 +81,19 @@
           </span>
         </template>
         <template #cell(id)="{ item }">
-          <icon v-for="(icon, i) in item._tree" :key="i"
-            v-bind="icon" />
-          <b-link v-if="item.children"
-            :class="(collapsedNodes.includes(item.id)) ? 'text-danger' : 'text-secondary'"
-             @click.stop="onToggleNode(item.id)"
-          >
-            <icon v-bind="item._icon" />
-          </b-link>
-          <icon v-else
-            v-bind="item._icon" />
-          {{ item.id }}
+          <div class="d-flex align-items-center">
+            <icon v-for="(icon, i) in item._tree" :key="i"
+              v-bind="icon" />
+            <b-link v-if="item.children"
+              :class="(collapsedNodes.includes(item.id)) ? 'text-danger' : 'text-secondary'"
+              @click.stop="onToggleNode(item.id)"
+            >
+              <icon v-bind="item._icon" />
+            </b-link>
+            <icon v-else
+              v-bind="item._icon" />
+            {{ item.id }}
+          </div>
         </template>
       </b-table>
       <b-container fluid v-if="selected.length"
