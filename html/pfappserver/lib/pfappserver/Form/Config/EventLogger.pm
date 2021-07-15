@@ -39,6 +39,7 @@ has_field namespaces => (
         map { { label => $_, value => $_ } }
           @pf::constants::eventLogger::Namespaces
     ],
+    multiple => 1,
 );
 
 =head2 Methods
