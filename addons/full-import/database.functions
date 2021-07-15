@@ -38,7 +38,22 @@ function import_mysqldump() {
   sub_splitter
   echo "Recreating database $db_name"
   mysql ${mariadb_args} -e "drop database if exists $db_name; create database $db_name"
+
+  sub_splitter
+  # We reimport the schema so that we have the functions and triggers
+  # Detect minor version of the restored data
+  restoring_version=`egrep -o '[0-9]+\.[0-9]+\.[0-9]+$' usr/local/pf/conf/pf-release | egrep -o '^[0-9]+\.[0-9]+'`
+  echo "Importing bare schema for $restoring_version"
+  mysql ${mariadb_args} $db_name < /usr/local/pf/db/pf-schema-$restoring_version.sql
   check_code $?
+
+  sub_splitter
+  echo "Replacing create statements from the dump and removing drop statements"
+  # This is done so that tables aren't dropped 
+  sed -i "s/DROP TABLE IF EXISTS /DELETE FROM /g" $dump_file
+  sed -i "s/CREATE TABLE /CREATE TABLE IF NOT EXISTS /g" $dump_file
+
+  sub_splitter
   echo "Importing $dump_file into $db_name"
   mysql ${mariadb_args} $db_name < $dump_file
 	check_code $?

@@ -11,14 +11,14 @@ if [ -z "$output" ]; then
   exit 1
 fi
 
-db_dump=`find /root/backup/ -name 'packetfence-db-dump-*' -mtime -1`
+db_dump=`find /root/backup/ -name 'packetfence-db-dump-*' -mtime -1 | tail -1`
 
 if [ -z "$db_dump" ]; then
   echo "Unable to find a database dump that was done in the last 24 hours. Add --force to ignore this."
   exit 1
 fi
 
-files_dump=`find /root/backup/ -name 'packetfence-files-dump-*' -mtime -1`
+files_dump=`find /root/backup/ -name 'packetfence-files-dump-*' -mtime -1 | tail -1`
 
 if [ -z "$files_dump" ]; then
   echo "Unable to find a database dump that was done in the last 24 hours. Add --force to ignore this."
