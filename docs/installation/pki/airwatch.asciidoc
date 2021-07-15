@@ -1,0 +1,57 @@
+// to display images directly on GitHub
+ifdef::env-github[]
+:encoding: UTF-8
+:lang: en
+:doctype: book
+:toc: left
+:imagesdir: ../../images
+endif::[]
+
+////
+
+    This file is part of the PacketFence project.
+
+    See PacketFence_Installation_Guide.asciidoc
+    for authors, copyright and license information.
+
+////
+
+
+//=== PacketFence PKI
+
+This section has been created to give a quick overview to configure AirWatch (WMware) with PacketFence. This guide does not include advanced troubleshooting of EAP-TLS connections. Refer to the relevant documentation of EAP-TLS, RADIUS and OpenSSL for advanced features. The PKI comes installed by default since PacketFence version 10. All certificates would be saved in the database. If you want to migrate your certificate from the old PacketFence PKI please see the upgrade section.
+
+==== Assumptions
+
+You have a fonctional PacketFence PKI and you already have created a Certificate Authority and its templates with SCEP enabled. The template used here is: 'airwatch2' 
+
+NOTE: Make sure that your PacketFence PKI Root CA validity is under 825 days and your PacketFence PKI Template is under 398 days. References: https://support.apple.com/en-us/HT211025 and https://support.apple.com/en-ca/HT210176
+
+===== Create the Certicate Authority (SCEP):
+
+image::airwatch-certificate-auhority.png[scaledwidth="100%",alt="Create the Certicate Authority (SCEP)"]
+
+===== Create a Certificate template:
+
+image::airwatch-certificate-template.png[scaledwidth="100%",alt="Create a Certificate template"]
+
+===== Create the SSID profile:
+
+image::airwatch-wifi2.png[scaledwidth="100%",alt="Create the SSID profile"]
+image::airwatch-wifi3.png[scaledwidth="100%",alt="Create the SSID profile"]
+
+===== Add the Root CA certificate that issued the PacketFence RADIUS certificate:
+
+image::airwatch-credentials1.png[scaledwidth="100%",alt="Add the Root CA certificate that issued the PacketFence RADIUS certificate"]
+
+===== Add the PacketFence RADIUS certificate:
+
+image::airwatch-credentials2.png[scaledwidth="100%",alt="Add the PacketFence RADIUS certificate"]
+
+===== Create the SCEP profile:
+
+image::airwatch-scep.png[scaledwidth="100%",alt="Create the SCEP profile"]
+
+===== Assign and deploy the profile:
+
+image::airwatch-wifi1.png[scaledwidth="100%",alt="Create the SSID profile"]

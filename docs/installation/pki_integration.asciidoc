@@ -28,3 +28,8 @@ include::pki/microsoft.asciidoc[]
 
 include::pki/packetfence.asciidoc[]
 
+[[airwatch]]
+=== AirWatch
+
+include::pki/airwatch.asciidoc[]
+
