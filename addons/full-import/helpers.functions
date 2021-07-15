@@ -36,10 +36,7 @@ function sub_splitter() {
 
 function versions_since() {
   current_version="$1"
-  current_version=`echo $current_version | sed 's/\./\\./g'`
-  versions=`ls /usr/local/pf/db/upgrade-* | egrep '^/usr/local/pf/db/upgrade-[0-9]+\.[0-9]+\.([0-9]+)?-[0-9]+\.[0-9]+\.([0-9]+)?\.sql' | sort --version-sort | sed -ne '/'$current_version'/{:a' -e 'n;p;ba' -e '}' | sed -r 's#/usr/local/pf/db/upgrade-[0-9]+\.[0-9]+\.([0-9]+)?-([0-9]+\.[0-9]+)\.([0-9]+)?\.sql#\2#g'`
-  if [ -f /usr/local/pf/db/upgrade-X.X-X.Y.sql ]; then
-    versions="$versions `cat /usr/local/pf/conf/pf-release | sed -r 's/PacketFence ([0-9]+\.[0-9]+)\..*/\1/'`"
-  fi
+  current_version=`echo $current_version | egrep -o '^[0-9]+\.[0-9]+' | sed 's/\./\\./g'`
+  versions=`ls /usr/local/pf/db/upgrade-* | egrep '^/usr/local/pf/db/upgrade-[0-9]+\.[0-9]+(\.[0-9]+)?-[0-9]+\.[0-9]+(\.[0-9]+)?\.sql' | sort --version-sort | sed -ne '/'$current_version'/{:a' -e 'n;p;ba' -e '}' | sed -r 's#/usr/local/pf/db/upgrade-[0-9]+\.[0-9]+(\.[0-9]+)?-([0-9]+\.[0-9]+)(\.[0-9]+)?\.sql#\2#g'`
   echo $versions
 }

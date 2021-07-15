@@ -126,6 +126,7 @@ function configuration_upgrade_scripts() {
 function upgrade_configuration() {
   dump_version=`egrep -o '[0-9]+\.[0-9]+\.[0-9]+$' usr/local/pf/conf/pf-release`
   echo "Detected version $dump_version in the export's pf-release"
+  echo "Starting the upgrade of the configuration"
   for script in `configuration_upgrade_scripts $dump_version`; do
     sub_splitter
     echo "Running $script"
