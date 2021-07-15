@@ -106,6 +106,9 @@ const api = {
   getDomains () {
     return apiCall({ url: 'config/domains', method: 'get' })
   },
+  getEventLoggers () {
+    return apiCall({ url: 'config/event_loggers', method: 'get' })
+  },
   getFilterEngines (collection) {
     return apiCall({ url: encodeURL(['config', 'filter_engines', collection]), method: 'get' })
   },
@@ -301,6 +304,8 @@ const initialState = () => { // set intitial states to `false` (not `[]` or `{}`
     connectionProfilesStatus: '',
     domains: false,
     domainsStatus: '',
+    eventLoggers: false,
+    eventLoggersStatus: '',
     filterEngines: false,
     filterEnginesStatus: '',
     firewalls: false,
@@ -490,6 +495,9 @@ const getters = {
   },
   isLoadingDomains: state => {
     return state.domainsStatus === types.LOADING
+  },
+  isLoadingEventLoggers: state => {
+    return state.eventLoggersStatus === types.LOADING
   },
   isLoadingFilterEngines: state => {
     return state.filterEnginesStatus === types.LOADING
@@ -1144,6 +1152,20 @@ const actions = {
       })
     } else {
       return Promise.resolve(state.domains)
+    }
+  },
+  getEventLoggers: ({ state, getters, commit }) => {
+    if (getters.isLoadingEventLoggers) {
+      return Promise.resolve(state.eventLoggers)
+    }
+    if (!state.eventLoggers) {
+      commit('EVENT_LOGGERS_REQUEST')
+      return api.getEventLoggers().then(response => {
+        commit('EVENT_LOGGERS_UPDATED', response.data.items)
+        return state.eventLoggers
+      })
+    } else {
+      return Promise.resolve(state.eventLoggers)
     }
   },
   getFilterEngines: ({ state, getters, commit }, collection) => {
@@ -1897,6 +1919,13 @@ const mutations = {
   DOMAINS_UPDATED: (state, domains) => {
     state.domains = domains
     state.domainsStatus = types.SUCCESS
+  },
+  EVENT_LOGGERS_REQUEST: (state) => {
+    state.eventLoggersStatus = types.LOADING
+  },
+  EVENT_LOGGERS_UPDATED: (state, eventLoggers) => {
+    state.eventLoggers = eventLoggers
+    state.eventLoggersStatus = types.SUCCESS
   },
   FILTER_ENGINES_REQUEST: (state) => {
     state.filterEnginesStatus = types.LOADING

@@ -108,7 +108,8 @@ export default {
             { name: this.$i18n.t('Provisioners'), path: '/configuration/provisionings' },
             { name: this.$i18n.t('Portal Modules'), path: '/configuration/portal_modules' },
             { name: this.$i18n.t('Access Duration'), path: '/configuration/access_duration' },
-            { name: this.$i18n.t('Self Service Portal'), path: '/configuration/self_services' }
+            { name: this.$i18n.t('Self Service Portal'), path: '/configuration/self_services' },
+            { name: this.$i18n.t('Event Loggers'), path: '/configuration/event_loggers' }
           ]
         },
         {

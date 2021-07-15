@@ -39,6 +39,7 @@ import PortalModulesRoutes from '../portalModules/_router'
 import AccessDurationsRoutes from '../accessDurations/_router'
 import ProvisionersRoutes from '../provisioners/_router'
 import SelfServicesRoutes from '../selfServices/_router'
+import EventLoggersRoutes from '../eventLoggers/_router'
 
 /* Network Configuration */
 const NetworkConfigurationSection = () => import(/* webpackChunkName: "Configuration" */ '../_components/NetworkConfigurationSection')
@@ -73,7 +74,7 @@ export const beforeEnter = (to, from, next = () => { }) => {
 const route = {
   path: '/configuration',
   name: 'configuration',
-  redirect: '/configuration/policies_access_control', 
+  redirect: '/configuration/policies_access_control',
   component: ConfigurationView,
   beforeEnter,
   meta: {
@@ -140,6 +141,7 @@ const route = {
     ...PortalModulesRoutes,
     ...AccessDurationsRoutes,
     ...SelfServicesRoutes,
+    ...EventLoggersRoutes,
 
     /**
      * Network Configuration
