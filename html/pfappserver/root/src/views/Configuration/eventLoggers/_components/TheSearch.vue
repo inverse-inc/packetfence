@@ -54,6 +54,9 @@
             </template>
           </span>
         </template>
+        <template #cell(namespaces)="{ item }">
+          <b-badge v-for="(namespace, index) in item.namespaces" :key="index" class="mr-1" variant="secondary">{{ namespace }}</b-badge>
+        </template>
         <template #head(buttons)>
           <base-search-input-columns
             :disabled="isLoading"
