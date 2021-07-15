@@ -682,6 +682,25 @@ sub activation_has_entry {
     return scalar @$items;
 }
 
+sub find_unverified_by_mac {
+    my ($mac,$type) = @_;
+    my ($status, $iter) = pf::dal::activation->search(
+        -where => {
+            mac => $mac,
+            type => $type,
+            status => $UNVERIFIED,
+            expiration => { ">=" => \['NOW()']},
+        },
+        -limit => 1,
+    );
+
+    my $item = $iter->next;
+    if (!defined $item) {
+        return undef;
+    }
+    return ($item->to_hash);
+}
+
 =head2 sms_activation_create_send
 
 Create and send PIN code
