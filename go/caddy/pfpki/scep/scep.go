@@ -14,7 +14,6 @@ import (
 	"github.com/inverse-inc/packetfence/go/caddy/pfpki/cloud"
 	"github.com/inverse-inc/packetfence/go/caddy/pfpki/models"
 	"github.com/inverse-inc/packetfence/go/caddy/pfpki/types"
-	scepserver "github.com/inverse-inc/scep/server"
 )
 
 func ScepHandler(pfpki *types.Handler, w http.ResponseWriter, r *http.Request) {
