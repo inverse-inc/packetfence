@@ -6,7 +6,7 @@
                 <b-media v-else>
                     <template v-slot:aside><icon :name="icon" scale="2"></icon></template>
                     <h4><slot/></h4>
-                    <p class="font-weight-light" v-if="subText">{{ subText }}</p>
+                    <p class="font-weight-light" v-if="text">{{ text }}</p>
                 </b-media>
             </b-col>
         </b-row>
@@ -14,12 +14,15 @@
 </template>
 
 <script>
+import i18n from '@/utils/locale'
+
 const props = {
     isLoading: {
       type: Boolean
     },
     text: {
-      type: String
+      type: String,
+      default: i18n.t('Please refine your search.')
     },
     icon: {
       type: String,
@@ -27,29 +30,10 @@ const props = {
     }
 }
 
-import { computed, toRefs } from '@vue/composition-api'
-import i18n from '@/utils/locale'
-
-const setup = (props) => {
-  const {
-    text
-  } = toRefs(props)
-
-  const subText = computed(() => ((text.value)
-    ? text.value
-    : i18n.t('Please refine your search.')
-  ))
-
-  return {
-    subText
-  }
-}
-
 // @vue/component
 export default {
   name: 'base-table-empty',
   inheritAttrs: false,
-  props,
-  setup
+  props
 }
 </script>

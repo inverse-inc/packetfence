@@ -1,10 +1,10 @@
 <template>
-  <b-card no-body class="pf-network-graph-tooltip-switch">
-    <b-card-header>
+  <b-card no-body class="tooltip-switch">
+    <b-card-header class="p-2">
       <h5 class="mb-0 text-nowrap">{{ $t('Switch') }}</h5>
       <p class="mb-0"><mac>{{ id }}</mac></p>
     </b-card-header>
-    <div class="card-body" v-if="isLoading || (!isError && Object.keys(switche).length > 0)">
+    <div class="card-body p-2" v-if="isLoading || (!isError && Object.keys(switche).length > 0)">
       <b-container class="my-3 px-0" v-if="isLoading">
         <b-row class="justify-content-md-center text-secondary">
           <b-col cols="12" md="auto" class="w-100 text-center">
@@ -31,57 +31,64 @@
 </template>
 
 <script>
+const props = {
+  id: {
+    type: String
+  },
+  properties: {
+    type: Object,
+    default: () => ({})
+  }
+}
+
+import { ref, toRefs, watch } from '@vue/composition-api'
 import apiCall from '@/utils/api'
 
-export default {
-  name: 'pf-network-graph-tooltip-switch',
-  props: {
-    id: {
-      type: String
-    },
-    properties: {
-      type: Object,
-      default: () => { return {} }
-    }
-  },
-  data () {
-    return {
-      switche: false,
-      isLoading: false,
-      isError: false
-    }
-  },
-  methods: {
-    init () {
-      if (this.id !== 'unknown') {
-        this.isLoading = true
-        apiCall.getQuiet(`config/switch/${this.id}`).then(response => {
-          this.switche = response.data.item
-          this.isLoading = false
-        }).catch(err => {
-          if (Object.keys(this.properties).length > 0) {
-            this.switche = this.properties // inherit properties from node
-          } else {
-            this.isError = err
-          }
-          this.isLoading = false
+const setup = props => {
+
+  const {
+    id,
+    properties
+  } = toRefs(props)
+
+  const switche = ref(false)
+  const isLoading = ref(false)
+  const isError = ref(false)
+
+  watch([id, properties], () => {
+    if (id.value !== 'unknown') {
+      isLoading.value = true
+      apiCall.getQuiet(`config/switch/${id.value}`)
+        .then(response => {
+          switche.value = response.data.item
         })
-      } else {
-        // id 'unknown'
-        this.switche = this.properties // inherit properties from node
-      }
+        .catch(err => {
+          if (Object.keys(properties.value).length > 0)
+            switche.value = properties.value // inherit properties from node
+          else
+            isError.value = err
+        })
+        .finally(() => {
+          isLoading.value = false
+        })
+    } else {
+      // id 'unknown'
+      switche.value = properties.value // inherit properties from node
     }
-  },
-  mounted () {
-    this.init()
-  },
-  watch: {
-    id: {
-      handler: function () {
-        this.init()
-      }
-    }
+  }, { immediate: true })
+
+  return {
+    switche,
+    isLoading,
+    isError
   }
+}
+
+// @vue/component
+export default {
+  name: 'tooltip-switch',
+  props,
+  setup
 }
 </script>
 
@@ -91,7 +98,7 @@ export default {
   to   { overflow-y: initial; max-height: 500px; }
 }
 
-.pf-network-graph-tooltip-switch {
+.tooltip-switch {
   .container {
     animation: expandheight 300ms;
     overflow-x: initial;

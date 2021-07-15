@@ -171,12 +171,12 @@ const factory = (uuid, options = {}) => {
           this.doSearchCondition(this.defaultCondition())
       },
       doSearchString(string) {
-        const columns = this.useColumns(this.columns)
+        const columns = this.useColumns(this.columns, this.fields)
         const query = this.useString(string, columns)
         return this.doSearch(query)
       },
       doSearchCondition(condition) {
-        const columns = this.useColumns(this.columns)
+        const columns = this.useColumns(this.columns, this.fields)
         const query = this.useCondition(condition, columns)
         return this.doSearch(query)
       },
@@ -225,9 +225,11 @@ const factory = (uuid, options = {}) => {
         })
       },
       reSearch() {
-        const visibleSortBy = this.columns.find(c => c.visible && c.key == this.sortBy)
+        const visibleSortBy = (this.columns || [])
+          .find(c => c.visible && c.key == this.sortBy)
         if (!visibleSortBy) {
-          const sortable = this.columns.find(c => c.required && c.sortable)
+          const sortable = (this.columns || [])
+            .find(c => c.required && c.sortable)
           if (sortable) {
             this.sortBy = sortable['key']
             this.sortDesc = false

@@ -307,15 +307,15 @@ const actions = {
     })
   },
   stopAllServices: ({ state, commit }) => {
-    commit('SERVICES_STOPING')
+    commit('SERVICES_STOPPING')
     const promises = []
     state.services.filter(service => !(blacklistedServices.includes(service.name))).forEach((service, index) => {
       if (service.alive) {
-        commit('SERVICE_STOPING', index)
+        commit('SERVICE_STOPPING', index)
         promises.push(
           api.stopService(service.name).then(response => {
-            commit('SERVICE_STOPED', index)
-            return { [index]: ['SERVICE_STOPED', response] }
+            commit('SERVICE_STOPPED', index)
+            return { [index]: ['SERVICE_STOPPED', response] }
           }).catch((err) => {
             commit('SERVICE_ERROR', index)
             return { [index]: ['SERVICE_ERROR', err] }
@@ -329,7 +329,7 @@ const actions = {
         const index = Object.keys(item)[0]
         const { [index]: [ mutation ] } = item
         switch (mutation) {
-          case 'SERVICE_STOPED':
+          case 'SERVICE_STOPPED':
             commit('SERVICE_REQUEST', index)
             api.service(state.services[index].name, 'status').then(status => {
               commit('SERVICE_UPDATED', { index, status })
@@ -527,7 +527,7 @@ const mutations = {
     }
   },
   CLUSTER_SERVICES_ERROR: (state) => {
-    state.clusterStatus = types.ERROR
+    state.clusterServicesStatus = types.ERROR
   }
 }
 

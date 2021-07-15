@@ -19,17 +19,17 @@
           striped
         >
           <template v-slot:empty>
-            <pf-empty-table :is-loading="isLoading">{{ $t('No Services found') }}</pf-empty-table>
+            <base-table-empty :is-loading="isLoading">{{ $t('No Services found') }}</base-table-empty>
           </template>
           <template v-slot:cell(enabled)="service">
-            <toggle-service-enabled :value="service.item.enabled" 
-              :name="service.item.name" 
-              :disabled="true" /> 
+            <toggle-service-enabled :value="service.item.enabled"
+              :name="service.item.name"
+              :disabled="true" />
           </template>
           <template v-slot:cell(alive)="service">
-            <toggle-service-alive :value="service.item.alive" 
-              :name="service.item.name" 
-              :disabled="true" />             
+            <toggle-service-alive :value="service.item.alive"
+              :name="service.item.name"
+              :disabled="true" />
           </template>
           <template v-slot:cell(pid)="service">
             <icon v-if="![200, 'error'].includes(service.item.status)" name="circle-notch" spin></icon>
@@ -70,7 +70,7 @@
           striped
         >
           <template v-slot:empty>
-            <pf-empty-table :is-loading="isLoading">{{ $t('No Services found') }}</pf-empty-table>
+            <base-table-empty :is-loading="isLoading">{{ $t('No Services found') }}</base-table-empty>
           </template>
           <template v-slot:cell(name)="service" class="align-items-center">
             <icon v-if="!service.item.alive && service.item.managed"
@@ -80,14 +80,14 @@
             {{ service.item.name }}
           </template>
           <template v-slot:cell(enabled)="service">
-            <toggle-service-enabled :value="service.item.enabled" 
-              :name="service.item.name" 
-              :disabled="![200, 'error'].includes(service.item.status) || !('enabled' in service.item)" /> 
+            <toggle-service-enabled :value="service.item.enabled"
+              :name="service.item.name"
+              :disabled="![200, 'error'].includes(service.item.status) || !('enabled' in service.item)" />
           </template>
           <template v-slot:cell(alive)="service" class="text-nowrap">
-            <toggle-service-alive :value="service.item.alive" 
-              :name="service.item.name" 
-              :disabled="![200, 'error'].includes(service.item.status)" /> 
+            <toggle-service-alive :value="service.item.alive"
+              :name="service.item.name"
+              :disabled="![200, 'error'].includes(service.item.status)" />
           </template>
           <template v-slot:cell(pid)="service">
             <icon v-if="![200, 'error'].includes(service.item.status)" name="circle-notch" spin></icon>
@@ -100,106 +100,108 @@
 </template>
 
 <script>
-import pfEmptyTable from '@/components/pfEmptyTable'
+import {
+  BaseTableEmpty
+} from '@/components/new/'
 import ToggleServiceAlive from './ToggleServiceAlive'
 import ToggleServiceEnabled from './ToggleServiceEnabled'
 
-export default {
-  name: 'services',
-  components: {
-    pfEmptyTable,
-    ToggleServiceAlive,
-    ToggleServiceEnabled
-  },
-  props: {
-    storeName: { // from router
-      type: String,
-      default: null,
-      required: true
+const components = {
+  BaseTableEmpty,
+  ToggleServiceAlive,
+  ToggleServiceEnabled
+}
+
+import { computed, ref } from '@vue/composition-api'
+import i18n from '@/utils/locale'
+
+const setup = (props, context) => {
+
+  const { root: { $store } = {} } = context
+
+  const fields = computed(() => ([
+    {
+      key: 'name',
+      label: i18n.t('Service'),
+      sortable: true,
+      visible: true
+    },
+    {
+      key: 'enabled',
+      label: i18n.t('Enabled'),
+      sortable: true,
+      visible: true
+    },
+    {
+      key: 'alive',
+      label: i18n.t('Running'),
+      sortable: true,
+      visible: true
+    },
+    {
+      key: 'pid',
+      label: i18n.t('PID'),
+      sortable: true,
+      visible: true
     }
-  },
-  data () {
-    return {
-      sortBy: 'name',
-      sortDesc: false
-    }
-  },
-  computed: {
-    fields () {
-      return [
-        {
-          key: 'name',
-          label: this.$i18n.t('Service'),
-          sortable: true,
-          visible: true
-        },
-        {
-          key: 'enabled',
-          label: this.$i18n.t('Enabled'),
-          sortable: true,
-          visible: true
-        },
-        {
-          key: 'alive',
-          label: this.$i18n.t('Running'),
-          sortable: true,
-          visible: true
-        },
-        {
-          key: 'pid',
-          label: this.$i18n.t('PID'),
-          sortable: true,
-          visible: true
-        }
-      ]
-    },
-    blacklistedServices () {
-      return this.$store.getters[`${this.storeName}/blacklistedServices`]
-    },
-    isLoading () {
-      return this.$store.getters[`${this.storeName}/isServicesLoading`]
-    },
-    isStopping () {
-      return this.$store.getters[`${this.storeName}/isServicesStopping`]
-    },
-    isStarting () {
-      return this.$store.getters[`${this.storeName}/isServicesStarting`]
-    },
-    isRestarting () {
-      return this.$store.getters[`${this.storeName}/isServicesRestarting`]
-    },
-    manageableServices () {
-      return this.$store.state[this.storeName].services.filter(service => !(this.blacklistedServices.includes(service.name)))
-    },
-    protectedServices () {
-      return this.$store.state[this.storeName].services.filter(service => this.blacklistedServices.includes(service.name))
-    }
-  },
-  methods: {
-    stopAllServices () {
-      this.$store.dispatch('notification/info', { message: this.$i18n.t('Stopping all services.') })
-      this.$store.dispatch(`${this.storeName}/stopAllServices`).then(() => {
-        this.$store.dispatch('notification/info', { message: this.$i18n.t('All services stopped.') })
-      })
-    },
-    startAllServices () {
-      this.$store.dispatch('notification/info', { message: this.$i18n.t('Starting all services.') })
-      this.$store.dispatch(`${this.storeName}/startAllServices`).then(() => {
-        this.$store.dispatch('notification/info', { message: this.$i18n.t('All services started.') })
-      })
-    },
-    restartAllServices () {
-      this.$store.dispatch('notification/info', { message: this.$i18n.t('Restarting all services.') })
-      this.$store.dispatch(`${this.storeName}/restartAllServices`).then(() => {
-        this.$store.dispatch('notification/info', { message: this.$i18n.t('All services restarted.') })
-      })
-    },
-    isBlacklisted (service) {
-      return this.blacklistedServices.includes(service.name)
-    }
-  },
-  created () {
-    this.$store.dispatch(`${this.storeName}/getServices`)
+  ]))
+  const sortBy = ref('name')
+  const sortDesc = ref(false)
+
+  const blacklistedServices = computed(() => $store.getters[`$_status/blacklistedServices`])
+  const isLoading = computed(() => $store.getters[`$_status/isServicesLoading`])
+  const isStopping = computed(() => $store.getters[`$_status/isServicesStopping`])
+  const isStarting = computed(() => $store.getters[`$_status/isServicesStarting`])
+  const isRestarting = computed(() => $store.getters[`$_status/isServicesRestarting`])
+  const manageableServices = computed(() => $store.state['$_status'].services.filter(service => !(blacklistedServices.value.includes(service.name))))
+  const protectedServices = computed(() => $store.state['$_status'].services.filter(service => blacklistedServices.value.includes(service.name)))
+
+  $store.dispatch(`$_status/getServices`)
+
+  const stopAllServices = () => {
+    $store.dispatch('notification/info', { message: i18n.t('Stopping all services.') })
+    $store.dispatch(`$_status/stopAllServices`).then(() => {
+      $store.dispatch('notification/info', { message: i18n.t('All services stopped.') })
+    })
   }
+  const startAllServices = () => {
+    $store.dispatch('notification/info', { message: i18n.t('Starting all services.') })
+    $store.dispatch(`$_status/startAllServices`).then(() => {
+      $store.dispatch('notification/info', { message: i18n.t('All services started.') })
+    })
+  }
+  const restartAllServices = () => {
+    $store.dispatch('notification/info', { message: i18n.t('Restarting all services.') })
+    $store.dispatch(`$_status/restartAllServices`).then(() => {
+      $store.dispatch('notification/info', { message: i18n.t('All services restarted.') })
+    })
+  }
+  const isBlacklisted = service => {
+    return blacklistedServices.value.includes(service.name)
+  }
+
+  return {
+    fields,
+    sortBy,
+    sortDesc,
+    blacklistedServices,
+    isLoading,
+    isStopping,
+    isStarting,
+    isRestarting,
+    manageableServices,
+    protectedServices,
+    stopAllServices,
+    startAllServices,
+    restartAllServices,
+    isBlacklisted
+  }
+}
+
+// @vue/component
+export default {
+  name: 'the-view',
+  components,
+  setup
 }
 </script>

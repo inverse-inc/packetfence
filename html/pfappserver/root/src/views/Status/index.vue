@@ -55,10 +55,6 @@ export default {
           {
             name: this.$i18n.t('Services'),
             path: '/status/cluster/services'
-          // },
-          // {
-          //   name: this.$i18n.t('Queues'),
-          //   path: '/status/cluster/queues'
           }
         ]
       })

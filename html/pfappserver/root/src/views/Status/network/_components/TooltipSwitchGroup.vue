@@ -1,10 +1,10 @@
 <template>
-  <b-card no-body class="pf-network-graph-tooltip-switch-group">
-    <b-card-header>
+  <b-card no-body class="tooltip-switch-group">
+    <b-card-header class="p-2">
       <h5 class="mb-0 text-nowrap">{{ $t('Switch Group') }}</h5>
       <p class="mb-0"><mac>{{ id }}</mac></p>
     </b-card-header>
-    <div class="card-body" v-if="isLoading || !isError">
+    <div class="card-body p-2" v-if="isLoading || !isError">
       <b-container class="my-3 px-0" v-if="isLoading">
         <b-row class="justify-content-md-center text-secondary">
           <b-col cols="12" md="auto" class="w-100 text-center">
@@ -31,58 +31,60 @@
 </template>
 
 <script>
-import apiCall from '@/utils/api'
-
-export default {
-  name: 'pf-network-graph-tooltip-switch-group',
-  props: {
-    id: {
-      type: String
-    },
-    properties: {
-      type: Object,
-      default: () => { return {} }
-    }
-  },
-  data () {
-    return {
-      switchGroup: false,
-      isLoading: false,
-      isError: false
-    }
-  },
-  methods: {
-    init () {
-      this.isLoading = true
-      apiCall.getQuiet(`config/switch_group/${this.id}`).then(response => {
-        this.switchGroup = response.data.item
-        this.isLoading = false
-      }).catch(err => {
-        this.isError = err
-        this.isLoading = false
-      })
-    }
-  },
-  mounted () {
-    this.init()
-  },
-  watch: {
-    id: {
-      handler: function () {
-        this.init()
-      }
-    }
+const props = {
+  id: {
+    type: String
   }
 }
-</script>
 
+import { ref, toRefs, watch } from '@vue/composition-api'
+import apiCall from '@/utils/api'
+
+export const setup = props => {
+
+  const {
+    id
+  } = toRefs(props)
+
+  const switchGroup = ref(false)
+  const isLoading = ref(false)
+  const isError = ref(false)
+
+  watch(id, () => {
+    isLoading.value = true
+    apiCall.getQuiet(`config/switch_group/${id.value}`)
+      .then(response => {
+        switchGroup.value = response.data.item
+      })
+      .catch(err => {
+        isError.value = err
+      })
+      .finally(() => {
+        isLoading.value = false
+      })
+  }, { immediate: true })
+
+  return {
+    switchGroup,
+    isLoading,
+    isError
+  }
+}
+
+// @vue/component
+export default {
+  name: 'tooltip-switch-group',
+  props,
+  setup
+}
+</script>
 <style lang="scss">
 @keyframes expandheight {
   from { overflow-y: hidden; max-height: 0px; }
   to   { overflow-y: initial; max-height: 500px; }
 }
 
-.pf-network-graph-tooltip-switch-group {
+.tooltip-switch-group {
   .container {
     animation: expandheight 300ms;
     overflow-x: initial;
