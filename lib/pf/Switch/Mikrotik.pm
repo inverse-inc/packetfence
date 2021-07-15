@@ -29,6 +29,7 @@ use pf::config qw(
     $SSID
     $WIRELESS_MAC_AUTH
     $WEBAUTH_WIRELESS
+    $WIRELESS
 );
 sub description { 'Mikrotik' }
 
@@ -46,6 +47,8 @@ use pf::util::radius qw(perform_disconnect);
 # CAPABILITIES
 # access technology supported
 use pf::SwitchSupports qw(
+    WiredMacAuth
+    WiredDot1x
     WirelessMacAuth
     ExternalPortal
     WebFormRegistration
@@ -139,7 +142,7 @@ Return the reference to the deauth technique or the default deauth technique.
 sub deauthTechniques {
     my ($self, $method, $connection_type) = @_;
     my $logger = $self->logger;
-    my $default = $SNMP::SSH;
+    my $default = $SNMP::RADIUS;
     my %tech = (
         $SNMP::SSH    => 'deauthenticateMacSSH',
         $SNMP::RADIUS => 'deauthenticateMacRadius',
@@ -257,8 +260,8 @@ Overloading L<pf::Switch>'s implementation because Mikrotik have his own radius 
 
 Don't forget to fill /usr/share/freeradius/dictionary.mikrotik with the following attributes:
 
-ATTRIBUTE       Mikrotik-Wireless-VlanID                26      integer
-ATTRIBUTE       Mikrotik-Wireless-VlanIDType            27      integer
+ATTRIBUTE       Mikrotik-Wireless-VLANID                26      integer
+ATTRIBUTE       Mikrotik-Wireless-VLANID-Type           27      integer
 
 =cut
 
@@ -276,10 +279,18 @@ sub returnRadiusAccessAccept {
     # Inline Vs. VLAN enforcement
     my $role = "";
     if ( (!$args->{'wasInline'} || ($args->{'wasInline'} && $args->{'vlan'} != 0) ) && isenabled($self->{_VlanMap})) {
-        $radius_reply_ref = {
-            'Mikrotik-Wireless-VLANID' => $args->{'vlan'} . "",
-            'Mikrotik-Wireless-VLANID-Type' => "0",
-        };
+        if (($args->{'connection_type'} & $WIRELESS) == $WIRELESS) {
+            $radius_reply_ref = {
+                'Mikrotik-Wireless-VLANID' => $args->{'vlan'} . "",
+                'Mikrotik-Wireless-VLANID-Type' => "0",
+            };
+        } else {
+            $radius_reply_ref = {
+                'Tunnel-Type' => "13",
+                'Tunnel-Medium-Type' => "6",
+                'Tunnel-Private-Group-ID' => $args->{'vlan'} . "",
+            };
+        }
     }
 
     $logger->info("(".$self->{'_id'}.") Returning ACCEPT with VLAN $args->{'vlan'} and role $role");

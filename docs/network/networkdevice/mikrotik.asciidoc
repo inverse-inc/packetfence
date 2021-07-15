@@ -19,11 +19,150 @@ endif::[]
   
 //=== Mikrotik
 
-This configuration has been tested on Access Point OmniTIK U-5hnD with RouterOS v6.18 and only MAC-Authentication is available now.
-The only deauthentication method available is SSH, so create an account in the Mikrotik AP and fill the information in PacketFence switch configuration.
-Also don't forget to use the pf account to ssh on the Access Point to receive the ssh key.
+PacketFence supports MikroTik's RouterOS to provide wireless 802.1X (WPA2-Enterprise and MAC-based authentication) as well as wired 802.1X (EAPoL (Extensible 
+Authentication Protocol over LAN)).
+
+MikroTik has supported wireless 802.1X RADIUS disconnect for 2+ years, but this is not available for wired 802.1X (dot1x).
+
+This configuration has been tested on a variety of MikroTik devices, including RB433AH, hAP ac, hAP ac lite, RB1100, RB3011 and various CCR devices. MikroTik
+provide free software updates ('/system package update install' and then '/sys routerboard upgrade' after booting new RouterOS).
+
+Default MikroTik de-auth method has been changed to RADIUS, instead of SSH. Change 'my $default = $SNMP::RADIUS;' back to 'my $default = $SNMP::SSH;' if you 
+want to continue using SSH as the de-authentication method.
+
+EAPoL (802.1X) wired authentication has been available since v6.46 (Dec 2019) with MAB fallback being stable in v6.48.3.
+
+PS: Don't forget to use the pf account to ssh on the Access Point, to receive the ssh key, if you switch back to using SSH.
 
 [float]
+==== WPA2-EAP (WPA2 Enterprise) 802.1X SSID with MAC-based authentication on WPA2-PSK SSID
+
+In this example the 2.4 and 5 GHz radios are configured to provide wireless 802.1X with a virtual AP being added to provide MAC-based authentication
+on a WPA2-PSK SSID where the password is disclosed as part of the SSID. Although the Pre-Shared Key (PSK) is published each wireless client's connection
+would still be encrypted with a dynamically generated key.
+
+First we create the SSIDs and virtual AP for the second SSID:
+
+  /interface wireless security-profiles
+    add authentication-types=wpa2-eap disable-pmkid=yes interim-update=15m management-protection=allowed mode=dynamic-keys name=radius-eap \
+      radius-eap-accounting=yes supplicant-identity=""
+    add authentication-types=wpa2-psk disable-pmkid=yes eap-methods="" interim-update=15m management-protection=allowed mode=dynamic-keys name=\
+      radius-mac radius-mac-accounting=yes radius-mac-authentication=yes supplicant-identity="" wpa2-pre-shared-key="internet"
+  /interface wireless
+    set [ find default-name=wlan1 ] band=2ghz-b/g/n channel-width=20mhz country="south africa" disabled=no frequency=auto mode=ap-bridge name=\
+      "wlan1 - 2.4 GHz - ACME WiFi" security-profile=radius-eap skip-dfs-channels=all ssid="ACME WiFi" station-roaming=enabled vlan-id=3999 \
+      vlan-mode=use-tag wireless-protocol=802.11 wps-mode=disabled
+    add disabled=no master-interface="wlan1 - 2.4 GHz - ACME WiFi" multicast-helper=full name="wlan1 - 2.4 GHz - ACME Guest" \
+      security-profile=radius-mac ssid="ACME Guest (pw: internet)" station-roaming=enabled vlan-id=3999 vlan-mode=use-tag wps-mode=disabled
+    set [ find default-name=wlan2 ] band=5ghz-a/n/ac channel-width=20/40/80mhz-Ceee country="south africa" disabled=no frequency=auto mode=ap-bridge \
+      name="wlan2 - 5 GHz - ACME WiFi" security-profile=radius-eap skip-dfs-channels=all ssid="ACME WiFi" station-roaming=enabled vlan-id=3999 \
+      vlan-mode=use-tag wireless-protocol=802.11 wps-mode=disabled
+    add disabled=no master-interface="wlan2 - 5 GHz - ACME WiFi" multicast-helper=full name="wlan2 - 5 GHz - ACME Guest" \
+      security-profile=radius-mac ssid="ACME Guest (pw: internet)" station-roaming=enabled vlan-id=3999 vlan-mode=use-tag wps-mode=disabled
+  PS: VLAN 3999 is purposefully bogus, to ensure no access without VLAN assignment in the RADIUS response.
+
+Next we create a VLAN filtering bridge:
+
+  /interface bridge
+    add name=bridge vlan-filtering=yes
+  /interface bridge port
+    add bridge=bridge interface="wlan1 - 2.4 GHz - ACME WiFi"
+    add bridge=bridge interface="wlan2 - 5 GHz - ACME WiFi"
+    add bridge=bridge interface="wlan1 - 2.4 GHz - ACME Guest"
+    add bridge=bridge interface="wlan2 - 5 GHz - ACME Guest"
+  /interface bridge vlan
+    add bridge=bridge tagged="bridge,wlan1 - 2.4 GHz - ACME WiFi,wlan2 - 5 GHz - ACME WiFi,wlan1 - 2.4 GHz - ACME Guest,wlan2 - 5 GHz - ACME Guest" vlan-ids=52
+    add bridge=bridge tagged="bridge,wlan1 - 2.4 GHz - ACME WiFi,wlan2 - 5 GHz - ACME WiFi,wlan1 - 2.4 GHz - ACME Guest,wlan2 - 5 GHz - ACME Guest" vlan-ids=666
+    add bridge=bridge tagged="bridge,wlan1 - 2.4 GHz - ACME WiFi,wlan2 - 5 GHz - ACME WiFi,wlan1 - 2.4 GHz - ACME Guest,wlan2 - 5 GHz - ACME Guest" vlan-ids=667
+
+Next we create the VLANs and assign IPs:
+
+  /interface vlan
+    add comment="Guest WiFi:" interface=bridge name=vlan52 vlan-id=52
+    add comment="PacketFence - Registration:" interface=bridge name=vlan666 vlan-id=666
+    add comment="PacketFence - Isolation:" interface=bridge name=vlan667 vlan-id=667
+  /ip address
+    add address=172.16.20.1/24 interface=bridge
+    add address=10.239.239.1/24 interface=vlan52
+    add address=192.168.10.225/28 interface=vlan666
+    add address=192.168.10.241/28 interface=vlan667
+  PS: 172.16.20.1 is essentially assigned to VLAN 1 (untagged)
+
+Last settings on the MikroTik defines PacketFence as the RADIUS server and filters traffic on Guest, Registration and Isolation networks:
+
+  /radius
+    add address=172.16.5.17 comment=packetfence: secret=useStrongerSecret service=wireless src-address=172.16.20.1 timeout=1s
+  /radius incoming
+    set accept=yes
+  /ip dhcp-relay
+    add dhcp-server=172.31.31.1 disabled=no interface=vlan666 local-address=192.168.10.225 add-relay-info=yes name="PacketFence - Registration"
+    add dhcp-server=172.31.31.129 disabled=no interface=vlan667 local-address=192.168.10.241 add-relay-info=yes name="PacketFence - Isolation"
+  /ip firewall address-list
+    add address=10.0.0.0/8 list=local
+    add address=172.16.0.0/12 list=local
+    add address=192.168.0.0/16 list=local
+  /ip firewall filter
+    add action=reject chain=forward comment="Limit WiFi - Guest:" dst-address=!41.1.1.1 dst-address-list=local in-interface=vlan52
+    add action=reject chain=forward comment="Limit PacketFence - Registration:" dst-address=!172.31.31.1 in-interface=vlan666
+    add action=reject chain=forward comment="Limit PacketFence - Isolation:" dst-address=!172.31.31.129 in-interface=vlan667
+  PS: Use 'src-address' to originate requests from an IP other than the one associated with the interface that routes towards PacketFence.
+      172.31.31.1 is PacketFence's routed registration network IP and 172.31.31.129 is the routed Isolation IP.
+
+PacketFence switch configuration:
+
+  /usr/local/pf/conf/switches.conf
+    [default]
+    guestVlan=52
+    registrationVlan=666
+    isolationVlan=667
+    always_trigger=1
+    _
+    [group MikroTik]
+    description=Default MikroTik Settings
+    deauthMethod=RADIUS
+    type=Mikrotik
+    uplink_dynamic=0
+    useCoA=N
+    _
+    [100.127.255.10]
+    description=ACME - Home Office - Bar
+    group=MikroTik
+    radiusSecret=useStrongerSecret
+
+
+
+==== Wired 802.1X with MAB (MAC authentication bypass)
+
+MikroTik calls this dot1x and is documented in more detail here:
+  https://help.mikrotik.com/docs/display/ROS/Dot1X
+
+The configuration requires a VLAN filtering bridge with Spanning Tree Protocol enabled. New bridges by default have RSTP (Rapid Spanning Tree Protocol) 
+enabled, so you can follow similar steps as above for wireless 802.1X.
+
+Set the PacketFence RADIUS server to be used for dot1x:
+
+  /radius
+    add address=172.16.5.17 comment=packetfence: secret=useStrongerSecret service=dot1x src-address=172.16.20.1 timeout=1s
+
+Add the ethernet ports to the bridge:
+
+  /interface bridge port
+    add bridge=bridge interface=ether2
+    add bridge=bridge interface=ether3
+    add bridge=bridge interface=ether4
+    add bridge=bridge interface=ether5
+  PS: We use ether1 as our uplink, so we exclude it from the bridge.
+
+Lastly we enable 802.1X for those interfaces, with MAB fallback:
+
+  /interface dot1x server
+    add auth-types=dot1x,mac-auth interface=ether2 interim-update=15m
+    add auth-types=dot1x,mac-auth interface=ether3 interim-update=15m
+    add auth-types=dot1x,mac-auth interface=ether4 interim-update=15m
+    add auth-types=dot1x,mac-auth interface=ether5 interim-update=15m
+
+
+
 ==== Open SSID
 
 In this setup we use the interface ether5 for the bridge (Trunk interface) and ether1 as the management interface.
