@@ -19,25 +19,25 @@ endif::[]
   
 //=== Mikrotik
 
-PacketFence supports MikroTik's RouterOS to provide wireless 802.1X (WPA2-Enterprise and MAC based authentication) as well as wired 802.1X (EAPoL (Extensible 
+PacketFence supports MikroTik's RouterOS to provide wireless 802.1X (WPA2-Enterprise and MAC-based authentication) as well as wired 802.1X (EAPoL (Extensible 
 Authentication Protocol over LAN)).
 
-MikroTik have supported wireless 802.1X RADIUS disconnect for 2+ years, but this is not available for wired 802.1X (dot1x).
+MikroTik has supported wireless 802.1X RADIUS disconnect for 2+ years, but this is not available for wired 802.1X (dot1x).
 
 This configuration has been tested on a variety of MikroTik devices, including RB433AH, hAP ac, hAP ac lite, RB1100, RB3011 and various CCR devices. MikroTik
-provide free software updates (/system package update install  and then /sys routerboard upgrade  after booting new RouterOS).
+provide free software updates ('/system package update install' and then '/sys routerboard upgrade' after booting new RouterOS).
 
 Default MikroTik de-auth method has been changed to RADIUS, instead of SSH. Change 'my $default = $SNMP::RADIUS;' back to 'my $default = $SNMP::SSH;' if you 
 want to continue using SSH as the de-authentication method.
 
-EAPoL (802.1x) wired authentication has been available since v6.46 (Dec 2019) with MAB fallback being stable in v6.48.3.
+EAPoL (802.1X) wired authentication has been available since v6.46 (Dec 2019) with MAB fallback being stable in v6.48.3.
 
 PS: Don't forget to use the pf account to ssh on the Access Point, to receive the ssh key, if you switch back to using SSH.
 
 [float]
-==== WPA2-EAP (WPA2 Enterprise) 802.1X SSID with MAC based authentication on WPA2-PSK SSID
+==== WPA2-EAP (WPA2 Enterprise) 802.1X SSID with MAC-based authentication on WPA2-PSK SSID
 
-In this example the 2.4 and 5 GHz radios are configured to provide wireless 802.1X with a virtual AP being added to provide mac based authentication
+In this example the 2.4 and 5 GHz radios are configured to provide wireless 802.1X with a virtual AP being added to provide MAC-based authentication
 on a WPA2-PSK SSID where the password is disclosed as part of the SSID. Although the Pre-Shared Key (PSK) is published each wireless client's connection
 would still be encrypted with a dynamically generated key.
 
@@ -131,7 +131,7 @@ PacketFence switch configuration:
 
 
 
-==== Wired 802.1X with MAB (mac authentication bypass)
+==== Wired 802.1X with MAB (MAC authentication bypass)
 
 MikroTik calls this dot1x and is documented in more detail here:
   https://help.mikrotik.com/docs/display/ROS/Dot1X
