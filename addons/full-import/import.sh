@@ -58,6 +58,17 @@ else
   exit 1
 fi
 
+#TODO: check the version of the export, we want to support only 10.3.0 and above
+#TODO: check if galera is enabled and stop if its the case
+
+main_splitter
+echo "Stopping PacketFence services"
+systemctl cat monit >/dev/null 2>&1 && (systemctl stop monit ; systemctl disable monit)
+systemctl isolate packetfence-base
+check_code $?
+systemctl stop packetfence-galera-autofix
+check_code $?
+
 main_splitter
 db_name=`get_db_name usr/local/pf/conf/pf.conf`
 upgrade_database $db_name
@@ -97,6 +108,7 @@ main_splitter
 echo "Completed import of the database and the configuration! Complete any necessary adjustments and restart PacketFence"
 
 # Done with everything, time to cleanup!
+systemctl cat monit > /dev/null 2>&1 && systemctl enable monit
 cd - > /dev/null
 rm -fr $extract_dir
 
