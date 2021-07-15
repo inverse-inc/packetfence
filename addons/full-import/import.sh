@@ -17,7 +17,7 @@ extract_dir=`mktemp -d`
 cp -a $dump_path $extract_dir/export.tgz
 check_code $?
 
-cd $extract_dir/
+pushd $extract_dir/
 check_code $?
 
 main_splitter
@@ -51,8 +51,8 @@ if echo "$db_dump" | grep '\.sql$' >/dev/null; then
   #TODO /tmp/grants.sql should be included in the export
   import_mysqldump /tmp/grants.sql $db_dump usr/local/pf/conf/pf.conf
 elif echo "$db_dump" | grep '\.xbstream$' >/dev/null; then
-  echo "The database uses innobackup/mariabackup which this script doesn't yet support"
-  exit 1
+  echo "The database uses mariabackup"
+  import_mariabackup $db_dump
 else
   echo "Unable to detect format of the database dump"
   exit 1
@@ -109,6 +109,6 @@ echo "Completed import of the database and the configuration! Complete any neces
 
 # Done with everything, time to cleanup!
 systemctl cat monit > /dev/null 2>&1 && systemctl enable monit
-cd - > /dev/null
+popd > /dev/null
 rm -fr $extract_dir
 

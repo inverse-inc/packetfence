@@ -46,6 +46,71 @@ function import_mysqldump() {
   
 }
 
+function import_mariabackup() {
+  if ! which qpress > /dev/null 2>&1; then
+    echo "Missing qpress command. Please read the documentation of this script in the Installation guide to prepare your environment before running this script"
+    exit 1
+  fi
+
+  if ! which mariabackup > /dev/null 2>&1; then
+    echo "Missing qpress command. Please read the documentation of this script in the Installation guide to prepare your environment before running this script"
+    exit 1
+  fi
+
+  dump_file="$1"
+
+  sub_splitter
+  echo "Extracting the MariaDB backup"
+  mkdir restore/
+  check_code $?
+  mv $dump_file restore/
+  check_code $?
+  pushd restore/
+  check_code $?
+  mbstream -x < $dump_file
+  check_code $?
+  mv $dump_file ../
+  check_code $?
+
+  sub_splitter
+  echo "Processing .qp files"
+  for i in $(find -name "*.qp"); do 
+    qpress -vd $i $(dirname ${i})
+    check_code $?
+    rm -f $i
+  done
+
+  sub_splitter
+  echo "Applying innodb logs"
+  mariabackup --prepare --target-dir=./
+
+  sub_splitter
+  echo "Stopping packetfence-mariadb and backing up the current data"
+  systemctl stop packetfence-mariadb
+  pkill -9 -f mariadbd
+
+  mv /var/lib/mysql/ "/var/lib/mysql-`date +%s`"
+  mkdir /var/lib/mysql
+  mariabackup --innobackupex --defaults-file=/usr/local/pf/var/conf/mariadb.conf      --move-back --force-non-empty-directories ./
+  chown -R mysql: /var/lib/mysql
+
+  sub_splitter
+  echo "Removing old ib_logfile"
+  rm -f /var/lib/mysql/ib_logfile*
+
+  sub_splitter
+  echo "Starting MariaDB"
+  systemctl start packetfence-mariadb
+  check_code $?
+
+  sub_splitter
+  echo "Performing upgrade of MariaDB. Enter the MariaDB root password if prompted to"
+  echo "NOTE: The root password you must enter is the one of the server of which you're reimporting the data, not this server's MariaDB root password"
+  mysql_upgrade -p
+
+  popd
+}
+
 function db_upgrade_scripts() {
   current_version="$1"
   current_version=`echo $current_version | sed 's/\./\\./g'`
