@@ -12,9 +12,9 @@ import (
 
 	log15 "github.com/inconshreveable/log15"
 	radius "github.com/inverse-inc/go-radius"
-	"github.com/inverse-inc/packetfence/go/log"
+	"github.com/inverse-inc/go-utils/log"
+	"github.com/inverse-inc/go-utils/sharedutils"
 	"github.com/inverse-inc/packetfence/go/pfconfigdriver"
-	"github.com/inverse-inc/packetfence/go/sharedutils"
 )
 
 const defaultTenantID = "1"

@@ -11,7 +11,7 @@ import (
 	"regexp"
 	"time"
 
-	"github.com/inverse-inc/packetfence/go/log"
+	"github.com/inverse-inc/go-utils/log"
 	"github.com/inverse-inc/packetfence/go/unifiedapiclient"
 	"github.com/inverse-inc/packetfence/go/util"
 )

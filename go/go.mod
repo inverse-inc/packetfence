@@ -15,7 +15,6 @@ require (
 	github.com/aws/aws-sdk-go v1.35.9
 	github.com/captncraig/cors v0.0.0-20170507232344-153f484dcf3d
 	github.com/cenkalti/backoff/v4 v4.1.0
-	github.com/cevaris/ordered_map v0.0.0-20171019141434-01ce2b16ad4f
 	github.com/cheekybits/genny v1.0.0 // indirect
 	github.com/coredns/caddy v1.1.0
 	github.com/coreos/go-semver v0.3.0 // indirect
@@ -34,7 +33,6 @@ require (
 	github.com/go-kit/kit v0.10.0
 	github.com/go-redis/redis v0.0.0-20190325112110-a679e614427a
 	github.com/go-sql-driver/mysql v1.5.0
-	github.com/go-test/deep v1.0.5
 	github.com/goji/httpauth v0.0.0-20160601135302-2da839ab0f4d
 	github.com/golang/protobuf v1.4.3
 	github.com/golang/snappy v0.0.1 // indirect
@@ -57,6 +55,7 @@ require (
 	github.com/inverse-inc/dhcp4 v0.0.0-20200625173842-2c4d1e50d7ca
 	github.com/inverse-inc/go-ipset v0.0.0-20190925174109-4d5749cc4aa6
 	github.com/inverse-inc/go-radius v0.0.0-20201019132414-82756e2d8d47
+	github.com/inverse-inc/go-utils v0.0.0-20210420024101-48a17e73abae
 	github.com/inverse-inc/scep v0.0.0-20210513203155-0afeb79ee054
 	github.com/jcuga/golongpoll v1.1.0
 	github.com/jimstudt/http-authentication v0.0.0-20140401203705-3eca13d6893a
@@ -65,9 +64,7 @@ require (
 	github.com/julsemaan/certmagic v0.6.3-0.20191015203349-067e102ae4ff
 	github.com/klauspost/cpuid v1.2.1
 	github.com/knq/pemutil v0.0.0-20181215144041-fb6fad722528
-	github.com/kr/pretty v0.2.0
 	github.com/lucas-clemente/quic-go v0.10.2
-	github.com/mattn/go-colorable v0.1.4 // indirect
 	github.com/matttproud/golang_protobuf_extensions v1.0.1
 	github.com/mdlayher/ethernet v0.0.0-20170707213343-e72cf8343052
 	github.com/mdlayher/raw v0.0.0-20171214195253-9df8b4265df2
@@ -93,9 +90,9 @@ require (
 	go.etcd.io/etcd v0.5.0-alpha.5.0.20200306183522-221f0cc107cb
 	go.uber.org/zap v1.14.1 // indirect
 	golang.org/x/crypto v0.0.0-20201002170205-7f63de1d35b0
-	golang.org/x/net v0.0.0-20200707034311-ab3426394381
-	golang.org/x/sys v0.0.0-20201015000850-e3ed0017c211
-	golang.org/x/text v0.3.3
+	golang.org/x/net v0.0.0-20210415231046-e915ea6b2b7d
+	golang.org/x/sys v0.0.0-20210330210617-4fbd30eecc44
+	golang.org/x/text v0.3.6
 	google.golang.org/api v0.29.0
 	google.golang.org/grpc v1.29.1
 	gopkg.in/DataDog/dd-trace-go.v1 v1.27.1

@@ -2,9 +2,9 @@ package maint
 
 import (
 	"context"
+	"fmt"
+	"github.com/inverse-inc/go-utils/log"
 	"time"
-    "fmt"
-	"github.com/inverse-inc/packetfence/go/log"
 )
 
 type WindowSqlCleanup struct {
@@ -33,9 +33,9 @@ func MakeWindowSqlJobSetupConfig(sql string) func(config map[string]interface{})
 
 func (c *WindowSqlCleanup) Run() {
 	count, _ := BatchSql(context.Background(), c.Timeout, c.Sql, time.Now(), c.Window, c.Batch)
-    if count > -1 {
-        log.LogInfo(context.Background(), fmt.Sprintf("%s cleaned items %d", c.Name(), count))
-    }
+	if count > -1 {
+		log.LogInfo(context.Background(), fmt.Sprintf("%s cleaned items %d", c.Name(), count))
+	}
 }
 
 type MultiWindowSqlCleanup struct {

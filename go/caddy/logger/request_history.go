@@ -3,8 +3,8 @@ package caddylog
 import (
 	"encoding/json"
 	"fmt"
+	"github.com/inverse-inc/go-utils/sharedutils"
 	"github.com/inverse-inc/packetfence/go/requesthistory"
-	"github.com/inverse-inc/packetfence/go/sharedutils"
 	"github.com/julienschmidt/httprouter"
 	"io"
 	"math"

@@ -15,11 +15,11 @@ import (
 	cache "github.com/fdurand/go-cache"
 	"github.com/go-errors/errors"
 	dhcp "github.com/inverse-inc/dhcp4"
+	"github.com/inverse-inc/go-utils/log"
+	"github.com/inverse-inc/go-utils/sharedutils"
 	"github.com/inverse-inc/packetfence/go/db"
 	"github.com/inverse-inc/packetfence/go/filter_client"
-	"github.com/inverse-inc/packetfence/go/log"
 	"github.com/inverse-inc/packetfence/go/pfconfigdriver"
-	"github.com/inverse-inc/packetfence/go/sharedutils"
 )
 
 // NodeInfo struct

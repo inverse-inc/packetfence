@@ -12,8 +12,8 @@ import (
 	"syscall"
 
 	"github.com/coreos/go-systemd/daemon"
+	"github.com/inverse-inc/go-utils/log"
 	"github.com/inverse-inc/packetfence/go/detectparser"
-	"github.com/inverse-inc/packetfence/go/log"
 	"github.com/inverse-inc/packetfence/go/pfconfigdriver"
 )
 

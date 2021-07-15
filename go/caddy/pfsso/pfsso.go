@@ -10,13 +10,13 @@ import (
 	"strings"
 	"time"
 
+	"github.com/inverse-inc/go-utils/log"
+	"github.com/inverse-inc/go-utils/statsd"
 	"github.com/inverse-inc/packetfence/go/caddy/caddy"
 	"github.com/inverse-inc/packetfence/go/caddy/caddy/caddyhttp/httpserver"
 	"github.com/inverse-inc/packetfence/go/firewallsso"
-	"github.com/inverse-inc/packetfence/go/log"
 	"github.com/inverse-inc/packetfence/go/panichandler"
 	"github.com/inverse-inc/packetfence/go/pfconfigdriver"
-	"github.com/inverse-inc/packetfence/go/statsd"
 	"github.com/julienschmidt/httprouter"
 	"github.com/patrickmn/go-cache"
 )

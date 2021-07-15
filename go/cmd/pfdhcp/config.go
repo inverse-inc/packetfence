@@ -10,10 +10,10 @@ import (
 
 	cache "github.com/fdurand/go-cache"
 	dhcp "github.com/inverse-inc/dhcp4"
+	"github.com/inverse-inc/go-utils/log"
+	"github.com/inverse-inc/go-utils/sharedutils"
 	"github.com/inverse-inc/packetfence/go/dhcp/pool"
-	"github.com/inverse-inc/packetfence/go/log"
 	"github.com/inverse-inc/packetfence/go/pfconfigdriver"
-	"github.com/inverse-inc/packetfence/go/sharedutils"
 	netadv "github.com/simon/go-netadv"
 )
 

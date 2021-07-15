@@ -5,9 +5,9 @@ import (
 	"fmt"
 
 	"github.com/coredns/caddy"
+	"github.com/inverse-inc/go-utils/log"
 	"github.com/inverse-inc/packetfence/go/coredns/core/dnsserver"
 	"github.com/inverse-inc/packetfence/go/coredns/plugin"
-	"github.com/inverse-inc/packetfence/go/log"
 	"github.com/miekg/dns"
 )
 

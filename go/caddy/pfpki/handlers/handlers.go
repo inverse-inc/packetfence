@@ -12,12 +12,12 @@ import (
 	"regexp"
 
 	"github.com/gorilla/mux"
+	"github.com/inverse-inc/go-utils/log"
 	"github.com/inverse-inc/packetfence/go/caddy/pfpki/models"
 	"github.com/inverse-inc/packetfence/go/caddy/pfpki/ocspresponder"
 	"github.com/inverse-inc/packetfence/go/caddy/pfpki/scep"
 	"github.com/inverse-inc/packetfence/go/caddy/pfpki/sql"
 	"github.com/inverse-inc/packetfence/go/caddy/pfpki/types"
-	"github.com/inverse-inc/packetfence/go/log"
 )
 
 func SearchCA(pfpki *types.Handler) http.Handler {

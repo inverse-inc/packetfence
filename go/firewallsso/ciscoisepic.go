@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"log/syslog"
 
-	"github.com/inverse-inc/packetfence/go/log"
+	"github.com/inverse-inc/go-utils/log"
 )
 
 type CiscoIsePic struct {
