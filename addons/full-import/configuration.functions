@@ -25,12 +25,18 @@ function get_os_ip_address() {
   ip a show dev $1 | egrep -o 'inet [0-9]+\.[0-9]+\.[0-9]+\.[0-9]+' | head -1 | sed 's/^inet //g'
 }
 
+function get_os_netmask() {
+  os_ip=`ip a show dev $1 | grep inet | sed -r 's#.+inet ([0-9]+\.[0-9]+\.[0-9]+\.[0-9]+/[0-9]+).+#\1#' | head -1`
+  ipcalc -m $os_ip | sed 's/NETMASK=//'
+}
+
 function get_pf_ip_address() {
   perl -MConfig::IniFiles -I/usr/local/pf/lib_perl/lib/perl5/ -e "print Config::IniFiles->new( -file => '/usr/local/pf/conf/pf.conf')->val('interface $1', 'ip')" 
 }
 
 function rewrite_pf_ip_address() {
   perl -MConfig::IniFiles -I/usr/local/pf/lib_perl/lib/perl5/ -e "\$c = Config::IniFiles->new( -file => '/usr/local/pf/conf/pf.conf') ; \$c->setval('interface $1', 'ip', '$2') ; \$c->RewriteConfig"
+  perl -MConfig::IniFiles -I/usr/local/pf/lib_perl/lib/perl5/ -e "\$c = Config::IniFiles->new( -file => '/usr/local/pf/conf/pf.conf') ; \$c->setval('interface $1', 'mask', '$3') ; \$c->RewriteConfig"
 }
 
 function rename_interface() {
@@ -48,15 +54,15 @@ function get_pf_interface_type() {
 function handle_interface_exists() {
   interface="$1"
   os_ip=`get_os_ip_address $interface`
+  os_netmask=`get_os_netmask $interface`
   pf_ip=`get_pf_ip_address $interface`
   if [ "$os_ip" == "$pf_ip" ]; then
     echo "IP address on $interface is the same on the operating system as it is in pf.conf. Nothing to do for this one!"
   else
     sub_splitter
     if prompt "IP address on interface $interface differs from the one in pf.conf. If you wish to use $pf_ip as the IP address on this server, you need to change the IP before running this script or after. Do you want to adjust pf.conf to use $os_ip on $interface?"; then
-      echo "Rewritting IP address for $interface to $os_ip in pf.conf"
-      rewrite_pf_ip_address $interface $os_ip
-      #TODO: handle netmask
+      echo "Rewritting IP address for $interface to $os_ip with netmask $os_netmask in pf.conf"
+      rewrite_pf_ip_address $interface $os_ip $os_netmask
       check_code $?
     else
       echo "Leaving $interface untouched in pf.conf"
