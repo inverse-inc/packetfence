@@ -75,6 +75,7 @@ static struct Lookup FACILITY_LOOKUP[] = {
     { "daemon", 3 }, // System daemons
     { "ftp", 11 }, // FTP daemon
     { "kern", 0 }, // Kernel messages
+    { "kernel", 0 }, // Kernel messages
     { "local0", 16 }, // Locally used facility
     { "local1", 17 }, // Locally used facility
     { "local2", 18 }, // Locally used facility
