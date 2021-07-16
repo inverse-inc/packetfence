@@ -10,7 +10,7 @@ This is a quick readme to describe the export/import process. We should formaliz
  * Restoring on a fresh install of PacketFence is recommended although restoring on an existing instance can work but your milleage may vary
  * This process will only restore the files that can be edited via the admin interface which include:
   * Standard configuration files in /usr/local/pf/conf/*.conf
-  * Connection profiles html templates in /usr/local/pf/html/profile-templates/
+  * Connection profiles html templates in /usr/local/pf/html/captive-portal/profile-templates/
   * Standard certificates
    * /usr/local/pf/conf/ssl/*
    * /usr/local/pf/raddb/certs/*

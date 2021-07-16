@@ -147,3 +147,13 @@ function restore_certificates() {
   cp -a usr/local/pf/conf/ssl/* /usr/local/pf/conf/ssl/
   cp -a usr/local/pf/raddb/certs/* /usr/local/pf/raddb/certs/
 }
+
+function restore_profile_templates() {
+  if [ -d usr/local/pf/html/captive-portal/profile-templates ]; then
+    echo "Found profile templates to restore"
+    rm -fr /usr/local/pf/html/captive-portal/profile-templates
+    cp -a usr/local/pf/html/captive-portal/profile-templates /usr/local/pf/html/captive-portal/profile-templates
+  else
+    echo "No profile templates to restore"
+  fi
+}
