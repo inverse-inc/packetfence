@@ -141,7 +141,6 @@ const useForm = (props, context) => {
     schema: metaSchema,
     switchGroup,
 
-supported,
     supports,
     isUplinkDynamic,
     isAccessListMap,
