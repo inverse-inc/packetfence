@@ -142,7 +142,7 @@ Vagrant.configure("2") do |config|
             :libvirt__dhcp_enabled => false,
             :libvirt__forward_mode => networks[3]['forward_mode'],
             auto_config: false
-      # link for swp11 --> node01:eth0
+      # link for swp11 --> node01:ens6
       device.vm.network "private_network",
             :mac => "44:38:39:00:00:11",
             :libvirt__tunnel_type => 'udp',
@@ -151,7 +151,7 @@ Vagrant.configure("2") do |config|
             :libvirt__tunnel_ip => '127.0.0.1',
             :libvirt__tunnel_port => "#{ 40000 + offset }",
             auto_config: false
-      # link for swp12 --> node01:eth1
+      # link for swp12 --> node01:ens7
       device.vm.network "private_network",
             :mac => "44:38:39:00:00:12",
             :libvirt__tunnel_type => 'udp',
@@ -160,7 +160,7 @@ Vagrant.configure("2") do |config|
             :libvirt__tunnel_ip => '127.0.0.1',
             :libvirt__tunnel_port => "#{ 40001 + offset }",
             auto_config: false
-      # link for swp13 --> node01:eth2
+      # link for swp13 --> node01:ens8
       device.vm.network "private_network",
             :mac => "44:38:39:00:00:13",                        
             :libvirt__tunnel_type => 'udp',
@@ -169,7 +169,7 @@ Vagrant.configure("2") do |config|
             :libvirt__tunnel_ip => '127.0.0.1',
             :libvirt__tunnel_port => "#{ 40002 + offset }",
             auto_config: false
-      # link for swp14 --> node02:eth0
+      # link for swp14 --> node02:ens6
       device.vm.network "private_network",
             :mac => "44:38:39:00:00:14",
             :libvirt__tunnel_type => 'udp',
@@ -178,7 +178,7 @@ Vagrant.configure("2") do |config|
             :libvirt__tunnel_ip => '127.0.0.1',
             :libvirt__tunnel_port => "#{ 60000 + offset }",
             auto_config: false
-      # link for swp15 --> node02:eth1
+      # link for swp15 --> node02:ens7
       device.vm.network "private_network",
             :mac => "44:38:39:00:00:15",
             :libvirt__tunnel_type => 'udp',
@@ -285,7 +285,7 @@ vagrant_interface_rule
     device.vm.synced_folder ".", "/vagrant", disabled: true
 
     # NETWORK INTERFACES
-      # link for eth0 --> switch01:swp11 (vlan17)
+      # link for ens6 --> switch01:swp11 (vlan17)
       device.vm.network "private_network",
             :mac => "a0:00:00:00:00:12",
             :libvirt__tunnel_type => 'udp',
@@ -293,9 +293,9 @@ vagrant_interface_rule
             :libvirt__tunnel_local_port => "#{ 40000 + offset }",
             :libvirt__tunnel_ip => '127.0.0.1',
             :libvirt__tunnel_port => "#{ 30000 + offset }",
-            :libvirt__iface_name => "eth0",
+            :libvirt__iface_name => "ens6",
             auto_config: false
-      # link for eth1 --> switch01:swp12 (dot1x port)
+      # link for ens7 --> switch01:swp12 (dot1x port)
       device.vm.network "private_network",
             :mac => "00:03:00:11:11:01",
             :libvirt__tunnel_type => 'udp',
@@ -304,7 +304,7 @@ vagrant_interface_rule
             :libvirt__tunnel_ip => '127.0.0.1',
             :libvirt__tunnel_port => "#{ 30001 + offset }",
             auto_config: false
-      # link for eth2 --> switch01:swp13 (vlan6)
+      # link for ens8 --> switch01:swp13 (vlan6)
       device.vm.network "private_network",
             :mac => "00:03:00:11:11:02",
             :libvirt__tunnel_type => 'udp',
@@ -347,19 +347,19 @@ fi
 delete_udev_directory
 
     device.vm.provision :shell , :inline => <<-udev_rule
-echo "  INFO: Adding UDEV Rule: a0:00:00:00:00:12 --> eth0"
-echo 'ACTION=="add", SUBSYSTEM=="net", ATTR{address}=="a0:00:00:00:00:12", NAME="eth0", SUBSYSTEMS=="pci"' >> /etc/udev/rules.d/70-persistent-net.rules
+echo "  INFO: Adding UDEV Rule: a0:00:00:00:00:12 --> ens6"
+echo 'ACTION=="add", SUBSYSTEM=="net", ATTR{address}=="a0:00:00:00:00:12", NAME="ens6", SUBSYSTEMS=="pci"' >> /etc/udev/rules.d/70-persistent-net.rules
 udev_rule
     device.vm.provision :shell , :inline => <<-udev_rule
-echo "  INFO: Adding UDEV Rule: 00:03:00:11:11:01 --> eth1"
-echo 'ACTION=="add", SUBSYSTEM=="net", ATTR{address}=="00:03:00:11:11:01", NAME="eth1", SUBSYSTEMS=="pci"' >> /etc/udev/rules.d/70-persistent-net.rules
+echo "  INFO: Adding UDEV Rule: 00:03:00:11:11:01 --> ens7"
+echo 'ACTION=="add", SUBSYSTEM=="net", ATTR{address}=="00:03:00:11:11:01", NAME="ens7", SUBSYSTEMS=="pci"' >> /etc/udev/rules.d/70-persistent-net.rules
 udev_rule
     device.vm.provision :shell , :inline => <<-udev_rule
-echo "  INFO: Adding UDEV Rule: 00:03:00:11:11:02 --> eth2"
-echo 'ACTION=="add", SUBSYSTEM=="net", ATTR{address}=="00:03:00:11:11:02", NAME="eth2", SUBSYSTEMS=="pci"' >> /etc/udev/rules.d/70-persistent-net.rules
+echo "  INFO: Adding UDEV Rule: 00:03:00:11:11:02 --> ens8"
+echo 'ACTION=="add", SUBSYSTEM=="net", ATTR{address}=="00:03:00:11:11:02", NAME="ens8", SUBSYSTEMS=="pci"' >> /etc/udev/rules.d/70-persistent-net.rules
 udev_rule
 
-     # fake to avoid eth0 being used by vagrant
+     # fake to avoid ens6 being used by vagrant
     device.vm.provision :shell , :inline => <<-vagrant_interface_rule
 echo "  INFO: Adding UDEV Rule: Vagrant interface = vagrant"
 echo 'ACTION=="add", SUBSYSTEM=="net", ATTR{ifindex}=="2", NAME="vagrant", SUBSYSTEMS=="pci"' >> /etc/udev/rules.d/70-persistent-net.rules
@@ -400,7 +400,7 @@ vagrant_interface_rule
     device.vm.synced_folder ".", "/vagrant", disabled: true
 
     # NETWORK INTERFACES
-      # link for eth0 --> switch01:swp14 (vlan17)
+      # link for ens6 --> switch01:swp14 (vlan17)
       device.vm.network "private_network",
             :mac => "a0:00:00:00:00:22",
             :libvirt__tunnel_type => 'udp',
@@ -408,9 +408,9 @@ vagrant_interface_rule
             :libvirt__tunnel_local_port => "#{ 60000 + offset }",
             :libvirt__tunnel_ip => '127.0.0.1',
             :libvirt__tunnel_port => "#{ 50000 + offset }",
-            :libvirt__iface_name => "eth0",
+            :libvirt__iface_name => "ens6",
             auto_config: false
-      # link for eth1 --> switch01:swp15 (vlan18)
+      # link for ens7 --> switch01:swp15 (vlan18)
       device.vm.network "private_network",
             :mac => "00:03:00:11:12:01",
             :libvirt__tunnel_type => 'udp',
@@ -453,15 +453,15 @@ fi
 delete_udev_directory
 
     device.vm.provision :shell , :inline => <<-udev_rule
-echo "  INFO: Adding UDEV Rule: a0:00:00:00:00:22 --> eth0"
-echo 'ACTION=="add", SUBSYSTEM=="net", ATTR{address}=="a0:00:00:00:00:22", NAME="eth0", SUBSYSTEMS=="pci"' >> /etc/udev/rules.d/70-persistent-net.rules
+echo "  INFO: Adding UDEV Rule: a0:00:00:00:00:22 --> ens6"
+echo 'ACTION=="add", SUBSYSTEM=="net", ATTR{address}=="a0:00:00:00:00:22", NAME="ens6", SUBSYSTEMS=="pci"' >> /etc/udev/rules.d/70-persistent-net.rules
 udev_rule
     device.vm.provision :shell , :inline => <<-udev_rule
-echo "  INFO: Adding UDEV Rule: 00:03:00:11:12:02 --> eth1"
-echo 'ACTION=="add", SUBSYSTEM=="net", ATTR{address}=="00:03:00:11:12:01", NAME="eth1", SUBSYSTEMS=="pci"' >> /etc/udev/rules.d/70-persistent-net.rules
+echo "  INFO: Adding UDEV Rule: 00:03:00:11:12:02 --> ens7"
+echo 'ACTION=="add", SUBSYSTEM=="net", ATTR{address}=="00:03:00:11:12:01", NAME="ens7", SUBSYSTEMS=="pci"' >> /etc/udev/rules.d/70-persistent-net.rules
 udev_rule
 
-     # fake to avoid eth0 being used by vagrant
+     # fake to avoid ens6 being used by vagrant
     device.vm.provision :shell , :inline => <<-vagrant_interface_rule
 echo "  INFO: Adding UDEV Rule: Vagrant interface = vagrant"
 echo 'ACTION=="add", SUBSYSTEM=="net", ATTR{ifindex}=="2", NAME="vagrant", SUBSYSTEMS=="pci"' >> /etc/udev/rules.d/70-persistent-net.rules
