@@ -58,6 +58,16 @@ You first need to have a PacketFence 11.0 installation done on a standalone serv
 
 The import script will guide you through the restore of the database, the configuration files and will help adjust the IP configuration if necessary.
 
+If your export archive used MariaDB backup instead of mysqldump (your DB backup filename contains `xbstream`), then you need to install MariaDB-backup on your server:
+
+```
+# CentOS/RHEL
+yum install MariaDB-backup --enablerepo=packetfence
+
+# Debian
+apt install mariadb-backup
+```
+
 Now, start the import process using the export archive you made on the other server:
 
 ```
