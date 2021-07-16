@@ -1340,6 +1340,18 @@ sub make_sql_executor {
     }
 }
 
+sub event_log_trigger {
+    my ($self) = @_;
+    my $t = $self->table;
+    return  "CREATE DEFINER=`root`@`localhost` TRIGGER log_event_${t} AFTER INSERT ON `$t` FOR EACH ROW BEGIN SET \@k = pf_logger( " . join( ", ", "\"$t\"", map { "\"$_\", NEW.$_"} $self->event_log_trigger_fields() ) .  "); END;";
+}
+
+sub event_log_trigger_fields {
+    my ($self) = @_;
+    my $meta = $self->get_meta;
+    return grep {!$meta->{$_}{is_auto_increment}} @{$self->table_field_names()};
+}
+
 =head1 AUTHOR
 
 Inverse inc. <info@inverse.ca>

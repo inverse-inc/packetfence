@@ -294,6 +294,7 @@ sub setup_api_v1_config_routes {
     $self->setup_api_v1_config_connection_profiles_routes($root);
     $self->setup_api_v1_config_self_services_routes($root);
     $self->setup_api_v1_config_domains_routes($root);
+    $self->setup_api_v1_config_event_loggers_routes($root);
     $self->setup_api_v1_config_filters_routes($root);
     $self->setup_api_v1_config_filter_engines_routes($root);
     $self->setup_api_v1_config_fingerbank_settings_routes($root);
@@ -386,6 +387,26 @@ sub setup_api_v1_tenants_routes {
     );
 
     $collection_route->register_sub_action({path => '', action => 'options', method => 'OPTIONS'});
+    return ($collection_route, $resource_route);
+}
+
+=head2 setup_api_v1_config_event_loggers_routes
+
+setup_api_v1_config_event_loggers_routes
+
+=cut
+
+sub setup_api_v1_config_event_loggers_routes {
+    my ($self, $root) = @_;
+    my ($collection_route, $resource_route) =
+      $self->setup_api_v1_std_config_routes(
+        $root,
+        "Config::EventLoggers",
+        "/event_loggers",
+        "/event_logger/#event_logger_id",
+        "api.v1.Config.EventLoggers",
+    );
+
     return ($collection_route, $resource_route);
 }
 

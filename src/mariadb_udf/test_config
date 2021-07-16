@@ -1,0 +1,2 @@
+# type=syslog facility=local5 priority=error port=514 host=127.0.0.1 namespaces=
+type=syslog facility=local5 priority=err host_syslog=packetfence app_syslog=packetfence port=514 host=127.0.0.1 version_pf=10.2.9 namespaces=ns1,ns2

@@ -18,6 +18,7 @@ conf/httpd.conf
 conf/wgorchestrator-auth.json
 conf/named.conf
 conf/cluster-files.txt
+conf/event_loggers.conf
 conf/pf.conf
 conf/*.lock
 conf/*.lockonce
@@ -39,6 +40,9 @@ conf/pfcron.conf
 conf/certmanager
 bin/pfcmd
 bin/ntlm_auth_wrapper
+src/mariadb_udf/*.o
+src/mariadb_udf/*.so
+src/mariadb_udf/test_pf_udf
 sbin/pfcertmanager
 sbin/pfhttpd
 sbin/pfdetect

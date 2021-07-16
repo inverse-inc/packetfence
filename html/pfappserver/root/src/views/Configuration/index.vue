@@ -84,6 +84,7 @@ export default {
             { name: this.$i18n.t('Switch Templates'), path: '/configuration/switch_templates' },
             { name: this.$i18n.t('Syslog Parsers'), path: '/configuration/pfdetect' },
             { name: this.$i18n.t('Syslog Forwarding'), path: '/configuration/syslog' },
+            { name: this.$i18n.t('Event Loggers'), path: '/configuration/event_loggers' },
             { name: this.$i18n.t('WRIX'), path: '/configuration/wrix' },
             { name: this.$i18n.t('PKI'),
               items: [

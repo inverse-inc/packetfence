@@ -6,6 +6,7 @@
 %global     logfiles packetfence.log snmptrapd.log pfdetect pfcron security_event.log httpd.admin.audit.log
 %global     logdir /usr/local/pf/logs
 %global     debug_package %{nil}
+%global     mariadb_plugin_dir %(pkg-config mariadb --variable=plugindir)
 
 
 #==============================================================================
@@ -31,6 +32,7 @@ BuildRequires: ruby, rubygems
 BuildRequires: nodejs >= 12.0
 BuildRequires: gcc
 BuildRequires: systemd
+BuildRequires: MariaDB-devel >= 10.1
 
 # To handle migration from several packetfence packages
 # to only one
@@ -336,6 +338,9 @@ done
 %{__make} bin/pfcmd
 # build ntlm_auth_wrapper
 %{__make} bin/ntlm_auth_wrapper
+%{__make} src/mariadb_udf/pf_udf.so
+# Define git_commit_id
+echo %{git_commit} > conf/git_commit_id
 
 # build golang binaries
 %{__make} -C go all
@@ -350,6 +355,9 @@ done
 #============================================================================
 %install
 %{__rm} -rf %{buildroot}
+# mysql plugin
+%{__install} -D -m0755 src/mariadb_udf/pf_udf.so %{buildroot}/%{mariadb_plugin_dir}/pf_udf.so
+
 # systemd targets
 %{__install} -D -m0644 conf/systemd/packetfence.target %{buildroot}/etc/systemd/system/packetfence.target
 %{__install} -D -m0644 conf/systemd/packetfence-base.target %{buildroot}/etc/systemd/system/packetfence-base.target
@@ -840,6 +848,7 @@ fi
 %config                 /usr/local/pf/conf/documentation.conf
 %config(noreplace)      /usr/local/pf/conf/firewall_sso.conf
                         /usr/local/pf/conf/firewall_sso.conf.example
+%config(noreplace)      /usr/local/pf/conf/event_loggers.conf
 %config(noreplace)      /usr/local/pf/conf/.gitignore
                         /usr/local/pf/conf/.gitignore.example
 %config(noreplace)      /usr/local/pf/conf/survey.conf
@@ -1236,6 +1245,7 @@ fi
 %dir                    /usr/local/pf/var/redis_ntlm_cache
 %dir                    /usr/local/pf/var/ssl_mutex
 %config(noreplace)      /usr/local/pf/var/cache_control
+                        %{mariadb_plugin_dir}/pf_udf.so
 
 #==============================================================================
 # Changelog

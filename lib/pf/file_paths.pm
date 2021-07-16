@@ -37,6 +37,7 @@ our (
     $pf_doc_file,
     #floating_network_device.conf variables
     $floating_devices_config_file,
+    $event_loggers_config_file,
     #dhcp_fingerprints.conf variables
     $dhcp_fingerprints_file, $dhcp_fingerprints_url,
     #oui.txt variables
@@ -78,6 +79,7 @@ our (
     $server_cert, $server_key, $server_pem,
     $radius_server_key, $radius_server_cert, $radius_ca_cert,
     $ssl_configuration_file,
+    $mariadb_pf_udf_file,
     $domain_config_file,
     $scan_config_file,
     $pki_provider_config_file,
@@ -138,6 +140,7 @@ BEGIN {
         $oauth_ip_file
         $pf_doc_file
         $floating_devices_config_file
+        $event_loggers_config_file
         $dhcp_fingerprints_file $dhcp_fingerprints_url
         $oui_file $oui_url
         $local_secret_file
@@ -175,6 +178,7 @@ BEGIN {
         $server_cert $server_key $server_pem
         $radius_server_cert $radius_server_key $radius_ca_cert
         $ssl_configuration_file
+        $mariadb_pf_udf_file
         $domain_config_file
         $scan_config_file
         $pki_provider_config_file
@@ -288,6 +292,7 @@ $admin_roles_config_file = catfile($conf_dir, "adminroles.conf");
 
 $security_events_config_file       = catfile($conf_dir, "security_events.conf");
 $authentication_config_file   = catfile($conf_dir, "authentication.conf");
+$event_loggers_config_file = catfile($conf_dir, "event_loggers.conf");
 $floating_devices_config_file = catfile($conf_dir, "floating_network_device.conf"); # TODO: Adjust to /floating_devices.conf when $floating_devices_file will be deprecated
 $wrix_config_file = catfile($conf_dir, "wrix.conf");
 $allowed_device_oui_file   = catfile($conf_dir,"allowed_device_oui.txt");
@@ -314,6 +319,7 @@ $radius_server_key = catfile($install_dir, "raddb/certs/server.key");
 $radius_server_cert = catfile($install_dir, "raddb/certs/server.crt");
 $radius_ca_cert = catfile($install_dir, "raddb/certs/ca.pem");
 $ssl_configuration_file = catfile($generated_conf_dir, "ssl-certificates.conf");
+$mariadb_pf_udf_file = catfile($generated_conf_dir, "mariadb_pf_udf");
 $domain_config_file = catfile($conf_dir,"domain.conf");
 $scan_config_file = catfile($conf_dir,"scan.conf");
 $radius_filters_config_file = catfile($conf_dir,"radius_filters.conf");

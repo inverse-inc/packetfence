@@ -1,0 +1,14 @@
+use [% db %];
+
+DROP FUNCTION IF EXISTS pf_logger;
+
+[% IF pf_logger %]
+CREATE FUNCTION pf_logger RETURNS INTEGER SONAME "pf_udf.so";
+[%- END %]
+
+[% FOREACH n IN namespaces %]
+DROP TRIGGER IF EXISTS `log_event_[% n.name %]`;
+[% IF n.trigger -%]
+[% n.trigger %]
+[%- END %]
+[% END %]
