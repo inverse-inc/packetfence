@@ -33,7 +33,6 @@ has_field 'host.contains' =>
    label => 'Host',
    element_class => ['input-small'],
    element_attr => {'placeholder' => ''},
-   default => $META->get_attribute('host')->default,
    required => 1,
   );
 has_field 'port' =>
@@ -221,6 +220,41 @@ has_field 'append_to_searchattributes' => (
     tags => {
         after_element => \&help,
         help => 'Append this ldap filter to the generated generated ldap filter generated for the search attributes.',
+    },
+);
+
+has_field verify => (
+    type => 'Select',
+    label => 'SSL verify mode',
+    default => 'none',
+    options => [
+        map { { value => $_, label => $_ }  } qw(none optional require)
+    ],
+);
+
+has_field client_cert => (
+    type => 'Path',
+    label => 'Client Certificate',
+    file_type => 'file',
+);
+
+has_field client_key => (
+    type => 'Path',
+    label => 'Client Key',
+    file_type => 'file',
+);
+
+has_field ca_file => (
+    type => 'Path',
+    label => 'CA File',
+    file_type => 'file',
+);
+
+has '+dependency' => (
+    default => sub {
+        [
+            [ 'client_cert', 'client_key' ]
+        ];
     },
 );
 

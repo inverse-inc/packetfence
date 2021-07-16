@@ -681,3 +681,5 @@ Here is a brief description of the fields :
 
 include::azuread.asciidoc[]
 
+include::google_workspace_ldap.asciidoc[]
+

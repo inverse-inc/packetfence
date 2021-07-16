@@ -24,9 +24,10 @@ BEGIN {
     use lib qw(/usr/local/pf/t);
     #Module for overriding configuration paths
     use setup_test_config;
+    use pf::authentication;
 }
 
-use Test::More tests => 17;
+use Test::More tests => 21;
 use Test::Mojo;
 use Utils;
 use pf::ConfigStore::Source;
@@ -39,6 +40,17 @@ my $t = Test::Mojo->new('pf::UnifiedApi');
 my $collection_base_url = '/api/v1/config/sources';
 
 my $base_url = '/api/v1/config/source';
+
+$t->options_ok($collection_base_url)
+  ->status_is(200)
+  ->json_has("/meta/type/allowed");
+
+my @types = sort  map { lc($_->{value}) } @{$t->tx->res->json->{meta}{type}{allowed}};
+
+is_deeply(
+    \@types,
+    [sort grep { $_ ne 'sql' } keys %pf::authentication::TYPE_TO_SOURCE],
+);
 
 $t->post_ok($collection_base_url => json => {})
   ->status_is(422);

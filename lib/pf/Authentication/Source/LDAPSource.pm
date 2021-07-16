@@ -37,6 +37,13 @@ use constant {
     TLS => "starttls",
 };
 
+our %sslargs_mapping = (
+    verify      => 'verify',
+    client_cert => 'clientcert',
+    client_key  => 'clientkey',
+    ca_file     => 'cafile',
+);
+
 Readonly our %ATTRIBUTES_MAP => (
   'firstname'   => "givenName",
   'lastname'    => "sn",
@@ -69,6 +76,10 @@ has 'email_attribute' => (isa => 'Maybe[Str]', is => 'rw', default => 'mail');
 has 'monitor' => ( isa => 'Bool', is => 'rw', default => '1' );
 has 'shuffle' => ( isa => 'Bool', is => 'rw', default => '0' );
 has 'dead_duration' => ( isa => 'Num', is => 'rw', default => $DEFAULT_LDAP_DEAD_DURATION);
+has 'client_cert' => ( isa => 'Str', is => 'rw');
+has 'client_key' => ( isa => 'Str', is => 'rw');
+has 'ca_file' => (isa => 'Str', is => 'rw');
+has 'verify' => ( isa => 'Str', is => 'rw');
 
 our $logger = get_logger();
 
@@ -224,20 +235,15 @@ sub _connect {
   my $timer = pf::StatsD::Timer->new({ 'stat' => "${timer_stat_prefix}", level => 7});
   my $connection;
   my $logger = Log::Log4perl::get_logger(__PACKAGE__);
-  my ($LDAPServer, $LDAPServerPort);
-  my @LDAPServers = @{$self->{'host'} // []};
-  
+  my $LDAPServer;
   # Lookup the server hostnames to IPs so they can be shuffled better and to improve the failure detection
-  @LDAPServers = map { valid_ip($_) ? $_ : @{resolve($_) // []} } @LDAPServers;
-
+  my @LDAPServers = map { valid_ip($_) ? $_ : @{resolve($_) // []} } @{$self->{'host'} // []};
   if ($self->shuffle) {
       @LDAPServers = List::Util::shuffle @LDAPServers;
   }
-  my @credentials;
-  if ($self->{'binddn'} && $self->{'password'}) {
-    @credentials = ($self->{'binddn'}, password => $self->{'password'})
-  }
 
+  my $LDAPServerPort =  $self->{'port'} ;
+  my %LDAPArgs = $self->_LDAPArgs();
   my $try_connect = sub {
       my $honor_dead = shift;
       TRYSERVER:
@@ -254,12 +260,7 @@ sub _connect {
 
         $connection = pf::LDAP->new(
             $LDAPServer,
-            port       => $LDAPServerPort,
-            timeout    => $self->{'connection_timeout'},
-            write_timeout  => $self->{'write_timeout'},
-            read_timeout  => $self->{'read_timeout'},
-            encryption => $self->{encryption},
-            credentials => \@credentials,
+            %LDAPArgs,
         );
 
         if (! defined($connection)) {
@@ -299,6 +300,42 @@ sub _connect {
   }
 }
 
+sub _LDAPArgs {
+    my ($self) = @_;
+    my @credentials;
+    if ( $self->{'binddn'} && $self->{'password'} ) {
+        @credentials = ( $self->{'binddn'}, password => $self->{'password'} );
+    }
+    my $encryption  = $self->{encryption};
+    my %args = (
+        credentials   => \@credentials,
+        port          => $self->{'port'},
+        timeout       => $self->{'connection_timeout'},
+        write_timeout => $self->{'write_timeout'},
+        read_timeout  => $self->{'read_timeout'},
+        encryption    => $encryption,
+    );
+
+    if ($encryption eq SSL) {
+        $self->addSSLArgs(\%args)
+    } elsif ($encryption eq TLS) {
+        my %start_tls_options;
+        $self->addSSLArgs(\%start_tls_options);
+        $args{start_tls_options} = \%start_tls_options;
+    }
+
+    return %args;
+}
+
+sub addSSLArgs {
+    my ($self, $args) = @_;
+    while (my ($k1, $k2) = each %sslargs_mapping) {
+        next if !exists $self->{$k1};
+        my $v = $self->{$k1};
+        next if !defined $v;
+        $args->{$k2} = $v;
+    }
+}
 
 =head2 cache
 

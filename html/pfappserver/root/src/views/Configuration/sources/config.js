@@ -2,18 +2,19 @@ import i18n from '@/utils/locale'
 import { pfActions } from '@/globals/pfActions'
 
 export const internalTypes = {
-  AD:             i18n.t('Active Directory'),
-  Authorization:  i18n.t('Authorization'),
-  AzureAD:        i18n.t('AzureAD'),
-  EAPTLS:         'EAPTLS',
-  EDIR:           'Edirectory',
-  Htpasswd:       'Htpasswd',
-  HTTP:           'HTTP',
-  Kerberos:       'Kerberos',
-  LDAP:           'LDAP',
-  Potd:           i18n.t('Password Of The Day'),
-  RADIUS:         'RADIUS',
-  SAML:           'SAML',
+  AD:                  i18n.t('Active Directory'),
+  Authorization:       i18n.t('Authorization'),
+  AzureAD:             i18n.t('AzureAD'),
+  EAPTLS:              'EAPTLS',
+  EDIR:                'Edirectory',
+  Htpasswd:            'Htpasswd',
+  GoogleWorkspaceLDAP: 'Google Workspace LDAP',
+  HTTP:                'HTTP',
+  Kerberos:            'Kerberos',
+  LDAP:                'LDAP',
+  Potd:                i18n.t('Password Of The Day'),
+  RADIUS:              'RADIUS',
+  SAML:                'SAML',
 }
 
 export const externalTypes = {
@@ -53,7 +54,7 @@ export const administrationRuleActionsFromSourceType = (sourceType) => ([
     pfActions.set_access_level,
     pfActions.set_tenant_id
   ],
-  ...((['AD', 'AzureAD', 'LDAP', 'EDIR'].includes(sourceType))
+  ...((['AD', 'AzureAD', 'LDAP', 'GoogleWorkspaceLDAP', 'EDIR'].includes(sourceType))
     ? [
         pfActions.set_access_durations,
         pfActions.mark_as_sponsor
@@ -71,7 +72,7 @@ export const authenticationRuleActionsFromSourceType = (sourceType) => ([
     pfActions.set_bandwidth_balance,
     pfActions.set_role_from_source
   ],
-  ...((['AD', 'AzureAD', 'LDAP'].includes(sourceType))
+  ...((['AD', 'AzureAD', 'LDAP', 'GoogleWorkspaceLDAP'].includes(sourceType))
     ? [pfActions.set_role_on_not_found]
     : []
   )
