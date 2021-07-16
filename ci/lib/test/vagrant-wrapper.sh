@@ -80,8 +80,10 @@ delete_ansible_files() {
 }
 
 halt() {
-    log_subsection "Halt virtual machine(s)"
+    local pf_vm_name=$1
     local vm_names=${@:-}
+    unregister_rhel $pf_vm_name
+    log_subsection "Halt virtual machine(s)"
 
     # using "|| true" as a workaround to unusual behavior
     # see https://github.com/hashicorp/vagrant/issues/10024#issuecomment-404965057
@@ -93,6 +95,12 @@ halt() {
         ( cd $VAGRANT_DIR ; \
           vagrant halt -f ${vm_names} )
     fi
+}
+
+unregister_rhel() {
+    log_subsection "Unregister RHEL subscription"
+    ( cd $VAGRANT_DIR ; \
+      ansible-playbook playbooks/unregister_rhel_subscription.yml -l $pf_vm_name )
 }
 
 destroy() {
