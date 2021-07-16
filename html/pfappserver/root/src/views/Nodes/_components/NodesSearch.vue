@@ -113,7 +113,7 @@
         </b-col>
       </b-row>
     </div>
-    <div class="card-body pt-0" v-scroll-100>
+    <div class="card-body pt-0" v-scroll100>
       <b-table
         v-model="tableValues"
         class="table-clickable"
@@ -206,7 +206,19 @@ import pfMixinSearchable from '@/components/pfMixinSearchable'
 import pfMixinSelectable from '@/components/pfMixinSelectable'
 import pfFingerbankScore from '@/components/pfFingerbankScore'
 import pfFormToggle from '@/components/pfFormToggle'
-import scroll100 from '@/directives/scroll-100'
+const components = {
+  BaseButtonConfirm,
+  BaseButtonExportCsv,
+  pfEmptyTable,
+  pfFingerbankScore,
+  pfFormToggle
+}
+
+import { scroll100 } from '@/directives/'
+const directives = {
+  scroll100
+}
+
 import { pfFormatters as formatter } from '@/globals/pfFormatters'
 import { pfSearchConditionType as conditionType } from '@/globals/pfSearch'
 import bytes from '@/utils/bytes'
@@ -218,16 +230,8 @@ export default {
     pfMixinSelectable,
     pfMixinSearchable
   ],
-  components: {
-    BaseButtonConfirm,
-    BaseButtonExportCsv,
-    pfEmptyTable,
-    pfFingerbankScore,
-    pfFormToggle
-  },
-  directives: {
-    scroll100
-  },
+  components,
+  directives,
   props: {
     storeName: { // from router
       type: String,

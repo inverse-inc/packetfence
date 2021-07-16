@@ -27,7 +27,7 @@
           sort-icon-left
         >
           <template v-slot:empty>
-            <pf-empty-table :is-loading="isInterfacesLoading">{{ $t('No interfaces found') }}</pf-empty-table>
+            <base-table-empty :is-loading="isInterfacesLoading">{{ $t('No interfaces found') }}</base-table-empty>
           </template>
           <template v-slot:cell(is_running)="{ item }">
              <toggle-status :value="item.is_running"
@@ -181,10 +181,10 @@
 <script>
 import {
   BaseButtonConfirm,
-  BaseButtonService
+  BaseButtonService,
+  BaseTableEmpty
 } from '@/components/new/'
 import network from '@/utils/network'
-import pfEmptyTable from '@/components/pfEmptyTable'
 import { ToggleStatus } from '@/views/Configuration/networks/interfaces/_components/'
 import { columns as columnsInterface } from '../_config/interface'
 import { columns as columnsLayer2Network } from '../_config/layer2Network'
@@ -195,7 +195,7 @@ export default {
   components: {
     BaseButtonConfirm,
     BaseButtonService,
-    pfEmptyTable,
+    BaseTableEmpty,
     ToggleStatus
   },
   data () {

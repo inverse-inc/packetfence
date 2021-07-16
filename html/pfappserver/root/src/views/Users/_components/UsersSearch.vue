@@ -112,7 +112,7 @@
         </b-col>
       </b-row>
     </div>
-    <div class="card-body pt-0" v-scroll-100>
+    <div class="card-body pt-0" v-scroll100>
       <b-table
         v-model="tableValues"
         class="table-clickable"
@@ -152,7 +152,17 @@ import pfEmptyTable from '@/components/pfEmptyTable'
 import pfMixinSearchable from '@/components/pfMixinSearchable'
 import pfMixinSelectable from '@/components/pfMixinSelectable'
 import pfFormToggle from '@/components/pfFormToggle'
-import scroll100 from '@/directives/scroll-100'
+const components = {
+  BaseButtonExportCsv,
+  pfEmptyTable,
+  pfFormToggle
+}
+
+import { scroll100 } from '@/directives/'
+const directives = {
+  scroll100
+}
+
 import { pfSearchConditionType as conditionType } from '@/globals/pfSearch'
 
 export default {
@@ -161,14 +171,8 @@ export default {
     pfMixinSelectable,
     pfMixinSearchable
   ],
-  components: {
-    BaseButtonExportCsv,
-    pfEmptyTable,
-    pfFormToggle
-  },
-  directives: {
-    scroll100
-  },
+  components,
+  directives,
   props: {
     searchableOptions: {
       type: Object,

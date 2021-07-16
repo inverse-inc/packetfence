@@ -40,13 +40,21 @@ import {
   BaseButtonSave
 } from '@/components/new/'
 
+const components = {
+  BaseButtonSave
+}
+
+import { focus } from '@/directives'
+const directives = {
+  focus
+}
+
 const EXPIRATION_DELAY = 60 * 1000 // in miliseconds
 
 export default {
   name: 'pf-form-login',
-  components: {
-    BaseButtonSave
-  },
+  components,
+  directives,
   data () {
     return {
       username: '',

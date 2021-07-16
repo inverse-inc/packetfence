@@ -140,8 +140,6 @@ import 'vue-awesome/icons/window-maximize'
 import pfIcons from '@/globals/pfIcons'
 Icon.register(pfIcons)
 
-import './directives/focus'
-
 import { createPinia, PiniaPlugin } from 'pinia'
 import store from './store'
 import router from './router'

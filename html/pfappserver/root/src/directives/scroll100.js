@@ -3,10 +3,8 @@
  * The current element is set to be scrollable (automatic overflow).
  */
 
-import Vue from 'vue'
-
-export default Vue.directive('scroll-100', {
-  update: function (el) {
+export default {
+  inserted(el) {
     el.classList.add('h-100', 'overflow-auto')
     // Force all parent nodes to take 100% of the window height
     let parentNode = el.parentNode
@@ -15,7 +13,7 @@ export default Vue.directive('scroll-100', {
       parentNode = parentNode.parentNode
     }
   },
-  unbind: function (el) {
+  unbind(el) {
     el.classList.remove('h-100', 'overflow-auto')
     // Remove height constraint on all parent nodes
     let parentNode = el.parentNode
@@ -29,4 +27,4 @@ export default Vue.directive('scroll-100', {
       parentNode.classList.remove('scroll-100', 'h-100')
     })
   }
-})
+}
