@@ -1,4 +1,3 @@
-import { pfFieldType } from '@/globals/pfField'
 import i18n from '@/utils/locale'
 
 export const types = {
