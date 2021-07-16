@@ -86,6 +86,8 @@ main_splitter
 upgrade_configuration
 check_code $?
 
+# TODO: restore portal profile templates
+
 main_splitter
 echo "Finalizing import"
 
