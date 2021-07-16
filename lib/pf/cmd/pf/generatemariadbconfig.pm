@@ -135,6 +135,7 @@ sub _run {
     pf_chown($db_check_path);
     update_udf_config($mariadb_pf_udf_file, \%EventLoggers);
     update_init_file($tt, "$conf_dir/mariadb/mariadb.sql.tt", "$install_dir/var/conf/mariadb.sql", make_init_file_vars());
+    chmod 0644, "$install_dir/var/conf/mariadb.sql";
 
     return $EXIT_SUCCESS; 
 }
@@ -193,6 +194,7 @@ sub update_udf_config {
     }
 
     close($fh);
+    chmod 0644, $filename;
 }
 
 =head1 AUTHOR
