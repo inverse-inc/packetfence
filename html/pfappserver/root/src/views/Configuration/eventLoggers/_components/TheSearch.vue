@@ -4,6 +4,10 @@
       <h4 class="mb-0">{{ $t('Event Loggers') }}</h4>
     </b-card-header>
     <div class="card-body">
+      <div 
+        class="alert alert-warning"
+      >{{ $t(`Creating, modifying or deleting an event logger entry requires to restart the packetfence-mariadb service using the following command: systemctl restart packetfence-mariadb`) }}</div>
+
       <base-search :use-search="useSearch">
         <b-dropdown :text="$t('New Event Logger')" variant="outline-primary">
           <b-dropdown-item v-for="({ text, value }) in typeOptions" :key="value"
