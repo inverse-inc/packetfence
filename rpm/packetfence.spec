@@ -288,7 +288,7 @@ Requires: perl(Net::UDP)
 Requires: haproxy >= 1.8.9, keepalived >= 2.0.0
 # CAUTION: we need to require the version we want for Fingerbank and ensure we don't want anything equal or above the next major release as it can add breaking changes
 Requires: fingerbank >= 4.2.1, fingerbank < 5.0.0
-Requires: fingerbank-collector >= 1.3.16, fingerbank-collector < 2.0.0
+Requires: fingerbank-collector >= 1.3.17, fingerbank-collector < 2.0.0
 Requires: perl(File::Tempdir)
 
 %description
