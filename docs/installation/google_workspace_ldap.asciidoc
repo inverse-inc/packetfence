@@ -4,11 +4,11 @@
 
 . Go to Apps > LDAP > Add Client.
 
-. Provide an LDAP client name and an optional Description. Any descriptive values are acceptable. For example, the name could be ‘Packetfence’ and the description could be ‘Packetfence LDAP Client’. Click the Continue button.
+. Provide an LDAP client name and an optional Description. Any descriptive values are acceptable. For example, the name could be ‘PacketFence’ and the description could be ‘PacketFence LDAP Client’. Click the Continue button.
 
-. Set Access Permission according to your needs. You must choose either ‘Entire domain (Packetfence)’ or ‘Selected organizational units’ for both ‘Verify user credentials’ and ‘Read user information’. Select ‘Add LDAP Client’
+. Set Access Permission according to your needs. You must choose either ‘Entire domain (PacketFence)’ or ‘Selected organizational units’ for both ‘Verify user credentials’ and ‘Read user information’. Select ‘Add LDAP Client’
 
-. Download the generated certificate. This is required for Packetfence to communicate with the Google Secure LDAP service. Save the downloaded certificates for later use. After downloading, click the Continue to Client Details button.
+. Download the generated certificate. This is required for PacketFence to communicate with the Google Secure LDAP service. Save the downloaded certificates for later use. After downloading, click the Continue to Client Details button.
 
 . Expand the Service Status section and turn the LDAP client ‘ON for everyone’. After selecting ‘Save’, click on the ‘Service Status’ bar again to collapse and return to the rest of the settings.
 
