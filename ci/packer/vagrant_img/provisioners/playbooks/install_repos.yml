@@ -1,5 +1,5 @@
 - hosts: pfservers
-  name: install PacketFence repositories
+  name: Install PacketFence repositories
   become: True
   gather_facts: True
   tags: repos
