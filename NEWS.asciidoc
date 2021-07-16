@@ -13,11 +13,11 @@
 ////
 
 
-Project homepage: https://www.packetfence.org/
+Project homepage: https://packetfence.org/
 
 Please report bugs to: https://github.com/inverse-inc/packetfence/issues
 
-Interested in contributing to the project? http://www.packetfence.org/support/community.html
+Interested in contributing to the project? https://packetfence.org/support/community.html
 
 This is a list of noteworthy changes across releases.
 For more details and developer visible changes see the ChangeLog file.
