@@ -1,13 +1,4 @@
 ---
-- name: Configure Wireless Linux
-  hosts: wireless
-  become: true
-  gather_facts: true
-  
-  collections:
-    - inverse_inc.wireless
+- import_playbook: config_dev_repos.yml
 
-  roles:
-    - role: mac80211hwsim
-    - role: hostapd
-    - role: wpasupplicant
+- import_playbook: wireless/wireless.yml

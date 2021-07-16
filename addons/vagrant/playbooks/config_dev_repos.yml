@@ -1,5 +1,5 @@
-- hosts: dev
-  name: install packetfence development packages
+- hosts: [ 'dev', 'wireless']
+  name: Install packetfence development packages
   become: True
   collections:
     - debops.debops

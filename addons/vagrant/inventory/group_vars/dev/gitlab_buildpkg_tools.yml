@@ -15,7 +15,7 @@ gitlab_buildpkg_tools__rpm_deps_pkgs:
 # redefine this variables to avoid confusion with official "packetfence" repositories
 gitlab_buildpkg_tools__deb_ppa:
   - name: 'packetfence-ppa'
-    baseurl: "{{ gitlab_buildpkg_tools__ppa_url_deb }} {{ ansible_lsb['codename'] }} main"
+    baseurl: "{{ gitlab_buildpkg_tools__ppa_url_deb }} {{ ansible_distribution_release }} main"
     gpgkey: 'http://inverse.ca/downloads/GPG_PUBLIC_KEY'
 
 gitlab_buildpkg_tools__rpm_ppa:
