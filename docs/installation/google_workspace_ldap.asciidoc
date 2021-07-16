@@ -1,0 +1,24 @@
+=== Google Workspace LDAP Integration
+
+. Go to https://admin.google.com/ and sign in as a Google Workspace domain administrator.
+
+. Go to Apps > LDAP > Add Client.
+
+. Provide an LDAP client name and an optional Description. Any descriptive values are acceptable. For example, the name could be ‘Packetfence’ and the description could be ‘Packetfence LDAP Client’. Click the Continue button.
+
+. Set Access Permission according to your needs. You must choose either ‘Entire domain (Packetfence)’ or ‘Selected organizational units’ for both ‘Verify user credentials’ and ‘Read user information’. Select ‘Add LDAP Client’
+
+. Download the generated certificate. This is required for Packetfence to communicate with the Google Secure LDAP service. Save the downloaded certificates for later use. After downloading, click the Continue to Client Details button.
+
+. Expand the Service Status section and turn the LDAP client ‘ON for everyone’. After selecting ‘Save’, click on the ‘Service Status’ bar again to collapse and return to the rest of the settings.
+
+. Expand the Authentication section and choose ‘Generate New Credentials’. Copy/note these credentials for later use. After selecting ‘Close’, click on the ‘Authentication’ bar again to collapse and return to the rest of the settings.
+
+==== Configuring PacketFence
+
+. Under 'Configuration->Policies and Access Control->Authentication Sources', create a new 'Google Workspace LDAP' internal source
+  .. The following are the configuration values obtained during the LDAP client configuration earlier:
+    ... Bind DN: The access credentials username
+    ... Password: The access credentials password
+    ... Client Certificate: The .crt file text from the downloaded certificate bundle
+    ... Client Key: The .key file text from the downloaded certificate bundle
