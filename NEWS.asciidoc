@@ -27,15 +27,16 @@ For a list of compatibility related changes see the <<PacketFence_Upgrade_Guide.
 
 === New Features
 
-* Venom inline l3 (PR#6266)
 * Microsoft Intune SCEP support (#6360)
 * Added support for Azure AD authentication (#6380)
-* New Provisioner Google Workspace Chromebook
-* LDAP Source now supports client certificates
-* New Source for Google Workspace LDAP
+* New provisioner Google Workspace Chromebook
+* New source for Google Workspace LDAP
 
 === Enhancements
 
+* Venom inline l3 (PR#6266)
+* Massively improved web admin performance
+* LDAP source now supports client certificates
 * AirWatch SCEP documentation
 * Rewrite the username of the request from radius `preProcess` filter (#6293)
 * Upgrade to golang 1.16.3 (#6343)
