@@ -38,15 +38,15 @@ For a list of compatibility related changes see the <<PacketFence_Upgrade_Guide.
 * Massively improved web admin performance
 * LDAP source now supports client certificates
 * AirWatch SCEP documentation
-* Rewrite the username of the request from radius `preProcess` filter (#6293)
+* Rewrite the username of the request from RADIUS `preProcess` filter (#6293)
 * Upgrade to golang 1.16.3 (#6343)
 * pfpki: configure OCSP to listen on specific interfaces (#5825)
 * Get maintenance patches through package manager (#6378)
 * Adjust Intune integration to support pagination of the managed devices (#6135)
 * Add an option to force the vip as the default gateway on layer2 registration network (#6406)
-* Firewall SSO is tenant aware. (#6384)
-* Added conditions on owner informations in the RADIUS filters (#6324)
-* CLI Access Enabled for Avaya Switches (#6398)
+* Firewall SSO is tenant aware (#6384)
+* Added conditions on owner information in the RADIUS filters (#6324)
+* CLI access support for Avaya Switches (#6398)
 * Authorize a MAC address on all APs of the switch group when using the Unifi module (#6134)
 * Macro documentation for filter engine (#6392)
 * Expose the source directory of documentation from Caddy (#6315)
@@ -60,9 +60,9 @@ For a list of compatibility related changes see the <<PacketFence_Upgrade_Guide.
 * Support switch_group in advanced filters (#6379)
 * Authentication rule condition basedn matching does not work (Authentication rule condition basedn matching does not work #6402)
 * Filter netdata incoming connection (#6303)
-* CLI Switch Access for Avaya ERS Switches (#6399)
+* CLI switch access for Avaya ERS Switches (#6399)
 * Avoid duplicate log entries "User <username> has authenticated on the portal"
-* Backup DB using MariaDB-backup don't work on standalone installations (#6424)
+* Backup DB using MariaDB-backup does not work on standalone installations (#6424)
 
 == Version 10.3.0 released on 2020-04-14
 
