@@ -39,7 +39,8 @@ func NewProxy(ctx context.Context) *Proxy {
 func (p *Proxy) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	p.Ctx = ctx
-	host := r.Host
+	// Needs to be splitted but dirty patch first
+	//host := r.Host
 	previewStatic := false
 
 	params, _ := getParams(`/config/profile/(?P<Profile>.*)/preview/(?P<File>.*)`, r.RequestURI)
@@ -64,7 +65,7 @@ func (p *Proxy) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 	rp := httputil.NewSingleHostReverseProxy(&url.URL{
 		Scheme: "http",
-		Host:   host,
+		Host:   "127.0.0.1",
 	})
 	// It's not a file preview
 	if previewStatic {
