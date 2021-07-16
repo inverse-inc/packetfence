@@ -36,7 +36,7 @@ cp db/upgrade-X.X-X.Y.sql db/upgrade-10.3-11.0.sql
 
 NOTE: When you are in a cluster, you need to perform this process on the first member of the incoming addresses of your database cluster. To find the member, run `show status like 'wsrep_incoming_addresses';` inside your MariaDB instance and the first IP will be the one where you need to perform the export process 
 
-If the nightly export done at 0h30 everyday is fine and you don't need the latest data, then you can script this step. Otherwise to have the latest data and configuration in your export, run:
+If the nightly export done at 0h30 everyday is fine and you don't need the latest data, then you can skip this step. Otherwise to have the latest data and configuration in your export, run:
 
 ```
 /usr/local/pf/addons/backup-and-maintenance.sh
@@ -50,7 +50,7 @@ Next, run the export script:
 /usr/local/pf/addons/export.sh /tmp/export.tgz
 ```
 
-The command above will create your export archive in /tmp/export.tgz. You will now need to copy this file to your new servers via scp or your prefered mechanism
+The command above will create your export archive in /tmp/export.tgz. You will now need to copy this file to your new servers using scp or your prefered mechanism
 
 == Start the import process
 
