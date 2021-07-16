@@ -22,7 +22,32 @@ has_field facility => (
     type    => 'Select',
     options => [
         map { { label => $_, value => $_ } }
-          qw(kernel user mail system security internal printer news uucp clock security2 FTP NTP audit alert clock2 local0 local1 local2 local3 local4 local5 local6 local7)
+        qw(
+          auth
+          authpriv
+          console
+          cron
+          daemon
+          ftp
+          kernel
+          local0
+          local1
+          local2
+          local3
+          local4
+          local5
+          local6
+          local7
+          lpr
+          mail
+          news
+          ntp
+          security
+          solaris-cron
+          syslog
+          user
+          uucp
+          )
     ],
     required => 1,
 );
