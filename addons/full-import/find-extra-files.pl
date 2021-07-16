@@ -27,6 +27,15 @@ for my $file (@pf::file_paths::stored_config_files) {
             if($param =~ /(_file|_path)$/ || $param eq "file" || $param eq "path") {
                 print $c->val($section, $param) . "\n";
             }
+            elsif($param eq "logo") {
+                my $logo_path = $c->val($section, $param);
+                if($logo_path =~ /^\/common\//) {
+                    print "/usr/local/pf/html$logo_path\n"
+                }
+                elsif($logo_path =~ /^\/content\//) {
+                    print "/usr/local/pf/html/captive-portal$logo_path\n";
+                }
+            }
         }
     }
 }

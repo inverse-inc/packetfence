@@ -46,6 +46,14 @@ check_code $?
 db_dump=`ls packetfence-db-dump-*`
 echo "Uncompressed database dump '$db_dump'"
 
+main_splitter
+echo "Stopping PacketFence services"
+systemctl cat monit >/dev/null 2>&1 && (systemctl stop monit ; systemctl disable monit)
+systemctl isolate packetfence-base
+check_code $?
+systemctl stop packetfence-galera-autofix
+check_code $?
+
 if echo "$db_dump" | grep '\.sql$' >/dev/null; then
   echo "The database dump uses mysqldump"
   #TODO /tmp/grants.sql should be included in the export
@@ -60,14 +68,6 @@ fi
 
 #TODO: check the version of the export, we want to support only 10.3.0 and above
 #TODO: check if galera is enabled and stop if its the case
-
-main_splitter
-echo "Stopping PacketFence services"
-systemctl cat monit >/dev/null 2>&1 && (systemctl stop monit ; systemctl disable monit)
-systemctl isolate packetfence-base
-check_code $?
-systemctl stop packetfence-galera-autofix
-check_code $?
 
 main_splitter
 db_name=`get_db_name usr/local/pf/conf/pf.conf`
