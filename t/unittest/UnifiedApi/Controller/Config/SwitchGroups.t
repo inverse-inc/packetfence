@@ -26,7 +26,7 @@ BEGIN {
     use setup_test_config;
 }
 
-use Test::More tests => 7;
+use Test::More tests => 9;
 use Test::Mojo;
 
 #This test will running last
@@ -45,6 +45,9 @@ $t->post_ok($collection_base_url => json => {})
 
 $t->post_ok($collection_base_url, {'Content-Type' => 'application/json'} => '{')
   ->status_is(400);
+
+$t->get_ok("$base_url/default/members")
+  ->status_is(200);
 
 =head1 AUTHOR
 

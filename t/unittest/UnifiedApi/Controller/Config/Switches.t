@@ -26,7 +26,7 @@ BEGIN {
     use setup_test_config;
 }
 
-use Test::More tests => 36;
+use Test::More tests => 47;
 use Test::Mojo;
 use Utils;
 use pf::ConfigStore::Switch;
@@ -48,10 +48,69 @@ my $base_url = '/api/v1/config/switch';
     my $group_url = "/api/v1/config/switch_group/$group_id";
     $t->patch_ok( $switch_url => json => { voiceVlan => 501 })
         ->status_is(200);
-    $t->patch_ok( $group_url => json => { voiceRole => "zammit"});
+    $t->patch_ok( $group_url => json => { voiceRole => "zammit" });
+    $t->get_ok( $group_url  )
+      ->status_is(200)
+      ->json_is("/item/voiceRole", "zammit")
+      ->json_is(
+        "/item/ControllerRoleMapping",
+        [
+            {
+                'role'            => 'inline',
+                'controller_role' => 'inline'
+            },
+            {
+                'role'            => 'isolation',
+                'controller_role' => ''
+            },
+            {
+                'role'            => 'macDetection',
+                'controller_role' => ''
+            },
+            {
+                'role'            => 'normal',
+                'controller_role' => ''
+            },
+            {
+                'role'            => 'registration',
+                'controller_role' => ''
+            },
+            {
+                'role'            => 'voice',
+                'controller_role' => 'zammit'
+            }
+        ]
+    );
+
     $t->get_ok( $switch_url  )
       ->status_is(200)
-      ->json_is("/item/voiceRole", "zammit");
+      ->json_is("/item/voiceRole", "zammit")
+      ->json_is("/item/ControllerRoleMapping", [
+            {
+                'role'            => 'inline',
+                'controller_role' => 'inline'
+            },
+            {
+                'role'            => 'isolation',
+                'controller_role' => ''
+            },
+            {
+                'role'            => 'macDetection',
+                'controller_role' => ''
+            },
+            {
+                'role'            => 'normal',
+                'controller_role' => ''
+            },
+            {
+                'role'            => 'registration',
+                'controller_role' => ''
+            },
+            {
+                'role'            => 'voice',
+                'controller_role' => 'zammit'
+            }
+      ]);
 
     $t->patch_ok( $switch_url => json => { voiceVlan => undef })
         ->status_is(200);
@@ -71,6 +130,15 @@ $t->get_ok($collection_base_url)
 
 $t->post_ok($collection_base_url => json => {})
   ->status_is(422);
+
+$t->post_ok($collection_base_url => json => { id => "33:44:55:22:33:44", voiceVlan => '222', description => "Bob" })
+  ->status_is(201);
+
+$t->get_ok("$base_url/33:44:55:22:33:44")
+  ->status_is(200)
+  ->json_is("/item/id", "33:44:55:22:33:44")
+  ->json_is("/item/voiceVlan", "222")
+  ;
 
 $t->post_ok($collection_base_url, {'Content-Type' => 'application/json'} => '{')
   ->status_is(400);

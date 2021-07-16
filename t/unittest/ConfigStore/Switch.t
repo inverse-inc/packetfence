@@ -22,7 +22,7 @@ BEGIN {
     use setup_test_config;
 }
 
-use Test::More tests => 10;
+use Test::More tests => 14;
 use Utils;
 use pf::ConfigStore::Switch;
 my ($fh, $filename) = Utils::tempfileForConfigStore("pf::ConfigStore::Switch");
@@ -107,6 +107,234 @@ is($new->{voiceVlan}, $oldVoiceVlan, "delete inherited values");
     is($data->{registrationVlan}, 3);
 }
 
+{
+    my $cs = pf::ConfigStore::Switch->new;
+    my $data = $cs->read('10.0.0.6');
+    is_deeply(
+        $data->{ControllerRoleMapping},
+        [
+            {
+                'role'            => 'admin',
+                'controller_role' => 'full-access'
+            },
+            {
+                'role'            => 'guest',
+                'controller_role' => 'restricted'
+            },
+            {
+                'role'            => 'inline',
+                'controller_role' => 'inline'
+            },
+            {
+                'role'            => 'isolation',
+                'controller_role' => ''
+            },
+            {
+                'role'            => 'macDetection',
+                'controller_role' => ''
+            },
+            {
+                'role'            => 'normal',
+                'controller_role' => ''
+            },
+            {
+                'role'            => 'registration',
+                'controller_role' => ''
+            },
+            {
+                'role'            => 'voice',
+                'controller_role' => 'voice'
+            }
+        ]
+    );
+}
+
+{
+    my $data = {
+        ControllerRoleMapping => [
+            {
+                'role'            => 'admin',
+                'controller_role' => 'full-access'
+            },
+            {
+                'role'            => 'guest',
+                'controller_role' => 'restricted'
+            },
+            {
+                'role'            => 'inline',
+                'controller_role' => 'inline'
+            },
+            {
+                'role'            => 'isolation',
+                'controller_role' => ''
+            },
+            {
+                'role'            => 'macDetection',
+                'controller_role' => ''
+            },
+            {
+                'role'            => 'normal',
+                'controller_role' => ''
+            },
+            {
+                'role'            => 'registration',
+                'controller_role' => ''
+            },
+            {
+                'role'            => 'voice',
+                'controller_role' => 'voice'
+            }
+        ]
+    };
+
+    pf::ConfigStore::Switch::_flattenRoleMappings($data);
+    is_deeply(
+        $data,
+        {
+            ControllerRoleMapping => [
+                {
+                    'role'            => 'admin',
+                    'controller_role' => 'full-access'
+                },
+                {
+                    'role'            => 'guest',
+                    'controller_role' => 'restricted'
+                },
+                {
+                    'role'            => 'inline',
+                    'controller_role' => 'inline'
+                },
+                {
+                    'role'            => 'isolation',
+                    'controller_role' => ''
+                },
+                {
+                    'role'            => 'macDetection',
+                    'controller_role' => ''
+                },
+                {
+                    'role'            => 'normal',
+                    'controller_role' => ''
+                },
+                {
+                    'role'            => 'registration',
+                    'controller_role' => ''
+                },
+                {
+                    'role'            => 'voice',
+                    'controller_role' => 'voice'
+                }
+            ],
+            adminRole => 'full-access',
+            voiceRole => 'voice',
+            registrationRole => '',
+            normalRole => '',
+            macDetectionRole => '',
+            inlineRole => 'inline',
+            guestRole => 'restricted',
+            isolationRole => '',
+        },
+    );
+}
+
+{
+    my $cs = pf::ConfigStore::Switch->new;
+    my $data = $cs->read('172.16.8.21');
+    is_deeply(
+        $data->{VlanMapping},
+        [
+            {
+                'role' => 'REJECT',
+                'vlan' => '-1'
+            },
+            {
+                'role' => 'custom1',
+                'vlan' => 'patate'
+            },
+            {
+                'role' => 'default',
+                'vlan' => '-1'
+            },
+            {
+                'role' => 'guest',
+                'vlan' => '5'
+            },
+            {
+                'role' => 'inline',
+                'vlan' => '6'
+            },
+            {
+                'role' => 'isolation',
+                'vlan' => '2'
+            },
+            {
+                'role' => 'normal',
+                'vlan' => '1'
+            },
+            {
+                'role' => 'registration',
+                'vlan' => '3'
+            },
+            {
+                'role' => 'voice',
+                'vlan' => '10'
+            }
+        ]
+    );
+}
+
+{
+    my $cs = pf::ConfigStore::Switch->new;
+    $cs->update('172.16.8.21', { VlanMapping => [{ vlan => 4, role => 'registration' }] });
+    $cs->commit;
+}
+
+{
+    my $cs = pf::ConfigStore::Switch->new;
+    my $data = $cs->read('172.16.8.21');
+    is_deeply(
+        $data->{VlanMapping},
+        [
+            {
+                'role' => 'REJECT',
+                'vlan' => '-1'
+            },
+            {
+                'role' => 'custom1',
+                'vlan' => 'patate'
+            },
+            {
+                'role' => 'default',
+                'vlan' => '-1'
+            },
+            {
+                'role' => 'guest',
+                'vlan' => '5'
+            },
+            {
+                'role' => 'inline',
+                'vlan' => '6'
+            },
+            {
+                'role' => 'isolation',
+                'vlan' => '2'
+            },
+            {
+                'role' => 'normal',
+                'vlan' => '1'
+            },
+            {
+                'role' => 'registration',
+                'vlan' => '4'
+            },
+            {
+                'role' => 'voice',
+                'vlan' => '10'
+            }
+        ]
+    );
+}
+
 =head1 AUTHOR
 
 Inverse inc. <info@inverse.ca>
@@ -135,4 +363,3 @@ USA.
 =cut
 
 1;
-

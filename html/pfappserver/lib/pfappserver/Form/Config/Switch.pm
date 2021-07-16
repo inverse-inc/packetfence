@@ -203,15 +203,6 @@ has_field 'inlineTrigger.value' =>
   (
    type => 'Hidden',
   );
-has_block 'triggers' =>
-  (
-   tag => 'div',
-   render_list => [
-                   map( { ("${_}_trigger") } ($ALWAYS, $PORT, $MAC, $SSID)),
-                  ],
-   attr => { id => 'templates' },
-   class => [ 'hidden' ],
-  );
 has_field "${ALWAYS}_trigger" =>
   (
    type => 'Hidden',
@@ -239,54 +230,10 @@ has_field "${SSID}_trigger" =>
    #element_class => ['span5'],
   );
 
-## RADIUS
-has_block 'radius' =>
-  (
-   tag => 'div',
-   render_list => [
-                   'radiusSecret',
-                  ],
-  );
 has_field 'radiusSecret' =>
   (
    type => 'ObfuscatedText',
    label => 'Secret Passphrase',
-  );
-
-## SNMP
-has_block 'snmp' =>
-  (
-   tag => 'div',
-   render_list => [
-                   'SNMPVersion',
-                   'SNMPCommunityRead',
-                   'SNMPCommunityWrite',
-                   'SNMPEngineID',
-                   'SNMPUserNameRead',
-                   'SNMPAuthProtocolRead',
-                   'SNMPAuthPasswordRead',
-                   'SNMPPrivProtocolRead',
-                   'SNMPPrivPasswordRead',
-                   'SNMPUserNameWrite',
-                   'SNMPAuthProtocolWrite',
-                   'SNMPAuthPasswordWrite',
-                   'SNMPPrivProtocolWrite',
-                   'SNMPPrivPasswordWrite',
-                   'SNMPVersionTrap',
-                   'SNMPCommunityTrap',
-                   'SNMPUserNameTrap',
-                   'SNMPAuthProtocolTrap',
-                   'SNMPAuthPasswordTrap',
-                   'SNMPPrivProtocolTrap',
-                   'SNMPPrivPasswordTrap',
-                   'advance',
-                  ],
-  );
-
-has_block 'advance' =>
-  (
-   tag => 'div',
-   render_list => [ qw(macSearchesMaxNb macSearchesSleepInterval) ],
   );
 
 has_field macSearchesMaxNb =>
@@ -309,10 +256,6 @@ has_field macSearchesSleepInterval  =>
    },
   );
 
-has_block definition =>
-  (
-   render_list => [ qw(description type mode group deauthMethod useCoA cliAccess ExternalPortalEnforcement VoIPEnabled VoIPLLDPDetect VoIPCDPDetect VoIPDHCPDetect uplink_dynamic uplink controllerIp disconnectPort coaPort) ],
-  );
 has_field 'SNMPVersion' =>
   (
    type => 'Select',
@@ -423,16 +366,6 @@ has_field 'SNMPPrivPasswordTrap' =>
   );
 
 ## CLI
-has_block 'cli' =>
-  (
-   tag => 'div',
-   render_list => [
-                   'cliTransport',
-                   'cliUser',
-                   'cliPwd',
-                   'cliEnablePwd',
-                  ],
-  );
 has_field 'cliTransport' =>
   (
    type => 'Select',
@@ -456,16 +389,6 @@ has_field 'cliEnablePwd' =>
    label => 'Enable Password',
   );
 
-## Web Services
-has_block 'ws' =>
-  (
-   tag => 'div',
-   render_list => [
-                   'wsTransport',
-                   'wsUser',
-                   'wsPwd',
-                  ],
-  );
 has_field 'wsTransport' =>
   (
    type => 'Select',
@@ -513,6 +436,35 @@ has_field coaPort =>
     },
   );
 
+sub addRoleMapping {
+    my ($namespace, $key) = @_;
+    has_field "$namespace" => (
+        type => 'Repeatable',
+    );
+
+    has_field "$namespace.$key" => (
+        type => 'Text',
+        required => 0,
+    );
+
+    has_field "$namespace.role" => (
+        type => 'SelectSuggested',
+        options_method => \&options_roles,
+        required => 1,
+    );
+}
+
+addRoleMapping("VlanMapping", "vlan");
+addRoleMapping("UrlMapping", "url");
+addRoleMapping("ControllerRoleMapping", "controller_role");
+addRoleMapping("AccessListMapping", "accesslist");
+
+sub options_roles {
+    my $self = shift;
+    my @roles = map {  { label => $_, value  => $_ } } (@ROLES, map { $_->{name} }  @{$self->form->roles // []});
+    return @roles;
+}
+
 =head1 METHODS
 
 =head2 options_inlineTrigger
@@ -525,66 +477,6 @@ sub options_inlineTrigger {
     my @triggers = map { $_ => $self->_localize($_) } ($ALWAYS, $PORT, $MAC, $SSID);
 
     return @triggers;
-}
-
-=head2 field_list
-
-Dynamically build text fields for the roles/vlans mapping.
-
-=cut
-
-sub field_list {
-    my $self = shift;
-
-    my $list = [];
-
-    # Add VLAN & role mapping for default roles
-    foreach my $role (@ROLES) {
-        $self->_add_role_mappings($list, $role);
-    }
-
-    if (defined $self->roles) {
-        foreach my $role (map { $_->{name} } @{$self->roles}) {
-            $self->_add_role_mappings($list, $role);
-        }
-    }
-
-    return $list;
-}
-
-=head2 _add_role_mappings
-
-Add VLAN & role mapping for custom roles
-
-=cut
-
-sub _add_role_mappings {
-    my ($self, $list, $role) = @_;
-    my $text_field = {
-        type              => 'Text',
-        label             => $role,
-        wrap_label_method => \&role_label_wrap,
-    };
-    foreach my $type (qw(Role Url Vlan)) {
-        push(@$list, $role . $type => $text_field);
-    }
-
-    my $text_area_field = {
-        type              => 'TextArea',
-        label             => $role,
-        wrap_label_method => \&role_label_wrap,
-    };
-    push(@$list, $role . 'AccessList' => $text_area_field);
-    
-    my $toggle_field = {
-        type    => 'Toggle',
-    };
-    push(@$list, $role . 'DynamicAccessListFingerbank' => $toggle_field);
-}
-
-sub role_label_wrap {
-    my ($self, $label) = @_;
-    return $label;
 }
 
 =head2 update_fields
@@ -602,12 +494,6 @@ sub update_fields {
     my $inherit_from = $init_object->{group} || "default";
     my $cs = pf::ConfigStore::Switch->new;
     my $placeholders = $id ? $cs->readInherited($id) : $cs->read($inherit_from);
-
-    if (defined $id && $id eq 'default') {
-        foreach my $role (@ROLES) {
-            $self->field($role.'Vlan')->required(1);
-        }
-    }
 
     if ($placeholders) {
         foreach my $field ($self->fields) {
@@ -635,6 +521,7 @@ sub update_fields {
     $self->SUPER::update_fields();
 }
 
+
 =head2 build_block_list
 
 Dynamically build the block list of the roles mapping.
@@ -642,31 +529,7 @@ Dynamically build the block list of the roles mapping.
 =cut
 
 sub build_block_list {
-    my $self = shift;
-
-    my (@vlans, @roles, @access_lists, @urls);
-    if ($self->form->roles) {
-        @vlans = map { $_.'Vlan' } @ROLES, map { $_->{name} } @{$self->form->roles};
-        @roles = map { $_.'Role' } @ROLES, map { $_->{name} } @{$self->form->roles};
-        @access_lists = map { $_.'AccessList' } @ROLES, map { $_->{name} } @{$self->form->roles};
-        @urls = map { $_.'Url' } @ROLES, map { $_->{name} } @{$self->form->roles};
-    }
-
-    return
-      [
-       { name => 'vlans',
-         render_list => \@vlans,
-       },
-       { name => 'roles',
-         render_list => \@roles,
-       },
-       { name => 'access_lists',
-         render_list => \@access_lists,
-       },
-       { name => 'urls',
-         render_list => \@urls,
-       }
-      ];
+    return [];
 }
 
 =head2 options_type

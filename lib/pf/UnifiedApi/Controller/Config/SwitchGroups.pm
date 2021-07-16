@@ -18,6 +18,8 @@ use strict;
 use warnings;
 
 use Mojo::Base qw(pf::UnifiedApi::Controller::Config);
+use Role::Tiny::With;
+with 'pf::UnifiedApi::Controller::Config::SwitchRole';
 
 has 'config_store_class' => 'pf::ConfigStore::SwitchGroup';
 has 'form_class' => 'pfappserver::Form::Config::SwitchGroup';
@@ -36,8 +38,23 @@ members
 sub members {
     my ($self) = @_;
     my $cs     = pf::ConfigStore::Switch->new;
-    my $form   = pfappserver::Form::Config::Switch->new;
-    my @items = map { $self->cleanup_item($_, $form) } $cs->membersOfGroup($self->id);
+    my $params = $self->req->query_params->to_hash;
+    my %search_info = (
+        raw => 'true',
+        (
+            map {
+                exists $params->{$_}
+                ? ($_ => isenabled($params->{$_}))
+                : ()
+            } qw(raw)
+        )
+    );
+
+    my @items = $cs->membersOfGroup($self->id);
+    unless ($search_info{raw}) {
+        my $form   = pfappserver::Form::Config::Switch->new;
+        @items = map { $self->cleanup_item($_, $form) } @items;
+    }
     return $self->render( json => { items => \@items } );
 }
 
