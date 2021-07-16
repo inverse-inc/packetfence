@@ -1,14 +1,14 @@
 <template>
   <div class="portal-module-path" :path="path">
     <b-row align-v="center" class="portal-module-row row-nowrap" :class="{ first: index === 0, last: (last && !isChained), disconnected: isChained, 'first-in-chain': firstInChain }">
-      <icon v-if="!isChained" class="connector-arrow" name="caret-right"></icon>
+      <icon v-if="!isChained" class="connector-arrow" name="caret-right" />
       <portal-module-button :class="{ first: index === 0, last: (last && (isRoot || !isChained)), leaf: !children }"
-        :module="currentModule" :is-root="isRoot" v-bind="$attrs" @remove="remove"></portal-module-button>
+        :module="currentModule" :is-root="isRoot" v-bind="$attrs" @remove="onRemove" />
       <!-- vertical children -->
       <b-col v-if="!isRoot && !isChained && children" class="portal-module-col" :class="{ dragging: dragging }">
         <draggable v-model="children" :group="{ name: path, pull: path, put: ['portal-module', path] }" ghost-class="portal-module-row-ghost" drag-class="portal-module-row-drag"
           @start="dragging = true" @end="dragging = false">
-          <portal-module v-for="(mid, i) in children" :key="mid"
+          <portal-module v-for="(mid, i) in children" :key="`v-${mid}`"
             :id="mid" :parents="childParents" :modules="modules" :level="level + 1" :index="i" :last="i + 1 === children.length" />
         </draggable>
       </b-col>
@@ -16,7 +16,7 @@
     <!-- horizontal (chained) children -->
     <draggable class="row row-nowrap portal-module-row align-items-center" :class="{ first: index === 0 && !last, last: last }" v-if="!isRoot && children && isChained" v-model="children" :group="{ name: path, pull: path, put: ['portal-module', path] }" ghost-class="portal-module-row-ghost" drag-class="portal-module-row-drag"
       @start="dragging = true" @end="dragging = false">
-      <div v-for="(mid, i) in children" :key="mid" :class="{ 'col portal-module-col': (i > 0), dragging: dragging }">
+      <div v-for="(mid, i) in children" :key="`h-${mid}`" :class="{ 'col portal-module-col': (i > 0), dragging: dragging }">
         <portal-module :id="mid" :parents="childParents" :modules="modules" :level="level + i + 1" :first-in-chain="i === 0" :index="0" last />
       </div>
     </draggable>
@@ -26,105 +26,125 @@
 <script>
 const draggable = () => import('vuedraggable')
 import PortalModuleButton from './PortalModuleButton'
+const components = {
+  draggable,
+  PortalModuleButton
+}
 
-export default {
-  name: 'portal-module',
-  components: {
-    draggable,
-    PortalModuleButton
+const props = {
+  id: {
+    type: String,
+    default: null
   },
-  props: {
-    id: {
-      type: String,
-      default: null
-    },
-    module: {
-      type: Object,
-      default: null
-    },
-    parents: {
-      type: Array,
-      default: () => []
-    },
-    level: {
-      type: Number,
-      default: 0
-    },
-    index: {
-      type: Number,
-      default: 0
-    },
-    firstInChain: {
-      type: Boolean,
-      default: false
-    },
-    last: {
-      type: Boolean,
-      default: true
-    },
-    modules: {
-      type: Array,
-      default: () => []
-    },
-    isRoot: {
-      type: Boolean,
-      default: false
-    }
+  module: {
+    type: Object,
+    default: null
   },
-  data () {
-    return {
-      dragging: false,
-      childParents: []
-    }
+  parents: {
+    type: Array,
+    default: () => ([])
   },
-  computed: {
-    currentModule () {
-      return this.module || this.modules.find(module => module.id === this.id) || {}
-    },
-    isChained () {
-      return this.currentModule.type === 'Chained'
-    },
-    children: {
-      get () {
-        if (this.currentModule.modules) {
-          const modules = this.currentModule.modules.filter(id => this.modules.find(module => module.id === id))
-          if (modules.length || this.currentModule.type === 'Root') return modules
-        }
-        return false
-      },
-      set (newValue) {
-        this.currentModule.modules = newValue
+  level: {
+    type: Number,
+    default: 0
+  },
+  index: {
+    type: Number,
+    default: 0
+  },
+  firstInChain: {
+    type: Boolean
+  },
+  last: {
+    type: Boolean,
+    default: true
+  },
+  modules: {
+    type: Array,
+    default: () => ([])
+  },
+  isRoot: {
+    type: Boolean
+  }
+}
+
+import { computed, onMounted, ref, toRefs } from '@vue/composition-api'
+const setup = props => {
+
+  const {
+    id,
+    module,
+    modules,
+    parents,
+    level,
+    index
+  } = toRefs(props)
+
+  const dragging = ref(false)
+  const childParents = ref([])
+
+  const currentModule = computed(() => {
+    return module.value || modules.value.find(_module => _module.id === id.value) || {}
+  })
+
+  const isChained = computed(() => {
+    return currentModule.value.type === 'Chained'
+  })
+
+  const children = computed(() => {
+      if (currentModule.value.modules) {
+        const _modules = currentModule.value.modules.filter(id => modules.value.find(module => module.id === id))
+        if (_modules.length || currentModule.value.type === 'Root')
+          return _modules
       }
-    },
-    path () {
-      return 'L' + this.level + 'I' + this.index
+      return false
+  })
+
+  const path = computed(() => {
+    return 'L' + level.value + 'I' + index.value
+  })
+
+  const onRemove = id => {
+    let list = []
+    let _index = -1
+    if (parents.value.length > 0) {
+      // Disconnect module from its parent
+      let [parentId] = parents.value.slice(-1)
+      let parentModule = modules.value.find(module => module.id === parentId)
+      list = parentModule.modules
+      _index = list.findIndex(mid => mid === id)
+    } else {
+      // Delete module's definition
+      list = modules.value
+      _index = list.findIndex(module => module.id === id)
     }
-  },
-  methods: {
-    remove (id) {
-      let list = []
-      let index = -1
-      if (this.parents.length > 0) {
-        // Disconnect module from its parent
-        let [parentId] = this.parents.slice(-1)
-        let parentModule = this.modules.find(module => module.id === parentId)
-        list = parentModule.modules
-        index = list.findIndex(mid => mid === id)
-      } else {
-        // Delete module's definition
-        list = this.modules
-        index = list.findIndex(module => module.id === id)
-      }
-      if (index >= 0) {
-        this.$delete(list, index)
-      }
-    }
-  },
-  created () {
-    if (this.children) {
-      this.childParents = [...this.parents, this.id]
+    if (_index >= 0) {
+      list.splice(_index, 1)
     }
   }
+
+  onMounted(() => {
+    if (children.value)
+      childParents.value = [...parents.value, id.value]
+  })
+
+  return {
+    dragging,
+    childParents,
+    currentModule,
+    isChained,
+    children,
+    path,
+    onRemove
+  }
+}
+
+// @vue/component
+export default {
+  name: 'portal-module',
+  components,
+  props,
+  setup
 }
 </script>
 

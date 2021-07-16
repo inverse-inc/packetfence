@@ -2,17 +2,17 @@
   <div class="portal-module" :class="{ disabled: disabled }" @mouseout="delayHideButtons()">
     <transition name="slide-top-quick">
       <div class="front" @click="showButtons()" v-if="!buttonsVisible">
-        <h6 class="text-truncate w-75"><icon class="mb-1" :style="{ color: module.color }" name="circle"></icon> <span class="portal-module-type ml-1">{{ getModuleTypeName(module.type) }}</span></h6>
+        <h6 class="text-truncate w-75"><icon :style="{ color: module.color }" name="circle" /> <span class="portal-module-type ml-1">{{ getModuleTypeName(module.type) }}</span></h6>
         <div class="portal-module-label w-75 text-truncate">{{ module.description }}</div>
       </div>
     </transition>
     <transition name="slide-bottom-quick" v-if="!disabled">
       <div class="back" @mouseover="keepButtons()" v-if="buttonsVisible">
         <b-button variant="link" class="m-auto text-primary" :to="{ name: 'portal_module', params: { id: module.id } }" @click="hideButtons()">
-          <icon name="edit"></icon>
+          <icon name="edit" />
         </b-button>
-        <b-button variant="link" class="m-auto text-danger" @click="remove">
-          <icon :name="isRoot? 'trash-alt' : 'unlink'"></icon>
+        <b-button variant="link" class="m-auto text-danger" @click="onRemove">
+          <icon :name="isRoot? 'trash-alt' : 'unlink'" />
         </b-button>
       </div>
     </transition>
@@ -21,67 +21,88 @@
 
 <script>
 import { createDebouncer } from 'promised-debounce'
-import { moduleTypeName } from '@/views/Configuration/_config/portalModule'
+import { moduleTypeName as getModuleTypeName } from '../config'
 
-export default {
-  name: 'portal-module-button',
-  props: {
-    module: {
-      type: Object,
-      default: () => {},
-      required: true
-    },
-    isRoot: {
-      type: Boolean,
-      default: false
-    },
-    disabled: {
-      type: Boolean,
-      default: false
-    }
+const props = {
+  module: {
+    type: Object,
+    default: () => ({})
   },
-  data () {
-    return {
-      getModuleTypeName: moduleTypeName,
-      buttonsVisible: false,
-      buttonsHidden: true
-    }
+  isRoot: {
+    type: Boolean
   },
-  methods: {
-    showButtons () {
-      if (!this.disabled) {
-        this.buttonsVisible = true
-        this.buttonsHidden = false
-      }
-    },
-    hideButtons () {
-      this.buttonsVisible = false
-      this.buttonsHidden = true
-    },
-    keepButtons () {
-      this.buttonsHidden = false
-    },
-    delayHideButtons () {
-      let _this = this
-      this.buttonsHidden = true
-      if (!this.$debouncer) {
-        this.$debouncer = createDebouncer()
-      }
-      this.$debouncer({
-        handler: () => {
-          if (_this.buttonsHidden) {
-            _this.buttonsVisible = false
-            _this.buttonsHidden = true
-          }
-        },
-        time: 1000 // 1 second
-      })
-    },
-    remove () {
-      this.$emit('remove', this.module.id)
-      this.hideButtons()
+  disabled: {
+    type: Boolean
+  }
+}
+
+import { ref, toRefs } from '@vue/composition-api'
+const setup = (props, context) => {
+
+  const {
+    module,
+    disabled
+  } = toRefs(props)
+
+  const { emit } = context
+
+  const buttonsVisible = ref(false)
+  const buttonsHidden = ref(true)
+
+  const showButtons = () => {
+    if (!disabled.value) {
+      buttonsVisible.value = true
+      buttonsHidden.value = false
     }
   }
+
+  const hideButtons = () => {
+    buttonsVisible.value = false
+    buttonsHidden.value = true
+  }
+
+  const keepButtons = () => {
+    buttonsHidden.value = false
+  }
+
+  let $debouncer
+  const delayHideButtons = () => {
+    buttonsHidden.value = true
+    if (!$debouncer)
+      $debouncer = createDebouncer()
+    $debouncer({
+      handler: () => {
+        if (buttonsHidden.value) {
+          buttonsVisible.value = false
+          buttonsHidden.value = true
+        }
+      },
+      time: 1000 // 1 second
+    })
+  }
+
+  const onRemove = () => {
+    emit('remove', module.value.id)
+    hideButtons()
+  }
+
+  return {
+    getModuleTypeName,
+    buttonsVisible,
+    buttonsHidden,
+    showButtons,
+    hideButtons,
+    delayHideButtons,
+    keepButtons,
+    onRemove
+  }
+}
+
+// @vue/component
+export default {
+  name: 'portal-module-button',
+  props,
+  setup
 }
 </script>
 

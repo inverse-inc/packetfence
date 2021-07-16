@@ -46,3 +46,59 @@ export const useItemTitleBadge = (props, context, form) => {
 export { useRouter } from '../_router'
 
 export { useStore } from '../_store'
+
+import { pfSearchConditionType as conditionType } from '@/globals/pfSearch'
+import makeSearch from '@/store/factory/search'
+import api from '../_api'
+export const useSearch = makeSearch('portalModules', {
+  api,
+  columns: [
+    {
+      key: 'id',
+      label: 'Name', // i18n defer
+      searchable: true,
+      sortable: true,
+      visible: true
+    },
+    {
+      key: 'description',
+      label: 'Description', // i18n defer
+      searchable: true,
+      sortable: true,
+      visible: true
+    },
+    {
+      key: 'type',
+      label: 'Type', // i18n defer
+      searchable: true,
+      sortable: true,
+      visible: true
+    },
+    {
+      key: 'modules',
+      label: 'Modules', // i18n defer
+      searchable: true,
+      sortable: true,
+      visible: true
+    }
+  ],
+  fields: [
+    {
+      value: 'id',
+      text: 'Name',
+      types: [conditionType.SUBSTRING]
+    },
+    {
+      value: 'description',
+      text: 'Description',
+      types: [conditionType.SUBSTRING]
+    },
+    {
+      value: 'type',
+      text: 'Type',
+      types: [conditionType.SUBSTRING]
+    }
+  ],
+  sortBy: 'id',
+  limit: 1000
+})
