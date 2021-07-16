@@ -87,14 +87,16 @@ sub generateConfig {
 
 backend 127.0.0.1-netdata
         option httpclose
-        option http_proxy
         option forwardfor
-        errorfile 502 /usr/local/pf/html/pfappserver/root/errors/502.json.http
-        errorfile 503 /usr/local/pf/html/pfappserver/root/errors/503.json.http
+        #errorfile 502 /usr/local/pf/html/pfappserver/root/errors/502.json.http
+        #errorfile 503 /usr/local/pf/html/pfappserver/root/errors/503.json.http
         acl paramsquery query -m found
         http-request lua.admin
-        http-request set-uri http://127.0.0.1:19999%[var(req.path)]?%[query] if paramsquery
-        http-request set-uri http://127.0.0.1:19999%[var(req.path)] unless paramsquery
+        http-request set-header Host 127.0.0.1
+        http-request set-dst-port int(19999)
+        server service 0.0.0.0:0
+        http-request set-uri %[var(req.path)]?%[query] if paramsquery
+        http-request set-uri %[var(req.path)] unless paramsquery
 EOT
 
         my $mgmt_api_backend;
