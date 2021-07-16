@@ -110,7 +110,7 @@ Vagrant.configure("2") do |config|
 
         # shell provisioner to run configurator
         srv.vm.provision "run-configurator", type: "shell" do |config|
-          config.inline = "make -C /src/t/venom configurator"
+          config.inline = "make -C /usr/local/pf/t/venom configurator"
         end
 
         # shell provisioner to run by hand

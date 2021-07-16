@@ -1,7 +1,6 @@
 #!/bin/bash
 set -o nounset -o pipefail -o errexit
 
-SRC_DIR=${SRC_DIR:-/src}
 PF_DIR=${PF_DIR:-/usr/local/pf}
 GO_DIR=${GO_DIR:-"$PF_DIR/go"}
 VENOM_DIR=${VENOM_DIR:-/usr/local/pf/t/venom}
@@ -10,11 +9,6 @@ GOLANG_UNIT_TESTS=${GOLANG_UNIT_TESTS:-no}
 INTEGRATION_TESTS=${INTEGRATION_TESTS:-no}
 
 declare -p PERL_UNIT_TESTS GOLANG_UNIT_TESTS INTEGRATION_TESTS
-
-### Common steps for all tests
-# Copy 't' dir from sources to /usr/local/pf/t
-# /usr/local/pf is hardcoded everywhere in 't'
-cp -a ${SRC_DIR}/t ${PF_DIR}
 
 # Preliminary steps before running Perl and Golang unit tests
 # used MYSQL_PWD env variable

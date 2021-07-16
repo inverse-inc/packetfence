@@ -33,7 +33,7 @@ endif::[]
 You can meet these prerequisites by starting a `pf*dev` Vagrant virtual
 machine using instructions in <<_virtual_environment_initial_setup>> section.
 
-Inside `pf*dev` virtual machines, [filename]`t` directory  will be available under [filename]`/src/t`.
+Inside `pf*dev` virtual machines, [filename]`t` directory  will be available under [filename]`/usr/local/pf/t`.
 
 ==== Running all unit tests
 
