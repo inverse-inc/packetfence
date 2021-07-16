@@ -50,6 +50,24 @@ echo "Building list of configuration files for this current version"
 perl -I/usr/local/pf/lib_perl5/lib -I/usr/local/pf/lib -Mpf::file_paths -e 'print join("\n", @pf::file_paths::stored_config_files) . "\n"' > stored_config_files.txt
 
 main_splitter
+echo "Computing additional files that are referenced in the configuration"
+add_files="`/usr/local/pf/addons/full-import/find-extra-files.pl`"
+for f in $add_files; do
+  if dirname $f | grep '^/usr/local/pf/' > /dev/null; then
+    echo "Found reference to external file that is in the PF directory ($f)"
+    echo $f >> add_files.txt
+  else
+    echo "Found reference to external file that is outside the PF directory ($f)"
+    base_dir=`dirname $f`
+    mkdir -p ./$base_dir
+    check_code $?
+    cp -a $f ./$base_dir/
+    check_code $?
+    echo $f >> add_files.txt
+  fi
+done
+
+main_splitter
 echo "Creating export archive"
 tar -cvzf $output *
 check_code $?

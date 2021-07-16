@@ -3,6 +3,7 @@
 function config_files() {
   files=`perl -I/usr/local/pf/lib_perl5/lib -I/usr/local/pf/lib -Mpf::file_paths -e 'print join("\n", @pf::file_paths::stored_config_files) . "\n"'`
   files="$files /usr/local/pf/conf/pfconfig.conf"
+  files="$files `cat add_files.txt`"
   echo $files
 }
 
@@ -12,8 +13,16 @@ function restore_config_files() {
   files=`config_files`
   for f in $files; do
     echo "Restoring $f"
-    cp -a "$dump_dir$f" $f
-    chown pf: $f
+    mkdir -p `dirname $f`
+    check_code $?
+    if [ -f $dump_dir$f ]; then
+      cp -a "$dump_dir$f" $f
+      check_code $?
+      chown pf: $f
+      check_code $?
+    else
+      echo "WARN: Unable to find $f in the restore directory"
+    fi
   done
 }
 
