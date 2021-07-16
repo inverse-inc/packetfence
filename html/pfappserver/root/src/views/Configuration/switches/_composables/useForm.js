@@ -43,20 +43,21 @@ const useForm = (props, context) => {
   })
 
   const supported = computed(() => {
-    const { type } = form.value
-    const { type: { allowed = [] } = {} } = meta.value
-    return allowed.reduce((_supports, group) => {
-      const { options = [] } = group
-      for (let i = 0; i < options.length; i++) {
-        const { [i]: { value, supports = [] } = {} } = options
+    const { type: { allowed = [], placeholder } = {} } = meta.value
+    let { type } = form.value
+    type = type || placeholder
+    for (let i = 0; i < allowed.length; i++) {
+      const { options = [] } = allowed[i]
+      for (let j = 0; j < options.length; j++) {
+        const { [j]: { value, supports = [] } = {} } = options
         if (value === type)
-          _supports = supports
+          return supports
       }
-      return _supports
-    }, [])
+    }
+    return  []
   })
 
-  const supports = (allowed) => {
+  const supports = allowed => {
     if (advancedMode.value)
       return true
     for (let i = 0; i < allowed.length; i++) {
@@ -140,6 +141,7 @@ const useForm = (props, context) => {
     schema: metaSchema,
     switchGroup,
 
+supported,
     supports,
     isUplinkDynamic,
     isAccessListMap,
