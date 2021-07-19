@@ -105,7 +105,19 @@ export const useViewCollectionItem = (collection, props, context) => {
 
   const init = () => {
     return new Promise((resolve, reject) => {
-      if (!isNew.value) { // existing
+      if (isNew.value || isClone.value) { // new, use collection
+        getListOptions().then(options => {
+          const { meta: _meta = {} } = options || {}
+          form.value = useItemDefaults(_meta, props, context)
+          meta.value = _meta
+          resolve()
+        }).catch(() => {
+          form.value = {}
+          meta.value = {}
+          resolve() // meta may not be available, fail silently
+        })
+      }
+      else { // existing, use item
         getItemOptions().then(options => {
           const { meta: _meta = {} } = options || {}
           meta.value = _meta
@@ -125,17 +137,6 @@ export const useViewCollectionItem = (collection, props, context) => {
             form.value = {}
             reject(e)
           })
-        })
-      } else { // new
-        getListOptions().then(options => {
-          const { meta: _meta = {} } = options || {}
-          form.value = useItemDefaults(_meta, props, context)
-          meta.value = _meta
-          resolve()
-        }).catch(() => {
-          form.value = {}
-          meta.value = {}
-          resolve() // meta may not be available, fail silently
         })
       }
     })
