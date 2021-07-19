@@ -68,6 +68,14 @@ The app_secret of the Akamai MFA
 
 has app_secret => ( is => 'rw' );
 
+=head2 radius_mfa_method
+
+The RADIUS MFA Method to use
+
+=cut
+
+has radius_mfa_method => ( is => 'rw' );
+
 =head2 check_user
 
 Get the devices of the user
