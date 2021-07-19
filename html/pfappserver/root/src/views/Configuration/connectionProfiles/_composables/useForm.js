@@ -30,7 +30,8 @@ const useForm = (props, context) => {
 
   const {
     meta,
-    id
+    id,
+    isClone
   } = toRefs(props)
 
   const schema = computed(() => schemaFn(props))
@@ -50,7 +51,7 @@ const useForm = (props, context) => {
 
   const basesGeneral = computed(() => $store.getters['$_bases/general'])
 
-  const isDefault = computed(() => (id.value === 'default'))
+  const isDefault = computed(() => (id.value === 'default' && !isClone.value))
 
   return {
     schema: metaSchema,
