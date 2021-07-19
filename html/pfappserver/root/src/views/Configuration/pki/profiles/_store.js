@@ -14,6 +14,7 @@ export const useStore = $store => {
     createItem: params => $store.dispatch('$_pkis/createProfile', recomposeProfile(params)),
     getItem: params => $store.dispatch('$_pkis/getProfile', params.id)
       .then(item => decomposeProfile(item)),
+    updateItem: params => $store.dispatch('$_pkis/updateProfile', recomposeProfile(params))
   }
 }
 

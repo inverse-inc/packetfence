@@ -39,5 +39,8 @@ export default {
         return item
       }
     })
+  },
+  delete: id => {
+    return apiCall.delete(['pki', 'profile', id])
   }
 }
