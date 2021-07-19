@@ -15,7 +15,6 @@ unit test for I18N
 use strict;
 use warnings;
 #
-use lib '/usr/local/pf/lib';
 
 BEGIN {
     #include test libs

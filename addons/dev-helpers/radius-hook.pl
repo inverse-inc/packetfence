@@ -11,7 +11,7 @@ use warnings;
 use Data::Dumper;
 
 use constant INSTALL_DIR => '/usr/local/pf';
-use lib INSTALL_DIR . "/lib";
+use lib (INSTALL_DIR . "/lib", INSTALL_DIR . "/lib_perl/lib/perl5");
 
 use pf::radius::custom;
 

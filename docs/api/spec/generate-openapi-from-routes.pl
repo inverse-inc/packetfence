@@ -14,7 +14,7 @@ generate_openapi_from_routes
 
 use strict;
 use warnings;
-use lib qw(/usr/local/pf/lib);
+use lib qw(/usr/local/pf/lib /usr/local/pf/lib_perl/lib/perl5);
 use pf::UnifiedApi;
 use re 'regexp_pattern';
 use Data::Dumper;

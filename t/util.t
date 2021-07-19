@@ -3,11 +3,11 @@
 use strict;
 use warnings;
 
-use lib '/usr/local/pf/lib';
 BEGIN {
-    use lib qw(/usr/local/pf/t);
-    use setup_test_config;
+	use lib qw(/usr/local/pf/t);
+	use setup_test_config;
 }
+
 
 use pf::constants qw($TRUE $FALSE);
 

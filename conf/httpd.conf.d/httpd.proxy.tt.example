@@ -121,6 +121,7 @@ AcceptMutex posixsem
 [% END %]
 
 PerlSwitches -I[% install_dir %]/lib
+PerlSwitches -I[% install_dir %]/lib_perl/lib/perl5
 PerlLoadModule pf::WebAPI::InitHandler
 PerlPostConfigHandler pf::WebAPI::InitHandler->post_config
 PerlChildInitHandler pf::WebAPI::InitHandler->child_init

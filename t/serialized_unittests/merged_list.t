@@ -15,14 +15,10 @@ merged_list
 use strict;
 use warnings;
 # pf core libs
-use lib '/usr/local/pf/lib';
-
 my ($fh, $filename);
 
 BEGIN {
     use lib qw(/usr/local/pf/t);
-    use File::Spec::Functions qw(catfile catdir rel2abs);
-    use File::Basename qw(dirname);
     use test_paths_serial;
     use setup_test_config;
     use File::Temp;
@@ -30,15 +26,18 @@ BEGIN {
     $pf::file_paths::pf_config_file = $filename;
 }
 
+use List::MoreUtils qw(any);
 use Test::More tests => 6;
 use Test::NoWarnings;
 use Test::Exception;
+use Test2::Tools::Compare qw();
 
 use_ok('pf::config');
 
 my @default_proxy_passthroughs = split /\s*,\s*/, $pf::config::Default_Config{fencing}{proxy_passthroughs};
 # We use proxy_passthroughs to test the mergeable lists
-ok(@default_proxy_passthroughs ~~ $pf::config::Config{fencing}{proxy_passthroughs}, "Not overriden passthroughs are equal to the default ones.");
+my $val = $pf::config::Config{fencing}{proxy_passthroughs};
+is_deeply($val, \@default_proxy_passthroughs , "Not overriden passthroughs are equal to the default ones.");
 
 use_ok('pf::ConfigStore::Pf');
 
@@ -51,9 +50,17 @@ my $cs = pf::ConfigStore::Pf->new;
 $cs->update('fencing', {'proxy_passthroughs' => join ',', @additionnal});
 $cs->commit();
 
-ok(!(@default_proxy_passthroughs ~~ $pf::config::Config{fencing}{proxy_passthroughs}), "Merged passthroughs are not equal to the default ones.");
+Test2::Tools::Compare::isnt(
+    $pf::config::Config{fencing}{proxy_passthroughs},
+    \@default_proxy_passthroughs,
+    "Merged passthroughs are not equal to the default ones."
+);
 
-ok(([@default_proxy_passthroughs, @additionnal] ~~ $pf::config::Config{fencing}{proxy_passthroughs}), "Merged passthroughs are actually merged");
+is_deeply(
+    $pf::config::Config{fencing}{proxy_passthroughs},
+    [@default_proxy_passthroughs, @additionnal],
+    "Merged passthroughs are actually merged"
+);
 
 $cs->update('fencing', {'proxy_passthroughs' => undef});
 $cs->commit();

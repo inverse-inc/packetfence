@@ -15,11 +15,10 @@ unit test for dal-log
 use strict;
 use warnings;
 #
-use lib '/usr/local/pf/lib';
-
 BEGIN {
     #include test libs
     use lib qw(/usr/local/pf/t);
+    use setup_test_config;
     use Log::Log4perl;
     my $conf = q(
     log4perl.rootLogger =  INFO, TEST
@@ -28,7 +27,6 @@ BEGIN {
     );
     Log::Log4perl::init( \$conf );
     #Module for overriding configuration paths
-    use setup_test_config;
 }
 
 use Test::More tests => 4;

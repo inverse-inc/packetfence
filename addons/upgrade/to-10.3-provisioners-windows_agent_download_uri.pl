@@ -12,7 +12,7 @@ Migrate the ACLs from the switches to all.
 
 use strict;
 use warnings;
-use lib qw(/usr/local/pf/lib);
+use lib qw(/usr/local/pf/lib /usr/local/pf/lib_perl/lib/perl5);
 use pf::IniFiles;
 use Data::Dumper;
 use pf::file_paths qw(

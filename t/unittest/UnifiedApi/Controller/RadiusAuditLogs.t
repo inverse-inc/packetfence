@@ -15,8 +15,6 @@ unit test for RadiusAuditLogs
 use strict;
 use warnings;
 #
-use lib '/usr/local/pf/lib';
-use pf::dal::radius_audit_log;
 
 BEGIN {
     #include test libs
@@ -25,6 +23,7 @@ BEGIN {
     use setup_test_config;
 }
 #run tests
+use pf::dal::radius_audit_log;
 use Test::More tests => 92;
 use Test::Mojo;
 use Test::NoWarnings;

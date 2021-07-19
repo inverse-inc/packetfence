@@ -12,7 +12,7 @@ to-10.1-radius-filter-template
 
 use strict;
 use warnings;
-use lib qw(/usr/local/pf/lib);
+use lib qw(/usr/local/pf/lib /usr/local/pf/lib_perl/lib/perl5);
 use pf::IniFiles;
 use File::Copy;
 use pf::condition_parser qw(parse_condition_string);

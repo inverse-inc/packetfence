@@ -128,7 +128,7 @@ all:
               memory: 6144
             pfrhel8dev:
               box: generic/rhel8
-              box_version: '3.2.20'
+              box_version: '3.2.24'
               mgmt_ip: 172.17.17.14
               mgmt_netmask: 255.255.255.0
               ansible_host: "{{ mgmt_ip }}"

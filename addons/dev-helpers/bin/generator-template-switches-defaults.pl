@@ -1,8 +1,8 @@
 #!/usr/bin/perl
 
 use strict;
-use FindBin qw($Bin);;
-use lib "$Bin/../../../lib";
+use FindBin qw($Bin);
+use lib ("$Bin/../../../lib", "$Bin/../../../lib_perl/lib/perl5");
 use pf::mini_template;
 use pf::config::builder::template_switches;
 use pf::util::template_switch;

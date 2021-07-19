@@ -1,0 +1,12 @@
+- hosts: ['common_centos', 'common_debian']
+  name: Pre-configure CPAN
+  become: True
+
+  tasks:
+    - name: Generate MyConfig.pm
+      template:
+        src: 'templates/MyConfig.pm.j2'
+        dest: '{{ cpan_myconfig_path }}'
+        mode: '0644'
+        owner: '{{ cpan_user }}'
+        group: '{{ cpan_group }}'

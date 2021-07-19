@@ -6,13 +6,15 @@ pf::UnifiedApi::Command::prefork - Pre-fork command
 
 =cut
 
-use Systemd::Daemon qw {-soft };
+use Linux::Systemd::Daemon 'sd_ready';
 use Mojo::Base qw(Mojolicious::Command::prefork);
 use pf::config qw(%Config);
 
+sd_ready;
+
 sub run {
   my ($self, @args) = @_;
-  Systemd::Daemon::notify( READY => 1, STATUS => "Ready", unset => 1 );
+  Linux::Systemd::Daemon::sd_notify( READY => 1, STATUS => "Ready", unset => 1 );
   my $timeout = $Config{advanced}{pfperl_api_timeout} // 600;
   eval {
     $self->SUPER::run('-i', $timeout, '-H', $timeout, '-w', $Config{advanced}{pfperl_api_processes}, @args);
@@ -20,7 +22,7 @@ sub run {
   if ($@) {
       print STDERR $@;
   }
-  Systemd::Daemon::notify( STOPPING => 1 );
+  Linux::Systemd::Daemon::sd_notify( STOPPING => 1 );
 }
 
 1;

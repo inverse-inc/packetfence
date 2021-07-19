@@ -13,12 +13,12 @@ use strict;
 use warnings;
 use diagnostics;
 
-use lib '/usr/local/pf/lib';
 BEGIN {
     use lib qw(/usr/local/pf/t);
     use setup_test_config;
 }
-use Test::More tests => 23;
+
+use Test::More tests => 22;
 use Test::MockObject::Extends;
 use Test::NoWarnings;
 
@@ -28,7 +28,6 @@ use pf::config;
 
 BEGIN { use_ok('pf::web') }
 BEGIN { use_ok('pf::web::constants') }
-BEGIN { use_ok('pf::web::dispatcher') }
 BEGIN { use_ok('pf::web::guest') }
 BEGIN { use_ok('pf::web::release') }
 BEGIN { use_ok('pf::web::util') }

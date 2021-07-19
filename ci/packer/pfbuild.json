@@ -3,9 +3,9 @@
     "min_packer_version": "1.5.0",
     "variables": {
         "builder_prefix": "pfbuild",
-        "buildpkg_user": "buildpkg",
+        "buildpkg_user": "registry.gitlab.com/orange-opensource/gitlab-buildpkg",
         "pf_root": "../..",
-        "prov_dir": "provisionners",
+        "prov_dir": "provisionners_pfbuild",
         "files_dir": "files",
         "tmp_dir": "/tmp",
         "yum_cache_dir": "/var/cache/yum",
@@ -13,8 +13,8 @@
         "ansible_roles_path": "{{user `prov_dir`}}/roles",
         "ansible_collections_path": "{{user `prov_dir`}}",
         "ansible_extra_vars": "{{env `ANSIBLE_EXTRA_VARS`}}",
+        "ansible_user": "root",
         "ansible_centos_group": "{{env `ANSIBLE_CENTOS_GROUP`}}",
-        "ansible_centos7_group": "{{env `ANSIBLE_CENTOS7_GROUP`}}",
         "ansible_centos8_group": "{{env `ANSIBLE_CENTOS8_GROUP`}}",
         "ansible_debian_group": "{{env `ANSIBLE_DEBIAN_GROUP`}}",
         "ansible_rubygems_group": "{{env `ANSIBLE_RUBYGEMS_GROUP`}}",
@@ -27,16 +27,6 @@
     },
     "builders": [
         {
-            "name": "{{user `builder_prefix`}}-centos-7",
-            "type": "docker",
-            "image": "{{user `buildpkg_user`}}/centos:7",
-            "run_command": ["-d", "-i", "-t", "--", "{{.Image}}"],
-            "commit": true,
-            "changes": [
-                "ENV PATH /usr/local/go/bin:$PATH"
-            ]
-        },
-        {
             "name": "{{user `builder_prefix`}}-centos-8",
             "type": "docker",
             "image": "{{user `buildpkg_user`}}/centos:8",
@@ -47,19 +37,9 @@
             ]
         },
         {
-            "name": "{{user `builder_prefix`}}-stretch",
+            "name": "{{user `builder_prefix`}}-bullseye",
             "type": "docker",
-            "image": "{{user `buildpkg_user`}}/debian:stretch",
-            "run_command": ["-d", "-i", "-t", "--", "{{.Image}}"],
-            "commit": true,
-            "changes": [
-                "ENV PATH /usr/local/go/bin:$PATH"
-            ]
-        },
-        {
-            "name": "{{user `builder_prefix`}}-buster",
-            "type": "docker",
-            "image": "{{user `buildpkg_user`}}/debian:buster",
+            "image": "{{user `buildpkg_user`}}/debian:bullseye",
             "run_command": ["-d", "-i", "-t", "--", "{{.Image}}"],
             "commit": true,
             "changes": [
@@ -72,19 +52,6 @@
             "type": "ansible",
             "playbook_file": "{{user `prov_dir`}}/site.yml",
             "galaxy_file": "{{user `prov_dir`}}/requirements.yml",
-            "roles_path": "{{user `ansible_roles_path`}}",
-            "collections_path": "{{user `ansible_collections_path`}}",
-            "galaxy_force_install": true,
-            "inventory_directory": "{{user `prov_dir`}}/inventory",
-            "extra_arguments": ["--extra-vars", "{{user `ansible_extra_vars`}}"],
-            "ansible_env_vars": ["PF_MINOR_RELEASE={{ user `pf_minor_release`}}"],
-            "groups": ["{{user `ansible_centos_group`}}","{{user `ansible_centos7_group`}}"],
-            "only": ["{{user `builder_prefix`}}-centos-7"]
-        },
-        {
-            "type": "ansible",
-            "playbook_file": "{{user `prov_dir`}}/site.yml",
-            "galaxy_file": "{{user `prov_dir`}}/requirements.yml",
             "galaxy_force_install": true,
             "roles_path": "{{user `ansible_roles_path`}}",
             "collections_path": "{{user `ansible_collections_path`}}",
@@ -92,6 +59,7 @@
             "extra_arguments": ["--extra-vars", "{{user `ansible_extra_vars`}}"],
             "ansible_env_vars": ["PF_MINOR_RELEASE={{ user `pf_minor_release`}}"],
             "groups": ["{{user `ansible_centos_group`}}","{{user `ansible_centos8_group`}}"],
+            "user": "{{user `ansible_user`}}",
             "only": ["{{user `builder_prefix`}}-centos-8"]
         },
         {
@@ -105,9 +73,8 @@
             "extra_arguments": ["--extra-vars", "{{user `ansible_extra_vars`}}"],
             "ansible_env_vars": ["PF_MINOR_RELEASE={{ user `pf_minor_release`}}"],
             "groups": ["{{user `ansible_debian_group`}}"],
-            "only": ["{{user `builder_prefix`}}-stretch",
-                     "{{user `builder_prefix`}}-buster"
-                    ]
+            "user": "{{user `ansible_user`}}",
+            "only": ["{{user `builder_prefix`}}-bullseye"]
         },
         {
             "type": "shell",
@@ -118,17 +85,14 @@
             "type": "file",
             "source": "{{user `pf_root`}}/rpm",
             "destination": "{{user `tmp_dir`}}",
-            "only": ["{{user `builder_prefix`}}-centos-7",
-                     "{{user `builder_prefix`}}-centos-8"
+            "only": ["{{user `builder_prefix`}}-centos-8"
                     ]
         },
         {
             "type": "file",
             "source": "{{user `pf_root`}}/debian",
             "destination": "{{user `tmp_dir`}}",
-            "only": ["{{user `builder_prefix`}}-stretch",
-                     "{{user `builder_prefix`}}-buster"
-                    ]
+            "only": ["{{user `builder_prefix`}}-bullseye"]
         },
         {
             "type": "shell",
@@ -147,15 +111,8 @@
             "playbook_file": "{{user `prov_dir`}}/site.yml",
             "inventory_directory": "{{user `prov_dir`}}/inventory",
             "extra_arguments": ["--extra-vars", "{{user `ansible_extra_vars`}}"],
+            "user": "{{user `ansible_user`}}",
             "groups": ["{{user `ansible_rubygems_group`}}"]
-        },
-        {
-            "type": "shell",
-            "inline": ["rm -rf {{user `tmp_dir`}}/rpm",
-                       "yum clean all",
-                       "rm -rf {{user `yum_cache_dir`}}/*"
-                      ],
-            "only": ["{{user `builder_prefix`}}-centos-7"]
         },
         {
             "type": "shell",
@@ -170,31 +127,11 @@
             "inline": ["rm -rf {{user `tmp_dir`}}/debian",
                        "apt-get clean"
                       ],
-            "only": ["{{user `builder_prefix`}}-stretch",
-                     "{{user `builder_prefix`}}-buster"
-                    ]
+            "only": ["{{user `builder_prefix`}}-bullseye"]
         }
 
     ],
     "post-processors": [
-        [
-            {
-                "type": "docker-tag",
-                "name": "set-tag",
-                "only": ["{{user `builder_prefix`}}-centos-7"],
-                "repository": "{{user `docker_user`}}/{{user `builder_prefix`}}-centos-7",
-                "tags": "{{user `docker_tags`}}"
-            },
-            {
-                "type": "docker-push",
-                "name": "push-tag",
-                "only": ["{{user `builder_prefix`}}-centos-7"],
-                "login": true,
-                "login_username": "{{user `docker_user`}}",
-                "login_password": "{{user `docker_password`}}",
-                "login_server": "{{user `docker_registry`}}"
-            }
-        ],
         [
             {
                 "type": "docker-tag",
@@ -217,32 +154,14 @@
             {
                 "type": "docker-tag",
                 "name": "set-tag",
-                "only": ["{{user `builder_prefix`}}-stretch"],
-                "repository": "{{user `docker_user`}}/{{user `builder_prefix`}}-debian-stretch",
+                "only": ["{{user `builder_prefix`}}-bullseye"],
+                "repository": "{{user `docker_user`}}/{{user `builder_prefix`}}-debian-bullseye",
                 "tags": "{{user `docker_tags`}}"
             },
             {
                 "type": "docker-push",
                 "name": "push-tag",
-                "only": ["{{user `builder_prefix`}}-stretch"],
-                "login": true,
-                "login_username": "{{user `docker_user`}}",
-                "login_password": "{{user `docker_password`}}",
-                "login_server": "{{user `docker_registry`}}"
-            }
-        ],
-        [
-            {
-                "type": "docker-tag",
-                "name": "set-tag",
-                "only": ["{{user `builder_prefix`}}-buster"],
-                "repository": "{{user `docker_user`}}/{{user `builder_prefix`}}-debian-buster",
-                "tags": "{{user `docker_tags`}}"
-            },
-            {
-                "type": "docker-push",
-                "name": "push-tag",
-                "only": ["{{user `builder_prefix`}}-buster"],
+                "only": ["{{user `builder_prefix`}}-bullseye"],
                 "login": true,
                 "login_username": "{{user `docker_user`}}",
                 "login_password": "{{user `docker_password`}}",

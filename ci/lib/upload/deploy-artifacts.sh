@@ -102,17 +102,6 @@ deb_deploy() {
     done
 }
 
-maint_deploy() {
-    # warning: slashs at end of dirs are significant for rsync
-    src_dir="$RESULT_DIR/"
-    dst_repo="$PUBLIC_REPO_BASE_DIR/$MAINT_DEPLOY_DIR/"
-    dst_dir="$DEPLOY_USER@$DEPLOY_HOST:$dst_repo"
-    declare -p src_dir dst_dir
-    echo "rsync: $src_dir -> $dst_dir"
-    rsync -avz $src_dir $dst_dir \
-        || die "scp failed"
-}
-
 # no deploy command because it's just a file
 packetfence_release_deploy() {
     for release_name in $(ls $RPM_RESULT_DIR); do
@@ -120,7 +109,7 @@ packetfence_release_deploy() {
         dst_repo="$PUBLIC_REPO_BASE_DIR/RHEL$release_name"
         dst_dir="$DEPLOY_USER@$DEPLOY_HOST:$dst_repo"
         pf_release_rpm_file=$(basename $(ls $src_dir/packetfence-release*))
-        pkg_dest_name=${PKG_DEST_NAME:-"packetfence-release-${PF_MINOR_RELEASE}-el${release_name}.noarch.rpm"}
+        pkg_dest_name=${PKG_DEST_NAME:-"packetfence-release-${PF_MINOR_RELEASE}.el${release_name}.noarch.rpm"}
         declare -p src_dir dst_dir pf_release_rpm_file pkg_dest_name
 
         echo "scp: ${src_dir}/${pf_release_rpm_file} -> ${dst_dir}/${pkg_dest_name}"
@@ -139,7 +128,6 @@ log_section "Deploy $1 artifacts"
 case $1 in
     rpm) rpm_deploy ;;
     deb) deb_deploy ;;
-    maintenance) maint_deploy ;;
     packetfence-release) packetfence_release_deploy ;;
     *)   die "Wrong argument"
 esac

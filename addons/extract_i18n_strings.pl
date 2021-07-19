@@ -13,8 +13,8 @@ can be localized.
 
 =cut
 
+use lib qw(/usr/local/pf/lib /usr/local/pf/lib_perl/lib/perl5);
 use File::Find;
-use lib qw(/usr/local/pf/lib);
 use pf::action;
 use pf::admin_roles;
 use pf::api;
@@ -139,13 +139,13 @@ sub parse_tt {
             while ($line =~ m/\[\%\s?l\(['"](.+?(?!\\))['"](,.*)?\)\s?(\| (js|none) )?\%\]/g) {
                 my $string = $1;
                 $string =~ s/\[_(\d+)\]/\%$1/g;
-                add_string($string, $template) unless ($string =~ m/\${/);
+                add_string($string, $template) unless ($string =~ m/\$\{/);
                 next;
             }
             while ($line =~ m/l\(['"](.+?(?!\\))['"](,.*)?\)/g) {
                 my $string = $1;
                 $string =~ s/\[_(\d+)\]/\%$1/g;
-                add_string($string, $template) unless ($string =~ m/\${/);
+                add_string($string, $template) unless ($string =~ m/\$\{/);
             }
         }
         close(TT);

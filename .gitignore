@@ -274,3 +274,6 @@ html/pfappserver/root/admin/v-index.tt
 
 # ignore pf-maint patches
 .patches/
+
+# ignore the lib_perl/ directory for dependencies
+lib_perl/

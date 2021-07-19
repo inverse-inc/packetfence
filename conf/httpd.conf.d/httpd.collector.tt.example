@@ -115,6 +115,7 @@
 </IfDefine>
 
 PerlSwitches -I[% install_dir %]/lib
+PerlSwitches -I[% install_dir %]/lib_perl/lib/perl5
 PerlSwitches -I[% install_dir %]/html/pfappserver/lib
 PerlPostConfigRequire [% install_dir %]/lib/pf/web/[% name %]_modperl_require.pl
 PerlLoadModule pf::WebAPI::MSEHandler

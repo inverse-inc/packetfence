@@ -25,7 +25,7 @@ Will replay a pcap to simulate pfdhcplistener traffic
 
 use strict;
 use warnings;
-use lib qw(/usr/local/pf/lib);
+use lib qw(/usr/local/pf/lib /usr/local/pf/lib_perl/lib/perl5);
 use pf::dhcp::processor_v4();
 use pf::dhcp::processor_v6();
 use pf::util::dhcpv6();

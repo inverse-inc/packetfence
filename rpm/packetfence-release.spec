@@ -27,18 +27,21 @@ baseurl=http://inverse.ca/downloads/PacketFence/RHEL\$releasever/%{pf_minor_rele
 gpgkey=file:///etc/pki/rpm-gpg/RPM-GPG-KEY-PACKETFENCE-CENTOS
 gpgcheck=1
 enabled=0
+module_hotfixes=1
 
 [packetfence-extra]
 name=PacketFence Extra Repository
 baseurl=http://inverse.ca/downloads/PacketFence/RHEL\$releasever/extra/\$basearch
 gpgcheck=0
 enabled=0
+module_hotfixes=1
 
 [packetfence-branches]
 name=PacketFence Branches Repository
 baseurl=http://inverse.ca/downloads/PacketFence/RHEL\$releasever/branches/\$basearch
 gpgcheck=0
 enabled=0
+module_hotfixes=1
 
 [packetfence-gitlab]
 name=PacketFence GitLab Repository

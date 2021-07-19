@@ -2,7 +2,7 @@ Source: packetfence
 Section: net
 Priority: optional
 Maintainer: Inverse inc. <support@inverse.ca>
-Build-Depends: debhelper (>= 7.0.50~), gettext, libparse-recdescent-perl, gcc, lsb-release, dh-systemd, libfile-fcntllock-perl, git, libipset-dev, pkg-config, nodejs (>= 12.0), jq,
+Build-Depends: debhelper (>= 7.0.50~), gettext, libparse-recdescent-perl, gcc, lsb-release, libfile-fcntllock-perl, git, pkg-config, nodejs (>= 12.0), jq,
  ruby, rubygems,
  quilt, libmariadbd-dev (>= 10.1)
 Standards-Version: 3.8.4
@@ -17,19 +17,19 @@ Pre-Depends:  ca-certificates,
  ca-certificates, winbind,
  packetfence-pfcmd-suid (>= ${source:Version}), packetfence-config (>= ${source:Version}),
 # CAUTION: we need to require the version we want for Fingerbank and ensure we don't want anything equal or above the next major release as it can add breaking changes
- fingerbank (>= 4.2.1), fingerbank (<< 5.0.0),
+ fingerbank (>= 4.2.2), fingerbank (<< 5.0.0),
  fingerbank-collector (>= 1.3.17), fingerbank-collector (<< 2.0.0),
  packetfence-redis-cache (>= ${source:Version}),
  packetfence-pfappserver-javascript (>= ${source:Version}),
  packetfence-captive-portal-javascript (>= ${source:Version}),
- netdata (<< 1.11),
+ netdata (= 1:1.10.0-1),
  libmariadbd-dev (>= 10.1)
 Breaks: libdata-alias-perl
 Depends: ${misc:Depends}, vlan,
  packetfence-ntlm-wrapper (>= ${source:Version}), packetfence-doc (>= ${source:Version}), packetfence-golang-daemon (>= ${source:Version}),
  openssl,
- mariadb-server (= 10.2.37+maria~stretch),
- mariadb-client (= 10.2.37+maria~stretch),
+ mariadb-server (>= 10.5.10),
+ mariadb-client (>= 10.5.10),
  snmp, snmptrapfmt, snmptrapd, snmp-mibs-downloader, conntrack, rsyslog,
 # apache related
  apache2, apache2-utils,
@@ -37,16 +37,16 @@ Depends: ${misc:Depends}, vlan,
  libapache2-request-perl, libtie-dxhash-perl, libapache-session-perl,
  libapache-ssllookup-perl, libapache2-mod-systemd,
 # freeradius
- freeradius (>= 3.0.21), freeradius-ldap,
+ freeradius (>= 3.0.23), freeradius-ldap,
  freeradius-mysql, freeradius-utils, freeradius-rest, freeradius-redis,
 # systemd sd_notify support
- libsystemd-daemon-perl,
+ liblinux-systemd-daemon-perl,
 # binary
  make, binutils,
  samba,
- python-impacket,
+ python3-impacket,
  krb5-user,
- iproute,
+ iproute2,
  ipset,
  sudo,
  sscep (>= 0.9),
@@ -72,7 +72,7 @@ Depends: ${misc:Depends}, vlan,
  libuniversal-require-perl, libuniversal-exports-perl, libnet-rawip-perl,
  libcgi-session-perl, libcgi-session-driver-chi-perl (>= 1.0.3), libconfig-inifiles-perl (>= 2.88),
  libdatetime-format-dateparse-perl, libdatetime-format-rfc3339-perl, libdbi-perl,librose-db-perl,librose-db-object-perl,libdatetime-timezone-perl,
- libnet-telnet-perl, libregexp-common-perl,libhtml-formhandler-perl (= 1:0.40019-1),
+ libnet-telnet-perl, libregexp-common-perl,libhtml-formhandler-perl,
  libreadonly-perl, libtemplate-perl, libtemplate-autofilter-perl, libterm-readkey-perl,
  libuniversal-require-perl, libthread-serialize-perl,
  libnet-ldap-perl, libcrypt-generatepassword-perl, libbytes-random-secure-perl, libcrypt-eksblowfish-perl, libcrypt-smbhash-perl,
@@ -136,7 +136,7 @@ Depends: ${misc:Depends}, vlan,
 # cluster
  haproxy (>= 1.8), keepalived (>= 2.0), arping,
 # monitoring
- fping, python-mysqldb,
+ fping, python3-mysqldb,
 # EAP TLS
  libcrypt-smime-perl, libnumber-range-perl,
 # Captive Portal Dynamic Routing
@@ -146,7 +146,7 @@ Depends: ${misc:Depends}, vlan,
 # for packaging
  lsb-release,
 # nthash cache
- libscalar-list-utils-perl (>= 1.41-1),libfile-fcntllock-perl,libjson-xs-perl,libmoo-perl,libnet-dns-perl,python-twisted-bin,python-twisted-core,libconfig-inifiles-perl,
+ libscalar-list-utils-perl (>= 1.41-1),libfile-fcntllock-perl,libjson-xs-perl,libmoo-perl,libnet-dns-perl,python3-twisted-bin,python3-twisted,libconfig-inifiles-perl,
 # fuse
  fuse,
 # Distribution specific

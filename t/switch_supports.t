@@ -15,8 +15,6 @@ example pf test script
 use strict;
 use warnings;
 #
-use lib '/usr/local/pf/lib';
-
 BEGIN {
     #include test libs
     use lib qw(/usr/local/pf/t);

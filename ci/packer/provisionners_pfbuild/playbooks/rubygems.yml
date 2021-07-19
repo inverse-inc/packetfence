@@ -1,0 +1,16 @@
+---
+- hosts: ['devel_rubygems', 'stable_rubygems']
+  name: install ruby gems
+  become: True
+  gather_facts: True
+
+  vars:
+    local_bin_dir: /usr/local/bin
+
+  tasks:
+    # workaround for https://github.com/ansible/ansible/issues/25142
+    - name: Install gems
+      command: "gem install {{ item['name'] }} --no-user-install -n {{ local_bin_dir }}"
+      args:
+        creates: "{{ local_bin_dir }}/{{ item['name'] }}"
+      loop: '{{ gems }}'

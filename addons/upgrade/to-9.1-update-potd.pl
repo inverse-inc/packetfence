@@ -14,7 +14,7 @@ Moved password_rotation value to guests_admin_registration.access_duration_choic
 
 use strict;
 use warnings;
-use lib qw(/usr/local/pf/lib);
+use lib qw(/usr/local/pf/lib /usr/local/pf/lib_perl/lib/perl5);
 use List::MoreUtils qw(uniq);
 use pf::IniFiles;
 use pf::file_paths qw($authentication_config_file $pf_config_file $pf_default_file);

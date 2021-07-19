@@ -13,12 +13,6 @@ unit test for regex
 use strict;
 use warnings;
 #
-use lib '/usr/local/pf/lib';
-
-use Test::More tests => 4;
-#This test will running last
-use Test::NoWarnings;
-use Test::MockObject::Extends;
 
 BEGIN {
     #include test libs
@@ -26,6 +20,11 @@ BEGIN {
     #Module for overriding configuration paths
     use setup_test_config;
 }
+
+use Test::More tests => 4;
+#This test will running last
+use Test::NoWarnings;
+use Test::MockObject::Extends;
 
 use_ok('pf::detect::parser::regex');
 

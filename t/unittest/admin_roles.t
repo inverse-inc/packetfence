@@ -15,7 +15,7 @@ admin_roles
 use strict;
 use warnings;
 BEGIN {
-    use lib qw(/usr/local/pf/t /usr/local/pf/lib);
+    use lib qw(/usr/local/pf/t);
     use setup_test_config;
 }
 

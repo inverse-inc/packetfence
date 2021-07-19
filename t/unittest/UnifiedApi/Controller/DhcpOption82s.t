@@ -14,9 +14,6 @@ unit test for Dhcpoption82s
 
 use strict;
 use warnings;
-use DateTime::Format::Strptime;
-use lib '/usr/local/pf/lib';
-use pf::dal::dhcp_option82;
 
 BEGIN {
     #include test libs
@@ -24,6 +21,9 @@ BEGIN {
     #Module for overriding configuration paths
     use setup_test_config;
 }
+
+use DateTime::Format::Strptime;
+use pf::dal::dhcp_option82;
 #run tests
 use Test::More tests => 31;
 use Test::Mojo;

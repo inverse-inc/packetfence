@@ -1,5 +1,6 @@
 dist_ignore
 *.gitignore
+.gitlab-ci.yml
 *.gitattributes
 *.git
 ChangeLog.old

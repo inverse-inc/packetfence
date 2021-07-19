@@ -24,10 +24,7 @@ Source0:    %{name}-%{version}.tar
 BuildRoot:  %{_tmppath}/%{name}-root
 Vendor:     PacketFence, http://www.packetfence.org
 
-BuildRequires: gettext, httpd, ipset-devel, pkgconfig, jq
-%if 0%{?rhel} == 8
-BuildRequires: libmnl-devel,
-%endif
+BuildRequires: gettext, httpd, pkgconfig, jq
 BuildRequires: ruby, rubygems
 BuildRequires: nodejs >= 12.0
 BuildRequires: gcc
@@ -50,10 +47,10 @@ Requires: procps
 Requires: libpcap, libxml2, zlib, zlib-devel, glibc-common,
 Requires: httpd, mod_ssl
 Requires: mod_perl, mod_proxy_html
-requires: libapreq2
+requires: libapreq2, perl-libapreq2
 Requires: redis
-Requires: freeradius >= 3.0.21, freeradius-mysql, freeradius-perl, freeradius-ldap, freeradius-utils, freeradius-redis, freeradius-rest
-Requires: freeradius-radsniff
+Requires: freeradius >= 3.0.23, freeradius-mysql >= 3.0.23, freeradius-perl >= 3.0.23, freeradius-ldap >= 3.0.23, freeradius-utils >= 3.0.23, freeradius-redis >= 3.0.23, freeradius-rest >= 3.0.23
+#Requires: freeradius-radsniff
 Requires: fuse
 Requires: make
 Requires: net-tools
@@ -61,237 +58,248 @@ Requires: sscep
 Requires: net-snmp >= 5.3.2.2
 Requires: net-snmp-perl
 Requires: perl >= %{perl_version}
-Requires: MariaDB-server = 10.2.37, MariaDB-client = 10.2.37
+Requires: MariaDB-server = 10.5.10, MariaDB-client = 10.5.10
 Requires: perl(DBD::mysql)
-Requires: perl(Bit::Vector)
-Requires: perl(CGI::Session), perl(CGI::Session::Driver::chi) >= 1.0.3, perl(JSON) >= 2.90, perl(JSON::MaybeXS), perl(JSON::XS) >= 3
-Requires: perl-Switch, perl-Locale-Codes
-Requires: perl-re-engine-RE2
-Requires: perl(Apache2::Request)
-Requires: perl(Apache::Session)
-Requires: perl(Class::Accessor)
-Requires: perl(Class::Accessor::Fast::Contained)
-Requires: perl(Class::Data::Inheritable)
-Requires: perl(Class::Gomor)
+Requires: perl(Sub::Exporter)
+
+Requires: perl(Net::SSLeay)
+Requires: perl(Data::Dump)
+
+#Requires: perl(Bit::Vector)
+#Requires: perl(CGI::Session), perl(CGI::Session::Driver::chi) >= 1.0.3, perl(JSON) >= 2.90, perl(JSON::MaybeXS), perl(JSON::XS) >= 3
+#Requires: perl-Switch, perl-Locale-Codes
+#Requires: perl-re-engine-RE2
+#Requires: perl(Apache2::Request)
+#Requires: perl(Apache::Session)
+#Requires: perl(Class::Accessor)
+#Requires: perl(Class::Accessor::Fast::Contained)
+#Requires: perl(Class::Data::Inheritable)
+#Requires: perl(Class::Gomor)
 Requires: perl(Config::IniFiles) >= 2.88
-Requires: perl(Data::Phrasebook), perl(Data::Phrasebook::Loader::YAML)
-Requires: perl(DBI)
-Requires: perl(Rose::DB)
-Requires: perl(Rose::DB::Object)
-Requires: perl(Lingua::EN::Nums2Words) >= 1.16
-Requires: perl(Lingua::EN::Inflexion) >= 0.001006
-Requires: perl(Mojolicious) >= 7.87
-Requires: perl(File::Tail)
-Requires: perl(IPC::Cmd)
-Requires: perl(IPTables::ChainMgr)
-Requires: perl(IPTables::Parse)
-Requires: perl(Tie::DxHash)
-Requires: perl(File::FcntlLock)
-Requires: perl(Proc::ProcessTable)
-Requires: perl(Crypt::OpenSSL::PKCS12)
-Requires: perl(Crypt::OpenSSL::X509)
-Requires: perl(Crypt::OpenSSL::RSA)
-Requires: perl(Crypt::OpenSSL::PKCS10)
-Requires: perl(Crypt::LE)
-Requires: perl(Crypt::PBKDF2), perl(Digest::SHA3)
-Requires: perl(Const::Fast)
+#Requires: perl(Data::Phrasebook), perl(Data::Phrasebook::Loader::YAML)
+#Requires: perl(DBI)
+#Requires: perl(Rose::DB)
+#Requires: perl(Rose::DB::Object)
+#Requires: perl(Lingua::EN::Nums2Words) >= 1.16
+#Requires: perl(Lingua::EN::Inflexion) >= 0.001006
+#Requires: perl(Mojolicious) >= 7.87
+#Requires: perl(File::Tail)
+#Requires: perl(IPC::Cmd)
+#Requires: perl(IPTables::ChainMgr)
+#Requires: perl(IPTables::Parse)
+#Requires: perl(Tie::DxHash)
+#Requires: perl(File::FcntlLock)
+#Requires: perl(Proc::ProcessTable)
+#Requires: perl(Crypt::OpenSSL::PKCS12)
+#Requires: perl(Crypt::OpenSSL::X509)
+#Requires: perl(Crypt::OpenSSL::RSA)
+#Requires: perl(Crypt::OpenSSL::PKCS10)
+#Requires: perl(Crypt::LE)
+#Requires: perl(Crypt::PBKDF2), perl(Digest::SHA3)
+#Requires: perl(Const::Fast)
 # Perl core modules but still explicitly defined just in case distro's core perl get stripped
-Requires: perl(Time::HiRes)
+#Requires: perl(Time::HiRes)
 # Required for inline mode.
-Requires: ipset = 6.38, ipset-symlink
-Requires: ipt-netflow >= 2.4, dkms-ipt-netflow >= 2.4
+#Requires: ipset = 6.38, ipset-symlink
+#Requires: ipt-netflow >= 2.4, dkms-ipt-netflow >= 2.4
 Requires: sudo
-Requires: perl(File::Which), perl(NetAddr::IP)
-Requires: perl(Net::LDAP)
-Requires: perl(Net::IP)
-Requires: perl-libnet >= 3.10
-Requires: perl(Socket) >= 2.016
-Requires: perl(Digest::HMAC_MD5)
+#Requires: perl(File::Which), perl(NetAddr::IP)
+#Requires: perl(Net::LDAP)
+#Requires: perl(Net::IP)
+#Requires: perl-libnet >= 3.10
+#Requires: perl(Socket) >= 2.016
+#Requires: perl(Digest::HMAC_MD5)
 # TODO: we should depend on perl modules not perl-libwww-perl package
 # find out what they are and specify them as perl(...::...) instead of perl-libwww-perl
 # LWP::Simple is one of them (required by inlined Net::MAC::Vendor and probably other stuff)
-Requires: perl-libwww-perl > 6.02, perl(LWP::Simple), perl(LWP::Protocol::https)
-Requires: perl(LWP::Protocol::connect)
-Requires: perl(List::MoreUtils)
-Requires: perl-Scalar-List-Utils
-Requires: perl(Locale::gettext)
-Requires: perl(Log::Log4perl) >= 1.43
-Requires: perl(MojoX::Log::Log4perl)
-Requires: perl(Log::Any)
-Requires: perl(Log::Any::Adapter)
-Requires: perl(Log::Any::Adapter::Log4perl)
-Requires: perl(Log::Dispatch::Syslog)
-Requires: perl(Log::Fast)
-Requires: perl(Net::Cisco::MSE::REST)
+#Requires: perl-libwww-perl > 6.02, perl(LWP::Simple), perl(LWP::Protocol::https)
+#Requires: perl(LWP::Protocol::connect)
+#Requires: perl(List::MoreUtils)
+#Requires: perl-Scalar-List-Utils
+#Requires: perl(Locale::gettext)
+#Requires: perl(Log::Log4perl) >= 1.43
+#Requires: perl(MojoX::Log::Log4perl)
+#Requires: perl(Log::Any)
+#Requires: perl(Log::Any::Adapter)
+#Requires: perl(Log::Any::Adapter::Log4perl)
+#Requires: perl(Log::Dispatch::Syslog)
+#Requires: perl(Log::Fast)
+#Requires: perl(Net::Cisco::MSE::REST)
 # Required by switch modules
 # Net::Appliance::Session specific version added because newer versions broke API compatibility (#1312)
 # We would need to port to the new 3.x API (tracked by #1313)
-Requires: perl(Net::Appliance::Session) = 1.36
-Requires: perl(Net::SSH2) >= 0.63
-Requires: perl(Net::OAuth2) >= 0.65
+#Requires: perl(Net::Appliance::Session) = 1.36
+#Requires: perl(Net::SSH2) >= 0.63
+#Requires: perl(Net::OAuth2) >= 0.65
 # Required by configurator script, pf::config
 Requires: perl(Net::Interface)
-Requires: perl(Net::Netmask)
+#Requires: perl(Net::Netmask)
 # pfcron, pfdhcplistener
 Requires: perl(Net::Pcap) >= 0.16
 # pfdhcplistener
 Requires: perl(NetPacket) >= 1.2.0
-Requires: perl(Module::Metadata)
+#Requires: perl(Module::Metadata)
 # systemd sd_notify support
-Requires: perl(Systemd::Daemon)
+#Requires: perl(Systemd::Daemon)
 # RADIUS CoA support
-Requires: perl(Net::Radius::Dictionary), perl(Net::Radius::Packet)
+#Requires: perl(Net::Radius::Dictionary), perl(Net::Radius::Packet)
 # SNMP to network hardware
-Requires: perl(Net::SNMP)
+#Requires: perl(Net::SNMP)
 # for SNMPv3 AES as privacy protocol, fixes #775
-Requires: perl(Crypt::Rijndael)
-Requires: perl(Net::Telnet)
-Requires: perl(Net::Write)
-Requires: perl(Parse::RecDescent)
+#Requires: perl(Crypt::Rijndael)
+#Requires: perl(Net::Telnet)
+#Requires: perl(Net::Write)
+#Requires: perl(Parse::RecDescent)
 # for nessus scan, this version add the NBE download (inverse patch)
-Requires: perl(Net::Nessus::XMLRPC) >= 0.40
-Requires: perl(Net::Nessus::REST) >= 0.7
+#Requires: perl(Net::Nessus::XMLRPC) >= 0.40
+#Requires: perl(Net::Nessus::REST) >= 0.7
 # Note: portability for non-x86 is questionnable for Readonly::XS
-Requires: perl(Readonly), perl(Readonly::XS)
-Requires: perl(Regexp::Common)
-Requires: rrdtool, perl-rrdtool
+#Requires: perl(Readonly), perl(Readonly::XS)
+#Requires: perl(Regexp::Common)
+#Requires: rrdtool, perl-rrdtool
 Requires: perl(SOAP::Lite) >= 1.0
-Requires: perl(WWW::Curl)
+#Requires: perl(WWW::Curl)
 Requires: perl(Data::MessagePack)
 Requires: perl(Data::MessagePack::Stream)
+#Requires: perl(SOAP::Lite) >= 1.0
+Requires: perl(WWW::Curl)
+#Requires: perl(Data::MessagePack)
+#Requires: perl(Data::MessagePack::Stream)
 Requires: perl(POSIX::2008)
+Requires: perl(HTTP::Date)
 # Template::Toolkit - captive portal template system
-Requires: perl(Template)
-Requires: perl(Template::AutoFilter)
+#Requires: perl(Template)
+#Requires: perl(Template::AutoFilter)
 # Used by installer / configurator scripts
-Requires: perl(Term::ReadKey)
-Requires: perl(Thread::Pool)
-Requires: perl(Date::Parse)
-Requires: perl(DateTime::Format::RFC3339)
-Requires: perl(UNIVERSAL::require)
-Requires: perl(YAML)
-Requires: perl(Try::Tiny)
-Requires: perl(Crypt::GeneratePassword)
-Requires: perl(Bytes::Random::Secure)
-Requires: perl(Crypt::Eksblowfish::Bcrypt)
-Requires: perl(Crypt::SmbHash)
-Requires: perl(MIME::Lite::TT)
-Requires: perl(Cache::Cache), perl(HTML::Parser)
-Requires: perl(URI::Escape::XS)
+#Requires: perl(Term::ReadKey)
+#Requires: perl(Thread::Pool)
+#Requires: perl(Date::Parse)
+#Requires: perl(DateTime::Format::RFC3339)
+#Requires: perl(UNIVERSAL::require)
+#Requires: perl(YAML)
+#Requires: perl(Try::Tiny)
+#Requires: perl(Crypt::GeneratePassword)
+#Requires: perl(Bytes::Random::Secure)
+#Requires: perl(Crypt::Eksblowfish::Bcrypt)
+#Requires: perl(Crypt::SmbHash)
+#Requires: perl(MIME::Lite::TT)
+#Requires: perl(Cache::Cache), perl(HTML::Parser)
+#Requires: perl(URI::Escape::XS)
 # Used by Captive Portal authentication modules
-Requires: perl(Apache::Htpasswd)
-Requires: perl(Authen::Radius) >= 0.24
-Requires: perl(Authen::Krb5::Simple)
-Requires: perl(WWW::Twilio::API)
+#Requires: perl(Apache::Htpasswd)
+#Requires: perl(Authen::Radius) >= 0.24
+#Requires: perl(Authen::Krb5::Simple)
+#Requires: perl(WWW::Twilio::API)
 # Required for importation feature
-Requires: perl(Text::CSV)
-Requires: perl(Text::CSV_XS)
+#Requires: perl(Text::CSV)
+#Requires: perl(Text::CSV_XS)
 # BILLING ENGINE
-Requires: perl(LWP::UserAgent)
-Requires: perl(HTTP::Request::Common)
+#Requires: perl(LWP::UserAgent)
+#Requires: perl(HTTP::Request::Common)
 # Catalyst
-Requires: perl(Catalyst::Runtime), perl(Catalyst::Plugin::ConfigLoader)
-Requires: perl(Catalyst::Plugin::Static::Simple), perl(Catalyst::Action::RenderView)
-Requires: perl(Config::General), perl(Catalyst::Plugin::StackTrace)
-Requires: perl(Catalyst::Plugin::Session), perl(Catalyst::Plugin::Session::Store::File)
-Requires: perl(Catalyst::Plugin::Session::State::Cookie)
-Requires: perl(Catalyst::Plugin::I18N)
-Requires: perl(Catalyst::View::TT) >= 0.42
-Requires: perl(Catalyst::View::CSV)
-Requires: perl(Catalyst::View::JSON), perl(Log::Log4perl::Catalyst)
-Requires: perl(Catalyst::Plugin::Authentication)
-Requires: perl(Catalyst::Authentication::Credential::HTTP)
-Requires: perl(Catalyst::Authentication::Store::Htpasswd)
-Requires: perl(Catalyst::Controller::HTML::FormFu)
-Requires: perl(Catalyst::Plugin::SmartURI)
-Requires: perl(URI::SmartURI)
-Requires: perl(Params::Validate) >= 0.97
-Requires: perl(Term::Size::Any)
-Requires: perl(SQL::Abstract::More) >= 1.28
-Requires: perl(SQL::Abstract::Plugin::InsertMulti) >= 0.04
-Requires(pre): perl-aliased => 0.30
-Requires(pre): perl-version
+#Requires: perl(Catalyst::Runtime), perl(Catalyst::Plugin::ConfigLoader)
+#Requires: perl(Catalyst::Plugin::Static::Simple), perl(Catalyst::Action::RenderView)
+#Requires: perl(Config::General), perl(Catalyst::Plugin::StackTrace)
+#Requires: perl(Catalyst::Plugin::Session), perl(Catalyst::Plugin::Session::Store::File)
+#Requires: perl(Catalyst::Plugin::Session::State::Cookie)
+#Requires: perl(Catalyst::Plugin::I18N)
+#Requires: perl(Catalyst::View::TT) >= 0.42
+#Requires: perl(Catalyst::View::CSV)
+#Requires: perl(Catalyst::View::JSON), perl(Log::Log4perl::Catalyst)
+#Requires: perl(Catalyst::Plugin::Authentication)
+#Requires: perl(Catalyst::Authentication::Credential::HTTP)
+#Requires: perl(Catalyst::Authentication::Store::Htpasswd)
+#Requires: perl(Catalyst::Controller::HTML::FormFu)
+#Requires: perl(Catalyst::Plugin::SmartURI)
+#Requires: perl(URI::SmartURI)
+#Requires: perl(Params::Validate) >= 0.97
+#Requires: perl(Term::Size::Any)
+#Requires: perl(SQL::Abstract::More) >= 1.28
+#Requires: perl(SQL::Abstract::Plugin::InsertMulti) >= 0.04
+#Requires(pre): perl-aliased => 0.30
+#Requires(pre): perl-version
 # for Catalyst stand-alone server
-Requires: perl(Catalyst::Devel)
-Requires: perl(Sort::Naturally)
-Requires: perl(PHP::Serialization)
-Requires: perl(File::Slurp)
+#Requires: perl(Catalyst::Devel)
+#Requires: perl(Sort::Naturally)
+#Requires: perl(PHP::Serialization)
+#Requires: perl(File::Slurp)
 # these are probably missing dependencies for the above. 
 # I shall file upstream tickets to openfusion before we integrate
-Requires: perl(Plack), perl(Plack::Middleware::ReverseProxy)
-Requires: perl(MooseX::Types::LoadableClass)
-Requires: perl(Moose) <= 2.1005
-Requires: perl(CHI) >= 0.59
-Requires: perl(CHI::Memoize)
-Requires: perl(Data::Serializer)
-Requires: perl(Data::Structure::Util)
-Requires: perl(Data::Swap)
-Requires: perl(HTML::FormHandler) = 0.40019
-Requires: perl(Redis::Fast)
-Requires: perl(CHI::Driver::Redis)
-Requires: perl(File::Flock)
-Requires: perl(Perl::Version)
-Requires: perl(Cache::FastMmap)
-Requires: perl(Cache::BDB)
-Requires: perl(Moo) >= 1.003000
-Requires: perl(Term::ANSIColor)
-Requires: perl(IO::Interactive)
-Requires: perl(Net::ARP)
-Requires: perl(Module::Loaded)
-Requires: perl(Linux::FD)
-Requires: perl(Linux::Inotify2)
-Requires: perl(File::Touch)
+#Requires: perl(Plack), perl(Plack::Middleware::ReverseProxy)
+#Requires: perl(MooseX::Types::LoadableClass)
+#Requires: perl(Moose) <= 2.1005
+#Requires: perl(CHI) >= 0.59
+#Requires: perl(CHI::Memoize)
+#Requires: perl(Data::Serializer)
+#Requires: perl(Data::Structure::Util)
+#Requires: perl(Data::Swap)
+#Requires: perl(HTML::FormHandler) = 0.40019
+#Requires: perl(Redis::Fast)
+#Requires: perl(CHI::Driver::Redis)
+#Requires: perl(File::Flock)
+#Requires: perl(Perl::Version)
+#Requires: perl(Cache::FastMmap)
+#Requires: perl(Cache::BDB)
+#Requires: perl(Moo) >= 1.003000
+#Requires: perl(Term::ANSIColor)
+#Requires: perl(IO::Interactive)
+#Requires: perl(Net::ARP)
+#Requires: perl(Module::Loaded)
+#Requires: perl(Linux::FD)
+#Requires: perl(Linux::Inotify2)
+#Requires: perl(File::Touch)
 Requires: perl(POSIX::AtFork)
-Requires: perl(Hash::Merge)
-Requires: perl(IO::Socket::INET6)
-Requires: perl(IO::Socket::SSL) >= 2.049
-Requires: perl(IO::Interface)
-Requires: perl(Time::Period) >= 1.25
-Requires: perl(Time::Piece)
-Requires: perl(Number::Range)
-Requires: perl(Algorithm::Combinatorics)
-Requires: perl(Class::XSAccessor)
+#Requires: perl(POSIX::AtFork)
+#Requires: perl(Hash::Merge)
+#Requires: perl(IO::Socket::INET6)
+#Requires: perl(IO::Socket::SSL) >= 2.049
+#Requires: perl(IO::Interface)
+#Requires: perl(Time::Period) >= 1.25
+#Requires: perl(Time::Piece)
+#Requires: perl(Number::Range)
+#Requires: perl(Algorithm::Combinatorics)
+#Requires: perl(Class::XSAccessor)
 Requires: iproute >= 3.0.0, krb5-workstation
 Requires: samba >= 4
-Requires: perl(Linux::Distribution)
-Requires: perl(Pod::Markdown)
+#Requires: perl(Linux::Distribution)
+#Requires: perl(Pod::Markdown)
 # configuration-wizard
 Requires: vconfig
 # SAML
-Requires: lasso-perl 
+Requires: perl-lasso
 # Captive Portal Dynamic Routing
-Requires: perl(Graph)
+#Requires: perl(Graph)
 #Timezone
-Requires: perl(DateTime::TimeZone)
+#Requires: perl(DateTime::TimeZone)
 
 Requires: samba-winbind-clients, samba-winbind
 Requires: libdrm >= 2.4.74
-Requires: python2-impacket
+Requires: python3-impacket
 Requires: netdata < 1.11.0., fping, MySQL-python
 #OpenVAS
 Requires: openvas-cli
 Requires: openvas-libraries
 
 # pki
-Requires: perl(Crypt::SMIME)
+#Requires: perl(Crypt::SMIME)
 
 
-Requires: perl(Sereal::Encoder), perl(Sereal::Decoder), perl(Data::Serializer::Sereal) >= 1.04
+#Requires: perl(Sereal::Encoder), perl(Sereal::Decoder), perl(Data::Serializer::Sereal) >= 1.04
 #
 # TESTING related
 #
-Requires: perl(Test::MockObject), perl(Test::MockModule)
-Requires: perl(Test::Perl::Critic), perl(Test::WWW::Mechanize)
-Requires: perl(Test::Pod), perl(Test::Pod::Coverage), perl(Test::Exception)
-Requires: perl(Test::NoWarnings), perl(Test::ParallelSubtest)
+#Requires: perl(Test::MockObject), perl(Test::MockModule)
+#Requires: perl(Test::Perl::Critic), perl(Test::WWW::Mechanize)
+#Requires: perl(Test::Pod), perl(Test::Pod::Coverage), perl(Test::Exception)
+#Requires: perl(Test::NoWarnings), perl(Test::ParallelSubtest)
 # required for the fake CoA server
-Requires: perl(Net::UDP)
+#Requires: perl(Net::UDP)
 # For managing the number of connections per device
 Requires: haproxy >= 1.8.9, keepalived >= 2.0.0
 # CAUTION: we need to require the version we want for Fingerbank and ensure we don't want anything equal or above the next major release as it can add breaking changes
-Requires: fingerbank >= 4.2.1, fingerbank < 5.0.0
+Requires: fingerbank >= 4.2.2, fingerbank < 5.0.0
 Requires: fingerbank-collector >= 1.3.17, fingerbank-collector < 2.0.0
-Requires: perl(File::Tempdir)
+#Requires: perl(File::Tempdir)
 
 %description
 
@@ -528,6 +536,11 @@ rm -rf %{buildroot}
 
 /usr/bin/systemctl --now mask mariadb
 
+# Disable libvirtd and kill its dnsmasq if its there so that it doesn't prevent pfdns from starting
+/usr/bin/systemctl --now mask libvirtd
+/usr/bin/pkill -f dnsmasq
+
+
 # This (extremelly) ugly hack below will make the current processes part of a cgroup other than the one for user-0.slice
 # This will allow for the current shells that are opened to be protected against stopping when we'll be calling isolate below which stops user-0.slice
 # New shells will not be placed into user-0.slice since systemd-logind will be disabled and masked
@@ -702,6 +715,8 @@ echo "Starting PacketFence Administration GUI..."
 /bin/systemctl restart packetfence-httpd.admin_dispatcher
 /bin/systemctl restart packetfence-haproxy-admin
 
+# Empty root password in order to allow other user to connect as root.
+/usr/bin/mysql -uroot -e "set password for 'root'@'localhost' = password('');"
 
 echo Installation complete
 echo "  * Please fire up your Web browser and go to https://@ip_packetfence:1443 to complete your PacketFence configuration."

@@ -14,10 +14,6 @@ unit test for AdminRoles
 
 use strict;
 use warnings;
-#
-use lib qw(
-    /usr/local/pf/lib
-);
 
 BEGIN {
     #include test libs

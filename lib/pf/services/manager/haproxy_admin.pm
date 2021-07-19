@@ -87,14 +87,16 @@ sub generateConfig {
 
 backend 127.0.0.1-netdata
         option httpclose
-        option http_proxy
         option forwardfor
-        errorfile 502 /usr/local/pf/html/pfappserver/root/errors/502.json.http
-        errorfile 503 /usr/local/pf/html/pfappserver/root/errors/503.json.http
+        #errorfile 502 /usr/local/pf/html/pfappserver/root/errors/502.json.http
+        #errorfile 503 /usr/local/pf/html/pfappserver/root/errors/503.json.http
         acl paramsquery query -m found
         http-request lua.admin
-        http-request set-uri http://127.0.0.1:19999%[var(req.path)]?%[query] if paramsquery
-        http-request set-uri http://127.0.0.1:19999%[var(req.path)] unless paramsquery
+        http-request set-header Host 127.0.0.1
+        http-request set-dst-port int(19999)
+        server service 0.0.0.0:0
+        http-request set-uri %[var(req.path)]?%[query] if paramsquery
+        http-request set-uri %[var(req.path)] unless paramsquery
 EOT
 
         my $mgmt_api_backend;
@@ -153,7 +155,7 @@ frontend admin-https-$mgmt_cluster_ip
         errorfile 502 /usr/local/pf/html/pfappserver/root/errors/502.json.http
         errorfile 503 /usr/local/pf/html/pfappserver/root/errors/503.json.http
         capture request header Host len 40
-        reqadd X-Forwarded-Proto:\\ https
+        http-request add-header X-Forwarded-Proto https
         http-request lua.change_host
         acl host_exist var(req.host) -m found
         http-request set-header Host %[var(req.host)] if host_exist
@@ -188,7 +190,7 @@ frontend admin-https-$mgmt_ip
         errorfile 502 /usr/local/pf/html/pfappserver/root/errors/502.json.http
         errorfile 503 /usr/local/pf/html/pfappserver/root/errors/503.json.http
         capture request header Host len 40
-        reqadd X-Forwarded-Proto:\\ https
+        http-request add-header X-Forwarded-Proto https
         http-request lua.change_host
         acl host_exist var(req.host) -m found
         http-request set-header Host %[var(req.host)] if host_exist
@@ -225,12 +227,13 @@ $mgmt_api_backend
 
 backend $mgmt_cluster_ip-portal
         option httpclose
-        option http_proxy
         option forwardfor
         acl paramsquery query -m found
-        http-request set-header Host $portal_preview_ip
         http-request lua.admin
-        reqadd X-Forwarded-For-Packetfence:\\ 127.0.0.1
+        http-request set-header Host $portal_preview_ip
+        http-request add-header X-Forwarded-For-Packetfence 127.0.0.1
+        http-request set-dst-port int(8890)
+        server service 0.0.0.0:0
         http-request set-uri http://127.0.0.1:8890%[var(req.path)]?%[query] if paramsquery
         http-request set-uri http://127.0.0.1:8890%[var(req.path)] unless paramsquery
 
@@ -252,7 +255,7 @@ frontend admin-https-0.0.0.0
         errorfile 502 /usr/local/pf/html/pfappserver/root/errors/502.json.http
         errorfile 503 /usr/local/pf/html/pfappserver/root/errors/503.json.http
         capture request header Host len 40
-        reqadd X-Forwarded-Proto:\\ https
+        http-request add-header X-Forwarded-Proto https
         http-request lua.change_host
         http-response set-header X-Frame-Options SAMEORIGIN
         acl host_exist var(req.host) -m found

@@ -6,8 +6,8 @@
 set -e
 
 # Get correct pf user from pf.conf
-PF_USER=$(perl -I/usr/local/pf/lib -Mpf::db -e 'print $pf::db::DB_Config->{user}')
-PF_DB=$(perl -I/usr/local/pf/lib -Mpf::db -e 'print $pf::db::DB_Config->{db}')
+PF_USER=$(perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5 -Mpf::db -e 'print $pf::db::DB_Config->{user}')
+PF_DB=$(perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5 -Mpf::db -e 'print $pf::db::DB_Config->{db}')
 
 # Apply new privileges on DB for PF_USER with root account
 echo "Hit MariaDB root password"

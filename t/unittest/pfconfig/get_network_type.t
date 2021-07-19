@@ -13,7 +13,6 @@ unit test for get_network_type
 use strict;
 use warnings;
 #
-use lib '/usr/local/pf/lib';
 
 our @tests;
 BEGIN {

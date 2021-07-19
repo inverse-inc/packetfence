@@ -8,7 +8,7 @@ radsniff-wrapper - wrapper around radsniff to start the PacketFence radsniff pro
 
 use strict;
 use warnings;
-use lib qw( /usr/local/pf/lib );
+use lib qw( /usr/local/pf/lib /usr/local/pf/lib_perl/lib/perl5 );
 use pf::services::manager::radsniff;
 
 my $cmd = pf::services::manager::radsniff->new()->_cmdLine();

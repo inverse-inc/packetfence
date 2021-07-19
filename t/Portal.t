@@ -12,7 +12,6 @@ Tests for our pf::Portal... and friends modules.
 use strict;
 use warnings;
 
-use lib '/usr/local/pf/lib';
 BEGIN {
     use lib qw(/usr/local/pf/t);
     use setup_test_config;

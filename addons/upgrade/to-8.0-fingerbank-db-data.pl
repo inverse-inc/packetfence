@@ -14,7 +14,7 @@ Since the device names have changed in Fingerbank, we rename the most popular on
 
 use strict;
 use warnings;
-use lib '/usr/local/pf/lib';
+use lib qw(/usr/local/pf/lib /usr/local/pf/lib_perl/lib/perl5);
 
 use pf::db;
 

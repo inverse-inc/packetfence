@@ -13,8 +13,6 @@ unit test for access_filter
 use strict;
 use warnings;
 #
-use lib '/usr/local/pf/lib';
-use pf::constants::eap_type qw(%RADIUS_EAP_TYPE_2_VALUES %RADIUS_EAP_VALUES_2_TYPE);
 BEGIN {
     #include test libs
     use lib qw(/usr/local/pf/t);
@@ -22,6 +20,7 @@ BEGIN {
     use setup_test_config;
 }
 
+use pf::constants::eap_type qw(%RADIUS_EAP_TYPE_2_VALUES %RADIUS_EAP_VALUES_2_TYPE);
 use Test::More tests => (scalar keys %RADIUS_EAP_TYPE_2_VALUES) * 2 + 1;
 use pf::factory::condition::access_filter;
 

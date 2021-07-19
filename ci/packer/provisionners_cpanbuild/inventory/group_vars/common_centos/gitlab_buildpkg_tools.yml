@@ -1,0 +1,30 @@
+---
+# override defaults because:
+# - dnf supports natively priority
+# - we don't set up priority for repository during provisioning
+gitlab_buildpkg_tools__rpm_deps_pkgs:
+  - 'gnupg2'
+  # to permit install of rpm_pkgs after
+  - 'epel-release'
+
+gitlab_buildpkg_tools__rpm_keys:
+  - 'https://inverse.ca/downloads/GPG_PUBLIC_KEY'
+  - 'https://rpm.nodesource.com/pub/el/NODESOURCE-GPG-SIGNING-KEY-EL'
+
+gitlab_buildpkg_tools__rpm_deps_repos:
+  - name: packetfence
+    baseurl: 'http://inverse.ca/downloads/PacketFence/RHEL$releasever/{{ pf_minor_release }}/$basearch'
+  - name: nodejs
+    baseurl: 'https://rpm.nodesource.com/pub_12.x/el/$releasever/$basearch'
+
+# packages install will occur
+# during build dependencies install from SPEC files
+gitlab_buildpkg_tools__rpm_pkgs:
+  # dependencies to pull CPAN modules for packetfence-perl RPM
+  - 'perl-CPAN'  
+  - 'openssl-devel'
+  - 'krb5-libs'
+  - 'MariaDB-devel'
+  - 'libssh2-devel'
+  - 'systemd-devel'
+  - '@Development tools'

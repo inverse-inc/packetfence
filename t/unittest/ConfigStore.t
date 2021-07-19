@@ -14,15 +14,16 @@ ConfigStore
 use strict;
 use warnings;
 
+BEGIN {
+	use lib qw(/usr/local/pf/t);
+	use setup_test_config;
+}
+
 use Test::More;                      # last test to print
 use Test::NoWarnings;
 use File::Slurp qw(read_dir);
 use Test::Harness;
 use File::Spec::Functions;
-BEGIN {
-    use lib qw(/usr/local/pf/t /usr/local/pf/lib);
-    use setup_test_config;
-}
 
 plan tests => 30;
 

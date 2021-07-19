@@ -1,0 +1,5 @@
+---
+roles:
+  # use role on github
+  - src: https://github.com/inverse-inc/ansible-role-gitlab-buildpkg-tools
+    name: inverse_inc.gitlab_buildpkg_tools

@@ -18,18 +18,19 @@ One day L<pf::import> will support what we need and this script will be removed.
 require 5.8.5;
 use strict;
 use warnings;
+use FindBin;
+use constant {
+    LIB_DIR   => $FindBin::Bin . "/../lib",
+    LIB_PERL5_DIR   => $FindBin::Bin . "/../lib_perl/lib/perl5",
+};
+
+use lib (LIB_DIR, LIB_PERL5_DIR);
 
 use Data::Dumper;
-use FindBin;
 use Getopt::Long;
 use Pod::Usage;
 use Text::CSV;
 
-use constant {
-    LIB_DIR   => $FindBin::Bin . "/../lib",
-};
-
-use lib LIB_DIR;
 
 use pf::node;
 use pf::constants qw($ZERO_DATE);

@@ -15,7 +15,6 @@ unit test for Reports
 use strict;
 use warnings;
 #
-use lib '/usr/local/pf/lib';
 
 BEGIN {
     #include test libs

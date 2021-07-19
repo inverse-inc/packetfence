@@ -295,6 +295,9 @@ endif
 ifeq ($(DIST),stretch)
 	dh_gencontrol -- '-Vpacketfence:dist=libclass-xsaccessor-perl,acl'
 endif
+ifeq ($(DIST),bullseye)
+	dh_gencontrol -- '-Vpacketfence:dist=libclass-xsaccessor-perl,acl'
+endif
 	dh_md5sums
 	dh_builddeb
 

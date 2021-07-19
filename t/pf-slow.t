@@ -6,8 +6,6 @@ use diagnostics;
 
 
 # pf core libs
-use lib '/usr/local/pf/lib';
-
 our $jobs;
 
 BEGIN {

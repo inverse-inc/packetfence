@@ -156,8 +156,8 @@ sub secureInstallation {
     my ($status, $status_msg);
 
     # 1. Set a password for the database "root" user (different from the Linux root user!), which is blank by default;
-    my $sql_query = "UPDATE mysql.user SET Password=PASSWORD(?) WHERE User=?";
-    $dbHandler->do($sql_query, undef, $root_password, $root_user);
+    my $sql_query = "set password for ?\@'localhost'  = password(?)";
+    $dbHandler->do($sql_query, undef, $root_user, $root_password);
     if ( $DBI::errstr ) {
         $status_msg = ["Error changing root user [_1] password",$root_user ];
         $logger->warn($DBI::errstr);

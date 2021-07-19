@@ -8,7 +8,7 @@ PFDIR=${PFDIR:-/usr/local/pf}
 SPEC=${SPEC:-"$PFDIR/rpm/packetfence.spec"}
 REPO=${REPO:-packetfence}
 PF_REPO="--enablerepo=$REPO"
-STD_REPOS="--enablerepo=base --enablerepo=updates --enablerepo=extras"
+STD_REPOS="--enablerepo=baseos --enablerepo=appstream --enablerepo=extras"
 
 if [ ! -x /usr/bin/repoquery ];then
     echo "Package yum-utils is not installed to run"
@@ -34,6 +34,6 @@ if [ ! -x /usr/bin/rpmspec ];then
 else
     rpm -q -D"el$EL_VERSION 1" --requires  --specfile $SPEC \
     | grep -v 'fingerbank >' \
-    | perl -pi -e's/ +$//' | sort -u \
+    | perl -p -e's/ +$//' | sort -u \
     | xargs -d '\n' $YUM install
 fi

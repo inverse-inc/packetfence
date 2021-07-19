@@ -1,4 +1,5 @@
 #!/usr/bin/perl
+#
 =head1 NAME
 
 nodecategory.t
@@ -13,7 +14,6 @@ use strict;
 use warnings;
 use diagnostics;
 
-use lib '/usr/local/pf/lib';
 BEGIN {
     use lib qw(/usr/local/pf/t);
     use setup_test_config;

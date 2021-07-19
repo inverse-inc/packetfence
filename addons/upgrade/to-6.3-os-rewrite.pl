@@ -19,7 +19,7 @@ Migrates the oses value in provisioning.conf and scan.conf to Fingerbank IDs
 use strict;
 use warnings;
 
-use lib '/usr/local/pf/lib';
+use lib qw(/usr/local/pf/lib /usr/local/pf/lib_perl/lib/perl5);
 use Config::IniFiles;
 use pf::file_paths qw($provisioning_config_file $scan_config_file);
 use fingerbank::Constant;

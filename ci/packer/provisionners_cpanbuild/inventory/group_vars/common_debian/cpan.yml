@@ -1,0 +1,8 @@
+---
+cpan_user: 'root'
+cpan_group: 'root'
+cpan_myconfig_path: '/root/.cpan/CPAN/MyConfig.pm'
+bzip2_path: '/bin/bzip2'
+gzip_path: '/bin/gzip'
+tar_path: '/bin/tar'
+unzip_path: '/usr/bin/unzip'

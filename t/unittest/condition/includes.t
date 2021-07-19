@@ -12,7 +12,7 @@ profile/filter/includes.t
 
 use strict;
 use warnings;
-use lib qw(/usr/local/pf/lib);
+
 BEGIN {
     use lib qw(/usr/local/pf/t);
     use setup_test_config;

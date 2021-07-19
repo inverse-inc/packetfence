@@ -13,10 +13,6 @@ unit test for Template
 use strict;
 use warnings;
 #
-use lib '/usr/local/pf/lib';
-use pf::util::template_switch;
-use pf::config::builder::template_switches;
-use pf::Switch::Template;
 our @FILES;
 our $SWITCH_DIR;
 BEGIN {
@@ -25,9 +21,12 @@ BEGIN {
     use lib qw(/usr/local/pf/t);
     #Module for overriding configuration paths
     use setup_test_config;
+    use pf::util::template_switch;
     @FILES = pf::util::template_switch::getDefFiles($SWITCH_DIR);
 }
 
+use pf::config::builder::template_switches;
+use pf::Switch::Template;
 my $builder = pf::config::builder::template_switches->new;
 use Test::More tests => (scalar @FILES) + 6;
 #This test will running last

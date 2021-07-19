@@ -13,8 +13,6 @@ unit test for radius
 use strict;
 use warnings;
 #
-use lib '/usr/local/pf/lib';
-
 our @tests;
 
 BEGIN {

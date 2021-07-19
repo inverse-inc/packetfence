@@ -15,20 +15,17 @@ test for pf::filter_engine
 use strict;
 use warnings;
 
-use lib '/usr/local/pf/lib';
-use Test::More tests => 4;
-
 BEGIN {
-    use_ok("pf::filter_engine");
     #include test libs
     use lib qw(/usr/local/pf/t);
     #Module for overriding configuration paths
     use setup_test_config;
 }
 
-
+use Test::More tests => 4;
 #This test will running last
 use Test::NoWarnings;
+use_ok("pf::filter_engine");
 use pf::filter;
 use pf::condition::false;
 use pf::condition::true;

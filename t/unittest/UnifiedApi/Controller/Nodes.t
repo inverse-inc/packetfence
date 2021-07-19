@@ -15,18 +15,17 @@ unit test for Nodes
 use strict;
 use warnings;
 #
-use lib '/usr/local/pf/lib';
-use Date::Parse;
-use pf::dal::node;
-use pf::dal::locationlog;
 
 BEGIN {
     #include test libs
     use lib qw(/usr/local/pf/t);
     #Module for overriding configuration paths
     use setup_test_config;
-
 }
+
+use Date::Parse;
+use pf::dal::node;
+use pf::dal::locationlog;
 
 #insert known data
 #run tests
@@ -104,7 +103,7 @@ $t->post_ok('/api/v1/nodes/search' => json => { fields => [qw(mac security_event
 
 $t->post_ok('/api/v1/nodes/search' => json => { fields => [qw(mac)], with_total_count => \1 })
   ->status_is(200)
-  ->json_has('total_count');
+  ->json_has('/total_count');
 
 sub test_mac {
     my ($mac, $real_mac) = @_;

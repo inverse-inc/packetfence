@@ -14,10 +14,6 @@ unit test for Realms
 
 use strict;
 use warnings;
-#
-use lib qw(
-    /usr/local/pf/lib
-);
 
 BEGIN {
     #include test libs

@@ -13,8 +13,8 @@ can be localized.
 
 =cut
 
+use lib qw(/usr/local/pf/lib /usr/local/pf/lib_perl/lib/perl5);
 use File::Find;
-use lib qw(/usr/local/pf/lib);
 use pf::web::constants;
 use pf::person;
 
@@ -119,7 +119,7 @@ sub parse_tt {
         while (defined($line = <TT>)) {
             chomp $line;
             while ($line =~ m/i18n(_format)?\(['"](.+?(?!\\))['"](,.*)?\)/g) {
-                add_string($2, $template) unless ($2 =~ m/\${/);
+                add_string($2, $template) unless ($2 =~ m/\$\{/);
             }
         }
         close(TT);

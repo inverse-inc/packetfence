@@ -15,14 +15,13 @@ provisioner
 use strict;
 use warnings;
 # pf core libs
-use lib '/usr/local/pf/lib';
 
 BEGIN {
     use lib qw(/usr/local/pf/t);
     use setup_test_config;
 }
-use Test::More tests => 5;
 
+use Test::More tests => 5;
 use Test::NoWarnings;
 use Test::Exception;
 

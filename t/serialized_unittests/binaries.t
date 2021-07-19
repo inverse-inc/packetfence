@@ -14,18 +14,17 @@ use warnings;
 
 
 
-use Test::More;
-use Test::ParallelSubtest;
-use Test::NoWarnings;
-
 BEGIN {
     use lib qw(/usr/local/pf/t);
     use setup_test_config;
 }
+use Test::More;
+use Test2::AsyncSubtest;
+use Test::NoWarnings;
+
 
 use TestUtils qw(get_all_perl_binaries get_all_perl_cgi);
 my $jobs = $ENV{'PF_SMOKE_TEST_JOBS'} || @{TestUtils::cpuinfo()};
-Test::ParallelSubtest::max_parallel($jobs);
 
 my @binaries = (
     get_all_perl_binaries(),
@@ -33,20 +32,27 @@ my @binaries = (
 );
 
 # all files + no warnings
-plan tests => scalar @binaries * 1 + 1;
-
+plan tests => 2;
+my $ast = Test2::AsyncSubtest->new(name => "binaries");
+my $current_children = 0;
 foreach my $current_binary (@binaries) {
     my $flags = '-I/usr/local/pf/t -Mtest_paths';
     if ($current_binary =~ m#/usr/local/pf/bin/pfcmd\.pl#) {
         $flags .= ' -T';
     }
-    bg_subtest "$current_binary" => sub {
-        plan tests => 1;
+
+    $ast->run_fork(sub {
         is( system("/usr/bin/perl $flags -c $current_binary 2>&1"), 0, "$current_binary compiles" );
-    };
+    });
+
+    $current_children++;
+    if ($current_children == $jobs) {
+        $ast->wait();
+        $current_children = 0;
+    }
 }
 
-bg_subtest_wait();
+$ast->finish;
 
 =head1 AUTHOR
 

@@ -15,11 +15,6 @@ unit test for PathGenerator
 use strict;
 use warnings;
 #
-use lib '/usr/local/pf/lib';
-use pf::UnifiedApi::OpenAPI::Generator;
-use pf::UnifiedApi::OpenAPI::Generator::Config;
-use pf::UnifiedApi::Controller::Config::FloatingDevices;
-use pf::UnifiedApi;
 
 BEGIN {
     #include test libs
@@ -27,6 +22,11 @@ BEGIN {
     #Module for overriding configuration paths
     use setup_test_config;
 }
+
+use pf::UnifiedApi::OpenAPI::Generator;
+use pf::UnifiedApi::OpenAPI::Generator::Config;
+use pf::UnifiedApi::Controller::Config::FloatingDevices;
+use pf::UnifiedApi;
 
 use Test::More tests => 5;
 #This test will running last

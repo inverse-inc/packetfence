@@ -15,10 +15,6 @@ unit test for Syslog
 use strict;
 use warnings;
 #
-use lib '/usr/local/pf/lib';
-use pf::ConfigStore::Syslog;
-use pf::constants::syslog;
-
 BEGIN {
     #include test libs
     use lib qw(/usr/local/pf/t);
@@ -26,6 +22,8 @@ BEGIN {
     use setup_test_config;
 }
 
+use pf::ConfigStore::Syslog;
+use pf::constants::syslog;
 use Test::More tests => 3;
 
 #This test will running last

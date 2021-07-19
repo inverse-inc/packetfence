@@ -4,12 +4,9 @@ use strict;
 use warnings;
 use diagnostics;
 
-use lib '/usr/local/pf/lib';
 BEGIN {
     use lib qw(/usr/local/pf/t);
-    use test_paths;
     use setup_test_config;
-    use pf::log;
 }
 
 use Test::More;

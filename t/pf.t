@@ -6,12 +6,11 @@ use diagnostics;
 
 
 # pf core libs
-use lib '/usr/local/pf/lib';
-
 BEGIN {
     use lib qw(/usr/local/pf/t);
     use setup_test_config;
 }
+
 BEGIN {
 
     use File::Slurp qw(read_dir);
@@ -34,7 +33,7 @@ BEGIN {
     use Test::More;
     use Test::NoWarnings;
     our %exclude;
-    @exclude{qw(pf::WebAPI pf::snmptrapd)} = ();
+    @exclude{qw(pf::WebAPI pf::snmptrapd pf::web::externalportal pf::web::wispr pf::web::dispatcher::custom pf::web::dispatcher)} = ();
     our @files = grep { !/^pfconfig/ } grep { /\.pm$/  } _readDirRecursive('/usr/local/pf/lib');
     our @libs = sort grep {!exists $exclude{$_}}
         map {

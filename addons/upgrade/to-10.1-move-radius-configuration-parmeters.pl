@@ -14,7 +14,7 @@ Move radius configuration parameters to associated new files
 
 use strict;
 use warnings;
-use lib qw(/usr/local/pf/lib);
+use lib qw(/usr/local/pf/lib /usr/local/pf/lib_perl/lib/perl5);
 use pf::IniFiles;
 use pf::file_paths qw($pf_config_file $ocsp_config_file $eap_config_file $fast_config_file);
 use pf::util;

@@ -9,12 +9,13 @@ use strict;
 use warnings;
 use diagnostics;
 
+BEGIN {
+    use lib qw(/usr/local/pf/t);
+    use setup_test_config;
+}
 use Test::MockObject::Extends;
 use Test::More tests => 6;
 
-use lib '/usr/local/pf/lib';
-BEGIN { use lib qw(/usr/local/pf/t); }
-BEGIN { use setup_test_config; }
 use pf::config;
 use pf::SwitchFactory;
 

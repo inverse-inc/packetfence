@@ -10,7 +10,7 @@ Util to migrate existing OS Active Directory configuration into PacketFence and 
 
 =cut
 
-use lib '/usr/local/pf/lib';
+use lib qw(/usr/local/pf/lib /usr/local/pf/lib_perl/lib/perl5);
 
 use Term::ReadKey;
 use pf::file_paths qw($domain_config_file);

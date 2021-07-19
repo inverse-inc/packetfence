@@ -18,21 +18,20 @@ pffilter [options]
 
 use warnings;
 use strict;
-use Getopt::Std;
-use File::Basename qw(basename);
-use POSIX qw(:signal_h pause :sys_wait_h SIG_BLOCK SIG_UNBLOCK);
-use Pod::Usage;
-use Fcntl qw(:flock);
-use Systemd::Daemon qw{ -soft };
 
 #pf::log must always be initilized first
 BEGIN {
     # log4perl init
     use constant INSTALL_DIR => '/usr/local/pf';
-    use lib INSTALL_DIR . "/lib";
+    use lib (INSTALL_DIR . "/lib", INSTALL_DIR . "/lib_perl/lib/perl5");
     use pf::log(service => 'pffilter');
 }
 
+use Getopt::Std;
+use File::Basename qw(basename);
+use POSIX qw(:signal_h pause :sys_wait_h SIG_BLOCK SIG_UNBLOCK);
+use Pod::Usage;
+use Fcntl qw(:flock);
 use Errno qw(EINTR EAGAIN);
 use IO::Socket::UNIX qw( SOCK_STREAM SOMAXCONN );
 use JSON::MaybeXS;
@@ -48,6 +47,7 @@ use pf::access_filter::radius;
 use pf::access_filter::dhcp;
 use pf::access_filter::dns;
 use pf::access_filter::vlan;
+use Linux::Systemd::Daemon 'sd_ready';
 
 our %DISPATCH = (
     filter_profile => \&filter_profile,
@@ -86,6 +86,8 @@ my %args = (
     's' => $pffilter_socket_path,
     'n' => "pffilter",
 );
+
+sd_ready;
 
 getopts('dhvs:n:', \%args);
 
@@ -128,7 +130,7 @@ cleanup();
 END {
     if (!$args{h} && $HAS_LOCK) {
         unless ($IS_CHILD) {
-            Systemd::Daemon::notify( STOPPING => 1 );
+            Linux::Systemd::Daemon::sd_notify( STOPPING => 1 );
             deletepid();
             $logger->info("stopping pffilter");
         }
@@ -147,7 +149,7 @@ start
 
 sub start {
     registertasks();
-    Systemd::Daemon::notify( READY => 1, STATUS => "Ready", unset => 1 );
+    Linux::Systemd::Daemon::sd_notify( READY => 1, STATUS => "Ready", unset => 1 );
     runtasks();
     waitforit();
 }

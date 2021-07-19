@@ -12,7 +12,12 @@ pfqueue
 
 use strict;
 use warnings;
-use lib qw(/usr/local/pf/lib);
+
+BEGIN {
+    use lib qw(/usr/local/pf/t);
+    use setup_test_config;
+};
+
 use pf::pfqueue::producer::redis;
 use pf::pfqueue::consumer::redis;
 use pf::config::pfqueue;

@@ -15,7 +15,7 @@ use warnings;
 
 use threads;
 
-use lib '/usr/local/pf/lib';
+use lib qw(/usr/local/pf/lib /usr/local/pf/lib_perl/lib/perl5);
 use pf::util::radius qw(perform_disconnect);
 
 #my $coa_server_ip = '192.168.1.1';

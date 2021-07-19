@@ -3,14 +3,14 @@
 use strict;
 use warnings;
 
+BEGIN {
+    use lib qw(/usr/local/pf/lib /usr/local/pf/lib_perl/lib/perl5);
+}
+
 use File::Copy;
 use File::Spec::Functions;
 use Template;
 use List::MoreUtils qw(any);
-
-BEGIN {
-    use lib "/usr/local/pf/lib";
-}
 
 
 my $PF_PATH                                 = $pf::file_paths::install_dir;

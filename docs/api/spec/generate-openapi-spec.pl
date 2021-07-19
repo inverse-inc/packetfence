@@ -3,7 +3,7 @@
 use strict;
 use warnings;
 
-use lib qw(/usr/local/pf/lib);
+use lib qw(/usr/local/pf/lib /usr/local/pf/lib_perl/lib/perl5);
 use pf::file_paths qw($install_dir);
 use File::Find;
 use File::Slurp qw(read_file write_file);

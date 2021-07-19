@@ -5,7 +5,7 @@ all:
 
 vendor:
 	npm install
-	sudo npm install -g grunt-cli
+	npm install -g grunt-cli
 
 dev:
 	grunt --stack dev

@@ -53,7 +53,7 @@ require (
 	github.com/inconshreveable/log15 v0.0.0-20171019012758-0decfc6c20d9
 	github.com/infobloxopen/go-trees v0.0.0-20190313150506-2af4e13f9062
 	github.com/inverse-inc/dhcp4 v0.0.0-20200625173842-2c4d1e50d7ca
-	github.com/inverse-inc/go-ipset v0.0.0-20190925174109-4d5749cc4aa6
+	github.com/inverse-inc/go-ipset/v2 v2.2.4
 	github.com/inverse-inc/go-radius v0.0.0-20201019132414-82756e2d8d47
 	github.com/inverse-inc/go-utils v0.0.0-20210420024101-48a17e73abae
 	github.com/inverse-inc/scep v0.0.0-20210513203155-0afeb79ee054
@@ -86,6 +86,7 @@ require (
 	github.com/russross/blackfriday v1.5.2
 	github.com/simon/go-netadv v0.0.0-20170602081515-fe67988531c7
 	github.com/sparrc/go-ping v0.0.0-20190613174326-4e5b6552494c
+	github.com/ti-mo/netfilter v0.2.0
 	github.com/tmc/grpc-websocket-proxy v0.0.0-20200122045848-3419fae592fc // indirect
 	go.etcd.io/etcd v0.5.0-alpha.5.0.20200306183522-221f0cc107cb
 	go.uber.org/zap v1.14.1 // indirect

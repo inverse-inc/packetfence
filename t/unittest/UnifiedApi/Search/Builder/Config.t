@@ -15,7 +15,6 @@ unit test for pf::UnifiedApi::Search::Builder::Config
 use strict;
 use warnings;
 #
-use lib '/usr/local/pf/lib';
 
 BEGIN {
     #include test libs

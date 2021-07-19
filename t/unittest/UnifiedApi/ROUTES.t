@@ -13,7 +13,6 @@ unit test for ROUTES
 use strict;
 use warnings;
 #
-use lib '/usr/local/pf/lib';
 
 BEGIN {
     #include test libs

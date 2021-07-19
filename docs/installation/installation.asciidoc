@@ -143,7 +143,7 @@ In order to use the PacketFence repository:
 // subs=attributes allow to substitute {release_minor} in code block
 [source,bash,subs="attributes"]
 ----
-yum localinstall http://packetfence.org/downloads/PacketFence/RHEL7/packetfence-release-{release_minor}-el7.noarch.rpm
+yum localinstall http://packetfence.org/downloads/PacketFence/RHEL7/packetfence-release-{release_minor}.el8.noarch.rpm
 ----
 
 Once the repository is defined, you can install PacketFence with all its dependencies, and the required external services (database server, DHCP server, RADIUS server) using:

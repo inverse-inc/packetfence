@@ -14,12 +14,12 @@
 
 NB_DAYS_TO_KEEP_DB=7
 NB_DAYS_TO_KEEP_FILES=7
-DB_USER=$(perl -I/usr/local/pf/lib -Mpf::db -e 'print $pf::db::DB_Config->{user}');
-DB_PWD=$(perl -I/usr/local/pf/lib -Mpf::db -e 'print $pf::db::DB_Config->{pass}');
-DB_NAME=$(perl -I/usr/local/pf/lib -Mpf::db -e 'print $pf::db::DB_Config->{db}');
-DB_HOST=$(perl -I/usr/local/pf/lib -Mpf::db -e 'print $pf::db::DB_Config->{host}');
-REP_USER=$(perl -I/usr/local/pf/lib -Mpf::config -e 'print $pf::config::Config{active_active}{galera_replication_username}');
-REP_PWD=$(perl -I/usr/local/pf/lib -Mpf::config -e 'print $pf::config::Config{active_active}{galera_replication_password}');
+DB_USER=$(perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5 -Mpf::db -e 'print $pf::db::DB_Config->{user}');
+DB_PWD=$(perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5 -Mpf::db -e 'print $pf::db::DB_Config->{pass}');
+DB_NAME=$(perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5 -Mpf::db -e 'print $pf::db::DB_Config->{db}');
+DB_HOST=$(perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5 -Mpf::db -e 'print $pf::db::DB_Config->{host}');
+REP_USER=$(perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5 -Mpf::config -e 'print $pf::config::Config{active_active}{galera_replication_username}');
+REP_PWD=$(perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5 -Mpf::config -e 'print $pf::config::Config{active_active}{galera_replication_password}');
 PF_DIRECTORY='/usr/local/pf/'
 BACKUP_DIRECTORY=${BACKUP_DIRECTORY:-/root/backup/}
 BACKUP_DB_FILENAME='packetfence-db-dump'

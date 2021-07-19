@@ -19,6 +19,10 @@ No need to use it directly, use addons/pfconfig/comparator/config-comparator.sh
 use strict;
 use warnings;
 
+BEGIN {
+    use lib qw(/usr/local/pf/lib /usr/local/pf/lib_perl/lib/perl5);
+}
+
 use Sereal::Decoder;
 use Test::Deep;
 

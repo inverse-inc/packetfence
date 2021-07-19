@@ -23,13 +23,12 @@ use File::Basename qw(basename);
 use POSIX qw(:signal_h pause :sys_wait_h SIG_BLOCK SIG_UNBLOCK);
 use Pod::Usage;
 use Fcntl qw(:flock);
-use Systemd::Daemon qw{ -soft };
 
 #pf::log must always be initilized first
 BEGIN {
     # log4perl init
     use constant INSTALL_DIR => '/usr/local/pf';
-    use lib INSTALL_DIR . "/lib";
+    use lib (INSTALL_DIR . "/lib", INSTALL_DIR . "/lib_perl/lib/perl5");
     use pf::log(service => 'winbindd-wrapper');
 }
 
@@ -42,6 +41,7 @@ use pf::services::util;
 use pf::StatsD;
 use pf::person;
 use Time::HiRes qw(time sleep);
+use Linux::Systemd::Daemon 'sd_ready';
 
 # initialization
 # --------------
@@ -60,6 +60,8 @@ $SIG{HUP}  = \&normal_sighandler;
 $SIG{TERM} = \&normal_sighandler;
 $SIG{ALRM} = \&alarm_sighandler;
 $SIG{CHLD} = \&child_sighandler;
+
+sd_ready;
 
 my %args;
 getopts( 'dhvr', \%args );
@@ -85,7 +87,7 @@ daemonize($PROGRAM_NAME) if ($daemonize);
 our $PARENT_PID = $$;
 
 sub start {
-    Systemd::Daemon::notify( READY => 1, STATUS => "Ready", unset => 1 );
+    Linux::Systemd::Daemon::sd_notify( READY => 1, STATUS => "Ready", unset => 1 );
     registertasks();
     while($running) {
         run_all_winbindd();
@@ -101,7 +103,7 @@ cleanup();
 END {
     if ( !$args{h} && $HAS_LOCK ) {
         unless($IS_CHILD) {
-            Systemd::Daemon::notify( STOPPING => 1 );
+            Linux::Systemd::Daemon::sd_notify( STOPPING => 1 );
             deletepid();
             $logger->info("stopping winbindd-wrapper");
         }

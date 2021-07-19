@@ -15,7 +15,6 @@ unit test for Nodes
 use strict;
 use warnings;
 #
-use lib '/usr/local/pf/lib';
 
 BEGIN {
     #include test libs

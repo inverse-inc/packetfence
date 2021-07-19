@@ -12,7 +12,7 @@ generator-data-access-layer.pl - Generate the stubs for the data access layer
 
 use strict;
 use warnings;
-use lib qw(/usr/local/pf/lib);
+use lib qw(/usr/local/pf/lib /usr/local/pf/lib_perl/lib/perl5);
 use DBI;
 use Template;
 use Data::Dumper;

@@ -12,11 +12,14 @@ Exercizing pf::services and sub modules components.
 
 use strict;
 use warnings;
+BEGIN {
+    use lib qw(/usr/local/pf/t);
+    use setup_test_config;
+}
 
 use Test::More tests => 14;
 use Log::Log4perl;
 use File::Basename qw(basename);
-use lib '/usr/local/pf/lib';
 
 Log::Log4perl->init("log.conf");
 my $logger = Log::Log4perl->get_logger( basename($0) );

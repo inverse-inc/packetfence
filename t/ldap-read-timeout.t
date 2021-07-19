@@ -127,7 +127,6 @@ close($reader);
 sleep(1);
 
 BEGIN {
-    use lib qw(/usr/local/pf/lib);
     use lib qw(/usr/local/pf/t);
     use setup_test_config;
 }

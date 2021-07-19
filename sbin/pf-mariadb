@@ -3,7 +3,7 @@
 use strict;
 use warnings;
 
-use lib '/usr/local/pf/lib';
+use lib qw(/usr/local/pf/lib /usr/local/pf/lib_perl/lib/perl5);
 
 use pf::services::util;
 use POSIX qw(:signal_h pause :sys_wait_h setuid setgid);
@@ -379,6 +379,7 @@ sub normal_sighandler {
         kill(SIGTERM, $QUORUM_MGMT_SERVER_PID) if($QUORUM_MGMT_SERVER_PID);
         kill(SIGTERM, $QUORUM_CLIENT_SERVER_PID) if($QUORUM_CLIENT_SERVER_PID);
         `pkill mysqld`;
+        `pkill mariadbd`;
         deletepid();
         $logger->debug( "pfmariadb caught SIG" . $_[0] . " - terminating" );
     }

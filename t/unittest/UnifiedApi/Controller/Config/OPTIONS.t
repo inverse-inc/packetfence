@@ -12,8 +12,6 @@ unit test for OPTIONS
 
 use strict;
 use warnings;
-#
-use lib '/usr/local/pf/lib';
 
 BEGIN {
     #include test libs
@@ -89,37 +87,37 @@ $t->options_ok("/api/v1/config/syslog_parsers")
         type => {
           allowed => [
             {
-              text => "fortianalyser",
-              value => "fortianalyser"
+              text => "dhcp",
+              value => "dhcp"
             },
             {
-              text => "snort",
-              value => "snort"
+              text => "fortianalyser",
+              value => "fortianalyser"
             },
             {
               text => "nexpose",
               value => "nexpose"
             },
             {
+              text => "regex",
+              value => "regex"
+            },
+            {
               text => "security_onion",
               value => "security_onion"
+            },
+            {
+              text => "snort",
+              value => "snort"
+            },
+            {
+              text => "suricata",
+              value => "suricata"
             },
             {
               text => "suricata_md5",
               value => "suricata_md5"
             },
-            {
-              text => "regex",
-              value => "regex"
-            },
-            {
-              text => "dhcp",
-              value => "dhcp"
-            },
-            {
-              text => "suricata",
-              value => "suricata"
-            }
           ],
           allow_custom => $false,
           type => "string"

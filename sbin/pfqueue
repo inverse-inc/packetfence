@@ -17,6 +17,14 @@ pfqueue [options]
 
 use warnings;
 use strict;
+#pf::log must always be initilized first
+BEGIN {
+    # log4perl init
+    use constant INSTALL_DIR => '/usr/local/pf';
+    use lib (INSTALL_DIR . "/lib", INSTALL_DIR . "/lib_perl/lib/perl5");
+    use pf::log(service => 'pfqueue');
+}
+
 use Getopt::Std;
 use File::Basename qw(basename);
 use POSIX qw(:signal_h pause :sys_wait_h);
@@ -24,15 +32,6 @@ use Pod::Usage;
 use Fcntl qw(:flock);
 use Scalar::Util qw(blessed);
 use Time::HiRes qw(usleep);
-use Systemd::Daemon qw{ -soft };
-
-#pf::log must always be initilized first
-BEGIN {
-    # log4perl init
-    use constant INSTALL_DIR => '/usr/local/pf';
-    use lib INSTALL_DIR . "/lib";
-    use pf::log(service => 'pfqueue');
-}
 
 use pf::file_paths qw($var_dir);;
 use pf::util;
@@ -53,7 +52,7 @@ use threads;
 use pf::factory::task;
 use pf::services::manager::pfdetect;
 use pf::services::manager::snmptrapd;
-
+use Linux::Systemd::Daemon 'sd_ready';
 
 
 # initialization
@@ -75,6 +74,8 @@ $SIG{TERM} = \&normal_sighandler;
 $SIG{CHLD} = \&child_sighandler;
 
 $SIG{PIPE} = 'IGNORE';
+
+sd_ready;
 
 my %args;
 getopts('dhvr', \%args);
@@ -105,13 +106,13 @@ Log::Log4perl::MDC->put( 'tid', $$ );
 pf::SwitchFactory->preloadConfiguredModules();
 
 register_tasks();
-Systemd::Daemon::notify( READY => 1, STATUS => "Ready", unset => 1 );
+Linux::Systemd::Daemon::sd_notify( READY => 1, STATUS => "Ready", unset => 1 );
 wait_for_it();
 cleanup();
 
 END {
     if (!$args{h} && $HAS_LOCK && !$IS_CHILD) {
-        Systemd::Daemon::notify( STOPPING => 1 );
+        Linux::Systemd::Daemon::sd_notify( STOPPING => 1 );
         deletepid();
         $logger->info("stopping pfqueue");
     }

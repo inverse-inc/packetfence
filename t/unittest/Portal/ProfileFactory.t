@@ -15,20 +15,19 @@ Test for the pf::Connection::ProfileFactory
 use strict;
 use warnings;
 
-use lib '/usr/local/pf/lib';
-
-use Test::More tests => 24;
-use pf::Connection::ProfileFactory;
-use pf::dal::node;
-use pf::ip4log;
-use pf::constants qw($FAKE_MAC);
-
 BEGIN {
     #include test libs
     use lib qw(/usr/local/pf/t);
     #Module for overriding configuration paths
     use setup_test_config;
 }
+
+
+use Test::More tests => 24;
+use pf::Connection::ProfileFactory;
+use pf::dal::node;
+use pf::ip4log;
+use pf::constants qw($FAKE_MAC);
 
 #This test will running last
 use Test::NoWarnings;

@@ -285,10 +285,10 @@ Data fields are defined using a query and has access to node and person informat
  * `node.last_ssid`: The SSID the device is connected to, if applicable
  * `node.device_class`: The Fingerbank device class
  * `node.last_switch`: The switch/controller/access point the device is connected to
- * You can get all the available node fields by executing the following command: `perl -I/usr/local/pf/lib -Mpf::node -MData::Dumper -e 'print Dumper(node_view("00:11:22:33:44:55"))'`
+ * You can get all the available node fields by executing the following command: `perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5 -Mpf::node -MData::Dumper -e 'print Dumper(node_view("00:11:22:33:44:55"))'`
  * `person.source`: If there was authentication done in the portal, this will provide the source that was used
  * `person.email`: If there was authentication done in the portal, this will provide the email that was used
- * You can get all the available person fields by executing the following command: `perl -I/usr/local/pf/lib -Mpf::person -MData::Dumper -e 'print Dumper(person_view("admin"))'`
+ * You can get all the available person fields by executing the following command: `perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5 -Mpf::person -MData::Dumper -e 'print Dumper(person_view("admin"))'`
  * `ip`: The IP address of the client
 
 ==== Putting the survey on the portal

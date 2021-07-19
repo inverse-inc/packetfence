@@ -4,12 +4,14 @@ use strict;
 use warnings;
 use diagnostics;
 
+BEGIN {
+    use lib qw(/usr/local/pf/t);
+	use setup_test_config;
+}
+
 use Test::More tests => 20;
 use Test::NoWarnings;
 
-use lib '/usr/local/pf/lib';
-BEGIN { use lib qw(/usr/local/pf/t); }
-BEGIN { use setup_test_config; }
 use pf::config;
 use pf::SwitchFactory;
 

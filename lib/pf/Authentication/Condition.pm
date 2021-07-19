@@ -70,7 +70,7 @@ sub matches {
         }
 
         my $logger = get_logger();
-        $logger->trace(sprintf("Matching condition '%s %s %s' for value '$v'", $attribute, $operator, $value, $v));
+        $logger->trace(sprintf("Matching condition '%s %s %s' for value '%s'", $attribute, $operator, $value, $v));
 
         if ($operator eq $Conditions::EQUALS ||
             $operator eq $Conditions::IS) {

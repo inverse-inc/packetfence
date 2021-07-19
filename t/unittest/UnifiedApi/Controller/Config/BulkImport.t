@@ -13,7 +13,12 @@ unit test for BulkImport
 use strict;
 use warnings;
 #
-use lib '/usr/local/pf/lib';
+BEGIN {
+    #include test libs
+    use lib qw(/usr/local/pf/t);
+    #Module for overriding configuration paths
+    use setup_test_config;
+}
 
 use File::Temp;
 my ($fh, $filename) = File::Temp::tempfile( UNLINK => 1 );
@@ -51,13 +56,6 @@ $fh->flush();
     has 'config_store_class' => 'ConfigStore::BulkImport';
     has 'form_class' => 'Form::BulkImport';
     has 'primary_key' => 'bulk_import_id';
-}
-
-BEGIN {
-    #include test libs
-    use lib qw(/usr/local/pf/t);
-    #Module for overriding configuration paths
-    use setup_test_config;
 }
 
 use Test::More tests => 31;

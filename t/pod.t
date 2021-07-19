@@ -14,15 +14,15 @@ use strict;
 use warnings;
 use diagnostics;
 
-use Test::More;
-use Test::NoWarnings;
-use Test::Pod;
-
 BEGIN {
-    use lib qw(/usr/local/pf/lib);
     use lib qw(/usr/local/pf/t);
     use setup_test_config;
 }
+
+
+use Test::More;
+use Test::NoWarnings;
+use Test::Pod;
 use TestUtils qw(get_all_perl_binaries get_all_perl_cgi get_all_perl_modules);
 
 my @files;

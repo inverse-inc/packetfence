@@ -12,7 +12,7 @@ pfmon_to_maintenance
 
 use strict;
 use warnings;
-use lib qw(/usr/local/pf/lib);
+use lib qw(/usr/local/pf/lib /usr/local/pf/lib_perl/lib/perl5);
 use pf::IniFiles;
 use pf::constants::config;
 use pf::file_paths qw(

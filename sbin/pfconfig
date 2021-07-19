@@ -27,7 +27,7 @@ BEGIN {
     #Ensure that the file permissions of the log file is correct 0660
     umask (0);
     use constant INSTALL_DIR => '/usr/local/pf';
-    use lib INSTALL_DIR . "/lib";
+    use lib (INSTALL_DIR . "/lib", INSTALL_DIR . "/lib_perl/lib/perl5");
     use pf::log (service => 'pfconfig');
 }
 
@@ -37,7 +37,7 @@ use JSON::MaybeXS;
 use pfconfig::manager;
 use Data::Dumper;
 use Time::HiRes;
-use List::MoreUtils qw(first_index);
+use List::MoreUtils qw(first_index any);
 use File::Basename qw(basename);
 use Getopt::Std;
 use POSIX qw(:signal_h);
@@ -50,12 +50,14 @@ use pf::Sereal qw($ENCODER);
 use Errno qw(EINTR EAGAIN);
 use bytes;
 use pf::util::networking qw(send_data_with_length);
-use Systemd::Daemon qw{ -soft };
+use Linux::Systemd::Daemon 'sd_ready';
 our $RUNNING = 1;
 
 ## All pfconfig objects implementing TO_JSON must be imported here
 use pfconfig::objects::NetAddr::IP;
 use pfconfig::objects::Net::Netmask;
+
+sd_ready;
 
 my %args = (
     s => $pfconfig::constants::SOCKET_PATH,
@@ -139,7 +141,7 @@ our %DISPATCH = (
     'sleep'              => \&server_sleep,
 );
 
-Systemd::Daemon::notify( READY => 1, STATUS => "Ready", unset => 1 );
+Linux::Systemd::Daemon::sd_notify( READY => 1, STATUS => "Ready", unset => 1 );
 # Used to set the current prefered encoding
 my $encoding;
 
@@ -195,7 +197,7 @@ $logger->info("Stop running\n");
 
 END {
     if (!$args{h} && $FILE_LOCK ) {
-        Systemd::Daemon::notify( STOPPING => 1 );
+        Linux::Systemd::Daemon::sd_notify( STOPPING => 1 );
         deletepid($PROGRAM_NAME, $PID_FILE);
     }
 }
@@ -289,7 +291,7 @@ sub get_key_exists {
     my @keys = keys(%{$elem});
 
     my $key = $query->{search};
-    if($key ~~ @keys){
+    if (any { $key eq $_ } @keys) {
         send_output({result => 1}, $socket);
     }
     else {

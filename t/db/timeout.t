@@ -19,12 +19,9 @@ Example:
 
 use strict;
 use warnings;
-use lib '/usr/local/pf/lib';
 
 BEGIN {
-    #include test libs
     use lib qw(/usr/local/pf/t);
-    #Module for overriding configuration paths
     use setup_test_config;
 }
 

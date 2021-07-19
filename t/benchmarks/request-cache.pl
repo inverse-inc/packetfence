@@ -14,7 +14,7 @@ node
 
 use strict;
 use warnings;
-use lib qw(/usr/local/pf/lib);
+use lib qw(/usr/local/pf/lib /usr/local/pf/lib_perl/lib/perl5);
 use pf::node;
 use pf::SwitchFactory;
 use pf::Connection::ProfileFactory;

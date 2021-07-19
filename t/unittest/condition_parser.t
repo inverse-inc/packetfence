@@ -15,16 +15,14 @@ unit test for condition_parser
 use strict;
 use warnings;
 #
-use lib '/usr/local/pf/lib';
 our (@VALID_STRING_TESTS, @INVALID_STRINGS, @VALID_IDS, $TEST_COUNT, @OBJECT_TO_STR_TESTS);
 
 BEGIN {
     #include test libs
     use lib qw(/usr/local/pf/t);
-    use List::MoreUtils qw(true);
-
     #Module for overriding configuration paths
     use setup_test_config;
+    use List::MoreUtils qw(true);
 
     @VALID_STRING_TESTS = (
         [

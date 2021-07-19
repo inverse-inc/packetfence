@@ -12,7 +12,7 @@ Migrate the roles that are in the database into roles.conf
 
 =cut
 
-use lib '/usr/local/pf/lib';
+use lib qw(/usr/local/pf/lib /usr/local/pf/lib_perl/lib/perl5);
 
 use pf::nodecategory;
 use pf::ConfigStore::Roles;
