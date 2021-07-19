@@ -27,6 +27,8 @@ For a list of compatibility related changes see the <<PacketFence_Upgrade_Guide.
 
 === New Features
 
+* Red Hat Enterprise Linux 8 support
+* Debian 11 support
 * Microsoft Intune SCEP support (#6360)
 * Added support for Azure AD authentication (#6380)
 * New provisioner Google Workspace Chromebook
