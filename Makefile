@@ -242,6 +242,7 @@ rpm/.rpmmacros:
 build_rpm: conf/git_commit_id rpm/.rpmmacros dist
 	cp $(SRC_RPMDIR)/.rpmmacros $(HOME)
 	ci-build-pkg $(SRC_RPMDIR)/packetfence.spec
+	# no need to build other packages if packetfence build failed
 	ci-build-pkg $(SRC_RPMDIR)/packetfence-release.spec
 
 .PHONY: build_deb

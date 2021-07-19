@@ -1,5 +1,5 @@
 Name:       packetfence-release
-Version:    2.2.0
+Version:    2.3.0
 Release:    1%{?dist}
 BuildArch:  noarch
 Summary:    PacketFence release file and RPM repository configuration
@@ -19,7 +19,7 @@ for the PacketFence RPM repository.
 
 %prep
 
-%{__cat} <<EOF >/etc/yum.repos.d/packetfence.repo
+%{__cat} <<EOF > %{_builddir}/packetfence.repo
 ## PacketFence RPM Repository for RHEL/Centos
 [packetfence]
 name=PacketFence Repository
@@ -48,7 +48,7 @@ enabled=0
 
 EOF
 
-%{__cat} <<EOF > /etc/pki/rpm-gpg/RPM-GPG-KEY-PACKETFENCE-CENTOS
+%{__cat} <<EOF > %{_builddir}/RPM-GPG-KEY-PACKETFENCE-CENTOS
 -----BEGIN PGP PUBLIC KEY BLOCK-----
 Version: GnuPG v1.4.12 (GNU/Linux)
 
@@ -88,8 +88,8 @@ EOF
 %{__rm} -rf %{buildroot}
 mkdir -p %{buildroot}/etc/yum.repos.d/
 mkdir -p %{buildroot}/etc/pki/rpm-gpg/
-cp /etc/yum.repos.d/packetfence.repo %{buildroot}/etc/yum.repos.d/packetfence.repo
-cp /etc/pki/rpm-gpg/RPM-GPG-KEY-PACKETFENCE-CENTOS %{buildroot}%{_sysconfdir}/pki/rpm-gpg/RPM-GPG-KEY-PACKETFENCE-CENTOS
+cp %{_builddir}/packetfence.repo %{buildroot}/etc/yum.repos.d/packetfence.repo
+cp %{_builddir}/RPM-GPG-KEY-PACKETFENCE-CENTOS %{buildroot}%{_sysconfdir}/pki/rpm-gpg/RPM-GPG-KEY-PACKETFENCE-CENTOS
 
 %clean
 %{__rm} -rf %{buildroot}
@@ -101,6 +101,9 @@ cp /etc/pki/rpm-gpg/RPM-GPG-KEY-PACKETFENCE-CENTOS %{buildroot}%{_sysconfdir}/pk
 
 
 %changelog
+* Mon Jul 19 2021 Nicolas Quiniou-Briand <nquiniou@akamai.com> - 2.3.0-1
+- Create files in BUILD directory in place of filesystem
+
 * Mon May 31 2021 Nicolas Quiniou-Briand <nquiniou@akamai.com> - 2.2.0-1
 - Manage one repository per version to simplify maintenance and release process
 
