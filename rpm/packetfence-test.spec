@@ -44,6 +44,8 @@ PacketFence test files. This package contains all files related to PacketFence t
 %attr(0755, -, -)     /usr/local/pf/t/*.pl
 %attr(0755, -, -)     /usr/local/pf/t/*.sh
 %attr(0755, -, -)     /usr/local/pf/t/*.t
+%attr(0755, -, -)     /usr/local/pf/t/pfconfig-test
+%attr(0755, -, -)     /usr/local/pf/t/pfconfig-test-serial
 
 # benchmarks
 %attr(0755, -, -)     /usr/local/pf/t/benchmarks/*.pl
