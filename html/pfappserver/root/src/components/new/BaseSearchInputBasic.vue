@@ -9,7 +9,7 @@
       <b-button class="ml-1" type="reset" variant="secondary" :disabled="disabled">{{ $t('Clear') }}</b-button>
       <!-- saved search button -->
       <base-button-save-search v-if="saveSearchNamespace"
-        :value="value" @input="onInput" class="ml-1"
+        :value="value" :name="value" @input="onInput" class="ml-1"
         :disabled="disabled"
         :save-search-namespace="saveSearchNamespace"
         @search="onSearch"

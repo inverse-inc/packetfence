@@ -45,7 +45,7 @@
       </template>
     </b-modal>
     <b-modal v-model="showSaveSearchModal" size="sm" centered id="saveSearchModal" :title="$t('Save Search')" @shown="focusSaveSearchInput">
-      <b-form-input ref="saveSearchInput" v-model="saveSearchString" type="text"
+      <b-form-input ref="saveSearchInput" v-model="saveSearchName" type="text"
         :placeholder="$t('Enter a unique name')" @keyup="keyUpSaveSearchInput"/>
       <template v-slot:modal-footer>
         <b-button variant="secondary" class="mr-1" @click="showSaveSearchModal=false">{{ $t('Cancel') }}</b-button>
@@ -65,6 +65,9 @@ const props = {
   },
   disabled: {
     type: Boolean
+  },
+  name: {
+    type: String
   }
 }
 
@@ -75,7 +78,8 @@ const setup = (props, context) => {
 
   const {
     saveSearchNamespace,
-    value
+    value,
+    name
   } = toRefs(props)
 
   const { emit, refs, root: { $router, $store } = {} } = context
@@ -96,7 +100,11 @@ const setup = (props, context) => {
   const importJsonString = ref(null)
   const importJsonError = ref(null)
   const showSaveSearchModal = ref(false)
-  const saveSearchString = ref(null)
+
+  const saveSearchName = ref(null)
+  watch(name, () => { // default name
+    saveSearchName.value = name.value
+  }, { immediate: true })
 
   const copyJsonTextarea = () => {
     if (document.queryCommandSupported('copy')) {
@@ -134,7 +142,7 @@ const setup = (props, context) => {
   const keyUpSaveSearchInput = event => {
     switch (event.keyCode) {
       case 13: // [ENTER] submits
-        if (saveSearchString.value.length > 0)
+        if (saveSearchName.value.length > 0)
           onSave()
         break
     }
@@ -145,7 +153,7 @@ const setup = (props, context) => {
     $store.dispatch('saveSearch/set', {
       namespace: saveSearchNamespace.value,
       search: {
-        name: saveSearchString.value,
+        name: saveSearchName.value,
         route: {
           path,
           params,
@@ -155,7 +163,7 @@ const setup = (props, context) => {
         }
       }
     }).then(() => {
-      saveSearchString.value = ''
+      saveSearchName.value = ''
       showSaveSearchModal.value = false
     })
   }
@@ -181,7 +189,7 @@ const setup = (props, context) => {
     importJsonString,
     importJsonError,
     showSaveSearchModal,
-    saveSearchString,
+    saveSearchName,
 
     copyJsonTextarea,
     importJsonTextarea,
