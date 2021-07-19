@@ -1,5 +1,7 @@
 #!/bin/bash
 
+set -o nounset -o pipefail -o errexit
+
 source /usr/local/pf/addons/full-import/helpers.functions
 source /usr/local/pf/addons/full-import/database.functions
 
