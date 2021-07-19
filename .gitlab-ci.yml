@@ -342,18 +342,14 @@ build_vagrant_img_dev_debian_bullseye:
 ########################################
 # build_pkg jobs for development
 build_pkg_dev_centos_8:
-  # temp
-  # image: ${PFBUILD_CENTOS_8_IMG}:${PFBUILD_DEFAULT_DEV_TAG}
-  image: ${PFBUILD_CENTOS_8_IMG}:feature-rhel8
+  image: ${PFBUILD_CENTOS_8_IMG}:${PFBUILD_DEFAULT_DEV_TAG}
   extends:
     - .build_job
     - .job_dev_triggers
     - .rpm_script
 
 build_pkg_dev_debian_bullseye:
-  # temp
-  # image: ${PFBUILD_DEB_BULLSEYE_IMG}:${PFBUILD_DEFAULT_DEV_TAG}
-  image: ${PFBUILD_DEB_BULLSEYE_IMG}:feature-rhel8
+  image: ${PFBUILD_DEB_BULLSEYE_IMG}:${PFBUILD_DEFAULT_DEV_TAG}
   extends:
     - .build_job
     - .job_dev_triggers
