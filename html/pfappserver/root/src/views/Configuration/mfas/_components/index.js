@@ -4,6 +4,7 @@ import {
   BaseFormButtonBar,
   BaseFormGroupInput,
   BaseFormGroupInputPassword,
+  BaseFormGroupChosenOne,
 } from '@/components/new/'
 import TheForm from './TheForm'
 import TheView from './TheView'
@@ -15,6 +16,7 @@ export {
   BaseFormGroupInput                  as FormGroupIdentifier,
   BaseFormGroupInput                  as FormGroupAppId,
   BaseFormGroupInputPassword          as FormGroupAppSecret,
+  BaseFormGroupChosenOne              as FormGroupRadiusMfaMethod,
 
   TheForm,
   TheView

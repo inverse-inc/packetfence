@@ -34,6 +34,20 @@ has_field 'app_secret' =>
    messages => { required => 'Please specify the application secret' },
   );
 
+has_field 'radius_mfa_method' =>
+  (
+   type => 'Select',
+   label => 'type',
+   required => 1,
+   options =>
+   [
+    { value => 'push', label => 'Push' },
+    { value => 'strip-otp', label => 'Strip OTP' },
+   ],
+   default => 'push',
+   tags => { after_element => \&help,
+             help => 'RADIUS MFA method' },
+  );
 
 has_field 'type' =>
   (
@@ -43,7 +57,7 @@ has_field 'type' =>
 
 has_block definition =>
   (
-   render_list => [ qw(id app_id app_secret) ],
+   render_list => [ qw(id app_id app_secret radius_mfa_method) ],
   );
 
 =over

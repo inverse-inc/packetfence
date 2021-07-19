@@ -20,6 +20,11 @@
       :text="$i18n.t('Define the application secret provided by Akamai MFA.')"
     />
 
+    <form-group-radius-mfa-method namespace="radius_mfa_method"
+      :column-label="$i18n.t('RADIUS OTP Method')"
+      :text="$i18n.t('Define the method to be used in RADIUS to trigger OTP.')"
+    />
+
   </base-form>
 </template>
 <script>
@@ -28,6 +33,7 @@ import {
   FormGroupIdentifier,
   FormGroupAppId,
   FormGroupAppSecret,
+  FormGroupRadiusMfaMethod,
 } from './'
 
 const components = {
@@ -36,6 +42,7 @@ const components = {
   FormGroupIdentifier,
   FormGroupAppId,
   FormGroupAppSecret,
+  FormGroupRadiusMfaMethod,
 }
 
 import { useForm as setup, useFormProps as props } from '../_composables/useForm'

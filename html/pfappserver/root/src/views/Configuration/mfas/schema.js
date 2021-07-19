@@ -30,7 +30,8 @@ export const schema = (props) => {
       .required(i18n.t('Name required.'))
       .mfaIdExistsExcept((!isNew && !isClone) ? id : undefined, i18n.t('Name already exists.')),
     app_id: yup.string().nullable().label(i18n.t('Application ID')),
-    app_secret: yup.string().nullable().label(i18n.t('Application Secret'))
+    app_secret: yup.string().nullable().label(i18n.t('Application Secret')),
+    radius_mfa_method: yup.string().nullable().label(i18n.t('RADIUS MFA Method'))
   })
 }
 
