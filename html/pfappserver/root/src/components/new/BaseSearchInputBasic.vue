@@ -4,7 +4,7 @@
       <div class="input-group-prepend">
         <div class="input-group-text"><icon name="search"></icon></div>
       </div>
-      <b-form-input :value="value" @input="onInput" id="container" type="text" :disabled="disabled" :placeholder="placeholder"
+      <b-form-input :value="value" @input="onInput" v-focus id="container" type="text" :disabled="disabled" :placeholder="placeholder"
         :title="title" v-b-tooltip:form.v-primary.hover.top.d300="{ customClass: 'tooltip-grow' }" />
       <b-button class="ml-1" type="reset" variant="secondary" :disabled="disabled">{{ $t('Clear') }}</b-button>
       <!-- saved search button -->
@@ -25,6 +25,11 @@ import BaseButtonSaveSearch from './BaseButtonSaveSearch'
 
 const components = {
   BaseButtonSaveSearch
+}
+
+import { focus } from '@/directives'
+const directives = {
+  focus
 }
 
 import i18n from '@/utils/locale'
@@ -75,6 +80,7 @@ export default {
   name: 'base-search-input-basic',
   inheritAttrs: false,
   components,
+  directives,
   props,
   setup
 }
