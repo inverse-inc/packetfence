@@ -112,7 +112,7 @@ BEGIN {
 
 }
 
-use Test::More tests => 21 + 2 * ( scalar @CACHEABLE_RULES + scalar @NON_CACHEABLE_RULES);
+use Test::More tests => 24 + 2 * ( scalar @CACHEABLE_RULES + scalar @NON_CACHEABLE_RULES);
 
 #This test will running last
 use Test::NoWarnings;
