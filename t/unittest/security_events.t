@@ -54,8 +54,8 @@ Test2::Tools::Compare::is(
 # Will be able to match multiple security_events on the different triggers
 @security_events = $pf::security_event::SECURITY_EVENT_FILTER_ENGINE->match_all({last_detect_id => 2, device_id => 3});
 is(@security_events, 2);
-is($security_events[0], "1100008");
-is($security_events[1], "1100007");
+is($security_events[0], "1100007");
+is($security_events[1], "1100008");
 
 # Will be able to match a mac trigger that uses a regex
 @security_events = $pf::security_event::SECURITY_EVENT_FILTER_ENGINE->match_all({mac => "12:34:56:78:90:12"});
