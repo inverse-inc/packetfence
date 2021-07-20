@@ -18,13 +18,13 @@ use URI::Escape qw(uri_escape);
 
 our $ACCESS_TOKEN = 123;
 
-any '/*path' => sub {
+any '/*dapath' => sub {
     my ($c) = @_;
     my $req = $c->req;
     return $c->rendered( 204 ) if $req->method eq 'OPTIONS';
     my $variant = variant($req);
     return $c->render(
-        template => join( '/', uc $req->method, $c->stash('path') ),
+        template => join( '/', uc $req->method, $c->stash('dapath') ),
         variant  => $variant,
         format   => 'json',
     );
