@@ -644,14 +644,14 @@ sub validate {
     my $config = pf::ConfigStore::Switch->new;
     my $groupConfig = pf::ConfigStore::SwitchGroup->new;
     tie my %TemplateSwitches, 'pfconfig::cached_hash', 'config::TemplateSwitches';
+    my $value = $self->value;
 
     my @triggers;
-    my $always = any { $_->{type} eq $ALWAYS } @{$self->value->{inlineTrigger}};
-
-    if ($self->value->{type}) {
-        my $type = 'pf::Switch::'. $self->value->{type};
-        if ($type->require() || $TemplateSwitches{$self->value->{type}}) {
-            @triggers = map { $_->{type} } @{$self->value->{inlineTrigger}};
+    my $always = any { $_->{type} eq $ALWAYS } @{$value->{inlineTrigger}};
+    if ($value->{type}) {
+        my $type = 'pf::Switch::'. $value->{type};
+        if ($type->require() || $TemplateSwitches{$value->{type}}) {
+            @triggers = map { $_->{type} } @{$value->{inlineTrigger}};
             if ( @triggers && !$always) {
                 # Make sure the selected switch type supports the selected inline triggers.
                 my %capabilities;
@@ -667,10 +667,10 @@ sub validate {
                 }
             }
         } else {
-            $self->field('type')->add_error("The chosen type (" . $self->value->{type} . ") is not supported.");
+            $self->field('type')->add_error("The chosen type (" . $value->{type} . ") is not supported.");
         }
     } else {
-        my $group_name = $self->value->{group} || '';
+        my $group_name = $value->{group} || '';
         my $default = $config->read('default');
         my $group = $groupConfig->read($group_name) || {};
         unless(defined $default->{type} || defined $group->{type}) {
@@ -680,7 +680,7 @@ sub validate {
 
     unless ($self->has_errors) {
         # Valide the MAC address format of the inline triggers.
-        @triggers = grep { $_->{type} eq $MAC } @{$self->value->{inlineTrigger}};
+        @triggers = grep { $_->{type} eq $MAC } @{$value->{inlineTrigger}};
         foreach my $trigger (@triggers) {
             unless (valid_mac($trigger->{value})) {
                 $self->field('inlineTrigger')->add_error("Verify the format of the MAC address(es).");

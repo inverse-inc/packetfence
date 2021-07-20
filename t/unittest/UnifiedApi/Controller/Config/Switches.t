@@ -22,7 +22,7 @@ BEGIN {
     use setup_test_config;
 }
 
-use Test::More tests => 47;
+use Test::More tests => 57;
 use Test::Mojo;
 use Utils;
 use pf::ConfigStore::Switch;
@@ -36,6 +36,21 @@ my $t = Test::Mojo->new('pf::UnifiedApi');
 my $collection_base_url = '/api/v1/config/switches';
 
 my $base_url = '/api/v1/config/switch';
+
+$t->post_ok($collection_base_url => json => { id => "blahasas", description => "ss"})
+  ->status_is(422);
+
+$t->post_ok($collection_base_url => json => { id => "172.16.8.20/32", description => "ss"})
+  ->status_is(201);
+
+$t->post_ok($collection_base_url => json => { id => "172.16.8.20", description => "ss"})
+  ->status_is(409);
+
+$t->get_ok( "$base_url/172.16.8.20" )
+  ->status_is(200);
+
+$t->get_ok( "$base_url/172.16.8.20%2f32" )
+  ->status_is(404);
 
 {
     my $id = '111.1.1.1';
