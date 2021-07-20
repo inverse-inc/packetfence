@@ -1,0 +1,29 @@
+---
+- hosts: dev
+  name: install packetfence development packages
+  become: True
+  # gather_facts: True
+
+  tasks:
+    - name: ansible_distribution_release (1st attempt)
+      debug:
+        var: ansible_distribution_release
+
+    - name: "ansible_lsb.codename (1st attempt)"
+      debug:
+        var: ansible_lsb.codename
+
+    - name: Force cache update to get correct facts
+      apt:
+        update_cache: yes
+
+    - name: Refresh Ansible facts after cache update
+      setup:
+
+    - name: ansible_distribution_release (2nd attempt)
+      debug:
+        var: ansible_distribution_release
+
+    - name: "ansible_lsb.codename (2nd attempt)"
+      debug:
+        var: ansible_lsb.codename

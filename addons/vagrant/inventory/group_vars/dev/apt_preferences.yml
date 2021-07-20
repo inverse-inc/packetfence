@@ -1,7 +1,7 @@
 ---
 apt_preferences__list:
-  - filename: 'packetfence-local.pref'
+  - filename: 'packetfence-ppa.pref'
     package: 'packetfence*'
-    pin: 'release a=stretch-gitlab,n=stretch,c=main,b=amd64'
+    pin: 'release a=bullseye-gitlab,n=bullseye,c=main,b=amd64'
     priority: '900'
-    reason: 'always install packetfence packages from packetfence-local repository'
+    reason: 'always install packetfence packages from packetfence-ppa repository'

@@ -1,0 +1,18 @@
+- hosts: pfservers
+  name: upgrade EL OS to latest version
+  become: True
+  gather_facts: True
+  tags: upgrade
+
+  tasks:
+    - name: update to latest OS version (EL)
+      yum:
+        name: '*'
+        state: latest
+        update_cache: yes
+      register: upgrade_os_el_register
+      when: ansible_os_family == 'RedHat'
+
+    - name: reboot to have latest Linux kernel packages in place when installing PacketFence
+      reboot:
+      when: upgrade_os_el_register is changed

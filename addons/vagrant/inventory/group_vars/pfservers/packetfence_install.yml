@@ -17,10 +17,20 @@ packetfence_install__centos:
   repos:
     - packetfence
 
+# override to installed test files
+packetfence_install__centos_packages:
+  - packetfence
+  - packetfence-test
+
 # only for dependencies, packetfence packages are installed using local repo
 packetfence_install__deb:
   repos:
     - "debian/{{ pf_minor_release }}"
+
+# override to installed test files
+packetfence_install__deb_packages:
+  - packetfence
+  - packetfence-test
 
 # we used Venom to pass through configurator
 packetfence_install__configurator_status: 'enabled'

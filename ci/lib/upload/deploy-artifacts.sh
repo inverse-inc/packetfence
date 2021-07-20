@@ -14,6 +14,7 @@ source ${FUNCTIONS_FILE}
 get_pf_release
 
 RESULT_DIR=${RESULT_DIR:-result}
+PUBLIC_DIR=${PUBLIC_DIR:-public}
 
 DEPLOY_USER=${DEPLOY_USER:-reposync}
 DEPLOY_HOST=${DEPLOY_HOST:-web.inverse.ca}
@@ -33,7 +34,7 @@ DEB_DEPLOY_DIR=${DEB_DEPLOY_DIR:-foo}
 DEB_RESULT_DIR=${DEB_RESULT_DIR:-"${RESULT_DIR}/debian"}
 
 # Maintenance
-MAINT_DEPLOY_DIR=${MAINT_DEPLOY_DIR:-tmp}
+GITLAB_DEPLOY_DIR=${GITLAB_DEPLOY_DIR:-tmp}
 
 # CI
 # automatically set up by CI based on environment
@@ -118,6 +119,17 @@ packetfence_release_deploy() {
     done
 }
 
+ppa_deploy() {
+    # warning: slashs at end of dirs are significant for rsync
+    src_dir="$PUBLIC_DIR/"
+    dst_repo="$PUBLIC_REPO_BASE_DIR/gitlab/$GITLAB_DEPLOY_DIR/"
+    dst_dir="$DEPLOY_USER@$DEPLOY_HOST:$dst_repo"
+    declare -p src_dir dst_dir
+    echo "rsync: $src_dir -> $dst_dir"
+    rsync -avz $src_dir $dst_dir \
+        || die "rsync failed"
+}
+
 log_section "Display artifacts"
 tree ${RESULT_DIR}
 
@@ -129,5 +141,6 @@ case $1 in
     rpm) rpm_deploy ;;
     deb) deb_deploy ;;
     packetfence-release) packetfence_release_deploy ;;
+    ppa) ppa_deploy ;;
     *)   die "Wrong argument"
 esac

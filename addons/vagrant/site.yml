@@ -1,25 +1,34 @@
 ---
 # no sub directory for ansible playbooks to find roles under roles/ directory
-- import_playbook: upgrade_centos_os.yml
+- import_playbook: playbooks/env_vars.yml
+  tags: env
 
-- import_playbook: config_dev_repos.yml
+- import_playbook: playbooks/utils/psonoci.yml
 
-- import_playbook: install_pf.yml
-    
-- import_playbook: env_vars.yml
+- import_playbook: playbooks/register_rhel_subscription.yml
+
+- import_playbook: playbooks/upgrade_el_os.yml
+
+- import_playbook: playbooks/upgrade_deb_os.yml
+
+- import_playbook: playbooks/config_dev_repos.yml
+
+- import_playbook: playbooks/install_pf.yml
   
-- import_playbook: go_env.yml
+- import_playbook: playbooks/go_env.yml
   when: lookup("env", "GOLANG_UNIT_TESTS") == 'yes'
   
-- import_playbook: winservers.yml
+- import_playbook: playbooks/winservers.yml
 
-- import_playbook: linux_servers.yml
+- import_playbook: playbooks/linux_servers.yml
   
-- import_playbook: cumulus.yml
+- import_playbook: playbooks/cumulus.yml
   
-- import_playbook: nodes_post_prov.yml
+- import_playbook: playbooks/nodes_post_prov.yml
   
-- import_playbook: wireless.yml
-  
-- import_playbook: utils.yml
+- import_playbook: playbooks/wireless.yml
 
+- import_playbook: playbooks/utils.yml
+  tags: utils
+
+- import_playbook: playbooks/unregister_rhel_subscription.yml

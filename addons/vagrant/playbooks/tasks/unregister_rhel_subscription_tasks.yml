@@ -1,0 +1,22 @@
+---
+- name: Get RHEL username using psonoci
+  ansible.builtin.command:
+    cmd: 'psonoci secret get {{ rhel_sub_psono_secret_id }} username'
+  register: unreg_rhel_sub_register_username
+  when: rhel_sub_psono_secret_id
+  no_log: True
+
+- name: Get RHEL password using psonoci
+  ansible.builtin.command:
+    cmd: 'psonoci secret get {{ rhel_sub_psono_secret_id }} password'
+  register: unreg_rhel_sub_register_password
+  when: rhel_sub_psono_secret_id
+  no_log: True
+
+# username and password are necessary to unregister system
+- name: Unregister RHEL subscription
+  community.general.redhat_subscription:
+    state: absent
+    username: '{{ unreg_rhel_sub_register_username.stdout | d(rhel_subscription_user) }}'
+    password: '{{ unreg_rhel_sub_register_password.stdout | d(rhel_subscription_password) }}'
+    auto_attach: true

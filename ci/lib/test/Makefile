@@ -4,7 +4,7 @@ include ../../../config.mk
 # Specific variables
 #==============================================================================
 SHELL=/bin/bash
-
+CI_PIPELINE_ID=123456789
 #==============================================================================
 # Targets
 #==============================================================================
@@ -14,12 +14,12 @@ SHELL=/bin/bash
 # it means a "public" dir unzipped in PF root
 
 .PHONY: all
-all: test-pfcen7dev-dev test-pfdeb9dev-dev test-pfcen7dev-release test-pfdeb9dev-release
+all: test-pfel8dev-dev test-pfdeb11dev-dev test-pfel8dev-release test-pfdeb11dev-release
 
 ### Targets used in pipeline
 .PHONY: test
 test: clean
-	PF_MINOR_RELEASE=$(PF_MINOR_RELEASE) ./vagrant-wrapper.sh run
+	CI_PIPELINE_ID=$(CI_PIPELINE_ID) PF_MINOR_RELEASE=$(PF_MINOR_RELEASE) ./vagrant-wrapper.sh run
 
 .PHONY: halt
 halt:
@@ -33,51 +33,46 @@ clean:
 delete:
 	./vagrant-wrapper.sh delete
 
-.PHONY: get-public
-get-public:
-	./get_public_from_gitlab.sh
-
-
 ### Targets used for local tests
 # test
-.PHONY: test-pfcen7dev-dev
-test-pfcen7dev-dev: get-public
-	make PF_VM_NAME=pfcen7dev \
+.PHONY: test-pfel8dev-dev
+test-pfel8dev-dev:
+	make PF_VM_NAME=pfel8dev \
 	PERL_UNIT_TESTS=yes \
 	GOLANG_UNIT_TESTS=yes \
 	test
 
-.PHONY: test-pfdeb9dev-dev
-test-pfdeb9dev-dev: get-public
-	make PF_VM_NAME=pfdeb9dev \
+.PHONY: test-pfdeb11dev-dev
+test-pfdeb11dev-dev:
+	make PF_VM_NAME=pfdeb11dev \
 	PERL_UNIT_TESTS=no \
 	GOLANG_UNIT_TESTS=yes \
 	test
 
-.PHONY: test-pfcen7dev-release
-test-pfcen7dev-release: get-public
-	make PF_VM_NAME=pfcen7dev \
+.PHONY: test-pfel8dev-release
+test-pfel8dev-release: get-public
+	make PF_VM_NAME=pfel8dev \
 	CI_COMMIT_TAG=vX.Y.Z \
 	test
 
-.PHONY: test-pfdeb9dev-release
-test-pfdeb9dev-release: get-public
-	make PF_VM_NAME=pfdeb9dev \
+.PHONY: test-pfdeb11dev-release
+test-pfdeb11dev-release:
+	make PF_VM_NAME=pfdeb11dev \
 	CI_COMMIT_TAG=vX.Y.Z \
 	test
 
-.PHONY: test-int-pfcen7dev-dev
-test-int-pfcen7dev-dev: get-public
-	make PF_VM_NAME=pfcen7dev \
+.PHONY: test-int-pfel8dev-dev
+test-int-pfel8dev-dev:
+	make PF_VM_NAME=pfel8dev \
 	INT_TEST_VM_NAMES='ad switch01 node01 wireless01' \
 	PERL_UNIT_TESTS=yes \
 	GOLANG_UNIT_TESTS=yes \
 	INTEGRATION_TESTS=yes \
 	test
 
-.PHONY: test-int-pfdeb9dev-dev
-test-int-pfdeb9dev-dev: get-public
-	make PF_VM_NAME=pfdeb9dev \
+.PHONY: test-int-pfdeb11dev-dev
+test-int-pfdeb11dev-dev:
+	make PF_VM_NAME=pfdeb11dev \
 	INT_TEST_VM_NAMES='ad switch01 node01 wireless01' \
 	PERL_UNIT_TESTS=no \
 	GOLANG_UNIT_TESTS=yes \
@@ -85,12 +80,12 @@ test-int-pfdeb9dev-dev: get-public
 	test
 
 .PHONY: test-int-dev
-test-int-dev: PF_VM_NAME=pfcen7dev
+test-int-dev: PF_VM_NAME=pfel8dev
 test-int-dev: PERL_UNIT_TESTS=no
 test-int-dev: GOLANG_UNIT_TESTS=no
 test-int-dev: INTEGRATION_TESTS=yes
 test-int-dev: INT_TEST_VM_NAMES=ad switch01 node01 wireless01
-test-int-dev: get-public
+test-int-dev:
 	make PF_VM_NAME=$(PF_VM_NAME) \
 	INT_TEST_VM_NAMES="$(INT_TEST_VM_NAMES)" \
 	PERL_UNIT_TESTS=$(PERL_UNIT_TESTS) \

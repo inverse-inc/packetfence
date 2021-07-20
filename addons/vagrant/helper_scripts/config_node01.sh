@@ -21,7 +21,7 @@ echo "retry 1;" >> /etc/dhcp/dhclient.conf
 ping 8.8.8.8 -c2
 if [ "$?" == "0" ]; then
     apt-get update -qy && apt-get install gnupg -qy
-    apt-get install lldpd ntp ntpdate unzip curl -qy
+    apt-get install lldpd unzip curl -qy
     echo "configure lldp portidsubtype ifname" > /etc/lldpd.d/port_info.conf
 
 fi
@@ -38,17 +38,17 @@ cat <<EOT > /etc/network/interfaces
 auto lo
 iface lo inet loopback
 
-auto eth0
-iface eth0 inet static
+auto ens6
+iface ens6 inet static
     alias VLAN 17
     address 172.17.17.251/24
 
-allow-hotplug eth1
-iface eth1 inet dhcp
+allow-hotplug ens7
+iface ens7 inet dhcp
     alias dot1x port
 
-allow-hotplug eth2
-iface eth2 inet dhcp
+allow-hotplug ens8
+iface ens8 inet dhcp
     alias inline port
 
 EOT

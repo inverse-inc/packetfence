@@ -13,7 +13,8 @@ FUNCTIONS_FILE=${PF_SRC_DIR}/ci/lib/common/functions.sh
 source ${FUNCTIONS_FILE}
 get_pf_release
 
-RPM_SPEC=${PF_SRC_DIR}/rpm/packetfence.spec
+RPM_PF_SPEC=${PF_SRC_DIR}/rpm/packetfence.spec
+RPM_PFTEST_SPEC=${PF_SRC_DIR}/rpm/packetfence-test.spec
 DEB_DIR=${PF_SRC_DIR}/debian
 DEB_CHLOG=${DEB_DIR}/changelog
 
@@ -32,9 +33,13 @@ update_pf_version() {
     sed -i -e "s/^PacketFence .*/PacketFence ${new_release}/" "${PF_RELEASE_PATH}"
     head -n1 ${PF_RELEASE_PATH}
 
-    log_subsection "${RPM_SPEC}"
-    sed -i -e "s/^\(Version:[^0-9]*\).*/\1${new_release}/" "${RPM_SPEC}"
-    grep "^Version:" ${RPM_SPEC}
+    log_subsection "${RPM_PF_SPEC}"
+    sed -i -e "s/^\(Version:[^0-9]*\).*/\1${new_release}/" "${RPM_PF_SPEC}"
+    grep "^Version:" ${RPM_PF_SPEC}
+
+    log_subsection "${RPM_PFTEST_SPEC}"
+    sed -i -e "s/^\(Version:[^0-9]*\).*/\1${new_release}/" "${RPM_PFTEST_SPEC}"
+    grep "^Version:" ${RPM_PFTEST_SPEC}
 }
 
 update_changelog() {
@@ -58,8 +63,11 @@ update_rpm_changelog() {
     local pkg_release="${PF_NEW_PATCH_RELEASE}-1"
     # insert content **after** match
     sed -i -e "/%changelog/a * $date $author - $pkg_release\n- New release ${PF_NEW_PATCH_RELEASE}\n" \
-        ${RPM_SPEC} || die "sed failed"
-    grep -A2 "%changelog" ${RPM_SPEC}
+        ${RPM_PF_SPEC} || die "sed failed"
+    grep -A2 "%changelog" ${RPM_PF_SPEC}
+    sed -i -e "/%changelog/a * $date $author - $pkg_release\n- New release ${PF_NEW_PATCH_RELEASE}\n" \
+        ${RPM_PFTEST_SPEC} || die "sed failed"
+    grep -A2 "%changelog" ${RPM_PFTEST_SPEC}
 }
 
 log_section "Configure and check"

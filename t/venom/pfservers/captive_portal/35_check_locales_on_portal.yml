@@ -6,4 +6,4 @@ testcases:
       - type: ssh
         host: '{{.node01_mgmt_ip}}'
         user: '{{.ssh_user}}'
-        command: '/src/t/venom/venom-wrapper.sh {{.nodes_test_suite_dir}}/captive_portal/check_locales.yml'
+        command: '/usr/local/pf/t/venom/venom-wrapper.sh {{.nodes_test_suite_dir}}/captive_portal/check_locales.yml'

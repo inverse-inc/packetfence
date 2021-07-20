@@ -17,3 +17,4 @@ apt-install-depends() {
 
 apt-get -qq update
 apt-install-depends packetfence
+apt-install cpan-perl-module

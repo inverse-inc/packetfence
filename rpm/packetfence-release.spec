@@ -43,12 +43,6 @@ gpgcheck=0
 enabled=0
 module_hotfixes=1
 
-[packetfence-gitlab]
-name=PacketFence GitLab Repository
-baseurl=http://inverse-inc.gitlab.io/packetfence/centos/\$releasever/\$basearch
-gpgcheck=0
-enabled=0
-
 EOF
 
 %{__cat} <<EOF > %{_builddir}/RPM-GPG-KEY-PACKETFENCE-CENTOS

@@ -169,12 +169,8 @@ Description: documentation for packetfence
 
 Package: packetfence-test
 Architecture: all
-Depends: packetfence, libtest-mockmodule-perl,
- libtest-nowarnings-perl, libtest-mockobject-perl,
- libtest-exception-perl
 Description: Test suite for packetfence
- The PacketFence package contains a suite of test for validate packetfence
- installation.
+ PacketFence test files. This package contains all files related to PacketFence tests.
 
 Package: packetfence-pfcmd-suid
 Architecture: any

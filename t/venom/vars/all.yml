@@ -14,8 +14,8 @@ smtp_port: '{{.MAILHOG_SMTP_PORT}}'
 mariadb_socket: '{{.MARIADB_SOCKET}}'
 timezone: '{{.TIMEZONE}}'
 pf_log_level: '{{.PF_LOG_LEVEL}}'
-switch_test_suite_dir: /src/t/venom/switches
-nodes_test_suite_dir: /src/t/venom/nodes
+switch_test_suite_dir: /usr/local/pf/t/venom/switches
+nodes_test_suite_dir: /usr/local/pf/t/venom/nodes
 
 # ssh executor variables
 ssh_user: vagrant

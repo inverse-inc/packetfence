@@ -4,7 +4,6 @@
   # to hide secrets stored in environment variables into runners
   # when they are passed to virtual machines
   no_log: True
-  tags: env
   collections:
     - debops.debops
     - debops.roles01

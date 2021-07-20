@@ -1,0 +1,6 @@
+---
+rhel_sub_psono_secret_id: 'e9d98894-bd22-4f32-8b59-653aceb72ec4'
+
+# can be used if variable above is not defined
+# rhel_subscription_user:
+# rhel_subscription_password:

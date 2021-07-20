@@ -7,3 +7,5 @@ packetfence_server_name: '{{ lookup("env","PF_VM_NAME") | default("pfcen7dev", t
 
 # lookup in Ansible inventory using name of PF server
 packetfence_server_mgmt_ip: '{{ hostvars[packetfence_server_name]["mgmt_ip"] }}'
+
+pipeline_id: '{{ lookup("env","CI_PIPELINE_ID") | default("123456789", true) }}'

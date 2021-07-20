@@ -31,6 +31,7 @@ configure_and_check() {
     VAGRANT_DOTFILE_PATH="${VAGRANT_DOTFILE_PATH:-${VAGRANT_DIR}/.vagrant}"
     VAGRANT_UP_OPTS=${VAGRANT_UP_OPTS:-'--no-destroy-on-error --no-parallel'}
     CI_COMMIT_TAG=${CI_COMMIT_TAG:-}
+    CI_PIPELINE_ID=${CI_PIPELINE_ID:-}
     PF_MINOR_RELEASE=${PF_MINOR_RELEASE:-}
     PF_VM_NAME=${PF_VM_NAME:-}
     INT_TEST_VM_NAMES=${INT_TEST_VM_NAMES:-}
@@ -52,7 +53,7 @@ configure_and_check() {
     fi
     
     declare -p VAGRANT_DIR VAGRANT_ANSIBLE_VERBOSE VAGRANT_DOTFILE_PATH
-    declare -p CI_COMMIT_TAG PF_MINOR_RELEASE
+    declare -p CI_COMMIT_TAG CI_PIPELINE_ID PF_MINOR_RELEASE
     declare -p PF_VM_NAME INT_TEST_VM_NAMES
 }
 
@@ -79,8 +80,10 @@ delete_ansible_files() {
 }
 
 halt() {
-    log_subsection "Halt virtual machine(s)"
+    local pf_vm_name=$1
     local vm_names=${@:-}
+    unregister_rhel $pf_vm_name
+    log_subsection "Halt virtual machine(s)"
 
     # using "|| true" as a workaround to unusual behavior
     # see https://github.com/hashicorp/vagrant/issues/10024#issuecomment-404965057
@@ -92,6 +95,12 @@ halt() {
         ( cd $VAGRANT_DIR ; \
           vagrant halt -f ${vm_names} )
     fi
+}
+
+unregister_rhel() {
+    log_subsection "Unregister RHEL subscription"
+    ( cd $VAGRANT_DIR ; \
+      ansible-playbook playbooks/unregister_rhel_subscription.yml -l $pf_vm_name )
 }
 
 destroy() {

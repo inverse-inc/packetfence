@@ -1,10 +1,4 @@
 ---
-# override defaults because:
-# - dnf supports natively priority
-# - we don't set up priority for repository during provisioning
-gitlab_buildpkg_tools__rpm_deps_pkgs:
-  - 'gnupg2'
-
 gitlab_buildpkg_tools__rpm_keys:
   - 'https://inverse.ca/downloads/GPG_PUBLIC_KEY'
   - 'https://rpm.nodesource.com/pub/el/NODESOURCE-GPG-SIGNING-KEY-EL'
@@ -12,6 +6,7 @@ gitlab_buildpkg_tools__rpm_keys:
 gitlab_buildpkg_tools__rpm_deps_repos:
   - name: packetfence
     baseurl: 'http://inverse.ca/downloads/PacketFence/RHEL$releasever/{{ pf_minor_release }}/$basearch'
+    module_hotfixes: 1
   - name: nodejs
     baseurl: 'https://rpm.nodesource.com/pub_12.x/el/$releasever/$basearch'
 

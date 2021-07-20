@@ -239,11 +239,12 @@ rpm/.rpmmacros:
 	echo "%pf_minor_release $(PF_MINOR_RELEASE)" >> $(SRC_RPMDIR)/.rpmmacros
 
 .PHONY: build_rpm
-build_rpm: conf/git_commit_id rpm/.rpmmacros dist
+build_rpm: conf/git_commit_id rpm/.rpmmacros dist-packetfence-test dist
 	cp $(SRC_RPMDIR)/.rpmmacros $(HOME)
 	ci-build-pkg $(SRC_RPMDIR)/packetfence.spec
 	# no need to build other packages if packetfence build failed
 	ci-build-pkg $(SRC_RPMDIR)/packetfence-release.spec
+	ci-build-pkg $(SRC_RPMDIR)/packetfence-test.spec
 
 .PHONY: build_deb
 build_deb: conf/git_commit_id
@@ -258,6 +259,10 @@ patch_release:
 .PHONY: distclean
 distclean: go_clean vagrant_clean npm_clean clean
 	rm -rf packetfence-$(PF_PATCH_RELEASE).tar
+
+.PHONY: distclean-packetfence-test
+distclean-packetfence-test:
+	rm -rf packetfence-test-$(PF_PATCH_RELEASE).tar
 
 .PHONY: go_clean
 go_clean:
@@ -281,3 +286,31 @@ dist: distclean
 	tar c --exclude-from=$(SRC_ROOT_DIR)/dist_ignore \
 	-f packetfence-$(PF_PATCH_RELEASE).tar packetfence-$(PF_PATCH_RELEASE)
 	rm -rf packetfence-$(PF_PATCH_RELEASE)
+
+.PHONY: dist-packefence-test
+dist-packetfence-test: distclean-packetfence-test
+	mkdir -p packetfence-test-$(PF_PATCH_RELEASE)
+	# preserve, recursive and symlinks
+	cp -pRH $(pf_test_files_to_include) packetfence-test-$(PF_PATCH_RELEASE)
+	cp -p Makefile config.mk packetfence-test-$(PF_PATCH_RELEASE)
+	tar c -f packetfence-test-$(PF_PATCH_RELEASE).tar packetfence-test-$(PF_PATCH_RELEASE)
+	rm -rf packetfence-test-$(PF_PATCH_RELEASE)
+
+
+# install -D will automatically create target directories
+# SRC_RELATIVE_TESTDIR is used to only get relative paths from PF source tree
+# $$file in destination of install command contain relative path
+.PHONY: test_install
+test_install:
+	@echo "create directories under $(DESTDIR)$(TESTDIR)"
+	install -d -m0755 $(DESTDIR)$(TESTDIR)
+
+	@echo "install $(SRC_RELATIVE_TESTDIR) files"
+	for file in $(shell find $(SRC_RELATIVE_TESTDIR) -type f); do \
+            install -v -m 0644 $$file -D $(DESTDIR)$(PF_PREFIX)/$$file ; \
+	done
+
+	@echo "install symlinks"
+	for link in $(shell find $(SRC_RELATIVE_TESTDIR) -type l); do \
+	    cp -v --no-dereference $$link $(DESTDIR)$(PF_PREFIX)/$$link ; \
+	done
