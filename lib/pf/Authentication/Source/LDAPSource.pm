@@ -332,7 +332,7 @@ sub addSSLArgs {
     while (my ($k1, $k2) = each %sslargs_mapping) {
         next if !exists $self->{$k1};
         my $v = $self->{$k1};
-        next if !defined $v;
+        next if !$v;
         $args->{$k2} = $v;
     }
 }

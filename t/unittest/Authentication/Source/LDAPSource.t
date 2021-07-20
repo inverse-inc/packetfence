@@ -261,6 +261,7 @@ ok(!$source->is_rule_cacheable(undef), "undef is always uncacheable");
           'encryption' => 'ssl',
           'port' => '33389',
           'credentials' => [],
+          'verify' => 'none',
         }
     )
 }
@@ -302,7 +303,9 @@ ok(!$source->is_rule_cacheable(undef), "undef is always uncacheable");
             'encryption'        => 'starttls',
             'port'              => '33389',
             'credentials'       => [],
-            'start_tls_options' => { }
+            'start_tls_options' => { 
+                'verify'            => 'none',
+            },
         }
       )
 }
