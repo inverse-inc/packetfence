@@ -15,6 +15,10 @@ To be used by nightly build systems.
 use strict;
 use warnings;
 use diagnostics;
+use lib qw(
+    /usr/local/pf/t
+    /usr/local/pf/lib_perl/lib/perl5
+);
 
 use TAP::Formatter::Console;
 use TAP::Formatter::File;
@@ -22,7 +26,6 @@ use TAP::Harness;
 use TAP::Parser::Aggregator;
 use IO::Interactive qw(is_interactive);
 
-use lib qw(/usr/local/pf/t);
 use TestUtils;
 `/usr/local/pf/t/pfconfig-test`;
 `/usr/local/pf/t/pfconfig-test-serial`;
