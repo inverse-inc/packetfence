@@ -103,6 +103,16 @@ export const useViewCollectionItem = (collection, props, context) => {
       return true
   })
 
+  const _initItem = (resolve, reject) => {
+    getItem().then(item => {
+      form.value = { ...item } // dereferenced
+      resolve()
+    }).catch(e => {
+      form.value = {}
+      reject(e)
+    })
+  }
+
   const init = () => {
     return new Promise((resolve, reject) => {
       if (isNew.value || isClone.value) { // new, use collection
@@ -110,33 +120,24 @@ export const useViewCollectionItem = (collection, props, context) => {
           const { meta: _meta = {} } = options || {}
           form.value = useItemDefaults(_meta, props, context)
           meta.value = _meta
-          resolve()
-        }).catch(() => {
+          if (isClone.value)
+            _initItem(resolve, reject)
+          else
+            resolve()
+        }).catch(() => { // meta may not be available, fail silently
           form.value = {}
           meta.value = {}
-          resolve() // meta may not be available, fail silently
+          resolve()
         })
       }
       else { // existing, use item
         getItemOptions().then(options => {
           const { meta: _meta = {} } = options || {}
           meta.value = _meta
-          getItem().then(item => {
-            form.value = { ...item } // dereferenced
-            resolve()
-          }).catch(e => {
-            form.value = {}
-            reject(e)
-          })
+          _initItem(resolve, reject)
         }).catch(() => { // meta may not be available, fail silently
           meta.value = {}
-          getItem().then(item => {
-            form.value = { ...item } // dereferenced
-            resolve()
-          }).catch(e => {
-            form.value = {}
-            reject(e)
-          })
+          _initItem(resolve, reject)
         })
       }
     })
