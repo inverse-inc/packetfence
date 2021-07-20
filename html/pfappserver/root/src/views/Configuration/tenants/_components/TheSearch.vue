@@ -62,12 +62,14 @@
         </template>
         <template #cell(buttons)="{ item }">
           <span class="float-right text-nowrap text-right">
+            <!-- workaround #6310
             <base-button-confirm v-if="!item.not_deletable"
               size="sm" variant="outline-danger" class="my-1 mr-1" reverse
               :disabled="isLoading"
               :confirm="$t('Delete Tenant?')"
               @click="onRemove(item.id)"
             >{{ $t('Delete') }}</base-button-confirm>
+            -->
             <b-button
               size="sm" variant="outline-primary" class="mr-1"
               @click.stop.prevent="goToClone(item)"

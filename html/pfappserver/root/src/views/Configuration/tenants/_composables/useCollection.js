@@ -71,11 +71,13 @@ export const useSearch = makeSearch('tenants', {
       class: 'text-right p-0',
       locked: true
     },
+    /* workaround #6310
     {
       key: 'not_deletable',
       required: true,
       visible: false
     }
+    */
   ],
   fields: [
     {
