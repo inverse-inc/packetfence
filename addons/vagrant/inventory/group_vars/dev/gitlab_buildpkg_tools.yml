@@ -8,6 +8,11 @@ gitlab_buildpkg_tools__ppa_url: '/src/public'
 gitlab_buildpkg_tools__ppa_url_deb: 'file:{{ gitlab_buildpkg_tools__ppa_url }}/debian'
 gitlab_buildpkg_tools__ppa_url_rpm: 'file://{{ gitlab_buildpkg_tools__ppa_url }}/centos'
 
+# override defaults because:
+# - dnf supports natively priority
+gitlab_buildpkg_tools__rpm_deps_pkgs:
+  - 'gnupg2'
+
 # redefine this variables to avoid confusion with official "packetfence" repositories
 gitlab_buildpkg_tools__deb_ppa:
   - name: 'packetfence-local'
