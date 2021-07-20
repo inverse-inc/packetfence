@@ -79,7 +79,7 @@ sub get_backend {
 
     # load the module to instantiate
     if ( !( eval "$type->require()" ) ) {
-        $logger->error( "Can not load namespace $name " . "Read the following message for details: $@" );
+        $logger->error( "Can not load backend $name " . "Read the following message for details: $@" );
     }
 
     $self->{cache} = $type->new();
