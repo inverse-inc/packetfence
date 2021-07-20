@@ -39,8 +39,8 @@ use constant {
 
 our %sslargs_mapping = (
     verify      => 'verify',
-    client_cert => 'clientcert',
-    client_key  => 'clientkey',
+    client_cert_file => 'clientcert',
+    client_key_file  => 'clientkey',
     ca_file     => 'cafile',
 );
 
@@ -76,8 +76,8 @@ has 'email_attribute' => (isa => 'Maybe[Str]', is => 'rw', default => 'mail');
 has 'monitor' => ( isa => 'Bool', is => 'rw', default => '1' );
 has 'shuffle' => ( isa => 'Bool', is => 'rw', default => '0' );
 has 'dead_duration' => ( isa => 'Num', is => 'rw', default => $DEFAULT_LDAP_DEAD_DURATION);
-has 'client_cert' => ( isa => 'Str', is => 'rw', default => "");
-has 'client_key' => ( isa => 'Str', is => 'rw', default => "");
+has 'client_cert_file' => ( isa => 'Str', is => 'rw', default => "");
+has 'client_key_file' => ( isa => 'Str', is => 'rw', default => "");
 has 'ca_file' => (isa => 'Str', is => 'rw', default => '');
 has 'verify' => ( isa => 'Str', is => 'rw', default => 'none');
 

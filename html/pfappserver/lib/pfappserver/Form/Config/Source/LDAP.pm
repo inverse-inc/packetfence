@@ -232,18 +232,18 @@ has_field verify => (
     ],
 );
 
-has_field client_cert => (
+has_field client_cert_file => (
     type => 'Path',
     label => 'Client Certificate',
     file_type => 'file',
-    default => $META->get_attribute('client_cert')->default,
+    default => $META->get_attribute('client_cert_file')->default,
 );
 
-has_field client_key => (
+has_field client_key_file => (
     type => 'Path',
     label => 'Client Key',
     file_type => 'file',
-    default => $META->get_attribute('client_key')->default,
+    default => $META->get_attribute('client_key_file')->default,
 );
 
 has_field ca_file => (
@@ -256,7 +256,7 @@ has_field ca_file => (
 has '+dependency' => (
     default => sub {
         [
-            [ 'client_cert', 'client_key' ]
+            [ 'client_cert_file', 'client_key_file' ]
         ];
     },
 );

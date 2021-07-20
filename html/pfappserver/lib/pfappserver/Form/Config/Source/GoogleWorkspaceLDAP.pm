@@ -40,11 +40,11 @@ has_field '+encryption' => (
     ],
 );
 
-has_field '+client_cert' => (
+has_field '+client_cert_file' => (
     required => 1,
 );
 
-has_field '+client_key' => (
+has_field '+client_key_file' => (
     required => 1,
 );
 

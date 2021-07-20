@@ -113,12 +113,12 @@
       </base-form-tab>
 
       <base-form-tab :title="$i18n.t('Client Certificate')">
-        <form-group-client-cert namespace="client_cert"
+        <form-group-client-cert-file namespace="client_cert_file"
           :column-label="$i18n.t('Client Certificate')"
           :text="$i18n.t('Path to the client certificate if a client certificate is required.')"
         />
 
-        <form-group-client-key namespace="client_key"
+        <form-group-client-key-file namespace="client_key_file"
           :column-label="$i18n.t('Client Key')"
           :text="$i18n.t('Path to the client key if a client certificate is required.')"
         />
@@ -140,9 +140,8 @@ import {
   FormGroupBindDn,
   FormGroupCacheMatch,
   FormGroupCaFile,
-  FormGroupCaPath,
-  FormGroupClientCert,
-  FormGroupClientKey,
+  FormGroupClientCertFile,
+  FormGroupClientKeyFile,
   FormGroupConnectionTimeout,
   FormGroupDeadDuration,
   FormGroupDescription,
@@ -172,9 +171,8 @@ const components = {
   FormGroupBindDn,
   FormGroupCacheMatch,
   FormGroupCaFile,
-  FormGroupCaPath,
-  FormGroupClientCert,
-  FormGroupClientKey,
+  FormGroupClientCertFile,
+  FormGroupClientKeyFile,
   FormGroupConnectionTimeout,
   FormGroupDeadDuration,
   FormGroupDescription,
