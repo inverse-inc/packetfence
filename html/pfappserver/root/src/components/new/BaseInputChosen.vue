@@ -125,7 +125,7 @@ const components = {
 import useEventFnWrapper from '@/composables/useEventFnWrapper'
 import { useInput, useInputProps } from '@/composables/useInput'
 import { useInputMeta, useInputMetaProps } from '@/composables/useMeta'
-import { useOptionsPromise, useOptionsValue } from '@/composables/useInputMultiselect'
+import { useOptionsPromise, useOptionsValue, useOptionsSearch } from '@/composables/useInputMultiselect'
 import { useInputValidator, useInputValidatorProps } from '@/composables/useInputValidator'
 import { useInputValue, useInputValueProps } from '@/composables/useInputValue'
 import { useInputMultiselectProps } from '@/composables/useInputMultiselect'
@@ -180,7 +180,7 @@ export const setup = (props, context) => {
 
   const options = useOptionsPromise(optionsPromise)
 
-  const {
+   const {
     placeholder,
     readonly,
     tabIndex,
@@ -243,11 +243,16 @@ export const setup = (props, context) => {
 
   const onTag = newValue => onInput(newValue)
 
+  const {
+    options: searchOptions,
+    onSearch
+  } = useOptionsSearch(options, label)
+
   return {
     inputRef,
 
     // useInputMeta
-    inputOptions: options,
+    inputOptions: searchOptions,
 
     // useInput
     inputPlaceholder: placeholder,
@@ -280,7 +285,7 @@ export const setup = (props, context) => {
 
     onRemove: () => {},
     onTag,
-    onSearch: () => {},
+    onSearch,
     isLoading: false,
     doFocus,
     doBlur

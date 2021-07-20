@@ -86,7 +86,7 @@ export const useInputMultiselectProps = {
   },
   preserveSearch: {
     type: Boolean,
-    default: true
+    default: false
   },
   preselectFirst: {
     type: Boolean,
@@ -153,6 +153,28 @@ export const useOptionsPromise = (optionsPromise) => {
     })
   }, { immediate: true })
   return options
+}
+
+// supersede VueMultiselect internal search
+//  implement case sensitive search from/to options using label
+export const useOptionsSearch = (_options, _label) => {
+  const query = ref(null)
+  const onSearch = _query => {
+    query.value = _query
+  }
+  const options = computed(() => {
+    if (query.value) {
+      return _options.value.filter(option => {
+        const { [_label.value]: label } = option
+        return label.includes(query.value)
+      })
+    }
+    return _options.value
+  })
+  return {
+    options,
+    onSearch
+  }
 }
 
 export const useSingleValueLookupOptions = (value, onInput, lookup, options, optionsLimit, trackBy, label) => {
