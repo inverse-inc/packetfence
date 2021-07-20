@@ -1,315 +1,122 @@
 #!/bin/bash
 
+# ===== USAGE =====
+# Usage: $ create_csv-dep_file.sh dependencies.csv
+#  get the filename
+CsvFile=$1
+if [[ ! -f $CsvFile || "$CsvFile" == "" ]]; then
+  echo "The CSV File $CsvFile has not been found"
+  echo "Usage: $ create_csv-dep_file.sh dependencies.csv"
+  exit 99
+fi
+
 # ===== PREPARE ENV =====
 mkdir -p /usr/local/pf/lib/perl_modules/lib/perl5/
 export PERL5LIB=/root/perl5/lib/perl5:/usr/local/pf/lib/perl_modules/lib/perl5/
 export PKG_CONFIG_PATH=/usr/lib/pkgconfig/
-export LC_CTYPE=en_US.UTF-8
-export LC_ALL=en_US.UTF-8
+TestPerlConfig=$(perl -e exit)
+if [[ "$TestPerlConfig" != "" ]]; then
+  export LC_CTYPE=en_US.UTF-8
+  export LC_ALL=en_US.UTF-8
+fi
 
 # ===== RHEL8 =====
 yum install -y openssl-devel
 yum install -y krb5-libs
 yum install -y mariadb-devel
+dnf install -y epel-release
 yum install -y libssh2-devel
 yum install -y systemd-devel
+yum install -y gd-devel
+yum install -y perl-open.noarch
+yum install -y perl-experimental
 dnf group install -y "Development Tools"
+dnf install http://repo.okay.com.mx/centos/8/x86_64/release/okay-release-1-1.noarch.rpm
+dnf install -y perl-Devel-Peek
 
 # ===== DEBIAN11 =====
 apt update
-apt install make build-essential libssl-dev zlib1g-dev libmariadb-dev-compat libmariadb-dev libssh2-1-dev libexpat1-dev pkg-config libkrb5-dev libsystemd-dev libgd-dev libcpan-distnameinfo-perl libyaml-perl curl wget -y
+apt install zip make build-essential libssl-dev zlib1g-dev libmariadb-dev-compat libmariadb-dev libssh2-1-dev libexpat1-dev pkg-config libkrb5-dev libsystemd-dev libgd-dev libcpan-distnameinfo-perl libyaml-perl curl wget -y
 
-# ===== CPAN LIST =====
-array=( 'Test::Pod' )
-array+=( 'Algorithm::Combinatorics' )
-array+=( 'Digest::HMAC_MD5' )
-array+=( 'Crypt::OpenSSL::Bignum' )
-array+=( 'Test::Needs' )
-array+=( 'Class::Load' )
-array+=( 'Data::Visitor::Callback' )
-array+=( 'Catalyst::Devel' )
-array+=( 'Class::Load::XS' )
-array+=( 'Devel::OverloadInfo' )
-array+=( 'Package::DeprecationManager' )
-array+=( 'Package::Stash' )
-array+=( 'Test::CleanNamespaces' )
-array+=( 'File::Listing' )
-array+=( 'HTTP::Cookies' )
-array+=( 'HTTP::Daemon' )
-array+=( 'HTTP::Negotiate' )
-array+=( 'Net::HTTP' )
-array+=( 'Test::Fatal' )
-array+=( 'Test::RequiresInternet' )
-array+=( 'Try::Tiny' )
-array+=( 'WWW::RobotRules' )
-array+=( 'Devel::CheckCompiler' )
-array+=( 'boolean' )
-array+=( 'ExtUtils::Command::MM' )
-array+=( 'Log::Dispatch::Config' )
-array+=( 'Log::Dispatch::Configurator::Any' )
-array+=( 'Log::Dispatch::File' )
-array+=( 'Log::Dispatch::Screen' )
-array+=( 'Log::Dispatch::Syslog' )
-array+=( 'namespace::autoclean' )
-array+=( 'Devel::GlobalDestruction' )
-array+=( 'Dist::CheckConflicts' )
-array+=( 'Params::ValidationCompiler' )
-array+=( 'Specio::Declare' )
-array+=( 'Specio::Exporter' )
-array+=( 'Specio::Library::Builtins' )
-array+=( 'Specio::Library::Numeric' )
-array+=( 'Specio::Library::String' )
-array+=( 'Specio' )
-array+=( 'B::Keywords' )
-array+=( 'Exception::Fatal' )
-array+=( 'Apache::Htpasswd' )
-array+=( 'Apache::Session' )
-array+=( 'Authen::Krb5::Simple' )
-array+=( 'Authen::Radius' )
-array+=( 'Bit::Vector' )
-array+=( 'Bytes::Random::Secure' )
-array+=( 'Cache::Cache' )
-array+=( 'Cache::FastMmap' )
-array+=( 'Pod::Coverage' )
-array+=( 'Sub::Name' )
-array+=( 'YAML' )
-array+=( 'HTML::FormFu' )
-array+=( 'HTML::FormFu::Constraint' )
-array+=( 'HTML::FormFu::Deploy' )
-array+=( 'HTML::FormFu::Element::Text' )
-array+=( 'HTML::FormFu::MultiForm' )
-array+=( 'HTML::FormFu::Plugin' )
-array+=( 'HTML::FormFu::Util' )
-array+=( 'Catalyst::Action::RenderView' )
-array+=( 'Catalyst::Action::REST' )
-array+=( 'Catalyst::Model::DBIC::Schema' )
-array+=( 'Catalyst::Plugin::Static::Simple' )
-array+=( 'Catalyst::Plugin::Authentication' )
-array+=( 'Catalyst::Plugin::ConfigLoader' )
-array+=( 'Catalyst::Plugin::I18N' )
-array+=( 'Catalyst::Plugin::Session' )
-array+=( 'Catalyst::Plugin::Session::State::Cookie' )
-array+=( 'Catalyst::Plugin::Session::Store::File' )
-array+=( 'Catalyst::Plugin::SmartURI' )
-array+=( 'Catalyst::Plugin::StackTrace' )
-array+=( 'Catalyst::Runtime' )
-array+=( 'Catalyst::View::CSV' )
-array+=( 'Catalyst::View::JSON' )
-array+=( 'Catalyst::View::TT' )
-array+=( 'CGI::Session' )
-array+=( 'CHI' )
-array+=( 'CGI::Session::Driver::chi' )
-array+=( 'Hash::MoreUtils' )
-array+=( 'CHI::Driver::Redis' )
-array+=( 'CHI::Memoize' )
-array+=( 'Class::Accessor' )
-array+=( 'Class::Accessor::Fast::Contained' )
-array+=( 'Class::Data::Inheritable' )
-array+=( 'Class::Gomor' )
-array+=( 'Class::XSAccessor' )
-array+=( 'common::sense' )
-array+=( 'Config::General' )
-array+=( 'Config::IniFiles' )
-array+=( 'Const::Fast' )
-array+=( 'CPAN::DistnameInfo' )
-array+=( 'Crypt::Eksblowfish' )
-array+=( 'Crypt::GeneratePassword' )
-array+=( 'Crypt::LE' )
-array+=( 'Crypt::OpenSSL::PKCS10' )
-array+=( 'Crypt::OpenSSL::PKCS12' )
-array+=( 'Crypt::OpenSSL::RSA' )
-array+=( 'Crypt::OpenSSL::X509' )
-array+=( 'Crypt::PBKDF2' )
-array+=( 'Crypt::Rijndael' )
-array+=( 'Crypt::SmbHash' )
-array+=( 'Crypt::SMIME' )
-array+=( 'Data::MessagePack' )
-array+=( 'Data::Phrasebook' )
-array+=( 'Data::Phrasebook::Loader::YAML' )
-array+=( 'Data::Serializer' )
-array+=( 'Data::Serializer::Sereal' )
-array+=( 'Data::Structure::Util' )
-array+=( 'Date::Parse' )
-array+=( 'DateTime::Format::RFC3339' )
-array+=( 'DateTime::TimeZone' )
-#array+=( 'DBD::mysql' )
-array+=( 'DBI' )
-array+=( 'Devel::CheckLib' )
-array+=( 'Digest::HMAC' )
-array+=( 'Digest::JHash' )
-array+=( 'Digest::SHA3' )
-array+=( 'File::FcntlLock' )
-array+=( 'IO::Event' )
-array+=( 'File::Flock' )
-array+=( 'File::Slurp' )
-array+=( 'File::Tail' )
-array+=( 'File::Tempdir' )
-array+=( 'NEILB/File-Touch-0.11.tar.gz' )
-array+=( 'File::Which' )
-array+=( 'Graph' )
-array+=( 'Hash::Merge' )
-array+=( 'HTML::FormHandler' )
-array+=( 'HTML::Parser' )
-array+=( 'HTTP::Date' )
-array+=( 'HTTP::Message' )
-array+=( 'HTTP::Request::Common' )
-array+=( 'IO::Interactive' )
-array+=( 'IO::Interface' )
-array+=( 'IO::Scalar' )
-array+=( 'IO::Socket::INET6' )
-array+=( 'IO::Socket::SSL' )
-array+=( 'IPC::Cmd' )
-array+=( 'IPTables::ChainMgr' )
-array+=( 'IPTables::Parse' )
-array+=( 'JSON' )
-array+=( 'JSON::MaybeXS' )
-array+=( 'JSON::XS' )
-array+=( 'Lingua::EN::Inflexion' )
-array+=( 'Lingua::EN::Nums2Words' )
-array+=( 'Linux::Distribution' )
-array+=( 'Linux::FD' )
-array+=( 'Linux::Inotify2' )
-array+=( 'List::MoreUtils' )
-array+=( 'Locale::gettext' )
-array+=( 'Log::Any' )
-array+=( 'Log::Any::Adapter' )
-array+=( 'Log::Any::Adapter::Log4perl' )
-array+=( 'Log::Dispatch::Syslog' )
-array+=( 'Log::Fast' )
-array+=( 'Log::Log4perl' )
-array+=( 'Log::Log4perl::Catalyst' )
-array+=( 'LWP::Protocol::connect' )
-array+=( 'LWP::Protocol::https' )
-array+=( 'LWP::Simple' )
-array+=( 'LWP::UserAgent' )
-array+=( 'MIME::Lite::TT' )
-array+=( 'Mock::Config' )
-array+=( 'Module::Loaded' )
-array+=( 'Module::Metadata' )
-array+=( 'Mojolicious' )
-array+=( 'MojoX::Log::Log4perl' )
-array+=( 'Moo' )
-array+=( 'Moose' )
-array+=( 'MooseX::Types::LoadableClass' )
-array+=( 'MooseX::NonMoose' )
-array+=( 'MooseX::Types' )
-array+=( 'MooseX::Types::Moose' )
-array+=( 'MooX::Types::MooseLike' )
-array+=( 'MooX::Types::MooseLike::Base' )
-array+=( 'MooX::Types::MooseLike::Numeric' )
-array+=( 'MRO::Compat' )
-array+=( 'Net::Syslog' )
-array+=( 'Net::Appliance::Session' )
-array+=( 'Net::IP' )
-array+=( 'Net::LDAP' )
-array+=( 'Net::Nessus::REST' )
-array+=( 'Net::Nessus::XMLRPC' )
-array+=( 'Net::Netmask' )
-array+=( 'Net::OAuth2' )
-array+=( 'Net::Radius::Dictionary' )
-array+=( 'Net::SNMP' )
-array+=( 'Net::SSH2' )
-array+=( 'Net::Telnet' )
-array+=( 'Net::UDP' )
-array+=( 'NetAddr::IP' )
-array+=( 'Number::Range' )
-array+=( 'Params::Validate' )
-array+=( 'Parse::RecDescent' )
-array+=( 'aliased' )
-array+=( 'Capture::Tiny' )
-#array+=( 'Data::UUID' )
-array+=( 'ExtUtils::CppGuess' )
-array+=( 'Locale::Codes' )
-array+=( 're::engine::RE2' )
-array+=( 'File::chdir' )
-array+=( 'Module::Build::Tiny' )
-array+=( 'HTTP::Daemon' )
-array+=( 'WWW::RobotRules')
-array+=( 'Switch' )
-array+=( 'Perl::Version' )
-array+=( 'PHP::Serialization' )
-array+=( 'Plack' )
-array+=( 'Plack::Middleware::ReverseProxy' )
-array+=( 'Pod::Markdown' )
-array+=( 'Proc::ProcessTable' )
-array+=( 'Readonly' )
-array+=( 'Readonly::XS' )
-array+=( 'Redis::Fast' )
-array+=( 'Regexp::Common' )
-array+=( 'Rose::DB' )
-array+=( 'Rose::DB::Object' )
-array+=( 'Sereal::Decoder' )
-array+=( 'Sereal::Encoder' )
-array+=( 'Socket' )
-array+=( 'Sort::Naturally' )
-array+=( 'SQL::Abstract::More' )
-array+=( 'SQL::Abstract::Plugin::InsertMulti' )
-array+=( 'SQL::Translator' )
-array+=( 'String::RewritePrefix' )
-array+=( 'Task::Weaken' )
-array+=( 'Template' )
-array+=( 'Template::Toolkit' )
-array+=( 'Template::AutoFilter' )
-array+=( 'Term::ANSIColor' )
-array+=( 'Term::ReadKey' )
-array+=( 'Term::Size::Any' )
-array+=( 'Test::Class' )
-array+=( 'Test::Deep' )
-array+=( 'Test::Exception' )
-array+=( 'Test::MockModule' )
-array+=( 'Test::MockObject' )
-array+=( 'Test::NoWarnings' )
-array+=( 'Test::Pod' )
-array+=( 'Test::Pod::Coverage' )
-array+=( 'Test::Warn' )
-array+=( 'Test::WWW::Mechanize' )
-array+=( 'Text::CSV' )
-array+=( 'Text::CSV_XS' )
-array+=( 'Text::RecordParser' )
-array+=( 'Thread::Pool' )
-array+=( 'Tie::DxHash' )
-array+=( 'Time::Duration' )
-array+=( 'Time::Duration::Parse' )
-array+=( 'ATOOMIC/Time-HiRes-1.9764.tar.gz' )
-array+=( 'Time::Period' )
-array+=( 'Time::Piece' )
-array+=( 'TimeDate' )
-array+=( 'UNIVERSAL::require' )
-array+=( 'URI::Escape::XS' )
-array+=( 'URI::SmartURI' )
-array+=( 'WWW::Twilio::API' )
-array+=( 'Linux::Systemd::Daemon' )
-array+=( 'Catalyst::Authentication::Store::Htpasswd' )
-array+=( 'Catalyst::Authentication::Credential::HTTP' )
-array+=( 'Catalyst::Controller::HTML::FormFu' )
-array+=( 'Linux::Pid')
+cpan install CPAN
 
-# ===== INSTALL =====
-InstallPath=/root/install_perl
-mkdir -p ${InstallPath}
-
+#
+# Extract a simple name from perl
+#  Replace :: by _ in perl name dependencies
+#
 function clean_perl_name(){
   myVar=`sed -r 's/[:+\/]/_/g' <<< $1`
   echo ${myVar}
 }
 
-date > ${InstallPath}/date.log
-
-for i in "${array[@]}"
-do
-  NameCleaned=$(clean_perl_name ${i})
+#
+# Try to install with cpan
+#  Return Done or failed according to cpan exit code
+#
+function install_module(){
+  ModName=$1
+  ModInstall=$2
+  ModTest=$3
+  ModNameClean=$4
+  ModInstallRep=$5
   date > ${InstallPath}/${NameCleaned}.txt
-  if [ ${i} == "Net::Radius::Dictionary" ]
-  then 
-    perl -MCPAN -e "CPAN::Shell->notest('install', '${i}')"  &>> ${InstallPath}/${NameCleaned}.txt
+  if [[ "${ModTest}" == "True" ]]; then
+    cpan install ${ModInstall} &>> ${InstallPath}/${ModNameClean}.txt
   else
-    cpan install ${i} &>> ${InstallPath}/${NameCleaned}.txt
+    echo "No test"
+    perl -MCPAN -e "CPAN::Shell->notest('install', '${ModInstall}')"  &>> ${InstallPath}/${ModNameClean}.txt
   fi
-  if [ $? -eq 0 ]; then
-    echo "Done ${i}"
-  else
-    echo "Failed ${i}. Please check  ${InstallPath}/${NameCleaned}.txt"
-  fi
-done
+  tail -n 1 ${InstallPath}/${ModNameClean}.txt | grep --line-buffered "install  -- OK"
+  ModInstallStatus=$?
 
+  #echo "ModInstallStatus $ModInstallStatus"
+  #echo "ModInstallRep $ModInstallRep"
+  if [[ "$ModInstallStatus" != "0" && "$ModInstallRep" -lt "2" ]]; then
+    #echo "Num of rep = $ModInstallRep"
+    ((ModInstallRep=ModInstallRep+1))
+    install_module ${ModName} ${ModInstall} ${ModTest} ${ModNameClean} ${ModInstallRep}
+  fi
+  if [[ "$ModInstallStatus" == "0"  ]]; then
+    echo "Done"
+  else
+    echo "Failed ${ModName}. Please check  ${InstallPath}/${ModNameClean}.txt"
+    tail -n 10 ${InstallPath}/${ModNameClean}.txt
+  fi
+}
+
+#
+# Read from csv file
+#  Read and extract info from csv file
+#
+ListCsvModInstall=()
+ListCsvModName=()
+ListCsvModTest=()
+
+OLDIFS=$IFS
+IFS=','
+while read cpanName cpanVersion cpanInstall cpanTest cpanAll
+do
+  ListCsvModInstall+=( $cpanInstall )
+  ListCsvModName+=( $cpanName )
+  if [[ $cpanTest != "True" && $cpanTest != "False" ]]; then
+     echo "$cpanTest for $cpanName is not valide, it will be equal to true"
+     cpanTest="True"
+  fi
+  ListCsvModTest+=( $cpanTest )
+done < $CsvFile
+IFS=$OLDIFS
+
+#
+# Start to add cpan modules
+#  Add a log file and a dependencies if perl_dependencies.pl is here
+#
+InstallPath=/root/install_perl
+Bool=true
+mkdir -p ${InstallPath}
+date > ${InstallPath}/date.log
+for i in ${!ListCsvModInstall[@]}
+do
+  echo "Start ${ListCsvModInstall[$i]}"
+  install_module ${ListCsvModName[$i]} ${ListCsvModInstall[$i]} ${ListCsvModTest[$i]} $(clean_perl_name ${ListCsvModName[$i]}) 0
+done
 date >> ${InstallPath}/date.log
