@@ -1,5 +1,18 @@
 #!/bin/bash
 
+if [ -z "$1" ]; then
+  echo "Missing output parameter"
+  echo "Usage export.sh /path/to/export.tgz [--force]"
+  exit 1
+fi
+
+if [ "$2" = "--force" ];then
+  echo "Force flag enabled"
+  mtime=""
+else
+  mtime="-mtime -1"
+fi
+
 set -o nounset -o pipefail -o errexit
 
 source /usr/local/pf/addons/full-import/helpers.functions
@@ -7,20 +20,14 @@ source /usr/local/pf/addons/full-import/database.functions
 
 output="$1"
 
-if [ -z "$output" ]; then
-  echo "Missing output parameter"
-  echo "Usage export.sh /path/to/export.tgz [--force]"
-  exit 1
-fi
-
-db_dump=`find /root/backup/ -name 'packetfence-db-dump-*' -mtime -1 | tail -1`
+db_dump=`find /root/backup/ -name 'packetfence-db-dump-*' $mtime | tail -1`
 
 if [ -z "$db_dump" ]; then
   echo "Unable to find a database dump that was done in the last 24 hours. Add --force to ignore this."
   exit 1
 fi
 
-files_dump=`find /root/backup/ -name 'packetfence-files-dump-*' -mtime -1 | tail -1`
+files_dump=`find /root/backup/ -name 'packetfence-files-dump-*' $mtime | tail -1`
 
 if [ -z "$files_dump" ]; then
   echo "Unable to find a files dump that was done in the last 24 hours. Add --force to ignore this."
@@ -35,6 +42,8 @@ main_splitter
 echo "Copying dump files to temporary export directory"
 cp -a $db_dump $build_dir/
 cp -a $files_dump $build_dir/
+
+mariadb_args=""
 
 if echo "$db_dump" | grep '\.sql.gz$' >/dev/null; then
   if ! test_db_connection_no_creds; then
