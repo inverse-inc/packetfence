@@ -96,12 +96,13 @@ sub _expandMapping {
     my ($switch) = @_;
     # Config::Inifiles expands the access lists into an array
     # We put it back as a string so it works in the admin UI
+    my $toset = {};
     while (my ($attr, $val) = each %$switch) {
         if ($attr =~ /(.*)(AccessList|Vlan|Url|Role)$/) {
             my $type = $2;
             my $role = $1;
             if ($type eq 'AccessList' && ref($val) eq 'ARRAY') {
-                $switch->{$attr} = join("\n", @$val);
+                $toset->{$attr} = join("\n", @$val);
             }
 
             my $key;
@@ -112,8 +113,12 @@ sub _expandMapping {
                 $key = lc($type);
             }
 
-            push @{$switch->{"${type}Mapping"}}, { role => $role, $key => $val };
+            push @{$toset->{"${type}Mapping"}}, { role => $role, $key => $val };
         }
+    }
+
+    while(my ($attr, $val) = each %$toset) {
+        $switch->{$attr} = $val;
     }
 
     for my $k (qw(AccessListMapping VlanMapping UrlMapping ControllerRoleMapping))  {
