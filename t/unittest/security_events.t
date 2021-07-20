@@ -53,6 +53,7 @@ Test2::Tools::Compare::is(
 
 # Will be able to match multiple security_events on the different triggers
 @security_events = $pf::security_event::SECURITY_EVENT_FILTER_ENGINE->match_all({last_detect_id => 2, device_id => 3});
+@security_events = sort(@security_events);
 is(@security_events, 2);
 is($security_events[0], "1100007");
 is($security_events[1], "1100008");
