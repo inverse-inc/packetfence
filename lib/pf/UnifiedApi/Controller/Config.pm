@@ -378,10 +378,6 @@ sub create {
         return 0;
     }
 
-    if ($cs->hasId($id)) {
-        return $self->render_error(409, "An attempt to add a duplicate entry was stopped. Entry already exists and should be modified instead of created");
-    }
-
     (my $status, $item) = $self->validate_item($item);
     if (is_error($status)) {
         return $self->render(status => $status, json => $item);
