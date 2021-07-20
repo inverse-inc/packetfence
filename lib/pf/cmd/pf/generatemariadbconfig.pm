@@ -174,7 +174,6 @@ sub make_trigger {
 
 sub update_init_file {
     my ($tt, $template, $outfile, $vars) = @_;
-    use Data::Dumper;print Dumper($vars);
     $tt->process($template, $vars, $outfile) or die $tt->error();
 }
 
