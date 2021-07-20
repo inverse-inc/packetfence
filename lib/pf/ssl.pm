@@ -342,6 +342,7 @@ sub verify_chain {
     foreach my $inter (@$intermediates) {
         $bundle .= $inter->as_string();
     }
+    $bundle .= "\n$cert_str\n";
     write_file($tmpinter, $bundle);
 
     my $result = `/bin/bash -c "echo '$cert_str' | openssl verify -verbose -CAfile <(cat $OS_CA_CERT_FILE $tmpinter)"`;
