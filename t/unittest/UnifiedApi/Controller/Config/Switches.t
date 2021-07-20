@@ -22,7 +22,7 @@ BEGIN {
     use setup_test_config;
 }
 
-use Test::More tests => 47;
+use Test::More tests => 57;
 use Test::Mojo;
 use Utils;
 use pf::ConfigStore::Switch;
