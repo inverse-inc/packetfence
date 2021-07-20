@@ -236,18 +236,21 @@ has_field client_cert => (
     type => 'Path',
     label => 'Client Certificate',
     file_type => 'file',
+    default => $META->get_attribute('client_cert')->default,
 );
 
 has_field client_key => (
     type => 'Path',
     label => 'Client Key',
     file_type => 'file',
+    default => $META->get_attribute('client_key')->default,
 );
 
 has_field ca_file => (
     type => 'Path',
     label => 'CA File',
     file_type => 'file',
+    default => $META->get_attribute('ca_file')->default,
 );
 
 has '+dependency' => (
