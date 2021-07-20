@@ -26,7 +26,7 @@
         </b-form>
       </div>
       <div class="d-flex" v-else>
-        <base-search-input-basic class="flex-grow-1"
+        <base-search-input-basic class="flex-grow-1" :key="hint"
           :save-search-namespace="`${uuid}Basic`"
           v-model="conditionBasic"
           :disabled="disabled || isLoading"
@@ -92,6 +92,7 @@ const props = {
 
 import { onMounted, ref, toRefs, watch } from '@vue/composition-api'
 import { usePreference } from '@/views/Configuration/_store/preferences'
+import { v4 as uuidv4 } from 'uuid'
 
 const setup = (props, context) => {
 
@@ -138,6 +139,7 @@ const setup = (props, context) => {
   const advancedMode = ref(false)
   const conditionBasic = ref(null)
   const conditionAdvanced = ref(defaultCondition()) // default
+  const hint = ref(uuidv4())
 
   onMounted(() => {
     Promise.resolve(saveSearch.value).then(value => {
@@ -150,11 +152,13 @@ const setup = (props, context) => {
         if (_conditionAdvanced) {
           conditionAdvanced.value = _conditionAdvanced
           advancedMode.value = true
+          hint.value = uuidv4()
           return doSearchCondition(conditionAdvanced.value)
         }
         if (_conditionBasic) {
           conditionBasic.value = _conditionBasic
           advancedMode.value = false
+          hint.value = uuidv4()
           return doSearchString(conditionBasic.value)
         }
       }
@@ -201,6 +205,7 @@ const setup = (props, context) => {
   }
 
   return {
+    hint,
     uuid,
     advancedMode,
     conditionBasic,
