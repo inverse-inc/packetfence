@@ -13,6 +13,7 @@ import (
 	"strconv"
 
 	"github.com/inverse-inc/go-utils/log"
+	"github.com/inverse-inc/go-utils/mac"
 	"github.com/inverse-inc/go-utils/sharedutils"
 	"github.com/inverse-inc/packetfence/go/pfconfigdriver"
 	"github.com/inverse-inc/packetfence/go/unifiedapiclient"

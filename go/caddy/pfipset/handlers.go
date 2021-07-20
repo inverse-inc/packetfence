@@ -12,6 +12,7 @@ import (
 
 	"github.com/gorilla/mux"
 	"github.com/inverse-inc/go-utils/log"
+	"github.com/inverse-inc/go-utils/mac"
 	"github.com/inverse-inc/go-utils/sharedutils"
 	ipset "github.com/inverse-inc/go-ipset/v2"
 )
