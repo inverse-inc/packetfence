@@ -30,6 +30,12 @@ struct Lookup {
 
 int cleanup_cef_header(struct cef_header* header);
 
+int cleanup_syslog_header(struct syslog_header* header)
+{
+    free(header->host);
+    free(header->app);
+}
+
 // Lookup using binary search;
 int _lookup(char* name, ssize_t name_len, struct Lookup* lookup, int len)
 {
@@ -238,12 +244,6 @@ int loadconfig(char* path, int* count, struct configuration** out)
     }
 
     return rc;
-}
-
-int cleanup_syslog_header(struct syslog_header* header)
-{
-    free(header->host);
-    free(header->app);
 }
 
 int cleanup_cef_header(struct cef_header* header)
