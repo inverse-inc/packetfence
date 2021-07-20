@@ -22,6 +22,7 @@ all:
           # IP used by helper_scripts and Ansible, not Vagrant
           mgmt_ip: 172.17.17.251
           ansible_host: "{{ mgmt_ip }}"
+          # only used when run outside Vagrant
           ansible_python_interpreter: '/usr/bin/python3'
         node02:
           box: debian/bullseye64
@@ -29,6 +30,7 @@ all:
           # IP used by helper_scripts and Ansible, not Vagrant
           mgmt_ip: 172.17.17.252
           ansible_host: "{{ mgmt_ip }}"
+          # only used when run outside Vagrant
           ansible_python_interpreter: '/usr/bin/python3'
 
     winservers:
