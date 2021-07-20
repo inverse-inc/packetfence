@@ -148,7 +148,7 @@ variables:
 .build_img_docker_job:
   stage: build_img
   script:
-    - make -e -C ${PACKERDIR} build_img_docker_pfbuild_img
+    - make -e -C ${PACKERDIR} build_img_docker_pfbuild
   tags:
     - shell
 
