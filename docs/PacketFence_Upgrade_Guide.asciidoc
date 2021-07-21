@@ -1609,26 +1609,42 @@ systemctl restart packetfence-mariadb
 == Upgrading from a version prior to X.Y.Z
 
 
-=== Firewall SSO is now tenant aware
+Starting from PacketFence 11.0.0, Debian 9 and CentOS 7 support are dropped in benefit of Debian 11 and RHEL8.
 
-To add the default `tenant_id` (1) to all Firewall SSO configurations run:
+In place upgrades are not supported, in order to upgrade to PacketFence 11.0.0, you need to follow next steps.
 
-[source,bash]
+=== Steps to perform on current installation (PacketFence 10.3.0)
+
+Current installation needs to run on PacketFence 10.3.0. You need to follow upgrade path to PacketFence 10.3.0 before doing anything else.
+
+==== Export
+
+To simplify upgrade process from PacketFence 10.3.0 to PacketFence 11.0.0, we
+provide an export script which will be used to export your 10.3.0 configuration.
+
+===== Installation
+
+.RHEL / CentOS based systems **only**
+// subs=attributes allow to substitute {release_minor} in code block
+[source,bash,subs="attributes"]
 ----
-/usr/local/pf/addons/upgrade/to-11.0-firewall_sso-conf.pl
+yum localinstall http://packetfence.org/downloads/PacketFence/RHEL8/packetfence-export-{release_minor}.el8.noarch.rpm
 ----
 
-=== Database schema
-
-Changes have been made to the database schema. You will need to update it accordingly.
-An SQL upgrade script has been provided to upgrade the database from the X.X schema to X.Y.
-
-To upgrade the database schema, run the following command:
-
-[source,bash]
+.Debian 9 systems **only**
+[source,bash,subs="attributes"]
 ----
-mysql -u root -p pf -v < /usr/local/pf/db/upgrade-X.X-X.Y.sql
+wget -O http://packetfence.org/downloads/PacketFence/debian/packetfence-export_{release_minor}.deb
+dpkg -i packetfence-export_{release_minor}.deb
 ----
+
+===== Execution
+
+FIXME: link to JSN process
+
+=== Steps to perform on new installation (PacketFence 11.0.0)
+
+FIXME: link to JSN process
 
 == Archived upgrade notes
 
