@@ -31,6 +31,8 @@ Depends: ${misc:Depends}, vlan,
  mariadb-server (>= 10.5.10),
  mariadb-client (>= 10.5.10),
  snmp, snmptrapfmt, snmptrapd, snmp-mibs-downloader, conntrack, rsyslog,
+# for import/export scripts
+ ipcalc,
 # apache related
  apache2, apache2-utils,
  libapache2-mod-apreq2, libapache2-mod-perl2,

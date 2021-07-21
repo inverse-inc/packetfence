@@ -74,6 +74,10 @@ Requires: perl(Class::Accessor)
 Requires: perl(Class::Accessor::Fast::Contained)
 Requires: perl(Class::Data::Inheritable)
 Requires: perl(Class::Gomor)
+
+# For import/export
+Requires: ipcalc
+
 Requires: perl(Config::IniFiles) >= 2.88
 Requires: perl(DBI)
 Requires: perl(Rose::DB)
