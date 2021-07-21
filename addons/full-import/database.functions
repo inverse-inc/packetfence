@@ -72,7 +72,7 @@ function import_mariabackup() {
   fi
 
   if ! which mariabackup > /dev/null 2>&1; then
-    echo "Missing qpress command. Please read the documentation of this script in the Installation guide to prepare your environment before running this script"
+    echo "Missing mariabackup command. Please read the documentation of this script in the Installation guide to prepare your environment before running this script"
     exit 1
   fi
 
