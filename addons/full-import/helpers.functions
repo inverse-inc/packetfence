@@ -2,7 +2,7 @@
 
 function check_code() {
   if [ $1 -ne 0 ];then
-    if ! [ -z "$2" ]; then
+    if [ -n "$2" ]; then
         echo $2
     fi
 
