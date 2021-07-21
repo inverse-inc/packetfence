@@ -21,6 +21,9 @@ use JSON::MaybeXS qw(encode_json decode_json );
 use WWW::Curl::Easy;
 use URI::Escape::XS qw(uri_escape);
 use pf::constants qw($TRUE $FALSE);
+use MIME::Base64 qw(encode_base64 decode_base64);
+use Crypt::PK::ECC;
+
 
 extends 'pf::mfa';
 
@@ -77,6 +80,9 @@ The RADIUS MFA Method to use
 has radius_mfa_method => ( is => 'rw' );
 
 has callback_url => ( is => 'rw' );
+
+has signing_key => ( is => 'rw' );
+has verify_key => ( is => 'rw' );
 
 =head2 check_user
 
@@ -267,11 +273,15 @@ sub encode_params {
     return join "&", @pairs;
 }
 
+sub verify_response {
+    my ($self, $params) = @_;
+    my $token = decode_json(decode_base64($params->{token}));
+    my $ecc = Crypt::PK::ECC->new->import_key_raw(decode_base64($self->verify_key), 'secp256r1');
+    return $ecc->verify_message(pack("H*",$token->{signature}), $token->{payload}, "SHA256");
+}
+
 sub redirect_info {
     my ($self, $username) = @_;
-
-    use Digest::SHA qw(hmac_sha256_hex);
-    use MIME::Base64 qw(encode_base64);
 
     my $payload = {
         version => "2.0.0",
@@ -283,7 +293,7 @@ sub redirect_info {
     };
     $payload = encode_json($payload);
 
-    my $sig = hmac_sha256_hex($payload, $self->app_secret);
+    my $sig = hmac_sha256_hex($payload, $self->signing_key);
 
     my $body = {
         app_id => $self->app_id,
