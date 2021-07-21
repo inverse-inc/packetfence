@@ -172,6 +172,12 @@ Architecture: all
 Description: Test suite for packetfence
  PacketFence test files. This package contains all files related to PacketFence tests.
 
+Package: packetfence-export
+Architecture: all
+Description: PacketFence export files
+ PacketFence export files. This package contains all files related to export mechanism.
+ This package should only be installed on releases before v11.
+
 Package: packetfence-pfcmd-suid
 Architecture: any
 Depends: ${misc:Depends}, ${shlibs:Depends}
