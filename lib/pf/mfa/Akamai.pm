@@ -274,10 +274,14 @@ sub encode_params {
 }
 
 sub verify_response {
-    my ($self, $params) = @_;
+    my ($self, $params, $username) = @_;
     my $token = decode_json(decode_base64($params->{token}));
     my $ecc = Crypt::PK::ECC->new->import_key_raw(decode_base64($self->verify_key), 'secp256r1');
-    return $ecc->verify_message(pack("H*",$token->{signature}), $token->{payload}, "SHA256");
+    if(!$ecc->verify_message(pack("H*",$token->{signature}), $token->{payload}, "SHA256")) {
+        return 0;
+    }
+    my $response = decode_json($token->{payload});
+    return ($response->{response}->{result} eq "ALLOW" && $response->{response}->{username} eq $username);
 }
 
 sub redirect_info {
