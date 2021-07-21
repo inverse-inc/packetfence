@@ -96,6 +96,11 @@ main_splitter
 echo "Finalizing import"
 
 sub_splitter
+echo "Applying fixpermissions"
+/usr/local/pf/bin/pfcmd fixpermissions
+check_code $?
+
+sub_splitter
 echo "Restarting packetfence-config"
 systemctl restart packetfence-config
 check_code $?
