@@ -55,6 +55,9 @@ Parent returns empty so that the factory use the own child module name if not de
 
 sub module_description { '' }
 
+sub redirect_info { {} }
+sub verify_response { 0 }
+
 =head1 AUTHOR
 
 Inverse inc. <info@inverse.ca>

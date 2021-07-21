@@ -76,6 +76,8 @@ The RADIUS MFA Method to use
 
 has radius_mfa_method => ( is => 'rw' );
 
+has callback_url => ( is => 'rw' );
+
 =head2 check_user
 
 Get the devices of the user
@@ -263,6 +265,39 @@ sub encode_params {
         push @pairs, join "=", map { uri_escape($_) } $key, $hash{$key};
     }
     return join "&", @pairs;
+}
+
+sub redirect_info {
+    my ($self, $username) = @_;
+
+    use Digest::SHA qw(hmac_sha256_hex);
+    use MIME::Base64 qw(encode_base64);
+
+    my $payload = {
+        version => "2.0.0",
+        timestamp => time(),
+        request => {
+            username => $username,
+            callback => $self->callback_url,
+        },
+    };
+    $payload = encode_json($payload);
+
+    my $sig = hmac_sha256_hex($payload, $self->app_secret);
+
+    my $body = {
+        app_id => $self->app_id,
+        payload => $payload,
+        signature => $sig,
+    };
+
+    return {
+        challenge_url => "https://" . $self->host . "/api/v1/bind/challenge/v2",
+        challenge_verb => "POST",
+        challenge_fields => {
+			token => encode_base64(encode_json($body), ''),
+		},
+    };
 }
 
 =head1 AUTHOR
