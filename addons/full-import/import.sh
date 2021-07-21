@@ -85,11 +85,12 @@ handle_network_change
 check_code $?
 
 main_splitter
-upgrade_configuration
+restore_profile_templates
 check_code $?
 
 main_splitter
-restore_profile_templates
+upgrade_configuration
+check_code $?
 
 main_splitter
 echo "Finalizing import"
