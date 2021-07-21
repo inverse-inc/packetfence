@@ -461,6 +461,7 @@ cp -r addons/upgrade/ %{buildroot}/usr/local/pf/addons/
 cp -r addons/watchdog/ %{buildroot}/usr/local/pf/addons/
 cp -r addons/AD/* %{buildroot}/usr/local/pf/addons/AD/
 cp -r addons/monit/ %{buildroot}/usr/local/pf/addons/
+cp -r addons/full-import/ %{buildroot}/usr/local/pf/addons/
 cp addons/*.pl %{buildroot}/usr/local/pf/addons/
 cp addons/*.sh %{buildroot}/usr/local/pf/addons/
 %{__install} -D packetfence.logrotate %{buildroot}/etc/logrotate.d/packetfence
@@ -778,6 +779,9 @@ fi
                         /usr/local/pf/addons/captive-portal/*
 %dir                    /usr/local/pf/addons/dev-helpers/
                         /usr/local/pf/addons/dev-helpers/*
+%attr(0755, pf, pf)     /usr/local/pf/addons/full-import/*.sh
+%attr(0755, pf, pf)     /usr/local/pf/addons/full-import/*.pl
+%attr(0644, pf, pf)     /usr/local/pf/addons/full-import/*.functions
 %dir                    /usr/local/pf/addons/high-availability/
                         /usr/local/pf/addons/high-availability/*
 %dir                    /usr/local/pf/addons/integration-testing/
