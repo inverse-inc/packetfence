@@ -145,8 +145,8 @@ Requires: perl(Crypt::Rijndael)
 Requires: perl(Net::Telnet)
 # for nessus scan, this version add the NBE download (inverse patch)
 # Needs to be fixed:
-#Requires: perl(Net::Nessus::XMLRPC) >= 0.40
-#Requires: perl(Net::Nessus::REST) >= 0.7
+Requires: perl(Net::Nessus::XMLRPC) >= 0.40
+Requires: perl(Net::Nessus::REST) >= 0.7
 # Note: portability for non-x86 is questionnable for Readonly::XS
 Requires: perl(Readonly), perl(Readonly::XS)
 Requires: perl(Regexp::Common)
