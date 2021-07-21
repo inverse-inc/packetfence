@@ -56,12 +56,12 @@ function import_mysqldump() {
   sub_splitter
   echo "Importing $dump_file into $db_name"
   mysql ${mariadb_args} $db_name < $dump_file
-	check_code $?
+  check_code $?
   
   sub_splitter
   echo "Importing grants"
   mysql ${mariadb_args} < $grants_file
-	check_code $?
+  check_code $?
 
 }
 
