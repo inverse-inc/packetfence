@@ -101,7 +101,7 @@ function handle_network_change() {
         sub_splitter
         echo -n "Please select a new interface to replace $interface from the list above or press enter to delete the interface from pf.conf: "
         read new_int_choice
-        if ! [ -z "$new_int_choice" ]; then
+        if [ -n "$new_int_choice" ]; then
           new_int_name=`ip a show | egrep -o '^'$new_int_choice': .+?:' | sed -r 's/^[0-9]+: //g' | sed 's/:$//g'`
           if [ -z "$new_int_name" ] || ! ip a show dev $new_int_name > /dev/null; then
             echo "ERROR: Invalid interface choice!"
