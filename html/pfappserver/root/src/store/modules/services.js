@@ -76,6 +76,9 @@ const api = {
   updateSystemd: name => {
     return apiCall.post(['service', name, 'update_systemd'])
   },
+  updateSystemdAsync: name => {
+    return apiCall.post(['service', name, 'update_systemd'], { async: true })
+  },
   restartSystemService: ({ id, quiet }) => {
     const post = quiet ? 'postQuiet' : 'post'
     return apiCall[post](['system_service', id, 'restart'])
@@ -218,6 +221,9 @@ const actions = {
   },
   updateSystemd: (context, id) => {
     return api.updateSystemd(id)
+  },
+  updateSystemdAsync: (context, id) => {
+    return api.updateSystemdAsync(id)
   },
   restartSystemService: ({ state, commit }, arg) => {
     const body = (typeof arg === 'object') ? arg : { id: arg }

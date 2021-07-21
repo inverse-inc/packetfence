@@ -45,7 +45,7 @@ const setup = (props, context) => {
     progressFeedback.value = i18n.t('Applying configuration')
     $store.dispatch('services/restartSystemService', 'packetfence-config').then(() => {
       progressFeedback.value = i18n.t('Enabling PacketFence')
-      return $store.dispatch('services/updateSystemd', 'pf').then(() => {
+      return $store.dispatch('services/updateSystemdAsync', 'pf').then(() => {
         progressFeedback.value = i18n.t('Starting PacketFence')
         return $store.dispatch('services/restartServiceAsync', 'haproxy-admin').then(() => {
           return $store.dispatch('services/startServiceAsync', 'pf').then(() => {
