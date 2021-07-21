@@ -119,6 +119,36 @@ packetfence_release_deploy() {
     done
 }
 
+# no deploy command because it's just a file
+packetfence_export_deploy() {
+    # EL
+    for release_name in $(ls $RPM_RESULT_DIR); do
+        src_dir="$RPM_RESULT_DIR/${release_name}"
+        dst_repo="$PUBLIC_REPO_BASE_DIR/RHEL$release_name"
+        dst_dir="$DEPLOY_USER@$DEPLOY_HOST:$dst_repo"
+        pf_export_rpm_file=$(basename $(ls $src_dir/packetfence-export*))
+        pf_export_rpm_dest_name=${PF_EXPORT_RPM_DEST_NAME:-"packetfence-export-${PF_MINOR_RELEASE}.el${release_name}.noarch.rpm"}
+        declare -p src_dir dst_dir pf_export_rpm_file pf_export_rpm_dest_name
+
+        echo "scp: ${src_dir}/${pf_export_rpm_file} -> ${dst_dir}/${pf_export_rpm_dest_name}"
+        scp "${src_dir}/${pf_export_rpm_file}" "${dst_dir}/${pf_export_rpm_dest_name}" \
+            || die "scp failed"
+    done
+    # Deb
+    for release_name in $(ls $DEB_RESULT_DIR); do
+        src_dir="$DEB_RESULT_DIR/${release_name}"
+        dst_repo="$DEB_BASE_DIR/debian"
+        dst_dir="$DEPLOY_USER@$DEPLOY_HOST:$dst_repo"
+        pf_export_deb_file=$(basename $(ls $src_dir/packetfence-export*))
+        pf_export_deb_dest_name=${PF_EXPORT_DEB_DEST_NAME:-"packetfence-export_${PF_MINOR_RELEASE}.deb"}
+        declare -p src_dir dst_dir pf_export_deb_file pf_export_deb_dest_name
+
+        echo "scp: ${src_dir}/${pf_export_deb_file} -> ${dst_dir}/${pf_export_deb_dest_name}"
+        scp "${src_dir}/${pf_export_deb_file}" "${dst_dir}/${pf_export_deb_dest_name}" \
+            || die "scp failed"
+    done
+}
+
 ppa_deploy() {
     # warning: slashs at end of dirs are significant for rsync
     src_dir="$PUBLIC_DIR/"
@@ -141,6 +171,7 @@ case $1 in
     rpm) rpm_deploy ;;
     deb) deb_deploy ;;
     packetfence-release) packetfence_release_deploy ;;
+    packetfence-export) packetfence_export_deploy ;;
     ppa) ppa_deploy ;;
     *)   die "Wrong argument"
 esac
