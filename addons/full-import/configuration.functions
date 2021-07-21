@@ -1,6 +1,6 @@
 #!/bin/bash
 
-function config_files() {
+function get_config_files() {
   files=`perl -I/usr/local/pf/lib_perl5/lib -I/usr/local/pf/lib -Mpf::file_paths -e 'print join("\n", @pf::file_paths::stored_config_files) . "\n"'`
   files="$files /usr/local/pf/conf/pfconfig.conf"
   files="$files `cat add_files.txt`"
@@ -10,7 +10,7 @@ function config_files() {
 function restore_config_files() {
   echo "Restoring configuration files"
   dump_dir="$1"
-  files=`config_files`
+  files=`get_config_files`
   for f in $files; do
     echo "Restoring $f"
     mkdir -p `dirname $f`
@@ -123,7 +123,7 @@ function handle_network_change() {
   done
 }
 
-function configuration_upgrade_scripts() {
+function get_configuration_upgrade_scripts() {
   since="$1"
   scripts=""
   for version in `versions_since $since`; do
@@ -136,7 +136,7 @@ function upgrade_configuration() {
   dump_version=`egrep -o '[0-9]+\.[0-9]+\.[0-9]+$' usr/local/pf/conf/pf-release`
   echo "Detected version $dump_version in the export's pf-release"
   echo "Starting the upgrade of the configuration"
-  for script in `configuration_upgrade_scripts $dump_version`; do
+  for script in `get_configuration_upgrade_scripts $dump_version`; do
     sub_splitter
     echo "Running $script"
     $script

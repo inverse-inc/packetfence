@@ -130,7 +130,7 @@ function import_mariabackup() {
   popd
 }
 
-function db_upgrade_scripts() {
+function get_db_upgrade_scripts() {
   current_version="$1"
   current_version=`echo $current_version | sed 's/\./\\./g'`
   # This finds all the upgrade scripts that match upgrade-X.X-X.Y.sql or upgrade-X.X.X-X.Y.Z.sql, sorts them by version and then takes all the scripts that are after the current version by grabbing all the lines that follow the script for the version we're looking for
@@ -153,7 +153,7 @@ function upgrade_database() {
     echo "Unable to find DB version"
     exit 1
   fi
-  scripts=`db_upgrade_scripts $db_version`
+  scripts=`get_db_upgrade_scripts $db_version`
   echo "Found upgrade path: $scripts"
   for script in $scripts; do
     sub_splitter
