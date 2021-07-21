@@ -19,6 +19,8 @@ use pf::constants;
 
 has id => (is => 'rw', required => 1);
 
+has description => (is => 'rw', default => "MFA");
+
 =head2 template
 
 The template to use for provisioning
