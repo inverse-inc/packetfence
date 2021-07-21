@@ -1,5 +1,6 @@
 Module::Metadata,1.000037,ETHER/Module-Metadata-1.000037.tar.gz,True,E/ET/ETHER/Module-Metadata-1.000037.tar.gz,24
 Test,1.26,JESSE/Test-1.26.tar.gz,True,/J/JE/JESSE/Test-1.26.tar.gz,?
+Role::Tiny,2.002004,HAARG/Role-Tiny-2.002004.tar.gz,True,/H/HA/HAARG/Role-Tiny-2.002004.tar.gz,?
 Type::Tiny,1.012003,TOBYINK/Type-Tiny-1.012003.tar.gz,True,/T/TO/TOBYINK/Type-Tiny-1.012003.tar.gz,?
 IPC::Cmd,1.04,BINGOS/IPC-Cmd-1.04.tar.gz,True,B/BI/BINGOS/IPC-Cmd-1.04.tar.gz,20
 Test::Warn,0.36,BIGJ/Test-Warn-0.36.tar.gz,True,B/BI/BIGJ/Test-Warn-0.36.tar.gz,16
