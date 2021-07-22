@@ -106,7 +106,7 @@ sub execute_child {
         $self->done();
     }
     elsif ($self->app->request->method eq "POST") {
-        if(!$mfa->verify_response($self->app->hashed_params())) {
+        if(!$mfa->verify_response($self->app->hashed_params(), $self->username)) {
             $self->app->flash->{error} = "Unable to validate the multi-factor response. Please contact your local support staff.";
             $self->app->redirect("/logout");
         } 
