@@ -93,6 +93,10 @@ upgrade_configuration
 check_code $?
 
 main_splitter
+echo "Performing adjustments on the configuration"
+adjust_configuration
+
+main_splitter
 echo "Finalizing import"
 
 sub_splitter
