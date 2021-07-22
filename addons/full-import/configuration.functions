@@ -113,7 +113,7 @@ function handle_network_change() {
             fi
           fi
         else
-          if prompt "Are you sure you want to delete interface $interface"; then
+          if prompt "Are you sure you want to delete interface $interface from pf.conf"; then
             delete_interface $interface
             stop_it="yes"
           fi
