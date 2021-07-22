@@ -128,13 +128,16 @@ sub compute_connection {
     my $start_tls_options = delete $args->{start_tls_options} // {};
     my $logger = get_logger();
     my $ldap;
+    my $ldap_err;
     if ( $encryption eq SSL ) {
         $ldap = Net::LDAPS->new($server, %$args);
+        $ldap_err = $@;
     } else {
         $ldap = Net::LDAP->new($server, %$args);
+        $ldap_err = $@;
     }
     unless ($ldap) {
-        $logger->error("Error connecting to $server:$args->{port} using encryption $encryption");
+        $logger->error("Error connecting to $server:$args->{port} using encryption $encryption: $ldap_err");
         return undef;
     }
     $logger->trace(sub {"Connected to $server:$args->{port} using encryption $encryption"});
