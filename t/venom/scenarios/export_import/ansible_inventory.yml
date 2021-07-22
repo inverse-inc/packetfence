@@ -16,10 +16,10 @@ gitlab_buildpkg_tools__ppa_url_deb: '{{ gitlab_buildpkg_tools__ppa_url }}/debian
 # redefine this variables to avoid confusion with official "packetfence" repositories
 gitlab_buildpkg_tools__deb_ppa:
   - name: 'packetfence-ppa'
-    baseurl: "{{ gitlab_buildpkg_tools__ppa_url_deb }} {{ ansible_distribution_release }} main"
+    # force to "bullseye" because we don't build anymore for stretch
+    baseurl: "{{ gitlab_buildpkg_tools__ppa_url_deb }} bullseye main"
     gpgkey: 'http://inverse.ca/downloads/GPG_PUBLIC_KEY'
 
 gitlab_buildpkg_tools__deb_pkgs:
-  - packetfence-export
   # temp
   - packetfence-test

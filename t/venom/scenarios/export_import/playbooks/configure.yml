@@ -1,6 +1,6 @@
-g---
+---
 - hosts: pfdeb9stable
-  name: FIXME
+  name: Configure VM to run tests
   become: True
   gather_facts: True
   collections:
@@ -20,3 +20,19 @@ g---
   roles:
     - role: inverse_inc.gitlab_buildpkg_tools
     - role: apt_preferences
+
+  # temp: do that in Venom tests to use same command as defined in manual
+  tasks:
+    - name: Download packetfence-export package
+      get_url:
+        url: 'https://www.inverse.ca/downloads/PacketFence/debian/packetfence-export_branches.deb'
+        dest: '/root/packetfence-export_branches.deb'
+        mode: '0755'
+        force: yes
+        owner: 'root'
+        group: 'root'
+
+    - name: Install packetfence-export package
+      apt:
+        deb: '/root/packetfence-export_branches.deb'
+        state: present

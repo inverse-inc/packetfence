@@ -1,7 +1,0 @@
----
-apt_preferences__list:
-  - filename: 'packetfence-ppa.pref'
-    package: 'packetfence*'
-    pin: 'release a=bullseye-gitlab,n=bullseye,c=main,b=amd64'
-    priority: '900'
-    reason: 'always install packetfence packages from packetfence-ppa repository'
