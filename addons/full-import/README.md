@@ -62,7 +62,7 @@ If your export archive used MariaDB backup instead of mysqldump (your DB backup 
 
 ```
 # CentOS/RHEL
-yum install MariaDB-backup --enablerepo=packetfence
+yum install MariaDB-backup qpress --enablerepo=packetfence
 
 # Debian
 apt install mariadb-backup
