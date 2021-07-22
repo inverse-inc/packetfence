@@ -21,6 +21,11 @@
           :column-label="$i18n.t('Host')"
         />
 
+        <form-group-verify namespace="verify"
+          :column-label="$i18n.t('SSL Verify Mode')"
+          :text="$i18n.t('The SSL verify mode when connecting via LDAP. Only applies when using Start TLS or LDAPS.')"
+        />
+
         <form-group-dead-duration namespace="dead_duration"
           :column-label="$i18n.t('Dead duration')"
           :text="$i18n.t('How much time in seconds should a server be marked dead before it is retried. When specifying multiple LDAP servers or a DNS name pointing to multiple IPs, then this option can be used to offer more consistent failover. A value of 0 disables this feature.')"
@@ -98,11 +103,6 @@
           :text="$i18n.t('Realms that will be associated with this source.')"
         />
 
-        <form-group-verify namespace="verify"
-          :column-label="$i18n.t('Verify')"
-          :text="$i18n.t('SSL Verify.')"
-        />
-
         <form-group-authentication-rules namespace="authentication_rules"
           :column-label="$i18n.t('Authentication Rules')"
         />
@@ -112,7 +112,7 @@
         />
       </base-form-tab>
 
-      <base-form-tab :title="$i18n.t('Client Certificate')">
+      <base-form-tab :title="$i18n.t('Certificates')">
         <form-group-client-cert-file namespace="client_cert_file"
           :column-label="$i18n.t('Client Certificate')"
           :text="$i18n.t('Path to the client certificate if a client certificate is required.')"
