@@ -52,7 +52,7 @@ variables:
   rules:
     - if: '$CI_COMMIT_TAG'
 
-# run only jobs on "devel" branch (push, schedules and web)
+# run only jobs on "devel" branch (push, schedule and web)
 .devel_only_rules:
   rules:
     - if: '$CI_COMMIT_REF_NAME == "devel"'
@@ -65,13 +65,13 @@ variables:
   rules:
    - if: '$CI_COMMIT_REF_NAME != "devel" && $CI_COMMIT_REF_NAME !~ /^maintenance\/[[:digit:]]+\.[[:digit:]]+$/ && $CI_COMMIT_TAG == null && $CI_PIPELINE_SOURCE == "web"'
 
-# run only on maintenance jobs (schedules and web, not on push)
+# run only on maintenance jobs (schedule and web, not on push)
 .maintenance_only_rules:
   rules:
     - if: '$CI_PIPELINE_SOURCE == "web" && $CI_COMMIT_REF_NAME =~ /^maintenance\/[[:digit:]]+\.[[:digit:]]+$/'
     - if: '$CI_PIPELINE_SOURCE == "schedule" && $CI_COMMIT_REF_NAME =~ /^maintenance\/[[:digit:]]+\.[[:digit:]]+$/'
 
-# run jobs on "devel" branch (push, schedules and web)
+# run jobs on "devel" branch (push, schedule and web)
 # run jobs on any branches except maintenance/X.Y branches
 # don't run on tag
 # we used same kind of rules below but we add variable checks to add jobs to pipeline
@@ -80,7 +80,7 @@ variables:
     - if: '$CI_COMMIT_REF_NAME == "devel"'
     - if: '$CI_COMMIT_REF_NAME !~ /^maintenance\/[[:digit:]]+\.[[:digit:]]+$/ && $CI_COMMIT_TAG == null && $CI_PIPELINE_SOURCE == "web"'
 
-# run jobs on "devel" branch *or* vX.Y.Z tag (push, schedules and web)
+# run jobs on "devel" branch *or* vX.Y.Z tag (push, schedule and web)
 # run jobs on any branches/tags via "Run pipeline"
 # run jobs on any branches/tags via "Schedule"
 .devel_release_branches_and_maintenance_rules:
@@ -102,7 +102,7 @@ variables:
     - if: '$CI_COMMIT_REF_NAME != "devel" && $CI_COMMIT_TAG == null && $CI_PIPELINE_SOURCE == "schedule" && ( $BUILD_IMG_DOCKER == "yes" || $CI_COMMIT_MESSAGE =~ /build_img_docker=yes/ )'
 
 # run jobs only when:
-# - on devel branch (push,web,schedules) if variable BUILD_IMG_VAGRANT sets to yes or if CI_COMMIT_MESSAGE contains "build_img_vagrant=yes".
+# - on devel branch (push,web,schedule) if variable BUILD_IMG_VAGRANT sets to yes or if CI_COMMIT_MESSAGE contains "build_img_vagrant=yes".
 # - on all branches, except maintenance/X.Y (web) if variable BUILD_IMG_VAGRANT sets to yes or if CI_COMMIT_MESSAGE contains "build_img_vagrant=yes".
 # don't run on tag
 .build_img_vagrant_devel_and_branches_rules:
@@ -111,8 +111,8 @@ variables:
     - if: '$CI_COMMIT_REF_NAME !~ /^maintenance\/[[:digit:]]+\.[[:digit:]]+$/ && $CI_COMMIT_TAG == null && $CI_PIPELINE_SOURCE == "web" && ( $BUILD_IMG_VAGRANT == "yes" || $CI_COMMIT_MESSAGE =~ /build_img_vagrant=yes/ )'
 
 # run jobs only when:
-# - on a tag (push, schedules, web)
-# - on all branches (web and schedules) if variable TEST sets to yes or if CI_COMMIT_MESSAGE contains "test=yes".
+# - on a tag (push, schedule, web)
+# - on all branches (web and schedule) if variable TEST sets to yes or if CI_COMMIT_MESSAGE contains "test=yes".
 # - on devel branch (push) if variable TEST sets to yes or if CI_COMMIT_MESSAGE contains "test=yes".
 # Web pipelines launch on devel branch will be catched by previous rules
 .test_rules:
@@ -123,13 +123,13 @@ variables:
     - if: '$CI_COMMIT_REF_NAME == "devel" && ( $TEST == "yes" || $CI_COMMIT_MESSAGE =~ /test=yes/ )'
 
 # run jobs only when:
-# - on devel branch (push,web,schedules) if variable TEST sets to yes or if CI_COMMIT_MESSAGE contains "test=yes".
-# - on all branches, except maintenance/X.Y (web) if variable TEST sets to yes or if CI_COMMIT_MESSAGE contains "test=yes".
+# - on devel branch (push, web, *not* schedule) if variable TEST sets to yes or if CI_COMMIT_MESSAGE contains "test=yes".
+# - on all branches, except maintenance/X.Y and devel (web) if variable TEST sets to yes or if CI_COMMIT_MESSAGE contains "test=yes".
 # don't run on tag
 .test_devel_and_branches_rules:
   rules:
-    - if: '$CI_COMMIT_REF_NAME == "devel" && ( $TEST == "yes" || $CI_COMMIT_MESSAGE =~ /test=yes/ )'
-    - if: '$CI_COMMIT_REF_NAME !~ /^maintenance\/[[:digit:]]+\.[[:digit:]]+$/ && $CI_COMMIT_TAG == null && $CI_PIPELINE_SOURCE == "web" && ( $TEST == "yes" || $CI_COMMIT_MESSAGE =~ /test=yes/ )'
+    - if: '$CI_COMMIT_REF_NAME == "devel" && $CI_PIPELINE_SOURCE != "schedule" && ( $TEST == "yes" || $CI_COMMIT_MESSAGE =~ /test=yes/ )'
+    - if: '$CI_COMMIT_REF_NAME != "devel" && $CI_COMMIT_REF_NAME !~ /^maintenance\/[[:digit:]]+\.[[:digit:]]+$/ && $CI_COMMIT_TAG == null && $CI_PIPELINE_SOURCE == "web" && ( $TEST == "yes" || $CI_COMMIT_MESSAGE =~ /test=yes/ )'
 
 # run this job on all branches (schedule) with test variable defined or test=yes in commit message
 .test_nightly_rules:
