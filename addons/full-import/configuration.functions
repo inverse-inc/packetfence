@@ -95,10 +95,10 @@ function handle_network_change() {
     else
       stop_it=""
       while [ -z "$stop_it" ]; do
-        echo "Cannot find interface $interface on the system. This interface is defined as '`get_pf_interface_type $interface`' in the configuration"
         sub_splitter
         ip a show | sed -r 's/^([0-9])/Option \1/'
         sub_splitter
+        echo "Cannot find interface $interface on the system. This interface is defined as '`get_pf_interface_type $interface`' in the configuration"
         echo -n "Please select a new interface to replace $interface from the list above or press enter to delete the interface from pf.conf: "
         read new_int_choice
         if [ -n "$new_int_choice" ]; then
