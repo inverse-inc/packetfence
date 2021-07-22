@@ -1634,7 +1634,7 @@ yum localinstall http://packetfence.org/downloads/PacketFence/RHEL8/packetfence-
 .Debian 9 systems **only**
 [source,bash,subs="attributes"]
 ----
-wget -O http://packetfence.org/downloads/PacketFence/debian/packetfence-export_{release_minor}.deb
+wget http://packetfence.org/downloads/PacketFence/debian/packetfence-export_{release_minor}.deb
 dpkg -i packetfence-export_{release_minor}.deb
 ----
 
