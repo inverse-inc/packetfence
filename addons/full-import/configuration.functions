@@ -160,5 +160,6 @@ function restore_profile_templates() {
 
 function adjust_configuration() {
   echo "Setting localhost as the database host"
+  perl -MConfig::IniFiles -I/usr/local/pf/lib_perl/lib/perl5/ -e "\$c = Config::IniFiles->new( -file => '/usr/local/pf/conf/pfconfig.conf') ; \$c->setval('mysql', 'host', 'localhost') ; \$c->RewriteConfig"
   perl -MConfig::IniFiles -I/usr/local/pf/lib_perl/lib/perl5/ -e "\$c = Config::IniFiles->new( -file => '/usr/local/pf/conf/pf.conf') ; \$c->setval('database', 'host', 'localhost') ; \$c->RewriteConfig"
 }
