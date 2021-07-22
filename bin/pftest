@@ -15,6 +15,7 @@ use strict;
 use warnings;
 use FindBin qw($Bin);
 use lib "$Bin/../lib";
+use lib "$Bin/../lib_perl/lib/perl5";
 
 use pf::pftest;
 exit pf::pftest->new({args => \@ARGV})->run();
