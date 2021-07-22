@@ -60,6 +60,20 @@ The import script will guide you through the restore of the database, the config
 
 If your export archive used MariaDB backup instead of mysqldump (your DB backup filename contains `xbstream`), then you need to install MariaDB-backup on your server:
 
+If you are restoring from PacketFence 10.3:
+```
+# CentOS/RHEL
+yum remove MariaDB-backup
+yum localinstall https://www.packetfence.org/downloads/PacketFence/CentOS7/x86_64/RPMS/MariaDB-backup-10.2.37-1.el7.centos.x86_64.rpm
+
+# Debian
+apt remove mariadb-backup
+wget https://www.packetfence.org/downloads/PacketFence/debian-lastrelease/pool/stretch/m/mariadb-10.2/mariadb-backup-10.2_10.2.37+maria~stretch_amd64.deb
+dpkg -i mariadb-backup-10.2_10.2.37+maria~stretch_amd64.deb
+```
+
+
+If you are restoring from PacketFence 11.0 or above:
 ```
 # CentOS/RHEL
 yum install MariaDB-backup qpress --enablerepo=packetfence
@@ -81,5 +95,15 @@ Completed import of the database and the configuration! Complete any necessary a
 ```
 
 If that's not the case, check the output above to understand why the process failed.
+
+If you restore from PacketFence 10.3 and you used MariaDB-backup for your restore, update it back to the right version:
+
+```
+# CentOS/RHEL
+yum update MariaDB-backup --enablerepo=packetfence
+
+# Debian
+apt install mariadb-backup
+```
 
 
