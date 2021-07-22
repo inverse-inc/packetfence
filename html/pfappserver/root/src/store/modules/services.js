@@ -223,7 +223,10 @@ const actions = {
     return api.updateSystemd(id)
   },
   updateSystemdAsync: (context, id) => {
-    return api.updateSystemdAsync(id)
+    return api.updateSystemdAsync(id).then(response => {
+      const { data: { task_id } = {} } = response
+      return store.dispatch('pfqueue/pollTaskStatus', task_id)
+    })
   },
   restartSystemService: ({ state, commit }, arg) => {
     const body = (typeof arg === 'object') ? arg : { id: arg }
