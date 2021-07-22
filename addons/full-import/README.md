@@ -85,7 +85,7 @@ apt install mariadb-backup
 Now, start the import process using the export archive you made on the other server:
 
 ```
-/usr/local/pf/addons/import.sh /tmp/export.tgz
+/usr/local/pf/addons/full-import.sh /tmp/export.tgz
 ```
 
 Once the process is completed, you should see the following:
