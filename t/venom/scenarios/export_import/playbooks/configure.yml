@@ -1,0 +1,22 @@
+g---
+- hosts: pfdeb9stable
+  name: FIXME
+  become: True
+  gather_facts: True
+  collections:
+    - debops.debops
+    - debops.roles01
+    - debops.roles02
+    - debops.roles03  
+
+  pre_tasks:
+    - name: Force cache update to get correct Ansible distribution release
+      apt:
+        update_cache: yes
+
+    - name: Refresh Ansible facts after cache update
+      setup:
+
+  roles:
+    - role: inverse_inc.gitlab_buildpkg_tools
+    - role: apt_preferences

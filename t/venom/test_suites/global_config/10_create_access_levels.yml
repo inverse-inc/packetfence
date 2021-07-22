@@ -1,0 +1,47 @@
+name: Create access levels
+version: 2
+testcases:
+- name: create_access_levels
+  steps:
+  - type: http
+    method: POST
+    url: '{{.pfserver_webadmin_url}}/api/v1/config/admin_roles'
+    ignore_verify_ssl: true
+    body: >-
+      {
+        "actions": [
+          "NODES_READ",
+          "NODES_CREATE",
+          "NODES_UPDATE",
+          "NODES_DELETE",
+          "SECURITY_EVENTS_READ",
+          "SWITCHES_READ",
+          "DHCP_OPTION_82_READ",
+          "USERS_CREATE",
+          "USERS_DELETE",
+          "USERS_READ",
+          "USERS_UPDATE",
+          "USERS_SET_ROLE",
+          "USERS_SET_ACCESS_DURATION",
+          "USERS_SET_UNREG_DATE",
+          "USERS_SET_TIME_BALANCE",
+          "USERS_SET_BANDWIDTH_BALANCE",
+          "USERS_SET_ACCESS_LEVEL",
+          "USERS_MARK_AS_SPONSOR",
+          "USERS_CREATE_MULTIPLE"
+        ],
+        "allowed_access_durations": null,
+        "allowed_access_levels": [],
+        "allowed_actions": [],
+        "allowed_node_roles": [],
+        "allowed_roles": [],
+        "allowed_unreg_date": null,
+        "description": "{{.access_level_user_and_node.description}}",
+        "id": "{{.access_level_user_and_node.id}}"
+      }
+    headers:
+      "Authorization": "{{.pfserver_token}}"
+      "Content-Type": "application/json"
+    assertions:
+      - result.statuscode ShouldEqual 201
+    

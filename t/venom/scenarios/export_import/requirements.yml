@@ -1,0 +1,6 @@
+---
+roles:
+  - src: inverse_inc.gitlab_buildpkg_tools
+
+collections:
+  - name: debops.debops

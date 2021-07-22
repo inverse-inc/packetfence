@@ -1,0 +1,7 @@
+name: Backup DB
+version: 2
+testcases:
+- name: backup
+  steps:
+  - type: exec
+    script: /usr/local/pf/addons/backup-and-maintenance.sh

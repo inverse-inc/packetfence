@@ -1,0 +1,13 @@
+name: Export
+version: 2
+testcases:
+- name: export
+  steps:
+  - type: exec
+    script: /usr/local/pf/addons/full-import/export.sh /home/vagrant/export.tgz
+
+  # to simplify download from new PF installation
+  - type: exec
+    script: chown vagrant:vagrant /home/vagrant/export.tgz
+
+## FIXME: assertions

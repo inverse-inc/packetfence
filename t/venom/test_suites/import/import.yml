@@ -1,0 +1,16 @@
+name: Import
+version: 2
+testcases:
+- name: download export.tgz on old PF installation
+  steps:
+  - type: exec
+    script: scp vagrant@pfdeb9stable:/home/vagrant/export.tgz /home/vagrant/export.tgz
+
+- name: import
+  steps:
+  - type: exec
+    script: /usr/local/pf/addons/full-import/export.sh /home/vagrant/export.tgz
+
+## FIXME:
+#assertions
+#restart services

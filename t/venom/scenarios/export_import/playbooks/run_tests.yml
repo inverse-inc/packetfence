@@ -1,0 +1,31 @@
+---
+- hosts: pfdeb9stable
+  name: Run Venom tests on pfdeb9stable
+  become: True
+  gather_facts: True
+
+  vars:
+    test_suites:
+      - global_config
+      - backup
+      - export
+
+  tasks:
+    - name: Run Venom tests suite
+      command: '/usr/local/pf/t/venom-wrapper.sh /usr/local/pf/t/venom/test_suites/{{ item }}'
+      loop: '{{ test_suites }}'
+        
+
+- hosts: pfel8dev
+  name: Run Venom tests on pfel8dev
+  become: True
+  gather_facts: True
+
+  vars:
+    test_suites:
+      - import
+
+  tasks:
+    - name: Run Venom tests suite
+      command: '/usr/local/pf/t/venom-wrapper.sh /usr/local/pf/t/venom/test_suites/{{ item }}'
+      loop: '{{ test_suites }}'
