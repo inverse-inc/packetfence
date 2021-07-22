@@ -1,11 +1,11 @@
-Source: cpan-perl-module
+Source: packetfence-perl
 Section: net
 Priority: optional
 Maintainer: Inverse inc. <info@inverse.ca>
 Build-Depends: debhelper (>= 7.0.50~), curl
 Standards-Version: 3.8.4
 
-Package: cpan-perl-module
+Package: packetfence-perl
 Architecture: all
 Depends: ${misc:Depends},
  tar
@@ -4605,6 +4605,6 @@ Provides: libae-log-collect-perl,
  libyaml-warning-perl,
  libyaml-xs-libyaml-perl,
  libyaml-xs-perl
-Description: cpan-perl-module
+Description: packetfence-perl
  Contain all the perl dependencies of PacketFence.
 
