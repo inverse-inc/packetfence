@@ -65,6 +65,8 @@ If you are restoring from PacketFence 10.3:
 # CentOS/RHEL
 yum remove MariaDB-backup
 yum localinstall https://www.packetfence.org/downloads/PacketFence/CentOS7/x86_64/RPMS/MariaDB-backup-10.2.37-1.el7.centos.x86_64.rpm
+yum install qpress --enablerepo=packetfence
+
 
 # Debian
 apt remove mariadb-backup
