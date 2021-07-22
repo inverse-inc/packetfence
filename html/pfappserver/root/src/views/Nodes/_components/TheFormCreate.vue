@@ -110,8 +110,8 @@ const setup = (props, context) => {
   const onCreate = () => {
     if (!isValid.value)
       return
-    createItem()
-      .then(item => goToItem(item))
+    createItem(form.value)
+      .then(({ id: mac }) => goToItem({ mac }))
   }
 
   const onReset = () => {
