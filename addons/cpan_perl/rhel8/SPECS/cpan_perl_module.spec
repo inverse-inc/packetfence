@@ -1,4 +1,4 @@
-Name:           cpan_perl_module
+Name:           packetfence-perl
 Version:        0.1
 Release:        1%{?dist}
 Summary:        All modules loaded with cpan
