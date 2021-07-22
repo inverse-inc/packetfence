@@ -50,6 +50,10 @@ testcases:
         "shuffle": "0",
         "type": "AD",
         "usernameattribute": "servicePrincipalName",
+        "verify": "none",
+        "client_cert_file": "",
+        "client_key_file": "",
+        "ca_file": "",
         "write_timeout": 5
       }
     headers:
@@ -81,6 +85,10 @@ testcases:
         "scope": "sub",
         "type": "AD",
         "usernameattribute": "servicePrincipalName",
+        "verify": "none",
+        "client_cert_file": "",
+        "client_key_file": "",
+        "ca_file": "",
         "write_timeout": 5
       }
     headers:
