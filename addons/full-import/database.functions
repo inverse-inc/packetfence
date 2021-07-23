@@ -1,7 +1,7 @@
 #!/bin/bash
 
 function test_db_connection_no_creds() {
-  mysql -e 'select 1' > /dev/null
+  mysql -e 'select 1' &> /dev/null
 }
 
 function get_db_name() {
