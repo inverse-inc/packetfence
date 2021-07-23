@@ -7,7 +7,11 @@ This is a quick readme to describe the export/import process. We should formaliz
  * You can import on any PacketFence version above 11.0.0
  * The import process needs to be done on a standalone server. Restoring directly to clusters is currently unsupported
   * NOTE: Once you restored to your standalone server, you can make it a cluster by joining other machines to it and creating your cluster.conf but this is relatively advanced and out of scope of this document
- * Restoring on a fresh install of PacketFence is recommended although restoring on an existing instance can work but your milleage may vary
+ * Restoring on a fresh install of PacketFence is recommended although
+   restoring on an existing instance can work but your milleage may vary
+ * The import process will not modify network cards configuration of your server: it will
+   only update PacketFence IP configuration. You need to define targeted IP
+   addresses on network cards before running import process.
  * This process will only restore the files that can be edited via the admin interface which include:
   * Standard configuration files in /usr/local/pf/conf/*.conf
   * Connection profiles html templates in /usr/local/pf/html/captive-portal/profile-templates/
