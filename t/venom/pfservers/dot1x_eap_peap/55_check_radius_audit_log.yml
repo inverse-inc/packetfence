@@ -11,7 +11,7 @@ testcases:
 
 # only latest search entry since one minute that matches
 # auth_status equals Accept (to avoid Disconnect)
-# mac equals {{.node01_eth1_mac_address}}"
+# mac equals {{.node01_ens7_mac_address}}"
 # connection type of test suite connection profile
 - name: get_id_of_radius_audit_log_entry
   steps:
@@ -38,7 +38,7 @@ testcases:
                 {
                   "field": "mac",
                   "op": "equals",
-                  "value": "{{.node01_eth1_mac_address}}"
+                  "value": "{{.node01_ens7_mac_address}}"
                 }
               ]
             },

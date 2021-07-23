@@ -23,7 +23,7 @@ testcases:
                 {
                   "field": "mac",
                   "op": "equals",
-                  "value": "{{.node01_eth1_mac_address}}"
+                  "value": "{{.node01_ens7_mac_address}}"
                 }
               ]
             }

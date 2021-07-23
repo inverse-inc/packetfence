@@ -58,8 +58,8 @@ switch01.dot1x_interface.mac: 44:38:39:00:00:12
 
 # nodes variables
 node01_mgmt_ip: 172.17.17.251
-node01_eth1_mac_address: 00:03:00:11:11:01
-node01_eth1_mac_address_url_encoded: 00%3A03%3A00%3A11%3A11%3A01
+node01_ens7_mac_address: 00:03:00:11:11:01
+node01_ens7_mac_address_url_encoded: 00%3A03%3A00%3A11%3A11%3A01
 
 # wireless01 variables
 wireless01_mgmt_ip: 172.17.17.210

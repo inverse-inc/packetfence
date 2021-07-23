@@ -48,8 +48,8 @@ testcases:
     body: >-
       {
         "category_id": "{{.get_category_id_of_role.category_id}}",
-        "mac": "{{.node01_eth1_mac_address}}",
-        "notes": "node01 eth1",
+        "mac": "{{.node01_ens7_mac_address}}",
+        "notes": "node01 ens7",
         "pid": null,
         "status": "reg",
         "unreg_date": null,

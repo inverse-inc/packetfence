@@ -5,7 +5,7 @@ testcases:
   steps:
   - type: http
     method: PATCH
-    url: '{{.pfserver_webadmin_url}}/api/v1/node/{{.node01_eth1_mac_address_url_encoded}}'
+    url: '{{.pfserver_webadmin_url}}/api/v1/node/{{.node01_ens7_mac_address_url_encoded}}'
     ignore_verify_ssl: true
     body: >-
       {
