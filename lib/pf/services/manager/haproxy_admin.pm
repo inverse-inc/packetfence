@@ -250,8 +250,8 @@ backend api
         errorfile 503 /usr/local/pf/html/pfappserver/root/errors/503.json.http
         server 127.0.0.1 127.0.0.1:9999 weight 1 maxconn 100 check  ssl verify none
 
-frontend admin-https-0.0.0.0
-        bind 0.0.0.0:1443 ssl no-sslv3 crt /usr/local/pf/conf/ssl/server.pem
+frontend admin-https-all
+        bind :::1443 v4v6 ssl no-sslv3 crt /usr/local/pf/conf/ssl/server.pem
         errorfile 502 /usr/local/pf/html/pfappserver/root/errors/502.json.http
         errorfile 503 /usr/local/pf/html/pfappserver/root/errors/503.json.http
         capture request header Host len 40
