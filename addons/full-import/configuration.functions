@@ -103,7 +103,7 @@ function handle_network_change() {
         read new_int_choice
         if [ -n "$new_int_choice" ]; then
           new_int_name=`ip a show | egrep -o '^'$new_int_choice': .+?:' | sed -r 's/^[0-9]+: //g' | sed 's/:$//g'`
-          if [ -z "$new_int_name" ] || ! get_os_ip_address $new_int_choice >/dev/null; then
+          if [ -z "$new_int_name" ] || ! get_os_ip_address $new_int_name >/dev/null; then
             echo "ERROR: Invalid interface choice! Make sure the interface you select has a valid IP address."
           else
             if prompt "Are you sure you want to use $new_int_name? "; then
