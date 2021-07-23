@@ -103,7 +103,8 @@ function import_mariabackup() {
   sub_splitter
   echo "Stopping packetfence-mariadb and backing up the current data"
   systemctl stop packetfence-mariadb
-  pkill -9 -f mariadbd
+  # This trick is so that it doesn't error out if the pkill fails
+  pkill -9 -f mariadbd || echo 1 > /dev/null
 
   mv /var/lib/mysql/ "/var/lib/mysql-`date +%s`"
   mkdir /var/lib/mysql
