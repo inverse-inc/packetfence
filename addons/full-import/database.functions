@@ -101,7 +101,7 @@ function import_mariabackup() {
   chown -R mysql: /var/lib/mysql
 
   sub_splitter
-  echo "Removing old ib_logfile"
+  echo "Removing old ib_logfiles"
   rm -f /var/lib/mysql/ib_logfile*
 
   sub_splitter
