@@ -277,6 +277,8 @@ binary-arch: build install
 	chmod 0755 $(CURDIR)/debian/packetfence-test$(PREFIX)/$(NAME)/t/db/*.pl
 	# integration
 	chmod 0755 $(CURDIR)/debian/packetfence-test$(PREFIX)/$(NAME)/t/integration/*.t
+	# mock-servers
+	chmod 0755 $(CURDIR)/debian/packetfence-test$(PREFIX)/$(NAME)/t/mock_servers/*.pl
 	# network-devices
 	chmod 0755 $(CURDIR)/debian/packetfence-test$(PREFIX)/$(NAME)/t/network-devices/*.t
 	# serialized_unittests

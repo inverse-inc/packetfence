@@ -60,6 +60,9 @@ PacketFence test files. This package contains all files related to PacketFence t
 # integration
 %attr(0755, -, -)     /usr/local/pf/t/integration/*.t
 
+# mock-servers
+%attr(0755, -, -)     /usr/local/pf/t/mock_servers/*.pl
+
 # network-devices
 %attr(0755, -, -)     /usr/local/pf/t/network-devices/*.t
 
