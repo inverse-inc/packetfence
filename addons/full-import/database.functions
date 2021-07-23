@@ -66,11 +66,6 @@ function import_mysqldump() {
 }
 
 function import_mariabackup() {
-  if ! which qpress > /dev/null 2>&1; then
-    echo "Missing qpress command. Please read the documentation of this script in the Installation guide to prepare your environment before running this script"
-    exit 1
-  fi
-
   if ! which mariabackup > /dev/null 2>&1; then
     echo "Missing mariabackup command. Please read the documentation of this script in the Installation guide to prepare your environment before running this script"
     exit 1
@@ -90,14 +85,6 @@ function import_mariabackup() {
   check_code $?
   mv $dump_file ../
   check_code $?
-
-  sub_splitter
-  echo "Processing .qp files"
-  for i in $(find -name "*.qp"); do 
-    qpress -vd $i $(dirname ${i})
-    check_code $?
-    rm -f $i
-  done
 
   sub_splitter
   echo "Applying innodb logs"
