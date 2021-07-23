@@ -17,22 +17,37 @@
           <text-highlight :queries="[filter]">{{ item.name }}</text-highlight>
           <text-highlight class="figure-caption text-nowrap" v-if="item.caption" :queries="[filter]">{{ item.caption }}</text-highlight>
         </div>
-        <icon class="mx-1" :name="item.icon" v-if="item.icon"></icon>
+        <icon class="mx-1" :name="item.icon" v-if="item.icon" />
         <slot/>
       </div>
     </b-nav-item>
-    <b-nav class="pf-sidenav mb-2" v-if="showSavedSearches && savedSearches.length > 0" vertical>
-      <div class="pf-sidenav-group" v-t="'Saved Searches'"></div>
+    <b-nav class="pf-sidenav mb-2" v-if="showSavedSearches && savedBasicSearches.length > 0" vertical>
+      <div class="pf-sidenav-group small py-0" v-t="'Basic Searches'" />
       <b-nav-item
         exact-active-class="active"
-        v-for="search in savedSearches"
+        v-for="search in savedBasicSearches"
         :key="search.name"
-        :to="search.route"
         class="saved-search"
+        @click="goToBasicSearch(search)"
       >
-        <div class="pf-sidebar-item ml-3">
+        <div class="pf-sidebar-item pl-3">
           <text-highlight :queries="[filter]">{{ search.name }}</text-highlight>
-          <icon class="mx-1" name="trash-alt" role="button" @click.stop.prevent="deleteSavedSearch(search)"></icon>
+          <icon class="mx-1" name="trash-alt" @click.stop.prevent="deleteBasicSavedSearch(search)" />
+        </div>
+      </b-nav-item>
+    </b-nav>
+    <b-nav class="pf-sidenav mb-2" v-if="showSavedSearches && savedAdvancedSearches.length > 0" vertical>
+      <div class="pf-sidenav-group small py-0" v-t="'Advanced Searches'" />
+      <b-nav-item
+        exact-active-class="active"
+        v-for="search in savedAdvancedSearches"
+        :key="search.name"
+        class="saved-search"
+        @click="goToAdvancedSearch(search)"
+      >
+        <div class="pf-sidebar-item pl-3">
+          <text-highlight :queries="[filter]">{{ search.name }}</text-highlight>
+          <icon class="mx-1" name="trash-alt" @click.stop.prevent="deleteAdvancedSavedSearch(search)" />
         </div>
       </b-nav-item>
     </b-nav>
@@ -64,7 +79,7 @@ export default {
       visible: {
         type: Boolean,
         default: true
-      }
+      },
     }
   },
   computed: {
@@ -72,27 +87,83 @@ export default {
       const { item: { saveSearchNamespace } = {} } = this
       return this.visible && saveSearchNamespace
     },
-    savedSearches () {
-      return this.$store.getters['saveSearch/cache'][this.item.saveSearchNamespace] || []
+    saveSearchNamespace () {
+      const { item: { saveSearchNamespace } = {} } = this
+      return saveSearchNamespace
+    },
+    savedAdvancedSearches () {
+      const { values = {} } = this.$store.state.preferences.cache[`${this.saveSearchNamespace}::advancedSearch`] || {}
+      return Object.keys(values).map(name => ({ name, ...values[name] }))
+    },
+    savedBasicSearches () {
+      const { values = {} } = this.$store.state.preferences.cache[`${this.saveSearchNamespace}::basicSearch`] || {}
+      return Object.keys(values).map(name => ({ name, ...values[name] }))
     }
   },
   methods: {
-    deleteSavedSearch (search) {
-      const { item: { saveSearchNamespace } = {} } = this
-      this.$store.dispatch('saveSearch/remove', { namespace: saveSearchNamespace, search: { name: search.name } })
+    deleteAdvancedSavedSearch (search) {
+      const id = `${this.saveSearchNamespace}::advancedSearch`
+      const { values = {} } = this.$store.state.preferences.cache[id] || {}
+      delete values[search.name]
+      this.$store.dispatch('preferences/set', {
+        id,
+        value: { values }
+      })
+    },
+    deleteBasicSavedSearch (search) {
+      const id = `${this.saveSearchNamespace}::basicSearch`
+      const { values = {} } = this.$store.state.preferences.cache[id] || {}
+      delete values[search.name]
+      this.$store.dispatch('preferences/set', {
+        id,
+        value: { values }
+      })
+    },
+    goToAdvancedSearch (search) {
+      const { name, query, ...rest } = search
+      const { path } = this.item
+      this.$store.dispatch('preferences/set', {
+        id: `${this.saveSearchNamespace}::defaultSearch`,
+        value: { ...rest, conditionAdvanced: query }
+      }).then(() => {
+        if (path === this.$router.currentRoute.path)
+          this.$router.go() // hard reset
+        else
+          this.$router.push({ path })
+      })
+    },
+    goToBasicSearch (search) {
+      const { name, query, ...rest } = search
+      const { path } = this.item
+      this.$store.dispatch('preferences/set', {
+        id: `${this.saveSearchNamespace}::defaultSearch`,
+        value: { ...rest, conditionBasic: query }
+      }).then(() => {
+        if (path === this.$router.currentRoute.path)
+          this.$router.go() // hard reset
+        else
+          this.$router.push({ path })
+      })
     }
   },
   mounted () {
     if ('can' in this.item) {
       this.visible = this.$can.apply(null, this.item.can.split(' '))
     }
-    /*
-    if ('saveSearchNamespace' in this.item) {
-      this.$store.dispatch('saveSearch/get', this.item.saveSearchNamespace).then(savedSearches => {
-        this.$set(this, 'savedSearches', savedSearches)
-      })
+    if (this.saveSearchNamespace) {
+      this.$store.dispatch('preferences/get', `${this.saveSearchNamespace}::advancedSearch`)
+        .then(value => {
+          if (Object.keys(value).length === 0) { // declare reactive placeholder
+            this.$store.dispatch('preferences/set', { id: `${this.saveSearchNamespace}::advancedSearch` })
+          }
+        })
+      this.$store.dispatch('preferences/get', `${this.saveSearchNamespace}::basicSearch`)
+        .then(value => {
+          if (Object.keys(value).length === 0) { // declare reactive placeholder
+            this.$store.dispatch('preferences/set', { id: `${this.saveSearchNamespace}::basicSearch` })
+          }
+        })
     }
-    */
   }
 }
 </script>
@@ -101,20 +172,13 @@ export default {
 @import '../styles/variables';
 
 .saved-search {
-  a {
-    svg.fa-icon {
-      visibility: hidden;
-    }
+  svg.fa-icon {
+    visibility: hidden;
   }
 }
-.saved-search:hover a,
-.saved-search a.active {
+.saved-search .pf-sidebar-item:hover {
   svg.fa-icon {
-    visibility: visible;
-    color: rgba($body-bg, .7);
-    &:hover {
-      color: $body-bg;
-    }
+    visibility: visible !important;
   }
 }
 </style>

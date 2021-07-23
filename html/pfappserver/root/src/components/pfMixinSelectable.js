@@ -144,13 +144,6 @@ export default {
       } else {
         this.selectValues = this.selectValues.reduce((x, y) => subset.includes(y) ? x : [...x, y], [])
       }
-    },
-    searchableStoreName () {
-      if (this.storeName) {
-        return this.storeName + '_searchable'
-      } else {
-        return undefined
-      }
     }
   },
   watch: {

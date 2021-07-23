@@ -166,9 +166,8 @@ const components = {
   BaseInputGroupTextarea
 }
 
-import { computed, ref, watch } from '@vue/composition-api'
+import { computed, nextTick, ref, watch } from '@vue/composition-api'
 import { useDebouncedWatchHandler } from '@/composables/useDebounce'
-import { usePreference, usePreferences, api as preferencesApi } from '@/composables/usePreferences'
 import i18n from '@/utils/locale'
 import yup from '@/utils/yup'
 import usersApi from '@/views/Users/_api'
@@ -193,11 +192,16 @@ const setup = (props, context) => {
 
   const { refs, root: { $store } = {} } = context
 
-  let settings = ref({})
-  const _getSettings = () => {
-    settings = usePreference('settings', { language: null })
-  }
-  _getSettings()
+  const settings = ref({ language: null })
+  $store.dispatch('preferences/all')
+    .then(() => {
+      settings.value = { ...settings.value, ...$store.state.preferences.cache['settings'] || {} }
+      nextTick(() => { // avoid race
+        watch(settings, () => {
+          $store.dispatch('preferences/set', { id: 'settings', value: settings.value })
+        }, { deep: true })
+      })
+    })
 
   const rootRef = ref(null)
   const form = ref(defaults())
@@ -255,7 +259,12 @@ const setup = (props, context) => {
       })
   }
 
-  const preferences = usePreferences()
+  const preferences = computed(() => {
+    return Object.keys($store.state.preferences.cache)
+      .map(id => ({ id, ...$store.state.preferences.cache[id] }))
+      .filter(({ id, ...rest }) => Object.keys(rest).length > 0)
+    })
+
   const preferencesFields = [
     {
       label: '', // selected
@@ -269,19 +278,19 @@ const setup = (props, context) => {
     },
     {
       label: i18n.t('Created'),
-      key: 'value.meta.created_at',
+      key: 'meta.created_at',
       formatter: value => ((new Date(value)).toISOString()),
       sortable: true
     },
     {
       label: i18n.t('Updated'),
-      key: 'value.meta.updated_at',
+      key: 'meta.updated_at',
       formatter: value => ((new Date(value)).toISOString()),
       sortable: true
     },
     {
       label: i18n.t('Version'),
-      key: 'value.meta.version',
+      key: 'meta.version',
       sortable: true
     }
   ]
@@ -299,10 +308,7 @@ const setup = (props, context) => {
   const onPreferencesSelectedDelete = () => {
     let promises = []
     preferencesSelected.value.forEach(id => {
-      const { remove } = preferences.value.find(preference => preference.id === id)
-      promises.push(remove().then(() => {
-        preferences.value = preferences.value.filter(preference => preference.id !== id)
-      }))
+      promises.push($store.dispatch('preferences/delete', id))
     })
     Promise.all(promises)
       .then(() => $store.dispatch('notification/info', { message: i18n.t('Preferences deleted.') }))
@@ -312,8 +318,7 @@ const setup = (props, context) => {
   const onPreferencesSelectedExport = () => {
     const xport = preferencesSelected.value.map(id => {
       const index = preferences.value.findIndex(preference => preference.id === id)
-      const { [index]: { value: { data } = {} } = {} } = preferences.value
-      return { id, data }
+      return preferences.value[index]
     })
     preferencesExport.value = JSON.stringify(xport)
     showPreferencesExport.value = true
@@ -339,20 +344,14 @@ const setup = (props, context) => {
     try {
       const parsed = JSON.parse(preferencesImport.value)
       parsed.forEach(preference => {
-        const { id, data } = preference
-        promises.push(preferencesApi.setPreference(id, data))
+        const { id, meta, ...value } = preference
+        promises.push($store.dispatch('preferences/set', { id, value }))
       })
       Promise.all(promises)
         .then(() => {
           preferencesImport.value = null
           showPreferencesImport.value = false
           $store.dispatch('notification/info', { message: i18n.t('Preferences imported.') })
-          const newPreferences = usePreferences()
-          let unwatch
-          unwatch = watch(newPreferences, () => {
-            preferences.value = newPreferences.value
-            unwatch()
-          }, { deep: true })
         })
     }
     catch (e) {

@@ -11,13 +11,16 @@
           />
           <b-container fluid class="text-right mt-3 px-0">
             <b-button class="ml-1" type="reset" variant="secondary" :disabled="disabled || isLoading">{{ $t('Reset') }}</b-button>
+
             <base-button-save-search
-              :save-search-namespace="`${uuid}Advanced`"
+:save-search-namespace="`${uuid}::advancedSearch`"
+:use-search="useSearch"
               class="ml-1"
               v-model="conditionAdvanced"
               :disabled="disabled || isLoading"
               @search="onSearchAdvanced"
             />
+
             <b-button class="ml-1" variant="outline-primary" @click="advancedMode = false"
               v-b-tooltip.hover.top.d300 :title="$t('Switch to basic search.')">
               <icon name="search-minus" />
@@ -27,7 +30,8 @@
       </div>
       <div class="d-flex" v-else>
         <base-search-input-basic class="flex-grow-1" :key="hint"
-          :save-search-namespace="`${uuid}Basic`"
+:save-search-namespace="`${uuid}::basicSearch`"
+:use-search="useSearch"
           v-model="conditionBasic"
           :disabled="disabled || isLoading"
           :title="titleBasic"
@@ -91,7 +95,6 @@ const props = {
 }
 
 import { onMounted, ref, toRefs, watch } from '@vue/composition-api'
-import { usePreference } from '@/views/Configuration/_store/preferences'
 import { v4 as uuidv4 } from 'uuid'
 
 const setup = (props, context) => {
@@ -119,21 +122,27 @@ const setup = (props, context) => {
     sortDesc
   } = toRefs(search)
 
-  const { emit } = context
+  const { emit, root: { $store } = {} } = context
 
-  const saveSearch = usePreference(`search::${uuid}`)
-
+  const saveSearchNamespace = `${uuid}::defaultSearch`
+  let saveSearchLoaded = false
   watch([columns, page, limit, sortBy, sortDesc], () => {
-    Promise.resolve(saveSearch.value).then(_saveSearch => {
-      saveSearch.value = {
-        ..._saveSearch,
-        columns: columns.value.filter(c => c.visible).map(c => c.key),
-        page: page.value,
-        limit: limit.value,
-        sortBy: sortBy.value,
-        sortDesc: sortDesc.value
-      }
-    })
+    if (!saveSearchLoaded)
+      return
+    $store.dispatch('preferences/get', saveSearchNamespace)
+      .then(({ meta, ...value }) => {
+        $store.dispatch('preferences/set', {
+          id: saveSearchNamespace,
+          value: {
+            ...value,
+            columns: columns.value.filter(c => c.visible).map(c => c.key),
+            page: page.value,
+            limit: limit.value,
+            sortBy: sortBy.value,
+            sortDesc: sortDesc.value
+          }
+        })
+      })
   })
 
   const advancedMode = ref(false)
@@ -142,37 +151,40 @@ const setup = (props, context) => {
   const hint = ref(uuidv4())
 
   onMounted(() => {
-    Promise.resolve(saveSearch.value).then(value => {
-      if (value) {
-        const {
-          conditionAdvanced: _conditionAdvanced,
-          conditionBasic: _conditionBasic
-        } = value
-        setUp(value)
-        if (_conditionAdvanced) {
-          conditionAdvanced.value = _conditionAdvanced
-          advancedMode.value = true
-          hint.value = uuidv4()
-          return doSearchCondition(conditionAdvanced.value)
+    $store.dispatch('preferences/get', saveSearchNamespace)
+      .then(({ meta, ...value }) => {
+        if (value) {
+          const {
+            conditionAdvanced: _conditionAdvanced,
+            conditionBasic: _conditionBasic
+          } = value
+          setUp(value)
+          if (_conditionAdvanced) {
+            conditionAdvanced.value = _conditionAdvanced
+            advancedMode.value = true
+            hint.value = uuidv4()
+            return doSearchCondition(conditionAdvanced.value)
+          }
+          if (_conditionBasic) {
+            conditionBasic.value = _conditionBasic
+            advancedMode.value = false
+            hint.value = uuidv4()
+            return doSearchString(conditionBasic.value)
+          }
         }
-        if (_conditionBasic) {
-          conditionBasic.value = _conditionBasic
-          advancedMode.value = false
-          hint.value = uuidv4()
-          return doSearchString(conditionBasic.value)
-        }
-      }
-      doReset()
-    })
+        doReset()
+      })
+      .finally(() => saveSearchLoaded = true)
   })
 
   const onSearchBasic = () => {
     if (conditionBasic.value) {
       doSearchString(conditionBasic.value)
-      Promise.resolve(saveSearch.value).then(_saveSearch => {
-        const { conditionAdvanced, ...rest } = _saveSearch || {}
-        saveSearch.value = { ...rest, conditionBasic: conditionBasic.value }
-      })
+      $store.dispatch('preferences/get', saveSearchNamespace)
+        .then(({ meta, ...value }) => {
+          const { conditionAdvanced, ...rest } = value || {}
+          $store.dispatch('preferences/set', { id: saveSearchNamespace, value: { ...rest, conditionBasic: conditionBasic.value } })
+        })
     }
     else
       doReset()
@@ -182,10 +194,11 @@ const setup = (props, context) => {
   const onSearchAdvanced = () => {
     if (conditionAdvanced.value) {
       doSearchCondition(conditionAdvanced.value)
-      Promise.resolve(saveSearch.value).then(_saveSearch => {
-        const { conditionBasic, ...rest } = _saveSearch || {}
-        saveSearch.value = { ...rest, conditionAdvanced: conditionAdvanced.value }
-      })
+      $store.dispatch('preferences/get', saveSearchNamespace)
+        .then(({ meta, ...value }) => {
+          const { conditionBasic, ...rest } = value || {}
+          $store.dispatch('preferences/set', { id: saveSearchNamespace, value: { ...rest, conditionAdvanced: conditionAdvanced.value } })
+        })
     }
     else
       doReset()
@@ -196,10 +209,11 @@ const setup = (props, context) => {
     conditionBasic.value = null
     conditionAdvanced.value = defaultCondition()
     setPage(1)
-    Promise.resolve(saveSearch.value).then(_saveSearch => {
-      const { conditionAdvanced, conditionBasic, ...rest } = _saveSearch || {}
-      saveSearch.value = rest
-    })
+    $store.dispatch('preferences/get', saveSearchNamespace)
+      .then(({ meta, ...value }) => {
+        const { conditionAdvanced, conditionBasic, ...rest } = value || {}
+        $store.dispatch('preferences/set', { id: saveSearchNamespace, value: rest })
+      })
     doReset()
     emit('reset')
   }

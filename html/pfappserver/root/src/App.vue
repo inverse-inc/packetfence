@@ -115,7 +115,6 @@ const components = {
 
 import { computed, ref, watch } from '@vue/composition-api'
 import useEvent from '@/composables/useEvent'
-import { usePreference } from '@/composables/usePreferences'
 import i18n from '@/utils/locale'
 
 const setup = (props, context) => {
@@ -238,13 +237,16 @@ const setup = (props, context) => {
   if (!['en', 'fr'].includes(language))
     language = 'en'
   setLanguage(language)
+
   // load language from user preferences
-  const settings = usePreference('settings', { language })
-  watch(settings, () => {
-    const { language } = settings.value || {}
-    if (language)
-      setLanguage(language)
-  }, { deep: true })
+  const settings = ref({ language })
+  $store.dispatch('preferences/get', 'settings')
+    .then(() => {
+      settings.value = { ...settings.value, ...$store.state.preferences.cache['settings'] || {} }
+      const { language } = settings.value || {}
+      if (language)
+        setLanguage(language)
+    })
 
   useEvent('keydown', e => {
     const { altKey = false, shiftKey = false, keyCode = false } = e

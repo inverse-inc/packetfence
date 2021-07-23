@@ -23,25 +23,25 @@ export default {
         {
           name: this.$i18n.t('RADIUS Audit Logs'),
           path: '/auditing/radiuslogs/search',
-          saveSearchNamespace: 'radiuslogs',
+          saveSearchNamespace: 'radiusLogs',
           can: 'read radius_log'
         },
         {
           name: this.$i18n.t('DHCP Option 82'),
           path: '/auditing/dhcpoption82s/search',
-          saveSearchNamespace: 'dhcpoption82s',
+          saveSearchNamespace: 'dhcpOption82Logs',
           can: 'read dhcp_option_82'
         },
         {
           name: this.$i18n.t('DNS Audit Logs'),
           path: '/auditing/dnslogs/search',
-          saveSearchNamespace: 'dnslogs',
+          saveSearchNamespace: 'dnsLogs',
           can: 'read dns_log'
         },
         {
           name: this.$i18n.t('Admin API Audit Logs'),
           path: '/auditing/admin_api_audit_logs/search',
-          saveSearchNamespace: 'admin_api_audit_logs',
+          saveSearchNamespace: 'adminApiLogs',
           can: 'read admin_api_audit_log'
         },
         {

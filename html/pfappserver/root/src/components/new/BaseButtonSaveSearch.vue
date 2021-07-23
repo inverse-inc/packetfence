@@ -10,11 +10,11 @@
           <span class="ml-4">{{ $t('Save Search') }}</span>
         </b-dropdown-item>
         <template v-if="saved.length > 0">
-          <b-dropdown-item-button v-for="search in saved" :key="search.name" @click="onLoad(search)">
+          <b-dropdown-item-button v-for="search in saved" :key="search.id" @click="onLoad(search)">
             <span @click.stop="onDelete(search)">
               <icon class="position-absolute mt-1" name="trash-alt" />
             </span>
-            <span class="ml-4">{{ search.name }}</span>
+            <span class="ml-4">{{ search.id }}</span>
           </b-dropdown-item-button>
         </template>
         <b-dropdown-divider />
@@ -45,7 +45,7 @@
       </template>
     </b-modal>
     <b-modal v-model="showSaveSearchModal" size="sm" centered id="saveSearchModal" :title="$t('Save Search')" @shown="focusSaveSearchInput">
-      <b-form-input ref="saveSearchInput" v-model="saveSearchName" type="text"
+      <b-form-input ref="saveSearchInput" v-model="saveSearchId" type="text"
         :placeholder="$t('Enter a unique name')" @keyup="keyUpSaveSearchInput"/>
       <template v-slot:modal-footer>
         <b-button variant="secondary" class="mr-1" @click="showSaveSearchModal=false">{{ $t('Cancel') }}</b-button>
@@ -60,13 +60,16 @@ const props = {
   saveSearchNamespace: {
     type: String
   },
+  useSearch: {
+    type: Function
+  },
   value: {
     type: [String, Array, Object]
   },
   disabled: {
     type: Boolean
   },
-  name: {
+  id: {
     type: String
   }
 }
@@ -79,10 +82,25 @@ const setup = (props, context) => {
   const {
     saveSearchNamespace,
     value,
-    name
+    id
   } = toRefs(props)
 
-  const { emit, refs, root: { $router, $store } = {} } = context
+  const {
+    useSearch
+  } = props
+  const search = useSearch()
+  const {
+    setUp
+  } = search
+  const {
+    columns,
+    page,
+    limit,
+    sortBy,
+    sortDesc
+  } = toRefs(search)
+
+  const { emit, refs, root: { $store } = {} } = context
 
   const onSearch = () => emit('search')
 
@@ -91,9 +109,12 @@ const setup = (props, context) => {
     jsonValue.value = JSON.stringify(value.value)
   }, { deep: true, immediate: true })
 
-  onMounted(() => $store.dispatch('saveSearch/get', saveSearchNamespace.value))
+  onMounted(() => $store.dispatch('preferences/get', saveSearchNamespace.value))
   const canSave = computed(() => saveSearchNamespace.value)
-  const saved = computed(() => $store.getters['saveSearch/cache'][saveSearchNamespace.value] || [])
+  const saved = computed(() => {
+    const { values = {} } = $store.state.preferences.cache[saveSearchNamespace.value] || {}
+    return Object.keys(values).map(id => ({ id, ...values[id] }))
+  })
 
   const showExportJsonModal = ref(false)
   const showImportJsonModal = ref(false)
@@ -101,9 +122,9 @@ const setup = (props, context) => {
   const importJsonError = ref(null)
   const showSaveSearchModal = ref(false)
 
-  const saveSearchName = ref(null)
-  watch(name, () => { // default name
-    saveSearchName.value = name.value
+  const saveSearchId = ref(null)
+  watch(id, () => { // default id
+    saveSearchId.value = id.value
   }, { immediate: true })
 
   const copyJsonTextarea = () => {
@@ -142,39 +163,42 @@ const setup = (props, context) => {
   const keyUpSaveSearchInput = event => {
     switch (event.keyCode) {
       case 13: // [ENTER] submits
-        if (saveSearchName.value.length > 0)
+        if (saveSearchId.value.length > 0)
           onSave()
         break
     }
   }
 
   const onSave = () => {
-    const { currentRoute: { path, params } = {} } = $router
-    $store.dispatch('saveSearch/set', {
-      namespace: saveSearchNamespace.value,
-      search: {
-        name: saveSearchName.value,
-        route: {
-          path,
-          params,
-          query: {
-            query: JSON.stringify(value.value)
-          }
-        }
-      }
+    const { values = {} } = $store.state.preferences.cache[saveSearchNamespace.value] || {}
+    values[saveSearchId.value] = {
+      columns: columns.value.filter(c => c.visible).map(c => c.key),
+      page: page.value,
+      limit: limit.value,
+      sortBy: sortBy.value,
+      sortDesc: sortDesc.value,
+      query: value.value
+    }
+    $store.dispatch('preferences/set', {
+      id: saveSearchNamespace.value,
+      value: { values }
     }).then(() => {
-      saveSearchName.value = ''
       showSaveSearchModal.value = false
     })
   }
 
-  const onDelete = (search) => {
-    $store.dispatch('saveSearch/remove', { namespace: saveSearchNamespace.value, search: { name: search.name } })
+  const onDelete = search => {
+    const { values = {} } = $store.state.preferences.cache[saveSearchNamespace.value] || {}
+    delete values[search.id]
+    $store.dispatch('preferences/set', {
+      id: saveSearchNamespace.value,
+      value: { values }
+    })
   }
 
-  const onLoad = (search) => {
-    const { route: { query: { query } = {} } = {} } = search
-    emit('input', JSON.parse(query))
+  const onLoad = search => {
+    setUp(search)
+    emit('input', search.query)
     emit('search')
   }
 
@@ -189,7 +213,7 @@ const setup = (props, context) => {
     importJsonString,
     importJsonError,
     showSaveSearchModal,
-    saveSearchName,
+    saveSearchId,
 
     copyJsonTextarea,
     importJsonTextarea,

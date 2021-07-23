@@ -9,7 +9,6 @@ import performance from './modules/performance'
 import pfqueue from './modules/pfqueue'
 import preferences from './modules/preferences'
 import radius from './modules/radius'
-import saveSearch from './modules/saveSearch'
 import services from './modules/services'
 import session from './modules/session'
 import system from './modules/system'
@@ -36,7 +35,6 @@ const store = new Vuex.Store({
     pfqueue,
     preferences,
     radius,
-    saveSearch,
     services,
     session,
     system
