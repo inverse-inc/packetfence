@@ -27,7 +27,7 @@ require (
 	github.com/fdurand/go-cache v0.0.0-20180104143916-cf0198ac7d92
 	github.com/flynn/go-shlex v0.0.0-20150515145356-3f9db97f8568
 	github.com/gdey/jsonpath v0.0.0-20151203210429-124c978a1ffc
-	github.com/gin-gonic/gin v1.6.2
+	github.com/gin-gonic/gin v1.7.0
 	github.com/go-acme/lego v2.5.0+incompatible
 	github.com/go-errors/errors v1.0.1
 	github.com/go-kit/kit v0.10.0
