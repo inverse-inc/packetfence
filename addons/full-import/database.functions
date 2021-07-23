@@ -40,18 +40,28 @@ function import_mysqldump() {
   mysql ${mariadb_args} -e "drop database if exists $db_name; create database $db_name"
 
   sub_splitter
-  # We reimport the schema so that we have the functions and triggers
-  # Detect minor version of the restored data
-  restoring_version=`egrep -o '[0-9]+\.[0-9]+\.[0-9]+$' usr/local/pf/conf/pf-release | egrep -o '^[0-9]+\.[0-9]+'`
-  echo "Importing bare schema for $restoring_version"
-  mysql ${mariadb_args} $db_name < /usr/local/pf/db/pf-schema-$restoring_version.sql
-  check_code $?
+  # We reimport the schema so that we have the functions and triggers if the dump doesn't contain the triggers
+  if ! egrep "CREATE.*TRIGGER.*(AFTER|BEFORE)" $dump_file > /dev/null; then
+    echo "Dump file was made without triggers and procedures"
+    # Detect minor version of the restored data
+    restoring_version=`egrep -o '[0-9]+\.[0-9]+\.[0-9]+$' usr/local/pf/conf/pf-release | egrep -o '^[0-9]+\.[0-9]+'`
+    echo "Importing bare schema for $restoring_version"
+    mysql ${mariadb_args} $db_name < /usr/local/pf/db/pf-schema-$restoring_version.sql
+    check_code $?
 
-  sub_splitter
-  echo "Replacing create statements from the dump and removing drop statements"
-  # This is done so that tables aren't dropped 
-  sed -i "s/DROP TABLE IF EXISTS /DELETE FROM /g" $dump_file
-  sed -i "s/CREATE TABLE /CREATE TABLE IF NOT EXISTS /g" $dump_file
+    sub_splitter
+    echo "Replacing create statements from the dump and removing drop statements"
+    # This is done so that tables aren't dropped 
+    sed -i "s/DROP TABLE IF EXISTS /DELETE IGNORE FROM /g" $dump_file
+    sed -i "s/CREATE TABLE /CREATE TABLE IF NOT EXISTS /g" $dump_file
+  
+    # Delete this statement if its there because this table isn't in our schema anymore but some old deployments have it
+    sed -i 's/DELETE IGNORE FROM `dhcp_fingerprint`;//g' $dump_file
+    sed -i 's/DELETE IGNORE FROM `action`;//g' $dump_file
+    sed -i 's/DELETE IGNORE FROM `activation`;//g' $dump_file
+  else
+    echo "Dump file includes triggers and procedures"
+  fi
 
   sub_splitter
   echo "Importing $dump_file into $db_name"
