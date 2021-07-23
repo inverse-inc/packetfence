@@ -36,6 +36,12 @@ fi
 
 build_dir=`mktemp -d`
 
+function cleanup() {
+  echo "Cleaning temporary directory"
+  rm -fr $build_dir
+}
+trap cleanup EXIT
+
 pushd $build_dir
 
 main_splitter
@@ -87,6 +93,4 @@ main_splitter
 echo "Done exporting to $output"
 
 popd > /dev/null
-
-rm -fr $build_dir
 

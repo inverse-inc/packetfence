@@ -16,6 +16,12 @@ fi
 
 extract_dir=`mktemp -d`
 
+function cleanup() {
+  echo "Cleaning temporary directory"
+  rm -fr $extract_dir
+}
+trap cleanup EXIT
+
 cp -a $dump_path $extract_dir/export.tgz
 check_code $?
 
@@ -125,5 +131,4 @@ echo "Completed import of the database and the configuration! Complete any neces
 # Done with everything, time to cleanup!
 systemctl cat monit > /dev/null 2>&1 && systemctl enable monit
 popd > /dev/null
-rm -fr $extract_dir
 
