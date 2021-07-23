@@ -171,7 +171,6 @@ Locale::gettext,1.07,PVANDRY/gettext-1.07.tar.gz,True,P/PV/PVANDRY/gettext-1.07.
 JSON::XS,4.03,MLEHMANN/JSON-XS-4.03.tar.gz,True,M/ML/MLEHMANN/JSON-XS-4.03.tar.gz,2
 TimeDate,2.33,ATOOMIC/TimeDate-2.33.tar.gz,True,A/AT/ATOOMIC/TimeDate-2.33.tar.gz,2
 Term::Size::Any,0.002,FERREIRA/Term-Size-Any-0.002.tar.gz,True,F/FE/FERREIRA/Term-Size-Any-0.002.tar.gz,2
-Net::Nessus::REST,0.6,GROUSSE/Net-Nessus-REST-0.6.tar.gz,True,G/GR/GROUSSE/Net-Nessus-REST-0.6.tar.gz,2
 Catalyst::Devel,1.42,HAARG/Catalyst-Devel-1.42.tar.gz,True,H/HA/HAARG/Catalyst-Devel-1.42.tar.gz,2
 Crypt::Eksblowfish,0.009,ZEFRAM/Crypt-Eksblowfish-0.009.tar.gz,True,Z/ZE/ZEFRAM/Crypt-Eksblowfish-0.009.tar.gz,2
 Specio::Exporter,0.47,DROLSKY/Specio-0.47.tar.gz,True,D/DR/DROLSKY/Specio-0.47.tar.gz,2
@@ -244,7 +243,6 @@ Exception::Fatal,0.05,DEXTER/Fatal-Exception-0.05.tar.gz,True,D/DE/DEXTER/Fatal-
 Linux::Inotify2,2.2,MLEHMANN/Linux-Inotify2-2.2.tar.gz,True,M/ML/MLEHMANN/Linux-Inotify2-2.2.tar.gz,2
 Pod::Markdown,3.300,RWSTAUNER/Pod-Markdown-3.300.tar.gz,True,R/RW/RWSTAUNER/Pod-Markdown-3.300.tar.gz,2
 Crypt::SMIME,0.27,MIKAGE/Crypt-SMIME-0.27.tar.gz,True,M/MI/MIKAGE/Crypt-SMIME-0.27.tar.gz,2
-Net::Nessus::XMLRPC,0.30,KOST/Net-Nessus-XMLRPC-0.30.tar.gz,True,K/KO/KOST/Net-Nessus-XMLRPC-0.30.tar.gz,2
 PHP::Serialization,0.34,BOBTFISH/PHP-Serialization-0.34.tar.gz,True,B/BO/BOBTFISH/PHP-Serialization-0.34.tar.gz,2
 Test::MockModule,v0.176.0,GFRANKS/Test-MockModule-v0.176.0.tar.gz,True,G/GF/GFRANKS/Test-MockModule-v0.176.0.tar.gz,2
 Specio::Library::String,0.47,DROLSKY/Specio-0.47.tar.gz,True,D/DR/DROLSKY/Specio-0.47.tar.gz,2
