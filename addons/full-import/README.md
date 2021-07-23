@@ -47,7 +47,7 @@ Next, you need to obtain a copy of the full-import tool (can currently be found 
 Next, run the export script:
 
 ```
-/usr/local/pf/addons/export.sh /tmp/export.tgz
+/usr/local/pf/addons/full-import/export.sh /tmp/export.tgz
 ```
 
 The command above will create your export archive in /tmp/export.tgz. You will now need to copy this file to your new servers using scp or your prefered mechanism
@@ -87,7 +87,7 @@ apt install mariadb-backup
 Now, start the import process using the export archive you made on the other server:
 
 ```
-/usr/local/pf/addons/full-import.sh /tmp/export.tgz
+/usr/local/pf/addons/full-import/import.sh /tmp/export.tgz
 ```
 
 Once the process is completed, you should see the following:
