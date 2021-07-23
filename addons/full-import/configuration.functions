@@ -36,7 +36,7 @@ function get_os_ip_address() {
 
 function get_os_netmask() {
   os_ip=`ip -br -o a show dev $1 | egrep -o '[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+/[0-9]+' | head -1`
-  ipcalc -m $os_ip | sed 's/NETMASK=//'
+  ipcalc $os_ip | grep "^Netmask:" | egrep -o '([0-9]+\.[0-9]+\.[0-9]+\.[0-9]+)'
 }
 
 function get_pf_ip_address() {
