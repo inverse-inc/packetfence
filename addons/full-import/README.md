@@ -58,7 +58,9 @@ You first need to have a PacketFence 11.0 installation done on a standalone serv
 
 The import script will guide you through the restore of the database, the configuration files and will help adjust the IP configuration if necessary.
 
-If your export archive used MariaDB backup instead of mysqldump (your DB backup filename contains `xbstream`), then you need to install MariaDB-backup on your server:
+If your export archive used MariaDB backup instead of mysqldump (your DB
+backup filename contains `xbstream`), then you need to install identical
+MariaDB-backup on your new server:
 
 If you are restoring from PacketFence 10.3:
 ```
@@ -68,11 +70,11 @@ yum localinstall https://www.packetfence.org/downloads/PacketFence/CentOS7/x86_6
 
 
 # Debian
-apt remove mariadb-backup
-wget https://www.packetfence.org/downloads/PacketFence/debian-lastrelease/pool/stretch/m/mariadb-10.2/mariadb-backup-10.2_10.2.37+maria~stretch_amd64.deb
-dpkg -i mariadb-backup-10.2_10.2.37+maria~stretch_amd64.deb
+wget -O /root/mariadb-backup-10.2_10.2.37.deb https://www.packetfence.org/downloads/PacketFence/debian-lastrelease/pool/stretch/m/mariadb-10.2/mariadb-backup-10.2_10.2.37+maria~stretch_amd64.deb
+dpkg-deb -xv /root/mariadb-backup-10.2_10.2.37.deb /root/mariadb-backup
+mv /root/mariadb-backup/usr/bin/mariabackup /usr/local/bin/mariabackup
+mv /root/mariadb-backup/usr/bin/mbstream /usr/local/bin/mbstream
 ```
-
 
 If you are restoring from PacketFence 11.0 or above:
 ```
@@ -97,14 +99,14 @@ Completed import of the database and the configuration! Complete any necessary a
 
 If that's not the case, check the output above to understand why the process failed.
 
-If you restore from PacketFence 10.3 and you used MariaDB-backup for your restore, update it back to the right version:
+If you restored from PacketFence 10.3 and you used MariaDB-backup for your
+restore, update it back to the right version:
 
 ```
 # CentOS/RHEL
 yum update MariaDB-backup --enablerepo=packetfence
 
 # Debian
-apt install mariadb-backup
+rm /root/mariadb-backup/usr/bin/mariabackup
+rm /root/mariadb-backup/usr/bin/mbstream
 ```
-
-
