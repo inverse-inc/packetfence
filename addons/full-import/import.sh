@@ -29,7 +29,7 @@ tar -xf export.tgz
 check_code $?
 
 echo "Found the following content in the archive:"
-ls -l
+ls -l | grep -v export.tgz
 
 main_splitter
 files_dump=`ls packetfence-files-*`
