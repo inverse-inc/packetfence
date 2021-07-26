@@ -289,7 +289,7 @@ Requires: openvas-libraries
 # required for the fake CoA server
 #Requires: perl(Net::UDP)
 # For managing the number of connections per device
-Requires: haproxy >= 2.4.0, keepalived >= 2.0.0
+Requires: haproxy >= 2.2.0, keepalived >= 2.0.0
 # CAUTION: we need to require the version we want for Fingerbank and ensure we don't want anything equal or above the next major release as it can add breaking changes
 Requires: fingerbank >= 4.2.2, fingerbank < 5.0.0
 Requires: fingerbank-collector >= 1.3.17, fingerbank-collector < 2.0.0
