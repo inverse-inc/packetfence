@@ -280,7 +280,7 @@ sub curl {
         $curl->setopt(CURLOPT_SSL_VERIFYHOST, 0);
         $curl->setopt(CURLOPT_SSL_VERIFYPEER, 0);
         # Fall back to HTTP 1.1
-	$curl->setopt(CURLOPT_HTTP_VERSION, CURL_HTTP_VERSION_1_1);
+        $curl->setopt(CURLOPT_HTTP_VERSION, CURL_HTTP_VERSION_1_1);
    }
     return $curl;
 }
