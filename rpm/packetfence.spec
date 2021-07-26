@@ -289,7 +289,7 @@ Requires: openvas-libraries
 # required for the fake CoA server
 #Requires: perl(Net::UDP)
 # For managing the number of connections per device
-Requires: haproxy >= 1.8.9, keepalived >= 2.0.0
+Requires: haproxy >= 2.4.0, keepalived >= 2.0.0
 # CAUTION: we need to require the version we want for Fingerbank and ensure we don't want anything equal or above the next major release as it can add breaking changes
 Requires: fingerbank >= 4.2.2, fingerbank < 5.0.0
 Requires: fingerbank-collector >= 1.3.17, fingerbank-collector < 2.0.0
@@ -538,10 +538,11 @@ rm -rf %{buildroot}
 # This (extremelly) ugly hack below will make the current processes part of a cgroup other than the one for user-0.slice
 # This will allow for the current shells that are opened to be protected against stopping when we'll be calling isolate below which stops user-0.slice
 # New shells will not be placed into user-0.slice since systemd-logind will be disabled and masked
-/bin/bash -c "/usr/bin/systemctl status user-0.slice | /usr/bin/grep -E -o '─[0-9]+' | /usr/bin/sed 's/─//g' | /usr/bin/xargs -I{} /bin/bash -c '/usr/bin/kill -0 {} > /dev/null 2>/dev/null && /usr/bin/echo {} > /sys/fs/cgroup/systemd/tasks'"
-/usr/bin/systemctl stop systemd-logind
-/usr/bin/systemctl --now mask systemd-logind
-/usr/bin/systemctl daemon-reload
+# NEW commented to see if it still nescessary
+#/bin/bash -c "/usr/bin/systemctl status user-0.slice | /usr/bin/grep -E -o '─[0-9]+' | /usr/bin/sed 's/─//g' | /usr/bin/xargs -I{} /bin/bash -c '/usr/bin/kill -0 {} > /dev/null 2>/dev/null && /usr/bin/echo {} > /sys/fs/cgroup/systemd/tasks'"
+#/usr/bin/systemctl stop systemd-logind
+#/usr/bin/systemctl --now mask systemd-logind
+#/usr/bin/systemctl daemon-reload
 
 if [ "$1" = "1" ]; then
   # Disable the DNS handling in network manager if its a new install
