@@ -2,7 +2,7 @@
 [default_policy]
 description=Default portal policy
 type=Root
-modules=default_registration_policy,default_show_local_account,default_provisioning_policy
+modules=default_registration_policy,default_mfa_policy,default_show_local_account,default_provisioning_policy
 
 [default_pending_policy]
 modules=default_provisioning_policy
@@ -53,3 +53,8 @@ actions=
 template=account.html
 type=ShowLocalAccount
 description=Show local account
+
+[default_mfa_policy]
+description=MFA policy
+type=Mfa
+

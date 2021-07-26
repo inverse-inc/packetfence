@@ -94,8 +94,6 @@ sub execute_child {
     my $mfa = $self->get_mfa();
     my $mac = $self->current_mac;
     my $args;
-    # Save the new node attributes since the mfa workflow may bring the user outside of the portal
-    node_modify($mac, %{$self->new_node_info});
     
     unless($mfa){
         get_logger->info("No mfa found for $mac. Continuing.");
@@ -108,25 +106,19 @@ sub execute_child {
         $self->done();
     }
     elsif ($self->app->request->method eq "POST") {
-        my $device = $self->app->{request}->{parameters}->{device};
-        my $method = $self->app->{request}->{parameters}->{method};
-        my $return = $mfa->push_method($device, $self->app->session->{username});
-        if ($return) {
+        if(!$mfa->verify_response($self->app->hashed_params())) {
+            $self->app->flash->{error} = "Unable to validate the multi-factor response. Please contact your local support staff.";
+            $self->app->redirect("/logout");
+        } 
+        else {
+            get_logger->info("MFA response validated, moving to the next step");
             $self->done();
-        } else {
-            self->show_mfa();
         }
     }
-    elsif (my $devices = $mfa->devices_list($self->app->session->{username})) {
-        $args->{devices} = $devices;
-        $self->show_mfa($args);
+    else {
+        my $info = $mfa->redirect_info($self->username);
+        $self->show_mfa($info);
     }
-    elsif ($mfa->check_user($self->app->session->{username}) == 0) {
-        $self->app->flash->{notice} = [ "According to the mfa %s, your device is not allowed to access the network. Please follow the instruction below.", $mfa->description ];
-        $self->show_mfa();
-   } else {
-        $self->done();
-   }
 }
 
 =head1 AUTHOR

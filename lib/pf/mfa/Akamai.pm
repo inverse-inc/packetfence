@@ -21,6 +21,9 @@ use JSON::MaybeXS qw(encode_json decode_json );
 use WWW::Curl::Easy;
 use URI::Escape::XS qw(uri_escape);
 use pf::constants qw($TRUE $FALSE);
+use MIME::Base64 qw(encode_base64 decode_base64);
+use Crypt::PK::ECC;
+
 
 extends 'pf::mfa';
 
@@ -75,6 +78,11 @@ The RADIUS MFA Method to use
 =cut
 
 has radius_mfa_method => ( is => 'rw' );
+
+has callback_url => ( is => 'rw' );
+
+has signing_key => ( is => 'rw' );
+has verify_key => ( is => 'rw' );
 
 =head2 check_user
 
@@ -263,6 +271,47 @@ sub encode_params {
         push @pairs, join "=", map { uri_escape($_) } $key, $hash{$key};
     }
     return join "&", @pairs;
+}
+
+sub verify_response {
+    my ($self, $params, $username) = @_;
+    my $token = decode_json(decode_base64($params->{token}));
+    my $ecc = Crypt::PK::ECC->new->import_key_raw(decode_base64($self->verify_key), 'secp256r1');
+    if(!$ecc->verify_message(pack("H*",$token->{signature}), $token->{payload}, "SHA256")) {
+        return 0;
+    }
+    my $response = decode_json($token->{payload});
+    return ($response->{response}->{result} eq "ALLOW" && $response->{response}->{username} eq $username);
+}
+
+sub redirect_info {
+    my ($self, $username) = @_;
+
+    my $payload = {
+        version => "2.0.0",
+        timestamp => time(),
+        request => {
+            username => $username,
+            callback => $self->callback_url,
+        },
+    };
+    $payload = encode_json($payload);
+
+    my $sig = hmac_sha256_hex($payload, $self->signing_key);
+
+    my $body = {
+        app_id => $self->app_id,
+        payload => $payload,
+        signature => $sig,
+    };
+
+    return {
+        challenge_url => "https://" . $self->host . "/api/v1/bind/challenge/v2",
+        challenge_verb => "POST",
+        challenge_fields => {
+			token => encode_base64(encode_json($body), ''),
+		},
+    };
 }
 
 =head1 AUTHOR

@@ -19,6 +19,8 @@ use pf::constants;
 
 has id => (is => 'rw', required => 1);
 
+has description => (is => 'rw', default => "MFA");
+
 =head2 template
 
 The template to use for provisioning
@@ -52,6 +54,9 @@ Parent returns empty so that the factory use the own child module name if not de
 =cut
 
 sub module_description { '' }
+
+sub redirect_info { {} }
+sub verify_response { 0 }
 
 =head1 AUTHOR
 
