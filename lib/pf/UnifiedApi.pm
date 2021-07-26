@@ -37,7 +37,6 @@ our $REQUEST_HANDLED_JITTER = 500;
 
 has commands => sub {
   my $commands = Mojolicious::Commands->new(app => shift);
-  Scalar::Util::weaken $commands->{app};
   unshift @{$commands->namespaces}, 'pf::UnifiedApi::Command';
   return $commands;
 };
