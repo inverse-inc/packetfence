@@ -362,7 +362,7 @@ sub validate_password {
             'password.pid' => $pid,
             'person.potd' => $allow_potd ? 'yes' : ['no', undef],
         },
-        -columns => [qw(password.pid|pid password.password|password UNIX_TIMESTAMP(valid_from)|valid_from), 'UNIX_TIMESTAMP(DATE_FORMAT(expiration,"%Y-%m-%d 23:59:59"))|expiration', qw(password.access_duration|access_duration password.category|category person.potd|potd)],
+        -columns => [qw(password.pid|pid password.password|password), 'IFNULL(UNIX_TIMESTAMP(valid_from),0)|valid_from', 'IFNULL(UNIX_TIMESTAMP(DATE_FORMAT(expiration,"%Y-%m-%d 23:59:59")),0)|expiration', qw(password.access_duration|access_duration password.category|category person.potd|potd)],
         #To avoid a join
         -limit => 1,
         -no_auto_tenant_id => 1,
