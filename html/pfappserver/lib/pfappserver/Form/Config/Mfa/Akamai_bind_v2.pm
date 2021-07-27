@@ -1,12 +1,12 @@
-package pfappserver::Form::Config::Mfa::Akamai;
+package pfappserver::Form::Config::Mfa::Akamai_bind_v2;
 
 =head1 NAME
 
-pfappserver::Form::Config::Mfa::Akamai - Web form to add a Akamai MFA
+pfappserver::Form::Config::Mfa::Akamai_bind_v2 - Web form to add a Akamai MFA Bind V2
 
 =head1 DESCRIPTION
 
-Form definition to create or update a Akamai MFA.
+Form definition to create or update a Akamai MFA Bind V2.
 
 =cut
 
@@ -26,44 +26,55 @@ has_field 'app_id' =>
    messages => { required => 'Please specify the Application ID' },
   );
 
-has_field 'app_secret' =>
+has_field 'signing_key' =>
   (
    type => 'ObfuscatedText',
-   label => 'Application Secret',
+   label => 'Signing Key',
    required => 1,
-   messages => { required => 'Please specify the application secret' },
+   messages => { required => 'Please specify the signing key' },
   );
 
-has_field 'radius_mfa_method' =>
+has_field 'verify_key' =>
   (
-   type => 'Select',
-   label => 'type',
+   type => 'ObfuscatedText',
+   label => 'Verify Key',
    required => 1,
-   options =>
-   [
-    { value => 'push', label => 'Push' },
-    { value => 'strip-otp', label => 'Strip OTP' },
-   ],
-   default => 'push',
-   tags => { after_element => \&help,
-             help => 'RADIUS MFA method' },
+   messages => { required => 'Please specify the verify key' },
+  );
+
+has_field 'host' =>
+  (
+   type => 'Text',
+   label => 'Host',
+   required => 1,
+   default => "pushzero-test.akamai.com",
+   messages => { required => 'Please specify the Bind V2 host' },
+  );
+
+has_field 'callback_url' =>
+  (
+   type => 'Text',
+   label => 'Callback URL',
+   required => 1,
+   default => "http://packetfence_portal_url/mfa",
+   messages => { required => 'Please specify the Callback URL' },
   );
 
 has_field 'type' =>
   (
    type => 'Hidden',
-   default => 'Akamai',
+   default => 'Akamai_bind_v2',
   );
 
 has_field 'scope' =>
   (
    type => 'Hidden',
-   default => 'Radius',
+   default => 'Portal',
   );
 
 has_block definition =>
   (
-   render_list => [ qw(id app_id app_secret radius_mfa_method) ],
+   render_list => [ qw(id app_id signing_key verify_key host callback_url) ],
   );
 
 =over

@@ -1,12 +1,24 @@
 <!-- START Akamai.html -->
 
-<p>You should be redirected in a few seconds. Otherwise, click the button below</p>
+[% FOREACH device IN devices %]
+<form action="/mfa" method="post">
+  Device Name: [% device.name %]
+  <input type="hidden" id="device" name="device" value="[% device.device %]">
+  <div class="c-card o-layout o-layout--center u-padding">
+    <div class="o-layout__item u-1/1 u-2/3@tablet u-3/5@desktop">
+      <div class="input-container">
+      <select name="method" id="method">
+      [% FOREACH method IN device.methods %]
+        <option value="[% method %]">[% method %]</option>
+      [% END %]
+      </select>
+      </div>
 
-<form action="[% challenge_url %]" method="[% challenge_verb %]">
-	<input type="hidden" name="token" value="[% challenge_fields.token %]">
-  <button id="button" type="submit">GO</button>
+      <button type="submit" name="submit" class="c-btn c-btn--primary u-1/1 u-margin-top">
+        [% i18n("Continue") %]
+      </button>
+    </div>
+  </div>
 </form>
-
-<script src="/common/autosubmit.js"></script>
-
+[% END %]
 <!-- END Akamai.html -->

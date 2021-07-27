@@ -17,6 +17,10 @@ export {
   BaseFormGroupInput                  as FormGroupAppId,
   BaseFormGroupInputPassword          as FormGroupAppSecret,
   BaseFormGroupChosenOne              as FormGroupRadiusMfaMethod,
+  BaseFormGroupInputPassword          as FormGroupSigningKey,
+  BaseFormGroupInputPassword          as FormGroupVerifyKey,
+  BaseFormGroupInput                  as FormGroupHost,
+  BaseFormGroupInput                  as FormGroupCallbackUrl,
 
   TheForm,
   TheView

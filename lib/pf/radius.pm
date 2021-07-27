@@ -933,8 +933,7 @@ sub switch_access {
         my $matched = pf::authentication::match2($source_id, $merged, $extra, \$attributes);
 
         # CHECK MFA
-        my $value = $matched->{values}{$Actions::TRIGGER_MFA} if $matched;
-
+        my $value = $matched->{values}{$Actions::TRIGGER_RADIUS_MFA} if $matched;
         if ($value) {
             my $mfa = pf::factory::mfa->new($value);
             my $result = $mfa->check_user($radius_request->{'User-Name'});

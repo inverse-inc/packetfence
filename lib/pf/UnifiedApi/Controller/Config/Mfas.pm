@@ -24,10 +24,12 @@ has 'primary_key' => 'mfa_id';
 use pf::ConfigStore::Mfa;
 use pfappserver::Form::Config::Mfa;
 use pfappserver::Form::Config::Mfa::Akamai;
+use pfappserver::Form::Config::Mfa::Akamai_bind_v2;
 
 our %TYPES_TO_FORMS = (
     map { $_ => "pfappserver::Form::Config::Mfa::$_" } qw(
       Akamai
+      Akamai_bind_v2
     )
 );
 

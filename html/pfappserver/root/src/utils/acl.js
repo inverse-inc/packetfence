@@ -20,7 +20,7 @@ export const ADMIN_ROLES_ACTIONS = [
   'set_tenant_id',
   'set_time_balance',
   'set_unreg_date',
-  'trigger_mfa',
+  'trigger_radius_mfa',
   'trigger_portal_mfa',
   'update',
   'write',

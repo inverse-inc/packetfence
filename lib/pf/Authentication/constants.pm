@@ -153,7 +153,7 @@ Constants related to actions rules.
 
 package Actions;
 
-=item MARK_AS_SPONSOR, SET_ACCESS_LEVEL, SET_ROLE, SET_ACCESS_DURATION, SET_ACCESS_DURATIONS, SET_UNREG_DATE SET_TIME_BALANCE, SET_BANDWIDTH_BALANCE, SET_ROLE_FROM_SOURCE, TRIGGER_MFA, TRIGGER_PORTAL_MFA
+=item MARK_AS_SPONSOR, SET_ACCESS_LEVEL, SET_ROLE, SET_ACCESS_DURATION, SET_ACCESS_DURATIONS, SET_UNREG_DATE SET_TIME_BALANCE, SET_BANDWIDTH_BALANCE, SET_ROLE_FROM_SOURCE, TRIGGER_RADIUS_MFA, TRIGGER_PORTAL_MFA
 
 Available actions
 
@@ -170,7 +170,7 @@ Readonly::Scalar our $SET_ACCESS_DURATIONS => "set_access_durations";
 Readonly::Scalar our $SET_UNREG_DATE => "set_unreg_date";
 Readonly::Scalar our $SET_TIME_BALANCE => "set_time_balance";
 Readonly::Scalar our $SET_BANDWIDTH_BALANCE => "set_bandwidth_balance";
-Readonly::Scalar our $TRIGGER_MFA => "trigger_mfa";
+Readonly::Scalar our $TRIGGER_RADIUS_MFA => "trigger_radius_mfa";
 Readonly::Scalar our $TRIGGER_PORTAL_MFA => "trigger_portal_mfa";
 
 =item ACTIONS
@@ -180,7 +180,7 @@ List of available actions
 =cut
 
 Readonly::Hash our %ACTIONS => (
-    $Rules::AUTH    => [ $SET_ROLE, $SET_ROLE_ON_NOT_FOUND, $SET_ROLE_FROM_SOURCE, $SET_ACCESS_DURATION, $SET_UNREG_DATE, $SET_TIME_BALANCE, $SET_BANDWIDTH_BALANCE, $TRIGGER_MFA, $TRIGGER_PORTAL_MFA ],
+    $Rules::AUTH    => [ $SET_ROLE, $SET_ROLE_ON_NOT_FOUND, $SET_ROLE_FROM_SOURCE, $SET_ACCESS_DURATION, $SET_UNREG_DATE, $SET_TIME_BALANCE, $SET_BANDWIDTH_BALANCE, $TRIGGER_RADIUS_MFA, $TRIGGER_PORTAL_MFA ],
     $Rules::ADMIN   => [ $SET_ACCESS_LEVEL, $MARK_AS_SPONSOR, $SET_TENANT_ID, $SET_ACCESS_DURATIONS ],
 );
 
@@ -192,7 +192,7 @@ Readonly::Hash our %ACTION_CLASS_TO_TYPE => (
     $SET_BANDWIDTH_BALANCE  => $Rules::AUTH,
     $SET_ROLE_ON_NOT_FOUND  => $Rules::AUTH,
     $SET_ROLE_FROM_SOURCE   => $Rules::AUTH,
-    $TRIGGER_MFA            => $Rules::AUTH,
+    $TRIGGER_RADIUS_MFA     => $Rules::AUTH,
     $TRIGGER_PORTAL_MFA     => $Rules::AUTH,
 
     $SET_ACCESS_LEVEL       => $Rules::ADMIN,
@@ -218,7 +218,7 @@ Readonly::Hash our %ALLOWED_ACTIONS => (
     $SET_BANDWIDTH_BALANCE           => {$SET_BANDWIDTH_BALANCE           => 1},
     $SET_ACCESS_DURATIONS            => {$SET_ACCESS_DURATIONS            => 1},
     $SET_ROLE_FROM_SOURCE            => {$SET_ROLE_FROM_SOURCE            => 1},
-    $TRIGGER_MFA                     => {$TRIGGER_MFA                     => 1},
+    $TRIGGER_RADIUS_MFA              => {$TRIGGER_RADIUS_MFA              => 1},
     $TRIGGER_PORTAL_MFA              => {$TRIGGER_PORTAL_MFA              => 1},
 );
 
@@ -233,7 +233,7 @@ Readonly::Hash our %MAPPED_ACTIONS => (
     $SET_ACCESS_DURATION    => $SET_UNREG_DATE,
     $SET_ACCESS_DURATIONS   => $SET_ACCESS_DURATIONS,
     $SET_ROLE_FROM_SOURCE   => $SET_ROLE_FROM_SOURCE,
-    $TRIGGER_MFA            => $TRIGGER_MFA,
+    $TRIGGER_RADIUS_MFA     => $TRIGGER_RADIUS_MFA,
     $TRIGGER_PORTAL_MFA     => $TRIGGER_PORTAL_MFA,
 );
 
