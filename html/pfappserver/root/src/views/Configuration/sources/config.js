@@ -22,7 +22,7 @@ export const authenticationRuleActionsFromSourceType = (sourceType) => ([
     pfActions.set_time_balance,
     pfActions.set_bandwidth_balance,
     pfActions.set_role_from_source,
-    pfActions.trigger_mfa,
+    pfActions.trigger_radius_mfa,
     pfActions.trigger_portal_mfa
   ],
   ...((['AD', 'LDAP'].includes(sourceType))

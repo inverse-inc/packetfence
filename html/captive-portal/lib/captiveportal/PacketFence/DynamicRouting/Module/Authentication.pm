@@ -69,7 +69,7 @@ sub available_actions {
         'on_failure',
         'on_success',
         'unregdate_from_sponsor_source',
-	'trigger_portal_mfa',
+        'trigger_portal_mfa',
     ];
 }
 

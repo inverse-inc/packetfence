@@ -111,9 +111,9 @@ export const pfActions = {
     text: i18n.t('Time balance'),
     types: [fieldType.TIME_BALANCE]
   },
-  trigger_mfa: {
-    value: 'trigger_mfa',
-    text: i18n.t('Trigger MFA'),
+  trigger_radius_mfa: {
+    value: 'trigger_radius_mfa',
+    text: i18n.t('Trigger RADIUS MFA'),
     types: [fieldType.SELECTONE]
   },
   trigger_portal_mfa: {

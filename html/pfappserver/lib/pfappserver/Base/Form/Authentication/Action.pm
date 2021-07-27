@@ -122,19 +122,19 @@ our %ACTION_FIELD_OPTIONS = (
         element_class => ['chzn-deselect'],
         options_method => \&options_set_role_from_source,
     },
-    $Actions::TRIGGER_MFA => {
+    $Actions::TRIGGER_RADIUS_MFA => {
         type           => 'Select',
         do_label       => 0,
         wrapper        => 0,
         element_class => ['chzn-deselect'],
-        options_method => \&options_trigger_mfa,
+        options_method => \&options_trigger_radius_mfa,
     },
     $Actions::TRIGGER_PORTAL_MFA => {
         type           => 'Select',
         do_label       => 0,
         wrapper        => 0,
         element_class => ['chzn-deselect'],
-        options_method => \&options_trigger_mfa,
+        options_method => \&options_trigger_portal_mfa,
     },
 );
 
@@ -296,18 +296,32 @@ sub options_set_role_from_source {
 }
 
 
-=head2 options_trigger_mfa
+=head2 options_trigger_portal_mfa
 
 retrieve mfa config
 
 =cut
 
-sub options_trigger_mfa {
+sub options_trigger_portal_mfa {
     my ($self) = @_;
 
-    return map { $_ => $_} keys %ConfigMfa;
+    return map { $_ => $_} grep {$ConfigMfa{$_}->{"scope"} eq "Portal"} keys %ConfigMfa;
 
 }
+
+=head2 options_trigger_radius_mfa
+
+retrieve mfa config
+
+=cut
+
+sub options_trigger_radius_mfa {
+    my ($self) = @_;
+
+    return map { $_ => $_} grep {$ConfigMfa{$_}->{"scope"} eq "Radius"} keys %ConfigMfa;
+
+}
+
 
 =head2 validate
 

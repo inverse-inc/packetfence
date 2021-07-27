@@ -12,6 +12,7 @@
       <template v-slot:buttonAdd>
         <b-dropdown :text="$t('New MFA')" variant="outline-primary">
           <b-dropdown-item :to="{ name: 'newMfa', params: { mfaType: 'Akamai' } }">Akamai MFA</b-dropdown-item>
+          <b-dropdown-item :to="{ name: 'newMfa', params: { mfaType: 'Akamai_bind_v2' } }">Akamai MFA Bind V2</b-dropdown-item>
         </b-dropdown>
       </template>
       <template v-slot:emptySearch="state">
