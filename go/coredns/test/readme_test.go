@@ -6,7 +6,6 @@ import (
 	"io/ioutil"
 	"os"
 	"path/filepath"
-	"strconv"
 	"strings"
 	"testing"
 
@@ -74,7 +73,7 @@ func TestReadme(t *testing.T) {
 
 		// Test each snippet.
 		for _, in := range inputs {
-			dnsserver.Port = strconv.Itoa(port)
+			dnsserver.Port = "0"
 			server, err := caddy.Start(in)
 			if err != nil {
 				t.Errorf("Failed to start server with %s, for input %q:\n%s", readme, err, in.Body())
