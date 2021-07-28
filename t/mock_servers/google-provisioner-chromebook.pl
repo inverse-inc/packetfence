@@ -84,7 +84,13 @@ __DATA__
   "chromeosdevices": [
     {
       "status": "ACTIVE",
-      "macAddress": "0022446688aa"
+      "macAddress": "0022446688aa",
+      "recentUsers": [
+        {
+          "type": "USER_TYPE_MANAGED",
+          "email": "00:22:44:66:88:aa@test.test"
+        }
+      ]
     }
   ]
 }
@@ -153,12 +159,24 @@ __DATA__
     {
       "status": "ACTIVE",
       "macAddress": "0022446688ac",
-      "lastSync" : ""
+      "lastSync" : "",
+      "recentUsers": [
+        {
+          "type": "USER_TYPE_MANAGED",
+          "email": "00:22:44:66:88:ac@test.test"
+        }
+      ]
     },
     {
       "status": "ACTIVE",
       "macAddress": "0022446688ad",
-      "lastSync" : ""
+      "lastSync" : "",
+      "recentUsers": [
+        {
+          "type": "USER_TYPE_MANAGED",
+          "email": "00:22:44:66:88:ad@test.test"
+        }
+      ]
     }
   ],
   "nextPageToken": "124"
@@ -174,7 +192,13 @@ __DATA__
   "chromeosdevices": [
     {
       "status": "ACTIVE",
-      "macAddress": "0022446688ae"
+      "macAddress": "0022446688ae",
+      "recentUsers": [
+        {
+          "type": "USER_TYPE_MANAGED",
+          "email": "00:22:44:66:88:ae@test.test"
+        }
+      ]
     },
     {
       "status": "DISABLED",
