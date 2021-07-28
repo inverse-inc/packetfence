@@ -32,7 +32,7 @@ BEGIN {
     );
 }
 
-use Test::More tests => 15 + (scalar @activeImportedDevices) * 2 + (scalar @nonActiveImportedDevices);
+use Test::More tests => 16 + (scalar @activeImportedDevices) * 3 + (scalar @nonActiveImportedDevices);
 
 #This test will running last
 use IPC::Open3;
@@ -88,8 +88,12 @@ is(
     "URL for list with query url encoded"
 );
 
-my $authorizedMac = '00:22:44:66:88:aa';
-is($p->authorize($authorizedMac), $TRUE, "authorize mac $authorizedMac");
+{
+    my $authorizedMac = '00:22:44:66:88:aa';
+    is($p->authorize($authorizedMac), $TRUE, "authorize mac $authorizedMac");
+    my $node = node_view($authorizedMac);
+    is($node->{pid}, '00:22:44:66:88:aa@test.test', "Proper pid applied");
+}
 
 my $unAuthorizedMac = '00:22:44:66:88:ab';
 is($p->authorize($unAuthorizedMac), $FALSE, "unauthorize mac $unAuthorizedMac");
@@ -134,6 +138,7 @@ for my $mac (@activeImportedDevices) {
     ok(node_exist($mac), "$mac imported");
     my $node = node_view($mac);
     is($node->{category}, $p->role_to_apply, "Proper role applied");
+    is($node->{pid}, "$mac\@test.test", "The proper email is applied");
 }
 
 for my $mac (@nonActiveImportedDevices) {

@@ -17,10 +17,12 @@ extends 'pf::provisioner';
 use JSON::MaybeXS qw( decode_json );
 use pf::constants qw($default_pid $TRUE $FALSE);
 use List::MoreUtils qw(any);
+use List::Util qw(first);
 use URI::Escape qw(uri_escape);
 use pf::util qw(clean_mac);
 use pf::log;
-use pf::node qw(node_register);
+use pf::person qw(person_add);
+use pf::node qw(node_register node_modify);
 use pf::security_event;
 use fingerbank::Constant;
 use WWW::Curl::Easy;
@@ -138,6 +140,12 @@ sub authorize {
     }
 
     if ($device->{status} eq $ACTIVE_STATUS) {
+        my $recent_user = $self->getRecentUser($device);
+        if (defined $recent_user) {
+            person_add($recent_user);
+            node_modify($mac, pid => $recent_user);
+        }
+
         return $TRUE;
     }
 
@@ -218,12 +226,23 @@ sub _import_device {
     my ($self, $device) = @_;
     return if $device->{status} ne $ACTIVE_STATUS;
     my $role = $self->role_to_apply;
+    my $user = $self->getRecentUser($device) // $default_pid;
     for my $f (qw(macAddress ethernetMacAddress ethernetMacAddress0)) {
         next if !exists $device->{$f};
         my $mac = $device->{$f};
         next if !defined $mac;
-        node_register($mac, $default_pid , category => $role );
+        node_register($mac, $user , category => $role );
     }
+}
+
+sub getRecentUser {
+    my ($self, $device) = @_;
+    my $recentUsers = $device->{recentUsers} // [];
+    if (my $u = first { $_->{type} eq 'USER_TYPE_MANAGED' } @$recentUsers) {
+        return $u->{email};
+    }
+
+    return undef;
 }
 
 sub syncDateToQuery {
