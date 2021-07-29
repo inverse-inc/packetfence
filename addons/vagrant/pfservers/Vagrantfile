@@ -59,6 +59,9 @@ Vagrant.configure("2") do |config|
           v.memory = details['memory']
         end
 
+        # Add ipv6 loopback
+        srv.vm.provision "shell", inline: "ip addr add ::1/128 dev lo || true", run: "always"
+
         # provisionners
         # Sync timezone with host
         srv.vm.provision "shell", inline: "sudo rm /etc/localtime && sudo ln -s /usr/share/zoneinfo/#{inventory['all']['vars']['tz']} /etc/localtime", run: "always"
