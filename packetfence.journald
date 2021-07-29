@@ -8,3 +8,4 @@ SystemKeepFree=1G
 RateLimitInterval=0
 RateLimitBurst=0
 ForwardToWall=no
+ForwardToSyslog=no
