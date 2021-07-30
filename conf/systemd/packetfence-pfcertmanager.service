@@ -1,6 +1,6 @@
 # Copyright (C) Inverse inc.
 [Unit]
-Description=PacketFence Certificat Manager Daemon
+Description=PacketFence Certificate Manager Daemon
 Wants=packetfence-base.target packetfence-config.service packetfence-iptables.service
 After=packetfence-base.target packetfence-config.service packetfence-iptables.service
 Before=packetfence-radiusd-auth.service
