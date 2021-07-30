@@ -74,6 +74,7 @@ use pf::constants::security_event qw($LOST_OR_STOLEN);
 use pf::Redis;
 use pf::constants::eap_type qw($EAP_TLS $MS_EAP_AUTHENTICATION $EAP_PSK);
 use pf::person;
+use pf::factory::mfa;
 
 our $VERSION = 1.03;
 
