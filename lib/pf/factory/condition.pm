@@ -12,16 +12,24 @@ pf::factory::condition
 
 use strict;
 use warnings;
+use pf::util qw(str_to_connection_type);
 use pf::constants::condition_parser qw($TRUE_CONDITION);
 use Module::Pluggable
   search_path => 'pf::condition',
   sub_name    => '_modules',
   inner       => 0,
   require     => 1;
+use pf::constants::eap_type qw(%RADIUS_EAP_TYPE_2_VALUES %RADIUS_EAP_VALUES_2_TYPE);
 
 our @MODULES;
 
 __PACKAGE__->modules;
+
+my %VALUE_FILTERS = (
+#    'connection_type'     => \&str_to_connection_type,
+    'connection_sub_type' => \&normalize_connection_sub_type,
+#    'EAP-Type'            => \&normalize_eap_type,
+);
 
 sub modules {
     my ($class) = @_;
@@ -94,9 +102,7 @@ sub buildCondition {
         }
 
         if (exists $BINARY_OP{$op}) {
-            my ($key, $val) = @rest;
-            my $sub_condition = $BINARY_OP{$op}->new(value => $val);
-            return build_parent_condition($sub_condition, $key);
+            return build_binary_condition($op, @rest);
         }
 
         if ($op eq 'FUNC') {
@@ -118,7 +124,8 @@ sub buildCondition {
             if (exists $NO_KEY{$func}) {
                 $condition = $sub_condition;
             } else {
-                $condition = build_parent_condition($sub_condition, $key);
+                my @keys = split /\./, $key;
+                $condition = build_parent_condition($sub_condition, @keys);
             }
 
             return $wrap_in_not ? pf::condition::not->new({condition => $condition}) : $condition;
@@ -134,20 +141,17 @@ sub buildCondition {
     die "condition '$ast' not defined\n";
 }
 
-sub build_parent_condition {
-    my ($child, $key) = @_;
-    my @parents = split /\./, $key;
-    if (@parents == 1) {
-        return pf::condition::key->new({
-            key       => $key,
-            condition => $child,
-        });
+sub normalize_connection_sub_type {
+    my ($v) = @_;
+    if (exists $RADIUS_EAP_TYPE_2_VALUES{$v}) {
+        return $RADIUS_EAP_TYPE_2_VALUES{$v};
     }
 
-    return _build_parent_condition($child, @parents);
+    return $v;
 }
 
-sub _build_parent_condition {
+
+sub build_parent_condition {
     my ($child, $key, @parents) = @_;
     if (@parents == 0) {
         return pf::condition::key->new({
@@ -158,8 +162,33 @@ sub _build_parent_condition {
 
     return pf::condition::key->new({
         key       => $key,
-        condition => _build_parent_condition($child, @parents),
+        condition => build_parent_condition($child, @parents),
     });
+}
+
+sub build_binary_condition {
+    my ($op, $key, $val) = @_;
+    my @keys = split /\./, $key;
+    my $last_key = $keys[-1];
+    if (exists $VALUE_FILTERS{$last_key}) {
+        $val = $VALUE_FILTERS{$last_key}->($val);
+    }
+
+    my $sub_condition = $BINARY_OP{$op}->new(value => $val);
+    return build_parent_condition($sub_condition, @keys);
+}
+
+sub normalize_eap_type {
+    my $v = $_[0];
+    if (exists $RADIUS_EAP_VALUES_2_TYPE{$v}) {
+        return $v;
+    }
+
+    if (exists $RADIUS_EAP_TYPE_2_VALUES{$v}) {
+        return $RADIUS_EAP_TYPE_2_VALUES{$v};
+    }
+
+    return 0;
 }
 
 =head1 AUTHOR

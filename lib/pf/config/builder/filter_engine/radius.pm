@@ -48,13 +48,12 @@ sub make_radius_attribute {
         name => $n,
     };
 
-    my $tmpl = eval {
-        pf::mini_template->new($tmpl_text)
-    };
+    my $tmpl = eval { pf::mini_template->new($tmpl_text) };
     if ($@) {
         push @{$errors}, { %$attr, message => $@, text => $ra };
         return;
     }
+
     $attr->{tmpl} = $tmpl;
     return $attr;
 }
