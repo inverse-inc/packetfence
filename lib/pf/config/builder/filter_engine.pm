@@ -118,20 +118,31 @@ build a filter
 
 sub buildFilter {
     my ($self, $build_data, $parsed_conditions, $data) = @_;
+    $parsed_conditions = $self->rewriteConditions($parsed_conditions);
     my $condition = eval { pf::factory::condition::buildCondition($parsed_conditions) };
-    if ($condition) {
-        for my $scope (@{$data->{scopes}}) {
-            push @{$build_data->{scopes}{$scope}}, pf::filter->new({
-                answer    => $data,
-                condition => $condition,
-            });
-        }
-    } else {
-        $self->_error($build_data, $data->{_rule}, "Error building rule", $@)
+    if ($@) {
+        $self->_error($build_data, $data->{_rule}, "Error building rule", $@);
+        return;
     }
 
+    for my $scope (@{$data->{scopes}}) {
+        push @{$build_data->{scopes}{$scope}}, pf::filter->new({
+            answer    => $data,
+            condition => $condition,
+        });
+    }
 }
 
+=head2 rewriteConditions
+
+Rewrite Conditions
+
+=cut
+
+sub rewriteConditions {
+    my ($self, $parsed_conditions) = @_;
+    return $parsed_conditions;
+}
 
 =head1 AUTHOR
 
