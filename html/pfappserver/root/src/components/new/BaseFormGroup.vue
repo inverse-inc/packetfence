@@ -87,18 +87,19 @@ export default {
 <style lang="scss" scoped>
 .base-form-group {
   .input-group {
-    padding-top: calc(0.375rem + 1px);
-    padding-bottom: calc(0.375rem + 1px);
     margin-bottom: 0;
   }
 }
 </style>
 <style lang="scss">
 .base-form-group {
-  .input-group {
-    .input-group-append,
-    .input-group-prepend {
-      height: auto;
+  .col {
+    align-self: center !important;
+    .input-group {
+      .input-group-append,
+      .input-group-prepend {
+        height: auto;
+      }
     }
   }
 }
