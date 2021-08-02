@@ -66,7 +66,7 @@ These instructions have been adapted from https://developers.google.com/identity
 
 === Configure PacketFence
 
-===== Create a new provisioner
+==== Create a new provisioner
 
 Login in the PacketFence administration interface, then go to 'Configuration' > 'Advanced Access Configuration' > 'Provisioners' > 'New provisioner' > 'Google Workspace Chromebook'.
 
