@@ -40,9 +40,15 @@ sub list {
 
 sub update_systemd {
     my ($self) = @_;
+    return $self->do_action('do_update_systemd');
+}
+
+sub do_update_systemd {
+    my ($self) = @_;
     
     my $service = $self->_get_service_class($self->param('service_id'));
-    my $services = $service->name eq 'pf' ? [ grep {$_ ne 'pf'} @pf::services::ALL_SERVICES ] : [ $service->name ];
+    my $name = $service->name;
+    my $services = $name eq 'pf' ? [ grep {$_ ne 'pf'} @pf::services::ALL_SERVICES ] : [ $name ];
     my @managers = pf::services::getManagers( $services );
 
     for my $manager (@managers) {
@@ -53,8 +59,8 @@ sub update_systemd {
             $manager->sysdDisable();
         }
     }
-    my $name = $service->name;
-    return $self->render(json => {message => "Updated systemd for $name"});
+
+    return {message => "Updated systemd for $name"};
 }
 
 sub status {
