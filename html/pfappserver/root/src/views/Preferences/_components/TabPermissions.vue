@@ -2,6 +2,15 @@
   <b-tab :title="$t('Permissions')">
     <b-card no-body class="mb-3">
       <b-card-header>
+        <h4 class="d-inline mb-0">{{ $t('Admin Roles') }}</h4>
+        <b-button :to="{ name: 'admin_roles' }" size="sm" variant="outline-primary" class="float-right">{{ $i18n.t('Manage') }}</b-button>
+      </b-card-header>
+      <b-card-body>
+        <b-badge v-for="(role, index) in adminRoles" :key="index" class="mr-1" variant="secondary">{{ role }}</b-badge>
+      </b-card-body>
+    </b-card>
+    <b-card no-body class="mb-3">
+      <b-card-header>
         <h4 class="mb-0">{{ $t('Roles') }}</h4>
       </b-card-header>
       <b-card-body class="px-3 pt-3 pb-0">
@@ -19,8 +28,6 @@
   </b-tab>
 </template>
 <script>
-const components = {}
-
 import { computed } from '@vue/composition-api'
 
 const setup = (props, context) => {
@@ -49,6 +56,8 @@ const setup = (props, context) => {
     }, {})
   )
 
+  const adminRoles = computed(() => $store.getters['session/adminRoles'])
+
   const roleToString = (role) => {
     return role
       .split('_')
@@ -58,6 +67,7 @@ const setup = (props, context) => {
 
   return {
     aclContextAssociated,
+    adminRoles,
     roleToString
   }
 }
@@ -66,7 +76,6 @@ const setup = (props, context) => {
 export default {
   name: 'tab-permissions',
   inheritAttrs: false,
-  components,
   setup
 }
 </script>

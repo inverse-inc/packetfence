@@ -82,6 +82,7 @@ const initialState = () => {
     isLoadingAllowedUserActions: false,
     isLoadingAllowedUserRoles: false,
     isLoadingAllowedUserUnregDate: false,
+    adminRoles: false,
     allowedNodeRoles: false,
     allowedNodeRolesStatus: '',
     allowedUserAccessDurations: false,
@@ -116,6 +117,7 @@ const getters = {
   isLoadingAllowedUserActions: state => state.isLoadingAllowedUserActionsStatus === types.LOADING,
   isLoadingAllowedUserRoles: state => state.isLoadingAllowedUserRolesStatus === types.LOADING,
   isLoadingAllowedUserUnregDate: state => state.isLoadingAllowedUserUnregDateStatus === types.LOADING,
+  adminRoles: state => state.adminRoles || [],
   allowedNodeRoles: state => state.allowedNodeRoles || [],
   allowedNodeRolesList: state => (state.allowedNodeRoles || []).map(role => { return { value: role.category_id, text: `${role.name} - ${role.notes}` } }),
   allowedUserAccessDurations: state => state.allowedUserAccessDurations || [],
@@ -196,6 +198,7 @@ const actions = {
     commit('TENANTS_DELETED')
     commit('USERNAME_DELETED')
     commit('ROLES_DELETED')
+    commit('ADMIN_ROLES_DELETED')
     commit('ALLOWED_NODE_ROLES_DELETED')
     commit('ALLOWED_USER_ACCESS_DURATIONS_DELETED')
     commit('ALLOWED_USER_ACCESS_LEVELS_DELETED')
@@ -246,6 +249,7 @@ const actions = {
   },
   getTokenInfo: ({ commit }, readonly = false) => {
     return api.getTokenInfo(readonly).then(response => {
+      commit('ADMIN_ROLES_UPDATED', response.data.item.admin_roles)
       commit('USERNAME_UPDATED', response.data.item.username)
       commit('EXPIRES_AT_UPDATED', response.data.item.expires_at)
       commit('TENANT_UPDATED', response.data.item.tenant)
@@ -467,6 +471,12 @@ const mutations = {
   },
   FORM_ERROR: (state, data) => {
     state.formErrors = data
+  },
+  ADMIN_ROLES_UPDATED: (state, data) => {
+    state.adminRoles = data
+  },
+  ADMIN_ROLES_DELETED: (state, data) => {
+    state.adminRoles = false
   },
   ALLOWED_NODE_ROLES_REQUEST: (state) => {
     state.allowedNodeRolesStatus = types.LOADING
