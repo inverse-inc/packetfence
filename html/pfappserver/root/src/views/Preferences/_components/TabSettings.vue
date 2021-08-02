@@ -201,6 +201,17 @@ const setup = (props, context) => {
           $store.dispatch('preferences/set', { id: 'settings', value: settings.value })
         }, { deep: true })
       })
+      watch(() => settings.value.language, lang => {
+        if (lang) { // use settings language
+          $store.dispatch('session/setLanguage', { lang })
+        }
+        else { // use browser language
+          lang = window.navigator.language.split(/-/)[0]
+          if (!['en', 'fr'].includes(lang))
+            lang = 'en'
+          $store.dispatch('session/setLanguage', { lang })
+        }
+      })
     })
 
   const rootRef = ref(null)

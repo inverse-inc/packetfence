@@ -15,11 +15,11 @@
           <b-nav-item v-b-tooltip.hover.bottom.d300 title="Alt + Shift + C" to="/configuration" :active="$route.path.startsWith('/configuration')" v-if="canRoute('/configuration')">{{ $t('Configuration') }}</b-nav-item>
         </b-navbar-nav>
         <b-nav-text class="ml-auto">
-          <b-badge class="mr-1" v-if="debug" :variant="apiOK === true? 'success' : apiOK === false? 'danger' : 'warning'">API</b-badge>
-          <b-badge class="mr-1" v-if="debug" :variant="chartsOK === true? 'success' : chartsOK === false? 'danger' : 'warning'">dashboard</b-badge>
+          <b-badge class="mr-1" v-if="isDebug" :variant="apiOK === true? 'success' : apiOK === false? 'danger' : 'warning'">API</b-badge>
+          <b-badge class="mr-1" v-if="isDebug" :variant="chartsOK === true? 'success' : chartsOK === false? 'danger' : 'warning'">dashboard</b-badge>
         </b-nav-text>
         <b-navbar-nav v-show="isConfiguratorActive" class="pl-2">
-          <b-nav-item-dropdown right no-caret>
+          <b-nav-item-dropdown right no-caret v-if="isDebug">
             <template v-slot:button-content>
               <icon name="ellipsis-v"></icon>
             </template>
@@ -34,8 +34,8 @@
             <template v-slot:button-content>
               <icon name="user-circle"></icon> {{ username }}
             </template>
-            <b-dropdown-item-button v-if="$i18n.locale == 'en'" @click="setLanguage('fr')">Français</b-dropdown-item-button>
-            <b-dropdown-item-button v-else @click="setLanguage('en')">English</b-dropdown-item-button>
+            <b-dropdown-item-button v-if="isDebug && $i18n.locale == 'en'" @click="setLanguage('fr')">Français</b-dropdown-item-button>
+            <b-dropdown-item-button v-else-if="isDebug" @click="setLanguage('en')">English</b-dropdown-item-button>
             <b-dropdown-item to="/preferences">{{ $t('Preferences') }}</b-dropdown-item>
             <b-dropdown-divider></b-dropdown-divider>
             <b-dropdown-item to="/logout">{{ $t('Log out') }}</b-dropdown-item>
@@ -121,7 +121,7 @@ const setup = (props, context) => {
 
   const { root: { $can, $router, $store } = {} } = context
 
-  const debug = process.env.VUE_APP_DEBUG
+  const isDebug = process.env.VUE_APP_DEBUG === 'true'
 
   const documentationViewerClass = ref(null)
   const showDocumentationViewer = computed(() => $store.getters['documentation/showViewer'])
@@ -294,7 +294,7 @@ const setup = (props, context) => {
   })
 
   return {
-    debug,
+    isDebug,
     isAuthenticated,
     isConfiguratorActive,
     isPerfomingCheckup,
