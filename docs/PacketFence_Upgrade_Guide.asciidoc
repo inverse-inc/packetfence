@@ -65,7 +65,13 @@ systemctl disable monit
 
 == Upgrade procedure
 
-=== Steps
+=== Automated upgrade (available starting from PacketFence 10.3.0)
+
+You can use our
+<<PacketFence_Installation_Guide.asciidoc#_automation_of_upgrades,export/import
+mechanism>> if your current PacketFence version is at least 10.3.0.
+
+=== Manual upgrade
 
 A PacketFence upgrade consists of following steps:
 
