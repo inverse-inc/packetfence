@@ -1610,41 +1610,27 @@ systemctl restart packetfence-mariadb
 
 
 Starting from PacketFence 11.0.0, Debian 9 and CentOS 7 support are dropped in benefit of Debian 11 and RHEL8.
+In place upgrades are not supported.
 
-In place upgrades are not supported, in order to upgrade to PacketFence 11.0.0, you need to follow next steps.
+To simplify upgrade process to PacketFence 11.0.0 and future versions, we know
+rely on an export/import mechanism.
 
-=== Steps to perform on current installation (PacketFence 10.3.0)
+Before doing anything else, be sure to read <<PacketFence_Installation_Guide.asciidoc#_assumptions_and_limitations,assumptions and limitations>> of this mechanism.
 
-Current installation needs to run on PacketFence 10.3.0. You need to follow upgrade path to PacketFence 10.3.0 before doing anything else.
+=== Export (on current installation)
 
-==== Export
+==== If you are running a PacketFence version before 10.3.0
 
-To simplify upgrade process from PacketFence 10.3.0 to PacketFence 11.0.0, we
-provide an export script which will be used to export your 10.3.0 configuration.
+1. Follow upgrade path to PacketFence 10.3.0
+1. Go to next section
 
-===== Installation
+==== If you are running PacketFence version 10.3.0 or later
 
-.RHEL / CentOS based systems **only**
-// subs=attributes allow to substitute {release_minor} in code block
-[source,bash,subs="attributes"]
-----
-yum localinstall http://packetfence.org/downloads/PacketFence/RHEL8/packetfence-export-{release_minor}.el8.noarch.rpm
-----
+Follow instructions related to <<PacketFence_Installation_Guide.asciidoc#_export_on_current_installation,export process>>.
 
-.Debian 9 systems **only**
-[source,bash,subs="attributes"]
-----
-wget http://packetfence.org/downloads/PacketFence/debian/packetfence-export_{release_minor}.deb
-dpkg -i packetfence-export_{release_minor}.deb
-----
+=== Import (on new installation)
 
-===== Execution
-
-FIXME: link to JSN process
-
-=== Steps to perform on new installation (PacketFence 11.0.0)
-
-FIXME: link to JSN process
+Follow instructions related to <<PacketFence_Installation_Guide.asciidoc#_import_on_new_installation,import process>>.
 
 == Archived upgrade notes
 

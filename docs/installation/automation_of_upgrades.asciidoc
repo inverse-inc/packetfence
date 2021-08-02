@@ -1,0 +1,179 @@
+// to display images directly on GitHub
+ifdef::env-github[]
+:encoding: UTF-8
+:lang: en
+:doctype: book
+:toc: left
+:imagesdir: ../images
+endif::[]
+
+////
+
+    This file is part of the PacketFence project.
+
+    See PacketFence_Installation_Guide.asciidoc
+    for authors, copyright and license information.
+
+////
+
+//== Automation of upgrades
+
+This section covers automation of upgrades available since PacketFence 11.0.0.
+
+=== Assumptions and limitations
+
+* You can export on any PacketFence version above 10.3.0
+* You can import on any PacketFence version above 11.0.0
+* The import process needs to be done on a **standalone** server. Restoring directly to clusters is currently unsupported
+** NOTE: Once you restored to your standalone server, you can make it a
+    cluster by joining other machines to it and creating your
+    [filename]`cluster.conf` but this is relatively advanced and out of scope
+    of this document
+* Restoring on a fresh install of PacketFence is recommended although
+   restoring on an existing instance can work but your milleage may vary
+* The import process will not modify network cards configuration of your server: it will
+   only update PacketFence IP configuration. You need to define targeted IP
+   addresses on network cards before running import process.
+* The import process will only restore the files that can be edited via the admin interface which include:
+** Standard configuration files in [filename]`/usr/local/pf/conf/*.conf`
+** Connection profiles HTML templates in [filename]`/usr/local/pf/html/captive-portal/profile-templates/`
+** Standard certificates
+*** [filename]`/usr/local/pf/conf/ssl/*`
+*** [filename]`/usr/local/pf/raddb/certs/*`
+* Here is a short list of the configuration files that will not be restored. Changes to these files need to be migrated manually. This list is not meant to be complete:
+** [filename]`/usr/local/pf/conf/radiusd/*`
+** [filename]`/usr/local/pf/conf/log.conf`
+** [filename]`/usr/local/pf/conf/log.conf.d/*`
+** [filename]`/usr/local/pf/conf/iptables.conf`
+** [filename]`/usr/local/pf/conf/cluster.conf`
+
+=== Export on current installation
+
+NOTE: When you are in a cluster, you need to perform this process on the first
+member of the incoming addresses of your database cluster. To find the member,
+run `show status like 'wsrep_incoming_addresses';` inside your MariaDB
+instance and the first IP will be the one where you need to perform the export
+process.
+
+==== Installation (for PacketFence version 10.3.0 only)
+
+On PacketFence version 10.3.0, you need to install `packetfence-export` package using following instructions:
+
+.RHEL / CentOS based systems **only**
+// subs=attributes allow to substitute {release_minor} in code block
+[source,bash,subs="attributes"]
+----
+yum localinstall http://packetfence.org/downloads/PacketFence/RHEL8/packetfence-export-{release_minor}.el8.noarch.rpm
+----
+
+.Debian 9 systems **only**
+[source,bash,subs="attributes"]
+----
+wget http://packetfence.org/downloads/PacketFence/debian/packetfence-export_{release_minor}.deb
+dpkg -i packetfence-export_{release_minor}.deb
+----
+
+==== Start the export process
+
+The export process will try to use files created by the nightly backup done at
+00:30am everyday. If this fine for you and you don't need the latest data,
+then you can skip this step. Otherwise to have the latest data and
+configuration in your export, run:
+
+[source,bash]
+----
+/usr/local/pf/addons/backup-and-maintenance.sh
+----
+
+Next, run the export script:
+
+[source,bash]
+----
+/usr/local/pf/addons/full-import/export.sh /tmp/export.tgz
+----
+
+The command above will create your export archive in [filename]`/tmp/export.tgz`. You will
+now need to copy this file to your new server using SCP or your prefered
+mechanism.
+
+=== Import on new installation
+
+You first need to have a PacketFence installation with latest version done on
+a standalone server following the instructions in our install guide. You don't
+need to go through the configurator unless you want to modify IP settings of
+the server.
+
+==== Preliminary steps
+
+If your export archive used MariaDB-backup instead of `mysqldump` (your DB
+backup filename contains `xbstream`), then you need to install identical
+MariaDB-backup version on your **new** installation.
+
+===== If you are restoring from PacketFence 10.3.0 only
+
+.RHEL / CentOS based systems
+[source,bash]
+----
+yum remove MariaDB-backup
+yum localinstall https://www.packetfence.org/downloads/PacketFence/CentOS7/x86_64/RPMS/MariaDB-backup-10.2.37-1.el7.centos.x86_64.rpm
+----
+
+.Debian based systems
+[source,bash]
+----
+wget -O /root/mariadb-backup-10.2_10.2.37.deb https://www.packetfence.org/downloads/PacketFence/debian-lastrelease/pool/stretch/m/mariadb-10.2/mariadb-backup-10.2_10.2.37+maria~stretch_amd64.deb
+dpkg-deb -xv /root/mariadb-backup-10.2_10.2.37.deb /root/mariadb-backup
+mv /root/mariadb-backup/usr/bin/mariabackup /usr/local/bin/mariabackup
+mv /root/mariadb-backup/usr/bin/mbstream /usr/local/bin/mbstream
+----
+
+===== If you are restoring from PacketFence 11.0 or above
+
+.RHEL / CentOS based systems
+[source,bash]
+----
+yum install MariaDB-backup --enablerepo=packetfence
+----
+
+.Debian based systems
+[source,bash]
+----
+apt install mariadb-backup
+----
+
+==== Start the import process
+
+The import script will guide you through the restore of the database, the configuration files and will help adjust the PacketFence IP configuration if necessary.
+
+To start the import process using the export archive you made on the current installation:
+
+[source,bash]
+----
+/usr/local/pf/addons/full-import/import.sh /tmp/export.tgz
+----
+
+Once the process is completed, you should see the following:
+
+----
+Completed import of the database and the configuration! Complete any necessary adjustments and restart PacketFence
+----
+
+If that's not the case, check the output above to understand why the process failed.
+
+==== Final steps
+
+If you restored from PacketFence 10.3.0 and you used MariaDB-backup for your
+restore, update it back to the right version:
+
+.RHEL / CentOS based systems
+[source,bash]
+----
+yum update MariaDB-backup --enablerepo=packetfence
+----
+
+.Debian based systems
+[source,bash]
+----
+rm /root/mariadb-backup/usr/bin/mariabackup
+rm /root/mariadb-backup/usr/bin/mbstream
+----
