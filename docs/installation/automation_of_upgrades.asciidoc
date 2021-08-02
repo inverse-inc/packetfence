@@ -160,6 +160,16 @@ Completed import of the database and the configuration! Complete any necessary a
 
 If that's not the case, check the output above to understand why the process failed.
 
+If all goes well, you can restart services using <<PacketFence_Upgrade_Guide.asciidoc#_restart_all_packetfence_services,following instructions>>.
+
+===== Additional steps to build or rebuild a cluster
+
+If you want to build or rebuild a cluster, you need to follow instructions in <<PacketFence_Clustering_Guide.asciidoc#_cluster_setup,Cluster setup section>>.
+
+If your previous installation was a cluster, some steps may not be necessary
+to do.  Your export archive will contain your previous
+[filename]`cluster.conf` file.
+
 ==== Final steps
 
 If you restored from PacketFence 10.3.0 and you used MariaDB-backup for your
