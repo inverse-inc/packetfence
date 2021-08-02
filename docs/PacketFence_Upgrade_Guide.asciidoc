@@ -35,32 +35,21 @@ These files are included in the package and release tarballs.
 
 You need to have your MariaDB root password ready because several scripts will need it.
 
-
-=== Database backup
-
-
-Before making any changes to your database, ensure that you have a backup.
-A complete database backup can be taken using this command:
-
-[source,bash]
-----
-mysqldump --opt --routines -u root -p pf | gzip > /root/packetfence_db.sql.gz
-----
-
-If your database is more than a few hundred megabytes, you may also want to consider using a tool such as Percona XtraBackup which makes for much faster restores than mysqldump.
-
-It is also possible to simply backup the actual MySQL files themselves -- as long as the database is not currently running.
-To do so, stop MySQL and then copy all files under /var/lib/mysql to a secure directory.
-
-=== PacketFence configurations and codebase backup
-
+=== Database and configurations backup
 
 Taking a complete backup of your current installation is strongly recommended.
-You can take a backup of the pf directory with the following command:
+You can take a backup using:
 
+.For PacketFence versions prior to 9.0.0
 [source,bash]
 ----
-tar -C /usr/local -czf /root/packetfence.tar.gz --exclude='pf/logs' --exclude='pf/var' --exclude='pf/.git' pf
+/usr/local/pf/addons/database-backup-and-maintenance.sh
+----
+
+.For PacketFence versions 9.0.0 and later
+[source,bash]
+----
+/usr/local/pf/addons/backup-and-maintenance.sh
 ----
 
 === Disable monit alerts (only if you have monit installed)
