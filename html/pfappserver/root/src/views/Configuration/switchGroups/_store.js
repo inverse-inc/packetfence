@@ -71,10 +71,13 @@ const actions = {
     }
   },
   getSwitchGroup: ({ state, commit }, id) => {
+    commit('ITEM_REQUEST')
     if (state.cache[id]) {
+      api.itemMembers(id).then(members => { // Always fetch members
+        commit('ITEM_UPDATED', { id, prop: 'members', data: members })
+      })
       return Promise.resolve(state.cache[id]).then(cache => JSON.parse(JSON.stringify(cache)))
     }
-    commit('ITEM_REQUEST')
     return api.item(id).then(item => {
       commit('ITEM_REPLACED', item)
       api.itemMembers(id).then(members => { // Fetch members
