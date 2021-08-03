@@ -12,18 +12,6 @@ variable vm_name {
   type = string
 }
 
-variable pf_repo {
-  type = string
-}
-
-variable pf_package {
-  type = string
-}
-
-variable pf_release_pkg {
-  type = string
-}
-
 variable pf_version {
   type = string
 }
