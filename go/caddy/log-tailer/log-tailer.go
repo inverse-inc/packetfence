@@ -42,8 +42,8 @@ type LogTailerHandler struct {
 	router              *gin.Engine
 	eventsManager       *golongpoll.LongpollManager
 	sessions            map[string]*TailingSession
-	sessionsLock        *sync.RWMutex
-	maintenanceLauncher *sync.Once
+	sessionsLock        sync.RWMutex
+	maintenanceLauncher sync.Once
 }
 
 // Setup the log-tailer middleware
@@ -65,9 +65,9 @@ func setup(c *caddy.Controller) error {
 	return nil
 }
 
-func buildLogTailerHandler(ctx context.Context) (LogTailerHandler, error) {
+func buildLogTailerHandler(ctx context.Context) (*LogTailerHandler, error) {
 
-	logTailer := LogTailerHandler{}
+	logTailer := &LogTailerHandler{}
 
 	var err error
 	logTailer.eventsManager, err = golongpoll.StartLongpoll(golongpoll.Options{
@@ -80,9 +80,9 @@ func buildLogTailerHandler(ctx context.Context) (LogTailerHandler, error) {
 	sharedutils.CheckError(err)
 
 	logTailer.sessions = map[string]*TailingSession{}
-	logTailer.sessionsLock = &sync.RWMutex{}
+	logTailer.sessionsLock = sync.RWMutex{}
 
-	logTailer.maintenanceLauncher = &sync.Once{}
+	logTailer.maintenanceLauncher = sync.Once{}
 
 	router := gin.Default()
 	logTailerApi := router.Group("/api/v1/logs/tail")
@@ -98,7 +98,7 @@ func buildLogTailerHandler(ctx context.Context) (LogTailerHandler, error) {
 	return logTailer, nil
 }
 
-func (h LogTailerHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) (int, error) {
+func (h *LogTailerHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) (int, error) {
 	ctx := r.Context()
 
 	defer panichandler.Http(ctx, w)
