@@ -184,6 +184,6 @@ yum update MariaDB-backup --enablerepo=packetfence
 .Debian based systems
 [source,bash]
 ----
-rm /root/mariadb-backup/usr/bin/mariabackup
-rm /root/mariadb-backup/usr/bin/mbstream
+rm /usr/local/bin/mariabackup
+rm /usr/local/bin/mbstream
 ----
