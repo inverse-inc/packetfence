@@ -26,7 +26,7 @@
     </b-table>
     <div class="mt-3" v-if="securityEventsOptions.length > 0">
       <div class="border-top pt-3">
-        <div class="d-inline-flex col-12 col-md-10 col-lg-8 col-xl-6">
+        <div class="d-inline-flex col-12 col-md-10 col-lg-8 col-xl-6 px-0">
           <form-security-events class="mr-1" size="sm"
             v-model="triggerSecurityEvent"
             :options="securityEventsOptions"
@@ -92,7 +92,7 @@ const setup = (props, context) => {
       .filter(securityEvent => securityEvent.id !== 'defaults')
       .map(securityEvent => { return { text: securityEvent.desc, value: securityEvent.id } })
   })
-  const onTriggerSecurityEvent = () => applySecurityEvent({ security_event_id: triggerSecurityEvent.value })
+  const onTriggerSecurityEvent = () => applySecurityEvent({ mac: id.value, security_event_id: triggerSecurityEvent.value })
 
 
   return {
