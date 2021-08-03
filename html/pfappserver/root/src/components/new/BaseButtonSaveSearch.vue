@@ -109,7 +109,13 @@ const setup = (props, context) => {
     jsonValue.value = JSON.stringify(value.value)
   }, { deep: true, immediate: true })
 
-  onMounted(() => $store.dispatch('preferences/get', saveSearchNamespace.value))
+  onMounted(() => $store.dispatch('preferences/get', saveSearchNamespace.value)
+    .then(value => {
+      if (Object.keys(value).length === 0) { // declare reactive placeholder
+        $store.dispatch('preferences/set', { id: saveSearchNamespace.value })
+      }
+    })
+  )
   const canSave = computed(() => saveSearchNamespace.value)
   const saved = computed(() => {
     const { values = {} } = $store.state.preferences.cache[saveSearchNamespace.value] || {}

@@ -11,16 +11,14 @@
           />
           <b-container fluid class="text-right mt-3 px-0">
             <b-button class="ml-1" type="reset" variant="secondary" :disabled="disabled || isLoading">{{ $t('Reset') }}</b-button>
-
             <base-button-save-search
-:save-search-namespace="`${uuid}::advancedSearch`"
-:use-search="useSearch"
               class="ml-1"
               v-model="conditionAdvanced"
               :disabled="disabled || isLoading"
+              :save-search-namespace="`${uuid}::advancedSearch`"
+              :use-search="useSearch"
               @search="onSearchAdvanced"
             />
-
             <b-button class="ml-1" variant="outline-primary" @click="advancedMode = false"
               v-b-tooltip.hover.top.d300 :title="$t('Switch to basic search.')">
               <icon name="search-minus" />
@@ -30,11 +28,11 @@
       </div>
       <div class="d-flex" v-else>
         <base-search-input-basic class="flex-grow-1" :key="hint"
-:save-search-namespace="`${uuid}::basicSearch`"
-:use-search="useSearch"
           v-model="conditionBasic"
           :disabled="disabled || isLoading"
           :title="titleBasic"
+          :save-search-namespace="`${uuid}::basicSearch`"
+          :use-search="useSearch"
           @reset="onSearchReset"
           @search="onSearchBasic"
         />
