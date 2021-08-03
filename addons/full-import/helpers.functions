@@ -1,0 +1,44 @@
+#!/bin/bash
+
+function check_code() {
+  if [ $1 -ne 0 ];then
+    if [ -n "$2" ]; then
+        echo $2
+    fi
+
+    echo "Failed command. Exiting immediately"
+    exit 1
+  fi
+}
+
+function prompt() {
+  msg="$1"
+  answer=""
+  while [ "$answer" != "y" ] && [ "$answer" != "n" ]; do
+    echo -n "$msg (y/n): "
+    read answer
+  done
+  
+  if [ "$answer" == "y" ]; then
+    return 0
+  else
+    return 1
+  fi
+}
+
+function main_splitter() {
+  echo "================================================================================="
+}
+
+function sub_splitter() {
+  echo "---------------------------------------------------------------------------------"
+}
+
+function versions_since() {
+  current_version="$1"
+  current_version=`echo $current_version | egrep -o '^[0-9]+\.[0-9]+' | sed 's/\./\\./g'`
+  # This finds all the upgrade scripts that match upgrade-X.X-X.Y.sql or upgrade-X.X.X-X.Y.Z.sql, sorts them by version and then takes all the scripts that are after the current version by grabbing all the lines that follow the script for the version we're looking for
+  # After getting all the scripts, it extracts the second minor version which would be X.Y in the examples above
+  versions=`ls /usr/local/pf/db/upgrade-* | egrep '^/usr/local/pf/db/upgrade-[0-9]+\.[0-9]+(\.[0-9]+)?-[0-9]+\.[0-9]+(\.[0-9]+)?\.sql' | sort --version-sort | sed -ne '/'$current_version'/{:a' -e 'n;p;ba' -e '}' | sed -r 's#/usr/local/pf/db/upgrade-[0-9]+\.[0-9]+(\.[0-9]+)?-([0-9]+\.[0-9]+)(\.[0-9]+)?\.sql#\2#g'`
+  echo $versions
+}

@@ -74,6 +74,10 @@ Requires: perl(Class::Accessor)
 Requires: perl(Class::Accessor::Fast::Contained)
 Requires: perl(Class::Data::Inheritable)
 Requires: perl(Class::Gomor)
+
+# For import/export
+Requires: ipcalc
+
 Requires: perl(Config::IniFiles) >= 2.88
 Requires: perl(DBI)
 Requires: perl(Rose::DB)
@@ -424,6 +428,7 @@ done
 
 %{__install} -d %{buildroot}/usr/local/pf/addons
 %{__install} -d %{buildroot}/usr/local/pf/addons/AD
+%{__install} -d %{buildroot}/usr/local/pf/addons/full-import
 %{__install} -d -m2770 %{buildroot}/usr/local/pf/conf
 %{__install} -d -m2770 %{buildroot}/usr/local/pf/conf/certmanager
 %{__install} -d %{buildroot}/usr/local/pf/conf/radiusd
@@ -461,6 +466,9 @@ cp -r addons/upgrade/ %{buildroot}/usr/local/pf/addons/
 cp -r addons/watchdog/ %{buildroot}/usr/local/pf/addons/
 cp -r addons/AD/* %{buildroot}/usr/local/pf/addons/AD/
 cp -r addons/monit/ %{buildroot}/usr/local/pf/addons/
+cp addons/full-import/*.sh %{buildroot}/usr/local/pf/addons/full-import/
+cp addons/full-import/*.pl %{buildroot}/usr/local/pf/addons/full-import/
+cp addons/full-import/*.functions %{buildroot}/usr/local/pf/addons/full-import/
 cp addons/*.pl %{buildroot}/usr/local/pf/addons/
 cp addons/*.sh %{buildroot}/usr/local/pf/addons/
 %{__install} -D packetfence.logrotate %{buildroot}/etc/logrotate.d/packetfence
@@ -778,6 +786,10 @@ fi
                         /usr/local/pf/addons/captive-portal/*
 %dir                    /usr/local/pf/addons/dev-helpers/
                         /usr/local/pf/addons/dev-helpers/*
+# only add files installed (above) to packetfence package
+%attr(0755, pf, pf)     /usr/local/pf/addons/full-import/*.sh
+%attr(0755, pf, pf)     /usr/local/pf/addons/full-import/*.pl
+%attr(0644, pf, pf)     /usr/local/pf/addons/full-import/*.functions
 %dir                    /usr/local/pf/addons/high-availability/
                         /usr/local/pf/addons/high-availability/*
 %dir                    /usr/local/pf/addons/integration-testing/

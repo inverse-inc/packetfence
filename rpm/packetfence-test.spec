@@ -116,5 +116,5 @@ PacketFence test files. This package contains all files related to PacketFence t
 %attr(0755, -, -)     /usr/local/pf/t/venom/pfservers/common/utils/*.sh
 
 %changelog
-* Mon May 31 2021 Nicolas Quiniou-Briand <nquiniou@akamai.com> - 2.2.0-1
-- Manage one repository per version to simplify maintenance and release process
+* Wed Jul 21 2021 Nicolas Quiniou-Briand <nquiniou@akamai.com> - 11.0.0-1
+- Package creation for 11.0 release

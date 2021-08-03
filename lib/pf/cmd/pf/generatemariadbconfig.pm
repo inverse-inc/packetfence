@@ -6,7 +6,7 @@ pf::cmd::pf::generatemariadbconfig
 
 =head1 SYNOPSIS
 
- pfcmd generatemariadbconfig
+ pfcmd generatemariadbconfig [--force]
 
 generates the OS configuration for the domain binding
 
@@ -28,15 +28,21 @@ use pf::file_paths qw(
     $conf_dir
     $install_dir
     $mariadb_pf_udf_file
+    $pf_config_file
+    $pf_default_file
 );
 use Sys::Hostname;
 use pf::cluster;
+use pf::constants qw(
+    $TRUE
+    $FALSE
+);
 use pf::constants::exit_code qw($EXIT_SUCCESS);
 use pfconfig::cached_hash;
 use pf::config qw(
-    %Config
     $management_network
     $DISTRIB
+    %Config
 );
 use pf::constants::eventLogger;
 
@@ -50,24 +56,52 @@ tie our %EventLoggers, 'pfconfig::cached_hash', 'config::EventLoggers';
 
 use pf::util;
 
+my $pf_conf = Config::IniFiles->new(-file => $pf_config_file, -import => Config::IniFiles->new(-file => $pf_default_file));
+our $FORCE = $FALSE;
+
+=head2 _pf_config_val
+
+Read a section parameter from the %Config variable but if its uninitialized (like when there is a problem with pfconfig, then fallback to getting the value from pf.conf.defaults
+
+=cut
+
+sub _pf_config_val {
+    my ($section, $param) = @_;
+    return $pf_conf->val($section, $param)
+}
+
+sub parseArgs {
+    my ($self) = @_;
+
+    if([$self->args]->[0] eq "--force") {
+        $FORCE = $TRUE;
+    }
+    return 1;
+}
+
 sub _run {
     my ($self) = @_;
     my $tt = Template->new(ABSOLUTE => 1);
 
+    if(!$FORCE && !tied(%Config)->get_socket) {
+        print STDERR "pfconfig is down, cannot rely on it to generate the MariaDB configuration. Add --force to this command to force it to regenerate the configuration as best as it can. The right fix is to get packetfence-config (pfconfig) to start";
+        return;
+    }
+
     my %vars = (
-        key_buffer_size => $Config{database_advanced}{key_buffer_size},
-        innodb_buffer_pool_size => $Config{database_advanced}{innodb_buffer_pool_size},
-        query_cache_size => $Config{database_advanced}{query_cache_size},
-        thread_concurrency => $Config{database_advanced}{thread_concurrency},
-        max_connections => $Config{database_advanced}{max_connections},
-        table_cache => $Config{database_advanced}{table_cache},
-        max_allowed_packet => $Config{database_advanced}{max_allowed_packet},
-        thread_cache_size => $Config{database_advanced}{thread_cache_size},
+        key_buffer_size => _pf_config_val("database_advanced", "key_buffer_size"),
+        innodb_buffer_pool_size => _pf_config_val("database_advanced", "innodb_buffer_pool_size"),
+        query_cache_size => _pf_config_val("database_advanced", "query_cache_size"),
+        thread_concurrency => _pf_config_val("database_advanced", "thread_concurrency"),
+        max_connections => _pf_config_val("database_advanced", "max_connections"),
+        table_cache => _pf_config_val("database_advanced", "table_cache"),
+        max_allowed_packet => _pf_config_val("database_advanced", "max_allowed_packet"),
+        thread_cache_size => _pf_config_val("database_advanced", "thread_cache_size"),
         server_ip => $management_network ? $management_network->{Tvip} // $management_network->{Tip} : "",
-        performance_schema => $Config{database_advanced}{performance_schema},
-        max_connect_errors => $Config{database_advanced}{max_connect_errors},
-        masterslave => $Config{database_advanced}{masterslave},
-        readonly => $Config{database_advanced}{readonly},
+        performance_schema => _pf_config_val("database_advanced", "performance_schema"),
+        max_connect_errors => _pf_config_val("database_advanced", "max_connect_errors"),
+        masterslave => _pf_config_val("database_advanced", "masterslave"),
+        readonly => _pf_config_val("database_advanced", "readonly"),
     );
 
     # Only generate cluster configuration if there is more than 1 enabled host in the cluster

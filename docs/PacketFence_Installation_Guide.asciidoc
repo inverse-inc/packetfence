@@ -145,6 +145,10 @@ include::installation/additional_integration.asciidoc[]
 
 include::installation/advanced_topics.asciidoc[]
 
+== Export/Import mechanism
+
+include::installation/export_import_mechanism.asciidoc[]
+
 // INCLUDES
 
 include::includes/additional-info.asciidoc[]
@@ -152,6 +156,7 @@ include::includes/additional-info.asciidoc[]
 include::includes/commercial-support.asciidoc[]
 
 include::includes/license.asciidoc[]
+
 == Appendix
 
 include::installation/appendix.asciidoc[]
