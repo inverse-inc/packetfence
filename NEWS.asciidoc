@@ -33,6 +33,7 @@ For a list of compatibility related changes see the <<PacketFence_Upgrade_Guide.
 * Added support for Azure AD authentication (#6380)
 * New provisioner Google Workspace Chromebook
 * New source for Google Workspace LDAP
+* Added a tool to import and export the configuration and database for 10.3.0 and above (#6438)
 
 === Enhancements
 
