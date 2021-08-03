@@ -139,6 +139,7 @@ function get_db_upgrade_scripts() {
 function upgrade_database() {
   mariadb_args=""
   if ! test_db_connection_no_creds; then
+    echo "NOTE: The root password you must enter is the one of the server of which you're reimporting the data, not this server's MariaDB root password"
     echo -n "Please enter the root password for MariaDB:"
     read -s mariadb_root_pass
     echo
