@@ -17,6 +17,7 @@
     >
       <template v-slot:cell(name)="{ item }">
         <div v-if="item.type === 'dir'"
+          class="d-flex align-items-center"
           variant="link"
           :disabled="false"
         >
@@ -29,6 +30,7 @@
             name="regular/folder"/> {{ item.name }}
         </div>
         <div v-else
+          class="d-flex align-items-center"
           variant="link"
         >
           <icon v-for="(name, n) in item.icons" :key="n"
