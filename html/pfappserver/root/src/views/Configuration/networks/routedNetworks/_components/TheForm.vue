@@ -8,7 +8,7 @@
     <b-tabs>
       <base-form-tab :title="$i18n.t('General')" active>
         <form-group-identifier namespace="id"
-          :column-label="$i18n.t('Routed Network')"
+          :column-label="(isType('other')) ? $i18n.t('IP Address') : $i18n.t('Routed Network')"
           :disabled="!isNew && !isClone"
         />
 
@@ -22,7 +22,6 @@
 
         <form-group-type namespace="type"
           :column-label="$i18n.t('Type')"
-          :options="routedNetworkOptions"
         />
 
         <form-group-type namespace="tenant_id"
@@ -56,7 +55,7 @@
           :text="$i18n.t('Enable Netflow on this network to enable accounting.')"
         />
       </base-form-tab>
-      <base-form-tab :title="$i18n.t('DHCP')">
+      <base-form-tab :title="$i18n.t('DHCP')" v-if="isType('vlan-isolation', 'vlan-registration', 'dns-enforcement', 'inlinel3')">
         <b-form-group v-show="isFakeMacEnabled"
           label-cols="3">
           <div class="alert alert-warning mb-0">
@@ -129,7 +128,7 @@
           :disabled="isFakeMacEnabled"
         />
       </base-form-tab>
-      <base-form-tab :title="$i18n.t('Routing')">
+      <base-form-tab :title="$i18n.t('Routing')" v-if="isType('vlan-isolation', 'vlan-registration', 'dns-enforcement', 'inlinel3')">
         <form-group-next-hop namespace="next_hop"
           :column-label="$i18n.t('Router IP')"
           :text="$i18n.t('IP address of the router to reach this network.')"
@@ -144,9 +143,6 @@ import {
   BaseForm,
   BaseFormTab,
 } from '@/components/new/'
-import {
-  routedNetworkOptions
-} from '../config'
 import schemaFn from '../schema'
 import {
   FormGroupAlgorithm,
@@ -257,8 +253,7 @@ export const setup = (props) => {
   return {
     schema,
     isFakeMacEnabled,
-    isType,
-    routedNetworkOptions
+    isType
   }
 }
 
