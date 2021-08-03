@@ -104,7 +104,7 @@
           sort-icon-left
         >
           <template v-slot:empty>
-            <pf-empty-table :is-loading="isLayer2NetworksLoading">{{ $t('No layer2 networks found') }}</pf-empty-table>
+            <base-table-empty :is-loading="isLayer2NetworksLoading">{{ $t('No layer2 networks found') }}</base-table-empty>
           </template>
           <template v-slot:cell(dhcpd)="item">
             <icon name="circle" :class="{ 'text-success': item.item.dhcpd === 'enabled', 'text-danger': item.item.dhcpd === 'disabled' }"></icon>
@@ -153,7 +153,7 @@
           sort-icon-left
         >
           <template v-slot:empty>
-            <pf-empty-table :is-loading="isRoutedNetworksLoading">{{ $t('No routed networks found') }}</pf-empty-table>
+            <base-table-empty :is-loading="isRoutedNetworksLoading">{{ $t('No routed networks found') }}</base-table-empty>
           </template>
           <template v-slot:cell(dhcpd)="item">
             <icon name="circle" :class="{ 'text-success': item.item.dhcpd === 'enabled', 'text-danger': item.item.dhcpd === 'disabled' }"></icon>
