@@ -54,6 +54,29 @@ testcases:
     assertions:
       - result.statuscode ShouldEqual 200
 
+# workaround for Debian Vagrant box: interfaces are down if they don't have an IP
+- name: bounce_registration_int
+  steps:
+  - type: http
+    method: POST
+    url: '{{.pfserver_webadmin_url}}/api/v1/configurator/config/interface/{{.get_name_of_reg_int.reg_interface}}/down'
+    ignore_verify_ssl: true
+    headers:
+      "Content-Type": "application/json"
+    assertions:
+      - result.statuscode ShouldEqual 200
+      - result.bodyjson.message ShouldEqual "Interface {{.get_name_of_reg_int.reg_interface}} disabled"
+
+  - type: http
+    method: POST
+    url: '{{.pfserver_webadmin_url}}/api/v1/configurator/config/interface/{{.get_name_of_reg_int.reg_interface}}/up'
+    ignore_verify_ssl: true
+    headers:
+      "Content-Type": "application/json"
+    assertions:
+      - result.statuscode ShouldEqual 200
+      - result.bodyjson.message ShouldEqual "Interface {{.get_name_of_reg_int.reg_interface}} enabled"
+
 - name: get_name_of_iso_int
   steps:
   - type: exec
@@ -80,6 +103,28 @@ testcases:
     assertions:
       - result.statuscode ShouldEqual 200
 
+# workaround for Debian Vagrant box: interfaces are down if they don't have an IP
+- name: bounce_isolation_int
+  steps:
+  - type: http
+    method: POST
+    url: '{{.pfserver_webadmin_url}}/api/v1/configurator/config/interface/{{.get_name_of_iso_int.iso_interface}}/down'
+    ignore_verify_ssl: true
+    headers:
+      "Content-Type": "application/json"
+    assertions:
+      - result.statuscode ShouldEqual 200
+      - result.bodyjson.message ShouldEqual "Interface {{.get_name_of_iso_int.iso_interface}} disabled"
+
+  - type: http
+    method: POST
+    url: '{{.pfserver_webadmin_url}}/api/v1/configurator/config/interface/{{.get_name_of_iso_int.iso_interface}}/up'
+    ignore_verify_ssl: true
+    headers:
+      "Content-Type": "application/json"
+    assertions:
+      - result.statuscode ShouldEqual 200
+      - result.bodyjson.message ShouldEqual "Interface {{.get_name_of_iso_int.iso_interface}} enabled"
 
 - name: configure_dns_servers
   steps:
