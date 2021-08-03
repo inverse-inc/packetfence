@@ -145,9 +145,9 @@ include::installation/additional_integration.asciidoc[]
 
 include::installation/advanced_topics.asciidoc[]
 
-== Automation of upgrades
+== Export/Import mechanism
 
-include::installation/automation_of_upgrades.asciidoc[]
+include::installation/export_import_mechanism.asciidoc[]
 
 // INCLUDES
 
