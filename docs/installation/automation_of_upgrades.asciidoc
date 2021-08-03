@@ -32,8 +32,8 @@ This section covers automation of upgrades available since PacketFence 11.0.0.
 * Restoring on a fresh install of PacketFence is recommended although
    restoring on an existing instance can work but your milleage may vary
 * The import process will not modify network cards configuration of your server: it will
-   only update PacketFence IP configuration. You need to define targeted IP
-   addresses on network cards before running import process.
+   only update PacketFence IP configuration. We recommend you to define targeted IP
+   addresses on network cards before running import process even if you can do it at end of import process.
 * The import process will only restore the files that can be edited via the admin interface which include:
 ** Standard configuration files in [filename]`/usr/local/pf/conf/*.conf`
 ** Connection profiles HTML templates in [filename]`/usr/local/pf/html/captive-portal/profile-templates/`
