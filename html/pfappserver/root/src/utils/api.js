@@ -177,9 +177,15 @@ Object.assign(apiCall, {
 
 apiCall.interceptors.response.use((response) => {
   /* Intercept successful API call */
-  const { config = {}, data = {} } = response
-  if (data.message && !data.quiet) {
-    store.dispatch('notification/info', { message: data.message, url: decodeURIComponent(config.url) })
+  const { config: { url } = {}, data: { message, warnings, quiet } = {} } = response
+  if (message && !quiet) {
+    store.dispatch('notification/info', { message, url })
+  }
+  if (warnings && !quiet) {
+    warnings.forEach(warning => {
+      const { message } = warning
+      store.dispatch('notification/warning', { message, url })
+    })
   }
   store.commit('session/API_OK')
   store.commit('session/FORM_OK')
