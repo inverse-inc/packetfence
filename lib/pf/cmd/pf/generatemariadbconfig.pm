@@ -117,7 +117,7 @@ sub _run {
     if ($DISTRIB eq 'debian') {
         $vars{'libgalera'} = '/usr/lib/galera/libgalera_smm.so';
     } else {
-        $vars{'libgalera'} = '/usr/lib64/galera/libgalera_smm.so';
+        $vars{'libgalera'} = '/usr/lib64/galera-4/libgalera_smm.so';
     }
 
     my $maria_conf = "$install_dir/var/conf/mariadb.conf";
