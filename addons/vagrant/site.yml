@@ -7,6 +7,8 @@
 
 - import_playbook: playbooks/register_rhel_subscription.yml
 
+- import_playbook: playbooks/enable_ipv6_el_os.yml
+
 - import_playbook: playbooks/upgrade_el_os.yml
 
 - import_playbook: playbooks/upgrade_deb_os.yml
