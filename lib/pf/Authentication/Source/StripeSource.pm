@@ -16,6 +16,7 @@ use warnings;
 use Moose;
 use HTTP::Status qw(is_success);
 use WWW::Curl::Easy;
+use pf::Curl;
 use JSON::MaybeXS;
 use URI::Escape::XS qw(uri_escape);
 use List::Util qw(pairmap);
@@ -80,7 +81,7 @@ sub base_url {
 
 sub curl {
     my ($self, $function) = @_;
-    my $curl = WWW::Curl::Easy->new;
+    my $curl = pf::Curl::easy();
     $curl->setopt(CURLOPT_HEADER,               0);
     $curl->setopt(CURLOPT_DNS_USE_GLOBAL_CACHE, 0);
     $curl->setopt(CURLOPT_NOSIGNAL,             1);

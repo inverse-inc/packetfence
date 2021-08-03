@@ -17,6 +17,7 @@ use warnings;
 
 use HTML::Entities;
 use WWW::Curl::Easy;
+use pf::Curl;
 use XML::Simple;
 use Encode qw(decode);
 $XML::Simple::PREFERRED_PARSER = 'XML::LibXML::SAX';
@@ -33,7 +34,7 @@ sub send_soap_request {
     my $response;
 
     my $request = build_soap_request($function,$data);
-    my $curl = WWW::Curl::Easy->new;
+    my $curl = pf::Curl::easy();
     my $response_body;
     $curl->setopt(CURLOPT_HEADER, 0);
     $curl->setopt(CURLOPT_DNS_USE_GLOBAL_CACHE, 0);

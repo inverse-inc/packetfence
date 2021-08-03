@@ -16,6 +16,7 @@ use strict;
 use warnings;
 
 use WWW::Curl::Easy;
+use pf::Curl;
 use Data::MessagePack;
 
 use base qw(Exporter);
@@ -58,7 +59,7 @@ sub _curlSetup {
     my ($config, $function) = @_;
     my ($server,$port,$proto,$user,$pass) = @{$config}{qw(server port proto user pass)};
     my $url = "$proto://${server}:${port}";
-    my $curl = WWW::Curl::Easy->new;
+    my $curl = pf::Curl::easy();
     $curl->setopt(CURLOPT_HEADER, 0);
     $curl->setopt(CURLOPT_DNS_USE_GLOBAL_CACHE, 0);
     $curl->setopt(CURLOPT_NOSIGNAL, 1);

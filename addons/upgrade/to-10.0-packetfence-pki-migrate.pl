@@ -10,6 +10,7 @@ BEGIN {
 
 use pf::db;
 use WWW::Curl::Easy;
+use pf::Curl;
 
 my $driver   = "SQLite";
 my $database = "/usr/local/packetfence-pki/db.sqlite3";
@@ -157,7 +158,7 @@ sub revokedcerts {
 }
 
 sub fixca {
-    my $curl = WWW::Curl::Easy->new;
+    my $curl = pf::Curl::easy();
     my $url = "http://127.0.0.1:22225/api/v1/pki/ca/fix";
 
     $curl->setopt(CURLOPT_URL, $url );

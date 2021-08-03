@@ -15,6 +15,7 @@ use pf::Authentication::Action;
 use pf::Authentication::Source;
 use URI::Escape::XS qw(uri_escape uri_unescape);
 use WWW::Curl::Easy;
+use pf::Curl;
 use pf::log;
 use Readonly;
 use pf::util;
@@ -62,7 +63,7 @@ sub _post_curl {
 
     $uri = $self->protocol."://".$self->host.":".$self->port."/".$uri;
 
-    my $curl = WWW::Curl::Easy->new;
+    my $curl = pf::Curl::easy();
     my $request = $post_fields;
 
     if($self->username && $self->password){

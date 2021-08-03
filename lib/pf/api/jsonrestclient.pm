@@ -27,6 +27,7 @@ use JSON::MaybeXS;
 use pf::config qw(%Config);
 use pf::log;
 use WWW::Curl::Easy;
+use pf::Curl;
 use Moo;
 use HTTP::Status qw(:constants);
 
@@ -161,7 +162,7 @@ sub call {
 sub curl {
     my ($self, $path) = @_;
     my $url = $self->url($path);
-    my $curl = WWW::Curl::Easy->new;
+    my $curl = pf::Curl::easy();
     $curl->setopt(CURLOPT_HEADER, 0);
     $curl->setopt(CURLOPT_DNS_USE_GLOBAL_CACHE, 0);
     $curl->setopt(CURLOPT_NOSIGNAL, 1);

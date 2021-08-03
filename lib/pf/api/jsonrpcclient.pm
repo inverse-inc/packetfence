@@ -27,6 +27,7 @@ use pf::config qw(%Config);
 use pf::log;
 use pf::dal;
 use WWW::Curl::Easy;
+use pf::Curl;
 use Moo;
 use HTTP::Status qw(:constants);
 
@@ -211,7 +212,7 @@ sub notify {
 sub curl {
     my ($self,$function) = @_;
     my $url = $self->url;
-    my $curl = WWW::Curl::Easy->new;
+    my $curl = pf::Curl::easy();
     $curl->setopt(CURLOPT_HEADER, 0);
     $curl->setopt(CURLOPT_DNS_USE_GLOBAL_CACHE, 0);
     $curl->setopt(CURLOPT_NOSIGNAL, 1);

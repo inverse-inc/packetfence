@@ -13,6 +13,7 @@ Pinterest OAuth module
 use Moose;
 use pf::log;
 use WWW::Curl::Easy;
+use pf::Curl;
 extends 'captiveportal::DynamicRouting::Module::Authentication::OAuth';
 
 has '+source' => (isa => 'pf::Authentication::Source::PinterestSource');
@@ -31,7 +32,7 @@ sub handle_callback {
 
     # request a JSON response
 
-    my $curl = WWW::Curl::Easy->new;
+    my $curl = pf::Curl::easy();
     my $response_body = '';
     
     $curl->setopt(CURLOPT_HTTPGET, 1);

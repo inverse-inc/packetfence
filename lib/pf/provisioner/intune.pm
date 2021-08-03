@@ -20,6 +20,7 @@ use JSON::MaybeXS qw( decode_json );
 use pf::util qw(clean_mac);
 use WWW::Curl::Easy;
 use WWW::Curl::Form;
+use pf::Curl;
 use pf::constants;
 use pf::log;
 use pf::ip4log;
@@ -144,7 +145,7 @@ sub refresh_access_token {
     my ($self) = @_;
     my $logger = get_logger();
 
-    my $curl = WWW::Curl::Easy->new;
+    my $curl = pf::Curl::easy();
     my $url = $self->protocol."://".$self->loginUrl.":".$self->port."/".$self->tenantID."/oauth2/token";
 
     my $response_body = '';
@@ -215,7 +216,7 @@ sub perform_get_device_info {
         $self->refresh_access_token();
     }
     my $access_token = $self->get_access_token();
-    my $curl = WWW::Curl::Easy->new;
+    my $curl = pf::Curl::easy();
 
     $logger->debug("Calling Graph API using URL : ".$url);
 

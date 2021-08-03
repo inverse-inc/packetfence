@@ -17,6 +17,7 @@ use Moo;
 extends 'pf::provisioner';
 
 use WWW::Curl::Easy;
+use pf::Curl;
 use JSON::MaybeXS qw( decode_json );
 use pf::util qw(clean_mac);
 use XML::Simple;
@@ -87,7 +88,7 @@ sub does_mac_exist{
     my ($self, $mac) = @_;
     my $logger = $self->logger;
 
-    my $curl = WWW::Curl::Easy->new;
+    my $curl = pf::Curl::easy();
     my $url = $self->protocol.'://'.$self->host.$self->table_for_mac.'?JSONv2&sysparm_query=mac_address='.$mac;
 
     my $user_pass_base_64 = encode_base64("$self->{username}:$self->{password}", "");
@@ -127,7 +128,7 @@ sub validate_agent_installed{
     my ($self, $cmdb) = @_;
     my $logger = $self->logger;
 
-    my $curl = WWW::Curl::Easy->new;
+    my $curl = pf::Curl::easy();
     my $url = $self->protocol.'://'.$self->host.$self->table_for_agent.'?JSONv2&sysparm_sys_id='.$cmdb;
 
     my $user_pass_base_64 = encode_base64("$self->{username}:$self->{password}", "");

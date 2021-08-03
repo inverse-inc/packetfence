@@ -19,6 +19,7 @@ extends 'pf::provisioner';
 use JSON::MaybeXS qw( decode_json );
 use pf::util qw(clean_mac);
 use WWW::Curl::Easy;
+use pf::Curl;
 use XML::Simple;
 use pf::log;
 use pf::ip4log;
@@ -122,7 +123,7 @@ sub refresh_access_token {
     my $logger = get_logger();
 
     my $refresh_token = $self->get_refresh_token();
-    my $curl = WWW::Curl::Easy->new;
+    my $curl = pf::Curl::easy();
     my $url = $self->protocol."://".$self->host.":".$self->port."/o/oauth/token?grant_type=refresh_token&client_id=".$self->client_id."&client_secret=".$self->client_secret."&refresh_token=$refresh_token";
 
     my $response_body = '';
@@ -187,7 +188,7 @@ sub get_device_info {
     my $logger = get_logger();
 
     my $access_token = $self->get_access_token();
-    my $curl = WWW::Curl::Easy->new;
+    my $curl = pf::Curl::easy();
     my $url = $self->protocol.'://' . $self->host . ':' .  $self->port . "/o/api/v2.1/devices/$mac?opt=1&access_token=$access_token";
 
     $logger->debug("Calling OPSWAT API using URL : ".$url);
@@ -305,7 +306,7 @@ sub get_status_changed_devices {
     my $logger = get_logger();
 
     my $access_token = $self->get_access_token();
-    my $curl = WWW::Curl::Easy->new;
+    my $curl = pf::Curl::easy();
     my $url = $self->protocol.'://' . $self->host . ':' .  $self->port . "/o/api/v2.1/devices/status_changed?age=$timeframe&access_token=$access_token";
 
     $logger->debug("Calling OPSWAT API using URL : ".$url);

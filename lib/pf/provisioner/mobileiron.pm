@@ -17,6 +17,7 @@ use Moo;
 extends 'pf::provisioner';
 
 use WWW::Curl::Easy;
+use pf::Curl;
 use JSON::MaybeXS qw( decode_json );
 use pf::util qw(clean_mac);
 use XML::Simple;
@@ -100,7 +101,7 @@ sub get_device_info{
     $mi_mac =~ s/://g;
     $mi_mac = uc($mi_mac);
 
-    my $curl = WWW::Curl::Easy->new;
+    my $curl = pf::Curl::easy();
     my $url = 'https://' . $self->host . '/api/v1/dm/devices/mac/'.$mi_mac;
 
     my $user_pass_base_64 = encode_base64("$self->{username}:$self->{password}", "");

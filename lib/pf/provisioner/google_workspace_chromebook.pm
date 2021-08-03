@@ -26,6 +26,7 @@ use pf::node qw(node_register node_modify);
 use pf::security_event;
 use fingerbank::Constant;
 use WWW::Curl::Easy;
+use pf::Curl;
 use Crypt::JWT qw(encode_jwt);;
 use LWP::UserAgent;
 use CHI;
@@ -295,7 +296,7 @@ sub getList {
 sub curl {
     my ($self, $url) = @_;
     my $response_body = '';
-    my $curl = WWW::Curl::Easy->new;
+    my $curl = pf::Curl::easy();
     $curl->setopt(CURLOPT_HEADER, 0);
     $curl->setopt(CURLOPT_URL, $url );
     $curl->setopt(CURLOPT_NOSIGNAL, 1);

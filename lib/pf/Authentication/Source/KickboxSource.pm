@@ -20,6 +20,7 @@ use pf::constants;
 use pf::config;
 use pf::util;
 use WWW::Curl::Easy;
+use pf::Curl;
 use Readonly;
 use pf::log;
 use URI::Escape::XS qw(uri_escape);
@@ -49,7 +50,7 @@ sub authenticate {
         return ($FALSE, "Invalid e-mail");
     }
 
-    my $curl = WWW::Curl::Easy->new;
+    my $curl = pf::Curl::easy();
     my $request = "email=".uri_escape($username)."&apikey=".uri_escape($self->api_key);
 
     $uri .= "?$request";

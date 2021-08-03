@@ -19,6 +19,7 @@ extends 'pf::provisioner';
 use JSON::MaybeXS qw( decode_json );
 use pf::util qw(clean_mac);
 use WWW::Curl::Easy;
+use pf::Curl;
 use XML::Simple;
 use pf::log;
 use pf::ip4log;
@@ -143,7 +144,7 @@ sub refresh_access_token {
     my $logger = $self->logger;
 
     my $refresh_token = $self->get_refresh_token();
-    my $curl = WWW::Curl::Easy->new;
+    my $curl = pf::Curl::easy();
     my $url = $self->protocol."://".$self->host.":".$self->port."/sepm/oauth/token?grant_type=refresh_token&client_id=".$self->client_id."&client_secret=".$self->client_secret."&redirect_uri=https://".$self->host.":".$self->port."/sepm&refresh_token=$refresh_token";
 
     my $response_body = '';
@@ -219,7 +220,7 @@ sub validate_ip_in_sepm {
     );
 
     my $access_token = $self->get_access_token();
-    my $curl = WWW::Curl::Easy->new;
+    my $curl = pf::Curl::easy();
     my $url = $self->protocol.'://' . $self->host . ':' .  $self->port . '/sepm/ws/v1/ClientService';
 
     my $response_body = '';

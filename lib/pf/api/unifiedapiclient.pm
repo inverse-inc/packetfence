@@ -28,6 +28,7 @@ use pf::config qw(
 );
 use pf::log;
 use WWW::Curl::Easy;
+use pf::Curl;
 use Moo;
 use HTTP::Status qw(:constants);
 use pf::error qw(is_success);
@@ -258,7 +259,7 @@ sub login {
 
 sub curl {
     my ($self) = @_;
-    my $curl = WWW::Curl::Easy->new;
+    my $curl = pf::Curl::easy();
     $curl->setopt(CURLOPT_HEADER, 0);
     $curl->setopt(CURLOPT_DNS_USE_GLOBAL_CACHE, 0);
     $curl->setopt(CURLOPT_NOSIGNAL, 1);

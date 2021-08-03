@@ -11,6 +11,7 @@ Instagram OAuth module
 =cut
 
 use WWW::Curl::Easy;
+use pf::Curl;
 use Moose;
 use JSON::MaybeXS;
 use pf::log;
@@ -28,7 +29,7 @@ Instantiate curl
 sub get_curl {
     my ($self) = @_;
     
-    my $curl = WWW::Curl::Easy->new;
+    my $curl = pf::Curl::easy();
     $curl->setopt(CURLOPT_DNS_USE_GLOBAL_CACHE, 0);
     $curl->setopt(CURLOPT_NOSIGNAL, 1);
 
