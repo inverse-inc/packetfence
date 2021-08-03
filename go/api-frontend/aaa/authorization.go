@@ -28,7 +28,7 @@ type adminRoleMapping struct {
 
 var multipleTenants = false
 var successMultipleTenants = false
-var successMultipleTenantsLock = &sync.Mutex{}
+var successMultipleTenantsLock = sync.Mutex{}
 
 func init() {
 	successMultipleTenants = computeMultipleTenants()

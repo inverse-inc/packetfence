@@ -15,7 +15,7 @@ const MAX_RLOCK = 1000
 var TIMEOUT_ERROR = errors.New("Timeout occured")
 
 type RWLock struct {
-	internalLock *sync.Mutex
+	internalLock sync.Mutex
 
 	lockChan  chan int
 	rlockChan chan int
@@ -43,7 +43,7 @@ func NewRWLock() *RWLock {
 		rlockChan:    make(chan int, MAX_RLOCK),
 		Timeout:      10 * time.Second,
 		RTimeout:     10 * time.Second,
-		internalLock: &sync.Mutex{},
+		internalLock: sync.Mutex{},
 		Panic:        true,
 		PrintErrors:  false,
 		c:            1,

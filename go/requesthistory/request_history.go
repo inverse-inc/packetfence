@@ -144,12 +144,12 @@ func (rhi *RequestHistoryIterator) Next() *Request {
 type Request struct {
 	RequestId string
 	Messages  []string
-	lock      *sync.Mutex
+	lock      sync.Mutex
 }
 
 func NewRequest() *Request {
 	r := &Request{}
-	r.lock = &sync.Mutex{}
+	r.lock = sync.Mutex{}
 	return r
 }
 
