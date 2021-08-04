@@ -644,6 +644,7 @@ done
 #Make ssl certificate
 cd /usr/local/pf
 make conf/ssl/server.pem
+chown pf /usr/local/pf/conf/ssl/server.key
 
 # Create server local RADIUS secret
 if [ ! -f /usr/local/pf/conf/local_secret ]; then
