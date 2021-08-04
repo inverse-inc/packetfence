@@ -475,7 +475,7 @@ const mutations = {
   ADMIN_ROLES_UPDATED: (state, data) => {
     state.adminRoles = data
   },
-  ADMIN_ROLES_DELETED: (state, data) => {
+  ADMIN_ROLES_DELETED: (state) => {
     state.adminRoles = false
   },
   ALLOWED_NODE_ROLES_REQUEST: (state) => {
