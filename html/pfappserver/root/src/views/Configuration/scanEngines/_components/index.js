@@ -24,6 +24,7 @@ export {
   BaseFormGroupInput                        as FormGroupDomain,
   BaseFormGroupIntervalUnit                 as FormGroupDuration,
   BaseFormGroupChosenOne                    as FormGroupEngineIdentifier,
+  BaseFormGroupInput                        as FormGroupHost,
   BaseFormGroupInput                        as FormGroupIdentifier,
   BaseFormGroupInput                        as FormGroupIp,
   BaseFormGroupInput                        as FormGroupNessusClientpolicy,

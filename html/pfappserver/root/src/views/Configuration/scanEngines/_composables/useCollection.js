@@ -70,6 +70,13 @@ export const useSearch = makeSearch('scanEngines', {
       visible: true
     },
     {
+      key: 'host',
+      label: 'Host', // i18n defer
+      searchable: true,
+      sortable: true,
+      visible: true
+    },
+    {
       key: 'ip',
       label: 'IP Address', // i18n defer
       searchable: true,
