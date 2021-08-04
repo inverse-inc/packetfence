@@ -37,7 +37,7 @@ const setup = (props, context) => {
   const node = computed(() => $store.state.$_nodes.nodes[id.value])
 
   const iplogSortBy = ref('end_time')
-  const iplogSortDesc =  ref(true)
+  const iplogSortDesc = ref(true)
 
   // merge props w/ params in useStore methods
   const _useStore = $store => usePropsWrapper(useStore($store), props)
