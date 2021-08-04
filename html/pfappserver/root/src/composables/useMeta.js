@@ -219,5 +219,3 @@ export const useDefaultsFromMeta = (meta = {}) => {
   })
   return defaults
 }
-
-

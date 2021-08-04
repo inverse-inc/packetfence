@@ -33,14 +33,14 @@ const components = {
   BaseInputChosenOne
 }
 
-import { computed, nextTick, ref, unref, watch } from '@vue/composition-api'
+import { computed, inject, nextTick, ref, toRefs, unref, watch } from '@vue/composition-api'
 import { pfActions as actions } from '@/globals/pfActions'
 import {
   pfComponentType as componentType,
   pfFieldTypeComponent as fieldTypeComponent,
   pfFieldTypeValues as fieldTypeValues
 } from '@/globals/pfField'
-import { useInputMeta, useInputMetaProps } from '@/composables/useMeta'
+import { useInputMeta, useInputMetaProps, useNamespaceMetaAllowed } from '@/composables/useMeta'
 import { useInputValue, useInputValueProps } from '@/composables/useInputValue'
 
 const props = {
@@ -49,6 +49,8 @@ const props = {
 }
 
 const setup = (props, context) => {
+
+  const { namespace } = toRefs(props)
 
   const metaProps = useInputMeta(props, context)
 
@@ -129,10 +131,24 @@ const setup = (props, context) => {
     }
   })
 
+  // meta `type` may contain sibling allowed_values for `value`
+  //  @meta.actions.item.properties.type.allowed[*].siblings.type.allowed_values
+  const meta = inject('meta', ref({}))
+  const valueSiblingOptions = computed(() => {
+    const allowed = useNamespaceMetaAllowed(`${namespace.value}.type`, meta)
+    const type = allowed.find(item => {
+      return item.value === inputValue.value.type
+    })
+    const { siblings: { type: { allowed_values } = {} } = {} } = type ||{}
+    return allowed_values
+  })
+
   const valueOptions = ref([])
   watch(
     action,
     () => {
+      if (valueSiblingOptions.value) // meta `type` contains sibling allowed_values
+        return valueOptions.value = valueSiblingOptions.value
       valueOptions.value = []
       if (action.value) {
         let { options = [] } = action.value
