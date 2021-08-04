@@ -52,7 +52,7 @@ export {
   BaseFormGroupInput                  as FormGroupPrefix,
   BaseFormGroupInputNumber            as FormGroupQuantity,
   BaseFormGroupPasswordOptions        as FormGroupPasswordOptions,
- 
+
   BaseInputGroupDateTime              as InputGroupValidFrom,
   BaseInputGroupDateTime              as InputGroupExpiration,
   BaseRuleFormGroupActions            as FormGroupActions

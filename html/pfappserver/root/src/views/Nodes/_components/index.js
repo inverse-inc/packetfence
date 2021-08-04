@@ -2,7 +2,7 @@ import {
   BaseInputChosenOne,
   BaseFormButtonBar,
   BaseFormGroupInput,
-  BaseFormGroupInputDateTime,
+  BaseFormGroupInputDate,
   BaseFormGroupInputMultiplier,
   BaseFormGroupInputNumber,
   BaseFormGroupTextarea,
@@ -19,14 +19,14 @@ export {
   BaseFormGroupPersonSearchable as FormGroupPid,
   BaseFormGroupStatus           as FormGroupStatus,
   BaseFormGroupRolesOptional    as FormGroupRole,
-  BaseFormGroupInputDateTime    as FormGroupUnregdate,
+  BaseFormGroupInputDate        as FormGroupUnregdate,
   BaseFormGroupInputNumber      as FormGroupTimeBalance,
   BaseFormGroupInputMultiplier  as FormGroupBandwidthBalance,
   BaseFormGroupToggleNoYes      as FormGroupVoip,
   BaseFormGroupInput            as FormGroupBypassVlan,
   BaseFormGroupRolesOptional    as FormGroupBypassRole,
   BaseFormGroupTextarea         as FormGroupNotes,
-  
+
   BaseFormGroupInput            as FormGroupMac,
-  
+
 }
