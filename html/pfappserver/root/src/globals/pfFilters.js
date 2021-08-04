@@ -61,6 +61,11 @@ export const pfFilters = {
     text: i18n.t('Switch MAC'),
     types: [fieldType.SUBSTRING]
   },
+  switch_port: {
+    value: 'switch_port',
+    text: i18n.t('Switch Port'),
+    types: [fieldType.SUBSTRING]
+  },
   tenant: {
     value: 'tenant',
     text: i18n.t('Tenant'),
