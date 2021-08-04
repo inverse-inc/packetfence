@@ -190,36 +190,36 @@
     </b-card>
 
     <b-modal ref="modalParserOptions" size="lg" centered :title="$t('Parsing Options')">
-      <base-form-group-chosen-one v-model="parseConfig.encoding" 
-        :column-label="$t('Encoding')" 
+      <base-form-group-chosen-one v-model="parseConfig.encoding"
+        :column-label="$t('Encoding')"
         :disabled="isDisabled"
         :options="encoding.map(enc => { return { text: enc, value: enc } })"
         :text="$t('The encoding to use when opening local files.')"
       />
-      <base-form-group-toggle-false-true v-model="parseConfig.header" 
-        :column-label="$t('Header')" 
+      <base-form-group-toggle-false-true v-model="parseConfig.header"
+        :column-label="$t('Header')"
         :disabled="isDisabled"
         :text="$t('If enabled, the first row of parsed data will be interpreted as field names.')"
       />
-      <base-form-group-input v-model="parseConfig.delimiter" 
-        :column-label="$t('Delimiter')" 
-        placeholder="auto" 
+      <base-form-group-input v-model="parseConfig.delimiter"
+        :column-label="$t('Delimiter')"
+        placeholder="auto"
         :disabled="isDisabled"
         :text="$t('The delimiting character. Leave blank to auto-detect from a list of most common delimiters.')"
       />
-      <base-form-group-input v-model="parseConfig.newline" 
-        :column-label="$t('Newline')" 
-        placeholder="auto" 
+      <base-form-group-input v-model="parseConfig.newline"
+        :column-label="$t('Newline')"
+        placeholder="auto"
         :disabled="isDisabled"
         :text="$t('The newline sequence. Leave blank to auto-detect. Must be one of \\r, \\n, or \\r\\n.')"
       />
-      <base-form-group-input v-model="parseConfig.quoteChar" 
-        :column-label="$t('Quote Character')" 
+      <base-form-group-input v-model="parseConfig.quoteChar"
+        :column-label="$t('Quote Character')"
         :disabled="isDisabled"
         :text="$t('The character used to quote fields. The quoting of all fields is not mandatory. Any field which is not quoted will correctly read.')"
       />
-      <base-form-group-input v-model="parseConfig.escapeChar" 
-        :column-label="$t('Escape Character')" 
+      <base-form-group-input v-model="parseConfig.escapeChar"
+        :column-label="$t('Escape Character')"
         :disabled="isDisabled"
         :text="$t('The character used to escape the quote character within a field. If not set, this option will default to the value of quoteChar, meaning that the default escaping of quote character within a quoted field is using the quote character two times.')"
       />
@@ -229,18 +229,18 @@
     </b-modal>
 
     <b-modal ref="modalImportOptions" size="lg" centered :title="$t('Import Options')">
-      <base-form-group-toggle-false-true v-model="importConfig.insertNew" 
-        :column-label="$t('Insert new')" 
+      <base-form-group-toggle-false-true v-model="importConfig.insertNew"
+        :column-label="$t('Insert new')"
         :disabled="isDisabled"
         :text="$t('If enabled, items that do not currently exist are created.')"
       />
-      <base-form-group-toggle-false-true v-model="importConfig.updateExisting" 
-        :column-label="$t('Update exists')" 
+      <base-form-group-toggle-false-true v-model="importConfig.updateExisting"
+        :column-label="$t('Update exists')"
         :disabled="isDisabled"
         :text="$t('If enabled, items that currently exist are overwritten.')"
       />
-      <base-form-group-chosen-one v-model="importConfig.chunkSize" 
-        :column-label="$t('API chunk size')" 
+      <base-form-group-chosen-one v-model="importConfig.chunkSize"
+        :column-label="$t('API chunk size')"
         :disabled="isDisabled"
         :options="[10, 50, 100, 500, 1000].map(i => { return { value: i, text: i } })"
         :text="$t('The number of items imported with each API request. Higher numbers are faster but consume more memory with large files.')"
@@ -320,8 +320,7 @@
                   <b-col cols="2" class="text-right my-1">{{ error.value }}</b-col>
                 </b-row>
                 <b-row :key="`row2-${error.key}`">
-                  <b-col cols="10"></b-col>
-                  <b-col cols="2" class="small text-right text-danger my-1">{{ error.message }}</b-col>
+                  <b-col cols="12" class="small text-danger my-1">{{ error.message }}</b-col>
                 </b-row>
               </template>
             </b-media>
@@ -391,7 +390,7 @@ const props = {
   importPromise: {
     type: Function,
     default: () => {}
-  }  
+  }
 }
 
 import { computed, nextTick, reactive, ref, set, toRefs, watch } from '@vue/composition-api'
@@ -402,7 +401,7 @@ import i18n from '@/utils/locale'
 import yup from '@/utils/yup'
 
 const setup = (props, context) => {
-  
+
   const {
     defaultStaticMapping,
     file,
@@ -410,12 +409,12 @@ const setup = (props, context) => {
     importPromise,
     isLoading
   } = toRefs(props)
-  
+
   const { refs, root: { $store } = {} } = context
-  
+
   // template ref (for Mutation Observers)
   const rootRef = ref(null)
-  
+
   // Papa parse config
   const parseConfig = ref({
     delimiter: '', // auto-detect
@@ -440,7 +439,7 @@ const setup = (props, context) => {
     withCredentials: undefined,
     transform: undefined
   })
-  
+
   // Import config
   const importConfig = ref({
     chunkSize: 100,
@@ -448,11 +447,11 @@ const setup = (props, context) => {
     updateExisting: false,
     insertNew: true
   })
-  
+
   const modalImportOptions = ref()
   const modalImportProgress = ref()
   const modalParserOptions = ref()
-  
+
   // associate props.field to avoid iterative lookups
   const _fieldsAssociated = computed(() => {
     return fields.value.reduce((fields, field) => {
@@ -461,22 +460,22 @@ const setup = (props, context) => {
       return fields
     }, {})
   })
-  
+
    // lines from `file`
   const lines = ref([])
-  
+
   // maximum number of lines from `lines`
   const linesCount = ref(0)
-   
+
    // parsed from `lines`
   const preview = ref([])
-  
+
   // maximum number of columns from `preview`
   const previewColumnCount = ref(0)
-  
+
   // current page number
   const page = ref(1)
-  
+
   // lines per page
   const perPage = ref(3)
 
@@ -516,7 +515,7 @@ const setup = (props, context) => {
   const deleteImportMapping = (index) => {
     set(importMapping.value, index, null)
   }
-   
+
   // user selection(s) for static mappings
   const staticMapping = ref(defaultStaticMapping.value)
   const staticMappingSelect = ref(null)
@@ -535,7 +534,7 @@ const setup = (props, context) => {
   const staticMappingComponentProps = computed(() => _staticMappingField.value.map(({ is, validator, ...props }) => props))
   const addStaticMapping = () => {
     const key = staticMappingSelect.value
-    if (reservedMapping.value.includes(key)) 
+    if (reservedMapping.value.includes(key))
       return
     staticMapping.value.push({ key, value: null })
     focusStaticMapping(key)
@@ -551,7 +550,7 @@ const setup = (props, context) => {
   const deleteStaticMapping = (index) => {
     staticMapping.value.splice(index, 1)
   }
-   
+
   const reservedMapping = computed(() => {
     return [ ...importMapping.value.filter(field => field), ...staticMapping.value.map(field => field.key) ]
   })
@@ -563,10 +562,10 @@ const setup = (props, context) => {
       invalidFeedback.push(i18n.t('Missing required fields.'))
     return invalidFeedback.join(' ')
   })
-    
+
   const _invalidNodes = useQuerySelectorAll(rootRef, '.is-invalid')
-  const isMappingValid = computed(() => (!_invalidNodes.value || Array.prototype.slice.call(_invalidNodes.value).length === 0))  
-  
+  const isMappingValid = computed(() => (!_invalidNodes.value || Array.prototype.slice.call(_invalidNodes.value).length === 0))
+
   const isImporting = ref(false)
 
   const importProgress = ref({
@@ -582,14 +581,14 @@ const setup = (props, context) => {
     done: false,
     exit: false
   })
-  
+
   const pageMax = computed(() => {
     const { header } = parseConfig.value
     return Math.ceil((linesCount.value - ((header) ? 1 : 0)) / perPage.value)
   })
-  
+
   const isDisabled = computed(() => isLoading.value || isImporting.value)
-  
+
   const readLines = (start, length) => {
     const _readLines = async (start, length) => {
       let lines = []
@@ -602,7 +601,7 @@ const setup = (props, context) => {
     }
     return _readLines(start, length)
   }
-  
+
   const loadPreview = () => {
     const _parseLine = async (line) => {
       return await new Promise((resolve) => {
@@ -631,7 +630,7 @@ const setup = (props, context) => {
       preview.value = _preview
     })
   }
-  
+
   const loadPage = (_page) => {
     page.value = _page || page.value
     const length = perPage.value
@@ -648,31 +647,31 @@ const setup = (props, context) => {
       })
     })
   }
-  
+
   const resetPage = () => {
     lines.value = []
     preview.value = []
     previewColumnCount.value = 0
     setPage(1)
   }
-  
+
   const setPage = (_page) => {
     page.value = _page
     loadPage(_page)
   }
-  
+
   const addPageColumn = () => {
     const firstLine = (page.value * perPage.value) - perPage.value
     page.value = (firstLine + perPage.value + 1) / (perPage.value + 1)
     perPage.value++
   }
-  
+
   const deletePageColumn = () => {
     const firstLine = (page.value * perPage.value) - perPage.value
     page.value = (firstLine + perPage.value - 1) / (perPage.value - 1)
     perPage.value--
   }
-  
+
   const focusStaticMapping = (key) => {
     nextTick(() => {
       const { [key]: { 0: { focus } = {} } = {} } = refs
@@ -680,7 +679,7 @@ const setup = (props, context) => {
         focus()
     })
   }
-  
+
   const getStaticMappingOptions = ({ key }) => {
     let options = []
     if (key) {
@@ -695,7 +694,7 @@ const setup = (props, context) => {
     }
     return options
   }
-  
+
   // safe accessor
   const getPreview = (colIndex, rowIndex) => {
     const { [colIndex]: { data: { [rowIndex]: _preview = null } = {} } = {} } = preview.value
@@ -770,12 +769,12 @@ const setup = (props, context) => {
         importProgress.value.done = items.length < length
         // eslint-disable-next-line no-async-promise-executor
         await new Promise(async (resolve, reject) => {
-          if (!importProgress.value.exit) 
+          if (!importProgress.value.exit)
             importProgress.value.status = i18n.t('Sending data')
           importProgress.value.promise = { resolve, reject } // stash promise
           await importPromise.value(payload, dryRun, importProgress.value.done)
             .then((result) => {
-              if (!importProgress.value.exit) 
+              if (!importProgress.value.exit)
                 importProgress.value.status = i18n.t('Processing response')
               if (result.constructor === Array && result.length > 0) {
                 for (const line of result) {
@@ -850,46 +849,46 @@ const setup = (props, context) => {
 
     _importStart(dryRun) // handle w/ asyncronous
   }
- 
+
   const importCancel = () => {
     importProgress.value.status = i18n.t('Stopping')
     importProgress.value.exit = true
     importProgress.value.lastError = false
     importProgress.value.promise.reject() // stop processing
   }
-  
+
   const importSkipOne = () => {
     importProgress.value.lastError = false
     importProgress.value.promise.resolve() // continue processing
   }
-  
+
   const importSkipAll = () => {
     importConfig.value.stopOnFirstError = false
     importProgress.value.lastError = false
     importProgress.value.promise.resolve() // continue processing
-  } 
-  
+  }
+
   watch([
     () => parseConfig.value.header,
     perPage
   ], () => loadPage(), { immediate: true })
-  
+
   watch([
     () => parseConfig.value.delimiter,
     () => parseConfig.value.escapeChar,
     () => parseConfig.value.quoteChar,
     lines
   ], () => loadPreview())
-  
+
   watch(file, () => setPage(1), { deep: true, immediate: true })
-  
+
   watch(() => parseConfig.value.encoding, (a, b) => {
     if (a !== b) {
       $store.dispatch(`${file.value.storeName}/setEncoding`, a || 'utf-8')
       resetPage()
     }
   }, { immediate: true })
-  
+
   watch(() => parseConfig.value.newline, (a, b) => {
     if (a !== b) {
       $store.dispatch(`${file.value.storeName}/setNewLine`, a || '\n')
@@ -906,21 +905,21 @@ const setup = (props, context) => {
   return {
     bytes,
     encoding,
-    
+
     rootRef,
     parseConfig,
     importConfig,
     modalImportOptions,
     modalImportProgress,
     modalParserOptions,
-    
+
     page,
     perPage,
     pageMax,
     isDisabled,
     linesCount,
     previewColumnCount,
-    
+
     importMapping,
     importMappingOptions,
     importMappingInvalidFeedback,
@@ -929,7 +928,7 @@ const setup = (props, context) => {
     staticMapping,
     staticMappingSelect,
     staticMappingOptions,
-    staticMappingComponentIs, 
+    staticMappingComponentIs,
     staticMappingComponentProps,
     staticMappingComponentValidator,
     addStaticMapping,
@@ -938,19 +937,19 @@ const setup = (props, context) => {
     reservedMapping,
     reservedMappingInvalidFeedback,
     isMappingValid,
-  
+
     setPage,
     addPageColumn,
     deletePageColumn,
     getStaticMappingOptions,
     getPreview,
-    
+
     isImporting,
     importProgress,
     importStart,
     importCancel,
     importSkipOne,
-    importSkipAll    
+    importSkipAll
   }
 }
 

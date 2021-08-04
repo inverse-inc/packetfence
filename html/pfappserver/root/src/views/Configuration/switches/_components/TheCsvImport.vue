@@ -65,27 +65,26 @@ import { importFields } from '../config'
 const setup = (props, context) => {
 
   const { root: { $router, $store } = {} } = context
-  
+
   const files = ref([])
   const tabIndex = ref(0)
   const isLoading = ref(false)
 
   const onClose = () => $router.push({ name: 'switches' })
-  
-  const onCloseFile = (index) => {
+
+  const onCloseFile = index => {
     const { [index]: { file } = {} } = files.value
     file.close()
-    files.value.splice(index, 1)    
+    files.value.splice(index, 1)
   }
 
-  const importPromise = (payload) => {
+  const importPromise = payload => {
     isLoading.value = true
-    return $store.dispatch('$_switches/bulkImport', payload)
-      .finally(() => {
-        isLoading.value = false
-      })
+    return $store.dispatch('$_switches/bulkImportAsync', payload)
+      .then(response => response.items)
+      .finally(() => isLoading.value = false)
   }
-  
+
   return {
     importFields,
 

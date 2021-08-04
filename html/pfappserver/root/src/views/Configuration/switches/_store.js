@@ -2,6 +2,7 @@
 * "$_switches" store module
 */
 import Vue from 'vue'
+import store from '@/store'
 import { computed } from '@vue/composition-api'
 import api from './_api'
 
@@ -122,11 +123,14 @@ const actions = {
       throw err
     })
   },
-  bulkImport: ({ commit }, data) => {
+  bulkImportAsync: ({ commit }, data) => {
     commit('ITEM_REQUEST')
-    return api.bulkImport(data).then(response => {
-      commit('ITEM_BULK_SUCCESS', response)
-      return response
+    return api.bulkImportAsync(data).then(response => {
+      const { data: { task_id } = {} } = response
+      return store.dispatch('pfqueue/pollTaskStatus', task_id).then(response => {
+        commit('ITEM_BULK_SUCCESS', response.items)
+        return response
+      })
     }).catch(err => {
       commit('ITEM_ERROR', err.response)
     })
@@ -145,8 +149,8 @@ const mutations = {
   ITEM_BULK_SUCCESS: (state, response) => {
     state.itemStatus = 'success'
     response.forEach(item => {
-      if (item.status === 'success' && item.id in state.cache) {
-        Vue.set(state.cache, item.id, null)
+      if (item.status === 200 && item.item.id in state.cache) {
+        Vue.set(state.cache, item.item.id, null)
       }
     })
   },
