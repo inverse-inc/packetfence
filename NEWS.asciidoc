@@ -28,7 +28,6 @@ For a list of compatibility related changes see the <<PacketFence_Upgrade_Guide.
 === New Features
 
 * Red Hat Enterprise Linux 8 and Debian 11 support
-* Microsoft Intune SCEP support (#6360)
 * Microsoft Azure AD authentication and authorization support (#6380)
 * Google Workspace integration for LDAP and Chromebooks
 * Automation of upgrades from 10.3 and above (#6438)
@@ -36,6 +35,7 @@ For a list of compatibility related changes see the <<PacketFence_Upgrade_Guide.
 
 === Enhancements
 
+* Microsoft Intune SCEP support (#6360)
 * Venom inline L3 (PR#6266)
 * Massively improved web admin performance
 * LDAP source now supports client certificates
