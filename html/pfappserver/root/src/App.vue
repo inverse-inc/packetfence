@@ -322,6 +322,7 @@ const setup = (props, context) => {
     // tenant
     tenants,
     tenant,
+    tenant_id_mask,
     tenant_mask_name,
     setTenantIdMask,
   }
