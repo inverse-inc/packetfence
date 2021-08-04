@@ -94,7 +94,7 @@ backend 127.0.0.1-netdata
         http-request lua.admin
         http-request set-header Host 127.0.0.1
         http-request set-dst-port int(19999)
-        server service 0.0.0.0:0
+        server service 127.0.0.1:19999
         http-request set-uri %[var(req.path)]?%[query] if paramsquery
         http-request set-uri %[var(req.path)] unless paramsquery
 EOT
