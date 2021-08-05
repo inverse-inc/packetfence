@@ -25,7 +25,6 @@ export const useSearch = makeSearch('radiusLogs', {
       searchable: true,
       sortable: true,
       visible: true,
-      class: 'text-nowrap',
       formatter: formatter.datetimeIgnoreZero
     },
     {

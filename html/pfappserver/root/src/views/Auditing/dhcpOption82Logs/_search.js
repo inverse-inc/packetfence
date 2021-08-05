@@ -25,7 +25,6 @@ export const useSearch = makeSearch('dhcpOption82Logs', {
       searchable: true,
       sortable: true,
       visible: true,
-      class: 'text-nowrap',
       formatter: formatter.datetimeIgnoreZero
     },
     {
