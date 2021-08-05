@@ -4,6 +4,8 @@ ONBOOT=yes
 BOOTPROTO=static
 IPADDR=[% ipaddr %]
 NETMASK=[% netmask %]
+DEFROUTE=[% defroute %]
+[% gateway %]
 [% IF ipv6_address -%]
 IPV6INIT=yes
 IPV6ADDR=[% ipv6_address %]/[% ipv6_prefix %]
