@@ -112,7 +112,7 @@ const actions = {
       throw err
     })
   },
-  createRealm: ({ commit }, { tenantId, item }) => {
+  createRealm: ({ commit }, { tenantId, ...item }) => {
     commit('ITEM_REQUEST')
     return apiFactory(tenantId).create(item).then(response => {
       commit('ITEM_REPLACED', { tenantId, item })
@@ -122,7 +122,7 @@ const actions = {
       throw err
     })
   },
-  updateRealm: ({ commit }, { tenantId, item }) => {
+  updateRealm: ({ commit }, { tenantId, ...item }) => {
     commit('ITEM_REQUEST')
     return apiFactory(tenantId).update(item).then(response => {
       commit('ITEM_REPLACED', { tenantId, item })
