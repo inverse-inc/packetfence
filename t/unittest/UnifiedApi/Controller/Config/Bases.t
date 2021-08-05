@@ -23,7 +23,7 @@ BEGIN {
 }
 
 use pf::ConfigStore::Pf;
-use Test::More tests => 23;
+use Test::More tests => 25;
 use Test::Mojo;
 use Utils;
 
@@ -68,6 +68,9 @@ $t->get_ok("$base_url/advanced")
   ->status_is(200)
   ->json_is('/item/openid_attributes', ['bobby']);
 
+$t->patch_ok("$base_url/general" => json => { domain => 'bob.local'})
+  ->status_is(422);
+
 =head1 AUTHOR
 
 Inverse inc. <info@inverse.ca>
@@ -96,4 +99,3 @@ USA.
 =cut
 
 1;
-
