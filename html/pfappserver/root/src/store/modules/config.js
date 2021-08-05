@@ -743,6 +743,12 @@ const actions = {
       return state.adminRoles
     }
   },
+  resetAdminRoles: ({ state, getters, commit, dispatch }) => {
+    if (!getters.isLoadingAdminRoles && state.adminRoles) {
+      commit('ADMIN_ROLES_UPDATED', false)
+      dispatch('getAdminRoles')
+    }
+  },
   getBaseActiveActive: ({ state, getters, commit }) => {
     if (getters.isLoadingBaseActiveActive) {
       return Promise.resolve(state.baseActiveActive)

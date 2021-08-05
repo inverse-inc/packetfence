@@ -2,6 +2,7 @@
 * "$_admin_roles" store module
 */
 import Vue from 'vue'
+import store from '@/store'
 import { computed } from '@vue/composition-api'
 import i18n from '@/utils/locale'
 import api from './_api'
@@ -91,6 +92,7 @@ const actions = {
     commit('ITEM_REQUEST')
     return api.create(data).then(response => {
       commit('ITEM_REPLACED', data)
+      store.dispatch('config/resetAdminRoles')
       return response
     }).catch(err => {
       commit('ITEM_ERROR', err.response)
@@ -101,6 +103,7 @@ const actions = {
     commit('ITEM_REQUEST')
     return api.update(data).then(response => {
       commit('ITEM_REPLACED', data)
+      store.dispatch('config/resetAdminRoles')
       return response
     }).catch(err => {
       commit('ITEM_ERROR', err.response)
@@ -111,6 +114,7 @@ const actions = {
     commit('ITEM_REQUEST', types.DELETING)
     return api.delete(id).then(response => {
       commit('ITEM_DESTROYED', id)
+      store.dispatch('config/resetAdminRoles')
       return response
     }).catch(err => {
       commit('ITEM_ERROR', err.response)
