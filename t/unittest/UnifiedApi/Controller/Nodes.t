@@ -24,12 +24,13 @@ BEGIN {
 }
 
 use Date::Parse;
+use Utils;
 use pf::dal::node;
 use pf::dal::locationlog;
 
 #insert known data
 #run tests
-use Test::More tests => 104;
+use Test::More tests => 109;
 use Test::Mojo;
 use Test::NoWarnings;
 my $t = Test::Mojo->new('pf::UnifiedApi');
@@ -159,6 +160,17 @@ $t->delete_ok('/api/v1/nodes/bulk_delete' => json => { items => ['11:22:33:44:55
   ->status_is(200)
   ->json_is("/items/0/mac", '11:22:33:44:55:66')
   ->json_is("/items/0/status", 200);
+
+{
+    my $mac = Utils::test_mac();
+    $t->post_ok('/api/v1/nodes' => json => { mac => $mac })
+      ->status_is(201);
+
+    $t->get_ok("/api/v1/node/$mac")
+      ->status_is(200)
+      ->json_is("/item/unregdate", "0000-00-00");
+
+}
 
 =head1 AUTHOR
 
