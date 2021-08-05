@@ -261,8 +261,6 @@ Requires: iproute >= 3.0.0, krb5-workstation
 Requires: samba >= 4
 Requires: perl(Linux::Distribution)
 Requires: perl(Pod::Markdown)
-# configuration-wizard
-Requires: vconfig
 # SAML
 Requires: perl-lasso
 # Captive Portal Dynamic Routing
