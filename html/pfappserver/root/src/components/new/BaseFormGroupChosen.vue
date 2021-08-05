@@ -164,7 +164,7 @@ import { useInputMeta, useInputMetaProps } from '@/composables/useMeta'
 import { useOptionsPromise, useOptionsValue } from '@/composables/useInputMultiselect'
 import { useInputValidator, useInputValidatorProps } from '@/composables/useInputValidator'
 import { useInputValue, useInputValueProps } from '@/composables/useInputValue'
-import { useInputMultiselectProps } from '@/composables/useInputMultiselect'
+import { useInputMultiselectProps, useOptionsSearch } from '@/composables/useInputMultiselect'
 
 export const props = {
   ...useFormGroupProps,
@@ -306,12 +306,16 @@ export const setup = (props, context) => {
   const canSelectNone = computed(() => !!value.value)
   const onSelectNone = () => onRemove()
 
+  const {
+    options: searchOptions,
+    onSearch
+  } = useOptionsSearch(options, label, inputGroupLabel, inputGroupValues)
 
   return {
     inputRef,
 
     // useInputMeta
-    inputOptions: options,
+    inputOptions: searchOptions,
 
     // useInput
     inputPlaceholder: placeholder,
@@ -347,7 +351,7 @@ export const setup = (props, context) => {
 
     onRemove,
     onTag: () => {},
-    onSearch: () => {},
+    onSearch,
     isLoading: false,
     doFocus,
     doBlur,

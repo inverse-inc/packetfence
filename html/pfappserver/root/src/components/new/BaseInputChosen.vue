@@ -246,7 +246,7 @@ export const setup = (props, context) => {
   const {
     options: searchOptions,
     onSearch
-  } = useOptionsSearch(options, label)
+  } = useOptionsSearch(options, label, inputGroupLabel, inputGroupValues)
 
   return {
     inputRef,

@@ -157,17 +157,37 @@ export const useOptionsPromise = (optionsPromise) => {
 
 // supersede VueMultiselect internal search
 //  implement case sensitive search from/to options using label
-export const useOptionsSearch = (_options, _label) => {
+export const useOptionsSearch = (_options, _label, groupLabel, groupValues) => {
   const query = ref(null)
   const onSearch = _query => {
     query.value = _query
   }
   const options = computed(() => {
     if (query.value) {
-      return _options.value.filter(option => {
-        const { [_label.value]: label } = option
-        return label.includes(query.value)
-      })
+      if (groupLabel.value || groupValues.value) { // grouped case-sensitive search
+        return _options.value.reduce((reduced = [], option) => {
+          const { [groupLabel.value]: group, [groupValues.value]: options } = option
+          if (group.includes(query.value)) {
+            reduced = [ ...reduced, option ]
+          }
+          else {
+            const filtered = options.filter(option => {
+              const { [_label.value]: label } = option
+              return label.includes(query.value)
+            })
+            if (filtered.length > 0) {
+              reduced = [ ...reduced, { [groupLabel.value]: group, [groupValues.value]: filtered } ]
+            }
+          }
+          return reduced
+        }, [])
+      }
+      else { // non-grouped case-sensitive search
+        return _options.value.filter(option => {
+          const { [_label.value]: label } = option
+          return label.includes(query.value)
+        })
+      }
     }
     return _options.value
   })
