@@ -65,7 +65,7 @@ sub create {
     # Create requested virtual interface
     my $cmd = "sudo ip link add link $physical_interface name $physical_interface.$vlan_id type vlan id $vlan_id";
     eval { $status = pf_run($cmd) };
-    if ( $@ || !$status ) {
+    if ( $@ ) {
         $status_msg = ["Error in creating interface VLAN [_1]",$interface];
         $logger->error($status_msg);
         return ($STATUS::INTERNAL_SERVER_ERROR, $status_msg);
@@ -119,7 +119,7 @@ sub delete {
     # Delete requested virtual interface
     my $cmd = "sudo ip link delete $interface";
     eval { $status = pf_run($cmd) };
-    if ( $@ || !$status ) {
+    if ( $@ ) {
         $status_msg = ["Error in deletion of interface VLAN [_1]",$interface];
         $logger->error("Error in deletion of interface VLAN $interface");
         return ($STATUS::INTERNAL_SERVER_ERROR, $status_msg);
