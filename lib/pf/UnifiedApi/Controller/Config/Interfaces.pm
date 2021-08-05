@@ -36,6 +36,7 @@ my %FIELDS = (
     networks => [],
     reg_network => undef,
     split_network => undef,
+    tenant_id => 1,
     vip => undef,
     vlan => undef,
     coa => undef,
