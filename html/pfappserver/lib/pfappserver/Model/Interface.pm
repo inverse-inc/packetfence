@@ -840,7 +840,7 @@ sub getEnforcement {
     }
     # rely on pf.conf's info
     else {
-        $enforcement = $interface->{enforcement};
+        $enforcement = $interface->{enforcement} // 'none';
     }
 
     # we rewrite inline to inlinel2 for backwwards compatibility
