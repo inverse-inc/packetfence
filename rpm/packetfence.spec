@@ -57,7 +57,7 @@ Requires: sscep
 Requires: net-snmp >= 5.3.2.2
 Requires: net-snmp-perl
 Requires: perl >= %{perl_version}
-Requires: MariaDB-server = 10.5.11, MariaDB-client = 10.5.11
+Requires: MariaDB-server = 10.5.12, MariaDB-client = 10.5.12
 Requires: perl(DBD::mysql)
 Requires: perl(Sub::Exporter)
 
