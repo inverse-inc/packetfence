@@ -57,6 +57,6 @@ testcases:
     script: "echo 'make_resolv_conf() { :; }' > /etc/dhcp/dhclient-enter-hooks"
 
   - type: exec
-    script: "dhclient -nw {{.get_name_of_dhcp_listener_int.dhcp_listener_interface}}"
+    script: "/usr/sbin/dhclient -nw {{.get_name_of_dhcp_listener_int.dhcp_listener_interface}}"
     
 
