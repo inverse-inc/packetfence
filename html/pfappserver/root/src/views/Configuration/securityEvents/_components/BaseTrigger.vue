@@ -249,7 +249,7 @@ const setup = (props, context) => {
   const usageDescription  = computed(() => {
     const { usage: { direction, limit, interval, type } = {} } = inputValue.value || {}
     if (direction && limit && interval)
-      return `${bytes.toHuman(limit, 1, true)}B ${triggerDirections[direction]}/${triggerIntervals[interval]}`
+      return `${bytes.toHuman(limit, 0, true)}B ${triggerDirections[direction]}/${triggerIntervals[interval]}`
     else if (type === 'BandwidthExpired')
       return i18n.t('Bandwidth balance has expired')
     else if (type === 'TimeExpired')
