@@ -119,7 +119,7 @@ sub reload_config {
     if ( $pf::cluster::cluster_enabled && ! pf::cluster::is_vip_running($interface) ) { 
         $process_broadcast = $FALSE;
     }
-    $logger->info("Reload configuration on $interface");
+    $logger->info("Reload configuration ". (defined($interface) ? "on $interface" : ""));
 }
 
 my $pidfile = "${var_dir}/run/$PROGRAM_NAME.pid";
