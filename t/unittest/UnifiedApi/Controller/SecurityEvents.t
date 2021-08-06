@@ -24,10 +24,12 @@ BEGIN {
 use DateTime;
 use pf::dal::security_event;
 use pf::security_event;
+use pf::node;
 
 use Test::More tests => 25;
 use Test::Mojo;
 use Test::NoWarnings;
+use Utils;
 my $t = Test::Mojo->new('pf::UnifiedApi');
 
 #truncate the security_event table
@@ -39,7 +41,7 @@ $t->get_ok('/api/v1/security_events' => json => { })
   ->status_is(200);
 
 #setup
-my $mac = '00:01:02:03:04:05';
+my $mac = Utils::test_mac();
 my $tenant_id = 1;
 my $security_event_id = 1300000; #'Generic' SecurityEvent
 my $dt_format = DateTime::Format::Strptime->new(pattern => '%Y-%m-%d %H:%M:%S');
@@ -59,6 +61,8 @@ my %values = (
     notes        => 'test notes',
     ticket_ref   => 'test ticket_ref',
 );
+
+node_add_simple($mac);
 
 #my $security_event_status = pf::security_event::security_event_add($mac, $security_event_id, (
 #    start_date   => $dt_format->format_datetime($dt_start),
