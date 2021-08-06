@@ -59,10 +59,11 @@ const setup = (props, context) => {
   const alarmsInterval = ref(60 * 1E3) // 60s
 
   const chartsError = computed(() => !$store.state.session.charts)
-  const cluster = computed(() => ($store.state['$_status'].cluster || []))
+  const cluster = computed(() => ($store.state['$_status']) ? $store.state['$_status'].cluster : [])
   const filteredSections = computed(() => { // filter out empty sections
     const isValid = chart => {
-      return !!$store.getters[`$_status/uniqueCharts`].find(c => c.id === chart.metric)
+      const uniqueCharts = $store.getters[`$_status/uniqueCharts`]
+      return uniqueCharts && !!uniqueCharts.find(c => c.id === chart.metric)
     }
     const sections = JSON.parse(JSON.stringify(allSections))
     sections.forEach(section => {
