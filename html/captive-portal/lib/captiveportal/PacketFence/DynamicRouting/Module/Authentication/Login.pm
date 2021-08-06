@@ -179,6 +179,7 @@ sub authenticate {
         if ( defined($role) ) {
             $self->source(pf::authentication::getAuthenticationSource($source_id));
             $self->username($username);
+            $pid = $username;
         }
         else {
             get_logger->error("Unable to find a match in the '$realm' realm authentication source for credentials '" . $node_info->{'last_dot1x_username'} . "' while using reuseDot1xCredentials");

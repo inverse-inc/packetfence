@@ -114,6 +114,7 @@ BEGIN {
         ends_with
         split_pem
         resolve
+        random_mac
     );
 }
 
@@ -1730,6 +1731,10 @@ sub resolve {
     }
     @addresses = map { inet_ntoa($_) } @addresses[4 .. $#addresses];
     return \@addresses;
+}
+
+sub random_mac {
+    return clean_mac(unpack("h*", pack("S", int(rand(65536)))) . unpack("h*", pack("N", $$ + rand(2147352576))));
 }
 
 =back

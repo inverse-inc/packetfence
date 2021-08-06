@@ -938,6 +938,8 @@ sub switch_access {
                 return [ $RADIUS::RLM_MODULE_FAIL, ('Reply-Message' => "VPN Access Denied") ];
             }
         }
+        $switch->synchronize_locationlog($port, undef, $mac,
+                $args->{'isPhone'} ? $VOIP : $NO_VOIP, $VIRTUAL_VPN, undef, $user_name, undef, $stripped_user_name, $realm, $args->{'user_role'}, $ifDesc);
 
         return $switch->returnAuthorizeVPN($args);
     } else {
