@@ -37,6 +37,7 @@ export const useSearch = makeSearch('securityEvents', {
     {
       key: 'enabled',
       label: 'Status', // i18n defer
+      sortable: true,
       visible: true
     },
     {
