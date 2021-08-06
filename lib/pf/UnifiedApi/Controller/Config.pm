@@ -401,7 +401,7 @@ sub create {
         return $self->render(status => $status, json => $item);
     }
 
-    $id = delete $item->{id};
+    $id = delete $item->{id} // $id;
     if ($cs->hasId($id)) {
         return $self->render_error(409, "An attempt to add a duplicate entry was stopped. Entry already exists and should be modified instead of created");
     }
