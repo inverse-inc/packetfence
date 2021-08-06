@@ -138,6 +138,7 @@ sub handle {
         status_code             => undef,   # Status code
         synchronize_locationlog => undef,   # Should we synchronize locationlog
         connection_type         => undef,   # Set the connection_type
+        user_id                 => undef,   # Set the user id
     );
 
     my $switch_params = $switch_type->parseExternalPortalRequest($r, $req);
@@ -145,6 +146,7 @@ sub handle {
         $logger->error("Error in parsing external portal request from switch module");
         return $FALSE;
     }
+
     Hash::Merge::set_behavior('RIGHT_PRECEDENT');
     %params = %{ merge(\%params, $switch_params) };
     
@@ -177,7 +179,7 @@ sub handle {
     }
 
     # Updating locationlog if required
-    $switch->synchronize_locationlog("0", "0", $params{'client_mac'}, 0, $params{'connection_type'}, undef, $params{'client_mac'}, $params{'ssid'}) if ( $params{'synchronize_locationlog'} );
+    $switch->synchronize_locationlog("0", "0", $params{'client_mac'}, 0, $params{'connection_type'}, undef, (defined $params{'user_id'} ? $params{'user_id'} : $params{'client_mac'}), $params{'ssid'}) if ( $params{'synchronize_locationlog'} );
 
     my $portalSession = $self->_setup_session($req, $params{'client_mac'}, $params{'client_ip'}, $params{'redirect_url'}, $params{'grant_url'});
 

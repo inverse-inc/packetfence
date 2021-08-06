@@ -82,6 +82,7 @@ has radius_mfa_method => ( is => 'rw' );
 has callback_url => ( is => 'rw' );
 
 has signing_key => ( is => 'rw' );
+
 has verify_key => ( is => 'rw' );
 
 =head2 check_user
