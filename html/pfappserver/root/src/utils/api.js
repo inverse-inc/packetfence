@@ -224,11 +224,11 @@ apiCall.interceptors.response.use((response) => {
         // eslint-disable-next-line
         console.warn(error.response.data)
         if (error.response.data.errors) {
-          error.response.data.errors.forEach((err) => {
-            let msg = `${err['field']}: ${err['message']}`
+          error.response.data.errors.forEach(error => {
+            let message = `${error['field']}: ${error['message']}`
             // eslint-disable-next-line
-            console.warn(msg)
-            store.dispatch('notification/danger', { icon, url: decodeURIComponent(config.url), message: msg })
+            console.warn(message)
+            store.dispatch('notification/danger', { icon, url: decodeURIComponent(config.url), message })
           })
         }
         // eslint-disable-next-line

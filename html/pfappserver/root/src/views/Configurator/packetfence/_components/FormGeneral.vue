@@ -96,13 +96,23 @@ export const setup = (props, context) => {
               return $store.dispatch('services/restartSystemService', { id: 'packetfence-mariadb', quiet: true })
           })
           .catch(error => {
-            // Only show a notification in case of a failure
-            const { response: { data: { message = '' } = {} } = {} } = error
-            $store.dispatch('notification/danger', {
-              icon: 'exclamation-triangle',
-              url: message,
-              message: i18n.t('An error occured while updating the general configuration.')
-            })
+            const { response: { config: { url } = {}, data: { errors = [], message = '' } = {} } = {} } = error
+            if (errors.length) { // list of error(s)
+              errors.forEach(error => {
+                $store.dispatch('notification/danger', {
+                  icon: 'exclamation-triangle',
+                  url: decodeURIComponent(url),
+                  message: `${error['field']}: ${error['message']}`
+                })
+              })
+            }
+            else { // generic error
+              $store.dispatch('notification/danger', {
+                icon: 'exclamation-triangle',
+                url: message,
+                message: i18n.t('An error occured while updating the general configuration.')
+              })
+            }
             throw error
           })
       })
