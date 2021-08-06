@@ -23,7 +23,7 @@ sudo systemctl enable dhcrelay
 
 ## Scenario steps
 - Configure inline L2 network
-- Configure routed network as inline L3 with next_hop as switch01
+- Configure routed network as inline L3 with next_hop as switch01 (172.17.6.3)
 - Restart all services related
 - Register node02
 - Apply iptables rules on switch01 to NAT traffic from inline L3 to
