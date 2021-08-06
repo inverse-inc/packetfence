@@ -228,25 +228,30 @@ const setup = (props, context) => {
     })
   }
 
-  const setLanguage = (lang) => {
+  const setLanguage = lang => {
     $store.dispatch('session/setLanguage', { lang })
   }
 
-  // get browser language
-  let language = window.navigator.language.split(/-/)[0]
-  if (!['en', 'fr'].includes(language))
-    language = 'en'
-  setLanguage(language)
+  // get navigator language
+  let navigatorLanguage = window.navigator.language.split(/-/)[0]
+  if (!['en', 'fr'].includes(navigatorLanguage))
+    navigatorLanguage = 'en'
 
   // load language from user preferences
-  const settings = ref({ language })
-  $store.dispatch('preferences/get', 'settings')
-    .then(() => {
-      settings.value = { ...settings.value, ...$store.state.preferences.cache['settings'] || {} }
-      const { language } = settings.value || {}
-      if (language)
+  const settings = ref({ language: navigatorLanguage })
+  const token = computed(() => $store.state.session.token)
+  watch(token, () => {
+    if (!token.value)
+      return setLanguage(navigatorLanguage)
+    $store.dispatch('preferences/get', 'settings')
+      .then(() => {
+        settings.value = $store.state.preferences.cache['settings'] || { language: navigatorLanguage }
+      })
+      .finally(() => {
+        const { language = navigatorLanguage } = settings.value
         setLanguage(language)
-    })
+      })
+  }, { immediate: true })
 
   useEvent('keydown', e => {
     const { altKey = false, shiftKey = false, keyCode = false } = e

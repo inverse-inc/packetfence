@@ -1,7 +1,7 @@
 /**
  * "session" store module
  */
-import { types } from '@/store'
+import store, { types } from '@/store'
 import acl, { setupAcl } from '@/utils/acl'
 import apiCall from '@/utils/api'
 import i18n from '@/utils/locale'
@@ -17,10 +17,10 @@ const api = {
       return response
     })
   },
-  setToken: (token) => {
+  setToken: token => {
     apiCall.defaults.headers.common['Authorization'] = `Bearer ${token}`
   },
-  getTokenInfo: (readonly) => {
+  getTokenInfo: readonly => {
     let url = 'token_info'
     if (readonly) url += '?no-expiration-extension=1'
     return apiCall.getQuiet(url)
@@ -191,6 +191,7 @@ const actions = {
     localStorage.removeItem(STORAGE_TOKEN_KEY)
     localStorage.removeItem(STORAGE_TENANT_ID)
     acl.reset()
+    api.setToken(null)
     commit('TOKEN_DELETED')
     commit('EXPIRES_AT_DELETED')
     commit('TENANT_DELETED')
@@ -206,6 +207,7 @@ const actions = {
     commit('ALLOWED_USER_ROLES_DELETED')
     commit('ALLOWED_USER_UNREG_DATE_DELETED')
     commit('CONFIGURATOR_DISABLED')
+    store.commit('preferences/$RESET')
   },
   resolveLogin: ({ state }) => {
     if (state.loginPromise === null) {
