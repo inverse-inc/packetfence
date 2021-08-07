@@ -40,3 +40,8 @@ sudo iptables -t nat -A POSTROUTING -o bridge.100 -s 172.17.18.0/24  -j MASQUERA
 - Check Internet access on node02
 - Unconfigure switch01
 - Remove inline networks
+
+## Notes
+
+Due to L3, once iptables rules is in place, node02 is able to reach public IP
+even if it's unregistered.
