@@ -2,7 +2,7 @@ import apiCall from '@/utils/api'
 
 export default {
   list: params => {
-    return apiCall.get(['config', 'switches'], { params: { ...params, raw: 1 } }).then(response => {
+    return apiCall.get(['config', 'switches'], { params: { limit: 1000, ...params, raw: 1 } }).then(response => {
       return response.data
     })
   },
