@@ -352,16 +352,16 @@
             >
               <template v-slot:empty>
                 <b-container class="my-5">
-                    <b-row class="justify-content-md-center text-secondary">
-                        <b-col cols="12" md="auto">
-                            <icon v-if="memberIsLoading" name="circle-notch" scale="1.5" spin></icon>
-                            <b-media v-else>
-                                <template v-slot:aside><icon name="search" scale="2"></icon></template>
-                                <h4>{{ $t('No switch group members found') }}</h4>
-                                <p class="font-weight-light">{{ $t('Click the button below to add a new member.') }}</p>
-                            </b-media>
-                        </b-col>
-                    </b-row>
+                  <b-row class="justify-content-md-center text-secondary">
+                    <b-col cols="12" md="auto">
+                      <icon v-if="memberIsLoading" name="circle-notch" scale="1.5" spin></icon>
+                      <b-media v-else>
+                        <template v-slot:aside><icon name="search" scale="2"></icon></template>
+                        <h4>{{ $t('No switch group members found') }}</h4>
+                        <p class="font-weight-light">{{ $t('Click the button below to add a new member.') }}</p>
+                      </b-media>
+                    </b-col>
+                  </b-row>
                 </b-container>
               </template>
               <template v-slot:cell(id)="{ item, value }">
