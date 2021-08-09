@@ -134,7 +134,7 @@ func handlePassthrough(res http.ResponseWriter, req *http.Request) {
 		"Add",
 		"pfsession_passthrough",
 		ipset.NewEntry(
-			ipset.EntryIP(net.ParseIP("2.1.3.4")),
+			ipset.EntryIP(Ip),
 			ipset.EntryPort(Port),
 			ipset.EntryProto(proto),
 		),
@@ -189,7 +189,7 @@ func handleIsolationPassthrough(res http.ResponseWriter, req *http.Request) {
 		"Add",
 		"pfsession_passthrough",
 		ipset.NewEntry(
-			ipset.EntryIP(net.ParseIP("2.1.3.4")),
+			ipset.EntryIP(Ip),
 			ipset.EntryPort(Port),
 			ipset.EntryProto(proto),
 		),
