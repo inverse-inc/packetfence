@@ -14,6 +14,7 @@ use HTML::FormHandler::Moose;
 extends 'pfappserver::Form::Config::Source';
 with 'pfappserver::Base::Form::Role::Help';
 with 'pfappserver::Base::Form::Role::SourceLocalAccount';
+use pf::config qw(%Config);
 
 use pf::Authentication::Source::OpenIDSource;
 
@@ -96,8 +97,9 @@ has_field 'domains' =>
 
 has_field 'username_attribute' =>
   (
-   type => 'Text',
+   type => 'Select',
    label => 'Attribute of the username in the response',
+   options_method =>  \&options_username_attribute,
    required => 1,
     element_attr => {
         'placeholder' =>
@@ -105,6 +107,10 @@ has_field 'username_attribute' =>
     },
     default => pf::Authentication::Source::OpenIDSource->meta->get_attribute('username_attribute')->default,
   );
+
+sub options_username_attribute {
+    return map { { value => $_, label => $_  } } sort @{$Config{advanced}{openid_attributes} // []};
+}
 
 has_field 'person_mappings' =>
   (
