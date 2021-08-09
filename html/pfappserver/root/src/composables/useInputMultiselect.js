@@ -143,11 +143,14 @@ const BOOL_QUERY_LOOKUP = false
 
 // support Promise based options,
 //  transform Promise to Vue ref to avoid redundant async handling later
-export const useOptionsPromise = (optionsPromise) => {
+export const useOptionsPromise = (optionsPromise, label) => {
   const options = ref([])
-  watch(optionsPromise, () => {
+  watch([optionsPromise, () => i18n.locale], () => {
     Promise.resolve(optionsPromise.value).then(_options => {
-      options.value = _options
+      options.value = _options.map(option => {
+        const { [label.value]: _label, ...rest } = option
+        return { ...rest, [label.value]: i18n.t(_label) } // translate label
+      })
     }).catch(() => {
       options.value = []
     })

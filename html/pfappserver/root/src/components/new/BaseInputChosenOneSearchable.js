@@ -37,7 +37,7 @@ export const setup = (props, context) => {
     optionsLimit
   } = toRefs(metaProps)
 
-  const options = useOptionsPromise(optionsPromise)
+  const options = useOptionsPromise(optionsPromise, label)
 
   const {
     placeholder,

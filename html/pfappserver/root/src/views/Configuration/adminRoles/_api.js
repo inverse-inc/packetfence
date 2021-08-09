@@ -8,6 +8,7 @@ export default {
   },
   listOptions: () => {
     return apiCall.options('config/admin_roles').then(response => {
+      delete response.data.meta.allowed_actions.item.allowed // omit meta allowed_actions, fixes #5834
       return response.data
     })
   },

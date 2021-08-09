@@ -214,7 +214,7 @@ export const setup = (props, context) => {
     multiple
   } = toRefs(metaProps)
 
-  const options = useOptionsPromise(optionsPromise)
+  const options = useOptionsPromise(optionsPromise, label)
 
   const {
     placeholder,

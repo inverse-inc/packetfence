@@ -24,7 +24,7 @@ export const setup = (props, context) => {
     placeholder
   } = toRefs(metaProps)
 
-  const options = useOptionsPromise(optionsPromise)
+  const options = useOptionsPromise(optionsPromise, label)
 
   const {
     value,
