@@ -57,7 +57,7 @@ export default (props) => {
     locality: yup.string().required(i18n.t('Locality required.')).max(255),
     street_address: yup.string().max(255),
     postal_code: yup.string().max(255),
-    key_type: yup.string().required(i18n.t('Key type required.')),
+    key_type: yup.string().nullable().required(i18n.t('Key type required.')),
     key_size: yup.string().when('key_type', () => {
       // array to friendly csv, eg: [a, b] => 'a or b', [a, b, c] => 'a, b or c'
       const arrToLocale = (arr) => {
@@ -74,7 +74,7 @@ export default (props) => {
       return _schema
     }),
     ocsp_url: yup.string().max(255, i18n.t('Maximum 255 characters.')),
-    digest: yup.string().required(i18n.t('Digest required.')),
+    digest: yup.string().nullable().required(i18n.t('Digest required.')),
     days: yup.string().required(i18n.t('Days required.'))
       .minAsInt(1, i18n.t('Minimum 1 day(s).'))
   })
