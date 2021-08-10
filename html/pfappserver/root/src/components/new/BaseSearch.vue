@@ -11,18 +11,20 @@
           />
           <b-container fluid class="text-right mt-3 px-0">
             <b-button class="ml-1" type="reset" variant="secondary" :disabled="disabled || isLoading">{{ $t('Reset') }}</b-button>
-            <base-button-save-search
-              class="ml-1"
-              v-model="conditionAdvanced"
-              :disabled="disabled || isLoading"
-              :save-search-namespace="`${uuid}::advancedSearch`"
-              :use-search="useSearch"
-              @search="onSearchAdvanced"
-            />
-            <b-button class="ml-1" variant="outline-primary" @click="advancedMode = false"
-              v-b-tooltip.hover.top.d300 :title="$t('Switch to basic search.')">
-              <icon name="search-minus" />
-            </b-button>
+            <b-button-group>
+              <base-button-save-search
+                class="ml-1"
+                v-model="conditionAdvanced"
+                :disabled="disabled || isLoading"
+                :save-search-namespace="`${uuid}::advancedSearch`"
+                :use-search="useSearch"
+                @search="onSearchAdvanced"
+              />
+              <b-button variant="primary" @click="advancedMode = false"
+                v-b-tooltip.hover.top.d300 :title="$t('Switch to basic search.')">
+                <icon name="search-minus" />
+              </b-button>
+            </b-button-group>
           </b-container>
         </b-form>
       </div>
@@ -35,11 +37,12 @@
           :use-search="useSearch"
           @reset="onSearchReset"
           @search="onSearchBasic"
-        />
-        <b-button class="ml-1" variant="outline-primary" @click="advancedMode = true"
-          v-b-tooltip.hover.top.d300 :title="$t('Switch to advanced search.')">
-          <icon name="search-plus" />
-        </b-button>
+        >
+          <b-button variant="primary" @click="advancedMode = true"
+            v-b-tooltip.hover.top.d300 :title="$t('Switch to advanced search.')">
+            <icon name="search-plus" />
+          </b-button>
+        </base-search-input-basic>
       </div>
     </transition>
     <b-row align-h="end">

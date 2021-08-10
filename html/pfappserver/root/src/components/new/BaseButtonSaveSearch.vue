@@ -1,34 +1,31 @@
 <template>
-  <b-button-group>
-    <b-button variant="primary" @click="onSearch" :disabled="disabled">{{ $t('Search') }}</b-button>
-    <b-dropdown :disabled="disabled"
-      variant="primary" right>
-      <template v-if="canSave">
-        <b-dropdown-header>{{ $t('Saved Searches') }}</b-dropdown-header>
-        <b-dropdown-item @click="showSaveSearchModal=true">
-          <icon class="position-absolute mt-1" name="save" />
-          <span class="ml-4">{{ $t('Save Search') }}</span>
-        </b-dropdown-item>
-        <template v-if="saved.length > 0">
-          <b-dropdown-item-button v-for="search in saved" :key="search.id" @click="onLoad(search)">
-            <span @click.stop="onDelete(search)">
-              <icon class="position-absolute mt-1" name="trash-alt" />
-            </span>
-            <span class="ml-4">{{ search.id }}</span>
-          </b-dropdown-item-button>
-        </template>
-        <b-dropdown-divider />
+  <b-dropdown :disabled="disabled" :text="$t('Search')" @click="onSearch"
+    variant="primary" split right>
+    <template v-if="canSave">
+      <b-dropdown-header>{{ $t('Saved Searches') }}</b-dropdown-header>
+      <b-dropdown-item @click="showSaveSearchModal=true">
+        <icon class="position-absolute mt-1" name="save" />
+        <span class="ml-4">{{ $t('Save Search') }}</span>
+      </b-dropdown-item>
+      <template v-if="saved.length > 0">
+        <b-dropdown-item-button v-for="search in saved" :key="search.id" @click="onLoad(search)">
+          <span @click.stop="onDelete(search)">
+            <icon class="position-absolute mt-1" name="trash-alt" />
+          </span>
+          <span class="ml-4">{{ search.id }}</span>
+        </b-dropdown-item-button>
       </template>
-      <b-dropdown-header>{{ $t('Import / Export Search') }}</b-dropdown-header>
-      <b-dropdown-item @click="showExportJsonModal=true">
-        <icon class="position-absolute mt-1" name="sign-out-alt" />
-        <span class="ml-4">{{ $t('Export to JSON') }}</span>
-      </b-dropdown-item>
-      <b-dropdown-item @click="showImportJsonModal=true">
-        <icon class="position-absolute mt-1" name="sign-in-alt" />
-        <span class="ml-4">{{ $t('Import from JSON') }}</span>
-      </b-dropdown-item>
-    </b-dropdown>
+      <b-dropdown-divider />
+    </template>
+    <b-dropdown-header>{{ $t('Import / Export Search') }}</b-dropdown-header>
+    <b-dropdown-item @click="showExportJsonModal=true">
+      <icon class="position-absolute mt-1" name="sign-out-alt" />
+      <span class="ml-4">{{ $t('Export to JSON') }}</span>
+    </b-dropdown-item>
+    <b-dropdown-item @click="showImportJsonModal=true">
+      <icon class="position-absolute mt-1" name="sign-in-alt" />
+      <span class="ml-4">{{ $t('Import from JSON') }}</span>
+    </b-dropdown-item>
     <b-modal v-model="showExportJsonModal" size="lg" centered id="exportJsonModal" :title="$t('Export to JSON')">
       <b-form-textarea ref="exportJsonTextarea" v-model="jsonValue" :rows="3" :max-rows="3" readonly/>
       <template v-slot:modal-footer>
@@ -52,7 +49,7 @@
         <b-button variant="primary" @click="onSave">{{ $t('Save') }}</b-button>
       </template>
     </b-modal>
-  </b-button-group>
+  </b-dropdown>
 </template>
 
 <script>
