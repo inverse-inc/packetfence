@@ -65,6 +65,7 @@ For a list of compatibility related changes see the <<PacketFence_Upgrade_Guide.
 * CLI switch access for Avaya ERS Switches (#6399)
 * Avoid duplicate log entries "User <username> has authenticated on the portal"
 * Backup DB using MariaDB-backup does not work on standalone installations (#6424)
+* Normalize connection_sub_type to use the numeric value (#6326)
 
 == Version 10.3.0 released on 2020-04-14
 
