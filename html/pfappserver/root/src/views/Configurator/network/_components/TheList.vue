@@ -92,7 +92,7 @@
 
         <form-group-hostname namespace="hostname"
           :column-label="$i18n.t('Server Hostname')"
-          :text="rebootAlert"
+          :text="hostnameWarning"
         />
 
         <form-group-dns-servers namespace="dns_servers"
@@ -206,6 +206,18 @@ const { root: { $router, $store } = {} } = context
   if (!form.value.dns_servers)
     $store.dispatch('system/getDnsServers').then(dns_servers => (form.value = { ...form.value, dns_servers }))
 
+  const hostnameWarning = computed(() => {
+    const warnings = []
+    const re = new RegExp(/.local$/i)
+    if (form.value.hostname && re.test(form.value.hostname))
+      warnings.push(i18n.t(`The domain name should not end with '.local' as this causes issues with Apple iOS devices.`))
+    if (!isLoading.value && form.value.hostname !== hostname.value)
+      warnings.push(i18n.t('Please reboot the server at the end of the configuration wizard to apply changes.'))
+    return (warnings.length > 0)
+      ? `<span class="text-warning">${warnings.join(' ')}</span>`
+      : null
+  })
+
   const schema = computed(() => {
     return yup.object({
       gateway: yup.string().nullable().required(i18n.t('Gateway required.')),
@@ -227,11 +239,6 @@ const { root: { $router, $store } = {} } = context
         : i
     })
   )
-
-  const rebootAlert = computed(() => ((isLoading.value || form.value.hostname === hostname.value)
-    ? null
-    : `<span class="text-warning">${i18n.t('Please reboot the server at the end of the configuration wizard to apply changes.')}</span>`
-  ))
 
   const managementTypeCount = computed(() => interfaces.value.filter(i => i.type === 'management').length)
 
@@ -345,7 +352,7 @@ const { root: { $router, $store } = {} } = context
     isLoading,
     hostname,
     interfaces,
-    rebootAlert,
+    hostnameWarning,
     managementTypeCount,
     detectManagementInterface,
     cloneInterface,
