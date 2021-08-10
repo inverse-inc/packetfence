@@ -4,9 +4,9 @@
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: 10.2.9\n"
+"Project-Id-Version: 11.0.0\n"
 "POT-Creation-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"PO-Revision-Date: 2020-12-11 12:09-0400\n"
+"PO-Revision-Date: 2021-08-10 12:32-0400\n"
 "Last-Translator: Inverse inc. <info@inverse.ca>\n"
 "Language-Team: English\n"
 "Language: en\n"
@@ -213,7 +213,12 @@ msgid "CVC"
 msgstr ""
 
 # html/captive-portal/templates/status.html
+# html/captive-portal/templates/status/billing_cancel_subscription.html
 msgid "Cancel"
+msgstr ""
+
+# html/captive-portal/templates/emails/emails-billing_confirmation.html
+msgid "Cancel subscription"
 msgstr ""
 
 # html/captive-portal/templates/billing/confirm_AuthorizeNet.html
@@ -304,7 +309,6 @@ msgid "Confirm your password"
 msgstr ""
 
 # html/captive-portal/templates/account.html
-# html/captive-portal/templates/billing/confirm_Stripe.html
 # html/captive-portal/templates/challenge.html
 # html/captive-portal/templates/message.html
 # html/captive-portal/templates/provisioner/accept.html
@@ -344,6 +348,10 @@ msgstr ""
 
 # html/captive-portal/templates/account.html
 msgid "Created account %s"
+msgstr ""
+
+# html/captive-portal/templates/stripe-customer-portal/select-account.html
+msgid "Created on"
 msgstr ""
 
 # html/captive-portal/templates/status.html
@@ -570,6 +578,10 @@ msgstr ""
 msgid "Guest request"
 msgstr ""
 
+# html/captive-portal/templates/stripe-customer-portal/select-account.html
+msgid "Has an active subscription"
+msgstr ""
+
 # html/captive-portal/templates/emails/emails-billing_confirmation.html
 # html/captive-portal/templates/emails/emails-billing_stripe_customer.subscription.deleted.html
 # html/captive-portal/templates/emails/emails-guest_admin_pregistration.html
@@ -583,10 +595,6 @@ msgstr ""
 # html/captive-portal/templates/emails/emails-guest_sponsor_preregistration.html
 # html/captive-portal/templates/emails/emails-security_event-triggered.html
 msgid "Hello"
-msgstr ""
-
-# html/captive-portal/templates/emails/emails-guest_local_account_creation.html
-msgid "Here are the info."
 msgstr ""
 
 # html/captive-portal/templates/emails/emails-security_event-triggered.html
@@ -710,10 +718,6 @@ msgstr ""
 msgid "Internet Access Package"
 msgstr ""
 
-# html/captive-portal/templates/emails/emails-guest_local_account_creation.html
-msgid "Just to let you know that an user account has been created while registering your device. You may now want to use it for different features (devices registration, status page)."
-msgstr ""
-
 # html/captive-portal/templates/ssl_inspection/osx.html
 msgid "KeychainAccess"
 msgstr ""
@@ -772,6 +776,10 @@ msgstr ""
 msgid "Make sure <i>Trust</i> is expanded and select the dropdown next to <i>When using this certificate:</i> and change it to <i>Always Trust</i>."
 msgstr ""
 
+# html/captive-portal/templates/stripe-customer-portal/select-account.html
+msgid "Manage"
+msgstr ""
+
 # html/captive-portal/lib/captiveportal/PacketFence/Form/Authentication.pm
 msgid "Mobile provider"
 msgstr ""
@@ -791,6 +799,10 @@ msgstr ""
 # html/captive-portal/templates/release.html
 # html/captive-portal/templates/scan-in-progress.html
 msgid "Network access has been granted"
+msgstr ""
+
+# html/captive-portal/templates/status.html
+msgid "Network subscriptions"
 msgstr ""
 
 # lib/pf/pfcron/task/password_of_the_day.pm
@@ -819,6 +831,10 @@ msgstr ""
 
 # html/captive-portal/lib/captiveportal/PacketFence/Controller/Activate/Email.pm
 msgid "No active sponsor source for this Connection Profile."
+msgstr ""
+
+# html/captive-portal/templates/stripe-customer-portal/select-account.html
+msgid "No active subscription"
 msgstr ""
 
 # html/captive-portal/lib/captiveportal/PacketFence/Controller/Node/Manager.pm
@@ -920,10 +936,6 @@ msgstr ""
 msgid "Other"
 msgstr ""
 
-# html/captive-portal/templates/emails/emails-guest_sponsor_activation.html
-msgid "PID"
-msgstr ""
-
 # html/captive-portal/templates/sms/validate.html
 msgid "PIN"
 msgstr ""
@@ -956,6 +968,10 @@ msgstr ""
 msgid "Password: "
 msgstr ""
 
+# html/captive-portal/templates/billing/confirm_Stripe.html
+msgid "Pay"
+msgstr ""
+
 # html/captive-portal/lib/captiveportal/PacketFence/DynamicRouting/Module/Authentication/Billing.pm
 msgid "Pay for your access"
 msgstr ""
@@ -976,6 +992,10 @@ msgstr ""
 msgid "Please <u>check back periodically</u> on this webpage for new and updated browser certificates for your unsupported device. These browser certificates will help allow full device functionality with our network."
 msgstr ""
 
+# html/captive-portal/templates/status/billing_cancel_subscription.html
+msgid "Please click the button below to confirm the cancelation of your subscription."
+msgstr ""
+
 # html/captive-portal/templates/emails/emails-guest_email_activation.html
 # html/captive-portal/templates/emails/emails-guest_email_preregistration.html
 msgid "Please ignore this request if you have not requested network access."
@@ -983,6 +1003,10 @@ msgstr ""
 
 # html/captive-portal/templates/ssl_inspection.html
 msgid "Please install the certificate."
+msgstr ""
+
+# html/captive-portal/templates/stripe-customer-portal/select-account.html
+msgid "Please select the account you would like to manage"
 msgstr ""
 
 # pf::person::FIELDS
@@ -1032,6 +1056,10 @@ msgstr ""
 
 # html/captive-portal/templates/waiting.html
 msgid "Registration pending"
+msgstr ""
+
+# html/captive-portal/templates/sms/validate.html
+msgid "Resend PIN"
 msgstr ""
 
 # html/captive-portal/templates/status/menu.html
@@ -1095,6 +1123,7 @@ msgid "Sponsor request accepted"
 msgstr ""
 
 # html/captive-portal/templates/emails/emails-billing_confirmation.html
+# html/captive-portal/templates/stripe-customer-portal/select-account.html
 msgid "Status"
 msgstr ""
 
@@ -1118,6 +1147,18 @@ msgstr ""
 # html/captive-portal/templates/ssl_inspection/osx.html
 # html/captive-portal/templates/ssl_inspection/windows.html
 msgid "Step"
+msgstr ""
+
+# html/captive-portal/lib/captiveportal/PacketFence/Controller/StripeCustomerPortal.pm
+msgid "Stripe Customer Portal is not enabled on the Stripe sources of this connection profile"
+msgstr ""
+
+# html/captive-portal/templates/stripe-customer-portal/select-account.html
+msgid "Stripe accounts for %s"
+msgstr ""
+
+# html/captive-portal/templates/stripe-customer-portal/select-account.html
+msgid "Subscribed on device"
 msgstr ""
 
 # html/captive-portal/lib/captiveportal/PacketFence/Form/Authentication.pm
@@ -1210,6 +1251,10 @@ msgstr ""
 msgid "This account can only be used once."
 msgstr ""
 
+# html/captive-portal/templates/status/billing_cancel_subscription.html
+msgid "This action cannot be undone."
+msgstr ""
+
 # html/captive-portal/templates/status.html
 msgid "This device is declared as lost or stolen."
 msgstr ""
@@ -1254,6 +1299,10 @@ msgstr ""
 msgid "This guide will help you install the SSL filtering certificate for the Opera browser."
 msgstr ""
 
+# html/captive-portal/templates/status.html
+msgid "This is your current device."
+msgstr ""
+
 # html/captive-portal/templates/emails/emails-billing_confirmation.html
 # html/captive-portal/templates/emails/emails-billing_stripe_customer.subscription.deleted.html
 # html/captive-portal/templates/emails/emails-guest_admin_pregistration.html
@@ -1266,11 +1315,7 @@ msgstr ""
 # html/captive-portal/templates/emails/emails-guest_sponsor_confirmed.html
 # html/captive-portal/templates/emails/emails-guest_sponsor_preregistration.html
 # html/captive-portal/templates/emails/emails-security_event-triggered.html
-msgid "This is a post only E-mail, please do not reply."
-msgstr ""
-
-# html/captive-portal/templates/status.html
-msgid "This is your current device."
+msgid "This message was sent automatically from an unmonitored email address, please do not reply."
 msgstr ""
 
 # html/captive-portal/templates/ssl_inspection/android.html
@@ -1301,6 +1346,10 @@ msgstr ""
 
 # pf::person::FIELDS
 msgid "Title"
+msgstr ""
+
+# html/captive-portal/templates/emails/emails-billing_confirmation.html
+msgid "To cancel your subscription, click on the following link"
 msgstr ""
 
 # html/captive-portal/templates/provisioner/servicenow.html
@@ -1367,9 +1416,21 @@ msgstr ""
 msgid "Transaction summary"
 msgstr ""
 
+# html/captive-portal/lib/captiveportal/PacketFence/Controller/StripeCustomerPortal.pm
+msgid "Trying to manage a customer ID that doesn"
+msgstr ""
+
+# html/captive-portal/lib/captiveportal/PacketFence/Controller/StripeCustomerPortal.pm
+msgid "Unable to create Stripe Customer Portal session"
+msgstr ""
+
 # html/captive-portal/templates/release.html
 # html/captive-portal/templates/scan-in-progress.html
 msgid "Unable to detect network connectivity. Try restarting your web browser or opening a new tab to see if your access has been succesfully enabled."
+msgstr ""
+
+# html/captive-portal/lib/captiveportal/PacketFence/Controller/StripeCustomerPortal.pm
+msgid "Unable to find a Stripe source in this connection profile"
 msgstr ""
 
 # html/captive-portal/lib/captiveportal/PacketFence/Controller/Activate/Email.pm
@@ -1595,6 +1656,14 @@ msgstr ""
 msgid "Your subscribtion was cancelled."
 msgstr ""
 
+# html/captive-portal/templates/status/billing_cancel_subscription.html
+msgid "Your subscription has been canceled successfully"
+msgstr ""
+
+# html/captive-portal/templates/emails/emails-guest_local_account_creation.html
+msgid "Your user account has been created while registering your device. You may now want to use it for different features (devices registration, status page)."
+msgstr ""
+
 # lib/pf/web.pm
 msgid "automatically refresh"
 msgstr ""
@@ -1661,12 +1730,12 @@ msgid "it_IT"
 msgstr "Italiano"
 
 # pf::web::constants (Locales)
-msgid "nl_NL"
-msgstr "Dutch"
+msgid "nb_NO"
+msgstr ""
 
 # pf::web::constants (Locales)
-msgid "no"
-msgstr "Norwegian"
+msgid "nl_NL"
+msgstr "Dutch"
 
 # pf::web::constants (Locales)
 msgid "pl_PL"
