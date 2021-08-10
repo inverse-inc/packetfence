@@ -105,5 +105,9 @@ export const pfFormatters = {
   },
   shortDateTime: (value) => {
     return filters.shortDateTime(parseInt(value) * 1000)
+  },
+  tenantId: (value) => {
+    const { name } = store.state.session.tenants.find(tenant => tenant.id === +value)
+    return name
   }
 }

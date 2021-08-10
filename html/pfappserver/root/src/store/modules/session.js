@@ -145,6 +145,11 @@ const getters = {
     }
     return state.tenant
   },
+  tenantsList: state => {
+    return state.tenants.map((item) => {
+      return { value: item.id, text: item.name }
+    })
+  },
   aclContext: state => {
     if (state.roles.includes('TENANT_MASTER')) { // is tenant master
       if (!state.tenant_id_mask) { // tenant is not masked

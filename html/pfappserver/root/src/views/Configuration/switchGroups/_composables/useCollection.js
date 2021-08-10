@@ -41,6 +41,7 @@ export { useRouter } from '../_router'
 
 export { useStore } from '../_store'
 
+import { pfFormatters } from '@/globals/pfFormatters'
 import { pfSearchConditionType as conditionType } from '@/globals/pfSearch'
 import makeSearch from '@/store/factory/search'
 import api from '../_api'
@@ -82,6 +83,13 @@ export const useSearch = makeSearch('switchGroups', {
       visible: true
     },
     {
+      key: 'TenantId',
+      label: 'Tenant', // i18n defer
+      sortable: true,
+      visible: true,
+      formatter: pfFormatters.tenantId
+    },
+    {
       key: 'buttons',
       class: 'text-right p-0',
       locked: true
@@ -112,6 +120,11 @@ export const useSearch = makeSearch('switchGroups', {
       value: 'type',
       text: i18n.t('Type'),
       types: [conditionType.SUBSTRING]
+    },
+    {
+      value: 'TenantId',
+      text: i18n.t('Tenant'),
+      types: [conditionType.TENANT]
     }
   ],
   sortBy: 'id'
