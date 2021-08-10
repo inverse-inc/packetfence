@@ -30,7 +30,7 @@
 
     <form-group-run-actions v-if="fields.includes('actions')"
       namespace="run_actions"
-      :column-label="$i18n.t('Peform Actions')"
+      :column-label="$i18n.t('Perform Actions')"
       :text="$i18n.t('Enable to perform the following actions. Disable to only apply the role.')"
     />
 
