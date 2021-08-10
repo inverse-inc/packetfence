@@ -115,10 +115,11 @@ install: build
 	install -m0644 $(CURDIR)/debian/packetfence.modprobe $(CURDIR)/debian/packetfence/etc/modprobe.d/packetfence.conf
 	install -m0644 $(CURDIR)/debian/packetfence.modules-load $(CURDIR)/debian/packetfence/etc/modules-load.d/packetfence.conf
 
-	# copy the rsyslog systemd drop in
+	# copy the rsyslog systemd drop in and journald
 	install -d -m0755 $(CURDIR)/debian/packetfence/etc/systemd/system/rsyslog.service.d/
 	install -m0600 $(CURDIR)/packetfence.rsyslog-drop-in.service  $(CURDIR)/debian/packetfence/etc/systemd/system/rsyslog.service.d/packetfence.conf
-	install -m0644 -D $(CURDIR)/packetfence.journald $(CURDIR)/debian/packetfence/etc/systemd/journald.conf
+	install -d -m0755 $(CURDIR)/debian/packetfence/usr/lib/systemd/journald.conf.d/
+	install -m0644 -D $(CURDIR)/packetfence.journald $(CURDIR)/debian/packetfence/usr/lib/systemd/journald.conf.d/01-packetfence.conf
 	#Sudoer
 	install -oroot -groot -d -m0750 $(CURDIR)/debian/packetfence/etc/sudoers.d
 	install -oroot -groot -m0440 $(CURDIR)/debian/packetfence.sudoers $(CURDIR)/debian/packetfence/etc/sudoers.d/packetfence
