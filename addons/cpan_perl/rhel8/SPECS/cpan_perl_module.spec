@@ -29,7 +29,6 @@ export PERL5LIB=/root/perl5/lib/perl5:/usr/local/pf/lib/lib_perl/lib/perl5/
 export PKG_CONFIG_PATH=/usr/lib/pkgconfig/
 
 %files
-%defattr(-, pf, pf)
 %dir    /usr/local/pf/lib_perl
         /usr/local/pf/lib_perl/*
 
