@@ -1,7 +1,7 @@
 auto lo
 iface lo inet loopback
 [% FOREACH interface IN interfaces.keys.sort %]
-[% IF interfaces.$interface.is_running %] auto [% interface %] [% END %]
+[% IF interfaces.$interface.is_running %]auto [% interface %] [% END %]
 iface [% interface %] inet static
 [% IF interfaces.$interface.ipaddress %]    address [% interfaces.$interface.ipaddress %][% END %]
 [% IF interfaces.$interface.netmask %]    netmask [% interfaces.$interface.netmask %][% END %]
