@@ -62,7 +62,8 @@ sub validate_item {
             next;
         }
         my $doc = $Doc_Config{$doc_section};
-        if ($doc->{type} eq 'array') {
+        my $doc_type = $doc->{type};
+        if ($doc_type eq 'array' || $doc_type eq 'merged_list_array') {
             if (!ref $val) {
                 $item->{$key} = [$val];
             }

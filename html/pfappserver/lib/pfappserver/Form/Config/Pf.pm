@@ -147,7 +147,7 @@ sub field_list {
                         }];
                 last;
             };
-            $type eq 'array' && do {
+            ($type eq 'array' || $type eq 'merged_list_array') && do {
                 $field->{type} = 'Repeatable';
                 $field->{contains} = {
                     type => 'Text',
