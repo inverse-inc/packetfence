@@ -20,7 +20,7 @@ BEGIN {
     use setup_test_config;
 }
 
-use Test::More tests => 3;
+use Test::More tests => 5;
 
 #This test will running last
 use Test::NoWarnings;
@@ -87,6 +87,79 @@ CONF
                                             'pf::condition::equals'
                                         ),
                                         'key' => 'connection_type'
+                                    },
+                                    'pf::condition::key'
+                                )
+                            },
+                            'pf::filter'
+                        )
+                    ]
+                },
+                'pf::filter_engine'
+            )
+        }
+    );
+}
+
+{
+
+    my $conf = <<'CONF';
+[test]
+scopes=preProcess
+description=test
+status=enabled
+top_op=and
+condition=connection_sub_type == "EAP-TLS"
+answer.0=request:NAS-IP-Address = 192.168.0.1
+merge_answer=yes
+
+CONF
+
+    my ( $error, $engine ) = build_from_conf( $builder, $conf );
+    is( $error, undef, "No Error Found" );
+    is_deeply(
+        $engine,
+        {
+            'preProcess' => bless(
+                {
+                    'filters' => [
+                        bless(
+                            {
+                                'answer' => {
+                                    'actions'      => [],
+                                    'status'       => 'enabled',
+                                    '_rule'        => 'test',
+                                    'top_op'       => 'and',
+                                    'description'  => 'test',
+                                    'params'       => [],
+                                    'scopes'       => [ 'preProcess' ],
+                                    'merge_answer' => 'yes',
+                                    'answers'      => [
+                                        {
+                                            'tmpl' => bless(
+                                                {
+                                                    'info' => {},
+                                                    'tmpl' =>
+                                                      [ 'S', '192.168.0.1' ],
+                                                    'text' => '192.168.0.1'
+                                                },
+                                                'pf::mini_template'
+                                            ),
+                                            'name' => 'NAS-IP-Address'
+                                        }
+                                    ],
+                                    'condition' =>
+                                      'connection_sub_type == "EAP-TLS"',
+                                },
+                                'condition' => bless(
+                                    {
+                                        'condition' => bless(
+                                            {
+                                                'value' => 13,
+                                            },
+                                            'pf::condition::equals'
+                                        ),
+                                        'key' => 'connection_sub_type'
                                     },
                                     'pf::condition::key'
                                 )
