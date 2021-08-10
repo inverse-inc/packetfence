@@ -246,7 +246,7 @@ func validateRoleId(roleid string) (string, bool) {
 }
 
 func validatePort(portSpec string) (uint16, byte, bool) {
-	re := regexp.MustCompile("(udp|tcp):([0-9])+")
+	re := regexp.MustCompile("(udp|tcp):([0-9]+)")
 	matches := re.FindStringSubmatch(portSpec)
 	if matches == nil {
 		return 0, 0, false
