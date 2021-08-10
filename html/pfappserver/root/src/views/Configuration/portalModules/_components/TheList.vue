@@ -81,7 +81,7 @@
 </template>
 
 <script>
-const draggable = () => import('vuedraggable')
+const draggable = () => import(/* webpackChunkName: "Libs" */ 'vuedraggable')
 import {
   BaseButtonConfirm,
   BaseButtonHelp,
