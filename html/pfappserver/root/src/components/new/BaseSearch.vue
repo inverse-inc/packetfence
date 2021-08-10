@@ -20,7 +20,7 @@
                 :use-search="useSearch"
                 @search="onSearchAdvanced"
               />
-              <b-button variant="primary" @click="advancedMode = false"
+              <b-button variant="primary" :disabled="disabled || isLoading" @click="advancedMode = false"
                 v-b-tooltip.hover.top.d300 :title="$t('Switch to basic search.')">
                 <icon name="search-minus" />
               </b-button>
@@ -38,7 +38,7 @@
           @reset="onSearchReset"
           @search="onSearchBasic"
         >
-          <b-button variant="primary" @click="advancedMode = true"
+          <b-button variant="primary" :disabled="disabled || isLoading" @click="advancedMode = true"
             v-b-tooltip.hover.top.d300 :title="$t('Switch to advanced search.')">
             <icon name="search-plus" />
           </b-button>
