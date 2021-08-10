@@ -161,7 +161,6 @@ const mutations = {
     if (message)
       state.message = message
   },
-  // eslint-disable-next-line no-unused-vars
   $RESET: (state) => {
     const _state = initialState()
     Object.keys(_state).forEach(key => {
