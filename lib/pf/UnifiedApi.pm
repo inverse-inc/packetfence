@@ -86,6 +86,7 @@ sub startup {
         return $c->unknown_action;
     });
 
+    $self->preload_namespaces(['pf::UnifiedApi::Controller']);
     return;
 }
 
