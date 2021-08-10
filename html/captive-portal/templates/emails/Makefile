@@ -14,7 +14,7 @@ info:
 init:
 	npm install
 
-%.html: %.mjml
+%.html: %.mjml _header.mjml _footer.mjml
 	mjml -r $< -o $@
 
 html: $(HTML_FILES)
