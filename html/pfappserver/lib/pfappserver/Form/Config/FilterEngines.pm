@@ -64,7 +64,7 @@ our %connection_type_field_options = (
 );
 
 our %ADDITIONAL_FIELD_OPTIONS = (
-    'node_info.category' => {
+    'node_info.category' => sub {
         siblings => {
             value => {
                 allowed_values => [
