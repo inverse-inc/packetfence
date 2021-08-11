@@ -59,8 +59,9 @@
         <icon v-show="isTesting" name="circle-notch" spin></icon>
       </b-button>
     </template>
-    <template v-slot:description v-if="inputText">
-      <div v-html="inputText"/>
+    <template v-slot:description v-if="inputText || inputApiFeedback">
+      <div v-if="inputApiFeedback" v-html="inputApiFeedback" class="text-warning"/>
+      <div v-if="inputText" v-html="inputText"/>
     </template>
     <template v-slot:invalid-feedback v-if="inputInvalidFeedback">
       <div v-html="inputInvalidFeedback"/>
@@ -135,7 +136,8 @@ export const setup = (props, context) => {
   const {
     state,
     invalidFeedback,
-    validFeedback
+    validFeedback,
+    apiFeedback
   } = useInputValidator(metaProps, value)
 
   const isTesting = ref(false)
@@ -193,6 +195,7 @@ export const setup = (props, context) => {
     inputState: wrappedState,
     inputInvalidFeedback: wrappedInvalidFeedback,
     inputValidFeedback: wrappedValidFeedback,
+    inputApiFeedback: apiFeedback,
 
     canTest,
     doTest,

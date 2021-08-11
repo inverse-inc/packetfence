@@ -74,8 +74,8 @@ const initialState = () => {
     tenants: [],
     languages: [],
     api: undefined,
+    apiErrors: {},
     charts: undefined,
-    formErrors: {},
     isLoadingAllowedNodeRoles: false,
     isLoadingAllowedUserAccessDurations: false,
     isLoadingAllowedUserAccessLevels: false,
@@ -463,21 +463,19 @@ const mutations = {
   },
   API_OK: (state) => {
     state.api = true
+    state.apiErrors = {}
   },
   API_ERROR: (state) => {
     state.api = false
+  },
+  API_ERRORS: (state, data) => {
+    state.apiErrors = data
   },
   CHARTS_OK: (state) => {
     state.charts = true
   },
   CHARTS_ERROR: (state) => {
     state.charts = false
-  },
-  FORM_OK: (state) => {
-    state.formErrors = {}
-  },
-  FORM_ERROR: (state, data) => {
-    state.formErrors = data
   },
   ADMIN_ROLES_UPDATED: (state, data) => {
     state.adminRoles = data

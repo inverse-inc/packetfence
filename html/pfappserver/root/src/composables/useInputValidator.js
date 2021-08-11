@@ -1,5 +1,6 @@
 import { computed, inject, ref, toRefs, unref, watch } from '@vue/composition-api'
 import { createDebouncer } from 'promised-debounce'
+import store from '@/store'
 import yup from '@/utils/yup'
 
 export const useInputValidatorProps = {
@@ -11,12 +12,13 @@ export const useInputValidatorProps = {
     default: null
   },
   invalidFeedback: {
-    type: String,
-    default: undefined
+    type: String
   },
   validFeedback: {
-    type: String,
-    default: undefined
+    type: String
+  },
+  apiFeedback: {
+    type: String
   },
   validator: {
     type: Object
@@ -30,13 +32,15 @@ export const useInputValidator = (props, value, recursive = false) => {
     state,
     invalidFeedback,
     validFeedback,
-    validator
+    validator,
+    apiFeedback
   } = toRefs(props) // toRefs maintains reactivity w/ destructuring
 
   // defaults (dereferenced)
   let localState = ref(unref(state))
   let localInvalidFeedback = ref(unref(invalidFeedback))
   let localValidFeedback = ref(unref(validFeedback))
+  let localApiFeedback = ref(unref(apiFeedback))
 
   // yup | https://github.com/jquense/yup
   let localValidator = validator
@@ -147,6 +151,10 @@ export const useInputValidator = (props, value, recursive = false) => {
       },
       { deep: true, immediate: true }
     )
+
+    watch(() => store.state.session.apiErrors[namespace.value], apiError => {
+      localApiFeedback.value = apiError
+    })
   }
   else { // no :validator
     localInvalidFeedback = invalidFeedback
@@ -158,11 +166,13 @@ export const useInputValidator = (props, value, recursive = false) => {
           : null // no validFeeback
       return false
     })
+    localApiFeedback = apiFeedback
   }
 
   return {
     state: localState,
     invalidFeedback: localInvalidFeedback,
-    validFeedback: localValidFeedback
+    validFeedback: localValidFeedback,
+    apiFeedback: localApiFeedback
   }
 }
