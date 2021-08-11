@@ -242,7 +242,6 @@ File::FcntlLock,0.22,JTT/File-FcntlLock-0.22.tar.gz,True,J/JT/JTT/File-FcntlLock
 Exception::Fatal,0.05,DEXTER/Fatal-Exception-0.05.tar.gz,True,D/DE/DEXTER/Fatal-Exception-0.05.tar.gz,2
 Linux::Inotify2,2.2,MLEHMANN/Linux-Inotify2-2.2.tar.gz,True,M/ML/MLEHMANN/Linux-Inotify2-2.2.tar.gz,2
 Pod::Markdown,3.300,RWSTAUNER/Pod-Markdown-3.300.tar.gz,True,R/RW/RWSTAUNER/Pod-Markdown-3.300.tar.gz,2
-Crypt::SMIME,0.27,MIKAGE/Crypt-SMIME-0.27.tar.gz,True,M/MI/MIKAGE/Crypt-SMIME-0.27.tar.gz,2
 PHP::Serialization,0.34,BOBTFISH/PHP-Serialization-0.34.tar.gz,True,B/BO/BOBTFISH/PHP-Serialization-0.34.tar.gz,2
 Test::MockModule,v0.176.0,GFRANKS/Test-MockModule-v0.176.0.tar.gz,True,G/GF/GFRANKS/Test-MockModule-v0.176.0.tar.gz,2
 Specio::Library::String,0.47,DROLSKY/Specio-0.47.tar.gz,True,D/DR/DROLSKY/Specio-0.47.tar.gz,2
