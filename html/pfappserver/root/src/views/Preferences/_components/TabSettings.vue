@@ -128,21 +128,24 @@
       </template>
     </b-modal>
     <b-modal v-model="showPreferencesImport" @hide="showPreferencesImport = false"
-      size="lg" title-tag="div" centered>
+      size="lg" title-tag="div" centered
+      :hide-header-close="isLoading" :no-close-on-backdrop="isLoading" :no-close-on-esc="isLoading">
       <template v-slot:modal-title>
         <h4 v-html="$t('Import Preferences')"></h4>
         <p class="mb-0">{{ $t('Existing preferences with the same identifier will be overwritten.') }}</p>
       </template>
       <base-input-group-textarea
         v-model="preferencesImport"
+        :disabled="isLoading"
         rows="10"
       />
       <b-alert :show="!!preferencesImportError"
         class="mb-0 mt-3" variant="warning" fade>{{ preferencesImportError }}</b-alert>
       <template v-slot:modal-footer>
-        <b-button variant="secondary" class="mr-1" @click="showPreferencesImport = false">{{ $t('Cancel') }}</b-button>
-        <b-button variant="primary" class="mr-1"
-          :disabled="!preferencesImport" @click="doPreferencesImport">{{ $t('Import') }}</b-button>
+        <b-button variant="secondary" class="mr-1"
+          :disabled="isLoading" @click="showPreferencesImport = false">{{ $t('Cancel') }}</b-button>
+        <base-button-save variant="primary" class="mr-1"
+          :disabled="!preferencesImport" :is-loading="isLoading" @click="doPreferencesImport">{{ $t('Import') }}</base-button-save>
       </template>
     </b-modal>
   </b-tab>
@@ -150,6 +153,7 @@
 <script>
 import {
   BaseButtonConfirm,
+  BaseButtonSave,
   BaseForm,
   BaseFormGroup,
   BaseFormGroupInputPassword,
@@ -159,6 +163,7 @@ import {
 
 const components = {
   BaseButtonConfirm,
+  BaseButtonSave,
   BaseForm,
   BaseFormGroup,
   BaseFormGroupInputPassword,
@@ -350,6 +355,7 @@ const setup = (props, context) => {
   const preferencesImportError = ref(null)
   const showPreferencesImport = ref(false)
   const doPreferencesImport = () => {
+    isLoading.value = true
     preferencesImportError.value = null
     let promises = []
     try {
@@ -364,6 +370,7 @@ const setup = (props, context) => {
           showPreferencesImport.value = false
           $store.dispatch('notification/info', { message: i18n.t('Preferences imported.') })
         })
+        .finally(() => isLoading.value = false)
     }
     catch (e) {
       preferencesImportError.value = i18n.t('Import is invalid or malformed JSON.')
