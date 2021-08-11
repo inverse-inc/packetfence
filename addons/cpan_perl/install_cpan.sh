@@ -36,7 +36,7 @@ dnf install -y perl-Devel-Peek
 
 # ===== DEBIAN11 =====
 apt update
-apt install libmodule-signature-perl zip make build-essential libssl-dev zlib1g-dev libmariadb-dev-compat libmariadb-dev libssh2-1-dev libexpat1-dev pkg-config libkrb5-dev libsystemd-dev libgd-dev libcpan-distnameinfo-perl libyaml-perl curl wget -y
+apt install libmodule-signature-perl zip make build-essential libssl-dev zlib1g-dev libmariadb-dev-compat libmariadb-dev libssh2-1-dev libexpat1-dev pkg-config libkrb5-dev libsystemd-dev libgd-dev libcpan-distnameinfo-perl libyaml-perl curl wget graphviz -y
 
 cpan install CPAN
 
