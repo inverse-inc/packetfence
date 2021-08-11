@@ -49,25 +49,34 @@ const useForm = (form, props, context) => {
     return lets_encrypt
   })
 
+  const sortSslKeys = ['serial', 'issuer', 'not_before', 'not_after', 'subject', 'common_name']
+  const fnSortSslKeys = (a, b) => {
+    return sortSslKeys.indexOf(a) - sortSslKeys.indexOf(b)
+  }
+
   // translate keys in certificate
   const certificateLocale = computed(() => {
     const { info: { certificate = {} } = {} } = form.value
-    return Object.keys(certificate).reduce((stack, key) => {
-      return (key in strings)
-        ? { ...stack, [i18n.t(strings[key])]: form.value.info.certificate[key] }
-        : { ...stack, [key]: form.value.info.certificate[key] }
-    }, {})
+    return Object.keys(certificate)
+      .sort(fnSortSslKeys)
+      .reduce((stack, key) => {
+        return (key in strings)
+          ? { ...stack, [i18n.t(strings[key])]: form.value.info.certificate[key] }
+          : { ...stack, [key]: form.value.info.certificate[key] }
+      }, {})
   })
 
   // translate keys in certificate
   const certificationAuthorityLocale = computed(() => {
     const { info: { ca = [] } = {} } = form.value
     return ca.map((_ca, _i) => {
-      return Object.keys(_ca).reduce((stack, key) => {
-        return (key in strings)
-          ? { ...stack, [i18n.t(strings[key])]: form.value.info.ca[_i][key] }
-          : { ...stack, [key]: form.value.info.ca[_i][key] }
-      }, {})      
+      return Object.keys(_ca)
+        .sort(fnSortSslKeys)
+        .reduce((stack, key) => {
+          return (key in strings)
+            ? { ...stack, [i18n.t(strings[key])]: form.value.info.ca[_i][key] }
+            : { ...stack, [key]: form.value.info.ca[_i][key] }
+        }, {})
     })
   })
 
