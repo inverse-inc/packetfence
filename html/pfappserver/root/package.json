@@ -20,7 +20,7 @@
     "messageformat": "^2.3.0",
     "mime-types": "^2.1.31",
     "papaparse": "5.3.1",
-    "pinia": "^0.5.2",
+    "pinia": "^2.0.0-rc.4",
     "plotly.js-basic-dist-min": "^1.58.5",
     "promised-debounce": "^0.4.2",
     "typeface-b612-mono": "1.1.13",
