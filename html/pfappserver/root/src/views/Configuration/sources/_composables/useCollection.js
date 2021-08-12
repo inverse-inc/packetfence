@@ -1,5 +1,6 @@
 import { computed, toRefs } from '@vue/composition-api'
 import i18n from '@/utils/locale'
+import { types } from '../config'
 
 export const useItemProps = {
   id: {
@@ -40,7 +41,10 @@ export const useItemTitleBadge = (props, context, form) => {
   const {
     sourceType
   } = toRefs(props)
-  return computed(() => (sourceType.value || form.value.type))
+  return computed(() => {
+    const type = sourceType.value || form.value.type
+    return types[type]
+  })
 }
 
 export { useRouter } from '../_router'
@@ -67,14 +71,16 @@ export const useSearch = makeSearch('sources', {
       visible: true
     },
     {
-      key: 'description',
-      label: 'Description', // i18n defer
-      searchable: true,
-      visible: true
-    },
-    {
       key: 'type',
       label: 'Type', // i18n defer
+      required: true,
+      searchable: true,
+      visible: true,
+      formatter: value => types[value]
+    },
+    {
+      key: 'description',
+      label: 'Description', // i18n defer
       searchable: true,
       visible: true
     },

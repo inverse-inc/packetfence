@@ -1,5 +1,6 @@
 import { computed, toRefs } from '@vue/composition-api'
 import i18n from '@/utils/locale'
+import { types } from '../config'
 
 export const useItemProps = {
   id: {
@@ -42,7 +43,7 @@ export const useItemTitleBadge = (props, context, form) => {
   } = toRefs(props)
   return computed(() => {
     const { type = scanType.value } = form.value || {}
-    return type
+    return types[type]
   })
 }
 
@@ -70,6 +71,15 @@ export const useSearch = makeSearch('scanEngines', {
       visible: true
     },
     {
+      key: 'type',
+      label: 'Type', // i18n defer
+      required: true,
+      searchable: true,
+      sortable: true,
+      visible: true,
+      formatter: value => types[value]
+    },
+    {
       key: 'host',
       label: 'Host', // i18n defer
       searchable: true,
@@ -86,13 +96,6 @@ export const useSearch = makeSearch('scanEngines', {
     {
       key: 'port',
       label: 'Port', // i18n defer
-      searchable: true,
-      sortable: true,
-      visible: true
-    },
-    {
-      key: 'type',
-      label: 'Type', // i18n defer
       searchable: true,
       sortable: true,
       visible: true

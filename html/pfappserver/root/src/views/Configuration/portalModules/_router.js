@@ -10,7 +10,7 @@ export const useRouter = $router => {
     goToItem: params => $router
       .push({ name: 'portal_module', params })
       .catch(e => { if (e.name !== "NavigationDuplicated") throw e }),
-    goToClone: params => $router.push({ name: 'clonePortalModule', params }),
+    goToClone: params => $router.push({ name: 'clonePortalModule', params: { ...params, moduleType: params.type } }),
   }
 }
 
@@ -47,10 +47,10 @@ export default [
     }
   },
   {
-    path: 'portal_module/:id/clone',
+    path: 'portal_module/:id/clone/:moduleType',
     name: 'clonePortalModule',
     component: TheView,
-    props: (route) => ({ id: route.params.id, isClone: true }),
+    props: (route) => ({ id: route.params.id, moduleType: route.params.moduleType, isClone: true }),
     beforeEnter: (to, from, next) => {
       beforeEnter()
       store.dispatch('$_portalmodules/getPortalModule', to.params.id).then(() => {

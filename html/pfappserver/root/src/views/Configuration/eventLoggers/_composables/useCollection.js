@@ -1,5 +1,6 @@
 import { computed, toRefs } from '@vue/composition-api'
 import i18n from '@/utils/locale'
+import { types } from '../config'
 
 export const useItemProps = {
   id: {
@@ -40,7 +41,10 @@ export const useItemTitleBadge = (props, context, form) => {
   const {
     eventLoggerType
   } = toRefs(props)
-  return computed(() => (eventLoggerType.value || form.value.type))
+  return computed(() => {
+    const type = eventLoggerType.value || form.value.type
+    return types[type]
+  })
 }
 
 export { useRouter } from '../_router'
@@ -65,6 +69,15 @@ export const useSearch = makeSearch('eventLoggers', {
       searchable: true,
       sortable: true,
       visible: true
+    },
+    {
+      key: 'type',
+      label: 'Type', // i18n defer
+      required: true,
+      searchable: true,
+      sortable: true,
+      visible: true,
+      formatter: value => types[value]
     },
     {
       key: 'description',

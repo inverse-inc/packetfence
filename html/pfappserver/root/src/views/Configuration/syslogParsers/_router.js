@@ -10,7 +10,7 @@ export const useRouter = $router => {
     goToItem: params => $router
       .push({ name: 'syslogParser', params })
       .catch(e => { if (e.name !== "NavigationDuplicated") throw e }),
-    goToClone: params => $router.push({ name: 'cloneSyslogParser', params }),
+    goToClone: params => $router.push({ name: 'cloneSyslogParser', params: { ...params, syslogParserType: params.type } }),
     goToNew: params => $router.push({ name: 'newSyslogParser', params })
   }
 }
@@ -48,10 +48,10 @@ export default [
     }
   },
   {
-    path: 'pfdetect/:id/clone',
+    path: 'pfdetect/:id/clone/:syslogParserType',
     name: 'cloneSyslogParser',
     component: TheView,
-    props: (route) => ({ id: route.params.id, isClone: true }),
+    props: (route) => ({ id: route.params.id, syslogParserType: route.params.syslogParserType, isClone: true }),
     beforeEnter: (to, from, next) => {
       beforeEnter()
       store.dispatch('$_syslog_parsers/getSyslogParser', to.params.id).then(() => {

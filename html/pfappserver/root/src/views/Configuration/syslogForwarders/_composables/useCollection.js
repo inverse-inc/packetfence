@@ -69,6 +69,7 @@ export const useSearch = makeSearch('syslogForwarders', {
     {
       key: 'type',
       label: 'Type', // i18n defer
+      required: true,
       searchable: true,
       sortable: true,
       visible: true

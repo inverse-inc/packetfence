@@ -10,7 +10,7 @@ export const useRouter = $router => {
     goToItem: params => $router
       .push({ name: 'firewall', params })
       .catch(e => { if (e.name !== "NavigationDuplicated") throw e }),
-    goToClone: params => $router.push({ name: 'cloneFirewall', params }),
+    goToClone: params => $router.push({ name: 'cloneFirewall', params: { ...params, firewallType: params.type } }),
     goToNew: params => $router.push({ name: 'newFirewall', params })
   }
 }
@@ -49,10 +49,10 @@ export default [
     }
   },
   {
-    path: 'firewall/:id/clone',
+    path: 'firewall/:id/clone/:firewallType',
     name: 'cloneFirewall',
     component: TheView,
-    props: (route) => ({ id: route.params.id, isClone: true }),
+    props: (route) => ({ id: route.params.id, firewallType: route.params.firewallType, isClone: true }),
     beforeEnter: (to, from, next) => {
       beforeEnter()
       store.dispatch('$_firewalls/getFirewall', to.params.id).then(() => {

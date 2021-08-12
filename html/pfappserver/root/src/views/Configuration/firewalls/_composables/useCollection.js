@@ -1,5 +1,6 @@
 import { computed, toRefs } from '@vue/composition-api'
 import i18n from '@/utils/locale'
+import { types } from '../config'
 
 export const useItemProps = {
   id: {
@@ -40,7 +41,10 @@ export const useItemTitleBadge = (props, context, form) => {
   const {
     firewallType
   } = toRefs(props)
-  return computed(() => (firewallType.value || form.value.type))
+  return computed(() => {
+    const type = firewallType.value || form.value.type
+    return types[type]
+  })
 }
 
 export { useRouter } from '../_router'
@@ -68,10 +72,12 @@ export const useSearch = makeSearch('firewalls', {
     },
     {
       key: 'type',
-      label: 'Firewall Type', // i18n defer
+      label: 'Type', // i18n defer
+      required: true,
       searchable: true,
       sortable: true,
-      visible: true
+      visible: true,
+      formatter: value => types[value]
     },
     {
       key: 'port',

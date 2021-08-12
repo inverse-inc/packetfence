@@ -10,7 +10,7 @@ export const useRouter = $router => {
     goToItem: params => $router
       .push({ name: 'scanEngine', params })
       .catch(e => { if (e.name !== "NavigationDuplicated") throw e }),
-    goToClone: params => $router.push({ name: 'cloneScanEngine', params }),
+    goToClone: params => $router.push({ name: 'cloneScanEngine', params: { ...params, scanType: params.type } }),
   }
 }
 
@@ -48,10 +48,10 @@ export default [
     }
   },
   {
-    path: 'scan_engine/:id/clone',
+    path: 'scan_engine/:id/clone/:scanType',
     name: 'cloneScanEngine',
     component: TheView,
-    props: (route) => ({ id: route.params.id, isClone: true }),
+    props: (route) => ({ id: route.params.id, scanType: route.params.scanType, isClone: true }),
     beforeEnter: (to, from, next) => {
       beforeEnter()
       store.dispatch('$_scans/getScanEngine', to.params.id).then(() => {

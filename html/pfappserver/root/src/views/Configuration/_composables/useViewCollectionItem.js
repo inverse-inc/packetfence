@@ -152,7 +152,7 @@ export const useViewCollectionItem = (collection, props, context) => {
 
   const onClose = () => goToCollection()
 
-  const onClone = () => goToClone()
+  const onClone = () => goToClone(form.value)
 
   const onRemove = () => deleteItem().then(() => goToCollection())
 

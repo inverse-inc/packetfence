@@ -10,7 +10,7 @@ export const useRouter = $router => {
     goToItem: params => $router
       .push({ name: 'syslogForwarder', params })
       .catch(e => { if (e.name !== "NavigationDuplicated") throw e }),
-    goToClone: params => $router.push({ name: 'cloneSyslogForwarder', params }),
+    goToClone: params => $router.push({ name: 'cloneSyslogForwarder', params: { ...params, syslogForwarderType: params.type } }),
     goToNew: params => $router.push({ name: 'newSyslogForwarder', params })
   }
 }
@@ -48,10 +48,10 @@ export default [
     }
   },
   {
-    path: 'syslog/:id/clone',
+    path: 'syslog/:id/clone/:syslogForwarderType',
     name: 'cloneSyslogForwarder',
     component: TheView,
-    props: (route) => ({ id: route.params.id, isClone: true }),
+    props: (route) => ({ id: route.params.id, syslogForwarderType: route.params.syslogForwarderType, isClone: true }),
     beforeEnter: (to, from, next) => {
       beforeEnter()
       store.dispatch('$_syslog_forwarders/getSyslogForwarder', to.params.id).then(() => {

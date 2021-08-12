@@ -11,7 +11,7 @@ export const useRouter = $router => {
     goToItem: params => $router
       .push({ name: 'pki_provider', params })
       .catch(e => { if (e.name !== "NavigationDuplicated") throw e }),
-    goToClone: params => $router.push({ name: 'clonePkiProvider', params }),
+    goToClone: params => $router.push({ name: 'clonePkiProvider', params: { ...params, providerType: params.type } }),
     goToNew: params => $router.push({ name: 'newPkiProvider', params })
   }
 }
@@ -51,10 +51,10 @@ export default [
     }
   },
   {
-    path: 'pki_provider/:id/clone',
+    path: 'pki_provider/:id/clone/:providerType',
     name: 'clonePkiProvider',
     component: TheView,
-    props: (route) => ({ id: route.params.id, isClone: true }),
+    props: (route) => ({ id: route.params.id, providerType: route.params.providerType, isClone: true }),
     beforeEnter: (to, from, next) => {
       beforeEnter()
       store.dispatch('$_pki_providers/getPkiProvider', to.params.id).then(() => {

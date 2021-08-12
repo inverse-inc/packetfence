@@ -49,6 +49,13 @@ export const billingTypes = {
   Stripe:         'Stripe',
 }
 
+export const types = {
+  ...internalTypes,
+  ...externalTypes,
+  ...exclusiveTypes,
+  ...billingTypes
+}
+
 export const administrationRuleActionsFromSourceType = (sourceType) => ([
   ...[
     pfActions.set_access_level,

@@ -10,7 +10,7 @@ export const useRouter = $router => {
     goToItem: params => $router
       .push({ name: 'provisioning', params })
       .catch(e => { if (e.name !== "NavigationDuplicated") throw e }),
-    goToClone: params => $router.push({ name: 'cloneProvisioning', params }),
+    goToClone: params => $router.push({ name: 'cloneProvisioning', params: { ...params, provisioningType: params.type } }),
     goToNew: params => $router.push({ name: 'newProvisioning', params })
   }
 }
@@ -49,10 +49,10 @@ export default [
     }
   },
   {
-    path: 'provisioning/:id/clone',
+    path: 'provisioning/:id/clone/:provisioningType',
     name: 'cloneProvisioning',
     component: TheView,
-    props: (route) => ({ id: route.params.id, isClone: true }),
+    props: (route) => ({ id: route.params.id, provisioningType: route.params.provisioningType, isClone: true }),
     beforeEnter: (to, from, next) => {
       beforeEnter()
       store.dispatch('$_provisionings/getProvisioning', to.params.id).then(() => {

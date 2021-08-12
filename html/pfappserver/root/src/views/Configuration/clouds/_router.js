@@ -7,7 +7,7 @@ export const useRouter = $router => {
     goToItem: params => $router
       .push({ name: 'cloud', params })
       .catch(e => { if (e.name !== "NavigationDuplicated") throw e }),
-    goToClone: params => $router.push({ name: 'cloneCloud', params }),
+    goToClone: params => $router.push({ name: 'cloneCloud', params: { ...params, cloudType: params.type } }),
     goToNew: params => $router.push({ name: 'newCloud', params }),
   }
 }
@@ -49,10 +49,10 @@ export default [
     }
   },
   {
-    path: 'cloud/:id/clone',
+    path: 'cloud/:id/clone/:cloudType',
     name: 'cloneCloud',
     component: TheView,
-    props: (route) => ({ id: route.params.id, isClone: true }),
+    props: (route) => ({ id: route.params.id, cloudType: route.params.cloudType, isClone: true }),
     beforeEnter: (to, from, next) => {
       beforeEnter()
       store.dispatch('$_clouds/getCloud', to.params.id).then(() => {

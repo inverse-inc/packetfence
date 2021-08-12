@@ -10,7 +10,7 @@ export const useRouter = $router => {
     goToItem: params => $router
       .push({ name: 'eventLogger', params })
       .catch(e => { if (e.name !== "NavigationDuplicated") throw e }),
-    goToClone: params => $router.push({ name: 'cloneEventLogger', params }),
+    goToClone: params => $router.push({ name: 'cloneEventLogger', params: { ...params, eventLoggerType: params.type } }),
     goToNew: params => $router.push({ name: 'newEventLogger', params })
   }
 }
@@ -48,10 +48,10 @@ export default [
     }
   },
   {
-    path: 'event_logger/:id/clone',
+    path: 'event_logger/:id/clone/:eventLoggerType',
     name: 'cloneEventLogger',
     component: TheView,
-    props: (route) => ({ id: route.params.id, isClone: true }),
+    props: (route) => ({ id: route.params.id, eventLoggerType: route.params.eventLoggerType, isClone: true }),
     beforeEnter: (to, from, next) => {
       beforeEnter()
       store.dispatch('$_event_loggers/getEventLogger', to.params.id).then(() => {
