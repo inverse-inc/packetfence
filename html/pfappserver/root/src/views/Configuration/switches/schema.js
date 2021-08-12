@@ -42,7 +42,6 @@ export const schema = (props) => {
       .switchIdNotExistsExcept((!isNew && !isClone) ? id : undefined, i18n.t('Identifier exists.')),
     description: yup.string()
       .nullable()
-      .required(i18n.t('Description required.'))
       .label(i18n.t('Description')),
     inlineTrigger: schemaInlineTriggers,
     type: yup.string().nullable().label(i18n.t('Type')),
