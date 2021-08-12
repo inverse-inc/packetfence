@@ -74,7 +74,7 @@
             size="sm" variant="outline-danger" class="my-1 mr-1" reverse
             :disabled="isLoading"
             :confirm="$t('Delete Source?')"
-            @click="onRemove(item.id)"
+            @click="onRemove(item)"
           >{{ $t('Delete') }}</base-button-confirm>
           <b-button
             size="sm" variant="outline-primary" class="mr-1"
@@ -162,8 +162,9 @@ const setup = (props, context) => {
     sortItems
   } = useStore($store)
 
-  const onRemove = id => {
-    deleteItem({ id })
+  const onRemove = item => {
+    const { id, tenant_id: tenantId } = item
+    deleteItem({ id, tenantId })
       .then(() => emit('reSearch'))
   }
 
