@@ -101,7 +101,12 @@ Logs are available in `/root/install_perl` directory.
 
 ``` shell
 ./make_tar_from_source.sh
-rpmbuild -ba ./rhel8/SPECS/cpan_perl_module.spec
+QA_RPATHS=$(( 0x0001 )) rpmbuild -ba ./rhel8/SPECS/cpan_perl_module.spec
 ```
 
 ## How to build Debian package
+
+``` shell
+./make_tar_from_source.sh
+dpkg-buildpackage --no-sign -rfakeroot
+```
