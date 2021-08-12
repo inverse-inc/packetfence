@@ -1,4 +1,5 @@
 import apiCall from '@/utils/api'
+import { expandMetaData } from './config'
 
 export default {
   list: params => {
@@ -46,7 +47,7 @@ export default {
   },
   itemOptions: id => {
     return apiCall.options(['config', 'switch', id]).then(response => {
-      return response.data
+      return expandMetaData(response.data)
     })
   },
   update: data => {
