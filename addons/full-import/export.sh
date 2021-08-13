@@ -64,7 +64,7 @@ fi
 
 main_splitter
 echo "Building list of configuration files for this current version"
-perl -I/usr/local/pf/lib_perl5/lib -I/usr/local/pf/lib -Mpf::file_paths -e 'print join("\n", @pf::file_paths::stored_config_files) . "\n"' > stored_config_files.txt
+perl -I/usr/local/pf/lib_perl/lib/perl5/ -I/usr/local/pf/lib -Mpf::file_paths -e 'print join("\n", @pf::file_paths::stored_config_files) . "\n"' > stored_config_files.txt
 
 main_splitter
 echo "Computing additional files that are referenced in the configuration"
