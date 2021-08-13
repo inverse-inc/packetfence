@@ -59,7 +59,7 @@ export const types = {
 export const administrationRuleActionsFromSourceType = (sourceType) => ([
   ...[
     pfActions.set_access_level,
-    pfActions.set_tenant_id
+    // pfActions.set_tenant_id // workaround #5976
   ],
   ...((['AD', 'AzureAD', 'LDAP', 'GoogleWorkspaceLDAP', 'EDIR'].includes(sourceType))
     ? [
