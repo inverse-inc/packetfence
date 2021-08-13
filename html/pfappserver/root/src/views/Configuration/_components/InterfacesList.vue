@@ -49,22 +49,24 @@
             <icon name="circle" :class="{ 'text-success': item.item.high_availability === 1, 'text-danger': item.item.high_availability === 0 }"></icon>
           </template>
           <template v-slot:cell(buttons)="item">
-            <span v-if="item.item.vlan"
-              class="float-right text-nowrap"
-            >
-              <base-button-confirm
-                size="sm" variant="outline-danger" class="my-1 mr-1" reverse
-                :disabled="isInterfacesLoading"
-                :confirm="$t('Delete VLAN?')"
-                @click="removeInterface(item.item)"
-              >{{ $t('Delete') }}</base-button-confirm>
-              <b-button size="sm" variant="outline-primary" class="mr-1" :disabled="isInterfacesLoading" @click.stop.prevent="cloneInterface(item.item)">{{ $t('Clone') }}</b-button>
-            </span>
-            <span v-else
-              class="float-right text-nowrap"
-            >
-              <b-button size="sm" variant="outline-primary" class="mr-1" :disabled="isInterfacesLoading" @click.stop.prevent="addVlanInterface(item.item)">{{ $t('New VLAN') }}</b-button>
-            </span>
+            <template v-if="!item.item.not_editable">
+              <span v-if="item.item.vlan"
+                class="float-right text-nowrap"
+              >
+                <base-button-confirm
+                  size="sm" variant="outline-danger" class="my-1 mr-1" reverse
+                  :disabled="isInterfacesLoading"
+                  :confirm="$t('Delete VLAN?')"
+                  @click="removeInterface(item.item)"
+                >{{ $t('Delete') }}</base-button-confirm>
+                <b-button size="sm" variant="outline-primary" class="mr-1" :disabled="isInterfacesLoading" @click.stop.prevent="cloneInterface(item.item)">{{ $t('Clone') }}</b-button>
+              </span>
+              <span v-else
+                class="float-right text-nowrap"
+              >
+                <b-button size="sm" variant="outline-primary" class="mr-1" :disabled="isInterfacesLoading" @click.stop.prevent="addVlanInterface(item.item)">{{ $t('New VLAN') }}</b-button>
+              </span>
+            </template>
           </template>
         </b-table>
       </div>
@@ -200,7 +202,6 @@ export default {
   },
   data () {
     return {
-      interfaces: [], // interfaces from store
       routedNetworks: [], // routed networks from store
       layer2Networks: [], // layer2 networks from store
       highlightedRoute: null
@@ -212,6 +213,19 @@ export default {
     },
     isInterfacesWaiting () {
       return this.$store.getters[`$_interfaces/isWaiting`]
+    },
+    interfaces () {
+      return this.$store.getters['$_interfaces/interfaces']
+        .map(item => {
+          const isHighlightedRoute = (this.highlightedRoute && item.ipaddress && item.network && network.ipv4NetmaskToSubnet(item.ipaddress, item.network) === this.highlightedRoute)
+          if (isHighlightedRoute)
+            item._rowVariant = 'primary'
+          else if (item.not_editable)
+            item._rowVariant = 'warning' // set table row variant on not editable
+          else if (item.vlan)
+            item._rowVariant = 'secondary' // set table row variant on vlans
+          return item
+        })
     },
     fieldsInterface () {
       return columnsInterface.map(column => {
@@ -249,12 +263,7 @@ export default {
   },
   methods: {
     init () {
-      this.$store.dispatch(`$_interfaces/all`).then(interfaces => {
-        this.interfaces = interfaces
-        this.interfaces.forEach((item, index) => {
-          if (item.vlan) this.interfaces[index]._rowVariant = 'secondary' // set table row variant on vlans
-        })
-      })
+      this.$store.dispatch(`$_interfaces/all`)
       this.$store.dispatch(`$_routed_networks/all`).then(routedNetworks => {
         this.routedNetworks = routedNetworks
       })
@@ -277,7 +286,11 @@ export default {
       this.$router.push({ name: 'newInterface', params: { id: item.id } })
     },
     onRowClickInterface (item) {
-      this.$router.push({ name: 'interface', params: { id: item.id } })
+      const { not_editable } = item
+      if (not_editable)
+        this.$store.dispatch('notification/danger', { message: this.$i18n.t('Interface <code>{id}</code> must be enabled in order to be modified.', item) })
+      else
+        this.$router.push({ name: 'interface', params: { id: item.id } })
     },
     onRowHoverInterface (item) {
       if (item.ipaddress && item.netmask) {
@@ -342,15 +355,6 @@ export default {
   watch: {
     highlightedRoute: {
       handler: function (a) {
-        if (this.interfaces.length > 0) {
-          this.interfaces.forEach((iface, i) => {
-            if (a && iface.ipaddress && iface.network && network.ipv4NetmaskToSubnet(iface.ipaddress, iface.network) === a) {
-              this.$set(this.interfaces[i], '_rowVariant', 'primary')
-            } else {
-              this.$set(this.interfaces[i], '_rowVariant', (this.interfaces[i].vlan) ? 'secondary' : null)
-            }
-          })
-        }
         if (this.layer2Networks.length > 0) {
           this.layer2Networks.forEach((layer2, i) => {
             if (a && layer2.id && layer2.id === a) {

@@ -41,7 +41,8 @@ const state = () => {
 const getters = {
   isWaiting: state => [types.LOADING, types.DELETING].includes(state.status),
   isLoading: state => state.status === types.LOADING,
-  cacheFlattened: state => Object.values(state.cache)
+  cacheFlattened: state => Object.values(state.cache),
+  interfaces: state => state.interfaces
 }
 
 const actions = {
@@ -95,20 +96,22 @@ const actions = {
       throw err
     })
   },
-  downInterface: ({ commit }, id) => {
+  downInterface: ({ commit, dispatch }, id) => {
     commit('INTERFACE_REQUEST')
     return api.downInterface(id).then(response => {
       commit('INTERFACE_DOWN', id)
+      dispatch('all')
       return response
     }).catch((err) => {
       commit('INTERFACE_ERROR', err.response)
       throw err
     })
   },
-  upInterface: ({ commit }, id) => {
+  upInterface: ({ commit, dispatch }, id) => {
     commit('INTERFACE_REQUEST')
     return api.upInterface(id).then(response => {
       commit('INTERFACE_UP', id)
+      dispatch('all')
       return response
     }).catch((err) => {
       commit('INTERFACE_ERROR', err.response)
