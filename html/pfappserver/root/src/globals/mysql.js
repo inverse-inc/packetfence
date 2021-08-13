@@ -81,8 +81,8 @@ export const MysqlDatabase = {
     },
     unregdate: {
       type: MysqlDatetime,
-      format: 'YYYY-MM-DD',
-      default: '0000-00-00'
+      format: 'YYYY-MM-DD HH:mm:ss',
+      default: '0000-00-00 00:00:00'
     },
     lastskip: {
       type: MysqlDatetime,
@@ -239,7 +239,7 @@ export const MysqlDatabase = {
     },
     expiration: {
       type: MysqlDatetime,
-      format: 'YYYY-MM-DD HH:mm:ss',
+      format: 'YYYY-MM-DD',
       default: ''
     },
     access_duration: {

@@ -16,6 +16,7 @@
 <script>
 import {
   BaseInput,
+  BaseInputGroupDate,
   BaseInputGroupDateTime,
   BaseInputGroupMultiplier,
   BaseInputNumber,
@@ -27,6 +28,7 @@ import {
 
 const components = {
   BaseInput,
+  BaseInputGroupDate,
   BaseInputGroupDateTime,
   BaseInputGroupMultiplier,
   BaseInputNumber,
@@ -110,6 +112,10 @@ const setup = (props, context) => {
 
           case componentType.SELECTONE:
             return BaseInputChosenOne
+            // break
+
+          case componentType.DATE:
+            return BaseInputGroupDate
             // break
 
           case componentType.DATETIME:

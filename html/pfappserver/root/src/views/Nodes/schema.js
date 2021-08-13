@@ -18,7 +18,7 @@ yup.addMethod(yup.string, 'nodeExists', function (message) {
   return this.test({
     name: 'nodeExists',
     message: message || i18n.t('MAC address exists.'),
-    test: (value) => {
+    test: (value) => { 
       if (!value)
         return true
       // standardize MAC address
@@ -54,7 +54,7 @@ export const updateSchema = () => {
   return yup.object().shape(mysqlDatabaseSchema).concat(
     yup.object().shape({
       pid: yupUsers.string().nullable()
-        .required(i18n.t('Owner required.'))
+        .required(i18n.t('Owner required.'))  
         .pidExists(i18n.t('PID does not exist.'))
     })
   )

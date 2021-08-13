@@ -114,17 +114,17 @@ export const pfActions = {
   set_unreg_date: {
     value: 'set_unreg_date',
     text: 'Unregistration date', // i18n defer
-    types: [fieldType.DATETIME],
+    types: [fieldType.DATE],
     props: {
-      placeholder: '0000-00-00 00:00:00'
+      placeholder: '0000-00-00'
     }
   },
   set_unreg_date_by_acl_user: {
     value: 'set_unreg_date',
     text: 'Unregistration date', // i18n defer
-    types: [fieldType.DATETIME],
+    types: [fieldType.DATE],
     props: {
-      placeholder: '0000-00-00 00:00:00',
+      placeholder: '0000-00-00',
     }
   },
   time_balance_from_source: {
