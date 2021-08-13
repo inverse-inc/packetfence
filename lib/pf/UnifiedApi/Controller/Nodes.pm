@@ -1057,10 +1057,6 @@ sub do_get {
     } else {
         $item->_load_locationlog;
         $item = $item->to_hash();
-        if (defined $item->{unregdate}) {
-            $item->{unregdate} =~ s/ 00:00:00$//;
-        }
-
         my $end_time = $item->{last_end_time};
         $item->{not_deletable} = defined $end_time && $end_time eq '0000-00-00 00:00:00' ? $self->json_true : $self->json_false;
     }
