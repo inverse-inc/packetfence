@@ -16,6 +16,7 @@ use strict;
 use warnings;
 use Mojo::Base 'pf::UnifiedApi::Controller::Crud';
 use pf::nodecategory qw(nodecategory_view);
+use pf::password;
 use pf::dal::password;
 use pf::admin_roles;
 has dal => 'pf::dal::password';
@@ -41,6 +42,10 @@ sub make_create_data {
     my ($self) = @_;
     my ($status, $data) = $self->SUPER::make_create_data();
     $data = $self->_handle_password_data($data);
+    if (exists $data->{expiration} && !defined $data->{expiration}) {
+        $data->{expiration} = \['DATE_ADD(NOW(), INTERVAL ? SECOND)', $pf::password::EXPIRATION];
+    }
+
     return ($status, $data);
 }
 
