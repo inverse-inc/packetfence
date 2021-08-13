@@ -3,7 +3,10 @@ import apiCall from '@/utils/api'
 
 const api = {
   search: data => {
-    const tenants = store.state.session.tenants
+    const singleTenant = store.state.session.tenant.id !== 0
+    const tenants = (singleTenant)
+      ? [store.state.session.tenant] // single-tenant mode
+      : store.state.session.tenants // multi-tenant mode
     const promises = []
     tenants.forEach(tenant => {
       const headers = { 'X-PacketFence-Tenant-Id': tenant.id }

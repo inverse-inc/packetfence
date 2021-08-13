@@ -65,7 +65,10 @@ const setup = (props, context) => {
     items
   } = toRefs(search)
 
-  const tenants = computed(() => $store.state.session.tenants)
+  const tenants = computed(() => ($store.state.session.tenant.id !== 0)
+    ? [$store.state.session.tenant] // single-tenant mode
+    : $store.state.session.tenants // multi-tenant mode
+  )
   const tenantsRealms = computed(() => {
     return tenants.value.map(tenant => {
       return { ...tenant, items: items.value.filter(item => +item.tenant_id === +tenant.id ) }
