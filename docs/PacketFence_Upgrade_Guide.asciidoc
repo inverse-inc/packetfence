@@ -922,6 +922,29 @@ mysql -u root -p pf -v < /usr/local/pf/db/upgrade-10.0.0-10.1.0.sql
 
 == Upgrading from a version prior to 10.2.0
 
+=== Backup of pfmon.conf (Debian based systems only)
+
+NOTE: This step needs to be done *before* packages upgrade.
+
+Debian packages upgrades will remove [filename]`/usr/local/pf/conf/pfmon.conf` file in favor of [filename]`/usr/local/pf/conf/pfcron.conf`.
+In order to keep your configuration in place, you need to make a backup of your `pfmon.conf` file *before* running packages upgrades:
+
+[source,bash]
+----
+cp /usr/local/pf/conf/pfmon.conf /root/pfmon.conf.rpmsave
+----
+
+After package upgrades have been performed, you can move file to its original location:
+
+[source,bash]
+----
+mv /root/pfmon.conf.rpmsave /usr/local/pf/conf/pfmon.conf.rpmsave
+----
+
+Configuration will be move to [filename]`/usr/local/pf/conf/pfcron.conf` file during configuration migration step.
+
+WARNING: `rpmsave` extension is not an error, script `to-10.2-pfmon-maintenance.pl` will migrate configuration using this filename.
+
 === Self registration portal
 
 The parameter device_registration_role has been renamed device_registration_roles, in order to apply the change run the following script:
