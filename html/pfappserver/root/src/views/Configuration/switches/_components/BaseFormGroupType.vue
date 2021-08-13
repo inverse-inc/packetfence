@@ -43,7 +43,7 @@ const components = {
   BaseInputChosenOne
 }
 
-import { computed, ref } from '@vue/composition-api'
+import { computed, inject, ref } from '@vue/composition-api'
 import { useFormGroupProps } from '@/composables/useFormGroup'
 import { useInputMetaProps, useInputMeta } from '@/composables/useMeta'
 import { useInput, useInputProps } from '@/composables/useInput'
@@ -68,19 +68,19 @@ const setup = (props, context) => {
     text
   } = useInputValue(metaProps, context)
 
-  const { root: { $store } = {} } = context
-
-  const switchTemplates = ref([])
-  $store.dispatch('$_switches/optionsBySwitchGroup').then(switchGroupOptions => {
-    const { meta: { type: { allowed: switchGroups = [] } = {} } = {} } = switchGroupOptions
+  const meta = inject('meta', ref({}))
+  const switchTemplates = computed(() => {
+    const { type: { allowed: switchGroups = [] } = {} } = meta.value
+    let _switchTemplates = []
     switchGroups.map(switchGroup => {
       const { options: switchGroupMembers } = switchGroup
-      switchGroupMembers.map(switchGroupMember => {
+      switchGroupMembers.forEach(switchGroupMember => {
         const { is_template, value } = switchGroupMember
         if (is_template)
-          switchTemplates.value.push(value)
+          _switchTemplates.push(value)
       })
     })
+    return _switchTemplates
   })
 
   const switchTemplateId = computed(() => {

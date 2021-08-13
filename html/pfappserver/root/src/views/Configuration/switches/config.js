@@ -74,12 +74,15 @@ export const importFields = [
 
 export const expandMetaData = data => {
   const { meta: {
-    AccessListMapping: { placeholder: accessListPlaceholders = [] } = {},
-    UrlMapping: { placeholder: urlPlaceholders = [] } = {},
-    VlanMapping: { placeholder: vlanPlaceholders = [] } = {}
+    AccessListMapping: { placeholder: accessListPlaceholders } = {},
+    UrlMapping: { placeholder: urlPlaceholders } = {},
+    VlanMapping: { placeholder: vlanPlaceholders } = {}
   } = {} } = data
-  accessListPlaceholders.forEach(({ role, accesslist }) => data.meta[`${role}AccessList`] = { placeholder: accesslist })
-  urlPlaceholders.forEach(({ role, url }) => data.meta[`${role}Url`] = { placeholder: url })
-  vlanPlaceholders.forEach(({ role, vlan }) => data.meta[`${role}Vlan`] = { placeholder: vlan })
+  if (accessListPlaceholders)
+    accessListPlaceholders.forEach(({ role, accesslist }) => data.meta[`${role}AccessList`] = { placeholder: accesslist })
+  if (urlPlaceholders)
+    urlPlaceholders.forEach(({ role, url }) => data.meta[`${role}Url`] = { placeholder: url })
+  if (vlanPlaceholders)
+    vlanPlaceholders.forEach(({ role, vlan }) => data.meta[`${role}Vlan`] = { placeholder: vlan })
   return data
 }
