@@ -46,9 +46,8 @@ install: build
 	dh_prep
 	dh_installdirs
 
-	install -d -m0700 $(CURDIR)/debian/cpan-perl-module$(PREFIX)/$(NAME)/$(PERL_PATH)
-	tar xzf cpan_perl_module_without_all_path.tar.gz -C $(CURDIR)/debian/cpan-perl-module$(PREFIX)/$(NAME)/$(PERL_PATH)
-	
+	install -d -m0700 $(CURDIR)/debian/packetfence-perl$(PREFIX)/$(NAME)/$(PERL_PATH)
+	tar xzf cpan_perl_module_without_all_path.tar.gz -C $(CURDIR)/debian/packetfence-perl$(PREFIX)/$(NAME)/$(PERL_PATH)
 
 # Build architecture-independent files here.
 binary-indep: build install

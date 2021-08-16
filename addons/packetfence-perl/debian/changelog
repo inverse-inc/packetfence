@@ -1,4 +1,4 @@
-packetfence-perl (1.1.0-1) unstable; urgency=medium
+packetfence-perl (1.1.0) unstable; urgency=medium
 
   * Remove Crypt::SMIME
 
