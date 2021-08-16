@@ -10,7 +10,7 @@ export packetfence_monit_dir="$monit_dir/packetfence"
 
 export script_registry_url="http://inverse.ca/downloads/PacketFence/monitoring-scripts/v1/monit-script-registry.txt"
 export script_registry_file="$packetfence_monit_dir/checks-script-registry"
-export script_dir="/usr/local/pf/var/monitoring-scripts/"
+export script_dir="/usr/local/pf/var/monitoring-scripts"
 
 export functions_script="$script_dir/.functions.sh"
 export uuid_file="$packetfence_monit_dir/srv-uuid"
