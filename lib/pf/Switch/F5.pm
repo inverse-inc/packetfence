@@ -81,7 +81,7 @@ sub parseExternalPortalRequest {
 
     my $client_ip = defined($r->headers_in->{'X-Forwarded-For'}) ? $r->headers_in->{'X-Forwarded-For'} : $r->connection->remote_ip;
 
-    my $client_mac = genMAC();
+    my $client_mac = random_mac();
 
     if($req->param('conf_id')) {
         $switch_id = $req->param('conf_id');
