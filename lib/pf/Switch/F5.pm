@@ -80,13 +80,18 @@ sub parseExternalPortalRequest {
     my %params = ();
 
     my $client_ip = defined($r->headers_in->{'X-Forwarded-For'}) ? $r->headers_in->{'X-Forwarded-For'} : $r->connection->remote_ip;
-    #my $client_mac = '00:00:' . join(':', map { sprintf("%02x", $_) } split /\./, $client_ip);
 
-    my $client_mac = random_mac();
+    my $client_mac = genMAC();
 
-    my $uri = URI->new($req->param('post_url'));
+    if($req->param('conf_id')) {
+        $switch_id = $req->param('conf_id');
+    } else {
+        my $uri = URI->new($req->param('post_url'));
+        $switch_id = $uri->host();
+    }
+
     %params = (
-        switch_id               => $uri->host(),
+        switch_id               => $switch_id,
         client_mac              => $client_mac,
         client_ip               => $client_ip,
         grant_url               => $req->param('post_url'),
