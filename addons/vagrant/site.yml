@@ -33,4 +33,6 @@
 - import_playbook: playbooks/utils.yml
   tags: utils
 
+- import_playbook: playbooks/enable_libvirt_console.yml
+
 - import_playbook: playbooks/unregister_rhel_subscription.yml
