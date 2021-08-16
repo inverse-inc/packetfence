@@ -1,12 +1,12 @@
 #!/bin/bash
 
 # ===== USAGE =====
-# Usage: $ create_csv-dep_file.sh dependencies.csv
+# Usage: $ install_cpan.sh dependencies.csv
 #  get the filename
 CsvFile=$1
 if [[ ! -f $CsvFile || "$CsvFile" == "" ]]; then
   echo "The CSV File $CsvFile has not been found"
-  echo "Usage: $ create_csv-dep_file.sh dependencies.csv"
+  echo "Usage: $ install_cpan.sh dependencies.csv"
   exit 99
 fi
 
