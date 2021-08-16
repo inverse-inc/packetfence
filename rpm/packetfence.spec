@@ -260,7 +260,6 @@ Requires: perl(Algorithm::Combinatorics)
 Requires: perl(Class::XSAccessor)
 Requires: iproute >= 3.0.0, krb5-workstation
 Requires: samba >= 4
-Requires: perl(Linux::Distribution)
 Requires: perl(Pod::Markdown)
 # SAML
 Requires: perl-lasso

@@ -41,7 +41,7 @@ use pf::constants::exit_code qw($EXIT_SUCCESS);
 use pfconfig::cached_hash;
 use pf::config qw(
     $management_network
-    $DISTRIB
+    $OS
     %Config
 );
 use pf::constants::eventLogger;
@@ -148,7 +148,7 @@ sub _run {
         );
     }
 
-    if ($DISTRIB eq 'debian') {
+    if ($OS eq 'debian') {
         $vars{'libgalera'} = '/usr/lib/galera/libgalera_smm.so';
     } else {
         $vars{'libgalera'} = '/usr/lib64/galera-4/libgalera_smm.so';

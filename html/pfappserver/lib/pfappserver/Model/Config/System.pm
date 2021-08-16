@@ -13,7 +13,6 @@ Catalyst Model.
 use Moose;
 use namespace::autoclean;
 use Net::Netmask;
-use pf::config qw($DISTRIB $DIST_VERSION);
 
 use pf::log;
 use pf::error qw(is_error is_success);

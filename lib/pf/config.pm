@@ -37,7 +37,6 @@ use Try::Tiny;
 use File::Which;
 use Socket;
 use Time::Local;
-use Linux::Distribution;
 use DateTime;
 use pf::constants::Connection::Profile;
 use pf::config::cluster;
@@ -225,7 +224,6 @@ BEGIN {
         %ConfigCloud
         %ConfigFirewallSSO
         $OS
-        $DISTRIB $DIST_VERSION
         %Doc_Config
         %ConfigRealm
         @ConfigOrderedRealm
@@ -356,9 +354,6 @@ Readonly our $WIPS_SECURITY_EVENT_ID => '1100020';
 Readonly::Scalar our $OS => os_detection();
 
 # OS Version Specific
-Readonly::Scalar our $LINUX => Linux::Distribution->new;
-Readonly::Scalar our $DISTRIB => $LINUX->distribution_name();
-Readonly::Scalar our $DIST_VERSION => $LINUX->distribution_version();
 
 # Interface types
 Readonly our $IF_INTERNAL => 'internal';
