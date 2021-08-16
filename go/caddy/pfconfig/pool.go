@@ -10,6 +10,7 @@ import (
 
 	"github.com/inverse-inc/packetfence/go/caddy/caddy"
 	"github.com/inverse-inc/packetfence/go/caddy/caddy/caddyhttp/httpserver"
+	"github.com/inverse-inc/packetfence/go/panichandler"
 	"github.com/inverse-inc/packetfence/go/pfconfigdriver"
 )
 
@@ -57,6 +58,8 @@ type PoolHandler struct {
 
 // Middleware that ensures there is a read-lock on the pool during every request and released when the request is done
 func (h PoolHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) (int, error) {
+	defer panichandler.Http(r.Context(), w)
+
 	for _, noRlock := range h.noRlockPaths {
 		if strings.HasSuffix(r.URL.Path, noRlock) {
 			return h.Next.ServeHTTP(w, r)
