@@ -187,7 +187,7 @@ yum update ipset ipset-libs --enablerepo=packetfence
 ----
 
 
-==== Debian based systems
+==== Debian-based systems
 
 Run the following commands to update PacketFence:
 
@@ -226,7 +226,7 @@ be merged into your existing configuration. Then, once you are done make sure
 to delete these files so that there is no confusion the next time you upgrade
 PacketFence.
 
-===== Debian based systems
+===== Debian-based systems
 
 Debian installation system should have interactively asked for existing
 modified files. If you answer `No` to keep existing files in place, you can
@@ -750,7 +750,7 @@ yum install kernel-devel-$(uname -r)
 
 NOTE: Be sure to follow instructions in <<_rebooting_after_services_have_been_stopped>> section to ensure services will not restart.
 
-==== Debian based systems
+==== Debian-based systems
 
 [source,bash]
 ----
@@ -922,7 +922,7 @@ mysql -u root -p pf -v < /usr/local/pf/db/upgrade-10.0.0-10.1.0.sql
 
 == Upgrading from a version prior to 10.2.0
 
-=== Backup of pfmon.conf (Debian based systems only)
+=== Backup of pfmon.conf (Debian-based systems only)
 
 NOTE: This step needs to be done *before* packages upgrade.
 
@@ -934,14 +934,14 @@ In order to keep your configuration in place, you need to make a backup of your 
 cp /usr/local/pf/conf/pfmon.conf /root/pfmon.conf.rpmsave
 ----
 
-After package upgrades have been performed, you can move file to its original location:
+After packages upgrades have been performed, you can move file to its original location:
 
 [source,bash]
 ----
 mv /root/pfmon.conf.rpmsave /usr/local/pf/conf/pfmon.conf.rpmsave
 ----
 
-Configuration will be move to [filename]`/usr/local/pf/conf/pfcron.conf` file during configuration migration step.
+Configuration will be moved to [filename]`/usr/local/pf/conf/pfcron.conf` file during configuration migration step.
 
 WARNING: `rpmsave` extension is not an error, script `to-10.2-pfmon-maintenance.pl` will migrate configuration using this filename.
 
@@ -1036,7 +1036,7 @@ rpm -e --nodeps MariaDB-client MariaDB-common MariaDB-server MariaDB-shared
 yum install --enablerepo=packetfence MariaDB-server
 ----
 
-.Debian based systems
+.Debian-based systems
 [source,bash]
 ----
 dpkg -r --force-depends mariadb-server mariadb-client-10.1 mariadb-client-core-10.1 \
@@ -1087,7 +1087,7 @@ systemctl stop mariadb
 systemctl mask mariadb
 ----
 
-.Debian based systems
+.Debian-based systems
 [source,bash]
 ----
 systemctl stop mysql
@@ -1215,7 +1215,7 @@ rpm -e --nodeps MariaDB-client MariaDB-common MariaDB-server MariaDB-shared
 yum install --enablerepo=packetfence MariaDB-server MariaDB-backup
 ----
 
-.Debian based systems
+.Debian-based systems
 [source,bash]
 ----
 dpkg -r --force-depends mariadb-server mariadb-client-10.1 mariadb-client-core-10.1 \
@@ -1262,7 +1262,7 @@ systemctl stop mariadb
 systemctl mask mariadb
 ----
 
-.Debian based systems
+.Debian-based systems
 [source,bash]
 ----
 systemctl stop mysql
@@ -1353,7 +1353,7 @@ rpm -e --nodeps MariaDB-client MariaDB-common MariaDB-server MariaDB-shared
 yum install --enablerepo=packetfence MariaDB-server MariaDB-backup
 ----
 
-.Debian based systems
+.Debian-based systems
 [source,bash]
 ----
 dpkg -r --force-depends mariadb-server mariadb-client-10.1 mariadb-client-core-10.1 \
@@ -1377,9 +1377,9 @@ sed -i "s/xtrabackup/mariabackup/g" /usr/local/pf/conf/mariadb/mariadb.conf.tt
 
 At this moment you have the newest version of MariaDB installed on nodes A and B.
 
-On Debian based systems **only**, you need to stop default `mysql` service:
+On Debian-based systems **only**, you need to stop default `mysql` service:
 
-.Debian based systems **only**
+.Debian-based systems **only**
 [source,bash]
 ----
 systemctl stop mysql
