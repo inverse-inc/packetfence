@@ -2,7 +2,7 @@ import apiCall from '@/utils/api'
 
 export default {
   certificate: id => {
-    return apiCall.get(['config', 'certificate', id]).then(response => {
+    return apiCall.getQuiet(['config', 'certificate', id]).then(response => {
       return response.data
     })
   },
