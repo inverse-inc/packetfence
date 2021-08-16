@@ -617,9 +617,9 @@ sub options_from_form {
     my %output = (
         meta => \%meta,
     );
-
+    my $placeholder = $self->standardPlaceholder;
     my $parent = {
-        placeholder => $self->standardPlaceholder
+        placeholder => $placeholder
     };
     for my $field ($form->fields) {
         next if $field->inactive;
@@ -630,8 +630,11 @@ sub options_from_form {
         }
     }
 
+    $self->cleanup_options(\%output, $placeholder);
     return \%output;
 }
+
+sub cleanup_options {}
 
 =head2 standardPlaceholder
 
@@ -867,9 +870,8 @@ sub resource_options {
         meta => \%meta,
     );
     my $inheritedValues = $self->resourceInheritedValues;
-    my $parent = {
-        placeholder => $self->_cleanup_placeholder($inheritedValues)
-    };
+    my $placeholder = $self->_cleanup_placeholder($inheritedValues);
+    my $parent = { placeholder => $placeholder };
     $form->process($self->form_process_parameters_for_cleanup($item));
     for my $field ($form->fields) {
         next if $field->inactive;
@@ -878,6 +880,7 @@ sub resource_options {
         $meta{$name} = $self->field_meta($field, $parent);
     }
 
+    $self->cleanup_options(\%output, $placeholder);
     return $self->render(json => \%output);
 }
 
