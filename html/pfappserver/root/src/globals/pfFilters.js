@@ -43,7 +43,9 @@ export const pfFilters = {
     types: [fieldType.SSID],
     props: {
       taggable: true,
-      tagPlaceholder: i18n.t('Click to add new SSID')
+      tagPlaceholder: i18n.t('Click to add new SSID'),
+      internalSearch: false,
+      caseSensitiveSearch: true
     }
   },
   switch: {

@@ -88,6 +88,10 @@ export const useInputMultiselectProps = {
     type: Boolean,
     default: false
   },
+  caseSensitiveSearch: {
+    type: Boolean,
+    default: false
+  },
   preselectFirst: {
     type: Boolean,
     default: false
@@ -159,24 +163,29 @@ export const useOptionsPromise = (optionsPromise, label) => {
 }
 
 // supersede VueMultiselect internal search
-//  implement case sensitive search from/to options using label
-export const useOptionsSearch = (_options, _label, groupLabel, groupValues) => {
+//  implement search from/to options using label
+export const useOptionsSearch = (_options, _label, groupLabel, groupValues, caseSensitive = false) => {
   const query = ref(null)
   const onSearch = _query => {
     query.value = _query
   }
   const options = computed(() => {
     if (query.value) {
-      if (groupLabel.value || groupValues.value) { // grouped case-sensitive search
+      if (groupLabel.value || groupValues.value) { // grouped search
         return _options.value.reduce((reduced = [], option) => {
           const { [groupLabel.value]: group, [groupValues.value]: options } = option
-          if (group.includes(query.value)) {
+          if ((caseSensitive)
+            ? group.includes(query.value)
+            : group.toLowerCase().includes(query.value.toLowerCase())
+          ) {
             reduced = [ ...reduced, option ]
           }
           else {
             const filtered = options.filter(option => {
               const { [_label.value]: label } = option
-              return label.includes(query.value)
+              return (caseSensitive)
+                ? label.includes(query.value)
+                : label.toLowerCase().includes(query.value.toLowerCase())
             })
             if (filtered.length > 0) {
               reduced = [ ...reduced, { [groupLabel.value]: group, [groupValues.value]: filtered } ]
@@ -185,10 +194,12 @@ export const useOptionsSearch = (_options, _label, groupLabel, groupValues) => {
           return reduced
         }, [])
       }
-      else { // non-grouped case-sensitive search
+      else { // non-grouped search
         return _options.value.filter(option => {
           const { [_label.value]: label } = option
-          return label.includes(query.value)
+          return (caseSensitive)
+            ? label.includes(query.value)
+            : label.toLowerCase().includes(query.value.toLowerCase())
         })
       }
     }

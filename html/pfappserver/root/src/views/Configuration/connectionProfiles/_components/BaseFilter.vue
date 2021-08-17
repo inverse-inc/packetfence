@@ -6,7 +6,7 @@
       :options="typeOptions"
     />
 
-    <component :is="matchComponent" ref="matchComponentRef"
+    <component :is="matchComponent" :key="inputValue.type" ref="matchComponentRef"
       :namespace="`${namespace}.match`"
       :options="matchOptions"
       v-bind="matchProps"
@@ -178,6 +178,7 @@ const setup = (props, context) => {
   })
 
   return {
+    inputValue,
     typeComponentRef,
     typeOptions,
     matchComponent,

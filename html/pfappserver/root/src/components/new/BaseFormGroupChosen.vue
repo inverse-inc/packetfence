@@ -212,7 +212,8 @@ export const setup = (props, context) => {
     groupValues,
     options: optionsPromise,
     max,
-    multiple
+    multiple,
+    caseSensitiveSearch
   } = toRefs(metaProps)
 
   const options = useOptionsPromise(optionsPromise, label)
@@ -311,7 +312,7 @@ export const setup = (props, context) => {
   const {
     options: searchOptions,
     onSearch
-  } = useOptionsSearch(options, label, inputGroupLabel, inputGroupValues)
+  } = useOptionsSearch(options, label, inputGroupLabel, inputGroupValues, caseSensitiveSearch.value)
 
   return {
     inputRef,
