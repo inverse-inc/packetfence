@@ -468,7 +468,9 @@ Put full paths of checks in `$MONIT_PATH/packetfence/local-ignores`
 
 ==== Run some checks as root
 
-If you want to run checks as root, you need to add following content in `$MONIT_PATH/packetfence/local-vars`:
+Some scripts need to run as root but are disabled by default. If you want to
+run these checks, you need to add following content in
+[filename]`$MONIT_PATH/packetfence/local-vars`:
 
 ----
 export RUN_ROOT_SCRIPTS=1
