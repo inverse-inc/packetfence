@@ -4,9 +4,6 @@ import (
 	"net/http"
 	"os"
 
-	"github.com/inverse-inc/scep/csrverifier"
-	scepdepot "github.com/inverse-inc/scep/depot"
-	scepserver "github.com/inverse-inc/scep/server"
 	kitlog "github.com/go-kit/kit/log"
 	kitloglevel "github.com/go-kit/kit/log/level"
 	"github.com/gorilla/mux"
@@ -14,6 +11,9 @@ import (
 	"github.com/inverse-inc/packetfence/go/caddy/pfpki/cloud"
 	"github.com/inverse-inc/packetfence/go/caddy/pfpki/models"
 	"github.com/inverse-inc/packetfence/go/caddy/pfpki/types"
+	"github.com/inverse-inc/scep/csrverifier"
+	scepdepot "github.com/inverse-inc/scep/depot"
+	scepserver "github.com/inverse-inc/scep/server"
 )
 
 func ScepHandler(pfpki *types.Handler, w http.ResponseWriter, r *http.Request) {
@@ -32,7 +32,7 @@ func ScepHandler(pfpki *types.Handler, w http.ResponseWriter, r *http.Request) {
 
 	var err error
 
-	log.LoggerWContext(*pfpki.Ctx).Info("SCEP GET From " + r.Method + " To: " + r.URL.String())
+	log.LoggerWContext(*pfpki.Ctx).Info("SCEP " + r.Method + " To: " + r.URL.String())
 
 	o := models.NewCAModel(pfpki)
 	profileName := vars["id"]
@@ -44,7 +44,7 @@ func ScepHandler(pfpki *types.Handler, w http.ResponseWriter, r *http.Request) {
 
 	var svc scepserver.Service // scep service
 	{
-		crts, key, err := o.CA(nil)
+		crts, key, err := o.CA(nil, profileName)
 		if err != nil {
 			lginfo.Log("err", err)
 			os.Exit(1)
