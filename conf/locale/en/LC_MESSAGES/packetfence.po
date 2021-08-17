@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: 11.0.0\n"
 "POT-Creation-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"PO-Revision-Date: 2021-08-10 12:32-0400\n"
+"PO-Revision-Date: 2021-08-17 16:40-0400\n"
 "Last-Translator: Inverse inc. <info@inverse.ca>\n"
 "Language-Team: English\n"
 "Language: en\n"
@@ -1417,7 +1417,7 @@ msgid "Transaction summary"
 msgstr ""
 
 # html/captive-portal/lib/captiveportal/PacketFence/Controller/StripeCustomerPortal.pm
-msgid "Trying to manage a customer ID that doesn"
+msgid "Trying to manage a customer ID that doesn't belong to this account."
 msgstr ""
 
 # html/captive-portal/lib/captiveportal/PacketFence/Controller/StripeCustomerPortal.pm
