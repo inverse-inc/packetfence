@@ -20,7 +20,7 @@ BEGIN {
     use setup_test_config;
 }
 
-use Test::More tests => 4;
+use Test::More tests => 5;
 use pf::freeradius;
 use pf::SwitchFactory;
 
@@ -28,12 +28,19 @@ use pf::SwitchFactory;
 use Test::NoWarnings;
 my $timestamp = $$;
 
-pf::freeradius::freeradius_populate_nas_config(\%pf::SwitchFactory::SwitchConfig, $timestamp);
+my %config = %pf::SwitchFactory::SwitchConfig;
+pf::freeradius::freeradius_populate_nas_config(\%config, $timestamp);
 my $validation = pf::freeradius::validation_results($timestamp);
 ok($validation->{config_valid}, "Config is valid");
 $validation = pf::freeradius::validation_results($timestamp + 1);
 ok(!$validation->{config_valid}, "Config is not valid");
 is($validation->{other_processes}, 1, "One other process detected reloading switches.conf");
+
+$timestamp +=2;
+delete $config{'172.16.8.29'};
+pf::freeradius::freeradius_populate_nas_config(\%config, $timestamp);
+$validation = pf::freeradius::validation_results($timestamp);
+ok($validation->{config_valid}, "Config is valid");
 
 =head1 AUTHOR
 
