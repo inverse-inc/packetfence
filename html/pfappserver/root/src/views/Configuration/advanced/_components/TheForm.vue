@@ -249,8 +249,8 @@ export const setup = (props) => {
     return (csv) ? csv.split(',') : []
   })
   const impliedOpenIdAttributes = computed(() => {
-    const csv = useNamespaceMetaImplied('openid_attributes', meta)
-    return (csv) ? csv.split(',') : []
+    const array = useNamespaceMetaImplied('openid_attributes', meta)
+    return (array && array.length) ? array : []
   })
 
   return {
