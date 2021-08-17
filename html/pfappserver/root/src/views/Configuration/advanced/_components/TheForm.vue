@@ -66,9 +66,19 @@
     />
 
     <form-group-ldap-attributes namespace="ldap_attributes"
-      :column-label="$i18n.t('LDAP Attribute')"
+      :column-label="$i18n.t('LDAP Attributes')"
       :text="$i18n.t('List of LDAP attributes that can be used in the sources configuration.')"
     />
+    <b-row v-if="impliedLdapAttributes.length">
+      <b-col cols="3"></b-col>
+      <b-col cols="9">
+        <div class="alert alert-info mr-3">
+          <p><strong>{{ $i18n.t('Built-in LDAP Attributes:') }}</strong></p>
+          <span v-for="ldapAttribute in impliedLdapAttributes" :key="ldapAttribute"
+            class="badge badge-info mr-1">{{ ldapAttribute }}</span>
+        </div>
+      </b-col>
+    </b-row>
 
     <form-group-pffilter-processes namespace="pffilter_processes"
       :column-label="$i18n.t('PfFilter Processes')"
@@ -133,10 +143,19 @@
     <form-group-openid-attributes namespace="openid_attributes"
       :column-label="$i18n.t('OpenID Attributes')"
     />
+    <b-row v-if="impliedOpenIdAttributes.length">
+      <b-col cols="3"></b-col>
+      <b-col cols="9">
+        <div class="alert alert-info mr-3">
+          <p><strong>{{ $i18n.t('Built-in OpenID Attributes:') }}</strong></p>
+          <span v-for="openIdAttribute in impliedOpenIdAttributes" :key="openIdAttribute"
+            class="badge badge-info mr-1">{{ openIdAttribute }}</span>
+        </div>
+      </b-col>
+    </b-row>
   </base-form>
 </template>
 <script>
-import { computed } from '@vue/composition-api'
 import {
   BaseForm
 } from '@/components/new/'
@@ -214,12 +233,30 @@ export const props = {
   }
 }
 
+import { computed, toRefs } from '@vue/composition-api'
+import { useNamespaceMetaImplied } from '@/composables/useMeta'
+
 export const setup = (props) => {
+
+  const {
+    meta
+  } = toRefs(props)
 
   const schema = computed(() => schemaFn(props))
 
+  const impliedLdapAttributes = computed(() => {
+    const csv = useNamespaceMetaImplied('ldap_attributes', meta)
+    return (csv) ? csv.split(',') : []
+  })
+  const impliedOpenIdAttributes = computed(() => {
+    const csv = useNamespaceMetaImplied('openid_attributes', meta)
+    return (csv) ? csv.split(',') : []
+  })
+
   return {
-    schema
+    schema,
+    impliedLdapAttributes,
+    impliedOpenIdAttributes
   }
 }
 

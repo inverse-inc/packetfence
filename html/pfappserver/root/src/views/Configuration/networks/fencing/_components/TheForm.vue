@@ -29,12 +29,12 @@
       :column-label="$i18n.t('Proxy Passthroughs')"
       :text="$i18n.t('Comma-separated list of domains to be used with apache passthroughs. The configuration parameter passthrough must be enabled for passthroughs to be effective.')"
     />
-    <b-row>
+    <b-row v-if="impliedProxyPassthroughs.length">
       <b-col cols="3"></b-col>
       <b-col cols="9">
         <div class="alert alert-info mr-3">
           <p><strong>{{ $i18n.t('Built-in Proxy Passthroughs:') }}</strong></p>
-          <span v-for="passthrough in passthroughsBuiltIn" :key="passthrough"
+          <span v-for="passthrough in impliedProxyPassthroughs" :key="passthrough"
             class="badge badge-info mr-1">{{ passthrough }}</span>
         </div>
       </b-col>
@@ -105,7 +105,7 @@ export const props = {
   }
 }
 
-import { useNamespaceMetaPlaceholder } from '@/composables/useMeta'
+import { useNamespaceMetaImplied } from '@/composables/useMeta'
 import schemaFn from '../schema'
 
 export const setup = (props) => {
@@ -116,11 +116,14 @@ export const setup = (props) => {
 
   const schema = computed(() => schemaFn(props))
 
-  const passthroughsBuiltIn = computed(() => (useNamespaceMetaPlaceholder('proxy_passthroughs', meta) || '').split(','))
+  const impliedProxyPassthroughs = computed(() => {
+    const csv = useNamespaceMetaImplied('proxy_passthroughs', meta)
+    return (csv) ? csv.split(',') : []
+  })
 
   return {
     schema,
-    passthroughsBuiltIn
+    impliedProxyPassthroughs
   }
 }
 
