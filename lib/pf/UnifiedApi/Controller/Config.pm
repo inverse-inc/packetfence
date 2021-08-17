@@ -705,9 +705,17 @@ sub field_meta {
             $meta->{allow_custom} = $self->field_allow_custom($field);
         }
 
+        $meta->{implied} = $self->field_implied($field);
     }
 
     return $meta;
+}
+
+sub field_implied {
+    my ($self, $field) = @_;
+    my $v = $field->get_tag("implied");
+    $v = undef if $v eq '';
+    return $v;
 }
 
 sub field_allow_custom {

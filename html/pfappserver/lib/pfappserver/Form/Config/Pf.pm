@@ -119,6 +119,7 @@ sub field_list {
                 delete $field->{element_attr}->{placeholder};
                 $field->{tags}->{before_element} = \&defaults_list;
                 $field->{tags}->{defaults} = $defaults->{$name};
+                $field->{tags}->{implied} = $defaults->{$name};
                 $field->{type} = 'TextArea';
                 $field->{element_class} = ['input-xxlarge'];
                 last;

@@ -23,7 +23,7 @@ BEGIN {
 }
 
 use pf::ConfigStore::Pf;
-use Test::More tests => 25;
+use Test::More tests => 29;
 use Test::Mojo;
 use Utils;
 
@@ -36,6 +36,11 @@ my $t = Test::Mojo->new('pf::UnifiedApi');
 my $collection_base_url = '/api/v1/config/bases';
 
 my $base_url = '/api/v1/config/base';
+
+$t->options_ok("$base_url/fencing")
+  ->status_is(200)
+  ->json_is('/meta/proxy_passthroughs/placeholder', undef)
+  ->json_is('/meta/proxy_passthroughs/implied', 'crl.geotrust.com,ocsp.geotrust.com,crl.thawte.com,ocsp.thawte.com,crl.comodoca.com,ocsp.comodoca.com,crl.incommon.org,ocsp.incommon.org,crl.usertrust.com,ocsp.usertrust.com,mscrl.microsoft.com,crl.microsoft.com,ocsp.apple.com,ocsp.digicert.com,ocsp.entrust.com,srvintl-crl.verisign.com,ocsp.verisign.com,ctldl.windowsupdate.com,crl.globalsign.net,pki.google.com,www.microsoft.com,crl.godaddy.com,ocsp.godaddy.com,certificates.godaddy.com,crl.globalsign.com,secure.globalsign.com,cacerts.digicert.com,crt.comodoca.com,crl.incommon-rsa.org,crl.quovadisglobal.com,cert.incommon.org,crt.usertrust.com,crl.verisign.com,crl.starfieldtech.com,developer.apple.com,ts-crl.ws.symantec.com,certificates.intel.com');
 
 $t->get_ok($collection_base_url)
   ->status_is(200);
