@@ -79,7 +79,7 @@ sub field_placeholder {
     my $name = $field->name;
     my $doc_section = "$section.$name";
     my $doc_type = $Doc_Config{$doc_section}{type} // 'text';
-    if ($doc_type eq 'merged_list') {
+    if ($doc_type eq 'merged_list' || $doc_type eq 'merged_list_array') {
         return undef;
     }
 

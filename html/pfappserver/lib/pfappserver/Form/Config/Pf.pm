@@ -148,12 +148,23 @@ sub field_list {
                         }];
                 last;
             };
-            ($type eq 'array' || $type eq 'merged_list_array') && do {
+            ($type eq 'array') && do {
                 $field->{type} = 'Repeatable';
                 $field->{contains} = {
                     type => 'Text',
                     id   => "$name.contains",
                 };
+                last;
+            };
+            ($type eq 'merged_list_array') && do {
+                $field->{type} = 'Repeatable';
+                $field->{contains} = {
+                    type => 'Text',
+                    id   => "$name.contains",
+                };
+                my $v = $defaults->{$name};
+                $v = [split(/\s*,\s*/, $v)];
+                $field->{tags}->{implied} = sub { $v };
                 last;
             };
             $type eq 'multi' && do {

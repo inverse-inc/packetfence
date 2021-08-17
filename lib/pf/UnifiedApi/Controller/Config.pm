@@ -705,9 +705,9 @@ sub field_meta {
             $meta->{allow_custom} = $self->field_allow_custom($field);
         }
 
-        $meta->{implied} = $self->field_implied($field);
     }
 
+    $meta->{implied} = $self->field_implied($field);
     return $meta;
 }
 

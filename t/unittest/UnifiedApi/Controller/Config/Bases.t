@@ -23,7 +23,7 @@ BEGIN {
 }
 
 use pf::ConfigStore::Pf;
-use Test::More tests => 29;
+use Test::More tests => 32;
 use Test::Mojo;
 use Utils;
 
@@ -36,6 +36,26 @@ my $t = Test::Mojo->new('pf::UnifiedApi');
 my $collection_base_url = '/api/v1/config/bases';
 
 my $base_url = '/api/v1/config/base';
+my $false = bless( do { \( my $o = 0 ) }, 'JSON::PP::Boolean' );
+$t->options_ok("$base_url/advanced")
+  ->status_is(200)
+  ->json_is(
+    '/meta/openid_attributes',
+    {
+        default => [],
+        item    => {
+            default     => undef,
+            placeholder => undef,
+            required    => $false,
+            type        => "string",
+            implied     => undef,
+        },
+        implied     => ['email'],
+        placeholder => undef,
+        required    => $false,
+        type        => "array"
+    }
+);
 
 $t->options_ok("$base_url/fencing")
   ->status_is(200)
