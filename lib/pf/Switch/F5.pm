@@ -83,6 +83,7 @@ sub parseExternalPortalRequest {
 
     my $client_mac = random_mac();
 
+    my $switch_id;
     if($req->param('conf_id')) {
         $switch_id = $req->param('conf_id');
     } else {
