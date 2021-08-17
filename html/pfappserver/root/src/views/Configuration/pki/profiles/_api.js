@@ -30,7 +30,8 @@ export default {
     })
   },
   update: data => {
-    return apiCall.patch(['pki', 'profile', data.id], data).then(response => {
+    const { id, ...rest } = data
+    return apiCall.patch(['pki', 'profile', id], rest).then(response => {
       const { data: { error } = {} } = response
       if (error) {
         throw error
