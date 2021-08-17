@@ -13,7 +13,8 @@ export default {
     })
   },
   create: data => {
-    return apiCall.post('pki/cas', data).then(response => {
+    const { id, ...rest } = data // strip `id` from isClone
+    return apiCall.post('pki/cas', rest).then(response => {
       const { data: { error } = {} } = response
       if (error) {
         throw error
