@@ -341,17 +341,16 @@ sub writeNetworkConfigs {
     my $logger = get_logger();
 
     my $status_msg;
-    my $default_interface = (split(" ", `LANG=C sudo ip route show to 0/0`))[4];
-    my $defroute ="no";
+    my $interface_gateway;
+    my $interface_defroute ="no";
     while (my ($interface, $interface_values) = each %$interfaces_ref) {
         next if ( !$interface_values->{is_running} );
-        if ($default_interface eq $interface) {
-            $defroute = "yes";
-            my $default_gateway = (split(" ", `LANG=C sudo ip route show to 0/0`))[2];
-            $gateway = "GATEWAY=".$default_gateway;
+        if ($gateway_interface eq $interface) {
+            $interface_defroute = "yes";
+            $interface_gateway = $gateway;
         } else {
-            $defroute = "no";
-            $gateway = "";
+            $interface_defroute = "no";
+            $interface_gateway = undef;
         }
         my %vars = (
             logical_name => $interface,
@@ -361,8 +360,8 @@ sub writeNetworkConfigs {
             netmask      => $interface_values->{'netmask'},
             ipv6_address => $interface_values->{'ipv6_address'},
             ipv6_prefix  => $interface_values->{'ipv6_prefix'},
-            defroute     => $defroute,
-            gateway      => $gateway,
+            defroute     => $interface_defroute,
+            gateway      => $interface_gateway,
         );
 
         my $template = Template->new({
