@@ -25,8 +25,11 @@ Following actions need to be run on *all cluster members*.
 ==== Interfaces names
 
 You need to make sure the interfaces names will be the same on *all
-servers*. See <<_setting_the_interfaces_name_on_centos_7>> section if all
-your servers don't already have the same interfaces names.
+servers*. You can follow these guides to have predictable network interface
+names on distribution you used:
+
+* link:https://access.redhat.com/documentation/en-us/red_hat_enterprise_linux/8/html/configuring_and_managing_networking/consistent-network-interface-device-naming_configuring-and-managing-networking[RHEL-based systems]
+* link:https://wiki.debian.org/NetworkInterfaceNames[Debian-based systems]
 
 ==== sysctl.conf
 
@@ -68,13 +71,13 @@ CAUTION: Galera cluster is only supported in 3 nodes cluster and more (with an o
 
 First, you will need to install, *on each servers*, Mariabackup for the synchronization to work correctly.
 
-.On RHEL / CentOS 7
+.On RHEL-based systems
 [source,bash]
 ----
 yum install MariaDB-backup socat --enablerepo=packetfence
 ----
 
-.On Debian
+.On Debian-based systems
 [source,bash]
 ----
 apt-get install lsb-release wget gnupg2

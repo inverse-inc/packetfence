@@ -57,13 +57,13 @@ Dependencies use go modules and will be fetched automatically during build time.
 You will also need [package]`ipset-devel` and [package]`pkgconfig` libraries
 which can be installed using the following command:
 
-.CentOS
+.RHEL-based systems
 [source,bash]
 ----
 yum install ipset-devel pkgconfig
 ----
 
-.Debian
+.Debian-based systems
 [source,bash]
 ----
 apt install libipset-dev pkg-config

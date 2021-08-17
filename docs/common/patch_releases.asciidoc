@@ -1,16 +1,22 @@
 In order to install latest bug fixes on your PacketFence version, you can run following commands:
 
-.RHEL based systems
+.RHEL-based systems
 [source,bash]
 ----
 yum update --enablerepo=packetfence
 ----
 
-.Debian based systems
+.Debian-based systems
 [source,bash]
 ----
 apt update
 apt install packetfence
 ----
 
-Then you need to restart PacketFence services.
+include::common/new_config_files.asciidoc[]
+
+
+Then you need to restart PacketFence services using following commands:
+
+include::common/restart.asciidoc[]
+

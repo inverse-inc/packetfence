@@ -30,7 +30,7 @@ This setup has been tested using VMware ESXi, Fusion and Workstation products wi
 
 The virtual appliance passwords are:
 
-.Management (SSH/Console) and MariaDB
+.Management (SSH/Console):
 * Login: root
 * Password: p@ck3tf3nc3
 
@@ -51,7 +51,7 @@ Newer version of VMware Player handles the VLAN trunking a lot better.  Having t
 
 === Installing PacketFence on existing Linux
 
-PacketFence provides packages repository for RHEL / CentOS as well as packages repository fo Debian.
+PacketFence provides packages repository for RHEL8 as well as packages repository fo Debian.
 
 These repositories contain all required dependencies to install PacketFence. This provides numerous advantages. Among them, there are:
 
@@ -98,9 +98,7 @@ link:https://wiki.debian.org/AppArmor/HowToUse#Disable_AppArmor[Debian wiki].
 
 Regarding resolvconf, you can remove the symlink to that file and simply create the `/etc/resolv.conf` file with the content you want.
 
-==== RHEL / CentOS based systems
-
-NOTE: Applies to CentOS and Scientific Linux but only the x86_64 architecture is supported.
+==== RHEL-based systems
 
 Install kernel development package:
 
@@ -111,19 +109,11 @@ yum install kernel-devel-$(uname -r)
 
 NOTE: Make sure you are actually running the latest kernel prior to installing the kernel development package. Reboot prior to installing this package if unsure.
 
-===== RHEL 7.x
+===== RHEL 8.x
 
-NOTE: These extra steps are required for RHEL 7 systems only, excluding derivatives such as CentOS or Scientific Linux.
+You need to have a valid subscription to be able to install PacketFence dependencies.
 
-Red Hat Enterprise Linux users need to take an additional setup step. If you are not using the RHN Subscription Management from Red Hat you need to enable the optional and extras channels by running the following as root:
-
-[source,bash]
-----
-subscription-manager repos --enable rhel-7-server-optional-rpms
-subscription-manager repos --enable rhel-7-server-extras-rpms
-----
-
-==== Debian based systems
+==== Debian-based systems
 
 Install kernel development package:
 
@@ -136,14 +126,14 @@ NOTE: Make sure you are actually running the latest kernel prior to installing t
 
 ==== Software Installation
 
-===== RHEL / CentOS based systems
+===== RHEL-based systems
 
 In order to use the PacketFence repository:
 
 // subs=attributes allow to substitute {release_minor} in code block
 [source,bash,subs="attributes"]
 ----
-yum localinstall http://packetfence.org/downloads/PacketFence/RHEL7/packetfence-release-{release_minor}.el8.noarch.rpm
+yum localinstall http://packetfence.org/downloads/PacketFence/RHEL8/packetfence-release-{release_minor}.el8.noarch.rpm
 ----
 
 Once the repository is defined, you can install PacketFence with all its dependencies, and the required external services (database server, DHCP server, RADIUS server) using:
@@ -153,14 +143,14 @@ Once the repository is defined, you can install PacketFence with all its depende
 yum install --enablerepo=packetfence packetfence
 ----
 
-===== Debian based systems
+===== Debian-based systems
 
 In order to use the repository, create a file named [filename]`/etc/apt/sources.list.d/packetfence.list`:
 
 // subs=attributes allow to substitute {release_minor} in code block
 [source,bash,subs="attributes"]
 ----
-echo 'deb http://inverse.ca/downloads/PacketFence/debian/{release_minor} stretch stretch' > \
+echo 'deb http://inverse.ca/downloads/PacketFence/debian/{release_minor} bullseye bullseye' > \
 /etc/apt/sources.list.d/packetfence.list
 ----
 
@@ -171,7 +161,7 @@ server, DHCP server, RADIUS server) using:
 [source,bash]
 ----
 wget -O - https://inverse.ca/downloads/GPG_PUBLIC_KEY | sudo apt-key add -
-sudo apt-get update
-sudo apt-get install packetfence
+apt-get update
+apt-get install packetfence
 ----
 

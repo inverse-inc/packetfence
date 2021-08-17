@@ -209,47 +209,14 @@ steps required depending on the version you are upgrading from.
 
 ==== New versions of configuration files
 
-You should take care to review any changes to configuration files and merge them if required.
-
-===== RHEL / CentOS based systems
-
-To find out which configuration files have changed run following command:
-
-[source,bash]
-----
-find /usr/local/pf -name \*.rpmnew
-----
-
-The list of files returned are the new versions shipped with PacketFence.
-Compare them to your existing version and see if there are changes that should
-be merged into your existing configuration. Then, once you are done make sure
-to delete these files so that there is no confusion the next time you upgrade
-PacketFence.
-
-===== Debian-based systems
-
-Debian installation system should have interactively asked for existing
-modified files. If you answer `No` to keep existing files in place, you can
-find out which configuration files have changed by running following command:
-
-[source,bash]
-----
-find /usr/local/pf -name "*.dpkg-dist"
-----
+include::common/new_config_files[]
 
 === Restart all PacketFence services
 
 Once all <<_steps,steps of upgrade procedure>> are completed, restart
 `packetfence-config` and `packetfence` services:
 
-[source,bash]
-----
-/usr/local/pf/bin/pfcmd fixpermissions
-/usr/local/pf/bin/pfcmd pfconfig clear_backend
-systemctl restart packetfence-config
-/usr/local/pf/bin/pfcmd configreload hard
-/usr/local/pf/bin/pfcmd service pf restart
-----
+include::common/restart.asciidoc[]
 
 === Regenerate Monit configuration
 

@@ -1,0 +1,27 @@
+After packages upgrades, you should take care to review any changes to configuration files and merge them if required.
+
+===== RHEL-based systems
+
+To find out which configuration files have changed run following command:
+
+[source,bash]
+----
+find /usr/local/pf -name \*.rpmnew
+----
+
+The list of files returned are the new versions shipped with PacketFence.
+Compare them to your existing version and see if there are changes that should
+be merged into your existing configuration. Then, once you are done make sure
+to delete these files so that there is no confusion the next time you upgrade
+PacketFence.
+
+===== Debian-based systems
+
+Debian installation system should have interactively asked for existing
+modified files. If you answer `No` to keep existing files in place, you can
+find out which configuration files have changed by running following command:
+
+[source,bash]
+----
+find /usr/local/pf -name "*.dpkg-dist"
+----
