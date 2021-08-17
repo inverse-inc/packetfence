@@ -101,6 +101,8 @@ Logs are available in `/root/install_perl` directory.
 
 ``` shell
 ./make_tar_from_source.sh
+rpmbuild -ba ./rhel8/SPECS/cpan_perl_module.spec
+# On Docker, you should have to specified the QA_RPATHS
 QA_RPATHS=$(( 0x0001 )) rpmbuild -ba ./rhel8/SPECS/cpan_perl_module.spec
 ```
 
