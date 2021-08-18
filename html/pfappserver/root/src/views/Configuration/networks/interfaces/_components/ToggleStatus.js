@@ -13,19 +13,39 @@ export const props = {
       {
         value: false, label: i18n.t('Down'),
         color: 'var(--danger)', icon: 'times',
-        promise: (value, props) => {
+        promise: (value, props, context) => {
           const { item } = toRefs(props)
           const { id } = item.value
           return store.dispatch(`$_interfaces/downInterface`, id)
+            .then(() => {
+              context.emit('input', 'down')
+              store.dispatch('notification/info', { message: i18n.t('Interface <code>{id}</code> down.', item.value) })
+            })
+            .catch(err => {
+              const { response: { data: { message: errMsg } = {} } = {} } = err
+              let message = i18n.t('Interface <code>{id}</code> could not be set down.', item.value)
+              if (errMsg) message += ` (${errMsg})`
+              store.dispatch('notification/danger', { message })
+            })
         }
       },
       {
         value: true, label: i18n.t('Up'),
         color: 'var(--success)', icon: 'check',
-        promise: (value, props) => {
+        promise: (value, props, context) => {
           const { item } = toRefs(props)
           const { id } = item.value
           return store.dispatch(`$_interfaces/upInterface`, id)
+            .then(() => {
+              context.emit('input', 'up')
+              store.dispatch('notification/info', { message: i18n.t('Interface <code>{id}</code> up.', item.value) })
+            })
+            .catch(err => {
+              const { response: { data: { message: errMsg } = {} } = {} } = err
+              let message = i18n.t('Interface <code>{id}</code> could not be set up.', item.value)
+              if (errMsg) message += ` (${errMsg})`
+              store.dispatch('notification/danger', { message })
+            })
         }
       }
     ])

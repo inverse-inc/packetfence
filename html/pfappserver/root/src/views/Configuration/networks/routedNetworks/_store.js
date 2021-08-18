@@ -31,13 +31,15 @@ const state = () => {
   return {
     cache: {},
     message: '',
-    status: ''
+    status: '',
+    routedNetworks: []
   }
 }
 
 const getters = {
   isWaiting: state => [types.LOADING, types.DELETING].includes(state.status),
-  isLoading: state => state.status === types.LOADING
+  isLoading: state => state.status === types.LOADING,
+  routedNetworks: state => state.routedNetworks
 }
 
 const actions = {
@@ -50,6 +52,7 @@ const actions = {
     commit('ROUTED_NETWORK_REQUEST')
     return api.routedNetworks(params).then(response => {
       commit('ROUTED_NETWORK_SUCCESS')
+      commit('ROUTED_NETWORKS_REPLACED', response.items)
       return response.items
     }).catch((err) => {
       commit('ROUTED_NETWORK_ERROR', err.response)
@@ -78,12 +81,12 @@ const actions = {
   },
   getRoutedNetwork: ({ state, commit }, id) => {
     if (state.cache[id]) {
-      return Promise.resolve(state.cache[id]).then(cache => JSON.parse(JSON.stringify(cache)))
+      return Promise.resolve(state.cache[id])
     }
     commit('ROUTED_NETWORK_REQUEST')
     return api.routedNetwork(id).then(item => {
       commit('ROUTED_NETWORK_REPLACED', { ...item, id })
-      return JSON.parse(JSON.stringify(item))
+      return state.cache[id]
     }).catch((err) => {
       commit('ROUTED_NETWORK_ERROR', err.response)
       throw err
@@ -123,13 +126,22 @@ const actions = {
 }
 
 const mutations = {
+  ROUTED_NETWORKS_REPLACED: (state, routedNetworks) => {
+    state.routedNetworks = routedNetworks
+  },
   ROUTED_NETWORK_REQUEST: (state, type) => {
     state.status = type || types.LOADING
     state.message = ''
   },
   ROUTED_NETWORK_REPLACED: (state, data) => {
     state.status = types.SUCCESS
-    Vue.set(state.cache, data.id, JSON.parse(JSON.stringify(data)))
+    Vue.set(state.cache, data.id, data)
+    const i = state.routedNetworks.findIndex(i => {
+      return i.id == data.id
+    })
+    if (i >= 0) {
+      Vue.set(state.routedNetworks, i, data)
+    }
   },
   ROUTED_NETWORK_DESTROYED: (state, id) => {
     state.status = types.SUCCESS
