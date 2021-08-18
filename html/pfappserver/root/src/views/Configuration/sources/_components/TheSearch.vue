@@ -13,7 +13,7 @@
 
       <b-card>
         <h4 class="mb-3">{{ $t('Internal Sources') }}</h4>
-        <b-dropdown :text="$t('New internal source')" variant="outline-primary">
+        <b-dropdown :text="$t('New internal source')" variant="outline-primary" no-flip>
           <b-dropdown-item v-for="(text, sourceType) in internalTypes" :key="sourceType"
             :to="{ name: 'newAuthenticationSource', params: { sourceType } }"
           >{{ text }}</b-dropdown-item>
@@ -30,7 +30,7 @@
 
       <b-card class="mt-3">
         <h4 class="mb-3">{{ $t('External Sources') }}</h4>
-        <b-dropdown :text="$t('New external source')" variant="outline-primary">
+        <b-dropdown :text="$t('New external source')" variant="outline-primary" no-flip>
           <b-dropdown-item v-for="(text, sourceType) in externalTypes" :key="sourceType"
             :to="{ name: 'newAuthenticationSource', params: { sourceType } }"
           >{{ text }}</b-dropdown-item>
@@ -47,7 +47,7 @@
 
       <b-card class="mt-3">
         <h4 class="mb-3">{{ $t('Exclusive Sources') }}</h4>
-        <b-dropdown :text="$t('New exclusive source')" variant="outline-primary">
+        <b-dropdown :text="$t('New exclusive source')" variant="outline-primary no-flip">
           <b-dropdown-item v-for="(text, sourceType) in exclusiveTypes" :key="sourceType"
             :to="{ name: 'newAuthenticationSource', params: { sourceType } }"
           >{{ text }}</b-dropdown-item>
@@ -64,7 +64,7 @@
 
       <b-card class="mt-3">
         <h4 class="mb-3">{{ $t('Billing Sources') }}</h4>
-        <b-dropdown :text="$t('New billing source')" variant="outline-primary">
+        <b-dropdown :text="$t('New billing source')" variant="outline-primary" no-flip>
           <b-dropdown-item v-for="(text, sourceType) in billingTypes" :key="sourceType"
             :to="{ name: 'newAuthenticationSource', params: { sourceType } }"
           >{{ text }}</b-dropdown-item>
