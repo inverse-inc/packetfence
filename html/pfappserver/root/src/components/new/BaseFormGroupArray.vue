@@ -46,8 +46,9 @@
           <b-col>
             <b-link @click="itemDelete(index)"
               :class="{
-                'text-primary': actionKey,
-                'text-secondary': !actionKey
+                'text-black-50': isLocked,
+                'text-primary': !isLocked && actionKey,
+                'text-secondary': !isLocked && !actionKey
               }"
               :disabled="isLocked"
               v-b-tooltip.hover.left.d300 :title="actionKey ? $t('Delete All') : $t('Delete Row')"
@@ -56,8 +57,9 @@
             </b-link>
             <b-link @click="itemAdd(index + 1)"
               :class="{
-                'text-primary': actionKey,
-                'text-secondary': !actionKey
+                'text-black-50': isLocked,
+                'text-primary': !isLocked && actionKey,
+                'text-secondary': !isLocked && !actionKey
               }"
               :disabled="isLocked"
               v-b-tooltip.hover.left.d300 :title="actionKey ? $t('Clone Row') : $t('Add Row')"
