@@ -1,7 +1,7 @@
 import store from '@/store'
 import StoreModule from './_store'
 
-const TheTabs = () => import(/* webpackChunkName: "Configuration" */ '../_components/PkisTabs')
+const TheTabs = () => import(/* webpackChunkName: "Configuration" */ '../_components/TheTabsPkis')
 import CasRoutes from './cas/_router'
 import CertsRoutes from './certs/_router'
 import ProfilesRoutes from './profiles/_router'

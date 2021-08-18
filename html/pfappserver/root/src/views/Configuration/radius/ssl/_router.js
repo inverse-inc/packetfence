@@ -1,7 +1,7 @@
 import store from '@/store'
 import RadiusSslStoreModule from './_store'
 
-const TheTabs = () => import(/* webpackChunkName: "Configuration" */ '../../_components/RadiusTabs')
+const TheTabs = () => import(/* webpackChunkName: "Configuration" */ '../../_components/TheTabsRadius')
 const TheView = () => import(/* webpackChunkName: "Configuration" */ './_components/TheView')
 
 export const useRouter = $router => {
