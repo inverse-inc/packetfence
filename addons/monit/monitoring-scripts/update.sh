@@ -47,7 +47,7 @@ function execute_and_check {
 
 dir="/tmp/pf-auto-check-update" && mkdir -p $dir && cd $dir && rm -fr *
 
-id -u pf-monitoring || execute_and_check "useradd pf-monitoring"
+id -u pf-monitoring || execute_and_check "useradd pf-monitoring -s /bin/bash"
 execute_and_check "usermod -a -G pf pf-monitoring"
 
 execute_and_check "mkdir -p $script_dir"

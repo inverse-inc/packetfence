@@ -32,6 +32,7 @@ my %CONFIGURATION_TO_TEMPLATE   = (
 
 my $OS = ( -e "/etc/debian_version" ) ? "debian" : "rhel";
 my $MONIT_PATH  = ( $OS eq "rhel" ) ? "/etc/monit.d" : "/etc/monit/conf.d";
+my $MONIT_EXTRA_PATH = "$MONIT_PATH/packetfence";
 
 
 if ( $#ARGV eq "-1" ) {
@@ -65,6 +66,7 @@ foreach my $configuration ( @configurations ) {
 
 
 print "\nHere it goes!\n";
+mkdir $MONIT_EXTRA_PATH unless -d $MONIT_EXTRA_PATH;
 generate_monit_configurations();
 generate_specific_configurations();
 print "\n\nAll set!\n\n";
@@ -94,7 +96,7 @@ sub generate_monit_configurations {
     $destination_file = catfile($MONIT_PATH, "monit_general" . $CONF_FILE_EXTENSION);
     print "Generating '$destination_file'\n";
     if ( -e $destination_file ) {
-        my $backup_file = $destination_file . $BACKUP_FILE_EXTENSION;
+        my $backup_file = catfile($MONIT_EXTRA_PATH, "monit_general" . $CONF_FILE_EXTENSION . $BACKUP_FILE_EXTENSION);
         move($destination_file, $backup_file);
         print "Generating '$backup_file' (BACKED UP FILE)\n";
     }
@@ -106,7 +108,7 @@ sub generate_monit_configurations {
     $destination_file = "/etc/rsyslog.d/monit.conf";
     print "Generating '$destination_file'\n";
     if ( -e $destination_file ) {
-        my $backup_file = catfile($MONIT_PATH, "syslog_monit" . $CONF_FILE_EXTENSION . $BACKUP_FILE_EXTENSION);
+        my $backup_file = catfile($MONIT_EXTRA_PATH, "syslog_monit" . $CONF_FILE_EXTENSION . $BACKUP_FILE_EXTENSION);
         move($destination_file, $backup_file);
         print "Generating '$backup_file' (BACKED UP FILE)\n";
     }
@@ -137,8 +139,9 @@ sub generate_specific_configurations {
 
         # Backing up existing configuration file (just in case)
         if ( -e $destination_file ) {
-            move($destination_file, $destination_file . $BACKUP_FILE_EXTENSION);
-            print " - $destination_file" . "$BACKUP_FILE_EXTENSION (BACKED UP FILE)\n";
+            my $backup_file = catfile($MONIT_EXTRA_PATH, $CONFIGURATION_TO_TEMPLATE{$configuration} . $CONF_FILE_EXTENSION . $BACKUP_FILE_EXTENSION);
+            move($destination_file, $backup_file);
+            print " - $backup_file (BACKED UP FILE)\n";
         }
 
         # Handling domains (winbind configuration)

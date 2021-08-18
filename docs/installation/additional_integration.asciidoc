@@ -353,45 +353,47 @@ Logs will be kept on PacketFence **and** sent to your remote Syslog server.
 
 For further reference the monit documentation is available at: https://mmonit.com/monit/documentation/monit.html
 
+Monit configuration path is different between EL and Debian systems:
+
+* [filename]`MONIT_PATH=/etc/monit.d` for EL-based systems
+* [filename]`MONIT_PATH=/etc/monit/conf.d` for Debian-based systems
+
+To simplify further documentation, we will use `$MONIT_PATH` variable as a reference to these paths.
+
 ==== Install Monit
 
 The following must be done on each server of a cluster
 
-RHEL / CentOS
-
+.RHEL / CentOS
+[source,bash]
 ----
-yum install monit --enablerepo=packetfence-extra -y
+yum install monit uuid --enablerepo=packetfence -y
 ----
 
-Debian
-
+.Debian
+[source,bash]
 ----
 apt-get update
-apt-get install monit
+apt-get install monit uuid-runtime
 ----
 
+===== Enable httpd interface (Debian-based systems only)
+
+In order to use `monit summary` command, you need to enable `httpd` interface. Simply uncomment following section in [filename]`/etc/monit/monitrc`:
+
+----
+set httpd port 2812 and
+    use address localhost  # only accept connection from localhost (drop if you use M/Monit)
+    allow localhost        # allow localhost to connect to the server and
+    allow admin:monit
+----
 
 ==== Fetch the script signing key
 
+[source,bash]
 ----
 gpg --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys E3A28334
 ----
-
-
-==== Download the Packetfence monit addons
-
-The monit addons are included with Packetfence at `/usr/local/pf/addons/monit`. This step is only needed if you want to upgrade the scripts to the latest version without having to upgrade Packetfence. This means that you can have unexpected behaviors due to difference between PacketFence configuration and monit checks.
-
-----
-cd /tmp/ && wget http://inverse.ca/downloads/PacketFence/monitoring-scripts/v1/monit.tgz && tar xzvf monit.tgz
-----
-
-Replace the monit addons directory
-
-----
-mv /usr/local/pf/addons/monit /usr/local/pf/addons/monit.old ; mv /tmp/monit /usr/local/pf/addons/
-----
-
 
 ==== Generate/Regenerate the monit configuration
 
@@ -414,49 +416,16 @@ Where :
 
 CAUTION: A MTA is needed to correctly relay emails from monit. If _localhost_ is used as `mailserver`, make sure that a MTA is installed and configured on the server. 
 
-NOTE: This command will create configuration scripts in `/etc/monit.d/`, but it will not remove old(er) scripts from an earlier installation. During an upgrade any unused `/etc/monit.d/*.conf` files will be renamed to [filename]`/etc/monit.d/*.conf.bak`.
+NOTE: This command will create configuration scripts in [filename]`$MONIT_PATH` and will move old(er) configuration into `$MONIT_PATH/packetfence`. During an upgrade any unused `$MONIT_PATH/*.conf` files will be renamed to [filename]`$MONIT_PATH/packetfence/*.conf.bak`.
 
 If you don't use Fingerbank, you will need to remove `packetfence-fingerbank-collector` check. 
-
-==== Include the generated configurations in the monit config
-
-At the bottom of `/etc/monit.conf` add the line `include /etc/monit.d/*.conf` either manually, or using `sed`:
-
-
-RHEL / CentOS
-
-----
-sed -i -e 's/^include.*//g' /etc/monit.conf && echo "include /etc/monit.d/*.conf" >> /etc/monit.conf
-----
-
-Debian
-
-----
-sed -i -e 's/include.*\*$//g' /etc/monit/monitrc && echo "include /etc/monit/conf.d/*.conf" >> /etc/monit/monitrc
-----
-
-==== Remove the old monit script
-
-This step is only required during an upgrade from earlier versions.
-----
-rm /etc/monit.d/packetfence.monit
-----
 
 ==== Run the monitoring script update to fetch the scripts and config
 
 This script will download **latest** shell scripts run by monit checks.
 
-RHEL / CentOS
-
+[source,bash]
 ----
-yum install uuid -y
-/usr/local/pf/addons/monit/monitoring-scripts/update.sh
-----
-
-Debian
-
-----
-apt-get install uuid-runtime
 /usr/local/pf/addons/monit/monitoring-scripts/update.sh
 ----
 
@@ -465,12 +434,14 @@ Ensure the script outputs: `Update completed successfully`
 
 ==== Ensure the pf group can write the logs
 
+[source,bash]
 ----
 chmod g+w /usr/local/pf/logs/*
 ----
 
 ==== Run the monitoring scripts
 
+[source,bash]
 ----
 /usr/local/pf/addons/monit/monitoring-scripts/run-all.sh
 ----
@@ -493,18 +464,30 @@ with (a hyphen):
 
 ==== Ignore some checks
 
-Put full paths of checks in `/etc/monit.d/local-ignores`
+Put full paths of checks in `$MONIT_PATH/packetfence/local-ignores`
+
+==== Run some checks as root
+
+Some scripts need to run as root but are disabled by default. If you want to
+run these checks, you need to add following content in
+[filename]`$MONIT_PATH/packetfence/local-vars`:
+
+----
+export RUN_ROOT_SCRIPTS=1
+----
 
 ==== Enable and start monit
 
 Enable monit on startup
 
+[source,bash]
 ----
 systemctl enable monit
 ----
 
 Start monit
 
+[source,bash]
 ----
 systemctl restart monit
 ----
@@ -513,20 +496,21 @@ systemctl restart monit
 
 A MTA is needed to correctly relay emails from monit. If _localhost_ is used as smtpserver, make sure that a MTA is installed and configured on the server. 
 
-RHEL / CentOS
-
+.RHEL / CentOS
+[source,bash]
 ----
 yum install mailx -y
 ----
 
-Debian
-
+.Debian
+[source,bash]
 ----
 apt-get install heirloom-mailx
 ----
 
 ==== Test the MTA
 
+[source,bash]
 ----
 echo `hostname` | mail -s "Monit test" user@example.com
 ----
@@ -536,18 +520,11 @@ echo `hostname` | mail -s "Monit test" user@example.com
 
 View the monit summary to ensure all services are status `Running`, `Accessible`, or `Status ok`. Address any services that display any other failed status. Monit will display the services in the same order that they are processed. If the summary appears stuck, troubleshoot the next service in the list.
 
+[source,bash]
 ----
 monit summary
 ----
 
-NOTE: `patch` updates only once a week. It is normal to see status `Waiting`.
-
 TIP: More information on the monit command line arguments is available at https://mmonit.com/monit/documentation/monit.html
 
-
-==== packetfence-etcd
-
-This step is only needed if `monit summary` is stuck `Waiting` on `packetfence-etcd`. This error indicates that the cluster is currently in 'Failure during bootstrapping'. Please follow the instructions in the PacketFence Clustering Guide on how to resolve this. 
-
-TIP: More information on `etcd` failures can be found at https://github.com/coreos/etcd/blob/master/Documentation/op-guide/failures.md
 
