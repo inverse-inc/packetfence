@@ -8,35 +8,9 @@
       </b-button>
     </b-card-header>
     <b-tabs ref="tabs" v-model="tabIndex" card lazy>
-      <b-tab :title="$t('General Settings')" @click="changeTab('general_settings')">
-        <fingerbank-general-setting-view />
-      </b-tab>
-      <b-tab :title="$t('Device change detection')" @click="changeTab('device_change_detection')">
-        <fingerbank-device-change-detection-view />
-      </b-tab>
-      <b-tab :title="$t('Combinations')" @click="changeTab('combinations')">
-        <fingerbank-combinations-search />
-      </b-tab>
-      <b-tab :title="$t('Devices')" @click="changeTab('devices')">
-        <fingerbank-devices-search :parentId="parentId" :scope="scope" />
-      </b-tab>
-      <b-tab :title="$t('DHCP Fingerprints')" @click="changeTab('dhcp_fingerprints')">
-        <fingerbank-dhcp-fingerprints-search :scope="scope" />
-      </b-tab>
-      <b-tab :title="$t('DHCP Vendors')" @click="changeTab('dhcp_vendors')">
-        <fingerbank-dhcp-vendors-search :scope="scope" />
-      </b-tab>
-      <b-tab :title="$t('DHCPv6 Fingerprints')" @click="changeTab('dhcpv6_fingerprints')">
-        <fingerbank-dhcpv6-fingerprints-search :scope="scope" />
-      </b-tab>
-      <b-tab :title="$t('DHCPv6 Enterprises')" @click="changeTab('dhcpv6_enterprises')">
-        <fingerbank-dhcpv6-enterprises-search :scope="scope" />
-      </b-tab>
-      <b-tab :title="$t('MAC Vendors')" @click="changeTab('mac_vendors')">
-        <fingerbank-mac-vendors-search :scope="scope" />
-      </b-tab>
-      <b-tab :title="$t('User Agents')" @click="changeTab('user_agents')">
-        <fingerbank-user-agents-search :scope="scope" />
+      <b-tab v-for="(tab, index) in tabs" :key="index"
+        :title="$t(tab.title)" @click="tabIndex = index">
+        <component :is="tab.component" v-bind="('props' in tab) ? tab.props($props) : {}"/>
       </b-tab>
     </b-tabs>
   </b-card>
@@ -54,78 +28,108 @@ import FingerbankDhcpv6EnterprisesSearch from '../fingerbank/dhcpv6Enterprises/_
 import FingerbankMacVendorsSearch from '../fingerbank/macVendors/_components/TheSearch'
 import FingerbankUserAgentsSearch from '../fingerbank/userAgents/_components/TheSearch'
 
-export default {
-  name: 'fingerbank-tabs',
-  components: {
-    FingerbankGeneralSettingView,
-    FingerbankDeviceChangeDetectionView,
-    FingerbankCombinationsSearch,
-    FingerbankDevicesSearch,
-    FingerbankDhcpFingerprintsSearch,
-    FingerbankDhcpVendorsSearch,
-    FingerbankDhcpv6FingerprintsSearch,
-    FingerbankDhcpv6EnterprisesSearch,
-    FingerbankMacVendorsSearch,
-    FingerbankUserAgentsSearch
+const tabs = {
+  fingerbankGeneralSettings: {
+    title: 'General Settings', // i18n defer
+    component: FingerbankGeneralSettingView
   },
-  props: {
-    tab: {
-      type: String,
-      default: 'general_settings'
-    },
-    parentId: {
-      type: String,
-      default: null
-    },
-    scope: {
-      type: String,
-      default: 'all'
-    }
+  fingerbankDeviceChangeDetection: {
+    title: 'Device change detection', // i18n defer
+    component: FingerbankDeviceChangeDetectionView
   },
-  computed: {
-    tabIndex: {
-      get () {
-        return [
-          'general_settings',
-          'device_change_detection',
-          'combinations',
-          'devices',
-          'dhcp_fingerprints',
-          'dhcp_vendors',
-          'dhcpv6_fingerprints',
-          'dhcpv6_enterprises',
-          'mac_vendors',
-          'user_agents'
-        ].indexOf(this.tab)
-      },
-      set () {
-        // noop
-      }
-    },
-    isUpdateDatabaseLoading () {
-      return this.$store.getters['$_fingerbank/isUpdateDatabaseLoading']
-    }
+  fingerbankCombinations: {
+    title: 'Combinations', // i18n defer
+    component: FingerbankCombinationsSearch
   },
-  methods: {
-    changeTab (path) {
-      switch (path) {
-        case 'devices':
-        case 'dhcp_fingerprints':
-        case 'dhcp_vendors':
-        case 'dhcpv6_fingerprints':
-        case 'dhcpv6_enterprises':
-        case 'mac_vendors':
-        case 'user_agents':
-          this.$router.push(`/configuration/fingerbank/${this.scope}/${path}`)
-          break
-        default:
-          this.$router.push(`/configuration/fingerbank/${path}`)
-          break
-      }
-    },
-    updateDatabase () {
-      this.$store.dispatch('$_fingerbank/updateDatabase')
-    }
+  fingerbankDevicesByScope: {
+    title: 'Devices', // i18n defer
+    component: FingerbankDevicesSearch,
+    props: ({ parentId, scope }) => ({ parentId, scope })
+  },
+  fingerbankDhcpFingerprintsByScope: {
+    title: 'DHCP Fingerprints', // i18n defer
+    component: FingerbankDhcpFingerprintsSearch,
+    props: ({ scope }) => ({ scope })
+  },
+  fingerbankDhcpVendorsByScope: {
+    title: 'DHCP Vendors', // i18n defer
+    component: FingerbankDhcpVendorsSearch,
+    props: ({ scope }) => ({ scope })
+  },
+  fingerbankDhcpv6FingerprintsByScope: {
+    title: 'DHCPv6 Fingerprints', // i18n defer
+    component: FingerbankDhcpv6FingerprintsSearch,
+    props: ({ scope }) => ({ scope })
+  },
+  fingerbankDhcpv6EnterprisesByScope: {
+    title: 'DHCPv6 Enterprises', // i18n defer
+    component: FingerbankDhcpv6EnterprisesSearch,
+    props: ({ scope }) => ({ scope })
+  },
+  fingerbankMacVendorsByScope: {
+    title: 'MAC Vendors', // i18n defer
+    component: FingerbankMacVendorsSearch,
+    props: ({ scope }) => ({ scope })
+  },
+  fingerbankUserAgentsByScope: {
+    title: 'User Agents', // i18n defer
+    component: FingerbankUserAgentsSearch,
+    props: ({ scope }) => ({ scope })
   }
+}
+
+const props = {
+  tab: {
+    type: String,
+    default: Object.keys(tabs)[0]
+  },
+  parentId: {
+    type: String
+  },
+  scope: {
+    type: String,
+    default: 'all'
+  }
+}
+
+import { computed, customRef, toRefs } from '@vue/composition-api'
+
+const setup = (props, context) => {
+
+  const {
+    tab
+  } = toRefs(props)
+
+  const { root: { $store, $router } = {} } = context
+
+  const tabIndex = customRef((track, trigger) => ({
+    get() {
+      track()
+      return Object.keys(tabs).indexOf(tab.value)
+    },
+    set(newValue) {
+      $router.push({ name: Object.keys(tabs)[newValue] })
+        .catch(e => { if (e.name !== "NavigationDuplicated") throw e })
+      trigger()
+    }
+  }))
+
+  const isUpdateDatabaseLoading = computed(() => $store.getters['$_fingerbank/isUpdateDatabaseLoading'])
+
+  const updateDatabase = () => $store.dispatch('$_fingerbank/updateDatabase')
+
+  return {
+    tabs,
+    tabIndex,
+    isUpdateDatabaseLoading,
+    updateDatabase
+  }
+}
+
+// @vue/component
+export default {
+  name: 'the-tabs-fingerbank',
+  props,
+  setup
 }
 </script>

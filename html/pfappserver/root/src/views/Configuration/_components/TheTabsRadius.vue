@@ -4,23 +4,9 @@
       <h4 class="mb-0" v-t="'RADIUS'"></h4>
     </b-card-header>
     <b-tabs ref="tabs" v-model="tabIndex" card lazy>
-      <b-tab :title="$t('General Configuration')" @click="changeTab('radiusGeneral')">
-        <radius-general-view />
-      </b-tab>
-      <b-tab :title="$t('EAP Profiles')" @click="changeTab('radiusEaps')">
-        <radius-eap-search />
-      </b-tab>
-      <b-tab :title="$t('TLS Profiles')" @click="changeTab('radiusTlss')">
-        <radius-tls-search />
-      </b-tab>
-      <b-tab :title="$t('Fast Profiles')" @click="changeTab('radiusFasts')">
-        <radius-fast-search />
-      </b-tab>
-      <b-tab :title="$t('SSL Certificates')" @click="changeTab('radiusSsls')">
-        <radius-ssl-search />
-      </b-tab>
-      <b-tab :title="$t('OCSP Profiles')" @click="changeTab('radiusOcsps')">
-        <radius-ocsp-search />
+      <b-tab v-for="(tab, index) in tabs" :key="index"
+        :title="$t(tab.title)" @click="tabIndex = index">
+        <component :is="tab.component" />
       </b-tab>
     </b-tabs>
   </b-card>
@@ -33,37 +19,73 @@ import RadiusTlsSearch from '../radius/tls/_components/TheSearch'
 import RadiusFastSearch from '../radius/fast/_components/TheSearch'
 import RadiusSslSearch from '../radius/ssl/_components/TheSearch'
 import RadiusOcspSearch from '../radius/ocsp/_components/TheSearch'
-
-export default {
-  name: 'pkis-tabs',
-  components: {
-    RadiusGeneralView,
-    RadiusEapSearch,
-    RadiusTlsSearch,
-    RadiusFastSearch,
-    RadiusSslSearch,
-    RadiusOcspSearch
+['radiusGeneral', 'radiusEaps', 'radiusTlss', 'radiusFasts', 'radiusSsls', 'radiusOcsps']
+const tabs = {
+  radiusGeneral: {
+    title: 'General Configuration', // i18n defer
+    component: RadiusGeneralView
   },
-  props: {
-    tab: {
-      type: String,
-      default: 'radiusGeneral'
-    }
+  radiusEaps: {
+    title: 'EAP Profiles', // i18n defer
+    component: RadiusEapSearch
   },
-  computed: {
-    tabIndex: {
-      get () {
-        return ['radiusGeneral', 'radiusEaps', 'radiusTlss', 'radiusFasts', 'radiusSsls', 'radiusOcsps'].indexOf(this.tab)
-      },
-      set () {
-        // noop
-      }
-    }
+  radiusTlss: {
+    title: 'TLS Profiles', // i18n defer
+    component: RadiusTlsSearch
   },
-  methods: {
-    changeTab (name) {
-      this.$router.push({ name })
-    }
+  radiusFasts: {
+    title: 'Fast Profiles', // i18n defer
+    component: RadiusFastSearch
+  },
+  radiusSsls: {
+    title: 'SSL Certificates', // i18n defer
+    component: RadiusSslSearch
+  },
+  radiusOcsps: {
+    title: 'OCSP Profile', // i18n defer
+    component: RadiusOcspSearch
   }
+}
+
+const props = {
+  tab: {
+    type: String,
+    default: Object.keys(tabs)[0]
+  }
+}
+
+import { customRef, toRefs } from '@vue/composition-api'
+
+const setup = (props, context) => {
+
+  const {
+    tab
+  } = toRefs(props)
+
+  const { root: { $router } = {} } = context
+
+  const tabIndex = customRef((track, trigger) => ({
+    get() {
+      track()
+      return Object.keys(tabs).indexOf(tab.value)
+    },
+    set(newValue) {
+      $router.push({ name: Object.keys(tabs)[newValue] })
+        .catch(e => { if (e.name !== "NavigationDuplicated") throw e })
+      trigger()
+    }
+  }))
+
+  return {
+    tabs,
+    tabIndex
+  }
+}
+
+// @vue/component
+export default {
+  name: 'the-tabs-radius',
+  props,
+  setup
 }
 </script>

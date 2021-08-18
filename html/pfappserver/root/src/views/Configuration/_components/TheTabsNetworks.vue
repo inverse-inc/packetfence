@@ -4,23 +4,9 @@
       <h4 class="mb-0" v-t="'Networks'"></h4>
     </b-card-header>
     <b-tabs ref="tabs" v-model="tabIndex" card lazy>
-      <b-tab :title="$t('Network Settings')" @click="changeTab('network')">
-        <network-view />
-      </b-tab>
-      <b-tab :title="$t('Interfaces')" @click="changeTab('interfaces')">
-        <interfaces-list />
-      </b-tab>
-      <b-tab :title="$t('Inline')" @click="changeTab('inline')">
-        <inline-view />
-      </b-tab>
-      <b-tab :title="$t('Inline Traffic Shaping')" @click="changeTab('traffic_shapings')">
-        <traffic-shaping-policies-search />
-      </b-tab>
-      <b-tab :title="$t('Fencing')" @click="changeTab('fencing')">
-        <fencing-view />
-      </b-tab>
-      <b-tab :title="$t('Device Parking')" @click="changeTab('parking')">
-        <parking-view />
+      <b-tab v-for="(tab, index) in tabs" :key="index"
+        :title="$t(tab.title)" @click="tabIndex = index">
+        <component :is="tab.component" />
       </b-tab>
     </b-tabs>
   </b-card>
@@ -34,39 +20,72 @@ import TrafficShapingPoliciesSearch from '../networks/trafficShapingPolicies/_co
 import FencingView from '../networks/fencing/_components/TheView'
 import ParkingView from '../networks/parking/_components/TheView'
 
-export default {
-  name: 'networks-tabs',
-  components: {
-    NetworkView,
-    InterfacesList,
-    InlineView,
-    TrafficShapingPoliciesSearch,
-    FencingView,
-    ParkingView
+const tabs = {
+  network: {
+    title: 'Network Settings', // i18n defer
+    component: NetworkView
   },
-  props: {
-    storeName: {
-      type: String
-    },
-    tab: {
-      type: String,
-      default: 'network'
-    }
+  interfaces: {
+    title: 'Interfaces', // i18n defer
+    component: InterfacesList
   },
-  computed: {
-    tabIndex: {
-      get () {
-        return ['network', 'interfaces', 'inline', 'traffic_shapings', 'fencing', 'parking'].indexOf(this.tab)
-      },
-      set () {
-        // noop
-      }
-    }
+  inline: {
+    title: 'Inline', // i18n defer
+    component: InlineView
   },
-  methods: {
-    changeTab (name) {
-      this.$router.push({ name })
-    }
+  traffic_shapings: {
+    title: 'Inline Traffic Shaping', // i18n defer
+    component: TrafficShapingPoliciesSearch
+  },
+  fencing: {
+    title: 'Fencing', // i18n defer
+    component: FencingView
+  },
+  parking: {
+    title: 'Device Parking', // i18n defer
+    component: ParkingView
   }
+}
+
+const props = {
+  tab: {
+    type: String,
+    default: Object.keys(tabs)[0]
+  }
+}
+
+import { customRef, toRefs } from '@vue/composition-api'
+
+const setup = (props, context) => {
+
+  const {
+    tab
+  } = toRefs(props)
+
+  const { root: { $router } = {} } = context
+
+  const tabIndex = customRef((track, trigger) => ({
+    get() {
+      track()
+      return Object.keys(tabs).indexOf(tab.value)
+    },
+    set(newValue) {
+      $router.push({ name: Object.keys(tabs)[newValue] })
+        .catch(e => { if (e.name !== "NavigationDuplicated") throw e })
+      trigger()
+    }
+  }))
+
+  return {
+    tabs,
+    tabIndex
+  }
+}
+
+// @vue/component
+export default {
+  name: 'the-tabs-networks',
+  props,
+  setup
 }
 </script>
