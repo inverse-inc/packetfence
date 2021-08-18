@@ -13,7 +13,7 @@
     </b-button>
     <b-button v-if="interrupt"
       type="button"
-      class="text-nowrap" variant="outline-danger"
+      class="text-nowrap bg-white" variant="outline-danger"
       disabled
     >
       {{ confirm }}
