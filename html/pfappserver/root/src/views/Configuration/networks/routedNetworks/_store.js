@@ -4,7 +4,7 @@
 import Vue from 'vue'
 import { computed } from '@vue/composition-api'
 import api from './_api'
-import { columns as columnsRoutedNetwork } from '../../_config/routedNetwork'
+import { columns as columnsRoutedNetwork } from './config'
 
 export const useStore = $store => {
   return {

@@ -188,9 +188,9 @@ import {
 } from '@/components/new/'
 import network from '@/utils/network'
 import { ToggleStatus } from '@/views/Configuration/networks/interfaces/_components/'
-import { columns as columnsInterface } from '../_config/interface'
-import { columns as columnsLayer2Network } from '../_config/layer2Network'
-import { columns as columnsRoutedNetwork } from '../_config/routedNetwork'
+import { columns as columnsInterface } from '@/views/Configuration/networks/interfaces/config'
+import { columns as columnsLayer2Network } from '@/views/Configuration/networks/layer2Networks/config'
+import { columns as columnsRoutedNetwork } from '@/views/Configuration/networks/routedNetworks/config'
 
 export default {
   name: 'interfaces-list',

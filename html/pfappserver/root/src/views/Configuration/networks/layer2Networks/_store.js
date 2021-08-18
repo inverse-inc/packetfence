@@ -4,7 +4,7 @@
 import Vue from 'vue'
 import { computed } from '@vue/composition-api'
 import api from './_api'
-import { columns as columnsLayer2Network } from '../../_config/layer2Network'
+import { columns as columnsLayer2Network } from './config'
 
 export const useStore = $store => {
   return {

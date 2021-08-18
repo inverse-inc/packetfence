@@ -139,7 +139,7 @@ import yup from '@/utils/yup'
 import {
   typeFormatter,
   sortColumns
-} from '@/views/Configuration/_config/interface'
+} from '@/views/Configuration/networks/interfaces/config'
 
 const fieldsInterface = [
   {

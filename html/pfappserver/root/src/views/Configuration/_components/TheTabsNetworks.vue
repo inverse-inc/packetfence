@@ -14,7 +14,7 @@
 
 <script>
 import NetworkView from '../networks/network/_components/TheView'
-import InterfacesList from './InterfacesList'
+import InterfacesList from '../networks/interfaces/_components/TheList'
 import InlineView from '../networks/inline/_components/TheView'
 import TrafficShapingPoliciesSearch from '../networks/trafficShapingPolicies/_components/TheSearch'
 import FencingView from '../networks/fencing/_components/TheView'
