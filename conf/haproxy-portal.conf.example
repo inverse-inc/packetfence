@@ -44,24 +44,19 @@ defaults
 
 backend proxy
     option httpclose
-    option http_proxy
     option forwardfor
-    # Need to have a proxy listening on localhost port 8888
-    acl paramsquery query -m found
-    http-request set-uri http://127.0.0.1:8888%[path]?%[query] if paramsquery
-    http-request set-uri http://127.0.0.1:8888%[path] unless paramsquery
+    server 127.0.0.1 127.0.0.1:8888
 
 backend static
     option httpclose
-    option http_proxy
     option forwardfor
-    http-request set-uri http://127.0.0.1:8889%[path]?%[query]
+    server 127.0.0.1 127.0.0.1:8889
 
 backend pki
     option httpclose
-    option http_proxy
     option forwardfor
-    http-request set-uri http://127.0.0.1:22225/api/v1%[path]?%[query]
+    http-request set-path /api/v1%[path]
+    server 127.0.0.1 127.0.0.1:22225
 
 
 %%http%%
