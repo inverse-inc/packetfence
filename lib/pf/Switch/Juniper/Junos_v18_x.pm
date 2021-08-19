@@ -154,7 +154,7 @@ sub bouncePortRadius {
 
         if (!$mac) {
             $logger->info("Can't find MAC address in the locationlog... we won't perform port bounce");
-            return $TRUE;
+            return $FALSE;
         }
     }
 
