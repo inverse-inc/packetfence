@@ -23,7 +23,7 @@ BEGIN {
     use pf::authentication;
 }
 
-use Test::More tests => 23;
+use Test::More tests => 26;
 use Test::Mojo;
 use Utils;
 use pf::ConfigStore::Source;
@@ -39,37 +39,44 @@ my $base_url = '/api/v1/config/source';
 
 my $true = bless( do { \( my $o = 1 ) }, 'JSON::PP::Boolean' );
 my $false = bless( do { \( my $o = 0 ) }, 'JSON::PP::Boolean' );
-$t->post_ok(
-    $collection_base_url => json => {
-        "administration_rules" => [
-            {
-                "actions" => [
-                    {
-                        "type"  => "set_access_level",
-                        "value" => ["ALL"],
-                    }
-                ],
-                "conditions"  => [],
-                "description" => undef,
-                "id"          => "catchall",
-                "match"       => "all",
-                "status"      => "enabled"
-            }
-        ],
-        "authentication_rules"        => [],
-        "description"                 => "htpasswd",
-        "id"                          => "htpasswd$$",
-        "isClone"                     => $false,
-        "isNew"                       => $true,
-        "ldapfilter_operator"         => undef,
-        "path"                        => "/usr/local/pf/conf/admin.conf",
-        "realms"                      => [],
-        "set_access_durations_action" => [],
-        "set_role_from_source_action" => undef,
-        "sourceType"                  => "Htpasswd",
-        "type"                        => "Htpasswd"
-    }
-)->status_is(201);
+{
+    my $id = "htpasswd_test$$";
+    $t->post_ok(
+        $collection_base_url => json => {
+            "administration_rules" => [
+                {
+                    "actions" => [
+                        {
+                            "type"  => "set_access_level",
+                            "value" => ["ALL"],
+                        }
+                    ],
+                    "conditions"  => [],
+                    "description" => undef,
+                    "id"          => "catchall",
+                    "match"       => "all",
+                    "status"      => "enabled"
+                }
+            ],
+            "authentication_rules"        => [],
+            "description"                 => "htpasswd",
+            "id"                          => $id,
+            "isClone"                     => $false,
+            "isNew"                       => $true,
+            "ldapfilter_operator"         => undef,
+            "path"                        => "/usr/local/pf/conf/admin.conf",
+            "realms"                      => [],
+            "set_access_durations_action" => [],
+            "set_role_from_source_action" => undef,
+            "sourceType"                  => "Htpasswd",
+            "type"                        => "Htpasswd"
+        }
+    )->status_is(201);
+
+    $t->get_ok("${base_url}/$id")
+    ->status_is(200)
+    ->json_is('/item/administration_rules/0/actions/0/value', ['ALL']);
+}
 
 $t->options_ok($collection_base_url)
   ->status_is(200)
