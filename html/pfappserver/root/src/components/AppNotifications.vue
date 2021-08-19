@@ -3,7 +3,7 @@
     <b-nav-item-dropdown v-if="isAuthenticated" :menu-class="visible ? 'd-flex flex-column' : ''" right no-caret
       @click.stop.prevent @show="show()" @hidden="markAsRead()" :disabled="isEmpty">
       <template v-slot:button-content>
-        <icon-counter name="bell" v-model="count" :variant="variant"></icon-counter>
+        <icon-counter name="bell" v-model="count" :variant="variant" />
       </template>
       <!-- menu items -->
       <div class="flex-grow-1 notifications-scroll">
@@ -14,7 +14,7 @@
                 <b-col>
                   <div class="notification-message" :class="{'text-secondary': !notification.unread}">
                     <b-badge pill v-if="notification.value" class="mr-2" :variant="notification.variant">{{notification.value}}</b-badge>
-                    <icon v-else :name="notification.icon" class="mr-1" :class="'text-'+notification.variant"></icon> <span :class="{ 'font-weight-bold': notification.unread }" v-html="notification.message"></span>
+                    <icon v-else :name="notification.icon" class="mr-1" :class="'text-'+notification.variant" /> <span :class="{ 'font-weight-bold': notification.unread }" v-html="notification.message" />
                   </div>
                   <small class="notification-url text-secondary">{{notification.url}}</small>
                 </b-col>
@@ -25,15 +25,15 @@
                 </b-col>
               </b-row>
               <div class="text-right">
-                <timeago :class="{'text-secondary': !notification.unread}" :datetime="notification.timestamp" :auto-update="60" :locale="$i18n.locale"></timeago>
+                <timeago :class="{'text-secondary': !notification.unread}" :datetime="notification.timestamp" :auto-update="60" :locale="$i18n.locale" />
               </div>
             </small>
           </b-dropdown-item>
-          <b-dropdown-divider></b-dropdown-divider>
+          <b-dropdown-divider />
         </div>
       </div>
       <b-dropdown-item class="text-right">
-        <b-button size="sm" variant="outline-secondary" v-t="'Clear All'" @click="clear()"></b-button>
+        <b-button size="sm" variant="outline-secondary" v-t="'Clear All'" @click="clear()" />
       </b-dropdown-item>
     </b-nav-item-dropdown>
     <!-- toasts -->
@@ -44,7 +44,7 @@
           <b-col>
             <div class="notification-message">
               <b-badge pill v-if="notification.value" class="mr-2" :variant="notification.variant">{{notification.value}}</b-badge>
-              <icon v-else :name="notification.icon" class="mr-1" :class="'text-'+notification.variant"></icon> <span v-html="notification.message"></span>
+              <icon v-else :name="notification.icon" class="mr-1" :class="'text-'+notification.variant" /> <span v-html="notification.message" />
             </div>
             <small class="notification-url text-secondary">{{notification.url}}</small>
           </b-col>
@@ -62,71 +62,76 @@
 <script>
 import IconCounter from '@/components/IconCounter'
 
-export default {
-  name: 'pf-notification-center',
-  components: {
-    'icon-counter': IconCounter
-  },
-  props: {
-    isAuthenticated: {
-      default: false
-    }
-  },
-  data () {
-    return {
-      visible: false
-    }
-  },
-  computed: {
-    notifications () {
-      return this.$store.state.notification.all
-    },
-    newNotifications () {
-      return this.notifications.filter(n => n.new)
-    },
-    count () {
-      return this.unread.length || this.notifications.length
-    },
-    isEmpty () {
-      return this.notifications.length === 0
-    },
-    unread () {
-      return this.notifications.filter(n => n.unread)
-    },
-    variant () {
-      return (this.unread.length > 0) ? 'danger' : 'secondary'
-    }
-  },
-  methods: {
-    show () {
-      this.visible = true
-    },
-    markAsRead () {
-      this.visible = false
-      this.notifications.forEach((notification) => {
-        this.$store.commit('notification/NOTIFICATION_UNMARK_UNREAD', notification)
-      })
-    },
-    dismiss (notification) {
-      this.$store.commit('notification/NOTIFICATION_DISMISS', notification)
-    },
-    clear () {
-      this.$store.commit('notification/$RESET')
-    },
-    clipboard (notification) {
-      const { url, message } = notification
-      try {
-        // remove HTML without executing inline script
-        const doc = new DOMParser().parseFromString(message, 'text/html')
-        const txt = doc.body.textContent || ''
-        if (txt) {
-          navigator.clipboard.writeText(`${url}: ${txt}`)
-        }
-      } catch (e) {
-        // noop
+const components = {
+  IconCounter
+}
+
+const props = {
+  isAuthenticated: {
+    type: Boolean
+  }
+}
+
+import { computed, ref } from '@vue/composition-api'
+
+const setup = (props, context) => {
+
+  const { root: { $store } = {} } = context
+
+  const visible = ref(false)
+
+  const notifications = computed(() => $store.state.notification.all)
+  const newNotifications = computed(() => notifications.value.filter(n => n.new))
+  const count = computed(() => unread.value.length || notifications.value.length)
+  const isEmpty = computed(() => notifications.value.length === 0)
+  const unread = computed(() => notifications.value.filter(n => n.unread))
+  const variant = computed(() => (unread.value.length > 0) ? 'danger' : 'secondary')
+
+  const show = () => visible.value = true
+  const markAsRead = () => {
+    visible.value = false
+    notifications.value.forEach(notification => {
+      $store.commit('notification/NOTIFICATION_UNMARK_UNREAD', notification)
+    })
+  }
+  const dismiss = notification => $store.commit('notification/NOTIFICATION_DISMISS', notification)
+  const clear = () => $store.commit('notification/$RESET')
+  const clipboard = notification => {
+    const { url, message } = notification
+    try {
+      // remove HTML without executing inline script
+      const doc = new DOMParser().parseFromString(message, 'text/html')
+      const txt = doc.body.textContent || ''
+      if (txt) {
+        navigator.clipboard.writeText(`${url}: ${txt}`)
       }
+    } catch (e) {
+      // noop
     }
   }
+
+  return {
+    visible,
+    notifications,
+    newNotifications,
+    count,
+    isEmpty,
+    unread,
+    variant,
+    show,
+    markAsRead,
+    dismiss,
+    clear,
+    clipboard
+  }
+}
+
+// @vue/component
+export default {
+  name: 'app-notifications',
+  components,
+  props,
+  setup
 }
 </script>
 

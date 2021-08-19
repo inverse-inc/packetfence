@@ -71,7 +71,7 @@
             </b-dropdown-item-button>
           </b-nav-item-dropdown>
         </b-navbar-nav>
-        <pf-notification-center :isAuthenticated="isAuthenticated || isConfiguratorActive" />
+        <app-notifications :isAuthenticated="isAuthenticated || isConfiguratorActive" />
       </b-collapse>
     </b-navbar>
     <app-api-progress />
@@ -101,16 +101,16 @@
 <script>
 import AppApiProgress from '@/components/AppApiProgress'
 import AppDocumentation from '@/components/AppDocumentation'
+import AppNotifications from '@/components/AppNotifications'
 import IconCounter from '@/components/IconCounter'
 import pfFormLogin from '@/components/pfFormLogin'
-import pfNotificationCenter from '@/components/pfNotificationCenter'
 
 const components = {
   AppApiProgress,
   AppDocumentation,
+  AppNotifications,
   IconCounter,
-  pfFormLogin,
-  pfNotificationCenter
+  pfFormLogin
 }
 
 import { computed, ref, watch } from '@vue/composition-api'

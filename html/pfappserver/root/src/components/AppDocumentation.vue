@@ -63,13 +63,23 @@
 </template>
 
 <script>
+import Vue from 'vue'
+import store from '@/store'
+
+Vue.mixin({
+  beforeRouteLeave(to, from, next) {
+    store.dispatch('documentation/closeViewer')
+      .finally(() => next())
+  }
+})
+
 import { computed, onMounted, nextTick, ref, watch } from '@vue/composition-api'
 import VueScrollTo from 'vue-scrollto'
 import i18n from '@/utils/locale'
 
 const setup = (props, context) => {
 
-  const { refs, root: { $router, $store } = {} } = context
+  const { refs, root: { $store } = {} } = context
 
   // template refs
   const refDocument = ref(null)
@@ -236,15 +246,6 @@ const setup = (props, context) => {
       cancelable: false
     })
   }
-
-  console.log($router)
-/*
-    '$route' (to, from) {
-      if (from.path.split('/')[1] !== to.path.split('/')[1]) {
-        this.$store.dispatch('documentation/closeViewer')
-      }
-    }
-*/
 
   onMounted(() => $store.dispatch('documentation/getIndex'))
 
