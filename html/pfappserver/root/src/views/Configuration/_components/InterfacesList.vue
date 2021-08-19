@@ -288,7 +288,7 @@ export default {
     onRowClickInterface (item) {
       const { not_editable } = item
       if (not_editable)
-        this.$store.dispatch('notification/danger', { message: this.$i18n.t('Interface <code>{id}</code> must be enabled in order to be modified.', item) })
+        this.$store.dispatch('notification/danger', { message: this.$i18n.t('Interface <code>{id}</code> must be up in order to be modified.', item) })
       else
         this.$router.push({ name: 'interface', params: { id: item.id } })
     },

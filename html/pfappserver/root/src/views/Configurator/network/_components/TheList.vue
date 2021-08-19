@@ -292,7 +292,7 @@ const { root: { $router, $store } = {} } = context
   }
   const onRowClickInterface = (item) => {
     if (item.not_editable)
-      $store.dispatch('notification/danger', { message: i18n.t('Interface <code>{id}</code> must be enabled in order to be modified.', item) })
+      $store.dispatch('notification/danger', { message: i18n.t('Interface <code>{id}</code> must be up in order to be modified.', item) })
     else {
       state.value.network = form.value // stash state
       $router.push({ name: 'configurator-interface', params: { id: item.id } })
