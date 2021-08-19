@@ -988,7 +988,7 @@ sub handleNtlmCaching {
     my $domain = $radius_request->{"PacketFence-Domain"};
     my $usedNtHash = $radius_request->{"PacketFence-NTCacheHash"};
 
-    if($domain && isenabled($ConfigDomain{$domain}{ntlm_cache}) && isenabled($ConfigDomain{$domain}{ntlm_cache_on_connection})) {
+    if($domain && isenabled($ConfigDomain{$domain}{ntlm_cache})) {
         my $radius_username = $radius_request->{'Stripped-User-Name'} || $radius_request->{'User-Name'};
         my $cache_key = "$domain.$radius_username";
         my $username = pf::domain::ntlm_cache::get_from_cache($cache_key);

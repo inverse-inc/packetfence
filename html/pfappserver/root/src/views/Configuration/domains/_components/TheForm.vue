@@ -81,30 +81,9 @@
           :text="$i18n.t('The source to use to connect to your Active Directory server for NTLM caching.')"
         />
 
-        <form-group-ntlm-cache-filter namespace="ntlm_cache_filter"
-          :column-label="$i18n.t('LDAP filter')"
-          :text="$i18n.t('An LDAP query to filter out the users that should be cached.')"
-          :max-rows="10"
-        />
-
         <form-group-ntlm-cache-expiry namespace="ntlm_cache_expiry"
           :column-label="$i18n.t('Expiration')"
-          :text="$i18n.t('The amount of seconds an entry should be cached. This should be adjusted to twice the value of maintenance.populate_ntlm_redis_cache_interval if using the batch mode.')"
-        />
-
-        <form-group-ntlm-cache-batch namespace="ntlm_cache_batch"
-          :column-label="$i18n.t('NTLM cache background job')"
-          :text="$i18n.t('When this is enabled, all users matching the LDAP filter will be inserted in the cache via a background job (maintenance.populate_ntlm_redis_cache_interval controls the interval).')"
-        />
-
-        <form-group-ntlm-cache-batch-one-at-a-time namespace="ntlm_cache_batch_one_at_a_time"
-          :column-label="$i18n.t('NTLM cache background job individual fetch')"
-          :text="$i18n.t('Whether or not to fetch users on your AD one by one instead of doing a single batch fetch. This is useful when your AD is loaded or experiencing issues during the sync. Note that this makes the batch job much longer and is about 4 times slower when enabled.')"
-        />
-
-        <form-group-ntlm-cache-on-connection namespace="ntlm_cache_on_connection"
-          :column-label="$i18n.t('NTLM cache on connection')"
-          :text="$i18n.t('When this is enabled, an async job will cache the NTLM credentials of the user every time he connects.')"
+          :text="$i18n.t('The amount of seconds an entry should be cached.')"
         />
 
       </base-form-tab>
