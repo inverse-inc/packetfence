@@ -4,7 +4,7 @@ import { pfActions } from '@/globals/pfActions'
 export const internalTypes = {
   AD:                  i18n.t('Active Directory'),
   Authorization:       i18n.t('Authorization'),
-  AzureAD:             i18n.t('AzureAD'),
+  AzureAD:             i18n.t('Azure AD'),
   EAPTLS:              'EAPTLS',
   EDIR:                'Edirectory',
   Htpasswd:            'Htpasswd',
