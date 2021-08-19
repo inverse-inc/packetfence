@@ -44,22 +44,24 @@
           <icon name="circle" :class="{ 'text-success': item.item.high_availability === 1, 'text-danger': item.item.high_availability === 0 }"></icon>
         </template> -->
         <template v-slot:cell(buttons)="{ item }">
-          <span v-if="item.vlan"
-            class="float-right text-nowrap"
-          >
-            <base-button-confirm
-              size="sm" variant="outline-danger" class="my-1 mr-1" reverse
-              :disabled="isLoading"
-              :confirm="$t('Delete VLAN?')"
-              @click="removeInterface(item)"
-            >{{ $t('Delete') }}</base-button-confirm>
-            <b-button size="sm" variant="outline-primary" class="mr-1" :disabled="isLoading" @click.stop.prevent="cloneInterface(item)">{{ $t('Clone') }}</b-button>
-          </span>
-          <span v-else
-            class="float-right text-nowrap"
-          >
-            <b-button size="sm" variant="outline-primary" class="mr-1" :disabled="isLoading" @click.stop.prevent="addVlanInterface(item)">{{ $t('New VLAN') }}</b-button>
-          </span>
+          <template v-if="!item.not_editable">
+            <span v-if="item.vlan"
+              class="float-right text-nowrap"
+            >
+              <base-button-confirm
+                size="sm" variant="outline-danger" class="my-1 mr-1" reverse
+                :disabled="isLoading"
+                :confirm="$t('Delete VLAN?')"
+                @click="removeInterface(item)"
+              >{{ $t('Delete') }}</base-button-confirm>
+              <b-button size="sm" variant="outline-primary" class="mr-1" :disabled="isLoading" @click.stop.prevent="cloneInterface(item)">{{ $t('Clone') }}</b-button>
+            </span>
+            <span v-else
+              class="float-right text-nowrap"
+            >
+              <b-button size="sm" variant="outline-primary" class="mr-1" :disabled="isLoading" @click.stop.prevent="addVlanInterface(item)">{{ $t('New VLAN') }}</b-button>
+            </span>
+          </template>
         </template>
       </b-table>
 
@@ -234,9 +236,11 @@ const { root: { $router, $store } = {} } = context
   $store.dispatch(`$_interfaces/all`)
   const interfaces = computed(() => $store.getters['$_interfaces/cacheFlattened']
     .map(i => {
-      return (i.vlan)
-        ? { ...i, _rowVariant: 'secondary' } // set table row variant on vlans
-        : i
+      if (i.not_editable)
+        i._rowVariant = 'warning'
+      else if (i.vlan)
+        i._rowVariant = 'secondary'
+      return i
     })
   )
 
@@ -287,8 +291,12 @@ const { root: { $router, $store } = {} } = context
     $router.push({ name: 'configurator-newInterface', params: { id: item.id } })
   }
   const onRowClickInterface = (item) => {
-    state.value.network = form.value // stash state
-    $router.push({ name: 'configurator-interface', params: { id: item.id } })
+    if (item.not_editable)
+      $store.dispatch('notification/danger', { message: i18n.t('Interface <code>{id}</code> must be enabled in order to be modified.', item) })
+    else {
+      state.value.network = form.value // stash state
+      $router.push({ name: 'configurator-interface', params: { id: item.id } })
+    }
   }
 
   const onSave = ()  => {
