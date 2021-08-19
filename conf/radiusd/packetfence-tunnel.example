@@ -111,6 +111,8 @@ authorize {
 
 [% authorize_ldap_choice %]
 
+	oauth2
+
 	#
 	#  Read the 'users' file
 	#files
@@ -216,6 +218,10 @@ authenticate {
 
 [% authentication_ldap_auth_type %]
 
+	Auth-Type oauth2 {
+		oauth2
+	}
+
 	# Uncomment it if you want to use ldap for authentication
 	#
 	# Note that this means "check plain-text password against
@@ -270,6 +276,7 @@ session {
 #  the ONLY safe way is to set "use_tunneled_reply = yes", and
 #  then update the inner-tunnel reply.
 post-auth {
+	oauth2
 	packetfence-set-tenant-id
 	PacketFence-NTCacheHash
 	if (ok) {
