@@ -1,7 +1,7 @@
 <template>
   <b-container fluid>
     <b-row>
-      <b-col cols="12" md="4" xl="3" class="pf-sidebar">
+      <b-col cols="12" md="4" xl="3" class="section-sidebar">
         <h6 class="mt-3 px-4 text-muted text-uppercase text-left">{{ $t('Configuration Wizard') }}</h6>
         <sidebar
           :step="step"
@@ -28,7 +28,7 @@
                 </b-button>
               </slot>
               <small class="d-block valid-feedback text-primary" v-if="isLoading" v-text="progressFeedback"></small>
-              <small class="d-block invalid-feedback" v-else-if="invalidFeedback" v-text="invalidFeedback"></small>           
+              <small class="d-block invalid-feedback" v-else-if="invalidFeedback" v-text="invalidFeedback"></small>
             </b-col>
           </b-row>
           <slot name="footer"></slot>
@@ -67,7 +67,7 @@ const props = {
   },
   progressFeedback: {
     type: String
-  },  
+  },
   isLoading: {
     type: Boolean,
     default: false

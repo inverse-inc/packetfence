@@ -1,7 +1,7 @@
 <template>
-  <div class="pf-documentation overflow-hidden py-2 border-bottom border-gray">
+  <div class="documentation overflow-hidden py-2 border-bottom border-gray">
     <!-- document viewer -->
-    <b-card no-body class="pf-documentation-document" :class="{ 'fullscreen': fullscreen }">
+    <b-card no-body class="documentation-document" :class="{ 'fullscreen': fullscreen }">
       <b-card-header>
         <template v-if="!fullscreen">
           <b-button-close @click="closeViewer" v-b-tooltip.hover.left.d300 :title="$t('Close')" class="ml-3"><icon name="times"></icon></b-button-close>
@@ -11,15 +11,15 @@
         <h4 class="d-inline mb-0 mr-3"><icon class="mr-2" name="book"></icon>{{ title }}</h4>
       </b-card-header>
       <b-row no-gutters>
-        <b-col md="3" xl="2" class="pf-sidebar d-print-none" ref="refDocumentList">
-          <div class="pf-sidebar-links mt-3">
-            <b-nav class="pf-sidenav" vertical>
+        <b-col md="3" xl="2" class="section-sidebar d-print-none" ref="refDocumentList">
+          <div class="section-sidebar-links mt-3">
+            <b-nav class="section-sidenav" vertical>
               <b-nav-item v-for="document in index" :key="document.name"
                 :active="document.text === title"
                 :disabled="isLoading"
                 exact-active-class="active"
                 @click.stop.prevent="loadDocument(document)">
-                <div class="pf-sidebar-item">{{ document.text }}</div>
+                <div class="section-sidebar-item">{{ document.text }}</div>
               </b-nav-item>
             </b-nav>
             <!-- info + support link -->
@@ -34,11 +34,11 @@
         </b-col>
         <b-col md="9" xl="10">
           <!-- HTML document -->
-          <iframe v-show="!isLoading" v-if="path" ref="refDocument" name="documentFrame" frameborder="0" class="pf-documentation-frame"
+          <iframe v-show="!isLoading" v-if="path" ref="refDocument" name="documentFrame" frameborder="0" class="documentation-frame"
             :src="`/static/doc/${path}`"
             @load="initDocument()"
           ></iframe>
-          <b-container class="pf-documentation-frame my-5" v-if="isLoading">
+          <b-container class="documentation-frame my-5" v-if="isLoading">
             <b-row class="justify-content-md-center text-secondary h-100">
               <b-col cols="12" md="auto" class="align-self-center">
                 <b-media>
@@ -104,13 +104,13 @@ const setup = (props, context) => {
     if (a) { // fullscreen
       if (!document.body.classList.contains('modal-open')) { // hide body scrollbar
         document.body.classList.add('modal-open')
-        document.body.classList.add('pf-documentation-fullscreen')
+        document.body.classList.add('documentation-fullscreen')
       }
       $store.dispatch('events/unbind')
     } else { // not fullscreen
       if (document.body.classList.contains('modal-open')) { // show body scrollbar
         document.body.classList.remove('modal-open')
-        document.body.classList.remove('pf-documentation-fullscreen')
+        document.body.classList.remove('documentation-fullscreen')
       }
       $store.dispatch('events/bind')
     }
@@ -277,28 +277,28 @@ export default {
 </script>
 
 <style lang="scss">
-  $pf-documentation-height: 50vh;
+  $documentation-height: 50vh;
   $slide-in-duration: 0.3s;
   $slide-out-duration: 0.15s;
 
-  .pf-documentation {
+  .documentation {
     display: none; // hidden by default
-    height: $pf-documentation-height;
-    .pf-sidebar {
+    height: $documentation-height;
+    .section-sidebar {
       overflow-y: auto;
       @include media-breakpoint-up(md) {
         @supports (position: sticky) {
           top: 0;
-          max-height: calc(#{$pf-documentation-height} - #{map-get($spacers, 6)} - 2 * #{map-get($spacers, 2)});
+          max-height: calc(#{$documentation-height} - #{map-get($spacers, 6)} - 2 * #{map-get($spacers, 2)});
         }
       }
     }
-    .pf-documentation-frame {
+    .documentation-frame {
       width: 100%;
-      height: calc(#{$pf-documentation-height} - #{map-get($spacers, 6)} - 2 * #{map-get($spacers, 2)});
+      height: calc(#{$documentation-height} - #{map-get($spacers, 6)} - 2 * #{map-get($spacers, 2)});
     }
   }
-  .pf-documentation-document {
+  .documentation-document {
     &.fullscreen {
       position: fixed !important;
       z-index: $zindex-modal-backdrop;
@@ -312,30 +312,30 @@ export default {
       border: none !important;
     }
   }
-  .pf-documentation-fullscreen {
-    .pf-documentation,
-    .pf-documentation .pf-documentation-frame {
+  .documentation-fullscreen {
+    .documentation,
+    .documentation .documentation-frame {
       height: calc(100vh - #{map-get($spacers, 6)} - #{map-get($spacers, 5)}); // 100% view height - navbar height - card header height
     }
   }
 
-.pf-documentation-enter {
+.documentation-enter {
   animation: slide-in-top $slide-in-duration cubic-bezier(0.250, 0.460, 0.450, 0.940) both;
-  .pf-documentation {
+  .documentation {
     display: block;
   }
 }
 
-.pf-documentation-leave {
+.documentation-leave {
   animation: slide-out-top $slide-out-duration cubic-bezier(0.250, 0.460, 0.450, 0.940) both;
-  .pf-documentation {
+  .documentation {
     display: block;
   }
 }
 
 @keyframes slide-in-top {
   0% {
-    transform: translateY(-#{$pf-documentation-height});
+    transform: translateY(-#{$documentation-height});
   }
   100% {
     transform: translateY(0);
@@ -347,7 +347,7 @@ export default {
     transform: translateY(0);
   }
   100% {
-    transform: translateY(-#{$pf-documentation-height});
+    transform: translateY(-#{$documentation-height});
   }
 }
 </style>
