@@ -8,32 +8,43 @@
 </template>
 
 <script>
+const props = {
+  name: {
+    type: String
+  },
+  variant: {
+    type: String,
+    default: 'danger'
+  },
+  value: {
+    type: Number,
+    default: 0
+  }
+}
+
+import { computed, toRefs } from '@vue/composition-api'
+
+const setup = props => {
+
+  const {
+    value
+  } = toRefs(props)
+
+  const count = computed(() => (value.value > 99) ? '!!' : value.value)
+  const notEmpty = computed(() => value.value > 0)
+
+  return {
+    count,
+    notEmpty
+  }
+}
+
+// @vue/component
 export default {
   name: 'icon-counter',
   inheritAttrs: false,
-  props: {
-    name: {
-      type: String,
-      required: true
-    },
-    variant: {
-      type: String,
-      default: 'danger'
-    },
-    value: {
-      type: Number,
-      default: 0,
-      required: true
-    }
-  },
-  computed: {
-    count () {
-      return (this.value > 99) ? '!!' : this.value
-    },
-    notEmpty () {
-      return this.value > 0
-    }
-  }
+  props,
+  setup
 }
 </script>
 
