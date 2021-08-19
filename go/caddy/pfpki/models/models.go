@@ -609,11 +609,15 @@ func (c CA) Verify(m *scep.CSRReqMessage) (bool, error) {
 }
 
 func (c CA) FailureNotify(cert *x509.Certificate, m *scep.CSRReqMessage, message string) {
-	c.Cloud.FailureReply(c.Ctx, cert, m.CSR.Raw, message)
+	if c.Cloud != nil {
+		c.Cloud.FailureReply(c.Ctx, cert, m.CSR.Raw, message)
+	}
 }
 
 func (c CA) SuccessNotify(cert *x509.Certificate, m *scep.CSRReqMessage, message string) {
-	c.Cloud.SuccessReply(c.Ctx, cert, m.CSR.Raw, message)
+	if c.Cloud != nil {
+		c.Cloud.SuccessReply(c.Ctx, cert, m.CSR.Raw, message)
+	}
 }
 
 func (c CA) GetProfileByName(name string) (*Profile, error) {
