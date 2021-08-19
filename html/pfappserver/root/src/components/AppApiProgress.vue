@@ -10,15 +10,6 @@ const setup = (props, context) => {
 
   const { root: { $store } = {} } = context
 
-  const percentage = computed(() => $store.getters['performance/getPercentage'])
-  const isLoading = computed(() => $store.getters['performance/isLoading'])
-  watch(isLoading, a => {
-    if (a)
-      this.show()
-    else
-      this.hide()
-  }, { immediate: true })
-
   let $debouncer
   const visible = ref(false)
   const show = () => {
@@ -35,6 +26,15 @@ const setup = (props, context) => {
       time: 1000 // 1 second
     })
   }
+
+  const percentage = computed(() => $store.getters['performance/getPercentage'])
+  const isLoading = computed(() => $store.getters['performance/isLoading'])
+  watch(isLoading, a => {
+    if (a)
+      show()
+    else
+      hide()
+  }, { immediate: true })
 
   return {
     percentage,

@@ -83,14 +83,14 @@
       </div>
     </b-container>
     <b-container :class="[{ 'pt-6': warnings.length === 0, 'pf-documentation-container': isAuthenticated }, documentationViewerClass]" fluid>
-      <pf-documentation v-show="isAuthenticated">
+      <app-documentation v-show="isAuthenticated">
         <div class="py-1 pl-3" v-show="version">
           <b-form-text v-t="'Packetfence Version'"/> {{ version }}
         </div>
         <div class="py-1 pl-3" v-show="hostname">
           <b-form-text v-t="'Server Hostname'"/> {{ hostname }}
         </div>
-      </pf-documentation>
+      </app-documentation>
       <router-view/>
     </b-container>
     <!-- Show login form if session expires -->
@@ -100,15 +100,15 @@
 
 <script>
 import AppApiProgress from '@/components/AppApiProgress'
+import AppDocumentation from '@/components/AppDocumentation'
 import IconCounter from '@/components/IconCounter'
-import pfDocumentation from '@/components/pfDocumentation'
 import pfFormLogin from '@/components/pfFormLogin'
 import pfNotificationCenter from '@/components/pfNotificationCenter'
 
 const components = {
   AppApiProgress,
+  AppDocumentation,
   IconCounter,
-  pfDocumentation,
   pfFormLogin,
   pfNotificationCenter
 }
