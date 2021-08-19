@@ -166,7 +166,7 @@
           <b-button variant="link" :to="{ name: 'user', params: { pid: item.value } }">{{ item.value }}</b-button>
         </template>
         <template v-slot:cell(device_score)="item">
-          <pf-fingerbank-score :score="item.value"></pf-fingerbank-score>
+          <icon-score :score="item.value" />
         </template>
         <template v-slot:cell(buttons)="item">
           <span class="float-right text-nowrap text-right">
@@ -201,16 +201,16 @@ import {
   BaseButtonConfirm,
   BaseButtonExportCsv
 } from '@/components/new/'
+import IconScore from '@/components/IconScore'
 import pfEmptyTable from '@/components/pfEmptyTable'
 import pfMixinSearchable from '@/components/pfMixinSearchable'
 import pfMixinSelectable from '@/components/pfMixinSelectable'
-import pfFingerbankScore from '@/components/pfFingerbankScore'
 import pfFormToggle from '@/components/pfFormToggle'
 const components = {
   BaseButtonConfirm,
   BaseButtonExportCsv,
+  IconScore,
   pfEmptyTable,
-  pfFingerbankScore,
   pfFormToggle
 }
 

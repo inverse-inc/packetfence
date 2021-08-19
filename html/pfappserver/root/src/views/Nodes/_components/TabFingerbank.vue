@@ -18,7 +18,7 @@
           {{ node.fingerbank.version }}
         </pf-form-row>
         <pf-form-row class="text-nowrap" :column-label="$t('Score')" v-if="node.fingerbank.score">
-          <pf-fingerbank-score class="col-12 col-md-6 col-lg-3" :score="node.fingerbank.score"></pf-fingerbank-score>
+          <icon-score class="col-12 col-md-6 col-lg-3" :score="node.fingerbank.score" />
         </pf-form-row>
         <pf-form-row class="text-nowrap" :column-label="$t('Mobile')">
           <div v-if="node.fingerbank.mobile === 1">
@@ -53,11 +53,11 @@
   </b-tab>
 </template>
 <script>
-import pfFingerbankScore from '@/components/pfFingerbankScore'
+import IconScore from '@/components/IconScore'
 import pfFormRow from '@/components/pfFormRow'
 
 const components = {
-  pfFingerbankScore,
+  IconScore,
   pfFormRow
 }
 
