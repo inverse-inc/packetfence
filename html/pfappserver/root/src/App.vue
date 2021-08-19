@@ -74,7 +74,7 @@
         <pf-notification-center :isAuthenticated="isAuthenticated || isConfiguratorActive" />
       </b-collapse>
     </b-navbar>
-    <pf-progress-api/>
+    <app-api-progress />
     <!-- Show alert if the database is in read-only mode and/or the configurator is enabled -->
     <b-container v-if="warnings.length > 0" class="bg-danger text-white text-center pt-6" fluid>
       <div class="py-2" v-for="(warning, index) in warnings" :key="index">
@@ -99,18 +99,18 @@
 </template>
 
 <script>
+import AppApiProgress from '@/components/AppApiProgress'
 import IconCounter from '@/components/IconCounter'
 import pfDocumentation from '@/components/pfDocumentation'
 import pfFormLogin from '@/components/pfFormLogin'
 import pfNotificationCenter from '@/components/pfNotificationCenter'
-import pfProgressApi from '@/components/pfProgressApi'
 
 const components = {
+  AppApiProgress,
   IconCounter,
   pfDocumentation,
   pfFormLogin,
-  pfNotificationCenter,
-  pfProgressApi
+  pfNotificationCenter
 }
 
 import { computed, ref, watch } from '@vue/composition-api'
