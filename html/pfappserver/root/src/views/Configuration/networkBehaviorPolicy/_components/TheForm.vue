@@ -53,7 +53,7 @@
       :text="$i18n.t('Which ports should be considered as vulnerable/dangerous and trigger an event. Should be a comma delimited list of ports. Also supports ranges (ex: &quot;1000-1024&quot; configures ports 1000 to 1024 inclusively). This list is for the outbound communication of the endpoint.')"
     />
 
-    <form-group-blacklisted-ports-window namespaces="blacklisted_ports_window"
+    <form-group-blacklisted-ports-window namespace="blacklisted_ports_window"
       :column-label="$i18n.t('Blacklisted ports window')"
       :text="$i18n.t('The window to consider when checking for blacklisted ports communication.')"
     />
