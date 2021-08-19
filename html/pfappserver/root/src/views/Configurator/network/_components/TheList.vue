@@ -115,7 +115,6 @@ import {
   BaseFormGroupChosenMultiple,
   BaseFormGroupInput
 } from '@/components/new/'
-import pfButton from '@/components/pfButton'
 import pfEmptyTable from '@/components/pfEmptyTable'
 import { ToggleStatus } from '@/views/Configuration/networks/interfaces/_components/'
 
@@ -127,7 +126,6 @@ const components = {
   FormGroupGateway:    BaseFormGroupInput,
   FormGroupHostname:   BaseFormGroupInput,
   FormGroupDnsServers: BaseFormGroupChosenMultiple,
-  pfButton,
   pfEmptyTable,
   ToggleStatus
 }
