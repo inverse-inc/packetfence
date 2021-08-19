@@ -48,6 +48,7 @@ BEGIN {
     );
 }
 
+our $TRIGGER_NODE_DISCOVERED = undef;
 use Class::XSAccessor {
     accessors => \@CATEGORY_ACCESSORS,
 # The getters for current location log entries
@@ -104,6 +105,9 @@ sub after_create_hook {
     my ($self) = @_;
     for my $a (@CATEGORY_ACCESSORS) {
         $self->$a(undef);    
+    }
+    if (!$TRIGGER_NODE_DISCOVERED) {
+        return;
     }
 
     my $apiclient = pf::api::queue->new(queue => 'general');
