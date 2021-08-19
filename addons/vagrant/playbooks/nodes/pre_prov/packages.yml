@@ -28,6 +28,7 @@
     gitlab_buildpkg_tools__deb_pkgs:
       - packetfence-test
       - wpasupplicant
+      - sscep
 
   # workaround for https://github.com/ansible/ansible/issues/70304
   # to have ansible_distribution correct for bullseye
