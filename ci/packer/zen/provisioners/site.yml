@@ -1,0 +1,2 @@
+---
+- import_playbook: playbooks/install_pf.yml

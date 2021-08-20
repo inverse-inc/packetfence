@@ -1,0 +1,14 @@
+- hosts: pfservers
+  name: Install PacketFence
+  become: True
+  gather_facts: True
+  collections:
+    - inverse_inc.packetfence  
+
+  roles:
+
+    - role: packetfence_common
+      tags: common
+
+    - role: packetfence_install
+      tags: install
