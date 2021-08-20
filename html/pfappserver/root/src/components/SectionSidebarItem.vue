@@ -6,7 +6,7 @@
 <template>
   <div>
     <b-nav-item
-      exact-active-class="active"
+      active-class="active"
       v-if="visible"
       v-bind="$attrs"
       :to="item.path"
@@ -24,7 +24,7 @@
     <b-nav class="section-sidenav mb-2" v-if="showSavedSearches && savedBasicSearches.length > 0" vertical>
       <div class="section-sidenav-group small py-0" v-t="'Basic Searches'" />
       <b-nav-item
-        exact-active-class="active"
+        active-class="active"
         v-for="search in savedBasicSearches"
         :key="search.name"
         class="saved-search"
@@ -39,7 +39,7 @@
     <b-nav class="section-sidenav mb-2" v-if="showSavedSearches && savedAdvancedSearches.length > 0" vertical>
       <div class="section-sidenav-group small py-0" v-t="'Advanced Searches'" />
       <b-nav-item
-        exact-active-class="active"
+        active-class="active"
         v-for="search in savedAdvancedSearches"
         :key="search.name"
         class="saved-search"

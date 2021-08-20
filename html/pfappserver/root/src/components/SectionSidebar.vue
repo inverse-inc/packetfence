@@ -153,16 +153,16 @@ const setup = (props, context) => {
       const { currentRoute: { name: currentName, path: currentPath, query: { query: currentQuery } = {} } = {} } = $router
       items.forEach(({ name: sectionName, path, items }) => {
         if (items) {
-          findActiveSections(items, [sectionName, ...sections])
+          return findActiveSections(items, [sectionName, ...sections])
         }
         else if (path && path instanceof Object) {
           const { name: pathName, query: { query: pathQuery } } = path
           if (pathName === currentName && pathQuery === currentQuery) {
-            expandedSections.value = sections
+            return expandedSections.value = sections
           }
         }
         else if (path === currentPath) {
-          expandedSections.value = sections
+          return expandedSections.value = sections
         }
       })
     }
@@ -183,12 +183,14 @@ const setup = (props, context) => {
     return true
   }
 
-  watch(value, () => findActiveSections(value.value, []))
+  watch(value, () => findActiveSections(value.value, []), { immediate: true })
 
   useEvent('keydown', e => {
     const { altKey = false, shiftKey = false, keyCode = false } = e
-    if (altKey && shiftKey && keyCode === 70) // ALT+SHIFT+F
+    if (altKey && shiftKey && keyCode === 70) { // ALT+SHIFT+F
       focusFilter()
+      e.preventDefault()
+    }
   })
 
   return {
