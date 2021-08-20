@@ -74,7 +74,7 @@ sub _pf_config_val {
 sub parseArgs {
     my ($self) = @_;
 
-    if([$self->args]->[0] eq "--force") {
+    if(scalar($self->args) > 0 && [$self->args]->[0] eq "--force") {
         $FORCE = $TRUE;
     }
     return 1;
@@ -98,7 +98,7 @@ sub _run {
         table_cache => _pf_config_val("database_advanced", "table_cache"),
         max_allowed_packet => _pf_config_val("database_advanced", "max_allowed_packet"),
         thread_cache_size => _pf_config_val("database_advanced", "thread_cache_size"),
-        server_ip => $management_network ? $management_network->{Tvip} // $management_network->{Tip} : "",
+        server_ip => $management_network ? ($management_network->{Tvip} // $management_network->{Tip}) : "",
         performance_schema => _pf_config_val("database_advanced", "performance_schema"),
         max_connect_errors => _pf_config_val("database_advanced", "max_connect_errors"),
         masterslave => _pf_config_val("database_advanced", "masterslave"),
