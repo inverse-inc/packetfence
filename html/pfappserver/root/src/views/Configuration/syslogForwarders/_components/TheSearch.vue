@@ -4,6 +4,9 @@
       <h4 class="mb-0">{{ $t('Syslog Entries') }}</h4>
     </b-card-header>
     <div class="card-body">
+      <div
+        class="alert alert-warning"
+      >{{ $t(`Creating, modifying or deleting an syslog entry requires to restart the rsyslog service using the following command: systemctl restart rsyslog`) }}</div>
       <base-search :use-search="useSearch">
         <b-button variant="outline-primary" @click="goToNew({ syslogForwarderType: 'server' })">{{ $t('New Syslog Entry') }}</b-button>
       </base-search>
