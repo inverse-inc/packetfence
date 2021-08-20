@@ -125,7 +125,7 @@ install: build
 	install -oroot -groot -m0440 $(CURDIR)/debian/packetfence.sudoers $(CURDIR)/debian/packetfence/etc/sudoers.d/packetfence
 	rm -fr $(CURDIR)/debian/packetfence$(PREFIX)/$(NAME)/html/pfappserver/root/static/alt
 	#PacketFence Mariadb plugin
-	make MARIADB_INCLUDE_DIR=/usr/include/mariadb src/mariadb_udf/pf_udf.so
+	make src/mariadb_udf/pf_udf.so
 	install -D -m0755 src/mariadb_udf/pf_udf.so $(CURDIR)/debian/packetfence/$$(pkg-config mariadb --variable=plugindir)/pf_udf.so
 	#PacketFence pfcmd suid
 	install -d -m0755 $(CURDIR)/debian/packetfence-pfcmd-suid$(PREFIX)/$(NAME)/bin

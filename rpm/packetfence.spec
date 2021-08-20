@@ -342,7 +342,7 @@ done
 %{__make} bin/pfcmd
 # build ntlm_auth_wrapper
 %{__make} bin/ntlm_auth_wrapper
-%{__make} MARIADB_INCLUDE_DIR=/usr/include/mysql src/mariadb_udf/pf_udf.so
+%{__make} src/mariadb_udf/pf_udf.so
 # Define git_commit_id
 echo %{git_commit} > conf/git_commit_id
 
