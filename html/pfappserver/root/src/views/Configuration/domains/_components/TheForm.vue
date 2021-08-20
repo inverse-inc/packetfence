@@ -50,12 +50,6 @@
           :column-label="$i18n.t('OU')"
           :text="$i18n.t(`Use a specific OU for the PacketFence account. The OU string read from top to bottom without RDNs and delimited by a '/'. (ex: Computers/Servers/Unix).`)"
         />
-        <b-form-group label-cols="3">
-          <div class="alert alert-warning mb-0">
-            <strong>{{ $i18n.t('Note:') }}</strong>
-            {{ $i18n.t(`Due to a bug in the current version of samba, you will need to precreate a computer object in the OU you specify above when you're not using the default value ('Computers'). Otherwise you will get the following error: "Failed to join domain: failed to precreate account in ou ou=XYZ,dc=ACME,dc=CORP: No such object".`) }}
-          </div>
-        </b-form-group>
 
         <form-group-ntlmv2-only namespace="ntlmv2_only"
           :column-label="$i18n.t('NTLM v2 only')"
