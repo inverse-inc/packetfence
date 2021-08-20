@@ -341,7 +341,6 @@ After you add a new Syslog server, you will need to perfom following actions usi
 
 [source,bash]
 ----
-/usr/local/pf/bin/pfcmd generatesyslogconfig
 systemctl restart rsyslog
 ----
 
