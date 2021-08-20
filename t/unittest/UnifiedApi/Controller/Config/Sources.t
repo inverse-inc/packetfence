@@ -64,7 +64,7 @@ my $false = bless( do { \( my $o = 0 ) }, 'JSON::PP::Boolean' );
             "isClone"                     => $false,
             "isNew"                       => $true,
             "ldapfilter_operator"         => undef,
-            "path"                        => "/usr/local/pf/conf/admin.conf",
+            "path"                        => "/usr/local/pf/t/data/htpasswd.conf",
             "realms"                      => [],
             "set_access_durations_action" => [],
             "set_role_from_source_action" => undef,
