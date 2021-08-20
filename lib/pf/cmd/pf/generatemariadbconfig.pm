@@ -51,8 +51,9 @@ use pf::dal::auth_log;
 use pf::dal::dhcp_option82;
 use pf::dal::dns_audit_log;
 use pf::dal::radius_audit_log;
+use pfconfig::namespaces::config::EventLoggers;
 
-tie our %EventLoggers, 'pfconfig::cached_hash', 'config::EventLoggers';
+my %EventLoggers = %{pfconfig::namespaces::config::EventLoggers->new->build()};
 
 use pf::util;
 
