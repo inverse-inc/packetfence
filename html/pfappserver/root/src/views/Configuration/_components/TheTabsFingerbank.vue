@@ -41,37 +41,37 @@ const tabs = {
     title: 'Combinations', // i18n defer
     component: FingerbankCombinationsSearch
   },
-  fingerbankDevicesByScope: {
+  fingerbankDevices: {
     title: 'Devices', // i18n defer
     component: FingerbankDevicesSearch,
     props: ({ parentId, scope }) => ({ parentId, scope })
   },
-  fingerbankDhcpFingerprintsByScope: {
+  fingerbankDhcpFingerprints: {
     title: 'DHCP Fingerprints', // i18n defer
     component: FingerbankDhcpFingerprintsSearch,
     props: ({ scope }) => ({ scope })
   },
-  fingerbankDhcpVendorsByScope: {
+  fingerbankDhcpVendors: {
     title: 'DHCP Vendors', // i18n defer
     component: FingerbankDhcpVendorsSearch,
     props: ({ scope }) => ({ scope })
   },
-  fingerbankDhcpv6FingerprintsByScope: {
+  fingerbankDhcpv6Fingerprints: {
     title: 'DHCPv6 Fingerprints', // i18n defer
     component: FingerbankDhcpv6FingerprintsSearch,
     props: ({ scope }) => ({ scope })
   },
-  fingerbankDhcpv6EnterprisesByScope: {
+  fingerbankDhcpv6Enterprises: {
     title: 'DHCPv6 Enterprises', // i18n defer
     component: FingerbankDhcpv6EnterprisesSearch,
     props: ({ scope }) => ({ scope })
   },
-  fingerbankMacVendorsByScope: {
+  fingerbankMacVendors: {
     title: 'MAC Vendors', // i18n defer
     component: FingerbankMacVendorsSearch,
     props: ({ scope }) => ({ scope })
   },
-  fingerbankUserAgentsByScope: {
+  fingerbankUserAgents: {
     title: 'User Agents', // i18n defer
     component: FingerbankUserAgentsSearch,
     props: ({ scope }) => ({ scope })

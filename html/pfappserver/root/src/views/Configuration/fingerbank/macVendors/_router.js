@@ -18,13 +18,13 @@ export default [
     path: 'fingerbank/mac_vendors',
     name: 'fingerbankMacVendors',
     component: TheTabs,
-    props: () => ({ tab: 'mac_vendors', scope: 'all' })
+    props: () => ({ tab: 'fingerbankMacVendors', scope: 'all' })
   },
   {
     path: 'fingerbank/:scope/mac_vendors',
     name: 'fingerbankMacVendorsByScope',
     component: TheTabs,
-    props: (route) => ({ tab: 'mac_vendors', scope: route.params.scope })
+    props: (route) => ({ tab: 'fingerbankMacVendors', scope: route.params.scope })
   },
   {
     path: 'fingerbank/:scope/mac_vendors/new',

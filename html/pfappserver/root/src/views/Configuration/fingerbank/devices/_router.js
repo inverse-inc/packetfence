@@ -19,19 +19,19 @@ export default [
     path: 'fingerbank/devices',
     name: 'fingerbankDevices',
     component: TheTabs,
-    props: () => ({ tab: 'devices', scope: 'all', parentId: undefined })
+    props: () => ({ tab: 'fingerbankDevices', scope: 'all', parentId: undefined })
   },
   {
     path: 'fingerbank/:scope/devices',
     name: 'fingerbankDevicesByScope',
     component: TheTabs,
-    props: (route) => ({ tab: 'devices', scope: route.params.scope, parentId: undefined })
+    props: (route) => ({ tab: 'fingerbankDevices', scope: route.params.scope, parentId: undefined })
   },
   {
     path: 'fingerbank/devices/:parentId',
     name: 'fingerbankDevicesByParentId',
     component: TheTabs,
-    props: (route) => ({ tab: 'devices', scope: 'all', parentId: route.params.parentId })
+    props: (route) => ({ tab: 'fingerbankDevices', scope: 'all', parentId: route.params.parentId })
   },
   {
     path: 'fingerbank/:scope/devices/new',

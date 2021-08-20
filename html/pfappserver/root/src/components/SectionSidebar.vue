@@ -151,20 +151,24 @@ const setup = (props, context) => {
   const findActiveSections = (items, sections) => {
     if (items.constructor === Array) { // ignore Promises
       const { currentRoute: { name: currentName, path: currentPath, query: { query: currentQuery } = {} } = {} } = $router
-      items.forEach(({ name: sectionName, path, items }) => {
+      for (let { name: sectionName, path, items } of items) {
         if (items) {
-          return findActiveSections(items, [sectionName, ...sections])
+          if(findActiveSections(items, [sectionName, ...sections]))
+            break
         }
         else if (path && path instanceof Object) {
           const { name: pathName, query: { query: pathQuery } } = path
           if (pathName === currentName && pathQuery === currentQuery) {
-            return expandedSections.value = sections
+            expandedSections.value = sections
+            return true
           }
         }
         else if (path === currentPath) {
-          return expandedSections.value = sections
-        }
-      })
+          expandedSections.value = sections
+          return true
+         }
+      }
+      return false
     }
   }
 
