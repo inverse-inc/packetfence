@@ -239,7 +239,7 @@ export const MysqlDatabase = {
     },
     expiration: {
       type: MysqlDatetime,
-      format: 'YYYY-MM-DD',
+      format: 'YYYY-MM-DD HH:mm:ss',
       default: ''
     },
     access_duration: {
