@@ -33,6 +33,15 @@ all:
           # only used when run outside Vagrant
           ansible_python_interpreter: '/usr/bin/python3'
 
+    nodes_win:
+      hosts:
+        node03:
+          box: peru/my_windows-10-enterprise-x64-eval
+          box_version: 20210701.01
+          mgmt_ip: 172.17.17.253
+          mgmt_netmask: 255.255.255.0
+          ansible_host: "{{ mgmt_ip }}"
+
     winservers:
       hosts:
         ad:

@@ -19,7 +19,7 @@ iface lo inet loopback
 auto bridge
 iface bridge
     bridge-vlan-aware yes
-    bridge-ports swp48 swp1 swp2 swp3 swp6 swp11 swp12 swp13 swp14 swp15
+    bridge-ports swp48 swp1 swp2 swp3 swp6 swp11 swp12 swp13 swp14 swp15 swp16
     bridge-vids 2 3 6 17 18 100
     bridge-pvid 1
 
@@ -54,6 +54,10 @@ iface swp14
 auto swp15
 iface swp15
     bridge-access 18
+
+auto swp16
+iface swp16
+    bridge-access 17
 
 auto swp48
 iface swp48
