@@ -93,24 +93,24 @@
       </app-documentation>
       <router-view/>
     </b-container>
-    <!-- Show login form if session expires -->
-    <pf-form-login modal></pf-form-login>
+    <!-- Show login if session expires -->
+    <app-login modal />
   </div>
 </template>
 
 <script>
 import AppApiProgress from '@/components/AppApiProgress'
 import AppDocumentation from '@/components/AppDocumentation'
+import AppLogin from '@/components/AppLogin'
 import AppNotifications from '@/components/AppNotifications'
 import IconCounter from '@/components/IconCounter'
-import pfFormLogin from '@/components/pfFormLogin'
 
 const components = {
   AppApiProgress,
   AppDocumentation,
+  AppLogin,
   AppNotifications,
-  IconCounter,
-  pfFormLogin
+  IconCounter
 }
 
 import { computed, ref, watch } from '@vue/composition-api'
