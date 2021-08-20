@@ -101,7 +101,6 @@ sub _run {
         performance_schema => _pf_config_val("database_advanced", "performance_schema"),
         max_connect_errors => _pf_config_val("database_advanced", "max_connect_errors"),
         masterslave => _pf_config_val("database_advanced", "masterslave"),
-        readonly => _pf_config_val("database_advanced", "readonly"),
     );
 
     # Only generate cluster configuration if there is more than 1 enabled host in the cluster
