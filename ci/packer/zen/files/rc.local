@@ -4,10 +4,6 @@
 # You can put your own initialization stuff in here if you don't
 # want to do the full Sys V style init stuff.
 
-# Ensure we delete the vagrant user if it exists and it's home directory
-userdel -r vagrant
-
-cat /etc/redhat-release > /etc/issue
 echo "Kernel \r on an \m" >> /etc/issue
 echo "" >> /etc/issue
 echo "Welcome to the PacketFence-ZEN." >> /etc/issue
