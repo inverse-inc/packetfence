@@ -10,17 +10,6 @@ d-i debian-installer/locale string en_US
 #d-i debian-installer/locale string en_GB.UTF-8
 # Optionally specify additional locales to be generated.
 #d-i localechooser/supported-locales multiselect en_US.UTF-8, nl_NL.UTF-8
-d-i localechooser/supported-locales multiselect en_US.UTF-8, \
-                                                es_ES.UTF-8, \
-                                                fr_FR.UTF-8, \
-                                                fr_CA.UTF-8, \
-                                                de_DE.UTF-8, \
-                                                he_IL.UTF-8, \
-                                                it_IT.UTF-8, \
-                                                nb_NO.UTF-8, \
-                                                nl_NL.UTF-8, \
-                                                pl_PL.UTF-8, \
-                                                pt_BR.UTF-8
 
 # Keyboard selection.
 d-i keyboard-configuration/xkb-keymap select us
@@ -77,13 +66,13 @@ d-i netcfg/choose_interface select auto
 # Any hostname and domain names assigned from dhcp take precedence over
 # values set here. However, setting the values still prevents the questions
 # from being shown, even if values come from dhcp.
-#d-i netcfg/get_hostname string unassigned-hostname
-d-i netcfg/get_domain string localhost.localdomain
+d-i netcfg/get_hostname string unassigned-hostname
+d-i netcfg/get_domain string unassigned-domain
 
 # If you want to force a hostname, regardless of what either the DHCP
 # server returns or what the reverse DNS entry for the IP is, uncomment
 # and adjust the following line.
-d-i netcfg/hostname string packetfence
+#d-i netcfg/hostname string somehost
 
 # Disable that annoying WEP key dialog.
 d-i netcfg/wireless_wep string
@@ -125,17 +114,17 @@ d-i mirror/http/proxy string
 #d-i passwd/make-user boolean false
 
 # Root password, either in clear text
-d-i passwd/root-password password p@ck3tf3nc3
-d-i passwd/root-password-again password p@ck3tf3nc3
+#d-i passwd/root-password password r00tme
+#d-i passwd/root-password-again password r00tme
 # or encrypted using a crypt(3)  hash.
 #d-i passwd/root-password-crypted password [crypt(3) hash]
 
 # To create a normal user account.
-d-i passwd/user-fullname string Admin User
-d-i passwd/username string pf-admin
+#d-i passwd/user-fullname string Debian User
+#d-i passwd/username string debian
 # Normal user's password, either in clear text
-d-i passwd/user-password password p@ck3tf3nc3
-d-i passwd/user-password-again password p@ck3tf3nc3
+#d-i passwd/user-password password insecure
+#d-i passwd/user-password-again password insecure
 # or encrypted using a crypt(3) hash.
 #d-i passwd/user-password-crypted password [crypt(3) hash]
 # Create the first user with the specified UID instead of the default.
@@ -151,7 +140,7 @@ d-i clock-setup/utc boolean true
 
 # You may set this to any valid setting for $TZ; see the contents of
 # /usr/share/zoneinfo/ for valid values.
-d-i time/zone string UTC
+d-i time/zone string US/Eastern
 
 # Controls whether to use NTP to set the clock during the install
 d-i clock-setup/ntp boolean true
@@ -361,19 +350,13 @@ d-i partman/confirm_nooverwrite boolean true
 
 
 ### Package selection
-tasksel tasksel/first multiselect standard ssh-server
+#tasksel tasksel/first multiselect standard, web-server, kde-desktop
 
 # Individual additional packages to install
-# PF: install linux-headers-amd64 to avoid issue with NetFlow kernel module
-d-i pkgsel/include string sudo bzip2 acpid cryptsetup \
-                          zlib1g-dev wget curl dkms make \
-                          nfs-common net-tools build-essential \
-                          linux-headers-amd64
-
+#d-i pkgsel/include string openssh-server build-essential
 # Whether to upgrade packages after debootstrap.
 # Allowed values: none, safe-upgrade, full-upgrade
-# PF: be sure to run latest Debian version
-d-i pkgsel/upgrade select full-upgrade
+#d-i pkgsel/upgrade select none
 
 # Some versions of the installer can report back on what software you have
 # installed, and what software you use. The default is not to report back,
@@ -395,7 +378,7 @@ d-i grub-installer/with_other_os boolean true
 
 # Due notably to potential USB sticks, the location of the primary drive can
 # not be determined safely in general, so this needs to be specified:
-d-i grub-installer/bootdev  string /dev/sda
+#d-i grub-installer/bootdev  string /dev/sda
 # To install to the primary device (assuming it is not a USB stick):
 #d-i grub-installer/bootdev  string default
 
@@ -464,17 +447,9 @@ d-i finish-install/reboot_in_progress note
 # of the disks (which may not be visible when preseed/early_command runs).
 #d-i partman/early_command \
 #       string debconf-set partman-auto/disk "$(list-devices disk | head -n1)"
-
-# Prevent packaged version of VirtualBox Guest Additions being installed:
-d-i preseed/early_command string sed -i \
-  '/in-target/idiscover(){/sbin/discover|grep -v VirtualBox;}' \
-  /usr/lib/pre-pkgsel.d/20install-hwpackages
-
 # This command is run just before the install finishes, but when there is
 # still a usable /target directory. You can chroot to /target and use it
 # directly, or use the apt-install and in-target commands to easily install
 # packages and run commands in the target system.
 #d-i preseed/late_command string apt-install zsh; in-target chsh -s /bin/zsh
 
-# Remove cdrom from available mirrors
-d-i preseed/late_command string sed -i '/^deb cdrom:/s/^/#/' /target/etc/apt/sources.list
