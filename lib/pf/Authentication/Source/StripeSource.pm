@@ -55,7 +55,7 @@ has 'secret_key' => (is => 'rw', required => 1);
 
 has 'style' => (is => 'rw', default => 'charge');
 
-has 'domains' => (is => 'rw', default => '*.stripe.com');
+has 'domains' => (is => 'rw', default => '*.stripe.com,stripe.network,*.stripe.network');
 
 has 'customer_portal' => (is => 'rw', default => 'disabled');
 
