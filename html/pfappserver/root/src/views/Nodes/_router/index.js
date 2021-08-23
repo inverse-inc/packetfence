@@ -4,7 +4,7 @@ import i18n from '@/utils/locale'
 import NodesStoreModule from '../_store'
 import UsersStoreModule from '../../Users/_store'
 import NodesView from '../'
-const NodesSearch = () => import(/* webpackChunkName: "Nodes" */ '../_components/NodesSearch')
+const TheSearch = () => import(/* webpackChunkName: "Nodes" */ '../_components/TheSearch')
 const TheCsvImport = () => import(/* webpackChunkName: "Editor" */ '../_components/TheCsvImport')
 const TheViewCreate = () => import(/* webpackChunkName: "Nodes" */ '../_components/TheViewCreate')
 const TheViewUpdate = () => import(/* webpackChunkName: "Nodes" */ '../_components/TheViewUpdate')
@@ -41,7 +41,7 @@ const route = {
     {
       path: 'search',
       name: 'nodeSearch',
-      component: NodesSearch,
+      component: TheSearch,
       props: (route) => ({ query: route.query.query }),
       meta: {
         can: 'read nodes',

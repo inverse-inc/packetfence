@@ -21,6 +21,20 @@
         <slot/>
       </div>
     </b-nav-item>
+    <b-nav class="section-sidenav mb-2" v-if="standardSearches && standardSearches.length > 0" vertical>
+      <div class="section-sidenav-group small py-0" v-t="'Standard Searches'" />
+      <b-nav-item
+        active-class="active"
+        v-for="search in standardSearches"
+        :key="search.name"
+        class="saved-search"
+        @click="goToStandardSearch(search)"
+      >
+        <div class="section-sidebar-item pl-3">
+          <text-highlight :queries="[filter]">{{ search.name }}</text-highlight>
+        </div>
+      </b-nav-item>
+    </b-nav>
     <b-nav class="section-sidenav mb-2" v-if="showSavedSearches && savedBasicSearches.length > 0" vertical>
       <div class="section-sidenav-group small py-0" v-t="'Basic Searches'" />
       <b-nav-item
@@ -85,6 +99,24 @@ const setup = (props, context) => {
   const { root: { $router, $store } = {} } = context
 
   const visible = ref(true)
+
+  const standardSearches = computed(() => {
+    const { standardSearches } = item.value
+    return standardSearches
+  })
+  const goToStandardSearch = search => {
+    const { name, query, ...rest } = search
+    const { path } = item.value
+    $store.dispatch('preferences/set', {
+      id: `${saveSearchNamespace.value}::defaultSearch`,
+      value: { ...rest, conditionAdvanced: query }
+    }).then(() => {
+      if (path === $router.currentRoute.path)
+        $router.go() // hard reset
+      else
+        $router.push({ path })
+    })
+  }
 
   const saveSearchNamespace = computed(() => {
     const { saveSearchNamespace } = item.value
@@ -160,6 +192,9 @@ const setup = (props, context) => {
 
   return {
     visible,
+
+    standardSearches,
+    goToStandardSearch,
 
     saveSearchNamespace,
     showSavedSearches,

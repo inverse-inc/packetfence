@@ -30,7 +30,17 @@ const setup = (props, context) => {
     {
       name: i18n.t('Search'),
       path: '/nodes/search',
-      saveSearchNamespace: 'nodes'
+      saveSearchNamespace: 'nodes',
+      standardSearches: [
+        {
+          name: i18n.t('Offline Nodes'),
+          query: { op: 'and', values: [{ op: 'or', values: [{ field: 'online', op: 'not_equals', value: 'on' }] }] }
+        },
+        {
+          name: i18n.t('Online Nodes'),
+          query: { op: 'and', values: [{ op: 'or', values: [{ field: 'online', op: 'equals', value: 'on' }] }] }
+        }
+      ]
     },
     {
       name: i18n.t('Create'),
@@ -41,25 +51,6 @@ const setup = (props, context) => {
       name: i18n.t('Import'),
       path: '/nodes/import',
       can: 'create nodes'
-    },
-    {
-      name: i18n.t('Standard Searches'),
-      items: [
-        {
-          name: i18n.t('Offline Nodes'),
-          path: {
-            name: 'nodeSearch',
-            query: { query: JSON.stringify({ op: 'and', values: [{ op: 'or', values: [{ field: 'online', op: 'not_equals', value: 'on' }] }] }) }
-          }
-        },
-        {
-          name: i18n.t('Online Nodes'),
-          path: {
-            name: 'nodeSearch',
-            query: { query: JSON.stringify({ op: 'and', values: [{ op: 'or', values: [{ field: 'online', op: 'equals', value: 'on' }] }] }) }
-          }
-        }
-      ]
     },
     {
       name: i18n.t('Switch Groups'),
