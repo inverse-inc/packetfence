@@ -1,45 +1,50 @@
 <template>
-    <b-form @submit.prevent="login">
-        <component :is="modal?'b-modal':'b-card'" v-model="showModal"
-          static lazy no-close-on-esc no-close-on-backdrop hide-header-close no-body>
-            <template v-slot:[headerSlotName]>
-                <h4 class="mb-0" v-if="sessionTime" v-t="'Your session will expires soon'"></h4>
-                <h4 class="mb-0" v-else v-t="'Login to PacketFence Administration'"></h4>
-            </template>
-            <component :is="modal?'div':'b-card-body'">
-                <b-alert :variant="message.level" :show="!!message.text" fade>
-                    {{ message.text }}
-                </b-alert>
-                <template v-if="sessionTime == false">
-                  <b-form-group :label="$t('Username')" label-for="username" label-cols="4">
-                      <b-form-input id="username" type="text" autocomplete="username" v-model="username" v-focus required :readonly="modal" :disabled="isLoading"></b-form-input>
-                  </b-form-group>
-                  <b-form-group :label="$t('Password')" label-for="password" label-cols="4">
-                      <b-form-input id="password" type="password" autocomplete="current-password" v-model="password" :disabled="isLoading" required></b-form-input>
-                  </b-form-group>
-                </template>
-            </component>
-            <template v-slot:[footerSlotName] class="justify-content-start">
-                <template v-if="sessionTime">
-                  <b-link variant="outline-secondary" @click="logout">{{ $t('Logout now') }}</b-link>
-                  <b-button class="ml-2" variant="primary" @click="extendSession()" v-t="'Extend Session'"></b-button>
-                </template>
-                <template v-else>
-                  <b-link variant="outline-secondary" @click="logout" v-if="modal">{{ $t('Use a different username') }}</b-link>
-                  <base-button-save type="submit" :isLoading="isLoading" :disabled="!validForm" variant="primary">
-                    {{ $t('Login') }}
-                  </base-button-save>
-                </template>
-            </template>
-        </component>
-    </b-form>
+  <b-form @submit.prevent="onLogin">
+    <component :is="modal?'b-modal':'b-card'" v-model="showModal"
+      static lazy no-close-on-esc no-close-on-backdrop hide-header-close no-body>
+      <template v-slot:[headerSlotName]>
+        <h4 class="mb-0" v-if="sessionTime" v-t="'Your session will expires soon'"></h4>
+        <h4 class="mb-0" v-else v-t="'Login to PacketFence Administration'"></h4>
+      </template>
+      <component :is="modal?'div':'b-card-body'">
+        <b-alert :variant="message.level" :show="!!message.text" fade>
+          {{ message.text }}
+        </b-alert>
+        <template v-if="sessionTime == false">
+          <b-form-group :label="$t('Username')" label-for="username" label-cols="4">
+            <b-form-input id="username" type="text" autocomplete="username" v-model="username" v-focus required :readonly="modal" :disabled="isLoading"></b-form-input>
+          </b-form-group>
+          <b-form-group :label="$t('Password')" label-for="password" label-cols="4">
+            <b-form-input id="password" type="password" autocomplete="current-password" v-model="password" :disabled="isLoading" required></b-form-input>
+          </b-form-group>
+        </template>
+      </component>
+      <template v-slot:[footerSlotName] class="justify-content-start">
+        <b-dropdown variant="link" class="float-right" :text="$t(currentLanguage.label)">
+          <b-dropdown-item v-for="language in languages" :key="language.locale"
+            :disabled="language.locale === $i18n.locale"
+            @click="setLanguage(language.locale)"
+            >{{ $t(language.label) }}</b-dropdown-item>
+        </b-dropdown>
+        <template v-if="sessionTime">
+          <b-link variant="outline-secondary" @click="onLogout">{{ $t('Logout now') }}</b-link>
+          <b-button class="ml-2" variant="primary" @click="onExtendSession" v-t="'Extend Session'"></b-button>
+        </template>
+        <template v-else>
+          <b-link variant="outline-secondary" @click="onLogout" v-if="modal">{{ $t('Use a different username') }}</b-link>
+          <base-button-save type="submit" :isLoading="isLoading" :disabled="!validForm" variant="primary">
+            {{ $t('Login') }}
+          </base-button-save>
+        </template>
+      </template>
+    </component>
+  </b-form>
 </template>
 
 <script>
 import {
   BaseButtonSave
 } from '@/components/new/'
-
 const components = {
   BaseButtonSave
 }
@@ -49,139 +54,173 @@ const directives = {
   focus
 }
 
+const props = {
+  modal: {
+    type: Boolean
+  }
+}
+
 const EXPIRATION_DELAY = 60 * 1000 // in miliseconds
 
-export default {
-  name: 'pf-form-login',
-  components,
-  directives,
-  data () {
-    return {
-      username: '',
-      password: '',
-      message: {},
-      showModal: false,
-      sessionTime: false,
-      sessionTimer: false
-    }
-  },
-  props: {
-    modal: {
-      type: Boolean,
-      default: false
-    }
-  },
-  computed: {
-    headerSlotName () {
-      return this.modal ? 'modal-header' : 'header'
-    },
-    footerSlotName () {
-      return this.modal ? 'modal-footer' : 'footer'
-    },
-    isSessionAlive () {
-      return this.$store.getters['session/getSessionTime']() !== false
-    },
-    isLoading () {
-      return this.$store.getters['session/isLoading']
-    },
-    validForm () {
-      return this.username.length > 0 && this.password.length > 0 && !this.isLoading
-    }
-  },
-  mounted () {
-    if (this.$route.path === '/logout') {
-      this.$store.dispatch('session/logout').then(() => {
-        this.message = { level: 'info', text: this.$i18n.t('You have logged out') }
+
+import { computed, onMounted, ref, toRefs, watch } from '@vue/composition-api'
+import i18n, { languages } from '@/utils/locale'
+const setup = (props, context) => {
+
+  const {
+    modal
+  } = toRefs(props)
+
+  const { emit, root: { $router, $store } = {} } = context
+
+  const username = ref('')
+  const password = ref('')
+  const message = ref({})
+  const showModal = ref(false)
+  const sessionTime = ref(false)
+
+  const headerSlotName = computed(() => modal.value ? 'modal-header' : 'header')
+  const footerSlotName = computed(() => modal.value ? 'modal-footer' : 'footer')
+  const isSessionAlive = computed(() => $store.getters['session/getSessionTime']() !== false)
+  const isLoading = computed(() => $store.getters['session/isLoading'])
+  const validForm = computed(() => username.value.length > 0 && password.value.length > 0 && !isLoading.value)
+
+  onMounted(() => {
+    if ($router.currentRoute.path === '/logout') {
+      $store.dispatch('session/logout').then(() => {
+        message.value = { level: 'info', text: i18n.t('You have logged out') }
       })
-    } else if (this.$route.path === '/expire' || this.$route.params.expire) {
-      this.$store.dispatch('session/logout').then(() => {
-        this.message = { level: 'warning', text: this.$i18n.t('Your session has expired') }
-      })
-    } else if (this.$store.state.session.username) {
-      this.username = this.$store.state.session.username
     }
-    if (this.modal) {
+    else if ($router.currentRoute.path === '/expire' || $router.currentRoute.params.expire) {
+      $store.dispatch('session/logout').then(() => {
+        message.value = { level: 'warning', text: i18n.t('Your session has expired') }
+      })
+    }
+    else if ($store.state.session.username) {
+      username.value = $store.state.session.username
+    }
+    if (modal.value) {
       // Watch for session state change from external sources
-      this.$watch('isSessionAlive', () => { this.updateSessionTimeVerified() })
+      watch(isSessionAlive, updateSessionTimeVerified)
     }
-  },
-  methods: {
-    login () {
-      this.message = {}
-      this.$store.dispatch('session/login', { username: this.username, password: this.password }).then(response => {
-        if (this.modal) {
-          this.updateSessionTime()
-          this.$store.dispatch('notification/status_success', { message: this.$i18n.t('Login successful') })
-        }
-        this.$emit('login', response)
-      }, error => {
-        if (error.response) {
-          this.message = { level: 'danger', text: error.response.data.message }
-        } else if (error.request) {
-          this.message = { level: 'danger', text: this.$i18n.t('A networking error occurred. Is the API service running?') }
-        }
-      })
-    },
-    extendSession () {
-      if (this.sessionTimer) clearTimeout(this.sessionTimer)
-      this.$store.dispatch('session/getTokenInfo').then(() => {
-        this.updateSessionTimeVerified()
-        this.$store.dispatch('notification/info', { message: this.$i18n.t('Your session has been successfully extended.') })
-      }, () => {
-        this.$store.commit('session/EXPIRED')
-      })
-    },
-    logout () {
-      if (this.sessionTimer) clearTimeout(this.sessionTimer)
-      this.showModal = false
-      this.$router.push('/logout')
-    },
-    updateSessionTime () {
-      this.sessionTime = this.$store.getters['session/getSessionTime']()
-      if (this.sessionTime === false || this.sessionTime < EXPIRATION_DELAY) {
-        // Verify with server without affecting the expiration date
-        this.$store.dispatch('session/getTokenInfo', true).catch(() => {
-          this.$store.commit('session/EXPIRED')
-        }).finally(() => {
-          this.updateSessionTimeVerified()
-        })
-      } else {
-        // Check back later
-        this.showModal = false
-        clearTimeout(this.sessionTimer)
-        this.sessionTimer = setTimeout(this.updateSessionTime, (this.sessionTime - EXPIRATION_DELAY))
+  })
+
+  let sessionTimer
+  const onLogin = () => {
+    message.value = {}
+    $store.dispatch('session/login', { username: username.value, password: password.value }).then(response => {
+      if (modal.value) {
+        updateSessionTime()
+        $store.dispatch('notification/status_success', { message: i18n.t('Login successful') })
       }
-    },
-    updateSessionTimeVerified () {
-      this.sessionTime = this.$store.getters['session/getSessionTime']()
-      this.username = this.$store.state.session.username
-      if (this.sessionTimer) clearTimeout(this.sessionTimer)
-      if (this.sessionTime === false) {
-        // Token has expired
-        this.password = ''
-        this.message = { level: 'warning', text: this.$i18n.t('Your session has expired') }
-        this.showModal = !!this.$store.state.session.token
-      } else if (this.sessionTime < EXPIRATION_DELAY) {
-        // Token will expire soon
-        const secs = Math.floor(this.sessionTime / 1000)
-        this.showModal = true
-        this.message = { level: 'warning', text: this.$i18n.t('Your session will expire in {seconds} seconds', { seconds: secs > 0 ? secs : 0 }) }
-        if (secs > 0 && secs % 15 > 0) {
-          this.sessionTimer = setTimeout(this.updateSessionTimeVerified, 1000) // Update message in 1 second
-        } else {
-          this.sessionTimer = setTimeout(this.updateSessionTime, 1000) // Verify token with server
-        }
+      emit('login', response)
+    }, error => {
+      if (error.response) {
+        message.value = { level: 'danger', text: error.response.data.message }
+      }
+      else if (error.request) {
+        message.value = { level: 'danger', text: i18n.t('A networking error occurred. Is the API service running?') }
+      }
+    })
+  }
+  const onExtendSession = () => {
+    if (sessionTimer)
+      clearTimeout(sessionTimer)
+    $store.dispatch('session/getTokenInfo').then(() => {
+      updateSessionTimeVerified()
+      $store.dispatch('notification/info', { message: i18n.t('Your session has been successfully extended.') })
+    }, () => {
+      $store.commit('session/EXPIRED')
+    })
+  }
+  const onLogout = () => {
+    if (sessionTimer)
+      clearTimeout(sessionTimer)
+    showModal.value = false
+    $router.push('/logout')
+  }
+  const updateSessionTime = () => {
+    sessionTime.value = $store.getters['session/getSessionTime']()
+    if (sessionTime.value === false || sessionTime.value < EXPIRATION_DELAY) {
+      // Verify with server without affecting the expiration date
+      $store.dispatch('session/getTokenInfo', true).catch(() => {
+        $store.commit('session/EXPIRED')
+      }).finally(() => {
+        updateSessionTimeVerified()
+      })
+    }
+    else {
+      // Check back later
+      showModal.value = false
+      clearTimeout(sessionTimer)
+      sessionTimer = setTimeout(updateSessionTime, (sessionTime.value - EXPIRATION_DELAY))
+    }
+  }
+  const updateSessionTimeVerified = () => {
+    sessionTime.value = $store.getters['session/getSessionTime']()
+    username.value = $store.state.session.username
+    if (sessionTimer)
+      clearTimeout(sessionTimer)
+    if (sessionTime.value === false) {
+      // Token has expired
+      password.value = ''
+      message.value = { level: 'warning', text: i18n.t('Your session has expired') }
+      showModal.value = !!$store.state.session.token
+    }
+    else if (sessionTime.value < EXPIRATION_DELAY) {
+      // Token will expire soon
+      const secs = Math.floor(sessionTime.value / 1000)
+      showModal.value = true
+      message.value = { level: 'warning', text: i18n.t('Your session will expire in {seconds} seconds', { seconds: secs > 0 ? secs : 0 }) }
+      if (secs > 0 && secs % 15 > 0) {
+        sessionTimer = setTimeout(updateSessionTimeVerified, 1000) // Update message in 1 second
       } else {
-        // Check back later
-        this.showModal = false
-        if (this.sessionTime <= EXPIRATION_DELAY + 5000) {
-          // Don't verify token with server if within 5 seconds
-          this.sessionTimer = setTimeout(this.updateSessionTimeVerified, (this.sessionTime - EXPIRATION_DELAY))
-        } else {
-          this.sessionTimer = setTimeout(this.updateSessionTime, (this.sessionTime - EXPIRATION_DELAY))
-        }
+        sessionTimer = setTimeout(updateSessionTime, 1000) // Verify token with server
+      }
+    }
+    else {
+      // Check back later
+      showModal.value = false
+      if (sessionTime.value <= EXPIRATION_DELAY + 5000) {
+        // Don't verify token with server if within 5 seconds
+        sessionTimer = setTimeout(updateSessionTimeVerified, (sessionTime.value - EXPIRATION_DELAY))
+      }
+      else {
+        sessionTimer = setTimeout(updateSessionTime, (sessionTime.value - EXPIRATION_DELAY))
       }
     }
   }
+
+  const currentLanguage = computed(() => languages.find(language => language.locale === i18n.locale) || languages[0])
+  const setLanguage = lang => $store.dispatch('session/setLanguage', { lang })
+
+  return {
+    username,
+    password,
+    validForm,
+    message,
+    showModal,
+    sessionTime,
+    isLoading,
+
+    headerSlotName,
+    footerSlotName,
+    onLogin,
+    onLogout,
+    onExtendSession,
+
+    languages,
+    currentLanguage,
+    setLanguage
+  }
+}
+
+// @vue/component
+export default {
+  name: 'app-login',
+  components,
+  directives,
+  props,
+  setup
 }
 </script>
