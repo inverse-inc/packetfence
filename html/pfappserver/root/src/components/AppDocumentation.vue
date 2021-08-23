@@ -128,7 +128,7 @@ const setup = (props, context) => {
   const _hash = computed(() => $store.getters['documentation/hash'])
   watch(_hash, a => {
     if (a)
-      _scrollToSection(a)
+      nextTick(() => _scrollToSection(a))
   })
   const title = computed(() => $store.getters['documentation/title'])
 

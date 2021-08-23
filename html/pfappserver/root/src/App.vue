@@ -82,7 +82,7 @@
         <b-button v-if="warning.to" size="sm" variant="outline-light" class="ml-2" :to="warning.to">{{ warning.toLabel }}</b-button>
       </div>
     </b-container>
-    <b-container :class="[{ 'pt-6': warnings.length === 0, 'pf-documentation-container': isAuthenticated }, documentationViewerClass]" fluid>
+    <b-container :class="[{ 'pt-6': warnings.length === 0, 'documentation-container': isAuthenticated }, documentationViewerClass]" fluid>
       <app-documentation v-show="isAuthenticated">
         <div class="py-1 pl-3" v-show="version">
           <b-form-text v-t="'Packetfence Version'"/> {{ version }}
@@ -127,9 +127,9 @@ const setup = (props, context) => {
   const showDocumentationViewer = computed(() => $store.getters['documentation/showViewer'])
   watch(showDocumentationViewer, (a) => {
     if (a) // shown
-      documentationViewerClass.value = 'pf-documentation-enter'
+      documentationViewerClass.value = 'documentation-enter'
     else {
-      documentationViewerClass.value = 'pf-documentation-leave'
+      documentationViewerClass.value = 'documentation-leave'
       setTimeout(() => {
         documentationViewerClass.value = null
       }, 300) // match the animation duration defined in pfDocumentation.vue
