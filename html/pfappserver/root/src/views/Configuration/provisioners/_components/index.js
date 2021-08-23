@@ -7,8 +7,7 @@ import {
   BaseFormGroupInputNumber,
   BaseFormGroupInputPassword,
   BaseFormGroupTextareaUpload,
-  BaseFormGroupToggleDisabledEnabled,
-  BaseFormGroupTextarea
+  BaseFormGroupToggleDisabledEnabled
 } from '@/components/new/'
 import {
   BaseFormGroupOses,
@@ -45,6 +44,7 @@ export {
   BaseFormGroupInput                        as FormGroupClientIdentifier,
   BaseFormGroupInputPassword                as FormGroupClientSecret,
   BaseFormGroupInputNumber                  as FormGroupCriticalIssuesThreshold,
+  BaseFormGroupInput                        as FormGroupCustomerId,
   BaseFormGroupInput                        as FormGroupDescription,
   BaseFormGroupToggleDisabledEnabled        as FormGroupDeviceTypeDetection,
   BaseFormGroupInput                        as FormGroupDomains,
