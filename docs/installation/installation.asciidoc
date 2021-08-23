@@ -160,7 +160,8 @@ server, DHCP server, RADIUS server) using:
 
 [source,bash]
 ----
-wget -O - https://inverse.ca/downloads/GPG_PUBLIC_KEY | sudo apt-key add -
+apt install gnupg sudo
+wget -q -O - https://inverse.ca/downloads/GPG_PUBLIC_KEY | sudo apt-key add -
 apt-get update
 apt-get install packetfence
 ----
