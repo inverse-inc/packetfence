@@ -1,0 +1,16 @@
+In order to upgrade your PacketFence packages to latest version, you can run following commands:
+
+.RHEL-based systems
+[source,bash]
+----
+yum update --enablerepo=packetfence
+----
+
+.Debian-based systems
+[source,bash]
+----
+apt update
+apt install packetfence
+----
+
+

@@ -1,0 +1,21 @@
+In order to install a new PacketFence version (major or minor), you need to
+update PacketFence repository definition before updating packages:
+
+.RHEL-based systems
+[source,bash,subs="attributes"]
+----
+yum localinstall http://packetfence.org/downloads/PacketFence/RHEL8/packetfence-release-NEW_PF_VERSION.el8.noarch.rpm
+yum update --enablerepo=packetfence
+----
+
+with `NEW_PF_VERSION` equals `11.1` for example.
+
+.Debian-based systems
+[source,bash]
+----
+sed -i 's/OLD_PF_VERSION/NEW_PF_VERSION/' /etc/apt/sources.list.d/packetfence.list
+apt update
+apt install packetfence
+----
+
+with `OLD_PF_VERSION` equals `11.0` and `NEW_PF_VERSION` equals `11.1` for example.
