@@ -26,16 +26,13 @@
                 <div id="dots"></div>
               </div>
               <div class="o-pack__item o-layout--right">
-                [%- IF show_restart %]
                 <a href="/logout">
                   [% svgIcon(id='ic_replay_black_24px', size='tiny', variant='secondary') %]
                 </a>
-                [% ELSE %]
                 <!-- Uncomment to enable language switcher
                   [% IF lang == "fr_FR" %]<a href="?lang=en_US">EN</a>
                   [% ELSE %]<a href="?lang=fr_FR">FR</a>[% END %]
                 -->
-                [% END %]
               </div>
             </div>
           </div>
