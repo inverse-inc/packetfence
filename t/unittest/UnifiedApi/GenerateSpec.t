@@ -85,7 +85,7 @@ is_deeply(
                 },
                 ou => {
                     type => 'string',
-                    description => 'Use a specific OU for the PacketFence account. The OU string read from top to bottom without RDNs and delimited by a \'/\'. E.g. "Computers/Servers/Unix". IMPORTANT NOTE: Due to a bug in the current version of samba, you will need to precreate a computer object in the OU you specify above when you\'re not using the default value (\'Computers\'). Otherwise you will get the following error: "Failed to join domain: failed to precreate account in ou ou=XYZ,dc=ACME,dc=CORP: No such object"',
+                    description => 'Use a specific OU for the PacketFence account. The OU string read from top to bottom without RDNs and delimited by a \'/\'. E.g. "Computers/Servers/Unix".',
                 },
                 registration => {
                     type => 'string',
