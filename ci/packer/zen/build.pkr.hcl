@@ -14,6 +14,5 @@ build {
     inventory_directory = "${var.provisioner_dir}/inventory"
     galaxy_file = "${var.provisioner_dir}/requirements.yml"
     galaxy_force_install = true
-    use_proxy = false
   }
 }
