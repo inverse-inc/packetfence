@@ -164,6 +164,7 @@ sub getData {
 
 sub build_conditions {
     my ($self, $condition) = @_;
+    my $top_level_condition = "pf::condition::key";
     die "Invalid Condition provided\n" unless ref $condition;
     my ($op, @operands) = @$condition;
     die "Operator '$op' is not valid\n" unless exists $OPS{$op};
@@ -212,11 +213,10 @@ sub build_conditions {
             key => $first,
             condition =>  pf::condition::node_extended_data->new({
                 key => $extened_namespace,
-                condition => _build_parent_condition($sub_condition, @keys),
+                condition => _build_parent_condition($top_level_condition, $sub_condition, @keys),
             })
         });
     }
-    my $top_level_condition = "pf::condition::key";
     if ($first eq 'switch_group') {
         $top_level_condition = 'pf::condition::switch_group';
     }
@@ -243,7 +243,7 @@ sub _build_parent_condition {
     }
     return $top_level_condition->new({
         key       => $key,
-        condition => _build_parent_condition($child, @parents),
+        condition => _build_parent_condition($top_level_condition, $child, @parents),
     });
 }
 
