@@ -28,6 +28,7 @@ source "virtualbox-iso" "debian-11" {
     "preseed/url=http://{{ .HTTPIP }}:{{ .HTTPPort }}/preseed.cfg <wait>",
     "kbd-chooser/method=us <wait>",
     "fb=false <wait>",
+    "hostname=packetfence <wait>",
     "debconf/frontend=noninteractive <wait>",
     "console-setup/ask_detect=false <wait>",
     "console-keymaps-at/keymap=us <wait>",
