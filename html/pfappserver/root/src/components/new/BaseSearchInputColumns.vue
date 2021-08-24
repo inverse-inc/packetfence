@@ -47,14 +47,23 @@ const setup = (props, context) => {
 
   const columns = ref([])
   watch(value, () => {
-    columns.value = JSON.parse(JSON.stringify(value.value)) // dereference
+    columns.value = JSON.parse(JSON.stringify(value.value)) // dereference (strips Function's)
   }, { deep: true, immediate: true })
   let flag = false
 
   // only emit when dropdown is closed (debounce)
   const onCommit = () => {
-    if (flag)
-      emit('input', JSON.parse(JSON.stringify(columns.value))) // dereference
+    if (flag) {
+      const byKeys = value.value.reduce((byKeys, { key, ...rest }) => { // Function map
+        byKeys[key] = { key, ...rest }
+        return byKeys
+      }, {})
+      const rebuilt = columns.value.map(column => { // reinstate Function's
+        const { key, visible } = column
+        return { key, ...byKeys[key], visible }
+      })
+      emit('input', rebuilt)
+    }
     flag = false
   }
 
