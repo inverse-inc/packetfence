@@ -37,18 +37,6 @@ if ($mysql_master_ip !~ /(\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})/) {
     die "wrong ip address format";
 }
 
-$output = `sudo mysql -u root -p'$mysql_root_password' -h$mysql_master_ip -e "GRANT REPLICATION SLAVE ON *.*  TO '$replication_username'\@'%'"`;
-
-if ($?) {
-    die "Unable to grant replication on user $replication_username";
-}
-
-$output = `sudo mysql -u root -p'$mysql_root_password' -h$mysql_master_ip -e "FLUSH PRIVILEGES"`;
-
-if ($?) {
-    die "Unable to flush privileges";
-}
-
 my $position_file = '/root/backup/restore/xtrabackup_binlog_info';
 
 open(my $fh, '<:encoding(UTF-8)', $position_file)

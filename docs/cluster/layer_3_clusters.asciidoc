@@ -438,6 +438,12 @@ Then the following command to import the backup:
  chown -R mysql: /var/lib/mysql
  systemctl start packetfence-mariadb
 
+On the master node of the main cluster, grant replication for the replication user:
+
+ mysql -uroot -p
+ MariaDB [(none)]> GRANT REPLICATION SLAVE ON *.* TO  'pfcluster'@'%';
+ MariaDB [(none)]> FLUSH PRIVILEGES;
+
 Lastly, run the following script on the remote server to start the slave replication.
 
  /usr/local/pf/addons/makeslave.pl
