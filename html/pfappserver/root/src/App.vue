@@ -248,8 +248,11 @@ const setup = (props, context) => {
         settings.value = $store.state.preferences.cache['settings'] || { language: navigatorLanguage }
       })
       .finally(() => {
-        const { language = navigatorLanguage } = settings.value
-        setLanguage(language)
+        const { language } = settings.value
+        if (language)
+          setLanguage(language)
+        else
+          setLanguage(navigatorLanguage)
       })
   }, { immediate: true })
 
