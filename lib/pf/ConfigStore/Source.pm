@@ -40,6 +40,8 @@ our %TYPE_TO_EXPANDED_FIELDS = (
     AD => [qw(searchattributes host)],
     LDAP => [qw(searchattributes host)],
     SponsorEmail => [qw(sources)],
+    EDIR => [qw(searchattributes host)],
+    GoogleWorkspaceLDAP => [qw(searchattributes host)],
 );
 
 sub _fields_expanded {
