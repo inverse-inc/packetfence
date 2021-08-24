@@ -62,6 +62,10 @@ Then run the following commands so that passthroughs become effective:
  /usr/local/pf/bin/pfcmd configreload hard
  /usr/local/pf/bin/pfcmd service iptables restart
  /usr/local/pf/bin/pfcmd service pfdns restart
+ 
+Next, make sure you are using a valid SSL certificate on your captive portal since Android devices will only be able to be provisioned on a captive portal that uses valid HTTPS
+ 
+NOTE: Some Android devices may use their cellular connection when running the PacketFence agent during the onboarding process. If that is the case, enable the airplane mode on the Android device and then only enable WiFi during the onboarding process.
 
 ===== iOS specifications
 
