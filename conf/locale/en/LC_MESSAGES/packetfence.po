@@ -1731,11 +1731,11 @@ msgstr "Italiano"
 
 # pf::web::constants (Locales)
 msgid "nb_NO"
-msgstr ""
+msgstr "Norsk bokmål"
 
 # pf::web::constants (Locales)
 msgid "nl_NL"
-msgstr "Dutch"
+msgstr "Nederlands"
 
 # pf::web::constants (Locales)
 msgid "pl_PL"
