@@ -73,7 +73,8 @@ sub _delete_expired {
     my ($status, $rows) = pf::dal::radius_nas->remove_items(
         -where => {
             config_timestamp => {"!=" => $timestamp},
-        }
+        },
+        -no_auto_tenant_id => 1,
     );
     $logger->debug("emptying radius_nas table");
     if (is_error($status)) {
