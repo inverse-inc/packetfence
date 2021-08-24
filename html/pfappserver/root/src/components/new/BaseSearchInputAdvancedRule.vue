@@ -6,13 +6,17 @@
           <b-input-group-prepend v-if="icon || hasParents || hasSiblings"
             class="p-0"
             is-text>
-            <icon  v-if="icon"
-              :name="icon" />
             <span v-if="hasParents || hasSiblings"
               class="draghandle"
               v-b-tooltip.hover.right.d300 :title="$t('Click & drag statement to reorder')">
               <icon name="th" />
             </span>
+            <icon v-if="icon"
+              :name="icon"
+              :class="{
+                'ml-2': hasParents || hasSiblings
+              }"
+            />
           </b-input-group-prepend>
           <b-form-select class="mr-1" v-model="value.field" :disabled="disabled" :options="fieldOptions" />
           <b-form-select class="mr-1" v-model="value.op" :disabled="disabled" :options="operatorOptions" />
