@@ -99,6 +99,10 @@ Logs are available in `/root/install_perl` directory.
 
 ## How to build RPM package
 
+1. Update `Release` in `rhel8/SPECS/cpan_perl_module.spec` and add a changelog
+   entry if necessary
+1. Run following commands:
+
 ``` shell
 ./make_tar_from_source.sh
 rpmbuild -ba ./rhel8/SPECS/cpan_perl_module.spec
@@ -107,6 +111,9 @@ QA_RPATHS=$(( 0x0001 )) rpmbuild -ba ./rhel8/SPECS/cpan_perl_module.spec
 ```
 
 ## How to build Debian package
+
+1. Add a changelog entry in `debian/changelog` with new package version
+1. Run following commands:
 
 ``` shell
 ./make_tar_from_source.sh
