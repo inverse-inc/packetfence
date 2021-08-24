@@ -87,9 +87,6 @@ const setup = (props, context) => {
   } = props
   const search = useSearch()
   const {
-    setUp
-  } = search
-  const {
     columns,
     page,
     limit,
@@ -98,8 +95,6 @@ const setup = (props, context) => {
   } = toRefs(search)
 
   const { emit, refs, root: { $store } = {} } = context
-
-  const onSearch = () => emit('search')
 
   const jsonValue = ref(null)
   watch(value, () => {
@@ -199,14 +194,11 @@ const setup = (props, context) => {
     })
   }
 
-  const onLoad = search => {
-    setUp(search)
-    emit('input', search.query)
-    emit('search')
-  }
+  const onLoad = search => emit('load', search)
+
+  const onSearch = () => emit('search')
 
   return {
-    onSearch,
     jsonValue,
     canSave,
     saved,
@@ -226,6 +218,7 @@ const setup = (props, context) => {
     onSave,
     onDelete,
     onLoad,
+    onSearch,
   }
 }
 

@@ -24,11 +24,11 @@
     <b-nav class="section-sidenav mb-2" v-if="standardSearches && standardSearches.length > 0" vertical>
       <div class="section-sidenav-group small py-0" v-t="'Standard Searches'" />
       <b-nav-item
-        active-class="active"
+        exact exact-active-class="active"
         v-for="search in standardSearches"
         :key="search.name"
         class="saved-search"
-        @click="goToStandardSearch(search)"
+        :to="routeFromItemSearch(item, search)"
       >
         <div class="section-sidebar-item pl-3">
           <text-highlight :queries="[filter]">{{ search.name }}</text-highlight>
@@ -38,11 +38,11 @@
     <b-nav class="section-sidenav mb-2" v-if="showSavedSearches && savedBasicSearches.length > 0" vertical>
       <div class="section-sidenav-group small py-0" v-t="'Basic Searches'" />
       <b-nav-item
-        active-class="active"
+        exact exact-active-class="active"
         v-for="search in savedBasicSearches"
         :key="search.name"
         class="saved-search"
-        @click="goToBasicSearch(search)"
+        :to="routeFromItemSearch(item, search)"
       >
         <div class="section-sidebar-item pl-3">
           <text-highlight :queries="[filter]">{{ search.name }}</text-highlight>
@@ -53,11 +53,11 @@
     <b-nav class="section-sidenav mb-2" v-if="showSavedSearches && savedAdvancedSearches.length > 0" vertical>
       <div class="section-sidenav-group small py-0" v-t="'Advanced Searches'" />
       <b-nav-item
-        active-class="active"
+        exact exact-active-class="active"
         v-for="search in savedAdvancedSearches"
         :key="search.name"
         class="saved-search"
-        @click="goToAdvancedSearch(search)"
+        :to="routeFromItemSearch(item, search)"
       >
         <div class="section-sidebar-item pl-3">
           <text-highlight :queries="[filter]">{{ search.name }}</text-highlight>
@@ -96,7 +96,7 @@ const setup = (props, context) => {
     item
   } = toRefs(props)
 
-  const { root: { $router, $store } = {} } = context
+  const { root: { $store } = {} } = context
 
   const visible = ref(true)
 
@@ -104,71 +104,39 @@ const setup = (props, context) => {
     const { standardSearches } = item.value
     return standardSearches
   })
-  const goToStandardSearch = search => {
-    const { name, query, ...rest } = search
-    const { path } = item.value
-    $store.dispatch('preferences/set', {
-      id: `${saveSearchNamespace.value}::defaultSearch`,
-      value: { ...rest, conditionAdvanced: query }
-    }).then(() => {
-      if (path === $router.currentRoute.path)
-        $router.go() // hard reset
-      else
-        $router.push({ path })
-    })
-  }
 
   const saveSearchNamespace = computed(() => {
     const { saveSearchNamespace } = item.value
     return saveSearchNamespace
   })
   const showSavedSearches = computed(() => visible.value && saveSearchNamespace.value)
+
   const savedAdvancedSearches = computed(() => {
     const { values = {} } = $store.state.preferences.cache[`${saveSearchNamespace.value}::advancedSearch`] || {}
-    return Object.keys(values).map(name => ({ name, ...values[name] }))
+    return Object.keys(values).map(name => {
+      const { query: conditionAdvanced, ...rest } = values[name]
+      return { name, conditionAdvanced, ...rest }
+    })
   })
-  const savedBasicSearches = computed(() => {
-    const { values = {} } = $store.state.preferences.cache[`${saveSearchNamespace.value}::basicSearch`] || {}
-    return Object.keys(values).map(name => ({ name, ...values[name] }))
-  })
-
   const deleteAdvancedSavedSearch = search => {
     const id = `${saveSearchNamespace.value}::advancedSearch`
     const { values = {} } = $store.state.preferences.cache[id] || {}
     delete values[search.name]
     $store.dispatch('preferences/set', { id, value: { values } })
   }
+
+  const savedBasicSearches = computed(() => {
+    const { values = {} } = $store.state.preferences.cache[`${saveSearchNamespace.value}::basicSearch`] || {}
+    return Object.keys(values).map(name => {
+      const { query: conditionBasic, ...rest } = values[name]
+      return { name, conditionBasic, ...rest }
+    })
+  })
   const deleteBasicSavedSearch = search => {
     const id = `${saveSearchNamespace.value}::basicSearch`
     const { values = {} } = $store.state.preferences.cache[id] || {}
     delete values[search.name]
     $store.dispatch('preferences/set', { id, value: { values } })
-  }
-  const goToAdvancedSearch = search => {
-    const { name, query, ...rest } = search
-    const { path } = item.value
-    $store.dispatch('preferences/set', {
-      id: `${saveSearchNamespace.value}::defaultSearch`,
-      value: { ...rest, conditionAdvanced: query }
-    }).then(() => {
-      if (path === $router.currentRoute.path)
-        $router.go() // hard reset
-      else
-        $router.push({ path })
-    })
-  }
-  const goToBasicSearch = search => {
-    const { name, query, ...rest } = search
-    const { path } = item.value
-    $store.dispatch('preferences/set', {
-      id: `${saveSearchNamespace.value}::defaultSearch`,
-      value: { ...rest, conditionBasic: query }
-    }).then(() => {
-      if (path === $router.currentRoute.path)
-        $router.go() // hard reset
-      else
-        $router.push({ path })
-    })
   }
 
   onMounted(() => {
@@ -190,22 +158,26 @@ const setup = (props, context) => {
     }
   })
 
+  const routeFromItemSearch = (item, search) => {
+    const { path } = item
+    const { name, ...rest } = search // strip name
+    const query = Object.keys(rest).reduce((query, param) => {
+      query[param] = JSON.stringify(rest[param])
+      return query
+    }, {})
+    return { path, query }
+  }
+
   return {
     visible,
-
     standardSearches,
-    goToStandardSearch,
-
     saveSearchNamespace,
     showSavedSearches,
-
     savedAdvancedSearches,
     deleteAdvancedSavedSearch,
-    goToAdvancedSearch,
-
     savedBasicSearches,
     deleteBasicSavedSearch,
-    goToBasicSearch
+    routeFromItemSearch
   }
 }
 

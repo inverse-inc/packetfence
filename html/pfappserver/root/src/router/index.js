@@ -1,4 +1,5 @@
 import Vue from 'vue'
+import { computed } from '@vue/composition-api'
 import Router from 'vue-router'
 import store from '@/store'
 import axios from 'axios'
@@ -86,6 +87,8 @@ router.beforeEach((to, from, next) => {
 })
 
 router.afterEach((to, from) => {
+  routeData.params = to.params
+  routeData.query = to.query
   /**
   * 1. Check if a matching route defines a transition delay
   * 2. Restore the document scrollbar after the transition delay
@@ -111,3 +114,26 @@ router.afterEach((to, from) => {
 })
 
 export default router
+
+const routeData = Vue.observable({ params: {}, query: {} })
+export const useParams = () => computed(() => routeData.params)
+export const useQuery = () => computed(() => routeData.query)
+
+/*
+export const getNameFromPath = path => {
+  const { options: { routes = [] } = {} } = router
+  for (let r = 0; r < routes.length; r++) {
+    const { name: sName, path: sPath, children = [] } = routes[r]
+    if (sPath === path)
+      return sName
+    else if (path.substr(0, sPath.length) === sPath) {
+      for (let c = 0; c < children.length; c++) {
+        let { name: cName, path: cPath } = children[c]
+        if (path.substr(-cPath.length) === cPath)
+          return cName
+      }
+    }
+  }
+  return undefined
+}
+*/
