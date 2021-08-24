@@ -337,6 +337,8 @@ binary-arch: build install
 	# packetfence pkg
 	chmod 0755 $(CURDIR)/debian/packetfence$(PREFIX)/$(NAME)/addons/*.pl
 	chmod 0755 $(CURDIR)/debian/packetfence$(PREFIX)/$(NAME)/addons/*.sh
+	chmod 0755 $(CURDIR)/debian/packetfence$(PREFIX)/$(NAME)/addons/AD/*.pl
+	chmod 0755 $(CURDIR)/debian/packetfence$(PREFIX)/$(NAME)/addons/AD/*.py
 	chmod 0755 $(CURDIR)/debian/packetfence$(PREFIX)/$(NAME)/addons/full-import/*.sh
 	chmod 0755 $(CURDIR)/debian/packetfence$(PREFIX)/$(NAME)/addons/full-import/*.pl
 	chmod 0755 $(CURDIR)/debian/packetfence$(PREFIX)/$(NAME)/addons/pfconfig/comparator/*.pl
