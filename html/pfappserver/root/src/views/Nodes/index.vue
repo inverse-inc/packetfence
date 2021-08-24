@@ -34,11 +34,15 @@ const setup = (props, context) => {
       standardSearches: [
         {
           name: i18n.t('Offline Nodes'),
-          query: { op: 'and', values: [{ op: 'or', values: [{ field: 'online', op: 'not_equals', value: 'on' }] }] }
+          conditionAdvanced: { op: 'and', values: [{ op: 'or', values: [{ field: 'online', op: 'not_equals', value: 'on' }] }] },
+          sortBy: 'last_seen',
+          sortDesc: true
         },
         {
           name: i18n.t('Online Nodes'),
-          query: { op: 'and', values: [{ op: 'or', values: [{ field: 'online', op: 'equals', value: 'on' }] }] }
+          conditionAdvanced: { op: 'and', values: [{ op: 'or', values: [{ field: 'online', op: 'equals', value: 'on' }] }] },
+          sortBy: 'last_seen',
+          sortDesc: true
         }
       ]
     },

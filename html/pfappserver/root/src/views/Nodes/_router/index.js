@@ -3,7 +3,7 @@ import acl from '@/utils/acl'
 import i18n from '@/utils/locale'
 import NodesStoreModule from '../_store'
 import UsersStoreModule from '../../Users/_store'
-import NodesView from '../'
+import TheView from '../'
 const TheSearch = () => import(/* webpackChunkName: "Nodes" */ '../_components/TheSearch')
 const TheCsvImport = () => import(/* webpackChunkName: "Editor" */ '../_components/TheCsvImport')
 const TheViewCreate = () => import(/* webpackChunkName: "Nodes" */ '../_components/TheViewCreate')
@@ -30,7 +30,7 @@ const route = {
   path: '/nodes',
   name: 'nodes',
   redirect: '/nodes/search',
-  component: NodesView,
+  component: TheView,
   meta: {
     can: () => (acl.$can('read', 'nodes') || acl.$can('create', 'nodes')), // has ACL for 1+ children
     transitionDelay: 300 * 2 // See _transitions.scss => $slide-bottom-duration
@@ -42,7 +42,6 @@ const route = {
       path: 'search',
       name: 'nodeSearch',
       component: TheSearch,
-      props: (route) => ({ query: route.query.query }),
       meta: {
         can: 'read nodes',
         isFailRoute: true
