@@ -1,7 +1,6 @@
 import { pfSearchConditionType as conditionType } from '@/globals/pfSearch'
 import { pfFormatters as formatter } from '@/globals/pfFormatters'
 import makeSearch from '@/store/factory/search'
-import acl from '@/utils/acl'
 import api from './_api'
 
 export const useSearch = makeSearch('users', {

@@ -156,7 +156,7 @@
         </div>
       </div>
     </base-form>
-    <users-preview-modal v-model="showUsersPreviewModal" store-name="$_users"/>
+    <the-preview-modal v-model="showPreviewModal" />
   </b-form>
 </template>
 <script>
@@ -204,7 +204,7 @@ import {
   InputGroupExpiration,
   FormGroupActions
 } from './'
-import UsersPreviewModal from './UsersPreviewModal'
+import ThePreviewModal from './ThePreviewModal'
 
 const components = {
   BaseForm,
@@ -248,7 +248,7 @@ const components = {
   InputGroupValidFrom,
   InputGroupExpiration,
   FormGroupActions,
-  UsersPreviewModal
+  ThePreviewModal
 }
 
 import { computed, ref } from '@vue/composition-api'
@@ -284,18 +284,18 @@ const setup = (props, context) => {
     $router.push({ name: 'users' })
   }
 
-  const showUsersPreviewModal = ref(false)
+  const showPreviewModal = ref(false)
   const onCreate = () => {
     if (!isValid.value)
       return
-    showUsersPreviewModal.value = false
+    showPreviewModal.value = false
     const _form = form.value
     if (domainName.value) // append domainName to pid when available (tenant)
         _form.pid = `${_form.pid}@${domainName.value}`
     $store.dispatch('$_users/createUser', _form).then(() => {
       $store.dispatch('$_users/createPassword', Object.assign({ quiet: true }, _form)).then(() => {
         $store.commit('$_users/CREATED_USERS_REPLACED', [_form])
-        showUsersPreviewModal.value = true
+        showPreviewModal.value = true
       })
     })
   }
@@ -314,7 +314,7 @@ const setup = (props, context) => {
     onClose,
     onCreate,
     onReset,
-    showUsersPreviewModal
+    showPreviewModal
   }
 }
 

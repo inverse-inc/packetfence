@@ -4,7 +4,7 @@ import i18n from '@/utils/locale'
 import UsersStoreModule from '../_store'
 import TheView from '../'
 const TheSearch = () => import(/* webpackChunkName: "Users" */ '../_components/TheSearch')
-const UsersPreview = () => import(/* webpackChunkName: "Users" */ '../_components/UsersPreview')
+const ThePreview = () => import(/* webpackChunkName: "Users" */ '../_components/ThePreview')
 const TheCsvImport = () => import(/* webpackChunkName: "Editor" */ '../_components/TheCsvImport')
 const TheViewCreate = () => import(/* webpackChunkName: "Users" */ '../_components/TheViewCreate')
 const TheViewUpdate = () => import(/* webpackChunkName: "Users" */ '../_components/TheViewUpdate')
@@ -66,7 +66,7 @@ const route = {
     {
       path: 'preview',
       name: 'usersPreview',
-      component: UsersPreview,
+      component: ThePreview,
       meta: {
         can: 'create users'
       }
