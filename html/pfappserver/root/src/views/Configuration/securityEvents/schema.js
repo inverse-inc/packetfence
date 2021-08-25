@@ -102,7 +102,6 @@ export const schema = (props) => {
 
     triggers: schemaTriggers.meta({ invalidFeedback: i18n.t('Triggers contains one or more errors.') }),
     desc: yup.string().nullable()
-      .required(i18n.t('Description required.'))
       .label(i18n.t('Description')),
     priority: yup.string().nullable().label(i18n.t('Priority')),
     whitelisted_roles: schemaWhiteListedRoles
