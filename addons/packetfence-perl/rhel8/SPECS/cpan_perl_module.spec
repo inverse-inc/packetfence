@@ -33,7 +33,7 @@ export PKG_CONFIG_PATH=/usr/lib/pkgconfig/
         /usr/local/pf/lib_perl/*
 
 %changelog
-* Wed Aug 25 2021 SupportInverse 1 <support@inverse.ca> 1.1.1-1
+* Wed Aug 25 2021 SupportInverse 1 <support@inverse.ca> 1.1.2-1
 - Remove Crypt::OpenSSL::PKCS12
 * Tue Aug 24 2021 SupportInverse 1 <support@inverse.ca> 1.1.1-1
 - Remove Crypt::OpenSSL::PKCS12
