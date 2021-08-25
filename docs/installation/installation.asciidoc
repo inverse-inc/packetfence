@@ -51,7 +51,7 @@ Newer version of VMware Player handles the VLAN trunking a lot better.  Having t
 
 === Installing PacketFence on existing Linux
 
-PacketFence provides packages repository for RHEL8 as well as packages repository fo Debian.
+PacketFence provides packages repository for RHEL 8 as well as packages repository fo Debian.
 
 These repositories contain all required dependencies to install PacketFence. This provides numerous advantages. Among them, there are:
 
