@@ -97,7 +97,7 @@ Warning: paths to `tar`, `gzip` and `bzip2` are different on Debian.
 
 Logs are available in `/root/install_perl` directory.
 
-## How to build RPM package
+## How to build RPM package ?
 
 1. Update `Release` in `rhel8/SPECS/cpan_perl_module.spec` and add a changelog
    entry if necessary
@@ -110,7 +110,7 @@ rpmbuild -ba ./rhel8/SPECS/cpan_perl_module.spec
 QA_RPATHS=$(( 0x0001 )) rpmbuild -ba ./rhel8/SPECS/cpan_perl_module.spec
 ```
 
-## How to build Debian package
+## How to build Debian package ?
 
 1. Add a changelog entry in `debian/changelog` with new package version
 1. Run following commands:
@@ -119,3 +119,9 @@ QA_RPATHS=$(( 0x0001 )) rpmbuild -ba ./rhel8/SPECS/cpan_perl_module.spec
 ./make_tar_from_source.sh
 dpkg-buildpackage --no-sign -rfakeroot
 ```
+
+## How to replace a Perl module installed by packetfence-perl packages by a package ?
+
+1. Remove Perl module from `./dependencies.csv
+1. Remove Perl module from  `./debian/control`
+1. Update PacketFence SPEC files (Debian and RPM) to add a dependency to this package

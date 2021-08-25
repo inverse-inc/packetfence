@@ -1,5 +1,5 @@
 Name:           packetfence-perl
-Version:        1.1.1
+Version:        1.1.2
 Release:        1%{?dist}
 Summary:        All modules loaded with cpan
 BuildArch:      x86_64
@@ -33,6 +33,8 @@ export PKG_CONFIG_PATH=/usr/lib/pkgconfig/
         /usr/local/pf/lib_perl/*
 
 %changelog
+* Wed Aug 25 2021 SupportInverse 1 <support@inverse.ca> 1.1.1-1
+- Remove Crypt::OpenSSL::PKCS12
 * Tue Aug 24 2021 SupportInverse 1 <support@inverse.ca> 1.1.1-1
 - Remove Crypt::OpenSSL::PKCS12
 * Wed Aug 11 2021 SupportInverse 1 <support@inverse.ca> 1.1.0-1
