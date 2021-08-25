@@ -203,11 +203,6 @@ const components = {
   IconScore
 }
 
-import { focus } from '@/directives/'
-const directives = {
-  focus
-}
-
 import { computed, onMounted, ref, toRefs } from '@vue/composition-api'
 import { useBootstrapTableSelected } from '@/composables/useBootstrap'
 import { useTableColumnsItems } from '@/composables/useCsv'
@@ -431,7 +426,6 @@ export default {
   name: 'the-search',
   inheritAttrs: false,
   components,
-  directives,
   setup
 }
 </script>
