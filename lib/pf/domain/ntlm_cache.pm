@@ -15,7 +15,7 @@ use warnings;
 
 use pf::constants;
 use pf::authentication;
-use pf::config qw(%ConfigDomain);
+use pf::config qw(%ConfigDomain $OS);
 use Net::LDAP::Control::Paged;
 use Net::LDAP::Constant qw( LDAP_CONTROL_PAGED );
 use pf::log;
@@ -29,6 +29,12 @@ use pf::Redis;
 use pf::constants::domain qw($NTLM_REDIS_CACHE_HOST $NTLM_REDIS_CACHE_PORT);
 use Socket;
 use pf::CHI;
+our $SECRETSDUMP_BIN;
+if ($OS eq 'rhel') {
+    $SECRETSDUMP_BIN = '/usr/bin/secretsdump.py';
+} elsif ($OS eq 'debian') {
+    $SECRETSDUMP_BIN = '/usr/bin/impacket-secretsdump';
+}
 
 my $CHI_CACHE = pf::CHI->new( namespace => 'ntlm_cache_username_lookup' );
 
@@ -210,7 +216,7 @@ sub secretsdump {
     foreach my $server (@{$source->{host} // []}) {
         my ($sAMAccountName) = strip_username($source->{binddn});
         eval {
-            my $command = "/usr/local/pf/addons/AD/secretsdump.py '".pf::domain::escape_bind_user_string($sAMAccountName)."':'".pf::domain::escape_bind_user_string($source->{password})."'@".inet_ntoa(inet_aton($server))." -just-dc-ntlm -output $tmpfile $opts";
+            my $command = "$SECRETSDUMP_BIN '".pf::domain::escape_bind_user_string($sAMAccountName)."':'".pf::domain::escape_bind_user_string($source->{password})."'@".inet_ntoa(inet_aton($server))." -just-dc-ntlm -output $tmpfile $opts";
             $logger->debug("Executing sync command: $command");
             $result = pf_run($command, accepted_exit_status => [ 0 ], working_directory => "/tmp");
         };
