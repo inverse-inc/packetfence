@@ -8,6 +8,8 @@ PKR_VAR_vm_name=PacketFence-ZEN
 PKR_VAR_output_vbox_directory=$(RESULT_DIR)/virtualbox
 PKR_VAR_output_vmware_directory=$(RESULT_DIR)/vmware
 
+ANSIBLE_FORCE_COLOR=1
+
 PF_VERSION=$(CI_COMMIT_REF_NAME)
 VM_NAME=$(PKR_VAR_vm_name)
 RESULT_DIR=results
@@ -22,6 +24,7 @@ zen:
 	PKR_VAR_vm_name=$(PKR_VAR_vm_name) \
 	PKR_VAR_output_vbox_directory=$(PKR_VAR_output_vbox_directory) \
 	PKR_VAR_output_vmware_directory=$(PKR_VAR_output_vmware_directory) \
+	ANSIBLE_FORCE_COLOR=$(ANSIBLE_FORCE_COLOR) \
 	packer build -only="virtualbox-iso.$(BUILD_NAME)" -on-error=$(PKR_ON_ERROR) .
 	PF_VERSION=$(PF_VERSION) \
 	VBOX_RESULT_DIR=$(PKR_VAR_output_vbox_directory) \
