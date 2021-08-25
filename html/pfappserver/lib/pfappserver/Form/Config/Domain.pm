@@ -221,7 +221,7 @@ has_field 'ntlm_cache_on_connection' =>
    checkbox_value => "enabled",
    unchecked_value => "disabled",
    label => 'NTLM cache on connection',
-   default => "disabled",
+   default => "enabled",
    tags => { after_element => \&help,
              help => 'When this is enabled, an async job will cache the NTLM credentials of the user every time he connects.' },
   );
