@@ -36,7 +36,6 @@ my $update = 0;
 for my $section ($cs->Sections()) {
     next if $section eq 'default' || $section =~ /^group /;
     next if !valid_ip($section) && valid_mac($section);
-    print "Checking $section\n";
     my $ip = NetAddr::IP->new($section);
     next if $ip->num != 1;
     my $new_section = $ip->addr;
