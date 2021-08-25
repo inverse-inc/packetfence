@@ -26,7 +26,7 @@ const components = {
 }
 
 const props = {
-  mac: {
+  id: {
     type: String
   }
 }
@@ -39,7 +39,7 @@ import { useRouter } from '../_router'
 const setup = (props, context) => {
 
   const {
-    mac
+    id
   } = toRefs(props)
 
   const { root: { $router, $store } = {} } = context
@@ -55,7 +55,7 @@ const setup = (props, context) => {
   watch(escapeKey, () => goToCollection())
 
   const item = ref({})
-  $store.dispatch(`$_dns_logs/getItem`, mac.value).then(_item => {
+  $store.dispatch(`$_dns_logs/getItem`, id.value).then(_item => {
     item.value = _item
   })
 
