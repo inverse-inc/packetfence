@@ -46,6 +46,8 @@ The virtual appliance passwords are:
 * Login: root
 * Password: p@ck3tf3nc3
 
+WARNING: Be sure to change default passwords if you plan to use this image in production.
+
 `root` user is not allowed to connect using SSH and password. You need to first login as `pf-admin` then switch to root using `sudo -s`.
 
 If you want to test captive portal features, you can create a local account using _Users -> Create_ menu with following parameters:
