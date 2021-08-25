@@ -2,8 +2,20 @@
 * "$_users" store module
 */
 import Vue from 'vue'
+import { computed } from '@vue/composition-api'
 import api from '../_api'
 import { pfActions } from '@/globals/pfActions'
+
+export const useStore = $store => {
+  return {
+    isLoading: computed(() => $store.getters['$_users/isLoading']),
+    reloadItem: params => $store.dispatch('$_users/refreshUser', params.id),
+    deleteItem: params => $store.dispatch('$_users/deleteuser', params.id),
+    getItem: params => $store.dispatch('$_users/getUser', params.id),
+    createItem: params => $store.dispatch('$_users/createUser', params),
+    updateItem: params => $store.dispatch('$_users/updateUser', params)
+  }
+}
 
 const inflateActions = (data) => {
   data.actions = []
@@ -297,7 +309,7 @@ const actions = {
   },
   bulkApplySecurityEvent: ({ commit }, data) => {
     commit('USER_REQUEST')
-    return api.bulkCloseSecurityEvents(data).then(response => {
+    return api.bulkApplySecurityEvent(data).then(response => {
       commit('USER_BULK_SUCCESS', response)
       return response
     }).catch(err => {
