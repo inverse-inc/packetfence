@@ -1,2 +1,4 @@
 ---
 - import_playbook: playbooks/install_pf.yml
+
+- import_playbook: playbooks/set_rc_local.yml

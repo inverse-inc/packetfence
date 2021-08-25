@@ -1,6 +1,6 @@
 ---
-# roles:
-#   - src: inverse_inc.gitlab_buildpkg_tools
+roles:
+  - src: oefenweb.rc_local
 
 collections:
   - name: inverse_inc.packetfence
