@@ -55,10 +55,6 @@ auto swp15
 iface swp15
     bridge-access 18
 
-auto swp16
-iface swp16
-    bridge-access 17
-
 auto swp48
 iface swp48
     bridge-access 100
