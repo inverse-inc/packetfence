@@ -170,7 +170,7 @@
       </b-container>
     </div>
 
-    <b-modal v-model="showBypassVlanModal" v-focus
+    <b-modal v-model="showBypassVlanModal" @shown="$refs.bypassVlanInput.focus()"
       size="sm" centered id="bypassVlanModal" :title="$t('Bulk Apply Bypass VLAN')">
       <b-form-group>
         <b-form-input ref="bypassVlanInput" v-model="bypassVlanString" type="text" :placeholder="$t('Enter a VLAN')" />
