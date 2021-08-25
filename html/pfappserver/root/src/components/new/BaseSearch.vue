@@ -99,6 +99,7 @@ const props = {
 import { onMounted, ref, toRefs, watch } from '@vue/composition-api'
 import { v4 as uuidv4 } from 'uuid'
 import { useQuery } from '@/router'
+import i18n from '@/utils/locale'
 
 const setup = (props, context) => {
 
@@ -166,23 +167,29 @@ const setup = (props, context) => {
     watch(query, () => {
       if (Object.keys(query.value).length) { // [1] use router query
         saveSearchLoaded = false
-        const q = Object.keys(query.value).reduce((q, param) => {
-          q[param] = JSON.parse(query.value[param])
-          return q
-        }, {})
-        const { conditionBasic: _conditionBasic, conditionAdvanced: _conditionAdvanced, ...value } = q
-        setUp(value)
-        if (_conditionAdvanced) {
-          conditionAdvanced.value = _conditionAdvanced
-          advancedMode.value = true
-          hint.value = uuidv4()
-          return doSearchCondition(conditionAdvanced.value)
-        }
-        if (_conditionBasic) {
-          conditionBasic.value = _conditionBasic
-          advancedMode.value = false
-          hint.value = uuidv4()
-          return doSearchString(conditionBasic.value)
+        try {
+          const q = Object.keys(query.value).reduce((q, param) => {
+            q[param] = JSON.parse(query.value[param])
+            return q
+          }, {})
+          const { conditionBasic: _conditionBasic, conditionAdvanced: _conditionAdvanced, ...value } = q
+          setUp(value)
+          if (_conditionAdvanced) {
+            conditionAdvanced.value = _conditionAdvanced
+            conditionBasic.value = null
+            advancedMode.value = true
+            hint.value = uuidv4()
+            return doSearchCondition(conditionAdvanced.value)
+          }
+          else if (_conditionBasic) {
+            conditionAdvanced.value = defaultCondition()
+            conditionBasic.value = _conditionBasic
+            advancedMode.value = false
+            hint.value = uuidv4()
+            return doSearchString(conditionBasic.value)
+          }
+        } catch(e) {
+          $store.dispatch('notification/danger', { message: i18n.t('URL query is malformed.'), url: e })
         }
         doReset()
       }
@@ -197,11 +204,13 @@ const setup = (props, context) => {
               setUp(value)
               if (_conditionAdvanced) {
                 conditionAdvanced.value = _conditionAdvanced
+                conditionBasic.value = null
                 advancedMode.value = true
                 hint.value = uuidv4()
                 return doSearchCondition(conditionAdvanced.value)
               }
-              if (_conditionBasic) {
+              else if (_conditionBasic) {
+                conditionAdvanced.value = defaultCondition()
                 conditionBasic.value = _conditionBasic
                 advancedMode.value = false
                 hint.value = uuidv4()
