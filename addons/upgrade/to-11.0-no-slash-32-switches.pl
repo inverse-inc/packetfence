@@ -13,7 +13,7 @@ to-11.0-no-slash-32-switches
 use strict;
 use warnings;
 use lib qw(/usr/local/pf/lib);
-use lib qw(/usr/local/pf/lib_perl);
+use lib qw(/usr/local/pf/lib_perl/lib/perl5);
 use pf::IniFiles;
 use NetAddr::IP;
 use pf::util qw(valid_ip valid_mac run_as_pf);
