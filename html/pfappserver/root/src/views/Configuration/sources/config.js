@@ -1,3 +1,4 @@
+import i18n from '@/utils/locale'
 import { pfActions } from '@/globals/pfActions'
 
 export const internalTypes = {
