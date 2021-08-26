@@ -363,13 +363,13 @@ To simplify further documentation, we will use `$MONIT_PATH` variable as a refer
 
 The following must be done on each server of a cluster
 
-.RHEL / CentOS
+.RHEL-based systems
 [source,bash]
 ----
 yum install monit uuid --enablerepo=packetfence -y
 ----
 
-.Debian
+.Debian-based systems
 [source,bash]
 ----
 apt-get update

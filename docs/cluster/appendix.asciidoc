@@ -25,33 +25,6 @@ endif::[]
  * 'Management node/server': The first server of a PacketFence cluster as defined in `/usr/local/pf/conf/cluster.conf`.
  * 'Node': In the context of this document, a node is a member of the cluster while in other PacketFence documents it may represent an endpoint.
 
-=== Setting the interfaces name on CentOS 7
-
-On CentOS 7 you need to make sure that all the servers in the cluster use the same interfaces name.
-This section covers how to set the interfaces to the ethX format.
-Note that you can set it to the format you desire as long as the names are the same on all servers.
-
-First, go in `/etc/default/grub` and add `net.ifnames=0` to the variable: `GRUB_CMDLINE_LINUX`.
-
-  GRUB_CMDLINE_LINUX="crashkernel=auto rd.lvm.lv=centos/root rd.lvm.lv=centos/swap rhgb quiet net.ifnames=0"
-
-Then regenerate the GRUB configuration by executing the following command:
-
-  # grub2-mkconfig -o /boot/grub2/grub.cfg
-
-Then, rename the network script of your management interface (`eno16780032` in this example) to be in the ethX form (`eth0` in this example)
-
-  # mv /etc/sysconfig/network-scripts/ifcfg-eno16780032 /etc/sysconfig/network-scripts/ifcfg-eth0
-
-And rename the name of the interface in the following files (making sure you replace `eno16780032` and `eth0` by the appropriate values):
-
-  # sed -i.bak "s/eno16780032/eth0/g" /etc/sysconfig/network-scripts/ifcfg-eth0
-  # sed -i.bak "s/eno16780032/eth0/g" /usr/local/pf/conf/pf.conf
-
-Apply the last two steps for any other interface you have on your server. Keep in mind, you can use the PacketFence configurator to reconfigure them later as long as your management interface is correctly configured and is accessible on your network.
-
-Now, reboot your server and when it finishes starting, your interfaces name should now be using the format `ethX`
-
 === IP addresses in a cluster environment
 
 ==== DHCP and DNS services

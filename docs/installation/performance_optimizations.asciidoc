@@ -163,15 +163,13 @@ When dealing with a large database, the database backup and maintenance script (
 
 This is fixed easily by using MariaDB-backup which can complete a full database backup without locking your tables.
 
-The installation instructions below are made for CentOS 7 but adjusting them to Debian should only be a matter of installing the proper packages for your MariaDB version.
-
-.RHEL / CentOS based systems
+.RHEL-based systems
 [source,bash]
 ----
   # yum install MariaDB-backup --enablerepo=packetfence
 ----
 
-.Debian based systems
+.Debian-based systems
 [source,bash]
 ----
   # apt install mariadb-backup-10.2

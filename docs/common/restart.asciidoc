@@ -1,0 +1,8 @@
+[source,bash]
+----
+/usr/local/pf/bin/pfcmd fixpermissions
+/usr/local/pf/bin/pfcmd pfconfig clear_backend
+systemctl restart packetfence-config
+/usr/local/pf/bin/pfcmd configreload hard
+/usr/local/pf/bin/pfcmd service pf restart
+----

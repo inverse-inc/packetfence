@@ -63,15 +63,57 @@ systemctl stop monit
 systemctl disable monit
 ----
 
+== Type of upgrades
+
+Starting from PacketFence 11.0.0, you can upgrade your PacketFence installation in two ways:
+
+* <<#_upgrade_to_a_patch_version_x_y_patch,Upgrade to a patch version (X.Y.PATCH)>>
+* <<#_upgrade_to_a_major_or_minor_version_majour_minor_z,Upgrade to a major or minor version (MAJOR.MINOR.Z)>>
+
+For all PacketFence versions prior to 11.0.0, you should follow <<_upgrade_procedure,steps described in Upgrade procedure section>>.
+
+
+== Upgrade to a patch version (X.Y.PATCH)
+
+=== Upgrade packages
+
+include::common/upgrade_packages.asciidoc[]
+
+=== New versions of config files
+
+include::common/new_config_files.asciidoc[]
+
+=== Restart PacketFence services
+
+include::common/restart.asciidoc[]
+
+== Upgrade to a major or minor version (MAJOR.MINOR.Z)
+
+IMPORTANT: This type of upgrade is only available starting from PacketFence 11.0.0
+
+=== Update repository definition
+
+include::common/update_repo_definition.asciidoc[]
+
+=== Upgrade packages
+
+include::common/upgrade_packages.asciidoc[]
+
+=== New versions of config files
+
+include::common/new_config_files.asciidoc[]
+
+=== Export/Import your configuration
+
+==== Export
+
+Follow instructions related to <<PacketFence_Installation_Guide.asciidoc#_export_on_current_installation,export process>>.
+
+==== Import
+
+Follow instructions related to <<PacketFence_Installation_Guide.asciidoc#_import_on_new_installation,import process>>.
+
 == Upgrade procedure
-
-=== Automated upgrade (available starting from PacketFence 10.3.0)
-
-You can use our
-<<PacketFence_Installation_Guide.asciidoc#_exportimport_mechanism,export/import
-mechanism>> if your current PacketFence version is at least 10.3.0.
-
-=== Manual upgrade
 
 A PacketFence upgrade consists of following steps:
 
@@ -96,11 +138,11 @@ IMPORTANT: Before starting packages upgrades, make sure to go through (read) the
 instructions specific to the upgrade path taken since some preliminary steps may be
 required to be done *BEFORE* the packages upgrades.
 
-==== Clustered environment: specific procedure
+=== Clustered environment: specific procedure
 
 Please refer to the <<PacketFence_Clustering_Guide.asciidoc#,PacketFence Clustering Guide>>, more specifically the <<PacketFence_Clustering_Guide.asciidoc#_performing_an_upgrade_on_a_cluster,Performing an upgrade on a cluster>> section.
 
-===== Cluster upgrade before 10.3
+==== Cluster upgrade before 10.3
 
 If you run a version prior to 10.3, cluster upgrade for this version is specific. You need to follow steps described in <<_mariadb_upgrade_to_10_2,MariaDB upgrade to 10.2>> section.
 
@@ -209,47 +251,14 @@ steps required depending on the version you are upgrading from.
 
 ==== New versions of configuration files
 
-You should take care to review any changes to configuration files and merge them if required.
-
-===== RHEL / CentOS based systems
-
-To find out which configuration files have changed run following command:
-
-[source,bash]
-----
-find /usr/local/pf -name \*.rpmnew
-----
-
-The list of files returned are the new versions shipped with PacketFence.
-Compare them to your existing version and see if there are changes that should
-be merged into your existing configuration. Then, once you are done make sure
-to delete these files so that there is no confusion the next time you upgrade
-PacketFence.
-
-===== Debian-based systems
-
-Debian installation system should have interactively asked for existing
-modified files. If you answer `No` to keep existing files in place, you can
-find out which configuration files have changed by running following command:
-
-[source,bash]
-----
-find /usr/local/pf -name "*.dpkg-dist"
-----
+include::common/new_config_files.asciidoc[]
 
 === Restart all PacketFence services
 
 Once all <<_steps,steps of upgrade procedure>> are completed, restart
 `packetfence-config` and `packetfence` services:
 
-[source,bash]
-----
-/usr/local/pf/bin/pfcmd fixpermissions
-/usr/local/pf/bin/pfcmd pfconfig clear_backend
-systemctl restart packetfence-config
-/usr/local/pf/bin/pfcmd configreload hard
-/usr/local/pf/bin/pfcmd service pf restart
-----
+include::common/restart.asciidoc[]
 
 === Regenerate Monit configuration
 
@@ -1627,8 +1636,8 @@ systemctl restart packetfence-mariadb
 == Upgrading from a version prior to X.Y.Z
 
 
-Starting from PacketFence 11.0.0, Debian 9 and CentOS 7 support are dropped in benefit of Debian 11 and RHEL8.
-In place upgrades are not supported.
+Starting from PacketFence 11.0.0, Debian 9 and CentOS 7 support are dropped in benefit of Debian 11 and RHEL 8.
+In place upgrades are not supported. You will have to provision new operating system(s) in order to migrate.
 
 To simplify upgrade process to PacketFence 11.0.0 and future versions, we know
 rely on an export/import mechanism.
@@ -1639,8 +1648,8 @@ Before doing anything else, be sure to read <<PacketFence_Installation_Guide.asc
 
 ==== If you are running a PacketFence version before 10.3.0
 
-1. Follow upgrade path to PacketFence 10.3.0
-1. Go to next section
+. Follow upgrade path to PacketFence 10.3.0
+. Go to next section
 
 ==== If you are running PacketFence version 10.3.0 or later
 
