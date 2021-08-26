@@ -994,7 +994,7 @@ sub handleNtlmCaching {
         my $username = pf::domain::ntlm_cache::get_from_cache($cache_key);
         if (defined($usedNtHash) && $usedNtHash && defined($username)) {
             my $client = pf::api::queue_cluster->new(queue => "general");
-            $client->cluster_notify_all("update_user_in_redis_cache", $domain, $username);
+            $client->notify_all("update_user_in_redis_cache", $domain, $username);
         }
         else {
             my $client = pf::api::queue->new(queue => "general");
