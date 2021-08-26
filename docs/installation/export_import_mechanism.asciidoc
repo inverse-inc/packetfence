@@ -107,7 +107,7 @@ the server.
 ==== Preliminary steps
 
 If your export archive used MariaDB-backup instead of `mysqldump` (your DB
-backup filename contains `xbstream`), then you need to install identical
+backup filename in /root/backup/ contains `xbstream`), then you need to install identical
 MariaDB-backup version on your **new** installation.
 
 ===== If you are restoring from PacketFence 10.3.0 only
@@ -173,15 +173,13 @@ to do.  Your export archive will contain your previous
 
 ==== Final steps
 
-If you restored from PacketFence 10.3.0 and you used MariaDB-backup for your
-restore, remove it if your backups were previously using mysqldump (default option):
-
-NOTE: To know if your previous deployment used mysqldump or mariabackup, check the content of the archive (displayed during the import), if the file contains a file matching the pattern packetfence-db-dump-*.sql.gz, your backups were using mysqldump and you need to remove MariaDB-backup as described below.
+If you restored from PacketFence 10.3.0 and you installed MariaDB-backup for your
+restore during the 'Preliminary steps', you need to update it to the latest version:
 
 .RHEL / CentOS based systems
 [source,bash]
 ----
-yum remove MariaDB-backup
+yum update MariaDB-backup --enablerepo=packetfence
 ----
 
 .Debian based systems
