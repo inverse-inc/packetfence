@@ -13,7 +13,7 @@ to-11.0-no-slash-32-switches
 use strict;
 use warnings;
 use lib qw(/usr/local/pf/lib);
-use lib qw(/usr/local/pf/lib_perl);
+use lib qw(/usr/local/pf/lib_perl/lib/perl5);
 use pf::IniFiles;
 use NetAddr::IP;
 use pf::util qw(valid_ip valid_mac run_as_pf);
@@ -36,7 +36,6 @@ my $update = 0;
 for my $section ($cs->Sections()) {
     next if $section eq 'default' || $section =~ /^group /;
     next if !valid_ip($section) && valid_mac($section);
-    print "Checking $section\n";
     my $ip = NetAddr::IP->new($section);
     next if $ip->num != 1;
     my $new_section = $ip->addr;

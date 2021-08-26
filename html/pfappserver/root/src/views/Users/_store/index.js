@@ -411,7 +411,7 @@ const mutations = {
     }
   },
   USER_BULK_SUCCESS: (state, response) => {
-    state.nodeStatus = 'success'
+    state.usersStatus = 'success'
     response.forEach(item => {
       if (item.pid in state.users) {
         Vue.set(state.users, item.pid, null)

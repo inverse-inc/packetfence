@@ -172,11 +172,15 @@ const mutations = {
   },
   ITEM_ENABLED: (state, data) => {
     state.itemStatus = types.SUCCESS
-    Vue.set(state.cache, data.id, { ...state.cache[data.id], ...data })
+    if (data.id in state.cache) {
+      Vue.set(state.cache, data.id, { ...state.cache[data.id], ...data })
+    }
   },
   ITEM_DISABLED: (state, data) => {
     state.itemStatus = types.SUCCESS
-    Vue.set(state.cache, data.id, { ...state.cache[data.id], ...data })
+    if (data.id in state.cache) {
+      Vue.set(state.cache, data.id, { ...state.cache[data.id], ...data })
+    }
   },
   ITEM_DESTROYED: (state, id) => {
     state.itemStatus = types.SUCCESS
