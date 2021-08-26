@@ -194,6 +194,45 @@ sub fetch_all_valid_hashes {
 
 }
 
+=head2 get_sync_samaccountname
+
+Get the sAMAccountName for use in the sync based on the auth source
+In source, bind DN could be a DN or a sAMAccountname 
+
+=cut
+
+sub get_sync_samaccountname {
+    my ($domain, $source) = @_;
+    my $logger = get_logger;
+    my $config = $ConfigDomain{$domain};
+
+    my $sAMAccountName;
+
+    # to catch a LDAP DN in the form of CN=user,OU=Users,dc=domain,dc=com
+    if ($source->{binddn} =~ /(.*)=(.*)/) {
+        my ($connection, $LDAPServer, $LDAPServerPort ) = $source->_connect();
+
+        if (!defined($connection)) {
+            return ($FALSE, "Error communicating with the LDAP server");
+        }
+
+        # We need to fetch the sAMAccountName of the DN in the AD source
+        # base search is the DN itself to return only one result
+        my $result = $connection->search(
+            base => $source->{binddn},
+            filter => '(sAMAccountName=*)',
+            attrs => ['sAMAccountName'],
+        );
+
+        return ($FALSE, "Cannot find sAMAccountName of user ".$source->{binddn}) unless($result->count > 0);
+
+        $sAMAccountName = $result->entry(0)->get_value('sAMAccountName');
+
+    } else {
+        $sAMAccountName = strip_username($source->{binddn});
+    }
+    return $sAMAccountName;
+}
 
 =head2 secretsdump
 
@@ -210,11 +249,13 @@ sub secretsdump {
     my $tmpfile = File::Temp->new()->filename;
     my $ntds_file = $tmpfile.".ntds";
 
+    my ($sAMAccountName, $msg) = get_sync_samaccountname($domain, $source);
+    return ($FALSE, $msg) unless($sAMAccountName);
+
     my $result;
     my $success = $FALSE;
-    
+
     foreach my $server (@{$source->{host} // []}) {
-        my ($sAMAccountName) = strip_username($source->{binddn});
         eval {
             my $command = "$SECRETSDUMP_BIN '".pf::domain::escape_bind_user_string($sAMAccountName)."':'".pf::domain::escape_bind_user_string($source->{password})."'@".inet_ntoa(inet_aton($server))." -just-dc-ntlm -output $tmpfile $opts";
             $logger->debug("Executing sync command: $command");
