@@ -647,13 +647,13 @@ build_pf_img_zen_devel:
     - .build_pf_img_zen_job
     - .build_pf_img_zen_devel_rules
   script:
-    - make -e -C ${ZENDIR} zen-devel
+    - make -e -C ${ZENDIR} zen-deb11
 
 build_pf_img_zen_release:
   extends:
     - .build_pf_img_zen_job
   script:
-    - make -e -C ${ZENDIR} zen-release
+    - make -e -C ${ZENDIR} zen-deb11
   # workaround for https://forum.gitlab.com/t/specify-when-at-job-level-with-a-job-that-has-rules/4769
   rules:
     - if: '$CI_COMMIT_TAG'
