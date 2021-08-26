@@ -92,10 +92,12 @@
           :text="$i18n.t('The amount of seconds an entry should be cached. This should be adjusted to twice the value of maintenance.populate_ntlm_redis_cache_interval if using the batch mode.')"
         />
 
+<!-- https://github.com/inverse-inc/packetfence/pull/6340
         <form-group-ntlm-cache-batch namespace="ntlm_cache_batch"
           :column-label="$i18n.t('NTLM cache background job')"
           :text="$i18n.t('When this is enabled, all users matching the LDAP filter will be inserted in the cache via a background job (maintenance.populate_ntlm_redis_cache_interval controls the interval).')"
         />
+-->
 
         <form-group-ntlm-cache-batch-one-at-a-time namespace="ntlm_cache_batch_one_at_a_time"
           :column-label="$i18n.t('NTLM cache background job individual fetch')"
