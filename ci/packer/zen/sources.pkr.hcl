@@ -39,7 +39,7 @@ source "virtualbox-iso" "debian-11" {
   ssh_username = "pf-admin"
   ssh_password = "p@ck3tf3nc3"
   ssh_timeout = "60m"
-  shutdown_command = "sudo poweroff"
+  shutdown_command = "echo 'p@ck3tf3nc3' | sudo -S poweroff"
   # export
   format = "ova"
   output_directory = "${var.output_vbox_directory}"
