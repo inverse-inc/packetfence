@@ -1650,6 +1650,15 @@ Follow instructions related to <<PacketFence_Installation_Guide.asciidoc#_export
 
 Follow instructions related to <<PacketFence_Installation_Guide.asciidoc#_import_on_new_installation,import process>>.
 
+=== NTLM cache background job deprecated
+
+The option `NTLM cache background job` has been deprecated. If you previously
+used it on one of your domains, you should remove it by editing
+[filename]`/usr/local/pf/conf/domain.conf` and set
+`ntlm_cache_batch=disabled`.
+
+IMPORTANT: You could still use `NTLM cache background job individual fetch`
+
 == Archived upgrade notes
 
 include::upgrade-notes/archived_upgrade_notes.asciidoc[]
