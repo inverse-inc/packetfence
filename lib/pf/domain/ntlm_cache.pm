@@ -229,7 +229,7 @@ sub get_sync_samaccountname {
         $sAMAccountName = $result->entry(0)->get_value('sAMAccountName');
 
     } else {
-        $sAMAccountName = strip_username($source->{binddn});
+        ($sAMAccountName) = strip_username($source->{binddn});
     }
     return $sAMAccountName;
 }
