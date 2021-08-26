@@ -112,11 +112,7 @@ import {
 
   FormGroupNtlmCache,
   FormGroupNtlmCacheSource,
-  FormGroupNtlmCacheFilter,
-  FormGroupNtlmCacheExpiry,
-  FormGroupNtlmCacheBatch,
-  FormGroupNtlmCacheBatchOneAtATime,
-  FormGroupNtlmCacheOnConnection
+  FormGroupNtlmCacheExpiry
 } from './'
 
 const components = {
@@ -137,11 +133,7 @@ const components = {
 
   FormGroupNtlmCache,
   FormGroupNtlmCacheSource,
-  FormGroupNtlmCacheFilter,
-  FormGroupNtlmCacheExpiry,
-  FormGroupNtlmCacheBatch,
-  FormGroupNtlmCacheBatchOneAtATime,
-  FormGroupNtlmCacheOnConnection
+  FormGroupNtlmCacheExpiry
 }
 
 export const props = {
