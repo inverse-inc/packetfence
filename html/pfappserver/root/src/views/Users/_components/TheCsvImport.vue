@@ -58,7 +58,7 @@
           </base-csv-import>
         </b-tab>
         <template v-slot:tabs-end>
-          <pf-form-upload @files="files = $event" @focus="tabIndex = $event" :multiple="true" :cumulative="true" accept="text/*, .csv">{{ $t('Open CSV File') }}</pf-form-upload>
+          <base-upload @files="files = $event" @focus="tabIndex = $event" :multiple="true" :cumulative="true" accept="text/*, .csv">{{ $t('Open CSV File') }}</base-upload>
         </template>
         <template v-slot:empty>
           <div class="text-center text-muted">
@@ -85,7 +85,8 @@
 import {
   BaseCsvImport,
   BaseForm,
-  BaseFormGroup
+  BaseFormGroup,
+  BaseUpload
 } from '@/components/new/'
 import {
   InputGroupValidFrom,
@@ -93,20 +94,19 @@ import {
   FormGroupActions,
   FormGroupPasswordOptions
 } from './'
-import pfFormUpload from '@/components/pfFormUpload'
 import ThePreviewModal from './ThePreviewModal'
 
 const components = {
   BaseCsvImport,
   BaseForm,
   BaseFormGroup,
+  BaseUpload,
   InputGroupValidFrom,
   InputGroupExpiration,
   FormGroupActions,
   FormGroupPasswordOptions,
 
-  ThePreviewModal,
-  pfFormUpload
+  ThePreviewModal
 }
 
 import { computed, provide, ref } from '@vue/composition-api'

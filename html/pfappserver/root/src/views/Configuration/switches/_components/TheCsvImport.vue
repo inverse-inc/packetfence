@@ -26,7 +26,7 @@
           />
         </b-tab>
         <template v-slot:tabs-end>
-          <pf-form-upload @files="files = $event" @focus="tabIndex = $event" :multiple="true" :cumulative="true" accept="text/*, .csv">{{ $t('Open CSV File') }}</pf-form-upload>
+          <base-upload @files="files = $event" @focus="tabIndex = $event" :multiple="true" :cumulative="true" accept="text/*, .csv">{{ $t('Open CSV File') }}</base-upload>
         </template>
         <template v-slot:empty>
           <div class="text-center text-muted">
@@ -50,13 +50,13 @@
 
 <script>
 import {
-  BaseCsvImport
+  BaseCsvImport,
+  BaseUpload
 } from '@/components/new/'
-import pfFormUpload from '@/components/pfFormUpload'
 
 const components = {
   BaseCsvImport,
-  pfFormUpload
+  BaseUpload
 }
 
 import { ref } from '@vue/composition-api'
@@ -65,17 +65,17 @@ import { importFields } from '../config'
 const setup = (props, context) => {
 
   const { root: { $router, $store } = {} } = context
-  
+
   const files = ref([])
   const tabIndex = ref(0)
   const isLoading = ref(false)
 
   const onClose = () => $router.push({ name: 'switches' })
-  
+
   const onCloseFile = (index) => {
     const { [index]: { file } = {} } = files.value
     file.close()
-    files.value.splice(index, 1)    
+    files.value.splice(index, 1)
   }
 
   const importPromise = (payload) => {
@@ -85,7 +85,7 @@ const setup = (props, context) => {
         isLoading.value = false
       })
   }
-  
+
   return {
     importFields,
 

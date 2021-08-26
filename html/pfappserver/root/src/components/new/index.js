@@ -66,6 +66,7 @@ import BaseSearchInputLimit from './BaseSearchInputLimit'
 import BaseSearchInputPage from './BaseSearchInputPage'
 import BaseTableEmpty from './BaseTableEmpty'
 import BaseTableSortable from './BaseTableSortable'
+import BaseUpload from './BaseUpload'
 import BaseView from './BaseView'
 
 import { mergeProps, renderHOCWithScopedSlots } from './utils'
@@ -159,6 +160,9 @@ export {
   // tables
   BaseTableEmpty,
   BaseTableSortable,
+
+  // file upload
+  BaseUpload,
 
   // utils
   mergeProps,

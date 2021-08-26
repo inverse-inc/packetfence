@@ -22,10 +22,10 @@
             :import-promise="importPromise"
             hover
             striped
-          />          
+          />
         </b-tab>
         <template v-slot:tabs-end>
-          <pf-form-upload @files="files = $event" @focus="tabIndex = $event" :multiple="true" :cumulative="true" accept="text/*, .csv">{{ $t('Open CSV File') }}</pf-form-upload>
+          <base-upload @files="files = $event" @focus="tabIndex = $event" :multiple="true" :cumulative="true" accept="text/*, .csv">{{ $t('Open CSV File') }}</base-upload>
         </template>
         <template v-slot:empty>
           <div class="text-center text-muted">
@@ -49,28 +49,27 @@
 
 <script>
 import {
-  BaseCsvImport
+  BaseCsvImport,
+  BaseUpload
 } from '@/components/new/'
-import pfFormUpload from '@/components/pfFormUpload'
 
 const components = {
   BaseCsvImport,
- 
-  pfFormUpload
+   BaseUpload
 }
 
 import { ref } from '@vue/composition-api'
 import { importFields } from '../_config/'
 
 const setup = (props, context) => {
-  
+
   const { root: { $store } = {} } = context
 
   const files = ref([])
   const onCloseFile = index => {
     files.value = [ ...files.value.slice(0, index), ...files.value.slice(index + 1, files.value.length) ]
   }
-  
+
   const tabIndex = ref(0)
   const isLoading = ref(false)
 
@@ -90,7 +89,7 @@ const setup = (props, context) => {
     tabIndex,
     isLoading,
     importPromise
-  }    
+  }
 }
 
 // @vue/component
