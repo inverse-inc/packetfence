@@ -96,6 +96,23 @@ sub notify {
     return;
 }
 
+=head2 notify_all
+
+Send to the all available members of the cluster or locally (standalone)
+
+=cut
+
+sub notify_all {
+    my ($self, $method, @args) = @_;
+    if ($cluster_enabled) {
+        $self->cluster_notify_all($method, @args);
+    } else {
+        $self->local_notify($method, @args);
+    }
+    return;
+}
+
+
 =head2 local_notify
 
 Send to the local redis service instead through the webservices
