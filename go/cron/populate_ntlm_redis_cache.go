@@ -2,11 +2,12 @@ package maint
 
 import (
 	"context"
+	"reflect"
+
 	"github.com/inverse-inc/go-utils/log"
 	"github.com/inverse-inc/packetfence/go/cluster"
 	"github.com/inverse-inc/packetfence/go/jsonrpc2"
 	"github.com/inverse-inc/packetfence/go/pfconfigdriver"
-	"reflect"
 )
 
 var CachedNtlmRedisCachedDomains = pfconfigdriver.NewCachedValue(reflect.TypeOf(pfconfigdriver.NtlmRedisCachedDomains{}))
@@ -23,9 +24,10 @@ func NewPopulateNtlmRedisCache(config map[string]interface{}) JobSetupConfig {
 
 func (j *PopulateNtlmRedisCache) Run() {
 	ctx := context.Background()
-	for _, d := range GetCachedNtlmRedisCachedDomains(ctx) {
-		sendQueueJob(ctx, d)
-	}
+	log.LogWarn(ctx, "PopulateNtlmRedisCache has been called but this option has been deprecated. You should disable this job, it will be completely removed in a future release.")
+	//for _, d := range GetCachedNtlmRedisCachedDomains(ctx) {
+	//	sendQueueJob(ctx, d)
+	//}
 }
 
 func GetCachedNtlmRedisCachedDomains(ctx context.Context) []string {

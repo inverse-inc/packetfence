@@ -1659,6 +1659,10 @@ Follow instructions related to <<PacketFence_Installation_Guide.asciidoc#_export
 
 Follow instructions related to <<PacketFence_Installation_Guide.asciidoc#_import_on_new_installation,import process>>.
 
+=== NTLM cache background job deprecated in Active Directory Domains
+
+The option `NTLM cache background job` and its associated parameters have been deprecated. If you previously used this option on one of your domains, it will now automatically use the `NTLM cache on connection` method.
+
 == Archived upgrade notes
 
 include::upgrade-notes/archived_upgrade_notes.asciidoc[]

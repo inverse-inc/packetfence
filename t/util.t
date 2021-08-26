@@ -250,7 +250,7 @@ use Test::More;
 use Test::NoWarnings;
 
 BEGIN {
-    plan tests => 44 +
+    plan tests => 45 +
       ((scalar @NODE_ID_TESTS) * 3) +
       scalar @STRIP_FILENAME_FROM_EXCEPTIONS_TESTS +
       scalar @INVALID_DATES +
@@ -281,6 +281,10 @@ is_deeply("lzammit&turkeycorp", strip_username('lzammit&turkeycorp'),
   'Splitting username with invalid realm separator returns username');
 is_deeply(undef, strip_username(undef),
   'Splitting username undef returns undef');
+
+my @info2 = ("lzammit", "zammitcorp.com");
+is_deeply(\@info2, [strip_username('lzammit@zammitcorp.com')],
+          'Splitting email address with @ works');
 
 # clean_mac
 is(clean_mac("aabbccddeeff"), "aa:bb:cc:dd:ee:ff", "clean MAC address of the form xxxxxxxxxxxx");

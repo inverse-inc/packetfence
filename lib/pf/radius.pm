@@ -988,13 +988,13 @@ sub handleNtlmCaching {
     my $domain = $radius_request->{"PacketFence-Domain"};
     my $usedNtHash = $radius_request->{"PacketFence-NTCacheHash"};
 
-    if($domain && isenabled($ConfigDomain{$domain}{ntlm_cache}) && isenabled($ConfigDomain{$domain}{ntlm_cache_on_connection})) {
+    if($domain && isenabled($ConfigDomain{$domain}{ntlm_cache})) {
         my $radius_username = $radius_request->{'Stripped-User-Name'} || $radius_request->{'User-Name'};
         my $cache_key = "$domain.$radius_username";
         my $username = pf::domain::ntlm_cache::get_from_cache($cache_key);
         if (defined($usedNtHash) && $usedNtHash && defined($username)) {
             my $client = pf::api::queue_cluster->new(queue => "general");
-            $client->cluster_notify_all("update_user_in_redis_cache", $domain, $username);
+            $client->notify_all("update_user_in_redis_cache", $domain, $username);
         }
         else {
             my $client = pf::api::queue->new(queue => "general");

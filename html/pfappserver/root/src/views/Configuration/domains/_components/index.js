@@ -3,7 +3,6 @@ import {
   BaseFormButtonBar,
   BaseFormGroupChosenOne,
   BaseFormGroupInput,
-  BaseFormGroupTextarea,
   BaseFormGroupToggle,
   BaseFormGroupToggleDisabledEnabled
 } from '@/components/new/'
@@ -29,11 +28,7 @@ export {
 
   BaseFormGroupToggleDisabledEnabled  as FormGroupNtlmCache,
   BaseFormGroupChosenOne              as FormGroupNtlmCacheSource,
-  BaseFormGroupTextarea               as FormGroupNtlmCacheFilter,
   BaseFormGroupInput                  as FormGroupNtlmCacheExpiry,
-  BaseFormGroupToggleDisabledEnabled  as FormGroupNtlmCacheBatch,
-  BaseFormGroupToggleDisabledEnabled  as FormGroupNtlmCacheBatchOneAtATime,
-  BaseFormGroupToggleDisabledEnabled  as FormGroupNtlmCacheOnConnection,
 
   TheForm,
   TheView
