@@ -115,9 +115,9 @@
 import { format, subSeconds } from 'date-fns'
 import {
   BaseButtonExportCsv,
-  BaseInputGroupDateTime
+  BaseInputGroupDateTime,
+  BaseTableEmpty
 } from '@/components/new/'
-import pfEmptyTable from '@/components/pfEmptyTable'
 import pfFormToggle from '@/components/pfFormToggle'
 import pfMixinSearchable from '@/components/pfMixinSearchable'
 import pfSearch from '@/components/pfSearch'
@@ -131,7 +131,7 @@ export default {
   components: {
     BaseButtonExportCsv,
     BaseInputGroupDateTime,
-    pfEmptyTable,
+    BaseTableEmpty,
     pfFormToggle,
     pfSearch
   },

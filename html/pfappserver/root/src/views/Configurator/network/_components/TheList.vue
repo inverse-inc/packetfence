@@ -18,7 +18,7 @@
         sort-icon-left
       >
         <template v-slot:empty>
-          <pf-empty-table :is-loading="isLoading">{{ $t('No interfaces found') }}</pf-empty-table>
+          <base-table-empty :is-loading="isLoading">{{ $t('No interfaces found') }}</base-table-empty>
         </template>
         <template v-slot:cell(is_running)="{ item }">
           <toggle-status :value="item.is_running"
@@ -113,9 +113,9 @@ import {
   BaseButtonSave,
   BaseForm,
   BaseFormGroupChosenMultiple,
-  BaseFormGroupInput
+  BaseFormGroupInput,
+  BaseTableEmpty
 } from '@/components/new/'
-import pfEmptyTable from '@/components/pfEmptyTable'
 import { ToggleStatus } from '@/views/Configuration/networks/interfaces/_components/'
 
 const components = {
@@ -126,7 +126,7 @@ const components = {
   FormGroupGateway:    BaseFormGroupInput,
   FormGroupHostname:   BaseFormGroupInput,
   FormGroupDnsServers: BaseFormGroupChosenMultiple,
-  pfEmptyTable,
+  BaseTableEmpty,
   ToggleStatus
 }
 

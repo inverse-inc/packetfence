@@ -29,7 +29,7 @@
       <b-table :items="items" :fields="visibleColumns" :sort-by="sortBy" :sort-desc="sortDesc" :sort-compare="sortCompare"
         @sort-changed="onSortingChanged" show-empty responsive hover sort-icon-left striped v-model="tableValues">
         <template v-slot:empty>
-          <pf-empty-table :is-loading="isLoading">{{ $t('No data found') }}</pf-empty-table>
+          <base-table-empty :is-loading="isLoading">{{ $t('No data found') }}</base-table-empty>
         </template>
         <template v-slot:cell(callingstationid)="item">
           <template v-if="item && item.value !== 'Total'">
@@ -69,18 +69,21 @@
 </template>
 
 <script>
+import {
+  BaseTableEmpty
+} from '@/components/new/'
+import pfReportChart from '@/components/pfReportChart'
+
 import apiCall from '@/utils/api'
-import pfEmptyTable from '@/components/pfEmptyTable'
 import {
   pfReportColumns as reportColumns,
   pfReportCategories as reportCategories
 } from '@/globals/pfReports'
-import pfReportChart from '@/components/pfReportChart'
 
 export default {
   name: 'standard-report-chart',
   components: {
-    pfEmptyTable,
+    BaseTableEmpty,
     pfReportChart
   },
   props: {

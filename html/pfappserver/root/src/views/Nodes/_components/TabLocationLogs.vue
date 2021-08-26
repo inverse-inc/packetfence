@@ -16,7 +16,7 @@
         {{ location.item.connection_type }} {{ connectionSubType(location.item.connection_sub_type) }}
       </template>
       <template v-slot:empty>
-        <pf-empty-table :is-loading="isLoading" text="">{{ $t('No location logs found') }}</pf-empty-table>
+        <base-table-empty :is-loading="isLoading" text="">{{ $t('No location logs found') }}</base-table-empty>
       </template>
     </b-table>
     <div class="mt-3">
@@ -42,10 +42,12 @@
   </b-tab>
 </template>
 <script>
-import pfEmptyTable from '@/components/pfEmptyTable'
+import {
+  BaseTableEmpty
+} from '@/components/new/'
 
 const components = {
-  pfEmptyTable
+  BaseTableEmpty
 }
 
 const props = {

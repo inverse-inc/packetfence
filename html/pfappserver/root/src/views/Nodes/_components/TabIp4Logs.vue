@@ -6,16 +6,18 @@
     <b-table v-if="node && node.ip4"
       :items="node.ip4.history" :fields="ipLogFields" :sort-by="iplogSortBy" :sort-desc="iplogSortDesc" responsive show-empty sort-icon-left striped>
       <template v-slot:empty>
-        <pf-empty-table :is-loading="isLoading" text="">{{ $t('No IPv4 addresses found') }}</pf-empty-table>
+        <base-table-empty :is-loading="isLoading" text="">{{ $t('No IPv4 addresses found') }}</base-table-empty>
       </template>
     </b-table>
   </b-tab>
 </template>
 <script>
-import pfEmptyTable from '@/components/pfEmptyTable'
+import {
+  BaseTableEmpty
+} from '@/components/new/'
 
 const components = {
-  pfEmptyTable
+  BaseTableEmpty
 }
 
 const props = {

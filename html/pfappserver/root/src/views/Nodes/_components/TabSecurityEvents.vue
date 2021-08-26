@@ -21,7 +21,7 @@
         <b-button v-if="security_event.item.status === 'open'" size="sm" variant="outline-secondary" @click="onRelease(security_event.item.id)">{{ $t('Release') }}</b-button>
       </template>
       <template v-slot:empty>
-        <pf-empty-table :is-loading="isLoading" text="">{{ $t('No security events found') }}</pf-empty-table>
+        <base-table-empty :is-loading="isLoading" text="">{{ $t('No security events found') }}</base-table-empty>
       </template>
     </b-table>
     <div class="mt-3" v-if="securityEventsOptions.length > 0">
@@ -38,12 +38,14 @@
   </b-tab>
 </template>
 <script>
-import pfEmptyTable from '@/components/pfEmptyTable'
+import {
+  BaseTableEmpty
+} from '@/components/new/'
 import { FormSecurityEvents } from './'
 
 const components = {
-  FormSecurityEvents,
-  pfEmptyTable
+  BaseTableEmpty,
+  FormSecurityEvents
 }
 
 const props = {
