@@ -345,7 +345,7 @@ sub insert_user_in_redis_cache {
     my ($domain, $user, $nthash) = @_;
     my $logger = get_logger;
     my $client = pf::api::queue_cluster->new(queue => "general");
-    $client->cluster_notify_all("insert_user_in_redis_cache", $domain, $user, $nthash);
+    $client->notify_all("insert_user_in_redis_cache", $domain, $user, $nthash);
 }
 
 =head2 get_from_cache
