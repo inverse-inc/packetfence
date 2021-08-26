@@ -110,7 +110,9 @@ const setup = (props, context) => {
       return
     }
     $store.dispatch('config/getBaseGeneral').then(general => {
-      emailSubject.value = `${general.domain}: Guest account creation information`
+      emailSubject.value = (general.domain)
+        ? `${general.domain}: Guest account creation information`
+        : `Guest account creation information`
     })
     $store.dispatch('config/getBaseAlerting').then(alerting => {
       if (alerting.fromaddr) {
