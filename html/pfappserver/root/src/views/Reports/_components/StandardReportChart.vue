@@ -13,7 +13,7 @@
       </b-tab>
     </b-tabs>
 
-    <pf-report-chart v-if="report.chart"
+    <base-report-chart v-if="report.chart"
       :report="report"
       :range="range"
       :items="items"
@@ -72,7 +72,7 @@
 import {
   BaseTableEmpty
 } from '@/components/new/'
-import pfReportChart from '@/components/pfReportChart'
+import BaseReportChart from './BaseReportChart'
 
 import apiCall from '@/utils/api'
 import {
@@ -83,8 +83,8 @@ import {
 export default {
   name: 'standard-report-chart',
   components: {
-    BaseTableEmpty,
-    pfReportChart
+    BaseReportChart,
+    BaseTableEmpty
   },
   props: {
     path: String // from router
