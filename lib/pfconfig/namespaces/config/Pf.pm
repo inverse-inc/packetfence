@@ -215,19 +215,21 @@ sub isSelfSigned {
 
     my $pemcert = "";
 
+    my $has_self_signed = 0;
+    my $cert_count = 0;
     while (my $row = <$BUNDLE>) {
         $pemcert .= $row;
         if($row =~ /^\-+END(\s\w+)?\sCERTIFICATE\-+$/) {
             my $cert = Crypt::OpenSSL::X509->new_from_string($pemcert);
             if ($cert->is_selfsigned) {
-                close $BUNDLE;
-                return $TRUE;
+                $has_self_signed = 1;
             }
             $pemcert = "";
+	    $cert_count ++;
         }
     }
     close $BUNDLE;
-    return $FALSE;
+    return $has_self_signed && $cert_count == 1;
 }
 
 =head1 AUTHOR
