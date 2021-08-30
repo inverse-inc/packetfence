@@ -80,8 +80,8 @@ for db in $UPGRADED_DB $PRISTINE_DB;do
 done
 
 #Ignore sort of indexes but ensure sort order of columns
-if [ -n "$(diff -w <(sort "${PRISTINE_DB}.dump" | perl -pi -e's/,$//')  <(sort "${UPGRADED_DB}.dump" | perl -pi -e's/,$//'))" ] ||
-    [ -n "$(diff -w <(perl -pi -e's/^\s*(KEY|CONSTRAINT).*$//' < "${PRISTINE_DB}.dump")   <(perl -pi -e's/^\s*(KEY|CONSTRAINT).*$//' <  "${UPGRADED_DB}.dump"))" ];then
+if [ -n "$(diff -w <(sort "${PRISTINE_DB}.dump" | perl -p -e's/,$//')  <(sort "${UPGRADED_DB}.dump" | perl -p -e's/,$//'))" ] ||
+    [ -n "$(diff -w <(perl -p -e's/^\s*(KEY|CONSTRAINT).*$//' < "${PRISTINE_DB}.dump")   <(perl -p -e's/^\s*(KEY|CONSTRAINT).*$//' <  "${UPGRADED_DB}.dump"))" ];then
     diff -uw "${PRISTINE_DB}.dump" "${UPGRADED_DB}.dump" > "${UPGRADED_DB}.diff"
     echo "${RED_COLOR}Upgrade did not create the same db"
     echo "Please look at ${UPGRADED_DB}.diff for the differences"
