@@ -1,4 +1,5 @@
 ---
+rc_local_service_name: rc-local
 rc_local_commands:
   - |
     echo "Welcome to the PacketFence-ZEN." >> /etc/issue

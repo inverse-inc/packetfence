@@ -4,4 +4,4 @@
   gather_facts: True
 
   roles:
-    - rc_local
+    - oefenweb.rc_local
