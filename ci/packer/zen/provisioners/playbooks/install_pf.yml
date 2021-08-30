@@ -12,23 +12,3 @@
 
     - role: packetfence_install
       tags: install
-
-  tasks:
-    - name: add in grub config
-      file:
-        path: /etc/default/grub.d
-        state: directory
-
-    - name: add in grub config
-      file:
-        path: /etc/default/grub.d/original-interface-name.cfg
-        state: touch
-
-    - name: Ensure Interface is set to default
-      ansible.builtin.lineinfile:
-        path: /etc/default/grub.d/original-interface-name.cfg
-        regexp: '^GRUB_CMDLINE_LINUX_DEFAULT='
-        line: GRUB_CMDLINE_LINUX_DEFAULT="$GRUB_CMDLINE_LINUX_DEFAULT net.ifnames=0"
-
-    - name: Update grub
-      ansible.builtin.shell: update-grub
