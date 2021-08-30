@@ -1608,12 +1608,8 @@ CREATE PROCEDURE `bandwidth_aggregation` (
 )
 BEGIN
 
-    DROP TABLE IF EXISTS to_delete;
     SET @end_bucket= p_end_bucket, @batch = p_batch;
-    SET @create_table_to_delete_stmt = CONCAT('CREATE TEMPORARY TABLE to_delete ENGINE=MEMORY, MAX_ROWS=', @batch, ' SELECT node_id, tenant_id, mac, time_bucket as new_time_bucket, time_bucket, unique_session_id, in_bytes, out_bytes, last_updated FROM bandwidth_accounting LIMIT 0');
-    PREPARE create_table_to_delete FROM @create_table_to_delete_stmt;
-    EXECUTE create_table_to_delete;
-    DEALLOCATE PREPARE create_table_to_delete;
+    CREATE OR REPLACE TEMPORARY TABLE to_delete SELECT node_id, tenant_id, mac, time_bucket as new_time_bucket, time_bucket, unique_session_id, in_bytes, out_bytes, last_updated FROM bandwidth_accounting LIMIT 0;
     SET @date_rounding = CASE WHEN p_bucket_size = 'monthly' THEN 'ROUND_TO_MONTH' WHEN p_bucket_size = 'daily' THEN 'DATE' ELSE 'ROUND_TO_HOUR' END;
     SET @insert_into_to_delete_stmt = CONCAT('INSERT INTO to_delete SELECT node_id, tenant_id, mac, ',@date_rounding,'(time_bucket) as new_time_bucket, time_bucket, unique_session_id, in_bytes, out_bytes, last_updated FROM bandwidth_accounting FORCE INDEX (bandwidth_source_type_time_bucket) WHERE time_bucket <= ? AND source_type = "radius" AND time_bucket != ',@date_rounding,'(time_bucket) ORDER BY time_bucket DESC LIMIT ?');
     PREPARE insert_into_to_delete FROM @insert_into_to_delete_stmt;
@@ -1652,7 +1648,7 @@ BEGIN
     END IF;
     COMMIT;
 
-    DROP TABLE to_delete;
+    DROP TEMPORARY TABLE IF EXISTS to_delete;
     DEALLOCATE PREPARE insert_into_to_delete;
     SELECT @count AS aggreated;
 END /
@@ -1667,8 +1663,7 @@ CREATE PROCEDURE `process_bandwidth_accounting_netflow` (
 BEGIN
     SET @batch = p_batch;
     SET @end_bucket = p_end_bucket;
-    DROP TABLE IF EXISTS to_process;
-    CREATE TEMPORARY TABLE to_process ENGINE=MEMORY SELECT node_id, tenant_id, mac, time_bucket, time_bucket as new_time_bucket, unique_session_id, in_bytes, out_bytes, total_bytes FROM bandwidth_accounting LIMIT 0;
+    CREATE OR REPLACE TEMPORARY TABLE to_process SELECT node_id, tenant_id, mac, time_bucket, time_bucket as new_time_bucket, unique_session_id, in_bytes, out_bytes, total_bytes FROM bandwidth_accounting LIMIT 0;
     START TRANSACTION;
     PREPARE insert_into_to_process FROM 'INSERT to_process SELECT node_id, tenant_id, mac, time_bucket, ROUND_TO_HOUR(time_bucket) as new_time_bucket, unique_session_id, in_bytes, out_bytes, total_bytes FROM bandwidth_accounting WHERE source_type = "net_flow" AND time_bucket < ? LIMIT ?';
     EXECUTE insert_into_to_process USING @end_bucket, @batch;
@@ -1707,7 +1702,7 @@ BEGIN
     END IF;
     COMMIT;
 
-    DROP TABLE to_process;
+    DROP TEMPORARY TABLE IF EXISTS to_process;
     SELECT @count as count;
 END/
 
@@ -1722,12 +1717,10 @@ CREATE PROCEDURE `bandwidth_accounting_radius_to_history` (
 BEGIN
     SET @batch = p_batch;
     SET @end_bucket = p_end_bucket;
-    DROP TABLE IF EXISTS to_delete;
-    CREATE TEMPORARY TABLE to_delete ENGINE=MEMORY SELECT node_id, tenant_id, mac, time_bucket, time_bucket as new_time_bucket, unique_session_id, in_bytes, out_bytes, total_bytes FROM bandwidth_accounting LIMIT 0;
-    START TRANSACTION;
+    CREATE OR REPLACE TEMPORARY TABLE to_delete SELECT node_id, tenant_id, mac, time_bucket, time_bucket as new_time_bucket, unique_session_id, in_bytes, out_bytes, total_bytes FROM bandwidth_accounting LIMIT 0;
     PREPARE insert_into_to_delete FROM 'INSERT to_delete SELECT node_id, tenant_id, mac, time_bucket, ROUND_TO_HOUR(time_bucket) as new_time_bucket, unique_session_id, in_bytes, out_bytes, total_bytes FROM bandwidth_accounting WHERE source_type = "radius" AND time_bucket < ? AND last_updated = "0000-00-00 00:00:00" LIMIT ?';
+    START TRANSACTION;
     EXECUTE insert_into_to_delete USING @end_bucket, @batch;
-    DEALLOCATE PREPARE insert_into_to_delete;
     SELECT COUNT(*) INTO @count FROM to_delete;
     IF @count > 0 THEN
 
@@ -1757,7 +1750,8 @@ BEGIN
     END IF;
     COMMIT;
 
-    DROP TABLE to_delete;
+    DEALLOCATE PREPARE insert_into_to_delete;
+    DROP TEMPORARY TABLE IF EXISTS to_delete;
     SELECT @count as count;
 END/
 
@@ -1772,18 +1766,14 @@ CREATE PROCEDURE `bandwidth_aggregation_history` (
 )
 BEGIN
 
-    DROP TABLE IF EXISTS to_delete;
     SET @end_bucket= p_end_bucket, @batch = p_batch;
-    SET @create_table_to_delete_stmt = CONCAT('CREATE TEMPORARY TABLE to_delete ENGINE=MEMORY, MAX_ROWS=', @batch, ' SELECT node_id, tenant_id, mac, time_bucket as new_time_bucket, time_bucket, in_bytes, out_bytes FROM bandwidth_accounting_history LIMIT 0');
-    PREPARE create_table_to_delete FROM @create_table_to_delete_stmt;
-    EXECUTE create_table_to_delete;
-    DEALLOCATE PREPARE create_table_to_delete;
+    CREATE OR REPLACE TEMPORARY TABLE to_delete SELECT node_id, tenant_id, mac, time_bucket as new_time_bucket, time_bucket, in_bytes, out_bytes FROM bandwidth_accounting_history LIMIT 0;
     SET @date_rounding = CASE WHEN p_bucket_size = 'monthly' THEN 'ROUND_TO_MONTH' WHEN p_bucket_size = 'daily' THEN 'DATE' ELSE 'ROUND_TO_HOUR' END;
     SET @insert_into_to_delete_stmt = CONCAT('INSERT INTO to_delete SELECT node_id, tenant_id, mac, ', @date_rounding,'(time_bucket) as new_time_bucket, time_bucket, in_bytes, out_bytes FROM bandwidth_accounting_history WHERE time_bucket <= ? AND time_bucket != ', @date_rounding, '(time_bucket) LIMIT ?');
     PREPARE insert_into_to_delete FROM @insert_into_to_delete_stmt;
 
     START TRANSACTION;
-    EXECUTE insert_into_to_delete using @end_bucket, @batch;
+    EXECUTE insert_into_to_delete USING @end_bucket, @batch;
     SELECT COUNT(*) INTO @count FROM to_delete;
     IF @count > 0 THEN
         INSERT INTO bandwidth_accounting_history
@@ -1810,8 +1800,8 @@ BEGIN
     END IF;
     COMMIT;
 
-    DROP TABLE to_delete;
     DEALLOCATE PREPARE insert_into_to_delete;
+    DROP TEMPORARY TABLE IF EXISTS to_delete;
     SELECT @count AS aggreated;
 END /
 DELIMITER ;
