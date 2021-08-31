@@ -36,7 +36,7 @@ source "virtualbox-iso" "debian-11" {
   ]
   boot_wait = "5s"
   http_directory = "files"
-  ssh_username = "pf-admin"
+  ssh_username = "root"
   ssh_password = "p@ck3tf3nc3"
   ssh_timeout = "60m"
   shutdown_command = "echo 'p@ck3tf3nc3' | sudo -S poweroff"
