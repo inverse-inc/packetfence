@@ -26,19 +26,35 @@ The ZEN (Zero Effort NAC) edition of PacketFence allows you to rapidly get Packe
 
 ==== Virtual Machine
 
-This setup has been tested using VMware ESXi, Fusion and Workstation products with 12 GB of RAM dedicated to the virtual machine. It might work using other VMware products.  To properly run the PacketFence virtual appliance, you need a CPU that supports long mode. In other words, you need to have a 64-bit capable CPU on your host. PacketFence ZEN comes in a pre-built virtual disk (OVF). If you are using an ESX type hypervisor, you need to import the OVF using vSphere Client (or vCenter).
+This setup has been tested using VMware ESXi, Fusion and Workstation products
+with 12 GB of RAM dedicated to the virtual machine. It might work using other
+VMware products.  To properly run the PacketFence virtual appliance, you need
+a CPU that supports long mode. In other words, you need to have a 64-bit
+capable CPU on your host. PacketFence ZEN comes in a pre-built virtual disk
+(OVF). If you are using an ESX type hypervisor, you need to import the OVF
+using vSphere Client (or vCenter).
+
+First network card of virtual machine is configured to receive an IP through DHCP.
 
 The virtual appliance passwords are:
 
-.Management (SSH/Console):
+.Management (SSH/Console) admin user
+* Login: pf-admin
+* Password: p@ck3tf3nc3
+
+.Management (Console) root user
 * Login: root
 * Password: p@ck3tf3nc3
 
-.Captive Portal / 802.1X Registration User
-* Login: demouser
-* Password: demouser
+WARNING: Be sure to change default passwords if you plan to use this image in production.
 
-First network card of virtual machine is configured to receive an IP through DHCP.
+`root` user is not allowed to connect using SSH and password. You need to first login as `pf-admin` then switch to root using `sudo -s`.
+
+If you want to test captive portal features, you can create a local account using _Users -> Create_ menu with following parameters:
+
+* Registration (end date): 2038-01-01
+* Access duration: 1D
+* Role: default
 
 ==== Import to ESX
 

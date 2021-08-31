@@ -136,11 +136,13 @@ variables:
   rules:
     - if: '$CI_PIPELINE_SOURCE == "schedule" && ( $TEST == "yes" || $CI_COMMIT_MESSAGE =~ /test=yes/ )'
 
-# run this job on devel branch with build_pf_img_zen variable defined or build_pf_img_zen=yes in commit message
-# ZEN build is not configured to run on branches
+# run this job on:
+# - devel branch with BUILD_PF_IMG_ZEN variable defined or build_pf_img_zen=yes in commit message
+# - all branches, except maintenance/X.Y and devel (web) if variable BUILD_PF_IMG_ZEN sets to yes or if CI_COMMIT_MESSAGE contains "build_pf_img_zen=yes".
 .build_pf_img_zen_devel_rules:
   rules:
     - if: '$CI_COMMIT_REF_NAME == "devel" && ( $BUILD_PF_IMG_ZEN == "yes" || $CI_COMMIT_MESSAGE =~ /build_pf_img_zen=yes/ )'
+    - if: '$CI_COMMIT_REF_NAME != "devel" && $CI_COMMIT_REF_NAME !~ /^maintenance\/[[:digit:]]+\.[[:digit:]]+$/ && $CI_COMMIT_TAG == null && $CI_PIPELINE_SOURCE == "web" && ( $BUILD_PF_IMG_ZEN == "yes" || $CI_COMMIT_MESSAGE =~ /build_pf_img_zen=yes/ )'
 
 ########################################    
 # JOBS
@@ -645,13 +647,13 @@ build_pf_img_zen_devel:
     - .build_pf_img_zen_job
     - .build_pf_img_zen_devel_rules
   script:
-    - make -e -C ${ZENDIR} zen-devel
+    - make -e -C ${ZENDIR} zen-deb11
 
 build_pf_img_zen_release:
   extends:
     - .build_pf_img_zen_job
   script:
-    - make -e -C ${ZENDIR} zen-release
+    - make -e -C ${ZENDIR} zen-deb11
   # workaround for https://forum.gitlab.com/t/specify-when-at-job-level-with-a-job-that-has-rules/4769
   rules:
     - if: '$CI_COMMIT_TAG'

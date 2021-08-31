@@ -1,0 +1,7 @@
+- hosts: pfservers
+  name: Set /etc/rc.local on hosts
+  become: True
+  gather_facts: True
+
+  roles:
+    - oefenweb.rc_local
