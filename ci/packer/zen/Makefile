@@ -13,7 +13,7 @@ ANSIBLE_FORCE_COLOR=1
 PF_VERSION=$(CI_COMMIT_REF_NAME)
 VM_NAME=$(PKR_VAR_vm_name)
 RESULT_DIR=results
-PKR_ON_ERROR=cleanup
+PKR_ON_ERROR=ask
 
 #==============================================================================
 # Targets

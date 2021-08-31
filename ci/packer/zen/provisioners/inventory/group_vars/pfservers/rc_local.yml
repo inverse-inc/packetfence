@@ -2,6 +2,7 @@
 rc_local_service_name: rc-local
 rc_local_commands:
   - |
+    echo "" > /etc/issue
     echo "Welcome to the PacketFence-ZEN." >> /etc/issue
     echo "" >> /etc/issue
     echo "In order to configure your PacketFence installation, please connect to one of the following URLs:" >> /etc/issue
