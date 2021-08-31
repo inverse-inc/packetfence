@@ -23,14 +23,9 @@
     - name: Update grub
       ansible.builtin.shell: update-grub
 
-    - name: add in eth0 file
-      file:
-        path: /etc/network/interfaces.d/eth0.conf
-        state: touch
-
-    - name: add content in eth0 config file
+    - name: add settings for eth0 in interfaces
       blockinfile:
-       path: /etc/network/interfaces.d/eth0.conf
+       path: /etc/network/interfaces
        block: |
          auto eth0
          allow-hotplug eth0
