@@ -88,12 +88,12 @@ func NewIntuneCloud(ctx context.Context, name string) (Cloud, error) {
 
 	Cloud := &Intune{}
 	Cloud.CloudName = name
-	Cloud.NewCloud(ctx, name)
+	err := Cloud.NewCloud(ctx, name)
 
-	return Cloud, nil
+	return Cloud, err
 }
 
-func (cl *Intune) NewCloud(ctx context.Context, name string) {
+func (cl *Intune) NewCloud(ctx context.Context, name string) error {
 
 	var cloud pfconfigdriver.Cloud
 	pfconfigdriver.FetchDecodeSocket(ctx, &cloud)
@@ -173,6 +173,17 @@ func (cl *Intune) NewCloud(ctx context.Context, name string) {
 	apiEndpoint := &APIEndPoint{}
 
 	for k, v := range Data.(map[string]interface{}) {
+		if k == "odata.error" {
+			for m, n := range v.(map[string]interface{}) {
+				if m == "message" {
+					for a, b := range n.(map[string]interface{}) {
+						if a == "value" {
+							return errors.New(b.(string))
+						}
+					}
+				}
+			}
+		}
 		if k == "value" {
 			for _, n := range v.([]interface{}) {
 				for a, b := range n.(map[string]interface{}) {
@@ -193,6 +204,7 @@ func (cl *Intune) NewCloud(ctx context.Context, name string) {
 		}
 	}
 	cl.Endpoint = apiEndpoint
+	return nil
 }
 
 func (cl *Intune) ValidateRequest(ctx context.Context, data []byte) error {

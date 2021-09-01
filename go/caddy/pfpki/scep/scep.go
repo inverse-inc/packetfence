@@ -47,11 +47,11 @@ func ScepHandler(pfpki *types.Handler, w http.ResponseWriter, r *http.Request) {
 		crts, key, err := o.CA(nil, profileName)
 		if err != nil {
 			lginfo.Log("err", err)
-			os.Exit(1)
+			return
 		}
 		if len(crts) < 1 {
 			lginfo.Log("err", "missing CA certificate")
-			os.Exit(1)
+			return
 		}
 
 		prof, _ := o.FindSCEPProfile([]string{vars["id"]})
@@ -60,8 +60,9 @@ func ScepHandler(pfpki *types.Handler, w http.ResponseWriter, r *http.Request) {
 			vcloud, err = cloud.Create(*pfpki.Ctx, "intune", prof[0].CloudService)
 			o.Cloud = vcloud
 			if err != nil {
-				lginfo.Log("err", "Enable to create CLoud service")
-				os.Exit(1)
+				lginfo.Log("err", "Enable to create Cloud service")
+				lginfo.Log("err", err.Error())
+				return
 			}
 		}
 		var signer scepserver.CSRSigner = scepdepot.NewSigner(
@@ -82,7 +83,7 @@ func ScepHandler(pfpki *types.Handler, w http.ResponseWriter, r *http.Request) {
 		svc, err = scepserver.NewService(crts[0], key, signer, scepserver.WithLogger(logger))
 		if err != nil {
 			lginfo.Log("err", err)
-			os.Exit(1)
+			return
 		}
 		svc = scepserver.NewLoggingService(kitlog.With(lginfo, "component", "scep_service"), svc)
 	}
