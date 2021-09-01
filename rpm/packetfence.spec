@@ -280,6 +280,8 @@ Requires: openvas-libraries
 # pki
 Requires: perl(Crypt::SMIME)
 
+# Language packs
+Requires: langpacks-fr, langpacks-es, langpacks-de, langpacks-he, langpacks-it, langpacks-nb, langpacks-nl, langpacks-pl, langpacks-pt
 
 #Requires: perl(Sereal::Encoder), perl(Sereal::Decoder), perl(Data::Serializer::Sereal) >= 1.04
 #
