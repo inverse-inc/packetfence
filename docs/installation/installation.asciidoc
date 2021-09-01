@@ -24,6 +24,8 @@ This section will guide you through the installation of PacketFence from the Zer
 
 The ZEN (Zero Effort NAC) edition of PacketFence allows you to rapidly get PacketFence running in your network environment. It consists of a fully installed and preconfigured version of PacketFence distributed as a virtual appliance. It can be deployed on VMware ESX/ESXi, Microsoft Hyper-V and other products. This section covers the deployment of the virtual appliance on VMware-based products. We are not supporting any Xen-based hypervisors yet.
 
+You can download the ZEN here: https://www.packetfence.org/download.html#/zen
+
 ==== Virtual Machine
 
 This setup has been tested using VMware ESXi, Fusion and Workstation products
@@ -38,23 +40,11 @@ First network card of virtual machine is configured to receive an IP through DHC
 
 The virtual appliance passwords are:
 
-.Management (SSH/Console) admin user
-* Login: pf-admin
-* Password: p@ck3tf3nc3
-
-.Management (Console) root user
+.Management (Console/SSH) user
 * Login: root
 * Password: p@ck3tf3nc3
 
 WARNING: Be sure to change default passwords if you plan to use this image in production.
-
-`root` user is not allowed to connect using SSH and password. You need to first login as `pf-admin` then switch to root using `sudo -s`.
-
-If you want to test captive portal features, you can create a local account using _Users -> Create_ menu with following parameters:
-
-* Registration (end date): 2038-01-01
-* Access duration: 1D
-* Role: default
 
 ==== Import to ESX
 
@@ -62,7 +52,7 @@ Make sure that there is only one virtual network card created, and also make sur
 
 ==== Import to VMware Player/Workstation for Linux
 
-Newer version of VMware Player handles the VLAN trunking a lot better.  Having that said, we can use a single interface on the VM.  So, you need to ensure that your VM host is plugged into a physical trunk port with VLAN 1,2,3,5,10 and 200 as the allowed VLAN. These VLANs will be used later in configuration examples.
+Newer versions of VMware Player handle VLAN trunking a lot better. With that in mind,  we can use a single interface on the VM.  So, you need to ensure that your VM host is plugged into a physical trunk port with VLAN 1,2,3,5,10 and 200 as the allowed VLAN. These VLANs will be used later in configuration examples.
 
 
 === Installing PacketFence on existing Linux
