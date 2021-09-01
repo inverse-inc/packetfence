@@ -58,7 +58,7 @@ sub parseArgs {
 sub _run {
     my ($self) = @_;
     $self->{provisioner}->importDevices();
-    print "Finished imported devices\n";
+    print "Import process complete.\n";
     return $EXIT_SUCCESS;
 }
 
