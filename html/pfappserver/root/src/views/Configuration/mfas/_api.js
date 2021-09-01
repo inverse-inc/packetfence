@@ -1,37 +1,43 @@
 import apiCall from '@/utils/api'
 
 export default {
-  mfas: params => {
+  list: params => {
     return apiCall.get('config/mfas', { params }).then(response => {
       return response.data
     })
   },
-  mfasOptions: mfaType => {
+  listOptions: mfaType => {
     return apiCall.options(['config', 'mfas'], { params: { type: mfaType } }).then(response => {
       return response.data
     })
   },
-  mfa: id => {
-    return apiCall.get(['config', 'mfa', id]).then(response => {
-      return response.data.item
-    })
-  },
-  mfaOptions: id => {
-    return apiCall.options(['config', 'mfa', id]).then(response => {
+  search: data => {
+    return apiCall.post('config/mfas/search', data).then(response => {
       return response.data
     })
   },
-  createMfa: data => {
+  create: data => {
     return apiCall.post('config/mfas', data).then(response => {
       return response.data
     })
   },
-  updateMfa: data => {
+
+  item: id => {
+    return apiCall.get(['config', 'mfa', id]).then(response => {
+      return response.data.item
+    })
+  },
+  itemOptions: id => {
+    return apiCall.options(['config', 'mfa', id]).then(response => {
+      return response.data
+    })
+  },
+  update: data => {
     return apiCall.patch(['config', 'mfa', data.id], data).then(response => {
       return response.data
     })
   },
-  deleteMfa: id => {
+  delete: id => {
     return apiCall.delete(['config', 'mfa', id])
   }
 }

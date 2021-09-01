@@ -12,14 +12,14 @@ export const useItemProps = {
 }
 
 import { useDefaultsFromMeta } from '@/composables/useMeta'
-const useItemDefaults = (meta, props) => {
+export const useItemDefaults = (meta, props) => {
   const {
     mfaType
   } = toRefs(props)
   return { ...useDefaultsFromMeta(meta), type: mfaType.value }
 }
 
-const useItemTitle = (props) => {
+export const useItemTitle = (props) => {
   const {
     id,
     isClone,
@@ -28,70 +28,74 @@ const useItemTitle = (props) => {
   return computed(() => {
     switch (true) {
       case !isNew.value && !isClone.value:
-        return i18n.t('MFA Service <code>{id}</code>', { id: id.value })
+        return i18n.t('Multi-Factor Authentication <code>{id}</code>', { id: id.value })
       case isClone.value:
-        return i18n.t('Clone MFA Service <code>{id}</code>', { id: id.value })
+        return i18n.t('Clone Multi Factor Authentication <code>{id}</code>', { id: id.value })
       default:
-        return i18n.t('New MFA Service')
+        return i18n.t('New Multi Factor Authentication')
     }
   })
 }
 
-const useItemTitleBadge = (props, context, form) => {
+export const useItemTitleBadge = (props, context, form) => {
   const {
     mfaType
   } = toRefs(props)
-  return computed(() => (mfaType.value || form.value.type))
+  return computed(() => {
+    const type = mfaType.value || form.value.type
+    return types[type]
+  })
 }
 
-const useRouter = (props, context, form) => {
-  const {
-    id
-  } = toRefs(props)
-  const { root: { $router } = {} } = context
-  return {
-    goToCollection: () => $router.push({ name: 'mfas' }),
-    goToItem: (item = form.value || {}) => $router
-      .push({ name: 'mfa', params: { id: item.id } })
-      .catch(e => { if (e.name !== "NavigationDuplicated") throw e }),
-    goToClone: () => $router.push({ name: 'cloneMfa', params: { id: id.value } }),
-  }
-}
+export { useRouter } from '../_router'
 
-const useStore = (props, context, form) => {
-  const {
-    id,
-    isClone,
-    isNew,
-    mfaType
-  } = toRefs(props)
-  const { root: { $store } = {} } = context
-  return {
-    isLoading: computed(() => $store.getters['$_mfas/isLoading']),
-    getOptions: () => {
-      if (isNew.value)
-        return $store.dispatch('$_mfas/optionsByMfaType', mfaType.value)
-      else
-        return $store.dispatch('$_mfas/optionsById', id.value)
+export { useStore } from '../_store'
+
+import { pfSearchConditionType as conditionType } from '@/globals/pfSearch'
+import makeSearch from '@/store/factory/search'
+import api from '../_api'
+export const useSearch = makeSearch('mfas', {
+  api,
+  columns: [
+    {
+      key: 'selected',
+      thStyle: 'width: 40px;', tdClass: 'text-center',
+      locked: true
     },
-    createItem: () => $store.dispatch('$_mfas/createMfa', form.value),
-    deleteItem: () => $store.dispatch('$_mfas/deleteMfa', id.value),
-    getItem: () => $store.dispatch('$_mfas/getMfa', id.value).then(item => {
-      if (isClone.value) {
-        item.id = `${item.id}-${i18n.t('copy')}`
-        item.not_deletable = false
-      }
-      return item
-    }),
-    updateItem: () => $store.dispatch('$_mfas/updateMfa', form.value),
-  }
-}
-
-export default {
-  useItemDefaults,
-  useItemProps,
-  useItemTitle,
-  useItemTitleBadge,
-  useRouter,
-  useStore,
-}
+    {
+      key: 'id',
+      label: 'Hostname or IP', // i18n defer
+      required: true,
+      searchable: true,
+      sortable: true,
+      visible: true
+    },
+    {
+      key: 'type',
+      label: 'Type', // i18n defer
+      required: true,
+      searchable: true,
+      sortable: true,
+      visible: true,
+      formatter: value => types[value]
+    },
+    {
+      key: 'buttons',
+      class: 'text-right p-0',
+      locked: true
+    }
+  ],
+  fields: [
+    {
+      value: 'id',
+      text: i18n.t('Hostname or IP'),
+      types: [conditionType.SUBSTRING]
+    },
+    {
+      value: 'type',
+      text: i18n.t('Mfa Type'),
+      types: [conditionType.SUBSTRING]
+    }
+  ],
+  sortBy: 'id'
+})
