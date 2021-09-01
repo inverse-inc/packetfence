@@ -49,7 +49,8 @@ These instructions have been adapted from https://developers.google.com/identity
 * Go to https://admin.google.com/ click on the Main Menu > Account > Admin roles.
 * Click 'Create new role'
 * Enter Name and Description click 'CONTINUE'
-* Assign the Role Services > Chrome OS > Settings > Manage Devices, then click 'CONTINUE'
+* Search for the Admin console privilege 'Manage Chrome OS Devices (read only)'
+* Select 'Manage Chrome OS Devices (read only)' then click 'CONTINUE'
 * Click 'CREATE ROLE'
 
 ==== Create a user if needed.
