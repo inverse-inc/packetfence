@@ -42,8 +42,8 @@ sub parseArgs {
         return $FALSE;
     }
 
-    if (!$p->isa("pf::provisioner::google_chromebook_provisioner")) {
-        print STDERR " provisioner ($id) is not a pf::provisioner::google_chromebook_provisioner\n";
+    if (!$p->isa("pf::provisioner::google_workspace_chromebook")) {
+        print STDERR " provisioner ($id) is not a pf::provisioner::google_workspace_chromebook\n";
         return $FALSE;
     }
 
