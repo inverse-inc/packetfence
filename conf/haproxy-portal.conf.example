@@ -23,7 +23,8 @@ global
 listen stats
   bind  %%management_ip%%:1025
   mode http
-  timeout connect 10s
+  timeout connect 2s
+  timeout check 2s
   timeout client 1m
   timeout server 1m
   stats enable

@@ -82,7 +82,7 @@ sub generateConfig {
                 next if($back_ip eq $cfg->{ip} && isdisabled($Config{active_active}{portal_on_management}));
 
                 $backend_ip_config .= <<"EOT";
-        server $back_ip $back_ip:80 check inter 30s
+        server $back_ip $back_ip:80 check inter 10s fastinter 2s
 EOT
             }
 
@@ -98,7 +98,7 @@ EOT
                 next if($back_ip eq $cfg->{ip} && isdisabled($Config{active_active}{portal_on_management}));
 
                 $backend_ip_config .= <<"EOT";
-        server $back_ip $back_ip:80 check inter 30s
+        server $back_ip $back_ip:80 check inter 10s fastinter 2s
 EOT
             }
 
