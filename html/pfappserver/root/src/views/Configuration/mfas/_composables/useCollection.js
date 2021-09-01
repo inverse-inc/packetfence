@@ -1,6 +1,6 @@
 import { computed, toRefs } from '@vue/composition-api'
 import i18n from '@/utils/locale'
-import { defaultsFromMeta } from '../../_config/'
+import { types } from '../config'
 
 export const useItemProps = {
   id: {
@@ -11,11 +11,12 @@ export const useItemProps = {
   }
 }
 
+import { useDefaultsFromMeta } from '@/composables/useMeta'
 const useItemDefaults = (meta, props) => {
   const {
     mfaType
   } = toRefs(props)
-  return { ...defaultsFromMeta(meta), type: mfaType.value }
+  return { ...useDefaultsFromMeta(meta), type: mfaType.value }
 }
 
 const useItemTitle = (props) => {
