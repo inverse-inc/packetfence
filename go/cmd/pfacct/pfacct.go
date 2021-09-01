@@ -60,6 +60,7 @@ func NewPfAcct() *PfAcct {
 
 	Database, err := db.DbFromConfig(ctx)
 	for err != nil {
+		logError(ctx, "Error: "+err.Error())
 		time.Sleep(time.Duration(5) * time.Second)
 		Database, err = db.DbFromConfig(ctx)
 	}
@@ -187,7 +188,7 @@ func (pfAcct *PfAcct) runPing() {
 		for {
 			time.Sleep(60 * time.Second)
 			if err := pfAcct.DbPing(); err != nil {
-				logError(pfAcct.LoggerCtx, "Unable to ping DB: "+err.Error())
+				logDebug(pfAcct.LoggerCtx, "Unable to ping DB: "+err.Error())
 			} else {
 				logDebug(pfAcct.LoggerCtx, "Pinged DB")
 			}
