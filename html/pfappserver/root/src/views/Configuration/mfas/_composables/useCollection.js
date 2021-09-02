@@ -64,7 +64,7 @@ export const useSearch = makeSearch('mfas', {
     },
     {
       key: 'id',
-      label: 'Hostname or IP', // i18n defer
+      label: 'Identifier', // i18n defer
       required: true,
       searchable: true,
       sortable: true,
@@ -88,7 +88,7 @@ export const useSearch = makeSearch('mfas', {
   fields: [
     {
       value: 'id',
-      text: i18n.t('Hostname or IP'),
+      text: i18n.t('Identifier'),
       types: [conditionType.SUBSTRING]
     },
     {
