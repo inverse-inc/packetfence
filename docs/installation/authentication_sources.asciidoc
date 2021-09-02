@@ -30,7 +30,6 @@ PacketFence can authenticate users that register devices via the captive portal 
 * Facebook (OAuth 2)
 * Github (OAuth 2)
 * Google (OAuth 2)
-* Instagram (OAuth 2)
 * Kerberos
 * Kickbox
 * LDAP

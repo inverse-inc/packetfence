@@ -23,7 +23,6 @@ export const externalTypes = {
   Facebook:       'Facebook',
   Github:         'Github',
   Google:         'Google',
-  Instagram:      'Instagram',
   Kickbox:        'Kickbox',
   LinkedIn:       'LinkedIn',
   Null:           i18n.t('Null'),

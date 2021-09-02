@@ -109,7 +109,7 @@ NOTE: OAuth2 authentication does not work with Webauth enforcement
 
 NOTE: OAuth2 authentication will fail by design when previewed through "Connection Profiles"
 
-The captive portal of PacketFence allows a guest/user to register using his Google, Facebook, LinkedIn, Windows Live, Twitter, Instagram, Pinterest, OpenID Connect or Github account.
+The captive portal of PacketFence allows a guest/user to register using his Google, Facebook, LinkedIn, Windows Live, Twitter, Pinterest, OpenID Connect or Github account.
 
 For each providers, we maintain an allowed domain list to punch holes into the firewall so the user can hit the provider login page.
 This list is available in each OAuth2 authentication source.
@@ -163,18 +163,6 @@ Once you have your information, you need to configure the OAuth2 provider. This 
 Remember to add the Authentication Rules with at least two Actions (example: Role and Access duration).
 
 Moreover, don't forget to add GitHub as a *Source* from your connection profile definition, available from _Configuration -> Policies and Access Control -> Connection Profiles_.
-
-==== Instagram
-
-To use Instagram, you also need an API code and a secret key.  To get one, go here: https://www.instagram.com/developer/clients/manage/.  When you create your App, make sure you specify the following as the Website URL:
-https://YOUR_PORTAL_HOSTNAME/oauth2/callback
-
-Of course, replace the hostname with the values from `general.hostname` and `general.domain`.
-
-Once you have your information, you need to configure the OAuth2 provider. This can be done by adding a Instagram OAuth2 authentication source from _Configuration -> Policies and Access Control -> Authentication Sources_.
-Remember to add the Authentication Rules with at least two Actions (example: Role and Access duration).
-
-Moreover, don't forget to add Instagram as a *Source* from your connection profile definition, available from _Configuration -> Policies and Access Control -> Connection Profiles_.
 
 ==== Kickbox
 

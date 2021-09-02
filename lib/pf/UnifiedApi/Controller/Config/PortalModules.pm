@@ -28,7 +28,6 @@ use pfappserver::Form::Config::PortalModule;
 use pfappserver::Form::Config::PortalModule::Authentication::OAuth::Facebook;
 use pfappserver::Form::Config::PortalModule::Authentication::OAuth::Github;
 use pfappserver::Form::Config::PortalModule::Authentication::OAuth::Google;
-use pfappserver::Form::Config::PortalModule::Authentication::OAuth::Instagram;
 use pfappserver::Form::Config::PortalModule::Authentication::OAuth::LinkedIn;
 use pfappserver::Form::Config::PortalModule::Authentication::OAuth::OpenID;
 use pfappserver::Form::Config::PortalModule::Authentication::OAuth::Pinterest;
@@ -63,7 +62,6 @@ our %TYPES_TO_FORMS = (
         Authentication::OAuth::Facebook
         Authentication::OAuth::Github
         Authentication::OAuth::Google
-        Authentication::OAuth::Instagram
         Authentication::OAuth::LinkedIn
         Authentication::OAuth::OpenID
         Authentication::OAuth::Pinterest

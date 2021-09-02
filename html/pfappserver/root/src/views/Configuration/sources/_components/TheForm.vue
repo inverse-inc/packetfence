@@ -34,7 +34,6 @@ import FormTypeGithub from './FormTypeGithub'
 import FormTypeGoogle from './FormTypeGoogle'
 import FormTypeHtpasswd from './FormTypeHtpasswd'
 import FormTypeHttp from './FormTypeHttp'
-import FormTypeInstagram from './FormTypeInstagram'
 import FormTypeKerberos from './FormTypeKerberos'
 import FormTypeKickbox from './FormTypeKickbox'
 import FormTypeLdap from './FormTypeLdap'
@@ -71,7 +70,6 @@ const components = {
   FormTypeGoogle,
   FormTypeHtpasswd,
   FormTypeHttp,
-  FormTypeInstagram,
   FormTypeKerberos,
   FormTypeKickbox,
   FormTypeLdap,
@@ -117,7 +115,6 @@ export const setup = (props) => {
       case 'GoogleWorkspaceLDAP': return FormTypeLdap //break
       case 'Htpasswd':            return FormTypeHtpasswd //break
       case 'HTTP':                return FormTypeHttp //break
-      case 'Instagram':           return FormTypeInstagram //break
       case 'Kerberos':            return FormTypeKerberos //break
       case 'Kickbox':             return FormTypeKickbox //break
       case 'LDAP':                return FormTypeLdap //break

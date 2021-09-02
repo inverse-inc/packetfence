@@ -106,7 +106,6 @@ export const setup = (props) => {
       case 'Authentication::OAuth::Facebook':
       case 'Authentication::OAuth::Github':
       case 'Authentication::OAuth::Google':
-      case 'Authentication::OAuth::Instagram':
       case 'Authentication::OAuth::LinkedIn':
       case 'Authentication::OAuth::OpenID':
       case 'Authentication::OAuth::Pinterest':

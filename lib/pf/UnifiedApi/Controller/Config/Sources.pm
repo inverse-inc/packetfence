@@ -40,7 +40,6 @@ use pfappserver::Form::Config::Source::Google;
 use pfappserver::Form::Config::Source::GoogleWorkspaceLDAP;
 use pfappserver::Form::Config::Source::Htpasswd;
 use pfappserver::Form::Config::Source::HTTP;
-use pfappserver::Form::Config::Source::Instagram;
 use pfappserver::Form::Config::Source::Kerberos;
 use pfappserver::Form::Config::Source::Kickbox;
 use pfappserver::Form::Config::Source::LDAP;
@@ -79,7 +78,6 @@ our %TYPES_TO_FORMS = (
       GoogleWorkspaceLDAP
       Htpasswd
       HTTP
-      Instagram
       Kerberos
       Kickbox
       LDAP
