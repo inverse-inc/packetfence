@@ -346,7 +346,7 @@ Next, restart `iptables` and `pfdns` services to apply your new passthroughs.
 
 PacketFence integrates the ability to use a payment gateway to bill users to gain access to the network. When configured, the user who wants to access the network / Internet is prompted by a page asking for it's personal information as well as it's credit card information.
 
-PacketFence currently supports four payment gateways: Authorize.net, Mirapay, Paypal and Stripe.
+PacketFence currently supports two payment gateways: Authorize.net, Paypal and Stripe.
 
 In order to activate the billing, you will need to configure the following components :
 
@@ -475,10 +475,6 @@ Optionally, once this is configured, you need to make sure your captive portal i
 Next, in PacketFence, go in your Stripe source (_Configuration -> Policies and Access Control -> Authentication Sources_) and enable the option `Customer portal` in your Stripe source.
 
 Now when your users will visit the status page (https://PF_DOMAIN_NAME/status), they will have the option to manage their subscriptions and visit the Stripe customer portal.
-
-===== Mirapay
-
-  To be contributed...
 
 ==== Adding billing tiers
 

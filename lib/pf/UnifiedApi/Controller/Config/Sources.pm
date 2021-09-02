@@ -44,7 +44,6 @@ use pfappserver::Form::Config::Source::Kerberos;
 use pfappserver::Form::Config::Source::Kickbox;
 use pfappserver::Form::Config::Source::LDAP;
 use pfappserver::Form::Config::Source::LinkedIn;
-use pfappserver::Form::Config::Source::Mirapay;
 use pfappserver::Form::Config::Source::Null;
 use pfappserver::Form::Config::Source::OpenID;
 use pfappserver::Form::Config::Source::Paypal;
@@ -80,7 +79,6 @@ our %TYPES_TO_FORMS = (
       Kickbox
       LDAP
       LinkedIn
-      Mirapay
       Null
       OpenID
       Paypal
