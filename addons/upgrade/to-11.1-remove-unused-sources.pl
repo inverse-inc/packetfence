@@ -2,11 +2,11 @@
 
 =head1 NAME
 
-to-11.1-remove-mirapay-source -
+to-11.1-remove-unused-sources
 
 =head1 DESCRIPTION
 
-to-11.1-remove-mirapay-source
+to-11.1-remove-unused-sources
 
 =cut
 
@@ -23,20 +23,20 @@ if (@ARGV) {
     $file = $ARGV[0];
 }
 
-my $typeToDelete = 'Mirapay';
+our %typesToDelete = map { $_ => undef  } qw(Twitter Pinterest Mirapay Instagram AuthorizeNet);
 my $cs = pf::IniFiles->new(-file => $file, -allowempty => 1);
 my $update = 0;
 
 for my $section ( grep {/^\S+$/} $cs->Sections() ) {
     my $type = $cs->val($section, 'type');
-    if ($type eq $typeToDelete) {
+    if (exists $typesToDelete{$type}) {
+        print "Removing $section\n";
         $cs->DeleteSection($section);
         for my $group ($cs->GroupMembers($section)) {
             $cs->DeleteSection($group);
         }
 
         $update |= 1;
-        print "Removing $section\n";
     }
 }
 
