@@ -1,5 +1,5 @@
 --
--- PacketFence SQL schema upgrade from X.X to X.Y
+-- PacketFence SQL schema upgrade from 10.3 to 11.0
 --
 
 
