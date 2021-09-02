@@ -31,7 +31,6 @@ export const externalTypes = {
   SMS:            'SMS',
   SponsorEmail:   i18n.t('Sponsor'),
   Twilio:         'Twilio',
-  Twitter:        'Twitter',
   WindowsLive:    'WindowsLive',
 }
 

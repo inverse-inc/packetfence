@@ -109,7 +109,7 @@ NOTE: OAuth2 authentication does not work with Webauth enforcement
 
 NOTE: OAuth2 authentication will fail by design when previewed through "Connection Profiles"
 
-The captive portal of PacketFence allows a guest/user to register using his Google, Facebook, LinkedIn, Windows Live, Twitter, Pinterest, OpenID Connect or Github account.
+The captive portal of PacketFence allows a guest/user to register using his Google, Facebook, LinkedIn, Windows Live, Pinterest, OpenID Connect or Github account.
 
 For each providers, we maintain an allowed domain list to punch holes into the firewall so the user can hit the provider login page.
 This list is available in each OAuth2 authentication source.
@@ -224,18 +224,6 @@ Once you have your information, you need to configure the OAuth2 provider. This 
 Remember to add the Authentication Rules with at least two Actions (example: Role and Access duration).
 
 Moreover, don't forget to add Twilio as a *Source* from your connection profile definition, available from _Configuration -> Policies and Access Control -> Connection Profiles_.
-
-==== Twitter
-
-To use Twitter, you also need an API code and a secret key which Twitter calls _consumer key_ and _consumer secret_. Obtain this information by creating an new application from your https://apps.twitter.com/[Twitter Apps Management page].  When you create your App, make sure you specify the following as the _Callback URL_
-https://YOUR_PORTAL_HOSTNAME/oauth2/callback
-
-Of course, replace the hostname with the values from `general.hostname` and `general.domain`.
-
-Once you have your information, you need to configure the OAuth2 provider. This can be done by adding a Twitter OAuth2 authentication source from _Configuration -> Policies and Access Control -> Authentication Sources_.
-Remember to add the Authentication Rules with at least two Actions (example: Role and Access duration).
-
-Moreover, don't forget to add Twitter as a *Source* from your connection profile definition, available from _Configuration -> Policies and Access Control -> Connection Profiles_.
 
 ==== Windows Live
 

@@ -109,7 +109,6 @@ export const setup = (props) => {
       case 'Authentication::OAuth::LinkedIn':
       case 'Authentication::OAuth::OpenID':
       case 'Authentication::OAuth::Pinterest':
-      case 'Authentication::OAuth::Twitter':
       case 'Authentication::OAuth::WindowsLive':
         return FormTypeAuthenticationOauth // break
 

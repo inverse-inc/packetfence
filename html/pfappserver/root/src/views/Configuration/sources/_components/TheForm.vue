@@ -50,7 +50,6 @@ import FormTypeSms from './FormTypeSms'
 import FormTypeSponsorEmail from './FormTypeSponsorEmail'
 import FormTypeStripe from './FormTypeStripe'
 import FormTypeTwilio from './FormTypeTwilio'
-import FormTypeTwitter from './FormTypeTwitter'
 import FormTypeWindowsLive from './FormTypeWindowsLive'
 
 const components = {
@@ -86,7 +85,6 @@ const components = {
   FormTypeSponsorEmail,
   FormTypeStripe,
   FormTypeTwilio,
-  FormTypeTwitter,
   FormTypeWindowsLive,
 }
 
@@ -131,7 +129,6 @@ export const setup = (props) => {
       case 'SponsorEmail':        return FormTypeSponsorEmail //break
       case 'Stripe':              return FormTypeStripe //break
       case 'Twilio':              return FormTypeTwilio //break
-      case 'Twitter':             return FormTypeTwitter //break
       case 'WindowsLive':         return FormTypeWindowsLive //break
       default:                    return undefined
     }

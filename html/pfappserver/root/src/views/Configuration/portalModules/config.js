@@ -86,7 +86,6 @@ export const moduleTypes = () => {
         { type: 'Authentication::OAuth::LinkedIn', name: 'LinkedIn' },
         { type: 'Authentication::OAuth::OpenID', name: 'OpenID' },
         { type: 'Authentication::OAuth::Pinterest', name: 'Pinterest' },
-        { type: 'Authentication::OAuth::Twitter', name: 'Twitter' },
         { type: 'Authentication::OAuth::WindowsLive', name: 'WindowsLive' },
         { type: 'Authentication::SAML', name: 'SAML' },
         { type: 'Authentication::SMS', name: i18n.t('SMS') },
