@@ -23,6 +23,14 @@ This is a list of noteworthy changes across releases.
 For more details and developer visible changes see the ChangeLog file.
 For a list of compatibility related changes see the <<PacketFence_Upgrade_Guide.asciidoc#,Upgrade Guide>>.
 
+== Version X.Y.Z released on xxxx-xx-xx
+
+=== New Features
+
+=== Enhancements
+
+=== Bug Fixes
+
 == Version 11.0.0 released on 2021-09-02
 
 === New Features
