@@ -114,7 +114,7 @@ BEGIN {
 
 }
 
-use Test::More tests => 21 + 2 * ( scalar @CACHEABLE_RULES + scalar @NON_CACHEABLE_RULES);
+use Test::More tests => 19 + 2 * ( scalar @CACHEABLE_RULES + scalar @NON_CACHEABLE_RULES);
 
 #This test will running last
 use Test::NoWarnings;
@@ -239,6 +239,7 @@ ok(!$source->is_rule_cacheable(undef), "undef is always uncacheable");
           'encryption' => 'ssl',
           'port' => '33389',
           'credentials' => [],
+          'verify' => 'none',
         }
     )
 }
@@ -280,7 +281,9 @@ ok(!$source->is_rule_cacheable(undef), "undef is always uncacheable");
             'encryption'        => 'starttls',
             'port'              => '33389',
             'credentials'       => [],
-            'start_tls_options' => { }
+            'start_tls_options' => {
+                'verify' => 'none',
+            }
         }
       )
 }

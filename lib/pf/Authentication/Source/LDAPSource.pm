@@ -76,10 +76,10 @@ has 'email_attribute' => (isa => 'Maybe[Str]', is => 'rw', default => 'mail');
 has 'monitor' => ( isa => 'Bool', is => 'rw', default => '1' );
 has 'shuffle' => ( isa => 'Bool', is => 'rw', default => '0' );
 has 'dead_duration' => ( isa => 'Num', is => 'rw', default => $DEFAULT_LDAP_DEAD_DURATION);
-has 'client_cert' => ( isa => 'Maybe[Str]', is => 'rw');
-has 'client_key' => ( isa => 'Maybe[Str]', is => 'rw');
-has 'ca_file' => (isa => 'Maybe[Str]', is => 'rw');
-has 'verify' => ( isa => 'Maybe[Str]', is => 'rw');
+has 'client_cert' => ( isa => 'Maybe[Str]', is => 'rw', default => "");
+has 'client_key' => ( isa => 'Maybe[Str]', is => 'rw', default => "");
+has 'ca_file' => (isa => 'Maybe[Str]', is => 'rw', default => '');
+has 'verify' => ( isa => 'Maybe[Str]', is => 'rw', default => 'none');
 
 our $logger = get_logger();
 
@@ -334,7 +334,7 @@ sub addSSLArgs {
     while (my ($k1, $k2) = each %sslargs_mapping) {
         next if !exists $self->{$k1};
         my $v = $self->{$k1};
-        next if !defined $v;
+        next if !defined $v || length($v) == 0;
         $args->{$k2} = $v;
     }
 }
