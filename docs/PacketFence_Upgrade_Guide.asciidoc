@@ -1633,13 +1633,12 @@ To be sure you are running latest MariaDB configuration provided by PacketFence 
 systemctl restart packetfence-mariadb
 ----
 
-== Upgrading from a version prior to X.Y.Z
-
+== Upgrading from a version prior to 11.0.0
 
 Starting from PacketFence 11.0.0, Debian 9 and CentOS 7 support are dropped in benefit of Debian 11 and RHEL 8.
 In place upgrades are not supported. You will have to provision new operating system(s) in order to migrate.
 
-To simplify upgrade process to PacketFence 11.0.0 and future versions, we know
+To simplify upgrade process to PacketFence 11.0.0 and future versions, we now
 rely on an export/import mechanism.
 
 Before doing anything else, be sure to read <<PacketFence_Installation_Guide.asciidoc#_assumptions_and_limitations,assumptions and limitations>> of this mechanism.
