@@ -116,5 +116,8 @@ PacketFence test files. This package contains all files related to PacketFence t
 %attr(0755, -, -)     /usr/local/pf/t/venom/pfservers/common/utils/*.sh
 
 %changelog
+* Thu Sep 02 2021 Inverse <info@inverse.ca> - 11.0.0-1
+- New release 11.0.0
+
 * Wed Jul 21 2021 Nicolas Quiniou-Briand <nquiniou@akamai.com> - 11.0.0-1
 - Package creation for 11.0 release

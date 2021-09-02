@@ -1275,6 +1275,9 @@ fi
 # Changelog
 #==============================================================================
 %changelog
+* Thu Sep 02 2021 Inverse <info@inverse.ca> - 11.0.0-1
+- New release 11.0.0
+
 * Mon Jun 28 2021 Inverse <info@inverse.ca> - 11.0.0-2
 - Build Source using Makefile in place of git archive
 
