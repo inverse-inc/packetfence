@@ -27,7 +27,6 @@ export const externalTypes = {
   LinkedIn:       'LinkedIn',
   Null:           i18n.t('Null'),
   OpenID:         'OpenID',
-  Pinterest:      'Pinterest',
   SMS:            'SMS',
   SponsorEmail:   i18n.t('Sponsor'),
   Twilio:         'Twilio',

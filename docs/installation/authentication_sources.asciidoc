@@ -36,7 +36,6 @@ PacketFence can authenticate users that register devices via the captive portal 
 * LinkedIn (OAuth 2)
 * Null
 * OpenID Connect (OAuth 2)
-* Pinterest (OAuth 2)
 * RADIUS
 * SMS
 * Sponsored Email
