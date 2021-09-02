@@ -11,7 +11,7 @@ export const useStore = $store => {
     isLoading: computed(() => $store.getters['$_mfas/isLoading']),
     getList: () => $store.dispatch('$_mfas/all'),
     getListOptions: params => $store.dispatch('$_mfas/optionsByMfaType', params.mfaType),
-    createItem: params => $store.dispatch('$_mfass/createMfa', params),
+    createItem: params => $store.dispatch('$_mfas/createMfa', params),
     getItem: params => $store.dispatch('$_mfas/getMfa', params.id).then(item => {
       return (params.isClone)
         ? { ...item, id: `${item.id}-${i18n.t('copy')}`, not_deletable: false }

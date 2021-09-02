@@ -7,7 +7,7 @@
       <base-search :use-search="useSearch">
         <b-dropdown :text="$t('New MFA')" variant="outline-primary">
           <b-dropdown-item v-for="(text, mfaType) in types" :key="mfaType"
-            :to="{ name: 'Mfa', params: { mfaType } }"
+            :to="{ name: 'newMfa', params: { mfaType } }"
           >{{ text }}</b-dropdown-item>
         </b-dropdown>
       </base-search>
