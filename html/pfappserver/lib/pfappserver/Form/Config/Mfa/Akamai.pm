@@ -49,6 +49,15 @@ has_field 'radius_mfa_method' =>
              help => 'RADIUS MFA method' },
   );
 
+has_field 'split_char' =>
+  (
+   type => 'Text',
+   label => 'Character separator',
+   required => 1,
+   default => ',',
+   messages => { required => 'Please specify the char to split password field to get the code' },
+  );
+
 has_field 'type' =>
   (
    type => 'Hidden',
@@ -63,7 +72,7 @@ has_field 'scope' =>
 
 has_block definition =>
   (
-   render_list => [ qw(id app_id app_secret radius_mfa_method) ],
+   render_list => [ qw(id app_id app_secret radius_mfa_method split_char) ],
   );
 
 =over

@@ -21,6 +21,7 @@ export {
   BaseFormGroupInputPassword          as FormGroupVerifyKey,
   BaseFormGroupInput                  as FormGroupHost,
   BaseFormGroupInput                  as FormGroupCallbackUrl,
+  BaseFormGroupInput                  as FormGroupSplitChar,
 
   TheForm,
   TheView
