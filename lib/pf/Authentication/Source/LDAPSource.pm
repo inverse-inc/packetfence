@@ -76,10 +76,10 @@ has 'email_attribute' => (isa => 'Maybe[Str]', is => 'rw', default => 'mail');
 has 'monitor' => ( isa => 'Bool', is => 'rw', default => '1' );
 has 'shuffle' => ( isa => 'Bool', is => 'rw', default => '0' );
 has 'dead_duration' => ( isa => 'Num', is => 'rw', default => $DEFAULT_LDAP_DEAD_DURATION);
-has 'client_cert' => ( isa => 'Str', is => 'rw');
-has 'client_key' => ( isa => 'Str', is => 'rw');
-has 'ca_file' => (isa => 'Str', is => 'rw');
-has 'verify' => ( isa => 'Str', is => 'rw');
+has 'client_cert' => ( isa => 'Maybe[Str]', is => 'rw');
+has 'client_key' => ( isa => 'Maybe[Str]', is => 'rw');
+has 'ca_file' => (isa => 'Maybe[Str]', is => 'rw');
+has 'verify' => ( isa => 'Maybe[Str]', is => 'rw');
 
 our $logger = get_logger();
 
