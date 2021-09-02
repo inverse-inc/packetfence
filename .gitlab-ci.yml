@@ -603,6 +603,8 @@ deploy_maintenance_deb:
     - .maintenance_only_rules
   environment:
     name: maintenance
+  variables:
+    DEB_DEPLOY_DIR: debian
 
 ### Common jobs (Deb and RPM)
 deploy_devel_pkg_friendly_names:
