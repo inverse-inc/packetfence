@@ -938,7 +938,7 @@ sub switch_access {
         if ($value) {
             my $mfa = pf::factory::mfa->new($value);
             my $result = $mfa->check_user($radius_request->{'User-Name'});
-            if ($result == $FALSE) {
+            if ($result != $TRUE) {
                 return [ $RADIUS::RLM_MODULE_FAIL, ('Reply-Message' => "VPN Access Denied") ];
             }
         }

@@ -106,8 +106,11 @@ sub check_user {
 
     if ( grep $_ eq 'push', @{$device[0]->{'methods'}}) {
         my $post_fields = encode_json({device => $device[0]->{'device'}, method => "push", username => $username});
-
-	my ($auth, $error) = $self->_post_curl("/api/v1/verify/start_auth", $post_fields);
+        my $chi = pf::CHI->new(namespace => 'mfa');
+        my ($auth, $error)= $chi->compute($device[0]->{'device'}, sub {
+                return $self->_post_curl("/api/v1/verify/start_auth", $post_fields);
+            }
+        );
         if ($error) {
             return
 	}

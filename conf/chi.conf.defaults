@@ -181,3 +181,9 @@ expires_in=10s
 # Amount of time from the current time to expire an entry
 expires_in=24h
 
+[storage mfa]
+#
+# storage mfa.expires_in
+#
+# Amount of time from the current time to expire an entry
+expires_in=120s
