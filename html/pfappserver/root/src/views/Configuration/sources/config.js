@@ -43,7 +43,6 @@ export const exclusiveTypes = {
 }
 
 export const billingTypes = {
-  AuthorizeNet:   'AuthorizeNet',
   Mirapay:        'Mirapay',
   Paypal:         'Paypal',
   Stripe:         'Stripe',

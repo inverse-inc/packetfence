@@ -26,7 +26,6 @@ use pf::ConfigStore::Source;
 use pfappserver::Form::Config::Source;
 use pfappserver::Form::Config::Source::AdminProxy;
 use pfappserver::Form::Config::Source::AD;
-use pfappserver::Form::Config::Source::AuthorizeNet;
 use pfappserver::Form::Config::Source::AzureAD;
 use pfappserver::Form::Config::Source::Blackhole;
 use pfappserver::Form::Config::Source::Authorization;
@@ -67,7 +66,6 @@ our %TYPES_TO_FORMS = (
       AdminProxy
       AD
       Authorization
-      AuthorizeNet
       AzureAD
       Blackhole
       Clickatell

@@ -512,40 +512,6 @@ Next, in PacketFence, go in your Stripe source (_Configuration -> Policies and A
 
 Now when your users will visit the status page (https://PF_DOMAIN_NAME/status), they will have the option to manage their subscriptions and visit the Stripe customer portal.
 
-===== Authorize.net
-
-*Creating an account*
-
-First go on https://account.authorize.net to signup for a merchant account or http://developer.authorize.net/ for a sandbox account.
-
-After you created your account, you will be shown your `API login ID` and `Transaction key`. Note both of these information for usage in the PacketFence configuration.
-
-Then login into your new account.
-
-Then under _Account_ click `Settings`.
-
-On the settings page in the section _Security settings_, click `MD5-Hash`
-
-Now enter a secret that will be shared between authorize.net and PacketFence.
-
-image::billing/authorize-md5-hash.png[scaledwidth="100%",alt="Stripe PacketFence configuration"]
-
-*PacketFence configuration*
-
-Next in the PacketFence administration interface, go in _Configuration -> Policies and Access Control -> Sources_ and create a new source of type `Billing -> AuthorizeNet`.
-
-image::billing/authorize-packetfence-config.png[scaledwidth="100%",alt="Stripe PacketFence configuration"]
-
-Where :
-[options="compact"]
-* *API login ID* is the one you got earlier while creating your account.
-* *Transaction key* is the one you got earlier while creating your account.
-* *MD5 hash* the one you configured in your Authorize.net account.
-* *Currency* is the currency that will be used in the transactions.
-* *Test mode* should be activated if you are using a sandbox account.
-
-NOTE: If they aren't already enabled, you will need to enable passthroughs so that users can reach the domains of this provider. Refer to the `Passthroughs` section of this document for details.
-
 ===== Mirapay
 
   To be contributed...

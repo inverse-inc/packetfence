@@ -22,7 +22,6 @@ import { useFormProps as props } from '../_composables/useForm'
 import { BaseContainerLoading } from '@/components/new/'
 import FormTypeAdminProxy from './FormTypeAdminProxy'
 import FormTypeAuthorization from './FormTypeAuthorization'
-import FormTypeAuthorizeNet from './FormTypeAuthorizeNet'
 import FormTypeAzureAD from './FormTypeAzureAD'
 import FormTypeBlackhole from './FormTypeBlackhole'
 import FormTypeClickatell from './FormTypeClickatell'
@@ -60,7 +59,6 @@ const components = {
 
   FormTypeAdminProxy,
   FormTypeAuthorization,
-  FormTypeAuthorizeNet,
   FormTypeAzureAD,
   FormTypeBlackhole,
   FormTypeClickatell,
@@ -106,7 +104,6 @@ export const setup = (props) => {
       case 'AD':                  return FormTypeLdap // break
       case 'AdminProxy':          return FormTypeAdminProxy //break
       case 'Authorization':       return FormTypeAuthorization //break
-      case 'AuthorizeNet':        return FormTypeAuthorizeNet //break
       case 'AzureAD':             return FormTypeAzureAD // break
       case 'Blackhole':           return FormTypeBlackhole //break
       case 'Clickatell':          return FormTypeClickatell //break
