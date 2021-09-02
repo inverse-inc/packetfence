@@ -50,7 +50,6 @@ use pfappserver::Form::Config::Source::Mirapay;
 use pfappserver::Form::Config::Source::Null;
 use pfappserver::Form::Config::Source::OpenID;
 use pfappserver::Form::Config::Source::Paypal;
-use pfappserver::Form::Config::Source::Pinterest;
 use pfappserver::Form::Config::Source::RADIUS;
 use pfappserver::Form::Config::Source::SAML;
 use pfappserver::Form::Config::Source::SMS;
@@ -90,7 +89,6 @@ our %TYPES_TO_FORMS = (
       Null
       OpenID
       Paypal
-      Pinterest
       Potd
       RADIUS
       SAML

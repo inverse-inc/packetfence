@@ -44,7 +44,6 @@ import FormTypeMirapay from './FormTypeMirapay'
 import FormTypeNull from './FormTypeNull'
 import FormTypeOpenId from './FormTypeOpenId'
 import FormTypePaypal from './FormTypePaypal'
-import FormTypePinterest from './FormTypePinterest'
 import FormTypePotd from './FormTypePotd'
 import FormTypeRadius from './FormTypeRadius'
 import FormTypeSaml from './FormTypeSaml'
@@ -82,7 +81,6 @@ const components = {
   FormTypeNull,
   FormTypeOpenId,
   FormTypePaypal,
-  FormTypePinterest,
   FormTypePotd,
   FormTypeRadius,
   FormTypeSaml,
@@ -129,7 +127,6 @@ export const setup = (props) => {
       case 'Null':                return FormTypeNull //break
       case 'OpenID':              return FormTypeOpenId //break
       case 'Paypal':              return FormTypePaypal //break
-      case 'Pinterest':           return FormTypePinterest //break
       case 'Potd':                return FormTypePotd //break
       case 'RADIUS':              return FormTypeRadius //break
       case 'SAML':                return FormTypeSaml //break
