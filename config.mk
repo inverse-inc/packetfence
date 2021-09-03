@@ -31,7 +31,7 @@ SRC_WEBSITE_DIR = $(SRC_ROOT_DIR)/website
 #
 # Golang
 #
-GOVERSION = go1.16.4
+GOVERSION = go1.17
 PF_BINARIES = pfhttpd pfdhcp pfdns pfstats pfdetect galera-autofix pfacct pfcertmanager pfcron
 
 #
