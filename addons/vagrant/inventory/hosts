@@ -18,7 +18,7 @@ all:
       hosts:
         node01:
           box: debian/bullseye64
-          box_version: 11.20210409.1
+          box_version: 11.20210829.1
           # IP used by helper_scripts and Ansible, not Vagrant
           mgmt_ip: 172.17.17.251
           ansible_host: "{{ mgmt_ip }}"
@@ -26,7 +26,7 @@ all:
           ansible_python_interpreter: '/usr/bin/python3'
         node02:
           box: debian/bullseye64
-          box_version: 11.20210409.1
+          box_version: 11.20210829.1
           # IP used by helper_scripts and Ansible, not Vagrant
           mgmt_ip: 172.17.17.252
           ansible_host: "{{ mgmt_ip }}"
@@ -48,7 +48,7 @@ all:
       hosts:
         wireless01:
           box: debian/bullseye64
-          box_version: 11.20210409.1
+          box_version: 11.20210829.1
           mgmt_ip: 172.17.17.210
           mgmt_netmask: 255.255.255.0
           ansible_host: "{{ mgmt_ip }}"
@@ -64,7 +64,7 @@ all:
       hosts:
         linux01:
           box: debian/bullseye64
-          box_version: 11.20210409.1
+          box_version: 11.20210829.1
           mgmt_ip: 172.17.17.101
           mgmt_netmask: 255.255.255.0
           ansible_host:  "{{ mgmt_ip }}"
@@ -73,7 +73,7 @@ all:
           memory: 512
         linux02:
           box: debian/bullseye64
-          box_version: 11.20210409.1
+          box_version: 11.20210829.1
           mgmt_ip: 172.17.17.102
           mgmt_netmask: 255.255.255.0
           ansible_host:  "{{ mgmt_ip }}"
@@ -111,7 +111,7 @@ all:
               memory: 6144
             pfdeb11dev:
               box: debian/bullseye64
-              box_version: 11.20210409.1
+              box_version: 11.20210829.1
               mgmt_ip: 172.17.17.12
               mgmt_netmask: 255.255.255.0
               ansible_host: "{{ mgmt_ip }}"
@@ -128,7 +128,7 @@ all:
               memory: 6144
             deb11dev:
               box: debian/bullseye64
-              box_version: 11.20210409.1
+              box_version: 11.20210829.1
               mgmt_ip: 172.17.17.13
               mgmt_netmask: 255.255.255.0
               ansible_host: "{{ mgmt_ip }}"
@@ -148,7 +148,7 @@ all:
               memory: 8192
             pfdeb11stable:
               box: debian/bullseye64
-              box_version: 11.20210409.1
+              box_version: 11.20210829.1
               mgmt_ip: 172.17.17.16
               mgmt_netmask: 255.255.255.0
               ansible_host: "{{ mgmt_ip }}"
