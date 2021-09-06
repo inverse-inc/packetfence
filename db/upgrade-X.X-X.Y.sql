@@ -1,5 +1,5 @@
 --
--- PacketFence SQL schema upgrade from 10.3 to 11.0
+-- PacketFence SQL schema upgrade from 11.0 to 11.1
 --
 
 
@@ -7,12 +7,12 @@
 -- Setting the major/minor version of the DB
 --
 
-SET @MAJOR_VERSION = Y;
-SET @MINOR_VERSION = X;
+SET @MAJOR_VERSION = 11;
+SET @MINOR_VERSION = 1;
 
 
-SET @PREV_MAJOR_VERSION = X;
-SET @PREV_MINOR_VERSION = X;
+SET @PREV_MAJOR_VERSION = 11;
+SET @PREV_MINOR_VERSION = 0;
 
 --
 -- The VERSION_INT to ensure proper ordering of the version in queries
@@ -36,7 +36,6 @@ BEGIN
 
       IF PREVIOUS_VERSION != @PREV_VERSION_INT THEN
         SELECT CONCAT('PREVIOUS VERSION ', PREVIOUS_VERSION_STRING, ' DOES NOT MATCH ', CONCAT_WS('.', @PREV_MAJOR_VERSION, @PREV_MINOR_VERSION)) INTO _message;
-        -- SELECT CONCAT('PREVIOUS VERSION ', PREVIOUS_VERSION_STRING, ' DOES NOT MATCH ', CONCAT_WS('.', @PREV_MAJOR_VERSION, @PREV_MINOR_VERSION, @PREV_SUBMINOR_VERSION)) INTO _message;
         SIGNAL SQLSTATE VALUE '99999'
               SET MESSAGE_TEXT = _message;
       END IF;
