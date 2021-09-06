@@ -15,7 +15,11 @@ use warnings;
 use lib qw(/usr/local/pf/lib);
 use lib qw(/usr/local/pf/lib_perl/lib/perl5);
 use pf::IniFiles;
-use pf::file_paths qw($authentication_config_file);
+use pf::file_paths qw(
+    $authentication_config_file
+    $portal_modules_config_file
+    $profiles_config_file
+);
 use pf::util;
 
 my $file = $authentication_config_file;
@@ -25,26 +29,49 @@ if (@ARGV) {
 
 our %typesToDelete = map { $_ => undef  } qw(Twitter Pinterest Mirapay Instagram AuthorizeNet);
 my $cs = pf::IniFiles->new(-file => $file, -allowempty => 1);
-my $update = 0;
+my ($update, $found) = removeTypes($cs, \%typesToDelete);
+if (!$update) {
+    print "Nothing to be done\n";
+    exit 0;
+}
 
-for my $section ( grep {/^\S+$/} $cs->Sections() ) {
-    my $type = $cs->val($section, 'type');
-    if (exists $typesToDelete{$type}) {
-        print "Removing $section\n";
-        $cs->DeleteSection($section);
-        for my $group ($cs->GroupMembers($section)) {
-            $cs->DeleteSection($group);
-        }
-
-        $update |= 1;
+for my $section ( keys %$found) {
+    for my $group ($cs->GroupMembers($section)) {
+        $cs->DeleteSection($group);
     }
 }
 
-if ($update) {
-    $cs->RewriteConfig();
-    print "All done\n";
-    exit 0;
+$cs->RewriteConfig();
+our %portalModulesTypesToDelete = map { ("Authentication::OAuth::$_" => undef) } qw(Twitter Pinterest Instagram);
+my $csPortalModule = pf::IniFiles->new(-file => $portal_modules_config_file, -allowempty => 1);
+my ($updatePortalModule, $portalModules) = removeTypes($csPortalModule, \%portalModulesTypesToDelete);
+
+if ($updatePortalModule) {
+    $csPortalModule->RewriteConfig();
 }
+
+sub re {
+}
+
+sub removeTypes {
+    my ($cs, $typesToDelete) = @_;
+    my %found;
+    my $update = 0;
+
+    for my $section ( grep {/^\S+$/} $cs->Sections() ) {
+        my $type = $cs->val($section, 'type');
+        if (exists $typesToDelete->{$type}) {
+            print "Removing $section\n";
+            $cs->DeleteSection($section);
+            $found{$section} = undef;
+            $update |= 1;
+        }
+    }
+
+    return ($update, \%found);
+}
+
+print "All done\n";
 
 =head1 AUTHOR
 
