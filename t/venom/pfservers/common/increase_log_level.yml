@@ -1,7 +1,0 @@
-name: Increase log level
-version: 2
-testcases:
-- name: increase_log_level
-  steps:
-  - type: exec
-    script: "/usr/local/pf/t/venom/pfservers/common/utils/change_log_level.sh"
