@@ -547,7 +547,11 @@ The scanObjects
 
 sub scanObjects {
     my ($self) = @_;
-    return grep { defined $_ } map { pf::factory::scan->new($_) } @{  $self->getScans // [] };
+    return grep { defined $_ } map {
+        my $s = eval { pf::factory::scan->new($_) };
+        if ($@) { get_logger()->error($@) };
+        $s
+    } @{ $self->getScans // [] };
 }
 
 =item findScan

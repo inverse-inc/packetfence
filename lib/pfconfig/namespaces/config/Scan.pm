@@ -32,12 +32,16 @@ sub init {
 
 sub build_child {
     my ($self) = @_;
-
     my %tmp_cfg = %{$self->{cfg}};
+    my @wmi;
     while ( my ($key, $val) = each %tmp_cfg) {
         $self->cleanup_after_read($key, $val);
+        if ($val->{type} eq 'wmi') {
+            push @wmi, $key;
+        }
     }
 
+    delete @tmp_cfg{@wmi};
     $self->roleReverseLookup(\%tmp_cfg, 'scan', qw(categories));
     return \%tmp_cfg;
 }
