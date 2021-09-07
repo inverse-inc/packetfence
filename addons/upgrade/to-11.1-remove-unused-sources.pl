@@ -20,58 +20,84 @@ use pf::file_paths qw(
     $portal_modules_config_file
     $profiles_config_file
 );
+
 use pf::util;
+main() if not caller();
 
-my $file = $authentication_config_file;
-if (@ARGV) {
-    $file = $ARGV[0];
-}
-
-our %typesToDelete = map { $_ => undef  } qw(Twitter Pinterest Mirapay Instagram AuthorizeNet);
-my $cs = pf::IniFiles->new(-file => $file, -allowempty => 1);
-my ($update, $found) = removeTypes($cs, \%typesToDelete);
-if (!$update) {
-    print "Nothing to be done\n";
-    exit 0;
-}
-
-for my $section ( keys %$found) {
-    for my $group ($cs->GroupMembers($section)) {
-        $cs->DeleteSection($group);
+sub main {
+    my ($sourceConfigStore, $removedSources) = removeSources($authentication_config_file);
+    if (!$sourceConfigStore) {
+        print "Nothing to be done\n";
+        exit 0;
     }
+
+    my ($portalModuleConfigStore, $removedPortalModules) = removePortalModules($portal_modules_config_file);
+    my $profileConfigStore = updateProfile($profiles_config_file, $removedSources, $removedPortalModules);
+
+    $sourceConfigStore->RewriteConfig();
+    if ($portalModuleConfigStore) {
+        $portalModuleConfigStore->RewriteConfig();
+    }
+
+    if ($profileConfigStore) {
+        $profileConfigStore->RewriteConfig();
+    }
+
+    print "All done\n";
 }
 
-$cs->RewriteConfig();
-our %portalModulesTypesToDelete = map { ("Authentication::OAuth::$_" => undef) } qw(Twitter Pinterest Instagram);
-my $csPortalModule = pf::IniFiles->new(-file => $portal_modules_config_file, -allowempty => 1);
-my ($updatePortalModule, $portalModules) = removeTypes($csPortalModule, \%portalModulesTypesToDelete);
+sub updateProfile {
 
-if ($updatePortalModule) {
-    $csPortalModule->RewriteConfig();
+    return undef;
 }
 
-sub re {
+sub removeSources {
+    my ($file) = @_;
+    my @found;
+    our %typesToDelete = map { $_ => undef  } qw(Twitter Pinterest Mirapay Instagram AuthorizeNet);
+    my $cs = pf::IniFiles->new(-file => $file, -allowempty => 1);
+    my ($update, $removed) = removeTypes($cs, \%typesToDelete);
+    if (!$update) {
+        return (undef, undef);
+    }
+
+    for my $section (@$removed) {
+        for my $group ($cs->GroupMembers($section)) {
+            $cs->DeleteSection($group);
+        }
+    }
+
+    return ($cs, $removed);
+}
+
+sub removePortalModules {
+    my ($file) = @_;
+    our %toDelete = map { ("Authentication::OAuth::$_" => undef) } qw(Twitter Pinterest Instagram);
+    my $cs = pf::IniFiles->new(-file => $file, -allowempty => 1);
+    my ($update, $removed) = removeTypes($cs, \%toDelete);
+    if (!$update) {
+        return (undef, undef);
+    }
+
+    return ($cs, $removed);
 }
 
 sub removeTypes {
     my ($cs, $typesToDelete) = @_;
-    my %found;
-    my $update = 0;
-
+    my @removed;
+    my $updated = 0;
     for my $section ( grep {/^\S+$/} $cs->Sections() ) {
         my $type = $cs->val($section, 'type');
         if (exists $typesToDelete->{$type}) {
             print "Removing $section\n";
             $cs->DeleteSection($section);
-            $found{$section} = undef;
-            $update |= 1;
+            push @removed, $section;
+            $updated |= 1;
         }
     }
 
-    return ($update, \%found);
+    return ($updated, \@removed);
 }
-
-print "All done\n";
 
 =head1 AUTHOR
 
@@ -100,3 +126,4 @@ USA.
 
 =cut
 
+1;
