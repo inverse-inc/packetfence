@@ -16,11 +16,8 @@ use strict;
 use warnings;
 use Moo;
 use pf::constants;
-use Digest::SHA qw(hmac_sha256 hmac_sha256_hex hmac_sha256_base64);
+use Digest::SHA qw(hmac_sha256_hex);
 use JSON::MaybeXS qw(encode_json decode_json );
-use WWW::Curl::Easy;
-use URI::Escape::XS qw(uri_escape);
-use pf::constants qw($TRUE $FALSE);
 use MIME::Base64 qw(encode_base64 decode_base64);
 use Crypt::PK::ECC;
 
@@ -39,14 +36,6 @@ The host of the Akamai MFA
 
 has host => ( is => 'rw', default => "mfa.akamai.com" );
 
-=head2 port
-
-The port of the Akamai MFA
-
-=cut
-
-has port => ( is => 'rw', default => 443 );
-
 =head2 proto
 
 The proto of the Akamai MFA
@@ -63,25 +52,27 @@ The application id of the Akamai MFA
 
 has app_id => ( is => 'rw' );
 
-=head2 app_secret
+=head2 callback_url
 
-The app_secret of the Akamai MFA
-
-=cut
-
-has app_secret => ( is => 'rw' );
-
-=head2 radius_mfa_method
-
-The RADIUS MFA Method to use
+The application callback url
 
 =cut
-
-has radius_mfa_method => ( is => 'rw' );
 
 has callback_url => ( is => 'rw' );
 
+=head2 signing_key
+
+The application signing key
+
+=cut
+
 has signing_key => ( is => 'rw' );
+
+=head2 verify_key
+
+The application verify_key
+
+=cut
 
 has verify_key => ( is => 'rw' );
 
@@ -110,9 +101,6 @@ sub redirect_info {
     };
     $payload = encode_json($payload);
 
-use Data::Dumper;
-$logger->warn(Dumper $payload);
-
     my $sig = hmac_sha256_hex($payload, $self->signing_key);
 
     my $body = {
@@ -122,7 +110,7 @@ $logger->warn(Dumper $payload);
     };
 
     return {
-        challenge_url => "https://" . $self->host . "/api/v1/bind/challenge/v2",
+        challenge_url => $self->proto."://" . $self->host . "/api/v1/bind/challenge/v2",
         challenge_verb => "POST",
         challenge_fields => {
 			token => encode_base64(encode_json($body), ''),

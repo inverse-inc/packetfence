@@ -15,14 +15,10 @@ pf::mfa::Akamai
 use strict;
 use warnings;
 use Moo;
-use pf::constants;
-use Digest::SHA qw(hmac_sha256 hmac_sha256_hex hmac_sha256_base64);
+use Digest::SHA qw(hmac_sha256_hex);
 use JSON::MaybeXS qw(encode_json decode_json );
 use WWW::Curl::Easy;
-use URI::Escape::XS qw(uri_escape);
 use pf::constants qw($TRUE $FALSE);
-use MIME::Base64 qw(encode_base64 decode_base64);
-use Crypt::PK::ECC;
 
 
 extends 'pf::mfa';
@@ -38,14 +34,6 @@ The host of the Akamai MFA
 =cut
 
 has host => ( is => 'rw', default => "mfa.akamai.com" );
-
-=head2 port
-
-The port of the Akamai MFA
-
-=cut
-
-has port => ( is => 'rw', default => 443 );
 
 =head2 proto
 
@@ -218,7 +206,7 @@ sub _post_curl {
     my ($self, $uri, $post_fields) = @_;
     my $logger = get_logger();
 
-    $uri = $self->proto."://mfa.akamai.com".$uri;
+    $uri = $self->proto."://$self->host".$uri;
 
     my $curl = WWW::Curl::Easy->new;
     my $request = $post_fields;
@@ -257,7 +245,7 @@ sub _get_curl {
     my ($self, $uri) = @_;
     my $logger = get_logger();
 
-    $uri = $self->proto."://mfa.akamai.com/".$uri;
+    $uri = $self->proto."://$self->host/".$uri;
 
     my $curl = WWW::Curl::Easy->new;
 
