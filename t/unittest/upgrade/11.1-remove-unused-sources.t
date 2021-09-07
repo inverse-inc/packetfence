@@ -21,24 +21,72 @@ BEGIN {
 }
 use pf::file_paths qw($install_dir);
 require "$install_dir/addons/upgrade/to-11.1-remove-unused-sources.pl";
-use Test::More tests => 3;
+use Test::More tests => 13;
 
 #This test will running last
 use Test::NoWarnings;
 {
     my ($cs, $removed) = removeSources("$install_dir/t/data/update-11.1/authentication.conf");
     ok ($cs, "cs remove");
-    is_deeply($removed,[qw(Twitter Pinterest AuthorizeNet Instagram Mirapay)]);
-    is_deeply([$cs->Sections()] ,[qw(local file1), 'file1 rule admins']);
+    is_deeply($removed,[qw(Twitter Pinterest AuthorizeNet Instagram Mirapay)], "remove the correct sources");
+    is_deeply([$cs->Sections()] ,[qw(local file1), 'file1 rule admins'], "proper sections are kept");
 }
 
 {
     my ($cs, $removed) = removeSources("$install_dir/t/data/update-11.1/authentication_nothing_to_be_done.conf");
-    is($cs, undef);
-    is($removed, undef);
+    is($cs, undef, "Nothing to do");
+    is($removed, undef, "Nothing to remove");
 }
 
-is_deeply(updateProfile(), undef);
+{
+    my ( $cs, $removed ) = removePortalModules(
+        "$install_dir/t/data/update-11.1/portal_modules.conf");
+    ok( $cs, "portal modules updated" );
+    is_deeply( $removed, [qw(Twitter Pinterest Instagram)], "Removed correct modules" );
+    is_deeply(
+        [ $cs->Sections() ],
+        [
+            qw(
+              default_policy
+              default_pending_policy
+              default_registration_policy
+              default_login_policy
+              default_guest_policy
+              default_oauth_policy
+              default_billing_policy
+              default_saml_policy
+              default_blackhole_policy
+              default_provisioning_policy
+              default_show_local_account
+              chain
+              oauth_policy
+              )
+        ],
+        "proper sections are kept"
+    );
+
+    is(
+        $cs->val('oauth_policy', 'multi_source_object_classes'),
+        "pf::Authentication::Source::GithubSource,pf::Authentication::Source::GoogleSource",
+        "Remove the proper object_classes"
+    );
+
+    is(
+        $cs->val('chain', 'modules'),
+        "default_guest_policy",
+        "Remove the proper modules"
+    );
+}
+
+{
+    my $cs = updateProfile(
+        "$install_dir/t/data/update-11.1/profiles.conf",
+        [qw(Twitter Pinterest Instagram)]
+    );
+
+    ok($cs, "Profiles updated");
+    is($cs->val('p1', 'sources'), 'Bob', "Remove the proper sources");
+}
 
 =head1 AUTHOR
 

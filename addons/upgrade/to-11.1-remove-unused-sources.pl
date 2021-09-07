@@ -22,6 +22,9 @@ use pf::file_paths qw(
 );
 
 use pf::util;
+our %sourceClassesToDelete = map { ("pf::Authentication::Source::${_}Source" => undef) } qw(Twitter Pinterest Mirapay Instagram AuthorizeNet);
+our %portalModulesToDelete = map { ("Authentication::OAuth::$_" => undef) } qw(Twitter Pinterest Instagram);
+
 main() if not caller();
 
 sub main {
@@ -32,7 +35,7 @@ sub main {
     }
 
     my ($portalModuleConfigStore, $removedPortalModules) = removePortalModules($portal_modules_config_file);
-    my $profileConfigStore = updateProfile($profiles_config_file, $removedSources, $removedPortalModules);
+    my $profileConfigStore = updateProfile($profiles_config_file, $removedSources);
 
     $sourceConfigStore->RewriteConfig();
     if ($portalModuleConfigStore) {
@@ -47,6 +50,17 @@ sub main {
 }
 
 sub updateProfile {
+    my ($file, $removedSources) = @_;
+    my $cs = pf::IniFiles->new(-file => $file, -allowempty => 1);
+    my %removedSources = map { $_ => undef } @{$removedSources //[]};
+    my $updated = 0;
+    for my $section ( grep {/^\S+$/} $cs->Sections() ) {
+        $updated |= removeFromList($cs, $section, 'sources', \%removedSources);
+    }
+
+    if ($updated) {
+        return $cs;
+    }
 
     return undef;
 }
@@ -70,16 +84,62 @@ sub removeSources {
     return ($cs, $removed);
 }
 
+sub removeFromList {
+    my ($cs, $section, $field, $toDelete) = @_;
+    my $list = $cs->val($section, $field) // '';
+    my $updated = 0;
+    if (!defined $list || length($list) == 0) {
+        return $updated;
+    }
+
+    my @new_list;
+    for my $i (split(/\s*,\s*/, $list)) {
+        if (exists $toDelete->{$i}) {
+            $updated |= 1;
+            next;
+        }
+
+        push @new_list, $i
+    }
+
+    if ($updated) {
+        $cs->setval($section, $field, join(",", @new_list));
+    }
+
+    return $updated;
+}
+
 sub removePortalModules {
-    my ($file) = @_;
-    our %toDelete = map { ("Authentication::OAuth::$_" => undef) } qw(Twitter Pinterest Instagram);
+    my ($file, $sourcesRemoved) = @_;
+    my @removed;
+    my $updated;
     my $cs = pf::IniFiles->new(-file => $file, -allowempty => 1);
-    my ($update, $removed) = removeTypes($cs, \%toDelete);
-    if (!$update) {
+    our %sourcesRemoved = map { $_ => undef } @{ $sourcesRemoved // [] };
+    for my $section ( grep {/^\S+$/} $cs->Sections() ) {
+        my $type = $cs->val($section, 'type');
+        if (exists $portalModulesToDelete{$type}) {
+            print "Removing $section\n";
+            $cs->DeleteSection($section);
+            push @removed, $section;
+            $updated |= 1;
+            next;
+        }
+
+        $updated |= removeFromList($cs, $section, 'multi_source_object_classes', \%sourceClassesToDelete);
+        $updated |= removeFromList($cs, $section, 'source_id', \%sourcesRemoved);
+
+    }
+
+    my %removedModules = map { $_ => undef } @removed;
+    for my $section ( grep {/^\S+$/} $cs->Sections() ) {
+        $updated |= removeFromList($cs, $section, 'modules', \%removedModules);
+    }
+
+    if (!$updated) {
         return (undef, undef);
     }
 
-    return ($cs, $removed);
+    return ($cs, \@removed);
 }
 
 sub removeTypes {
