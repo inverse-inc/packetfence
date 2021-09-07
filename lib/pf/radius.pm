@@ -780,7 +780,6 @@ sub switch_access {
     my $logger = $self->logger;
     my $timer = pf::StatsD::Timer->new();
     my($switch_mac, $switch_ip,$source_ip,$stripped_user_name,$realm) = $self->_parseRequest($radius_request);
-
     $logger->debug("instantiating switch");
     my $switch = pf::SwitchFactory->instantiate({ switch_mac => $switch_mac, switch_ip => $switch_ip, controllerIp => $switch_ip}, {radius_request => $radius_request});
     my ($nas_port_type, $eap_type, $mac, $port, $user_name, $nas_port_id, $session_id, $ifDesc) = $switch->parseRequest($radius_request);
@@ -789,6 +788,8 @@ sub switch_access {
     $connection->identifyType($nas_port_type, $eap_type, $mac, $user_name, $switch, $radius_request);
     my $connection_type = $connection->attributesToBackwardCompatible;
     my $connection_sub_type = $connection->subType;
+    my $password = $radius_request->{'User-Password'};
+    my $otp;
 
     # is switch object correct?
     if (!$switch) {
@@ -842,7 +843,32 @@ sub switch_access {
         $args->{'nas_port_id'} = $nas_port_type // '';
         $args->{'session_id'} = $session_id // '';
 
+        # Special case where we need to check if there is a MFA config who exist and if we need to split the password field
+        $mac = $FAKE_MAC unless defined($mac);
+        my $profile = pf::Connection::ProfileFactory->instantiate($mac,$options);
+        $args->{'profile'} = $profile;
+        @sources = $profile->getFilteredAuthenticationSources($args->{'stripped_user_name'}, $args->{'realm'});
+        my $merged = { %$options, %$args };
+        $merged->{'rule_class'} = $Rules::AUTH;
+        $merged->{'context'} = $pf::constants::realm::RADIUS_CONTEXT;
+        my $attributes;
+        my $matched = pf::authentication::match2([@sources], $merged, $extra, \$attributes);
+
+        # CHECK MFA
+        my $value = $matched->{values}{$Actions::TRIGGER_RADIUS_MFA} if $matched;
+        if ($value) {
+            my $mfa = pf::factory::mfa->new($value);
+            if ($mfa->radius_mfa_method eq 'strip-otp') {
+                my @otp = split($mfa->split_char,$password);
+                $password = $otp[0];
+                $otp = $otp[1];
+            }
+        }
+
+	$logger->warn($password);
+
         if (defined($mac)) {
+            $logger->warn($mac);
             my $role_obj = new pf::role::custom();
 
             my ($status_code, $node_obj) = pf::dal::node->find_or_create({"mac" => $mac});
@@ -915,7 +941,7 @@ sub switch_access {
     if (!defined($args->{'radius_request'}{'MS-CHAP-Challenge'}) && ( !exists($radius_request->{"EAP-Type"}) || ( exists($radius_request->{"EAP-Type"}) && $radius_request->{"EAP-Type"} != $EAP_TLS && $radius_request->{"EAP-Type"} != $MS_EAP_AUTHENTICATION ) ) ) {
         ( $return, $message, $source_id, $extra ) = pf::authentication::authenticate( {
                 'username' =>  $radius_request->{'User-Name'},
-                'password' =>  $radius_request->{'User-Password'},
+                'password' =>  $password,
                 'rule_class' => $Rules::ADMIN,
                 'context' => $pf::constants::realm::RADIUS_CONTEXT,
             }, @sources );
@@ -937,7 +963,7 @@ sub switch_access {
         my $value = $matched->{values}{$Actions::TRIGGER_RADIUS_MFA} if $matched;
         if ($value) {
             my $mfa = pf::factory::mfa->new($value);
-            my $result = $mfa->check_user($radius_request->{'User-Name'});
+            my $result = $mfa->check_user($radius_request->{'User-Name'}, $otp);
             if ($result != $TRUE) {
                 return [ $RADIUS::RLM_MODULE_FAIL, ('Reply-Message' => "VPN Access Denied") ];
             }

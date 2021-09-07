@@ -79,11 +79,14 @@ The RADIUS MFA Method to use
 
 has radius_mfa_method => ( is => 'rw' );
 
-has callback_url => ( is => 'rw' );
+=head2 split_char
 
-has signing_key => ( is => 'rw' );
+Caracter that split the username and otp
 
-has verify_key => ( is => 'rw' );
+=cut
+
+has split_char => (is => 'rw' );
+
 
 =head2 check_user
 
@@ -92,9 +95,8 @@ Get the devices of the user
 =cut
 
 sub check_user {
-    my ($self, $username) = @_;
+    my ($self, $username, $otp) = @_;
     my $logger = get_logger();
-
     my ($devices, $error) = $self->_get_curl("/api/v1/verify/check_user?username=$username");
 
     if ($error == 1) {
@@ -103,27 +105,43 @@ sub check_user {
     }
 
     my @device = grep {exists $_->{'default'} } @{$devices->{'result'}->{'devices'}};
-
-    if ( grep $_ eq 'push', @{$device[0]->{'methods'}}) {
-        my $post_fields = encode_json({device => $device[0]->{'device'}, method => "push", username => $username});
-        my $chi = pf::CHI->new(namespace => 'mfa');
-        my ($auth, $error)= $chi->compute($device[0]->{'device'}, sub {
-                return $self->_post_curl("/api/v1/verify/start_auth", $post_fields);
+    if ($self->radius_mfa_method eq 'push') {
+        if ( grep $_ eq 'push', @{$device[0]->{'methods'}}) {
+            my $post_fields = encode_json({device => $device[0]->{'device'}, method => "push", username => $username});
+            my $chi = pf::CHI->new(namespace => 'mfa');
+            my ($auth, $error)= $chi->compute($device[0]->{'device'}, sub {
+                    return $self->_post_curl("/api/v1/verify/start_auth", $post_fields);
+                }
+            );
+            if ($error) {
+                return
             }
-        );
-        if ($error) {
-            return
-	}
-        my $i = 0;
-	while(1) {
-            my ($answer, $error) = $self->_get_curl("/api/v1/verify/check_auth?tx=".$auth->{'result'}->{'tx'});
-	    if ($answer->{'result'} eq 'allow') {
+            my $i = 0;
+            while(1) {
+                my ($answer, $error) = $self->_get_curl("/api/v1/verify/check_auth?tx=".$auth->{'result'}->{'tx'});
+                if ($answer->{'result'} eq 'allow') {
+                    return $TRUE;
+                }
+                sleep(5);
+                last if ($i++ == 6);
+            }
+            return $FALSE;
+        }
+    }
+    elsif ($self->radius_mfa_method eq 'strip-otp') {
+        if ( grep $_ eq 'totp', @{$device[0]->{'methods'}}) {
+            my $post_fields = encode_json({device => $device[0]->{'device'}, method => { "offline_otp" => {"code" => $otp} } , username => $username});
+            my ($auth, $error) = $self->_post_curl("/api/v1/verify/start_auth", $post_fields);
+            if ($error) {
+                return $FALSE;
+            }
+            if ($auth->{'result'}->{'status'} eq 'allow') {
+                $logger->warn("Authentication sucessfull on Akamai MFA");
                 return $TRUE;
-	    }
-	    sleep(5);
-            last if ($i++ == 6);
-	}
-        return $FALSE;
+            }
+            $logger->warn("Authentication denied on Akamai MFA, reason: ". $auth->{'result'}->{'status'}->{'deny'}->{'reason'});
+            return $FALSE;
+        }
     }
 }
 
@@ -262,61 +280,6 @@ sub _get_curl {
     return $self->decode_response($response_code, $response_body);
 }
 
-=head2 encode_params
-
-Encodes a hash into URL/BODY parameters
-
-=cut
-
-sub encode_params {
-    my %hash = @_;
-    my @pairs;
-    for my $key (keys %hash) {
-        push @pairs, join "=", map { uri_escape($_) } $key, $hash{$key};
-    }
-    return join "&", @pairs;
-}
-
-sub verify_response {
-    my ($self, $params, $username) = @_;
-    my $token = decode_json(decode_base64($params->{token}));
-    my $ecc = Crypt::PK::ECC->new->import_key_raw(decode_base64($self->verify_key), 'secp256r1');
-    if(!$ecc->verify_message(pack("H*",$token->{signature}), $token->{payload}, "SHA256")) {
-        return 0;
-    }
-    my $response = decode_json($token->{payload});
-    return ($response->{response}->{result} eq "ALLOW" && $response->{response}->{username} eq $username);
-}
-
-sub redirect_info {
-    my ($self, $username) = @_;
-
-    my $payload = {
-        version => "2.0.0",
-        timestamp => time(),
-        request => {
-            username => $username,
-            callback => $self->callback_url,
-        },
-    };
-    $payload = encode_json($payload);
-
-    my $sig = hmac_sha256_hex($payload, $self->signing_key);
-
-    my $body = {
-        app_id => $self->app_id,
-        payload => $payload,
-        signature => $sig,
-    };
-
-    return {
-        challenge_url => "https://" . $self->host . "/api/v1/bind/challenge/v2",
-        challenge_verb => "POST",
-        challenge_fields => {
-			token => encode_base64(encode_json($body), ''),
-		},
-    };
-}
 
 =head1 AUTHOR
 
