@@ -22,7 +22,7 @@ BEGIN {
     use setup_test_config;
 }
 
-use Test::More tests => 12;
+use Test::More tests => 13;
 use Test::Exception;
 use JSON::MaybeXS;
 use_ok("pf::Connection::ProfileFactory");
@@ -64,6 +64,12 @@ is($profile->findProvisioner("00:00:00:00:00:00", {device_type => "Playstation 4
 
 is($profile->findProvisioner("00:00:00:00:00:00", {device_type => undef, category => "guest"}), undef,
     "Shouldn't find a provisioner when there is no OS defined.");
+
+{
+    my $profile = pf::Connection::ProfileFactory->_from_profile('bug_6569');
+    my @scans = $profile->scanObjects();
+    is(scalar @scans, 4, "Ignore fail invalid scanners");
+}
 
 done_testing();
 
