@@ -46,7 +46,7 @@ The following attributes are available to define your report (the ones that have
 * `base_table`*: The base SQL table that will be used to create the view
 * `columns`*: The columns to select from the table(s) (ex: `node.mac`).
 * `date_field`*: The field to use for date filtering. Will also be used as default sorting field unless `order_fields` is set in the report.
-* `joins` : The tables to join to the base table and how to join them. See example below and http://search.cpan.org/~dami/SQL-Abstract-More-1.28/lib/SQL/Abstract/More.pm#Join_specifications[the following documentation].
+* `joins` : The tables to join to the base table and how to join them. See example below and http://search.cpan.org/~dami/SQL-Abstract-More-1.28/lib/SQL/Abstract/More.pm#Join-specifications[the following documentation].
 * `group_field`: The field to group the entries by. No grouping is done if this field is omitted or empty.
 * `order_fields`: Comma delimited fields for the ordering of the report. The field should be prefixed of `-` if the sort should be made in descending order for the field (ex: `-node.regdate,locationlog.start_time,+iplog.start_time`).
 * `base_conditions`: Comma delimited conditions that should be applied to the report. This can be used to filter the report without using the search in the administration interface to provide the proper unsearched view. Conditions should match the following format : `field:operator:value` (ex: `auth_log.source:=:sms,auth_log.status:!=:completed`).
