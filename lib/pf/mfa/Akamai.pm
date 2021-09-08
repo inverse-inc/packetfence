@@ -78,11 +78,17 @@ has split_char => (is => 'rw' );
 
 our %ACTIONS = (
     "push" => \&push,
-    "sms"  => \&sms,
+    "sms"  => \&generic_method,
     "totp"  => \&totp,
-    "phone" => \&phone
+    "phone" => \&generic_method
 );
-    
+
+our %METHOD_LOOKUP =(
+    "push"  => "push",
+    "sms"   => "sms_otp",
+    "phone" => "call_otp"
+);
+
 =head2 check_user
 
 Get the devices of the user
@@ -90,7 +96,7 @@ Get the devices of the user
 =cut
 
 sub check_user {
-    my ($self, $username, $otp) = @_;
+    my ($self, $username, $otp, $device) = @_;
     my $logger = get_logger();
     my ($devices, $error) = $self->_get_curl("/api/v1/verify/check_user?username=$username");
 
@@ -98,22 +104,26 @@ sub check_user {
         $logger->error("Not able to fetch the devices");
         return;
     }
- 
-    my @default_device = grep {exists $_->{'default'} } @{$devices->{'result'}->{'devices'}};
+    my @default_device;
+    if (defined($device)) {
+        @default_device = grep { $_->{'device'} eq $device } @{$devices->{'result'}->{'devices'}};
+    } else {
+        @default_device = grep { $_->{'default'} eq "true" } @{$devices->{'result'}->{'devices'}};
+    }
     if ($self->radius_mfa_method eq 'push') {
         if ( grep $_ eq 'push', @{$default_device[0]->{'methods'}}) {
             $self->${$ACTIONS{'push'}}->($default_device[0]->{'device'},$username);
         }
     }
     elsif ($self->radius_mfa_method eq 'strip-otp') {
-        if ($otp =~ /^\d{6,6}$/) {
+        if ($otp =~ /^\d{6,6}$/ || $otp =~ /^\d{8,8}$/) {
             if ( grep $_ eq 'totp', @{$default_device[0]->{'methods'}}) {
                 return $ACTIONS{'totp'}->($self,$default_device[0]->{'device'},$username,$otp);
             }
         } elsif ($otp =~ /^(sms|push|phone)(\d?)$/i) {
             my @device = $self->select_phone($devices->{'result'}->{'devices'}, $2);
 	    foreach my $device (@device) {
-                return $ACTIONS{$1}->($self,$device->{'device'},$username,$otp);
+                return $ACTIONS{$1}->($self,$device->{'device'},$username,$1);
             }
         } else {
             $logger->warn("Method not supported");
@@ -168,6 +178,31 @@ sub totp {
     return $FALSE;
 }
 
+=head2 generic_method
+
+generic method
+
+=cut
+
+sub generic_method {
+    my ($self, $device, $username, $method) =@_;
+    my $logger = get_logger();
+    my $post_fields = encode_json({device => $device, method => $METHOD_LOOKUP{$method}, username => $username});
+    my $chi = pf::CHI->new(namespace => 'mfa');
+    my ($auth, $error)= $chi->compute($device.$METHOD_LOOKUP{$method}, sub {
+            return $self->_post_curl("/api/v1/verify/start_auth", $post_fields);
+        }
+    );
+    if ($error) {
+        return $FALSE;
+    }
+    # Cache the method to fetch it on the 2nd radius request (TODO: cache expiration should be in config).
+    if (!$chi->get($username)) {
+        $chi->set($username, $device,30);
+    }
+    return $FALSE;
+}
+
 =head2 push
 
 push method
@@ -179,7 +214,7 @@ sub push {
     my $logger = get_logger();
     my $post_fields = encode_json({device => $device, method => "push", username => $username});
     my $chi = pf::CHI->new(namespace => 'mfa');
-    my ($auth, $error)= $chi->compute($device, sub {
+    my ($auth, $error)= $chi->compute($device."push", sub {
             return $self->_post_curl("/api/v1/verify/start_auth", $post_fields);
         }
     );
@@ -197,7 +232,6 @@ sub push {
     }
     return $FALSE;
 }
-
 
 =head2 devices_list
 

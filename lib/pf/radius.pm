@@ -859,16 +859,23 @@ sub switch_access {
         if ($value) {
             my $mfa = pf::factory::mfa->new($value);
             if ($mfa->radius_mfa_method eq 'strip-otp') {
+                my $chi = pf::CHI->new(namespace => 'mfa');
+                # Previously did a authentication request ?
+		if (my $device = $chi->get($radius_request->{'User-Name'})) {
+                    my $result = $mfa->check_user($radius_request->{'User-Name'}, $password, $device);
+                    if ($result != $TRUE) {
+	               return [ $RADIUS::RLM_MODULE_FAIL, ('Reply-Message' => "MFA verification failed") ];
+                    } else {
+                       return $switch->returnAuthorizeVPN($args);
+		    }
+		}
                 my @otp = split($mfa->split_char,$password);
                 $password = $otp[0];
                 $otp = $otp[1];
             }
         }
 
-	$logger->warn($password);
-
         if (defined($mac)) {
-            $logger->warn($mac);
             my $role_obj = new pf::role::custom();
 
             my ($status_code, $node_obj) = pf::dal::node->find_or_create({"mac" => $mac});
