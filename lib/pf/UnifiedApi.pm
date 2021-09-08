@@ -87,7 +87,7 @@ sub startup {
     });
 
     if ($self->mode eq 'production') {
-        #$self->preload_namespaces(['pf::UnifiedApi::Controller']);
+        $self->preload_namespaces(['pf::UnifiedApi::Controller']);
     }
 
     return;
