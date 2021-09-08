@@ -113,7 +113,6 @@ PacketFence test files. This package contains all files related to PacketFence t
 
 # Venom
 %attr(0755, -, -)     /usr/local/pf/t/venom/*.sh
-%attr(0755, -, -)     /usr/local/pf/t/venom/pfservers/common/utils/*.sh
 
 %changelog
 * Thu Sep 02 2021 Inverse <info@inverse.ca> - 11.0.0-1

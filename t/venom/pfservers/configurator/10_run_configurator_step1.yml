@@ -36,6 +36,12 @@ testcases:
       reg_interface:
         from: result.systemout
 
+# workaround for Debian Vagrant box: interfaces are down if they don't have an IP
+- name: bounce_registration_int
+  steps:
+  - type: exec
+    script: "ip link set dev {{.get_name_of_reg_int.reg_interface}} up"
+
 - name: configure_registration_int
   steps:
   - type: http
@@ -62,6 +68,12 @@ testcases:
       iso_interface:
         from: result.systemout
 
+# workaround for Debian Vagrant box: interfaces are down if they don't have an IP
+- name: bounce_isolation_int
+  steps:
+  - type: exec
+    script: "ip link set dev {{.get_name_of_iso_int.iso_interface}} up"
+
 - name: configure_isolation_int
   steps:
   - type: http
@@ -79,7 +91,6 @@ testcases:
       "Content-Type": "application/json"
     assertions:
       - result.statuscode ShouldEqual 200
-
 
 - name: configure_dns_servers
   steps:

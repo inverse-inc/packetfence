@@ -303,7 +303,7 @@ variables:
   script:
     - make -e -C ${TESTDIR} test
   after_script:
-    - make -e -C ${TESTDIR} halt
+    - make -e -C ${TESTDIR} halt_and_teardown
 
 ########################################
 # VARIABLES
@@ -463,6 +463,7 @@ test_devel_and_branches_el_8:
     GOLANG_UNIT_TESTS: 'yes'
     INTEGRATION_TESTS: 'no'
     VAGRANT_DOTFILE_PATH: /var/local/gitlab-runner/vagrant/vagrant-el-8-${CI_COMMIT_REF_SLUG}
+    TEARDOWN: 'yes'
   extends:
     - .test_job
     - .test_el_8_vars
@@ -475,6 +476,7 @@ test_devel_and_branches_debian_bullseye:
     GOLANG_UNIT_TESTS: 'yes'
     INTEGRATION_TESTS: 'no'
     VAGRANT_DOTFILE_PATH: /var/local/gitlab-runner/vagrant/vagrant-debian-bullseye-${CI_COMMIT_REF_SLUG}
+    TEARDOWN: 'yes'
   extends:
     - .test_job
     - .test_debian_bullseye_vars
@@ -489,6 +491,7 @@ test_release_el_8:
     # provision VM and run configurator test
     RUN_TESTS: 'yes'
     VAGRANT_DOTFILE_PATH: /var/local/gitlab-runner/vagrant/vagrant-el-8-${CI_COMMIT_TAG}
+    TEARDOWN: 'no'
   extends:
     - .test_job
     - .test_el_8_vars
@@ -503,6 +506,7 @@ test_release_debian_bullseye:
     # provision VM and run configurator test
     RUN_TESTS: 'yes'
     VAGRANT_DOTFILE_PATH: /var/local/gitlab-runner/vagrant/vagrant-debian-bullseye-${CI_COMMIT_TAG}
+    TEARDOWN: 'no'
   extends:
     - .test_job
     - .test_debian_bullseye_vars
@@ -516,6 +520,7 @@ test_nightly_el_8:
     GOLANG_UNIT_TESTS: 'yes'
     INTEGRATION_TESTS: 'yes'
     VAGRANT_DOTFILE_PATH: /var/local/gitlab-runner/vagrant/vagrant-el-8-${CI_COMMIT_REF_SLUG}
+    TEARDOWN: 'yes'
   extends:
     - .test_job
     - .test_el_8_vars
@@ -529,6 +534,7 @@ test_nightly_debian_bullseye:
     GOLANG_UNIT_TESTS: 'yes'
     INTEGRATION_TESTS: 'yes'
     VAGRANT_DOTFILE_PATH: /var/local/gitlab-runner/vagrant/vagrant-debian-bullseye-${CI_COMMIT_REF_SLUG}
+    TEARDOWN: 'yes'
   extends:
     - .test_job
     - .test_debian_bullseye_vars
