@@ -4,11 +4,11 @@ import (
 	"context"
 	"fmt"
 
+	"github.com/inverse-inc/go-utils/log"
+	"github.com/inverse-inc/go-utils/sharedutils"
 	"github.com/inverse-inc/packetfence/go/common"
 	"github.com/inverse-inc/packetfence/go/filter_client"
-	"github.com/inverse-inc/packetfence/go/log"
 	"github.com/inverse-inc/packetfence/go/pfconfigdriver"
-	"github.com/inverse-inc/packetfence/go/sharedutils"
 )
 
 var pffilter = filter_client.NewClient()

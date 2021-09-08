@@ -13,7 +13,7 @@ import (
 	"github.com/inverse-inc/packetfence/go/common"
 	"github.com/inverse-inc/packetfence/go/db"
 	"github.com/inverse-inc/packetfence/go/remoteclients"
-	"github.com/inverse-inc/packetfence/go/sharedutils"
+	"github.com/inverse-inc/go-utils/sharedutils"
 	"github.com/jinzhu/gorm"
 )
 

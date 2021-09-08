@@ -4,8 +4,8 @@ import (
 	"context"
 	"net"
 
+	"github.com/inverse-inc/go-utils/sharedutils"
 	"github.com/inverse-inc/packetfence/go/pfconfigdriver"
-	"github.com/inverse-inc/packetfence/go/sharedutils"
 )
 
 func InitGlobal() {

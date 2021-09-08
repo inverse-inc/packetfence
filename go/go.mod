@@ -11,7 +11,7 @@ require (
 	github.com/DataDog/datadog-go v3.5.0+incompatible // indirect
 	github.com/DataDog/zstd v1.4.5 // indirect
 	github.com/OneOfOne/xxhash v1.2.7
-	github.com/Sereal/Sereal v0.0.0-20200729022450-08708a3c86f3
+	github.com/Sereal/Sereal v0.0.0-20210713121911-8c71d8dbe594
 	github.com/aws/aws-sdk-go v1.35.9
 	github.com/captncraig/cors v0.0.0-20170507232344-153f484dcf3d
 	github.com/cenkalti/backoff/v4 v4.1.0
@@ -26,6 +26,7 @@ require (
 	github.com/fdurand/arp v0.0.0-20180807174648-27b38d3af1be
 	github.com/fdurand/go-cache v0.0.0-20180104143916-cf0198ac7d92
 	github.com/flynn/go-shlex v0.0.0-20150515145356-3f9db97f8568
+	github.com/gavv/httpexpect/v2 v2.3.1
 	github.com/gdey/jsonpath v0.0.0-20151203210429-124c978a1ffc
 	github.com/gin-gonic/gin v1.7.0
 	github.com/go-acme/lego v2.5.0+incompatible
@@ -35,13 +36,12 @@ require (
 	github.com/go-sql-driver/mysql v1.5.0
 	github.com/goji/httpauth v0.0.0-20160601135302-2da839ab0f4d
 	github.com/golang/protobuf v1.4.3
-	github.com/golang/snappy v0.0.1 // indirect
 	github.com/google/go-cmp v0.4.0
-	github.com/google/uuid v1.1.1
+	github.com/google/uuid v1.2.0
 	github.com/gorilla/mux v1.7.3
 	github.com/gorilla/rpc v0.0.0-20160927134711-22c016f3df3f
 	github.com/gorilla/schema v1.1.0
-	github.com/gorilla/websocket v1.4.1
+	github.com/gorilla/websocket v1.4.2
 	github.com/grpc-ecosystem/go-grpc-middleware v1.1.0 // indirect
 	github.com/grpc-ecosystem/grpc-gateway v1.11.3 // indirect
 	github.com/grpc-ecosystem/grpc-opentracing v0.0.0-20180507213350-8e809c8a8645
@@ -90,9 +90,9 @@ require (
 	github.com/tmc/grpc-websocket-proxy v0.0.0-20200122045848-3419fae592fc // indirect
 	go.etcd.io/etcd v0.5.0-alpha.5.0.20200306183522-221f0cc107cb
 	go.uber.org/zap v1.14.1 // indirect
-	golang.org/x/crypto v0.0.0-20201002170205-7f63de1d35b0
-	golang.org/x/net v0.0.0-20210415231046-e915ea6b2b7d
-	golang.org/x/sys v0.0.0-20210330210617-4fbd30eecc44
+	golang.org/x/crypto v0.0.0-20210513164829-c07d793c2f9a
+	golang.org/x/net v0.0.0-20210510120150-4163338589ed
+	golang.org/x/sys v0.0.0-20210514084401-e8d321eab015
 	golang.org/x/text v0.3.6
 	google.golang.org/api v0.29.0
 	google.golang.org/grpc v1.29.1

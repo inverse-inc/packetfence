@@ -59,7 +59,6 @@ import (
 	_ "github.com/inverse-inc/packetfence/go/caddy/requestlimit"
 	_ "github.com/inverse-inc/packetfence/go/caddy/statsd"
 	_ "github.com/inverse-inc/packetfence/go/caddy/wgorchestrator"
-	pflog "github.com/inverse-inc/packetfence/go/log"
 )
 
 func init() {

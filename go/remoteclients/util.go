@@ -10,7 +10,7 @@ import (
 	"io"
 	"os"
 
-	"github.com/inverse-inc/packetfence/go/sharedutils"
+	"github.com/inverse-inc/go-utils/sharedutils"
 
 	"golang.org/x/crypto/curve25519"
 )
